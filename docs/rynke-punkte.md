@@ -142,6 +142,11 @@ Sollte sie zu unfairen Situationen führen, passen wir sie an.
 Diese Aufzeichnungen bringen keine Rynke, weder für Kilometer noch für
 Höhenmeter:
 
+- **Von Strava markierte Fahrten.** Hat Strava eine Fahrt markiert (sie zählt
+  dann auch nicht für Club-Bestenlisten oder Segment-Rekorde), zählt sie bei
+  uns nie, egal aus welchem Grund. Hältst du die Markierung für falsch, kläre
+  das mit Strava; ist sie aufgehoben, wird die Fahrt nach den übrigen Regeln
+  gewertet.
 - **Von Hand eingetragene Aktivitäten.** Was du auf Strava manuell einträgst,
   statt es aufzuzeichnen, zählt nicht. Das gilt auch, wenn dein Radcomputer
   ausgefallen ist; sprich dann die Organisatoren an (siehe
@@ -167,6 +172,7 @@ Höhenmeter:
 | 30 km und 2000 Höhenmeter in 1 h Fahrzeit (Seilbahn) |              0 | 2000 Höhenmeter pro Stunde  |
 | 200 km von Hand eingetragen                          |              0 | manuell eingetragen         |
 | 100 km mit dem E-Bike                                |              0 | E-Bike                      |
+| 100 km, von Strava markiert                          |              0 | von Strava markiert         |
 
 Trifft das eine ehrliche Fahrt, etwa weil ein GPS-Aussetzer deinen Schnitt in die
 Höhe treibt oder eine Mountainbike-Tour sehr langsam war: Korrigiere die Fahrt
