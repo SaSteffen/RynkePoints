@@ -48,6 +48,14 @@
   every connected rider, within Strava's limits (FR-021). Until then their new
   figures are unknown, never guessed. The explanation shown before connecting
   (FR-002) names all of them.
+- Q: Must it be stored whether Strava has flagged an activity (Strava then keeps
+  it out of club leaderboards, segment records and the like)? → A: Yes. Feature
+  003-rynke-evaluation (FR-005g) never counts a flagged ride. It comes with the
+  activity data already fetched. Activities stored before it was added are read
+  again once, like the other added figures.
+- Q (raised by the project owner): Must a flag Strava sets on an already stored
+  activity be picked up right away? → A: No. It is picked up the next time the
+  activity is read from Strava; the delay is accepted.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -122,8 +130,8 @@ the stored activity records after each one.
 1. **Given** a connected rider, **When** Strava reports a new cycling activity for
    them, **Then** RynkePoints stores that activity's key figures (sport type, start
    date and time, distance, moving time, elapsed time, elevation gain, whether it
-   was entered manually, whether it was ridden on an indoor trainer) linked to
-   the rider.
+   was entered manually, whether it was ridden on an indoor trainer, whether
+   Strava has flagged it) linked to the rider.
 2. **Given** a stored activity, **When** Strava reports that the activity was
    updated, **Then** the stored figures are refreshed to match Strava's current
    state.
@@ -228,12 +236,16 @@ and no one else's.
 - **Activity changes sport type**: a stored ride changed to a non-cycling type is
   removed; a non-cycling activity changed to a cycling type is stored.
 - **Activities stored before a figure was added to FR-013**: when FR-013 gains a
-  figure (elapsed time, manual flag, trainer flag), activities already stored
-  lack it. Every
-  connected rider's activities since the season start are read from Strava once
-  more, within Strava's limits (FR-021), and the figure is filled in. Until then
-  it is recorded as unknown, never as a guessed value such as 0, "not manual" or
-  "not on a trainer".
+  figure (elapsed time, manual flag, trainer flag, Strava's flag), activities
+  already stored lack it. Every connected rider's activities since the season
+  start are read from Strava once more, within Strava's limits (FR-021), and the
+  figure is filled in. Until then it is recorded as unknown, never as a guessed
+  value such as 0, "not manual", "not on a trainer" or "not flagged".
+- **Strava flags a stored activity later**: Strava documents no notification for
+  flagging, so the stored flag follows the next time the activity is read from
+  Strava: an update notification for it, an import after reconnecting, or a
+  re-read when FR-013 gains a figure. The system does not poll Strava for it
+  (FR-010); the delay is accepted.
 - **Strava rate limit reached**: notifications keep being acknowledged; fetching
   the details is deferred and retried later. No notification is lost.
 - **Strava temporarily unavailable**: same as rate limit — deferred and retried
@@ -318,7 +330,8 @@ and no one else's.
   rider, sport type, start date and time (with the rider's local time zone),
   distance, moving time, elapsed time (start to finish, including pauses), total
   elevation gain, whether the activity was entered manually (Strava's manual
-  flag) and whether it was ridden on an indoor trainer (Strava's trainer flag).
+  flag), whether it was ridden on an indoor trainer (Strava's trainer flag) and
+  whether Strava has flagged it (Strava's flagged field).
 - **FR-014**: The system MUST NOT store GPS tracks, route maps/polylines, start or
   end coordinates, photos, heart rate, power, or any other activity data not listed
   in FR-013.
@@ -415,8 +428,9 @@ and no one else's.
   with the Rider.
 - **Activity**: one cycling activity of a Rider, identified by its Strava activity
   ID. Holds sport type, start date/time and time zone, distance, moving time,
-  elapsed time, elevation gain, manual flag, trainer flag, and when it was last
-  refreshed from Strava. Belongs to exactly one Rider; deleted with the Rider.
+  elapsed time, elevation gain, manual flag, trainer flag, Strava's flag, and
+  when it was last refreshed from Strava. Belongs to exactly one Rider; deleted
+  with the Rider.
 - **Pending Activity Work**: a unit of deferred processing triggered by a Strava
   notification or a past-season import (rider, activity or import position, kind
   of change, attempt count). Exists only until processed or abandoned; never holds
