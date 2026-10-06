@@ -1,19 +1,17 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.1.0
-- Rationale: MINOR — new section adding a binding language rule (German by
-  default for everything riders see, served from translation strings so other
-  locales can be added; English for everything developers see). No principle
-  removed or redefined.
+- Version change: 1.1.0 → 1.1.1
+- Rationale: PATCH — Language section wording. "Default and fallback locale"
+  is split into what it means: German is the source catalog and the language
+  when the visitor states no preference; which language a visitor who states only
+  unsupported languages gets is left to each feature spec.
 - Principles modified: none
-- Sections added: Language
+- Sections added: none
 - Sections removed: none
 - Templates checked for alignment: .specify/templates/* — unchanged; the plan
   template's "Constitution Check" gate reads this file at runtime.
-- Follow-up TODOs: specs/001-strava-connect-webhook states rider-facing pages are
-  English (spec.md "Assumptions", contracts/http-routes.md, tasks.md T042); those
-  artifacts must be updated to German copy served from translation strings
-  before implementation.
+- Follow-up TODOs: none; specs/001-strava-connect-webhook (FR-029) already
+  serves English to browsers naming only unsupported languages.
 -->
 
 # RynkePoints Constitution
@@ -162,10 +160,12 @@ and maintained in English.
   landing screens, error and status messages shown to riders, the Rynke Points block
   written into Strava activity descriptions, notifications, and the privacy notice.
 - User-facing text MUST NOT be hard-coded in templates or logic; it MUST come from
-  translation strings keyed by message ID, with German (`de`) as the default and
-  fallback locale. Adding another locale MUST only require adding its translation
-  strings, not changing code. Per Principle IV, plain typed message catalogs are
-  preferred over an i18n library unless a plan justifies one.
+  translation strings keyed by message ID. German (`de`) is the source catalog that
+  every other locale MUST match, and the language used when the visitor states no
+  language preference; the language for visitors who state only unsupported
+  languages is set per feature spec. Adding another locale MUST only require adding
+  its translation strings, not changing code. Per Principle IV, plain typed message
+  catalogs are preferred over an i18n library unless a plan justifies one.
 - Everything else MUST be in English: code, identifiers, comments, log messages,
   database schema, API/JSON field names, test names, commit messages, and project
   documentation (README, specs, plans, tasks, this constitution).
@@ -191,4 +191,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 1.1.1 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
