@@ -654,7 +654,7 @@ R21 was added, and R1 revised, after constitution v2.0.0 and feature
   - A separate "already connected? sign in" link that skips the checkbox —
     sends unknown visitors to Strava before they agreed and needs a second
     Connect button; rejected, so returning riders whose session expired tick the
-    box again (plan, Open questions).
+    box again (accepted 2026-10-07; plan, Open questions).
   - Storing the agreement in D1 before the redirect — keeps data about someone
     who may never connect; rejected.
   - Deriving write access from `riders.scopes` instead of a `scope_write`

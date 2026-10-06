@@ -365,15 +365,14 @@ Afterwards, regenerate `worker-configuration.d.ts` with `pnpm types`.
   2026-10-06 — `da` gets English, `da,de;q=0.5` gets German, and only a missing or
   empty preference falls back to German (R17).
 - **Returning riders tick the box again** (feature 004, US1 scenario 6; R21):
-  before Strava the app can't tell a returning rider from a new one, so a rider
-  whose 30-day session expired ticks the consent box again to sign in. No new
-  record is written for a version they already accepted. The plan reads "not
-  asked again" as "no re-consent step after signing in". A separate sign-in link
-  would avoid the tick, but it would send unknown visitors to Strava before they
-  agreed (FR-002) and needs a second Connect button.
-- **Deletion confirmation outside the app** (feature 004, FR-011, F-4): the
-  consent text says riders get a confirmation once their data is deleted. The
-  disconnect button shows one (`/notice/deleted`). Revoking on Strava or leaving
-  the club deletes the data too, but the app stores no email and has no way to
-  confirm it. The landing text promises the confirmation only for the button.
-  A spec decision is needed if Strava's §2.5 "written confirmation" means more.
+  resolved by the maintainer on 2026-10-07 — accepted. Before Strava the app
+  can't tell a returning rider from a new one, so a rider whose 30-day session
+  expired ticks the consent box again to sign in. No new record is written for a
+  version they already accepted; "not asked again" means no re-consent step after
+  signing in. A separate sign-in link was rejected because it would send unknown
+  visitors to Strava before they agreed (FR-002).
+- **Deletion confirmation outside the app** (feature 004, FR-011, F-4): resolved
+  by the maintainer on 2026-10-07 — accepted as is. The disconnect button shows
+  the confirmation (`/notice/deleted`) and the landing text promises it only
+  there. Revoking on Strava or leaving the club deletes the data too, but the app
+  stores no email and confirms nothing in that case.
