@@ -33,8 +33,9 @@ Points and events build on this in later features.
 - **What is stored**: per rider the Strava athlete ID, first name (for the
   greeting), the granted scopes and the Strava tokens, encrypted. Per cycling
   activity only sport type, start time, time zone, distance, moving and elapsed
-  time, elevation gain and the manual, trainer and private flags. No GPS tracks,
-  maps, titles, photos, heart rate or power, and no other kinds of activity.
+  time, elevation gain, the manual, trainer and private flags, and whether
+  Strava has flagged it. No GPS tracks, maps, titles, photos, heart rate or
+  power, and no other kinds of activity.
 - **Deletion**: everything about a rider is deleted at once when they disconnect
   on their page or remove the app in their Strava settings, within 24 hours
   after they leave the club, and 7 days after their connection broke if they

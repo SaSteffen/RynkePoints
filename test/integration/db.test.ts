@@ -51,6 +51,7 @@ function record(overrides: Partial<ActivityRecord> = {}): ActivityRecord {
 		elevation_gain_m: 312,
 		is_manual: 0,
 		is_trainer: 0,
+		is_flagged: 0,
 		is_private: 0,
 		refreshed_at: NOW,
 		...overrides,
@@ -326,6 +327,7 @@ describe("activities", () => {
 			elapsed_time_s: null,
 			is_manual: null,
 			is_trainer: null,
+			is_flagged: null,
 		});
 		await upsertActivity(db, unknown);
 		expect(await listRecentActivities(db, ATHLETE_A, 20)).toEqual([unknown]);
@@ -334,6 +336,7 @@ describe("activities", () => {
 			elapsed_time_s: 7200,
 			is_manual: 1,
 			is_trainer: 1,
+			is_flagged: 1,
 		});
 		await upsertActivity(db, known);
 		expect(await listRecentActivities(db, ATHLETE_A, 20)).toEqual([known]);
@@ -343,6 +346,7 @@ describe("activities", () => {
 		["elapsed_time_s", -1],
 		["is_manual", 2],
 		["is_trainer", 2],
+		["is_flagged", 2],
 	] as const)("rejects %s = %d", async (column, value) => {
 		await expect(
 			upsertActivity(db, record({ [column]: value })),
@@ -365,16 +369,21 @@ describe("activities", () => {
 		);
 		await upsertActivity(
 			db,
+			record({ strava_activity_id: 6, is_flagged: null }),
+		);
+		await upsertActivity(
+			db,
 			record({
 				strava_activity_id: 5,
 				athlete_id: ATHLETE_B,
 				elapsed_time_s: null,
 				is_manual: null,
 				is_trainer: null,
+				is_flagged: null,
 			}),
 		);
 		expect(await listActivityIdsMissingFigures(db, ATHLETE_A)).toEqual([
-			2, 3, 4,
+			2, 3, 4, 6,
 		]);
 		expect(await listActivityIdsMissingFigures(db, ATHLETE_B)).toEqual([5]);
 	});

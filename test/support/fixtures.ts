@@ -29,6 +29,7 @@ export interface StravaActivityFixture {
 	elapsed_time?: number;
 	manual?: boolean;
 	trainer?: boolean;
+	flagged?: boolean;
 	private: boolean;
 	[field: string]: unknown;
 }
@@ -57,6 +58,7 @@ export function makeStravaActivity(
 		total_elevation_gain: 312,
 		manual: false,
 		trainer: false,
+		flagged: false,
 		private: false,
 		visibility: "everyone",
 		start_latlng: [53.5, 10.0],
