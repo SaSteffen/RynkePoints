@@ -12,6 +12,38 @@ specs/003-rynke-evaluation/spec.md is authoritative; if the two differ, fix this
 file (FR-019). Render it with `pnpm docs:pdf`.
 -->
 
+# Gemeinsam nach Paris
+
+**Wir fahren als Team nach Paris. Wir starten zusammen, wir fahren zusammen, und
+wir kommen zusammen an.**
+
+Auf der Tour bleibt niemand allein zurück. Wir warten aufeinander: am Berg, nach
+einer Panne, wenn jemand einen schlechten Tag hat. Das ist unser Versprechen an
+alle im Team.
+
+Damit dieses Versprechen hält, braucht es von allen eine Grundlage: **eine
+Mindestfitness**. Wer schlecht vorbereitet startet, bremst nicht nur sich selbst,
+sondern das ganze Team:
+
+- **Alle fahren langsamer.** Das Team ist nur so schnell wie die Langsamsten.
+  Jede Etappe dauert länger, für alle.
+- **Die Tage werden lang.** Mehr Stunden im Sattel, weniger Erholung. Pausen und
+  Ankunft verschieben sich, und Begleitfahrzeuge und Helfer warten mit.
+- **Müdigkeit ist gefährlich.** Wer am Limit fährt, fährt unkonzentriert. In einer
+  engen Gruppe gefährdet das nicht nur dich, sondern alle um dich herum.
+- **Andere tragen die Last.** Wer nicht mitkommt, muss gezogen, geschoben oder ins
+  Begleitfahrzeug gesetzt werden. Diese Kraft fehlt dann den anderen.
+- **Die Stimmung leidet.** Paris soll für alle ein Erlebnis werden, nicht eine
+  Woche Warten und Durchbeißen.
+
+Genau dafür gibt es die Rynke. Die Mindestwerte sind keine Schikane. Sie sorgen
+dafür, dass alle von uns die Strecke Tag für Tag aus eigener Kraft schaffen.
+
+> **Du trainierst nicht nur für dich. Du trainierst für das Team.**
+>
+> Jeder Kilometer, den du jetzt fährst, ist ein Kilometer, den auf der Tour
+> niemand für dich mitfahren muss.
+
 # Worum geht es?
 
 Wer mit uns auf die Tour de Paris fährt, soll gut vorbereitet sein – auf dem Rad

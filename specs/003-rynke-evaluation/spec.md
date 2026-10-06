@@ -553,8 +553,12 @@ re-evaluation, and check the correction is still applied exactly once.
 **Rules handout**
 
 - **FR-017**: The repository MUST contain a German rules handout for riders,
-  written in Markdown, that explains Training Rynke and Team Rynke, every way to
-  earn them with the current values, the per-ride rounding of distance (FR-004),
+  written in Markdown, that opens with a prominent section on the team purpose (we
+  ride to Paris as a team and wait for each other, so every rider needs a minimum
+  fitness because an unfit rider holds back the whole team; riders train for the
+  team, not only for themselves) and then explains Training Rynke and Team Rynke,
+  every way to earn them with the current values, the per-ride rounding of
+  distance (FR-004),
   the accumulated elevation gain (FR-004a) and the pause rule (FR-005a) with
   examples, a note that the pause rule exists to keep riders from gaming the
   system and that the team will adjust it should it lead to unfair situations,
