@@ -13,8 +13,13 @@
 			"database_name": "rynke-points",
 			// Placeholder. The maintainer replaces it with the real ID after
 			// `wrangler d1 create rynke-points --jurisdiction=eu` (quickstart §3).
-			"database_id": "00000000-0000-0000-0000-000000000000",
+			"database_id": "f1493f0b-1930-48de-afc5-f6edda211092",
 			"migrations_dir": "migrations"
+		},
+		{
+			"binding": "rynke_points",
+			"database_name": "rynke-points",
+			"database_id": "f1493f0b-1930-48de-afc5-f6edda211092"
 		}
 	],
 	"queues": {
@@ -46,7 +51,7 @@
 	"vars": {
 		"STRAVA_CLUB_ID": "2372209",
 		"SEASON_START_DATE": "2026-09-01",
-		// "0" until the webhook subscription is created (quickstart §3 step 7).
+		// "0" until the webhook subscription is created (quickstart §3 step 12).
 		"STRAVA_SUBSCRIPTION_ID": "0"
 	},
 	// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing

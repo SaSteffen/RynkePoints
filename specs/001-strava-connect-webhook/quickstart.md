@@ -126,7 +126,7 @@ Development Workflow). The app is served at `https://trhh-rynke-coins.link`.
    callback domain, and the session and language cookies are per host. To serve
    `www.trhh-rynke-coins.link` too, add a Redirect Rule to the bare domain rather
    than a second custom domain.
-9. Set `SEASON_START_DATE` in `wrangler.jsonc`, then `pnpm deploy`.
+9. Set `SEASON_START_DATE` in `wrangler.jsonc`, then `pnpm run deploy`.
    `https://trhh-rynke-coins.link/health` answers `ok`.
 10. **HTTPS only.** Once the domain serves the Worker, switch on SSL/TLS → Edge
     Certificates → Always Use HTTPS. All cookies are `Secure`, so signing in
@@ -134,9 +134,33 @@ Development Workflow). The app is served at `https://trhh-rynke-coins.link`.
 11. **Strava app settings.** Set the Authorization Callback Domain to
     `trhh-rynke-coins.link`. The OAuth callback is then
     `https://trhh-rynke-coins.link/auth/callback`.
-12. Create the webhook subscription (`POST /api/v3/push_subscriptions` with
-    `callback_url=https://trhh-rynke-coins.link/strava/webhook/<verify token>`).
-    Put the returned ID into `STRAVA_SUBSCRIPTION_ID` and deploy again.
+12. **Webhook subscription.** Strava sends new, edited and deleted rides and app
+    revocations only to a subscription. Every event carries that subscription's
+    ID, and the webhook drops events whose ID isn't `STRAVA_SUBSCRIPTION_ID`. So
+    until you set it, the `"0"` placeholder drops every event.
+    - The Worker must already be deployed (step 9): Strava calls
+      `GET /strava/webhook/<verify token>` while creating the subscription and
+      fails if it doesn't answer.
+    - Create it with the same values you passed to `wrangler secret put`:
+
+      ```bash
+      curl -X POST https://www.strava.com/api/v3/push_subscriptions \
+        -F client_id="$STRAVA_CLIENT_ID" \
+        -F client_secret="$STRAVA_CLIENT_SECRET" \
+        -F callback_url="https://trhh-rynke-coins.link/strava/webhook/$STRAVA_WEBHOOK_VERIFY_TOKEN" \
+        -F verify_token="$STRAVA_WEBHOOK_VERIFY_TOKEN"
+      ```
+
+      It answers `{"id": 123456}`.
+    - Put that number into `STRAVA_SUBSCRIPTION_ID` in `wrangler.jsonc` and
+      `pnpm run deploy` again.
+    - Strava allows one subscription per app. If creating fails because one
+      exists, look up its ID with
+      `curl -G https://www.strava.com/api/v3/push_subscriptions -d client_id=… -d client_secret=…`.
+    - Changing `STRAVA_WEBHOOK_VERIFY_TOKEN` later changes the callback URL:
+      delete the subscription
+      (`curl -X DELETE https://www.strava.com/api/v3/push_subscriptions/<id> -F client_id=… -F client_secret=…`),
+      create a new one and update `STRAVA_SUBSCRIPTION_ID`.
 13. Smoke test:
     - connect yourself and upload a short ride; it appears on `/me` within 5
       minutes (SC-002);

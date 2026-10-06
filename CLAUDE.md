@@ -29,7 +29,7 @@ and commit messages must follow
   tokens/secrets, or real rider data — not even in test fixtures (constitution
   Principle I). Fixtures are synthetic.
 - Never call the real Strava API or production Cloudflare resources from tests or as
-  a side effect. `pnpm deploy`, `wrangler secret put`, `wrangler d1 ... --remote`
+  a side effect. `pnpm run deploy`, `wrangler secret put`, `wrangler d1 ... --remote`
   and webhook-subscription changes are manual steps the user runs or explicitly
   asks for.
 - Webhook handlers ack fast and enqueue; processing is idempotent (Principle II).
