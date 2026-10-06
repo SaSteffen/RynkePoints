@@ -1,7 +1,8 @@
 # Data Model: Rynke Evaluation — Stories 1, 2 and 4
 
 Story 2 works in memory; Story 4 stores its output in two new tables
-(migration `0003_rynke_results.sql`). Team events, attendance and corrections
+(migration `0003_rynke_results.sql`, which also adds feature 001's
+`activities.is_flagged`, research R15). Team events, attendance and corrections
 (Stories 3 and 6) and stored rules (Story 5) come later, each in its own additive
 migration. Function signatures and codes:
 [contracts/ride-evaluation.md](contracts/ride-evaluation.md).
@@ -23,7 +24,17 @@ outside the window get a result too.
 | `elevationM` | `elevation_gain_m` | ≥ 0. |
 | `manual` | `is_manual` | `null` = unknown. |
 | `trainer` | `is_trainer` | `null` = unknown. |
+| `flagged` | `is_flagged` | Whether Strava has flagged it; `null` = unknown. |
 | `refreshedAt` | `refreshed_at` | Copied into the ride result to detect stale results (R14). |
+
+## Column: `activities.is_flagged` (feature 001 FR-013)
+
+| Column | Type | Rule |
+|---|---|---|
+| `is_flagged` | INTEGER NULL, `CHECK (is_flagged IN (0, 1))` | Strava's `flagged`; `NULL` until read (research R15). |
+
+Filled by every activity write and by the one-time re-read that
+`ACTIVITY_FIGURES_VERSION = 2` triggers (feature 001 research R20).
 
 ## Input: Rynke Rules (`CURRENT_RULES`, code constant until Story 5)
 
@@ -40,6 +51,8 @@ outside the window get a result too.
 | `qualificationDeadline` | `null` | FR-011 |
 | `trainingThreshold`, `teamThreshold` | 250, 25 | FR-013 |
 | `maxVirtualShare` | `{ num: 1, den: 3 }` (so 2/3 must be non-virtual) | FR-013a |
+
+FR-005g (flagged rides never count) is not a rule value and has no field here.
 
 Validation: steps, limits and thresholds are positive integers; `minSpeedKmh <
 maxSpeedKmh`; shares have `den > 0` and `0 ≤ num ≤ den`; dates are `YYYY-MM-DD`.

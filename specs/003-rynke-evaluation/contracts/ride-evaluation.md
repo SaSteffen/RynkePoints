@@ -38,6 +38,7 @@ result lists every code that applies, in this order:
 |---|---|---|
 | `outside_window` | FR-011 | The date of `startLocal` is before the season start or after the deadline. |
 | `excluded_sport_type` | FR-005e | `sportType` is in `excludedSportTypes`. |
+| `flagged` | FR-005g | `flagged` is `true` (not when unknown). Under every rule version. |
 | `manual` | FR-005b | `manual` is `true` (not when unknown). |
 | `pause` | FR-005a | `movingS = 0`, or `(elapsedS − movingS) × den > movingS × num`. Not checked when `elapsedS` is unknown and `movingS > 0`. |
 | `too_slow` | FR-005c | `movingS > 0` and average speed below the minimum. |
@@ -56,6 +57,7 @@ exactly the allowed share, gets no code for it.
 | `elapsed_time` | `elapsed_time_s` | No pause check (unless `movingS = 0`); overlap interval uses the moving time. |
 | `manual` | `is_manual` | No manual check. |
 | `trainer` | `is_trainer` | Virtual only if `sportType` is `VirtualRide`; not listed for `VirtualRide`. |
+| `flagged` | `is_flagged` | No flagged check. |
 
 Adding a code of either kind is a contract change: the rider-view feature must
 translate it in every catalog.

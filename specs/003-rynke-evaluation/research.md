@@ -10,9 +10,10 @@ later.
   pandoc plus headless Chrome, output `dist/rynke-punkte.pdf`, gitignored)
   already exist and cover every topic FR-017 lists. Acceptance scenario 2 is a
   manual comparison against the spec, repeated whenever the spec or a rule value
-  changes (FR-019). FR-005f (unknown figures) and the zero-moving-time sentence
-  in FR-005a are internal and change nothing a rider sees, so the handout stays
-  as it is.
+  changes (FR-019). The handout states that rides Strava has flagged never count
+  (FR-005g). FR-005f (unknown figures) and the zero-moving-time sentence in
+  FR-005a are internal and change nothing a rider sees, so the handout doesn't
+  mention them.
 - **Rationale**: FR-018 makes the handout and its script a seldom-used manual
   task without automated tests.
 - **Alternatives considered**: rendering the PDF in CI — rejected: it adds pandoc
@@ -99,20 +100,22 @@ point division can land a hair on either side.
 
 ## R6. Unknown figures (FR-005f)
 
-Feature 001 stores `elapsed_time_s`, `is_manual` and `is_trainer` as `NULL` when
-Strava didn't send them, and rows stored before migration `0002` stay `NULL` until
-feature 001's one-time re-read fills them (its research R20).
+Feature 001 stores `elapsed_time_s`, `is_manual`, `is_trainer` and `is_flagged`
+as `NULL` when Strava didn't send them, and rows stored before the migration that
+added a column stay `NULL` until feature 001's one-time re-read fills them (its
+research R20; R15 below for `is_flagged`).
 
 - **Decision** (spec clarification of 2026-10-06): an unknown figure never
   excludes a ride.
   - Elapsed time unknown: the pause rule is not applied; the overlap interval
     uses the moving time (R5).
   - Manual flag unknown: FR-005b is not applied.
+  - Strava's flag unknown: FR-005g is not applied.
   - Trainer flag unknown: the ride is virtual only if its sport type is
     `VirtualRide`; otherwise it counts as not virtual, including for the
     Training Rynke without virtual rides.
   - The ride result lists the unknown figures as codes (`elapsed_time`,
-    `manual`, `trainer`), so a later rider view can mark the result as
+    `manual`, `trainer`, `flagged`), so a later rider view can mark the result as
     provisional. A trainer flag on a `VirtualRide` is not needed and not listed.
   - When feature 001 fills a figure in, it writes the activity through the same
     path as any update, which re-evaluates the rider (R11).
@@ -157,8 +160,9 @@ feature 001's one-time re-read fills them (its research R20).
 ## R9. Testing approach (Principle V)
 
 - **Decision**:
-  - **Unit** `test/unit/rides.test.ts`: Story 2 scenarios 1–4 and 6–22 (numbered
-    in the test names), both sides of every limit, unknown figures (R6), zero
+  - **Unit** `test/unit/rides.test.ts`: Story 2 scenarios 1–4 and 6–23 (numbered
+    in the test names), both sides of every limit, flagged rides (R15) also
+    under rules with every other limit relaxed, unknown figures (R6), zero
     moving time (R7), virtual rides and the without-virtual totals, and order
     independence (every permutation of a small overlapping set; reversed and
     rotated larger sets).
@@ -171,6 +175,11 @@ feature 001's one-time re-read fills them (its research R20).
   - **Integration** `rynke-sweep.test.ts` and `rynke-deletion.test.ts`: the cron
     sends `evaluate-rider` exactly for riders that need it (R14); deleting an
     activity, narrowing the scope and deleting a rider leave no result behind.
+  - **Feature 001's flag** (R15): `test/unit/activity.test.ts` maps `flagged`
+    (true, false, missing → `NULL`); `reread-page.test.ts` re-reads rows whose
+    `is_flagged` is `NULL`; `scheduled-reread.test.ts` re-reads riders below
+    figures version 2; `schema-minimisation.test.ts` lists the new column and
+    the two new tables.
   - SC-002: after any sequence of events, `evaluate-rider` from scratch writes
     nothing (the stored state already equals a full evaluation).
 - **Rationale**: the rules are pure, so unit tests cover them exhaustively; the
@@ -294,3 +303,42 @@ feature 001's one-time re-read fills them (its research R20).
   batch (R11's race) — rejected: D1 batches can't abort on a failed condition
   without a constraint trick, for a race that needs a reconnect and a webhook in
   the same second. Hourly cron — deferred to Story 5, which needs it for SC-006.
+
+## R15. Rides Strava has flagged (FR-005g, feature 001 FR-013)
+
+- **Decision**:
+  - **Storing the flag** is a feature 001 change made here, since nothing else
+    needs it yet. Strava's activity responses (summary in the list, detailed per
+    activity) carry a boolean `flagged`, so no request is added.
+    - Migration `0003_rynke_results.sql` also adds `activities.is_flagged`
+      (nullable, `CHECK (is_flagged IN (0, 1))`, no default), like `0002` did
+      for the other flags.
+    - `toActivityRecord` maps it with the existing `flag()` helper: missing
+      stays `NULL`, never "not flagged".
+    - `ACTIVITY_FIGURES_VERSION` goes from 1 to 2, so the daily cron re-reads
+      every connected rider once (feature 001 research R20). The re-read's
+      check for rows still lacking a figure includes `is_flagged IS NULL`.
+    - The explanation before connecting (feature 001 FR-002) names the flag in
+      both catalogs.
+  - **Evaluating**: reason `flagged` when `is_flagged = 1`, checked
+    independently like the other rules, so a flagged ride can carry further
+    codes. It is not a field of `RynkeRules`: no rules version can switch it
+    off, as FR-005g requires.
+  - **Flagged later**: Strava's webhook docs list update events for title,
+    sport type and privacy only, and nothing for flagging. A stored ride that
+    Strava flags later is re-read at the next update event for it, at an import
+    after reconnecting, or at a figures re-read, and then stops counting
+    through the usual write path (R11). The plan adds no polling (feature 001
+    FR-010); its edge case records this.
+- **Rationale**: the rule must hold whatever the configuration, so it lives in
+  the evaluation code rather than the rule values. `0003` runs before the code
+  that writes the column is published; the old code doesn't know the column,
+  so rows it writes in between stay `NULL` until the re-read fills them.
+- **Alternatives considered**:
+  - A separate migration for the column — rejected: one additive migration per
+    release is enough, and both changes ship together.
+  - A periodic re-read of recent activities to catch late flags — rejected for
+    now: it costs Strava requests for every rider every day and contradicts
+    feature 001 FR-010. It can be added if late flags turn out to matter.
+  - Treating an unknown flag as flagged — rejected: FR-005f; every rider's rows
+    would stop counting until the re-read.

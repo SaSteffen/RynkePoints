@@ -84,6 +84,10 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
   applied, and the ride is evaluated again once feature 001 fills the figure in.
 - Q (raised during planning): What about a ride with 0 moving time? → A: It
   counts as paused for its whole duration, so the pause rule excludes it.
+- Q (raised by the project owner): Does a ride count that Strava has flagged
+  (Strava keeps it out of club leaderboards, segment records and the like)? →
+  A: No, never, whatever Strava flagged it for. No other rule, rule value or
+  configuration can make it count. Feature 001 must store Strava's flag for this.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -125,8 +129,9 @@ and its elevation gain adds to a season total that earns 5 for every full
 1000 m. Distance leftovers below a full step are lost, so a 79 km ride earns 7;
 elevation gain is never lost, so two rides of 500 m earn 5. A ride whose breaks
 add up to more than half of its moving time (e.g. the way to work and back
-recorded as one ride) earns nothing. So do manual entries, e-bike rides, rides
-too slow or too fast to be bike rides, and second recordings of the same ride.
+recorded as one ride) earns nothing. So do rides Strava has flagged, manual
+entries, e-bike rides, rides too slow or too fast to be bike rides, and second
+recordings of the same ride.
 When they edit or delete a ride on Strava, their Training Rynke follow.
 
 **Why this priority**: Riding is where most of the 250 Training Rynke come
@@ -197,6 +202,10 @@ value.
     is evaluated, **Then** it earns 0 Training Rynke.
 22. **Given** a 100 km e-bike ride, **When** the balance is evaluated, **Then** it
     earns 0 Training Rynke.
+23. **Given** a 100 km ride with 1000 m elevation gain that passes every other
+    rule but that Strava has flagged, **When** the balance is evaluated, **Then**
+    it earns 0 Training Rynke, adds nothing to the elevation total and its ride
+    result gives the flag as a reason.
 
 ---
 
@@ -408,6 +417,11 @@ re-evaluation, and check the correction is still applied exactly once.
   rides count as virtual rides even without a virtual-ride app. Body weight and
   trainer settings in virtual-ride apps cannot be checked, and neither can an
   indoor ride that Strava does not mark as such; this relies on riders' honesty.
+- **Rides flagged by Strava**: never count (FR-005g), whatever the reason Strava
+  had; the app does not judge whether the flag is fair. A rider who thinks it is
+  wrong settles it with Strava; once the flag is removed, the ride is evaluated
+  again (FR-003). A ride Strava flags after it was stored stops counting as soon
+  as feature 001 stores the flag.
 - **Manual activities**: never count (FR-005b), also when a rider's device failed;
   an organiser can add a correction instead (Story 6).
 - **Honest rides caught by the plausibility limits**: e.g. a very slow, technical
@@ -480,7 +494,7 @@ re-evaluation, and check the correction is still applied exactly once.
   rides in the counting window (FR-011) is added up, and the season total earns 5
   Training Rynke per full 1000 m, rounded down once on the total. No metre of
   elevation gain may be dropped per ride (two rides of 600 m → 5; 1999 m + 1 m →
-  10). Rides that earn nothing under FR-005–FR-005e add nothing to the total.
+  10). Rides that earn nothing under FR-005–FR-005g add nothing to the total.
 - **FR-005**: Only activities stored by feature 001 (cycling activities of the
   rider) count; other sports never earn Rynke.
 - **FR-005a**: A ride whose paused time (elapsed time minus moving time) is more
@@ -490,6 +504,13 @@ re-evaluation, and check the correction is still applied exactly once.
   0 moving time counts as paused for all of it and earns nothing. The share of half is a rule value (FR-012). There MUST be no other limit
   on a ride's duration, and a ride spanning several calendar days MUST NOT be
   excluded for that reason alone.
+- **FR-005g**: A ride that Strava has flagged (Strava then keeps it out of club
+  leaderboards, segment records and the like) MUST earn no Training Rynke,
+  neither from distance nor from elevation gain, whatever the reason for the
+  flag. This MUST hold under every rule version: it is not a rule value (FR-012)
+  and no configuration can make a flagged ride count. A flagged ride never
+  prevents another ride from counting (FR-005d). This needs Strava's flag stored
+  by feature 001 (its FR-013).
 - **FR-005b**: An activity entered manually on Strava (marked as manual by
   Strava) MUST earn no Training Rynke. This needs the manual flag stored by
   feature 001 (its FR-013).
@@ -514,7 +535,8 @@ re-evaluation, and check the correction is still applied exactly once.
   ride. Without the elapsed time the pause rule (FR-005a) is not applied and the
   ride's end for FR-005d is its start plus its moving time; without the manual
   flag FR-005b is not applied; without the trainer flag a ride counts as virtual
-  only if its sport type is virtual (FR-013a). When feature 001 fills the figure
+  only if its sport type is virtual (FR-013a); without Strava's flag FR-005g is
+  not applied. When feature 001 fills the figure
   in, the ride is evaluated again like any changed activity (FR-003).
 
 **Team events**
@@ -581,8 +603,8 @@ re-evaluation, and check the correction is still applied exactly once.
 **Stored results**
 
 - **FR-014**: The system MUST store a ride result for each of a rider's stored
-  activities: whether it counts; if not, every reason that applies (pause, manual
-  entry, too slow, too fast, climbing rate, excluded sport type, outside the
+  activities: whether it counts; if not, every reason that applies (flagged by
+  Strava, pause, manual entry, too slow, too fast, climbing rate, excluded sport type, outside the
   counting window, overlap); for an overlap, the counting ride it overlaps; the
   Training Rynke it earns from distance (FR-004); the metres it adds to the
   elevation total (FR-004a); whether it is a virtual ride (FR-013a); which
@@ -657,7 +679,7 @@ re-evaluation, and check the correction is still applied exactly once.
   the accumulated elevation gain (FR-004a) and the pause rule (FR-005a) with
   examples, a note that the pause rule exists to keep riders from gaming the
   system and that the team will adjust it should it lead to unfair situations,
-  the excluded rides (FR-005b–FR-005e), the virtual-ride share (FR-013a) with a
+  the excluded rides (FR-005b–FR-005e, FR-005g), the virtual-ride share (FR-013a) with a
   strongly worded appeal to set the real body weight in virtual-ride apps,
   attendance recording (FR-007), rides during team events (FR-008), the counting
   window (FR-011), corrections (FR-010) and the qualification rule (FR-013).
@@ -727,7 +749,10 @@ re-evaluation, and check the correction is still applied exactly once.
   elevation gain, moving time, elapsed time, start date and time zone, sport type,
   manual flag, trainer flag) and the season start date already exist. Elapsed
   time, the manual flag and the trainer flag were added to feature 001 (its
-  FR-013) for FR-005a, FR-005b and FR-013a; they come with the activity data the app already fetches and are the minimum needed
+  FR-013) for FR-005a, FR-005b and FR-013a. Strava's flag (whether Strava has
+  flagged the activity) still has to be added to feature 001's FR-013 for
+  FR-005g (feature 001's clarification and edge cases cover rides stored before
+  and rides Strava flags later). All of these come with the activity data the app already fetches and are the minimum needed
   to compute points (constitution Principle I).
 - E-bike rides stay stored by feature 001 although they earn nothing by default,
   so that an organiser can change the excluded sport types and recalculate the
