@@ -9,13 +9,13 @@ function upsertStatement(db: D1Database, a: ActivityRecord) {
 		.prepare(
 			`INSERT INTO activities (strava_activity_id, athlete_id, sport_type, start_date,
 				start_date_local, timezone, distance_m, moving_time_s, elevation_gain_m,
-				is_private, refreshed_at, elapsed_time_s, is_manual, is_trainer)
-			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)
+				is_private, refreshed_at, elapsed_time_s, is_manual, is_trainer, is_flagged)
+			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)
 			ON CONFLICT (strava_activity_id) DO UPDATE SET
 				sport_type = ?3, start_date = ?4, start_date_local = ?5, timezone = ?6,
 				distance_m = ?7, moving_time_s = ?8, elevation_gain_m = ?9,
 				is_private = ?10, refreshed_at = ?11, elapsed_time_s = ?12,
-				is_manual = ?13, is_trainer = ?14
+				is_manual = ?13, is_trainer = ?14, is_flagged = ?15
 			WHERE activities.athlete_id = excluded.athlete_id`,
 		)
 		.bind(
@@ -33,6 +33,7 @@ function upsertStatement(db: D1Database, a: ActivityRecord) {
 			a.elapsed_time_s,
 			a.is_manual,
 			a.is_trainer,
+			a.is_flagged,
 		);
 }
 
@@ -86,7 +87,7 @@ export async function listRecentActivities(
 		.prepare(
 			`SELECT strava_activity_id, athlete_id, sport_type, start_date, start_date_local,
 				timezone, distance_m, moving_time_s, elapsed_time_s, elevation_gain_m,
-				is_manual, is_trainer, is_private, refreshed_at
+				is_manual, is_trainer, is_flagged, is_private, refreshed_at
 			FROM activities WHERE athlete_id = ?
 			ORDER BY start_date DESC, strava_activity_id DESC LIMIT ?`,
 		)
@@ -104,7 +105,7 @@ export async function listActivityIdsMissingFigures(
 		.prepare(
 			`SELECT strava_activity_id FROM activities
 			WHERE athlete_id = ? AND (elapsed_time_s IS NULL OR is_manual IS NULL
-				OR is_trainer IS NULL)
+				OR is_trainer IS NULL OR is_flagged IS NULL)
 			ORDER BY strava_activity_id`,
 		)
 		.bind(athleteId)

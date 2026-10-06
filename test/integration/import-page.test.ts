@@ -116,15 +116,17 @@ describe("import-page", () => {
 			elapsed_time: 6000 + i,
 			manual: i === 1,
 			trainer: i === 2,
+			flagged: i === 0,
 		}));
 		await deliver(FIRST);
 		const { results } = await env.DB.prepare(
-			"SELECT elapsed_time_s, is_manual, is_trainer FROM activities ORDER BY start_date",
+			`SELECT elapsed_time_s, is_manual, is_trainer, is_flagged FROM activities
+			ORDER BY start_date`,
 		).all();
 		expect(results).toEqual([
-			{ elapsed_time_s: 6000, is_manual: 0, is_trainer: 0 },
-			{ elapsed_time_s: 6001, is_manual: 1, is_trainer: 0 },
-			{ elapsed_time_s: 6002, is_manual: 0, is_trainer: 1 },
+			{ elapsed_time_s: 6000, is_manual: 0, is_trainer: 0, is_flagged: 1 },
+			{ elapsed_time_s: 6001, is_manual: 1, is_trainer: 0, is_flagged: 0 },
+			{ elapsed_time_s: 6002, is_manual: 0, is_trainer: 1, is_flagged: 0 },
 		]);
 	});
 

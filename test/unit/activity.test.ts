@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+	ACTIVITY_FIGURES_VERSION,
 	CYCLING_SPORT_TYPES,
 	isCycling,
 	toActivityRecord,
@@ -44,6 +45,7 @@ describe("toActivityRecord", () => {
 			total_elevation_gain: 312.5,
 			manual: true,
 			trainer: true,
+			flagged: true,
 			private: false,
 		});
 		expect(toActivityRecord(activity, ATHLETE_A, NOW)).toEqual({
@@ -59,6 +61,7 @@ describe("toActivityRecord", () => {
 			elevation_gain_m: 312.5,
 			is_manual: 1,
 			is_trainer: 1,
+			is_flagged: 1,
 			is_private: 0,
 			refreshed_at: NOW,
 		});
@@ -98,6 +101,7 @@ describe("toActivityRecord", () => {
 				"elevation_gain_m",
 				"is_manual",
 				"is_trainer",
+				"is_flagged",
 				"is_private",
 				"refreshed_at",
 			].sort(),
@@ -117,22 +121,35 @@ describe("toActivityRecord", () => {
 
 	it("maps false flags to 0", () => {
 		const record = toActivityRecord(
-			makeStravaActivity({ manual: false, trainer: false }),
+			makeStravaActivity({ manual: false, trainer: false, flagged: false }),
 			ATHLETE_A,
 			NOW,
 		);
-		expect(record).toMatchObject({ is_manual: 0, is_trainer: 0 });
+		expect(record).toMatchObject({
+			is_manual: 0,
+			is_trainer: 0,
+			is_flagged: 0,
+		});
 	});
 
 	it.each([
 		["elapsed_time", "elapsed_time_s"],
 		["manual", "is_manual"],
 		["trainer", "is_trainer"],
+		["flagged", "is_flagged"],
 	] as const)("records a missing %s as unknown, never 0", (field, column) => {
-		const activity = makeStravaActivity({ manual: true, trainer: true });
+		const activity = makeStravaActivity({
+			manual: true,
+			trainer: true,
+			flagged: true,
+		});
 		delete activity[field];
 		const record = toActivityRecord(activity, ATHLETE_A, NOW);
 		expect(record?.[column]).toBeNull();
+	});
+
+	it("is at figures version 2, which added Strava's flag", () => {
+		expect(ACTIVITY_FIGURES_VERSION).toBe(2);
 	});
 
 	it("marks private activities", () => {

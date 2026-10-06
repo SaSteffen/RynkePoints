@@ -32,6 +32,7 @@ const COLUMNS: Record<string, string[]> = {
 		"elevation_gain_m",
 		"is_manual",
 		"is_trainer",
+		"is_flagged",
 		"is_private",
 		"refreshed_at",
 	],
