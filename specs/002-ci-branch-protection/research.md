@@ -484,13 +484,14 @@ at the end of this file.
   account, the token could also change Worker secrets, delete the Worker or a
   database, or touch other Workers and databases.
   - FR-032 ("MUST NOT be able to read or change other projects") therefore holds
-    only if the Cloudflare account holds nothing but this app. **Recommendation:**
-    a dedicated Cloudflare account for RynkePoints (free plan, shared team
-    e-mail; 001 quickstart step 1 already suggests a team account). See the
-    plan's Constitution Check.
+    only if the Cloudflare account holds nothing but this app. **Decision:** a
+    dedicated Cloudflare account for RynkePoints (free plan, shared team
+    e-mail; 001 quickstart step 1 already suggests a team account), confirmed
+    by the maintainer. See the plan's Constitution Check.
   - That the deploy never changes secrets, resources or the webhook (FR-029)
     is guaranteed by the workflow's content, which only changes through checked
-    pull requests, not by the token's permissions.
+    pull requests, not by the token's permissions. The maintainer accepted this
+    as a constitution exception (plan, Complexity Tracking).
 - **Alternatives considered**: the dashboard template "Edit Cloudflare Workers",
   which Cloudflare's GitHub Actions guide uses. It adds Workers KV, R2, Tail,
   Workers Routes, Account Settings, User Details and Memberships, none of which

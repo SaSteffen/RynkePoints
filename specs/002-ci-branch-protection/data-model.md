@@ -113,7 +113,7 @@ Rules:
 |---|---|
 | kind | Cloudflare account-owned API token (`cfat_…`) |
 | permissions | Account · Workers Scripts · Edit; Account · D1 · Edit |
-| resources | the RynkePoints Cloudflare account only (dedicated account recommended, R17) |
+| resources | the RynkePoints Cloudflare account only (dedicated to RynkePoints, R17) |
 | expiry | set (e.g. one year); rotated manually |
 | stored in | `production` environment secret only; never in the repo, `.dev.vars` or logs |
 

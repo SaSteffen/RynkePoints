@@ -478,6 +478,9 @@ production does not change.
   (constitution 1.2.0, Development Workflow). Changing production secrets,
   production data other than through migrations, production resources and the
   Strava webhook subscription stay manual.
+- The Cloudflare account hosts only RynkePoints, so a deploy credential scoped to
+  that account meets FR-032 even though the platform can't narrow it to one Worker
+  or database.
 - One environment, production. There is no staging deployment of `develop`; a later
   feature may add one.
 - The one-time production setup from the 001 quickstart (creating the database and

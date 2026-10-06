@@ -144,12 +144,12 @@ deployment) for the existing Workers web service.
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Checked against constitution **1.2.0** (2026-10-06).
+Checked against constitution **1.2.1** (2026-10-06).
 
 | Principle | Gate | Status |
 |---|---|---|
 | I. Privacy, no secrets in repo | The check jobs use no secrets. Tests use synthetic bindings from `vitest.config.ts`. Fork PRs get no secrets (`pull_request`, never `pull_request_target`). The deploy token lives only in GitHub's secret store as a `production` environment secret, which only `main` can unlock (R15). It is never committed and never printed (R22). The account ID is an environment variable, not committed (R18). | ✅ |
-| I. "Production secrets live in Cloudflare secrets" | The Worker's runtime secrets stay in Cloudflare and the deploy never sets them (FR-029). The Cloudflare API token is a CI credential and can't live in Cloudflare, so it sits in GitHub's environment secrets. Principle I lists Cloudflare API tokens only under "MUST NOT be committed", which holds. | ✅ (wording gap, see below) |
+| I. "Production secrets live in Cloudflare secrets; the CI deploy credential in a GitHub environment secret that only `main` can unlock" | The Worker's runtime secrets stay in Cloudflare and the deploy never sets them (FR-029). The Cloudflare API token is the `production` environment secret, unlocked only by `main` (R15). | ✅ |
 | I. No real rider data | The checks run synthetic tests only. The deploy runs no queries. Migrations are schema only, and their output is file names (R22). | ✅ |
 | I. EU storage | Unchanged. The deploy uses the existing EU-jurisdiction D1 database and creates no resources. | ✅ |
 | II. Strava API citizenship | Neither CI nor the deploy calls Strava. The webhook subscription is never touched (FR-029). | ✅ n/a |
@@ -159,7 +159,7 @@ Checked against constitution **1.2.0** (2026-10-06).
 | V. Test-first | No Worker code. The red-green cycle runs on the real gate and pipeline via quickstart V1–V16 and D1–D10 (R12, R25). CI still enforces `pnpm test` on every PR and before every deploy. | ✅ justified (R12, R25) |
 | Workflow: lint/typecheck/test must pass | Required checks on every PR, and `needs:` of the deploy on `main`. | ✅ |
 | Workflow: production deployed only from `main`, after its checks, migrations forward-only before the code; re-deploy of `main` on demand; other branches break-glass only | The deploy is two jobs in `ci.yml`, run only for `refs/heads/main` after `lint`, `typecheck` and `test` passed (R13). The environment branch rule is the hard boundary: it allows only `main` (R15). Migrations run before `wrangler deploy` and a failure stops the job (R20). The re-deploy is a dispatch on `main` only (R16). A local deploy or `wrangler rollback` is documented as break-glass (R23). | ✅ |
-| Workflow: secrets, resources, webhook subscription and D1 data other than through migrations stay manual | The workflow contains no `secret put`, no `d1 execute`, no resource creation and no Strava call (contract [deploy.md](contracts/deploy.md)). The token *could* do more than the workflow does: Workers Scripts Edit can write Worker secrets or delete the Worker, and D1 Edit applies to every database in the account. `wrangler deploy` also attaches the custom domain from `wrangler.jsonc`, which would create it if it doesn't exist yet (R17, R20). The guarantee rests on the workflow content, which changes only through checked PRs, plus the documented order: one-time setup first, credential second. | ⚠️ holds by workflow content, not by token scope |
+| Workflow: secrets, resources, webhook subscription and D1 data other than through migrations stay manual | The workflow contains no `secret put`, no `d1 execute`, no resource creation and no Strava call (contract [deploy.md](contracts/deploy.md)). The token *could* do more than the workflow does: Workers Scripts Edit can write Worker secrets or delete the Worker, and D1 Edit applies to every database in the account. `wrangler deploy` also attaches the custom domain from `wrangler.jsonc`, which would create it if it doesn't exist yet (R17, R20). The guarantee rests on the workflow content, which changes only through checked PRs, plus the documented order: one-time setup first, credential second. | ⚠️ accepted exception (Complexity Tracking) |
 | Governance: storage changes self-reviewed against Principle I *before being deployed* | Merging into `main` now deploys. The self-review moves to the release (or hotfix) PR into `main`, which is the last point before production. The README's deploying section and the release checklist in quickstart §8 say so. | ✅ |
 | Language: English for code and docs | Workflows, job names, messages and docs are in English. No rider-facing text. | ✅ |
 
@@ -168,24 +168,21 @@ account, not per Worker or per database (R17). FR-032 ("MUST NOT be able to read
 or change other projects … of the hosting account") is therefore only met if the
 Cloudflare account contains nothing but RynkePoints.
 
-- The plan recommends a dedicated account. Quickstart §7 asks the maintainer to
-  confirm this before creating the token.
-- If the account is shared, FR-032 is not met and the spec needs a deliberate
-  exception. That's an open question for the maintainer, not something this plan
-  can resolve.
+- The maintainer confirmed that the Cloudflare account is dedicated to
+  RynkePoints (spec Assumptions), so FR-032 is met. Quickstart §7 keeps the
+  check as a prerequisite before creating the token.
 
-**Post-design re-check (after Phase 1)**: passing, with the ⚠️ row and the
-FR-032 caveat above.
+**Post-design re-check (after Phase 1)**: passing, with the ⚠️ row recorded as
+an accepted exception in Complexity Tracking.
 
 - Spec deviations found during the US1–US4 design (FR-008 for `main`, the US4
   back-merge route; R7) were resolved earlier by amending the spec.
 - The amendment's design adds no new principle violation.
 
-**Possible constitution follow-ups**: neither is required by this plan.
-- A PATCH that names "every change through a checked pull request" in
-  Development Workflow.
-- A PATCH to Principle I's secrets bullet, saying that CI deploy credentials
-  live in GitHub's environment secrets, scoped to `main`.
+**Constitution follow-ups**: Principle I's secrets bullet now names the CI
+deploy credential (constitution 1.2.1). A PATCH that names "every change through
+a checked pull request" in Development Workflow is still possible but not
+required by this plan.
 
 ## Project Structure
 
@@ -246,10 +243,12 @@ convention.
 
 ## Complexity Tracking
 
-No unjustified constitution violations. Two points stay open; they come from
+One accepted constitution exception, approved by the maintainer. It comes from
 Cloudflare's token model, not from a design choice:
 
-| Point | Why it stays | Simpler alternative rejected because |
+| Violation | Why needed | Simpler alternative rejected because |
 |---|---|---|
-| The token's power exceeds what the workflow does (Workers Scripts Edit, D1 Edit account-wide) | Cloudflare offers no per-Worker or per-database scope (R17) | Running the deploy locally only gives up FR-023, which is the point of the amendment |
-| FR-032 holds only in a Cloudflare account dedicated to RynkePoints | Same as above | A per-resource token doesn't exist; a dedicated free account is the narrowest scope available |
+| Development Workflow: changing production secrets and creating or deleting production resources stay manual. The deploy token *could* do both (Workers Scripts Edit writes Worker secrets and deletes the Worker; D1 Edit covers every database in the account; `wrangler deploy` would create a missing custom domain). The workflow never does, but the token scope doesn't enforce it. | Cloudflare offers no per-Worker or per-database scope (R17). The rule holds by the workflow content, which changes only through checked PRs, and by the setup order (production setup first, credential second). | Running the deploy locally only gives up FR-023, which is the point of the amendment |
+
+FR-032 needs no exception: the Cloudflare account is dedicated to RynkePoints,
+so the account-wide token can't reach other projects.
