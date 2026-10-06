@@ -213,7 +213,9 @@ and no one else's.
   account from a public RynkePoints page, using Strava's official "Connect with
   Strava" button and attribution.
 - **FR-002**: Before redirecting to Strava, the system MUST tell the rider in plain
-  language which data will be read, what it is used for, and how to leave.
+  language which data will be read, what it is used for, how to leave, and that
+  deleted data remains in the hosting platform's backups for up to 7 days
+  (FR-022a).
 - **FR-003**: The system MUST request only the permission to read the rider's
   activities, at the level defined in FR-005; it MUST NOT request permission to
   edit activities in this feature.
@@ -291,6 +293,11 @@ and no one else's.
 - **FR-022**: On a deauthorization notification from Strava, the system MUST
   permanently delete the rider's credentials, rider record and all their activity
   records (no soft delete, no anonymised remainder).
+- **FR-022a**: Deletion removes the data from the live database immediately.
+  Copies in the hosting platform's always-on backup history cannot be deleted by
+  the app and expire after at most 7 days. The system MUST NOT restore deleted
+  riders from that history, and MUST state this retention in the rider-facing
+  privacy text (FR-002) and on the deletion confirmation (FR-023).
 - **FR-023**: A signed-in rider MUST be able to disconnect and delete their data
   from their RynkePoints page; the system MUST revoke its access at Strava and then
   perform the same deletion as FR-022.
@@ -349,8 +356,8 @@ and no one else's.
   activity is lost: every activity uploaded by a connected rider is stored within
   24 hours once Strava is reachable again.
 - **SC-006**: After a rider revokes access or disconnects, no data about that rider
-  remains within 1 hour; after a rider leaves the team club, none remains within
-  25 hours.
+  remains in the live data within 1 hour; after a rider leaves the team club, none
+  remains within 25 hours. Backup copies are gone after at most 7 more days.
 - **SC-008**: For a newly connected rider with up to 500 cycling activities since
   the season start, all of them are stored within 24 hours of connecting.
 - **SC-009**: 100% of connection attempts by non-members of the team club end with
@@ -383,5 +390,9 @@ and no one else's.
 - Setting up and maintaining the Strava push subscription and deploying the app are
   manual, one-time organiser steps outside the app's user-facing scope.
 - The rider-facing pages are in English for now; German localisation can follow.
+- The app runs on the hosting platform's free plan, whose database keeps a 7-day
+  restorable history that cannot be switched off. Moving to the paid plan would
+  extend this to 30 days, and the privacy text (FR-022a) would have to change with
+  it.
 - Strava's athlete-capacity, rate-limit and API Agreement terms are as checked on
   2026-10-06 (see REQUIREMENTS.md).

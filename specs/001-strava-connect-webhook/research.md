@@ -262,3 +262,23 @@ Cloudflare docs (Queues pricing and retries, D1 data location), and the installe
   exchange with a valid code has no other known cause. Confirm the exact response
   during the first real second-rider connection and refine the check if needed
   (tracked in quickstart).
+
+## R15. Database backup history and the deletion promise (FR-022a)
+
+- **Decision**: Rider deletion is a hard delete in the live database. D1 Time
+  Travel keeps a restorable history for 7 days on Workers Free (30 on Paid). It is
+  always on and cannot be disabled. The app tells riders about this retention on
+  the landing page and on the deletion confirmation. Restoring the database from
+  Time Travel is a manual disaster-recovery step only. A restore can bring back
+  riders deleted after the restore point, and nothing in the app would remove
+  them again: their deauth event has already been processed. So after a restore,
+  the maintainer MUST delete every restored rider whose Strava access is refused.
+  The next daily membership check marks them `needs_reconnect`, which gives the
+  list.
+- **Rationale**: Principle I forbids keeping data "for stats", not routine backups
+  outside the app's control. Disclosing the window keeps the promise honest.
+  Checked 2026-10-06 in Cloudflare's D1 Time Travel docs.
+- **Alternatives considered**: Encrypting each rider's data with a per-rider key
+  and discarding the key on deletion ("crypto-shredding"), which would make backup
+  copies unreadable at once. Too much machinery for low-sensitivity ride figures;
+  rejected for now.

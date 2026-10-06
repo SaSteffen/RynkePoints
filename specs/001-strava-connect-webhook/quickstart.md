@@ -87,3 +87,9 @@ Development Workflow).
 pnpm wrangler d1 execute rynke-points --remote \
   --command "SELECT id, athlete_id, last_error, failed_at FROM failed_work"
 ```
+
+## Restoring from Time Travel (disaster recovery only)
+
+A restore can bring back riders who were deleted after the restore point
+(research R15). After restoring, wait for the next daily membership check, then
+delete every rider it marked `needs_reconnect` whose Strava access is refused.

@@ -16,8 +16,9 @@ Cookies:
 
 - Signed in → `302 /me`.
 - Otherwise `200` HTML containing:
-  - a plain explanation of what is read and why, who can join (club link), and how
-    to leave (FR-002);
+  - a plain explanation of what is read and why, who can join (club link), how
+    to leave, and that deleted data stays in backups for up to 7 days (FR-002,
+    FR-022a);
   - the official "Connect with Strava" button linking to `/connect`.
 
 ### `GET /connect`
@@ -64,8 +65,9 @@ Confirmation page with a POST form.
 - Requires a session and a same-origin `Origin` header, else `403`.
 - Revokes the token at Strava (one retry on 503), then hard-deletes the rider
   (cascade) and clears the session cookie.
-- `200` page confirming deletion. If the revoke failed, the page also tells the
-  rider to remove RynkePoints under "My Apps" in their Strava settings.
+- `200` page confirming deletion and that backup copies expire within 7 days
+  (FR-022a). If the revoke failed, the page also tells the rider to remove
+  RynkePoints under "My Apps" in their Strava settings.
 
 ### `POST /logout`
 

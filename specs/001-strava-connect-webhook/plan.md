@@ -73,7 +73,7 @@ five routes plus the webhook, one queue, one cron.
 |---|---|---|
 | I. Privacy & consent | Opt-in scopes; private activities only if granted (R1). No `activity:write`. Nothing team-visible (FR-026). | ✅ |
 | I. Minimisation | Allow-listed fields only; no GPS, polylines, coordinates or titles (data-model `activities`). | ✅ |
-| I. Deletion | Hard delete with cascade on deauth, disconnect or leaving the club. Pending work can't recreate rows (FK + rider check). | ✅ |
+| I. Deletion | Hard delete with cascade on deauth, disconnect or leaving the club. Pending work can't recreate rows (FK + rider check). D1 Time Travel keeps a 7-day restorable history that can't be disabled; it is disclosed to riders and never used to restore deleted riders (FR-022a, R15). | ✅ disclosed |
 | I. Secrets | Tokens AES-GCM encrypted (R10). Secrets only via `wrangler secret` / `.dev.vars`. Tests use synthetic bindings. | ✅ |
 | I. EU storage | D1 `--jurisdiction=eu` (R11). Queue messages hold IDs only. | ✅ |
 | I. Purpose & brand | Data used only for this app. Official Connect button and "Powered by Strava" (R13). | ✅ |
