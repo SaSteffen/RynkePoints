@@ -508,6 +508,13 @@ re-evaluation, and check the correction is still applied exactly once.
 - **FR-006**: Each team event MUST have a kind (team training, training-weekend
   day, technique training), a date and an optional name. A training weekend is
   recorded as one team event per day.
+- **FR-006a**: Organisers MUST be able to create, change (kind, date, name) and
+  delete team events, and to add and remove attendances. Deleting a team event
+  MUST delete its attendances. Each of these is an input change under FR-003.
+  Attendance can only be recorded for connected riders, including for events
+  that took place before the rider connected. Who counts as an organiser and how
+  they make these changes is the organiser-administration feature's concern
+  (see Assumptions); this feature only defines the inputs and their effect.
 - **FR-007**: Attendance at a team event MUST be recorded by an organiser; the
   system MUST NOT derive attendance from rides. Each recorded attendance MUST earn
   the fixed amount for the event's kind: team training 1 Team Rynke + 5 Training
@@ -585,6 +592,12 @@ re-evaluation, and check the correction is still applied exactly once.
   contain no Strava data beyond what feature 001 stores, MUST be deleted with the
   activity or the rider (feature 001, FR-022), and MUST NOT be shown to anyone but
   the rider. Showing them, including to the rider, is a separate feature.
+  *Note*: showing balances to other riders (team leaderboard) and to organisers
+  (organiser overview) is the purpose of the app, not an afterthought. It is
+  allowed only with each rider's explicit consent (constitution Principle I;
+  Strava API Agreement), which the roles-and-consent feature defines (see
+  Assumptions). This feature stores balances per rider so that those features can
+  filter by consent without changing anything here.
 - **FR-016**: Reasons and sources MUST be stored as language-independent values,
   not as rider-facing text, so that a feature showing them can translate them
   (feature 001, FR-028). This feature has no rider-facing text of its own; the
@@ -652,7 +665,8 @@ re-evaluation, and check the correction is still applied exactly once.
   deadline, and excluded cycling sport types (e-bike types by default). Carries a version and
   the date it took effect, covering both configured values and rule logic.
 - **Team Event**: an event organised by the team — kind, date, optional name.
-  Belongs to the team, not to a rider.
+  Belongs to the team, not to a rider. Created, changed and deleted by organisers
+  (FR-006a); deleting it deletes its Attendances.
 - **Attendance**: links a Rider to a Team Event they took part in, as recorded by
   an organiser; at most one per Rider and Team Event. Deleted with the Rider.
 - **Correction**: a signed manual adjustment of a Rider's Training and/or Team
@@ -709,9 +723,13 @@ re-evaluation, and check the correction is still applied exactly once.
   rides. The rules rely on riders' honesty there ([lazy-rider.md](lazy-rider.md)).
 - The goal is the Tour de Paris of the current season; one season is evaluated at
   a time. History across seasons is out of scope.
-- Organisers maintain team events, attendance, corrections and rule configuration
-  the same way as Team Settings in feature 001, through the app's deployment
-  configuration or data; an organiser admin page is out of scope.
+- Roles, how someone becomes an organiser, and the organiser pages for team
+  events, attendance, corrections, rule configuration and starting a
+  recalculation are separate features (prompts in
+  [specs/backlog/](../backlog/README.md)). This feature defines only the inputs
+  and their effect. Until the organiser-administration feature exists, these
+  inputs are entered directly into the stored data as a manual step the
+  maintainer runs, so Team Rynke stay at 0 in practice.
 - There is no upper limit on Rynke per ride, per day or per week, since the sheet
   states none.
 - Rule changes are rare (a few per season) and announced to riders beforehand;
@@ -724,10 +742,13 @@ re-evaluation, and check the correction is still applied exactly once.
 - Showing a rider their balance, ride results and qualification is a separate
   rider-view feature that reads what this feature stores (FR-014–FR-014b). It owns
   the page, who may see it, and its translated text.
-- Organisers seeing riders' balances or a list of who qualified, team
-  leaderboards, and writing the balance into Strava activity descriptions are
-  separate features: each needs its own consent handling under constitution
-  Principle I and Strava's API Agreement.
+- Team leaderboards (the main purpose of the app), organisers seeing riders'
+  balances or a list of who qualified, and writing the balance into Strava
+  activity descriptions are separate features: each needs consent under
+  constitution Principle I and Strava's API Agreement, which only lets a rider's
+  Strava data be shown to that rider unless they explicitly consent to share it.
+  Which consents and roles are needed is settled first, by the roles-and-consent
+  feature, while the app has no users yet ([specs/backlog/](../backlog/README.md)).
 - Because attendance is recorded by hand, a forgotten entry means missing Team
   Rynke until an organiser adds it; once the rider view shows their breakdown
   (FR-014a), riders can check it and ask. Automatic matching of rides to events can be added later as a separate
