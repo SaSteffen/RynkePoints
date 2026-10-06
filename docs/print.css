@@ -1,0 +1,73 @@
+/* Print styles for the rules handout, used by scripts/docs-pdf.sh. */
+@page {
+	size: A4;
+	margin: 1.8cm;
+}
+
+html {
+	font-family: "Helvetica Neue", Arial, sans-serif;
+	font-size: 11pt;
+	line-height: 1.4;
+	color: #222;
+}
+
+body {
+	max-width: none;
+	margin: 0;
+	padding: 0;
+	hyphens: auto;
+}
+
+header#title-block-header {
+	background: #fdb827;
+	padding: 0.6em 1em;
+	margin-bottom: 1.5em;
+}
+
+h1.title {
+	margin: 0;
+	font-size: 2.2em;
+}
+
+p.subtitle,
+p.author,
+p.date {
+	margin: 0.2em 0 0;
+}
+
+h1 {
+	font-size: 1.4em;
+	margin-top: 1.4em;
+	border-bottom: 2px solid #fdb827;
+	break-after: avoid;
+}
+
+h2 {
+	font-size: 1.15em;
+	break-after: avoid;
+}
+
+table {
+	border-collapse: collapse;
+	margin: 0.8em 0;
+	break-inside: avoid;
+}
+
+th,
+td {
+	border: 1px solid #bbb;
+	padding: 0.3em 0.7em;
+}
+
+th {
+	background: #f3f3f3;
+}
+
+blockquote {
+	margin: 1em 0;
+	padding: 0.4em 1em;
+	border-left: 4px solid #fdb827;
+	background: #fff8e6;
+	color: inherit;
+	break-inside: avoid;
+}
