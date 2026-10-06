@@ -22,10 +22,8 @@ Pages never build these paths in code. They take them from the message catalogs
 (`brand.connectWithStrava.src`, `brand.poweredByStrava.src`), so tests don't need
 the files.
 
-The `brand.*.src` entries in `src/i18n/messages/de.ts` point at the `en/` files
-by default. Only if Strava's downloads contain German variants do they go into
-`public/strava/de/` with the same file names, and only then do the `de` entries
-switch to them.
+Strava ships these assets in English only, so the `brand.*.src` entries of
+every catalog point at the `en/` files; only the alt text is translated.
 
 ## Before deploying
 
