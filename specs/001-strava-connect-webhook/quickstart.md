@@ -37,7 +37,7 @@ Language). Message texts are in [contracts/messages.md](contracts/messages.md).
 | US2 run activity | no row |
 | US2 unknown athlete / foreign subscription / wrong path secret | no outbound call, no rows; 200 / 200 / 404 |
 | Webhook ack (SC-003) | `POST /strava/webhook/:secret` returns without any outbound fetch |
-| Rate limit headers near limit / 429 | message re-sent with delay to next window (≤ 12 h) and acked, also on attempt 10; no extra call, no `failed_work` |
+| Rate limit headers near limit / 429 | message re-sent with delay to next window (≤ 12 h) and acked, also on the last attempt; no extra call, no `failed_work` |
 | Transient errors past last attempt | `failed_work` row (repeat failures update it, `first_failed_at` kept); daily cron re-enqueues it and keeps it; deleted on success or after 7 days (logged) |
 | US3 deauth event | rider, credentials, activities, failed_work all gone |
 | US3 disconnect button | revoke called, all rows gone, session cleared, `303 /notice/deleted` (7-day backup sentence); foreign `Origin` → 403 |
@@ -59,8 +59,8 @@ Uses your own Strava app in its 1-athlete capacity, i.e. only your own data.
 1. Fill `.dev.vars` (gitignored) from `.dev.vars.example`: Strava client
    ID/secret, `STRAVA_WEBHOOK_VERIFY_TOKEN`, `TOKEN_ENCRYPTION_KEY`
    (`openssl rand -base64 32`), `SESSION_SIGNING_KEY` (`openssl rand -base64 32`).
-2. In the Strava app settings, set the authorization callback domain to
-   `localhost`.
+2. Strava always allows `localhost` and `127.0.0.1` as OAuth callback hosts, so
+   the app's callback domain can stay set to the production domain (§3).
 3. `pnpm wrangler d1 migrations apply rynke-points --local`, then `pnpm dev`.
 4. Open `http://localhost:8787/`, connect, untick "private activities" once and
    connect again.
@@ -76,15 +76,34 @@ Uses your own Strava app in its 1-athlete capacity, i.e. only your own data.
 ## 3. First production setup (manual, maintainer runs each step)
 
 These touch production resources and are never run by tooling (constitution,
-Development Workflow).
+Development Workflow). The app is served at `https://trhh-rynke-coins.link`.
 
-1. `pnpm wrangler d1 create rynke-points --jurisdiction=eu`. If rejected, use
+1. **Cloudflare account.** A free-plan account covers Workers, D1, Queues, cron
+   triggers and static assets. Prefer a shared team email over a personal one,
+   and add other maintainers under Manage Account → Members. Then
+   `pnpm wrangler login`, and check the account with `pnpm wrangler whoami`.
+2. **Domain.** `trhh-rynke-coins.link` must be an active zone in that account
+   (its nameservers are Cloudflare's). Under DNS → Records, add only these two;
+   the domain sends no mail, so they stop anyone from sending mail in its name:
+
+   | Type | Name | Content |
+   |---|---|---|
+   | TXT | `@` | `v=spf1 -all` |
+   | TXT | `_dmarc` | `v=DMARC1; p=reject;` |
+
+   Don't add an A or CNAME record for the domain itself: deploying with a custom
+   domain (step 8) creates it, together with the TLS certificate.
+3. `pnpm wrangler d1 create rynke-points --jurisdiction=eu`. If rejected, use
    `--location=weur` instead (research R11). Put the ID in `wrangler.jsonc`.
-2. `pnpm wrangler queues create rynke-points-work`.
-3. `pnpm wrangler d1 migrations apply rynke-points --remote`.
-4. `pnpm wrangler secret put` for `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`,
+4. `pnpm wrangler queues create rynke-points-work`.
+5. `pnpm wrangler d1 migrations apply rynke-points --remote`.
+6. `pnpm wrangler secret put` for `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`,
    `STRAVA_WEBHOOK_VERIFY_TOKEN`, `TOKEN_ENCRYPTION_KEY` and `SESSION_SIGNING_KEY`.
-5. Download the official "Connect with Strava" button and "Powered by Strava" logo
+   - Generate fresh production values for the two keys
+     (`openssl rand -base64 32`); never reuse the ones in `.dev.vars`.
+   - Never change `TOKEN_ENCRYPTION_KEY` once riders exist: their stored tokens
+     become unreadable and every rider has to reconnect.
+7. Download the official "Connect with Strava" button and "Powered by Strava" logo
    from Strava's brand guidelines (`1.1-Connect-with-Strava-Buttons.zip`,
    `1.2-Strava-API-Logos.zip`) into `public/strava/en/`.
    - The `de` catalog points at the `en/` files by default.
@@ -95,19 +114,38 @@ Development Workflow).
      exists under `public/`:
      `grep -ho '"/strava/[^"]*"' src/i18n/messages/*.ts | tr -d '"' | sort -u | sed 's|^|public|' | xargs ls`.
      Tests don't need these files, so nothing else catches a missing one.
-6. Set `SEASON_START_DATE` in `wrangler.jsonc`, then `pnpm deploy`.
-7. Create the webhook subscription (`POST /api/v3/push_subscriptions` with
-   `callback_url=https://<host>/strava/webhook/<verify token>`). Put the returned
-   ID into `STRAVA_SUBSCRIPTION_ID` and deploy again.
-8. Smoke test:
-   - connect yourself and upload a short ride; it appears on `/me` within 5 minutes
-     (SC-002);
-   - delete it; it disappears;
-   - revoke the app in Strava settings; `wrangler d1 execute rynke-points --remote
-     --command "SELECT COUNT(*) FROM riders"` shows your row gone within 1 hour
-     (SC-006).
-9. When the second rider connects, check that the capacity behaviour matches
-   research R14. If Strava's response differs, adjust the check.
+8. **Attach the domain.** `wrangler.jsonc` needs:
+
+   ```jsonc
+   "routes": [{ "pattern": "trhh-rynke-coins.link", "custom_domain": true }],
+   "workers_dev": false,
+   "preview_urls": false
+   ```
+
+   The app then has exactly one origin. That matters because Strava accepts one
+   callback domain, and the session and language cookies are per host. To serve
+   `www.trhh-rynke-coins.link` too, add a Redirect Rule to the bare domain rather
+   than a second custom domain.
+9. Set `SEASON_START_DATE` in `wrangler.jsonc`, then `pnpm deploy`.
+   `https://trhh-rynke-coins.link/health` answers `ok`.
+10. **HTTPS only.** Once the domain serves the Worker, switch on SSL/TLS → Edge
+    Certificates → Always Use HTTPS. All cookies are `Secure`, so signing in
+    can't work over plain HTTP.
+11. **Strava app settings.** Set the Authorization Callback Domain to
+    `trhh-rynke-coins.link`. The OAuth callback is then
+    `https://trhh-rynke-coins.link/auth/callback`.
+12. Create the webhook subscription (`POST /api/v3/push_subscriptions` with
+    `callback_url=https://trhh-rynke-coins.link/strava/webhook/<verify token>`).
+    Put the returned ID into `STRAVA_SUBSCRIPTION_ID` and deploy again.
+13. Smoke test:
+    - connect yourself and upload a short ride; it appears on `/me` within 5
+      minutes (SC-002);
+    - delete it; it disappears;
+    - revoke the app in Strava settings; `wrangler d1 execute rynke-points
+      --remote --command "SELECT COUNT(*) FROM riders"` shows your row gone within
+      1 hour (SC-006).
+14. When the second rider connects, check that the capacity behaviour matches
+    research R14. If Strava's response differs, adjust the check.
 
 ## Inspecting failures
 
