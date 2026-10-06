@@ -49,6 +49,13 @@ athlete capacity; say plainly if the leaderboard is not allowed.
   other riders, and the leaderboard will probably get a week-by-week graph. Names
   are shown to organisers only, and only the Strava first name the app already
   keeps; no last name is stored (FR-022).
+- Q (raised by the project owner): Must write access be required? → A: No. It is
+  optional, and the app explains what it is used for; the app works just as well
+  without the description feature. This supersedes the answers above where they make
+  write access required or rule out a way to stop the description writing: reading
+  activities and sharing stay required, write access and private activities are the
+  rider's choice (FR-010, FR-012, FR-016). The constitution 2.0.0 amendment follows
+  this.
 
 ## Summary of the Strava check
 
@@ -69,37 +76,40 @@ connecting (FR-010), and the leaderboard shows other riders' Rynke without names
 
 Terms: a **rider** is a connected club member (feature 001). An **organiser** is a
 rider whose Strava athlete ID is on the organiser list. The **consent** is what a
-rider agrees to when connecting: reading their activities, the app writing its Rynke
-block into their activity descriptions, and sharing their Rynke with organisers (by
-first name) and the team (without a name) as in FR-020. The **planned views** are the organiser pages
-(organiser-admin), the organiser overview and the team leaderboard
-(team-leaderboard) from [specs/backlog/](../backlog/README.md); this feature builds
-none of them, it defines what they may show.
+rider agrees to when connecting: reading their activities and sharing their Rynke
+with organisers (by first name) and the team (without a name) as in FR-020. Letting
+the app write its Rynke block into their activity descriptions is an optional extra.
+The **planned views** are the organiser pages (organiser-admin), the organiser
+overview and the team leaderboard (team-leaderboard) from
+[specs/backlog/](../backlog/README.md); this feature builds none of them, it defines
+what they may show.
 
-### User Story 1 - Rider agrees to everything taking part needs when connecting (Priority: P1)
+### User Story 1 - Rider agrees to what taking part needs when connecting (Priority: P1)
 
 A club member opens RynkePoints and, before going to Strava, reads in plain words
-what taking part means: the app reads their rides, writes a short Rynke block into
-their ride descriptions on Strava once that feature ships, shows their first name
-and Rynke to the organisers, and shows their accumulated Rynke to the team without
-their name. They agree and go on to Strava,
-which asks for read and write access to their activities; they may leave out their
-private ("Only You") activities. Back on RynkePoints they are connected, and the
-date and the version of what they agreed to are recorded.
+what taking part means: the app reads their rides, shows their first name and Rynke
+to the organisers, and shows their accumulated Rynke to the team without their name.
+The page also explains what write access is for (once that feature ships, a short
+Rynke block in their ride descriptions on Strava) and that it is optional. They
+agree and go on to Strava, which asks for read and write access to their activities;
+they may leave out write access and their private ("Only You") activities. Back on
+RynkePoints they are connected, and the date and the version of what they agreed to
+are recorded.
 
-**Why this priority**: Every shared view and the description feature depend on this
-consent. Asking for all of it from day one avoids re-asking every rider once those
-features ship (F-4).
+**Why this priority**: Every shared view depends on this consent. Offering write
+access from day one spares riders who want the description feature another trip
+through Strava once it ships (F-4).
 
 **Independent Test**: Connect simulated riders against a simulated Strava, once
 granting everything, once without write access and once declining on the
-RynkePoints page, and check that only the first is connected and that its consent is
-recorded with date and version.
+RynkePoints page, and check that the first two are connected, the second without
+write access, and that their consent is recorded with date and version.
 
 **Acceptance Scenarios**:
 
 1. **Given** a club member on the public page, **When** they start connecting,
-   **Then** they see what is read, what is written and what is shared with whom,
+   **Then** they see what is read, what write access is for and that it is
+   optional, what is shared with whom,
    with or without their name, how to leave and that leaving deletes their data,
    before anything is sent to Strava.
 2. **Given** a club member who agrees and grants read and write access on Strava,
@@ -109,8 +119,8 @@ recorded with date and version.
    activities, **When** they return, **Then** they are connected as in feature 001,
    FR-005.
 4. **Given** a club member who unticks write access on Strava, **When** they return,
-   **Then** no rider record or credentials are kept, and they see a plain
-   explanation that the app needs that permission plus an option to try again.
+   **Then** they are connected, their page states that nothing will be written to
+   their ride descriptions, and they can grant it later by connecting again.
 5. **Given** a club member who does not agree on the RynkePoints page, **When** they
    decline, **Then** they are not sent to Strava and nothing about them is kept.
 6. **Given** a connected rider who signs in again, **When** the consent version they
@@ -248,14 +258,16 @@ here.
 
 - **Rider connected before this feature**: they have no recorded consent, so others
   see nothing of them (FR-021). They are asked to agree on their next visit, and to
-  grant write access on Strava. At the time of writing the app has no riders
+  are offered write access on Strava. At the time of writing the app has no riders
   besides the maintainer.
 - **Rider no longer wants the Rynke block in their descriptions** (once the
-  description feature exists): there is no switch (FR-016); they leave (FR-015).
+  description feature exists): they stop it without leaving (FR-016) and stay
+  connected and shared.
 - **Rider revokes access on Strava**: Strava revokes read and write together; the
   rider is deleted as in feature 001, FR-022.
-- **Rider reconnects without write access**: treated like reconnecting without read
-  access in feature 001, FR-006: their data is deleted and they are told why.
+- **Rider reconnects without write access**: they stay connected; the app stops
+  writing to their descriptions (FR-016). Blocks already written stay on Strava
+  until the rider removes them; the app can no longer edit them.
 - **Organiser list names a rider who later disconnects**: the ID grants nothing
   until that athlete connects again.
 - **Organiser removed from the list mid-session**: their next request is a rider's;
@@ -309,27 +321,26 @@ here.
 
 **Consent**
 
-- **FR-010**: Taking part MUST require the rider's consent to all of the following;
-  a rider who does not give all of it MUST NOT be connected, and nothing about them
-  MUST be kept:
+- **FR-010**: Taking part MUST require the rider's consent to both of the following;
+  a rider who does not give both MUST NOT be connected, and nothing about them MUST
+  be kept:
   1. reading their cycling activities (feature 001);
-  2. the app writing its own delimited Rynke block into their activity
-     descriptions, once the description feature exists (constitution Principle
-     III);
-  3. sharing their data with organisers and the team as in FR-020.
-  Access to private ("Only You") activities MUST stay optional (feature 001,
-  FR-005).
+  2. sharing their data with organisers and the team as in FR-020.
+  Two parts MUST stay optional and MUST NOT affect taking part: access to private
+  ("Only You") activities (feature 001, FR-005), and write access, which lets the
+  app write its own delimited Rynke block into their activity descriptions once the
+  description feature exists (constitution Principle III).
 - **FR-011**: Before redirecting to Strava, the connect flow MUST explain in plain
-  words what is read, what is written (and that it is not optional),
+  words what is read, what write access is used for and that it is optional,
   what is shared with whom (FR-020), with or without their name (FR-022), how to
   leave, that leaving deletes all their data and that they get a confirmation once
   it is deleted (F-4), and MUST ask the rider to agree. Strava's own approval screen
   MUST NOT be altered (F-4).
-- **FR-012**: The system MUST request permission to read and to write the rider's
-  activities, including private ones, at Strava. A connection without read or
-  without write permission MUST be treated as not connected, as feature 001 FR-006
-  does for read permission; for an already connected rider this means deleting
-  their data as in feature 001, FR-022.
+- **FR-012**: The system MUST request permission to read the rider's activities,
+  including private ones, and to write them at Strava. A connection without read
+  permission MUST be treated as not connected (feature 001, FR-006). Write
+  permission MUST stay optional: the system MUST record whether it was granted and
+  MUST NOT edit the descriptions of a rider who has not granted it.
 - **FR-013**: The consent MUST carry a version. Every acceptance MUST be recorded
   with the version and its date and time, kept while the rider is connected and
   deleted with the rider. When a new version reads more data, shares more, or
@@ -345,9 +356,10 @@ here.
   club. In every case their data, including Rynke, attendance, corrections and the
   consent records, MUST be deleted as in feature 001, FR-022. There is no way to
   stay connected and stop sharing.
-- **FR-016**: There MUST be no per-rider setting that stops the app writing its
-  Rynke block while staying connected (constitution Principle III as amended in
-  2.0.0); the description feature MUST NOT add one without a new consent version.
+- **FR-016**: A rider MUST be able to stop the writing of the Rynke block at any
+  time without leaving (constitution Principle III): by connecting again without
+  write access, and through any in-app setting the description feature adds. It
+  changes nothing about reading or sharing.
 
 **Visibility**
 
@@ -403,18 +415,19 @@ here.
 - **Consent Record**: one acceptance by a Rider — consent version and date and
   time. The latest one is the Rider's current consent. Kept while the Rider is
   connected; deleted with the Rider.
-- **Rider** (feature 001): unchanged except that its granted permissions now include
-  write access. The first name it already holds is what organisers see (FR-022).
+- **Rider** (feature 001): unchanged except that its granted permissions now record
+  whether write access was granted. The first name it already holds is what
+  organisers see (FR-022).
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: 100% of connected riders have granted read and write access and have
+- **SC-001**: 100% of connected riders have granted read access and have
   a recorded consent, or are left out of every shared view.
 - **SC-002**: For a synthetic team of organisers and riders, 100% of answers to
   "what may this viewer see about this rider" match FR-020 and FR-021.
-- **SC-003**: 100% of connection attempts without write access, or without agreeing
+- **SC-003**: 100% of connection attempts without read access, or without agreeing
   on the RynkePoints page, end with no data about the athlete kept.
 - **SC-004**: A club member can read the consent, agree and be connected in under
   3 minutes, without help from an organiser.
@@ -438,8 +451,8 @@ here.
 - Sharing within the team is the point of taking part (riders train for the team and
   organisers check who qualifies), so it is a condition of taking part rather than a
   separate choice. Leaving names off the leaderboard keeps what other riders see to
-  the minimum that still motivates. This spec is not legal advice; the privacy text is reviewed
-  before riders are invited.
+  the minimum that still motivates. This spec is not legal advice; the privacy text
+  is reviewed before riders are invited.
 - The pages that use roles and consent (organiser pages, rider view, organiser
   overview, team leaderboard) and the description feature are separate features;
   this feature defines the roles, the consent, the visibility rule and the consent
@@ -447,12 +460,11 @@ here.
 - This feature changes feature 001, whose spec is updated with it: the connect flow
   gains the consent step (FR-011), the rider's page shows the consent (FR-014), the
   privacy text grows (FR-023) and consent records are deleted with the rider. The
-  rider record stays as it is (FR-022). Still open there: write access is requested
-  and required here (FR-012), while feature 001 FR-003 still requests read access
-  only.
+  rider record stays as it is (FR-022), and write access is requested as optional
+  (FR-012), replacing feature 001 FR-003's read-only request.
 - The constitution is amended to 2.0.0 with this feature: Principle I asks for one
-  required consent at connect instead of separately opt-in capabilities, and
-  Principle III no longer requires description edits to be switchable off.
+  required consent at connect (reading activities, sharing) instead of separately
+  opt-in capabilities; write access and private activities stay optional.
 - Feature 003 already stores balances per rider (its FR-015); nothing there changes.
 - What the description feature writes is visible to whoever may see the activity on
   Strava, according to the rider's own Strava settings; the consent text says so.
