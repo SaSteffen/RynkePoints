@@ -35,7 +35,8 @@ through Strava's webhook. A single Worker handles four things:
   the cookie and returns the visitor to the same page.
 - Outcome pages get stable GET URLs (`/notice/:id`), so the switcher can always
   return there.
-- Strava brand images are chosen per language through the catalogs.
+- Strava brand images are referenced through the catalogs; Strava ships them
+  in English only, so both languages use the English files.
 
 This revision updates the earlier plan for those changes. Everything else is
 unchanged.
@@ -181,7 +182,7 @@ messages each ([contracts/messages.md](contracts/messages.md)).
 | I. Deletion | Hard delete with cascade on deauth, disconnect, leaving the club, or 7 days stuck in `needs_reconnect` (FR-020); the cascade includes `consent_records` (FR-022). Revoking uses the stored refresh token, so deletion never depends on a working refresh. Pending work can't recreate rows (FK + rider check). D1 Time Travel keeps a 7-day restorable history that can't be disabled; it is disclosed to riders and never used to restore deleted riders (FR-022a, R15). | ✅ disclosed |
 | I. Secrets | Tokens AES-GCM encrypted (R10). Secrets only via `wrangler secret` / `.dev.vars`. Tests use synthetic bindings. | ✅ |
 | I. EU storage | D1 `--jurisdiction=eu` (R11). Queue messages hold IDs only. | ✅ |
-| I. Purpose & brand | Data used only for this app. Official Connect button (now the consent form's submit button, image unchanged) and "Powered by Strava", unmodified, in the page language's variant where Strava ships one; `de` uses the original files until then, and a pre-deploy step checks every catalog path exists (R13, R19). | ✅ |
+| I. Purpose & brand | Data used only for this app. Official Connect button (now the consent form's submit button, image unchanged) and "Powered by Strava", unmodified. Strava ships them in English only, so both languages use the English files; a pre-deploy step checks every catalog path exists (R13, R19). | ✅ |
 | I. Language preference | The picked language lives only in the `rp_lang` browser cookie. It's never in D1 or the rider record, and is disclosed on the landing page (FR-029a, R18). | ✅ |
 | II. Webhook ack + queue | The handler validates and enqueues only (contracts/http-routes.md). | ✅ |
 | II. Idempotency | Upserts converge to Strava's current state; duplicates and reordering are safe (R5). | ✅ |
@@ -197,7 +198,7 @@ messages each ([contracts/messages.md](contracts/messages.md)).
 | Language: translation strings | No rider-facing copy in templates or logic; everything comes from `src/i18n/messages/<locale>.ts` by message ID (contracts/messages.md). A pseudo-locale test catches hard-coded text (R18). `de` is the source catalog every locale must match and the language when the browser states no preference (R17). | ✅ |
 | Language: new locale = strings only | Add a catalog file and register it in `src/i18n/catalogs.ts`. Switcher, resolution and validation iterate over the registry; no page or processing logic changes (FR-030, R16). | ✅ |
 | Language: English for developers | Code, identifiers, logs, schema, JSON fields, test names, commits and these docs are English. Webhook and health responses aren't catalogued. | ✅ |
-| Language: Strava assets | German variant where Strava provides one, otherwise Strava's original; never re-lettered (R19). | ✅ open: German variant availability unconfirmed |
+| Language: Strava assets | Strava provides no German variant, so Strava's original English files are used; never re-lettered (R19). | ✅ |
 | Language: tests assert German | Page tests assert the German texts from contracts/messages.md; only explicit English-locale tests assert English. | ✅ |
 
 **Post-design re-check (after Phase 1)**: still passing.
@@ -272,8 +273,7 @@ migrations/
 
 public/
 └── strava/                  # Strava brand assets (static assets binding), unmodified
-    ├── en/                  # connect-with-strava.svg, powered-by-strava.svg
-    └── de/                  # German variants, only if Strava provides them (R19)
+    └── en/                  # connect-with-strava.svg, powered-by-strava.svg; all languages (R19)
 
 src/
 ├── index.ts                 # fetch / queue / scheduled entry points
@@ -353,14 +353,9 @@ Afterwards, regenerate `worker-configuration.d.ts` with `pnpm types`.
 
 ## Open questions
 
-- **German Strava brand assets** (FR-001, R19): Strava's guidelines page doesn't
-  say whether its button and logo downloads include German variants. The
-  maintainer checks when downloading (quickstart §3 step 5). Until a German
-  variant is confirmed, `de` points at Strava's official English files, as the
-  constitution allows, and FR-001's "variant matching the page language" isn't
-  fully met for German. The fix is either a spec note or a request to
-  developers@strava.com. No code change is needed either way, because the asset
-  path is a catalog entry.
+- **German Strava brand assets** (FR-001, R19): resolved by the maintainer on
+  2026-10-07 — Strava's assets are English only, so every page language shows
+  the English button and logo; only their alt text is translated. FR-001 says so.
 - **Browsers naming only unsupported languages** (FR-029): resolved in the spec on
   2026-10-06 — `da` gets English, `da,de;q=0.5` gets German, and only a missing or
   empty preference falls back to German (R17).

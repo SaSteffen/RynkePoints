@@ -310,8 +310,8 @@ R21 was added, and R1 revised, after constitution v2.0.0 and feature
     text comes from the message catalogs (R16).
   - Routing is a small path switch, with no framework.
   - The official "Connect with Strava" button and "Powered by Strava" logo are
-    served from Workers static assets (`public/strava/<locale>/`), picked per page
-    language through the catalogs (R19). The maintainer downloads them from
+    served from Workers static assets (`public/strava/en/`), referenced through
+    the catalogs (R19). The maintainer downloads them from
     Strava's brand guidelines page, which is a manual step.
 - **Rationale**: Principle IV (no runtime dependencies) plus brand-guideline
   compliance (Principle I). A handful of pages don't justify a framework.
@@ -495,21 +495,19 @@ R21 was added, and R1 revised, after constitution v2.0.0 and feature
   - Keeping the inline callback pages and sending the switcher there to `/`. That
     breaks "keeps the visitor on the same page"; rejected.
 
-## R19. Strava brand assets per language (FR-001, constitution "Language")
+## R19. Strava brand assets and page language (FR-001, constitution "Language")
 
 - **Decision**:
-  - Brand images are localised resources referenced from the catalogs:
+  - Brand images are resources referenced from the catalogs:
     `brand.connectWithStrava.src`, `brand.connectWithStrava.alt`,
     `brand.poweredByStrava.src` and `brand.poweredByStrava.alt`.
-  - The files live in `public/strava/<locale>/connect-with-strava.svg` and
-    `public/strava/<locale>/powered-by-strava.svg`. The maintainer fills them from
+  - The files live in `public/strava/en/connect-with-strava.svg` and
+    `public/strava/en/powered-by-strava.svg`. The maintainer fills them from
     Strava's downloads (`1.1-Connect-with-Strava-Buttons.zip` and
     `1.2-Strava-API-Logos.zip`), using the orange button at 48 px height.
-  - The `de` catalog points at Strava's original (English) files in
-    `public/strava/en/` until a German variant is confirmed in Strava's
-    downloads. Then it switches to `public/strava/de/`. The constitution allows
-    that fallback: "in the German variant where one exists". Defaulting to `en/`
-    means a deploy can't ship broken images because nobody added German files.
+  - Strava ships the assets in English only (maintainer, 2026-10-07), so both
+    catalogs point at the English files. The constitution allows that: "in the
+    German variant where one exists".
   - Tests don't need the files, so the quickstart's pre-deploy steps check that
     every `brand.*.src` in every catalog exists under `public/`.
   - The button's `alt` text is translated ("Mit Strava verbinden" / "Connect with
@@ -519,18 +517,14 @@ R21 was added, and R1 revised, after constitution v2.0.0 and feature
 - **Rationale**: Checked on 2026-10-06, Strava's guidelines say to "never modify,
   alter or animate Strava logos". They list the button in orange and white
   (EPS/SVG/PNG, 48 px @1x) and point to developers@strava.com for anything else.
-  The page doesn't say whether the downloads include German variants. Keeping the
-  path in the catalog makes "German if it exists" a data change, not a code change,
-  and tests stay independent of the actual files.
+  Keeping the path in the catalog keeps tests independent of the actual files,
+  and a German variant, should Strava ever ship one, would be a data change, not
+  a code change.
 - **Alternatives considered**:
   - A path convention (`/strava/${locale}/…`) built in code. It forces a German
     file to exist even when Strava supplies none, which tempts someone to make an
     unofficial translation; rejected.
   - Our own German-lettered button. It violates the brand guidelines; rejected.
-- **Open**: whether Strava's downloads include a German variant has to be confirmed
-  when the maintainer downloads them (quickstart §3). If they don't, FR-001's "variant
-  matching the page language" is met only for English, and the German page shows
-  the official English button (see plan.md, Open questions).
 
 ## R20. Re-reading stored activities when FR-013 gains a figure (spec Edge Cases)
 

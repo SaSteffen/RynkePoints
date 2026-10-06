@@ -23,9 +23,9 @@ The complete set of message IDs for this feature. These are the keys of
 | `meta.languageName` | Deutsch | English |
 | `meta.intlLocale` | de-DE | en-GB |
 | `app.name` | RynkePoints | RynkePoints |
-| `brand.connectWithStrava.src` | `/strava/en/connect-with-strava.svg` until a German button from Strava is confirmed; then `/strava/de/connect-with-strava.svg` (research R19) | `/strava/en/connect-with-strava.svg` |
+| `brand.connectWithStrava.src` | `/strava/en/connect-with-strava.svg` (Strava ships English only, research R19) | `/strava/en/connect-with-strava.svg` |
 | `brand.connectWithStrava.alt` | Mit Strava verbinden | Connect with Strava |
-| `brand.poweredByStrava.src` | `/strava/en/powered-by-strava.svg` (same rule) | `/strava/en/powered-by-strava.svg` |
+| `brand.poweredByStrava.src` | `/strava/en/powered-by-strava.svg` | `/strava/en/powered-by-strava.svg` |
 | `brand.poweredByStrava.alt` | Powered by Strava | Powered by Strava |
 
 ## Layout
