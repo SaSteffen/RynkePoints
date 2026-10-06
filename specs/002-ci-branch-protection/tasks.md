@@ -525,37 +525,37 @@ changes `origin`, GitHub settings or production. The maintainer runs them, or
 asks for them explicitly. Never run them as a side effect of an implementation
 task.** Do them in this order.
 
-- [ ] T042 Push `002-deploy-on-main` and open its PR into `develop` with a Conventional Commit title, e.g. `ci: deploy to production on merge to main`. Expected:
+- [X] T042 Push `002-deploy-on-main` and open its PR into `develop` with a Conventional Commit title, e.g. `ci: deploy to production on merge to main`. Expected:
   - the six required checks go green, and `deploy-gate` and `deploy` show as *skipped* on the PR;
   - after the squash merge, the push run on `develop` shows `deploy-gate` and `deploy` as skipped too, and no `production` environment or deployment appears.
-- [ ] T043 One-time deploy setup, following quickstart.md §7 (research R15, R17, R18, R21). It must be done **before** the release in T044. Otherwise that release's run would create `production` without a branch rule, and its deploy would fail for lack of a secret.
+- [X] T043 One-time deploy setup, following quickstart.md §7 (research R15, R17, R18, R21). It must be done **before** the release in T044. Otherwise that release's run would create `production` without a branch rule, and its deploy would fail for lack of a secret.
   - Prerequisites: the 001 quickstart (steps 1–12) is done, including its first manual `pnpm run deploy`, so the custom domain already exists (R20). `main` carries the real `database_id` and `STRAVA_SUBSCRIPTION_ID`. The Cloudflare account holds only RynkePoints; if not, stop (FR-032).
   - §7.1: create the account-owned token `rynkepoints-github-deploy` with Workers Scripts Edit and D1 Edit only, and an end date.
   - §7.2: create `production` with the branch rule `main`, then uncheck the admin bypass in the UI.
   - §7.3: store the secret and the variable on the environment.
   - §7.4: run the verify commands; the output matches, and no `CLOUDFLARE_*` exists at repository level.
   - §7.5: switch on the failure e-mail.
-- [ ] T044 [US5] First automatic deploy and D1 (quickstart.md §8, §9). Open the release PR `develop` → `main`, go through the release checklist, merge it, and watch with `gh run watch`. Expected (D1, US5-1, FR-027, FR-035, SC-008):
+- [X] T044 [US5] First automatic deploy and D1 (quickstart.md §8, §9). Open the release PR `develop` → `main`, go through the release checklist, merge it, and watch with `gh run watch`. Expected (D1, US5-1, FR-027, FR-035, SC-008):
   - `lint`, `typecheck`, `test`, then `deploy-gate` and `deploy` go green within 15 minutes of the merge. Note the actual duration;
   - the `deploy` log shows the migrations step ("No migrations to apply!" or the list) **before** the upload, and no secret value;
   - **Deployments → production** lists the merge commit as *Active*, recorded without any `deployments: write`;
   - `https://trhh-rynke-coins.link/health` answers `ok`, and `pnpm wrangler deployments list` shows the SHA in the message.
 
   If `deploy` fails with an authorization error on the custom domain (research R17 "Open point"), add *Zone → Workers Routes → Edit* restricted to the zone `trhh-rynke-coins.link` to the token, re-deploy with `gh workflow run ci.yml --ref main`, and record the change in research.md R17, data-model.md "Deploy credential" and quickstart.md §7.1 through a follow-up PR.
-- [ ] T045 [US5] Validation D2–D6 (quickstart.md §9):
+- [X] T045 [US5] Validation D2–D6 (quickstart.md §9):
   - D2 (US5-4, SC-006): merge a trivial PR into `develop`; `deploy-gate` and `deploy` skipped, no new deployment;
   - D3 (US5-7, FR-031): a throwaway same-repo PR into `develop` that deletes the `if:` lines of both deploy jobs. `deploy` fails before it starts with an environment protection message, no secret reaches the run, no deployment. Close it unmerged;
   - D4 (FR-030): `gh workflow run ci.yml --ref <feature branch>`; checks run, deploy jobs skipped;
   - D5 (US5-6, FR-030): `gh workflow run ci.yml --ref main`; the gate allows the same commit, and a new `production` deployment with the same SHA succeeds;
   - D6 (US5-3, FR-024): start D5 again and cancel the run while `test` is running; neither deploy job runs, no new deployment.
-- [ ] T046 [US5] Validation D7 (US5-2, quickstart.md §5, §9): a small hotfix (`hotfix/…` → `main`, then the `sync/…` back-merge into `develop`). The hotfix commit is deployed the same way as in D1; the back-merge into `develop` deploys nothing.
-- [ ] T047 [US5] Validation D8–D9 (FR-026, quickstart.md §9):
+- [X] T046 [US5] Validation D7 (US5-2, quickstart.md §5, §9): a small hotfix (`hotfix/…` → `main`, then the `sync/…` back-merge into `develop`). The hotfix commit is deployed the same way as in D1; the back-merge into `develop` deploys nothing.
+- [X] T047 [US5] Validation D8–D9 (FR-026, quickstart.md §9):
   - D8: in **Actions**, open the T044 run (an older `main` commit) and **Re-run all jobs**. Checks pass, `deploy-gate` logs the notice that a newer commit is live, `deploy` is skipped, and production stays on the D7 commit;
   - D9: dispatch on `main` three times within a few seconds. One runs, one waits, the middle one ends *cancelled* while waiting; the running deploy is never cancelled; two deployments with the same SHA are recorded.
-- [ ] T048 [US5] Validation D10 (US5-5, FR-028, SC-011; quickstart.md §9): set `CLOUDFLARE_ACCOUNT_ID` on `production` to `0000`, then dispatch on `main`. The `deploy` job fails on the migrations step, the run is red, the deployment shows *failure*, a failure e-mail arrives, and `/health` still answers `ok`. Restore the real ID and dispatch again: green.
+- [X] T048 [US5] Validation D10 (US5-5, FR-028, SC-011; quickstart.md §9): set `CLOUDFLARE_ACCOUNT_ID` on `production` to `0000`, then dispatch on `main`. The `deploy` job fails on the migrations step, the run is red, the deployment shows *failure*, a failure e-mail arrives, and `/health` still answers `ok`. Restore the real ID and dispatch again: green.
 
   FR-035's migration-failure path isn't drilled on production; check the deploy log of the next real migration instead (quickstart.md §9).
-- [ ] T049 Periodic check (quickstart.md §6, §7.4; FR-022): next to the T029 verify commands, re-run the §7.4 commands and confirm the environment still allows only `main`, the bypass box is unchecked, and the secret and variable exist on `production` only. Also rotate the token before its end date (quickstart.md §11).
+- [X] T049 Periodic check (quickstart.md §6, §7.4; FR-022): next to the T029 verify commands, re-run the §7.4 commands and confirm the environment still allows only `main`, the bypass box is unchecked, and the secret and variable exist on `production` only. Also rotate the token before its end date (quickstart.md §11).
 
 ---
 

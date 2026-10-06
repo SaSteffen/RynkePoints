@@ -6,8 +6,10 @@ import { checkMembership } from "./work/check-membership";
 import { type Handlers, processBatch } from "./work/consumer";
 import { deleteRider } from "./work/delete-rider";
 import { importPage } from "./work/import-page";
+import { rereadPage } from "./work/reread-page";
 import {
 	expireReconnectRiders,
+	fanOutFiguresReread,
 	fanOutMembershipChecks,
 	requeueFailedWork,
 } from "./work/scheduled";
@@ -18,6 +20,7 @@ import {
 const handlers: Handlers = {
 	"activity-event": activityEvent,
 	"import-page": importPage,
+	"reread-page": rereadPage,
 	"check-membership": checkMembership,
 	"delete-rider": deleteRider,
 };
@@ -54,6 +57,7 @@ export async function handleScheduled(
 		fanOutMembershipChecks,
 		expireReconnectRiders,
 		requeueFailedWork,
+		fanOutFiguresReread,
 	]) {
 		try {
 			await step(ctx);

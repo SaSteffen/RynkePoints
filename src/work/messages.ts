@@ -24,6 +24,15 @@ export interface ImportPageMessage {
 	after: number;
 }
 
+/** The one-time re-read after FR-013 gained a figure (research R20). */
+export interface RereadPageMessage {
+	kind: "reread-page";
+	athleteId: number;
+	page: number;
+	/** Season start (epoch seconds) when the re-read was started. */
+	after: number;
+}
+
 export interface CheckMembershipMessage {
 	kind: "check-membership";
 	athleteId: number;
@@ -39,6 +48,7 @@ export interface DeleteRiderMessage {
 export type WorkMessage =
 	| ActivityEventMessage
 	| ImportPageMessage
+	| RereadPageMessage
 	| CheckMembershipMessage
 	| DeleteRiderMessage;
 
@@ -74,6 +84,7 @@ export function parseWorkMessage(body: unknown): WorkMessage | null {
 				changed: [...m.changed],
 			};
 		case "import-page":
+		case "reread-page":
 			if (
 				!isId(m.page) ||
 				typeof m.after !== "number" ||
@@ -107,6 +118,7 @@ export function serializeWorkMessage(m: WorkMessage): string {
 				changed: m.changed,
 			});
 		case "import-page":
+		case "reread-page":
 			return JSON.stringify({
 				kind: m.kind,
 				athleteId: m.athleteId,

@@ -25,6 +25,10 @@ export interface StravaActivityFixture {
 	distance: number;
 	moving_time: number;
 	total_elevation_gain: number;
+	/** Optional so a test can delete them: Strava may omit a field. */
+	elapsed_time?: number;
+	manual?: boolean;
+	trainer?: boolean;
 	private: boolean;
 	[field: string]: unknown;
 }
@@ -51,6 +55,8 @@ export function makeStravaActivity(
 		moving_time: 5400,
 		elapsed_time: 6000,
 		total_elevation_gain: 312,
+		manual: false,
+		trainer: false,
 		private: false,
 		visibility: "everyone",
 		start_latlng: [53.5, 10.0],

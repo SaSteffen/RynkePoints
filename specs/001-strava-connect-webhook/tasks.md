@@ -661,38 +661,38 @@ added", research R20).
 
 ### Tests for the activity figures (write first, confirm red) ⚠️
 
-- [ ] T082 [P] [US2] Extend the synthetic fixture and the mapping unit test (FR-013, FR-014):
+- [X] T082 [P] [US2] Extend the synthetic fixture and the mapping unit test (FR-013, FR-014):
   - `test/support/fixtures.ts`: add `manual: false` and `trainer: false` to `StravaActivityFixture` and `makeStravaActivity` (`elapsed_time: 6000` is already there).
   - `test/unit/activity.test.ts`:
     - the allow-list key list gains `elapsed_time_s`, `is_manual` and `is_trainer`;
     - `elapsed_time: 6000` → `elapsed_time_s: 6000`; `manual: true` → `is_manual: 1`; `trainer: true` → `is_trainer: 1`; `false` → 0;
     - **never guessed**: a response without `elapsed_time`, `manual` or `trainer` (key deleted from the fixture) maps that figure to `null`, not 0.
-- [ ] T083 [P] [US2] Integration test in `test/integration/db.test.ts` for migration `0002`:
+- [X] T083 [P] [US2] Integration test in `test/integration/db.test.ts` for migration `0002`:
   - an upsert stores the three figures, and `listRecentActivities` returns them;
   - an upsert with `null` figures stores `NULL`, and a later upsert with values replaces it;
   - the CHECK constraints reject `elapsed_time_s = -1`, `is_manual = 2`, `is_trainer = 2` and `figures_version = -1`;
   - `insertRider` stores `figures_version = ACTIVITY_FIGURES_VERSION`; a rider row inserted by raw SQL without the column gets 0 (the default that marks pre-`0002` riders);
   - `listActivityIdsMissingFigures(db, athleteId)` returns exactly the rider's rows with any of the three figures `NULL`, never another rider's.
-- [ ] T084 [P] [US2] Extend `test/integration/activity-event.test.ts` and `test/integration/import-page.test.ts` (FR-013, FR-015):
+- [X] T084 [P] [US2] Extend `test/integration/activity-event.test.ts` and `test/integration/import-page.test.ts` (FR-013, FR-015):
   - `create` for an activity with `elapsed_time: 7200`, `manual: true` and `trainer: true` stores `7200`, `1` and `1` (add the three columns to the expected row);
   - an `update` refetch where `trainer` changed from `true` to `false` refreshes `is_trainer` to 0;
   - an import page stores the three figures for every cycling item.
-- [ ] T085 [P] [US1] Extend `test/integration/landing.test.ts` (FR-002). The existing catalog-value assertions pass with any text, so also assert the content:
+- [X] T085 [P] [US1] Extend `test/integration/landing.test.ts` (FR-002). The existing catalog-value assertions pass with any text, so also assert the content:
   - German: the page contains "Gesamtzeit mit Pausen", "manuell eingetragen" and "Rollentrainer";
   - English (`Accept-Language: en`): it contains "elapsed time including pauses", "entered manually" and "indoor trainer".
-- [ ] T086 [P] [US2] Extend `test/unit/messages.test.ts` for `reread-page` (contracts/queue-messages.md):
+- [X] T086 [P] [US2] Extend `test/unit/messages.test.ts` for `reread-page` (contracts/queue-messages.md):
   - a valid body parses;
   - a non-positive `page`, or a negative or non-integer `after`, is rejected;
   - unknown fields are dropped;
   - `serializeWorkMessage` writes `kind, athleteId, page, after` in that order.
-- [ ] T087 [P] [US2] Integration test in `test/integration/reread-page.test.ts` (research R20). Seed rows with `NULL` figures via raw SQL, as `0002` leaves them:
+- [X] T087 [P] [US2] Integration test in `test/integration/reread-page.test.ts` (research R20). Seed rows with `NULL` figures via raw SQL, as `0002` leaves them:
   - **paging**: 450 synthetic activities on fake Strava → 3 list calls, each with the `after` from the first message, and every row's figures filled;
   - **`import_status` untouched**: `done` stays `done`, including while more pages follow;
   - **scope rule**: a private item for a rider without `read_all` is not stored, as in `import-page`;
   - **leftovers on the last page**: a stored row missing from the list, and a row whose summary omits `manual`, each get exactly one `activity-event { aspect: "update", changed: [] }`. Rows filled by the list and other riders' rows get none;
   - **end to end**: processing that refetch with fake Strava answering 404 deletes the row;
   - **budget and transient** results pass through like `import-page` (no write, nothing enqueued).
-- [ ] T088 [P] [US2] Integration test in `test/integration/scheduled-reread.test.ts` (research R20):
+- [X] T088 [P] [US2] Integration test in `test/integration/scheduled-reread.test.ts` (research R20):
   - a connected rider at `figures_version = 0` → exactly one `reread-page { page: 1, after: seasonStart(env) }`, and the version becomes `ACTIVITY_FIGURES_VERSION`;
   - a second cron run enqueues nothing;
   - a rider already at the current version → nothing;
@@ -701,42 +701,42 @@ added", research R20).
 
 ### Implementation for the activity figures
 
-- [ ] T089 [US2] Create `migrations/0002_activity_points_figures.sql` (data-model.md):
+- [X] T089 [US2] Create `migrations/0002_activity_points_figures.sql` (data-model.md):
   - `ALTER TABLE activities ADD COLUMN elapsed_time_s INTEGER CHECK (elapsed_time_s >= 0)`;
   - `ALTER TABLE activities ADD COLUMN is_manual INTEGER CHECK (is_manual IN (0, 1))`;
   - `ALTER TABLE activities ADD COLUMN is_trainer INTEGER CHECK (is_trainer IN (0, 1))`;
   - `ALTER TABLE riders ADD COLUMN figures_version INTEGER NOT NULL DEFAULT 0 CHECK (figures_version >= 0)`.
 
   The activity columns are nullable and have no default, because `NULL` means unknown. The rider default 0 marks every existing rider for the re-read. Never edit `0001_init.sql`: it is applied in production. `test/setup.ts` applies every migration, so no test wiring changes.
-- [ ] T090 [US2] Extend `src/strava/activity.ts`:
+- [X] T090 [US2] Extend `src/strava/activity.ts`:
   - `StravaActivity` gains optional `elapsed_time`, `manual` and `trainer`;
   - `ActivityRecord` gains `elapsed_time_s: number | null`, `is_manual: 0 | 1 | null` and `is_trainer: 0 | 1 | null`;
   - `toActivityRecord` maps each of them, and a field missing from the response to `null`;
   - export `ACTIVITY_FIGURES_VERSION = 1`, with a comment that it goes up whenever the mapping gains an FR-013 figure (R20).
 
   Makes T082 green.
-- [ ] T091 [US2] Extend `src/db/activities.ts`:
+- [X] T091 [US2] Extend `src/db/activities.ts`:
   - the upsert writes the three columns in both the insert and the `DO UPDATE SET` part;
   - `listRecentActivities` selects them;
   - add `listActivityIdsMissingFigures(db, athleteId)`.
 
   Fix the `ActivityRecord` literals in existing tests that `tsc` now rejects.
-- [ ] T092 [P] [US1] Replace `landing.dataRead` in `src/i18n/messages/de.ts` and `en.ts` with the texts from contracts/messages.md. Makes T085 green.
-- [ ] T093 [US2] Extend `src/db/riders.ts`:
+- [X] T092 [P] [US1] Replace `landing.dataRead` in `src/i18n/messages/de.ts` and `en.ts` with the texts from contracts/messages.md. Makes T085 green.
+- [X] T093 [US2] Extend `src/db/riders.ts`:
   - `Rider` gains `figuresVersion`;
   - `insertRider` writes `ACTIVITY_FIGURES_VERSION`;
   - add `listRidersBehindFiguresVersion(db, version)` (connected riders only) and `setFiguresVersion(db, athleteId, version)`.
 
   Together with T089–T091 this makes T083 and T084 green.
-- [ ] T094 [US2] Add `RereadPageMessage` (`kind: "reread-page"`) to `src/work/messages.ts`: the union, `parseWorkMessage` (same checks as `import-page`) and `serializeWorkMessage`. Makes T086 green.
-- [ ] T095 [US2] Implement `src/work/reread-page.ts` per contracts/queue-messages.md:
+- [X] T094 [US2] Add `RereadPageMessage` (`kind: "reread-page"`) to `src/work/messages.ts`: the union, `parseWorkMessage` (same checks as `import-page`) and `serializeWorkMessage`. Makes T086 green.
+- [X] T095 [US2] Implement `src/work/reread-page.ts` per contracts/queue-messages.md:
   - move the "map, apply the scope rule, upsert" loop out of `src/work/import-page.ts` into a helper that both handlers use, so the scope rule exists once;
   - the handler pages like the import but never calls `setImportStatus`;
   - on a short page it enqueues one `activity-event { aspect: "update", changed: [] }` per `listActivityIdsMissingFigures` row, using `sendBatch` in batches of 100;
   - register it in the handler map in `src/index.ts`.
 
   Makes T087 green, and `import-page.test.ts` stays green.
-- [ ] T096 [US2] Add `fanOutFiguresReread(ctx)` to `src/work/scheduled.ts`:
+- [X] T096 [US2] Add `fanOutFiguresReread(ctx)` to `src/work/scheduled.ts`:
   - for each `listRidersBehindFiguresVersion(ACTIVITY_FIGURES_VERSION)` rider, send `reread-page { page: 1, after: seasonStart(ctx.env) }`, then call `setFiguresVersion`;
   - send before marking.
 

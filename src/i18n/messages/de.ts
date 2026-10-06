@@ -21,7 +21,7 @@ export const de = {
 	"landing.who": "Mitmachen können nur Mitglieder {clubLink}.",
 	"club.linkText": "unseres Team-Clubs auf Strava",
 	"landing.dataRead":
-		"Wir lesen von deinen Radfahrten nur Sportart, Startzeit, Distanz, Bewegungszeit und Höhenmeter – keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.",
+		"Wir lesen von deinen Radfahrten nur Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter und ob die Fahrt manuell eingetragen oder auf dem Rollentrainer gefahren wurde – keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.",
 	"landing.private":
 		"Auf Strava entscheidest du selbst, ob auch deine privaten („Nur du“) Aktivitäten dazugehören.",
 	"landing.purpose":

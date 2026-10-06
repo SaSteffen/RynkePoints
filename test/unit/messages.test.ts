@@ -15,6 +15,7 @@ const valid: WorkMessage[] = [
 	},
 	{ kind: "import-page", athleteId: 900001, page: 2, after: 1767222000 },
 	{ kind: "import-page", athleteId: 900001, page: 1, after: 0 },
+	{ kind: "reread-page", athleteId: 900001, page: 3, after: 1767222000 },
 	{ kind: "check-membership", athleteId: 900001 },
 	{
 		kind: "delete-rider",
@@ -65,6 +66,18 @@ describe("parseWorkMessage", () => {
 		).toEqual({ kind: "check-membership", athleteId: 900001 });
 	});
 
+	it("drops unknown fields from reread-page", () => {
+		expect(
+			parseWorkMessage({
+				kind: "reread-page",
+				athleteId: 900001,
+				page: 1,
+				after: 0,
+				activities: [7001],
+			}),
+		).toEqual({ kind: "reread-page", athleteId: 900001, page: 1, after: 0 });
+	});
+
 	it.each([
 		["not an object", "check-membership"],
 		["null", null],
@@ -107,6 +120,19 @@ describe("parseWorkMessage", () => {
 		[
 			"negative after",
 			{ kind: "import-page", athleteId: 1, page: 1, after: -1 },
+		],
+		["reread page 0", { kind: "reread-page", athleteId: 1, page: 0, after: 0 }],
+		[
+			"negative reread page",
+			{ kind: "reread-page", athleteId: 1, page: -2, after: 0 },
+		],
+		[
+			"negative reread after",
+			{ kind: "reread-page", athleteId: 1, page: 1, after: -1 },
+		],
+		[
+			"fractional reread after",
+			{ kind: "reread-page", athleteId: 1, page: 1, after: 1.5 },
 		],
 		[
 			"unknown reason",
@@ -151,6 +177,14 @@ describe("serializeWorkMessage", () => {
 				kind: "import-page",
 			} as WorkMessage),
 		).toBe('{"kind":"import-page","athleteId":900001,"page":1,"after":5}');
+		expect(
+			serializeWorkMessage({
+				after: 5,
+				page: 2,
+				athleteId: 900001,
+				kind: "reread-page",
+			} as WorkMessage),
+		).toBe('{"kind":"reread-page","athleteId":900001,"page":2,"after":5}');
 	});
 
 	it.each(valid)("round-trips $kind", (message) => {
