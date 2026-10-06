@@ -63,6 +63,11 @@
   record keeps only the first name it already holds; no last name is stored. Write
   access is requested too, as an optional permission whose use is explained before
   connecting (FR-003); nothing in this feature writes to Strava.
+- Q (raised by the project owner): Must a connected rider approve on Strava's
+  approval screen every time they sign in (e.g. on another device)? → A: No.
+  Signing in only asks Strava who the rider is; Strava's approval screen is only
+  shown when connecting for the first time or when the rider chooses to change
+  their permissions from their page (FR-009).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -100,9 +105,10 @@ registered, consenting rider record even before any activity arrives.
    read access to their activities, **Then** they return to RynkePoints, no rider
    record or credentials are kept, and they see a plain explanation that the app
    cannot work without that permission plus an option to try again.
-4. **Given** a rider who is already connected, **When** they go through the connect
-   flow again, **Then** their existing connection is updated (not duplicated) and
-   the granted permissions shown reflect their latest choice.
+4. **Given** a rider who is already connected, **When** they choose to change their
+   permissions from their page, **Then** Strava's approval screen is shown again,
+   their existing connection is updated (not duplicated) and the granted
+   permissions shown reflect their latest choice.
 5. **Given** the app has reached the number of riders Strava currently allows it to
    connect, **When** another rider tries to connect, **Then** they see a friendly
    message that the team is full for now instead of an error page.
@@ -213,6 +219,14 @@ and no one else's.
    only their own activities.
 3. **Given** a visitor who is not signed in, **When** they open a rider page,
    **Then** they are asked to sign in with Strava and see no rider data.
+4. **Given** a connected rider in a browser or on a device where they are not
+   signed in, **When** they sign in with Strava, **Then** they land on their page
+   without having to approve on Strava again, and their granted permissions are
+   unchanged.
+5. **Given** a Strava athlete who is not a connected rider, **When** they sign in
+   with Strava, **Then** they are not connected, the access just granted is
+   revoked, nothing about them is kept, and they are led to the consent and
+   connect step.
 
 ---
 
@@ -276,6 +290,12 @@ and no one else's.
   remembered choice is ignored and the language is chosen as in FR-029.
 - **Rider uses another browser or device**: the language choice is per browser, so
   it falls back to FR-029 there until the rider picks again.
+- **Strava shows its approval screen during sign-in anyway** (e.g. the rider
+  revoked access on Strava in the meantime, or Strava decides to ask again):
+  whatever the rider grants there is applied as when changing permissions
+  (FR-007); declining read access is handled as in FR-006.
+- **Rider who needs to reconnect signs in**: signing in renews their access, so it
+  counts as reconnecting (FR-020).
 
 ## Requirements *(mandatory)*
 
@@ -325,8 +345,14 @@ and no one else's.
   or dropping write access changes only the recorded permissions.
 - **FR-008**: The system MUST show a friendly "team is full" message when Strava
   refuses the connection because the app's athlete capacity is reached.
-- **FR-009**: Signing in to RynkePoints MUST happen through the same Strava
-  approval; the system MUST NOT keep its own passwords.
+- **FR-009**: Signing in to RynkePoints MUST happen through Strava; the system MUST
+  NOT keep its own passwords. Signing in MUST NOT ask an already connected rider to
+  approve on Strava again; if Strava shows its approval screen anyway, the
+  rider's choice there is applied as in FR-007. A signed-in rider MUST be able to
+  change their permissions from their page, and doing so MUST always show Strava's
+  approval screen. Someone who signs in without being a connected rider MUST NOT
+  be connected: the access just granted MUST be revoked, nothing about them kept,
+  and they MUST be led to the consent step (FR-002).
 
 **Receiving activities**
 
