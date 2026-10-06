@@ -40,7 +40,7 @@ Language). Message texts are in [contracts/messages.md](contracts/messages.md).
 | US4 `/me` | only own 20 newest activities, German number/date formats (`42,2 km`, `06.10.2026`); signed-out → redirect `/` |
 | Season import | 450 synthetic activities → 3 pages, all cycling ones stored, `import_status=done` |
 | Catalog parity (FR-028, SC-010) | `de` and `en` have identical keys, no empty values, identical placeholders; a `sport.*` message for every cycling type |
-| Locale resolution (FR-029) | no header / `da` / `de-DE,en;q=0.5` → `de`; `en-US,en;q=0.9,de;q=0.8` → `en`; unknown `rp_lang` ignored |
+| Locale resolution (FR-029) | no header / `*` / `de-DE,en;q=0.5` / `da,de;q=0.5` → `de`; `en-US,en;q=0.9,de;q=0.8` / `da` → `en`; unknown `rp_lang` ignored |
 | German default rendering (SC-010) | every rider page with no `Accept-Language` → `<html lang="de">`, `Content-Language: de`, German text, German Strava button `src`/`alt` |
 | English rendering (SC-010) | same pages with `Accept-Language: en` → English text and the English button |
 | Switcher (FR-029a, SC-011) | every rider page has the `/lang` form listing Deutsch and English; `POST /lang` sets `rp_lang` and `303`s to the same page; the cookie beats `Accept-Language`; a foreign `next` → `/`; a foreign `Origin` → 403; no D1 write |

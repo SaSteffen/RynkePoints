@@ -163,7 +163,7 @@ and test support used by every story.
   - `private: true` gives `is_private: 1`.
 - [ ] T011 [P] Unit test in `test/unit/messages.test.ts` for `parseWorkMessage(unknown)`. It accepts exactly the four shapes in contracts/queue-messages.md (`activity-event`, `import-page`, `check-membership`, `delete-rider`) and rejects unknown `kind`, non-integer IDs, `page < 1`, and unknown `aspect`/`reason`.
 - [ ] T012 [P] Unit test in `test/unit/catalogs.test.ts` for `src/i18n/catalogs.ts` and `src/i18n/messages/*.ts` (FR-028, FR-030, SC-010; research R16):
-  - **registry**: `DEFAULT_LOCALE === "de"`; `Object.keys(CATALOGS)` equals `["de", "en"]`.
+  - **registry**: `DEFAULT_LOCALE === "de"`; `FOREIGN_LOCALE === "en"`; `Object.keys(CATALOGS)` equals `["de", "en"]`.
   - **parity**: for every catalog in `CATALOGS`, the key set equals `Object.keys(de)`, iterating over the registry so a future locale is checked automatically.
   - **values**: no value is empty or whitespace-only.
   - **placeholders**: for every message ID, the `{name}` placeholder set is identical across all catalogs.
@@ -179,17 +179,18 @@ and test support used by every story.
   - **German**:
     - no `Accept-Language` → `de`;
     - empty header → `de`;
-    - `da` → `de`;
-    - `fr-CH, fr;q=0.9` → `de`;
+    - `da,de;q=0.5` → `de` (German is the only provided language listed);
     - `de-DE,en;q=0.5` → `de`;
     - `en;q=0.5,de;q=0.8` → `de`;
-    - `en;q=0` → `de`;
+    - `en;q=0` → `de` (no language left once `q=0` is dropped);
     - `*` → `de`;
     - malformed `en;q=abc` → treated as `q=0`, so `de`.
   - **English**:
     - `en-US,en;q=0.9,de;q=0.8` → `en`;
     - `EN-gb` → `en`;
     - `da,en;q=0.3` → `en` (English listed, German not);
+    - `da` → `en` (only unsupported languages named);
+    - `fr-CH, fr;q=0.9` → `en`;
     - tie `en;q=0.8,de;q=0.8` → `en` (first listed wins).
   - **cookie**:
     - `rp_lang=en` with `Accept-Language: de` → `en`;
@@ -314,10 +315,11 @@ and test support used by every story.
     - types `MessageId = keyof typeof de`, `Catalog = Readonly<Record<MessageId, string>>`, `Catalogs = Readonly<Record<string, Catalog>>`;
     - `CATALOGS = { de, en } as const satisfies Catalogs`;
     - `Locale = keyof typeof CATALOGS`;
-    - `DEFAULT_LOCALE: Locale = "de"`.
+    - `DEFAULT_LOCALE: Locale = "de"`;
+    - `FOREIGN_LOCALE: Locale = "en"` (used when `Accept-Language` names only unsupported languages).
 
   `tsc` must reject a key missing from `en`. Makes T012 green (with T030).
-- [ ] T033 [P] Implement `src/i18n/resolve.ts`: `resolveLocale(request, catalogs): string` — `rp_lang` cookie if it is a key of `catalogs`, else the highest-`q` supported primary subtag from `Accept-Language` (ties → first listed; `q=0`, `*` and malformed weights dropped), else `DEFAULT_LOCALE`. Also export `LANG_COOKIE = "rp_lang"`. Makes T013 green.
+- [ ] T033 [P] Implement `src/i18n/resolve.ts`: `resolveLocale(request, catalogs): string` — `rp_lang` cookie if it is a key of `catalogs`, else the highest-`q` supported primary subtag from `Accept-Language` (ties → first listed; `q=0`, `*` and malformed weights dropped), else `FOREIGN_LOCALE` (`"en"`) if the header still names any language, else `DEFAULT_LOCALE`. Also export `LANG_COOKIE = "rp_lang"`. Makes T013 green.
 - [ ] T034 Implement `src/http/html.ts`:
   - the `html` tagged template with an escaping `SafeHtml` type, plus an exported `escapeHtml`;
   - `layout(i18n, { title, path, body })` with minimal inline CSS, no script, `<html lang>`, the switcher form built from `i18n.locales` with `aria-label` = `t("layout.switcher.label")` and `next` = `path`, and the footer `<img src=t("brand.poweredByStrava.src") alt=t("brand.poweredByStrava.alt")>`;

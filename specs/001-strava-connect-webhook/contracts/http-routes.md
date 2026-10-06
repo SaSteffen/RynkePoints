@@ -20,7 +20,8 @@ Cookies:
 - **Language** is resolved per request (research R17):
   1. `rp_lang`, if it names a shipped locale;
   2. otherwise the best supported `Accept-Language` range;
-  3. otherwise `de`.
+  3. otherwise `en`, if `Accept-Language` names only unsupported languages;
+  4. otherwise `de` (no header, or no language named).
 - **Response headers**: `Content-Type: text/html; charset=utf-8`,
   `Content-Language: <locale>`, `Vary: Accept-Language, Cookie`. The page starts
   `<html lang="<locale>">`.

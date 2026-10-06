@@ -29,8 +29,8 @@ through Strava's webhook. A single Worker handles four things:
 
 - All text comes from plain typed message catalogs (`src/i18n/messages/de.ts`,
   `en.ts`).
-- The language is resolved per request: `rp_lang` cookie, then `Accept-Language`,
-  then `de`.
+- The language is resolved per request: `rp_lang` cookie, then `Accept-Language`
+  (English if it names only unsupported languages), then `de`.
 - A no-JavaScript switcher form (`POST /lang`) sits on every rider page. It sets
   the cookie and returns the visitor to the same page.
 - Outcome pages get stable GET URLs (`/notice/:id`), so the switcher can always
@@ -167,8 +167,8 @@ src/
 │   ├── messages/
 │   │   ├── de.ts            # source catalog: defines MessageId (default + fallback)
 │   │   └── en.ts            # typed as Catalog → tsc enforces key parity
-│   ├── catalogs.ts          # registry { de, en }, Locale, DEFAULT_LOCALE
-│   ├── resolve.ts           # resolveLocale(request, catalogs): cookie > Accept-Language > de
+│   ├── catalogs.ts          # registry { de, en }, Locale, DEFAULT_LOCALE, FOREIGN_LOCALE
+│   ├── resolve.ts           # resolveLocale(request, catalogs): cookie > Accept-Language > en > de
 │   └── i18n.ts              # createI18n(locale, catalogs): t, tHtml, formatNumber, formatDate
 ├── http/
 │   ├── router.ts            # path → handler; resolves the locale once per request
@@ -241,7 +241,6 @@ Afterwards, regenerate `worker-configuration.d.ts` with `pnpm types`.
   allows, and FR-001's "variant matching the page language" can't be fully met
   for German. The fix is either a spec note or a request to developers@strava.com.
   No code change is needed either way, because the asset path is a catalog entry.
-- **"Prefers English over German" when German isn't listed** (FR-029): `da,en;q=0.3`
-  resolves to `en`. The browser lists English and not German, which R17 reads as
-  preferring English. A browser that lists neither (`da`) gets German, as the
-  spec's edge case requires.
+- **Browsers naming only unsupported languages** (FR-029): resolved in the spec on
+  2026-10-06 — `da` gets English, `da,de;q=0.5` gets German, and only a missing or
+  empty preference falls back to German (R17).

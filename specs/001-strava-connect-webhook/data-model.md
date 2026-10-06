@@ -138,7 +138,8 @@ The language a visitor picked with the switcher lives only in their browser
 |---|---|---|---|
 | `rp_lang` | A locale key of the catalog registry (`de`, `en`) | `Path=/; Max-Age=31536000; SameSite=Lax; Secure; HttpOnly` | Set only by `POST /lang`. An unknown value is ignored on read, so resolution falls through to `Accept-Language` and then `de`. Unsigned; carries no rider identity. |
 
-Resolution order: valid `rp_lang` → best supported `Accept-Language` range → `de`.
+Resolution order: valid `rp_lang` → best supported `Accept-Language` range → `en`
+if the header names only unsupported languages → `de`.
 
 ## Message catalogs (code, not tables)
 

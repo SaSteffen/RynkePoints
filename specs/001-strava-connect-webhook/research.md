@@ -303,7 +303,8 @@ rider pages are English.
     `Catalog`, so `tsc` rejects a missing or an extra key (FR-028 parity at build
     time).
   - The registry `src/i18n/catalogs.ts` exports `CATALOGS = { de, en }`,
-    `Locale = keyof typeof CATALOGS` and `DEFAULT_LOCALE = "de"`. Adding a locale
+    `Locale = keyof typeof CATALOGS`, `DEFAULT_LOCALE = "de"` and
+    `FOREIGN_LOCALE = "en"`. Adding a locale
     means adding `src/i18n/messages/<code>.ts` and listing it in the registry. No
     page, routing or processing code changes (FR-030): the switcher, locale
     resolution and validation all iterate over the registry.
@@ -357,18 +358,23 @@ rider pages are English.
      primary subtag in lowercase (`en-US` → `en`). Drop `q=0` and `*`. Then pick
      the supported locale with the highest weight. On a tie, the one listed first
      in the header wins.
-  3. **`de`** (`DEFAULT_LOCALE`). This covers no header, an empty header, or only
-     unsupported languages.
+  3. **`en`** (`FOREIGN_LOCALE`), if the header still names at least one language
+     after dropping, but none of them is supported.
+  4. **`de`** (`DEFAULT_LOCALE`). This covers no header, an empty header, or a
+     header that names no language once `q=0`, `*` and malformed entries are
+     dropped.
 
   Examples: `en-US,en;q=0.9,de;q=0.8` → `en`; `de-DE,en;q=0.5` → `de`;
-  `da,en;q=0.3` → `en`, because English is the only supported language listed, so
-  it's preferred over German; `da` → `de`; none → `de`.
+  `da,en;q=0.3` → `en`; `da,de;q=0.5` → `de`; `da` → `en`; `*` → `de`;
+  none → `de`.
 - Every HTML response carries `<html lang="<locale>">`, `Content-Language:
   <locale>` and `Vary: Accept-Language, Cookie`.
-- **Rationale**: This is the spec's rule, "English when the browser prefers English
-  over German, otherwise German", generalised to N locales so FR-030 holds. A
-  browser that lists English but not German prefers English over German. Taking
-  the primary subtag only is enough while each language has one catalog.
+- **Rationale**: This is the spec's FR-029 rule: German only when the browser
+  explicitly prefers it, English for browsers that name only other languages, and
+  German when there is no preference at all. Steps 2–4 don't name `de` or `en`
+  except as the two constants, so a new catalog joins step 2 without code changes
+  (FR-030). Taking the primary subtag only is enough while each language has one
+  catalog.
 - **Alternatives considered**:
   - Storing the language in the rider record. Forbidden by FR-029a, and it would
     not work before sign-in.
