@@ -1,20 +1,22 @@
 <!--
 Sync Impact Report
-- Version change: 1.2.0 → 1.2.1
-- Rationale: PATCH — Principle I's secrets bullet now names where the CI deploy
-  credential lives (GitHub environment secret that only `main` can unlock). It
-  was already covered by "MUST NOT be committed"; this closes a wording gap that
-  1.2.0 opened by letting CI deploy.
-- Principles modified: I. Rider Data Privacy and Strava Consent (wording only)
+- Version change: 1.2.1 → 2.0.0
+- Rationale: MAJOR — Principle I no longer makes every capability separately
+  opt-in. Riders give one required consent at connect (read activities, write
+  the Rynke Points block, show name and points to organisers and the team),
+  because the app doesn't work without each part; only private activities stay
+  optional. Withdrawing means leaving. Principle III drops the per-rider switch
+  for description edits accordingly.
+- Principles modified: I. Rider Data Privacy and Strava Consent (consent rule
+  redefined); III. Rider-Authored Content Always Wins (switch-off removed)
 - Sections added: none
 - Sections removed: none
 - Templates checked for alignment: .specify/templates/* — unchanged.
-- Follow-up TODOs: none.
+- Follow-up TODOs: feature 001 (FR-003 forbids asking for `activity:write`;
+  connect flow needs the consent step) is aligned by feature 004's spec.
 
-Previous: 1.1.1 → 1.2.0 (MINOR) — production is deployed by CI after a merge
-into `main`, with pending D1 migrations applied forward-only; secrets,
-resources, the Strava webhook subscription and D1 data other than through
-migrations stay manual.
+Previous: 1.2.0 → 1.2.1 (PATCH) — Principle I's secrets bullet names where the
+CI deploy credential lives.
 -->
 
 # RynkePoints Constitution
@@ -27,12 +29,19 @@ Activity data fetched from Strava is real personal data about real riders (where
 when they ride, how fast, how far), and it is only ours to hold under the riders'
 consent and Strava's API Agreement.
 
-- Every capability is opt-in and separately consented: reading activities
-  (`activity:read` / `activity:read_all`), editing activity descriptions
-  (`activity:write`), and showing a rider's points or stats to other team members.
-  Strava's API Agreement only allows displaying a rider's data to *that rider*
+- Riders give one explicit consent when they connect, and every part of it is
+  required because the app doesn't work without each: reading their activities
+  (`activity:read`), editing the Rynke Points block in their activity
+  descriptions (`activity:write`), and showing their name and points to
+  organisers and other team members. Reading private activities
+  (`activity:read_all`) is the only optional permission. A rider who withholds a
+  required part is not connected; withdrawing consent means leaving (deletion
+  below). Before sending a rider to Strava the app MUST say what it reads, writes
+  and shows, MUST record which version of that consent the rider accepted, and
+  MUST ask again when what it reads, writes or shows grows.
+- Strava's API Agreement only allows displaying a rider's data to *that rider*
   unless they gave explicit consent to share it, so team-visible features (e.g.
-  leaderboards) MUST check that consent per rider and hide non-consenting riders.
+  leaderboards) MUST show only riders with a recorded consent.
 - Store the minimum needed to compute points and event participation (e.g.
   distance, elevation gain, moving time, start date, sport type, event match). Raw
   GPS streams and polylines MUST NOT be persisted; if a coordinate is needed for
@@ -82,8 +91,9 @@ Anything a rider wrote themselves is theirs; the app only adds to it.
   block that the app owns (insert or replace that block), preserving every other
   character the rider wrote. If the block can't be located unambiguously, skip the
   edit rather than guess.
-- Description edits require the rider's `activity:write` consent and MUST be
-  switchable off per rider at any time.
+- Description edits require the rider's `activity:write` consent, which is part
+  of the required consent at connect (Principle I); a rider who doesn't want them
+  leaves the app.
 - Manual corrections by an organiser (e.g. confirming or rejecting an event match,
   adjusting points) MUST survive re-processing of the same activity; automated
   recomputation never silently overwrites a manual decision.
@@ -201,4 +211,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 1.2.1 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 2.0.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
