@@ -14,3 +14,7 @@ dist/
 .dev.vars*
 !.dev.vars.example
 .env*
+
+# Logs and Python bytecode (from the vendored Spec Kit scripts)
+*.log
+__pycache__/

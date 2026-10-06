@@ -26,6 +26,8 @@ export default defineConfig(async () => {
 							"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
 						SESSION_SIGNING_KEY: "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=",
 						STRAVA_SUBSCRIPTION_ID: "777",
+						// Pinned so tests don't follow the production season start.
+						SEASON_START_DATE: "2026-01-01",
 					},
 				},
 			}),

@@ -1,8 +1,11 @@
 import type { Ctx } from "../ctx";
 import { createI18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
+import { handleCallback, handleConnect } from "./auth";
 import { notFound } from "./errors";
+import { handleLanding } from "./landing";
 import { handleLang } from "./lang";
+import { handleMe } from "./me";
 import { handleNotice } from "./notice";
 
 // A small path switch (research R13). `/health` and the Strava webhook answer
@@ -18,8 +21,20 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 
 	const i18n = createI18n(resolveLocale(request, ctx.catalogs), ctx.catalogs);
 
-	if ((method === "GET" || method === "HEAD") && path.startsWith("/notice/")) {
-		return handleNotice(path.slice("/notice/".length), ctx, i18n);
+	if (method === "GET" || method === "HEAD") {
+		switch (path) {
+			case "/":
+				return handleLanding(request, ctx, i18n);
+			case "/connect":
+				return handleConnect(request, ctx);
+			case "/auth/callback":
+				return handleCallback(request, ctx);
+			case "/me":
+				return handleMe(request, ctx, i18n);
+		}
+		if (path.startsWith("/notice/")) {
+			return handleNotice(path.slice("/notice/".length), ctx, i18n);
+		}
 	}
 	if (method === "POST" && path === "/lang") {
 		return handleLang(request, ctx, i18n);

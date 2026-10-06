@@ -4,11 +4,8 @@ import type { ActivityRecord } from "../strava/activity";
 // the Strava activity ID, so replays converge (FR-017). An upsert never moves
 // an activity to another rider.
 
-export async function upsertActivity(
-	db: D1Database,
-	a: ActivityRecord,
-): Promise<void> {
-	await db
+function upsertStatement(db: D1Database, a: ActivityRecord) {
+	return db
 		.prepare(
 			`INSERT INTO activities (strava_activity_id, athlete_id, sport_type, start_date,
 				start_date_local, timezone, distance_m, moving_time_s, elevation_gain_m,
@@ -32,8 +29,23 @@ export async function upsertActivity(
 			a.elevation_gain_m,
 			a.is_private,
 			a.refreshed_at,
-		)
-		.run();
+		);
+}
+
+export async function upsertActivity(
+	db: D1Database,
+	a: ActivityRecord,
+): Promise<void> {
+	await upsertStatement(db, a).run();
+}
+
+/** Upserts a whole import page in one round trip. */
+export async function upsertActivities(
+	db: D1Database,
+	activities: ActivityRecord[],
+): Promise<void> {
+	if (activities.length === 0) return;
+	await db.batch(activities.map((a) => upsertStatement(db, a)));
 }
 
 /** Deletes the activity only if it belongs to `athleteId`. */

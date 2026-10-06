@@ -2,11 +2,14 @@ import type { Ctx } from "./ctx";
 import { route } from "./http/router";
 import { CATALOGS } from "./i18n/catalogs";
 import { type Handlers, processBatch } from "./work/consumer";
+import { importPage } from "./work/import-page";
 
 // Entry points. Each builds a Ctx and delegates; tests call the exported
 // handle* functions with their own Ctx (research R12).
 
-const handlers: Handlers = {};
+const handlers: Handlers = {
+	"import-page": importPage,
+};
 
 function makeCtx(env: Env): Ctx {
 	return {

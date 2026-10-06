@@ -1,6 +1,10 @@
 import { env } from "cloudflare:test";
 import { encryptToken } from "../../src/crypto/encrypt";
 import type { Ctx } from "../../src/ctx";
+import {
+	createOAuthStateCookie,
+	createSessionCookie,
+} from "../../src/http/session";
 import { CATALOGS, type Catalogs } from "../../src/i18n/catalogs";
 import type { WorkMessage } from "../../src/work/messages";
 import { initialTokens } from "./fake-strava";
@@ -177,4 +181,27 @@ export function request(path: string, options: RequestOptions = {}): Request {
 		body = new URLSearchParams(options.form).toString();
 	}
 	return new Request(`${ORIGIN}${path}`, { method, headers, body });
+}
+
+/** The `name=value` pair of a `Set-Cookie` header, as a `{ name: value }` map. */
+export function cookiePair(setCookie: string): Record<string, string> {
+	const pair = setCookie.split(";")[0] ?? "";
+	const eq = pair.indexOf("=");
+	return { [pair.slice(0, eq)]: pair.slice(eq + 1) };
+}
+
+/** A valid signed `rp_session` cookie for `athleteId`. */
+export async function sessionCookie(
+	ctx: Ctx,
+	athleteId: number,
+): Promise<Record<string, string>> {
+	return cookiePair(await createSessionCookie(athleteId, ctx.now(), ctx.env));
+}
+
+/** A valid signed `rp_oauth_state` cookie carrying `state`. */
+export async function oauthStateCookie(
+	ctx: Ctx,
+	state: string,
+): Promise<Record<string, string>> {
+	return cookiePair(await createOAuthStateCookie(state, ctx.now(), ctx.env));
 }

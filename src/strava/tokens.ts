@@ -22,12 +22,15 @@ export interface TokenExchange {
 	expiresAt: number;
 	athleteId: number;
 	firstName: string;
+	/** Accepted scopes, if Strava includes them in the token response. */
+	scope?: string;
 }
 
 interface TokenBody {
 	access_token?: unknown;
 	refresh_token?: unknown;
 	expires_at?: unknown;
+	scope?: unknown;
 	athlete?: { id?: unknown; firstname?: unknown };
 }
 
@@ -74,7 +77,12 @@ export async function exchangeCode(
 		}
 		return {
 			kind: "ok",
-			value: { ...tokens, athleteId: id, firstName: firstname },
+			value: {
+				...tokens,
+				athleteId: id,
+				firstName: firstname,
+				...(typeof body.scope === "string" ? { scope: body.scope } : {}),
+			},
 		};
 	}
 	if (res.status === 403) return { kind: "forbidden" };
