@@ -2,18 +2,18 @@
 Sync Impact Report
 - Version change: 1.2.1 → 2.0.0
 - Rationale: MAJOR — Principle I no longer makes every capability separately
-  opt-in. Riders give one required consent at connect (read activities, write
-  the Rynke Points block, show name and points to organisers and the team),
-  because the app doesn't work without each part; only private activities stay
-  optional. Withdrawing means leaving. Principle III drops the per-rider switch
-  for description edits accordingly.
+  opt-in. Riders give one required consent at connect (read activities, show
+  name and points to organisers and the team), because the app doesn't work
+  without either; withdrawing it means leaving. Private activities and
+  `activity:write` (description edits) stay optional.
 - Principles modified: I. Rider Data Privacy and Strava Consent (consent rule
-  redefined); III. Rider-Authored Content Always Wins (switch-off removed)
+  redefined)
 - Sections added: none
 - Sections removed: none
 - Templates checked for alignment: .specify/templates/* — unchanged.
 - Follow-up TODOs: feature 001 (FR-003 forbids asking for `activity:write`;
   connect flow needs the consent step) is aligned by feature 004's spec.
+  Principle III is unchanged.
 
 Previous: 1.2.0 → 1.2.1 (PATCH) — Principle I's secrets bullet names where the
 CI deploy credential lives.
@@ -29,16 +29,16 @@ Activity data fetched from Strava is real personal data about real riders (where
 when they ride, how fast, how far), and it is only ours to hold under the riders'
 consent and Strava's API Agreement.
 
-- Riders give one explicit consent when they connect, and every part of it is
-  required because the app doesn't work without each: reading their activities
-  (`activity:read`), editing the Rynke Points block in their activity
-  descriptions (`activity:write`), and showing their name and points to
-  organisers and other team members. Reading private activities
-  (`activity:read_all`) is the only optional permission. A rider who withholds a
-  required part is not connected; withdrawing consent means leaving (deletion
-  below). Before sending a rider to Strava the app MUST say what it reads, writes
-  and shows, MUST record which version of that consent the rider accepted, and
-  MUST ask again when what it reads, writes or shows grows.
+- Riders give one explicit consent when they connect, and both parts of it are
+  required because the app doesn't work without either: reading their activities
+  (`activity:read`) and showing their points to organisers and other team members
+  (names only as far as the feature specs allow). Reading private activities
+  (`activity:read_all`) and editing activity descriptions (`activity:write`) stay
+  optional and MUST NOT affect taking part. A rider who withholds a required part is
+  not connected; withdrawing consent means leaving (deletion below). Before sending
+  a rider to Strava the app MUST say what it reads, writes and shows, MUST record
+  which version of that consent the rider accepted, and MUST ask again when what it
+  reads, writes or shows grows.
 - Strava's API Agreement only allows displaying a rider's data to *that rider*
   unless they gave explicit consent to share it, so team-visible features (e.g.
   leaderboards) MUST show only riders with a recorded consent.
@@ -91,9 +91,8 @@ Anything a rider wrote themselves is theirs; the app only adds to it.
   block that the app owns (insert or replace that block), preserving every other
   character the rider wrote. If the block can't be located unambiguously, skip the
   edit rather than guess.
-- Description edits require the rider's `activity:write` consent, which is part
-  of the required consent at connect (Principle I); a rider who doesn't want them
-  leaves the app.
+- Description edits require the rider's `activity:write` consent and MUST be
+  switchable off per rider at any time.
 - Manual corrections by an organiser (e.g. confirming or rejecting an event match,
   adjusting points) MUST survive re-processing of the same activity; automated
   recomputation never silently overwrites a manual decision.
