@@ -44,6 +44,9 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
 - Q: Is there an additional limit on a ride's total duration or on rides crossing
   midnight? → A: No. Long rides, including overnight rides, count as long as they
   pass the pause rule.
+- Q (raised by the project owner): Can the rules change during the season? → A:
+  Yes. Every rule change must be applied retroactively: all points of the season
+  are recalculated under the new rules.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -191,7 +194,47 @@ qualification status and breakdown — and nobody else's data.
 
 ---
 
-### User Story 5 - Organiser corrects a balance (Priority: P3)
+### User Story 5 - Rules change and every balance is recalculated (Priority: P2)
+
+During the season the team decides to change the rules: an organiser changes a
+value (e.g. 8 instead of 5 Training Rynke per 1000 m), or a new version of the app
+changes how points are computed (e.g. a new kind of team event). Every rider's
+balance for the whole season is recalculated from the stored rides, attendance and
+corrections, as if the new rules had always applied. Riders see their new balance
+and since when the current rules apply.
+
+**Why this priority**: The rules come from a spreadsheet the team will keep
+adjusting; a points system that cannot follow those changes for the whole season
+would force manual corrections for every rider. Not needed to show the first
+numbers, but needed before the first rule change.
+
+**Independent Test**: Evaluate synthetic riders under one set of rules, change a
+rule value and, separately, swap in a changed rule, and compare every balance with
+a hand calculation under the new rules for the whole season.
+
+**Acceptance Scenarios**:
+
+1. **Given** a rider whose season rides include 3000 m of elevation gain in one
+   ride, **When** an organiser changes the elevation reward from 5 to 8 Training
+   Rynke per 1000 m, **Then** within 1 hour that ride counts 24 instead of 15
+   Training Rynke, including for rides uploaded before the change.
+2. **Given** balances computed under the current rules, **When** a new app version
+   with changed rule logic goes live, **Then** every balance is recalculated with
+   the new logic and none computed with the old rules is shown as current
+   afterwards.
+3. **Given** a rider with a correction, **When** their balance is recalculated
+   after a rule change, **Then** the correction is applied unchanged and exactly
+   once.
+4. **Given** a rider who qualified, **When** a rule change lowers their totals below
+   a threshold, **Then** they no longer qualify.
+5. **Given** any state, **When** an organiser starts a full recalculation twice in
+   a row, **Then** both runs produce identical balances.
+6. **Given** a full recalculation of all riders, **When** it runs, **Then** it
+   makes no request to Strava.
+
+---
+
+### User Story 6 - Organiser corrects a balance (Priority: P3)
 
 An organiser needs to correct a rider's balance by hand, for example for a ride
 that was recorded twice, or for team work the rules don't cover.
@@ -237,16 +280,25 @@ re-evaluation, and check the correction is still applied exactly once.
   counting (it is no longer stored, per feature 001).
 - **Duplicate recordings**: the same ride uploaded twice (e.g. from a bike computer
   and a phone) is counted twice; the rider deletes the duplicate on Strava or an
-  organiser corrects it (Story 5). Automatic duplicate detection is out of scope.
+  organiser corrects it (Story 6). Automatic duplicate detection is out of scope.
 - **Virtual and e-bike rides**: count like any other stored cycling activity unless
   an organiser excludes those sport types (FR-012).
 - **Zero values**: rides with 0 km or 0 m elevation gain contribute nothing for that
   part; this is never an error.
 - **Team event deleted or changed**: Rynke from it disappear or follow the change
   on the next evaluation.
-- **Rule or threshold change**: after an organiser changes a rule value or a
-  threshold, every rider's balance and qualification are re-derived with the new
-  values; nothing earned under the old values is kept separately.
+- **Rule or threshold change**: every rider's balance and qualification are
+  recalculated for the whole season with the new rules (FR-021); nothing earned
+  under the old rules is kept separately.
+- **Rule change during a running recalculation**: the later rules win; the
+  recalculation restarts or continues with them, and no balance ends up computed
+  with the older rules.
+- **Season start moved earlier**: rides before the old season start were never
+  imported (feature 001). They only count after they have been imported, so
+  moving the season start earlier needs a re-import first (FR-025).
+- **New rule needs data that is not stored**: e.g. a rule based on average speed.
+  It cannot take effect until that data is stored for every connected rider
+  (FR-025); until then the old rules stay in effect.
 - **Rider leaves and comes back**: when a rider's data is deleted (feature 001,
   FR-022) their balance, attendance and corrections are deleted with it; after
   reconnecting they start from what is imported again.
@@ -270,7 +322,7 @@ re-evaluation, and check the correction is still applied exactly once.
   MUST give the same totals as the incremental updates did.
 - **FR-003**: The totals MUST be re-derived whenever one of their inputs changes
   (an activity is stored, updated or removed; attendance, a team event, a
-  correction or the rule configuration changes).
+  correction, the rule configuration or the rule logic changes).
 
 **Training Rynke from riding**
 
@@ -336,12 +388,41 @@ re-evaluation, and check the correction is still applied exactly once.
   Rynke, the amount still missing for each threshold, whether they qualify, and a
   breakdown by source: distance, elevation gain, each team-event kind (with the
   events attended), and corrections (with reasons). Rides that earned nothing
-  because of FR-005a MUST be listed with that reason.
+  because of FR-005a MUST be listed with that reason. The page MUST also show the
+  date the current rules took effect.
 - **FR-015**: A rider MUST only ever see their own balance; showing balances or
   qualification to other riders or organisers is out of scope for this feature.
 - **FR-016**: All rider-facing text of this feature MUST come from translation
   strings in German and English, as in feature 001 (FR-028–FR-030); the German
   labels are "Trainingsrynke" and "Teamrynke".
+
+**Rule changes and retroactive recalculation**
+
+- **FR-021**: Every rule change, whether a configured value (FR-012) or the rule
+  logic itself in a new version of the app, MUST apply retroactively to the whole
+  counting window (FR-011): every balance is recalculated as if the new rules had
+  always applied. Rules that only apply from a certain date are out of scope.
+- **FR-022**: Recalculation MUST use only stored data (activities from feature
+  001, team events, attendance, corrections, rules) and MUST NOT contact Strava.
+  These inputs MUST be kept, not just the derived totals, for as long as the rider
+  is connected, so that the whole season can be recalculated at any time.
+- **FR-023**: The rules in effect MUST carry a version and the date they took
+  effect, and every balance MUST record the rules version it was computed with.
+  After any rule change the system MUST recalculate all balances automatically;
+  once that is done (SC-006), no balance computed with an older version may be
+  shown as current. While it runs, a rider's page MAY show the previous balance,
+  marked as being recalculated.
+- **FR-024**: Organisers MUST be able to start a full recalculation of all riders
+  at any time, without code changes. Repeated runs on the same inputs MUST give
+  identical balances (FR-002).
+- **FR-025**: A rule change that needs activity data the app does not store, or
+  activities it has not imported (e.g. after moving the season start earlier),
+  MUST NOT take effect before that data has been added to feature 001's stored
+  data and imported for every connected rider within Strava's limits (feature 001
+  FR-021). Until then the previous rules stay in effect.
+- **FR-026**: Recalculation MUST NOT change or remove organiser corrections
+  (FR-010) or recorded attendance (FR-007); after a rule change an organiser
+  reviews corrections and adjusts them by hand if needed.
 
 **Rules handout**
 
@@ -364,8 +445,9 @@ re-evaluation, and check the correction is still applied exactly once.
 
 - **Rynke Rules**: organiser configuration — km per distance step and Rynke per
   step, metres per elevation step and Rynke per step, fixed Team and Training
-  Rynke per team-event kind, the two thresholds, the qualification deadline, and
-  excluded cycling sport types.
+  Rynke per team-event kind, the largest paused share, the two thresholds, the
+  qualification deadline, and excluded cycling sport types. Carries a version and
+  the date it took effect, covering both configured values and rule logic.
 - **Team Event**: an event organised by the team — kind, date, optional name.
   Belongs to the team, not to a rider.
 - **Attendance**: links a Rider to a Team Event they took part in, as recorded by
@@ -373,8 +455,9 @@ re-evaluation, and check the correction is still applied exactly once.
 - **Correction**: a signed manual adjustment of a Rider's Training and/or Team
   Rynke with reason and date, entered by an organiser. Deleted with the Rider.
 - **Rynke Balance**: the derived result for one Rider — Training Rynke, Team Rynke,
-  qualification flag and breakdown by source. Can always be recomputed from the
-  entities above plus the Rider's activities (feature 001); deleted with the Rider.
+  qualification flag, breakdown by source and the rules version it was computed
+  with. Can always be recomputed from the entities above plus the Rider's
+  activities (feature 001); deleted with the Rider.
 
 ## Success Criteria *(mandatory)*
 
@@ -392,8 +475,12 @@ re-evaluation, and check the correction is still applied exactly once.
   balance within 5 minutes of being uploaded to Strava (as feature 001 SC-002).
 - **SC-005**: A rider can tell from their page in one look whether they qualify and
   how many Training and Team Rynke they are still missing.
-- **SC-006**: After an organiser changes a rule value or threshold, every rider's
-  balance reflects the new value within 1 hour.
+- **SC-006**: After any rule change (a configured value or a new app version with
+  changed rule logic), every rider's balance for the whole season reflects the
+  new rules within 1 hour, and no balance computed with older rules is shown as
+  current after that.
+- **SC-007**: A full recalculation of all riders for a whole season makes zero
+  requests to Strava and gives the same result every time it is run.
 
 ## Assumptions
 
@@ -409,6 +496,12 @@ re-evaluation, and check the correction is still applied exactly once.
   configuration or data; an organiser admin page is out of scope.
 - There is no upper limit on Rynke per ride, per day or per week, since the sheet
   states none.
+- Rule changes are rare (a few per season) and announced to riders beforehand;
+  the handout is updated with them (FR-019). A history of past balances under old
+  rules is not kept.
+- A later feature that writes points into Strava activity descriptions will have
+  to update those descriptions after a recalculation, within Strava's limits;
+  that is its concern, not this feature's.
 - Organisers seeing riders' balances or a list of who qualified, team
   leaderboards, and writing the balance into Strava activity descriptions are
   separate features: each needs its own consent handling under constitution
