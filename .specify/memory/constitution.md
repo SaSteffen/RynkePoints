@@ -1,17 +1,21 @@
 <!--
 Sync Impact Report
-- Version change: 1.1.0 → 1.1.1
-- Rationale: PATCH — Language section wording. "Default and fallback locale"
-  is split into what it means: German is the source catalog and the language
-  when the visitor states no preference; which language a visitor who states only
-  unsupported languages gets is left to each feature spec.
+- Version change: 1.1.1 → 1.2.0
+- Rationale: MINOR — Development Workflow changes how production is deployed.
+  Merging a pull request into `main` is now the deliberate act that deploys:
+  CI deploys the merged commit once its checks passed and applies pending D1
+  migrations forward-only. The maintainer may re-deploy `main` on demand.
+  Production secrets, resources, the Strava webhook subscription and D1 data
+  other than through migrations stay manual.
 - Principles modified: none
 - Sections added: none
 - Sections removed: none
 - Templates checked for alignment: .specify/templates/* — unchanged; the plan
   template's "Constitution Check" gate reads this file at runtime.
-- Follow-up TODOs: none; specs/001-strava-connect-webhook (FR-029) already
-  serves English to browsers naming only unsupported languages.
+- Follow-up TODOs: CLAUDE.md non-negotiables updated in the same change;
+  specs/002-ci-branch-protection (User Story 5, FR-023–FR-036) implements the
+  deployment. Its plan's Constitution Check still cites the old rule and must
+  be revised by /speckit-plan.
 -->
 
 # RynkePoints Constitution
@@ -147,9 +151,15 @@ only safety net a single-maintainer project has.
   the principles above.
 - `pnpm lint`, `pnpm typecheck` and `pnpm test` MUST pass before a change is
   considered done.
-- Deploying (`pnpm deploy`) and changing production secrets, the Strava webhook
-  subscription, or D1 production data are manual, deliberate steps — never a side
-  effect of another command.
+- Production is deployed only from `main`: merging a pull request into `main` is the
+  deliberate act that releases a change, and CI then deploys that commit once its
+  required checks passed, applying pending D1 migrations forward-only before the
+  code. The maintainer may re-deploy the current `main` on demand; deploying any
+  other branch or a local working copy is a break-glass step, not a release path.
+- Changing production secrets, creating or deleting production resources, changing
+  the Strava webhook subscription, and changing D1 production data other than
+  through committed migrations are manual, deliberate steps — never a side effect of
+  another command.
 
 ## Language
 
@@ -191,4 +201,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 1.1.1 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 1.2.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
