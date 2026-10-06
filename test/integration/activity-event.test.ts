@@ -104,7 +104,7 @@ function fakeActivity(id: number) {
 describe("activity-event: create", () => {
 	it("stores the allow-listed fields and nothing else", async () => {
 		await connectedRider();
-		addRide(A);
+		addRide(A, { elapsed_time: 7200, manual: true, trainer: true });
 		const { result } = await deliver(msg(A, "create"));
 		expect(result.explicitAcks).toEqual(["m1"]);
 		expect(fake.callsTo("activity")).toHaveLength(1);
@@ -119,7 +119,10 @@ describe("activity-event: create", () => {
 				timezone: "(GMT+01:00) Europe/Berlin",
 				distance_m: 42195,
 				moving_time_s: 5400,
+				elapsed_time_s: 7200,
 				elevation_gain_m: 312,
+				is_manual: 1,
+				is_trainer: 1,
 				is_private: 0,
 				refreshed_at: NOW,
 			},
@@ -193,6 +196,16 @@ describe("activity-event: update", () => {
 		await deliver(msg(A, "update", changed));
 		expect(fake.callsTo("activity")).toHaveLength(1);
 		expect(await rows()).toMatchObject([{ distance_m: 50_000 }]);
+	});
+
+	it("refreshes the trainer flag", async () => {
+		await connectedRider();
+		addRide(A, { trainer: true });
+		await deliver(msg(A, "create"));
+		expect(await rows()).toMatchObject([{ is_trainer: 1 }]);
+		fakeActivity(A).trainer = false;
+		await deliver(msg(A, "update", ["type"]));
+		expect(await rows()).toMatchObject([{ is_trainer: 0 }]);
 	});
 
 	it("deletes the row when an activity went private without read_all", async () => {

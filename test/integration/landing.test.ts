@@ -47,6 +47,25 @@ describe("GET / (signed out)", () => {
 		expect(page).toContain("Mitmachen können nur Mitglieder");
 	});
 
+	it("names every activity figure that is read (FR-002)", async () => {
+		const { page: german } = await get();
+		for (const figure of [
+			"Gesamtzeit mit Pausen",
+			"manuell eingetragen",
+			"Rollentrainer",
+		]) {
+			expect(german).toContain(figure);
+		}
+		const { page: english } = await get({ acceptLanguage: "en" });
+		for (const figure of [
+			"elapsed time including pauses",
+			"entered manually",
+			"indoor trainer",
+		]) {
+			expect(english).toContain(figure);
+		}
+	});
+
 	it("shows the German Connect with Strava button", async () => {
 		const { page } = await get();
 		expect(page).toContain(

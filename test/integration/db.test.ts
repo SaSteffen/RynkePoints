@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
 	deleteActivity,
 	deletePrivateActivities,
+	listActivityIdsMissingFigures,
 	listRecentActivities,
 	upsertActivity,
 } from "../../src/db/activities";
@@ -19,13 +20,18 @@ import {
 	insertRider,
 	listConnectedRiderIds,
 	listExpiredReconnectRiderIds,
+	listRidersBehindFiguresVersion,
 	markNeedsReconnect,
 	saveCredentials,
+	setFiguresVersion,
 	setImportStatus,
 	setMembershipChecked,
 	updateRiderOnReconnect,
 } from "../../src/db/riders";
-import type { ActivityRecord } from "../../src/strava/activity";
+import {
+	ACTIVITY_FIGURES_VERSION,
+	type ActivityRecord,
+} from "../../src/strava/activity";
 import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
 
@@ -41,7 +47,10 @@ function record(overrides: Partial<ActivityRecord> = {}): ActivityRecord {
 		timezone: "(GMT+01:00) Europe/Berlin",
 		distance_m: 42195,
 		moving_time_s: 5400,
+		elapsed_time_s: 6000,
 		elevation_gain_m: 312,
+		is_manual: 0,
+		is_trainer: 0,
 		is_private: 0,
 		refreshed_at: NOW,
 		...overrides,
@@ -98,7 +107,42 @@ describe("riders", () => {
 			membershipCheckedAt: NOW,
 			importStatus: "pending",
 			reconnectRequestedAt: null,
+			figuresVersion: ACTIVITY_FIGURES_VERSION,
 		});
+	});
+
+	it("gives riders stored before 0002 figures version 0", async () => {
+		await db
+			.prepare(
+				`INSERT INTO riders (athlete_id, first_name, status, scope_read_all, scopes,
+					connected_at, scopes_updated_at, membership_checked_at, import_status,
+					reconnect_requested_at)
+				VALUES (?, 'Testrider A', 'connected', 1, 'read', 0, 0, 0, 'done', NULL)`,
+			)
+			.bind(ATHLETE_A)
+			.run();
+		expect((await getRider(db, ATHLETE_A))?.figuresVersion).toBe(0);
+	});
+
+	it("lists connected riders behind a figures version and marks them", async () => {
+		const ctx = makeCtx();
+		await seedRider(ctx, { athleteId: ATHLETE_A, figuresVersion: 0 });
+		await seedRider(ctx, { athleteId: ATHLETE_B, figuresVersion: 2 });
+		await seedRider(ctx, {
+			athleteId: 900003,
+			figuresVersion: 0,
+			status: "needs_reconnect",
+		});
+		expect(await listRidersBehindFiguresVersion(db, 2)).toEqual([ATHLETE_A]);
+
+		await setFiguresVersion(db, ATHLETE_A, 2);
+		expect((await getRider(db, ATHLETE_A))?.figuresVersion).toBe(2);
+		expect(await listRidersBehindFiguresVersion(db, 2)).toEqual([]);
+	});
+
+	it("rejects a negative figures version", async () => {
+		await seedRider(makeCtx());
+		await expect(setFiguresVersion(db, ATHLETE_A, -1)).rejects.toThrow(/CHECK/);
 	});
 
 	it("marks needs_reconnect once and reconnects", async () => {
@@ -161,7 +205,10 @@ describe("riders", () => {
 		const insert = (status: string, reconnect: number | null) =>
 			db
 				.prepare(
-					`INSERT INTO riders VALUES (?, 'Testrider A', ?, 1, 'read', 0, 0, 0, 'done', ?)`,
+					`INSERT INTO riders (athlete_id, first_name, status, scope_read_all, scopes,
+						connected_at, scopes_updated_at, membership_checked_at, import_status,
+						reconnect_requested_at)
+					VALUES (?, 'Testrider A', ?, 1, 'read', 0, 0, 0, 'done', ?)`,
 				)
 				.bind(ATHLETE_A, status, reconnect)
 				.run();
@@ -272,6 +319,64 @@ describe("activities", () => {
 		expect(await listRecentActivities(db, ATHLETE_A, 20)).toHaveLength(1);
 		await deleteActivity(db, ATHLETE_A, 7001);
 		expect(await listRecentActivities(db, ATHLETE_A, 20)).toHaveLength(0);
+	});
+
+	it("stores the points figures and replaces unknown ones", async () => {
+		const unknown = record({
+			elapsed_time_s: null,
+			is_manual: null,
+			is_trainer: null,
+		});
+		await upsertActivity(db, unknown);
+		expect(await listRecentActivities(db, ATHLETE_A, 20)).toEqual([unknown]);
+
+		const known = record({
+			elapsed_time_s: 7200,
+			is_manual: 1,
+			is_trainer: 1,
+		});
+		await upsertActivity(db, known);
+		expect(await listRecentActivities(db, ATHLETE_A, 20)).toEqual([known]);
+	});
+
+	it.each([
+		["elapsed_time_s", -1],
+		["is_manual", 2],
+		["is_trainer", 2],
+	] as const)("rejects %s = %d", async (column, value) => {
+		await expect(
+			upsertActivity(db, record({ [column]: value })),
+		).rejects.toThrow(/CHECK/);
+	});
+
+	it("lists a rider's activities with any unknown figure", async () => {
+		await upsertActivity(db, record({ strava_activity_id: 1 }));
+		await upsertActivity(
+			db,
+			record({ strava_activity_id: 2, elapsed_time_s: null }),
+		);
+		await upsertActivity(
+			db,
+			record({ strava_activity_id: 3, is_manual: null }),
+		);
+		await upsertActivity(
+			db,
+			record({ strava_activity_id: 4, is_trainer: null }),
+		);
+		await upsertActivity(
+			db,
+			record({
+				strava_activity_id: 5,
+				athlete_id: ATHLETE_B,
+				elapsed_time_s: null,
+				is_manual: null,
+				is_trainer: null,
+			}),
+		);
+		expect(await listActivityIdsMissingFigures(db, ATHLETE_A)).toEqual([
+			2, 3, 4,
+		]);
+		expect(await listActivityIdsMissingFigures(db, ATHLETE_B)).toEqual([5]);
 	});
 
 	it("deletes only private activities", async () => {
