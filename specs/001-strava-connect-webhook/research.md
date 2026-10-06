@@ -39,11 +39,17 @@ rider pages are English.
   - Refresh with `grant_type=refresh_token` when the access token expires within
     the next 5 minutes. Always persist the returned refresh token: Strava rotates
     it and invalidates the old one immediately. Refresh answered with 400/401 →
-    rider becomes `needs_reconnect`, their pending work is dropped (FR-020).
+    rider becomes `needs_reconnect`, their pending work is dropped (FR-020). If
+    they haven't reconnected 7 days later, the daily cron deletes them. A 400/401
+    on refresh is not taken as a deauthorization on its own, because a broken
+    client secret would then delete every rider at once.
   - Revoke with the new `POST https://www.strava.com/oauth/revoke` (HTTP Basic auth
     `client_id:client_secret`, form field `token`). It becomes the only endpoint on
     2027-06-01, so we don't build on the legacy `/oauth/deauthorize`. 503 is
-    retryable; 200 means done (even if the token was unknown).
+    retryable; 200 means done (even if the token was unknown). For a stored rider
+    we send the refresh token, so revoking never needs a refresh first and still
+    works for `needs_reconnect` riders. Any non-transient error means there is
+    nothing left to revoke, and deletion goes ahead.
 - **Rationale**: Straight from Strava's authentication docs. Access tokens live
   6 hours, so most calls need a refresh first. That costs one request and is
   accounted for in R6.
@@ -95,7 +101,9 @@ rider pages are English.
 
   A definitive "not a member" leads to revoke plus full deletion. Network errors,
   5xx, 429, or an exhausted rate budget count as inconclusive: retry later and never
-  disconnect on those.
+  disconnect on those. At connect time an inconclusive answer turns a new rider
+  away (nothing stored), but signs an existing rider in as usual: revoking their
+  new token would end their existing authorization too.
 - **Rationale**: Strava has no club→application link and no club-membership
   webhook. The rider's own club list is the only reliable source. The club-members
   endpoint returns names, not athlete IDs. It is also a call the rider consented to
@@ -112,8 +120,11 @@ rider pages are English.
 
 - **Decision**:
   - `create` → `GET /api/v3/activities/{id}`.
-  - `update` with `type` or `private` in `updates` → refetch.
-  - `update` with only `title` → no call. We store no title.
+  - `update` whose `updates` keys are exactly `title` → no call. We store no
+    title.
+  - Any other `update` (`type`, `private`, an empty `updates`, or keys Strava adds
+    later) → refetch. Refetching when unsure costs one read; skipping could leave
+    stale figures.
   - `delete` → delete the row, no call.
   - Refetch answered 404 (or 403) → treat as deletion or inaccessible (removes the
     row).
@@ -145,9 +156,15 @@ rider pages are English.
     single-row D1 table.
   - Before a call, if the stored usage in the current 15-minute window (aligned to
     :00/:15/:30/:45) or the current UTC day is within a safety margin of the limit
-    (10 for 15-min, 50 for daily), don't call. Instead retry the message with
-    `delaySeconds` until the next window or the next UTC midnight.
+    (10 for 15-min, 50 for daily), don't call. Instead re-send the message body
+    with `delaySeconds` until the next window or the next UTC midnight, capped at
+    43200 s, and ack the original.
   - `429` → same deferral.
+  - Why re-send rather than `retry()`: every `retry()` counts toward
+    `max_retries`, so a long budget shortage would use up a message's attempts
+    and Queues would delete it. A re-sent message starts at attempt 1. Queues
+    accepts at most 12 h of delay; a message that arrives too early is simply
+    deferred again.
   - Other transient failures (5xx, network) → `retry({ delaySeconds:
     min(30 * 2^attempts, 3600) })`.
   - Run the queue consumer with `max_concurrency: 1`, so the stored budget can't be
@@ -163,27 +180,40 @@ rider pages are English.
 ## R7. Durable retries beyond queue retention (SC-005)
 
 - **Decision**: The queue's own retries are capped (`max_retries: 10`). When a
-  message reaches its last attempt with a transient error, the consumer writes it
-  to a D1 table `failed_work` (rider ID plus the message body, which holds only
-  identifiers) and acks it. The daily cron re-enqueues `failed_work` rows younger
-  than 7 days and deletes them. Organisers read the table with `wrangler d1
-  execute` to "see" failures (FR-019). Rows cascade-delete with the rider.
+  message reaches its last attempt with a transient error, the consumer upserts it
+  into a D1 table `failed_work` (rider ID plus the canonical message JSON, which
+  holds only identifiers), logs it, and acks it. The upsert keeps
+  `first_failed_at` and counts `failures`.
+  - The daily cron re-enqueues every row whose `first_failed_at` is less than
+    7 days ago and keeps the row. Older rows are given up: deleted, and logged as
+    such.
+  - When a message succeeds, the consumer deletes its row (matched on the
+    canonical JSON).
+  - Rows cascade-delete with the rider.
+
+  Organisers read the table with `wrangler d1 execute` to "see" open failures,
+  or look for the log lines (FR-019).
 - **Rationale**: Queues on the Workers Free plan keep messages only 24 hours, and
   a dead-letter queue has the same retention. A Strava outage longer than that
-  would otherwise lose activities.
+  would otherwise lose activities. Keeping the row until success makes failures
+  visible for as long as they're open. `first_failed_at` makes the 7-day limit
+  real, instead of resetting each time a re-enqueued message fails again.
 - **Alternatives considered**: A dead-letter queue. Same 24-hour retention; rejected.
 
 ## R8. Past-season import (FR-021)
 
 - **Decision**:
-  - After a successful connect (or a reconnect that newly grants
-    `activity:read_all`), enqueue `import-page { athleteId, page: 1 }`.
+  - After a successful connect, a reconnect that newly grants
+    `activity:read_all`, or a reconnect that ends `needs_reconnect`, enqueue
+    `import-page { athleteId, page: 1, after: <SEASON_START epoch> }`.
   - The handler calls
-    `GET /api/v3/athlete/activities?after=<SEASON_START epoch>&per_page=200&page=N`
+    `GET /api/v3/athlete/activities?after=<after>&per_page=200&page=N`
     and upserts the cycling activities from the summary objects. The summary
     already has every field from R5, so no per-activity call is needed.
-  - If the page was full, it enqueues `page N+1`. Otherwise it marks the rider's
-    import `done`.
+  - If the page was full, it enqueues `page N+1` with the same `after`.
+    Otherwise it marks the rider's import `done`. Carrying `after` in the
+    message means a changed season start only affects imports started
+    afterwards (spec Edge Cases).
   - The rider's `import_status` goes `pending → running → done` and is shown on
     `/me`.
 - **Rationale**: One request per 200 activities. 500 activities is 3 requests,
@@ -282,7 +312,7 @@ rider pages are English.
   them again: their deauth event has already been processed. So after a restore,
   the maintainer MUST delete every restored rider whose Strava access is refused.
   The next daily membership check marks them `needs_reconnect`, which gives the
-  list.
+  list, and the cron deletes them 7 days later anyway (FR-020).
 - **Rationale**: Principle I forbids keeping data "for stats", not routine backups
   outside the app's control. Disclosing the window keeps the promise honest.
   Checked 2026-10-06 in Cloudflare's D1 Time Travel docs.
@@ -451,10 +481,13 @@ rider pages are English.
     `public/strava/<locale>/powered-by-strava.svg`. The maintainer fills them from
     Strava's downloads (`1.1-Connect-with-Strava-Buttons.zip` and
     `1.2-Strava-API-Logos.zip`), using the orange button at 48 px height.
-  - The `de` catalog points at the German variant if Strava's downloads contain
-    one. Otherwise it points at Strava's original (English) files in
-    `public/strava/en/`. The constitution allows that fallback: "in the German
-    variant where one exists".
+  - The `de` catalog points at Strava's original (English) files in
+    `public/strava/en/` until a German variant is confirmed in Strava's
+    downloads. Then it switches to `public/strava/de/`. The constitution allows
+    that fallback: "in the German variant where one exists". Defaulting to `en/`
+    means a deploy can't ship broken images because nobody added German files.
+  - Tests don't need the files, so the quickstart's pre-deploy steps check that
+    every `brand.*.src` in every catalog exists under `public/`.
   - The button's `alt` text is translated ("Mit Strava verbinden" / "Connect with
     Strava"). The attribution's `alt` stays "Powered by Strava" in every locale,
     because the guidelines require that exact wording for text references.

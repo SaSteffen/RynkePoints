@@ -24,6 +24,7 @@ One row per connected member of the team club.
 | `scopes_updated_at` | INTEGER NOT NULL | Last time scopes were granted or changed (FR-006). |
 | `membership_checked_at` | INTEGER NOT NULL | Last definitive "is a member" answer. |
 | `import_status` | TEXT NOT NULL | `pending` \| `running` \| `done`. |
+| `reconnect_requested_at` | INTEGER NULL | When the rider became `needs_reconnect`; `NULL` exactly when `status=connected` (CHECK). Riders more than 7 days past it are deleted (FR-020). |
 
 Not stored, by design: last name, profile photo, city, gender, weight, email
 (Principle I), and the rider's language. The language is a per-browser preference
@@ -40,22 +41,31 @@ held only in the `rp_lang` cookie (FR-029a, see below).
    └───────────────────────────────────────┘    ▼                │
           (hard delete, cascades)          needs_reconnect ──────┘
                                                 │
-                                                └─► deleted on deauth / disconnect / left club
+                                                └─► deleted on deauth / disconnect /
+                                                    7 days without reconnecting
 ```
 
-- `needs_reconnect`: no Strava calls are made for this rider. Pending messages are
-  acked and dropped. The daily membership check skips them. `/me` asks them to
-  reconnect.
-- Reconnect (FR-007): update `scopes`, `scope_read_all`, `status=connected` and the
-  credentials.
+- `needs_reconnect`: no Strava calls are made for this rider, except revoking
+  their token on deletion. Pending messages are acked and dropped. The daily
+  membership check skips them (their token is unusable). `/me` asks them to
+  reconnect. The daily cron deletes them once `reconnect_requested_at` is more
+  than 7 days ago (FR-020), so a revocation Strava never notified us about can't
+  keep data indefinitely.
+- Reconnect (FR-007, FR-020): update `scopes`, `scope_read_all`, `status=connected`,
+  `reconnect_requested_at=NULL` and the credentials.
   - If `scope_read_all` went 1 → 0: `DELETE FROM activities WHERE athlete_id=? AND
     is_private=1`.
-  - If it went 0 → 1: set `import_status=pending` and enqueue the import (R8).
+  - If it went 0 → 1, or the rider was `needs_reconnect`: set
+    `import_status=pending` and enqueue the import (R8), so activities uploaded
+    while the connection was broken are picked up.
+- Signing in again without activity-read permission, or as a definitive
+  non-member, deletes the rider (contracts/http-routes.md, callback table).
 
 ### Import status
 
 `pending` (enqueued) → `running` (first page processed) → `done` (last page was
-short). A reconnect that newly grants `read_all` resets it to `pending`.
+short). A reconnect that newly grants `read_all`, or that ends
+`needs_reconnect`, resets it to `pending`.
 
 ## strava_credentials
 
@@ -94,14 +104,18 @@ leak in.
 ## failed_work
 
 Queue messages that exhausted their retries on transient errors (R7, FR-019).
+A row stays until its message succeeds, it is given up, or its rider is deleted,
+so organisers can see every open failure.
 
 | Column | Type | Rules |
 |---|---|---|
 | `id` | INTEGER PK AUTOINCREMENT | |
 | `athlete_id` | INTEGER NOT NULL, FK → riders ON DELETE CASCADE | |
-| `message` | TEXT NOT NULL | JSON body of the queue message (identifiers only). |
+| `message` | TEXT NOT NULL UNIQUE | Canonical JSON of the queue message (`serializeWorkMessage`, identifiers only). Writes are upserts on this column. |
 | `last_error` | TEXT NOT NULL | Status code / short reason; never tokens. |
-| `failed_at` | INTEGER NOT NULL | Rows older than 7 days are deleted by the daily cron, not re-enqueued. |
+| `first_failed_at` | INTEGER NOT NULL | Set on the first failure, kept on later ones. Rows more than 7 days past it are given up (deleted and logged) by the daily cron. |
+| `failed_at` | INTEGER NOT NULL | Latest failure. |
+| `failures` | INTEGER NOT NULL | ≥ 1. How many times the message exhausted its queue retries. |
 
 ## strava_rate_limit
 

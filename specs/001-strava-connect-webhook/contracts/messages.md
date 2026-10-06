@@ -23,9 +23,9 @@ The complete set of message IDs for this feature. These are the keys of
 | `meta.languageName` | Deutsch | English |
 | `meta.intlLocale` | de-DE | en-GB |
 | `app.name` | RynkePoints | RynkePoints |
-| `brand.connectWithStrava.src` | `/strava/de/connect-with-strava.svg` (falls back to `/strava/en/…` if Strava ships no German button, research R19) | `/strava/en/connect-with-strava.svg` |
+| `brand.connectWithStrava.src` | `/strava/en/connect-with-strava.svg` until a German button from Strava is confirmed; then `/strava/de/connect-with-strava.svg` (research R19) | `/strava/en/connect-with-strava.svg` |
 | `brand.connectWithStrava.alt` | Mit Strava verbinden | Connect with Strava |
-| `brand.poweredByStrava.src` | `/strava/de/powered-by-strava.svg` (same fallback rule) | `/strava/en/powered-by-strava.svg` |
+| `brand.poweredByStrava.src` | `/strava/en/powered-by-strava.svg` (same rule) | `/strava/en/powered-by-strava.svg` |
 | `brand.poweredByStrava.alt` | Powered by Strava | Powered by Strava |
 
 ## Layout
@@ -110,15 +110,16 @@ for every member of `CYCLING_SPORT_TYPES`.
 | `notice.expired.title` | | Anmeldung abgelaufen | Sign-in expired |
 | `notice.expired.body` | | Die Anmeldung ist abgelaufen. Bitte versuche es noch einmal. | Your sign-in expired. Please try again. |
 | `notice.denied.title` | | RynkePoints braucht Lesezugriff auf deine Aktivitäten | RynkePoints needs read access to your activities |
-| `notice.denied.body` | | Ohne diese Berechtigung kann RynkePoints nicht funktionieren. Wir haben nichts gespeichert. | RynkePoints can't work without this permission. We haven't stored anything. |
+| `notice.denied.body` | | Ohne diese Berechtigung kann RynkePoints nicht funktionieren. | RynkePoints can't work without this permission. |
 | `notice.teamFull.title` | | Das Team ist im Moment voll | The team is full for now |
 | `notice.teamFull.body` | | Strava erlaubt RynkePoints gerade keine weiteren Fahrerinnen und Fahrer. Wir melden uns, sobald wieder Platz ist. | Strava doesn't allow RynkePoints any more riders right now. We'll let you know when there's room again. |
 | `notice.failed.title` | | Verbindung fehlgeschlagen | Connection failed |
 | `notice.failed.body` | | Die Verbindung zu Strava hat nicht geklappt. Bitte versuche es noch einmal. | Connecting to Strava didn't work. Please try again. |
 | `notice.notMember.title` | | Nur für Club-Mitglieder | Club members only |
-| `notice.notMember.body` | `clubLink` *html* | Nur Mitglieder {clubLink} können mitmachen. Tritt dem Club bei und versuche es dann noch einmal. Wir haben nichts über dich gespeichert. | Only members of {clubLink} can take part. Join the club and then try again. We haven't stored anything about you. |
+| `notice.notMember.body` | `clubLink` *html* | Nur Mitglieder {clubLink} können mitmachen. Tritt dem Club bei und versuche es dann noch einmal. | Only members of {clubLink} can take part. Join the club and then try again. |
+| `notice.nothingStored` | | Wir haben kein Konto für dich angelegt und weder deinen Strava-Zugang noch deine Aktivitäten gespeichert. | We haven't created an account for you or stored your Strava access or activities. |
 | `notice.stravaBusy.title` | | Strava ist gerade ausgelastet | Strava is busy |
-| `notice.stravaBusy.body` | | Bitte versuche es in ein paar Minuten noch einmal. Wir haben nichts gespeichert. | Please try again in a few minutes. We haven't stored anything. |
+| `notice.stravaBusy.body` | | Bitte versuche es in ein paar Minuten noch einmal. | Please try again in a few minutes. |
 | `notice.deleted.title` | | Deine Daten wurden gelöscht | Your data has been deleted |
 | `notice.deleted.body` | | Wir haben alle Daten über dich gelöscht. Kopien in den Sicherungen unseres Hosting-Anbieters verschwinden spätestens nach 7 Tagen. | We have deleted all data about you. Copies in our hosting provider's backups disappear after 7 days at the latest. |
 | `notice.revokeFailed.body` | | Wir konnten den Zugriff bei Strava nicht zurückgeben. Bitte entferne RynkePoints in deinen Strava-Einstellungen unter „Meine Apps“. | We couldn't give up our access at Strava. Please remove RynkePoints under "My Apps" in your Strava settings. |

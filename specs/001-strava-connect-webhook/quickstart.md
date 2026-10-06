@@ -23,22 +23,28 @@ Language). Message texts are in [contracts/messages.md](contracts/messages.md).
 | US1 connect, member, both scopes | rider and credentials rows exist, tokens are not plaintext, session cookie set, `import-page` p.1 enqueued |
 | US1 rider unticks private | rider has `scope_read_all=0`; `/me` says „Nur geteilte Aktivitäten …“ |
 | US1 refusal / missing `activity:read` | no rows in any table; `303 /notice/denied` with the explanation |
+| US1 connected rider signs in without `activity:read` | revoke called; all their rows gone; `303 /notice/denied-deleted` (deletion + 7-day backup sentence) |
 | US1 non-member | revoke called on fake Strava; no rows; `303 /notice/not-member` with the club link |
+| US1 connected rider signs in, now a non-member | revoke called; all their rows gone; `303 /notice/not-member-deleted` (deletion + 7-day backup sentence) |
+| US1 connected rider signs in, club check inconclusive (503) | no revoke; signed in, `302 /me`; rider kept |
 | US1 token exchange 403 | `303 /notice/team-full` („Das Team ist im Moment voll“); no rows |
 | US1 reconnect narrowing scope | private activities removed, public kept, still one rider row |
+| US1 reconnect after `needs_reconnect` | `status=connected`, `import_status=pending`, `import-page` p.1 enqueued |
 | US2 create / update(type) / delete | activity row inserted / refreshed / removed |
 | US2 duplicate + reordered events (SC-004) | exactly one row per existing cycling activity, none for deleted |
 | US2 title-only update | no outbound call recorded |
+| US2 update with empty or unknown `updates` | activity refetched once |
 | US2 run activity | no row |
 | US2 unknown athlete / foreign subscription / wrong path secret | no outbound call, no rows; 200 / 200 / 404 |
 | Webhook ack (SC-003) | `POST /strava/webhook/:secret` returns without any outbound fetch |
-| Rate limit headers near limit / 429 | message retried with delay to next window; no extra call |
-| Transient errors past last attempt | `failed_work` row; daily cron re-enqueues it |
+| Rate limit headers near limit / 429 | message re-sent with delay to next window (≤ 12 h) and acked, also on attempt 10; no extra call, no `failed_work` |
+| Transient errors past last attempt | `failed_work` row (repeat failures update it, `first_failed_at` kept); daily cron re-enqueues it and keeps it; deleted on success or after 7 days (logged) |
 | US3 deauth event | rider, credentials, activities, failed_work all gone |
 | US3 disconnect button | revoke called, all rows gone, session cleared, `303 /notice/deleted` (7-day backup sentence); foreign `Origin` → 403 |
 | US3 left club (cron → check → delete) | revoke called, all rows gone; inconclusive check (503) keeps rider |
+| US3 `needs_reconnect` for more than 7 days (cron → delete) | revoke with the stored refresh token, no token refresh; all rows gone; 6 days → kept |
 | US4 `/me` | only own 20 newest activities, German number/date formats (`42,2 km`, `06.10.2026`); signed-out → redirect `/` |
-| Season import | 450 synthetic activities → 3 pages, all cycling ones stored, `import_status=done` |
+| Season import | 450 synthetic activities → 3 pages, all cycling ones stored, `import_status=done`; every page uses the `after` from the first message |
 | Catalog parity (FR-028, SC-010) | `de` and `en` have identical keys, no empty values, identical placeholders; a `sport.*` message for every cycling type |
 | Locale resolution (FR-029) | no header / `*` / `de-DE,en;q=0.5` / `da,de;q=0.5` → `de`; `en-US,en;q=0.9,de;q=0.8` / `da` → `en`; unknown `rp_lang` ignored |
 | German default rendering (SC-010) | every rider page with no `Accept-Language` → `<html lang="de">`, `Content-Language: de`, German text, German Strava button `src`/`alt` |
@@ -81,9 +87,14 @@ Development Workflow).
 5. Download the official "Connect with Strava" button and "Powered by Strava" logo
    from Strava's brand guidelines (`1.1-Connect-with-Strava-Buttons.zip`,
    `1.2-Strava-API-Logos.zip`) into `public/strava/en/`.
-   - If the downloads contain German variants, put them in `public/strava/de/`.
-   - Otherwise, point the `brand.*.src` entries in `src/i18n/messages/de.ts` at
-     the `en/` files (research R19). Never re-letter the images yourself.
+   - The `de` catalog points at the `en/` files by default.
+   - If the downloads contain German variants, put them in `public/strava/de/` and
+     switch the `brand.*.src` entries in `src/i18n/messages/de.ts` to them
+     (research R19). Never re-letter the images yourself.
+   - Before deploying, check that every `brand.*.src` path in every catalog
+     exists under `public/`:
+     `grep -ho '"/strava/[^"]*"' src/i18n/messages/*.ts | tr -d '"' | sort -u | sed 's|^|public|' | xargs ls`.
+     Tests don't need these files, so nothing else catches a missing one.
 6. Set `SEASON_START_DATE` in `wrangler.jsonc`, then `pnpm deploy`.
 7. Create the webhook subscription (`POST /api/v3/push_subscriptions` with
    `callback_url=https://<host>/strava/webhook/<verify token>`). Put the returned
@@ -102,11 +113,15 @@ Development Workflow).
 
 ```bash
 pnpm wrangler d1 execute rynke-points --remote \
-  --command "SELECT id, athlete_id, last_error, failed_at FROM failed_work"
+  --command "SELECT id, athlete_id, last_error, first_failed_at, failed_at, failures FROM failed_work"
 ```
+
+Rows stay while the failure is open. Given-up rows (7 days after the first
+failure) are deleted and show up as a "giving up" log line in the Worker logs.
 
 ## Restoring from Time Travel (disaster recovery only)
 
 A restore can bring back riders who were deleted after the restore point
-(research R15). After restoring, wait for the next daily membership check, then
-delete every rider it marked `needs_reconnect` whose Strava access is refused.
+(research R15). Their Strava access is refused, so the next daily membership
+check marks them `needs_reconnect`, and the cron deletes them 7 days later
+(FR-020). Delete them by hand sooner if you can tell them apart.

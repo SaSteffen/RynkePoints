@@ -148,6 +148,9 @@ button) and verifying no record of that rider remains.
    Strava and permanently deletes all their data.
 4. **Given** a rider whose data was deleted, **When** they connect again later,
    **Then** they start as a new rider with no leftover data from before.
+5. **Given** a rider whose connection needs to be renewed, **When** they have not
+   reconnected 7 days later, **Then** RynkePoints permanently deletes all their
+   data.
 
 ---
 
@@ -193,7 +196,10 @@ and no one else's.
   are imported.
 - **Membership check cannot be answered**: Strava is unavailable or the rider's
   access is temporarily unusable during a club check. The rider stays connected;
-  only a definitive "not a member" answer leads to disconnection.
+  only a definitive "not a member" answer leads to disconnection. This includes an
+  already connected rider signing in again: they are signed in as usual. A new
+  rider whose check cannot be answered is not connected and is asked to try again
+  later.
 - **Season start date changes**: changing the date does not delete or re-import
   anything by itself; it only affects imports started afterwards.
 - **Live activity during import**: a new activity reported while the past-season
@@ -206,7 +212,10 @@ and no one else's.
   with increasing delays, never dropped silently.
 - **Rider's access expired or revoked without a notification**: the rider's
   connection is marked as needing reconnection, their page tells them so, and their
-  pending activity fetches are dropped rather than retried forever.
+  pending activity fetches are dropped rather than retried forever. If they
+  reconnect, their rides since the season start are imported again, so nothing
+  uploaded in between is missed. If they haven't reconnected after 7 days, they are
+  disconnected and their data deleted (FR-020).
 - **Forged notifications**: notifications that did not come from the app's Strava
   subscription have no effect.
 - **Burst of activities** (e.g. a rider bulk-uploads after a tour): all are
@@ -231,16 +240,17 @@ and no one else's.
   Strava" button and attribution in the variant matching the page language
   (FR-028).
 - **FR-002**: Before redirecting to Strava, the system MUST tell the rider in plain
-  language which data will be read, what it is used for, how to leave, and that
-  deleted data remains in the hosting platform's backups for up to 7 days
-  (FR-022a).
+  language which data will be read, what it is used for, how to leave, and how
+  long deleted data remains in the hosting platform's backups (FR-022a).
 - **FR-003**: The system MUST request only the permission to read the rider's
   activities, at the level defined in FR-005; it MUST NOT request permission to
   edit activities in this feature.
 - **FR-004**: Only members of the configured team Strava club (initially
   "TRHH Rynke Coins", https://www.strava.com/clubs/2372209) MUST be able to
   connect. Membership MUST be checked when the rider connects; a non-member's
-  newly granted access MUST be revoked at Strava and nothing about them kept.
+  newly granted access MUST be revoked at Strava and nothing about them kept. If
+  an already connected rider signs in again and is definitively not a member,
+  their data MUST be deleted as in FR-022.
 - **FR-004a**: The system MUST re-check each connected rider's club membership at
   least once every 24 hours. When Strava definitively reports the rider is no
   longer a member, the system MUST revoke its access at Strava and delete the
@@ -253,7 +263,8 @@ and no one else's.
   effect.
 - **FR-006**: The system MUST record which permissions the rider actually granted
   and when, and MUST treat a connection without activity-read permission as not
-  connected (keeping no credentials).
+  connected (keeping no credentials). For an already connected rider who signs in
+  again without that permission, this means deleting their data as in FR-022.
 - **FR-007**: Re-connecting an already connected rider MUST update their existing
   record and granted permissions rather than create a second rider. If the new
   permission no longer covers private activities, stored private activities MUST be
@@ -294,10 +305,15 @@ and no one else's.
   reached it MUST pause fetching and retry later, and MUST NOT drop the pending
   work.
 - **FR-019**: Failed fetches MUST be retried with increasing delays; after
-  retries are exhausted, the failure MUST be recorded so an organiser can see it.
+  retries are exhausted, the failure MUST be recorded so an organiser can see it,
+  and retried at least daily for 7 days from the first failure. Giving up after
+  that MUST also be recorded.
 - **FR-020**: The system MUST renew a rider's expiring Strava access automatically;
   if renewal is refused, it MUST mark the rider as needing to reconnect and stop
-  fetching for them.
+  fetching for them. When the rider reconnects, their activities since the season
+  start MUST be imported again as in FR-021. A rider who still needs to reconnect
+  7 days after being marked MUST be disconnected and their data deleted as in
+  FR-022.
 - **FR-021**: On connecting, the system MUST import the rider's cycling activities
   that started on or after the configured season start date, applying the same
   storage rules as FR-013–FR-015. The import MUST be throttled so it never bursts
@@ -359,9 +375,9 @@ and no one else's.
 
 - **Rider**: a member of the team Strava club who connected their Strava account.
   Holds the Strava athlete ID, display first name (for greeting only), connection
-  status (connected / needs reconnect), granted permissions (with or without
-  private activities), connection date, past-season import status, and when club
-  membership was last confirmed.
+  status (connected / needs reconnect, and since when it needs reconnecting),
+  granted permissions (with or without private activities), connection date,
+  past-season import status, and when club membership was last confirmed.
 - **Team Settings**: organiser-maintained configuration — the team Strava club and
   the season start date.
 - **Strava Credentials**: the access needed to read the rider's activities on their
@@ -393,14 +409,15 @@ and no one else's.
   activity is lost: every activity uploaded by a connected rider is stored within
   24 hours once Strava is reachable again.
 - **SC-006**: After a rider revokes access or disconnects, no data about that rider
-  remains in the live data within 1 hour; after a rider leaves the team club, none
-  remains within 25 hours. Backup copies are gone after at most 7 more days.
+  remains in the live data within 1 hour; after a rider leaves the team club, or
+  7 days after their connection started needing renewal, none remains within 25
+  hours. Backup copies are gone after at most 7 more days.
+- **SC-007**: A full audit of stored data finds no GPS tracks, coordinates or
+  non-cycling activities.
 - **SC-008**: For a newly connected rider with up to 500 cycling activities since
   the season start, all of them are stored within 24 hours of connecting.
 - **SC-009**: 100% of connection attempts by non-members of the team club end with
   no data about them kept.
-- **SC-007**: A full audit of stored data finds no GPS tracks, coordinates or
-  non-cycling activities.
 - **SC-010**: Every rider-facing page and message is fully German for a browser
   preferring German or naming no language, and fully English for a browser
   preferring English or naming only unsupported languages; no message is missing in

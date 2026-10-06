@@ -28,7 +28,7 @@ Cookies:
 - **Layout** (`layout()` in `src/http/html.ts`):
   - **Title**: from the page's title message.
   - **Language switcher**: `<form method="post" action="/lang">`. It holds a
-    hidden `next` set to the current page's path and query, plus one `<button
+    hidden `next` set to the current page's path, plus one `<button
     name="lang" value="<locale>" lang="<locale>">` per shipped locale. Each button
     is labelled with that catalog's `meta.languageName`, and the current one is
     marked `aria-current="true"`. It works without JavaScript; no script is
@@ -70,17 +70,24 @@ Every outcome except success redirects to a notice page with a stable GET URL,
 so reloading or switching language never re-submits a used `code` (research
 R18).
 
+"Existing rider" means a `riders` row for the token response's `athlete.id`
+already exists (a connected rider signing in again, or a `needs_reconnect` rider
+reconnecting).
+
 | Input | Outcome |
 |---|---|
-| `state` missing or ≠ cookie | `303 /notice/expired`. Nothing stored. |
-| `error=access_denied` | `303 /notice/denied` (explanation plus retry link). Nothing stored. |
-| accepted `scope` lacks `activity:read` or `read` | Revoke the token if one was issued, then `303 /notice/denied`. |
+| `state` missing or ≠ cookie | `303 /notice/expired`. Nothing stored or changed. |
+| `error=access_denied` | `303 /notice/denied` (explanation plus retry link). Nothing stored or changed; an existing rider keeps their earlier connection. |
+| accepted `scope` lacks `activity:read` or `read`, new rider | Revoke the token, then `303 /notice/denied`. Nothing stored. |
+| accepted `scope` lacks `activity:read` or `read`, existing rider | Revoke the token, delete the rider (cascade, FR-006), clear `rp_session`, `303 /notice/denied-deleted`. |
 | token exchange `403` | `303 /notice/team-full` (FR-008). |
 | token exchange other error | `303 /notice/failed`. |
-| club check: not a member | Revoke the token, then `303 /notice/not-member` (club link). Nothing stored. |
-| club check inconclusive | Token revoked, nothing stored, `303 /notice/strava-busy`. |
-| success, new rider | Insert rider and credentials, enqueue `import-page` p.1, set `rp_session`, `302 /me`. |
-| success, existing rider | Update scopes and credentials. Apply the scope-change rules (data-model.md). Set `rp_session`, `302 /me`. |
+| club check: not a member, new rider | Revoke the token, then `303 /notice/not-member` (club link). Nothing stored. |
+| club check: not a member, existing rider | Revoke the token, delete the rider (cascade, FR-004), clear `rp_session`, `303 /notice/not-member-deleted`. |
+| club check inconclusive, new rider | Revoke the token, nothing stored, `303 /notice/strava-busy`. |
+| club check inconclusive, existing rider | Not a disconnection (spec Edge Cases): no revoke, continue as "success, existing rider". The daily check (FR-004a) decides membership later. |
+| success, new rider | Insert rider and credentials, enqueue `import-page { page: 1, after: <season start> }`, set `rp_session`, `302 /me`. |
+| success, existing rider | Update scopes and credentials, set `status=connected` and `reconnect_requested_at=NULL`. Apply the reconnect rules (data-model.md). Set `rp_session`, `302 /me`. |
 
 ### `GET /notice/:id`
 
@@ -90,11 +97,13 @@ the resolved language.
 | `:id` | Messages | Extra |
 |---|---|---|
 | `expired` | `notice.expired.*` | retry link to `/connect` |
-| `denied` | `notice.denied.*` | retry link to `/connect` |
+| `denied` | `notice.denied.*` | retry link to `/connect`. No claim about stored data: an existing rider who cancelled on Strava keeps their connection. |
+| `denied-deleted` | `notice.denied.*` + `notice.deleted.body` | retry link to `/connect`; deletion and 7-day backup sentence (FR-022a) |
 | `team-full` | `notice.teamFull.*` | — |
 | `failed` | `notice.failed.*` | retry link to `/connect` |
-| `not-member` | `notice.notMember.*` | club link `https://www.strava.com/clubs/<STRAVA_CLUB_ID>` |
-| `strava-busy` | `notice.stravaBusy.*` | retry link to `/connect` |
+| `not-member` | `notice.notMember.*` + `notice.nothingStored` | club link `https://www.strava.com/clubs/<STRAVA_CLUB_ID>` |
+| `not-member-deleted` | `notice.notMember.*` + `notice.deleted.body` | club link; deletion and 7-day backup sentence (FR-022a) |
+| `strava-busy` | `notice.stravaBusy.*` + `notice.nothingStored` | retry link to `/connect` (only new riders get here) |
 | `deleted` | `notice.deleted.*` | 7-day backup sentence (FR-022a) |
 | `deleted-revoke-failed` | `notice.deleted.*` + `notice.revokeFailed.body` | "My Apps" hint |
 

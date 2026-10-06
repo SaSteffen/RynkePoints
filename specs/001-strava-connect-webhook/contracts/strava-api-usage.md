@@ -9,7 +9,7 @@ synthetic data (Principle V).
 | Authorize (browser redirect) | `GET https://www.strava.com/oauth/authorize` | — | callback params `code`, `scope`, `state`, `error` |
 | Token exchange | `POST https://www.strava.com/oauth/token` `grant_type=authorization_code` | client id/secret in form | `access_token`, `refresh_token`, `expires_at`, `scope`, `athlete.id`, `athlete.firstname` |
 | Token refresh | `POST https://www.strava.com/oauth/token` `grant_type=refresh_token` | client id/secret in form | `access_token`, `refresh_token`, `expires_at` |
-| Revoke | `POST https://www.strava.com/oauth/revoke` `token=<access or refresh>` | HTTP Basic `client_id:client_secret` | status only |
+| Revoke | `POST https://www.strava.com/oauth/revoke` `token=<token>`: the stored refresh token for a connected rider (no refresh first), or the just-issued access token in the OAuth callback | HTTP Basic `client_id:client_secret` | status only |
 | Club membership | `GET /api/v3/athlete/clubs?page=N&per_page=200` | Bearer | `[].id` |
 | Single activity | `GET /api/v3/activities/{id}` | Bearer | `id`, `sport_type`, `start_date`, `start_date_local`, `timezone`, `distance`, `moving_time`, `total_elevation_gain`, `private` |
 | Season import | `GET /api/v3/athlete/activities?after=<epoch>&page=N&per_page=200` | Bearer | same fields as single activity, per item |
@@ -25,7 +25,7 @@ Base URL for `/api/v3/...` is `https://www.strava.com`.
 | `400`/`401` on refresh | `needs_reconnect`. |
 | `403`/`404` on a single activity | Inaccessible, treated as deleted. |
 | `403` on token exchange | Capacity reached (R14). |
-| `429` | Rate-limited: defer to the next window. |
+| `429` | Rate-limited: defer to the next window (budget deferral, not a transient error). |
 | `5xx`, network error | Transient: back off. |
 
 ## Manual, one-time (not called by the app)

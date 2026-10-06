@@ -25,7 +25,7 @@ through Strava's webhook. A single Worker handles four things:
   hard-deletes the rider, and that cascades to everything they own.
 
 **Rider pages are German by default, with English as a second language**
-(constitution v1.1.0, Language; FR-028–FR-030):
+(constitution v1.1.1, Language; FR-028–FR-030):
 
 - All text comes from plain typed message catalogs (`src/i18n/messages/de.ts`,
   `en.ts`).
@@ -94,14 +94,14 @@ messages each ([contracts/messages.md](contracts/messages.md)).
 |---|---|---|
 | I. Privacy & consent | Opt-in scopes; private activities only if granted (R1). No `activity:write`. Nothing team-visible (FR-026). | ✅ |
 | I. Minimisation | Allow-listed fields only; no GPS, polylines, coordinates or titles (data-model `activities`). | ✅ |
-| I. Deletion | Hard delete with cascade on deauth, disconnect or leaving the club. Pending work can't recreate rows (FK + rider check). D1 Time Travel keeps a 7-day restorable history that can't be disabled; it is disclosed to riders and never used to restore deleted riders (FR-022a, R15). | ✅ disclosed |
+| I. Deletion | Hard delete with cascade on deauth, disconnect, leaving the club, or 7 days stuck in `needs_reconnect` (FR-020). Revoking uses the stored refresh token, so deletion never depends on a working refresh. Pending work can't recreate rows (FK + rider check). D1 Time Travel keeps a 7-day restorable history that can't be disabled; it is disclosed to riders and never used to restore deleted riders (FR-022a, R15). | ✅ disclosed |
 | I. Secrets | Tokens AES-GCM encrypted (R10). Secrets only via `wrangler secret` / `.dev.vars`. Tests use synthetic bindings. | ✅ |
 | I. EU storage | D1 `--jurisdiction=eu` (R11). Queue messages hold IDs only. | ✅ |
-| I. Purpose & brand | Data used only for this app. Official Connect button and "Powered by Strava", unmodified, in the page language's variant (R13, R19). | ✅ |
+| I. Purpose & brand | Data used only for this app. Official Connect button and "Powered by Strava", unmodified, in the page language's variant where Strava ships one; `de` uses the original files until then, and a pre-deploy step checks every catalog path exists (R13, R19). | ✅ |
 | I. Language preference | The picked language lives only in the `rp_lang` browser cookie. It's never in D1 or the rider record, and is disclosed on the landing page (FR-029a, R18). | ✅ |
 | II. Webhook ack + queue | The handler validates and enqueues only (contracts/http-routes.md). | ✅ |
 | II. Idempotency | Upserts converge to Strava's current state; duplicates and reordering are safe (R5). | ✅ |
-| II. Rate limits | Header-driven budget, 429 deferral, serial consumer; the import is paged at 200 per request (R6, R8). | ✅ |
+| II. Rate limits | Header-driven budget, 429 deferral, serial consumer; the import is paged at 200 per request (R6, R8). Deferrals re-send the message (≤ 12 h delay) so they never use up its retries and never drop work. | ✅ |
 | II. Capacity | Designed for ≤ 10 riders. "Team full" handled (R14). | ✅ |
 | II. No polling | Activities are never polled. The daily club-membership check is a scheduled Strava lookup (≤ 20 requests/day); see Complexity Tracking. | ✅ justified |
 | III. Rider content | No description edits in this feature. | ✅ n/a |
@@ -122,6 +122,11 @@ messages each ([contracts/messages.md](contracts/messages.md)).
   `activities.is_private`. It is needed to honour FR-007 (removing private
   activities when consent narrows), so it supports Principle I rather than
   conflicting with it.
+- Analysis remediation (2026-10-06) adds `riders.reconnect_requested_at` and
+  `failed_work.first_failed_at`/`failures`, makes `failed_work.message` unique,
+  puts the season start (`after`) into `import-page` messages, and adds the
+  `delete-rider` reason `reconnect-expired`. Rate-limit deferrals are now
+  re-sends instead of `retry()`. No new table, route or dependency.
 - The language revision adds no table, column or runtime dependency. It adds one
   cookie (`rp_lang`) and two routes (`POST /lang`, `GET /notice/:id`).
 - Callback and disconnect outcomes now redirect to `/notice/:id` instead of
@@ -236,11 +241,12 @@ Afterwards, regenerate `worker-configuration.d.ts` with `pnpm types`.
 
 - **German Strava brand assets** (FR-001, R19): Strava's guidelines page doesn't
   say whether its button and logo downloads include German variants. The
-  maintainer checks when downloading (quickstart §3 step 5). If there are none,
-  the German page shows Strava's official English button, as the constitution
-  allows, and FR-001's "variant matching the page language" can't be fully met
-  for German. The fix is either a spec note or a request to developers@strava.com.
-  No code change is needed either way, because the asset path is a catalog entry.
+  maintainer checks when downloading (quickstart §3 step 5). Until a German
+  variant is confirmed, `de` points at Strava's official English files, as the
+  constitution allows, and FR-001's "variant matching the page language" isn't
+  fully met for German. The fix is either a spec note or a request to
+  developers@strava.com. No code change is needed either way, because the asset
+  path is a catalog entry.
 - **Browsers naming only unsupported languages** (FR-029): resolved in the spec on
   2026-10-06 — `da` gets English, `da,de;q=0.5` gets German, and only a missing or
   empty preference falls back to German (R17).
