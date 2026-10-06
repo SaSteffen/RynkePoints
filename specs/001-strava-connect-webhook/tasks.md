@@ -413,7 +413,7 @@ on the matching `/notice/:id` page.
 
 ### Tests for User Story 1 (write first, confirm red) ⚠️
 
-- [ ] T046 [P] [US1] Integration test in `test/integration/landing.test.ts` (FR-001, FR-002, FR-022a, FR-029, FR-029a):
+- [X] T046 [P] [US1] Integration test in `test/integration/landing.test.ts` (FR-001, FR-002, FR-022a, FR-029, FR-029a):
   - **signed-out `GET /`, no `Accept-Language`**: `200` with `<html lang="de">` and `Content-Language: de`, plus the German texts from contracts/messages.md:
     - `landing.dataRead`, `landing.purpose` and `landing.leave`;
     - `landing.backups` ("Gelöschte Daten bleiben bis zu 7 Tage …");
@@ -425,10 +425,10 @@ on the matching `/notice/:id` page.
     - `Accept-Language: en-US,en;q=0.9,de;q=0.8` → `lang="en"`, the English `landing.backups` text, and the img `src` = `en["brand.connectWithStrava.src"]` with `alt="Connect with Strava"`;
     - `Cookie: rp_lang=en` with `Accept-Language: de` → English.
   - **signed in**: with a valid session, `GET /` gives `302 /me`.
-- [ ] T047 [P] [US1] Integration test in `test/integration/connect.test.ts` for `GET /connect`:
+- [X] T047 [P] [US1] Integration test in `test/integration/connect.test.ts` for `GET /connect`:
   - 302 to `https://www.strava.com/oauth/authorize` with `client_id=10001`, `redirect_uri=<origin>/auth/callback`, `response_type=code`, `approval_prompt=force`, `scope=read,activity:read,activity:read_all` and a random `state`;
   - the response sets `rp_oauth_state` carrying the same state.
-- [ ] T048 [US1] Integration test in `test/integration/callback.test.ts` covering every row of the `GET /auth/callback` table in contracts/http-routes.md (outcomes are `303` redirects to `/notice/:id`, research R18):
+- [X] T048 [US1] Integration test in `test/integration/callback.test.ts` covering every row of the `GET /auth/callback` table in contracts/http-routes.md (outcomes are `303` redirects to `/notice/:id`, research R18):
   - **refusals**:
     - missing or mismatched `state` → `303 /notice/expired`, no rows;
     - `error=access_denied` → `303 /notice/denied`, no rows;
@@ -452,16 +452,16 @@ on the matching `/notice/:id` page.
   - **reconnect** → still one `riders` row, with `scopes` and `scopes_updated_at` updated.
   - **reconnect from `needs_reconnect`** (same scopes) → `status='connected'`, `reconnect_requested_at` NULL, `import_status='pending'`, one `import-page` page 1 queued.
   - **no inline pages**: no callback response has an HTML body, so a reload or language switch can never re-submit the `code`.
-- [ ] T049 [US1] Integration test in `test/integration/reconnect-scope.test.ts` (FR-007):
+- [X] T049 [US1] Integration test in `test/integration/reconnect-scope.test.ts` (FR-007):
   - a rider with `scope_read_all=1`, one private and one public activity, reconnects without `activity:read_all` → the private row is deleted, the public one kept, no import queued;
   - a rider with `scope_read_all=0` reconnects with it → `import_status='pending'` and `import-page` page 1 (with `after`) queued.
-- [ ] T050 [P] [US1] Integration test in `test/integration/import-page.test.ts` for the `import-page` handler:
+- [X] T050 [P] [US1] Integration test in `test/integration/import-page.test.ts` for the `import-page` handler:
   - **pagination**: 450 synthetic activities (430 cycling, 20 `Run`) after the season start, plus 5 before it, give fake calls for pages 1–3 with `after=<seasonStartEpoch>&per_page=200`; 430 rows end up stored; pages 2 and 3 are queued by the handler with the same `after`; `import_status` goes `running` then `done`.
   - **season start fixed per import**: a page message whose `after` differs from the configured `SEASON_START_DATE` calls Strava with the message's `after`.
   - **idempotency**: re-processing page 2 adds no rows.
   - **scope**: a rider with `scope_read_all=0` gets no private rows.
   - **budget**: an exhausted budget gives the `budget` result and no fetch.
-- [ ] T051 [P] [US1] Integration test in `test/integration/me-status.test.ts` (German unless noted):
+- [X] T051 [P] [US1] Integration test in `test/integration/me-status.test.ts` (German unless noted):
   - **signed out**: `GET /me` gives `302 /`; a valid session for a deleted rider also gives `302 /`.
   - **connected rider (first name "Testrider A")**:
     - "Hallo Testrider A!" and "Mit Strava verbunden";
@@ -474,15 +474,15 @@ on the matching `/notice/:id` page.
 
 ### Implementation for User Story 1
 
-- [ ] T052 [P] [US1] Implement `src/http/landing.ts` (`GET /`) per contracts/http-routes.md and FR-001/FR-002/FR-022a:
+- [X] T052 [P] [US1] Implement `src/http/landing.ts` (`GET /`) per contracts/http-routes.md and FR-001/FR-002/FR-022a:
   - all text from the `landing.*` messages via `i18n.t`/`tHtml`, with no literal copy;
   - the club link built from `clubId` with `club.linkText`;
   - the "Connect with Strava" image from `brand.connectWithStrava.src`/`.alt`, inside `<a href="/connect">`;
   - rendered through `layout` with `path: "/"`.
 
   Makes T046 green.
-- [ ] T053 [US1] Add `isClubMember(token, clubId)` to `src/strava/client.ts`. It pages `GET /api/v3/athlete/clubs?per_page=200&page=N` until the club is found or a page has fewer than 200 items, and returns `member` | `not-member` | `inconclusive` (any non-ok result).
-- [ ] T054 [US1] Implement `src/http/auth.ts`:
+- [X] T053 [US1] Add `isClubMember(token, clubId)` to `src/strava/client.ts`. It pages `GET /api/v3/athlete/clubs?per_page=200&page=N` until the club is found or a page has fewer than 200 items, and returns `member` | `not-member` | `inconclusive` (any non-ok result). *(Done in T041 as `isClubMember(ctx, auth, clubId): StravaResult<boolean>`: `ok`+`true`/`false` is member/not-member, any other kind is inconclusive. The richer result lets `check-membership` (T069) tell `budget` from `transient`.)*
+- [X] T054 [US1] Implement `src/http/auth.ts`:
   - **`GET /connect`**: redirect to Strava's authorize URL.
   - **`GET /auth/callback`**, in this order:
     1. state check (`303 /notice/expired`);
@@ -495,14 +495,14 @@ on the matching `/notice/:id` page.
     8. set `rp_session`, `302 /me`.
 
   Keep only `athlete.id` and `athlete.firstname` from the token response. Makes T047–T049 green.
-- [ ] T055 [US1] Implement `src/work/import-page.ts`:
+- [X] T055 [US1] Implement `src/work/import-page.ts`:
   - call `GET /api/v3/athlete/activities` with `after` from the message, `per_page=200`, `page`;
   - upsert `toActivityRecord` results for cycling items only and set `import_status='running'`;
   - when 200 items came back, enqueue `page+1` with the same `after`; otherwise set `import_status='done'`;
   - register the handler in the `src/index.ts` handlers map.
 
   Makes T050 green.
-- [ ] T056 [US1] Implement the status part of `src/http/me.ts` (`GET /me`):
+- [X] T056 [US1] Implement the status part of `src/http/me.ts` (`GET /me`):
   - session check and rider lookup;
   - the status, granted level, import status (season start via `i18n.formatDate`) and reconnect link, all from the `me.*` messages;
   - the sign-out form (`layout.logout`);
