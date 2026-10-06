@@ -585,7 +585,7 @@ any table, and later messages for them have no effect.
 
 ### Tests for User Story 3 (write first, confirm red) ⚠️
 
-- [ ] T063 [P] [US3] Integration test in `test/integration/delete-rider.test.ts` (FR-022–FR-024):
+- [X] T063 [P] [US3] Integration test in `test/integration/delete-rider.test.ts` (FR-022–FR-024):
   - **queuing**: a webhook `POST` with `object_type: "athlete", updates: { authorized: "false" }` queues `{ kind: "delete-rider", athleteId, reason: "deauthorized", revoke: false }`.
   - **deletion**: processing it removes the rider's rows from `riders`, `strava_credentials`, `activities` and `failed_work`, with zero fake calls.
   - **with `revoke: true`**:
@@ -594,10 +594,10 @@ any table, and later messages for them have no effect.
     - a `needs_reconnect` rider → processed (not dropped), rows deleted;
     - fake 400 or 401 on revoke → rows deleted;
     - fake 503 → retried;
-    - 503 on attempt 10 → rows deleted anyway, and no `failed_work` row is written.
+    - 503 on the last attempt (`MAX_ATTEMPTS`, i.e. after 10 retries) → rows deleted anyway, and no `failed_work` row is written.
   - **no resurrection**: a later `activity-event` for the deleted athlete creates nothing.
   - **reconnect after deletion**: running the callback again yields a fresh rider with `import_status='pending'` and no old activities.
-- [ ] T064 [P] [US3] Integration test in `test/integration/disconnect.test.ts` (FR-023, FR-022a), German unless noted:
+- [X] T064 [P] [US3] Integration test in `test/integration/disconnect.test.ts` (FR-023, FR-022a), German unless noted:
   - **confirmation page**: `GET /me/disconnect` (signed in) shows "Daten löschen?", the `disconnect.explain` text, a POST form with the button "Ja, alles löschen", an "Abbrechen" link to `/me`, and the switcher with `next` = `/me/disconnect`. Signed out → `302 /`.
   - **refused**: `POST /me/disconnect` without a session, or with a missing or foreign `Origin`, gives `403` with the German "Anfrage abgelehnt" page, and nothing is deleted.
   - **success**:
@@ -607,7 +607,7 @@ any table, and later messages for them have no effect.
   - **revoke failing twice (503, 503)**: rows still deleted, `303 /notice/deleted-revoke-failed`, and that page contains „Meine Apps“.
   - **survives a language switch**: `POST /lang` with `lang=en` and `next=/notice/deleted` → English "Your data has been deleted", with nothing re-submitted.
   - **sign-out**: `POST /logout` with same-origin clears the cookie and redirects `302 /`.
-- [ ] T065 [P] [US3] Integration test in `test/integration/membership-check.test.ts` (FR-004a, SC-006):
+- [X] T065 [P] [US3] Integration test in `test/integration/membership-check.test.ts` (FR-004a, SC-006):
   - `handleScheduled` queues one `check-membership` per `status='connected'` rider (none for `needs_reconnect`);
   - **member**: `membership_checked_at` is updated;
   - **not a member**: `{ kind: "delete-rider", reason: "left-club", revoke: true }` is queued, and processing it deletes all rows;
@@ -616,12 +616,12 @@ any table, and later messages for them have no effect.
 
 ### Implementation for User Story 3
 
-- [ ] T066 [US3] Implement `src/work/delete-rider.ts`:
-  - if `revoke`, call `revokeStoredToken` (refresh token, no refresh; on transient errors, return `transient` unless `attempts >= 10`, in which case continue; any other result continues);
+- [X] T066 [US3] Implement `src/work/delete-rider.ts`:
+  - if `revoke`, call `revokeStoredToken` (refresh token, no refresh; on transient errors, return `transient` unless it is the last attempt (`attempt.isLastAttempt`), in which case continue; any other result continues);
   - then `deleteRider`;
   - register it in the handlers map, and make sure `src/work/consumer.ts` processes `delete-rider` for `needs_reconnect` riders and never writes it to `failed_work`.
-- [ ] T067 [US3] Extend `src/http/webhook.ts`: `object_type=athlete` with `updates.authorized === "false"` → queue a `delete-rider` with `reason: "deauthorized"` and `revoke: false`. Together with T066 this makes T063 green.
-- [ ] T068 [US3] Extend `src/http/me.ts` and wire the routes in `src/http/router.ts`:
+- [X] T067 [US3] Extend `src/http/webhook.ts`: `object_type=athlete` with `updates.authorized === "false"` → queue a `delete-rider` with `reason: "deauthorized"` and `revoke: false`. Together with T066 this makes T063 green.
+- [X] T068 [US3] Extend `src/http/me.ts` and wire the routes in `src/http/router.ts`:
   - `GET /me/disconnect`: confirmation page from `disconnect.*`, `path: "/me/disconnect"`.
   - `POST /me/disconnect`:
     1. require a session and `isSameOrigin`, else the `403` `error.forbidden` page;
@@ -632,7 +632,7 @@ any table, and later messages for them have no effect.
   - Add the `me.disconnect.button` link on `/me`.
 
   Makes T064 green.
-- [ ] T069 [US3] Implement `src/work/check-membership.ts`:
+- [X] T069 [US3] Implement `src/work/check-membership.ts`:
   - `member` → `setMembershipChecked`;
   - `not-member` → enqueue `delete-rider` (`left-club`, `revoke: true`);
   - `inconclusive` → `transient`/`budget`.
