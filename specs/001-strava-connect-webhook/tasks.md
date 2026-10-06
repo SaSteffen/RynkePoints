@@ -526,7 +526,7 @@ that the `activities` table matches the fake Strava's current state exactly.
 
 ### Tests for User Story 2 (write first, confirm red) ⚠️
 
-- [ ] T057 [P] [US2] Integration test in `test/integration/webhook.test.ts` (FR-010–FR-012, SC-003):
+- [X] T057 [P] [US2] Integration test in `test/integration/webhook.test.ts` (FR-010–FR-012, SC-003):
   - **validation `GET /strava/webhook/test-verify-token`**:
     - with `hub.mode=subscribe&hub.verify_token=test-verify-token&hub.challenge=abc` → 200 `application/json` `{"hub.challenge":"abc"}`;
     - wrong `hub.verify_token` → 403;
@@ -540,7 +540,7 @@ that the `activities` table matches the fake Strava's current state exactly.
     - a non-deauth athlete update → 200 with nothing queued.
   - **no outbound calls**: the fake Strava records zero calls across all webhook requests.
   - **not rider-facing**: webhook responses are not HTML and carry no `Content-Language` (they aren't catalogued).
-- [ ] T058 [P] [US2] Integration test in `test/integration/activity-event.test.ts` (FR-013–FR-018, SC-004):
+- [X] T058 [P] [US2] Integration test in `test/integration/activity-event.test.ts` (FR-013–FR-018, SC-004):
   - **create**: stores the mapped record and nothing else (no polyline or name columns exist; also assert the values).
   - **updates**:
     - `update` with `changed: ["type"]` after the fake switched it to `Run` → row deleted;
@@ -553,12 +553,12 @@ that the `activities` table matches the fake Strava's current state exactly.
   - **retries**:
     - fake 503 → retried with `backoffSeconds(attempts)`;
     - fake 429 → re-sent with delay to the next 15-minute window and acked, no further call;
-    - 503 on attempt 10 → a `failed_work` row.
-- [ ] T059 [P] [US2] Integration test in `test/integration/scheduled-failed-work.test.ts` (R7, FR-019, SC-005): with `failed_work` rows whose `first_failed_at` is 1 day and 8 days ago (the 8-day row's `failed_at` only 1 day ago), `handleScheduled` re-enqueues only the 1-day row's message and keeps that row, deletes the 8-day row with one `console.error` "giving up" line, and makes zero fake Strava calls.
+    - 503 on the last attempt (`MAX_ATTEMPTS`, i.e. after 10 retries) → a `failed_work` row.
+- [X] T059 [P] [US2] Integration test in `test/integration/scheduled-failed-work.test.ts` (R7, FR-019, SC-005): with `failed_work` rows whose `first_failed_at` is 1 day and 8 days ago (the 8-day row's `failed_at` only 1 day ago), `handleScheduled` re-enqueues only the 1-day row's message and keeps that row, deletes the 8-day row with one `console.error` "giving up" line, and makes zero fake Strava calls.
 
 ### Implementation for User Story 2
 
-- [ ] T060 [US2] Implement `src/http/webhook.ts`:
+- [X] T060 [US2] Implement `src/http/webhook.ts`:
   - `GET` validation per contracts/http-routes.md;
   - `POST` checks: path secret equals `STRAVA_WEBHOOK_VERIFY_TOKEN` (constant-time compare), `Content-Length`/body ≤ 1000 bytes, shape validation, `subscription_id === subscriptionId`;
   - map `object_type=activity` to an `activity-event` message and `ctx.queue.send(...)`, then return 200;
@@ -566,8 +566,8 @@ that the `activities` table matches the fake Strava's current state exactly.
   - wire `/strava/webhook/:secret` in `src/http/router.ts` outside the i18n branch.
 
   Makes T057 green (the deauth branch follows in US3).
-- [ ] T061 [US2] Implement `src/work/activity-event.ts` with the decision table in contracts/queue-messages.md (`delete` → `deleteActivity`; `changed` exactly `["title"]` → no-op; otherwise `GET /activities/{id}` → 404/403/non-cycling/private-without-read_all → `deleteActivity`, else `upsertActivity`). Register it in the `src/index.ts` handlers map. Makes T058 green.
-- [ ] T062 [US2] Implement `src/work/scheduled.ts` with `requeueFailedWork(ctx)` (delete and log rows whose `first_failed_at` is more than 7 days ago, then re-enqueue the rest and keep them), and call it from `handleScheduled` in `src/index.ts`. Makes T059 green.
+- [X] T061 [US2] Implement `src/work/activity-event.ts` with the decision table in contracts/queue-messages.md (`delete` → `deleteActivity`; `changed` exactly `["title"]` → no-op; otherwise `GET /activities/{id}` → 404/403/non-cycling/private-without-read_all → `deleteActivity`, else `upsertActivity`). Register it in the `src/index.ts` handlers map. Makes T058 green.
+- [X] T062 [US2] Implement `src/work/scheduled.ts` with `requeueFailedWork(ctx)` (delete and log rows whose `first_failed_at` is more than 7 days ago, then re-enqueue the rest and keep them), and call it from `handleScheduled` in `src/index.ts`. Makes T059 green.
 
 **Checkpoint**: US1 + US2 together form the MVP data pipeline (quickstart §1 rows
 "US2 …", "Webhook ack", "Rate limit", "Transient errors").
@@ -585,7 +585,7 @@ any table, and later messages for them have no effect.
 
 ### Tests for User Story 3 (write first, confirm red) ⚠️
 
-- [ ] T063 [P] [US3] Integration test in `test/integration/delete-rider.test.ts` (FR-022–FR-024):
+- [X] T063 [P] [US3] Integration test in `test/integration/delete-rider.test.ts` (FR-022–FR-024):
   - **queuing**: a webhook `POST` with `object_type: "athlete", updates: { authorized: "false" }` queues `{ kind: "delete-rider", athleteId, reason: "deauthorized", revoke: false }`.
   - **deletion**: processing it removes the rider's rows from `riders`, `strava_credentials`, `activities` and `failed_work`, with zero fake calls.
   - **with `revoke: true`**:
@@ -594,10 +594,10 @@ any table, and later messages for them have no effect.
     - a `needs_reconnect` rider → processed (not dropped), rows deleted;
     - fake 400 or 401 on revoke → rows deleted;
     - fake 503 → retried;
-    - 503 on attempt 10 → rows deleted anyway, and no `failed_work` row is written.
+    - 503 on the last attempt (`MAX_ATTEMPTS`, i.e. after 10 retries) → rows deleted anyway, and no `failed_work` row is written.
   - **no resurrection**: a later `activity-event` for the deleted athlete creates nothing.
   - **reconnect after deletion**: running the callback again yields a fresh rider with `import_status='pending'` and no old activities.
-- [ ] T064 [P] [US3] Integration test in `test/integration/disconnect.test.ts` (FR-023, FR-022a), German unless noted:
+- [X] T064 [P] [US3] Integration test in `test/integration/disconnect.test.ts` (FR-023, FR-022a), German unless noted:
   - **confirmation page**: `GET /me/disconnect` (signed in) shows "Daten löschen?", the `disconnect.explain` text, a POST form with the button "Ja, alles löschen", an "Abbrechen" link to `/me`, and the switcher with `next` = `/me/disconnect`. Signed out → `302 /`.
   - **refused**: `POST /me/disconnect` without a session, or with a missing or foreign `Origin`, gives `403` with the German "Anfrage abgelehnt" page, and nothing is deleted.
   - **success**:
@@ -607,7 +607,7 @@ any table, and later messages for them have no effect.
   - **revoke failing twice (503, 503)**: rows still deleted, `303 /notice/deleted-revoke-failed`, and that page contains „Meine Apps“.
   - **survives a language switch**: `POST /lang` with `lang=en` and `next=/notice/deleted` → English "Your data has been deleted", with nothing re-submitted.
   - **sign-out**: `POST /logout` with same-origin clears the cookie and redirects `302 /`.
-- [ ] T065 [P] [US3] Integration test in `test/integration/membership-check.test.ts` (FR-004a, SC-006):
+- [X] T065 [P] [US3] Integration test in `test/integration/membership-check.test.ts` (FR-004a, SC-006):
   - `handleScheduled` queues one `check-membership` per `status='connected'` rider (none for `needs_reconnect`);
   - **member**: `membership_checked_at` is updated;
   - **not a member**: `{ kind: "delete-rider", reason: "left-club", revoke: true }` is queued, and processing it deletes all rows;
@@ -616,12 +616,12 @@ any table, and later messages for them have no effect.
 
 ### Implementation for User Story 3
 
-- [ ] T066 [US3] Implement `src/work/delete-rider.ts`:
-  - if `revoke`, call `revokeStoredToken` (refresh token, no refresh; on transient errors, return `transient` unless `attempts >= 10`, in which case continue; any other result continues);
+- [X] T066 [US3] Implement `src/work/delete-rider.ts`:
+  - if `revoke`, call `revokeStoredToken` (refresh token, no refresh; on transient errors, return `transient` unless it is the last attempt (`attempt.isLastAttempt`), in which case continue; any other result continues);
   - then `deleteRider`;
   - register it in the handlers map, and make sure `src/work/consumer.ts` processes `delete-rider` for `needs_reconnect` riders and never writes it to `failed_work`.
-- [ ] T067 [US3] Extend `src/http/webhook.ts`: `object_type=athlete` with `updates.authorized === "false"` → queue a `delete-rider` with `reason: "deauthorized"` and `revoke: false`. Together with T066 this makes T063 green.
-- [ ] T068 [US3] Extend `src/http/me.ts` and wire the routes in `src/http/router.ts`:
+- [X] T067 [US3] Extend `src/http/webhook.ts`: `object_type=athlete` with `updates.authorized === "false"` → queue a `delete-rider` with `reason: "deauthorized"` and `revoke: false`. Together with T066 this makes T063 green.
+- [X] T068 [US3] Extend `src/http/me.ts` and wire the routes in `src/http/router.ts`:
   - `GET /me/disconnect`: confirmation page from `disconnect.*`, `path: "/me/disconnect"`.
   - `POST /me/disconnect`:
     1. require a session and `isSameOrigin`, else the `403` `error.forbidden` page;
@@ -632,7 +632,7 @@ any table, and later messages for them have no effect.
   - Add the `me.disconnect.button` link on `/me`.
 
   Makes T064 green.
-- [ ] T069 [US3] Implement `src/work/check-membership.ts`:
+- [X] T069 [US3] Implement `src/work/check-membership.ts`:
   - `member` → `setMembershipChecked`;
   - `not-member` → enqueue `delete-rider` (`left-club`, `revoke: true`);
   - `inconclusive` → `transient`/`budget`.
