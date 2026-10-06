@@ -19,6 +19,9 @@
   Strava's approval screen; the app works with either level.
 - Q: Should past activities be imported on connecting? → A: Yes, back to a season
   start date set by an organiser.
+- Q: Which languages should the rider pages ship with, and how is the language
+  picked? → A: German and English both ship now, from translation strings; the
+  language follows the browser's preferred languages, German by default.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -202,6 +205,8 @@ and no one else's.
 - **Burst of activities** (e.g. a rider bulk-uploads after a tour): all are
   eventually stored without exceeding Strava's limits.
 - **Notification for a rider who is mid-deletion**: does not resurrect any data.
+- **Browser prefers an unsupported language** (e.g. Danish only): pages are shown
+  in German.
 
 ## Requirements *(mandatory)*
 
@@ -211,7 +216,8 @@ and no one else's.
 
 - **FR-001**: The system MUST let a rider start a connection to their Strava
   account from a public RynkePoints page, using Strava's official "Connect with
-  Strava" button and attribution.
+  Strava" button and attribution in the variant matching the page language
+  (FR-028).
 - **FR-002**: Before redirecting to Strava, the system MUST tell the rider in plain
   language which data will be read, what it is used for, how to leave, and that
   deleted data remains in the hosting platform's backups for up to 7 days
@@ -318,6 +324,19 @@ and no one else's.
 - **FR-027**: Rider Strava credentials MUST be stored encrypted and MUST never be
   shown in pages, logs or error messages.
 
+**Language**
+
+- **FR-028**: All rider-facing text (pages, button labels, status, confirmation
+  and error messages, privacy text) MUST come from translation strings, not be
+  written directly into pages or logic. German and English MUST both be provided,
+  and every rider-facing message MUST exist in both.
+- **FR-029**: The page language MUST follow the browser's preferred languages:
+  English when the browser prefers English over German, otherwise German —
+  including when the browser prefers an unsupported language or sends no
+  preference. There is no in-app language switcher in this feature.
+- **FR-030**: Adding a further language MUST only require adding its translation
+  strings, not changing page or processing logic.
+
 ### Key Entities
 
 - **Rider**: a member of the team Strava club who connected their Strava account.
@@ -364,6 +383,9 @@ and no one else's.
   no data about them kept.
 - **SC-007**: A full audit of stored data finds no GPS tracks, coordinates or
   non-cycling activities.
+- **SC-010**: Every rider-facing page and message is fully German for a browser
+  preferring German, an unsupported language, or nothing, and fully English for a
+  browser preferring English; no message is missing in either language.
 
 ## Assumptions
 
@@ -389,7 +411,9 @@ and no one else's.
   later by changing the accepted sport types.
 - Setting up and maintaining the Strava push subscription and deploying the app are
   manual, one-time organiser steps outside the app's user-facing scope.
-- The rider-facing pages are in English for now; German localisation can follow.
+- Rider-facing pages are German by default with English as a second language
+  (FR-028–FR-030). Strava's own approval screen is shown in whatever language the
+  rider set on Strava and is outside the app's control.
 - The app runs on the hosting platform's free plan, whose database keeps a 7-day
   restorable history that cannot be switched off. Moving to the paid plan would
   extend this to 30 days, and the privacy text (FR-022a) would have to change with
