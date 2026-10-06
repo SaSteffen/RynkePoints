@@ -940,7 +940,7 @@ implementation that makes it green.
 
 ### Tests for the consent step (write first, confirm red) ⚠️
 
-- [ ] T109 [US1] Extend the test support (research R12, R21):
+- [X] T109 [US1] Extend the test support (research R12, R21):
   - `test/support/ctx.ts`:
     - `oauthStateCookie(ctx, state, consentVersion = CONSENT_VERSION)` passes the version on to `createOAuthStateCookie`;
     - `SeedRiderOptions` gains `scopeWrite?: boolean` (default `false`, written to `scope_write`; with `true`, the default `scopes` string gains `,activity:write`) and `consentVersion?: number | null` (default `null`: no record, like a rider connected before `0004`; a number inserts a `consent_records` row with `accepted_at = ctx.now()` in the same `DB.batch`).
@@ -948,12 +948,12 @@ implementation that makes it green.
     - `SCOPES_ALL` becomes `"read,activity:read,activity:read_all,activity:write"`; add `SCOPES_NO_WRITE = "read,activity:read,activity:read_all"`;
     - `CallbackOptions` gains `consentVersion?: number` (default `CONSENT_VERSION`), passed to `oauthStateCookie`; `approve` takes it through an optional `options` argument.
   - `test/support/fake-strava.ts`: `DEFAULT_SCOPES` gains `"activity:write"`.
-- [ ] T110 [P] [US1] Extend `test/unit/session.test.ts` for the OAuth state cookie (contracts/http-routes.md, Cookies):
+- [X] T110 [P] [US1] Extend `test/unit/session.test.ts` for the OAuth state cookie (contracts/http-routes.md, Cookies):
   - `createOAuthStateCookie("abc", 1, now, env)` → `readOAuthState` returns `{ state: "abc", consentVersion: 1 }`; with `0` it returns `consentVersion: 0`;
   - the signed value is `abc:1` (the cookie format reserves `.`, so the separator is `:`);
   - a validly signed value without `:` (a cookie issued by the previous deploy) or with a non-integer version (`abc:x`, `abc:`) → `null`;
   - a tampered or expired cookie → `null`, as before.
-- [ ] T111 [P] [US1] Extend `test/integration/db.test.ts` for migration `0004` (data-model.md, `riders` and `consent_records`):
+- [X] T111 [P] [US1] Extend `test/integration/db.test.ts` for migration `0004` (data-model.md, `riders` and `consent_records`):
   - a rider inserted without `scope_write` gets 0 (`INTEGER NOT NULL DEFAULT 0`); `scope_write = 2` is rejected by the CHECK;
   - `insertRider(db, rider, { version: 1, acceptedAt })` stores the rider and the record in one batch; `getCurrentConsent` returns `{ version: 1, acceptedAt }`;
   - `recordConsent` for a `(athlete_id, version)` pair that exists keeps the first `accepted_at` (`INSERT OR IGNORE`);
@@ -961,7 +961,7 @@ implementation that makes it green.
   - `version = 0` is rejected (`version` "≥ 1");
   - a record for an athlete without a `riders` row is rejected (foreign key), and `deleteRider` removes the rider's records (`ON DELETE CASCADE`);
   - `updateRiderOnReconnect` with `scopeWrite: true` sets `scope_write = 1`, and `getRider` returns `scopeWrite: true`.
-- [ ] T112 [P] [US1] Rewrite `test/integration/connect.test.ts` (contracts/http-routes.md, `POST /connect` and `GET /connect`):
+- [X] T112 [P] [US1] Rewrite `test/integration/connect.test.ts` (contracts/http-routes.md, `POST /connect` and `GET /connect`):
   - **`POST /connect`** with `Origin` = `ORIGIN`, form body `consent=1`:
     - `302` to `https://www.strava.com/oauth/authorize` with the parameters of the existing test and `scope=read,activity:read,activity:read_all,activity:write`;
     - `rp_oauth_state` (`Max-Age=600`) reads back as `{ state: <the Location's state>, consentVersion: 1 }`;
@@ -969,7 +969,7 @@ implementation that makes it green.
   - **declined**: no `consent` field, `consent=0` and `consent=2` → `303 /notice/consent-required`, no `Set-Cookie`, no outbound fetch.
   - **foreign or missing `Origin`** → `403` with the German forbidden page; no `Set-Cookie`.
   - **`GET /connect`**: no session → `302 /` and no `Set-Cookie`; a session for a deleted rider → `302 /`; a signed-in rider (`seedRider` + `sessionCookie`) → `302` to Strava with the four scopes and `rp_oauth_state` reading back with `consentVersion: 0`.
-- [ ] T113 [P] [US1] Extend `test/integration/callback.test.ts` (contracts/http-routes.md, `GET /auth/callback`):
+- [X] T113 [P] [US1] Extend `test/integration/callback.test.ts` (contracts/http-routes.md, `GET /auth/callback`):
   - **new rider, all four scopes**: the `riders` row has `scope_write = 1`, and `consent_records` holds exactly `(athlete, 1, ctx.now())`;
   - **new rider, `SCOPES_NO_WRITE`**: connected, `scope_write = 0`, consent recorded;
   - **new rider, `consentVersion: 0`** and **`consentVersion: 2`**: the token is revoked, no row in any table, `303 /notice/consent-required`, `rp_oauth_state` cleared;
@@ -977,58 +977,58 @@ implementation that makes it green.
   - **existing rider** (`seedRider`, no record) with `consentVersion: 0` → signed in, `302 /me`, still no record;
   - **existing rider without a record** with `consentVersion: 1` → record inserted with `accepted_at = ctx.now()`;
   - **existing rider with a version-1 record** from an earlier time, `consentVersion: 1` → `accepted_at` unchanged.
-- [ ] T114 [P] [US1] Extend `test/integration/reconnect-scope.test.ts` (FR-007, data-model.md, Reconnect):
+- [X] T114 [P] [US1] Extend `test/integration/reconnect-scope.test.ts` (FR-007, data-model.md, Reconnect):
   - a rider seeded with `scopeWrite: false` reconnects with `SCOPES_ALL` → `scopes` and `scope_write = 1` updated; no `import-page` enqueued, no activity removed;
   - a rider seeded with `scopeWrite: true` reconnects with `SCOPES_NO_WRITE` → `scope_write = 0`; same: no import, no activity removed.
-- [ ] T115 [P] [US1] Extend `test/integration/landing.test.ts` (FR-001, FR-002; feature 004 FR-010, FR-011):
+- [X] T115 [P] [US1] Extend `test/integration/landing.test.ts` (FR-001, FR-002; feature 004 FR-010, FR-011):
   - the German page contains the German texts of `consent.heading`, `consent.organisers`, `consent.team`, `consent.required`, `consent.write` and `consent.agree`, and the new `landing.purpose` and `landing.leave` (contracts/messages.md);
   - it contains `<form method="post" action="/connect">` with `<input type="checkbox" name="consent" value="1" required>` and a `<button>` holding the Connect image (`src` from the catalog, `alt="Mit Strava verbinden"`);
   - it no longer contains `<a href="/connect">` (replace the existing assertion);
   - with `Accept-Language: en` the page contains the English `consent.agree`.
-- [ ] T116 [P] [US1] Extend `test/integration/notice.test.ts` (contracts/http-routes.md, `GET /notice/:id`):
+- [X] T116 [P] [US1] Extend `test/integration/notice.test.ts` (contracts/http-routes.md, `GET /notice/:id`):
   - `/notice/consent-required` → `200`, title „Bitte stimme zuerst zu“, the German `notice.consentRequired.body` and `notice.nothingStored`;
   - add `consent-required` to `RETRY`, and the retry link becomes `<a href="/">Noch einmal versuchen</a>` for every retry notice; no notice contains `href="/connect"`.
-- [ ] T117 [P] [US1] Extend `test/integration/me-status.test.ts` (FR-025; feature 004 FR-014):
+- [X] T117 [P] [US1] Extend `test/integration/me-status.test.ts` (FR-025; feature 004 FR-014):
   - a rider with `scopeWrite: true` → German `me.scope.write`; with `false` → „Kein Schreibzugriff: RynkePoints schreibt nichts in deine Fahrtbeschreibungen.“;
   - a connected rider's page contains `<a href="/connect">Berechtigungen auf Strava ändern</a>` (replace the assertion that a connected rider has no `/connect` link) and still no „Erneut verbinden“;
   - a rider with `consentVersion: 1` and the clock at `2026-10-06T23:30:00Z` shows „Zugestimmt am 07.10.2026 (Version 1):“ (the Berlin date) followed by the German `consent.organisers` and `consent.team`;
   - a rider without a record shows `me.consent.none`.
-- [ ] T118 [P] [US3] Extend the deletion tests (FR-022; data-model.md, `consent_records`):
+- [X] T118 [P] [US3] Extend the deletion tests (FR-022; data-model.md, `consent_records`):
   - `test/integration/delete-rider.test.ts` and `test/integration/disconnect.test.ts`: seed the rider with `consentVersion: 1`, and assert `consent_records` is empty for them after the deletion;
   - `test/integration/schema-minimisation.test.ts`: the expected `riders` columns gain `scope_write`, and a new assertion fixes `consent_records` to exactly `athlete_id`, `version` and `accepted_at`.
-- [ ] T119 [P] [US1] Extend `test/integration/fake-strava.test.ts` (FR-003, research R12): a `PUT` to `https://www.strava.com/api/v3/activities/1` and a `POST` to `https://www.strava.com/api/v3/activities` both throw and are recorded in `unexpected`, so `restore()` throws. It passes right away and locks in "never writes to Strava" for the whole suite.
+- [X] T119 [P] [US1] Extend `test/integration/fake-strava.test.ts` (FR-003, research R12): a `PUT` to `https://www.strava.com/api/v3/activities/1` and a `POST` to `https://www.strava.com/api/v3/activities` both throw and are recorded in `unexpected`, so `restore()` throws. It passes right away and locks in "never writes to Strava" for the whole suite.
 
 ### Implementation for the consent step
 
-- [ ] T120 [US1] Create `migrations/0004_consent_and_write_scope.sql` (data-model.md), with a header comment in the style of `0003`:
+- [X] T120 [US1] Create `migrations/0004_consent_and_write_scope.sql` (data-model.md), with a header comment in the style of `0003`:
   - `ALTER TABLE riders ADD COLUMN scope_write INTEGER NOT NULL DEFAULT 0 CHECK (scope_write IN (0, 1))`;
   - `CREATE TABLE consent_records` with `athlete_id INTEGER NOT NULL REFERENCES riders (athlete_id) ON DELETE CASCADE`, `version INTEGER NOT NULL CHECK (version >= 1)`, `accepted_at INTEGER NOT NULL` and `PRIMARY KEY (athlete_id, version)`.
 
   Add only: the previously deployed code keeps working against it, because it never names the new column or table (CI applies migrations before it publishes the code). Riders already connected keep `scope_write = 0` and have no record. Never edit `0001`–`0003`. Together with T109 this makes T118 green.
-- [ ] T121 [P] [US1] Create `src/consent.ts` with `export const CONSENT_VERSION = 1;` and a comment: the version of the consent text (`landing.dataRead`, `landing.private`, `landing.purpose`, `landing.leave` and `consent.*`, contracts/messages.md). Raising it means the text changed what is read, written or shown; re-asking riders is feature 004's job (its FR-013).
-- [ ] T122 [US1] Change the OAuth state in `src/http/session.ts` (research R21):
+- [X] T121 [P] [US1] Create `src/consent.ts` with `export const CONSENT_VERSION = 1;` and a comment: the version of the consent text (`landing.dataRead`, `landing.private`, `landing.purpose`, `landing.leave` and `consent.*`, contracts/messages.md). Raising it means the text changed what is read, written or shown; re-asking riders is feature 004's job (its FR-013).
+- [X] T122 [US1] Change the OAuth state in `src/http/session.ts` (research R21):
   - `createOAuthStateCookie(state, consentVersion, now, env)` signs `${state}:${consentVersion}`;
   - `readOAuthState` returns `{ state: string; consentVersion: number } | null`: split at the last `:`, and return `null` if there is none or the version isn't a non-negative integer.
 
   Makes T110 green.
-- [ ] T123 [US1] Create `src/db/consents.ts` (data-model.md, `consent_records`), with a header comment in the style of `src/db/riders.ts`:
+- [X] T123 [US1] Create `src/db/consents.ts` (data-model.md, `consent_records`), with a header comment in the style of `src/db/riders.ts`:
   - `recordConsentStatement(db, athleteId, version, acceptedAt): D1PreparedStatement` → `INSERT OR IGNORE INTO consent_records (athlete_id, version, accepted_at) VALUES (?, ?, ?)`;
   - `recordConsent(db, athleteId, version, acceptedAt)` runs it;
   - `getCurrentConsent(db, athleteId): Promise<{ version: number; acceptedAt: number } | null>` → the row with the highest `version`.
-- [ ] T124 [US1] Extend `src/db/riders.ts`:
+- [X] T124 [US1] Extend `src/db/riders.ts`:
   - `Rider.scopeWrite: boolean`, `RiderRow.scope_write: number`, `RiderGrant.scopeWrite: boolean`;
   - `insertRider(db, rider, consent: { version: number; acceptedAt: number })` writes `scope_write` and runs the rider insert and `recordConsentStatement` in one `db.batch` (a new rider never exists without their consent);
   - `updateRiderOnReconnect` also sets `scope_write`.
 
   Together with T120 and T123 this makes T111 green. Fix the `Rider` and `RiderGrant` literals in existing tests that `tsc` now rejects.
-- [ ] T125 [P] [US1] Add the new and changed messages to `src/i18n/messages/de.ts` and `en.ts`, exactly as in contracts/messages.md:
+- [X] T125 [P] [US1] Add the new and changed messages to `src/i18n/messages/de.ts` and `en.ts`, exactly as in contracts/messages.md:
   - `consent.heading`, `consent.organisers`, `consent.team`, `consent.required`, `consent.write`, `consent.agree`;
   - `me.scope.write`, `me.scope.noWrite`, `me.changePermissions`, `me.consent.heading`, `me.consent.accepted` (`version`, `date`), `me.consent.none`;
   - `notice.consentRequired.title`, `notice.consentRequired.body`;
   - replace `landing.purpose` and `landing.leave`.
 
   `test/unit/catalogs.test.ts` keeps both catalogs in step.
-- [ ] T126 [US1] Change `src/http/auth.ts` (contracts/http-routes.md; research R1, R21):
+- [X] T126 [US1] Change `src/http/auth.ts` (contracts/http-routes.md; research R1, R21):
   - `REQUESTED_SCOPES = "read,activity:read,activity:read_all,activity:write"`, with a comment that write is requested but never used in this feature (FR-003);
   - factor the authorize redirect out of `handleConnect` into `authorizeRedirect(request, ctx, consentVersion)`;
   - `handleConnectForm(request, ctx, i18n)` for `POST /connect`: not `isSameOrigin` → `forbidden(i18n, "/")`; form field `consent` ≠ `String(CONSENT_VERSION)` → `redirect("/notice/consent-required", 303)` with no cookies; otherwise `authorizeRedirect(request, ctx, CONSENT_VERSION)`;
@@ -1041,10 +1041,10 @@ implementation that makes it green.
     - an existing rider: after `updateRiderOnReconnect`, if `consentVersion === CONSENT_VERSION` call `recordConsent`. The reconnect rules are unchanged, so a change of `scope_write` alone starts no import and deletes nothing.
 
   Update the comment at the top of the file to name the consent step.
-- [ ] T127 [US1] Wire the routes in `src/http/router.ts`: `GET /connect` → `handleReconnect(request, ctx)`, `POST /connect` → `handleConnectForm(request, ctx, i18n)`. Together with T122 and T124–T126 this makes T112–T114 green.
-- [ ] T128 [P] [US1] Change `src/http/notice.ts`: add `"consent-required"` to `NOTICE_IDS` and `NOTICES` (`title: "notice.consentRequired.title"`, `body: ["notice.consentRequired.body", "notice.nothingStored"]`, `retry: true`), and point the retry link at `/` instead of `/connect`. Makes T116 green.
-- [ ] T129 [P] [US1] Change `src/http/landing.ts` (contracts/http-routes.md, `GET /`): after `landing.cookies`, add an `<h2>` with `consent.heading`, then paragraphs with `consent.organisers`, `consent.team`, `consent.required` and `consent.write`, then the consent form from the contract, with `value="${CONSENT_VERSION}"`, replacing the `<a href="/connect">` link. The button holds the unchanged Strava image. Update the file's header comment. Makes T115 green.
-- [ ] T130 [P] [US1] Change `src/http/me.ts` (contracts/http-routes.md, `GET /me`):
+- [X] T127 [US1] Wire the routes in `src/http/router.ts`: `GET /connect` → `handleReconnect(request, ctx)`, `POST /connect` → `handleConnectForm(request, ctx, i18n)`. Together with T122 and T124–T126 this makes T112–T114 green.
+- [X] T128 [P] [US1] Change `src/http/notice.ts`: add `"consent-required"` to `NOTICE_IDS` and `NOTICES` (`title: "notice.consentRequired.title"`, `body: ["notice.consentRequired.body", "notice.nothingStored"]`, `retry: true`), and point the retry link at `/` instead of `/connect`. Makes T116 green.
+- [X] T129 [P] [US1] Change `src/http/landing.ts` (contracts/http-routes.md, `GET /`): after `landing.cookies`, add an `<h2>` with `consent.heading`, then paragraphs with `consent.organisers`, `consent.team`, `consent.required` and `consent.write`, then the consent form from the contract, with `value="${CONSENT_VERSION}"`, replacing the `<a href="/connect">` link. The button holds the unchanged Strava image. Update the file's header comment. Makes T115 green.
+- [X] T130 [P] [US1] Change `src/http/me.ts` (contracts/http-routes.md, `GET /me`):
   - after the read-level paragraph, `me.scope.write` or `me.scope.noWrite`, and `<a href="/connect">` with `me.changePermissions`;
   - a `<section>` with `me.consent.heading` and either `me.consent.accepted` (`version`, and `date` = the consent's Europe/Berlin calendar date, passed to `i18n.formatDate` as `YYYY-MM-DDT00:00:00Z`) followed by `consent.organisers` and `consent.team`, or `me.consent.none`; read with `getCurrentConsent`.
 
@@ -1059,12 +1059,12 @@ are covered. `test/integration/language-rendering.test.ts` and
 
 ### Polish for the consent step
 
-- [ ] T131 [P] Update `README.md`:
+- [X] T131 [P] Update `README.md`:
   - **Scopes**: `activity:write` is requested and optional, and nothing writes yet;
   - **What is stored**: whether write access was granted, and the consent version and time per rider, deleted with the rider;
   - the brand-assets line names the English assets only (research R19).
-- [ ] T132 [P] Update `public/strava/README.md`: Strava ships the assets in English only, so both catalogs point at `public/strava/en/` (research R19). Remove the paragraph about German variants.
-- [ ] T133 Review against the contracts like T078: every new route, message ID and notice exists; `grep -rn "strava.com" src/` shows no write endpoint; `grep -rn "activity:write" src/` shows only `REQUESTED_SCOPES` and the callback's grant check. Then walk through quickstart.md §1 and tick off every new row against a passing test, and check that quickstart §5 (rolling out the consent step) matches the migration. Record any gap as a new task.
+- [X] T132 [P] Update `public/strava/README.md`: Strava ships the assets in English only, so both catalogs point at `public/strava/en/` (research R19). Remove the paragraph about German variants.
+- [X] T133 Review against the contracts like T078: every new route, message ID and notice exists; `grep -rn "strava.com" src/` shows no write endpoint; `grep -rn "activity:write" src/` shows only `REQUESTED_SCOPES` and the callback's grant check. Then walk through quickstart.md §1 and tick off every new row against a passing test, and check that quickstart §5 (rolling out the consent step) matches the migration. Record any gap as a new task.
 
 ---
 
