@@ -1,13 +1,16 @@
 import type { Ctx } from "./ctx";
 import { route } from "./http/router";
 import { CATALOGS } from "./i18n/catalogs";
+import { activityEvent } from "./work/activity-event";
 import { type Handlers, processBatch } from "./work/consumer";
 import { importPage } from "./work/import-page";
+import { requeueFailedWork } from "./work/scheduled";
 
 // Entry points. Each builds a Ctx and delegates; tests call the exported
 // handle* functions with their own Ctx (research R12).
 
 const handlers: Handlers = {
+	"activity-event": activityEvent,
 	"import-page": importPage,
 };
 
@@ -33,9 +36,10 @@ export function handleQueue(
 
 export async function handleScheduled(
 	_controller: ScheduledController,
-	_ctx: Ctx,
+	ctx: Ctx,
 ): Promise<void> {
-	// Daily membership fan-out and failed_work re-enqueue arrive with US3.
+	// The daily membership fan-out arrives with US3.
+	await requeueFailedWork(ctx);
 }
 
 export default {

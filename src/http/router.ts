@@ -7,10 +7,13 @@ import { handleLanding } from "./landing";
 import { handleLang } from "./lang";
 import { handleMe } from "./me";
 import { handleNotice } from "./notice";
+import { handleWebhook } from "./webhook";
 
 // A small path switch (research R13). `/health` and the Strava webhook answer
 // in plain English; every other route is rider-facing and gets an I18n for the
 // language resolved once per request.
+
+const WEBHOOK_PREFIX = "/strava/webhook/";
 
 export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	const url = new URL(request.url);
@@ -18,6 +21,9 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	const method = request.method;
 
 	if (path === "/health") return new Response("ok");
+	if (path.startsWith(WEBHOOK_PREFIX)) {
+		return handleWebhook(request, path.slice(WEBHOOK_PREFIX.length), ctx);
+	}
 
 	const i18n = createI18n(resolveLocale(request, ctx.catalogs), ctx.catalogs);
 

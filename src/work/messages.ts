@@ -42,11 +42,13 @@ export type WorkMessage =
 	| CheckMembershipMessage
 	| DeleteRiderMessage;
 
-const isId = (v: unknown): v is number =>
+export const isId = (v: unknown): v is number =>
 	typeof v === "number" && Number.isSafeInteger(v) && v > 0;
 
-const isOneOf = <T extends string>(values: readonly T[], v: unknown): v is T =>
-	typeof v === "string" && (values as readonly string[]).includes(v);
+export const isOneOf = <T extends string>(
+	values: readonly T[],
+	v: unknown,
+): v is T => typeof v === "string" && (values as readonly string[]).includes(v);
 
 /** Validates an untrusted body. Unknown fields are dropped. */
 export function parseWorkMessage(body: unknown): WorkMessage | null {
