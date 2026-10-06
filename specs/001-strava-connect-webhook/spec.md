@@ -53,6 +53,9 @@
   003-rynke-evaluation (FR-005g) never counts a flagged ride. It comes with the
   activity data already fetched. Activities stored before it was added are read
   again once, like the other added figures.
+- Q (raised by the project owner): Must a flag Strava sets on an already stored
+  activity be picked up right away? → A: No. It is picked up the next time the
+  activity is read from Strava; the delay is accepted.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -242,7 +245,7 @@ and no one else's.
   flagging, so the stored flag follows the next time the activity is read from
   Strava: an update notification for it, an import after reconnecting, or a
   re-read when FR-013 gains a figure. The system does not poll Strava for it
-  (FR-010).
+  (FR-010); the delay is accepted.
 - **Strava rate limit reached**: notifications keep being acknowledged; fetching
   the details is deferred and retried later. No notification is lost.
 - **Strava temporarily unavailable**: same as rate limit — deferred and retried
