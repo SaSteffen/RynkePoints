@@ -130,11 +130,15 @@ rider pages are English.
     row).
   - Stored fields: `id`, `sport_type`, `start_date` (UTC), `start_date_local`,
     `timezone`, `distance`, `moving_time`, `elapsed_time`, `total_elevation_gain`,
-    `manual`, `trainer`, `private`. `elapsed_time`, `manual` and `trainer` are
-    part of both the summary (import) and the detailed (event) representation,
-    so they cost no extra request. If Strava omits one, it is stored as unknown
-    (`NULL`), never guessed.
+    `manual`, `trainer`, `flagged`, `private`. `elapsed_time`, `manual`,
+    `trainer` and `flagged` are part of both the summary (import) and the
+    detailed (event) representation, so they cost no extra request. If Strava
+    omits one, it is stored as unknown (`NULL`), never guessed.
     Everything else in the response is dropped before it touches storage.
+  - Strava sends no event when it flags an activity. The stored `flagged`
+    follows whenever the activity is read anyway: a refetch for any non-title
+    `update`, the import after a reconnect, or a re-read (R20). Nothing polls
+    for it (FR-010).
   - Cycling sport types are `Ride`, `MountainBikeRide`, `GravelRide`, `EBikeRide`,
     `EMountainBikeRide` and `VirtualRide`, kept as one constant. A row whose
     `sport_type` leaves that set is deleted.
@@ -519,8 +523,9 @@ rider pages are English.
     activities were last read with. The code holds the current version as
     `ACTIVITY_FIGURES_VERSION` in `src/strava/activity.ts`, next to the
     allow-list mapping. Version 1 is the set with `elapsed_time`, `manual` and
-    `trainer`. Migration `0002` adds the column with default 0, so riders who
-    exist at that point are marked as needing a re-read. A newly connected rider
+    `trainer`; version 2 adds `flagged` (migration `0003`). Migration `0002`
+    adds the column with default 0, so riders who exist at that point are
+    marked as needing a re-read. A newly connected rider
     is inserted with the current version, because their import already reads
     every current figure.
   - The daily cron selects connected riders with
@@ -544,8 +549,13 @@ rider pages are English.
     That is one `GET /activities/{id}` per row, and the existing decision table
     then either fills the row or deletes it. No new code path decides
     whether a row stays.
-  - Riders in `needs_reconnect` are skipped by the cron and keep version 0.
-    Reconnecting enqueues the import (R8), and the next cron re-reads them once.
+  - Riders in `needs_reconnect` are skipped by the cron and keep their older
+    version. Reconnecting enqueues the import (R8), and the next cron re-reads
+    them once.
+  - Version 2 (`flagged`) is the first use of the "another figure" path: `0003`
+    adds `activities.is_flagged`, the constant becomes 2, and every rider at
+    version 1 is re-read once. The "still lacks a figure" check gains
+    `is_flagged`; nothing else changes.
 - **Rationale**:
   - The list endpoint already carries every figure (R5), so the whole re-read
     costs about one request per rider and season. That is far below the read

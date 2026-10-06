@@ -11,7 +11,7 @@ synthetic data (Principle V).
 | Token refresh | `POST https://www.strava.com/oauth/token` `grant_type=refresh_token` | client id/secret in form | `access_token`, `refresh_token`, `expires_at` |
 | Revoke | `POST https://www.strava.com/oauth/revoke` `token=<token>`: the stored refresh token for a connected rider (no refresh first), or the just-issued access token in the OAuth callback | HTTP Basic `client_id:client_secret` | status only |
 | Club membership | `GET /api/v3/athlete/clubs?page=N&per_page=200` | Bearer | `[].id` |
-| Single activity | `GET /api/v3/activities/{id}` | Bearer | `id`, `sport_type`, `start_date`, `start_date_local`, `timezone`, `distance`, `moving_time`, `elapsed_time`, `total_elevation_gain`, `manual`, `trainer`, `private` |
+| Single activity | `GET /api/v3/activities/{id}` | Bearer | `id`, `sport_type`, `start_date`, `start_date_local`, `timezone`, `distance`, `moving_time`, `elapsed_time`, `total_elevation_gain`, `manual`, `trainer`, `flagged`, `private` |
 | Season import and one-time re-read (R20) | `GET /api/v3/athlete/activities?after=<epoch>&page=N&per_page=200` | Bearer | same fields as single activity, per item |
 
 Base URL for `/api/v3/...` is `https://www.strava.com`.
