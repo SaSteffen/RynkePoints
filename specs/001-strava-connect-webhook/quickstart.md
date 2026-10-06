@@ -31,6 +31,8 @@ Language). Message texts are in [contracts/messages.md](contracts/messages.md).
 | US1 reconnect narrowing scope | private activities removed, public kept, still one rider row |
 | US1 reconnect after `needs_reconnect` | `status=connected`, `import_status=pending`, `import-page` p.1 enqueued |
 | US2 create / update(type) / delete | activity row inserted / refreshed / removed |
+| US2 figures for points | elapsed time, manual and trainer flag stored from event and import; a field Strava omits stays `NULL`, never 0 |
+| Re-read after a figure was added | cron: connected rider with `figures_version=0` → one `reread-page` p.1 with the season start, version set to current; current-version or `needs_reconnect` rider → nothing. Chain: 450 synthetic activities → 3 pages, `NULL` figures filled, `import_status` unchanged; a stored row missing from the list → one `activity-event` refetch (404 → row deleted) |
 | US2 duplicate + reordered events (SC-004) | exactly one row per existing cycling activity, none for deleted |
 | US2 title-only update | no outbound call recorded |
 | US2 update with empty or unknown `updates` | activity refetched once |
@@ -170,6 +172,39 @@ Development Workflow). The app is served at `https://trhh-rynke-coins.link`.
       1 hour (SC-006).
 14. When the second rider connects, check that the capacity behaviour matches
     research R14. If Strava's response differs, adjust the check.
+
+## 4. Rolling out the activity figures to the existing deployment
+
+Production already has riders and activities, so the order matters. All steps
+are manual.
+
+1. Apply the migration **before** deploying the code:
+   `pnpm wrangler d1 migrations apply rynke-points --remote` (applies only
+   `0002_activity_points_figures.sql`). The running code keeps working, because
+   the new columns are nullable or have a default. The new code would fail
+   against the old schema.
+2. `pnpm run deploy`.
+3. The re-read starts with the next daily cron (03:17 UTC; research R20). After
+   it has run, check that every connected rider is marked:
+
+   ```bash
+   pnpm wrangler d1 execute rynke-points --remote \
+     --command "SELECT status, figures_version, COUNT(*) FROM riders GROUP BY 1, 2"
+   ```
+
+   Connected riders show version 1. Riders in `needs_reconnect` stay at 0 and
+   are re-read at the first cron after they reconnect.
+4. Once the queue has drained (minutes; longer if the rate budget defers work),
+   check what is still unknown:
+
+   ```bash
+   pnpm wrangler d1 execute rynke-points --remote \
+     --command "SELECT COUNT(*) FROM activities WHERE elapsed_time_s IS NULL OR is_manual IS NULL OR is_trainer IS NULL"
+   ```
+
+   It should show 0. Remaining rows belong to `needs_reconnect` riders, are
+   waiting in `failed_work` (see below), or lack a field Strava doesn't send.
+   Until then, feature 003 sees those figures as unknown.
 
 ## Inspecting failures
 

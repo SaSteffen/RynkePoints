@@ -129,7 +129,11 @@ rider pages are English.
   - Refetch answered 404 (or 403) → treat as deletion or inaccessible (removes the
     row).
   - Stored fields: `id`, `sport_type`, `start_date` (UTC), `start_date_local`,
-    `timezone`, `distance`, `moving_time`, `total_elevation_gain`, `private`.
+    `timezone`, `distance`, `moving_time`, `elapsed_time`, `total_elevation_gain`,
+    `manual`, `trainer`, `private`. `elapsed_time`, `manual` and `trainer` are
+    part of both the summary (import) and the detailed (event) representation,
+    so they cost no extra request. If Strava omits one, it is stored as unknown
+    (`NULL`), never guessed.
     Everything else in the response is dropped before it touches storage.
   - Cycling sport types are `Ride`, `MountainBikeRide`, `GravelRide`, `EBikeRide`,
     `EMountainBikeRide` and `VirtualRide`, kept as one constant. A row whose
@@ -507,3 +511,60 @@ rider pages are English.
   when the maintainer downloads them (quickstart §3). If they don't, FR-001's "variant
   matching the page language" is met only for English, and the German page shows
   the official English button (see plan.md, Open questions).
+
+## R20. Re-reading stored activities when FR-013 gains a figure (spec Edge Cases)
+
+- **Decision**:
+  - Each rider row carries `figures_version`: the FR-013 field set its stored
+    activities were last read with. The code holds the current version as
+    `ACTIVITY_FIGURES_VERSION` in `src/strava/activity.ts`, next to the
+    allow-list mapping. Version 1 is the set with `elapsed_time`, `manual` and
+    `trainer`. Migration `0002` adds the column with default 0, so riders who
+    exist at that point are marked as needing a re-read. A newly connected rider
+    is inserted with the current version, because their import already reads
+    every current figure.
+  - The daily cron selects connected riders with
+    `figures_version < ACTIVITY_FIGURES_VERSION`. For each of them it enqueues
+    `reread-page { athleteId, page: 1, after: <current season start> }`, then
+    sets their `figures_version` to the current version. Sending comes first. If
+    setting the version fails, the next cron enqueues the rider again, which
+    is harmless because re-reading is idempotent. Marking at enqueue time keeps
+    the re-read to once per rider: a slow, budget-deferred chain is not
+    enqueued a second time by the next cron. A chain that fails is still covered
+    by `failed_work` (R7).
+  - `reread-page` pages `GET /athlete/activities` exactly like `import-page`.
+    It uses the same scope rule and upserts, so it costs one request per 200
+    activities. Unlike the import, it never touches `import_status`. A re-read
+    is maintenance, so `/me` doesn't show "importing" again.
+  - After the last page (fewer than 200 items), the handler handles the rider's
+    rows that still lack a figure. That can be a row the list didn't return (the
+    activity was deleted on Strava, made private, changed to a non-cycling type,
+    or started before the season start), or a row whose summary omitted a field.
+    For each one it enqueues `activity-event { aspect: "update", changed: [] }`.
+    That is one `GET /activities/{id}` per row, and the existing decision table
+    then either fills the row or deletes it. No new code path decides
+    whether a row stays.
+  - Riders in `needs_reconnect` are skipped by the cron and keep version 0.
+    Reconnecting enqueues the import (R8), and the next cron re-reads them once.
+- **Rationale**:
+  - The list endpoint already carries every figure (R5), so the whole re-read
+    costs about one request per rider and season. That is far below the read
+    budget, and it interleaves with live events on the serial consumer (R6).
+  - Refetching each stored activity instead would cost one request per row.
+    A full season for the team is a few thousand requests: several days of
+    budget, with live events waiting behind them.
+  - The version marker is what makes the re-read happen once, as the spec
+    requires. "Rider has a `NULL` figure" can't be the trigger on its own,
+    because a field Strava omits stays `NULL` and would be re-read every day.
+  - The marker is generic: when FR-013 gains another figure, a migration adds
+    the column and the constant goes up by one. That re-reads every rider once
+    more, with no new code.
+- **Alternatives considered**:
+  - A one-off script or admin route that the maintainer triggers. It's an extra
+    manual production step and an extra authenticated surface, and it would be
+    forgotten for riders in `needs_reconnect`; rejected.
+  - Reusing `import-page` with a flag. It would flip `import_status` and the
+    `/me` text, and mix two meanings into one message kind; rejected.
+  - Using `after` = the earliest stored row still missing a figure. The
+    leftover refetch already covers rows older than the season start, so this
+    only saves a request in rare cases; rejected for simplicity.
