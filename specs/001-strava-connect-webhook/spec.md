@@ -34,6 +34,10 @@
   moving time) is more than half of their moving time, so elapsed time is needed
   to compute points. It comes with the activity data already fetched, so no extra
   Strava request is needed.
+- Q: Must Strava's manual flag of an activity be stored too? → A: Yes. Feature
+  003-rynke-evaluation (FR-005b) gives manually entered activities no points, so
+  the flag is needed to compute points. It comes with the activity data already
+  fetched.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -107,8 +111,8 @@ the stored activity records after each one.
 
 1. **Given** a connected rider, **When** Strava reports a new cycling activity for
    them, **Then** RynkePoints stores that activity's key figures (sport type, start
-   date and time, distance, moving time, elapsed time, elevation gain) linked to
-   the rider.
+   date and time, distance, moving time, elapsed time, elevation gain, whether it
+   was entered manually) linked to the rider.
 2. **Given** a stored activity, **When** Strava reports that the activity was
    updated, **Then** the stored figures are refreshed to match Strava's current
    state.
@@ -294,8 +298,9 @@ and no one else's.
 - **FR-013**: For created and updated activities, the system MUST fetch the
   activity's current state from Strava and store only: Strava activity ID, owning
   rider, sport type, start date and time (with the rider's local time zone),
-  distance, moving time, elapsed time (start to finish, including pauses) and
-  total elevation gain.
+  distance, moving time, elapsed time (start to finish, including pauses), total
+  elevation gain and whether the activity was entered manually (Strava's manual
+  flag).
 - **FR-014**: The system MUST NOT store GPS tracks, route maps/polylines, start or
   end coordinates, photos, heart rate, power, or any other activity data not listed
   in FR-013.
@@ -392,8 +397,8 @@ and no one else's.
   with the Rider.
 - **Activity**: one cycling activity of a Rider, identified by its Strava activity
   ID. Holds sport type, start date/time and time zone, distance, moving time,
-  elapsed time, elevation gain, and when it was last refreshed from Strava. Belongs to exactly one
-  Rider; deleted with the Rider.
+  elapsed time, elevation gain, manual flag, and when it was last refreshed from
+  Strava. Belongs to exactly one Rider; deleted with the Rider.
 - **Pending Activity Work**: a unit of deferred processing triggered by a Strava
   notification or a past-season import (rider, activity or import position, kind
   of change, attempt count). Exists only until processed or abandoned; never holds
