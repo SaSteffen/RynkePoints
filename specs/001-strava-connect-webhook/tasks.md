@@ -65,7 +65,7 @@ SC-010, SC-011) cut across all stories:
 
 **Purpose**: bindings, schema and test harness that every story needs.
 
-- [ ] T001 Create `migrations/0001_init.sql` with the five tables from data-model.md. There is no language column anywhere: the picked language lives only in the `rp_lang` cookie (FR-029a).
+- [X] T001 Create `migrations/0001_init.sql` with the five tables from data-model.md. There is no language column anywhere: the picked language lives only in the `rp_lang` cookie (FR-029a).
   - **`riders`**:
     - `athlete_id INTEGER PRIMARY KEY`
     - `first_name TEXT NOT NULL`
@@ -110,28 +110,28 @@ SC-010, SC-011) cut across all stories:
     - `read_15m`, `read_daily`, `all_15m`, `all_daily` INTEGER NOT NULL
     - `limit_read_15m`, `limit_read_daily`, `limit_all_15m`, `limit_all_daily` INTEGER NOT NULL
     - seeded with one row: `(1, 0, 0,0,0,0, 100,1000,200,2000)`
-- [ ] T002 Update `wrangler.jsonc`, replacing the "D1, Queues, and cron triggers get added here" comment, then run `pnpm types` to regenerate `worker-configuration.d.ts`:
+- [X] T002 Update `wrangler.jsonc`, replacing the "D1, Queues, and cron triggers get added here" comment, then run `pnpm types` to regenerate `worker-configuration.d.ts`:
   - `d1_databases`: `[{ "binding": "DB", "database_name": "rynke-points", "database_id": "00000000-0000-0000-0000-000000000000", "migrations_dir": "migrations" }]`, with a comment that the maintainer replaces the ID after `wrangler d1 create rynke-points --jurisdiction=eu`
   - `queues.producers`: `[{ "binding": "WORK_QUEUE", "queue": "rynke-points-work" }]`
   - `queues.consumers`: `[{ "queue": "rynke-points-work", "max_batch_size": 10, "max_batch_timeout": 5, "max_retries": 10, "max_concurrency": 1 }]`
   - `triggers`: `{ "crons": ["17 3 * * *"] }`
   - `assets`: `{ "directory": "./public" }`
   - `vars`: `{ "STRAVA_CLUB_ID": "2372209", "SEASON_START_DATE": "2026-01-01", "STRAVA_SUBSCRIPTION_ID": "0" }`
-- [ ] T003 [P] Add `TOKEN_ENCRYPTION_KEY=` and `SESSION_SIGNING_KEY=` to `.dev.vars.example`, each with a comment "32 random bytes, base64: `openssl rand -base64 32`". Keep the existing entries.
-- [ ] T004 [P] Create `public/strava/README.md` (research R19) explaining:
+- [X] T003 [P] Add `TOKEN_ENCRYPTION_KEY=` and `SESSION_SIGNING_KEY=` to `.dev.vars.example`, each with a comment "32 random bytes, base64: `openssl rand -base64 32`". Keep the existing entries.
+- [X] T004 [P] Create `public/strava/README.md` (research R19) explaining:
   - The maintainer downloads the official "Connect with Strava" button (`1.1-Connect-with-Strava-Buttons.zip`, orange, 48 px) and the "Powered by Strava" logo (`1.2-Strava-API-Logos.zip`) from Strava's brand guidelines page and saves them as `public/strava/en/connect-with-strava.svg` and `public/strava/en/powered-by-strava.svg`.
   - The `brand.*.src` entries in `src/i18n/messages/de.ts` point at the `en/` files by default. German variants go to `public/strava/de/` with the same file names, and only if Strava supplies them; then the `de` entries switch to them.
   - Before deploying, every `brand.*.src` path in every catalog must exist under `public/` (the check command is in quickstart §3 step 5), because tests don't use the files.
   - The images are never modified, re-lettered or translated.
   - Pages take the paths from the catalogs (`brand.connectWithStrava.src`, `brand.poweredByStrava.src`), and tests don't need the files.
-- [ ] T005 Update `vitest.config.ts`:
+- [X] T005 Update `vitest.config.ts`:
   - make the config async;
   - call `readD1Migrations("./migrations")` (from `@cloudflare/vitest-pool-workers`);
   - pass `cloudflareTest({ wrangler: { configPath: "./wrangler.jsonc" }, miniflare: { bindings: { TEST_MIGRATIONS: migrations, STRAVA_CLIENT_ID: "10001", STRAVA_CLIENT_SECRET: "test-client-secret", STRAVA_WEBHOOK_VERIFY_TOKEN: "test-verify-token", TOKEN_ENCRYPTION_KEY: <fixed synthetic base64 of 32 bytes>, SESSION_SIGNING_KEY: <fixed synthetic base64 of 32 bytes>, STRAVA_SUBSCRIPTION_ID: "777" } } })`;
   - add `test.setupFiles: ["./test/setup.ts"]`.
 
   These synthetic bindings override anything in `.dev.vars`, so tests never see real secrets.
-- [ ] T006 Create `test/setup.ts`, which calls `applyD1Migrations(env.DB, env.TEST_MIGRATIONS)` from `cloudflare:test`. Create `test/env.d.ts`, which augments `Cloudflare.Env` with `TEST_MIGRATIONS: D1Migration[]`. Verify that `pnpm test` still passes the existing `test/index.test.ts`.
+- [X] T006 Create `test/setup.ts`, which calls `applyD1Migrations(env.DB, env.TEST_MIGRATIONS)` from `cloudflare:test`. Create `test/env.d.ts`, which augments `Cloudflare.Env` with `TEST_MIGRATIONS: D1Migration[]`. Verify that `pnpm test` still passes the existing `test/index.test.ts`.
 
 **Checkpoint**: `pnpm typecheck && pnpm test` green; local D1 is migrated in tests.
 
