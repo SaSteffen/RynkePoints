@@ -424,7 +424,8 @@ describe("GET /auth/callback after /signin", () => {
 	});
 
 	it("signs a connected rider in without changing anything", async () => {
-		await seedExistingRider();
+		await seedExistingRider({ scopeWrite: true });
+		ctx = makeCtx({ now: NOW + 3600 });
 		const res = await signIn(ctx, fake, ATHLETE_A);
 		expect(res.status).toBe(302);
 		expect(res.headers.get("Location")).toBe("/me");
@@ -437,6 +438,7 @@ describe("GET /auth/callback after /signin", () => {
 		expect(await getRider(env.DB, ATHLETE_A)).toMatchObject({
 			scopes: SCOPES_ALL,
 			scopeReadAll: true,
+			scopesUpdatedAt: NOW,
 		});
 	});
 
