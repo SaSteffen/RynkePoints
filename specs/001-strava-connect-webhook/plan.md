@@ -87,6 +87,41 @@ so `activities` gains `is_flagged`:
   it (FR-010, research R5); the spec accepts the delay.
 - `landing.dataRead` names the flag (FR-002).
 
+**Consent step and optional write access** (spec Clarifications, question raised
+by feature 004-roles-and-consent; FR-002, FR-003, FR-007, FR-022, FR-025, FR-026;
+constitution v2.0.0, Principle I). Feature 004 defines the consent; this feature
+hosts its step in the connect flow, shows it on `/me` and deletes it with the
+rider (research R21):
+
+- **Agree before Strava**: the landing page shows the consent (what is read, what
+  write access is for and that it is optional, who sees what, how to leave) above
+  the Connect button. The button becomes the submit button of a `POST /connect`
+  form with a required "I agree" checkbox. Without the box ticked nobody is sent
+  to Strava (`/notice/consent-required`) and nothing is kept.
+- **Carried through OAuth, stored on success**: the agreed consent version rides
+  in the signed `rp_oauth_state` cookie. The callback stores a new rider together
+  with a `consent_records` row (version, accepted at). A new athlete arriving
+  without an agreed version is turned away like a refusal: revoke, nothing stored.
+  `GET /connect` stays for signed-in riders only (reconnect, changing
+  permissions) and carries no agreement.
+- **Consent version**: `CONSENT_VERSION = 1` in `src/consent.ts`; the text is in
+  the catalogs (`consent.*`). Asking riders again when a later version reads,
+  writes or shows more is feature 004's (its FR-013); this feature only records
+  the version so that it can.
+- **Optional write access**: `/connect` asks for `activity:write` too. The rider
+  may untick it on Strava's screen; the connection is unaffected and
+  `riders.scope_write` records the answer. Granting or dropping it on reconnect
+  changes only the recorded permissions (FR-007). The Strava client still has no
+  write endpoint, and tests fail on any write call (FR-003).
+- **Deletion**: `consent_records` cascades from `riders` like everything else, so
+  every existing deletion path covers it (FR-022).
+- **Rider page**: `/me` shows whether write access was granted, the consent
+  version and date with who sees what, and a link to change permissions on Strava
+  (FR-025).
+- A new migration `0004_consent_and_write_scope.sql` adds the table and the
+  defaulted column; the previously deployed code keeps working against it.
+  Nothing is re-read from Strava (quickstart §5).
+
 ## Technical Context
 
 **Language/Version**: TypeScript 7 (`tsc --noEmit`), ES2024 target, Cloudflare
@@ -98,7 +133,8 @@ season start). Translations are plain typed catalogs, not an i18n library (R16).
 `@cloudflare/vitest-pool-workers`, Biome (all already installed).
 
 **Storage**: Cloudflare D1, EU jurisdiction (research R11). Tables: `riders`,
-`strava_credentials`, `activities`, `failed_work`, `strava_rate_limit`
+`strava_credentials`, `activities`, `consent_records`, `failed_work`,
+`strava_rate_limit`
 ([data-model.md](data-model.md)). Migrations live in `migrations/`; applied
 migrations are never edited, schema changes get a new one.
 
@@ -129,9 +165,9 @@ consumer, cron)
 - No GPS or coordinates are stored.
 
 **Scale/Scope**: ≤ 10 riders (Strava capacity), a few activities per rider per day,
-eight rider-facing paths (`/`, `/connect`, `/auth/callback`, `/me`,
-`/me/disconnect`, `/logout`, `/lang`, `/notice/:id`) plus the webhook and
-`/health`, one queue, one cron, two locales (`de` default, `en`) with about 70
+eight rider-facing paths (`/`, `/connect` (GET and POST), `/auth/callback`,
+`/me`, `/me/disconnect`, `/logout`, `/lang`, `/notice/:id`) plus the webhook and
+`/health`, one queue, one cron, two locales (`de` default, `en`) with about 85
 messages each ([contracts/messages.md](contracts/messages.md)).
 
 ## Constitution Check
@@ -140,19 +176,19 @@ messages each ([contracts/messages.md](contracts/messages.md)).
 
 | Principle | Gate | Status |
 |---|---|---|
-| I. Privacy & consent | Opt-in scopes; private activities only if granted (R1). No `activity:write`. Nothing team-visible (FR-026). | ✅ |
+| I. Consent (v2.0.0) | One explicit consent before Strava: a required checkbox under a text that says what is read, what write access is for and who sees what (FR-002, R21). Reading and sharing are required; private activities and `activity:write` are optional on Strava's screen and change nothing about taking part (R1). The accepted version and time are recorded (`consent_records`). Asking again when the consent grows is feature 004's (its FR-013), built on that record. Nothing team-visible here (FR-026). | ✅ |
 | I. Minimisation | Allow-listed fields only; no GPS, polylines, coordinates or titles (data-model `activities`). Elapsed time, the manual/trainer flags and Strava's flag are in FR-013 and named on the landing page (FR-002). | ✅ |
-| I. Deletion | Hard delete with cascade on deauth, disconnect, leaving the club, or 7 days stuck in `needs_reconnect` (FR-020). Revoking uses the stored refresh token, so deletion never depends on a working refresh. Pending work can't recreate rows (FK + rider check). D1 Time Travel keeps a 7-day restorable history that can't be disabled; it is disclosed to riders and never used to restore deleted riders (FR-022a, R15). | ✅ disclosed |
+| I. Deletion | Hard delete with cascade on deauth, disconnect, leaving the club, or 7 days stuck in `needs_reconnect` (FR-020); the cascade includes `consent_records` (FR-022). Revoking uses the stored refresh token, so deletion never depends on a working refresh. Pending work can't recreate rows (FK + rider check). D1 Time Travel keeps a 7-day restorable history that can't be disabled; it is disclosed to riders and never used to restore deleted riders (FR-022a, R15). | ✅ disclosed |
 | I. Secrets | Tokens AES-GCM encrypted (R10). Secrets only via `wrangler secret` / `.dev.vars`. Tests use synthetic bindings. | ✅ |
 | I. EU storage | D1 `--jurisdiction=eu` (R11). Queue messages hold IDs only. | ✅ |
-| I. Purpose & brand | Data used only for this app. Official Connect button and "Powered by Strava", unmodified, in the page language's variant where Strava ships one; `de` uses the original files until then, and a pre-deploy step checks every catalog path exists (R13, R19). | ✅ |
+| I. Purpose & brand | Data used only for this app. Official Connect button (now the consent form's submit button, image unchanged) and "Powered by Strava", unmodified, in the page language's variant where Strava ships one; `de` uses the original files until then, and a pre-deploy step checks every catalog path exists (R13, R19). | ✅ |
 | I. Language preference | The picked language lives only in the `rp_lang` browser cookie. It's never in D1 or the rider record, and is disclosed on the landing page (FR-029a, R18). | ✅ |
 | II. Webhook ack + queue | The handler validates and enqueues only (contracts/http-routes.md). | ✅ |
 | II. Idempotency | Upserts converge to Strava's current state; duplicates and reordering are safe (R5). | ✅ |
 | II. Rate limits | Header-driven budget, 429 deferral, serial consumer; the import is paged at 200 per request (R6, R8). Deferrals re-send the message (≤ 12 h delay) so they never use up its retries and never drop work. | ✅ |
 | II. Capacity | Designed for ≤ 10 riders. "Team full" handled (R14). | ✅ |
 | II. No polling | Activities are never polled. The daily club-membership check is a scheduled Strava lookup (≤ 20 requests/day); see Complexity Tracking. The re-read after a figure is added runs once per rider, not periodically (R20). A flag Strava sets later follows on the next read; it is never polled for. | ✅ justified |
-| III. Rider content | No description edits in this feature. | ✅ n/a |
+| III. Rider content | `activity:write` is requested but nothing is written: the Strava client has no write endpoint, and the fake Strava fails any write call (FR-003). A rider stops future description edits by reconnecting without write access (feature 004, FR-016). | ✅ n/a |
 | IV. Serverless, minimal deps | Workers + D1 + Queues + cron; no new runtime dependency. i18n uses typed catalogs and built-in `Intl`, not a library (R16). | ✅ |
 | IV. Free tier | Queues, cron and D1 are all within free limits (see Constraints). | ✅ |
 | IV. Recomputable points | No points yet. Stored activity data is the input future rules will recompute from. | ✅ n/a |
@@ -195,6 +231,15 @@ messages each ([contracts/messages.md](contracts/messages.md)).
   step, endpoint, table, route or dependency. Migration `0003` only adds a
   nullable column, so the previously deployed code keeps working while CI
   applies it before publishing.
+- The consent revision adds one table, `consent_records` (cascading from
+  `riders`), and one column, `riders.scope_write` (`NOT NULL DEFAULT 0`), both
+  in migration `0004`. Old code never names either, and its rider deletes
+  cascade into the new table, so it keeps working while CI applies `0004`
+  before publishing. It adds `POST /connect`, narrows `GET /connect` to
+  signed-in riders and adds the notice `consent-required`. Notice retry links
+  now point to `/`, where the consent is. Consent records hold a version
+  number and a time, nothing from Strava, so minimisation still holds. No new
+  Strava endpoint, message kind, cron step or dependency.
 
 ## Project Structure
 
@@ -222,7 +267,8 @@ specs/001-strava-connect-webhook/
 migrations/
 ├── 0001_init.sql            # riders, strava_credentials, activities, failed_work, strava_rate_limit
 ├── 0002_activity_points_figures.sql  # activities: elapsed_time_s, is_manual, is_trainer; riders: figures_version
-└── 0003_activity_flagged.sql         # activities: is_flagged
+├── 0003_activity_flagged.sql         # activities: is_flagged
+└── 0004_consent_and_write_scope.sql  # consent_records; riders: scope_write
 
 public/
 └── strava/                  # Strava brand assets (static assets binding), unmodified
@@ -232,6 +278,7 @@ public/
 src/
 ├── index.ts                 # fetch / queue / scheduled entry points
 ├── config.ts                # typed env access, cycling sport types, season start
+├── consent.ts               # CONSENT_VERSION (R21)
 ├── i18n/
 │   ├── messages/
 │   │   ├── de.ts            # source catalog: defines MessageId
@@ -243,9 +290,9 @@ src/
 │   ├── router.ts            # path → handler; resolves the locale once per request
 │   ├── html.ts              # escaping html`` template + layout (lang attr, switcher, attribution)
 │   ├── session.ts           # signed session + OAuth state cookies
-│   ├── landing.ts           # GET /
-│   ├── auth.ts              # GET /connect, GET /auth/callback
-│   ├── me.ts                # GET /me, disconnect, logout
+│   ├── landing.ts           # GET /, with the consent form
+│   ├── auth.ts              # POST /connect, GET /connect, GET /auth/callback
+│   ├── me.ts                # GET /me (incl. consent), disconnect, logout
 │   ├── lang.ts              # POST /lang (switcher), rp_lang cookie, next allow-list
 │   ├── notice.ts            # GET /notice/:id outcome pages
 │   └── webhook.ts           # GET/POST /strava/webhook/:secret
@@ -267,6 +314,7 @@ src/
 ├── db/
 │   ├── riders.ts
 │   ├── activities.ts
+│   ├── consents.ts          # record and read consent_records
 │   ├── failed-work.ts
 │   └── rate-limit.ts
 └── crypto/
@@ -316,3 +364,16 @@ Afterwards, regenerate `worker-configuration.d.ts` with `pnpm types`.
 - **Browsers naming only unsupported languages** (FR-029): resolved in the spec on
   2026-10-06 — `da` gets English, `da,de;q=0.5` gets German, and only a missing or
   empty preference falls back to German (R17).
+- **Returning riders tick the box again** (feature 004, US1 scenario 6; R21):
+  before Strava the app can't tell a returning rider from a new one, so a rider
+  whose 30-day session expired ticks the consent box again to sign in. No new
+  record is written for a version they already accepted. The plan reads "not
+  asked again" as "no re-consent step after signing in". A separate sign-in link
+  would avoid the tick, but it would send unknown visitors to Strava before they
+  agreed (FR-002) and needs a second Connect button.
+- **Deletion confirmation outside the app** (feature 004, FR-011, F-4): the
+  consent text says riders get a confirmation once their data is deleted. The
+  disconnect button shows one (`/notice/deleted`). Revoking on Strava or leaving
+  the club deletes the data too, but the app stores no email and has no way to
+  confirm it. The landing text promises the confirmation only for the button.
+  A spec decision is needed if Strava's §2.5 "written confirmation" means more.

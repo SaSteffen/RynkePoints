@@ -11,23 +11,35 @@ R16–R19 were added after constitution v1.1.0 (Language section) and spec FR-02
 FR-030, FR-029a, SC-010 and SC-011. They supersede the earlier assumption that
 rider pages are English.
 
-## R1. Strava OAuth scopes and the rider's choice of private activities (FR-003, FR-005)
+R21 was added, and R1 revised, after constitution v2.0.0 and feature
+004-roles-and-consent (one required consent at connect, optional write access).
+
+## R1. Strava OAuth scopes and the rider's choices (FR-003, FR-005, FR-007)
 
 - **Decision**: Send riders to `https://www.strava.com/oauth/authorize` with
-  `scope=read,activity:read,activity:read_all`, `response_type=code`,
+  `scope=read,activity:read,activity:read_all,activity:write`, `response_type=code`,
   `approval_prompt=force` and a CSRF `state`. Read the accepted scopes from the
-  callback's `scope` parameter (and the token response's `scope`). `activity:read`
-  missing → not connected, keep nothing. `activity:read_all` missing → connected
-  with "shared activities only". `read` missing → treat like a refusal, because the
-  club check (R4) needs it.
+  callback's `scope` parameter (and the token response's `scope`).
+  - `activity:read` missing → not connected, keep nothing.
+  - `read` missing → treat like a refusal, because the club check (R4) needs it.
+  - `activity:read_all` missing → connected with "shared activities only".
+  - `activity:write` missing → connected, `scope_write=0`; nothing else changes.
+    Granting or dropping it on reconnect only updates `scopes` and `scope_write`
+    (FR-007): no import, no deletion.
 - **Rationale**: Strava's docs say "the user may opt out of any requested scopes",
-  so asking for `activity:read_all` and letting the rider untick it is exactly the
-  "rider chooses" answer from the clarification. `approval_prompt=force` makes sure
-  a reconnecting rider actually sees the screen again and can change their choice
-  (FR-007); with `auto` Strava skips it for riders who already approved.
+  so asking for `activity:read_all` and `activity:write` and letting the rider
+  untick them is exactly the "rider chooses" answer from the clarifications.
+  Asking for write access from day one spares riders a second trip through Strava
+  once the description feature ships (feature 004, F-4). `approval_prompt=force`
+  makes sure a reconnecting rider actually sees the screen again and can change
+  their choices (FR-007); with `auto` Strava skips it for riders who already
+  approved. Nothing in this feature calls a write endpoint (FR-003): the client
+  exposes none, and the fake Strava fails any write call (R12).
 - **Alternatives considered**: Two separate "connect" buttons (basic / incl.
   private) — more UI and still relies on the rider not unticking; rejected.
-  Requesting only `activity:read` — contradicts the clarification.
+  Requesting only `activity:read` — contradicts the clarification. Requesting
+  `activity:write` only once the description feature ships — every rider would
+  have to reconnect then; rejected (feature 004, FR-012).
 
 ## R2. Token exchange, refresh, revoke
 
@@ -279,7 +291,9 @@ rider pages are English.
   - Bindings used in tests are synthetic values set in `vitest.config.ts`
     (`miniflare.bindings`), so `.dev.vars` never feeds tests.
   - Strava is a fake router installed with `vi.spyOn(globalThis, "fetch")` in a
-    test helper. It also fails the test on any request to an unexpected host.
+    test helper. It also fails the test on any request to an unexpected host,
+    and on any `PUT`, `POST` or `DELETE` to `/api/v3/...`, because this feature
+    never writes to Strava (FR-003, R1).
   - Handlers are invoked through `exports.default` (`fetch`, `queue` via
     `createMessageBatch`/`getQueueResult`, `scheduled` via
     `createScheduledController`).
@@ -580,3 +594,69 @@ rider pages are English.
   - Using `after` = the earliest stored row still missing a figure. The
     leftover refetch already covers rows older than the season start, so this
     only saves a request in rare cases; rejected for simplicity.
+
+## R21. The consent step in the connect flow (FR-002, FR-022, FR-025; feature 004)
+
+- **Decision**:
+  - **Where the rider agrees**: on the landing page, before Strava. Below the
+    text of FR-002 and the consent of feature 004 (FR-010, FR-011) sits a
+    `<form method="post" action="/connect">` with a required checkbox
+    `consent=<CONSENT_VERSION>` and the official Connect button as its submit
+    button. The image is unchanged; only the element around it is a `<button>`
+    instead of an `<a>`. `required` stops the browser; the server checks again.
+  - **`POST /connect`**: needs a same-origin `Origin` (R9). If `consent` isn't
+    the current version, it answers `303 /notice/consent-required` and sends
+    nobody to Strava. Otherwise it redirects to Strava as before, and the
+    signed `rp_oauth_state` value is `<state>:<consentVersion>` (no `.`, which
+    the signed-value format reserves).
+  - **`GET /connect`**: only for a signed-in rider whose row exists (the
+    reconnect link and "change permissions on Strava" on `/me`). Its state
+    carries no agreement (`<state>:0`). Anyone else gets `302 /`, where the
+    consent is.
+  - **Callback**: after the scope check and before the club check (saves a
+    request), a *new* athlete whose state carries no current version is turned
+    away: revoke the token, store nothing, `303 /notice/consent-required`. A
+    version that changed between the form and the callback counts as no
+    agreement. A new rider is stored with their consent record in one D1 batch,
+    so a rider never exists without the consent they gave. An *existing* rider
+    who came through the form gets the record too (`INSERT OR IGNORE`); one
+    who came through `GET /connect` keeps their records as they are.
+  - **Consent version**: `CONSENT_VERSION` in `src/consent.ts`, starting at 1.
+    Its text is the `consent.*` messages plus `landing.dataRead`,
+    `landing.private`, `landing.purpose` and `landing.leave`. Changing what
+    those say is read, written or shown means raising the version; polishing
+    wording doesn't. Showing the change and asking again is feature 004's
+    (its FR-013, US4); this feature has only version 1.
+  - **Records**: `consent_records (athlete_id, version, accepted_at)`, one row
+    per version a rider accepted, the first acceptance kept. The highest
+    version is the rider's current consent (data-model.md). Cascades from
+    `riders`, so every deletion path removes it (FR-022).
+  - **Rider page**: `/me` shows the version and date of the current record and
+    the `consent.*` texts of who sees what (FR-025, feature 004 FR-014), the
+    write status, and a "change permissions on Strava" link to `GET /connect`.
+    A rider without a record (connected before this revision) sees
+    `me.consent.none`, which tells them how to agree.
+- **Rationale**:
+  - FR-002 says to redirect only once the rider has agreed, and before Strava
+    the app doesn't know who the visitor is. So the agreement has to travel
+    through OAuth. The signed state cookie already does that for 10 minutes,
+    and storing nothing until the callback succeeds keeps "nothing about them is
+    kept" (feature 004, US1 scenario 5) true without a pending table.
+  - A checkbox is an explicit act, as constitution Principle I asks; pressing a
+    button labelled "Connect with Strava" is not obviously agreement.
+  - Rendering the current catalog text on `/me` is enough while there is one
+    version. Once feature 004 adds a second, riders on the older one are
+    asked again before using the app, so they never see text they haven't
+    agreed to; keeping old texts is that feature's decision.
+- **Alternatives considered**:
+  - Asking after Strava, on the way back — sends riders to Strava before they
+    agreed (FR-002); rejected.
+  - A separate "already connected? sign in" link that skips the checkbox —
+    sends unknown visitors to Strava before they agreed and needs a second
+    Connect button; rejected, so returning riders whose session expired tick the
+    box again (plan, Open questions).
+  - Storing the agreement in D1 before the redirect — keeps data about someone
+    who may never connect; rejected.
+  - Deriving write access from `riders.scopes` instead of a `scope_write`
+    column — works, but `scope_read_all` already sets the pattern, and the
+    description feature will select riders by it; rejected for consistency.
