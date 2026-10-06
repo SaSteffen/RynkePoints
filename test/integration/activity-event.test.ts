@@ -104,7 +104,12 @@ function fakeActivity(id: number) {
 describe("activity-event: create", () => {
 	it("stores the allow-listed fields and nothing else", async () => {
 		await connectedRider();
-		addRide(A, { elapsed_time: 7200, manual: true, trainer: true });
+		addRide(A, {
+			elapsed_time: 7200,
+			manual: true,
+			trainer: true,
+			flagged: true,
+		});
 		const { result } = await deliver(msg(A, "create"));
 		expect(result.explicitAcks).toEqual(["m1"]);
 		expect(fake.callsTo("activity")).toHaveLength(1);
@@ -123,6 +128,7 @@ describe("activity-event: create", () => {
 				elevation_gain_m: 312,
 				is_manual: 1,
 				is_trainer: 1,
+				is_flagged: 1,
 				is_private: 0,
 				refreshed_at: NOW,
 			},
@@ -206,6 +212,17 @@ describe("activity-event: update", () => {
 		fakeActivity(A).trainer = false;
 		await deliver(msg(A, "update", ["type"]));
 		expect(await rows()).toMatchObject([{ is_trainer: 0 }]);
+	});
+
+	it("picks up a flag Strava set later", async () => {
+		// Strava sends no event for the flag itself; the next refetch carries it.
+		await connectedRider();
+		addRide(A);
+		await deliver(msg(A, "create"));
+		expect(await rows()).toMatchObject([{ is_flagged: 0 }]);
+		fakeActivity(A).flagged = true;
+		await deliver(msg(A, "update", ["type"]));
+		expect(await rows()).toMatchObject([{ is_flagged: 1 }]);
 	});
 
 	it("deletes the row when an activity went private without read_all", async () => {

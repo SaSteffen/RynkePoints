@@ -83,7 +83,7 @@ page.
    `import_status` is not touched.
 3. If 200 items came back, enqueue `page+1` with the same `after`.
 4. Otherwise, for every row of the rider that still has a `NULL` figure
-   (`elapsed_time_s`, `is_manual` or `is_trainer`), enqueue
+   (`elapsed_time_s`, `is_manual`, `is_trainer` or `is_flagged`), enqueue
    `activity-event { aspect: "update", changed: [] }` (batches of 100). The
    `activity-event` decision table then fills the row or deletes it. This step
    is not repeated, so a field Strava never sends stays `NULL`.

@@ -60,6 +60,31 @@ describe("scheduled: figures re-read", () => {
 		expect(rereads()).toEqual([]);
 	});
 
+	it("re-reads a rider at version 1 for Strava's flag", async () => {
+		await seedRider(ctx, { figuresVersion: 1 });
+		await runCron();
+		expect(rereads()).toEqual([
+			{
+				kind: "reread-page",
+				athleteId: ATHLETE_A,
+				page: 1,
+				after: seasonStart(env),
+			},
+		]);
+		expect(await figuresVersion()).toBe(ACTIVITY_FIGURES_VERSION);
+	});
+
+	it("skips a needs_reconnect rider at version 1", async () => {
+		await seedRider(ctx, {
+			athleteId: ATHLETE_B,
+			status: "needs_reconnect",
+			figuresVersion: 1,
+		});
+		await runCron();
+		expect(rereads()).toEqual([]);
+		expect(await figuresVersion(ATHLETE_B)).toBe(1);
+	});
+
 	it("skips a rider already at the current version", async () => {
 		await seedRider(ctx);
 		await runCron();

@@ -91,6 +91,22 @@ async function seedUnknownFigures(
 	);
 }
 
+/** A row as migration 0003 leaves it: the 0002 figures set, the flag `NULL`. */
+async function seedUnknownFlag(activityIds: number[]): Promise<void> {
+	await env.DB.batch(
+		activityIds.map((id) =>
+			env.DB.prepare(
+				`INSERT INTO activities (strava_activity_id, athlete_id, sport_type,
+					start_date, start_date_local, timezone, distance_m, moving_time_s,
+					elevation_gain_m, is_private, refreshed_at, elapsed_time_s,
+					is_manual, is_trainer)
+				VALUES (?, ?, 'Ride', '2026-03-01T07:00:00Z', '2026-03-01T08:00:00Z',
+					'(GMT+01:00) Europe/Berlin', 1000, 600, 10, 0, ?, 700, 0, 0)`,
+			).bind(id, ATHLETE_A, NOW - 86400),
+		),
+	);
+}
+
 /** Delivers one message through the Worker's queue handler. */
 async function deliver(body: unknown) {
 	const batch = createMessageBatch("rynke-points-work", [
@@ -173,6 +189,41 @@ describe("reread-page", () => {
 		expect(results).toEqual([
 			{ elapsed_time_s: 6003, is_manual: 0, is_trainer: 1 },
 		]);
+	});
+
+	it("fills Strava's flag on rows stored before 0003", async () => {
+		fake.addAthlete({ id: ATHLETE_A });
+		await seedRider(ctx, { importStatus: "done", figuresVersion: 1 });
+		const added = addActivities(3, SEASON_START + 86400, (i) => ({
+			flagged: i === 1,
+		}));
+		await seedUnknownFlag(added.map((a) => a.id));
+
+		await drain(FIRST, async () => {});
+
+		expect(await listActivityIdsMissingFigures(env.DB, ATHLETE_A)).toEqual([]);
+		const { results } = await env.DB.prepare(
+			"SELECT is_flagged FROM activities ORDER BY start_date",
+		).all();
+		expect(results).toEqual([
+			{ is_flagged: 0 },
+			{ is_flagged: 1 },
+			{ is_flagged: 0 },
+		]);
+	});
+
+	it("refetches a row whose summary omits Strava's flag", async () => {
+		fake.addAthlete({ id: ATHLETE_A });
+		await seedRider(ctx, { figuresVersion: 1 });
+		const [filled, omitsFlag] = addActivities(2, SEASON_START + 86400);
+		if (!filled || !omitsFlag) throw new Error("activities not added");
+		delete omitsFlag.flagged;
+		fake.addActivity(ATHLETE_A, omitsFlag);
+		await seedUnknownFlag([filled.id, omitsFlag.id]);
+
+		await deliver(FIRST);
+
+		expect(ctx.queue.sent.map((m) => m.body)).toEqual([refetch(omitsFlag.id)]);
 	});
 
 	it("never touches the import status", async () => {

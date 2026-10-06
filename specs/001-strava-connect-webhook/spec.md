@@ -48,19 +48,35 @@
   every connected rider, within Strava's limits (FR-021). Until then their new
   figures are unknown, never guessed. The explanation shown before connecting
   (FR-002) names all of them.
+- Q: Must it be stored whether Strava has flagged an activity (Strava then keeps
+  it out of club leaderboards, segment records and the like)? → A: Yes. Feature
+  003-rynke-evaluation (FR-005g) never counts a flagged ride. It comes with the
+  activity data already fetched. Activities stored before it was added are read
+  again once, like the other added figures.
+- Q (raised by the project owner): Must a flag Strava sets on an already stored
+  activity be picked up right away? → A: No. It is picked up the next time the
+  activity is read from Strava; the delay is accepted.
+- Q (raised by feature 004-roles-and-consent): What changes here once riders consent
+  to sharing? → A: Before going to Strava a rider reads and agrees to the consent
+  defined in feature 004 (FR-010, FR-011); their page shows what they agreed to
+  (feature 004, FR-014); and their consent records are deleted with them. The rider
+  record keeps only the first name it already holds; no last name is stored. Write
+  access is requested too, as an optional permission whose use is explained before
+  connecting (FR-003); nothing in this feature writes to Strava.
 
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Rider connects their Strava account (Priority: P1)
 
-A Team Rynkeby Hamburg rider who is a member of the team's Strava club
-"TRHH Rynke Coins" opens the RynkePoints page, sees what the app will do with their
-data, and presses "Connect with Strava". Strava asks them to approve read access to
-their activities, and lets them choose whether that includes their private ("Only
-You") activities. After approving, they land back on RynkePoints and see that their
-account is connected, which permissions they granted, that their rides since the
-season start are being imported, and that new rides will be picked up automatically
-from now on.
+A Team Rynkeby Hamburg rider who is a member of the team's Strava club "TRHH Rynke
+Coins" opens the RynkePoints page, sees what the app will do with their data and who
+sees what, agrees to it (feature 004-roles-and-consent), and presses "Connect with
+Strava". Strava asks them to approve read access to their activities, and lets them
+choose whether that includes their private ("Only You") activities and whether to
+grant the optional write access. After approving, they land back on RynkePoints and
+see that their account is connected, which permissions they granted, that their
+rides since the season start are being imported, and that new rides will be picked
+up automatically from now on.
 
 **Why this priority**: Nothing else in RynkePoints (points, events, description
 updates) can work until a rider has connected and consented. This is the entry point
@@ -122,8 +138,8 @@ the stored activity records after each one.
 1. **Given** a connected rider, **When** Strava reports a new cycling activity for
    them, **Then** RynkePoints stores that activity's key figures (sport type, start
    date and time, distance, moving time, elapsed time, elevation gain, whether it
-   was entered manually, whether it was ridden on an indoor trainer) linked to
-   the rider.
+   was entered manually, whether it was ridden on an indoor trainer, whether
+   Strava has flagged it) linked to the rider.
 2. **Given** a stored activity, **When** Strava reports that the activity was
    updated, **Then** the stored figures are refreshed to match Strava's current
    state.
@@ -228,12 +244,16 @@ and no one else's.
 - **Activity changes sport type**: a stored ride changed to a non-cycling type is
   removed; a non-cycling activity changed to a cycling type is stored.
 - **Activities stored before a figure was added to FR-013**: when FR-013 gains a
-  figure (elapsed time, manual flag, trainer flag), activities already stored
-  lack it. Every
-  connected rider's activities since the season start are read from Strava once
-  more, within Strava's limits (FR-021), and the figure is filled in. Until then
-  it is recorded as unknown, never as a guessed value such as 0, "not manual" or
-  "not on a trainer".
+  figure (elapsed time, manual flag, trainer flag, Strava's flag), activities
+  already stored lack it. Every connected rider's activities since the season
+  start are read from Strava once more, within Strava's limits (FR-021), and the
+  figure is filled in. Until then it is recorded as unknown, never as a guessed
+  value such as 0, "not manual", "not on a trainer" or "not flagged".
+- **Strava flags a stored activity later**: Strava documents no notification for
+  flagging, so the stored flag follows the next time the activity is read from
+  Strava: an update notification for it that changes more than the title, an
+  import after reconnecting, or a re-read when FR-013 gains a figure. The
+  system does not poll Strava for it (FR-010); the delay is accepted.
 - **Strava rate limit reached**: notifications keep being acknowledged; fetching
   the details is deferred and retried later. No notification is lost.
 - **Strava temporarily unavailable**: same as rate limit — deferred and retried
@@ -269,10 +289,14 @@ and no one else's.
   (FR-028).
 - **FR-002**: Before redirecting to Strava, the system MUST tell the rider in plain
   language which data will be read (every figure listed in FR-013), what it is used for, how to leave, and how
-  long deleted data remains in the hosting platform's backups (FR-022a).
-- **FR-003**: The system MUST request only the permission to read the rider's
-  activities, at the level defined in FR-005; it MUST NOT request permission to
-  edit activities in this feature.
+  long deleted data remains in the hosting platform's backups (FR-022a), together
+  with the consent of feature 004-roles-and-consent (its FR-010, FR-011), and MUST
+  only redirect once the rider has agreed.
+- **FR-003**: The system MUST request the permission to read the rider's
+  activities, at the level defined in FR-005, and the optional permission to write
+  them (feature 004-roles-and-consent, FR-012), which the rider may decline on
+  Strava's approval screen without affecting the connection. This feature MUST NOT
+  write to Strava.
 - **FR-004**: Only members of the configured team Strava club (initially
   "TRHH Rynke Coins", https://www.strava.com/clubs/2372209) MUST be able to
   connect. Membership MUST be checked when the rider connects; a non-member's
@@ -296,7 +320,8 @@ and no one else's.
 - **FR-007**: Re-connecting an already connected rider MUST update their existing
   record and granted permissions rather than create a second rider. If the new
   permission no longer covers private activities, stored private activities MUST be
-  removed; if it newly covers them, they MUST be imported as in FR-021.
+  removed; if it newly covers them, they MUST be imported as in FR-021. Granting
+  or dropping write access changes only the recorded permissions.
 - **FR-008**: The system MUST show a friendly "team is full" message when Strava
   refuses the connection because the app's athlete capacity is reached.
 - **FR-009**: Signing in to RynkePoints MUST happen through the same Strava
@@ -318,7 +343,8 @@ and no one else's.
   rider, sport type, start date and time (with the rider's local time zone),
   distance, moving time, elapsed time (start to finish, including pauses), total
   elevation gain, whether the activity was entered manually (Strava's manual
-  flag) and whether it was ridden on an indoor trainer (Strava's trainer flag).
+  flag), whether it was ridden on an indoor trainer (Strava's trainer flag) and
+  whether Strava has flagged it (Strava's flagged field).
 - **FR-014**: The system MUST NOT store GPS tracks, route maps/polylines, start or
   end coordinates, photos, heart rate, power, or any other activity data not listed
   in FR-013.
@@ -355,8 +381,9 @@ and no one else's.
 **Leaving and deletion**
 
 - **FR-022**: On a deauthorization notification from Strava, the system MUST
-  permanently delete the rider's credentials, rider record and all their activity
-  records (no soft delete, no anonymised remainder).
+  permanently delete the rider's credentials, rider record, all their activity
+  records and their consent records (feature 004, FR-013) (no soft delete, no
+  anonymised remainder).
 - **FR-022a**: Deletion removes the data from the live database immediately.
   Copies in the hosting platform's always-on backup history cannot be deleted by
   the app and expire after at most 7 days. The system MUST NOT restore deleted
@@ -371,11 +398,14 @@ and no one else's.
 **Rider view**
 
 - **FR-025**: A signed-in rider MUST be able to see their connection status,
-  granted permissions (including whether private activities are covered), whether
-  the past-season import is still running, and their most recently imported
-  activities (at least the last 20), newest first.
+  granted permissions (including whether private activities are covered and
+  whether write access was granted), whether
+  the past-season import is still running, their most recently imported activities
+  (at least the last 20), newest first, and the consent they agreed to (feature 004,
+  FR-014).
 - **FR-026**: A rider MUST only ever see their own activities in this feature; no
-  other rider's data is shown to anyone.
+  other rider's data is shown to anyone. Views that show riders to others follow
+  feature 004-roles-and-consent (FR-020, FR-021).
 
 **Security**
 
@@ -406,8 +436,10 @@ and no one else's.
 - **Rider**: a member of the team Strava club who connected their Strava account.
   Holds the Strava athlete ID, display first name (for greeting only), connection
   status (connected / needs reconnect, and since when it needs reconnecting),
-  granted permissions (with or without private activities), connection date,
-  past-season import status, and when club membership was last confirmed.
+  granted permissions (with or without private activities, with or without write
+  access), connection date,
+  past-season import status, and when club membership was last confirmed. Its
+  consent records (feature 004) are deleted with it.
 - **Team Settings**: organiser-maintained configuration — the team Strava club and
   the season start date.
 - **Strava Credentials**: the access needed to read the rider's activities on their
@@ -415,8 +447,9 @@ and no one else's.
   with the Rider.
 - **Activity**: one cycling activity of a Rider, identified by its Strava activity
   ID. Holds sport type, start date/time and time zone, distance, moving time,
-  elapsed time, elevation gain, manual flag, trainer flag, and when it was last
-  refreshed from Strava. Belongs to exactly one Rider; deleted with the Rider.
+  elapsed time, elevation gain, manual flag, trainer flag, Strava's flag, and
+  when it was last refreshed from Strava. Belongs to exactly one Rider; deleted
+  with the Rider.
 - **Pending Activity Work**: a unit of deferred processing triggered by a Strava
   notification or a past-season import (rider, activity or import position, kind
   of change, attempt count). Exists only until processed or abandoned; never holds
@@ -427,7 +460,8 @@ and no one else's.
 ### Measurable Outcomes
 
 - **SC-001**: A rider can go from opening the RynkePoints page to seeing "connected"
-  in under 2 minutes, without help from an organiser.
+  in under 3 minutes, including reading and agreeing to the consent (feature 004,
+  SC-004), without help from an organiser.
 - **SC-002**: Under normal conditions (Strava reachable, within limits), a new
   cycling activity appears on the rider's page within 5 minutes of being uploaded
   to Strava.
@@ -472,10 +506,12 @@ and no one else's.
   organiser admin page is out of scope.
 - Strava is both the data source and the only sign-in method; there are no
   RynkePoints passwords.
-- Points calculation, event-participation matching, team leaderboards / sharing
-  consent, and writing to activity descriptions are out of scope and will be
-  separate features. Consequently no activity title or location is stored yet; later
-  features that need such data may re-fetch it from Strava.
+- Points calculation, event-participation matching, team leaderboards and writing to
+  activity descriptions are out of scope and will be separate features. Roles, the
+  consent and who may see what are defined in feature 004-roles-and-consent; this
+  feature hosts its consent step and shows the consent on the rider's page.
+  Consequently no activity title or location is stored yet; later features that need
+  such data may re-fetch it from Strava.
 - Only cycling activities are relevant to Team Rynkeby; other sports can be added
   later by changing the accepted sport types.
 - Setting up and maintaining the Strava push subscription and deploying the app are

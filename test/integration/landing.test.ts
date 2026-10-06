@@ -53,6 +53,7 @@ describe("GET / (signed out)", () => {
 			"Gesamtzeit mit Pausen",
 			"manuell eingetragen",
 			"Rollentrainer",
+			"ob Strava sie markiert hat",
 		]) {
 			expect(german).toContain(figure);
 		}
@@ -61,6 +62,7 @@ describe("GET / (signed out)", () => {
 			"elapsed time including pauses",
 			"entered manually",
 			"indoor trainer",
+			"whether Strava has flagged it",
 		]) {
 			expect(english).toContain(figure);
 		}

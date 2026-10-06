@@ -16,8 +16,10 @@ export type CyclingSportType = (typeof CYCLING_SPORT_TYPES)[number];
 /**
  * Version of the FR-013 field set. Goes up whenever the mapping gains a figure,
  * so the daily cron re-reads riders stored with an older one (research R20).
+ * Version 1 added elapsed time and the manual and trainer flags, version 2
+ * Strava's `flagged`.
  */
-export const ACTIVITY_FIGURES_VERSION = 1;
+export const ACTIVITY_FIGURES_VERSION = 2;
 
 /** The fields we read from a Strava summary or detailed activity. */
 export interface StravaActivity {
@@ -32,6 +34,7 @@ export interface StravaActivity {
 	total_elevation_gain: number;
 	manual?: boolean;
 	trainer?: boolean;
+	flagged?: boolean;
 	private?: boolean;
 }
 
@@ -49,6 +52,7 @@ export interface ActivityRecord {
 	elevation_gain_m: number;
 	is_manual: 0 | 1 | null;
 	is_trainer: 0 | 1 | null;
+	is_flagged: 0 | 1 | null;
 	is_private: 0 | 1;
 	refreshed_at: number;
 }
@@ -77,6 +81,7 @@ export function toActivityRecord(
 		elevation_gain_m: activity.total_elevation_gain,
 		is_manual: flag(activity.manual),
 		is_trainer: flag(activity.trainer),
+		is_flagged: flag(activity.flagged),
 		is_private: activity.private ? 1 : 0,
 		refreshed_at: now,
 	};

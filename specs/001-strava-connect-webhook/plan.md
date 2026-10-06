@@ -67,6 +67,26 @@ FR-013): feature 003-rynke-evaluation needs three more figures per activity, so
   The re-read starts at the first cron after the deploy and needs no manual
   step. quickstart §4 lists the rollout order and the checks.
 
+**Strava's flag** (spec Clarifications, flagged-activity question; FR-002,
+FR-013):
+feature 003-rynke-evaluation (FR-005g) never counts a ride Strava has flagged,
+so `activities` gains `is_flagged`:
+
+- It comes from Strava's `flagged`, which is part of both the summary (import,
+  re-read) and the detailed (event) activity. No new request or endpoint.
+- `0002` is already applied in production, so a new migration
+  `0003_activity_flagged.sql` adds it as a nullable column (`NULL` = unknown,
+  never "not flagged"). The previous code keeps working against it.
+- `ACTIVITY_FIGURES_VERSION` goes from 1 to 2. Every connected rider is then
+  behind, and the existing R20 re-read reads their season once more. No new
+  rider column, message kind or cron step; the "still lacking a figure" check
+  includes `is_flagged`.
+- Strava sends no event when it flags an activity. The stored flag follows the
+  next time the activity is read (an update event that changes more than the
+  title, the import after a reconnect, or a re-read). There is no polling for
+  it (FR-010, research R5); the spec accepts the delay.
+- `landing.dataRead` names the flag (FR-002).
+
 ## Technical Context
 
 **Language/Version**: TypeScript 7 (`tsc --noEmit`), ES2024 target, Cloudflare
@@ -121,7 +141,7 @@ messages each ([contracts/messages.md](contracts/messages.md)).
 | Principle | Gate | Status |
 |---|---|---|
 | I. Privacy & consent | Opt-in scopes; private activities only if granted (R1). No `activity:write`. Nothing team-visible (FR-026). | ✅ |
-| I. Minimisation | Allow-listed fields only; no GPS, polylines, coordinates or titles (data-model `activities`). Elapsed time and the manual/trainer flags are in FR-013 and named on the landing page (FR-002). | ✅ |
+| I. Minimisation | Allow-listed fields only; no GPS, polylines, coordinates or titles (data-model `activities`). Elapsed time, the manual/trainer flags and Strava's flag are in FR-013 and named on the landing page (FR-002). | ✅ |
 | I. Deletion | Hard delete with cascade on deauth, disconnect, leaving the club, or 7 days stuck in `needs_reconnect` (FR-020). Revoking uses the stored refresh token, so deletion never depends on a working refresh. Pending work can't recreate rows (FK + rider check). D1 Time Travel keeps a 7-day restorable history that can't be disabled; it is disclosed to riders and never used to restore deleted riders (FR-022a, R15). | ✅ disclosed |
 | I. Secrets | Tokens AES-GCM encrypted (R10). Secrets only via `wrangler secret` / `.dev.vars`. Tests use synthetic bindings. | ✅ |
 | I. EU storage | D1 `--jurisdiction=eu` (R11). Queue messages hold IDs only. | ✅ |
@@ -131,7 +151,7 @@ messages each ([contracts/messages.md](contracts/messages.md)).
 | II. Idempotency | Upserts converge to Strava's current state; duplicates and reordering are safe (R5). | ✅ |
 | II. Rate limits | Header-driven budget, 429 deferral, serial consumer; the import is paged at 200 per request (R6, R8). Deferrals re-send the message (≤ 12 h delay) so they never use up its retries and never drop work. | ✅ |
 | II. Capacity | Designed for ≤ 10 riders. "Team full" handled (R14). | ✅ |
-| II. No polling | Activities are never polled. The daily club-membership check is a scheduled Strava lookup (≤ 20 requests/day); see Complexity Tracking. The re-read after a figure is added runs once per rider, not periodically (R20). | ✅ justified |
+| II. No polling | Activities are never polled. The daily club-membership check is a scheduled Strava lookup (≤ 20 requests/day); see Complexity Tracking. The re-read after a figure is added runs once per rider, not periodically (R20). A flag Strava sets later follows on the next read; it is never polled for. | ✅ justified |
 | III. Rider content | No description edits in this feature. | ✅ n/a |
 | IV. Serverless, minimal deps | Workers + D1 + Queues + cron; no new runtime dependency. i18n uses typed catalogs and built-in `Intl`, not a library (R16). | ✅ |
 | IV. Free tier | Queues, cron and D1 are all within free limits (see Constraints). | ✅ |
@@ -169,6 +189,12 @@ messages each ([contracts/messages.md](contracts/messages.md)).
   contracts/strava-api-usage.md, and it isn't polling: each rider is read once
   per figure added, not periodically. It costs about one request per rider,
   and the rate-limit rules apply unchanged. No new table, route or dependency.
+- The Strava-flag revision adds one column, `activities.is_flagged`, listed in
+  FR-013 and disclosed by FR-002, and raises `ACTIVITY_FIGURES_VERSION` to 2.
+  It reuses the R20 re-read unchanged: no new rider column, message kind, cron
+  step, endpoint, table, route or dependency. Migration `0003` only adds a
+  nullable column, so the previously deployed code keeps working while CI
+  applies it before publishing.
 
 ## Project Structure
 
@@ -195,7 +221,8 @@ specs/001-strava-connect-webhook/
 ```text
 migrations/
 ├── 0001_init.sql            # riders, strava_credentials, activities, failed_work, strava_rate_limit
-└── 0002_activity_points_figures.sql  # activities: elapsed_time_s, is_manual, is_trainer; riders: figures_version
+├── 0002_activity_points_figures.sql  # activities: elapsed_time_s, is_manual, is_trainer; riders: figures_version
+└── 0003_activity_flagged.sql         # activities: is_flagged
 
 public/
 └── strava/                  # Strava brand assets (static assets binding), unmodified
@@ -226,7 +253,7 @@ src/
 │   ├── client.ts            # the endpoints in contracts/strava-api-usage.md
 │   ├── tokens.ts            # refresh-before-use, rotation, revoke
 │   ├── rate-limit.ts        # budget from headers, next-window calculation
-│   └── activity.ts          # Strava response → allow-listed activity record
+│   └── activity.ts          # Strava response → allow-listed activity record, ACTIVITY_FIGURES_VERSION
 ├── work/
 │   ├── messages.ts          # queue message types + validation
 │   ├── consumer.ts          # common rules (rider check, budget, retries, failed_work)
