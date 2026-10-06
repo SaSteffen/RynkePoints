@@ -1,0 +1,58 @@
+name: PR policy
+
+# `edited` re-runs these cheap checks on a title change without re-running the test suite.
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Job names are the required-check contexts in .github/rulesets/*.json.
+# Renaming a job means updating both ruleset files in the same change.
+# Untrusted values (title, branch and repo names) reach the shell only through env:.
+jobs:
+  # Lints the header GitHub gives the squash commit: "<title> (#<number>)".
+  # Linting the bare title would let a 95–100 character title through.
+  pr-title:
+    name: pr-title
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: printf '%s (#%s)\n' "$PR_TITLE" "$PR_NUMBER" | pnpm commitlint --verbose
+
+  # Only develop or hotfix/* of this repository may target main. The job always
+  # runs (no job-level if:), so its result is never "skipped".
+  pr-source:
+    name: pr-source
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          THIS_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          case "$BASE_REF|$HEAD_REPO|$HEAD_REF" in
+            main\|"$THIS_REPO"\|develop)
+              echo "Release from develop into main." ;;
+            main\|"$THIS_REPO"\|hotfix/*)
+              echo "Hotfix into main." ;;
+            main\|*)
+              echo "::error::Pull requests into main must come from develop or a hotfix/* branch of this repository."
+              exit 1 ;;
+            *)
+              echo "Base is $BASE_REF: no source restriction." ;;
+          esac

@@ -2,9 +2,10 @@
 pre-commit:
   commands:
     # Lint + format staged files, autofixing what it can and re-staging the
-    # fixes. Anything left unfixed fails the commit — fix it by hand.
+    # fixes. Anything left unfixed fails the commit — fix it by hand. No glob:
+    # Biome skips file types it doesn't know, so the hook checks the same files
+    # as `pnpm lint` in CI (SVG, CSS, HTML, …), not just JS/TS/JSON.
     biome:
-      glob: "*.{js,ts,json,jsonc}"
       run: pnpm biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
       stage_fixed: true
     typecheck:

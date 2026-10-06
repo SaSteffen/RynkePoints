@@ -29,6 +29,25 @@
   provide (e.g. Danish)? → A: English. German is only chosen when the browser
   explicitly prefers it; German stays the default when the browser names no
   language at all.
+- Q: Must the elapsed time of an activity be stored too? → A: Yes. Feature
+  003-rynke-evaluation (FR-005a) excludes rides whose paused time (elapsed minus
+  moving time) is more than half of their moving time, so elapsed time is needed
+  to compute points. It comes with the activity data already fetched, so no extra
+  Strava request is needed.
+- Q: Must Strava's manual flag of an activity be stored too? → A: Yes. Feature
+  003-rynke-evaluation (FR-005b) gives manually entered activities no points, so
+  the flag is needed to compute points. It comes with the activity data already
+  fetched.
+- Q: Must Strava's trainer flag of an activity be stored too? → A: Yes. Feature
+  003-rynke-evaluation (FR-013a) treats indoor-trainer rides like virtual rides,
+  and an indoor ride without a virtual-ride app often has an ordinary ride sport
+  type; only the trainer flag tells it apart. It comes with the activity data
+  already fetched.
+- Q: What happens to activities stored before elapsed time, the manual flag and
+  the trainer flag were added? → A: They are read from Strava again once, for
+  every connected rider, within Strava's limits (FR-021). Until then their new
+  figures are unknown, never guessed. The explanation shown before connecting
+  (FR-002) names all of them.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -102,7 +121,9 @@ the stored activity records after each one.
 
 1. **Given** a connected rider, **When** Strava reports a new cycling activity for
    them, **Then** RynkePoints stores that activity's key figures (sport type, start
-   date and time, distance, moving time, elevation gain) linked to the rider.
+   date and time, distance, moving time, elapsed time, elevation gain, whether it
+   was entered manually, whether it was ridden on an indoor trainer) linked to
+   the rider.
 2. **Given** a stored activity, **When** Strava reports that the activity was
    updated, **Then** the stored figures are refreshed to match Strava's current
    state.
@@ -206,6 +227,13 @@ and no one else's.
   import is still running is stored exactly once.
 - **Activity changes sport type**: a stored ride changed to a non-cycling type is
   removed; a non-cycling activity changed to a cycling type is stored.
+- **Activities stored before a figure was added to FR-013**: when FR-013 gains a
+  figure (elapsed time, manual flag, trainer flag), activities already stored
+  lack it. Every
+  connected rider's activities since the season start are read from Strava once
+  more, within Strava's limits (FR-021), and the figure is filled in. Until then
+  it is recorded as unknown, never as a guessed value such as 0, "not manual" or
+  "not on a trainer".
 - **Strava rate limit reached**: notifications keep being acknowledged; fetching
   the details is deferred and retried later. No notification is lost.
 - **Strava temporarily unavailable**: same as rate limit — deferred and retried
@@ -240,7 +268,7 @@ and no one else's.
   Strava" button and attribution in the variant matching the page language
   (FR-028).
 - **FR-002**: Before redirecting to Strava, the system MUST tell the rider in plain
-  language which data will be read, what it is used for, how to leave, and how
+  language which data will be read (every figure listed in FR-013), what it is used for, how to leave, and how
   long deleted data remains in the hosting platform's backups (FR-022a).
 - **FR-003**: The system MUST request only the permission to read the rider's
   activities, at the level defined in FR-005; it MUST NOT request permission to
@@ -288,7 +316,9 @@ and no one else's.
 - **FR-013**: For created and updated activities, the system MUST fetch the
   activity's current state from Strava and store only: Strava activity ID, owning
   rider, sport type, start date and time (with the rider's local time zone),
-  distance, moving time and total elevation gain.
+  distance, moving time, elapsed time (start to finish, including pauses), total
+  elevation gain, whether the activity was entered manually (Strava's manual
+  flag) and whether it was ridden on an indoor trainer (Strava's trainer flag).
 - **FR-014**: The system MUST NOT store GPS tracks, route maps/polylines, start or
   end coordinates, photos, heart rate, power, or any other activity data not listed
   in FR-013.
@@ -385,8 +415,8 @@ and no one else's.
   with the Rider.
 - **Activity**: one cycling activity of a Rider, identified by its Strava activity
   ID. Holds sport type, start date/time and time zone, distance, moving time,
-  elevation gain, and when it was last refreshed from Strava. Belongs to exactly one
-  Rider; deleted with the Rider.
+  elapsed time, elevation gain, manual flag, trainer flag, and when it was last
+  refreshed from Strava. Belongs to exactly one Rider; deleted with the Rider.
 - **Pending Activity Work**: a unit of deferred processing triggered by a Strava
   notification or a past-season import (rider, activity or import position, kind
   of change, attempt count). Exists only until processed or abandoned; never holds

@@ -1,14 +1,25 @@
 import type { Ctx } from "./ctx";
 import { route } from "./http/router";
 import { CATALOGS } from "./i18n/catalogs";
+import { activityEvent } from "./work/activity-event";
+import { checkMembership } from "./work/check-membership";
 import { type Handlers, processBatch } from "./work/consumer";
+import { deleteRider } from "./work/delete-rider";
 import { importPage } from "./work/import-page";
+import {
+	expireReconnectRiders,
+	fanOutMembershipChecks,
+	requeueFailedWork,
+} from "./work/scheduled";
 
 // Entry points. Each builds a Ctx and delegates; tests call the exported
 // handle* functions with their own Ctx (research R12).
 
 const handlers: Handlers = {
+	"activity-event": activityEvent,
 	"import-page": importPage,
+	"check-membership": checkMembership,
+	"delete-rider": deleteRider,
 };
 
 function makeCtx(env: Env): Ctx {
@@ -33,9 +44,25 @@ export function handleQueue(
 
 export async function handleScheduled(
 	_controller: ScheduledController,
-	_ctx: Ctx,
+	ctx: Ctx,
 ): Promise<void> {
-	// Daily membership fan-out and failed_work re-enqueue arrive with US3.
+	// Independent steps, in contract order: one failing (D1, Queues) must not
+	// skip the others, but the run still fails so it shows up in logs.
+	let failure: unknown;
+	let failed = false;
+	for (const step of [
+		fanOutMembershipChecks,
+		expireReconnectRiders,
+		requeueFailedWork,
+	]) {
+		try {
+			await step(ctx);
+		} catch (err) {
+			if (!failed) failure = err;
+			failed = true;
+		}
+	}
+	if (failed) throw failure;
 }
 
 export default {

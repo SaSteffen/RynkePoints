@@ -1,0 +1,161 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+  # Re-deploy: on main it re-runs the checks and deploys the tip of main. No inputs,
+  # so a dispatch can't pick a commit (research R16).
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Outdated PR runs are cancelled. Pushes and dispatches on main/develop always run
+# to the end, so runs on main queue one at a time (research R14).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# The six check jobs (here and in pr-policy.yml) are the required-check contexts in
+# .github/rulesets/*.json. Renaming one means updating both ruleset files in the same
+# change. deploy-gate and deploy are not contexts and must never be added to them.
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - run: pnpm lint --reporter=github
+
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - run: pnpm typecheck
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - run: pnpm test
+
+  # Merge commits ("Merge pull request #…", "Merge branch …") are skipped by the
+  # config-conventional default ignores, so release and sync PRs need no special case.
+  commit-messages:
+    name: commit-messages
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup
+      - env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: pnpm commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+
+  # Refuses to deploy a commit older than the live one, e.g. on a re-run of an old
+  # run (research R14, contracts/deploy.md). No environment, so a skip records nothing.
+  deploy-gate:
+    name: deploy-gate
+    needs: [lint, typecheck, test]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      deployments: read
+    outputs:
+      deploy: ${{ steps.decide.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: decide
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          # Newest first. The first one whose newest status is success is live;
+          # older successes are inactive, failed ones failure.
+          deployments=$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=production&per_page=100" --jq '.[] | "\(.id) \(.sha)"')
+          live_sha=""
+          while read -r id sha; do
+            [ -n "$id" ] || continue
+            state=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=1" --jq '.[0].state // ""')
+            if [ "$state" = success ]; then
+              live_sha=$sha
+              break
+            fi
+          done <<< "$deployments"
+
+          if [ -z "$live_sha" ]; then
+            deploy=true
+            echo "First deployment to production."
+          elif [ "$live_sha" = "$GITHUB_SHA" ]; then
+            deploy=true
+            echo "Re-deploying the live commit $live_sha."
+          elif git merge-base --is-ancestor "$GITHUB_SHA" "$live_sha"; then
+            deploy=false
+            echo "::notice::A newer commit ($live_sha) is already deployed; skipping $GITHUB_SHA."
+          else
+            # 1 means newer; anything else (e.g. 128, unknown commit) is an error.
+            rc=$?
+            if [ "$rc" -ne 1 ]; then
+              exit "$rc"
+            fi
+            deploy=true
+            echo "Deploying $GITHUB_SHA; live is $live_sha."
+          fi
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+
+  # Migrations first, then the code; wrangler deploy stays the last step (research
+  # R19–R21). The secret is only in the env of the two wrangler steps (R22).
+  deploy:
+    name: deploy
+    needs: deploy-gate
+    if: needs.deploy-gate.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: https://trhh-rynke-coins.link
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Apply D1 migrations
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler d1 migrations apply rynke-points --remote
+      - name: Deploy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler deploy --message "$GITHUB_SHA (run $GITHUB_RUN_ID)"

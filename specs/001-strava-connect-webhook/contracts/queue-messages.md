@@ -67,6 +67,27 @@ imports started afterwards (spec Edge Cases).
 3. If 200 items came back, enqueue `page+1` with the same `after`. Otherwise set
    `import_status=done`.
 
+### `reread-page`
+
+```ts
+{ kind: "reread-page"; athleteId: number; page: number; after: number }
+```
+
+This is the one-time re-read for a rider whose stored activities lack a figure
+that was added to FR-013 later (research R20). It is enqueued by the daily cron
+(step 4), and `after` is the season start at that moment, carried from page to
+page.
+
+1. `GET /athlete/activities?after=<after>&per_page=200&page=<page>`.
+2. Upsert the cycling activities with the same scope rule as `import-page`.
+   `import_status` is not touched.
+3. If 200 items came back, enqueue `page+1` with the same `after`.
+4. Otherwise, for every row of the rider that still has a `NULL` figure
+   (`elapsed_time_s`, `is_manual` or `is_trainer`), enqueue
+   `activity-event { aspect: "update", changed: [] }` (batches of 100). The
+   `activity-event` decision table then fills the row or deletes it. This step
+   is not repeated, so a field Strava never sends stays `NULL`.
+
 ### `check-membership`
 
 ```ts
@@ -106,3 +127,8 @@ Cron: `17 3 * * *` (daily, 03:17 UTC).
    logging each one as given up (FR-019). Re-enqueue the remaining rows and keep
    them: a row disappears when its message succeeds (rule 5), is given up, or its
    rider is deleted.
+4. For every rider with `status=connected` and
+   `figures_version < ACTIVITY_FIGURES_VERSION`, enqueue
+   `reread-page { page: 1, after: <current season start> }`, then set
+   `figures_version = ACTIVITY_FIGURES_VERSION` (research R20). Send before
+   marking: if marking fails, the next run sends again, which is harmless.

@@ -21,7 +21,7 @@ SC-010, SC-011) cut across all stories:
 - Their core (catalogs, locale resolution, layout with switcher, `POST /lang`,
   `/notice/:id`) is in Phase 2 (Foundational).
 - Each story's page tests assert that story's German texts.
-- Phase 7 adds the cross-page language guards.
+- Phase 8 adds the cross-page language guards.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -526,7 +526,7 @@ that the `activities` table matches the fake Strava's current state exactly.
 
 ### Tests for User Story 2 (write first, confirm red) ⚠️
 
-- [ ] T057 [P] [US2] Integration test in `test/integration/webhook.test.ts` (FR-010–FR-012, SC-003):
+- [X] T057 [P] [US2] Integration test in `test/integration/webhook.test.ts` (FR-010–FR-012, SC-003):
   - **validation `GET /strava/webhook/test-verify-token`**:
     - with `hub.mode=subscribe&hub.verify_token=test-verify-token&hub.challenge=abc` → 200 `application/json` `{"hub.challenge":"abc"}`;
     - wrong `hub.verify_token` → 403;
@@ -540,7 +540,7 @@ that the `activities` table matches the fake Strava's current state exactly.
     - a non-deauth athlete update → 200 with nothing queued.
   - **no outbound calls**: the fake Strava records zero calls across all webhook requests.
   - **not rider-facing**: webhook responses are not HTML and carry no `Content-Language` (they aren't catalogued).
-- [ ] T058 [P] [US2] Integration test in `test/integration/activity-event.test.ts` (FR-013–FR-018, SC-004):
+- [X] T058 [P] [US2] Integration test in `test/integration/activity-event.test.ts` (FR-013–FR-018, SC-004):
   - **create**: stores the mapped record and nothing else (no polyline or name columns exist; also assert the values).
   - **updates**:
     - `update` with `changed: ["type"]` after the fake switched it to `Run` → row deleted;
@@ -553,12 +553,12 @@ that the `activities` table matches the fake Strava's current state exactly.
   - **retries**:
     - fake 503 → retried with `backoffSeconds(attempts)`;
     - fake 429 → re-sent with delay to the next 15-minute window and acked, no further call;
-    - 503 on attempt 10 → a `failed_work` row.
-- [ ] T059 [P] [US2] Integration test in `test/integration/scheduled-failed-work.test.ts` (R7, FR-019, SC-005): with `failed_work` rows whose `first_failed_at` is 1 day and 8 days ago (the 8-day row's `failed_at` only 1 day ago), `handleScheduled` re-enqueues only the 1-day row's message and keeps that row, deletes the 8-day row with one `console.error` "giving up" line, and makes zero fake Strava calls.
+    - 503 on the last attempt (`MAX_ATTEMPTS`, i.e. after 10 retries) → a `failed_work` row.
+- [X] T059 [P] [US2] Integration test in `test/integration/scheduled-failed-work.test.ts` (R7, FR-019, SC-005): with `failed_work` rows whose `first_failed_at` is 1 day and 8 days ago (the 8-day row's `failed_at` only 1 day ago), `handleScheduled` re-enqueues only the 1-day row's message and keeps that row, deletes the 8-day row with one `console.error` "giving up" line, and makes zero fake Strava calls.
 
 ### Implementation for User Story 2
 
-- [ ] T060 [US2] Implement `src/http/webhook.ts`:
+- [X] T060 [US2] Implement `src/http/webhook.ts`:
   - `GET` validation per contracts/http-routes.md;
   - `POST` checks: path secret equals `STRAVA_WEBHOOK_VERIFY_TOKEN` (constant-time compare), `Content-Length`/body ≤ 1000 bytes, shape validation, `subscription_id === subscriptionId`;
   - map `object_type=activity` to an `activity-event` message and `ctx.queue.send(...)`, then return 200;
@@ -566,8 +566,8 @@ that the `activities` table matches the fake Strava's current state exactly.
   - wire `/strava/webhook/:secret` in `src/http/router.ts` outside the i18n branch.
 
   Makes T057 green (the deauth branch follows in US3).
-- [ ] T061 [US2] Implement `src/work/activity-event.ts` with the decision table in contracts/queue-messages.md (`delete` → `deleteActivity`; `changed` exactly `["title"]` → no-op; otherwise `GET /activities/{id}` → 404/403/non-cycling/private-without-read_all → `deleteActivity`, else `upsertActivity`). Register it in the `src/index.ts` handlers map. Makes T058 green.
-- [ ] T062 [US2] Implement `src/work/scheduled.ts` with `requeueFailedWork(ctx)` (delete and log rows whose `first_failed_at` is more than 7 days ago, then re-enqueue the rest and keep them), and call it from `handleScheduled` in `src/index.ts`. Makes T059 green.
+- [X] T061 [US2] Implement `src/work/activity-event.ts` with the decision table in contracts/queue-messages.md (`delete` → `deleteActivity`; `changed` exactly `["title"]` → no-op; otherwise `GET /activities/{id}` → 404/403/non-cycling/private-without-read_all → `deleteActivity`, else `upsertActivity`). Register it in the `src/index.ts` handlers map. Makes T058 green.
+- [X] T062 [US2] Implement `src/work/scheduled.ts` with `requeueFailedWork(ctx)` (delete and log rows whose `first_failed_at` is more than 7 days ago, then re-enqueue the rest and keep them), and call it from `handleScheduled` in `src/index.ts`. Makes T059 green.
 
 **Checkpoint**: US1 + US2 together form the MVP data pipeline (quickstart §1 rows
 "US2 …", "Webhook ack", "Rate limit", "Transient errors").
@@ -585,7 +585,7 @@ any table, and later messages for them have no effect.
 
 ### Tests for User Story 3 (write first, confirm red) ⚠️
 
-- [ ] T063 [P] [US3] Integration test in `test/integration/delete-rider.test.ts` (FR-022–FR-024):
+- [X] T063 [P] [US3] Integration test in `test/integration/delete-rider.test.ts` (FR-022–FR-024):
   - **queuing**: a webhook `POST` with `object_type: "athlete", updates: { authorized: "false" }` queues `{ kind: "delete-rider", athleteId, reason: "deauthorized", revoke: false }`.
   - **deletion**: processing it removes the rider's rows from `riders`, `strava_credentials`, `activities` and `failed_work`, with zero fake calls.
   - **with `revoke: true`**:
@@ -594,10 +594,10 @@ any table, and later messages for them have no effect.
     - a `needs_reconnect` rider → processed (not dropped), rows deleted;
     - fake 400 or 401 on revoke → rows deleted;
     - fake 503 → retried;
-    - 503 on attempt 10 → rows deleted anyway, and no `failed_work` row is written.
+    - 503 on the last attempt (`MAX_ATTEMPTS`, i.e. after 10 retries) → rows deleted anyway, and no `failed_work` row is written.
   - **no resurrection**: a later `activity-event` for the deleted athlete creates nothing.
   - **reconnect after deletion**: running the callback again yields a fresh rider with `import_status='pending'` and no old activities.
-- [ ] T064 [P] [US3] Integration test in `test/integration/disconnect.test.ts` (FR-023, FR-022a), German unless noted:
+- [X] T064 [P] [US3] Integration test in `test/integration/disconnect.test.ts` (FR-023, FR-022a), German unless noted:
   - **confirmation page**: `GET /me/disconnect` (signed in) shows "Daten löschen?", the `disconnect.explain` text, a POST form with the button "Ja, alles löschen", an "Abbrechen" link to `/me`, and the switcher with `next` = `/me/disconnect`. Signed out → `302 /`.
   - **refused**: `POST /me/disconnect` without a session, or with a missing or foreign `Origin`, gives `403` with the German "Anfrage abgelehnt" page, and nothing is deleted.
   - **success**:
@@ -607,7 +607,7 @@ any table, and later messages for them have no effect.
   - **revoke failing twice (503, 503)**: rows still deleted, `303 /notice/deleted-revoke-failed`, and that page contains „Meine Apps“.
   - **survives a language switch**: `POST /lang` with `lang=en` and `next=/notice/deleted` → English "Your data has been deleted", with nothing re-submitted.
   - **sign-out**: `POST /logout` with same-origin clears the cookie and redirects `302 /`.
-- [ ] T065 [P] [US3] Integration test in `test/integration/membership-check.test.ts` (FR-004a, SC-006):
+- [X] T065 [P] [US3] Integration test in `test/integration/membership-check.test.ts` (FR-004a, SC-006):
   - `handleScheduled` queues one `check-membership` per `status='connected'` rider (none for `needs_reconnect`);
   - **member**: `membership_checked_at` is updated;
   - **not a member**: `{ kind: "delete-rider", reason: "left-club", revoke: true }` is queued, and processing it deletes all rows;
@@ -616,12 +616,12 @@ any table, and later messages for them have no effect.
 
 ### Implementation for User Story 3
 
-- [ ] T066 [US3] Implement `src/work/delete-rider.ts`:
-  - if `revoke`, call `revokeStoredToken` (refresh token, no refresh; on transient errors, return `transient` unless `attempts >= 10`, in which case continue; any other result continues);
+- [X] T066 [US3] Implement `src/work/delete-rider.ts`:
+  - if `revoke`, call `revokeStoredToken` (refresh token, no refresh; on transient errors, return `transient` unless it is the last attempt (`attempt.isLastAttempt`), in which case continue; any other result continues);
   - then `deleteRider`;
   - register it in the handlers map, and make sure `src/work/consumer.ts` processes `delete-rider` for `needs_reconnect` riders and never writes it to `failed_work`.
-- [ ] T067 [US3] Extend `src/http/webhook.ts`: `object_type=athlete` with `updates.authorized === "false"` → queue a `delete-rider` with `reason: "deauthorized"` and `revoke: false`. Together with T066 this makes T063 green.
-- [ ] T068 [US3] Extend `src/http/me.ts` and wire the routes in `src/http/router.ts`:
+- [X] T067 [US3] Extend `src/http/webhook.ts`: `object_type=athlete` with `updates.authorized === "false"` → queue a `delete-rider` with `reason: "deauthorized"` and `revoke: false`. Together with T066 this makes T063 green.
+- [X] T068 [US3] Extend `src/http/me.ts` and wire the routes in `src/http/router.ts`:
   - `GET /me/disconnect`: confirmation page from `disconnect.*`, `path: "/me/disconnect"`.
   - `POST /me/disconnect`:
     1. require a session and `isSameOrigin`, else the `403` `error.forbidden` page;
@@ -632,7 +632,7 @@ any table, and later messages for them have no effect.
   - Add the `me.disconnect.button` link on `/me`.
 
   Makes T064 green.
-- [ ] T069 [US3] Implement `src/work/check-membership.ts`:
+- [X] T069 [US3] Implement `src/work/check-membership.ts`:
   - `member` → `setMembershipChecked`;
   - `not-member` → enqueue `delete-rider` (`left-club`, `revoke: true`);
   - `inconclusive` → `transient`/`budget`.
@@ -643,7 +643,112 @@ any table, and later messages for them have no effect.
 
 ---
 
-## Phase 6: User Story 4 — Rider checks what has been imported (Priority: P3)
+## Phase 6: Activity figures for points (spec update 2026-10-06)
+
+**Goal**: every stored activity also holds its elapsed time and Strava's manual and
+trainer flags (FR-013), and the landing page names them (FR-002). Feature
+003-rynke-evaluation needs them to compute points (its FR-005a, FR-005b, FR-013a).
+Activities already stored in production are read from Strava once more to fill
+in the new figures (spec edge case "Activities stored before a figure was
+added", research R20).
+
+**Independent Test**:
+- A `create` event and an import page for synthetic activities with
+  `elapsed_time`, `manual: true` and `trainer: true` store all three. A response
+  without one of them stores `NULL` for it, never 0.
+- A rider whose rows were stored with `NULL` figures and whose `figures_version`
+  is 0 has them filled after one cron run and the resulting queue work.
+
+### Tests for the activity figures (write first, confirm red) ⚠️
+
+- [ ] T082 [P] [US2] Extend the synthetic fixture and the mapping unit test (FR-013, FR-014):
+  - `test/support/fixtures.ts`: add `manual: false` and `trainer: false` to `StravaActivityFixture` and `makeStravaActivity` (`elapsed_time: 6000` is already there).
+  - `test/unit/activity.test.ts`:
+    - the allow-list key list gains `elapsed_time_s`, `is_manual` and `is_trainer`;
+    - `elapsed_time: 6000` → `elapsed_time_s: 6000`; `manual: true` → `is_manual: 1`; `trainer: true` → `is_trainer: 1`; `false` → 0;
+    - **never guessed**: a response without `elapsed_time`, `manual` or `trainer` (key deleted from the fixture) maps that figure to `null`, not 0.
+- [ ] T083 [P] [US2] Integration test in `test/integration/db.test.ts` for migration `0002`:
+  - an upsert stores the three figures, and `listRecentActivities` returns them;
+  - an upsert with `null` figures stores `NULL`, and a later upsert with values replaces it;
+  - the CHECK constraints reject `elapsed_time_s = -1`, `is_manual = 2`, `is_trainer = 2` and `figures_version = -1`;
+  - `insertRider` stores `figures_version = ACTIVITY_FIGURES_VERSION`; a rider row inserted by raw SQL without the column gets 0 (the default that marks pre-`0002` riders);
+  - `listActivityIdsMissingFigures(db, athleteId)` returns exactly the rider's rows with any of the three figures `NULL`, never another rider's.
+- [ ] T084 [P] [US2] Extend `test/integration/activity-event.test.ts` and `test/integration/import-page.test.ts` (FR-013, FR-015):
+  - `create` for an activity with `elapsed_time: 7200`, `manual: true` and `trainer: true` stores `7200`, `1` and `1` (add the three columns to the expected row);
+  - an `update` refetch where `trainer` changed from `true` to `false` refreshes `is_trainer` to 0;
+  - an import page stores the three figures for every cycling item.
+- [ ] T085 [P] [US1] Extend `test/integration/landing.test.ts` (FR-002). The existing catalog-value assertions pass with any text, so also assert the content:
+  - German: the page contains "Gesamtzeit mit Pausen", "manuell eingetragen" and "Rollentrainer";
+  - English (`Accept-Language: en`): it contains "elapsed time including pauses", "entered manually" and "indoor trainer".
+- [ ] T086 [P] [US2] Extend `test/unit/messages.test.ts` for `reread-page` (contracts/queue-messages.md):
+  - a valid body parses;
+  - a non-positive `page`, or a negative or non-integer `after`, is rejected;
+  - unknown fields are dropped;
+  - `serializeWorkMessage` writes `kind, athleteId, page, after` in that order.
+- [ ] T087 [P] [US2] Integration test in `test/integration/reread-page.test.ts` (research R20). Seed rows with `NULL` figures via raw SQL, as `0002` leaves them:
+  - **paging**: 450 synthetic activities on fake Strava → 3 list calls, each with the `after` from the first message, and every row's figures filled;
+  - **`import_status` untouched**: `done` stays `done`, including while more pages follow;
+  - **scope rule**: a private item for a rider without `read_all` is not stored, as in `import-page`;
+  - **leftovers on the last page**: a stored row missing from the list, and a row whose summary omits `manual`, each get exactly one `activity-event { aspect: "update", changed: [] }`. Rows filled by the list and other riders' rows get none;
+  - **end to end**: processing that refetch with fake Strava answering 404 deletes the row;
+  - **budget and transient** results pass through like `import-page` (no write, nothing enqueued).
+- [ ] T088 [P] [US2] Integration test in `test/integration/scheduled-reread.test.ts` (research R20):
+  - a connected rider at `figures_version = 0` → exactly one `reread-page { page: 1, after: seasonStart(env) }`, and the version becomes `ACTIVITY_FIGURES_VERSION`;
+  - a second cron run enqueues nothing;
+  - a rider already at the current version → nothing;
+  - a `needs_reconnect` rider at 0 → nothing, and the version stays 0;
+  - if the queue send throws, the version stays 0, so the next run sends again.
+
+### Implementation for the activity figures
+
+- [ ] T089 [US2] Create `migrations/0002_activity_points_figures.sql` (data-model.md):
+  - `ALTER TABLE activities ADD COLUMN elapsed_time_s INTEGER CHECK (elapsed_time_s >= 0)`;
+  - `ALTER TABLE activities ADD COLUMN is_manual INTEGER CHECK (is_manual IN (0, 1))`;
+  - `ALTER TABLE activities ADD COLUMN is_trainer INTEGER CHECK (is_trainer IN (0, 1))`;
+  - `ALTER TABLE riders ADD COLUMN figures_version INTEGER NOT NULL DEFAULT 0 CHECK (figures_version >= 0)`.
+
+  The activity columns are nullable and have no default, because `NULL` means unknown. The rider default 0 marks every existing rider for the re-read. Never edit `0001_init.sql`: it is applied in production. `test/setup.ts` applies every migration, so no test wiring changes.
+- [ ] T090 [US2] Extend `src/strava/activity.ts`:
+  - `StravaActivity` gains optional `elapsed_time`, `manual` and `trainer`;
+  - `ActivityRecord` gains `elapsed_time_s: number | null`, `is_manual: 0 | 1 | null` and `is_trainer: 0 | 1 | null`;
+  - `toActivityRecord` maps each of them, and a field missing from the response to `null`;
+  - export `ACTIVITY_FIGURES_VERSION = 1`, with a comment that it goes up whenever the mapping gains an FR-013 figure (R20).
+
+  Makes T082 green.
+- [ ] T091 [US2] Extend `src/db/activities.ts`:
+  - the upsert writes the three columns in both the insert and the `DO UPDATE SET` part;
+  - `listRecentActivities` selects them;
+  - add `listActivityIdsMissingFigures(db, athleteId)`.
+
+  Fix the `ActivityRecord` literals in existing tests that `tsc` now rejects.
+- [ ] T092 [P] [US1] Replace `landing.dataRead` in `src/i18n/messages/de.ts` and `en.ts` with the texts from contracts/messages.md. Makes T085 green.
+- [ ] T093 [US2] Extend `src/db/riders.ts`:
+  - `Rider` gains `figuresVersion`;
+  - `insertRider` writes `ACTIVITY_FIGURES_VERSION`;
+  - add `listRidersBehindFiguresVersion(db, version)` (connected riders only) and `setFiguresVersion(db, athleteId, version)`.
+
+  Together with T089–T091 this makes T083 and T084 green.
+- [ ] T094 [US2] Add `RereadPageMessage` (`kind: "reread-page"`) to `src/work/messages.ts`: the union, `parseWorkMessage` (same checks as `import-page`) and `serializeWorkMessage`. Makes T086 green.
+- [ ] T095 [US2] Implement `src/work/reread-page.ts` per contracts/queue-messages.md:
+  - move the "map, apply the scope rule, upsert" loop out of `src/work/import-page.ts` into a helper that both handlers use, so the scope rule exists once;
+  - the handler pages like the import but never calls `setImportStatus`;
+  - on a short page it enqueues one `activity-event { aspect: "update", changed: [] }` per `listActivityIdsMissingFigures` row, using `sendBatch` in batches of 100;
+  - register it in the handler map in `src/index.ts`.
+
+  Makes T087 green, and `import-page.test.ts` stays green.
+- [ ] T096 [US2] Add `fanOutFiguresReread(ctx)` to `src/work/scheduled.ts`:
+  - for each `listRidersBehindFiguresVersion(ACTIVITY_FIGURES_VERSION)` rider, send `reread-page { page: 1, after: seasonStart(ctx.env) }`, then call `setFiguresVersion`;
+  - send before marking.
+
+  Call it from `handleScheduled` after `requeueFailedWork` (cron step 4). Makes T088 green.
+
+**Checkpoint**: `pnpm lint && pnpm typecheck && pnpm test` pass, and the quickstart §1
+rows "US2 figures for points" and "Re-read after a figure was added" are covered.
+The rollout in production follows quickstart §4: migration first, then deploy.
+
+---
+
+## Phase 7: User Story 4 — Rider checks what has been imported (Priority: P3)
 
 **Goal**: `/me` lists the rider's 20 most recent imported activities, newest first,
 and never shows another rider's data.
@@ -678,7 +783,7 @@ that `/me` shows exactly that rider's 20 newest activities in order.
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 8: Polish & Cross-Cutting Concerns
 
 - [ ] T072 [P] Integration test in `test/integration/language-rendering.test.ts` (SC-010, SC-011, FR-029a). It covers every rider-facing page:
   - **pages**: `/` signed out; `/me` for a connected rider with activities; `/me` for a `needs_reconnect` rider; `/me/disconnect`; every `/notice/:id`; the `404` page; the `403` page.
@@ -744,8 +849,12 @@ that `/me` shows exactly that rider's 20 newest activities in order.
 - **US1 (Phase 3)**: depends on Foundational.
 - **US2 (Phase 4)**: depends on Foundational. Independent of US1 (tests seed riders via `seedRider`), but shares `src/http/router.ts` and `src/index.ts`, so edits there are sequential.
 - **US3 (Phase 5)**: depends on Foundational. T067 extends the webhook from T060 (US2), and T068 extends `me.ts` from T056 (US1). The deletion handler itself (T066) is independent.
-- **US4 (Phase 6)**: depends on T056 (the `/me` page from US1).
-- **Polish (Phase 7)**: after the desired stories. T072 and T073 need every rider-facing page (US1, US3 and US4 done).
+- **Activity figures (Phase 6)**: depends on US1, US2 and US3 (all done). Implement it next. Independent of US4.
+  - T089 (migration) comes before T091 and T093, because the columns must exist.
+  - T090 comes before T093, which needs `ACTIVITY_FIGURES_VERSION`.
+  - T091, T093 and T094 come before T095, and T095 before T096.
+- **US4 (Phase 7)**: depends on T056 (the `/me` page from US1).
+- **Polish (Phase 8)**: after the desired stories. T072 and T073 need every rider-facing page (US1, US3 and US4 done). T075 asserts the `activities` columns from data-model.md, so it needs Phase 6.
 
 ### User Story Dependencies
 
@@ -771,6 +880,7 @@ that `/me` shows exactly that rider's 20 newest activities in order.
 - US1: T046, T047, T050 and T051 in parallel (T048/T049 share callback fixtures, so write them in sequence); T052 alongside T053.
 - US2: T057, T058 and T059 in parallel.
 - US3: T063, T064 and T065 in parallel.
+- Activity figures: T082–T088 in parallel; T092 alongside T089–T091.
 - Polish: T072–T077 in parallel.
 - After Foundational, US1 and US2 can proceed in parallel by different people, coordinating on `src/http/router.ts` and the handler map in `src/index.ts`.
 
@@ -828,8 +938,12 @@ Task: "Implement activity-event handler in src/work/activity-event.ts"
 2. + US1 → connect works (maintainer-only test in production possible).
 3. + US2 → activities arrive.
 4. + US3 → safe to invite riders (deletion paths complete).
-5. + US4 → riders can see their imported rides.
-6. Polish → language guards, README, schema and logging guards, full quickstart
+5. + Activity figures → stored activities hold everything feature
+   003-rynke-evaluation needs. Activities already in production are filled by
+   the one-time re-read after the next cron. Roll out per quickstart §4:
+   migration `0002` before the deploy.
+6. + US4 → riders can see their imported rides.
+7. Polish → language guards, README, schema and logging guards, full quickstart
    validation. Then the maintainer runs the manual production steps in
    quickstart §3, including the per-locale Strava brand assets.
 

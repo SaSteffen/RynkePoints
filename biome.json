@@ -2,7 +2,13 @@
 	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
 	"vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
 	"files": {
-		"includes": ["**", "!.specify", "!.claude", "!worker-configuration.d.ts"]
+		"includes": [
+			"**",
+			"!.specify",
+			"!.claude",
+			"!worker-configuration.d.ts",
+			"!public/strava"
+		]
 	},
 	"formatter": { "enabled": true },
 	"linter": { "enabled": true, "rules": { "preset": "recommended" } },

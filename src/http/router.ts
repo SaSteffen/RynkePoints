@@ -5,12 +5,20 @@ import { handleCallback, handleConnect } from "./auth";
 import { notFound } from "./errors";
 import { handleLanding } from "./landing";
 import { handleLang } from "./lang";
-import { handleMe } from "./me";
+import {
+	handleDisconnect,
+	handleDisconnectPage,
+	handleLogout,
+	handleMe,
+} from "./me";
 import { handleNotice } from "./notice";
+import { handleWebhook } from "./webhook";
 
 // A small path switch (research R13). `/health` and the Strava webhook answer
 // in plain English; every other route is rider-facing and gets an I18n for the
 // language resolved once per request.
+
+const WEBHOOK_PREFIX = "/strava/webhook/";
 
 export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	const url = new URL(request.url);
@@ -18,6 +26,9 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	const method = request.method;
 
 	if (path === "/health") return new Response("ok");
+	if (path.startsWith(WEBHOOK_PREFIX)) {
+		return handleWebhook(request, path.slice(WEBHOOK_PREFIX.length), ctx);
+	}
 
 	const i18n = createI18n(resolveLocale(request, ctx.catalogs), ctx.catalogs);
 
@@ -31,13 +42,22 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleCallback(request, ctx);
 			case "/me":
 				return handleMe(request, ctx, i18n);
+			case "/me/disconnect":
+				return handleDisconnectPage(request, ctx, i18n);
 		}
 		if (path.startsWith("/notice/")) {
 			return handleNotice(path.slice("/notice/".length), ctx, i18n);
 		}
 	}
-	if (method === "POST" && path === "/lang") {
-		return handleLang(request, ctx, i18n);
+	if (method === "POST") {
+		switch (path) {
+			case "/lang":
+				return handleLang(request, ctx, i18n);
+			case "/me/disconnect":
+				return handleDisconnect(request, ctx, i18n);
+			case "/logout":
+				return handleLogout(request, i18n);
+		}
 	}
 	return notFound(i18n, path);
 }
