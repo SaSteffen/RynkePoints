@@ -3,8 +3,9 @@
 The complete set of message IDs for this feature. These are the keys of
 `src/i18n/messages/de.ts` and `src/i18n/messages/en.ts` (research R16).
 
-- German is the default and fallback locale. Tests that assert on page output
-  assert the **German** text below (constitution, Language). Tests for
+- German is the source catalog and the language when the browser states no
+  preference (research R17). Tests that assert on page output assert the
+  **German** text below (constitution, Language). Tests for
   `Accept-Language: en` or `rp_lang=en` assert the English text.
 - Both catalogs MUST have exactly these keys, no empty values, and the same
   `{placeholders}` per message (FR-028, SC-010).

@@ -147,8 +147,8 @@ Rider-facing text is code in `src/i18n/messages/<locale>.ts`, not data. The
 inventory of message IDs with German and English text is in
 [contracts/messages.md](contracts/messages.md).
 
-- `de` is the source catalog. It defines `MessageId`, and it is the default and
-  fallback locale.
+- `de` is the source catalog. It defines `MessageId`, and it is the language when
+  the browser states no preference (research R17).
 - Every other catalog has exactly the same keys (enforced by `tsc` and a parity
   test), no empty values, and the same `{placeholder}` set per message.
 - `meta.languageName` must be unique across catalogs, because it labels the

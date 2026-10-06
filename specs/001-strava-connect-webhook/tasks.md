@@ -203,7 +203,7 @@ and test support used by every story.
   - **`t`**:
     - `t("me.greeting", { firstName: "Testrider A" })` gives "Hallo Testrider A!" for `de` and "Hi Testrider A!" for `en`;
     - a missing param throws;
-    - a catalog cast to lack a key falls back to the `de` text (default and fallback locale).
+    - a catalog cast to lack a key falls back to the `de` text (the source catalog).
   - **`tHtml`**:
     - `tHtml("landing.who", { clubLink: html\`<a href="x">…</a>\` })` keeps the link markup;
     - a plain-string param containing `<b>` is escaped;

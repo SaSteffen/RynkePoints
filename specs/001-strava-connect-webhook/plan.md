@@ -110,7 +110,7 @@ messages each ([contracts/messages.md](contracts/messages.md)).
 | IV. Recomputable points | No points yet. Stored activity data is the input future rules will recompute from. | ✅ n/a |
 | V. Test-first, Strava mocked | Red-green per task; fake Strava, local bindings only (R12). Locale resolution, catalog parity, switcher and German-default rendering each get a failing test first. | ✅ |
 | Language: German by default | Every rider page, button, status, notice, error page and the privacy text resolves to `de` unless the visitor picks English or their browser prefers it (R17). Strava's approval screen is outside the app's control. No Strava description block, notifications or other rider-facing output exist in this feature. | ✅ |
-| Language: translation strings | No rider-facing copy in templates or logic; everything comes from `src/i18n/messages/<locale>.ts` by message ID (contracts/messages.md). A pseudo-locale test catches hard-coded text (R18). `de` is the default and fallback. | ✅ |
+| Language: translation strings | No rider-facing copy in templates or logic; everything comes from `src/i18n/messages/<locale>.ts` by message ID (contracts/messages.md). A pseudo-locale test catches hard-coded text (R18). `de` is the source catalog every locale must match and the language when the browser states no preference (R17). | ✅ |
 | Language: new locale = strings only | Add a catalog file and register it in `src/i18n/catalogs.ts`. Switcher, resolution and validation iterate over the registry; no page or processing logic changes (FR-030, R16). | ✅ |
 | Language: English for developers | Code, identifiers, logs, schema, JSON fields, test names, commits and these docs are English. Webhook and health responses aren't catalogued. | ✅ |
 | Language: Strava assets | German variant where Strava provides one, otherwise Strava's original; never re-lettered (R19). | ✅ open: German variant availability unconfirmed |
@@ -165,7 +165,7 @@ src/
 ├── config.ts                # typed env access, cycling sport types, season start
 ├── i18n/
 │   ├── messages/
-│   │   ├── de.ts            # source catalog: defines MessageId (default + fallback)
+│   │   ├── de.ts            # source catalog: defines MessageId
 │   │   └── en.ts            # typed as Catalog → tsc enforces key parity
 │   ├── catalogs.ts          # registry { de, en }, Locale, DEFAULT_LOCALE, FOREIGN_LOCALE
 │   ├── resolve.ts           # resolveLocale(request, catalogs): cookie > Accept-Language > en > de
