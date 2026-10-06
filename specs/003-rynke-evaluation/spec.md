@@ -35,9 +35,15 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
   elevation Rynke; "solo" in the sheet does not exclude team rides.
 - Q (raised by the project owner): How are rides kept from being merged or
   stretched over several days? → A: A ride whose paused time (elapsed time minus
-  moving time) is more than half of its elapsed time earns no Rynke at all. This
-  rules out multi-day recordings, recording the way to work and back as one ride,
-  and recording a whole week as one ride.
+  moving time) is more than half of its moving time earns no Rynke at all. This
+  rules out recording the way to work and back as one ride, and recording a whole
+  week as one ride.
+- Q: Is "half the ride time" half of the elapsed time or half of the moving time?
+  → A: Half of the moving time, the stricter reading (a hard limit): 4 h riding
+  with 3 h of breaks does not count.
+- Q: Is there an additional limit on a ride's total duration or on rides crossing
+  midnight? → A: No. Long rides, including overnight rides, count as long as they
+  pass the pause rule.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -75,8 +81,8 @@ the conversion, opens the PDF and checks it against this spec.
 A connected rider rides and uploads to Strava as usual. Every ride that reaches
 RynkePoints adds to their Training Rynke: 1 for every full 10 km and 5 for every
 full 1000 m of elevation gain of that ride. Leftovers below a full step are lost,
-so a 79 km ride earns 7. A ride that was paused for more than half of its
-elapsed time (e.g. the way to work and back recorded as one ride) earns nothing.
+so a 79 km ride earns 7. A ride whose breaks add up to more than half of its
+moving time (e.g. the way to work and back recorded as one ride) earns nothing.
 When they edit or delete a ride on Strava, their Training Rynke follow.
 
 **Why this priority**: Riding is where most of the 250 Training Rynke come
@@ -106,11 +112,17 @@ value.
 7. **Given** a 40 km commute recorded as one ride with 2 h moving time and 9 h
    elapsed time (7 h paused at work), **When** the balance is evaluated, **Then**
    that ride earns 0 Training Rynke.
-8. **Given** a 150 km ride with 6 h moving time and 10 h elapsed time (4 h paused),
-   **When** the balance is evaluated, **Then** it earns 15 Training Rynke from
-   distance as usual (paused time is less than half).
-9. **Given** a ride with exactly half of its elapsed time paused, **When** the
-   balance is evaluated, **Then** it counts.
+8. **Given** a 150 km ride with 6 h moving time and 2 h paused, **When** the
+   balance is evaluated, **Then** it earns 15 Training Rynke from distance as usual
+   (2 h is less than half of 6 h).
+9. **Given** a 100 km ride with 4 h moving time and 3 h paused, **When** the
+   balance is evaluated, **Then** it earns 0 Training Rynke (3 h is more than half
+   of 4 h).
+10. **Given** a ride with 6 h moving time and exactly 3 h paused, **When** the
+    balance is evaluated, **Then** it counts.
+11. **Given** a 600 km overnight ride with 24 h moving time and 6 h paused,
+    starting on one day and ending on the next, **When** the balance is evaluated,
+    **Then** it earns 60 Training Rynke from distance as usual.
 
 ---
 
@@ -209,10 +221,12 @@ re-evaluation, and check the correction is still applied exactly once.
   several uploads can therefore cost Rynke, and joining short rides into one does
   not happen automatically. This is intended: the team wants proper-length rides,
   not many short ones (see Clarifications).
-- **Merged or stretched recordings**: a ride paused for more than half of its
-  elapsed time earns no Rynke at all, neither for distance nor for elevation. This
-  covers multi-day recordings, commutes recorded as one ride with the working day
-  in between, and several rides recorded as one. Splitting is therefore never
+- **Merged or stretched recordings**: a ride whose paused time is more than half
+  of its moving time earns no Rynke at all, neither for distance nor for
+  elevation. This covers commutes recorded as one ride with the working day in
+  between, several rides recorded as one, and long rides with very long breaks.
+  Duration itself is not limited: overnight and other very long rides count when
+  they pass the pause rule. Splitting is therefore never
   rewarded (leftovers are lost, above) and merging is not either. Team-event Rynke
   are unaffected, since attendance does not depend on rides (FR-007).
 - **Activity outside the counting window**: rides before the season start or after
@@ -269,9 +283,11 @@ re-evaluation, and check the correction is still applied exactly once.
 - **FR-005**: Only activities stored by feature 001 (cycling activities of the
   rider) count; other sports never earn Rynke.
 - **FR-005a**: A ride whose paused time (elapsed time minus moving time) is more
-  than half of its elapsed time MUST earn no Training Rynke, neither from distance
-  nor from elevation gain. A ride paused for exactly half still counts. The share
-  of half is a rule value (FR-012).
+  than half of its moving time MUST earn no Training Rynke, neither from distance
+  nor from elevation gain. A ride paused for exactly half of its moving time still
+  counts. The share of half is a rule value (FR-012). There MUST be no other limit
+  on a ride's duration, and a ride spanning several calendar days MUST NOT be
+  excluded for that reason alone.
 
 **Team events**
 
