@@ -758,7 +758,7 @@ that `/me` shows exactly that rider's 20 newest activities in order.
 
 ### Tests for User Story 4 (write first, confirm red) ⚠️
 
-- [ ] T070 [US4] Integration test in `test/integration/me-activities.test.ts` (FR-025, FR-026):
+- [X] T070 [US4] Integration test in `test/integration/me-activities.test.ts` (FR-025, FR-026):
   - **list**: rider A has 25 activities and rider B has 3 → A's `/me` shows exactly A's 20 newest, newest first, and none of B's `strava_activity_id`s or values.
   - **German formatting** (no `Accept-Language`):
     - heading "Zuletzt importierte Fahrten";
@@ -772,7 +772,7 @@ that `/me` shows exactly that rider's 20 newest activities in order.
 
 ### Implementation for User Story 4
 
-- [ ] T071 [US4] Fill the "Recent rides" section in `src/http/me.ts`:
+- [X] T071 [US4] Fill the "Recent rides" section in `src/http/me.ts`:
   - use `listRecentActivities(athleteId, 20)`;
   - labels come from `me.recent.*`, sport names from `sport.<type>`, and units from `units.km`/`units.m` with `i18n.formatNumber`/`formatDate`;
   - escape everything through `html`.
