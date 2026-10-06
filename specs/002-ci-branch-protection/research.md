@@ -134,7 +134,7 @@ against the GitHub REST and ruleset docs on 2026-10-06.
 - **Hotfix naming**: `hotfix/<short-name>`, which settles the spec's open
   assumption.
 
-## R7. Up-to-date requirement per branch (FR-008) — **spec deviation, see note**
+## R7. Up-to-date requirement per branch (FR-008)
 
 - **Decision**:
   - `develop` ruleset: `strict_required_status_checks_policy: true`.
@@ -160,11 +160,8 @@ against the GitHub REST and ruleset docs on 2026-10-06.
   - The branch contains both tips, so it satisfies `develop`'s strict policy.
   - A direct `main` → `develop` PR is not used: `develop` is usually ahead, and
     "Update branch" on it would be a forbidden push to `main`.
-- **Spec impact**: FR-008 says *every* pull request must be up to date with its
-  target. This plan meets that for `develop` only. The deviation, and the `sync/`
-  branch replacing the literal "`main` → `develop` PR" of User Story 4, should go
-  into the spec: either amend FR-008 and US4, or replace the release model. This
-  is flagged for `/speckit-analyze`.
+- **Spec impact**: FR-008 and User Story 4 were amended to match this decision
+  (spec Clarifications, 2026-10-06).
 
 ## R8. Reproducible toolchain in CI (FR-011, FR-014, FR-015, SC-003)
 

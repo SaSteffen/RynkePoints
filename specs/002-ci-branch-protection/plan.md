@@ -96,17 +96,9 @@ warm pnpm cache (R8).
 | Workflow: deploys and production changes are manual | CI has no deploy step and no Cloudflare credentials. Rulesets and settings are applied by the maintainer (quickstart §1–2). | ✅ |
 | Language: English for code and docs | Workflows, job names, messages and docs are in English. No rider-facing text. | ✅ |
 
-**Post-design re-check (after Phase 1)**: still passing. Two notes for
-`/speckit-analyze`:
-
-- **FR-008 deviation**: `main`'s ruleset does not require branches to be up to
-  date (R7). Under merge-commit releases a strict `main` would block every second
-  release. The spec should be amended to require up-to-date branches for
-  `develop` only, and to state that `main` PRs are checked against the test merge
-  with current `main`.
-- **US4 wording**: the back-merge after a hotfix goes through a `sync/*` branch
-  into `develop`, not a literal `main` → `develop` PR (R7a). The outcome is the
-  same: `develop` contains the fix, gated by the same checks.
+**Post-design re-check (after Phase 1)**: still passing. The two spec deviations
+found during design (FR-008 for `main`, the US4 back-merge route; R7) have since
+been resolved by amending the spec (Clarifications, 2026-10-06).
 
 A possible follow-up is a constitution PATCH that names "every change through a
 checked pull request" in Development Workflow. It's not required by this plan.
@@ -159,6 +151,4 @@ four `pnpm`-based jobs can't drift apart.
 
 ## Complexity Tracking
 
-No constitution violations. The two spec deviations (FR-008 for `main` and the
-US4 back-merge route) are recorded under the Constitution Check above and in
-research R7.
+No constitution violations.

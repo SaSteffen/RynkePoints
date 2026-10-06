@@ -15,9 +15,17 @@ main. Every change goes through a PR."
 ### Session 2026-10-06
 
 - Q: Which merge style should be used? → A: Squash for working branch → `develop`;
-  merge commit for `develop` → `main`, hotfix → `main` and `main` → `develop`
-  back-merges. The pull request title becomes the squash commit message and is
+  merge commit for `develop` → `main`, hotfix → `main` and back-merges into
+  `develop`. The pull request title becomes the squash commit message and is
   therefore checked for Conventional Commits.
+- Q: Must pull requests into `main` be up to date with `main`, and how does a hotfix
+  get back into `develop`? → A: Only pull requests into `develop` must be up to date.
+  Pull requests into `main` are checked against the result of merging them into the
+  current `main`. Requiring `main` PRs to be up to date would block every release
+  after the first: each release leaves a merge commit only on `main`, and updating
+  `develop` to include it would be a forbidden direct push. For the same reason a
+  hotfix returns to `develop` through a back-merge branch (`sync/…`) cut from
+  `main` with `develop` merged in, not through a pull request from `main` itself.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -54,8 +62,8 @@ checks are green.
 4. **Given** a pull request whose checks passed, **When** the contributor pushes
    another commit, **Then** the checks run again and the pull request is blocked until
    they pass for the new commit.
-5. **Given** a pull request whose checks passed but whose target branch has since moved
-   on, **When** the contributor tries to merge, **Then** the merge is blocked until the
+5. **Given** a pull request into `develop` whose checks passed but whose target
+   branch has since moved on, **When** the contributor tries to merge, **Then** the merge is blocked until the
    branch is brought up to date with the target and the checks pass on the result.
 
 ---
@@ -123,14 +131,16 @@ branches.
 A bug in the released state on `main` needs fixing before `develop` is ready to be
 released. The maintainer creates a hotfix branch from `main`, opens a pull request
 against `main`, and merges it once the checks pass. The fix is then carried back into
-`develop` through a second pull request, so `develop` does not lose it.
+`develop` through a back-merge branch: cut from `main`, with `develop` merged into it,
+and proposed to `develop` in a second pull request, so `develop` does not lose the
+fix.
 
 **Why this priority**: Rare, but without a defined path the maintainer would be
 tempted to bypass the rules in exactly the moment they matter most.
 
 **Independent Test**: Create a hotfix branch from `main`, merge it via a checked pull
-request, then merge `main` back into `develop` via a pull request, and confirm both
-branches contain the fix.
+request, then carry it back through a back-merge branch and a pull request into
+`develop`, and confirm both branches contain the fix.
 
 **Acceptance Scenarios**:
 
@@ -138,8 +148,12 @@ branches contain the fix.
    `main` is opened, **Then** the required checks run and the pull request is
    mergeable once they pass.
 2. **Given** a hotfix was merged into `main`, **When** the maintainer opens a pull
-   request from `main` back into `develop`, **Then** it is subject to the same checks
-   and, once merged, `develop` contains the fix.
+   request into `develop` from a back-merge branch that contains both `main` and
+   `develop`, **Then** it is subject to the same checks and, once merged with a merge
+   commit, `develop` contains the fix.
+3. **Given** a hotfix was merged into `main` while a release pull request
+   (`develop` → `main`) is open, **When** the back-merge reaches `develop`, **Then**
+   the release pull request's checks run again against the new state.
 
 ---
 
@@ -196,8 +210,10 @@ branches contain the fix.
   request.
 - **FR-007**: A pull request MUST NOT be mergeable unless every required check
   (FR-010) has passed on its latest commit.
-- **FR-008**: A pull request MUST NOT be mergeable unless its branch is up to date
-  with its target branch, so checks have run against what will actually be merged.
+- **FR-008**: A pull request into `develop` MUST NOT be mergeable unless its branch is
+  up to date with `develop`. A pull request into `main` MUST have its checks run
+  against the result of merging it into the current `main`, but does not need to be
+  up to date with `main` (see Clarifications).
 - **FR-009**: No person or role may bypass FR-004 to FR-008; there is no
   emergency override. The hotfix path (User Story 4) is the sanctioned route for
   urgent fixes.
@@ -205,7 +221,8 @@ branches contain the fix.
   hotfix branch; any other source branch MUST be refused.
 - **FR-009b**: Working-branch pull requests into `develop` MUST be merged as a single
   squashed commit. Pull requests from `develop` into `main`, from a hotfix branch into
-  `main`, and from `main` back into `develop` MUST be merged with a merge commit, so
+  `main`, and from a back-merge branch into `develop` MUST be merged with a merge
+  commit, so
   that `main` and `develop` keep a shared history and the next `develop` → `main`
   pull request never conflicts on already-released changes.
 
@@ -262,7 +279,8 @@ branches contain the fix.
 - **Long-lived branch**: `main` (released state) or `develop` (integration). Protected;
   only changed by merging pull requests.
 - **Working branch**: a short-lived branch for one change — a feature/fix branch cut
-  from `develop`, or a hotfix branch cut from `main`.
+  from `develop`, a hotfix branch cut from `main`, or a back-merge branch cut from
+  `main` with `develop` merged in, which carries a hotfix back into `develop`.
 - **Pull request**: a proposal to merge a working branch (or `develop`) into a
   long-lived branch. Carries the check results and is the only route to change a
   long-lived branch.
@@ -317,5 +335,5 @@ branches contain the fix.
   tagging/versioning are out of scope for this feature.
 - The local git hooks (Biome, `tsc`, commitlint via lefthook) stay as they are; CI
   repeats the same checks server-side rather than replacing them.
-- Hotfix branches are recognisable by a naming convention (e.g. a `hotfix/` prefix);
-  the exact convention is settled in the plan.
+- Hotfix and back-merge branches are recognisable by naming conventions (e.g.
+  `hotfix/` and `sync/` prefixes); the exact conventions are settled in the plan.
