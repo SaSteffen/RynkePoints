@@ -1,6 +1,8 @@
 import { clientId, clubId, seasonStart } from "../config";
+import { CONSENT_VERSION } from "../consent";
 import type { Ctx } from "../ctx";
 import { deletePrivateActivities } from "../db/activities";
+import { recordConsent } from "../db/consents";
 import {
 	deleteRider,
 	getRider,
@@ -11,9 +13,11 @@ import {
 	setMembershipChecked,
 	updateRiderOnReconnect,
 } from "../db/riders";
+import type { I18n } from "../i18n/i18n";
 import { isClubMember } from "../strava/client";
 import { STRAVA_ORIGIN } from "../strava/result";
 import { exchangeCode, revokeToken } from "../strava/tokens";
+import { forbidden } from "./errors";
 import type { NoticeId } from "./notice";
 import { redirect } from "./redirect";
 import {
@@ -21,22 +25,30 @@ import {
 	clearSessionCookie,
 	createOAuthStateCookie,
 	createSessionCookie,
+	isSameOrigin,
 	readOAuthState,
+	readSession,
 } from "./session";
 
 // Connecting through Strava OAuth (contracts/http-routes.md, research R1, R4).
-// Every outcome is a redirect, so a reload never re-submits a used code (R18).
+// A new rider first agrees to the consent on the landing page; the OAuth state
+// cookie carries the agreed version to the callback, which stores it with the
+// rider (R21). Every outcome is a redirect, so a reload never re-submits a used
+// code (R18).
 
-const REQUESTED_SCOPES = "read,activity:read,activity:read_all";
+// `activity:write` is requested but optional, and never used in this feature
+// (FR-003): the description feature will only write for riders who granted it.
+const REQUESTED_SCOPES = "read,activity:read,activity:read_all,activity:write";
 
 function randomState(): string {
 	const bytes = crypto.getRandomValues(new Uint8Array(16));
 	return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export async function handleConnect(
+async function authorizeRedirect(
 	request: Request,
 	ctx: Ctx,
+	consentVersion: number,
 ): Promise<Response> {
 	const state = randomState();
 	const authorize = new URL(`${STRAVA_ORIGIN}/oauth/authorize`);
@@ -49,8 +61,39 @@ export async function handleConnect(
 		state,
 	}).toString();
 	return redirect(authorize.href, 302, [
-		await createOAuthStateCookie(state, ctx.now(), ctx.env),
+		await createOAuthStateCookie(state, consentVersion, ctx.now(), ctx.env),
 	]);
+}
+
+/** `POST /connect`: the consent form on the landing page. */
+export async function handleConnectForm(
+	request: Request,
+	ctx: Ctx,
+	i18n: I18n,
+): Promise<Response> {
+	if (!isSameOrigin(request)) return forbidden(i18n, "/");
+	let form: FormData;
+	try {
+		form = await request.formData();
+	} catch {
+		form = new FormData();
+	}
+	if (form.get("consent") !== String(CONSENT_VERSION)) {
+		return redirect("/notice/consent-required", 303);
+	}
+	return authorizeRedirect(request, ctx, CONSENT_VERSION);
+}
+
+/** `GET /connect`: reconnecting or changing permissions, signed in only. */
+export async function handleReconnect(
+	request: Request,
+	ctx: Ctx,
+): Promise<Response> {
+	const athleteId = await readSession(request, ctx.env, ctx.now());
+	if (athleteId === null || !(await getRider(ctx.env.DB, athleteId))) {
+		return redirect("/", 302);
+	}
+	return authorizeRedirect(request, ctx, 0);
 }
 
 function notice(id: NoticeId, cookies: string[] = []): Response {
@@ -63,7 +106,9 @@ export async function handleCallback(
 ): Promise<Response> {
 	const params = new URL(request.url).searchParams;
 	const expected = await readOAuthState(request, ctx.env, ctx.now());
-	if (!expected || params.get("state") !== expected) return notice("expired");
+	if (!expected || params.get("state") !== expected.state) {
+		return notice("expired");
+	}
 	if (params.has("error")) return notice("denied");
 	const code = params.get("code");
 	if (!code) return notice("failed");
@@ -89,6 +134,12 @@ export async function handleCallback(
 		return refuse("denied", "denied-deleted");
 	}
 
+	// A new athlete who didn't agree on the way in is never stored (R21).
+	if (!existing && expected.consentVersion !== CONSENT_VERSION) {
+		await revokeToken(ctx, token.accessToken);
+		return notice("consent-required");
+	}
+
 	const membership = await isClubMember(ctx, auth, clubId(ctx.env));
 	if (membership.kind === "ok" && !membership.value) {
 		return refuse("not-member", "not-member-deleted");
@@ -105,6 +156,7 @@ export async function handleCallback(
 		firstName: token.firstName,
 		scopes,
 		scopeReadAll: granted.has("activity:read_all"),
+		scopeWrite: granted.has("activity:write"),
 		now,
 	};
 	const credentials = {
@@ -114,12 +166,20 @@ export async function handleCallback(
 	};
 	let startImport: boolean;
 	if (!existing) {
-		await insertRider(ctx.env.DB, { athleteId: token.athleteId, ...grant });
+		await insertRider(
+			ctx.env.DB,
+			{ athleteId: token.athleteId, ...grant },
+			{ version: CONSENT_VERSION, acceptedAt: now },
+		);
 		await saveCredentials(ctx.env, token.athleteId, credentials);
 		startImport = true;
 	} else {
-		// Reconnect rules (data-model.md).
+		// Reconnect rules (data-model.md). A change of write access alone starts
+		// no import and deletes nothing.
 		await updateRiderOnReconnect(ctx.env.DB, token.athleteId, grant);
+		if (expected.consentVersion === CONSENT_VERSION) {
+			await recordConsent(ctx.env.DB, token.athleteId, CONSENT_VERSION, now);
+		}
 		await saveCredentials(ctx.env, token.athleteId, credentials);
 		if (membership.kind === "ok") {
 			await setMembershipChecked(ctx.env.DB, token.athleteId, now);

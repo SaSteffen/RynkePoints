@@ -29,7 +29,7 @@ afterEach(() => fake.restore());
 
 async function seedConnected() {
 	fake.addAthlete({ id: ATHLETE_A });
-	const rider = await seedRider(ctx);
+	const rider = await seedRider(ctx, { consentVersion: 1 });
 	const record = toActivityRecord(makeStravaActivity(), ATHLETE_A, NOW);
 	if (!record) throw new Error("fixture is not a cycling activity");
 	await upsertActivity(env.DB, record);
@@ -61,6 +61,7 @@ async function expectNothingDeleted() {
 		riders: 1,
 		strava_credentials: 1,
 		activities: 1,
+		consent_records: 1,
 	});
 	expect(fake.callsTo("revoke")).toEqual([]);
 }
@@ -133,6 +134,7 @@ describe("POST /me/disconnect", () => {
 			riders: 0,
 			strava_credentials: 0,
 			activities: 0,
+			consent_records: 0,
 			failed_work: 0,
 		});
 
@@ -162,6 +164,7 @@ describe("POST /me/disconnect", () => {
 			riders: 0,
 			strava_credentials: 0,
 			activities: 0,
+			consent_records: 0,
 		});
 
 		const { text } = await page("/notice/deleted-revoke-failed");

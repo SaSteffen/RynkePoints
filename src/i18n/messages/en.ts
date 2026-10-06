@@ -24,13 +24,24 @@ export const en: Catalog = {
 	"landing.private":
 		'On Strava you decide whether your private ("Only You") activities are included.',
 	"landing.purpose":
-		"We use the data only for the team's points and events. Nobody else sees your activities.",
+		"We use the data only for the team's Rynke (points) and events. Nobody but you sees your individual rides.",
 	"landing.leave":
-		"You can leave at any time: on your RynkePoints page, or by removing RynkePoints in your Strava settings. If you leave the club, we delete your data within 24 hours.",
+		"You can leave at any time: on your RynkePoints page, or by removing RynkePoints in your Strava settings. We then delete all data about you, including your Rynke; on your RynkePoints page we confirm it right away. If you leave the club, we delete your data within 24 hours.",
 	"landing.backups":
 		"Deleted data stays in our hosting provider's backups for up to 7 days and then disappears automatically.",
 	"landing.cookies":
 		"We only set necessary cookies: for signing in and for your language choice.",
+
+	"consent.heading": "What you agree to by connecting",
+	"consent.organisers":
+		"The team's organisers see your first name from Strava, your Rynke with their breakdown, what you still need, whether you qualify, your attendance at team events and corrections.",
+	"consent.team":
+		"Everyone else on the team sees your accumulated Rynke, overall and per week, without your name.",
+	"consent.required": "Reading and sharing are required to take part.",
+	"consent.write":
+		"If you like, you can allow RynkePoints on Strava to edit your activities. Once the feature exists, we then write a short Rynke section into your ride descriptions; we never change your own text. Whoever may see the ride on Strava sees the section. You take part just the same without this permission.",
+	"consent.agree":
+		"I agree that RynkePoints reads my rides and shares my Rynke as described.",
 
 	"me.title": "Your RynkePoints",
 	"me.greeting": "Hi {firstName}!",
@@ -40,6 +51,15 @@ export const en: Catalog = {
 	"me.scope.readAll": "Including your private activities",
 	"me.scope.sharedOnly":
 		'Shared activities only – private ("Only You") activities are not imported.',
+	"me.scope.write":
+		"Write access granted: once the feature exists, RynkePoints writes a Rynke section into your ride descriptions.",
+	"me.scope.noWrite":
+		"No write access: RynkePoints writes nothing into your ride descriptions.",
+	"me.changePermissions": "Change permissions on Strava",
+	"me.consent.heading": "Your consent",
+	"me.consent.accepted": "Agreed on {date} (version {version}):",
+	"me.consent.none":
+		"No consent is recorded for you yet. Sign out and connect again on the start page to agree.",
 	"me.import.running": "Importing your rides since {date} …",
 	"me.import.done": "Import complete",
 	"me.recent.heading": "Recently imported rides",
@@ -71,6 +91,9 @@ export const en: Catalog = {
 	"notice.expired.body": "Your sign-in expired. Please try again.",
 	"notice.denied.title": "RynkePoints needs read access to your activities",
 	"notice.denied.body": "RynkePoints can't work without this permission.",
+	"notice.consentRequired.title": "Please agree first",
+	"notice.consentRequired.body":
+		"We can't connect you without your agreement. Read on the start page what RynkePoints reads and shares, and tick the box.",
 	"notice.teamFull.title": "The team is full for now",
 	"notice.teamFull.body":
 		"Strava doesn't allow RynkePoints any more riders right now. We'll let you know when there's room again.",

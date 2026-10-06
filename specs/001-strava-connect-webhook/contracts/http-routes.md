@@ -11,7 +11,9 @@ Cookies:
 
 - `rp_session`: signed session, `HttpOnly; Secure; SameSite=Lax; Path=/`, 30 days
   (research R9).
-- `rp_oauth_state`: signed OAuth state, 10 minutes.
+- `rp_oauth_state`: signed OAuth state, 10 minutes. Its value is
+  `<state>:<consentVersion>`; `0` means the rider didn't agree on the way in
+  (research R21).
 - `rp_lang`: picked language, `Path=/; Max-Age=31536000; SameSite=Lax; Secure;
   HttpOnly`. Unsigned, and never stored server-side (research R18).
 
@@ -49,20 +51,44 @@ Cookies:
   - a plain explanation of what is read and why, who can join (club link), how
     to leave, and that deleted data stays in backups for up to 7 days (FR-002,
     FR-022a);
+  - the consent of feature 004 (its FR-010, FR-011): what write access is for
+    and that it is optional, who sees what, and that reading and sharing are
+    required (`consent.*`);
   - which cookies are set (`landing.cookies`);
-  - the official "Connect with Strava" button for the page language,
-    `<a href="/connect"><img src="{brand.connectWithStrava.src}"
-    alt="{brand.connectWithStrava.alt}"></a>` (FR-001, research R19).
+  - the consent form (FR-001, FR-002, research R19, R21):
+
+    ```html
+    <form method="post" action="/connect">
+      <label><input type="checkbox" name="consent" value="{CONSENT_VERSION}" required>
+        {consent.agree}</label>
+      <button><img src="{brand.connectWithStrava.src}"
+        alt="{brand.connectWithStrava.alt}"></button>
+    </form>
+    ```
+
+### `POST /connect`
+
+The rider agreed and goes to Strava (research R21). No session needed.
+
+- **`Origin`** missing or foreign → `403` page (`error.forbidden`).
+- **`consent`** (form field) ≠ the current `CONSENT_VERSION` →
+  `303 /notice/consent-required`. Not sent to Strava, no cookie set.
+- Otherwise `302` to `https://www.strava.com/oauth/authorize` with `client_id`,
+  `redirect_uri=<origin>/auth/callback`, `response_type=code`,
+  `approval_prompt=force`,
+  `scope=read,activity:read,activity:read_all,activity:write` (research R1), and
+  `state=<random>`. Sets `rp_oauth_state` to `<state>:<CONSENT_VERSION>`.
+- Strava's approval screen uses the language the rider set on Strava; the app
+  can't influence it (spec Assumptions). The rider may untick private
+  activities and write access there.
 
 ### `GET /connect`
 
-- `302` to `https://www.strava.com/oauth/authorize` with `client_id`,
-  `redirect_uri=<origin>/auth/callback`, `response_type=code`,
-  `approval_prompt=force`, `scope=read,activity:read,activity:read_all`, and
-  `state=<random>`.
-- Sets `rp_oauth_state`.
-- Strava's approval screen uses the language the rider set on Strava; the app
-  can't influence it (spec Assumptions).
+Reconnecting and changing permissions, for a signed-in rider only.
+
+- No session, or the rider no longer exists → `302 /`.
+- Otherwise the same `302` to Strava as `POST /connect`, with `rp_oauth_state`
+  set to `<state>:0` (no new agreement).
 
 ### `GET /auth/callback`
 
@@ -76,34 +102,39 @@ reconnecting).
 
 | Input | Outcome |
 |---|---|
-| `state` missing or ≠ cookie | `303 /notice/expired`. Nothing stored or changed. |
+| `state` missing or ≠ the cookie's state | `303 /notice/expired`. Nothing stored or changed. |
 | `error=access_denied` | `303 /notice/denied` (explanation plus retry link). Nothing stored or changed; an existing rider keeps their earlier connection. |
 | accepted `scope` lacks `activity:read` or `read`, new rider | Revoke the token, then `303 /notice/denied`. Nothing stored. |
 | accepted `scope` lacks `activity:read` or `read`, existing rider | Revoke the token, delete the rider (cascade, FR-006), clear `rp_session`, `303 /notice/denied-deleted`. |
 | token exchange `403` | `303 /notice/team-full` (FR-008). |
 | token exchange other error | `303 /notice/failed`. |
+| new rider, the cookie's consent version ≠ current `CONSENT_VERSION` (including `0`) | Revoke the token, then `303 /notice/consent-required`. Nothing stored. Checked after the scope rows above and before the club check. |
 | club check: not a member, new rider | Revoke the token, then `303 /notice/not-member` (club link). Nothing stored. |
 | club check: not a member, existing rider | Revoke the token, delete the rider (cascade, FR-004), clear `rp_session`, `303 /notice/not-member-deleted`. |
 | club check inconclusive, new rider | Revoke the token, nothing stored, `303 /notice/strava-busy`. |
 | club check inconclusive, existing rider | Not a disconnection (spec Edge Cases): no revoke, continue as "success, existing rider". The daily check (FR-004a) decides membership later. |
-| success, new rider | Insert rider and credentials, enqueue `import-page { page: 1, after: <season start> }`, set `rp_session`, `302 /me`. |
-| success, existing rider | Update scopes and credentials, set `status=connected` and `reconnect_requested_at=NULL`. Apply the reconnect rules (data-model.md). Set `rp_session`, `302 /me`. |
+| success, new rider | Insert rider (with `scope_write`) and their consent record in one D1 batch, then the credentials; enqueue `import-page { page: 1, after: <season start> }`, set `rp_session`, `302 /me`. |
+| success, existing rider | Update scopes (including `scope_write`) and credentials, set `status=connected` and `reconnect_requested_at=NULL`. Apply the reconnect rules (data-model.md). If the cookie carries the current consent version, record it (`INSERT OR IGNORE`). Set `rp_session`, `302 /me`. |
 
 ### `GET /notice/:id`
 
 Public outcome page. It shows no rider data, needs no session, and renders in
 the resolved language.
 
+Retry links go to `/`, where the consent form is; a signed-in rider is sent on
+to `/me` from there.
+
 | `:id` | Messages | Extra |
 |---|---|---|
-| `expired` | `notice.expired.*` | retry link to `/connect` |
-| `denied` | `notice.denied.*` | retry link to `/connect`. No claim about stored data: an existing rider who cancelled on Strava keeps their connection. |
-| `denied-deleted` | `notice.denied.*` + `notice.deleted.body` | retry link to `/connect`; deletion and 7-day backup sentence (FR-022a) |
+| `expired` | `notice.expired.*` | retry link |
+| `denied` | `notice.denied.*` | retry link. No claim about stored data: an existing rider who cancelled on Strava keeps their connection. |
+| `denied-deleted` | `notice.denied.*` + `notice.deleted.body` | retry link; deletion and 7-day backup sentence (FR-022a) |
+| `consent-required` | `notice.consentRequired.*` + `notice.nothingStored` | retry link |
 | `team-full` | `notice.teamFull.*` | — |
-| `failed` | `notice.failed.*` | retry link to `/connect` |
+| `failed` | `notice.failed.*` | retry link |
 | `not-member` | `notice.notMember.*` + `notice.nothingStored` | club link `https://www.strava.com/clubs/<STRAVA_CLUB_ID>` |
 | `not-member-deleted` | `notice.notMember.*` + `notice.deleted.body` | club link; deletion and 7-day backup sentence (FR-022a) |
-| `strava-busy` | `notice.stravaBusy.*` + `notice.nothingStored` | retry link to `/connect` (only new riders get here) |
+| `strava-busy` | `notice.stravaBusy.*` + `notice.nothingStored` | retry link (only new riders get here) |
 | `deleted` | `notice.deleted.*` | 7-day backup sentence (FR-022a) |
 | `deleted-revoke-failed` | `notice.deleted.*` + `notice.revokeFailed.body` | "My Apps" hint |
 
@@ -116,11 +147,16 @@ the resolved language.
 - `200` HTML showing:
   - greeting (first name) and connection status, with a reconnect link if
     `needs_reconnect`;
-  - granted level ("shared activities" / "including private");
+  - granted level ("shared activities" / "including private") and whether write
+    access was granted (`me.scope.write` / `me.scope.noWrite`), with a "change
+    permissions on Strava" link to `GET /connect` (FR-025);
   - import status, with the season start date formatted for the locale;
   - the 20 newest activities of that rider only (FR-025, FR-026). Each shows the
     date, the sport type as `sport.<SportType>`, distance in km and elevation in m,
     with numbers and dates formatted via `meta.intlLocale`;
+  - the consent (FR-025; feature 004, FR-014): version and date of the
+    rider's current consent record and who sees what (`consent.*`), or
+    `me.consent.none` if no record exists;
   - the "Disconnect and delete my data" button, which leads to the confirmation
     page;
   - a sign-out button (`POST /logout`).

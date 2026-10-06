@@ -71,20 +71,40 @@ export function clearSessionCookie(): string {
 	return cookie(SESSION_COOKIE, "", 0);
 }
 
+export interface OAuthState {
+	state: string;
+	/** The consent version the rider agreed to on the way in; 0 for none (R21). */
+	consentVersion: number;
+}
+
+/** Signs `<state>:<consentVersion>`; the signed format reserves `.`. */
 export function createOAuthStateCookie(
 	state: string,
+	consentVersion: number,
 	now: number,
 	env: Keys,
 ): Promise<string> {
-	return signedCookie(OAUTH_STATE_COOKIE, state, OAUTH_STATE_MAX_AGE, now, env);
+	return signedCookie(
+		OAUTH_STATE_COOKIE,
+		`${state}:${consentVersion}`,
+		OAUTH_STATE_MAX_AGE,
+		now,
+		env,
+	);
 }
 
-export function readOAuthState(
+/** Null if missing, tampered, expired or without a consent version. */
+export async function readOAuthState(
 	request: Request,
 	env: Keys,
 	now: number,
-): Promise<string | null> {
-	return readSigned(request, OAUTH_STATE_COOKIE, env, now);
+): Promise<OAuthState | null> {
+	const value = await readSigned(request, OAUTH_STATE_COOKIE, env, now);
+	const colon = value?.lastIndexOf(":") ?? -1;
+	if (!value || colon === -1) return null;
+	const version = value.slice(colon + 1);
+	if (!/^\d+$/.test(version)) return null;
+	return { state: value.slice(0, colon), consentVersion: Number(version) };
 }
 
 export function clearOAuthStateCookie(): string {

@@ -23,6 +23,10 @@ const GERMAN: Record<string, [string, string]> = {
 		"RynkePoints braucht Lesezugriff auf deine Aktivitäten",
 		"Ohne diese Berechtigung kann RynkePoints nicht funktionieren.",
 	],
+	"consent-required": [
+		"Bitte stimme zuerst zu",
+		"Ohne deine Zustimmung können wir dich nicht verbinden.",
+	],
 	"team-full": [
 		"Das Team ist im Moment voll",
 		"Strava erlaubt RynkePoints gerade keine weiteren Fahrerinnen und Fahrer.",
@@ -47,7 +51,14 @@ const GERMAN: Record<string, [string, string]> = {
 	],
 };
 
-const RETRY = ["expired", "denied", "denied-deleted", "failed", "strava-busy"];
+const RETRY = [
+	"expired",
+	"denied",
+	"denied-deleted",
+	"consent-required",
+	"failed",
+	"strava-busy",
+];
 const CLUB = ["not-member", "not-member-deleted"];
 const NOTHING_STORED = "Wir haben kein Konto für dich angelegt";
 const DELETED = "Wir haben alle Daten über dich gelöscht";
@@ -69,9 +80,11 @@ describe("GET /notice/:id", () => {
 				`<input type="hidden" name="next" value="/notice/${id}">`,
 			);
 
-			const retry = '<a href="/connect">Noch einmal versuchen</a>';
+			// Retrying starts at the consent form on the start page.
+			const retry = '<a href="/">Noch einmal versuchen</a>';
 			if (RETRY.includes(id)) expect(page).toContain(retry);
 			else expect(page).not.toContain(retry);
+			expect(page).not.toContain('href="/connect"');
 
 			const club = 'href="https://www.strava.com/clubs/2372209"';
 			if (CLUB.includes(id)) expect(page).toContain(club);
@@ -79,8 +92,8 @@ describe("GET /notice/:id", () => {
 		},
 	);
 
-	it("says nothing was stored for not-member and strava-busy", async () => {
-		for (const id of ["not-member", "strava-busy"]) {
+	it("says nothing was stored for not-member, strava-busy and consent-required", async () => {
+		for (const id of ["not-member", "strava-busy", "consent-required"]) {
 			const { page } = await get(`/notice/${id}`);
 			expect(page).toContain(NOTHING_STORED);
 			expect(page).not.toContain(DELETED);

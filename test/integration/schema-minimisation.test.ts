@@ -11,6 +11,7 @@ const COLUMNS: Record<string, string[]> = {
 		"first_name",
 		"status",
 		"scope_read_all",
+		"scope_write",
 		"scopes",
 		"connected_at",
 		"scopes_updated_at",
@@ -36,6 +37,7 @@ const COLUMNS: Record<string, string[]> = {
 		"is_private",
 		"refreshed_at",
 	],
+	consent_records: ["athlete_id", "version", "accepted_at"],
 };
 
 const FORBIDDEN = [

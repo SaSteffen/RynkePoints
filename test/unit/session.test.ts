@@ -1,5 +1,6 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
+import { signValue } from "../../src/crypto/sign";
 import {
 	clearSessionCookie,
 	createOAuthStateCookie,
@@ -44,7 +45,7 @@ describe("session cookie", () => {
 	});
 
 	it("does not accept an OAuth state cookie as a session", async () => {
-		const state = await createOAuthStateCookie("900001", NOW, env);
+		const state = await createOAuthStateCookie("900001", 1, NOW, env);
 		const value = (state.split(";")[0] ?? "").split("=")[1] ?? "";
 		const forged = new Request("https://rynke.test/me", {
 			headers: { Cookie: `rp_session=${value}` },
@@ -60,15 +61,53 @@ describe("session cookie", () => {
 });
 
 describe("OAuth state cookie", () => {
+	/** A cookie whose value is signed as given, like one from an older deploy. */
+	async function rawStateCookie(value: string) {
+		const signed = await signValue(
+			value,
+			NOW + 600,
+			env.SESSION_SIGNING_KEY,
+			"rp_oauth_state",
+		);
+		return `rp_oauth_state=${signed}; Max-Age=600`;
+	}
+
 	it("lasts 10 minutes", async () => {
-		const cookie = await createOAuthStateCookie("abc123", NOW, env);
-		expect(cookie).toMatch(/^rp_oauth_state=abc123\.\d+\.[A-Za-z0-9_-]+;/);
+		const cookie = await createOAuthStateCookie("abc123", 1, NOW, env);
 		expect(cookie).toContain("Max-Age=600");
 		expect(cookie).toContain("HttpOnly");
-		expect(await readOAuthState(withCookie(cookie), env, NOW + 599)).toBe(
-			"abc123",
-		);
+		expect(await readOAuthState(withCookie(cookie), env, NOW + 599)).toEqual({
+			state: "abc123",
+			consentVersion: 1,
+		});
 		expect(await readOAuthState(withCookie(cookie), env, NOW + 601)).toBeNull();
+	});
+
+	it("signs the state and the consent version, separated by a colon", async () => {
+		const cookie = await createOAuthStateCookie("abc", 1, NOW, env);
+		expect(cookie).toMatch(/^rp_oauth_state=abc:1\.\d+\.[A-Za-z0-9_-]+;/);
+	});
+
+	it("carries consent version 0 for a rider who didn't agree", async () => {
+		const cookie = await createOAuthStateCookie("abc", 0, NOW, env);
+		expect(await readOAuthState(withCookie(cookie), env, NOW)).toEqual({
+			state: "abc",
+			consentVersion: 0,
+		});
+	});
+
+	it.each(["abc", "abc:x", "abc:", "abc:-1"])(
+		"rejects the signed value %s",
+		async (value) => {
+			const cookie = await rawStateCookie(value);
+			expect(await readOAuthState(withCookie(cookie), env, NOW)).toBeNull();
+		},
+	);
+
+	it("rejects a tampered cookie", async () => {
+		const cookie = await createOAuthStateCookie("abc", 0, NOW, env);
+		const tampered = cookie.replace("abc:0", "abc:1");
+		expect(await readOAuthState(withCookie(tampered), env, NOW)).toBeNull();
 	});
 });
 
