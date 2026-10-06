@@ -34,9 +34,9 @@
 - Both clarifications answered 2026-10-06 (see spec Clarifications): every
   permission and consent is required except private activities; the seven-day cache
   and analytics rules are not applied, risk accepted (F-6).
-- The required `activity:write` and the bundled sharing consent rest on a reading
-  of constitution Principles I and III recorded in the spec's Assumptions; if that
-  reading is not intended, amend the constitution before `/speckit-plan`.
+- The required `activity:write` and the bundled sharing consent follow constitution
+  2.0.0 (Principles I and III amended with this feature); no description switch
+  (FR-016).
 - Mentions of `activity:write` and Strava policy sections are
   domain terms (Strava permissions and terms the riders consent under), not
   implementation choices.

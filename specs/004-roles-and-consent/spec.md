@@ -38,6 +38,12 @@ athlete capacity; say plainly if the leaderboard is not allowed.
   RynkePoints is kept as their own data for the season's purpose (§6.4), not as a
   cache, and computing a rider's Rynke is the app's purpose for that rider, not
   analytics. The project owner accepts the risk (F-6).
+- Q: Constitution Principle I made every capability separately opt-in and Principle
+  III required description edits to be switchable off per rider; amend it or keep a
+  switch? → A: All of the consent is needed; the app doesn't work without the
+  individual parts. The constitution is amended to 2.0.0 (one required consent at
+  connect, private activities optional, no switch for description edits), and there
+  is no per-rider switch for writing the Rynke block (FR-016).
 
 ## Summary of the Strava check
 
@@ -68,9 +74,8 @@ none of them, it defines what they may show.
 
 A club member opens RynkePoints and, before going to Strava, reads in plain words
 what taking part means: the app reads their rides, writes a short Rynke block into
-their ride descriptions on Strava once that feature ships (they can switch the
-writing off at any time), and shows their name and Rynke to the organisers and to
-the team. The page shows the name others will see. They agree and go on to Strava,
+their ride descriptions on Strava once that feature ships, and shows their name
+and Rynke to the organisers and to the team. The page shows the name others will see. They agree and go on to Strava,
 which asks for read and write access to their activities; they may leave out their
 private ("Only You") activities. Back on RynkePoints they are connected, and the
 date and the version of what they agreed to are recorded.
@@ -235,9 +240,8 @@ here.
   see nothing of them (FR-021). They are asked to agree on their next visit, and to
   grant write access on Strava. At the time of writing the app has no riders
   besides the maintainer.
-- **Rider grants write access but switches description writing off** (once the
-  description feature exists): stays connected and shared; switching writing off is
-  a setting of that feature (constitution Principle III), not a withdrawal.
+- **Rider no longer wants the Rynke block in their descriptions** (once the
+  description feature exists): there is no switch (FR-016); they leave (FR-015).
 - **Rider revokes access on Strava**: Strava revokes read and write together; the
   rider is deleted as in feature 001, FR-022.
 - **Rider reconnects without write access**: treated like reconnecting without read
@@ -302,7 +306,7 @@ here.
   Access to private ("Only You") activities MUST stay optional (feature 001,
   FR-005).
 - **FR-011**: Before redirecting to Strava, the connect flow MUST explain in plain
-  words what is read, what is written and that the rider can switch writing off,
+  words what is read, what is written (and that it is not optional),
   what is shared with whom (FR-020) with the name others will see (FR-022), how to
   leave, that leaving deletes all their data and that they get a confirmation once
   it is deleted (F-4), and MUST ask the rider to agree. Strava's own approval screen
@@ -327,9 +331,9 @@ here.
   club. In every case their data, including Rynke, attendance, corrections and the
   consent records, MUST be deleted as in feature 001, FR-022. There is no way to
   stay connected and stop sharing.
-- **FR-016**: Switching off the writing of the Rynke block MUST remain possible per
-  rider at any time without leaving (constitution Principle III); it belongs to the
-  description feature and does not change the consent or the sharing.
+- **FR-016**: There MUST be no per-rider setting that stops the app writing its
+  Rynke block while staying connected (constitution Principle III as amended in
+  2.0.0); the description feature MUST NOT add one without a new consent version.
 
 **Visibility**
 
@@ -428,12 +432,9 @@ here.
   (FR-014); the privacy text grows (FR-023); and the rider record keeps the Strava
   last name (FR-022), which Strava provides with the access the app already
   requests.
-- Constitution Principle I ("every capability is opt-in and separately consented")
-  and Principle III (description edits need `activity:write` consent and are
-  switchable off) are read as follows: every capability is consented explicitly
-  when connecting, and description writing is switchable off in the app (FR-016).
-  If that reading is not intended, the constitution needs an amendment before this
-  feature is planned.
+- The constitution is amended to 2.0.0 with this feature: Principle I asks for one
+  required consent at connect instead of separately opt-in capabilities, and
+  Principle III no longer requires description edits to be switchable off.
 - Feature 003 already stores balances per rider (its FR-015); nothing there changes.
 - What the description feature writes is visible to whoever may see the activity on
   Strava, according to the rider's own Strava settings; the consent text says so.
