@@ -21,7 +21,7 @@ SC-010, SC-011) cut across all stories:
 - Their core (catalogs, locale resolution, layout with switcher, `POST /lang`,
   `/notice/:id`) is in Phase 2 (Foundational).
 - Each story's page tests assert that story's German texts.
-- Phase 8 adds the cross-page language guards.
+- Phase 9 adds the cross-page language guards.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -748,7 +748,81 @@ The rollout in production follows quickstart §4: migration first, then deploy.
 
 ---
 
-## Phase 7: User Story 4 — Rider checks what has been imported (Priority: P3)
+## Phase 7: Strava's flag on activities (spec update 2026-10-06)
+
+**Goal**: every stored activity also holds whether Strava has flagged it
+(FR-013), and the landing page names it (FR-002). Feature 003-rynke-evaluation
+never counts a flagged ride (its FR-005g). `0002` is already on `main`, so the
+column comes with a new migration `0003`, and `ACTIVITY_FIGURES_VERSION` goes to 2
+so the existing one-time re-read (research R20) fills stored activities. No new
+message kind, cron step, rider column or endpoint (plan.md, "Strava's flag").
+
+**Independent Test**:
+- A `create` event and an import page for synthetic activities with
+  `flagged: true` store `is_flagged = 1`. A response without `flagged` stores
+  `NULL`, never 0 ("not flagged").
+- A later `update` refetch that now returns `flagged: true` sets `is_flagged = 1`
+  (spec edge case "Strava flags a stored activity later").
+- A connected rider at `figures_version = 1` whose rows have `is_flagged NULL`
+  has them filled after one cron run and the resulting queue work, and ends at
+  version 2.
+
+### Tests for Strava's flag (write first, confirm red) ⚠️
+
+- [ ] T097 [P] [US2] Extend the synthetic fixture and the mapping unit test (FR-013, FR-014):
+  - `test/support/fixtures.ts`: add `flagged: false` to `StravaActivityFixture` and `makeStravaActivity`;
+  - `test/unit/activity.test.ts`:
+    - the allow-list key list gains `is_flagged`;
+    - `flagged: true` → `is_flagged: 1`; `false` → 0;
+    - **never guessed**: a response without `flagged` (key deleted from the fixture) maps to `is_flagged: null`, not 0;
+    - `ACTIVITY_FIGURES_VERSION` is 2, so a forgotten bump fails here.
+- [ ] T098 [P] [US2] Extend `test/integration/db.test.ts` for migration `0003`:
+  - an upsert stores `is_flagged`, and `listRecentActivities` returns it;
+  - an upsert with `is_flagged: null` stores `NULL`, and a later upsert with 1 replaces it;
+  - the CHECK constraint rejects `is_flagged = 2` (the column is `INTEGER NULL`, values 0 or 1);
+  - `listActivityIdsMissingFigures(db, athleteId)` returns a row whose only `NULL` figure is `is_flagged`.
+- [ ] T099 [P] [US2] Extend `test/integration/activity-event.test.ts` and `test/integration/import-page.test.ts` (FR-013, FR-015):
+  - `create` for an activity with `flagged: true` stores `is_flagged = 1` (add the column to the expected row);
+  - **flagged later**: a stored row with `is_flagged = 0`, then an `update` event (`updates: { type: "Ride" }`) whose refetch returns `flagged: true` → `is_flagged = 1`;
+  - an import page stores `is_flagged` for every cycling item.
+- [ ] T100 [P] [US2] Extend `test/integration/reread-page.test.ts` (research R20). Seed rows as `0003` leaves them: `elapsed_time_s`, `is_manual` and `is_trainer` set, `is_flagged` `NULL` (raw SQL):
+  - the list fills `is_flagged` for every returned row;
+  - a row whose summary omits `flagged` gets exactly one `activity-event { aspect: "update", changed: [] }`; filled rows get none.
+- [ ] T101 [P] [US2] Extend `test/integration/scheduled-reread.test.ts` (research R20): a connected rider at `figures_version = 1` (as `0002` riders are after the first re-read) → exactly one `reread-page { page: 1, after: seasonStart(env) }`, and the version becomes `ACTIVITY_FIGURES_VERSION`; a `needs_reconnect` rider at 1 → nothing, and the version stays 1.
+- [ ] T102 [P] [US1] Extend `test/integration/landing.test.ts` (FR-002): the German page contains "ob Strava sie markiert hat"; the English page (`Accept-Language: en`) contains "whether Strava has flagged it".
+- [ ] T103 [P] [US2] Extend `test/integration/schema-minimisation.test.ts` (FR-014, SC-007): the expected `activities` column list gains `is_flagged`, and nothing else.
+
+### Implementation for Strava's flag
+
+- [ ] T104 [US2] Create `migrations/0003_activity_flagged.sql` (data-model.md), with a header comment in the style of `0002`:
+  - `ALTER TABLE activities ADD COLUMN is_flagged INTEGER CHECK (is_flagged IN (0, 1))`.
+
+  Nullable with no default, because `NULL` means unknown. No `riders` change: raising the constant (T105) marks every rider at version 1 for the re-read. Never edit `0001` or `0002`: they are applied in production. The previously deployed code keeps working against the new column (CI applies migrations before it publishes the code).
+- [ ] T105 [US2] Extend `src/strava/activity.ts`:
+  - `StravaActivity` gains optional `flagged`;
+  - `ActivityRecord` gains `is_flagged: 0 | 1 | null`;
+  - `toActivityRecord` maps it with the existing flag helper, and a missing field to `null`;
+  - `ACTIVITY_FIGURES_VERSION = 2`, and its comment notes that version 2 added `flagged`.
+
+  Makes T097 green.
+- [ ] T106 [US2] Extend `src/db/activities.ts`:
+  - the upsert writes `is_flagged` in both the insert and the `DO UPDATE SET` part;
+  - `listRecentActivities` selects it;
+  - `listActivityIdsMissingFigures` adds `OR is_flagged IS NULL`.
+
+  Fix the `ActivityRecord` literals in existing tests that `tsc` now rejects. Together with T104 and T105 this makes T098–T101 and T103 green; `src/work/reread-page.ts` and `src/work/scheduled.ts` need no change.
+- [ ] T107 [P] [US1] Replace `landing.dataRead` in `src/i18n/messages/de.ts` and `en.ts` with the texts from contracts/messages.md. Makes T102 green.
+- [ ] T108 [P] [US2] Update the "What is stored" bullet in `README.md` to name Strava's flag next to the manual, trainer and private flags.
+
+**Checkpoint**: `pnpm lint && pnpm typecheck && pnpm test` pass, and the quickstart §1
+rows "US2 figures for points" and "Re-read after a figure was added" are covered,
+including the flag. The rollout in production follows quickstart §4: merging into
+`main` applies `0003` before publishing the code, and the next cron starts the
+re-read.
+
+---
+
+## Phase 8: User Story 4 — Rider checks what has been imported (Priority: P3)
 
 **Goal**: `/me` lists the rider's 20 most recent imported activities, newest first,
 and never shows another rider's data.
@@ -783,7 +857,7 @@ that `/me` shows exactly that rider's 20 newest activities in order.
 
 ---
 
-## Phase 8: Polish & Cross-Cutting Concerns
+## Phase 9: Polish & Cross-Cutting Concerns
 
 - [X] T072 [P] Integration test in `test/integration/language-rendering.test.ts` (SC-010, SC-011, FR-029a). It covers every rider-facing page:
   - **pages**: `/` signed out; `/me` for a connected rider with activities; `/me` for a `needs_reconnect` rider; `/me/disconnect`; every `/notice/:id`; the `404` page; the `403` page.
@@ -853,8 +927,12 @@ that `/me` shows exactly that rider's 20 newest activities in order.
   - T089 (migration) comes before T091 and T093, because the columns must exist.
   - T090 comes before T093, which needs `ACTIVITY_FIGURES_VERSION`.
   - T091, T093 and T094 come before T095, and T095 before T096.
-- **US4 (Phase 7)**: depends on T056 (the `/me` page from US1).
-- **Polish (Phase 8)**: after the desired stories. T072 and T073 need every rider-facing page (US1, US3 and US4 done). T075 asserts the `activities` columns from data-model.md, so it needs Phase 6.
+- **Strava's flag (Phase 7)**: depends on Phase 6 (the R20 re-read and `ACTIVITY_FIGURES_VERSION`). Independent of US4.
+  - Tests T097–T103 first, all red.
+  - T104 (migration) and T105 (type and constant) come before T106.
+  - T107 and T108 are independent of the rest.
+- **US4 (Phase 8)**: depends on T056 (the `/me` page from US1).
+- **Polish (Phase 9)**: after the desired stories. T072 and T073 need every rider-facing page (US1, US3 and US4 done). T075 asserts the `activities` columns from data-model.md, so it needs Phase 6 (and T103 extends it for Phase 7).
 
 ### User Story Dependencies
 
@@ -881,6 +959,7 @@ that `/me` shows exactly that rider's 20 newest activities in order.
 - US2: T057, T058 and T059 in parallel.
 - US3: T063, T064 and T065 in parallel.
 - Activity figures: T082–T088 in parallel; T092 alongside T089–T091.
+- Strava's flag: T097–T103 in parallel; T107 and T108 alongside T104–T106.
 - Polish: T072–T077 in parallel.
 - After Foundational, US1 and US2 can proceed in parallel by different people, coordinating on `src/http/router.ts` and the handler map in `src/index.ts`.
 
@@ -942,8 +1021,11 @@ Task: "Implement activity-event handler in src/work/activity-event.ts"
    003-rynke-evaluation needs. Activities already in production are filled by
    the one-time re-read after the next cron. Roll out per quickstart §4:
    migration `0002` before the deploy.
-6. + US4 → riders can see their imported rides.
-7. Polish → language guards, README, schema and logging guards, full quickstart
+6. + Strava's flag → feature 003 can leave flagged rides out. Merging into
+   `main` applies `0003` before the code (quickstart §4); the next cron re-reads
+   every rider once more.
+7. + US4 → riders can see their imported rides.
+8. Polish → language guards, README, schema and logging guards, full quickstart
    validation. Then the maintainer runs the manual production steps in
    quickstart §3, including the per-locale Strava brand assets.
 
