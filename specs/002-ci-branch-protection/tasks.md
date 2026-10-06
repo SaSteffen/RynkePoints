@@ -301,7 +301,7 @@ versions.
 
 **Purpose**: switch the gate on and prove each story against the real GitHub gate (research R11, R12; quickstart.md). **Every task here changes `origin` or GitHub settings. The maintainer runs them, or asks for them explicitly. Never run them as a side effect of an implementation task.** Do them in this order.
 
-- [ ] T023 Bootstrap, following quickstart.md §1 (research R11 steps 1–3):
+- [X] T023 Bootstrap, following quickstart.md §1 (research R11 steps 1–3):
   1. `git push origin main`. This is the last direct push to `main`.
   2. `git push origin main:develop`.
   3. `gh repo edit --default-branch develop`.
@@ -313,17 +313,17 @@ versions.
   - every job finishes within its limit from contracts/required-checks.md. If one times out, change the limit in the workflow **and** in the contract, rather than letting them drift apart.
 
   Then squash-merge the PR.
-- [ ] T024 Apply the repository settings from `.github/repository-settings.md` and create both rulesets with `.github/rulesets/README.md`, following quickstart.md §2 (research R11 step 4). Run each verify command. Expected:
+- [X] T024 Apply the repository settings from `.github/repository-settings.md` and create both rulesets with `.github/rulesets/README.md`, following quickstart.md §2 (research R11 step 4). Run each verify command. Expected:
   - both ruleset diffs are empty;
   - the settings verify output matches;
   - **Settings → Rules → Rulesets** lists `protect-main` and `protect-develop` as *Active*, with no bypass list.
-- [ ] T025 [US2] Validation V1–V4 and V13 (quickstart.md §3), as the owner. Each must be rejected:
+- [X] T025 [US2] Validation V1–V4 and V13 (quickstart.md §3), as the owner. Each must be rejected:
   - V1: a direct push to `main`;
   - V2: a direct push to `develop`;
   - V3: a force push to `develop`;
   - V4: deleting `develop`;
   - V13: merging a red PR. No bypass option is offered.
-- [ ] T026 [US1] Validation V5–V12, V15 and V16 (quickstart.md §3), each on a throwaway branch from `develop`:
+- [X] T026 [US1] Validation V5–V12, V15 and V16 (quickstart.md §3), each on a throwaway branch from `develop`:
   - V5: all six checks green, and **Squash and merge** is offered. After merging, `git log -1 --format=%B origin/develop` is just `<title> (#N)` with no body;
   - V6: a failing test turns `test` red;
   - V7: a Biome error turns `lint` red with an inline annotation;
@@ -336,16 +336,16 @@ versions.
   - V16: two quick pushes cancel the first run.
 
   Merge V5 (and the fixed V6, if wanted). Close the rest unmerged.
-- [ ] T027 [US3] Validation V14 (quickstart.md §3): a PR from a feature branch into `main` turns `pr-source` red with the allowed-sources message. Close it. Then make the first release (quickstart.md §4, research R11 step 6):
+- [X] T027 [US3] Validation V14 (quickstart.md §3): a PR from a feature branch into `main` turns `pr-source` red with the allowed-sources message. Close it. Then make the first release (quickstart.md §4, research R11 step 6):
   - open a `develop` → `main` PR;
   - all six checks go green, and only **Create a merge commit** is offered;
   - merge it;
   - `git log origin/main..origin/develop` is empty afterwards (US3-2).
-- [ ] T028 [US4] Validation of the hotfix and back-merge path (quickstart.md §5):
+- [X] T028 [US4] Validation of the hotfix and back-merge path (quickstart.md §5):
   - a `hotfix/example` PR into `main` is gated by the six checks and merged with a merge commit;
   - a `sync/example` branch (from `origin/main`, with `origin/develop` merged in) goes through a PR into `develop`, gated by the six checks and merged with a merge commit;
   - afterwards `git log origin/develop..origin/main --no-merges` is empty.
-- [ ] T029 Periodic check (quickstart.md §6, FR-022): re-run the verify commands from `.github/rulesets/README.md` and `.github/repository-settings.md`, and confirm every diff is empty. Repeat whenever the rulesets, job names or repository settings change.
+- [X] T029 Periodic check (quickstart.md §6, FR-022): re-run the verify commands from `.github/rulesets/README.md` and `.github/repository-settings.md`, and confirm every diff is empty. Repeat whenever the rulesets, job names or repository settings change.
 
 ---
 

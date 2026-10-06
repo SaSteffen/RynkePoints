@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-06
 
-**Status**: Draft
+**Status**: Final
 
 **Input**: User description: "Proper CI for the repository: introduce a develop and a
 main branch. CI gates pull requests (merge requests). No one may push directly to
