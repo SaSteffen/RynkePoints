@@ -1,0 +1,37 @@
+{
+	"name": "rynke-points",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Strava integration for Team Rynkeby Hamburg: collects riders' activities (with consent), detects event participation, and awards gamified Rynke Points.",
+	"license": "Unlicense",
+	"author": "Sascha Steffen <sascha.steffen@itemis.de>",
+	"type": "module",
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy",
+		"types": "wrangler types",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"format": "biome check --write .",
+		"test": "vitest run",
+		"prepare": "lefthook install"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.5.15",
+		"@cloudflare/vitest-pool-workers": "^0.22.0",
+		"@commitlint/cli": "^21.2.3",
+		"@commitlint/config-conventional": "^21.2.3",
+		"lefthook": "^2.1.17",
+		"typescript": "^7.0.2",
+		"vitest": "^4.1.11",
+		"wrangler": "^4.147.0"
+	},
+	"packageManager": "pnpm@10.34.5",
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild",
+			"lefthook",
+			"workerd"
+		]
+	}
+}

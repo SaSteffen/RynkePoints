@@ -1,0 +1,6 @@
+# Copy to .dev.vars for `pnpm dev` / tests. Never commit .dev.vars.
+# Production values are set with `pnpm wrangler secret put <NAME>`.
+STRAVA_CLIENT_ID=
+STRAVA_CLIENT_SECRET=
+# Random string you choose; Strava echoes it back when validating the webhook subscription.
+STRAVA_WEBHOOK_VERIFY_TOKEN=

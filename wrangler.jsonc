@@ -1,0 +1,10 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "rynke-points",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-08-22",
+	"compatibility_flags": ["nodejs_compat"],
+	"observability": { "enabled": true }
+	// D1, Queues, and cron triggers get added here once the first feature's
+	// plan (/speckit-plan) settles the data model and webhook flow.
+}

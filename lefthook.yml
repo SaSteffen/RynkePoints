@@ -1,0 +1,17 @@
+# Installed automatically by `pnpm install` (the "prepare" script).
+pre-commit:
+  commands:
+    # Lint + format staged files, autofixing what it can and re-staging the
+    # fixes. Anything left unfixed fails the commit — fix it by hand.
+    biome:
+      glob: "*.{js,ts,json,jsonc}"
+      run: pnpm biome check --write --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      stage_fixed: true
+    typecheck:
+      glob: "*.ts"
+      run: pnpm typecheck
+
+commit-msg:
+  commands:
+    conventional-commit:
+      run: pnpm commitlint --edit {1}
