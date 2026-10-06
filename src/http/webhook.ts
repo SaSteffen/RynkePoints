@@ -87,8 +87,16 @@ async function receiveEvent(request: Request, ctx: Ctx): Promise<Response> {
 			aspect: event.aspect,
 			changed: Object.keys(event.updates),
 		});
+	} else if (event.updates.authorized === "false") {
+		// Strava already revoked the grant: nothing to revoke (research R3).
+		await ctx.queue.send({
+			kind: "delete-rider",
+			athleteId: event.ownerId,
+			reason: "deauthorized",
+			revoke: false,
+		});
 	}
-	// Athlete events: deauthorization arrives with US3; anything else is dropped.
+	// Any other athlete update is dropped.
 	return text("ok", 200);
 }
 

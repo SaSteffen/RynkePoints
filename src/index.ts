@@ -2,9 +2,15 @@ import type { Ctx } from "./ctx";
 import { route } from "./http/router";
 import { CATALOGS } from "./i18n/catalogs";
 import { activityEvent } from "./work/activity-event";
+import { checkMembership } from "./work/check-membership";
 import { type Handlers, processBatch } from "./work/consumer";
+import { deleteRider } from "./work/delete-rider";
 import { importPage } from "./work/import-page";
-import { requeueFailedWork } from "./work/scheduled";
+import {
+	expireReconnectRiders,
+	fanOutMembershipChecks,
+	requeueFailedWork,
+} from "./work/scheduled";
 
 // Entry points. Each builds a Ctx and delegates; tests call the exported
 // handle* functions with their own Ctx (research R12).
@@ -12,6 +18,8 @@ import { requeueFailedWork } from "./work/scheduled";
 const handlers: Handlers = {
 	"activity-event": activityEvent,
 	"import-page": importPage,
+	"check-membership": checkMembership,
+	"delete-rider": deleteRider,
 };
 
 function makeCtx(env: Env): Ctx {
@@ -38,7 +46,8 @@ export async function handleScheduled(
 	_controller: ScheduledController,
 	ctx: Ctx,
 ): Promise<void> {
-	// The daily membership fan-out arrives with US3.
+	await fanOutMembershipChecks(ctx);
+	await expireReconnectRiders(ctx);
 	await requeueFailedWork(ctx);
 }
 
