@@ -3,7 +3,8 @@
 **Feature**: [spec.md](spec.md) | **Research**: [research.md](research.md)
 
 Storage is a single D1 database (EU jurisdiction, R11). The schema is created by
-migration `migrations/0001_init.sql`. D1 enforces foreign keys, so every
+migration `migrations/0001_init.sql` and extended by
+`migrations/0002_activity_points_figures.sql`. D1 enforces foreign keys, so every
 rider-owned row uses `ON DELETE CASCADE`: deleting a `riders` row is the complete
 deletion required by FR-022.
 
@@ -25,6 +26,7 @@ One row per connected member of the team club.
 | `membership_checked_at` | INTEGER NOT NULL | Last definitive "is a member" answer. |
 | `import_status` | TEXT NOT NULL | `pending` \| `running` \| `done`. |
 | `reconnect_requested_at` | INTEGER NULL | When the rider became `needs_reconnect`; `NULL` exactly when `status=connected` (CHECK). Riders more than 7 days past it are deleted (FR-020). |
+| `figures_version` | INTEGER NOT NULL DEFAULT 0 | ≥ 0. Version of the FR-013 field set the rider's activities were last read with (R20). New riders get the current `ACTIVITY_FIGURES_VERSION`; a lower value makes the daily cron re-read them once. Added by `0002`. |
 
 Not stored, by design: last name, profile photo, city, gender, weight, email
 (Principle I), and the rider's language. The language is a per-browser preference
@@ -92,7 +94,10 @@ One row per stored cycling activity (FR-013–FR-016).
 | `timezone` | TEXT NOT NULL | Strava's timezone string, e.g. `(GMT+01:00) Europe/Berlin`. |
 | `distance_m` | REAL NOT NULL | ≥ 0. |
 | `moving_time_s` | INTEGER NOT NULL | ≥ 0. |
+| `elapsed_time_s` | INTEGER NULL | ≥ 0. Start to finish, including pauses (Strava's `elapsed_time`). `NULL` = unknown (see below). |
 | `elevation_gain_m` | REAL NOT NULL | ≥ 0. |
+| `is_manual` | INTEGER NULL | 1 if entered manually (Strava's `manual`), else 0. `NULL` = unknown. |
+| `is_trainer` | INTEGER NULL | 1 if ridden on an indoor trainer (Strava's `trainer`), else 0. `NULL` = unknown. |
 | `is_private` | INTEGER NOT NULL | 1 if "Only You". Needed to honour scope narrowing (FR-007); later team-visible features will also need it to keep "Only You" rides out of anything others see. |
 | `refreshed_at` | INTEGER NOT NULL | Last time the row was written from Strava data. |
 
@@ -100,6 +105,20 @@ Every write is an upsert keyed by `strava_activity_id` (R5). No GPS, polyline,
 coordinates, title, description, photos, heart rate or power (FR-014). The
 mapping from Strava's response is an explicit allow-list, so unknown fields can't
 leak in.
+
+`elapsed_time_s`, `is_manual` and `is_trainer` were added later by migration
+`0002_activity_points_figures.sql`, for feature 003-rynke-evaluation (FR-005a,
+FR-005b, FR-013a there). They are nullable because the spec records a figure
+missing from a row as unknown, never as a guessed 0, "not manual" or "not on a
+trainer" (spec edge case "Activities stored before a figure was added"). Every
+write sets all three from Strava's response; a field absent from the response is
+stored as `NULL`.
+
+Rows stored before `0002` start with `NULL` figures. The daily cron re-reads the
+season of every rider whose `figures_version` is behind (R20,
+contracts/queue-messages.md `reread-page`). That fills the rows, or deletes the
+ones Strava no longer returns as the rider's cycling activities. Until then the
+figures stay unknown. Feature 003 must treat `NULL` as unknown, never as 0.
 
 ## failed_work
 

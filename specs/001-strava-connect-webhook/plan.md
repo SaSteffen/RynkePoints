@@ -40,6 +40,33 @@ through Strava's webhook. A single Worker handles four things:
 This revision updates the earlier plan for those changes. Everything else is
 unchanged.
 
+**Activity figures for points** (spec clarifications of 2026-10-06; FR-002,
+FR-013): feature 003-rynke-evaluation needs three more figures per activity, so
+`activities` gains `elapsed_time_s`, `is_manual` and `is_trainer`:
+
+- They come from Strava's `elapsed_time`, `manual` and `trainer`, which are part
+  of the activity data already fetched by events and the import. No new request
+  or endpoint is needed.
+- A new migration `0002_activity_points_figures.sql` adds them as nullable
+  columns, because `0001` is already applied to the production database. `NULL`
+  means "unknown", as the spec requires for rows stored before a figure existed.
+  Every write sets all three, and a field Strava omits is stored as `NULL`,
+  never guessed.
+- The landing text `landing.dataRead` names the new figures (FR-002).
+- **Re-reading stored activities** (spec edge case "Activities stored before a
+  figure was added"). Production already holds activities, and `0002` leaves
+  their new figures `NULL`. Each rider gets a `figures_version` marker (default 0
+  from `0002`; new riders get the current version). The daily cron enqueues one
+  `reread-page` chain for every connected rider who is behind, and marks them
+  (research R20):
+  - the chain pages the season through `GET /athlete/activities`, like the
+    import, so it costs about one request per rider;
+  - rows still lacking a figure afterwards get one `activity-event` refetch
+    each, which fills them or deletes them.
+
+  The re-read starts at the first cron after the deploy and needs no manual
+  step. quickstart §4 lists the rollout order and the checks.
+
 ## Technical Context
 
 **Language/Version**: TypeScript 7 (`tsc --noEmit`), ES2024 target, Cloudflare
@@ -52,7 +79,8 @@ season start). Translations are plain typed catalogs, not an i18n library (R16).
 
 **Storage**: Cloudflare D1, EU jurisdiction (research R11). Tables: `riders`,
 `strava_credentials`, `activities`, `failed_work`, `strava_rate_limit`
-([data-model.md](data-model.md)). Migrations live in `migrations/`.
+([data-model.md](data-model.md)). Migrations live in `migrations/`; applied
+migrations are never edited, schema changes get a new one.
 
 **Testing**: Vitest in workerd via `@cloudflare/vitest-pool-workers`, against local
 D1 and Queue bindings. Strava is faked by spying on global `fetch`, and any
@@ -93,7 +121,7 @@ messages each ([contracts/messages.md](contracts/messages.md)).
 | Principle | Gate | Status |
 |---|---|---|
 | I. Privacy & consent | Opt-in scopes; private activities only if granted (R1). No `activity:write`. Nothing team-visible (FR-026). | ✅ |
-| I. Minimisation | Allow-listed fields only; no GPS, polylines, coordinates or titles (data-model `activities`). | ✅ |
+| I. Minimisation | Allow-listed fields only; no GPS, polylines, coordinates or titles (data-model `activities`). Elapsed time and the manual/trainer flags are in FR-013 and named on the landing page (FR-002). | ✅ |
 | I. Deletion | Hard delete with cascade on deauth, disconnect, leaving the club, or 7 days stuck in `needs_reconnect` (FR-020). Revoking uses the stored refresh token, so deletion never depends on a working refresh. Pending work can't recreate rows (FK + rider check). D1 Time Travel keeps a 7-day restorable history that can't be disabled; it is disclosed to riders and never used to restore deleted riders (FR-022a, R15). | ✅ disclosed |
 | I. Secrets | Tokens AES-GCM encrypted (R10). Secrets only via `wrangler secret` / `.dev.vars`. Tests use synthetic bindings. | ✅ |
 | I. EU storage | D1 `--jurisdiction=eu` (R11). Queue messages hold IDs only. | ✅ |
@@ -103,7 +131,7 @@ messages each ([contracts/messages.md](contracts/messages.md)).
 | II. Idempotency | Upserts converge to Strava's current state; duplicates and reordering are safe (R5). | ✅ |
 | II. Rate limits | Header-driven budget, 429 deferral, serial consumer; the import is paged at 200 per request (R6, R8). Deferrals re-send the message (≤ 12 h delay) so they never use up its retries and never drop work. | ✅ |
 | II. Capacity | Designed for ≤ 10 riders. "Team full" handled (R14). | ✅ |
-| II. No polling | Activities are never polled. The daily club-membership check is a scheduled Strava lookup (≤ 20 requests/day); see Complexity Tracking. | ✅ justified |
+| II. No polling | Activities are never polled. The daily club-membership check is a scheduled Strava lookup (≤ 20 requests/day); see Complexity Tracking. The re-read after a figure is added runs once per rider, not periodically (R20). | ✅ justified |
 | III. Rider content | No description edits in this feature. | ✅ n/a |
 | IV. Serverless, minimal deps | Workers + D1 + Queues + cron; no new runtime dependency. i18n uses typed catalogs and built-in `Intl`, not a library (R16). | ✅ |
 | IV. Free tier | Queues, cron and D1 are all within free limits (see Constraints). | ✅ |
@@ -133,6 +161,14 @@ messages each ([contracts/messages.md](contracts/messages.md)).
   rendering inline with 400/502/503 statuses. This is a deliberate contract change
   (R18) that keeps every page reachable by the switcher. The spec sets no status
   codes for these pages.
+- The activity-figures revision adds three columns to `activities`
+  (`elapsed_time_s`, `is_manual`, `is_trainer`), all listed in FR-013 and
+  disclosed by FR-002, so minimisation still holds. The one-time re-read
+  (R20) adds the rider column `figures_version`, the message kind
+  `reread-page` and a fourth cron step. It uses only endpoints already in
+  contracts/strava-api-usage.md, and it isn't polling: each rider is read once
+  per figure added, not periodically. It costs about one request per rider,
+  and the rate-limit rules apply unchanged. No new table, route or dependency.
 
 ## Project Structure
 
@@ -158,7 +194,8 @@ specs/001-strava-connect-webhook/
 
 ```text
 migrations/
-└── 0001_init.sql            # riders, strava_credentials, activities, failed_work, strava_rate_limit
+├── 0001_init.sql            # riders, strava_credentials, activities, failed_work, strava_rate_limit
+└── 0002_activity_points_figures.sql  # activities: elapsed_time_s, is_manual, is_trainer; riders: figures_version
 
 public/
 └── strava/                  # Strava brand assets (static assets binding), unmodified
@@ -195,9 +232,10 @@ src/
 │   ├── consumer.ts          # common rules (rider check, budget, retries, failed_work)
 │   ├── activity-event.ts
 │   ├── import-page.ts
+│   ├── reread-page.ts       # one-time re-read when FR-013 gains a figure (R20)
 │   ├── check-membership.ts
 │   ├── delete-rider.ts
-│   └── scheduled.ts         # daily membership fan-out + failed_work re-enqueue
+│   └── scheduled.ts         # daily membership fan-out, failed_work re-enqueue, re-read fan-out
 ├── db/
 │   ├── riders.ts
 │   ├── activities.ts
