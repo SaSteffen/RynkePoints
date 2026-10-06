@@ -1,21 +1,20 @@
 <!--
 Sync Impact Report
-- Version change: 1.1.1 → 1.2.0
-- Rationale: MINOR — Development Workflow changes how production is deployed.
-  Merging a pull request into `main` is now the deliberate act that deploys:
-  CI deploys the merged commit once its checks passed and applies pending D1
-  migrations forward-only. The maintainer may re-deploy `main` on demand.
-  Production secrets, resources, the Strava webhook subscription and D1 data
-  other than through migrations stay manual.
-- Principles modified: none
+- Version change: 1.2.0 → 1.2.1
+- Rationale: PATCH — Principle I's secrets bullet now names where the CI deploy
+  credential lives (GitHub environment secret that only `main` can unlock). It
+  was already covered by "MUST NOT be committed"; this closes a wording gap that
+  1.2.0 opened by letting CI deploy.
+- Principles modified: I. Rider Data Privacy and Strava Consent (wording only)
 - Sections added: none
 - Sections removed: none
-- Templates checked for alignment: .specify/templates/* — unchanged; the plan
-  template's "Constitution Check" gate reads this file at runtime.
-- Follow-up TODOs: CLAUDE.md non-negotiables updated in the same change;
-  specs/002-ci-branch-protection (User Story 5, FR-023–FR-036) implements the
-  deployment. Its plan's Constitution Check still cites the old rule and must
-  be revised by /speckit-plan.
+- Templates checked for alignment: .specify/templates/* — unchanged.
+- Follow-up TODOs: none.
+
+Previous: 1.1.1 → 1.2.0 (MINOR) — production is deployed by CI after a merge
+into `main`, with pending D1 migrations applied forward-only; secrets,
+resources, the Strava webhook subscription and D1 data other than through
+migrations stay manual.
 -->
 
 # RynkePoints Constitution
@@ -44,7 +43,8 @@ consent and Strava's API Agreement.
 - Secrets (Strava client secret, rider access/refresh tokens, encryption keys,
   Cloudflare API tokens) MUST NOT be committed. Rider refresh tokens MUST be
   encrypted at rest in the database. Production secrets live in Cloudflare secrets;
-  local ones in the gitignored `.dev.vars`.
+  the CI deploy credential lives in a GitHub environment secret that only `main`
+  can unlock; local ones in the gitignored `.dev.vars`.
 - Data is stored in the EU where the platform allows choosing a location.
 - Strava data MUST NOT be used for anything beyond the stated purpose of this app
   (no analytics resale, no AI/ML training), and the app MUST follow Strava's brand
@@ -201,4 +201,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 1.2.1 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
