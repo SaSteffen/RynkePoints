@@ -22,6 +22,9 @@
 - Q: Which languages should the rider pages ship with, and how is the language
   picked? → A: German and English both ship now, from translation strings; the
   language follows the browser's preferred languages, German by default.
+- Q: Can riders pick the language themselves? → A: Yes, via an in-app language
+  switcher on every rider-facing page; the choice is remembered in the browser and
+  overrides the browser's preferred languages.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -207,6 +210,10 @@ and no one else's.
 - **Notification for a rider who is mid-deletion**: does not resurrect any data.
 - **Browser prefers an unsupported language** (e.g. Danish only): pages are shown
   in German.
+- **Picked language no longer provided** (e.g. a language is removed later): the
+  remembered choice is ignored and the language is chosen as in FR-029.
+- **Rider uses another browser or device**: the language choice is per browser, so
+  it falls back to FR-029 there until the rider picks again.
 
 ## Requirements *(mandatory)*
 
@@ -330,10 +337,16 @@ and no one else's.
   and error messages, privacy text) MUST come from translation strings, not be
   written directly into pages or logic. German and English MUST both be provided,
   and every rider-facing message MUST exist in both.
-- **FR-029**: The page language MUST follow the browser's preferred languages:
-  English when the browser prefers English over German, otherwise German —
-  including when the browser prefers an unsupported language or sends no
-  preference. There is no in-app language switcher in this feature.
+- **FR-029**: Unless the visitor has picked a language (FR-029a), the page
+  language MUST follow the browser's preferred languages: English when the browser
+  prefers English over German, otherwise German — including when the browser
+  prefers an unsupported language or sends no preference.
+- **FR-029a**: Every rider-facing page, including the public page before
+  connecting, MUST offer a language switcher listing all provided languages. The
+  picked language MUST apply immediately, keep the visitor on the same page, and be
+  remembered in that browser for later visits, taking precedence over the browser's
+  preferred languages. The choice MUST NOT be stored in the rider record and MUST
+  NOT require signing in.
 - **FR-030**: Adding a further language MUST only require adding its translation
   strings, not changing page or processing logic.
 
@@ -386,6 +399,9 @@ and no one else's.
 - **SC-010**: Every rider-facing page and message is fully German for a browser
   preferring German, an unsupported language, or nothing, and fully English for a
   browser preferring English; no message is missing in either language.
+- **SC-011**: A visitor can switch the language from any rider-facing page in one
+  action, and the picked language is still in effect on their next visit from the
+  same browser.
 
 ## Assumptions
 
