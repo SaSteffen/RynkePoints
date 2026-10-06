@@ -32,8 +32,9 @@ and commit messages must follow
 - Pushing and `gh pr create` are outward-facing: only do them when the user asks.
 - CI runs the same `pnpm lint`, `pnpm typecheck`, `pnpm test` and commitlint
   (commits and PR title) as the local hooks.
-- CI job names are the required-check contexts. Renaming a job means updating both
-  `.github/rulesets/*.json` files in the same change.
+- The six check jobs' names are the required-check contexts. Renaming one means
+  updating both `.github/rulesets/*.json` files in the same change. `deploy-gate`
+  and `deploy` are not contexts and must never be added to them.
 
 ## Non-negotiables
 
@@ -50,6 +51,8 @@ and commit messages must follow
 - Applying branch rulesets (`.github/rulesets/README.md`) and repository settings
   (`.github/repository-settings.md`) is a manual step too: the user runs it or
   explicitly asks for it.
+- Creating the deploy credential and the `production` environment
+  (`.github/repository-settings.md`) is a manual step too.
 - Webhook handlers ack fast and enqueue; processing is idempotent (Principle II).
 - Editing a Strava activity description only ever touches the app's own delimited
   block; rider text is never lost (Principle III).

@@ -130,6 +130,9 @@ Development Workflow). The app is served at `https://trhh-rynke-coins.link`.
    than a second custom domain.
 9. Set `SEASON_START_DATE` in `wrangler.jsonc`, then `pnpm run deploy`.
    `https://trhh-rynke-coins.link/health` answers `ok`.
+   This first deploy is part of the one-time setup and creates the custom
+   domain. Afterwards, releases deploy by merging into `main`
+   ([CI quickstart §7–§8](../002-ci-branch-protection/quickstart.md#7-deploy-setup-user-story-5-one-time)).
 10. **HTTPS only.** Once the domain serves the Worker, switch on SSL/TLS → Edge
     Certificates → Always Use HTTPS. All cookies are `Secure`, so signing in
     can't work over plain HTTP.
@@ -156,6 +159,9 @@ Development Workflow). The app is served at `https://trhh-rynke-coins.link`.
       It answers `{"id": 123456}`.
     - Put that number into `STRAVA_SUBSCRIPTION_ID` in `wrangler.jsonc` and
       `pnpm run deploy` again.
+      The `wrangler.jsonc` change goes through a pull request. Once the deploy
+      credential exists, merging it into `main` deploys it; before that, the
+      manual `pnpm run deploy` stays.
     - Strava allows one subscription per app. If creating fails because one
       exists, look up its ID with
       `curl -G https://www.strava.com/api/v3/push_subscriptions -d client_id=… -d client_secret=…`.
