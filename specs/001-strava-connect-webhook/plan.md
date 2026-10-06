@@ -67,7 +67,8 @@ FR-013): feature 003-rynke-evaluation needs three more figures per activity, so
   The re-read starts at the first cron after the deploy and needs no manual
   step. quickstart §4 lists the rollout order and the checks.
 
-**Strava's flag** (spec clarification "flagged activity"; FR-002, FR-013):
+**Strava's flag** (spec Clarifications, flagged-activity question; FR-002,
+FR-013):
 feature 003-rynke-evaluation (FR-005g) never counts a ride Strava has flagged,
 so `activities` gains `is_flagged`:
 
@@ -81,8 +82,9 @@ so `activities` gains `is_flagged`:
   rider column, message kind or cron step; the "still lacking a figure" check
   includes `is_flagged`.
 - Strava sends no event when it flags an activity. The stored flag follows the
-  next time the activity is read (an update event, the import after a
-  reconnect, or a re-read). There is no polling for it (FR-010, research R5).
+  next time the activity is read (an update event that changes more than the
+  title, the import after a reconnect, or a re-read). There is no polling for
+  it (FR-010, research R5); the spec accepts the delay.
 - `landing.dataRead` names the flag (FR-002).
 
 ## Technical Context

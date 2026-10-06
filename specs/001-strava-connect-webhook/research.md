@@ -137,8 +137,10 @@ rider pages are English.
     Everything else in the response is dropped before it touches storage.
   - Strava sends no event when it flags an activity. The stored `flagged`
     follows whenever the activity is read anyway: a refetch for any non-title
-    `update`, the import after a reconnect, or a re-read (R20). Nothing polls
-    for it (FR-010).
+    `update`, the import after a reconnect, or a re-read (R20). A title-only
+    `update` makes no call, so it doesn't refresh the flag. Nothing polls for
+    it (FR-010); the delay is accepted (spec edge case "Strava flags a stored
+    activity later").
   - Cycling sport types are `Ride`, `MountainBikeRide`, `GravelRide`, `EBikeRide`,
     `EMountainBikeRide` and `VirtualRide`, kept as one constant. A row whose
     `sport_type` leaves that set is deleted.

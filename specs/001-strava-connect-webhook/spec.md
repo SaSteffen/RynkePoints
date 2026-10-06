@@ -243,8 +243,8 @@ and no one else's.
   value such as 0, "not manual", "not on a trainer" or "not flagged".
 - **Strava flags a stored activity later**: Strava documents no notification for
   flagging, so the stored flag follows the next time the activity is read from
-  Strava: an update notification for it, an import after reconnecting, or a
-  re-read when FR-013 gains a figure. The system does not poll Strava for it
+  Strava: an update notification for it that changes more than the title, an
+  import after reconnecting, or a re-read when FR-013 gains a figure. The system does not poll Strava for it
   (FR-010); the delay is accepted.
 - **Strava rate limit reached**: notifications keep being acknowledged; fetching
   the details is deferred and retried later. No notification is lost.

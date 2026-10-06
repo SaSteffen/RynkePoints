@@ -118,9 +118,9 @@ added"). Every write sets all four from Strava's response; a field absent from
 the response is stored as `NULL`.
 
 Strava sends no event when it flags an activity, so `is_flagged` follows the
-next time the activity is read: an update event, the import after a reconnect,
-or a re-read (spec edge case "Strava flags a stored activity later"). It is
-never polled for.
+next time the activity is read: an update event that changes more than the
+title, the import after a reconnect, or a re-read (spec edge case "Strava flags
+a stored activity later"). It is never polled for.
 
 Rows stored before `0002` (or `0003`) start with `NULL` figures. The daily cron re-reads the
 season of every rider whose `figures_version` is behind (R20,
