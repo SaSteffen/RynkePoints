@@ -55,6 +55,8 @@ allowed there.
   needs a spec change first.
 - The list of `required_status_checks` contexts equals the context column of
   [required-checks.md](required-checks.md).
+- The deploy jobs (`deploy-gate`, `deploy`) are never required checks. The
+  amendment for User Story 5 leaves both files unchanged (research R24).
 - `allowed_merge_methods` must be a subset of the methods enabled in the
   repository settings (squash and merge; rebase is off). Otherwise GitHub blocks
   every merge.
