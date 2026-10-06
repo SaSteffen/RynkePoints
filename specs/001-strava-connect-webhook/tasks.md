@@ -273,14 +273,14 @@ and test support used by every story.
   - `getAccessToken` refreshes only when `expires_at < now + 300`, persists the rotated refresh token encrypted (the plaintext never appears in D1), and on refresh 400/401 returns `{ kind: "refresh-refused" }`.
   - a 401 on an API call triggers exactly one refresh plus retry.
   - `revokeToken` sends HTTP Basic `client_id:client_secret` and the form field `token`.
-  - `revokeStoredToken(ctx, athleteId)` sends the rider's decrypted **refresh** token, makes no `POST /oauth/token` call even when the access token is expired, returns `ok` when the rider has no credentials, and maps 5xx/network to `transient` and every other non-2xx to `ok` (nothing left to revoke).
+  - `revokeStoredToken(ctx, athleteId)` sends the rider's decrypted **refresh** token, makes no `POST /oauth/token` call even when the access token is expired, returns `ok` when the rider has no credentials, and maps 5xx/429/network to `transient` and every other non-2xx to `ok` (nothing left to revoke).
 - [X] T024 Integration test in `test/integration/consumer.test.ts` for `processBatch(batch, ctx, handlers)` (common rules from contracts/queue-messages.md), using an injected test handler and `createMessageBatch`/`getQueueResult` from `cloudflare:test`:
   - an invalid body is acked and dropped;
   - an unknown rider is acked and dropped without the handler being called;
   - a `needs_reconnect` rider is dropped for every kind except `delete-rider`;
-  - handler result `budget` re-sends the same body (one entry in the fake queue's `sent`, `delaySeconds` ≤ 43200) and acks the original, without `retry()`; the same holds on `attempts >= 10`, and no `failed_work` row is written;
+  - handler result `budget` re-sends the same body (one entry in the fake queue's `sent`, `delaySeconds` ≤ 43200) and acks the original, without `retry()`; the same holds on the last attempt, and no `failed_work` row is written;
   - `transient` gives `retry({ delaySeconds: backoffSeconds(attempts) })`;
-  - `transient` on `attempts >= 10` upserts a `failed_work` row (`message` = `serializeWorkMessage(body)`, `last_error` without tokens), logs one English `console.error` line, and acks — except for `delete-rider`, which is never written to `failed_work`;
+  - `transient` on the last attempt (`attempts >= MAX_ATTEMPTS`) upserts a `failed_work` row (`message` = `serializeWorkMessage(body)`, `last_error` without tokens), logs one English `console.error` line, and acks — except for `delete-rider`, which is never written to `failed_work`: on its last attempt the consumer deletes the rider anyway (deletion must complete), and a `budget` or `refresh-refused` result for it is retried like `transient`;
   - handler result `ok` deletes a pre-existing `failed_work` row with the same canonical message;
   - `refresh-refused` sets the rider `status = 'needs_reconnect'` with `reconnect_requested_at = now` and acks.
 - [X] T025 [P] Integration test in `test/integration/lang-switcher.test.ts` for `POST /lang` (FR-029a, SC-011; contracts/http-routes.md; research R18), calling `handleFetch` with `makeCtx()`:
@@ -364,7 +364,7 @@ and test support used by every story.
   Makes T021 and T023 green.
 - [X] T042 Implement `src/work/consumer.ts`:
   - `processBatch(batch, ctx, handlers)` where `handlers` maps `kind` to `(msg, rider, ctx) => Promise<HandlerResult>`;
-  - apply all common rules from contracts/queue-messages.md, with `MAX_ATTEMPTS = 10` matching `max_retries`: budget deferral as re-send plus ack, `failed_work` upsert plus log on the last transient attempt, `failed_work` cleanup on `ok`.
+  - apply all common rules from contracts/queue-messages.md, with `MAX_ATTEMPTS = 11` (`max_retries` + the first delivery): budget deferral as re-send plus ack, `failed_work` upsert plus log on the last transient attempt, `failed_work` cleanup on `ok`.
 
   Makes T024 green.
 - [X] T043 Restructure `src/index.ts`:

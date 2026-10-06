@@ -86,8 +86,8 @@ imports started afterwards (spec Edge Cases).
 
 1. If `revoke` and the rider has credentials, call `POST /oauth/revoke` with the
    stored **refresh token**. No token refresh happens first, so this also works
-   for `needs_reconnect` riders. On a transient error (network, 5xx), retry; if
-   retries are exhausted, continue anyway. Any other answer (200, 400, 401, …)
+   for `needs_reconnect` riders. On a transient error (network, 5xx, 429), retry;
+   if retries are exhausted, continue anyway. Any other answer (200, 400, 401, …)
    means there is nothing left to revoke: continue.
 2. `DELETE FROM riders WHERE athlete_id=?`, which cascades to credentials,
    activities and `failed_work`.
