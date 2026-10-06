@@ -51,9 +51,10 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
 - Q (raised by the project owner): Is elevation gain also rounded per ride? → A:
   No. Elevation gain accumulates over the season; no metre is lost. The 1000 m
   step applies to the season total of all counting rides. Only distance keeps the
-  per-ride rounding, which exists to stop riders gaming the system with many short
-  rides; the handout tells riders the team will adjust it should it turn out
-  unfair.
+  per-ride rounding.
+- Q (raised by the project owner): How is the pause rule presented to riders? → A:
+  As a rule added to keep riders from gaming the system; the handout tells riders
+  the team will adjust it should it lead to unfair situations.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -356,8 +357,7 @@ re-evaluation, and check the correction is still applied exactly once.
   its distance, rounded down per ride. Distance leftovers below a full step MUST
   be dropped and MUST NOT be added to other rides or to a season total (79 km →
   7; three rides of 7 km → 0; two rides of 25 km → 4). This is a deliberate rule,
-  not a precision shortcut: it rewards proper-length rides over many short ones
-  and keeps riders from gaming the system with many short recordings.
+  not a precision shortcut: it rewards proper-length rides over many short ones.
 - **FR-004a**: Elevation gain MUST accumulate: the elevation gain of all counting
   rides in the counting window (FR-011) is added up, and the season total earns 5
   Training Rynke per full 1000 m, rounded down once on the total. No metre of
@@ -463,8 +463,8 @@ re-evaluation, and check the correction is still applied exactly once.
   written in Markdown, that explains Training Rynke and Team Rynke, every way to
   earn them with the current values, the per-ride rounding of distance (FR-004),
   the accumulated elevation gain (FR-004a) and the pause rule (FR-005a) with
-  examples, a note that the team will adjust the per-ride rounding should it lead
-  to unfair results,
+  examples, a note that the pause rule exists to keep riders from gaming the
+  system and that the team will adjust it should it lead to unfair situations,
   attendance recording (FR-007), rides during team events (FR-008), the counting
   window (FR-011), corrections (FR-010) and the qualification rule (FR-013).
 - **FR-018**: The repository MUST contain a script that converts the handout to a

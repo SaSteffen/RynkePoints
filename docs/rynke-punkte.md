@@ -68,10 +68,6 @@ stehen und zählt mit deinen nächsten Fahrten weiter.
 | 1999 + 1 Höhenmeter in 2 Fahrten  |             10 | 2000 m zusammen                       |
 | 79 km mit 1999 Höhenmetern        |             12 | 7 für km + 5 für Höhenmeter           |
 
-Die Regel für Kilometer soll verhindern, dass jemand das System austrickst, zum
-Beispiel mit vielen kurzen Fahrten. Sollte sie zu unfairen Ergebnissen führen,
-passen wir sie an.
-
 ## Eine Ausfahrt, eine Aufzeichnung
 
 Eine Fahrt zählt **gar nicht**, wenn deine Pausen zusammen **länger als die
@@ -102,6 +98,9 @@ Aufzeichnung hochlädst:
 
 Fahrten, die wegen zu langer Pause nicht zählen, siehst du auf deiner
 RynkePoints-Seite mit diesem Hinweis.
+
+Diese Pausenregel haben wir eingeführt, damit niemand das System austrickst.
+Sollte sie zu unfairen Situationen führen, passen wir sie an.
 
 Es zählen alle Radfahrten, die RynkePoints von Strava übernimmt (auch virtuelle
 Fahrten, E-Bike, Gravel und Mountainbike), solange die Organisatoren eine Sportart
