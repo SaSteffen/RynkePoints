@@ -758,7 +758,7 @@ that `/me` shows exactly that rider's 20 newest activities in order.
 
 ### Tests for User Story 4 (write first, confirm red) ⚠️
 
-- [ ] T070 [US4] Integration test in `test/integration/me-activities.test.ts` (FR-025, FR-026):
+- [X] T070 [US4] Integration test in `test/integration/me-activities.test.ts` (FR-025, FR-026):
   - **list**: rider A has 25 activities and rider B has 3 → A's `/me` shows exactly A's 20 newest, newest first, and none of B's `strava_activity_id`s or values.
   - **German formatting** (no `Accept-Language`):
     - heading "Zuletzt importierte Fahrten";
@@ -772,7 +772,7 @@ that `/me` shows exactly that rider's 20 newest activities in order.
 
 ### Implementation for User Story 4
 
-- [ ] T071 [US4] Fill the "Recent rides" section in `src/http/me.ts`:
+- [X] T071 [US4] Fill the "Recent rides" section in `src/http/me.ts`:
   - use `listRecentActivities(athleteId, 20)`;
   - labels come from `me.recent.*`, sport names from `sport.<type>`, and units from `units.km`/`units.m` with `i18n.formatNumber`/`formatDate`;
   - escape everything through `html`.
@@ -785,13 +785,13 @@ that `/me` shows exactly that rider's 20 newest activities in order.
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T072 [P] Integration test in `test/integration/language-rendering.test.ts` (SC-010, SC-011, FR-029a). It covers every rider-facing page:
+- [X] T072 [P] Integration test in `test/integration/language-rendering.test.ts` (SC-010, SC-011, FR-029a). It covers every rider-facing page:
   - **pages**: `/` signed out; `/me` for a connected rider with activities; `/me` for a `needs_reconnect` rider; `/me/disconnect`; every `/notice/:id`; the `404` page; the `403` page.
-  - **German**: run each page with `Accept-Language` absent, `da`, `fr-CH, fr;q=0.9` and `de-DE,en;q=0.5`. Each must have `<html lang="de">`, `Content-Language: de` and `Vary: Accept-Language, Cookie`, and must contain none of the "English-only" catalog values (`en` values that differ from `de` and are longer than 3 characters).
-  - **English**: run each page with `en-US,en;q=0.9,de;q=0.8`. It must have `lang="en"` and contain none of the "German-only" values.
+  - **German**: run each page with `Accept-Language` absent, `de-DE,en;q=0.5` and `da,de;q=0.5`. Each must have `<html lang="de">`, `Content-Language: de` and `Vary: Accept-Language, Cookie`, and must contain none of the "English-only" catalog values (`en` values that differ from `de` and are longer than 3 characters).
+  - **English**: run each page with `en-US,en;q=0.9,de;q=0.8`, `da` and `fr-CH, fr;q=0.9` (only unsupported languages → English, FR-029). It must have `lang="en"` and contain none of the "German-only" values.
   - **switcher**: every page has exactly one switcher form whose `next` is that page's own path, so one click (SC-011) switches language there.
   - **remembered**: a `rp_lang=en` cookie set by `POST /lang`, replayed on a fresh request with `Accept-Language: de`, still renders English.
-- [ ] T073 [P] Hard-coded copy guard in `test/integration/no-hardcoded-copy.test.ts` (FR-028, FR-030; research R18):
+- [X] T073 [P] Hard-coded copy guard in `test/integration/no-hardcoded-copy.test.ts` (FR-028, FR-030; research R18):
   - **pseudo-locale**: build a `qps` catalog from `de`, wrapping every value as `⟦…⟧`. Keep `meta.intlLocale` (`de-DE`) and `brand.*.src` as they are; set `meta.languageName` to `⟦Pseudo⟧`.
   - **setup**: create `makeCtx({ catalogs: { ...CATALOGS, qps } })` and render every rider-facing page from T072 with `Cookie: rp_lang=qps`.
   - **text nodes**: strip tags and collect the visible text nodes. Each must sit inside `⟦…⟧`, apart from three exceptions:
@@ -802,9 +802,9 @@ that `/me` shows exactly that rider's 20 newest activities in order.
   - **new locale needs no code**: the switcher lists `⟦Pseudo⟧`, which proves a new locale works without code changes.
 
   Fix any hard-coded copy found in `src/`.
-- [ ] T074 [P] Unit test in `test/unit/no-secret-logging.test.ts`: spy on `console.log`/`console.error` while running the callback, refresh, revoke and consumer failure paths (reuse the integration helpers) and assert no logged string contains the fake access token, refresh token, authorization code, client secret, or `TOKEN_ENCRYPTION_KEY`. Fix any offending log call in `src/`.
-- [ ] T075 [P] Add a schema guard test in `test/integration/schema-minimisation.test.ts` (FR-014, SC-007, FR-029a). Read `PRAGMA table_info(activities)` and `PRAGMA table_info(riders)`, and assert the column sets equal exactly those in data-model.md. No `polyline`, `latlng`, `name`, `title`, `photo`, `heartrate`, `watts`, `last_name`, `email`, `locale` or `lang` columns can sneak in.
-- [ ] T076 [P] Update `README.md`:
+- [X] T074 [P] Unit test in `test/unit/no-secret-logging.test.ts`: spy on `console.log`/`console.error` while running the callback, refresh, revoke and consumer failure paths (reuse the integration helpers) and assert no logged string contains the fake access token, refresh token, authorization code, client secret, or `TOKEN_ENCRYPTION_KEY`. Fix any offending log call in `src/`.
+- [X] T075 [P] Add a schema guard test in `test/integration/schema-minimisation.test.ts` (FR-014, SC-007, FR-029a). Read `PRAGMA table_info(activities)` and `PRAGMA table_info(riders)`, and assert the column sets equal exactly those in data-model.md. No `polyline`, `latlng`, `name`, `title`, `photo`, `heartrate`, `watts`, `last_name`, `email`, `locale` or `lang` columns can sneak in.
+- [X] T076 [P] Update `README.md`:
   - what the app does;
   - a privacy summary (scopes, what is stored, deletion paths, the 7-day backup window, the session and language cookies);
   - **languages**:
@@ -813,27 +813,27 @@ that `/me` shows exactly that rider's 20 newest activities in order.
     - adding a locale means adding a catalog file and registering it in `src/i18n/catalogs.ts`;
   - a link to `specs/001-strava-connect-webhook/quickstart.md` for setup and the manual production steps, including the per-locale Strava brand assets;
   - the note that the D1 database must be created with `--jurisdiction=eu` before the first deploy.
-- [ ] T077 [P] Update `CLAUDE.md`: under Commands, add `pnpm wrangler d1 migrations apply rynke-points --local` for local dev. Mention that the D1/Queue/cron bindings now exist in `wrangler.jsonc`, and that rider-facing text belongs in `src/i18n/messages/` (never inline).
-- [ ] T078 Review `src/` against contracts/http-routes.md, contracts/queue-messages.md, contracts/strava-api-usage.md and contracts/messages.md:
+- [X] T077 [P] Update `CLAUDE.md`: under Commands, add `pnpm wrangler d1 migrations apply rynke-points --local` for local dev. Mention that the D1/Queue/cron bindings now exist in `wrangler.jsonc`, and that rider-facing text belongs in `src/i18n/messages/` (never inline).
+- [X] T078 Review `src/` against contracts/http-routes.md, contracts/queue-messages.md, contracts/strava-api-usage.md and contracts/messages.md:
   - every route, message kind, Strava call and message ID in the contracts must exist;
   - no other Strava endpoint may be called (`grep -rn "strava.com" src/`);
   - no catalog message is unused (`grep` each ID in `src/`; IDs built dynamically for `sport.*` and `notice.*` count as used).
 
   Record any gap as a new task.
-- [ ] T079 Re-run the plan's Constitution Check table against the implementation (Principles I–V and the Language section). In particular:
+- [X] T079 Re-run the plan's Constitution Check table against the implementation (Principles I–V and the Language section). In particular:
   - no runtime dependencies were added to `package.json` (no i18n library);
   - tokens are only stored via `src/crypto/encrypt.ts`;
   - the webhook handler imports nothing from `src/strava/`;
   - rider-facing text exists only in `src/i18n/messages/`;
   - code, logs and test names are English;
   - no D1 column holds a language.
-- [ ] T080 Wiring test in `test/integration/wiring.test.ts` through `exports.default` from `cloudflare:workers`:
+- [X] T080 Wiring test in `test/integration/wiring.test.ts` through `exports.default` from `cloudflare:workers`:
   - `fetch("/health")` → 200;
   - `fetch("/strava/webhook/wrong")` → 404;
   - `fetch("/")` → 200 with `Content-Language: de`;
   - `queue(createMessageBatch(...))` with one `activity-event` for an unknown athlete is acked;
   - `scheduled(createScheduledController({ cron: "17 3 * * *" }))` completes.
-- [ ] T081 Run `pnpm lint && pnpm typecheck && pnpm test` and walk through quickstart.md §1, ticking off every scenario row (including the language rows) against a passing test. Fix failures before marking done.
+- [X] T081 Run `pnpm lint && pnpm typecheck && pnpm test` and walk through quickstart.md §1, ticking off every scenario row (including the language rows) against a passing test. Fix failures before marking done.
 
 ---
 
