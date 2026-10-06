@@ -35,6 +35,7 @@ const valid: WorkMessage[] = [
 		reason: "reconnect-expired",
 		revoke: true,
 	},
+	{ kind: "evaluate-rider", athleteId: 900001 },
 ];
 
 describe("parseWorkMessage", () => {
@@ -66,6 +67,16 @@ describe("parseWorkMessage", () => {
 		).toEqual({ kind: "check-membership", athleteId: 900001 });
 	});
 
+	it("drops unknown fields from evaluate-rider", () => {
+		expect(
+			parseWorkMessage({
+				kind: "evaluate-rider",
+				athleteId: 900001,
+				rulesVersion: 2,
+			}),
+		).toEqual({ kind: "evaluate-rider", athleteId: 900001 });
+	});
+
 	it("drops unknown fields from reread-page", () => {
 		expect(
 			parseWorkMessage({
@@ -85,6 +96,11 @@ describe("parseWorkMessage", () => {
 		["string id", { kind: "check-membership", athleteId: "900001" }],
 		["fractional id", { kind: "check-membership", athleteId: 1.5 }],
 		["zero id", { kind: "check-membership", athleteId: 0 }],
+		["evaluate-rider without id", { kind: "evaluate-rider" }],
+		[
+			"fractional evaluate-rider id",
+			{ kind: "evaluate-rider", athleteId: 900001.5 },
+		],
 		[
 			"fractional activity id",
 			{
@@ -185,6 +201,12 @@ describe("serializeWorkMessage", () => {
 				kind: "reread-page",
 			} as WorkMessage),
 		).toBe('{"kind":"reread-page","athleteId":900001,"page":2,"after":5}');
+		expect(
+			serializeWorkMessage({
+				athleteId: 900001,
+				kind: "evaluate-rider",
+			} as WorkMessage),
+		).toBe('{"kind":"evaluate-rider","athleteId":900001}');
 	});
 
 	it.each(valid)("round-trips $kind", (message) => {

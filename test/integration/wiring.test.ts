@@ -9,7 +9,7 @@ import { exports } from "cloudflare:workers";
 import { beforeEach, describe, expect, it } from "vitest";
 import worker from "../../src/index";
 import type { WorkMessage } from "../../src/work/messages";
-import { resetDb } from "../support/ctx";
+import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, NOW } from "../support/fixtures";
 
 // The real entry points with the real bindings from wrangler.jsonc, not a test
@@ -54,6 +54,23 @@ describe("worker wiring", () => {
 		const result = await getQueueResult(batch, createExecutionContext());
 		expect(result.explicitAcks).toEqual(["m1"]);
 		expect(result.retryMessages).toEqual([]);
+	});
+
+	it("queue routes evaluate-rider to its handler", async () => {
+		await seedRider(makeCtx());
+		const body: WorkMessage = { kind: "evaluate-rider", athleteId: ATHLETE_A };
+		const batch = createMessageBatch<unknown>("rynke-points-work", [
+			{ id: "m1", timestamp: new Date(NOW * 1000), attempts: 1, body },
+		]);
+		await worker.queue(batch, env);
+		const result = await getQueueResult(batch, createExecutionContext());
+		expect(result.explicitAcks).toEqual(["m1"]);
+		const balance = await env.DB.prepare(
+			"SELECT distance_rynke FROM rynke_balances WHERE athlete_id = ?",
+		)
+			.bind(ATHLETE_A)
+			.first();
+		expect(balance).toEqual({ distance_rynke: 0 });
 	});
 
 	it("scheduled completes the daily run", async () => {

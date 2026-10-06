@@ -1,8 +1,8 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
-	deleteActivity,
-	deletePrivateActivities,
+	deleteActivityStatement,
+	deletePrivateActivitiesStatement,
 	listActivityIdsMissingFigures,
 	listRecentActivities,
 	upsertActivity,
@@ -88,6 +88,8 @@ describe("riders", () => {
 			consent_records: 1,
 			failed_work: 0,
 			strava_rate_limit: 1,
+			ride_results: 0,
+			rynke_balances: 0,
 		});
 		expect(await getCurrentConsent(db, ATHLETE_A)).toBeNull();
 	});
@@ -424,9 +426,9 @@ describe("activities", () => {
 
 	it("deletes one activity of its owner", async () => {
 		await upsertActivity(db, record());
-		await deleteActivity(db, ATHLETE_B, 7001);
+		await deleteActivityStatement(db, ATHLETE_B, 7001).run();
 		expect(await listRecentActivities(db, ATHLETE_A, 20)).toHaveLength(1);
-		await deleteActivity(db, ATHLETE_A, 7001);
+		await deleteActivityStatement(db, ATHLETE_A, 7001).run();
 		expect(await listRecentActivities(db, ATHLETE_A, 20)).toHaveLength(0);
 	});
 
@@ -503,7 +505,7 @@ describe("activities", () => {
 			db,
 			record({ strava_activity_id: 3, is_private: 1, athlete_id: ATHLETE_B }),
 		);
-		await deletePrivateActivities(db, ATHLETE_A);
+		await deletePrivateActivitiesStatement(db, ATHLETE_A).run();
 		expect(
 			(await listRecentActivities(db, ATHLETE_A, 20)).map(
 				(r) => r.strava_activity_id,
@@ -576,5 +578,132 @@ describe("failed_work", () => {
 			failures: 1,
 		});
 		expect((await tableCounts()).failed_work).toBe(1);
+	});
+});
+
+describe("rynke tables (migration 0005)", () => {
+	const result = (overrides: Record<string, unknown> = {}) => ({
+		strava_activity_id: 7001,
+		athlete_id: ATHLETE_A,
+		counts: 1,
+		reasons: "[]",
+		overlaps_activity_id: null,
+		distance_rynke: 4,
+		elevation_dm: 3120,
+		is_virtual: 0,
+		unknown_figures: "[]",
+		rules_version: 1,
+		activity_refreshed_at: NOW,
+		...overrides,
+	});
+	const balance = (overrides: Record<string, unknown> = {}) => ({
+		athlete_id: ATHLETE_A,
+		distance_rynke: 4,
+		elevation_dm: 3120,
+		elevation_rynke: 0,
+		elevation_to_next_step_dm: 6880,
+		training_rynke: 4,
+		team_rynke: 0,
+		training_missing: 246,
+		team_missing: 25,
+		training_without_virtual: 4,
+		virtual_share_missing: 163,
+		qualified: 0,
+		rules_version: 1,
+		rules_effective_date: "2026-10-07",
+		computed_at: NOW,
+		...overrides,
+	});
+
+	function insert(table: string, row: Record<string, unknown>) {
+		const columns = Object.keys(row);
+		return db
+			.prepare(
+				`INSERT INTO ${table} (${columns.join(", ")})
+				VALUES (${columns.map(() => "?").join(", ")})`,
+			)
+			.bind(...Object.values(row))
+			.run();
+	}
+
+	async function count(table: string, athleteId = ATHLETE_A) {
+		return db
+			.prepare(`SELECT COUNT(*) AS n FROM ${table} WHERE athlete_id = ?`)
+			.bind(athleteId)
+			.first<number>("n");
+	}
+
+	beforeEach(async () => {
+		const ctx = makeCtx();
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		await seedRider(ctx, { athleteId: ATHLETE_B });
+		await upsertActivity(db, record());
+		await upsertActivity(
+			db,
+			record({ strava_activity_id: 7002, athlete_id: ATHLETE_B }),
+		);
+	});
+
+	it("accepts a valid result and balance", async () => {
+		await insert("ride_results", result());
+		await insert("rynke_balances", balance());
+		expect(await count("ride_results")).toBe(1);
+		expect(await count("rynke_balances")).toBe(1);
+	});
+
+	it("refuses a result whose activity doesn't exist", async () => {
+		await expect(
+			insert("ride_results", result({ strava_activity_id: 7999 })),
+		).rejects.toThrow(/FOREIGN KEY/);
+	});
+
+	it.each([
+		["counts", 2],
+		["reasons", "not json"],
+		["unknown_figures", "not json"],
+		["distance_rynke", -1],
+		["elevation_dm", -1],
+		["is_virtual", 2],
+		["rules_version", 0],
+	])("refuses a result with %s = %j", async (column, value) => {
+		await expect(
+			insert("ride_results", result({ [column]: value })),
+		).rejects.toThrow(/CHECK/);
+	});
+
+	it.each([
+		["elevation_to_next_step_dm", 0],
+		["qualified", 2],
+		["rules_effective_date", "2026-1-1"],
+		["rules_version", 0],
+		["training_rynke", -1],
+		["virtual_share_missing", -1],
+	])("refuses a balance with %s = %j", async (column, value) => {
+		await expect(
+			insert("rynke_balances", balance({ [column]: value })),
+		).rejects.toThrow(/CHECK/);
+	});
+
+	it("deleting an activity deletes its result", async () => {
+		await insert("ride_results", result());
+		await deleteActivityStatement(db, ATHLETE_A, 7001).run();
+		expect(await count("ride_results")).toBe(0);
+	});
+
+	it("deleting a rider deletes their results and balance only", async () => {
+		await insert("ride_results", result());
+		await insert("rynke_balances", balance());
+		await insert(
+			"ride_results",
+			result({ strava_activity_id: 7002, athlete_id: ATHLETE_B }),
+		);
+		await insert("rynke_balances", balance({ athlete_id: ATHLETE_B }));
+
+		await deleteRider(db, ATHLETE_A);
+
+		expect(await count("ride_results")).toBe(0);
+		expect(await count("rynke_balances")).toBe(0);
+		expect(await count("ride_results", ATHLETE_B)).toBe(1);
+		expect(await count("rynke_balances", ATHLETE_B)).toBe(1);
 	});
 });

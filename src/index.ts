@@ -5,10 +5,12 @@ import { activityEvent } from "./work/activity-event";
 import { checkMembership } from "./work/check-membership";
 import { type Handlers, processBatch } from "./work/consumer";
 import { deleteRider } from "./work/delete-rider";
+import { evaluateRider } from "./work/evaluate-rider";
 import { importPage } from "./work/import-page";
 import { rereadPage } from "./work/reread-page";
 import {
 	expireReconnectRiders,
+	fanOutEvaluations,
 	fanOutFiguresReread,
 	fanOutMembershipChecks,
 	requeueFailedWork,
@@ -23,6 +25,7 @@ const handlers: Handlers = {
 	"reread-page": rereadPage,
 	"check-membership": checkMembership,
 	"delete-rider": deleteRider,
+	"evaluate-rider": evaluateRider,
 };
 
 function makeCtx(env: Env): Ctx {
@@ -58,6 +61,7 @@ export async function handleScheduled(
 		expireReconnectRiders,
 		requeueFailedWork,
 		fanOutFiguresReread,
+		fanOutEvaluations,
 	]) {
 		try {
 			await step(ctx);
