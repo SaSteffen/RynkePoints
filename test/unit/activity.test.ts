@@ -40,7 +40,10 @@ describe("toActivityRecord", () => {
 			timezone: "(GMT+01:00) Europe/Berlin",
 			distance: 42195.4,
 			moving_time: 5400,
+			elapsed_time: 6000,
 			total_elevation_gain: 312.5,
+			manual: true,
+			trainer: true,
 			private: false,
 		});
 		expect(toActivityRecord(activity, ATHLETE_A, NOW)).toEqual({
@@ -52,7 +55,10 @@ describe("toActivityRecord", () => {
 			timezone: "(GMT+01:00) Europe/Berlin",
 			distance_m: 42195.4,
 			moving_time_s: 5400,
+			elapsed_time_s: 6000,
 			elevation_gain_m: 312.5,
+			is_manual: 1,
+			is_trainer: 1,
 			is_private: 0,
 			refreshed_at: NOW,
 		});
@@ -88,7 +94,10 @@ describe("toActivityRecord", () => {
 				"timezone",
 				"distance_m",
 				"moving_time_s",
+				"elapsed_time_s",
 				"elevation_gain_m",
+				"is_manual",
+				"is_trainer",
 				"is_private",
 				"refreshed_at",
 			].sort(),
@@ -104,6 +113,26 @@ describe("toActivityRecord", () => {
 		]) {
 			expect(serialized).not.toContain(leaked);
 		}
+	});
+
+	it("maps false flags to 0", () => {
+		const record = toActivityRecord(
+			makeStravaActivity({ manual: false, trainer: false }),
+			ATHLETE_A,
+			NOW,
+		);
+		expect(record).toMatchObject({ is_manual: 0, is_trainer: 0 });
+	});
+
+	it.each([
+		["elapsed_time", "elapsed_time_s"],
+		["manual", "is_manual"],
+		["trainer", "is_trainer"],
+	] as const)("records a missing %s as unknown, never 0", (field, column) => {
+		const activity = makeStravaActivity({ manual: true, trainer: true });
+		delete activity[field];
+		const record = toActivityRecord(activity, ATHLETE_A, NOW);
+		expect(record?.[column]).toBeNull();
 	});
 
 	it("marks private activities", () => {

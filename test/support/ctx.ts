@@ -6,6 +6,7 @@ import {
 	createSessionCookie,
 } from "../../src/http/session";
 import { CATALOGS, type Catalogs } from "../../src/i18n/catalogs";
+import { ACTIVITY_FIGURES_VERSION } from "../../src/strava/activity";
 import type { WorkMessage } from "../../src/work/messages";
 import { initialTokens } from "./fake-strava";
 import { ATHLETE_A, firstNameFor, NOW } from "./fixtures";
@@ -62,6 +63,8 @@ export interface SeedRiderOptions {
 	scopeReadAll?: boolean;
 	scopes?: string;
 	importStatus?: "pending" | "running" | "done";
+	/** Defaults to the current version; 0 is a rider stored before `0002`. */
+	figuresVersion?: number;
 	accessToken?: string;
 	refreshToken?: string;
 	expiresAt?: number;
@@ -85,8 +88,8 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 		ctx.env.DB.prepare(
 			`INSERT INTO riders (athlete_id, first_name, status, scope_read_all, scopes,
 				connected_at, scopes_updated_at, membership_checked_at, import_status,
-				reconnect_requested_at)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+				reconnect_requested_at, figures_version)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		).bind(
 			athleteId,
 			options.firstName ?? firstNameFor(athleteId),
@@ -103,6 +106,7 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 			status === "needs_reconnect"
 				? (options.reconnectRequestedAt ?? now)
 				: null,
+			options.figuresVersion ?? ACTIVITY_FIGURES_VERSION,
 		),
 		ctx.env.DB.prepare(
 			`INSERT INTO strava_credentials (athlete_id, access_token_enc,

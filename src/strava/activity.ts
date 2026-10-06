@@ -13,6 +13,12 @@ export const CYCLING_SPORT_TYPES = [
 
 export type CyclingSportType = (typeof CYCLING_SPORT_TYPES)[number];
 
+/**
+ * Version of the FR-013 field set. Goes up whenever the mapping gains a figure,
+ * so the daily cron re-reads riders stored with an older one (research R20).
+ */
+export const ACTIVITY_FIGURES_VERSION = 1;
+
 /** The fields we read from a Strava summary or detailed activity. */
 export interface StravaActivity {
 	id: number;
@@ -22,7 +28,10 @@ export interface StravaActivity {
 	timezone: string;
 	distance: number;
 	moving_time: number;
+	elapsed_time?: number;
 	total_elevation_gain: number;
+	manual?: boolean;
+	trainer?: boolean;
 	private?: boolean;
 }
 
@@ -35,7 +44,11 @@ export interface ActivityRecord {
 	timezone: string;
 	distance_m: number;
 	moving_time_s: number;
+	/** `null` = unknown: Strava didn't send it, or the row predates it. */
+	elapsed_time_s: number | null;
 	elevation_gain_m: number;
+	is_manual: 0 | 1 | null;
+	is_trainer: 0 | 1 | null;
 	is_private: 0 | 1;
 	refreshed_at: number;
 }
@@ -60,8 +73,16 @@ export function toActivityRecord(
 		timezone: activity.timezone,
 		distance_m: activity.distance,
 		moving_time_s: activity.moving_time,
+		elapsed_time_s: activity.elapsed_time ?? null,
 		elevation_gain_m: activity.total_elevation_gain,
+		is_manual: flag(activity.manual),
+		is_trainer: flag(activity.trainer),
 		is_private: activity.private ? 1 : 0,
 		refreshed_at: now,
 	};
+}
+
+/** A missing flag stays unknown, never "false" (spec edge case). */
+function flag(value: boolean | undefined): 0 | 1 | null {
+	return value === undefined ? null : value ? 1 : 0;
 }

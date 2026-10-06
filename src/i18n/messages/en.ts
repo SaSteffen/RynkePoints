@@ -20,7 +20,7 @@ export const en: Catalog = {
 	"landing.who": "Only members of {clubLink} can take part.",
 	"club.linkText": "our team club on Strava",
 	"landing.dataRead":
-		"From your rides we only read sport type, start time, distance, moving time and elevation gain – no GPS tracks, maps, photos or health data.",
+		"From your rides we only read sport type, start time, distance, moving time, elapsed time including pauses, elevation gain, and whether the ride was entered manually or ridden on an indoor trainer – no GPS tracks, maps, photos or health data.",
 	"landing.private":
 		'On Strava you decide whether your private ("Only You") activities are included.',
 	"landing.purpose":

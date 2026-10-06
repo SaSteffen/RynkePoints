@@ -109,6 +109,25 @@ describe("import-page", () => {
 		expect(statuses).toEqual(["running", "running", "done"]);
 	});
 
+	it("stores the points figures of every cycling item", async () => {
+		fake.addAthlete({ id: ATHLETE_A });
+		await seedRider(ctx);
+		addActivities(3, SEASON_START + 86400, (i) => ({
+			elapsed_time: 6000 + i,
+			manual: i === 1,
+			trainer: i === 2,
+		}));
+		await deliver(FIRST);
+		const { results } = await env.DB.prepare(
+			"SELECT elapsed_time_s, is_manual, is_trainer FROM activities ORDER BY start_date",
+		).all();
+		expect(results).toEqual([
+			{ elapsed_time_s: 6000, is_manual: 0, is_trainer: 0 },
+			{ elapsed_time_s: 6001, is_manual: 1, is_trainer: 0 },
+			{ elapsed_time_s: 6002, is_manual: 0, is_trainer: 1 },
+		]);
+	});
+
 	it("keeps the season start the import was started with", async () => {
 		fake.addAthlete({ id: ATHLETE_A });
 		await seedRider(ctx);

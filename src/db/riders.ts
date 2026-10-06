@@ -1,4 +1,5 @@
 import { decryptToken, encryptToken } from "../crypto/encrypt";
+import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
 
 // Riders and their Strava credentials (data-model.md). Deleting a rider is a
 // single DELETE; the schema cascades to everything they own (FR-022).
@@ -17,6 +18,8 @@ export interface Rider {
 	membershipCheckedAt: number;
 	importStatus: ImportStatus;
 	reconnectRequestedAt: number | null;
+	/** FR-013 field set the rider's activities were last read with (R20). */
+	figuresVersion: number;
 }
 
 export interface Credentials {
@@ -36,6 +39,7 @@ interface RiderRow {
 	membership_checked_at: number;
 	import_status: ImportStatus;
 	reconnect_requested_at: number | null;
+	figures_version: number;
 }
 
 export interface RiderGrant {
@@ -65,11 +69,15 @@ export async function getRider(
 				membershipCheckedAt: row.membership_checked_at,
 				importStatus: row.import_status,
 				reconnectRequestedAt: row.reconnect_requested_at,
+				figuresVersion: row.figures_version,
 			}
 		: null;
 }
 
-/** A newly connected rider: `connected`, import `pending`. */
+/**
+ * A newly connected rider: `connected`, import `pending`. Their import reads
+ * every current figure, so they start at the current figures version.
+ */
 export async function insertRider(
 	db: D1Database,
 	rider: RiderGrant & { athleteId: number },
@@ -78,8 +86,8 @@ export async function insertRider(
 		.prepare(
 			`INSERT INTO riders (athlete_id, first_name, status, scope_read_all, scopes,
 				connected_at, scopes_updated_at, membership_checked_at, import_status,
-				reconnect_requested_at)
-			VALUES (?1, ?2, 'connected', ?3, ?4, ?5, ?5, ?5, 'pending', NULL)`,
+				reconnect_requested_at, figures_version)
+			VALUES (?1, ?2, 'connected', ?3, ?4, ?5, ?5, ?5, 'pending', NULL, ?6)`,
 		)
 		.bind(
 			rider.athleteId,
@@ -87,6 +95,7 @@ export async function insertRider(
 			rider.scopeReadAll ? 1 : 0,
 			rider.scopes,
 			rider.now,
+			ACTIVITY_FIGURES_VERSION,
 		)
 		.run();
 }
@@ -167,6 +176,33 @@ export async function listConnectedRiderIds(db: D1Database): Promise<number[]> {
 		)
 		.all<{ athlete_id: number }>();
 	return results.map((r) => r.athlete_id);
+}
+
+/** Connected riders whose activities were read with an older field set (R20). */
+export async function listRidersBehindFiguresVersion(
+	db: D1Database,
+	version: number,
+): Promise<number[]> {
+	const { results } = await db
+		.prepare(
+			`SELECT athlete_id FROM riders
+			WHERE status = 'connected' AND figures_version < ?
+			ORDER BY athlete_id`,
+		)
+		.bind(version)
+		.all<{ athlete_id: number }>();
+	return results.map((r) => r.athlete_id);
+}
+
+export async function setFiguresVersion(
+	db: D1Database,
+	athleteId: number,
+	version: number,
+): Promise<void> {
+	await db
+		.prepare("UPDATE riders SET figures_version = ? WHERE athlete_id = ?")
+		.bind(version, athleteId)
+		.run();
 }
 
 /** `needs_reconnect` riders whose refusal happened before `before`. */
