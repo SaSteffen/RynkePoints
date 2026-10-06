@@ -63,7 +63,7 @@ Story 4 (tally, storage, triggers); it needs Phase 3.
 
 **Purpose**: confirm a green baseline in the worktree.
 
-- [ ] T001 Run `pnpm install`, `pnpm lint`, `pnpm typecheck` and `pnpm test` in the worktree root and confirm all green before any change; note any pre-existing failure in the task's commit message rather than fixing it here.
+- [X] T001 Run `pnpm install`, `pnpm lint`, `pnpm typecheck` and `pnpm test` in the worktree root and confirm all green before any change; note any pre-existing failure in the task's commit message rather than fixing it here.
 
 ---
 
@@ -75,7 +75,7 @@ Story 4 (tally, storage, triggers); it needs Phase 3.
 
 ### Tests for the foundation (write first, confirm red) ⚠️
 
-- [ ] T002 [P] Create `test/unit/rules.test.ts` (research R8, data-model.md "Input: Rynke Rules"):
+- [X] T002 [P] Create `test/unit/rules.test.ts` (research R8, data-model.md "Input: Rynke Rules"):
   - `CURRENT_RULES` has exactly the values of data-model.md: `version` 1, `distanceStepKm` 10, `distanceStepRynke` 1, `elevationStepM` 1000, `elevationStepRynke` 5, `maxPausedShare` `{ num: 1, den: 2 }`, `minSpeedKmh` 10, `maxSpeedKmh` 45, `maxClimbMPerH` 1500, `excludedSportTypes` `["EBikeRide", "EMountainBikeRide"]`, `qualificationDeadline` `null`, `trainingThreshold` 250, `teamThreshold` 25, `maxVirtualShare` `{ num: 1, den: 3 }`, and `effectiveDate` matching `/^\d{4}-\d{2}-\d{2}$/`.
   - **Fingerprint pin**: `rulesFingerprint(CURRENT_RULES)` (a stable JSON of every field except `version` and `effectiveDate`, keys sorted) equals a literal string written in the test next to `version: 1`; the test's failure message says "a rule value changed: raise CURRENT_RULES.version and effectiveDate, then update this fingerprint".
   - `RynkeRules` has no field for flagged rides (FR-005g): `Object.keys(CURRENT_RULES)` contains nothing matching `/flag/i`.
@@ -84,11 +84,11 @@ Story 4 (tally, storage, triggers); it needs Phase 3.
 
 ### Test support
 
-- [ ] T003 [P] Create `test/support/rides.ts` with `makeRide(overrides)` returning a `Ride` (the `src/rynke/rides.ts` input type, see T005) built from human units: `{ id, km, movingH, pausedH?, elevationM?, start?, sportType?, manual?, trainer?, flagged?, elapsedUnknown? }` → `activityId: id`, `distanceM: km * 1000`, `movingS: Math.round(movingH * 3600)`, `elapsedS: elapsedUnknown ? null : movingS + Math.round((pausedH ?? 0) * 3600)`, `elevationM: elevationM ?? 0`, `startUtc: start ?? "2026-05-01T08:00:00Z"`, `startLocal` = the same wall-clock string, `sportType: sportType ?? "Ride"`, `manual`, `trainer`, `flagged` default `false` (pass `null` for unknown), `refreshedAt: 0`. Also export `WINDOW = { seasonStart: "2026-01-01", deadline: null }`. Synthetic values only.
+- [X] T003 [P] Create `test/support/rides.ts` with `makeRide(overrides)` returning a `Ride` (the `src/rynke/rides.ts` input type, see T005) built from human units: `{ id, km, movingH, pausedH?, elevationM?, start?, sportType?, manual?, trainer?, flagged?, elapsedUnknown? }` → `activityId: id`, `distanceM: km * 1000`, `movingS: Math.round(movingH * 3600)`, `elapsedS: elapsedUnknown ? null : movingS + Math.round((pausedH ?? 0) * 3600)`, `elevationM: elevationM ?? 0`, `startUtc: start ?? "2026-05-01T08:00:00Z"`, `startLocal` = the same wall-clock string, `sportType: sportType ?? "Ride"`, `manual`, `trainer`, `flagged` default `false` (pass `null` for unknown), `refreshedAt: 0`. Also export `WINDOW = { seasonStart: "2026-01-01", deadline: null }`. Synthetic values only.
 
 ### Implementation for the foundation
 
-- [ ] T004 Create `src/rynke/rules.ts` (research R8): `interface Share { num: number; den: number }`; `interface RynkeRules` with the fields of data-model.md; `CURRENT_RULES: RynkeRules` with those values and `effectiveDate` set to the date this change ships; `assertValidRules(rules)` (throws `Error` on the cases in T002, a programming error); `rulesFingerprint(rules)`; `interface CountingWindow { seasonStart: string; deadline: string | null }` and `countingWindow(env: Pick<Settings, "SEASON_START_DATE">, rules)`. A short header comment says a developer raises `version` and `effectiveDate` in the same change as any change of a value or of rule logic, and that flagged rides (FR-005g) are deliberately not a rule value. Makes T002 green.
+- [X] T004 Create `src/rynke/rules.ts` (research R8): `interface Share { num: number; den: number }`; `interface RynkeRules` with the fields of data-model.md; `CURRENT_RULES: RynkeRules` with those values and `effectiveDate` set to the date this change ships; `assertValidRules(rules)` (throws `Error` on the cases in T002, a programming error); `rulesFingerprint(rules)`; `interface CountingWindow { seasonStart: string; deadline: string | null }` and `countingWindow(env: Pick<Settings, "SEASON_START_DATE">, rules)`. A short header comment says a developer raises `version` and `effectiveDate` in the same change as any change of a value or of rule logic, and that flagged rides (FR-005g) are deliberately not a rule value. Makes T002 green.
 
 **Checkpoint**: `pnpm exec vitest run test/unit/rules.test.ts` green.
 
@@ -110,7 +110,7 @@ unless a test says otherwise. Test names start with the spec scenario number
 where there is one (`"US2-7: commute with 7 h at work earns nothing"`). Riding
 Training Rynke = `riding.distanceRynke + riding.elevationRynke`.
 
-- [ ] T005 [US2] Create `test/unit/rides.test.ts` with Story 2 scenarios 1–4 and 6, and the distance and elevation rules (FR-004, FR-004a, FR-011):
+- [X] T005 [US2] Create `test/unit/rides.test.ts` with Story 2 scenarios 1–4 and 6, and the distance and elevation rules (FR-004, FR-004a, FR-011):
   - US2-1: 100 km, 0 m → distance 10, elevation 0, riding Training 10.
   - US2-2: 79 km, 1999 m → distance 7, `elevationDm` 19990, elevation Rynke 5, total 12.
   - US2-3: three rides of 7 km → distance 0. US2-4: two of 25 km → 4.
@@ -119,11 +119,11 @@ Training Rynke = `riding.distanceRynke + riding.elevationRynke`.
   - US2-12: two rides of 600 m → `elevationDm` 12000, 5 Rynke, `elevationToNextStepDm` not asserted here (tally). US2-13: 1999 m + 1 m → 10.
   - Decimetre exactness: 600.1 m + 399.9 m → `elevationDm` 10000 and 5 Rynke.
   - Zero elevation is never an error: a 20 km, 0 m, 2 h ride counts with `elevationDm` 0.
-- [ ] T006 [US2] Extend `test/unit/rides.test.ts` with the pause rule (FR-005a, research R7):
+- [X] T006 [US2] Extend `test/unit/rides.test.ts` with the pause rule (FR-005a, research R7):
   - US2-7: 40 km, 2 h moving, 7 h paused → `["pause"]`, 0 Training. US2-8: 150 km, 6 h + 2 h → 15. US2-9: 100 km, 4 h + 3 h → `["pause"]`. US2-10: 6 h moving + exactly 3 h paused (60 km) → counts. One second more paused → `["pause"]`. US2-11: 600 km, 24 h + 6 h, start `"2026-06-20T18:00:00Z"` → 60.
   - US2-14: 1500 m from counting rides plus an 800 m ride failing the pause rule → `elevationDm` 15000, 5 Rynke; the paused ride's `elevationDm` is 0.
   - Zero moving time: `movingS` 0 with elapsed 0, with elapsed 600 and with elapsed unknown → exactly `["pause"]` (no `too_slow`, `too_fast`, `climbing_rate`).
-- [ ] T007 [US2] Extend `test/unit/rides.test.ts` with plausibility, manual, sport type and flagged rides (FR-005b, FR-005c, FR-005e, FR-005g):
+- [X] T007 [US2] Extend `test/unit/rides.test.ts` with plausibility, manual, sport type and flagged rides (FR-005b, FR-005c, FR-005e, FR-005g):
   - US2-17: 300 km in 4 h → `["too_fast"]`. US2-18: 15 km in 2 h → `["too_slow"]`. US2-19: 20 km in 2 h (exactly 10 km/h) → counts, 2 Rynke. Exactly 45 km/h (90 km, 2 h) counts; 90.001 km in 2 h → `too_fast`.
   - US2-20: 30 km, 2000 m, 1 h → `["climbing_rate"]`, `elevationDm` 0. Exactly 1500 m/h (30 km, 1500 m, 1 h) counts; 1500.1 m → `climbing_rate`.
   - US2-21: 200 km manual (8 h moving) → `["manual"]`. US2-22: 100 km `EBikeRide` and `EMountainBikeRide` → `["excluded_sport_type"]`.
@@ -132,20 +132,20 @@ Training Rynke = `riding.distanceRynke + riding.elevationRynke`.
   - FR-005g under relaxed rules: with a rules object where every limit is relaxed (`minSpeedKmh` 1, `maxSpeedKmh` 1000, `maxClimbMPerH` 100000, `maxPausedShare` `{ num: 100, den: 1 }`, `excludedSportTypes` `[]`), a flagged ride still gets `["flagged"]`.
   - A flagged ride never blocks an overlapping ride: flagged 100 km and unflagged 80 km at the same time → the 80 km ride counts, the flagged one has `["flagged"]` only (no `overlap`).
   - Code order: a ride before the season start, `EBikeRide`, flagged, manual, 0 moving → `["outside_window", "excluded_sport_type", "flagged", "manual", "pause"]`.
-- [ ] T008 [US2] Extend `test/unit/rides.test.ts` with overlaps (FR-005d, research R5):
+- [X] T008 [US2] Extend `test/unit/rides.test.ts` with overlaps (FR-005d, research R5):
   - US2-15: bike computer 80 km / 600 m and phone 78 km / 650 m overlapping → the 80 km ride counts; the 78 km ride `["overlap"]` with `overlapsActivityId` = the 80 km ride's ID; distance 8, `elevationDm` 6000.
   - US2-16: one ride ending at 10:00:00 and another starting at 10:00:00 (UTC) → both count.
   - Tie-breaks: same distance → more elevation wins; same distance and elevation → lower `activityId` wins.
   - Chain: A (100 km) overlaps B (90 km), B overlaps C (80 km), A does not overlap C → A and C count, B `overlap` naming A.
   - A ride excluded for another reason (pause, manual, too fast, outside window) never blocks an overlapping ride and itself carries no `overlap`.
   - Overlap interval with unknown elapsed time uses the moving time: A 08:00–10:00 moving, elapsed unknown; B starting 10:00 → both count; B starting 09:59 → B (smaller) is `overlap`.
-- [ ] T009 [US2] Extend `test/unit/rides.test.ts` with unknown figures and virtual rides (FR-005f, FR-013a, research R6):
+- [X] T009 [US2] Extend `test/unit/rides.test.ts` with unknown figures and virtual rides (FR-005f, FR-013a, research R6):
   - Elapsed unknown on a 40 km, 2 h ride → counts, `unknownFigures` `["elapsed_time"]`, no pause check.
   - `manual: null` on a 100 km ride → counts, `["manual"]` in `unknownFigures`. `flagged: null` → counts, `["flagged"]` listed. All unknown → `unknownFigures` in contract order `["elapsed_time", "manual", "trainer", "flagged"]`.
   - Virtual: `VirtualRide` → `isVirtual` true; `Ride` with `trainer: true` → true; `Ride` with `trainer: null` → false and `"trainer"` listed; `VirtualRide` with `trainer: null` → true and `"trainer"` **not** listed.
   - Riding totals without virtual rides: an outdoor 100 km / 600 m ride and a `VirtualRide` 50 km / 600 m → `distanceRynke` 15, `elevationDm` 12000, `elevationRynke` 5; `withoutVirtual` `{ distanceRynke: 10, elevationDm: 6000, elevationRynke: 0 }`.
   - Virtual ride overlapping an outdoor ride: the overlap is decided first (FR-013a "virtual rides left out after FR-005d"); if the virtual one wins, the outdoor one is `overlap` and contributes to neither total.
-- [ ] T010 [US2] Extend `test/unit/rides.test.ts` with determinism and output shape (FR-002):
+- [X] T010 [US2] Extend `test/unit/rides.test.ts` with determinism and output shape (FR-002):
   - Every permutation of a set of 5 rides with two overlap pairs, a pause failure and a virtual ride → identical `results` and `riding`.
   - A set of 60 generated rides (deterministic loop, no randomness) evaluated forward, reversed and rotated by 17 → identical output.
   - `results` sorted by ascending `activityId`, one per input ride; `counts` is true exactly when `reasons` is empty; `overlapsActivityId` is `null` unless `reasons` is `["overlap"]`; non-counting rides have `distanceRynke` 0 and `elevationDm` 0; the input array is not mutated.
@@ -153,7 +153,7 @@ Training Rynke = `riding.distanceRynke + riding.elevationRynke`.
 
 ### Implementation for User Story 2
 
-- [ ] T011 [US2] Create `src/rynke/rides.ts` (contracts/ride-evaluation.md, data-model.md "Input: Ride", research R3–R7, R15):
+- [X] T011 [US2] Create `src/rynke/rides.ts` (contracts/ride-evaluation.md, data-model.md "Input: Ride", research R3–R7, R15):
   - Types: `Ride` (`activityId`, `sportType`, `startUtc`, `startLocal`, `distanceM`, `movingS`, `elapsedS: number | null`, `elevationM`, `manual`, `trainer`, `flagged`: `boolean | null`, `refreshedAt`); `REASON_CODES` and `UNKNOWN_FIGURE_CODES` as `as const` arrays in contract order with derived `ReasonCode` / `UnknownFigureCode`; `RideResult` (`activityId`, `counts`, `reasons`, `overlapsActivityId`, `distanceRynke`, `elevationDm`, `isVirtual`, `unknownFigures`, `activityRefreshedAt`); `RidingTotals` (`distanceRynke`, `elevationDm`, `elevationRynke`, `withoutVirtual: { distanceRynke, elevationDm, elevationRynke }`).
   - `evaluateRides(rides, rules, window): { results: RideResult[]; riding: RidingTotals }`: per ride, check every rule independently and collect codes in contract order; `flagged` when `flagged === true` regardless of `rules`; zero moving time → `pause` only and no speed or climb check; then the overlap pass over the rides without codes, sorted by distance desc, elevation desc, `activityId` asc, half-open intervals `[start, start + (elapsedS ?? movingS))` on `Date.parse(startUtc)`; then the totals, with elevation Rynke `Math.floor(elevationDm / (elevationStepM * 10)) * elevationStepRynke` once on each total.
   - Exported helper `rideFromRow(row)` mapping an `activities` row (`ActivityRecord` from `src/strava/activity.ts`) to `Ride` (`0/1/null` → `false/true/null`), so `src/db/` and `src/rynke/apply.ts` share it.
