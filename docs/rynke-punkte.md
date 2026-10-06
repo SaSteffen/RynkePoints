@@ -1,0 +1,148 @@
+---
+title: "Rynke-Punkte"
+subtitle: "So sammelst du deine Rynke für die Tour de Paris"
+author: "Team Rynkeby Hamburg"
+date: "Stand: Oktober 2026"
+lang: de
+---
+
+<!--
+Maintainers: this handout is informational only. The specification
+specs/003-rynke-evaluation/spec.md is authoritative; if the two differ, fix this
+file (FR-019). Render it with `pnpm docs:pdf`.
+-->
+
+# Worum geht es?
+
+Wer mit uns auf die Tour de Paris fährt, soll gut vorbereitet sein – auf dem Rad
+und im Team. Dafür sammelst du über die Saison **Rynke**. Es gibt zwei Sorten:
+
+- **Trainingsrynke** bekommst du fürs Radfahren: für Kilometer, Höhenmeter und für
+  gemeinsame Trainings.
+- **Teamrynke** bekommst du nur für Teamtermine: Teamtrainings,
+  Trainingswochenenden und Techniktrainings.
+
+# Was brauche ich für die Tour?
+
+| Ich bin dabei mit | Trainingsrynke | Teamrynke |
+|-------------------|---------------:|----------:|
+| mindestens        |        **250** |    **25** |
+
+Du brauchst **beides**. Zusätzliche Trainingsrynke gleichen fehlende Teamrynke
+nicht aus und umgekehrt. Mit 400 Trainingsrynke und 20 Teamrynke bist du also
+noch nicht dabei.
+
+# So bekommst du Rynke
+
+| Wofür                              | Teamrynke | Trainingsrynke |
+|------------------------------------|----------:|---------------:|
+| je volle 10 km einer Fahrt         |         – |              1 |
+| je volle 1000 Höhenmeter einer Fahrt |         – |              5 |
+| 1 Teamtraining                     |         1 |              5 |
+| 1 Tag Trainingswochenende          |         5 |             10 |
+| 1 Techniktraining                  |         5 |              5 |
+
+## Kilometer und Höhenmeter
+
+Jede Radfahrt, die du auf Strava hochlädst, zählt für sich. RynkePoints rundet
+**jede Fahrt einzeln ab**:
+
+- Pro **vollen 10 km** gibt es 1 Trainingsrynke.
+- Pro **vollen 1000 Höhenmeter** gibt es 5 Trainingsrynke.
+
+Was über die letzten vollen 10 km bzw. 1000 Höhenmeter hinausgeht, verfällt. Es
+wird **nicht** mit anderen Fahrten zusammengezählt. Das ist Absicht: Wir wollen
+ordentlich lange Ausfahrten, nicht viele kurze.
+
+| Fahrt(en)                       | Trainingsrynke | Warum                              |
+|---------------------------------|---------------:|------------------------------------|
+| 79 km                           |              7 | die letzten 9 km verfallen         |
+| 100 km                          |             10 |                                    |
+| 3 Fahrten à 7 km                |              0 | jede Fahrt unter 10 km             |
+| 2 Fahrten à 25 km               |              4 | 2 + 2, nicht 50 km = 5             |
+| 1999 Höhenmeter in einer Fahrt  |              5 | nur 1 volle 1000                   |
+| 79 km mit 1999 Höhenmetern      |             12 | 7 für km + 5 für Höhenmeter        |
+
+## Eine Ausfahrt, eine Aufzeichnung
+
+Eine Fahrt zählt **gar nicht**, wenn du länger pausiert hast, als du gefahren
+bist, also wenn mehr als die Hälfte der Gesamtzeit Pause war. Dann gibt es weder
+für Kilometer noch für Höhenmeter Rynke. Fahrten über mehrere Tage gibt es damit
+nicht.
+
+| Aufzeichnung                                        | Fahrzeit | Pause | Trainingsrynke |
+|-----------------------------------------------------|---------:|------:|---------------:|
+| 150 km mit Kaffee- und Mittagspause                 |      6 h |   4 h |             15 |
+| Weg zur Arbeit und zurück, 40 km, eine Aufzeichnung |      2 h |   7 h |              0 |
+| alle Fahrten einer Woche als eine Aufzeichnung      |     10 h | 150 h |              0 |
+
+Am meisten bekommst du also, wenn du jede Ausfahrt als **genau eine**
+Aufzeichnung hochlädst:
+
+- Teilst du eine lange Ausfahrt in mehrere Aufzeichnungen auf, verfallen die
+  Reste mehrfach.
+- Legst du mehrere Fahrten in eine Aufzeichnung zusammen, zählt sie wegen der
+  Pausen meist gar nicht.
+
+Fahrten, die wegen zu langer Pause nicht zählen, siehst du auf deiner
+RynkePoints-Seite mit diesem Hinweis.
+
+Es zählen alle Radfahrten, die RynkePoints von Strava übernimmt (auch virtuelle
+Fahrten, E-Bike, Gravel und Mountainbike), solange die Organisatoren eine Sportart
+nicht ausschließen. Laufen, Schwimmen und andere Sportarten zählen nicht.
+
+## Teamtermine
+
+Nach jedem Teamtermin tragen die Organisatoren ein, wer dabei war. Nur diese
+Eintragung zählt. RynkePoints erkennt die Teilnahme **nicht** automatisch an deiner
+Fahrt. Du bekommst die Rynke für einen Termin also auch dann, wenn du ihn nicht auf
+Strava aufgezeichnet hast, zum Beispiel bei einem Techniktraining.
+
+- Ein **Trainingswochenende** zählt **pro Tag**: Zwei Tage dabei ergeben
+  10 Teamrynke und 20 Trainingsrynke.
+- Jeder Termin zählt für dich höchstens einmal.
+
+## Fahrten bei Teamterminen zählen zusätzlich
+
+Fährst du beim Teamtraining mit und lädst die Fahrt auf Strava hoch, bekommst du
+**beides**: die festen Rynke für den Termin und die Rynke für Kilometer und
+Höhenmeter deiner Fahrt.
+
+> Beispiel: Teamtraining, 60 km, 1000 Höhenmeter
+>
+> - Teamtraining: 1 Teamrynke + 5 Trainingsrynke
+> - 60 km: 6 Trainingsrynke
+> - 1000 Höhenmeter: 5 Trainingsrynke
+>
+> **Ergebnis: 1 Teamrynke und 16 Trainingsrynke**
+
+Teamrynke bekommst du nur über Teamtermine. Alleine fahren bringt nur
+Trainingsrynke.
+
+# Welche Fahrten zählen?
+
+- Nur Fahrten und Termine **ab dem Saisonstart**. Haben die Organisatoren einen
+  **Stichtag** festgelegt, zählt nichts mehr, was danach stattfindet.
+- Maßgeblich ist das Startdatum der Fahrt in deiner Zeitzone.
+- Änderst du eine Fahrt auf Strava (zum Beispiel die Strecke) oder löschst du sie,
+  rechnet RynkePoints deine Rynke neu.
+- Hast du dieselbe Fahrt doppelt hochgeladen (etwa vom Radcomputer und vom Handy),
+  zählt sie doppelt. Bitte lösch das Duplikat auf Strava.
+
+# Korrekturen
+
+Stimmt etwas nicht, zum Beispiel fehlt dein Name bei einem Teamtermin, sprich die
+Organisatoren an. Sie können deine Rynke mit einer Begründung korrigieren. Die
+Korrektur bleibt bestehen, auch wenn RynkePoints deine Rynke neu berechnet.
+
+# Wo sehe ich meinen Stand?
+
+Auf deiner RynkePoints-Seite siehst du deine Trainingsrynke und Teamrynke, wie
+viele dir noch fehlen, ob du dabei bist und woher deine Rynke kommen. Deinen Stand
+siehst nur du.
+
+# Ändern sich die Regeln?
+
+Die Organisatoren können die Werte in dieser Übersicht anpassen. Dann rechnet
+RynkePoints alle Rynke mit den neuen Werten neu. Wer vorher genug hatte, kann
+danach also auch wieder darunter liegen. Wir geben Änderungen rechtzeitig bekannt.
