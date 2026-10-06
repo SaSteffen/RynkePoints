@@ -1,0 +1,346 @@
+import { env } from "cloudflare:test";
+import { beforeEach, describe, expect, it } from "vitest";
+import {
+	deleteActivity,
+	deletePrivateActivities,
+	listRecentActivities,
+	upsertActivity,
+} from "../../src/db/activities";
+import {
+	deleteFailedWorkByMessage,
+	deleteFailedWorkFirstFailedBefore,
+	listFailedWorkFirstFailedSince,
+	upsertFailedWork,
+} from "../../src/db/failed-work";
+import {
+	deleteRider,
+	getCredentials,
+	getRider,
+	insertRider,
+	listConnectedRiderIds,
+	listExpiredReconnectRiderIds,
+	markNeedsReconnect,
+	saveCredentials,
+	setImportStatus,
+	setMembershipChecked,
+	updateRiderOnReconnect,
+} from "../../src/db/riders";
+import type { ActivityRecord } from "../../src/strava/activity";
+import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";
+import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
+
+const db = env.DB;
+
+function record(overrides: Partial<ActivityRecord> = {}): ActivityRecord {
+	return {
+		strava_activity_id: 7001,
+		athlete_id: ATHLETE_A,
+		sport_type: "Ride",
+		start_date: "2026-10-05T07:30:00Z",
+		start_date_local: "2026-10-05T09:30:00Z",
+		timezone: "(GMT+01:00) Europe/Berlin",
+		distance_m: 42195,
+		moving_time_s: 5400,
+		elevation_gain_m: 312,
+		is_private: 0,
+		refreshed_at: NOW,
+		...overrides,
+	};
+}
+
+beforeEach(resetDb);
+
+describe("riders", () => {
+	it("deleting a rider cascades to everything they own", async () => {
+		const ctx = makeCtx();
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		await seedRider(ctx, { athleteId: ATHLETE_B });
+		await upsertActivity(db, record());
+		await upsertActivity(
+			db,
+			record({ strava_activity_id: 7002, athlete_id: ATHLETE_B }),
+		);
+		await upsertFailedWork(db, {
+			athleteId: ATHLETE_A,
+			message: '{"kind":"check-membership","athleteId":900001}',
+			lastError: "503",
+			now: NOW,
+		});
+
+		await deleteRider(db, ATHLETE_A);
+
+		expect(await getRider(db, ATHLETE_A)).toBeNull();
+		expect(await tableCounts()).toEqual({
+			riders: 1,
+			strava_credentials: 1,
+			activities: 1,
+			failed_work: 0,
+			strava_rate_limit: 1,
+		});
+	});
+
+	it("inserts and reads a rider", async () => {
+		await insertRider(db, {
+			athleteId: ATHLETE_A,
+			firstName: "Testrider A",
+			scopes: "read,activity:read",
+			scopeReadAll: false,
+			now: NOW,
+		});
+		expect(await getRider(db, ATHLETE_A)).toEqual({
+			athleteId: ATHLETE_A,
+			firstName: "Testrider A",
+			status: "connected",
+			scopeReadAll: false,
+			scopes: "read,activity:read",
+			connectedAt: NOW,
+			scopesUpdatedAt: NOW,
+			membershipCheckedAt: NOW,
+			importStatus: "pending",
+			reconnectRequestedAt: null,
+		});
+	});
+
+	it("marks needs_reconnect once and reconnects", async () => {
+		const ctx = makeCtx();
+		await seedRider(ctx);
+		await markNeedsReconnect(db, ATHLETE_A, NOW + 10);
+		await markNeedsReconnect(db, ATHLETE_A, NOW + 20);
+		expect(await getRider(db, ATHLETE_A)).toMatchObject({
+			status: "needs_reconnect",
+			reconnectRequestedAt: NOW + 10,
+		});
+
+		await updateRiderOnReconnect(db, ATHLETE_A, {
+			firstName: "Testrider A2",
+			scopes: "read,activity:read",
+			scopeReadAll: false,
+			now: NOW + 30,
+		});
+		expect(await getRider(db, ATHLETE_A)).toMatchObject({
+			firstName: "Testrider A2",
+			status: "connected",
+			reconnectRequestedAt: null,
+			scopeReadAll: false,
+			scopes: "read,activity:read",
+			scopesUpdatedAt: NOW + 30,
+			connectedAt: NOW,
+		});
+	});
+
+	it("updates import status and membership check time", async () => {
+		await seedRider(makeCtx());
+		await setImportStatus(db, ATHLETE_A, "running");
+		await setMembershipChecked(db, ATHLETE_A, NOW + 99);
+		expect(await getRider(db, ATHLETE_A)).toMatchObject({
+			importStatus: "running",
+			membershipCheckedAt: NOW + 99,
+		});
+	});
+
+	it("lists connected riders and expired reconnects", async () => {
+		const ctx = makeCtx();
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		await seedRider(ctx, {
+			athleteId: ATHLETE_B,
+			status: "needs_reconnect",
+			reconnectRequestedAt: NOW - 8 * 86400,
+		});
+		await seedRider(ctx, {
+			athleteId: 900003,
+			status: "needs_reconnect",
+			reconnectRequestedAt: NOW - 86400,
+		});
+		expect(await listConnectedRiderIds(db)).toEqual([ATHLETE_A]);
+		expect(await listExpiredReconnectRiderIds(db, NOW - 7 * 86400)).toEqual([
+			ATHLETE_B,
+		]);
+	});
+
+	it("rejects status and reconnect time that disagree", async () => {
+		const insert = (status: string, reconnect: number | null) =>
+			db
+				.prepare(
+					`INSERT INTO riders VALUES (?, 'Testrider A', ?, 1, 'read', 0, 0, 0, 'done', ?)`,
+				)
+				.bind(ATHLETE_A, status, reconnect)
+				.run();
+		await expect(insert("connected", NOW)).rejects.toThrow(/CHECK/);
+		await expect(insert("needs_reconnect", null)).rejects.toThrow(/CHECK/);
+	});
+});
+
+describe("credentials", () => {
+	it("stores tokens encrypted and reads them back", async () => {
+		await insertRider(db, {
+			athleteId: ATHLETE_A,
+			firstName: "Testrider A",
+			scopes: "read,activity:read",
+			scopeReadAll: false,
+			now: NOW,
+		});
+		const creds = {
+			accessToken: "access-synthetic",
+			refreshToken: "refresh-synthetic",
+			expiresAt: NOW + 3600,
+		};
+		await saveCredentials(env, ATHLETE_A, creds);
+		expect(await getCredentials(env, ATHLETE_A)).toEqual(creds);
+
+		const raw = JSON.stringify(
+			await db.prepare("SELECT * FROM strava_credentials").all(),
+		);
+		expect(raw).not.toContain("access-synthetic");
+		expect(raw).not.toContain("refresh-synthetic");
+
+		await saveCredentials(env, ATHLETE_A, { ...creds, refreshToken: "r2" });
+		expect((await getCredentials(env, ATHLETE_A))?.refreshToken).toBe("r2");
+		expect(await getCredentials(env, ATHLETE_B)).toBeNull();
+	});
+});
+
+describe("activities", () => {
+	beforeEach(async () => {
+		const ctx = makeCtx();
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		await seedRider(ctx, { athleteId: ATHLETE_B });
+	});
+
+	it("upserts by activity ID", async () => {
+		await upsertActivity(db, record({ distance_m: 1000 }));
+		await upsertActivity(
+			db,
+			record({ distance_m: 2000, sport_type: "GravelRide", is_private: 1 }),
+		);
+		const rows = await listRecentActivities(db, ATHLETE_A, 20);
+		expect(rows).toEqual([
+			record({ distance_m: 2000, sport_type: "GravelRide", is_private: 1 }),
+		]);
+	});
+
+	it("refuses rows for unknown riders", async () => {
+		await expect(
+			upsertActivity(db, record({ athlete_id: 999999 })),
+		).rejects.toThrow(/FOREIGN KEY/);
+		await expect(
+			upsertFailedWork(db, {
+				athleteId: 999999,
+				message: "{}",
+				lastError: "x",
+				now: NOW,
+			}),
+		).rejects.toThrow(/FOREIGN KEY/);
+	});
+
+	it("lists a rider's newest activities only", async () => {
+		for (let day = 1; day <= 5; day++) {
+			await upsertActivity(
+				db,
+				record({
+					strava_activity_id: 7000 + day,
+					start_date: `2026-10-0${day}T07:00:00Z`,
+				}),
+			);
+		}
+		await upsertActivity(
+			db,
+			record({
+				strava_activity_id: 8000,
+				athlete_id: ATHLETE_B,
+				start_date: "2026-10-09T07:00:00Z",
+			}),
+		);
+		const rows = await listRecentActivities(db, ATHLETE_A, 3);
+		expect(rows.map((r) => r.strava_activity_id)).toEqual([7005, 7004, 7003]);
+	});
+
+	it("deletes one activity of its owner", async () => {
+		await upsertActivity(db, record());
+		await deleteActivity(db, ATHLETE_B, 7001);
+		expect(await listRecentActivities(db, ATHLETE_A, 20)).toHaveLength(1);
+		await deleteActivity(db, ATHLETE_A, 7001);
+		expect(await listRecentActivities(db, ATHLETE_A, 20)).toHaveLength(0);
+	});
+
+	it("deletes only private activities", async () => {
+		await upsertActivity(db, record({ strava_activity_id: 1, is_private: 0 }));
+		await upsertActivity(db, record({ strava_activity_id: 2, is_private: 1 }));
+		await upsertActivity(
+			db,
+			record({ strava_activity_id: 3, is_private: 1, athlete_id: ATHLETE_B }),
+		);
+		await deletePrivateActivities(db, ATHLETE_A);
+		expect(
+			(await listRecentActivities(db, ATHLETE_A, 20)).map(
+				(r) => r.strava_activity_id,
+			),
+		).toEqual([1]);
+		expect(await listRecentActivities(db, ATHLETE_B, 20)).toHaveLength(1);
+	});
+});
+
+describe("failed_work", () => {
+	const message = '{"kind":"check-membership","athleteId":900001}';
+
+	beforeEach(() => seedRider(makeCtx()));
+
+	it("upserts per message, keeping the first failure", async () => {
+		await upsertFailedWork(db, {
+			athleteId: ATHLETE_A,
+			message,
+			lastError: "503",
+			now: NOW,
+		});
+		await upsertFailedWork(db, {
+			athleteId: ATHLETE_A,
+			message,
+			lastError: "network",
+			now: NOW + 100,
+		});
+		const rows = await db.prepare("SELECT * FROM failed_work").all();
+		expect(rows.results).toEqual([
+			expect.objectContaining({
+				athlete_id: ATHLETE_A,
+				message,
+				last_error: "network",
+				first_failed_at: NOW,
+				failed_at: NOW + 100,
+				failures: 2,
+			}),
+		]);
+
+		await deleteFailedWorkByMessage(db, message);
+		expect((await tableCounts()).failed_work).toBe(0);
+	});
+
+	it("lists recent failures and gives up old ones", async () => {
+		await upsertFailedWork(db, {
+			athleteId: ATHLETE_A,
+			message,
+			lastError: "503",
+			now: NOW - 8 * 86400,
+		});
+		const recent =
+			'{"kind":"import-page","athleteId":900001,"page":1,"after":0}';
+		await upsertFailedWork(db, {
+			athleteId: ATHLETE_A,
+			message: recent,
+			lastError: "503",
+			now: NOW - 86400,
+		});
+
+		const since = NOW - 7 * 86400;
+		expect(
+			(await listFailedWorkFirstFailedSince(db, since)).map((r) => r.message),
+		).toEqual([recent]);
+
+		const givenUp = await deleteFailedWorkFirstFailedBefore(db, since);
+		expect(givenUp.map((r) => r.message)).toEqual([message]);
+		expect(givenUp[0]).toMatchObject({
+			athleteId: ATHLETE_A,
+			lastError: "503",
+			failures: 1,
+		});
+		expect((await tableCounts()).failed_work).toBe(1);
+	});
+});

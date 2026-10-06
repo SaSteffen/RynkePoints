@@ -1,9 +1,48 @@
+import type { Ctx } from "./ctx";
+import { route } from "./http/router";
+import { CATALOGS } from "./i18n/catalogs";
+import { type Handlers, processBatch } from "./work/consumer";
+
+// Entry points. Each builds a Ctx and delegates; tests call the exported
+// handle* functions with their own Ctx (research R12).
+
+const handlers: Handlers = {};
+
+function makeCtx(env: Env): Ctx {
+	return {
+		env,
+		queue: env.WORK_QUEUE,
+		now: () => Math.floor(Date.now() / 1000),
+		catalogs: CATALOGS,
+	};
+}
+
+export function handleFetch(request: Request, ctx: Ctx): Promise<Response> {
+	return route(request, ctx);
+}
+
+export function handleQueue(
+	batch: MessageBatch<unknown>,
+	ctx: Ctx,
+): Promise<void> {
+	return processBatch(batch, ctx, handlers);
+}
+
+export async function handleScheduled(
+	_controller: ScheduledController,
+	_ctx: Ctx,
+): Promise<void> {
+	// Daily membership fan-out and failed_work re-enqueue arrive with US3.
+}
+
 export default {
-	async fetch(request): Promise<Response> {
-		const url = new URL(request.url);
-		if (url.pathname === "/health") {
-			return new Response("ok");
-		}
-		return new Response("Not found", { status: 404 });
+	fetch(request, env) {
+		return handleFetch(request, makeCtx(env));
 	},
-} satisfies ExportedHandler<Env>;
+	queue(batch, env) {
+		return handleQueue(batch, makeCtx(env));
+	},
+	scheduled(controller, env) {
+		return handleScheduled(controller, makeCtx(env));
+	},
+} satisfies ExportedHandler<Env, unknown>;
