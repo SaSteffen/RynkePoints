@@ -32,6 +32,9 @@ Du brauchst **beides**. Zusätzliche Trainingsrynke gleichen fehlende Teamrynke
 nicht aus und umgekehrt. Mit 400 Trainingsrynke und 20 Teamrynke bist du also
 noch nicht dabei.
 
+Außerdem darf höchstens ein Drittel der 250 Trainingsrynke aus virtuellen Fahrten
+kommen (siehe „Virtuelle Fahrten“).
+
 # So bekommst du Rynke
 
 | Wofür                              | Teamrynke | Trainingsrynke |
@@ -73,8 +76,8 @@ stehen und zählt mit deinen nächsten Fahrten weiter.
 Eine Fahrt zählt **gar nicht**, wenn deine Pausen zusammen **länger als die
 Hälfte deiner Fahrzeit** dauern. Fahrzeit ist die Zeit, in der du dich bewegt
 hast. Dann gibt es weder für Kilometer noch für Höhenmeter Rynke, und ihre
-Höhenmeter zählen auch nicht zu deiner Saisonsumme. Wer 4 Stunden
-fährt, darf also höchstens 2 Stunden Pause machen.
+Höhenmeter zählen auch nicht zu deiner Saisonsumme. Wer 4 Stunden fährt, darf
+also höchstens 2 Stunden Pause machen.
 
 | Aufzeichnung                                        | Fahrzeit | Pause | Trainingsrynke |
 |-----------------------------------------------------|---------:|------:|---------------:|
@@ -102,9 +105,74 @@ RynkePoints-Seite mit diesem Hinweis.
 Diese Pausenregel haben wir eingeführt, damit niemand das System austrickst.
 Sollte sie zu unfairen Situationen führen, passen wir sie an.
 
-Es zählen alle Radfahrten, die RynkePoints von Strava übernimmt (auch virtuelle
-Fahrten, E-Bike, Gravel und Mountainbike), solange die Organisatoren eine Sportart
-nicht ausschließen. Laufen, Schwimmen und andere Sportarten zählen nicht.
+## Was nicht zählt
+
+Diese Aufzeichnungen bringen keine Rynke, weder für Kilometer noch für
+Höhenmeter:
+
+- **Von Hand eingetragene Aktivitäten.** Was du auf Strava manuell einträgst,
+  statt es aufzuzeichnen, zählt nicht. Das gilt auch, wenn dein Radcomputer
+  ausgefallen ist; sprich dann die Organisatoren an (siehe
+  „Korrekturen“).
+- **E-Bike- und E-Mountainbike-Fahrten.**
+- **Zu langsame oder zu schnelle Fahrten.** Liegt dein Schnitt (Strecke geteilt
+  durch Fahrzeit) **unter 10 km/h** oder **über 45 km/h**, war das keine
+  Radfahrt, sondern eher ein Spaziergang oder eine Fahrt mit Auto oder Bahn.
+- **Zu schnelles Klettern.** Mehr als **1500 Höhenmeter pro Stunde Fahrzeit**
+  schafft über eine ganze Fahrt niemand aus eigener Kraft. Das war Seilbahn
+  oder Lift.
+- **Doppelte Aufzeichnungen.** Hast du dieselbe Fahrt mehrfach aufgezeichnet
+  (etwa mit Radcomputer und Handy), überschneiden sich die Aufzeichnungen
+  zeitlich. Dann zählt nur die **längste**. Fahrten, die sich zeitlich nicht
+  überschneiden, zählen alle.
+
+| Aufzeichnung                                         | Trainingsrynke | Warum                       |
+|------------------------------------------------------|---------------:|-----------------------------|
+| 80 km mit Radcomputer, 78 km mit Handy, gleichzeitig |              8 | nur die längere zählt       |
+| 300 km in 4 h Fahrzeit (Zug)                         |              0 | Schnitt 75 km/h             |
+| 15 km in 2 h Fahrzeit (Spaziergang)                  |              0 | Schnitt 7,5 km/h            |
+| 20 km in 2 h Fahrzeit                                |              2 | Schnitt genau 10 km/h zählt |
+| 30 km und 2000 Höhenmeter in 1 h Fahrzeit (Seilbahn) |              0 | 2000 Höhenmeter pro Stunde  |
+| 200 km von Hand eingetragen                          |              0 | manuell eingetragen         |
+| 100 km mit dem E-Bike                                |              0 | E-Bike                      |
+
+Trifft das eine ehrliche Fahrt, etwa weil ein GPS-Aussetzer deinen Schnitt in die
+Höhe treibt oder eine Mountainbike-Tour sehr langsam war: Korrigiere die Fahrt
+auf Strava (zum Beispiel den Aussetzer herausschneiden) oder sprich die
+Organisatoren an. Auf deiner RynkePoints-Seite siehst du bei jeder Fahrt, die
+nicht zählt, den Grund.
+
+Alle anderen Radfahrten, die RynkePoints von Strava übernimmt, zählen, auch
+Gravel, Mountainbike und virtuelle Fahrten. Laufen, Schwimmen und andere
+Sportarten zählen nicht.
+
+## Virtuelle Fahrten (Zwift & Co.)
+
+Fahrten auf dem Rollentrainer mit Zwift oder ähnlichen Apps zählen ganz normal.
+Für die Tour gilt aber: **Höchstens ein Drittel** der 250 Trainingsrynke darf aus
+virtuellen Fahrten kommen. Mindestens **167 Trainingsrynke** brauchst du also aus
+Fahrten draußen, Teamterminen und Korrekturen. Was du virtuell darüber hinaus
+sammelst, bleibt in deinem Stand stehen, bringt dich allein aber nicht nach Paris.
+
+| Trainingsrynke | davon virtuell | ohne virtuelle | Mit 25 Teamrynke dabei?        |
+|---------------:|---------------:|---------------:|--------------------------------|
+|            260 |            100 |            160 | nein, 7 ohne virtuelle fehlen  |
+|            250 |             80 |            170 | ja                             |
+
+### Stell dein echtes Körpergewicht ein!
+
+In Zwift und ähnlichen Apps hängt dein Tempo direkt von deinem eingetragenen
+Körpergewicht ab. Wer ein paar Kilo weniger einträgt, fährt bei gleicher
+Anstrengung schneller und weiter und sammelt so mehr Rynke. **Das ist Betrug.**
+
+Trag dein **echtes, aktuelles Körpergewicht** ein: nicht dein Wunschgewicht und
+nicht das vom letzten Sommer. Dasselbe gilt für deine Größe und für die
+Einstellungen von Rollentrainer und Leistungsmesser.
+
+**RynkePoints kann das nicht prüfen. Wir verlassen uns auf dich.** Wer hier
+schummelt, betrügt nicht die App, sondern das Team: die Leute, mit denen du nach
+Paris fährst, und alle, die ehrlich gesammelt haben. Und auf dem Weg nach Paris
+fährt dich kein falsches Gewicht den Berg hinauf.
 
 ## Teamtermine
 
@@ -142,7 +210,7 @@ Trainingsrynke.
 - Änderst du eine Fahrt auf Strava (zum Beispiel die Strecke) oder löschst du sie,
   rechnet RynkePoints deine Rynke neu.
 - Hast du dieselbe Fahrt doppelt hochgeladen (etwa vom Radcomputer und vom Handy),
-  zählt sie doppelt. Bitte lösch das Duplikat auf Strava.
+  zählt nur die längere Aufzeichnung (siehe „Was nicht zählt“).
 
 # Korrekturen
 
@@ -155,7 +223,8 @@ Korrektur bleibt bestehen, auch wenn RynkePoints deine Rynke neu berechnet.
 Auf deiner RynkePoints-Seite siehst du deine Trainingsrynke und Teamrynke, wie
 viele dir noch fehlen, ob du dabei bist und woher deine Rynke kommen. Dort siehst
 du auch deine Höhenmeter der Saison und wie viele bis zu den nächsten 5
-Trainingsrynke fehlen. Deinen Stand
+Trainingsrynke fehlen, und wenn du virtuell fährst, wie viele Trainingsrynke du
+ohne virtuelle Fahrten hast. Deinen Stand
 siehst nur du.
 
 # Ändern sich die Regeln?
