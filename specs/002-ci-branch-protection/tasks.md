@@ -63,12 +63,12 @@ implemented in order but validated separately in Phase 8.
 **Purpose**: make sure the bootstrap PR can start green, and pin the action
 versions.
 
-- [ ] T001 Resolve the commit SHAs for the three third-party actions (research R8): `actions/checkout`, `actions/setup-node` and `pnpm/action-setup`.
+- [X] T001 Resolve the commit SHAs for the three third-party actions (research R8): `actions/checkout`, `actions/setup-node` and `pnpm/action-setup`.
   - For each one, find the latest release tag (`gh release view -R <owner>/<repo> --json tagName -q .tagName`).
   - Resolve that tag to its commit SHA. Use `git ls-remote https://github.com/<owner>/<repo> 'refs/tags/<tag>' 'refs/tags/<tag>^{}'` and take the `^{}` line if present, because annotated tags point to a tag object, not a commit.
   - Check that the release supports what this feature uses: `node-version-file` and `cache: pnpm` for setup-node, and reading the version from `packageManager` when `version` is omitted for pnpm/action-setup.
   - Note the three `uses: <owner>/<repo>@<40-char sha> # <tag>` lines for T003, T004, T006 and T014. Nothing is committed in this task.
-- [ ] T002 [P] Confirm the baseline the CI will see on this branch:
+- [X] T002 [P] Confirm the baseline the CI will see on this branch:
   - `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck` and `pnpm test` all exit 0;
   - `pnpm commitlint --from main --to HEAD --verbose` exits 0, so every commit already on `002-ci-branch-protection` passes `commitlint.config.js`.
 
@@ -82,7 +82,7 @@ versions.
 
 **⚠️ CRITICAL**: every job in Phases 3–5 except `pr-source` depends on this action.
 
-- [ ] T003 Create the composite action `.github/actions/setup/action.yml` (research R8):
+- [X] T003 Create the composite action `.github/actions/setup/action.yml` (research R8):
   - `name: Setup`, a one-line `description`, `runs: using: composite`, no inputs;
   - step 1: `pnpm/action-setup` pinned from T001, **without** a `version` input, so the version comes from `"packageManager": "pnpm@10.34.5"` in `package.json`;
   - step 2: `actions/setup-node` pinned from T001 with `node-version-file: .nvmrc` and `cache: pnpm`. It must come after the pnpm step, because the pnpm cache needs `pnpm` on the PATH;
@@ -100,7 +100,7 @@ versions.
 
 **Independent Test**: quickstart V5–V12, V15 and V16 (Phase 8, T026). A PR with a lint error, type error, failing test, bad commit message or bad title is red on exactly that check. Fixing it turns the check green.
 
-- [ ] T004 [US1] Create `.github/workflows/ci.yml` with `lint`, `typecheck` and `test` (contracts/required-checks.md, research R4/R8):
+- [X] T004 [US1] Create `.github/workflows/ci.yml` with `lint`, `typecheck` and `test` (contracts/required-checks.md, research R4/R8):
   - `name: CI`;
   - triggers: `on: pull_request: branches: [main, develop]` and `push: branches: [main, develop]` (FR-012, FR-013);
   - top-level `permissions: contents: read` (FR-019);
@@ -111,7 +111,7 @@ versions.
     - `test`: `name: test`, `timeout-minutes: 10`, job-level `env: WRANGLER_SEND_METRICS: "false"`, `run: pnpm test`.
 
   No `secrets.*`, no deploy and no `wrangler` step (FR-017, FR-018).
-- [ ] T005 [US1] Add the `commit-messages` job to `.github/workflows/ci.yml` (FR-010 item 4). This edits the same file as T004, so do it after T004.
+- [X] T005 [US1] Add the `commit-messages` job to `.github/workflows/ci.yml` (FR-010 item 4). This edits the same file as T004, so do it after T004.
   - `name: commit-messages`, `timeout-minutes: 5`;
   - `if: github.event_name == 'pull_request'`, because there is no PR range on a push;
   - check out with `fetch-depth: 0`, so both the base and head SHAs exist locally, then `uses: ./.github/actions/setup`;
@@ -119,14 +119,14 @@ versions.
   - `run: pnpm commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose`.
 
   Use no merge-message special case. The `@commitlint/config-conventional` default ignores already skip `Merge pull request #…`, `Merge branch …` and `Merge remote-tracking branch …` (research R3). T007 confirms this.
-- [ ] T006 [P] [US1] Create `.github/workflows/pr-policy.yml` with the `pr-title` job (FR-010 item 5, research R4). This can run in parallel with T004/T005 because it's a different file.
+- [X] T006 [P] [US1] Create `.github/workflows/pr-policy.yml` with the `pr-title` job (FR-010 item 5, research R4). This can run in parallel with T004/T005 because it's a different file.
   - `name: PR policy`;
   - `on: pull_request: types: [opened, edited, synchronize, reopened]` and `branches: [main, develop]`. A title edit then re-runs only this cheap workflow, not the test suite;
   - top-level `permissions: contents: read`, and the same `concurrency` block as `ci.yml`;
   - job `pr-title`: `name: pr-title`, `runs-on: ubuntu-latest`, `timeout-minutes: 5`. It checks out (pinned from T001), runs `uses: ./.github/actions/setup`, then a step with `env:` `PR_TITLE: ${{ github.event.pull_request.title }}` and `PR_NUMBER: ${{ github.event.pull_request.number }}`, and `run: printf '%s (#%s)\n' "$PR_TITLE" "$PR_NUMBER" | pnpm commitlint --verbose`.
 
   This lints the header GitHub will give the squash commit, so a title too long once ` (#N)` is appended fails here instead of landing on `develop` (contracts/required-checks.md "`pr-title` inputs", research R3). The title must never appear as `${{ … }}` inside `run:`, which would allow script injection (research R4). Leave room in this file for the `pr-source` job (T014).
-- [ ] T007 [US1] Local red-green dry-run of the commit-message and title commands. Nothing is committed. Run from the repo root:
+- [X] T007 [US1] Local red-green dry-run of the commit-message and title commands. Nothing is committed. Run from the repo root:
   - red: `printf '%s\n' 'wip' | pnpm commitlint --verbose` exits non-zero (V9);
   - red, the T006 title form: `PR_TITLE='update stuff' PR_NUMBER=12 sh -c 'printf "%s (#%s)\n" "$PR_TITLE" "$PR_NUMBER"' | pnpm commitlint --verbose` exits non-zero (V10);
   - red, too long once the number is appended: the same command with `PR_TITLE="docs: $(printf 'a%.0s' $(seq 92))"` (98 characters, valid alone) and `PR_NUMBER=12` exits non-zero on `header-max-length`. Confirm the bare title alone (`printf '%s\n' "$PR_TITLE" | pnpm commitlint`) exits 0, which shows why the suffix matters;
@@ -138,7 +138,7 @@ versions.
   - green, the T005 range form: `pnpm commitlint --from "$(git merge-base main HEAD)" --to HEAD --verbose` exits 0.
 
   If a merge message is not ignored, stop and report it. That contradicts research R3 and needs a plan change, not a workaround in the workflow.
-- [ ] T008 [US1] Add a `## Contributing` section to `README.md`, before `## Project principles` (FR-021, SC-005). Write it for a new contributor who hasn't read the specs:
+- [X] T008 [US1] Add a `## Contributing` section to `README.md`, before `## Project principles` (FR-021, SC-005). Write it for a new contributor who hasn't read the specs:
   - **Branch model**: `main` is the last released state, `develop` is the integration branch and the default.
   - **How to propose a change**: cut a branch from `develop` and open a PR into `develop`. The PR title must be a Conventional Commit, because it becomes the squash commit message, and the only part of it (the body is left blank, so the PR holds the details). GitHub appends ` (#<number>)`, and the whole header must stay within 100 characters, so keep titles to about 90. Features are squash-merged.
   - **What has to pass**: a list of the checks so far (`lint`, `typecheck`, `test`, `commit-messages`, `pr-title`), each with the local command it mirrors, using the commands in contracts/required-checks.md. Note that the local lefthook hooks run the same tools before each commit.
@@ -157,7 +157,7 @@ versions.
 
 **Independent Test**: quickstart V1–V4 and V13 (Phase 8, T025). Direct push, force push, deletion and an admin merge of a red PR are all refused, including for the owner. The verification commands from T011 show empty diffs.
 
-- [ ] T009 [P] [US2] Create `.github/rulesets/develop.json` exactly in the shape of contracts/rulesets.md, as plain JSON without comments:
+- [X] T009 [P] [US2] Create `.github/rulesets/develop.json` exactly in the shape of contracts/rulesets.md, as plain JSON without comments:
   - `"name": "protect-develop"`, `"target": "branch"`, `"enforcement": "active"`;
   - `"bypass_actors": []`. This must stay empty (FR-009); adding an entry needs a spec change first;
   - `"conditions": {"ref_name": {"include": ["refs/heads/develop"], "exclude": []}}`;
@@ -168,14 +168,14 @@ versions.
     - `required_status_checks` with `"strict_required_status_checks_policy": true` (FR-008), `"do_not_enforce_on_create": false`, and `required_status_checks` listing the six contexts `lint`, `typecheck`, `test`, `commit-messages`, `pr-title` and `pr-source`, each with `"integration_id": 15368`, in that order.
 
   Run `pnpm format` afterwards so Biome formats the file.
-- [ ] T010 [P] [US2] Create `.github/rulesets/main.json`, identical to T009 except:
+- [X] T010 [P] [US2] Create `.github/rulesets/main.json`, identical to T009 except:
   - `"name": "protect-main"`;
   - `"include": ["refs/heads/main"]`;
   - `"allowed_merge_methods": ["merge"]`;
   - `"strict_required_status_checks_policy": false` (research R7: a strict `main` would mark every release PR after the first as out of date, and "Update branch" would be a forbidden push to `develop`).
 
   Run `pnpm format` afterwards.
-- [ ] T011 [US2] Create `.github/rulesets/README.md`, the maintainer's runbook for the two ruleset files (FR-022, research R10). It depends on T009 and T010. The commands target `SaSteffen/RynkePoints` and need `gh` authenticated as the owner, plus `jq`. Document:
+- [X] T011 [US2] Create `.github/rulesets/README.md`, the maintainer's runbook for the two ruleset files (FR-022, research R10). It depends on T009 and T010. The commands target `SaSteffen/RynkePoints` and need `gh` authenticated as the owner, plus `jq`. Document:
   - **When to apply**: only after the bootstrap PR has been merged into `develop`, so the six checks exist (research R11 step 4). Applying earlier blocks the bootstrap PR on checks that never ran.
   - **Create**: `gh api --method POST repos/SaSteffen/RynkePoints/rulesets --input .github/rulesets/<branch>.json`, for each file.
   - **Look up the ID**: `gh api repos/SaSteffen/RynkePoints/rulesets --jq '.[] | select(.name == "protect-<branch>") | .id'`.
@@ -187,7 +187,7 @@ versions.
     - renaming a job means updating both files and re-applying them in the same PR;
     - `allowed_merge_methods` must be a subset of the merge methods enabled in `.github/repository-settings.md`.
   - **Why this is manual**: reading rulesets needs an admin-scoped token, which CI must not have (FR-017).
-- [ ] T012 [P] [US2] Create `.github/repository-settings.md`, the settings that live outside rulesets (research R9, data-model.md "Repository settings"). For each setting give its value, its UI path under **Settings**, the `gh` command that applies it, and a read-only `gh api … --jq` command that shows the current value:
+- [X] T012 [P] [US2] Create `.github/repository-settings.md`, the settings that live outside rulesets (research R9, data-model.md "Repository settings"). For each setting give its value, its UI path under **Settings**, the `gh` command that applies it, and a read-only `gh api … --jq` command that shows the current value:
   - **default branch `develop`** (FR-002): `gh repo edit SaSteffen/RynkePoints --default-branch develop`;
   - **merge buttons**: squash on, merge commits on, rebase off. `gh repo edit SaSteffen/RynkePoints --enable-squash-merge --enable-merge-commit --enable-rebase-merge=false`;
   - **squash commit title = PR title, message = blank** (research R5): `gh api --method PATCH repos/SaSteffen/RynkePoints -f squash_merge_commit_title=PR_TITLE -f squash_merge_commit_message=BLANK`. Explain in one sentence why the message is blank: a "commit messages" body prefixes each subject with `* `, which can push a valid subject over commitlint's 100-character body-line limit on `develop`;
@@ -196,7 +196,7 @@ versions.
   - **fork PR approval**: keep GitHub's default, so first-time contributors need approval. Give the UI path (**Settings → Actions → General → Fork pull request workflows**). Give the read-only API call only if the endpoint is confirmed in the GitHub REST docs when the file is written; otherwise say "check in the UI".
 
   End with one combined verify command for the repository fields: `gh api repos/SaSteffen/RynkePoints --jq '{default_branch, allow_squash_merge, allow_merge_commit, allow_rebase_merge, squash_merge_commit_title, squash_merge_commit_message, delete_branch_on_merge}'`, and its expected output.
-- [ ] T013 [US2] Extend `## Contributing` in `README.md` (after T008, same file) with a "Protected branches" part:
+- [X] T013 [US2] Extend `## Contributing` in `README.md` (after T008, same file) with a "Protected branches" part:
   - nobody can push, force-push or delete `main` or `develop`, the owner included, and there is no bypass;
   - the only way in is a PR whose required checks passed;
   - PRs into `develop` must be up to date with `develop` ("Update branch");
@@ -212,7 +212,7 @@ versions.
 
 **Independent Test**: quickstart V14 and §4 (Phase 8, T027). A feature-branch PR into `main` is red on `pr-source`. A `develop` → `main` PR is green, offers only "Create a merge commit", and afterwards `git log origin/main..origin/develop` is empty.
 
-- [ ] T014 [US3] Add the `pr-source` job to `.github/workflows/pr-policy.yml` (after T006, same file; contracts/required-checks.md "`pr-source` rule", research R6):
+- [X] T014 [US3] Add the `pr-source` job to `.github/workflows/pr-policy.yml` (after T006, same file; contracts/required-checks.md "`pr-source` rule", research R6):
   - `name: pr-source`, `runs-on: ubuntu-latest`, `timeout-minutes: 2`;
   - **no** checkout and no setup action;
   - one step with `env:` `BASE_REF: ${{ github.base_ref }}`, `HEAD_REF: ${{ github.head_ref }}`, `HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}` and `THIS_REPO: ${{ github.repository }}`;
@@ -223,7 +223,7 @@ versions.
     - anything else, including any fork → fail. Print `::error::Pull requests into main must come from develop or a hotfix/* branch of this repository.` and `exit 1`.
 
     On pass, echo a one-line reason (e.g. `Base is develop: no source restriction.`). The job always runs and never uses a job-level `if:`, so its result is never "skipped" (research R6).
-- [ ] T015 [US3] Local red-green dry-run of the T014 `run:` script. Nothing is committed. Copy the script body into a scratch file outside the repo, then run it with `bash` and these env values. The expected exit code is in brackets.
+- [X] T015 [US3] Local red-green dry-run of the T014 `run:` script. Nothing is committed. Copy the script body into a scratch file outside the repo, then run it with `bash` and these env values. The expected exit code is in brackets.
   - `BASE_REF=develop HEAD_REF=feature/x HEAD_REPO=someone/RynkePoints THIS_REPO=SaSteffen/RynkePoints` [0]
   - `BASE_REF=main HEAD_REF=develop HEAD_REPO=SaSteffen/RynkePoints THIS_REPO=SaSteffen/RynkePoints` [0]
   - `BASE_REF=main HEAD_REF=hotfix/typo HEAD_REPO=SaSteffen/RynkePoints THIS_REPO=SaSteffen/RynkePoints` [0]
@@ -231,7 +231,7 @@ versions.
   - `BASE_REF=main HEAD_REF=sync/example HEAD_REPO=SaSteffen/RynkePoints THIS_REPO=SaSteffen/RynkePoints` [1]
   - `BASE_REF=main HEAD_REF=develop HEAD_REPO=someone/RynkePoints THIS_REPO=SaSteffen/RynkePoints` [1] (fork named `develop`)
   - `BASE_REF=main HEAD_REF='hotfix/$(touch pwned)' HEAD_REPO=SaSteffen/RynkePoints THIS_REPO=SaSteffen/RynkePoints` [0], and no file `pwned` is created (no injection).
-- [ ] T016 [US3] Extend `## Contributing` in `README.md` (after T013, same file) with a "Releasing" part:
+- [X] T016 [US3] Extend `## Contributing` in `README.md` (after T013, same file) with a "Releasing" part:
   - open a PR from `develop` into `main`, e.g. `gh pr create --base main --head develop --title "chore: release"`;
   - the same six checks run, and `pr-source` allows only `develop` and `hotfix/*` as sources for `main`;
   - merge with **Create a merge commit**, the only method `main` allows;
@@ -250,13 +250,13 @@ versions.
 
 **Independent Test**: quickstart §5 (Phase 8, T028). Both PRs are gated by the six checks. Afterwards `git log origin/develop..origin/main --no-merges` is empty.
 
-- [ ] T017 [US4] Extend `## Contributing` in `README.md` (after T016, same file) with a "Hotfixes" part, following quickstart.md §5 and research R7a:
+- [X] T017 [US4] Extend `## Contributing` in `README.md` (after T016, same file) with a "Hotfixes" part, following quickstart.md §5 and research R7a:
   1. Cut `hotfix/<short-name>` from `origin/main`, commit conventionally, and open a PR into `main`. Merge it with a merge commit once green.
   2. Carry the fix back to `develop`: cut `sync/<short-name>` from `origin/main`, run `git merge origin/develop` (keep the default merge message, which commitlint ignores), push it, and open a PR into `develop`. Merge it with **Create a merge commit**, not squash.
   3. Explain why there's no direct `main` → `develop` PR: "Update branch" on it would be a forbidden push to `main`.
   4. If a release PR is open, the back-merge re-runs its checks (US4-3).
   5. Note that no hotfix is possible before the first release has brought the workflows onto `main` (research R11 step 6).
-- [ ] T018 [US4] Add the working-branch naming table from data-model.md to the same README section (after T017, same file). It's short: kind, name pattern, cut from, PR target, merge method. The kinds are feature/fix, `hotfix/*`, `sync/*` and release.
+- [X] T018 [US4] Add the working-branch naming table from data-model.md to the same README section (after T017, same file). It's short: kind, name pattern, cut from, PR target, merge method. The kinds are feature/fix, `hotfix/*`, `sync/*` and release.
 
 **Checkpoint**: all four stories are implemented in files. Nothing has touched `origin` yet.
 
@@ -266,7 +266,7 @@ versions.
 
 **Purpose**: agent guidance, consistency checks across the files, and a final local run.
 
-- [ ] T019 [P] Update `CLAUDE.md`:
+- [X] T019 [P] Update `CLAUDE.md`:
   - Add a `## Branches and pull requests` section:
     - work on a branch cut from `develop` (or `hotfix/*` from `main`);
     - never push to `main` or `develop`, because the rulesets refuse it anyway;
@@ -275,20 +275,20 @@ versions.
     - CI runs the same `pnpm lint`/`typecheck`/`test` and commitlint;
     - renaming a CI job means updating both `.github/rulesets/*.json` files in the same change.
   - In `## Non-negotiables`, add applying rulesets and repository settings (`.github/rulesets/README.md`, `.github/repository-settings.md`) to the list of manual steps the user runs or explicitly asks for.
-- [ ] T020 [P] Check that the contexts and job names match (contracts/required-checks.md, contracts/rulesets.md "Invariants"):
+- [X] T020 [P] Check that the contexts and job names match (contracts/required-checks.md, contracts/rulesets.md "Invariants"):
   - `jq -r '.rules[] | select(.type == "required_status_checks") | .parameters.required_status_checks[] | "\(.context) \(.integration_id)"' .github/rulesets/main.json` and the same for `develop.json` give identical output: the six contexts, each with `15368`;
   - the set of job `name:` values under `jobs:` in `.github/workflows/ci.yml` and `.github/workflows/pr-policy.yml` equals those six contexts, with no extra job;
   - `jq '.bypass_actors' .github/rulesets/*.json` prints `[]` twice.
 
   Fix any mismatch at its source.
-- [ ] T021 [P] Security review of `.github/`:
+- [X] T021 [P] Security review of `.github/`:
   - `grep -rnE 'pull_request_target|secrets\.|wrangler|deploy' .github/workflows .github/actions` finds nothing;
   - every `permissions:` block is `contents: read`;
   - every `uses:` for a third-party action has a 40-hex SHA and a `# vX.Y.Z` comment;
   - no `run:` block contains `${{` (all values come through `env:`; FR-017 to FR-020, research R4).
 
   If `actionlint` happens to be installed, run it on `.github/workflows/`. It's optional, and isn't added as a dependency (research R12).
-- [ ] T022 Final local run (after T019–T021):
+- [X] T022 Final local run (after T019–T021):
   - `pnpm format`, `pnpm lint`, `pnpm typecheck` and `pnpm test` all green;
   - `pnpm commitlint --from "$(git merge-base main HEAD)" --to HEAD --verbose` green over all commits of this branch;
   - `git status` shows only the intended files: `.github/**`, `README.md`, `CLAUDE.md` and `specs/002-ci-branch-protection/tasks.md`.
