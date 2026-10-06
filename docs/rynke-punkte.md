@@ -37,37 +37,47 @@ noch nicht dabei.
 | Wofür                              | Teamrynke | Trainingsrynke |
 |------------------------------------|----------:|---------------:|
 | je volle 10 km einer Fahrt         |         – |              1 |
-| je volle 1000 Höhenmeter einer Fahrt |         – |              5 |
+| je volle 1000 Höhenmeter (Saison) |         – |              5 |
 | 1 Teamtraining                     |         1 |              5 |
 | 1 Tag Trainingswochenende          |         5 |             10 |
 | 1 Techniktraining                  |         5 |              5 |
 
 ## Kilometer und Höhenmeter
 
-Jede Radfahrt, die du auf Strava hochlädst, zählt für sich. RynkePoints rundet
-**jede Fahrt einzeln ab**:
+Kilometer und Höhenmeter werden unterschiedlich gezählt.
 
-- Pro **vollen 10 km** gibt es 1 Trainingsrynke.
-- Pro **vollen 1000 Höhenmeter** gibt es 5 Trainingsrynke.
-
-Was über die letzten vollen 10 km bzw. 1000 Höhenmeter hinausgeht, verfällt. Es
-wird **nicht** mit anderen Fahrten zusammengezählt. Das ist Absicht: Wir wollen
+**Kilometer** zählen für jede Radfahrt, die du auf Strava hochlädst, einzeln.
+RynkePoints rundet **jede Fahrt für sich ab**: Pro **vollen 10 km** einer Fahrt
+gibt es 1 Trainingsrynke. Was über die letzten vollen 10 km hinausgeht, verfällt.
+Es wird **nicht** mit anderen Fahrten zusammengezählt. Das ist Absicht: Wir wollen
 ordentlich lange Ausfahrten, nicht viele kurze.
 
-| Fahrt(en)                       | Trainingsrynke | Warum                              |
-|---------------------------------|---------------:|------------------------------------|
-| 79 km                           |              7 | die letzten 9 km verfallen         |
-| 100 km                          |             10 |                                    |
-| 3 Fahrten à 7 km                |              0 | jede Fahrt unter 10 km             |
-| 2 Fahrten à 25 km               |              4 | 2 + 2, nicht 50 km = 5             |
-| 1999 Höhenmeter in einer Fahrt  |              5 | nur 1 volle 1000                   |
-| 79 km mit 1999 Höhenmetern      |             12 | 7 für km + 5 für Höhenmeter        |
+**Höhenmeter** gehen dagegen **nie verloren**. RynkePoints zählt die Höhenmeter
+all deiner Fahrten der Saison zusammen. Pro **vollen 1000 Höhenmeter** insgesamt
+gibt es 5 Trainingsrynke. Was noch nicht für die nächsten 1000 reicht, bleibt
+stehen und zählt mit deinen nächsten Fahrten weiter.
+
+| Fahrt(en)                         | Trainingsrynke | Warum                                 |
+|-----------------------------------|---------------:|---------------------------------------|
+| 79 km                             |              7 | die letzten 9 km verfallen            |
+| 100 km                            |             10 |                                       |
+| 3 Fahrten à 7 km                  |              0 | jede Fahrt unter 10 km                |
+| 2 Fahrten à 25 km                 |              4 | 2 + 2, nicht 50 km = 5                |
+| 1999 Höhenmeter in einer Fahrt    |              5 | 1 volle 1000, 999 m bleiben stehen    |
+| 2 Fahrten à 600 Höhenmeter        |              5 | 1200 m zusammen, 200 m bleiben stehen |
+| 1999 + 1 Höhenmeter in 2 Fahrten  |             10 | 2000 m zusammen                       |
+| 79 km mit 1999 Höhenmetern        |             12 | 7 für km + 5 für Höhenmeter           |
+
+Die Regel für Kilometer soll verhindern, dass jemand das System austrickst, zum
+Beispiel mit vielen kurzen Fahrten. Sollte sie zu unfairen Ergebnissen führen,
+passen wir sie an.
 
 ## Eine Ausfahrt, eine Aufzeichnung
 
 Eine Fahrt zählt **gar nicht**, wenn deine Pausen zusammen **länger als die
 Hälfte deiner Fahrzeit** dauern. Fahrzeit ist die Zeit, in der du dich bewegt
-hast. Dann gibt es weder für Kilometer noch für Höhenmeter Rynke. Wer 4 Stunden
+hast. Dann gibt es weder für Kilometer noch für Höhenmeter Rynke, und ihre
+Höhenmeter zählen auch nicht zu deiner Saisonsumme. Wer 4 Stunden
 fährt, darf also höchstens 2 Stunden Pause machen.
 
 | Aufzeichnung                                        | Fahrzeit | Pause | Trainingsrynke |
@@ -86,7 +96,7 @@ Am meisten bekommst du also, wenn du jede Ausfahrt als **genau eine**
 Aufzeichnung hochlädst:
 
 - Teilst du eine lange Ausfahrt in mehrere Aufzeichnungen auf, verfallen die
-  Reste mehrfach.
+  Kilometer-Reste mehrfach. (Höhenmeter gehen dabei nicht verloren.)
 - Legst du mehrere Fahrten in eine Aufzeichnung zusammen, zählt sie wegen der
   Pausen meist gar nicht.
 
@@ -144,7 +154,9 @@ Korrektur bleibt bestehen, auch wenn RynkePoints deine Rynke neu berechnet.
 # Wo sehe ich meinen Stand?
 
 Auf deiner RynkePoints-Seite siehst du deine Trainingsrynke und Teamrynke, wie
-viele dir noch fehlen, ob du dabei bist und woher deine Rynke kommen. Deinen Stand
+viele dir noch fehlen, ob du dabei bist und woher deine Rynke kommen. Dort siehst
+du auch deine Höhenmeter der Saison und wie viele bis zu den nächsten 5
+Trainingsrynke fehlen. Deinen Stand
 siehst nur du.
 
 # Ändern sich die Regeln?
