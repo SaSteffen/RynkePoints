@@ -33,6 +33,11 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
 - Q: Do the km and elevation of a ride during a team event earn Training Rynke on
   top of the event's fixed amount? → A: Yes. Every stored ride earns distance and
   elevation Rynke; "solo" in the sheet does not exclude team rides.
+- Q (raised by the project owner): How are rides kept from being merged or
+  stretched over several days? → A: A ride whose paused time (elapsed time minus
+  moving time) is more than half of its elapsed time earns no Rynke at all. This
+  rules out multi-day recordings, recording the way to work and back as one ride,
+  and recording a whole week as one ride.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -42,13 +47,37 @@ Terms: **Training Rynke** (German label "Trainingsrynke") reward riding volume;
 training weekend (counted per day), technique training. Together, a rider's two
 totals are their **Rynke balance**.
 
-### User Story 1 - Rides earn Training Rynke (Priority: P1)
+### User Story 1 - Riders can read how Rynke work (Priority: P1, delivered first)
+
+Before any evaluation exists, an organiser hands riders a short German document
+(as PDF) that explains both kinds of Rynke, how each is earned, what the tour
+needs, the deliberate per-ride rounding and the pause rule, with worked
+examples. Riders know the rules before the app counts anything.
+
+**Why this priority**: The rules must be known to riders now, independent of when
+the evaluation ships, and writing them down plainly surfaces misunderstandings
+before they are built in. It is the first phase of this feature.
+
+**Independent Test**: Not covered by automated tests (FR-018). An organiser runs
+the conversion, opens the PDF and checks it against this spec.
+
+**Acceptance Scenarios**:
+
+1. **Given** the rules handout in the repository, **When** an organiser runs the
+   documented conversion command, **Then** a PDF of the handout is produced.
+2. **Given** the handout and this spec, **When** a reviewer compares them, **Then**
+   every rule value, threshold and example in the handout matches this spec.
+
+---
+
+### User Story 2 - Rides earn Training Rynke (Priority: P1)
 
 A connected rider rides and uploads to Strava as usual. Every ride that reaches
 RynkePoints adds to their Training Rynke: 1 for every full 10 km and 5 for every
 full 1000 m of elevation gain of that ride. Leftovers below a full step are lost,
-so a 79 km ride earns 7. When they edit or delete a ride on Strava, their Training
-Rynke follow.
+so a 79 km ride earns 7. A ride that was paused for more than half of its
+elapsed time (e.g. the way to work and back recorded as one ride) earns nothing.
+When they edit or delete a ride on Strava, their Training Rynke follow.
 
 **Why this priority**: Riding is where most of the 250 Training Rynke come
 from, and it only needs the activity data the app already stores.
@@ -74,17 +103,25 @@ value.
    reflect only their current rides.
 6. **Given** a ride that started before the season start, **When** the balance is
    evaluated, **Then** that ride contributes nothing.
+7. **Given** a 40 km commute recorded as one ride with 2 h moving time and 9 h
+   elapsed time (7 h paused at work), **When** the balance is evaluated, **Then**
+   that ride earns 0 Training Rynke.
+8. **Given** a 150 km ride with 6 h moving time and 10 h elapsed time (4 h paused),
+   **When** the balance is evaluated, **Then** it earns 15 Training Rynke from
+   distance as usual (paused time is less than half).
+9. **Given** a ride with exactly half of its elapsed time paused, **When** the
+   balance is evaluated, **Then** it counts.
 
 ---
 
-### User Story 2 - Team events earn Team Rynke and Training Rynke (Priority: P1)
+### User Story 3 - Team events earn Team Rynke and Training Rynke (Priority: P1)
 
 The team runs team trainings, training weekends and technique trainings. After
 each event an organiser records who was there. Every rider recorded gets the fixed
 amount for that kind of event: 1 Team Rynke and 5 Training Rynke per team training,
 5 Team Rynke and 10 Training Rynke per day of a training weekend, 5 Team Rynke and
 5 Training Rynke per technique training. A ride recorded during the event still
-earns its distance and elevation Rynke on top (Story 1).
+earns its distance and elevation Rynke on top (Story 2).
 
 **Why this priority**: Team events are the only source of Team Rynke; without them
 no rider can ever qualify.
@@ -113,7 +150,7 @@ evaluate, and compare both totals with a hand-calculated value.
 
 ---
 
-### User Story 3 - Rider sees their balance and whether they qualify (Priority: P2)
+### User Story 4 - Rider sees their balance and whether they qualify (Priority: P2)
 
 A connected rider opens their RynkePoints page and sees their Training Rynke and
 Team Rynke, how far each is from what the tour needs (250 / 25), whether they
@@ -121,7 +158,7 @@ already qualify, and a breakdown of where their Rynke came from (distance,
 elevation, each kind of team event).
 
 **Why this priority**: The numbers only motivate if the rider can see them, but the
-evaluation itself (Stories 1–2) can be verified without a page.
+evaluation itself (Stories 2–3) can be verified without a page.
 
 **Independent Test**: Sign in as a synthetic rider with known activities and
 attendance and check the page shows the expected totals, remaining amounts,
@@ -142,7 +179,7 @@ qualification status and breakdown — and nobody else's data.
 
 ---
 
-### User Story 4 - Organiser corrects a balance (Priority: P3)
+### User Story 5 - Organiser corrects a balance (Priority: P3)
 
 An organiser needs to correct a rider's balance by hand, for example for a ride
 that was recorded twice, or for team work the rules don't cover.
@@ -172,6 +209,12 @@ re-evaluation, and check the correction is still applied exactly once.
   several uploads can therefore cost Rynke, and joining short rides into one does
   not happen automatically. This is intended: the team wants proper-length rides,
   not many short ones (see Clarifications).
+- **Merged or stretched recordings**: a ride paused for more than half of its
+  elapsed time earns no Rynke at all, neither for distance nor for elevation. This
+  covers multi-day recordings, commutes recorded as one ride with the working day
+  in between, and several rides recorded as one. Splitting is therefore never
+  rewarded (leftovers are lost, above) and merging is not either. Team-event Rynke
+  are unaffected, since attendance does not depend on rides (FR-007).
 - **Activity outside the counting window**: rides before the season start or after
   the qualification deadline (FR-011) earn nothing; a ride is placed by its start
   date in the rider's local time zone.
@@ -180,7 +223,7 @@ re-evaluation, and check the correction is still applied exactly once.
   counting (it is no longer stored, per feature 001).
 - **Duplicate recordings**: the same ride uploaded twice (e.g. from a bike computer
   and a phone) is counted twice; the rider deletes the duplicate on Strava or an
-  organiser corrects it (Story 4). Automatic duplicate detection is out of scope.
+  organiser corrects it (Story 5). Automatic duplicate detection is out of scope.
 - **Virtual and e-bike rides**: count like any other stored cycling activity unless
   an organiser excludes those sport types (FR-012).
 - **Zero values**: rides with 0 km or 0 m elevation gain contribute nothing for that
@@ -225,6 +268,10 @@ re-evaluation, and check the correction is still applied exactly once.
   shortcut: it rewards proper-length rides over many short ones.
 - **FR-005**: Only activities stored by feature 001 (cycling activities of the
   rider) count; other sports never earn Rynke.
+- **FR-005a**: A ride whose paused time (elapsed time minus moving time) is more
+  than half of its elapsed time MUST earn no Training Rynke, neither from distance
+  nor from elevation gain. A ride paused for exactly half still counts. The share
+  of half is a rule value (FR-012).
 
 **Team events**
 
@@ -256,9 +303,10 @@ re-evaluation, and check the correction is still applied exactly once.
   001 Team Settings) up to and including the qualification deadline MUST count. If
   no deadline is set, everything from the season start counts.
 - **FR-012**: The rule values (km and metres per step, Rynke per step, fixed amounts
-  per event kind), the thresholds (250 Training Rynke, 25 Team Rynke), the
-  qualification deadline and any excluded cycling sport types MUST be organiser
-  configuration, changeable without code changes.
+  per event kind, the largest paused share of a counting ride), the thresholds
+  (250 Training Rynke, 25 Team Rynke), the qualification deadline and any excluded
+  cycling sport types MUST be organiser configuration, changeable without code
+  changes.
 
 **Qualification**
 
@@ -271,12 +319,30 @@ re-evaluation, and check the correction is still applied exactly once.
 - **FR-014**: A signed-in rider MUST be able to see their Training Rynke and Team
   Rynke, the amount still missing for each threshold, whether they qualify, and a
   breakdown by source: distance, elevation gain, each team-event kind (with the
-  events attended), and corrections (with reasons).
+  events attended), and corrections (with reasons). Rides that earned nothing
+  because of FR-005a MUST be listed with that reason.
 - **FR-015**: A rider MUST only ever see their own balance; showing balances or
   qualification to other riders or organisers is out of scope for this feature.
 - **FR-016**: All rider-facing text of this feature MUST come from translation
   strings in German and English, as in feature 001 (FR-028–FR-030); the German
   labels are "Trainingsrynke" and "Teamrynke".
+
+**Rules handout**
+
+- **FR-017**: The repository MUST contain a German rules handout for riders,
+  written in Markdown, that explains Training Rynke and Team Rynke, every way to
+  earn them with the current values, the per-ride rounding (FR-004) and the pause
+  rule (FR-005a) with examples,
+  attendance recording (FR-007), rides during team events (FR-008), the counting
+  window (FR-011), corrections (FR-010) and the qualification rule (FR-013).
+- **FR-018**: The repository MUST contain a script that converts the handout to a
+  PDF with one command. The handout and the script are a seldom-used manual
+  organiser task and need no automated tests.
+- **FR-019**: This spec is authoritative. The handout is informational only; where
+  they differ, the spec applies and the handout MUST be corrected. Whenever a rule
+  in this spec or a configured value changes, the handout MUST be updated.
+- **FR-020**: The handout is a static document outside the app. It is German only
+  and is not part of the app's translation strings (FR-016 does not apply to it).
 
 ### Key Entities
 
@@ -316,12 +382,16 @@ re-evaluation, and check the correction is still applied exactly once.
 ## Assumptions
 
 - Builds on feature 001: riders, their stored cycling activities (distance,
-  elevation gain, start date and time zone, sport type) and the season start date
-  already exist. No additional activity data is fetched from Strava.
+  elevation gain, moving time, start date and time zone, sport type) and the season
+  start date already exist. FR-005a additionally needs each ride's elapsed time,
+  which feature 001 does not store yet. It comes with the activity data the app
+  already fetches, so no extra Strava request is needed, and it is the minimum
+  needed to compute points (constitution Principle I).
 - The goal is the Tour de Paris of the current season; one season is evaluated at
   a time. History across seasons is out of scope.
-- Organisers maintain team events, attendance, corrections and rule configuration the same way as Team Settings in feature 001, through the
-  app's deployment configuration or data; an organiser admin page is out of scope.
+- Organisers maintain team events, attendance, corrections and rule configuration
+  the same way as Team Settings in feature 001, through the app's deployment
+  configuration or data; an organiser admin page is out of scope.
 - There is no upper limit on Rynke per ride, per day or per week, since the sheet
   states none.
 - Organisers seeing riders' balances or a list of who qualified, team

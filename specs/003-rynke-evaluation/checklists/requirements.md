@@ -33,4 +33,6 @@
 
 - All three clarifications answered 2026-10-06 (see spec Clarifications): per-ride
   rounding, organiser-recorded attendance, event rides earn km/elevation on top.
+- Added after review: rules handout as phase one (Story 1, FR-017–FR-020) and the
+  pause rule (FR-005a), which needs elapsed time stored in addition to feature 001.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`
