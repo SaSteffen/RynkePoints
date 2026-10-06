@@ -41,4 +41,18 @@ describe("fake Strava", () => {
 		expect(() => fake.restore()).toThrow(/example\.org/);
 		fake = installFakeStrava();
 	});
+
+	// Nothing in this feature writes to Strava, even with activity:write
+	// granted (FR-003), so a write call fails whichever test makes it.
+	it.each([
+		["PUT", "https://www.strava.com/api/v3/activities/1"],
+		["POST", "https://www.strava.com/api/v3/activities"],
+	])("fails on a %s to %s", async (method, url) => {
+		await expect(fetch(url, { method, body: "{}" })).rejects.toThrow(
+			/Unknown Strava endpoint/,
+		);
+		expect(fake.unexpected).toEqual([`${method} ${url}`]);
+		expect(() => fake.restore()).toThrow(/Unexpected outbound fetch/);
+		fake = installFakeStrava();
+	});
 });
