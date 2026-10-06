@@ -1,0 +1,134 @@
+# Data Model: Strava Connection and Webhook Activity Intake
+
+**Feature**: [spec.md](spec.md) | **Research**: [research.md](research.md)
+
+Storage is a single D1 database (EU jurisdiction, R11). The schema is created by
+migration `migrations/0001_init.sql`. D1 enforces foreign keys, so every
+rider-owned row uses `ON DELETE CASCADE`: deleting a `riders` row is the complete
+deletion required by FR-022.
+
+Timestamps are Unix epoch seconds (`INTEGER`) unless noted.
+
+## riders
+
+One row per connected member of the team club.
+
+| Column | Type | Rules |
+|---|---|---|
+| `athlete_id` | INTEGER PK | Strava athlete ID. |
+| `first_name` | TEXT NOT NULL | From the token response's `athlete.firstname`; greeting only. |
+| `status` | TEXT NOT NULL | `connected` \| `needs_reconnect`. |
+| `scope_read_all` | INTEGER NOT NULL | 1 if `activity:read_all` was granted, else 0. |
+| `scopes` | TEXT NOT NULL | Accepted scope string as returned by Strava (FR-006). |
+| `connected_at` | INTEGER NOT NULL | First connection. |
+| `scopes_updated_at` | INTEGER NOT NULL | Last time scopes were granted or changed (FR-006). |
+| `membership_checked_at` | INTEGER NOT NULL | Last definitive "is a member" answer. |
+| `import_status` | TEXT NOT NULL | `pending` \| `running` \| `done`. |
+
+Not stored, by design: last name, profile photo, city, gender, weight, email
+(Principle I).
+
+### Rider lifecycle
+
+```text
+               callback ok + member
+ (none) ───────────────────────────────► connected ◄─────────────┐
+   ▲                                       │    │                │ reconnect
+   │ deauth event / disconnect /           │    │ refresh        │ (callback ok)
+   │ left club / non-member at connect     │    │ refused        │
+   └───────────────────────────────────────┘    ▼                │
+          (hard delete, cascades)          needs_reconnect ──────┘
+                                                │
+                                                └─► deleted on deauth / disconnect / left club
+```
+
+- `needs_reconnect`: no Strava calls are made for this rider. Pending messages are
+  acked and dropped. The daily membership check skips them. `/me` asks them to
+  reconnect.
+- Reconnect (FR-007): update `scopes`, `scope_read_all`, `status=connected` and the
+  credentials.
+  - If `scope_read_all` went 1 → 0: `DELETE FROM activities WHERE athlete_id=? AND
+    is_private=1`.
+  - If it went 0 → 1: set `import_status=pending` and enqueue the import (R8).
+
+### Import status
+
+`pending` (enqueued) → `running` (first page processed) → `done` (last page was
+short). A reconnect that newly grants `read_all` resets it to `pending`.
+
+## strava_credentials
+
+Exactly one per rider (FR-027).
+
+| Column | Type | Rules |
+|---|---|---|
+| `athlete_id` | INTEGER PK, FK → riders ON DELETE CASCADE | |
+| `access_token_enc` | TEXT NOT NULL | `v1:<iv>:<ciphertext>` AES-256-GCM (R10). |
+| `refresh_token_enc` | TEXT NOT NULL | Same format; replaced on every rotation. |
+| `expires_at` | INTEGER NOT NULL | Access-token expiry from Strava. |
+
+## activities
+
+One row per stored cycling activity (FR-013–FR-016).
+
+| Column | Type | Rules |
+|---|---|---|
+| `strava_activity_id` | INTEGER PK | |
+| `athlete_id` | INTEGER NOT NULL, FK → riders ON DELETE CASCADE | Indexed with `start_date DESC` for `/me`. |
+| `sport_type` | TEXT NOT NULL | Must be in the cycling set (R5); otherwise the row is deleted, never written. |
+| `start_date` | TEXT NOT NULL | ISO-8601 UTC as returned by Strava. |
+| `start_date_local` | TEXT NOT NULL | ISO-8601 local wall-clock time. |
+| `timezone` | TEXT NOT NULL | Strava's timezone string, e.g. `(GMT+01:00) Europe/Berlin`. |
+| `distance_m` | REAL NOT NULL | ≥ 0. |
+| `moving_time_s` | INTEGER NOT NULL | ≥ 0. |
+| `elevation_gain_m` | REAL NOT NULL | ≥ 0. |
+| `is_private` | INTEGER NOT NULL | 1 if "Only You"; needed to honour scope narrowing (FR-007). |
+| `refreshed_at` | INTEGER NOT NULL | Last time the row was written from Strava data. |
+
+Every write is an upsert keyed by `strava_activity_id` (R5). No GPS, polyline,
+coordinates, title, description, photos, heart rate or power (FR-014). The
+mapping from Strava's response is an explicit allow-list, so unknown fields can't
+leak in.
+
+## failed_work
+
+Queue messages that exhausted their retries on transient errors (R7, FR-019).
+
+| Column | Type | Rules |
+|---|---|---|
+| `id` | INTEGER PK AUTOINCREMENT | |
+| `athlete_id` | INTEGER NOT NULL, FK → riders ON DELETE CASCADE | |
+| `message` | TEXT NOT NULL | JSON body of the queue message (identifiers only). |
+| `last_error` | TEXT NOT NULL | Status code / short reason; never tokens. |
+| `failed_at` | INTEGER NOT NULL | Rows older than 7 days are deleted by the daily cron, not re-enqueued. |
+
+## strava_rate_limit
+
+Single row (`id = 1`) holding the app-wide Strava budget (R6).
+
+| Column | Type | Rules |
+|---|---|---|
+| `id` | INTEGER PK CHECK (id = 1) | |
+| `observed_at` | INTEGER NOT NULL | Time of the response the usage was read from. |
+| `read_15m`, `read_daily` | INTEGER NOT NULL | From `X-ReadRateLimit-Usage`. |
+| `all_15m`, `all_daily` | INTEGER NOT NULL | From `X-RateLimit-Usage`. |
+| `limit_read_15m`, `limit_read_daily`, `limit_all_15m`, `limit_all_daily` | INTEGER NOT NULL | From the `*-Limit` headers; seeded with 100/1000/200/2000. |
+
+The usage counts only apply while `observed_at` is in the current 15-minute window
+or UTC day. Otherwise they are treated as 0.
+
+## Team settings (configuration, not tables)
+
+Set in `wrangler.jsonc` `vars` (FR-021a). Changing them is a deploy, not a code
+change.
+
+| Name | Example | Meaning |
+|---|---|---|
+| `STRAVA_CLUB_ID` | `"2372209"` | Team club ("TRHH Rynke Coins"). |
+| `SEASON_START_DATE` | `"2026-01-01"` | Import cutoff, interpreted as 00:00 Europe/Berlin. |
+| `STRAVA_SUBSCRIPTION_ID` | `"0"` until created | Events with another `subscription_id` are dropped. |
+
+## Queue message (`Pending Activity Work`)
+
+See [contracts/queue-messages.md](contracts/queue-messages.md). Messages carry only
+numeric IDs and enum values, never activity data or tokens.
