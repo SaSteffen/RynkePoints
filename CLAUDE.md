@@ -16,7 +16,11 @@ pnpm lint             # Biome lint + format check
 pnpm format           # Biome autofix
 pnpm typecheck        # tsc --noEmit
 pnpm types            # regenerate worker-configuration.d.ts after editing wrangler.jsonc
+pnpm wrangler d1 migrations apply rynke-points --local   # local D1 schema for pnpm dev
 ```
+
+`wrangler.jsonc` declares the D1 (`DB`), Queue (`WORK_QUEUE`) and daily cron
+bindings; tests get the same bindings locally through Miniflare.
 
 Commits go through git hooks (`lefthook.yml`): Biome and `tsc` run on every commit,
 and commit messages must follow
@@ -56,5 +60,7 @@ and commit messages must follow
 - Webhook handlers ack fast and enqueue; processing is idempotent (Principle II).
 - Editing a Strava activity description only ever touches the app's own delimited
   block; rider text is never lost (Principle III).
+- Rider-facing text belongs in the catalogs under `src/i18n/messages/`, in every
+  language, never inline in pages or logic (FR-028).
 - `.specify/scripts/` and `.specify/templates/` are vendored Spec Kit files, not
   project code — don't lint, refactor, or "clean up" them.
