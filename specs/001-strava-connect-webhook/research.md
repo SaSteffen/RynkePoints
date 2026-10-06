@@ -126,7 +126,10 @@ Cloudflare docs (Queues pricing and retries, D1 data location), and the installe
   locally) is what makes out-of-order delivery safe. The `private` flag is the
   smallest extra field needed to honour FR-007 when a rider narrows their scope.
 - **Alternatives considered**: Storing `updates` deltas. Order-dependent;
-  rejected. Including `Velomobile` and `Handcycle`. Unlikely for the team, and
+  rejected. Dropping `private` and handling scope narrowing by deleting all the
+  rider's activities and re-importing. Saves one field, but later team-visible
+  features would need the flag anyway to keep "Only You" rides private; rejected
+  (confirmed with the project owner, 2026-10-06). Including `Velomobile` and `Handcycle`. Unlikely for the team, and
   trivial to add to the constant later; deferred.
 
 ## R6. Rate-limit budget and backoff (FR-018, FR-019)

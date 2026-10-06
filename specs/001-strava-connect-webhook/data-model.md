@@ -82,7 +82,7 @@ One row per stored cycling activity (FR-013–FR-016).
 | `distance_m` | REAL NOT NULL | ≥ 0. |
 | `moving_time_s` | INTEGER NOT NULL | ≥ 0. |
 | `elevation_gain_m` | REAL NOT NULL | ≥ 0. |
-| `is_private` | INTEGER NOT NULL | 1 if "Only You"; needed to honour scope narrowing (FR-007). |
+| `is_private` | INTEGER NOT NULL | 1 if "Only You". Needed to honour scope narrowing (FR-007); later team-visible features will also need it to keep "Only You" rides out of anything others see. |
 | `refreshed_at` | INTEGER NOT NULL | Last time the row was written from Strava data. |
 
 Every write is an upsert keyed by `strava_activity_id` (R5). No GPS, polyline,
