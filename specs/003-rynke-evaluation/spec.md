@@ -78,6 +78,12 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
 - Q (raised by the project owner): Does this feature include the rider's page? →
   A: No. This feature computes and stores the numbers; showing them to riders is
   a separate feature that reads them.
+- Q (raised during planning): What does a ride earn when feature 001 recorded
+  one of its figures (elapsed time, manual flag, trainer flag) as unknown? → A:
+  It is not excluded for that. A rule that needs the missing figure is not
+  applied, and the ride is evaluated again once feature 001 fills the figure in.
+- Q (raised during planning): What about a ride with 0 moving time? → A: It
+  counts as paused for its whole duration, so the pause rule excludes it.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -480,7 +486,8 @@ re-evaluation, and check the correction is still applied exactly once.
 - **FR-005a**: A ride whose paused time (elapsed time minus moving time) is more
   than half of its moving time MUST earn no Training Rynke, neither from distance
   nor from elevation gain (its elevation gain is not added to the season total).
-  A ride paused for exactly half of its moving time still counts. The share of half is a rule value (FR-012). There MUST be no other limit
+  A ride paused for exactly half of its moving time still counts. A ride with
+  0 moving time counts as paused for all of it and earns nothing. The share of half is a rule value (FR-012). There MUST be no other limit
   on a ride's duration, and a ride spanning several calendar days MUST NOT be
   excluded for that reason alone.
 - **FR-005b**: An activity entered manually on Strava (marked as manual by
@@ -490,8 +497,9 @@ re-evaluation, and check the correction is still applied exactly once.
   10 km/h or above 45 km/h, or whose climbing rate (elevation gain ÷ moving time)
   is above 1500 m per hour, MUST earn no Training Rynke, neither from distance
   nor from elevation gain. A ride exactly at a limit still counts; a ride with
-  0 moving time earns nothing. The three limits are rule values (FR-012). They
-  exclude walks, cars, trains and lifts recorded as rides.
+  0 moving time is excluded by FR-005a, not by these limits. The three limits
+  are rule values (FR-012). They exclude walks, cars, trains and lifts recorded
+  as rides.
 - **FR-005d**: Of a rider's rides that otherwise count, two overlap in time when
   one starts before the other ends (end = start + elapsed time). The rides MUST be
   taken from largest to smallest (longer distance first, then more elevation
@@ -502,6 +510,12 @@ re-evaluation, and check the correction is still applied exactly once.
 - **FR-005e**: E-bike rides MUST earn no Training Rynke: the excluded cycling
   sport types (FR-012) MUST contain Strava's e-bike types (e-bike ride, e-mountain
   bike ride) by default.
+- **FR-005f**: A figure that feature 001 recorded as unknown MUST NOT exclude a
+  ride. Without the elapsed time the pause rule (FR-005a) is not applied and the
+  ride's end for FR-005d is its start plus its moving time; without the manual
+  flag FR-005b is not applied; without the trainer flag a ride counts as virtual
+  only if its sport type is virtual (FR-013a). When feature 001 fills the figure
+  in, the ride is evaluated again like any changed activity (FR-003).
 
 **Team events**
 
@@ -571,8 +585,8 @@ re-evaluation, and check the correction is still applied exactly once.
   entry, too slow, too fast, climbing rate, excluded sport type, outside the
   counting window, overlap); for an overlap, the counting ride it overlaps; the
   Training Rynke it earns from distance (FR-004); the metres it adds to the
-  elevation total (FR-004a); whether it is a virtual ride (FR-013a); and the
-  rules version it was computed with. Overlap is only recorded for rides that
+  elevation total (FR-004a); whether it is a virtual ride (FR-013a); which
+  figures were unknown (FR-005f); and the rules version it was computed with. Overlap is only recorded for rides that
   pass every other rule (FR-005d). A ride result MUST NOT carry elevation Rynke:
   those are earned by the season total only.
 - **FR-014a**: The system MUST store a balance (season tally) for each connected
@@ -673,8 +687,8 @@ re-evaluation, and check the correction is still applied exactly once.
   Rynke with reason and date, entered by an organiser. Deleted with the Rider.
 - **Ride Result**: the derived result for one of a Rider's activities (feature
   001) — whether it counts, the reasons if not, the overlapping ride, distance
-  Training Rynke, metres added to the elevation total, virtual flag and rules
-  version (FR-014). At most one per activity; deleted with the activity or the
+  Training Rynke, metres added to the elevation total, virtual flag, unknown
+  figures and rules version (FR-014). At most one per activity; deleted with the activity or the
   Rider.
 - **Rynke Balance**: the derived season tally for one Rider — Training Rynke,
   Team Rynke, breakdown by source, amounts still missing, qualification flag and

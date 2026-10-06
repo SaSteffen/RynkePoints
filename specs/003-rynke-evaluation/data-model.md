@@ -1,89 +1,114 @@
-# Data Model: Rynke Evaluation — Stories 1 and 2
+# Data Model: Rynke Evaluation — Stories 1, 2 and 4
 
-Stories 1 and 2 add **no table, column or migration**. The evaluation reads
-feature 001's `activities` table and returns values in memory; Story 4 stores them
-(Ride Result, Rynke Balance) and Story 3 adds Team Event and Attendance. The
-in-memory shapes below are what Story 4 will persist, so their fields follow
-FR-014 and FR-014a.
-
-Function signatures and reason codes: [contracts/ride-evaluation.md](contracts/ride-evaluation.md).
+Story 2 works in memory; Story 4 stores its output in two new tables
+(migration `0003_rynke_results.sql`). Team events, attendance and corrections
+(Stories 3 and 6) and stored rules (Story 5) come later, each in its own additive
+migration. Function signatures and codes:
+[contracts/ride-evaluation.md](contracts/ride-evaluation.md).
 
 ## Input: Ride (from `activities`, feature 001)
 
-One row per stored cycling activity of the rider. Read by
-`listRiderActivities(db, athleteId)`; all activities of the rider, not only the
-season's, so that rides outside the window get a result too.
+All of the rider's stored activities, not only the season's, so that rides
+outside the window get a result too.
 
 | Field | Column | Notes |
 |---|---|---|
-| `activityId` | `strava_activity_id` | Unique; last tie-breaker for overlaps (R5). |
+| `activityId` | `strava_activity_id` | Unique; last tie-breaker for overlaps (research R5). |
 | `sportType` | `sport_type` | One of feature 001's six cycling types. |
-| `startUtc` | `start_date` | ISO UTC; start of the overlap interval (R5). |
+| `startUtc` | `start_date` | ISO UTC; start of the overlap interval. |
 | `startLocal` | `start_date_local` | Local wall-clock time; its date places the ride in the window (R4). |
 | `distanceM` | `distance_m` | ≥ 0. |
 | `movingS` | `moving_time_s` | ≥ 0. |
-| `elapsedS` | `elapsed_time_s` | `null` = unknown (R6). |
+| `elapsedS` | `elapsed_time_s` | `null` = unknown (FR-005f). |
 | `elevationM` | `elevation_gain_m` | ≥ 0. |
-| `manual` | `is_manual` | `null` = unknown (R6). |
-| `trainer` | `is_trainer` | `null` = unknown (R6). |
+| `manual` | `is_manual` | `null` = unknown. |
+| `trainer` | `is_trainer` | `null` = unknown. |
+| `refreshedAt` | `refreshed_at` | Copied into the ride result to detect stale results (R14). |
 
-Not read: `athlete_id` (the loader filters by it), `timezone`, `is_private`,
-`refreshed_at`.
+## Input: Rynke Rules (`CURRENT_RULES`, code constant until Story 5)
 
-## Input: Ride Rules (`RideRules`, code constant for now)
-
-The riding part of FR-012's rule values (R8). Defaults in `DEFAULT_RIDE_RULES`.
-
-| Field | Default | Rule |
+| Field | Value | Rule |
 |---|---|---|
+| `version` | 1 | FR-023; raised with every change of values or logic (R8). |
+| `effectiveDate` | the date version 1 ships | FR-023 |
 | `distanceStepKm`, `distanceStepRynke` | 10, 1 | FR-004 |
 | `elevationStepM`, `elevationStepRynke` | 1000, 5 | FR-004a |
 | `maxPausedShare` | `{ num: 1, den: 2 }` | FR-005a |
 | `minSpeedKmh`, `maxSpeedKmh` | 10, 45 | FR-005c |
 | `maxClimbMPerH` | 1500 | FR-005c |
 | `excludedSportTypes` | `EBikeRide`, `EMountainBikeRide` | FR-005e |
-| `qualificationDeadline` | `null` (no upper bound) | FR-011 |
+| `qualificationDeadline` | `null` | FR-011 |
+| `trainingThreshold`, `teamThreshold` | 250, 25 | FR-013 |
+| `maxVirtualShare` | `{ num: 1, den: 3 }` (so 2/3 must be non-virtual) | FR-013a |
 
-Validation: steps and limits are positive integers, `minSpeedKmh <
-maxSpeedKmh`, shares have `0 ≤ num ≤ den`, `den > 0`, and the deadline (if set)
-is a `YYYY-MM-DD` date on or after the season start. Invalid rules are a
-programming error and throw.
+Validation: steps, limits and thresholds are positive integers; `minSpeedKmh <
+maxSpeedKmh`; shares have `den > 0` and `0 ≤ num ≤ den`; dates are `YYYY-MM-DD`.
+Invalid rules throw (a programming error).
 
 ## Input: Counting Window
 
-`{ seasonStart: "YYYY-MM-DD", deadline: "YYYY-MM-DD" | null }`, inclusive on
-both ends, compared with the date part of `startLocal` (R4). `seasonStart` comes
-from `SEASON_START_DATE` (feature 001 Team Settings); `deadline` from the rules.
+`{ seasonStart, deadline }`, both `YYYY-MM-DD`, inclusive; `seasonStart` from
+`SEASON_START_DATE`, `deadline` from the rules (`null` = open).
 
-## Output: Ride Result (one per input ride)
+## Input: Extras (empty until Stories 3 and 6)
 
-| Field | Type | Notes |
+Training and Team Rynke from team events and corrections that `tally()` adds to
+the riding totals. Stories 2 and 4 always pass zero.
+
+## Table: `ride_results` (Ride Result, FR-014)
+
+| Column | Type | Rule |
 |---|---|---|
-| `activityId` | integer | |
-| `counts` | boolean | `true` exactly when `reasons` is empty. |
-| `reasons` | reason codes | Every reason that applies, in the contract's fixed order; `overlap` only for rides that pass every other rule (FR-014). |
-| `overlapsActivityId` | integer or `null` | Set exactly when `reasons` is `["overlap"]`: the counting ride it overlaps (first in counting order, R5). |
-| `distanceRynke` | integer ≥ 0 | FR-004; 0 when the ride doesn't count. |
-| `elevationDm` | integer ≥ 0 | Metres added to the elevation total, in decimetres (R3); 0 when the ride doesn't count. |
-| `virtual` | boolean or `null` | `VirtualRide` or trainer flag set (FR-013a); `null` only when the trainer flag is unknown for a non-`VirtualRide`. |
+| `strava_activity_id` | INTEGER PK, FK `activities` ON DELETE CASCADE | One result per activity. |
+| `athlete_id` | INTEGER NOT NULL, FK `riders` ON DELETE CASCADE | Indexed (`ride_results_by_rider`). |
+| `counts` | INTEGER 0/1 | 1 exactly when `reasons` is `[]`. |
+| `reasons` | TEXT, `json_valid`, JSON array of reason codes | Contract order; `["overlap"]` alone or none of it. |
+| `overlaps_activity_id` | INTEGER NULL | Set exactly when `reasons = ["overlap"]`. No FK: it is rewritten in the same batch as the ride it names. |
+| `distance_rynke` | INTEGER ≥ 0 | 0 when not counting. |
+| `elevation_dm` | INTEGER ≥ 0 | Decimetres added to the elevation total; 0 when not counting. |
+| `is_virtual` | INTEGER 0/1 | FR-013a with FR-005f. |
+| `unknown_figures` | TEXT, `json_valid`, JSON array of figure codes | `[]` normally. |
+| `rules_version` | INTEGER ≥ 1 | FR-023 |
+| `activity_refreshed_at` | INTEGER | The activity's `refreshed_at` the result was computed from. |
 
-No elevation Rynke per ride (FR-014). The rules version is added by Story 4/5.
+No elevation Rynke per ride (FR-014). No Strava field beyond feature 001's is
+copied (FR-015).
 
-## Output: Riding Totals
+## Table: `rynke_balances` (Rynke Balance, FR-014a)
 
-The riding part of the season tally (FR-014a), computed from the counting ride
-results.
+| Column | Type | Rule |
+|---|---|---|
+| `athlete_id` | INTEGER PK, FK `riders` ON DELETE CASCADE | |
+| `distance_rynke` | INTEGER ≥ 0 | Sum over counting rides. |
+| `elevation_dm` | INTEGER ≥ 0 | Sum over counting rides. |
+| `elevation_rynke` | INTEGER ≥ 0 | Floored once on the total (FR-004a). |
+| `elevation_to_next_step_dm` | INTEGER > 0 | 1 … one full step (R12). |
+| `training_rynke` | INTEGER ≥ 0 | Riding + extras, floored at 0. |
+| `team_rynke` | INTEGER ≥ 0 | Extras only (FR-009); 0 until Story 3. |
+| `training_missing`, `team_missing` | INTEGER ≥ 0 | To each threshold. |
+| `training_without_virtual` | INTEGER ≥ 0 | FR-013a (R12). |
+| `virtual_share_missing` | INTEGER ≥ 0 | To `ceil(threshold × (den − num) / den)` = 167 (research R3). |
+| `qualified` | INTEGER 0/1 | 1 exactly when all three missing amounts are 0. |
+| `rules_version` | INTEGER ≥ 1 | FR-023 |
+| `rules_effective_date` | TEXT `YYYY-MM-DD` | Story 4 scenario 12. |
+| `computed_at` | INTEGER | Epoch seconds of the last write that changed the row. |
 
-| Field | Rule |
-|---|---|
-| `distanceRynke` | Sum of counting rides' `distanceRynke`. |
-| `elevationDm` | Sum of counting rides' `elevationDm`. |
-| `elevationRynke` | `floor(elevationDm / (elevationStepM × 10)) × elevationStepRynke`, once on the total. |
-| `elevationToNextStepDm` | Decimetres still missing for the next step; between 1 and one full step. |
-| `trainingRynke` | `distanceRynke + elevationRynke`. |
-| `withoutVirtual` | The same five fields over counting rides whose `virtual` is `false` (FR-013a: overlaps decided with all rides, then virtual rides left out, then the elevation total floored again). |
+Story 3 adds the per-kind team-event breakdown and Story 6 the correction sums,
+as additive columns or a child table.
 
-Invariants (checked by tests): totals equal the sums over the ride results; every
-ride result has `counts = (reasons is empty)`; non-counting rides have
-`distanceRynke = elevationDm = 0`; no two counting rides overlap; the output is
-identical for any order of the input rides.
+## Invariants (tested)
+
+- The balance's riding fields equal the sums over the rider's counting ride
+  results; all of the rider's rows carry the same `rules_version` (FR-014b).
+- Every activity of an evaluated rider has exactly one ride result; no result
+  without its activity.
+- No two counting rides of a rider overlap.
+- A full evaluation of the stored state writes nothing (SC-002).
+- The same activities in any order give the same rows (FR-002).
+
+## State over time
+
+A rider has no balance until their first evaluation (first activity write after
+`0003`, or the first cron sweep). From then on every activity change rewrites the
+affected rows in the same batch. Deleting the rider removes everything by
+cascade.

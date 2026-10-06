@@ -1,44 +1,61 @@
-# Contract: Ride evaluation (internal module)
+# Contract: Rynke evaluation and stored results (internal)
 
-The interface `src/rynke/` offers to the rest of the app. Story 4 (storage and
-queue wiring), the rider-view feature (translating reasons) and a later
-description-writing feature rely on it. Field details:
-[data-model.md](../data-model.md).
+What `src/rynke/` and `src/db/rynke.ts` offer to the rest of the app. Story 3,
+Story 5, the rider-view feature (reads and translates codes) and a later
+description-writing feature rely on it. Fields: [data-model.md](../data-model.md).
 
 ## Functions
 
 | Function | Pure | Does |
 |---|---|---|
-| `evaluateRides(rides, rules, window)` | yes | Returns `{ results, totals }`: one ride result per input ride, in ascending `activityId` order, and the riding totals. No I/O, no clock, no randomness. |
-| `evaluateRider(db, athleteId, seasonStart, rules = DEFAULT_RIDE_RULES)` | no (reads D1) | Loads the rider's activities with `listRiderActivities` and calls `evaluateRides`. Writes nothing; makes no Strava request. A rider without activities gets empty results and zero totals. |
-| `listRiderActivities(db, athleteId)` | no (reads D1) | All of the rider's stored activities as `Ride` inputs, `NULL` figures as `null`. |
+| `evaluateRides(rides, rules, window)` | yes | `{ results, riding }`: one ride result per input ride, ascending `activityId`, and the riding totals (with and without virtual rides). No I/O, clock or randomness. |
+| `tally(riding, extras, rules)` | yes | The balance fields of FR-014a (without `computed_at`). |
+| `applyAndEvaluate(db, athleteId, change, rules, window, now)` | no | Reads the rider's activities, ride results and balance in one batch; applies `change` in memory; evaluates; writes the activity statements of `change`, the changed ride results and the balance (if changed) in one batch (research R11, R13). |
+| `readRynke(db, athleteId)` | no (reads) | `{ balance, results }` from one batch, so both come from the same snapshot (FR-014b); `balance` is `null` before the first evaluation. Never evaluates. |
+| `listRidersNeedingEvaluation(db, rulesVersion)` | no (reads) | Connected riders the cron sweep sends `evaluate-rider` for (research R14). |
 
-Guarantees (FR-002):
+`change` is one of:
 
-- Same inputs, same output, whatever the order of `rides`.
-- The output depends only on the arguments.
-- Calling it never changes stored data.
+- `{ kind: "none" }`
+- `{ kind: "upsert", records: ActivityRecord[] }`
+- `{ kind: "delete", activityIds: number[] }`
+- `{ kind: "delete-private" }`
+
+Guarantees:
+
+- `evaluateRides` and `tally` give the same output for the same inputs, whatever
+  the order of rides (FR-002).
+- After `applyAndEvaluate`, the stored rows equal a full evaluation of the stored
+  activities under `rules`; running it again with `none` writes nothing.
+- No function here calls Strava.
 
 ## Reason codes
 
-Language-independent values (FR-016). Rider-facing wording is the rider-view
-feature's job. A ride result lists every code that applies, in this order:
+Language-independent (FR-016); wording belongs to the rider-view feature. A ride
+result lists every code that applies, in this order:
 
 | Code | Rule | Applies when |
 |---|---|---|
 | `outside_window` | FR-011 | The date of `startLocal` is before the season start or after the deadline. |
 | `excluded_sport_type` | FR-005e | `sportType` is in `excludedSportTypes`. |
-| `manual` | FR-005b | `manual` is `true`. |
-| `figures_unknown` | research R6 | A figure the evaluation needs is `null`. |
-| `pause` | FR-005a | `(elapsedS − movingS) × den > movingS × num`. Not checked when `elapsedS` is unknown. |
-| `too_slow` | FR-005c, R7 | Average speed below the minimum, or `movingS = 0`. |
-| `too_fast` | FR-005c | Average speed above the maximum (`movingS > 0`). |
-| `climbing_rate` | FR-005c | Climbing rate above the maximum (`movingS > 0`). |
+| `manual` | FR-005b | `manual` is `true` (not when unknown). |
+| `pause` | FR-005a | `movingS = 0`, or `(elapsedS − movingS) × den > movingS × num`. Not checked when `elapsedS` is unknown and `movingS > 0`. |
+| `too_slow` | FR-005c | `movingS > 0` and average speed below the minimum. |
+| `too_fast` | FR-005c | `movingS > 0` and average speed above the maximum. |
+| `climbing_rate` | FR-005c | `movingS > 0` and climbing rate above the maximum. |
 | `overlap` | FR-005d | Passes every other rule but overlaps a larger counting ride; never combined with another code. |
 
-All rules are checked independently, so a ride can carry several codes (e.g. a
-manual 15 km entry over 2 h: `manual`, `too_slow`). Boundaries count: a ride
-exactly at a limit or paused exactly the allowed share has no code for it.
+Rules are checked independently, so a ride can carry several codes (a manual
+15 km entry over 2 h: `manual`, `too_slow`). A ride exactly at a limit, or paused
+exactly the allowed share, gets no code for it.
 
-Adding a code is a contract change: the rider-view feature must translate it in
-every catalog.
+## Unknown-figure codes (FR-005f)
+
+| Code | Figure | Effect |
+|---|---|---|
+| `elapsed_time` | `elapsed_time_s` | No pause check (unless `movingS = 0`); overlap interval uses the moving time. |
+| `manual` | `is_manual` | No manual check. |
+| `trainer` | `is_trainer` | Virtual only if `sportType` is `VirtualRide`; not listed for `VirtualRide`. |
+
+Adding a code of either kind is a contract change: the rider-view feature must
+translate it in every catalog.
