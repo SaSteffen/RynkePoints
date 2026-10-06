@@ -2,9 +2,14 @@
 
 **Feature**: [spec.md](spec.md) | **Date**: 2026-10-06
 
-Sources checked on 2026-10-06: Strava developer docs (authentication, webhooks),
-Cloudflare docs (Queues pricing and retries, D1 data location), and the installed
+Sources checked on 2026-10-06: Strava developer docs (authentication, webhooks,
+brand guidelines), Cloudflare docs (Queues pricing and retries, D1 data location),
+RFC 9110 §12.5.4 (`Accept-Language`), and the installed
 `@cloudflare/vitest-pool-workers` 0.22.0 type definitions.
+
+R16–R19 were added after constitution v1.1.0 (Language section) and spec FR-028–
+FR-030, FR-029a, SC-010 and SC-011. They supersede the earlier assumption that
+rider pages are English.
 
 ## R1. Strava OAuth scopes and the rider's choice of private activities (FR-003, FR-005)
 
@@ -199,6 +204,7 @@ Cloudflare docs (Queues pricing and retries, D1 data location), and the installe
     cookie (10 minutes), compared with the callback's `state`.
   - State-changing routes (`POST /me/disconnect`, `POST /logout`) require the
     session cookie and an `Origin` header matching the request host.
+    `POST /lang` needs the same `Origin` check but no session (R18).
 - **Rationale**: Web Crypto HMAC, no session table and no dependency. Signing in
   happens only through Strava (FR-009).
 - **Alternatives considered**: A D1 session table. Gives server-side revocation,
@@ -246,18 +252,20 @@ Cloudflare docs (Queues pricing and retries, D1 data location), and the installe
 
 - **Decision**:
   - Server-rendered HTML built from template literals with an escaping `html`
-    tagged template.
+    tagged template. Templates contain markup only; every piece of rider-facing
+    text comes from the message catalogs (R16).
   - Routing is a small path switch, with no framework.
   - The official "Connect with Strava" button and "Powered by Strava" logo are
-    served from Workers static assets (`public/`). The maintainer downloads them
-    from Strava's brand guidelines page, which is a manual step.
+    served from Workers static assets (`public/strava/<locale>/`), picked per page
+    language through the catalogs (R19). The maintainer downloads them from
+    Strava's brand guidelines page, which is a manual step.
 - **Rationale**: Principle IV (no runtime dependencies) plus brand-guideline
-  compliance (Principle I). Four pages don't justify a framework.
+  compliance (Principle I). A handful of pages don't justify a framework.
 
 ## R14. Strava capacity reached (FR-008)
 
-- **Decision**: A `403` from the token exchange is shown as the "team is full for
-  now" page. Any other non-2xx gets a generic "connection failed, try again" page.
+- **Decision**: A `403` from the token exchange redirects to the "team is full
+  for now" notice (`/notice/team-full`, R18). Any other non-2xx gets a generic "connection failed, try again" page.
 - **Rationale**: Strava does not document the capacity error. A 403 at token
   exchange with a valid code has no other known cause. Confirm the exact response
   during the first real second-rider connection and refine the check if needed
@@ -282,3 +290,181 @@ Cloudflare docs (Queues pricing and retries, D1 data location), and the installe
   and discarding the key on deletion ("crypto-shredding"), which would make backup
   copies unreadable at once. Too much machinery for low-sensitivity ride figures;
   rejected for now.
+
+## R16. Message catalogs (FR-028, FR-030, constitution "Language")
+
+- **Decision**:
+  - Plain typed TypeScript catalogs, no i18n library. One file per locale under
+    `src/i18n/messages/`: `de.ts` and `en.ts`. Each exports a flat object
+    `{ "<message.id>": "<text>" }`. The full inventory of message IDs, with the
+    German and English text, is [contracts/messages.md](contracts/messages.md).
+  - German is the source catalog. `MessageId = keyof typeof de` and
+    `Catalog = Readonly<Record<MessageId, string>>`. `en.ts` is declared as
+    `Catalog`, so `tsc` rejects a missing or an extra key (FR-028 parity at build
+    time).
+  - The registry `src/i18n/catalogs.ts` exports `CATALOGS = { de, en }`,
+    `Locale = keyof typeof CATALOGS` and `DEFAULT_LOCALE = "de"`. Adding a locale
+    means adding `src/i18n/messages/<code>.ts` and listing it in the registry. No
+    page, routing or processing code changes (FR-030): the switcher, locale
+    resolution and validation all iterate over the registry.
+  - Placeholders use `{name}` syntax. `t(id, params)` returns a plain string, which
+    the `html` template escapes when it's interpolated. `tHtml(id, params)` escapes
+    the message text itself and inserts `SafeHtml` params unescaped. It's used
+    where a message embeds markup, such as the club link.
+  - Each catalog also carries `meta.languageName` (the language's own name for the
+    switcher, e.g. "Deutsch") and `meta.intlLocale` (the BCP 47 tag used for
+    `Intl.NumberFormat` and `Intl.DateTimeFormat`: `de-DE` and `en-GB`). Numbers
+    and dates on rider pages are formatted through these, e.g. `42,2 km` and
+    `06.10.2026` in German.
+  - Strava sport types shown to riders are messages too (`sport.<SportType>`), so
+    no raw enum value like `GravelRide` reaches a page.
+  - Fallback: if a message were missing at runtime (it can't be, per the types),
+    `t` falls back to the `de` text. An unknown placeholder or a missing param
+    throws, so tests catch it.
+  - Handlers never import a catalog directly. The router builds one `I18n` object
+    per request (`{ locale, t, tHtml, formatNumber, formatDate, locales }`) from
+    `ctx.catalogs` and passes it in. `ctx.catalogs` defaults to `CATALOGS`. Tests
+    can inject an extra pseudo-locale to prove that no copy is hard-coded (R18) and
+    that a new locale needs no code change.
+  - Log messages, errors thrown in code, and webhook/health responses stay English
+    and are not catalogued. They aren't rider-facing.
+- **Rationale**: The constitution's Language section prefers plain typed catalogs
+  over a library (Principle IV). Fewer than 100 strings, two locales and no
+  plurals beyond what fits in separate messages don't need ICU MessageFormat.
+  Type-level parity makes FR-028's "every message in both languages" a build
+  error rather than a runtime surprise. A runtime test still covers what types
+  can't: empty strings and differing placeholders. `Intl` is built into
+  the Workers runtime (the plan already uses it for the Europe/Berlin season
+  start).
+- **Alternatives considered**:
+  - `i18next`, `@formatjs/intl` or `typesafe-i18n`. Each is a new runtime dependency
+    for features (plurals, ICU, lazy loading) this feature doesn't need; rejected
+    per Principle IV.
+  - JSON catalogs. They lose compile-time key parity unless a codegen step is
+    added; rejected.
+  - Messages as functions (`(p) => string`). Typed params, but the catalogs stop
+    being plain strings that a translator can edit; rejected.
+
+## R17. Locale resolution (FR-029, FR-029a)
+
+- **Decision**: `resolveLocale(request, catalogs)` is a pure function, applied in
+  this order:
+  1. **Cookie** `rp_lang`, if its value is a key of `catalogs`. Any other value,
+     such as a locale that was removed later, is ignored, and resolution falls
+     through (spec edge case "Picked language no longer provided").
+  2. **`Accept-Language`**. Parse the comma-separated ranges with their `q`
+     weights (default 1; malformed weights count as 0) and reduce each range to its
+     primary subtag in lowercase (`en-US` → `en`). Drop `q=0` and `*`. Then pick
+     the supported locale with the highest weight. On a tie, the one listed first
+     in the header wins.
+  3. **`de`** (`DEFAULT_LOCALE`). This covers no header, an empty header, or only
+     unsupported languages.
+
+  Examples: `en-US,en;q=0.9,de;q=0.8` → `en`; `de-DE,en;q=0.5` → `de`;
+  `da,en;q=0.3` → `en`, because English is the only supported language listed, so
+  it's preferred over German; `da` → `de`; none → `de`.
+- Every HTML response carries `<html lang="<locale>">`, `Content-Language:
+  <locale>` and `Vary: Accept-Language, Cookie`.
+- **Rationale**: This is the spec's rule, "English when the browser prefers English
+  over German, otherwise German", generalised to N locales so FR-030 holds. A
+  browser that lists English but not German prefers English over German. Taking
+  the primary subtag only is enough while each language has one catalog.
+- **Alternatives considered**:
+  - Storing the language in the rider record. Forbidden by FR-029a, and it would
+    not work before sign-in.
+  - A path prefix (`/en/me`). Every route and redirect would need it, and it
+    changes URLs; rejected.
+  - A `?lang=` query parameter. Not remembered, so it doesn't meet FR-029a;
+    rejected.
+
+## R18. Language switcher (FR-029a, SC-011)
+
+- **Decision**:
+  - The page layout renders the switcher on every rider-facing page. It's a plain
+    HTML form that needs no JavaScript, and no script is shipped:
+
+    ```html
+    <form method="post" action="/lang"> <input type="hidden" name="next" value="<current path>">
+      <button name="lang" value="de" lang="de" aria-current="true">Deutsch</button>
+      <button name="lang" value="en" lang="en">English</button> </form>
+    ```
+
+    One click on a language is the "one action" of SC-011. Buttons are generated
+    from the registry, labelled with each catalog's `meta.languageName`, and the
+    current language is marked `aria-current="true"`. The form is labelled with the
+    `layout.switcher.label` message.
+  - `POST /lang` (contracts/http-routes.md) reads `lang` and `next` from the
+    form body. It requires a same-origin `Origin` header, like the other POST
+    routes (R9).
+    - Supported `lang`: set the cookie `rp_lang=<lang>` with
+      `Path=/; Max-Age=31536000; SameSite=Lax; Secure; HttpOnly`.
+    - Unsupported `lang`: leave the cookie unchanged.
+
+    Either way it answers `303 See Other` to `next`.
+  - `next` is accepted only if it is a known rider-facing GET path: `/`, `/me`,
+    `/me/disconnect`, or `/notice/<known id>`. Anything else, including absolute
+    and protocol-relative URLs, becomes `/`. This prevents an open redirect.
+  - The cookie isn't signed: its value is validated against the registry on every
+    read, it carries no rider identity, and forging it only changes the forger's
+    own language. It is never written to D1 (FR-029a). It is a strictly necessary,
+    user-requested preference cookie, so it needs no consent banner. The landing
+    page's privacy text still lists it (`landing.cookies`).
+  - **Every page has a stable GET URL**, so "keep the visitor on the same page"
+    always works. Outcomes that used to be rendered inline by `GET /auth/callback`
+    (refusal, team full, not a member, Strava busy, failed, expired sign-in) and by
+    `POST /me/disconnect` (deleted, deleted but revoke failed) now redirect
+    `303 /notice/<id>`. That page renders the outcome from the catalog in the
+    current language. Re-submitting a used OAuth `code`, or re-POSTing the
+    deletion, can then never happen through the switcher or a page reload.
+- **Hard-coded copy guard**: a test injects a pseudo-locale `qps` into
+  `ctx.catalogs`, where every message is the `de` text wrapped in `⟦…⟧`. It renders
+  every rider-facing page with `rp_lang=qps` and asserts that every visible text
+  node and every `alt`/`aria-label`/`title` attribute lies inside markers. Only
+  numbers, dates and the rider's first name are allowed outside them. That proves
+  FR-028 (no copy outside the catalogs) and FR-030 (a new locale works with no code
+  change, and the switcher lists it).
+- **Rationale**: A form POST plus a cookie is the smallest mechanism that applies
+  at once, works before sign-in, needs no JavaScript, and is remembered per
+  browser. PRG (post/redirect/get) for outcome pages is a standard pattern and
+  also fixes "reload re-submits".
+- **Alternatives considered**:
+  - `GET /lang?l=en&next=…` links. Simpler markup, but it's a state-changing GET
+    that prefetchers and crawlers can trigger; rejected.
+  - A client-side `<select>` with JavaScript. Adds a script, and still needs a
+    no-JS fallback; rejected.
+  - Keeping the inline callback pages and sending the switcher there to `/`. That
+    breaks "keeps the visitor on the same page"; rejected.
+
+## R19. Strava brand assets per language (FR-001, constitution "Language")
+
+- **Decision**:
+  - Brand images are localised resources referenced from the catalogs:
+    `brand.connectWithStrava.src`, `brand.connectWithStrava.alt`,
+    `brand.poweredByStrava.src` and `brand.poweredByStrava.alt`.
+  - The files live in `public/strava/<locale>/connect-with-strava.svg` and
+    `public/strava/<locale>/powered-by-strava.svg`. The maintainer fills them from
+    Strava's downloads (`1.1-Connect-with-Strava-Buttons.zip` and
+    `1.2-Strava-API-Logos.zip`), using the orange button at 48 px height.
+  - The `de` catalog points at the German variant if Strava's downloads contain
+    one. Otherwise it points at Strava's original (English) files in
+    `public/strava/en/`. The constitution allows that fallback: "in the German
+    variant where one exists".
+  - The button's `alt` text is translated ("Mit Strava verbinden" / "Connect with
+    Strava"). The attribution's `alt` stays "Powered by Strava" in every locale,
+    because the guidelines require that exact wording for text references.
+  - The images are never modified, re-lettered or translated by us.
+- **Rationale**: Checked on 2026-10-06, Strava's guidelines say to "never modify,
+  alter or animate Strava logos". They list the button in orange and white
+  (EPS/SVG/PNG, 48 px @1x) and point to developers@strava.com for anything else.
+  The page doesn't say whether the downloads include German variants. Keeping the
+  path in the catalog makes "German if it exists" a data change, not a code change,
+  and tests stay independent of the actual files.
+- **Alternatives considered**:
+  - A path convention (`/strava/${locale}/…`) built in code. It forces a German
+    file to exist even when Strava supplies none, which tempts someone to make an
+    unofficial translation; rejected.
+  - Our own German-lettered button. It violates the brand guidelines; rejected.
+- **Open**: whether Strava's downloads include a German variant has to be confirmed
+  when the maintainer downloads them (quickstart §3). If they don't, FR-001's "variant
+  matching the page language" is met only for English, and the German page shows
+  the official English button (see plan.md, Open questions).

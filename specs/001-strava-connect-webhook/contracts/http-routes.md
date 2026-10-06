@@ -1,14 +1,43 @@
 # Contract: HTTP routes
 
-All routes are served by the single Worker (`src/index.ts`). HTML pages are
-English, server-rendered, and carry Strava attribution ("Powered by Strava") per
-the brand guidelines.
+All routes are served by the single Worker (`src/index.ts`).
+
+Rider-facing HTML pages are server-rendered in the visitor's language, German by
+default. All their text comes from the message catalogs; message IDs are in
+[messages.md](messages.md) (research R16). Each page carries Strava attribution
+("Powered by Strava") per the brand guidelines.
 
 Cookies:
 
 - `rp_session`: signed session, `HttpOnly; Secure; SameSite=Lax; Path=/`, 30 days
   (research R9).
 - `rp_oauth_state`: signed OAuth state, 10 minutes.
+- `rp_lang`: picked language, `Path=/; Max-Age=31536000; SameSite=Lax; Secure;
+  HttpOnly`. Unsigned, and never stored server-side (research R18).
+
+## Common to every rider-facing page
+
+- **Language** is resolved per request (research R17):
+  1. `rp_lang`, if it names a shipped locale;
+  2. otherwise the best supported `Accept-Language` range;
+  3. otherwise `de`.
+- **Response headers**: `Content-Type: text/html; charset=utf-8`,
+  `Content-Language: <locale>`, `Vary: Accept-Language, Cookie`. The page starts
+  `<html lang="<locale>">`.
+- **Layout** (`layout()` in `src/http/html.ts`):
+  - **Title**: from the page's title message.
+  - **Language switcher**: `<form method="post" action="/lang">`. It holds a
+    hidden `next` set to the current page's path and query, plus one `<button
+    name="lang" value="<locale>" lang="<locale>">` per shipped locale. Each button
+    is labelled with that catalog's `meta.languageName`, and the current one is
+    marked `aria-current="true"`. It works without JavaScript; no script is
+    shipped.
+  - **Footer**: `<img src="{brand.poweredByStrava.src}"
+    alt="{brand.poweredByStrava.alt}">`.
+- **Pages covered**: `/`, `/me`, `/me/disconnect` and `/notice/:id`, plus the
+  rider-facing `404`/`403` pages (`error.notFound`, `error.forbidden`).
+- **Not covered**: the Strava-facing and operational routes return plain
+  responses in English that aren't catalogued.
 
 ## Rider-facing
 
@@ -19,7 +48,10 @@ Cookies:
   - a plain explanation of what is read and why, who can join (club link), how
     to leave, and that deleted data stays in backups for up to 7 days (FR-002,
     FR-022a);
-  - the official "Connect with Strava" button linking to `/connect`.
+  - which cookies are set (`landing.cookies`);
+  - the official "Connect with Strava" button for the page language,
+    `<a href="/connect"><img src="{brand.connectWithStrava.src}"
+    alt="{brand.connectWithStrava.alt}"></a>` (FR-001, research R19).
 
 ### `GET /connect`
 
@@ -28,20 +60,45 @@ Cookies:
   `approval_prompt=force`, `scope=read,activity:read,activity:read_all`, and
   `state=<random>`.
 - Sets `rp_oauth_state`.
+- Strava's approval screen uses the language the rider set on Strava; the app
+  can't influence it (spec Assumptions).
 
 ### `GET /auth/callback`
 
+Every outcome except success redirects to a notice page with a stable GET URL,
+so reloading or switching language never re-submits a used `code` (research
+R18).
+
 | Input | Outcome |
 |---|---|
-| `state` missing or ≠ cookie | `400` page "Sign-in expired, try again". Nothing stored. |
-| `error=access_denied` | `200` page "RynkePoints needs read access to your activities" plus a retry link. Nothing stored. |
-| accepted `scope` lacks `activity:read` or `read` | Revoke the token if one was issued. Same page as `access_denied`. |
-| token exchange `403` | `200` page "The team is full for now" (FR-008). |
-| token exchange other error | `502` page "Connection failed, try again". |
-| club check: not a member | Revoke the token. `200` page "Only members of TRHH Rynke Coins can take part" with the club link. Nothing stored. |
-| club check inconclusive | `503` page "Strava is busy, try again in a few minutes". Token revoked, nothing stored. |
+| `state` missing or ≠ cookie | `303 /notice/expired`. Nothing stored. |
+| `error=access_denied` | `303 /notice/denied` (explanation plus retry link). Nothing stored. |
+| accepted `scope` lacks `activity:read` or `read` | Revoke the token if one was issued, then `303 /notice/denied`. |
+| token exchange `403` | `303 /notice/team-full` (FR-008). |
+| token exchange other error | `303 /notice/failed`. |
+| club check: not a member | Revoke the token, then `303 /notice/not-member` (club link). Nothing stored. |
+| club check inconclusive | Token revoked, nothing stored, `303 /notice/strava-busy`. |
 | success, new rider | Insert rider and credentials, enqueue `import-page` p.1, set `rp_session`, `302 /me`. |
 | success, existing rider | Update scopes and credentials. Apply the scope-change rules (data-model.md). Set `rp_session`, `302 /me`. |
+
+### `GET /notice/:id`
+
+Public outcome page. It shows no rider data, needs no session, and renders in
+the resolved language.
+
+| `:id` | Messages | Extra |
+|---|---|---|
+| `expired` | `notice.expired.*` | retry link to `/connect` |
+| `denied` | `notice.denied.*` | retry link to `/connect` |
+| `team-full` | `notice.teamFull.*` | — |
+| `failed` | `notice.failed.*` | retry link to `/connect` |
+| `not-member` | `notice.notMember.*` | club link `https://www.strava.com/clubs/<STRAVA_CLUB_ID>` |
+| `strava-busy` | `notice.stravaBusy.*` | retry link to `/connect` |
+| `deleted` | `notice.deleted.*` | 7-day backup sentence (FR-022a) |
+| `deleted-revoke-failed` | `notice.deleted.*` + `notice.revokeFailed.body` | "My Apps" hint |
+
+- Known `:id` → `200`. Every notice page links back to `/` (`notice.backToStart`).
+- Unknown `:id` → `404` page (`error.notFound`).
 
 ### `GET /me`
 
@@ -50,29 +107,47 @@ Cookies:
   - greeting (first name) and connection status, with a reconnect link if
     `needs_reconnect`;
   - granted level ("shared activities" / "including private");
-  - import status;
-  - the 20 newest activities (date, sport type, distance km, elevation m) of that
-    rider only (FR-025, FR-026);
+  - import status, with the season start date formatted for the locale;
+  - the 20 newest activities of that rider only (FR-025, FR-026). Each shows the
+    date, the sport type as `sport.<SportType>`, distance in km and elevation in m,
+    with numbers and dates formatted via `meta.intlLocale`;
   - the "Disconnect and delete my data" button, which leads to the confirmation
-    page.
+    page;
+  - a sign-out button (`POST /logout`).
 
 ### `GET /me/disconnect`
 
-Confirmation page with a POST form.
+Confirmation page with a POST form. Not signed in → `302 /`.
 
 ### `POST /me/disconnect`
 
-- Requires a session and a same-origin `Origin` header, else `403`.
+- Requires a session and a same-origin `Origin` header, else `403` page
+  (`error.forbidden`).
 - Revokes the token at Strava (one retry on 503), then hard-deletes the rider
   (cascade) and clears the session cookie.
-- `200` page confirming deletion and that backup copies expire within 7 days
-  (FR-022a). If the revoke failed, the page also tells the rider to remove
-  RynkePoints under "My Apps" in their Strava settings.
+- `303 /notice/deleted`, which confirms deletion and that backup copies expire
+  within 7 days (FR-022a). If the revoke failed, it goes to
+  `303 /notice/deleted-revoke-failed` instead, which also tells the rider to
+  remove RynkePoints under "My Apps" in their Strava settings.
 
 ### `POST /logout`
 
 - Requires a same-origin `Origin` header.
 - Clears `rp_session` and redirects `302 /`.
+
+### `POST /lang`
+
+Language switcher target (FR-029a, research R18). No session needed.
+
+- **Body**: `application/x-www-form-urlencoded`, with `lang` and `next`.
+- **`Origin`** missing or foreign → `403` page (`error.forbidden`).
+- **`lang`** is a shipped locale → set `rp_lang=<lang>` with the attributes above.
+  Otherwise leave the cookie unchanged.
+- **`next`** must be one of `/`, `/me`, `/me/disconnect` or `/notice/<known
+  id>`. Anything else (absolute or protocol-relative URLs, unknown paths) is
+  replaced by `/`.
+- **Response**: `303` to `next`. The next GET renders in the picked language.
+- **Never** writes to D1 (FR-029a).
 
 ## Strava-facing
 
@@ -119,3 +194,7 @@ Accepted event shape (all other fields ignored):
 ### `GET /health`
 
 `200` `ok` (existing).
+
+### Any other path
+
+`404`. Rider-facing `404` page (`error.notFound`) in the resolved language.

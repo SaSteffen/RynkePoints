@@ -26,7 +26,8 @@ One row per connected member of the team club.
 | `import_status` | TEXT NOT NULL | `pending` \| `running` \| `done`. |
 
 Not stored, by design: last name, profile photo, city, gender, weight, email
-(Principle I).
+(Principle I), and the rider's language. The language is a per-browser preference
+held only in the `rp_lang` cookie (FR-029a, see below).
 
 ### Rider lifecycle
 
@@ -127,6 +128,31 @@ change.
 | `STRAVA_CLUB_ID` | `"2372209"` | Team club ("TRHH Rynke Coins"). |
 | `SEASON_START_DATE` | `"2026-01-01"` | Import cutoff, interpreted as 00:00 Europe/Berlin. |
 | `STRAVA_SUBSCRIPTION_ID` | `"0"` until created | Events with another `subscription_id` are dropped. |
+
+## Language preference (cookie, not stored)
+
+The language a visitor picked with the switcher lives only in their browser
+(FR-029a, research R17/R18). It's not a table and not a `riders` column.
+
+| Cookie | Value | Attributes | Rules |
+|---|---|---|---|
+| `rp_lang` | A locale key of the catalog registry (`de`, `en`) | `Path=/; Max-Age=31536000; SameSite=Lax; Secure; HttpOnly` | Set only by `POST /lang`. An unknown value is ignored on read, so resolution falls through to `Accept-Language` and then `de`. Unsigned; carries no rider identity. |
+
+Resolution order: valid `rp_lang` → best supported `Accept-Language` range → `de`.
+
+## Message catalogs (code, not tables)
+
+Rider-facing text is code in `src/i18n/messages/<locale>.ts`, not data. The
+inventory of message IDs with German and English text is in
+[contracts/messages.md](contracts/messages.md).
+
+- `de` is the source catalog. It defines `MessageId`, and it is the default and
+  fallback locale.
+- Every other catalog has exactly the same keys (enforced by `tsc` and a parity
+  test), no empty values, and the same `{placeholder}` set per message.
+- `meta.languageName` must be unique across catalogs, because it labels the
+  switcher.
+- The registry `src/i18n/catalogs.ts` lists the shipped locales: `de`, `en`.
 
 ## Queue message (`Pending Activity Work`)
 
