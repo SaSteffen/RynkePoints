@@ -41,6 +41,10 @@ const GERMAN: Record<string, [string, string]> = {
 		"Strava ist gerade ausgelastet",
 		"Bitte versuche es in ein paar Minuten noch einmal.",
 	],
+	"not-connected": [
+		"Du machst noch nicht mit",
+		"Lies auf der Startseite, was RynkePoints mit deinen Daten macht",
+	],
 	deleted: [
 		"Deine Daten wurden gelöscht",
 		"Wir haben alle Daten über dich gelöscht.",
@@ -92,8 +96,13 @@ describe("GET /notice/:id", () => {
 		},
 	);
 
-	it("says nothing was stored for not-member, strava-busy and consent-required", async () => {
-		for (const id of ["not-member", "strava-busy", "consent-required"]) {
+	it("says nothing was stored for not-member, strava-busy, consent-required and not-connected", async () => {
+		for (const id of [
+			"not-member",
+			"strava-busy",
+			"consent-required",
+			"not-connected",
+		]) {
 			const { page } = await get(`/notice/${id}`);
 			expect(page).toContain(NOTHING_STORED);
 			expect(page).not.toContain(DELETED);

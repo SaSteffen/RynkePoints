@@ -66,6 +66,9 @@ Cookies:
     </form>
     ```
 
+  - below it, for riders who already take part, `landing.signIn.*` and the same
+    official button as a link to `/signin` (FR-009).
+
 ### `POST /connect`
 
 The rider agreed and goes to Strava (research R21). No session needed.
@@ -77,7 +80,7 @@ The rider agreed and goes to Strava (research R21). No session needed.
   `redirect_uri=<origin>/auth/callback`, `response_type=code`,
   `approval_prompt=force`,
   `scope=read,activity:read,activity:read_all,activity:write` (research R1), and
-  `state=<random>`. Sets `rp_oauth_state` to `<state>:<CONSENT_VERSION>`.
+  `state=connect-<random>`. Sets `rp_oauth_state` to `<state>:<CONSENT_VERSION>`.
 - Strava's approval screen uses the language the rider set on Strava; the app
   can't influence it (spec Assumptions). The rider may untick private
   activities and write access there.
@@ -89,6 +92,15 @@ Reconnecting and changing permissions, for a signed-in rider only.
 - No session, or the rider no longer exists → `302 /`.
 - Otherwise the same `302` to Strava as `POST /connect`, with `rp_oauth_state`
   set to `<state>:0` (no new agreement).
+
+### `GET /signin`
+
+A rider who already takes part signs in, e.g. on another device (FR-009). No
+session or consent needed.
+
+- `302` to Strava like `POST /connect`, but `approval_prompt=auto` (Strava skips
+  its approval screen for a rider who already approved, research R1) and
+  `state=signin-<random>`; `rp_oauth_state` is `<state>:0`.
 
 ### `GET /auth/callback`
 
@@ -104,6 +116,7 @@ reconnecting).
 |---|---|
 | `state` missing or ≠ the cookie's state | `303 /notice/expired`. Nothing stored or changed. |
 | `error=access_denied` | `303 /notice/denied` (explanation plus retry link). Nothing stored or changed; an existing rider keeps their earlier connection. |
+| token exchanged after `/signin`, new rider | Revoke the token, then `303 /notice/not-connected`. Nothing stored; no club check (FR-009). |
 | accepted `scope` lacks `activity:read` or `read`, new rider | Revoke the token, then `303 /notice/denied`. Nothing stored. |
 | accepted `scope` lacks `activity:read` or `read`, existing rider | Revoke the token, delete the rider (cascade, FR-006), clear `rp_session`, `303 /notice/denied-deleted`. |
 | token exchange `403` | `303 /notice/team-full` (FR-008). |
@@ -135,6 +148,7 @@ to `/me` from there.
 | `not-member` | `notice.notMember.*` + `notice.nothingStored` | club link `https://www.strava.com/clubs/<STRAVA_CLUB_ID>` |
 | `not-member-deleted` | `notice.notMember.*` + `notice.deleted.body` | club link; deletion and 7-day backup sentence (FR-022a) |
 | `strava-busy` | `notice.stravaBusy.*` + `notice.nothingStored` | retry link (only new riders get here) |
+| `not-connected` | `notice.notConnected.*` + `notice.nothingStored` | — (the link back to `/` leads to the consent form) |
 | `deleted` | `notice.deleted.*` | 7-day backup sentence (FR-022a) |
 | `deleted-revoke-failed` | `notice.deleted.*` + `notice.revokeFailed.body` | "My Apps" hint |
 

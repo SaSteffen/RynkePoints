@@ -54,7 +54,7 @@ describe("POST /connect with the box ticked", () => {
 		expect(params.get("response_type")).toBe("code");
 		expect(params.get("approval_prompt")).toBe("force");
 		expect(params.get("scope")).toBe(SCOPE);
-		expect(params.get("state")).toMatch(/^[A-Za-z0-9_-]{16,}$/);
+		expect(params.get("state")).toMatch(/^connect-[0-9a-f]{32}$/);
 	});
 
 	it("stores the same state and consent version 1 in rp_oauth_state", async () => {
@@ -133,6 +133,21 @@ describe("GET /connect", () => {
 		);
 		const params = expectAuthorize(res);
 		expect(params.get("scope")).toBe(SCOPE);
+		expect(await stateCookie(res)).toEqual({
+			state: params.get("state"),
+			consentVersion: 0,
+		});
+	});
+});
+
+describe("GET /signin", () => {
+	it("lets Strava skip the approval screen and marks the state", async () => {
+		const res = await handleFetch(request("/signin"), ctx);
+		const params = expectAuthorize(res);
+		expect(params.get("redirect_uri")).toBe(`${ORIGIN}/auth/callback`);
+		expect(params.get("approval_prompt")).toBe("auto");
+		expect(params.get("scope")).toBe(SCOPE);
+		expect(params.get("state")).toMatch(/^signin-[0-9a-f]{32}$/);
 		expect(await stateCookie(res)).toEqual({
 			state: params.get("state"),
 			consentVersion: 0,

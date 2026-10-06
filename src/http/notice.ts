@@ -19,6 +19,7 @@ export const NOTICE_IDS = [
 	"not-member",
 	"not-member-deleted",
 	"strava-busy",
+	"not-connected",
 	"deleted",
 	"deleted-revoke-failed",
 ] as const;
@@ -73,6 +74,10 @@ const NOTICES: Record<NoticeId, Notice> = {
 		title: "notice.stravaBusy.title",
 		body: ["notice.stravaBusy.body", "notice.nothingStored"],
 		retry: true,
+	},
+	"not-connected": {
+		title: "notice.notConnected.title",
+		body: ["notice.notConnected.body", "notice.nothingStored"],
 	},
 	deleted: {
 		title: "notice.deleted.title",

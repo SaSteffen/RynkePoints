@@ -1,7 +1,12 @@
 import type { Ctx } from "../ctx";
 import { createI18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
-import { handleCallback, handleConnectForm, handleReconnect } from "./auth";
+import {
+	handleCallback,
+	handleConnectForm,
+	handleReconnect,
+	handleSignIn,
+} from "./auth";
 import { notFound } from "./errors";
 import { handleLanding } from "./landing";
 import { handleLang } from "./lang";
@@ -38,6 +43,8 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleLanding(request, ctx, i18n);
 			case "/connect":
 				return handleReconnect(request, ctx);
+			case "/signin":
+				return handleSignIn(request, ctx);
 			case "/auth/callback":
 				return handleCallback(request, ctx);
 			case "/me":

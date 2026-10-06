@@ -9,7 +9,9 @@ import { readSession } from "./session";
 
 // The public start page: what RynkePoints reads and why, who can join, how to
 // leave, who sees what, and the consent form with the Connect with Strava
-// button (FR-001, FR-002, FR-022a; feature 004 FR-010, FR-011; research R21).
+// button (FR-001, FR-002, FR-022a; feature 004 FR-010, FR-011; research R21). Riders
+// who already take part sign in below it without consenting or approving again
+// (FR-009).
 
 export async function handleLanding(
 	request: Request,
@@ -46,7 +48,10 @@ export async function handleLanding(
 <form method="post" action="/connect">
 <p><label><input type="checkbox" name="consent" value="${CONSENT_VERSION}" required> ${i18n.t("consent.agree")}</label></p>
 <button><img src="${i18n.t("brand.connectWithStrava.src")}" alt="${i18n.t("brand.connectWithStrava.alt")}"></button>
-</form>`,
+</form>
+<h2>${i18n.t("landing.signIn.heading")}</h2>
+<p>${i18n.t("landing.signIn.body")}</p>
+<p><a href="/signin"><img src="${i18n.t("brand.connectWithStrava.src")}" alt="${i18n.t("brand.connectWithStrava.alt")}"></a></p>`,
 		}),
 	);
 }

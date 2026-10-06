@@ -40,27 +40,35 @@ import {
 // (FR-003): the description feature will only write for riders who granted it.
 const REQUESTED_SCOPES = "read,activity:read,activity:read_all,activity:write";
 
-function randomState(): string {
+// Connecting always shows Strava's approval screen, so a rider can change
+// their choice (FR-007); signing in lets Strava skip it for a rider who
+// already approved (FR-009). The flow travels as the prefix of `state`, which
+// the signed state cookie vouches for.
+type Flow = "connect" | "signin";
+
+function randomState(flow: Flow): string {
 	const bytes = crypto.getRandomValues(new Uint8Array(16));
-	return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+	const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0"));
+	return `${flow}-${hex.join("")}`;
 }
 
 async function authorizeRedirect(
 	request: Request,
 	ctx: Ctx,
+	flow: Flow,
 	consentVersion: number,
 ): Promise<Response> {
-	const state = randomState();
-	const authorize = new URL(`${STRAVA_ORIGIN}/oauth/authorize`);
-	authorize.search = new URLSearchParams({
+	const state = randomState(flow);
+	const url = new URL(`${STRAVA_ORIGIN}/oauth/authorize`);
+	url.search = new URLSearchParams({
 		client_id: clientId(ctx.env),
 		redirect_uri: `${new URL(request.url).origin}/auth/callback`,
 		response_type: "code",
-		approval_prompt: "force",
+		approval_prompt: flow === "connect" ? "force" : "auto",
 		scope: REQUESTED_SCOPES,
 		state,
 	}).toString();
-	return redirect(authorize.href, 302, [
+	return redirect(url.href, 302, [
 		await createOAuthStateCookie(state, consentVersion, ctx.now(), ctx.env),
 	]);
 }
@@ -81,7 +89,7 @@ export async function handleConnectForm(
 	if (form.get("consent") !== String(CONSENT_VERSION)) {
 		return redirect("/notice/consent-required", 303);
 	}
-	return authorizeRedirect(request, ctx, CONSENT_VERSION);
+	return authorizeRedirect(request, ctx, "connect", CONSENT_VERSION);
 }
 
 /** `GET /connect`: reconnecting or changing permissions, signed in only. */
@@ -93,7 +101,12 @@ export async function handleReconnect(
 	if (athleteId === null || !(await getRider(ctx.env.DB, athleteId))) {
 		return redirect("/", 302);
 	}
-	return authorizeRedirect(request, ctx, 0);
+	return authorizeRedirect(request, ctx, "connect", 0);
+}
+
+/** `GET /signin`: a rider who already takes part, on another device. */
+export function handleSignIn(request: Request, ctx: Ctx): Promise<Response> {
+	return authorizeRedirect(request, ctx, "signin", 0);
 }
 
 function notice(id: NoticeId, cookies: string[] = []): Response {
@@ -119,6 +132,12 @@ export async function handleCallback(
 	const token = exchange.value;
 	const auth = { accessToken: token.accessToken };
 	const existing = await getRider(ctx.env.DB, token.athleteId);
+
+	// Signing in never connects anyone: they haven't seen the consent (FR-009).
+	if (!existing && expected.state.startsWith("signin-")) {
+		await revokeToken(ctx, token.accessToken);
+		return notice("not-connected");
+	}
 
 	// Turns the rider away; an existing rider loses everything (FR-004, FR-006).
 	const refuse = async (id: NoticeId, deletedId: NoticeId) => {

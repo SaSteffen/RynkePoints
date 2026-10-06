@@ -32,6 +32,8 @@ export const de = {
 		"Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters und verschwinden danach automatisch.",
 	"landing.cookies":
 		"Wir setzen nur notwendige Cookies: für die Anmeldung und für deine Sprachwahl.",
+	"landing.signIn.heading": "Schon dabei?",
+	"landing.signIn.body": "Dann melde dich hier mit deinem Strava-Konto an.",
 
 	"consent.heading": "Was du mit dem Verbinden erlaubst",
 	"consent.organisers":
@@ -112,6 +114,9 @@ export const de = {
 	"notice.stravaBusy.title": "Strava ist gerade ausgelastet",
 	"notice.stravaBusy.body":
 		"Bitte versuche es in ein paar Minuten noch einmal.",
+	"notice.notConnected.title": "Du machst noch nicht mit",
+	"notice.notConnected.body":
+		"Lies auf der Startseite, was RynkePoints mit deinen Daten macht, und verbinde dich dann mit Strava.",
 	"notice.deleted.title": "Deine Daten wurden gelöscht",
 	"notice.deleted.body":
 		"Wir haben alle Daten über dich gelöscht. Kopien in den Sicherungen unseres Hosting-Anbieters verschwinden spätestens nach 7 Tagen.",

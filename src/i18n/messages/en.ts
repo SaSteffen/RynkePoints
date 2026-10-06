@@ -31,6 +31,8 @@ export const en: Catalog = {
 		"Deleted data stays in our hosting provider's backups for up to 7 days and then disappears automatically.",
 	"landing.cookies":
 		"We only set necessary cookies: for signing in and for your language choice.",
+	"landing.signIn.heading": "Already taking part?",
+	"landing.signIn.body": "Then sign in here with your Strava account.",
 
 	"consent.heading": "What you agree to by connecting",
 	"consent.organisers":
@@ -106,6 +108,9 @@ export const en: Catalog = {
 		"We haven't created an account for you or stored your Strava access or activities.",
 	"notice.stravaBusy.title": "Strava is busy",
 	"notice.stravaBusy.body": "Please try again in a few minutes.",
+	"notice.notConnected.title": "You're not taking part yet",
+	"notice.notConnected.body":
+		"Read on the start page what RynkePoints does with your data, then connect with Strava.",
 	"notice.deleted.title": "Your data has been deleted",
 	"notice.deleted.body":
 		"We have deleted all data about you. Copies in our hosting provider's backups disappear after 7 days at the latest.",
