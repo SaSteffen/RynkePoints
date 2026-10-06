@@ -364,7 +364,7 @@ versions.
 **Purpose**: make sure `002-deploy-on-main` starts green, and confirm the tool
 behaviour the deploy relies on, without touching production.
 
-- [ ] T030 Confirm the baseline on `002-deploy-on-main` (worktree `../RynkePoints-002-deploy-on-main`):
+- [X] T030 Confirm the baseline on `002-deploy-on-main` (worktree `../RynkePoints-002-deploy-on-main`):
   - `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck` and `pnpm test` all exit 0;
   - `pnpm commitlint --from "$(git merge-base origin/develop HEAD)" --to HEAD --verbose` exits 0;
   - `pnpm exec wrangler --version` prints `4.147.0` (the version research R19 and R20 were checked against). If it differs, re-check R20's CI behaviour (no confirmation prompt, non-zero exit on a failed migration) against that version's D1 docs before Phase 10;
@@ -393,12 +393,12 @@ All three `ci.yml` tasks (T031, T032, T034) edit the same file, in this order.
 Keep the two-space YAML indent. The six existing jobs, their names, `needs` and
 the workflow-level `concurrency` block stay exactly as they are (R14, R24).
 
-- [ ] T031 [US5] Add the manual re-deploy trigger to `.github/workflows/ci.yml` (FR-030, research R16):
+- [X] T031 [US5] Add the manual re-deploy trigger to `.github/workflows/ci.yml` (FR-030, research R16):
   - add `workflow_dispatch:` to `on:`, with **no** `inputs:`. No input may select a commit or ref (contracts/deploy.md "Triggers");
   - leave `pull_request` and `push` (`branches: [main, develop]`) unchanged. Never add `workflow_run`, `pull_request_target` or `schedule`;
   - update the comment above `concurrency:` so it says that pushes and dispatches on `main`/`develop` always run to the end, and that runs on `main` therefore queue one at a time (R14 layer 1). Don't change the block itself: a dispatch has `github.ref` `refs/heads/<branch>` and joins the same group as pushes;
   - update the comment above `jobs:` to say that the six check jobs are the required-check contexts, and that `deploy-gate` and `deploy` are not and must never be added to the rulesets (contracts/required-checks.md "Jobs that are not required checks").
-- [ ] T032 [US5] Add the `deploy-gate` job to `.github/workflows/ci.yml`, after `commit-messages` (after T031, same file; contracts/deploy.md "`deploy-gate`", research R14):
+- [X] T032 [US5] Add the `deploy-gate` job to `.github/workflows/ci.yml`, after `commit-messages` (after T031, same file; contracts/deploy.md "`deploy-gate`", research R14):
   - `name: deploy-gate`, `runs-on: ubuntu-latest`, `timeout-minutes: 5`;
   - `needs: [lint, typecheck, test]`. Not `commit-messages`: it is skipped on `push` and dispatch, and a skipped need would skip the gate;
   - `if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')`, with no status function, so the implicit `success()` keeps a red, cancelled or timed-out check from reaching the gate (FR-024, R13);
@@ -421,7 +421,7 @@ the workflow-level `concurrency` block stay exactly as they are (R14, R24).
     No `set -x`, no `env` dump. Keep it to plain bash, `gh` and `git` (both are on `ubuntu-latest`); no new action (R19).
 
     Add a one-line comment above the job pointing to research R14 and contracts/deploy.md: the gate refuses to deploy a commit older than the live one, e.g. on a re-run of an old run.
-- [ ] T033 [US5] Local red-green dry-run of the T032 `run:` script. Nothing is committed, and nothing calls GitHub or Cloudflare:
+- [X] T033 [US5] Local red-green dry-run of the T032 `run:` script. Nothing is committed, and nothing calls GitHub or Cloudflare:
   - copy the script body to a scratch file outside the repo. Put a stub `gh` executable on a scratch directory at the front of `PATH`. It ignores `--jq`, prints canned post-`--jq` output chosen by a `STUB_CASE` variable, and exits non-zero for `STUB_CASE=error`;
   - run the script with `bash` from the repo root (so `git merge-base` sees this repo's real history), with `GITHUB_REPOSITORY=SaSteffen/RynkePoints`, `GITHUB_OUTPUT` set to a scratch file and `GH_TOKEN=dummy`. Pick `NEW=$(git rev-parse HEAD)` and `OLD=$(git rev-parse HEAD~3)`. Expected exit code and `deploy=` value in brackets:
     - no deployments: `GITHUB_SHA=$NEW` [0, `true`];
@@ -435,7 +435,7 @@ the workflow-level `concurrency` block stay exactly as they are (R14, R24).
     - `STUB_CASE=error` on a statuses call [non-zero, no `deploy=` line].
 
   Each fail-closed case must leave `GITHUB_OUTPUT` without a `deploy=` line. If one doesn't, fix T032 and re-run all cases.
-- [ ] T034 [US5] Add the `deploy` job to `.github/workflows/ci.yml`, after `deploy-gate` (after T032, same file; contracts/deploy.md "`deploy`", research R15, R19, R20, R22):
+- [X] T034 [US5] Add the `deploy` job to `.github/workflows/ci.yml`, after `deploy-gate` (after T032, same file; contracts/deploy.md "`deploy`", research R15, R19, R20, R22):
   - `name: deploy`, `runs-on: ubuntu-latest`, `timeout-minutes: 15`;
   - `needs: deploy-gate` and `if: needs.deploy-gate.outputs.deploy == 'true'` (implicit `success()`);
   - `environment: name: production` and `url: https://trhh-rynke-coins.link`;
@@ -450,7 +450,7 @@ the workflow-level `concurrency` block stay exactly as they are (R14, R24).
 
     `wrangler deploy` is the last step: add nothing after it (R21). The secret and the variable appear only in the `env:` of steps 3 and 4, never job-wide (R22).
   - Not allowed anywhere in the job (contracts/deploy.md "Forbidden in either job"): `wrangler secret …`, `wrangler d1 execute`, `wrangler d1 create|delete`, `wrangler queues …`, `wrangler rollback`, `wrangler deploy --strict`, `wrangler whoami`, `set -x`, an `env` dump, any Strava call, `cloudflare/wrangler-action`.
-- [ ] T035 [P] [US5] Extend `.github/repository-settings.md` with the settings the deploy depends on (FR-022 style, research R15, R18, R21, R24; data-model.md "Production environment"). This can run in parallel with T031–T034 because it's a different file.
+- [X] T035 [P] [US5] Extend `.github/repository-settings.md` with the settings the deploy depends on (FR-022 style, research R15, R18, R21, R24; data-model.md "Production environment"). This can run in parallel with T031–T034 because it's a different file.
   - Intro: say the file also covers the `production` deployment environment, which the deploy on merge into `main` depends on.
   - New section **`## Environment production: main only, no admin bypass`**:
     - why: it's the boundary that releases the deploy credential, and it records every deployment (FR-027, FR-031);
@@ -461,7 +461,7 @@ the workflow-level `concurrency` block stay exactly as they are (R14, R24).
     - Show: the commands of quickstart.md §7.4 with their expected output.
   - New section **`## Failure notifications: e-mail, failed workflows only`**: this is the maintainer's account setting, not a repository setting. UI **Settings (your account) → Notifications → System → Actions**: e-mail and *Only notify for failed workflows*. No API; check in the UI. It's how a failed deploy reaches the maintainer (FR-028, R21).
   - Update the closing note so it names the **Show** commands of the environment section as well.
-- [ ] T036 [US5] Update `README.md` for deploy on merge (FR-021, FR-034, SC-005; research R16, R20, R21, R23):
+- [X] T036 [US5] Update `README.md` for deploy on merge (FR-021, FR-034, SC-005; research R16, R20, R21, R23):
   - **Getting started**: replace "and a Cloudflare account for deploying" with a note that contributors need no Cloudflare account, because production is deployed by CI (link the new section).
   - **What has to pass**: after the checks table, one sentence: `ci.yml` also has the jobs `deploy-gate` and `deploy`; they run only on `main`, show as skipped on pull requests and are not required checks.
   - **Releasing**: add that merging the release PR deploys it, and the release checklist from quickstart.md §8 (every new migration keeps the deployed version working; storage and rider-visible changes were self-reviewed against Principle I, constitution Governance).
@@ -475,11 +475,11 @@ the workflow-level `concurrency` block stay exactly as they are (R14, R24).
     - **rollback**: preferred is a revert through a hotfix. Break-glass is `pnpm wrangler rollback <version-id> --message "rollback: <reason>"`. List its limits from quickstart.md §10: migrations stay applied, the last 100 versions only, GitHub doesn't see it, and the next merge or dispatch deploys `main` again;
     - **local `pnpm run deploy`** is break-glass only (spec Assumptions);
     - link quickstart.md §7–§11 of this spec for the one-time setup, validation and credential rotation.
-- [ ] T037 [P] [US5] In `specs/001-strava-connect-webhook/quickstart.md`, add pointers to deploy-by-merge (plan "Scale/Scope"). This can run in parallel with T036 (different file).
+- [X] T037 [P] [US5] In `specs/001-strava-connect-webhook/quickstart.md`, add pointers to deploy-by-merge (plan "Scale/Scope"). This can run in parallel with T036 (different file).
   - Step 9: append one sentence. This first `pnpm run deploy` is part of the one-time setup and creates the custom domain; afterwards, releases deploy by merging into `main` (link `../002-ci-branch-protection/quickstart.md` §7–§8). Don't change the step's command.
   - Step 12, the bullet "Put that number into `STRAVA_SUBSCRIPTION_ID` … and `pnpm run deploy` again": the change to `wrangler.jsonc` goes through a pull request, and is deployed by merging it into `main` once the deploy credential exists; before that, the manual `pnpm run deploy` stays.
   - Keep both edits to added sentences, without re-wrapping the surrounding lines. The `001-strava-connect-webhook` branch has uncommitted edits to this file, and small additions keep a later merge simple.
-- [ ] T038 [P] [US5] Check `CLAUDE.md` against the amendment (plan: "verify wording"). Its deploy rules already came with constitution 1.2.0; change only what's wrong:
+- [X] T038 [P] [US5] Check `CLAUDE.md` against the amendment (plan: "verify wording"). Its deploy rules already came with constitution 1.2.0; change only what's wrong:
   - `## Branches and pull requests`: the bullet "CI job names are the required-check contexts" is no longer true for every job. Reword it: the six check jobs' names are the contexts; renaming one means updating both `.github/rulesets/*.json` files in the same change; `deploy-gate` and `deploy` are not contexts and must never be added;
   - `## Non-negotiables`: confirm it says production is deployed by CI after a merge into `main` (code plus pending migrations, forward-only), that a local `pnpm run deploy`, `wrangler secret put` and `wrangler d1 … --remote` stay manual, and the FR-036 migration rule. Add that creating the deploy credential and the `production` environment (`.github/repository-settings.md`) is a manual step the user runs or explicitly asks for, next to the rulesets bullet.
 
@@ -493,11 +493,11 @@ settings or Cloudflare yet; the jobs first run for real in Phase 12.
 **Purpose**: consistency between the workflow, the contracts and the rulesets, a
 security review of the new jobs, and a final local run.
 
-- [ ] T039 [P] Check names and rulesets (contracts/required-checks.md, contracts/rulesets.md, research R24):
+- [X] T039 [P] Check names and rulesets (contracts/required-checks.md, contracts/rulesets.md, research R24):
   - `git diff origin/develop -- .github/rulesets/` is empty: both ruleset files are unchanged;
   - the job `name:` values in `.github/workflows/ci.yml` and `.github/workflows/pr-policy.yml` are exactly the six contexts plus `deploy-gate` and `deploy`, with no other job;
   - the `jq` command from T020 still prints the same six contexts with `15368` for both files, and neither lists `deploy-gate` or `deploy`.
-- [ ] T040 [P] Security review of `.github/` against contracts/deploy.md (FR-017 to FR-020, FR-029, FR-031, FR-033; research R4, R22):
+- [X] T040 [P] Security review of `.github/` against contracts/deploy.md (FR-017 to FR-020, FR-029, FR-031, FR-033; research R4, R22):
   - `grep -rn 'pull_request_target\|workflow_run' .github/workflows` finds nothing;
   - `grep -rn 'secrets\.\|vars\.' .github/workflows .github/actions` finds exactly four lines, all in the `env:` of the `deploy` steps "Apply D1 migrations" and "Deploy Worker" of `ci.yml`;
   - `grep -rn 'wrangler' .github/workflows .github/actions` finds only those two `run:` lines (plus comments, if any);
@@ -508,7 +508,7 @@ security review of the new jobs, and a final local run.
   - `workflow_dispatch` has no `inputs:`.
 
   If `actionlint` happens to be installed, run it on `.github/workflows/`. It's optional, and isn't added as a dependency (research R12).
-- [ ] T041 Final local run (after T031–T040):
+- [X] T041 Final local run (after T031–T040):
   - `pnpm format`, `pnpm lint`, `pnpm typecheck` and `pnpm test` all green;
   - `pnpm commitlint --from "$(git merge-base origin/develop HEAD)" --to HEAD --verbose` green over all commits of this branch;
   - `git status` shows only the intended files: `.github/workflows/ci.yml`, `.github/repository-settings.md`, `README.md`, `CLAUDE.md`, `specs/001-strava-connect-webhook/quickstart.md` and `specs/002-ci-branch-protection/tasks.md`. `src/`, `test/`, `migrations/`, `wrangler.jsonc` and `.github/rulesets/` are untouched.
