@@ -4,6 +4,10 @@ Phase 0 for [plan.md](plan.md). Each entry resolves an open point from the
 Technical Context or the spec's checklist notes. GitHub capabilities were checked
 against the GitHub REST and ruleset docs on 2026-10-06.
 
+R1–R12 cover User Stories 1–4 (the PR gate). R13–R25 cover the amendment, User
+Story 5 (deploy on merge to `main`, FR-023 – FR-036); their sources are listed
+at the end of this file.
+
 ## R1. Branch rulesets, not classic branch protection (FR-004 – FR-009)
 
 - **Decision**: Protect `main` and `develop` with two repository **rulesets**
@@ -290,3 +294,445 @@ against the GitHub REST and ruleset docs on 2026-10-06.
 - **Alternatives considered**: `actionlint` as an extra CI job. It catches
   workflow syntax errors, but a broken workflow already fails closed (missing
   required checks). It's left as an optional follow-up.
+
+## R13. Where the deploy runs: jobs in `ci.yml`, not `workflow_run` (FR-023, FR-024, FR-025)
+
+- **Decision**: Two new jobs in `ci.yml`, after the checks of the same run:
+  - `deploy-gate` with `needs: [lint, typecheck, test]` and
+    `if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')`;
+  - `deploy` with `needs: deploy-gate`, `environment: production`, and
+    `if: needs.deploy-gate.outputs.deploy == 'true'`.
+
+  A job-level `if:` without a status function gets an implicit `success()`, and
+  "If a job fails or is skipped, all jobs that need it are skipped". So a commit
+  whose `lint`, `typecheck` or `test` failed, was cancelled or timed out never
+  reaches `deploy` (FR-024).
+- **Why not `workflow_run`** (a separate `deploy.yml` that fires when `CI`
+  completes on `main`): it can't work with this repository's branch model.
+  - For `workflow_run`, GitHub sets `GITHUB_REF` to the *default branch* and
+    `GITHUB_SHA` to the last commit on the default branch. The default branch is
+    `develop` (FR-002), not `main`.
+  - The environment's deployment-branch rule is "matched against the
+    `GITHUB_REF` of the workflow run". A rule for `main` would therefore reject
+    every `workflow_run` deploy, and a rule for `develop` would defeat FR-031.
+  - The deployment record would name `develop`'s tip, not the deployed commit
+    (FR-027), and the deploy logic would run from `develop`'s copy of the
+    workflow file, i.e. unreleased code would control production.
+  - The `branches` filter of `workflow_run` matches the triggering run's head
+    branch. A fork pull request from a branch called `main` would match it, so
+    the deploy would also need an `event == 'push'` guard.
+- **Why not a separate `deploy.yml` on `push` to `main`**: it would run in
+  parallel with `ci.yml` and couldn't `needs:` the checks of another workflow.
+  It would have to re-run them (duplicate check runs) or poll for them.
+- **Why not a reusable workflow** (`deploy.yml` with `on: workflow_call`, called
+  from `ci.yml`): it gives the same guarantees, but adds indirection, prefixes
+  the check names (`deploy / deploy`), and has its own secrets-inheritance rules.
+  Two jobs are simpler. It stays an option if the deploy logic grows.
+- **Consequences**:
+  - The run is triggered by the merge itself, so `GITHUB_REF` is
+    `refs/heads/main`, `GITHUB_SHA` is the merged commit, and the workflow file
+    that runs is the one in that commit (FR-025).
+  - Pull request runs skip both jobs (their `github.ref` is
+    `refs/pull/<n>/merge`). Pushes to `develop` skip them too (FR-018, US5-4).
+  - Only the three checks that FR-012 runs on pushes gate the deploy.
+    `commit-messages`, `pr-title` and `pr-source` already passed on the pull
+    request that created the commit.
+
+## R14. One deployment at a time, never older after newer (FR-026)
+
+- **Decision**: three layers.
+  1. **Workflow-level concurrency stays as it is.** `ci.yml`'s group is
+     `CI-<PR number or ref>` with `cancel-in-progress` only for `pull_request`.
+     Every push to `main`, manual re-deploy (R16) and re-run of a `main` run
+     shares the group `CI-refs/heads/main`. At most one runs; at most one waits
+     (`queue: single`, the default), and a newer arrival replaces the waiting
+     one, which ends as *cancelled* and therefore never deploys (FR-024).
+     A running deployment is never cancelled.
+  2. **Job-level concurrency on `deploy`**: `group: deploy-production`,
+     `cancel-in-progress: false`. It is redundant while (1) holds, and keeps
+     FR-026 true if the workflow-level group is ever changed.
+  3. **Ancestry gate in `deploy-gate`**: look up the commit of the last
+     successful deployment to `production` (GitHub deployments API, with
+     `deployments: read`). If it exists, differs from `GITHUB_SHA`, and
+     `GITHUB_SHA` is an ancestor of it (`git merge-base --is-ancestor`), output
+     `deploy=false` and log a notice ("a newer commit is already deployed").
+     Otherwise output `deploy=true`. Any git or API error fails the job, so the
+     gate fails closed.
+- **Why the gate is needed**: concurrency alone doesn't order runs. GitHub
+  documents the queue as FIFO by the time a run *starts waiting*, and says
+  "ordering is not guaranteed". More practically, "Re-run all jobs" on an old,
+  failed `main` run is one click; without the gate it would deploy that old
+  commit over a newer one.
+- **Why ancestry and not "is the tip of `main`"**: a tip check would skip a
+  passed commit A whenever a newer commit B was merged while A's run was still
+  going. If B then fails its checks, neither is deployed, which breaks FR-023.
+  The ancestry check deploys A in that case and only refuses to go backwards.
+- **Same commit again is allowed**: re-running or re-deploying the commit that
+  is already live (R16, e.g. after a rotated secret) is deliberate and harmless.
+- **Why the gate is a separate job**: a job that references `production`
+  creates a GitHub deployment. If the skip were a step inside `deploy`, a skipped
+  old commit would be recorded as a *successful* deployment, and the record would
+  stop telling which commit runs (FR-027, SC-010).
+- **Not used**: `queue: max` (keep up to 100 waiting runs). FR-026 allows
+  skipping a waiting deployment in favour of a newer one, and deploying every
+  intermediate commit in turn adds nothing.
+
+## R15. GitHub environment `production` gates the credential and records deployments (FR-027, FR-030, FR-031)
+
+- **Decision**: a GitHub deployment environment `production`, configured once by
+  the maintainer:
+  - **Deployment branches and tags**: *Selected branches and tags*, one branch
+    rule `main`, no tag rule. REST:
+    `deployment_branch_policy: {protected_branches: false, custom_branch_policies: true}`,
+    then `POST …/environments/production/deployment-branch-policies` with
+    `{"name": "main", "type": "branch"}`.
+  - **Allow administrators to bypass configured protection rules**: off. The
+    environment REST endpoint has no field for it (the request body takes only
+    `wait_timer`, `prevent_self_review`, `reviewers`,
+    `deployment_branch_policy`), so this is a UI step.
+  - No required reviewers and no wait timer (spec Assumptions: the merge is the
+    deliberate act).
+  - **Environment secret** `CLOUDFLARE_API_TOKEN` (R17). **Environment variable**
+    `CLOUDFLARE_ACCOUNT_ID` (R18). Neither is a repository-level secret or
+    variable.
+  - `environment.url`: `https://trhh-rynke-coins.link`, shown on the deployment.
+- **How this enforces FR-031**:
+  - Environment secrets "are only available to workflow jobs that use the
+    environment", and "All deployment protection rules must pass before a job
+    referencing the environment is sent to a runner."
+  - The branch rule is matched against the run's `GITHUB_REF`. A pull request
+    run has `refs/pull/<n>/merge`, a dispatch on another branch has that branch.
+    Even if a pull request edits `ci.yml` to drop the `if:` guards, its `deploy`
+    job is refused before it starts and never sees the secret.
+  - Fork pull requests get no secrets at all (`pull_request`, R4).
+  - The rule is for branches only, so a tag called `main` doesn't match.
+  - The only code that can reach the secret is code on `main`, which arrived
+    through a checked pull request (US1, US2).
+- **Deployment records (FR-027, SC-010)**: a job that references an environment
+  creates a GitHub deployment for the run's commit (the workflow syntax offers
+  `deployment: false` to opt out). Its status follows the job (in progress,
+  success, failure), and older successful ones become *inactive*. The
+  repository's **Deployments → production** page then lists every deployment with
+  commit, time, outcome and log link. Actions creates these records itself, so
+  the job needs no `deployments: write`. Confirm this on the first deploy
+  (quickstart D1).
+- **Availability**: environments, environment secrets and deployment branch rules
+  are available for public repositories on GitHub Free.
+- **Ordering**: the environment, its branch rule and the admin-bypass switch
+  must exist **before** the secret is stored. "Running a workflow that references
+  an environment that does not exist will create an environment" without any
+  protection rules. So the environment is created by hand first, never by a
+  first run.
+
+## R16. Manual re-deploy of `main` only (FR-030)
+
+- **Decision**: add `workflow_dispatch` (no inputs) to `ci.yml`'s triggers. The
+  maintainer re-deploys with **Actions → CI → Run workflow → Branch: `main`** or
+  `gh workflow run ci.yml --ref main`.
+- **Rationale**:
+  - A dispatch on `main` runs `lint`, `typecheck` and `test` on the current tip,
+    then the same gate and deploy jobs. The re-deploy is therefore also checked
+    (FR-024); a red `main` can't be re-deployed.
+  - There's no input for a commit or ref, and `GITHUB_SHA` of a dispatch is the
+    tip of the dispatched branch. An older commit can't be chosen.
+  - A dispatch on any other branch runs the checks only. The `if:` guards skip
+    the deploy, and the environment's branch rule would refuse it anyway.
+    Running checks on a branch is harmless.
+  - The dispatch joins the `CI-refs/heads/main` concurrency group, so it queues
+    behind a running deployment (R14).
+- **Who can run it**: anyone with write access can dispatch. Today that's only
+  the maintainer (spec Assumptions). A second maintainer would get the same right,
+  which matches "merge is the release act".
+- **Alternatives considered**:
+  - A separate `redeploy.yml`: it would duplicate the checks or the deploy steps.
+    Rejected.
+  - Re-running the last `main` run: also works (the ancestry gate allows the same
+    commit), but it re-uses the old run's workflow file and isn't available once
+    the run's logs have expired. Documented as a fallback only.
+
+## R17. Cloudflare API token: narrowest realistic scope (FR-032)
+
+- **What the deploy calls**, checked against the Cloudflare API reference's
+  "Accepted Permissions" for each endpoint and against wrangler 4.147.0:
+  - upload and deploy the script and its static assets, set cron triggers,
+    attach the queue consumer, attach the custom domain: each accepts
+    **Workers Scripts Write**;
+  - check that the queue exists: accepts Workers Scripts Read/Write or Queues
+    Read/Write, so already covered;
+  - `wrangler d1 migrations apply --remote` runs SQL through the D1 query
+    endpoint: **D1 Read** or **D1 Write**. Applying migrations writes, so
+    **D1 Write** ("D1 Edit" in the dashboard).
+- **Decision**: an **account-owned API token** (Manage Account → API Tokens,
+  prefix `cfat_`), so it doesn't depend on a personal user account. Settings:
+  - permissions: *Account → Workers Scripts → Edit*, *Account → D1 → Edit*.
+    Nothing else: no zone permission, no Account Settings, no User Details or
+    Memberships (wrangler needs those only to discover the account ID, which
+    R18 supplies);
+  - account resources: only the RynkePoints account;
+  - TTL: an expiry date, e.g. one year. Rotation is a documented manual step
+    (quickstart §11);
+  - Client IP filtering: not used. GitHub-hosted runners have no stable,
+    narrow IP range.
+- **Open point, checked on the first deploy**: the custom-domain endpoint lists
+  only Workers Scripts Write, so no zone permission should be needed. If the
+  first CI deploy fails with an authorization error on the custom domain, add
+  *Zone → Workers Routes → Edit* restricted to the zone `trhh-rynke-coins.link`,
+  and record that here.
+- **What the scope can't do**: Cloudflare's Workers Scripts and D1 permissions
+  apply to the whole account. A token can't be limited to one Worker script or
+  one D1 database; resources are scoped by account or zone only. Within the
+  account, the token could also change Worker secrets, delete the Worker or a
+  database, or touch other Workers and databases.
+  - FR-032 ("MUST NOT be able to read or change other projects") therefore holds
+    only if the Cloudflare account holds nothing but this app. **Decision:** a
+    dedicated Cloudflare account for RynkePoints (free plan, shared team
+    e-mail; 001 quickstart step 1 already suggests a team account), confirmed
+    by the maintainer. See the plan's Constitution Check.
+  - That the deploy never changes secrets, resources or the webhook (FR-029)
+    is guaranteed by the workflow's content, which only changes through checked
+    pull requests, not by the token's permissions. The maintainer accepted this
+    as a constitution exception (plan, Complexity Tracking).
+- **Alternatives considered**: the dashboard template "Edit Cloudflare Workers",
+  which Cloudflare's GitHub Actions guide uses. It adds Workers KV, R2, Tail,
+  Workers Routes, Account Settings, User Details and Memberships, none of which
+  this deploy needs. Rejected as broader than necessary.
+
+## R18. Supplying the Cloudflare account ID
+
+- **Decision**: `CLOUDFLARE_ACCOUNT_ID` is an **environment variable** of
+  `production` (`vars.CLOUDFLARE_ACCOUNT_ID`), passed as `env:` to the wrangler
+  steps.
+- **Rationale**:
+  - Wrangler states that "In a non-interactive environment, it is mandatory to
+    specify an account ID". Without it, wrangler tries to discover the account
+    via user and membership endpoints, which would need the extra token
+    permissions R17 avoids.
+  - The account ID is an identifier, not a credential. A variable can be read
+    and checked in the settings, which a secret can't.
+  - Keeping it out of `wrangler.jsonc` keeps the public repository free of
+    account identifiers. Local deploys keep working through `wrangler login`.
+- **Alternatives considered**:
+  - `account_id` in `wrangler.jsonc`: it works, but publishes the ID and pins
+    every contributor's local `wrangler` to that account. Rejected.
+  - An environment secret, as Cloudflare's guide does: it would be masked in
+    logs, but it can't be checked once set. Acceptable, not needed.
+
+## R19. Plain `pnpm exec wrangler`, no `cloudflare/wrangler-action` (Principle IV, FR-025)
+
+- **Decision**: the `deploy` job uses the existing composite action
+  `.github/actions/setup` (pnpm, Node, `--frozen-lockfile`), then runs
+  `pnpm exec wrangler d1 migrations apply rynke-points --remote` and
+  `pnpm exec wrangler deploy`. No new action and no new SHA pin. The existing
+  `actions/checkout` pin is reused, with `persist-credentials: false`.
+- **Rationale**:
+  - `wrangler` is already a pinned dev dependency (4.147.0 in the lockfile). CI
+    deploys with exactly the version the tests and `pnpm run deploy` use
+    (FR-011, FR-025).
+  - Cloudflare's guide presents the action as one option ("Cloudflare provides an
+    official action"). The only requirement is that the workflow runs
+    `wrangler deploy`.
+  - The action would add another third-party supply-chain dependency with access
+    to the deploy token, and installs wrangler itself unless told otherwise.
+    Principle IV asks for fewer moving parts.
+- **Flags**:
+  - `wrangler deploy --message "<sha> (run <run id>)"`. The Cloudflare
+    version and deployment then name the commit, which helps when picking a
+    rollback target (R23).
+  - No `--strict`. Strict mode refuses to deploy if remote settings were changed
+    in the dashboard. The spec's edge case "Configuration in the repository" says
+    committed configuration wins, so overriding dashboard drift is intended.
+  - `WRANGLER_SEND_METRICS=false`, as in the `test` job.
+
+## R20. Migrations first, then code (FR-035, FR-036)
+
+- **Decision**: in `deploy`, the step order is: checkout, setup,
+  `wrangler d1 migrations apply rynke-points --remote`, then `wrangler deploy`.
+  Each step stops the job on a non-zero exit, so a failed migration means the
+  code is never published (FR-035).
+- **Behaviour in CI**, from the wrangler D1 command reference and the wrangler
+  4.147.0 source:
+  - "When running the apply command in a CI/CD environment or another
+    non-interactive command line … the confirmation step will be skipped, but the
+    backup will still be captured". Wrangler detects CI through `ci-info`
+    (`CI=true` on GitHub runners).
+  - Migrations apply in file order. Applied ones are recorded in the
+    `d1_migrations` table, so a second run is a no-op that prints "No migrations
+    to apply!" Re-deploys are therefore safe (FR-030).
+  - "If applying a migration results in an error, this migration will be rolled
+    back, and the previous successful migration will remain applied." Wrangler
+    then exits non-zero. Earlier migrations of the same run stay applied, which
+    is the forward-only rule of the clarification.
+  - Wrangler warns that the database "may not be available to serve requests
+    during the migration". That's another reason for FR-036's small, additive
+    migrations.
+- **FR-036 (migrations keep the previous version working)** is a review rule,
+  not an automated check. It's written down in CLAUDE.md, and the README's
+  deploying section (plan) repeats it for contributors. Telling an additive
+  migration from a breaking one would need SQL parsing. A heuristic
+  "no `DROP`/`RENAME`" check is a possible follow-up, but it would miss most
+  breaking changes and flag safe ones.
+- **Database name, not binding**: Cloudflare recommends targeting the database
+  by name because "the binding name can change, whereas the database name
+  cannot".
+- **Production not set up yet** (spec edge case): `wrangler.jsonc` carries a
+  placeholder `database_id` until the maintainer commits the real one (001
+  quickstart step 3). Against the placeholder, the migrations step fails before
+  anything is published. Wrangler 4.147.0 also refuses to deploy a Worker that
+  doesn't exist yet while required secrets are missing ("This Worker does not
+  exist yet, so secrets cannot be set in advance"), and the queue binding fails
+  if the queue doesn't exist. So a deploy before the one-time setup fails visibly.
+  - Remaining gap: if the database, queue, secrets and Worker exist but the
+    custom domain doesn't, `wrangler deploy` would attach it. The token can't
+    prevent that, because domain attach needs only Workers Scripts Write.
+  - The documented order is therefore: finish the 001 quickstart, including its
+    first manual deploy (step 9), before creating the deploy credential (plan,
+    quickstart §7).
+
+## R21. Reporting and notifying failures (FR-028)
+
+- **Decision**: rely on GitHub's own reporting; no extra notifier.
+  - A failing `deploy` job marks the `CI` run on the `main` commit red, with the
+    step log (FR-016-style output).
+  - The `production` deployment for that commit shows *failure*.
+  - GitHub notifies "when any workflow runs that you've triggered have
+    completed". The run of a merge is triggered by whoever merged, which is the
+    maintainer; a dispatch is triggered by the dispatcher. The maintainer sets
+    **Settings → Notifications → System → Actions** to e-mail and "Only notify
+    for failed workflows" (quickstart §7).
+- **Previous version keeps running (FR-028, SC-011)**: a failed migration stops
+  before `wrangler deploy`. `wrangler deploy` uploads a new version and switches
+  traffic in one step; if it fails, the previous version stays active.
+  `wrangler deploy` is the last step, so nothing after it can turn a successful
+  publish into a red job.
+- **Alternatives considered**: a mail or chat action, which needs another secret
+  and another dependency (Principle IV). Not needed for one maintainer. Can be
+  added if more maintainers join.
+
+## R22. Keeping secrets and rider data out of logs (FR-033)
+
+- **Decision**:
+  - `CLOUDFLARE_API_TOKEN` is set as `env:` **on the two wrangler steps only**,
+    not job-wide. `pnpm install` (which runs dependency lifecycle scripts such
+    as `esbuild`'s and `workerd`'s) and checkout never see it.
+  - GitHub masks registered secret values in logs. Nothing echoes the
+    environment; there's no `set -x`, no `env` dump, and no `wrangler whoami`.
+  - The deploy runs no `wrangler d1 execute` or other query. Migration output is
+    file names and status icons only. Migrations themselves contain schema, never
+    rider data (constitution Principle I, synthetic fixtures).
+  - `actions/checkout` with `persist-credentials: false`, so the `GITHUB_TOKEN`
+    isn't left in `.git/config` for later steps.
+  - `deploy-gate` uses `GITHUB_TOKEN` with `contents: read` and
+    `deployments: read` only. `deploy` keeps `contents: read`.
+- **What wrangler prints**: bundle size, bindings (names, and the values of the
+  committed `vars`, which are public in `wrangler.jsonc` anyway), the custom
+  domain and the version ID. No secret values.
+
+## R23. Rollback (FR-034)
+
+- **Decision**: document two ways and their limits in the README's deploying
+  section and quickstart §10.
+  1. **Preferred, fix forward**: revert the change on a `hotfix/<name>` branch
+     cut from `main`, merge it (US4); CI deploys it.
+  2. **Immediate rollback, break-glass**: `pnpm wrangler rollback [<version-id>]
+     --message "<reason>"`, or **Workers & Pages → rynke-points → Deployments →
+     ⋯ → Rollback** in the dashboard. Without a version ID, wrangler rolls back to
+     "the version uploaded before the latest version". The `--message` of R19
+     shows which commit each version came from.
+- **Limits that must be documented**:
+  - A rollback doesn't touch data: "Resources connected to your Worker will not
+    be changed during a rollback." Migrations stay applied, so the older code
+    runs on the newer schema. FR-036 is what makes that safe.
+  - It's only possible to "the 100 most recently published versions", and not
+    if a bound resource (D1, queue) has since been deleted or modified.
+  - A rollback is a manual production change that GitHub doesn't record, so the
+    `production` environment keeps showing the rolled-back commit as active.
+    The next merge into `main`, or a dispatch, deploys `main` again and replaces
+    the rollback. If the problem isn't fixed by then, merge the revert first.
+- **Why not a "rollback" dispatch input**: FR-030 forbids deploying an older
+  commit through CI. Cloudflare's rollback re-activates an already built version
+  and needs no rebuild.
+
+## R24. Rulesets and required checks stay unchanged
+
+- **Decision**: `.github/rulesets/main.json` and `develop.json` don't change.
+  `deploy-gate` and `deploy` are **not** required checks.
+- **Verification against the existing setup**:
+  - Both rulesets list exactly the six contexts `lint`, `typecheck`, `test`,
+    `commit-messages`, `pr-title`, `pr-source` (integration 15368). None is
+    renamed by this amendment, so CLAUDE.md's rule ("Renaming a job means
+    updating both `.github/rulesets/*.json` files") isn't triggered.
+  - The new jobs never run on pull requests; they show as *skipped* there.
+    Required checks gate merges, and a deploy happens only after the merge, so
+    requiring a deploy job would gate nothing.
+  - The new job names must not collide with the six contexts. That's a new
+    invariant in [contracts/required-checks.md](contracts/required-checks.md).
+- **Settings that do change**: the `production` environment and the Actions
+  notification setting (R15, R21). They're recorded in
+  `.github/repository-settings.md` next to the existing settings (FR-022 style),
+  with apply and show commands.
+
+## R25. How Principle V (test-first) applies to the deploy
+
+- **Decision**: as in R12, there's no Worker code, so no Vitest tests. The
+  red-green cycle runs on the real pipeline through the deploy scenarios D1–D10
+  in [quickstart.md](quickstart.md). For example: a merge into `develop` must not
+  deploy, a cancelled check run on `main` must not deploy, a re-run of an old run
+  must be skipped by the gate, a dispatch on a feature branch must not deploy, and
+  a pull request that strips the `if:` guards must be refused the environment.
+- **The gate's shell logic** (R14) is a dozen lines of `gh api` and
+  `git merge-base`. It's exercised by D8, a re-run of an older `main` run after a
+  newer one deployed. Extracting it into a TypeScript module to unit-test it would
+  add a Node entry point beside the Workers-only test setup (same reasoning as
+  R12).
+- **Tests never touch production**: the scenarios are deliberate maintainer
+  actions on the real repository. `pnpm test` stays local and synthetic, and no
+  test reads the deploy secret.
+
+## Sources (amendment, checked 2026-10-06)
+
+- GitHub, *Events that trigger workflows*, `workflow_run` and `workflow_dispatch`
+  (`GITHUB_SHA`/`GITHUB_REF`, default-branch requirement, branch filters):
+  <https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows>
+- GitHub, *Deployments and environments* (branch rules matched against
+  `GITHUB_REF`, availability on Free/public, admin bypass, secrets):
+  <https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments>
+- GitHub, *Managing environments for deployment* (bypass switch, auto-creation of
+  missing environments, environment secrets and variables):
+  <https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments>
+- GitHub, *Control the concurrency of workflows and jobs* (`queue: single|max`,
+  pending replacement, "ordering is not guaranteed"):
+  <https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency>
+- GitHub, *Workflow syntax* (`needs` skip propagation, `environment` name/url,
+  `deployment: false`, job concurrency, `deployments` permission):
+  <https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax>
+- GitHub REST, *Deployment environments* and *Deployment branch policies*:
+  <https://docs.github.com/en/rest/deployments/environments>,
+  <https://docs.github.com/en/rest/deployments/branch-policies>
+- GitHub, *Notifications for workflow runs*:
+  <https://docs.github.com/en/actions/concepts/workflows-and-actions/notifications-for-workflow-runs>
+- Cloudflare, *GitHub Actions* (token, account ID, wrangler-action optional):
+  <https://developers.cloudflare.com/workers/ci-cd/external-cicd/github-actions/>
+- Cloudflare, *API token permissions*, *Create API token*, *Account API tokens*:
+  <https://developers.cloudflare.com/fundamentals/api/reference/permissions/>,
+  <https://developers.cloudflare.com/fundamentals/api/get-started/create-token/>,
+  <https://developers.cloudflare.com/fundamentals/api/get-started/account-owned-tokens/>
+- Cloudflare API reference, "Accepted Permissions" of: Workers domains update,
+  Queues consumers create, Queues list, Workers schedules update, D1 query:
+  <https://developers.cloudflare.com/api/resources/workers/subresources/domains/methods/update/>,
+  <https://developers.cloudflare.com/api/resources/queues/subresources/consumers/methods/create/>,
+  <https://developers.cloudflare.com/api/resources/queues/methods/list/>,
+  <https://developers.cloudflare.com/api/resources/workers/subresources/scripts/subresources/schedules/methods/update/>,
+  <https://developers.cloudflare.com/api/resources/d1/subresources/database/methods/query/>
+- Cloudflare, *Wrangler D1 commands* (`migrations apply` in CI, rollback of a
+  failed migration, backup) and *D1 migrations*:
+  <https://developers.cloudflare.com/workers/wrangler/commands/d1/>,
+  <https://developers.cloudflare.com/d1/reference/migrations/>
+- Cloudflare, *Wrangler Workers commands* (`deploy --message/--strict`,
+  `rollback`, `deployments`) and *Rollbacks*:
+  <https://developers.cloudflare.com/workers/wrangler/commands/workers/>,
+  <https://developers.cloudflare.com/workers/configuration/versions-and-deployments/rollbacks/>
+- Cloudflare, *Custom Domains* (DNS record and certificate created on attach):
+  <https://developers.cloudflare.com/workers/configuration/routing/custom-domains/>
+- wrangler 4.147.0 source (`node_modules/wrangler/wrangler-dist/cli.js`): CI
+  detection via `ci-info`, `migrations apply` failure handling, mandatory account
+  ID in non-interactive mode, required-secrets check before the first deploy.

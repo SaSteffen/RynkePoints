@@ -53,11 +53,26 @@ Inputs, passed only through `env:`:
 
 ## Workflow-wide guarantees
 
-- `permissions: contents: read`, and nothing wider in any job.
-- Never `pull_request_target`, never `secrets.*`, no deploy or `wrangler` remote
-  command.
+- `permissions: contents: read` at the top level. The six check jobs never widen
+  it. The only exception is `deploy-gate`, which adds `deployments: read`; no job
+  has a write permission.
+- Never `pull_request_target`. The six check jobs never read `secrets.*` and run
+  no deploy or `wrangler` remote command. Only the `deploy` job reads a secret
+  and talks to Cloudflare, and only for `main` ([deploy.md](deploy.md)).
 - Untrusted values (title, branch names, SHAs) appear in `run:` only as shell
   variables set via `env:`.
 - Concurrency: `${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}`,
   with `cancel-in-progress: ${{ github.event_name == 'pull_request' }}`.
 - Third-party actions are pinned to full commit SHAs.
+
+## Jobs that are not required checks
+
+`ci.yml` also defines `deploy-gate` and `deploy` ([deploy.md](deploy.md)). They:
+
+- run only after a merge into `main` or on a dispatch on `main`. On pull requests
+  they are *skipped*;
+- are **not** listed in either ruleset, and must never be. A deploy happens after
+  the merge, so it can't gate one (research R24);
+- must keep names distinct from the six contexts above. Renaming them needs no
+  ruleset change. Renaming any of the six still needs both ruleset files updated
+  in the same change.

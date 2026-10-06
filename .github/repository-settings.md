@@ -1,9 +1,11 @@
 # Repository settings
 
 Settings that the branch rulesets ([rulesets/README.md](rulesets/README.md))
-don't cover, but that the pull request flow depends on. GitHub stores them
-outside the repository, so this file is their record. The maintainer applies them
-by hand, once at bootstrap and again whenever this file changes.
+don't cover, but that the pull request flow depends on. It also covers the
+`production` deployment environment, which the deploy on merge into `main`
+depends on. GitHub stores them outside the repository, so this file is their
+record. The maintainer applies them by hand, once at bootstrap and again whenever
+this file changes.
 
 Every command needs `gh` authenticated as the repository owner. UI paths start at
 the repository's **Settings** tab.
@@ -70,6 +72,61 @@ had a change merged here wait for the maintainer to click **Approve and run**.
 - Show: `gh api repos/SaSteffen/RynkePoints/actions/permissions/fork-pr-contributor-approval`
   (expected: `{"approval_policy":"first_time_contributors"}`)
 
+## Environment `production`: `main` only, no admin bypass
+
+The boundary that releases the deploy credential: only a job in a run on `main`
+gets its secret. It also records every deployment with its commit and outcome.
+
+Create it with its branch rule and the bypass switched off **before** storing the
+secret, and before the first release that carries the deploy jobs. A workflow run
+that references a missing environment creates it without any rules.
+
+- UI: **Environments → New environment → `production`**. *Deployment branches and
+  tags*: *Selected branches and tags*, branch rule `main`, no tag rule. *Allow
+  administrators to bypass configured protection rules* unchecked. No required
+  reviewers, no wait timer.
+- Apply:
+
+  ```bash
+  gh api --method PUT repos/SaSteffen/RynkePoints/environments/production \
+    --input - <<<'{"deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true}}'
+  gh api --method POST repos/SaSteffen/RynkePoints/environments/production/deployment-branch-policies \
+    -f name=main -f type=branch
+  ```
+
+  Then uncheck the bypass box in the UI; there's no API field for it.
+- Secret and variable, stored on the environment only, never at repository level:
+
+  ```bash
+  gh secret set CLOUDFLARE_API_TOKEN --env production     # paste at the prompt; never as an argument
+  gh variable set CLOUDFLARE_ACCOUNT_ID --env production --body "<account id>"
+  ```
+
+  Creating the token: [quickstart §7.1](../specs/002-ci-branch-protection/quickstart.md#71-create-the-deploy-credential-cloudflare-dashboard).
+  Rotating it: [§11](../specs/002-ci-branch-protection/quickstart.md#11-rotating-or-revoking-the-deploy-credential).
+- Show:
+
+  ```bash
+  gh api repos/SaSteffen/RynkePoints/environments/production --jq '.deployment_branch_policy'
+  gh api repos/SaSteffen/RynkePoints/environments/production/deployment-branch-policies --jq '[.branch_policies[] | {name, type}]'
+  gh secret list --env production
+  gh variable list --env production
+  gh secret list                                           # repository level: no CLOUDFLARE_* here
+  ```
+
+  Expected: `{"custom_branch_policies":true,"protected_branches":false}`, then
+  `[{"name":"main","type":"branch"}]`; the secret and the variable listed for
+  `production` only; the bypass box unchecked in the UI.
+
+## Failure notifications: e-mail, failed workflows only
+
+A setting of the maintainer's account, not of the repository. It's how a failed
+deploy reaches the maintainer.
+
+- UI: **Settings (your account) → Notifications → System → Actions**: e-mail, and
+  *Only notify for failed workflows*
+- No API; check it in the UI.
+
 ## Verify all repository fields
 
 ```bash
@@ -82,4 +139,5 @@ Expected:
 {"allow_merge_commit":true,"allow_rebase_merge":false,"allow_squash_merge":true,"default_branch":"develop","delete_branch_on_merge":true,"squash_merge_commit_message":"BLANK","squash_merge_commit_title":"PR_TITLE"}
 ```
 
-The two Actions settings have their own **Show** commands above.
+The two Actions settings and the `production` environment have their own
+**Show** commands above.

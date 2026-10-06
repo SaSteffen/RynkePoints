@@ -1,17 +1,20 @@
 <!--
 Sync Impact Report
-- Version change: 1.1.0 → 1.1.1
-- Rationale: PATCH — Language section wording. "Default and fallback locale"
-  is split into what it means: German is the source catalog and the language
-  when the visitor states no preference; which language a visitor who states only
-  unsupported languages gets is left to each feature spec.
-- Principles modified: none
+- Version change: 1.2.0 → 1.2.1
+- Rationale: PATCH — Principle I's secrets bullet now names where the CI deploy
+  credential lives (GitHub environment secret that only `main` can unlock). It
+  was already covered by "MUST NOT be committed"; this closes a wording gap that
+  1.2.0 opened by letting CI deploy.
+- Principles modified: I. Rider Data Privacy and Strava Consent (wording only)
 - Sections added: none
 - Sections removed: none
-- Templates checked for alignment: .specify/templates/* — unchanged; the plan
-  template's "Constitution Check" gate reads this file at runtime.
-- Follow-up TODOs: none; specs/001-strava-connect-webhook (FR-029) already
-  serves English to browsers naming only unsupported languages.
+- Templates checked for alignment: .specify/templates/* — unchanged.
+- Follow-up TODOs: none.
+
+Previous: 1.1.1 → 1.2.0 (MINOR) — production is deployed by CI after a merge
+into `main`, with pending D1 migrations applied forward-only; secrets,
+resources, the Strava webhook subscription and D1 data other than through
+migrations stay manual.
 -->
 
 # RynkePoints Constitution
@@ -40,7 +43,8 @@ consent and Strava's API Agreement.
 - Secrets (Strava client secret, rider access/refresh tokens, encryption keys,
   Cloudflare API tokens) MUST NOT be committed. Rider refresh tokens MUST be
   encrypted at rest in the database. Production secrets live in Cloudflare secrets;
-  local ones in the gitignored `.dev.vars`.
+  the CI deploy credential lives in a GitHub environment secret that only `main`
+  can unlock; local ones in the gitignored `.dev.vars`.
 - Data is stored in the EU where the platform allows choosing a location.
 - Strava data MUST NOT be used for anything beyond the stated purpose of this app
   (no analytics resale, no AI/ML training), and the app MUST follow Strava's brand
@@ -147,9 +151,15 @@ only safety net a single-maintainer project has.
   the principles above.
 - `pnpm lint`, `pnpm typecheck` and `pnpm test` MUST pass before a change is
   considered done.
-- Deploying (`pnpm deploy`) and changing production secrets, the Strava webhook
-  subscription, or D1 production data are manual, deliberate steps — never a side
-  effect of another command.
+- Production is deployed only from `main`: merging a pull request into `main` is the
+  deliberate act that releases a change, and CI then deploys that commit once its
+  required checks passed, applying pending D1 migrations forward-only before the
+  code. The maintainer may re-deploy the current `main` on demand; deploying any
+  other branch or a local working copy is a break-glass step, not a release path.
+- Changing production secrets, creating or deleting production resources, changing
+  the Strava webhook subscription, and changing D1 production data other than
+  through committed migrations are manual, deliberate steps — never a side effect of
+  another command.
 
 ## Language
 
@@ -191,4 +201,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 1.1.1 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 1.2.1 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06

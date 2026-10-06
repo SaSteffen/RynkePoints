@@ -25,7 +25,8 @@ pnpm dev                    # local Worker on http://localhost:8787
 ```
 
 You need your own [Strava API application](https://www.strava.com/settings/api) for
-local development and a Cloudflare account for deploying.
+local development. You don't need a Cloudflare account: production is deployed by
+CI (see [Deploying](#deploying)).
 
 ## Contributing
 
@@ -58,6 +59,9 @@ command you can run locally:
 | `pr-title` | `printf '%s (#%s)\n' "<title>" <number> \| pnpm commitlint` |
 | `pr-source` | PRs into `main` must come from `develop` or `hotfix/*` |
 
+`ci.yml` also has the jobs `deploy-gate` and `deploy`. They run only on `main`,
+show as skipped on pull requests and are not required checks.
+
 The lefthook git hooks run the same Biome, `tsc` and commitlint before each
 commit, so a branch that commits cleanly usually passes. A check that failed for
 a flaky or infrastructure reason can be re-run from the PR's **Checks** tab
@@ -88,10 +92,18 @@ as sources for `main`. Merge with **Create a merge commit**, the only method
 the checks already run on the result of merging it. Afterwards, `main` has
 nothing that `develop` lacks.
 
+Merging the release PR deploys it (see [Deploying](#deploying)). Before you
+merge, check that:
+
+- every new file in `migrations/` keeps the currently deployed version working;
+- changes to storage or to anything other riders see were self-reviewed against
+  Principle I of the [constitution](.specify/memory/constitution.md).
+
 ### Hotfixes
 
 1. Cut `hotfix/<short-name>` from `origin/main`, commit conventionally, and open
    a pull request into `main`. Merge it with a merge commit once it's green.
+   Merging it into `main` deploys the hotfix.
 2. Carry the fix back to `develop`:
 
    ```bash
@@ -117,6 +129,34 @@ the workflows onto `main`.
 | hotfix | `hotfix/<short-name>` | `main` | `main` | merge commit |
 | back-merge | `sync/<short-name>` | `main`, with `origin/develop` merged in | `develop` | merge commit |
 | release | `develop` itself | — | `main` | merge commit |
+
+## Deploying
+
+Merging into `main` deploys. Once `lint`, `typecheck` and `test` pass on the
+merged commit, CI applies pending D1 migrations, then publishes the Worker.
+Nothing else deploys; merges into `develop` don't.
+
+- **Migrations** run first. They're forward-only and never rolled back, so a
+  migration must keep the previously deployed version working: add tables and
+  columns, don't rename or drop them in the same release. Remove old parts in a
+  later release.
+- **Which commit runs**: **Deployments → production** on GitHub. The Cloudflare
+  version message carries the commit SHA too.
+- **When a deploy fails**, the run on the `main` commit is red, the deployment
+  shows *failure*, the maintainer gets an e-mail, and the previous version keeps
+  serving.
+- **Re-deploy**: `gh workflow run ci.yml --ref main` (or **Actions → CI → Run
+  workflow → `main`**). It re-runs the checks and deploys the tip of `main` only.
+- **Rollback**: preferably revert the change through a [hotfix](#hotfixes). As a
+  break-glass, `pnpm wrangler rollback <version-id> --message "rollback: <reason>"`
+  restores an earlier version at once, with limits: migrations stay applied,
+  only the last 100 versions are available, GitHub doesn't see it, and the next
+  merge or dispatch deploys `main` again.
+- **A local `pnpm run deploy`** is break-glass only.
+
+The one-time setup, the validation scenarios and rotating the deploy credential
+are in the [CI and branch protection quickstart](specs/002-ci-branch-protection/quickstart.md),
+§7–§11.
 
 ## Project principles
 
