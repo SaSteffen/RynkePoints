@@ -120,6 +120,15 @@ describe("GET /notice/:id", () => {
 		);
 	});
 
+	it("answers HEAD like GET", async () => {
+		const res = await handleFetch(
+			request("/notice/deleted", { method: "HEAD" }),
+			ctx,
+		);
+		expect(res.status).toBe(200);
+		expect(res.headers.get("Content-Language")).toBe("de");
+	});
+
 	it("renders English when the browser asks for it", async () => {
 		const { res, page } = await get("/notice/team-full", "en");
 		expect(res.headers.get("Content-Language")).toBe("en");

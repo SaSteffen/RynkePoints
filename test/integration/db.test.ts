@@ -218,6 +218,18 @@ describe("activities", () => {
 		]);
 	});
 
+	it("never moves an activity to another rider", async () => {
+		await upsertActivity(db, record({ distance_m: 1000 }));
+		await upsertActivity(
+			db,
+			record({ athlete_id: ATHLETE_B, distance_m: 9999 }),
+		);
+		expect(await listRecentActivities(db, ATHLETE_A, 20)).toEqual([
+			record({ distance_m: 1000 }),
+		]);
+		expect(await listRecentActivities(db, ATHLETE_B, 20)).toEqual([]);
+	});
+
 	it("refuses rows for unknown riders", async () => {
 		await expect(
 			upsertActivity(db, record({ athlete_id: 999999 })),

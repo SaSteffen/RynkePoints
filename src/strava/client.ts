@@ -57,7 +57,10 @@ async function apiGet<T>(
 	if (res.ok) return { kind: "ok", value: (await res.json()) as T };
 	switch (res.status) {
 		case 401:
-			return { kind: "unauthorized" };
+			// Still refused after a fresh token: the rider must reconnect.
+			return "athleteId" in auth
+				? { kind: "refresh-refused" }
+				: { kind: "unauthorized" };
 		case 403:
 			return { kind: "forbidden" };
 		case 404:

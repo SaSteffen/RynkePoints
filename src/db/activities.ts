@@ -1,7 +1,8 @@
 import type { ActivityRecord } from "../strava/activity";
 
 // Stored cycling activities (data-model.md). Every write is an upsert keyed by
-// the Strava activity ID, so replays converge (FR-017).
+// the Strava activity ID, so replays converge (FR-017). An upsert never moves
+// an activity to another rider.
 
 export async function upsertActivity(
 	db: D1Database,
@@ -13,10 +14,11 @@ export async function upsertActivity(
 				start_date_local, timezone, distance_m, moving_time_s, elevation_gain_m,
 				is_private, refreshed_at)
 			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)
-			ON CONFLICT (strava_activity_id) DO UPDATE SET athlete_id = ?2,
+			ON CONFLICT (strava_activity_id) DO UPDATE SET
 				sport_type = ?3, start_date = ?4, start_date_local = ?5, timezone = ?6,
 				distance_m = ?7, moving_time_s = ?8, elevation_gain_m = ?9,
-				is_private = ?10, refreshed_at = ?11`,
+				is_private = ?10, refreshed_at = ?11
+			WHERE activities.athlete_id = excluded.athlete_id`,
 		)
 		.bind(
 			a.strava_activity_id,

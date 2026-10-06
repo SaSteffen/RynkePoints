@@ -22,7 +22,12 @@ async function signedCookie(
 	now: number,
 	env: Keys,
 ): Promise<string> {
-	const signed = await signValue(value, now + maxAge, env.SESSION_SIGNING_KEY);
+	const signed = await signValue(
+		value,
+		now + maxAge,
+		env.SESSION_SIGNING_KEY,
+		name,
+	);
 	return cookie(name, signed, maxAge);
 }
 
@@ -33,7 +38,9 @@ async function readSigned(
 	now: number,
 ): Promise<string | null> {
 	const value = getCookie(request, name);
-	return value ? verifySignedValue(value, env.SESSION_SIGNING_KEY, now) : null;
+	return value
+		? verifySignedValue(value, env.SESSION_SIGNING_KEY, now, name)
+		: null;
 }
 
 export function createSessionCookie(

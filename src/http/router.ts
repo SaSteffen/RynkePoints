@@ -18,7 +18,7 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 
 	const i18n = createI18n(resolveLocale(request, ctx.catalogs), ctx.catalogs);
 
-	if (method === "GET" && path.startsWith("/notice/")) {
+	if ((method === "GET" || method === "HEAD") && path.startsWith("/notice/")) {
 		return handleNotice(path.slice("/notice/".length), ctx, i18n);
 	}
 	if (method === "POST" && path === "/lang") {

@@ -40,7 +40,13 @@ export async function stravaFetch(
 		console.warn(`Strava ${endpoint}: network error`);
 		return transient(endpoint, "network error");
 	}
-	await recordRateLimitHeaders(ctx.env.DB, res.headers, ctx.now());
+	try {
+		await recordRateLimitHeaders(ctx.env.DB, res.headers, ctx.now());
+	} catch {
+		// Best-effort: losing one usage sample must not lose the response, e.g.
+		// a rotated refresh token that still has to be saved.
+		console.warn(`Strava ${endpoint}: could not record rate-limit headers`);
+	}
 	if (!res.ok) console.warn(`Strava ${endpoint}: HTTP ${res.status}`);
 	return res;
 }

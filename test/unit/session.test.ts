@@ -43,6 +43,15 @@ describe("session cookie", () => {
 		).toBeNull();
 	});
 
+	it("does not accept an OAuth state cookie as a session", async () => {
+		const state = await createOAuthStateCookie("900001", NOW, env);
+		const value = (state.split(";")[0] ?? "").split("=")[1] ?? "";
+		const forged = new Request("https://rynke.test/me", {
+			headers: { Cookie: `rp_session=${value}` },
+		});
+		expect(await readSession(forged, env, NOW)).toBeNull();
+	});
+
 	it("can be cleared", () => {
 		expect(clearSessionCookie()).toBe(
 			"rp_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0",

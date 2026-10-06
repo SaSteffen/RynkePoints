@@ -1,6 +1,11 @@
 import type { Ctx } from "../ctx";
 import { deleteFailedWorkByMessage, upsertFailedWork } from "../db/failed-work";
-import { getRider, markNeedsReconnect, type Rider } from "../db/riders";
+import {
+	deleteRider,
+	getRider,
+	markNeedsReconnect,
+	type Rider,
+} from "../db/riders";
 import { backoffSeconds, MAX_DELAY_SECONDS } from "../strava/rate-limit";
 import {
 	parseWorkMessage,
@@ -11,8 +16,11 @@ import {
 // The common consumer rules from contracts/queue-messages.md. Message-specific
 // work lives in the handlers; this decides what happens to the message.
 
-/** Matches `max_retries` in wrangler.jsonc. */
-export const MAX_ATTEMPTS = 10;
+/**
+ * Deliveries per message: `max_retries` (10 in wrangler.jsonc) plus the first
+ * one. `message.attempts` reaches this on the last delivery.
+ */
+export const MAX_ATTEMPTS = 11;
 
 export type HandlerResult =
 	| { kind: "ok" }
@@ -43,8 +51,19 @@ export async function processBatch(
 	handlers: Handlers,
 ): Promise<void> {
 	for (const message of batch.messages) {
-		await processMessage(message, ctx, handlers);
+		try {
+			await processMessage(message, ctx, handlers);
+		} catch (err) {
+			// A D1 or queue failure outside the handler. Retry this message only,
+			// so the rest of the batch still runs.
+			console.error(`Queue message processing failed: ${errorName(err)}`);
+			message.retry({ delaySeconds: backoffSeconds(message.attempts) });
+		}
 	}
+}
+
+function errorName(err: unknown): string {
+	return err instanceof Error ? err.name : "unknown error";
 }
 
 async function processMessage(
@@ -83,8 +102,17 @@ async function processMessage(
 	try {
 		result = await handler(body, rider, ctx, attempt);
 	} catch (err) {
-		const name = err instanceof Error ? err.message : "unknown error";
-		result = { kind: "transient", reason: `exception: ${name}`.slice(0, 200) };
+		// Only the error name: messages may quote SQL or other internals.
+		result = { kind: "transient", reason: `exception: ${errorName(err)}` };
+	}
+
+	if (body.kind === "delete-rider" && result.kind !== "ok") {
+		// Deletion is never deferred or stopped by a refused refresh (rule 4):
+		// keep retrying, and on the last attempt delete anyway.
+		result = {
+			kind: "transient",
+			reason: result.kind === "transient" ? result.reason : result.kind,
+		};
 	}
 
 	switch (result.kind) {
@@ -99,36 +127,50 @@ async function processMessage(
 				await ctx.queue.send(body, {
 					delaySeconds: Math.min(result.delaySeconds, MAX_DELAY_SECONDS),
 				});
-				message.ack();
 			} catch {
-				message.retry({ delaySeconds: backoffSeconds(message.attempts) });
-			}
-			return;
-		case "transient":
-			if (!attempt.isLastAttempt) {
-				message.retry({ delaySeconds: backoffSeconds(message.attempts) });
+				await transientFailure(message, body, ctx, attempt, "re-send failed");
 				return;
 			}
-			if (body.kind === "delete-rider") {
-				console.error(
-					`delete-rider for athlete ${body.athleteId} gave up: ${result.reason}`,
-				);
-			} else {
-				await upsertFailedWork(ctx.env.DB, {
-					athleteId: body.athleteId,
-					message: serializeWorkMessage(body),
-					lastError: result.reason,
-					now: ctx.now(),
-				});
-				console.error(
-					`${body.kind} for athlete ${body.athleteId} moved to failed_work: ${result.reason}`,
-				);
-			}
 			message.ack();
+			return;
+		case "transient":
+			await transientFailure(message, body, ctx, attempt, result.reason);
 			return;
 		case "refresh-refused":
 			await markNeedsReconnect(ctx.env.DB, body.athleteId, ctx.now());
 			message.ack();
 			return;
 	}
+}
+
+/** Backoff, or on the last attempt: record in failed_work (R7) and ack. */
+async function transientFailure(
+	message: Message<unknown>,
+	body: WorkMessage,
+	ctx: Ctx,
+	attempt: Attempt,
+	reason: string,
+): Promise<void> {
+	if (!attempt.isLastAttempt) {
+		message.retry({ delaySeconds: backoffSeconds(message.attempts) });
+		return;
+	}
+	if (body.kind === "delete-rider") {
+		// The deletion must complete (Principle I), even if revoking never did.
+		await deleteRider(ctx.env.DB, body.athleteId);
+		console.error(
+			`delete-rider for athlete ${body.athleteId} deleted after retries ran out: ${reason}`,
+		);
+	} else {
+		await upsertFailedWork(ctx.env.DB, {
+			athleteId: body.athleteId,
+			message: serializeWorkMessage(body),
+			lastError: reason,
+			now: ctx.now(),
+		});
+		console.error(
+			`${body.kind} for athlete ${body.athleteId} moved to failed_work: ${reason}`,
+		);
+	}
+	message.ack();
 }

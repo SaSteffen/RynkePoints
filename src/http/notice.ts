@@ -27,7 +27,6 @@ interface Notice {
 	title: MessageId;
 	body: MessageId[];
 	retry?: boolean;
-	clubLink?: boolean;
 }
 
 const NOTICES: Record<NoticeId, Notice> = {
@@ -58,12 +57,10 @@ const NOTICES: Record<NoticeId, Notice> = {
 	"not-member": {
 		title: "notice.notMember.title",
 		body: ["notice.notMember.body", "notice.nothingStored"],
-		clubLink: true,
 	},
 	"not-member-deleted": {
 		title: "notice.notMember.title",
 		body: ["notice.notMember.body", "notice.deleted.body"],
-		clubLink: true,
 	},
 	"strava-busy": {
 		title: "notice.stravaBusy.title",

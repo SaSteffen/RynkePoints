@@ -111,13 +111,9 @@ describe.each(catalogs)("catalog %s", (_locale, catalog) => {
 		}
 	});
 
-	it("names a formatting locale Intl accepts", () => {
-		expect(
-			() => new Intl.NumberFormat(catalog["meta.intlLocale"]),
-		).not.toThrow();
-		expect(
-			Intl.NumberFormat.supportedLocalesOf([catalog["meta.intlLocale"] ?? ""]),
-		).toHaveLength(1);
+	it("names a formatting locale Intl supports", () => {
+		const tag = catalog["meta.intlLocale"] ?? "";
+		expect(new Intl.NumberFormat(tag).resolvedOptions().locale).toBe(tag);
 	});
 });
 

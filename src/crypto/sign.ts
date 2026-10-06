@@ -2,7 +2,8 @@ import { fromBase64 } from "./encrypt";
 
 // HMAC-SHA256 signed values: `<value>.<expiresAt>.<base64url signature>`.
 // Used for the session and OAuth state cookies (research R9). `value` must not
-// contain dots.
+// contain dots. `context` (e.g. the cookie name) is part of the MAC but not of
+// the output, so a value signed for one purpose never verifies for another.
 
 const keys = new Map<string, Promise<CryptoKey>>();
 
@@ -28,25 +29,32 @@ function toBase64Url(bytes: Uint8Array): string {
 		.replace(/=+$/, "");
 }
 
+/** Decodes canonical base64url only, so each signature has one spelling. */
 function fromBase64Url(value: string): Uint8Array<ArrayBuffer> | null {
 	if (!/^[A-Za-z0-9_-]+$/.test(value)) return null;
 	try {
-		return fromBase64(value.replaceAll("-", "+").replaceAll("_", "/"));
+		const bytes = fromBase64(value.replaceAll("-", "+").replaceAll("_", "/"));
+		return toBase64Url(bytes) === value ? bytes : null;
 	} catch {
 		return null;
 	}
+}
+
+function macInput(context: string, payload: string) {
+	return new TextEncoder().encode(`${context}\n${payload}`);
 }
 
 export async function signValue(
 	value: string,
 	expiresAt: number,
 	keyB64: string,
+	context = "",
 ): Promise<string> {
 	const payload = `${value}.${expiresAt}`;
 	const sig = await crypto.subtle.sign(
 		"HMAC",
 		await importKey(keyB64),
-		new TextEncoder().encode(payload),
+		macInput(context, payload),
 	);
 	return `${payload}.${toBase64Url(new Uint8Array(sig))}`;
 }
@@ -56,6 +64,7 @@ export async function verifySignedValue(
 	signed: string,
 	keyB64: string,
 	now: number,
+	context = "",
 ): Promise<string | null> {
 	const parts = signed.split(".");
 	if (parts.length !== 3) return null;
@@ -68,7 +77,7 @@ export async function verifySignedValue(
 		"HMAC",
 		await importKey(keyB64),
 		sig,
-		new TextEncoder().encode(`${value}.${expires}`),
+		macInput(context, `${value}.${expires}`),
 	);
 	if (!valid || Number(expires) < now) return null;
 	return value;

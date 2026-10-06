@@ -1,6 +1,9 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { readRateLimitState } from "../../src/db/rate-limit";
+import {
+	readRateLimitState,
+	recordRateLimitHeaders,
+} from "../../src/db/rate-limit";
 import { getCredentials } from "../../src/db/riders";
 import {
 	getActivity,
@@ -55,6 +58,46 @@ describe("rate-limit headers", () => {
 			limitReadDaily: 1500,
 			limitAll15m: 300,
 			limitAllDaily: 3000,
+		});
+	});
+
+	it("records the headers of failed responses too", async () => {
+		fake.rateHeaders = {
+			usage: "150,900",
+			limit: "200,2000",
+			readUsage: "99,800",
+			readLimit: "100,1000",
+		};
+		fake.failNext("activity", { status: 429 });
+		await getActivity(ctx, asRider, 1);
+		expect(await readRateLimitState(env.DB)).toMatchObject({
+			observedAt: NOW,
+			read15m: 99,
+			all15m: 150,
+		});
+	});
+
+	it("drops stale counts when a response carries only one usage pair", async () => {
+		await env.DB.prepare(
+			`UPDATE strava_rate_limit SET observed_at = ?, read_15m = 95,
+				read_daily = 500, all_15m = 120, all_daily = 600 WHERE id = 1`,
+		)
+			.bind(NOW - 900)
+			.run();
+		await recordRateLimitHeaders(
+			env.DB,
+			new Headers({ "X-RateLimit-Usage": "3,610" }),
+			NOW,
+		);
+		expect(await readRateLimitState(env.DB)).toMatchObject({
+			observedAt: NOW,
+			read15m: 0,
+			readDaily: 500,
+			all15m: 3,
+			allDaily: 610,
+		});
+		expect(await getActivity(ctx, asRider, 424242)).toEqual({
+			kind: "not-found",
 		});
 	});
 
@@ -174,11 +217,11 @@ describe("401 on an API call", () => {
 		expect(fake.callsTo("clubs")).toHaveLength(2);
 	});
 
-	it("gives up after one retry", async () => {
+	it("reports refresh-refused when the retry is still refused", async () => {
 		fake.failNext("clubs", { status: 401 });
 		fake.failNext("clubs", { status: 401 });
 		expect(await getAthleteClubs(ctx, asRider, 1)).toEqual({
-			kind: "unauthorized",
+			kind: "refresh-refused",
 		});
 		expect(fake.callsTo("token")).toHaveLength(1);
 		expect(fake.callsTo("clubs")).toHaveLength(2);
@@ -214,6 +257,13 @@ describe("isClubMember", () => {
 		expect(await isClubMember(ctx, asRider, TEAM_CLUB.id)).toMatchObject({
 			kind: "transient",
 		});
+	});
+
+	it("reports unauthorized for a just-issued token, without refreshing", async () => {
+		expect(
+			await isClubMember(ctx, { accessToken: "not-a-token" }, TEAM_CLUB.id),
+		).toEqual({ kind: "unauthorized" });
+		expect(fake.callsTo("token")).toHaveLength(0);
 	});
 
 	it("works with a fresh access token before the rider is stored", async () => {
@@ -285,7 +335,22 @@ describe("revoking", () => {
 		expect(fake.calls).toHaveLength(0);
 	});
 
-	it("maps 5xx and network errors to transient", async () => {
+	it("treats unreadable stored credentials as nothing to revoke", async () => {
+		await env.DB.prepare(
+			"UPDATE strava_credentials SET refresh_token_enc = 'v1:AAAA:AAAA'",
+		).run();
+		expect(await revokeStoredToken(ctx, ATHLETE_A)).toEqual({
+			kind: "ok",
+			value: null,
+		});
+		expect(fake.calls).toHaveLength(0);
+	});
+
+	it("maps 5xx, 429 and network errors to transient", async () => {
+		fake.failNext("revoke", { status: 429 });
+		expect(await revokeStoredToken(ctx, ATHLETE_A)).toMatchObject({
+			kind: "transient",
+		});
 		fake.failNext("revoke", { status: 503 });
 		expect(await revokeStoredToken(ctx, ATHLETE_A)).toMatchObject({
 			kind: "transient",
