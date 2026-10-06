@@ -15,11 +15,6 @@
 			// `wrangler d1 create rynke-points --jurisdiction=eu` (quickstart §3).
 			"database_id": "f1493f0b-1930-48de-afc5-f6edda211092",
 			"migrations_dir": "migrations"
-		},
-		{
-			"binding": "rynke_points",
-			"database_name": "rynke-points",
-			"database_id": "f1493f0b-1930-48de-afc5-f6edda211092"
 		}
 	],
 	"queues": {
