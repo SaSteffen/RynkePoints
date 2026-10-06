@@ -7,8 +7,8 @@ Specify the team leaderboard and the organiser overview of RynkePoints. Seeing e
 other's progress is the purpose of the app: it should motivate riders to train for
 the team.
 
-Read first: .specify/memory/constitution.md (Principle I), the roles-and-consent spec
-(consent levels and how non-consenting riders appear), specs/003-rynke-evaluation/spec.md
+Read first: .specify/memory/constitution.md (Principle I),
+specs/004-roles-and-consent/spec.md (consent levels and how non-consenting riders appear), specs/003-rynke-evaluation/spec.md
 (FR-013, FR-013a, FR-014a, FR-015), the rider-view spec if it exists.
 
 Team leaderboard (every signed-in rider):
