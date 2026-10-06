@@ -55,6 +55,17 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
 - Q (raised by the project owner): How is the pause rule presented to riders? → A:
   As a rule added to keep riders from gaming the system; the handout tells riders
   the team will adjust it should it lead to unfair situations.
+- Q (raised by the project owner after the lazy-rider review,
+  [lazy-rider.md](lazy-rider.md)): Which rides are excluded to keep riders from
+  gaming the system? → A: Manual Strava activities, e-bike rides, rides that are
+  implausibly slow or fast or climb implausibly fast (walks, cars, trains, lifts),
+  and all but the largest of a rider's rides that overlap in time (the same ride
+  recorded twice).
+- Q (raised by the project owner): Do virtual rides count? → A: Yes, and their
+  Rynke count normally, but at most one third of the Training Rynke needed to
+  qualify may come from virtual rides; this is checked separately for
+  qualification. Riders must set their real body weight in virtual-ride apps; the
+  app cannot check it, so the handout appeals to riders' honesty.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -94,8 +105,10 @@ A connected rider rides and uploads to Strava as usual. Every ride that reaches
 RynkePoints adds to their Training Rynke: 1 for every full 10 km of that ride,
 and its elevation gain adds to a season total that earns 5 for every full
 1000 m. Distance leftovers below a full step are lost, so a 79 km ride earns 7;
-elevation gain is never lost, so two rides of 500 m earn 5. A ride whose breaks add up to more than half of its
-moving time (e.g. the way to work and back recorded as one ride) earns nothing.
+elevation gain is never lost, so two rides of 500 m earn 5. A ride whose breaks
+add up to more than half of its moving time (e.g. the way to work and back
+recorded as one ride) earns nothing. So do manual entries, e-bike rides, rides
+too slow or too fast to be bike rides, and second recordings of the same ride.
 When they edit or delete a ride on Strava, their Training Rynke follow.
 
 **Why this priority**: Riding is where most of the 250 Training Rynke come
@@ -146,6 +159,26 @@ value.
     with 800 m that fails the pause rule, **When** the balance is evaluated,
     **Then** they have 5 Training Rynke from elevation gain (the 800 m are not
     added).
+15. **Given** a rider who recorded the same ride on a bike computer (80 km,
+    600 m) and on their phone (78 km, 650 m), overlapping in time, **When** the
+    balance is evaluated, **Then** only the 80 km recording counts: 8 Training
+    Rynke from distance and 600 m towards the elevation total.
+16. **Given** a rider with one ride ending at 10:00 and another starting at
+    10:00, **When** the balance is evaluated, **Then** both count (they do not
+    overlap).
+17. **Given** a 300 km recording with 4 h moving time (75 km/h, e.g. a train
+    trip), **When** the balance is evaluated, **Then** it earns 0 Training Rynke.
+18. **Given** a 15 km recording with 2 h moving time (7.5 km/h, e.g. a walk),
+    **When** the balance is evaluated, **Then** it earns 0 Training Rynke.
+19. **Given** a 20 km ride with 2 h moving time (exactly 10 km/h), **When** the
+    balance is evaluated, **Then** it earns 2 Training Rynke as usual.
+20. **Given** a 30 km recording with 2000 m elevation gain in 1 h moving time
+    (e.g. a cable car), **When** the balance is evaluated, **Then** it earns 0
+    Training Rynke and adds nothing to the elevation total.
+21. **Given** a 200 km activity entered manually on Strava, **When** the balance
+    is evaluated, **Then** it earns 0 Training Rynke.
+22. **Given** a 100 km e-bike ride, **When** the balance is evaluated, **Then** it
+    earns 0 Training Rynke.
 
 ---
 
@@ -190,7 +223,8 @@ evaluate, and compare both totals with a hand-calculated value.
 A connected rider opens their RynkePoints page and sees their Training Rynke and
 Team Rynke, how far each is from what the tour needs (250 / 25), whether they
 already qualify, and a breakdown of where their Rynke came from (distance,
-elevation, each kind of team event).
+elevation, each kind of team event). Riders with virtual rides also see whether
+enough of their Training Rynke come from outside virtual rides.
 
 **Why this priority**: The numbers only motivate if the rider can see them, but the
 evaluation itself (Stories 2–3) can be verified without a page.
@@ -211,6 +245,13 @@ qualification status and breakdown — and nobody else's data.
    Team Rynke, nor the other way round).
 4. **Given** two connected riders, **When** one opens their page, **Then** they see
    only their own balance.
+5. **Given** a rider with 260 Training Rynke, 100 of them from virtual rides (160
+   without virtual rides), and 25 Team Rynke, **When** they open their page,
+   **Then** they see 260 Training Rynke, that they do not qualify yet and that 7
+   Training Rynke from outside virtual rides are still missing (167 needed).
+6. **Given** a rider with 250 Training Rynke, 80 of them from virtual rides (170
+   without virtual rides), and 25 Team Rynke, **When** they open their page,
+   **Then** they see that they qualify.
 
 ---
 
@@ -303,14 +344,25 @@ re-evaluation, and check the correction is still applied exactly once.
   on Strava is re-evaluated; a ride that becomes non-cycling or is deleted stops
   counting (it is no longer stored, per feature 001).
 - **Duplicate recordings**: the same ride uploaded twice (e.g. from a bike computer
-  and a phone) is counted twice; the rider deletes the duplicate on Strava or an
-  organiser corrects it (Story 6). Automatic duplicate detection is out of scope.
-- **Virtual and e-bike rides**: count like any other stored cycling activity unless
-  an organiser excludes those sport types (FR-012).
+  and a phone, or a trainer ride from two apps) overlaps in time with itself, so
+  only the largest recording counts (FR-005d). Two recordings that do not
+  overlap in time are never treated as duplicates.
+- **E-bike rides**: never count (FR-005e). An e-bike ride saved with a normal ride
+  sport type cannot be told apart; this relies on riders' honesty.
+- **Virtual rides**: count normally, but qualification needs at least two thirds
+  of the Training threshold from outside virtual rides (FR-013a). Body weight and
+  trainer settings in virtual-ride apps cannot be checked; this relies on riders'
+  honesty.
+- **Manual activities**: never count (FR-005b), also when a rider's device failed;
+  an organiser can add a correction instead (Story 6).
+- **Honest rides caught by the plausibility limits**: e.g. a very slow, technical
+  mountain-bike ride or a GPS glitch that inflates the speed. The rider can fix
+  the activity on Strava (e.g. crop the glitch), after which it is re-evaluated,
+  or an organiser adds a correction.
 - **Zero values**: rides with 0 km or 0 m elevation gain contribute nothing for that
   part; this is never an error.
 - **Elevation total drops**: when a ride is deleted, its elevation gain changes, or
-  it starts failing the pause rule, the season total drops and the elevation
+  it stops counting (FR-005–FR-005e), the season total drops and the elevation
   Rynke follow, which may take away Rynke earned with other rides' metres.
 - **Team event deleted or changed**: Rynke from it disappear or follow the change
   on the next evaluation.
@@ -323,7 +375,9 @@ re-evaluation, and check the correction is still applied exactly once.
 - **Season start moved earlier**: rides before the old season start were never
   imported (feature 001). They only count after they have been imported, so
   moving the season start earlier needs a re-import first (FR-025).
-- **New rule needs data that is not stored**: e.g. a rule based on average speed.
+- **New rule needs data that is not stored**: e.g. a rule based on heart rate.
+  (Average speed and climbing rate are not such data: they are computed from
+  stored distance, elevation gain and moving time.)
   It cannot take effect until that data is stored for every connected rider
   (FR-025); until then the old rules stay in effect.
 - **Rider leaves and comes back**: when a rider's data is deleted (feature 001,
@@ -362,15 +416,34 @@ re-evaluation, and check the correction is still applied exactly once.
   rides in the counting window (FR-011) is added up, and the season total earns 5
   Training Rynke per full 1000 m, rounded down once on the total. No metre of
   elevation gain may be dropped per ride (two rides of 600 m → 5; 1999 m + 1 m →
-  10). Rides excluded by FR-005 or FR-005a add nothing to the total.
+  10). Rides that earn nothing under FR-005–FR-005e add nothing to the total.
 - **FR-005**: Only activities stored by feature 001 (cycling activities of the
   rider) count; other sports never earn Rynke.
 - **FR-005a**: A ride whose paused time (elapsed time minus moving time) is more
   than half of its moving time MUST earn no Training Rynke, neither from distance
-  nor from elevation gain (its elevation gain is not added to the season total). A ride paused for exactly half of its moving time still
-  counts. The share of half is a rule value (FR-012). There MUST be no other limit
+  nor from elevation gain (its elevation gain is not added to the season total).
+  A ride paused for exactly half of its moving time still counts. The share of half is a rule value (FR-012). There MUST be no other limit
   on a ride's duration, and a ride spanning several calendar days MUST NOT be
   excluded for that reason alone.
+- **FR-005b**: An activity entered manually on Strava (marked as manual by
+  Strava) MUST earn no Training Rynke. This needs the manual flag stored by
+  feature 001 (its FR-013).
+- **FR-005c**: A ride whose average speed (distance ÷ moving time) is below
+  10 km/h or above 45 km/h, or whose climbing rate (elevation gain ÷ moving time)
+  is above 1500 m per hour, MUST earn no Training Rynke, neither from distance
+  nor from elevation gain. A ride exactly at a limit still counts; a ride with
+  0 moving time earns nothing. The three limits are rule values (FR-012). They
+  exclude walks, cars, trains and lifts recorded as rides.
+- **FR-005d**: Of a rider's rides that otherwise count, two overlap in time when
+  one starts before the other ends (end = start + elapsed time). The rides MUST be
+  taken from largest to smallest (longer distance first, then more elevation
+  gain, then lower Strava activity ID), and a ride MUST count only if it overlaps
+  none of the rides already counting. The result MUST NOT depend on the order in
+  which rides arrive (FR-002). A ride that earns nothing for another reason never
+  prevents another ride from counting.
+- **FR-005e**: E-bike rides MUST earn no Training Rynke: the excluded cycling
+  sport types (FR-012) MUST contain Strava's e-bike types (e-bike ride, e-mountain
+  bike ride) by default.
 
 **Team events**
 
@@ -403,16 +476,26 @@ re-evaluation, and check the correction is still applied exactly once.
   001 Team Settings) up to and including the qualification deadline MUST count. If
   no deadline is set, everything from the season start counts.
 - **FR-012**: The rule values (km and metres per step, Rynke per step, fixed amounts
-  per event kind, the largest paused share of a counting ride), the thresholds
-  (250 Training Rynke, 25 Team Rynke), the qualification deadline and any excluded
-  cycling sport types MUST be organiser configuration, changeable without code
-  changes.
+  per event kind, the largest paused share of a counting ride, the lowest and
+  highest average speed and highest climbing rate of a counting ride, the largest
+  share of the Training threshold that may come from virtual rides), the
+  thresholds (250 Training Rynke, 25 Team Rynke), the qualification deadline and
+  the excluded cycling sport types MUST be organiser configuration, changeable
+  without code changes.
 
 **Qualification**
 
 - **FR-013**: A rider qualifies for the tour exactly when their Training Rynke are
   at least the Training threshold **and** their Team Rynke are at least the Team
-  threshold. Neither kind can make up for a shortfall in the other.
+  threshold **and** they meet FR-013a. Neither kind can make up for a shortfall in
+  the other.
+- **FR-013a**: Training Rynke from virtual rides (Strava sport type virtual ride)
+  MUST count normally in the rider's Training Rynke. For qualification, the
+  Training Rynke the rider would have without their virtual rides (evaluated
+  with all rules, virtual rides left out after FR-005d) MUST additionally be at
+  least two thirds of the Training threshold, rounded up (167 of 250). At most a
+  third of the threshold can therefore come from virtual rides. The share is a
+  rule value (FR-012).
 
 **Rider view**
 
@@ -420,8 +503,11 @@ re-evaluation, and check the correction is still applied exactly once.
   Rynke, the amount still missing for each threshold, whether they qualify, and a
   breakdown by source: distance, elevation gain (with the season's total metres
   and how many are still missing for the next 1000 m), each team-event kind (with
-  the events attended), and corrections (with reasons). Rides that earned nothing
-  because of FR-005a MUST be listed with that reason. The page MUST also show the
+  the events attended), and corrections (with reasons). If the rider has virtual
+  rides, the page MUST show their Training Rynke without virtual rides and how
+  many are still missing for FR-013a. Rides that earned nothing because of
+  FR-005a–FR-005e MUST be listed with the reason (pause, manual entry, speed,
+  climbing rate, overlap, excluded sport type). The page MUST also show the
   date the current rules took effect.
 - **FR-015**: A rider MUST only ever see their own balance; showing balances or
   qualification to other riders or organisers is out of scope for this feature.
@@ -465,6 +551,8 @@ re-evaluation, and check the correction is still applied exactly once.
   the accumulated elevation gain (FR-004a) and the pause rule (FR-005a) with
   examples, a note that the pause rule exists to keep riders from gaming the
   system and that the team will adjust it should it lead to unfair situations,
+  the excluded rides (FR-005b–FR-005e), the virtual-ride share (FR-013a) with a
+  strongly worded appeal to set the real body weight in virtual-ride apps,
   attendance recording (FR-007), rides during team events (FR-008), the counting
   window (FR-011), corrections (FR-010) and the qualification rule (FR-013).
 - **FR-018**: The repository MUST contain a script that converts the handout to a
@@ -480,8 +568,9 @@ re-evaluation, and check the correction is still applied exactly once.
 
 - **Rynke Rules**: organiser configuration — km per distance step and Rynke per
   step, metres per elevation step and Rynke per step, fixed Team and Training
-  Rynke per team-event kind, the largest paused share, the two thresholds, the
-  qualification deadline, and excluded cycling sport types. Carries a version and
+  Rynke per team-event kind, the largest paused share, the speed and climbing-rate
+  limits, the largest virtual-ride share, the two thresholds, the qualification
+  deadline, and excluded cycling sport types (e-bike types by default). Carries a version and
   the date it took effect, covering both configured values and rule logic.
 - **Team Event**: an event organised by the team — kind, date, optional name.
   Belongs to the team, not to a rider.
@@ -520,10 +609,17 @@ re-evaluation, and check the correction is still applied exactly once.
 ## Assumptions
 
 - Builds on feature 001: riders, their stored cycling activities (distance,
-  elevation gain, moving time, elapsed time, start date and time zone, sport type)
-  and the season start date already exist. Elapsed time was added to feature 001
-  (its FR-013) for FR-005a; it comes with the activity data the app already
-  fetches and is the minimum needed to compute points (constitution Principle I).
+  elevation gain, moving time, elapsed time, start date and time zone, sport type,
+  manual flag) and the season start date already exist. Elapsed time and the
+  manual flag were added to feature 001 (its FR-013) for FR-005a and FR-005b; they
+  come with the activity data the app already fetches and are the minimum needed
+  to compute points (constitution Principle I).
+- E-bike rides stay stored by feature 001 although they earn nothing by default,
+  so that an organiser can change the excluded sport types and recalculate the
+  season (FR-021).
+- Some cheating cannot be detected with the stored data: borrowed or fabricated
+  GPS files, wrong body weight in virtual-ride apps, e-bike rides saved as normal
+  rides. The rules rely on riders' honesty there ([lazy-rider.md](lazy-rider.md)).
 - The goal is the Tour de Paris of the current season; one season is evaluated at
   a time. History across seasons is out of scope.
 - Organisers maintain team events, attendance, corrections and rule configuration
