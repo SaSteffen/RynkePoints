@@ -414,9 +414,10 @@ describe("GET /auth/callback consent and write access", () => {
 
 describe("GET /auth/callback after /signin", () => {
 	it("turns away an athlete who isn't connected", async () => {
-		fake.addAthlete({ id: ATHLETE_A });
-		const res = await signIn(ctx, fake, ATHLETE_A);
+		fake.addAthlete({ id: ATHLETE_A, clubs: [OTHER_CLUB.id] });
+		const res = await signIn(ctx, fake, ATHLETE_A, SCOPES_SHARED);
 		expectNotice(res, "not-connected");
+		expect(fake.callsTo("clubs")).toEqual([]);
 		expect(fake.revocations).toHaveLength(1);
 		expect(setCookies(res).rp_session).toBeUndefined();
 		expect(ctx.queue.sent).toEqual([]);
