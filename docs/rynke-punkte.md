@@ -149,6 +149,11 @@ siehst nur du.
 
 # Ändern sich die Regeln?
 
-Die Organisatoren können die Werte in dieser Übersicht anpassen. Dann rechnet
-RynkePoints alle Rynke mit den neuen Werten neu. Wer vorher genug hatte, kann
-danach also auch wieder darunter liegen. Wir geben Änderungen rechtzeitig bekannt.
+Ja, das kann während der Saison passieren. Dann rechnet RynkePoints alle Rynke
+der **ganzen Saison rückwirkend** mit den neuen Regeln neu, auch für Fahrten, die
+du schon vor der Änderung hochgeladen hast. Wer vorher genug hatte, kann danach
+also auch wieder darunter liegen, und umgekehrt. Korrekturen der Organisatoren
+bleiben dabei erhalten.
+
+Auf deiner RynkePoints-Seite siehst du, seit wann die aktuellen Regeln gelten. Wir
+geben Änderungen rechtzeitig bekannt.
