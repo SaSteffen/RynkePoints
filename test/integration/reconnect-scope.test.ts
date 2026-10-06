@@ -4,13 +4,18 @@ import { seasonStartEpoch } from "../../src/config";
 import { upsertActivity } from "../../src/db/activities";
 import { getRider } from "../../src/db/riders";
 import { toActivityRecord } from "../../src/strava/activity";
-import { approve, SCOPES_ALL, SCOPES_SHARED } from "../support/callback";
+import {
+	approve,
+	SCOPES_ALL,
+	SCOPES_NO_WRITE,
+	SCOPES_SHARED,
+} from "../support/callback";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
 
-// Reconnecting with a different choice of private activities (FR-007,
-// data-model.md "Reconnect").
+// Reconnecting with a different choice of private activities or write access
+// (FR-007, data-model.md "Reconnect").
 
 let fake: FakeStrava;
 let ctx: TestCtx;
@@ -81,11 +86,50 @@ describe("reconnect scope changes", () => {
 	});
 
 	it("changes nothing else when the scopes stay the same", async () => {
-		await seedRider(ctx, { scopeReadAll: true });
+		await seedRider(ctx, { scopeReadAll: true, scopeWrite: true });
 		await storeActivity(PRIVATE_ID, true);
 
 		await approve(ctx, fake, ATHLETE_A, SCOPES_ALL);
 
+		expect(await storedIds()).toEqual([PRIVATE_ID]);
+		expect(ctx.queue.sent).toEqual([]);
+	});
+
+	it("records newly granted write access and nothing else", async () => {
+		await seedRider(ctx, { scopeWrite: false });
+		await storeActivity(PRIVATE_ID, true);
+
+		await approve(ctx, fake, ATHLETE_A, SCOPES_ALL, {}, { consentVersion: 0 });
+
+		expect(await getRider(env.DB, ATHLETE_A)).toMatchObject({
+			scopes: SCOPES_ALL,
+			scopeWrite: true,
+			importStatus: "done",
+		});
+		expect(await storedIds()).toEqual([PRIVATE_ID]);
+		expect(ctx.queue.sent).toEqual([]);
+	});
+
+	it("records withdrawn write access and nothing else", async () => {
+		await seedRider(ctx, { scopeWrite: true });
+		await storeActivity(PRIVATE_ID, true);
+
+		await approve(
+			ctx,
+			fake,
+			ATHLETE_A,
+			SCOPES_NO_WRITE,
+			{},
+			{
+				consentVersion: 0,
+			},
+		);
+
+		expect(await getRider(env.DB, ATHLETE_A)).toMatchObject({
+			scopes: SCOPES_NO_WRITE,
+			scopeWrite: false,
+			importStatus: "done",
+		});
 		expect(await storedIds()).toEqual([PRIVATE_ID]);
 		expect(ctx.queue.sent).toEqual([]);
 	});

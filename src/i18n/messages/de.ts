@@ -5,8 +5,8 @@ export const de = {
 	"meta.languageName": "Deutsch",
 	"meta.intlLocale": "de-DE",
 	"app.name": "RynkePoints",
-	// Strava's original (English) files until a German variant is confirmed in
-	// Strava's downloads (research R19).
+	// Strava ships its brand assets in English only, so every language shows the
+	// English files; only the alt text is translated (research R19).
 	"brand.connectWithStrava.src": "/strava/en/connect-with-strava.svg",
 	"brand.connectWithStrava.alt": "Mit Strava verbinden",
 	"brand.poweredByStrava.src": "/strava/en/powered-by-strava.svg",
@@ -25,13 +25,24 @@ export const de = {
 	"landing.private":
 		"Auf Strava entscheidest du selbst, ob auch deine privaten („Nur du“) Aktivitäten dazugehören.",
 	"landing.purpose":
-		"Wir nutzen die Daten nur für die Punkte und Events des Teams. Niemand sonst sieht deine Aktivitäten.",
+		"Wir nutzen die Daten nur für die Rynke (Punkte) und Events des Teams. Deine einzelnen Fahrten sieht niemand außer dir.",
 	"landing.leave":
-		"Du kannst jederzeit aussteigen: auf deiner RynkePoints-Seite oder indem du RynkePoints in deinen Strava-Einstellungen entfernst. Wenn du den Club verlässt, löschen wir deine Daten innerhalb von 24 Stunden.",
+		"Du kannst jederzeit aussteigen: auf deiner RynkePoints-Seite oder indem du RynkePoints in deinen Strava-Einstellungen entfernst. Dann löschen wir alle Daten über dich, auch deine Rynke; auf deiner RynkePoints-Seite bestätigen wir dir das sofort. Wenn du den Club verlässt, löschen wir deine Daten innerhalb von 24 Stunden.",
 	"landing.backups":
 		"Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters und verschwinden danach automatisch.",
 	"landing.cookies":
 		"Wir setzen nur notwendige Cookies: für die Anmeldung und für deine Sprachwahl.",
+
+	"consent.heading": "Was du mit dem Verbinden erlaubst",
+	"consent.organisers":
+		"Die Organisatorinnen und Organisatoren des Teams sehen deinen Vornamen von Strava, deine Rynke mit Aufschlüsselung, was dir noch fehlt, ob du dich qualifiziert hast, deine Teilnahme an Team-Events und Korrekturen.",
+	"consent.team":
+		"Alle anderen im Team sehen deine gesammelten Rynke, insgesamt und pro Woche, ohne deinen Namen.",
+	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
+	"consent.write":
+		"Freiwillig kannst du RynkePoints auf Strava erlauben, deine Aktivitäten zu bearbeiten. Sobald es die Funktion gibt, schreiben wir dann einen kurzen Rynke-Abschnitt in die Beschreibung deiner Fahrten; deinen eigenen Text ändern wir nie. Den Abschnitt sieht, wer die Fahrt auf Strava sehen darf. Ohne diese Erlaubnis machst du genauso mit.",
+	"consent.agree":
+		"Ich bin einverstanden, dass RynkePoints meine Fahrten liest und meine Rynke wie beschrieben teilt.",
 
 	"me.title": "Deine RynkePoints",
 	"me.greeting": "Hallo {firstName}!",
@@ -41,6 +52,15 @@ export const de = {
 	"me.scope.readAll": "Einschließlich deiner privaten Aktivitäten",
 	"me.scope.sharedOnly":
 		"Nur geteilte Aktivitäten – private („Nur du“) Aktivitäten werden nicht importiert.",
+	"me.scope.write":
+		"Schreibzugriff erteilt: Sobald es die Funktion gibt, schreibt RynkePoints einen Rynke-Abschnitt in deine Fahrtbeschreibungen.",
+	"me.scope.noWrite":
+		"Kein Schreibzugriff: RynkePoints schreibt nichts in deine Fahrtbeschreibungen.",
+	"me.changePermissions": "Berechtigungen auf Strava ändern",
+	"me.consent.heading": "Deine Zustimmung",
+	"me.consent.accepted": "Zugestimmt am {date} (Version {version}):",
+	"me.consent.none":
+		"Für dich ist noch keine Zustimmung gespeichert. Melde dich ab und verbinde dich auf der Startseite neu, um zuzustimmen.",
 	"me.import.running": "Deine Fahrten seit dem {date} werden importiert …",
 	"me.import.done": "Import abgeschlossen",
 	"me.recent.heading": "Zuletzt importierte Fahrten",
@@ -75,6 +95,9 @@ export const de = {
 		"RynkePoints braucht Lesezugriff auf deine Aktivitäten",
 	"notice.denied.body":
 		"Ohne diese Berechtigung kann RynkePoints nicht funktionieren.",
+	"notice.consentRequired.title": "Bitte stimme zuerst zu",
+	"notice.consentRequired.body":
+		"Ohne deine Zustimmung können wir dich nicht verbinden. Lies auf der Startseite, was RynkePoints liest und teilt, und setze den Haken.",
 	"notice.teamFull.title": "Das Team ist im Moment voll",
 	"notice.teamFull.body":
 		"Strava erlaubt RynkePoints gerade keine weiteren Fahrerinnen und Fahrer. Wir melden uns, sobald wieder Platz ist.",

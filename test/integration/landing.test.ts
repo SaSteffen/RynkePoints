@@ -35,6 +35,12 @@ describe("GET / (signed out)", () => {
 			"landing.leave",
 			"landing.backups",
 			"landing.cookies",
+			"consent.heading",
+			"consent.organisers",
+			"consent.team",
+			"consent.required",
+			"consent.write",
+			"consent.agree",
 		] as const) {
 			expect(page).toContain(escapeHtml(de[id]));
 		}
@@ -68,11 +74,24 @@ describe("GET / (signed out)", () => {
 		}
 	});
 
-	it("shows the German Connect with Strava button", async () => {
+	it("names who sees what and that write access is optional", async () => {
 		const { page } = await get();
+		expect(page).toContain("<h2>Was du mit dem Verbinden erlaubst</h2>");
+		expect(page).toContain("Deine einzelnen Fahrten sieht niemand außer dir.");
+		expect(page).toContain("ohne deinen Namen");
+		expect(page).toContain("Ohne diese Erlaubnis machst du genauso mit.");
+	});
+
+	it("shows the consent form with the Connect with Strava button", async () => {
+		const { page } = await get();
+		expect(page).toContain('<form method="post" action="/connect">');
 		expect(page).toContain(
-			`<a href="/connect"><img src="${de["brand.connectWithStrava.src"]}" alt="Mit Strava verbinden"></a>`,
+			'<input type="checkbox" name="consent" value="1" required>',
 		);
+		expect(page).toContain(
+			`<button><img src="${de["brand.connectWithStrava.src"]}" alt="Mit Strava verbinden"></button>`,
+		);
+		expect(page).not.toContain('<a href="/connect">');
 	});
 
 	it("offers the language switcher before connecting", async () => {
@@ -88,6 +107,7 @@ describe("GET / (signed out)", () => {
 		expect(res.headers.get("Content-Language")).toBe("en");
 		expect(page).toContain('<html lang="en">');
 		expect(page).toContain(escapeHtml(en["landing.backups"]));
+		expect(page).toContain(escapeHtml(en["consent.agree"]));
 		expect(page).toContain(
 			`<img src="${en["brand.connectWithStrava.src"]}" alt="Connect with Strava">`,
 		);

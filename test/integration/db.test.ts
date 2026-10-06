@@ -7,6 +7,7 @@ import {
 	listRecentActivities,
 	upsertActivity,
 } from "../../src/db/activities";
+import { getCurrentConsent, recordConsent } from "../../src/db/consents";
 import {
 	deleteFailedWorkByMessage,
 	deleteFailedWorkFirstFailedBefore,
@@ -63,8 +64,8 @@ beforeEach(resetDb);
 describe("riders", () => {
 	it("deleting a rider cascades to everything they own", async () => {
 		const ctx = makeCtx();
-		await seedRider(ctx, { athleteId: ATHLETE_A });
-		await seedRider(ctx, { athleteId: ATHLETE_B });
+		await seedRider(ctx, { athleteId: ATHLETE_A, consentVersion: 1 });
+		await seedRider(ctx, { athleteId: ATHLETE_B, consentVersion: 1 });
 		await upsertActivity(db, record());
 		await upsertActivity(
 			db,
@@ -84,24 +85,32 @@ describe("riders", () => {
 			riders: 1,
 			strava_credentials: 1,
 			activities: 1,
+			consent_records: 1,
 			failed_work: 0,
 			strava_rate_limit: 1,
 		});
+		expect(await getCurrentConsent(db, ATHLETE_A)).toBeNull();
 	});
 
 	it("inserts and reads a rider", async () => {
-		await insertRider(db, {
-			athleteId: ATHLETE_A,
-			firstName: "Testrider A",
-			scopes: "read,activity:read",
-			scopeReadAll: false,
-			now: NOW,
-		});
+		await insertRider(
+			db,
+			{
+				athleteId: ATHLETE_A,
+				firstName: "Testrider A",
+				scopes: "read,activity:read",
+				scopeReadAll: false,
+				scopeWrite: false,
+				now: NOW,
+			},
+			{ version: 1, acceptedAt: NOW },
+		);
 		expect(await getRider(db, ATHLETE_A)).toEqual({
 			athleteId: ATHLETE_A,
 			firstName: "Testrider A",
 			status: "connected",
 			scopeReadAll: false,
+			scopeWrite: false,
 			scopes: "read,activity:read",
 			connectedAt: NOW,
 			scopesUpdatedAt: NOW,
@@ -160,6 +169,7 @@ describe("riders", () => {
 			firstName: "Testrider A2",
 			scopes: "read,activity:read",
 			scopeReadAll: false,
+			scopeWrite: false,
 			now: NOW + 30,
 		});
 		expect(await getRider(db, ATHLETE_A)).toMatchObject({
@@ -216,17 +226,115 @@ describe("riders", () => {
 		await expect(insert("connected", NOW)).rejects.toThrow(/CHECK/);
 		await expect(insert("needs_reconnect", null)).rejects.toThrow(/CHECK/);
 	});
+
+	it("gives riders stored without scope_write 0 and rejects other values", async () => {
+		const insert = (athleteId: number, scopeWrite?: number) =>
+			db
+				.prepare(
+					`INSERT INTO riders (athlete_id, first_name, status, scope_read_all, scopes,
+						connected_at, scopes_updated_at, membership_checked_at, import_status,
+						reconnect_requested_at${scopeWrite === undefined ? "" : ", scope_write"})
+					VALUES (?, 'Testrider A', 'connected', 1, 'read', 0, 0, 0, 'done', NULL${scopeWrite === undefined ? "" : ", ?"})`,
+				)
+				.bind(athleteId, ...(scopeWrite === undefined ? [] : [scopeWrite]))
+				.run();
+		await insert(ATHLETE_A);
+		expect((await getRider(db, ATHLETE_A))?.scopeWrite).toBe(false);
+		await expect(insert(ATHLETE_B, 2)).rejects.toThrow(/CHECK/);
+	});
+
+	it("records write access on reconnect", async () => {
+		await seedRider(makeCtx());
+		await updateRiderOnReconnect(db, ATHLETE_A, {
+			firstName: "Testrider A",
+			scopes: "read,activity:read,activity:read_all,activity:write",
+			scopeReadAll: true,
+			scopeWrite: true,
+			now: NOW + 30,
+		});
+		expect((await getRider(db, ATHLETE_A))?.scopeWrite).toBe(true);
+	});
+});
+
+describe("consent records", () => {
+	it("stores a new rider together with their consent", async () => {
+		await insertRider(
+			db,
+			{
+				athleteId: ATHLETE_A,
+				firstName: "Testrider A",
+				scopes: "read,activity:read,activity:read_all,activity:write",
+				scopeReadAll: true,
+				scopeWrite: true,
+				now: NOW,
+			},
+			{ version: 1, acceptedAt: NOW },
+		);
+		expect((await getRider(db, ATHLETE_A))?.scopeWrite).toBe(true);
+		expect(await getCurrentConsent(db, ATHLETE_A)).toEqual({
+			version: 1,
+			acceptedAt: NOW,
+		});
+	});
+
+	it("keeps the first acceptance of a version", async () => {
+		await seedRider(makeCtx(), { consentVersion: 1 });
+		await recordConsent(db, ATHLETE_A, 1, NOW + 3600);
+		expect(await getCurrentConsent(db, ATHLETE_A)).toEqual({
+			version: 1,
+			acceptedAt: NOW,
+		});
+	});
+
+	it("treats the highest version as the current consent", async () => {
+		await seedRider(makeCtx(), { consentVersion: 1 });
+		await recordConsent(db, ATHLETE_A, 2, NOW + 3600);
+		expect(await getCurrentConsent(db, ATHLETE_A)).toEqual({
+			version: 2,
+			acceptedAt: NOW + 3600,
+		});
+	});
+
+	it("never stores version 0", async () => {
+		await seedRider(makeCtx());
+		await expect(
+			db
+				.prepare(
+					"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, 0, ?)",
+				)
+				.bind(ATHLETE_A, NOW)
+				.run(),
+		).rejects.toThrow(/CHECK/);
+		// OR IGNORE also skips a failed CHECK, so nothing is stored.
+		await recordConsent(db, ATHLETE_A, 0, NOW);
+		expect(await getCurrentConsent(db, ATHLETE_A)).toBeNull();
+	});
+
+	it("rejects a record without a rider and is deleted with the rider", async () => {
+		await expect(recordConsent(db, ATHLETE_B, 1, NOW)).rejects.toThrow(
+			/FOREIGN KEY/,
+		);
+		await seedRider(makeCtx(), { consentVersion: 1 });
+		await deleteRider(db, ATHLETE_A);
+		expect(await getCurrentConsent(db, ATHLETE_A)).toBeNull();
+		expect((await tableCounts()).consent_records).toBe(0);
+	});
 });
 
 describe("credentials", () => {
 	it("stores tokens encrypted and reads them back", async () => {
-		await insertRider(db, {
-			athleteId: ATHLETE_A,
-			firstName: "Testrider A",
-			scopes: "read,activity:read",
-			scopeReadAll: false,
-			now: NOW,
-		});
+		await insertRider(
+			db,
+			{
+				athleteId: ATHLETE_A,
+				firstName: "Testrider A",
+				scopes: "read,activity:read",
+				scopeReadAll: false,
+				scopeWrite: false,
+				now: NOW,
+			},
+			{ version: 1, acceptedAt: NOW },
+		);
 		const creds = {
 			accessToken: "access-synthetic",
 			refreshToken: "refresh-synthetic",

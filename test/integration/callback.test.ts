@@ -2,12 +2,14 @@ import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { seasonStartEpoch } from "../../src/config";
 import { upsertActivity } from "../../src/db/activities";
+import { getCurrentConsent } from "../../src/db/consents";
 import { getCredentials, getRider } from "../../src/db/riders";
 import { toActivityRecord } from "../../src/strava/activity";
 import {
 	approve,
 	callback,
 	SCOPES_ALL,
+	SCOPES_NO_WRITE,
 	SCOPES_SHARED,
 	setCookies,
 } from "../support/callback";
@@ -61,6 +63,7 @@ async function expectNoRows() {
 		riders: 0,
 		strava_credentials: 0,
 		activities: 0,
+		consent_records: 0,
 		failed_work: 0,
 	});
 }
@@ -289,6 +292,121 @@ describe("GET /auth/callback success", () => {
 				page: 1,
 				after: SEASON_START,
 			},
+		]);
+	});
+});
+
+describe("GET /auth/callback consent and write access", () => {
+	async function consentRows() {
+		const { results } = await env.DB.prepare(
+			"SELECT athlete_id, version, accepted_at FROM consent_records",
+		).all();
+		return results;
+	}
+
+	it("stores write access and the consent of a new member", async () => {
+		await approve(ctx, fake, ATHLETE_A, SCOPES_ALL);
+		expect((await getRider(env.DB, ATHLETE_A))?.scopeWrite).toBe(true);
+		expect(await consentRows()).toEqual([
+			{ athlete_id: ATHLETE_A, version: 1, accepted_at: NOW },
+		]);
+	});
+
+	it("connects a new member who unticked write access", async () => {
+		const res = await approve(ctx, fake, ATHLETE_A, SCOPES_NO_WRITE);
+		expect(res.headers.get("Location")).toBe("/me");
+		expect((await getRider(env.DB, ATHLETE_A))?.scopeWrite).toBe(false);
+		expect(await getCurrentConsent(env.DB, ATHLETE_A)).toEqual({
+			version: 1,
+			acceptedAt: NOW,
+		});
+	});
+
+	it.each([0, 2])(
+		"revokes and refuses a new athlete with consent version %i",
+		async (consentVersion) => {
+			const res = await approve(
+				ctx,
+				fake,
+				ATHLETE_A,
+				SCOPES_ALL,
+				{},
+				{
+					consentVersion,
+				},
+			);
+			expectNotice(res, "consent-required");
+			expect(setCookies(res).rp_oauth_state).toMatch(/Max-Age=0/);
+			expect(fake.revocations).toEqual([
+				expect.objectContaining({ kind: "access" }),
+			]);
+			await expectNoRows();
+		},
+	);
+
+	it("checks the scopes before the consent", async () => {
+		const res = await approve(
+			ctx,
+			fake,
+			ATHLETE_A,
+			"read",
+			{},
+			{
+				consentVersion: 0,
+			},
+		);
+		expectNotice(res, "denied");
+		await expectNoRows();
+	});
+
+	it("checks the consent before the club", async () => {
+		fake.addAthlete({ id: ATHLETE_A, clubs: [OTHER_CLUB.id] });
+		const res = await approve(
+			ctx,
+			fake,
+			ATHLETE_A,
+			SCOPES_ALL,
+			{},
+			{
+				consentVersion: 0,
+			},
+		);
+		expectNotice(res, "consent-required");
+		expect(fake.callsTo("clubs")).toEqual([]);
+		await expectNoRows();
+	});
+
+	it("signs in an existing rider who came without a new agreement", async () => {
+		await seedExistingRider();
+		const res = await approve(
+			ctx,
+			fake,
+			ATHLETE_A,
+			SCOPES_ALL,
+			{},
+			{
+				consentVersion: 0,
+			},
+		);
+		expect(res.status).toBe(302);
+		expect(res.headers.get("Location")).toBe("/me");
+		expect(await consentRows()).toEqual([]);
+	});
+
+	it("records the consent of an existing rider without one", async () => {
+		await seedExistingRider();
+		await approve(ctx, fake, ATHLETE_A);
+		expect(await consentRows()).toEqual([
+			{ athlete_id: ATHLETE_A, version: 1, accepted_at: NOW },
+		]);
+	});
+
+	it("keeps an existing rider's first acceptance", async () => {
+		await seedExistingRider({ consentVersion: 1 });
+		ctx = makeCtx({ now: NOW + 3600 });
+		await approve(ctx, fake, ATHLETE_A);
+		expect(await consentRows()).toEqual([
+			{ athlete_id: ATHLETE_A, version: 1, accepted_at: NOW },
 		]);
 	});
 });

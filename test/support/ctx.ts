@@ -1,4 +1,5 @@
 import { env } from "cloudflare:test";
+import { CONSENT_VERSION } from "../../src/consent";
 import { encryptToken } from "../../src/crypto/encrypt";
 import type { Ctx } from "../../src/ctx";
 import {
@@ -61,6 +62,8 @@ export interface SeedRiderOptions {
 	status?: "connected" | "needs_reconnect";
 	reconnectRequestedAt?: number | null;
 	scopeReadAll?: boolean;
+	/** Defaults to false; true adds `activity:write` to the default scopes. */
+	scopeWrite?: boolean;
 	scopes?: string;
 	importStatus?: "pending" | "running" | "done";
 	/** Defaults to the current version; 0 is a rider stored before `0002`. */
@@ -68,6 +71,11 @@ export interface SeedRiderOptions {
 	accessToken?: string;
 	refreshToken?: string;
 	expiresAt?: number;
+	/**
+	 * Inserts a consent record of this version accepted now. Defaults to null:
+	 * no record, like a rider connected before `0004`.
+	 */
+	consentVersion?: number | null;
 }
 
 /** Inserts a rider and encrypted credentials straight into D1. */
@@ -77,6 +85,11 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 	const tokens = initialTokens(athleteId);
 	const status = options.status ?? "connected";
 	const scopeReadAll = options.scopeReadAll ?? true;
+	const scopeWrite = options.scopeWrite ?? false;
+	const defaultScopes =
+		(scopeReadAll
+			? "read,activity:read,activity:read_all"
+			: "read,activity:read") + (scopeWrite ? ",activity:write" : "");
 	const rider = {
 		athleteId,
 		accessToken: options.accessToken ?? tokens.accessToken,
@@ -84,21 +97,21 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 		expiresAt: options.expiresAt ?? now + 6 * 3600,
 	};
 	const key = ctx.env.TOKEN_ENCRYPTION_KEY;
+	const consentVersion = options.consentVersion ?? null;
 	await ctx.env.DB.batch([
 		ctx.env.DB.prepare(
-			`INSERT INTO riders (athlete_id, first_name, status, scope_read_all, scopes,
-				connected_at, scopes_updated_at, membership_checked_at, import_status,
-				reconnect_requested_at, figures_version)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			`INSERT INTO riders (athlete_id, first_name, status, scope_read_all,
+				scope_write, scopes, connected_at, scopes_updated_at,
+				membership_checked_at, import_status, reconnect_requested_at,
+				figures_version)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		).bind(
 			athleteId,
 			options.firstName ?? firstNameFor(athleteId),
 			status,
 			scopeReadAll ? 1 : 0,
-			options.scopes ??
-				(scopeReadAll
-					? "read,activity:read,activity:read_all"
-					: "read,activity:read"),
+			scopeWrite ? 1 : 0,
+			options.scopes ?? defaultScopes,
 			now,
 			now,
 			now,
@@ -117,6 +130,14 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 			await encryptToken(rider.refreshToken, key),
 			rider.expiresAt,
 		),
+		...(consentVersion === null
+			? []
+			: [
+					ctx.env.DB.prepare(
+						`INSERT INTO consent_records (athlete_id, version, accepted_at)
+						VALUES (?, ?, ?)`,
+					).bind(athleteId, consentVersion, now),
+				]),
 	]);
 	return rider;
 }
@@ -124,6 +145,7 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 /** Empties every table and resets the rate-limit row to zero usage. */
 export async function resetDb(): Promise<void> {
 	await env.DB.batch([
+		env.DB.prepare("DELETE FROM consent_records"),
 		env.DB.prepare("DELETE FROM failed_work"),
 		env.DB.prepare("DELETE FROM activities"),
 		env.DB.prepare("DELETE FROM strava_credentials"),
@@ -143,6 +165,7 @@ export async function tableCounts(): Promise<Record<string, number>> {
 		"riders",
 		"strava_credentials",
 		"activities",
+		"consent_records",
 		"failed_work",
 		"strava_rate_limit",
 	]) {
@@ -202,10 +225,13 @@ export async function sessionCookie(
 	return cookiePair(await createSessionCookie(athleteId, ctx.now(), ctx.env));
 }
 
-/** A valid signed `rp_oauth_state` cookie carrying `state`. */
+/** A valid signed `rp_oauth_state` cookie carrying `state` and a consent version. */
 export async function oauthStateCookie(
 	ctx: Ctx,
 	state: string,
+	consentVersion = CONSENT_VERSION,
 ): Promise<Record<string, string>> {
-	return cookiePair(await createOAuthStateCookie(state, ctx.now(), ctx.env));
+	return cookiePair(
+		await createOAuthStateCookie(state, consentVersion, ctx.now(), ctx.env),
+	);
 }

@@ -6,12 +6,14 @@ import { notFound } from "./errors";
 import { html, htmlResponse, layout } from "./html";
 
 // Public outcome pages with stable GET URLs (contracts/http-routes.md,
-// research R18). They show no rider data and need no session.
+// research R18). They show no rider data and need no session. Retry links go to
+// the start page, where the consent form is (R21).
 
 export const NOTICE_IDS = [
 	"expired",
 	"denied",
 	"denied-deleted",
+	"consent-required",
 	"team-full",
 	"failed",
 	"not-member",
@@ -43,6 +45,11 @@ const NOTICES: Record<NoticeId, Notice> = {
 	"denied-deleted": {
 		title: "notice.denied.title",
 		body: ["notice.denied.body", "notice.deleted.body"],
+		retry: true,
+	},
+	"consent-required": {
+		title: "notice.consentRequired.title",
+		body: ["notice.consentRequired.body", "notice.nothingStored"],
 		retry: true,
 	},
 	"team-full": {
@@ -97,7 +104,7 @@ export function handleNotice(id: string, ctx: Ctx, i18n: I18n): Response {
 			path,
 			body: html`<h1>${title}</h1>
 ${paragraphs}
-${notice.retry ? html`<p><a href="/connect">${i18n.t("notice.retry")}</a></p>` : ""}
+${notice.retry ? html`<p><a href="/">${i18n.t("notice.retry")}</a></p>` : ""}
 <p><a href="/">${i18n.t("notice.backToStart")}</a></p>`,
 		}),
 	);

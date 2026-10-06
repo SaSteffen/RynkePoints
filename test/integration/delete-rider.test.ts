@@ -66,10 +66,10 @@ async function deliver(body: WorkMessage, attempts = 1) {
 	};
 }
 
-/** Rider A with credentials, one activity and one failed_work row. */
+/** Rider A with credentials, consent, one activity and one failed_work row. */
 async function seedEverything(options: Parameters<typeof seedRider>[1] = {}) {
 	fake.addAthlete({ id: ATHLETE_A });
-	const rider = await seedRider(ctx, options);
+	const rider = await seedRider(ctx, { consentVersion: 1, ...options });
 	const activity = makeStravaActivity();
 	fake.addActivity(ATHLETE_A, activity);
 	const record = toActivityRecord(activity, ATHLETE_A, NOW);
@@ -85,6 +85,7 @@ async function seedEverything(options: Parameters<typeof seedRider>[1] = {}) {
 		riders: 1,
 		strava_credentials: 1,
 		activities: 1,
+		consent_records: 1,
 		failed_work: 1,
 	});
 	return { rider, activity };
@@ -95,6 +96,7 @@ async function expectNoRiderRows() {
 		riders: 0,
 		strava_credentials: 0,
 		activities: 0,
+		consent_records: 0,
 		failed_work: 0,
 	});
 }
