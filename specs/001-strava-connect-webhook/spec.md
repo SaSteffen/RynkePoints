@@ -38,6 +38,11 @@
   003-rynke-evaluation (FR-005b) gives manually entered activities no points, so
   the flag is needed to compute points. It comes with the activity data already
   fetched.
+- Q: What happens to activities stored before elapsed time and the manual flag
+  were added? → A: They are read from Strava again once, for every connected
+  rider, within Strava's limits (FR-021). Until then their two new figures are
+  unknown, never guessed. The explanation shown before connecting (FR-002) names
+  both figures.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -216,6 +221,11 @@ and no one else's.
   import is still running is stored exactly once.
 - **Activity changes sport type**: a stored ride changed to a non-cycling type is
   removed; a non-cycling activity changed to a cycling type is stored.
+- **Activities stored before a figure was added to FR-013**: when FR-013 gains a
+  figure (elapsed time, manual flag), activities already stored lack it. Every
+  connected rider's activities since the season start are read from Strava once
+  more, within Strava's limits (FR-021), and the figure is filled in. Until then
+  it is recorded as unknown, never as a guessed value such as 0 or "not manual".
 - **Strava rate limit reached**: notifications keep being acknowledged; fetching
   the details is deferred and retried later. No notification is lost.
 - **Strava temporarily unavailable**: same as rate limit — deferred and retried
@@ -250,7 +260,7 @@ and no one else's.
   Strava" button and attribution in the variant matching the page language
   (FR-028).
 - **FR-002**: Before redirecting to Strava, the system MUST tell the rider in plain
-  language which data will be read, what it is used for, how to leave, and how
+  language which data will be read (every figure listed in FR-013), what it is used for, how to leave, and how
   long deleted data remains in the hosting platform's backups (FR-022a).
 - **FR-003**: The system MUST request only the permission to read the rider's
   activities, at the level defined in FR-005; it MUST NOT request permission to
