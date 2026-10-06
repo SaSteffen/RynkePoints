@@ -140,7 +140,7 @@ versions.
   If a merge message is not ignored, stop and report it. That contradicts research R3 and needs a plan change, not a workaround in the workflow.
 - [ ] T008 [US1] Add a `## Contributing` section to `README.md`, before `## Project principles` (FR-021, SC-005). Write it for a new contributor who hasn't read the specs:
   - **Branch model**: `main` is the last released state, `develop` is the integration branch and the default.
-  - **How to propose a change**: cut a branch from `develop` and open a PR into `develop`. The PR title must be a Conventional Commit, because it becomes the squash commit message. GitHub appends ` (#<number>)`, and the whole header must stay within 100 characters, so keep titles to about 90. Features are squash-merged.
+  - **How to propose a change**: cut a branch from `develop` and open a PR into `develop`. The PR title must be a Conventional Commit, because it becomes the squash commit message, and the only part of it (the body is left blank, so the PR holds the details). GitHub appends ` (#<number>)`, and the whole header must stay within 100 characters, so keep titles to about 90. Features are squash-merged.
   - **What has to pass**: a list of the checks so far (`lint`, `typecheck`, `test`, `commit-messages`, `pr-title`), each with the local command it mirrors, using the commands in contracts/required-checks.md. Note that the local lefthook hooks run the same tools before each commit.
   - **Rerunning checks**: a failed check can be re-run from the PR's Checks tab without a new commit, for flaky or infrastructure failures (spec edge case).
   - **Fork PRs**: they get the same checks without secrets. First-time contributors wait for the maintainer to approve the run.
@@ -190,7 +190,7 @@ versions.
 - [ ] T012 [P] [US2] Create `.github/repository-settings.md`, the settings that live outside rulesets (research R9, data-model.md "Repository settings"). For each setting give its value, its UI path under **Settings**, the `gh` command that applies it, and a read-only `gh api … --jq` command that shows the current value:
   - **default branch `develop`** (FR-002): `gh repo edit SaSteffen/RynkePoints --default-branch develop`;
   - **merge buttons**: squash on, merge commits on, rebase off. `gh repo edit SaSteffen/RynkePoints --enable-squash-merge --enable-merge-commit --enable-rebase-merge=false`;
-  - **squash commit title = PR title, message = commit messages**: `gh api --method PATCH repos/SaSteffen/RynkePoints -f squash_merge_commit_title=PR_TITLE -f squash_merge_commit_message=COMMIT_MESSAGES`;
+  - **squash commit title = PR title, message = blank** (research R5): `gh api --method PATCH repos/SaSteffen/RynkePoints -f squash_merge_commit_title=PR_TITLE -f squash_merge_commit_message=BLANK`. Explain in one sentence why the message is blank: a "commit messages" body prefixes each subject with `* `, which can push a valid subject over commitlint's 100-character body-line limit on `develop`;
   - **automatically delete head branches**: `gh repo edit SaSteffen/RynkePoints --delete-branch-on-merge`. Note that GitHub never deletes the default branch or a branch protected against deletion, so `develop` is safe;
   - **Actions workflow permissions**: read-only, and Actions may not create or approve PRs. `gh api --method PUT repos/SaSteffen/RynkePoints/actions/permissions/workflow -f default_workflow_permissions=read -F can_approve_pull_request_reviews=false`;
   - **fork PR approval**: keep GitHub's default, so first-time contributors need approval. Give the UI path (**Settings → Actions → General → Fork pull request workflows**). Give the read-only API call only if the endpoint is confirmed in the GitHub REST docs when the file is written; otherwise say "check in the UI".
@@ -324,7 +324,7 @@ versions.
   - V4: deleting `develop`;
   - V13: merging a red PR. No bypass option is offered.
 - [ ] T026 [US1] Validation V5–V12, V15 and V16 (quickstart.md §3), each on a throwaway branch from `develop`:
-  - V5: all six checks green, and **Squash and merge** is offered;
+  - V5: all six checks green, and **Squash and merge** is offered. After merging, `git log -1 --format=%B origin/develop` is just `<title> (#N)` with no body;
   - V6: a failing test turns `test` red;
   - V7: a Biome error turns `lint` red with an inline annotation;
   - V8: a type error turns `typecheck` red;

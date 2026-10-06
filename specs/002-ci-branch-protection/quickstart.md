@@ -44,7 +44,7 @@ where the table says otherwise.
 | V2 | US2-2 | same against `develop` | rejected |
 | V3 | US2-3 | `git push --force origin <rewritten>:develop` | rejected (non-fast-forward rule) |
 | V4 | US2-4 | `git push origin :develop` | rejected (deletion rule) |
-| V5 | US1-1 | PR into `develop` with a trivial doc change | all six checks green; merge offers **Squash and merge** |
+| V5 | US1-1 | PR into `develop` with a trivial doc change | all six checks green; merge offers **Squash and merge**; after merging, `git log -1 --format=%B origin/develop` is just `<title> (#N)` |
 | V6 | US1-2 | PR with an obviously failing test | `test` red with the failing test in its log; merge blocked |
 | V7 | US1 / FR-010 | PR with a Biome error | `lint` red with an inline annotation; blocked |
 | V8 | US1 / FR-010 | PR with a type error | `typecheck` red; blocked |

@@ -112,6 +112,16 @@ against the GitHub REST and ruleset docs on 2026-10-06.
     The squash commit title is set to the **PR title**, so a single-commit PR
     doesn't fall back to its commit subject. GitHub appends ` (#<PR number>)`
     to it, which `pr-title` accounts for (R3).
+  - The squash commit message (body) is set to **blank**, so the squash commit
+    is exactly `<PR title> (#<PR number>)`. The `(#N)` links to the PR, which
+    keeps the individual commits.
+    - The alternative, "commit messages", lists each commit as `* <subject>`.
+      A valid 99–100 character subject then becomes a 101–102 character body
+      line, which breaks the preset's `body-max-line-length` (100). That commit
+      can't be rewritten on the protected `develop`, so it would fail
+      `commit-messages` on every later release PR.
+    - "PR description" has the same problem with long Markdown lines, and the
+      description is never linted.
   - `develop` ruleset: `allowed_merge_methods: ["squash", "merge"]`.
   - `main` ruleset: `allowed_merge_methods: ["merge"]`.
 - **Why `develop` also allows `merge`**: back-merges into `develop` (R7) must be
@@ -213,8 +223,7 @@ against the GitHub REST and ruleset docs on 2026-10-06.
 - **Decision**: The maintainer applies these once and records them in
   `.github/repository-settings.md`:
   - Default branch: `develop`.
-  - Allow squash merging: on, with title = PR title and message = commit
-    messages. Allow merge commits: on. Allow rebase merging: off.
+  - Allow squash merging: on, with title = PR title and message = blank (R5). Allow merge commits: on. Allow rebase merging: off.
   - Automatically delete head branches: on. GitHub never deletes the default
     branch or a branch protected against deletion, so `develop` is safe.
   - Actions, workflow permissions: read repository contents only, and don't
