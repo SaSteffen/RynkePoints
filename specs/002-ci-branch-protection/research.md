@@ -47,7 +47,7 @@ against the GitHub REST and ruleset docs on 2026-10-06.
   | `typecheck` | `ci.yml` | `pnpm typecheck` |
   | `test` | `ci.yml` | `pnpm test` |
   | `commit-messages` | `ci.yml` | `pnpm commitlint --from <base sha> --to <head sha>` |
-  | `pr-title` | `pr-policy.yml` | PR title piped into `pnpm commitlint` |
+  | `pr-title` | `pr-policy.yml` | `<PR title> (#<PR number>)` piped into `pnpm commitlint` |
   | `pr-source` | `pr-policy.yml` | source-branch rule for PRs into `main` (R6) |
 
   The exact contract is in [contracts/required-checks.md](contracts/required-checks.md).
@@ -62,6 +62,15 @@ against the GitHub REST and ruleset docs on 2026-10-06.
     `@commitlint/config-conventional` preset. That preset's default ignores
     already skip GitHub's `Merge pull request #…` and `Merge branch …` messages,
     so release and back-merge pull requests pass without special cases.
+  - `pr-title` lints the header exactly as it will land on `develop`. GitHub
+    appends ` (#<PR number>)` to the PR title when it squashes (R5), and the
+    preset caps headers at 100 characters (`header-max-length`).
+    - Linting the bare title would let a 95–100 character title pass. Its squash
+      commit would then break that cap.
+    - That commit can't be rewritten on the protected `develop`, so it would
+      fail `commit-messages` on every later release pull request.
+    - Linting the real header avoids a separate title-length rule that could
+      drift from `commitlint.config.js`.
 - **Fail-closed behaviour**: GitHub treats a required check that never reported as
   pending, so the merge stays blocked (spec edge case "checks that never report").
 - **Alternatives considered**:
@@ -101,7 +110,8 @@ against the GitHub REST and ruleset docs on 2026-10-06.
 - **Decision**:
   - Repository settings allow **squash** and **merge commit** and disable rebase.
     The squash commit title is set to the **PR title**, so a single-commit PR
-    doesn't fall back to its commit subject.
+    doesn't fall back to its commit subject. GitHub appends ` (#<PR number>)`
+    to it, which `pr-title` accounts for (R3).
   - `develop` ruleset: `allowed_merge_methods: ["squash", "merge"]`.
   - `main` ruleset: `allowed_merge_methods: ["merge"]`.
 - **Why `develop` also allows `merge`**: back-merges into `develop` (R7) must be
@@ -173,7 +183,11 @@ against the GitHub REST and ruleset docs on 2026-10-06.
     3. `pnpm install --frozen-lockfile`;
     4. sets `LEFTHOOK=0`, so `prepare` doesn't install git hooks on the runner.
   - Every job runs on `ubuntu-latest` with `timeout-minutes`: 5 each for `lint`,
-    `typecheck` and `commit-messages`, 10 for `test`, 2 for the policy jobs.
+    `typecheck`, `commit-messages` and `pr-title`, 10 for `test`, 2 for
+    `pr-source`. `pr-title` runs the full setup action, including
+    `pnpm install`, so it gets the same limit as the other install-based jobs
+    rather than risking a timeout on a cold pnpm cache. `pr-source` needs no
+    checkout or install.
   - Concurrency group: `<workflow>-<PR number or ref>`, with
     `cancel-in-progress` only for `pull_request` events. Pushes to `main` and
     `develop` are never cancelled.

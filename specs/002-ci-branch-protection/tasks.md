@@ -123,12 +123,14 @@ versions.
   - `name: PR policy`;
   - `on: pull_request: types: [opened, edited, synchronize, reopened]` and `branches: [main, develop]`. A title edit then re-runs only this cheap workflow, not the test suite;
   - top-level `permissions: contents: read`, and the same `concurrency` block as `ci.yml`;
-  - job `pr-title`: `name: pr-title`, `runs-on: ubuntu-latest`, `timeout-minutes: 2`. It checks out (pinned from T001), runs `uses: ./.github/actions/setup`, then a step with `env: PR_TITLE: ${{ github.event.pull_request.title }}` and `run: printf '%s\n' "$PR_TITLE" | pnpm commitlint --verbose`.
+  - job `pr-title`: `name: pr-title`, `runs-on: ubuntu-latest`, `timeout-minutes: 5`. It checks out (pinned from T001), runs `uses: ./.github/actions/setup`, then a step with `env:` `PR_TITLE: ${{ github.event.pull_request.title }}` and `PR_NUMBER: ${{ github.event.pull_request.number }}`, and `run: printf '%s (#%s)\n' "$PR_TITLE" "$PR_NUMBER" | pnpm commitlint --verbose`.
 
-  The title must never appear as `${{ … }}` inside `run:`, which would allow script injection (research R4). Leave room in this file for the `pr-source` job (T014).
+  This lints the header GitHub will give the squash commit, so a title too long once ` (#N)` is appended fails here instead of landing on `develop` (contracts/required-checks.md "`pr-title` inputs", research R3). The title must never appear as `${{ … }}` inside `run:`, which would allow script injection (research R4). Leave room in this file for the `pr-source` job (T014).
 - [ ] T007 [US1] Local red-green dry-run of the commit-message and title commands. Nothing is committed. Run from the repo root:
-  - red: `printf '%s\n' 'update stuff' | pnpm commitlint --verbose` and `printf '%s\n' 'wip' | pnpm commitlint --verbose` both exit non-zero (V9, V10);
-  - green: `printf '%s\n' 'ci: gate pull requests and protect main and develop' | pnpm commitlint --verbose` exits 0;
+  - red: `printf '%s\n' 'wip' | pnpm commitlint --verbose` exits non-zero (V9);
+  - red, the T006 title form: `PR_TITLE='update stuff' PR_NUMBER=12 sh -c 'printf "%s (#%s)\n" "$PR_TITLE" "$PR_NUMBER"' | pnpm commitlint --verbose` exits non-zero (V10);
+  - red, too long once the number is appended: the same command with `PR_TITLE="docs: $(printf 'a%.0s' $(seq 92))"` (98 characters, valid alone) and `PR_NUMBER=12` exits non-zero on `header-max-length`. Confirm the bare title alone (`printf '%s\n' "$PR_TITLE" | pnpm commitlint`) exits 0, which shows why the suffix matters;
+  - green: the T006 title form with `PR_TITLE='ci: gate pull requests and protect main and develop'` and `PR_NUMBER=12` exits 0;
   - green, merge messages ignored: these three exit 0:
     - `printf '%s\n' 'Merge pull request #12 from SaSteffen/develop' | pnpm commitlint`
     - `printf '%s\n' "Merge remote-tracking branch 'origin/develop' into sync/example" | pnpm commitlint`
@@ -138,7 +140,7 @@ versions.
   If a merge message is not ignored, stop and report it. That contradicts research R3 and needs a plan change, not a workaround in the workflow.
 - [ ] T008 [US1] Add a `## Contributing` section to `README.md`, before `## Project principles` (FR-021, SC-005). Write it for a new contributor who hasn't read the specs:
   - **Branch model**: `main` is the last released state, `develop` is the integration branch and the default.
-  - **How to propose a change**: cut a branch from `develop` and open a PR into `develop`. The PR title must be a Conventional Commit, because it becomes the squash commit message. Features are squash-merged.
+  - **How to propose a change**: cut a branch from `develop` and open a PR into `develop`. The PR title must be a Conventional Commit, because it becomes the squash commit message. GitHub appends ` (#<number>)`, and the whole header must stay within 100 characters, so keep titles to about 90. Features are squash-merged.
   - **What has to pass**: a list of the checks so far (`lint`, `typecheck`, `test`, `commit-messages`, `pr-title`), each with the local command it mirrors, using the commands in contracts/required-checks.md. Note that the local lefthook hooks run the same tools before each commit.
   - **Rerunning checks**: a failed check can be re-run from the PR's Checks tab without a new commit, for flaky or infrastructure failures (spec edge case).
   - **Fork PRs**: they get the same checks without secrets. First-time contributors wait for the maintainer to approve the run.
@@ -308,7 +310,7 @@ versions.
   Expected:
   - the PR shows all six checks green (`lint`, `typecheck`, `test`, `commit-messages`, `pr-title`, `pr-source`);
   - all results arrive within 10 minutes of the push (SC-003). Note the actual duration;
-  - `pr-title` and `pr-source` finish within their 2-minute limit. If `pr-title` times out on a cold pnpm cache, raise its limit in `pr-policy.yml` **and** in contracts/required-checks.md, rather than silently diverging.
+  - every job finishes within its limit from contracts/required-checks.md. If one times out, change the limit in the workflow **and** in the contract, rather than letting them drift apart.
 
   Then squash-merge the PR.
 - [ ] T024 Apply the repository settings from `.github/repository-settings.md` and create both rulesets with `.github/rulesets/README.md`, following quickstart.md §2 (research R11 step 4). Run each verify command. Expected:
@@ -327,7 +329,7 @@ versions.
   - V7: a Biome error turns `lint` red with an inline annotation;
   - V8: a type error turns `typecheck` red;
   - V9: a `--no-verify` commit with the message `wip` turns `commit-messages` red;
-  - V10: changing the title to `update stuff` re-runs only `pr-title`, which turns red, then green again when the title is changed back;
+  - V10: changing the title to `update stuff`, then to a valid 98-character `docs: …` title, re-runs only `pr-title`, which turns red both times, then green again when the title is changed back;
   - V11: a fix commit re-runs the checks;
   - V12: an out-of-date PR into `develop` is blocked until **Update branch**;
   - V15: a fork PR gets the same six checks without secrets;

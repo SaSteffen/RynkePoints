@@ -10,7 +10,7 @@ A rename on either side without the other blocks every pull request.
 | `typecheck` | `ci.yml` | PR, push to `main`/`develop` | `pnpm typecheck` | 5 min | `tsc --noEmit` exits 0 |
 | `test` | `ci.yml` | PR, push to `main`/`develop` | `pnpm test` | 10 min | all Vitest tests pass |
 | `commit-messages` | `ci.yml` | PR | `pnpm commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose` | 5 min | every commit in the PR passes `commitlint.config.js` (merge commits ignored by preset) |
-| `pr-title` | `pr-policy.yml` | PR `opened`/`edited`/`synchronize`/`reopened` | `printf '%s\n' "$PR_TITLE" \| pnpm commitlint --verbose` | 2 min | the title is a valid Conventional Commit subject |
+| `pr-title` | `pr-policy.yml` | PR `opened`/`edited`/`synchronize`/`reopened` | `printf '%s (#%s)\n' "$PR_TITLE" "$PR_NUMBER" \| pnpm commitlint --verbose` | 5 min | the squash commit header GitHub will create (title + ` (#<number>)`) is a valid Conventional Commit header within the 100-character limit |
 | `pr-source` | `pr-policy.yml` | same as `pr-title` | see rule below | 2 min | see rule below |
 
 ## Shared setup (every job except `pr-source`)
@@ -22,6 +22,18 @@ Every job except `pr-source` does the same setup before its command:
   from `.nvmrc`, pnpm cache, `pnpm install --frozen-lockfile`, `LEFTHOOK=0`.
 
 `pr-source` needs no checkout.
+
+## `pr-title` inputs
+
+Passed only through `env:`:
+
+- `PR_TITLE` = `github.event.pull_request.title`
+- `PR_NUMBER` = `github.event.pull_request.number`
+
+The check lints `<PR_TITLE> (#<PR_NUMBER>)`, the header GitHub gives the squash
+commit (research R3, R5). The bare title would let a 95–100 character title pass
+whose squash commit then breaks commitlint's 100-character header limit on
+`develop`.
 
 ## `pr-source` rule
 

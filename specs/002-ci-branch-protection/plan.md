@@ -18,8 +18,10 @@ Two GitHub Actions workflows provide the checks:
 - `ci.yml`: `lint`, `typecheck`, `test` (the project's own `pnpm` scripts) and
   `commit-messages` (commitlint over the PR's commits). The first three also run
   on pushes to both branches.
-- `pr-policy.yml`: `pr-title` (commitlint on the title, which becomes the squash
-  commit message) and `pr-source` (only `develop` or `hotfix/*` may target `main`).
+- `pr-policy.yml`: `pr-title` and `pr-source`.
+  - `pr-title` runs commitlint on the squash commit header GitHub will create:
+    the title plus ` (#<number>)` (R3).
+  - `pr-source` allows only `develop` or `hotfix/*` to target `main`.
 
 How each branch merges:
 

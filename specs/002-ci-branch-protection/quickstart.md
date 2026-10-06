@@ -49,7 +49,7 @@ where the table says otherwise.
 | V7 | US1 / FR-010 | PR with a Biome error | `lint` red with an inline annotation; blocked |
 | V8 | US1 / FR-010 | PR with a type error | `typecheck` red; blocked |
 | V9 | US1-3 | PR containing a commit made with `--no-verify` and message `wip` | `commit-messages` red; blocked |
-| V10 | FR-010 (5) | rename the V5 PR title to `update stuff` | only `pr-title` re-runs, turns red, blocks; renaming back turns it green |
+| V10 | FR-010 (5) | rename the V5 PR title to `update stuff`, then to a valid `docs: …` title of 98 characters | only `pr-title` re-runs and turns red both times (the second because title + ` (#N)` exceeds 100 characters); renaming back turns it green |
 | V11 | US1-4 / FR-013 | push a fixing commit to V6 | checks re-run; earlier red results no longer shown as current; green → mergeable |
 | V12 | US1-5 / FR-008 | after merging V5, look at another open PR into `develop` | "out of date"; merge blocked until **Update branch** and green checks |
 | V13 | US2-5 / FR-009 | try to merge V6 while red, as owner | no bypass option; merge refused |
