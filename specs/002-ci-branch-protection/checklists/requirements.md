@@ -47,4 +47,13 @@
 - Enabling protection and changing the default branch are manual repository-settings
   steps (Assumptions), so the plan's tasks should end with a checklist the maintainer
   runs, not with commands run on their behalf.
+- Amendment 2026-10-06 (deploy on merge to `main`, User Story 5, FR-023–FR-034):
+  clarified the same day that deployments apply pending migrations first,
+  forward-only, and publish no code if one fails (FR-035, FR-036).
+- The constitution's Development Workflow rule and the CLAUDE.md non-negotiable were
+  amended (constitution 1.2.0) so that merging into `main` is the sanctioned way to
+  deploy; the plan's Constitution Check should cite 1.2.0.
+- Which mechanism serialises deployments, scopes the credential to `main` and offers
+  the manual re-deploy (e.g. a deployment environment with a branch rule) is left to
+  the plan.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`

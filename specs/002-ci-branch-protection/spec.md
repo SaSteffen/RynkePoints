@@ -4,11 +4,16 @@
 
 **Created**: 2026-10-06
 
-**Status**: Final
+**Status**: Draft (amendment: deploy on merge to `main`)
 
 **Input**: User description: "Proper CI for the repository: introduce a develop and a
 main branch. CI gates pull requests (merge requests). No one may push directly to
 main. Every change goes through a PR."
+
+**Amendment** (2026-10-06, branch `002-deploy-on-main`): "I want to publish when
+merging to main." User Stories 1–4 are implemented; the amendment adds User Story 5
+and FR-023 to FR-036, and revises FR-018, FR-021 and the Assumptions that kept
+deploying out of scope.
 
 ## Clarifications
 
@@ -26,6 +31,10 @@ main. Every change goes through a PR."
   `develop` to include it would be a forbidden direct push. For the same reason a
   hotfix returns to `develop` through a back-merge branch (`sync/…`) cut from
   `main` with `develop` merged in, not through a pull request from `main` itself.
+- Q: Should a deployment from `main` apply pending production database migrations
+  itself, or leave them to the maintainer? → A: Apply them automatically, before
+  publishing the code, forward-only (never rolled back). If a migration fails, the
+  deployment stops without publishing the code.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -157,6 +166,50 @@ request, then carry it back through a back-merge branch and a pull request into
 
 ---
 
+### User Story 5 - Merging into `main` publishes the app (Priority: P2)
+
+When a release (`develop` → `main`) or hotfix pull request is merged, the
+repository publishes the new state of `main` to production by itself: once the
+required checks have passed on the merged commit, the Worker is deployed and riders
+use the new version without the maintainer running anything on their own machine.
+Merging into `main` is therefore the one deliberate act that releases a change, and
+production always runs what `main` holds.
+
+**Why this priority**: `main` is defined as "the last released state" (FR-001), but
+today releasing still needs a second, manual deploy from a laptop that can drift from
+`main` (wrong branch, local changes, forgotten step). Tying the deploy to the merge
+makes `main` and production the same thing. It builds on User Stories 2 and 3: only
+because nothing reaches `main` unchecked is it safe to deploy whatever lands there.
+
+**Independent Test**: Merge a release pull request with a visible change (e.g. a
+changed text on the start page) into `main`; without any further action, confirm the
+change is live in production within the time of SC-008, and that the deployment
+history names the merged commit. Merge a pull request into `develop` and confirm
+production does not change.
+
+**Acceptance Scenarios**:
+
+1. **Given** a release pull request was merged into `main`, **When** the required
+   checks pass on the resulting commit of `main`, **Then** that commit is deployed to
+   production without further action and the deployment is recorded with the commit
+   it came from.
+2. **Given** a hotfix pull request was merged into `main`, **When** the checks pass,
+   **Then** it is deployed the same way.
+3. **Given** a commit on `main` whose checks fail, **When** the checks finish,
+   **Then** nothing is deployed and production keeps running the previous version.
+4. **Given** a pull request merged into `develop` (feature or back-merge), **When**
+   its checks pass, **Then** nothing is deployed.
+5. **Given** a deployment fails part-way (e.g. the hosting platform is unavailable),
+   **When** it ends, **Then** the failure is reported on the commit of `main`, the
+   maintainer is notified, and production keeps running the previous version.
+6. **Given** a failed deployment or a production problem unrelated to code (e.g. a
+   rotated secret), **When** the maintainer asks for it, **Then** the current state of
+   `main` can be deployed again without a new commit or pull request.
+7. **Given** a pull request from a fork or any branch, **When** its checks run,
+   **Then** they have no access to the deploy credential and cannot deploy.
+
+---
+
 ### Edge Cases
 
 - **Pull requests from forks** (the repository is public): checks run on them, but
@@ -184,6 +237,29 @@ request, then carry it back through a back-merge branch and a pull request into
 - **Secrets accidentally committed** in a pull request: out of scope for automated
   detection in this feature (see Assumptions), but the gate MUST NOT print or expose
   any secret in its logs.
+- **Two merges into `main` in quick succession**: deployments never run in parallel
+  and a running deployment is never cut off half-way. Production ends up on the
+  newest commit of `main`; an older deployment still waiting may be skipped, but an
+  older commit is never deployed after a newer one.
+- **Database schema changes**: a release can contain a new migration in
+  `migrations/` whose code relies on it. Deploying that code against the old schema
+  would break the app. The deployment therefore applies pending migrations first and
+  publishes the code only if they all succeeded (FR-035). Because the previous
+  version keeps running while migrations apply, and keeps running if publishing the
+  code fails afterwards, a migration must leave the previous version working
+  (FR-036).
+- **Production not yet set up**: before the one-time production setup (database,
+  queue, secrets, custom domain, Strava webhook subscription; see 001 quickstart) has
+  been done, a merge into `main` fails its deployment visibly instead of creating
+  production resources on its own.
+- **Configuration in the repository**: the deployed configuration is the one
+  committed on `main` (team settings in `wrangler.jsonc`). A setting meant to change
+  in production changes through a pull request, not by editing production by hand.
+- **Changes that touch only documentation or specs** reaching `main` are deployed
+  like any other; deploying unchanged code is harmless and keeps the rule simple.
+- **Deploy credential leaked or revoked**: deployments fail until the maintainer
+  replaces it; production keeps running. The credential can only deploy this app, so
+  a leak cannot touch other resources of the account.
 
 ## Requirements *(mandatory)*
 
@@ -256,8 +332,8 @@ request, then carry it back through a back-merge branch and a pull request into
   production Cloudflare resources, or the real Strava API (constitution Principle I,
   Principle V, CLAUDE.md non-negotiables).
 - **FR-018**: The checks MUST NOT deploy anything, change production secrets, run
-  remote database commands, or change the Strava webhook subscription — deploying
-  stays a manual, deliberate step (constitution Development Workflow).
+  remote database commands, or change the Strava webhook subscription. Deploying is
+  a separate step that only runs for `main` (FR-023 to FR-036).
 - **FR-019**: The checks MUST run with the least repository permissions needed to read
   the code and report results; they MUST NOT be able to push to the repository.
 - **FR-020**: Pull requests from forks MUST be checked the same way as pull requests
@@ -268,11 +344,61 @@ request, then carry it back through a back-merge branch and a pull request into
 
 - **FR-021**: The project documentation (README and CLAUDE.md) MUST describe the
   branch model, the pull-request-only rule, the release (`develop` → `main`) and
-  hotfix paths, and which checks gate a merge.
+  hotfix paths, which checks gate a merge, and that merging into `main` deploys to
+  production (including the manual re-deploy and rollback).
 - **FR-022**: The protection settings for `main` and `develop` MUST be written down in
   the repository in a form that lets the maintainer re-apply them and verify they are
   still in effect, because they live in the hosting platform's settings rather than in
   the code.
+
+**Deploying on merge to `main`**
+
+- **FR-023**: Every new commit on `main` MUST be deployed to production automatically
+  once all checks of FR-012 have passed on that commit. No other branch, pull request
+  or event MAY deploy to production, except the manual re-deploy of FR-030.
+- **FR-024**: A commit on `main` whose checks failed, were cancelled or did not finish
+  MUST NOT be deployed.
+- **FR-025**: The deployed version MUST be built from exactly the merged commit, with
+  the dependency and tool versions of FR-011; nothing from outside the repository
+  (local files, uncommitted changes, a contributor's machine) MAY enter it.
+- **FR-026**: Deployments MUST run one at a time. A running deployment MUST NOT be
+  cancelled by a newer commit; a waiting one MAY be skipped in favour of a newer
+  commit, but an older commit MUST NEVER be deployed after a newer one.
+- **FR-027**: Each deployment MUST be recorded with the commit it deployed and its
+  outcome, visible on the repository, so the maintainer can tell which commit of
+  `main` production runs.
+- **FR-028**: A failed deployment MUST be reported on the commit of `main` with the
+  relevant output, MUST notify the maintainer, and MUST leave the previously deployed
+  version running.
+- **FR-029**: Deploying MUST only update the app's code, static assets and the
+  configuration committed in the repository, and apply pending database migrations
+  (FR-035). It MUST NOT change production secrets, create or
+  delete production resources (database, queue, domain), or change the Strava webhook
+  subscription; those stay manual steps.
+- **FR-030**: The maintainer MUST be able to deploy the current state of `main` again
+  on demand, without a new commit or pull request (e.g. after a failed deployment or a
+  rotated secret). Deploying any other branch or an older commit this way MUST NOT be
+  possible.
+- **FR-031**: The deploy credential MUST be stored in the hosting platform's secret
+  store, MUST be available only to the deploy step running for `main`, and MUST NOT be
+  readable by pull request checks, fork pull requests or any other branch.
+- **FR-032**: The deploy credential MUST be limited to what deploying this app needs;
+  it MUST NOT be able to read or change other projects or account settings of the
+  hosting account.
+- **FR-033**: The deploy step MUST NOT print secrets or rider data in its logs.
+- **FR-034**: The way to roll back — re-deploying a previous version — MUST be
+  documented, including that the next merge into `main` deploys `main` again, and
+  that a rollback does not undo database migrations.
+- **FR-035**: Before publishing the code, a deployment MUST apply every migration in
+  `migrations/` that the production database has not applied yet, in order, and
+  forward-only: migrations are never rolled back automatically. If a migration
+  fails, the deployment MUST stop without publishing the code and MUST be reported
+  as failed (FR-028).
+- **FR-036**: Every migration MUST keep the version deployed before it working (e.g.
+  add tables and columns rather than rename or drop them in the same release), so
+  that riders are not affected while it is applied or when publishing the code
+  fails afterwards. Removing what the old version still needs happens in a later
+  release.
 
 ### Key Entities
 
@@ -290,6 +416,11 @@ request, then carry it back through a back-merge branch and a pull request into
 - **Protection rule set**: the set of restrictions on a long-lived branch (no direct
   push, no force push, no deletion, required checks, up-to-date requirement, allowed
   source branches, no bypass).
+- **Production deployment**: one publication of a commit of `main` to the production
+  Worker. Records the commit, the time and the outcome; at most one runs at a time.
+- **Deploy credential**: the secret that allows publishing this app to the hosting
+  account. Scoped to deploying this app, held in the repository's secret store and
+  released only to deployments from `main`.
 
 ## Success Criteria *(mandatory)*
 
@@ -306,9 +437,20 @@ request, then carry it back through a back-merge branch and a pull request into
 - **SC-005**: A new contributor can find, from the README alone, how to propose a
   change and what has to pass before it is merged, without asking the maintainer.
 - **SC-006**: Running the checks never touches production: zero deploys, secret
-  changes, remote database commands or Strava API calls are triggered by CI.
+  changes, remote database commands or Strava API calls are triggered by pull
+  request checks or by pushes to any branch other than `main`.
 - **SC-007**: Checking all open pull requests stays within the hosting platform's free
   allowance for public repositories (constitution Principle IV: no operations budget).
+- **SC-008**: After a pull request is merged into `main`, production runs the merged
+  commit within 15 minutes in 100% of cases where the checks and the deployment
+  succeed, without any action by the maintainer.
+- **SC-009**: 100% of production deployments after this amendment is enabled come from
+  a commit of `main` whose checks passed; zero come from another branch, a pull
+  request or a contributor's machine.
+- **SC-010**: For any point in time, the maintainer can tell from the repository alone
+  which commit of `main` production was running.
+- **SC-011**: A failed deployment leaves the previous version serving riders in 100%
+  of cases.
 
 ## Assumptions
 
@@ -329,8 +471,26 @@ request, then carry it back through a back-merge branch and a pull request into
 - The pending local commits on `main` are pushed to the shared repository once, before
   protection is switched on; this one-time bootstrap push is the last direct push to
   `main`.
-- Continuous deployment (automatically deploying `main` to Cloudflare) is out of
-  scope; deploying stays manual per the constitution. A later feature may add it.
+- "Publish" means deploying the Worker to production on Cloudflare (the app at its
+  custom domain), not creating a release, tag or package.
+- Merging a pull request into `main` is the deliberate act that releases a change, so
+  automatic deployment from `main` replaces the manual `pnpm run deploy`
+  (constitution 1.2.0, Development Workflow). Changing production secrets,
+  production data other than through migrations, production resources and the
+  Strava webhook subscription stay manual.
+- One environment, production. There is no staging deployment of `develop`; a later
+  feature may add one.
+- The one-time production setup from the 001 quickstart (creating the database and
+  queue, setting secrets, custom domain, webhook subscription) is done by the
+  maintainer before the first automatic deployment, and creating the deploy
+  credential and storing it in the repository's secret store is a manual step like
+  applying the rulesets.
+- The maintainer is the only person allowed to trigger a manual re-deploy (FR-030).
+  Merging is already limited by the rulesets, so no extra human approval is required
+  before an automatic deployment.
+- Deploying from a local machine stays technically possible for the maintainer but is
+  no longer the documented way to release; the documentation names it as a
+  break-glass path only.
 - Automated dependency updates, secret scanning, code coverage thresholds and release
   tagging/versioning are out of scope for this feature.
 - The local git hooks (Biome, `tsc`, commitlint via lefthook) stay as they are; CI
