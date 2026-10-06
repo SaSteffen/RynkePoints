@@ -44,13 +44,19 @@ athlete capacity; say plainly if the leaderboard is not allowed.
   individual parts. The constitution is amended to 2.0.0 (one required consent at
   connect, private activities optional, no switch for description edits), and there
   is no per-rider switch for writing the Rynke block (FR-016).
+- Q (raised by the project owner): What does the team leaderboard show about other
+  riders? → A: Only accumulated Rynke, without names: no rider's name is shown to
+  other riders, and the leaderboard will probably get a week-by-week graph. Names
+  are shown to organisers only, and only the Strava first name the app already
+  keeps; no last name is stored (FR-022).
 
 ## Summary of the Strava check
 
 The team leaderboard **is allowed**. Strava's terms forbid showing a rider's data
 to anyone else without that rider's prior express consent; they say nothing against
 leaderboards, rankings or clubs as such (F-1). Every rider gives that consent when
-connecting (FR-010).
+connecting (FR-010), and the leaderboard shows other riders' Rynke without names
+(FR-020).
 
 - **Capacity** (F-5): without Strava's review the app can connect at most 10
   athletes, fewer than the team has. The review is discretionary and has no time
@@ -64,8 +70,8 @@ connecting (FR-010).
 Terms: a **rider** is a connected club member (feature 001). An **organiser** is a
 rider whose Strava athlete ID is on the organiser list. The **consent** is what a
 rider agrees to when connecting: reading their activities, the app writing its Rynke
-block into their activity descriptions, and sharing their Rynke with organisers and
-the team as in FR-020. The **planned views** are the organiser pages
+block into their activity descriptions, and sharing their Rynke with organisers (by
+first name) and the team (without a name) as in FR-020. The **planned views** are the organiser pages
 (organiser-admin), the organiser overview and the team leaderboard
 (team-leaderboard) from [specs/backlog/](../backlog/README.md); this feature builds
 none of them, it defines what they may show.
@@ -74,8 +80,9 @@ none of them, it defines what they may show.
 
 A club member opens RynkePoints and, before going to Strava, reads in plain words
 what taking part means: the app reads their rides, writes a short Rynke block into
-their ride descriptions on Strava once that feature ships, and shows their name
-and Rynke to the organisers and to the team. The page shows the name others will see. They agree and go on to Strava,
+their ride descriptions on Strava once that feature ships, shows their first name
+and Rynke to the organisers, and shows their accumulated Rynke to the team without
+their name. They agree and go on to Strava,
 which asks for read and write access to their activities; they may leave out their
 private ("Only You") activities. Back on RynkePoints they are connected, and the
 date and the version of what they agreed to are recorded.
@@ -93,7 +100,7 @@ recorded with date and version.
 
 1. **Given** a club member on the public page, **When** they start connecting,
    **Then** they see what is read, what is written and what is shared with whom,
-   the name others will see, how to leave and that leaving deletes their data,
+   with or without their name, how to leave and that leaving deletes their data,
    before anything is sent to Strava.
 2. **Given** a club member who agrees and grants read and write access on Strava,
    **When** they return, **Then** they are connected and the consent version and
@@ -146,9 +153,10 @@ changes.
 ### User Story 3 - Every view shows only what the consent covers (Priority: P1)
 
 Whenever a planned view shows data about a rider to someone else, it follows one
-table (FR-020): every signed-in rider sees each other rider's name, Rynke totals,
-progress and whether they qualify; organisers also see the breakdown, the amounts
-still missing, attendance and corrections. Individual rides are never shown to
+table (FR-020): every signed-in rider sees each other rider's accumulated Rynke,
+overall and per week, without a name; organisers see riders by first name, with
+totals, progress, qualification, the breakdown, the amounts still missing,
+attendance and corrections. Individual rides are never shown to
 anyone but their rider. A rider who has not accepted the current consent is left
 out.
 
@@ -162,11 +170,13 @@ compare with FR-020 and FR-021.
 **Acceptance Scenarios**:
 
 1. **Given** a signed-in rider who is not an organiser, **When** they ask what they
-   may see about another rider with current consent, **Then** the answer is the
-   name, totals, progress and qualification, and nothing else.
+   may see about another rider with current consent, **Then** the answer is their
+   accumulated Rynke, overall and per week, without a name or anything else that
+   names them.
 2. **Given** a signed-in organiser, **When** they ask what they may see about a
-   rider with current consent, **Then** the answer also includes the breakdown, the
-   amounts still missing, attendance and corrections.
+   rider with current consent, **Then** the answer is the rider's first name,
+   totals, progress, qualification, the breakdown, the amounts still missing,
+   attendance and corrections.
 3. **Given** any viewer other than the rider, **When** they ask for the rider's
    individual rides or ride results, **Then** the answer is no.
 4. **Given** a rider without a recorded consent, **When** anyone else asks what they
@@ -250,10 +260,14 @@ here.
   until that athlete connects again.
 - **Organiser removed from the list mid-session**: their next request is a rider's;
   a page already open shows nothing new and accepts no organiser change.
-- **Two riders with the same shown name**: both are shown with their full last name
-  (FR-022).
-- **Rider changes their name on Strava**: the shown name follows the next time they
-  sign in.
+- **Two riders with the same first name**: organisers tell them apart through a
+  "View on Strava" link to each one's Strava profile (FR-022); no last name is
+  stored.
+- **Rider changes their first name on Strava**: the name organisers see follows the
+  next time they sign in.
+- **A leaderboard row could be recognised** (e.g. a rider's weekly Rynke match the
+  rides club members see on Strava): accepted; the rows carry no name, and everyone
+  shown consented to sharing (FR-010).
 - **Ride deleted on Strava**: shared views show balances, not rides, so a deleted
   ride only changes the balance (feature 003, FR-003), well within Strava's 48-hour
   limit (F-7).
@@ -307,7 +321,7 @@ here.
   FR-005).
 - **FR-011**: Before redirecting to Strava, the connect flow MUST explain in plain
   words what is read, what is written (and that it is not optional),
-  what is shared with whom (FR-020) with the name others will see (FR-022), how to
+  what is shared with whom (FR-020), with or without their name (FR-022), how to
   leave, that leaving deletes all their data and that they get a confirmation once
   it is deleted (F-4), and MUST ask the rider to agree. Strava's own approval screen
   MUST NOT be altered (F-4).
@@ -342,22 +356,26 @@ here.
 
   | Data about a rider | The rider | Organisers | Other riders |
   |---|---|---|---|
-  | Shown name (FR-022) and that they take part | yes | yes | yes |
-  | Training and Team Rynke totals, progress to both thresholds, whether they qualify | yes | yes | yes |
+  | First name (FR-022) | yes | yes | no |
+  | Training and Team Rynke accumulated, overall and per week, in a row without a name (leaderboard) | yes | yes | yes |
+  | Progress to both thresholds, whether they qualify | yes | yes | no |
   | Breakdown by source, amounts still missing, virtual-ride share (feature 003 FR-014a) | yes | yes | no |
   | Attendance and corrections recorded for them | yes | yes | no |
   | Individual rides, ride results and activity figures | yes | no | no |
   | Consent records | yes | no | no |
 
-  Data not in this table MUST be shown to nobody but the rider. Visitors who are
-  not signed in MUST see no rider data.
+  Data not in this table MUST be shown to nobody but the rider. A leaderboard row
+  shown to other riders MUST NOT carry a name, athlete ID, profile link, picture or
+  anything else that names the rider; the signed-in rider's own row MAY be marked
+  as theirs. Visitors who are not signed in MUST see no rider data.
 - **FR-021**: A rider without a recorded consent MUST be left out of every view
   shown to anyone else: no row, no placeholder, no count, and none of their data in
   any total, average, ranking or other figure.
-- **FR-022**: The name shown to others MUST be the rider's Strava first name and the
-  initial of their Strava last name (e.g. "Anna K."). When two riders would get the
-  same shown name, both MUST be shown with their full last name. The name MUST
-  follow the rider's Strava profile as of their latest sign-in.
+- **FR-022**: Organisers MUST see riders by their Strava first name, as feature 001
+  already keeps it, following the rider's Strava profile as of their latest sign-in.
+  When two connected riders have the same first name, organisers MUST also get a
+  "View on Strava" link to each one's Strava profile to tell them apart. The system
+  MUST NOT store riders' last names. Other riders see no names (FR-020).
 - **FR-023**: The rider-facing privacy text (feature 001, FR-002) MUST cover the
   consent of FR-010 with everything FR-011 lists.
 
@@ -385,9 +403,8 @@ here.
 - **Consent Record**: one acceptance by a Rider — consent version and date and
   time. The latest one is the Rider's current consent. Kept while the Rider is
   connected; deleted with the Rider.
-- **Rider** (feature 001): additionally holds the Strava last name, used only for
-  the shown name (FR-022) and refreshed at each sign-in. Its granted permissions now
-  include write access.
+- **Rider** (feature 001): unchanged except that its granted permissions now include
+  write access. The first name it already holds is what organisers see (FR-022).
 
 ## Success Criteria *(mandatory)*
 
@@ -419,19 +436,20 @@ here.
 - The organisers are a handful of trusted volunteers known to the riders. Organisers
   are riders: they connect, consent and are shown like everyone else.
 - Sharing within the team is the point of taking part (riders train for the team and
-  the team checks who qualifies), so it is a condition of taking part rather than a
-  separate choice. This spec is not legal advice; the privacy text is reviewed
+  organisers check who qualifies), so it is a condition of taking part rather than a
+  separate choice. Leaving names off the leaderboard keeps what other riders see to
+  the minimum that still motivates. This spec is not legal advice; the privacy text is reviewed
   before riders are invited.
 - The pages that use roles and consent (organiser pages, rider view, organiser
   overview, team leaderboard) and the description feature are separate features;
   this feature defines the roles, the consent, the visibility rule and the consent
   step of the connect flow.
-- This feature changes feature 001: the connect flow gains the consent step
-  (FR-011); write access is requested and required (FR-012), replacing feature 001
-  FR-003, which requests read access only; the rider's page shows the consent
-  (FR-014); the privacy text grows (FR-023); and the rider record keeps the Strava
-  last name (FR-022), which Strava provides with the access the app already
-  requests.
+- This feature changes feature 001, whose spec is updated with it: the connect flow
+  gains the consent step (FR-011), the rider's page shows the consent (FR-014), the
+  privacy text grows (FR-023) and consent records are deleted with the rider. The
+  rider record stays as it is (FR-022). Still open there: write access is requested
+  and required here (FR-012), while feature 001 FR-003 still requests read access
+  only.
 - The constitution is amended to 2.0.0 with this feature: Principle I asks for one
   required consent at connect instead of separately opt-in capabilities, and
   Principle III no longer requires description edits to be switchable off.
@@ -454,7 +472,8 @@ revised 2025-09-29), [Getting Started](https://developers.strava.com/docs/gettin
   letting anyone other than the developer or the user see the user's data unless
   the user expressly consented beforehand, and the Agreement's summary says the
   same. Neither document mentions leaderboards, rankings, competitions or clubs.
-  So a leaderboard of riders who consented is allowed. Policy §6.1 is oddly worded:
+  So a leaderboard of riders who consented is allowed, and this one shows no names
+  besides. Policy §6.1 is oddly worded:
   its opening seems to exempt apps with an athlete capacity of up to 9,999 from the
   display limit; this spec does not rely on it and follows §2.3.
 - **F-2 Derived data.** Policy §5.3, §5.4, §5.5 and §7.4 extend their rules to data
@@ -462,9 +481,10 @@ revised 2025-09-29), [Getting Started](https://developers.strava.com/docs/gettin
   here, since every rider consents to the sharing (FR-010). For deletion it does:
   Rynke are deleted with the rider (feature 001, FR-022; feature 003, FR-015).
 - **F-3 Aggregated use.** Policy §5.4 forbids processing Strava data, also
-  aggregated or anonymised, for analytics. Shared views show riders who consented,
-  by name, for the app's purpose; riders without a current consent are not counted
-  or included in any figure (FR-021).
+  aggregated or anonymised, for analytics. The leaderboard and its weekly figures
+  show riders who consented their own Rynke, without names, for the app's purpose
+  of motivating the team; that is the app's function, not analytics (F-6). Riders
+  without a current consent are not counted or included in any figure (FR-021).
 - **F-4 What consent must cover, and why to ask on day one.** Policy §2.1 requires
   consent to disclose the data types, how they are collected, how to withdraw
   consent, how to request deletion, and that deletion is confirmed; §2.5 requires a
