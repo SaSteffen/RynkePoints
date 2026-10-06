@@ -9,9 +9,52 @@ description.
 Runs serverless on Cloudflare Workers, with D1 for storage and Queues for
 processing Strava webhook events.
 
-> Status: project scaffold. Features are specified and built with
-> [Spec Kit](https://github.com/github/spec-kit) — see `specs/` once the first
-> feature exists.
+Features are specified and built with
+[Spec Kit](https://github.com/github/spec-kit); each has its own folder under
+`specs/`.
+
+## What it does today
+
+The first feature, [Strava connection and webhook intake](specs/001-strava-connect-webhook/spec.md):
+
+- Members of the team's Strava club connect their account on the start page.
+  Connecting is refused, and nothing is kept, for anyone who isn't a member.
+- The rider's cycling activities since the season start are imported, and new,
+  changed or deleted activities follow automatically through Strava's webhook.
+- On their own page riders see the connection status, the import progress and
+  their 20 most recent rides, and can disconnect.
+
+Points and events build on this in later features.
+
+## Privacy
+
+- **Scopes**: `read` and `activity:read`. `activity:read_all` is optional: only
+  if the rider grants it are their private ("Only You") activities included.
+- **What is stored**: per rider the Strava athlete ID, first name (for the
+  greeting), the granted scopes and the Strava tokens, encrypted. Per cycling
+  activity only sport type, start time, time zone, distance, moving and elapsed
+  time, elevation gain and the manual, trainer and private flags. No GPS tracks,
+  maps, titles, photos, heart rate or power, and no other kinds of activity.
+- **Deletion**: everything about a rider is deleted at once when they disconnect
+  on their page or remove the app in their Strava settings, within 24 hours
+  after they leave the club, and 7 days after their connection broke if they
+  don't reconnect. Deleted data stays in Cloudflare's D1 backups for up to
+  7 days, then disappears.
+- **Cookies**: only necessary ones. `rp_session` keeps a rider signed in
+  (30 days), `rp_oauth_state` protects the 10-minute Strava sign-in, and
+  `rp_lang` remembers a picked language. The language is never stored in the
+  database.
+
+## Languages
+
+Rider pages are German by default and English on request: the browser's
+preferred language decides, and a switcher on every page overrides it.
+
+All rider-facing text lives in `src/i18n/messages/<locale>.ts`, never inline in
+pages or logic. Message IDs are listed in
+[contracts/messages.md](specs/001-strava-connect-webhook/contracts/messages.md).
+To add a language, add a catalog file with the same keys and register it in
+`src/i18n/catalogs.ts`; no other code changes.
 
 ## Getting started
 
@@ -21,12 +64,20 @@ Requirements: Node 24 (see `.nvmrc`) and pnpm (`corepack enable`).
 pnpm install                # deps + git hooks
 cp .dev.vars.example .dev.vars   # fill in your Strava API app credentials
 pnpm test
+pnpm wrangler d1 migrations apply rynke-points --local   # local database
 pnpm dev                    # local Worker on http://localhost:8787
 ```
 
 You need your own [Strava API application](https://www.strava.com/settings/api) for
 local development. You don't need a Cloudflare account: production is deployed by
 CI (see [Deploying](#deploying)).
+
+Running against the real Strava locally, and the manual one-time production
+steps (Cloudflare resources, secrets, the webhook subscription and the Strava
+brand assets for each language), are in the
+[feature quickstart](specs/001-strava-connect-webhook/quickstart.md). The D1
+database must be created with `--jurisdiction=eu` before the first deploy, so
+rider data stays in the EU.
 
 ## Contributing
 
