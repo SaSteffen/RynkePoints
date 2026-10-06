@@ -122,8 +122,8 @@ next time the activity is read: an update event that changes more than the
 title, the import after a reconnect, or a re-read (spec edge case "Strava flags
 a stored activity later"). It is never polled for.
 
-Rows stored before `0002` (or `0003`) start with `NULL` figures. The daily cron re-reads the
-season of every rider whose `figures_version` is behind (R20,
+Rows stored before `0002` (or `0003`) start with `NULL` figures. The daily cron
+re-reads the season of every rider whose `figures_version` is behind (R20,
 contracts/queue-messages.md `reread-page`). That fills the rows, or deletes the
 ones Strava no longer returns as the rider's cycling activities. Until then the
 figures stay unknown. Feature 003 must treat `NULL` as unknown, never as 0.
