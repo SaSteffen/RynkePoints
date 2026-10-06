@@ -4,7 +4,49 @@
 	"main": "src/index.ts",
 	"compatibility_date": "2026-08-22",
 	"compatibility_flags": ["nodejs_compat"],
-	"observability": { "enabled": true }
-	// D1, Queues, and cron triggers get added here once the first feature's
-	// plan (/speckit-plan) settles the data model and webhook flow.
+	"observability": { "enabled": true },
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "rynke-points",
+			// Placeholder. The maintainer replaces it with the real ID after
+			// `wrangler d1 create rynke-points --jurisdiction=eu` (quickstart §3).
+			"database_id": "00000000-0000-0000-0000-000000000000",
+			"migrations_dir": "migrations"
+		}
+	],
+	"queues": {
+		"producers": [{ "binding": "WORK_QUEUE", "queue": "rynke-points-work" }],
+		"consumers": [
+			{
+				"queue": "rynke-points-work",
+				"max_batch_size": 10,
+				"max_batch_timeout": 5,
+				"max_retries": 10,
+				"max_concurrency": 1
+			}
+		]
+	},
+	// Daily membership check and failed_work re-enqueue.
+	"triggers": { "crons": ["17 3 * * *"] },
+	// Unmodified Strava brand assets (see public/strava/README.md).
+	"assets": { "directory": "./public" },
+	// Team settings (data-model.md). Changing them is a deploy, not a code change.
+	"vars": {
+		"STRAVA_CLUB_ID": "2372209",
+		"SEASON_START_DATE": "2026-01-01",
+		// "0" until the webhook subscription is created (quickstart §3 step 7).
+		"STRAVA_SUBSCRIPTION_ID": "0"
+	},
+	// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing
+	// them here makes `pnpm types` independent of what's in your `.dev.vars`.
+	"secrets": {
+		"required": [
+			"STRAVA_CLIENT_ID",
+			"STRAVA_CLIENT_SECRET",
+			"STRAVA_WEBHOOK_VERIFY_TOKEN",
+			"TOKEN_ENCRYPTION_KEY",
+			"SESSION_SIGNING_KEY"
+		]
+	}
 }

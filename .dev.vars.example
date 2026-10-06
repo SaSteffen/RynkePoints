@@ -4,3 +4,7 @@ STRAVA_CLIENT_ID=
 STRAVA_CLIENT_SECRET=
 # Random string you choose; Strava echoes it back when validating the webhook subscription.
 STRAVA_WEBHOOK_VERIFY_TOKEN=
+# 32 random bytes, base64: `openssl rand -base64 32`
+TOKEN_ENCRYPTION_KEY=
+# 32 random bytes, base64: `openssl rand -base64 32`
+SESSION_SIGNING_KEY=
