@@ -329,7 +329,7 @@ research R20; R15 below for `is_flagged`).
     Strava flags later is re-read at the next update event for it, at an import
     after reconnecting, or at a figures re-read, and then stops counting
     through the usual write path (R11). The plan adds no polling (feature 001
-    FR-010); its edge case records this.
+    FR-010); the project owner accepts the delay, as both specs record.
 - **Rationale**: the rule must hold whatever the configuration, so it lives in
   the evaluation code rather than the rule values. `0003` runs before the code
   that writes the column is published; the old code doesn't know the column,
@@ -337,8 +337,8 @@ research R20; R15 below for `is_flagged`).
 - **Alternatives considered**:
   - A separate migration for the column — rejected: one additive migration per
     release is enough, and both changes ship together.
-  - A periodic re-read of recent activities to catch late flags — rejected for
-    now: it costs Strava requests for every rider every day and contradicts
-    feature 001 FR-010. It can be added if late flags turn out to matter.
+  - A periodic re-read of recent activities to catch late flags — rejected: it
+    costs Strava requests for every rider every day and contradicts feature 001
+    FR-010, and the project owner accepts the delay.
   - Treating an unknown flag as flagged — rejected: FR-005f; every rider's rows
     would stop counting until the re-read.

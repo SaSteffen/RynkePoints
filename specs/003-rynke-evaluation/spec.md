@@ -88,6 +88,10 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
   (Strava keeps it out of club leaderboards, segment records and the like)? →
   A: No, never, whatever Strava flagged it for. No other rule, rule value or
   configuration can make it count. Feature 001 must store Strava's flag for this.
+- Q (raised by the project owner): Must a ride Strava flags after it was stored
+  stop counting right away? → A: No. It stops counting once feature 001 has
+  read the flag, which can take until the activity is next read from Strava;
+  the delay is accepted.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -420,8 +424,8 @@ re-evaluation, and check the correction is still applied exactly once.
 - **Rides flagged by Strava**: never count (FR-005g), whatever the reason Strava
   had; the app does not judge whether the flag is fair. A rider who thinks it is
   wrong settles it with Strava; once the flag is removed, the ride is evaluated
-  again (FR-003). A ride Strava flags after it was stored stops counting as soon
-  as feature 001 stores the flag.
+  again (FR-003). A ride Strava flags after it was stored keeps counting until
+  feature 001 has read the flag, then stops; this delay is accepted.
 - **Manual activities**: never count (FR-005b), also when a rider's device failed;
   an organiser can add a correction instead (Story 6).
 - **Honest rides caught by the plausibility limits**: e.g. a very slow, technical
