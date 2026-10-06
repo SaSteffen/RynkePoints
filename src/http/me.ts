@@ -1,15 +1,48 @@
 import type { Ctx } from "../ctx";
+import { listRecentActivities } from "../db/activities";
 import { deleteRider, getRider, type Rider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { revokeStoredToken } from "../strava/tokens";
 import { forbidden } from "./errors";
-import { html, htmlResponse, layout } from "./html";
+import { html, htmlResponse, layout, type SafeHtml } from "./html";
 import { redirect } from "./redirect";
 import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 
 // The rider's own pages (contracts/http-routes.md): `/me` with connection
-// status, granted level and import progress (recent rides follow with US4),
+// status, granted level, import progress and the 20 newest rides (US4),
 // disconnecting with deletion (FR-023), and signing out.
+
+const RECENT_LIMIT = 20;
+
+/** The rider's newest rides, only ever their own (FR-025, FR-026). */
+async function recentRides(
+	ctx: Ctx,
+	i18n: I18n,
+	athleteId: number,
+): Promise<SafeHtml> {
+	const activities = await listRecentActivities(
+		ctx.env.DB,
+		athleteId,
+		RECENT_LIMIT,
+	);
+	if (activities.length === 0) {
+		return html`<p>${i18n.t("me.recent.empty")}</p>`;
+	}
+	const rows = activities.map((a) => {
+		// The rider's local date: Strava writes local wall-clock time with a `Z`.
+		const date = i18n.formatDate(a.start_date_local);
+		const sport = i18n.t(`sport.${a.sport_type}`);
+		const km = i18n.formatNumber(a.distance_m / 1000, { fractionDigits: 1 });
+		const m = i18n.formatNumber(a.elevation_gain_m, { fractionDigits: 0 });
+		return html`<tr><td>${date}</td><td>${sport}</td><td>${i18n.t("units.km", { value: km })}</td><td>${i18n.t("units.m", { value: m })}</td></tr>
+`;
+	});
+	return html`<table>
+<thead><tr><th>${i18n.t("me.recent.col.date")}</th><th>${i18n.t("me.recent.col.sport")}</th><th>${i18n.t("me.recent.col.distance")}</th><th>${i18n.t("me.recent.col.elevation")}</th></tr></thead>
+<tbody>
+${rows}</tbody>
+</table>`;
+}
 
 async function signedInRider(
 	request: Request,
@@ -52,6 +85,7 @@ ${status}
 <p>${importStatus}</p>
 <section>
 <h2>${i18n.t("me.recent.heading")}</h2>
+${await recentRides(ctx, i18n, rider.athleteId)}
 </section>
 <p><a href="/me/disconnect">${i18n.t("me.disconnect.button")}</a></p>
 <form method="post" action="/logout"><button>${i18n.t("layout.logout")}</button></form>`,
