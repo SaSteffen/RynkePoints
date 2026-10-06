@@ -1,16 +1,19 @@
 <!--
 Sync Impact Report
-- Version change: (template) → 1.0.0
-- Rationale: initial ratification. Principles adapted from the sibling project
-  RkbyMemberMapGenerator (privacy-first, minimal dependencies, test-first) and
-  extended for a cloud-hosted Strava integration (consent scopes, Strava API
-  Agreement, webhook-driven processing, never clobbering rider-authored text).
-- Principles added: I–V (all new)
-- Sections added: Technology Constraints, Development Workflow, Governance
+- Version change: 1.0.0 → 1.1.0
+- Rationale: MINOR — new section adding a binding language rule (German by
+  default for everything riders see, served from translation strings so other
+  locales can be added; English for everything developers see). No principle
+  removed or redefined.
+- Principles modified: none
+- Sections added: Language
+- Sections removed: none
 - Templates checked for alignment: .specify/templates/* — unchanged; the plan
-  template's "Constitution Check" gate reads principles from this file.
-- Deferred TODOs: points rules and event definitions are intentionally left to
-  the first feature specs.
+  template's "Constitution Check" gate reads this file at runtime.
+- Follow-up TODOs: specs/001-strava-connect-webhook states rider-facing pages are
+  English (spec.md "Assumptions", contracts/http-routes.md, tasks.md T042); those
+  artifacts must be updated to German copy served from translation strings
+  before implementation.
 -->
 
 # RynkePoints Constitution
@@ -150,6 +153,32 @@ only safety net a single-maintainer project has.
   subscription, or D1 production data are manual, deliberate steps — never a side
   effect of another command.
 
+## Language
+
+The riders are a German team, so the app speaks German to them; the code is public
+and maintained in English.
+
+- All user-facing text MUST be in German by default: web pages, consent and OAuth
+  landing screens, error and status messages shown to riders, the Rynke Points block
+  written into Strava activity descriptions, notifications, and the privacy notice.
+- User-facing text MUST NOT be hard-coded in templates or logic; it MUST come from
+  translation strings keyed by message ID, with German (`de`) as the default and
+  fallback locale. Adding another locale MUST only require adding its translation
+  strings, not changing code. Per Principle IV, plain typed message catalogs are
+  preferred over an i18n library unless a plan justifies one.
+- Everything else MUST be in English: code, identifiers, comments, log messages,
+  database schema, API/JSON field names, test names, commit messages, and project
+  documentation (README, specs, plans, tasks, this constitution).
+- Strava brand assets ("Connect with Strava" button, "Powered by Strava"
+  attribution) are used as Strava provides them, in the German variant where one
+  exists.
+- Tests that assert on user-facing output assert the German text.
+
+Rationale: Riders should not need English to understand what they consent to or
+what the app wrote on their activities, and translation strings keep the door open
+for other languages without a rewrite; contributors and reviewers of a public repo
+should not need German to read the code.
+
 ## Governance
 
 This constitution supersedes ad hoc practice for this project. Amendments are made by
@@ -162,4 +191,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 1.1.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
