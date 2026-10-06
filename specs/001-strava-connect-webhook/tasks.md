@@ -147,30 +147,30 @@ and test support used by every story.
 
 ### Tests for the foundation (write first, confirm red) ⚠️
 
-- [ ] T007 [P] Unit test in `test/unit/encrypt.test.ts` for `encryptToken`/`decryptToken`:
+- [X] T007 [P] Unit test in `test/unit/encrypt.test.ts` for `encryptToken`/`decryptToken`:
   - round-trip works;
   - output matches `/^v1:[A-Za-z0-9+/=]+:[A-Za-z0-9+/=]+$/`;
   - two encryptions of the same plaintext differ (random 12-byte IV);
   - a tampered ciphertext and a wrong key both throw;
   - the plaintext never appears in the output.
-- [ ] T008 [P] Unit test in `test/unit/sign.test.ts` for `signValue`/`verifySignedValue` (HMAC-SHA256, base64url): a valid value verifies; a tampered payload or signature returns `null`; an expired value (`expiresAt < now`) returns `null`.
-- [ ] T009 [P] Unit test in `test/unit/rate-limit.test.ts` for the pure functions in `src/strava/rate-limit.ts`:
+- [X] T008 [P] Unit test in `test/unit/sign.test.ts` for `signValue`/`verifySignedValue` (HMAC-SHA256, base64url): a valid value verifies; a tampered payload or signature returns `null`; an expired value (`expiresAt < now`) returns `null`.
+- [X] T009 [P] Unit test in `test/unit/rate-limit.test.ts` for the pure functions in `src/strava/rate-limit.ts`:
   - `parseUsageHeader("45,310")` gives `{ short: 45, daily: 310 }`; malformed input gives `null`.
   - `windowStart(t)` aligns to :00/:15/:30/:45 UTC; `dayStart(t)` gives UTC midnight.
   - `effectiveUsage(state, now)` treats counts as 0 when `observed_at` is outside the current window or day.
   - `budgetDecision(state, now)` returns `{ ok: true }` or `{ ok: false, delaySeconds }`. It refuses when 15-min usage ≥ limit − 10 (delay until next window) or daily usage ≥ limit − 50 (delay until next UTC midnight). It applies to both read and overall limits.
   - `delaySeconds` never exceeds `MAX_DELAY_SECONDS = 43200` (the Queues maximum): a daily refusal at 01:00 UTC gives 43200, not 82800. `deferUntilNextWindow(now)` (used for `429`) is capped the same way.
   - `backoffSeconds(attempts) = min(30 * 2 ** attempts, 3600)`.
-- [ ] T010 [P] Unit test in `test/unit/activity.test.ts` for `toActivityRecord(stravaActivity, athleteId, now)` and `isCycling(sportType)`:
+- [X] T010 [P] Unit test in `test/unit/activity.test.ts` for `toActivityRecord(stravaActivity, athleteId, now)` and `isCycling(sportType)`:
   - the cycling set is exactly `Ride`, `MountainBikeRide`, `GravelRide`, `EBikeRide`, `EMountainBikeRide`, `VirtualRide`;
   - `Run`/`Walk`/`Velomobile` give `null`;
   - output keys are exactly `strava_activity_id, athlete_id, sport_type, start_date, start_date_local, timezone, distance_m, moving_time_s, elevation_gain_m, is_private, refreshed_at`;
   - input containing `map.summary_polyline`, `start_latlng`, `end_latlng`, `name`, `description`, `average_heartrate`, `average_watts`, `photos` leaks none of them;
   - `private: true` gives `is_private: 1`.
-- [ ] T011 [P] Unit test in `test/unit/messages.test.ts` for `parseWorkMessage(unknown)` and `serializeWorkMessage(msg)`:
+- [X] T011 [P] Unit test in `test/unit/messages.test.ts` for `parseWorkMessage(unknown)` and `serializeWorkMessage(msg)`:
   - `parseWorkMessage` accepts exactly the four shapes in contracts/queue-messages.md (`activity-event`, `import-page` with `after`, `check-membership`, `delete-rider` with reason `deauthorized`/`left-club`/`reconnect-expired`), and rejects unknown `kind`, non-integer IDs, `page < 1`, a missing or negative `after`, and unknown `aspect`/`reason`.
   - `serializeWorkMessage` writes keys in contract order, so two bodies with the same values in different key order serialize identically, and `parseWorkMessage(JSON.parse(serializeWorkMessage(m)))` equals `m`.
-- [ ] T012 [P] Unit test in `test/unit/catalogs.test.ts` for `src/i18n/catalogs.ts` and `src/i18n/messages/*.ts` (FR-028, FR-030, SC-010; research R16):
+- [X] T012 [P] Unit test in `test/unit/catalogs.test.ts` for `src/i18n/catalogs.ts` and `src/i18n/messages/*.ts` (FR-028, FR-030, SC-010; research R16):
   - **registry**: `DEFAULT_LOCALE === "de"`; `FOREIGN_LOCALE === "en"`; `Object.keys(CATALOGS)` equals `["de", "en"]`.
   - **parity**: for every catalog in `CATALOGS`, the key set equals `Object.keys(de)`, iterating over the registry so a future locale is checked automatically.
   - **values**: no value is empty or whitespace-only.
@@ -183,7 +183,7 @@ and test support used by every story.
     - `de["landing.backups"]` is "Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters und verschwinden danach automatisch.";
     - `de["brand.connectWithStrava.alt"]` is "Mit Strava verbinden";
     - `de["brand.poweredByStrava.alt"]` and `en["brand.poweredByStrava.alt"]` are both "Powered by Strava".
-- [ ] T013 [P] Unit test in `test/unit/resolve-locale.test.ts` for `resolveLocale(request, catalogs)` in `src/i18n/resolve.ts` (FR-029, FR-029a; research R17). It is table-driven, and every case uses `CATALOGS` unless noted.
+- [X] T013 [P] Unit test in `test/unit/resolve-locale.test.ts` for `resolveLocale(request, catalogs)` in `src/i18n/resolve.ts` (FR-029, FR-029a; research R17). It is table-driven, and every case uses `CATALOGS` unless noted.
   - **German**:
     - no `Accept-Language` → `de`;
     - empty header → `de`;
@@ -207,7 +207,7 @@ and test support used by every story.
     - `rp_lang=fr` and no header → `de`;
     - `rp_lang` among other cookies (`rp_session=…; rp_lang=en`) is found.
   - **extensibility**: with a catalogs object extended by a third key `qps`, `rp_lang=qps` → `qps`, which proves resolution iterates over the registry.
-- [ ] T014 [P] Unit test in `test/unit/i18n.test.ts` for `createI18n(locale, catalogs)` in `src/i18n/i18n.ts`:
+- [X] T014 [P] Unit test in `test/unit/i18n.test.ts` for `createI18n(locale, catalogs)` in `src/i18n/i18n.ts`:
   - **`t`**:
     - `t("me.greeting", { firstName: "Testrider A" })` gives "Hallo Testrider A!" for `de` and "Hi Testrider A!" for `en`;
     - a missing param throws;
@@ -221,7 +221,7 @@ and test support used by every story.
     - `formatNumber(1234, { fractionDigits: 0 })` gives `1.234` (`de`) and `1,234` (`en`);
     - `formatDate("2026-10-06T07:30:00Z")` gives `06.10.2026` (`de`) and `06/10/2026` (`en`), using the wall-clock date in UTC so `start_date_local` is not shifted.
   - **`locales`** lists `{ locale, languageName }` for every catalog in registry order.
-- [ ] T015 [P] Unit test in `test/unit/html.test.ts` for `src/http/html.ts`:
+- [X] T015 [P] Unit test in `test/unit/html.test.ts` for `src/http/html.ts`:
   - **`html` tagged template**: interpolated strings are escaped (`<>&"'`); nested `html` fragments are not double-escaped; arrays of fragments are joined.
   - **`layout(i18n, { title, path, body })` with a `de` `I18n`**:
     - starts with `<!doctype html>` and contains `<html lang="de">`;
@@ -231,11 +231,11 @@ and test support used by every story.
     - contains no `<script>`.
   - **with an `en` `I18n`**: `lang="en"`, `aria-label="Language"`, and `aria-current` on the English button.
   - **`htmlResponse(i18n, body, status)`** sets `Content-Type: text/html; charset=utf-8`, `Content-Language: <locale>` and `Vary: Accept-Language, Cookie`.
-- [ ] T016 [P] Unit test in `test/unit/config.test.ts` for `src/config.ts`:
+- [X] T016 [P] Unit test in `test/unit/config.test.ts` for `src/config.ts`:
   - `seasonStartEpoch("2026-01-01")` equals 2025-12-31T23:00:00Z (00:00 Europe/Berlin, winter time);
   - `seasonStartEpoch("2026-07-01")` equals 2026-06-30T22:00:00Z (summer time);
   - `clubId`/`subscriptionId` parse to numbers; an invalid `SEASON_START_DATE` throws.
-- [ ] T017 [P] Unit test in `test/unit/session.test.ts` for `src/http/session.ts`:
+- [X] T017 [P] Unit test in `test/unit/session.test.ts` for `src/http/session.ts`:
   - `createSessionCookie(athleteId, now)` gives `rp_session=<athleteId>.<expiresAt>.<sig>; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=2592000`;
   - `readSession(request, env, now)` returns the athleteId or `null` (tampered, expired, missing);
   - the OAuth state cookie `rp_oauth_state` lasts 10 minutes (`Max-Age=600`);
@@ -243,22 +243,22 @@ and test support used by every story.
 
 ### Test support
 
-- [ ] T018 Create `test/support/fixtures.ts` with synthetic data only:
+- [X] T018 Create `test/support/fixtures.ts` with synthetic data only:
   - athlete IDs from 900001 and first names like "Testrider A";
   - a `makeStravaActivity(overrides)` builder returning a full Strava-shaped `DetailedActivity` (including `map.summary_polyline`, `start_latlng` and `name`, so mapping tests can prove they are dropped);
   - the team club `{ id: 2372209, name: "TRHH Rynke Coins" }` and an unrelated club `{ id: 1111 }`.
-- [ ] T019 Create `test/support/fake-strava.ts`:
+- [X] T019 Create `test/support/fake-strava.ts`:
   - `installFakeStrava()` uses `vi.spyOn(globalThis, "fetch")` to route `https://www.strava.com` requests to an in-memory fake, and fails the test (throws) on any other host.
   - Endpoints faked: `POST /oauth/token` (both grant types, rotating the refresh token on refresh), `POST /oauth/revoke` (checks Basic auth `10001:test-client-secret`; accepts a current access or refresh token and records which kind it was), `GET /api/v3/athlete/clubs`, `GET /api/v3/activities/:id` (404 when unknown, or when private and the token lacks `activity:read_all`), and `GET /api/v3/athlete/activities` (honours `after`, `page`, `per_page`, scope).
   - Programmable state: athletes with tokens and granted scopes, club memberships, activities, one-shot status overrides per endpoint (e.g. 503, 429, 403, 401), and `X-RateLimit-*`/`X-ReadRateLimit-*` response headers.
   - Records every call for assertions; `restore()` undoes the spy.
-- [ ] T020 Create `test/support/ctx.ts`:
+- [X] T020 Create `test/support/ctx.ts`:
   - `makeCtx({ now, catalogs })` returns a `Ctx` with `env` from `cloudflare:test`, `catalogs` defaulting to `CATALOGS`, and a recording fake queue that stores `{ body, delaySeconds }` and exposes `sent`;
   - `seedRider(ctx, overrides)` inserts a connected rider plus encrypted credentials (expiry 6 h ahead) directly into D1; overrides may set `status: "needs_reconnect"` with `reconnect_requested_at`;
   - `resetDb()` deletes from all tables except the `strava_rate_limit` row, which it resets to zeros;
   - `request(path, { method, form, cookies, acceptLanguage, origin })` builds a `Request` on `https://rynke.test`. POSTs get a same-origin `Origin` unless `origin` is given, and no `Accept-Language` is sent unless given, so pages resolve to German by default.
-- [ ] T021 Integration smoke test in `test/integration/fake-strava.test.ts`. Prove that a `fetch("https://www.strava.com/api/v3/athlete/clubs")` issued inside worker code (call a tiny exported helper from `src/strava/client.ts` through `exports.default` or directly) is intercepted by the spy, and that a request to `https://example.org` fails the test. If interception does not work through `exports.default`, switch `src/strava/client.ts` to take an injectable `fetch` via `Ctx` (research R12) and note it here.
-- [ ] T022 [P] Integration test in `test/integration/db.test.ts`:
+- [X] T021 Integration smoke test in `test/integration/fake-strava.test.ts`. Prove that a `fetch("https://www.strava.com/api/v3/athlete/clubs")` issued inside worker code (call a tiny exported helper from `src/strava/client.ts` through `exports.default` or directly) is intercepted by the spy, and that a request to `https://example.org` fails the test. If interception does not work through `exports.default`, switch `src/strava/client.ts` to take an injectable `fetch` via `Ctx` (research R12) and note it here.
+- [X] T022 [P] Integration test in `test/integration/db.test.ts`:
   - deleting a `riders` row cascades to `strava_credentials`, `activities` and `failed_work`;
   - `upsertActivity` twice with the same `strava_activity_id` leaves one row with the second values;
   - inserting an activity or `failed_work` row for a non-existent rider fails with a foreign-key error;
@@ -266,7 +266,7 @@ and test support used by every story.
   - `deletePrivateActivities(athleteId)` removes only `is_private = 1` rows.
   - `upsertFailedWork` twice for the same message leaves one row with `failures = 2`, the latest `last_error`/`failed_at` and the original `first_failed_at`; `deleteFailedWorkByMessage` removes it.
   - a `riders` row with `status='connected'` and a non-null `reconnect_requested_at` (or `needs_reconnect` with null) is rejected by the CHECK.
-- [ ] T023 Integration test in `test/integration/strava-client.test.ts` (uses T019/T020):
+- [X] T023 Integration test in `test/integration/strava-client.test.ts` (uses T019/T020):
   - every response's `X-ReadRateLimit-Usage`/`X-RateLimit-Usage` and `*-Limit` headers are persisted to `strava_rate_limit`;
   - when the stored budget is exhausted, the client returns `{ kind: "budget", delaySeconds }` without calling fetch;
   - a 429 gives `{ kind: "budget", delaySeconds: <until next window> }`; 5xx and network errors give `{ kind: "transient" }`; a 404 gives `{ kind: "not-found" }`.
@@ -274,7 +274,7 @@ and test support used by every story.
   - a 401 on an API call triggers exactly one refresh plus retry.
   - `revokeToken` sends HTTP Basic `client_id:client_secret` and the form field `token`.
   - `revokeStoredToken(ctx, athleteId)` sends the rider's decrypted **refresh** token, makes no `POST /oauth/token` call even when the access token is expired, returns `ok` when the rider has no credentials, and maps 5xx/network to `transient` and every other non-2xx to `ok` (nothing left to revoke).
-- [ ] T024 Integration test in `test/integration/consumer.test.ts` for `processBatch(batch, ctx, handlers)` (common rules from contracts/queue-messages.md), using an injected test handler and `createMessageBatch`/`getQueueResult` from `cloudflare:test`:
+- [X] T024 Integration test in `test/integration/consumer.test.ts` for `processBatch(batch, ctx, handlers)` (common rules from contracts/queue-messages.md), using an injected test handler and `createMessageBatch`/`getQueueResult` from `cloudflare:test`:
   - an invalid body is acked and dropped;
   - an unknown rider is acked and dropped without the handler being called;
   - a `needs_reconnect` rider is dropped for every kind except `delete-rider`;
@@ -283,7 +283,7 @@ and test support used by every story.
   - `transient` on `attempts >= 10` upserts a `failed_work` row (`message` = `serializeWorkMessage(body)`, `last_error` without tokens), logs one English `console.error` line, and acks — except for `delete-rider`, which is never written to `failed_work`;
   - handler result `ok` deletes a pre-existing `failed_work` row with the same canonical message;
   - `refresh-refused` sets the rider `status = 'needs_reconnect'` with `reconnect_requested_at = now` and acks.
-- [ ] T025 [P] Integration test in `test/integration/lang-switcher.test.ts` for `POST /lang` (FR-029a, SC-011; contracts/http-routes.md; research R18), calling `handleFetch` with `makeCtx()`:
+- [X] T025 [P] Integration test in `test/integration/lang-switcher.test.ts` for `POST /lang` (FR-029a, SC-011; contracts/http-routes.md; research R18), calling `handleFetch` with `makeCtx()`:
   - **switch to English**: `POST /lang` with form `lang=en&next=/notice/expired` and a same-origin `Origin` →
     - `303` with `Location: /notice/expired`;
     - `Set-Cookie: rp_lang=en; Path=/; Max-Age=31536000; SameSite=Lax; Secure; HttpOnly` (assert each attribute).
@@ -299,7 +299,7 @@ and test support used by every story.
   - **`Origin` check**: a missing or foreign `Origin` gives `403`, a German page with "Anfrage abgelehnt", and no `Set-Cookie`.
   - **no sign-in needed**: works without `rp_session`.
   - **nothing persisted**: row counts of every D1 table are unchanged after the requests.
-- [ ] T026 [P] Integration test in `test/integration/notice.test.ts` for `GET /notice/:id` (contracts/http-routes.md, contracts/messages.md), with no `Accept-Language`:
+- [X] T026 [P] Integration test in `test/integration/notice.test.ts` for `GET /notice/:id` (contracts/http-routes.md, contracts/messages.md), with no `Accept-Language`:
   - **every known id** (`expired`, `denied`, `denied-deleted`, `team-full`, `failed`, `not-member`, `not-member-deleted`, `strava-busy`, `deleted`, `deleted-revoke-failed`) →
     - `200`, `<html lang="de">`, `Content-Language: de`;
     - its German title and body from contracts/messages.md;
@@ -318,12 +318,12 @@ and test support used by every story.
 
 ### Implementation for the foundation
 
-- [ ] T027 [P] Implement `src/crypto/encrypt.ts`: AES-256-GCM via Web Crypto with the key imported from base64 `TOKEN_ENCRYPTION_KEY`, format `v1:<base64 iv>:<base64 ciphertext>` (research R10). Makes T007 green.
-- [ ] T028 [P] Implement `src/crypto/sign.ts`: HMAC-SHA256 with `SESSION_SIGNING_KEY`, payload `<value>.<expiresAt>.<base64url sig>`, constant-time compare. Makes T008 green.
-- [ ] T029 [P] Implement `src/strava/rate-limit.ts` (pure functions, margins 10 and 50). Makes T009 green.
-- [ ] T030 [P] Implement `src/strava/activity.ts`: `CYCLING_SPORT_TYPES`, `isCycling`, and `toActivityRecord` as an explicit allow-list mapping (research R5). Makes T010 green.
-- [ ] T031 [P] Implement `src/work/messages.ts`: the `WorkMessage` union types, `parseWorkMessage` and `serializeWorkMessage` (keys in contract order) per contracts/queue-messages.md. Makes T011 green.
-- [ ] T032 [P] Implement the message catalogs (research R16):
+- [X] T027 [P] Implement `src/crypto/encrypt.ts`: AES-256-GCM via Web Crypto with the key imported from base64 `TOKEN_ENCRYPTION_KEY`, format `v1:<base64 iv>:<base64 ciphertext>` (research R10). Makes T007 green.
+- [X] T028 [P] Implement `src/crypto/sign.ts`: HMAC-SHA256 with `SESSION_SIGNING_KEY`, payload `<value>.<expiresAt>.<base64url sig>`, constant-time compare. Makes T008 green.
+- [X] T029 [P] Implement `src/strava/rate-limit.ts` (pure functions, margins 10 and 50). Makes T009 green.
+- [X] T030 [P] Implement `src/strava/activity.ts`: `CYCLING_SPORT_TYPES`, `isCycling`, and `toActivityRecord` as an explicit allow-list mapping (research R5). Makes T010 green.
+- [X] T031 [P] Implement `src/work/messages.ts`: the `WorkMessage` union types, `parseWorkMessage` and `serializeWorkMessage` (keys in contract order) per contracts/queue-messages.md. Makes T011 green.
+- [X] T032 [P] Implement the message catalogs (research R16):
   - **`src/i18n/messages/de.ts`**: `export const de = { … } satisfies Record<string, string>`, holding every ID and German text from contracts/messages.md. Set `brand.*.src` to `/strava/en/…` per contracts/messages.md, until a German variant from Strava is confirmed (research R19).
   - **`src/i18n/messages/en.ts`**: `export const en: Catalog = { … }` with the English texts.
   - **`src/i18n/catalogs.ts`**:
@@ -334,27 +334,27 @@ and test support used by every story.
     - `FOREIGN_LOCALE: Locale = "en"` (used when `Accept-Language` names only unsupported languages).
 
   `tsc` must reject a key missing from `en`. Makes T012 green (with T030).
-- [ ] T033 [P] Implement `src/i18n/resolve.ts`: `resolveLocale(request, catalogs): string` — `rp_lang` cookie if it is a key of `catalogs`, else the highest-`q` supported primary subtag from `Accept-Language` (ties → first listed; `q=0`, `*` and malformed weights dropped), else `FOREIGN_LOCALE` (`"en"`) if the header still names any language, else `DEFAULT_LOCALE`. Also export `LANG_COOKIE = "rp_lang"`. Makes T013 green.
-- [ ] T034 Implement `src/http/html.ts`:
+- [X] T033 [P] Implement `src/i18n/resolve.ts`: `resolveLocale(request, catalogs): string` — `rp_lang` cookie if it is a key of `catalogs`, else the highest-`q` supported primary subtag from `Accept-Language` (ties → first listed; `q=0`, `*` and malformed weights dropped), else `FOREIGN_LOCALE` (`"en"`) if the header still names any language, else `DEFAULT_LOCALE`. Also export `LANG_COOKIE = "rp_lang"`. Makes T013 green.
+- [X] T034 Implement `src/http/html.ts`:
   - the `html` tagged template with an escaping `SafeHtml` type, plus an exported `escapeHtml`;
   - `layout(i18n, { title, path, body })` with minimal inline CSS, no script, `<html lang>`, the switcher form built from `i18n.locales` with `aria-label` = `t("layout.switcher.label")` and `next` = `path`, and the footer `<img src=t("brand.poweredByStrava.src") alt=t("brand.poweredByStrava.alt")>`;
   - `htmlResponse(i18n, body, status, headers?)` setting `Content-Type`, `Content-Language` and `Vary: Accept-Language, Cookie`.
 
   It contains no literal rider-facing text.
-- [ ] T035 Implement `src/i18n/i18n.ts`: `createI18n(locale, catalogs)` returns `{ locale, t, tHtml, formatNumber, formatDate, locales }` (research R16):
+- [X] T035 Implement `src/i18n/i18n.ts`: `createI18n(locale, catalogs)` returns `{ locale, t, tHtml, formatNumber, formatDate, locales }` (research R16):
   - **`t`**: `{name}` substitution, throws on a missing param, falls back to the `de` text for a missing key.
   - **`tHtml`**: escapes the message text via `escapeHtml` and inserts `SafeHtml` params raw, plain params escaped.
   - **`formatNumber`/`formatDate`**: use `Intl` with `meta.intlLocale`; `formatDate` uses `timeZone: "UTC"` with 2-digit day and month and a numeric year.
 
   Together with T034 this makes T014 and T015 green.
-- [ ] T036 [P] Implement `src/config.ts`: typed accessors over `Env` (`clubId`, `subscriptionId`, `seasonStartEpoch` computed for 00:00 Europe/Berlin via `Intl.DateTimeFormat`, `verifyToken`, client ID/secret). Makes T016 green.
-- [ ] T037 Implement `src/http/session.ts`: session and OAuth state cookies plus `isSameOrigin`, using `src/crypto/sign.ts`. Makes T017 green.
-- [ ] T038 [P] Implement `src/db/riders.ts`:
+- [X] T036 [P] Implement `src/config.ts`: typed accessors over `Env` (`clubId`, `subscriptionId`, `seasonStartEpoch` computed for 00:00 Europe/Berlin via `Intl.DateTimeFormat`, `verifyToken`, client ID/secret). Makes T016 green.
+- [X] T037 Implement `src/http/session.ts`: session and OAuth state cookies plus `isSameOrigin`, using `src/crypto/sign.ts`. Makes T017 green.
+- [X] T038 [P] Implement `src/db/riders.ts`:
   - functions: `getRider`, `insertRider`, `updateRiderOnReconnect` (also sets `status='connected'` and `reconnect_requested_at=NULL`), `markNeedsReconnect(athleteId, now)`, `setImportStatus`, `setMembershipChecked`, `deleteRider` (a single `DELETE FROM riders`, relying on the cascade), `listConnectedRiderIds`, `listExpiredReconnectRiderIds(before)`;
   - credentials: `getCredentials` and `saveCredentials` (which encrypt and decrypt via `src/crypto/encrypt.ts`).
-- [ ] T039 [P] Implement `src/db/activities.ts`: `upsertActivity` (`INSERT … ON CONFLICT(strava_activity_id) DO UPDATE`), `deleteActivity`, `deletePrivateActivities`, `listRecentActivities(athleteId, limit)`.
-- [ ] T040 [P] Implement `src/db/failed-work.ts` (`upsertFailedWork` via `INSERT … ON CONFLICT(message) DO UPDATE` keeping `first_failed_at` and incrementing `failures`, `deleteFailedWorkByMessage`, `listFailedWorkFirstFailedSince`, `deleteFailedWorkFirstFailedBefore` returning the deleted rows for logging) and `src/db/rate-limit.ts` (`readRateLimitState`, `recordRateLimitHeaders`). Together with T038/T039 this makes T022 green.
-- [ ] T041 Implement `src/strava/client.ts` and `src/strava/tokens.ts` with exactly the endpoints in contracts/strava-api-usage.md:
+- [X] T039 [P] Implement `src/db/activities.ts`: `upsertActivity` (`INSERT … ON CONFLICT(strava_activity_id) DO UPDATE`), `deleteActivity`, `deletePrivateActivities`, `listRecentActivities(athleteId, limit)`.
+- [X] T040 [P] Implement `src/db/failed-work.ts` (`upsertFailedWork` via `INSERT … ON CONFLICT(message) DO UPDATE` keeping `first_failed_at` and incrementing `failures`, `deleteFailedWorkByMessage`, `listFailedWorkFirstFailedSince`, `deleteFailedWorkFirstFailedBefore` returning the deleted rows for logging) and `src/db/rate-limit.ts` (`readRateLimitState`, `recordRateLimitHeaders`). Together with T038/T039 this makes T022 green.
+- [X] T041 Implement `src/strava/client.ts` and `src/strava/tokens.ts` with exactly the endpoints in contracts/strava-api-usage.md:
   - results are typed `StravaResult<T>` = `ok` | `not-found` | `forbidden` | `unauthorized` | `budget` | `transient` | `refresh-refused`;
   - the budget is checked before each call, and rate headers are recorded after each response;
   - `getAccessToken` does refresh-before-use with a 5-minute margin and persists the rotated tokens;
@@ -362,12 +362,12 @@ and test support used by every story.
   - `revokeToken(token)` uses Basic auth; `revokeStoredToken(ctx, athleteId)` revokes the stored refresh token without refreshing (contracts/strava-api-usage.md).
 
   Makes T021 and T023 green.
-- [ ] T042 Implement `src/work/consumer.ts`:
+- [X] T042 Implement `src/work/consumer.ts`:
   - `processBatch(batch, ctx, handlers)` where `handlers` maps `kind` to `(msg, rider, ctx) => Promise<HandlerResult>`;
   - apply all common rules from contracts/queue-messages.md, with `MAX_ATTEMPTS = 10` matching `max_retries`: budget deferral as re-send plus ack, `failed_work` upsert plus log on the last transient attempt, `failed_work` cleanup on `ok`.
 
   Makes T024 green.
-- [ ] T043 Restructure `src/index.ts`:
+- [X] T043 Restructure `src/index.ts`:
   - build `Ctx` from `env`, with `catalogs: CATALOGS`;
   - `fetch` delegates to `src/http/router.ts` (new);
   - `queue` calls `processBatch` with a handlers map (empty for now);
@@ -380,14 +380,14 @@ and test support used by every story.
   - answers unknown paths `404` with the `error.notFound.*` page via `layout`.
 
   The existing `test/index.test.ts` must stay green.
-- [ ] T044 Implement `src/http/notice.ts`:
+- [X] T044 Implement `src/http/notice.ts`:
   - `NOTICE_IDS` (the ten IDs from contracts/http-routes.md) and `GET /notice/:id`, rendering `notice.<camelCaseId>.title/body` through `layout`;
   - the retry link (`notice.retry` → `/connect`) for `expired`/`denied`/`failed`/`strava-busy`, and the club link (`tHtml` with `clubLink` = `<a href="https://www.strava.com/clubs/<clubId>">` + `t("club.linkText")`) for `not-member`;
   - the appended second body from contracts/http-routes.md: `notice.revokeFailed.body` for `deleted-revoke-failed`, `notice.deleted.body` for `denied-deleted`/`not-member-deleted`, `notice.nothingStored` for `not-member` and `strava-busy`; `*-deleted` ids take title and first body from their base id (`denied`, `notMember`); and `notice.backToStart` → `/` on every notice;
   - unknown id → the `404` page.
 
   Wire it in `src/http/router.ts`. Makes T026 green.
-- [ ] T045 Implement `src/http/lang.ts`:
+- [X] T045 Implement `src/http/lang.ts`:
   - `POST /lang` per contracts/http-routes.md: `isSameOrigin` else the `403` page with `error.forbidden.*`; parse the form; `lang` in `ctx.catalogs` → `Set-Cookie` `rp_lang` with the attributes from data-model.md, otherwise no cookie; `303` to `safeNext(next)`;
   - `safeNext` allows only `/`, `/me`, `/me/disconnect` and `/notice/<id in NOTICE_IDS>`, otherwise `/`;
   - no D1 access.
