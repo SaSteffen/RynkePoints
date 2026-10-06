@@ -312,7 +312,9 @@ and no one else's.
   language which data will be read (every figure listed in FR-013), what it is used for, how to leave, and how
   long deleted data remains in the hosting platform's backups (FR-022a), together
   with the consent of feature 004-roles-and-consent (its FR-010, FR-011), and MUST
-  only redirect once the rider has agreed.
+  only redirect once the rider has agreed. The only exception is signing in
+  (FR-009): a rider who already takes part is not asked to agree again, and
+  anyone else who signs in is turned away without anything kept.
 - **FR-003**: The system MUST request the permission to read the rider's
   activities, at the level defined in FR-005, and the optional permission to write
   them (feature 004-roles-and-consent, FR-012), which the rider may decline on
