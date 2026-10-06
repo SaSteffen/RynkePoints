@@ -66,6 +66,10 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
   qualify may come from virtual rides; this is checked separately for
   qualification. Riders must set their real body weight in virtual-ride apps; the
   app cannot check it, so the handout appeals to riders' honesty.
+- Q (raised by the project owner): Do indoor-trainer rides without a virtual-ride
+  app count as virtual rides? → A: Yes. Any ride Strava marks as ridden on an
+  indoor trainer counts towards the virtual-ride share, whatever its sport type.
+  Feature 001 stores Strava's trainer flag for this.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -350,9 +354,10 @@ re-evaluation, and check the correction is still applied exactly once.
 - **E-bike rides**: never count (FR-005e). An e-bike ride saved with a normal ride
   sport type cannot be told apart; this relies on riders' honesty.
 - **Virtual rides**: count normally, but qualification needs at least two thirds
-  of the Training threshold from outside virtual rides (FR-013a). Body weight and
-  trainer settings in virtual-ride apps cannot be checked; this relies on riders'
-  honesty.
+  of the Training threshold from outside virtual rides (FR-013a). Indoor-trainer
+  rides count as virtual rides even without a virtual-ride app. Body weight and
+  trainer settings in virtual-ride apps cannot be checked, and neither can an
+  indoor ride that Strava does not mark as such; this relies on riders' honesty.
 - **Manual activities**: never count (FR-005b), also when a rider's device failed;
   an organiser can add a correction instead (Story 6).
 - **Honest rides caught by the plausibility limits**: e.g. a very slow, technical
@@ -489,8 +494,10 @@ re-evaluation, and check the correction is still applied exactly once.
   at least the Training threshold **and** their Team Rynke are at least the Team
   threshold **and** they meet FR-013a. Neither kind can make up for a shortfall in
   the other.
-- **FR-013a**: Training Rynke from virtual rides (Strava sport type virtual ride)
-  MUST count normally in the rider's Training Rynke. For qualification, the
+- **FR-013a**: Training Rynke from virtual rides MUST count normally in the
+  rider's Training Rynke. A virtual ride is any ride with Strava's virtual-ride
+  sport type or with Strava's trainer flag set (an indoor-trainer ride, whatever
+  its sport type). For qualification, the
   Training Rynke the rider would have without their virtual rides (evaluated
   with all rules, virtual rides left out after FR-005d) MUST additionally be at
   least two thirds of the Training threshold, rounded up (167 of 250). At most a
@@ -610,9 +617,9 @@ re-evaluation, and check the correction is still applied exactly once.
 
 - Builds on feature 001: riders, their stored cycling activities (distance,
   elevation gain, moving time, elapsed time, start date and time zone, sport type,
-  manual flag) and the season start date already exist. Elapsed time and the
-  manual flag were added to feature 001 (its FR-013) for FR-005a and FR-005b; they
-  come with the activity data the app already fetches and are the minimum needed
+  manual flag, trainer flag) and the season start date already exist. Elapsed
+  time, the manual flag and the trainer flag were added to feature 001 (its
+  FR-013) for FR-005a, FR-005b and FR-013a; they come with the activity data the app already fetches and are the minimum needed
   to compute points (constitution Principle I).
 - E-bike rides stay stored by feature 001 although they earn nothing by default,
   so that an organiser can change the excluded sport types and recalculate the

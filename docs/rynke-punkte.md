@@ -148,7 +148,9 @@ Sportarten zählen nicht.
 
 ## Virtuelle Fahrten (Zwift & Co.)
 
-Fahrten auf dem Rollentrainer mit Zwift oder ähnlichen Apps zählen ganz normal.
+Fahrten auf dem Rollentrainer zählen ganz normal, mit Zwift oder ähnlichen Apps
+genauso wie ohne. Als virtuelle Fahrt gilt jede Fahrt, die Strava als virtuelle
+Fahrt oder als Rollentrainer-Fahrt kennzeichnet.
 Für die Tour gilt aber: **Höchstens ein Drittel** der 250 Trainingsrynke darf aus
 virtuellen Fahrten kommen. Mindestens **167 Trainingsrynke** brauchst du also aus
 Fahrten draußen, Teamterminen und Korrekturen. Was du virtuell darüber hinaus
