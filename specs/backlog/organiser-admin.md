@@ -6,8 +6,8 @@ Needs roles-and-consent (see [README.md](README.md)).
 Specify the organiser pages of RynkePoints.
 
 Read first: .specify/memory/constitution.md, specs/003-rynke-evaluation/spec.md (FR-006,
-FR-006a, FR-007, FR-010, FR-011, FR-012, FR-021–FR-026, Key Entities), the
-roles-and-consent spec (who is an organiser, what organisers may see about riders),
+FR-006a, FR-007, FR-010, FR-011, FR-012, FR-021–FR-026, Key Entities),
+specs/004-roles-and-consent/spec.md (who is an organiser, what organisers may see about riders),
 specs/001-strava-connect-webhook/spec.md (sign-in, Team Settings, failure records).
 
 Only organisers reach these pages; everyone else gets "not allowed". Organisers can:

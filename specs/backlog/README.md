@@ -11,7 +11,8 @@ ignores it.
 
 ## Order
 
-1. [roles-and-consent.md](roles-and-consent.md) — first, while there are no
+1. roles and consent — specified in
+   [004-roles-and-consent](../004-roles-and-consent/spec.md); first, while there are no
    users: which roles and which rider consents the app needs, and whether Strava
    allows the leaderboard at all. Everything below depends on it.
 2. [organiser-admin.md](organiser-admin.md) — organiser pages for the inputs of
