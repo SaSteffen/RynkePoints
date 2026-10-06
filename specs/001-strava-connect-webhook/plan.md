@@ -83,7 +83,7 @@ consumer, cron)
 **Scale/Scope**: ≤ 10 riders (Strava capacity), a few activities per rider per day,
 eight rider-facing paths (`/`, `/connect`, `/auth/callback`, `/me`,
 `/me/disconnect`, `/logout`, `/lang`, `/notice/:id`) plus the webhook and
-`/health`, one queue, one cron, two locales (`de` default, `en`) with about 75
+`/health`, one queue, one cron, two locales (`de` default, `en`) with about 70
 messages each ([contracts/messages.md](contracts/messages.md)).
 
 ## Constitution Check
