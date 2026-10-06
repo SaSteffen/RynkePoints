@@ -769,50 +769,50 @@ message kind, cron step, rider column or endpoint (plan.md, "Strava's flag").
 
 ### Tests for Strava's flag (write first, confirm red) ⚠️
 
-- [ ] T097 [P] [US2] Extend the synthetic fixture and the mapping unit test (FR-013, FR-014):
+- [X] T097 [P] [US2] Extend the synthetic fixture and the mapping unit test (FR-013, FR-014):
   - `test/support/fixtures.ts`: add `flagged: false` to `StravaActivityFixture` and `makeStravaActivity`;
   - `test/unit/activity.test.ts`:
     - the allow-list key list gains `is_flagged`;
     - `flagged: true` → `is_flagged: 1`; `false` → 0;
     - **never guessed**: a response without `flagged` (key deleted from the fixture) maps to `is_flagged: null`, not 0;
     - `ACTIVITY_FIGURES_VERSION` is 2, so a forgotten bump fails here.
-- [ ] T098 [P] [US2] Extend `test/integration/db.test.ts` for migration `0003`:
+- [X] T098 [P] [US2] Extend `test/integration/db.test.ts` for migration `0003`:
   - an upsert stores `is_flagged`, and `listRecentActivities` returns it;
   - an upsert with `is_flagged: null` stores `NULL`, and a later upsert with 1 replaces it;
   - the CHECK constraint rejects `is_flagged = 2` (the column is `INTEGER NULL`, values 0 or 1);
   - `listActivityIdsMissingFigures(db, athleteId)` returns a row whose only `NULL` figure is `is_flagged`.
-- [ ] T099 [P] [US2] Extend `test/integration/activity-event.test.ts` and `test/integration/import-page.test.ts` (FR-013, FR-015):
+- [X] T099 [P] [US2] Extend `test/integration/activity-event.test.ts` and `test/integration/import-page.test.ts` (FR-013, FR-015):
   - `create` for an activity with `flagged: true` stores `is_flagged = 1` (add the column to the expected row);
   - **flagged later**: a stored row with `is_flagged = 0`, then an `update` event (`updates: { type: "Ride" }`) whose refetch returns `flagged: true` → `is_flagged = 1`;
   - an import page stores `is_flagged` for every cycling item.
-- [ ] T100 [P] [US2] Extend `test/integration/reread-page.test.ts` (research R20). Seed rows as `0003` leaves them: `elapsed_time_s`, `is_manual` and `is_trainer` set, `is_flagged` `NULL` (raw SQL):
+- [X] T100 [P] [US2] Extend `test/integration/reread-page.test.ts` (research R20). Seed rows as `0003` leaves them: `elapsed_time_s`, `is_manual` and `is_trainer` set, `is_flagged` `NULL` (raw SQL):
   - the list fills `is_flagged` for every returned row;
   - a row whose summary omits `flagged` gets exactly one `activity-event { aspect: "update", changed: [] }`; filled rows get none.
-- [ ] T101 [P] [US2] Extend `test/integration/scheduled-reread.test.ts` (research R20): a connected rider at `figures_version = 1` (as `0002` riders are after the first re-read) → exactly one `reread-page { page: 1, after: seasonStart(env) }`, and the version becomes `ACTIVITY_FIGURES_VERSION`; a `needs_reconnect` rider at 1 → nothing, and the version stays 1.
-- [ ] T102 [P] [US1] Extend `test/integration/landing.test.ts` (FR-002): the German page contains "ob Strava sie markiert hat"; the English page (`Accept-Language: en`) contains "whether Strava has flagged it".
-- [ ] T103 [P] [US2] Extend `test/integration/schema-minimisation.test.ts` (FR-014, SC-007): the expected `activities` column list gains `is_flagged`, and nothing else.
+- [X] T101 [P] [US2] Extend `test/integration/scheduled-reread.test.ts` (research R20): a connected rider at `figures_version = 1` (as `0002` riders are after the first re-read) → exactly one `reread-page { page: 1, after: seasonStart(env) }`, and the version becomes `ACTIVITY_FIGURES_VERSION`; a `needs_reconnect` rider at 1 → nothing, and the version stays 1.
+- [X] T102 [P] [US1] Extend `test/integration/landing.test.ts` (FR-002): the German page contains "ob Strava sie markiert hat"; the English page (`Accept-Language: en`) contains "whether Strava has flagged it".
+- [X] T103 [P] [US2] Extend `test/integration/schema-minimisation.test.ts` (FR-014, SC-007): the expected `activities` column list gains `is_flagged`, and nothing else.
 
 ### Implementation for Strava's flag
 
-- [ ] T104 [US2] Create `migrations/0003_activity_flagged.sql` (data-model.md), with a header comment in the style of `0002`:
+- [X] T104 [US2] Create `migrations/0003_activity_flagged.sql` (data-model.md), with a header comment in the style of `0002`:
   - `ALTER TABLE activities ADD COLUMN is_flagged INTEGER CHECK (is_flagged IN (0, 1))`.
 
   Nullable with no default, because `NULL` means unknown. No `riders` change: raising the constant (T105) marks every rider at version 1 for the re-read. Never edit `0001` or `0002`: they are applied in production. The previously deployed code keeps working against the new column (CI applies migrations before it publishes the code).
-- [ ] T105 [US2] Extend `src/strava/activity.ts`:
+- [X] T105 [US2] Extend `src/strava/activity.ts`:
   - `StravaActivity` gains optional `flagged`;
   - `ActivityRecord` gains `is_flagged: 0 | 1 | null`;
   - `toActivityRecord` maps it with the existing flag helper, and a missing field to `null`;
   - `ACTIVITY_FIGURES_VERSION = 2`, and its comment notes that version 2 added `flagged`.
 
   Makes T097 green.
-- [ ] T106 [US2] Extend `src/db/activities.ts`:
+- [X] T106 [US2] Extend `src/db/activities.ts`:
   - the upsert writes `is_flagged` in both the insert and the `DO UPDATE SET` part;
   - `listRecentActivities` selects it;
   - `listActivityIdsMissingFigures` adds `OR is_flagged IS NULL`.
 
   Fix the `ActivityRecord` literals in existing tests that `tsc` now rejects. Together with T104 and T105 this makes T098–T101 and T103 green; `src/work/reread-page.ts` and `src/work/scheduled.ts` need no change.
-- [ ] T107 [P] [US1] Replace `landing.dataRead` in `src/i18n/messages/de.ts` and `en.ts` with the texts from contracts/messages.md. Makes T102 green.
-- [ ] T108 [P] [US2] Update the "What is stored" bullet in `README.md` to name Strava's flag next to the manual, trainer and private flags.
+- [X] T107 [P] [US1] Replace `landing.dataRead` in `src/i18n/messages/de.ts` and `en.ts` with the texts from contracts/messages.md. Makes T102 green.
+- [X] T108 [P] [US2] Update the "What is stored" bullet in `README.md` to name Strava's flag next to the manual, trainer and private flags.
 
 **Checkpoint**: `pnpm lint && pnpm typecheck && pnpm test` pass, and the quickstart §1
 rows "US2 figures for points" and "Re-read after a figure was added" are covered,
