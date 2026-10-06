@@ -231,6 +231,7 @@ src/
 │   ├── messages.ts          # queue message types + validation
 │   ├── consumer.ts          # common rules (rider check, budget, retries, failed_work)
 │   ├── activity-event.ts
+│   ├── activity-page.ts     # one list page + scope rule, shared by import and re-read
 │   ├── import-page.ts
 │   ├── reread-page.ts       # one-time re-read when FR-013 gains a figure (R20)
 │   ├── check-membership.ts
