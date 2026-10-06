@@ -97,4 +97,18 @@ describe("scheduled: failed_work", () => {
 		expect(ctx.queue.sent).toEqual([]);
 		expect(fake.calls).toEqual([]);
 	});
+
+	it("still runs the later steps when an earlier one fails", async () => {
+		await seedRider(ctx);
+		await insertFailedWork(RECENT, NOW - DAY, NOW - DAY);
+		const send = vi.spyOn(ctx.queue, "sendBatch");
+		send.mockRejectedValueOnce(new Error("queue down"));
+
+		await expect(
+			handleScheduled(createScheduledController(), ctx),
+		).rejects.toThrow("queue down");
+
+		// The failed_work re-enqueue (the last step) still happened.
+		expect(send).toHaveBeenCalledTimes(2);
+	});
 });
