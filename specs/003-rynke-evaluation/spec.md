@@ -398,11 +398,10 @@ re-evaluation, and check the correction is still applied exactly once.
 ## Assumptions
 
 - Builds on feature 001: riders, their stored cycling activities (distance,
-  elevation gain, moving time, start date and time zone, sport type) and the season
-  start date already exist. FR-005a additionally needs each ride's elapsed time,
-  which feature 001 does not store yet. It comes with the activity data the app
-  already fetches, so no extra Strava request is needed, and it is the minimum
-  needed to compute points (constitution Principle I).
+  elevation gain, moving time, elapsed time, start date and time zone, sport type)
+  and the season start date already exist. Elapsed time was added to feature 001
+  (its FR-013) for FR-005a; it comes with the activity data the app already
+  fetches and is the minimum needed to compute points (constitution Principle I).
 - The goal is the Tour de Paris of the current season; one season is evaluated at
   a time. History across seasons is out of scope.
 - Organisers maintain team events, attendance, corrections and rule configuration
