@@ -4,7 +4,9 @@
 	"main": "src/index.ts",
 	"compatibility_date": "2026-08-22",
 	"compatibility_flags": ["nodejs_compat"],
-	"observability": { "enabled": true },
+	"observability": {
+		"enabled": true
+	},
 	"d1_databases": [
 		{
 			"binding": "DB",
@@ -16,7 +18,12 @@
 		}
 	],
 	"queues": {
-		"producers": [{ "binding": "WORK_QUEUE", "queue": "rynke-points-work" }],
+		"producers": [
+			{
+				"binding": "WORK_QUEUE",
+				"queue": "rynke-points-work"
+			}
+		],
 		"consumers": [
 			{
 				"queue": "rynke-points-work",
@@ -28,13 +35,17 @@
 		]
 	},
 	// Daily membership check and failed_work re-enqueue.
-	"triggers": { "crons": ["17 3 * * *"] },
+	"triggers": {
+		"crons": ["17 3 * * *"]
+	},
 	// Unmodified Strava brand assets (see public/strava/README.md).
-	"assets": { "directory": "./public" },
+	"assets": {
+		"directory": "./public"
+	},
 	// Team settings (data-model.md). Changing them is a deploy, not a code change.
 	"vars": {
 		"STRAVA_CLUB_ID": "2372209",
-		"SEASON_START_DATE": "2026-01-01",
+		"SEASON_START_DATE": "2026-09-01",
 		// "0" until the webhook subscription is created (quickstart §3 step 7).
 		"STRAVA_SUBSCRIPTION_ID": "0"
 	},
