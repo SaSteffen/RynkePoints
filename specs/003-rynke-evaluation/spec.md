@@ -28,6 +28,7 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
 - Q: Are the 10 km / 1000 m steps counted per ride or on season totals? → A: Per
   ride, rounded down. The team wants proper-length rides; leftovers are lost on
   purpose (a 79 km ride earns 7, not 7.9) and do not carry over to other rides.
+  (Superseded for elevation, see below.)
 - Q: How is team-event attendance decided? → A: An organiser records who was
   there. Rides are not matched to events automatically.
 - Q: Do the km and elevation of a ride during a team event earn Training Rynke on
@@ -47,6 +48,12 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
 - Q (raised by the project owner): Can the rules change during the season? → A:
   Yes. Every rule change must be applied retroactively: all points of the season
   are recalculated under the new rules.
+- Q (raised by the project owner): Is elevation gain also rounded per ride? → A:
+  No. Elevation gain accumulates over the season; no metre is lost. The 1000 m
+  step applies to the season total of all counting rides. Only distance keeps the
+  per-ride rounding, which exists to stop riders gaming the system with many short
+  rides; the handout tells riders the team will adjust it should it turn out
+  unfair.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -60,7 +67,8 @@ totals are their **Rynke balance**.
 
 Before any evaluation exists, an organiser hands riders a short German document
 (as PDF) that explains both kinds of Rynke, how each is earned, what the tour
-needs, the deliberate per-ride rounding and the pause rule, with worked
+needs, the deliberate per-ride rounding of distance, the accumulated elevation
+gain and the pause rule, with worked
 examples. Riders know the rules before the app counts anything.
 
 **Why this priority**: The rules must be known to riders now, independent of when
@@ -82,9 +90,10 @@ the conversion, opens the PDF and checks it against this spec.
 ### User Story 2 - Rides earn Training Rynke (Priority: P1)
 
 A connected rider rides and uploads to Strava as usual. Every ride that reaches
-RynkePoints adds to their Training Rynke: 1 for every full 10 km and 5 for every
-full 1000 m of elevation gain of that ride. Leftovers below a full step are lost,
-so a 79 km ride earns 7. A ride whose breaks add up to more than half of its
+RynkePoints adds to their Training Rynke: 1 for every full 10 km of that ride,
+and its elevation gain adds to a season total that earns 5 for every full
+1000 m. Distance leftovers below a full step are lost, so a 79 km ride earns 7;
+elevation gain is never lost, so two rides of 500 m earn 5. A ride whose breaks add up to more than half of its
 moving time (e.g. the way to work and back recorded as one ride) earns nothing.
 When they edit or delete a ride on Strava, their Training Rynke follow.
 
@@ -126,6 +135,16 @@ value.
 11. **Given** a 600 km overnight ride with 24 h moving time and 6 h paused,
     starting on one day and ending on the next, **When** the balance is evaluated,
     **Then** it earns 60 Training Rynke from distance as usual.
+12. **Given** a rider with two rides of 600 m elevation gain each, **When** the
+    balance is evaluated, **Then** they have 5 Training Rynke from elevation gain
+    (1200 m in total; the remaining 200 m count towards the next 1000 m).
+13. **Given** a rider with 1999 m elevation gain in one ride and 1 m in another,
+    **When** the balance is evaluated, **Then** they have 10 Training Rynke from
+    elevation gain.
+14. **Given** a rider with 1500 m elevation gain from counting rides and a ride
+    with 800 m that fails the pause rule, **When** the balance is evaluated,
+    **Then** they have 5 Training Rynke from elevation gain (the 800 m are not
+    added).
 
 ---
 
@@ -214,9 +233,9 @@ a hand calculation under the new rules for the whole season.
 
 **Acceptance Scenarios**:
 
-1. **Given** a rider whose season rides include 3000 m of elevation gain in one
-   ride, **When** an organiser changes the elevation reward from 5 to 8 Training
-   Rynke per 1000 m, **Then** within 1 hour that ride counts 24 instead of 15
+1. **Given** a rider whose season rides add up to 3000 m of elevation gain,
+   **When** an organiser changes the elevation reward from 5 to 8 Training Rynke
+   per 1000 m, **Then** within 1 hour their elevation gain earns 24 instead of 15
    Training Rynke, including for rides uploaded before the change.
 2. **Given** balances computed under the current rules, **When** a new app version
    with changed rule logic goes live, **Then** every balance is recalculated with
@@ -259,11 +278,15 @@ re-evaluation, and check the correction is still applied exactly once.
 
 ### Edge Cases
 
-- **Leftovers below a full step**: deliberately lost, per ride. A 79 km ride earns
-  7, a 9.9 km ride earns 0, a 1999 m climb earns 5. Splitting one long ride into
-  several uploads can therefore cost Rynke, and joining short rides into one does
-  not happen automatically. This is intended: the team wants proper-length rides,
-  not many short ones (see Clarifications).
+- **Distance leftovers below a full step**: deliberately lost, per ride. A 79 km
+  ride earns 7, a 9.9 km ride earns 0. Splitting one long ride into several
+  uploads can therefore cost Rynke, and joining short rides into one does not
+  happen automatically. This is intended: the team wants proper-length rides, not
+  many short ones (see Clarifications).
+- **Elevation leftovers**: never lost. A 1999 m climb earns 5 on its own, and the
+  remaining 999 m count towards the next 1000 m together with the elevation gain
+  of all other counting rides of the season. Splitting or merging rides makes no
+  difference to elevation Rynke.
 - **Merged or stretched recordings**: a ride whose paused time is more than half
   of its moving time earns no Rynke at all, neither for distance nor for
   elevation. This covers commutes recorded as one ride with the working day in
@@ -285,6 +308,9 @@ re-evaluation, and check the correction is still applied exactly once.
   an organiser excludes those sport types (FR-012).
 - **Zero values**: rides with 0 km or 0 m elevation gain contribute nothing for that
   part; this is never an error.
+- **Elevation total drops**: when a ride is deleted, its elevation gain changes, or
+  it starts failing the pause rule, the season total drops and the elevation
+  Rynke follow, which may take away Rynke earned with other rides' metres.
 - **Team event deleted or changed**: Rynke from it disappear or follow the change
   on the next evaluation.
 - **Rule or threshold change**: every rider's balance and qualification are
@@ -327,16 +353,21 @@ re-evaluation, and check the correction is still applied exactly once.
 **Training Rynke from riding**
 
 - **FR-004**: Each ride MUST earn, on its own, 1 Training Rynke per full 10 km of
-  its distance and 5 Training Rynke per full 1000 m of its elevation gain, both
-  rounded down per ride. Leftovers below a full step MUST be dropped and MUST NOT
-  be added to other rides or to a season total (79 km → 7; three rides of 7 km →
-  0; two rides of 25 km → 4). This is a deliberate rule, not a precision
-  shortcut: it rewards proper-length rides over many short ones.
+  its distance, rounded down per ride. Distance leftovers below a full step MUST
+  be dropped and MUST NOT be added to other rides or to a season total (79 km →
+  7; three rides of 7 km → 0; two rides of 25 km → 4). This is a deliberate rule,
+  not a precision shortcut: it rewards proper-length rides over many short ones
+  and keeps riders from gaming the system with many short recordings.
+- **FR-004a**: Elevation gain MUST accumulate: the elevation gain of all counting
+  rides in the counting window (FR-011) is added up, and the season total earns 5
+  Training Rynke per full 1000 m, rounded down once on the total. No metre of
+  elevation gain may be dropped per ride (two rides of 600 m → 5; 1999 m + 1 m →
+  10). Rides excluded by FR-005 or FR-005a add nothing to the total.
 - **FR-005**: Only activities stored by feature 001 (cycling activities of the
   rider) count; other sports never earn Rynke.
 - **FR-005a**: A ride whose paused time (elapsed time minus moving time) is more
   than half of its moving time MUST earn no Training Rynke, neither from distance
-  nor from elevation gain. A ride paused for exactly half of its moving time still
+  nor from elevation gain (its elevation gain is not added to the season total). A ride paused for exactly half of its moving time still
   counts. The share of half is a rule value (FR-012). There MUST be no other limit
   on a ride's duration, and a ride spanning several calendar days MUST NOT be
   excluded for that reason alone.
@@ -352,7 +383,8 @@ re-evaluation, and check the correction is still applied exactly once.
   Rynke; training-weekend day 5 Team Rynke + 10 Training Rynke; technique training
   5 Team Rynke + 5 Training Rynke. A rider MUST be credited at most once per team
   event, and attendance MUST NOT require a ride on Strava.
-- **FR-008**: Rides MUST earn distance and elevation Training Rynke (FR-004)
+- **FR-008**: Rides MUST earn distance and elevation Training Rynke (FR-004,
+  FR-004a)
   whether or not they took place during a team event; the event's fixed amount is
   added on top. The word "solo" in the team's sheet does not exclude team rides.
 - **FR-009**: Team Rynke MUST only come from team-event attendance and organiser
@@ -386,8 +418,9 @@ re-evaluation, and check the correction is still applied exactly once.
 
 - **FR-014**: A signed-in rider MUST be able to see their Training Rynke and Team
   Rynke, the amount still missing for each threshold, whether they qualify, and a
-  breakdown by source: distance, elevation gain, each team-event kind (with the
-  events attended), and corrections (with reasons). Rides that earned nothing
+  breakdown by source: distance, elevation gain (with the season's total metres
+  and how many are still missing for the next 1000 m), each team-event kind (with
+  the events attended), and corrections (with reasons). Rides that earned nothing
   because of FR-005a MUST be listed with that reason. The page MUST also show the
   date the current rules took effect.
 - **FR-015**: A rider MUST only ever see their own balance; showing balances or
@@ -428,8 +461,10 @@ re-evaluation, and check the correction is still applied exactly once.
 
 - **FR-017**: The repository MUST contain a German rules handout for riders,
   written in Markdown, that explains Training Rynke and Team Rynke, every way to
-  earn them with the current values, the per-ride rounding (FR-004) and the pause
-  rule (FR-005a) with examples,
+  earn them with the current values, the per-ride rounding of distance (FR-004),
+  the accumulated elevation gain (FR-004a) and the pause rule (FR-005a) with
+  examples, a note that the team will adjust the per-ride rounding should it lead
+  to unfair results,
   attendance recording (FR-007), rides during team events (FR-008), the counting
   window (FR-011), corrections (FR-010) and the qualification rule (FR-013).
 - **FR-018**: The repository MUST contain a script that converts the handout to a

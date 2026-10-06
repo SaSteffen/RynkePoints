@@ -37,4 +37,6 @@
   pause rule (FR-005a), which needs elapsed time stored in addition to feature 001.
 - Added after review: retroactive recalculation on rule changes (Story 5,
   FR-021–FR-026, SC-006/SC-007).
+- Changed after review: elevation gain accumulates over the season (FR-004a); only
+  distance keeps the per-ride rounding.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`
