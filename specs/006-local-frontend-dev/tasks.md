@@ -247,7 +247,7 @@ code.
   - `curl -s http://localhost:8789/_dev/` lists Tina TrainingDone as connected after a few seconds.
   - The terminal shows `[fake-strava] …` lines.
   - Stop the server.
-  - If port 8789 is taken, it fails and names the port (spec edge case).
+  - If port 8789 is taken, it fails and names the port (spec edge case). *(Checked: it fails with "Address already in use", without the port number.)*
   - Nothing is committed for this task.
 
 **Checkpoint**: US1 works on its own, and it is the MVP.
@@ -270,7 +270,7 @@ code.
   - **Fiona FarAway**: the balance is far below both targets.
   - **Vera Virtual**: `/me` shows the training target reached, and the share without virtual rides still missing (`rynke.missing.withoutVirtual` text).
   - **Rex Rejected**: has `ride_results` that don't count, at least one each for the reasons `too_slow`, `too_fast`, `pause`, `climbing_rate`, `manual`, `flagged`, `excluded_sport_type` and `overlap`. His `Run` is not in `activities`, because the app imports only cycling (`src/strava/activity.ts`).
-  - **Paula Paging**: has 45 activities, and `/me` offers a next page.
+  - **Paula Paging**: has 45 activities, and `/me` offers a next page. *(Implemented: 45 activities and a 20-row table; `/me` has no pager yet, it comes with feature 005's later stories.)*
   - **Olli OptionalDenied**: stored without `activity:read_all`, and none of his private fake activities is in `activities`.
   - **Noah NotMember**: `POST /_dev/connect` and then **Authorize** end on the not-member notice, and no `riders` row is stored.
   - **Withheld required scope**: `POST /_dev/strava/oauth/authorize` with `activity:read` unticked gives the same callback outcome as `test/integration/callback.test.ts`'s missing-scope case.
@@ -336,18 +336,18 @@ code.
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T024 [P] Update `CLAUDE.md` "Commands":
+- [X] T024 [P] Update `CLAUDE.md` "Commands":
   - `pnpm dev`: the app on port 8789 with the fake Strava and synthetic sample data. It doesn't read `.dev.vars`.
   - `pnpm dev:strava`: against the real Strava with `.dev.vars`, using the app's request budget.
   - Change the migration line to say it is for `pnpm dev:strava`; `pnpm dev` applies its own.
   - Add one line under "Non-negotiables": `src/` never imports `dev/` (FR-009).
-- [ ] T025 [P] Update `README.md` line 76 to `pnpm dev # local Worker on http://localhost:8789 with a fake Strava`, and add `pnpm dev:strava`.
-- [ ] T026 [P] Update the run steps that start the app against the real Strava to `pnpm dev:strava` on `http://localhost:8789`, linking to this feature's quickstart for frontend work:
+- [X] T025 [P] Update `README.md` line 76 to `pnpm dev # local Worker on http://localhost:8789 with a fake Strava`, and add `pnpm dev:strava`.
+- [X] T026 [P] Update the run steps that start the app against the real Strava to `pnpm dev:strava` on `http://localhost:8789`, linking to this feature's quickstart for frontend work:
   - `specs/001-strava-connect-webhook/quickstart.md` §2;
   - `specs/003-rynke-evaluation/quickstart.md` (line 62);
   - `specs/005-rider-view/quickstart.md` (lines 64–65).
-- [ ] T027 [P] In `.dev.vars.example`, change the first comment line to say the file is for `pnpm dev:strava` and tests' local overrides, not for `pnpm dev`.
-- [ ] T028 Run quickstart §1 in full, then `pnpm lint`, `pnpm typecheck` and `pnpm test`, all green. Then:
+- [X] T027 [P] In `.dev.vars.example`, change the first comment line to say the file is for `pnpm dev:strava` and tests' local overrides, not for `pnpm dev`.
+- [X] T028 Run quickstart §1 in full, then `pnpm lint`, `pnpm typecheck` and `pnpm test`, all green. Then:
   - Confirm `git diff --stat cf71b88 -- src` is empty: no file under `src/` changed (plan "Summary").
   - Confirm `git ls-files .wrangler` is empty.
 

@@ -109,7 +109,7 @@ specs/006-local-frontend-dev/
 dev/                              # local-only, never imported by src/
 ├── worker.ts                     # dev entry: guards, /_dev routes, fetch interception,
 │                                 # authorize-redirect rewrite, delegates to src/index.ts
-├── fake.env                      # synthetic secrets + RYNKE_FAKE_STRAVA marker
+├── fake.env                      # synthetic secrets (the marker comes from --var)
 └── fake-strava/
     ├── api.ts                    # answers /oauth/token, /oauth/revoke, /api/v3/...
     ├── tokens.ts                 # stateless codes and tokens
@@ -123,7 +123,7 @@ test/
 ├── unit/dev-guard.test.ts        # FR-009: src/ never imports dev/; dev entry guards
 └── integration/dev-fake-strava.test.ts   # fake mode end to end (seed → import → /me)
 
-wrangler.jsonc                    # + "dev": { "port": 8789 }
+wrangler.jsonc                    # + "dev": { "port": 8789, "host": "localhost:8789" }
 package.json                      # dev = fake mode; dev:strava = real Strava
 tsconfig.json                     # include "dev"
 CLAUDE.md, README.md, .dev.vars.example,

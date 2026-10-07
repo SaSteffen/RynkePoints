@@ -52,7 +52,8 @@ doesn't exist, the same way as `POST /_dev/reset`. That request waits for it.
 
 | Script | Runs |
 |---|---|
-| `pnpm dev` | Applies pending migrations to `.wrangler/fake-state` (non-interactive), then `wrangler dev dev/worker.ts --env-file dev/fake.env --persist-to .wrangler/fake-state --live-reload --test-scheduled` |
+| `pnpm dev` | Applies pending migrations to `.wrangler/fake-state` (non-interactive through `CI=1`), then, with the shell's declared secrets unset (`env -u …`), `wrangler dev dev/worker.ts --env-file dev/fake.env --var RYNKE_FAKE_STRAVA:local-only --persist-to .wrangler/fake-state --live-reload --test-scheduled` |
 | `pnpm dev:strava` | `wrangler dev --test-scheduled`: the app against the real Strava with `.dev.vars` and `.wrangler/state`, as `pnpm dev` did before |
 
-Both listen on `dev.port` 8789 from `wrangler.jsonc`.
+Both listen on `dev.port` 8789 from `wrangler.jsonc`, and `dev.host` keeps request
+URLs on `localhost:8789`.

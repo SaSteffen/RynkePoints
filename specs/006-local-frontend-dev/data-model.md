@@ -68,7 +68,11 @@ hours, like Strava's. The `scopes` decide whether private activities are visible
 | `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET` | Fixed placeholders. The fake checks them like Strava does. |
 | `STRAVA_WEBHOOK_VERIFY_TOKEN` | Fixed placeholder, used for the internal webhook calls |
 | `TOKEN_ENCRYPTION_KEY`, `SESSION_SIGNING_KEY` | Fixed synthetic 32-byte keys, base64 |
-| `RYNKE_FAKE_STRAVA` | `local-only`, the marker the dev entry requires (research R9) |
+| `ADMIN_TOKEN` | `fake-admin-token`, for `pnpm daily:run` against fake mode (feature 007) |
+
+The marker `RYNKE_FAKE_STRAVA=local-only` that the dev entry requires (research
+R9) isn't in this file: Wrangler loads only declared secrets from it, so the
+`pnpm dev` script passes the marker with `--var` (research R5).
 
 `STRAVA_CLUB_ID`, `SEASON_START_DATE` and `STRAVA_SUBSCRIPTION_ID` come from
 `wrangler.jsonc` as usual.

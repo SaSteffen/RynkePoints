@@ -95,7 +95,8 @@ add a binding to `wrangler.jsonc` and so to production.
 
 **Decision**:
 - Fake mode starts with `--env-file dev/fake.env`, a committed file with synthetic
-  values for the five required secrets plus the marker `RYNKE_FAKE_STRAVA=local-only`.
+  values for the required secrets. The marker `RYNKE_FAKE_STRAVA=local-only` is
+  passed with `--var` in the `pnpm dev` script (see below).
 - Fake mode keeps its local state in `.wrangler/fake-state` (`--persist-to`). That
   directory is ignored like the rest of `.wrangler/`.
 
@@ -104,6 +105,11 @@ add a binding to `wrangler.jsonc` and so to production.
   **not** read `.dev.vars`. The developer's real Strava credentials therefore never
   reach fake mode (spec edge case). Fake mode also works on a fresh checkout without
   creating `.dev.vars` (SC-001).
+- Found during implementation: because `wrangler.jsonc` declares `secrets`,
+  Wrangler also merges the shell's environment over the env file, and keeps only
+  the declared secrets from it. A shell exporting the real secrets would put them
+  into fake mode, and the marker would be dropped. So `pnpm dev` unsets the
+  declared secrets for Wrangler (`env -u …`) and passes the marker with `--var`.
 - The synthetic keys are like the ones `vitest.config.ts` already commits. They
   protect nothing real, and Principle I's "no secrets in git" is about real
   secrets.
@@ -164,9 +170,13 @@ hand-written rather than computed (FR-012).
 ## R7. Port, reload and debugging
 
 **Decision**:
-- `"dev": { "port": 8789 }` in `wrangler.jsonc`. It only affects `wrangler dev`, so
-  both local modes use 8789 without a flag (FR-001). If the port is taken,
-  Wrangler fails to start and names it.
+- `"dev": { "port": 8789, "host": "localhost:8789" }` in `wrangler.jsonc`. It only
+  affects `wrangler dev`, so both local modes use 8789 without a flag (FR-001).
+  Without `host`, `wrangler dev` hands the Worker URLs on the first route's host
+  (the production domain), so the OAuth `redirect_uri` would point there and the
+  dev entry's host guard would refuse every request. If the port is taken,
+  Wrangler fails to start with "Address already in use"; it doesn't name the
+  port, but nothing else is listening on 8789 in this project.
 - Fake mode starts with `--live-reload`: Wrangler rebuilds on save, and open HTML
   pages reload themselves (FR-003, SC-003).
 - `--test-scheduled` exposes `/__scheduled`, so the developer can run the daily
@@ -197,7 +207,8 @@ checks (US3 scenario 3).
    instead, which `pnpm lint` and CI run.
 2. **The dev entry refuses to run outside fake mode**: its `fetch`, `queue` and
    `scheduled` handlers throw unless `env.RYNKE_FAKE_STRAVA === "local-only"`. That
-   value comes only from `dev/fake.env`, which `wrangler deploy` doesn't upload.
+   value comes only from the `pnpm dev` script's `--var`, which `wrangler deploy`
+   never sees.
    `fetch` also answers `403` unless the host is `localhost`, `127.0.0.1` or
    `[::1]`. So a mistaken `wrangler deploy dev/worker.ts` would serve nothing and
    process nothing.

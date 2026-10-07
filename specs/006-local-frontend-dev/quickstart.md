@@ -54,7 +54,8 @@ reports `Ready on http://localhost:8789` and loads `dev/fake.env` (not `.dev.var
 Throughout, the terminal shows `[fake-strava] …` lines for every answered request,
 and no request goes to Strava (SC-002).
 
-Port taken? `pnpm dev` fails and names port 8789. Free the port; the app doesn't
+Port taken? `pnpm dev` fails with "Address already in use" (Wrangler doesn't name
+the port; it is 8789). Free the port; the app doesn't
 move to another one.
 
 ## 3. Optional: debugging server code
