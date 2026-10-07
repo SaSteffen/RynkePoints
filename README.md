@@ -70,15 +70,25 @@ Requirements: Node 24 (see `.nvmrc`) and pnpm (`corepack enable`).
 
 ```bash
 pnpm install                # deps + git hooks
-cp .dev.vars.example .dev.vars   # fill in your Strava API app credentials
 pnpm test
-pnpm wrangler d1 migrations apply rynke-points --local   # local database
-pnpm dev                    # local Worker on http://localhost:8787
+pnpm dev                    # local Worker on http://localhost:8789 with a fake Strava
 ```
 
-You need your own [Strava API application](https://www.strava.com/settings/api) for
-local development. You don't need a Cloudflare account: production is deployed by
-CI (see [Deploying](#deploying)).
+`pnpm dev` needs no Strava account: a fake Strava with synthetic sample riders
+answers instead, and `http://localhost:8789/_dev/` signs you in as any of them
+([feature 006 quickstart](specs/006-local-frontend-dev/quickstart.md)).
+
+Against the real Strava you need your own
+[Strava API application](https://www.strava.com/settings/api):
+
+```bash
+cp .dev.vars.example .dev.vars   # fill in your Strava API app credentials
+pnpm wrangler d1 migrations apply rynke-points --local   # local database
+pnpm dev:strava             # local Worker on http://localhost:8789, real Strava
+```
+
+You don't need a Cloudflare account for either: production is deployed by CI (see
+[Deploying](#deploying)).
 
 Running against the real Strava locally, and the manual one-time production
 steps (Cloudflare resources, secrets, the webhook subscription and Strava's

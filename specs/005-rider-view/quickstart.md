@@ -61,8 +61,10 @@ After each delivery, before its pull request:
 Uses feature 001's local run with your own Strava account. Your rides stay in
 the local D1.
 
-1. `pnpm wrangler d1 migrations apply rynke-points --local`, then `pnpm dev`. Connect
-   on `http://localhost:8787/` and wait for the import. Feature 003 evaluates
+1. `pnpm wrangler d1 migrations apply rynke-points --local`, then `pnpm dev:strava`.
+   Connect on `http://localhost:8789/` and wait for the import. For page work
+   without Strava, `pnpm dev` has a sample rider for every state
+   ([feature 006 quickstart](../006-local-frontend-dev/quickstart.md)). Feature 003 evaluates
    each imported page, so a balance appears within seconds.
 2. **Desktop**: open `/me`. Check the order of sections against spec
    [D4](spec.md#d4-page-layout-desktop), and that the figures agree with the

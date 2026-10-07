@@ -1,4 +1,5 @@
-# Copy to .dev.vars for `pnpm dev` / tests. Never commit .dev.vars.
+# Copy to .dev.vars for `pnpm dev:strava` (the real Strava) and tests' local
+# overrides; `pnpm dev` uses dev/fake.env instead. Never commit .dev.vars.
 # Production values are set with `pnpm wrangler secret put <NAME>`.
 STRAVA_CLIENT_ID=
 STRAVA_CLIENT_SECRET=
