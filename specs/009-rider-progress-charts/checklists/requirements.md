@@ -36,11 +36,11 @@
   Monday-to-Sunday weeks in Europe/Berlin (FR-011, FR-037), rule changes redraw the
   whole curve and are labelled, not marked on the axis (FR-040, Assumptions).
 - "No elevation charts" is read as: no metres, km, time, speed or other ride
-  performance figure anywhere in the charts (FR-005); elevation appears only as the
-  Training Rynke it earns, one source among others, as in feature 005's gauges.
-  `/speckit-clarify` can revisit this.
-- The pace line (US4) is an addition not in the prompt; it only exists with a
+  performance figure anywhere in the charts (FR-005); elevation is never shown on
+  its own, its Training Rynke only add to the Training curve. Clarified on
+  2026-10-07 together with "line charts only" (FR-007): no bars, no split by source.
+- The pace line (US2) is an addition not in the prompt; it only exists with a
   deadline and is P3.
 - Scripts and a charting library are mentioned only as constraints from the prompt
   and constitution Principle IV (Assumptions, FR-052); the choice is the plan's.
-- Diagrams (D0–D8) rendered with mermaid-cli on 2026-10-07.
+- Diagrams (D0–D7) rendered with mermaid-cli on 2026-10-07.
