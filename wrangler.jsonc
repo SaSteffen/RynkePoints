@@ -68,5 +68,10 @@
 		}
 	],
 	"workers_dev": false,
-	"preview_urls": false
+	"preview_urls": false,
+	// `wrangler dev` only (`pnpm dev` and `pnpm dev:strava`); deploys ignore it.
+	// 8787, Wrangler's default, is taken on the maintainer's machine.
+	"dev": {
+		"port": 8789
+	}
 }
