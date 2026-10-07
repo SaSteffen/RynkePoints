@@ -31,4 +31,4 @@ Adds to feature 001's
 |---------|--------|------|
 | `ADMIN_TOKEN` unset or empty | `error: ADMIN_TOKEN is not set` on stderr, nothing sent | 1 |
 | `202` | `daily run started on <RYNKE_URL>` | 0 |
-| any other status, timeout or connection error | curl's error and the response body | non-zero |
+| any other status, timeout or connection error | curl's error (e.g. `returned error: 404`); the body, an HTML page, is dropped | non-zero |

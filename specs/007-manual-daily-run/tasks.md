@@ -24,7 +24,7 @@ one handler, so Phase 3 builds the route for both. Phase 4 adds US1's script.
 
 - [x] T001 Put the production secret with `pnpm wrangler secret put ADMIN_TOKEN`
   (manual, done by the maintainer on 2026-10-07, research R4)
-- [ ] T002 Declare the secret:
+- [x] T002 Declare the secret:
   - add `"ADMIN_TOKEN"` to `secrets.required` in `wrangler.jsonc`, then run
     `pnpm types` to regenerate `worker-configuration.d.ts`;
   - add the synthetic binding `ADMIN_TOKEN: "test-admin-token"` in
@@ -36,7 +36,7 @@ one handler, so Phase 3 builds the route for both. Phase 4 adds US1's script.
 
 ## Phase 2: Foundational
 
-- [ ] T003 Add `waitUntil` to `Ctx` (research R2):
+- [x] T003 Add `waitUntil` to `Ctx` (research R2):
   - `src/ctx.ts`: add
     `waitUntil: (promise: Promise<unknown>) => void;` with a one-line doc
     comment.
@@ -47,7 +47,7 @@ one handler, so Phase 3 builds the route for both. Phase 4 adds US1's script.
     `waitUntil` pushes to, exposed on `TestCtx`.
   - `test/integration/wiring.test.ts`: pass `createExecutionContext()` as the
     third argument to `worker.queue(...)` and `worker.scheduled(...)`.
-- [ ] T004 [P] Move `secretEquals` from `src/http/webhook.ts` to a new
+- [x] T004 [P] Move `secretEquals` from `src/http/webhook.ts` to a new
   `src/crypto/secret.ts`, exported unchanged with its comment. `webhook.ts`
   imports it, and the existing webhook tests stay green.
 
@@ -63,7 +63,7 @@ as an unknown address and starts nothing ([contract](contracts/run-daily.md)).
 
 **Independent test**: `test/integration/run-daily.test.ts` passes.
 
-- [ ] T005 [US2] Write `test/integration/run-daily.test.ts` (failing). In
+- [x] T005 [US2] Write `test/integration/run-daily.test.ts` (failing). In
   `beforeEach`, `resetDb()` and seed one connected rider with `seedRider`. Each
   case calls `handleFetch` (from `src/index.ts`) with a `Request` to
   `${ORIGIN}/admin/run-daily` and a test `Ctx`. For each case below, assert
@@ -75,13 +75,13 @@ as an unknown address and starts nothing ([contract](contracts/run-daily.md)).
   - `POST` with `Bearer ` (empty token), while the `Ctx` env has
     `ADMIN_TOKEN: ""`;
   - `GET` with `Bearer test-admin-token`.
-- [ ] T006 [US1] Add a case to `test/integration/run-daily.test.ts` (failing):
+- [x] T006 [US1] Add a case to `test/integration/run-daily.test.ts` (failing):
   - `POST` with `Bearer test-admin-token` answers `202`, with `Content-Type:
     text/plain; charset=utf-8` and body `started`.
   - `ctx.pending` has exactly one promise. After awaiting it, `ctx.queue.sent`
     equals what `handleScheduled` sends on a fresh `makeCtx()` after
     `resetDb()` and the same seed.
-- [ ] T007 [US1] Implement `handleRunDaily(request, ctx, i18n, path)` in the new
+- [x] T007 [US1] Implement `handleRunDaily(request, ctx, i18n, path)` in the new
   `src/http/run-daily.ts`:
   - Parse `Authorization` with `/^Bearer (.+)$/`.
   - Return `notFound(i18n, path)` when the method isn't `POST`, the header
@@ -96,7 +96,7 @@ as an unknown address and starts nothing ([contract](contracts/run-daily.md)).
   - Watch out for the import cycle: `handleScheduled` lives in `src/index.ts`,
     which imports the router. If that breaks, move `handleScheduled` into
     `src/work/scheduled.ts` and re-export it from `src/index.ts`.
-- [ ] T008 [US1] Route `/admin/run-daily` to `handleRunDaily` for every method,
+- [x] T008 [US1] Route `/admin/run-daily` to `handleRunDaily` for every method,
   after the `i18n` is created, in `src/http/router.ts`. T005 and T006 now pass.
 
 **Checkpoint**: the route is done, and the job can be started with a plain curl.
@@ -109,7 +109,7 @@ as an unknown address and starts nothing ([contract](contracts/run-daily.md)).
 
 **Independent test**: quickstart "Locally" steps 2–4.
 
-- [ ] T009 [P] [US1] Write `scripts/run-daily.sh` (executable, bash,
+- [x] T009 [P] [US1] Write `scripts/run-daily.sh` (executable, bash,
   `set -euo pipefail`, with a header comment in the style of
   `scripts/docs-pdf.sh`):
   - When `ADMIN_TOKEN` is unset or empty, print `error: ADMIN_TOKEN is not set`
@@ -119,21 +119,21 @@ as an unknown address and starts nothing ([contract](contracts/run-daily.md)).
     --fail-with-body --max-time 30 -X POST -H @- "$url/admin/run-daily"
     >/dev/null`, so the token stays out of the argument list.
   - Then print `daily run started on $url`.
-- [ ] T010 [P] [US1] Add `"daily:run": "scripts/run-daily.sh"` to `scripts` in
+- [x] T010 [P] [US1] Add `"daily:run": "scripts/run-daily.sh"` to `scripts` in
   `package.json`, next to `docs:pdf`.
 
 ---
 
 ## Phase 5: Polish
 
-- [ ] T011 [P] Add to `test/integration/wiring.test.ts`: `exports.default.fetch`
+- [x] T011 [P] Add to `test/integration/wiring.test.ts`: `exports.default.fetch`
   of `POST https://rynke.test/admin/run-daily` with `Bearer test-admin-token`
   answers `202`, and without the header answers `404`.
-- [ ] T012 [P] Document the secret next to the others (FR-005): add
+- [x] T012 [P] Document the secret next to the others (FR-005): add
   `ADMIN_TOKEN` (`openssl rand -base64 32`) to step 6 of
   `specs/001-strava-connect-webhook/quickstart.md`, and point to
   `specs/007-manual-daily-run/quickstart.md` for using it.
-- [ ] T013 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`. All pass.
+- [x] T013 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`. All pass.
 
 ---
 

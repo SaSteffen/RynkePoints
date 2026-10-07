@@ -78,7 +78,7 @@
   - It sends the `Authorization` header through `curl -H @-` from stdin, so the
     token never appears in the process list.
   - With `--fail-with-body` and `--max-time`, a non-2xx answer or a timeout exits
-    non-zero and prints what came back. On `202` it prints `daily run started on
+    non-zero with curl's error. The body, an HTML page, is dropped. On `202` it prints `daily run started on
     <url>`.
 - **Rationale**: curl is already assumed by the quickstarts, and a Node script
   would add nothing.
