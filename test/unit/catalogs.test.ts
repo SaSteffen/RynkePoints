@@ -112,6 +112,14 @@ const CONTRACT_IDS = [
 	"rynke.ride.doesNotCount",
 	"rynke.ride.beingEvaluated",
 	"rynke.ride.virtual",
+	// Feature 005, US2
+	"units.percent",
+	"rynke.gauges.heading",
+	"rynke.gauge.caption",
+	"rynke.gauge.reached",
+	"rynke.gauge.elevation",
+	"rynke.source.distance",
+	"rynke.source.elevation",
 ];
 
 const placeholders = (text: string) =>

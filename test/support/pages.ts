@@ -57,6 +57,9 @@ export async function seedPageRiders(ctx: TestCtx): Promise<void> {
 		elevationToNextStepDm: 7600,
 		trainingRynke: 17,
 		trainingMissing: 233,
+		// A reached gauge, so its caption is covered too.
+		teamRynke: 25,
+		teamMissing: 0,
 		trainingWithoutVirtual: 13,
 		virtualShareMissing: 154,
 	});

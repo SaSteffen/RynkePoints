@@ -71,6 +71,7 @@ export const de = {
 
 	"units.km": "{value} km",
 	"units.m": "{value} m",
+	"units.percent": "{value} %",
 	"sport.Ride": "Radfahrt",
 	"sport.MountainBikeRide": "Mountainbike-Fahrt",
 	"sport.GravelRide": "Gravel-Fahrt",
@@ -100,6 +101,13 @@ export const de = {
 	"rynke.ride.doesNotCount": "zählt nicht",
 	"rynke.ride.beingEvaluated": "wird ausgewertet",
 	"rynke.ride.virtual": "virtuell",
+	"rynke.gauges.heading": "Dein Fortschritt",
+	"rynke.gauge.caption": "{label}: {value} von {target} · {percent}",
+	"rynke.gauge.reached": "✓ erreicht",
+	"rynke.gauge.elevation":
+		"Höhenmeter bis zu den nächsten {stepRynke} Trainingsrynke: {value} von {target} · {percent} · noch {missing}",
+	"rynke.source.distance": "Distanz",
+	"rynke.source.elevation": "Höhenmeter",
 
 	"disconnect.title": "Daten löschen?",
 	"disconnect.explain":

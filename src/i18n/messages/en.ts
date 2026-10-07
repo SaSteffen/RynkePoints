@@ -70,6 +70,7 @@ export const en: Catalog = {
 
 	"units.km": "{value} km",
 	"units.m": "{value} m",
+	"units.percent": "{value}%",
 	"sport.Ride": "Ride",
 	"sport.MountainBikeRide": "Mountain bike ride",
 	"sport.GravelRide": "Gravel ride",
@@ -98,6 +99,13 @@ export const en: Catalog = {
 	"rynke.ride.doesNotCount": "doesn't count",
 	"rynke.ride.beingEvaluated": "being evaluated",
 	"rynke.ride.virtual": "virtual",
+	"rynke.gauges.heading": "Your progress",
+	"rynke.gauge.caption": "{label}: {value} of {target} · {percent}",
+	"rynke.gauge.reached": "✓ reached",
+	"rynke.gauge.elevation":
+		"Elevation towards the next {stepRynke} Training Rynke: {value} of {target} · {percent} · {missing} to go",
+	"rynke.source.distance": "Distance",
+	"rynke.source.elevation": "Elevation",
 
 	"disconnect.title": "Delete your data?",
 	"disconnect.explain":
