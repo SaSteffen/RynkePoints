@@ -170,6 +170,7 @@ export const RIDER_PAGES: RiderPage[] = [
 		status: 200,
 		fetch: get(`/notice/${id}`),
 	})),
+	{ name: "/offline", next: "/me", status: 200, fetch: get("/offline") },
 	{ name: "404", next: "/nowhere", status: 404, fetch: get("/nowhere") },
 	{
 		name: "403",

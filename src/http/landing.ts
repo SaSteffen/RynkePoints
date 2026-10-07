@@ -40,6 +40,7 @@ ${renderInstallHint(i18n)}
 <p>${i18n.t("landing.leave")}</p>
 <p>${i18n.t("landing.backups")}</p>
 <p>${i18n.t("landing.cookies")}</p>
+<p>${i18n.t("landing.notifications")}</p>
 <h2>${i18n.t("consent.heading")}</h2>
 <p>${i18n.t("consent.organisers")}</p>
 <p>${i18n.t("consent.team")}</p>

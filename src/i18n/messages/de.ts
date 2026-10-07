@@ -34,6 +34,8 @@ export const de = {
 		"Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters und verschwinden danach automatisch.",
 	"landing.cookies":
 		"Wir setzen nur notwendige Cookies: für die Anmeldung und für deine Sprachwahl.",
+	"landing.notifications":
+		"Benachrichtigungen sind freiwillig und gelten pro Gerät. Sie sagen nur, dass es neue Rynke gibt, und laufen über den Benachrichtigungsdienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die dieser Dienst deinem Gerät gibt, und löschen sie, wenn du die Benachrichtigungen ausschaltest, dich abmeldest oder gehst.",
 
 	"consent.heading": "Was du mit dem Verbinden erlaubst",
 	"consent.organisers":

@@ -32,6 +32,8 @@ export const en: Catalog = {
 		"Deleted data stays in our hosting provider's backups for up to 7 days and then disappears automatically.",
 	"landing.cookies":
 		"We only set necessary cookies: for signing in and for your language choice.",
+	"landing.notifications":
+		"Notifications are optional and per device. They only say that there are new Rynke, and they pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address that service gives your device, and delete it when you turn notifications off, sign out or leave.",
 
 	"consent.heading": "What you agree to by connecting",
 	"consent.organisers":

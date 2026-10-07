@@ -35,6 +35,7 @@ const CONTRACT_IDS = [
 	"landing.leave",
 	"landing.backups",
 	"landing.cookies",
+	"landing.notifications",
 	"consent.heading",
 	"consent.organisers",
 	"consent.team",
