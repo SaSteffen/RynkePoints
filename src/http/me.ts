@@ -16,12 +16,12 @@ import {
 	renderRides,
 	renderSummary,
 } from "./rider-sections";
-import { buildRiderView } from "./rider-view";
+import { buildRiderView, parsePage } from "./rider-view";
 import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 
 // The rider's own pages (contracts/http-routes.md): `/me` with connection
 // status, granted level and write access, import progress, the rider's Rynke
-// with their gauges and where they come from, and their 20 newest rides with
+// with their gauges and where they come from, and all their rides, 20 a page, with
 // what each earns (feature 005, only ever their own and only read), the stored
 // consent (feature 004 FR-014), disconnecting with deletion (FR-023), and
 // signing out.
@@ -71,7 +71,11 @@ export async function handleMe(
 			? i18n.t("me.import.done")
 			: i18n.t("me.import.running", { date: seasonStart });
 
-	const read = await readRiderView(ctx.env.DB, rider.athleteId, 1);
+	const read = await readRiderView(
+		ctx.env.DB,
+		rider.athleteId,
+		parsePage(new URL(request.url)),
+	);
 	const view = buildRiderView(
 		read,
 		read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
@@ -87,7 +91,8 @@ export async function handleMe(
 		i18n,
 		layout(i18n, {
 			title,
-			path: "/me",
+			// The page shown, so the language switch keeps it (FR-046).
+			path: read.page > 1 ? `/me?page=${read.page}` : "/me",
 			body: html`<h1>${i18n.t("me.greeting", { firstName: rider.firstName })}</h1>
 ${status}
 <p>${i18n.t(rider.scopeReadAll ? "me.scope.readAll" : "me.scope.sharedOnly")}</p>

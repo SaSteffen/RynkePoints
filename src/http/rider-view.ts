@@ -98,7 +98,18 @@ export interface RideTable {
 	rows: RideLine[];
 	/** 1-based positions in the whole table; `from` is 0 without rows. */
 	position: { from: number; to: number; total: number };
-	pager: null;
+	/** `null` with `RIDES_PER_PAGE` rides or fewer (FR-045). */
+	pager: Pager | null;
+}
+
+/** The pages a link leads to; `null` = the link isn't offered. */
+export interface Pager {
+	page: number;
+	lastPage: number;
+	first: number | null;
+	previous: number | null;
+	next: number | null;
+	last: number | null;
 }
 
 export interface RideLine {
@@ -315,6 +326,16 @@ export function gaugeParts<S extends string>(
 		}));
 }
 
+/**
+ * The requested table page: `?page=N` with N of 1 to 4 digits and no leading
+ * zero, otherwise 1, also for several `page` parameters (contracts/http-routes.md).
+ */
+export function parsePage(url: URL): number {
+	const pages = url.searchParams.getAll("page");
+	const page = pages.length === 1 ? pages[0] : undefined;
+	return page && /^[1-9][0-9]{0,3}$/.test(page) ? Number(page) : 1;
+}
+
 function rideTable(read: RiderViewRead, context: ViewContext): RideTable {
 	const from =
 		read.rides.length === 0 ? 0 : (read.page - 1) * RIDES_PER_PAGE + 1;
@@ -325,7 +346,23 @@ function rideTable(read: RiderViewRead, context: ViewContext): RideTable {
 			to: from === 0 ? 0 : from + read.rides.length - 1,
 			total: read.rideCount,
 		},
-		pager: null,
+		pager: pager(read.page, read.rideCount),
+	};
+}
+
+/** Only the links that lead somewhere else (research R11). */
+function pager(page: number, rideCount: number): Pager | null {
+	if (rideCount <= RIDES_PER_PAGE) return null;
+	const lastPage = Math.ceil(rideCount / RIDES_PER_PAGE);
+	const newer = page > 1;
+	const older = page < lastPage;
+	return {
+		page,
+		lastPage,
+		first: newer ? 1 : null,
+		previous: newer ? page - 1 : null,
+		next: older ? page + 1 : null,
+		last: older ? lastPage : null,
 	};
 }
 

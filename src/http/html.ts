@@ -60,6 +60,8 @@ tr.ride td{border-top:1px solid #ddd}
 tr.ride-details td{padding-top:0;font-size:.875rem;color:#666}
 tr.ride-details ul,tr.ride-details p{margin:.25rem 0}
 .ride-reasons{padding-left:1.25rem}
+.tap{display:inline-flex;align-items:center;min-height:44px;min-width:44px}
+nav.pager{display:flex;flex-wrap:wrap;gap:.5rem 1rem;margin-top:.5rem}
 :root{--rp-part-1:#fc5200;--rp-part-2:#1f6fb2;--rp-part-3:#2a9d8f;--rp-part-4:#8e44ad;--rp-part-5:#c9a227;--rp-part-6:#6b6b6b;--rp-reached:#2e7d32;--rp-track:#e6e6e6}
 figure.gauge{display:block;width:100%;margin:0 0 1rem}
 .gauge-bar{display:flex;height:1rem;background:var(--rp-track);border-radius:.25rem;overflow:hidden}
@@ -74,7 +76,7 @@ figure.gauge{display:block;width:100%;margin:0 0 1rem}
 .gauge-reached .gauge-fill{background:var(--rp-reached)}
 .gauge-legend{display:flex;flex-wrap:wrap;gap:0 1rem;list-style:none;margin:.25rem 0 0;padding:0;font-size:.875rem}
 .gauge-key{display:inline-block;width:.75rem;height:.75rem;margin-right:.25rem;vertical-align:middle}
-@media (max-width:36rem){table.rides th,table.rides td{padding:.2rem .25rem}}`;
+@media (max-width:36rem){table.rides th,table.rides td{padding:.2rem .25rem}nav.pager{gap:.25rem .5rem}}`;
 
 export interface LayoutOptions {
 	title: string;
