@@ -119,3 +119,28 @@ function safeParse(json: string): unknown {
 		return null;
 	}
 }
+
+export async function handleScheduled(
+	_controller: ScheduledController,
+	ctx: Ctx,
+): Promise<void> {
+	// Independent steps, in contract order: one failing (D1, Queues) must not
+	// skip the others, but the run still fails so it shows up in logs.
+	let failure: unknown;
+	let failed = false;
+	for (const step of [
+		fanOutMembershipChecks,
+		expireReconnectRiders,
+		requeueFailedWork,
+		fanOutFiguresReread,
+		fanOutEvaluations,
+	]) {
+		try {
+			await step(ctx);
+		} catch (err) {
+			if (!failed) failure = err;
+			failed = true;
+		}
+	}
+	if (failed) throw failure;
+}

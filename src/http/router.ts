@@ -12,6 +12,7 @@ import {
 	handleMe,
 } from "./me";
 import { handleNotice } from "./notice";
+import { handleRunDaily } from "./run-daily";
 import { handleWebhook } from "./webhook";
 
 // A small path switch (research R13). `/health` and the Strava webhook answer
@@ -31,6 +32,10 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	}
 
 	const i18n = createI18n(resolveLocale(request, ctx.catalogs), ctx.catalogs);
+
+	if (path === "/admin/run-daily") {
+		return handleRunDaily(request, ctx, i18n, path);
+	}
 
 	if (method === "GET" || method === "HEAD") {
 		switch (path) {

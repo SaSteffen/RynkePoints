@@ -1,4 +1,5 @@
 import { subscriptionId, verifyToken } from "../config";
+import { secretEquals } from "../crypto/secret";
 import type { Ctx } from "../ctx";
 import { ACTIVITY_ASPECTS, isId, isOneOf } from "../work/messages";
 
@@ -46,14 +47,6 @@ export async function handleWebhook(
 				headers: { Allow: "GET, POST" },
 			});
 	}
-}
-
-/** Compares in constant time; hashing first makes the lengths equal. */
-async function secretEquals(given: string, expected: string): Promise<boolean> {
-	const digest = (value: string) =>
-		crypto.subtle.digest("SHA-256", new TextEncoder().encode(value));
-	const [a, b] = await Promise.all([digest(given), digest(expected)]);
-	return crypto.subtle.timingSafeEqual(a, b);
 }
 
 async function validateSubscription(url: URL, ctx: Ctx): Promise<Response> {

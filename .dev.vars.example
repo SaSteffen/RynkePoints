@@ -8,3 +8,5 @@ STRAVA_WEBHOOK_VERIFY_TOKEN=
 TOKEN_ENCRYPTION_KEY=
 # 32 random bytes, base64: `openssl rand -base64 32`
 SESSION_SIGNING_KEY=
+# Starts the daily run on demand (scripts/run-daily.sh). 32 random bytes, base64: `openssl rand -base64 32`
+ADMIN_TOKEN=

@@ -33,6 +33,17 @@ describe("worker wiring", () => {
 		expect(res.status).toBe(404);
 	});
 
+	it("fetch starts the daily run only with the admin token", async () => {
+		const url = "https://rynke.test/admin/run-daily";
+		const started = await exports.default.fetch(url, {
+			method: "POST",
+			headers: { Authorization: "Bearer test-admin-token" },
+		});
+		expect(started.status).toBe(202);
+		const hidden = await exports.default.fetch(url, { method: "POST" });
+		expect(hidden.status).toBe(404);
+	});
+
 	it("fetch renders the start page in German", async () => {
 		const res = await exports.default.fetch("https://rynke.test/");
 		expect(res.status).toBe(200);
@@ -50,7 +61,7 @@ describe("worker wiring", () => {
 		const batch = createMessageBatch<unknown>("rynke-points-work", [
 			{ id: "m1", timestamp: new Date(NOW * 1000), attempts: 1, body },
 		]);
-		await worker.queue(batch, env);
+		await worker.queue(batch, env, createExecutionContext());
 		const result = await getQueueResult(batch, createExecutionContext());
 		expect(result.explicitAcks).toEqual(["m1"]);
 		expect(result.retryMessages).toEqual([]);
@@ -62,7 +73,7 @@ describe("worker wiring", () => {
 		const batch = createMessageBatch<unknown>("rynke-points-work", [
 			{ id: "m1", timestamp: new Date(NOW * 1000), attempts: 1, body },
 		]);
-		await worker.queue(batch, env);
+		await worker.queue(batch, env, createExecutionContext());
 		const result = await getQueueResult(batch, createExecutionContext());
 		expect(result.explicitAcks).toEqual(["m1"]);
 		const balance = await env.DB.prepare(
@@ -78,6 +89,8 @@ describe("worker wiring", () => {
 			scheduledTime: new Date(NOW * 1000),
 			cron: "17 3 * * *",
 		});
-		await expect(worker.scheduled(controller, env)).resolves.toBeUndefined();
+		await expect(
+			worker.scheduled(controller, env, createExecutionContext()),
+		).resolves.toBeUndefined();
 	});
 });
