@@ -5,6 +5,7 @@ import type {
 	Condition,
 	Gauge,
 	Gauges,
+	Pager,
 	ReasonLine,
 	RideLine,
 	RiderView,
@@ -188,15 +189,45 @@ ${heading}
 <p>${i18n.t("me.recent.empty")}</p>
 </section>`;
 	}
+	const { from, to, total } = rides.position;
+	const position =
+		rides.pager &&
+		html`<p class="rides-position">${i18n.t("rynke.rides.position", {
+			from: whole(i18n, from),
+			to: whole(i18n, to),
+			total: whole(i18n, total),
+		})}</p>
+`;
 	return html`<section id="rides">
 ${heading}
-<table class="rides">
+${position}<table class="rides">
 <thead><tr><th>${i18n.t("me.recent.col.date")}</th><th>${i18n.t("me.recent.col.distance")}</th><th>${i18n.t("rynke.rides.col.status")}</th><th>${i18n.t("rynke.training")}</th><th>${i18n.t("rynke.rides.col.elevationTotal")}</th></tr></thead>
 <tbody>
 ${rides.rows.map((ride) => rideRows(i18n, ride))}</tbody>
 </table>
-</section>`;
+${rides.pager && renderPager(i18n, rides.pager)}</section>`;
 }
+
+/** Only the links that apply; each a 44 px tap target (FR-045, FR-070). */
+function renderPager(i18n: I18n, pager: Pager): SafeHtml {
+	const links = PAGER_LINKS.flatMap(({ key, rel, text }) => {
+		const page = pager[key];
+		return page === null
+			? []
+			: [
+					html`<a class="tap" href="/me?page=${page}#rides" rel="${rel}">${i18n.t(text)}</a>`,
+				];
+	});
+	return html`<nav class="pager" aria-label="${i18n.t("rynke.pager.label")}">${links}</nav>
+`;
+}
+
+const PAGER_LINKS = [
+	{ key: "first", rel: "first", text: "rynke.pager.first" },
+	{ key: "previous", rel: "prev", text: "rynke.pager.previous" },
+	{ key: "next", rel: "next", text: "rynke.pager.next" },
+	{ key: "last", rel: "last", text: "rynke.pager.last" },
+] as const;
 
 function kilometres(i18n: I18n, m: number): string {
 	return i18n.t("units.km", {

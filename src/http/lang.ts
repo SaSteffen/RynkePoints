@@ -15,6 +15,8 @@ const NEXT_PATHS = new Set(["/", "/me", "/me/disconnect"]);
 export function safeNext(next: string | null): string {
 	if (next === null) return "/";
 	if (NEXT_PATHS.has(next)) return next;
+	// The rider page's table page, so the switch keeps it (feature 005 FR-046).
+	if (/^\/me\?page=[1-9][0-9]{0,3}$/.test(next)) return next;
 	const notice = next.match(/^\/notice\/([a-z-]+)$/);
 	if (notice?.[1] && isNoticeId(notice[1])) return next;
 	return "/";

@@ -439,7 +439,7 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 5 (write first, confirm red) ⚠️
 
-- [ ] T046 [P] [US5] Extend `test/unit/rider-view.test.ts`:
+- [X] T046 [P] [US5] Extend `test/unit/rider-view.test.ts`:
   - **`parsePage(url)`**:
     - `?page=2` → 2, and `?page=9999` → 9999;
     - missing, `0`, `-1`, `01`, `abc`, `1e3`, `10000`, `2.0` → 1;
@@ -451,7 +451,7 @@ The Team gauge stays undivided until US3b (research R5).
     - page 3 → 41–45, `next`/`last` `null`;
     - 20 rides → `pager: null`;
     - 0 rides → no rows and `pager: null`.
-- [ ] T047 [P] [US5] Extend `test/integration/me-rynke.test.ts`:
+- [X] T047 [P] [US5] Extend `test/integration/me-rynke.test.ts`:
   - **S5-1**: 45 rides; `/me` shows the 20 newest, "Fahrten 1–20 von 45", and a `rel="next"` link to `/me?page=2#rides` with the class `tap`.
   - **S5-2**: `?page=2` shows 21–40 and `?page=3` shows 41–45, with first and previous links.
   - **S5-3**: 20 rides show no `nav.pager` and no position.
@@ -459,31 +459,31 @@ The Team gauge stays undivided until US3b (research R5).
   - **Out of range**: `?page=99` shows 41–45, and `?page=abc` shows page 1.
   - **Read-only (SC-004)**: pages 1–3 leave `tableCounts()` and the row snapshot unchanged, with no queue message and no Strava request.
   - **SC-005**: 500 seeded rides; `/me` and `/me?page=25` render with 20 rows each, and `EXPLAIN QUERY PLAN` of `RIDE_PAGE_SQL` with `(ATHLETE_A, 25)` names `activities_by_rider` and contains no `SCAN activities` without an index.
-- [ ] T048 [P] [US5] Extend `test/integration/lang-switcher.test.ts`:
+- [X] T048 [P] [US5] Extend `test/integration/lang-switcher.test.ts`:
   - **S5-4**: `POST /lang` with `next=/me?page=2` redirects to `/me?page=2`.
   - **Refused**: `/me?page=0`, `/me?page=abc`, `/me?page=2&x=1` and `/me?foo=1` redirect to `/`.
   - **The switcher form** on `GET /me?page=2` carries `next` `/me?page=2`, and on `GET /me?page=1` it carries `/me`.
-- [ ] T049 [P] [US5] Extend `test/unit/catalogs.test.ts`:
+- [X] T049 [P] [US5] Extend `test/unit/catalogs.test.ts`:
   - `CONTRACT_IDS` gains `rynke.rides.position`, `rynke.pager.label`, `.first`, `.previous`, `.next` and `.last`.
   - Assert `de["me.recent.heading"] === "Deine Fahrten"`.
   - Update the existing heading assertions in `test/integration/me-activities.test.ts` to "Deine Fahrten" and "Your rides".
 
 ### Implementation for User Story 5
 
-- [ ] T050 [P] [US5] Add the US5 keys to `src/i18n/messages/de.ts` and `en.ts`, and change `me.recent.heading` to "Deine Fahrten" and "Your rides" (contracts/messages.md "Rides").
-- [ ] T051 [P] [US5] In `src/http/lang.ts`, `safeNext` also returns `next` when it matches `/^\/me\?page=[1-9][0-9]{0,3}$/` (contracts/http-routes.md). Makes T048's redirect cases green.
-- [ ] T052 [US5] In `src/http/rider-view.ts`, add `parsePage(url: URL): number` and `Pager`, and fill `RideTable.position` and `pager` from `read.rideCount` and `read.page`. Makes T046 green.
-- [ ] T053 [US5] In `src/http/rider-sections.ts`, `renderRides` adds `p.rides-position` and `nav.pager` with `aria-label`. Only the links that apply are shown, as `a.tap` with `rel` and `href="/me?page=N#rides"`. Both appear only when `pager` isn't `null`.
-- [ ] T054 [US5] In `src/http/me.ts`:
+- [X] T050 [P] [US5] Add the US5 keys to `src/i18n/messages/de.ts` and `en.ts`, and change `me.recent.heading` to "Deine Fahrten" and "Your rides" (contracts/messages.md "Rides").
+- [X] T051 [P] [US5] In `src/http/lang.ts`, `safeNext` also returns `next` when it matches `/^\/me\?page=[1-9][0-9]{0,3}$/` (contracts/http-routes.md). Makes T048's redirect cases green.
+- [X] T052 [US5] In `src/http/rider-view.ts`, add `parsePage(url: URL): number` and `Pager`, and fill `RideTable.position` and `pager` from `read.rideCount` and `read.page`. Makes T046 green.
+- [X] T053 [US5] In `src/http/rider-sections.ts`, `renderRides` adds `p.rides-position` and `nav.pager` with `aria-label`. Only the links that apply are shown, as `a.tap` with `rel` and `href="/me?page=N#rides"`. Both appear only when `pager` isn't `null`.
+- [X] T054 [US5] In `src/http/me.ts`:
   - Read `parsePage(new URL(request.url))` and pass it to `readRiderView`.
   - Set the layout's `path` to `/me?page=${view.rides.pager.page}` when that page is above 1, otherwise `/me`.
   - Makes T047 and T048 green.
-- [ ] T055 [US5] Extend `STYLE` in `src/http/html.ts`:
+- [X] T055 [US5] Extend `STYLE` in `src/http/html.ts`:
   - `.tap { display:inline-flex; align-items:center; min-height:44px; min-width:44px }`;
   - `nav.pager`: flex, wrapping, with a gap;
   - phone padding under `@media (max-width:36rem)`.
   - If US6 was built first, `.tap` already exists; keep a single rule.
-- [ ] T056 [US5] Check US5:
+- [X] T056 [US5] Check US5:
   - Everything is green.
   - quickstart §3 step 3: the pager links are at least 44 × 44 px, and nothing scrolls sideways.
   - Step 6: with 500 rides, every page appears well under 2 s.

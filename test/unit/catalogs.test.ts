@@ -158,6 +158,13 @@ const CONTRACT_IDS = [
 	"rynke.unknown.trainer",
 	"rynke.unknown.flagged",
 	"rynke.unknown.mayChange",
+	// Feature 005, US5
+	"rynke.rides.position",
+	"rynke.pager.label",
+	"rynke.pager.first",
+	"rynke.pager.previous",
+	"rynke.pager.next",
+	"rynke.pager.last",
 ];
 
 const placeholders = (text: string) =>
@@ -236,6 +243,11 @@ describe("catalog contents", () => {
 		expect(de["rynke.team"]).toBe("Teamrynke");
 		expect(en["rynke.training"]).toBe("Training Rynke");
 		expect(en["rynke.team"]).toBe("Team Rynke");
+	});
+
+	it("heads the ride table with all the rider's rides (US5)", () => {
+		expect(de["me.recent.heading"]).toBe("Deine Fahrten");
+		expect(en["me.recent.heading"]).toBe("Your rides");
 	});
 
 	it("keeps Strava's exact attribution wording in every locale", () => {

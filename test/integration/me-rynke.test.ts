@@ -1,4 +1,6 @@
+import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { RIDE_PAGE_SQL } from "../../src/db/rider-view";
 import { handleFetch } from "../../src/index";
 import type { ReasonCode } from "../../src/rynke/rides";
 import {
@@ -15,6 +17,7 @@ import {
 	type SeedRide,
 	seedBalance,
 	seedRide,
+	seedRides,
 } from "../support/rider-view";
 import { snapshot } from "../support/rynke";
 
@@ -724,6 +727,153 @@ describe("GET /me ride table (US1)", () => {
 	});
 });
 
+describe("GET /me paging (US5)", () => {
+	beforeEach(() => seedBalance(ATHLETE_A));
+
+	/** The ride table's position line and pager links, `rel` → `href`. */
+	async function pager(path: string) {
+		const { html } = await riderPage(ctx, ATHLETE_A, path);
+		const rides = section(html, 'id="rides"') ?? "";
+		const nav = rides.match(/<nav class="pager"[^>]*>([\s\S]*?)<\/nav>/);
+		return {
+			html,
+			rows: mainRows(html),
+			position: text(
+				rides.match(/<p class="rides-position">([\s\S]*?)<\/p>/)?.[1] ?? "",
+			),
+			nav: nav?.[0] ?? null,
+			links: Object.fromEntries(
+				[...(nav?.[1] ?? "").matchAll(/<a ([^>]*)>([\s\S]*?)<\/a>/g)].map(
+					([, attrs = "", label = ""]) => [
+						attrs.match(/rel="([^"]*)"/)?.[1],
+						{
+							href: attrs.match(/href="([^"]*)"/)?.[1],
+							cls: attrs.match(/class="([^"]*)"/)?.[1],
+							text: text(label),
+						},
+					],
+				),
+			),
+		};
+	}
+
+	// One ride a day from 2026-10-06 back, so ride n (1 = newest) is dated
+	// 2026-10-06 minus n - 1 days.
+	const DAY_1 = "06.10.2026";
+	const DAY_21 = "16.09.2026";
+	const DAY_41 = "27.08.2026";
+	const DAY_45 = "23.08.2026";
+
+	it("S5-1: shows the 20 newest and links to the older ones", async () => {
+		await seedRides(ATHLETE_A, 45, "2026-10-06");
+		const page = await pager("/me");
+		expect(page.rows).toHaveLength(20);
+		expect(page.rows[0]?.[0]).toBe(DAY_1);
+		expect(page.position).toBe("Fahrten 1–20 von 45");
+		expect(page.nav).toContain('aria-label="Seiten"');
+		expect(page.links).toEqual({
+			next: { href: "/me?page=2#rides", cls: "tap", text: "Ältere ›" },
+			last: { href: "/me?page=3#rides", cls: "tap", text: "Älteste »" },
+		});
+	});
+
+	it("S5-2: pages through the older rides", async () => {
+		await seedRides(ATHLETE_A, 45, "2026-10-06");
+
+		const second = await pager("/me?page=2");
+		expect(second.rows).toHaveLength(20);
+		expect(second.rows[0]?.[0]).toBe(DAY_21);
+		expect(second.position).toBe("Fahrten 21–40 von 45");
+		expect(second.links).toEqual({
+			first: { href: "/me?page=1#rides", cls: "tap", text: "« Neueste" },
+			prev: { href: "/me?page=1#rides", cls: "tap", text: "‹ Neuere" },
+			next: { href: "/me?page=3#rides", cls: "tap", text: "Ältere ›" },
+			last: { href: "/me?page=3#rides", cls: "tap", text: "Älteste »" },
+		});
+
+		const third = await pager("/me?page=3");
+		expect(third.rows.map((row) => row[0])).toEqual([
+			DAY_41,
+			"26.08.2026",
+			"25.08.2026",
+			"24.08.2026",
+			DAY_45,
+		]);
+		expect(third.position).toBe("Fahrten 41–45 von 45");
+		expect(third.links).toEqual({
+			first: { href: "/me?page=1#rides", cls: "tap", text: "« Neueste" },
+			prev: { href: "/me?page=2#rides", cls: "tap", text: "‹ Neuere" },
+		});
+	});
+
+	it("S5-3: shows no pager and no position for 20 rides", async () => {
+		await seedRides(ATHLETE_A, 20, "2026-10-06");
+		const page = await pager("/me");
+		expect(page.rows).toHaveLength(20);
+		expect(page.nav).toBeNull();
+		expect(page.html).not.toContain("rides-position");
+	});
+
+	it("S5-5: names a ride on page 1 that a ride on page 3 overlaps", async () => {
+		await seedRides(ATHLETE_A, 44, "2026-10-06");
+		await seedRide(ATHLETE_A, {
+			id: 8_100_001,
+			start_date: "2026-08-01T09:30:00Z",
+			result: {
+				counts: false,
+				reasons: ["overlap"],
+				overlapsActivityId: 8_000_001,
+			},
+		});
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me?page=3");
+		expect(text(html)).toContain(
+			`Doppelt aufgezeichnet: Deine Fahrt vom ${DAY_1}, 08:00 Uhr, 40,0 km zählt stattdessen.`,
+		);
+	});
+
+	it("shows the last page for a page past the end", async () => {
+		await seedRides(ATHLETE_A, 45, "2026-10-06");
+		const page = await pager("/me?page=99");
+		expect(page.rows).toHaveLength(5);
+		expect(page.position).toBe("Fahrten 41–45 von 45");
+		expect(page.links.prev?.href).toBe("/me?page=2#rides");
+	});
+
+	it("shows page 1 for a page that isn't a number", async () => {
+		await seedRides(ATHLETE_A, 45, "2026-10-06");
+		const page = await pager("/me?page=abc");
+		expect(page.position).toBe("Fahrten 1–20 von 45");
+	});
+
+	it("SC-005: pages through 500 rides by the rider's index", async () => {
+		await seedRides(ATHLETE_A, 500, "2026-10-06");
+		for (const path of ["/me", "/me?page=25"]) {
+			const page = await pager(path);
+			expect(page.rows).toHaveLength(20);
+		}
+		expect((await pager("/me?page=25")).position).toBe(
+			"Fahrten 481–500 von 500",
+		);
+
+		const { results } = await env.DB.prepare(
+			`EXPLAIN QUERY PLAN ${RIDE_PAGE_SQL}`,
+		)
+			.bind(ATHLETE_A, 25)
+			.all<{ detail: string }>();
+		const plan = results.map((row) => row.detail);
+		expect(plan.some((step) => step.includes("activities_by_rider"))).toBe(
+			true,
+		);
+		// The outer table is `a`, the joined one `c`: no step reads a whole table.
+		expect(
+			plan.filter(
+				(step) =>
+					/^SCAN (a|c|activities)\b/.test(step) && !step.includes("USING"),
+			),
+		).toEqual([]);
+	});
+});
+
 describe("GET /me isolation and access (US1)", () => {
 	it("S1-10: shows each rider only their own figures", async () => {
 		await seedRider(ctx, { athleteId: ATHLETE_B });
@@ -770,6 +920,22 @@ describe("GET /me isolation and access (US1)", () => {
 		const rows = await snapshot(ATHLETE_A);
 
 		expect((await riderPage(ctx, ATHLETE_A)).status).toBe(200);
+
+		expect(await tableCounts()).toEqual(counts);
+		expect(await snapshot(ATHLETE_A)).toEqual(rows);
+		expect(ctx.queue.sent).toEqual([]);
+		expect(fake.calls).toEqual([]);
+	});
+
+	it("SC-004: paging only reads", async () => {
+		await seedBalance(ATHLETE_A);
+		await seedRides(ATHLETE_A, 45, "2026-10-06");
+		const counts = await tableCounts();
+		const rows = await snapshot(ATHLETE_A);
+
+		for (const path of ["/me", "/me?page=2", "/me?page=3"]) {
+			expect((await riderPage(ctx, ATHLETE_A, path)).status).toBe(200);
+		}
 
 		expect(await tableCounts()).toEqual(counts);
 		expect(await snapshot(ATHLETE_A)).toEqual(rows);

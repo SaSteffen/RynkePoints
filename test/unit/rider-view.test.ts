@@ -5,6 +5,7 @@ import {
 	buildRiderView,
 	type GaugePart,
 	gaugeParts,
+	parsePage,
 	type RiderView,
 	type ViewContext,
 } from "../../src/http/rider-view";
@@ -353,6 +354,107 @@ describe("buildRiderView ride lines", () => {
 		const view = buildRiderView(read(), CURRENT_RULES, CURRENT_RULES, CONTEXT);
 		expect(view.rides.rows).toEqual([]);
 		expect(view.rides.position).toEqual({ from: 0, to: 0, total: 0 });
+		expect(view.rides.pager).toBeNull();
+	});
+});
+
+describe("parsePage (US5, contracts/http-routes.md)", () => {
+	const page = (query: string) =>
+		parsePage(new URL(`https://rynke.test/me${query}`));
+
+	it("reads a valid page", () => {
+		expect(page("?page=2")).toBe(2);
+		expect(page("?page=9999")).toBe(9999);
+	});
+
+	it.each([
+		"",
+		"?page=0",
+		"?page=-1",
+		"?page=01",
+		"?page=abc",
+		"?page=1e3",
+		"?page=10000",
+		"?page=2.0",
+		"?page=",
+	])("counts %j as page 1", (query) => {
+		expect(page(query)).toBe(1);
+	});
+
+	it("counts two page parameters as page 1", () => {
+		expect(page("?page=2&page=3")).toBe(1);
+	});
+
+	it("ignores other parameters", () => {
+		expect(page("?x=1&page=3&y=abc")).toBe(3);
+	});
+});
+
+describe("buildRiderView pager (US5)", () => {
+	function table(rideCount: number, page: number) {
+		const shown = Math.max(0, Math.min(20, rideCount - (page - 1) * 20));
+		return buildRiderView(
+			read({
+				rideCount,
+				page,
+				rides: Array.from({ length: shown }, (_, i) => ride(i + 1)),
+			}),
+			CURRENT_RULES,
+			CURRENT_RULES,
+			CONTEXT,
+		).rides;
+	}
+
+	it("S5-1: page 1 of 45 offers only the older pages", () => {
+		const rides = table(45, 1);
+		expect(rides.position).toEqual({ from: 1, to: 20, total: 45 });
+		expect(rides.pager).toEqual({
+			page: 1,
+			lastPage: 3,
+			first: null,
+			previous: null,
+			next: 2,
+			last: 3,
+		});
+	});
+
+	it("S5-2: page 2 of 45 offers all four links", () => {
+		const rides = table(45, 2);
+		expect(rides.position).toEqual({ from: 21, to: 40, total: 45 });
+		expect(rides.pager).toEqual({
+			page: 2,
+			lastPage: 3,
+			first: 1,
+			previous: 1,
+			next: 3,
+			last: 3,
+		});
+	});
+
+	it("S5-2: the last page offers only the newer pages", () => {
+		const rides = table(45, 3);
+		expect(rides.rows).toHaveLength(5);
+		expect(rides.position).toEqual({ from: 41, to: 45, total: 45 });
+		expect(rides.pager).toEqual({
+			page: 3,
+			lastPage: 3,
+			first: 1,
+			previous: 2,
+			next: null,
+			last: null,
+		});
+	});
+
+	it("S5-3: 20 rides have no pager", () => {
+		const rides = table(20, 1);
+		expect(rides.position).toEqual({ from: 1, to: 20, total: 20 });
+		expect(rides.pager).toBeNull();
+	});
+
+	it("0 rides have no rows and no pager", () => {
+		const rides = table(0, 1);
+		expect(rides.rows).toEqual([]);
+		expect(rides.pager).toBeNull();
 	});
 });
 
