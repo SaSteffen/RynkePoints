@@ -12,6 +12,11 @@ import { approve } from "../support/callback";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
+import {
+	installPushService,
+	pushEndpoint,
+	seedSubscription,
+} from "../support/push";
 
 // No log line may carry a credential (constitution Principle I, FR-027):
 // tokens, authorization codes, the client secret or the encryption key. The
@@ -23,6 +28,7 @@ const SECRETS = [
 	btoa(`10001:${CLIENT_SECRET}`),
 	env.TOKEN_ENCRYPTION_KEY,
 	env.SESSION_SIGNING_KEY,
+	JSON.parse(env.PUSH_VAPID_KEY).d,
 ];
 // Every token and code the fake Strava issues (fake-strava.ts, callback.ts).
 const SECRET_PATTERNS = [/(access|refresh)-\d+-\d+/, /synthetic-code-\d+/];
@@ -176,4 +182,26 @@ describe("logging never includes credentials", () => {
 		await processBatch(batch, ctx, handlers);
 		expectLogged("moved to failed_work: exception: Error");
 	});
+
+	it.each<[number | "throw", number, string]>([
+		[403, 1, "refused"],
+		[503, 4, "given up"],
+		["throw", 4, "given up"],
+	])(
+		"send-notification: push answered %s on attempt %i",
+		async (status, attempts, fragment) => {
+			await seedRider(ctx);
+			installPushService(() => status);
+			const subscriptionId = await seedSubscription(ATHLETE_A, pushEndpoint(1));
+			await runQueue(
+				{ kind: "send-notification", athleteId: ATHLETE_A, subscriptionId },
+				attempts,
+			);
+			expectLogged(fragment);
+			for (const line of logged) {
+				expect(line).not.toContain("synthetic-1");
+				expect(line).not.toContain("vapid t=");
+			}
+		},
+	);
 });

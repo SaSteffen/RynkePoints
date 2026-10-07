@@ -121,7 +121,7 @@ describe("GET /me for a connected rider", () => {
 		const { page } = await getMe();
 		expect(page).toContain('<input type="hidden" name="next" value="/me">');
 		expect(page).toMatch(
-			/<form method="post" action="\/logout"><button>Abmelden<\/button><\/form>/,
+			/<form method="post" action="\/logout"><input type="hidden" name="push_endpoint" value=""><button>Abmelden<\/button><\/form>/,
 		);
 	});
 

@@ -45,14 +45,16 @@ Points and events build on this in later features.
   maps, descriptions, photos, heart rate or power, and no other kinds of
   activity. Which team events a rider attended
   (kind, date and an optional event name) as the team records it, not from
-  Strava.
+  Strava. For each device a rider turns notifications on for, only the address
+  its push service gives it; it is deleted when they turn notifications off,
+  sign out on that device or leave.
 - **Deletion**: everything about a rider is deleted at once when they disconnect
   on their page or remove the app in their Strava settings, within 24 hours
   after they leave the club, and 7 days after their connection broke if they
   don't reconnect. Deleted data stays in Cloudflare's D1 backups for up to
   7 days, then disappears.
 - **Cookies**: only necessary ones. `rp_session` keeps a rider signed in
-  (30 days), `rp_oauth_state` protects the 10-minute Strava sign-in, and
+  (180 days after their last visit), `rp_oauth_state` protects the 10-minute Strava sign-in, and
   `rp_lang` remembers a picked language. The language is never stored in the
   database.
 
@@ -225,6 +227,16 @@ Nothing else deploys; merges into `develop` don't.
   only the last 100 versions are available, GitHub doesn't see it, and the next
   merge or dispatch deploys `main` again.
 - **A local `pnpm run deploy`** is break-glass only.
+- **Push key**: the deploy fails without the secret `PUSH_VAPID_KEY`, an EC
+  P-256 key that signs notifications. Set it once:
+
+  ```bash
+  node -e 'crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign"]).then(k=>crypto.subtle.exportKey("jwk",k.privateKey)).then(({kty,crv,x,y,d})=>console.log(JSON.stringify({kty,crv,x,y,d})))' \
+    | pnpm wrangler secret put PUSH_VAPID_KEY
+  ```
+
+  Keep it: a new key ends the notifications of every rider's devices until
+  they turn them on again.
 
 The one-time setup, the validation scenarios and rotating the deploy credential
 are in the [CI and branch protection quickstart](specs/002-ci-branch-protection/quickstart.md),

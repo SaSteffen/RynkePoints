@@ -17,6 +17,7 @@ const valid: WorkMessage[] = [
 	{ kind: "import-page", athleteId: 900001, page: 1, after: 0 },
 	{ kind: "reread-page", athleteId: 900001, page: 3, after: 1767222000 },
 	{ kind: "check-membership", athleteId: 900001 },
+	{ kind: "send-notification", athleteId: 900001, subscriptionId: 45 },
 	{
 		kind: "delete-rider",
 		athleteId: 900001,
@@ -158,6 +159,10 @@ describe("parseWorkMessage", () => {
 			"non-boolean revoke",
 			{ kind: "delete-rider", athleteId: 1, reason: "left-club", revoke: 1 },
 		],
+		...[undefined, 0, -1, 1.5].map((subscriptionId): [string, unknown] => [
+			`send-notification with subscriptionId ${subscriptionId}`,
+			{ kind: "send-notification", athleteId: 1, subscriptionId },
+		]),
 	])("rejects %s", (_label, body) => {
 		expect(parseWorkMessage(body)).toBeNull();
 	});
@@ -193,6 +198,15 @@ describe("serializeWorkMessage", () => {
 				kind: "import-page",
 			} as WorkMessage),
 		).toBe('{"kind":"import-page","athleteId":900001,"page":1,"after":5}');
+		expect(
+			serializeWorkMessage({
+				subscriptionId: 45,
+				athleteId: 900001,
+				kind: "send-notification",
+			} as WorkMessage),
+		).toBe(
+			'{"kind":"send-notification","athleteId":900001,"subscriptionId":45}',
+		);
 		expect(
 			serializeWorkMessage({
 				after: 5,

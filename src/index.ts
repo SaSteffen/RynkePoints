@@ -9,6 +9,7 @@ import { evaluateRider } from "./work/evaluate-rider";
 import { importPage } from "./work/import-page";
 import { rereadPage } from "./work/reread-page";
 import { handleScheduled } from "./work/scheduled";
+import { sendNotification } from "./work/send-notification";
 
 // Entry points. Each builds a Ctx and delegates; tests call the exported
 // handle* functions with their own Ctx (research R12).
@@ -20,6 +21,7 @@ const handlers: Handlers = {
 	"check-membership": checkMembership,
 	"delete-rider": deleteRider,
 	"evaluate-rider": evaluateRider,
+	"send-notification": sendNotification,
 };
 
 function makeCtx(env: Env, exec: ExecutionContext): Ctx {

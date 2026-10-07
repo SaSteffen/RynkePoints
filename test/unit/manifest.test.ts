@@ -24,7 +24,7 @@ describe("manifest.webmanifest", () => {
 		expect(manifest.scope).toBe("/");
 		expect(manifest.start_url).toBe("/me");
 		expect(manifest.display).toBe("standalone");
-		expect(manifest.theme_color).toBe("#fc5200");
+		expect(manifest.theme_color).toBe("#111111");
 		expect(manifest.background_color).toBe("#ffffff");
 	});
 

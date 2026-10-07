@@ -1,14 +1,19 @@
 import { berlinDate } from "../config";
 import type { Ctx } from "../ctx";
 import { getCurrentConsent } from "../db/consents";
+import {
+	deleteSubscription,
+	MAX_ENDPOINT_LENGTH,
+} from "../db/push-subscriptions";
 import { readRiderView } from "../db/rider-view";
 import { deleteRider, getRider, type Rider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
+import { vapidPublicKey } from "../push/vapid";
 import { CURRENT_RULES, rulesForVersion } from "../rynke/rules";
 import { revokeStoredToken } from "../strava/tokens";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
-import { renderInstallHint } from "./pwa";
+import { renderInstallHint, renderNotifications } from "./pwa";
 import { redirect } from "./redirect";
 import {
 	renderBreakdown,
@@ -104,13 +109,14 @@ ${view.state === "ready" ? renderSummary(i18n, view.summary) : null}
 ${view.state === "ready" && view.gauges ? renderGauges(i18n, view.gauges) : null}
 ${view.state === "ready" ? renderBreakdown(i18n, view.breakdown) : null}
 ${view.state === "ready" ? renderRules(i18n, view.rules) : null}
+${renderNotifications(i18n, vapidPublicKey(ctx.env))}
 ${renderRides(i18n, view.rides)}
 <section>
 <h2>${i18n.t("me.consent.heading")}</h2>
 ${await consent(ctx, i18n, rider.athleteId)}
 </section>
 <p><a href="/me/disconnect">${i18n.t("me.disconnect.button")}</a></p>
-<form method="post" action="/logout"><button>${i18n.t("layout.logout")}</button></form>`,
+<form method="post" action="/logout"><input type="hidden" name="push_endpoint" value=""><button>${i18n.t("layout.logout")}</button></form>`,
 		}),
 	);
 }
@@ -159,7 +165,28 @@ export async function handleDisconnect(
 	return redirect(notice, 303, [clearSessionCookie()]);
 }
 
-export function handleLogout(request: Request, i18n: I18n): Response {
+/**
+ * Signs out. `app.js` puts this device's push endpoint into the form, so its
+ * notifications end with the sign-in (feature 010 FR-013, research R9). The
+ * delete is bound to the session's rider, so it can't touch another's device.
+ */
+export async function handleLogout(
+	request: Request,
+	ctx: Ctx,
+	i18n: I18n,
+): Promise<Response> {
 	if (!isSameOrigin(request)) return forbidden(i18n, "/me");
+	const form = await request.formData().catch(() => null);
+	const endpoint = form?.get("push_endpoint");
+	if (
+		typeof endpoint === "string" &&
+		endpoint !== "" &&
+		endpoint.length <= MAX_ENDPOINT_LENGTH
+	) {
+		const athleteId = await readSession(request, ctx.env, ctx.now());
+		if (athleteId !== null) {
+			await deleteSubscription(ctx.env.DB, endpoint, athleteId);
+		}
+	}
 	return redirect("/", 302, [clearSessionCookie()]);
 }

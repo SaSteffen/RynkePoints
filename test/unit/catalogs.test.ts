@@ -35,6 +35,7 @@ const CONTRACT_IDS = [
 	"landing.leave",
 	"landing.backups",
 	"landing.cookies",
+	"landing.notifications",
 	"consent.heading",
 	"consent.organisers",
 	"consent.team",
@@ -191,6 +192,17 @@ const CONTRACT_IDS = [
 	"offline.title",
 	"offline.body",
 	"push.body",
+	// Feature 010, US3
+	"notifications.heading",
+	"notifications.explain",
+	"notifications.on",
+	"notifications.off",
+	"notifications.turnOn",
+	"notifications.turnOff",
+	"notifications.blocked",
+	"notifications.needsHomeScreen",
+	"notifications.unsupported",
+	"notifications.failed",
 ];
 
 const placeholders = (text: string) =>

@@ -13,7 +13,7 @@
   "start_url": "/me",
   "scope": "/",
   "display": "standalone",
-  "theme_color": "#fc5200",
+  "theme_color": "#111111",
   "background_color": "#ffffff",
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
@@ -27,9 +27,9 @@
 
 ```html
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<meta name="theme-color" content="#fc5200">
+<meta name="theme-color" content="#111111">
 <script src="/app.js" defer></script>
 ```
 
@@ -102,7 +102,8 @@ The script contains no rider-facing text, no third-party URL and no
 
 | File | Size | Use |
 |---|---|---|
-| `icon.svg` | vector | source; favicon |
+| `icon.svg` | vector | source of the PNGs |
+| `favicon.svg` | vector | favicon (head on the coin) |
 | `icon-192.png` | 192 × 192 | manifest, notification icon |
 | `icon-512.png` | 512 × 512 | manifest, splash |
 | `icon-maskable-512.png` | 512 × 512, mark inside the central 80 % | manifest `maskable` |

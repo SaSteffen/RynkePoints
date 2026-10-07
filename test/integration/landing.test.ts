@@ -86,6 +86,24 @@ describe("GET / (signed out)", () => {
 		expect(CONSENT_VERSION).toBe(1);
 	});
 
+	it("explains notifications after the cookies (010 FR-030, research R14)", async () => {
+		for (const [catalog, acceptLanguage] of [
+			[de, "de"],
+			[en, "en"],
+		] as const) {
+			const { page } = await get({ acceptLanguage });
+			const cookies = page.indexOf(escapeHtml(catalog["landing.cookies"]));
+			const notifications = page.indexOf(
+				`<p>${escapeHtml(catalog["landing.notifications"])}</p>`,
+			);
+			expect(cookies).toBeGreaterThan(0);
+			expect(notifications).toBeGreaterThan(cookies);
+		}
+		expect(de["landing.notifications"]).toContain("Google, Apple, Mozilla");
+		// Named, not a new consent: no Strava scope or request (R14).
+		expect(CONSENT_VERSION).toBe(1);
+	});
+
 	it("names who sees what and that write access is optional", async () => {
 		const { page } = await get();
 		expect(page).toContain("<h2>Was du mit dem Verbinden erlaubst</h2>");

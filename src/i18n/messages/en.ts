@@ -32,6 +32,8 @@ export const en: Catalog = {
 		"Deleted data stays in our hosting provider's backups for up to 7 days and then disappears automatically.",
 	"landing.cookies":
 		"We only set necessary cookies: for signing in and for your language choice.",
+	"landing.notifications":
+		"Notifications are optional and per device. They only say that there are new Rynke, and they pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address that service gives your device, and delete it when you turn notifications off, sign out or leave.",
 
 	"consent.heading": "What you agree to by connecting",
 	"consent.organisers":
@@ -225,6 +227,19 @@ export const en: Catalog = {
 	"offline.body":
 		"RynkePoints needs an internet connection. Please try again shortly.",
 	"push.body": "New Rynke – tap to view",
+	"notifications.heading": "Notifications",
+	"notifications.explain":
+		"If you like, this device lets you know when you have new Rynke – without figures or rides.",
+	"notifications.on": "Notifications are on for this device.",
+	"notifications.off": "Notifications are off for this device.",
+	"notifications.turnOn": "Turn on notifications",
+	"notifications.turnOff": "Turn off notifications",
+	"notifications.blocked":
+		"Notifications stay off because your device blocks them for RynkePoints. You can allow them in your browser's or device's settings.",
+	"notifications.needsHomeScreen":
+		"On an iPhone, notifications only work once RynkePoints is on your home screen. Then open it from there.",
+	"notifications.unsupported": "This browser can't show notifications.",
+	"notifications.failed": "That didn't work. Please try again.",
 
 	"error.notFound.title": "Page not found",
 	"error.notFound.body": "This page doesn't exist.",

@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { Ctx } from "../../src/ctx";
 import { createSessionCookie } from "../../src/http/session";
 import { handleFetch } from "../../src/index";
+import { vapidPublicKey } from "../../src/push/vapid";
+import { evaluateChange } from "../../src/rynke/apply";
 import {
 	cookiePair,
 	makeCtx,
@@ -20,9 +22,9 @@ const ctx = makeCtx();
 
 const HEAD = [
 	'<link rel="manifest" href="/manifest.webmanifest">',
-	'<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">',
+	'<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">',
 	'<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">',
-	'<meta name="theme-color" content="#fc5200">',
+	'<meta name="theme-color" content="#111111">',
 	'<script src="/app.js" defer></script>',
 ];
 
@@ -85,6 +87,42 @@ describe("install hint (FR-004)", () => {
 	it("is not on the other pages", async () => {
 		const { page } = await get("/notice/deleted");
 		expect(page).not.toContain('id="install"');
+	});
+});
+
+describe("notifications section (FR-010, FR-011)", () => {
+	const SECTION = `<section id="notifications" data-push-key="${vapidPublicKey(ctx.env)}" hidden>
+<h2>Benachrichtigungen</h2>
+<p>Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast – ohne Zahlen oder Fahrten.</p>
+<p data-state="on" hidden>Benachrichtigungen sind auf diesem Gerät an.</p>
+<p data-state="off" hidden>Benachrichtigungen sind auf diesem Gerät aus.</p>
+<p data-state="blocked" hidden>Benachrichtigungen bleiben aus, weil dein Gerät sie für RynkePoints blockiert. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.</p>
+<p data-state="needsHomeScreen" hidden>Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.</p>
+<p data-state="unsupported" hidden>Dieser Browser kann keine Benachrichtigungen anzeigen.</p>
+<p data-state="failed" hidden>Das hat nicht geklappt. Versuch es bitte noch einmal.</p>
+<button type="button" data-action="on" class="tap" hidden>Benachrichtigungen einschalten</button>
+<button type="button" data-action="off" class="tap" hidden>Benachrichtigungen ausschalten</button>
+</section>`;
+
+	it("is on /me between the rules and the ride table, all hidden", async () => {
+		await evaluateChange(ctx, ATHLETE_A, { kind: "none" });
+		const { page } = await get("/me", await sessionCookie(ctx, ATHLETE_A));
+		const at = page.indexOf(SECTION);
+		expect(at).toBeGreaterThan(page.indexOf('<section class="rynke-rules">'));
+		expect(page.indexOf('<section class="rynke-rules">')).toBeGreaterThan(0);
+		expect(at).toBeLessThan(page.indexOf("<h2>Deine Fahrten</h2>"));
+	});
+
+	it("puts an empty push_endpoint into the sign-out form", async () => {
+		const { page } = await get("/me", await sessionCookie(ctx, ATHLETE_A));
+		expect(page).toContain(
+			'<form method="post" action="/logout"><input type="hidden" name="push_endpoint" value="">',
+		);
+	});
+
+	it("is not on /", async () => {
+		const { page } = await get("/");
+		expect(page).not.toContain('id="notifications"');
 	});
 });
 
