@@ -4,8 +4,9 @@ import type { FakeActivity } from "./store";
 
 // The fake mode's own pages (specs/006-local-frontend-dev contracts/dev-routes.md,
 // research R11): the `/_dev/` index and the stand-ins for Strava's permission
-// screen and activity page. Developer tooling in plain English, never shown to riders, so not in
-// the catalogs. Every value goes through `html`, which escapes it.
+// screen and activity page. Developer tooling in plain English, never shown to
+// riders, so not in the catalogs. Every value goes through `html`, which
+// escapes it.
 
 const STYLE = `body{font-family:system-ui,sans-serif;max-width:52rem;margin:0 auto;padding:1rem;line-height:1.4;color:#222}
 .banner{background:#fff4ec;border-left:.25rem solid #fc5200;padding:.25rem 1rem}

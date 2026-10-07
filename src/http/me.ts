@@ -27,7 +27,10 @@ import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 // own and only read), the stored consent (feature 004 FR-014), disconnecting
 // with deletion (FR-023), and signing out.
 
-/** The rider's current consent, what is read and who sees what, or that none is stored. */
+/**
+ * The rider's current consent, what is read and who sees what, or that none is
+ * stored.
+ */
 async function consent(
 	ctx: Ctx,
 	i18n: I18n,
