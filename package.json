@@ -7,7 +7,7 @@
 	"author": "Sascha Steffen <sascha.steffen@itemis.de>",
 	"type": "module",
 	"scripts": {
-		"dev": "wrangler d1 migrations apply rynke-points --local --persist-to .wrangler/fake-state && env -u STRAVA_CLIENT_ID -u STRAVA_CLIENT_SECRET -u STRAVA_WEBHOOK_VERIFY_TOKEN -u TOKEN_ENCRYPTION_KEY -u SESSION_SIGNING_KEY wrangler dev dev/worker.ts --env-file dev/fake.env --var RYNKE_FAKE_STRAVA:local-only --persist-to .wrangler/fake-state --live-reload --test-scheduled",
+		"dev": "wrangler d1 migrations apply rynke-points --local --persist-to .wrangler/fake-state && env -u STRAVA_CLIENT_ID -u STRAVA_CLIENT_SECRET -u STRAVA_WEBHOOK_VERIFY_TOKEN -u TOKEN_ENCRYPTION_KEY -u SESSION_SIGNING_KEY -u ADMIN_TOKEN wrangler dev dev/worker.ts --env-file dev/fake.env --var RYNKE_FAKE_STRAVA:local-only --persist-to .wrangler/fake-state --live-reload --test-scheduled",
 		"dev:strava": "wrangler dev --test-scheduled",
 		"deploy": "wrangler deploy",
 		"types": "wrangler types --strict-vars=false",

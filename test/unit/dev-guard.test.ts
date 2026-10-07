@@ -1,4 +1,5 @@
 import {
+	createExecutionContext,
 	createMessageBatch,
 	createScheduledController,
 	env,
@@ -91,14 +92,15 @@ describe("layer 2: the dev entry runs only in local fake mode", () => {
 	afterEach(removeStravaInterceptor);
 
 	it("refuses fetch, queue and scheduled without the marker", async () => {
+		const exec = createExecutionContext();
 		await expect(
-			worker.fetch(new Request("http://localhost:8789/"), env),
+			worker.fetch(new Request("http://localhost:8789/"), env, exec),
 		).rejects.toThrow(refusal);
 		await expect(
-			worker.queue(createMessageBatch("rynke-points-work", []), env),
+			worker.queue(createMessageBatch("rynke-points-work", []), env, exec),
 		).rejects.toThrow(refusal);
 		await expect(
-			worker.scheduled(createScheduledController(), env),
+			worker.scheduled(createScheduledController(), env, exec),
 		).rejects.toThrow(refusal);
 	});
 

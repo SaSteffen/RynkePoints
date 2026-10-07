@@ -25,12 +25,13 @@ export function assertFakeMode(env: DevEnv): void {
 }
 
 /** The Ctx the app's own entry builds (src/index.ts). */
-export function makeDevCtx(env: Env): Ctx {
+export function makeDevCtx(env: Env, exec: ExecutionContext): Ctx {
 	return {
 		env,
 		queue: env.WORK_QUEUE,
 		now: () => Math.floor(Date.now() / 1000),
 		catalogs: CATALOGS,
+		waitUntil: (promise) => exec.waitUntil(promise),
 	};
 }
 
@@ -127,13 +128,13 @@ export async function devScheduled(
 }
 
 export default {
-	fetch(request, env) {
-		return devFetch(request, makeDevCtx(env));
+	fetch(request, env, exec) {
+		return devFetch(request, makeDevCtx(env, exec));
 	},
-	queue(batch, env) {
-		return devQueue(batch, makeDevCtx(env));
+	queue(batch, env, exec) {
+		return devQueue(batch, makeDevCtx(env, exec));
 	},
-	scheduled(controller, env) {
-		return devScheduled(controller, makeDevCtx(env));
+	scheduled(controller, env, exec) {
+		return devScheduled(controller, makeDevCtx(env, exec));
 	},
 } satisfies ExportedHandler<DevEnv, unknown>;
