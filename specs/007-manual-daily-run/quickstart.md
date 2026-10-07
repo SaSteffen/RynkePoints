@@ -17,7 +17,8 @@
 
 ## Production setup (once, manual)
 
-Do this before the release with this feature is merged into `main` (research R4):
+Do this before the release with this feature is merged into `main` (research R4).
+Done for production on 2026-10-07.
 
 ```bash
 openssl rand -base64 32          # keep it in your password manager
