@@ -6,6 +6,7 @@ import {
 } from "../../src/i18n/catalogs";
 import { de } from "../../src/i18n/messages/de";
 import { en } from "../../src/i18n/messages/en";
+import { REASON_CODES, UNKNOWN_FIGURE_CODES } from "../../src/rynke/rides";
 import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 
 // Every ID in specs/001-strava-connect-webhook/contracts/messages.md and
@@ -127,6 +128,36 @@ const CONTRACT_IDS = [
 	"rynke.breakdown.elevationNoStep",
 	"rynke.breakdown.total",
 	"rynke.breakdown.totals",
+	// Feature 005, US4
+	"units.kmh",
+	"units.mPerH",
+	"units.duration",
+	"units.durationMin",
+	"rynke.ride.fixHint",
+	"rynke.reason.flagged",
+	"rynke.reason.pause",
+	"rynke.reason.pause.share",
+	"rynke.reason.pause.noLimit",
+	"rynke.reason.pause.noMovingTime",
+	"rynke.reason.manual",
+	"rynke.reason.too_slow",
+	"rynke.reason.too_slow.noLimit",
+	"rynke.reason.too_fast",
+	"rynke.reason.too_fast.noLimit",
+	"rynke.reason.climbing_rate",
+	"rynke.reason.climbing_rate.noLimit",
+	"rynke.reason.excluded_sport_type",
+	"rynke.reason.outside_window",
+	"rynke.reason.outside_window.afterDeadline",
+	"rynke.reason.outside_window.afterDeadlineNoDate",
+	"rynke.reason.overlap",
+	"rynke.reason.overlap.noRide",
+	"rynke.reason.unknown",
+	"rynke.unknown.elapsed_time",
+	"rynke.unknown.manual",
+	"rynke.unknown.trainer",
+	"rynke.unknown.flagged",
+	"rynke.unknown.mayChange",
 ];
 
 const placeholders = (text: string) =>
@@ -179,6 +210,17 @@ describe("catalog contents", () => {
 	it("has a message for every cycling sport type", () => {
 		for (const type of CYCLING_SPORT_TYPES) {
 			expect(Object.keys(de)).toContain(`sport.${type}`);
+		}
+	});
+
+	it("explains every reason and every unknown figure (SC-003, FR-062)", () => {
+		for (const [locale, catalog] of catalogs) {
+			for (const code of REASON_CODES) {
+				expect(Object.keys(catalog), locale).toContain(`rynke.reason.${code}`);
+			}
+			for (const code of UNKNOWN_FIGURE_CODES) {
+				expect(Object.keys(catalog), locale).toContain(`rynke.unknown.${code}`);
+			}
 		}
 	});
 

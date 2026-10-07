@@ -58,6 +58,8 @@ table.rides th,table.rides td{padding:.25rem .5rem;text-align:left;vertical-alig
 table.rides .num{white-space:nowrap;text-align:right}
 tr.ride td{border-top:1px solid #ddd}
 tr.ride-details td{padding-top:0;font-size:.875rem;color:#666}
+tr.ride-details ul,tr.ride-details p{margin:.25rem 0}
+.ride-reasons{padding-left:1.25rem}
 :root{--rp-part-1:#fc5200;--rp-part-2:#1f6fb2;--rp-part-3:#2a9d8f;--rp-part-4:#8e44ad;--rp-part-5:#c9a227;--rp-part-6:#6b6b6b;--rp-reached:#2e7d32;--rp-track:#e6e6e6}
 figure.gauge{display:block;width:100%;margin:0 0 1rem}
 .gauge-bar{display:flex;height:1rem;background:var(--rp-track);border-radius:.25rem;overflow:hidden}

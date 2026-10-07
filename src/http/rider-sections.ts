@@ -5,6 +5,7 @@ import type {
 	Condition,
 	Gauge,
 	Gauges,
+	ReasonLine,
 	RideLine,
 	RiderView,
 	RideTable,
@@ -197,13 +198,127 @@ ${rides.rows.map((ride) => rideRows(i18n, ride))}</tbody>
 </section>`;
 }
 
+function kilometres(i18n: I18n, m: number): string {
+	return i18n.t("units.km", {
+		value: i18n.formatNumber(m / 1000, { fractionDigits: 1 }),
+	});
+}
+
+/** Hours and minutes, minutes rounded down; minutes alone below an hour. */
+function duration(i18n: I18n, s: number): string {
+	const min = Math.floor(s / 60);
+	return min < 60
+		? i18n.t("units.durationMin", { min })
+		: i18n.t("units.duration", { h: Math.floor(min / 60), min: min % 60 });
+}
+
+function kmh(i18n: I18n, value: number, fractionDigits: number): string {
+	return i18n.t("units.kmh", {
+		value: i18n.formatNumber(value, { fractionDigits }),
+	});
+}
+
+/** One reason in plain words, with its figure and limit (research R12). */
+function reasonText(i18n: I18n, reason: ReasonLine): string {
+	switch (reason.code) {
+		case "flagged":
+			return i18n.t("rynke.reason.flagged");
+		case "manual":
+			return i18n.t("rynke.reason.manual");
+		case "pause": {
+			if (reason.pausedS === null) {
+				return i18n.t("rynke.reason.pause.noMovingTime");
+			}
+			const times = {
+				paused: duration(i18n, reason.pausedS),
+				moving: duration(i18n, reason.movingS),
+			};
+			if (!reason.share) return i18n.t("rynke.reason.pause.noLimit", times);
+			const { num, den } = reason.share;
+			return num * 2 === den
+				? i18n.t("rynke.reason.pause", times)
+				: i18n.t("rynke.reason.pause.share", {
+						...times,
+						share: `${num}/${den}`,
+					});
+		}
+		case "too_slow":
+		case "too_fast": {
+			const speed = kmh(i18n, reason.kmhTenths / 10, 1);
+			return reason.limitKmh === null
+				? i18n.t(`rynke.reason.${reason.code}.noLimit`, { speed })
+				: i18n.t(`rynke.reason.${reason.code}`, {
+						speed,
+						limit: kmh(i18n, reason.limitKmh, 0),
+					});
+		}
+		case "climbing_rate": {
+			const rate = i18n.t("units.mPerH", { value: whole(i18n, reason.mPerH) });
+			return reason.limitMPerH === null
+				? i18n.t("rynke.reason.climbing_rate.noLimit", { rate })
+				: i18n.t("rynke.reason.climbing_rate", {
+						rate,
+						limit: i18n.t("units.mPerH", {
+							value: whole(i18n, reason.limitMPerH),
+						}),
+					});
+		}
+		case "excluded_sport_type":
+			return i18n.t("rynke.reason.excluded_sport_type", {
+				sport: i18n.t(`sport.${reason.sportType}`),
+			});
+		// Configured dates, passed as UTC midnight like the season start.
+		case "before_season":
+			return i18n.t("rynke.reason.outside_window", {
+				date: i18n.formatDate(`${reason.date}T00:00:00Z`),
+			});
+		case "after_deadline":
+			return reason.date === null
+				? i18n.t("rynke.reason.outside_window.afterDeadlineNoDate")
+				: i18n.t("rynke.reason.outside_window.afterDeadline", {
+						date: i18n.formatDate(`${reason.date}T00:00:00Z`),
+					});
+		case "overlap": {
+			const ride = reason.countedInstead;
+			return ride === null
+				? i18n.t("rynke.reason.overlap.noRide")
+				: i18n.t("rynke.reason.overlap", {
+						date: i18n.formatDate(ride.startDateLocal),
+						time: i18n.formatTime(ride.startDateLocal),
+						distance: kilometres(i18n, ride.distanceM),
+					});
+		}
+		case "unknown":
+			return i18n.t("rynke.reason.unknown");
+	}
+}
+
+/** Reasons, unknown figures and the fix hint below the main row (FR-042–FR-044). */
+function explanation(i18n: I18n, ride: RideLine): SafeHtml {
+	const reasons =
+		ride.reasons.length === 0
+			? null
+			: html`<ul class="ride-reasons">${ride.reasons.map(
+					(reason) => html`<li>${reasonText(i18n, reason)}</li>`,
+				)}</ul>`;
+	const unknown =
+		ride.unknownFigures.length === 0
+			? null
+			: html`<p>${[
+					...ride.unknownFigures.map((code) => i18n.t(`rynke.unknown.${code}`)),
+					i18n.t("rynke.unknown.mayChange"),
+				].join(" ")}</p>`;
+	const fixHint = ride.fixHint
+		? html`<p>${i18n.t("rynke.ride.fixHint")}</p>`
+		: null;
+	return html`${reasons}${unknown}${fixHint}`;
+}
+
 function rideRows(i18n: I18n, ride: RideLine): SafeHtml {
 	const status = STATUS[ride.status];
 	// The rider's local date: Strava writes local wall-clock time with a `Z`.
 	const date = i18n.formatDate(ride.startDateLocal);
-	const km = i18n.t("units.km", {
-		value: i18n.formatNumber(ride.distanceM / 1000, { fractionDigits: 1 }),
-	});
+	const km = kilometres(i18n, ride.distanceM);
 	// Never 0 for a ride still being evaluated (FR-041).
 	const pending = ride.status === "being-evaluated";
 	const rynke = pending ? "–" : whole(i18n, ride.distanceRynke);
@@ -215,6 +330,6 @@ function rideRows(i18n: I18n, ride: RideLine): SafeHtml {
 		? html` · ${i18n.t("rynke.ride.virtual")}`
 		: null;
 	return html`<tr class="ride ${status.cls}"><td>${date}</td><td class="num">${km}</td><td>${i18n.t(status.text)}</td><td class="num">${rynke}</td><td class="num">${metres}</td></tr>
-<tr class="ride-details"><td colspan="5">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</td></tr>
+<tr class="ride-details"><td colspan="5">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}${explanation(i18n, ride)}</td></tr>
 `;
 }

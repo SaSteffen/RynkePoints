@@ -79,6 +79,7 @@ export async function handleMe(
 		{
 			seasonStart: ctx.env.SEASON_START_DATE,
 			importing: rider.importStatus !== "done",
+			rulesFor: rulesForVersion,
 		},
 	);
 

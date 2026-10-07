@@ -4,7 +4,8 @@ import {
 	type RiderViewRead,
 } from "../db/rider-view";
 import type { StoredBalance } from "../db/rynke";
-import type { RynkeRules } from "../rynke/rules";
+import type { UnknownFigureCode } from "../rynke/rides";
+import type { RynkeRules, Share } from "../rynke/rules";
 import { virtualShareRequired } from "../rynke/tally";
 import type { CyclingSportType } from "../strava/activity";
 
@@ -112,13 +113,62 @@ export interface RideLine {
 	/** Metres towards the elevation total; 0 unless the ride counts. */
 	elevationM: number;
 	isVirtual: boolean;
+	/** In the stored order; empty unless the ride doesn't count (FR-042). */
+	reasons: ReasonLine[];
+	/** Figures Strava hasn't sent yet, so the result may change (FR-043). */
+	unknownFigures: UnknownFigureCode[];
+	/** The rider can fix one of the reasons (FR-044). */
+	fixHint: boolean;
 }
+
+/**
+ * Why a ride doesn't count, with its own figure and the limit of the result's
+ * rules version: `null` when that version is unknown (FR-013). Figures are
+ * rounded towards the limit they broke (research R12).
+ */
+export type ReasonLine =
+	| { code: "flagged" | "manual" }
+	/** `pausedS` is `null` only without moving time. */
+	| {
+			code: "pause";
+			pausedS: number | null;
+			movingS: number;
+			share: Share | null;
+	  }
+	/** Speed in tenths of km/h: rounded down when too slow, up when too fast. */
+	| {
+			code: "too_slow" | "too_fast";
+			kmhTenths: number;
+			limitKmh: number | null;
+	  }
+	| { code: "climbing_rate"; mPerH: number; limitMPerH: number | null }
+	| { code: "excluded_sport_type"; sportType: CyclingSportType }
+	/** `SEASON_START_DATE`. */
+	| { code: "before_season"; date: string }
+	| { code: "after_deadline"; date: string | null }
+	| {
+			code: "overlap";
+			countedInstead: { startDateLocal: string; distanceM: number } | null;
+	  }
+	/** A code this page has no text for. */
+	| { code: "unknown"; stored: string };
+
+/** Reasons a rider can fix on Strava (FR-044). */
+const FIXABLE = new Set<string>([
+	"pause",
+	"too_slow",
+	"too_fast",
+	"climbing_rate",
+	"manual",
+]);
 
 export interface ViewContext {
 	/** `YYYY-MM-DD`, `SEASON_START_DATE`. */
 	seasonStart: string;
 	/** The import isn't done, so more rides may still arrive (FR-052). */
 	importing: boolean;
+	/** `rulesForVersion`, passed in to keep this module pure. */
+	rulesFor: (version: number) => RynkeRules | null;
 }
 
 /**
@@ -131,7 +181,7 @@ export function buildRiderView(
 	_inEffect: RynkeRules,
 	context: ViewContext,
 ): RiderView {
-	const rides = rideTable(read);
+	const rides = rideTable(read, context);
 	if (!read.balance) {
 		return { state: "not-worked-out", importing: context.importing, rides };
 	}
@@ -265,11 +315,11 @@ export function gaugeParts<S extends string>(
 		}));
 }
 
-function rideTable(read: RiderViewRead): RideTable {
+function rideTable(read: RiderViewRead, context: ViewContext): RideTable {
 	const from =
 		read.rides.length === 0 ? 0 : (read.page - 1) * RIDES_PER_PAGE + 1;
 	return {
-		rows: read.rides.map(rideLine),
+		rows: read.rides.map((ride) => rideLine(ride, context)),
 		position: {
 			from,
 			to: from === 0 ? 0 : from + read.rides.length - 1,
@@ -279,9 +329,13 @@ function rideTable(read: RiderViewRead): RideTable {
 	};
 }
 
-function rideLine(ride: RideRow): RideLine {
+function rideLine(ride: RideRow, context: ViewContext): RideLine {
 	const result = ride.result;
 	const counts = result?.counts === true;
+	const reasons =
+		result && !counts
+			? reasonLines(ride, context.rulesFor(result.rulesVersion), context)
+			: [];
 	return {
 		activityId: ride.activityId,
 		startDateLocal: ride.startDateLocal,
@@ -292,5 +346,71 @@ function rideLine(ride: RideRow): RideLine {
 		distanceRynke: counts ? result.distanceRynke : 0,
 		elevationM: counts ? result.elevationDm / 10 : 0,
 		isVirtual: result?.isVirtual ?? false,
+		reasons,
+		unknownFigures: result?.unknownFigures ?? [],
+		fixHint: (result?.reasons ?? []).some((code) => FIXABLE.has(code)),
 	};
+}
+
+/** Each stored reason with its figures (research R12). */
+function reasonLines(
+	ride: RideRow,
+	rules: RynkeRules | null,
+	context: ViewContext,
+): ReasonLine[] {
+	// Feature 003 records only `pause` without moving time, so the speeds and
+	// the climbing rate always have one to divide by.
+	const tenths = (ride.distanceM * 36) / ride.movingS;
+	return (ride.result?.reasons ?? []).map((stored): ReasonLine => {
+		const code: string = stored;
+		switch (code) {
+			case "flagged":
+			case "manual":
+				return { code };
+			case "pause":
+				return {
+					code,
+					pausedS:
+						ride.movingS === 0 || ride.elapsedS === null
+							? null
+							: ride.elapsedS - ride.movingS,
+					movingS: ride.movingS,
+					share: rules?.maxPausedShare ?? null,
+				};
+			case "too_slow":
+				return {
+					code,
+					kmhTenths: Math.floor(tenths),
+					limitKmh: rules?.minSpeedKmh ?? null,
+				};
+			case "too_fast":
+				return {
+					code,
+					kmhTenths: Math.ceil(tenths),
+					limitKmh: rules?.maxSpeedKmh ?? null,
+				};
+			case "climbing_rate":
+				return {
+					code,
+					// The decimetres feature 003 compares.
+					mPerH: Math.ceil(
+						(Math.round(ride.elevationGainM * 10) * 360) / ride.movingS,
+					),
+					limitMPerH: rules?.maxClimbMPerH ?? null,
+				};
+			case "excluded_sport_type":
+				return { code, sportType: ride.sportType };
+			case "outside_window":
+				return ride.startDateLocal.slice(0, 10) < context.seasonStart
+					? { code: "before_season", date: context.seasonStart }
+					: {
+							code: "after_deadline",
+							date: rules?.qualificationDeadline ?? null,
+						};
+			case "overlap":
+				return { code, countedInstead: ride.countedInstead };
+			default:
+				return { code: "unknown", stored: code };
+		}
+	});
 }
