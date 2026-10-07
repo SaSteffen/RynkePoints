@@ -11,7 +11,8 @@ import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
 import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 
 // Every ID in specs/001-strava-connect-webhook/contracts/messages.md and
-// specs/005-rider-view/contracts/messages.md.
+// specs/005-rider-view/contracts/messages.md and
+// specs/008-strava-ride-names/contracts/messages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"meta.intlLocale",
@@ -20,6 +21,7 @@ const CONTRACT_IDS = [
 	"brand.connectWithStrava.alt",
 	"brand.poweredByStrava.src",
 	"brand.poweredByStrava.alt",
+	"brand.viewOnStrava",
 	"layout.switcher.label",
 	"layout.logout",
 	"landing.title",
@@ -277,5 +279,11 @@ describe("catalog contents", () => {
 	it("keeps Strava's exact attribution wording in every locale", () => {
 		expect(de["brand.poweredByStrava.alt"]).toBe("Powered by Strava");
 		expect(en["brand.poweredByStrava.alt"]).toBe("Powered by Strava");
+	});
+
+	it("keeps Strava's link text in English in every locale (008 FR-009)", () => {
+		for (const catalog of Object.values(CATALOGS)) {
+			expect(catalog["brand.viewOnStrava"]).toBe("View on Strava");
+		}
 	});
 });

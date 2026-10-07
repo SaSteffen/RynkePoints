@@ -13,7 +13,7 @@ knows a ride's Strava name, the name is shown too.
 - **Link (Story 1)**: needs only the stored activity ID. It goes first in 005's
   detail row as `a.tap.strava-activity`, opens in the same tab, and is bold and
   underlined (research R4, R5).
-- **Name (Story 2)**: one nullable column, `activities.name` (migration 0006).
+- **Name (Story 2)**: one nullable column, `activities.name` (migration 0007).
   It is filled by the existing mapping from both the list and the single-activity
   responses; blank means `NULL` (R1). A title-only webhook update now refetches
   the ride like any other update (R2). Only the rider page's own query reads the
@@ -117,7 +117,7 @@ specs/008-strava-ride-names/
 
 ```text
 migrations/
-└── 0006_activity_name.sql            # new: activities.name
+└── 0007_activity_name.sql            # new: activities.name
 
 src/
 ├── consent.ts                        # comment: why version 1 stays

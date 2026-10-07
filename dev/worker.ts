@@ -7,10 +7,15 @@ import { handleFetch, handleQueue, handleScheduled } from "../src/index";
 import { STRAVA_ORIGIN } from "../src/strava/result";
 import { answerStrava } from "./fake-strava/api";
 import { simulateEvent } from "./fake-strava/events";
-import { authorizePage, type IndexRow, indexPage } from "./fake-strava/pages";
+import {
+	activityPage,
+	authorizePage,
+	type IndexRow,
+	indexPage,
+} from "./fake-strava/pages";
 import { SAMPLE_RIDERS, sampleRider } from "./fake-strava/samples";
 import { sampleFingerprint, seed } from "./fake-strava/seed";
-import { riderActivities, seededWith } from "./fake-strava/store";
+import { getActivity, riderActivities, seededWith } from "./fake-strava/store";
 import { encodeCode } from "./fake-strava/tokens";
 
 // The dev entry of fake mode (specs/006-local-frontend-dev research R1, R2,
@@ -25,6 +30,8 @@ export type DevEnv = Env & { RYNKE_FAKE_STRAVA?: string };
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
 const AUTHORIZE_URL = `${STRAVA_ORIGIN}/oauth/authorize`;
 const STAND_IN_PATH = "/_dev/strava/oauth/authorize";
+const ACTIVITY_URL = `${STRAVA_ORIGIN}/activities/`;
+const ACTIVITY_STAND_IN = "/_dev/strava/activities/";
 
 export function assertFakeMode(env: DevEnv): void {
 	if (env.RYNKE_FAKE_STRAVA !== "local-only") {
@@ -104,6 +111,29 @@ function rewriteAuthorize(response: Response): Response {
 		STAND_IN_PATH + location.slice(AUTHORIZE_URL.length),
 	);
 	return rewritten;
+}
+
+/**
+ * Points the rider page's links to Strava at the stand-in activity page: the
+ * fake's IDs exist on the real Strava too (008 research R9).
+ */
+function rewriteActivityLinks(response: Response): Response {
+	if (!response.headers.get("Content-Type")?.startsWith("text/html")) {
+		return response;
+	}
+	return new HTMLRewriter()
+		.on("a.strava-activity", {
+			element(link) {
+				const href = link.getAttribute("href");
+				if (href?.startsWith(ACTIVITY_URL)) {
+					link.setAttribute(
+						"href",
+						ACTIVITY_STAND_IN + href.slice(ACTIVITY_URL.length),
+					);
+				}
+			},
+		})
+		.transform(response);
 }
 
 function redirect(location: string, status: number, cookies: string[] = []) {
@@ -230,6 +260,13 @@ async function devRoute(
 	url: URL,
 ): Promise<Response> {
 	const route = `${request.method} ${url.pathname}`;
+	const activityId = url.pathname.match(
+		/^\/_dev\/strava\/activities\/(\d+)$/,
+	)?.[1];
+	if (request.method === "GET" && activityId !== undefined) {
+		const stored = await getActivity(ctx.env.DB, Number(activityId));
+		return stored ? activityPage(stored.body) : text("Not Found", 404);
+	}
 	switch (route) {
 		case "GET /_dev/":
 			return indexPage(
@@ -265,7 +302,9 @@ export async function devFetch(request: Request, ctx: Ctx): Promise<Response> {
 	if (!isLocal(url)) return text("Fake mode answers localhost only", 403);
 	await seedIfNeeded(ctx, url.origin);
 	if (url.pathname.startsWith("/_dev/")) return devRoute(request, ctx, url);
-	return rewriteAuthorize(await handleFetch(request, ctx));
+	return rewriteActivityLinks(
+		rewriteAuthorize(await handleFetch(request, ctx)),
+	);
 }
 
 export async function devQueue(

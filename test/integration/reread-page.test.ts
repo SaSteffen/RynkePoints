@@ -9,6 +9,12 @@ import { seasonStartEpoch } from "../../src/config";
 import { listActivityIdsMissingFigures } from "../../src/db/activities";
 import { getRider } from "../../src/db/riders";
 import { handleQueue } from "../../src/index";
+import { applyAndEvaluate } from "../../src/rynke/apply";
+import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import {
+	type ActivityRecord,
+	toActivityRecord,
+} from "../../src/strava/activity";
 import type { RereadPageMessage } from "../../src/work/messages";
 import { rereadPage } from "../../src/work/reread-page";
 import {
@@ -211,6 +217,82 @@ describe("reread-page", () => {
 			{ is_flagged: 1 },
 			{ is_flagged: 0 },
 		]);
+	});
+
+	/**
+	 * Rows as stored before 0007 and evaluated: every figure as on Strava, the
+	 * name `NULL`.
+	 */
+	async function seedUnnamed(activities: StravaActivityFixture[]) {
+		const records = activities.map((a): ActivityRecord => {
+			const record = toActivityRecord(a, ATHLETE_A, NOW - 86400);
+			if (!record) throw new Error("fixture is not a cycling activity");
+			return { ...record, name: null };
+		});
+		await applyAndEvaluate(
+			env.DB,
+			ATHLETE_A,
+			{ kind: "upsert", records },
+			CURRENT_RULES,
+			countingWindow(env, CURRENT_RULES),
+			NOW - 86400,
+		);
+	}
+
+	async function names() {
+		const { results } = await env.DB.prepare(
+			"SELECT name FROM activities ORDER BY start_date",
+		).all<{ name: string | null }>();
+		return results.map((r) => r.name);
+	}
+
+	/** The Rynke of the rider's rides and balance, without when they were computed. */
+	async function rynke() {
+		return {
+			results: (await resultRows()).map(
+				({ activity_refreshed_at: _, ...result }) => result,
+			),
+			balance: { ...(await balanceRow()), computed_at: null },
+		};
+	}
+
+	it("fills the names of rows stored before 0007 from the list (008 FR-006)", async () => {
+		fake.addAthlete({ id: ATHLETE_A });
+		await seedRider(ctx, { importStatus: "done", figuresVersion: 2 });
+		const added = addActivities(3, SEASON_START + 86400, (i) => ({
+			name: `Synthetic loop ${i + 1}`,
+		}));
+		await seedUnnamed(added);
+		const before = await rynke();
+		expect(before.results).toHaveLength(3);
+		expect(await names()).toEqual([null, null, null]);
+
+		await drain(FIRST, async () => {});
+
+		expect(await names()).toEqual([
+			"Synthetic loop 1",
+			"Synthetic loop 2",
+			"Synthetic loop 3",
+		]);
+		// SC-003: the list only, no request per ride.
+		expect(fake.callsTo("activities")).toHaveLength(1);
+		expect(fake.callsTo("activity")).toEqual([]);
+		// Story 3 scenario 3: the re-read moves no Rynke.
+		expect(await rynke()).toEqual(before);
+	});
+
+	it("never refetches a ride for its name (008 research R3)", async () => {
+		fake.addAthlete({ id: ATHLETE_A });
+		await seedRider(ctx, { importStatus: "done", figuresVersion: 2 });
+		const added = addActivities(1, SEASON_START + 86400, () => ({
+			name: "   ",
+		}));
+		await seedUnnamed(added);
+
+		await drain(FIRST, async () => {});
+
+		expect(await names()).toEqual([null]);
+		expect(fake.callsTo("activity")).toEqual([]);
 	});
 
 	it("re-evaluates the re-read rows", async () => {

@@ -33,6 +33,7 @@ import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
 import {
 	ACTIVITY_FIGURES_VERSION,
 	type ActivityRecord,
+	type ActivityRow,
 } from "../../src/strava/activity";
 import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
@@ -56,8 +57,15 @@ function record(overrides: Partial<ActivityRecord> = {}): ActivityRecord {
 		is_flagged: 0,
 		is_private: 0,
 		refreshed_at: NOW,
+		name: null,
 		...overrides,
 	};
+}
+
+/** `record()` as the shared readers return it: without the name (008 R7). */
+function row(overrides: Partial<ActivityRecord> = {}): ActivityRow {
+	const { name: _, ...stored } = record(overrides);
+	return stored;
 }
 
 beforeEach(resetDb);
@@ -375,7 +383,7 @@ describe("activities", () => {
 		);
 		const rows = await listRecentActivities(db, ATHLETE_A, 20);
 		expect(rows).toEqual([
-			record({ distance_m: 2000, sport_type: "GravelRide", is_private: 1 }),
+			row({ distance_m: 2000, sport_type: "GravelRide", is_private: 1 }),
 		]);
 	});
 
@@ -386,7 +394,7 @@ describe("activities", () => {
 			record({ athlete_id: ATHLETE_B, distance_m: 9999 }),
 		);
 		expect(await listRecentActivities(db, ATHLETE_A, 20)).toEqual([
-			record({ distance_m: 1000 }),
+			row({ distance_m: 1000 }),
 		]);
 		expect(await listRecentActivities(db, ATHLETE_B, 20)).toEqual([]);
 	});
@@ -436,23 +444,39 @@ describe("activities", () => {
 	});
 
 	it("stores the points figures and replaces unknown ones", async () => {
-		const unknown = record({
+		const unknown = {
 			elapsed_time_s: null,
 			is_manual: null,
 			is_trainer: null,
 			is_flagged: null,
-		});
-		await upsertActivity(db, unknown);
-		expect(await listRecentActivities(db, ATHLETE_A, 20)).toEqual([unknown]);
+		};
+		await upsertActivity(db, record(unknown));
+		expect(await listRecentActivities(db, ATHLETE_A, 20)).toEqual([
+			row(unknown),
+		]);
 
-		const known = record({
+		const known = {
 			elapsed_time_s: 7200,
 			is_manual: 1,
 			is_trainer: 1,
 			is_flagged: 1,
-		});
-		await upsertActivity(db, known);
-		expect(await listRecentActivities(db, ATHLETE_A, 20)).toEqual([known]);
+		} as const;
+		await upsertActivity(db, record(known));
+		expect(await listRecentActivities(db, ATHLETE_A, 20)).toEqual([row(known)]);
+	});
+
+	it("stores, replaces and clears the ride's name (008 FR-001, FR-005)", async () => {
+		const name = () =>
+			db
+				.prepare("SELECT name FROM activities WHERE strava_activity_id = ?")
+				.bind(7001)
+				.first<string | null>("name");
+		await upsertActivity(db, record({ name: "Synthetic loop" }));
+		expect(await name()).toBe("Synthetic loop");
+		await upsertActivity(db, record({ name: "Synthetic loop renamed" }));
+		expect(await name()).toBe("Synthetic loop renamed");
+		await upsertActivity(db, record({ name: null }));
+		expect(await name()).toBeNull();
 	});
 
 	it.each([

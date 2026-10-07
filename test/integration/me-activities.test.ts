@@ -79,9 +79,11 @@ function rows(page: string): string[][] {
 }
 
 /** The detail rows below each main row (sport type and gain). */
+/** Each detail row's text after the name and link (008's `p.ride-strava`). */
 function details(page: string): string[] {
 	return [...page.matchAll(/<tr class="ride-details">([\s\S]*?)<\/tr>/g)].map(
-		(row) => text(row[1] ?? ""),
+		(row) =>
+			text((row[1] ?? "").replace(/<p class="ride-strava">[\s\S]*?<\/p>/, "")),
 	);
 }
 

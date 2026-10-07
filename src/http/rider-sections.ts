@@ -1,4 +1,5 @@
 import type { I18n } from "../i18n/i18n";
+import { STRAVA_ORIGIN } from "../strava/result";
 import { html, type SafeHtml } from "./html";
 import type {
 	Breakdown,
@@ -462,7 +463,14 @@ function rideRows(i18n: I18n, ride: RideLine): SafeHtml {
 	const virtual = ride.isVirtual
 		? html` · ${i18n.t("rynke.ride.virtual")}`
 		: null;
+	// Plain escaped text, never the link; same tab, like the app's other links
+	// to Strava (008 research R4).
+	const name =
+		ride.name === null
+			? null
+			: html`<span class="ride-name">${ride.name}</span> `;
+	const strava = html`<p class="ride-strava">${name}<a class="tap strava-activity" href="${STRAVA_ORIGIN}/activities/${ride.activityId}">${i18n.t("brand.viewOnStrava")}</a></p>`;
 	return html`<tr class="ride ${status.cls}"><td>${date}</td><td class="num">${km}</td><td>${i18n.t(status.text)}</td><td class="num">${rynke}</td><td class="num">${metres}</td></tr>
-<tr class="ride-details"><td colspan="5">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}${explanation(i18n, ride)}</td></tr>
+<tr class="ride-details"><td colspan="5">${strava}${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}${explanation(i18n, ride)}</td></tr>
 `;
 }

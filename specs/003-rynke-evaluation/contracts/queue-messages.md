@@ -10,7 +10,8 @@ Its common consumer rules apply unchanged.
 their Strava requests. Only their final write changes: instead of writing
 activities directly, they call `applyAndEvaluate` with the `upsert` or `delete`
 change, so the activity, its ride results and the balance commit in one batch
-(research R11). A title-only update still writes nothing.
+(research R11). A title-only update wrote nothing until feature 008; it now
+refetches the ride for its name, and the Rynke stay the same.
 
 ## New message: `evaluate-rider`
 

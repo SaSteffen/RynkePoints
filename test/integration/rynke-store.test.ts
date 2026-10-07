@@ -267,16 +267,26 @@ describe("stored ride results and balance", () => {
 		expect(await balanceRow()).toMatchObject({ distance_rynke: 0 });
 	});
 
-	it("a title-only update writes nothing", async () => {
+	it("a title-only update refetches and keeps the Rynke (008 FR-004)", async () => {
 		ride(A, { km: 79, movingH: 3 });
 		await deliver(event(A, "create"));
-		const before = await snapshot();
+		// Only when it was read and computed moves.
+		const rynke = async () => {
+			const { results, balance } = await snapshot();
+			return {
+				results: results.map(
+					({ activity_refreshed_at: _, ...result }) => result,
+				),
+				balance: balance && { ...balance, computed_at: null },
+			};
+		};
+		const before = await rynke();
 		ctx = makeCtx({ now: NOW + 3600 });
 
 		await deliver(event(A, "update", ["title"]));
 
-		expect(await snapshot()).toEqual(before);
-		expect(fake.callsTo("activity")).toHaveLength(1);
+		expect(await rynke()).toEqual(before);
+		expect(fake.callsTo("activity")).toHaveLength(2);
 	});
 
 	it("a flag Strava sends later stops the ride counting", async () => {

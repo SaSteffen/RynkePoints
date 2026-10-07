@@ -53,6 +53,7 @@ async function seedEvaluated(athleteId = ATHLETE_A) {
 			distance_m: 100000,
 			moving_time_s: 4 * 3600,
 			elapsed_time_s: 4 * 3600,
+			name: "Synthetic shared ride",
 		}),
 	);
 	await upsertActivity(
@@ -62,6 +63,7 @@ async function seedEvaluated(athleteId = ATHLETE_A) {
 			start_date: "2026-05-02T08:00:00Z",
 			distance_m: 50000,
 			is_private: 1,
+			name: "Synthetic private ride",
 		}),
 	);
 	await applyAndEvaluate(
@@ -150,6 +152,14 @@ describe("deleting Rynke rows", () => {
 			balance: null,
 			results: [],
 		});
+		// 008 SC-006: no ride name of the rider is left.
+		expect(
+			await env.DB.prepare(
+				"SELECT count(*) AS n FROM activities WHERE athlete_id = ? AND name IS NOT NULL",
+			)
+				.bind(ATHLETE_A)
+				.first("n"),
+		).toBe(0);
 		expect(await snapshot(ATHLETE_B)).toEqual(other);
 	});
 

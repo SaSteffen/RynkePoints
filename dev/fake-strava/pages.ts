@@ -3,9 +3,10 @@ import type { SampleRider } from "./samples";
 import type { FakeActivity } from "./store";
 
 // The fake mode's own pages (specs/006-local-frontend-dev contracts/dev-routes.md,
-// research R11): the `/_dev/` index and the stand-in for Strava's permission
-// screen. Developer tooling in plain English, never shown to riders, so not in
-// the catalogs. Every value goes through `html`, which escapes it.
+// research R11): the `/_dev/` index and the stand-ins for Strava's permission
+// screen and activity page. Developer tooling in plain English, never shown to
+// riders, so not in the catalogs. Every value goes through `html`, which
+// escapes it.
 
 const STYLE = `body{font-family:system-ui,sans-serif;max-width:52rem;margin:0 auto;padding:1rem;line-height:1.4;color:#222}
 .banner{background:#fff4ec;border-left:.25rem solid #fc5200;padding:.25rem 1rem}
@@ -64,6 +65,40 @@ export function authorizePage(
 	);
 }
 
+/**
+ * The stand-in for a ride's page on Strava, `GET /_dev/strava/activities/<id>`
+ * (specs/008-strava-ride-names research R9): the rider page's "View on Strava"
+ * links land here instead of on a stranger's real activity.
+ */
+export function activityPage(activity: FakeActivity): Response {
+	const minutes = (s: number | undefined) =>
+		s === undefined ? "–" : `${Math.round(s / 60)} min`;
+	const fields: [string, string][] = [
+		["Name", activity.name],
+		["Sport", activity.sport_type],
+		["Start (local)", activity.start_date_local.slice(0, 16).replace("T", " ")],
+		["Distance", `${(activity.distance / 1000).toFixed(1)} km`],
+		["Elevation gain", `${activity.total_elevation_gain} m`],
+		["Moving time", minutes(activity.moving_time)],
+		["Elapsed time", minutes(activity.elapsed_time)],
+		["Private", activity.private ? "yes" : "no"],
+		["Manual", activity.manual ? "yes" : "no"],
+	];
+	return page(
+		`Activity ${activity.id} (fake Strava)`,
+		html`<h1>Activity ${activity.id} (fake Strava)</h1>
+<p>This stands in for the ride's page on Strava.</p>
+<table>
+<tbody>
+${fields.map(
+	([label, value]) => html`<tr><th>${label}</th><td>${value}</td></tr>
+`,
+)}</tbody>
+</table>
+<p><a href="/me">Back to /me</a></p>`,
+	);
+}
+
 export interface IndexRow {
 	rider: SampleRider;
 	/** The app's stored status, or null when the rider isn't stored. */
@@ -116,6 +151,7 @@ ${
 	rides
 		? html`<form method="post" action="/_dev/events"><fieldset><legend>Change a ride (empty = unchanged)</legend>${hidden}<input type="hidden" name="action" value="update">
 ${rideChoice(row.activities)}<br>
+<label>Name <input name="name" size="20"></label>
 <label>Date <input type="date" name="date"></label>
 <label>Time <input type="time" name="time"></label>
 <label>Sport <select name="sportType"><option value="">unchanged</option>${sports}</select></label><br>

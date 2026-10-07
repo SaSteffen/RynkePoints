@@ -39,10 +39,11 @@ Points and events build on this in later features.
   greeting), the granted scopes (including whether write access was granted),
   the Strava tokens, encrypted, and the version and time of the consent they
   agreed to. Per cycling
-  activity only sport type, start time, time zone, distance, moving and elapsed
-  time, elevation gain, the manual, trainer and private flags, and whether
-  Strava has flagged it. No GPS tracks, maps, titles, photos, heart rate or
-  power, and no other kinds of activity. Which team events a rider attended
+  activity only its name (shown only to that rider), sport type, start time,
+  time zone, distance, moving and elapsed time, elevation gain, the manual,
+  trainer and private flags, and whether Strava has flagged it. No GPS tracks,
+  maps, descriptions, photos, heart rate or power, and no other kinds of
+  activity. Which team events a rider attended
   (kind, date and an optional event name) as the team records it, not from
   Strava.
 - **Deletion**: everything about a rider is deleted at once when they disconnect

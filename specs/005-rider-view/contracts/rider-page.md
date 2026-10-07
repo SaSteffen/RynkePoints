@@ -172,6 +172,8 @@ elevation.
 - There is no elevation Rynke per ride, anywhere (FR-040).
 - With no stored rides, the section shows `me.recent.empty` instead of the
   table, as today.
+- Feature 008's [rider-page contract](../../008-strava-ride-names/contracts/rider-page.md)
+  starts the detail row with the ride's name and a "View on Strava" link.
 - Before US4, the detail row has only sport type, elevation gain and the virtual
   mark. Before US5, there is no position and no pager, and the table holds the
   20 newest rides.

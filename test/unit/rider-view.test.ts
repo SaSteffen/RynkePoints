@@ -88,6 +88,7 @@ function ride(
 		movingS: 10800,
 		elapsedS: 11000,
 		elevationGainM: 1240,
+		name: null,
 		result: stored,
 		countedInstead: null,
 		...overrides,
@@ -349,6 +350,19 @@ describe("buildRiderView ride lines", () => {
 			elevationM: 5.5,
 			isVirtual: true,
 		});
+	});
+
+	it("carries the ride's name, or none (008 FR-005)", () => {
+		const named = buildRiderView(
+			read({
+				rideCount: 2,
+				rides: [ride(1, null, { name: "Synthetic loop" }), ride(2)],
+			}),
+			CURRENT_RULES,
+			CURRENT_RULES,
+			CONTEXT,
+		).rides.rows;
+		expect(named.map((l) => l.name)).toEqual(["Synthetic loop", null]);
 	});
 
 	it("places the rows in the whole table", () => {

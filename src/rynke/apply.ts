@@ -41,7 +41,7 @@ import {
 	toAttendance,
 	updateTeamEventStatement,
 } from "../db/team-events";
-import type { ActivityRecord } from "../strava/activity";
+import type { ActivityRecord, ActivityRow } from "../strava/activity";
 import { sendAll } from "../work/messages";
 import { evaluateRides, rideFromRow } from "./rides";
 import {
@@ -96,7 +96,7 @@ export class TeamEventRefused extends Error {
 
 /** What a full evaluation of one rider needs, as stored. */
 interface RiderState {
-	activities: Map<number, ActivityRecord>;
+	activities: Map<number, ActivityRow>;
 	results: StoredRideResult[];
 	balance: StoredBalance | null;
 	attendance: Attendance[];
@@ -365,7 +365,7 @@ async function readRiders(
 			{ activities: new Map(), results: [], balance: null, attendance: [] },
 		]),
 	);
-	for (const row of activityRows.results as ActivityRecord[]) {
+	for (const row of activityRows.results as ActivityRow[]) {
 		riders.get(row.athlete_id)?.activities.set(row.strava_activity_id, row);
 	}
 	for (const row of resultRows.results as RideResultRow[]) {

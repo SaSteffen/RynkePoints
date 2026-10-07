@@ -40,9 +40,9 @@ Language). Message texts are in [contracts/messages.md](contracts/messages.md).
 | US1 reconnect after `needs_reconnect` | `status=connected`, `import_status=pending`, `import-page` p.1 enqueued |
 | US2 create / update(type) / delete | activity row inserted / refreshed / removed |
 | US2 figures for points | elapsed time, manual flag, trainer flag and Strava's flag stored from event and import; a field Strava omits stays `NULL`, never 0 or "not flagged"; a later update event carrying `flagged: true` sets `is_flagged=1` |
-| Re-read after a figure was added | cron: connected rider with `figures_version` 0 or 1 → one `reread-page` p.1 with the season start, version set to current (2); current-version or `needs_reconnect` rider → nothing. Chain: 450 synthetic activities → 3 pages, `NULL` figures (including `is_flagged`) filled, `import_status` unchanged; a stored row missing from the list → one `activity-event` refetch (404 → row deleted) |
+| Re-read after a figure was added | cron: connected rider with `figures_version` below current → one `reread-page` p.1 with the season start, version set to current (3 since feature 008); current-version or `needs_reconnect` rider → nothing. Chain: 450 synthetic activities → 3 pages, `NULL` figures (including `is_flagged`) filled, `import_status` unchanged; a stored row missing from the list → one `activity-event` refetch (404 → row deleted) |
 | US2 duplicate + reordered events (SC-004) | exactly one row per existing cycling activity, none for deleted |
-| US2 title-only update | no outbound call recorded |
+| US2 title-only update | activity refetched once, new name stored (feature 008; before it, no outbound call) |
 | US2 update with empty or unknown `updates` | activity refetched once |
 | US2 run activity | no row |
 | US2 unknown athlete / foreign subscription / wrong path secret | no outbound call, no rows; 200 / 200 / 404 |

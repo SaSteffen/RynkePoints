@@ -88,7 +88,15 @@ async function seedEverything(options: Parameters<typeof seedRider>[1] = {}) {
 		consent_records: 1,
 		failed_work: 1,
 	});
+	expect(await namedActivities()).toBe(1);
 	return { rider, activity };
+}
+
+/** Stored rides with a name (008 FR-003). */
+async function namedActivities() {
+	return env.DB.prepare(
+		"SELECT count(*) AS n FROM activities WHERE name IS NOT NULL",
+	).first("n");
 }
 
 async function expectNoRiderRows() {
@@ -131,6 +139,8 @@ describe("delete-rider", () => {
 		const { result } = await deliver(DEAUTHORIZED);
 		expect(result.explicitAcks).toEqual(["m1"]);
 		await expectNoRiderRows();
+		// 008 SC-006: no ride name is left.
+		expect(await namedActivities()).toBe(0);
 		expect(fake.calls).toEqual([]);
 	});
 
