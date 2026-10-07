@@ -1,7 +1,8 @@
 // RynkePoints page script (feature 010 contracts/client.md, research R16). It
 // only wires up what a server-rendered page can't do itself: the service worker,
-// the install prompt and the notifications switch. It holds no text: every word shown comes from the
-// page's markup, rendered from the catalogs and hidden until this shows it.
+// the install prompt and the notifications switch. It holds no text: every word
+// shown comes from the page's markup, rendered from the catalogs and hidden
+// until this shows it.
 
 function registerWorker() {
 	if (!("serviceWorker" in navigator)) return;
