@@ -69,7 +69,7 @@ migration, 2 catalog keys changed and 1 added, and about 14 test files touched.
 
 | Principle | How this plan complies | Result |
 |---|---|---|
-| **I. Privacy and consent** | One field is added to the allow-list, with a stated purpose (FR-002). It is deleted with the ride or rider, has no copies, and is read only by the owner's page query (R7). It is never logged, and fixtures and samples use invented names. The consent text names it. The version isn't raised, by the user's explicit decision (spec clarification Q1, FR-007): the field already arrives with every read, needs no new scope or request, and is shown to nobody else. Connected riders see the updated text on `/me` (R6). See *Complexity Tracking*. | Pass (justified) |
+| **I. Privacy and consent** | One field is added to the allow-list, with a stated purpose (FR-002). The name isn't needed to compute points, so it is a documented exception to "store the minimum", like `riders.first_name`: the rider needs it to recognise their rides, and the page can't fetch it from Strava (FR-002). It is deleted with the ride or rider, has no copies, and is read only by the owner's page query (R7). It is never logged, and fixtures and samples use invented names. The consent text names it. The version isn't raised (spec clarification Q1, FR-007): under constitution v2.1.0, a field the app already receives with every read, shown only to that rider, is not growth. It needs no new scope or request and is shown to nobody else. Connected riders see the updated text on `/me` (R6). | Pass |
 | **II. Strava API citizenship** | Old rides get names from the existing throttled, resumable list re-read, with no per-ride requests for names (R3). A rename costs one queued read, never one inline in the webhook (R2). The page makes no Strava calls (005 FR-003). | Pass |
 | **III. Rider-authored content wins** | Nothing is written to Strava. The name is the rider's own text, shown unchanged and escaped (FR-010). FR-008 keeps it out of a future description block. | Pass |
 | **IV. Serverless, TS, minimal deps** | No dependency. The rules don't read the name, so evaluation stays pure and the Rynke unchanged (FR-004). Storage growth is negligible on the free tier. | Pass |
@@ -155,6 +155,6 @@ change goes into the file that already owns that concern.
 
 ## Complexity Tracking
 
-| Deviation | Why needed | Simpler alternative rejected because |
-|---|---|---|
-| Consent text changes without raising `CONSENT_VERSION`. Principle I says riders are asked again "when what it reads, writes or shows grows". | The user decided this (spec clarification Q1 → B). The name was always part of every response the app reads, needs no new scope or request, and is shown only to the rider. Others see nothing new. | Raising the version would send every connected rider through the consent screen again for a field only they can see. If "reads" is later taken to mean "stores", this decision (FR-007) is where to revisit it. |
+None. Keeping `CONSENT_VERSION` at 1 was a deviation from Principle I's
+re-consent rule until constitution v2.1.0 said what "grows" means (spec
+clarification Q1, FR-007).
