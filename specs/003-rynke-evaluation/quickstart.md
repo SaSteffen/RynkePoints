@@ -74,7 +74,7 @@ There is no page for the numbers yet (rider-view feature).
 
 ## Rollout (production)
 
-1. Merge into `main`; CI applies `0004_rynke_results.sql` before publishing the
+1. Merge into `main`; CI applies `0005_rynke_results.sql` before publishing the
    code (additive only, so the old version keeps working in between).
 2. New activity events write results immediately. Riders without activity
    changes get theirs at the next daily cron (03:17 UTC) through the sweep; no

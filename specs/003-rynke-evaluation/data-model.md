@@ -1,7 +1,7 @@
 # Data Model: Rynke Evaluation — Stories 1, 2 and 4
 
 Story 2 works in memory; Story 4 stores its output in two new tables
-(migration `0004_rynke_results.sql`; feature 001's `activities.is_flagged`
+(migration `0005_rynke_results.sql`; feature 001's `activities.is_flagged`
 came in its `0003_activity_flagged.sql`, research R15). Team events, attendance and corrections
 (Stories 3 and 6) and stored rules (Story 5) come later, each in its own additive
 migration. Function signatures and codes:
@@ -122,6 +122,6 @@ as additive columns or a child table.
 ## State over time
 
 A rider has no balance until their first evaluation (first activity write after
-`0004`, or the first cron sweep). From then on every activity change rewrites the
+`0005`, or the first cron sweep). From then on every activity change rewrites the
 affected rows in the same batch. Deleting the rider removes everything by
 cascade.

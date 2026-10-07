@@ -16,9 +16,10 @@ own plan revision and tasks later.
 feature 001 (its tasks T097–T107): `migrations/0003_activity_flagged.sql`, the
 `is_flagged` mapping in `src/strava/activity.ts`, `ACTIVITY_FIGURES_VERSION = 2`,
 `is_flagged IS NULL` in `listActivityIdsMissingFigures`, both catalogs, and
-the tests plan.md lists for it. Because `0003` is taken, the results tables
-come in **`migrations/0004_rynke_results.sql`**, and it does **not** add
-`is_flagged` again. T037 aligns plan.md, data-model.md and quickstart.md.
+the tests plan.md lists for it. Because `0003` and `0004` (feature 001's consent
+migration) are taken, the results tables come in
+**`migrations/0005_rynke_results.sql`**, and it does **not** add `is_flagged`
+again. T037 aligns plan.md, data-model.md and quickstart.md.
 
 **Tests**: REQUIRED. Constitution Principle V (Test-First, NON-NEGOTIABLE): every
 test task comes before the implementation it covers. Run it and confirm it fails
@@ -185,7 +186,7 @@ each other (`test/integration/rynke-store.test.ts`).
   - Negative extras floor every total and `trainingWithoutVirtual` at 0; missing amounts are `max(0, …)`.
   - Qualification: exactly 250 / 25 / 167 qualifies; 249 or 24 or 166 doesn't; the virtual-share requirement uses `ceil(threshold × (den − num) / den)` in integers (threshold 10 with share 1/3 → 7).
 - [X] T013 [P] [US4] Extend `test/integration/schema-minimisation.test.ts` (FR-015): add `ride_results` with exactly the columns of data-model.md (`strava_activity_id`, `athlete_id`, `counts`, `reasons`, `overlaps_activity_id`, `distance_rynke`, `elevation_dm`, `is_virtual`, `unknown_figures`, `rules_version`, `activity_refreshed_at`) and `rynke_balances` (`athlete_id`, `distance_rynke`, `elevation_dm`, `elevation_rynke`, `elevation_to_next_step_dm`, `training_rynke`, `team_rynke`, `training_missing`, `team_missing`, `training_without_virtual`, `virtual_share_missing`, `qualified`, `rules_version`, `rules_effective_date`, `computed_at`); `activities` unchanged.
-- [X] T014 [P] [US4] Extend `test/integration/db.test.ts` with the migration `0004` constraints (raw SQL): inserting a `ride_results` row whose activity doesn't exist fails (FK); `counts` 2, `reasons` `'not json'`, negative `distance_rynke` or `elevation_dm`, `rules_version` 0 each fail their `CHECK`; `rynke_balances` with `elevation_to_next_step_dm` 0, `qualified` 2 or `rules_effective_date` `'2026-1-1'` fails; deleting an activity deletes its result; deleting a rider deletes their results and balance.
+- [X] T014 [P] [US4] Extend `test/integration/db.test.ts` with the migration `0005` constraints (raw SQL): inserting a `ride_results` row whose activity doesn't exist fails (FK); `counts` 2, `reasons` `'not json'`, negative `distance_rynke` or `elevation_dm`, `rules_version` 0 each fail their `CHECK`; `rynke_balances` with `elevation_to_next_step_dm` 0, `qualified` 2 or `rules_effective_date` `'2026-1-1'` fails; deleting an activity deletes its result; deleting a rider deletes their results and balance.
 - [X] T015 [P] [US4] Extend `test/unit/messages.test.ts`: `parseWorkMessage({ kind: "evaluate-rider", athleteId: 900001 })` returns it; a missing or non-integer `athleteId` → `null`; extra fields are dropped; `serializeWorkMessage` gives `{"kind":"evaluate-rider","athleteId":900001}`.
 - [X] T016 [P] [US4] Create `test/integration/rynke-apply.test.ts` for `applyAndEvaluate` and `readRynke` directly (research R11, R13, contracts/ride-evaluation.md):
   - `{ kind: "none" }` on a rider with 3 activities and no results → 3 ride results and a balance equal to `evaluateRides` + `tally` of the same rows, all with `rules_version` 1 and `rules_effective_date` = `CURRENT_RULES.effectiveDate`.
@@ -225,7 +226,7 @@ each other (`test/integration/rynke-store.test.ts`).
 
 ### Implementation for User Story 4
 
-- [X] T022 [US4] Create `migrations/0004_rynke_results.sql` (data-model.md "Table: ride_results", "Table: rynke_balances"), header comment in the style of `0002`/`0003` naming feature 003 and that it only adds tables (the deployed version ignores them):
+- [X] T022 [US4] Create `migrations/0005_rynke_results.sql` (data-model.md "Table: ride_results", "Table: rynke_balances"), header comment in the style of `0002`/`0003` naming feature 003 and that it only adds tables (the deployed version ignores them):
   - `ride_results`: `strava_activity_id INTEGER PRIMARY KEY REFERENCES activities (strava_activity_id) ON DELETE CASCADE`, `athlete_id INTEGER NOT NULL REFERENCES riders (athlete_id) ON DELETE CASCADE`, `counts INTEGER NOT NULL CHECK (counts IN (0, 1))`, `reasons TEXT NOT NULL CHECK (json_valid(reasons))`, `overlaps_activity_id INTEGER` (no FK, data-model.md), `distance_rynke INTEGER NOT NULL CHECK (distance_rynke >= 0)`, `elevation_dm INTEGER NOT NULL CHECK (elevation_dm >= 0)`, `is_virtual INTEGER NOT NULL CHECK (is_virtual IN (0, 1))`, `unknown_figures TEXT NOT NULL CHECK (json_valid(unknown_figures))`, `rules_version INTEGER NOT NULL CHECK (rules_version >= 1)`, `activity_refreshed_at INTEGER NOT NULL`; index `ride_results_by_rider ON ride_results (athlete_id)`.
   - `rynke_balances`: `athlete_id INTEGER PRIMARY KEY REFERENCES riders (athlete_id) ON DELETE CASCADE`; `distance_rynke`, `elevation_dm`, `elevation_rynke`, `training_rynke`, `team_rynke`, `training_missing`, `team_missing`, `training_without_virtual`, `virtual_share_missing` each `INTEGER NOT NULL CHECK (… >= 0)`; `elevation_to_next_step_dm INTEGER NOT NULL CHECK (elevation_to_next_step_dm > 0)`; `qualified INTEGER NOT NULL CHECK (qualified IN (0, 1))`; `rules_version INTEGER NOT NULL CHECK (rules_version >= 1)`; `rules_effective_date TEXT NOT NULL CHECK (rules_effective_date GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]')`; `computed_at INTEGER NOT NULL`.
   - Check the existing `activities` / `riders` key column names in `migrations/0001_init.sql` before writing the FKs. Update `resetDb()` and `tableCounts()` in `test/support/ctx.ts` to include both tables. Makes T013 and T014 green.
@@ -261,9 +262,9 @@ activities stores consistent results; the cron fills and repairs them.
 - [X] T034 [P] Add an invariant check to `test/integration/rynke-store.test.ts` (data-model.md "Invariants"): a helper `assertConsistent(athleteId)` used after each step asserts every activity has exactly one result and no result lacks its activity, no two counting results of the rider overlap, the balance equals `tally` of the stored counting results, and all rows share one `rules_version`.
 - [X] T035 [P] Add a reference-set test `test/unit/reference-riders.test.ts` (SC-001): at least 20 synthetic riders, each a short ride list with a hand-calculated expected `trainingRynke`, `teamRynke` (0) and `qualified`, covering every rule, rounding case, window boundary and code; written as a table with a one-line comment per rider explaining the hand calculation.
 - [X] T036 [P] Document `evaluate-rider` and the sweep in `specs/001-strava-connect-webhook/contracts/queue-messages.md` only by a one-line pointer to `specs/003-rynke-evaluation/contracts/queue-messages.md` (no duplication).
-- [X] T037 Align `specs/003-rynke-evaluation/plan.md`, `data-model.md`, `quickstart.md` and `research.md` R15 with what was built: the results migration is `0004_rynke_results.sql`; `is_flagged` came in feature 001's `0003_activity_flagged.sql`; list `test/unit/rules.test.ts`, `test/integration/rynke-apply.test.ts`, `test/integration/evaluate-rider.test.ts` and `test/unit/reference-riders.test.ts` in the structure and quickstart commands.
+- [X] T037 Align `specs/003-rynke-evaluation/plan.md`, `data-model.md`, `quickstart.md` and `research.md` R15 with what was built: the results migration is `0005_rynke_results.sql`; `is_flagged` came in feature 001's `0003_activity_flagged.sql`; list `test/unit/rules.test.ts`, `test/integration/rynke-apply.test.ts`, `test/integration/evaluate-rider.test.ts` and `test/unit/reference-riders.test.ts` in the structure and quickstart commands.
 - [X] T038 Update `README.md` if it lists tables, queue message kinds or cron steps: add `ride_results`, `rynke_balances`, `evaluate-rider` and the evaluation sweep.
-- [X] T039 Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and the quickstart's Stories 2 and 4 commands; apply `migrations/0004_rynke_results.sql` locally with `pnpm wrangler d1 migrations apply rynke-points --local` to check it parses in D1. Do not touch `--remote`.
+- [X] T039 Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and the quickstart's Stories 2 and 4 commands; apply `migrations/0005_rynke_results.sql` locally with `pnpm wrangler d1 migrations apply rynke-points --local` to check it parses in D1. Do not touch `--remote`.
 
 ---
 
@@ -297,7 +298,7 @@ activities stores consistent results; the cron fills and repairs them.
 ```text
 Task: "T012 Create test/unit/tally.test.ts"
 Task: "T013 Extend test/integration/schema-minimisation.test.ts"
-Task: "T014 Extend test/integration/db.test.ts with migration 0004"
+Task: "T014 Extend test/integration/db.test.ts with migration 0005"
 Task: "T016 Create test/integration/rynke-apply.test.ts"
 Task: "T017 Create test/integration/rynke-store.test.ts"
 Task: "T020 Create test/integration/rynke-sweep.test.ts"
@@ -313,7 +314,7 @@ Task: "T020 Create test/integration/rynke-sweep.test.ts"
 ### Then Story 4
 
 2. Phase 4: migration, tally, storage, the batch paths, `evaluate-rider`, the
-   sweep. After the merge into `main`, CI applies `0004` before publishing; the
+   sweep. After the merge into `main`, CI applies `0005` before publishing; the
    next daily cron fills every rider's results (quickstart "Rollout").
 3. Phase 5: invariants, the SC-001 reference set, docs.
 

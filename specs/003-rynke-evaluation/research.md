@@ -301,7 +301,7 @@ research R20; R15 below for `is_flagged`).
   It runs after the existing steps and sends in batches of 100, like the re-read
   fan-out.
 - **Rationale**:
-  - **Rollout**: after `0004` is applied, no rider has results; the first cron
+  - **Rollout**: after `0005` is applied, no rider has results; the first cron
     fills them without a manual step.
   - **Rules version bump**: a deploy with a new version is followed within a day.
     SC-006's 1 hour and an organiser-started recalculation are Story 5.
@@ -323,7 +323,8 @@ research R20; R15 below for `is_flagged`).
     - Feature 001's migration `0003_activity_flagged.sql` adds
       `activities.is_flagged` (nullable, `CHECK (is_flagged IN (0, 1))`, no
       default), like `0002` did for the other flags. This feature's results
-      tables therefore come in `0004_rynke_results.sql`.
+      tables come in `0005_rynke_results.sql`, after feature 001's
+      `0004_consent_and_write_scope.sql`.
     - `toActivityRecord` maps it with the existing `flag()` helper: missing
       stays `NULL`, never "not flagged".
     - `ACTIVITY_FIGURES_VERSION` goes from 1 to 2, so the daily cron re-reads

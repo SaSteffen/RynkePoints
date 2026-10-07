@@ -32,7 +32,7 @@ them without reshaping what is stored (research R2, R12).
     never exclude a ride (FR-005f, research R6); zero moving time is a full
     pause (FR-005a, research R7).
 - **Story 4 (stored ride results and tally)**:
-  - Migration `0004_rynke_results.sql` adds `ride_results` (one row per activity)
+  - Migration `0005_rynke_results.sql` adds `ride_results` (one row per activity)
     and `rynke_balances` (one row per rider), both cascading from `riders`
     (research R10).
   - Every path that changes a rider's activities applies the change and the
@@ -67,7 +67,7 @@ them without reshaping what is stored (research R2, R12).
 `json_each` for multi-row writes (research R13).
 
 **Storage**: D1. Reads `activities` (feature 001). New tables `ride_results` and
-`rynke_balances` in migration `0004_rynke_results.sql` (`activities.is_flagged`
+`rynke_balances` in migration `0005_rynke_results.sql` (`activities.is_flagged`
 came with feature 001's `0003_activity_flagged.sql`), additive only, so the
 previously deployed version
 keeps working while CI applies it
@@ -121,7 +121,7 @@ season.
 | IV. Free tier | Diff writes keep D1 writes in the hundreds per day (research R13). One extra cron step, no new trigger. | ✅ |
 | V. Test-first | Each acceptance scenario of Stories 2 and 4 starts as a failing test; fixtures synthetic; Strava faked. | ✅ |
 | Language | No new rider-facing page: reasons and figures are codes (FR-016). The privacy-text change is made in both catalogs (feature 001 FR-028). Code and docs English. | ✅ |
-| Migrations | `0004` only adds two tables; the deployed version ignores them. | ✅ |
+| Migrations | `0005` only adds two tables; the deployed version ignores them. | ✅ |
 
 **Post-design re-check (after Phase 1)**: still passing. The design adds two
 tables, one queue message kind (`evaluate-rider`), one cron step and no route,
@@ -154,7 +154,8 @@ docs/rynke-punkte.md, docs/print.css, scripts/docs-pdf.sh   # Story 1 (exist)
 
 migrations/
 ├── 0003_activity_flagged.sql   # activities.is_flagged (feature 001, exists)
-└── 0004_rynke_results.sql      # ride_results, rynke_balances
+├── 0004_consent_and_write_scope.sql  # consent_records (feature 001, exists)
+└── 0005_rynke_results.sql      # ride_results, rynke_balances
 
 src/
 ├── rynke/
