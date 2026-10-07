@@ -42,8 +42,12 @@ then green).
 | 500 rides (SC-005) | `me-rynke.test.ts` | Pages 1 and 25 render; `EXPLAIN QUERY PLAN` of the page statement uses `activities_by_rider` |
 | Rules history | `rules.test.ts` | Versions unique; `CURRENT_RULES` is the highest; `rulesForVersion` finds each; `virtualShareRequired(CURRENT_RULES) = 167` |
 
-US3b (event kinds, event list, corrections) adds its rows to this table when
-feature 003 Stories 3 and 6 exist (research R5).
+| US3b scenarios 2, 3, 5 (team events) | `rider-view.test.ts`, `me-rynke.test.ts` | Team training "2 × dabei → 2 Teamrynke, 10 Trainingsrynke", technique training 1 × → 5 and 5, training-weekend day 0 × → 0 and 0; the three events with date, kind and name, newest first; without attendance every kind with 0 and "noch kein Teamtermin"; an event after the deadline is listed as "zählt nicht" |
+| US2 scenario 6 (team events) | `rider-view.test.ts`, `me-rynke.test.ts` | Distance 70, elevation 30 and events 50, 40, 10 of 250 → 80 %, five segments with their legend; the Team gauge divided by kind |
+
+The corrections of US3b (scenarios 2's corrections, 3's correction, 6, and US2
+scenarios 6's corrections part and 7) add their rows when feature 003 Story 6
+exists (research R5).
 
 ## 2. Delivery checks
 

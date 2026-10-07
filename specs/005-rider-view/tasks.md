@@ -16,8 +16,9 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
 - **US2, US3a, US4, US5 and US6** (Phases 4–8) follow in any order. Each one is
   its own pull request, and none removes anything an earlier delivery shows
   (FR-006).
-- **US3b** (Phase 9) is **blocked** until feature 003 Stories 3 (team events)
-  and 6 (corrections) are merged (research R5).
+- **US3b** is built as its inputs arrive (research R5): its team events
+  (Phase 9) now that feature 003 Story 3 is merged, its corrections (Phase 9b)
+  once feature 003 Story 6 is merged.
 - **US7**: the diagrams came with the spec and the plan. Phase 11, the last
   phase, checks the build against them (FR-092).
 
@@ -544,54 +545,70 @@ The Team gauge stays undivided until US3b (research R5).
 
 ---
 
-## Phase 9: User Story 3b — Event kinds, events, corrections (Priority: P2) ⛔ blocked
+## Phase 9: User Story 3b — Event kinds and events (Priority: P2)
 
-**Blocked until**: feature 003 Stories 3 (team events and attendance) and 6 (corrections) are merged into `develop`, with their tables, kind codes and the balance's per-kind and correction columns (feature 003 FR-014a, research R5). Don't start this phase before that, and don't show zeros for these sources in the meantime.
+**Unblocked**: feature 003 Story 3 (team events and attendance) is merged into `develop`, with `team_events`, `attendances`, the kind codes `TEAM_EVENT_KINDS` and the balance's per-kind breakdown `team_event_breakdown` (feature 003 FR-014a, research R5). Corrections (Story 6) are not built yet, so they are split off into Phase 9b; until then the page shows no correction line rather than zeros.
 
 **Goal**:
 - For each team-event kind: count, Team Rynke and Training Rynke, also for a count of 0.
 - The events, newest first; one outside the window is marked as not counting.
-- Correction sums with their sign and the list of corrections.
-- The "never below 0" note.
-- The event and correction segments of the Training and Team gauges (FR-022, FR-032–FR-035).
+- The event segments of the Training and Team gauges (FR-022, FR-032, FR-033).
 
-**Independent Test**: seed attendance and corrections through feature 003's tables, and check every row and list entry and that the parts add up (spec US3 scenarios 2, 3, 5, 6; US2 scenarios 6, 7).
+**Independent Test**: seed attendance through feature 003's tables and a balance with its breakdown, and check every row and list entry and that the parts add up (spec US3 scenarios 2, 3, 5 without corrections; US2 scenario 6 without corrections).
 
 ### Design update (before any test)
 
-- [ ] T066 [US3b] Bring this feature's documents in line with what feature 003 actually built:
-  - in [data-model.md](data-model.md): the read tables, `RiderViewRead`'s new fields, and `Breakdown`'s US3b fields;
-  - research R2 (the new batch statements) and R5 (state: done);
-  - in [contracts/rider-page.md](contracts/rider-page.md): the US3b markup;
-  - in [contracts/messages.md](contracts/messages.md): the exact `rynke.source.<kind>` keys, named after feature 003's kind codes, and final de and en wording for every US3b key;
+- [X] T066 [US3b] Bring this feature's documents in line with what feature 003 Story 3 actually built:
+  - in [data-model.md](data-model.md): the read tables, `RiderViewRead.attendance`, and `Breakdown`'s `kinds` and `events`;
+  - research R2 (the attendance statement) and R5 (team events merged, corrections still to come);
+  - in [contracts/rider-page.md](contracts/rider-page.md): the US3b markup and the fixed colour class per source;
+  - in [contracts/messages.md](contracts/messages.md): the `rynke.source.<kind>` keys named after feature 003's kind codes, and final de and en wording for every team-event key;
   - quickstart's US3b rows.
   - Commit as `docs: …` before T067.
 
 ### Tests for User Story 3b (write first, confirm red) ⚠️
 
 - [ ] T067 [P] [US3b] Extend `test/unit/rider-view.test.ts`:
-  - **Kind lines**: every kind is listed, in feature 003's order, also with count 0.
-  - **Correction sums**: they keep their sign. `clampedToZero` is true when a stored total is 0 and earned plus corrections is below 0.
-  - **Training gauge, S2-6**: parts 70, 30, 50, 40, 10, 10 of 250 → 84 %, six segments. **Team gauge**: divided by kind and corrections.
-  - **S2-7**: negative corrections → that gauge's `parts` is `[]`.
-  - **Sum**: distance + elevation + kinds + corrections = the Training total unless clamped (FR-035).
+  - **Kind lines**: every kind is listed, in feature 003's order, also with count 0; a balance stored before Story 3 (empty breakdown) lists none.
+  - **Events**: newest first as read; `counts` is false before the season start and after the deadline of the balance's rules, and only the season start is checked when the rules are unknown.
+  - **Training gauge**: parts 70, 30, 50, 40, 10 of 250 → 80 %, five segments. **Team gauge**: divided by kind.
+  - **Sum**: distance + elevation + kinds = the Training total, and the kinds' Team Rynke = the Team total (FR-035).
 - [ ] T068 [P] [US3b] Extend `test/integration/me-rynke.test.ts`:
-  - **S3-2**: the kind rows, and "+10" Trainingsrynke from corrections.
-  - **S3-3**: three events with date, kind and name, newest first, and the correction with date, "+10" and its reason.
-  - **S3-5**: every kind listed with 0, plus `rynke.events.none` and `rynke.corrections.none`.
-  - **S3-6**: negative corrections → total 0, the sign kept, and `rynke.breakdown.neverBelowZero`.
+  - **S3-2**: the kind rows.
+  - **S3-3**: three events with date, kind and name, newest first.
+  - **S3-5**: every kind listed with 0, plus `rynke.events.none`.
   - **Attendance**: an attendance after the deadline is listed and marked `rynke.events.notCounting`.
-  - **S2-6**: legend with six parts.
-  - **S2-7**: an undivided Training gauge.
-- [ ] T069 [P] [US3b] Extend `test/unit/catalogs.test.ts`: every team-event kind code feature 003 exports has `rynke.source.<kind>` in every catalog (FR-062), and `CONTRACT_IDS` gains every US3b key fixed in T066.
+  - **S2-6**: legend with five parts and their colour classes; the Team gauge's legend by kind.
+  - **Read-only (SC-004)**: with attendance seeded, `GET /me` changes no table and no attendance row.
+  - Update S3-1, S3-4 and S3-5's expected breakdown rows for the kind rows.
+- [ ] T069 [P] [US3b] Extend `test/unit/catalogs.test.ts`: every kind code of `TEAM_EVENT_KINDS` has `rynke.source.<kind>` in every catalog (FR-062), and `CONTRACT_IDS` gains every team-event key fixed in T066.
 
 ### Implementation for User Story 3b
 
-- [ ] T070 [P] [US3b] Add the US3b keys to `src/i18n/messages/de.ts` and `en.ts`, as fixed in T066.
-- [ ] T071 [US3b] In `src/db/rider-view.ts`, add the attendance-with-events and the corrections reads, newest first, as further statements of the **same** `db.batch` (FR-005). The balance's per-kind and correction columns come through feature 003's balance mapper.
-- [ ] T072 [US3b] In `src/http/rider-view.ts`, add the US3b `Breakdown` fields and the event, kind and correction sources to `gaugeParts` for the Training and Team gauges, using the stored per-kind values only (FR-004). Makes T067 green.
-- [ ] T073 [US3b] In `src/http/rider-sections.ts`, extend `renderBreakdown` with the kind rows, the signed corrections line, the never-below-zero note, and the event and correction lists. Extend `renderGauges`' legend with the new sources (`gauge-part-3` … `gauge-part-6`). Makes T068 and T069 green.
-- [ ] T074 [US3b] Check US3b: everything is green, and the six-part gauge and both lists are readable at 360 px (quickstart §3 step 3).
+- [ ] T070 [P] [US3b] Add the team-event keys to `src/i18n/messages/de.ts` and `en.ts`, as fixed in T066.
+- [ ] T071 [US3b] In `src/db/rider-view.ts`, add feature 003's `listRiderAttendanceStatement` as a further statement of the **same** `db.batch` (FR-005), mapped to `AttendedEvent`. The balance's per-kind breakdown comes through feature 003's balance mapper.
+- [ ] T072 [US3b] In `src/http/rider-view.ts`, add `Breakdown.kinds` and `.events`, and the kind sources to `gaugeParts` for the Training and Team gauges, using the stored per-kind values only (FR-004). Makes T067 green.
+- [ ] T073 [US3b] In `src/http/rider-sections.ts`, extend `renderBreakdown` with the kind rows and the event list, and give every gauge part its source's colour class (`gauge-part-3` … `gauge-part-5` for the kinds). Makes T068 and T069 green.
+- [ ] T074 [US3b] Check US3b's team events: everything is green; the five-part gauge and the event list at 360 px are part of the manual checks after the deploy (quickstart §3 step 3).
+
+**Checkpoint**: every user story is built except the corrections of US3b.
+
+---
+
+## Phase 9b: User Story 3b — Corrections (Priority: P3) ⛔ blocked
+
+**Blocked until**: feature 003 Story 6 (corrections) is merged into `develop`, with its table and the balance's correction sums (feature 003 FR-014a, research R5). Don't start this phase before that, and don't show zeros for corrections in the meantime.
+
+**Goal**: correction sums with their sign and the list of corrections, the "never below 0" note, and the corrections segment of the Training and Team gauges with its "negative → undivided" rule (FR-022, FR-034, FR-035).
+
+**Independent Test**: seed corrections through feature 003's tables, and check the sums, the list and the note (spec US3 scenarios 2, 3 and 6; US2 scenarios 6 and 7).
+
+- [ ] T084 [US3b] Bring data-model.md, research R2 and R5, contracts/rider-page.md, contracts/messages.md (`rynke.source.corrections`, `rynke.breakdown.corrections`, `.neverBelowZero`, `rynke.corrections.heading`, `.none`, `rynke.correction.line`) and quickstart in line with what feature 003 Story 6 built. Commit as `docs: …` first.
+- [ ] T085 [P] [US3b] Extend `test/unit/rider-view.test.ts`: correction sums keep their sign; `clampedToZero` is true when a stored total is 0 and earned plus corrections is below 0; **S2-6** with corrections: parts 70, 30, 50, 40, 10, 10 of 250 → 84 %, six segments; **S2-7**: negative corrections → that gauge's `parts` is `[]`; distance + elevation + kinds + corrections = the Training total unless clamped (FR-035).
+- [ ] T086 [P] [US3b] Extend `test/integration/me-rynke.test.ts`: **S3-2** "+10" Trainingsrynke from corrections; **S3-3** the correction with date, "+10" and its reason; **S3-5** `rynke.corrections.none`; **S3-6** negative corrections → total 0, the sign kept, and `rynke.breakdown.neverBelowZero`; **S2-6** legend with six parts; **S2-7** an undivided Training gauge.
+- [ ] T087 [P] [US3b] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with the corrections keys fixed in T084.
+- [ ] T088 [US3b] Add the corrections keys to both catalogs; add the corrections read as a further statement of the same `db.batch` in `src/db/rider-view.ts`; add the corrections fields to `Breakdown` and the corrections source (last, `gauge-part-6`) to both gauges in `src/http/rider-view.ts`; extend `renderBreakdown` with the signed corrections line, the never-below-zero note and the corrections list. Makes T085–T087 green.
+- [ ] T089 [US3b] Check: everything is green; the six-part gauge and both lists at 360 px are checked after the deploy.
 
 **Checkpoint**: every user story is built.
 
@@ -658,9 +675,10 @@ The Team gauge stays undivided until US3b (research R5).
 - **Phase 2 (Foundational)**: after Phase 1. Blocks every story.
 - **Phase 3 (US1)**: after Phase 2. Delivery 1, the MVP.
 - **Phases 4–8 (US2, US3a, US4, US5, US6)**: each after Phase 3. They are independent of each other and can be done in any order or in parallel. Where two touch the same file (`rider-view.ts`, `rider-sections.ts`, `me.ts`, `html.ts`, the catalogs, `me-rynke.test.ts`, `rider-view.test.ts`, `catalogs.test.ts`), the second one rebases onto the first (see the rebase rule in the repository conventions).
-- **Phase 9 (US3b)**: after Phases 4 and 5, **and** after feature 003 Stories 3 and 6 are merged. Blocked until then.
+- **Phase 9 (US3b, team events)**: after Phases 4 and 5, and after feature 003 Story 3 is merged.
+- **Phase 9b (US3b, corrections)**: after Phase 9, and after feature 003 Story 6 is merged. Blocked until then.
 - **Phase 10 (Polish)**: after the stories being shipped.
-- **Phase 11 (US7 check)**: last, after Phase 10. If US3b is still blocked, run it for what was built, and repeat T079–T083 after Phase 9.
+- **Phase 11 (US7 check)**: last, after Phase 10. While US3b's corrections are still blocked, run it for what was built, and repeat T079–T083 after Phase 9b.
 
 ### User Story Dependencies
 
@@ -672,7 +690,7 @@ The Team gauge stays undivided until US3b (research R5).
 | US4 | US1 | adds `formatTime` |
 | US5 | US1 | adds `safeNext` rule, `.tap` |
 | US6 | US1 | adds `.tap` if US5 hasn't |
-| US3b | US2, US3a, feature 003 Stories 3 and 6 | blocked |
+| US3b | US2, US3a, feature 003 Story 3 (team events), Story 6 (corrections) | corrections blocked |
 | US7 | every built story | last phase |
 
 ### Within each phase
@@ -718,7 +736,7 @@ Task: "T015 Create src/http/rider-view.ts (buildRiderView, US1 part)"
 ### Incremental delivery
 
 4. US2 (gauges), US3a, US4, US5 and US6, each its own PR, in whatever order is useful. Gauges first gives the look the project owner asked for. US6 is needed before the first rule change.
-5. US3b once feature 003 Stories 3 and 6 are merged.
+5. US3b's team events now that feature 003 Story 3 is merged, its corrections once Story 6 is.
 6. Phase 10, then Phase 11 against every diagram.
 
 ### Material Design and issue #20

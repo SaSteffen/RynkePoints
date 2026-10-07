@@ -11,14 +11,16 @@ the page is rendered from.
 | `riders` | feature 001 | `first_name`, `status`, `scope_read_all`, `scope_write`, `import_status` | greeting, status, the "will grow" notice (FR-052); read by feature 001's `getRider`, as today |
 | `activities` | feature 001 | `strava_activity_id`, `sport_type`, `start_date`, `start_date_local`, `distance_m`, `moving_time_s`, `elapsed_time_s`, `elevation_gain_m` | ride table, reason figures (FR-040, FR-042), the ride that counted instead |
 | `ride_results` | feature 003 | `counts`, `reasons`, `overlaps_activity_id`, `distance_rynke`, `elevation_dm`, `is_virtual`, `unknown_figures`, `rules_version` | ride table (FR-040–FR-044), virtual count (FR-012) |
-| `rynke_balances` | feature 003 | every column except `computed_at` | summary, gauges, breakdown, rules (FR-010–FR-035, FR-050) |
+| `rynke_balances` | feature 003 | every column except `computed_at`, `team_event_breakdown` included | summary, gauges, breakdown, rules (FR-010–FR-035, FR-050) |
+| `attendances` | feature 003 Story 3 | `event_id`, `athlete_id` | the rider's event list (FR-033) |
+| `team_events` | feature 003 Story 3 | `event_id`, `kind`, `event_date`, `name` | the same, joined; `kind` is one of `TEAM_EVENT_KINDS` |
 | `consent_records` | feature 001/004 | as today | consent section, unchanged |
 | *(code)* `RULES_HISTORY`, `CURRENT_RULES` | feature 003, extended here | every rule value | thresholds, steps, limits, deadline, version in effect (R3) |
 | *(env)* `SEASON_START_DATE` | feature 001 | | counting window (FR-050), "before the season start" |
 
-US3b adds, from feature 003 Stories 3 and 6 once they exist (research R5): team
-events and attendance (date, kind, name), corrections (date, amounts, reason), and
-the balance's per-kind and correction columns (feature 003 FR-014a).
+The balance's per-kind breakdown (`team_event_breakdown`) comes through feature
+003's `toStoredBalance` as `teamEvents`. Corrections (date, amounts, reason) and
+the balance's correction sums follow with feature 003 Story 6 (research R5).
 
 ## The reading: `readRiderView(db, athleteId, page)` → `RiderViewRead`
 
@@ -32,6 +34,14 @@ interface RiderViewRead {
 	virtualCount: number;          // ride results with is_virtual = 1
 	page: number;                  // the page actually read, 1 … lastPage (1 when rideCount = 0)
 	rides: RideRow[];              // ≤ 20, newest first
+	attendance: AttendedEvent[];   // every event the rider was recorded for, newest first (US3b)
+}
+
+interface AttendedEvent {
+	eventId: number;
+	kind: TeamEventKind;           // feature 003's kind code
+	date: string;                  // YYYY-MM-DD
+	name: string | null;
 }
 
 interface RideRow {
@@ -104,7 +114,7 @@ interface Gauge {
 }
 
 interface GaugePart {
-	source: "distance" | "elevation" | "team_training" | "weekend_day" | "technique" | "corrections";
+	source: "distance" | "elevation" | TeamEventKind;  // + "corrections" with feature 003 Story 6
 	value: number;
 	widthPercent: number;    // value / max(total, target) × 100, two decimals (research R7)
 }
@@ -118,8 +128,25 @@ interface Breakdown {
 	toNextStepM: number;         // ceil(elevationToNextStepDm / 10)
 	trainingTotal: number;
 	teamTotal: number;
-	// US3b: kinds: KindLine[]; events: AttendedEvent[]; corrections: CorrectionLine[];
-	//       correctionSums: { training: number; team: number }; clampedToZero: boolean;
+	kinds: TeamEventSum[];       // US3b: the stored breakdown, one per kind in TEAM_EVENT_KINDS order;
+	                             // empty for a balance stored before feature 003 Story 3
+	events: EventLine[];         // US3b: the rider's attendance, newest first
+	// With feature 003 Story 6: corrections: CorrectionLine[];
+	//   correctionSums: { training: number; team: number }; clampedToZero: boolean;
+}
+
+interface TeamEventSum {         // feature 003, stored per kind
+	kind: TeamEventKind;
+	attended: number;
+	team: number;
+	training: number;
+}
+
+interface EventLine {
+	date: string;                // YYYY-MM-DD
+	kind: TeamEventKind;
+	name: string | null;
+	counts: boolean;             // false outside the counting window (FR-033)
 }
 
 interface RulesInfo {
@@ -184,8 +211,15 @@ type ReasonLine =
 - `Summary.qualified` is the stored value. With every target known, it equals
   "every shown condition reached" (FR-023). A test asserts that for feature 003's
   reference riders.
-- `distanceRynke + elevationRynke (+ kinds + corrections in US3b) =
-  trainingTotal` unless clamped at 0 (FR-035).
+- `distanceRynke + elevationRynke + Σ kinds.training (+ corrections with
+  feature 003 Story 6) = trainingTotal`, and `Σ kinds.team = teamTotal`, unless
+  clamped at 0 (FR-035).
+- The Training gauge's parts are distance, elevation and each kind's Training
+  Rynke; the Team gauge's parts are each kind's Team Rynke, in
+  `TEAM_EVENT_KINDS` order (FR-022). Every part is a stored value.
+- An event `counts` unless its date is before `SEASON_START_DATE` or after the
+  deadline of the balance's rules, the window feature 003 counts attendance in.
+  With unknown rules only the season start is checked (FR-013).
 - `RideLine.status === "being-evaluated" ⇔ result === null`. Reasons are listed
   in feature 003's stored order.
 - Feature 003 records only `pause` for a ride with 0 moving time (its research

@@ -23,7 +23,7 @@ the design choices the spec left to planning.
 ## R2. One D1 batch per page view (FR-003, FR-005, FR-046, SC-004)
 
 - **Decision**: `readRiderView(db, athleteId, page)` in the new
-  `src/db/rider-view.ts` sends **one** `db.batch` with three read statements:
+  `src/db/rider-view.ts` sends **one** `db.batch` with four read statements:
   1. the rider's `rynke_balances` row;
   2. the counts: stored rides (`activities`) and virtual rides (`ride_results`
      with `is_virtual = 1`);
@@ -32,10 +32,14 @@ the design choices the spec left to planning.
      newest first (`start_date DESC, strava_activity_id DESC`, as
      `listRecentActivities`), `LIMIT 20` and an `OFFSET` clamped to the last page
      inside SQL:
-     `OFFSET min((?2 - 1) * 20, max(0, ((SELECT count(*) …) - 1) / 20 * 20))`.
-  Later deliveries add statements to the same batch (attendance and corrections
-  once feature 003 Stories 3 and 6 exist, R5). The rider, consent and import
-  status keep coming from feature 001's own reads, as today.
+     `OFFSET min((?2 - 1) * 20, max(0, ((SELECT count(*) …) - 1) / 20 * 20))`;
+  4. the rider's attendance with each event's kind, date and name, newest first
+     (`event_date DESC, event_id DESC`): feature 003's
+     `listRiderAttendanceStatement`, the same read its evaluation uses (US3b).
+
+  The corrections become a fifth statement of the same batch once feature 003
+  Story 6 exists (R5). The rider, consent and import status keep coming from
+  feature 001's own reads, as today.
 - **Rationale**: D1 runs a batch as one transaction, so all statements see the same
   state. A balance can therefore never sit next to ride results from another
   moment or rules version. Feature 003's `readRynke` relies on the same property
@@ -105,9 +109,10 @@ What other features still have to build, and how this plan handles it:
 
 | Input | Built by | State on 2026-10-07 | Effect here |
 |---|---|---|---|
-| Team events, attendance | feature 003 Story 3 | spec only | US3's event-kind rows and event list (FR-032, FR-033) |
-| Corrections | feature 003 Story 6 | spec only | US3's correction sums and list (FR-034); FR-022's corrections segment and its "negative → undivided" rule |
-| Per-kind and correction columns in `rynke_balances` | feature 003 FR-014a, with Stories 3 and 6 | not stored | the same; the page must not compute them (FR-004) |
+| Team events, attendance | feature 003 Story 3 | **merged** (`team_events`, `attendances`, `team_event_kinds`) | US3's event-kind rows and event list (FR-032, FR-033): built (US3b, team events) |
+| Per-kind breakdown in `rynke_balances` | feature 003 FR-014a, Story 3 | **merged** (`team_event_breakdown`, JSON, one entry per kind in `TEAM_EVENT_KINDS` order) | the kind rows and the event segments of both gauges, from the stored values only (FR-004) |
+| Corrections | feature 003 Story 6 | spec only | US3's correction sums and list (FR-034); FR-022's corrections segment and its "negative → undivided" rule; FR-035's "never below 0" note |
+| Correction sums in `rynke_balances` | feature 003 FR-014a, Story 6 | not stored | the same; the page must not compute them (FR-004) |
 | Stored, organiser-editable rules | feature 003 Story 5 | code constant | `rulesForVersion` becomes a read (R3) |
 | Re-asking for a changed consent | feature 004 FR-013 | spec only | `/me` keeps its current consent section; the gate arrives with feature 004 for every page |
 
@@ -115,14 +120,20 @@ What other features still have to build, and how this plan handles it:
   - **US3a** (no dependency): distance Rynke, the elevation total with its Rynke,
     step and metres to the next step, and the totals the parts add up to.
   - **US3b**: the three event-kind rows, the event list, the correction sums and
-    list, and the "never below 0" note. It waits for feature 003 Stories 3 and 6
-    and reads their tables and balance columns.
+    list, and the "never below 0" note. It reads feature 003's tables and
+    balance columns, and is built in two steps as they arrive:
+    - **team events** (Story 3, merged): the kind rows, the event list, and the
+      kind segments of the Training and Team gauges;
+    - **corrections** (Story 6, still to come): the correction sums and list,
+      the corrections segment with its "negative → undivided" rule, and the
+      "never below 0" note. Without corrections a total can't be clamped
+      (feature 003 `tally`), so the note has nothing to say before them.
 
-  Until then, the page shows no event-kind rows and no correction lines rather
-  than zeros for something nobody can record yet. In US2 the Training gauge is
-  divided into distance and elevation, and the Team gauge stays undivided, which
-  is correct while every Team Rynke would come from events that don't exist yet.
-  US3b adds the other segments.
+  Until a source exists, the page shows no row and no line for it rather than
+  zeros for something nobody can record yet. A balance stored before Story 3
+  (an empty `team_event_breakdown`, rules version 1) shows no kind rows: it was
+  computed without events, and the "being updated" notice is shown next to it
+  (R4).
 - **Rationale**: Zeros before team events can be recorded would read as "you
   attended none", which is wrong, and riders would ask organisers about it.
   Computing per-kind Rynke from counts on the page would break FR-004. Everything

@@ -78,16 +78,31 @@ without `rynke.summary.ofTarget`.
 | `rynke.breakdown.total` | | Gesamt | Total | US3a |
 | `rynke.breakdown.totals` | `training`, `team` | {training} Trainingsrynke · {team} Teamrynke | {training} Training Rynke · {team} Team Rynke | US3a |
 
-US3b adds, named after feature 003's kind codes once Story 3 defines them:
-- `rynke.source.<kind>` and `rynke.source.corrections`;
-- `rynke.breakdown.kind` {count} {team} {training};
+| `rynke.source.team_training` | | Teamtraining | Team training | US3b |
+| `rynke.source.training_weekend_day` | | Tag Trainingswochenende | Training-weekend day | US3b |
+| `rynke.source.technique_training` | | Techniktraining | Technique training | US3b |
+| `rynke.breakdown.kind` | `count`, `team`, `training` | {count} × dabei → {team} Teamrynke, {training} Trainingsrynke | attended {count} × → {team} Team Rynke, {training} Training Rynke | US3b |
+| `rynke.events.heading` | | Deine Teamtermine | Your team events | US3b |
+| `rynke.events.none` | | Für dich ist noch kein Teamtermin eingetragen. | No team event has been recorded for you yet. | US3b |
+| `rynke.events.notCounting` | | zählt nicht: außerhalb des Wertungszeitraums | doesn't count: outside the counting period | US3b |
+
+- There is one `rynke.source.<kind>` per value of feature 003's
+  `TEAM_EVENT_KINDS` (`team_training`, `training_weekend_day`,
+  `technique_training`); `catalogs.test.ts` checks every kind has one (FR-062).
+  The same label names the kind in the breakdown, the gauge legends and the
+  event list.
+- An event line is `{date} · {rynke.source.<kind>}`, then ` · {name}` when the
+  event has one, then ` · {rynke.events.notCounting}` outside the counting
+  window. The name is the organiser's text, printed escaped and never
+  translated.
+
+Corrections add, with feature 003 Story 6 (research R5), wording fixed in their
+tasks:
+- `rynke.source.corrections`;
 - `rynke.breakdown.corrections` {training} {team};
 - `rynke.breakdown.neverBelowZero`;
-- `rynke.events.heading`, `rynke.events.none`, `rynke.events.notCounting`;
 - `rynke.corrections.heading`, `rynke.corrections.none`;
 - `rynke.correction.line` {date} {training} {team} {reason}.
-
-Their wording is fixed in the US3b tasks against feature 003's final codes.
 
 ## Rules (US6)
 
