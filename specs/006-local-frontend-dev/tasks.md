@@ -262,7 +262,7 @@ code.
 
 ### Tests for User Story 2 (write first, confirm red) ⚠️
 
-- [ ] T018 [US2] Extend `test/integration/dev-fake-strava.test.ts` (data-model.md list, research R6 table). After seeding and `drain`:
+- [X] T018 [US2] Extend `test/integration/dev-fake-strava.test.ts` (data-model.md list, research R6 table). After seeding and `drain`:
   - **Stored riders**: every sample rider except Noah NotMember has a `riders` row.
   - **Ida Importing**: the import is still `pending`, and a delayed `import-page` message is left in `ctx.queue.sent`.
   - **Remy Reconnect**: the rider is `needs_reconnect`.
@@ -278,7 +278,7 @@ code.
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] In `dev/fake-strava/samples.ts`, add the other nine riders (data-model.md, research R6 table). Every recipe follows T012's date rule, except Rex Rejected's overlapping pair, which shares one slot on purpose.
+- [X] T019 [P] [US2] In `dev/fake-strava/samples.ts`, add the other nine riders (data-model.md, research R6 table). Every recipe follows T012's date rule, except Rex Rejected's overlapping pair, which shares one slot on purpose.
   - **Ida Importing** (990001): `import-stuck`, a few normal rides.
   - **Nora NoRides** (990002): an empty recipe.
   - **Fiona FarAway** (990003): three 25–35 km rides.
@@ -288,7 +288,7 @@ code.
   - **Olli OptionalDenied** (990008): scopes `read,activity:read`, some public rides and three `private` ones.
   - **Remy Reconnect** (990009): `refused`, a few rides.
   - **Noah NotMember** (990010): `clubMember: false`, a few rides.
-- [ ] T020 [US2] In `dev/worker.ts`, add `POST /_dev/reset`: run `seed` and answer `303 /_dev/` with `Set-Cookie: clearSessionCookie()`. Show each rider's named state on `GET /_dev/` (from `samples.ts`) next to the stored status. Makes T018 green.
+- [X] T020 [US2] In `dev/worker.ts`, add `POST /_dev/reset`: run `seed` and answer `303 /_dev/` with `Set-Cookie: clearSessionCookie()`. Show each rider's named state on `GET /_dev/` (from `samples.ts`) next to the stored status. Makes T018 green.
 
 **Checkpoint**: every state of spec US2 can be reached in under a minute (SC-004).
 

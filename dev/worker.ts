@@ -1,6 +1,7 @@
 import { berlinDate } from "../src/config";
 import { CONSENT_VERSION } from "../src/consent";
 import type { Ctx } from "../src/ctx";
+import { clearSessionCookie } from "../src/http/session";
 import { CATALOGS } from "../src/i18n/catalogs";
 import { handleFetch, handleQueue, handleScheduled } from "../src/index";
 import { STRAVA_ORIGIN } from "../src/strava/result";
@@ -135,6 +136,16 @@ async function seedIfNeeded(ctx: Ctx, origin: string): Promise<void> {
 	await seeding;
 }
 
+/** Reset sample data: seeds again, or waits for the seeding in progress. */
+async function resetAll(ctx: Ctx, origin: string): Promise<void> {
+	if (!seeding) {
+		seeding = reseed(ctx, origin).finally(() => {
+			seeding = null;
+		});
+	}
+	await seeding;
+}
+
 async function reseed(ctx: Ctx, origin: string): Promise<void> {
 	try {
 		await seed(ctx, origin, berlinDate(ctx.now()));
@@ -233,6 +244,10 @@ async function devRoute(
 			return authorizePage(url.searchParams, SAMPLE_RIDERS);
 		case `POST ${STAND_IN_PATH}`:
 			return decide(request, url);
+		case "POST /_dev/reset":
+			await resetAll(ctx, url.origin);
+			// Any session belongs to a rider who was just deleted.
+			return redirect("/_dev/", 303, [clearSessionCookie()]);
 	}
 	return text("Not Found", 404);
 }

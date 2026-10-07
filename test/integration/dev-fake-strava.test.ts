@@ -16,12 +16,14 @@ import {
 	removeStravaInterceptor,
 } from "../../dev/worker";
 import { CONSENT_VERSION } from "../../src/consent";
+import { clearSessionCookie } from "../../src/http/session";
 import {
 	cookiePair,
 	makeCtx,
 	resetDb,
 	sessionCookie,
 	type TestCtx,
+	tableCounts,
 } from "../support/ctx";
 import { NOW } from "../support/fixtures";
 
@@ -252,5 +254,211 @@ describe("requests the fake has no answer for (FR-010)", () => {
 		const res = await fetch("https://www.strava.com/api/v3/segments/1");
 		expect(res.status).toBe(404);
 		expect(logs).toContain("[fake-strava] UNANSWERED GET /api/v3/segments/1");
+	});
+});
+
+describe("sample riders in every state (US2)", () => {
+	const IDA = 990001;
+	const NORA = 990002;
+	const FIONA = 990003;
+	const VERA = 990005;
+	const REX = 990006;
+	const PAULA = 990007;
+	const OLLI = 990008;
+	const REMY = 990009;
+	const NOAH = 990010;
+
+	async function seeded() {
+		expect((await get("/_dev/")).status).toBe(200);
+		await drain();
+	}
+
+	async function riderRow(athleteId: number) {
+		return env.DB.prepare(
+			"SELECT status, import_status, scope_read_all FROM riders WHERE athlete_id = ?",
+		)
+			.bind(athleteId)
+			.first<{
+				status: string;
+				import_status: string;
+				scope_read_all: number;
+			}>();
+	}
+
+	async function balance(athleteId: number) {
+		return env.DB.prepare(
+			"SELECT training_rynke, training_without_virtual FROM rynke_balances WHERE athlete_id = ?",
+		)
+			.bind(athleteId)
+			.first<{ training_rynke: number; training_without_virtual: number }>();
+	}
+
+	/** Connect as `athleteId` through /_dev/ and the stand-in screen. */
+	async function connectAs(athleteId: number, scopes: string[]) {
+		const started = await post("/_dev/connect", [
+			["athleteId", String(athleteId)],
+		]);
+		expect(started.status).toBe(303);
+		const location = new URL(started.headers.get("Location") ?? "", LOCAL);
+		expect(location.pathname).toBe("/_dev/strava/oauth/authorize");
+		expect(location.searchParams.get("athlete")).toBe(String(athleteId));
+		const stateCookie = cookiePair(started.headers.get("Set-Cookie") ?? "");
+		const decided = await post("/_dev/strava/oauth/authorize", [
+			["redirect_uri", location.searchParams.get("redirect_uri") ?? ""],
+			["state", location.searchParams.get("state") ?? ""],
+			["athlete", String(athleteId)],
+			...scopes.map((s): [string, string] => ["scope", s]),
+			["action", "authorize"],
+		]);
+		return get(decided.headers.get("Location") ?? "", stateCookie);
+	}
+
+	it("stores every club member and nobody else", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			"SELECT athlete_id FROM riders ORDER BY athlete_id",
+		).all<{ athlete_id: number }>();
+		expect(results.map((r) => r.athlete_id)).toEqual(
+			SAMPLE_RIDERS.filter((r) => r.athleteId !== NOAH).map((r) => r.athleteId),
+		);
+	});
+
+	it("keeps Ida Importing's import waiting", async () => {
+		await seeded();
+		expect((await riderRow(IDA))?.import_status).toBe("pending");
+		expect(ctx.queue.sent).toContainEqual({
+			body: expect.objectContaining({ kind: "import-page", athleteId: IDA }),
+			delaySeconds: expect.any(Number),
+		});
+	});
+
+	it("makes Remy Reconnect reconnect", async () => {
+		await seeded();
+		expect((await riderRow(REMY))?.status).toBe("needs_reconnect");
+	});
+
+	it("shows Nora NoRides without rides", async () => {
+		await seeded();
+		expect(await mePage(NORA)).toContain("Noch keine Fahrten importiert");
+	});
+
+	it("leaves Fiona FarAway far from both targets", async () => {
+		await seeded();
+		expect((await balance(FIONA))?.training_rynke).toBeLessThan(50);
+	});
+
+	it("gets Vera Virtual to the target only with virtual rides", async () => {
+		await seeded();
+		const row = await balance(VERA);
+		expect(row?.training_rynke).toBeGreaterThanOrEqual(250);
+		expect(row?.training_without_virtual).toBeLessThan(167);
+		const page = await mePage(VERA);
+		expect(page).toContain("erreicht ✓");
+		expect(page).toContain(
+			"Trainingsrynke aus Fahrten draußen (nicht virtuell)",
+		);
+	});
+
+	it("gives Rex Rejected a ride for every reason not to count", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			"SELECT reasons FROM ride_results WHERE athlete_id = ? AND counts = 0",
+		)
+			.bind(REX)
+			.all<{ reasons: string }>();
+		const reasons = new Set(results.flatMap((r) => JSON.parse(r.reasons)));
+		for (const reason of [
+			"too_slow",
+			"too_fast",
+			"pause",
+			"climbing_rate",
+			"manual",
+			"flagged",
+			"excluded_sport_type",
+			"overlap",
+		]) {
+			expect(reasons).toContain(reason);
+		}
+		// Each ride breaks only its own rule.
+		for (const r of results) expect(JSON.parse(r.reasons)).toHaveLength(1);
+		// The app imports only cycling (src/strava/activity.ts).
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM activities WHERE athlete_id = ? AND sport_type = 'Run'",
+				REX,
+			),
+		).toBe(0);
+		expect(rider(REX).rides.some((r) => r.sportType === "Run")).toBe(true);
+	});
+
+	it("gives Paula Paging more rides than one page", async () => {
+		await seeded();
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM activities WHERE athlete_id = ?",
+				PAULA,
+			),
+		).toBe(45);
+		// The table shows the newest 20; feature 005's pager links the rest.
+		expect((await mePage(PAULA)).match(/<tr class="ride /g)).toHaveLength(20);
+	});
+
+	it("hides Olli OptionalDenied's private rides", async () => {
+		await seeded();
+		expect((await riderRow(OLLI))?.scope_read_all).toBe(0);
+		expect(rider(OLLI).rides.some((r) => r.private)).toBe(true);
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM activities WHERE athlete_id = ? AND is_private = 1",
+				OLLI,
+			),
+		).toBe(0);
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM activities WHERE athlete_id = ?",
+				OLLI,
+			),
+		).toBe(rider(OLLI).rides.filter((r) => !r.private).length);
+	});
+
+	it("turns Noah NotMember away", async () => {
+		await seeded();
+		const landed = await connectAs(NOAH, ALL_SCOPES);
+		expect(landed.headers.get("Location")).toBe("/notice/not-member");
+		expect(await riderRow(NOAH)).toBeNull();
+	});
+
+	it("refuses a grant without a required scope, like Strava's real one", async () => {
+		await seeded();
+		const landed = await connectAs(NOAH, ["read"]);
+		expect(landed.headers.get("Location")).toBe("/notice/denied");
+	});
+
+	it("resets to the sample data (FR-013)", async () => {
+		await seeded();
+		const first = await tableCounts();
+		const fakeRides = await count(
+			"SELECT COUNT(*) AS n FROM fake_strava_activities",
+		);
+
+		await env.DB.prepare(
+			`DELETE FROM fake_strava_activities WHERE id =
+				(SELECT MIN(id) FROM fake_strava_activities WHERE athlete_id = ?)`,
+		)
+			.bind(TINA)
+			.run();
+		await env.DB.prepare("DELETE FROM riders WHERE athlete_id = ?")
+			.bind(FIONA)
+			.run();
+
+		const reset = await post("/_dev/reset", []);
+		expect(reset.status).toBe(303);
+		expect(reset.headers.get("Location")).toBe("/_dev/");
+		expect(reset.headers.get("Set-Cookie")).toBe(clearSessionCookie());
+		await drain();
+		expect(await tableCounts()).toEqual(first);
+		expect(
+			await count("SELECT COUNT(*) AS n FROM fake_strava_activities"),
+		).toBe(fakeRides);
 	});
 });

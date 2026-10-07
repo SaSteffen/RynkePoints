@@ -75,6 +75,33 @@ const ALL_SCOPES = "read,activity:read,activity:read_all,activity:write";
 
 export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	{
+		athleteId: 990001,
+		firstName: "Ida Importing",
+		state: "Import still running: the fake answers her activity list with 429",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "import-stuck",
+		rides: rides(3, (i) => ride(...slot(i), 50, 300, 25)),
+	},
+	{
+		athleteId: 990002,
+		firstName: "Nora NoRides",
+		state: "No rides",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		rides: [],
+	},
+	{
+		athleteId: 990003,
+		firstName: "Fiona FarAway",
+		state: "Far from both targets",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		rides: rides(3, (i) => ride(...slot(i), 25 + 5 * i, 150, 22)),
+	},
+	{
 		athleteId: 990004,
 		firstName: "Tina TrainingDone",
 		state: "Training target reached without virtual rides; Team Rynke missing",
@@ -85,6 +112,92 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(24, (i) =>
 			ride(...slot(i), 100 + (i % 11), 600 + ((i * 37) % 300), 25 + (i % 6)),
 		),
+	},
+	{
+		athleteId: 990005,
+		firstName: "Vera Virtual",
+		state: "Training target reached only thanks to virtual rides",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		// Outdoors: 140 distance Rynke and 1,400 m (5 Rynke), under 167. With
+		// the virtual rides: over 250.
+		rides: rides(27, (i) =>
+			i < 14
+				? ride(...slot(i), 100, 100, 25)
+				: ride(...slot(i), 100, 200, 30, {
+						sportType: "VirtualRide",
+						trainer: true,
+					}),
+		),
+	},
+	{
+		athleteId: 990006,
+		firstName: "Rex Rejected",
+		state:
+			"Rides that don't count, one per rule, and a run the app never imports",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		// Each ride breaks only its own rule (CURRENT_RULES).
+		rides: [
+			// 8 km/h, below 10.
+			ride(1, "07:00", 20, 50, 8),
+			// 60 km/h, above 45.
+			ride(2, "07:00", 60, 100, 60),
+			// 60 minutes' pause on 90 moving, more than half.
+			{ ...ride(3, "07:00", 40, 200, 26.67), elapsedMin: 150 },
+			// 3,000 m in 90 minutes: 2,000 m/h, above 1,500.
+			ride(4, "07:00", 30, 3000, 20),
+			ride(5, "07:00", 40, 200, 25, { manual: true }),
+			ride(6, "07:00", 40, 200, 25, { flagged: true }),
+			ride(7, "07:00", 40, 200, 25, { sportType: "EBikeRide" }),
+			// The same ride recorded twice: the shorter one overlaps.
+			ride(8, "07:00", 50, 300, 25),
+			ride(8, "07:05", 45, 250, 25),
+			ride(9, "07:00", 10, 50, 10, { sportType: "Run" }),
+		],
+	},
+	{
+		athleteId: 990007,
+		firstName: "Paula Paging",
+		state: "More rides than one page (45; 20 per page)",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		// Two a day, mornings and evenings.
+		rides: rides(45, (i) =>
+			ride(1 + Math.floor(i / 2), i % 2 === 0 ? "07:00" : "17:00", 20, 100, 20),
+		),
+	},
+	{
+		athleteId: 990008,
+		firstName: "Olli OptionalDenied",
+		state: "Optional permissions withheld; three private rides stay hidden",
+		scopes: "read,activity:read",
+		clubMember: true,
+		behaviour: "normal",
+		rides: rides(8, (i) =>
+			ride(...slot(i), 40, 250, 25, { private: i % 3 === 1 }),
+		),
+	},
+	{
+		athleteId: 990009,
+		firstName: "Remy Reconnect",
+		state: "Must reconnect: the fake refuses his activity calls and refresh",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "refused",
+		rides: rides(3, (i) => ride(...slot(i), 50, 300, 25)),
+	},
+	{
+		athleteId: 990010,
+		firstName: "Noah NotMember",
+		state: "Not a club member: signing in shows the not-member notice",
+		scopes: ALL_SCOPES,
+		clubMember: false,
+		behaviour: "normal",
+		rides: rides(3, (i) => ride(...slot(i), 50, 300, 25)),
 	},
 ];
 
