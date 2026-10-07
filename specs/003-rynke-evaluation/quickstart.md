@@ -59,8 +59,11 @@ Expected: all green. What they show:
 
 ```bash
 pnpm wrangler d1 migrations apply rynke-points --local
-pnpm dev
+pnpm dev:strava    # http://localhost:8789, real Strava
 ```
+
+Without Strava, `pnpm dev` seeds synthetic riders whose rides the app evaluates
+the same way ([feature 006 quickstart](../006-local-frontend-dev/quickstart.md)).
 
 With a local setup from feature 001's quickstart, let activities arrive and
 inspect the local tables:

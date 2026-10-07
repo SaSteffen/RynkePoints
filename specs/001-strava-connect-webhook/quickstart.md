@@ -72,8 +72,10 @@ Uses your own Strava app in its 1-athlete capacity, i.e. only your own data.
    (`openssl rand -base64 32`), `SESSION_SIGNING_KEY` (`openssl rand -base64 32`).
 2. Strava always allows `localhost` and `127.0.0.1` as OAuth callback hosts, so
    the app's callback domain can stay set to the production domain (§3).
-3. `pnpm wrangler d1 migrations apply rynke-points --local`, then `pnpm dev`.
-4. Open `http://localhost:8787/`, tick the consent box, connect, untick "private
+3. `pnpm wrangler d1 migrations apply rynke-points --local`, then
+   `pnpm dev:strava` (`pnpm dev` runs a fake Strava instead, for frontend work:
+   [feature 006 quickstart](../006-local-frontend-dev/quickstart.md)).
+4. Open `http://localhost:8789/`, tick the consent box, connect, untick "private
    activities" and write access once and connect again.
    - Expect `/me` to reflect the level and the write status each time, and to
      show your consent with today's date.
