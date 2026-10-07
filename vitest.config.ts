@@ -26,6 +26,9 @@ export default defineConfig(async () => {
 							"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=",
 						SESSION_SIGNING_KEY: "ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8=",
 						ADMIN_TOKEN: "test-admin-token",
+						// Synthetic EC P-256 test key (JWK), never used in production.
+						PUSH_VAPID_KEY:
+							'{"kty":"EC","crv":"P-256","x":"EKhvzchlkzvjgKve8BblQ_7XywqXsIq3hKyKpvFut0c","y":"Fz_GMdH6KwK6EvTbVTdW9tNi8HqQFE3L0auRPE20Iwk","d":"oRmpIBPH91mXDWou0dK96dIkgbL87_VWY0djN0waCCw"}',
 						STRAVA_SUBSCRIPTION_ID: "777",
 						// Pinned so tests don't follow the production season start.
 						SEASON_START_DATE: "2026-01-01",

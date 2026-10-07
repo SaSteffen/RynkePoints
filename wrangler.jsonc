@@ -47,7 +47,9 @@
 		"STRAVA_CLUB_ID": "2372209",
 		"SEASON_START_DATE": "2026-09-01",
 		// "0" until the webhook subscription is created (quickstart §3 step 12).
-		"STRAVA_SUBSCRIPTION_ID": "375559"
+		"STRAVA_SUBSCRIPTION_ID": "375559",
+		// VAPID contact for the push services (010 research R4).
+		"PUSH_SUBJECT": "https://trhh-rynke-coins.link"
 	},
 	// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing
 	// them here makes `pnpm types` independent of what's in your `.dev.vars`.
@@ -58,7 +60,8 @@
 			"STRAVA_WEBHOOK_VERIFY_TOKEN",
 			"TOKEN_ENCRYPTION_KEY",
 			"SESSION_SIGNING_KEY",
-			"ADMIN_TOKEN"
+			"ADMIN_TOKEN",
+			"PUSH_VAPID_KEY"
 		]
 	},
 	"routes": [

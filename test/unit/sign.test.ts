@@ -9,7 +9,10 @@ describe("signValue / verifySignedValue", () => {
 	it("verifies a valid value", async () => {
 		const signed = await signValue("900001", NOW + 60, KEY);
 		expect(signed).toMatch(/^900001\.\d+\.[A-Za-z0-9_-]+$/);
-		expect(await verifySignedValue(signed, KEY, NOW)).toBe("900001");
+		expect(await verifySignedValue(signed, KEY, NOW)).toEqual({
+			value: "900001",
+			expiresAt: NOW + 60,
+		});
 	});
 
 	it("rejects a tampered payload", async () => {
@@ -52,8 +55,8 @@ describe("signValue / verifySignedValue", () => {
 
 	it("binds the signature to its context", async () => {
 		const signed = await signValue("900001", NOW + 60, KEY, "rp_oauth_state");
-		expect(await verifySignedValue(signed, KEY, NOW, "rp_oauth_state")).toBe(
-			"900001",
+		expect(await verifySignedValue(signed, KEY, NOW, "rp_oauth_state")).toEqual(
+			{ value: "900001", expiresAt: NOW + 60 },
 		);
 		expect(await verifySignedValue(signed, KEY, NOW, "rp_session")).toBeNull();
 		expect(await verifySignedValue(signed, KEY, NOW)).toBeNull();

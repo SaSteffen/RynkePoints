@@ -101,6 +101,7 @@ describe("riders", () => {
 			rynke_balances: 0,
 			team_events: 0,
 			attendances: 0,
+			push_subscriptions: 0,
 		});
 		expect(await getCurrentConsent(db, ATHLETE_A)).toBeNull();
 	});

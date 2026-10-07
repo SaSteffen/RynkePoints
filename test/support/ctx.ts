@@ -152,6 +152,7 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 export async function resetDb(): Promise<void> {
 	await env.DB.batch([
 		env.DB.prepare("DELETE FROM consent_records"),
+		env.DB.prepare("DELETE FROM push_subscriptions"),
 		env.DB.prepare("DELETE FROM failed_work"),
 		env.DB.prepare("DELETE FROM rynke_balances"),
 		env.DB.prepare("DELETE FROM ride_results"),
@@ -183,6 +184,7 @@ export async function tableCounts(): Promise<Record<string, number>> {
 		"rynke_balances",
 		"team_events",
 		"attendances",
+		"push_subscriptions",
 	]) {
 		counts[table] =
 			(await env.DB.prepare(`SELECT COUNT(*) AS n FROM ${table}`).first<number>(

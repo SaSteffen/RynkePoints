@@ -1,12 +1,20 @@
-import { signValue, verifySignedValue } from "../crypto/sign";
+import {
+	signValue,
+	type VerifiedValue,
+	verifySignedValue,
+} from "../crypto/sign";
+import type { Ctx } from "../ctx";
 import { getCookie } from "./cookies";
 
 // Signed session and OAuth state cookies, plus the Origin check for POSTs
-// (research R9).
+// (research R9). The session slides: page views renew it (010 research R10).
 
 export const SESSION_COOKIE = "rp_session";
 export const OAUTH_STATE_COOKIE = "rp_oauth_state";
-const SESSION_MAX_AGE = 30 * 24 * 3600;
+/** 180 days after the last visit (010 FR-007). */
+export const SESSION_MAX_AGE = 180 * 24 * 3600;
+/** A session is renewed at most once a day. */
+const RENEW_AFTER = 24 * 3600;
 const OAUTH_STATE_MAX_AGE = 10 * 60;
 
 type Keys = Pick<Env, "SESSION_SIGNING_KEY">;
@@ -36,7 +44,7 @@ async function readSigned(
 	name: string,
 	env: Keys,
 	now: number,
-): Promise<string | null> {
+): Promise<VerifiedValue | null> {
 	const value = getCookie(request, name);
 	return value
 		? verifySignedValue(value, env.SESSION_SIGNING_KEY, now, name)
@@ -57,14 +65,52 @@ export function createSessionCookie(
 	);
 }
 
+/** The signed-in athlete ID and when the session ends, or null. */
+export async function readSessionExpiry(
+	request: Request,
+	env: Keys,
+	now: number,
+): Promise<{ athleteId: number; expiresAt: number } | null> {
+	const signed = await readSigned(request, SESSION_COOKIE, env, now);
+	return signed && /^\d+$/.test(signed.value)
+		? { athleteId: Number(signed.value), expiresAt: signed.expiresAt }
+		: null;
+}
+
 /** The signed-in athlete ID, or null. */
 export async function readSession(
 	request: Request,
 	env: Keys,
 	now: number,
 ): Promise<number | null> {
-	const value = await readSigned(request, SESSION_COOKIE, env, now);
-	return value && /^\d+$/.test(value) ? Number(value) : null;
+	return (await readSessionExpiry(request, env, now))?.athleteId ?? null;
+}
+
+/**
+ * `response` with a fresh session cookie if the request's session is valid and
+ * more than a day older than a fresh one, unless the response sets its own
+ * (010 research R10, contracts/http-routes.md "Session renewal").
+ */
+export async function renewSession(
+	request: Request,
+	response: Response,
+	ctx: Ctx,
+): Promise<Response> {
+	const now = ctx.now();
+	const session = await readSessionExpiry(request, ctx.env, now);
+	if (!session || session.expiresAt >= now + SESSION_MAX_AGE - RENEW_AFTER) {
+		return response;
+	}
+	const setsSession = response.headers
+		.getSetCookie()
+		.some((c) => c.startsWith(`${SESSION_COOKIE}=`));
+	if (setsSession) return response;
+	const renewed = new Response(response.body, response);
+	renewed.headers.append(
+		"Set-Cookie",
+		await createSessionCookie(session.athleteId, now, ctx.env),
+	);
+	return renewed;
 }
 
 export function clearSessionCookie(): string {
@@ -99,7 +145,8 @@ export async function readOAuthState(
 	env: Keys,
 	now: number,
 ): Promise<OAuthState | null> {
-	const value = await readSigned(request, OAUTH_STATE_COOKIE, env, now);
+	const value = (await readSigned(request, OAUTH_STATE_COOKIE, env, now))
+		?.value;
 	const colon = value?.lastIndexOf(":") ?? -1;
 	if (!value || colon === -1) return null;
 	const version = value.slice(colon + 1);

@@ -51,7 +51,8 @@ a{color:#c43d00}
 footer{margin-top:3rem}
 footer img{height:1.5rem}
 main{overflow-wrap:break-word}
-section.notice{border-left:.25rem solid #fc5200;background:#fff4ec;padding:.25rem 1rem;margin:1rem 0}
+.notice{border-left:.25rem solid #fc5200;background:#fff4ec;padding:.25rem 1rem;margin:1rem 0}
+#install button{margin-right:.5rem}
 .rynke-summary dd,.rynke-breakdown dd{margin:0 0 .5rem}
 .rynke-events .event-not-counting{color:#666}
 table.rides{width:100%;border-collapse:collapse}
@@ -103,6 +104,11 @@ export function layout(
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#fc5200">
+<script src="/app.js" defer></script>
 <title>${title}</title>
 <style>${new SafeHtml(STYLE)}</style>
 </head>
