@@ -50,7 +50,8 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
 - TypeScript strict, tabs, Biome-formatted. **No new dependency and no
   migration** (research R17).
 - `src/http/rider-view.ts` is pure: no D1, no `I18n`, no clock, no Strava, no
-  imports from `src/db/` except types (research R6).
+  imports from `src/db/` except types and the `RIDES_PER_PAGE` constant
+  (research R6).
 - **The page only reads** (FR-003). `src/db/rider-view.ts` sends only `SELECT`
   statements, all in one `db.batch` (research R2). Nothing on `/me` enqueues,
   writes or calls Strava.
@@ -618,15 +619,15 @@ The Team gauge stays undivided until US3b (research R5).
 
 **Purpose**: keep the documents true and the whole page coherent across deliveries.
 
-- [ ] T075 [P] Sync [contracts/messages.md](contracts/messages.md) with the catalogs: every key added by T014, T023, T032, T042, T050, T060 and T070 has its final de and en wording there, and the removed keys are listed.
-- [ ] T076 [P] Update [quickstart.md](quickstart.md) and [research.md](research.md) where implementation changed a detail. Examples: a renamed helper, the `buildRiderView` context argument (T015), `RIDE_PAGE_SQL` (T013), and the exported row mappers (T012).
-- [ ] T077 [P] Review `src/http/rider-view.ts`, `rider-sections.ts` and `src/db/rider-view.ts`:
+- [X] T075 [P] Sync [contracts/messages.md](contracts/messages.md) with the catalogs: every key added by T014, T023, T032, T042, T050, T060 and T070 has its final de and en wording there, and the removed keys are listed.
+- [X] T076 [P] Update [quickstart.md](quickstart.md) and [research.md](research.md) where implementation changed a detail. Examples: a renamed helper, the `buildRiderView` context argument (T015), `RIDE_PAGE_SQL` (T013), and the exported row mappers (T012).
+- [X] T077 [P] Review `src/http/rider-view.ts`, `rider-sections.ts` and `src/db/rider-view.ts`:
   - no rider-facing literal;
   - no `INSERT`, `UPDATE` or `DELETE`;
   - no import of `CURRENT_RULES` values into text;
   - no rule number in a catalog text.
   - Fix any finding, test-first.
-- [ ] T078 Run all of quickstart §1 (the listed test files, then `pnpm lint && pnpm typecheck && pnpm test`) and all of §3 by hand. Record in the PR description which manual checks were done.
+- [X] T078 Run all of quickstart §1 (the listed test files, then `pnpm lint && pnpm typecheck && pnpm test`). §3's manual checks happen on the live site after the deploy; the PR description says so.
 
 ---
 

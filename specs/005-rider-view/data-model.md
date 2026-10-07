@@ -61,10 +61,12 @@ interface RideRow {
 `lastPage = max(1, ceil(rideCount / 20))`, `page = min(requested, lastPage)`. SQL
 uses the same clamp for its `OFFSET`, so the rows and the reported page agree.
 
-## The view model: `buildRiderView(read, rules, inEffect, env)` → `RiderView`
+## The view model: `buildRiderView(read, rules, inEffect, context)` → `RiderView`
 
-Pure (research R6). `rules` is `rulesForVersion` and `inEffect` is
-`CURRENT_RULES`. Every number is stored or derived as allowed by FR-004. Nothing
+Pure (research R6). `rules` is `rulesForVersion(balance.rulesVersion)` and
+`inEffect` is `CURRENT_RULES`. `context` is `{ seasonStart, importing, rulesFor }`:
+`SEASON_START_DATE`, whether the import still runs, and `rulesForVersion` for
+each ride result's own version. Every number is stored or derived as allowed by FR-004. Nothing
 is formatted yet; formatting is the renderer's job (`I18n`).
 
 ```ts

@@ -27,7 +27,8 @@ the design choices the spec left to planning.
   1. the rider's `rynke_balances` row;
   2. the counts: stored rides (`activities`) and virtual rides (`ride_results`
      with `is_virtual = 1`);
-  3. one table page: `activities` `LEFT JOIN ride_results`, plus `LEFT JOIN
+  3. one table page (`RIDE_PAGE_SQL`, exported for the query-plan test of
+     SC-005): `activities` `LEFT JOIN ride_results`, plus `LEFT JOIN
      activities` on `overlaps_activity_id` for the ride that counted instead,
      newest first (`start_date DESC, strava_activity_id DESC`, as
      `listRecentActivities`), `LIMIT 20` and an `OFFSET` clamped to the last page
@@ -38,8 +39,10 @@ the design choices the spec left to planning.
      `listRiderAttendanceStatement`, the same read its evaluation uses (US3b).
 
   The corrections become a fifth statement of the same batch once feature 003
-  Story 6 exists (R5). The rider, consent and import status keep coming from
-  feature 001's own reads, as today.
+  Story 6 exists (R5). The balance and result rows go through feature 003's
+  exported mappers `toStoredBalance` and `toStoredRideResult`, so the page maps
+  them exactly as the evaluation does. The rider, consent and import status
+  keep coming from feature 001's own reads, as today.
 - **Rationale**: D1 runs a batch as one transaction, so all statements see the same
   state. A balance can therefore never sit next to ride results from another
   moment or rules version. Feature 003's `readRynke` relies on the same property
@@ -150,7 +153,10 @@ What other features still have to build, and how this plan handles it:
   - `src/http/rider-view.ts` holds pure functions that turn what
     `readRiderView` returned, the rules lookup and the rules in effect into a
     `RiderView`: summary, gauges, breakdown, ride rows, pager and notices
-    ([data-model.md](data-model.md)). It has no I/O, no `I18n` and no clock.
+    ([data-model.md](data-model.md)). It has no I/O, no `I18n` and no clock:
+    `buildRiderView(read, rules, inEffect, context)` takes the season start,
+    whether the import is running, and `rulesForVersion` (for each ride
+    result's own version) in its `ViewContext`.
   - `src/http/rider-sections.ts` renders one section per function from a
     `RiderView` and an `I18n`.
   - `src/http/me.ts` parses `page`, calls the read, builds the view and places

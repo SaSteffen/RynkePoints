@@ -35,7 +35,7 @@ then green).
 | US4 scenarios 1–7 | `rider-view.test.ts`, `me-rynke.test.ts` | Overlap names "06.10.2026, 08:00 Uhr, 80,0 km"; pause "3 h 0 min Pause bei 4 h 0 min"; manual and "7,5 km/h" for the 15 km / 2 h ride (rounded down), below 10 km/h; every other reason; virtual mark; unknown elapsed time with "kann sich noch ändern"; fix hint only for pause, speed, climbing rate and manual entry |
 | Reason texts (SC-003) | `catalogs.test.ts` | Every `REASON_CODES` and `UNKNOWN_FIGURE_CODES` value has a key in `de` and `en`; an unknown code shows `rynke.reason.unknown` |
 | US5 scenarios 1–6 | `me-rynke.test.ts`, `lang-switcher.test.ts` | 45 rides: "Fahrten 1–20 von 45", then 21–40 and 41–45; `page=99` shows 41–45; `page=abc` shows page 1; 20 rides have no pager; switching language on page 2 returns to `/me?page=2`; pager links have the `tap` class |
-| US6 scenarios 1–6 | `me-rynke.test.ts` | Version 1 since 07.10.2026, the season start and the handout link; with the balance's version ≠ `CURRENT_RULES.version`, the "being updated" notice (SC-006); a running import shows the "will grow" notice |
+| US6 scenarios 1–6 | `me-rynke.test.ts` | `CURRENT_RULES.version` (2 since feature 003 Story 3) since 07.10.2026, the season start and the handout link; with the balance's version ≠ `CURRENT_RULES.version`, the "being updated" notice (SC-006); a running import shows the "will grow" notice |
 | Read-only (SC-004) | `me-rynke.test.ts` | Opening `/me` and pages 1–3 changes no `tableCounts()` and no row, sends no queue message, and makes no Strava request |
 | Isolation (SC-007) | `me-rynke.test.ts` | Riders A and B with distinct figures; each sees only their own |
 | Languages (SC-008) | `language-rendering.test.ts`, `no-hardcoded-copy.test.ts` | The Rynke sections are fully German or fully English; the pseudo-locale run finds no literal |
@@ -84,11 +84,12 @@ the local D1.
    - pager links are at least 44 × 44 px (inspect the box model).
    Compare with spec [D5](spec.md#d5-page-layout-phone-360-pixels-wide).
 4. **Being updated**: run `pnpm wrangler d1 execute rynke-points --local
-   --command "UPDATE rynke_balances SET rules_version = 2"`, then reload. The
-   "being updated" notice appears, and the numbers are labelled version 2.
-   Version 2 is not in `RULES_HISTORY`, so the targets and gauges are left out
-   (FR-013). The next `evaluate-rider` or the cron restores version 1. To force
-   it, reconnect, or wait for the daily sweep.
+   --command "UPDATE rynke_balances SET rules_version = 99"`, then reload. The
+   "being updated" notice appears, and the numbers are labelled version 99.
+   Version 99 is not in `RULES_HISTORY`, so the targets and gauges are left out
+   (FR-013). The next `evaluate-rider` or the cron restores the version in
+   effect (`CURRENT_RULES.version`). To force it, reconnect, or wait for the
+   daily sweep.
 5. **No balance yet**: run `DELETE FROM rynke_balances` the same way, then
    reload. Only the "still being worked out" notice and the ride table remain.
 6. **Speed (SC-005)**: with a full season imported, or 500 synthetic rows from
