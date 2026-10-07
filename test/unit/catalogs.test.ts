@@ -12,7 +12,8 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 
 // Every ID in specs/001-strava-connect-webhook/contracts/messages.md and
 // specs/005-rider-view/contracts/messages.md and
-// specs/008-strava-ride-names/contracts/messages.md.
+// specs/008-strava-ride-names/contracts/messages.md and
+// specs/010-pwa-notifications/contracts/messages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"meta.intlLocale",
@@ -183,6 +184,13 @@ const CONTRACT_IDS = [
 	"rynke.rules.window",
 	"rynke.rules.windowDeadline",
 	"rynke.rules.handout",
+	// Feature 010, US1
+	"install.button",
+	"install.ios",
+	"install.dismiss",
+	"offline.title",
+	"offline.body",
+	"push.body",
 ];
 
 const placeholders = (text: string) =>
@@ -213,6 +221,11 @@ describe.each(catalogs)("catalog %s", (_locale, catalog) => {
 		for (const [id, text] of Object.entries(de)) {
 			expect(placeholders(catalog[id] ?? ""), id).toEqual(placeholders(text));
 		}
+	});
+
+	it("has no placeholder in the notification text (010 SC-008)", () => {
+		expect(catalog["push.body"]).toBeDefined();
+		expect(catalog["push.body"]).not.toContain("{");
 	});
 
 	it("names a formatting locale Intl supports", () => {

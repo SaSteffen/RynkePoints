@@ -11,3 +11,5 @@ TOKEN_ENCRYPTION_KEY=
 SESSION_SIGNING_KEY=
 # Starts the daily run on demand (scripts/run-daily.sh). 32 random bytes, base64: `openssl rand -base64 32`
 ADMIN_TOKEN=
+# EC P-256 private key as JWK JSON; see README (keep it: a new key ends every device's notifications)
+PUSH_VAPID_KEY=

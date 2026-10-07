@@ -23,7 +23,13 @@ import {
 	tableCounts,
 } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
-import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
+import {
+	ATHLETE_A,
+	ATHLETE_B,
+	makeStravaActivity,
+	NOW,
+} from "../support/fixtures";
+import { pushEndpoint, seedSubscription } from "../support/push";
 
 const DEAUTHORIZED: DeleteRiderMessage = {
 	kind: "delete-rider",
@@ -66,7 +72,10 @@ async function deliver(body: WorkMessage, attempts = 1) {
 	};
 }
 
-/** Rider A with credentials, consent, one activity and one failed_work row. */
+/**
+ * Rider A with credentials, consent, one activity, one failed_work row and two
+ * devices with notifications on.
+ */
 async function seedEverything(options: Parameters<typeof seedRider>[1] = {}) {
 	fake.addAthlete({ id: ATHLETE_A });
 	const rider = await seedRider(ctx, { consentVersion: 1, ...options });
@@ -81,12 +90,15 @@ async function seedEverything(options: Parameters<typeof seedRider>[1] = {}) {
 		lastError: "synthetic",
 		now: NOW,
 	});
+	await seedSubscription(ATHLETE_A, pushEndpoint(1));
+	await seedSubscription(ATHLETE_A, pushEndpoint(2));
 	expect(await tableCounts()).toMatchObject({
 		riders: 1,
 		strava_credentials: 1,
 		activities: 1,
 		consent_records: 1,
 		failed_work: 1,
+		push_subscriptions: 2,
 	});
 	expect(await namedActivities()).toBe(1);
 	return { rider, activity };
@@ -106,6 +118,7 @@ async function expectNoRiderRows() {
 		activities: 0,
 		consent_records: 0,
 		failed_work: 0,
+		push_subscriptions: 0,
 	});
 }
 
@@ -142,6 +155,19 @@ describe("delete-rider", () => {
 		// 008 SC-006: no ride name is left.
 		expect(await namedActivities()).toBe(0);
 		expect(fake.calls).toEqual([]);
+	});
+
+	it("leaves another rider's devices (010 FR-013, SC-005)", async () => {
+		await seedEverything();
+		await seedRider(ctx, { athleteId: ATHLETE_B });
+		await seedSubscription(ATHLETE_B, pushEndpoint(3));
+		await deliver(DEAUTHORIZED);
+		const { results } = await env.DB.prepare(
+			"SELECT athlete_id, endpoint FROM push_subscriptions",
+		).all();
+		expect(results).toEqual([
+			{ athlete_id: ATHLETE_B, endpoint: pushEndpoint(3) },
+		]);
 	});
 
 	it("revokes the stored refresh token before deleting", async () => {

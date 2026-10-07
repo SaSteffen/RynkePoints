@@ -4,6 +4,7 @@ import type { Ctx } from "../ctx";
 import { getRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { html, htmlResponse, layout } from "./html";
+import { renderInstallHint } from "./pwa";
 import { redirect } from "./redirect";
 import { readSession } from "./session";
 
@@ -30,6 +31,7 @@ export async function handleLanding(
 			title,
 			path: "/",
 			body: html`<h1>${i18n.t("app.name")}</h1>
+${renderInstallHint(i18n)}
 <p>${i18n.t("landing.intro")}</p>
 <p>${i18n.tHtml("landing.who", { clubLink })}</p>
 <p>${i18n.t("landing.dataRead")}</p>

@@ -59,13 +59,21 @@ export async function signValue(
 	return `${payload}.${toBase64Url(new Uint8Array(sig))}`;
 }
 
-/** Returns the value if the signature is valid and not expired, else null. */
+export interface VerifiedValue {
+	value: string;
+	expiresAt: number;
+}
+
+/**
+ * The value and its expiry if the signature is valid and not expired, else
+ * null. The expiry lets the session be renewed (010 research R10).
+ */
 export async function verifySignedValue(
 	signed: string,
 	keyB64: string,
 	now: number,
 	context = "",
-): Promise<string | null> {
+): Promise<VerifiedValue | null> {
 	const parts = signed.split(".");
 	if (parts.length !== 3) return null;
 	const [value, expires, sigText] = parts as [string, string, string];
@@ -79,6 +87,7 @@ export async function verifySignedValue(
 		sig,
 		macInput(context, `${value}.${expires}`),
 	);
-	if (!valid || Number(expires) < now) return null;
-	return value;
+	const expiresAt = Number(expires);
+	if (!valid || expiresAt < now) return null;
+	return { value, expiresAt };
 }

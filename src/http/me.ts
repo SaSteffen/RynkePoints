@@ -8,6 +8,7 @@ import { CURRENT_RULES, rulesForVersion } from "../rynke/rules";
 import { revokeStoredToken } from "../strava/tokens";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
+import { renderInstallHint } from "./pwa";
 import { redirect } from "./redirect";
 import {
 	renderBreakdown,
@@ -92,6 +93,7 @@ export async function handleMe(
 			// The page shown, so the language switch keeps it (FR-046).
 			path: read.page > 1 ? `/me?page=${read.page}` : "/me",
 			body: html`<h1>${i18n.t("me.greeting", { firstName: rider.firstName })}</h1>
+${renderInstallHint(i18n)}
 ${status}
 <p>${i18n.t(rider.scopeReadAll ? "me.scope.readAll" : "me.scope.sharedOnly")}</p>
 <p>${i18n.t(rider.scopeWrite ? "me.scope.write" : "me.scope.noWrite")}</p>

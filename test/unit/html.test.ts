@@ -71,8 +71,11 @@ describe("layout (de)", () => {
 		);
 	});
 
-	it("ships no script", () => {
-		expect(page).not.toMatch(/<script/i);
+	it("ships no script but the static /app.js (010 research R16)", () => {
+		expect(page.match(/<script[^>]*>/gi)).toEqual([
+			'<script src="/app.js" defer>',
+		]);
+		expect(page).toContain('<script src="/app.js" defer></script>');
 	});
 });
 

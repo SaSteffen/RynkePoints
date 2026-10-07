@@ -74,6 +74,13 @@ const COLUMNS: Record<string, string[]> = {
 	team_event_kinds: ["kind"],
 	team_events: ["event_id", "kind", "event_date", "name"],
 	attendances: ["event_id", "athlete_id"],
+	// Feature 010: a device's push endpoint, nothing else (research R7).
+	push_subscriptions: [
+		"subscription_id",
+		"endpoint",
+		"athlete_id",
+		"created_at",
+	],
 };
 
 const FORBIDDEN = [

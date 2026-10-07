@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<title>RynkePoints</title>
+<!-- RynkePoints mark: "R" and a point. Source of the PNGs next to it (010 research R1). -->
+<rect width="512" height="512" rx="96" fill="#fc5200"/>
+<g fill="#fff"><path d="M161 144V368M161 144H245A64 64 0 0 1 245 272H161M221 272L289 368" fill="none" stroke="#fff" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/><circle cx="347" cy="350" r="30"/></g>
+</svg>

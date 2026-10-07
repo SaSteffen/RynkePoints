@@ -8,6 +8,7 @@ import {
 	isSameOrigin,
 	readOAuthState,
 	readSession,
+	readSessionExpiry,
 } from "../../src/http/session";
 
 const NOW = 1_791_000_000;
@@ -18,11 +19,11 @@ function withCookie(setCookie: string) {
 }
 
 describe("session cookie", () => {
-	it("is signed and long-lived", async () => {
+	it("is signed and lasts 180 days (010 FR-007)", async () => {
 		const cookie = await createSessionCookie(900001, NOW, env);
 		expect(cookie).toMatch(
 			new RegExp(
-				`^rp_session=900001\\.${NOW + 2592000}\\.[A-Za-z0-9_-]+; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=2592000$`,
+				`^rp_session=900001\\.${NOW + 15552000}\\.[A-Za-z0-9_-]+; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=15552000$`,
 			),
 		);
 	});
@@ -37,10 +38,30 @@ describe("session cookie", () => {
 		const tampered = cookie.replace("rp_session=900001", "rp_session=900002");
 		expect(await readSession(withCookie(tampered), env, NOW)).toBeNull();
 		expect(
-			await readSession(withCookie(cookie), env, NOW + 2592001),
+			await readSession(withCookie(cookie), env, NOW + 15552001),
 		).toBeNull();
 		expect(
 			await readSession(new Request("https://rynke.test/"), env, NOW),
+		).toBeNull();
+	});
+
+	it("reads back the athlete ID with the expiry", async () => {
+		const cookie = await createSessionCookie(900001, NOW, env);
+		expect(await readSessionExpiry(withCookie(cookie), env, NOW + 10)).toEqual({
+			athleteId: 900001,
+			expiresAt: NOW + 15552000,
+		});
+	});
+
+	it("reads no expiry of a missing, tampered or expired session", async () => {
+		const cookie = await createSessionCookie(900001, NOW, env);
+		const tampered = cookie.replace("rp_session=900001", "rp_session=900002");
+		expect(
+			await readSessionExpiry(new Request("https://rynke.test/"), env, NOW),
+		).toBeNull();
+		expect(await readSessionExpiry(withCookie(tampered), env, NOW)).toBeNull();
+		expect(
+			await readSessionExpiry(withCookie(cookie), env, NOW + 15552001),
 		).toBeNull();
 	});
 
