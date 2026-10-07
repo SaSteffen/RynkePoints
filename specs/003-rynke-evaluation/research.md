@@ -1,7 +1,7 @@
-# Research: Rynke Evaluation — Stories 1, 2 and 4
+# Research: Rynke Evaluation — Stories 1, 2, 3 and 4
 
-Decisions behind [plan.md](plan.md). Stories 3, 5 and 6 add their own entries
-later.
+Decisions behind [plan.md](plan.md). R1–R15 cover Stories 1, 2 and 4; R16–R23
+cover Story 3. Stories 5 and 6 add their own entries later.
 
 ## R1. Rules handout: what is left (Story 1, FR-017–FR-020)
 
@@ -26,7 +26,7 @@ later.
   totals, an `extras` input (Team and Training Rynke per team-event kind, and
   corrections) that is empty until Stories 3 and 6 supply it; the stored balance
   already has the totals, missing amounts and qualification, and Story 3 adds its
-  breakdown columns or table in a later, additive migration.
+  breakdown columns or table in a later, additive migration (settled in R20).
 - **Rationale**: Story 4's scenarios 1–8 and 10–12 only need rides. Scenario 9
   (events and corrections in the tally) is tested with Story 3 and Story 6.
   Qualification is computed now; with no team events every rider has 0 Team
@@ -356,3 +356,280 @@ research R20; R15 below for `is_flagged`).
     FR-010, and the project owner accepts the delay.
   - Treating an unknown flag as flagged — rejected: FR-005f; every rider's rows
     would stop counting until the re-read.
+
+## R16. Story 3: what it builds and what it leaves to others
+
+- **Decision**: Story 3 builds the inputs and their effect, nothing a person
+  clicks:
+  - the stored inputs: team events and attendance (migration
+    `0006_team_events.sql`, R17);
+  - the team-event amounts as rule values, under rules version 2 (R18);
+  - a pure evaluation of a rider's attendance (R19) and its breakdown in the
+    stored balance (R20);
+  - the write functions organisers' changes will go through, each one batch
+    (R21), and every existing evaluation path reading attendance too;
+  - the sweep noticing attendance that the stored balance doesn't reflect yet
+    (R22), which also covers the interim manual entry.
+
+  Left to others:
+  - organiser pages and who is an organiser: the organiser-admin feature
+    (backlog prompt), which calls R21's functions and computes nothing itself;
+  - showing the per-kind rows and the event list to the rider: feature 005's
+    US3b (its research R5), which reads what this story stores;
+  - fake-mode sample riders with team events: feature 006 adds them once
+    organisers can enter events through a normal path (its FR-012);
+  - corrections in the tally: Story 6. Story 4 scenario 9 is tested here for
+    its team-event part only.
+- **Rationale**: the spec's Assumptions keep the organiser pages out of this
+  feature; until they exist the maintainer enters events directly (R22). The
+  handout already explains team events, attendance recording and rides during
+  events (FR-017); the Story 1 review finds nothing to change.
+- **Alternatives considered**: a token-protected maintainer route for events
+  and attendance, like feature 007's `/admin/run-daily` — rejected: it is a
+  first, untranslated piece of the organiser-admin feature, with input
+  validation and a public address to secure, for a step done a few times
+  before that feature ships.
+
+## R17. Storing team events and attendance (FR-006, FR-006a, FR-007)
+
+- **Decision**: migration `0006_team_events.sql` adds three tables (details in
+  [data-model.md](data-model.md)):
+  - `team_event_kinds`: one row per kind code (`team_training`,
+    `training_weekend_day`, `technique_training`), seeded by the migration.
+  - `team_events`: `event_id` (INTEGER PRIMARY KEY), `kind` (FK to
+    `team_event_kinds`), `event_date` (`YYYY-MM-DD`), `name` (optional,
+    1–100 characters). A training weekend is one row per day (FR-006).
+  - `attendances`: `(event_id, athlete_id)` as primary key, FK to
+    `team_events` and to `riders`, both `ON DELETE CASCADE`; indexed by
+    `athlete_id`.
+
+  No organiser or timestamp columns: the organiser-admin feature adds who
+  changed what and when, additively, once it defines organisers.
+- **Rationale**:
+  - The primary key makes a rider's second attendance at the same event
+    impossible to store (scenario 4); writes use `INSERT … ON CONFLICT DO
+    NOTHING`, so recording it twice is not an error either.
+  - Kinds as a foreign key, not a `CHECK`: until the organiser pages exist the
+    maintainer types SQL (R22), and D1 enforces foreign keys, so a misspelt
+    kind is refused instead of silently earning nothing. Story 5 names "a new
+    kind of team event" as a possible logic change; a new kind is then one
+    `INSERT` in a migration, while changing a `CHECK` in SQLite means rebuilding
+    `team_events` with `attendances` pointing at it.
+  - Deleting an event takes its attendances (FR-006a); deleting a rider takes
+    theirs (FR-022 of feature 001, the existing single `DELETE FROM riders`).
+    Team events belong to the team and stay.
+  - Attendance is personal data (who was where, when), but none of it comes
+    from Strava; it is shown to no one by this feature (FR-015).
+- **Alternatives considered**:
+  - A `CHECK (kind IN (…))` — rejected for the rebuild above.
+  - Attendance as a JSON list on the event — rejected: no foreign key to
+    `riders`, so deleting a rider would mean rewriting every event they
+    attended, and no index per rider for the evaluation read.
+
+## R18. Event amounts as rule values; rules version 2 (FR-007, FR-012, FR-023)
+
+- **Decision**: `RynkeRules` gains `teamEvents`, the fixed Team and Training
+  Rynke per kind: team training 1 + 5, training-weekend day 5 + 10, technique
+  training 5 + 5. The set of kinds is code (`TEAM_EVENT_KINDS`, in the spec's
+  order) and matches `team_event_kinds`; the amounts are rule values, so a
+  change of an amount needs a version bump like any other value (R8).
+  `assertValidRules` requires an entry for every kind, with whole numbers ≥ 0.
+  `CURRENT_RULES` becomes version 2 with the date Story 3 ships; version 1 stays
+  in `RULES_HISTORY` with the same amounts.
+- **Rationale**:
+  - FR-012 lists the fixed amounts per event kind among the rule values, and
+    FR-023 treats new rule logic in an app version as a rules change: every
+    stored row must say which logic computed it. Under version 1 no attendance
+    could be stored, so its balances are what version 2 gives a rider with no
+    attendance, except for the breakdown they lack (R20).
+  - The bump makes the sweep re-evaluate every rider once (R14), which also
+    fills the breakdown. That rewrites each ride result once, about 600 rows
+    per rider, the cost R13 already budgets for a version bump.
+  - Version 1 keeps the sheet's amounts in the history because feature 005
+    explains stored results by the rules of their version; they are the values
+    the handout always named.
+  - Feature 005 tells riders their numbers are being updated while their rows
+    carry version 1 (its FR-051). Running `pnpm daily:run` after the deploy
+    (feature 007) shortens that from up to a day to minutes.
+- **Alternatives considered**: keeping version 1 and adding the amounts to it —
+  rejected: version 1 would then name two different logics, and riders whose
+  balance isn't touched by an activity would keep a balance without breakdown
+  until something else changed.
+
+## R19. Evaluating attendance (FR-007–FR-009, FR-011)
+
+- **Decision**: a pure `evaluateAttendance(attendance, rules, window)` in
+  `src/rynke/team-events.ts`, beside `evaluateRides`:
+  - input: the rider's attendances as `{ eventId, kind, date }`, read with the
+    event's kind and date;
+  - an attendance counts when the event's date is inside the counting window
+    (FR-011), compared as `YYYY-MM-DD` strings like a ride's local start date
+    (R4);
+  - each event counts at most once per rider, also if the input repeats it
+    (FR-007; the primary key already prevents it in storage);
+  - output: one entry per kind in `TEAM_EVENT_KINDS` order, also for kinds with
+    no attendance, with the number attended and `attended × amount` Team and
+    Training Rynke, plus the Team and Training sums;
+  - no ride is read: attendance needs no ride (FR-007), and rides earn their
+    distance and elevation Rynke whether or not they were part of an event
+    (FR-008, scenarios 5 and 6). Ride results don't change with attendance.
+  - Team Rynke come only from this sum (and Story 6's corrections), never from
+    rides (FR-009); `tally` already takes Team Rynke from extras only.
+- **Rationale**: the rider's balance depends on attendance only through the
+  number of counting events per kind, so the evaluation is a count. A date in
+  the future is not treated specially: comparing with today would make the
+  evaluation depend on the clock (FR-002), and recording attendance before an
+  event is the organisers' business.
+- **Alternatives considered**: summing amounts in SQL — rejected: the amounts
+  are rule values in TypeScript, and the evaluation stays one pure function of
+  stored inputs (Principle IV).
+
+## R20. The team-event breakdown in the balance (FR-014a)
+
+- **Decision**: `rynke_balances` gains one column, `team_events`, a JSON array
+  with one object per kind in `TEAM_EVENT_KINDS` order:
+  `{"kind":"team_training","attended":2,"team":2,"training":10}`. Migration
+  `0006` adds it as `TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(team_events))`.
+  `team_rynke` and `training_rynke` keep holding the totals, now including
+  events.
+- **Rationale**:
+  - One row per rider stays one row: a changed attendance writes the balance
+    row and nothing else derived (R13).
+  - Kinds can grow (R17) without a migration on the balance; the array order is
+    fixed by the code, so comparing old and new balances as JSON (`sameFields`)
+    is stable.
+  - The default lets the previously deployed version keep inserting balances
+    while CI applies `0006` before publishing the code; its rows show `[]` until
+    the version-2 sweep rewrites them (R18). SQLite checks an added column's
+    `CHECK` against existing rows, and `'[]'` passes.
+- **Alternatives considered**:
+  - Nine columns (count, Team and Training Rynke for each of three kinds) —
+    rejected: a new kind means a migration on the balance, and the columns
+    repeat what one array says.
+  - A child table `rynke_balance_events` — rejected: up to three more rows and
+    their index entries written per change, and a second table to keep in the
+    same batch, for data only ever read together with the balance.
+
+## R21. Applying team-event changes (FR-003, FR-006a, FR-014b)
+
+- **Decision**:
+  - **Every evaluation reads attendance.** `applyAndEvaluate` adds the rider's
+    attendances (joined with their events' kind and date) to its read batch and
+    passes them to `evaluateAttendance`; `tally` gets the result as extras. An
+    activity event therefore never stores a balance without the rider's events.
+  - **Team-event changes** go through a new `applyTeamEventChange(db, change,
+    rules, window, now)` in `src/rynke/apply.ts`, with `change` one of: create,
+    update (kind, date, name) or delete an event; add or remove attendances of
+    one event for a list of riders. It:
+    1. reads, in one batch, the event and its attendees;
+    2. works out the affected riders: those added or removed (adding only
+       connected riders who don't already attend, FR-006a), or every attendee
+       when an event is changed or deleted. Creating an event affects no one;
+       changing only its name affects no balance;
+    3. reads, in one batch, the affected riders' activities, ride results,
+       balances and attendances, each table with **one** statement filtered by
+       `json_each` of the rider list;
+    4. applies the change in memory, evaluates each affected rider as
+       `applyAndEvaluate` does, and writes the change's statements and every
+       changed row of every affected rider in **one** batch;
+    5. returns the new event's ID (for create) and the affected riders.
+  - `teamEventChange(ctx, change)` is the entry point for callers outside the
+    serial queue consumer (the organiser pages): it runs `applyTeamEventChange`
+    under `CURRENT_RULES` and then sends `evaluate-rider` for each affected
+    rider, the guard R11 uses for the OAuth callback.
+  - `applyAndEvaluate` and `applyTeamEventChange` share the read, evaluate and
+    diff steps; only the change handling differs.
+- **Rationale**:
+  - Writing the attendance and the balances it changes in one batch means a
+    reader never sees attendance the balance doesn't reflect (FR-014b), also
+    for an event deleted with ten attendees.
+  - Statement count: four reads plus, for up to ten riders (Strava capacity), the
+    change and about one balance write each stay below 50 statements, even if
+    every statement in a batch counted towards the Free plan's queries per
+    invocation (the open question of R13). Ride results only change when the
+    rider's rows were from another rules version, which the sweep usually
+    settles first.
+  - Organiser pages run in the fetch handler, next to the serial consumer; an
+    activity event for an attendee can read before and write after the
+    organiser's batch. The `evaluate-rider` messages run after it and re-derive
+    from the final state, as for the OAuth callback (R11).
+- **Alternatives considered**:
+  - Writing the attendance, then sending `evaluate-rider` only — rejected: the
+    balance lags the stored attendance until the message runs (FR-014b), the
+    same reason R11 rejects it for activities.
+  - Recomputing only the balance from stored ride results — rejected: correct
+    only while those results are current and of the same rules version; a full
+    evaluation costs a few milliseconds and keeps one code path.
+
+## R22. Entering events before the organiser pages exist; the sweep
+
+- **Decision**:
+  - **Interim entry** (spec Assumptions): the maintainer inserts, changes or
+    deletes rows in `team_events` and `attendances` with `wrangler d1 execute
+    --remote`, then runs `pnpm daily:run` (feature 007). The quickstart gives
+    the statements.
+  - **Sweep**: `listRidersNeedingEvaluation` gets the counting window as
+    parameters and also returns connected riders whose in-window attendance
+    count per kind differs from the stored breakdown: an `EXCEPT` both ways
+    between `SELECT kind, count(*)` over their attendances inside the window and
+    the stored array's entries with `attended > 0`.
+- **Rationale**:
+  - Counts per kind inside the window are all the balance depends on (R19), so
+    comparing them finds exactly the riders whose stored balance is out of
+    date: new or removed attendance, an event moved across the window's edge or
+    to another kind, a deleted event. Renaming an event or swapping one event
+    for another of the same kind changes no balance and is not reported, so the
+    sweep never sends a message that would write nothing.
+  - The same check catches what a lost `evaluate-rider` leaves behind after an
+    organiser change (R21), so it is the safety net R14 is for activities.
+  - On the interim path the balance lags the stored attendance from the SQL
+    write until the daily run's messages are processed, usually within
+    minutes, or until the next night if the maintainer forgets the run. This
+    deviates from FR-014b only on a manual path the spec names as temporary;
+    the write functions the organiser pages will use keep FR-014b (R21).
+- **Alternatives considered**:
+  - SQLite triggers on the input tables that delete the affected balance, so
+    the rider sees "being evaluated" instead of a lagging number — rejected:
+    hidden logic in the schema, and the app's own path would have to write the
+    balance even when unchanged to survive its own trigger.
+  - A change counter or signature stored in the balance — rejected: deletions
+    and order make it brittle, and counts per kind are already the exact test.
+
+## R23. Testing Story 3 (Principle V)
+
+- **Decision**:
+  - **Unit** `test/unit/team-events.test.ts`: Story 3 scenarios 1–4 (numbered),
+    every kind listed when none was attended, events on the season start and
+    deadline count and a day outside doesn't, a repeated event counts once,
+    order independence.
+  - **Unit** `tally.test.ts`: the breakdown is copied into the balance; Story 3
+    scenario 5 (1 Team, 16 Training with the ride) and scenario 6 (the ride
+    alone); Story 4 scenario 9's team-event part; qualification reached only
+    with event Rynke; event Rynke stay in the Training Rynke without virtual
+    rides (R12).
+  - **Unit** `rules.test.ts`: version 2 and its fingerprint, version 1 still in
+    the history, missing or negative amounts refused, the kinds equal
+    `TEAM_EVENT_KINDS`.
+  - **Unit** `reference-riders.test.ts`: riders with attendance join the
+    hand-calculated set (SC-001), including ones who qualify.
+  - **Integration** `test/integration/team-events-apply.test.ts`: every change
+    kind of `applyTeamEventChange` against D1; the stored balance matches a
+    hand calculation and data-model.md's invariants after each step; recording
+    twice writes nothing; a non-connected rider is refused; an event moved
+    outside the window or deleted takes its Rynke away; renaming writes no
+    balance; `teamEventChange` sends `evaluate-rider` for the affected riders
+    only; no Strava request.
+  - **Integration** `rynke-apply.test.ts`, `rynke-store.test.ts`,
+    `evaluate-rider.test.ts`: an activity event for a rider with attendance
+    keeps the event Rynke in the balance; rows carry version 2.
+  - **Integration** `rynke-sweep.test.ts`: attendance inserted by raw SQL (the
+    interim path) puts the rider on the list; renaming an event or an
+    evaluated rider doesn't; an event moved past the deadline does.
+  - **Integration** `rynke-deletion.test.ts`: deleting a rider removes their
+    attendance and keeps the events; deleting an event removes its
+    attendances.
+  - **Integration** `schema-minimisation.test.ts` and `db.test.ts`: the three
+    tables, the new balance column, the seeded kinds equal `TEAM_EVENT_KINDS`,
+    an unknown kind and a second attendance are refused by the schema.
+- **Rationale**: as R9: the evaluation is pure, so unit tests cover its rules;
+  integration tests prove the batch, the sweep and the cascades.
