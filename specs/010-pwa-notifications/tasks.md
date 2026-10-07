@@ -457,7 +457,7 @@ out ends them there.
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T042 [P] Privacy text (FR-030, research R14), test first in
+- [X] T042 [P] Privacy text (FR-030, research R14), test first in
   `test/integration/landing.test.ts` (failing): `/` shows `landing.notifications`
   in German and English after `landing.cookies`, and `CONSENT_VERSION` is still
   1. Then add `landing.notifications` to both catalogs and `CONTRACT_IDS`,
@@ -466,7 +466,7 @@ out ends them there.
   `src/consent.ts`: 010 named the push service without raising the version,
   because notifications need no Strava scope or request and show nothing to
   anyone but the rider (010 research R14; constitution v2.1.0).
-- [ ] T043 [P] Guards:
+- [X] T043 [P] Guards:
   - `test/unit/no-secret-logging.test.ts`: add the test key's `d` to `SECRETS`
     and a case where a `send-notification` gets `403`, `503` on its last
     attempt and a throwing `fetch`; no logged line contains a secret, the
@@ -475,15 +475,15 @@ out ends them there.
     checked pages (via `RIDER_PAGES` in `test/support/pages.ts` if that is
     where the list lives).
   - `test/unit/dev-guard.test.ts` stays green.
-- [ ] T044 [P] `README.md`: the stored data list gains the device's push
+- [X] T044 [P] `README.md`: the stored data list gains the device's push
   address (deleted on turning off, signing out or leaving); the secrets list
   gains `PUSH_VAPID_KEY` with quickstart §3's command and the warning that a new
   key ends every device's notifications; the sign-in lasts 180 days after the
   last visit.
-- [ ] T045 [P] `specs/001-strava-connect-webhook/data-model.md`: one line that
+- [X] T045 [P] `specs/001-strava-connect-webhook/data-model.md`: one line that
   010's [data-model.md](data-model.md) adds `push_subscriptions` and changes the
   session lifetime to 180 days.
-- [ ] T046 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`. All pass.
+- [X] T046 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`. All pass.
 
 ---
 
