@@ -637,24 +637,24 @@ The Team gauge stays undivided until US3b (research R5).
 
 **Independent Test**: a reviewer opens spec.md and plan.md on GitHub, every diagram renders, and each one matches the built page and code (spec US7 scenarios 1–4).
 
-- [ ] T079 [P] [US7] Compare the built page against the spec's layout and state diagrams:
+- [X] T079 [P] [US7] Compare the built page against the spec's layout and state diagrams:
   - **D3** (who sees the page): signed out → `/`; only the rider's own data.
   - **D4** (desktop section order) against `handleMe`'s output.
   - **D5** (phone, 360 px) against the page in device mode.
   - **D6** (page states) against `buildRiderView`'s states.
   - **D7** (a ride row) against `renderRides`.
   - Fix any mismatch in the diagram or the code.
-- [ ] T080 [P] [US7] Compare the gauges, qualification, reasons and paging against the spec's diagrams:
+- [X] T080 [P] [US7] Compare the gauges, qualification, reasons and paging against the spec's diagrams:
   - **D8** (how a gauge fills) and **D9** (US2 scenario 6) against `gaugeParts` and `percent`.
   - **D10** (qualification) against the summary.
   - **D11** (status and reasons) against `RideLine`.
   - **D12** (45 rides) against the pager.
   - **D15** (overlap) and **D16** (elevation) against the integration tests' figures.
-- [ ] T081 [P] [US7] Compare the flow diagrams against the code:
+- [X] T081 [P] [US7] Compare the flow diagrams against the code:
   - **D0** (delivery phases) against what was merged; mark US3b's state.
   - **D1** and **D2** (where the numbers come from and what is read) against `readRiderView`'s batch.
   - **D13** (a page view over time) and **D14** (a rule change) against `handleMe` and research R4.
-- [ ] T082 [P] [US7] Compare plan.md's design diagrams against the code:
+- [X] T082 [P] [US7] Compare plan.md's design diagrams against the code:
   - **P1** (modules and imports) against the actual imports, with `rider-view.ts` importing no `I18n` or D1.
   - **P2** (read sequence).
   - **P3** (rules versions).
@@ -664,7 +664,7 @@ The Team gauge stays undivided until US3b (research R5).
   - **P7** (the page parameter) against `parsePage` and `safeNext`.
   - **P8** (a ride row).
   - **P9** (deliveries).
-- [ ] T083 [US7] Render every Mermaid block of spec.md and plan.md once more (GitHub preview, or `@mermaid-js/mermaid-cli` run through `pnpm dlx` without adding it to `package.json`) after T079–T082's corrections. Commit the corrections as `docs: …`.
+- [X] T083 [US7] Render every Mermaid block of spec.md and plan.md once more (GitHub preview, or `@mermaid-js/mermaid-cli` run through `pnpm dlx` without adding it to `package.json`) after T079–T082's corrections. Commit the corrections as `docs: …`.
 
 ---
 
