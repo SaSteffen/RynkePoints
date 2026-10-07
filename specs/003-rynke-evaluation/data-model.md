@@ -1,8 +1,8 @@
 # Data Model: Rynke Evaluation — Stories 1, 2 and 4
 
 Story 2 works in memory; Story 4 stores its output in two new tables
-(migration `0003_rynke_results.sql`, which also adds feature 001's
-`activities.is_flagged`, research R15). Team events, attendance and corrections
+(migration `0004_rynke_results.sql`; feature 001's `activities.is_flagged`
+came in its `0003_activity_flagged.sql`, research R15). Team events, attendance and corrections
 (Stories 3 and 6) and stored rules (Story 5) come later, each in its own additive
 migration. Function signatures and codes:
 [contracts/ride-evaluation.md](contracts/ride-evaluation.md).
@@ -27,7 +27,7 @@ outside the window get a result too.
 | `flagged` | `is_flagged` | Whether Strava has flagged it; `null` = unknown. |
 | `refreshedAt` | `refreshed_at` | Copied into the ride result to detect stale results (R14). |
 
-## Column: `activities.is_flagged` (feature 001 FR-013)
+## Column: `activities.is_flagged` (feature 001 FR-013, its migration `0003`)
 
 | Column | Type | Rule |
 |---|---|---|
@@ -122,6 +122,6 @@ as additive columns or a child table.
 ## State over time
 
 A rider has no balance until their first evaluation (first activity write after
-`0003`, or the first cron sweep). From then on every activity change rewrites the
+`0004`, or the first cron sweep). From then on every activity change rewrites the
 affected rows in the same batch. Deleting the rider removes everything by
 cascade.

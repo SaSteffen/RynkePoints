@@ -168,10 +168,19 @@ research R20; R15 below for `is_flagged`).
     rotated larger sets).
   - **Unit** `test/unit/tally.test.ts`: every FR-014a field from riding totals and
     `extras`; Story 4 scenario 8 (virtual share) with 25 Team Rynke passed as an
-    extra; floors at 0; the rules fingerprint test (R8).
+    extra; floors at 0.
+  - **Unit** `test/unit/rules.test.ts`: rule validation and the rules
+    fingerprint test (R8).
+  - **Unit** `test/unit/reference-riders.test.ts` (SC-001): at least 20
+    synthetic riders, each with a one-line hand calculation of training Rynke,
+    team Rynke and qualification.
   - **Integration** `test/integration/rynke-store.test.ts`: Story 2 scenario 5 and
     Story 4 scenarios 1–7 and 10–12 through the webhook path with fake Strava;
-    only changed rows are written (count rows before/after); the read snapshot.
+    only changed rows are written (count rows before/after); the read snapshot;
+    data-model.md's invariants after every step.
+  - **Integration** `rynke-apply.test.ts` and `evaluate-rider.test.ts`:
+    `applyAndEvaluate` against D1 (every change kind, a rules-version bump,
+    another rider's activity), and the message without a Strava call.
   - **Integration** `rynke-sweep.test.ts` and `rynke-deletion.test.ts`: the cron
     sends `evaluate-rider` exactly for riders that need it (R14); deleting an
     activity, narrowing the scope and deleting a rider leave no result behind.
@@ -208,7 +217,7 @@ research R20; R15 below for `is_flagged`).
 
 ## R11. One batch per input change (FR-003, FR-014b, FR-015)
 
-- **Decision**: `applyAndEvaluate(db, athleteId, change, rules, window)`:
+- **Decision**: `applyAndEvaluate(db, athleteId, change, rules, window, now)`:
   1. reads, in one batch, the rider's activities and stored ride results and
      balance;
   2. applies `change` in memory — upsert records, delete activity IDs, or delete
@@ -292,7 +301,7 @@ research R20; R15 below for `is_flagged`).
   It runs after the existing steps and sends in batches of 100, like the re-read
   fan-out.
 - **Rationale**:
-  - **Rollout**: after `0003` is applied, no rider has results; the first cron
+  - **Rollout**: after `0004` is applied, no rider has results; the first cron
     fills them without a manual step.
   - **Rules version bump**: a deploy with a new version is followed within a day.
     SC-006's 1 hour and an organiser-started recalculation are Story 5.
@@ -307,12 +316,14 @@ research R20; R15 below for `is_flagged`).
 ## R15. Rides Strava has flagged (FR-005g, feature 001 FR-013)
 
 - **Decision**:
-  - **Storing the flag** is a feature 001 change made here, since nothing else
-    needs it yet. Strava's activity responses (summary in the list, detailed per
-    activity) carry a boolean `flagged`, so no request is added.
-    - Migration `0003_rynke_results.sql` also adds `activities.is_flagged`
-      (nullable, `CHECK (is_flagged IN (0, 1))`, no default), like `0002` did
-      for the other flags.
+  - **Storing the flag** is a feature 001 change; it shipped with feature 001
+    (its tasks T097–T107) ahead of this feature. Strava's activity responses
+    (summary in the list, detailed per activity) carry a boolean `flagged`, so
+    no request is added.
+    - Feature 001's migration `0003_activity_flagged.sql` adds
+      `activities.is_flagged` (nullable, `CHECK (is_flagged IN (0, 1))`, no
+      default), like `0002` did for the other flags. This feature's results
+      tables therefore come in `0004_rynke_results.sql`.
     - `toActivityRecord` maps it with the existing `flag()` helper: missing
       stays `NULL`, never "not flagged".
     - `ACTIVITY_FIGURES_VERSION` goes from 1 to 2, so the daily cron re-reads
@@ -331,12 +342,14 @@ research R20; R15 below for `is_flagged`).
     through the usual write path (R11). The plan adds no polling (feature 001
     FR-010); the project owner accepts the delay, as both specs record.
 - **Rationale**: the rule must hold whatever the configuration, so it lives in
-  the evaluation code rather than the rule values. `0003` runs before the code
-  that writes the column is published; the old code doesn't know the column,
-  so rows it writes in between stay `NULL` until the re-read fills them.
+  the evaluation code rather than the rule values. `0003_activity_flagged.sql`
+  runs before the code that writes the column is published; the old code
+  doesn't know the column, so rows it writes in between stay `NULL` until the
+  re-read fills them.
 - **Alternatives considered**:
-  - A separate migration for the column — rejected: one additive migration per
-    release is enough, and both changes ship together.
+  - Adding the column in this feature's results migration — first planned,
+    then superseded: the flag shipped with feature 001 on its own, in its own
+    migration.
   - A periodic re-read of recent activities to catch late flags — rejected: it
     costs Strava requests for every rider every day and contradicts feature 001
     FR-010, and the project owner accepts the delay.

@@ -22,16 +22,17 @@ them without reshaping what is stored (research R2, R12).
     Rynke, the metres it adds to the elevation total, whether it is virtual and
     which figures were unknown;
   - a ride Strava has flagged never counts, whatever the rule values
-    (FR-005g). Storing Strava's flag is a small feature 001 change made here
-    (research R15): one nullable column, the mapping, a one-time re-read of
-    stored activities, and the privacy text naming it;
+    (FR-005g). Storing Strava's flag shipped with feature 001 (its migration
+    `0003_activity_flagged.sql`, research R15): one nullable column, the
+    mapping, a one-time re-read of stored activities, and the privacy text
+    naming it;
   - the riding totals: distance Rynke, the elevation total with its Rynke and
     the metres to the next step, and the same without virtual rides (FR-013a);
   - arithmetic is exact at every rule boundary (research R3); unknown figures
     never exclude a ride (FR-005f, research R6); zero moving time is a full
     pause (FR-005a, research R7).
 - **Story 4 (stored ride results and tally)**:
-  - Migration `0003_rynke_results.sql` adds `ride_results` (one row per activity)
+  - Migration `0004_rynke_results.sql` adds `ride_results` (one row per activity)
     and `rynke_balances` (one row per rider), both cascading from `riders`
     (research R10).
   - Every path that changes a rider's activities applies the change and the
@@ -66,8 +67,9 @@ them without reshaping what is stored (research R2, R12).
 `json_each` for multi-row writes (research R13).
 
 **Storage**: D1. Reads `activities` (feature 001). New tables `ride_results` and
-`rynke_balances` and the new column `activities.is_flagged` in migration
-`0003_rynke_results.sql`, additive only, so the previously deployed version
+`rynke_balances` in migration `0004_rynke_results.sql` (`activities.is_flagged`
+came with feature 001's `0003_activity_flagged.sql`), additive only, so the
+previously deployed version
 keeps working while CI applies it
 ([data-model.md](data-model.md)).
 
@@ -119,13 +121,13 @@ season.
 | IV. Free tier | Diff writes keep D1 writes in the hundreds per day (research R13). One extra cron step, no new trigger. | ✅ |
 | V. Test-first | Each acceptance scenario of Stories 2 and 4 starts as a failing test; fixtures synthetic; Strava faked. | ✅ |
 | Language | No new rider-facing page: reasons and figures are codes (FR-016). The privacy-text change is made in both catalogs (feature 001 FR-028). Code and docs English. | ✅ |
-| Migrations | `0003` only adds two tables and a nullable column; the deployed version ignores them. | ✅ |
+| Migrations | `0004` only adds two tables; the deployed version ignores them. | ✅ |
 
 **Post-design re-check (after Phase 1)**: still passing. The design adds two
-tables, one activity column, one queue message kind (`evaluate-rider`), one cron
-step and no route, binding or dependency. Feature 001's handlers change in two
-ways: their activity writes join the evaluation batch (research R11), and they
-store Strava's flag (research R15).
+tables, one queue message kind (`evaluate-rider`), one cron step and no route,
+binding or dependency. Feature 001's handlers change in one way: their activity
+writes join the evaluation batch (research R11). Storing Strava's flag (research
+R15) shipped with feature 001.
 
 ## Project Structure
 
@@ -151,7 +153,8 @@ specs/003-rynke-evaluation/
 docs/rynke-punkte.md, docs/print.css, scripts/docs-pdf.sh   # Story 1 (exist)
 
 migrations/
-└── 0003_rynke_results.sql   # ride_results, rynke_balances, activities.is_flagged
+├── 0003_activity_flagged.sql   # activities.is_flagged (feature 001, exists)
+└── 0004_rynke_results.sql      # ride_results, rynke_balances
 
 src/
 ├── rynke/
@@ -160,11 +163,11 @@ src/
 │   ├── tally.ts             # tally(): pure, balance from riding totals + extras + rules
 │   └── apply.ts             # applyAndEvaluate(): input change + evaluation in one D1 batch
 ├── strava/
-│   └── activity.ts          # + is_flagged mapping; ACTIVITY_FIGURES_VERSION 2
+│   └── activity.ts          # is_flagged mapping; ACTIVITY_FIGURES_VERSION 2 (feature 001, exists)
 ├── i18n/messages/
-│   ├── de.ts, en.ts         # privacy text names Strava's flag
+│   ├── de.ts, en.ts         # privacy text names Strava's flag (feature 001, exists)
 ├── db/
-│   ├── activities.ts        # + listRiderActivities; upsert/delete as statements for the batch; is_flagged in the re-read check
+│   ├── activities.ts        # + listRiderActivitiesStatement, activityOwnersStatement; upsert/delete as statements for the batch
 │   └── rynke.ts             # stored results: read snapshot, diff writes, sweep query
 ├── work/
 │   ├── messages.ts          # + evaluate-rider
@@ -177,16 +180,21 @@ src/
 └── index.ts                 # registers the handler and the cron step
 
 test/
-├── support/rides.ts         # makeRide(): synthetic rides in km, h, m
+├── support/
+│   ├── rides.ts             # makeRide(): synthetic rides in km, h, m
+│   └── rynke.ts             # stored rows, expected evaluation, invariant check
 ├── unit/
-│   ├── activity.test.ts     # + flagged mapping (existing file)
+│   ├── rules.test.ts        # rule validation, fingerprint pinned to the version
 │   ├── rides.test.ts        # Story 2 scenarios, boundaries, flagged, unknown figures, order independence
-│   └── tally.test.ts        # Story 4 tally fields, qualification incl. virtual share
+│   ├── tally.test.ts        # Story 4 tally fields, qualification incl. virtual share
+│   └── reference-riders.test.ts   # SC-001: hand-calculated reference riders
 └── integration/
-    ├── reread-page.test.ts, scheduled-reread.test.ts, schema-minimisation.test.ts   # + flag (existing files)
-    ├── rynke-store.test.ts      # Story 4 scenarios through webhook → D1, diff writes, snapshot read
+    ├── schema-minimisation.test.ts, db.test.ts   # + the two tables (existing files)
+    ├── rynke-apply.test.ts      # applyAndEvaluate and readRynke against D1
+    ├── rynke-store.test.ts      # Story 4 scenarios through webhook → D1, diff writes, invariants
     ├── rynke-sweep.test.ts      # cron sends evaluate-rider for missing, outdated, stale riders only
-    └── rynke-deletion.test.ts   # activity delete, private removal, rider deletion
+    ├── rynke-deletion.test.ts   # activity delete, private removal, rider deletion
+    └── evaluate-rider.test.ts   # the message: full evaluation, no Strava call
 ```
 
 **Structure Decision**: `src/rynke/` holds everything that computes Rynke:
