@@ -14,7 +14,13 @@ import {
 	tableCounts,
 } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
-import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
+import {
+	ATHLETE_A,
+	ATHLETE_B,
+	makeStravaActivity,
+	NOW,
+} from "../support/fixtures";
+import { pushEndpoint, seedSubscription } from "../support/push";
 
 let fake: FakeStrava;
 let ctx: TestCtx;
@@ -204,6 +210,53 @@ describe("POST /logout", () => {
 		expect(setCookies(res).rp_session).toMatch(/^rp_session=;.*Max-Age=0/);
 		// Signing out deletes nothing.
 		expect((await tableCounts()).riders).toBe(1);
+	});
+
+	describe("with this device's push endpoint (FR-013, research R9)", () => {
+		async function logout(form: Record<string, string>) {
+			const res = await handleFetch(
+				request("/logout", {
+					form,
+					cookies: await sessionCookie(ctx, ATHLETE_A),
+				}),
+				ctx,
+			);
+			expect(res.status).toBe(302);
+			expect(setCookies(res).rp_session).toMatch(/^rp_session=;.*Max-Age=0/);
+		}
+
+		async function endpoints() {
+			const { results } = await env.DB.prepare(
+				"SELECT endpoint FROM push_subscriptions ORDER BY subscription_id",
+			).all<{ endpoint: string }>();
+			return results.map((r) => r.endpoint);
+		}
+
+		beforeEach(async () => {
+			await seedConnected();
+			await seedRider(ctx, { athleteId: ATHLETE_B });
+			await seedSubscription(ATHLETE_A, pushEndpoint(1));
+			await seedSubscription(ATHLETE_A, pushEndpoint(2));
+			await seedSubscription(ATHLETE_B, pushEndpoint(3));
+		});
+
+		it("deletes that device only", async () => {
+			await logout({ push_endpoint: pushEndpoint(1) });
+			expect(await endpoints()).toEqual([pushEndpoint(2), pushEndpoint(3)]);
+		});
+
+		it("deletes nothing for another rider's endpoint", async () => {
+			await logout({ push_endpoint: pushEndpoint(3) });
+			expect(await endpoints()).toHaveLength(3);
+		});
+
+		it.each<[string, Record<string, string>]>([
+			["without the field", {}],
+			["with an empty field", { push_endpoint: "" }],
+		])("only signs out %s", async (_, form) => {
+			await logout(form);
+			expect(await endpoints()).toHaveLength(3);
+		});
 	});
 
 	it("is refused from a foreign Origin", async () => {

@@ -49,6 +49,35 @@ export function handleNotificationText(request: Request, ctx: Ctx): Response {
 	);
 }
 
+/**
+ * Hidden; `public/app.js` shows it with one state and at most one button
+ * (FR-010, FR-011, research R8). Without JavaScript it stays hidden.
+ */
+export function renderNotifications(i18n: I18n, pushKey: string): SafeHtml {
+	const state = (
+		name:
+			| "on"
+			| "off"
+			| "blocked"
+			| "needsHomeScreen"
+			| "unsupported"
+			| "failed",
+	) =>
+		html`<p data-state="${name}" hidden>${i18n.t(`notifications.${name}`)}</p>`;
+	return html`<section id="notifications" data-push-key="${pushKey}" hidden>
+<h2>${i18n.t("notifications.heading")}</h2>
+<p>${i18n.t("notifications.explain")}</p>
+${state("on")}
+${state("off")}
+${state("blocked")}
+${state("needsHomeScreen")}
+${state("unsupported")}
+${state("failed")}
+<button type="button" data-action="on" class="tap" hidden>${i18n.t("notifications.turnOn")}</button>
+<button type="button" data-action="off" class="tap" hidden>${i18n.t("notifications.turnOff")}</button>
+</section>`;
+}
+
 /** Hidden; `public/app.js` shows it where installing helps (FR-004, R11). */
 export function renderInstallHint(i18n: I18n): SafeHtml {
 	return html`<aside id="install" class="notice" hidden>

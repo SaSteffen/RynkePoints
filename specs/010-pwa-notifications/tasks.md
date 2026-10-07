@@ -386,7 +386,7 @@ or off; signing out ends them on that device
 
 ### Tests for User Story 3
 
-- [ ] T035 [P] [US3] New `test/integration/notifications-route.test.ts`
+- [X] T035 [P] [US3] New `test/integration/notifications-route.test.ts`
   (failing), `POST /me/notifications` with a `FormData` body (FR-010–FR-012,
   SC-005):
   - `on` stores the endpoint for the session's rider and answers `{"on":true}`;
@@ -400,13 +400,13 @@ or off; signing out ends them on that device
     1025 characters, with nothing written;
   - every response has `Cache-Control: no-store`, and the bodies contain no
     rider name.
-- [ ] T036 [P] [US3] In `test/integration/disconnect.test.ts`,
+- [X] T036 [P] [US3] In `test/integration/disconnect.test.ts`,
   `describe("POST /logout")` (failing): with `push_endpoint` of the rider's
   device, that row is deleted and the cookie cleared; the rider's other device
   and another rider's row with the same host stay; an endpoint of another rider
   deletes nothing; without the field, or with an empty one, it only signs out
   (FR-013, research R9).
-- [ ] T037 [P] [US3] In `test/integration/pwa-pages.test.ts` and
+- [X] T037 [P] [US3] In `test/integration/pwa-pages.test.ts` and
   `test/unit/catalogs.test.ts` (failing):
   - `/me` contains `<section id="notifications" data-push-key="<vapidPublicKey>"
     hidden>` between the rules section and the ride table, with the heading,
@@ -420,18 +420,18 @@ or off; signing out ends them on that device
 
 ### Implementation for User Story 3
 
-- [ ] T038 [P] [US3] Catalog keys `notifications.heading`, `.explain`, `.on`,
+- [X] T038 [P] [US3] Catalog keys `notifications.heading`, `.explain`, `.on`,
   `.off`, `.turnOn`, `.turnOff`, `.blocked`, `.needsHomeScreen`,
   `.unsupported` and `.failed` in `src/i18n/messages/de.ts` and `en.ts`, as in
   contracts/messages.md.
-- [ ] T039 [US3] New `src/http/notifications.ts`, `handleNotifications(request,
+- [X] T039 [US3] New `src/http/notifications.ts`, `handleNotifications(request,
   ctx)`: the checks and actions of http-routes.md, in that order, using
   `isSameOrigin`, `readSession`, `isPushEndpoint` and the Phase 2 statements
   (`on` runs `upsertSubscription` and `trimSubscriptions` in one batch).
   Responses are `Response.json` or empty with the status, all with
   `Cache-Control: no-store`. `src/http/router.ts`: `POST /me/notifications`.
   T035 passes.
-- [ ] T040 [US3] `src/http/me.ts`:
+- [X] T040 [US3] `src/http/me.ts`:
   - `renderNotifications(i18n, pushKey)` producing client.md's section, placed
     after `renderRules` and before `renderRides`, with
     `vapidPublicKey(ctx.env)`;
@@ -443,7 +443,7 @@ or off; signing out ends them on that device
     `src/http/router.ts`.
   - `src/http/html.ts` `STYLE`: `#notifications button{margin-right:.5rem}`.
   T036 and T037 pass.
-- [ ] T041 [US3] `public/app.js`, steps 3 and 4 of client.md with research R8's
+- [X] T041 [US3] `public/app.js`, steps 3 and 4 of client.md with research R8's
   state table: show exactly one `data-state` paragraph and at most one button;
   `on` asks permission inside the click handler, subscribes with the decoded
   `data-push-key`, posts `action=on`; `off` unsubscribes and posts

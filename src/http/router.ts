@@ -12,6 +12,7 @@ import {
 	handleMe,
 } from "./me";
 import { handleNotice } from "./notice";
+import { handleNotifications } from "./notifications";
 import { handleNotificationText, handleOffline } from "./pwa";
 import { handleRunDaily } from "./run-daily";
 import { renewSession } from "./session";
@@ -57,8 +58,10 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleLang(request, ctx, i18n);
 			case "/me/disconnect":
 				return handleDisconnect(request, ctx, i18n);
+			case "/me/notifications":
+				return handleNotifications(request, ctx);
 			case "/logout":
-				return handleLogout(request, i18n);
+				return handleLogout(request, ctx, i18n);
 		}
 	}
 	return notFound(i18n, path);

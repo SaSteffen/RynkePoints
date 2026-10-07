@@ -66,6 +66,8 @@ a.strava-activity{font-weight:700;text-decoration:underline}
 .ride-name{overflow-wrap:anywhere;color:#333}
 .ride-reasons{padding-left:1.25rem}
 .tap{display:inline-flex;align-items:center;min-height:44px;min-width:44px}
+[hidden]{display:none!important}
+#notifications button{margin-right:.5rem}
 nav.pager{display:flex;flex-wrap:wrap;gap:.5rem 1rem;margin-top:.5rem}
 :root{--rp-part-1:#fc5200;--rp-part-2:#1f6fb2;--rp-part-3:#2a9d8f;--rp-part-4:#8e44ad;--rp-part-5:#c9a227;--rp-part-6:#6b6b6b;--rp-reached:#2e7d32;--rp-track:#e6e6e6}
 figure.gauge{display:block;width:100%;margin:0 0 1rem}
