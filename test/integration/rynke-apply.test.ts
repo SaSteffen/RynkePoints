@@ -294,7 +294,7 @@ describe("applyAndEvaluate", () => {
 			rules_effective_date: "2027-01-01",
 			computed_at: NOW + 60,
 		});
-		await expectConsistent();
+		await expectConsistent(ATHLETE_A, v2);
 	});
 });
 

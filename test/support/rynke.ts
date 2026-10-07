@@ -2,8 +2,18 @@ import { env } from "cloudflare:test";
 import { expect } from "vitest";
 import { listRecentActivities } from "../../src/db/activities";
 import { readRynke } from "../../src/db/rynke";
-import { evaluateRides, rideFromRow } from "../../src/rynke/rides";
-import { countingWindow, type RynkeRules } from "../../src/rynke/rules";
+import {
+	evaluateRides,
+	type RideResult,
+	type RidingSums,
+	type RidingTotals,
+	rideFromRow,
+} from "../../src/rynke/rides";
+import {
+	CURRENT_RULES,
+	countingWindow,
+	type RynkeRules,
+} from "../../src/rynke/rules";
 import { NO_EXTRAS, tally } from "../../src/rynke/tally";
 import type { ActivityRecord } from "../../src/strava/activity";
 import { ATHLETE_A, NOW } from "./fixtures";
@@ -75,21 +85,66 @@ export async function expectedRynke(rules: RynkeRules, athleteId = ATHLETE_A) {
 }
 
 /**
- * FR-014b: the balance's riding fields equal the sums over the counting
+ * The invariants of data-model.md, checked against what is stored (FR-014b):
+ * every activity has exactly one result and no result lacks its activity, no
+ * two counting results overlap, the balance is `tally` of the stored counting
  * results, and every row carries one rules version.
  */
-export async function expectConsistent(athleteId = ATHLETE_A) {
+export async function expectConsistent(
+	athleteId = ATHLETE_A,
+	rules: RynkeRules = CURRENT_RULES,
+) {
 	const { balance, results } = await readRynke(env.DB, athleteId);
 	if (!balance) throw new Error(`no balance for ${athleteId}`);
+	const rides = (await listRecentActivities(env.DB, athleteId, 10_000)).map(
+		rideFromRow,
+	);
+	expect(results.map((r) => r.activityId)).toEqual(
+		rides.map((r) => r.activityId).sort((a, b) => a - b),
+	);
+
 	const counting = results.filter((r) => r.counts);
-	const distance = counting.reduce((n, r) => n + r.distanceRynke, 0);
-	const elevationDm = counting.reduce((n, r) => n + r.elevationDm, 0);
-	expect({
-		distance: balance.distanceRynke,
-		elevationDm: balance.elevationDm,
-	}).toEqual({ distance, elevationDm });
-	expect(
-		new Set([balance.rulesVersion, ...results.map((r) => r.rulesVersion)]).size,
-	).toEqual(1);
-	expect(balance.rulesEffectiveDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+	const intervals = counting.map((r) => {
+		const ride = rides.find((x) => x.activityId === r.activityId);
+		if (!ride) throw new Error(`no activity ${r.activityId}`);
+		const start = Date.parse(ride.startUtc);
+		return {
+			id: r.activityId,
+			start,
+			end: start + (ride.elapsedS ?? ride.movingS) * 1000,
+		};
+	});
+	for (const a of intervals) {
+		for (const b of intervals) {
+			if (a.id < b.id && a.start < b.end && b.start < a.end) {
+				throw new Error(`counting rides ${a.id} and ${b.id} overlap`);
+			}
+		}
+	}
+
+	const { computedAt: _computedAt, ...fields } = balance;
+	const riding: RidingTotals = {
+		...sums(counting, rules),
+		withoutVirtual: sums(
+			counting.filter((r) => !r.isVirtual),
+			rules,
+		),
+	};
+	expect(fields).toEqual(tally(riding, NO_EXTRAS, rules));
+	expect(new Set(results.map((r) => r.rulesVersion))).toEqual(
+		new Set(results.length > 0 ? [balance.rulesVersion] : []),
+	);
+}
+
+/** Elevation Rynke from the summed total, as `evaluateRides` does (FR-004a). */
+function sums(results: RideResult[], rules: RynkeRules): RidingSums {
+	const distanceRynke = results.reduce((n, r) => n + r.distanceRynke, 0);
+	const elevationDm = results.reduce((n, r) => n + r.elevationDm, 0);
+	return {
+		distanceRynke,
+		elevationDm,
+		elevationRynke:
+			Math.floor(elevationDm / (rules.elevationStepM * 10)) *
+			rules.elevationStepRynke,
+	};
 }

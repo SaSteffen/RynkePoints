@@ -22,6 +22,7 @@ import {
 
 // Story 4 through the webhook path: an activity event stores the activity, its
 // ride result and the balance in one batch (research R11).
+// `expectConsistent` checks data-model.md's invariants after every step.
 
 const A = 7_500_001;
 const B = 7_500_002;
@@ -245,6 +246,7 @@ describe("stored ride results and balance", () => {
 			countingWindow(env, rules),
 			NOW,
 		);
+		await expectConsistent(ATHLETE_A, rules);
 
 		expect(await result(A)).toMatchObject({
 			counts: 0,
@@ -311,6 +313,7 @@ describe("stored ride results and balance", () => {
 			countingWindow(env, CURRENT_RULES),
 			NOW + 3600,
 		);
+		await expectConsistent();
 		expect(await snapshot()).toEqual(settled);
 
 		for (const e of [...events].reverse()) await deliver(e);
