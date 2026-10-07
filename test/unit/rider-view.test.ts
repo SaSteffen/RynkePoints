@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { RideRow, RiderViewRead } from "../../src/db/rider-view";
+import type {
+	AttendedEvent,
+	RideRow,
+	RiderViewRead,
+} from "../../src/db/rider-view";
 import type { StoredBalance, StoredRideResult } from "../../src/db/rynke";
 import {
 	buildRiderView,
@@ -16,6 +20,11 @@ import {
 	rulesForVersion,
 } from "../../src/rynke/rules";
 import { NO_EXTRAS } from "../../src/rynke/tally";
+import {
+	TEAM_EVENT_KINDS,
+	type TeamEventKind,
+	type TeamEventSum,
+} from "../../src/rynke/team-events";
 
 // The rider page's view model (feature 005 data-model.md "Validation and
 // invariants"). Pure: built from a reading, never from D1.
@@ -92,6 +101,7 @@ function read(overrides: Partial<RiderViewRead> = {}): RiderViewRead {
 		virtualCount: 0,
 		page: 1,
 		rides: [],
+		attendance: [],
 		...overrides,
 	};
 }
@@ -822,6 +832,8 @@ describe("buildRiderView breakdown", () => {
 			toNextStepM: 760,
 			trainingTotal: 12,
 			teamTotal: 0,
+			kinds: NO_EXTRAS.teamEvents,
+			events: [],
 		});
 	});
 
@@ -872,6 +884,171 @@ describe("buildRiderView breakdown", () => {
 			elevationStepRynke: null,
 			toNextStepM: 760,
 		});
+	});
+});
+
+/** Stored per-kind sums in `TEAM_EVENT_KINDS` order: `[attended, team, training]`. */
+function kinds(
+	teamTraining: [number, number, number],
+	weekendDay: [number, number, number],
+	technique: [number, number, number],
+): TeamEventSum[] {
+	return (
+		[
+			["team_training", teamTraining],
+			["training_weekend_day", weekendDay],
+			["technique_training", technique],
+		] as const
+	).map(([kind, [attended, team, training]]) => ({
+		kind,
+		attended,
+		team,
+		training,
+	}));
+}
+
+/** The rider of US2 scenario 6, without its corrections. */
+const EVENT_RIDER: Partial<StoredBalance> = {
+	distanceRynke: 70,
+	elevationRynke: 30,
+	trainingRynke: 200,
+	teamRynke: 40,
+	teamEvents: kinds([10, 10, 50], [4, 20, 40], [2, 10, 10]),
+};
+
+function event(
+	eventId: number,
+	kind: TeamEventKind,
+	date: string,
+	name: string | null = null,
+): AttendedEvent {
+	return { eventId, kind, date, name };
+}
+
+describe("buildRiderView team events (US3b)", () => {
+	it("S3-2: lists every kind in feature 003's order, also with 0", () => {
+		const shown = breakdownOf({
+			teamRynke: 7,
+			trainingRynke: 15,
+			teamEvents: kinds([2, 2, 10], [0, 0, 0], [1, 5, 5]),
+		}).kinds;
+		expect(shown.map((k) => k.kind)).toEqual([...TEAM_EVENT_KINDS]);
+		expect(shown).toEqual(kinds([2, 2, 10], [0, 0, 0], [1, 5, 5]));
+	});
+
+	it("S3-5: lists every kind with 0 for a rider without attendance", () => {
+		expect(breakdownOf({}).kinds).toEqual(
+			kinds([0, 0, 0], [0, 0, 0], [0, 0, 0]),
+		);
+	});
+
+	it("lists no kind for a balance stored before team events (R5)", () => {
+		expect(breakdownOf({ teamEvents: [] }).kinds).toEqual([]);
+	});
+
+	it("S3-3: lists the events as read, newest first", () => {
+		const attendance = [
+			event(3, "technique_training", "2026-06-02", "Kurventechnik"),
+			event(2, "team_training", "2026-05-12", "Ausfahrt Nord"),
+			event(1, "team_training", "2026-04-28"),
+		];
+		const view = ready(
+			buildRiderView(
+				read({ attendance }),
+				CURRENT_RULES,
+				CURRENT_RULES,
+				CONTEXT,
+			),
+		);
+		expect(view.breakdown.events).toEqual([
+			{
+				date: "2026-06-02",
+				kind: "technique_training",
+				name: "Kurventechnik",
+				counts: true,
+			},
+			{
+				date: "2026-05-12",
+				kind: "team_training",
+				name: "Ausfahrt Nord",
+				counts: true,
+			},
+			{ date: "2026-04-28", kind: "team_training", name: null, counts: true },
+		]);
+	});
+
+	it("FR-033: marks events outside the counting window", () => {
+		const attendance = [
+			event(4, "team_training", "2026-10-01"),
+			event(3, "team_training", "2026-09-30"),
+			event(2, "team_training", "2026-01-01"),
+			event(1, "team_training", "2025-12-31"),
+		];
+		const counts = (rules: RynkeRules | null) =>
+			ready(
+				buildRiderView(read({ attendance }), rules, CURRENT_RULES, CONTEXT),
+			).breakdown.events.map((e) => e.counts);
+		const withDeadline = {
+			...CURRENT_RULES,
+			qualificationDeadline: "2026-09-30",
+		};
+		expect(counts(withDeadline)).toEqual([false, true, true, false]);
+		expect(counts(CURRENT_RULES)).toEqual([true, true, true, false]);
+		// Unknown rules: only the season start is known (FR-013).
+		expect(counts(null)).toEqual([true, true, true, false]);
+	});
+
+	it("S2-6: divides the Training gauge by distance, elevation and kind", () => {
+		const training = gaugesOf(EVENT_RIDER)?.training;
+		expect(training?.percent).toBe(80);
+		expect(training?.parts).toEqual([
+			{ source: "distance", value: 70, widthPercent: 28 },
+			{ source: "elevation", value: 30, widthPercent: 12 },
+			{ source: "team_training", value: 50, widthPercent: 20 },
+			{ source: "training_weekend_day", value: 40, widthPercent: 16 },
+			{ source: "technique_training", value: 10, widthPercent: 4 },
+		]);
+		expect(sum(training?.parts ?? [])).toBe(80);
+	});
+
+	it("FR-022: divides the Team gauge by kind", () => {
+		const team = gaugesOf(EVENT_RIDER)?.team;
+		expect(team).toMatchObject({ value: 40, percent: 100, reached: true });
+		expect(team?.parts).toEqual([
+			{ source: "team_training", value: 10, widthPercent: 25 },
+			{ source: "training_weekend_day", value: 20, widthPercent: 50 },
+			{ source: "technique_training", value: 10, widthPercent: 25 },
+		]);
+		expect(
+			gaugesOf({
+				teamRynke: 5,
+				teamEvents: kinds([0, 0, 0], [0, 0, 0], [1, 5, 5]),
+			})?.team.parts,
+		).toEqual([{ source: "technique_training", value: 5, widthPercent: 20 }]);
+	});
+
+	it("FR-035: adds up to both totals without corrections", () => {
+		for (const teamEvents of [
+			kinds([0, 0, 0], [0, 0, 0], [0, 0, 0]),
+			kinds([2, 2, 10], [0, 0, 0], [1, 5, 5]),
+			kinds([10, 10, 50], [4, 20, 40], [2, 10, 10]),
+		]) {
+			const training = 70 + 30 + teamEvents.reduce((n, k) => n + k.training, 0);
+			const team = teamEvents.reduce((n, k) => n + k.team, 0);
+			const shown = breakdownOf({
+				distanceRynke: 70,
+				elevationRynke: 30,
+				trainingRynke: training,
+				teamRynke: team,
+				teamEvents,
+			});
+			expect(
+				shown.distanceRynke +
+					shown.elevationRynke +
+					shown.kinds.reduce((n, k) => n + k.training, 0),
+			).toBe(shown.trainingTotal);
+			expect(shown.kinds.reduce((n, k) => n + k.team, 0)).toBe(shown.teamTotal);
+		}
 	});
 });
 
@@ -955,8 +1132,8 @@ describe("gaugeParts", () => {
 				{ source: "distance", value: 70 },
 				{ source: "elevation", value: 30 },
 				{ source: "team_training", value: 50 },
-				{ source: "weekend_day", value: 40 },
-				{ source: "technique", value: 10 },
+				{ source: "training_weekend_day", value: 40 },
+				{ source: "technique_training", value: 10 },
 				{ source: "corrections", value: 10 },
 			],
 			250,

@@ -82,10 +82,15 @@ elevation.
   `gauge-reached` exactly when 100.
 - The elevation gauge's caption is `rynke.gauge.elevation` {value} {target}
   {percent} {missing} {stepRynke}, in metres.
-- The order of parts is distance, elevation, team training, training-weekend
-  day, technique training, corrections. Parts of 0 are omitted. Before US3b,
-  only distance and elevation exist, and the Team gauge is undivided
-  (research R5).
+- The Training gauge's parts are distance, elevation, team training,
+  training-weekend day and technique training (each kind's Training Rynke); the
+  Team gauge's parts are the three kinds' Team Rynke. Corrections join both as
+  the last part with feature 003 Story 6 (research R5). Parts of 0 are omitted.
+- Each source keeps its colour class wherever it appears, so a kind looks the
+  same in both gauges: `gauge-part-1` distance, `-2` elevation, `-3` team
+  training, `-4` training-weekend day, `-5` technique training, `-6`
+  corrections. A gauge whose parts are all 0 is one `gauge-fill`.
+- The legend names each part with `rynke.source.<source>`.
 
 ## `section.rynke-breakdown` (US3)
 
@@ -95,15 +100,28 @@ elevation.
   <dl>
     <dt>{rynke.source.distance}</dt><dd>{n} {rynke.training}</dd>
     <dt>{rynke.source.elevation}</dt><dd>{rynke.breakdown.elevation metres rynke toNext stepRynke}</dd>
-    <!-- US3b: one dt/dd per kind: {rynke.breakdown.kind count team training} -->
-    <!-- US3b: corrections: {rynke.breakdown.corrections training team} (signed) -->
+    <dt>{rynke.source.team_training}</dt><dd>{rynke.breakdown.kind count team training}</dd>   <!-- US3b: one per kind -->
+    <!-- Story 6: corrections: {rynke.breakdown.corrections training team} (signed) -->
     <dt>{rynke.breakdown.total}</dt><dd>{training} {rynke.training} · {team} {rynke.team}</dd>
   </dl>
-  <!-- US3b: <p>{rynke.breakdown.neverBelowZero}</p> when clamped -->
-  <!-- US3b: <h3>{rynke.events.heading}</h3><ul>…date · kind · name [· not counting]…</ul> or {rynke.events.none} -->
-  <!-- US3b: <h3>{rynke.corrections.heading}</h3><ul>…date · ±training · ±team · reason…</ul> or {rynke.corrections.none} -->
+  <!-- Story 6: <p>{rynke.breakdown.neverBelowZero}</p> when clamped -->
+  <h3>{rynke.events.heading}</h3>                                   <!-- US3b -->
+  <ul class="rynke-events">
+    <li>12.05.2026 · Teamtraining · Ausfahrt Nord</li>
+    <li class="event-not-counting">20.12.2025 · Techniktraining · {rynke.events.notCounting}</li>
+  </ul>
+  <!-- or, without attendance: <p>{rynke.events.none}</p> -->
+  <!-- Story 6: <h3>{rynke.corrections.heading}</h3><ul>…date · ±training · ±team · reason…</ul> or {rynke.corrections.none} -->
 </section>
 ```
+
+- The kind rows follow the stored breakdown, in `TEAM_EVENT_KINDS` order, also
+  with a count of 0 (FR-032). A balance stored before feature 003 Story 3 has
+  no breakdown and shows no kind rows (research R5).
+- The event list holds every event the rider was recorded for, newest first
+  (FR-033). An event before the season start, or after the deadline of the
+  balance's rules, is marked `event-not-counting` with
+  `rynke.events.notCounting`.
 
 ## `section.rynke-rules` (US6)
 

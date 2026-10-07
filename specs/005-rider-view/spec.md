@@ -701,13 +701,20 @@ This feature stores nothing new. It reads:
 - Rides are not linked to Strava from this page; if a later change adds links, they
   follow Strava's "View on Strava" guideline.
 - No history of a rider's own Rynke over time (e.g. a weekly graph) is shown here
-  (FR-024); the team leaderboard (backlog) has the per-week view.
+  (FR-024); the team leaderboard (backlog) has the per-week view, and
+  [rider-progress-charts.md](../backlog/rider-progress-charts.md) is the prompt
+  for a rider's own charts.
 - The leaderboard, the organiser overview, the organiser pages and writing Rynke into
   Strava activity descriptions are separate features ([specs/backlog/](../backlog/README.md)).
 
 ## Diagrams
 
 All figures are synthetic. The text above is authoritative (FR-091).
+
+Corrections (FR-034, the corrections parts of FR-022 and FR-035) wait for
+feature 003 Story 6. Until it is merged, the page reads no corrections and shows
+no corrections rows or list, so D1, D2, D4, D8, D9 and D13 show more than the
+built page (tasks.md Phase 9b).
 
 ### D0. Delivery phases
 
@@ -721,13 +728,15 @@ flowchart LR
 
     subgraph later["Later deliveries, any order"]
         us2["US2 gauges and graphs<br/>filling up to 100%"]
-        us3["US3 breakdown<br/>with event and correction lists"]
+        us3["US3 breakdown<br/>with event list"]
+        us3c["US3b correction list<br/>(waits for feature 003 Story 6)"]
         us4["US4 reasons in plain words"]
         us5["US5 paged table<br/>of all rides"]
         us6["US6 rules version,<br/>being-updated notice,<br/>handout link"]
     end
 
     d1 --> us2 & us3 & us4 & us5 & us6
+    us3 --> us3c
     later -. "later, site-wide, separate" .-> md["Material Design look"]
     d1 -. "already phone-ready;<br/>rest of the site: issue #20" .-> mob["Mobile-friendly site"]
 ```
@@ -875,7 +884,7 @@ flowchart TB
         fresh["US1 + US6 · Notice, only when it applies:<br/>still being worked out (FR-015) /<br/>numbers being updated (FR-051) /<br/>will grow while importing (FR-052)"]
         summary["US1 · Summary (FR-010 to FR-015)<br/>Training Rynke 12 of 250, 238 missing<br/>Team Rynke 0 of 25, 25 missing<br/>Not in yet: 238 Training Rynke and 25 Team Rynke missing"]
         gauges["US2 · Gauges (FR-020 to FR-026)<br/>Training ▓░░░░░░░░░ 4%<br/>Team ░░░░░░░░░░ 0%<br/>(Training without virtual rides, only with virtual rides)<br/>Elevation to the next 5 ▓▓░░░░░░░░ 24%"]
-        breakdown["US3 · Breakdown (FR-030 to FR-035)<br/>Distance 7 · Elevation 1,240 m = 5, 760 m to the next 5<br/>Team training 0× · Training weekend days 0× · Technique training 0×<br/>Corrections 0 / 0 · Total 12 / 0<br/>Your team events · Your corrections"]
+        breakdown["US3 · Breakdown (FR-030 to FR-035)<br/>Distance 7 · Elevation 1,240 m = 5, 760 m to the next 5<br/>Team training 0× · Training weekend days 0× · Technique training 0×<br/>Corrections 0 / 0 (Story 6) · Total 12 / 0<br/>Your team events · Your corrections (Story 6)"]
         rules["US6 · Rules (FR-050, FR-053)<br/>Version 1 in effect since 7 Oct 2026<br/>Counting from season start to deadline<br/>Rules handout (in German)"]
         rides["US1 · Rides (FR-040, FR-041)<br/>date · sport · km · m · counts? · Training Rynke · metres for elevation<br/>US4 · reasons, virtual mark, hints (FR-042 to FR-044)<br/>US5 · rides 1–20 of 45 · next · last (FR-045, FR-046)"]
         consent["Your consent (feature 004)"]
@@ -893,12 +902,12 @@ flowchart TB
     subgraph phone["Phone, portrait"]
         direction TB
         p1["Greeting, status"]
-        p2["Training Rynke 12 / 250<br/>▓░░░░░░░ 4% · 238 missing"]
-        p3["Team Rynke 0 / 25<br/>░░░░░░░░ 0% · 25 missing"]
-        p4["Not in yet"]
-        p5["Breakdown, one item per line"]
-        p6["Ride card<br/>Tue 6 Oct · 79.0 km<br/>Counts · 7 Training Rynke · 1,240 m<br/><i>Ride · 1,240 m elevation gain</i>"]
-        p7["Ride card<br/>Mon 5 Oct · 15.0 km<br/>Doesn't count · 0 · 0 m<br/><i>Entered manually; 7.5 km/h, lowest allowed 10 km/h</i>"]
+        p2["Training Rynke 12 of 250 · 238 missing<br/>Team Rynke 0 of 25 · 25 missing<br/>Not in yet"]
+        p3["Gauges, stacked full width<br/>Training ▓░░░░░░░ 4%<br/>Team ░░░░░░░░ 0%"]
+        p4["Breakdown, one item per line"]
+        p5["Rules, handout link"]
+        p6["Ride row: 5 short columns<br/>Tue 6 Oct · 79.0 km<br/>Counts · 7 Training Rynke · 1,240 m<br/><i>Ride · 1,240 m elevation gain</i>"]
+        p7["Ride row<br/>Mon 5 Oct · 15.0 km<br/>Doesn't count · 0 · 0 m<br/><i>Entered manually; 7.5 km/h, lowest allowed 10 km/h</i>"]
         p8["‹ previous · rides 1–20 of 45 · next ›<br/>(large tap targets)"]
         p1 --> p2 --> p3 --> p4 --> p5 --> p6 --> p7 --> p8
     end
@@ -1081,9 +1090,9 @@ sequenceDiagram
     R->>P: open page (language from switcher or browser)
     P->>S: who is signed in, consent current?
     S-->>P: connected rider, consent current
-    P->>S: balance + one table page of ride results (one consistent reading)
-    P->>S: activities, rules in effect, season start, import status,<br/>attendance, corrections
+    P->>S: one batch: balance, ride counts, one table page of rides<br/>with their results, attendance (one consistent reading)
     S-->>P: stored values only
+    Note over P: rules in effect from the code,<br/>season start from the settings
     Note over P,E: no evaluation started (FR-003)
     Note over P,ST: no request to Strava (FR-003)
     P->>P: compare stored rules version with version in effect,<br/>work out gauge percentages

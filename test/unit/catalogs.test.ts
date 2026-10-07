@@ -7,6 +7,7 @@ import {
 import { de } from "../../src/i18n/messages/de";
 import { en } from "../../src/i18n/messages/en";
 import { REASON_CODES, UNKNOWN_FIGURE_CODES } from "../../src/rynke/rides";
+import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
 import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 
 // Every ID in specs/001-strava-connect-webhook/contracts/messages.md and
@@ -127,6 +128,14 @@ const CONTRACT_IDS = [
 	"rynke.breakdown.elevationNoStep",
 	"rynke.breakdown.total",
 	"rynke.breakdown.totals",
+	// Feature 005, US3b team events
+	"rynke.source.team_training",
+	"rynke.source.training_weekend_day",
+	"rynke.source.technique_training",
+	"rynke.breakdown.kind",
+	"rynke.events.heading",
+	"rynke.events.none",
+	"rynke.events.notCounting",
 	// Feature 005, US4
 	"units.kmh",
 	"units.mPerH",
@@ -234,6 +243,14 @@ describe("catalog contents", () => {
 			}
 			for (const code of UNKNOWN_FIGURE_CODES) {
 				expect(Object.keys(catalog), locale).toContain(`rynke.unknown.${code}`);
+			}
+		}
+	});
+
+	it("names every team-event kind (FR-062)", () => {
+		for (const [locale, catalog] of catalogs) {
+			for (const kind of TEAM_EVENT_KINDS) {
+				expect(Object.keys(catalog), locale).toContain(`rynke.source.${kind}`);
 			}
 		}
 	});

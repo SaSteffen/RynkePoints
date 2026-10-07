@@ -101,6 +101,17 @@ export function countingWindow(
 	};
 }
 
+/** Whether a `YYYY-MM-DD` date falls inside `window`. */
+export function inCountingWindow(
+	date: string,
+	window: CountingWindow,
+): boolean {
+	return (
+		date >= window.seasonStart &&
+		(window.deadline === null || date <= window.deadline)
+	);
+}
+
 /** Throws on rules no evaluation can use; that is a programming error. */
 export function assertValidRules(rules: RynkeRules): void {
 	for (const field of [
