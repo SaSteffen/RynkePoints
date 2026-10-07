@@ -160,3 +160,10 @@ One key per `UNKNOWN_FIGURE_CODES` value, which `catalogs.test.ts` checks.
 | `rynke.unknown.trainer` | Ob die Fahrt auf dem Rollentrainer war, ist noch nicht bekannt. | Whether the ride was on an indoor trainer isn't known yet. |
 | `rynke.unknown.flagged` | Ob Strava die Fahrt markiert hat, ist noch nicht bekannt. | Whether Strava flagged the ride isn't known yet. |
 | `rynke.unknown.mayChange` | Das Ergebnis kann sich noch ändern. | The result may still change. |
+
+## Removed
+
+| ID | Removed with | Why |
+|---|---|---|
+| `me.recent.col.sport` | US1 | The sport type moved from the main row into the ride's detail row, which shows `sport.*` without a column header. |
+| `me.recent.col.elevation` | US1 | The elevation gain moved into the detail row as `units.m`; the main row's metres are `rynke.rides.col.elevationTotal`. |

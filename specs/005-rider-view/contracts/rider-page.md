@@ -122,7 +122,7 @@ elevation.
       <th>{rynke.rides.col.status}</th><th>{rynke.training}</th><th>{rynke.rides.col.elevationTotal}</th>
     </tr></thead>
     <tbody>
-      <tr class="ride ride-counts | ride-not-counting | ride-pending">
+      <tr class="ride ride-counting | ride-not-counting | ride-pending">
         <td>06.10.2026</td><td class="num">79,0 km</td>
         <td>{rynke.ride.counts | rynke.ride.doesNotCount | rynke.ride.beingEvaluated}</td>
         <td class="num">7</td><td class="num">1.240 m</td>

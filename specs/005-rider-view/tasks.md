@@ -150,7 +150,7 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
 
 ### Tests for User Story 1 (write first, confirm red) ⚠️
 
-- [ ] T007 [P] [US1] Create `test/unit/rider-view.test.ts` with `buildRiderView` tests for US1 (data-model.md "Validation and invariants"):
+- [X] T007 [P] [US1] Create `test/unit/rider-view.test.ts` with `buildRiderView` tests for US1 (data-model.md "Validation and invariants"):
   - **Summary**: 12/0 → training `{ value 12, target 250, missing 238, reached false }`, team `{ 0, 25, 25, false }`, `qualified` false. 262/25 → both reached with missing 0. 400/20 → team missing 5, training reached, `qualified` false.
   - **Without virtual rides**: `withoutVirtual` is `null` when `virtualCount` is 0, and `{ 160, 167, 7, false }` when it is ≥ 1.
   - **S1-5**: rules with `trainingThreshold: 300` give target 300. Rules `null` give every target `null`, while values, missing amounts and `qualified` are still the stored ones (FR-013).
@@ -162,7 +162,7 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
     - not counting → `"does-not-count"`, 0 and 0;
     - `isVirtual` from the result;
     - rows keep the read order.
-- [ ] T008 [P] [US1] Create `test/integration/me-rynke.test.ts` with one test per US1 scenario (German text, contracts/rider-page.md structure):
+- [X] T008 [P] [US1] Create `test/integration/me-rynke.test.ts` with one test per US1 scenario (German text, contracts/rider-page.md structure):
   - **S1-1**: "12 von 250", "238 fehlen noch", "0 von 25", "Noch nicht dabei".
   - **S1-2**: "Du bist dabei", "erreicht ✓", and no `rynke.withoutVirtual` text.
   - **S1-3**: "160 von 167" and "7 Trainingsrynke aus Fahrten draußen".
@@ -175,12 +175,12 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
   - **S1-11**: signed out gives `302 /`.
   - **SC-004**: `tableCounts()` and a row snapshot are unchanged after `GET /me`, `ctx.queue.sent` is empty, and fake Strava saw no request.
   - **Order**: `section#rynke` comes after the import status and before `section#rides`, which comes before the consent section.
-- [ ] T009 [P] [US1] Update `test/integration/me-activities.test.ts` for the new ride table (contracts/rider-page.md `section#rides`):
+- [X] T009 [P] [US1] Update `test/integration/me-activities.test.ts` for the new ride table (contracts/rider-page.md `section#rides`):
   - The header cells are Datum, Distanz, Zählt?, Trainingsrynke and Für die Höhenmeter (and the English ones).
   - The sport type and the gain move into `tr.ride-details`.
   - Still the 20 newest, newest first, and only the rider's own.
   - The empty state is unchanged, and its assertion becomes `not.toContain("<table")`.
-- [ ] T010 [P] [US1] Extend `test/unit/catalogs.test.ts`:
+- [X] T010 [P] [US1] Extend `test/unit/catalogs.test.ts`:
   - Add the US1 keys of contracts/messages.md to `CONTRACT_IDS`:
     - labels: `rynke.training`, `rynke.team`, `rynke.withoutVirtual`;
     - notice: `rynke.notice.notWorkedOut`;
@@ -188,15 +188,15 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
     - ride table: `rynke.rides.col.status`, `.elevationTotal`, `rynke.ride.counts`, `.doesNotCount`, `.beingEvaluated`, `.virtual`.
   - Remove `me.recent.col.sport` and `me.recent.col.elevation`, which the new main row no longer uses.
   - Assert `de["rynke.training"] === "Trainingsrynke"`, `de["rynke.team"] === "Teamrynke"`, `en["rynke.training"] === "Training Rynke"` and `en["rynke.team"] === "Team Rynke"` (FR-060).
-- [ ] T011 [P] [US1] Extend `test/support/pages.ts` so the language tests cover the new sections (SC-008):
+- [X] T011 [P] [US1] Extend `test/support/pages.ts` so the language tests cover the new sections (SC-008):
   - `seedPageRiders` seeds a balance and four rides (counting, not counting, being evaluated, virtual) for the `/me` rider.
   - Add a `RIDER_PAGES` entry for `/me` of a rider without a balance (the notice).
   - `test/integration/language-rendering.test.ts` and `no-hardcoded-copy.test.ts` then cover them unchanged. Confirm both are red until T014–T016 are done.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] In `src/db/rynke.ts`, export the row mappers `fromBalanceRow` and `fromResultRow` (renamed `toStoredBalance` and `toStoredRideResult`), so the page maps rows the same way as feature 003. Existing tests stay green.
-- [ ] T013 [US1] Create `src/db/rider-view.ts` with `readRiderView(db, athleteId, page): Promise<RiderViewRead>` (data-model.md "The reading", research R2):
+- [X] T012 [P] [US1] In `src/db/rynke.ts`, export the row mappers `fromBalanceRow` and `fromResultRow` (renamed `toStoredBalance` and `toStoredRideResult`), so the page maps rows the same way as feature 003. Existing tests stay green.
+- [X] T013 [US1] Create `src/db/rider-view.ts` with `readRiderView(db, athleteId, page): Promise<RiderViewRead>` (data-model.md "The reading", research R2):
   - **One `db.batch`** of three `SELECT`s:
     1. `readBalanceStatement`;
     2. `SELECT (SELECT count(*) FROM activities WHERE athlete_id = ?1) AS rides, (SELECT count(*) FROM ride_results WHERE athlete_id = ?1 AND is_virtual = 1) AS virtual`;
@@ -208,10 +208,10 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
     - `countedInstead` is `null` unless the join matched;
     - `page = min(requested, max(1, ceil(rides / 20)))`.
   - Rides without an activity row can't appear, because the join starts at `activities`.
-- [ ] T014 [P] [US1] Add the US1 keys of contracts/messages.md to `src/i18n/messages/de.ts` and `en.ts`, with the exact de and en texts:
+- [X] T014 [P] [US1] Add the US1 keys of contracts/messages.md to `src/i18n/messages/de.ts` and `en.ts`, with the exact de and en texts:
   - labels, `rynke.notice.notWorkedOut`, summary, verdict, missing, rides columns, ride statuses and `rynke.ride.virtual`.
   - Remove `me.recent.col.sport` and `me.recent.col.elevation` from both catalogs, and record the removal under a "Removed" heading in [contracts/messages.md](contracts/messages.md).
-- [ ] T015 [US1] Create `src/http/rider-view.ts` with the US1 part of data-model.md's view model:
+- [X] T015 [US1] Create `src/http/rider-view.ts` with the US1 part of data-model.md's view model:
   - Types: `RiderView` (states `not-worked-out` and `ready`), `Summary`, `Condition`, `RideTable` (`rows`, `position`, `pager: null`) and `RideLine` (status, distanceRynke, elevationM, isVirtual, plus the activity fields).
   - `buildRiderView(read, rules, inEffect, context)`:
     - `rules` is `RynkeRules | null`, the version of the balance;
@@ -221,22 +221,22 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
   - `missing` and `qualified` are the stored values (FR-004).
   - Later stories add their fields to these types. Leave them out for now, rather than adding placeholders.
   - Makes T007 green.
-- [ ] T016 [US1] Create `src/http/rider-sections.ts` with `renderNotice`, `renderSummary` and `renderRides` (`I18n` plus the view), with the markup of contracts/rider-page.md:
+- [X] T016 [US1] Create `src/http/rider-sections.ts` with `renderNotice`, `renderSummary` and `renderRides` (`I18n` plus the view), with the markup of contracts/rider-page.md:
   - **Notice**: `section.notice` with `role="status"`.
   - **Summary**: `section#rynke.rynke-summary` with the verdict, `ul.rynke-missing` (only when not in, in the order training, team, without virtual), and the `dl`. An unknown target prints the value alone.
   - **Rides**: `section#rides` with `table.rides`:
-    - a 5-cell main row with the class `ride ride-counts | ride-not-counting | ride-pending`, and `td.num` for the numbers;
+    - a 5-cell main row with the class `ride ride-counting | ride-not-counting | ride-pending`, and `td.num` for the numbers;
     - "–" for both numbers while the ride is being evaluated;
     - a `tr.ride-details` row with `colspan="5"` holding `sport.*`, the gain as `units.m`, and `rynke.ride.virtual` when virtual.
   - **Empty**: `me.recent.empty` when there are no rides.
   - Keep `me.recent.heading` with its current text until US5.
-- [ ] T017 [US1] In `src/http/me.ts`:
+- [X] T017 [US1] In `src/http/me.ts`:
   - Replace `recentRides` with `readRiderView(ctx.env.DB, rider.athleteId, 1)` and then `buildRiderView(read, read.balance ? rulesForVersion(read.balance.rulesVersion) : null, CURRENT_RULES, { seasonStart: ctx.env.SEASON_START_DATE, importing: rider.importStatus !== "done" })`.
   - Place the sections after the import-status paragraph, in the order of contracts/rider-page.md (notice, summary, rides). In the `not-worked-out` state, show only the notice and rides.
   - Update the file's header comment.
   - Drop the `listRecentActivities` import. The function stays, because `test/support/rynke.ts` and `db.test.ts` use it.
   - Makes T008, T009 and T011 green.
-- [ ] T018 [US1] Extend `STYLE` in `src/http/html.ts` for the US1 sections (research R9, contracts/rider-page.md "CSS"):
+- [X] T018 [US1] Extend `STYLE` in `src/http/html.ts` for the US1 sections (research R9, contracts/rider-page.md "CSS"):
   - `main { overflow-wrap:anywhere }`;
   - `table.rides { width:100% }`, with `.num { white-space:nowrap; text-align:right }`;
   - `tr.ride-details td`: smaller, muted, wrapping text;

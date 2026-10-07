@@ -36,7 +36,7 @@ interface RiderViewRead {
 
 interface RideRow {
 	activityId: number;
-	sportType: string;
+	sportType: CyclingSportType;
 	startDateLocal: string;     // ISO, local wall clock with Z
 	distanceM: number;
 	movingS: number;
@@ -147,7 +147,7 @@ interface Pager {
 interface RideLine {
 	activityId: number;
 	startDateLocal: string;
-	sportType: string;
+	sportType: CyclingSportType;
 	distanceM: number;
 	elevationGainM: number;
 	status: "being-evaluated" | "counts" | "does-not-count";  // FR-041
