@@ -7,21 +7,12 @@ This feature builds no view that shows one rider's data to another. This contrac
 what the planned views (organiser-admin, team-leaderboard) build on, so they all
 read the consent the same way (US3).
 
-## `src/roles.ts`
-
-```ts
-/** The organisers' athlete IDs; empty for a missing, empty or unparsable list. */
-export function organiserIds(value: string | undefined): ReadonlySet<number>;
-```
-
-Pure. No logging.
-
 ## `src/http/viewer.ts`
 
 ```ts
 export type Viewer =
   | { kind: "visitor" }
-  | { kind: "rider"; rider: Rider; organiser: boolean };
+  | { kind: "rider"; rider: Rider }; // rider.organiser: the flag (R2)
 
 /** Who is asking, decided afresh on every request (FR-003). */
 export function readViewer(request: Request, ctx: Ctx): Promise<Viewer>;
@@ -32,11 +23,12 @@ export function requireRider(viewer: Viewer): Response | null;
 
 Rules every page follows:
 
-- Call `readViewer` once per request. Never put the role in a cookie or in D1.
+- Call `readViewer` once per request. Never put the role in a cookie or keep it
+  between requests; `riders.organiser` is the only place it lives.
 - A page for signed-in riders starts with `requireRider`.
-- An organiser page answers a non-organiser rider the way organiser-admin's spec
-  says ("not allowed"); that wording is that feature's.
-- Never render or log `organiser`, the list, or an athlete ID because of the role.
+- An organiser page checks `viewer.rider.organiser` and answers a non-organiser
+  rider the way organiser-admin's spec says ("not allowed"); that wording is that
+  feature's.
 
 ## `src/visibility.ts`
 

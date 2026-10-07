@@ -9,8 +9,8 @@ pnpm install
 pnpm lint && pnpm typecheck && pnpm test
 ```
 
-All tests use synthetic riders and synthetic organiser IDs. None reads Strava
-(constitution Principles I and V).
+All tests use synthetic riders. None reads Strava (constitution Principles I and
+V).
 
 ### User Story 1 — already covered by 001's tests (research R1)
 
@@ -34,9 +34,13 @@ New for US1:
 
 | Test file | Proves |
 |---|---|
-| `test/unit/roles.test.ts` (new) | `organiserIds`: commas, spaces, newlines; `undefined`, `""`, only separators → empty; malformed entries ignored, the rest kept; duplicates (FR-006, research R3) |
-| `test/integration/viewer.test.ts` (new) | rider on the list → organiser and rider; off the list → rider only; ID on the list without a rider row → visitor, grants nothing; the same session before and after the list changes; empty and missing list; deleted rider → visitor; `needs_reconnect` rider on the list → organiser (US2 scenarios 1–5, FR-001, FR-003) |
-| `test/integration/organiser-ids-hidden.test.ts` (new) | landing page and `/me` for an organiser and a rider: no listed ID in the HTML or in any console output (US2 scenario 6, FR-002, SC-007) |
+| `test/integration/viewer.test.ts` (new) | flagged rider → organiser and rider; unflagged → rider only; the same session before and after the flag is cleared; no rider flagged → nobody is an organiser, `/me` works; deleted rider → visitor; `needs_reconnect` rider with the flag → organiser (US2 scenarios 1, 2, 4, 5; FR-001, FR-003, FR-006, SC-006) |
+| `test/integration/db.test.ts` | `getRider` reads `organiser`; `insertRider` stores 0; `updateRiderOnReconnect` keeps 1; delete and connect again → 0 (US2 scenario 3, FR-003, FR-004) |
+| `test/integration/schema-minimisation.test.ts` | `riders` has the `organiser` column (data-model.md) |
+| `test/integration/dev-fake-strava.test.ts` | the seed marks the sample organiser, and only them (research R10) |
+
+US2 scenario 6 and SC-007 have no test of their own: every athlete ID in the
+repository is synthetic, as for every rider (research R8), and review checks it.
 
 ### User Story 3
 
@@ -70,11 +74,19 @@ Catalog checks (`test/unit/catalogs.test.ts`,
    "Your consent" now shows the consent texts and the form. Agree and go through
    the fake Strava again: the section shows version 1, and write access can be
    granted this time.
-5. Nothing on any page shows who is an organiser; `dev/fake.env` makes 990004 one
-   for the organiser pages to come.
+5. The seed marked Tina as organiser. Nothing on any page shows the role yet; to
+   see the flag:
+
+   ```bash
+   pnpm wrangler d1 execute rynke-points --local --persist-to .wrangler/fake-state \
+     --command "SELECT athlete_id, first_name FROM riders WHERE organiser = 1"
+   ```
+
+   It is still 990004 after step 4's reconnect. Disconnecting Tina on `/me` and
+   connecting her again from `/_dev/` clears it; reseeding sets it again.
 
 ## 3. Release
 
-Before merging the release that contains this feature into `main`, the maintainer
-sets the secret ([contracts/configuration.md](contracts/configuration.md),
-"Rollout"). The deploy fails without it.
+Nothing to do before merging: CI applies the migration, and nobody is an organiser
+until the maintainer marks them ([contracts/organiser-flag.md](contracts/organiser-flag.md),
+"Rollout").

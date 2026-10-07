@@ -2,25 +2,39 @@
 
 **Feature**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md) | **Date**: 2026-10-07
 
-No migration. Everything stored for this feature already exists: 001's migration
-`0004_consent_and_write_scope.sql` added `riders.scope_write` and
-`consent_records` together with this spec (research R1). This file describes how
-the spec's Key Entities map onto that schema and onto the new code.
+One migration, `0008_organiser_flag.sql`, adds the organiser flag (research R2,
+R3). The rest already exists: 001's migration `0004_consent_and_write_scope.sql`
+added `riders.scope_write` and `consent_records` together with this spec (research
+R1). This file describes how the spec's Key Entities map onto that schema and onto
+the new code.
 
-## Stored (unchanged)
+## Stored
 
 ### Rider (`riders`, 001)
 
 | Column | Used here for |
 |---|---|
-| `athlete_id` | the subject of every visibility check; matched against the Organiser List |
+| `athlete_id` | the subject of every visibility check |
 | `first_name` | what organisers see (FR-022); updated on every sign-in (001) |
 | `scope_write` | whether write access was granted (FR-012); `/me` states it |
 | `status` | not part of the role or of sharing (research R4, R6) |
+| `organiser` (new) | INTEGER NOT NULL DEFAULT 0, `CHECK (organiser IN (0, 1))`: 1 marks an organiser (FR-001, FR-002) |
 
-No last name is stored (FR-022).
+`organiser` is set and cleared only by the maintainer, in the database
+([contracts/organiser-flag.md](contracts/organiser-flag.md)). The app reads it
+with the row and never writes it: `insertRider` leaves the default 0,
+`updateRiderOnReconnect` leaves it as it is. It is deleted with the row (FR-015).
+`Rider` gains `organiser: boolean`.
 
-### Consent Record (`consent_records`, 001)
+The migration adds a column with a default and nothing else, so the deployed code
+keeps working while CI applies it before publishing (migrations add, they
+don't rename or drop).
+
+No last name is stored (FR-022). 001's [data-model.md](../001-strava-connect-webhook/data-model.md)
+`riders` table gets the column too, as it got `scope_write`, and
+`test/integration/schema-minimisation.test.ts` lists it.
+
+### Consent Record (`consent_records`, 001, unchanged)
 
 | Column | Type | Rule |
 |---|---|---|
@@ -40,22 +54,12 @@ consent (`getCurrentConsent`).
 | `CONSENT_VERSION` | 1 (unchanged) | the version the forms ask for today |
 | `SHARING_SINCE_VERSION` | 1 (new) | the lowest version whose consent includes the FR-020 sharing |
 
-### Organiser List (`ORGANISER_ATHLETE_IDS`)
-
-A Worker secret ([contracts/configuration.md](contracts/configuration.md)): Strava
-athlete IDs separated by commas and/or whitespace. Read on every request by
-`organiserIds(value)` in `src/roles.ts`:
-
-- `undefined`, `""` or only separators → empty set (FR-006);
-- entries that aren't positive decimal integers are ignored (research R3);
-- duplicates collapse.
-
 ### Viewer (`src/http/viewer.ts`)
 
 ```ts
 type Viewer =
   | { kind: "visitor" }
-  | { kind: "rider"; rider: Rider; organiser: boolean };
+  | { kind: "rider"; rider: Rider };
 ```
 
 Derived per request, never stored (Key Entities "Role"):
@@ -67,11 +71,11 @@ session cookie ──invalid/missing──▶ visitor
 riders row for the athlete? ──no──▶ visitor
       │ yes
       ▼
-rider, organiser = organiserIds(env).has(athleteId)
+rider; organiser if rider.organiser
 ```
 
-An ID on the list grants nothing without a rider row (FR-003). Consent doesn't
-enter the role (research R4).
+Without a rider row there is no flag, so only a connected rider can be an organiser
+(FR-003). Consent doesn't enter the role (research R4).
 
 ### Audience and visibility (`src/visibility.ts`)
 
@@ -81,8 +85,8 @@ enter the role (research R4).
 |---|---|---|
 | visitor | — | `visitor` |
 | rider | yes | `self` |
-| rider, `organiser: true` | no | `organiser` |
-| rider, `organiser: false` | no | `rider` |
+| rider, `rider.organiser` true | no | `organiser` |
+| rider, `rider.organiser` false | no | `rider` |
 
 `VISIBILITY` (FR-020, FR-022). `self` sees all rows and isn't listed.
 

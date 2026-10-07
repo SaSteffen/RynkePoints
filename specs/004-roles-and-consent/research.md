@@ -49,72 +49,53 @@ them, the section says so.
 - Leaving the "sign out and connect again" text: works, but sends the rider
   through the landing page for no reason.
 
-## R2. The organiser list is a declared Worker secret
+## R2. Organisers are a flag on the rider row
 
 **Decision**:
-- `ORGANISER_ATHLETE_IDS`, a Cloudflare secret holding the organisers' Strava
-  athlete IDs. It goes in `secrets.required` in `wrangler.jsonc`, then
-  `pnpm types`, like `ADMIN_TOKEN` (feature 007 R4).
-- Production: the maintainer runs `pnpm wrangler secret put ORGANISER_ATHLETE_IDS`
-  before the release containing this feature is merged into `main`
-  ([contracts/configuration.md](contracts/configuration.md)). Changing the list
-  later is the same command; it takes effect without a code change or deploy
-  (FR-002, SC-006).
-- Tests: `vitest.config.ts` binds it to `""` (no organisers); a test that needs
-  organisers builds its `Ctx` with another value (R9).
-- `pnpm dev`: `dev/fake.env` holds synthetic sample IDs (R10), and the `pnpm dev`
-  script unsets the variable like the other declared secrets.
-- `.dev.vars.example` gets the line with a comment, for `pnpm dev:strava`.
+- A migration `0008_organiser_flag.sql` adds
+  `riders.organiser INTEGER NOT NULL DEFAULT 0 CHECK (organiser IN (0, 1))`
+  ([contracts/organiser-flag.md](contracts/organiser-flag.md)). `Rider` gains
+  `organiser: boolean`, read by `getRider` with the rest of the row.
+- The app never writes the column (FR-004). `insertRider` names its columns, so a
+  new rider gets the default 0; `updateRiderOnReconnect` sets only the name, scope
+  and status columns, so reconnecting keeps the flag (`src/db/riders.ts`). Leaving
+  deletes the row and the flag with it (FR-003, US2 scenario 3).
+- No configuration, secret or binding changes.
 
 **Rationale**:
-- A secret keeps the IDs out of the repository, `wrangler.jsonc`, CI logs and the
-  Cloudflare dashboard's plain variables (FR-002, SC-007).
-- Declaring it is the only way Wrangler loads it from `.dev.vars` or
-  `dev/fake.env`: once `secrets.required` exists, `wrangler dev` loads only the
-  declared secrets from env files (wrangler 4.147, `getVarsForDev`). It also makes
-  `pnpm types` add it to `Env`.
-- Declaring it also makes a deploy without it fail ("The following required
-  secrets have not been set"). That is the same rollout step as `ADMIN_TOKEN`, and
-  the code still treats a missing or empty value as "no organisers" (FR-006, R3),
-  so local runs and tests don't depend on it.
+- Who is an organiser isn't secret (spec Clarifications, 2026-10-07). What must not
+  be public is a real person's athlete ID, and D1 is not in the repository.
+- The flag needs a rider row, so "an organiser must be a connected rider" (FR-003)
+  holds by construction, with no check of its own.
+- The maintainer can see who is an organiser (`SELECT … WHERE organiser = 1`) and
+  change one person at a time. A secret can't be read back and is replaced whole.
+- The rider row is already read on every signed-in request; the flag costs nothing.
+- Adding a column with a default keeps the deployed code working while CI applies
+  the migration before publishing (CLAUDE.md, migrations add only). The old code's
+  `INSERT INTO riders` names its columns, so new riders get 0.
 
 **Alternatives considered**:
-- An undeclared, optional secret with a hand-written `Env` augmentation: deploys
-  without it, but `wrangler dev` would never load it from `.dev.vars`, so the
-  maintainer couldn't try organiser rights locally; rejected.
-- A plain `vars` entry: visible in the repository and dashboard (FR-002);
-  rejected.
-- A D1 table of organisers: needs a way to change it, which FR-004 rules out from
-  inside the app, and the spec puts the list in deployment configuration; rejected.
+- A Worker secret `ORGANISER_ATHLETE_IDS` (this plan's first draft): it needed
+  `secrets.required` so that `wrangler dev` loads it, which made every deploy fail
+  until the maintainer set it, plus wiring in six config files; and it hides
+  something that needn't be hidden. Replaced by the flag on the owner's request.
+- A table `organisers(athlete_id)`: same effect as a column with a foreign key to
+  `riders`, one more table and join; rejected.
+- Keeping the flag across leaving: the rider's data is deleted on leaving (FR-015),
+  and the flag is part of their record; rejected.
 - Strava club admins as organisers: the app would need club admin data from Strava
   on every request, and club admins aren't necessarily the team's organisers;
   rejected.
 
-## R3. Reading the list
+## R3. Migration number
 
-**Decision**:
-- `organiserIds(value: string | undefined): ReadonlySet<number>` in a new
-  `src/roles.ts`: splits on commas and whitespace, keeps entries that are positive
-  decimal integers, ignores everything else. `undefined`, `""` or only
-  separators give an empty set.
-- Read from `ctx.env` on every request, never cached across requests (FR-003).
-- Nothing is logged: not the list, not the count, not ignored entries.
+**Decision**: the migration is `0008_organiser_flag.sql`. Branch
+`010-pwa-notifications` also has a `0008` (`0008_push_subscriptions.sql`); whichever
+reaches `develop` second renames its file to the next free number before merging.
 
-**Rationale**:
-- Commas or spaces are what someone typing `wrangler secret put` produces;
-  accepting both avoids a format error turning into "nobody is an organiser".
-- Ignoring malformed entries keeps the app working for riders (FR-006). The effect
-  of a typo is visible at once to the organiser concerned, who has no organiser
-  pages; a log line would put information about the list into the logs on every
-  request, which FR-002 forbids for the IDs themselves.
-- Parsing a short string per request costs nothing.
-
-**Alternatives considered**:
-- JSON (`[123, 456]`): easy to get wrong at the prompt, no benefit for a list of
-  integers; rejected.
-- Failing the request on a malformed list: breaks the app for riders because of an
-  organiser typo (FR-006); rejected.
-- A count-only warning for ignored entries: noise on every request; rejected.
+**Rationale**: D1 records applied migrations by file name and applies the rest in
+order. Neither migration has reached production, so renaming one before it is
+merged is safe; the two touch different tables.
 
 ## R4. Who is asking: one viewer per request
 
@@ -122,34 +103,33 @@ them, the section says so.
 - A new `src/http/viewer.ts` with `readViewer(request, ctx): Promise<Viewer>`:
   - no valid session, or a session whose rider row no longer exists →
     `{ kind: "visitor" }` (as `/me` already treats it, 001 R9);
-  - otherwise `{ kind: "rider", rider, organiser }`, where `organiser` is
-    `organiserIds(ctx.env.ORGANISER_ATHLETE_IDS).has(rider.athleteId)`.
-- The role is computed only after the rider row is found, so an ID on the list
-  whose owner isn't a rider grants nothing (FR-003, US2 scenario 3), and a removed
-  ID stops counting on the next request (US2 scenario 4).
+  - otherwise `{ kind: "rider", rider }`; the role is `rider.organiser` (R2).
+- The row is read afresh on every request, so a cleared flag stops counting on
+  the next request (FR-003, US2 scenario 4).
 - A rider in `needs_reconnect` is still a rider (001: their row and data stay, and
   they see `/me`), so they can be an organiser too.
-- Role doesn't depend on consent: an organiser is a rider on the list (FR-001).
+- Role doesn't depend on consent: an organiser is a rider with the flag (FR-001).
   Whether they are *shown* to others depends on their consent like everyone's
   (FR-007, R6).
 - `/me` and `/me/disconnect` switch from their local `signedInRider` to
   `readViewer`; their behaviour doesn't change. Future organiser pages check
-  `viewer.kind === "rider" && viewer.organiser`.
-- Nothing about the role is shown on any page in this feature, and the role is
-  never stored (Key Entities: "Role: not stored").
+  `viewer.kind === "rider" && viewer.rider.organiser`.
+- No page shows the role in this feature: no page needs it yet. It isn't secret
+  either (spec Clarifications, 2026-10-07), so organiser-admin may show it.
 
 **Rationale**:
 - One function decides "who is asking" for every page, so no view can forget the
-  rider-row check or cache the role in a cookie (FR-003, edge case "organiser
-  removed mid-session").
+  rider-row check or cache the role in a cookie (FR-003, edge case "organiser flag
+  cleared mid-session").
 - The session cookie stays an athlete ID only; putting the role in it would keep a
-  removed organiser's rights until the cookie expires.
+  former organiser's rights until the cookie expires.
 
 **Alternatives considered**:
-- The role in the session cookie: stale after a list change; rejected.
+- The role in the session cookie: stale after the flag changes; rejected.
+- A separate `organiser` field next to `rider` in `Viewer`: the same fact twice;
+  rejected.
 - An "Organiser" badge on `/me`: no catalog keys are needed until there are
-  organiser pages to link to, and it adds a page that reveals the role; left to
-  organiser-admin.
+  organiser pages to link to; left to organiser-admin.
 - A `Ctx` field for the viewer: `Ctx` is per invocation and also serves the queue
   and cron, which have no viewer; rejected.
 
@@ -237,57 +217,55 @@ separate sign-in page (001 R21, "Alternatives considered").
 **Alternatives considered**: a `401` page with a "sign in" link — a second way to
 say the same thing, needing catalog keys; rejected.
 
-## R8. Keeping organiser IDs out of pages and logs (FR-002, SC-007)
+## R8. No real organiser ID in the repository (FR-002, SC-007)
 
-**Decision**:
-- No page renders the list, the role, or anyone's athlete ID because of the role.
-- `src/roles.ts` and `src/http/viewer.ts` log nothing.
-- Existing log lines that name a rider's athlete ID (e.g. `src/strava/tokens.ts`
-  "Revoke for athlete …") stay: they are about that rider, not about the list,
-  and never say whether the rider is an organiser.
-- A test renders the landing page and `/me` for an organiser and for a rider while
-  the list holds both their IDs and a third one, and checks that none of the
-  listed IDs appears in the pages or in any console output. Pages render no
-  athlete ID today; the test keeps it that way.
-- The repository holds synthetic IDs only (constitution Principle I): the
-  test value is `""` or invented IDs, `dev/fake.env` holds sample IDs (R10).
+**Decision**: every athlete ID in tests, fixtures and `dev/` is synthetic
+(constitution Principle I), as for every rider already. Real organiser IDs exist
+only in the production and local databases and in the commands the maintainer types
+([contracts/organiser-flag.md](contracts/organiser-flag.md)). No new code logs
+anything about the role.
 
-**Rationale**: SC-007 is about the list leaking. An organiser is a rider, and a log
-line about their own Strava token is no more revealing than for anyone else.
+**Rationale**: the role isn't secret, so pages and logs need no rule of their own;
+what stays protected is the real person's ID, which the repository never holds.
 
-**Alternatives considered**: removing athlete IDs from every log line — a change to
-features 001 and 003 beyond this scope, and those lines are how the maintainer
-finds a rider's failure; rejected.
+**Alternatives considered**: a test that no organiser ID appears in pages or logs
+(the first draft's R8): it guarded the list's secrecy, which the spec no longer
+asks for; dropped.
 
 ## R9. Testing
 
 **Decision**:
-- `makeCtx` in `test/support/ctx.ts` gains an `env` option merged over the test
-  bindings, so a test sets `ORGANISER_ATHLETE_IDS` per case (and leaves it out to
-  test "missing").
-- Pure modules get unit tests: `test/unit/roles.test.ts` (parsing) and
-  `test/unit/visibility.test.ts` (the whole table for a synthetic team).
-- `test/integration/viewer.test.ts`: roles for riders on and off the list, an ID
-  without a rider, a list change between two requests, an empty and a missing
-  list, a deleted rider, a `needs_reconnect` rider.
+- `seedRider` in `test/support/ctx.ts` gains an `organiser` option (default
+  `false`).
+- `test/unit/visibility.test.ts`: the whole table for a synthetic team.
+- `test/integration/viewer.test.ts`: a flagged and an unflagged rider, the flag
+  cleared between two requests, no rider flagged, a deleted rider, a
+  `needs_reconnect` rider with the flag.
+- `test/integration/db.test.ts`: `getRider` reads the flag; reconnecting keeps it;
+  deleting the rider and connecting again leaves it 0.
+- `test/integration/schema-minimisation.test.ts`: `organiser` joins the `riders`
+  columns (its header asks for a data-model change with every new column).
 - `test/integration/shared-riders.test.ts`: riders with and without a record,
   the subquery inside a `SUM` and `COUNT`, deletion.
-- `test/integration/organiser-ids-hidden.test.ts`: R8.
 - `test/integration/me-status.test.ts`: the rider without a record sees the
   consent and the form (R1).
+- `test/integration/dev-fake-strava.test.ts`: the seed marks the sample organiser
+  (R10).
 - All riders are synthetic (constitution Principles I and V). No test reads
   Strava; the fake Strava of `test/support/` is used where the connect flow runs.
 
 ## R10. Fake mode (`pnpm dev`)
 
-**Decision**: `dev/fake.env` gets `ORGANISER_ATHLETE_IDS=990004,990099`: the
-sample rider "Tina TrainingDone" is an organiser, and 990099 is an invented ID no
-sample rider has, so the list also shows "an ID without a rider grants nothing".
-Nothing in fake mode shows the role yet; organiser-admin will use it.
+**Decision**: `SampleRider` gains `organiser?: true`, set on "Tina TrainingDone"
+(990004). After connecting the club members, the seed runs
+`UPDATE riders SET organiser = 1` for the sample riders that have it, the same
+statement the maintainer runs in production. Since the samples change, their
+fingerprint changes and an existing fake database is seeded again.
 
-**Rationale**: the declared secret must have a value in fake mode, or Wrangler
-warns on every start (R2); a real organiser in the samples saves organiser-admin
-a change to `dev/`.
+**Rationale**: organiser-admin needs an organiser in fake mode; marking one now
+keeps the seed the only place that sets it. Setting the flag after the connect flow
+mirrors production: the app's connect flow never sets it (R2).
 
-**Alternatives considered**: an empty value — no warning, but later features would
-need to change `dev/fake.env` anyway; rejected.
+**Alternatives considered**: no organiser in the samples until organiser-admin —
+nothing shows the role yet, but the walk-through couldn't show the flag surviving a
+reconnect; rejected.
