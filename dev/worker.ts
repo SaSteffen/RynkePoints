@@ -6,10 +6,11 @@ import { CATALOGS } from "../src/i18n/catalogs";
 import { handleFetch, handleQueue, handleScheduled } from "../src/index";
 import { STRAVA_ORIGIN } from "../src/strava/result";
 import { answerStrava } from "./fake-strava/api";
+import { simulateEvent } from "./fake-strava/events";
 import { authorizePage, type IndexRow, indexPage } from "./fake-strava/pages";
 import { SAMPLE_RIDERS, sampleRider } from "./fake-strava/samples";
 import { seed } from "./fake-strava/seed";
-import { tableExists } from "./fake-strava/store";
+import { riderActivities, tableExists } from "./fake-strava/store";
 import { encodeCode } from "./fake-strava/tokens";
 
 // The dev entry of fake mode (specs/006-local-frontend-dev research R1, R2,
@@ -162,15 +163,18 @@ async function indexRows(ctx: Ctx): Promise<IndexRow[]> {
 		"SELECT athlete_id, status, import_status FROM riders",
 	).all<{ athlete_id: number; status: string; import_status: string }>();
 	const stored = new Map(results.map((r) => [r.athlete_id, r]));
-	return SAMPLE_RIDERS.map((rider) => {
-		const row = stored.get(rider.athleteId);
-		return {
-			rider,
-			stored: row
-				? { status: row.status, importStatus: row.import_status }
-				: null,
-		};
-	});
+	return Promise.all(
+		SAMPLE_RIDERS.map(async (rider) => {
+			const row = stored.get(rider.athleteId);
+			return {
+				rider,
+				activities: await riderActivities(ctx.env.DB, rider.athleteId),
+				stored: row
+					? { status: row.status, importStatus: row.import_status }
+					: null,
+			};
+		}),
+	);
 }
 
 /** `POST /_dev/connect`: the app's connect flow, ending on the stand-in screen. */
@@ -234,7 +238,15 @@ async function devRoute(
 	const route = `${request.method} ${url.pathname}`;
 	switch (route) {
 		case "GET /_dev/":
-			return indexPage(await indexRows(ctx), url.searchParams.get("flash"));
+			return indexPage(
+				await indexRows(ctx),
+				url.searchParams.get("flash"),
+				berlinDate(ctx.now()),
+			);
+		case "POST /_dev/events": {
+			const flash = await simulateEvent(ctx, url.origin, await form(request));
+			return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);
+		}
 		case "POST /_dev/connect":
 			return connectAs(request, ctx, url);
 		case `GET ${STAND_IN_PATH}`:

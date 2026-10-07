@@ -462,3 +462,131 @@ describe("sample riders in every state (US2)", () => {
 		).toBe(fakeRides);
 	});
 });
+
+describe("simulated Strava events (US3)", () => {
+	const FIONA = 990003;
+	const OLLI = 990008;
+
+	async function event(fields: [string, string][]) {
+		const res = await post("/_dev/events", fields);
+		expect(res.status).toBe(303);
+		const location = new URL(res.headers.get("Location") ?? "", LOCAL);
+		expect(location.pathname).toBe("/_dev/");
+		// The flash names the webhook's answer: the body passed its checks.
+		expect(location.searchParams.get("flash")).toMatch(/answered 200/);
+		await drain();
+	}
+
+	async function training(athleteId: number): Promise<number> {
+		return count(
+			"SELECT training_rynke AS n FROM rynke_balances WHERE athlete_id = ?",
+			athleteId,
+		);
+	}
+
+	async function newestFake(athleteId: number): Promise<number> {
+		return count(
+			"SELECT MAX(id) AS n FROM fake_strava_activities WHERE athlete_id = ?",
+			athleteId,
+		);
+	}
+
+	async function stored(activityId: number): Promise<number> {
+		return count(
+			"SELECT COUNT(*) AS n FROM activities WHERE strava_activity_id = ?",
+			activityId,
+		);
+	}
+
+	beforeEach(async () => {
+		expect((await get("/_dev/")).status).toBe(200);
+		await drain();
+	});
+
+	it("creates, repeats, updates and deletes a ride", async () => {
+		const before = await training(FIONA);
+		await event([
+			["athleteId", String(FIONA)],
+			["action", "create"],
+			["date", "2026-10-05"],
+			["time", "09:00"],
+			["sportType", "Ride"],
+			["distanceKm", "120"],
+			["elevationM", "600"],
+			["movingMin", "240"],
+			["elapsedMin", "250"],
+		]);
+		const id = await newestFake(FIONA);
+		expect(await stored(id)).toBe(1);
+		const created = await training(FIONA);
+		expect(created).toBeGreaterThan(before);
+
+		// US3 scenario 3, Principle II: the same event twice changes nothing.
+		const counts = await tableCounts();
+		await event([
+			["athleteId", String(FIONA)],
+			["action", "repeat"],
+		]);
+		expect(await tableCounts()).toEqual(counts);
+		expect(await training(FIONA)).toBe(created);
+
+		await event([
+			["athleteId", String(FIONA)],
+			["action", "update"],
+			["activityId", String(id)],
+			["distanceKm", "60"],
+		]);
+		expect(await training(FIONA)).toBeLessThan(created);
+
+		await event([
+			["athleteId", String(FIONA)],
+			["action", "delete"],
+			["activityId", String(id)],
+		]);
+		expect(await stored(id)).toBe(0);
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM fake_strava_activities WHERE id = ?",
+				id,
+			),
+		).toBe(0);
+	});
+
+	it("drops a ride turned private for a rider without activity:read_all", async () => {
+		const id = await count(
+			`SELECT MIN(a.strava_activity_id) AS n FROM activities a
+			WHERE a.athlete_id = ? AND a.is_private = 0`,
+			OLLI,
+		);
+		expect(await stored(id)).toBe(1);
+		await event([
+			["athleteId", String(OLLI)],
+			["action", "update"],
+			["activityId", String(id)],
+			["private", "true"],
+		]);
+		expect(await stored(id)).toBe(0);
+	});
+
+	it("deletes everything of a rider who revokes access", async () => {
+		await event([
+			["athleteId", String(FIONA)],
+			["action", "deauthorize"],
+		]);
+		for (const table of [
+			"riders",
+			"strava_credentials",
+			"activities",
+			"consent_records",
+			"ride_results",
+			"rynke_balances",
+		]) {
+			expect(
+				await count(
+					`SELECT COUNT(*) AS n FROM ${table} WHERE athlete_id = ?`,
+					FIONA,
+				),
+			).toBe(0);
+		}
+	});
+});

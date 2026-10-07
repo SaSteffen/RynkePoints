@@ -302,7 +302,7 @@ code.
 
 ### Tests for User Story 3 (write first, confirm red) ⚠️
 
-- [ ] T021 [US3] Extend `test/integration/dev-fake-strava.test.ts` (contracts/dev-routes.md "Simulated events"). After seeding and `drain`:
+- [X] T021 [US3] Extend `test/integration/dev-fake-strava.test.ts` (contracts/dev-routes.md "Simulated events"). After seeding and `drain`:
   - **create**: `POST /_dev/events` with `action=create` for Fiona FarAway (120 km, 600 m, 240/250 min) answers `303 /_dev/?…`. After `drain`, the new activity is in `activities` and Fiona's Training Rynke went up.
   - **repeat (US3 scenario 3, Principle II)**: `action=repeat` and `drain` leave `tableCounts()` and Fiona's balance unchanged.
   - **update**:
@@ -314,7 +314,7 @@ code.
 
 ### Implementation for User Story 3
 
-- [ ] T022 [P] [US3] Create `dev/fake-strava/events.ts` with `simulateEvent(ctx, origin, form)` (contracts/dev-routes.md table):
+- [X] T022 [P] [US3] Create `dev/fake-strava/events.ts` with `simulateEvent(ctx, origin, form)` (contracts/dev-routes.md table):
   - **`create`**: inserts a `recipeToActivity` body.
   - **`update`**: changes the given fields and names them in `updates`. `private` becomes `"true"` or `"false"`, `title` comes from `name`, and `type` from `sport_type`, as Strava does.
   - **`delete`**: deletes the activity.
@@ -322,7 +322,7 @@ code.
   - **Every body** carries `object_type`, `aspect_type`, `object_id`, `owner_id`, `event_time` (`ctx.now()`), `subscription_id` (`Number(env.STRAVA_SUBSCRIPTION_ID)`) and `updates`.
   - **Posting**: the body goes as JSON to `<origin>/strava/webhook/<STRAVA_WEBHOOK_VERIFY_TOKEN>` through `handleFetch`. The function returns the answer's status as the flash text.
   - **`repeat`** resends the last body sent, kept in module memory. With none, "nothing to repeat" is the flash text.
-- [ ] T023 [US3] Wire up the events:
+- [X] T023 [US3] Wire up the events:
   - In `dev/worker.ts`, add `POST /_dev/events`, answering `303 /_dev/?flash=…`.
   - In `dev/fake-strava/pages.ts`, add per stored rider:
     - a **new ride** form, with date (default today), time, sport type, distance, elevation, moving and elapsed minutes, private and manual;
