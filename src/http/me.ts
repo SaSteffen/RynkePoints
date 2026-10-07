@@ -20,9 +20,9 @@ import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 
 // The rider's own pages (contracts/http-routes.md): `/me` with connection
 // status, granted level and write access, import progress, the rider's Rynke
-// with their gauges and their 20 newest rides with what each earns (feature 005, only ever their
-// own and only read), the stored consent (feature 004 FR-014), disconnecting
-// with deletion (FR-023), and signing out.
+// with their gauges and their 20 newest rides with what each earns (feature
+// 005, only ever their own and only read), the stored consent (feature 004
+// FR-014), disconnecting with deletion (FR-023), and signing out.
 
 /** The rider's current consent and who sees what, or that none is stored. */
 async function consent(

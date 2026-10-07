@@ -102,7 +102,7 @@ export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 	// In decimetres within the step; shown in metres, what is still missing
 	// rounded up.
 	const elevation = gauges.elevation;
-	const metres = (dm: number) => i18n.t("units.m", { value: whole(i18n, dm) });
+	const metres = (m: number) => i18n.t("units.m", { value: whole(i18n, m) });
 	figures.push(
 		figure(
 			i18n,
