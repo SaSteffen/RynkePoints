@@ -81,17 +81,21 @@ export function deletePrivateActivitiesStatement(
 		.bind(athleteId);
 }
 
-/** All of the rider's activities, not only the season's (feature 003). */
-export function listRiderActivitiesStatement(
+/**
+ * Every activity of the riders in `athleteIds`, not only the season's, for
+ * one batch (feature 003).
+ */
+export function listActivitiesOfRidersStatement(
 	db: D1Database,
-	athleteId: number,
+	athleteIds: number[],
 ) {
 	return db
 		.prepare(
-			`SELECT ${COLUMNS} FROM activities WHERE athlete_id = ?
-			ORDER BY strava_activity_id`,
+			`SELECT ${COLUMNS} FROM activities
+			WHERE athlete_id IN (SELECT value FROM json_each(?1))
+			ORDER BY athlete_id, strava_activity_id`,
 		)
-		.bind(athleteId);
+		.bind(JSON.stringify(athleteIds));
 }
 
 /** `strava_activity_id, athlete_id` of those of `ids` that are stored. */

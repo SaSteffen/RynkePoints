@@ -12,7 +12,7 @@ import {
 import { fanOutEvaluations } from "../../src/work/scheduled";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { NOW } from "../support/fixtures";
-import { activityRecord } from "../support/rynke";
+import { activityRecord, attendRaw, insertEvent } from "../support/rynke";
 
 // The daily catch-up sweep (research R14, contracts/queue-messages.md
 // "Scheduled: evaluation sweep").
@@ -30,6 +30,11 @@ afterEach(() => vi.restoreAllMocks());
 /** The version in effect, and a newer one. */
 const VERSION = CURRENT_RULES.version;
 const NEXT = VERSION + 1;
+const WINDOW = countingWindow(env, CURRENT_RULES);
+
+function needing(version = VERSION, window = WINDOW) {
+	return listRidersNeedingEvaluation(db, version, window);
+}
 
 function evaluate(athleteId: number, rules: RynkeRules = CURRENT_RULES) {
 	return applyAndEvaluate(
@@ -100,7 +105,7 @@ describe("listRidersNeedingEvaluation", () => {
 		await seedRider(ctx, { athleteId: 900009 });
 		await evaluate(900009);
 
-		expect(await listRidersNeedingEvaluation(db, VERSION)).toEqual([
+		expect(await needing()).toEqual([
 			900002, 900003, 900004, 900005, 900006, 900007,
 		]);
 	});
@@ -108,9 +113,138 @@ describe("listRidersNeedingEvaluation", () => {
 	it("finds every rider after a rules-version bump", async () => {
 		await evaluatedRider(900001, 1);
 		await evaluatedRider(900002, 2);
-		expect(await listRidersNeedingEvaluation(db, VERSION)).toEqual([]);
-		expect(await listRidersNeedingEvaluation(db, NEXT)).toEqual([
-			900001, 900002,
+		expect(await needing()).toEqual([]);
+		expect(await needing(NEXT)).toEqual([900001, 900002]);
+	});
+
+	it("finds a balance of version 1 without a breakdown", async () => {
+		await evaluatedRider(900001, 1);
+		await db
+			.prepare(
+				`UPDATE rynke_balances SET rules_version = 1, team_event_breakdown = '[]'
+				WHERE athlete_id = ?`,
+			)
+			.bind(900001)
+			.run();
+		expect(await needing()).toEqual([900001]);
+	});
+});
+
+describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
+	const RIDER = 900001;
+
+	/** An evaluated rider attending a team training on 2026-05-02. */
+	async function attending() {
+		await evaluatedRider(RIDER, 1);
+		const eventId = await insertEvent("team_training", "2026-05-02");
+		await attendRaw(eventId, [RIDER]);
+		expect(await needing()).toEqual([RIDER]);
+		await evaluate(RIDER);
+		expect(await needing()).toEqual([]);
+		return eventId;
+	}
+
+	function sql(query: string, ...values: unknown[]) {
+		return db
+			.prepare(query)
+			.bind(...values)
+			.run();
+	}
+
+	it("finds attendance entered by hand until the rider is evaluated", async () => {
+		await attending();
+	});
+
+	it("finds a deleted event until the rider is evaluated", async () => {
+		const eventId = await attending();
+		await sql("DELETE FROM team_events WHERE event_id = ?", eventId);
+		expect(await needing()).toEqual([RIDER]);
+		await evaluate(RIDER);
+		expect(await needing()).toEqual([]);
+	});
+
+	it("finds a changed kind until the rider is evaluated", async () => {
+		const eventId = await attending();
+		await sql(
+			"UPDATE team_events SET kind = 'technique_training' WHERE event_id = ?",
+			eventId,
+		);
+		expect(await needing()).toEqual([RIDER]);
+		await evaluate(RIDER);
+		expect(await needing()).toEqual([]);
+	});
+
+	it("finds an event moved before the season start", async () => {
+		const eventId = await attending();
+		await sql(
+			"UPDATE team_events SET event_date = '2025-12-31' WHERE event_id = ?",
+			eventId,
+		);
+		expect(await needing()).toEqual([RIDER]);
+		await evaluate(RIDER);
+		expect(await needing()).toEqual([]);
+	});
+
+	it("finds an event moved past the deadline", async () => {
+		const rules: RynkeRules = {
+			...CURRENT_RULES,
+			qualificationDeadline: "2026-08-31",
+		};
+		const window = countingWindow(env, rules);
+		await evaluatedRider(RIDER, 1);
+		const eventId = await insertEvent("team_training", "2026-08-31");
+		await attendRaw(eventId, [RIDER]);
+		await evaluate(RIDER, rules);
+		expect(await needing(VERSION, window)).toEqual([]);
+
+		await sql(
+			"UPDATE team_events SET event_date = '2026-09-01' WHERE event_id = ?",
+			eventId,
+		);
+		expect(await needing(VERSION, window)).toEqual([RIDER]);
+		await evaluate(RIDER, rules);
+		expect(await needing(VERSION, window)).toEqual([]);
+	});
+
+	it("ignores a renamed event", async () => {
+		const eventId = await attending();
+		await sql(
+			"UPDATE team_events SET name = 'Synthetic renamed ride' WHERE event_id = ?",
+			eventId,
+		);
+		expect(await needing()).toEqual([]);
+	});
+
+	it("ignores attendance moved to another team training in the window", async () => {
+		const eventId = await attending();
+		const other = await insertEvent("team_training", "2026-05-09");
+		await sql(
+			"UPDATE attendances SET event_id = ? WHERE event_id = ? AND athlete_id = ?",
+			other,
+			eventId,
+			RIDER,
+		);
+		expect(await needing()).toEqual([]);
+	});
+
+	it("ignores attendance outside the window of an evaluated rider", async () => {
+		await evaluatedRider(RIDER, 1);
+		await attendRaw(await insertEvent("team_training", "2025-12-31"), [RIDER]);
+		expect(await needing()).toEqual([]);
+	});
+
+	it("ignores a needs_reconnect rider with attendance", async () => {
+		await seedRider(ctx, { athleteId: 900002, status: "needs_reconnect" });
+		await attendRaw(await insertEvent("team_training", "2026-05-02"), [900002]);
+		expect(await needing()).toEqual([]);
+	});
+
+	it("fanOutEvaluations uses the counting window of the current rules", async () => {
+		await evaluatedRider(RIDER, 1);
+		await attendRaw(await insertEvent("team_training", "2026-05-02"), [RIDER]);
+		await fanOutEvaluations(ctx);
+		expect(evaluations()).toEqual([
+			{ kind: "evaluate-rider", athleteId: RIDER },
 		]);
 	});
 });

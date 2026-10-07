@@ -11,7 +11,7 @@ import {
 	setFiguresVersion,
 } from "../db/riders";
 import { listRidersNeedingEvaluation } from "../db/rynke";
-import { CURRENT_RULES } from "../rynke/rules";
+import { CURRENT_RULES, countingWindow } from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
 import { parseWorkMessage, type WorkMessage } from "./messages";
 
@@ -90,13 +90,15 @@ export async function fanOutFiguresReread(ctx: Ctx): Promise<void> {
 
 /**
  * One `evaluate-rider` per connected rider whose stored Rynke are missing or
- * stale: after the first deploy, a rules-version bump or a lost message
- * (feature 003 research R14).
+ * stale: after the first deploy, a rules-version bump, a lost message, or
+ * attendance entered by hand that the balance doesn't reflect yet (feature 003
+ * research R14, R22).
  */
 export async function fanOutEvaluations(ctx: Ctx): Promise<void> {
 	const ids = await listRidersNeedingEvaluation(
 		ctx.env.DB,
 		CURRENT_RULES.version,
+		countingWindow(ctx.env, CURRENT_RULES),
 	);
 	await sendAll(
 		ctx,

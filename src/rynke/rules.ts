@@ -157,18 +157,22 @@ export function assertValidRules(rules: RynkeRules): void {
 }
 
 function assertDate(field: string, value: string): void {
-	const error = new Error(`rules.${field} must be a date YYYY-MM-DD`);
+	if (!isCalendarDate(value)) {
+		throw new Error(`rules.${field} must be a date YYYY-MM-DD`);
+	}
+}
+
+/** `YYYY-MM-DD` naming a real day: not `2026-5-1`, not `2026-02-30`. */
+export function isCalendarDate(value: string): boolean {
 	const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-	if (!match) throw error;
+	if (!match) return false;
 	const [y, m, d] = [Number(match[1]), Number(match[2]), Number(match[3])];
 	const date = new Date(Date.UTC(y, m - 1, d));
-	if (
-		date.getUTCFullYear() !== y ||
-		date.getUTCMonth() !== m - 1 ||
-		date.getUTCDate() !== d
-	) {
-		throw error;
-	}
+	return (
+		date.getUTCFullYear() === y &&
+		date.getUTCMonth() === m - 1 &&
+		date.getUTCDate() === d
+	);
 }
 
 /**

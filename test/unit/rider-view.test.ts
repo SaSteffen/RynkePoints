@@ -15,6 +15,7 @@ import {
 	type RynkeRules,
 	rulesForVersion,
 } from "../../src/rynke/rules";
+import { NO_EXTRAS } from "../../src/rynke/tally";
 
 // The rider page's view model (feature 005 data-model.md "Validation and
 // invariants"). Pure: built from a reading, never from D1.
@@ -40,6 +41,7 @@ function balance(overrides: Partial<StoredBalance> = {}): StoredBalance {
 		qualified: false,
 		rulesVersion: CURRENT_RULES.version,
 		rulesEffectiveDate: CURRENT_RULES.effectiveDate,
+		teamEvents: [...NO_EXTRAS.teamEvents],
 		computedAt: 0,
 		...overrides,
 	};

@@ -3,14 +3,40 @@
 
 import type { RidingSums, RidingTotals } from "./rides";
 import { assertValidRules, type RynkeRules } from "./rules";
+import {
+	type AttendanceEvaluation,
+	TEAM_EVENT_KINDS,
+	type TeamEventSum,
+} from "./team-events";
 
-/** Rynke from team events and corrections; zero until Stories 3 and 6. */
+/**
+ * Rynke from outside the rides: Story 3 fills them from team events, with the
+ * per-kind breakdown the balance stores; Story 6 adds corrections.
+ */
 export interface Extras {
 	training: number;
 	team: number;
+	teamEvents: readonly TeamEventSum[];
 }
 
-export const NO_EXTRAS: Extras = { training: 0, team: 0 };
+export const NO_EXTRAS: Extras = {
+	training: 0,
+	team: 0,
+	teamEvents: TEAM_EVENT_KINDS.map((kind) => ({
+		kind,
+		attended: 0,
+		team: 0,
+		training: 0,
+	})),
+};
+
+export function extrasFromAttendance(evaluation: AttendanceEvaluation): Extras {
+	return {
+		training: evaluation.training,
+		team: evaluation.team,
+		teamEvents: evaluation.byKind,
+	};
+}
 
 /** The fields of a `rynke_balances` row except `athlete_id` and `computed_at`. */
 export interface Balance {
@@ -28,6 +54,8 @@ export interface Balance {
 	qualified: boolean;
 	rulesVersion: number;
 	rulesEffectiveDate: string;
+	/** One entry per kind, in `TEAM_EVENT_KINDS` order (research R20). */
+	teamEvents: TeamEventSum[];
 }
 
 export function tally(
@@ -63,6 +91,7 @@ export function tally(
 			trainingMissing === 0 && teamMissing === 0 && virtualShareMissing === 0,
 		rulesVersion: rules.version,
 		rulesEffectiveDate: rules.effectiveDate,
+		teamEvents: extras.teamEvents.map((sum) => ({ ...sum })),
 	};
 }
 
