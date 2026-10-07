@@ -4,6 +4,10 @@
 // records the version, and the daily cron re-evaluates riders stored with
 // another one. Flagged rides never count (FR-005g); that is deliberately not a
 // rule value.
+//
+// When raising `version`, keep the previous object in `RULES_HISTORY`: the rider
+// page explains stored results with the rules of the version they record
+// (feature 005, research R3).
 
 /** A share `num / den`, kept as a fraction for exact comparisons (research R3). */
 export interface Share {
@@ -48,6 +52,14 @@ export const CURRENT_RULES: RynkeRules = {
 	teamThreshold: 25,
 	maxVirtualShare: { num: 1, den: 3 },
 };
+
+/** Every version ever in effect, `CURRENT_RULES` being the highest. */
+export const RULES_HISTORY: readonly RynkeRules[] = [CURRENT_RULES];
+
+/** The rules of a stored version; `null` for a version this code doesn't know. */
+export function rulesForVersion(version: number): RynkeRules | null {
+	return RULES_HISTORY.find((rules) => rules.version === version) ?? null;
+}
 
 /** Inclusive `YYYY-MM-DD` bounds a ride's local start date must fall in (FR-011). */
 export interface CountingWindow {

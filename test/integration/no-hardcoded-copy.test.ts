@@ -27,7 +27,7 @@ const ctx = makeCtx({ catalogs: { ...CATALOGS, qps } });
 const LANGUAGE_NAMES = new Set(
 	Object.values(CATALOGS).map((c) => c["meta.languageName"]),
 );
-const NUMBERS_AND_PUNCTUATION = /^[\d.,:/\s–-]+$/;
+const NUMBERS_AND_PUNCTUATION = /^[\d.,:/\s·–-]+$/;
 
 /** Visible text left once every (possibly nested) ⟦…⟧ is removed. */
 function unmarkedText(page: string): string[] {

@@ -3,8 +3,10 @@ import {
 	assertValidRules,
 	CURRENT_RULES,
 	countingWindow,
+	RULES_HISTORY,
 	type RynkeRules,
 	rulesFingerprint,
+	rulesForVersion,
 } from "../../src/rynke/rules";
 
 describe("CURRENT_RULES", () => {
@@ -171,4 +173,35 @@ describe("countingWindow", () => {
 			),
 		).toEqual({ seasonStart: "2026-01-01", deadline: "2026-08-31" });
 	});
+});
+
+describe("RULES_HISTORY", () => {
+	it("holds unique versions, up to and including CURRENT_RULES", () => {
+		expect(RULES_HISTORY.length).toBeGreaterThan(0);
+		const versions = RULES_HISTORY.map((rules) => rules.version);
+		expect(new Set(versions).size).toBe(versions.length);
+		expect(RULES_HISTORY).toContain(CURRENT_RULES);
+		expect(Math.max(...versions)).toBe(CURRENT_RULES.version);
+	});
+
+	it("holds only valid rules", () => {
+		for (const rules of RULES_HISTORY) {
+			expect(() => assertValidRules(rules)).not.toThrow();
+		}
+	});
+});
+
+describe("rulesForVersion", () => {
+	it("finds every version of the history", () => {
+		for (const rules of RULES_HISTORY) {
+			expect(rulesForVersion(rules.version)).toBe(rules);
+		}
+	});
+
+	it.each([0, -1, CURRENT_RULES.version + 1])(
+		"knows no version %i",
+		(version) => {
+			expect(rulesForVersion(version)).toBeNull();
+		},
+	);
 });

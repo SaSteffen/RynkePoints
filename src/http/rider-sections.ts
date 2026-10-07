@@ -1,0 +1,115 @@
+import type { I18n } from "../i18n/i18n";
+import { html, type SafeHtml } from "./html";
+import type {
+	Condition,
+	RideLine,
+	RiderView,
+	RideTable,
+	Summary,
+} from "./rider-view";
+
+// The Rynke sections of /me (feature 005 contracts/rider-page.md), rendered
+// from the view model. All text from the catalogs, all numbers through
+// `I18n`; the markup and class names are the contract the tests check.
+
+const STATUS = {
+	counts: { cls: "ride-counting", text: "rynke.ride.counts" },
+	"does-not-count": {
+		cls: "ride-not-counting",
+		text: "rynke.ride.doesNotCount",
+	},
+	"being-evaluated": {
+		cls: "ride-pending",
+		text: "rynke.ride.beingEvaluated",
+	},
+} as const;
+
+function whole(i18n: I18n, n: number): string {
+	return i18n.formatNumber(n, { fractionDigits: 0 });
+}
+
+/** The page's notices, or nothing when none applies. */
+export function renderNotice(i18n: I18n, view: RiderView): SafeHtml | null {
+	if (view.state !== "not-worked-out") return null;
+	return html`<section class="notice" role="status">
+<p>${i18n.t("rynke.notice.notWorkedOut")}</p>
+</section>`;
+}
+
+export function renderSummary(i18n: I18n, summary: Summary): SafeHtml {
+	const unmet = [
+		{ condition: summary.training, id: "rynke.missing.training" },
+		{ condition: summary.team, id: "rynke.missing.team" },
+		{ condition: summary.withoutVirtual, id: "rynke.missing.withoutVirtual" },
+	] as const;
+	const missing = unmet.flatMap(({ condition, id }) =>
+		condition && !condition.reached
+			? [html`<li>${i18n.t(id, { n: whole(i18n, condition.missing) })}</li>`]
+			: [],
+	);
+	const verdict = summary.qualified
+		? html`<p class="rynke-verdict">${i18n.t("rynke.verdict.in")}</p>`
+		: html`<p class="rynke-verdict">${i18n.t("rynke.verdict.notYet")}</p>
+${missing.length > 0 ? html`<ul class="rynke-missing">${missing}</ul>` : null}`;
+	const line = (label: string, condition: Condition) => {
+		const value = whole(i18n, condition.value);
+		const amount =
+			condition.target === null
+				? value
+				: i18n.t("rynke.summary.ofTarget", {
+						value,
+						target: whole(i18n, condition.target),
+					});
+		const state = condition.reached
+			? i18n.t("rynke.summary.reached")
+			: i18n.t("rynke.summary.missing", { n: whole(i18n, condition.missing) });
+		return html`<dt>${label}</dt><dd>${amount} · ${state}</dd>
+`;
+	};
+	return html`<section id="rynke" class="rynke-summary">
+<h2>${i18n.t("rynke.summary.heading")}</h2>
+${verdict}
+<dl>
+${line(i18n.t("rynke.training"), summary.training)}${line(i18n.t("rynke.team"), summary.team)}${summary.withoutVirtual ? line(i18n.t("rynke.withoutVirtual"), summary.withoutVirtual) : null}</dl>
+</section>`;
+}
+
+export function renderRides(i18n: I18n, rides: RideTable): SafeHtml {
+	const heading = html`<h2>${i18n.t("me.recent.heading")}</h2>`;
+	if (rides.rows.length === 0) {
+		return html`<section id="rides">
+${heading}
+<p>${i18n.t("me.recent.empty")}</p>
+</section>`;
+	}
+	return html`<section id="rides">
+${heading}
+<table class="rides">
+<thead><tr><th>${i18n.t("me.recent.col.date")}</th><th>${i18n.t("me.recent.col.distance")}</th><th>${i18n.t("rynke.rides.col.status")}</th><th>${i18n.t("rynke.training")}</th><th>${i18n.t("rynke.rides.col.elevationTotal")}</th></tr></thead>
+<tbody>
+${rides.rows.map((ride) => rideRows(i18n, ride))}</tbody>
+</table>
+</section>`;
+}
+
+function rideRows(i18n: I18n, ride: RideLine): SafeHtml {
+	const status = STATUS[ride.status];
+	// The rider's local date: Strava writes local wall-clock time with a `Z`.
+	const date = i18n.formatDate(ride.startDateLocal);
+	const km = i18n.t("units.km", {
+		value: i18n.formatNumber(ride.distanceM / 1000, { fractionDigits: 1 }),
+	});
+	// Never 0 for a ride still being evaluated (FR-041).
+	const pending = ride.status === "being-evaluated";
+	const rynke = pending ? "–" : whole(i18n, ride.distanceRynke);
+	const metres = pending
+		? "–"
+		: i18n.t("units.m", { value: whole(i18n, ride.elevationM) });
+	const gain = i18n.t("units.m", { value: whole(i18n, ride.elevationGainM) });
+	const virtual = ride.isVirtual
+		? html` · ${i18n.t("rynke.ride.virtual")}`
+		: null;
+	return html`<tr class="ride ${status.cls}"><td>${date}</td><td class="num">${km}</td><td>${i18n.t(status.text)}</td><td class="num">${rynke}</td><td class="num">${metres}</td></tr>
+<tr class="ride-details"><td colspan="5">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</td></tr>
+`;
+}

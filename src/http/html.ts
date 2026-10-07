@@ -49,7 +49,16 @@ header button{background:none;border:1px solid #ccc;border-radius:.25rem;padding
 header button[aria-current]{font-weight:bold;border-color:#fc5200}
 a{color:#c43d00}
 footer{margin-top:3rem}
-footer img{height:1.5rem}`;
+footer img{height:1.5rem}
+main{overflow-wrap:break-word}
+section.notice{border-left:.25rem solid #fc5200;background:#fff4ec;padding:.25rem 1rem;margin:1rem 0}
+.rynke-summary dd{margin:0 0 .5rem}
+table.rides{width:100%;border-collapse:collapse}
+table.rides th,table.rides td{padding:.25rem .5rem;text-align:left;vertical-align:top}
+table.rides .num{white-space:nowrap;text-align:right}
+tr.ride td{border-top:1px solid #ddd}
+tr.ride-details td{padding-top:0;font-size:.875rem;color:#666}
+@media (max-width:36rem){table.rides th,table.rides td{padding:.2rem .25rem}}`;
 
 export interface LayoutOptions {
 	title: string;
