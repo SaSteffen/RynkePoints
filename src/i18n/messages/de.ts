@@ -11,6 +11,8 @@ export const de = {
 	"brand.connectWithStrava.alt": "Mit Strava verbinden",
 	"brand.poweredByStrava.src": "/strava/en/powered-by-strava.svg",
 	"brand.poweredByStrava.alt": "Powered by Strava",
+	// Strava's Brand Guidelines §3 fix this text in every language (008 FR-009).
+	"brand.viewOnStrava": "View on Strava",
 
 	"layout.switcher.label": "Sprache",
 	"layout.logout": "Abmelden",
@@ -21,11 +23,11 @@ export const de = {
 	"landing.who": "Mitmachen können nur Mitglieder {clubLink}.",
 	"club.linkText": "unseres Team-Clubs auf Strava",
 	"landing.dataRead":
-		"Wir lesen von deinen Radfahrten nur Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob die Fahrt manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat – keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.",
+		"Wir lesen von deinen Radfahrten nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob die Fahrt manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat – keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.",
 	"landing.private":
 		"Auf Strava entscheidest du selbst, ob auch deine privaten („Nur du“) Aktivitäten dazugehören: Strava nennt das Anzeigen deiner privaten Aktivitäten. Wenn du das abwählst, zählen deine privaten Fahrten nicht für Rynke.",
 	"landing.purpose":
-		"Wir nutzen die Daten nur für die Rynke (Punkte) und Events des Teams. Deine einzelnen Fahrten sieht niemand außer dir.",
+		"Wir nutzen die Daten nur für die Rynke (Punkte) und Events des Teams. Deine einzelnen Fahrten und ihre Namen sieht niemand außer dir.",
 	"landing.leave":
 		"Du kannst jederzeit aussteigen: auf deiner RynkePoints-Seite oder indem du RynkePoints in deinen Strava-Einstellungen entfernst. Dann löschen wir alle Daten über dich, auch deine Rynke; auf deiner RynkePoints-Seite bestätigen wir dir das sofort. Wenn du den Club verlässt, löschen wir deine Daten innerhalb von 24 Stunden.",
 	"landing.backups":

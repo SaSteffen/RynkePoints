@@ -30,6 +30,8 @@ export interface RideRow {
 	movingS: number;
 	elapsedS: number | null;
 	elevationGainM: number;
+	/** `null` = unknown: not read yet, or empty or blank on Strava (008 FR-005). */
+	name: string | null;
 	/** `null` = no result yet: the ride is being evaluated (FR-041). */
 	result: StoredRideResult | null;
 	/** The ride an overlap counted instead, when it is still stored. */
@@ -62,7 +64,7 @@ export interface AttendedEvent {
  * last page, the same way `readRiderView` reports it.
  */
 export const RIDE_PAGE_SQL = `SELECT a.strava_activity_id, a.sport_type, a.start_date_local, a.distance_m,
-	a.moving_time_s, a.elapsed_time_s, a.elevation_gain_m,
+	a.moving_time_s, a.elapsed_time_s, a.elevation_gain_m, a.name,
 	r.strava_activity_id AS result_id, r.athlete_id, r.counts, r.reasons,
 	r.overlaps_activity_id, r.distance_rynke, r.elevation_dm, r.is_virtual,
 	r.unknown_figures, r.rules_version, r.activity_refreshed_at,
@@ -87,6 +89,7 @@ type RidePageRow = Omit<RideResultRow, "strava_activity_id"> & {
 	moving_time_s: number;
 	elapsed_time_s: number | null;
 	elevation_gain_m: number;
+	name: string | null;
 	result_id: number | null;
 	counted_start_date_local: string | null;
 	counted_distance_m: number | null;
@@ -141,6 +144,7 @@ function toRideRow(row: RidePageRow): RideRow {
 		movingS: row.moving_time_s,
 		elapsedS: row.elapsed_time_s,
 		elevationGainM: row.elevation_gain_m,
+		name: row.name,
 		result:
 			row.result_id === null
 				? null

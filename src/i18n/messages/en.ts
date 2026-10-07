@@ -10,6 +10,7 @@ export const en: Catalog = {
 	"brand.connectWithStrava.alt": "Connect with Strava",
 	"brand.poweredByStrava.src": "/strava/en/powered-by-strava.svg",
 	"brand.poweredByStrava.alt": "Powered by Strava",
+	"brand.viewOnStrava": "View on Strava",
 
 	"layout.switcher.label": "Language",
 	"layout.logout": "Sign out",
@@ -20,11 +21,11 @@ export const en: Catalog = {
 	"landing.who": "Only members of {clubLink} can take part.",
 	"club.linkText": "our team club on Strava",
 	"landing.dataRead":
-		"From your rides we only read sport type, start time, distance, moving time, elapsed time including pauses, elevation gain, whether the ride was entered manually or ridden on an indoor trainer, and whether Strava has flagged it – no GPS tracks, maps, photos or health data.",
+		"From your rides we only read name, sport type, start time, distance, moving time, elapsed time including pauses, elevation gain, whether the ride was entered manually or ridden on an indoor trainer, and whether Strava has flagged it – no GPS tracks, maps, photos or health data.",
 	"landing.private":
 		'On Strava you decide whether your private ("Only You") activities are included: Strava lists this as viewing your private activities. If you untick it, your private rides don\'t count for Rynke.',
 	"landing.purpose":
-		"We use the data only for the team's Rynke (points) and events. Nobody but you sees your individual rides.",
+		"We use the data only for the team's Rynke (points) and events. Nobody but you sees your individual rides or their names.",
 	"landing.leave":
 		"You can leave at any time: on your RynkePoints page, or by removing RynkePoints in your Strava settings. We then delete all data about you, including your Rynke; on your RynkePoints page we confirm it right away. If you leave the club, we delete your data within 24 hours.",
 	"landing.backups":

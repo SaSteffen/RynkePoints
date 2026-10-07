@@ -4,7 +4,7 @@
 // exact at every rule boundary: elevation in whole decimetres, limits compared
 // by cross-multiplication, shares as fractions (research R3).
 
-import type { ActivityRecord } from "../strava/activity";
+import type { ActivityRow } from "../strava/activity";
 import {
 	assertValidRules,
 	type CountingWindow,
@@ -255,7 +255,7 @@ function sums(results: RideResult[], rules: RynkeRules): RidingSums {
 }
 
 /** Maps a stored `activities` row to the evaluation's input. */
-export function rideFromRow(row: ActivityRecord): Ride {
+export function rideFromRow(row: ActivityRow): Ride {
 	return {
 		activityId: row.strava_activity_id,
 		sportType: row.sport_type,

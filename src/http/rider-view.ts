@@ -161,6 +161,8 @@ export interface Pager {
 
 export interface RideLine {
 	activityId: number;
+	/** Strava's name of the ride, shown only to its rider (008 FR-008). */
+	name: string | null;
 	startDateLocal: string;
 	sportType: CyclingSportType;
 	distanceM: number;
@@ -462,6 +464,7 @@ function rideLine(ride: RideRow, context: ViewContext): RideLine {
 			: [];
 	return {
 		activityId: ride.activityId,
+		name: ride.name,
 		startDateLocal: ride.startDateLocal,
 		sportType: ride.sportType,
 		distanceM: ride.distanceM,

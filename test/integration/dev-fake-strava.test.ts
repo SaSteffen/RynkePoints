@@ -590,6 +590,34 @@ describe("simulated Strava events (US3)", () => {
 		).toBe(0);
 	});
 
+	it("reports a rename as a title change (008 research R9)", async () => {
+		const id = await newestFake(FIONA);
+		const res = await post("/_dev/events", [
+			["athleteId", String(FIONA)],
+			["action", "update"],
+			["activityId", String(id)],
+			["name", "Synthetic renamed"],
+		]);
+		expect(res.status).toBe(303);
+		// The webhook turns `updates` into its keys: only the title changed.
+		const events = ctx.queue.sent
+			.map((m) => m.body)
+			.filter((body) => body.kind === "activity-event");
+		expect(events).toEqual([
+			{
+				kind: "activity-event",
+				athleteId: FIONA,
+				activityId: id,
+				aspect: "update",
+				changed: ["title"],
+			},
+		]);
+		await drain();
+		expect(await mePage(FIONA)).toContain(
+			'<span class="ride-name">Synthetic renamed</span>',
+		);
+	});
+
 	it("drops a ride turned private for a rider without activity:read_all", async () => {
 		const id = await count(
 			`SELECT MIN(a.strava_activity_id) AS n FROM activities a
@@ -626,5 +654,45 @@ describe("simulated Strava events (US3)", () => {
 				),
 			).toBe(0);
 		}
+	});
+});
+
+describe("links to Strava (008 research R9)", () => {
+	beforeEach(async () => {
+		expect((await get("/_dev/")).status).toBe(200);
+		await drain();
+	});
+
+	async function fakeRides(athleteId: number) {
+		const { results } = await env.DB.prepare(
+			"SELECT id, json_extract(body, '$.name') AS name FROM fake_strava_activities WHERE athlete_id = ?",
+		)
+			.bind(athleteId)
+			.all<{ id: number; name: string }>();
+		return new Map(results.map((r) => [r.id, r.name]));
+	}
+
+	it("sends the rider page's links to the stand-in, never to Strava", async () => {
+		const page = await mePage(TINA);
+		expect(page).not.toContain("https://www.strava.com/activities/");
+		const hrefs = [
+			...page.matchAll(/<a class="tap strava-activity" href="([^"]*)">/g),
+		].map(([, href]) => href ?? "");
+		expect(hrefs.length).toBeGreaterThan(0);
+		const ids = await fakeRides(TINA);
+		for (const href of hrefs) {
+			const id = Number(href.match(/^\/_dev\/strava\/activities\/(\d+)$/)?.[1]);
+			expect(ids.has(id)).toBe(true);
+		}
+	});
+
+	it("shows the fake ride on the stand-in page", async () => {
+		const [first] = await fakeRides(TINA);
+		if (!first) throw new Error("Tina has no fake rides");
+		const [id, name] = first;
+		const res = await get(`/_dev/strava/activities/${id}`);
+		expect(res.status).toBe(200);
+		expect(await res.text()).toContain(name);
+		expect((await get("/_dev/strava/activities/1")).status).toBe(404);
 	});
 });

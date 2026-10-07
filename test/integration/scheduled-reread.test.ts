@@ -74,6 +74,24 @@ describe("scheduled: figures re-read", () => {
 		expect(await figuresVersion()).toBe(ACTIVITY_FIGURES_VERSION);
 	});
 
+	it("re-reads a rider at version 2 for ride names, once (008 FR-006)", async () => {
+		await seedRider(ctx, { figuresVersion: 2 });
+		await runCron();
+		expect(rereads()).toEqual([
+			{
+				kind: "reread-page",
+				athleteId: ATHLETE_A,
+				page: 1,
+				after: seasonStart(env),
+			},
+		]);
+		expect(await figuresVersion()).toBe(ACTIVITY_FIGURES_VERSION);
+
+		ctx.queue.sent.length = 0;
+		await runCron();
+		expect(rereads()).toEqual([]);
+	});
+
 	it("skips a needs_reconnect rider at version 1", async () => {
 		await seedRider(ctx, {
 			athleteId: ATHLETE_B,

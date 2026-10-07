@@ -53,6 +53,7 @@ export function activityRecord(
 		is_flagged: 0,
 		is_private: 0,
 		refreshed_at: NOW,
+		name: null,
 		...overrides,
 	};
 }

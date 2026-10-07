@@ -1,10 +1,11 @@
-import type { ActivityRecord } from "../strava/activity";
+import type { ActivityRecord, ActivityRow } from "../strava/activity";
 
 // Stored cycling activities (data-model.md). Every write is an upsert keyed by
 // the Strava activity ID, so replays converge (FR-017). An upsert never moves
 // an activity to another rider. Writes are statements, so feature 003's
 // `applyAndEvaluate` can batch them with the rider's Rynke rows (research R11).
 
+// Without `name`: only the rider's own ride table reads it (008 research R7).
 const COLUMNS = `strava_activity_id, athlete_id, sport_type, start_date, start_date_local,
 	timezone, distance_m, moving_time_s, elapsed_time_s, elevation_gain_m,
 	is_manual, is_trainer, is_flagged, is_private, refreshed_at`;
@@ -14,13 +15,14 @@ export function upsertActivityStatement(db: D1Database, a: ActivityRecord) {
 		.prepare(
 			`INSERT INTO activities (strava_activity_id, athlete_id, sport_type, start_date,
 				start_date_local, timezone, distance_m, moving_time_s, elevation_gain_m,
-				is_private, refreshed_at, elapsed_time_s, is_manual, is_trainer, is_flagged)
-			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)
+				is_private, refreshed_at, elapsed_time_s, is_manual, is_trainer, is_flagged,
+				name)
+			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16)
 			ON CONFLICT (strava_activity_id) DO UPDATE SET
 				sport_type = ?3, start_date = ?4, start_date_local = ?5, timezone = ?6,
 				distance_m = ?7, moving_time_s = ?8, elevation_gain_m = ?9,
 				is_private = ?10, refreshed_at = ?11, elapsed_time_s = ?12,
-				is_manual = ?13, is_trainer = ?14, is_flagged = ?15
+				is_manual = ?13, is_trainer = ?14, is_flagged = ?15, name = ?16
 			WHERE activities.athlete_id = excluded.athlete_id`,
 		)
 		.bind(
@@ -39,6 +41,7 @@ export function upsertActivityStatement(db: D1Database, a: ActivityRecord) {
 			a.is_manual,
 			a.is_trainer,
 			a.is_flagged,
+			a.name,
 		);
 }
 
@@ -112,18 +115,22 @@ export async function listRecentActivities(
 	db: D1Database,
 	athleteId: number,
 	limit: number,
-): Promise<ActivityRecord[]> {
+): Promise<ActivityRow[]> {
 	const { results } = await db
 		.prepare(
 			`SELECT ${COLUMNS} FROM activities WHERE athlete_id = ?
 			ORDER BY start_date DESC, strava_activity_id DESC LIMIT ?`,
 		)
 		.bind(athleteId, limit)
-		.all<ActivityRecord>();
+		.all<ActivityRow>();
 	return results;
 }
 
-/** The rider's rows with any figure still unknown, for the re-read (R20). */
+/**
+ * The rider's rows with any figure still unknown, for the re-read (R20). The
+ * name is not a figure, so a missing one never costs a request (008 research
+ * R3).
+ */
 export async function listActivityIdsMissingFigures(
 	db: D1Database,
 	athleteId: number,

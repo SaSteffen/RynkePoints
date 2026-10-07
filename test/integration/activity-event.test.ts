@@ -131,6 +131,7 @@ describe("activity-event: create", () => {
 				is_flagged: 1,
 				is_private: 0,
 				refreshed_at: NOW,
+				name: `Synthetic ride ${A}`,
 			},
 		]);
 	});
@@ -176,17 +177,36 @@ describe("activity-event: update", () => {
 		expect(await rows()).toEqual([]);
 	});
 
-	it("ignores a title-only update without calling Strava", async () => {
+	it("refetches a title-only update and stores the new name (008 FR-004)", async () => {
 		await connectedRider();
 		addRide(A);
 		await deliver(msg(A, "create"));
-		const before = await rows();
-		fakeActivity(A).distance = 99_999;
+		const rynke = async () => ({
+			result: await env.DB.prepare(
+				`SELECT counts, reasons, distance_rynke, elevation_dm
+				FROM ride_results WHERE strava_activity_id = ?`,
+			)
+				.bind(A)
+				.first(),
+			balance: await env.DB.prepare(
+				`SELECT distance_rynke, elevation_rynke, training_rynke, team_rynke
+				FROM rynke_balances WHERE athlete_id = ?`,
+			)
+				.bind(ATHLETE_A)
+				.first(),
+		});
+		const before = await rynke();
+		expect(before.result).not.toBeNull();
+		expect(before.balance).not.toBeNull();
+		fakeActivity(A).name = "Synthetic renamed";
 		fake.calls.length = 0;
 		const { result } = await deliver(msg(A, "update", ["title"]));
 		expect(result.explicitAcks).toEqual(["m1"]);
-		expect(fake.calls).toEqual([]);
-		expect(await rows()).toEqual(before);
+		expect(fake.calls).toHaveLength(1);
+		expect(fake.callsTo("activity")).toHaveLength(1);
+		expect(await rows()).toMatchObject([{ name: "Synthetic renamed" }]);
+		// SC-004: a rename changes no Rynke.
+		expect(await rynke()).toEqual(before);
 	});
 
 	it.each([

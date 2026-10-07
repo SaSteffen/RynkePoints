@@ -61,6 +61,7 @@ function updatesFor(
 	after: FakeActivity,
 ): Record<string, string> {
 	const updates: Record<string, string> = {};
+	if (after.name !== before.name) updates.title = after.name;
 	if (after.sport_type !== before.sport_type) updates.type = after.sport_type;
 	if (after.private !== before.private) updates.private = String(after.private);
 	for (const key of [
@@ -79,6 +80,8 @@ function updatesFor(
 /** The activity after applying the form's non-empty fields. */
 function updated(activity: FakeActivity, form: Form): FakeActivity {
 	const next: FakeActivity = { ...activity };
+	const name = field(form, "name");
+	if (name) next.name = name;
 	const date = field(form, "date");
 	const time = field(form, "time");
 	if (date || time) {

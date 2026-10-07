@@ -27,7 +27,7 @@ import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 // own and only read), the stored consent (feature 004 FR-014), disconnecting
 // with deletion (FR-023), and signing out.
 
-/** The rider's current consent and who sees what, or that none is stored. */
+/** The rider's current consent, what is read and who sees what, or that none is stored. */
 async function consent(
 	ctx: Ctx,
 	i18n: I18n,
@@ -38,6 +38,7 @@ async function consent(
 	// The team's calendar day, passed as UTC midnight like the season start.
 	const date = i18n.formatDate(`${berlinDate(current.acceptedAt)}T00:00:00Z`);
 	return html`<p>${i18n.t("me.consent.accepted", { version: String(current.version), date })}</p>
+<p>${i18n.t("landing.dataRead")}</p>
 <p>${i18n.t("consent.organisers")}</p>
 <p>${i18n.t("consent.team")}</p>`;
 }

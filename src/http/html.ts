@@ -60,6 +60,9 @@ table.rides .num{white-space:nowrap;text-align:right}
 tr.ride td{border-top:1px solid #ddd}
 tr.ride-details td{padding-top:0;font-size:.875rem;color:#666}
 tr.ride-details ul,tr.ride-details p{margin:.25rem 0}
+tr.ride-details p.ride-strava{margin:0}
+a.strava-activity{font-weight:700;text-decoration:underline}
+.ride-name{overflow-wrap:anywhere;color:#333}
 .ride-reasons{padding-left:1.25rem}
 .tap{display:inline-flex;align-items:center;min-height:44px;min-width:44px}
 nav.pager{display:flex;flex-wrap:wrap;gap:.5rem 1rem;margin-top:.5rem}

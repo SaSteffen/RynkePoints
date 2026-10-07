@@ -23,14 +23,6 @@ export const activityEvent: Handler<ActivityEventMessage> = async (
 	};
 
 	if (message.aspect === "delete") return remove();
-	// A title can't change anything we store.
-	if (
-		message.aspect === "update" &&
-		message.changed.length === 1 &&
-		message.changed[0] === "title"
-	) {
-		return { kind: "ok" };
-	}
 
 	const result = await getActivity(
 		ctx,

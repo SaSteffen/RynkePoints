@@ -876,7 +876,7 @@ describe("GET /me ride table (US1)", () => {
 		expect(html).toContain('<tr class="ride ride-counting">');
 		// No elevation Rynke per ride, anywhere (FR-040).
 		const details = html.match(/<tr class="ride-details">([\s\S]*?)<\/tr>/);
-		expect(text(details?.[1] ?? "")).toBe("Radfahrt · 1.240 m");
+		expect(text(details?.[1] ?? "")).toBe("View on Strava Radfahrt · 1.240 m");
 	});
 
 	it("S1-7: shows a ride that doesn't count with nothing", async () => {
@@ -920,7 +920,9 @@ describe("GET /me ride table (US1)", () => {
 		});
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		const details = html.match(/<tr class="ride-details">([\s\S]*?)<\/tr>/);
-		expect(text(details?.[1] ?? "")).toBe("Virtuelle Fahrt · 300 m · virtuell");
+		expect(text(details?.[1] ?? "")).toBe(
+			"View on Strava Virtuelle Fahrt · 300 m · virtuell",
+		);
 	});
 
 	it("labels the columns", async () => {
@@ -1083,6 +1085,54 @@ describe("GET /me paging (US5)", () => {
 					/^SCAN (a|c|activities)\b/.test(step) && !step.includes("USING"),
 			),
 		).toEqual([]);
+	});
+
+	/** The `href` and text of every link to Strava, and the detail-row count. */
+	async function stravaLinks(path: string, acceptLanguage?: string) {
+		const { html } = await riderPage(ctx, ATHLETE_A, path, acceptLanguage);
+		return {
+			details: html.match(/<tr class="ride-details">/g)?.length ?? 0,
+			links: [
+				...html.matchAll(
+					/<a class="tap strava-activity" href="([^"]*)">([\s\S]*?)<\/a>/g,
+				),
+			].map(([, href, label]) => ({ href, text: text(label ?? "") })),
+		};
+	}
+
+	/** Seeded by `seedRides`, ride n (1 = newest) has ID 8_000_000 + n. */
+	const hrefs = (from: number, to: number) =>
+		Array.from(
+			{ length: to - from + 1 },
+			(_, i) => `https://www.strava.com/activities/${8_000_000 + from + i}`,
+		);
+
+	it("SC-001: links every ride on pages 1 and 3 to Strava (008 FR-009)", async () => {
+		await seedRides(ATHLETE_A, 45, "2026-10-06");
+		for (const [path, expected] of [
+			["/me?page=1", hrefs(1, 20)],
+			["/me?page=3", hrefs(41, 45)],
+		] as const) {
+			const page = await stravaLinks(path);
+			expect(page.links.map((link) => link.href)).toEqual(expected);
+			expect(page.links).toHaveLength(page.details);
+			expect(new Set(page.links.map((link) => link.text))).toEqual(
+				new Set(["View on Strava"]),
+			);
+		}
+		const english = await stravaLinks("/me?page=1", "en");
+		expect(english.links.map((link) => link.href)).toEqual(hrefs(1, 20));
+		expect(new Set(english.links.map((link) => link.text))).toEqual(
+			new Set(["View on Strava"]),
+		);
+	});
+
+	it("links a private ride like any other (008 FR-011, S1-3)", async () => {
+		await seedRide(ATHLETE_A, { id: 8_900_201, is_private: 1 });
+		const page = await stravaLinks("/me");
+		expect(page.links.map((link) => link.href)).toEqual([
+			"https://www.strava.com/activities/8900201",
+		]);
 	});
 });
 
