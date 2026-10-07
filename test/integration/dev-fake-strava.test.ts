@@ -432,6 +432,15 @@ describe("sample riders in every state (US2)", () => {
 		expect((await mePage(PAULA)).match(/<tr class="ride /g)).toHaveLength(20);
 	});
 
+	it("enters Paula Paging's team events, one that doesn't count", async () => {
+		await seeded();
+		const list = (await mePage(PAULA)).split('class="rynke-events">')[1] ?? "";
+		const items = list.slice(0, list.indexOf("</ul>"));
+		expect(items.match(/<li/g)).toHaveLength(4);
+		expect(items.match(/event-not-counting/g)).toHaveLength(1);
+		expect(items).toContain("Sample cornering");
+	});
+
 	it("hides Olli OptionalDenied's private rides", async () => {
 		await seeded();
 		expect((await riderRow(OLLI))?.scope_read_all).toBe(0);

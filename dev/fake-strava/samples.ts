@@ -1,3 +1,4 @@
+import type { TeamEventKind } from "../../src/rynke/team-events";
 import type { FakeActivity } from "./store";
 
 // The sample riders of fake mode, one per state of the rider page
@@ -27,6 +28,14 @@ export interface RideRecipe {
 	private?: boolean;
 }
 
+/** A team event the rider attended, entered through the app on seeding. */
+export interface EventRecipe {
+	/** Days before the seeding day; `null` is the day before the season start. */
+	daysAgo: number | null;
+	kind: TeamEventKind;
+	name: string | null;
+}
+
 export interface SampleRider {
 	athleteId: number;
 	firstName: string;
@@ -37,6 +46,7 @@ export interface SampleRider {
 	clubMember: boolean;
 	behaviour: Behaviour;
 	rides: readonly RideRecipe[];
+	events?: readonly EventRecipe[];
 }
 
 /** `count` rides from `recipe(i)`, i = 0 … count − 1. */
@@ -161,7 +171,8 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	{
 		athleteId: 990007,
 		firstName: "Paula Paging",
-		state: "More rides than one page (45; 20 per page)",
+		state:
+			"More rides than one page (45; 20 per page) and team events, one before the season start",
 		scopes: ALL_SCOPES,
 		clubMember: true,
 		behaviour: "normal",
@@ -169,6 +180,13 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(45, (i) =>
 			ride(1 + Math.floor(i / 2), i % 2 === 0 ? "07:00" : "17:00", 20, 100, 20),
 		),
+		events: [
+			{ daysAgo: 3, kind: "team_training", name: "Sample team training" },
+			{ daysAgo: 10, kind: "training_weekend_day", name: null },
+			{ daysAgo: 10, kind: "technique_training", name: "Sample cornering" },
+			// Doesn't count: before the season start.
+			{ daysAgo: null, kind: "team_training", name: null },
+		],
 	},
 	{
 		athleteId: 990008,
@@ -213,6 +231,20 @@ export function dayBefore(day: string, days: number): string {
 	return new Date(Date.parse(`${day}T00:00:00Z`) - days * DAY_MS)
 		.toISOString()
 		.slice(0, 10);
+}
+
+/**
+ * The date of `recipe` on a seeding day `seedDay`; unlike a ride, never moved
+ * to the season start.
+ */
+export function eventDay(
+	recipe: EventRecipe,
+	seedDay: string,
+	seasonStart: string,
+): string {
+	return recipe.daysAgo === null
+		? dayBefore(seasonStart, 1)
+		: dayBefore(seedDay, recipe.daysAgo);
 }
 
 /** Europe/Berlin's offset from UTC at `epochMs`, in milliseconds. */
