@@ -17,7 +17,8 @@ ignores it.
    allows the leaderboard at all. Everything below depends on it.
 2. [organiser-admin.md](organiser-admin.md) — organiser pages for the inputs of
    feature 003 (team events, attendance, corrections, rules, recalculation).
-3. [rider-view.md](rider-view.md) — a rider's own balance and ride results.
+3. rider view — specified in [005-rider-view](../005-rider-view/spec.md); a
+   rider's own balance and ride results.
 4. [team-leaderboard.md](team-leaderboard.md) — the team leaderboard and the
    organiser overview (who qualified). The main purpose of the app.
 
