@@ -702,8 +702,8 @@ This feature stores nothing new. It reads:
   follow Strava's "View on Strava" guideline.
 - No history of a rider's own Rynke over time (e.g. a weekly graph) is shown here
   (FR-024); the team leaderboard (backlog) has the per-week view, and
-  [rider-progress-charts.md](../backlog/rider-progress-charts.md) is the prompt
-  for a rider's own charts.
+  [feature 009](../009-rider-progress-charts/spec.md) specifies a rider's
+  own charts.
 - The leaderboard, the organiser overview, the organiser pages and writing Rynke into
   Strava activity descriptions are separate features ([specs/backlog/](../backlog/README.md)).
 
