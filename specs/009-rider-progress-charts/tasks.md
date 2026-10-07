@@ -103,8 +103,8 @@ Its stored balance:
     progress event")` and `attendRaw`. It writes the stored balance above with
     `seedBalance`.
   - `EXAMPLE_TODAY = Date.UTC(2026, 9, 7, 10) / 1000`.
-  The `CountingRide` import comes from `src/db/rider-view.ts`. Until T010
-  lands, declare it locally with a `// T010 moves this` comment.
+  The `CountingRide` import comes from `src/db/rider-view.ts`. Until T015
+  lands, declare it locally with a `// T015 moves this` comment.
 - [ ] T005 [P] Export `ridingTotals` from `src/rynke/rides.ts`, test first. In
   `test/unit/rides.test.ts`, new `describe("ridingTotals (009 research R1)")`
   (failing):
@@ -154,7 +154,9 @@ in the URL ([contracts/http-routes.md](contracts/http-routes.md)).
     - `trainingWithoutVirtual` equals `training` every day.
   - **Elevation step**: 19 Sep is 46 and 20 Sep is 69. The step's 5 belong to
     the day whose ride passes 2000 m (spec edge case).
-  - **Floor of 0**: with no input, every entry is 0/0/0.
+  - **No input**: every entry is 0/0/0. The floor of 0 belongs to `tally` and
+    is tested in `test/unit/tally.test.ts` ("floors totals at 0 for negative
+    extras"). Without corrections, nothing can take a curve below 0.
   - **Dated after the last day**: with `lastDay` `2026-10-03`, the ride and
     the team training dated later count on 3 Oct. The last entry is then 112
     training and 17 team (research R2).
@@ -172,7 +174,9 @@ in the URL ([contracts/http-routes.md](contracts/http-routes.md)).
     - `seasonCurve(rides, attendance, CURRENT_RULES, WINDOW, "2026-08-31")`.
     - Its last entry's `training`, `team` and `trainingWithoutVirtual` equal
       `tally(evaluation.riding, extrasFromAttendance(events), CURRENT_RULES)`.
-      Riders whose `team` stand-in is not 0 compare without it.
+      A rider's `team` field is an `extras` stand-in for corrections (feature
+      003 Story 6). `seasonCurve` has no input for it, so the expected `tally`
+      leaves it out.
 - [ ] T007 [P] [US1] New `test/unit/progress-view.test.ts` (failing), for
   `src/http/progress-view.ts`. Use a `RiderViewRead` built from
   `EXAMPLE_RIDES`, `EXAMPLE_ATTENDANCE` and the example balance, and `today`
@@ -191,6 +195,15 @@ in the URL ([contracts/http-routes.md](contracts/http-routes.md)).
     - `3m` is not offered: its start, 2026-07-08, is not after the season start.
     - With `lastDay` 2027-05-31 and the deadline axis, `3m` is 2027-03-01 …
       2027-05-31 (28 February + 1 day).
+    - **Offered only once it starts after the season start** (FR-020), also
+      with the deadline 2027-05-31, where a cut-off preset would still be
+      shorter than the axis:
+      - `today` 2026-11-30: `3m` is not offered (it would start on
+        2026-08-31).
+      - `today` 2026-12-01: `3m` is 2026-09-02 … 2026-12-01.
+      - `today` 2026-09-28: `4w` is not offered (it would start on the season
+        start).
+      - `today` 2026-09-29: `4w` is 2026-09-02 … 2026-09-29.
   - **`parsePeriod`**:
     - `?period=4w` gives the preset, and `?period=3m` while not offered gives
       the season.
@@ -250,6 +263,16 @@ in the URL ([contracts/http-routes.md](contracts/http-routes.md)).
   - **`nearestDay`**: fraction 0 gives `from` and 1 gives `to`. Within the
     period, the nearest day wins, and a day after `lastDay` gives `lastDay`.
   - **`markerPath`** for a day is a vertical `M<x> 0V100`.
+  - **`dayReadout(text, day, intlLocale)`** (FR-030, SC-003):
+    - With `text.day` `"{date}: {training} Trainingsrynke, {team} Teamrynke"`,
+      the day `{ date: "2026-09-20", training: 69, team: 11 }` and `"de-DE"`,
+      it is exactly `"Sonntag, 20.09.2026: 69 Trainingsrynke, 11 Teamrynke"`
+      (US1 scenario 13, research R9).
+    - The date uses `Intl.DateTimeFormat(intlLocale, { weekday: "long", day:
+      "2-digit", month: "2-digit", year: "numeric", timeZone: "UTC" })`.
+    - A total of 1234 shows as `"1.234"` (`Intl.NumberFormat`).
+    - It takes only the date and the totals, so nothing about rides, events
+      or corrections can reach the readout.
   - **`keyAction`**:
     - `ArrowLeft`/`ArrowRight` step ±1;
     - `+` and `=` zoom in, `-` zooms out;
@@ -266,6 +289,13 @@ in the URL ([contracts/http-routes.md](contracts/http-routes.md)).
     - `"?page=2"`;
     - `"?period=4w"` when the period equals that preset;
     - `"?page=2&from=2026-09-14&to=2026-09-20"`.
+  - **No requests, no storage** (FR-003, constitution I): read
+    `public/progress/*.js` with `import.meta.glob(…, { query: "?raw", import:
+    "default", eager: true })`, as `test/unit/dev-guard.test.ts` does (its
+    `ImportMeta.glob` declaration is global). Neither file contains `fetch(`,
+    `XMLHttpRequest`, `WebSocket`, `sendBeacon`, `cookie`, `localStorage` or
+    `sessionStorage`. This case is a guard: it already passes against T002's
+    stubs.
 - [ ] T009 [P] [US1] New `test/integration/me-progress.test.ts` (failing). Use
   `makeCtx({ now: EXAMPLE_TODAY })`, `resetDb`, `installFakeStrava`,
   `seedRider(ctx, { athleteId: ATHLETE_A })` and `seedExampleRider(ATHLETE_A)`.
@@ -411,6 +441,8 @@ in the URL ([contracts/http-routes.md](contracts/http-routes.md)).
     - `xTicks` as `{ left, label }`.
   - `xTicks` labels use `Intl.DateTimeFormat(intlLocale, { timeZone: "UTC",
     ... })`.
+  - `dayReadout` fills `text.day` (research R9). The script only puts its
+    result into the readout.
   - In `contracts/rider-page.md`, change the example `L27.03 93` to match
     T008's formula for 37 days (`L27.78`).
 
@@ -419,7 +451,8 @@ in the URL ([contracts/http-routes.md](contracts/http-routes.md)).
   no clock, no text):
   - `Period`, `WeekRow` and `ProgressView` as in data-model.md, with US2's
     fields always `null` for now.
-  - `presets(lastDay, seasonStart)` as in research R8.
+  - `presets(lastDay, seasonStart)` as in research R8: a preset is offered
+    only when its start is after `seasonStart`, whatever the axis end.
   - `parsePeriod(url, axis, offered)`. Dates are checked with `isCalendarDate`
     from `src/rynke/rules.ts`, and clamped with `clampPeriod` from
     `../../public/progress/chart.js`.
@@ -512,9 +545,8 @@ in the URL ([contracts/http-routes.md](contracts/http-routes.md)).
     - calls `history.replaceState(null, "", "/me" + periodQuery(...) +
       "#progress")`;
     - sets `header input[name=next]` to `/me` + that query.
-  - **Selecting a day**: sets `markerPath` in both charts and fills the readout
-    from `text.day`. It formats with `Intl.NumberFormat`/`DateTimeFormat`
-    (`intlLocale`).
+  - **Selecting a day**: sets `markerPath` in both charts and writes
+    `dayReadout(text, day, intlLocale)` into the readout.
   - If anything throws, nothing replaces the server markup (FR-052).
   - No `fetch`, cookie or storage.
 
@@ -588,8 +620,8 @@ balance:
     100) on the season start to the threshold's y on the deadline.
   - `paceOn(250, 34, 273)` is 31 and `paceOn(25, 34, 273)` is 3 (US2
     scenario 1).
-  - `dayReadout(text, …)` on 4 October contains "112", "Tempo: 31" and "81 vor
-    dem Tempo". Behind the pace it gives "… hinter dem Tempo", and on the pace
+  - `dayReadout` (T008), given the pace on 4 October, contains "112", "Tempo:
+    31" and "81 vor dem Tempo". Behind the pace it gives "… hinter dem Tempo", and on the pace
     "genau im Tempo". It never says a rule was broken (US2 scenario 5).
 - [ ] T030 [P] [US2] New `test/unit/progress-section.test.ts` (failing), because
   no stored rules version has a deadline yet. Call `renderProgress(createI18n("de",
@@ -616,7 +648,9 @@ balance:
 - [ ] T032 [P] [US2] Add the 7 US2 `progress.*` keys of contracts/messages.md to
   `src/i18n/messages/de.ts` and `en.ts`.
 - [ ] T033 [US2] In `public/progress/chart.js`:
-  - add `pacePath`, `paceOn` and `dayReadout`;
+  - add `pacePath` and `paceOn`;
+  - extend `dayReadout` with the pace, ahead/behind/on pace and the Training
+    Rynke without virtual rides (FR-030);
   - `drawChart` takes optional `pace` and `withoutVirtual` and returns their
     paths and the `needed` line;
   - `.line-pace`, `.line-without-virtual` and `.line-needed` are already in the
@@ -634,8 +668,8 @@ balance:
 - [ ] T035 [US2] In `src/http/progress-section.ts`, render the additions of
   contracts/rider-page.md: the paths, the legend entries, the label at 167, the
   table column `rynke.withoutVirtual`, and the JSON's `pace`,
-  `withoutVirtual` and extra `text`. In `public/progress/progress.js`, the
-  readout uses `dayReadout`. T027, T030 and T031 pass.
+  `withoutVirtual` and extra `text`. In `public/progress/progress.js`, pass the
+  pace and the day's `trainingWithoutVirtual` to `dayReadout`. T027, T030 and T031 pass.
 
 **Checkpoint**: PR 2 (US2) is ready. Nothing PR 1 shows is taken away (FR-004).
 
@@ -702,3 +736,7 @@ US2 code:     T032, T033, T034 together; then T035.
 - The `pnpm dev` walk-through and the checks with real phones, the wheel and a
   screen reader happen on the live site after release and get no task (memory
   "manual tests after deploy").
+- SC-005 (the page within 2 s at 500 rides, interactions within 0.5 s) has no
+  automated check either. In workerd the clock only advances on I/O, so a
+  timing test of the rebuild would always pass. Research R14 estimates it, and
+  the live-site check after release confirms it.

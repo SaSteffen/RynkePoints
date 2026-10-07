@@ -222,8 +222,10 @@ with a reason, not `any`.
   period (FR-026). Pager links keep the period, and period links keep the page.
 - **Last 4 weeks** is the 28 days ending on the last day (10 September – 7
   October in US1 scenario 3). **Last 3 months** starts on the same day number
-  three calendar months back, plus one day. Either is offered only if it is
-  shorter than the axis (FR-020).
+  three calendar months back, plus one day. Either is offered only once it
+  starts after the season start, so it is never cut off (FR-020). With the
+  deadline 31 May 2027, "last 3 months" is offered from 1 December 2026 (2
+  September – 1 December), not on 30 November (it would start on 31 August).
 
 **Rationale**: without the script the URL is the only state there is. With it,
 the same URL keeps reloads and language switches consistent. Using no cookie and
@@ -243,9 +245,10 @@ no storage follows Principle I.
 - From US2, the pace and the virtual-ride figure join it.
 - Both charts draw a vertical marker on that day.
 - Without the script the readout is hidden and the table carries the figures.
-- The text comes from catalog templates passed in the chart data (R10); the
-  script only fills `{placeholders}` and formats with
-  `Intl.*Format(intlLocale)`.
+- The text comes from catalog templates passed in the chart data (R10).
+  `dayReadout` in `chart.js` fills the `{placeholders}` and formats with
+  `Intl.*Format(intlLocale)`, so the readout is unit-tested; the script only
+  puts its result into the readout.
 
 **Rationale**: one readout for both charts matches D3/D4 ("date and totals of the
 tapped day"). It avoids a tooltip covering the curve on a 360 px screen, and it
@@ -331,7 +334,9 @@ colours and fonts without changing what is drawn (FR-072).
   - zoom, move and clamp;
   - nearest day;
   - the keyboard map;
-  - the gesture classification (tap / drag / vertical swipe).
+  - the gesture classification (tap / drag / vertical swipe);
+  - the readout of a day (`dayReadout`);
+  - that neither browser file makes a request or keeps storage.
 - `test/unit/progress-view.test.ts`:
   - period parsing and offering;
   - the "last 4 weeks" and "last 3 months" bounds;
@@ -347,7 +352,7 @@ colours and fonts without changing what is drawn (FR-072).
   - no ride names or links;
   - German and English;
   - no writes, queue messages or Strava calls (SC-006).
-- `lang.test.ts`: `safeNext` with the period parameters.
+- `lang-switcher.test.ts`: `safeNext` with the period parameters.
 - `catalogs.test.ts` and `no-hardcoded-copy.test.ts` cover the new keys.
 
 The browser glue (`progress.js`) only connects DOM events to `chart.js`'s tested

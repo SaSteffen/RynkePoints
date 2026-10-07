@@ -72,8 +72,9 @@ plus static assets).
 
 **Scale/Scope**:
 - ≤ 10 riders, ≤ 500 rides each, a season of ≤ about 400 days.
-- About 6 source files touched and 4 new (2 in `public/`), 18 + 7 catalog keys,
-  and 4 new test files plus 4 extended.
+- About 9 source files touched and 5 new (2 in `public/`), 18 + 7 catalog keys.
+- 5 new test files and 2 new test support files; 9 test files and
+  `test/support/pages.ts` extended ([tasks.md](tasks.md)).
 
 ## Constitution Check
 
@@ -112,15 +113,13 @@ plus static assets).
 
 Within PR 1, tasks follow the dependencies:
 1. `ridingTotals`;
-2. `seasonCurve`;
-3. the read;
-4. the view model;
-5. `chart.js`;
-6. the server markup;
-7. the period in the URL and `safeNext`;
-8. the browser script;
-9. the catalogs;
-10. the diagram check (FR-092).
+2. `seasonCurve`, the read, `chart.js`, the catalogs and the HTML helper;
+3. the view model;
+4. the server markup;
+5. the period in the URL and `safeNext`;
+6. the copy guard;
+7. the browser script;
+8. the diagram check (FR-092).
 
 ## Project Structure
 
@@ -154,6 +153,7 @@ src/
 ├── http/rider-sections.ts            # pager links keep the period
 ├── http/lang.ts                      # safeNext accepts the period query
 ├── http/html.ts                      # CSS; JSON escaping helper
+├── i18n/i18n.ts                      # template(id): a message with its placeholders
 └── i18n/messages/{de,en}.ts          # progress.* keys
 
 public/
@@ -167,8 +167,10 @@ tsconfig.json                         # allowJs, checkJs, include public/progres
 package.json                          # typecheck runs both tsconfigs
 
 test/
-├── unit/        curve (new), progress-view (new), chart (new), rides, catalogs, html
-└── integration/ me-progress (new), lang-switcher, no-hardcoded-copy
+├── support/     reference-riders (new, moved), progress (new), pages
+├── unit/        curve, progress-view, chart, progress-section (new); rides,
+│                reference-riders, catalogs, i18n, html, rider-sections, rider-view
+└── integration/ me-progress (new); lang-switcher, no-hardcoded-copy
 ```
 
 **Structure Decision**: the existing single-Worker layout.

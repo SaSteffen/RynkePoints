@@ -106,7 +106,7 @@ type ProgressView =
 			axis: { start: string; end: string };  // FR-013; end ≥ start + 6
 			lastDay: string;                       // research R2
 			period: Period;
-			presets: ("season" | "3m" | "4w")[];   // only those shorter than the axis
+			presets: ("season" | "3m" | "4w")[];   // 3m/4w only once they start after the season start (FR-020)
 			days: DayTotals[];                     // seasonStart … lastDay
 			thresholds: { training: number; team: number };
 			yMax: { training: number; team: number };    // research R5

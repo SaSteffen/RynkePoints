@@ -232,9 +232,9 @@ on GitHub and agrees with the requirements.
 - **No balance stored yet**: no charts, the page's "still being worked out" notice
   (feature 005 FR-015) applies.
 - **Past-season import still running**: the curves are real but incomplete; the
-  section repeats that the Rynke will grow as rides are imported (feature 005
-  FR-052). Rides imported later fill in their own days, so earlier parts of the curve
-  can rise afterwards.
+  page's notice that the Rynke will grow as rides are imported (feature 005
+  FR-052) covers the section too (FR-042). Rides imported later fill in their own
+  days, so earlier parts of the curve can rise afterwards.
 - **Rule change**: under feature 003 FR-021 new rules apply to the whole season as if
   they had always applied, so the whole curve changes, not only its end. The charts
   are labelled with the rules version they were computed with and say that they show
@@ -258,10 +258,11 @@ on GitHub and agrees with the requirements.
 - **Deadline passed**: the curves end on the deadline and stay flat after it; the time
   axis ends on the deadline.
 - **Season just started**: the axis spans the days so far, at least one week; the
-  period buttons that would reach before the season start show the whole season.
+  period buttons that would start on or before the season start are not offered
+  (FR-020).
 - **Deadline less than 3 months away from the season start, or no deadline and fewer
-  than 3 months of season**: "last 3 months" equals the whole season and is not
-  offered.
+  than 3 months of season**: "last 3 months" never starts after the season start,
+  so it is not offered all season.
 - **Language switch**: the section switches immediately and keeps its period; dates,
   numbers and month names follow the page language (feature 005 FR-061).
 - **A whole season of rides** (up to 500, feature 001 SC-008): the charts and the
@@ -338,12 +339,17 @@ on GitHub and agrees with the requirements.
 
 - **FR-020**: The section MUST offer the periods "whole season", "last 3 months" and
   "last 4 weeks", ending today (or on the deadline once passed); "whole season" is
-  shown first. A period that would equal the whole season is not offered.
+  shown first. "Last 3 months" and "last 4 weeks" are offered only once they
+  start after the season start, so each always shows its full length; with a
+  deadline set, "last 3 months" is therefore not offered before the season is
+  3 months old, even though it would be shorter than the time axis.
 - **FR-021**: All charts of the section MUST always show the same period.
 - **FR-022**: The rider MUST be able to zoom into any stretch of the shown season
   and out again, by pinching or dragging across a chart on a touch screen, by the
   mouse wheel or dragging across a chart with a mouse, and by the keyboard. The
-  shortest period is 7 days, the longest the whole time axis (FR-013).
+  mouse wheel zooms a chart only once it has been clicked or focused, so the page
+  still scrolls under the pointer. The shortest period is 7 days, the longest the
+  whole time axis (FR-013).
 - **FR-023**: When zoomed in, the rider MUST be able to move the period backwards and
   forwards in time, no further than the season start and the end of the time axis,
   and to reset it to the whole season.
@@ -488,7 +494,8 @@ curve with the balance, as a derived value of the same rules version). It reads:
   Rynke in the last 4 weeks.
 - **SC-002**: For feature 003's reference set of at least 20 hand-calculated
   synthetic riders, the last point of every curve equals the stored balance in 100%
-  of cases, and every weekly figure in the table equals the hand-calculated one.
+  of cases. Every weekly figure in the example rider's table equals the
+  hand-calculated one.
 - **SC-003**: The totals shown for 100% of tested days equal the figures worked out
   by hand, and none of them lists a ride, team event or correction.
 - **SC-004**: 0 charts, axes, lines, bars or day totals show a distance, elevation in
@@ -535,6 +542,10 @@ curve with the balance, as a derived value of the same rules version). It reads:
   charts for its week-by-week graph.
 - The pace line is a guide for the rider, not a rule of feature 003; it only exists
   when a deadline is set.
+- **Corrections** (feature 003 Story 6) are not built yet, so nothing stores one.
+  Until they are, the curves have no correction input and the requirements and
+  edge cases about corrections have nothing to show; they apply as soon as
+  corrections are stored, each on its date like a team event.
 - Interactivity (zoom, pointing at a day) probably needs scripts in the browser,
   which the site does not use yet. Per constitution Principle IV, a charting library
   is only added if the plan justifies it; the charts must stay usable without the
@@ -632,7 +643,7 @@ flowchart TB
         before["Greeting, status, summary, gauges, breakdown,<br/>rules (features 001, 005)"]
         subgraph section["Progress section (this spec)"]
             direction TB
-            label["Rules version 1 · whole season under these rules (FR-040)"]
+            label["Rules version 2 · whole season under these rules (FR-040)"]
             periods["[ Whole season ] [ Last 3 months ] [ Last 4 weeks ] · Reset"]
             c1["US1 · Training Rynke chart, zoomable<br/>curve 0 → 112, line at 250<br/>US2 · pace line, curve without virtual rides + line at 167"]
             c2["US1 · Team Rynke chart, zoomable<br/>curve 0 → 17, line at 25<br/>US2 · pace line"]
@@ -699,17 +710,17 @@ sequenceDiagram
     participant P as Rider page
     actor R as Rider
 
-    O->>S: rules version 2 (e.g. 8 per 1000 m)
+    O->>S: rules version 3 (e.g. 8 per 1000 m)
     S->>E: recalculation of all riders
     R->>P: open page
     P->>S: balance, ride results, attendance, corrections
-    S-->>P: still version 1
-    P-->>R: version 1 curves, labelled, under the "being updated" notice
-    E->>S: rider's results, version 2
+    S-->>P: still version 2
+    P-->>R: version 2 curves, labelled, under the "being updated" notice
+    E->>S: rider's results, version 3
     R->>P: open page again
     P->>S: read again
-    S-->>P: version 2
-    P-->>R: whole curve redrawn under version 2,<br/>also its past days, no notice
+    S-->>P: version 3
+    P-->>R: whole curve redrawn under version 3,<br/>also its past days, no notice
 ```
 
 ### D7. Example rider: season curves
@@ -718,7 +729,7 @@ Training Rynke at the end of each week, with the Training threshold:
 
 ```mermaid
 xychart-beta
-    title "Training Rynke over the season (rules version 1)"
+    title "Training Rynke over the season (rules version 2)"
     x-axis ["6 Sep", "13 Sep", "20 Sep", "27 Sep", "4 Oct", "7 Oct"]
     y-axis "Training Rynke" 0 --> 260
     line [21, 30, 69, 80, 112, 112]
@@ -729,7 +740,7 @@ Team Rynke at the end of each week, with the Team threshold:
 
 ```mermaid
 xychart-beta
-    title "Team Rynke over the season (rules version 1)"
+    title "Team Rynke over the season (rules version 2)"
     x-axis ["6 Sep", "13 Sep", "20 Sep", "27 Sep", "4 Oct", "7 Oct"]
     y-axis "Team Rynke" 0 --> 26
     line [1, 1, 11, 16, 17, 17]
