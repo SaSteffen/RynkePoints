@@ -89,7 +89,10 @@ interface Gauges {
 	training: Gauge;
 	team: Gauge;
 	withoutVirtual: Gauge | null;
-	elevation: Gauge;  // value/target in dm within the current step (FR-021)
+	elevation: ElevationGauge;  // value/target in dm within the current step (FR-021)
+}
+interface ElevationGauge extends Gauge {
+	stepRynke: number;  // the Training Rynke of a step, for the caption
 }
 
 interface Gauge {

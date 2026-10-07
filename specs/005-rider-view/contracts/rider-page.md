@@ -64,7 +64,7 @@ elevation.
 
 ```html
 <figure class="gauge [gauge-reached]">
-  <figcaption>{rynke.gauge.caption label value target percent} [· ✓ {rynke.gauge.reached}]</figcaption>
+  <figcaption>{rynke.gauge.caption label value target percent} [· {rynke.gauge.reached}]</figcaption>
   <div class="gauge-bar" aria-hidden="true">
     <span class="gauge-part gauge-part-1" style="width:28.00%"></span>
     …                                  <!-- or one .gauge-fill span when undivided -->

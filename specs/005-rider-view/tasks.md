@@ -266,7 +266,7 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 2 (write first, confirm red) ⚠️
 
-- [ ] T020 [P] [US2] Extend `test/unit/rider-view.test.ts` with gauges (SC-009, research R7):
+- [X] T020 [P] [US2] Extend `test/unit/rider-view.test.ts` with gauges (SC-009, research R7):
   - **Percentages**: 249/250 → 99 and not reached; 250/250 and 262/250 → 100 and reached; 12/250 → 4; 0/25 → 0; 160/167 → 95.
   - **Elevation**: `elevationToNextStepDm` 7600 with a step of 1000 m → value 2400, target 10000, 24%. 10000 to the next step (3000 m) → 0%.
   - **Segments**: distance 70 and elevation 30 of 250 → `widthPercent` 28 and 12. Distance 200 and elevation 62 of 250 → widths summing to 100 in proportion. Parts of 0 are dropped.
@@ -274,7 +274,7 @@ The Team gauge stays undivided until US3b (research R5).
   - **Invariants**: `0 ≤ percent ≤ 100` and `percent === 100 ⇔ reached`, over a sweep of values 0…300 against 250.
   - **When gauges are absent**: `gauges` is `null` when the rules are `null`, and `withoutVirtual` is `null` without a virtual ride.
   - **FR-023**: `qualified` equals "every shown gauge reached" for synthetic balances covering each combination of met and unmet conditions.
-- [ ] T021 [P] [US2] Extend `test/integration/me-rynke.test.ts`:
+- [X] T021 [P] [US2] Extend `test/integration/me-rynke.test.ts`:
   - **S2-1**: the captions "Trainingsrynke: 12 von 250 · 4 %" and "Teamrynke: 0 von 25 · 0 %".
   - **S2-2**: 99 % without `gauge-reached`.
   - **S2-3**: 262 von 250 · 100 % with `gauge-reached` and "erreicht".
@@ -283,12 +283,12 @@ The Team gauge stays undivided until US3b (research R5).
   - **S2-8**: every gauge is reached, with "Du bist dabei".
   - **S2-9**: each `.gauge-bar` is `aria-hidden="true"`, and the legend lists "Distanz: 70" and "Höhenmeter: 30".
   - **Ordering**: `section.rynke-gauges` follows the summary (FR-026), and is absent in the not-worked-out state and for a balance with `rules_version` 99.
-- [ ] T022 [P] [US2] Extend `test/unit/catalogs.test.ts`'s `CONTRACT_IDS` with `units.percent`, `rynke.gauges.heading`, `rynke.gauge.caption`, `rynke.gauge.reached`, `rynke.gauge.elevation`, `rynke.source.distance` and `rynke.source.elevation`.
+- [X] T022 [P] [US2] Extend `test/unit/catalogs.test.ts`'s `CONTRACT_IDS` with `units.percent`, `rynke.gauges.heading`, `rynke.gauge.caption`, `rynke.gauge.reached`, `rynke.gauge.elevation`, `rynke.source.distance` and `rynke.source.elevation`.
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Add the US2 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Units", "Gauges").
-- [ ] T024 [US2] In `src/http/rider-view.ts`:
+- [X] T023 [P] [US2] Add the US2 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Units", "Gauges").
+- [X] T024 [US2] In `src/http/rider-view.ts`:
   - **Types**: add `Gauges`, `Gauge` and `GaugePart`, and `gauges: Gauges | null` on the ready state.
   - **`percent(value, target)`** = `Math.min(100, Math.floor((value * 100) / target))`.
   - **`gaugeParts(parts, target)`**:
@@ -302,21 +302,21 @@ The Team gauge stays undivided until US3b (research R5).
     - Elevation: `(stepDm − elevationToNextStepDm)` of `stepDm`.
   - **Absence**: `gauges` is `null` when `rules` is `null`.
   - Makes T020 green.
-- [ ] T025 [US2] In `src/http/rider-sections.ts`, add `renderGauges` per contracts/rider-page.md:
+- [X] T025 [US2] In `src/http/rider-sections.ts`, add `renderGauges` per contracts/rider-page.md:
   - one `figure.gauge` per gauge, stacked;
   - `gauge-reached` on a reached gauge, and the caption with `units.percent` and "· ✓ erreicht" when reached;
   - a `div.gauge-bar` with `aria-hidden="true"`, holding `span.gauge-part.gauge-part-N` with `style="width:NN.NN%"`, or one `span.gauge-fill` when the gauge is undivided;
   - `ul.gauge-legend` only when the gauge is divided.
   - The style attribute holds a number the view model computed, never user input.
-- [ ] T026 [US2] In `src/http/me.ts`, place `renderGauges` right after the summary when `view.gauges` isn't `null`. Makes T021 green.
-- [ ] T027 [US2] Extend `STYLE` in `src/http/html.ts` (research R7–R10):
+- [X] T026 [US2] In `src/http/me.ts`, place `renderGauges` right after the summary when `view.gauges` isn't `null`. Makes T021 green.
+- [X] T027 [US2] Extend `STYLE` in `src/http/html.ts` (research R7–R10):
   - `:root` colour variables `--rp-part-1` … `--rp-part-6`, `--rp-reached` and `--rp-track`;
   - `.gauge` as a block at 100% width;
   - `.gauge-bar`: about 1rem high, with the `--rp-track` background and `display:flex`;
   - `.gauge-part-N` and `.gauge-key.gauge-part-N` coloured by their variable, with a 2 px white gap between parts;
   - `.gauge-reached .gauge-fill` coloured `--rp-reached`;
   - the legend inline and wrapping.
-- [ ] T028 [US2] Check US2: everything is green, and quickstart §3 step 3 shows the gauges stacked at 360 px.
+- [X] T028 [US2] Check US2: everything is green, and quickstart §3 step 3 shows the gauges stacked at 360 px.
 
 **Checkpoint**: US1 and US2 work together. The numbers stay next to the gauges (FR-026).
 
