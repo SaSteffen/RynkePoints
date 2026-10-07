@@ -36,9 +36,12 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
 	if (event.request.mode !== "navigate") return;
+	// The notice is stored with `Vary: Accept-Language, Cookie`; its URL already
+	// holds the language, so it matches whatever the navigation sent.
 	event.respondWith(
 		fetch(event.request).catch(
-			async () => (await caches.match(OFFLINE)) ?? Response.error(),
+			async () =>
+				(await caches.match(OFFLINE, { ignoreVary: true })) ?? Response.error(),
 		),
 	);
 });

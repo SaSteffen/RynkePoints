@@ -40,6 +40,9 @@ function installHint() {
 		hint.hidden = false;
 	}
 
+	window.addEventListener("appinstalled", () => {
+		hint.hidden = true;
+	});
 	hint
 		.querySelector('[data-install="dismiss"]')
 		.addEventListener("click", () => {
