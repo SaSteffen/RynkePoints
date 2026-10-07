@@ -8,6 +8,18 @@
 // When raising `version`, keep the previous object in `RULES_HISTORY`: the rider
 // page explains stored results with the rules of the version they record
 // (feature 005, research R3).
+//
+// The team-event amounts are rule values too (FR-012). Version 2 is Story 3's
+// logic change: every evaluation counts attendance, with the same values as
+// version 1 (research R18).
+
+import { TEAM_EVENT_KINDS, type TeamEventKind } from "./team-events";
+
+/** What one attended event of a kind earns (FR-007). */
+export interface TeamEventAmounts {
+	team: number;
+	training: number;
+}
 
 /** A share `num / den`, kept as a fraction for exact comparisons (research R3). */
 export interface Share {
@@ -33,9 +45,10 @@ export interface RynkeRules {
 	trainingThreshold: number;
 	teamThreshold: number;
 	maxVirtualShare: Share;
+	teamEvents: Readonly<Record<TeamEventKind, TeamEventAmounts>>;
 }
 
-export const CURRENT_RULES: RynkeRules = {
+const RULES_V1: RynkeRules = {
 	version: 1,
 	effectiveDate: "2026-10-07",
 	distanceStepKm: 10,
@@ -51,10 +64,21 @@ export const CURRENT_RULES: RynkeRules = {
 	trainingThreshold: 250,
 	teamThreshold: 25,
 	maxVirtualShare: { num: 1, den: 3 },
+	teamEvents: {
+		team_training: { team: 1, training: 5 },
+		training_weekend_day: { team: 5, training: 10 },
+		technique_training: { team: 5, training: 5 },
+	},
+};
+
+export const CURRENT_RULES: RynkeRules = {
+	...RULES_V1,
+	version: 2,
+	effectiveDate: "2026-10-07",
 };
 
 /** Every version ever in effect, `CURRENT_RULES` being the highest. */
-export const RULES_HISTORY: readonly RynkeRules[] = [CURRENT_RULES];
+export const RULES_HISTORY: readonly RynkeRules[] = [RULES_V1, CURRENT_RULES];
 
 /** The rules of a stored version; `null` for a version this code doesn't know. */
 export function rulesForVersion(version: number): RynkeRules | null {
@@ -109,6 +133,21 @@ export function assertValidRules(rules: RynkeRules): void {
 			num > den
 		) {
 			throw new Error(`rules.${field} must be a share 0 ≤ num ≤ den, den > 0`);
+		}
+	}
+	const kinds = Object.keys(rules.teamEvents);
+	if (
+		kinds.length !== TEAM_EVENT_KINDS.length ||
+		!TEAM_EVENT_KINDS.every((kind) => kinds.includes(kind))
+	) {
+		throw new Error("rules.teamEvents must have exactly the team-event kinds");
+	}
+	for (const kind of TEAM_EVENT_KINDS) {
+		const { team, training } = rules.teamEvents[kind];
+		for (const value of [team, training]) {
+			if (!Number.isInteger(value) || value < 0) {
+				throw new Error(`rules.teamEvents.${kind} must be whole numbers ≥ 0`);
+			}
 		}
 	}
 	assertDate("effectiveDate", rules.effectiveDate);

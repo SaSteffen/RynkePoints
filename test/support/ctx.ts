@@ -156,6 +156,9 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM rynke_balances"),
 		env.DB.prepare("DELETE FROM ride_results"),
 		env.DB.prepare("DELETE FROM activities"),
+		// `team_event_kinds` stays: migration 0006 seeds it.
+		env.DB.prepare("DELETE FROM attendances"),
+		env.DB.prepare("DELETE FROM team_events"),
 		env.DB.prepare("DELETE FROM strava_credentials"),
 		env.DB.prepare("DELETE FROM riders"),
 		env.DB.prepare(
@@ -178,6 +181,8 @@ export async function tableCounts(): Promise<Record<string, number>> {
 		"strava_rate_limit",
 		"ride_results",
 		"rynke_balances",
+		"team_events",
+		"attendances",
 	]) {
 		counts[table] =
 			(await env.DB.prepare(`SELECT COUNT(*) AS n FROM ${table}`).first<number>(

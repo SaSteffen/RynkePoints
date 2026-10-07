@@ -295,7 +295,7 @@ Phases 6–9 add User Story 3 on top of the delivered Stories 2 and 4 (plan.md
 
 ## Phase 6: Story 3 Setup
 
-- [ ] T040 Run `pnpm install`, `pnpm lint`, `pnpm typecheck` and `pnpm test` on branch `003-rynke-evaluation` and confirm all green before any Story 3 change. If something already fails, note it in the commit message instead of fixing it here.
+- [X] T040 Run `pnpm install`, `pnpm lint`, `pnpm typecheck` and `pnpm test` on branch `003-rynke-evaluation` and confirm all green before any Story 3 change. If something already fails, note it in the commit message instead of fixing it here.
 
 ---
 
@@ -308,7 +308,7 @@ Story 3 task depends on them.
 
 ### Tests (write first, confirm red) ⚠️
 
-- [ ] T041 [P] Extend `test/unit/rules.test.ts` (research R18, data-model.md "Input: Rynke Rules"):
+- [X] T041 [P] Extend `test/unit/rules.test.ts` (research R18, data-model.md "Input: Rynke Rules"):
   - `CURRENT_RULES.version` is 2.
   - `CURRENT_RULES.teamEvents` equals `{ team_training: { team: 1, training: 5 }, training_weekend_day: { team: 5, training: 10 }, technique_training: { team: 5, training: 5 } }`.
   - `Object.keys(CURRENT_RULES.teamEvents)` equals `TEAM_EVENT_KINDS`, imported from `src/rynke/team-events.ts`.
@@ -319,12 +319,12 @@ Story 3 task depends on them.
     - has a kind not in `TEAM_EVENT_KINDS`;
     - has an amount that is negative, not an integer, or missing.
   - `assertValidRules` accepts an amount of 0.
-- [ ] T042 [P] Extend `test/integration/schema-minimisation.test.ts` (data-model.md, FR-015):
+- [X] T042 [P] Extend `test/integration/schema-minimisation.test.ts` (data-model.md, FR-015):
   - `team_event_kinds` has `["kind"]`.
   - `team_events` has `["event_id", "kind", "event_date", "name"]`.
   - `attendances` has `["event_id", "athlete_id"]`.
   - `rynke_balances` ends with `team_event_breakdown`, appended after `computed_at` (`ALTER TABLE … ADD COLUMN` appends).
-- [ ] T043 [P] Extend `test/integration/db.test.ts` with the migration `0006` constraints, in raw SQL (research R17, R20):
+- [X] T043 [P] Extend `test/integration/db.test.ts` with the migration `0006` constraints, in raw SQL (research R17, R20):
   - The seeded `team_event_kinds` rows equal `TEAM_EVENT_KINDS`.
   - Inserting into `team_events` fails for kind `'ride'` (FK), for `event_date` `'2026-5-1'`, and for `name` `''` or 101 characters. It succeeds with a 100-character name and with `NULL`.
   - Inserting into `attendances` fails for a missing event or a missing rider (FK) and for a second `(event_id, athlete_id)` (PK). A second `INSERT … ON CONFLICT DO NOTHING` leaves one row.
@@ -333,7 +333,7 @@ Story 3 task depends on them.
 
 ### Implementation
 
-- [ ] T044 Create `migrations/0006_team_events.sql` (data-model.md "Table: team_event_kinds", "Table: team_events", "Table: attendances", "Table: rynke_balances"):
+- [X] T044 Create `migrations/0006_team_events.sql` (data-model.md "Table: team_event_kinds", "Table: team_events", "Table: attendances", "Table: rynke_balances"):
   - Header comment in the style of `0005`: it names feature 003 Story 3, says it only adds tables and one column with a default so the deployed version keeps working, and points to research R17 and R20.
   - `CREATE TABLE team_event_kinds (kind TEXT PRIMARY KEY)`.
   - `INSERT INTO team_event_kinds (kind) VALUES ('team_training'), ('training_weekend_day'), ('technique_training')`.
@@ -349,14 +349,14 @@ Story 3 task depends on them.
     - `resetDb()` deletes `attendances` and then `team_events`, before `riders`, but keeps `team_event_kinds` (seeded).
     - `tableCounts()` lists `team_events` and `attendances`.
   - Makes T042 and the schema part of T043 green.
-- [ ] T045 Create `src/rynke/team-events.ts` with `TEAM_EVENT_KINDS` (an `as const` array in contract order), `type TeamEventKind` and `isTeamEventKind(value: string)`, with a header comment naming FR-006 and research R17–R19. Then extend `src/rynke/rules.ts` (research R18):
+- [X] T045 Create `src/rynke/team-events.ts` with `TEAM_EVENT_KINDS` (an `as const` array in contract order), `type TeamEventKind` and `isTeamEventKind(value: string)`, with a header comment naming FR-006 and research R17–R19. Then extend `src/rynke/rules.ts` (research R18):
   - Add `interface TeamEventAmounts { team: number; training: number }` and the field `teamEvents: Readonly<Record<TeamEventKind, TeamEventAmounts>>` on `RynkeRules`.
   - Rename today's constant to `const RULES_V1` (version 1, its `effectiveDate` unchanged, with the amounts of T041).
   - `CURRENT_RULES` becomes `{ ...RULES_V1, version: 2, effectiveDate }`, with `effectiveDate` the day T045 is implemented (`YYYY-MM-DD`, not before `RULES_V1.effectiveDate`), and `RULES_HISTORY` becomes `[RULES_V1, CURRENT_RULES]`.
   - `assertValidRules` checks that the keys equal `TEAM_EVENT_KINDS` and that every amount is a whole number ≥ 0.
   - Extend the header comment: event amounts are rule values, and version 2 is Story 3's logic change.
   - Makes T041 green and the kinds part of T043 green.
-- [ ] T046 Update tests that hard-code rules version 1. Use `CURRENT_RULES.version` for the version in effect, and `CURRENT_RULES.version + 1` where a test needs "a newer version". Don't weaken any assertion. Known places:
+- [X] T046 Update tests that hard-code rules version 1. Use `CURRENT_RULES.version` for the version in effect, and `CURRENT_RULES.version + 1` where a test needs "a newer version". Don't weaken any assertion. Known places:
   - `test/integration/rynke-apply.test.ts`: `rulesVersion: 1` in the full-evaluation case, the `[1, 1, 1]` versions, and the "rules copy at version 2" case.
   - `test/integration/me-rynke.test.ts`: "Computed with rules version 1", and the S6 cases that use a stale version.
   - Anything else `pnpm test` shows failing because of the bump.

@@ -27,6 +27,10 @@ beforeEach(async () => {
 
 afterEach(() => vi.restoreAllMocks());
 
+/** The version in effect, and a newer one. */
+const VERSION = CURRENT_RULES.version;
+const NEXT = VERSION + 1;
+
 function evaluate(athleteId: number, rules: RynkeRules = CURRENT_RULES) {
 	return applyAndEvaluate(
 		db,
@@ -65,12 +69,12 @@ describe("listRidersNeedingEvaluation", () => {
 		// Balance and results from another rules version.
 		await seedRider(ctx, { athleteId: 900004 });
 		await upsertActivity(db, activityRecord(4, { athlete_id: 900004 }));
-		await evaluate(900004, { ...CURRENT_RULES, version: 2 });
+		await evaluate(900004, { ...CURRENT_RULES, version: NEXT });
 		// One result from another rules version.
 		await evaluatedRider(900005, 5);
 		await db
-			.prepare("UPDATE ride_results SET rules_version = 2 WHERE athlete_id = ?")
-			.bind(900005)
+			.prepare("UPDATE ride_results SET rules_version = ? WHERE athlete_id = ?")
+			.bind(NEXT, 900005)
 			.run();
 		// An activity without a result.
 		await evaluatedRider(900006, 6);
@@ -96,7 +100,7 @@ describe("listRidersNeedingEvaluation", () => {
 		await seedRider(ctx, { athleteId: 900009 });
 		await evaluate(900009);
 
-		expect(await listRidersNeedingEvaluation(db, 1)).toEqual([
+		expect(await listRidersNeedingEvaluation(db, VERSION)).toEqual([
 			900002, 900003, 900004, 900005, 900006, 900007,
 		]);
 	});
@@ -104,8 +108,10 @@ describe("listRidersNeedingEvaluation", () => {
 	it("finds every rider after a rules-version bump", async () => {
 		await evaluatedRider(900001, 1);
 		await evaluatedRider(900002, 2);
-		expect(await listRidersNeedingEvaluation(db, 1)).toEqual([]);
-		expect(await listRidersNeedingEvaluation(db, 2)).toEqual([900001, 900002]);
+		expect(await listRidersNeedingEvaluation(db, VERSION)).toEqual([]);
+		expect(await listRidersNeedingEvaluation(db, NEXT)).toEqual([
+			900001, 900002,
+		]);
 	});
 });
 

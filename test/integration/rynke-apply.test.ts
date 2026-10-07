@@ -70,12 +70,15 @@ describe("applyAndEvaluate", () => {
 		const expected = await expectedRynke(CURRENT_RULES);
 		const stored = await readRynke(db, ATHLETE_A);
 		expect(stored.results).toEqual(
-			expected.results.map((r) => ({ ...r, rulesVersion: 1 })),
+			expected.results.map((r) => ({
+				...r,
+				rulesVersion: CURRENT_RULES.version,
+			})),
 		);
 		expect(stored.balance).toEqual({ ...expected.balance, computedAt: NOW });
 		expect(stored.balance).toMatchObject({
 			distanceRynke: 7,
-			rulesVersion: 1,
+			rulesVersion: CURRENT_RULES.version,
 			rulesEffectiveDate: CURRENT_RULES.effectiveDate,
 		});
 		expect(stored.results.map((r) => r.reasons)).toEqual([
@@ -279,22 +282,31 @@ describe("applyAndEvaluate", () => {
 	it("rewrites every row when the rules version changes", async () => {
 		await seedThree();
 		await apply({ kind: "none" });
-		expect((await resultRows()).map((r) => r.rules_version)).toEqual([1, 1, 1]);
+		const version = CURRENT_RULES.version;
+		expect((await resultRows()).map((r) => r.rules_version)).toEqual([
+			version,
+			version,
+			version,
+		]);
 
-		const v2: RynkeRules = {
+		const next: RynkeRules = {
 			...CURRENT_RULES,
-			version: 2,
+			version: version + 1,
 			effectiveDate: "2027-01-01",
 		};
-		await apply({ kind: "none" }, NOW + 60, v2);
+		await apply({ kind: "none" }, NOW + 60, next);
 
-		expect((await resultRows()).map((r) => r.rules_version)).toEqual([2, 2, 2]);
+		expect((await resultRows()).map((r) => r.rules_version)).toEqual([
+			next.version,
+			next.version,
+			next.version,
+		]);
 		expect(await balanceRow()).toMatchObject({
-			rules_version: 2,
+			rules_version: next.version,
 			rules_effective_date: "2027-01-01",
 			computed_at: NOW + 60,
 		});
-		await expectConsistent(ATHLETE_A, v2);
+		await expectConsistent(ATHLETE_A, next);
 	});
 });
 

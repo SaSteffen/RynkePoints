@@ -68,7 +68,11 @@ const COLUMNS: Record<string, string[]> = {
 		"rules_version",
 		"rules_effective_date",
 		"computed_at",
+		"team_event_breakdown",
 	],
+	team_event_kinds: ["kind"],
+	team_events: ["event_id", "kind", "event_date", "name"],
+	attendances: ["event_id", "athlete_id"],
 };
 
 const FORBIDDEN = [
@@ -100,12 +104,20 @@ describe("schema minimisation", () => {
 		},
 	);
 
+	it("appends the team-event breakdown to rynke_balances (migration 0006)", async () => {
+		expect((await columns("rynke_balances")).at(-1)).toBe(
+			"team_event_breakdown",
+		);
+	});
+
 	it.each(Object.keys(COLUMNS))(
 		"%s has no column for location, media, health, contact or language",
 		async (table) => {
 			for (const column of await columns(table)) {
-				// `first_name` is the one documented exception to `name`.
+				// `first_name` and a team event's `name` are the documented
+				// exceptions to `name`; neither comes from Strava.
 				if (column === "first_name") continue;
+				if (table === "team_events" && column === "name") continue;
 				for (const word of FORBIDDEN) expect(column).not.toContain(word);
 			}
 		},
