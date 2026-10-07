@@ -10,7 +10,8 @@ export const SCOPES_ALL = "read,activity:read,activity:read_all,activity:write";
 export const SCOPES_NO_WRITE = "read,activity:read,activity:read_all";
 export const SCOPES_SHARED = "read,activity:read";
 
-const STATE = "synthetic-state-0001";
+const STATE = "connect-synthetic-state-0001";
+export const SIGN_IN_STATE = "signin-synthetic-state-0001";
 let nextCode = 1;
 
 export interface CallbackOptions {
@@ -18,6 +19,8 @@ export interface CallbackOptions {
 	params?: Record<string, string>;
 	/** State carried by the cookie; `null` sends no state cookie. */
 	cookieState?: string | null;
+	/** Comes back from /signin instead of /connect. */
+	signIn?: boolean;
 	cookies?: Record<string, string>;
 	/** Consent version carried by the state cookie; defaults to the current one. */
 	consentVersion?: number;
@@ -27,9 +30,10 @@ export async function callback(
 	ctx: TestCtx,
 	options: CallbackOptions = {},
 ): Promise<Response> {
+	const state = options.signIn ? SIGN_IN_STATE : STATE;
 	const cookieState =
-		options.cookieState === undefined ? STATE : options.cookieState;
-	const params = new URLSearchParams({ state: STATE, ...options.params });
+		options.cookieState === undefined ? state : options.cookieState;
+	const params = new URLSearchParams({ state, ...options.params });
 	const cookies = {
 		...(cookieState === null
 			? {}
@@ -53,7 +57,7 @@ export async function approve(
 	athleteId: number,
 	scope = SCOPES_ALL,
 	cookies: Record<string, string> = {},
-	options: Pick<CallbackOptions, "consentVersion"> = {},
+	options: Pick<CallbackOptions, "consentVersion" | "signIn"> = {},
 ): Promise<Response> {
 	const athlete =
 		fake.athletes.get(athleteId) ?? fake.addAthlete({ id: athleteId });
@@ -61,6 +65,23 @@ export async function approve(
 	const code = `synthetic-code-${nextCode++}`;
 	fake.codes.set(code, athleteId);
 	return callback(ctx, { params: { code, scope }, cookies, ...options });
+}
+
+/** Like `approve`, but the rider came through /signin, so without consent. */
+export function signIn(
+	ctx: TestCtx,
+	fake: FakeStrava,
+	athleteId: number,
+	scope = SCOPES_ALL,
+): Promise<Response> {
+	return approve(
+		ctx,
+		fake,
+		athleteId,
+		scope,
+		{},
+		{ signIn: true, consentVersion: 0 },
+	);
 }
 
 /** Every `Set-Cookie` header of a response, keyed by cookie name. */

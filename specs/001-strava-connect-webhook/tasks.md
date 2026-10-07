@@ -1068,6 +1068,53 @@ are covered. `test/integration/language-rendering.test.ts` and
 
 ---
 
+## Phase 11: Signing in without the approval screen (spec update 2026-10-07)
+
+**Goal**: a rider who already takes part signs in on another device without
+ticking the consent box again and without Strava's approval screen (FR-009,
+research R1, R21). The landing page gets a "sign in" button below the consent
+form that leads to `GET /signin` (`approval_prompt=auto`). The callback turns
+away anyone who signs in without being connected, and keeps nothing. Signing in
+with unchanged scopes keeps `scopes_updated_at` (FR-006, data-model.md). No
+migration, no new message kind.
+
+**Independent Test**:
+- `GET /signin` → `302` to Strava with `approval_prompt=auto`, the four scopes
+  and a `signin-` state; `rp_oauth_state` carries consent version `0`.
+- A connected rider signing in ends at `/me` with nothing changed, including
+  `scopes_updated_at`. An athlete without a `riders` row is revoked and sent to
+  `/notice/not-connected`, before the scope and club checks.
+
+### Tests for signing in (write first, confirm red) ⚠️
+
+- [X] T134 [US4] Extend `test/support/callback.ts`: the state starts with `connect-`; export `SIGN_IN_STATE` (`signin-…`); `CallbackOptions.signIn` picks it; `signIn(ctx, fake, athleteId, scope)` is `approve` with `signIn: true` and `consentVersion: 0`.
+- [X] T135 [P] [US4] Extend `test/integration/connect.test.ts`: the `POST /connect` state matches `^connect-[0-9a-f]{32}$`; `GET /signin` → `approval_prompt=auto`, the four scopes, a `^signin-[0-9a-f]{32}$` state, and `rp_oauth_state` reading back with `consentVersion: 0`.
+- [X] T136 [P] [US4] Extend `test/integration/callback.test.ts` with "after /signin":
+  - an unknown non-member with only `read,activity:read` → `303 /notice/not-connected`, one revocation, no call to `clubs`, no `rp_session`, nothing queued, no rows;
+  - a connected rider (seeded with `scopeWrite: true`, clock an hour later) → `302 /me` with `rp_session`, no revocation, nothing queued, `scopes_updated_at` unchanged;
+  - a `needs_reconnect` rider → connected again, one `import-page` page 1 queued;
+  - a narrower grant (without `activity:read_all`) is applied like any reconnect.
+- [X] T137 [P] [US4] Extend `test/integration/landing.test.ts`: after `</form>` the German `landing.signIn.heading` and an `<a href="/signin">` around the Connect image.
+- [X] T138 [P] [US4] Extend `test/integration/notice.test.ts`: `/notice/not-connected` → German title and body plus `notice.nothingStored`, and no retry link.
+- [X] T139 [P] [US4] Extend `test/unit/catalogs.test.ts`: `CONTRACT_IDS` gains `landing.signIn.heading`, `landing.signIn.body`, `notice.notConnected.title` and `notice.notConnected.body`.
+
+### Implementation for signing in
+
+- [X] T140 [P] [US4] Add the four messages to `src/i18n/messages/de.ts` and `en.ts`, exactly as in contracts/messages.md. Makes T139 green.
+- [X] T141 [US4] Change `src/http/auth.ts` (research R1, R21):
+  - `randomState(flow)` returns `<flow>-<32 hex>`; `authorizeRedirect(request, ctx, flow, consentVersion)` sends `approval_prompt=force` for `connect` and `auto` for `signin`;
+  - `handleSignIn(request, ctx)` for `GET /signin` → `authorizeRedirect(request, ctx, "signin", 0)`;
+  - `handleCallback`: right after looking up the rider, `if (!existing && expected.state.startsWith("signin-"))` → revoke the token and `notice("not-connected")`.
+- [X] T142 [US4] Change `updateRiderOnReconnect` in `src/db/riders.ts`: `scopes_updated_at` only moves when `scopes` changes.
+- [X] T143 [US4] Wire `GET /signin` → `handleSignIn` in `src/http/router.ts`. Together with T141 and T142 this makes T135 and T136 green.
+- [X] T144 [P] [US4] Change `src/http/notice.ts`: add `"not-connected"` (`body: ["notice.notConnected.body", "notice.nothingStored"]`, no retry). Makes T138 green.
+- [X] T145 [P] [US4] Change `src/http/landing.ts`: after the consent form, an `<h2>` with `landing.signIn.heading`, `landing.signIn.body`, and the Connect image linked to `/signin`. Makes T137 green.
+- [X] T146 Review like T133: `/signin` and `not-connected` exist in contracts/http-routes.md; `language-rendering.test.ts` and `no-hardcoded-copy.test.ts` cover the new notice through `NOTICE_IDS`.
+
+**Checkpoint**: `pnpm lint && pnpm typecheck && pnpm test` pass.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -1094,6 +1141,9 @@ are covered. `test/integration/language-rendering.test.ts` and
   - T120, T121 and T123 come before T124; T121 before T122 and T126; T125 before T126 and T128–T130 (`MessageId` comes from the catalog).
   - T122 and T124–T126 come before T127. T128, T129 and T130 are separate files and can run in parallel after T125.
   - T131–T133 come last.
+- **Sign-in (Phase 11)**: depends on Phase 10 (the consent form and the OAuth state cookie).
+  - T134 comes first; then tests T135–T139, all red.
+  - T140 before T141–T145 (`MessageId` comes from the catalog); T141 and T142 before T143. T146 comes last.
 - **Polish (Phase 9)**: after the desired stories. T072 and T073 need every rider-facing page (US1, US3 and US4 done). T075 asserts the `activities` columns from data-model.md, so it needs Phase 6 (and T103 extends it for Phase 7).
 
 ### User Story Dependencies

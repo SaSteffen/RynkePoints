@@ -49,6 +49,11 @@ The complete set of message IDs for this feature. These are the keys of
 | `landing.leave` | | Du kannst jederzeit aussteigen: auf deiner RynkePoints-Seite oder indem du RynkePoints in deinen Strava-Einstellungen entfernst. Dann löschen wir alle Daten über dich, auch deine Rynke; auf deiner RynkePoints-Seite bestätigen wir dir das sofort. Wenn du den Club verlässt, löschen wir deine Daten innerhalb von 24 Stunden. | You can leave at any time: on your RynkePoints page, or by removing RynkePoints in your Strava settings. We then delete all data about you, including your Rynke; on your RynkePoints page we confirm it right away. If you leave the club, we delete your data within 24 hours. |
 | `landing.backups` | | Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters und verschwinden danach automatisch. | Deleted data stays in our hosting provider's backups for up to 7 days and then disappears automatically. |
 | `landing.cookies` | | Wir setzen nur notwendige Cookies: für die Anmeldung und für deine Sprachwahl. | We only set necessary cookies: for signing in and for your language choice. |
+| `landing.signIn.heading` | | Schon dabei? | Already taking part? |
+| `landing.signIn.body` | | Dann melde dich hier mit deinem Strava-Konto an. | Then sign in here with your Strava account. |
+
+The sign-in part follows the Connect with Strava button and links the same
+official button to `GET /signin` (FR-009).
 
 ## Consent (`GET /`, `GET /me`)
 
@@ -76,6 +81,7 @@ read, written or shown means a new version.
 | `me.status.connected` | | Mit Strava verbunden | Connected to Strava |
 | `me.status.needsReconnect` | | Die Verbindung zu Strava muss erneuert werden. | Your Strava connection needs to be renewed. |
 | `me.reconnect` | | Erneut verbinden | Reconnect |
+| `me.changePermissions` | | Berechtigungen auf Strava ändern | Change permissions on Strava |
 | `me.scope.readAll` | | Einschließlich deiner privaten Aktivitäten | Including your private activities |
 | `me.scope.sharedOnly` | | Nur geteilte Aktivitäten – private („Nur du“) Aktivitäten werden nicht importiert. | Shared activities only – private ("Only You") activities are not imported. |
 | `me.scope.write` | | Schreibzugriff erteilt: Sobald es die Funktion gibt, schreibt RynkePoints einen Rynke-Abschnitt in deine Fahrtbeschreibungen. | Write access granted: once the feature exists, RynkePoints writes a Rynke section into your ride descriptions. |
@@ -94,6 +100,8 @@ read, written or shown means a new version.
 | `me.recent.col.elevation` | | Höhenmeter | Elevation |
 | `me.disconnect.button` | | Verbindung trennen und meine Daten löschen | Disconnect and delete my data |
 
+`me.changePermissions` links to `GET /connect` and is shown only while the
+rider is connected; a rider who needs to reconnect gets `me.reconnect` instead.
 `me.import.running` is shown for both `pending` and `running`; `{date}` is the
 season start, formatted via `meta.intlLocale` (e.g. `01.01.2026` / `01/01/2026`).
 `me.consent.accepted` formats `{date}` the same way and is followed by
@@ -147,6 +155,8 @@ for every member of `CYCLING_SPORT_TYPES`.
 | `notice.nothingStored` | | Wir haben kein Konto für dich angelegt und weder deinen Strava-Zugang noch deine Aktivitäten gespeichert. | We haven't created an account for you or stored your Strava access or activities. |
 | `notice.stravaBusy.title` | | Strava ist gerade ausgelastet | Strava is busy |
 | `notice.stravaBusy.body` | | Bitte versuche es in ein paar Minuten noch einmal. | Please try again in a few minutes. |
+| `notice.notConnected.title` | | Du machst noch nicht mit | You're not taking part yet |
+| `notice.notConnected.body` | | Lies auf der Startseite, was RynkePoints mit deinen Daten macht, und verbinde dich dann mit Strava. | Read on the start page what RynkePoints does with your data, then connect with Strava. |
 | `notice.deleted.title` | | Deine Daten wurden gelöscht | Your data has been deleted |
 | `notice.deleted.body` | | Wir haben alle Daten über dich gelöscht. Kopien in den Sicherungen unseres Hosting-Anbieters verschwinden spätestens nach 7 Tagen. | We have deleted all data about you. Copies in our hosting provider's backups disappear after 7 days at the latest. |
 | `notice.revokeFailed.body` | | Wir konnten den Zugriff bei Strava nicht zurückgeben. Bitte entferne RynkePoints in deinen Strava-Einstellungen unter „Meine Apps“. | We couldn't give up our access at Strava. Please remove RynkePoints under "My Apps" in your Strava settings. |

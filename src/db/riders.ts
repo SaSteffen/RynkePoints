@@ -125,9 +125,12 @@ export async function updateRiderOnReconnect(
 ): Promise<void> {
 	await db
 		.prepare(
+			// The grant time only moves when the grant changes, so a plain sign-in
+			// keeps when the rider last chose (FR-006, FR-009).
 			`UPDATE riders SET first_name = ?2, scopes = ?3, scope_read_all = ?4,
-				scope_write = ?5, scopes_updated_at = ?6, status = 'connected',
-				reconnect_requested_at = NULL
+				scope_write = ?5,
+				scopes_updated_at = CASE WHEN scopes = ?3 THEN scopes_updated_at ELSE ?6 END,
+				status = 'connected', reconnect_requested_at = NULL
 			WHERE athlete_id = ?1`,
 		)
 		.bind(

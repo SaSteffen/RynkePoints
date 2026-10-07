@@ -166,7 +166,7 @@ consumer, cron)
 - No GPS or coordinates are stored.
 
 **Scale/Scope**: ≤ 10 riders (Strava capacity), a few activities per rider per day,
-eight rider-facing paths (`/`, `/connect` (GET and POST), `/auth/callback`,
+nine rider-facing paths (`/`, `/connect` (GET and POST), `/signin`, `/auth/callback`,
 `/me`, `/me/disconnect`, `/logout`, `/lang`, `/notice/:id`) plus the webhook and
 `/health`, one queue, one cron, two locales (`de` default, `en`) with about 85
 messages each ([contracts/messages.md](contracts/messages.md)).
@@ -291,7 +291,7 @@ src/
 │   ├── html.ts              # escaping html`` template + layout (lang attr, switcher, attribution)
 │   ├── session.ts           # signed session + OAuth state cookies
 │   ├── landing.ts           # GET /, with the consent form
-│   ├── auth.ts              # POST /connect, GET /connect, GET /auth/callback
+│   ├── auth.ts              # POST /connect, GET /connect, GET /signin, GET /auth/callback
 │   ├── me.ts                # GET /me (incl. consent), disconnect, logout
 │   ├── lang.ts              # POST /lang (switcher), rp_lang cookie, next allow-list
 │   ├── notice.ts            # GET /notice/:id outcome pages
@@ -360,12 +360,11 @@ Afterwards, regenerate `worker-configuration.d.ts` with `pnpm types`.
   2026-10-06 — `da` gets English, `da,de;q=0.5` gets German, and only a missing or
   empty preference falls back to German (R17).
 - **Returning riders tick the box again** (feature 004, US1 scenario 6; R21):
-  resolved by the maintainer on 2026-10-07 — accepted. Before Strava the app
-  can't tell a returning rider from a new one, so a rider whose 30-day session
-  expired ticks the consent box again to sign in. No new record is written for a
-  version they already accepted; "not asked again" means no re-consent step after
-  signing in. A separate sign-in link was rejected because it would send unknown
-  visitors to Strava before they agreed (FR-002).
+  first accepted by the maintainer on 2026-10-07, then reversed the same day.
+  A rider who already takes part signs in through `GET /signin` below the
+  consent form: no checkbox, and Strava skips its approval screen
+  (`approval_prompt=auto`, FR-009). An unknown athlete who signs in is revoked
+  at once and sent back to the consent form (`/notice/not-connected`).
 - **Deletion confirmation outside the app** (feature 004, FR-011, F-4): resolved
   by the maintainer on 2026-10-07 — accepted as is. The disconnect button shows
   the confirmation (`/notice/deleted`) and the landing text promises it only

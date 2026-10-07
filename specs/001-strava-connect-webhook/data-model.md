@@ -25,7 +25,7 @@ One row per connected member of the team club.
 | `scope_write` | INTEGER NOT NULL DEFAULT 0 | 1 if `activity:write` was granted, else 0 (FR-003, FR-025). Nothing in this feature writes; the description feature will only write for riders with 1. Added by `0004`; riders connected before it never were asked and keep 0. |
 | `scopes` | TEXT NOT NULL | Accepted scope string as returned by Strava (FR-006). |
 | `connected_at` | INTEGER NOT NULL | First connection. |
-| `scopes_updated_at` | INTEGER NOT NULL | Last time scopes were granted or changed (FR-006). |
+| `scopes_updated_at` | INTEGER NOT NULL | When the rider last chose their scopes: first connect or a changed grant; signing in with the same scopes keeps it (FR-006). |
 | `membership_checked_at` | INTEGER NOT NULL | Last definitive "is a member" answer. |
 | `import_status` | TEXT NOT NULL | `pending` \| `running` \| `done`. |
 | `reconnect_requested_at` | INTEGER NULL | When the rider became `needs_reconnect`; `NULL` exactly when `status=connected` (CHECK). Riders more than 7 days past it are deleted (FR-020). |

@@ -12,6 +12,7 @@ import {
 	SCOPES_NO_WRITE,
 	SCOPES_SHARED,
 	setCookies,
+	signIn,
 } from "../support/callback";
 import {
 	makeCtx,
@@ -408,6 +409,62 @@ describe("GET /auth/callback consent and write access", () => {
 		expect(await consentRows()).toEqual([
 			{ athlete_id: ATHLETE_A, version: 1, accepted_at: NOW },
 		]);
+	});
+});
+
+describe("GET /auth/callback after /signin", () => {
+	it("turns away an athlete who isn't connected", async () => {
+		fake.addAthlete({ id: ATHLETE_A, clubs: [OTHER_CLUB.id] });
+		const res = await signIn(ctx, fake, ATHLETE_A, SCOPES_SHARED);
+		expectNotice(res, "not-connected");
+		expect(fake.callsTo("clubs")).toEqual([]);
+		expect(fake.revocations).toHaveLength(1);
+		expect(setCookies(res).rp_session).toBeUndefined();
+		expect(ctx.queue.sent).toEqual([]);
+		await expectNoRows();
+	});
+
+	it("signs a connected rider in without changing anything", async () => {
+		await seedExistingRider({ scopeWrite: true });
+		ctx = makeCtx({ now: NOW + 3600 });
+		const res = await signIn(ctx, fake, ATHLETE_A);
+		expect(res.status).toBe(302);
+		expect(res.headers.get("Location")).toBe("/me");
+		expect(setCookies(res).rp_session).toMatch(
+			new RegExp(`^rp_session=${ATHLETE_A}\\.`),
+		);
+		expect(fake.revocations).toEqual([]);
+		expect(ctx.queue.sent).toEqual([]);
+		expect(await tableCounts()).toMatchObject({ riders: 1, activities: 1 });
+		expect(await getRider(env.DB, ATHLETE_A)).toMatchObject({
+			scopes: SCOPES_ALL,
+			scopeReadAll: true,
+			scopesUpdatedAt: NOW,
+		});
+	});
+
+	it("reconnects a needs_reconnect rider and re-imports", async () => {
+		await seedExistingRider({
+			status: "needs_reconnect",
+			reconnectRequestedAt: NOW - 3600,
+			importStatus: "done",
+		});
+		const res = await signIn(ctx, fake, ATHLETE_A);
+		expect(res.headers.get("Location")).toBe("/me");
+		expect(await getRider(env.DB, ATHLETE_A)).toMatchObject({
+			status: "connected",
+			importStatus: "pending",
+		});
+		expect(ctx.queue.sent).toHaveLength(1);
+	});
+
+	it("applies a narrower choice if Strava asked again", async () => {
+		await seedExistingRider({ scopeReadAll: true });
+		await signIn(ctx, fake, ATHLETE_A, SCOPES_SHARED);
+		expect(await getRider(env.DB, ATHLETE_A)).toMatchObject({
+			scopes: SCOPES_SHARED,
+			scopeReadAll: false,
+		});
 	});
 });
 

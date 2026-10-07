@@ -18,8 +18,10 @@ R21 was added, and R1 revised, after constitution v2.0.0 and feature
 
 - **Decision**: Send riders to `https://www.strava.com/oauth/authorize` with
   `scope=read,activity:read,activity:read_all,activity:write`, `response_type=code`,
-  `approval_prompt=force` and a CSRF `state`. Read the accepted scopes from the
-  callback's `scope` parameter (and the token response's `scope`).
+  a CSRF `state`, and `approval_prompt=force` when connecting or changing
+  permissions but `approval_prompt=auto` when signing in (R21). Read the
+  accepted scopes from the callback's `scope` parameter (and the token
+  response's `scope`).
   - `activity:read` missing → not connected, keep nothing.
   - `read` missing → treat like a refusal, because the club check (R4) needs it.
   - `activity:read_all` missing → connected with "shared activities only".
@@ -33,7 +35,7 @@ R21 was added, and R1 revised, after constitution v2.0.0 and feature
   once the description feature ships (feature 004, F-4). `approval_prompt=force`
   makes sure a reconnecting rider actually sees the screen again and can change
   their choices (FR-007); with `auto` Strava skips it for riders who already
-  approved. Nothing in this feature calls a write endpoint (FR-003): the client
+  approved, which is what signing in on another device needs (FR-009). Nothing in this feature calls a write endpoint (FR-003): the client
   exposes none, and the fake Strava fails any write call (R12).
 - **Alternatives considered**: Two separate "connect" buttons (basic / incl.
   private) — more UI and still relies on the rider not unticking; rejected.
@@ -607,7 +609,14 @@ R21 was added, and R1 revised, after constitution v2.0.0 and feature
     reconnect link and "change permissions on Strava" on `/me`). Its state
     carries no agreement (`<state>:0`). Anyone else gets `302 /`, where the
     consent is.
-  - **Callback**: after the scope check and before the club check (saves a
+  - **`GET /signin`**: for riders who already take part, linked below the
+    consent form. No checkbox, `approval_prompt=auto` (R1), state
+    `signin-<random>:0`. The flow is the prefix of the state (`connect-…` /
+    `signin-…`), so the signed cookie carries it too.
+  - **Callback**: right after the token exchange, a *new* athlete who came
+    through `/signin` is turned away: revoke the token, store nothing,
+    `303 /notice/not-connected`, which leads back to the consent form (FR-009).
+    After the scope check and before the club check (saves a
     request), a *new* athlete whose state carries no current version is turned
     away: revoke the token, store nothing, `303 /notice/consent-required`. A
     version that changed between the form and the callback counts as no
@@ -645,10 +654,12 @@ R21 was added, and R1 revised, after constitution v2.0.0 and feature
 - **Alternatives considered**:
   - Asking after Strava, on the way back — sends riders to Strava before they
     agreed (FR-002); rejected.
-  - A separate "already connected? sign in" link that skips the checkbox —
-    sends unknown visitors to Strava before they agreed and needs a second
-    Connect button; rejected, so returning riders whose session expired tick the
-    box again (accepted 2026-10-07; plan, Open questions).
+  - Making returning riders whose session expired tick the box again, with no
+    separate sign-in link — first accepted on 2026-10-07, then reversed by the
+    maintainer the same day: a rider who already takes part must not tick or
+    approve anything again. `/signin` does send unknown visitors to Strava
+    before they agreed, but their access is revoked at once and nothing is
+    kept, so no data about them exists without consent (FR-009).
   - Storing the agreement in D1 before the redirect — keeps data about someone
     who may never connect; rejected.
   - Deriving write access from `riders.scopes` instead of a `scope_write`

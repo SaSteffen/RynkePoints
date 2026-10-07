@@ -108,6 +108,17 @@ describe("GET / (signed out)", () => {
 		expect(page).not.toContain('<a href="/connect">');
 	});
 
+	it("offers signing in with the same button below it", async () => {
+		const { page } = await get();
+		const connect = page.indexOf("</form>");
+		const heading = page.indexOf("<h2>Schon dabei?</h2>");
+		expect(connect).toBeGreaterThan(-1);
+		expect(heading).toBeGreaterThan(connect);
+		expect(page).toContain(
+			`<a href="/signin"><img src="${de["brand.connectWithStrava.src"]}" alt="Mit Strava verbinden"></a>`,
+		);
+	});
+
 	it("offers the language switcher before connecting", async () => {
 		const { page } = await get();
 		expect(page).toContain('<form method="post" action="/lang"');
