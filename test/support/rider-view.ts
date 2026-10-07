@@ -7,7 +7,7 @@ import {
 import { handleFetch } from "../../src/index";
 import type { ReasonCode, UnknownFigureCode } from "../../src/rynke/rides";
 import { CURRENT_RULES } from "../../src/rynke/rules";
-import type { Balance } from "../../src/rynke/tally";
+import { type Balance, NO_EXTRAS } from "../../src/rynke/tally";
 import type { ActivityRecord } from "../../src/strava/activity";
 import { request, sessionCookie, type TestCtx } from "./ctx";
 import { NOW } from "./fixtures";
@@ -32,6 +32,7 @@ export const ZERO_BALANCE: Balance = {
 	qualified: false,
 	rulesVersion: CURRENT_RULES.version,
 	rulesEffectiveDate: CURRENT_RULES.effectiveDate,
+	teamEvents: [...NO_EXTRAS.teamEvents],
 };
 
 export async function seedBalance(

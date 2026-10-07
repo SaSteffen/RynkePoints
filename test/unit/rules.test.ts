@@ -8,12 +8,19 @@ import {
 	rulesFingerprint,
 	rulesForVersion,
 } from "../../src/rynke/rules";
+import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
+
+const TEAM_EVENTS = {
+	team_training: { team: 1, training: 5 },
+	training_weekend_day: { team: 5, training: 10 },
+	technique_training: { team: 5, training: 5 },
+};
 
 describe("CURRENT_RULES", () => {
 	it("has the values of data-model.md", () => {
 		const { effectiveDate, ...values } = CURRENT_RULES;
 		expect(values).toEqual({
-			version: 1,
+			version: 2,
 			distanceStepKm: 10,
 			distanceStepRynke: 1,
 			elevationStepM: 1000,
@@ -27,19 +34,28 @@ describe("CURRENT_RULES", () => {
 			trainingThreshold: 250,
 			teamThreshold: 25,
 			maxVirtualShare: { num: 1, den: 3 },
+			teamEvents: TEAM_EVENTS,
 		});
 		expect(effectiveDate).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 	});
 
+	it("has one event amount per kind, in TEAM_EVENT_KINDS order", () => {
+		expect(Object.keys(CURRENT_RULES.teamEvents)).toEqual(TEAM_EVENT_KINDS);
+	});
+
 	it("pins its values to its version", () => {
-		// version: 1
+		// version: 2
 		const fingerprint =
 			'{"distanceStepKm":10,"distanceStepRynke":1,"elevationStepM":1000,' +
 			'"elevationStepRynke":5,"excludedSportTypes":["EBikeRide","EMountainBikeRide"],' +
 			'"maxClimbMPerH":1500,"maxPausedShare":{"den":2,"num":1},"maxSpeedKmh":45,' +
 			'"maxVirtualShare":{"den":3,"num":1},"minSpeedKmh":10,' +
-			'"qualificationDeadline":null,"teamThreshold":25,"trainingThreshold":250}';
-		expect(CURRENT_RULES.version).toBe(1);
+			'"qualificationDeadline":null,"teamEvents":{' +
+			'"team_training":{"team":1,"training":5},' +
+			'"technique_training":{"team":5,"training":5},' +
+			'"training_weekend_day":{"team":5,"training":10}},' +
+			'"teamThreshold":25,"trainingThreshold":250}';
+		expect(CURRENT_RULES.version).toBe(2);
 		expect(
 			rulesFingerprint(CURRENT_RULES),
 			"a rule value changed: raise CURRENT_RULES.version and effectiveDate, then update this fingerprint",
@@ -148,6 +164,36 @@ describe("assertValidRules", () => {
 		},
 	);
 
+	it.each([
+		["misses a kind", { team_training: { team: 1, training: 5 } }],
+		["has an unknown kind", { ...TEAM_EVENTS, ride: { team: 1, training: 1 } }],
+		[
+			"has a negative amount",
+			{ ...TEAM_EVENTS, team_training: { team: -1, training: 5 } },
+		],
+		[
+			"has a fractional amount",
+			{ ...TEAM_EVENTS, team_training: { team: 1, training: 2.5 } },
+		],
+		["misses an amount", { ...TEAM_EVENTS, technique_training: { team: 5 } }],
+	])("rejects team events that %s", (_case, teamEvents) => {
+		expect(() =>
+			assertValidRules({
+				...CURRENT_RULES,
+				teamEvents: teamEvents as unknown as RynkeRules["teamEvents"],
+			}),
+		).toThrow();
+	});
+
+	it("accepts an event amount of 0", () => {
+		expect(() =>
+			assertValidRules({
+				...CURRENT_RULES,
+				teamEvents: { ...TEAM_EVENTS, team_training: { team: 0, training: 0 } },
+			}),
+		).not.toThrow();
+	});
+
 	it("accepts a qualification deadline", () => {
 		expect(() =>
 			assertValidRules({
@@ -182,6 +228,17 @@ describe("RULES_HISTORY", () => {
 		expect(new Set(versions).size).toBe(versions.length);
 		expect(RULES_HISTORY).toContain(CURRENT_RULES);
 		expect(Math.max(...versions)).toBe(CURRENT_RULES.version);
+	});
+
+	it("holds versions 1 and 2, in this order", () => {
+		expect(RULES_HISTORY.map((rules) => rules.version)).toEqual([1, 2]);
+	});
+
+	it("keeps the event amounts in version 1: version 2 changes logic, not values", () => {
+		expect(rulesForVersion(1)?.teamEvents).toEqual(TEAM_EVENTS);
+		expect(rulesFingerprint(rulesForVersion(1) as RynkeRules)).toBe(
+			rulesFingerprint(CURRENT_RULES),
+		);
 	});
 
 	it("holds only valid rules", () => {

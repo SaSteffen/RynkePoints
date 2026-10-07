@@ -39,10 +39,13 @@ Points and events build on this in later features.
   greeting), the granted scopes (including whether write access was granted),
   the Strava tokens, encrypted, and the version and time of the consent they
   agreed to. Per cycling
-  activity only sport type, start time, time zone, distance, moving and elapsed
-  time, elevation gain, the manual, trainer and private flags, and whether
-  Strava has flagged it. No GPS tracks, maps, titles, photos, heart rate or
-  power, and no other kinds of activity.
+  activity only its name (shown only to that rider), sport type, start time,
+  time zone, distance, moving and elapsed time, elevation gain, the manual,
+  trainer and private flags, and whether Strava has flagged it. No GPS tracks,
+  maps, descriptions, photos, heart rate or power, and no other kinds of
+  activity. Which team events a rider attended
+  (kind, date and an optional event name) as the team records it, not from
+  Strava.
 - **Deletion**: everything about a rider is deleted at once when they disconnect
   on their page or remove the app in their Strava settings, within 24 hours
   after they leave the club, and 7 days after their connection broke if they
@@ -70,15 +73,25 @@ Requirements: Node 24 (see `.nvmrc`) and pnpm (`corepack enable`).
 
 ```bash
 pnpm install                # deps + git hooks
-cp .dev.vars.example .dev.vars   # fill in your Strava API app credentials
 pnpm test
-pnpm wrangler d1 migrations apply rynke-points --local   # local database
-pnpm dev                    # local Worker on http://localhost:8787
+pnpm dev                    # local Worker on http://localhost:8789 with a fake Strava
 ```
 
-You need your own [Strava API application](https://www.strava.com/settings/api) for
-local development. You don't need a Cloudflare account: production is deployed by
-CI (see [Deploying](#deploying)).
+`pnpm dev` needs no Strava account: a fake Strava with synthetic sample riders
+answers instead, and `http://localhost:8789/_dev/` signs you in as any of them
+([feature 006 quickstart](specs/006-local-frontend-dev/quickstart.md)).
+
+Against the real Strava you need your own
+[Strava API application](https://www.strava.com/settings/api):
+
+```bash
+cp .dev.vars.example .dev.vars   # fill in your Strava API app credentials
+pnpm wrangler d1 migrations apply rynke-points --local   # local database
+pnpm dev:strava             # local Worker on http://localhost:8789, real Strava
+```
+
+You don't need a Cloudflare account for either: production is deployed by CI (see
+[Deploying](#deploying)).
 
 Running against the real Strava locally, and the manual one-time production
 steps (Cloudflare resources, secrets, the webhook subscription and Strava's

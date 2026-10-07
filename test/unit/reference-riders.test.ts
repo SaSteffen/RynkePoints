@@ -1,18 +1,26 @@
 import { describe, expect, it } from "vitest";
 import { evaluateRides } from "../../src/rynke/rides";
 import { type CountingWindow, CURRENT_RULES } from "../../src/rynke/rules";
-import { tally } from "../../src/rynke/tally";
+import { extrasFromAttendance, tally } from "../../src/rynke/tally";
+import {
+	type Attendance,
+	evaluateAttendance,
+	type TeamEventKind,
+} from "../../src/rynke/team-events";
 import { makeRide, type RideSpec } from "../support/rides";
 
 // SC-001: synthetic riders whose expected totals were worked out by hand from
-// the rules of version 1 (10 km = 1, 1000 m of the summed elevation = 5,
+// the rules of version 2 (10 km = 1, 1000 m of the summed elevation = 5,
 // paused at most half the moving time, 10–45 km/h, at most 1500 m/h, no
-// e-bikes, flagged or manual rides, larger recording wins an overlap; 250
-// training and 25 team Rynke, at least 167 of the 250 not virtual). Never
-// derive an expected value by running the code.
+// e-bikes, flagged or manual rides, larger recording wins an overlap; a team
+// training 1 team + 5 training, a training-weekend day 5 + 10, a technique
+// training 5 + 5, each event once, inside the window; 250 training and 25 team
+// Rynke, at least 167 of the 250 not virtual). Never derive an expected value
+// by running the code.
 //
-// Team Rynke come from events (Story 3), which don't exist yet; the last
-// riders get them as an `extras` stand-in so qualification is covered too.
+// The riders before the attendance ones get their team Rynke as an `extras`
+// stand-in (as Story 6's corrections would give them), so qualification is
+// covered without events too.
 
 /** The counting window, with a deadline so both of its ends are covered. */
 const WINDOW: CountingWindow = {
@@ -37,11 +45,20 @@ function daily(
 const DAY2 = "2026-05-02T08:00:00Z";
 const DAY3 = "2026-05-03T08:00:00Z";
 
+/** One attended event; `eventId` defaults to a fresh one per entry. */
+function at(kind: TeamEventKind, date: string, eventId?: number) {
+	return { kind, date, eventId };
+}
+
 interface Rider {
 	name: string;
 	rides: RideSpec[];
+	attendance?: { kind: TeamEventKind; date: string; eventId?: number }[];
+	/** Team Rynke stand-in from outside events. */
 	team?: number;
 	training: number;
+	/** Expected team Rynke; defaults to `team`. */
+	teamRynke?: number;
 	qualified: boolean;
 }
 
@@ -362,6 +379,95 @@ const RIDERS: Rider[] = [
 		training: 260,
 		qualified: false,
 	},
+	// A team training only: 1 team, 5 training.
+	{
+		name: "one team training",
+		rides: [],
+		attendance: [at("team_training", "2026-05-02")],
+		training: 5,
+		teamRynke: 1,
+		qualified: false,
+	},
+	// A technique training only: 5 team, 5 training.
+	{
+		name: "one technique training",
+		rides: [],
+		attendance: [at("technique_training", "2026-05-02")],
+		training: 5,
+		teamRynke: 5,
+		qualified: false,
+	},
+	// Both days of a training weekend: 2 × 5 = 10 team, 2 × 10 = 20 training.
+	{
+		name: "a whole training weekend",
+		rides: [],
+		attendance: [
+			at("training_weekend_day", "2026-06-13"),
+			at("training_weekend_day", "2026-06-14"),
+		],
+		training: 20,
+		teamRynke: 10,
+		qualified: false,
+	},
+	// Before the season start and after the deadline count nothing; the
+	// deadline itself counts: 1 team, 5 training.
+	{
+		name: "attendance outside the window",
+		rides: [],
+		attendance: [
+			at("team_training", "2025-12-31"),
+			at("team_training", "2026-08-31"),
+			at("technique_training", "2026-09-01"),
+		],
+		training: 5,
+		teamRynke: 1,
+		qualified: false,
+	},
+	// 79 km → 7, plus one team training listed twice → once: 7 + 5 = 12, 1 team.
+	{
+		name: "a duplicated attendance",
+		rides: [{ id: 1, km: 79, movingH: 3 }],
+		attendance: [
+			at("team_training", "2026-05-02", 1),
+			at("team_training", "2026-05-02", 1),
+		],
+		training: 12,
+		teamRynke: 1,
+		qualified: false,
+	},
+	// 10 × 26 = 260 riding + 5 technique trainings (25 team, 25 training):
+	// 285 training, 25 team, all outdoors: qualified only thanks to events.
+	{
+		name: "qualified through event team Rynke",
+		rides: daily(10, 1, { km: 260, movingH: 9 }),
+		attendance: Array.from({ length: 5 }, (_, i) =>
+			at("technique_training", `2026-07-0${i + 1}`),
+		),
+		training: 285,
+		teamRynke: 25,
+		qualified: true,
+	},
+	// 6 × 26 = 156 outdoors + 4 × 26 = 104 virtual; 156 < 167 alone. Two
+	// training-weekend days (10 team, 20 training) and 3 technique trainings
+	// (15 team, 15 training): 156 + 35 = 191 without virtual, 295 in all,
+	// 25 team: qualified.
+	{
+		name: "event training closes the non-virtual gap",
+		rides: [
+			...daily(6, 1, { km: 260, movingH: 9 }),
+			...daily(4, 11, { km: 260, movingH: 9, sportType: "VirtualRide" }, 10),
+		],
+		attendance: [
+			at("training_weekend_day", "2026-06-13"),
+			at("training_weekend_day", "2026-06-14"),
+			at("technique_training", "2026-07-01"),
+			at("technique_training", "2026-07-08"),
+			at("technique_training", "2026-07-15"),
+		],
+		training: 295,
+		teamRynke: 25,
+		qualified: true,
+	},
 ];
 
 describe("reference riders (SC-001)", () => {
@@ -369,21 +475,44 @@ describe("reference riders (SC-001)", () => {
 		expect(RIDERS.length).toBeGreaterThanOrEqual(20);
 	});
 
-	it.each(RIDERS)("$name", ({ rides, team = 0, training, qualified }) => {
-		const evaluation = evaluateRides(
-			rides.map(makeRide),
-			CURRENT_RULES,
-			WINDOW,
-		);
-		const balance = tally(
-			evaluation.riding,
-			{ training: 0, team },
-			CURRENT_RULES,
-		);
-		expect({
-			trainingRynke: balance.trainingRynke,
-			teamRynke: balance.teamRynke,
-			qualified: balance.qualified,
-		}).toEqual({ trainingRynke: training, teamRynke: team, qualified });
+	it("has at least 6 riders with attendance", () => {
+		expect(RIDERS.filter((r) => r.attendance).length).toBeGreaterThanOrEqual(6);
 	});
+
+	it.each(RIDERS)(
+		"$name",
+		({ rides, attendance = [], team = 0, training, teamRynke, qualified }) => {
+			const evaluation = evaluateRides(
+				rides.map(makeRide),
+				CURRENT_RULES,
+				WINDOW,
+			);
+			const events = evaluateAttendance(
+				attendance.map(
+					(a, i): Attendance => ({
+						eventId: a.eventId ?? 100 + i,
+						kind: a.kind,
+						date: a.date,
+					}),
+				),
+				CURRENT_RULES,
+				WINDOW,
+			);
+			const extras = extrasFromAttendance(events);
+			const balance = tally(
+				evaluation.riding,
+				{ ...extras, team: extras.team + team },
+				CURRENT_RULES,
+			);
+			expect({
+				trainingRynke: balance.trainingRynke,
+				teamRynke: balance.teamRynke,
+				qualified: balance.qualified,
+			}).toEqual({
+				trainingRynke: training,
+				teamRynke: teamRynke ?? team,
+				qualified,
+			});
+		},
+	);
 });

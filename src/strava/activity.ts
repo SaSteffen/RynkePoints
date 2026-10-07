@@ -1,6 +1,8 @@
 // Maps Strava activities to the stored record (research R5, FR-013–FR-016).
-// The mapping is an explicit allow-list: nothing else Strava sends (GPS,
-// polylines, titles, heart rate, power, photos, ...) can reach storage.
+// The mapping is an explicit allow-list: the figures, and the ride's name for
+// its rider's own ride table (feature 008 FR-001). Nothing else Strava sends
+// (GPS, polylines, descriptions, heart rate, power, photos, ...) can reach
+// storage.
 
 export const CYCLING_SPORT_TYPES = [
 	"Ride",
@@ -14,12 +16,12 @@ export const CYCLING_SPORT_TYPES = [
 export type CyclingSportType = (typeof CYCLING_SPORT_TYPES)[number];
 
 /**
- * Version of the FR-013 field set. Goes up whenever the mapping gains a figure,
+ * Version of the FR-013 field set. Goes up whenever the mapping gains a field,
  * so the daily cron re-reads riders stored with an older one (research R20).
  * Version 1 added elapsed time and the manual and trainer flags, version 2
- * Strava's `flagged`.
+ * Strava's `flagged`, version 3 the ride's name (feature 008).
  */
-export const ACTIVITY_FIGURES_VERSION = 2;
+export const ACTIVITY_FIGURES_VERSION = 3;
 
 /** The fields we read from a Strava summary or detailed activity. */
 export interface StravaActivity {
@@ -36,6 +38,7 @@ export interface StravaActivity {
 	trainer?: boolean;
 	flagged?: boolean;
 	private?: boolean;
+	name?: string;
 }
 
 export interface ActivityRecord {
@@ -55,7 +58,15 @@ export interface ActivityRecord {
 	is_flagged: 0 | 1 | null;
 	is_private: 0 | 1;
 	refreshed_at: number;
+	/** `null` = unknown: not read yet, or empty or blank on Strava (008 FR-005). */
+	name: string | null;
 }
+
+/**
+ * What every reader gets except the rider's own ride table: the shared column
+ * list leaves the name out, so no other page can show it (008 research R7).
+ */
+export type ActivityRow = Omit<ActivityRecord, "name">;
 
 export function isCycling(sportType: string): sportType is CyclingSportType {
 	return (CYCLING_SPORT_TYPES as readonly string[]).includes(sportType);
@@ -84,10 +95,19 @@ export function toActivityRecord(
 		is_flagged: flag(activity.flagged),
 		is_private: activity.private ? 1 : 0,
 		refreshed_at: now,
+		name: rideName(activity.name),
 	};
 }
 
 /** A missing flag stays unknown, never "false" (spec edge case). */
 function flag(value: boolean | undefined): 0 | 1 | null {
 	return value === undefined ? null : value ? 1 : 0;
+}
+
+/**
+ * A missing or blank name is unknown, never invented (008 FR-005). Anything
+ * else is the rider's own wording, kept untrimmed (008 research R1).
+ */
+function rideName(value: string | undefined): string | null {
+	return value === undefined || value.trim() === "" ? null : value;
 }

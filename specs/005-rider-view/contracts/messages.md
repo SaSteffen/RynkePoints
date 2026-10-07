@@ -37,7 +37,7 @@ added with its story.
 |---|---|---|---|---|
 | `rynke.notice.notWorkedOut` | | Deine Rynke werden gerade berechnet. Schau in ein paar Minuten wieder vorbei. | Your Rynke are still being worked out. Check back in a few minutes. | US1 |
 | `rynke.notice.updating` | `date`, `version` | Die Regeln haben sich geändert: Seit dem {date} gelten neue Regeln. Deine Zahlen werden gerade neu berechnet; bis dahin siehst du sie nach Regel-Version {version}. | The rules have changed: new rules apply since {date}. Your numbers are being updated; until then you see them under rules version {version}. | US6 |
-| `rynke.notice.importing` | | Deine älteren Fahrten werden noch importiert. Deine Rynke wachsen, sobald sie da sind. | Your earlier rides are still being imported. Your Rynke will grow as they arrive. | US6 |
+| `rynke.notice.importing` | `date` | Deine Fahrten seit dem {date} werden noch importiert. Deine Rynke wachsen, sobald sie da sind. | Your rides since {date} are still being imported. Your Rynke will grow as they arrive. | US6 |
 
 ## Summary (US1)
 
@@ -62,7 +62,7 @@ without `rynke.summary.ofTarget`.
 |---|---|---|---|
 | `rynke.gauges.heading` | | Dein Fortschritt | Your progress |
 | `rynke.gauge.caption` | `label`, `value`, `target`, `percent` | {label}: {value} von {target} · {percent} | {label}: {value} of {target} · {percent} |
-| `rynke.gauge.reached` | | erreicht | reached |
+| `rynke.gauge.reached` | | ✓ erreicht | ✓ reached |
 | `rynke.gauge.elevation` | `value`, `target`, `percent`, `missing`, `stepRynke` | Höhenmeter bis zu den nächsten {stepRynke} Trainingsrynke: {value} von {target} · {percent} · noch {missing} | Elevation towards the next {stepRynke} Training Rynke: {value} of {target} · {percent} · {missing} to go |
 | `rynke.source.distance` | | Distanz | Distance |
 | `rynke.source.elevation` | | Höhenmeter | Elevation |
@@ -78,16 +78,31 @@ without `rynke.summary.ofTarget`.
 | `rynke.breakdown.total` | | Gesamt | Total | US3a |
 | `rynke.breakdown.totals` | `training`, `team` | {training} Trainingsrynke · {team} Teamrynke | {training} Training Rynke · {team} Team Rynke | US3a |
 
-US3b adds, named after feature 003's kind codes once Story 3 defines them:
-- `rynke.source.<kind>` and `rynke.source.corrections`;
-- `rynke.breakdown.kind` {count} {team} {training};
+| `rynke.source.team_training` | | Teamtraining | Team training | US3b |
+| `rynke.source.training_weekend_day` | | Tag Trainingswochenende | Training-weekend day | US3b |
+| `rynke.source.technique_training` | | Techniktraining | Technique training | US3b |
+| `rynke.breakdown.kind` | `count`, `team`, `training` | {count} × dabei → {team} Teamrynke, {training} Trainingsrynke | attended {count} × → {team} Team Rynke, {training} Training Rynke | US3b |
+| `rynke.events.heading` | | Deine Teamtermine | Your team events | US3b |
+| `rynke.events.none` | | Für dich ist noch kein Teamtermin eingetragen. | No team event has been recorded for you yet. | US3b |
+| `rynke.events.notCounting` | | zählt nicht: außerhalb des Wertungszeitraums | doesn't count: outside the counting period | US3b |
+
+- There is one `rynke.source.<kind>` per value of feature 003's
+  `TEAM_EVENT_KINDS` (`team_training`, `training_weekend_day`,
+  `technique_training`); `catalogs.test.ts` checks every kind has one (FR-062).
+  The same label names the kind in the breakdown, the gauge legends and the
+  event list.
+- An event line is `{date} · {rynke.source.<kind>}`, then ` · {name}` when the
+  event has one, then ` · {rynke.events.notCounting}` outside the counting
+  window. The name is the organiser's text, printed escaped and never
+  translated.
+
+Corrections add, with feature 003 Story 6 (research R5), wording fixed in their
+tasks:
+- `rynke.source.corrections`;
 - `rynke.breakdown.corrections` {training} {team};
 - `rynke.breakdown.neverBelowZero`;
-- `rynke.events.heading`, `rynke.events.none`, `rynke.events.notCounting`;
 - `rynke.corrections.heading`, `rynke.corrections.none`;
 - `rynke.correction.line` {date} {training} {team} {reason}.
-
-Their wording is fixed in the US3b tasks against feature 003's final codes.
 
 ## Rules (US6)
 
@@ -167,3 +182,4 @@ One key per `UNKNOWN_FIGURE_CODES` value, which `catalogs.test.ts` checks.
 |---|---|---|
 | `me.recent.col.sport` | US1 | The sport type moved from the main row into the ride's detail row, which shows `sport.*` without a column header. |
 | `me.recent.col.elevation` | US1 | The elevation gain moved into the detail row as `units.m`; the main row's metres are `rynke.rides.col.elevationTotal`. |
+| `me.import.running` | US6 | `rynke.notice.importing` {date} says it, so a running import is mentioned once; the status line shows only `me.import.done`. |

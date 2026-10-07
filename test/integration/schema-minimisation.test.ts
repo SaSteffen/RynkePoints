@@ -37,6 +37,7 @@ const COLUMNS: Record<string, string[]> = {
 		"is_flagged",
 		"is_private",
 		"refreshed_at",
+		"name",
 	],
 	consent_records: ["athlete_id", "version", "accepted_at"],
 	ride_results: [
@@ -68,7 +69,11 @@ const COLUMNS: Record<string, string[]> = {
 		"rules_version",
 		"rules_effective_date",
 		"computed_at",
+		"team_event_breakdown",
 	],
+	team_event_kinds: ["kind"],
+	team_events: ["event_id", "kind", "event_date", "name"],
+	attendances: ["event_id", "athlete_id"],
 };
 
 const FORBIDDEN = [
@@ -85,6 +90,12 @@ const FORBIDDEN = [
 	"lang",
 ];
 
+const DOCUMENTED = new Set([
+	"riders.first_name",
+	"team_events.name",
+	"activities.name",
+]);
+
 async function columns(table: string): Promise<string[]> {
 	const { results } = await env.DB.prepare(`PRAGMA table_info(${table})`).all<{
 		name: string;
@@ -100,12 +111,20 @@ describe("schema minimisation", () => {
 		},
 	);
 
+	it("appends the team-event breakdown to rynke_balances (migration 0006)", async () => {
+		expect((await columns("rynke_balances")).at(-1)).toBe(
+			"team_event_breakdown",
+		);
+	});
+
 	it.each(Object.keys(COLUMNS))(
 		"%s has no column for location, media, health, contact or language",
 		async (table) => {
 			for (const column of await columns(table)) {
-				// `first_name` is the one documented exception to `name`.
-				if (column === "first_name") continue;
+				// `first_name` and a team event's `name` don't come from a ride.
+				// `activities.name` is 008's documented exception: the ride's name,
+				// shown only to its rider (008 research R1).
+				if (DOCUMENTED.has(`${table}.${column}`)) continue;
 				for (const word of FORBIDDEN) expect(column).not.toContain(word);
 			}
 		},

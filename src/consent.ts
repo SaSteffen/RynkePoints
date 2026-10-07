@@ -3,5 +3,8 @@
 // `landing.leave` and `consent.*` (contracts/messages.md). Raising it means the
 // text changed what is read, written or shown; re-asking riders who agreed to
 // an older version is feature 004-roles-and-consent's job (its FR-013).
+// Feature 008 named the ride's name without raising it: every response read
+// already carried the name, it needs no new scope or request, and only the
+// rider sees it (008 FR-007, clarification Q1; constitution v2.1.0).
 
 export const CONSENT_VERSION = 1;

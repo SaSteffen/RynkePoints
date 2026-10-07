@@ -21,5 +21,8 @@ ignores it.
    rider's own balance and ride results.
 4. [team-leaderboard.md](team-leaderboard.md) — the team leaderboard and the
    organiser overview (who qualified). The main purpose of the app.
+5. [rider-progress-charts.md](rider-progress-charts.md) — line charts of a
+   rider's own Rynke over the season.
 
-2 and 3 are independent of each other; 4 needs 1 and is easier after 3.
+2 and 3 are independent of each other; 4 needs 1 and is easier after 3; 5 needs
+3 and may share its chart with 4.

@@ -64,6 +64,7 @@ describe("toActivityRecord", () => {
 			is_flagged: 1,
 			is_private: 0,
 			refreshed_at: NOW,
+			name: "Synthetic ride 7001",
 		});
 	});
 
@@ -103,13 +104,13 @@ describe("toActivityRecord", () => {
 				"is_trainer",
 				"is_flagged",
 				"is_private",
+				"name",
 				"refreshed_at",
 			].sort(),
 		);
 		const serialized = JSON.stringify(record);
 		for (const leaked of [
 			"synthetic_polyline",
-			"Synthetic morning ride",
 			"synthetic description",
 			"53.55",
 			"140",
@@ -148,8 +149,26 @@ describe("toActivityRecord", () => {
 		expect(record?.[column]).toBeNull();
 	});
 
-	it("is at figures version 2, which added Strava's flag", () => {
-		expect(ACTIVITY_FIGURES_VERSION).toBe(2);
+	it("is at figures version 3, which added the ride's name", () => {
+		expect(ACTIVITY_FIGURES_VERSION).toBe(3);
+	});
+
+	it("keeps the ride's name exactly as Strava sends it (008 FR-001)", () => {
+		const name = " Rund um den Sorpesee <3 🚴 ";
+		expect(
+			toActivityRecord(makeStravaActivity({ name }), ATHLETE_A, NOW)?.name,
+		).toBe(name);
+	});
+
+	it.each([
+		["missing", undefined],
+		["empty", ""],
+		["blank", "   "],
+		["whitespace", "\t\n"],
+	])("records a %s name as unknown (008 FR-005)", (_, name) => {
+		const activity = makeStravaActivity({ name });
+		if (name === undefined) delete activity.name;
+		expect(toActivityRecord(activity, ATHLETE_A, NOW)?.name).toBeNull();
 	});
 
 	it("marks private activities", () => {

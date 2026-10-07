@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { CONSENT_VERSION } from "../../src/consent";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
@@ -74,12 +75,25 @@ describe("GET / (signed out)", () => {
 		}
 	});
 
+	it("names the ride name among the data read (008 FR-007)", async () => {
+		const { page: german } = await get();
+		expect(german).toContain("nur Namen, Sportart");
+		expect(german).toContain("Deine einzelnen Fahrten und ihre Namen");
+		const { page: english } = await get({ acceptLanguage: "en" });
+		expect(english).toContain("only read name, sport type");
+		expect(english).toContain("your individual rides or their names");
+		// Named, not a new consent: no new scope or request (clarification Q1).
+		expect(CONSENT_VERSION).toBe(1);
+	});
+
 	it("names who sees what and that write access is optional", async () => {
 		const { page } = await get();
 		expect(page).toContain("<h2>Was du mit dem Verbinden erlaubst</h2>");
-		expect(page).toContain("Deine einzelnen Fahrten sieht niemand außer dir.");
+		expect(page).toContain(
+			"Deine einzelnen Fahrten und ihre Namen sieht niemand außer dir.",
+		);
 		expect(page).toContain("ohne deinen Namen");
-		expect(page).toContain("Ohne diese Erlaubnis machst du genauso mit.");
+		expect(page).toContain("Ohne diese Erlaubnis machst du genauso mit");
 	});
 
 	it("shows the consent form with the Connect with Strava button", async () => {
@@ -134,5 +148,25 @@ describe("GET / (signed in)", () => {
 	it("treats a session for a deleted rider as signed out", async () => {
 		const { res } = await get({ cookies: await sessionCookie(ctx, ATHLETE_A) });
 		expect(res.status).toBe(200);
+	});
+});
+
+describe("GET /me consent section (008 FR-007)", () => {
+	it("shows a connected rider what is read, before who sees what", async () => {
+		await seedRider(ctx, { consentVersion: CONSENT_VERSION });
+		const res = await handleFetch(
+			request("/me", { cookies: await sessionCookie(ctx, ATHLETE_A) }),
+			ctx,
+		);
+		const page = await res.text();
+		const section = page.match(
+			/<h2>Deine Zustimmung<\/h2>([\s\S]*?)<\/section>/,
+		)?.[1];
+		expect(section).toBeDefined();
+		const dataRead = section?.indexOf(escapeHtml(de["landing.dataRead"])) ?? -1;
+		expect(dataRead).toBeGreaterThan(-1);
+		expect(dataRead).toBeLessThan(
+			section?.indexOf(escapeHtml(de["consent.organisers"])) ?? -1,
+		);
 	});
 });

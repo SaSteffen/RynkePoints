@@ -79,9 +79,11 @@ function rows(page: string): string[][] {
 }
 
 /** The detail rows below each main row (sport type and gain). */
+/** Each detail row's text after the name and link (008's `p.ride-strava`). */
 function details(page: string): string[] {
 	return [...page.matchAll(/<tr class="ride-details">([\s\S]*?)<\/tr>/g)].map(
-		(row) => text(row[1] ?? ""),
+		(row) =>
+			text((row[1] ?? "").replace(/<p class="ride-strava">[\s\S]*?<\/p>/, "")),
 	);
 }
 
@@ -136,7 +138,7 @@ describe("GET /me recent rides", () => {
 		]);
 
 		const page = await getMe();
-		expect(page).toContain("<h2>Zuletzt importierte Fahrten</h2>");
+		expect(page).toContain("<h2>Deine Fahrten</h2>");
 		for (const header of [
 			"Datum",
 			"Distanz",
@@ -170,7 +172,7 @@ describe("GET /me recent rides", () => {
 		]);
 
 		const page = await getMe("en");
-		expect(page).toContain("<h2>Recently imported rides</h2>");
+		expect(page).toContain("<h2>Your rides</h2>");
 		for (const header of [
 			"Date",
 			"Distance",
@@ -192,7 +194,7 @@ describe("GET /me recent rides", () => {
 		await upsertActivities(env.DB, rides(ATHLETE_B, 3, 7_200_001));
 
 		const page = await getMe();
-		expect(page).toContain("<h2>Zuletzt importierte Fahrten</h2>");
+		expect(page).toContain("<h2>Deine Fahrten</h2>");
 		expect(page).toContain("Noch keine Fahrten importiert");
 		expect(page).not.toContain("<table");
 	});

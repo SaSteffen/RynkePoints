@@ -10,13 +10,17 @@ the original feature background.
 
 ```bash
 pnpm install          # install deps + git hooks (lefthook, via "prepare")
-pnpm dev              # run the Worker locally (reads .dev.vars)
+pnpm dev              # the app on http://localhost:8789 with a fake Strava and
+                      # synthetic sample riders; doesn't read .dev.vars
+pnpm dev:strava       # the app on port 8789 against the real Strava (.dev.vars);
+                      # uses the app's Strava request budget
 pnpm test             # Vitest inside the Workers runtime
 pnpm lint             # Biome lint + format check
 pnpm format           # Biome autofix
 pnpm typecheck        # tsc --noEmit
 pnpm types            # regenerate worker-configuration.d.ts after editing wrangler.jsonc
-pnpm wrangler d1 migrations apply rynke-points --local   # local D1 schema for pnpm dev
+pnpm wrangler d1 migrations apply rynke-points --local   # local D1 schema for pnpm dev:strava
+                                                          # (pnpm dev applies its own)
 ```
 
 `wrangler.jsonc` declares the D1 (`DB`), Queue (`WORK_QUEUE`) and daily cron
@@ -62,5 +66,7 @@ and commit messages must follow
   block; rider text is never lost (Principle III).
 - Rider-facing text belongs in the catalogs under `src/i18n/messages/`, in every
   language, never inline in pages or logic (FR-028).
+- `src/` never imports `dev/`: the fake Strava and its sample data must not reach
+  the production bundle (feature 006 FR-009, `test/unit/dev-guard.test.ts`).
 - `.specify/scripts/` and `.specify/templates/` are vendored Spec Kit files, not
   project code — don't lint, refactor, or "clean up" them.

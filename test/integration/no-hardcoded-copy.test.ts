@@ -33,6 +33,8 @@ const NUMBERS_AND_PUNCTUATION = /^[\d.,:/\s·–-]+$/;
 function unmarkedText(page: string): string[] {
 	let text = page
 		.replace(/<style>[\s\S]*?<\/style>/g, "")
+		// Ride names are rider data, not copy (008 research R8).
+		.replace(/<span class="ride-name">[\s\S]*?<\/span>/g, "")
 		.replace(/<[^>]*>/g, "\n");
 	let previous: string;
 	do {

@@ -49,7 +49,7 @@ scheduled step, and Rynke storage in the activity handlers: see
 | Case | Action |
 |---|---|
 | `delete` | Delete the row, if present. |
-| `update` with `changed` exactly `["title"]` | No-op. |
+| `update` with `changed` exactly `["title"]` | No-op until feature 008, which stores the name: now like any other update ([008 activity-processing](../../008-strava-ride-names/contracts/activity-processing.md)). |
 | `create`, or any other `update` (including an empty `changed` or unknown keys) | `GET /activities/{id}`. |
 | ↳ 404/403 | Delete the row. |
 | ↳ not cycling | Delete the row. |

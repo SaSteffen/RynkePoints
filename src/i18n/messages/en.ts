@@ -10,6 +10,7 @@ export const en: Catalog = {
 	"brand.connectWithStrava.alt": "Connect with Strava",
 	"brand.poweredByStrava.src": "/strava/en/powered-by-strava.svg",
 	"brand.poweredByStrava.alt": "Powered by Strava",
+	"brand.viewOnStrava": "View on Strava",
 
 	"layout.switcher.label": "Language",
 	"layout.logout": "Sign out",
@@ -20,11 +21,11 @@ export const en: Catalog = {
 	"landing.who": "Only members of {clubLink} can take part.",
 	"club.linkText": "our team club on Strava",
 	"landing.dataRead":
-		"From your rides we only read sport type, start time, distance, moving time, elapsed time including pauses, elevation gain, whether the ride was entered manually or ridden on an indoor trainer, and whether Strava has flagged it – no GPS tracks, maps, photos or health data.",
+		"From your rides we only read name, sport type, start time, distance, moving time, elapsed time including pauses, elevation gain, whether the ride was entered manually or ridden on an indoor trainer, and whether Strava has flagged it – no GPS tracks, maps, photos or health data.",
 	"landing.private":
-		'On Strava you decide whether your private ("Only You") activities are included.',
+		'On Strava you decide whether your private ("Only You") activities are included: Strava lists this as viewing your private activities. If you untick it, your private rides don\'t count for Rynke.',
 	"landing.purpose":
-		"We use the data only for the team's Rynke (points) and events. Nobody but you sees your individual rides.",
+		"We use the data only for the team's Rynke (points) and events. Nobody but you sees your individual rides or their names.",
 	"landing.leave":
 		"You can leave at any time: on your RynkePoints page, or by removing RynkePoints in your Strava settings. We then delete all data about you, including your Rynke; on your RynkePoints page we confirm it right away. If you leave the club, we delete your data within 24 hours.",
 	"landing.backups":
@@ -39,7 +40,7 @@ export const en: Catalog = {
 		"Everyone else on the team sees your accumulated Rynke, overall and per week, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
 	"consent.write":
-		"If you like, you can allow RynkePoints on Strava to edit your activities. Once the feature exists, we then write a short Rynke section into your ride descriptions; we never change your own text. Whoever may see the ride on Strava sees the section. You take part just the same without this permission.",
+		"If you like, you can allow RynkePoints on Strava to edit your activities. Once the feature exists, we then write a short Rynke section into your ride descriptions; we never change your own text. Whoever may see the ride on Strava sees the section. Strava lists this permission as uploading activities to Strava; RynkePoints never uploads activities. You take part just the same without this permission, so you can untick it.",
 	"consent.agree":
 		"I agree that RynkePoints reads my rides and shares my Rynke as described.",
 
@@ -60,9 +61,8 @@ export const en: Catalog = {
 	"me.consent.accepted": "Agreed on {date} (version {version}):",
 	"me.consent.none":
 		"No consent is recorded for you yet. Sign out and connect again on the start page to agree.",
-	"me.import.running": "Importing your rides since {date} …",
 	"me.import.done": "Import complete",
-	"me.recent.heading": "Recently imported rides",
+	"me.recent.heading": "Your rides",
 	"me.recent.empty": "No rides imported yet",
 	"me.recent.col.date": "Date",
 	"me.recent.col.distance": "Distance",
@@ -70,6 +70,11 @@ export const en: Catalog = {
 
 	"units.km": "{value} km",
 	"units.m": "{value} m",
+	"units.percent": "{value}%",
+	"units.kmh": "{value} km/h",
+	"units.mPerH": "{value} m/h",
+	"units.duration": "{h} h {min} min",
+	"units.durationMin": "{min} min",
 	"sport.Ride": "Ride",
 	"sport.MountainBikeRide": "Mountain bike ride",
 	"sport.GravelRide": "Gravel ride",
@@ -94,10 +99,90 @@ export const en: Catalog = {
 	"rynke.summary.reached": "reached ✓",
 	"rynke.rides.col.status": "Counts?",
 	"rynke.rides.col.elevationTotal": "Towards elevation",
+	"rynke.rides.position": "Rides {from}–{to} of {total}",
+	"rynke.pager.label": "Pages",
+	"rynke.pager.first": "« Newest",
+	"rynke.pager.previous": "‹ Newer",
+	"rynke.pager.next": "Older ›",
+	"rynke.pager.last": "Oldest »",
+	"rynke.notice.updating":
+		"The rules have changed: new rules apply since {date}. Your numbers are being updated; until then you see them under rules version {version}.",
+	"rynke.notice.importing":
+		"Your rides since {date} are still being imported. Your Rynke will grow as they arrive.",
+	"rynke.rules.heading": "Rules",
+	"rynke.rules.version":
+		"Computed with rules version {version}, in effect since {date}.",
+	"rynke.rules.window": "Everything from {start} counts.",
+	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
+	"rynke.rules.handout": "How Rynke work (rules handout, in German)",
 	"rynke.ride.counts": "counts",
 	"rynke.ride.doesNotCount": "doesn't count",
 	"rynke.ride.beingEvaluated": "being evaluated",
 	"rynke.ride.virtual": "virtual",
+	"rynke.ride.fixHint":
+		"You can correct the ride on Strava or ask an organiser.",
+	"rynke.reason.flagged":
+		"Strava flagged this ride. If you disagree, please settle it with Strava.",
+	"rynke.reason.pause":
+		"Paused too long: {paused} paused for {moving} moving time – more than half is not allowed.",
+	"rynke.reason.pause.share":
+		"Paused too long: {paused} paused for {moving} moving time – more than {share} is not allowed.",
+	"rynke.reason.pause.noLimit":
+		"Paused too long: {paused} paused for {moving} moving time.",
+	"rynke.reason.pause.noMovingTime":
+		"No moving time: the ride counts as paused throughout.",
+	"rynke.reason.manual": "Entered manually on Strava.",
+	"rynke.reason.too_slow":
+		"Too slow: {speed} on average, at least {limit} needed.",
+	"rynke.reason.too_slow.noLimit": "Too slow: {speed} on average.",
+	"rynke.reason.too_fast":
+		"Too fast for a bike ride: {speed} on average, at most {limit} allowed.",
+	"rynke.reason.too_fast.noLimit":
+		"Too fast for a bike ride: {speed} on average.",
+	"rynke.reason.climbing_rate":
+		"Too much climbing for the time: {rate} uphill, at most {limit} allowed.",
+	"rynke.reason.climbing_rate.noLimit":
+		"Too much climbing for the time: {rate} uphill.",
+	"rynke.reason.excluded_sport_type": "{sport} doesn't count for Rynke.",
+	"rynke.reason.outside_window": "Before the season start on {date}.",
+	"rynke.reason.outside_window.afterDeadline": "After the deadline on {date}.",
+	"rynke.reason.outside_window.afterDeadlineNoDate": "After the deadline.",
+	"rynke.reason.overlap":
+		"Recorded twice: your ride of {date}, {time}, {distance} counts instead.",
+	"rynke.reason.overlap.noRide":
+		"Recorded twice: another of your rides counts instead.",
+	"rynke.reason.unknown": "Doesn't count under the current rules.",
+	"rynke.unknown.elapsed_time":
+		"The elapsed time including pauses is still missing, so the pause rule hasn't been checked yet.",
+	"rynke.unknown.manual":
+		"Whether the ride was entered manually isn't known yet.",
+	"rynke.unknown.trainer":
+		"Whether the ride was on an indoor trainer isn't known yet.",
+	"rynke.unknown.flagged": "Whether Strava flagged the ride isn't known yet.",
+	"rynke.unknown.mayChange": "The result may still change.",
+	"rynke.gauges.heading": "Your progress",
+	"rynke.gauge.caption": "{label}: {value} of {target} · {percent}",
+	"rynke.gauge.reached": "✓ reached",
+	"rynke.gauge.elevation":
+		"Elevation towards the next {stepRynke} Training Rynke: {value} of {target} · {percent} · {missing} to go",
+	"rynke.source.distance": "Distance",
+	"rynke.source.elevation": "Elevation",
+	"rynke.source.team_training": "Team training",
+	"rynke.source.training_weekend_day": "Training-weekend day",
+	"rynke.source.technique_training": "Technique training",
+	"rynke.breakdown.heading": "Where your Rynke come from",
+	"rynke.breakdown.trainingRynke": "{n} Training Rynke",
+	"rynke.breakdown.elevation":
+		"{metres} in total → {rynke} Training Rynke, {toNext} to the next {stepRynke}",
+	"rynke.breakdown.elevationNoStep":
+		"{metres} in total → {rynke} Training Rynke, {toNext} to the next step",
+	"rynke.breakdown.total": "Total",
+	"rynke.breakdown.totals": "{training} Training Rynke · {team} Team Rynke",
+	"rynke.breakdown.kind":
+		"attended {count} × → {team} Team Rynke, {training} Training Rynke",
+	"rynke.events.heading": "Your team events",
+	"rynke.events.none": "No team event has been recorded for you yet.",
+	"rynke.events.notCounting": "doesn't count: outside the counting period",
 
 	"disconnect.title": "Delete your data?",
 	"disconnect.explain":

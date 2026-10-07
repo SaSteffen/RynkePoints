@@ -10,7 +10,8 @@ Its common consumer rules apply unchanged.
 their Strava requests. Only their final write changes: instead of writing
 activities directly, they call `applyAndEvaluate` with the `upsert` or `delete`
 change, so the activity, its ride results and the balance commit in one batch
-(research R11). A title-only update still writes nothing.
+(research R11). A title-only update wrote nothing until feature 008; it now
+refetches the ride for its name, and the Rynke stay the same.
 
 ## New message: `evaluate-rider`
 
@@ -25,10 +26,14 @@ change, so the activity, its ride results and the balance commit in one batch
 | Result | `ok`; a D1 failure is transient (common rule 3). |
 | Idempotency | Running it any number of times leaves the same rows; the second run writes nothing. |
 
+The evaluation includes the rider's attendances (research R21).
+
 Sent by:
 
 - the OAuth callback after it removed private activities on a narrowed scope
   (research R11);
+- `teamEventChange`, once per affected rider after its batch (research R21;
+  called by the organiser pages once they exist);
 - the daily sweep below.
 
 ## Scheduled: evaluation sweep
@@ -36,10 +41,15 @@ Sent by:
 A step added to the daily cron, after the existing ones. It sends one
 `evaluate-rider` per connected rider returned by `listRidersNeedingEvaluation`
 (no balance; a row with another `rules_version`; an activity without a current
-ride result), in `sendBatch` chunks of 100 (research R14).
+ride result; attendance inside the counting window whose count per kind differs
+from the stored breakdown), in `sendBatch` chunks of 100 (research R14, R22).
+The maintainer starts it on demand with `pnpm daily:run` (feature 007), e.g.
+after entering team events by hand; that runs every step of the daily cron,
+not only this one.
 
 ## Queue usage
 
-`evaluate-rider` is sent only by the sweep and on scope narrowing: about one per
-rider after the first deploy and after each rules-version bump, otherwise near
-zero. Activity events add no messages.
+`evaluate-rider` is sent by the sweep, on scope narrowing and on organiser
+changes to team events: about one per rider after the first deploy and after
+each rules-version bump, one per affected rider per team-event change, otherwise
+near zero. Activity events add no messages.

@@ -3,6 +3,11 @@ import { expect } from "vitest";
 import { listRecentActivities } from "../../src/db/activities";
 import { readRynke } from "../../src/db/rynke";
 import {
+	listRiderAttendanceStatement,
+	type RiderAttendanceRow,
+	toAttendance,
+} from "../../src/db/team-events";
+import {
 	evaluateRides,
 	type RideResult,
 	type RidingSums,
@@ -14,7 +19,12 @@ import {
 	countingWindow,
 	type RynkeRules,
 } from "../../src/rynke/rules";
-import { NO_EXTRAS, tally } from "../../src/rynke/tally";
+import { extrasFromAttendance, tally } from "../../src/rynke/tally";
+import {
+	type Attendance,
+	evaluateAttendance,
+	type TeamEventKind,
+} from "../../src/rynke/team-events";
 import type { ActivityRecord } from "../../src/strava/activity";
 import { ATHLETE_A, NOW } from "./fixtures";
 
@@ -43,6 +53,7 @@ export function activityRecord(
 		is_flagged: 0,
 		is_private: 0,
 		refreshed_at: NOW,
+		name: null,
 		...overrides,
 	};
 }
@@ -70,17 +81,67 @@ export async function snapshot(athleteId = ATHLETE_A) {
 	};
 }
 
-/** What a full evaluation of the rider's stored activities gives. */
+/** A `team_events` row written with plain SQL, as the maintainer does (R22). */
+export async function insertEvent(
+	kind: TeamEventKind,
+	date: string,
+	name: string | null = null,
+): Promise<number> {
+	const eventId = await env.DB.prepare(
+		"INSERT INTO team_events (kind, event_date, name) VALUES (?, ?, ?) RETURNING event_id",
+	)
+		.bind(kind, date, name)
+		.first<number>("event_id");
+	if (eventId === null) throw new Error("no event_id returned");
+	return eventId;
+}
+
+/** Attendance written with plain SQL, as the maintainer does (R22). */
+export async function attendRaw(
+	eventId: number,
+	athleteIds: number[],
+): Promise<void> {
+	await env.DB.batch(
+		athleteIds.map((athleteId) =>
+			env.DB.prepare(
+				"INSERT INTO attendances (event_id, athlete_id) VALUES (?, ?) ON CONFLICT DO NOTHING",
+			).bind(eventId, athleteId),
+		),
+	);
+}
+
+/** The rider's stored attendances, as the evaluation reads them. */
+export async function storedAttendance(
+	athleteId = ATHLETE_A,
+): Promise<Attendance[]> {
+	const { results } = await listRiderAttendanceStatement(
+		env.DB,
+		athleteId,
+	).all<RiderAttendanceRow>();
+	return results.map(toAttendance);
+}
+
+/** Every `attendances` row, for "no evaluation changes attendance" (FR-026). */
+export async function attendanceRows() {
+	const { results } = await env.DB.prepare(
+		"SELECT event_id, athlete_id FROM attendances ORDER BY event_id, athlete_id",
+	).all<{ event_id: number; athlete_id: number }>();
+	return results;
+}
+
+/** What a full evaluation of the rider's stored activities and attendance gives. */
 export async function expectedRynke(rules: RynkeRules, athleteId = ATHLETE_A) {
 	const rows = await listRecentActivities(env.DB, athleteId, 10_000);
-	const evaluation = evaluateRides(
-		rows.map(rideFromRow),
+	const window = countingWindow(env, rules);
+	const evaluation = evaluateRides(rows.map(rideFromRow), rules, window);
+	const attendance = evaluateAttendance(
+		await storedAttendance(athleteId),
 		rules,
-		countingWindow(env, rules),
+		window,
 	);
 	return {
 		results: evaluation.results,
-		balance: tally(evaluation.riding, NO_EXTRAS, rules),
+		balance: tally(evaluation.riding, extrasFromAttendance(attendance), rules),
 	};
 }
 
@@ -88,7 +149,9 @@ export async function expectedRynke(rules: RynkeRules, athleteId = ATHLETE_A) {
  * The invariants of data-model.md, checked against what is stored (FR-014b):
  * every activity has exactly one result and no result lacks its activity, no
  * two counting results overlap, the balance is `tally` of the stored counting
- * results, and every row carries one rules version.
+ * results and attendance, and every row carries one rules version. The
+ * breakdown equals the evaluated attendance; Team Rynke are its Team sum and
+ * Training Rynke the riding plus its Training sum (Story 3).
  */
 export async function expectConsistent(
 	athleteId = ATHLETE_A,
@@ -130,7 +193,19 @@ export async function expectConsistent(
 			rules,
 		),
 	};
-	expect(fields).toEqual(tally(riding, NO_EXTRAS, rules));
+	const attendance = evaluateAttendance(
+		await storedAttendance(athleteId),
+		rules,
+		countingWindow(env, rules),
+	);
+	expect(balance.teamEvents).toEqual(attendance.byKind);
+	expect(balance.teamRynke).toBe(attendance.team);
+	expect(balance.trainingRynke).toBe(
+		riding.distanceRynke + riding.elevationRynke + attendance.training,
+	);
+	expect(fields).toEqual(
+		tally(riding, extrasFromAttendance(attendance), rules),
+	);
 	expect(new Set(results.map((r) => r.rulesVersion))).toEqual(
 		new Set(results.length > 0 ? [balance.rulesVersion] : []),
 	);

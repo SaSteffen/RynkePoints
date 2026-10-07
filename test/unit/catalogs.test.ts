@@ -6,10 +6,13 @@ import {
 } from "../../src/i18n/catalogs";
 import { de } from "../../src/i18n/messages/de";
 import { en } from "../../src/i18n/messages/en";
+import { REASON_CODES, UNKNOWN_FIGURE_CODES } from "../../src/rynke/rides";
+import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
 import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 
 // Every ID in specs/001-strava-connect-webhook/contracts/messages.md and
-// specs/005-rider-view/contracts/messages.md.
+// specs/005-rider-view/contracts/messages.md and
+// specs/008-strava-ride-names/contracts/messages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"meta.intlLocale",
@@ -18,6 +21,7 @@ const CONTRACT_IDS = [
 	"brand.connectWithStrava.alt",
 	"brand.poweredByStrava.src",
 	"brand.poweredByStrava.alt",
+	"brand.viewOnStrava",
 	"layout.switcher.label",
 	"layout.logout",
 	"landing.title",
@@ -49,7 +53,6 @@ const CONTRACT_IDS = [
 	"me.consent.heading",
 	"me.consent.accepted",
 	"me.consent.none",
-	"me.import.running",
 	"me.import.done",
 	"me.recent.heading",
 	"me.recent.empty",
@@ -112,6 +115,74 @@ const CONTRACT_IDS = [
 	"rynke.ride.doesNotCount",
 	"rynke.ride.beingEvaluated",
 	"rynke.ride.virtual",
+	// Feature 005, US2
+	"units.percent",
+	"rynke.gauges.heading",
+	"rynke.gauge.caption",
+	"rynke.gauge.reached",
+	"rynke.gauge.elevation",
+	"rynke.source.distance",
+	"rynke.source.elevation",
+	// Feature 005, US3a
+	"rynke.breakdown.heading",
+	"rynke.breakdown.trainingRynke",
+	"rynke.breakdown.elevation",
+	"rynke.breakdown.elevationNoStep",
+	"rynke.breakdown.total",
+	"rynke.breakdown.totals",
+	// Feature 005, US3b team events
+	"rynke.source.team_training",
+	"rynke.source.training_weekend_day",
+	"rynke.source.technique_training",
+	"rynke.breakdown.kind",
+	"rynke.events.heading",
+	"rynke.events.none",
+	"rynke.events.notCounting",
+	// Feature 005, US4
+	"units.kmh",
+	"units.mPerH",
+	"units.duration",
+	"units.durationMin",
+	"rynke.ride.fixHint",
+	"rynke.reason.flagged",
+	"rynke.reason.pause",
+	"rynke.reason.pause.share",
+	"rynke.reason.pause.noLimit",
+	"rynke.reason.pause.noMovingTime",
+	"rynke.reason.manual",
+	"rynke.reason.too_slow",
+	"rynke.reason.too_slow.noLimit",
+	"rynke.reason.too_fast",
+	"rynke.reason.too_fast.noLimit",
+	"rynke.reason.climbing_rate",
+	"rynke.reason.climbing_rate.noLimit",
+	"rynke.reason.excluded_sport_type",
+	"rynke.reason.outside_window",
+	"rynke.reason.outside_window.afterDeadline",
+	"rynke.reason.outside_window.afterDeadlineNoDate",
+	"rynke.reason.overlap",
+	"rynke.reason.overlap.noRide",
+	"rynke.reason.unknown",
+	"rynke.unknown.elapsed_time",
+	"rynke.unknown.manual",
+	"rynke.unknown.trainer",
+	"rynke.unknown.flagged",
+	"rynke.unknown.mayChange",
+	// Feature 005, US5
+	"rynke.rides.position",
+	"rynke.pager.label",
+	"rynke.pager.first",
+	"rynke.pager.previous",
+	"rynke.pager.next",
+	"rynke.pager.last",
+	// Feature 005, US6
+	"rynke.notice.updating",
+	"rynke.notice.importing",
+	"rynke.rules.heading",
+	"rynke.rules.version",
+	"rynke.rules.window",
+	"rynke.rules.windowDeadline",
+	"rynke.rules.handout",
 ];
 
 const placeholders = (text: string) =>
@@ -167,6 +238,25 @@ describe("catalog contents", () => {
 		}
 	});
 
+	it("explains every reason and every unknown figure (SC-003, FR-062)", () => {
+		for (const [locale, catalog] of catalogs) {
+			for (const code of REASON_CODES) {
+				expect(Object.keys(catalog), locale).toContain(`rynke.reason.${code}`);
+			}
+			for (const code of UNKNOWN_FIGURE_CODES) {
+				expect(Object.keys(catalog), locale).toContain(`rynke.unknown.${code}`);
+			}
+		}
+	});
+
+	it("names every team-event kind (FR-062)", () => {
+		for (const [locale, catalog] of catalogs) {
+			for (const kind of TEAM_EVENT_KINDS) {
+				expect(Object.keys(catalog), locale).toContain(`rynke.source.${kind}`);
+			}
+		}
+	});
+
 	it("carries the German source texts", () => {
 		expect(de["landing.backups"]).toBe(
 			"Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters und verschwinden danach automatisch.",
@@ -181,8 +271,19 @@ describe("catalog contents", () => {
 		expect(en["rynke.team"]).toBe("Team Rynke");
 	});
 
+	it("heads the ride table with all the rider's rides (US5)", () => {
+		expect(de["me.recent.heading"]).toBe("Deine Fahrten");
+		expect(en["me.recent.heading"]).toBe("Your rides");
+	});
+
 	it("keeps Strava's exact attribution wording in every locale", () => {
 		expect(de["brand.poweredByStrava.alt"]).toBe("Powered by Strava");
 		expect(en["brand.poweredByStrava.alt"]).toBe("Powered by Strava");
+	});
+
+	it("keeps Strava's link text in English in every locale (008 FR-009)", () => {
+		for (const catalog of Object.values(CATALOGS)) {
+			expect(catalog["brand.viewOnStrava"]).toBe("View on Strava");
+		}
 	});
 });

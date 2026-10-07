@@ -1,7 +1,24 @@
 import { describe, expect, it } from "vitest";
-import type { RidingSums, RidingTotals } from "../../src/rynke/rides";
+import {
+	evaluateRides,
+	type RidingSums,
+	type RidingTotals,
+} from "../../src/rynke/rides";
 import { CURRENT_RULES, type RynkeRules } from "../../src/rynke/rules";
-import { NO_EXTRAS, tally, virtualShareRequired } from "../../src/rynke/tally";
+import {
+	type Extras,
+	extrasFromAttendance,
+	NO_EXTRAS,
+	tally,
+	virtualShareRequired,
+} from "../../src/rynke/tally";
+import {
+	type Attendance,
+	evaluateAttendance,
+	TEAM_EVENT_KINDS,
+	type TeamEventKind,
+} from "../../src/rynke/team-events";
+import { makeRide, WINDOW } from "../support/rides";
 
 /** Riding totals from whole Rynke and decimetres, elevation floored as R3 says. */
 function sums(distanceRynke: number, elevationDm = 0): RidingSums {
@@ -19,6 +36,30 @@ function riding(
 	return { ...all, withoutVirtual };
 }
 
+/** Extras without a breakdown, as Story 6's corrections would give them. */
+function extras(training: number, team: number): Extras {
+	return { ...NO_EXTRAS, training, team };
+}
+
+/** Extras from attending `kinds`, one event each, inside the window. */
+function attending(...kinds: TeamEventKind[]): Extras {
+	const attendance: Attendance[] = kinds.map((kind, i) => ({
+		eventId: i + 1,
+		kind,
+		date: "2026-05-01",
+	}));
+	return extrasFromAttendance(
+		evaluateAttendance(attendance, CURRENT_RULES, WINDOW),
+	);
+}
+
+const ZERO_BREAKDOWN = TEAM_EVENT_KINDS.map((kind) => ({
+	kind,
+	attended: 0,
+	team: 0,
+	training: 0,
+}));
+
 describe("tally", () => {
 	it("S4-1: fills every balance field from the riding totals", () => {
 		expect(tally(riding(sums(7, 12400)), NO_EXTRAS, CURRENT_RULES)).toEqual({
@@ -35,6 +76,7 @@ describe("tally", () => {
 			qualified: false,
 			rulesVersion: CURRENT_RULES.version,
 			rulesEffectiveDate: CURRENT_RULES.effectiveDate,
+			teamEvents: ZERO_BREAKDOWN,
 		});
 	});
 
@@ -53,7 +95,7 @@ describe("tally", () => {
 	it("S4-8: virtual rides beyond a third keep the rider from qualifying", () => {
 		const balance = tally(
 			riding(sums(260), sums(160)),
-			{ training: 0, team: 25 },
+			extras(0, 25),
 			CURRENT_RULES,
 		);
 		expect(balance).toMatchObject({
@@ -70,7 +112,7 @@ describe("tally", () => {
 	it("S4-8: 167 without virtual rides is enough", () => {
 		const balance = tally(
 			riding(sums(260), sums(167)),
-			{ training: 0, team: 25 },
+			extras(0, 25),
 			CURRENT_RULES,
 		);
 		expect(balance).toMatchObject({
@@ -83,7 +125,7 @@ describe("tally", () => {
 	it("counts extra Training Rynke with and without virtual rides (R12)", () => {
 		const balance = tally(
 			riding(sums(100), sums(40)),
-			{ training: 30, team: 3 },
+			extras(30, 3),
 			CURRENT_RULES,
 		);
 		expect(balance).toMatchObject({
@@ -98,7 +140,7 @@ describe("tally", () => {
 	it("floors totals at 0 for negative extras", () => {
 		const balance = tally(
 			riding(sums(10), sums(5)),
-			{ training: -50, team: -2 },
+			extras(-50, -2),
 			CURRENT_RULES,
 		);
 		expect(balance).toMatchObject({
@@ -124,7 +166,7 @@ describe("tally", () => {
 		(training, team, withoutVirtual, qualified) => {
 			const balance = tally(
 				riding(sums(training), sums(withoutVirtual)),
-				{ training: 0, team },
+				extras(0, team),
 				CURRENT_RULES,
 			);
 			expect(balance.qualified).toBe(qualified);
@@ -163,6 +205,81 @@ describe("tally", () => {
 		expect(
 			tally(riding(sums(0, 12400)), NO_EXTRAS, rules).elevationToNextStepDm,
 		).toBe(2600);
+	});
+
+	it("has one zero breakdown entry per kind without extras", () => {
+		expect(NO_EXTRAS).toEqual({
+			training: 0,
+			team: 0,
+			teamEvents: ZERO_BREAKDOWN,
+		});
+	});
+
+	it("copies the team-event breakdown into the balance unchanged", () => {
+		const events = attending("team_training", "technique_training");
+		expect(tally(riding(sums(0)), events, CURRENT_RULES).teamEvents).toEqual(
+			events.teamEvents,
+		);
+	});
+
+	describe("team events (Story 3)", () => {
+		// 60 km and 1000 m: 6 + 5 = 11 Training Rynke.
+		const ride = evaluateRides(
+			[makeRide({ id: 1, km: 60, movingH: 2.5, elevationM: 1000 })],
+			CURRENT_RULES,
+			WINDOW,
+		).riding;
+
+		it("US3-5: a team training on top of the ride gives 1 Team and 16 Training Rynke", () => {
+			expect(
+				tally(ride, attending("team_training"), CURRENT_RULES),
+			).toMatchObject({ teamRynke: 1, trainingRynke: 16 });
+		});
+
+		it("US3-6: the ride without recorded attendance gives 0 Team and 11 Training Rynke", () => {
+			const balance = tally(ride, attending(), CURRENT_RULES);
+			expect(balance).toMatchObject({ teamRynke: 0, trainingRynke: 11 });
+			expect(balance.teamEvents).toEqual(ZERO_BREAKDOWN);
+		});
+
+		it("S4-9: lists every kind, the training weekend with 0", () => {
+			const balance = tally(
+				riding(sums(0)),
+				attending("team_training", "team_training", "technique_training"),
+				CURRENT_RULES,
+			);
+			expect(balance).toMatchObject({ teamRynke: 7, trainingRynke: 15 });
+			expect(balance.teamEvents).toEqual([
+				{ kind: "team_training", attended: 2, team: 2, training: 10 },
+				{ kind: "training_weekend_day", attended: 0, team: 0, training: 0 },
+				{ kind: "technique_training", attended: 1, team: 5, training: 5 },
+			]);
+		});
+
+		it("qualifies through event Team Rynke", () => {
+			const technique = Array<TeamEventKind>(5).fill("technique_training");
+			expect(
+				tally(riding(sums(250)), attending(...technique), CURRENT_RULES),
+			).toMatchObject({ teamRynke: 25, teamMissing: 0, qualified: true });
+			expect(
+				tally(
+					riding(sums(250)),
+					attending(...technique.slice(1), "team_training"),
+					CURRENT_RULES,
+				),
+			).toMatchObject({ teamRynke: 21, teamMissing: 4, qualified: false });
+		});
+
+		it("counts event Training Rynke without virtual rides (R12)", () => {
+			const technique = Array<TeamEventKind>(5).fill("technique_training");
+			expect(
+				tally(
+					riding(sums(100), sums(40)),
+					attending(...technique),
+					CURRENT_RULES,
+				),
+			).toMatchObject({ trainingRynke: 125, trainingWithoutVirtual: 65 });
+		});
 	});
 
 	it("rejects invalid rules", () => {

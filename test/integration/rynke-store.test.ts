@@ -9,13 +9,17 @@ import { readRynke } from "../../src/db/rynke";
 import { handleQueue } from "../../src/index";
 import { applyAndEvaluate } from "../../src/rynke/apply";
 import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
 import type { ActivityEventMessage } from "../../src/work/messages";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
 import {
+	attendanceRows,
+	attendRaw,
 	balanceRow,
 	expectConsistent,
+	insertEvent,
 	resultRows,
 	snapshot,
 } from "../support/rynke";
@@ -136,6 +140,14 @@ describe("stored ride results and balance", () => {
 			rules_version: CURRENT_RULES.version,
 			rules_effective_date: CURRENT_RULES.effectiveDate,
 			computed_at: NOW,
+			team_event_breakdown: JSON.stringify(
+				TEAM_EVENT_KINDS.map((kind) => ({
+					kind,
+					attended: 0,
+					team: 0,
+					training: 0,
+				})),
+			),
 		});
 	});
 
@@ -255,16 +267,26 @@ describe("stored ride results and balance", () => {
 		expect(await balanceRow()).toMatchObject({ distance_rynke: 0 });
 	});
 
-	it("a title-only update writes nothing", async () => {
+	it("a title-only update refetches and keeps the Rynke (008 FR-004)", async () => {
 		ride(A, { km: 79, movingH: 3 });
 		await deliver(event(A, "create"));
-		const before = await snapshot();
+		// Only when it was read and computed moves.
+		const rynke = async () => {
+			const { results, balance } = await snapshot();
+			return {
+				results: results.map(
+					({ activity_refreshed_at: _, ...result }) => result,
+				),
+				balance: balance && { ...balance, computed_at: null },
+			};
+		};
+		const before = await rynke();
 		ctx = makeCtx({ now: NOW + 3600 });
 
 		await deliver(event(A, "update", ["title"]));
 
-		expect(await snapshot()).toEqual(before);
-		expect(fake.callsTo("activity")).toHaveLength(1);
+		expect(await rynke()).toEqual(before);
+		expect(fake.callsTo("activity")).toHaveLength(2);
 	});
 
 	it("a flag Strava sends later stops the ride counting", async () => {
@@ -346,5 +368,41 @@ describe("stored ride results and balance", () => {
 			rulesEffectiveDate: CURRENT_RULES.effectiveDate,
 			computedAt: NOW,
 		});
+	});
+});
+
+describe("stored Rynke with attendance (Story 3)", () => {
+	it("keeps the event Rynke through create, update and delete events and never changes attendance (FR-026)", async () => {
+		const eventId = await insertEvent("team_training", "2026-10-03");
+		await attendRaw(eventId, [ATHLETE_A]);
+		const attendance = await attendanceRows();
+
+		ride(A, { km: 79, movingH: 3 });
+		ride(B, { km: 50, movingH: 2, start: "2026-10-06T07:00:00Z" });
+		await deliver(event(A, "create"));
+		await deliver(event(B, "create"));
+		expect(await balanceRow()).toMatchObject({
+			team_rynke: 1,
+			training_rynke: 7 + 5 + 5,
+		});
+		expect(await attendanceRows()).toEqual(attendance);
+
+		const stored = fake.activities.get(A);
+		if (!stored) throw new Error("fake has no activity A");
+		stored.distance = 101000;
+		await deliver(event(A, "update", ["type"]));
+		expect(await balanceRow()).toMatchObject({
+			team_rynke: 1,
+			training_rynke: 10 + 5 + 5,
+		});
+		expect(await attendanceRows()).toEqual(attendance);
+
+		fake.activities.delete(B);
+		await deliver(event(B, "delete"));
+		expect(await balanceRow()).toMatchObject({
+			team_rynke: 1,
+			training_rynke: 10 + 5,
+		});
+		expect(await attendanceRows()).toEqual(attendance);
 	});
 });

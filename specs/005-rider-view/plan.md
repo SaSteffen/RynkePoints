@@ -219,9 +219,12 @@ flowchart LR
     me --> sections["http/rider-sections.ts<br/>render* (I18n)"]
     sections --> htmlts["http/html.ts<br/>html, STYLE"]
     sections --> i18n["i18n/i18n.ts<br/>t, formatNumber,<br/>formatDate, formatTime"]
-    build --> rules["rynke/rules.ts<br/>rulesForVersion,<br/>CURRENT_RULES"]
+    me --> rules["rynke/rules.ts<br/>rulesForVersion,<br/>CURRENT_RULES"]
+    build --> rules
+    build -. "RIDES_PER_PAGE, types" .-> read
     build --> tally["rynke/tally.ts<br/>virtualShareRequired"]
     read --> rynkedb["db/rynke.ts<br/>StoredBalance mapping"]
+    read --> events["db/team-events.ts<br/>attendance query"]
 
     read -. "SELECT only" .-> d1[("D1")]
     riders -.-> d1
@@ -246,15 +249,15 @@ sequenceDiagram
     S-->>M: athleteId (or none → 302 /)
     M->>DB: getRider(athleteId)
     DB-->>M: first name, status, scopes, import status
-    M->>DB: db.batch([balance, counts, table page])
-    Note over DB: one transaction:<br/>1. rynke_balances row<br/>2. count(activities), count(is_virtual)<br/>3. activities ⟕ ride_results ⟕ counted-instead<br/>   ORDER BY start_date DESC LIMIT 20<br/>   OFFSET clamped to the last page
-    DB-->>M: balance | null, counts, ≤ 20 rows
-    M->>DB: getCurrentConsent(athleteId)
-    DB-->>M: consent (unchanged section)
+    M->>DB: db.batch([balance, counts, table page, attendance])
+    Note over DB: one transaction:<br/>1. rynke_balances row<br/>2. count(activities), count(is_virtual)<br/>3. activities ⟕ ride_results ⟕ counted-instead<br/>   ORDER BY start_date DESC LIMIT 20<br/>   OFFSET clamped to the last page<br/>4. attendances ⟕ team_events, newest first
+    DB-->>M: balance | null, counts, ≤ 20 rows, events
     M->>V: reading + rulesForVersion + CURRENT_RULES + season start
     V-->>M: RiderView
     M->>X: RiderView + I18n
     X-->>M: SafeHtml per section
+    M->>DB: getCurrentConsent(athleteId)
+    DB-->>M: consent (unchanged section)
     M-->>R: 200 page in the request's language
     Note over M,DB: no write, no queue message, no Strava request (FR-003)
 ```
@@ -330,7 +333,17 @@ classDiagram
         reached: boolean
         parts: GaugePart[]
     }
-    class GaugePart {
+    class Breakdown {
+distance, elevation, steps: number
+trainingTotal, teamTotal: number
+kinds: TeamEventSum[]
+events: EventLine[]
+}
+class EventLine {
+date, kind, name?
+counts: boolean
+}
+class GaugePart {
         source
         value: number
         widthPercent: number
@@ -355,6 +368,8 @@ classDiagram
     }
     RiderView --> Summary
     RiderView --> RideTable
+RiderView --> Breakdown
+Breakdown --> EventLine
     RiderView ..> Gauge : training, team, withoutVirtual, elevation
     Summary --> Condition
     Gauge --> GaugePart
@@ -371,7 +386,7 @@ flowchart LR
     p --> r{"value ≥ target?"}
     r -- yes --> full["100, reached ✓"]
     r -- no --> part["0–99, not reached"]
-    parts["parts: distance, elevation<br/>(+ kinds, corrections in US3b)"] --> neg{"corrections < 0?"}
+    parts["parts: Training = distance, elevation, each kind's training;<br/>Team = each kind's team<br/>(corrections with feature 003 Story 6)"] --> neg{"corrections < 0?"}
     neg -- yes --> undiv["parts = [] (undivided)"]
     neg -- no --> w["widthPercent = part / max(total, target) × 100<br/>parts of 0 dropped"]
 ```
@@ -421,7 +436,9 @@ flowchart LR
     d1 --> d4["US4 reasons"]
     d1 --> d5["US5 paging"]
     d1 --> d6["US6 rules, notices"]
-    s36["Feature 003<br/>Stories 3, 6<br/>(team events, corrections)"] --> d7["US3b event kinds,<br/>event and correction lists,<br/>gauge segments"]
+    s3["Feature 003 Story 3<br/>team events (merged)"] --> d7["US3b event kinds,<br/>event list, gauge segments"]
+    s6["Feature 003 Story 6<br/>corrections (open)"] --> d8["US3b corrections<br/>(Phase 9b)"]
+    d7 --> d8
     d3 --> d7
     d2 --> d7
     d2 & d3 & d4 & d5 & d6 & d7 --> chk["Last phase: build checked<br/>against D0–D16, P1–P9"]

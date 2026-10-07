@@ -67,6 +67,13 @@ describe("formatting", () => {
 		expect(en.formatDate("2026-10-06T07:30:00Z")).toBe("06/10/2026");
 		expect(de.formatDate("2026-10-06T23:30:00Z")).toBe("06.10.2026");
 	});
+
+	it("formats times as the UTC wall-clock time", () => {
+		expect(de.formatTime("2026-10-06T08:00:00Z")).toBe("08:00");
+		expect(en.formatTime("2026-10-06T08:00:00Z")).toBe("08:00");
+		expect(de.formatTime("2026-10-06T17:05:00Z")).toBe("17:05");
+		expect(en.formatTime("2026-10-06T17:05:00Z")).toBe("17:05");
+	});
 });
 
 describe("locales", () => {

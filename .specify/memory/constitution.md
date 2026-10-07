@@ -1,21 +1,25 @@
 <!--
 Sync Impact Report
-- Version change: 1.2.1 → 2.0.0
-- Rationale: MAJOR — Principle I no longer makes every capability separately
-  opt-in. Riders give one required consent at connect (read activities, show
-  name and points to organisers and the team), because the app doesn't work
-  without either; withdrawing it means leaving. Private activities and
-  `activity:write` (description edits) stay optional.
-- Principles modified: I. Rider Data Privacy and Strava Consent (consent rule
-  redefined)
+- Version change: 2.0.0 → 2.1.0
+- Rationale: MINOR — Principle I's re-consent rule gains guidance on what
+  "grows" means: a new Strava scope, a new kind of Strava request, or anything
+  newly shown to someone other than the rider. A field the app already receives
+  with every read, kept and shown only to that rider, must be named in the
+  consent text but needs no new consent version (feature 008, FR-007).
+- Principles modified: I. Rider Data Privacy and Strava Consent (re-consent rule
+  clarified)
 - Sections added: none
 - Sections removed: none
 - Templates checked for alignment: .specify/templates/* — unchanged.
-- Follow-up TODOs: feature 001 (FR-003 forbids asking for `activity:write`;
-  connect flow needs the consent step) is aligned by feature 004's spec.
-  Principle III is unchanged.
+- Follow-up TODOs: specs/008-strava-ride-names/plan.md no longer lists the
+  consent version as a deviation.
 
-Previous: 1.2.0 → 1.2.1 (PATCH) — Principle I's secrets bullet names where the
+Previous: 1.2.1 → 2.0.0 (MAJOR) — Principle I no longer makes every capability
+separately opt-in: one required consent at connect (read activities, show name
+and points to organisers and the team); private activities and `activity:write`
+stay optional.
+
+Before: 1.2.0 → 1.2.1 (PATCH) — Principle I's secrets bullet names where the
 CI deploy credential lives.
 -->
 
@@ -38,7 +42,10 @@ consent and Strava's API Agreement.
   not connected; withdrawing consent means leaving (deletion below). Before sending
   a rider to Strava the app MUST say what it reads, writes and shows, MUST record
   which version of that consent the rider accepted, and MUST ask again when what it
-  reads, writes or shows grows.
+  reads, writes or shows grows. It grows with a new Strava scope, a new kind of
+  Strava request, or anything newly shown to someone other than the rider. Keeping
+  a field the app already receives with every read, and showing it only to that
+  rider, is not growth; the consent text MUST still name it.
 - Strava's API Agreement only allows displaying a rider's data to *that rider*
   unless they gave explicit consent to share it, so team-visible features (e.g.
   leaderboards) MUST show only riders with a recorded consent.
@@ -210,4 +217,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 2.0.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-06
+**Version**: 2.1.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-07

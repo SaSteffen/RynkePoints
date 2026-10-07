@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { upsertActivity } from "../../src/db/activities";
 import { readRynke } from "../../src/db/rynke";
 import { handleQueue } from "../../src/index";
-import { applyAndEvaluate } from "../../src/rynke/apply";
+import { applyAndEvaluate, applyTeamEventChange } from "../../src/rynke/apply";
 import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
 import type { WorkMessage } from "../../src/work/messages";
 import { approve, SCOPES_ALL, SCOPES_SHARED } from "../support/callback";
@@ -17,8 +17,11 @@ import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
 import {
 	activityRecord,
+	attendanceRows,
+	attendRaw,
 	balanceRow,
 	expectConsistent,
+	insertEvent,
 	resultRows,
 	snapshot,
 } from "../support/rynke";
@@ -50,6 +53,7 @@ async function seedEvaluated(athleteId = ATHLETE_A) {
 			distance_m: 100000,
 			moving_time_s: 4 * 3600,
 			elapsed_time_s: 4 * 3600,
+			name: "Synthetic shared ride",
 		}),
 	);
 	await upsertActivity(
@@ -59,6 +63,7 @@ async function seedEvaluated(athleteId = ATHLETE_A) {
 			start_date: "2026-05-02T08:00:00Z",
 			distance_m: 50000,
 			is_private: 1,
+			name: "Synthetic private ride",
 		}),
 	);
 	await applyAndEvaluate(
@@ -147,6 +152,58 @@ describe("deleting Rynke rows", () => {
 			balance: null,
 			results: [],
 		});
+		// 008 SC-006: no ride name of the rider is left.
+		expect(
+			await env.DB.prepare(
+				"SELECT count(*) AS n FROM activities WHERE athlete_id = ? AND name IS NOT NULL",
+			)
+				.bind(ATHLETE_A)
+				.first("n"),
+		).toBe(0);
 		expect(await snapshot(ATHLETE_B)).toEqual(other);
+	});
+
+	it("delete-rider removes their attendances and keeps the events", async () => {
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		await seedRider(ctx, { athleteId: ATHLETE_B });
+		const eventId = await insertEvent("team_training", "2026-05-02");
+		await attendRaw(eventId, [ATHLETE_A, ATHLETE_B]);
+		await seedEvaluated(ATHLETE_A);
+		await seedEvaluated(ATHLETE_B);
+		const other = await snapshot(ATHLETE_B);
+
+		await deliver({
+			kind: "delete-rider",
+			athleteId: ATHLETE_A,
+			reason: "deauthorized",
+			revoke: false,
+		});
+
+		expect(await attendanceRows()).toEqual([
+			{ event_id: eventId, athlete_id: ATHLETE_B },
+		]);
+		expect(
+			await env.DB.prepare("SELECT COUNT(*) AS n FROM team_events").first("n"),
+		).toBe(1);
+		expect(await snapshot(ATHLETE_B)).toEqual(other);
+	});
+
+	it("delete-event leaves no attendance of the event", async () => {
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		const eventId = await insertEvent("team_training", "2026-05-02");
+		await attendRaw(eventId, [ATHLETE_A]);
+		await seedEvaluated(ATHLETE_A);
+
+		await applyTeamEventChange(
+			env.DB,
+			{ kind: "delete-event", eventId },
+			CURRENT_RULES,
+			countingWindow(env, CURRENT_RULES),
+			NOW,
+		);
+
+		expect(await attendanceRows()).toEqual([]);
+		expect(await balanceRow()).toMatchObject({ team_rynke: 0 });
+		await expectConsistent();
 	});
 });

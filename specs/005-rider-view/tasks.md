@@ -16,8 +16,9 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
 - **US2, US3a, US4, US5 and US6** (Phases 4–8) follow in any order. Each one is
   its own pull request, and none removes anything an earlier delivery shows
   (FR-006).
-- **US3b** (Phase 9) is **blocked** until feature 003 Stories 3 (team events)
-  and 6 (corrections) are merged (research R5).
+- **US3b** is built as its inputs arrive (research R5): its team events
+  (Phase 9) now that feature 003 Story 3 is merged, its corrections (Phase 9b)
+  once feature 003 Story 6 is merged.
 - **US7**: the diagrams came with the spec and the plan. Phase 11, the last
   phase, checks the build against them (FR-092).
 
@@ -49,7 +50,8 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
 - TypeScript strict, tabs, Biome-formatted. **No new dependency and no
   migration** (research R17).
 - `src/http/rider-view.ts` is pure: no D1, no `I18n`, no clock, no Strava, no
-  imports from `src/db/` except types (research R6).
+  imports from `src/db/` except types and the `RIDES_PER_PAGE` constant
+  (research R6).
 - **The page only reads** (FR-003). `src/db/rider-view.ts` sends only `SELECT`
   statements, all in one `db.batch` (research R2). Nothing on `/me` enqueues,
   writes or calls Strava.
@@ -266,7 +268,7 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 2 (write first, confirm red) ⚠️
 
-- [ ] T020 [P] [US2] Extend `test/unit/rider-view.test.ts` with gauges (SC-009, research R7):
+- [X] T020 [P] [US2] Extend `test/unit/rider-view.test.ts` with gauges (SC-009, research R7):
   - **Percentages**: 249/250 → 99 and not reached; 250/250 and 262/250 → 100 and reached; 12/250 → 4; 0/25 → 0; 160/167 → 95.
   - **Elevation**: `elevationToNextStepDm` 7600 with a step of 1000 m → value 2400, target 10000, 24%. 10000 to the next step (3000 m) → 0%.
   - **Segments**: distance 70 and elevation 30 of 250 → `widthPercent` 28 and 12. Distance 200 and elevation 62 of 250 → widths summing to 100 in proportion. Parts of 0 are dropped.
@@ -274,7 +276,7 @@ The Team gauge stays undivided until US3b (research R5).
   - **Invariants**: `0 ≤ percent ≤ 100` and `percent === 100 ⇔ reached`, over a sweep of values 0…300 against 250.
   - **When gauges are absent**: `gauges` is `null` when the rules are `null`, and `withoutVirtual` is `null` without a virtual ride.
   - **FR-023**: `qualified` equals "every shown gauge reached" for synthetic balances covering each combination of met and unmet conditions.
-- [ ] T021 [P] [US2] Extend `test/integration/me-rynke.test.ts`:
+- [X] T021 [P] [US2] Extend `test/integration/me-rynke.test.ts`:
   - **S2-1**: the captions "Trainingsrynke: 12 von 250 · 4 %" and "Teamrynke: 0 von 25 · 0 %".
   - **S2-2**: 99 % without `gauge-reached`.
   - **S2-3**: 262 von 250 · 100 % with `gauge-reached` and "erreicht".
@@ -283,12 +285,12 @@ The Team gauge stays undivided until US3b (research R5).
   - **S2-8**: every gauge is reached, with "Du bist dabei".
   - **S2-9**: each `.gauge-bar` is `aria-hidden="true"`, and the legend lists "Distanz: 70" and "Höhenmeter: 30".
   - **Ordering**: `section.rynke-gauges` follows the summary (FR-026), and is absent in the not-worked-out state and for a balance with `rules_version` 99.
-- [ ] T022 [P] [US2] Extend `test/unit/catalogs.test.ts`'s `CONTRACT_IDS` with `units.percent`, `rynke.gauges.heading`, `rynke.gauge.caption`, `rynke.gauge.reached`, `rynke.gauge.elevation`, `rynke.source.distance` and `rynke.source.elevation`.
+- [X] T022 [P] [US2] Extend `test/unit/catalogs.test.ts`'s `CONTRACT_IDS` with `units.percent`, `rynke.gauges.heading`, `rynke.gauge.caption`, `rynke.gauge.reached`, `rynke.gauge.elevation`, `rynke.source.distance` and `rynke.source.elevation`.
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Add the US2 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Units", "Gauges").
-- [ ] T024 [US2] In `src/http/rider-view.ts`:
+- [X] T023 [P] [US2] Add the US2 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Units", "Gauges").
+- [X] T024 [US2] In `src/http/rider-view.ts`:
   - **Types**: add `Gauges`, `Gauge` and `GaugePart`, and `gauges: Gauges | null` on the ready state.
   - **`percent(value, target)`** = `Math.min(100, Math.floor((value * 100) / target))`.
   - **`gaugeParts(parts, target)`**:
@@ -302,21 +304,21 @@ The Team gauge stays undivided until US3b (research R5).
     - Elevation: `(stepDm − elevationToNextStepDm)` of `stepDm`.
   - **Absence**: `gauges` is `null` when `rules` is `null`.
   - Makes T020 green.
-- [ ] T025 [US2] In `src/http/rider-sections.ts`, add `renderGauges` per contracts/rider-page.md:
+- [X] T025 [US2] In `src/http/rider-sections.ts`, add `renderGauges` per contracts/rider-page.md:
   - one `figure.gauge` per gauge, stacked;
   - `gauge-reached` on a reached gauge, and the caption with `units.percent` and "· ✓ erreicht" when reached;
   - a `div.gauge-bar` with `aria-hidden="true"`, holding `span.gauge-part.gauge-part-N` with `style="width:NN.NN%"`, or one `span.gauge-fill` when the gauge is undivided;
   - `ul.gauge-legend` only when the gauge is divided.
   - The style attribute holds a number the view model computed, never user input.
-- [ ] T026 [US2] In `src/http/me.ts`, place `renderGauges` right after the summary when `view.gauges` isn't `null`. Makes T021 green.
-- [ ] T027 [US2] Extend `STYLE` in `src/http/html.ts` (research R7–R10):
+- [X] T026 [US2] In `src/http/me.ts`, place `renderGauges` right after the summary when `view.gauges` isn't `null`. Makes T021 green.
+- [X] T027 [US2] Extend `STYLE` in `src/http/html.ts` (research R7–R10):
   - `:root` colour variables `--rp-part-1` … `--rp-part-6`, `--rp-reached` and `--rp-track`;
   - `.gauge` as a block at 100% width;
   - `.gauge-bar`: about 1rem high, with the `--rp-track` background and `display:flex`;
   - `.gauge-part-N` and `.gauge-key.gauge-part-N` coloured by their variable, with a 2 px white gap between parts;
   - `.gauge-reached .gauge-fill` coloured `--rp-reached`;
   - the legend inline and wrapping.
-- [ ] T028 [US2] Check US2: everything is green, and quickstart §3 step 3 shows the gauges stacked at 360 px.
+- [X] T028 [US2] Check US2: everything is green, and quickstart §3 step 3 shows the gauges stacked at 360 px.
 
 **Checkpoint**: US1 and US2 work together. The numbers stay next to the gauges (FR-026).
 
@@ -333,32 +335,32 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 3a (write first, confirm red) ⚠️
 
-- [ ] T029 [P] [US3a] Extend `test/unit/rider-view.test.ts` with `breakdown`:
+- [X] T029 [P] [US3a] Extend `test/unit/rider-view.test.ts` with `breakdown`:
   - **1240 m** (12400 dm, to next 7600): `elevationM` 1240, `elevationRynke` 5, `toNextStepM` 760, `elevationStepM` 1000, `elevationStepRynke` 5.
   - **3000 m**: 15 Rynke and 1000 m to go.
   - **Rounding**: 12345 dm gives `elevationM` 1234 (down), and 7655 dm to the next step gives `toNextStepM` 766 (up).
   - **Sum**: `distanceRynke + elevationRynke === trainingTotal` for corrections-free balances.
   - **Unknown rules** give a `null` step.
-- [ ] T030 [P] [US3a] Extend `test/integration/me-rynke.test.ts`:
+- [X] T030 [P] [US3a] Extend `test/integration/me-rynke.test.ts`:
   - **S3-1**: "7 Trainingsrynke" from distance, "1.240 m gesamt → 5 Trainingsrynke, noch 760 m bis zu den nächsten 5", and "Gesamt" with "12 Trainingsrynke · 0 Teamrynke".
   - **S3-4**: 3000 m → 15, "noch 1.000 m".
   - **S3-5, today's part**: a rider with no rides shows 0 from distance, "0 m gesamt → 0 Trainingsrynke, noch 1.000 m" and total 0. The event-kind rows and lists follow in US3b.
   - `section.rynke-breakdown` follows the gauges, or the summary when there are none.
-- [ ] T031 [P] [US3a] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with `rynke.breakdown.heading`, `.trainingRynke`, `.elevation`, `.elevationNoStep`, `.total` and `.totals`.
+- [X] T031 [P] [US3a] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with `rynke.breakdown.heading`, `.trainingRynke`, `.elevation`, `.elevationNoStep`, `.total` and `.totals`.
 
 ### Implementation for User Story 3a
 
-- [ ] T032 [P] [US3a] Add the US3a keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Breakdown").
-- [ ] T033 [US3a] In `src/http/rider-view.ts`, add `Breakdown` (data-model.md, without the US3b fields) and `breakdown` on the ready state:
+- [X] T032 [P] [US3a] Add the US3a keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Breakdown").
+- [X] T033 [US3a] In `src/http/rider-view.ts`, add `Breakdown` (data-model.md, without the US3b fields) and `breakdown` on the ready state:
   - `elevationM = floor(elevationDm / 10)`;
   - `toNextStepM = ceil(elevationToNextStepDm / 10)`;
   - steps come from `rules`, or are `null`.
   - Makes T029 green.
-- [ ] T034 [US3a] In `src/http/rider-sections.ts`, add `renderBreakdown` per contracts/rider-page.md:
+- [X] T034 [US3a] In `src/http/rider-sections.ts`, add `renderBreakdown` per contracts/rider-page.md:
   - a `dl` with distance, elevation (`rynke.breakdown.elevation`, or `.elevationNoStep` when the step is unknown) and the total line;
   - metres through `units.m`.
-- [ ] T035 [US3a] In `src/http/me.ts`, place `renderBreakdown` after the gauges. Makes T030 green.
-- [ ] T036 [US3a] Check US3a: everything is green, and the breakdown is readable at 360 px (quickstart §3 step 3).
+- [X] T035 [US3a] In `src/http/me.ts`, place `renderBreakdown` after the gauges. Makes T030 green.
+- [X] T036 [US3a] Check US3a: everything is green, and the breakdown is readable at 360 px (quickstart §3 step 3).
 
 **Checkpoint**: the breakdown adds up for every source that exists today.
 
@@ -372,8 +374,8 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 4 (write first, confirm red) ⚠️
 
-- [ ] T037 [P] [US4] Extend `test/unit/i18n.test.ts`: `formatTime("2026-10-06T08:00:00Z")` is "08:00" in `de` and in `en`, and "2026-10-06T17:05:00Z" gives "17:05" (the UTC wall clock of `start_date_local`, research R13).
-- [ ] T038 [P] [US4] Extend `test/unit/rider-view.test.ts` with ride reasons (research R12, data-model.md `ReasonLine`):
+- [X] T037 [P] [US4] Extend `test/unit/i18n.test.ts`: `formatTime("2026-10-06T08:00:00Z")` is "08:00" in `de` and in `en`, and "2026-10-06T17:05:00Z" gives "17:05" (the UTC wall clock of `start_date_local`, research R13).
+- [X] T038 [P] [US4] Extend `test/unit/rider-view.test.ts` with ride reasons (research R12, data-model.md `ReasonLine`):
   - **pause**:
     - 14400 s moving and 25200 s elapsed → `{ pausedS: 10800, movingS: 14400, share: null }` under a ½ limit;
     - a share of ⅓ is passed on as `{ num: 1, den: 3 }`;
@@ -389,7 +391,7 @@ The Team gauge stays undivided until US3b (research R5).
   - **Order**: reasons keep the stored order.
   - **Fix hint**: `fixHint` is true when the reasons include `pause`, `too_slow`, `too_fast`, `climbing_rate` or `manual`, and false for `flagged`, `excluded_sport_type`, `outside_window` or `overlap` alone.
   - **Unknown figures**: `unknownFigures` is passed through for counting rides.
-- [ ] T039 [P] [US4] Extend `test/integration/me-rynke.test.ts`:
+- [X] T039 [P] [US4] Extend `test/integration/me-rynke.test.ts`:
   - **S4-1**: the 78 km ride's detail row says "Doppelt aufgezeichnet: Deine Fahrt vom 06.10.2026, 08:00 Uhr, 80,0 km zählt stattdessen."
   - **S4-2**: "3 h 0 min Pause bei 4 h 0 min Bewegungszeit – mehr als die Hälfte ist nicht erlaubt."
   - **S4-3**: both "Manuell auf Strava eingetragen." and "Zu langsam: 7,5 km/h im Schnitt, mindestens 10 km/h sind nötig."
@@ -399,20 +401,20 @@ The Team gauge stays undivided until US3b (research R5).
   - **S4-7**: the fix hint appears once on the pause and manual rides, and not on the overlap or flagged rides.
   - **An unknown code** in `reasons` shows "Zählt nach den aktuellen Regeln nicht." and no error page.
   - **English**: the S4-1 and S4-2 rows in English (FR-061).
-- [ ] T040 [P] [US4] Extend `test/unit/catalogs.test.ts` (SC-003, FR-062):
+- [X] T040 [P] [US4] Extend `test/unit/catalogs.test.ts` (SC-003, FR-062):
   - Every `REASON_CODES` value has `rynke.reason.<code>`, and every `UNKNOWN_FIGURE_CODES` value has `rynke.unknown.<code>`, in every catalog.
   - Add every US4 key of contracts/messages.md to `CONTRACT_IDS`: `units.kmh`, `units.mPerH`, `units.duration`, `units.durationMin`, `rynke.ride.fixHint`, all `rynke.reason.*`, and all `rynke.unknown.*`.
 
 ### Implementation for User Story 4
 
-- [ ] T041 [P] [US4] In `src/i18n/i18n.ts`, add `formatTime(iso: string): string` to `I18n`: `HH:MM` of the UTC wall clock, through `Intl.DateTimeFormat` with `timeZone: "UTC"`, `hour: "2-digit"`, `minute: "2-digit"` and `hourCycle: "h23"`, in the catalog's `meta.intlLocale`. Makes T037 green.
-- [ ] T042 [P] [US4] Add the US4 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Units", "Reasons", "Unknown figures", `rynke.ride.fixHint`).
-- [ ] T043 [US4] In `src/http/rider-view.ts`, add `ReasonLine`, plus `reasons`, `unknownFigures` and `fixHint` on `RideLine`, built from each `StoredRideResult` and its activity fields as T038 specifies:
+- [X] T041 [P] [US4] In `src/i18n/i18n.ts`, add `formatTime(iso: string): string` to `I18n`: `HH:MM` of the UTC wall clock, through `Intl.DateTimeFormat` with `timeZone: "UTC"`, `hour: "2-digit"`, `minute: "2-digit"` and `hourCycle: "h23"`, in the catalog's `meta.intlLocale`. Makes T037 green.
+- [X] T042 [P] [US4] Add the US4 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Units", "Reasons", "Unknown figures", `rynke.ride.fixHint`).
+- [X] T043 [US4] In `src/http/rider-view.ts`, add `ReasonLine`, plus `reasons`, `unknownFigures` and `fixHint` on `RideLine`, built from each `StoredRideResult` and its activity fields as T038 specifies:
   - `rulesForVersion` is passed in as a function parameter, so the module stays pure;
   - it maps each reason code with a `switch` over `REASON_CODES`;
   - anything else becomes `unknown`.
   - Makes T038 green.
-- [ ] T044 [US4] In `src/http/rider-sections.ts`, extend `renderRides`'s detail row with `ul.ride-reasons`, the unknown-figure lines followed by `rynke.unknown.mayChange`, and `rynke.ride.fixHint` once. The key and parameters per reason:
+- [X] T044 [US4] In `src/http/rider-sections.ts`, extend `renderRides`'s detail row with `ul.ride-reasons`, the unknown-figure lines followed by `rynke.unknown.mayChange`, and `rynke.ride.fixHint` once. The key and parameters per reason:
   - **pause**: the base key when the share is ½, `.share` with "{num}/{den}" otherwise, `.noLimit` without rules, and `.noMovingTime` when `pausedS` is `null`. Durations use `units.duration` (h and min, minutes rounded down), or `units.durationMin` below 1 h.
   - **too_slow and too_fast**: the speed through `units.kmh` with one decimal, and the limit with 0 decimals.
   - **climbing_rate**: through `units.mPerH`.
@@ -421,7 +423,7 @@ The Team gauge stays undivided until US3b (research R5).
   - **overlap**: date, `formatTime` and km of the ride that counted instead, or `.noRide`.
   - **Anything else**: `rynke.reason.unknown`.
   - Makes T039 and T040 green.
-- [ ] T045 [US4] Check US4: everything is green, and at 360 px the reasons wrap below the main row (quickstart §3 step 3).
+- [X] T045 [US4] Check US4: everything is green, and at 360 px the reasons wrap below the main row (quickstart §3 step 3).
 
 **Checkpoint**: every ride that doesn't count explains itself.
 
@@ -439,7 +441,7 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 5 (write first, confirm red) ⚠️
 
-- [ ] T046 [P] [US5] Extend `test/unit/rider-view.test.ts`:
+- [X] T046 [P] [US5] Extend `test/unit/rider-view.test.ts`:
   - **`parsePage(url)`**:
     - `?page=2` → 2, and `?page=9999` → 9999;
     - missing, `0`, `-1`, `01`, `abc`, `1e3`, `10000`, `2.0` → 1;
@@ -451,7 +453,7 @@ The Team gauge stays undivided until US3b (research R5).
     - page 3 → 41–45, `next`/`last` `null`;
     - 20 rides → `pager: null`;
     - 0 rides → no rows and `pager: null`.
-- [ ] T047 [P] [US5] Extend `test/integration/me-rynke.test.ts`:
+- [X] T047 [P] [US5] Extend `test/integration/me-rynke.test.ts`:
   - **S5-1**: 45 rides; `/me` shows the 20 newest, "Fahrten 1–20 von 45", and a `rel="next"` link to `/me?page=2#rides` with the class `tap`.
   - **S5-2**: `?page=2` shows 21–40 and `?page=3` shows 41–45, with first and previous links.
   - **S5-3**: 20 rides show no `nav.pager` and no position.
@@ -459,31 +461,31 @@ The Team gauge stays undivided until US3b (research R5).
   - **Out of range**: `?page=99` shows 41–45, and `?page=abc` shows page 1.
   - **Read-only (SC-004)**: pages 1–3 leave `tableCounts()` and the row snapshot unchanged, with no queue message and no Strava request.
   - **SC-005**: 500 seeded rides; `/me` and `/me?page=25` render with 20 rows each, and `EXPLAIN QUERY PLAN` of `RIDE_PAGE_SQL` with `(ATHLETE_A, 25)` names `activities_by_rider` and contains no `SCAN activities` without an index.
-- [ ] T048 [P] [US5] Extend `test/integration/lang-switcher.test.ts`:
+- [X] T048 [P] [US5] Extend `test/integration/lang-switcher.test.ts`:
   - **S5-4**: `POST /lang` with `next=/me?page=2` redirects to `/me?page=2`.
   - **Refused**: `/me?page=0`, `/me?page=abc`, `/me?page=2&x=1` and `/me?foo=1` redirect to `/`.
   - **The switcher form** on `GET /me?page=2` carries `next` `/me?page=2`, and on `GET /me?page=1` it carries `/me`.
-- [ ] T049 [P] [US5] Extend `test/unit/catalogs.test.ts`:
+- [X] T049 [P] [US5] Extend `test/unit/catalogs.test.ts`:
   - `CONTRACT_IDS` gains `rynke.rides.position`, `rynke.pager.label`, `.first`, `.previous`, `.next` and `.last`.
   - Assert `de["me.recent.heading"] === "Deine Fahrten"`.
   - Update the existing heading assertions in `test/integration/me-activities.test.ts` to "Deine Fahrten" and "Your rides".
 
 ### Implementation for User Story 5
 
-- [ ] T050 [P] [US5] Add the US5 keys to `src/i18n/messages/de.ts` and `en.ts`, and change `me.recent.heading` to "Deine Fahrten" and "Your rides" (contracts/messages.md "Rides").
-- [ ] T051 [P] [US5] In `src/http/lang.ts`, `safeNext` also returns `next` when it matches `/^\/me\?page=[1-9][0-9]{0,3}$/` (contracts/http-routes.md). Makes T048's redirect cases green.
-- [ ] T052 [US5] In `src/http/rider-view.ts`, add `parsePage(url: URL): number` and `Pager`, and fill `RideTable.position` and `pager` from `read.rideCount` and `read.page`. Makes T046 green.
-- [ ] T053 [US5] In `src/http/rider-sections.ts`, `renderRides` adds `p.rides-position` and `nav.pager` with `aria-label`. Only the links that apply are shown, as `a.tap` with `rel` and `href="/me?page=N#rides"`. Both appear only when `pager` isn't `null`.
-- [ ] T054 [US5] In `src/http/me.ts`:
+- [X] T050 [P] [US5] Add the US5 keys to `src/i18n/messages/de.ts` and `en.ts`, and change `me.recent.heading` to "Deine Fahrten" and "Your rides" (contracts/messages.md "Rides").
+- [X] T051 [P] [US5] In `src/http/lang.ts`, `safeNext` also returns `next` when it matches `/^\/me\?page=[1-9][0-9]{0,3}$/` (contracts/http-routes.md). Makes T048's redirect cases green.
+- [X] T052 [US5] In `src/http/rider-view.ts`, add `parsePage(url: URL): number` and `Pager`, and fill `RideTable.position` and `pager` from `read.rideCount` and `read.page`. Makes T046 green.
+- [X] T053 [US5] In `src/http/rider-sections.ts`, `renderRides` adds `p.rides-position` and `nav.pager` with `aria-label`. Only the links that apply are shown, as `a.tap` with `rel` and `href="/me?page=N#rides"`. Both appear only when `pager` isn't `null`.
+- [X] T054 [US5] In `src/http/me.ts`:
   - Read `parsePage(new URL(request.url))` and pass it to `readRiderView`.
   - Set the layout's `path` to `/me?page=${view.rides.pager.page}` when that page is above 1, otherwise `/me`.
   - Makes T047 and T048 green.
-- [ ] T055 [US5] Extend `STYLE` in `src/http/html.ts`:
+- [X] T055 [US5] Extend `STYLE` in `src/http/html.ts`:
   - `.tap { display:inline-flex; align-items:center; min-height:44px; min-width:44px }`;
   - `nav.pager`: flex, wrapping, with a gap;
   - phone padding under `@media (max-width:36rem)`.
   - If US6 was built first, `.tap` already exists; keep a single rule.
-- [ ] T056 [US5] Check US5:
+- [X] T056 [US5] Check US5:
   - Everything is green.
   - quickstart §3 step 3: the pager links are at least 44 × 44 px, and nothing scrolls sideways.
   - Step 6: with 500 rides, every page appears well under 2 s.
@@ -503,12 +505,12 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 6 (write first, confirm red) ⚠️
 
-- [ ] T057 [P] [US6] Extend `test/unit/rider-view.test.ts` (research R4, SC-006):
+- [X] T057 [P] [US6] Extend `test/unit/rider-view.test.ts` (research R4, SC-006):
   - **No update**: `updating` is `null` when `balance.rulesVersion === inEffect.version`.
   - **Update**: a balance under version 1 with `inEffect` version 2 (`effectiveDate` `2026-11-01`) gives `{ inEffectVersion: 2, inEffectSince: "2026-11-01" }`, and still `rules.version` 1.
   - **Labels**: `rules` carries the balance's version and effective date, `seasonStart`, and the deadline of the balance's rules (or `null`).
   - **Importing**: `importing` comes from the context, in both states.
-- [ ] T058 [P] [US6] Extend `test/integration/me-rynke.test.ts`:
+- [X] T058 [P] [US6] Extend `test/integration/me-rynke.test.ts`:
   - **S6-1**:
     - "Berechnet nach Regel-Version 1, gültig seit dem 07.10.2026.";
     - "Es zählt alles ab dem 01.01.2026.";
@@ -519,79 +521,95 @@ The Team gauge stays undivided until US3b (research R5).
   - **S6-4**: a rider with `import_status` other than `done` sees their balance and `rynke.notice.importing`. Without a balance, they see both notices.
   - **S6-5**: in English, the handout link text contains "in German".
   - **S6-6**: opening `/me` three times starts no evaluation (`ctx.queue.sent` is empty) and makes no Strava request.
-- [ ] T059 [P] [US6] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with `rynke.notice.updating`, `rynke.notice.importing`, `rynke.rules.heading`, `.version`, `.window`, `.windowDeadline` and `.handout`.
+- [X] T059 [P] [US6] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with `rynke.notice.updating`, `rynke.notice.importing`, `rynke.rules.heading`, `.version`, `.window`, `.windowDeadline` and `.handout`.
 
 ### Implementation for User Story 6
 
-- [ ] T060 [P] [US6] Add the US6 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Notices", "Rules").
-- [ ] T061 [US6] In `src/http/rider-view.ts`:
+- [X] T060 [P] [US6] Add the US6 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Notices", "Rules").
+- [X] T061 [US6] In `src/http/rider-view.ts`:
   - Add `UpdateNotice` and `RulesInfo`, with `updating` and `rules` on the ready state, and `importing` on both states.
   - `updating` is set exactly when the versions differ.
   - Makes T057 green.
-- [ ] T062 [US6] In `src/http/rider-sections.ts`:
+- [X] T062 [US6] In `src/http/rider-sections.ts`:
   - Add `export const RULES_HANDOUT_URL = "https://github.com/SaSteffen/RynkePoints/blob/main/docs/rynke-punkte.md"` (research R14).
   - Extend `renderNotice` with `updating` (date via `formatDate`) and `importing`, in contract order.
   - Add `renderRules` per contracts/rider-page.md: `rynke.rules.window` or `.windowDeadline`, and the handout `a.tap`.
-- [ ] T063 [US6] In `src/http/me.ts`:
+- [X] T063 [US6] In `src/http/me.ts`:
   - Place `renderRules` after the breakdown, or after the gauges or summary when US3a isn't built yet.
   - Show the notices in the ready state too.
   - Feature 001's import-status line stays.
   - Makes T058 green.
-- [ ] T064 [US6] Extend `STYLE` in `src/http/html.ts` with the `.tap` rule if US5 hasn't added it yet (T055), and the `section.notice` look for the updating and importing notices.
-- [ ] T065 [US6] Check US6: everything is green, plus quickstart §3 step 4 (`UPDATE rynke_balances SET rules_version = 2` shows the notice, and re-evaluating clears it) and step 7 (the handout link in English).
+- [X] T064 [US6] Extend `STYLE` in `src/http/html.ts` with the `.tap` rule if US5 hasn't added it yet (T055), and the `section.notice` look for the updating and importing notices.
+- [X] T065 [US6] Check US6: everything is green, plus quickstart §3 step 4 (`UPDATE rynke_balances SET rules_version = 2` shows the notice, and re-evaluating clears it) and step 7 (the handout link in English).
 
 **Checkpoint**: deliveries 1–6 are complete. Everything except US3b is shipped.
 
 ---
 
-## Phase 9: User Story 3b — Event kinds, events, corrections (Priority: P2) ⛔ blocked
+## Phase 9: User Story 3b — Event kinds and events (Priority: P2)
 
-**Blocked until**: feature 003 Stories 3 (team events and attendance) and 6 (corrections) are merged into `develop`, with their tables, kind codes and the balance's per-kind and correction columns (feature 003 FR-014a, research R5). Don't start this phase before that, and don't show zeros for these sources in the meantime.
+**Unblocked**: feature 003 Story 3 (team events and attendance) is merged into `develop`, with `team_events`, `attendances`, the kind codes `TEAM_EVENT_KINDS` and the balance's per-kind breakdown `team_event_breakdown` (feature 003 FR-014a, research R5). Corrections (Story 6) are not built yet, so they are split off into Phase 9b; until then the page shows no correction line rather than zeros.
 
 **Goal**:
 - For each team-event kind: count, Team Rynke and Training Rynke, also for a count of 0.
 - The events, newest first; one outside the window is marked as not counting.
-- Correction sums with their sign and the list of corrections.
-- The "never below 0" note.
-- The event and correction segments of the Training and Team gauges (FR-022, FR-032–FR-035).
+- The event segments of the Training and Team gauges (FR-022, FR-032, FR-033).
 
-**Independent Test**: seed attendance and corrections through feature 003's tables, and check every row and list entry and that the parts add up (spec US3 scenarios 2, 3, 5, 6; US2 scenarios 6, 7).
+**Independent Test**: seed attendance through feature 003's tables and a balance with its breakdown, and check every row and list entry and that the parts add up (spec US3 scenarios 2, 3, 5 without corrections; US2 scenario 6 without corrections).
 
 ### Design update (before any test)
 
-- [ ] T066 [US3b] Bring this feature's documents in line with what feature 003 actually built:
-  - in [data-model.md](data-model.md): the read tables, `RiderViewRead`'s new fields, and `Breakdown`'s US3b fields;
-  - research R2 (the new batch statements) and R5 (state: done);
-  - in [contracts/rider-page.md](contracts/rider-page.md): the US3b markup;
-  - in [contracts/messages.md](contracts/messages.md): the exact `rynke.source.<kind>` keys, named after feature 003's kind codes, and final de and en wording for every US3b key;
+- [X] T066 [US3b] Bring this feature's documents in line with what feature 003 Story 3 actually built:
+  - in [data-model.md](data-model.md): the read tables, `RiderViewRead.attendance`, and `Breakdown`'s `kinds` and `events`;
+  - research R2 (the attendance statement) and R5 (team events merged, corrections still to come);
+  - in [contracts/rider-page.md](contracts/rider-page.md): the US3b markup and the fixed colour class per source;
+  - in [contracts/messages.md](contracts/messages.md): the `rynke.source.<kind>` keys named after feature 003's kind codes, and final de and en wording for every team-event key;
   - quickstart's US3b rows.
   - Commit as `docs: …` before T067.
 
 ### Tests for User Story 3b (write first, confirm red) ⚠️
 
-- [ ] T067 [P] [US3b] Extend `test/unit/rider-view.test.ts`:
-  - **Kind lines**: every kind is listed, in feature 003's order, also with count 0.
-  - **Correction sums**: they keep their sign. `clampedToZero` is true when a stored total is 0 and earned plus corrections is below 0.
-  - **Training gauge, S2-6**: parts 70, 30, 50, 40, 10, 10 of 250 → 84 %, six segments. **Team gauge**: divided by kind and corrections.
-  - **S2-7**: negative corrections → that gauge's `parts` is `[]`.
-  - **Sum**: distance + elevation + kinds + corrections = the Training total unless clamped (FR-035).
-- [ ] T068 [P] [US3b] Extend `test/integration/me-rynke.test.ts`:
-  - **S3-2**: the kind rows, and "+10" Trainingsrynke from corrections.
-  - **S3-3**: three events with date, kind and name, newest first, and the correction with date, "+10" and its reason.
-  - **S3-5**: every kind listed with 0, plus `rynke.events.none` and `rynke.corrections.none`.
-  - **S3-6**: negative corrections → total 0, the sign kept, and `rynke.breakdown.neverBelowZero`.
-  - **Attendance**: an attendance after the deadline is listed and marked `rynke.events.notCounting`.
-  - **S2-6**: legend with six parts.
-  - **S2-7**: an undivided Training gauge.
-- [ ] T069 [P] [US3b] Extend `test/unit/catalogs.test.ts`: every team-event kind code feature 003 exports has `rynke.source.<kind>` in every catalog (FR-062), and `CONTRACT_IDS` gains every US3b key fixed in T066.
+- [X] T067 [P] [US3b] Extend `test/unit/rider-view.test.ts`:
+  - **Kind lines**: every kind is listed, in feature 003's order, also with count 0; a balance stored before Story 3 (empty breakdown) lists none.
+  - **Events**: newest first as read; `counts` is false before the season start and after the deadline of the balance's rules, and only the season start is checked when the rules are unknown.
+  - **Training gauge**: parts 70, 30, 50, 40, 10 of 250 → 80 %, five segments. **Team gauge**: divided by kind.
+  - **Sum**: distance + elevation + kinds = the Training total, and the kinds' Team Rynke = the Team total (FR-035).
+- [X] T068 [P] [US3b] Extend `test/integration/me-rynke.test.ts`:
+  - **S3-2**: the kind rows.
+  - **S3-3**: three events with date, kind and name, newest first.
+  - **S3-5**: every kind listed with 0, plus `rynke.events.none`.
+  - **Attendance**: an attendance outside the window is listed and marked `rynke.events.notCounting`. No stored rules version has a deadline, so the integration test uses the season start; the deadline is covered by T067.
+  - **S2-6**: legend with five parts and their colour classes; the Team gauge's legend by kind.
+  - **Read-only (SC-004)**: with attendance seeded, `GET /me` changes no table and no attendance row.
+  - Update S3-1, S3-4 and S3-5's expected breakdown rows for the kind rows.
+- [X] T069 [P] [US3b] Extend `test/unit/catalogs.test.ts`: every kind code of `TEAM_EVENT_KINDS` has `rynke.source.<kind>` in every catalog (FR-062), and `CONTRACT_IDS` gains every team-event key fixed in T066.
 
 ### Implementation for User Story 3b
 
-- [ ] T070 [P] [US3b] Add the US3b keys to `src/i18n/messages/de.ts` and `en.ts`, as fixed in T066.
-- [ ] T071 [US3b] In `src/db/rider-view.ts`, add the attendance-with-events and the corrections reads, newest first, as further statements of the **same** `db.batch` (FR-005). The balance's per-kind and correction columns come through feature 003's balance mapper.
-- [ ] T072 [US3b] In `src/http/rider-view.ts`, add the US3b `Breakdown` fields and the event, kind and correction sources to `gaugeParts` for the Training and Team gauges, using the stored per-kind values only (FR-004). Makes T067 green.
-- [ ] T073 [US3b] In `src/http/rider-sections.ts`, extend `renderBreakdown` with the kind rows, the signed corrections line, the never-below-zero note, and the event and correction lists. Extend `renderGauges`' legend with the new sources (`gauge-part-3` … `gauge-part-6`). Makes T068 and T069 green.
-- [ ] T074 [US3b] Check US3b: everything is green, and the six-part gauge and both lists are readable at 360 px (quickstart §3 step 3).
+- [X] T070 [P] [US3b] Add the team-event keys to `src/i18n/messages/de.ts` and `en.ts`, as fixed in T066.
+- [X] T071 [US3b] In `src/db/rider-view.ts`, add feature 003's `listRiderAttendanceStatement` as a further statement of the **same** `db.batch` (FR-005), mapped to `AttendedEvent`. The balance's per-kind breakdown comes through feature 003's balance mapper.
+- [X] T072 [US3b] In `src/http/rider-view.ts`, add `Breakdown.kinds` and `.events`, and the kind sources to `gaugeParts` for the Training and Team gauges, using the stored per-kind values only (FR-004). Makes T067 green.
+- [X] T073 [US3b] In `src/http/rider-sections.ts`, extend `renderBreakdown` with the kind rows and the event list, and give every gauge part its source's colour class (`gauge-part-3` … `gauge-part-5` for the kinds). Makes T068 and T069 green.
+- [X] T074 [US3b] Check US3b's team events: everything is green; the five-part gauge and the event list at 360 px are part of the manual checks after the deploy (quickstart §3 step 3).
+
+**Checkpoint**: every user story is built except the corrections of US3b.
+
+---
+
+## Phase 9b: User Story 3b — Corrections (Priority: P3) ⛔ blocked
+
+**Blocked until**: feature 003 Story 6 (corrections) is merged into `develop`, with its table and the balance's correction sums (feature 003 FR-014a, research R5). Don't start this phase before that, and don't show zeros for corrections in the meantime.
+
+**Goal**: correction sums with their sign and the list of corrections, the "never below 0" note, and the corrections segment of the Training and Team gauges with its "negative → undivided" rule (FR-022, FR-034, FR-035).
+
+**Independent Test**: seed corrections through feature 003's tables, and check the sums, the list and the note (spec US3 scenarios 2, 3 and 6; US2 scenarios 6 and 7).
+
+- [ ] T084 [US3b] Bring data-model.md, research R2 and R5, contracts/rider-page.md, contracts/messages.md (`rynke.source.corrections`, `rynke.breakdown.corrections`, `.neverBelowZero`, `rynke.corrections.heading`, `.none`, `rynke.correction.line`) and quickstart in line with what feature 003 Story 6 built. Commit as `docs: …` first.
+- [ ] T085 [P] [US3b] Extend `test/unit/rider-view.test.ts`: correction sums keep their sign; `clampedToZero` is true when a stored total is 0 and earned plus corrections is below 0; **S2-6** with corrections: parts 70, 30, 50, 40, 10, 10 of 250 → 84 %, six segments; **S2-7**: negative corrections → that gauge's `parts` is `[]`; distance + elevation + kinds + corrections = the Training total unless clamped (FR-035).
+- [ ] T086 [P] [US3b] Extend `test/integration/me-rynke.test.ts`: **S3-2** "+10" Trainingsrynke from corrections; **S3-3** the correction with date, "+10" and its reason; **S3-5** `rynke.corrections.none`; **S3-6** negative corrections → total 0, the sign kept, and `rynke.breakdown.neverBelowZero`; **S2-6** legend with six parts; **S2-7** an undivided Training gauge.
+- [ ] T087 [P] [US3b] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with the corrections keys fixed in T084.
+- [ ] T088 [US3b] Add the corrections keys to both catalogs; add the corrections read as a further statement of the same `db.batch` in `src/db/rider-view.ts`; add the corrections fields to `Breakdown` and the corrections source (last, `gauge-part-6`) to both gauges in `src/http/rider-view.ts`; extend `renderBreakdown` with the signed corrections line, the never-below-zero note and the corrections list. Makes T085–T087 green.
+- [ ] T089 [US3b] Check: everything is green; the six-part gauge and both lists at 360 px are checked after the deploy.
 
 **Checkpoint**: every user story is built.
 
@@ -601,15 +619,15 @@ The Team gauge stays undivided until US3b (research R5).
 
 **Purpose**: keep the documents true and the whole page coherent across deliveries.
 
-- [ ] T075 [P] Sync [contracts/messages.md](contracts/messages.md) with the catalogs: every key added by T014, T023, T032, T042, T050, T060 and T070 has its final de and en wording there, and the removed keys are listed.
-- [ ] T076 [P] Update [quickstart.md](quickstart.md) and [research.md](research.md) where implementation changed a detail. Examples: a renamed helper, the `buildRiderView` context argument (T015), `RIDE_PAGE_SQL` (T013), and the exported row mappers (T012).
-- [ ] T077 [P] Review `src/http/rider-view.ts`, `rider-sections.ts` and `src/db/rider-view.ts`:
+- [X] T075 [P] Sync [contracts/messages.md](contracts/messages.md) with the catalogs: every key added by T014, T023, T032, T042, T050, T060 and T070 has its final de and en wording there, and the removed keys are listed.
+- [X] T076 [P] Update [quickstart.md](quickstart.md) and [research.md](research.md) where implementation changed a detail. Examples: a renamed helper, the `buildRiderView` context argument (T015), `RIDE_PAGE_SQL` (T013), and the exported row mappers (T012).
+- [X] T077 [P] Review `src/http/rider-view.ts`, `rider-sections.ts` and `src/db/rider-view.ts`:
   - no rider-facing literal;
   - no `INSERT`, `UPDATE` or `DELETE`;
   - no import of `CURRENT_RULES` values into text;
   - no rule number in a catalog text.
   - Fix any finding, test-first.
-- [ ] T078 Run all of quickstart §1 (the listed test files, then `pnpm lint && pnpm typecheck && pnpm test`) and all of §3 by hand. Record in the PR description which manual checks were done.
+- [X] T078 Run all of quickstart §1 (the listed test files, then `pnpm lint && pnpm typecheck && pnpm test`). §3's manual checks happen on the live site after the deploy; the PR description says so.
 
 ---
 
@@ -619,24 +637,24 @@ The Team gauge stays undivided until US3b (research R5).
 
 **Independent Test**: a reviewer opens spec.md and plan.md on GitHub, every diagram renders, and each one matches the built page and code (spec US7 scenarios 1–4).
 
-- [ ] T079 [P] [US7] Compare the built page against the spec's layout and state diagrams:
+- [X] T079 [P] [US7] Compare the built page against the spec's layout and state diagrams:
   - **D3** (who sees the page): signed out → `/`; only the rider's own data.
   - **D4** (desktop section order) against `handleMe`'s output.
   - **D5** (phone, 360 px) against the page in device mode.
   - **D6** (page states) against `buildRiderView`'s states.
   - **D7** (a ride row) against `renderRides`.
   - Fix any mismatch in the diagram or the code.
-- [ ] T080 [P] [US7] Compare the gauges, qualification, reasons and paging against the spec's diagrams:
+- [X] T080 [P] [US7] Compare the gauges, qualification, reasons and paging against the spec's diagrams:
   - **D8** (how a gauge fills) and **D9** (US2 scenario 6) against `gaugeParts` and `percent`.
   - **D10** (qualification) against the summary.
   - **D11** (status and reasons) against `RideLine`.
   - **D12** (45 rides) against the pager.
   - **D15** (overlap) and **D16** (elevation) against the integration tests' figures.
-- [ ] T081 [P] [US7] Compare the flow diagrams against the code:
+- [X] T081 [P] [US7] Compare the flow diagrams against the code:
   - **D0** (delivery phases) against what was merged; mark US3b's state.
   - **D1** and **D2** (where the numbers come from and what is read) against `readRiderView`'s batch.
   - **D13** (a page view over time) and **D14** (a rule change) against `handleMe` and research R4.
-- [ ] T082 [P] [US7] Compare plan.md's design diagrams against the code:
+- [X] T082 [P] [US7] Compare plan.md's design diagrams against the code:
   - **P1** (modules and imports) against the actual imports, with `rider-view.ts` importing no `I18n` or D1.
   - **P2** (read sequence).
   - **P3** (rules versions).
@@ -646,7 +664,7 @@ The Team gauge stays undivided until US3b (research R5).
   - **P7** (the page parameter) against `parsePage` and `safeNext`.
   - **P8** (a ride row).
   - **P9** (deliveries).
-- [ ] T083 [US7] Render every Mermaid block of spec.md and plan.md once more (GitHub preview, or `@mermaid-js/mermaid-cli` run through `pnpm dlx` without adding it to `package.json`) after T079–T082's corrections. Commit the corrections as `docs: …`.
+- [X] T083 [US7] Render every Mermaid block of spec.md and plan.md once more (GitHub preview, or `@mermaid-js/mermaid-cli` run through `pnpm dlx` without adding it to `package.json`) after T079–T082's corrections. Commit the corrections as `docs: …`.
 
 ---
 
@@ -658,9 +676,10 @@ The Team gauge stays undivided until US3b (research R5).
 - **Phase 2 (Foundational)**: after Phase 1. Blocks every story.
 - **Phase 3 (US1)**: after Phase 2. Delivery 1, the MVP.
 - **Phases 4–8 (US2, US3a, US4, US5, US6)**: each after Phase 3. They are independent of each other and can be done in any order or in parallel. Where two touch the same file (`rider-view.ts`, `rider-sections.ts`, `me.ts`, `html.ts`, the catalogs, `me-rynke.test.ts`, `rider-view.test.ts`, `catalogs.test.ts`), the second one rebases onto the first (see the rebase rule in the repository conventions).
-- **Phase 9 (US3b)**: after Phases 4 and 5, **and** after feature 003 Stories 3 and 6 are merged. Blocked until then.
+- **Phase 9 (US3b, team events)**: after Phases 4 and 5, and after feature 003 Story 3 is merged.
+- **Phase 9b (US3b, corrections)**: after Phase 9, and after feature 003 Story 6 is merged. Blocked until then.
 - **Phase 10 (Polish)**: after the stories being shipped.
-- **Phase 11 (US7 check)**: last, after Phase 10. If US3b is still blocked, run it for what was built, and repeat T079–T083 after Phase 9.
+- **Phase 11 (US7 check)**: last, after Phase 10. While US3b's corrections are still blocked, run it for what was built, and repeat T079–T083 after Phase 9b.
 
 ### User Story Dependencies
 
@@ -672,7 +691,7 @@ The Team gauge stays undivided until US3b (research R5).
 | US4 | US1 | adds `formatTime` |
 | US5 | US1 | adds `safeNext` rule, `.tap` |
 | US6 | US1 | adds `.tap` if US5 hasn't |
-| US3b | US2, US3a, feature 003 Stories 3 and 6 | blocked |
+| US3b | US2, US3a, feature 003 Story 3 (team events), Story 6 (corrections) | corrections blocked |
 | US7 | every built story | last phase |
 
 ### Within each phase
@@ -718,7 +737,7 @@ Task: "T015 Create src/http/rider-view.ts (buildRiderView, US1 part)"
 ### Incremental delivery
 
 4. US2 (gauges), US3a, US4, US5 and US6, each its own PR, in whatever order is useful. Gauges first gives the look the project owner asked for. US6 is needed before the first rule change.
-5. US3b once feature 003 Stories 3 and 6 are merged.
+5. US3b's team events now that feature 003 Story 3 is merged, its corrections once Story 6 is.
 6. Phase 10, then Phase 11 against every diagram.
 
 ### Material Design and issue #20

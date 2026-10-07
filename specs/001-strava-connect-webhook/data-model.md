@@ -29,7 +29,7 @@ One row per connected member of the team club.
 | `membership_checked_at` | INTEGER NOT NULL | Last definitive "is a member" answer. |
 | `import_status` | TEXT NOT NULL | `pending` \| `running` \| `done`. |
 | `reconnect_requested_at` | INTEGER NULL | When the rider became `needs_reconnect`; `NULL` exactly when `status=connected` (CHECK). Riders more than 7 days past it are deleted (FR-020). |
-| `figures_version` | INTEGER NOT NULL DEFAULT 0 | ≥ 0. Version of the FR-013 field set the rider's activities were last read with (R20). New riders get the current `ACTIVITY_FIGURES_VERSION`; a lower value makes the daily cron re-read them once. Added by `0002`; the current version is 2 (`0003` added `is_flagged`). |
+| `figures_version` | INTEGER NOT NULL DEFAULT 0 | ≥ 0. Version of the FR-013 field set the rider's activities were last read with (R20). New riders get the current `ACTIVITY_FIGURES_VERSION`; a lower value makes the daily cron re-read them once. Added by `0002`; the current version is 3 (`0003` added `is_flagged`, `0007` the ride's name). |
 
 Not stored, by design: last name, profile photo, city, gender, weight, email
 (Principle I), and the rider's language. The language is a per-browser preference
@@ -107,9 +107,11 @@ One row per stored cycling activity (FR-013–FR-016).
 | `is_flagged` | INTEGER NULL | 1 if Strava has flagged the activity (Strava's `flagged`), else 0. `NULL` = unknown. Added by `0003`. |
 | `is_private` | INTEGER NOT NULL | 1 if "Only You". Needed to honour scope narrowing (FR-007); later team-visible features will also need it to keep "Only You" rides out of anything others see. |
 | `refreshed_at` | INTEGER NOT NULL | Last time the row was written from Strava data. |
+| `name` | TEXT NULL | The ride's name on Strava, exactly as sent; `NULL` = unknown or blank. Shown only to its rider. Added by `0007` for feature 008 ([its data model](../008-strava-ride-names/data-model.md)). |
 
 Every write is an upsert keyed by `strava_activity_id` (R5). No GPS, polyline,
-coordinates, title, description, photos, heart rate or power (FR-014). The
+coordinates, description, photos, heart rate or power (FR-014); the name is
+feature 008's documented addition. The
 mapping from Strava's response is an explicit allow-list, so unknown fields can't
 leak in.
 
@@ -123,8 +125,8 @@ added"). Every write sets all four from Strava's response; a field absent from
 the response is stored as `NULL`.
 
 Strava sends no event when it flags an activity, so `is_flagged` follows the
-next time the activity is read: an update event that changes more than the
-title, the import after a reconnect, or a re-read (spec edge case "Strava flags
+next time the activity is read: any update event (a title-only one too, since
+feature 008), the import after a reconnect, or a re-read (spec edge case "Strava flags
 a stored activity later"). It is never polled for.
 
 Rows stored before `0002` (or `0003`) start with `NULL` figures. The daily cron
