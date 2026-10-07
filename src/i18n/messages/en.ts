@@ -217,6 +217,15 @@ export const en: Catalog = {
 	"notice.revokeFailed.body":
 		'We couldn\'t give up our access at Strava. Please remove RynkePoints under "My Apps" in your Strava settings.',
 
+	"install.button": "Install as an app",
+	"install.ios":
+		'As an app on your iPhone: in Safari, tap "Share" and then "Add to Home Screen".',
+	"install.dismiss": "Dismiss",
+	"offline.title": "No connection",
+	"offline.body":
+		"RynkePoints needs an internet connection. Please try again shortly.",
+	"push.body": "New Rynke – tap to view",
+
 	"error.notFound.title": "Page not found",
 	"error.notFound.body": "This page doesn't exist.",
 	"error.forbidden.title": "Request refused",

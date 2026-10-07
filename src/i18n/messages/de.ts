@@ -227,6 +227,17 @@ export const de = {
 	"notice.revokeFailed.body":
 		"Wir konnten den Zugriff bei Strava nicht zurückgeben. Bitte entferne RynkePoints in deinen Strava-Einstellungen unter „Meine Apps“.",
 
+	// Feature 010: the installable app and its notification. `push.body` reaches
+	// the device only through /notification-text and has no placeholder (SC-008).
+	"install.button": "Als App installieren",
+	"install.ios":
+		"Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.",
+	"install.dismiss": "Ausblenden",
+	"offline.title": "Keine Verbindung",
+	"offline.body":
+		"RynkePoints braucht eine Internetverbindung. Versuch es gleich noch einmal.",
+	"push.body": "Neue Rynke – tippe zum Ansehen",
+
 	"error.notFound.title": "Seite nicht gefunden",
 	"error.notFound.body": "Diese Seite gibt es nicht.",
 	"error.forbidden.title": "Anfrage abgelehnt",
