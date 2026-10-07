@@ -107,7 +107,7 @@ from `evaluateAttendance`; corrections stay zero until Story 6.
 |---|---|---|
 | `event_id` | INTEGER PK | Assigned by SQLite. |
 | `kind` | TEXT NOT NULL, FK `team_event_kinds` | Unknown kinds refused by the schema. |
-| `event_date` | TEXT NOT NULL, `YYYY-MM-DD` (`GLOB` check) | One row per day of a training weekend. |
+| `event_date` | TEXT NOT NULL, `YYYY-MM-DD` (`GLOB` check) | One row per day of a training weekend. The `GLOB` admits impossible days (`2026-02-30`); the write functions refuse them (`invalid_date`), so only manual SQL can store one, and it compares as text like any other date. |
 | `name` | TEXT NULL, 1–100 characters when set | Optional; no Rynke depend on it. |
 
 Belongs to the team, not to a rider; not deleted with a rider.
@@ -153,7 +153,7 @@ copied (FR-015).
 | `elevation_to_next_step_dm` | INTEGER > 0 | 1 … one full step (R12). |
 | `training_rynke` | INTEGER ≥ 0 | Riding + extras, floored at 0. |
 | `team_rynke` | INTEGER ≥ 0 | Extras only (FR-009): team events, later corrections. |
-| `team_events` | TEXT NOT NULL DEFAULT `'[]'`, `json_valid` (migration `0006`) | One `{ kind, attended, team, training }` per kind, `TEAM_EVENT_KINDS` order, also for 0 attended (R20). `'[]'` only on rows written before Story 3. |
+| `team_event_breakdown` | TEXT NOT NULL DEFAULT `'[]'`, `json_valid` (migration `0006`) | One `{ kind, attended, team, training }` per kind, `TEAM_EVENT_KINDS` order, also for 0 attended (R20). `'[]'` only on rows written before Story 3. |
 | `training_missing`, `team_missing` | INTEGER ≥ 0 | To each threshold. |
 | `training_without_virtual` | INTEGER ≥ 0 | FR-013a (R12). |
 | `virtual_share_missing` | INTEGER ≥ 0 | To `ceil(threshold × (den − num) / den)` = 167 (research R3). |
@@ -168,7 +168,7 @@ Story 6 adds the correction sums, as additive columns.
 
 - The balance's riding fields equal the sums over the rider's counting ride
   results; all of the rider's rows carry the same `rules_version` (FR-014b).
-- The balance's `team_events` entries equal the rider's attendances inside the
+- The balance's `team_event_breakdown` entries equal the rider's attendances inside the
   counting window, counted per kind and multiplied by the amounts of its rules
   version; `team_rynke` equals their Team sum (until Story 6), and
   `training_rynke` the riding Training Rynke plus their Training sum.
@@ -190,5 +190,5 @@ A team event exists from its creation until an organiser deletes it. Adding or
 removing an attendance, or changing an event's kind or date, rewrites the
 affected riders' balances in the same batch (R21); entered by hand before the
 organiser pages exist, it is picked up by the next sweep (R22). After `0006`,
-rows keep version 1 and `team_events = '[]'` until the version-2 sweep
+rows keep version 1 and `team_event_breakdown = '[]'` until the version-2 sweep
 re-evaluates every rider (R18).

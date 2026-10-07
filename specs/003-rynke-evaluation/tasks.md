@@ -323,13 +323,13 @@ Story 3 task depends on them.
   - `team_event_kinds` has `["kind"]`.
   - `team_events` has `["event_id", "kind", "event_date", "name"]`.
   - `attendances` has `["event_id", "athlete_id"]`.
-  - `rynke_balances` ends with `team_events`, appended after `computed_at` (`ALTER TABLE … ADD COLUMN` appends).
+  - `rynke_balances` ends with `team_event_breakdown`, appended after `computed_at` (`ALTER TABLE … ADD COLUMN` appends).
 - [ ] T043 [P] Extend `test/integration/db.test.ts` with the migration `0006` constraints, in raw SQL (research R17, R20):
   - The seeded `team_event_kinds` rows equal `TEAM_EVENT_KINDS`.
   - Inserting into `team_events` fails for kind `'ride'` (FK), for `event_date` `'2026-5-1'`, and for `name` `''` or 101 characters. It succeeds with a 100-character name and with `NULL`.
   - Inserting into `attendances` fails for a missing event or a missing rider (FK) and for a second `(event_id, athlete_id)` (PK). A second `INSERT … ON CONFLICT DO NOTHING` leaves one row.
   - Deleting an event deletes its attendances. Deleting a rider (`DELETE FROM riders`) deletes their attendances and keeps the event and other riders' attendances.
-  - A `rynke_balances` insert without `team_events`, as the previously deployed version writes it, stores `'[]'`. `team_events = 'not json'` fails its `CHECK`.
+  - A `rynke_balances` insert without `team_event_breakdown`, as the previously deployed version writes it, stores `'[]'`. `team_event_breakdown = 'not json'` fails its `CHECK`.
 
 ### Implementation
 
@@ -344,7 +344,7 @@ Story 3 task depends on them.
     - `name TEXT CHECK (name IS NULL OR length(name) BETWEEN 1 AND 100)`
   - `CREATE TABLE attendances` with `event_id INTEGER NOT NULL REFERENCES team_events (event_id) ON DELETE CASCADE`, `athlete_id INTEGER NOT NULL REFERENCES riders (athlete_id) ON DELETE CASCADE` and `PRIMARY KEY (event_id, athlete_id)`.
   - `CREATE INDEX attendances_by_rider ON attendances (athlete_id)`.
-  - `ALTER TABLE rynke_balances ADD COLUMN team_events TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(team_events))`.
+  - `ALTER TABLE rynke_balances ADD COLUMN team_event_breakdown TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(team_event_breakdown))`.
   - In `test/support/ctx.ts`:
     - `resetDb()` deletes `attendances` and then `team_events`, before `riders`, but keeps `team_event_kinds` (seeded).
     - `tableCounts()` lists `team_events` and `attendances`.
@@ -352,7 +352,7 @@ Story 3 task depends on them.
 - [ ] T045 Create `src/rynke/team-events.ts` with `TEAM_EVENT_KINDS` (an `as const` array in contract order), `type TeamEventKind` and `isTeamEventKind(value: string)`, with a header comment naming FR-006 and research R17–R19. Then extend `src/rynke/rules.ts` (research R18):
   - Add `interface TeamEventAmounts { team: number; training: number }` and the field `teamEvents: Readonly<Record<TeamEventKind, TeamEventAmounts>>` on `RynkeRules`.
   - Rename today's constant to `const RULES_V1` (version 1, its `effectiveDate` unchanged, with the amounts of T041).
-  - `CURRENT_RULES` becomes `{ ...RULES_V1, version: 2, effectiveDate: <the date Story 3 ships> }`, and `RULES_HISTORY` becomes `[RULES_V1, CURRENT_RULES]`.
+  - `CURRENT_RULES` becomes `{ ...RULES_V1, version: 2, effectiveDate }`, with `effectiveDate` the day T045 is implemented (`YYYY-MM-DD`, not before `RULES_V1.effectiveDate`), and `RULES_HISTORY` becomes `[RULES_V1, CURRENT_RULES]`.
   - `assertValidRules` checks that the keys equal `TEAM_EVENT_KINDS` and that every amount is a whole number ≥ 0.
   - Extend the header comment: event amounts are rule values, and version 2 is Story 3's logic change.
   - Makes T041 green and the kinds part of T043 green.
@@ -436,9 +436,16 @@ and compare both totals and the per-kind breakdown with a hand calculation
     - Only the name changes → `affected` `[]`, the balances are byte-identical, and the name is stored.
     - The date moves to 2025-12-31, outside the window → the event's Rynke go. Moving it back restores them.
     - With a rules copy whose `qualificationDeadline` is `"2026-08-31"`, moving the event to 2026-09-01 takes its Rynke away.
-  - **remove-attendance**: `[A]` → `affected` `[A]`, and A's balance drops. Removing again → `affected` `[]`, nothing written.
+  - **remove-attendance**:
+    - `[A]` → `affected` `[A]`, and A's balance drops. Removing again → `affected` `[]`, nothing written.
+    - A rider with rides worth 225 non-virtual Training Rynke and 5 technique trainings is qualified. Removing one attendance → `qualified` 0, `teamMissing` 5.
   - **delete-event**: `affected` = the attendees, the event's attendances are gone, and the balances drop.
   - **Missing event**: update, delete, add or remove on a missing `eventId` → `event_missing`, nothing written.
+  - **Scenarios**, numbered like the spec, for rider D (connected, one ride of 60 km, 2.5 h and 1000 m):
+    - US3-6: before any attendance → 0 Team, 11 Training, breakdown all zero.
+    - US3-5: after `add-attendance` at a team training → 1 Team, 16 Training.
+    - Story 4 scenario 9 (team-event part): after also attending a second team training and a technique training → `team_training` `{ attended: 2, team: 2, training: 10 }`, `training_weekend_day` all 0, `technique_training` `{ attended: 1, team: 5, training: 5 }`.
+  - **Order** (SC-003): the same final attendance reached in two orders, once as add `[A, B]`, remove `[B]`, add `[B]` and once as add `[B]`, add `[B]`, add `[A]` (after `resetDb()` and the same seed), gives the same balances apart from `computed_at`.
   - **Stale rows**: a rider evaluated under a rules copy of version 1 who is then added → all their rows carry `CURRENT_RULES.version`.
   - **Ten attendees**: 10 connected riders with 3 rides each attend one event, and `delete-event` succeeds in one batch with every balance right.
   - **`teamEventChange(ctx, …)`**:
@@ -448,11 +455,12 @@ and compare both totals and the per-kind breakdown with a hand calculation
 - [ ] T052 [P] [US3] Extend `test/integration/rynke-apply.test.ts` (research R21):
   - A rider attends 2 team trainings (via `attendRaw`), and an `upsert` of a new ride keeps 2 Team and the 10 event Training in the balance.
   - `none` on a rider with attendance but no activities creates a balance with the event Rynke. A second `none` writes nothing.
-  - The stored `team_events` column is the JSON array in kind order, and `readRynke` returns it as `balance.teamEvents`.
+  - The stored `team_event_breakdown` column is the JSON array in kind order, and `readRynke` returns it as `balance.teamEvents`.
   - The rides of another rider attending the same event are untouched.
 - [ ] T053 [P] [US3] Extend `test/integration/rynke-store.test.ts` and `test/integration/evaluate-rider.test.ts` (research R23):
   - Through the webhook path, a rider with attendance keeps the event Rynke after a create, an update and a delete event for their rides. `expectConsistent` covers the breakdown.
   - Attendance inserted with `attendRaw` is in the balance after `evaluate-rider`. A second `evaluate-rider` writes nothing. Rows carry version 2.
+  - FR-026: the `attendances` rows are identical before and after `evaluate-rider` and after each webhook event.
 - [ ] T054 [P] [US3] Extend `test/integration/rynke-sweep.test.ts` and `test/integration/rynke-deletion.test.ts` (research R22, R23):
   - `listRidersNeedingEvaluation(db, CURRENT_RULES.version, window)` has the new signature, and existing cases pass `countingWindow(env, CURRENT_RULES)`.
   - The sweep lists the rider after:
@@ -466,7 +474,7 @@ and compare both totals and the per-kind breakdown with a hand calculation
     - after moving an attendance to another team training in the window;
     - for attendance outside the window on an evaluated rider;
     - for a `needs_reconnect` rider with attendance.
-  - A balance with `rules_version` 1 and `team_events` `'[]'` is listed.
+  - A balance with `rules_version` 1 and `team_event_breakdown` `'[]'` is listed.
   - `fanOutEvaluations` passes the window of `countingWindow(ctx.env, CURRENT_RULES)`.
   - In the deletion tests:
     - `delete-rider` removes their attendances, keeps the events, and leaves other attendees' attendances and balances untouched;
@@ -501,8 +509,8 @@ and compare both totals and the per-kind breakdown with a hand calculation
     - `insertAttendancesStatement(db, eventId, athleteIds)`: `INSERT INTO attendances (event_id, athlete_id) SELECT ?1, value FROM json_each(?2) WHERE true ON CONFLICT DO NOTHING`.
     - `deleteAttendancesStatement(db, eventId, athleteIds)`.
 - [ ] T058 [US3] Extend `src/db/rynke.ts` and `src/db/activities.ts` for the breakdown and multi-rider reads (research R20, R21):
-  - `BalanceRow` and `StoredBalance` carry `team_events` / `teamEvents`. `toStoredBalance` parses the JSON, and `'[]'` stays `[]`.
-  - `upsertBalanceStatement` writes `team_events = JSON.stringify(b.teamEvents)` as `?16` in both the insert and the update.
+  - `BalanceRow` and `StoredBalance` carry `team_event_breakdown` / `teamEvents`. `toStoredBalance` parses the JSON, and `'[]'` stays `[]`.
+  - `upsertBalanceStatement` writes `team_event_breakdown = JSON.stringify(b.teamEvents)` as `?16` in both the insert and the update.
   - Add `readRideResultsOfRidersStatement(db, athleteIds)` and `readBalancesOfRidersStatement(db, athleteIds)` in `src/db/rynke.ts`, and `listActivitiesOfRidersStatement(db, athleteIds)` in `src/db/activities.ts`, each filtered via `json_each(?1)` and returning `athlete_id`.
   - Check `src/db/rider-view.ts` still maps the balance through `toStoredBalance`. Feature 005's US3b renders the breakdown later; nothing here shows it.
 - [ ] T059 [US3] Refactor `src/rynke/apply.ts` so activity changes and team-event changes share read, evaluate and diff (research R21):
@@ -515,7 +523,7 @@ and compare both totals and the per-kind breakdown with a hand calculation
   - Types:
     - `TeamEventInput = { kind: string; date: string; name: string | null }`.
     - `TeamEventChange`, with the five variants of the contract.
-    - `class TeamEventRefused extends Error { code: "unknown_kind" | "invalid_date" | "invalid_name" | "event_missing" | "rider_not_connected" }`.
+    - `class TeamEventRefused extends Error { code: "unknown_kind" | "invalid_date" | "invalid_name" | "event_missing" | "rider_not_connected" }`, the codes of the contract's refusal table.
   - **Validation**, before any read:
     - `isTeamEventKind` for the kind;
     - the date matches `YYYY-MM-DD` and is a real calendar date (round-trips through `Date.UTC`);
@@ -534,7 +542,7 @@ and compare both totals and the per-kind breakdown with a hand calculation
   - `teamEventChange(ctx, change)` runs `applyTeamEventChange` under `CURRENT_RULES`, `countingWindow(ctx.env, CURRENT_RULES)` and `ctx.now()`. It then calls one `ctx.queue.sendBatch` with an `evaluate-rider` per affected rider (none if empty) and returns the result.
   - Makes T051 and the event part of T054 green.
 - [ ] T061 [US3] Extend the sweep (research R22, contracts/queue-messages.md "Scheduled: evaluation sweep"):
-  - `listRidersNeedingEvaluation(db, rulesVersion, window)` binds `?2 = window.seasonStart` and `?3 = window.deadline` (`NULL` = open). It adds `OR EXISTS (SELECT kind, count(*) FROM attendances a JOIN team_events e ON e.event_id = a.event_id WHERE a.athlete_id = r.athlete_id AND e.event_date >= ?2 AND (?3 IS NULL OR e.event_date <= ?3) GROUP BY kind EXCEPT SELECT json_extract(value, '$.kind'), json_extract(value, '$.attended') FROM rynke_balances b, json_each(b.team_events) WHERE b.athlete_id = r.athlete_id AND json_extract(value, '$.attended') > 0)`, and the same `EXCEPT` the other way round.
+  - `listRidersNeedingEvaluation(db, rulesVersion, window)` binds `?2 = window.seasonStart` and `?3 = window.deadline` (`NULL` = open). It adds `OR EXISTS (SELECT kind, count(*) FROM attendances a JOIN team_events e ON e.event_id = a.event_id WHERE a.athlete_id = r.athlete_id AND e.event_date >= ?2 AND (?3 IS NULL OR e.event_date <= ?3) GROUP BY kind EXCEPT SELECT json_extract(value, '$.kind'), json_extract(value, '$.attended') FROM rynke_balances b, json_each(b.team_event_breakdown) WHERE b.athlete_id = r.athlete_id AND json_extract(value, '$.attended') > 0)`, and the same `EXCEPT` the other way round.
   - Update its doc comment.
   - `fanOutEvaluations` in `src/work/scheduled.ts` passes `countingWindow(ctx.env, CURRENT_RULES)`, and its comment mentions attendance.
   - Makes T054 green.
@@ -548,8 +556,8 @@ hand.
 
 ## Phase 9: Story 3 Polish & Cross-Cutting Concerns
 
-- [ ] T063 [P] Add the refusal codes of T060 (`unknown_kind`, `invalid_date`, `invalid_name`, `event_missing`, `rider_not_connected`) and the `TeamEventRefused` name to `specs/003-rynke-evaluation/contracts/ride-evaluation.md`, under the team-event change table, so the organiser-admin feature can translate them. Align plan.md's structure block if T045–T060 placed anything differently.
-- [ ] T064 [P] Update `README.md` if it lists tables or what the sweep checks: add `team_event_kinds`, `team_events`, `attendances` and the balance's `team_events` breakdown, and point to quickstart.md "Story 3: entering team events by hand".
+- [ ] T063 [P] Check `specs/003-rynke-evaluation/contracts/ride-evaluation.md` against the code: the exported names and signatures of T055–T061 match "Functions", and `TeamEventRefused['code']` matches the refusal table. Where the code had to differ, update the contract in the same commit and give the reason in the commit message.
+- [ ] T064 [P] Update `README.md` if it lists tables or what the sweep checks: add `team_event_kinds`, `team_events`, `attendances` and the balance's `team_event_breakdown` breakdown, and point to quickstart.md "Story 3: entering team events by hand".
 - [ ] T065 Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and the quickstart's Story 3 command. Apply `migrations/0006_team_events.sql` locally with `pnpm wrangler d1 migrations apply rynke-points --local` to check that it parses in D1. Do not touch `--remote`.
 
 ---
@@ -564,7 +572,7 @@ hand.
 - **Phase 4 (US4)**: after Phase 3 (`tally` and storage consume `evaluateRides`). Its tests (T012–T021) can be written while Phase 3 is implemented.
 - **Phase 5 (Polish)**: after Phase 4.
 - **Phase 6 (Story 3 setup)**: after Phase 5 (delivered).
-- **Phase 7 (Story 3 foundational)**: after Phase 6; blocks Phase 8. T044 before T045's kinds check; T046 after T045.
+- **Phase 7 (Story 3 foundational)**: after Phase 6; blocks Phase 8. T043's kinds check turns green only with T045; T046 after T045.
 - **Phase 8 (US3)**: after Phase 7. Its tests (T048–T054) can be written while T055–T058 are implemented.
 - **Phase 9 (Story 3 polish)**: after Phase 8.
 

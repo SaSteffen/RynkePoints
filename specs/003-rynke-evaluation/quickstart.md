@@ -77,8 +77,8 @@ Expected: all green. What they show (research R23):
 | Story 4 scenario 9 (team-event part) | `tally.test.ts`, `team-events-apply.test.ts` | 2 team trainings → 2 Team, 10 Training; 1 technique training → 5 Team, 5 Training; every kind listed, the weekend day with 0. |
 | Counting window | `team-events.test.ts`, `team-events-apply.test.ts` | Events on the season start and the deadline count; a day outside doesn't; moving an event outside takes its Rynke away. |
 | Rules | `rules.test.ts` | Version 2 with the event amounts; version 1 still in the history; missing or negative amounts refused. |
-| Changes in one batch | `team-events-apply.test.ts` | Every change kind leaves stored balances equal to a hand calculation; renaming writes no balance; a non-connected rider is refused; `teamEventChange` sends `evaluate-rider` for affected riders only. |
-| Activity paths | `rynke-apply.test.ts`, `rynke-store.test.ts`, `evaluate-rider.test.ts` | A new ride for a rider with attendance keeps the event Rynke in the balance. |
+| Changes in one batch | `team-events-apply.test.ts` | Every change kind leaves stored balances equal to a hand calculation; renaming writes no balance; a non-connected rider is refused with `rider_not_connected`; the same final attendance reached in another order gives the same balances (SC-003); removing an attendance can end qualification; `teamEventChange` sends `evaluate-rider` for affected riders only. |
+| Activity paths | `rynke-apply.test.ts`, `rynke-store.test.ts`, `evaluate-rider.test.ts` | A new ride for a rider with attendance keeps the event Rynke in the balance; no evaluation changes an attendance (FR-026). |
 | Sweep | `rynke-sweep.test.ts` | Attendance inserted with plain SQL puts the rider on the list; a renamed event doesn't; after `evaluate-rider` the rider is off it. |
 | Deletion | `rynke-deletion.test.ts` | Deleting a rider removes their attendances and keeps the events; deleting an event removes its attendances. |
 | Schema | `schema-minimisation.test.ts`, `db.test.ts` | Exactly the documented columns; the seeded kinds equal `TEAM_EVENT_KINDS`; an unknown kind or a second attendance is refused. |
@@ -102,16 +102,19 @@ RYNKE_URL=http://localhost:8789 pnpm daily:run   # needs ADMIN_TOKEN, feature 00
 ```
 
 Expected: an unknown kind is refused by the foreign key; recording a rider twice
-changes nothing; after the run the rider's `rynke_balances.team_events` shows the
+changes nothing; after the run the rider's `rynke_balances.team_event_breakdown` shows the
 attendance and `team_rynke` includes it:
 
 ```bash
 pnpm wrangler d1 execute rynke-points --local \
-  --command "SELECT athlete_id, team_rynke, training_rynke, team_events FROM rynke_balances"
+  --command "SELECT athlete_id, team_rynke, training_rynke, team_event_breakdown FROM rynke_balances"
 ```
 
 Until the run, the balance doesn't reflect the new rows yet; run it right after
-entering them.
+entering them. `pnpm daily:run` runs the whole daily job, not only the sweep: it also
+checks every connected rider's Strava membership (one request each, inside
+the budget) and deletes riders whose reconnect grace has run out, as the
+nightly cron does anyway.
 
 ## Local run (optional)
 
@@ -166,7 +169,7 @@ There is no page for the numbers yet (rider-view feature).
 
    ```bash
    pnpm wrangler d1 execute rynke-points --remote \
-     --command "SELECT COUNT(*) FROM rynke_balances WHERE rules_version < 2 OR team_events = '[]'"
+     --command "SELECT COUNT(*) FROM rynke_balances WHERE rules_version < 2 OR team_event_breakdown = '[]'"
    ```
 
    Expected: 0.

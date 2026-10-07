@@ -30,14 +30,25 @@ A team-event `change` is one of:
 
 | Change | Affected riders | Refused when |
 |---|---|---|
-| `{ kind: "create-event", event: { kind, date, name } }` | none | kind unknown, date not `YYYY-MM-DD`, name empty or over 100 characters |
+| `{ kind: "create-event", event: { kind, date, name } }` | none | kind unknown, date not a real `YYYY-MM-DD` day, name empty or over 100 characters |
 | `{ kind: "update-event", eventId, event: { kind, date, name } }` | every attendee, unless only the name changed | event missing; as above |
 | `{ kind: "delete-event", eventId }` | every attendee | event missing |
 | `{ kind: "add-attendance", eventId, athleteIds }` | listed riders not yet attending | event missing; a listed rider isn't connected (nothing is written) |
 | `{ kind: "remove-attendance", eventId, athleteIds }` | listed riders attending | event missing |
 
-Refusals throw a typed error and write nothing; the organiser pages turn them
-into messages. Adding a rider who already attends, or removing one who doesn't,
+Refusals throw `TeamEventRefused` with one of these codes and write nothing;
+the organiser pages translate the code into a message:
+
+| Code | Refused when |
+|---|---|
+| `unknown_kind` | The kind is not in `TEAM_EVENT_KINDS`. |
+| `invalid_date` | The date is not `YYYY-MM-DD` or not a real calendar day (`2026-02-30`). |
+| `invalid_name` | The name is empty or over 100 characters. |
+| `event_missing` | No event has `eventId`. |
+| `rider_not_connected` | A listed rider is unknown or not connected. |
+
+Adding a code is a contract change: the organiser-admin feature must translate
+it. Adding a rider who already attends, or removing one who doesn't,
 changes nothing (Story 3 scenario 4).
 
 Guarantees:
@@ -55,7 +66,7 @@ Guarantees:
 ## Team-event kind codes
 
 Language-independent (FR-016); stored in `team_events.kind` and the balance's
-`team_events` breakdown, translated by the rider-view feature (its FR-062).
+`team_event_breakdown` breakdown, translated by the rider-view feature (its FR-062).
 
 | Code | Spec name | Amounts (rules version 2) |
 |---|---|---|

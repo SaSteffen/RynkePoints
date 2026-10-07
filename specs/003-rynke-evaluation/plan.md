@@ -63,7 +63,7 @@ and Story 3 fills the team-event part without reshaping what is stored
   - Migration `0006_team_events.sql` adds `team_event_kinds` (the three kind
     codes, seeded), `team_events` (kind, date, optional name) and
     `attendances` (one row per rider and event, cascading from both), plus a
-    `team_events` JSON breakdown column on `rynke_balances` with a default
+    `team_event_breakdown` JSON breakdown column on `rynke_balances` with a default
     (research R17, R20).
   - The fixed amounts per kind become rule values; the rules go to version 2
     and version 1 stays in the history (research R18).
@@ -97,7 +97,7 @@ and Story 3 fills the team-event part without reshaping what is stored
 `rynke_balances` in migration `0005_rynke_results.sql` (`activities.is_flagged`
 came with feature 001's `0003_activity_flagged.sql`); Story 3's
 `team_event_kinds`, `team_events`, `attendances` and the balance column
-`team_events` in `0006_team_events.sql`. Both additive only, so the previously
+`team_event_breakdown` in `0006_team_events.sql`. Both additive only, so the previously
 deployed version keeps working while CI applies them
 ([data-model.md](data-model.md)).
 
@@ -164,12 +164,14 @@ R15) shipped with feature 001.
 
 **Post-design re-check, Story 3**: still passing. Story 3 adds three tables, one
 balance column, a rules version, one sweep condition and the team-event write
-functions; no route, message kind, binding or dependency. One deviation from the
-spec, not the constitution: on the interim manual path (SQL, then `pnpm
-daily:run`) the balance lags the stored attendance until the run's messages are
-processed, against FR-014b's "never sees a balance that differs". The spec's
-Assumptions name that path as temporary, and the functions the organiser pages
-will use keep FR-014b (research R22).
+functions; no route, message kind, binding or dependency. On the interim manual
+path (SQL, then `pnpm daily:run`) the balance lags the stored attendance until
+the run's messages are processed; the spec's Assumptions accept that lag and
+limit FR-014b and SC-005 to changes made through the app, and the functions the
+organiser pages will use keep FR-014b (research R22). SC-006's hour after the version-2
+release depends on the maintainer running `pnpm daily:run` after the deploy
+(quickstart "Story 3 release"); without it the sweep waits for the nightly
+cron. Story 5's hourly sweep removes that dependency (research R14).
 
 ## Project Structure
 
@@ -198,7 +200,7 @@ migrations/
 ├── 0003_activity_flagged.sql   # activities.is_flagged (feature 001, exists)
 ├── 0004_consent_and_write_scope.sql  # consent_records (feature 001, exists)
 ├── 0005_rynke_results.sql      # ride_results, rynke_balances (exists)
-└── 0006_team_events.sql        # Story 3: team_event_kinds, team_events, attendances, rynke_balances.team_events
+└── 0006_team_events.sql        # Story 3: team_event_kinds, team_events, attendances, rynke_balances.team_event_breakdown
 
 src/
 ├── rynke/

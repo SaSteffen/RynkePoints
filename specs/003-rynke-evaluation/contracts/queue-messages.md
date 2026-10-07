@@ -43,7 +43,8 @@ A step added to the daily cron, after the existing ones. It sends one
 ride result; attendance inside the counting window whose count per kind differs
 from the stored breakdown), in `sendBatch` chunks of 100 (research R14, R22).
 The maintainer starts it on demand with `pnpm daily:run` (feature 007), e.g.
-after entering team events by hand.
+after entering team events by hand; that runs every step of the daily cron,
+not only this one.
 
 ## Queue usage
 

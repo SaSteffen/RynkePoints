@@ -486,10 +486,10 @@ research R20; R15 below for `is_flagged`).
 
 ## R20. The team-event breakdown in the balance (FR-014a)
 
-- **Decision**: `rynke_balances` gains one column, `team_events`, a JSON array
+- **Decision**: `rynke_balances` gains one column, `team_event_breakdown`, a JSON array
   with one object per kind in `TEAM_EVENT_KINDS` order:
   `{"kind":"team_training","attended":2,"team":2,"training":10}`. Migration
-  `0006` adds it as `TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(team_events))`.
+  `0006` adds it as `TEXT NOT NULL DEFAULT '[]' CHECK (json_valid(team_event_breakdown))`.
   `team_rynke` and `training_rynke` keep holding the totals, now including
   events.
 - **Rationale**:
@@ -567,7 +567,10 @@ research R20; R15 below for `is_flagged`).
   - **Interim entry** (spec Assumptions): the maintainer inserts, changes or
     deletes rows in `team_events` and `attendances` with `wrangler d1 execute
     --remote`, then runs `pnpm daily:run` (feature 007). The quickstart gives
-    the statements.
+    the statements. The run is the whole daily job, so it also checks
+    every rider's Strava membership (one request each, inside the budget)
+    and deletes riders whose reconnect grace has run out, as the nightly
+    cron does anyway.
   - **Sweep**: `listRidersNeedingEvaluation` gets the counting window as
     parameters and also returns connected riders whose in-window attendance
     count per kind differs from the stored breakdown: an `EXCEPT` both ways
@@ -584,9 +587,10 @@ research R20; R15 below for `is_flagged`).
     organiser change (R21), so it is the safety net R14 is for activities.
   - On the interim path the balance lags the stored attendance from the SQL
     write until the daily run's messages are processed, usually within
-    minutes, or until the next night if the maintainer forgets the run. This
-    deviates from FR-014b only on a manual path the spec names as temporary;
-    the write functions the organiser pages will use keep FR-014b (R21).
+    minutes, or until the next night if the maintainer forgets the run. The
+    spec's Assumptions accept this lag for the manual path and hold FR-014b
+    and SC-005 for changes made through the app; the write functions the
+    organiser pages will use keep FR-014b (R21).
 - **Alternatives considered**:
   - SQLite triggers on the input tables that delete the affected balance, so
     the rider sees "being evaluated" instead of a lagging number — rejected:
