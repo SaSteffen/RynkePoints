@@ -7,7 +7,7 @@
 | | |
 |---|---|
 | Column | `organiser INTEGER NOT NULL DEFAULT 0 CHECK (organiser IN (0, 1))` |
-| Migration | `migrations/0008_organiser_flag.sql`, add only |
+| Migration | `migrations/0009_organiser_flag.sql`, add only |
 | Meaning | 1: the rider is an organiser (FR-001, FR-002) |
 | Default | 0: new riders and every rider already stored |
 | Read | with the rider row, on every request (`readViewer`, FR-003) |

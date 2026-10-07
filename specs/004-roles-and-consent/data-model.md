@@ -2,7 +2,7 @@
 
 **Feature**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md) | **Date**: 2026-10-07
 
-One migration, `0008_organiser_flag.sql`, adds the organiser flag (research R2,
+One migration, `0009_organiser_flag.sql`, adds the organiser flag (research R2,
 R3). The rest already exists: 001's migration `0004_consent_and_write_scope.sql`
 added `riders.scope_write` and `consent_records` together with this spec (research
 R1). This file describes how the spec's Key Entities map onto that schema and onto

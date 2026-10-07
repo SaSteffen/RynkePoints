@@ -52,7 +52,7 @@ them, the section says so.
 ## R2. Organisers are a flag on the rider row
 
 **Decision**:
-- A migration `0008_organiser_flag.sql` adds
+- A migration `0009_organiser_flag.sql` adds
   `riders.organiser INTEGER NOT NULL DEFAULT 0 CHECK (organiser IN (0, 1))`
   ([contracts/organiser-flag.md](contracts/organiser-flag.md)). `Rider` gains
   `organiser: boolean`, read by `getRider` with the rest of the row.
@@ -89,13 +89,13 @@ them, the section says so.
 
 ## R3. Migration number
 
-**Decision**: the migration is `0008_organiser_flag.sql`. Branch
-`010-pwa-notifications` also has a `0008` (`0008_push_subscriptions.sql`); whichever
-reaches `develop` second renames its file to the next free number before merging.
+**Decision**: the migration is `0009_organiser_flag.sql`. `0008` is
+`0008_push_subscriptions.sql` from feature 010, already in `develop`.
 
 **Rationale**: D1 records applied migrations by file name and applies the rest in
-order. Neither migration has reached production, so renaming one before it is
-merged is safe; the two touch different tables.
+order, so the new file takes the next free number. If another branch claims `0009`
+first, whichever reaches `develop` second renames its file before merging; neither
+has reached production then, and the two touch different tables.
 
 ## R4. Who is asking: one viewer per request
 

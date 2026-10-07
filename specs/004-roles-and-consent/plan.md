@@ -32,12 +32,12 @@ consent step that feature 001 built together with this spec.
 ## Technical Context
 
 **Language/Version**: TypeScript 7 (`tsc --noEmit`) on the Cloudflare Workers
-runtime, as in features 001–009.
+runtime, as in features 001–010.
 
 **Primary Dependencies**: none new. Existing: `html` template, `I18n`, session
 helpers, `getRider`, `consent_records` helpers.
 
-**Storage**: D1. Migration `0008_organiser_flag.sql` adds `riders.organiser`
+**Storage**: D1. Migration `0009_organiser_flag.sql` adds `riders.organiser`
 ([contracts/organiser-flag.md](contracts/organiser-flag.md)); `consent_records`
 from 001 migration `0004` is used as it is.
 
@@ -105,7 +105,7 @@ scan over ≤ 10 riders' records.
 | later | US5 | Strava review | the organiser overview and leaderboard | — |
 
 Within the PR, tasks follow the dependencies:
-1. migration `0008_organiser_flag.sql`, `Rider.organiser`, `seedRider`'s
+1. migration `0009_organiser_flag.sql`, `Rider.organiser`, `seedRider`'s
    `organiser` option, the schema test and 001's data model;
 2. the fake-mode sample organiser;
 3. `readViewer` and `requireRider`, with `/me` switched over;
@@ -137,7 +137,7 @@ specs/004-roles-and-consent/
 
 ```text
 migrations/
-└── 0008_organiser_flag.sql   # new: riders.organiser
+└── 0009_organiser_flag.sql   # new: riders.organiser
 
 src/
 ├── visibility.ts             # new: RiderData, Audience, VISIBILITY, audienceOf, maySee (pure)
