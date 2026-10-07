@@ -24,7 +24,7 @@ NotMember, whose sign-in is refused by design.
 
 | Field | Meaning |
 |---|---|
-| `daysAgo` | Start day relative to seeding day. Entries before the season start are moved to the season start. |
+| `daysAgo` | Start day relative to seeding day, the Europe/Berlin day of the app's clock (`ctx.now()`) when seeding runs. Entries before the season start are moved to the season start. |
 | `startTime` | Local wall-clock time (`HH:MM`, Europe/Berlin) |
 | `sportType` | Strava `sport_type`, e.g. `Ride`, `VirtualRide`, `EBikeRide`, `Run` |
 | `distanceKm`, `elevationM` | Distance and elevation gain |

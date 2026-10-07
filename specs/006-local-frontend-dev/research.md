@@ -40,11 +40,12 @@ everything else to the app. Nothing under `src/` imports `dev/`.
 
 ## R2. Intercepting Strava calls
 
-**Decision**: The dev entry replaces `globalThis.fetch` once, at module scope, with
-a wrapper. The wrapper sends requests for `https://www.strava.com` to the fake
-handler and passes everything else to the original `fetch`. The fake handler
-needs the local `DB`; the wrapper gets the `env` from the first handler call
-(it's constant per isolate).
+**Decision**: The dev entry replaces `globalThis.fetch` with a wrapper, checked
+at the start of every handler call and installed again if something (e.g. a
+test's `fetch` spy) replaced it. The wrapper sends requests for
+`https://www.strava.com` to the fake handler and passes everything else to the
+original `fetch`. The fake handler needs the local `DB` and the app's clock; the
+wrapper gets both from the handler call that installed it.
 
 **Rationale**: No change to `src/` is needed, and it is the same seam the tests use.
 The wrapper never passes a Strava request through, so no request can reach Strava
@@ -123,7 +124,8 @@ it connects with, club membership, an optional fake behaviour, and a ride recipe
 1. It clears the fake mode database: deletes all riders (everything else cascades)
    and resets the `strava_rate_limit` row.
 2. It fills `fake_strava_activities` from the recipes. The recipes are dated back
-   from today, never before the season start.
+   from the seeding day, the day of the app's clock (`ctx.now()`), never before
+   the season start.
 3. It connects every sample rider through the app's real flow: `POST /connect`
    with consent, then the stand-in screen's choice, then `GET /auth/callback`. The
    dev entry runs these as internal requests to `handleFetch` with the state cookie.
@@ -141,7 +143,7 @@ and again on **Reset** (`POST /_dev/reset`, a button on `/_dev/`, FR-013).
 | Far from the thresholds | A few short rides |
 | Training target reached | Enough rides for ≥ 250 Training Rynke, none virtual. Still not in: Team Rynke come only from team events |
 | Training target reached only thanks to virtual rides | Over 250 in total but under 167 without `VirtualRide` |
-| Rides that don't count | Rides too slow, too fast, too long paused, manual, flagged, e-bike, a non-ride sport, and an overlapping pair |
+| Rides that don't count | Rides too slow, too fast, too long paused, climbing too fast, manual, flagged, e-bike, and an overlapping pair. A run is in the recipe too: the app imports only cycling, so it never appears |
 | More rides than one page | 45 rides (paging is 20 per page) |
 | Optional permissions withheld | Connects without `activity:read_all` and `activity:write`; has private rides the fake hides from it |
 | Must reconnect | Sign-in works, but the fake refuses this rider's activity calls (`401`) and refresh (`400`), so the import marks it `needs_reconnect` |

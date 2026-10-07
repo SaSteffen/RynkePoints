@@ -126,7 +126,8 @@ test/
 wrangler.jsonc                    # + "dev": { "port": 8789 }
 package.json                      # dev = fake mode; dev:strava = real Strava
 tsconfig.json                     # include "dev"
-CLAUDE.md, specs/001-…/quickstart.md §2   # commands and port updated
+CLAUDE.md, README.md, .dev.vars.example,
+specs/{001,003,005}-…/quickstart.md      # commands and port updated
 ```
 
 **Structure Decision**: The fake goes in a top-level `dev/` directory next to

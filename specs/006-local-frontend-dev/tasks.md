@@ -136,7 +136,7 @@ code.
     - Distance in metres, times in seconds.
     - The flags default to `false`.
     - A missing `elapsedMin` gives `elapsed_time` equal to `moving_time`. Check which "unknown" figure the app's activity parser actually supports in `src/strava/activity.ts`, and leave the field out only if the parser handles it.
-- [ ] T009 Create `dev/fake-strava/api.ts` with `answerStrava(request, env, db): Promise<Response>`, implementing [contracts/fake-strava.md](contracts/fake-strava.md) row by row. Depends on T006–T008.
+- [ ] T009 Create `dev/fake-strava/api.ts` with `answerStrava(request, env, db, now): Promise<Response>`, implementing [contracts/fake-strava.md](contracts/fake-strava.md) row by row. `now` is the app's clock (`ctx.now()`, epoch seconds): token expiry is set and checked against it, never `Date.now()`, so tests with a fixed clock stay deterministic. Depends on T006–T008.
   - **`POST /oauth/token`**:
     - Checks `client_id` and `client_secret` against `env`.
     - `authorization_code`: decodes the code. An unknown or non-sample athlete gives `400`. Otherwise `200` with `access_token`, `refresh_token`, `expires_at`, `expires_in` and `athlete { id, firstname }`.
@@ -154,7 +154,7 @@ code.
 - [ ] T010 Create `dev/worker.ts`, the dev entry (research R1, R2, R9, contracts/dev-routes.md "Guards" and "Response rewriting"). Depends on T009.
   - `DevEnv` and `assertFakeMode(env)` throw `Error("fake Strava runs only in local fake mode")` unless `env.RYNKE_FAKE_STRAVA === "local-only"`.
   - `makeDevCtx(env)` builds a `Ctx` the way `makeCtx` in `src/index.ts` does: `env`, `env.WORK_QUEUE`, the wall clock and `CATALOGS`.
-  - `installStravaInterceptor(env)`: if `globalThis.fetch` isn't already the dev wrapper (marked with a symbol), it wraps the current `globalThis.fetch`.
+  - `installStravaInterceptor(ctx)`: if `globalThis.fetch` isn't already the dev wrapper (marked with a symbol), it wraps the current `globalThis.fetch`. The wrapper calls `answerStrava` with `ctx.env`, `ctx.env.DB` and `ctx.now()`.
     - Requests whose URL origin is `https://www.strava.com` go to `answerStrava` and are never passed through.
     - Every other request goes to the wrapped `fetch`.
     - Each handler calls it, so it is reinstalled after a test's spy replaced it.
@@ -223,13 +223,13 @@ code.
     - Read `state` from the returned `Location`.
     - `GET <origin>/auth/callback?state=…&code=<fake-code>&scope=<rider.scopes>` with the state cookie.
     - Expect a redirect to `/me`, and throw a clear error naming the rider otherwise.
-  - **`seed(ctx, origin, seedDay)`**:
+  - **`seed(ctx, origin, seedDay)`**, where `seedDay` is the Europe/Berlin day (`YYYY-MM-DD`) of `ctx.now()`:
     - `ensureTable`, `DELETE FROM riders` (everything rider-owned cascades) and `clearActivities`.
     - Reset `strava_rate_limit` to the migration's row: `UPDATE … SET` the usage columns to 0 and the limits to 100/1000/200/2000. Check the column names against `migrations/0001_init.sql`.
     - Insert every rider's recipe through `recipeToActivity`.
     - Connect every sample rider with `clubMember: true` through `connectThroughApp`. Non-members aren't stored; their state is reached through **Connect as** (research R6).
 - [ ] T015 [US1] In `dev/worker.ts`, add the US1 routes (contracts/dev-routes.md "Routes" and "Automatic seeding"):
-  - **Automatic seeding**: when `fake_strava_activities` doesn't exist, the first request awaits `seed(ctx, origin, today)`. Concurrent requests share one promise, and a failed seed is retried on the next request.
+  - **Automatic seeding**: when `fake_strava_activities` doesn't exist, the first request awaits `seed(ctx, origin, seedDay)` with the Europe/Berlin day of `ctx.now()`. Concurrent requests share one promise, and a failed seed is retried on the next request.
   - **`GET /_dev/`** renders `indexPage` with the stored state of each sample rider.
   - **`POST /_dev/connect`** (`athleteId`) runs `POST /connect` internally with consent. It passes the state cookie to the browser and answers `303` to the rewritten authorize URL plus `&athlete=<id>`.
   - **`GET /_dev/strava/oauth/authorize`** answers `400` for a `client_id` other than `env.STRAVA_CLIENT_ID`, and `authorizePage` otherwise.
@@ -269,7 +269,7 @@ code.
   - **Nora NoRides**: `/me` shows the empty rides state.
   - **Fiona FarAway**: the balance is far below both targets.
   - **Vera Virtual**: `/me` shows the training target reached, and the share without virtual rides still missing (`rynke.missing.withoutVirtual` text).
-  - **Rex Rejected**: has `ride_results` that don't count, at least one each for too slow, too fast, too long paused, manual, flagged, e-bike, a non-ride sport, and an overlap.
+  - **Rex Rejected**: has `ride_results` that don't count, at least one each for the reasons `too_slow`, `too_fast`, `pause`, `climbing_rate`, `manual`, `flagged`, `excluded_sport_type` and `overlap`. His `Run` is not in `activities`, because the app imports only cycling (`src/strava/activity.ts`).
   - **Paula Paging**: has 45 activities, and `/me` offers a next page.
   - **Olli OptionalDenied**: stored without `activity:read_all`, and none of his private fake activities is in `activities`.
   - **Noah NotMember**: `POST /_dev/connect` and then **Authorize** end on the not-member notice, and no `riders` row is stored.
@@ -278,12 +278,12 @@ code.
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] In `dev/fake-strava/samples.ts`, add the other nine riders (data-model.md, research R6 table). Every recipe follows T012's date rule.
+- [ ] T019 [P] [US2] In `dev/fake-strava/samples.ts`, add the other nine riders (data-model.md, research R6 table). Every recipe follows T012's date rule, except Rex Rejected's overlapping pair, which shares one slot on purpose.
   - **Ida Importing** (990001): `import-stuck`, a few normal rides.
   - **Nora NoRides** (990002): an empty recipe.
   - **Fiona FarAway** (990003): three 25–35 km rides.
-  - **Vera Virtual** (990005): over 250 Training Rynke in total but under 167 without `VirtualRide`, e.g. 14 outdoor 100 km rides plus 13 `VirtualRide` 100 km rides.
-  - **Rex Rejected** (990006): one ride per rule it breaks against `CURRENT_RULES`: below 10 km/h, above 45 km/h, paused more than half, `manual`, `flagged`, `EBikeRide`, `Run`, and two overlapping rides. Each figure is clearly on the wrong side of its limit.
+  - **Vera Virtual** (990005): over 250 Training Rynke in total but under 167 without `VirtualRide`, e.g. 14 outdoor 100 km rides plus 13 `VirtualRide` 100 km rides. Elevation Rynke count without virtual rides too (floored once on the total), so keep the outdoor climbing at 100 m per ride or less.
+  - **Rex Rejected** (990006): one ride per rule it breaks against `CURRENT_RULES`: below 10 km/h, above 45 km/h, paused more than half, climbing faster than 1500 m per hour, `manual`, `flagged`, `EBikeRide`, and two overlapping rides. Each figure is clearly on the wrong side of its limit, and each ride breaks only its own rule. Add one `Run` too, which the app doesn't import.
   - **Paula Paging** (990007): 45 short counting rides.
   - **Olli OptionalDenied** (990008): scopes `read,activity:read`, some public rides and three `private` ones.
   - **Remy Reconnect** (990009): `refused`, a few rides.
@@ -319,7 +319,7 @@ code.
   - **`update`**: changes the given fields and names them in `updates`. `private` becomes `"true"` or `"false"`, `title` comes from `name`, and `type` from `sport_type`, as Strava does.
   - **`delete`**: deletes the activity.
   - **`deauthorize`**: changes nothing in the store.
-  - **Every body** carries `object_type`, `aspect_type`, `object_id`, `owner_id`, `event_time` (now), `subscription_id` (`Number(env.STRAVA_SUBSCRIPTION_ID)`) and `updates`.
+  - **Every body** carries `object_type`, `aspect_type`, `object_id`, `owner_id`, `event_time` (`ctx.now()`), `subscription_id` (`Number(env.STRAVA_SUBSCRIPTION_ID)`) and `updates`.
   - **Posting**: the body goes as JSON to `<origin>/strava/webhook/<STRAVA_WEBHOOK_VERIFY_TOKEN>` through `handleFetch`. The function returns the answer's status as the flash text.
   - **`repeat`** resends the last body sent, kept in module memory. With none, "nothing to repeat" is the flash text.
 - [ ] T023 [US3] Wire up the events:
