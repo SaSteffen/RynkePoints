@@ -9,14 +9,14 @@ unchanged. All values are synthetic (constitution Principle I).
 | Field | Meaning |
 |---|---|
 | `athleteId` | Synthetic Strava athlete ID, 990001–990099. That range is used by neither the tests (900001…) nor real riders. |
-| `firstName` | Names the state, e.g. `Quinn Qualified`, `Ida Importing`. The pages show it as the rider's name. |
+| `firstName` | Names the state, e.g. `Tina TrainingDone`, `Ida Importing`. The pages show it as the rider's name. |
 | `scopes` | The scopes it connects with when seeded. The stand-in screen preselects them, and the developer can change them there. |
 | `clubMember` | Whether `GET /athlete/clubs` lists `STRAVA_CLUB_ID` |
-| `behaviour` | `normal`, `import-stuck` (activity list answers `429`) or `refused` (API `401`, refresh `400`) |
+| `behaviour` | `normal`, `import-stuck` (activity list answers `429`) or `refused` (activity endpoints answer `401`, refresh `400`; sign-in still works) |
 | `rides` | A ride recipe: a list of synthetic rides relative to seeding day (below) |
 
-The list (research R6): Ida Importing, Nora NoRides, Fiona FarAway, Quinn
-Qualified, Vera Virtual, Rex Rejected, Paula Paging, Olli OptionalDenied, Remy
+The list (research R6): Ida Importing, Nora NoRides, Fiona FarAway, Tina
+TrainingDone, Vera Virtual, Rex Rejected, Paula Paging, Olli OptionalDenied, Remy
 Reconnect, Noah NotMember. Each rider is connected at seeding except Noah
 NotMember, whose sign-in is refused by design.
 
@@ -54,7 +54,7 @@ Readers: the fake's activity list and single-activity answers.
 | Value | Format | Checked by the fake |
 |---|---|---|
 | Authorization code | `fake-code.<athleteId>.<scopes>` | The athlete is a sample rider. Codes can be reused; nothing is remembered. |
-| Access token | `fake-access.<athleteId>.<scopes>.<expiresAt>` | Not expired, and the athlete's behaviour isn't `refused` |
+| Access token | `fake-access.<athleteId>.<scopes>.<expiresAt>` | Not expired. The activity endpoints refuse a `refused` rider anyway |
 | Refresh token | `fake-refresh.<athleteId>.<scopes>` | The athlete's behaviour isn't `refused` |
 
 `<scopes>` is the comma-separated scope list, URL-encoded. Access tokens last 6

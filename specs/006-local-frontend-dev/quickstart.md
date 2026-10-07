@@ -20,7 +20,7 @@ pnpm lint && pnpm typecheck && pnpm test
 |---|---|---|
 | FR-009 layer 1 | `dev-guard.test.ts` | No `src/**/*.ts` imports from `dev/`; `wrangler.jsonc` `main` is `src/index.ts` |
 | FR-009 layer 2 | `dev-guard.test.ts` | Without `RYNKE_FAKE_STRAVA=local-only`, the dev entry's `fetch`, `queue` and `scheduled` throw. With it, host `rynke.example` gets `403` and `localhost` doesn't |
-| FR-005, FR-007, FR-012 | `dev-fake-strava.test.ts` | Seeding connects every sample rider except Noah NotMember. After the queued messages are processed, Quinn Qualified's `/me` shows the qualified summary and their rides. Ida Importing's import is still `pending`, and Remy Reconnect is `needs_reconnect` |
+| FR-005, FR-007, FR-012 | `dev-fake-strava.test.ts` | Seeding connects every sample rider except Noah NotMember. After the queued messages are processed, Tina TrainingDone's `/me` shows the Training Rynke target reached and their rides. Ida Importing's import is still `pending`, and Remy Reconnect is `needs_reconnect` |
 | FR-006 | `dev-fake-strava.test.ts` | The test setup's deny-all `fetch` saw nothing, and `strava_rate_limit` is unchanged |
 | FR-010 | `dev-fake-strava.test.ts` | An unknown Strava path gets `404` and an `UNANSWERED` log line |
 
@@ -35,8 +35,9 @@ reports `Ready on http://localhost:8789` and loads `dev/fake.env` (not `.dev.var
 
 1. Open `http://localhost:8789/_dev/`. The first request seeds; after a few
    seconds the list shows the sample riders as connected.
-2. Click **Connect as** next to *Quinn Qualified*, then **Authorize**. You land on
-   `/me` with Quinn's balance (qualified) and rides.
+2. Click **Connect as** next to *Tina TrainingDone*, then **Authorize**. You land on
+   `/me` with Tina's balance (Training Rynke reached, Team Rynke still missing) and
+   rides.
 3. Edit a German string in `src/i18n/messages/de.ts` and save. The open page
    reloads with the new text (SC-003).
 4. Go back to `/_dev/`, connect as *Paula Paging* and page through 45 rides. Do the

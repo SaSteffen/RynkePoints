@@ -139,15 +139,16 @@ and again on **Reset** (`POST /_dev/reset`, a button on `/_dev/`, FR-013).
 | Import still running | The fake answers this rider's activity list with `429` (no rate headers), so the app keeps deferring the import page and the import stays `pending` |
 | No rides | Empty recipe |
 | Far from the thresholds | A few short rides |
-| Qualifies | Enough rides for ≥ 250 Training Rynke, none virtual |
-| Qualifies only thanks to virtual rides | Over 250 in total but under 167 without `VirtualRide` |
+| Training target reached | Enough rides for ≥ 250 Training Rynke, none virtual. Still not in: Team Rynke come only from team events |
+| Training target reached only thanks to virtual rides | Over 250 in total but under 167 without `VirtualRide` |
 | Rides that don't count | Rides too slow, too fast, too long paused, manual, flagged, e-bike, a non-ride sport, and an overlapping pair |
 | More rides than one page | 45 rides (paging is 20 per page) |
 | Optional permissions withheld | Connects without `activity:read_all` and `activity:write`; has private rides the fake hides from it |
-| Must reconnect | The fake refuses this rider's API calls (`401`) and refresh (`400`), so the import marks it `needs_reconnect` |
+| Must reconnect | Sign-in works, but the fake refuses this rider's activity calls (`401`) and refresh (`400`), so the import marks it `needs_reconnect` |
 | Not a club member | Its clubs don't include `STRAVA_CLUB_ID`; signing in shows the not-member notice and stores nothing |
 
-Team events, corrections and "being recalculated" are left out. The app has no
+Riders who are in, team events, corrections and "being recalculated" are left
+out. Being in needs 25 Team Rynke, and Team Rynke come only from team events. The app has no
 stored team events or corrections yet: `extras` is always `NO_EXTRAS`. "Being
 recalculated" means a balance whose rules version differs from
 `CURRENT_RULES.version`, and only version 1 exists. Faking either would mean
@@ -207,7 +208,7 @@ checks (US3 scenario 3).
 - `test/unit/dev-guard.test.ts`: the guards of R9 (layers 1 and 2).
 - `test/integration/dev-fake-strava.test.ts`: an end-to-end smoke test of fake
   mode. Seed, run the queued messages through `handleQueue`, open `/me` as the
-  "qualifies" sample rider and see its rides and balance. Also checks that an
+  "training target reached" sample rider and see its rides and balance. Also checks that an
   unknown Strava path gets a `404` and a log line, and that nothing reached the
   network (the setup's deny-all `fetch` stays in place under the fake).
 

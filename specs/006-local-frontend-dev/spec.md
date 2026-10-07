@@ -68,12 +68,14 @@ the new text.
 The developer picks which sample rider to be, so they can see how each page looks
 for riders in different situations without arranging those situations by hand: a
 rider who just connected (import still running), one with no rides yet, one far from
-the thresholds, one who qualifies, one who qualifies only thanks to virtual rides,
-one with rides that don't count (too short, overlap, not a ride), one with more
+the thresholds, one who has reached the Training Rynke target, one who has reached
+it only thanks to virtual rides (so the share without them is still short), one with
+rides that don't count (too short, overlap, not a ride), one with more
 rides than fit on one page, one who withheld the optional permissions (private
 activities, description edits), one who must reconnect, and one who is not a club
-member. Riders with team events or corrections, and riders whose numbers are being
-recalculated, join the list once the app can reach those states through its normal
+member. Riders who are in (that needs Team Rynke, which only team events give),
+riders with team events or corrections, and riders whose numbers are being
+recalculated join the list once the app can reach those states through its normal
 paths (FR-012): when organisers can enter team events and corrections, and when
 there is a second rules version.
 
