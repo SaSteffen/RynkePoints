@@ -69,10 +69,13 @@ The developer picks which sample rider to be, so they can see how each page look
 for riders in different situations without arranging those situations by hand: a
 rider who just connected (import still running), one with no rides yet, one far from
 the thresholds, one who qualifies, one who qualifies only thanks to virtual rides,
-one with rides that don't count (too short, overlap, not a ride), one with team
-events and corrections, one whose numbers are being recalculated, one with more
+one with rides that don't count (too short, overlap, not a ride), one with more
 rides than fit on one page, one who withheld the optional permissions (private
-activities, description edits), and one who is not a club member.
+activities, description edits), one who must reconnect, and one who is not a club
+member. Riders with team events or corrections, and riders whose numbers are being
+recalculated, join the list once the app can reach those states through its normal
+paths (FR-012): when organisers can enter team events and corrections, and when
+there is a second rules version.
 
 **Why this priority**: Most frontend work on the rider page is about how it looks in
 a particular state (empty, nearly there, done, in progress). Without ready-made
@@ -131,8 +134,8 @@ ride and the changed tally.
 - Port 8789 is already taken on the machine: the start fails with a message naming
   the port; the app does not silently move to another port.
 - The developer has real Strava app credentials in their local settings: with the
-  fake Strava switched on they are never used; the fake Strava is chosen by an
-  explicit local setting, not by guessing from the credentials.
+  fake Strava switched on they are not even read; the fake Strava is chosen by the
+  start command the developer runs, not by guessing from the credentials.
 - The fake Strava setting ends up in production by mistake: the production app
   refuses to use it (it keeps talking to the real Strava or fails loudly), it never
   serves the stand-in permission screen, and no sample data is ever written to the
@@ -167,8 +170,8 @@ ride and the changed tally.
 
 **Fake Strava**
 
-- **FR-005**: The app MUST be able to run against a fake Strava, switched on by an
-  explicit local setting, that stands in for every Strava interaction the app has:
+- **FR-005**: The app MUST be able to run against a fake Strava, chosen explicitly
+  by the start command, that stands in for every Strava interaction the app has:
   the permission screen, code exchange, token refresh, token revocation, rider
   profile, club membership, activity list and single activity.
 - **FR-006**: With the fake Strava switched on, the app MUST NOT send any request to
@@ -212,8 +215,9 @@ ride and the changed tally.
 - **Sample ride**: A synthetic activity of a sample rider with the fields the app
   stores (date, sport type, distance, elevation gain, moving time, visibility), no
   GPS.
-- **Local setting**: The explicit switch that makes the app use the fake Strava;
-  lives only in the developer's untracked local settings.
+- **Fake mode**: The way of starting the local app that uses the fake Strava. Its
+  settings are synthetic and part of the repository, and the developer's own local
+  settings (with any real Strava credentials) are not read in this mode.
 
 ## Success Criteria *(mandatory)*
 
