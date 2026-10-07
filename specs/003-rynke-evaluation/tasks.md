@@ -556,9 +556,9 @@ hand.
 
 ## Phase 9: Story 3 Polish & Cross-Cutting Concerns
 
-- [ ] T063 [P] Check `specs/003-rynke-evaluation/contracts/ride-evaluation.md` against the code: the exported names and signatures of T055–T061 match "Functions", and `TeamEventRefused['code']` matches the refusal table. Where the code had to differ, update the contract in the same commit and give the reason in the commit message.
-- [ ] T064 [P] Update `README.md` if it lists tables or what the sweep checks: add `team_event_kinds`, `team_events`, `attendances` and the balance's `team_event_breakdown` breakdown, and point to quickstart.md "Story 3: entering team events by hand".
-- [ ] T065 Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and the quickstart's Story 3 command. Apply `migrations/0006_team_events.sql` locally with `pnpm wrangler d1 migrations apply rynke-points --local` to check that it parses in D1. Do not touch `--remote`.
+- [X] T063 [P] Check `specs/003-rynke-evaluation/contracts/ride-evaluation.md` against the code: the exported names and signatures of T055–T061 match "Functions", and `TeamEventRefused['code']` matches the refusal table. Where the code had to differ, update the contract in the same commit and give the reason in the commit message.
+- [X] T064 [P] Update `README.md` if it lists tables or what the sweep checks: add `team_event_kinds`, `team_events`, `attendances` and the balance's `team_event_breakdown` breakdown, and point to quickstart.md "Story 3: entering team events by hand".
+- [X] T065 Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and the quickstart's Story 3 command. Apply `migrations/0006_team_events.sql` locally with `pnpm wrangler d1 migrations apply rynke-points --local` to check that it parses in D1. Do not touch `--remote`.
 
 ---
 
