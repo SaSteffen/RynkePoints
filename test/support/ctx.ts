@@ -21,7 +21,8 @@ export interface SentMessage {
 
 export type FakeQueue = Ctx["queue"] & { sent: SentMessage[] };
 
-export type TestCtx = Ctx & { queue: FakeQueue };
+/** `pending` collects what was handed to `waitUntil`, for tests to await. */
+export type TestCtx = Ctx & { queue: FakeQueue; pending: Promise<unknown>[] };
 
 const sendResponse = {
 	metadata: { metrics: { backlogCount: 0, backlogBytes: 0 } },
@@ -48,11 +49,16 @@ export function makeCtx(
 		},
 	};
 	const now = options.now ?? NOW;
+	const pending: Promise<unknown>[] = [];
 	return {
 		env,
 		queue,
 		now: () => now,
 		catalogs: options.catalogs ?? CATALOGS,
+		pending,
+		waitUntil: (promise) => {
+			pending.push(promise);
+		},
 	};
 }
 
