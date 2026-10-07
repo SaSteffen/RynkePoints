@@ -2,6 +2,8 @@ import type { I18n } from "../i18n/i18n";
 import { html, type SafeHtml } from "./html";
 import type {
 	Condition,
+	Gauge,
+	Gauges,
 	RideLine,
 	RiderView,
 	RideTable,
@@ -72,6 +74,77 @@ ${verdict}
 <dl>
 ${line(i18n.t("rynke.training"), summary.training)}${line(i18n.t("rynke.team"), summary.team)}${summary.withoutVirtual ? line(i18n.t("rynke.withoutVirtual"), summary.withoutVirtual) : null}</dl>
 </section>`;
+}
+
+/** One stacked gauge per condition, then the elevation step (FR-020–FR-026). */
+export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
+	const conditions = [
+		{ label: i18n.t("rynke.training"), gauge: gauges.training },
+		{ label: i18n.t("rynke.team"), gauge: gauges.team },
+		{ label: i18n.t("rynke.withoutVirtual"), gauge: gauges.withoutVirtual },
+	];
+	const figures = conditions.flatMap(({ label, gauge }) =>
+		gauge
+			? [
+					figure(
+						i18n,
+						gauge,
+						i18n.t("rynke.gauge.caption", {
+							label,
+							value: whole(i18n, gauge.value),
+							target: whole(i18n, gauge.target),
+							percent: i18n.t("units.percent", { value: gauge.percent }),
+						}),
+					),
+				]
+			: [],
+	);
+	// In decimetres within the step; shown in metres, what is still missing
+	// rounded up.
+	const elevation = gauges.elevation;
+	const metres = (m: number) => i18n.t("units.m", { value: whole(i18n, m) });
+	figures.push(
+		figure(
+			i18n,
+			elevation,
+			i18n.t("rynke.gauge.elevation", {
+				value: metres(Math.floor(elevation.value / 10)),
+				target: metres(elevation.target / 10),
+				percent: i18n.t("units.percent", { value: elevation.percent }),
+				missing: metres(Math.ceil((elevation.target - elevation.value) / 10)),
+				stepRynke: whole(i18n, elevation.stepRynke),
+			}),
+		),
+	);
+	return html`<section class="rynke-gauges">
+<h2>${i18n.t("rynke.gauges.heading")}</h2>
+${figures}</section>`;
+}
+
+function figure(i18n: I18n, gauge: Gauge, caption: string): SafeHtml {
+	const reached = gauge.reached
+		? html` · ${i18n.t("rynke.gauge.reached")}`
+		: null;
+	// Widths are numbers the view model computed, never user input.
+	const bar =
+		gauge.parts.length === 0
+			? html`<span class="gauge-fill" style="width:${gauge.percent}%"></span>`
+			: gauge.parts.map(
+					(part, i) =>
+						html`<span class="gauge-part gauge-part-${i + 1}" style="width:${part.widthPercent.toFixed(2)}%"></span>`,
+				);
+	const legend =
+		gauge.parts.length === 0
+			? null
+			: html`<ul class="gauge-legend">${gauge.parts.map(
+					(part, i) =>
+						html`<li><span class="gauge-key gauge-part-${i + 1}" aria-hidden="true"></span>${i18n.t(`rynke.source.${part.source}`)}: ${whole(i18n, part.value)}</li>`,
+				)}</ul>`;
+	return html`<figure class="gauge${gauge.reached ? " gauge-reached" : ""}">
+<figcaption>${caption}${reached}</figcaption>
+<div class="gauge-bar" aria-hidden="true">${bar}</div>
+${legend}</figure>
+`;
 }
 
 export function renderRides(i18n: I18n, rides: RideTable): SafeHtml {

@@ -16,7 +16,14 @@ import type { CyclingSportType } from "../strava/activity";
 
 export type RiderView =
 	| { state: "not-worked-out"; importing: boolean; rides: RideTable }
-	| { state: "ready"; importing: boolean; summary: Summary; rides: RideTable };
+	| {
+			state: "ready";
+			importing: boolean;
+			summary: Summary;
+			/** `null` when the balance's rules version is unknown (FR-013). */
+			gauges: Gauges | null;
+			rides: RideTable;
+	  };
 
 export interface Summary {
 	training: Condition;
@@ -34,6 +41,40 @@ export interface Condition {
 	/** Stored; 0 when reached (FR-014). */
 	missing: number;
 	reached: boolean;
+}
+
+export interface Gauges {
+	training: Gauge;
+	team: Gauge;
+	/** `null` when the rider has no virtual ride (FR-012). */
+	withoutVirtual: Gauge | null;
+	elevation: ElevationGauge;
+}
+
+export interface Gauge {
+	value: number;
+	target: number;
+	/** Rounded down and capped at 100, so 100 only when reached (FR-020). */
+	percent: number;
+	reached: boolean;
+	/** Empty: the gauge is undivided (FR-022). */
+	parts: GaugePart[];
+}
+
+/** Decimetres within the current elevation step (FR-021). */
+export interface ElevationGauge extends Gauge {
+	/** The Training Rynke the step brings. */
+	stepRynke: number;
+}
+
+/** US3b adds the team-event kinds and corrections (research R5). */
+export type GaugeSource = "distance" | "elevation";
+
+export interface GaugePart<S extends string = GaugeSource> {
+	source: S;
+	value: number;
+	/** Share of the bar, two decimals (research R7). */
+	widthPercent: number;
 }
 
 export interface RideTable {
@@ -82,6 +123,7 @@ export function buildRiderView(
 		state: "ready",
 		importing: context.importing,
 		summary: summary(read.balance, read.virtualCount, rules),
+		gauges: rules && gauges(read.balance, read.virtualCount, rules),
 		rides,
 	};
 }
@@ -120,6 +162,74 @@ function condition(
 	missing: number,
 ): Condition {
 	return { value, target, missing, reached: missing === 0 };
+}
+
+function gauges(
+	balance: StoredBalance,
+	virtualCount: number,
+	rules: RynkeRules,
+): Gauges {
+	const stepDm = rules.elevationStepM * 10;
+	return {
+		training: gauge(
+			balance.trainingRynke,
+			rules.trainingThreshold,
+			gaugeParts(
+				[
+					{ source: "distance", value: balance.distanceRynke },
+					{ source: "elevation", value: balance.elevationRynke },
+				],
+				rules.trainingThreshold,
+			),
+		),
+		// Undivided until team events exist (research R5).
+		team: gauge(balance.teamRynke, rules.teamThreshold),
+		withoutVirtual:
+			virtualCount === 0
+				? null
+				: gauge(balance.trainingWithoutVirtual, virtualShareRequired(rules)),
+		elevation: {
+			...gauge(stepDm - balance.elevationToNextStepDm, stepDm),
+			stepRynke: rules.elevationStepRynke,
+		},
+	};
+}
+
+function gauge(value: number, target: number, parts: GaugePart[] = []): Gauge {
+	return {
+		value,
+		target,
+		percent: percent(value, target),
+		reached: value >= target,
+		parts,
+	};
+}
+
+/** Rounded down, so 249.5 of 250 never shows 100 (research R7). */
+export function percent(value: number, target: number): number {
+	return Math.min(100, Math.floor((value * 100) / target));
+}
+
+/**
+ * Each part's share of `max(total, target)`: the filled width matches the
+ * percentage, and above the target the parts fill the bar in proportion.
+ * Rounded down to two decimals, so the widths never add up to more than 100.
+ * Parts of 0 get no segment; negative corrections leave the gauge undivided
+ * (FR-022).
+ */
+export function gaugeParts<S extends string>(
+	parts: { source: S; value: number }[],
+	target: number,
+): GaugePart<S>[] {
+	if (parts.some((p) => p.source === "corrections" && p.value < 0)) return [];
+	const total = parts.reduce((sum, p) => sum + p.value, 0);
+	const whole = Math.max(total, target);
+	return parts
+		.filter((p) => p.value > 0)
+		.map((p) => ({
+			...p,
+			widthPercent: Math.floor((p.value * 10000) / whole) / 100,
+		}));
 }
 
 function rideTable(read: RiderViewRead): RideTable {

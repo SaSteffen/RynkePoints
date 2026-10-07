@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { RideRow, RiderViewRead } from "../../src/db/rider-view";
 import type { StoredBalance, StoredRideResult } from "../../src/db/rynke";
-import { buildRiderView, type RiderView } from "../../src/http/rider-view";
+import {
+	buildRiderView,
+	type GaugePart,
+	gaugeParts,
+	type RiderView,
+} from "../../src/http/rider-view";
 import { CURRENT_RULES, type RynkeRules } from "../../src/rynke/rules";
 
 // The rider page's view model (feature 005 data-model.md "Validation and
@@ -336,5 +341,212 @@ describe("buildRiderView ride lines", () => {
 		const view = buildRiderView(read(), CURRENT_RULES, CURRENT_RULES, CONTEXT);
 		expect(view.rides.rows).toEqual([]);
 		expect(view.rides.position).toEqual({ from: 0, to: 0, total: 0 });
+	});
+});
+
+function gaugesOf(
+	b: Partial<StoredBalance>,
+	options: { virtualCount?: number; rules?: RynkeRules | null } = {},
+) {
+	return ready(
+		buildRiderView(
+			read({
+				balance: balance(b),
+				virtualCount: options.virtualCount ?? 0,
+			}),
+			options.rules === undefined ? CURRENT_RULES : options.rules,
+			CURRENT_RULES,
+			CONTEXT,
+		),
+	).gauges;
+}
+
+function sum(parts: GaugePart<string>[]): number {
+	return parts.reduce((total, part) => total + part.widthPercent, 0);
+}
+
+describe("buildRiderView gauges", () => {
+	it("S2-1: fills to the percentage rounded down", () => {
+		const gauges = gaugesOf({ trainingRynke: 12, distanceRynke: 12 });
+		expect(gauges?.training).toMatchObject({
+			value: 12,
+			target: 250,
+			percent: 4,
+			reached: false,
+		});
+		expect(gauges?.team).toEqual({
+			value: 0,
+			target: 25,
+			percent: 0,
+			reached: false,
+			parts: [],
+		});
+	});
+
+	it("S2-2: is not reached one Rynke short", () => {
+		expect(gaugesOf({ trainingRynke: 249 })?.training).toMatchObject({
+			percent: 99,
+			reached: false,
+		});
+	});
+
+	it("S2-3: is reached at and above the target, capped at 100", () => {
+		for (const trainingRynke of [250, 262]) {
+			expect(gaugesOf({ trainingRynke })?.training).toMatchObject({
+				value: trainingRynke,
+				percent: 100,
+				reached: true,
+			});
+		}
+	});
+
+	it("S2-4: shows the share without virtual rides with a virtual ride", () => {
+		const gauges = gaugesOf(
+			{ trainingRynke: 262, trainingWithoutVirtual: 160 },
+			{ virtualCount: 1 },
+		);
+		expect(gauges?.withoutVirtual).toEqual({
+			value: 160,
+			target: 167,
+			percent: 95,
+			reached: false,
+			parts: [],
+		});
+	});
+
+	it("leaves out the share without virtual rides without a virtual ride", () => {
+		expect(gaugesOf({})?.withoutVirtual).toBeNull();
+	});
+
+	it("S2-5: fills the elevation gauge within the current step", () => {
+		expect(gaugesOf({ elevationToNextStepDm: 7600 })?.elevation).toEqual({
+			value: 2400,
+			target: 10000,
+			percent: 24,
+			reached: false,
+			parts: [],
+			stepRynke: 5,
+		});
+		const rules = { ...CURRENT_RULES, elevationStepM: 3000 };
+		expect(
+			gaugesOf({ elevationToNextStepDm: 30000 }, { rules })?.elevation,
+		).toMatchObject({ value: 0, target: 30000, percent: 0 });
+	});
+
+	it("divides the Training gauge into distance and elevation", () => {
+		const gauges = gaugesOf({
+			trainingRynke: 100,
+			distanceRynke: 70,
+			elevationRynke: 30,
+		});
+		expect(gauges?.training.parts).toEqual([
+			{ source: "distance", value: 70, widthPercent: 28 },
+			{ source: "elevation", value: 30, widthPercent: 12 },
+		]);
+	});
+
+	it("fills the whole bar in proportion above the target", () => {
+		const parts =
+			gaugesOf({ trainingRynke: 262, distanceRynke: 200, elevationRynke: 62 })
+				?.training.parts ?? [];
+		expect(parts.map((p) => p.source)).toEqual(["distance", "elevation"]);
+		expect(sum(parts)).toBeLessThanOrEqual(100);
+		expect(sum(parts)).toBeGreaterThan(99.98);
+		expect(parts[0]?.widthPercent).toBeCloseTo((200 / 262) * 100, 1);
+	});
+
+	it("drops parts of 0", () => {
+		expect(
+			gaugesOf({ trainingRynke: 12, distanceRynke: 12 })?.training.parts,
+		).toEqual([{ source: "distance", value: 12, widthPercent: 4.8 }]);
+		expect(gaugesOf({})?.training.parts).toEqual([]);
+	});
+
+	it("leaves out the gauges when the rules are unknown", () => {
+		expect(gaugesOf({ trainingRynke: 12 }, { rules: null })).toBeNull();
+	});
+});
+
+describe("gaugeParts", () => {
+	it("S2-6: divides six sources of 250 into 84 %", () => {
+		const parts = gaugeParts(
+			[
+				{ source: "distance", value: 70 },
+				{ source: "elevation", value: 30 },
+				{ source: "team_training", value: 50 },
+				{ source: "weekend_day", value: 40 },
+				{ source: "technique", value: 10 },
+				{ source: "corrections", value: 10 },
+			],
+			250,
+		);
+		expect(parts.map((p) => p.widthPercent)).toEqual([28, 12, 20, 16, 4, 4]);
+		expect(sum(parts)).toBe(84);
+	});
+
+	it("S2-7: is undivided when the corrections are negative", () => {
+		expect(
+			gaugeParts(
+				[
+					{ source: "distance", value: 70 },
+					{ source: "corrections", value: -10 },
+				],
+				250,
+			),
+		).toEqual([]);
+	});
+});
+
+describe("gauge invariants (SC-009)", () => {
+	it("keeps the percentage within 0…100, 100 exactly when reached", () => {
+		for (let trainingRynke = 0; trainingRynke <= 300; trainingRynke++) {
+			const gauge = gaugesOf({
+				trainingRynke,
+				distanceRynke: trainingRynke,
+			})?.training;
+			if (!gauge) throw new Error("no gauge");
+			expect(gauge.percent).toBeGreaterThanOrEqual(0);
+			expect(gauge.percent).toBeLessThanOrEqual(100);
+			expect(gauge.percent === 100).toBe(gauge.reached);
+			expect(sum(gauge.parts)).toBeLessThanOrEqual(100);
+		}
+	});
+
+	it("FR-023: qualifies exactly when every shown gauge is reached", () => {
+		for (const training of [249, 250])
+			for (const team of [24, 25])
+				for (const withoutVirtual of [166, 167])
+					for (const virtualCount of [0, 1]) {
+						const shareMet = virtualCount === 0 || withoutVirtual >= 167;
+						const qualified = training >= 250 && team >= 25 && shareMet;
+						const view = ready(
+							buildRiderView(
+								read({
+									virtualCount,
+									balance: balance({
+										trainingRynke: training,
+										trainingMissing: Math.max(0, 250 - training),
+										teamRynke: team,
+										teamMissing: Math.max(0, 25 - team),
+										trainingWithoutVirtual: withoutVirtual,
+										virtualShareMissing:
+											virtualCount === 0
+												? 0
+												: Math.max(0, 167 - withoutVirtual),
+										qualified,
+									}),
+								}),
+								CURRENT_RULES,
+								CURRENT_RULES,
+								CONTEXT,
+							),
+						);
+						const gauges = view.gauges;
+						if (!gauges) throw new Error("no gauges");
+						const shown = [gauges.training, gauges.team, gauges.withoutVirtual];
+						expect(view.summary.qualified).toBe(
+							shown.every((gauge) => gauge === null || gauge.reached),
+						);
+					}
 	});
 });

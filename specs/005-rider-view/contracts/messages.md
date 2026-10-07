@@ -62,7 +62,7 @@ without `rynke.summary.ofTarget`.
 |---|---|---|---|
 | `rynke.gauges.heading` | | Dein Fortschritt | Your progress |
 | `rynke.gauge.caption` | `label`, `value`, `target`, `percent` | {label}: {value} von {target} · {percent} | {label}: {value} of {target} · {percent} |
-| `rynke.gauge.reached` | | erreicht | reached |
+| `rynke.gauge.reached` | | ✓ erreicht | ✓ reached |
 | `rynke.gauge.elevation` | `value`, `target`, `percent`, `missing`, `stepRynke` | Höhenmeter bis zu den nächsten {stepRynke} Trainingsrynke: {value} von {target} · {percent} · noch {missing} | Elevation towards the next {stepRynke} Training Rynke: {value} of {target} · {percent} · {missing} to go |
 | `rynke.source.distance` | | Distanz | Distance |
 | `rynke.source.elevation` | | Höhenmeter | Elevation |
