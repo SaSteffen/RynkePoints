@@ -70,8 +70,11 @@
 	"workers_dev": false,
 	"preview_urls": false,
 	// `wrangler dev` only (`pnpm dev` and `pnpm dev:strava`); deploys ignore it.
-	// 8787, Wrangler's default, is taken on the maintainer's machine.
+	// 8787, Wrangler's default, is taken on the maintainer's machine. Without
+	// `host`, wrangler dev hands the Worker URLs on the first route's host (the
+	// production domain), and the OAuth redirect would point there.
 	"dev": {
-		"port": 8789
+		"port": 8789,
+		"host": "localhost:8789"
 	}
 }
