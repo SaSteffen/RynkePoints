@@ -252,7 +252,7 @@ sends one empty push per device; nothing else does
 
 ### Tests for User Story 2
 
-- [ ] T022 [P] [US2] New `test/unit/vapid.test.ts` (failing), with the test key
+- [X] T022 [P] [US2] New `test/unit/vapid.test.ts` (failing), with the test key
   from `env.PUSH_VAPID_KEY`:
   - `vapidPublicKey(env)` is 65 bytes base64url-decoded, starting with `0x04`,
     then the JWK's `x` and `y`;
@@ -264,7 +264,7 @@ sends one empty push per device; nothing else does
     key;
   - a second call for the same origin within the hour returns the same token;
     one for another origin a different one.
-- [ ] T023 [P] [US2] New `test/unit/push-send.test.ts` (failing), with
+- [X] T023 [P] [US2] New `test/unit/push-send.test.ts` (failing), with
   `installPushService` from T004:
   - `sendPush(endpoint, ctx)` posts to exactly the endpoint with an empty body
     and the headers `TTL: 86400`, `Urgency: normal`, `Topic: new-rynke`,
@@ -273,7 +273,7 @@ sends one empty push per device; nothing else does
     throwing `fetch` → `transient`; 400, 401, 403 and 413 → `refused`;
   - with `console` spied on, no logged line contains the endpoint path or the
     JWT.
-- [ ] T024 [P] [US2] New `test/integration/notify-on-rise.test.ts` (failing):
+- [X] T024 [P] [US2] New `test/integration/notify-on-rise.test.ts` (failing):
   - Every row of push-delivery.md's case table, as a `rose` assertion on
     `applyAndEvaluate` or `applyTeamEventChange` with synthetic rides built
     with `test/support/rynke.ts`. The overlap and elevation cases reuse the
@@ -289,7 +289,7 @@ sends one empty push per device; nothing else does
     one per device, besides the two `evaluate-rider` messages.
   - A `ctx.queue` whose `sendBatch` throws: `activityEvent` still returns `ok`
     and the ride's results and balance are stored (FR-018).
-- [ ] T025 [P] [US2] New `test/integration/send-notification.test.ts`
+- [X] T025 [P] [US2] New `test/integration/send-notification.test.ts`
   (failing), through `handleQueue` with `createMessageBatch`:
   - a row of the message's rider: one push to its endpoint, message acked;
   - the row is gone, or belongs to another rider: no push, acked (FR-020);
@@ -301,14 +301,14 @@ sends one empty push per device; nothing else does
   - `403`: acked, row kept, nothing in `failed_work`;
   - a `send-notification` whose handler throws on attempt `MAX_ATTEMPTS`:
     acked without a `failed_work` row.
-- [ ] T026 [P] [US2] In `test/unit/messages.test.ts` (failing):
+- [X] T026 [P] [US2] In `test/unit/messages.test.ts` (failing):
   `send-notification` with `athleteId` and `subscriptionId` parses and
   serializes in that key order; a missing, zero, negative or fractional
   `subscriptionId` gives `null`.
 
 ### Implementation for User Story 2
 
-- [ ] T027 [P] [US2] New `src/push/vapid.ts` (research R4):
+- [X] T027 [P] [US2] New `src/push/vapid.ts` (research R4):
   - `vapidPublicKey(env: Pick<Env, "PUSH_VAPID_KEY">): string`: base64url of
     `0x04‖x‖y` from the JWK, without Web Crypto.
   - `vapidAuthorization(origin, env, now): Promise<string>`: imports the JWK
@@ -316,11 +316,11 @@ sends one empty push per device; nothing else does
     and keeps tokens per origin in a module map while `exp - now > 3600`.
   - Base64url helpers stay local to the file.
   T022 passes.
-- [ ] T028 [US2] New `src/push/send.ts`: `type PushOutcome = "sent" | "gone" |
+- [X] T028 [US2] New `src/push/send.ts`: `type PushOutcome = "sent" | "gone" |
   "transient" | "refused"` and `sendPush(endpoint: string, ctx: Ctx):
   Promise<PushOutcome>` with the request and response mapping of
   push-delivery.md. It logs nothing itself. T023 passes.
-- [ ] T029 [US2] Rise detection in `src/rynke/apply.ts` (research R5):
+- [X] T029 [US2] Rise detection in `src/rynke/apply.ts` (research R5):
   - Split `riderWrites` into `evaluateState(state, rules, window)` returning
     `{ evaluation, balance }`, and the writes built from it, so the balance is
     computed once.
@@ -334,10 +334,10 @@ sends one empty push per device; nothing else does
     `create-event` returns `rose: []`.
   - Update the module's header comment: callers decide whether a rise
     notifies (contracts/push-delivery.md).
-- [ ] T030 [US2] `src/work/messages.ts`: `SendNotificationMessage` (data-model.md
+- [X] T030 [US2] `src/work/messages.ts`: `SendNotificationMessage` (data-model.md
   "Types in code") in `WorkMessage`, `parseWorkMessage` and
   `serializeWorkMessage`. T026 passes.
-- [ ] T031 [US2] New `src/work/send-notification.ts`:
+- [X] T031 [US2] New `src/work/send-notification.ts`:
   - `NOTIFY_MAX_ATTEMPTS = 4`, with a comment: about 7 minutes with the
     consumer's backoff, then the news is stale (research R6).
   - `notifyRiders(ctx, athleteIds: number[]): Promise<void>`: one read with
@@ -350,7 +350,7 @@ sends one empty push per device; nothing else does
     `refused` and giving up log the status or outcome and the endpoint's host
     only.
   - `src/index.ts`: register `"send-notification": sendNotification`.
-- [ ] T032 [US2] Callers (contracts/push-delivery.md "Which changes notify"):
+- [X] T032 [US2] Callers (contracts/push-delivery.md "Which changes notify"):
   - `src/work/activity-event.ts`: after each `evaluateChange`, `if (rose) await
     notifyRiders(ctx, [rider.athleteId])`. Add a line to the header comment.
   - `src/rynke/apply.ts`, `teamEventChange`: after `sendAll` of the
@@ -358,11 +358,11 @@ sends one empty push per device; nothing else does
   - `activity-page.ts`, `evaluate-rider.ts` and `auth.ts` stay as they are and
     ignore the result.
   T024 passes.
-- [ ] T033 [US2] `src/work/consumer.ts`, `transientFailure`: on the last attempt
+- [X] T033 [US2] `src/work/consumer.ts`, `transientFailure`: on the last attempt
   a `send-notification` is logged and acked, never written to `failed_work`,
   with a comment naming FR-018 (defence in depth: the handler stops at 4).
   T025 passes.
-- [ ] T034 [US2] `public/sw.js`: the `push` and `notificationclick` handlers of
+- [X] T034 [US2] `public/sw.js`: the `push` and `notificationclick` handlers of
   push-delivery.md "What the device shows". The text is read with
   `caches.match("/notification-text?lang=" + lang)`, then `fetch` of the same
   URL, and on any failure `{ title: "RynkePoints" }` (the app name is the same

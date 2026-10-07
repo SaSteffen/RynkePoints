@@ -155,7 +155,13 @@ async function transientFailure(
 		message.retry({ delaySeconds: backoffSeconds(message.attempts) });
 		return;
 	}
-	if (body.kind === "delete-rider") {
+	if (body.kind === "send-notification") {
+		// A notification never fails anything (feature 010 FR-018). The handler
+		// already stops after 4 tries; this is defence in depth.
+		console.error(
+			`send-notification for athlete ${body.athleteId} dropped: ${reason}`,
+		);
+	} else if (body.kind === "delete-rider") {
 		// The deletion must complete (Principle I), even if revoking never did.
 		await deleteRider(ctx.env.DB, body.athleteId);
 		console.error(

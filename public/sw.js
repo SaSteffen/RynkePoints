@@ -45,3 +45,55 @@ self.addEventListener("fetch", (event) => {
 		),
 	);
 });
+
+/** The cached text, else the server's, else the app name alone (FR-032). */
+async function notificationText() {
+	try {
+		const response =
+			(await caches.match(TEXT, { ignoreVary: true })) ?? (await fetch(TEXT));
+		if (!response.ok) throw new Error(`status ${response.status}`);
+		return await response.json();
+	} catch {
+		return { title: "RynkePoints" };
+	}
+}
+
+// The push has no body; the device shows a fixed text (contracts/push-delivery.md
+// "What the device shows").
+self.addEventListener("push", (event) => {
+	event.waitUntil(
+		(async () => {
+			const text = await notificationText();
+			await self.registration.showNotification(text.title, {
+				body: text.body,
+				tag: "new-rynke",
+				renotify: true,
+				icon: "/icons/icon-192.png",
+				badge: "/icons/badge-96.png",
+				data: { url: "/me" },
+			});
+		})(),
+	);
+});
+
+// Opens the rider page in an open RynkePoints window, or a new one (FR-019).
+self.addEventListener("notificationclick", (event) => {
+	event.notification.close();
+	event.waitUntil(
+		(async () => {
+			const [open] = await self.clients.matchAll({
+				type: "window",
+				includeUncontrolled: true,
+			});
+			try {
+				if (open) {
+					await (await open.focus()).navigate("/me");
+					return;
+				}
+			} catch {
+				// A window this worker doesn't control can't be navigated.
+			}
+			await self.clients.openWindow("/me");
+		})(),
+	);
+});
