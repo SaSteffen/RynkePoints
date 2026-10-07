@@ -27,10 +27,10 @@ registrations directly, so it doesn't wait for US3.
 
 ## Phase 1: Setup
 
-- [ ] T001 In the worktree, run `pnpm install`, then `pnpm lint`, `pnpm typecheck`
+- [X] T001 In the worktree, run `pnpm install`, then `pnpm lint`, `pnpm typecheck`
   and `pnpm test`. All pass before any change, so later failures are this
   feature's.
-- [ ] T002 The push key and subject (research R4, [data-model.md](data-model.md)
+- [X] T002 The push key and subject (research R4, [data-model.md](data-model.md)
   "Configuration"):
   - Generate two separate synthetic keys with the one-liner in
     [quickstart.md](quickstart.md) §3, without the `wrangler` pipe. Neither is
@@ -56,7 +56,7 @@ registrations directly, so it doesn't wait for US3.
 **Purpose**: the `push_subscriptions` table, its statements, the endpoint
 allow-list and the test support every push test uses.
 
-- [ ] T003 [P] Tests first (failing):
+- [X] T003 [P] Tests first (failing):
   - `test/integration/schema-minimisation.test.ts`: `COLUMNS.push_subscriptions =
     ["subscription_id", "endpoint", "athlete_id", "created_at"]`.
   - `test/integration/delete-rider.test.ts` "deletes every row of the rider
@@ -84,7 +84,7 @@ allow-list and the test support every push test uses.
     it rejects `http:` of those, `https://user:pw@fcm.googleapis.com/x`,
     `https://notify.windows.com.example/x`, `https://example.com/x`, a
     non-URL and 1025 characters (research R7).
-- [ ] T004 [P] New `test/support/push.ts`:
+- [X] T004 [P] New `test/support/push.ts`:
   - `pushEndpoint(n: number, host = "fcm.googleapis.com")` returns
     `https://<host>/fcm/send/synthetic-<n>`.
   - `seedSubscription(athleteId, endpoint, createdAt = NOW)` inserts a row and
@@ -95,15 +95,15 @@ allow-list and the test support every push test uses.
     array, and still fails the test for any other URL.
   - `test/support/ctx.ts`: add `push_subscriptions` to `resetDb()` (before
     `riders`) and to `tableCounts()`.
-- [ ] T005 Add `migrations/0008_push_subscriptions.sql`, word for word as in
+- [X] T005 Add `migrations/0008_push_subscriptions.sql`, word for word as in
   [data-model.md](data-model.md).
-- [ ] T006 New `src/db/push-subscriptions.ts` with the statements T003 tests,
+- [X] T006 New `src/db/push-subscriptions.ts` with the statements T003 tests,
   in the style of `src/db/team-events.ts`. The upsert is
   `INSERT … ON CONFLICT (endpoint) DO UPDATE SET athlete_id = excluded.athlete_id,
   created_at = excluded.created_at`. The trim deletes the rider's rows not in
   their newest 10. `subscriptionIdsOfRiders` takes several riders, for
   team-event changes (data-model.md's `subscriptionIdsOfRider`, generalised).
-- [ ] T007 In `src/db/push-subscriptions.ts`: `MAX_ENDPOINT_LENGTH = 1024` and
+- [X] T007 In `src/db/push-subscriptions.ts`: `MAX_ENDPOINT_LENGTH = 1024` and
   `isPushEndpoint(value: string): boolean` per research R7 (`URL.canParse`,
   `https:`, empty `username` and `password`, host equal to one of the three
   fixed hosts or ending in `.notify.windows.com`), with a comment naming R7: the
@@ -126,18 +126,18 @@ in for 180 days after the last visit ([contracts/client.md](contracts/client.md)
 
 ### Tests for User Story 1
 
-- [ ] T008 [P] [US1] New `test/unit/manifest.test.ts`: import
+- [X] T008 [P] [US1] New `test/unit/manifest.test.ts`: import
   `../../public/manifest.webmanifest?raw`, `JSON.parse` it and assert every
   field of the manifest in [contracts/client.md](contracts/client.md): `name`,
   `short_name` and `description` are `"RynkePoints"`, `id` and `scope` `/`,
   `start_url` `/me`, `display` `standalone`, the two theme colours, and the
   three icons with their sizes and the `maskable` purpose (FR-001, FR-002,
   FR-032).
-- [ ] T009 [P] [US1] In `test/unit/catalogs.test.ts` (failing): add
+- [X] T009 [P] [US1] In `test/unit/catalogs.test.ts` (failing): add
   `install.button`, `install.ios`, `install.dismiss`, `offline.title`,
   `offline.body` and `push.body` to `CONTRACT_IDS`, and a case that
   `push.body` contains no `{` in any catalog (SC-008).
-- [ ] T010 [P] [US1] New `test/integration/pwa-pages.test.ts` (failing):
+- [X] T010 [P] [US1] New `test/integration/pwa-pages.test.ts` (failing):
   - For `/`, `/me` (signed in), `/me/disconnect` and `/notice/deleted`: the head
     has `<link rel="manifest" href="/manifest.webmanifest">`, the SVG icon, the
     `apple-touch-icon`, `<meta name="theme-color" content="#fc5200">` and
@@ -156,14 +156,14 @@ in for 180 days after the last visit ([contracts/client.md](contracts/client.md)
     byte-identical to those without one, contain neither the rider's first name
     nor a `Set-Cookie`, and run with a `ctx` whose `env.DB` throws on every
     method (SC-007, SC-008).
-- [ ] T011 [P] [US1] In `test/unit/session.test.ts` and `test/unit/sign.test.ts`
+- [X] T011 [P] [US1] In `test/unit/session.test.ts` and `test/unit/sign.test.ts`
   (failing):
   - `createSessionCookie` has `Max-Age=15552000`;
   - `verifySignedValue` returns `{ value, expiresAt }` (adapt the existing
     assertions);
   - `readSessionExpiry(request, env, now)` returns `{ athleteId, expiresAt }`,
     or `null` when missing, tampered or expired.
-- [ ] T012 [P] [US1] New `test/integration/session-renewal.test.ts` (failing),
+- [X] T012 [P] [US1] New `test/integration/session-renewal.test.ts` (failing),
   through `handleFetch` with a fixed clock (FR-007, research R10):
   - `GET /me` with a cookie issued 10 days ago gets
     `Set-Cookie: rp_session=…; Max-Age=15552000`, and the new cookie reads back
@@ -179,24 +179,24 @@ in for 180 days after the last visit ([contracts/client.md](contracts/client.md)
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Icons in `public/icons/` (research R1, client.md
+- [X] T013 [P] [US1] Icons in `public/icons/` (research R1, client.md
   "Icons"): draw `icon.svg`, a simple RynkePoints mark in `#fc5200` and white
   that doesn't resemble Strava's logo. Render `icon-192.png`, `icon-512.png`,
   `icon-maskable-512.png` (mark inside the central 80 %, full background),
   `apple-touch-icon.png` (180, opaque) and `badge-96.png` (white on
   transparent) once with `rsvg-convert` or another SVG renderer, and commit
   them. No build step.
-- [ ] T014 [P] [US1] `public/manifest.webmanifest`, exactly the contract's JSON.
+- [X] T014 [P] [US1] `public/manifest.webmanifest`, exactly the contract's JSON.
   T008 passes.
-- [ ] T015 [P] [US1] Catalog keys in `src/i18n/messages/de.ts` and `en.ts`:
+- [X] T015 [P] [US1] Catalog keys in `src/i18n/messages/de.ts` and `en.ts`:
   `install.button`, `install.ios`, `install.dismiss`, `offline.title`,
   `offline.body` and `push.body`, worded as in
   [contracts/messages.md](contracts/messages.md). T009 passes.
-- [ ] T016 [US1] `src/http/html.ts`, `layout()`: the five `<head>` lines of
+- [X] T016 [US1] `src/http/html.ts`, `layout()`: the five `<head>` lines of
   client.md after the viewport meta. In `STYLE`: `#install button{margin-right:.5rem}`
   and nothing else; the hint reuses `section.notice`'s look, so change that
   selector to `.notice`.
-- [ ] T017 [US1] New `src/http/pwa.ts` with `handleOffline(request, ctx)` and
+- [X] T017 [US1] New `src/http/pwa.ts` with `handleOffline(request, ctx)` and
   `handleNotificationText(request, ctx)`:
   - the locale is the `lang` query parameter if it is in `ctx.catalogs`, else
     `resolveLocale(request, ctx.catalogs)`;
@@ -206,11 +206,11 @@ in for 180 days after the last visit ([contracts/client.md](contracts/client.md)
   - both set `Cache-Control: no-cache`, and neither reads the session or D1.
   - `src/http/router.ts`: `GET`/`HEAD` cases `/offline` and
     `/notification-text`.
-- [ ] T018 [US1] Install hint markup: a `renderInstallHint(i18n)` in
+- [X] T018 [US1] Install hint markup: a `renderInstallHint(i18n)` in
   `src/http/pwa.ts`, exactly the `aside#install` of client.md. Render it after
   the `<h1>` in `handleLanding` (`src/http/landing.ts`) and in `handleMe`
   (`src/http/me.ts`). T010 passes.
-- [ ] T019 [US1] Sliding sign-in (research R10):
+- [X] T019 [US1] Sliding sign-in (research R10):
   - `src/crypto/sign.ts`: `verifySignedValue` returns
     `{ value: string; expiresAt: number } | null`. Update `readSigned` in
     `src/http/session.ts` and every other caller `pnpm typecheck` flags.
@@ -228,12 +228,12 @@ in for 180 days after the last visit ([contracts/client.md](contracts/client.md)
     `contracts/http-routes.md` "Session renewal": those two routes are
     excluded, so their responses are the same for everyone.
   T011 and T012 pass.
-- [ ] T020 [US1] `public/sw.js` without the `push` handlers (client.md
+- [X] T020 [US1] `public/sw.js` without the `push` handlers (client.md
   `public/sw.js`, research R2): `install`, `activate` and `fetch` exactly as
   the table says. `lang` comes from `new URL(location).searchParams`, limited
   to `/^[a-z]{2}$/`, default `de`. A header comment: network only; the only
   cached responses are the two texts, never a page (FR-005).
-- [ ] T021 [US1] `public/app.js`, steps 1 and 2 of client.md (registration and
+- [X] T021 [US1] `public/app.js`, steps 1 and 2 of client.md (registration and
   install hint). Plain script, no imports, no text. A header comment names
   research R16 and that every word shown comes from the page's markup.
 

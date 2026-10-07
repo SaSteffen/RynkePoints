@@ -78,6 +78,8 @@ the same attributes as today.
 
 `/health`, the webhook and the static assets are excluded: the first two return
 before the check, and the Worker never sees the assets.
+`/offline` and `/notification-text` are excluded too, so their responses are
+the same for everyone before the service worker caches them.
 
 ## `/me` and `/` markup (changed)
 
