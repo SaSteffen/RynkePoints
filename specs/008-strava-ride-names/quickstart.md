@@ -22,9 +22,9 @@ These tests prove the feature. All use synthetic riders and the mocked Strava
 | `test/integration/scheduled-reread.test.ts` | the cron re-reads riders below version 3 once |
 | `test/integration/rynke-deletion.test.ts`, `delete-rider.test.ts` | no name is left after a delete or a rider leaving (FR-003, SC-006) |
 | `test/unit/rider-view.test.ts` | `RideLine.name` comes from the row |
-| `test/unit/rider-sections.test.ts` | the link `href` and text, no `target`; name escaped (`<`, `&`, emoji); no span without a name; link also on being-evaluated and private rides (FR-009–FR-011) |
-| `test/integration/me-rynke.test.ts` | every row on page 1 and page 3 has its link; German and English pages both say "View on Strava" (SC-001, FR-012) |
-| `test/integration/ride-name-visibility.test.ts` (new) | the name appears on 0 pages other than the owner's `/me` (FR-008, SC-005) |
+| `test/unit/rider-sections.test.ts` | the link `href` and text, no `target`; name escaped (`<`, `&`, emoji); no span without a name; link also on rides being evaluated (FR-009–FR-011) |
+| `test/integration/me-rynke.test.ts` | every row on page 1 and page 3 has its link; a private ride has it too; German and English pages both say "View on Strava" (SC-001, FR-011, FR-012) |
+| `test/integration/ride-name-visibility.test.ts` (new) | each rider's names appear only on their own `/me`, on 0 other pages (FR-008, SC-005) |
 | `test/integration/landing.test.ts` | the consent text names the ride name; `CONSENT_VERSION` is still 1; `/me` shows `landing.dataRead` (FR-007) |
 | `test/unit/catalogs.test.ts` | `brand.viewOnStrava` is in both catalogs; `de` holds the English text (FR-012) |
 | `test/integration/no-hardcoded-copy.test.ts` | apart from `span.ride-name`, all visible text still comes from catalogs |

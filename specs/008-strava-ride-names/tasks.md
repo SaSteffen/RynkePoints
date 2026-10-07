@@ -64,8 +64,12 @@ None. US1 needs no new data, and US2 owns the column and mapping that US3 reuses
   `/me?page=1` and `/me?page=3`, collect the `href`s of every
   `a.strava-activity`. There is exactly one per `tr.ride-details`, each is
   `https://www.strava.com/activities/<id>` of a ride seeded for that page, and no
-  ID repeats. Fetch page 1 once more with `rp_lang=en`: the link text is
-  `View on Strava` in both (SC-001, FR-011).
+  ID repeats. Fetch page 1 once more with `acceptLanguage: "en"`: the link text
+  is `View on Strava` in both (SC-001, FR-011).
+  - A separate case: `seedRide(ATHLETE_A, { id: 8_900_201, is_private: 1 })`, and
+    `/me` has an `a.strava-activity` with
+    `href="https://www.strava.com/activities/8900201"` (FR-011, Story 1
+    scenario 3).
 
 ### Implementation for User Story 1
 
@@ -106,7 +110,8 @@ None. US1 needs no new data, and US2 owns the column and mapping that US3 reuses
     returns `rewriteActivityLinks(rewriteAuthorize(await handleFetch(…)))`.
   - `devRoute`: before the `switch`, `GET` paths matching
     `^/_dev/strava/activities/(\d+)$` answer `activityPage` for the store's
-    `getActivity(ctx.env.DB, id)`, or `text("Not Found", 404)`.
+    `getActivity(ctx.env.DB, id)`, passing the stored row's `body` (the
+    `FakeActivity`), or `text("Not Found", 404)` when it returns `null`.
   - `test/unit/dev-guard.test.ts` stays green. T008 passes.
 
 **Checkpoint**: every ride links to Strava, and `pnpm dev` links to the stand-in
@@ -181,10 +186,13 @@ name on no page but the owner's `/me`.
     are rider data, not copy (research R8).
 - [ ] T019 [US2] New `test/integration/ride-name-visibility.test.ts` (failing until
   T024): after `resetDb()` and `seedPageRiders(ctx)`, fetch every entry of
-  `RIDER_PAGES` except `"/me connected"`, plus `POST /admin/run-daily` with the
-  test bearer token. None contains ATHLETE_A's names or ATHLETE_C's. The
-  `"/me connected"` page contains ATHLETE_A's names and not ATHLETE_C's
-  (FR-008, SC-005).
+  `RIDER_PAGES` except the two riders' own pages, plus `POST /admin/run-daily`
+  with the test bearer token. None contains ATHLETE_A's names or ATHLETE_C's.
+  The owners' pages:
+  - `"/me connected"` (ATHLETE_A) contains A's names and not C's;
+  - `"/me not worked out"` (ATHLETE_C, whose ride table is shown before the
+    Rynke are worked out) contains C's name and none of A's.
+  (FR-008, SC-005.)
 
 ### Implementation for User Story 2
 

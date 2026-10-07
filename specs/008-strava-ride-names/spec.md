@@ -224,8 +224,9 @@ per rider and no request per ride.
 
 - **SC-001**: Every ride in the ride table, on every page, has a "View on Strava" link
   that opens that ride on Strava, in all cases tested.
-- **SC-002**: After the one-time re-read has finished, every stored ride whose name on
-  Strava is not blank shows that name.
+- **SC-002**: After the one-time re-read has finished, every stored ride since the
+  season start whose name on Strava is not blank shows that name. An older stored
+  ride gets its name with its next update.
 - **SC-003**: The re-read uses at most one Strava request per 200 stored rides per
   rider (plus one per rider for the final, partial page) and no request per ride.
 - **SC-004**: A ride renamed on Strava shows its new name within the time feature 001
