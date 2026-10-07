@@ -12,6 +12,7 @@ import {
 	NOW,
 } from "./fixtures";
 import { seedBalance, seedRide } from "./rider-view";
+import { attendRaw, insertEvent } from "./rynke";
 
 // Every rider-facing page (SC-010, SC-011), for the language guards. `next` is
 // the path the page's language switcher sends back to.
@@ -27,8 +28,8 @@ export interface RiderPage {
 }
 
 /**
- * A connected rider A with a balance and rides in every state, a rider B who
- * must reconnect, and a rider C whose Rynke aren't worked out yet.
+ * A connected rider A with a balance, rides in every state and team events, a
+ * rider B who must reconnect, and a rider C whose Rynke aren't worked out yet.
  */
 export async function seedPageRiders(ctx: TestCtx): Promise<void> {
 	await seedRider(ctx, { athleteId: ATHLETE_A });
@@ -62,7 +63,20 @@ export async function seedPageRiders(ctx: TestCtx): Promise<void> {
 		teamMissing: 0,
 		trainingWithoutVirtual: 13,
 		virtualShareMissing: 154,
+		teamEvents: [
+			{ kind: "team_training", attended: 1, team: 1, training: 5 },
+			{ kind: "training_weekend_day", attended: 0, team: 0, training: 0 },
+			{ kind: "technique_training", attended: 0, team: 0, training: 0 },
+		],
 	});
+	// Unnamed: an event's name is the organiser's text, not catalog copy. One
+	// before the season start, so the "doesn't count" mark is covered too.
+	await attendRaw(await insertEvent("team_training", "2026-09-10"), [
+		ATHLETE_A,
+	]);
+	await attendRaw(await insertEvent("technique_training", "2025-12-20"), [
+		ATHLETE_A,
+	]);
 	await seedRide(ATHLETE_A, {
 		id: 8_900_001,
 		start_date: "2026-09-20T08:00:00Z",

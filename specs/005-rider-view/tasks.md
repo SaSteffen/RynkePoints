@@ -568,28 +568,28 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 3b (write first, confirm red) ⚠️
 
-- [ ] T067 [P] [US3b] Extend `test/unit/rider-view.test.ts`:
+- [X] T067 [P] [US3b] Extend `test/unit/rider-view.test.ts`:
   - **Kind lines**: every kind is listed, in feature 003's order, also with count 0; a balance stored before Story 3 (empty breakdown) lists none.
   - **Events**: newest first as read; `counts` is false before the season start and after the deadline of the balance's rules, and only the season start is checked when the rules are unknown.
   - **Training gauge**: parts 70, 30, 50, 40, 10 of 250 → 80 %, five segments. **Team gauge**: divided by kind.
   - **Sum**: distance + elevation + kinds = the Training total, and the kinds' Team Rynke = the Team total (FR-035).
-- [ ] T068 [P] [US3b] Extend `test/integration/me-rynke.test.ts`:
+- [X] T068 [P] [US3b] Extend `test/integration/me-rynke.test.ts`:
   - **S3-2**: the kind rows.
   - **S3-3**: three events with date, kind and name, newest first.
   - **S3-5**: every kind listed with 0, plus `rynke.events.none`.
-  - **Attendance**: an attendance after the deadline is listed and marked `rynke.events.notCounting`.
+  - **Attendance**: an attendance outside the window is listed and marked `rynke.events.notCounting`. No stored rules version has a deadline, so the integration test uses the season start; the deadline is covered by T067.
   - **S2-6**: legend with five parts and their colour classes; the Team gauge's legend by kind.
   - **Read-only (SC-004)**: with attendance seeded, `GET /me` changes no table and no attendance row.
   - Update S3-1, S3-4 and S3-5's expected breakdown rows for the kind rows.
-- [ ] T069 [P] [US3b] Extend `test/unit/catalogs.test.ts`: every kind code of `TEAM_EVENT_KINDS` has `rynke.source.<kind>` in every catalog (FR-062), and `CONTRACT_IDS` gains every team-event key fixed in T066.
+- [X] T069 [P] [US3b] Extend `test/unit/catalogs.test.ts`: every kind code of `TEAM_EVENT_KINDS` has `rynke.source.<kind>` in every catalog (FR-062), and `CONTRACT_IDS` gains every team-event key fixed in T066.
 
 ### Implementation for User Story 3b
 
-- [ ] T070 [P] [US3b] Add the team-event keys to `src/i18n/messages/de.ts` and `en.ts`, as fixed in T066.
-- [ ] T071 [US3b] In `src/db/rider-view.ts`, add feature 003's `listRiderAttendanceStatement` as a further statement of the **same** `db.batch` (FR-005), mapped to `AttendedEvent`. The balance's per-kind breakdown comes through feature 003's balance mapper.
-- [ ] T072 [US3b] In `src/http/rider-view.ts`, add `Breakdown.kinds` and `.events`, and the kind sources to `gaugeParts` for the Training and Team gauges, using the stored per-kind values only (FR-004). Makes T067 green.
-- [ ] T073 [US3b] In `src/http/rider-sections.ts`, extend `renderBreakdown` with the kind rows and the event list, and give every gauge part its source's colour class (`gauge-part-3` … `gauge-part-5` for the kinds). Makes T068 and T069 green.
-- [ ] T074 [US3b] Check US3b's team events: everything is green; the five-part gauge and the event list at 360 px are part of the manual checks after the deploy (quickstart §3 step 3).
+- [X] T070 [P] [US3b] Add the team-event keys to `src/i18n/messages/de.ts` and `en.ts`, as fixed in T066.
+- [X] T071 [US3b] In `src/db/rider-view.ts`, add feature 003's `listRiderAttendanceStatement` as a further statement of the **same** `db.batch` (FR-005), mapped to `AttendedEvent`. The balance's per-kind breakdown comes through feature 003's balance mapper.
+- [X] T072 [US3b] In `src/http/rider-view.ts`, add `Breakdown.kinds` and `.events`, and the kind sources to `gaugeParts` for the Training and Team gauges, using the stored per-kind values only (FR-004). Makes T067 green.
+- [X] T073 [US3b] In `src/http/rider-sections.ts`, extend `renderBreakdown` with the kind rows and the event list, and give every gauge part its source's colour class (`gauge-part-3` … `gauge-part-5` for the kinds). Makes T068 and T069 green.
+- [X] T074 [US3b] Check US3b's team events: everything is green; the five-part gauge and the event list at 360 px are part of the manual checks after the deploy (quickstart §3 step 3).
 
 **Checkpoint**: every user story is built except the corrections of US3b.
 

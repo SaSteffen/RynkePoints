@@ -1,3 +1,4 @@
+import type { TeamEventKind } from "../rynke/team-events";
 import type { CyclingSportType } from "../strava/activity";
 import {
 	type BalanceRow,
@@ -8,11 +9,15 @@ import {
 	toStoredBalance,
 	toStoredRideResult,
 } from "./rynke";
+import {
+	listRiderAttendanceStatement,
+	type RiderAttendanceRow,
+} from "./team-events";
 
 // What the rider page reads (feature 005 data-model.md "The reading", research
-// R2): the balance, the ride and virtual counts, and one table page, all in one
-// batch so they come from one snapshot. Only SELECTs: the page never writes,
-// evaluates or enqueues (FR-003).
+// R2): the balance, the ride and virtual counts, one table page and the
+// rider's team events, all in one batch so they come from one snapshot. Only
+// SELECTs: the page never writes, evaluates or enqueues (FR-003).
 
 export const RIDES_PER_PAGE = 20;
 
@@ -40,6 +45,16 @@ export interface RiderViewRead {
 	page: number;
 	/** At most `RIDES_PER_PAGE`, newest first. */
 	rides: RideRow[];
+	/** Every team event the rider was recorded for, newest first (FR-033). */
+	attendance: AttendedEvent[];
+}
+
+export interface AttendedEvent {
+	eventId: number;
+	kind: TeamEventKind;
+	/** `YYYY-MM-DD` */
+	date: string;
+	name: string | null;
 }
 
 /**
@@ -83,7 +98,7 @@ export async function readRiderView(
 	athleteId: number,
 	page: number,
 ): Promise<RiderViewRead> {
-	const [balance, counts, rides] = await db.batch([
+	const [balance, counts, rides, attendance] = await db.batch([
 		readBalanceStatement(db, athleteId),
 		db
 			.prepare(
@@ -93,8 +108,9 @@ export async function readRiderView(
 			)
 			.bind(athleteId),
 		db.prepare(RIDE_PAGE_SQL).bind(athleteId, page),
+		listRiderAttendanceStatement(db, athleteId),
 	]);
-	if (!balance || !counts || !rides) {
+	if (!balance || !counts || !rides || !attendance) {
 		throw new Error("D1 batch returned too few results");
 	}
 	const balanceRow = (balance.results as BalanceRow[])[0];
@@ -107,6 +123,12 @@ export async function readRiderView(
 		virtualCount: count?.virtual ?? 0,
 		page: Math.min(page, lastPage),
 		rides: (rides.results as RidePageRow[]).map(toRideRow),
+		attendance: (attendance.results as RiderAttendanceRow[]).map((row) => ({
+			eventId: row.event_id,
+			kind: row.kind,
+			date: row.event_date,
+			name: row.name,
+		})),
 	};
 }
 
