@@ -1,14 +1,15 @@
 import { listActivityIdsMissingFigures } from "../db/activities";
 import { PER_PAGE, storeActivityPage } from "./activity-page";
 import type { Handler } from "./consumer";
-import type { ActivityEventMessage, RereadPageMessage } from "./messages";
+import {
+	type ActivityEventMessage,
+	type RereadPageMessage,
+	sendAll,
+} from "./messages";
 
 // The one-time re-read after FR-013 gained a figure (research R20,
 // contracts/queue-messages.md). Pages like the import, but leaves
 // `import_status` alone: the rider's import is not being redone.
-
-/** The Queues limit for one `sendBatch`. */
-const MAX_BATCH = 100;
 
 export const rereadPage: Handler<RereadPageMessage> = async (
 	message,
@@ -36,10 +37,6 @@ export const rereadPage: Handler<RereadPageMessage> = async (
 			changed: [],
 		}),
 	);
-	for (let i = 0; i < refetches.length; i += MAX_BATCH) {
-		await ctx.queue.sendBatch(
-			refetches.slice(i, i + MAX_BATCH).map((body) => ({ body })),
-		);
-	}
+	await sendAll(ctx, refetches);
 	return { kind: "ok" };
 };

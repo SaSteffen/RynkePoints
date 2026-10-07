@@ -1,6 +1,8 @@
 // Queue message types (contracts/queue-messages.md). Bodies carry identifiers
 // and enum values only, never activity data or tokens.
 
+import type { Ctx } from "../ctx";
+
 export const ACTIVITY_ASPECTS = ["create", "update", "delete"] as const;
 export const DELETE_REASONS = [
 	"deauthorized",
@@ -143,5 +145,20 @@ export function serializeWorkMessage(m: WorkMessage): string {
 				reason: m.reason,
 				revoke: m.revoke,
 			});
+	}
+}
+
+/** The Queues limit for one `sendBatch`. */
+const MAX_BATCH = 100;
+
+/** Sends `messages` in batches the Queues limit allows. */
+export async function sendAll(
+	ctx: Ctx,
+	messages: WorkMessage[],
+): Promise<void> {
+	for (let i = 0; i < messages.length; i += MAX_BATCH) {
+		await ctx.queue.sendBatch(
+			messages.slice(i, i + MAX_BATCH).map((body) => ({ body })),
+		);
 	}
 }

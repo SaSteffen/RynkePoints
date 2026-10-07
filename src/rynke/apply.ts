@@ -42,6 +42,7 @@ import {
 	updateTeamEventStatement,
 } from "../db/team-events";
 import type { ActivityRecord } from "../strava/activity";
+import { sendAll } from "../work/messages";
 import { evaluateRides, rideFromRow } from "./rides";
 import {
 	type CountingWindow,
@@ -320,13 +321,10 @@ export async function teamEventChange(
 		countingWindow(ctx.env, CURRENT_RULES),
 		ctx.now(),
 	);
-	if (result.affected.length > 0) {
-		await ctx.queue.sendBatch(
-			result.affected.map((athleteId) => ({
-				body: { kind: "evaluate-rider", athleteId },
-			})),
-		);
-	}
+	await sendAll(
+		ctx,
+		result.affected.map((athleteId) => ({ kind: "evaluate-rider", athleteId })),
+	);
 	return result;
 }
 
