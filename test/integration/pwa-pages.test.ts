@@ -22,9 +22,9 @@ const ctx = makeCtx();
 
 const HEAD = [
 	'<link rel="manifest" href="/manifest.webmanifest">',
-	'<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">',
+	'<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">',
 	'<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">',
-	'<meta name="theme-color" content="#fc5200">',
+	'<meta name="theme-color" content="#111111">',
 	'<script src="/app.js" defer></script>',
 ];
 

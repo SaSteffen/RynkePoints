@@ -107,9 +107,9 @@ export function layout(
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<meta name="theme-color" content="#fc5200">
+<meta name="theme-color" content="#111111">
 <script src="/app.js" defer></script>
 <title>${title}</title>
 <style>${new SafeHtml(STYLE)}</style>
