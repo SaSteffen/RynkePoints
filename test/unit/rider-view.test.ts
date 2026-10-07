@@ -15,6 +15,7 @@ import {
 	type RynkeRules,
 	rulesForVersion,
 } from "../../src/rynke/rules";
+import { NO_EXTRAS } from "../../src/rynke/tally";
 
 // The rider page's view model (feature 005 data-model.md "Validation and
 // invariants"). Pure: built from a reading, never from D1.
@@ -40,6 +41,7 @@ function balance(overrides: Partial<StoredBalance> = {}): StoredBalance {
 		qualified: false,
 		rulesVersion: CURRENT_RULES.version,
 		rulesEffectiveDate: CURRENT_RULES.effectiveDate,
+		teamEvents: [...NO_EXTRAS.teamEvents],
 		computedAt: 0,
 		...overrides,
 	};
@@ -874,9 +876,9 @@ describe("buildRiderView breakdown", () => {
 });
 
 describe("buildRiderView rules and notices (US6)", () => {
-	const VERSION_2: RynkeRules = {
+	const NEXT_RULES: RynkeRules = {
 		...CURRENT_RULES,
-		version: 2,
+		version: CURRENT_RULES.version + 1,
 		effectiveDate: "2026-11-01",
 		qualificationDeadline: "2027-03-31",
 	};
@@ -890,13 +892,13 @@ describe("buildRiderView rules and notices (US6)", () => {
 
 	it("S6-2: is being updated when the versions differ (R4)", () => {
 		const view = ready(
-			buildRiderView(read(), CURRENT_RULES, VERSION_2, CONTEXT),
+			buildRiderView(read(), CURRENT_RULES, NEXT_RULES, CONTEXT),
 		);
 		expect(view.updating).toEqual({
-			inEffectVersion: 2,
+			inEffectVersion: NEXT_RULES.version,
 			inEffectSince: "2026-11-01",
 		});
-		expect(view.rules.version).toBe(1);
+		expect(view.rules.version).toBe(CURRENT_RULES.version);
 	});
 
 	it("labels the numbers with the balance's version and window", () => {
@@ -904,23 +906,23 @@ describe("buildRiderView rules and notices (US6)", () => {
 			buildRiderView(
 				read({
 					balance: balance({
-						rulesVersion: 2,
+						rulesVersion: NEXT_RULES.version,
 						rulesEffectiveDate: "2026-11-01",
 					}),
 				}),
-				VERSION_2,
+				NEXT_RULES,
 				CURRENT_RULES,
 				CONTEXT,
 			),
 		);
 		expect(view.rules).toEqual({
-			version: 2,
+			version: NEXT_RULES.version,
 			effectiveDate: "2026-11-01",
 			seasonStart: "2026-01-01",
 			deadline: "2027-03-31",
 		});
 		expect(view.updating).toEqual({
-			inEffectVersion: 1,
+			inEffectVersion: CURRENT_RULES.version,
 			inEffectSince: CURRENT_RULES.effectiveDate,
 		});
 	});

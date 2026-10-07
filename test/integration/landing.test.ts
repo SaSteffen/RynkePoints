@@ -79,7 +79,7 @@ describe("GET / (signed out)", () => {
 		expect(page).toContain("<h2>Was du mit dem Verbinden erlaubst</h2>");
 		expect(page).toContain("Deine einzelnen Fahrten sieht niemand außer dir.");
 		expect(page).toContain("ohne deinen Namen");
-		expect(page).toContain("Ohne diese Erlaubnis machst du genauso mit.");
+		expect(page).toContain("Ohne diese Erlaubnis machst du genauso mit");
 	});
 
 	it("shows the consent form with the Connect with Strava button", async () => {

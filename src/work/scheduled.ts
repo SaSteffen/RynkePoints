@@ -11,16 +11,14 @@ import {
 	setFiguresVersion,
 } from "../db/riders";
 import { listRidersNeedingEvaluation } from "../db/rynke";
-import { CURRENT_RULES } from "../rynke/rules";
+import { CURRENT_RULES, countingWindow } from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
-import { parseWorkMessage, type WorkMessage } from "./messages";
+import { parseWorkMessage, sendAll, type WorkMessage } from "./messages";
 
 // Daily cron work (contracts/queue-messages.md, "Scheduled").
 
 const GIVE_UP_AFTER_SECONDS = 7 * 24 * 3600;
 const RECONNECT_GRACE_SECONDS = 7 * 24 * 3600;
-/** The Queues limit for one `sendBatch`. */
-const MAX_BATCH = 100;
 
 /** One `check-membership` per connected rider (FR-004a). */
 export async function fanOutMembershipChecks(ctx: Ctx): Promise<void> {
@@ -90,26 +88,20 @@ export async function fanOutFiguresReread(ctx: Ctx): Promise<void> {
 
 /**
  * One `evaluate-rider` per connected rider whose stored Rynke are missing or
- * stale: after the first deploy, a rules-version bump or a lost message
- * (feature 003 research R14).
+ * stale: after the first deploy, a rules-version bump, a lost message, or
+ * attendance entered by hand that the balance doesn't reflect yet (feature 003
+ * research R14, R22).
  */
 export async function fanOutEvaluations(ctx: Ctx): Promise<void> {
 	const ids = await listRidersNeedingEvaluation(
 		ctx.env.DB,
 		CURRENT_RULES.version,
+		countingWindow(ctx.env, CURRENT_RULES),
 	);
 	await sendAll(
 		ctx,
 		ids.map((athleteId) => ({ kind: "evaluate-rider", athleteId })),
 	);
-}
-
-async function sendAll(ctx: Ctx, messages: WorkMessage[]): Promise<void> {
-	for (let i = 0; i < messages.length; i += MAX_BATCH) {
-		await ctx.queue.sendBatch(
-			messages.slice(i, i + MAX_BATCH).map((body) => ({ body })),
-		);
-	}
 }
 
 function safeParse(json: string): unknown {

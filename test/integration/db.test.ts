@@ -29,12 +29,13 @@ import {
 	setMembershipChecked,
 	updateRiderOnReconnect,
 } from "../../src/db/riders";
+import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
 import {
 	ACTIVITY_FIGURES_VERSION,
 	type ActivityRecord,
 } from "../../src/strava/activity";
 import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";
-import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
+import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
 
 const db = env.DB;
 
@@ -90,6 +91,8 @@ describe("riders", () => {
 			strava_rate_limit: 1,
 			ride_results: 0,
 			rynke_balances: 0,
+			team_events: 0,
+			attendances: 0,
 		});
 		expect(await getCurrentConsent(db, ATHLETE_A)).toBeNull();
 	});
@@ -705,5 +708,168 @@ describe("rynke tables (migration 0005)", () => {
 		expect(await count("rynke_balances")).toBe(0);
 		expect(await count("ride_results", ATHLETE_B)).toBe(1);
 		expect(await count("rynke_balances", ATHLETE_B)).toBe(1);
+	});
+});
+
+describe("team-event tables (migration 0006)", () => {
+	function insertEvent(kind: string, date: string, name: string | null) {
+		return db
+			.prepare(
+				"INSERT INTO team_events (kind, event_date, name) VALUES (?, ?, ?) RETURNING event_id",
+			)
+			.bind(kind, date, name)
+			.first<number>("event_id");
+	}
+
+	function attend(eventId: number, athleteId: number, onConflict = "") {
+		return db
+			.prepare(
+				`INSERT INTO attendances (event_id, athlete_id) VALUES (?, ?) ${onConflict}`,
+			)
+			.bind(eventId, athleteId)
+			.run();
+	}
+
+	async function attendees(eventId?: number) {
+		const { results } = await db
+			.prepare(
+				`SELECT event_id, athlete_id FROM attendances
+				WHERE ?1 IS NULL OR event_id = ?1 ORDER BY event_id, athlete_id`,
+			)
+			.bind(eventId ?? null)
+			.all<{ event_id: number; athlete_id: number }>();
+		return results;
+	}
+
+	beforeEach(async () => {
+		const ctx = makeCtx();
+		for (const athleteId of [ATHLETE_A, ATHLETE_B, ATHLETE_C]) {
+			await seedRider(ctx, { athleteId });
+		}
+	});
+
+	it("seeds exactly the kinds of TEAM_EVENT_KINDS", async () => {
+		const { results } = await db
+			.prepare("SELECT kind FROM team_event_kinds ORDER BY rowid")
+			.all<{ kind: string }>();
+		expect(results.map((r) => r.kind)).toEqual(TEAM_EVENT_KINDS);
+	});
+
+	it("refuses an unknown kind", async () => {
+		await expect(insertEvent("ride", "2026-05-01", null)).rejects.toThrow(
+			/FOREIGN KEY/,
+		);
+	});
+
+	it.each([
+		["event_date", "2026-5-1", null],
+		["name", "2026-05-01", ""],
+		["name", "2026-05-01", "x".repeat(101)],
+	])("refuses an event with a bad %s", async (_column, date, name) => {
+		await expect(insertEvent("team_training", date, name)).rejects.toThrow(
+			/CHECK/,
+		);
+	});
+
+	it("accepts a 100-character name and no name", async () => {
+		expect(
+			await insertEvent("team_training", "2026-05-01", "x".repeat(100)),
+		).toBeGreaterThan(0);
+		expect(
+			await insertEvent("technique_training", "2026-05-02", null),
+		).toBeGreaterThan(0);
+	});
+
+	it("refuses attendance of a missing event or rider", async () => {
+		const eventId = (await insertEvent(
+			"team_training",
+			"2026-05-01",
+			null,
+		)) as number;
+		await expect(attend(eventId + 1, ATHLETE_A)).rejects.toThrow(/FOREIGN KEY/);
+		await expect(attend(eventId, 900999)).rejects.toThrow(/FOREIGN KEY/);
+	});
+
+	it("stores a rider's attendance once", async () => {
+		const eventId = (await insertEvent(
+			"team_training",
+			"2026-05-01",
+			null,
+		)) as number;
+		await attend(eventId, ATHLETE_A);
+		await expect(attend(eventId, ATHLETE_A)).rejects.toThrow(/UNIQUE|PRIMARY/);
+		await attend(eventId, ATHLETE_A, "ON CONFLICT DO NOTHING");
+		expect(await attendees(eventId)).toHaveLength(1);
+	});
+
+	it("deleting an event deletes its attendances", async () => {
+		const first = (await insertEvent(
+			"team_training",
+			"2026-05-01",
+			null,
+		)) as number;
+		const second = (await insertEvent(
+			"team_training",
+			"2026-05-08",
+			null,
+		)) as number;
+		await attend(first, ATHLETE_A);
+		await attend(second, ATHLETE_A);
+		await db
+			.prepare("DELETE FROM team_events WHERE event_id = ?")
+			.bind(first)
+			.run();
+		expect(await attendees()).toEqual([
+			{ event_id: second, athlete_id: ATHLETE_A },
+		]);
+	});
+
+	it("deleting a rider deletes their attendances and keeps the event", async () => {
+		const eventId = (await insertEvent(
+			"team_training",
+			"2026-05-01",
+			null,
+		)) as number;
+		await attend(eventId, ATHLETE_A);
+		await attend(eventId, ATHLETE_B);
+		await db
+			.prepare("DELETE FROM riders WHERE athlete_id = ?")
+			.bind(ATHLETE_A)
+			.run();
+		expect(await attendees()).toEqual([
+			{ event_id: eventId, athlete_id: ATHLETE_B },
+		]);
+		expect((await tableCounts()).team_events).toBe(1);
+	});
+
+	it("gives a balance written without the breakdown '[]' and refuses invalid JSON", async () => {
+		// As the previously deployed version writes it, without the new column.
+		await db
+			.prepare(
+				`INSERT INTO rynke_balances (athlete_id, distance_rynke, elevation_dm,
+					elevation_rynke, elevation_to_next_step_dm, training_rynke, team_rynke,
+					training_missing, team_missing, training_without_virtual,
+					virtual_share_missing, qualified, rules_version, rules_effective_date,
+					computed_at)
+				VALUES (?, 4, 3120, 0, 6880, 4, 0, 246, 25, 4, 163, 0, 1, '2026-10-07', ?)`,
+			)
+			.bind(ATHLETE_A, NOW)
+			.run();
+		expect(
+			await db
+				.prepare(
+					"SELECT team_event_breakdown FROM rynke_balances WHERE athlete_id = ?",
+				)
+				.bind(ATHLETE_A)
+				.first<string>("team_event_breakdown"),
+		).toBe("[]");
+		await expect(
+			db
+				.prepare(
+					"UPDATE rynke_balances SET team_event_breakdown = 'not json' WHERE athlete_id = ?",
+				)
+				.bind(ATHLETE_A)
+				.run(),
+		).rejects.toThrow(/CHECK/);
 	});
 });

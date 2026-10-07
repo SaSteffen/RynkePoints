@@ -4,6 +4,7 @@ import { RIDE_PAGE_SQL } from "../../src/db/rider-view";
 import { RULES_HANDOUT_URL } from "../../src/http/rider-sections";
 import { handleFetch } from "../../src/index";
 import type { ReasonCode } from "../../src/rynke/rides";
+import { CURRENT_RULES } from "../../src/rynke/rules";
 import {
 	makeCtx,
 	request,
@@ -887,6 +888,10 @@ async function rulesAndNotice(athleteId = ATHLETE_A, acceptLanguage?: string) {
 	};
 }
 
+/** The version in effect, and a newer one a stale balance can't carry yet. */
+const VERSION = CURRENT_RULES.version;
+const NEXT = VERSION + 1;
+
 const UPDATING =
 	"Die Regeln haben sich geändert: Seit dem 07.10.2026 gelten neue Regeln.";
 const IMPORTING = "Deine Fahrten seit dem 01.01.2026 werden noch importiert.";
@@ -896,7 +901,7 @@ describe("GET /me rules and notices (US6)", () => {
 		await seedBalance(ATHLETE_A);
 		const { html, notice, rules } = await rulesAndNotice();
 		expect(rules).toContain(
-			"Berechnet nach Regel-Version 1, gültig seit dem 07.10.2026.",
+			`Berechnet nach Regel-Version ${VERSION}, gültig seit dem 07.10.2026.`,
 		);
 		expect(rules).toContain("Es zählt alles ab dem 01.01.2026.");
 		const link = section(html, 'class="rynke-rules"')?.match(
@@ -910,27 +915,29 @@ describe("GET /me rules and notices (US6)", () => {
 
 	it("S6-2: says the numbers are being updated to other rules", async () => {
 		await seedBalance(ATHLETE_A, {
-			rulesVersion: 2,
+			rulesVersion: NEXT,
 			rulesEffectiveDate: "2026-11-01",
 		});
 		const { html, notice, rules } = await rulesAndNotice();
 		expect(notice).toContain(UPDATING);
-		expect(notice).toContain("bis dahin siehst du sie nach Regel-Version 2.");
-		expect(rules).toContain(
-			"Berechnet nach Regel-Version 2, gültig seit dem 01.11.2026.",
+		expect(notice).toContain(
+			`bis dahin siehst du sie nach Regel-Version ${NEXT}.`,
 		);
-		// Version 2 isn't in RULES_HISTORY: no targets, no gauges (FR-013).
+		expect(rules).toContain(
+			`Berechnet nach Regel-Version ${NEXT}, gültig seit dem 01.11.2026.`,
+		);
+		// NEXT isn't in RULES_HISTORY: no targets, no gauges (FR-013).
 		expect(html).not.toContain('class="rynke-gauges"');
 		expect(html).not.toContain("von 250");
 	});
 
 	it("S6-3: drops the notice once re-evaluated under the version in effect", async () => {
-		await seedBalance(ATHLETE_A, { rulesVersion: 2 });
+		await seedBalance(ATHLETE_A, { rulesVersion: NEXT });
 		expect((await rulesAndNotice()).notice).toContain(UPDATING);
 		await seedBalance(ATHLETE_A);
 		const { notice, rules } = await rulesAndNotice();
 		expect(notice).toBeNull();
-		expect(rules).toContain("Regel-Version 1");
+		expect(rules).toContain(`Regel-Version ${VERSION}`);
 	});
 
 	it("S6-4: says the Rynke will grow while the import runs", async () => {
@@ -954,12 +961,14 @@ describe("GET /me rules and notices (US6)", () => {
 	it("S6-5: says in English that the handout is in German", async () => {
 		await seedBalance(ATHLETE_A);
 		const { rules } = await rulesAndNotice(ATHLETE_A, "en");
-		expect(rules).toContain("Computed with rules version 1, in effect since");
+		expect(rules).toContain(
+			`Computed with rules version ${VERSION}, in effect since`,
+		);
 		expect(rules).toContain("in German");
 	});
 
 	it("S6-6: starts no evaluation however often it is opened", async () => {
-		await seedBalance(ATHLETE_A, { rulesVersion: 2 });
+		await seedBalance(ATHLETE_A, { rulesVersion: NEXT });
 		for (let i = 0; i < 3; i++) {
 			expect((await rulesAndNotice()).notice).toContain(UPDATING);
 		}

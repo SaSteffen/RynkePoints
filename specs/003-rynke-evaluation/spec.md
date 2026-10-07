@@ -772,7 +772,10 @@ re-evaluation, and check the correction is still applied exactly once.
   [specs/backlog/](../backlog/README.md)). This feature defines only the inputs
   and their effect. Until the organiser-administration feature exists, these
   inputs are entered directly into the stored data as a manual step the
-  maintainer runs, so Team Rynke stay at 0 in practice.
+  maintainer runs. Changes entered this way reach the balances only when the
+  maintainer next runs the re-evaluation (`pnpm daily:run`, otherwise the
+  nightly run); until then a balance may lag the stored attendance. FR-014b and
+  SC-005 apply to changes made through the app.
 - There is no upper limit on Rynke per ride, per day or per week, since the sheet
   states none.
 - Rule changes are rare (a few per season) and announced to riders beforehand;

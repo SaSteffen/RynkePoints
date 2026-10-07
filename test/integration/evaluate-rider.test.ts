@@ -20,9 +20,12 @@ import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, NOW } from "../support/fixtures";
 import {
 	activityRecord,
+	attendanceRows,
+	attendRaw,
 	balanceRow,
 	expectConsistent,
 	expectedRynke,
+	insertEvent,
 	resultRows,
 	snapshot,
 } from "../support/rynke";
@@ -132,5 +135,33 @@ describe("evaluate-rider", () => {
 		expect(result.explicitAcks).toEqual([]);
 		expect(result.retryMessages).toEqual([{ msgId: "m1" }]);
 		expect(await balanceRow()).toBeNull();
+	});
+
+	it("includes attendance entered by hand, writes nothing the second time and never changes attendance (FR-026)", async () => {
+		await seedRider(ctx);
+		await seedRides();
+		const eventId = await insertEvent("technique_training", "2026-05-05");
+		await attendRaw(eventId, [ATHLETE_A]);
+		const attendance = await attendanceRows();
+
+		await deliver(MESSAGE);
+
+		const expected = await expectedRynke(CURRENT_RULES);
+		expect(await balanceRow()).toMatchObject({
+			team_rynke: 5,
+			training_rynke: expected.balance.trainingRynke,
+			rules_version: CURRENT_RULES.version,
+		});
+		expect((await resultRows()).map((r) => r.rules_version)).toEqual([
+			CURRENT_RULES.version,
+			CURRENT_RULES.version,
+		]);
+		await expectConsistent();
+		expect(await attendanceRows()).toEqual(attendance);
+
+		const before = await snapshot();
+		await deliver(MESSAGE, makeCtx({ now: NOW + 3600 }));
+		expect(await snapshot()).toEqual(before);
+		expect(await attendanceRows()).toEqual(attendance);
 	});
 });

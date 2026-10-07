@@ -1,5 +1,7 @@
 import type { ReasonCode, RideResult, UnknownFigureCode } from "../rynke/rides";
+import type { CountingWindow } from "../rynke/rules";
 import type { Balance } from "../rynke/tally";
+import type { TeamEventSum } from "../rynke/team-events";
 
 // Stored ride results and balances (feature 003 data-model.md, research R10,
 // R13, R14). Writes are statements for `applyAndEvaluate`'s batch; the reads
@@ -44,6 +46,8 @@ export interface BalanceRow {
 	rules_version: number;
 	rules_effective_date: string;
 	computed_at: number;
+	/** JSON array of `TeamEventSum`; `'[]'` on rows from before Story 3. */
+	team_event_breakdown: string;
 }
 
 export function toStoredRideResult(row: RideResultRow): StoredRideResult {
@@ -76,6 +80,7 @@ export function toStoredBalance(row: BalanceRow): StoredBalance {
 		qualified: row.qualified === 1,
 		rulesVersion: row.rules_version,
 		rulesEffectiveDate: row.rules_effective_date,
+		teamEvents: JSON.parse(row.team_event_breakdown) as TeamEventSum[],
 		computedAt: row.computed_at,
 	};
 }
@@ -93,6 +98,32 @@ export function readBalanceStatement(db: D1Database, athleteId: number) {
 	return db
 		.prepare("SELECT * FROM rynke_balances WHERE athlete_id = ?")
 		.bind(athleteId);
+}
+
+/** The ride results of every rider in `athleteIds`, for one batch (R21). */
+export function readRideResultsOfRidersStatement(
+	db: D1Database,
+	athleteIds: number[],
+) {
+	return db
+		.prepare(
+			`SELECT * FROM ride_results
+			WHERE athlete_id IN (SELECT value FROM json_each(?1))
+			ORDER BY athlete_id, strava_activity_id`,
+		)
+		.bind(JSON.stringify(athleteIds));
+}
+
+export function readBalancesOfRidersStatement(
+	db: D1Database,
+	athleteIds: number[],
+) {
+	return db
+		.prepare(
+			`SELECT * FROM rynke_balances
+			WHERE athlete_id IN (SELECT value FROM json_each(?1))`,
+		)
+		.bind(JSON.stringify(athleteIds));
 }
 
 /** Maps the results of the two read statements above. */
@@ -177,14 +208,16 @@ export function upsertBalanceStatement(
 				elevation_rynke, elevation_to_next_step_dm, training_rynke, team_rynke,
 				training_missing, team_missing, training_without_virtual,
 				virtual_share_missing, qualified, rules_version, rules_effective_date,
-				computed_at)
-			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15)
+				computed_at, team_event_breakdown)
+			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15,
+				?16)
 			ON CONFLICT (athlete_id) DO UPDATE SET
 				distance_rynke = ?2, elevation_dm = ?3, elevation_rynke = ?4,
 				elevation_to_next_step_dm = ?5, training_rynke = ?6, team_rynke = ?7,
 				training_missing = ?8, team_missing = ?9, training_without_virtual = ?10,
 				virtual_share_missing = ?11, qualified = ?12, rules_version = ?13,
-				rules_effective_date = ?14, computed_at = ?15`,
+				rules_effective_date = ?14, computed_at = ?15,
+				team_event_breakdown = ?16`,
 		)
 		.bind(
 			athleteId,
@@ -202,6 +235,7 @@ export function upsertBalanceStatement(
 			b.rulesVersion,
 			b.rulesEffectiveDate,
 			now,
+			JSON.stringify(b.teamEvents),
 		);
 }
 
@@ -223,14 +257,27 @@ export async function readRynke(
 }
 
 /**
- * Connected riders whose stored Rynke are missing or stale (research R14): no
- * balance, a row from another rules version, or an activity without a result
- * computed from its current figures.
+ * Connected riders whose stored Rynke are missing or stale (research R14,
+ * R22): no balance, a row from another rules version, an activity without a
+ * result computed from its current figures, or attendance inside `window`
+ * whose count per kind differs from the stored breakdown (`EXCEPT` both ways).
+ * A renamed event, or attendance moved to another event of the same kind,
+ * changes no count and lists no one.
  */
 export async function listRidersNeedingEvaluation(
 	db: D1Database,
 	rulesVersion: number,
+	window: CountingWindow,
 ): Promise<number[]> {
+	const attended = `SELECT e.kind, count(*) FROM attendances a
+		JOIN team_events e ON e.event_id = a.event_id
+		WHERE a.athlete_id = r.athlete_id AND e.event_date >= ?2
+			AND (?3 IS NULL OR e.event_date <= ?3)
+		GROUP BY e.kind`;
+	const stored = `SELECT json_extract(value, '$.kind'),
+			json_extract(value, '$.attended')
+		FROM rynke_balances b, json_each(b.team_event_breakdown)
+		WHERE b.athlete_id = r.athlete_id AND json_extract(value, '$.attended') > 0`;
 	const { results } = await db
 		.prepare(
 			`SELECT athlete_id FROM riders r WHERE status = 'connected' AND (
@@ -242,10 +289,12 @@ export async function listRidersNeedingEvaluation(
 					LEFT JOIN ride_results x ON x.strava_activity_id = a.strava_activity_id
 					WHERE a.athlete_id = r.athlete_id AND (x.strava_activity_id IS NULL
 						OR x.activity_refreshed_at <> a.refreshed_at))
+				OR EXISTS (${attended} EXCEPT ${stored})
+				OR EXISTS (${stored} EXCEPT ${attended})
 			)
 			ORDER BY athlete_id`,
 		)
-		.bind(rulesVersion)
+		.bind(rulesVersion, window.seasonStart, window.deadline)
 		.all<{ athlete_id: number }>();
 	return results.map((r) => r.athlete_id);
 }

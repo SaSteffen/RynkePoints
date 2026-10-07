@@ -12,9 +12,11 @@ import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
 import {
 	activityRecord,
+	attendRaw,
 	balanceRow,
 	expectConsistent,
 	expectedRynke,
+	insertEvent,
 	resultRows,
 	snapshot,
 } from "../support/rynke";
@@ -70,12 +72,15 @@ describe("applyAndEvaluate", () => {
 		const expected = await expectedRynke(CURRENT_RULES);
 		const stored = await readRynke(db, ATHLETE_A);
 		expect(stored.results).toEqual(
-			expected.results.map((r) => ({ ...r, rulesVersion: 1 })),
+			expected.results.map((r) => ({
+				...r,
+				rulesVersion: CURRENT_RULES.version,
+			})),
 		);
 		expect(stored.balance).toEqual({ ...expected.balance, computedAt: NOW });
 		expect(stored.balance).toMatchObject({
 			distanceRynke: 7,
-			rulesVersion: 1,
+			rulesVersion: CURRENT_RULES.version,
 			rulesEffectiveDate: CURRENT_RULES.effectiveDate,
 		});
 		expect(stored.results.map((r) => r.reasons)).toEqual([
@@ -279,22 +284,31 @@ describe("applyAndEvaluate", () => {
 	it("rewrites every row when the rules version changes", async () => {
 		await seedThree();
 		await apply({ kind: "none" });
-		expect((await resultRows()).map((r) => r.rules_version)).toEqual([1, 1, 1]);
+		const version = CURRENT_RULES.version;
+		expect((await resultRows()).map((r) => r.rules_version)).toEqual([
+			version,
+			version,
+			version,
+		]);
 
-		const v2: RynkeRules = {
+		const next: RynkeRules = {
 			...CURRENT_RULES,
-			version: 2,
+			version: version + 1,
 			effectiveDate: "2027-01-01",
 		};
-		await apply({ kind: "none" }, NOW + 60, v2);
+		await apply({ kind: "none" }, NOW + 60, next);
 
-		expect((await resultRows()).map((r) => r.rules_version)).toEqual([2, 2, 2]);
+		expect((await resultRows()).map((r) => r.rules_version)).toEqual([
+			next.version,
+			next.version,
+			next.version,
+		]);
 		expect(await balanceRow()).toMatchObject({
-			rules_version: 2,
+			rules_version: next.version,
 			rules_effective_date: "2027-01-01",
 			computed_at: NOW + 60,
 		});
-		await expectConsistent(ATHLETE_A, v2);
+		await expectConsistent(ATHLETE_A, next);
 	});
 });
 
@@ -311,5 +325,71 @@ describe("readRynke", () => {
 		await seedThree();
 		await apply({ kind: "none" });
 		await expectConsistent();
+	});
+});
+
+describe("applyAndEvaluate with attendance (Story 3)", () => {
+	/** A attends two team trainings, entered by hand (research R22). */
+	async function twoTrainings(athleteIds = [ATHLETE_A]) {
+		for (const date of ["2026-05-02", "2026-05-09"]) {
+			await attendRaw(await insertEvent("team_training", date), athleteIds);
+		}
+	}
+
+	it("keeps the event Rynke when a new ride arrives", async () => {
+		await twoTrainings();
+		await apply({ kind: "upsert", records: [activityRecord(1)] });
+
+		expect(await readRynke(db, ATHLETE_A)).toMatchObject({
+			balance: { teamRynke: 2, trainingRynke: 4 + 10 },
+		});
+		await expectConsistent();
+	});
+
+	it("gives a rider with attendance but no activities a balance; a second run writes nothing", async () => {
+		await twoTrainings();
+		await apply({ kind: "none" });
+
+		expect((await readRynke(db, ATHLETE_A)).balance).toMatchObject({
+			teamRynke: 2,
+			trainingRynke: 10,
+			distanceRynke: 0,
+		});
+		await expectConsistent();
+		const before = await snapshot();
+		await apply({ kind: "none" }, NOW + 60);
+		expect(await snapshot()).toEqual(before);
+	});
+
+	it("stores the breakdown as a JSON array in kind order", async () => {
+		await twoTrainings();
+		await attendRaw(await insertEvent("technique_training", "2026-05-03"), [
+			ATHLETE_A,
+		]);
+		await apply({ kind: "none" });
+
+		const breakdown = [
+			{ kind: "team_training", attended: 2, team: 2, training: 10 },
+			{ kind: "training_weekend_day", attended: 0, team: 0, training: 0 },
+			{ kind: "technique_training", attended: 1, team: 5, training: 5 },
+		];
+		expect((await balanceRow())?.team_event_breakdown).toBe(
+			JSON.stringify(breakdown),
+		);
+		expect((await readRynke(db, ATHLETE_A)).balance?.teamEvents).toEqual(
+			breakdown,
+		);
+	});
+
+	it("leaves another attendee of the same event alone", async () => {
+		await upsertActivity(db, activityRecord(2, { athlete_id: ATHLETE_B }));
+		await twoTrainings([ATHLETE_A, ATHLETE_B]);
+		await apply({ kind: "none" }, NOW, CURRENT_RULES, ATHLETE_B);
+		const other = await snapshot(ATHLETE_B);
+
+		await apply({ kind: "upsert", records: [activityRecord(1)] });
+
+		expect(await snapshot(ATHLETE_B)).toEqual(other);
+		await expectConsistent(ATHLETE_B);
 	});
 });
