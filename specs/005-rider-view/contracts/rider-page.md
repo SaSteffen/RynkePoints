@@ -10,7 +10,7 @@ examples use German, as tests do.
 ```text
 <h1> greeting                       feature 001, unchanged
 status, scopes, change permissions  feature 001, unchanged
-import status                       feature 001, unchanged
+import status                       feature 001; only a finished import (US6)
 section.notice      (when one applies)                     US1 (FR-015) · US6 (FR-051, FR-052)
 section#rynke.rynke-summary                               US1
 section.rynke-gauges                                      US2
@@ -33,7 +33,9 @@ At most one of the first two, plus the import line when it applies:
 - `rynke.notice.notWorkedOut`: no balance stored (FR-015).
 - `rynke.notice.updating` {date}: the balance's version differs from the
   version in effect (FR-051, research R4).
-- `rynke.notice.importing`: `import_status` is not `done` (FR-052).
+- `rynke.notice.importing` {date}: `import_status` is not `done` (FR-052).
+  {date} is the season start. It replaces feature 001's running-import line,
+  so the page mentions the import once.
 
 ## `section#rynke.rynke-summary` (US1)
 
