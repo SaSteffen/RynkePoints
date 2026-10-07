@@ -8,7 +8,7 @@ Each section records a decision, why it was taken, and what else was considered.
 ## R1. Store the name in `activities.name`, nullable (FR-001, FR-005)
 
 **Decision**:
-- Migration `0006_activity_name.sql` adds `name TEXT` to `activities`. It has no
+- Migration `0007_activity_name.sql` adds `name TEXT` to `activities`. It has no
   default and no `NOT NULL`, so rows stored before the migration start as `NULL`
   (unknown).
 - `StravaActivity` gains `name?: string`, and `ActivityRecord` gains

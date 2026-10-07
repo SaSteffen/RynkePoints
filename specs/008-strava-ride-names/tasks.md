@@ -25,7 +25,7 @@ mapping.
 
 ## Phase 1: Setup
 
-- [ ] T001 In the worktree, run `pnpm install`, then `pnpm lint`, `pnpm typecheck`
+- [X] T001 In the worktree, run `pnpm install`, then `pnpm lint`, `pnpm typecheck`
   and `pnpm test`. All pass before any change, so later failures are this
   feature's.
 
@@ -46,11 +46,11 @@ None. US1 needs no new data, and US2 owns the column and mapping that US3 reuses
 
 ### Tests for User Story 1
 
-- [ ] T002 [P] [US1] In `test/unit/catalogs.test.ts` (failing): add
+- [X] T002 [P] [US1] In `test/unit/catalogs.test.ts` (failing): add
   `"brand.viewOnStrava"` to `CONTRACT_IDS` after `"brand.poweredByStrava.alt"`,
   and add a case asserting that every catalog in `catalogs` has
   `"brand.viewOnStrava"` equal to exactly `"View on Strava"` (FR-009, FR-012).
-- [ ] T003 [P] [US1] In `test/unit/rider-sections.test.ts` (failing):
+- [X] T003 [P] [US1] In `test/unit/rider-sections.test.ts` (failing):
   - Turn the inline row in `rendered()` into a `line(overrides: Partial<RideLine>)`
     helper, so cases can vary the status and ID.
   - New `describe("renderRides link to Strava")`, for each status
@@ -59,7 +59,7 @@ None. US1 needs no new data, and US2 owns the column and mapping that US3 reuses
     `<tr class="ride-details"><td colspan="5"><p class="ride-strava"><a class="tap strava-activity" href="https://www.strava.com/activities/8000001">View on Strava</a></p>`.
   - The `a.strava-activity` tag has no `target` and no `rel` attribute.
   - With `createI18n("de", CATALOGS)` the link text is also `View on Strava`.
-- [ ] T004 [P] [US1] In `test/integration/me-rynke.test.ts`, `describe("GET /me
+- [X] T004 [P] [US1] In `test/integration/me-rynke.test.ts`, `describe("GET /me
   paging (US5)")` (failing): after `seedRides(ATHLETE_A, 45, "2026-10-06")`, for
   `/me?page=1` and `/me?page=3`, collect the `href`s of every
   `a.strava-activity`. There is exactly one per `tr.ride-details`, each is
@@ -73,22 +73,22 @@ None. US1 needs no new data, and US2 owns the column and mapping that US3 reuses
 
 ### Implementation for User Story 1
 
-- [ ] T005 [P] [US1] Add `"brand.viewOnStrava": "View on Strava"` after
+- [X] T005 [P] [US1] Add `"brand.viewOnStrava": "View on Strava"` after
   `"brand.poweredByStrava.alt"` in `src/i18n/messages/de.ts` and
   `src/i18n/messages/en.ts`. In `de.ts`, a one-line comment: Strava's Brand
   Guidelines §3 fix this text in every language (008 FR-009). T002 passes.
-- [ ] T006 [US1] In `src/http/rider-sections.ts`, `rideRows()`: import
+- [X] T006 [US1] In `src/http/rider-sections.ts`, `rideRows()`: import
   `STRAVA_ORIGIN` from `../strava/result`, and start the detail cell with
   `html\`<p class="ride-strava"><a class="tap strava-activity" href="${STRAVA_ORIGIN}/activities/${ride.activityId}">${i18n.t("brand.viewOnStrava")}</a></p>\``,
   before the sport. No `target`, no `rel` (research R4). T003 and T004 pass.
-- [ ] T007 [P] [US1] In `src/http/html.ts`, after the
+- [X] T007 [P] [US1] In `src/http/html.ts`, after the
   `tr.ride-details ul,tr.ride-details p{…}` rule, add
   `tr.ride-details p.ride-strava{margin:0}` and
   `a.strava-activity{font-weight:700;text-decoration:underline}` (research R5).
   The selector needs `tr.ride-details` to beat the existing
   `tr.ride-details p` margin; change the first CSS line in
   `specs/008-strava-ride-names/contracts/rider-page.md` to match.
-- [ ] T008 [US1] In `test/integration/dev-fake-strava.test.ts`, new
+- [X] T008 [US1] In `test/integration/dev-fake-strava.test.ts`, new
   `describe("links to Strava (008 research R9)")` (failing): connect a sample
   rider and drain the queue, then `get("/me", <session>)`:
   - the HTML contains no `https://www.strava.com/activities/`;
@@ -96,7 +96,7 @@ None. US1 needs no new data, and US2 owns the column and mapping that US3 reuses
     ID of that rider's fake rides;
   - `get("/_dev/strava/activities/<id>")` answers 200 and shows that fake ride's
     `name`, and an unknown ID answers 404.
-- [ ] T009 [US1] Implement the dev rewrite (research R9), in `dev/` only:
+- [X] T009 [US1] Implement the dev rewrite (research R9), in `dev/` only:
   - `dev/fake-strava/pages.ts`: `activityPage(activity: FakeActivity)` via the
     file's `page()`. It lists the name, sport type, local start, distance,
     elevation gain, moving and elapsed time, private and manual, with a link
@@ -130,19 +130,19 @@ name on no page but the owner's `/me`.
 
 ### Tests for User Story 2
 
-- [ ] T010 [P] [US2] In `test/unit/activity.test.ts` (failing): `toActivityRecord`
+- [X] T010 [P] [US2] In `test/unit/activity.test.ts` (failing): `toActivityRecord`
   keeps `name: " Rund um den Sorpesee <3 🚴 "` exactly, untrimmed. A missing
   `name`, `""`, `"   "` and `"\t\n"` all give `name: null` (FR-001, FR-005).
-- [ ] T011 [P] [US2] In `test/integration/db.test.ts` (failing): `upsertActivity`
+- [X] T011 [P] [US2] In `test/integration/db.test.ts` (failing): `upsertActivity`
   with `name: "Synthetic loop"` stores it; a second upsert of the same ID with
   `name: "Synthetic loop renamed"` replaces it; a third with `name: null` clears
   it. Read back with `SELECT name FROM activities WHERE strava_activity_id = ?`.
-- [ ] T012 [P] [US2] In `test/integration/schema-minimisation.test.ts`
+- [X] T012 [P] [US2] In `test/integration/schema-minimisation.test.ts`
   (failing): add `"name"` to `COLUMNS.activities`. Replace the `first_name` skip
   with a `DOCUMENTED = new Set(["riders.first_name", "activities.name"])`
   checked as `${table}.${column}`, and update the comment: `activities.name` is
   008's documented exception (research R1).
-- [ ] T013 [P] [US2] In `test/integration/activity-event.test.ts` (failing):
+- [X] T013 [P] [US2] In `test/integration/activity-event.test.ts` (failing):
   replace "ignores a title-only update without calling Strava" with "refetches a
   title-only update and stores the new name (FR-004)". A stored, evaluated ride
   and a mocked `GET /activities/{id}` that returns the same figures with
@@ -151,17 +151,17 @@ name on no page but the owner's `/me`.
   `ride_results` `counts`, `reasons`, `distance_rynke` and `elevation_dm`, and
   the balance's `distance_rynke`, `elevation_rynke`, `training_rynke` and
   `team_rynke`, equal their values before (SC-004).
-- [ ] T014 [P] [US2] In `test/unit/rider-view.test.ts` (failing): a `RideRow`
+- [X] T014 [P] [US2] In `test/unit/rider-view.test.ts` (failing): a `RideRow`
   with `name: "Synthetic loop"` gives a `RideLine` with that name, and
   `name: null` gives `null`.
-- [ ] T015 [P] [US2] In `test/unit/rider-sections.test.ts` (failing), using T003's
+- [X] T015 [P] [US2] In `test/unit/rider-sections.test.ts` (failing), using T003's
   `line()`:
   - `name: "Loop <b> & 🚴"` renders
     `<p class="ride-strava"><span class="ride-name">Loop &lt;b&gt; &amp; 🚴</span> <a class="tap strava-activity"`.
     The raw `<b>` appears nowhere (FR-010).
   - `name: null` renders no `ride-name` at all and no placeholder: the paragraph
     starts with the `<a` (FR-005).
-- [ ] T016 [P] [US2] In `test/integration/landing.test.ts` (failing):
+- [X] T016 [P] [US2] In `test/integration/landing.test.ts` (failing):
   - "names the ride name among the data read (FR-007)": the German landing page
     contains `nur Namen, Sportart` and `Deine einzelnen Fahrten und ihre Namen`,
     and the English one contains `only read name, sport type` and
@@ -170,13 +170,13 @@ name on no page but the owner's `/me`.
   - `CONSENT_VERSION` is still `1`.
   - A connected rider's `/me` shows the German `landing.dataRead` text inside the
     consent section, before `consent.organisers` (research R6).
-- [ ] T017 [P] [US2] In `test/integration/rynke-deletion.test.ts` "delete-rider
+- [X] T017 [P] [US2] In `test/integration/rynke-deletion.test.ts` "delete-rider
   removes every result and the balance" and in `test/integration/delete-rider.test.ts`
   "deletes every row of the rider without calling Strava" (failing until
   T020–T022): seed the rides with names and assert
   `SELECT count(*) FROM activities WHERE name IS NOT NULL` is 0 afterwards
   (FR-003, SC-006).
-- [ ] T018 [US2] Synthetic names in the shared page fixtures, plus the copy guard:
+- [X] T018 [US2] Synthetic names in the shared page fixtures, plus the copy guard:
   - `test/support/rynke.ts` `activityRecord()`: default `name: null`.
   - `test/support/pages.ts` `seedPageRiders`: give each `seedRide(ATHLETE_A, …)`
     a name, one of them `"Synthetic <loop> & 🚴"`, and ATHLETE_C's ride
@@ -184,7 +184,7 @@ name on no page but the owner's `/me`.
   - `test/integration/no-hardcoded-copy.test.ts` `unmarkedText`: drop
     `<span class="ride-name">…</span>` like `<style>`, with a comment: ride names
     are rider data, not copy (research R8).
-- [ ] T019 [US2] New `test/integration/ride-name-visibility.test.ts` (failing until
+- [X] T019 [US2] New `test/integration/ride-name-visibility.test.ts` (failing until
   T024): after `resetDb()` and `seedPageRiders(ctx)`, fetch every entry of
   `RIDER_PAGES` except the two riders' own pages, plus `POST /admin/run-daily`
   with the test bearer token. None contains ATHLETE_A's names or ATHLETE_C's.
@@ -196,10 +196,10 @@ name on no page but the owner's `/me`.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Add `migrations/0006_activity_name.sql`, word for word as in
+- [X] T020 [US2] Add `migrations/0007_activity_name.sql`, word for word as in
   [data-model.md](data-model.md) (`ALTER TABLE activities ADD COLUMN name TEXT;`,
   nullable, no default, with its header comment).
-- [ ] T021 [US2] In `src/strava/activity.ts`:
+- [X] T021 [US2] In `src/strava/activity.ts`:
   - Header comment: the allow-list now includes the ride's name (008 FR-001);
     drop "titles" from what never reaches storage.
   - `StravaActivity`: `name?: string`.
@@ -212,7 +212,7 @@ name on no page but the owner's `/me`.
   - Export `type ActivityRow = Omit<ActivityRecord, "name">`, documented as what
     every reader except the rider's own ride table gets (research R7).
   T010 passes.
-- [ ] T022 [US2] In `src/db/activities.ts`:
+- [X] T022 [US2] In `src/db/activities.ts`:
   - `upsertActivityStatement`: add `name` to the column list as `?16`, to the
     `DO UPDATE SET` as `name = ?16`, and bind `a.name` last.
   - `COLUMNS` stays without `name`, with a one-line comment why (research R7).
@@ -222,10 +222,10 @@ name on no page but the owner's `/me`.
   - Fix any other `ActivityRecord` literal `pnpm typecheck` flags in `test/`
     with `name: null`.
   T011, T012 and T017 pass.
-- [ ] T023 [US2] In `src/work/activity-event.ts`, remove the title-only early
+- [X] T023 [US2] In `src/work/activity-event.ts`, remove the title-only early
   return and its comment, so a title-only update takes the normal fetch path
   (research R2). T013 passes.
-- [ ] T024 [US2] Read and render the name:
+- [X] T024 [US2] Read and render the name:
   - `src/db/rider-view.ts`: `RIDE_PAGE_SQL` selects `a.name` after
     `a.elevation_gain_m`; `RidePageRow` and `RideRow` get `name: string | null`
     (doc comment as in T021); `toRideRow` copies it.
@@ -239,7 +239,7 @@ name on no page but the owner's `/me`.
     `test/unit/rider-view.test.ts` and `test/unit/rider-sections.test.ts` that
     `pnpm typecheck` flags.
   T014, T015, T018 and T019 pass.
-- [ ] T025 [US2] Consent text (FR-007, [contracts/messages.md](contracts/messages.md)):
+- [X] T025 [US2] Consent text (FR-007, [contracts/messages.md](contracts/messages.md)):
   - `src/i18n/messages/de.ts` and `en.ts`: change `landing.dataRead` and
     `landing.purpose` to the contract's wording, word for word.
   - `src/consent.ts`: add one sentence to the comment: 008 named the ride name
@@ -249,7 +249,7 @@ name on no page but the owner's `/me`.
   - `src/http/me.ts`, `consent()`: after the `me.consent.accepted` paragraph,
     add `<p>${i18n.t("landing.dataRead")}</p>`, before `consent.organisers`.
   T016 passes.
-- [ ] T026 [US2] Renames in the fake Strava, test first in
+- [X] T026 [US2] Renames in the fake Strava, test first in
   `test/integration/dev-fake-strava.test.ts` (failing): a `POST /_dev/events`
   with `action=update`, a sample ride's `activityId` and only `name=Synthetic
   renamed` sends a webhook whose `updates` is exactly `{ "title": "Synthetic
@@ -274,24 +274,24 @@ list requests only ([contracts/activity-processing.md](contracts/activity-proces
 
 ### Tests for User Story 3
 
-- [ ] T027 [P] [US3] In `test/unit/activity.test.ts` (failing): change
+- [X] T027 [P] [US3] In `test/unit/activity.test.ts` (failing): change
   `expect(ACTIVITY_FIGURES_VERSION).toBe(2)` to `toBe(3)`.
-- [ ] T028 [P] [US3] In `test/integration/reread-page.test.ts` (failing), next to
+- [X] T028 [P] [US3] In `test/integration/reread-page.test.ts` (failing), next to
   "fills Strava's flag on rows stored before 0003":
-  - "fills the names of rows stored before 0006 from the list (FR-006)": evaluated
+  - "fills the names of rows stored before 0007 from the list (FR-006)": evaluated
     rows with every figure and `name: null`, and a rider at `figures_version` 2.
     The list mock returns the same rides with names. After the re-read, each row
     has its name, no `GET /activities/{id}` was requested, and the rider's
     `ride_results` and balance Rynke are unchanged (SC-003, Story 3 scenario 3).
   - "never refetches a ride for its name": a listed ride with all figures and
     `name: "   "` stays `NULL` and gets no `GET /activities/{id}`.
-- [ ] T029 [P] [US3] In `test/integration/scheduled-reread.test.ts` (failing):
+- [X] T029 [P] [US3] In `test/integration/scheduled-reread.test.ts` (failing):
   "re-reads a rider at version 2 for ride names, once", mirroring "re-reads a
   rider at version 1 for Strava's flag".
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] In `src/strava/activity.ts`: `ACTIVITY_FIGURES_VERSION = 3`. The
+- [X] T030 [US3] In `src/strava/activity.ts`: `ACTIVITY_FIGURES_VERSION = 3`. The
   doc comment says "field set" for "figure" and adds "version 3 the ride's name
   (feature 008)". In `src/db/activities.ts`, add a comment on
   `listActivityIdsMissingFigures`: the name is not a figure, so a missing one
@@ -304,14 +304,14 @@ next daily run.
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T031 [P] `README.md`, list of stored data: add the ride name (only the rider
+- [X] T031 [P] `README.md`, list of stored data: add the ride name (only the rider
   sees it) and drop "titles" from what is not stored (research R10).
-- [ ] T032 [P] `specs/001-strava-connect-webhook/data-model.md`: add the `name`
+- [X] T032 [P] `specs/001-strava-connect-webhook/data-model.md`: add the `name`
   row to `activities`, pointing to `specs/008-strava-ride-names/data-model.md`.
   `specs/005-rider-view/contracts/rider-page.md`, `section#rides`: one line that
   008's [contracts/rider-page.md](contracts/rider-page.md) adds the name and the
   link to the detail row.
-- [ ] T033 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`. All pass.
+- [X] T033 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`. All pass.
 
 ---
 

@@ -12,7 +12,7 @@ and 003's for the Rynke tables.
 |---|---|---|---|
 | `name` | `TEXT` | yes | The ride's title on Strava, exactly as Strava sent it. `NULL` means unknown: not read since this feature, or empty or blank on Strava (FR-005). |
 
-Migration `migrations/0006_activity_name.sql`:
+Migration `migrations/0007_activity_name.sql`:
 
 ```sql
 -- The ride's name on Strava (feature 008-strava-ride-names FR-001), shown only

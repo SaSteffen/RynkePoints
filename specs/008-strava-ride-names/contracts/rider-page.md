@@ -29,7 +29,7 @@ Rules:
 ## CSS (`src/http/html.ts`)
 
 ```css
-p.ride-strava{margin:0}
+tr.ride-details p.ride-strava{margin:0}
 .ride-name{overflow-wrap:anywhere;color:#333}
 a.strava-activity{font-weight:700;text-decoration:underline}
 ```
