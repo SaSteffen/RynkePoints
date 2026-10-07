@@ -285,8 +285,9 @@ and no one else's.
 
 - **FR-001**: The system MUST let a rider start a connection to their Strava
   account from a public RynkePoints page, using Strava's official "Connect with
-  Strava" button and attribution in the variant matching the page language
-  (FR-028).
+  Strava" button and attribution as Strava provides them. Strava ships them in
+  English only, so every page language shows the English images; their alt text
+  follows the page language (FR-028).
 - **FR-002**: Before redirecting to Strava, the system MUST tell the rider in plain
   language which data will be read (every figure listed in FR-013), what it is used for, how to leave, and how
   long deleted data remains in the hosting platform's backups (FR-022a), together

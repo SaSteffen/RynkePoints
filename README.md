@@ -17,12 +17,14 @@ Features are specified and built with
 
 The first feature, [Strava connection and webhook intake](specs/001-strava-connect-webhook/spec.md):
 
-- Members of the team's Strava club connect their account on the start page.
-  Connecting is refused, and nothing is kept, for anyone who isn't a member.
+- Members of the team's Strava club agree to what is read and shared, then
+  connect their account on the start page. Connecting is refused, and nothing
+  is kept, for anyone who doesn't agree or isn't a member.
 - The rider's cycling activities since the season start are imported, and new,
   changed or deleted activities follow automatically through Strava's webhook.
-- On their own page riders see the connection status, the import progress and
-  their 20 most recent rides, and can disconnect.
+- On their own page riders see the connection status and granted permissions,
+  the import progress, their 20 most recent rides and the consent they gave,
+  and can disconnect.
 
 Points and events build on this in later features.
 
@@ -30,8 +32,13 @@ Points and events build on this in later features.
 
 - **Scopes**: `read` and `activity:read`. `activity:read_all` is optional: only
   if the rider grants it are their private ("Only You") activities included.
+  `activity:write` is optional too, and nothing writes to Strava yet: a later
+  feature will add a Rynke section to ride descriptions, only for riders who
+  granted it.
 - **What is stored**: per rider the Strava athlete ID, first name (for the
-  greeting), the granted scopes and the Strava tokens, encrypted. Per cycling
+  greeting), the granted scopes (including whether write access was granted),
+  the Strava tokens, encrypted, and the version and time of the consent they
+  agreed to. Per cycling
   activity only sport type, start time, time zone, distance, moving and elapsed
   time, elevation gain, the manual, trainer and private flags, and whether
   Strava has flagged it. No GPS tracks, maps, titles, photos, heart rate or
@@ -74,8 +81,8 @@ local development. You don't need a Cloudflare account: production is deployed b
 CI (see [Deploying](#deploying)).
 
 Running against the real Strava locally, and the manual one-time production
-steps (Cloudflare resources, secrets, the webhook subscription and the Strava
-brand assets for each language), are in the
+steps (Cloudflare resources, secrets, the webhook subscription and Strava's
+brand assets, which are English only and used for every language), are in the
 [feature quickstart](specs/001-strava-connect-webhook/quickstart.md). The D1
 database must be created with `--jurisdiction=eu` before the first deploy, so
 rider data stays in the EU.

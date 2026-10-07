@@ -1,4 +1,5 @@
 import { clubId } from "../config";
+import { CONSENT_VERSION } from "../consent";
 import type { Ctx } from "../ctx";
 import { getRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
@@ -7,7 +8,8 @@ import { redirect } from "./redirect";
 import { readSession } from "./session";
 
 // The public start page: what RynkePoints reads and why, who can join, how to
-// leave, and the Connect with Strava button (FR-001, FR-002, FR-022a).
+// leave, who sees what, and the consent form with the Connect with Strava
+// button (FR-001, FR-002, FR-022a; feature 004 FR-010, FR-011; research R21).
 
 export async function handleLanding(
 	request: Request,
@@ -36,7 +38,15 @@ export async function handleLanding(
 <p>${i18n.t("landing.leave")}</p>
 <p>${i18n.t("landing.backups")}</p>
 <p>${i18n.t("landing.cookies")}</p>
-<p><a href="/connect"><img src="${i18n.t("brand.connectWithStrava.src")}" alt="${i18n.t("brand.connectWithStrava.alt")}"></a></p>`,
+<h2>${i18n.t("consent.heading")}</h2>
+<p>${i18n.t("consent.organisers")}</p>
+<p>${i18n.t("consent.team")}</p>
+<p>${i18n.t("consent.required")}</p>
+<p>${i18n.t("consent.write")}</p>
+<form method="post" action="/connect">
+<p><label><input type="checkbox" name="consent" value="${CONSENT_VERSION}" required> ${i18n.t("consent.agree")}</label></p>
+<button><img src="${i18n.t("brand.connectWithStrava.src")}" alt="${i18n.t("brand.connectWithStrava.alt")}"></button>
+</form>`,
 		}),
 	);
 }

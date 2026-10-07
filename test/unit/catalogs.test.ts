@@ -8,7 +8,8 @@ import { de } from "../../src/i18n/messages/de";
 import { en } from "../../src/i18n/messages/en";
 import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 
-// Every ID in specs/001-strava-connect-webhook/contracts/messages.md.
+// Every ID in specs/001-strava-connect-webhook/contracts/messages.md and
+// specs/005-rider-view/contracts/messages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"meta.intlLocale",
@@ -29,6 +30,12 @@ const CONTRACT_IDS = [
 	"landing.leave",
 	"landing.backups",
 	"landing.cookies",
+	"consent.heading",
+	"consent.organisers",
+	"consent.team",
+	"consent.required",
+	"consent.write",
+	"consent.agree",
 	"me.title",
 	"me.greeting",
 	"me.status.connected",
@@ -36,14 +43,18 @@ const CONTRACT_IDS = [
 	"me.reconnect",
 	"me.scope.readAll",
 	"me.scope.sharedOnly",
+	"me.scope.write",
+	"me.scope.noWrite",
+	"me.changePermissions",
+	"me.consent.heading",
+	"me.consent.accepted",
+	"me.consent.none",
 	"me.import.running",
 	"me.import.done",
 	"me.recent.heading",
 	"me.recent.empty",
 	"me.recent.col.date",
-	"me.recent.col.sport",
 	"me.recent.col.distance",
-	"me.recent.col.elevation",
 	"me.disconnect.button",
 	"units.km",
 	"units.m",
@@ -63,6 +74,8 @@ const CONTRACT_IDS = [
 	"notice.expired.body",
 	"notice.denied.title",
 	"notice.denied.body",
+	"notice.consentRequired.title",
+	"notice.consentRequired.body",
 	"notice.teamFull.title",
 	"notice.teamFull.body",
 	"notice.failed.title",
@@ -79,6 +92,26 @@ const CONTRACT_IDS = [
 	"error.notFound.body",
 	"error.forbidden.title",
 	"error.forbidden.body",
+	// Feature 005, US1
+	"rynke.training",
+	"rynke.team",
+	"rynke.withoutVirtual",
+	"rynke.notice.notWorkedOut",
+	"rynke.summary.heading",
+	"rynke.summary.ofTarget",
+	"rynke.summary.missing",
+	"rynke.summary.reached",
+	"rynke.verdict.in",
+	"rynke.verdict.notYet",
+	"rynke.missing.training",
+	"rynke.missing.team",
+	"rynke.missing.withoutVirtual",
+	"rynke.rides.col.status",
+	"rynke.rides.col.elevationTotal",
+	"rynke.ride.counts",
+	"rynke.ride.doesNotCount",
+	"rynke.ride.beingEvaluated",
+	"rynke.ride.virtual",
 ];
 
 const placeholders = (text: string) =>
@@ -139,6 +172,13 @@ describe("catalog contents", () => {
 			"Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters und verschwinden danach automatisch.",
 		);
 		expect(de["brand.connectWithStrava.alt"]).toBe("Mit Strava verbinden");
+	});
+
+	it("names the two kinds of Rynke as the team does (FR-060)", () => {
+		expect(de["rynke.training"]).toBe("Trainingsrynke");
+		expect(de["rynke.team"]).toBe("Teamrynke");
+		expect(en["rynke.training"]).toBe("Training Rynke");
+		expect(en["rynke.team"]).toBe("Team Rynke");
 	});
 
 	it("keeps Strava's exact attribution wording in every locale", () => {

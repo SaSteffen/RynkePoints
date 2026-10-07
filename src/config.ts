@@ -68,6 +68,16 @@ export function seasonStartEpoch(date: string): number {
 	return (utcMidnight - berlinOffsetMs(utcMidnight)) / 1000;
 }
 
+/** The Europe/Berlin calendar date (`YYYY-MM-DD`) at `epochSeconds`. */
+export function berlinDate(epochSeconds: number): string {
+	return new Intl.DateTimeFormat("en-CA", {
+		timeZone: SEASON_TIME_ZONE,
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+	}).format(new Date(epochSeconds * 1000));
+}
+
 function berlinOffsetMs(epochMs: number): number {
 	const parts = new Intl.DateTimeFormat("en-GB", {
 		timeZone: SEASON_TIME_ZONE,

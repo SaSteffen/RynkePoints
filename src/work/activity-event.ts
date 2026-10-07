@@ -1,4 +1,4 @@
-import { deleteActivity, upsertActivity } from "../db/activities";
+import { evaluateChange } from "../rynke/apply";
 import { toActivityRecord } from "../strava/activity";
 import { getActivity } from "../strava/client";
 import type { Handler } from "./consumer";
@@ -6,16 +6,19 @@ import type { ActivityEventMessage } from "./messages";
 
 // One webhook event (contracts/queue-messages.md, decision table). Every path
 // converges to Strava's current state, so duplicates and reordering are
-// harmless (FR-017).
+// harmless (FR-017). Writes go through `evaluateChange`, so the rider's Rynke
+// change in the same batch (feature 003 research R11).
 
 export const activityEvent: Handler<ActivityEventMessage> = async (
 	message,
 	rider,
 	ctx,
 ) => {
-	const db = ctx.env.DB;
 	const remove = async () => {
-		await deleteActivity(db, rider.athleteId, message.activityId);
+		await evaluateChange(ctx, rider.athleteId, {
+			kind: "delete",
+			activityIds: [message.activityId],
+		});
 		return { kind: "ok" } as const;
 	};
 
@@ -56,6 +59,9 @@ export const activityEvent: Handler<ActivityEventMessage> = async (
 	if (!record || (record.is_private === 1 && !rider.scopeReadAll)) {
 		return remove();
 	}
-	await upsertActivity(db, record);
+	await evaluateChange(ctx, rider.athleteId, {
+		kind: "upsert",
+		records: [record],
+	});
 	return { kind: "ok" };
 };

@@ -10,6 +10,8 @@ import {
 	listRidersBehindFiguresVersion,
 	setFiguresVersion,
 } from "../db/riders";
+import { listRidersNeedingEvaluation } from "../db/rynke";
+import { CURRENT_RULES } from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
 import { parseWorkMessage, type WorkMessage } from "./messages";
 
@@ -84,6 +86,22 @@ export async function fanOutFiguresReread(ctx: Ctx): Promise<void> {
 		await ctx.queue.send({ kind: "reread-page", athleteId, page: 1, after });
 		await setFiguresVersion(ctx.env.DB, athleteId, ACTIVITY_FIGURES_VERSION);
 	}
+}
+
+/**
+ * One `evaluate-rider` per connected rider whose stored Rynke are missing or
+ * stale: after the first deploy, a rules-version bump or a lost message
+ * (feature 003 research R14).
+ */
+export async function fanOutEvaluations(ctx: Ctx): Promise<void> {
+	const ids = await listRidersNeedingEvaluation(
+		ctx.env.DB,
+		CURRENT_RULES.version,
+	);
+	await sendAll(
+		ctx,
+		ids.map((athleteId) => ({ kind: "evaluate-rider", athleteId })),
+	);
 }
 
 async function sendAll(ctx: Ctx, messages: WorkMessage[]): Promise<void> {

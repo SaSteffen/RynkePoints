@@ -47,7 +47,42 @@ describe("GET /me for a connected rider", () => {
 		expect(page).toContain("<title>Deine RynkePoints</title>");
 		expect(page).toContain("Hallo Testrider A!");
 		expect(page).toContain("Mit Strava verbunden");
-		expect(page).not.toContain('href="/connect"');
+		expect(page).toContain(
+			'<a href="/connect">Berechtigungen auf Strava ändern</a>',
+		);
+		expect(page).not.toContain("Erneut verbinden");
+	});
+
+	it("shows whether write access was granted", async () => {
+		await seedRider(ctx, { scopeWrite: true });
+		expect((await getMe()).page).toContain(
+			"Schreibzugriff erteilt: Sobald es die Funktion gibt, schreibt RynkePoints einen Rynke-Abschnitt in deine Fahrtbeschreibungen.",
+		);
+		await resetDb();
+		await seedRider(ctx, { scopeWrite: false });
+		expect((await getMe()).page).toContain(
+			"Kein Schreibzugriff: RynkePoints schreibt nichts in deine Fahrtbeschreibungen.",
+		);
+	});
+
+	it("shows the stored consent on its Berlin date and who sees what", async () => {
+		const late = makeCtx({ now: Date.parse("2026-10-06T23:30:00Z") / 1000 });
+		await seedRider(late, { consentVersion: 1 });
+		const { page } = await getMe();
+		expect(page).toContain("<h2>Deine Zustimmung</h2>");
+		expect(page).toMatch(
+			/<p>Zugestimmt am 07\.10\.2026 \(Version 1\):<\/p>\n<p>Die Organisatorinnen und Organisatoren des Teams sehen .*<\/p>\n<p>Alle anderen im Team sehen deine gesammelten Rynke/,
+		);
+		expect(page).not.toContain("noch keine Zustimmung");
+	});
+
+	it("says when no consent is stored", async () => {
+		await seedRider(ctx);
+		const { page } = await getMe();
+		expect(page).toContain(
+			"Für dich ist noch keine Zustimmung gespeichert. Melde dich ab und verbinde dich auf der Startseite neu, um zuzustimmen.",
+		);
+		expect(page).not.toContain("Zugestimmt am");
 	});
 
 	it("shows the granted level", async () => {

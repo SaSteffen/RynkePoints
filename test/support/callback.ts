@@ -1,3 +1,4 @@
+import { CONSENT_VERSION } from "../../src/consent";
 import { handleFetch } from "../../src/index";
 import { oauthStateCookie, request, type TestCtx } from "./ctx";
 import type { FakeStrava } from "./fake-strava";
@@ -5,7 +6,8 @@ import type { FakeStrava } from "./fake-strava";
 // Drives GET /auth/callback the way Strava's redirect would, with a valid
 // rp_oauth_state cookie unless told otherwise.
 
-export const SCOPES_ALL = "read,activity:read,activity:read_all";
+export const SCOPES_ALL = "read,activity:read,activity:read_all,activity:write";
+export const SCOPES_NO_WRITE = "read,activity:read,activity:read_all";
 export const SCOPES_SHARED = "read,activity:read";
 
 const STATE = "synthetic-state-0001";
@@ -17,6 +19,8 @@ export interface CallbackOptions {
 	/** State carried by the cookie; `null` sends no state cookie. */
 	cookieState?: string | null;
 	cookies?: Record<string, string>;
+	/** Consent version carried by the state cookie; defaults to the current one. */
+	consentVersion?: number;
 }
 
 export async function callback(
@@ -27,7 +31,13 @@ export async function callback(
 		options.cookieState === undefined ? STATE : options.cookieState;
 	const params = new URLSearchParams({ state: STATE, ...options.params });
 	const cookies = {
-		...(cookieState === null ? {} : await oauthStateCookie(ctx, cookieState)),
+		...(cookieState === null
+			? {}
+			: await oauthStateCookie(
+					ctx,
+					cookieState,
+					options.consentVersion ?? CONSENT_VERSION,
+				)),
 		...options.cookies,
 	};
 	return handleFetch(request(`/auth/callback?${params}`, { cookies }), ctx);
@@ -43,13 +53,14 @@ export async function approve(
 	athleteId: number,
 	scope = SCOPES_ALL,
 	cookies: Record<string, string> = {},
+	options: Pick<CallbackOptions, "consentVersion"> = {},
 ): Promise<Response> {
 	const athlete =
 		fake.athletes.get(athleteId) ?? fake.addAthlete({ id: athleteId });
 	athlete.scopes = scope.split(",");
 	const code = `synthetic-code-${nextCode++}`;
 	fake.codes.set(code, athleteId);
-	return callback(ctx, { params: { code, scope }, cookies });
+	return callback(ctx, { params: { code, scope }, cookies, ...options });
 }
 
 /** Every `Set-Cookie` header of a response, keyed by cookie name. */

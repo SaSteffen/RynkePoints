@@ -20,8 +20,15 @@ Language). Message texts are in [contracts/messages.md](contracts/messages.md).
 
 | Scenario (spec) | Expected test outcome |
 |---|---|
-| US1 connect, member, both scopes | rider and credentials rows exist, tokens are not plaintext, session cookie set, `import-page` p.1 enqueued |
+| US1 landing shows the consent (FR-002) | German consent text (`consent.*`), a required `consent` checkbox and the Connect button as the submit button of `POST /connect` |
+| US1 `POST /connect` with the box ticked | `302` to Strava with `scope=read,activity:read,activity:read_all,activity:write`; `rp_oauth_state` carries the consent version |
+| US1 `POST /connect` without the box (declines) | `303 /notice/consent-required`; no Strava redirect, no cookie, no rows; foreign `Origin` → 403 |
+| US1 `GET /connect` signed out | `302 /`; no Strava redirect |
+| US1 connect, member, all scopes | rider, credentials and consent record (version 1, callback time) exist; `scope_write=1`; tokens are not plaintext, session cookie set, `import-page` p.1 enqueued |
 | US1 rider unticks private | rider has `scope_read_all=0`; `/me` says „Nur geteilte Aktivitäten …“ |
+| US1 rider unticks write access | connected, `scope_write=0`; `/me` says „Kein Schreibzugriff …“ |
+| US1 new athlete returns without an agreed version (signed-in `GET /connect` whose rider was deleted meanwhile, or a version raised in between) | revoke called; no rows; `303 /notice/consent-required` |
+| US1 existing rider without a record connects through the form | consent record inserted; an existing record of the same version keeps its first `accepted_at` |
 | US1 refusal / missing `activity:read` | no rows in any table; `303 /notice/denied` with the explanation |
 | US1 connected rider signs in without `activity:read` | revoke called; all their rows gone; `303 /notice/denied-deleted` (deletion + 7-day backup sentence) |
 | US1 non-member | revoke called on fake Strava; no rows; `303 /notice/not-member` with the club link |
@@ -29,6 +36,7 @@ Language). Message texts are in [contracts/messages.md](contracts/messages.md).
 | US1 connected rider signs in, club check inconclusive (503) | no revoke; signed in, `302 /me`; rider kept |
 | US1 token exchange 403 | `303 /notice/team-full` („Das Team ist im Moment voll“); no rows |
 | US1 reconnect narrowing scope | private activities removed, public kept, still one rider row |
+| US1 reconnect granting or dropping write only (FR-007) | `scopes` and `scope_write` updated; no activity removed, no import enqueued |
 | US1 reconnect after `needs_reconnect` | `status=connected`, `import_status=pending`, `import-page` p.1 enqueued |
 | US2 create / update(type) / delete | activity row inserted / refreshed / removed |
 | US2 figures for points | elapsed time, manual flag, trainer flag and Strava's flag stored from event and import; a field Strava omits stays `NULL`, never 0 or "not flagged"; a later update event carrying `flagged: true` sets `is_flagged=1` |
@@ -41,15 +49,16 @@ Language). Message texts are in [contracts/messages.md](contracts/messages.md).
 | Webhook ack (SC-003) | `POST /strava/webhook/:secret` returns without any outbound fetch |
 | Rate limit headers near limit / 429 | message re-sent with delay to next window (≤ 12 h) and acked, also on the last attempt; no extra call, no `failed_work` |
 | Transient errors past last attempt | `failed_work` row (repeat failures update it, `first_failed_at` kept); daily cron re-enqueues it and keeps it; deleted on success or after 7 days (logged) |
-| US3 deauth event | rider, credentials, activities, failed_work all gone |
+| US3 deauth event | rider, credentials, activities, consent records, failed_work all gone |
 | US3 disconnect button | revoke called, all rows gone, session cleared, `303 /notice/deleted` (7-day backup sentence); foreign `Origin` → 403 |
 | US3 left club (cron → check → delete) | revoke called, all rows gone; inconclusive check (503) keeps rider |
 | US3 `needs_reconnect` for more than 7 days (cron → delete) | revoke with the stored refresh token, no token refresh; all rows gone; 6 days → kept |
-| US4 `/me` | only own 20 newest activities, German number/date formats (`42,2 km`, `06.10.2026`); signed-out → redirect `/` |
+| US4 `/me` | only own 20 newest activities, German number/date formats (`42,2 km`, `06.10.2026`); write status, consent version and date with who sees what, or „Für dich ist noch keine Zustimmung gespeichert …“ without a record; „Berechtigungen auf Strava ändern“ links to `/connect`; signed-out → redirect `/` |
+| Never writes to Strava (FR-003) | across the whole suite, the fake Strava records no `PUT`, `POST` or `DELETE` to `/api/v3/...` (it fails the test) |
 | Season import | 450 synthetic activities → 3 pages, all cycling ones stored, `import_status=done`; every page uses the `after` from the first message |
 | Catalog parity (FR-028, SC-010) | `de` and `en` have identical keys, no empty values, identical placeholders; a `sport.*` message for every cycling type |
 | Locale resolution (FR-029) | no header / `*` / `de-DE,en;q=0.5` / `da,de;q=0.5` → `de`; `en-US,en;q=0.9,de;q=0.8` / `da` → `en`; unknown `rp_lang` ignored |
-| German default rendering (SC-010) | every rider page with no `Accept-Language` → `<html lang="de">`, `Content-Language: de`, German text, German Strava button `src`/`alt` |
+| German default rendering (SC-010) | every rider page with no `Accept-Language` → `<html lang="de">`, `Content-Language: de`, German text, English Strava button `src` with German `alt` |
 | English rendering (SC-010) | same pages with `Accept-Language: en` → English text and the English button |
 | Switcher (FR-029a, SC-011) | every rider page has the `/lang` form listing Deutsch and English; `POST /lang` sets `rp_lang` and `303`s to the same page; the cookie beats `Accept-Language`; a foreign `next` → `/`; a foreign `Origin` → 403; no D1 write |
 | No hard-coded copy (FR-028, FR-030) | with an injected pseudo-locale, every visible text node on every rider page comes from the catalog, and the switcher lists the extra locale |
@@ -64,9 +73,10 @@ Uses your own Strava app in its 1-athlete capacity, i.e. only your own data.
 2. Strava always allows `localhost` and `127.0.0.1` as OAuth callback hosts, so
    the app's callback domain can stay set to the production domain (§3).
 3. `pnpm wrangler d1 migrations apply rynke-points --local`, then `pnpm dev`.
-4. Open `http://localhost:8787/`, connect, untick "private activities" once and
-   connect again.
-   - Expect `/me` to reflect the level each time.
+4. Open `http://localhost:8787/`, tick the consent box, connect, untick "private
+   activities" and write access once and connect again.
+   - Expect `/me` to reflect the level and the write status each time, and to
+     show your consent with today's date.
    - Expect your season rides to appear after the import.
    - Expect the pages in German, unless your browser prefers English over German.
      Use the language switcher on `/` and on `/me`. The page changes language in
@@ -108,10 +118,8 @@ Development Workflow). The app is served at `https://trhh-rynke-coins.link`.
 7. Download the official "Connect with Strava" button and "Powered by Strava" logo
    from Strava's brand guidelines (`1.1-Connect-with-Strava-Buttons.zip`,
    `1.2-Strava-API-Logos.zip`) into `public/strava/en/`.
-   - The `de` catalog points at the `en/` files by default.
-   - If the downloads contain German variants, put them in `public/strava/de/` and
-     switch the `brand.*.src` entries in `src/i18n/messages/de.ts` to them
-     (research R19). Never re-letter the images yourself.
+   - Both catalogs point at these English files (research R19). Never re-letter
+     the images yourself.
    - Before deploying, check that every `brand.*.src` path in every catalog
      exists under `public/`:
      `grep -ho '"/strava/[^"]*"' src/i18n/messages/*.ts | tr -d '"' | sort -u | sed 's|^|public|' | xargs ls`.
@@ -212,6 +220,25 @@ version 2) follows the same way.
    It should show 0. Remaining rows belong to `needs_reconnect` riders, are
    waiting in `failed_work` (see below), or lack a field Strava doesn't send.
    Until then, feature 003 sees those figures as unknown.
+
+## 5. Rolling out the consent step to the existing deployment
+
+`0004_consent_and_write_scope.sql` adds `consent_records` and
+`riders.scope_write`. Like §4, merging into `main` applies it before the code
+is published; the previously deployed code keeps working against it, because
+it never names the new table or column and its deletes cascade into them.
+
+- Nothing is re-read from Strava, and no cron step changes.
+- Riders connected before (at the time of writing only the maintainer) keep
+  `scope_write=0` and have no consent record; `/me` says so. They get the record
+  and can grant write access by signing out and connecting through the landing
+  page. Feature 004 leaves riders without a record out of every shared view.
+- Check after the deploy:
+
+  ```bash
+  pnpm wrangler d1 execute rynke-points --remote \
+    --command "SELECT scope_write, (SELECT MAX(version) FROM consent_records c WHERE c.athlete_id = r.athlete_id) AS consent, COUNT(*) FROM riders r GROUP BY 1, 2"
+  ```
 
 ## Inspecting failures
 

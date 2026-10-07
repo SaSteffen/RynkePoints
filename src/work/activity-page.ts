@@ -1,6 +1,6 @@
 import type { Ctx } from "../ctx";
-import { upsertActivities } from "../db/activities";
 import type { Rider } from "../db/riders";
+import { evaluateChange } from "../rynke/apply";
 import { type ActivityRecord, toActivityRecord } from "../strava/activity";
 import { listAthleteActivities } from "../strava/client";
 import type { HandlerResult } from "./consumer";
@@ -14,7 +14,10 @@ export type PageResult =
 	| { kind: "stored"; listed: number }
 	| Exclude<HandlerResult, { kind: "ok" }>;
 
-/** Lists page `page` since `after` and upserts the cycling activities. */
+/**
+ * Lists page `page` since `after` and upserts the cycling activities with the
+ * rider's Rynke, also for an empty page, so every rider gets a balance.
+ */
 export async function storeActivityPage(
 	page: { page: number; after: number },
 	rider: Rider,
@@ -49,6 +52,6 @@ export async function storeActivityPage(
 			records.push(record);
 		}
 	}
-	await upsertActivities(ctx.env.DB, records);
+	await evaluateChange(ctx, rider.athleteId, { kind: "upsert", records });
 	return { kind: "stored", listed: result.value.length };
 }

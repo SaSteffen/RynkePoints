@@ -108,7 +108,12 @@ describe("scheduled: failed_work", () => {
 			handleScheduled(createScheduledController(), ctx),
 		).rejects.toThrow("queue down");
 
-		// The failed_work re-enqueue (the last step) still happened.
-		expect(send).toHaveBeenCalledTimes(2);
+		// The later steps still ran: the failed_work re-enqueue and the Rynke
+		// sweep for the rider without a balance (feature 003).
+		expect(send).toHaveBeenCalledTimes(3);
+		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
+			RECENT,
+			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
+		]);
 	});
 });

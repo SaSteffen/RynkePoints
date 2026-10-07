@@ -4,8 +4,9 @@
 
 Storage is a single D1 database (EU jurisdiction, R11). The schema is created by
 migration `migrations/0001_init.sql` and extended by
-`migrations/0002_activity_points_figures.sql` and
-`migrations/0003_activity_flagged.sql`. D1 enforces foreign keys, so every
+`migrations/0002_activity_points_figures.sql`,
+`migrations/0003_activity_flagged.sql` and
+`migrations/0004_consent_and_write_scope.sql`. D1 enforces foreign keys, so every
 rider-owned row uses `ON DELETE CASCADE`: deleting a `riders` row is the complete
 deletion required by FR-022.
 
@@ -21,6 +22,7 @@ One row per connected member of the team club.
 | `first_name` | TEXT NOT NULL | From the token response's `athlete.firstname`; greeting only. |
 | `status` | TEXT NOT NULL | `connected` \| `needs_reconnect`. |
 | `scope_read_all` | INTEGER NOT NULL | 1 if `activity:read_all` was granted, else 0. |
+| `scope_write` | INTEGER NOT NULL DEFAULT 0 | 1 if `activity:write` was granted, else 0 (FR-003, FR-025). Nothing in this feature writes; the description feature will only write for riders with 1. Added by `0004`; riders connected before it never were asked and keep 0. |
 | `scopes` | TEXT NOT NULL | Accepted scope string as returned by Strava (FR-006). |
 | `connected_at` | INTEGER NOT NULL | First connection. |
 | `scopes_updated_at` | INTEGER NOT NULL | Last time scopes were granted or changed (FR-006). |
@@ -54,13 +56,16 @@ held only in the `rp_lang` cookie (FR-029a, see below).
   reconnect. The daily cron deletes them once `reconnect_requested_at` is more
   than 7 days ago (FR-020), so a revocation Strava never notified us about can't
   keep data indefinitely.
-- Reconnect (FR-007, FR-020): update `scopes`, `scope_read_all`, `status=connected`,
-  `reconnect_requested_at=NULL` and the credentials.
+- Reconnect (FR-007, FR-020): update `scopes`, `scope_read_all`, `scope_write`,
+  `status=connected`, `reconnect_requested_at=NULL` and the credentials. If the
+  rider came through the consent form, record their consent (see
+  `consent_records`).
   - If `scope_read_all` went 1 → 0: `DELETE FROM activities WHERE athlete_id=? AND
     is_private=1`.
   - If it went 0 → 1, or the rider was `needs_reconnect`: set
     `import_status=pending` and enqueue the import (R8), so activities uploaded
     while the connection was broken are picked up.
+  - A change of `scope_write` alone triggers neither.
 - Signing in again without activity-read permission, or as a definitive
   non-member, deletes the rider (contracts/http-routes.md, callback table).
 
@@ -127,6 +132,31 @@ re-reads the season of every rider whose `figures_version` is behind (R20,
 contracts/queue-messages.md `reread-page`). That fills the rows, or deletes the
 ones Strava no longer returns as the rider's cycling activities. Until then the
 figures stay unknown. Feature 003 must treat `NULL` as unknown, never as 0.
+
+## consent_records
+
+The consent a rider accepted (feature 004-roles-and-consent, FR-013; research
+R21). Added by `0004`.
+
+| Column | Type | Rules |
+|---|---|---|
+| `athlete_id` | INTEGER NOT NULL, FK → riders ON DELETE CASCADE | |
+| `version` | INTEGER NOT NULL | ≥ 1. The `CONSENT_VERSION` the rider ticked on the landing page. |
+| `accepted_at` | INTEGER NOT NULL | When the callback stored it. |
+
+Primary key `(athlete_id, version)`. Writes are `INSERT OR IGNORE`, so ticking the
+same version again on a later sign-in keeps the first acceptance. The row with the
+highest `version` is the rider's current consent, shown on `/me` (FR-025).
+
+- A new rider is inserted together with their record in one D1 batch; a new
+  athlete without an agreed version is never stored (contracts/http-routes.md).
+- Riders connected before `0004` have no record. They get one the next time
+  they connect through the landing page; until then `/me` says none is recorded,
+  and feature 004 leaves them out of every shared view (its FR-021).
+- Deleted with the rider by the cascade (FR-022); no deletion path needs a change.
+
+The consent version itself is code, not data: `CONSENT_VERSION` in
+`src/consent.ts`, with its text in the catalogs (`consent.*`, contracts/messages.md).
 
 ## failed_work
 
