@@ -16,6 +16,7 @@
 		"format": "biome check --write .",
 		"test": "vitest run",
 		"docs:pdf": "scripts/docs-pdf.sh",
+		"icons": "node scripts/icons.mjs",
 		"daily:run": "scripts/run-daily.sh",
 		"prepare": "lefthook install"
 	},

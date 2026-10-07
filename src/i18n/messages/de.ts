@@ -34,6 +34,8 @@ export const de = {
 		"Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters und verschwinden danach automatisch.",
 	"landing.cookies":
 		"Wir setzen nur notwendige Cookies: für die Anmeldung und für deine Sprachwahl.",
+	"landing.notifications":
+		"Benachrichtigungen sind freiwillig und gelten pro Gerät. Sie sagen nur, dass es neue Rynke gibt, und laufen über den Benachrichtigungsdienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die dieser Dienst deinem Gerät gibt, und löschen sie, wenn du die Benachrichtigungen ausschaltest, dich abmeldest oder gehst.",
 
 	"consent.heading": "Was du mit dem Verbinden erlaubst",
 	"consent.organisers":
@@ -237,6 +239,21 @@ export const de = {
 	"offline.body":
 		"RynkePoints braucht eine Internetverbindung. Versuch es gleich noch einmal.",
 	"push.body": "Neue Rynke – tippe zum Ansehen",
+	"notifications.heading": "Benachrichtigungen",
+	"notifications.explain":
+		"Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast – ohne Zahlen oder Fahrten.",
+	"notifications.on": "Benachrichtigungen sind auf diesem Gerät an.",
+	"notifications.off": "Benachrichtigungen sind auf diesem Gerät aus.",
+	"notifications.turnOn": "Benachrichtigungen einschalten",
+	"notifications.turnOff": "Benachrichtigungen ausschalten",
+	"notifications.blocked":
+		"Benachrichtigungen bleiben aus, weil dein Gerät sie für RynkePoints blockiert. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.",
+	"notifications.needsHomeScreen":
+		"Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.",
+	"notifications.unsupported":
+		"Dieser Browser kann keine Benachrichtigungen anzeigen.",
+	"notifications.failed":
+		"Das hat nicht geklappt. Versuch es bitte noch einmal.",
 
 	"error.notFound.title": "Seite nicht gefunden",
 	"error.notFound.body": "Diese Seite gibt es nicht.",

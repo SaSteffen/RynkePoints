@@ -12,6 +12,9 @@ deletion required by FR-022.
 
 Timestamps are Unix epoch seconds (`INTEGER`) unless noted.
 
+Feature 010's [data-model.md](../010-pwa-notifications/data-model.md) adds
+`push_subscriptions` and makes the session last 180 days after the last visit.
+
 ## riders
 
 One row per connected member of the team club.

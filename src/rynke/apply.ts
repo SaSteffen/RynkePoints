@@ -4,6 +4,11 @@
 // balance disagree (research R11, R21, FR-014b). Both kinds of change share
 // one read (`readRiders`) and one evaluate-and-diff (`riderWrites`); only rows
 // that changed are written (research R13).
+//
+// Each change also reports whether a rider's Training or Team Rynke rose,
+// comparing the state before and after it, both evaluated now (feature 010
+// research R5). Callers decide whether a rise notifies
+// (010 contracts/push-delivery.md "Which changes notify").
 
 import type { Ctx } from "../ctx";
 import {
@@ -43,7 +48,8 @@ import {
 } from "../db/team-events";
 import type { ActivityRecord, ActivityRow } from "../strava/activity";
 import { sendAll } from "../work/messages";
-import { evaluateRides, rideFromRow } from "./rides";
+import { notifyRiders } from "../work/send-notification";
+import { type Evaluation, evaluateRides, rideFromRow } from "./rides";
 import {
 	type CountingWindow,
 	CURRENT_RULES,
@@ -109,7 +115,7 @@ export async function applyAndEvaluate(
 	rules: RynkeRules,
 	window: CountingWindow,
 	now: number,
-): Promise<void> {
+): Promise<{ rose: boolean }> {
 	const ownerReads =
 		change.kind === "upsert"
 			? [
@@ -125,6 +131,7 @@ export async function applyAndEvaluate(
 	} = await readRiders(db, [athleteId], ownerReads);
 	const state = riders.get(athleteId) as RiderState;
 	const { activities } = state;
+	const before = evaluateState(state, rules, window).balance;
 
 	const writes: D1PreparedStatement[] = [];
 	switch (change.kind) {
@@ -167,8 +174,10 @@ export async function applyAndEvaluate(
 		}
 	}
 
-	writes.push(...riderWrites(db, athleteId, state, rules, window, now));
+	const after = evaluateState(state, rules, window);
+	writes.push(...riderWrites(db, athleteId, state, after, rules, now));
 	if (writes.length > 0) await db.batch(writes);
+	return { rose: rose(before, after.balance) };
 }
 
 /** `applyAndEvaluate` under the current rules, for the work handlers. */
@@ -176,7 +185,7 @@ export function evaluateChange(
 	ctx: Ctx,
 	athleteId: number,
 	change: ActivityChange,
-): Promise<void> {
+): Promise<{ rose: boolean }> {
 	return applyAndEvaluate(
 		ctx.env.DB,
 		athleteId,
@@ -190,7 +199,8 @@ export function evaluateChange(
 /**
  * Applies a team-event change and re-evaluates every affected rider, all in
  * one batch (research R21). Refusals throw `TeamEventRefused` before anything
- * is written. `eventId` is set for `create-event` only.
+ * is written. `eventId` is set for `create-event` only; `rose` lists the
+ * affected riders whose Rynke rose, sorted.
  */
 export async function applyTeamEventChange(
 	db: D1Database,
@@ -198,13 +208,13 @@ export async function applyTeamEventChange(
 	rules: RynkeRules,
 	window: CountingWindow,
 	now: number,
-): Promise<{ eventId: number | null; affected: number[] }> {
+): Promise<{ eventId: number | null; affected: number[]; rose: number[] }> {
 	if (change.kind === "create-event") {
 		const event = validEvent(change.event);
 		const eventId = await insertTeamEventStatement(db, event).first<number>(
 			"event_id",
 		);
-		return { eventId, affected: [] };
+		return { eventId, affected: [], rose: [] };
 	}
 	const event =
 		change.kind === "update-event" ? validEvent(change.event) : null;
@@ -293,27 +303,32 @@ export async function applyTeamEventChange(
 	affected.sort((a, b) => a - b);
 
 	const writes = statement ? [statement] : [];
+	const risen: number[] = [];
 	if (affected.length > 0) {
 		const { riders } = await readRiders(db, affected, []);
 		for (const athleteId of affected) {
 			const state = riders.get(athleteId) as RiderState;
+			const before = evaluateState(state, rules, window).balance;
 			state.attendance = edit(state.attendance);
-			writes.push(...riderWrites(db, athleteId, state, rules, window, now));
+			const after = evaluateState(state, rules, window);
+			writes.push(...riderWrites(db, athleteId, state, after, rules, now));
+			if (rose(before, after.balance)) risen.push(athleteId);
 		}
 	}
 	if (writes.length > 0) await db.batch(writes);
-	return { eventId: null, affected };
+	return { eventId: null, affected, rose: risen };
 }
 
 /**
  * `applyTeamEventChange` under the current rules, for callers outside the
  * serial queue consumer (the organiser pages). One `evaluate-rider` per
  * affected rider then settles a race with an activity event (research R21).
+ * Each rider whose Rynke rose gets a notification on their devices.
  */
 export async function teamEventChange(
 	ctx: Ctx,
 	change: TeamEventChange,
-): Promise<{ eventId: number | null; affected: number[] }> {
+): Promise<{ eventId: number | null; affected: number[]; rose: number[] }> {
 	const result = await applyTeamEventChange(
 		ctx.env.DB,
 		change,
@@ -325,6 +340,7 @@ export async function teamEventChange(
 		ctx,
 		result.affected.map((athleteId) => ({ kind: "evaluate-rider", athleteId })),
 	);
+	await notifyRiders(ctx, result.rose);
 	return result;
 }
 
@@ -381,15 +397,12 @@ async function readRiders(
 	return { riders, extra };
 }
 
-/** Evaluates the rider and returns the writes of what changed. */
-function riderWrites(
-	db: D1Database,
-	athleteId: number,
+/** A full evaluation of the rider's state. */
+function evaluateState(
 	state: RiderState,
 	rules: RynkeRules,
 	window: CountingWindow,
-	now: number,
-): D1PreparedStatement[] {
+): { evaluation: Evaluation; balance: Balance } {
 	const evaluation = evaluateRides(
 		[...state.activities.values()].map(rideFromRow),
 		rules,
@@ -400,7 +413,26 @@ function riderWrites(
 		extrasFromAttendance(evaluateAttendance(state.attendance, rules, window)),
 		rules,
 	);
+	return { evaluation, balance };
+}
 
+/** Whether the rider gained Training or Team Rynke (research R5). */
+function rose(before: Balance, after: Balance): boolean {
+	return (
+		after.trainingRynke > before.trainingRynke ||
+		after.teamRynke > before.teamRynke
+	);
+}
+
+/** The writes of what changed between the stored state and `evaluated`. */
+function riderWrites(
+	db: D1Database,
+	athleteId: number,
+	state: RiderState,
+	{ evaluation, balance }: { evaluation: Evaluation; balance: Balance },
+	rules: RynkeRules,
+	now: number,
+): D1PreparedStatement[] {
 	const writes: D1PreparedStatement[] = [];
 	const before = new Map(state.results.map((r) => [r.activityId, r]));
 	const changed: StoredRideResult[] = [];

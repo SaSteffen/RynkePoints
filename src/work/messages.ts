@@ -53,13 +53,21 @@ export interface EvaluateRiderMessage {
 	athleteId: number;
 }
 
+/** One empty push to one device after a rise (feature 010). */
+export interface SendNotificationMessage {
+	kind: "send-notification";
+	athleteId: number;
+	subscriptionId: number;
+}
+
 export type WorkMessage =
 	| ActivityEventMessage
 	| ImportPageMessage
 	| RereadPageMessage
 	| CheckMembershipMessage
 	| DeleteRiderMessage
-	| EvaluateRiderMessage;
+	| EvaluateRiderMessage
+	| SendNotificationMessage;
 
 export const isId = (v: unknown): v is number =>
 	typeof v === "number" && Number.isSafeInteger(v) && v > 0;
@@ -111,6 +119,9 @@ export function parseWorkMessage(body: unknown): WorkMessage | null {
 				return null;
 			}
 			return { kind: m.kind, athleteId, reason: m.reason, revoke: m.revoke };
+		case "send-notification":
+			if (!isId(m.subscriptionId)) return null;
+			return { kind: m.kind, athleteId, subscriptionId: m.subscriptionId };
 		default:
 			return null;
 	}
@@ -144,6 +155,12 @@ export function serializeWorkMessage(m: WorkMessage): string {
 				athleteId: m.athleteId,
 				reason: m.reason,
 				revoke: m.revoke,
+			});
+		case "send-notification":
+			return JSON.stringify({
+				kind: m.kind,
+				athleteId: m.athleteId,
+				subscriptionId: m.subscriptionId,
 			});
 	}
 }

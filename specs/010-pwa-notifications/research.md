@@ -14,7 +14,7 @@ sees these requests. Manifest fields:
   (FR-002).
 - `display`: `standalone`.
 - `name`, `short_name` and `description`: all "RynkePoints" (FR-032).
-- `theme_color`: `#fc5200`, the existing accent; `background_color`: `#ffffff`.
+- `theme_color`: `#111111`, the black of the Rynke-Coin badge; `background_color`: `#ffffff`.
 - `icons`: 192 and 512 px PNGs and a 512 px maskable PNG.
 
 The `<head>` gains `<link rel="manifest">`, `<link rel="apple-touch-icon">`
@@ -25,9 +25,11 @@ a registered service worker that has a `fetch` handler (R2). The name is
 not translated (FR-032), so the manifest needs no catalog. A static file costs
 nothing and can't leak anything.
 
-**Icons**: one hand-made SVG mark (`public/icons/icon.svg`), not resembling
-Strava's logo. The PNGs are rendered from it once with any SVG renderer
-(e.g. `rsvg-convert`) and committed. They have no build step.
+**Icons**: one SVG mark (`public/icons/icon.svg`, the Rynke-Coin badge), not
+resembling Strava's logo, plus a simplified favicon (`favicon.svg`, the head
+on the coin), since the badge is unreadable at 16–32 px. `pnpm icons`
+(`scripts/icons.mjs`) draws both and renders the PNGs from the badge with
+`rsvg-convert`; all are committed. They have no build step.
 
 **Alternatives considered**: a Worker-rendered manifest with translated text
 was rejected, because FR-032 keeps the name the same in every language. A
