@@ -108,6 +108,14 @@ export const de = {
 		"Höhenmeter bis zu den nächsten {stepRynke} Trainingsrynke: {value} von {target} · {percent} · noch {missing}",
 	"rynke.source.distance": "Distanz",
 	"rynke.source.elevation": "Höhenmeter",
+	"rynke.breakdown.heading": "Woher deine Rynke kommen",
+	"rynke.breakdown.trainingRynke": "{n} Trainingsrynke",
+	"rynke.breakdown.elevation":
+		"{metres} gesamt → {rynke} Trainingsrynke, noch {toNext} bis zu den nächsten {stepRynke}",
+	"rynke.breakdown.elevationNoStep":
+		"{metres} gesamt → {rynke} Trainingsrynke, noch {toNext} bis zur nächsten Stufe",
+	"rynke.breakdown.total": "Gesamt",
+	"rynke.breakdown.totals": "{training} Trainingsrynke · {team} Teamrynke",
 
 	"disconnect.title": "Daten löschen?",
 	"disconnect.explain":

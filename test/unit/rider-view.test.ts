@@ -467,6 +467,92 @@ describe("buildRiderView gauges", () => {
 	});
 });
 
+function breakdownOf(
+	b: Partial<StoredBalance>,
+	rules: RynkeRules | null = CURRENT_RULES,
+) {
+	return ready(
+		buildRiderView(
+			read({ balance: balance(b) }),
+			rules,
+			CURRENT_RULES,
+			CONTEXT,
+		),
+	).breakdown;
+}
+
+describe("buildRiderView breakdown", () => {
+	it("S3-1: carries distance, elevation and totals", () => {
+		expect(
+			breakdownOf({
+				distanceRynke: 7,
+				elevationDm: 12400,
+				elevationRynke: 5,
+				elevationToNextStepDm: 7600,
+				trainingRynke: 12,
+			}),
+		).toEqual({
+			distanceRynke: 7,
+			elevationM: 1240,
+			elevationRynke: 5,
+			elevationStepM: 1000,
+			elevationStepRynke: 5,
+			toNextStepM: 760,
+			trainingTotal: 12,
+			teamTotal: 0,
+		});
+	});
+
+	it("S3-4: gives 15 Rynke and the whole step to go at 3000 m", () => {
+		expect(
+			breakdownOf({
+				elevationDm: 30000,
+				elevationRynke: 15,
+				elevationToNextStepDm: 10000,
+				trainingRynke: 15,
+			}),
+		).toMatchObject({
+			elevationM: 3000,
+			elevationRynke: 15,
+			toNextStepM: 1000,
+		});
+	});
+
+	it("rounds the total down and the metres to go up", () => {
+		expect(
+			breakdownOf({ elevationDm: 12345, elevationToNextStepDm: 7655 }),
+		).toMatchObject({ elevationM: 1234, toNextStepM: 766 });
+	});
+
+	it("FR-035: adds up to the Training total without corrections", () => {
+		for (const [distanceRynke, elevationRynke] of [
+			[0, 0],
+			[7, 5],
+			[200, 62],
+		] as const) {
+			const breakdown = breakdownOf({
+				distanceRynke,
+				elevationRynke,
+				trainingRynke: distanceRynke + elevationRynke,
+			});
+			expect(breakdown.distanceRynke + breakdown.elevationRynke).toBe(
+				breakdown.trainingTotal,
+			);
+		}
+	});
+
+	it("leaves out the step when the rules are unknown", () => {
+		expect(
+			breakdownOf({ elevationDm: 12400, elevationToNextStepDm: 7600 }, null),
+		).toMatchObject({
+			elevationM: 1240,
+			elevationStepM: null,
+			elevationStepRynke: null,
+			toNextStepM: 760,
+		});
+	});
+});
+
 describe("gaugeParts", () => {
 	it("S2-6: divides six sources of 250 into 84 %", () => {
 		const parts = gaugeParts(

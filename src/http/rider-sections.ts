@@ -1,6 +1,7 @@
 import type { I18n } from "../i18n/i18n";
 import { html, type SafeHtml } from "./html";
 import type {
+	Breakdown,
 	Condition,
 	Gauge,
 	Gauges,
@@ -145,6 +146,37 @@ function figure(i18n: I18n, gauge: Gauge, caption: string): SafeHtml {
 <div class="gauge-bar" aria-hidden="true">${bar}</div>
 ${legend}</figure>
 `;
+}
+
+/** Where the Rynke come from, adding up to the totals (FR-030, FR-035). */
+export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
+	const metres = (m: number) => i18n.t("units.m", { value: whole(i18n, m) });
+	const elevation = {
+		metres: metres(breakdown.elevationM),
+		rynke: whole(i18n, breakdown.elevationRynke),
+		toNext: metres(breakdown.toNextStepM),
+	};
+	return html`<section class="rynke-breakdown">
+<h2>${i18n.t("rynke.breakdown.heading")}</h2>
+<dl>
+<dt>${i18n.t("rynke.source.distance")}</dt><dd>${i18n.t("rynke.breakdown.trainingRynke", { n: whole(i18n, breakdown.distanceRynke) })}</dd>
+<dt>${i18n.t("rynke.source.elevation")}</dt><dd>${
+		breakdown.elevationStepRynke === null
+			? i18n.t("rynke.breakdown.elevationNoStep", elevation)
+			: i18n.t("rynke.breakdown.elevation", {
+					...elevation,
+					stepRynke: whole(i18n, breakdown.elevationStepRynke),
+				})
+	}</dd>
+<dt>${i18n.t("rynke.breakdown.total")}</dt><dd>${i18n.t(
+		"rynke.breakdown.totals",
+		{
+			training: whole(i18n, breakdown.trainingTotal),
+			team: whole(i18n, breakdown.teamTotal),
+		},
+	)}</dd>
+</dl>
+</section>`;
 }
 
 export function renderRides(i18n: I18n, rides: RideTable): SafeHtml {

@@ -52,7 +52,7 @@ footer{margin-top:3rem}
 footer img{height:1.5rem}
 main{overflow-wrap:break-word}
 section.notice{border-left:.25rem solid #fc5200;background:#fff4ec;padding:.25rem 1rem;margin:1rem 0}
-.rynke-summary dd{margin:0 0 .5rem}
+.rynke-summary dd,.rynke-breakdown dd{margin:0 0 .5rem}
 table.rides{width:100%;border-collapse:collapse}
 table.rides th,table.rides td{padding:.25rem .5rem;text-align:left;vertical-align:top}
 table.rides .num{white-space:nowrap;text-align:right}

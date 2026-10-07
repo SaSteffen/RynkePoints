@@ -333,32 +333,32 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 3a (write first, confirm red) ⚠️
 
-- [ ] T029 [P] [US3a] Extend `test/unit/rider-view.test.ts` with `breakdown`:
+- [X] T029 [P] [US3a] Extend `test/unit/rider-view.test.ts` with `breakdown`:
   - **1240 m** (12400 dm, to next 7600): `elevationM` 1240, `elevationRynke` 5, `toNextStepM` 760, `elevationStepM` 1000, `elevationStepRynke` 5.
   - **3000 m**: 15 Rynke and 1000 m to go.
   - **Rounding**: 12345 dm gives `elevationM` 1234 (down), and 7655 dm to the next step gives `toNextStepM` 766 (up).
   - **Sum**: `distanceRynke + elevationRynke === trainingTotal` for corrections-free balances.
   - **Unknown rules** give a `null` step.
-- [ ] T030 [P] [US3a] Extend `test/integration/me-rynke.test.ts`:
+- [X] T030 [P] [US3a] Extend `test/integration/me-rynke.test.ts`:
   - **S3-1**: "7 Trainingsrynke" from distance, "1.240 m gesamt → 5 Trainingsrynke, noch 760 m bis zu den nächsten 5", and "Gesamt" with "12 Trainingsrynke · 0 Teamrynke".
   - **S3-4**: 3000 m → 15, "noch 1.000 m".
   - **S3-5, today's part**: a rider with no rides shows 0 from distance, "0 m gesamt → 0 Trainingsrynke, noch 1.000 m" and total 0. The event-kind rows and lists follow in US3b.
   - `section.rynke-breakdown` follows the gauges, or the summary when there are none.
-- [ ] T031 [P] [US3a] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with `rynke.breakdown.heading`, `.trainingRynke`, `.elevation`, `.elevationNoStep`, `.total` and `.totals`.
+- [X] T031 [P] [US3a] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with `rynke.breakdown.heading`, `.trainingRynke`, `.elevation`, `.elevationNoStep`, `.total` and `.totals`.
 
 ### Implementation for User Story 3a
 
-- [ ] T032 [P] [US3a] Add the US3a keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Breakdown").
-- [ ] T033 [US3a] In `src/http/rider-view.ts`, add `Breakdown` (data-model.md, without the US3b fields) and `breakdown` on the ready state:
+- [X] T032 [P] [US3a] Add the US3a keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Breakdown").
+- [X] T033 [US3a] In `src/http/rider-view.ts`, add `Breakdown` (data-model.md, without the US3b fields) and `breakdown` on the ready state:
   - `elevationM = floor(elevationDm / 10)`;
   - `toNextStepM = ceil(elevationToNextStepDm / 10)`;
   - steps come from `rules`, or are `null`.
   - Makes T029 green.
-- [ ] T034 [US3a] In `src/http/rider-sections.ts`, add `renderBreakdown` per contracts/rider-page.md:
+- [X] T034 [US3a] In `src/http/rider-sections.ts`, add `renderBreakdown` per contracts/rider-page.md:
   - a `dl` with distance, elevation (`rynke.breakdown.elevation`, or `.elevationNoStep` when the step is unknown) and the total line;
   - metres through `units.m`.
-- [ ] T035 [US3a] In `src/http/me.ts`, place `renderBreakdown` after the gauges. Makes T030 green.
-- [ ] T036 [US3a] Check US3a: everything is green, and the breakdown is readable at 360 px (quickstart §3 step 3).
+- [X] T035 [US3a] In `src/http/me.ts`, place `renderBreakdown` after the gauges. Makes T030 green.
+- [X] T036 [US3a] Check US3a: everything is green, and the breakdown is readable at 360 px (quickstart §3 step 3).
 
 **Checkpoint**: the breakdown adds up for every source that exists today.
 

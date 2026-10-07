@@ -323,6 +323,110 @@ describe("GET /me gauges (US2)", () => {
 	});
 });
 
+/** The breakdown's term and description texts, as `[dt, dd]` pairs. */
+async function breakdown(athleteId = ATHLETE_A): Promise<string[][]> {
+	const { html } = await riderPage(ctx, athleteId);
+	const found = section(html, 'class="rynke-breakdown"');
+	if (found === null) throw new Error("no breakdown section");
+	return [...found.matchAll(/<dt>([\s\S]*?)<\/dt><dd>([\s\S]*?)<\/dd>/g)].map(
+		([, dt = "", dd = ""]) => [text(dt), text(dd)],
+	);
+}
+
+describe("GET /me breakdown (US3a)", () => {
+	it("S3-1: shows distance, elevation and the total", async () => {
+		await seedBalance(ATHLETE_A, {
+			distanceRynke: 7,
+			elevationDm: 12400,
+			elevationRynke: 5,
+			elevationToNextStepDm: 7600,
+			trainingRynke: 12,
+			trainingMissing: 238,
+			trainingWithoutVirtual: 12,
+			virtualShareMissing: 155,
+		});
+		expect(await breakdown()).toEqual([
+			["Distanz", "7 Trainingsrynke"],
+			[
+				"Höhenmeter",
+				"1.240 m gesamt → 5 Trainingsrynke, noch 760 m bis zu den nächsten 5",
+			],
+			["Gesamt", "12 Trainingsrynke · 0 Teamrynke"],
+		]);
+	});
+
+	it("S3-4: gives 15 Training Rynke for 3000 m", async () => {
+		await seedBalance(ATHLETE_A, {
+			elevationDm: 30000,
+			elevationRynke: 15,
+			elevationToNextStepDm: 10000,
+			trainingRynke: 15,
+			trainingMissing: 235,
+		});
+		expect((await breakdown())[1]).toEqual([
+			"Höhenmeter",
+			"3.000 m gesamt → 15 Trainingsrynke, noch 1.000 m bis zu den nächsten 5",
+		]);
+	});
+
+	it("S3-5: shows 0 everywhere for a rider without rides", async () => {
+		await seedBalance(ATHLETE_A);
+		expect(await breakdown()).toEqual([
+			["Distanz", "0 Trainingsrynke"],
+			[
+				"Höhenmeter",
+				"0 m gesamt → 0 Trainingsrynke, noch 1.000 m bis zu den nächsten 5",
+			],
+			["Gesamt", "0 Trainingsrynke · 0 Teamrynke"],
+		]);
+	});
+
+	it("names no step for an unknown rules version (FR-013)", async () => {
+		await seedBalance(ATHLETE_A, {
+			elevationDm: 12400,
+			elevationRynke: 5,
+			elevationToNextStepDm: 7600,
+			rulesVersion: 99,
+		});
+		expect((await breakdown())[1]).toEqual([
+			"Höhenmeter",
+			"1.240 m gesamt → 5 Trainingsrynke, noch 760 m bis zur nächsten Stufe",
+		]);
+	});
+
+	it("follows the gauges, or the summary without them", async () => {
+		await seedBalance(ATHLETE_A);
+		const { html } = await riderPage(ctx, ATHLETE_A);
+		const order = [
+			'<section class="rynke-gauges">',
+			'<section class="rynke-breakdown">',
+			'<section id="rides">',
+		].map((marker) => html.indexOf(marker));
+		expect(order.every((i) => i >= 0)).toBe(true);
+		expect([...order].sort((x, y) => x - y)).toEqual(order);
+		expect(text(section(html, 'class="rynke-breakdown"') ?? "")).toMatch(
+			/^Woher deine Rynke kommen /,
+		);
+
+		await seedBalance(ATHLETE_A, { rulesVersion: 99 });
+		const unknown = (await riderPage(ctx, ATHLETE_A)).html;
+		const summaryEnd = unknown.indexOf(
+			"</section>",
+			unknown.indexOf('<section id="rynke"'),
+		);
+		const breakdownStart = unknown.indexOf('<section class="rynke-breakdown">');
+		expect(summaryEnd).toBeGreaterThan(0);
+		expect(
+			unknown.slice(summaryEnd + "</section>".length, breakdownStart),
+		).toMatch(/^\s*$/);
+	});
+
+	it("has no breakdown before the first evaluation", async () => {
+		const { html } = await riderPage(ctx, ATHLETE_A);
+		expect(html).not.toContain('<section class="rynke-breakdown">');
+	});
+});
+
 describe("GET /me ride table (US1)", () => {
 	beforeEach(() => seedBalance(ATHLETE_A));
 

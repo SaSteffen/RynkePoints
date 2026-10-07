@@ -120,6 +120,13 @@ const CONTRACT_IDS = [
 	"rynke.gauge.elevation",
 	"rynke.source.distance",
 	"rynke.source.elevation",
+	// Feature 005, US3a
+	"rynke.breakdown.heading",
+	"rynke.breakdown.trainingRynke",
+	"rynke.breakdown.elevation",
+	"rynke.breakdown.elevationNoStep",
+	"rynke.breakdown.total",
+	"rynke.breakdown.totals",
 ];
 
 const placeholders = (text: string) =>

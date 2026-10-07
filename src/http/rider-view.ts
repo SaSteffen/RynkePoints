@@ -22,6 +22,7 @@ export type RiderView =
 			summary: Summary;
 			/** `null` when the balance's rules version is unknown (FR-013). */
 			gauges: Gauges | null;
+			breakdown: Breakdown;
 			rides: RideTable;
 	  };
 
@@ -77,6 +78,21 @@ export interface GaugePart<S extends string = GaugeSource> {
 	widthPercent: number;
 }
 
+/** Where the Rynke come from (FR-030, FR-031, FR-035); US3b adds team events and corrections. */
+export interface Breakdown {
+	distanceRynke: number;
+	/** Rounded down. */
+	elevationM: number;
+	elevationRynke: number;
+	/** `null` when the balance's rules version is unknown (FR-013). */
+	elevationStepM: number | null;
+	elevationStepRynke: number | null;
+	/** Rounded up. */
+	toNextStepM: number;
+	trainingTotal: number;
+	teamTotal: number;
+}
+
 export interface RideTable {
 	rows: RideLine[];
 	/** 1-based positions in the whole table; `from` is 0 without rows. */
@@ -124,7 +140,24 @@ export function buildRiderView(
 		importing: context.importing,
 		summary: summary(read.balance, read.virtualCount, rules),
 		gauges: rules && gauges(read.balance, read.virtualCount, rules),
+		breakdown: breakdown(read.balance, rules),
 		rides,
+	};
+}
+
+function breakdown(
+	balance: StoredBalance,
+	rules: RynkeRules | null,
+): Breakdown {
+	return {
+		distanceRynke: balance.distanceRynke,
+		elevationM: Math.floor(balance.elevationDm / 10),
+		elevationRynke: balance.elevationRynke,
+		elevationStepM: rules?.elevationStepM ?? null,
+		elevationStepRynke: rules?.elevationStepRynke ?? null,
+		toNextStepM: Math.ceil(balance.elevationToNextStepDm / 10),
+		trainingTotal: balance.trainingRynke,
+		teamTotal: balance.teamRynke,
 	};
 }
 

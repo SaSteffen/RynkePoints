@@ -106,6 +106,14 @@ export const en: Catalog = {
 		"Elevation towards the next {stepRynke} Training Rynke: {value} of {target} · {percent} · {missing} to go",
 	"rynke.source.distance": "Distance",
 	"rynke.source.elevation": "Elevation",
+	"rynke.breakdown.heading": "Where your Rynke come from",
+	"rynke.breakdown.trainingRynke": "{n} Training Rynke",
+	"rynke.breakdown.elevation":
+		"{metres} in total → {rynke} Training Rynke, {toNext} to the next {stepRynke}",
+	"rynke.breakdown.elevationNoStep":
+		"{metres} in total → {rynke} Training Rynke, {toNext} to the next step",
+	"rynke.breakdown.total": "Total",
+	"rynke.breakdown.totals": "{training} Training Rynke · {team} Team Rynke",
 
 	"disconnect.title": "Delete your data?",
 	"disconnect.explain":
