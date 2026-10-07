@@ -23,6 +23,17 @@ earned. It doesn't need to be usable offline."
 - Q: Should this feature also deliver issue #20 (every page phone friendly)? → A: No.
   Issue #20 stays a separate change; this feature only makes its own parts work on
   phones.
+- Q: Should installing and notifications ship as separate releases? → A: No. Both
+  ship together in one release, kept simple.
+- Q: When a rider's sign-in on a device runs out, does that device keep getting
+  notifications? → A: Yes, until the rider signs out there, turns them off, leaves,
+  or the device is gone. Also, a sign-in lasts 180 days (half a year) instead of 30,
+  and no longer.
+- Q: Are notifications held back at night? → A: No. They are sent as soon as the
+  new Rynke are stored, at any time; the phone's own Do Not Disturb handles the
+  night.
+- Q: Does the import of a new rider's earlier season rides send a notification? →
+  A: No, neither the import nor the one-time re-read sends any.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -122,7 +133,7 @@ that tapping it opens the rider page.
    **When** they earn new Rynke, **Then** both devices show the notification.
 9. **Given** a notification on the lock screen, **When** the rider taps it, **Then**
    the installed app (or the browser, if not installed) opens on the rider page, which
-   asks them to sign in first if their session has ended.
+   asks them to sign in first if their sign-in has ended.
 10. **Given** a rider earns Rynke several times before looking at the phone, **When**
     they look, **Then** they see one RynkePoints notification, not a stack of them
     (FR-017).
@@ -183,8 +194,8 @@ get none. Repeat with the browser's permission denied and check the page explain
   processed while a recalculation runs notifies as usual, but only for its own
   change, not for what the new rules added.
 - **Past-season import or the one-time re-read** (feature 001; feature 008, FR-006):
-  rides stored when a rider first connects or re-read later are not "new"; the import
-  sends no notification, or at most one when it finishes (FR-016).
+  rides stored when a rider first connects or re-read later are not "new"; neither
+  sends any notification (FR-016).
 - **Ride evaluated while the qualification deadline has passed**: it earns nothing
   (feature 003), so no notification.
 - **Rider qualifies**: the notification is the same as for any new Rynke; the rider
@@ -202,9 +213,12 @@ get none. Repeat with the browser's permission denied and check the page explain
   scenario 7).
 - **Two riders on one device, one after the other**: the device receives
   notifications only for the rider who turned them on last on it while signed in.
-- **Session ended (after 30 days) while notifications are on**: notifications keep
-  coming until the rider signs out or turns them off; tapping one asks the rider to
-  sign in again. [Assumption, see Assumptions.]
+- **Sign-in ended (after 180 days, FR-007) while notifications are on**:
+  notifications keep coming until the rider signs out there, turns them off or
+  leaves (FR-013); tapping one asks the rider to sign in again.
+- **New Rynke at night** (late upload, evening attendance, the daily retry of
+  failed work): the notification is sent straight away like any other (FR-015);
+  the system keeps no quiet hours.
 - **Language**: a notification is written in the language the device last showed
   RynkePoints in; if that is unknown, German.
 - **Organiser views and the leaderboard**: no notifications about other riders; a
@@ -240,8 +254,13 @@ get none. Repeat with the browser's permission denied and check the page explain
   pages with rider data or Rynke on the device for use without a connection. Without
   a connection it MUST show only a short notice that a connection is needed, in the
   rider's language.
-- **FR-006**: Installing MUST NOT change what a page shows, who may see it, or how
-  signing in works (feature 004); the installed app is the same site.
+- **FR-006**: Installing MUST NOT change what a page shows or who may see it
+  (feature 004); the installed app is the same site.
+- **FR-007**: A sign-in MUST last 180 days on the device it was made on, on the
+  website and in the installed app alike, and MUST then end, so the rider signs in
+  with Strava again. It MUST NOT last longer, and using the app MUST NOT extend it.
+  This replaces the 30 days feature 001 chose (its research R9); signing out still
+  ends it at once.
 
 **Turning notifications on and off**
 
@@ -255,7 +274,8 @@ get none. Repeat with the browser's permission denied and check the page explain
 - **FR-012**: A rider MUST be able to turn notifications off for the device in use at
   any time; this MUST take effect for the next notification and leave their other
   devices unchanged.
-- **FR-013**: Signing out on a device MUST end notifications to that device. Leaving
+- **FR-013**: Signing out on a device MUST end notifications to that device; a
+  sign-in that ends by itself (FR-007) MUST NOT. Leaving
   (feature 004, FR-015; feature 001, FR-022, FR-023) MUST delete every notification
   registration of the rider together with the rest of their data.
 - **FR-014**: A device registration MUST hold only what is needed to deliver the
@@ -268,7 +288,8 @@ get none. Repeat with the browser's permission denied and check the page explain
 - **FR-015**: Whenever a rider's stored Training Rynke or Team Rynke total rises
   because of a new or updated ride, recorded team-event attendance or an organiser
   correction, the system MUST send one notification to every device the rider has
-  notifications on for. The notification MUST say only that there are new Rynke
+  notifications on for, as soon as the new results are stored and at any time of
+  day. The notification MUST say only that there are new Rynke
   (e.g. "Neue Rynke – tippe zum Ansehen"). It MUST NOT contain amounts, totals, what
   is still missing, whether the rider qualifies, ride names or any other rider data,
   so nothing personal shows on the lock screen or passes through the notification
@@ -276,8 +297,8 @@ get none. Repeat with the browser's permission denied and check the page explain
 - **FR-016**: Changes that lower or don't change a total MUST NOT send a
   notification. A recalculation after a rule change (feature 003, User Story 5) MUST
   NOT send one either, even where it raises a total. The past-season import when a rider
-  connects and the one-time re-read (feature 008, FR-006) MUST NOT send a
-  notification per ride; they send none or one at the end.
+  connects and the one-time re-read (feature 008, FR-006) MUST NOT send any
+  notification.
 - **FR-017**: A rider MUST NOT get more than one notification for one processed
   change, also when Strava delivers it more than once or it is processed again
   (Principle II). A newer notification of RynkePoints MUST replace an unread older one
@@ -387,13 +408,18 @@ get none. Repeat with the browser's permission denied and check the page explain
   Strava capacity of riders, a few notifications per rider per day) and needs no new
   paid service (Principle IV). It needs one new production secret, which the user
   sets by hand like the others.
-- A rider's session lasts 30 days as today. Notifications are tied to the device
-  registration, not to the session, so they keep arriving after the session ended
-  until the rider signs out, turns them off or leaves; planning may tie them to the
-  session instead if that turns out simpler and riders accept re-enabling.
+- Notifications are tied to the device registration, not to the sign-in: the
+  system sends them from its own processing, which never needs the rider's sign-in
+  (it already evaluates rides with the rider's stored Strava access). The sign-in
+  only decides whether tapping a notification shows the rider page straight away.
+- The longer sign-in (FR-007) needs no new consent: it is the same necessary
+  sign-in cookie the privacy text already names; if that text states a duration,
+  it changes with it.
 - The rest of the site's phone layout (issue #20) is a separate change and not a
   precondition; this feature only requires that its own parts work on phones (FR-040,
   FR-041). Until #20 is done, other pages may look rough in the installed app.
+- Installing (Story 1) and notifications (Stories 2–3) ship together in one
+  release; the priorities order the work, not separate releases.
 - No app store listing, no native app, and no offline use are part of this feature.
 - Notifications with details (amounts, qualification, ride names), notifications
   for rule-change recalculations, notifications to organisers (e.g. about failed
