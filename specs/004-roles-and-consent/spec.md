@@ -57,6 +57,16 @@ athlete capacity; say plainly if the leaderboard is not allowed.
   rider's choice (FR-010, FR-012, FR-016). The constitution 2.0.0 amendment follows
   this.
 
+### Session 2026-10-07
+
+- Q (raised by the project owner): Must the organisers be a list in the deployment
+  configuration, kept secret? → A: No. Who is an organiser is not secret. The
+  maintainer marks organisers with a flag on their rider record, set directly in the
+  database; there is still no way to do it inside the app (FR-004). What stays out
+  of the public repository is a real person's athlete ID (constitution Principle I).
+  This replaces "organisers listed by Strava athlete ID in deployment configuration
+  stored as a secret" from the prompt (FR-002, SC-007).
+
 ## Summary of the Strava check
 
 The team leaderboard **is allowed**. Strava's terms forbid showing a rider's data
@@ -75,7 +85,7 @@ connecting (FR-010), and the leaderboard shows other riders' Rynke without names
 ## User Scenarios & Testing *(mandatory)*
 
 Terms: a **rider** is a connected club member (feature 001). An **organiser** is a
-rider whose Strava athlete ID is on the organiser list. The **consent** is what a
+rider the maintainer has marked as organiser. The **consent** is what a
 rider agrees to when connecting: reading their activities and sharing their Rynke
 with organisers (by first name) and the team (without a name) as in FR-020. Letting
 the app write its Rynke block into their activity descriptions is an optional extra.
@@ -128,35 +138,35 @@ write access, and that their consent is recorded with date and version.
 
 ---
 
-### User Story 2 - Organisers are recognised from the organiser list (Priority: P1)
+### User Story 2 - Organisers are recognised from the organiser flag (Priority: P1)
 
-The maintainer lists the Strava athlete IDs of the team's organisers in the app's
-deployment configuration, kept secret. An organiser signs in through Strava like
+The maintainer marks the team's organisers in the app's database: a flag on the
+rider record of each connected organiser. An organiser signs in through Strava like
 every rider and is recognised as an organiser; nobody can become one from inside the
-app. Taking an ID off the list removes the organiser's rights on their next request.
+app. Clearing the flag removes the organiser's rights on their next request.
 
 **Why this priority**: The organiser pages (feature 003's inputs: team events,
 attendance, corrections, rules, recalculation) need a way to tell organisers from
 riders, and the organiser overview needs it to decide who may see more.
 
-**Independent Test**: Configure a synthetic organiser list, sign in simulated riders
-on and off the list, and check the recognised role of each, including after the list
-changes.
+**Independent Test**: Mark some synthetic riders as organisers, sign in simulated
+riders with and without the flag, and check the recognised role of each, including
+after the flag changes.
 
 **Acceptance Scenarios**:
 
-1. **Given** a connected rider whose athlete ID is on the organiser list, **When**
-   they sign in, **Then** they are recognised as organiser and as rider.
-2. **Given** a connected rider not on the list, **When** they sign in, **Then** they
+1. **Given** a connected rider marked as organiser, **When** they sign in, **Then**
+   they are recognised as organiser and as rider.
+2. **Given** a connected rider without the flag, **When** they sign in, **Then** they
    are recognised as rider only.
-3. **Given** an athlete ID on the list whose owner is not a connected rider, **When**
-   anyone uses the app, **Then** that ID grants nothing.
-4. **Given** a signed-in organiser, **When** their ID is removed from the list,
+3. **Given** an organiser who leaves (feature 001, FR-022), **When** they connect
+   again, **Then** they are a rider only until the maintainer marks them again.
+4. **Given** a signed-in organiser, **When** the maintainer clears their flag,
    **Then** their next request is handled as a rider's.
-5. **Given** an empty or missing organiser list, **When** riders use the app,
-   **Then** nobody is an organiser and everything riders can do still works.
-6. **Given** the repository, logs and pages, **When** they are inspected, **Then**
-   no organiser athlete ID appears in them.
+5. **Given** no rider marked as organiser, **When** riders use the app, **Then**
+   nobody is an organiser and everything riders can do still works.
+6. **Given** the repository, **When** it is inspected, **Then** no real organiser's
+   athlete ID appears in it.
 
 ---
 
@@ -268,10 +278,11 @@ here.
 - **Rider reconnects without write access**: they stay connected; the app stops
   writing to their descriptions (FR-016). Blocks already written stay on Strava
   until the rider removes them; the app can no longer edit them.
-- **Organiser list names a rider who later disconnects**: the ID grants nothing
-  until that athlete connects again.
-- **Organiser removed from the list mid-session**: their next request is a rider's;
-  a page already open shows nothing new and accepts no organiser change.
+- **Organiser disconnects**: leaving deletes the rider record and the flag with it
+  (feature 001, FR-022). After connecting again they are a rider until the
+  maintainer marks them again.
+- **Organiser flag cleared mid-session**: their next request is a rider's; a page
+  already open shows nothing new and accepts no organiser change.
 - **Two riders with the same first name**: organisers tell them apart through a
   "View on Strava" link to each one's Strava profile (FR-022); no last name is
   stored.
@@ -295,16 +306,17 @@ here.
 **Roles**
 
 - **FR-001**: The system MUST know two roles: **rider**, every connected club member
-  (feature 001), and **organiser**, a rider whose Strava athlete ID is on the
-  organiser list. An organiser is always also a rider and signs in through Strava
+  (feature 001), and **organiser**, a rider whose rider record carries the
+  organiser flag (FR-002). An organiser is always also a rider and signs in through Strava
   like everyone else; the system MUST NOT keep passwords (feature 001, FR-009).
-- **FR-002**: The organiser list MUST be part of the deployment configuration,
-  stored as a secret and never in the repository, pages or logs. Changing it MUST
-  NOT need a code change; it is a manual maintainer step (constitution, Development
-  Workflow).
+- **FR-002**: Organisers MUST be marked by a flag on their rider record. The
+  maintainer sets and clears it directly in the database; it is a manual maintainer
+  step (constitution, Development Workflow) and MUST NOT need a code change or a
+  deploy. The flag is not secret, but no real organiser's athlete ID may be in the
+  repository (constitution Principle I).
 - **FR-003**: The system MUST decide a signed-in person's role on every request from
-  the current organiser list. An athlete ID on the list grants nothing unless its
-  owner is a connected rider.
+  their current rider record. The flag goes with the record: a rider who leaves
+  loses it, and connecting again does not restore it.
 - **FR-004**: There MUST be no way to grant or remove the organiser role from inside
   the app.
 - **FR-005**: All organisers MUST have the same rights: every organiser may do
@@ -313,7 +325,7 @@ here.
   Finer rights are not needed: the organisers are a handful of trusted volunteers,
   rule changes are rare and announced, and the organiser-admin feature records who
   made each change.
-- **FR-006**: An empty or missing organiser list MUST leave the app working for
+- **FR-006**: With no rider marked as organiser, the app MUST keep working for
   riders, with no organisers.
 - **FR-007**: Organisers MUST be shown to others exactly like every other rider;
   their role grants them more to see (FR-020), not less visibility of their own
@@ -406,18 +418,16 @@ here.
 
 ### Key Entities
 
-- **Organiser List**: deployment configuration, kept secret — the Strava athlete IDs
-  of the organisers. Not stored in the app's data; read on every request.
-- **Role**: not stored; derived on each request from whether the signed-in person is
-  a connected rider and whether their athlete ID is on the Organiser List.
+- **Role**: derived on each request from whether the signed-in person is a
+  connected rider and whether their Rider record carries the organiser flag.
 - **Consent Version**: a numbered version of what riders agree to (FR-010) and the
   date it was published; part of the app, not rider data.
 - **Consent Record**: one acceptance by a Rider — consent version and date and
   time. The latest one is the Rider's current consent. Kept while the Rider is
   connected; deleted with the Rider.
-- **Rider** (feature 001): unchanged except that its granted permissions now record
-  whether write access was granted. The first name it already holds is what
-  organisers see (FR-022).
+- **Rider** (feature 001): its granted permissions now record whether write access
+  was granted, and it gains the organiser flag (FR-002), which the maintainer sets.
+  The first name it already holds is what organisers see (FR-022).
 
 ## Success Criteria *(mandatory)*
 
@@ -433,9 +443,9 @@ here.
   3 minutes, without help from an organiser.
 - **SC-005**: After a new consent version that shares more is published, 0 riders
   are shown to others beyond the version they accepted.
-- **SC-006**: A change to the organiser list applies to the next request of every
-  affected person, without a code change.
-- **SC-007**: No organiser athlete ID is found in the repository, logs or any page.
+- **SC-006**: A change to an organiser flag applies to the next request of the
+  affected person, without a code change or a deploy.
+- **SC-007**: No real organiser's athlete ID is found in the repository.
 - **SC-008**: Every rider-facing text of this feature exists in German and English.
 
 ## Assumptions
@@ -460,7 +470,8 @@ here.
 - This feature changes feature 001, whose spec is updated with it: the connect flow
   gains the consent step (FR-011), the rider's page shows the consent (FR-014), the
   privacy text grows (FR-023) and consent records are deleted with the rider. The
-  rider record stays as it is (FR-022), and write access is requested as optional
+  rider record stores no more of the rider's Strava profile (FR-022) and gains the
+  organiser flag (FR-002), and write access is requested as optional
   (FR-012), replacing feature 001 FR-003's read-only request.
 - The constitution is amended to 2.0.0 with this feature: Principle I asks for one
   required consent at connect (reading activities, sharing) instead of separately
