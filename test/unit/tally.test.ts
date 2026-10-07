@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { RidingSums, RidingTotals } from "../../src/rynke/rides";
 import { CURRENT_RULES, type RynkeRules } from "../../src/rynke/rules";
-import { NO_EXTRAS, tally } from "../../src/rynke/tally";
+import { NO_EXTRAS, tally, virtualShareRequired } from "../../src/rynke/tally";
 
 /** Riding totals from whole Rynke and decimetres, elevation floored as R3 says. */
 function sums(distanceRynke: number, elevationDm = 0): RidingSums {
@@ -169,5 +169,21 @@ describe("tally", () => {
 		expect(() =>
 			tally(riding(sums(0)), NO_EXTRAS, { ...CURRENT_RULES, version: 0 }),
 		).toThrow();
+	});
+});
+
+describe("virtualShareRequired", () => {
+	it("is 167 under the current rules", () => {
+		expect(virtualShareRequired(CURRENT_RULES)).toBe(167);
+	});
+
+	it("follows the threshold and the share", () => {
+		expect(
+			virtualShareRequired({
+				...CURRENT_RULES,
+				trainingThreshold: 300,
+				maxVirtualShare: { num: 1, den: 3 },
+			}),
+		).toBe(200);
 	});
 });

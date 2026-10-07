@@ -99,7 +99,7 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
 
 **Purpose**: confirm a green baseline in the worktree.
 
-- [ ] T001 Run `pnpm install`, `pnpm lint`, `pnpm typecheck` and `pnpm test` in the worktree root and confirm all green before any change. Note any failure that was already there in the task's commit message rather than fixing it here.
+- [X] T001 Run `pnpm install`, `pnpm lint`, `pnpm typecheck` and `pnpm test` in the worktree root and confirm all green before any change. Note any failure that was already there in the task's commit message rather than fixing it here.
 
 ---
 
@@ -111,27 +111,27 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
 
 ### Tests for the foundation (write first, confirm red) ⚠️
 
-- [ ] T002 [P] Extend `test/unit/rules.test.ts` (research R3, quickstart "Rules history"):
+- [X] T002 [P] Extend `test/unit/rules.test.ts` (research R3, quickstart "Rules history"):
   - `RULES_HISTORY` is non-empty, has unique `version`s, and contains `CURRENT_RULES` (the same object).
   - No entry has a higher version than `CURRENT_RULES.version`.
   - `rulesForVersion(v)` returns the entry for every `v` in the history, and `null` for `0`, `-1` and `CURRENT_RULES.version + 1`.
   - Every entry passes `assertValidRules`.
-- [ ] T003 [P] Extend `test/unit/tally.test.ts`:
+- [X] T003 [P] Extend `test/unit/tally.test.ts`:
   - `virtualShareRequired(CURRENT_RULES)` is `167`.
   - With `trainingThreshold: 300` and `maxVirtualShare: { num: 1, den: 3 }` it is `200`.
   - `tally()`'s `virtualShareMissing` cases that already exist stay unchanged.
 
 ### Implementation for the foundation
 
-- [ ] T004 [P] In `src/rynke/rules.ts`:
+- [X] T004 [P] In `src/rynke/rules.ts`:
   - Add `export const RULES_HISTORY: readonly RynkeRules[] = [CURRENT_RULES]` and `export function rulesForVersion(version: number): RynkeRules | null`.
   - Extend the file's header comment: when raising `version`, keep the previous object in `RULES_HISTORY`, because the rider page explains stored results with it (research R3).
   - Makes T002 green.
-- [ ] T005 [P] In `src/rynke/tally.ts`:
+- [X] T005 [P] In `src/rynke/tally.ts`:
   - Move the "required without virtual rides" line into `export function virtualShareRequired(rules: RynkeRules): number` (the `Math.ceil((threshold × (den − num)) / den)` with its comment).
   - `tally()` calls it.
   - Makes T003 green, and `test/unit/reference-riders.test.ts` stays green.
-- [ ] T006 [P] Create `test/support/rider-view.ts` with synthetic seed helpers that write straight to D1 (`env.DB`), the way `test/support/rynke.ts` builds rows:
+- [X] T006 [P] Create `test/support/rider-view.ts` with synthetic seed helpers that write straight to D1 (`env.DB`), the way `test/support/rynke.ts` builds rows:
   - **`seedBalance(athleteId, overrides)`**: inserts a `rynke_balances` row. The defaults are a consistent zero balance under `CURRENT_RULES.version` and `CURRENT_RULES.effectiveDate`: 0 Rynke, `elevation_to_next_step_dm` 10000, `training_missing` 250, `team_missing` 25, `virtual_share_missing` 167, `qualified` 0.
   - **`seedRide(athleteId, ride)`**: inserts one `activities` row (id, sport type, `start_date`/`start_date_local`, distance, moving and elapsed time, gain), plus a `ride_results` row when `ride.result` is given (counts, reasons JSON, `overlaps_activity_id`, `distance_rynke`, `elevation_dm`, `is_virtual`, `unknown_figures`, `rules_version`).
   - **`seedRides(athleteId, n, start)`**: n counting rides, one per day going back from `start`, for paging (45) and SC-005 (500).
