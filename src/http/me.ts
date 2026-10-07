@@ -10,6 +10,7 @@ import { forbidden } from "./errors";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
 import { redirect } from "./redirect";
 import {
+	renderBreakdown,
 	renderGauges,
 	renderNotice,
 	renderRides,
@@ -20,9 +21,10 @@ import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 
 // The rider's own pages (contracts/http-routes.md): `/me` with connection
 // status, granted level and write access, import progress, the rider's Rynke
-// with their gauges and their 20 newest rides with what each earns (feature
-// 005, only ever their own and only read), the stored consent (feature 004
-// FR-014), disconnecting with deletion (FR-023), and signing out.
+// with their gauges and where they come from, and their 20 newest rides with
+// what each earns (feature 005, only ever their own and only read), the stored
+// consent (feature 004 FR-014), disconnecting with deletion (FR-023), and
+// signing out.
 
 /** The rider's current consent and who sees what, or that none is stored. */
 async function consent(
@@ -77,6 +79,7 @@ export async function handleMe(
 		{
 			seasonStart: ctx.env.SEASON_START_DATE,
 			importing: rider.importStatus !== "done",
+			rulesFor: rulesForVersion,
 		},
 	);
 
@@ -94,6 +97,7 @@ ${status}
 ${renderNotice(i18n, view)}
 ${view.state === "ready" ? renderSummary(i18n, view.summary) : null}
 ${view.state === "ready" && view.gauges ? renderGauges(i18n, view.gauges) : null}
+${view.state === "ready" ? renderBreakdown(i18n, view.breakdown) : null}
 ${renderRides(i18n, view.rides)}
 <section>
 <h2>${i18n.t("me.consent.heading")}</h2>

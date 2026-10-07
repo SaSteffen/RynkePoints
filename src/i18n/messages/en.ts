@@ -71,6 +71,10 @@ export const en: Catalog = {
 	"units.km": "{value} km",
 	"units.m": "{value} m",
 	"units.percent": "{value}%",
+	"units.kmh": "{value} km/h",
+	"units.mPerH": "{value} m/h",
+	"units.duration": "{h} h {min} min",
+	"units.durationMin": "{min} min",
 	"sport.Ride": "Ride",
 	"sport.MountainBikeRide": "Mountain bike ride",
 	"sport.GravelRide": "Gravel ride",
@@ -99,6 +103,47 @@ export const en: Catalog = {
 	"rynke.ride.doesNotCount": "doesn't count",
 	"rynke.ride.beingEvaluated": "being evaluated",
 	"rynke.ride.virtual": "virtual",
+	"rynke.ride.fixHint":
+		"You can correct the ride on Strava or ask an organiser.",
+	"rynke.reason.flagged":
+		"Strava flagged this ride. If you disagree, please settle it with Strava.",
+	"rynke.reason.pause":
+		"Paused too long: {paused} paused for {moving} moving time – more than half is not allowed.",
+	"rynke.reason.pause.share":
+		"Paused too long: {paused} paused for {moving} moving time – more than {share} is not allowed.",
+	"rynke.reason.pause.noLimit":
+		"Paused too long: {paused} paused for {moving} moving time.",
+	"rynke.reason.pause.noMovingTime":
+		"No moving time: the ride counts as paused throughout.",
+	"rynke.reason.manual": "Entered manually on Strava.",
+	"rynke.reason.too_slow":
+		"Too slow: {speed} on average, at least {limit} needed.",
+	"rynke.reason.too_slow.noLimit": "Too slow: {speed} on average.",
+	"rynke.reason.too_fast":
+		"Too fast for a bike ride: {speed} on average, at most {limit} allowed.",
+	"rynke.reason.too_fast.noLimit":
+		"Too fast for a bike ride: {speed} on average.",
+	"rynke.reason.climbing_rate":
+		"Too much climbing for the time: {rate} uphill, at most {limit} allowed.",
+	"rynke.reason.climbing_rate.noLimit":
+		"Too much climbing for the time: {rate} uphill.",
+	"rynke.reason.excluded_sport_type": "{sport} doesn't count for Rynke.",
+	"rynke.reason.outside_window": "Before the season start on {date}.",
+	"rynke.reason.outside_window.afterDeadline": "After the deadline on {date}.",
+	"rynke.reason.outside_window.afterDeadlineNoDate": "After the deadline.",
+	"rynke.reason.overlap":
+		"Recorded twice: your ride of {date}, {time}, {distance} counts instead.",
+	"rynke.reason.overlap.noRide":
+		"Recorded twice: another of your rides counts instead.",
+	"rynke.reason.unknown": "Doesn't count under the current rules.",
+	"rynke.unknown.elapsed_time":
+		"The elapsed time including pauses is still missing, so the pause rule hasn't been checked yet.",
+	"rynke.unknown.manual":
+		"Whether the ride was entered manually isn't known yet.",
+	"rynke.unknown.trainer":
+		"Whether the ride was on an indoor trainer isn't known yet.",
+	"rynke.unknown.flagged": "Whether Strava flagged the ride isn't known yet.",
+	"rynke.unknown.mayChange": "The result may still change.",
 	"rynke.gauges.heading": "Your progress",
 	"rynke.gauge.caption": "{label}: {value} of {target} · {percent}",
 	"rynke.gauge.reached": "✓ reached",
@@ -106,6 +151,14 @@ export const en: Catalog = {
 		"Elevation towards the next {stepRynke} Training Rynke: {value} of {target} · {percent} · {missing} to go",
 	"rynke.source.distance": "Distance",
 	"rynke.source.elevation": "Elevation",
+	"rynke.breakdown.heading": "Where your Rynke come from",
+	"rynke.breakdown.trainingRynke": "{n} Training Rynke",
+	"rynke.breakdown.elevation":
+		"{metres} in total → {rynke} Training Rynke, {toNext} to the next {stepRynke}",
+	"rynke.breakdown.elevationNoStep":
+		"{metres} in total → {rynke} Training Rynke, {toNext} to the next step",
+	"rynke.breakdown.total": "Total",
+	"rynke.breakdown.totals": "{training} Training Rynke · {team} Team Rynke",
 
 	"disconnect.title": "Delete your data?",
 	"disconnect.explain":

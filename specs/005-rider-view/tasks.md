@@ -333,32 +333,32 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 3a (write first, confirm red) ⚠️
 
-- [ ] T029 [P] [US3a] Extend `test/unit/rider-view.test.ts` with `breakdown`:
+- [X] T029 [P] [US3a] Extend `test/unit/rider-view.test.ts` with `breakdown`:
   - **1240 m** (12400 dm, to next 7600): `elevationM` 1240, `elevationRynke` 5, `toNextStepM` 760, `elevationStepM` 1000, `elevationStepRynke` 5.
   - **3000 m**: 15 Rynke and 1000 m to go.
   - **Rounding**: 12345 dm gives `elevationM` 1234 (down), and 7655 dm to the next step gives `toNextStepM` 766 (up).
   - **Sum**: `distanceRynke + elevationRynke === trainingTotal` for corrections-free balances.
   - **Unknown rules** give a `null` step.
-- [ ] T030 [P] [US3a] Extend `test/integration/me-rynke.test.ts`:
+- [X] T030 [P] [US3a] Extend `test/integration/me-rynke.test.ts`:
   - **S3-1**: "7 Trainingsrynke" from distance, "1.240 m gesamt → 5 Trainingsrynke, noch 760 m bis zu den nächsten 5", and "Gesamt" with "12 Trainingsrynke · 0 Teamrynke".
   - **S3-4**: 3000 m → 15, "noch 1.000 m".
   - **S3-5, today's part**: a rider with no rides shows 0 from distance, "0 m gesamt → 0 Trainingsrynke, noch 1.000 m" and total 0. The event-kind rows and lists follow in US3b.
   - `section.rynke-breakdown` follows the gauges, or the summary when there are none.
-- [ ] T031 [P] [US3a] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with `rynke.breakdown.heading`, `.trainingRynke`, `.elevation`, `.elevationNoStep`, `.total` and `.totals`.
+- [X] T031 [P] [US3a] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with `rynke.breakdown.heading`, `.trainingRynke`, `.elevation`, `.elevationNoStep`, `.total` and `.totals`.
 
 ### Implementation for User Story 3a
 
-- [ ] T032 [P] [US3a] Add the US3a keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Breakdown").
-- [ ] T033 [US3a] In `src/http/rider-view.ts`, add `Breakdown` (data-model.md, without the US3b fields) and `breakdown` on the ready state:
+- [X] T032 [P] [US3a] Add the US3a keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Breakdown").
+- [X] T033 [US3a] In `src/http/rider-view.ts`, add `Breakdown` (data-model.md, without the US3b fields) and `breakdown` on the ready state:
   - `elevationM = floor(elevationDm / 10)`;
   - `toNextStepM = ceil(elevationToNextStepDm / 10)`;
   - steps come from `rules`, or are `null`.
   - Makes T029 green.
-- [ ] T034 [US3a] In `src/http/rider-sections.ts`, add `renderBreakdown` per contracts/rider-page.md:
+- [X] T034 [US3a] In `src/http/rider-sections.ts`, add `renderBreakdown` per contracts/rider-page.md:
   - a `dl` with distance, elevation (`rynke.breakdown.elevation`, or `.elevationNoStep` when the step is unknown) and the total line;
   - metres through `units.m`.
-- [ ] T035 [US3a] In `src/http/me.ts`, place `renderBreakdown` after the gauges. Makes T030 green.
-- [ ] T036 [US3a] Check US3a: everything is green, and the breakdown is readable at 360 px (quickstart §3 step 3).
+- [X] T035 [US3a] In `src/http/me.ts`, place `renderBreakdown` after the gauges. Makes T030 green.
+- [X] T036 [US3a] Check US3a: everything is green, and the breakdown is readable at 360 px (quickstart §3 step 3).
 
 **Checkpoint**: the breakdown adds up for every source that exists today.
 
@@ -372,8 +372,8 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 4 (write first, confirm red) ⚠️
 
-- [ ] T037 [P] [US4] Extend `test/unit/i18n.test.ts`: `formatTime("2026-10-06T08:00:00Z")` is "08:00" in `de` and in `en`, and "2026-10-06T17:05:00Z" gives "17:05" (the UTC wall clock of `start_date_local`, research R13).
-- [ ] T038 [P] [US4] Extend `test/unit/rider-view.test.ts` with ride reasons (research R12, data-model.md `ReasonLine`):
+- [X] T037 [P] [US4] Extend `test/unit/i18n.test.ts`: `formatTime("2026-10-06T08:00:00Z")` is "08:00" in `de` and in `en`, and "2026-10-06T17:05:00Z" gives "17:05" (the UTC wall clock of `start_date_local`, research R13).
+- [X] T038 [P] [US4] Extend `test/unit/rider-view.test.ts` with ride reasons (research R12, data-model.md `ReasonLine`):
   - **pause**:
     - 14400 s moving and 25200 s elapsed → `{ pausedS: 10800, movingS: 14400, share: null }` under a ½ limit;
     - a share of ⅓ is passed on as `{ num: 1, den: 3 }`;
@@ -389,7 +389,7 @@ The Team gauge stays undivided until US3b (research R5).
   - **Order**: reasons keep the stored order.
   - **Fix hint**: `fixHint` is true when the reasons include `pause`, `too_slow`, `too_fast`, `climbing_rate` or `manual`, and false for `flagged`, `excluded_sport_type`, `outside_window` or `overlap` alone.
   - **Unknown figures**: `unknownFigures` is passed through for counting rides.
-- [ ] T039 [P] [US4] Extend `test/integration/me-rynke.test.ts`:
+- [X] T039 [P] [US4] Extend `test/integration/me-rynke.test.ts`:
   - **S4-1**: the 78 km ride's detail row says "Doppelt aufgezeichnet: Deine Fahrt vom 06.10.2026, 08:00 Uhr, 80,0 km zählt stattdessen."
   - **S4-2**: "3 h 0 min Pause bei 4 h 0 min Bewegungszeit – mehr als die Hälfte ist nicht erlaubt."
   - **S4-3**: both "Manuell auf Strava eingetragen." and "Zu langsam: 7,5 km/h im Schnitt, mindestens 10 km/h sind nötig."
@@ -399,20 +399,20 @@ The Team gauge stays undivided until US3b (research R5).
   - **S4-7**: the fix hint appears once on the pause and manual rides, and not on the overlap or flagged rides.
   - **An unknown code** in `reasons` shows "Zählt nach den aktuellen Regeln nicht." and no error page.
   - **English**: the S4-1 and S4-2 rows in English (FR-061).
-- [ ] T040 [P] [US4] Extend `test/unit/catalogs.test.ts` (SC-003, FR-062):
+- [X] T040 [P] [US4] Extend `test/unit/catalogs.test.ts` (SC-003, FR-062):
   - Every `REASON_CODES` value has `rynke.reason.<code>`, and every `UNKNOWN_FIGURE_CODES` value has `rynke.unknown.<code>`, in every catalog.
   - Add every US4 key of contracts/messages.md to `CONTRACT_IDS`: `units.kmh`, `units.mPerH`, `units.duration`, `units.durationMin`, `rynke.ride.fixHint`, all `rynke.reason.*`, and all `rynke.unknown.*`.
 
 ### Implementation for User Story 4
 
-- [ ] T041 [P] [US4] In `src/i18n/i18n.ts`, add `formatTime(iso: string): string` to `I18n`: `HH:MM` of the UTC wall clock, through `Intl.DateTimeFormat` with `timeZone: "UTC"`, `hour: "2-digit"`, `minute: "2-digit"` and `hourCycle: "h23"`, in the catalog's `meta.intlLocale`. Makes T037 green.
-- [ ] T042 [P] [US4] Add the US4 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Units", "Reasons", "Unknown figures", `rynke.ride.fixHint`).
-- [ ] T043 [US4] In `src/http/rider-view.ts`, add `ReasonLine`, plus `reasons`, `unknownFigures` and `fixHint` on `RideLine`, built from each `StoredRideResult` and its activity fields as T038 specifies:
+- [X] T041 [P] [US4] In `src/i18n/i18n.ts`, add `formatTime(iso: string): string` to `I18n`: `HH:MM` of the UTC wall clock, through `Intl.DateTimeFormat` with `timeZone: "UTC"`, `hour: "2-digit"`, `minute: "2-digit"` and `hourCycle: "h23"`, in the catalog's `meta.intlLocale`. Makes T037 green.
+- [X] T042 [P] [US4] Add the US4 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Units", "Reasons", "Unknown figures", `rynke.ride.fixHint`).
+- [X] T043 [US4] In `src/http/rider-view.ts`, add `ReasonLine`, plus `reasons`, `unknownFigures` and `fixHint` on `RideLine`, built from each `StoredRideResult` and its activity fields as T038 specifies:
   - `rulesForVersion` is passed in as a function parameter, so the module stays pure;
   - it maps each reason code with a `switch` over `REASON_CODES`;
   - anything else becomes `unknown`.
   - Makes T038 green.
-- [ ] T044 [US4] In `src/http/rider-sections.ts`, extend `renderRides`'s detail row with `ul.ride-reasons`, the unknown-figure lines followed by `rynke.unknown.mayChange`, and `rynke.ride.fixHint` once. The key and parameters per reason:
+- [X] T044 [US4] In `src/http/rider-sections.ts`, extend `renderRides`'s detail row with `ul.ride-reasons`, the unknown-figure lines followed by `rynke.unknown.mayChange`, and `rynke.ride.fixHint` once. The key and parameters per reason:
   - **pause**: the base key when the share is ½, `.share` with "{num}/{den}" otherwise, `.noLimit` without rules, and `.noMovingTime` when `pausedS` is `null`. Durations use `units.duration` (h and min, minutes rounded down), or `units.durationMin` below 1 h.
   - **too_slow and too_fast**: the speed through `units.kmh` with one decimal, and the limit with 0 decimals.
   - **climbing_rate**: through `units.mPerH`.
@@ -421,7 +421,7 @@ The Team gauge stays undivided until US3b (research R5).
   - **overlap**: date, `formatTime` and km of the ride that counted instead, or `.noRide`.
   - **Anything else**: `rynke.reason.unknown`.
   - Makes T039 and T040 green.
-- [ ] T045 [US4] Check US4: everything is green, and at 360 px the reasons wrap below the main row (quickstart §3 step 3).
+- [X] T045 [US4] Check US4: everything is green, and at 360 px the reasons wrap below the main row (quickstart §3 step 3).
 
 **Checkpoint**: every ride that doesn't count explains itself.
 

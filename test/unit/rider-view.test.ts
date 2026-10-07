@@ -6,13 +6,23 @@ import {
 	type GaugePart,
 	gaugeParts,
 	type RiderView,
+	type ViewContext,
 } from "../../src/http/rider-view";
-import { CURRENT_RULES, type RynkeRules } from "../../src/rynke/rules";
+import type { ReasonCode } from "../../src/rynke/rides";
+import {
+	CURRENT_RULES,
+	type RynkeRules,
+	rulesForVersion,
+} from "../../src/rynke/rules";
 
 // The rider page's view model (feature 005 data-model.md "Validation and
 // invariants"). Pure: built from a reading, never from D1.
 
-const CONTEXT = { seasonStart: "2026-01-01", importing: false };
+const CONTEXT: ViewContext = {
+	seasonStart: "2026-01-01",
+	importing: false,
+	rulesFor: rulesForVersion,
+};
 
 function balance(overrides: Partial<StoredBalance> = {}): StoredBalance {
 	return {
@@ -56,6 +66,7 @@ function result(
 function ride(
 	activityId: number,
 	stored: StoredRideResult | null = null,
+	overrides: Partial<RideRow> = {},
 ): RideRow {
 	return {
 		activityId,
@@ -67,6 +78,7 @@ function ride(
 		elevationGainM: 1240,
 		result: stored,
 		countedInstead: null,
+		...overrides,
 	};
 }
 
@@ -464,6 +476,298 @@ describe("buildRiderView gauges", () => {
 
 	it("leaves out the gauges when the rules are unknown", () => {
 		expect(gaugesOf({ trainingRynke: 12 }, { rules: null })).toBeNull();
+	});
+});
+
+/** The line of one ride that doesn't count for `reasons`. */
+function lineOf(
+	reasons: string[],
+	activity: Partial<RideRow> = {},
+	options: {
+		result?: Partial<StoredRideResult>;
+		context?: Partial<ViewContext>;
+	} = {},
+) {
+	const stored = result(1, {
+		counts: false,
+		reasons: reasons as ReasonCode[],
+		distanceRynke: 0,
+		elevationDm: 0,
+		...options.result,
+	});
+	const line = buildRiderView(
+		read({ rideCount: 1, rides: [ride(1, stored, activity)] }),
+		CURRENT_RULES,
+		CURRENT_RULES,
+		{ ...CONTEXT, ...options.context },
+	).rides.rows[0];
+	if (!line) throw new Error("no line");
+	return line;
+}
+
+describe("buildRiderView ride reasons", () => {
+	it("S4-2: gives the paused and the moving time under a ½ limit", () => {
+		expect(
+			lineOf(["pause"], { movingS: 14400, elapsedS: 25200 }).reasons,
+		).toEqual([
+			{
+				code: "pause",
+				pausedS: 10800,
+				movingS: 14400,
+				share: { num: 1, den: 2 },
+			},
+		]);
+	});
+
+	it("passes on the share of the result's rules", () => {
+		const rules = { ...CURRENT_RULES, maxPausedShare: { num: 1, den: 3 } };
+		expect(
+			lineOf(
+				["pause"],
+				{ movingS: 14400, elapsedS: 25200 },
+				{ context: { rulesFor: () => rules } },
+			).reasons[0],
+		).toMatchObject({ share: { num: 1, den: 3 } });
+	});
+
+	it("has no paused time without moving time", () => {
+		expect(lineOf(["pause"], { movingS: 0, elapsedS: 3600 }).reasons).toEqual([
+			{ code: "pause", pausedS: null, movingS: 0, share: { num: 1, den: 2 } },
+		]);
+	});
+
+	it("S4-3: rounds a speed too slow down", () => {
+		expect(
+			lineOf(["manual", "too_slow"], { distanceM: 15000, movingS: 7200 })
+				.reasons,
+		).toEqual([
+			{ code: "manual" },
+			{ code: "too_slow", kmhTenths: 75, limitKmh: 10 },
+		]);
+		expect(
+			lineOf(["too_slow"], { distanceM: 9960, movingS: 3600 }).reasons,
+		).toEqual([{ code: "too_slow", kmhTenths: 99, limitKmh: 10 }]);
+	});
+
+	it("rounds a speed too fast up", () => {
+		expect(
+			lineOf(["too_fast"], { distanceM: 45010, movingS: 3600 }).reasons,
+		).toEqual([{ code: "too_fast", kmhTenths: 451, limitKmh: 45 }]);
+	});
+
+	it("rounds a climbing rate up from the decimetres", () => {
+		expect(
+			lineOf(["climbing_rate"], { elevationGainM: 1500.4, movingS: 3600 })
+				.reasons,
+		).toEqual([{ code: "climbing_rate", mPerH: 1501, limitMPerH: 1500 }]);
+	});
+
+	it("carries the excluded sport type", () => {
+		expect(
+			lineOf(["excluded_sport_type"], { sportType: "EBikeRide" }).reasons,
+		).toEqual([{ code: "excluded_sport_type", sportType: "EBikeRide" }]);
+	});
+
+	it("tells before the season start from after the deadline", () => {
+		expect(
+			lineOf(["outside_window"], { startDateLocal: "2025-12-31T23:00:00Z" })
+				.reasons,
+		).toEqual([{ code: "before_season", date: "2026-01-01" }]);
+		const rules = { ...CURRENT_RULES, qualificationDeadline: "2027-05-31" };
+		expect(
+			lineOf(
+				["outside_window"],
+				{ startDateLocal: "2027-06-01T08:00:00Z" },
+				{ context: { rulesFor: () => rules } },
+			).reasons,
+		).toEqual([{ code: "after_deadline", date: "2027-05-31" }]);
+		expect(
+			lineOf(
+				["outside_window"],
+				{ startDateLocal: "2027-06-01T08:00:00Z" },
+				{ result: { rulesVersion: 99 } },
+			).reasons,
+		).toEqual([{ code: "after_deadline", date: null }]);
+	});
+
+	it("S4-1: carries the ride that counted instead", () => {
+		const countedInstead = {
+			startDateLocal: "2026-10-06T08:00:00Z",
+			distanceM: 80000,
+		};
+		expect(lineOf(["overlap"], { countedInstead }).reasons).toEqual([
+			{ code: "overlap", countedInstead },
+		]);
+		expect(lineOf(["overlap"]).reasons).toEqual([
+			{ code: "overlap", countedInstead: null },
+		]);
+	});
+
+	it("keeps a code it doesn't know", () => {
+		expect(lineOf(["new_rule"]).reasons).toEqual([
+			{ code: "unknown", stored: "new_rule" },
+		]);
+	});
+
+	it("FR-013: leaves out every limit when the result's rules are unknown", () => {
+		const line = lineOf(
+			["pause", "too_slow", "too_fast", "climbing_rate"],
+			{
+				distanceM: 15000,
+				movingS: 7200,
+				elapsedS: 14400,
+				elevationGainM: 1000,
+			},
+			{ result: { rulesVersion: 99 } },
+		);
+		expect(line.reasons).toEqual([
+			{ code: "pause", pausedS: 7200, movingS: 7200, share: null },
+			{ code: "too_slow", kmhTenths: 75, limitKmh: null },
+			{ code: "too_fast", kmhTenths: 75, limitKmh: null },
+			{ code: "climbing_rate", mPerH: 500, limitMPerH: null },
+		]);
+	});
+
+	it("keeps the stored order", () => {
+		const codes = ["overlap", "flagged", "manual", "outside_window"];
+		expect(lineOf(codes).reasons.map((r) => r.code)).toEqual([
+			"overlap",
+			"flagged",
+			"manual",
+			"after_deadline",
+		]);
+	});
+
+	it("S4-7: offers the fix hint only for reasons a rider can fix", () => {
+		for (const code of [
+			"pause",
+			"too_slow",
+			"too_fast",
+			"climbing_rate",
+			"manual",
+		]) {
+			expect(lineOf(["flagged", code]).fixHint, code).toBe(true);
+		}
+		for (const code of [
+			"flagged",
+			"excluded_sport_type",
+			"outside_window",
+			"overlap",
+		]) {
+			expect(lineOf([code]).fixHint, code).toBe(false);
+		}
+	});
+
+	it("has no reasons, and no fix hint, for a ride that counts", () => {
+		const line = buildRiderView(
+			read({ rideCount: 1, rides: [ride(1, result(1))] }),
+			CURRENT_RULES,
+			CURRENT_RULES,
+			CONTEXT,
+		).rides.rows[0];
+		expect(line).toMatchObject({ reasons: [], fixHint: false });
+	});
+
+	it("S4-6: passes on the unknown figures of a counting ride", () => {
+		const line = buildRiderView(
+			read({
+				rideCount: 1,
+				rides: [ride(1, result(1, { unknownFigures: ["elapsed_time"] }))],
+			}),
+			CURRENT_RULES,
+			CURRENT_RULES,
+			CONTEXT,
+		).rides.rows[0];
+		expect(line).toMatchObject({
+			status: "counts",
+			unknownFigures: ["elapsed_time"],
+		});
+	});
+});
+
+function breakdownOf(
+	b: Partial<StoredBalance>,
+	rules: RynkeRules | null = CURRENT_RULES,
+) {
+	return ready(
+		buildRiderView(
+			read({ balance: balance(b) }),
+			rules,
+			CURRENT_RULES,
+			CONTEXT,
+		),
+	).breakdown;
+}
+
+describe("buildRiderView breakdown", () => {
+	it("S3-1: carries distance, elevation and totals", () => {
+		expect(
+			breakdownOf({
+				distanceRynke: 7,
+				elevationDm: 12400,
+				elevationRynke: 5,
+				elevationToNextStepDm: 7600,
+				trainingRynke: 12,
+			}),
+		).toEqual({
+			distanceRynke: 7,
+			elevationM: 1240,
+			elevationRynke: 5,
+			elevationStepM: 1000,
+			elevationStepRynke: 5,
+			toNextStepM: 760,
+			trainingTotal: 12,
+			teamTotal: 0,
+		});
+	});
+
+	it("S3-4: gives 15 Rynke and the whole step to go at 3000 m", () => {
+		expect(
+			breakdownOf({
+				elevationDm: 30000,
+				elevationRynke: 15,
+				elevationToNextStepDm: 10000,
+				trainingRynke: 15,
+			}),
+		).toMatchObject({
+			elevationM: 3000,
+			elevationRynke: 15,
+			toNextStepM: 1000,
+		});
+	});
+
+	it("rounds the total down and the metres to go up", () => {
+		expect(
+			breakdownOf({ elevationDm: 12345, elevationToNextStepDm: 7655 }),
+		).toMatchObject({ elevationM: 1234, toNextStepM: 766 });
+	});
+
+	it("FR-035: adds up to the Training total without corrections", () => {
+		for (const [distanceRynke, elevationRynke] of [
+			[0, 0],
+			[7, 5],
+			[200, 62],
+		] as const) {
+			const breakdown = breakdownOf({
+				distanceRynke,
+				elevationRynke,
+				trainingRynke: distanceRynke + elevationRynke,
+			});
+			expect(breakdown.distanceRynke + breakdown.elevationRynke).toBe(
+				breakdown.trainingTotal,
+			);
+		}
+	});
+
+	it("leaves out the step when the rules are unknown", () => {
+		expect(
+			breakdownOf({ elevationDm: 12400, elevationToNextStepDm: 7600 }, null),
+		).toMatchObject({
+			elevationM: 1240,
+			elevationStepM: null,
+			elevationStepRynke: null,
+			toNextStepM: 760,
+		});
 	});
 });
 

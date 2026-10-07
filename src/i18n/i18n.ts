@@ -21,6 +21,8 @@ export interface I18n {
 	formatNumber(value: number, options: { fractionDigits: number }): string;
 	/** The UTC wall-clock date of an ISO-8601 timestamp, e.g. `06.10.2026`. */
 	formatDate(iso: string): string;
+	/** The UTC wall-clock time of an ISO-8601 timestamp, e.g. `08:00`. */
+	formatTime(iso: string): string;
 	locales: { locale: string; languageName: string }[];
 }
 
@@ -49,6 +51,12 @@ export function createI18n(locale: string, catalogs: Catalogs): I18n {
 		day: "2-digit",
 		month: "2-digit",
 		year: "numeric",
+	});
+	const timeFormat = new Intl.DateTimeFormat(intlLocale, {
+		timeZone: "UTC",
+		hour: "2-digit",
+		minute: "2-digit",
+		hourCycle: "h23",
 	});
 
 	return {
@@ -79,6 +87,9 @@ export function createI18n(locale: string, catalogs: Catalogs): I18n {
 		},
 		formatDate(iso) {
 			return dateFormat.format(new Date(iso));
+		},
+		formatTime(iso) {
+			return timeFormat.format(new Date(iso));
 		},
 		locales: Object.entries(catalogs).map(([code, c]) => ({
 			locale: code,

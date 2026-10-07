@@ -72,6 +72,10 @@ export const de = {
 	"units.km": "{value} km",
 	"units.m": "{value} m",
 	"units.percent": "{value} %",
+	"units.kmh": "{value} km/h",
+	"units.mPerH": "{value} m/h",
+	"units.duration": "{h} h {min} min",
+	"units.durationMin": "{min} min",
 	"sport.Ride": "Radfahrt",
 	"sport.MountainBikeRide": "Mountainbike-Fahrt",
 	"sport.GravelRide": "Gravel-Fahrt",
@@ -101,6 +105,48 @@ export const de = {
 	"rynke.ride.doesNotCount": "zählt nicht",
 	"rynke.ride.beingEvaluated": "wird ausgewertet",
 	"rynke.ride.virtual": "virtuell",
+	"rynke.ride.fixHint":
+		"Du kannst die Fahrt auf Strava korrigieren oder dich an das Orga-Team wenden.",
+	"rynke.reason.flagged":
+		"Strava hat die Fahrt markiert. Wenn du anderer Meinung bist, kläre das bitte mit Strava.",
+	"rynke.reason.pause":
+		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr als die Hälfte ist nicht erlaubt.",
+	"rynke.reason.pause.share":
+		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr als {share} ist nicht erlaubt.",
+	"rynke.reason.pause.noLimit":
+		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit.",
+	"rynke.reason.pause.noMovingTime":
+		"Keine Bewegungszeit: Die Fahrt gilt als ganz pausiert.",
+	"rynke.reason.manual": "Manuell auf Strava eingetragen.",
+	"rynke.reason.too_slow":
+		"Zu langsam: {speed} im Schnitt, mindestens {limit} sind nötig.",
+	"rynke.reason.too_slow.noLimit": "Zu langsam: {speed} im Schnitt.",
+	"rynke.reason.too_fast":
+		"Zu schnell für eine Radfahrt: {speed} im Schnitt, höchstens {limit} sind erlaubt.",
+	"rynke.reason.too_fast.noLimit":
+		"Zu schnell für eine Radfahrt: {speed} im Schnitt.",
+	"rynke.reason.climbing_rate":
+		"Zu viele Höhenmeter für die Zeit: {rate} bergauf, höchstens {limit} sind erlaubt.",
+	"rynke.reason.climbing_rate.noLimit":
+		"Zu viele Höhenmeter für die Zeit: {rate} bergauf.",
+	"rynke.reason.excluded_sport_type": "{sport} zählt nicht für die Rynke.",
+	"rynke.reason.outside_window": "Vor dem Saisonstart am {date}.",
+	"rynke.reason.outside_window.afterDeadline": "Nach dem Stichtag am {date}.",
+	"rynke.reason.outside_window.afterDeadlineNoDate": "Nach dem Stichtag.",
+	"rynke.reason.overlap":
+		"Doppelt aufgezeichnet: Deine Fahrt vom {date}, {time} Uhr, {distance} zählt stattdessen.",
+	"rynke.reason.overlap.noRide":
+		"Doppelt aufgezeichnet: Eine andere deiner Fahrten zählt stattdessen.",
+	"rynke.reason.unknown": "Zählt nach den aktuellen Regeln nicht.",
+	"rynke.unknown.elapsed_time":
+		"Die Gesamtzeit mit Pausen fehlt noch, deshalb ist die Pausenregel noch nicht geprüft.",
+	"rynke.unknown.manual":
+		"Ob die Fahrt manuell eingetragen wurde, ist noch nicht bekannt.",
+	"rynke.unknown.trainer":
+		"Ob die Fahrt auf dem Rollentrainer war, ist noch nicht bekannt.",
+	"rynke.unknown.flagged":
+		"Ob Strava die Fahrt markiert hat, ist noch nicht bekannt.",
+	"rynke.unknown.mayChange": "Das Ergebnis kann sich noch ändern.",
 	"rynke.gauges.heading": "Dein Fortschritt",
 	"rynke.gauge.caption": "{label}: {value} von {target} · {percent}",
 	"rynke.gauge.reached": "✓ erreicht",
@@ -108,6 +154,14 @@ export const de = {
 		"Höhenmeter bis zu den nächsten {stepRynke} Trainingsrynke: {value} von {target} · {percent} · noch {missing}",
 	"rynke.source.distance": "Distanz",
 	"rynke.source.elevation": "Höhenmeter",
+	"rynke.breakdown.heading": "Woher deine Rynke kommen",
+	"rynke.breakdown.trainingRynke": "{n} Trainingsrynke",
+	"rynke.breakdown.elevation":
+		"{metres} gesamt → {rynke} Trainingsrynke, noch {toNext} bis zu den nächsten {stepRynke}",
+	"rynke.breakdown.elevationNoStep":
+		"{metres} gesamt → {rynke} Trainingsrynke, noch {toNext} bis zur nächsten Stufe",
+	"rynke.breakdown.total": "Gesamt",
+	"rynke.breakdown.totals": "{training} Trainingsrynke · {team} Teamrynke",
 
 	"disconnect.title": "Daten löschen?",
 	"disconnect.explain":

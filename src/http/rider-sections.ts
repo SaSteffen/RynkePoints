@@ -1,9 +1,11 @@
 import type { I18n } from "../i18n/i18n";
 import { html, type SafeHtml } from "./html";
 import type {
+	Breakdown,
 	Condition,
 	Gauge,
 	Gauges,
+	ReasonLine,
 	RideLine,
 	RiderView,
 	RideTable,
@@ -147,6 +149,37 @@ ${legend}</figure>
 `;
 }
 
+/** Where the Rynke come from, adding up to the totals (FR-030, FR-035). */
+export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
+	const metres = (m: number) => i18n.t("units.m", { value: whole(i18n, m) });
+	const elevation = {
+		metres: metres(breakdown.elevationM),
+		rynke: whole(i18n, breakdown.elevationRynke),
+		toNext: metres(breakdown.toNextStepM),
+	};
+	return html`<section class="rynke-breakdown">
+<h2>${i18n.t("rynke.breakdown.heading")}</h2>
+<dl>
+<dt>${i18n.t("rynke.source.distance")}</dt><dd>${i18n.t("rynke.breakdown.trainingRynke", { n: whole(i18n, breakdown.distanceRynke) })}</dd>
+<dt>${i18n.t("rynke.source.elevation")}</dt><dd>${
+		breakdown.elevationStepRynke === null
+			? i18n.t("rynke.breakdown.elevationNoStep", elevation)
+			: i18n.t("rynke.breakdown.elevation", {
+					...elevation,
+					stepRynke: whole(i18n, breakdown.elevationStepRynke),
+				})
+	}</dd>
+<dt>${i18n.t("rynke.breakdown.total")}</dt><dd>${i18n.t(
+		"rynke.breakdown.totals",
+		{
+			training: whole(i18n, breakdown.trainingTotal),
+			team: whole(i18n, breakdown.teamTotal),
+		},
+	)}</dd>
+</dl>
+</section>`;
+}
+
 export function renderRides(i18n: I18n, rides: RideTable): SafeHtml {
 	const heading = html`<h2>${i18n.t("me.recent.heading")}</h2>`;
 	if (rides.rows.length === 0) {
@@ -165,13 +198,132 @@ ${rides.rows.map((ride) => rideRows(i18n, ride))}</tbody>
 </section>`;
 }
 
+function kilometres(i18n: I18n, m: number): string {
+	return i18n.t("units.km", {
+		value: i18n.formatNumber(m / 1000, { fractionDigits: 1 }),
+	});
+}
+
+/** Hours and minutes, minutes rounded down; minutes alone below an hour. */
+function duration(i18n: I18n, s: number): string {
+	const min = Math.floor(s / 60);
+	return min < 60
+		? i18n.t("units.durationMin", { min })
+		: i18n.t("units.duration", { h: Math.floor(min / 60), min: min % 60 });
+}
+
+function kmh(i18n: I18n, value: number, fractionDigits: number): string {
+	return i18n.t("units.kmh", {
+		value: i18n.formatNumber(value, { fractionDigits }),
+	});
+}
+
+/** One reason in plain words, with its figure and limit (research R12). */
+function reasonText(i18n: I18n, reason: ReasonLine): string {
+	switch (reason.code) {
+		case "flagged":
+			return i18n.t("rynke.reason.flagged");
+		case "manual":
+			return i18n.t("rynke.reason.manual");
+		case "pause": {
+			if (reason.pausedS === null) {
+				return i18n.t("rynke.reason.pause.noMovingTime");
+			}
+			const times = {
+				paused: duration(i18n, reason.pausedS),
+				moving: duration(i18n, reason.movingS),
+			};
+			if (!reason.share) return i18n.t("rynke.reason.pause.noLimit", times);
+			const { num, den } = reason.share;
+			return num * 2 === den
+				? i18n.t("rynke.reason.pause", times)
+				: i18n.t("rynke.reason.pause.share", {
+						...times,
+						share: `${num}/${den}`,
+					});
+		}
+		case "too_slow":
+		case "too_fast": {
+			const speed = kmh(i18n, reason.kmhTenths / 10, 1);
+			return reason.limitKmh === null
+				? i18n.t(`rynke.reason.${reason.code}.noLimit`, { speed })
+				: i18n.t(`rynke.reason.${reason.code}`, {
+						speed,
+						// Whole today; a fractional limit must not be rounded away.
+						limit: kmh(
+							i18n,
+							reason.limitKmh,
+							Number.isInteger(reason.limitKmh) ? 0 : 1,
+						),
+					});
+		}
+		case "climbing_rate": {
+			const rate = i18n.t("units.mPerH", { value: whole(i18n, reason.mPerH) });
+			return reason.limitMPerH === null
+				? i18n.t("rynke.reason.climbing_rate.noLimit", { rate })
+				: i18n.t("rynke.reason.climbing_rate", {
+						rate,
+						limit: i18n.t("units.mPerH", {
+							value: whole(i18n, reason.limitMPerH),
+						}),
+					});
+		}
+		case "excluded_sport_type":
+			return i18n.t("rynke.reason.excluded_sport_type", {
+				sport: i18n.t(`sport.${reason.sportType}`),
+			});
+		// Configured dates, passed as UTC midnight like the season start.
+		case "before_season":
+			return i18n.t("rynke.reason.outside_window", {
+				date: i18n.formatDate(`${reason.date}T00:00:00Z`),
+			});
+		case "after_deadline":
+			return reason.date === null
+				? i18n.t("rynke.reason.outside_window.afterDeadlineNoDate")
+				: i18n.t("rynke.reason.outside_window.afterDeadline", {
+						date: i18n.formatDate(`${reason.date}T00:00:00Z`),
+					});
+		case "overlap": {
+			const ride = reason.countedInstead;
+			return ride === null
+				? i18n.t("rynke.reason.overlap.noRide")
+				: i18n.t("rynke.reason.overlap", {
+						date: i18n.formatDate(ride.startDateLocal),
+						time: i18n.formatTime(ride.startDateLocal),
+						distance: kilometres(i18n, ride.distanceM),
+					});
+		}
+		case "unknown":
+			return i18n.t("rynke.reason.unknown");
+	}
+}
+
+/** Reasons, unknown figures and the fix hint below the main row (FR-042–FR-044). */
+function explanation(i18n: I18n, ride: RideLine): SafeHtml {
+	const reasons =
+		ride.reasons.length === 0
+			? null
+			: html`<ul class="ride-reasons">${ride.reasons.map(
+					(reason) => html`<li>${reasonText(i18n, reason)}</li>`,
+				)}</ul>`;
+	const unknown =
+		ride.unknownFigures.length === 0
+			? null
+			: html`<p>${[
+					...ride.unknownFigures.map((code) => i18n.t(`rynke.unknown.${code}`)),
+					i18n.t("rynke.unknown.mayChange"),
+				].join(" ")}</p>`;
+	const fixHint = ride.fixHint
+		? html`<p>${i18n.t("rynke.ride.fixHint")}</p>`
+		: null;
+	return html`${reasons}${unknown}${fixHint}`;
+}
+
 function rideRows(i18n: I18n, ride: RideLine): SafeHtml {
 	const status = STATUS[ride.status];
 	// The rider's local date: Strava writes local wall-clock time with a `Z`.
 	const date = i18n.formatDate(ride.startDateLocal);
-	const km = i18n.t("units.km", {
-		value: i18n.formatNumber(ride.distanceM / 1000, { fractionDigits: 1 }),
-	});
+	const km = kilometres(i18n, ride.distanceM);
 	// Never 0 for a ride still being evaluated (FR-041).
 	const pending = ride.status === "being-evaluated";
 	const rynke = pending ? "–" : whole(i18n, ride.distanceRynke);
@@ -183,6 +335,6 @@ function rideRows(i18n: I18n, ride: RideLine): SafeHtml {
 		? html` · ${i18n.t("rynke.ride.virtual")}`
 		: null;
 	return html`<tr class="ride ${status.cls}"><td>${date}</td><td class="num">${km}</td><td>${i18n.t(status.text)}</td><td class="num">${rynke}</td><td class="num">${metres}</td></tr>
-<tr class="ride-details"><td colspan="5">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</td></tr>
+<tr class="ride-details"><td colspan="5">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}${explanation(i18n, ride)}</td></tr>
 `;
 }

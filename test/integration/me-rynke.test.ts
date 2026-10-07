@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { handleFetch } from "../../src/index";
+import type { ReasonCode } from "../../src/rynke/rides";
 import {
 	makeCtx,
 	request,
@@ -9,7 +10,12 @@ import {
 } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
-import { riderPage, seedBalance, seedRide } from "../support/rider-view";
+import {
+	riderPage,
+	type SeedRide,
+	seedBalance,
+	seedRide,
+} from "../support/rider-view";
 import { snapshot } from "../support/rynke";
 
 // The Rynke sections of /me (feature 005 contracts/rider-page.md), one test per
@@ -320,6 +326,320 @@ describe("GET /me gauges (US2)", () => {
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		expect(html).toContain('class="rynke-summary"');
 		expect(html).not.toContain("rynke-gauges");
+	});
+});
+
+/** The breakdown's term and description texts, as `[dt, dd]` pairs. */
+async function breakdown(athleteId = ATHLETE_A): Promise<string[][]> {
+	const { html } = await riderPage(ctx, athleteId);
+	const found = section(html, 'class="rynke-breakdown"');
+	if (found === null) throw new Error("no breakdown section");
+	return [...found.matchAll(/<dt>([\s\S]*?)<\/dt><dd>([\s\S]*?)<\/dd>/g)].map(
+		([, dt = "", dd = ""]) => [text(dt), text(dd)],
+	);
+}
+
+describe("GET /me breakdown (US3a)", () => {
+	it("S3-1: shows distance, elevation and the total", async () => {
+		await seedBalance(ATHLETE_A, {
+			distanceRynke: 7,
+			elevationDm: 12400,
+			elevationRynke: 5,
+			elevationToNextStepDm: 7600,
+			trainingRynke: 12,
+			trainingMissing: 238,
+			trainingWithoutVirtual: 12,
+			virtualShareMissing: 155,
+		});
+		expect(await breakdown()).toEqual([
+			["Distanz", "7 Trainingsrynke"],
+			[
+				"Höhenmeter",
+				"1.240 m gesamt → 5 Trainingsrynke, noch 760 m bis zu den nächsten 5",
+			],
+			["Gesamt", "12 Trainingsrynke · 0 Teamrynke"],
+		]);
+	});
+
+	it("S3-4: gives 15 Training Rynke for 3000 m", async () => {
+		await seedBalance(ATHLETE_A, {
+			elevationDm: 30000,
+			elevationRynke: 15,
+			elevationToNextStepDm: 10000,
+			trainingRynke: 15,
+			trainingMissing: 235,
+		});
+		expect((await breakdown())[1]).toEqual([
+			"Höhenmeter",
+			"3.000 m gesamt → 15 Trainingsrynke, noch 1.000 m bis zu den nächsten 5",
+		]);
+	});
+
+	it("S3-5: shows 0 everywhere for a rider without rides", async () => {
+		await seedBalance(ATHLETE_A);
+		expect(await breakdown()).toEqual([
+			["Distanz", "0 Trainingsrynke"],
+			[
+				"Höhenmeter",
+				"0 m gesamt → 0 Trainingsrynke, noch 1.000 m bis zu den nächsten 5",
+			],
+			["Gesamt", "0 Trainingsrynke · 0 Teamrynke"],
+		]);
+	});
+
+	it("names no step for an unknown rules version (FR-013)", async () => {
+		await seedBalance(ATHLETE_A, {
+			elevationDm: 12400,
+			elevationRynke: 5,
+			elevationToNextStepDm: 7600,
+			rulesVersion: 99,
+		});
+		expect((await breakdown())[1]).toEqual([
+			"Höhenmeter",
+			"1.240 m gesamt → 5 Trainingsrynke, noch 760 m bis zur nächsten Stufe",
+		]);
+	});
+
+	it("follows the gauges, or the summary without them", async () => {
+		await seedBalance(ATHLETE_A);
+		const { html } = await riderPage(ctx, ATHLETE_A);
+		const order = [
+			'<section class="rynke-gauges">',
+			'<section class="rynke-breakdown">',
+			'<section id="rides">',
+		].map((marker) => html.indexOf(marker));
+		expect(order.every((i) => i >= 0)).toBe(true);
+		expect([...order].sort((x, y) => x - y)).toEqual(order);
+		expect(text(section(html, 'class="rynke-breakdown"') ?? "")).toMatch(
+			/^Woher deine Rynke kommen /,
+		);
+
+		await seedBalance(ATHLETE_A, { rulesVersion: 99 });
+		const unknown = (await riderPage(ctx, ATHLETE_A)).html;
+		const summaryEnd = unknown.indexOf(
+			"</section>",
+			unknown.indexOf('<section id="rynke"'),
+		);
+		const breakdownStart = unknown.indexOf('<section class="rynke-breakdown">');
+		expect(summaryEnd).toBeGreaterThan(0);
+		expect(
+			unknown.slice(summaryEnd + "</section>".length, breakdownStart),
+		).toMatch(/^\s*$/);
+	});
+
+	it("has no breakdown before the first evaluation", async () => {
+		const { html } = await riderPage(ctx, ATHLETE_A);
+		expect(html).not.toContain('<section class="rynke-breakdown">');
+	});
+});
+
+/** Each ride's detail row: its reason lines and its whole text. */
+async function details(athleteId = ATHLETE_A, acceptLanguage?: string) {
+	const { html } = await riderPage(ctx, athleteId, "/me", acceptLanguage);
+	return [...html.matchAll(/<tr class="ride-details">([\s\S]*?)<\/tr>/g)].map(
+		([, inner = ""]) => ({
+			reasons: [
+				...(
+					inner.match(/<ul class="ride-reasons">([\s\S]*?)<\/ul>/)?.[1] ?? ""
+				).matchAll(/<li>([\s\S]*?)<\/li>/g),
+			].map((m) => text(m[1] ?? "")),
+			all: text(inner),
+		}),
+	);
+}
+
+const FIX_HINT =
+	"Du kannst die Fahrt auf Strava korrigieren oder dich an das Orga-Team wenden.";
+
+describe("GET /me ride reasons (US4)", () => {
+	beforeEach(() => seedBalance(ATHLETE_A));
+
+	async function seedOverlap() {
+		await seedRide(ATHLETE_A, {
+			id: 8_100_001,
+			start_date: "2026-10-06T08:00:00Z",
+			distance_m: 80000,
+			result: { counts: true, distanceRynke: 8 },
+		});
+		await seedRide(ATHLETE_A, {
+			id: 8_100_002,
+			start_date: "2026-10-06T08:01:00Z",
+			distance_m: 78000,
+			result: {
+				counts: false,
+				reasons: ["overlap"],
+				overlapsActivityId: 8_100_001,
+			},
+		});
+	}
+
+	async function seedPause() {
+		await seedRide(ATHLETE_A, {
+			id: 8_100_003,
+			distance_m: 100000,
+			moving_time_s: 14400,
+			elapsed_time_s: 25200,
+			result: { counts: false, reasons: ["pause"] },
+		});
+	}
+
+	it("S4-1: names the ride that counted instead", async () => {
+		await seedOverlap();
+		const [overlap] = await details();
+		expect(overlap?.reasons).toEqual([
+			"Doppelt aufgezeichnet: Deine Fahrt vom 06.10.2026, 08:00 Uhr, 80,0 km zählt stattdessen.",
+		]);
+	});
+
+	it("S4-2: gives the paused against the moving time", async () => {
+		await seedPause();
+		const [pause] = await details();
+		expect(pause?.reasons).toEqual([
+			"Zu lange Pause: 3 h 0 min Pause bei 4 h 0 min Bewegungszeit – mehr als die Hälfte ist nicht erlaubt.",
+		]);
+	});
+
+	it("S4-3: lists both reasons of a slow manual entry", async () => {
+		await seedRide(ATHLETE_A, {
+			id: 8_100_004,
+			distance_m: 15000,
+			moving_time_s: 7200,
+			is_manual: 1,
+			result: { counts: false, reasons: ["manual", "too_slow"] },
+		});
+		const [manual] = await details();
+		expect(manual?.reasons).toEqual([
+			"Manuell auf Strava eingetragen.",
+			"Zu langsam: 7,5 km/h im Schnitt, mindestens 10 km/h sind nötig.",
+		]);
+	});
+
+	it("S4-4: explains every remaining reason with its figure and limit", async () => {
+		// Newest first, one day apart; the ride before the season start is last.
+		const rides: Omit<SeedRide, "id">[] = [
+			{ is_flagged: 1, result: { counts: false, reasons: ["flagged"] } },
+			{
+				distance_m: 45010,
+				moving_time_s: 3600,
+				result: { counts: false, reasons: ["too_fast"] },
+			},
+			{
+				elevation_gain_m: 1500.4,
+				moving_time_s: 3600,
+				result: { counts: false, reasons: ["climbing_rate"] },
+			},
+			{
+				sport_type: "EBikeRide",
+				result: { counts: false, reasons: ["excluded_sport_type"] },
+			},
+			{
+				start_date: "2025-12-20T08:00:00Z",
+				result: { counts: false, reasons: ["outside_window"] },
+			},
+			// No version of RULES_HISTORY has a deadline yet: an unknown one.
+			{
+				result: {
+					counts: false,
+					reasons: ["outside_window"],
+					rulesVersion: 99,
+				},
+			},
+		];
+		for (const [i, seeded] of rides.entries()) {
+			await seedRide(ATHLETE_A, {
+				id: 8_100_010 + i,
+				start_date: `2026-09-${30 - i}T08:00:00Z`,
+				...seeded,
+			});
+		}
+		expect((await details()).map((d) => d.reasons)).toEqual([
+			[
+				"Strava hat die Fahrt markiert. Wenn du anderer Meinung bist, kläre das bitte mit Strava.",
+			],
+			[
+				"Zu schnell für eine Radfahrt: 45,1 km/h im Schnitt, höchstens 45 km/h sind erlaubt.",
+			],
+			[
+				"Zu viele Höhenmeter für die Zeit: 1.501 m/h bergauf, höchstens 1.500 m/h sind erlaubt.",
+			],
+			["E-Bike-Fahrt zählt nicht für die Rynke."],
+			["Nach dem Stichtag."],
+			["Vor dem Saisonstart am 01.01.2026."],
+		]);
+	});
+
+	it("S4-5: marks a counting virtual ride", async () => {
+		await seedRide(ATHLETE_A, {
+			id: 8_100_020,
+			sport_type: "VirtualRide",
+			result: { counts: true, distanceRynke: 4, isVirtual: true },
+		});
+		const [virtual] = await details();
+		expect(virtual?.all).toContain("· virtuell");
+		expect(virtual?.reasons).toEqual([]);
+	});
+
+	it("S4-6: says a ride with an unknown figure may still change", async () => {
+		await seedRide(ATHLETE_A, {
+			id: 8_100_021,
+			elapsed_time_s: null,
+			result: {
+				counts: true,
+				distanceRynke: 4,
+				unknownFigures: ["elapsed_time"],
+			},
+		});
+		const [unknown] = await details();
+		expect(unknown?.all).toContain(
+			"Die Gesamtzeit mit Pausen fehlt noch, deshalb ist die Pausenregel noch nicht geprüft. Das Ergebnis kann sich noch ändern.",
+		);
+	});
+
+	it("S4-7: offers the fix hint once, only for what the rider can fix", async () => {
+		await seedOverlap();
+		await seedPause();
+		await seedRide(ATHLETE_A, {
+			id: 8_100_030,
+			start_date: "2026-04-01T08:00:00Z",
+			is_manual: 1,
+			result: { counts: false, reasons: ["manual", "pause"] },
+		});
+		await seedRide(ATHLETE_A, {
+			id: 8_100_031,
+			start_date: "2026-03-01T08:00:00Z",
+			is_flagged: 1,
+			result: { counts: false, reasons: ["flagged"] },
+		});
+		const hints = (await details()).map(
+			(d) => d.all.split(FIX_HINT).length - 1,
+		);
+		// Newest first: overlap, counted ride, pause, manual + pause, flagged.
+		expect(hints).toEqual([0, 0, 1, 1, 0]);
+	});
+
+	it("explains an unknown code in general words", async () => {
+		await seedRide(ATHLETE_A, {
+			id: 8_100_040,
+			result: { counts: false, reasons: ["new_rule" as ReasonCode] },
+		});
+		const { status } = await riderPage(ctx, ATHLETE_A);
+		expect(status).toBe(200);
+		const [unknown] = await details();
+		expect(unknown?.reasons).toEqual([
+			"Zählt nach den aktuellen Regeln nicht.",
+		]);
+	});
+
+	it("FR-061: explains the reasons in English", async () => {
+		await seedOverlap();
+		await seedPause();
+		const [overlap, , pause] = await details(ATHLETE_A, "en");
+		expect(overlap?.reasons).toEqual([
+			"Recorded twice: your ride of 06/10/2026, 08:00, 80.0 km counts instead.",
+		]);
+		expect(pause?.reasons).toEqual([
+			"Paused too long: 3 h 0 min paused for 4 h 0 min moving time – more than half is not allowed.",
+		]);
 	});
 });
 
