@@ -11,4 +11,6 @@ export interface Ctx {
 	/** Current time in epoch seconds. */
 	now: () => number;
 	catalogs: Catalogs;
+	/** Keeps the invocation alive for work that outlives the response. */
+	waitUntil: (promise: Promise<unknown>) => void;
 }

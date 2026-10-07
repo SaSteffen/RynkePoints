@@ -110,9 +110,12 @@ Development Workflow). The app is served at `https://trhh-rynke-coins.link`.
 4. `pnpm wrangler queues create rynke-points-work`.
 5. `pnpm wrangler d1 migrations apply rynke-points --remote`.
 6. `pnpm wrangler secret put` for `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`,
-   `STRAVA_WEBHOOK_VERIFY_TOKEN`, `TOKEN_ENCRYPTION_KEY` and `SESSION_SIGNING_KEY`.
-   - Generate fresh production values for the two keys
+   `STRAVA_WEBHOOK_VERIFY_TOKEN`, `TOKEN_ENCRYPTION_KEY`, `SESSION_SIGNING_KEY` and
+   `ADMIN_TOKEN`.
+   - Generate fresh production values for the two keys and `ADMIN_TOKEN`
      (`openssl rand -base64 32`); never reuse the ones in `.dev.vars`.
+   - `ADMIN_TOKEN` starts the daily run on demand
+     ([007 quickstart](../007-manual-daily-run/quickstart.md)).
    - Never change `TOKEN_ENCRYPTION_KEY` once riders exist: their stored tokens
      become unreadable and every rider has to reconnect.
 7. Download the official "Connect with Strava" button and "Powered by Strava" logo

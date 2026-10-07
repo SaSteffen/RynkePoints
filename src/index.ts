@@ -8,13 +8,7 @@ import { deleteRider } from "./work/delete-rider";
 import { evaluateRider } from "./work/evaluate-rider";
 import { importPage } from "./work/import-page";
 import { rereadPage } from "./work/reread-page";
-import {
-	expireReconnectRiders,
-	fanOutEvaluations,
-	fanOutFiguresReread,
-	fanOutMembershipChecks,
-	requeueFailedWork,
-} from "./work/scheduled";
+import { handleScheduled } from "./work/scheduled";
 
 // Entry points. Each builds a Ctx and delegates; tests call the exported
 // handle* functions with their own Ctx (research R12).
@@ -28,14 +22,17 @@ const handlers: Handlers = {
 	"evaluate-rider": evaluateRider,
 };
 
-function makeCtx(env: Env): Ctx {
+function makeCtx(env: Env, exec: ExecutionContext): Ctx {
 	return {
 		env,
 		queue: env.WORK_QUEUE,
 		now: () => Math.floor(Date.now() / 1000),
 		catalogs: CATALOGS,
+		waitUntil: (promise) => exec.waitUntil(promise),
 	};
 }
+
+export { handleScheduled };
 
 export function handleFetch(request: Request, ctx: Ctx): Promise<Response> {
 	return route(request, ctx);
@@ -48,39 +45,14 @@ export function handleQueue(
 	return processBatch(batch, ctx, handlers);
 }
 
-export async function handleScheduled(
-	_controller: ScheduledController,
-	ctx: Ctx,
-): Promise<void> {
-	// Independent steps, in contract order: one failing (D1, Queues) must not
-	// skip the others, but the run still fails so it shows up in logs.
-	let failure: unknown;
-	let failed = false;
-	for (const step of [
-		fanOutMembershipChecks,
-		expireReconnectRiders,
-		requeueFailedWork,
-		fanOutFiguresReread,
-		fanOutEvaluations,
-	]) {
-		try {
-			await step(ctx);
-		} catch (err) {
-			if (!failed) failure = err;
-			failed = true;
-		}
-	}
-	if (failed) throw failure;
-}
-
 export default {
-	fetch(request, env) {
-		return handleFetch(request, makeCtx(env));
+	fetch(request, env, exec) {
+		return handleFetch(request, makeCtx(env, exec));
 	},
-	queue(batch, env) {
-		return handleQueue(batch, makeCtx(env));
+	queue(batch, env, exec) {
+		return handleQueue(batch, makeCtx(env, exec));
 	},
-	scheduled(controller, env) {
-		return handleScheduled(controller, makeCtx(env));
+	scheduled(controller, env, exec) {
+		return handleScheduled(controller, makeCtx(env, exec));
 	},
 } satisfies ExportedHandler<Env, unknown>;
