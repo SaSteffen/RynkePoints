@@ -73,10 +73,10 @@ description: "Task list for Local Frontend Development with a Fake Strava"
 **Purpose**: a green baseline, the port, and the files fake mode needs before any
 code.
 
-- [ ] T001 Run `pnpm install`, `pnpm lint`, `pnpm typecheck` and `pnpm test` in the repo root, and confirm all are green before any change. If something already fails, note it in the task's commit message rather than fixing it here.
-- [ ] T002 [P] In `wrangler.jsonc`, add `"dev": { "port": 8789 }` with a comment: it applies to `wrangler dev` only (both `pnpm dev` and `pnpm dev:strava`), and 8787 is taken on the maintainer's machine (FR-001, research R7). Run `pnpm types` and confirm `worker-configuration.d.ts` is unchanged. If it changed, commit the regenerated file with this task.
-- [ ] T003 [P] In `tsconfig.json`, add `"dev"` to `include` so `pnpm typecheck` covers `dev/`. Biome's `"**"` in `biome.json` already covers it, so confirm `pnpm lint` checks a file placed in `dev/` (plan "Constitution Check", development workflow).
-- [ ] T004 [P] Create `dev/fake.env` (data-model.md "Fake mode settings"):
+- [X] T001 Run `pnpm install`, `pnpm lint`, `pnpm typecheck` and `pnpm test` in the repo root, and confirm all are green before any change. If something already fails, note it in the task's commit message rather than fixing it here.
+- [X] T002 [P] In `wrangler.jsonc`, add `"dev": { "port": 8789 }` with a comment: it applies to `wrangler dev` only (both `pnpm dev` and `pnpm dev:strava`), and 8787 is taken on the maintainer's machine (FR-001, research R7). Run `pnpm types` and confirm `worker-configuration.d.ts` is unchanged. If it changed, commit the regenerated file with this task.
+- [X] T003 [P] In `tsconfig.json`, add `"dev"` to `include` so `pnpm typecheck` covers `dev/`. Biome's `"**"` in `biome.json` already covers it, so confirm `pnpm lint` checks a file placed in `dev/` (plan "Constitution Check", development workflow).
+- [X] T004 [P] Create `dev/fake.env` (data-model.md "Fake mode settings"):
   - A header comment says the values are synthetic, protect nothing, and that fake mode reads this file instead of `.dev.vars`.
   - `STRAVA_CLIENT_ID=90001`, `STRAVA_CLIENT_SECRET=fake-client-secret` and `STRAVA_WEBHOOK_VERIFY_TOKEN=fake-verify-token`.
   - `TOKEN_ENCRYPTION_KEY` and `SESSION_SIGNING_KEY`: synthetic 32-byte keys, base64. Use bytes 0x40..0x5f and 0x60..0x7f, so they differ from `vitest.config.ts`'s.
@@ -97,7 +97,7 @@ code.
 
 ### Tests for the foundation (write first, confirm red) ⚠️
 
-- [ ] T005 [P] Create `test/unit/dev-guard.test.ts` (quickstart §1 "FR-009 layers 1 and 2"):
+- [X] T005 [P] Create `test/unit/dev-guard.test.ts` (quickstart §1 "FR-009 layers 1 and 2"):
   - **Layer 1, the files**:
     - Read every `src/**/*.ts` as raw text with `import.meta.glob("../../src/**/*.ts", { query: "?raw", import: "default", eager: true })`.
     - Assert that at least 30 files were found, so a broken glob can't pass.
@@ -112,12 +112,12 @@ code.
 
 ### Implementation for the foundation
 
-- [ ] T006 [P] Create `dev/fake-strava/tokens.ts` (data-model.md "Stateless OAuth values"):
+- [X] T006 [P] Create `dev/fake-strava/tokens.ts` (data-model.md "Stateless OAuth values"):
   - Encode and decode `fake-code.<athleteId>.<scopes>`, `fake-access.<athleteId>.<scopes>.<expiresAt>` and `fake-refresh.<athleteId>.<scopes>`. `<scopes>` is the comma-separated list, URL-encoded.
   - `ACCESS_LIFETIME = 6 * 3600`.
   - `bearer(request)` reads `Authorization: Bearer …`.
   - Decoding returns `null` for anything malformed.
-- [ ] T007 [P] Create `dev/fake-strava/store.ts` (data-model.md "Fake activity"):
+- [X] T007 [P] Create `dev/fake-strava/store.ts` (data-model.md "Fake activity"):
   - `ensureTable(db)` runs `CREATE TABLE IF NOT EXISTS fake_strava_activities (id INTEGER PRIMARY KEY, athlete_id INTEGER NOT NULL, body TEXT NOT NULL)`.
   - `tableExists(db)` checks `sqlite_master`.
   - Writers: `clearActivities`, `insertActivity(db, athleteId, body)` (the next ID is `max(id) + 1`, or 8_000_001 when the table is empty), `updateActivity` and `deleteActivity`.
@@ -125,7 +125,7 @@ code.
     - `listActivities(db, athleteId, { after, page, perPage, includePrivate })` returns the activities that started after `after` (epoch seconds, compared with `start_date`), oldest first, paged.
     - `getActivity(db, id)` returns one activity.
   - `body` holds only the fields data-model.md lists, plus a synthetic `name`.
-- [ ] T008 [P] Create `dev/fake-strava/samples.ts` with the types and the conversion; US1 and US2 add the riders:
+- [X] T008 [P] Create `dev/fake-strava/samples.ts` with the types and the conversion; US1 and US2 add the riders:
   - The types `Behaviour = "normal" | "import-stuck" | "refused"`, `RideRecipe` and `SampleRider` (data-model.md "Sample rider", "Ride recipe entry").
   - `SAMPLE_RIDERS: readonly SampleRider[]`, empty for now.
   - `sampleRider(athleteId)`.
@@ -136,7 +136,7 @@ code.
     - Distance in metres, times in seconds.
     - The flags default to `false`.
     - A missing `elapsedMin` gives `elapsed_time` equal to `moving_time`. Check which "unknown" figure the app's activity parser actually supports in `src/strava/activity.ts`, and leave the field out only if the parser handles it.
-- [ ] T009 Create `dev/fake-strava/api.ts` with `answerStrava(request, env, db, now): Promise<Response>`, implementing [contracts/fake-strava.md](contracts/fake-strava.md) row by row. `now` is the app's clock (`ctx.now()`, epoch seconds): token expiry is set and checked against it, never `Date.now()`, so tests with a fixed clock stay deterministic. Depends on T006–T008.
+- [X] T009 Create `dev/fake-strava/api.ts` with `answerStrava(request, env, db, now): Promise<Response>`, implementing [contracts/fake-strava.md](contracts/fake-strava.md) row by row. `now` is the app's clock (`ctx.now()`, epoch seconds): token expiry is set and checked against it, never `Date.now()`, so tests with a fixed clock stay deterministic. Depends on T006–T008.
   - **`POST /oauth/token`**:
     - Checks `client_id` and `client_secret` against `env`.
     - `authorization_code`: decodes the code. An unknown or non-sample athlete gives `400`. Otherwise `200` with `access_token`, `refresh_token`, `expires_at`, `expires_in` and `athlete { id, firstname }`.
@@ -151,7 +151,7 @@ code.
   - **Anything else**: `404 {"message":"Record Not Found"}` and `console.log("[fake-strava] UNANSWERED <METHOD> <path>")`.
   - **No response carries rate-limit headers** (FR-006).
   - **Logging**: every answered request logs `[fake-strava] <METHOD> <path> → <status> (athlete <id>)` (FR-010). The path is logged without its query, and no token appears.
-- [ ] T010 Create `dev/worker.ts`, the dev entry (research R1, R2, R9, contracts/dev-routes.md "Guards" and "Response rewriting"). Depends on T009.
+- [X] T010 Create `dev/worker.ts`, the dev entry (research R1, R2, R9, contracts/dev-routes.md "Guards" and "Response rewriting"). Depends on T009.
   - `DevEnv` and `assertFakeMode(env)` throw `Error("fake Strava runs only in local fake mode")` unless `env.RYNKE_FAKE_STRAVA === "local-only"`.
   - `makeDevCtx(env)` builds a `Ctx` the way `makeCtx` in `src/index.ts` does: `env`, `env.WORK_QUEUE`, the wall clock and `CATALOGS`.
   - `installStravaInterceptor(ctx)`: if `globalThis.fetch` isn't already the dev wrapper (marked with a symbol), it wraps the current `globalThis.fetch`. The wrapper calls `answerStrava` with `ctx.env`, `ctx.env.DB` and `ctx.now()`.
