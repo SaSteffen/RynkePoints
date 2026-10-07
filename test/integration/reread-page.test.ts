@@ -26,6 +26,7 @@ import {
 	NOW,
 	type StravaActivityFixture,
 } from "../support/fixtures";
+import { balanceRow, expectConsistent, resultRows } from "../support/rynke";
 
 // The one-time re-read of stored activities (research R20).
 
@@ -210,6 +211,26 @@ describe("reread-page", () => {
 			{ is_flagged: 1 },
 			{ is_flagged: 0 },
 		]);
+	});
+
+	it("re-evaluates the re-read rows", async () => {
+		fake.addAthlete({ id: ATHLETE_A });
+		await seedRider(ctx, { importStatus: "done", figuresVersion: 1 });
+		const added = addActivities(3, SEASON_START + 86400, (i) => ({
+			flagged: i === 1,
+		}));
+		await seedUnknownFlag(added.map((a) => a.id));
+
+		await deliver(FIRST);
+
+		const rows = await resultRows();
+		expect(rows.map((r) => r.strava_activity_id)).toEqual(
+			added.map((a) => a.id),
+		);
+		expect(rows[1]).toMatchObject({ counts: 0, reasons: '["flagged"]' });
+		expect(rows.every((r) => r.unknown_figures === "[]")).toBe(true);
+		expect(await balanceRow()).not.toBeNull();
+		await expectConsistent();
 	});
 
 	it("refetches a row whose summary omits Strava's flag", async () => {

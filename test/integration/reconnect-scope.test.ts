@@ -63,7 +63,10 @@ describe("reconnect scope changes", () => {
 			scopeReadAll: false,
 			importStatus: "done",
 		});
-		expect(ctx.queue.sent).toEqual([]);
+		// Feature 003 research R11: the Rynke follow from the final state.
+		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
+			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
+		]);
 	});
 
 	it("re-imports when read_all is newly granted", async () => {

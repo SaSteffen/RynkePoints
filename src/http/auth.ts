@@ -1,7 +1,6 @@
 import { clientId, clubId, seasonStart } from "../config";
 import { CONSENT_VERSION } from "../consent";
 import type { Ctx } from "../ctx";
-import { deletePrivateActivities } from "../db/activities";
 import { recordConsent } from "../db/consents";
 import {
 	deleteRider,
@@ -14,6 +13,7 @@ import {
 	updateRiderOnReconnect,
 } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
+import { evaluateChange } from "../rynke/apply";
 import { isClubMember } from "../strava/client";
 import { STRAVA_ORIGIN } from "../strava/result";
 import { exchangeCode, revokeToken } from "../strava/tokens";
@@ -185,7 +185,13 @@ export async function handleCallback(
 			await setMembershipChecked(ctx.env.DB, token.athleteId, now);
 		}
 		if (existing.scopeReadAll && !grant.scopeReadAll) {
-			await deletePrivateActivities(ctx.env.DB, token.athleteId);
+			await evaluateChange(ctx, token.athleteId, { kind: "delete-private" });
+			// Re-derives from the final state if a consumer message for the rider
+			// wrote from an older snapshot meanwhile (feature 003 research R11).
+			await ctx.queue.send({
+				kind: "evaluate-rider",
+				athleteId: token.athleteId,
+			});
 		}
 		startImport =
 			(!existing.scopeReadAll && grant.scopeReadAll) ||

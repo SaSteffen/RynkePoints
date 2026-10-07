@@ -10,6 +10,10 @@ Message bodies are JSON, discriminated by `kind`, and contain identifiers only.
 `serializeWorkMessage` writes them with keys in the order shown below, so the
 same message always has the same JSON (used to match `failed_work` rows).
 
+Feature 003 adds the `evaluate-rider` message, the evaluation sweep as the last
+scheduled step, and Rynke storage in the activity handlers: see
+[its queue-messages.md](../../003-rynke-evaluation/contracts/queue-messages.md).
+
 ## Common consumer rules
 
 1. **Rider check.** Load the rider by `athleteId`. If missing, ack and drop. If

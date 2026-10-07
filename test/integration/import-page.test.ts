@@ -19,6 +19,7 @@ import {
 } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
+import { balanceRow, expectConsistent, resultRows } from "../support/rynke";
 
 const SEASON_START = seasonStartEpoch("2026-01-01");
 const FIRST: ImportPageMessage = {
@@ -128,6 +129,29 @@ describe("import-page", () => {
 			{ elapsed_time_s: 6001, is_manual: 1, is_trainer: 0, is_flagged: 0 },
 			{ elapsed_time_s: 6002, is_manual: 0, is_trainer: 1, is_flagged: 0 },
 		]);
+	});
+
+	it("stores ride results and the balance with the page", async () => {
+		fake.addAthlete({ id: ATHLETE_A });
+		await seedRider(ctx);
+		addActivities(3, SEASON_START + 86400, (i) => ({ flagged: i === 1 }));
+		await deliver(FIRST);
+		const rows = await resultRows();
+		expect(rows).toHaveLength(3);
+		expect(rows.map((r) => r.reasons)).toContain('["flagged"]');
+		expect(await balanceRow()).not.toBeNull();
+		await expectConsistent();
+	});
+
+	it("gives a rider without rides a zero balance", async () => {
+		fake.addAthlete({ id: ATHLETE_A });
+		await seedRider(ctx);
+		await deliver(FIRST);
+		expect(await resultRows()).toEqual([]);
+		expect(await balanceRow()).toMatchObject({
+			distance_rynke: 0,
+			training_rynke: 0,
+		});
 	});
 
 	it("keeps the season start the import was started with", async () => {

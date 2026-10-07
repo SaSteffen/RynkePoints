@@ -147,6 +147,8 @@ export async function resetDb(): Promise<void> {
 	await env.DB.batch([
 		env.DB.prepare("DELETE FROM consent_records"),
 		env.DB.prepare("DELETE FROM failed_work"),
+		env.DB.prepare("DELETE FROM rynke_balances"),
+		env.DB.prepare("DELETE FROM ride_results"),
 		env.DB.prepare("DELETE FROM activities"),
 		env.DB.prepare("DELETE FROM strava_credentials"),
 		env.DB.prepare("DELETE FROM riders"),
@@ -168,6 +170,8 @@ export async function tableCounts(): Promise<Record<string, number>> {
 		"consent_records",
 		"failed_work",
 		"strava_rate_limit",
+		"ride_results",
+		"rynke_balances",
 	]) {
 		counts[table] =
 			(await env.DB.prepare(`SELECT COUNT(*) AS n FROM ${table}`).first<number>(

@@ -45,12 +45,19 @@ export interface DeleteRiderMessage {
 	revoke: boolean;
 }
 
+/** A full Rynke evaluation of the stored activities (feature 003). */
+export interface EvaluateRiderMessage {
+	kind: "evaluate-rider";
+	athleteId: number;
+}
+
 export type WorkMessage =
 	| ActivityEventMessage
 	| ImportPageMessage
 	| RereadPageMessage
 	| CheckMembershipMessage
-	| DeleteRiderMessage;
+	| DeleteRiderMessage
+	| EvaluateRiderMessage;
 
 export const isId = (v: unknown): v is number =>
 	typeof v === "number" && Number.isSafeInteger(v) && v > 0;
@@ -95,6 +102,7 @@ export function parseWorkMessage(body: unknown): WorkMessage | null {
 			}
 			return { kind: m.kind, athleteId, page: m.page, after: m.after };
 		case "check-membership":
+		case "evaluate-rider":
 			return { kind: m.kind, athleteId };
 		case "delete-rider":
 			if (!isOneOf(DELETE_REASONS, m.reason) || typeof m.revoke !== "boolean") {
@@ -126,6 +134,7 @@ export function serializeWorkMessage(m: WorkMessage): string {
 				after: m.after,
 			});
 		case "check-membership":
+		case "evaluate-rider":
 			return JSON.stringify({ kind: m.kind, athleteId: m.athleteId });
 		case "delete-rider":
 			return JSON.stringify({

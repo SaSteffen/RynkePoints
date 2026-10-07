@@ -2,8 +2,9 @@ import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
 
 // The stored columns are exactly those in data-model.md (FR-014, SC-007,
-// FR-029a). A new column means a data-model.md change and a reviewed update
-// here, so nothing sensitive or a rider's language slips into D1 unnoticed.
+// FR-029a; feature 003 FR-015 for the Rynke tables). A new column means a
+// data-model.md change and a reviewed update here, so nothing sensitive or a
+// rider's language slips into D1 unnoticed.
 
 const COLUMNS: Record<string, string[]> = {
 	riders: [
@@ -38,6 +39,36 @@ const COLUMNS: Record<string, string[]> = {
 		"refreshed_at",
 	],
 	consent_records: ["athlete_id", "version", "accepted_at"],
+	ride_results: [
+		"strava_activity_id",
+		"athlete_id",
+		"counts",
+		"reasons",
+		"overlaps_activity_id",
+		"distance_rynke",
+		"elevation_dm",
+		"is_virtual",
+		"unknown_figures",
+		"rules_version",
+		"activity_refreshed_at",
+	],
+	rynke_balances: [
+		"athlete_id",
+		"distance_rynke",
+		"elevation_dm",
+		"elevation_rynke",
+		"elevation_to_next_step_dm",
+		"training_rynke",
+		"team_rynke",
+		"training_missing",
+		"team_missing",
+		"training_without_virtual",
+		"virtual_share_missing",
+		"qualified",
+		"rules_version",
+		"rules_effective_date",
+		"computed_at",
+	],
 };
 
 const FORBIDDEN = [
