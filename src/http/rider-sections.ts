@@ -249,7 +249,12 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 				? i18n.t(`rynke.reason.${reason.code}.noLimit`, { speed })
 				: i18n.t(`rynke.reason.${reason.code}`, {
 						speed,
-						limit: kmh(i18n, reason.limitKmh, 0),
+						// Whole today; a fractional limit must not be rounded away.
+						limit: kmh(
+							i18n,
+							reason.limitKmh,
+							Number.isInteger(reason.limitKmh) ? 0 : 1,
+						),
 					});
 		}
 		case "climbing_rate": {
