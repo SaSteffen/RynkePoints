@@ -243,7 +243,7 @@ description: "Task list for the Rider View of Own Rynke — all user stories"
   - a `section.notice` box;
   - `@media (max-width:36rem)`: tighter cell padding.
   - Keep `test/unit/html.test.ts` green.
-- [ ] T019 [US1] Check US1:
+- [X] T019 [US1] Check US1:
   - `pnpm lint && pnpm typecheck && pnpm test` are green.
   - Do quickstart §3 steps 1, 2, 3 (360 px: the US1 sections and the ride table) and 5 (no balance) by hand.
   - Delivery 1 is then ready for its PR.
