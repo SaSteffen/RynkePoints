@@ -50,7 +50,6 @@ const CONTRACT_IDS = [
 	"me.consent.heading",
 	"me.consent.accepted",
 	"me.consent.none",
-	"me.import.running",
 	"me.import.done",
 	"me.recent.heading",
 	"me.recent.empty",

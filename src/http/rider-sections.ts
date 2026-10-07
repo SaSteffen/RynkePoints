@@ -44,7 +44,11 @@ function day(i18n: I18n, date: string): string {
 }
 
 /** The page's notices, in contract order, or nothing when none applies. */
-export function renderNotice(i18n: I18n, view: RiderView): SafeHtml | null {
+export function renderNotice(
+	i18n: I18n,
+	view: RiderView,
+	seasonStart: string,
+): SafeHtml | null {
 	const notices: string[] = [];
 	if (view.state === "not-worked-out") {
 		notices.push(i18n.t("rynke.notice.notWorkedOut"));
@@ -56,7 +60,13 @@ export function renderNotice(i18n: I18n, view: RiderView): SafeHtml | null {
 			}),
 		);
 	}
-	if (view.importing) notices.push(i18n.t("rynke.notice.importing"));
+	// The only import line while it runs: feature 001's status line shows only
+	// a finished import.
+	if (view.importing) {
+		notices.push(
+			i18n.t("rynke.notice.importing", { date: day(i18n, seasonStart) }),
+		);
+	}
 	if (notices.length === 0) return null;
 	return html`<section class="notice" role="status">
 ${notices.map(

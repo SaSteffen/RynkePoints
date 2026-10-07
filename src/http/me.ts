@@ -64,13 +64,6 @@ export async function handleMe(
 			? html`<p>${i18n.t("me.status.connected")}</p>`
 			: html`<p>${i18n.t("me.status.needsReconnect")}</p>
 <p><a href="/connect">${i18n.t("me.reconnect")}</a></p>`;
-	// The configured date, not the Berlin-midnight epoch: that is the day before
-	// in UTC.
-	const seasonStart = i18n.formatDate(`${ctx.env.SEASON_START_DATE}T00:00:00Z`);
-	const importStatus =
-		rider.importStatus === "done"
-			? i18n.t("me.import.done")
-			: i18n.t("me.import.running", { date: seasonStart });
 
 	const read = await readRiderView(
 		ctx.env.DB,
@@ -99,8 +92,8 @@ ${status}
 <p>${i18n.t(rider.scopeReadAll ? "me.scope.readAll" : "me.scope.sharedOnly")}</p>
 <p>${i18n.t(rider.scopeWrite ? "me.scope.write" : "me.scope.noWrite")}</p>
 <p><a href="/connect">${i18n.t("me.changePermissions")}</a></p>
-<p>${importStatus}</p>
-${renderNotice(i18n, view)}
+${rider.importStatus === "done" ? html`<p>${i18n.t("me.import.done")}</p>` : null}
+${renderNotice(i18n, view, ctx.env.SEASON_START_DATE)}
 ${view.state === "ready" ? renderSummary(i18n, view.summary) : null}
 ${view.state === "ready" && view.gauges ? renderGauges(i18n, view.gauges) : null}
 ${view.state === "ready" ? renderBreakdown(i18n, view.breakdown) : null}

@@ -889,7 +889,7 @@ async function rulesAndNotice(athleteId = ATHLETE_A, acceptLanguage?: string) {
 
 const UPDATING =
 	"Die Regeln haben sich geändert: Seit dem 07.10.2026 gelten neue Regeln.";
-const IMPORTING = "Deine älteren Fahrten werden noch importiert.";
+const IMPORTING = "Deine Fahrten seit dem 01.01.2026 werden noch importiert.";
 
 describe("GET /me rules and notices (US6)", () => {
 	it("S6-1: names the rules version, the window and the handout", async () => {
@@ -943,11 +943,12 @@ describe("GET /me rules and notices (US6)", () => {
 		await seedBalance(ATHLETE_B, { trainingRynke: 12, trainingMissing: 238 });
 		const after = await rulesAndNotice(ATHLETE_B);
 		expect(after.notice).toBe(
-			"Deine älteren Fahrten werden noch importiert. Deine Rynke wachsen, sobald sie da sind.",
+			"Deine Fahrten seit dem 01.01.2026 werden noch importiert. Deine Rynke wachsen, sobald sie da sind.",
 		);
 		expect(after.html).toContain('class="rynke-summary"');
-		// Feature 001's import status line stays.
-		expect(after.html).toContain("werden importiert …");
+		// Said once: feature 001's status line shows only a finished import.
+		expect(after.html.split("werden noch importiert").length - 1).toBe(1);
+		expect(after.html).not.toContain("werden importiert …");
 	});
 
 	it("S6-5: says in English that the handout is in German", async () => {
