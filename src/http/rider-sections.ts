@@ -10,6 +10,7 @@ import type {
 	RideLine,
 	RiderView,
 	RideTable,
+	RulesInfo,
 	Summary,
 } from "./rider-view";
 
@@ -29,16 +30,39 @@ const STATUS = {
 	},
 } as const;
 
+/** The rules handout, published in the public repository (research R14). */
+export const RULES_HANDOUT_URL =
+	"https://github.com/SaSteffen/RynkePoints/blob/main/docs/rynke-punkte.md";
+
 function whole(i18n: I18n, n: number): string {
 	return i18n.formatNumber(n, { fractionDigits: 0 });
 }
 
-/** The page's notices, or nothing when none applies. */
+/** A configured `YYYY-MM-DD`, passed as UTC midnight like the season start. */
+function day(i18n: I18n, date: string): string {
+	return i18n.formatDate(`${date}T00:00:00Z`);
+}
+
+/** The page's notices, in contract order, or nothing when none applies. */
 export function renderNotice(i18n: I18n, view: RiderView): SafeHtml | null {
-	if (view.state !== "not-worked-out") return null;
+	const notices: string[] = [];
+	if (view.state === "not-worked-out") {
+		notices.push(i18n.t("rynke.notice.notWorkedOut"));
+	} else if (view.updating) {
+		notices.push(
+			i18n.t("rynke.notice.updating", {
+				date: day(i18n, view.updating.inEffectSince),
+				version: String(view.rules.version),
+			}),
+		);
+	}
+	if (view.importing) notices.push(i18n.t("rynke.notice.importing"));
+	if (notices.length === 0) return null;
 	return html`<section class="notice" role="status">
-<p>${i18n.t("rynke.notice.notWorkedOut")}</p>
-</section>`;
+${notices.map(
+	(notice) => html`<p>${notice}</p>
+`,
+)}</section>`;
 }
 
 export function renderSummary(i18n: I18n, summary: Summary): SafeHtml {
@@ -181,6 +205,27 @@ export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
 </section>`;
 }
 
+/** The rules version, the counting window and the handout (FR-050, FR-053). */
+export function renderRules(i18n: I18n, rules: RulesInfo): SafeHtml {
+	const start = day(i18n, rules.seasonStart);
+	const window =
+		rules.deadline === null
+			? i18n.t("rynke.rules.window", { start })
+			: i18n.t("rynke.rules.windowDeadline", {
+					start,
+					deadline: day(i18n, rules.deadline),
+				});
+	return html`<section class="rynke-rules">
+<h2>${i18n.t("rynke.rules.heading")}</h2>
+<p>${i18n.t("rynke.rules.version", {
+		version: String(rules.version),
+		date: day(i18n, rules.effectiveDate),
+	})}</p>
+<p>${window}</p>
+<p><a class="tap" href="${RULES_HANDOUT_URL}">${i18n.t("rynke.rules.handout")}</a></p>
+</section>`;
+}
+
 export function renderRides(i18n: I18n, rides: RideTable): SafeHtml {
 	const heading = html`<h2>${i18n.t("me.recent.heading")}</h2>`;
 	if (rides.rows.length === 0) {
@@ -303,16 +348,15 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 			return i18n.t("rynke.reason.excluded_sport_type", {
 				sport: i18n.t(`sport.${reason.sportType}`),
 			});
-		// Configured dates, passed as UTC midnight like the season start.
 		case "before_season":
 			return i18n.t("rynke.reason.outside_window", {
-				date: i18n.formatDate(`${reason.date}T00:00:00Z`),
+				date: day(i18n, reason.date),
 			});
 		case "after_deadline":
 			return reason.date === null
 				? i18n.t("rynke.reason.outside_window.afterDeadlineNoDate")
 				: i18n.t("rynke.reason.outside_window.afterDeadline", {
-						date: i18n.formatDate(`${reason.date}T00:00:00Z`),
+						date: day(i18n, reason.date),
 					});
 		case "overlap": {
 			const ride = reason.countedInstead;

@@ -107,6 +107,17 @@ export const de = {
 	"rynke.pager.previous": "‹ Neuere",
 	"rynke.pager.next": "Ältere ›",
 	"rynke.pager.last": "Älteste »",
+	"rynke.notice.updating":
+		"Die Regeln haben sich geändert: Seit dem {date} gelten neue Regeln. Deine Zahlen werden gerade neu berechnet; bis dahin siehst du sie nach Regel-Version {version}.",
+	"rynke.notice.importing":
+		"Deine älteren Fahrten werden noch importiert. Deine Rynke wachsen, sobald sie da sind.",
+	"rynke.rules.heading": "Regeln",
+	"rynke.rules.version":
+		"Berechnet nach Regel-Version {version}, gültig seit dem {date}.",
+	"rynke.rules.window": "Es zählt alles ab dem {start}.",
+	"rynke.rules.windowDeadline":
+		"Es zählt alles vom {start} bis zum {deadline}.",
+	"rynke.rules.handout": "So funktionieren die Rynke (Regeln zum Nachlesen)",
 	"rynke.ride.counts": "zählt",
 	"rynke.ride.doesNotCount": "zählt nicht",
 	"rynke.ride.beingEvaluated": "wird ausgewertet",

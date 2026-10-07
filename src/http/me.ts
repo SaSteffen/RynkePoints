@@ -14,6 +14,7 @@ import {
 	renderGauges,
 	renderNotice,
 	renderRides,
+	renderRules,
 	renderSummary,
 } from "./rider-sections";
 import { buildRiderView, parsePage } from "./rider-view";
@@ -21,10 +22,10 @@ import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 
 // The rider's own pages (contracts/http-routes.md): `/me` with connection
 // status, granted level and write access, import progress, the rider's Rynke
-// with their gauges and where they come from, and all their rides, 20 a page,
-// with what each earns (feature 005, only ever their own and only read), the
-// stored consent (feature 004 FR-014), disconnecting with deletion (FR-023),
-// and signing out.
+// with their gauges, where they come from and the rules behind them, and all
+// their rides, 20 a page, with what each earns (feature 005, only ever their
+// own and only read), the stored consent (feature 004 FR-014), disconnecting
+// with deletion (FR-023), and signing out.
 
 /** The rider's current consent and who sees what, or that none is stored. */
 async function consent(
@@ -103,6 +104,7 @@ ${renderNotice(i18n, view)}
 ${view.state === "ready" ? renderSummary(i18n, view.summary) : null}
 ${view.state === "ready" && view.gauges ? renderGauges(i18n, view.gauges) : null}
 ${view.state === "ready" ? renderBreakdown(i18n, view.breakdown) : null}
+${view.state === "ready" ? renderRules(i18n, view.rules) : null}
 ${renderRides(i18n, view.rides)}
 <section>
 <h2>${i18n.t("me.consent.heading")}</h2>
