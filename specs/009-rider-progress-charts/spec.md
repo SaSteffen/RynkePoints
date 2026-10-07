@@ -16,7 +16,25 @@ step and the week; every point carries its figures as text; charts work at 360 p
 need no extra JavaScript library unless the plan justifies one; decide whether the
 history is rebuilt from stored results or stored from now on; say how a rules change
 is shown; only the signed-in rider's own data; German and English. Context: feature
-008 stores ride names, so a chart can name the rides behind a day.
+008 stores ride names (the charts show none, see Clarifications).
+
+## Clarifications
+
+### Session 2026-10-07
+
+- Q: Should riders be able to zoom freely in the first delivery, or only after it,
+  with period buttons first? → A: In the first delivery, kept simple: the curves
+  with free zoom, moving through time and a reset; pointing at or tapping a day
+  shows only its date and totals. The list of what changed on a day (rides by name
+  with their Strava links, elevation steps, team events, corrections) is dropped:
+  the charts are a nice graph, not a main feature, so they show no rides at all.
+- Q: Which later extras stay: weekly bars by source, the pace line and the curve
+  without virtual rides? → A: Only line charts, so as not to copy Strava: the weekly
+  bars are dropped; the pace line and the curve without virtual rides stay, as lines
+  in the curve charts, in a later delivery. The weekly table stays as the charts'
+  text version.
+- Q: Should the charts be a section of the rider page (`/me`) or a separate page
+  linked from it? → A: A section of the rider page, below the gauges.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -29,11 +47,9 @@ Rynke** ("Teamrynke"), the **balance** (feature 003 FR-014a), the **ride result*
 - The **season curve** of a kind of Rynke gives, for each day of the counting window
   (feature 003 FR-011), the total the rider had at the end of that day. Its last
   point is the stored balance.
-- A **source** is where Rynke come from, as in the gauges (feature 005 FR-022):
-  distance, elevation, each team-event kind (team training, training-weekend day,
-  technique training) and corrections.
-- A **week** runs from Monday to Sunday in the team's time zone (Europe/Berlin). The
-  first week of the season starts on the season start and may be shorter.
+- A **week** (a row of the table) runs from Monday to Sunday in the team's time zone
+  (Europe/Berlin). The first week of the season starts on the season start and may
+  be shorter.
 - The **period** is the stretch of the season a rider is looking at in the charts:
   the whole season unless they zoomed in.
 - The **pace line** is a straight line from 0 at the season start to a threshold at
@@ -63,29 +79,35 @@ whose climbing took the season's elevation total past 2000 m and so earned the n
 (Wednesday 7 October) is 112 Training Rynke and 17 Team Rynke.
 
 **Delivery phases** (see [D0](#d0-delivery-phases)): User Story 1 is the first
-delivery and is releasable on its own. User Stories 2 to 4 follow, each adding to the
-section without taking away what an earlier one shows. User Story 5, the diagrams, is
+delivery and is releasable on its own. User Story 2 follows, adding to the section
+without taking away what the first one shows. User Story 3, the diagrams, is
 delivered with this spec.
 
-### User Story 1 - Rider sees how their Rynke grew over the season (Priority: P1, first delivery)
+### User Story 1 - Rider sees how their Rynke grew over the season and zooms in (Priority: P1, first delivery)
 
 Below the gauges on their rider page, a rider sees two charts: their Training Rynke
 over the season with the Training threshold as a line, and their Team Rynke over the
 season with the Team threshold as a line. The time axis runs from the season start to
 the deadline, or to today when no deadline is set, so they can see both how far they
 have come and how much season is left. Buttons switch the period between the whole
-season, the last 3 months and the last 4 weeks; both charts always show the same
-period. The figures behind each chart can be read as a table.
+season, the last 3 months and the last 4 weeks. The rider can also zoom into any
+stretch: with a pinch or by dragging across a chart on a phone, with the mouse wheel
+or by dragging across a chart on a computer, or with the keyboard. Zoomed in, they
+move the period backwards and forwards in time, and a reset brings back the whole
+season. Both charts always show the same period. Pointing at or tapping a day shows
+its date and totals. The figures behind each chart can be read as a table.
 
 **Why this priority**: The gauges answer "where am I?"; the curve answers "am I
 getting there?". A flat stretch shows a rider at a glance that they have not earned
-Rynke for weeks, early enough to change it. It is the core of the request and is
-useful without the finer interaction of later stories.
+Rynke for weeks, early enough to change it. Zooming makes a single weekend readable
+on a phone. It is the core of the request and kept simple: a nice graph, not a main
+feature of the app.
 
 **Independent Test**: Store synthetic ride results, attendance, corrections and a
 balance for a few riders (the example rider, a rider with no Rynke yet, a rider past
 both thresholds), sign in as each and compare every point of both curves, the
-threshold lines and the table with figures worked out by hand.
+threshold lines and the table with figures worked out by hand; then zoom to 14–20
+September with touch, mouse and keyboard and compare the totals shown for each day.
 
 **Acceptance Scenarios**:
 
@@ -121,99 +143,29 @@ threshold lines and the table with figures worked out by hand.
 11. **Given** a rider opening their rider page any number of times, **When** the
     charts are shown, **Then** no evaluation is started and no request is made to
     Strava.
+12. **Given** the example rider on a phone, **When** they pinch out on the Training
+    chart around mid-September, **Then** both charts zoom into the same shorter
+    period and the dates on the axis become days.
+13. **Given** the example rider, **When** they point at or tap Sunday 20 September,
+    **Then** they see the date, Training Rynke 69 and Team Rynke 11, and nothing
+    about the rides, team events or corrections of that day.
+14. **Given** a rider zoomed in, **When** they move the period, **Then** it moves no
+    further than the season start and the end of the time axis; **when** they reset,
+    **Then** the whole season is shown again.
+15. **Given** a rider zoomed in, **When** they switch the language, **Then** the
+    period stays as it was.
+16. **Given** a phone, **When** the rider swipes up or down across a chart, **Then**
+    the page scrolls as usual and the chart does not zoom or move.
+17. **Given** a rider who uses only the keyboard or a screen reader, **When** they
+    reach the charts, **Then** they can zoom, move, reset and step from day to day,
+    and each day's date and totals are read out as text.
+18. **Given** a browser where the interactive part does not run, **When** the rider
+    opens the section, **Then** both charts show the whole season, and the period
+    buttons and the table still work.
 
 ---
 
-### User Story 2 - Rider zooms into the charts and sees what happened on a day (Priority: P2)
-
-The rider zooms into any stretch of the season: with a pinch or by dragging across a
-chart on a phone, with the mouse wheel or by dragging across a chart on a computer,
-or with the keyboard. Zoomed in, they move the period backwards and forwards in time,
-and a reset brings back the whole season. When they tap, click or move to a day on a
-chart, they see that day's totals and what changed: each ride that earned Rynke, by
-its name, an elevation step reached, each team event attended, each correction.
-
-**Why this priority**: A whole season compresses a weekend into a few pixels; zooming
-in makes single days readable on a phone. Seeing which rides and events made a jump
-lets a rider retrace the curve, as the breakdown lets them retrace the totals
-(feature 005 US3).
-
-**Independent Test**: For the example rider, zoom to 14–20 September with each input
-(touch, mouse, keyboard), select days and compare the details shown with the
-stored rides, attendance and corrections.
-
-**Acceptance Scenarios**:
-
-1. **Given** the example rider on a phone, **When** they pinch out on the Training
-   chart around mid-September, **Then** both charts zoom into the same shorter
-   period and the dates on the axis become days.
-2. **Given** the example rider zoomed into 14–20 September, **When** they select
-   Sunday 20 September, **Then** they see: Training Rynke 69 (+23 that day), Team
-   Rynke 11 (+5); "Trainingswochenende Tag 2" +8 Training Rynke from distance; next
-   elevation step reached +5 Training Rynke; training-weekend day +10 Training
-   Rynke and +5 Team Rynke.
-3. **Given** the same day, **When** the rider looks at the ride in the details,
-   **Then** it shows the ride's name and a "View on Strava" link (feature 008
-   FR-009), and no distance, elevation, time or speed figures.
-4. **Given** the example rider, **When** they select Thursday 1 October, **Then** the
-   details show the correction +10 Training Rynke with its reason.
-5. **Given** a day on which a ride counted but earned 0 Training Rynke (e.g. 8 km),
-   **When** the rider selects it, **Then** the ride is listed with 0 Training Rynke;
-   a ride that didn't count is not listed.
-6. **Given** a rider zoomed in, **When** they move the period, **Then** it moves no
-   further than the season start and the end of the time axis; **when** they reset,
-   **Then** the whole season is shown again.
-7. **Given** a rider zoomed in, **When** they switch the language, **Then** the
-   period stays as it was.
-8. **Given** a phone, **When** the rider swipes up or down across a chart, **Then**
-   the page scrolls as usual and the chart does not zoom or move.
-9. **Given** a rider who uses only the keyboard or a screen reader, **When** they
-   reach the charts, **Then** they can zoom, move, reset and step from day to day,
-   and every detail is read out as text.
-10. **Given** a browser where the interactive part does not run, **When** the rider
-    opens the section, **Then** both charts show the whole season, the period
-    buttons and the table still work, and nothing else is lost.
-
----
-
-### User Story 3 - Rider sees how many Rynke each week brought, and from where (Priority: P2)
-
-Below the curves, a bar chart shows the Training Rynke earned in each week of the
-period, each bar divided into its sources (distance, elevation, each team-event kind,
-corrections), and a second one the Team Rynke per week by team-event kind and
-corrections. When the period is 31 days or shorter, the bars are per day. It shares
-the period and the details of User Stories 1 and 2.
-
-**Why this priority**: The curve shows that a rider is behind; the bars show which
-weeks were empty and whether their Rynke come only from riding or also from team
-events, the two things a rider can change. It needs the curve's figures first.
-
-**Independent Test**: For the example rider and a rider with a negative correction,
-compare every bar and every part of it with the example table and the stored inputs.
-
-**Acceptance Scenarios**:
-
-1. **Given** the example rider, **When** they look at the Training bars, **Then** the
-   bar of 14–20 September is 39 high, divided into 14 distance, 5 elevation and 20
-   training-weekend days, with a legend giving each part's number.
-2. **Given** the example rider, **When** they look at the Team bars, **Then** the
-   bar of 14–20 September is 10 high, all from training-weekend days, and the bar of
-   7–13 September is empty.
-3. **Given** a rider with a correction of −10 Training Rynke in a week with 6 from
-   distance, **When** they look at that week, **Then** the distance part rises 6
-   above the zero line and the correction part reaches 10 below it, each labelled
-   with its sign.
-4. **Given** a period of 4 weeks, **When** the rider looks at the bars, **Then** they
-   show one bar per day.
-5. **Given** the first week of the season (Tuesday 1 to Sunday 6 September), **When**
-   it is shown, **Then** it is labelled as starting on 1 September and holds only
-   those six days.
-6. **Given** a rider using a screen reader or unable to tell colours apart, **When**
-   they read a bar, **Then** each part's source and number are available as text.
-
----
-
-### User Story 4 - Rider sees whether they are on pace and how much may come from virtual rides (Priority: P3)
+### User Story 2 - Rider sees whether they are on pace and how much may come from virtual rides (Priority: P3)
 
 When a qualification deadline is set, both curve charts show the pace line from 0 at
 the season start to the threshold at the deadline, so a rider sees whether they are
@@ -231,7 +183,7 @@ with figures worked out by hand.
 
 **Acceptance Scenarios**:
 
-1. **Given** the example rider and the deadline 31 May 2027, **When** they select
+1. **Given** the example rider and the deadline 31 May 2027, **When** they point at
    Sunday 4 October, **Then** they see their 112 Training Rynke against a pace of 31
    (250 × 34 ÷ 273, rounded down: day 34 of 273) and their 17 Team Rynke against a
    pace of 3, and are told they are 81 and 14 ahead of an even pace.
@@ -242,13 +194,13 @@ with figures worked out by hand.
    Rynke without virtual rides, 100 below the first at the end, and a line at 167.
 4. **Given** a rider without virtual rides, **When** they open the Training chart,
    **Then** neither the second curve nor the line at 167 is shown.
-5. **Given** a rider behind the pace on the selected day, **When** they read the
-   details, **Then** they are told how many Rynke they are behind it, never as a
+5. **Given** a rider behind the pace on a day, **When** they point at that day,
+   **Then** they are told how many Rynke they are behind it, never as a
    rule they broke.
 
 ---
 
-### User Story 5 - The progress charts are documented in diagrams (Priority: P2, delivered with this spec)
+### User Story 3 - The progress charts are documented in diagrams (Priority: P2, delivered with this spec)
 
 Before planning starts, anyone reading this spec can see the feature at a glance: the
 delivery phases, where the curves come from, how a day's total is built, how the
@@ -294,14 +246,12 @@ on GitHub and agrees with the requirements.
   them are left out until the update is done; the curves are still shown.
 - **Ride stored but not evaluated yet**: not in the curves until its ride result is
   stored, as it is not in the balance (feature 005 FR-041).
-- **Overlapping recordings**: only the ride that counts appears in a day's details;
-  the other one earns nothing (feature 003 FR-005d).
+- **Overlapping recordings**: only the ride that counts adds to the curve; the other
+  one earns nothing (feature 003 FR-005d).
 - **Elevation step**: the 5 Training Rynke of a step belong to the day whose ride
-  takes the season's elevation total past the step; the details say "next elevation
-  step reached" and show no metres.
+  takes the season's elevation total past the step; no metres are shown anywhere.
 - **Negative corrections**: the curve never goes below 0, like the balance (feature
-  005 FR-035); where the floor of 0 hides part of a correction, the day's details
-  say so. Bars show the correction below the zero line (US3 scenario 3).
+  005 FR-035).
 - **Correction or team event outside the counting window**: not in the curves, as not
   in the balance (feature 005 FR-033).
 - **Deadline passed**: the curves end on the deadline and stay flat after it; the time
@@ -311,10 +261,6 @@ on GitHub and agrees with the requirements.
 - **Deadline less than 3 months away from the season start, or no deadline and fewer
   than 3 months of season**: "last 3 months" equals the whole season and is not
   offered.
-- **Many events on one day**: the day's details list all of them; a rider can have a
-  ride, a team event and a correction on the same day.
-- **Ride name unknown** (feature 008 FR-005): the ride is listed as a ride of that day
-  with its "View on Strava" link and no name.
 - **Language switch**: the section switches immediately and keeps its period; dates,
   numbers and month names follow the page language (feature 005 FR-061).
 - **A whole season of rides** (up to 500, feature 001 SC-008): the charts and the
@@ -328,33 +274,34 @@ on GitHub and agrees with the requirements.
 **Where and for whom**
 
 - **FR-001**: The charts MUST be a section of the rider page (feature 005 FR-001),
-  after the gauges and the breakdown, not a second page, unless planning finds a
-  reason not to; then the plan states the reason and this spec is updated.
-- **FR-002**: Only the signed-in rider MUST see their own charts and the details
-  behind them, under the same conditions as the rest of the rider page (feature 005
-  FR-002). Nothing of this feature is shown to other riders, organisers or the team,
-  and the ride names in it are shown only to the rider (feature 008 FR-008).
+  after the gauges and the breakdown, not a second page.
+- **FR-002**: Only the signed-in rider MUST see their own charts, under the same
+  conditions as the rest of the rider page (feature 005 FR-002). Nothing of this
+  feature is shown to other riders, organisers or the team.
 - **FR-003**: Showing or using the charts MUST NOT start an evaluation, change any
   stored data or contact Strava (feature 005 FR-003). Zooming, moving the period and
-  showing details MUST NOT contact Strava either.
-- **FR-004**: The first delivery MUST be User Story 1 only (FR-005, FR-006,
-  FR-010–FR-016, FR-020, FR-021, FR-024, FR-026, FR-040–FR-042, FR-050–FR-053,
-  FR-060–FR-062, FR-070–FR-072, and FR-080 for what it shows) and MUST be releasable on its own. Later
-  deliveries add User Stories 2–4 in any order and MUST NOT take away anything an
-  earlier delivery shows.
+  pointing at a day MUST NOT contact Strava either.
+- **FR-004**: The first delivery MUST be User Story 1 only (FR-005–FR-007,
+  FR-010–FR-016, FR-020–FR-026, FR-030, FR-037, FR-040–FR-042, FR-050–FR-053,
+  FR-060, FR-061, FR-070–FR-072, and FR-080 for what it shows) and MUST be
+  releasable on its own. A later delivery adds User Story 2 and MUST NOT take away
+  anything the first delivery shows.
 
 **What the charts show**
 
 - **FR-005**: The charts MUST show only Rynke: Training Rynke, Team Rynke, Training
-  Rynke without virtual rides, their sources, the thresholds and the pace lines. They
-  MUST NOT show, as a chart, axis, line, bar or figure in the details, a ride's or
-  the season's distance, elevation gain in metres, time, speed, climbing rate,
-  heart rate, power, cadence, calories or route, and MUST NOT show ride counts,
-  records, streaks, personal bests, comparisons with other riders or with past
-  seasons. Elevation appears only as the Training Rynke it earns. Training
-  analysis is Strava's; this app only shows what is needed to earn the tour (Strava
-  API Agreement: no apps that "compete with or replicate Strava functionality").
+  Rynke without virtual rides, the thresholds and the pace lines. They MUST NOT
+  show, as a chart, axis, line, bar or figure shown for a day, a ride's or the
+  season's distance, elevation gain in metres, time, speed, climbing rate, heart
+  rate, power, cadence, calories or route, MUST NOT show single rides, their names or
+  links, and MUST NOT show ride counts, records, streaks, personal bests, comparisons
+  with other riders or with past seasons. Elevation is never shown on its own: its
+  Training Rynke only add to the Training curve. Training analysis is Strava's; this
+  app only shows what is needed to earn the tour (Strava API Agreement: no apps that
+  "compete with or replicate Strava functionality").
 - **FR-006**: The charts MUST NOT offer the rider's data as a download or export.
+- **FR-007**: The section MUST contain line charts only: no bar, pie, area-by-source
+  or other kinds of chart.
 
 **Season curves (first delivery)**
 
@@ -386,7 +333,7 @@ on GitHub and agrees with the requirements.
 - **FR-016**: When no balance is stored for the rider, the section MUST NOT show
   charts or the table (feature 005 FR-015).
 
-**Period and zoom**
+**Period and zoom (first delivery)**
 
 - **FR-020**: The section MUST offer the periods "whole season", "last 3 months" and
   "last 4 weeks", ending today (or on the deadline once passed); "whole season" is
@@ -406,36 +353,18 @@ on GitHub and agrees with the requirements.
 - **FR-026**: Switching the language MUST keep the period. Reloading the page MAY
   reset it to the whole season.
 
-**Details of a day or week**
+**Totals of a day**
 
-- **FR-030**: Selecting a day on a curve chart (tap, click, hover or keyboard) MUST
-  show that day's date, each total at its end and the change that day, and what made
-  the change: each ride that counted with its name (feature 008, when known), the
-  Training Rynke it earned from distance and its "View on Strava" link (feature 008
-  FR-009); "next elevation step reached" with the Training Rynke it earned; each team
-  event attended with its kind, name if it has one, and Team and Training Rynke; each
-  correction with its amounts and reason.
-- **FR-031**: Selecting a bar (User Story 3) MUST show the same for that week or day,
-  with the totals at its end and each source's part.
-- **FR-032**: The details MUST NOT show a ride's distance, elevation gain, time or
-  speed (FR-005), nor rides that didn't count; why a ride didn't count stays in the
-  ride table (feature 005 FR-042).
-- **FR-033**: Where the floor of 0 kept a total from going lower that day, the
-  details MUST say so.
+- **FR-030**: Pointing at or tapping a day on a curve chart, or stepping to it with
+  the keyboard, MUST show that day's date and each total at its end (from User Story
+  2 also the pace, FR-038, and the Training Rynke without virtual rides, FR-039).
+  It MUST NOT list what changed that day: no rides, ride names, links, elevation
+  steps, team events or corrections.
 
-**Weekly bars**
+**Weeks**
 
-- **FR-034**: The section MUST show a bar chart of the Training Rynke earned per week
-  of the period, each bar divided into its sources, and one of the Team Rynke per
-  week, divided into the team-event kinds and corrections, each with a legend giving
-  each part's number for the selected bar. When the period is 31 days or shorter,
-  the bars MUST be per day.
-- **FR-035**: The elevation part of a week or day MUST be the Training Rynke of the
-  elevation steps reached in it (Edge Cases, "Elevation step").
-- **FR-036**: A negative correction MUST be drawn below the zero line and its number
-  shown with its sign; the parts of a bar MUST add up to that week's change before
-  the floor of 0.
-- **FR-037**: A week MUST run from Monday to Sunday in Europe/Berlin; the first week
+- **FR-037**: A week of the table (FR-051) MUST run from Monday to Sunday in
+  Europe/Berlin; the first week
   MUST start on the season start and the last one shown MUST end today, or on the
   deadline once passed, each labelled with its first day.
 
@@ -443,8 +372,8 @@ on GitHub and agrees with the requirements.
 
 - **FR-038**: When a qualification deadline is set, each curve chart MUST show the
   pace line of its threshold (from 0 on the season start to the threshold on the
-  deadline). The details of a day MUST give the pace on that day, rounded down, and
-  how many Rynke the rider is ahead of or behind it. Being behind MUST NOT be
+  deadline). The totals of a day (FR-030) MUST give the pace on that day, rounded
+  down, and how many Rynke the rider is ahead of or behind it. Being behind MUST NOT be
   presented as breaking a rule.
 - **FR-039**: When at least one of the rider's rides is a virtual ride (feature 005
   FR-012), the Training chart MUST also show the season curve of the Training Rynke
@@ -459,7 +388,7 @@ on GitHub and agrees with the requirements.
   Every rule value used for a line (thresholds, amount needed without virtual rides,
   deadline) MUST be that version's; where it is not available (feature 005 FR-013),
   the line is left out and the curves are still shown.
-- **FR-041**: The curves, bars, details and the stored balance shown on the page MUST
+- **FR-041**: The curves, table, totals and the stored balance shown on the page MUST
   come from one consistent reading, so the page never shows a curve of another
   moment or rules version than its summary and gauges (feature 005 FR-005).
 - **FR-042**: While the rider's results are being updated to new rules (feature 005
@@ -470,7 +399,7 @@ on GitHub and agrees with the requirements.
 
 - **FR-050**: Every chart MUST carry its figures as text that can be read without
   seeing colours or the drawing, e.g. with a screen reader; colour MUST NOT be the
-  only way a curve, line or source is told apart (feature 005 FR-025).
+  only way a curve or line is told apart (feature 005 FR-025).
 - **FR-051**: The section MUST offer a table of the season, one row per week, with
   the Training Rynke and Team Rynke earned in that week and the totals at its end,
   plus the Training Rynke without virtual rides when FR-039 applies. The table MUST
@@ -478,28 +407,26 @@ on GitHub and agrees with the requirements.
 - **FR-052**: When the interactive part of the charts does not run (e.g. scripts
   switched off or failed to load), the charts MUST still show the whole season, and
   the period buttons and the table MUST still work.
-- **FR-053**: Period buttons, and once they exist zoom controls and details, MUST be operable by keyboard, with a
-  visible focus, and each control MUST be named for screen readers.
+- **FR-053**: Period buttons and the zoom, move and reset controls MUST be operable
+  by keyboard, with a visible focus, and each control MUST be named for screen
+  readers.
 
 **Language**
 
 - **FR-060**: All text of this feature, including chart titles, axis labels, legends,
-  period buttons, details and their text versions, MUST come from the translation
-  strings in German and English (feature 005 FR-060). Sources and team-event kinds
-  are translated from the values feature 003 stores (feature 005 FR-062).
+  period buttons, the totals of a day and their text versions, MUST come from the
+  translation
+  strings in German and English (feature 005 FR-060).
 - **FR-061**: Numbers, dates and month names MUST be formatted for the page language
   (feature 005 FR-061).
-- **FR-062**: Ride names MUST be shown as plain text exactly as on Strava, never
-  translated and never interpreted as markup (feature 008 FR-010).
 
 **Phones**
 
 - **FR-070**: Every part of this feature MUST work on a phone in portrait with a
   screen 360 pixels wide: charts full width and stacked, readable without zooming the
   page and without scrolling it sideways (feature 005 FR-070).
-- **FR-071**: Period buttons, the reset, the "View on Strava" links in the details and
-  other controls MUST be easy to tap (about 44 × 44 pixels, feature 005 FR-072).
-  Once details exist (User Story 2), a day MUST be selectable by touch on a
+- **FR-071**: Period buttons, the reset and other controls MUST be easy to tap
+  (about 44 × 44 pixels, feature 005 FR-072). A day MUST be selectable by touch on a
   360-pixel chart, if need be by zooming in first.
 - **FR-072**: The look MUST stay plain enough to take the site's planned Material
   Design look later without changing what the charts show (feature 005,
@@ -507,10 +434,10 @@ on GitHub and agrees with the requirements.
 
 **Tests**
 
-- **FR-080**: The curves, weekly bars, details, pace and virtual-ride figures, the
-  week boundaries, the floor of 0, the rules-version labelling, the German and
-  English texts, and that no other rider's data and no ride performance figure
-  appear MUST be covered by automated tests with synthetic data (constitution
+- **FR-080**: The curves, weekly table, totals of a day, pace and virtual-ride
+  figures, the week boundaries, the floor of 0, the rules-version labelling, the
+  German and English texts, and that no other rider's data and no ride performance
+  figure appear MUST be covered by automated tests with synthetic data (constitution
   Principles I, V). The figures of the example rider MUST be among them.
 
 **Diagrams**
@@ -519,7 +446,7 @@ on GitHub and agrees with the requirements.
   of: the delivery phases; where the curves come from and that the page only reads;
   how a day's total is built; the section's layout on a desktop and on a phone; how
   the period changes with zoom and buttons; how a rule change shows over time; and
-  the example rider's curves and weekly bars.
+  the example rider's curves.
 - **FR-091**: The diagrams MUST be text in the Markdown (rendered by GitHub), not
   image files, and MUST use only synthetic figures (constitution Principle I). This
   spec is authoritative: a diagram that disagrees with a requirement MUST be
@@ -538,8 +465,7 @@ curve with the balance, as a derived value of the same rules version). It reads:
 - **Ride Result** (feature 003 FR-014): whether a ride counts, its distance Rynke,
   metres for the elevation total (used only to place elevation steps, never shown),
   virtual flag, rules version.
-- **Activity** (features 001, 008): the ride's local start date, its name and Strava
-  ID for the details.
+- **Activity** (feature 001): the ride's local start date.
 - **Attendance and Team Event** (feature 003): date, kind, name.
 - **Correction** (feature 003): date, amounts, reason.
 - **Rynke Balance** (feature 003 FR-014a): the totals the curves end on, rules version.
@@ -547,7 +473,7 @@ curve with the balance, as a derived value of the same rules version). It reads:
   steps, deadline of the balance's version.
 - **Team Settings** (feature 001): the season start.
 - **Season curve** (derived, per rider and kind of Rynke): the total at the end of
-  each day of the counting window, with the change of that day by source. Never
+  each day of the counting window. Never
   stored on its own; deleted with the rider if planning stores it with the balance.
 
 ## Success Criteria *(mandatory)*
@@ -561,17 +487,17 @@ curve with the balance, as a derived value of the same rules version). It reads:
 - **SC-002**: For feature 003's reference set of at least 20 hand-calculated
   synthetic riders, the last point of every curve equals the stored balance in 100%
   of cases, and every weekly figure in the table equals the hand-calculated one.
-- **SC-003**: The details of 100% of tested days list exactly the counting rides,
-  elevation steps, attended team events and corrections of that day.
-- **SC-004**: 0 charts, axes, lines, bars or details show a distance, elevation in
+- **SC-003**: The totals shown for 100% of tested days equal the figures worked out
+  by hand, and none of them lists a ride, team event or correction.
+- **SC-004**: 0 charts, axes, lines, bars or day totals show a distance, elevation in
   metres, time, speed or other ride performance figure, in all cases tested.
 - **SC-005**: For a rider with 500 rides in the season, the rider page with the
   section is shown within 2 seconds under normal conditions (feature 005 SC-005),
-  and zooming, moving the period and showing details respond within half a second
+  and zooming, moving the period and pointing at a day respond within half a second
   on a mid-range phone.
 - **SC-006**: Showing and using the charts any number of times starts zero
   evaluations, changes no stored data and makes zero requests to Strava.
-- **SC-007**: With two or more synthetic riders, no chart, table or detail shows any
+- **SC-007**: With two or more synthetic riders, no chart, table or day total shows any
   data of a rider other than the signed-in one.
 - **SC-008**: On a phone screen 360 pixels wide, every part of the section is
   readable without zooming the page and without scrolling it sideways, in German and
@@ -593,25 +519,26 @@ curve with the balance, as a derived value of the same rules version). It reads:
   steps are placed by adding up the counting rides' metres day by day, which is what
   makes the rebuild more than a sum of per-ride values.
 - **Time step**: the curves have one point per day, since Rynke change on the day a
-  ride, event or correction is dated; bars are per week (Monday to Sunday,
-  Europe/Berlin, the team's time zone), or per day for short periods.
+  ride, event or correction is dated; the table is per week (Monday to Sunday,
+  Europe/Berlin, the team's time zone).
 - **Rule changes are not marked on the time axis**: they apply to the whole season, so
   a mark on the day they took effect would suggest a change in the curve that isn't
   there. The rules version label (FR-040) says which rules the curves show.
 - **What counts as "relevant statistics"**: the totals over time, the targets, the
-  amount per week and its sources, the pace towards the deadline and the share
-  without virtual rides. Elevation appears only as Training Rynke from elevation, one
-  source among others, never in metres; ride counts, records and streaks are left
-  out as training statistics Strava already offers. Comparisons with other riders
-  belong to the team leaderboard ([backlog](../backlog/team-leaderboard.md)), which
-  may reuse these charts for its week-by-week graph.
+  pace towards the deadline and the share without virtual rides, as line charts, and
+  the amount per week in the table. Bar charts, a split by source, elevation on its
+  own, ride counts, records and streaks are left out: they look like the training
+  statistics Strava already offers. Comparisons with other riders belong to the team
+  leaderboard ([backlog](../backlog/team-leaderboard.md)), which may reuse these
+  charts for its week-by-week graph.
 - The pace line is a guide for the rider, not a rule of feature 003; it only exists
   when a deadline is set.
-- Interactivity (zoom, details) probably needs scripts in the browser, which the site
-  does not use yet. Per constitution Principle IV, a charting library is only added
-  if the plan justifies it; the charts must stay usable without the script (FR-052).
-- The charts show a ride's name and "View on Strava" link only in the details; the
-  ride table (features 005, 008) stays the place for a ride's figures and reasons.
+- Interactivity (zoom, pointing at a day) probably needs scripts in the browser,
+  which the site does not use yet. Per constitution Principle IV, a charting library
+  is only added if the plan justifies it; the charts must stay usable without the
+  script (FR-052).
+- The charts show no single rides, names or Strava links; the ride table (features
+  005, 008) stays the place for a ride's name, figures and reasons.
 - The look stays plain, as in feature 005; Material Design comes later for the whole
   site. Mobile friendliness of the rest of the site is issue
   [#20](https://github.com/SaSteffen/RynkePoints/issues/20).
@@ -628,19 +555,17 @@ authoritative (FR-091).
 
 ```mermaid
 flowchart LR
-    spec["With this spec<br/>US5 diagrams"] --> d1
+    spec["With this spec<br/>US3 diagrams"] --> d1
 
     subgraph d1["First delivery (FR-004)"]
-        us1["US1 season curves<br/>Training and Team Rynke,<br/>threshold lines,<br/>period buttons, weekly table"]
+        us1["US1 season curves<br/>Training and Team Rynke,<br/>threshold lines, period buttons,<br/>free zoom, totals of a day,<br/>weekly table"]
     end
 
-    subgraph later["Later deliveries, any order"]
-        us2["US2 free zoom and move,<br/>details of a day"]
-        us3["US3 Rynke per week<br/>by source"]
-        us4["US4 pace lines,<br/>curve without virtual rides"]
+    subgraph later["Later delivery"]
+        us2["US2 pace lines,<br/>curve without virtual rides"]
     end
 
-    d1 --> us2 & us3 & us4
+    d1 --> us2
     later -. "later, site-wide, separate" .-> md["Material Design look"]
 ```
 
@@ -656,8 +581,8 @@ flowchart LR
     org(["Organisers"])
     rider(["Signed-in rider"])
 
-    subgraph f001["Features 001, 008"]
-        acts[("Activities<br/>local start date, name")]
+    subgraph f001["Feature 001"]
+        acts[("Activities<br/>local start date")]
     end
 
     subgraph f003["Feature 003"]
@@ -668,7 +593,7 @@ flowchart LR
 
     subgraph f009["Feature 009 (this spec)"]
         rebuild["Rebuild day by day<br/>same rules as the evaluation<br/>(FR-011, FR-012)"]
-        charts["Progress section<br/>curves, bars, details, table"]
+        charts["Progress section<br/>curves, table"]
     end
 
     strava -->|notifications, fetch| acts
@@ -693,7 +618,7 @@ flowchart TD
     ride & elev & event & corr --> sum["Training 46 + 23 = 69<br/>Team 6 + 5 = 11"]
     sum --> floor{"Below 0?"}
     floor -- no --> point(["Point of the day<br/>Training 69 · Team 11"])
-    floor -- yes --> zero(["Point is 0,<br/>details say so (FR-033)"])
+    floor -- yes --> zero(["Point is 0"])
 ```
 
 ### D3. Section layout (desktop)
@@ -706,13 +631,12 @@ flowchart TB
         subgraph section["Progress section (this spec)"]
             direction TB
             label["Rules version 1 · whole season under these rules (FR-040)"]
-            periods["[ Whole season ] [ Last 3 months ] [ Last 4 weeks ] · Reset (US2)"]
-            c1["US1 · Training Rynke chart<br/>curve 0 → 112, line at 250<br/>US4 · pace line, curve without virtual rides + line at 167"]
-            c2["US1 · Team Rynke chart<br/>curve 0 → 17, line at 25<br/>US4 · pace line"]
-            details["US2 · Details of the selected day<br/>totals, change, rides by name + View on Strava,<br/>elevation step, team events, corrections"]
-            bars["US3 · Training Rynke per week by source<br/>US3 · Team Rynke per week by kind"]
+            periods["[ Whole season ] [ Last 3 months ] [ Last 4 weeks ] · Reset"]
+            c1["US1 · Training Rynke chart, zoomable<br/>curve 0 → 112, line at 250<br/>US2 · pace line, curve without virtual rides + line at 167"]
+            c2["US1 · Team Rynke chart, zoomable<br/>curve 0 → 17, line at 25<br/>US2 · pace line"]
+            details["US1 · Day under the pointer<br/>date, Training and Team totals"]
             table["US1 · Table: one row per week (FR-051)"]
-            label --> periods --> c1 --> c2 --> details --> bars --> table
+            label --> periods --> c1 --> c2 --> details --> table
         end
         after["Rides, consent, disconnect (features 001, 004, 005, 008)"]
         before --> section --> after
@@ -728,10 +652,9 @@ flowchart TB
         p1["Period buttons, two rows,<br/>44 × 44 px tap targets"]
         p2["Training chart, full width<br/>pinch or drag sideways to zoom,<br/>swipe up/down scrolls the page"]
         p3["Team chart, full width"]
-        p4["Details below the charts,<br/>one item per line"]
-        p5["Bars, full width"]
-        p6["Table: week · Training · total · Team · total"]
-        p1 --> p2 --> p3 --> p4 --> p5 --> p6
+        p4["Date and totals of the tapped day"]
+        p5["Table: week · Training · total · Team · total"]
+        p1 --> p2 --> p3 --> p4 --> p5
     end
 ```
 
@@ -740,10 +663,10 @@ flowchart TB
 ```mermaid
 stateDiagram-v2
     [*] --> Season: open rider page
-    Season: Whole season<br/>months on the axis, weekly bars
+    Season: Whole season<br/>months on the axis
     Months: Last 3 months
-    Weeks: Last 4 weeks<br/>days on the axis, daily bars
-    Zoomed: Any stretch, 7 days or more<br/>(US2)
+    Weeks: Last 4 weeks<br/>days on the axis
+    Zoomed: Any stretch, 7 days or more
 
     Season --> Months: button
     Season --> Weeks: button
@@ -813,37 +736,4 @@ xychart-beta
 
 The drawn charts have one point per day; these show the end of each week. With the
 deadline 31 May 2027, the pace line on 4 October is at 31 Training Rynke and 3 Team
-Rynke (US4 scenario 1).
-
-### D8. Example rider: Rynke per week
-
-Training Rynke earned in each week (the drawn bars are divided by source):
-
-```mermaid
-xychart-beta
-    title "Training Rynke per week"
-    x-axis ["1 Sep", "7 Sep", "14 Sep", "21 Sep", "28 Sep", "5 Oct"]
-    y-axis "Training Rynke" 0 --> 40
-    bar [21, 9, 39, 11, 32, 0]
-```
-
-The bar of 14–20 September divided by source, one block per Training Rynke (US3
-scenario 1):
-
-```mermaid
-block-beta
-    columns 39
-    a["Distance 14"]:14
-    b["Elevation 5"]:5
-    c["Training-weekend days 20"]:20
-```
-
-Team Rynke earned in each week:
-
-```mermaid
-xychart-beta
-    title "Team Rynke per week"
-    x-axis ["1 Sep", "7 Sep", "14 Sep", "21 Sep", "28 Sep", "5 Oct"]
-    y-axis "Team Rynke" 0 --> 12
-    bar [1, 0, 10, 5, 1, 0]
-```
+Rynke (US2 scenario 1).
