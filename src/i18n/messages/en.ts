@@ -65,9 +65,7 @@ export const en: Catalog = {
 	"me.recent.heading": "Recently imported rides",
 	"me.recent.empty": "No rides imported yet",
 	"me.recent.col.date": "Date",
-	"me.recent.col.sport": "Sport",
 	"me.recent.col.distance": "Distance",
-	"me.recent.col.elevation": "Elevation",
 	"me.disconnect.button": "Disconnect and delete my data",
 
 	"units.km": "{value} km",
@@ -78,6 +76,28 @@ export const en: Catalog = {
 	"sport.EBikeRide": "E-bike ride",
 	"sport.EMountainBikeRide": "E-mountain bike ride",
 	"sport.VirtualRide": "Virtual ride",
+
+	"rynke.training": "Training Rynke",
+	"rynke.team": "Team Rynke",
+	"rynke.withoutVirtual": "Training Rynke without virtual rides",
+	"rynke.notice.notWorkedOut":
+		"Your Rynke are still being worked out. Check back in a few minutes.",
+	"rynke.summary.heading": "Your Rynke",
+	"rynke.verdict.in": "You're in: you have everything you need for the tour.",
+	"rynke.verdict.notYet": "Not in yet. You still need:",
+	"rynke.missing.training": "{n} Training Rynke",
+	"rynke.missing.team": "{n} Team Rynke",
+	"rynke.missing.withoutVirtual":
+		"{n} Training Rynke from outdoor (non-virtual) rides",
+	"rynke.summary.ofTarget": "{value} of {target}",
+	"rynke.summary.missing": "{n} still missing",
+	"rynke.summary.reached": "reached ✓",
+	"rynke.rides.col.status": "Counts?",
+	"rynke.rides.col.elevationTotal": "Towards elevation",
+	"rynke.ride.counts": "counts",
+	"rynke.ride.doesNotCount": "doesn't count",
+	"rynke.ride.beingEvaluated": "being evaluated",
+	"rynke.ride.virtual": "virtual",
 
 	"disconnect.title": "Delete your data?",
 	"disconnect.explain":

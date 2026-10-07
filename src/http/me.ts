@@ -1,51 +1,23 @@
 import { berlinDate } from "../config";
 import type { Ctx } from "../ctx";
-import { listRecentActivities } from "../db/activities";
 import { getCurrentConsent } from "../db/consents";
+import { readRiderView } from "../db/rider-view";
 import { deleteRider, getRider, type Rider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
+import { CURRENT_RULES, rulesForVersion } from "../rynke/rules";
 import { revokeStoredToken } from "../strava/tokens";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
 import { redirect } from "./redirect";
+import { renderNotice, renderRides, renderSummary } from "./rider-sections";
+import { buildRiderView } from "./rider-view";
 import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 
 // The rider's own pages (contracts/http-routes.md): `/me` with connection
-// status, granted level and write access, import progress, the 20 newest rides
-// (US4) and the stored consent (feature 004 FR-014), disconnecting with
-// deletion (FR-023), and signing out.
-
-const RECENT_LIMIT = 20;
-
-/** The rider's newest rides, only ever their own (FR-025, FR-026). */
-async function recentRides(
-	ctx: Ctx,
-	i18n: I18n,
-	athleteId: number,
-): Promise<SafeHtml> {
-	const activities = await listRecentActivities(
-		ctx.env.DB,
-		athleteId,
-		RECENT_LIMIT,
-	);
-	if (activities.length === 0) {
-		return html`<p>${i18n.t("me.recent.empty")}</p>`;
-	}
-	const rows = activities.map((a) => {
-		// The rider's local date: Strava writes local wall-clock time with a `Z`.
-		const date = i18n.formatDate(a.start_date_local);
-		const sport = i18n.t(`sport.${a.sport_type}`);
-		const km = i18n.formatNumber(a.distance_m / 1000, { fractionDigits: 1 });
-		const m = i18n.formatNumber(a.elevation_gain_m, { fractionDigits: 0 });
-		return html`<tr><td>${date}</td><td>${sport}</td><td>${i18n.t("units.km", { value: km })}</td><td>${i18n.t("units.m", { value: m })}</td></tr>
-`;
-	});
-	return html`<table>
-<thead><tr><th>${i18n.t("me.recent.col.date")}</th><th>${i18n.t("me.recent.col.sport")}</th><th>${i18n.t("me.recent.col.distance")}</th><th>${i18n.t("me.recent.col.elevation")}</th></tr></thead>
-<tbody>
-${rows}</tbody>
-</table>`;
-}
+// status, granted level and write access, import progress, the rider's Rynke
+// and their 20 newest rides with what each earns (feature 005, only ever their
+// own and only read), the stored consent (feature 004 FR-014), disconnecting
+// with deletion (FR-023), and signing out.
 
 /** The rider's current consent and who sees what, or that none is stored. */
 async function consent(
@@ -92,6 +64,17 @@ export async function handleMe(
 			? i18n.t("me.import.done")
 			: i18n.t("me.import.running", { date: seasonStart });
 
+	const read = await readRiderView(ctx.env.DB, rider.athleteId, 1);
+	const view = buildRiderView(
+		read,
+		read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
+		CURRENT_RULES,
+		{
+			seasonStart: ctx.env.SEASON_START_DATE,
+			importing: rider.importStatus !== "done",
+		},
+	);
+
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
@@ -103,10 +86,9 @@ ${status}
 <p>${i18n.t(rider.scopeWrite ? "me.scope.write" : "me.scope.noWrite")}</p>
 <p><a href="/connect">${i18n.t("me.changePermissions")}</a></p>
 <p>${importStatus}</p>
-<section>
-<h2>${i18n.t("me.recent.heading")}</h2>
-${await recentRides(ctx, i18n, rider.athleteId)}
-</section>
+${renderNotice(i18n, view)}
+${view.state === "ready" ? renderSummary(i18n, view.summary) : null}
+${renderRides(i18n, view.rides)}
 <section>
 <h2>${i18n.t("me.consent.heading")}</h2>
 ${await consent(ctx, i18n, rider.athleteId)}

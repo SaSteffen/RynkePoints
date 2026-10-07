@@ -66,9 +66,7 @@ export const de = {
 	"me.recent.heading": "Zuletzt importierte Fahrten",
 	"me.recent.empty": "Noch keine Fahrten importiert",
 	"me.recent.col.date": "Datum",
-	"me.recent.col.sport": "Sportart",
 	"me.recent.col.distance": "Distanz",
-	"me.recent.col.elevation": "Höhenmeter",
 	"me.disconnect.button": "Verbindung trennen und meine Daten löschen",
 
 	"units.km": "{value} km",
@@ -79,6 +77,29 @@ export const de = {
 	"sport.EBikeRide": "E-Bike-Fahrt",
 	"sport.EMountainBikeRide": "E-Mountainbike-Fahrt",
 	"sport.VirtualRide": "Virtuelle Fahrt",
+
+	"rynke.training": "Trainingsrynke",
+	"rynke.team": "Teamrynke",
+	"rynke.withoutVirtual": "Trainingsrynke ohne virtuelle Fahrten",
+	"rynke.notice.notWorkedOut":
+		"Deine Rynke werden gerade berechnet. Schau in ein paar Minuten wieder vorbei.",
+	"rynke.summary.heading": "Deine Rynke",
+	"rynke.verdict.in":
+		"Du bist dabei: Du hast alles, was du für die Tour brauchst.",
+	"rynke.verdict.notYet": "Noch nicht dabei. Dir fehlen:",
+	"rynke.missing.training": "{n} Trainingsrynke",
+	"rynke.missing.team": "{n} Teamrynke",
+	"rynke.missing.withoutVirtual":
+		"{n} Trainingsrynke aus Fahrten draußen (nicht virtuell)",
+	"rynke.summary.ofTarget": "{value} von {target}",
+	"rynke.summary.missing": "{n} fehlen noch",
+	"rynke.summary.reached": "erreicht ✓",
+	"rynke.rides.col.status": "Zählt?",
+	"rynke.rides.col.elevationTotal": "Für die Höhenmeter",
+	"rynke.ride.counts": "zählt",
+	"rynke.ride.doesNotCount": "zählt nicht",
+	"rynke.ride.beingEvaluated": "wird ausgewertet",
+	"rynke.ride.virtual": "virtuell",
 
 	"disconnect.title": "Daten löschen?",
 	"disconnect.explain":

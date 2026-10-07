@@ -14,7 +14,7 @@ export interface StoredBalance extends Balance {
 	computedAt: number;
 }
 
-interface RideResultRow {
+export interface RideResultRow {
 	strava_activity_id: number;
 	athlete_id: number;
 	counts: 0 | 1;
@@ -28,7 +28,7 @@ interface RideResultRow {
 	activity_refreshed_at: number;
 }
 
-interface BalanceRow {
+export interface BalanceRow {
 	athlete_id: number;
 	distance_rynke: number;
 	elevation_dm: number;
@@ -46,7 +46,7 @@ interface BalanceRow {
 	computed_at: number;
 }
 
-function fromResultRow(row: RideResultRow): StoredRideResult {
+export function toStoredRideResult(row: RideResultRow): StoredRideResult {
 	return {
 		activityId: row.strava_activity_id,
 		counts: row.counts === 1,
@@ -61,7 +61,7 @@ function fromResultRow(row: RideResultRow): StoredRideResult {
 	};
 }
 
-function fromBalanceRow(row: BalanceRow): StoredBalance {
+export function toStoredBalance(row: BalanceRow): StoredBalance {
 	return {
 		distanceRynke: row.distance_rynke,
 		elevationDm: row.elevation_dm,
@@ -102,8 +102,8 @@ export function storedRynke(
 ): { balance: StoredBalance | null; results: StoredRideResult[] } {
 	const balanceRow = (balance.results as BalanceRow[])[0];
 	return {
-		balance: balanceRow ? fromBalanceRow(balanceRow) : null,
-		results: (results.results as RideResultRow[]).map(fromResultRow),
+		balance: balanceRow ? toStoredBalance(balanceRow) : null,
+		results: (results.results as RideResultRow[]).map(toStoredRideResult),
 	};
 }
 

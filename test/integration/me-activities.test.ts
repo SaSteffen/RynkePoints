@@ -61,13 +61,27 @@ async function getMe(acceptLanguage?: string) {
 	return res.text();
 }
 
-/** The rendered rows of the recent-rides table, as lists of cell texts. */
+function text(fragment: string): string {
+	return fragment
+		.replace(/<[^>]*>/g, " ")
+		.replace(/\s+/g, " ")
+		.trim();
+}
+
+/** The main rows of the ride table, as lists of cell texts. */
 function rows(page: string): string[][] {
-	const body = page.match(/<tbody>([\s\S]*?)<\/tbody>/)?.[1] ?? "";
-	return [...body.matchAll(/<tr>([\s\S]*?)<\/tr>/g)].map((row) =>
-		[...(row[1] ?? "").matchAll(/<td>([\s\S]*?)<\/td>/g)].map(
-			(c) => c[1] ?? "",
-		),
+	return [...page.matchAll(/<tr class="ride [^"]*">([\s\S]*?)<\/tr>/g)].map(
+		(row) =>
+			[...(row[1] ?? "").matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((c) =>
+				text(c[1] ?? ""),
+			),
+	);
+}
+
+/** The detail rows below each main row (sport type and gain). */
+function details(page: string): string[] {
+	return [...page.matchAll(/<tr class="ride-details">([\s\S]*?)<\/tr>/g)].map(
+		(row) => text(row[1] ?? ""),
 	);
 }
 
@@ -123,12 +137,22 @@ describe("GET /me recent rides", () => {
 
 		const page = await getMe();
 		expect(page).toContain("<h2>Zuletzt importierte Fahrten</h2>");
-		for (const header of ["Datum", "Sportart", "Distanz", "Höhenmeter"]) {
+		for (const header of [
+			"Datum",
+			"Distanz",
+			"Zählt?",
+			"Trainingsrynke",
+			"Für die Höhenmeter",
+		]) {
 			expect(page).toContain(`<th>${header}</th>`);
 		}
 		expect(rows(page)).toEqual([
-			["06.10.2026", "Gravel-Fahrt", "42,2 km", "312 m"],
-			["01.10.2026", "Radfahrt", "42,2 km", "1.234 m"],
+			["06.10.2026", "42,2 km", "wird ausgewertet", "–", "–"],
+			["01.10.2026", "42,2 km", "wird ausgewertet", "–", "–"],
+		]);
+		expect(details(page)).toEqual([
+			"Gravel-Fahrt · 312 m",
+			"Radfahrt · 1.234 m",
 		]);
 		expect(page).not.toContain("GravelRide");
 		expect(page).not.toContain("Noch keine Fahrten importiert");
@@ -147,12 +171,19 @@ describe("GET /me recent rides", () => {
 
 		const page = await getMe("en");
 		expect(page).toContain("<h2>Recently imported rides</h2>");
-		for (const header of ["Date", "Sport", "Distance", "Elevation"]) {
+		for (const header of [
+			"Date",
+			"Distance",
+			"Counts?",
+			"Training Rynke",
+			"Towards elevation",
+		]) {
 			expect(page).toContain(`<th>${header}</th>`);
 		}
 		expect(rows(page)).toEqual([
-			["06/10/2026", "Gravel ride", "42.2 km", "1,234 m"],
+			["06/10/2026", "42.2 km", "being evaluated", "–", "–"],
 		]);
+		expect(details(page)).toEqual(["Gravel ride · 1,234 m"]);
 	});
 
 	it("shows the empty state for a rider without activities", async () => {
@@ -163,6 +194,6 @@ describe("GET /me recent rides", () => {
 		const page = await getMe();
 		expect(page).toContain("<h2>Zuletzt importierte Fahrten</h2>");
 		expect(page).toContain("Noch keine Fahrten importiert");
-		expect(page).not.toContain("<table>");
+		expect(page).not.toContain("<table");
 	});
 });
