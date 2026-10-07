@@ -49,6 +49,11 @@ database only. It is never a migration.
 Writers: seeding (from recipes) and simulated events (insert, update, delete).
 Readers: the fake's activity list and single-activity answers.
 
+`fake_strava_seed`, created alongside it, holds one row: the `fingerprint`
+(SHA-256 of the sample riders) of the last seeding that finished. Seeding clears
+it first and writes it last; the dev entry seeds again when it is missing or
+differs from the current samples.
+
 ## Stateless OAuth values (`dev/fake-strava/tokens.ts`)
 
 | Value | Format | Checked by the fake |

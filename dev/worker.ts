@@ -9,8 +9,8 @@ import { answerStrava } from "./fake-strava/api";
 import { simulateEvent } from "./fake-strava/events";
 import { authorizePage, type IndexRow, indexPage } from "./fake-strava/pages";
 import { SAMPLE_RIDERS, sampleRider } from "./fake-strava/samples";
-import { seed } from "./fake-strava/seed";
-import { riderActivities, tableExists } from "./fake-strava/store";
+import { sampleFingerprint, seed } from "./fake-strava/seed";
+import { riderActivities, seededWith } from "./fake-strava/store";
 import { encodeCode } from "./fake-strava/tokens";
 
 // The dev entry of fake mode (specs/006-local-frontend-dev research R1, R2,
@@ -124,12 +124,13 @@ async function form(request: Request): Promise<FormData> {
 let seeding: Promise<void> | null = null;
 
 /**
- * Seeds on the first request after start, when the fake's table doesn't exist
- * yet. A failed seed drops the table again, so the next request retries.
+ * Seeds on the first request after start, unless the database was seeded from
+ * the current sample data. A failed seed isn't recorded, so the next request
+ * retries.
  */
 async function seedIfNeeded(ctx: Ctx, origin: string): Promise<void> {
 	if (!seeding) {
-		if (await tableExists(ctx.env.DB)) return;
+		if ((await seededWith(ctx.env.DB)) === (await sampleFingerprint())) return;
 		seeding = reseed(ctx, origin).finally(() => {
 			seeding = null;
 		});
@@ -147,15 +148,8 @@ async function resetAll(ctx: Ctx, origin: string): Promise<void> {
 	await seeding;
 }
 
-async function reseed(ctx: Ctx, origin: string): Promise<void> {
-	try {
-		await seed(ctx, origin, berlinDate(ctx.now()));
-	} catch (err) {
-		await ctx.env.DB.prepare(
-			"DROP TABLE IF EXISTS fake_strava_activities",
-		).run();
-		throw err;
-	}
+function reseed(ctx: Ctx, origin: string): Promise<void> {
+	return seed(ctx, origin, berlinDate(ctx.now()));
 }
 
 async function indexRows(ctx: Ctx): Promise<IndexRow[]> {

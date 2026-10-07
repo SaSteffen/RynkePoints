@@ -137,8 +137,13 @@ it connects with, club membership, an optional fake behaviour, and a ride recipe
    dev entry runs these as internal requests to `handleFetch` with the state cookie.
 
 The app's queue then imports and evaluates as usual (FR-012). Seeding runs
-automatically on the first request when `fake_strava_activities` doesn't exist,
-and again on **Reset** (`POST /_dev/reset`, a button on `/_dev/`, FR-013).
+automatically on the first request after start unless the database was seeded
+from the current sample data, and again on **Reset** (`POST /_dev/reset`, a button
+on `/_dev/`, FR-013). A finished seeding records a fingerprint of the samples (a
+SHA-256 of `SAMPLE_RIDERS`) in `fake_strava_seed`; changed samples, or a seeding
+that failed, lead to a new seeding. Checking only whether `fake_strava_activities`
+exists kept a database seeded from older samples, whose riders then had no rides
+to import.
 
 **States** (spec US2), with how each is reached without special app code:
 

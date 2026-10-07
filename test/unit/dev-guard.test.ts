@@ -5,7 +5,8 @@ import {
 	env,
 } from "cloudflare:test";
 import { afterEach, beforeAll, describe, expect, it } from "vitest";
-import { ensureTable } from "../../dev/fake-strava/store";
+import { sampleFingerprint } from "../../dev/fake-strava/seed";
+import { ensureTable, markSeeded } from "../../dev/fake-strava/store";
 import worker, {
 	type DevEnv,
 	devFetch,
@@ -106,8 +107,9 @@ describe("layer 2: the dev entry runs only in local fake mode", () => {
 
 	describe("with the marker", () => {
 		beforeAll(async () => {
-			// The fake table exists, so no request here seeds sample data.
+			// Marked as seeded, so no request here seeds sample data.
 			await ensureTable(env.DB);
+			await markSeeded(env.DB, await sampleFingerprint());
 		});
 
 		function devCtx(): TestCtx {

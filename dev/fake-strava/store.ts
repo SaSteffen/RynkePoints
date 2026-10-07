@@ -1,8 +1,8 @@
 import type { StravaActivity } from "../../src/strava/activity";
 
 // The fake Strava's activities (specs/006-local-frontend-dev data-model.md
-// "Fake activity"). They live in fake mode's local D1, in a table the dev entry
-// creates itself: it is never a migration, so production never has it.
+// "Fake activity"). They live in fake mode's local D1, in tables the dev entry
+// creates itself: they are never a migration, so production never has them.
 
 /** What the fake sends for an activity: the fields the app reads, and a name. */
 export interface FakeActivity extends StravaActivity {
@@ -17,24 +17,53 @@ export interface StoredActivity {
 const FIRST_ID = 8_000_001;
 
 export async function ensureTable(db: D1Database): Promise<void> {
-	await db
-		.prepare(
+	await db.batch([
+		db.prepare(
 			`CREATE TABLE IF NOT EXISTS fake_strava_activities (
 				id INTEGER PRIMARY KEY,
 				athlete_id INTEGER NOT NULL,
 				body TEXT NOT NULL
 			)`,
-		)
-		.run();
+		),
+		// One row: what the last finished seeding was made from.
+		db.prepare(
+			"CREATE TABLE IF NOT EXISTS fake_strava_seed (fingerprint TEXT NOT NULL)",
+		),
+	]);
 }
 
-export async function tableExists(db: D1Database): Promise<boolean> {
-	const row = await db
+/**
+ * The fingerprint of the sample data the database was last seeded with, or
+ * null when it never finished seeding.
+ */
+export async function seededWith(db: D1Database): Promise<string | null> {
+	const table = await db
 		.prepare(
-			"SELECT 1 AS found FROM sqlite_master WHERE type = 'table' AND name = 'fake_strava_activities'",
+			"SELECT 1 AS found FROM sqlite_master WHERE type = 'table' AND name = 'fake_strava_seed'",
 		)
 		.first();
-	return row !== null;
+	if (table === null) return null;
+	const row = await db
+		.prepare("SELECT fingerprint FROM fake_strava_seed")
+		.first<{ fingerprint: string }>();
+	return row?.fingerprint ?? null;
+}
+
+/** Records a finished seeding with `fingerprint`, or forgets it with null. */
+export async function markSeeded(
+	db: D1Database,
+	fingerprint: string | null,
+): Promise<void> {
+	await db.batch([
+		db.prepare("DELETE FROM fake_strava_seed"),
+		...(fingerprint === null
+			? []
+			: [
+					db
+						.prepare("INSERT INTO fake_strava_seed (fingerprint) VALUES (?)")
+						.bind(fingerprint),
+				]),
+	]);
 }
 
 export async function clearActivities(db: D1Database): Promise<void> {

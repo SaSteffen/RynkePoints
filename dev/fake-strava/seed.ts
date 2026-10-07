@@ -2,7 +2,12 @@ import { CONSENT_VERSION } from "../../src/consent";
 import type { Ctx } from "../../src/ctx";
 import { handleFetch } from "../../src/index";
 import { recipeToActivity, SAMPLE_RIDERS, type SampleRider } from "./samples";
-import { clearActivities, ensureTable, insertActivities } from "./store";
+import {
+	clearActivities,
+	ensureTable,
+	insertActivities,
+	markSeeded,
+} from "./store";
 import { encodeCode } from "./tokens";
 
 // Resets fake mode and seeds the sample riders (specs/006-local-frontend-dev
@@ -68,9 +73,24 @@ export async function connectThroughApp(
 }
 
 /**
+ * Names the sample data, so a database seeded from older samples is seeded
+ * again (`seededWith`).
+ */
+export async function sampleFingerprint(): Promise<string> {
+	const digest = await crypto.subtle.digest(
+		"SHA-256",
+		new TextEncoder().encode(JSON.stringify(SAMPLE_RIDERS)),
+	);
+	return [...new Uint8Array(digest)]
+		.map((b) => b.toString(16).padStart(2, "0"))
+		.join("");
+}
+
+/**
  * Deletes every rider and fake activity, resets the request budget, then
  * stores the recipes and connects every club member. `seedDay` is the
- * Europe/Berlin day (`YYYY-MM-DD`) the recipes count back from.
+ * Europe/Berlin day (`YYYY-MM-DD`) the recipes count back from. Only a seeding
+ * that finishes is recorded, so one that fails is tried again.
  */
 export async function seed(
 	ctx: Ctx,
@@ -79,6 +99,7 @@ export async function seed(
 ): Promise<void> {
 	const db = ctx.env.DB;
 	await ensureTable(db);
+	await markSeeded(db, null);
 	await db.batch([
 		// Everything rider-owned cascades.
 		db.prepare("DELETE FROM riders"),
@@ -107,4 +128,5 @@ export async function seed(
 	for (const rider of SAMPLE_RIDERS.filter((r) => r.clubMember)) {
 		await connectThroughApp(ctx, origin, rider);
 	}
+	await markSeeded(db, await sampleFingerprint());
 }

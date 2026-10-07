@@ -45,8 +45,9 @@ query. Nothing else is changed.
 
 ## Automatic seeding
 
-On the first request after start, the dev entry seeds if `fake_strava_activities`
-doesn't exist, the same way as `POST /_dev/reset`. That request waits for it.
+On the first request after start, the dev entry seeds unless `fake_strava_seed`
+holds the fingerprint of the current sample data, the same way as
+`POST /_dev/reset`. That request waits for it.
 
 ## Commands (`package.json`)
 

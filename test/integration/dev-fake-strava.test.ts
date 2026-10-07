@@ -127,8 +127,11 @@ async function mePage(athleteId: number): Promise<string> {
 
 beforeEach(async () => {
 	await resetDb();
-	// No fake table: the first request seeds.
-	await env.DB.prepare("DROP TABLE IF EXISTS fake_strava_activities").run();
+	// No fake tables: the first request seeds.
+	await env.DB.batch([
+		env.DB.prepare("DROP TABLE IF EXISTS fake_strava_activities"),
+		env.DB.prepare("DROP TABLE IF EXISTS fake_strava_seed"),
+	]);
 	logs = [];
 	logSpy = vi.spyOn(console, "log").mockImplementation((...args: unknown[]) => {
 		logs.push(args.join(" "));
@@ -179,6 +182,32 @@ describe("seeding (FR-005, FR-012)", () => {
 
 		// FR-006, SC-002: fake answers never touch the request budget.
 		expect(await rateLimitRow()).toEqual(before);
+	});
+});
+
+describe("seeding again", () => {
+	const fakeRides = () =>
+		count("SELECT COUNT(*) AS n FROM fake_strava_activities");
+	const allRides = SAMPLE_RIDERS.reduce((n, r) => n + r.rides.length, 0);
+
+	it("leaves a database seeded from the current sample data alone", async () => {
+		await get("/_dev/");
+		await env.DB.prepare("DELETE FROM fake_strava_activities").run();
+		await get("/_dev/");
+		expect(await fakeRides()).toBe(0);
+	});
+
+	it("seeds again when the database holds older sample data", async () => {
+		await get("/_dev/");
+		// As seeded by older samples: only Tina TrainingDone had rides.
+		await env.DB.batch([
+			env.DB.prepare(
+				"DELETE FROM fake_strava_activities WHERE athlete_id <> ?",
+			).bind(TINA),
+			env.DB.prepare("UPDATE fake_strava_seed SET fingerprint = 'older'"),
+		]);
+		await get("/_dev/");
+		expect(await fakeRides()).toBe(allRides);
 	});
 });
 
