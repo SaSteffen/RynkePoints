@@ -39,7 +39,54 @@ export interface SampleRider {
 	rides: readonly RideRecipe[];
 }
 
-export const SAMPLE_RIDERS: readonly SampleRider[] = [];
+/** `count` rides from `recipe(i)`, i = 0 … count − 1. */
+function rides(count: number, recipe: (i: number) => RideRecipe): RideRecipe[] {
+	return Array.from({ length: count }, (_, i) => recipe(i));
+}
+
+/** A ride at `kmh`, with a 15-minute stop. */
+function ride(
+	daysAgo: number,
+	startTime: string,
+	distanceKm: number,
+	elevationM: number,
+	kmh: number,
+	extra: Partial<RideRecipe> = {},
+): RideRecipe {
+	const movingMin = Math.round((distanceKm / kmh) * 60);
+	return {
+		daysAgo,
+		startTime,
+		sportType: "Ride",
+		distanceKm,
+		elevationM,
+		movingMin,
+		elapsedMin: movingMin + 15,
+		...extra,
+	};
+}
+
+/** One ride a day from yesterday back, mornings and evenings in turn. */
+function slot(i: number): [daysAgo: number, startTime: string] {
+	return [1 + i, i % 2 === 0 ? "07:00" : "17:00"];
+}
+
+const ALL_SCOPES = "read,activity:read,activity:read_all,activity:write";
+
+export const SAMPLE_RIDERS: readonly SampleRider[] = [
+	{
+		athleteId: 990004,
+		firstName: "Tina TrainingDone",
+		state: "Training target reached without virtual rides; Team Rynke missing",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		// 24 rides of 100–110 km: 240 distance Rynke plus about 90 for climbing.
+		rides: rides(24, (i) =>
+			ride(...slot(i), 100 + (i % 11), 600 + ((i * 37) % 300), 25 + (i % 6)),
+		),
+	},
+];
 
 export function sampleRider(athleteId: number): SampleRider | undefined {
 	return SAMPLE_RIDERS.find((r) => r.athleteId === athleteId);

@@ -179,7 +179,7 @@ code.
 
 ### Tests for User Story 1 (write first, confirm red) ⚠️
 
-- [ ] T011 [US1] Create `test/integration/dev-fake-strava.test.ts` (quickstart §1, research R10):
+- [X] T011 [US1] Create `test/integration/dev-fake-strava.test.ts` (quickstart §1, research R10):
   - **Helpers**:
     - A `devCtx()` returns a `TestCtx` whose `env` carries the marker.
     - `drain(ctx)` repeatedly takes the messages in `ctx.queue.sent` that have no `delaySeconds`, wraps them in a `MessageBatch` the way `test/integration/import-page.test.ts` does, and runs `devQueue`, until none are left. It stops after 50 rounds. Delayed messages (a `429` defers the import) are left unprocessed.
@@ -204,10 +204,10 @@ code.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] In `dev/fake-strava/samples.ts`, add **Tina TrainingDone** (990004, `normal`, club member, all four scopes):
+- [X] T012 [P] [US1] In `dev/fake-strava/samples.ts`, add **Tina TrainingDone** (990004, `normal`, club member, all four scopes):
   - The recipe gives ≥ 250 Training Rynke with no virtual ride, e.g. 24 rides of 100–110 km with 600–900 m gain at 25–30 km/h. The app's rules decide what counts, never the recipe.
   - Stay inside the last 30 days, with at most two rides a day at 07:00 and 17:00, so rides never overlap and never move to the season start while the season has run 30 days or more.
-- [ ] T013 [P] [US1] Create `dev/fake-strava/pages.ts` (contracts/dev-routes.md, research R11). Plain HTML, with `escapeHtml` from `src/http/html.ts`.
+- [X] T013 [P] [US1] Create `dev/fake-strava/pages.ts` (contracts/dev-routes.md, research R11). Plain HTML, with `escapeHtml` from `src/http/html.ts`.
   - **`authorizePage(query, riders, env)`**:
     - Hidden fields carry `redirect_uri` and `state`.
     - A sample rider `<select>` is preselected by `athlete`.
@@ -217,7 +217,7 @@ code.
     - Lists each sample rider: name, athlete ID, named state, and whether stored (`connected`, `needs_reconnect`, or not stored).
     - Each rider has a **Connect as** form (`POST /_dev/connect`).
     - Also on the page: the **Reset sample data** form (`POST /_dev/reset`), links to `/me` and `/__scheduled`, and the flash text.
-- [ ] T014 [US1] Create `dev/fake-strava/seed.ts`:
+- [X] T014 [US1] Create `dev/fake-strava/seed.ts`:
   - **`connectThroughApp(ctx, origin, rider)`** runs the real flow through `handleFetch`:
     - `POST <origin>/connect` with `consent=CONSENT_VERSION` and an `Origin` header, then keep the state cookie.
     - Read `state` from the returned `Location`.
@@ -228,7 +228,7 @@ code.
     - Reset `strava_rate_limit` to the migration's row: `UPDATE … SET` the usage columns to 0 and the limits to 100/1000/200/2000. Check the column names against `migrations/0001_init.sql`.
     - Insert every rider's recipe through `recipeToActivity`.
     - Connect every sample rider with `clubMember: true` through `connectThroughApp`. Non-members aren't stored; their state is reached through **Connect as** (research R6).
-- [ ] T015 [US1] In `dev/worker.ts`, add the US1 routes (contracts/dev-routes.md "Routes" and "Automatic seeding"):
+- [X] T015 [US1] In `dev/worker.ts`, add the US1 routes (contracts/dev-routes.md "Routes" and "Automatic seeding"):
   - **Automatic seeding**: when `fake_strava_activities` doesn't exist, the first request awaits `seed(ctx, origin, seedDay)` with the Europe/Berlin day of `ctx.now()`. Concurrent requests share one promise, and a failed seed is retried on the next request.
   - **`GET /_dev/`** renders `indexPage` with the stored state of each sample rider.
   - **`POST /_dev/connect`** (`athleteId`) runs `POST /connect` internally with consent. It passes the state cookie to the browser and answers `303` to the rewritten authorize URL plus `&athlete=<id>`.
@@ -237,11 +237,11 @@ code.
     - **Authorize** answers `302` to `redirect_uri?state=…&code=fake-code.<id>.<ticked scopes>&scope=<ticked scopes>`.
     - **Cancel** answers `302` to `redirect_uri?state=…&error=access_denied`.
   - Makes T011 green.
-- [ ] T016 [US1] In `package.json`, change the scripts (contracts/dev-routes.md "Commands"):
+- [X] T016 [US1] In `package.json`, change the scripts (contracts/dev-routes.md "Commands"):
   - `"dev"`: `wrangler d1 migrations apply rynke-points --local --persist-to .wrangler/fake-state && wrangler dev dev/worker.ts --env-file dev/fake.env --persist-to .wrangler/fake-state --live-reload --test-scheduled`.
   - `"dev:strava"`: `wrangler dev --test-scheduled`.
   - Confirm the migration step doesn't wait for a confirmation. If it does, use its non-interactive form and note why in the commit message.
-- [ ] T017 [US1] Check fake mode runs:
+- [X] T017 [US1] Check fake mode runs:
   - Start `pnpm dev` in the background.
   - Confirm that Wrangler reports `Ready on http://localhost:8789`, that it loaded `dev/fake.env`, and that it didn't read `.dev.vars`.
   - `curl -s http://localhost:8789/_dev/` lists Tina TrainingDone as connected after a few seconds.
