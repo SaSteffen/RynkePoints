@@ -83,15 +83,11 @@ point would then differ from the gauges).
   research R21). The check is cheap and keeps a bug from showing two different
   totals on one page.
 
-**Rationale**: FR-040 only allows leaving out *lines* whose rule value is
-missing. The curves themselves cannot be computed without the version's rules.
+**Rationale**: the curves cannot be computed without the version's rules.
 Leaving them out, as 005 leaves out the gauges, is the only honest choice.
 
-**Follow-up for the spec**: FR-040 and the matching edge case say "the curves are
-still shown" when a rule value is not available. That holds for the threshold,
-pace and 167 lines, but not when the whole version is unknown. One sentence in
-FR-040 fixes this ("when the version's rules are unknown, the section is left
-out").
+The spec says the same (FR-040 and its edge case "Rules version of the stored
+balance unknown to the app").
 
 ## R4. No charting library: inline SVG plus a small script of our own (FR-052, Principle IV)
 

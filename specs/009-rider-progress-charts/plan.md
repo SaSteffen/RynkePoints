@@ -99,8 +99,8 @@ plus static assets).
 - [contracts/http-routes.md](contracts/http-routes.md): query parameters only;
   `safeNext` stays an allow-list.
 - [contracts/messages.md](contracts/messages.md): `de` and `en`, same keys.
-- R3 records one spec follow-up. The section is left out when the balance's rules
-  version is unknown, and FR-040's "curves are still shown" should say so.
+- R3: the section is left out when the balance's rules version is unknown, as
+  FR-040 says.
 
 ## Delivery
 

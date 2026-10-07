@@ -241,9 +241,10 @@ on GitHub and agrees with the requirements.
   the whole season under those rules. While the rider's results are being updated,
   the charts show the curves of the stored, older version, labelled with it, next to
   the page's "being updated" notice (feature 005 FR-051); they never mix versions.
-- **Threshold, amount needed without virtual rides or deadline of an older rules
-  version not available** (during an update, feature 005 FR-013): the lines that need
-  them are left out until the update is done; the curves are still shown.
+- **Rules version of the stored balance unknown to the app** (feature 005 FR-013,
+  e.g. after going back to an older release): the curves can't be rebuilt without
+  that version's rules, so the section is left out, as the gauges are; the page's
+  notices apply.
 - **Ride stored but not evaluated yet**: not in the curves until its ride result is
   stored, as it is not in the balance (feature 005 FR-041).
 - **Overlapping recordings**: only the ride that counts adds to the curve; the other
@@ -385,9 +386,10 @@ on GitHub and agrees with the requirements.
 
 - **FR-040**: The curves MUST be computed with the same rules version as the stored
   balance, shown with it, and say that they show the whole season under those rules.
-  Every rule value used for a line (thresholds, amount needed without virtual rides,
-  deadline) MUST be that version's; where it is not available (feature 005 FR-013),
-  the line is left out and the curves are still shown.
+  Every rule value used for a curve or line (steps, team-event amounts, thresholds,
+  amount needed without virtual rides, deadline) MUST be that version's; when that
+  version's rules are unknown (feature 005 FR-013), the section MUST be left out, as
+  the gauges are.
 - **FR-041**: The curves, table, totals and the stored balance shown on the page MUST
   come from one consistent reading, so the page never shows a curve of another
   moment or rules version than its summary and gauges (feature 005 FR-005).
