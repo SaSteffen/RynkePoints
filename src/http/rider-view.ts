@@ -6,7 +6,12 @@ import {
 } from "../db/rider-view";
 import type { StoredBalance } from "../db/rynke";
 import type { UnknownFigureCode } from "../rynke/rides";
-import type { RynkeRules, Share } from "../rynke/rules";
+import {
+	type CountingWindow,
+	inCountingWindow,
+	type RynkeRules,
+	type Share,
+} from "../rynke/rules";
 import { virtualShareRequired } from "../rynke/tally";
 import type { TeamEventKind, TeamEventSum } from "../rynke/team-events";
 import type { CyclingSportType } from "../strava/activity";
@@ -272,7 +277,10 @@ function breakdown(
 ): Breakdown {
 	// Feature 003's window for attendance; with unknown rules only the season
 	// start is known (FR-013).
-	const deadline = rules?.qualificationDeadline ?? null;
+	const window: CountingWindow = {
+		seasonStart: context.seasonStart,
+		deadline: rules?.qualificationDeadline ?? null,
+	};
 	return {
 		distanceRynke: balance.distanceRynke,
 		elevationM: Math.floor(balance.elevationDm / 10),
@@ -287,8 +295,7 @@ function breakdown(
 			date,
 			kind,
 			name,
-			counts:
-				date >= context.seasonStart && (deadline === null || date <= deadline),
+			counts: inCountingWindow(date, window),
 		})),
 	};
 }
