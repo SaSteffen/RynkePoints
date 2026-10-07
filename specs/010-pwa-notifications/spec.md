@@ -27,8 +27,8 @@ earned. It doesn't need to be usable offline."
   ship together in one release, kept simple.
 - Q: When a rider's sign-in on a device runs out, does that device keep getting
   notifications? → A: Yes, until the rider signs out there, turns them off, leaves,
-  or the device is gone. Also, a sign-in lasts 180 days (half a year) instead of 30,
-  and no longer.
+  or the device is gone. Also, a sign-in lasts until 180 days (half a year) after
+  the rider last used the app on that device, instead of 30 days after signing in.
 - Q: Are notifications held back at night? → A: No. They are sent as soon as the
   new Rynke are stored, at any time; the phone's own Do Not Disturb handles the
   night.
@@ -213,7 +213,7 @@ get none. Repeat with the browser's permission denied and check the page explain
   scenario 7).
 - **Two riders on one device, one after the other**: the device receives
   notifications only for the rider who turned them on last on it while signed in.
-- **Sign-in ended (after 180 days, FR-007) while notifications are on**:
+- **Sign-in ended (180 days without use, FR-007) while notifications are on**:
   notifications keep coming until the rider signs out there, turns them off or
   leaves (FR-013); tapping one asks the rider to sign in again.
 - **New Rynke at night** (late upload, evening attendance, the daily retry of
@@ -256,11 +256,12 @@ get none. Repeat with the browser's permission denied and check the page explain
   rider's language.
 - **FR-006**: Installing MUST NOT change what a page shows or who may see it
   (feature 004); the installed app is the same site.
-- **FR-007**: A sign-in MUST last 180 days on the device it was made on, on the
-  website and in the installed app alike, and MUST then end, so the rider signs in
-  with Strava again. It MUST NOT last longer, and using the app MUST NOT extend it.
-  This replaces the 30 days feature 001 chose (its research R9); signing out still
-  ends it at once.
+- **FR-007**: A sign-in MUST last until 180 days after the rider last opened a
+  RynkePoints page on that device while signed in, on the website and in the
+  installed app alike; every such visit extends it to 180 days from then. After 180
+  days without use it MUST end, so the rider signs in with Strava again. This
+  replaces the fixed 30 days feature 001 chose (its research R9); signing out or
+  leaving still ends it at once.
 
 **Turning notifications on and off**
 
