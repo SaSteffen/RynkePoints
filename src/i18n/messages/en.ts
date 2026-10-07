@@ -60,7 +60,6 @@ export const en: Catalog = {
 	"me.consent.accepted": "Agreed on {date} (version {version}):",
 	"me.consent.none":
 		"No consent is recorded for you yet. Sign out and connect again on the start page to agree.",
-	"me.import.running": "Importing your rides since {date} …",
 	"me.import.done": "Import complete",
 	"me.recent.heading": "Your rides",
 	"me.recent.empty": "No rides imported yet",
@@ -105,6 +104,16 @@ export const en: Catalog = {
 	"rynke.pager.previous": "‹ Newer",
 	"rynke.pager.next": "Older ›",
 	"rynke.pager.last": "Oldest »",
+	"rynke.notice.updating":
+		"The rules have changed: new rules apply since {date}. Your numbers are being updated; until then you see them under rules version {version}.",
+	"rynke.notice.importing":
+		"Your rides since {date} are still being imported. Your Rynke will grow as they arrive.",
+	"rynke.rules.heading": "Rules",
+	"rynke.rules.version":
+		"Computed with rules version {version}, in effect since {date}.",
+	"rynke.rules.window": "Everything from {start} counts.",
+	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
+	"rynke.rules.handout": "How Rynke work (rules handout, in German)",
 	"rynke.ride.counts": "counts",
 	"rynke.ride.doesNotCount": "doesn't count",
 	"rynke.ride.beingEvaluated": "being evaluated",

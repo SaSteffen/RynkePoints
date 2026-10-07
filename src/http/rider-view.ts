@@ -20,12 +20,33 @@ export type RiderView =
 	| {
 			state: "ready";
 			importing: boolean;
+			/** `null` when the balance is of the version in effect (FR-051). */
+			updating: UpdateNotice | null;
 			summary: Summary;
 			/** `null` when the balance's rules version is unknown (FR-013). */
 			gauges: Gauges | null;
 			breakdown: Breakdown;
+			rules: RulesInfo;
 			rides: RideTable;
 	  };
+
+/** The rules the numbers were computed with, and the counting window (FR-050). */
+export interface RulesInfo {
+	version: number;
+	/** `YYYY-MM-DD` */
+	effectiveDate: string;
+	/** `YYYY-MM-DD`, `SEASON_START_DATE`. */
+	seasonStart: string;
+	/** Of the balance's rules; `null` when there is none or they are unknown. */
+	deadline: string | null;
+}
+
+/** Other rules are in effect, so the numbers are being updated (research R4). */
+export interface UpdateNotice {
+	inEffectVersion: number;
+	/** `YYYY-MM-DD` */
+	inEffectSince: string;
+}
 
 export interface Summary {
 	training: Condition;
@@ -189,19 +210,35 @@ export interface ViewContext {
 export function buildRiderView(
 	read: RiderViewRead,
 	rules: RynkeRules | null,
-	_inEffect: RynkeRules,
+	inEffect: RynkeRules,
 	context: ViewContext,
 ): RiderView {
 	const rides = rideTable(read, context);
-	if (!read.balance) {
+	const balance = read.balance;
+	if (!balance) {
 		return { state: "not-worked-out", importing: context.importing, rides };
 	}
 	return {
 		state: "ready",
 		importing: context.importing,
-		summary: summary(read.balance, read.virtualCount, rules),
-		gauges: rules && gauges(read.balance, read.virtualCount, rules),
-		breakdown: breakdown(read.balance, rules),
+		// "Differs", not "older": a higher version only shows while a deploy is
+		// rolled back, and then the numbers are about to change too (research R4).
+		updating:
+			balance.rulesVersion === inEffect.version
+				? null
+				: {
+						inEffectVersion: inEffect.version,
+						inEffectSince: inEffect.effectiveDate,
+					},
+		summary: summary(balance, read.virtualCount, rules),
+		gauges: rules && gauges(balance, read.virtualCount, rules),
+		breakdown: breakdown(balance, rules),
+		rules: {
+			version: balance.rulesVersion,
+			effectiveDate: balance.rulesEffectiveDate,
+			seasonStart: context.seasonStart,
+			deadline: rules?.qualificationDeadline ?? null,
+		},
 		rides,
 	};
 }

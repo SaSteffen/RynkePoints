@@ -503,12 +503,12 @@ The Team gauge stays undivided until US3b (research R5).
 
 ### Tests for User Story 6 (write first, confirm red) ⚠️
 
-- [ ] T057 [P] [US6] Extend `test/unit/rider-view.test.ts` (research R4, SC-006):
+- [X] T057 [P] [US6] Extend `test/unit/rider-view.test.ts` (research R4, SC-006):
   - **No update**: `updating` is `null` when `balance.rulesVersion === inEffect.version`.
   - **Update**: a balance under version 1 with `inEffect` version 2 (`effectiveDate` `2026-11-01`) gives `{ inEffectVersion: 2, inEffectSince: "2026-11-01" }`, and still `rules.version` 1.
   - **Labels**: `rules` carries the balance's version and effective date, `seasonStart`, and the deadline of the balance's rules (or `null`).
   - **Importing**: `importing` comes from the context, in both states.
-- [ ] T058 [P] [US6] Extend `test/integration/me-rynke.test.ts`:
+- [X] T058 [P] [US6] Extend `test/integration/me-rynke.test.ts`:
   - **S6-1**:
     - "Berechnet nach Regel-Version 1, gültig seit dem 07.10.2026.";
     - "Es zählt alles ab dem 01.01.2026.";
@@ -519,26 +519,26 @@ The Team gauge stays undivided until US3b (research R5).
   - **S6-4**: a rider with `import_status` other than `done` sees their balance and `rynke.notice.importing`. Without a balance, they see both notices.
   - **S6-5**: in English, the handout link text contains "in German".
   - **S6-6**: opening `/me` three times starts no evaluation (`ctx.queue.sent` is empty) and makes no Strava request.
-- [ ] T059 [P] [US6] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with `rynke.notice.updating`, `rynke.notice.importing`, `rynke.rules.heading`, `.version`, `.window`, `.windowDeadline` and `.handout`.
+- [X] T059 [P] [US6] Extend `CONTRACT_IDS` in `test/unit/catalogs.test.ts` with `rynke.notice.updating`, `rynke.notice.importing`, `rynke.rules.heading`, `.version`, `.window`, `.windowDeadline` and `.handout`.
 
 ### Implementation for User Story 6
 
-- [ ] T060 [P] [US6] Add the US6 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Notices", "Rules").
-- [ ] T061 [US6] In `src/http/rider-view.ts`:
+- [X] T060 [P] [US6] Add the US6 keys to `src/i18n/messages/de.ts` and `en.ts` (contracts/messages.md "Notices", "Rules").
+- [X] T061 [US6] In `src/http/rider-view.ts`:
   - Add `UpdateNotice` and `RulesInfo`, with `updating` and `rules` on the ready state, and `importing` on both states.
   - `updating` is set exactly when the versions differ.
   - Makes T057 green.
-- [ ] T062 [US6] In `src/http/rider-sections.ts`:
+- [X] T062 [US6] In `src/http/rider-sections.ts`:
   - Add `export const RULES_HANDOUT_URL = "https://github.com/SaSteffen/RynkePoints/blob/main/docs/rynke-punkte.md"` (research R14).
   - Extend `renderNotice` with `updating` (date via `formatDate`) and `importing`, in contract order.
   - Add `renderRules` per contracts/rider-page.md: `rynke.rules.window` or `.windowDeadline`, and the handout `a.tap`.
-- [ ] T063 [US6] In `src/http/me.ts`:
+- [X] T063 [US6] In `src/http/me.ts`:
   - Place `renderRules` after the breakdown, or after the gauges or summary when US3a isn't built yet.
   - Show the notices in the ready state too.
   - Feature 001's import-status line stays.
   - Makes T058 green.
-- [ ] T064 [US6] Extend `STYLE` in `src/http/html.ts` with the `.tap` rule if US5 hasn't added it yet (T055), and the `section.notice` look for the updating and importing notices.
-- [ ] T065 [US6] Check US6: everything is green, plus quickstart §3 step 4 (`UPDATE rynke_balances SET rules_version = 2` shows the notice, and re-evaluating clears it) and step 7 (the handout link in English).
+- [X] T064 [US6] Extend `STYLE` in `src/http/html.ts` with the `.tap` rule if US5 hasn't added it yet (T055), and the `section.notice` look for the updating and importing notices.
+- [X] T065 [US6] Check US6: everything is green, plus quickstart §3 step 4 (`UPDATE rynke_balances SET rules_version = 2` shows the notice, and re-evaluating clears it) and step 7 (the handout link in English).
 
 **Checkpoint**: deliveries 1–6 are complete. Everything except US3b is shipped.
 

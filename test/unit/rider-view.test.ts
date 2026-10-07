@@ -873,6 +873,79 @@ describe("buildRiderView breakdown", () => {
 	});
 });
 
+describe("buildRiderView rules and notices (US6)", () => {
+	const VERSION_2: RynkeRules = {
+		...CURRENT_RULES,
+		version: 2,
+		effectiveDate: "2026-11-01",
+		qualificationDeadline: "2027-03-31",
+	};
+
+	it("S6-1: is not being updated under the version in effect", () => {
+		const view = ready(
+			buildRiderView(read(), CURRENT_RULES, CURRENT_RULES, CONTEXT),
+		);
+		expect(view.updating).toBeNull();
+	});
+
+	it("S6-2: is being updated when the versions differ (R4)", () => {
+		const view = ready(
+			buildRiderView(read(), CURRENT_RULES, VERSION_2, CONTEXT),
+		);
+		expect(view.updating).toEqual({
+			inEffectVersion: 2,
+			inEffectSince: "2026-11-01",
+		});
+		expect(view.rules.version).toBe(1);
+	});
+
+	it("labels the numbers with the balance's version and window", () => {
+		const view = ready(
+			buildRiderView(
+				read({
+					balance: balance({
+						rulesVersion: 2,
+						rulesEffectiveDate: "2026-11-01",
+					}),
+				}),
+				VERSION_2,
+				CURRENT_RULES,
+				CONTEXT,
+			),
+		);
+		expect(view.rules).toEqual({
+			version: 2,
+			effectiveDate: "2026-11-01",
+			seasonStart: "2026-01-01",
+			deadline: "2027-03-31",
+		});
+		expect(view.updating).toEqual({
+			inEffectVersion: 1,
+			inEffectSince: CURRENT_RULES.effectiveDate,
+		});
+	});
+
+	it("has no deadline when there is none or the rules are unknown", () => {
+		for (const rules of [CURRENT_RULES, null]) {
+			const view = ready(buildRiderView(read(), rules, CURRENT_RULES, CONTEXT));
+			expect(view.rules.deadline).toBeNull();
+		}
+	});
+
+	it("S6-4: takes importing from the context, in both states", () => {
+		for (const importing of [true, false]) {
+			const context = { ...CONTEXT, importing };
+			expect(
+				buildRiderView(read(), CURRENT_RULES, CURRENT_RULES, context).importing,
+			).toBe(importing);
+			expect(
+				buildRiderView(read({ balance: null }), null, CURRENT_RULES, context)
+					.importing,
+			).toBe(importing);
+		}
+	});
+});
+
 describe("gaugeParts", () => {
 	it("S2-6: divides six sources of 250 into 84 %", () => {
 		const parts = gaugeParts(

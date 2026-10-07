@@ -50,7 +50,6 @@ const CONTRACT_IDS = [
 	"me.consent.heading",
 	"me.consent.accepted",
 	"me.consent.none",
-	"me.import.running",
 	"me.import.done",
 	"me.recent.heading",
 	"me.recent.empty",
@@ -165,6 +164,14 @@ const CONTRACT_IDS = [
 	"rynke.pager.previous",
 	"rynke.pager.next",
 	"rynke.pager.last",
+	// Feature 005, US6
+	"rynke.notice.updating",
+	"rynke.notice.importing",
+	"rynke.rules.heading",
+	"rynke.rules.version",
+	"rynke.rules.window",
+	"rynke.rules.windowDeadline",
+	"rynke.rules.handout",
 ];
 
 const placeholders = (text: string) =>

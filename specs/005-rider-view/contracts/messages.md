@@ -37,7 +37,7 @@ added with its story.
 |---|---|---|---|---|
 | `rynke.notice.notWorkedOut` | | Deine Rynke werden gerade berechnet. Schau in ein paar Minuten wieder vorbei. | Your Rynke are still being worked out. Check back in a few minutes. | US1 |
 | `rynke.notice.updating` | `date`, `version` | Die Regeln haben sich geändert: Seit dem {date} gelten neue Regeln. Deine Zahlen werden gerade neu berechnet; bis dahin siehst du sie nach Regel-Version {version}. | The rules have changed: new rules apply since {date}. Your numbers are being updated; until then you see them under rules version {version}. | US6 |
-| `rynke.notice.importing` | | Deine älteren Fahrten werden noch importiert. Deine Rynke wachsen, sobald sie da sind. | Your earlier rides are still being imported. Your Rynke will grow as they arrive. | US6 |
+| `rynke.notice.importing` | `date` | Deine Fahrten seit dem {date} werden noch importiert. Deine Rynke wachsen, sobald sie da sind. | Your rides since {date} are still being imported. Your Rynke will grow as they arrive. | US6 |
 
 ## Summary (US1)
 
@@ -167,3 +167,4 @@ One key per `UNKNOWN_FIGURE_CODES` value, which `catalogs.test.ts` checks.
 |---|---|---|
 | `me.recent.col.sport` | US1 | The sport type moved from the main row into the ride's detail row, which shows `sport.*` without a column header. |
 | `me.recent.col.elevation` | US1 | The elevation gain moved into the detail row as `units.m`; the main row's metres are `rynke.rides.col.elevationTotal`. |
+| `me.import.running` | US6 | `rynke.notice.importing` {date} says it, so a running import is mentioned once; the status line shows only `me.import.done`. |

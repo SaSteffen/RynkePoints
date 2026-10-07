@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { RIDE_PAGE_SQL } from "../../src/db/rider-view";
+import { RULES_HANDOUT_URL } from "../../src/http/rider-sections";
 import { handleFetch } from "../../src/index";
 import type { ReasonCode } from "../../src/rynke/rides";
 import {
@@ -874,6 +875,99 @@ describe("GET /me paging (US5)", () => {
 	});
 });
 
+/** The text of the notice and rules sections, `null` when absent. */
+async function rulesAndNotice(athleteId = ATHLETE_A, acceptLanguage?: string) {
+	const { html } = await riderPage(ctx, athleteId, "/me", acceptLanguage);
+	const notice = section(html, 'class="notice" role="status"');
+	const rules = section(html, 'class="rynke-rules"');
+	return {
+		html,
+		notice: notice === null ? null : text(notice),
+		rules: rules === null ? null : text(rules),
+	};
+}
+
+const UPDATING =
+	"Die Regeln haben sich geändert: Seit dem 07.10.2026 gelten neue Regeln.";
+const IMPORTING = "Deine Fahrten seit dem 01.01.2026 werden noch importiert.";
+
+describe("GET /me rules and notices (US6)", () => {
+	it("S6-1: names the rules version, the window and the handout", async () => {
+		await seedBalance(ATHLETE_A);
+		const { html, notice, rules } = await rulesAndNotice();
+		expect(rules).toContain(
+			"Berechnet nach Regel-Version 1, gültig seit dem 07.10.2026.",
+		);
+		expect(rules).toContain("Es zählt alles ab dem 01.01.2026.");
+		const link = section(html, 'class="rynke-rules"')?.match(
+			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
+		);
+		expect(link?.[1]).toBe(RULES_HANDOUT_URL);
+		expect(link?.[2]).toBe("So funktionieren die Rynke (Regeln zum Nachlesen)");
+		expect(notice).toBeNull();
+		expect(html).not.toContain("Die Regeln haben sich geändert");
+	});
+
+	it("S6-2: says the numbers are being updated to other rules", async () => {
+		await seedBalance(ATHLETE_A, {
+			rulesVersion: 2,
+			rulesEffectiveDate: "2026-11-01",
+		});
+		const { html, notice, rules } = await rulesAndNotice();
+		expect(notice).toContain(UPDATING);
+		expect(notice).toContain("bis dahin siehst du sie nach Regel-Version 2.");
+		expect(rules).toContain(
+			"Berechnet nach Regel-Version 2, gültig seit dem 01.11.2026.",
+		);
+		// Version 2 isn't in RULES_HISTORY: no targets, no gauges (FR-013).
+		expect(html).not.toContain('class="rynke-gauges"');
+		expect(html).not.toContain("von 250");
+	});
+
+	it("S6-3: drops the notice once re-evaluated under the version in effect", async () => {
+		await seedBalance(ATHLETE_A, { rulesVersion: 2 });
+		expect((await rulesAndNotice()).notice).toContain(UPDATING);
+		await seedBalance(ATHLETE_A);
+		const { notice, rules } = await rulesAndNotice();
+		expect(notice).toBeNull();
+		expect(rules).toContain("Regel-Version 1");
+	});
+
+	it("S6-4: says the Rynke will grow while the import runs", async () => {
+		await seedRider(ctx, { athleteId: ATHLETE_B, importStatus: "running" });
+		const before = await rulesAndNotice(ATHLETE_B);
+		expect(before.notice).toContain("Deine Rynke werden gerade berechnet.");
+		expect(before.notice).toContain(IMPORTING);
+		expect(before.rules).toBeNull();
+
+		await seedBalance(ATHLETE_B, { trainingRynke: 12, trainingMissing: 238 });
+		const after = await rulesAndNotice(ATHLETE_B);
+		expect(after.notice).toBe(
+			"Deine Fahrten seit dem 01.01.2026 werden noch importiert. Deine Rynke wachsen, sobald sie da sind.",
+		);
+		expect(after.html).toContain('class="rynke-summary"');
+		// Said once: feature 001's status line shows only a finished import.
+		expect(after.html.split("werden noch importiert").length - 1).toBe(1);
+		expect(after.html).not.toContain("werden importiert …");
+	});
+
+	it("S6-5: says in English that the handout is in German", async () => {
+		await seedBalance(ATHLETE_A);
+		const { rules } = await rulesAndNotice(ATHLETE_A, "en");
+		expect(rules).toContain("Computed with rules version 1, in effect since");
+		expect(rules).toContain("in German");
+	});
+
+	it("S6-6: starts no evaluation however often it is opened", async () => {
+		await seedBalance(ATHLETE_A, { rulesVersion: 2 });
+		for (let i = 0; i < 3; i++) {
+			expect((await rulesAndNotice()).notice).toContain(UPDATING);
+		}
+		expect(ctx.queue.sent).toEqual([]);
+		expect(fake.calls).toEqual([]);
+	});
+});
+
 describe("GET /me isolation and access (US1)", () => {
 	it("S1-10: shows each rider only their own figures", async () => {
 		await seedRider(ctx, { athleteId: ATHLETE_B });
@@ -950,6 +1044,8 @@ describe("GET /me isolation and access (US1)", () => {
 		const order = [
 			"<p>Import abgeschlossen</p>",
 			'<section id="rynke" class="rynke-summary">',
+			'<section class="rynke-breakdown">',
+			'<section class="rynke-rules">',
 			'<section id="rides">',
 			"<h2>Deine Zustimmung</h2>",
 		].map((marker) => html.indexOf(marker));

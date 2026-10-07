@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { renderRides } from "../../src/http/rider-sections";
+import { renderRides, renderRules } from "../../src/http/rider-sections";
 import type { ReasonLine } from "../../src/http/rider-view";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
@@ -40,5 +40,25 @@ describe("renderRides reasons", () => {
 		expect(
 			rendered({ code: "too_slow", kmhTenths: 99, limitKmh: 12.5 }),
 		).toContain("at least 12.5 km/h needed.");
+	});
+});
+
+describe("renderRules window", () => {
+	const rules = {
+		version: 2,
+		effectiveDate: "2026-11-01",
+		seasonStart: "2026-01-01",
+	};
+
+	it("names only the start without a deadline", () => {
+		expect(renderRules(en, { ...rules, deadline: null }).toString()).toContain(
+			"Everything from 01/01/2026 counts.",
+		);
+	});
+
+	it("names the deadline when the rules have one", () => {
+		expect(
+			renderRules(en, { ...rules, deadline: "2027-03-31" }).toString(),
+		).toContain("Everything from 01/01/2026 to 31/03/2027 counts.");
 	});
 });

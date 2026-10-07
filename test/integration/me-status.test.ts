@@ -103,7 +103,7 @@ describe("GET /me for a connected rider", () => {
 			await seedRider(ctx, { importStatus });
 			const { page } = await getMe();
 			expect(page).toContain(
-				"Deine Fahrten seit dem 01.01.2026 werden importiert …",
+				"Deine Fahrten seit dem 01.01.2026 werden noch importiert.",
 			);
 			expect(page).not.toContain("Import abgeschlossen");
 		},
@@ -113,7 +113,7 @@ describe("GET /me for a connected rider", () => {
 		await seedRider(ctx, { importStatus: "done" });
 		const { page } = await getMe();
 		expect(page).toContain("Import abgeschlossen");
-		expect(page).not.toContain("werden importiert");
+		expect(page).not.toContain("werden noch importiert");
 	});
 
 	it("offers the switcher and sign-out", async () => {
@@ -148,6 +148,8 @@ describe("GET /me in English", () => {
 		const { res, page } = await getMe("en");
 		expect(res.headers.get("Content-Language")).toBe("en");
 		expect(page).toContain("Connected to Strava");
-		expect(page).toContain("Importing your rides since 01/01/2026 …");
+		expect(page).toContain(
+			"Your rides since 01/01/2026 are still being imported.",
+		);
 	});
 });
