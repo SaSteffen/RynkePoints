@@ -50,7 +50,7 @@ header button[aria-current]{font-weight:bold;border-color:#fc5200}
 a{color:#c43d00}
 footer{margin-top:3rem}
 footer img{height:1.5rem}
-main{overflow-wrap:anywhere}
+main{overflow-wrap:break-word}
 section.notice{border-left:.25rem solid #fc5200;background:#fff4ec;padding:.25rem 1rem;margin:1rem 0}
 .rynke-summary dd{margin:0 0 .5rem}
 table.rides{width:100%;border-collapse:collapse}
