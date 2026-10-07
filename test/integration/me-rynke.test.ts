@@ -5,6 +5,7 @@ import { RULES_HANDOUT_URL } from "../../src/http/rider-sections";
 import { handleFetch } from "../../src/index";
 import type { ReasonCode } from "../../src/rynke/rides";
 import { CURRENT_RULES } from "../../src/rynke/rules";
+import type { TeamEventSum } from "../../src/rynke/team-events";
 import {
 	makeCtx,
 	request,
@@ -21,10 +22,15 @@ import {
 	seedRide,
 	seedRides,
 } from "../support/rider-view";
-import { snapshot } from "../support/rynke";
+import {
+	attendanceRows,
+	attendRaw,
+	insertEvent,
+	snapshot,
+} from "../support/rynke";
 
 // The Rynke sections of /me (feature 005 contracts/rider-page.md), one test per
-// scenario of the spec's User Stories 1 and 2. German text, as messages.md quotes it.
+// scenario of the spec's User Stories 1 to 6. German text, as messages.md quotes it.
 
 const ctx = makeCtx();
 let fake: FakeStrava;
@@ -362,6 +368,9 @@ describe("GET /me breakdown (US3a)", () => {
 				"Höhenmeter",
 				"1.240 m gesamt → 5 Trainingsrynke, noch 760 m bis zu den nächsten 5",
 			],
+			["Teamtraining", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Tag Trainingswochenende", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Techniktraining", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
 			["Gesamt", "12 Trainingsrynke · 0 Teamrynke"],
 		]);
 	});
@@ -388,8 +397,16 @@ describe("GET /me breakdown (US3a)", () => {
 				"Höhenmeter",
 				"0 m gesamt → 0 Trainingsrynke, noch 1.000 m bis zu den nächsten 5",
 			],
+			["Teamtraining", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Tag Trainingswochenende", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Techniktraining", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
 			["Gesamt", "0 Trainingsrynke · 0 Teamrynke"],
 		]);
+		const { html } = await riderPage(ctx, ATHLETE_A);
+		expect(text(section(html, 'class="rynke-breakdown"') ?? "")).toContain(
+			"Deine Teamtermine Für dich ist noch kein Teamtermin eingetragen.",
+		);
+		expect(html).not.toContain('class="rynke-events"');
 	});
 
 	it("names no step for an unknown rules version (FR-013)", async () => {
@@ -435,6 +452,199 @@ describe("GET /me breakdown (US3a)", () => {
 	it("has no breakdown before the first evaluation", async () => {
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		expect(html).not.toContain('<section class="rynke-breakdown">');
+	});
+});
+
+/** Stored per-kind sums in `TEAM_EVENT_KINDS` order: `[attended, team, training]`. */
+function kindSums(
+	teamTraining: [number, number, number],
+	weekendDay: [number, number, number],
+	technique: [number, number, number],
+): TeamEventSum[] {
+	return (
+		[
+			["team_training", teamTraining],
+			["training_weekend_day", weekendDay],
+			["technique_training", technique],
+		] as const
+	).map(([kind, [attended, team, training]]) => ({
+		kind,
+		attended,
+		team,
+		training,
+	}));
+}
+
+/** The event list's items: classes and text. */
+async function events(athleteId = ATHLETE_A, acceptLanguage?: string) {
+	const { html } = await riderPage(ctx, athleteId, "/me", acceptLanguage);
+	const list = html.match(/<ul class="rynke-events">([\s\S]*?)<\/ul>/)?.[1];
+	return [
+		...(list ?? "").matchAll(/<li( class="[^"]*")?>([\s\S]*?)<\/li>/g),
+	].map(([, classes, inner = ""]) => ({
+		classes: classes ?? "",
+		text: text(inner),
+	}));
+}
+
+describe("GET /me team events (US3b)", () => {
+	it("S3-2: shows each kind's count and Rynke", async () => {
+		await seedBalance(ATHLETE_A, {
+			teamRynke: 7,
+			teamMissing: 18,
+			trainingRynke: 15,
+			trainingMissing: 235,
+			trainingWithoutVirtual: 15,
+			virtualShareMissing: 152,
+			teamEvents: kindSums([2, 2, 10], [0, 0, 0], [1, 5, 5]),
+		});
+		expect((await breakdown()).slice(2)).toEqual([
+			["Teamtraining", "2 × dabei → 2 Teamrynke, 10 Trainingsrynke"],
+			["Tag Trainingswochenende", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Techniktraining", "1 × dabei → 5 Teamrynke, 5 Trainingsrynke"],
+			["Gesamt", "15 Trainingsrynke · 7 Teamrynke"],
+		]);
+	});
+
+	it("S3-3: lists the rider's events with date, kind and name, newest first", async () => {
+		await seedBalance(ATHLETE_A);
+		await seedRider(ctx, { athleteId: ATHLETE_B });
+		const teamTraining = await insertEvent("team_training", "2026-04-28");
+		const named = await insertEvent(
+			"team_training",
+			"2026-05-12",
+			"Ausfahrt Nord",
+		);
+		const technique = await insertEvent(
+			"technique_training",
+			"2026-06-02",
+			"Kurven <links> & rechts",
+		);
+		const otherRider = await insertEvent("training_weekend_day", "2026-07-04");
+		await attendRaw(teamTraining, [ATHLETE_A]);
+		await attendRaw(named, [ATHLETE_A, ATHLETE_B]);
+		await attendRaw(technique, [ATHLETE_A]);
+		await attendRaw(otherRider, [ATHLETE_B]);
+
+		expect(await events()).toEqual([
+			{
+				classes: "",
+				text: "02.06.2026 · Techniktraining · Kurven &lt;links&gt; &amp; rechts",
+			},
+			{ classes: "", text: "12.05.2026 · Teamtraining · Ausfahrt Nord" },
+			{ classes: "", text: "28.04.2026 · Teamtraining" },
+		]);
+		const { html } = await riderPage(ctx, ATHLETE_A);
+		expect(html).toContain("Kurven &lt;links&gt; &amp; rechts");
+		expect(text(section(html, 'class="rynke-breakdown"') ?? "")).toContain(
+			"Deine Teamtermine",
+		);
+		expect(html).not.toContain("noch kein Teamtermin");
+	});
+
+	it("FR-033: marks an event outside the counting window as not counting", async () => {
+		// No stored rules version has a deadline, so the season start stands in;
+		// the deadline is covered by rider-view.test.ts.
+		await seedBalance(ATHLETE_A);
+		await attendRaw(await insertEvent("technique_training", "2025-12-20"), [
+			ATHLETE_A,
+		]);
+		await attendRaw(await insertEvent("team_training", "2026-01-01"), [
+			ATHLETE_A,
+		]);
+		expect(await events()).toEqual([
+			{ classes: "", text: "01.01.2026 · Teamtraining" },
+			{
+				classes: ' class="event-not-counting"',
+				text: "20.12.2025 · Techniktraining · zählt nicht: außerhalb des Wertungszeitraums",
+			},
+		]);
+	});
+
+	it("S2-6: divides the Training gauge by distance, elevation and kind", async () => {
+		await seedBalance(ATHLETE_A, {
+			distanceRynke: 70,
+			elevationRynke: 30,
+			trainingRynke: 200,
+			trainingMissing: 50,
+			teamRynke: 40,
+			teamMissing: 0,
+			teamEvents: kindSums([10, 10, 50], [4, 20, 40], [2, 10, 10]),
+		});
+		const [training, team] = await gauges();
+		expect(training?.caption).toBe("Trainingsrynke: 200 von 250 · 80 %");
+		expect(training?.legend).toEqual([
+			"Distanz: 70",
+			"Höhenmeter: 30",
+			"Teamtraining: 50",
+			"Tag Trainingswochenende: 40",
+			"Techniktraining: 10",
+		]);
+		for (const [n, width] of [
+			[1, "28.00"],
+			[2, "12.00"],
+			[3, "20.00"],
+			[4, "16.00"],
+			[5, "4.00"],
+		] as const) {
+			expect(training?.bar).toContain(
+				`class="gauge-part gauge-part-${n}" style="width:${width}%"`,
+			);
+		}
+		expect(team?.legend).toEqual([
+			"Teamtraining: 10",
+			"Tag Trainingswochenende: 20",
+			"Techniktraining: 10",
+		]);
+		expect(team?.bar).toContain(
+			'class="gauge-part gauge-part-4" style="width:50.00%"',
+		);
+	});
+
+	it("keeps each source's colour when other parts are 0", async () => {
+		await seedBalance(ATHLETE_A, {
+			trainingRynke: 5,
+			teamRynke: 5,
+			teamEvents: kindSums([0, 0, 0], [0, 0, 0], [1, 5, 5]),
+		});
+		const [training, team] = await gauges();
+		for (const [gauge, width] of [
+			[training, "2.00"],
+			[team, "20.00"],
+		] as const) {
+			expect(gauge?.bar).toBe(
+				`<div class="gauge-bar" aria-hidden="true"><span class="gauge-part gauge-part-5" style="width:${width}%"></span></div>`,
+			);
+			expect(gauge?.legend).toEqual(["Techniktraining: 5"]);
+		}
+	});
+
+	it("FR-061: names kinds and events in English", async () => {
+		await seedBalance(ATHLETE_A, {
+			teamRynke: 5,
+			trainingRynke: 10,
+			teamEvents: kindSums([0, 0, 0], [1, 5, 10], [0, 0, 0]),
+		});
+		await attendRaw(await insertEvent("training_weekend_day", "2026-05-09"), [
+			ATHLETE_A,
+		]);
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me", "en");
+		const shown = text(section(html, 'class="rynke-breakdown"') ?? "");
+		expect(shown).toContain(
+			"Training-weekend day attended 1 × → 5 Team Rynke, 10 Training Rynke",
+		);
+		expect(shown).toContain(
+			"Your team events 09/05/2026 · Training-weekend day",
+		);
+	});
+
+	it("shows no kind rows for a balance stored before team events (R5)", async () => {
+		await seedBalance(ATHLETE_A, { teamEvents: [], rulesVersion: 1 });
+		expect((await breakdown()).map(([dt]) => dt)).toEqual([
+			"Distanz",
+			"Höhenmeter",
+			"Gesamt",
+		]);
 	});
 });
 
@@ -1025,6 +1235,28 @@ describe("GET /me isolation and access (US1)", () => {
 		expect((await riderPage(ctx, ATHLETE_A)).status).toBe(200);
 
 		expect(await tableCounts()).toEqual(counts);
+		expect(await snapshot(ATHLETE_A)).toEqual(rows);
+		expect(ctx.queue.sent).toEqual([]);
+		expect(fake.calls).toEqual([]);
+	});
+
+	it("SC-004: only reads, with attendance", async () => {
+		await seedBalance(ATHLETE_A, {
+			teamRynke: 1,
+			trainingRynke: 5,
+			teamEvents: kindSums([1, 1, 5], [0, 0, 0], [0, 0, 0]),
+		});
+		await attendRaw(await insertEvent("team_training", "2026-05-12"), [
+			ATHLETE_A,
+		]);
+		const counts = await tableCounts();
+		const attendance = await attendanceRows();
+		const rows = await snapshot(ATHLETE_A);
+
+		expect((await riderPage(ctx, ATHLETE_A)).status).toBe(200);
+
+		expect(await tableCounts()).toEqual(counts);
+		expect(await attendanceRows()).toEqual(attendance);
 		expect(await snapshot(ATHLETE_A)).toEqual(rows);
 		expect(ctx.queue.sent).toEqual([]);
 		expect(fake.calls).toEqual([]);

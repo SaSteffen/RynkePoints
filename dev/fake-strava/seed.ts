@@ -1,7 +1,13 @@
 import { CONSENT_VERSION } from "../../src/consent";
 import type { Ctx } from "../../src/ctx";
 import { handleFetch } from "../../src/index";
-import { recipeToActivity, SAMPLE_RIDERS, type SampleRider } from "./samples";
+import { teamEventChange } from "../../src/rynke/apply";
+import {
+	eventDay,
+	recipeToActivity,
+	SAMPLE_RIDERS,
+	type SampleRider,
+} from "./samples";
 import {
 	clearActivities,
 	ensureTable,
@@ -87,8 +93,9 @@ export async function sampleFingerprint(): Promise<string> {
 }
 
 /**
- * Deletes every rider and fake activity, resets the request budget, then
- * stores the recipes and connects every club member. `seedDay` is the
+ * Deletes every rider, team event and fake activity, resets the request
+ * budget, then stores the recipes, connects every club member and enters
+ * their team events. `seedDay` is the
  * Europe/Berlin day (`YYYY-MM-DD`) the recipes count back from. Only a seeding
  * that finishes is recorded, so one that fails is tried again.
  */
@@ -103,6 +110,7 @@ export async function seed(
 	await db.batch([
 		// Everything rider-owned cascades.
 		db.prepare("DELETE FROM riders"),
+		db.prepare("DELETE FROM team_events"),
 		// The values migrations/0001_init.sql starts with.
 		db.prepare(
 			`UPDATE strava_rate_limit SET observed_at = 0, read_15m = 0,
@@ -127,6 +135,22 @@ export async function seed(
 	// "Connect as" (research R6).
 	for (const rider of SAMPLE_RIDERS.filter((r) => r.clubMember)) {
 		await connectThroughApp(ctx, origin, rider);
+		for (const recipe of rider.events ?? []) {
+			const { eventId } = await teamEventChange(ctx, {
+				kind: "create-event",
+				event: {
+					kind: recipe.kind,
+					date: eventDay(recipe, seedDay, ctx.env.SEASON_START_DATE),
+					name: recipe.name,
+				},
+			});
+			if (eventId === null) throw new Error("No event ID");
+			await teamEventChange(ctx, {
+				kind: "add-attendance",
+				eventId,
+				athleteIds: [rider.athleteId],
+			});
+		}
 	}
 	await markSeeded(db, await sampleFingerprint());
 }

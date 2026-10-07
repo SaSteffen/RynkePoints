@@ -170,6 +170,9 @@ export const de = {
 		"Höhenmeter bis zu den nächsten {stepRynke} Trainingsrynke: {value} von {target} · {percent} · noch {missing}",
 	"rynke.source.distance": "Distanz",
 	"rynke.source.elevation": "Höhenmeter",
+	"rynke.source.team_training": "Teamtraining",
+	"rynke.source.training_weekend_day": "Tag Trainingswochenende",
+	"rynke.source.technique_training": "Techniktraining",
 	"rynke.breakdown.heading": "Woher deine Rynke kommen",
 	"rynke.breakdown.trainingRynke": "{n} Trainingsrynke",
 	"rynke.breakdown.elevation":
@@ -178,6 +181,11 @@ export const de = {
 		"{metres} gesamt → {rynke} Trainingsrynke, noch {toNext} bis zur nächsten Stufe",
 	"rynke.breakdown.total": "Gesamt",
 	"rynke.breakdown.totals": "{training} Trainingsrynke · {team} Teamrynke",
+	"rynke.breakdown.kind":
+		"{count} × dabei → {team} Teamrynke, {training} Trainingsrynke",
+	"rynke.events.heading": "Deine Teamtermine",
+	"rynke.events.none": "Für dich ist noch kein Teamtermin eingetragen.",
+	"rynke.events.notCounting": "zählt nicht: außerhalb des Wertungszeitraums",
 
 	"disconnect.title": "Daten löschen?",
 	"disconnect.explain":

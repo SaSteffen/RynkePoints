@@ -3,7 +3,11 @@
 // imports the kinds from here at runtime, so this file imports from it with
 // `import type` only.
 
-import type { CountingWindow, RynkeRules } from "./rules";
+import {
+	type CountingWindow,
+	inCountingWindow,
+	type RynkeRules,
+} from "./rules";
 
 /** The kind codes of contracts/ride-evaluation.md, in contract order. */
 export const TEAM_EVENT_KINDS = [
@@ -55,12 +59,7 @@ export function evaluateAttendance(
 		TEAM_EVENT_KINDS.map((kind) => [kind, new Set()]),
 	);
 	for (const { eventId, kind, date } of attendance) {
-		if (
-			date >= window.seasonStart &&
-			(window.deadline === null || date <= window.deadline)
-		) {
-			events.get(kind)?.add(eventId);
-		}
+		if (inCountingWindow(date, window)) events.get(kind)?.add(eventId);
 	}
 	const byKind = TEAM_EVENT_KINDS.map((kind) => {
 		const attended = events.get(kind)?.size ?? 0;

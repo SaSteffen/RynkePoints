@@ -166,6 +166,9 @@ export const en: Catalog = {
 		"Elevation towards the next {stepRynke} Training Rynke: {value} of {target} · {percent} · {missing} to go",
 	"rynke.source.distance": "Distance",
 	"rynke.source.elevation": "Elevation",
+	"rynke.source.team_training": "Team training",
+	"rynke.source.training_weekend_day": "Training-weekend day",
+	"rynke.source.technique_training": "Technique training",
 	"rynke.breakdown.heading": "Where your Rynke come from",
 	"rynke.breakdown.trainingRynke": "{n} Training Rynke",
 	"rynke.breakdown.elevation":
@@ -174,6 +177,11 @@ export const en: Catalog = {
 		"{metres} in total → {rynke} Training Rynke, {toNext} to the next step",
 	"rynke.breakdown.total": "Total",
 	"rynke.breakdown.totals": "{training} Training Rynke · {team} Team Rynke",
+	"rynke.breakdown.kind":
+		"attended {count} × → {team} Team Rynke, {training} Training Rynke",
+	"rynke.events.heading": "Your team events",
+	"rynke.events.none": "No team event has been recorded for you yet.",
+	"rynke.events.notCounting": "doesn't count: outside the counting period",
 
 	"disconnect.title": "Delete your data?",
 	"disconnect.explain":

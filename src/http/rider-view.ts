@@ -1,12 +1,19 @@
 import {
+	type AttendedEvent,
 	RIDES_PER_PAGE,
 	type RideRow,
 	type RiderViewRead,
 } from "../db/rider-view";
 import type { StoredBalance } from "../db/rynke";
 import type { UnknownFigureCode } from "../rynke/rides";
-import type { RynkeRules, Share } from "../rynke/rules";
+import {
+	type CountingWindow,
+	inCountingWindow,
+	type RynkeRules,
+	type Share,
+} from "../rynke/rules";
 import { virtualShareRequired } from "../rynke/tally";
+import type { TeamEventKind, TeamEventSum } from "../rynke/team-events";
 import type { CyclingSportType } from "../strava/activity";
 
 // The rider page's view model (feature 005 data-model.md, research R6): what
@@ -90,8 +97,8 @@ export interface ElevationGauge extends Gauge {
 	stepRynke: number;
 }
 
-/** US3b adds the team-event kinds and corrections (research R5). */
-export type GaugeSource = "distance" | "elevation";
+/** Feature 003 Story 6 adds corrections (research R5). */
+export type GaugeSource = "distance" | "elevation" | TeamEventKind;
 
 export interface GaugePart<S extends string = GaugeSource> {
 	source: S;
@@ -100,7 +107,10 @@ export interface GaugePart<S extends string = GaugeSource> {
 	widthPercent: number;
 }
 
-/** Where the Rynke come from (FR-030, FR-031, FR-035); US3b adds team events and corrections. */
+/**
+ * Where the Rynke come from (FR-030–FR-033, FR-035); feature 003 Story 6 adds
+ * corrections (research R5).
+ */
 export interface Breakdown {
 	distanceRynke: number;
 	/** Rounded down. */
@@ -113,6 +123,22 @@ export interface Breakdown {
 	toNextStepM: number;
 	trainingTotal: number;
 	teamTotal: number;
+	/**
+	 * Stored per kind, in `TEAM_EVENT_KINDS` order (FR-032); empty for a balance
+	 * stored before team events existed.
+	 */
+	kinds: TeamEventSum[];
+	/** Newest first (FR-033). */
+	events: EventLine[];
+}
+
+export interface EventLine {
+	/** `YYYY-MM-DD` */
+	date: string;
+	kind: TeamEventKind;
+	name: string | null;
+	/** `false` outside the counting window (FR-033). */
+	counts: boolean;
 }
 
 export interface RideTable {
@@ -232,7 +258,7 @@ export function buildRiderView(
 					},
 		summary: summary(balance, read.virtualCount, rules),
 		gauges: rules && gauges(balance, read.virtualCount, rules),
-		breakdown: breakdown(balance, rules),
+		breakdown: breakdown(balance, rules, read.attendance, context),
 		rules: {
 			version: balance.rulesVersion,
 			effectiveDate: balance.rulesEffectiveDate,
@@ -246,7 +272,15 @@ export function buildRiderView(
 function breakdown(
 	balance: StoredBalance,
 	rules: RynkeRules | null,
+	attendance: AttendedEvent[],
+	context: ViewContext,
 ): Breakdown {
+	// Feature 003's window for attendance; with unknown rules only the season
+	// start is known (FR-013).
+	const window: CountingWindow = {
+		seasonStart: context.seasonStart,
+		deadline: rules?.qualificationDeadline ?? null,
+	};
 	return {
 		distanceRynke: balance.distanceRynke,
 		elevationM: Math.floor(balance.elevationDm / 10),
@@ -256,6 +290,13 @@ function breakdown(
 		toNextStepM: Math.ceil(balance.elevationToNextStepDm / 10),
 		trainingTotal: balance.trainingRynke,
 		teamTotal: balance.teamRynke,
+		kinds: balance.teamEvents,
+		events: attendance.map(({ date, kind, name }) => ({
+			date,
+			kind,
+			name,
+			counts: inCountingWindow(date, window),
+		})),
 	};
 }
 
@@ -301,20 +342,29 @@ function gauges(
 	rules: RynkeRules,
 ): Gauges {
 	const stepDm = rules.elevationStepM * 10;
+	// The stored per-kind sums, never recomputed from counts (FR-004).
+	const kinds = balance.teamEvents;
 	return {
 		training: gauge(
 			balance.trainingRynke,
 			rules.trainingThreshold,
-			gaugeParts(
+			gaugeParts<GaugeSource>(
 				[
 					{ source: "distance", value: balance.distanceRynke },
 					{ source: "elevation", value: balance.elevationRynke },
+					...kinds.map((k) => ({ source: k.kind, value: k.training })),
 				],
 				rules.trainingThreshold,
 			),
 		),
-		// Undivided until team events exist (research R5).
-		team: gauge(balance.teamRynke, rules.teamThreshold),
+		team: gauge(
+			balance.teamRynke,
+			rules.teamThreshold,
+			gaugeParts<GaugeSource>(
+				kinds.map((k) => ({ source: k.kind, value: k.team })),
+				rules.teamThreshold,
+			),
+		),
 		withoutVirtual:
 			virtualCount === 0
 				? null

@@ -3,7 +3,9 @@ import { html, type SafeHtml } from "./html";
 import type {
 	Breakdown,
 	Condition,
+	EventLine,
 	Gauge,
+	GaugeSource,
 	Gauges,
 	Pager,
 	ReasonLine,
@@ -29,6 +31,18 @@ const STATUS = {
 		text: "rynke.ride.beingEvaluated",
 	},
 } as const;
+
+/**
+ * Each source's colour class, the same in every gauge and legend
+ * (contracts/rider-page.md); 6 is kept for feature 003 Story 6's corrections.
+ */
+const PART_CLASS: Record<GaugeSource, string> = {
+	distance: "gauge-part-1",
+	elevation: "gauge-part-2",
+	team_training: "gauge-part-3",
+	training_weekend_day: "gauge-part-4",
+	technique_training: "gauge-part-5",
+};
 
 /** The rules handout, published in the public repository (research R14). */
 export const RULES_HANDOUT_URL =
@@ -167,15 +181,15 @@ function figure(i18n: I18n, gauge: Gauge, caption: string): SafeHtml {
 		gauge.parts.length === 0
 			? html`<span class="gauge-fill" style="width:${gauge.percent}%"></span>`
 			: gauge.parts.map(
-					(part, i) =>
-						html`<span class="gauge-part gauge-part-${i + 1}" style="width:${part.widthPercent.toFixed(2)}%"></span>`,
+					(part) =>
+						html`<span class="gauge-part ${PART_CLASS[part.source]}" style="width:${part.widthPercent.toFixed(2)}%"></span>`,
 				);
 	const legend =
 		gauge.parts.length === 0
 			? null
 			: html`<ul class="gauge-legend">${gauge.parts.map(
-					(part, i) =>
-						html`<li><span class="gauge-key gauge-part-${i + 1}" aria-hidden="true"></span>${i18n.t(`rynke.source.${part.source}`)}: ${whole(i18n, part.value)}</li>`,
+					(part) =>
+						html`<li><span class="gauge-key ${PART_CLASS[part.source]}" aria-hidden="true"></span>${i18n.t(`rynke.source.${part.source}`)}: ${whole(i18n, part.value)}</li>`,
 				)}</ul>`;
 	return html`<figure class="gauge${gauge.reached ? " gauge-reached" : ""}">
 <figcaption>${caption}${reached}</figcaption>
@@ -184,7 +198,7 @@ ${legend}</figure>
 `;
 }
 
-/** Where the Rynke come from, adding up to the totals (FR-030, FR-035). */
+/** Where the Rynke come from, adding up to the totals (FR-030–FR-033, FR-035). */
 export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
 	const metres = (m: number) => i18n.t("units.m", { value: whole(i18n, m) });
 	const elevation = {
@@ -204,7 +218,18 @@ export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
 					stepRynke: whole(i18n, breakdown.elevationStepRynke),
 				})
 	}</dd>
-<dt>${i18n.t("rynke.breakdown.total")}</dt><dd>${i18n.t(
+${breakdown.kinds.map(
+	(kind) =>
+		html`<dt>${i18n.t(`rynke.source.${kind.kind}`)}</dt><dd>${i18n.t(
+			"rynke.breakdown.kind",
+			{
+				count: whole(i18n, kind.attended),
+				team: whole(i18n, kind.team),
+				training: whole(i18n, kind.training),
+			},
+		)}</dd>
+`,
+)}<dt>${i18n.t("rynke.breakdown.total")}</dt><dd>${i18n.t(
 		"rynke.breakdown.totals",
 		{
 			training: whole(i18n, breakdown.trainingTotal),
@@ -212,7 +237,25 @@ export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
 		},
 	)}</dd>
 </dl>
+<h3>${i18n.t("rynke.events.heading")}</h3>
+${
+	breakdown.events.length === 0
+		? html`<p>${i18n.t("rynke.events.none")}</p>`
+		: html`<ul class="rynke-events">${breakdown.events.map((event) =>
+				eventItem(i18n, event),
+			)}</ul>`
+}
 </section>`;
+}
+
+/** Date, kind, the organiser's name for it, and whether it counts (FR-033). */
+function eventItem(i18n: I18n, event: EventLine): SafeHtml {
+	const parts = [day(i18n, event.date), i18n.t(`rynke.source.${event.kind}`)];
+	if (event.name !== null) parts.push(event.name);
+	if (!event.counts) parts.push(i18n.t("rynke.events.notCounting"));
+	return event.counts
+		? html`<li>${parts.join(" · ")}</li>`
+		: html`<li class="event-not-counting">${parts.join(" · ")}</li>`;
 }
 
 /** The rules version, the counting window and the handout (FR-050, FR-053). */
