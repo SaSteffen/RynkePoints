@@ -23,7 +23,7 @@ export const de = {
 	"landing.dataRead":
 		"Wir lesen von deinen Radfahrten nur Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob die Fahrt manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat – keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.",
 	"landing.private":
-		"Auf Strava entscheidest du selbst, ob auch deine privaten („Nur du“) Aktivitäten dazugehören.",
+		"Auf Strava entscheidest du selbst, ob auch deine privaten („Nur du“) Aktivitäten dazugehören: Strava nennt das Anzeigen deiner privaten Aktivitäten. Wenn du das abwählst, zählen deine privaten Fahrten nicht für Rynke.",
 	"landing.purpose":
 		"Wir nutzen die Daten nur für die Rynke (Punkte) und Events des Teams. Deine einzelnen Fahrten sieht niemand außer dir.",
 	"landing.leave":
@@ -40,7 +40,7 @@ export const de = {
 		"Alle anderen im Team sehen deine gesammelten Rynke, insgesamt und pro Woche, ohne deinen Namen.",
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
 	"consent.write":
-		"Freiwillig kannst du RynkePoints auf Strava erlauben, deine Aktivitäten zu bearbeiten. Sobald es die Funktion gibt, schreiben wir dann einen kurzen Rynke-Abschnitt in die Beschreibung deiner Fahrten; deinen eigenen Text ändern wir nie. Den Abschnitt sieht, wer die Fahrt auf Strava sehen darf. Ohne diese Erlaubnis machst du genauso mit.",
+		"Freiwillig kannst du RynkePoints auf Strava erlauben, deine Aktivitäten zu bearbeiten. Sobald es die Funktion gibt, schreiben wir dann einen kurzen Rynke-Abschnitt in die Beschreibung deiner Fahrten; deinen eigenen Text ändern wir nie. Den Abschnitt sieht, wer die Fahrt auf Strava sehen darf. Strava nennt diese Erlaubnis das Hochladen von Aktivitäten zu Strava; RynkePoints lädt nie Aktivitäten hoch. Ohne diese Erlaubnis machst du genauso mit, du kannst sie also abwählen.",
 	"consent.agree":
 		"Ich bin einverstanden, dass RynkePoints meine Fahrten liest und meine Rynke wie beschrieben teilt.",
 

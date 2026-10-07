@@ -22,7 +22,7 @@ export const en: Catalog = {
 	"landing.dataRead":
 		"From your rides we only read sport type, start time, distance, moving time, elapsed time including pauses, elevation gain, whether the ride was entered manually or ridden on an indoor trainer, and whether Strava has flagged it – no GPS tracks, maps, photos or health data.",
 	"landing.private":
-		'On Strava you decide whether your private ("Only You") activities are included.',
+		'On Strava you decide whether your private ("Only You") activities are included: Strava lists this as viewing your private activities. If you untick it, your private rides don\'t count for Rynke.',
 	"landing.purpose":
 		"We use the data only for the team's Rynke (points) and events. Nobody but you sees your individual rides.",
 	"landing.leave":
@@ -39,7 +39,7 @@ export const en: Catalog = {
 		"Everyone else on the team sees your accumulated Rynke, overall and per week, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
 	"consent.write":
-		"If you like, you can allow RynkePoints on Strava to edit your activities. Once the feature exists, we then write a short Rynke section into your ride descriptions; we never change your own text. Whoever may see the ride on Strava sees the section. You take part just the same without this permission.",
+		"If you like, you can allow RynkePoints on Strava to edit your activities. Once the feature exists, we then write a short Rynke section into your ride descriptions; we never change your own text. Whoever may see the ride on Strava sees the section. Strava lists this permission as uploading activities to Strava; RynkePoints never uploads activities. You take part just the same without this permission, so you can untick it.",
 	"consent.agree":
 		"I agree that RynkePoints reads my rides and shares my Rynke as described.",
 
