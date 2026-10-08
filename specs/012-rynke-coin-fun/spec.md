@@ -18,6 +18,16 @@ The Team Rynkeby colours themselves (issue #51's first point) are not part of th
 spec: they are a change of the colour values of feature 011's design tokens, agreed
 in the Claude Design mock-up "RynkePoints App Shell".
 
+## Clarifications
+
+### Session 2026-10-08
+
+- Q: How much fun? → A: The full version of the mock-up: coin hero, coin rows,
+  emoji in the copy and the celebration.
+- Q: Use the attached coin images, or a simplified version? → A: The simplified flat
+  coin from the mock-up. The attached images belong to the maintainer and may be
+  published in this repo too, should a later change want them.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Rynke shown as coins (Priority: P1)
@@ -102,14 +112,19 @@ illustration in both colour modes and at phone width.
   stays available as text.
 - **FR-005**: Graphics MUST be served by the app itself (no other origins, feature
   011 FR-037) and work in light and dark mode.
-- **FR-006**: The coin artwork MUST be one the team may publish in this public repo.
-  [NEEDS CLARIFICATION: use the attached coin images as they are, or a simplified
-  line/flat version drawn for the app?]
+- **FR-006**: The app MUST use the simplified flat coin drawn for it in the Claude
+  Design mock-up "RynkePoints Coin Explorations": front (orangutan) for Training
+  Rynke, back (Hamburg–Paris) for Team Rynke, and a plain mini coin below 32 px.
+
+- **FR-007**: Opening the Overview MUST store the Training and Team Rynke the rider
+  saw, so the celebration plays once. This is the one write of the rider pages, an
+  exception to feature 005 SC-004 ("changes no stored data"); it still starts no
+  evaluation and no Strava request.
 
 ### Key Entities
 
-- **Last seen totals**: per rider and device, the totals the rider last saw, so the
-  celebration plays once.
+- **Last seen totals** (`rynke_seen`): per rider, the Training and Team Rynke shown
+  on the rider's last Overview; deleted with the rider.
 
 ## Success Criteria *(mandatory)*
 

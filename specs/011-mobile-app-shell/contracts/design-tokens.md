@@ -9,50 +9,62 @@ Every value the pages draw from, as CSS custom properties defined once in
 - both schemes define the same set of names;
 - the contrast pairs at the end hold.
 
-Source: the Claude Design mock-up "RynkePoints App Shell" (research intro).
+Source: the Claude Design mock-up "RynkePoints App Shell" (research intro), in
+Team Rynkeby's colours since issue #51: yellow `#fbe122`, black and green
+`#0f4f25`. On light ground yellow is a fill, never text; the links, buttons and
+headings are black there, yellow in the dark scheme.
 
 ## Colour roles
 
 | Token | Light | Dark | Used for |
 |---|---|---|---|
-| `--md-sys-color-surface` | `#fff8f6` | `#1a110e` | page background |
-| `--md-sys-color-surface-container-low` | `#fff1ec` | `#231917` | breakdown, outlined cards |
-| `--md-sys-color-surface-container` | `#fceae5` | `#271d1a` | cards, top bar, nav bar |
-| `--md-sys-color-surface-container-high` | `#f6e5df` | `#322824` | pressed and hover states |
-| `--md-sys-color-on-surface` | `#231917` | `#f1dfd9` | body text |
-| `--md-sys-color-on-surface-variant` | `#53433e` | `#d8c2bb` | secondary text, inactive tabs |
-| `--md-sys-color-outline` | `#85736d` | `#a08d86` | outlined buttons, switch off |
-| `--md-sys-color-outline-variant` | `#d8c2bb` | `#53433e` | dividers |
-| `--md-sys-color-primary` | `#a63b00` | `#ffb59b` | links, wordmark "Points", switch on |
-| `--md-sys-color-on-primary` | `#ffffff` | `#5b1a00` | text on primary, switch thumb |
-| `--md-sys-color-primary-container` | `#ffdbcf` | `#812900` | verdict card |
-| `--md-sys-color-on-primary-container` | `#380d00` | `#ffdbcf` | verdict text, "missing" chips |
-| `--md-sys-color-secondary-container` | `#f7d6c9` | `#5d4035` | nav active pill, selected segment |
-| `--md-sys-color-on-secondary-container` | `#2c160d` | `#ffdbcf` | text on it |
+| `--md-sys-color-surface` | `#fffdf5` | `#12110c` | page background |
+| `--md-sys-color-surface-container-low` | `#fcf9ec` | `#1a1913` | breakdown, outlined cards |
+| `--md-sys-color-surface-container` | `#f6f2e0` | `#201f18` | cards, top bar, nav bar |
+| `--md-sys-color-surface-container-high` | `#efead3` | `#2b2a21` | pressed and hover states |
+| `--md-sys-color-on-surface` | `#1c1b13` | `#eeebdd` | body text |
+| `--md-sys-color-on-surface-variant` | `#4a4633` | `#cec9b3` | secondary text, inactive tabs |
+| `--md-sys-color-outline` | `#7a755c` | `#979279` | outlined buttons, switch off |
+| `--md-sys-color-outline-variant` | `#d3cdb2` | `#4a4633` | dividers |
+| `--md-sys-color-primary` | `#1c1b13` | `#fbe122` | links, wordmark "Points", switch on |
+| `--md-sys-color-on-primary` | `#fbe122` | `#1c1b13` | text on primary, switch thumb |
+| `--md-sys-color-primary-container` | `#fbe122` | `#fbe122` | verdict card |
+| `--md-sys-color-on-primary-container` | `#1c1b13` | `#1c1b13` | verdict text, "missing" chips |
+| `--md-sys-color-secondary-container` | `#fbe122` | `#fbe122` | nav active pill, selected segment |
+| `--md-sys-color-on-secondary-container` | `#1c1b13` | `#1c1b13` | text on it |
 | `--md-sys-color-error` | `#ba1a1a` | `#ffb4ab` | "Disconnect and delete my data" |
 | `--md-sys-color-error-container` | `#ffdad6` | `#93000a` | reconnect notice, "doesn't count" chip |
 | `--md-sys-color-on-error-container` | `#410002` | `#ffdad6` | text on it |
-| `--rp-ok-container` | `#c8f0c4` | `#1e4d22` | "counts" chip |
-| `--rp-on-ok-container` | `#0b3912` | `#b9f0b8` | text on it |
-| `--rp-neutral-container` | `#f0dfd9` | `#3d322e` | "being evaluated" chip |
-| `--rp-on-neutral-container` | `#53433e` | `#d8c2bb` | text on it |
+| `--rp-ok-container` | `#e7eee8` | `#173a22` | "counts" chip |
+| `--rp-on-ok-container` | `#0f4f25` | `#bfe3c6` | text on it |
+| `--rp-neutral-container` | `#efead3` | `#2e2c22` | "being evaluated" chip |
+| `--rp-on-neutral-container` | `#4a4633` | `#cec9b3` | text on it |
 | `--rp-brand` | `#fc5200` | `#fc5200` | Strava orange where Strava's own colour is meant |
 
 ## Gauge colours (feature 005's key, FR-035)
 
 | Token | Light | Dark | Part |
 |---|---|---|---|
-| `--rp-part-1` | `#fc5200` | `#ff8f63` | distance |
-| `--rp-part-2` | `#1f6fb2` | `#8cc4f0` | elevation |
-| `--rp-part-3` | `#2a9d8f` | `#6fd1c2` | team training |
-| `--rp-part-4` | `#8e44ad` | `#d7a6ec` | training-weekend day |
-| `--rp-part-5` | `#c9a227` | `#e6c65a` | technique training |
-| `--rp-part-6` | `#6b6b6b` | `#a8a8a8` | corrections (feature 003 Story 6) |
-| `--rp-reached` | `#2e7d32` | `#81c784` | reached gauge |
-| `--rp-track` | `#f0dfd9` | `#3d322e` | gauge track |
+| `--rp-part-1` | `#fbe122` | `#fbe122` | distance (Rynkeby yellow) |
+| `--rp-part-2` | `#8cc4f0` | `#8cc4f0` | elevation |
+| `--rp-part-3` | `#ff9a4d` | `#ff9a4d` | team training |
+| `--rp-part-4` | `#6fd1c2` | `#6fd1c2` | training-weekend day |
+| `--rp-part-5` | `#d7a6ec` | `#d7a6ec` | technique training |
+| `--rp-part-6` | `#a8a6a0` | `#a8a6a0` | corrections (feature 003 Story 6) |
+| `--rp-reached` | `#7fcb92` | `#7fcb92` | reached gauge |
+| `--rp-track` | `#1c1b13` | `#3a382c` | gauge track |
 
 Parts are separated by a 2 px border in `--md-sys-color-surface-container`, the
-card colour behind the gauge.
+card colour behind the gauge. The light track is black like the coin's ring.
+
+## Coin colours (feature 012)
+
+`--rp-coin-rim` `#c99a2e`, `--rp-coin-ink` `#1c1b13`, `--rp-coin-face` `#fffdf5`,
+`--rp-coin-yellow` `#fbe122`, `--rp-coin-fur` `#c8641e`, `--rp-coin-muzzle`
+`#f0a868`, `--rp-coin-sky` `#a9d6f2`, `--rp-coin-glass` `#e8f3fb`,
+`--rp-coin-brick` `#b5562f`, `--rp-coin-water` `#3a8fd0`, `--rp-coin-team`
+`#8cc4f0`: the same in both schemes, so the coin looks like the coin. The hero card
+uses rim, ink, face and yellow too.
 
 ## Scheme selection
 
