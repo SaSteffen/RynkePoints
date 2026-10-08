@@ -65,6 +65,22 @@ describe("STYLE", () => {
 		);
 	});
 
+	it("centres the Team placeholder under a large tinted icon (FR-013)", () => {
+		expect(declsOf(".placeholder")).toMatchObject({
+			display: "flex",
+			"flex-direction": "column",
+			"align-items": "center",
+			"text-align": "center",
+		});
+		expect(declsOf(".placeholder svg")).toMatchObject({
+			width: "96px",
+			height: "96px",
+			"border-radius": "var(--md-shape-full)",
+			background: "var(--md-sys-color-primary-container)",
+			color: "var(--md-sys-color-on-primary-container)",
+		});
+	});
+
 	it("lines figures up with tabular numbers (FR-036)", () => {
 		expect(declsOf("body")["font-variant-numeric"]).toBe("tabular-nums");
 	});

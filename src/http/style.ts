@@ -58,8 +58,9 @@ ul.rynke-missing{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);list-style:no
 .overview-grid{display:grid;gap:var(--rp-space-3)}
 .overview-grid>*{margin:0}
 .rynke-gauges .card{margin:0 0 var(--rp-space-3)}
-.placeholder{padding:var(--rp-space-6) var(--rp-space-4);text-align:center;color:var(--md-sys-color-on-surface-variant)}
-.placeholder svg{width:48px;height:48px}
+.placeholder{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-4);padding:var(--rp-space-6) var(--rp-space-6) 48px;text-align:center;color:var(--md-sys-color-on-surface-variant)}
+.placeholder svg{width:96px;height:96px;padding:24px;border-radius:var(--md-shape-full);background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container)}
+.placeholder h2,.placeholder p{margin:0}
 .chip{display:inline-flex;align-items:center;min-height:32px;padding:0 var(--rp-space-3);border-radius:var(--md-shape-sm);font:var(--md-type-label);background:var(--rp-neutral-container);color:var(--rp-on-neutral-container)}
 .ride-counting .chip{background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
 .ride-not-counting .chip{background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container)}
