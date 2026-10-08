@@ -79,6 +79,15 @@ describe("GET /me celebration", () => {
 		);
 	});
 
+	it("writes the amount like the totals", async () => {
+		await seedBalance(ATHLETE_A, { trainingRynke: 0, teamRynke: 0 });
+		await celebration();
+		await seedBalance(ATHLETE_A, { trainingRynke: 1200, teamRynke: 0 });
+		expect(await celebration()).toContain(
+			escapeHtml(de["celebrate.training"].replace("{n}", "1.200")),
+		);
+	});
+
 	it("drops the coins as decoration", async () => {
 		await seedBalance(ATHLETE_A, { trainingRynke: 15 });
 		await celebration();

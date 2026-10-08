@@ -36,6 +36,17 @@ describe.each(RIDER_PAGES)("$name", (page) => {
 		expect(widths(html).filter((px) => px > PHONE)).toEqual([]);
 	});
 
+	it("carries the coin sprite once for every coin on it (012 FR-005)", async () => {
+		const html = await (await page.fetch(ctx, {})).text();
+		expect(html.match(/<svg class="sprite"/g)).toHaveLength(1);
+		const symbols = [...html.matchAll(/<symbol id="([^"]+)"/g)].map(
+			([, id]) => id,
+		);
+		for (const [, id] of html.matchAll(/<use href="#([^"]+)"/g)) {
+			expect(symbols).toContain(id);
+		}
+	});
+
 	it(
 		shell
 			? "is a shell page with the navigation"

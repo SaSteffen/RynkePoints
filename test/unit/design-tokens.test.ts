@@ -98,6 +98,13 @@ describe("design tokens", () => {
 		expect(Object.keys(DARK_SYSTEM).sort()).toEqual(names);
 	});
 
+	it("keeps the coin's colours in both schemes (012 FR-005)", () => {
+		const coin = (tokens: Tokens) =>
+			Object.entries(tokens).filter(([name]) => name.startsWith("--rp-coin-"));
+		expect(coin(LIGHT).length).toBeGreaterThan(5);
+		expect(coin(DARK_FIXED)).toEqual(coin(LIGHT));
+	});
+
 	it("uses the same dark values for the system and a fixed choice", () => {
 		expect(DARK_SYSTEM).toEqual(DARK_FIXED);
 	});

@@ -13,7 +13,7 @@ A fixed list in `src/http/shell.ts`. The order is the navigation order (FR-002).
 
 | id | Path | Label key | Icon | Reads |
 |---|---|---|---|---|
-| `overview` | `/me` | `nav.overview` | gauge | rider view, page 1 |
+| `overview` | `/me` | `nav.overview` | coin (feature 012) | rider view, page 1 |
 | `rides` | `/me/rides` | `nav.rides` | bike | rider view, page `N` |
 | `team` | `/team` | `nav.team` | people | nothing beyond the viewer |
 | `settings` | `/me/settings` | `nav.settings` | sliders | current consent record |
