@@ -27,7 +27,7 @@ in.
 
 ## Phase 1: Setup
 
-- [ ] T001 Run `pnpm install`, then `pnpm lint`, `pnpm typecheck` and `pnpm test`.
+- [X] T001 Run `pnpm install`, then `pnpm lint`, `pnpm typecheck` and `pnpm test`.
   All pass before any change, so later failures are this feature's.
 
 ---
@@ -37,12 +37,12 @@ in.
 **Purpose**: the schema, the access helpers, the shared catalog keys and the
 entry link on `/team`.
 
-- [ ] T002 [P] Tests first (failing), `test/integration/schema-minimisation.test.ts`:
+- [X] T002 [P] Tests first (failing), `test/integration/schema-minimisation.test.ts`:
   `team_events` and `attendances` each gain `changed_by` and `changed_at`; a new
   `corrections` entry lists `correction_id`, `athlete_id`, `training`, `team`,
   `reason`, `correction_date`, `changed_by`, `changed_at`. Add `corrections.reason`
   to `DOCUMENTED` (organiser-written free text, like `team_events.name`).
-- [ ] T003 Write `migrations/0011_organiser_admin.sql` per
+- [X] T003 Write `migrations/0011_organiser_admin.sql` per
   [data-model.md](data-model.md), adds only:
   - `ALTER TABLE team_events ADD COLUMN changed_by INTEGER REFERENCES riders (athlete_id) ON DELETE SET NULL`
     and `ADD COLUMN changed_at INTEGER`; the same two columns on `attendances`.
@@ -56,16 +56,16 @@ entry link on `/team`.
     `changed_at INTEGER NOT NULL`, and `CHECK (training <> 0 OR team <> 0)`.
   - `CREATE INDEX corrections_by_rider ON corrections (athlete_id)`.
   T002 passes.
-- [ ] T004 [P] Tests first (failing), `test/integration/team.test.ts`: `/team`
+- [X] T004 [P] Tests first (failing), `test/integration/team.test.ts`: `/team`
   shows a link to `/organiser` for a rider with the organiser flag, and no such
   link for a rider without it (FR-002, R2).
-- [ ] T005 Add the shared keys to `src/i18n/messages/en.ts` and
+- [X] T005 Add the shared keys to `src/i18n/messages/en.ts` and
   `src/i18n/messages/de.ts`: `organiser.title`, `organiser.link` (the `/team`
   card), `organiser.back`, `organiser.formerOrganiser`, `organiser.changedBy`
   (first name and date), every `organiser.error.<code>` and
   `organiser.done.<code>` of [contracts/http-routes.md](contracts/http-routes.md).
   `test/unit/catalogs.test.ts` parity keeps passing.
-- [ ] T006 Create `src/http/organiser/access.ts` (R1, R3, R9):
+- [X] T006 Create `src/http/organiser/access.ts` (R1, R3, R9):
   - `organiserPage(request, ctx, i18n, path, render)`: calls `shellPage()` with
     section `team`; inside, a rider without `organiser` gets `forbidden()`.
   - `requireOrganiserPost(request, ctx, i18n)`: `isSameOrigin`, a rider session,
@@ -77,7 +77,7 @@ entry link on `/team`.
     "former organiser" when `firstName` is NULL (organiser gone, or no longer
     passing the consent filter), otherwise first name and date.
   - `redirect(path, param, code)`: a `303` with the encoded query.
-- [ ] T007 Add the organiser card to `src/http/sections/team.ts` for organisers
+- [X] T007 Add the organiser card to `src/http/sections/team.ts` for organisers
   only, with its 44 px link style in `src/http/style.ts`. T004 passes.
 
 **Checkpoint**: migration applied in tests; helpers ready; `/team` links organisers.
@@ -92,7 +92,7 @@ entry link on `/team`.
 and check the list and the stored rows; as a rider without the flag every route
 is refused.
 
-- [ ] T008 [P] [US1] Tests first (failing), `test/integration/organiser-access.test.ts`
+- [X] T008 [P] [US1] Tests first (failing), `test/integration/organiser-access.test.ts`
   (FR-001, SC-002): a visitor's `GET /organiser` gives 302 `/` and a visitor's
   POST to every US1 route gives 403 with nothing changed; an organiser who hasn't
   agreed to the current consent version meets the consent gate on
@@ -101,7 +101,7 @@ is refused.
   US1 POST, and the stored events don't change; a POST with a foreign `Origin`
   gives 403; an organiser whose flag is cleared between GET and POST gets 403.
   Keep the routes in one table so US2 and US3 add theirs.
-- [ ] T009 [P] [US1] Tests first (failing), `test/integration/organiser-events.test.ts`
+- [X] T009 [P] [US1] Tests first (failing), `test/integration/organiser-events.test.ts`
   (FR-010–FR-013, FR-040):
   - create with today's date and no name → 303 `/organiser/events/{id}?done=created`,
     row has `changed_by` = organiser and `changed_at` set;
@@ -119,12 +119,12 @@ is refused.
   - deleting the organiser's rider row leaves the event and shows "former
     organiser"; so does an organiser who no longer passes the consent filter
     (their first name doesn't appear).
-- [ ] T010 [US1] Add `by?: number` to `create-event` and `update-event` in
+- [X] T010 [US1] Add `by?: number` to `create-event` and `update-event` in
   `TeamEventChange` in `src/rynke/apply.ts`; pass `by ?? null` and `now` as epoch
   seconds to `insertTeamEventStatement` and `updateTeamEventStatement` in
   `src/db/team-events.ts`, which now also write `changed_by` and `changed_at`.
   Existing callers without `by` keep working (`team-events-apply.test.ts` passes).
-- [ ] T011 [P] [US1] Add `listTeamEventsStatement(db, seasonStart)` to
+- [X] T011 [P] [US1] Add `listTeamEventsStatement(db, seasonStart)` to
   `src/db/team-events.ts`: events with `event_date >= seasonStart` (FR-010; events
   after the deadline stay listed), with `kind`, `event_date`, `name`,
   `COUNT(attendances)` as `attendees`, `changed_at`, `changed_by` and the
@@ -134,10 +134,10 @@ is refused.
   `readTeamEventStatement` with the same change-record fields and join.
   `changeRecord` (T006) shows "former organiser" when `changed_at` is set and the
   joined name is NULL.
-- [ ] T012 [US1] Add the US1 keys to both catalogs: list headings, empty list,
+- [X] T012 [US1] Add the US1 keys to both catalogs: list headings, empty list,
   form labels (date, name, save, add; the kind labels reuse
   `rynke.source.<kind>`), "Delete event…", the delete warning and confirm button.
-- [ ] T013 [US1] Create `src/http/organiser/events.ts`:
+- [X] T013 [US1] Create `src/http/organiser/events.ts`:
   - `GET /organiser`: the notice, the event list from
     `listTeamEventsStatement(db, env.SEASON_START_DATE)` (each row links to its page and
     shows the change record), the new-event form (kind select, date defaulting to
@@ -151,10 +151,10 @@ is refused.
     on create and on an update that changes the date (R5), call
     `teamEventChange` with `by`, map `TeamEventRefused` to `?error=<code>`
     (`event_missing` redirects to `/organiser`), and redirect per the contract.
-- [ ] T014 [US1] Route `/organiser`, `/organiser/events` and
+- [X] T014 [US1] Route `/organiser`, `/organiser/events` and
   `/organiser/events/{id}[/delete]` in `src/http/router.ts` to `events.ts`;
   other methods give 405 as elsewhere. T008 and T009 pass.
-- [ ] T015 [P] [US1] Add the form, list and `<details>` styles to
+- [X] T015 [P] [US1] Add the form, list and `<details>` styles to
   `src/http/style.ts`: controls at least 44 px, no horizontal scrolling at 360 px
   (FR-044); extend `test/unit/style.test.ts` if it pins the selector list.
 
