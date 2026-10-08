@@ -322,7 +322,7 @@ version 1 sees the gate with version 2's changes, agrees through
 `POST /me/consent`, and then sees `/me` as usual; until then `maySee` treats
 them as version 1.
 
-- [ ] T032 [P] [US4] Tests first (failing), `test/unit/consent-versions.test.ts`,
+- [x] T032 [P] [US4] Tests first (failing), `test/unit/consent-versions.test.ts`,
   `consentState(versions, accepted, grantedScopes)` with a synthetic registry of
   versions 1–3:
   - `accepted` `null` → `missing`, `viaStrava: true`;
@@ -331,7 +331,7 @@ them as version 1.
   - `accepted` equal to or above current → `current`;
   - `older` with every `requiredScopes` of the current version granted →
     `viaStrava: false`; one missing → `true`.
-- [ ] T033 [P] [US4] Tests first (failing), new
+- [x] T033 [P] [US4] Tests first (failing), new
   `test/integration/consent-gate.test.ts`, with a synthetic version 2:
   - **scenario 2**: a rider on version 1 sees:
     - `me.consent.renew.heading`;
@@ -356,7 +356,7 @@ them as version 1.
     - without the tick or with `consent=1` → `303 /me` and no record;
     - a rider already current → `303 /me`, nothing written;
     - posted twice → the first `accepted_at` kept.
-- [ ] T034 [P] [US4] Tests first (failing), scenarios 1 and 3:
+- [x] T034 [P] [US4] Tests first (failing), scenarios 1 and 3:
   - `test/integration/me-status.test.ts`, scenario 1: one test checking that
     `/me` of a current rider shows all of these (research R12):
     - the version and date (`me.consent.accepted`);
@@ -369,7 +369,7 @@ them as version 1.
   - `test/integration/shared-riders.test.ts`, scenario 3: a `SUM` over
     `rynke_balances` filtered with `sharedRiderIdsSince(2)` leaves the
     version 1 rider out and keeps the version 2 rider.
-- [ ] T035 [P] [US4] Tests first (failing):
+- [x] T035 [P] [US4] Tests first (failing):
   - `test/integration/viewer.test.ts`: `requireConsent` → `302 /me` for a rider
     with no record and for one on version 1 under a synthetic version 2; `null`
     for a current rider and for a visitor (`requireRider` handles visitors);
@@ -380,7 +380,7 @@ them as version 1.
       version 2 recorded and their scopes updated;
     - one who leaves out the extra scope is still connected and gets version 2
       recorded, and `/me` still shows the gate with the Strava form.
-- [ ] T036 [US4] In `src/consent.ts`, add pure `consentState(versions:
+- [x] T036 [US4] In `src/consent.ts`, add pure `consentState(versions:
   ConsentVersions, accepted: number | null, grantedScopes: readonly string[])`
   returning `({ kind: "current" } | { kind: "missing" } | { kind: "older";
   accepted: number; changes: readonly MessageId[] }) & { viaStrava: boolean }`.
@@ -389,24 +389,24 @@ them as version 1.
     the current one;
   - `viaStrava` is true for `missing`, or when a current `requiredScopes`
     entry is not in `grantedScopes`.
-- [ ] T037 [P] [US4] Add `me.consent.renew.older`, `me.consent.renew.strava` and
+- [x] T037 [P] [US4] Add `me.consent.renew.older`, `me.consent.renew.strava` and
   `me.consent.renew.button` to `src/i18n/messages/de.ts` and
   `src/i18n/messages/en.ts` with the texts in
   [contracts/re-consent.md](contracts/re-consent.md) "Messages"
   (`{accepted}`, `{date}`, `{version}` placeholders; FR-040).
-- [ ] T038 [US4] In `src/http/viewer.ts`, add `requireConsent(viewer, ctx):
+- [x] T038 [US4] In `src/http/viewer.ts`, add `requireConsent(viewer, ctx):
   Response | null`. It returns `redirect("/me", 302)` for a rider whose
   `consentState(ctx.consentVersions, viewer.consentVersion, <granted scopes>)`
   isn't `current`, else `null`. Get the granted scopes by splitting
   `rider.scopes` with the same pattern as the callback (`/[\s,]+/` in
   `src/http/auth.ts`); share one helper between `viewer.ts`, `me.ts` and
   `consent-gate.ts`.
-- [ ] T039 [US4] In `src/http/me.ts` `handleMe`, compute the state from T036 and
+- [x] T039 [US4] In `src/http/me.ts` `handleMe`, compute the state from T036 and
   show the gate for any state other than `current`, replacing the
   `consentVersion === null` check from T023. For `older`, pass the accepted
   record's date from `getCurrentConsent`, formatted as `/me` formats
   `me.consent.accepted`.
-- [ ] T040 [US4] Extend the gate in `src/http/consent-gate.ts`
+- [x] T040 [US4] Extend the gate in `src/http/consent-gate.ts`
   ([contracts/re-consent.md](contracts/re-consent.md) "`GET /me`, the gate"):
   - `older` intro: `me.consent.renew.older` with `{accepted}`, `{date}`,
     `{version}`, then a `<ul>` with one `<li>` per `changes` key;
@@ -414,7 +414,7 @@ them as version 1.
     `consentForm(i18n, current)`. Otherwise the contract's `/me/consent` form:
     required checkbox `name="consent" value="{current}"` with `consent.agree`,
     and the `me.consent.renew.button` button.
-- [ ] T041 [US4] In `src/http/consent-gate.ts`, add `handleConsent(request,
+- [x] T041 [US4] In `src/http/consent-gate.ts`, add `handleConsent(request,
   ctx)` for `POST /me/consent`, checking in the order of the contract's table:
   1. other origin → `forbidden(i18n, "/me")` (403);
   2. no rider → `302 /`;
@@ -425,9 +425,9 @@ them as version 1.
      `303 /me`.
 
   No Strava request (Principle II).
-- [ ] T042 [US4] In `src/http/router.ts`, route `POST /me/consent` to
+- [x] T042 [US4] In `src/http/router.ts`, route `POST /me/consent` to
   `handleConsent`, next to the other `/me` routes.
-- [ ] T043 [US4] Run `pnpm test`: T032–T035 pass; the US1 gate tests (T012) and
+- [x] T043 [US4] Run `pnpm test`: T032–T035 pass; the US1 gate tests (T012) and
   the `connect`, `callback`, `disconnect` tests still pass.
 
 **Checkpoint**: US4 complete. With only version 1 in production, nothing changes
