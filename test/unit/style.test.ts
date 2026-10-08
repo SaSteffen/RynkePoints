@@ -1,72 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { STYLE } from "../../src/http/style";
+import { declsOf, RULES } from "../support/css";
 
 // The stylesheet's phone guarantees, read from its rules since workerd can't
 // measure pixels (feature 011 FR-022, FR-023, research R15,
 // contracts/pages.md "Control size").
 
-interface Rule {
-	/** The enclosing `@media` condition, `null` at the top level. */
-	media: string | null;
-	selectors: string[];
-	decls: Record<string, string>;
-}
-
-/** The style rules, one `@media` level deep, like `STYLE` is written. */
-function rules(css: string): Rule[] {
-	const out: Rule[] = [];
-	const block = (body: string, media: string | null) => {
-		let at = 0;
-		while (at < body.length) {
-			const open = body.indexOf("{", at);
-			if (open < 0) break;
-			const head = body.slice(at, open).trim();
-			if (head.startsWith("@media")) {
-				let depth = 1;
-				let end = open + 1;
-				while (depth > 0 && end < body.length) {
-					if (body[end] === "{") depth++;
-					if (body[end] === "}") depth--;
-					end++;
-				}
-				block(body.slice(open + 1, end - 1), head.slice(6).trim());
-				at = end;
-				continue;
-			}
-			const close = body.indexOf("}", open);
-			const decls: Record<string, string> = {};
-			for (const decl of body.slice(open + 1, close).split(";")) {
-				const colon = decl.indexOf(":");
-				if (colon < 0) continue;
-				decls[decl.slice(0, colon).trim()] = decl.slice(colon + 1).trim();
-			}
-			out.push({
-				media,
-				selectors: head
-					.split(",")
-					.map((s) => s.replace(/\s*>\s*/g, ">").trim()),
-				decls,
-			});
-			at = close + 1;
-		}
-	};
-	block(css, null);
-	return out;
-}
-
-const RULES = rules(STYLE);
 const PHONE_PX = 360;
 const WIDE = "(min-width:600px)";
-
-/** The top-level declarations for `selector`, merged in order. */
-function declsOf(selector: string): Record<string, string> {
-	return Object.assign(
-		{},
-		...RULES.filter(
-			(rule) => rule.media === null && rule.selectors.includes(selector),
-		).map((rule) => rule.decls),
-	);
-}
 
 /** A length in px, or null when it isn't a fixed `px`/`rem` length. */
 function px(value: string): number | null {
@@ -112,9 +53,52 @@ describe("STYLE", () => {
 		expect(wide).toEqual([]);
 	});
 
-	it("keeps the last card above the bottom bar and the home indicator", () => {
-		expect(declsOf("body.shell main")["padding-bottom"]).toContain(
+	it("keeps the last card and the footer above the bottom bar and the home indicator", () => {
+		expect(declsOf("body.shell")["padding-bottom"]).toContain(
 			"env(safe-area-inset-bottom)",
 		);
 	});
+
+	it("lines figures up with tabular numbers (FR-036)", () => {
+		expect(declsOf("body")["font-variant-numeric"]).toBe("tabular-nums");
+	});
+
+	it("turns the transitions off for reduced motion (FR-038)", () => {
+		const reduced = RULES.filter(
+			(rule) => rule.media === "(prefers-reduced-motion:reduce)",
+		);
+		expect(reduced.length).toBeGreaterThan(0);
+		for (const rule of reduced) {
+			expect(rule.decls.transition).toMatch(/^none(!important)?$/);
+		}
+	});
+
+	it("loads nothing from another origin (FR-037)", () => {
+		expect(STYLE).not.toContain("@import");
+		expect(STYLE).not.toMatch(/url\(\s*["']?(https?:)?\/\//);
+	});
+
+	describe.each(["pbs", "cws"])(
+		"the two .%s images (FR-034, research R13)",
+		(image) => {
+			const DARK_SYSTEM = "(prefers-color-scheme:dark)";
+			const SYSTEM = ":root:not([data-scheme=light])";
+			const FIXED = ":root[data-scheme=dark]";
+
+			it("shows only the light one by default", () => {
+				expect(declsOf(`.${image}-dark`).display).toBe("none");
+				expect(declsOf(`.${image}-light`).display).not.toBe("none");
+			});
+
+			it.each([
+				["a dark system", DARK_SYSTEM, SYSTEM],
+				["a fixed dark choice", null, FIXED],
+			])("shows only the dark one for %s", (_name, media, root) => {
+				expect(declsOf(`${root} .${image}-light`, media).display).toBe("none");
+				const dark = declsOf(`${root} .${image}-dark`, media).display;
+				expect(dark).toBeDefined();
+				expect(dark).not.toBe("none");
+			});
+		},
+	);
 });

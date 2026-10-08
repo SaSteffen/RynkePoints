@@ -36,6 +36,8 @@ const WORDMARK = new Set(["Rynke", "Points"]);
 function unmarkedText(page: string): string[] {
 	let text = page
 		.replace(/<style>[\s\S]*?<\/style>/g, "")
+		// The scheme script holds code, not copy (011 contracts/client.md).
+		.replace(/<script>[\s\S]*?<\/script>/g, "")
 		// Ride names are rider data, not copy (008 research R8).
 		.replace(/<span class="ride-name">[\s\S]*?<\/span>/g, "")
 		.replace(/<[^>]*>/g, "\n");

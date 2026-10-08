@@ -31,8 +31,8 @@ export async function handleDisconnectPage(
 			path: "/me/disconnect",
 			body: html`<h1>${title}</h1>
 <p>${i18n.t("disconnect.explain")}</p>
-<form method="post" action="/me/disconnect"><button>${i18n.t("disconnect.confirm")}</button></form>
-<p><a href="/me">${i18n.t("disconnect.cancel")}</a></p>`,
+<form method="post" action="/me/disconnect"><button class="danger">${i18n.t("disconnect.confirm")}</button></form>
+<p><a class="button-outlined" href="/me">${i18n.t("disconnect.cancel")}</a></p>`,
 		}),
 	);
 }

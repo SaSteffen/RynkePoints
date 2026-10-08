@@ -5,6 +5,7 @@ import { html, type SafeHtml } from "./html";
 // page and the consent gate on `/me` (feature 004 contracts/rider-pages.md).
 // Ticking the box agrees to `version`, the current one (research R11). The
 // gate also sends `next`, the section to return to (feature 011 research R9).
+// The button holds both of Strava's images; the scheme CSS shows one (R13).
 
 /** The hidden `next` input, or nothing without one. */
 export function nextInput(next?: string): SafeHtml | null {
@@ -21,6 +22,6 @@ export function consentForm(
 ): SafeHtml {
 	return html`<form method="post" action="/connect">
 ${nextInput(next)}<p><label><input type="checkbox" name="consent" value="${version}" required> ${i18n.t("consent.agree")}</label></p>
-<button><img src="${i18n.t("brand.connectWithStrava.src")}" alt="${i18n.t("brand.connectWithStrava.alt")}"></button>
+<button><img class="cws cws-light" src="${i18n.t("brand.connectWithStrava.src")}" alt="${i18n.t("brand.connectWithStrava.alt")}"><img class="cws cws-dark" src="${i18n.t("brand.connectWithStrava.srcDark")}" alt="${i18n.t("brand.connectWithStrava.alt")}"></button>
 </form>`;
 }

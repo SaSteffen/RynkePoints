@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Ctx } from "../../src/ctx";
+import { SCHEME_SCRIPT } from "../../src/http/html";
 import { createSessionCookie } from "../../src/http/session";
 import { handleFetch } from "../../src/index";
 import { vapidPublicKey } from "../../src/push/vapid";
@@ -26,7 +27,9 @@ const HEAD = [
 	'<link rel="manifest" href="/manifest.webmanifest">',
 	'<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">',
 	'<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">',
-	'<meta name="theme-color" content="#111111">',
+	'<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff8f6">',
+	'<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a110e">',
+	`<script>${SCHEME_SCRIPT}</script>`,
 	'<script src="/app.js" defer></script>',
 ];
 
@@ -68,16 +71,26 @@ describe("every page's head", () => {
 		["/me/settings", true],
 		["/me/disconnect", true],
 		["/notice/deleted", false],
-	])("%s links the manifest, icons and app.js", async (path, signedIn) => {
-		const cookies = signedIn ? await sessionCookie(ctx, ATHLETE_A) : undefined;
-		const { res, page } = await get(path, cookies);
-		expect(res.status).toBe(200);
-		const head = page.slice(page.indexOf("<head>"), page.indexOf("</head>"));
-		for (const line of HEAD) expect(head).toContain(line);
-		expect(head).toContain(
-			'<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
-		);
-	});
+	])(
+		"%s links the manifest, icons, app.js and the scheme script",
+		async (path, signedIn) => {
+			const cookies = signedIn
+				? await sessionCookie(ctx, ATHLETE_A)
+				: undefined;
+			const { res, page } = await get(path, cookies);
+			expect(res.status).toBe(200);
+			const head = page.slice(page.indexOf("<head>"), page.indexOf("</head>"));
+			for (const line of HEAD) expect(head).toContain(line);
+			expect(head.indexOf("<script>")).toBeLessThan(head.indexOf("<style>"));
+			expect(page.match(/<script[^>]*>/gi)).toEqual([
+				"<script>",
+				'<script src="/app.js" defer>',
+			]);
+			expect(head).toContain(
+				'<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
+			);
+		},
+	);
 });
 
 describe("install hint (FR-004)", () => {
@@ -146,6 +159,7 @@ describe("GET /offline", () => {
 		expect(page).toContain(`<h1>${title}</h1>`);
 		expect(page).toContain(body);
 		expect(page).toContain("powered-by-strava.svg");
+		expect(page).toContain("powered-by-strava-white.svg");
 	});
 
 	it.each([

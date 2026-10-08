@@ -44,6 +44,12 @@ export function html(
 	return new SafeHtml(out);
 }
 
+/**
+ * Applies the device's colour scheme choice before the page paints (feature
+ * 011 contracts/client.md, research R6, R12). It holds no text.
+ */
+export const SCHEME_SCRIPT = `try{const s=localStorage.getItem("rp-scheme");if(s==="light"||s==="dark"){document.documentElement.dataset.scheme=s;for(const m of document.querySelectorAll('meta[name="theme-color"]')){m.removeAttribute("media");m.content=s==="dark" ? "#1a110e" : "#fff8f6";}}}catch{}`;
+
 /** The brand name, the same in every language (011 contracts/pages.md). */
 export const WORDMARK = new SafeHtml(
 	'<span class="wordmark">Rynke<span>Points</span></span>',
@@ -92,10 +98,12 @@ export function layout(
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff8f6">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a110e">
+<script>${new SafeHtml(SCHEME_SCRIPT)}</script>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<meta name="theme-color" content="#111111">
 <script src="/app.js" defer></script>
 <title>${title}</title>
 <style>${new SafeHtml(STYLE)}</style>
@@ -104,7 +112,7 @@ ${header}
 <main>
 ${body}
 </main>
-<footer><img src="${i18n.t("brand.poweredByStrava.src")}" alt="${i18n.t("brand.poweredByStrava.alt")}"></footer>
+<footer><img class="pbs pbs-light" src="${i18n.t("brand.poweredByStrava.src")}" alt="${i18n.t("brand.poweredByStrava.alt")}"><img class="pbs pbs-dark" src="${i18n.t("brand.poweredByStrava.srcDark")}" alt="${i18n.t("brand.poweredByStrava.alt")}"></footer>
 ${shell?.nav ?? null}</body>
 </html>
 `;

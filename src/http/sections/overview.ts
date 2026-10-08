@@ -47,13 +47,16 @@ export function handleOverview(
 				: null;
 		const ready = view.state === "ready" ? view : null;
 		// The install hint comes last, so it never pushes the totals down (FR-017).
-		return html`${reconnect}${rider.importStatus === "done" ? html`<p>${i18n.t("me.import.done")}</p>` : null}
+		// One grid holds it all: two columns on wider screens (contracts/pages.md).
+		return html`<div class="overview-grid">
+${reconnect}${rider.importStatus === "done" ? html`<p>${i18n.t("me.import.done")}</p>` : null}
 ${renderNotice(i18n, view, ctx.env.SEASON_START_DATE)}
 <p class="greeting">${i18n.t("me.greeting", { firstName: rider.firstName })}</p>
 ${ready ? renderSummary(i18n, ready.summary) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}
 ${ready ? renderBreakdown(i18n, ready.breakdown) : null}
 ${ready ? renderRules(i18n, ready.rules) : null}
-${renderInstallHint(i18n)}`;
+${renderInstallHint(i18n)}
+</div>`;
 	});
 }

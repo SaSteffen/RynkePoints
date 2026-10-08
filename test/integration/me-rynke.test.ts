@@ -67,7 +67,7 @@ function mainRows(page: string): string[][] {
 
 async function summary(athleteId = ATHLETE_A): Promise<string> {
 	const { html } = await riderPage(ctx, athleteId);
-	const found = section(html, 'class="rynke-summary"');
+	const found = section(html, 'class="rynke-summary verdict card"');
 	if (found === null) throw new Error("no summary section");
 	return text(found);
 }
@@ -103,7 +103,9 @@ describe("GET /me Rynke summary (US1)", () => {
 			qualified: true,
 		});
 		const { html } = await riderPage(ctx, ATHLETE_A);
-		const shown = text(section(html, 'class="rynke-summary"') ?? "");
+		const shown = text(
+			section(html, 'class="rynke-summary verdict card"') ?? "",
+		);
 		expect(shown).toContain(
 			"Du bist dabei: Du hast alles, was du für die Tour brauchst.",
 		);
@@ -151,7 +153,11 @@ describe("GET /me Rynke summary (US1)", () => {
 			/<ul class="rynke-missing">([\s\S]*?)<\/ul>/,
 		)?.[1];
 		expect(
-			[...(missing ?? "").matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => m[1]),
+			[
+				...(missing ?? "").matchAll(
+					/<li><span class="chip">([\s\S]*?)<\/span><\/li>/g,
+				),
+			].map((m) => m[1]),
 		).toEqual(["5 Teamrynke"]);
 		expect(text(html)).toContain("400 von 250");
 	});
@@ -163,7 +169,7 @@ describe("GET /me Rynke summary (US1)", () => {
 		expect(text(notice ?? "")).toBe(
 			"Deine Rynke werden gerade berechnet. Schau in ein paar Minuten wieder vorbei.",
 		);
-		expect(html).not.toContain('class="rynke-summary"');
+		expect(html).not.toContain('class="rynke-summary verdict card"');
 		expect(html).not.toContain("von 250");
 		expect(html).not.toContain("dabei");
 		expect(section(html, 'id="rides"')).toBeNull();
@@ -314,9 +320,9 @@ describe("GET /me gauges (US2)", () => {
 		await seedBalance(ATHLETE_A);
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		const order = [
-			'<section id="rynke" class="rynke-summary">',
+			'<section id="rynke" class="rynke-summary verdict card">',
 			'<section class="rynke-gauges">',
-			'<section class="rynke-breakdown">',
+			'<section class="rynke-breakdown card card-outlined">',
 		].map((marker) => html.indexOf(marker));
 		expect(order.every((i) => i >= 0)).toBe(true);
 		expect([...order].sort((x, y) => x - y)).toEqual(order);
@@ -327,21 +333,21 @@ describe("GET /me gauges (US2)", () => {
 
 	it("has no gauges before the first evaluation", async () => {
 		const { html } = await riderPage(ctx, ATHLETE_A);
-		expect(html).not.toContain("rynke-gauges");
+		expect(html).not.toContain('class="rynke-gauges"');
 	});
 
 	it("has no gauges for an unknown rules version (FR-013)", async () => {
 		await seedBalance(ATHLETE_A, { trainingRynke: 12, rulesVersion: 99 });
 		const { html } = await riderPage(ctx, ATHLETE_A);
-		expect(html).toContain('class="rynke-summary"');
-		expect(html).not.toContain("rynke-gauges");
+		expect(html).toContain('class="rynke-summary verdict card"');
+		expect(html).not.toContain('class="rynke-gauges"');
 	});
 });
 
 /** The breakdown's term and description texts, as `[dt, dd]` pairs. */
 async function breakdown(athleteId = ATHLETE_A): Promise<string[][]> {
 	const { html } = await riderPage(ctx, athleteId);
-	const found = section(html, 'class="rynke-breakdown"');
+	const found = section(html, 'class="rynke-breakdown card card-outlined"');
 	if (found === null) throw new Error("no breakdown section");
 	return [...found.matchAll(/<dt>([\s\S]*?)<\/dt><dd>([\s\S]*?)<\/dd>/g)].map(
 		([, dt = "", dd = ""]) => [text(dt), text(dd)],
@@ -401,7 +407,9 @@ describe("GET /me breakdown (US3a)", () => {
 			["Gesamt", "0 Trainingsrynke · 0 Teamrynke"],
 		]);
 		const { html } = await riderPage(ctx, ATHLETE_A);
-		expect(text(section(html, 'class="rynke-breakdown"') ?? "")).toContain(
+		expect(
+			text(section(html, 'class="rynke-breakdown card card-outlined"') ?? ""),
+		).toContain(
 			"Deine Teamtermine Für dich ist noch kein Teamtermin eingetragen.",
 		);
 		expect(html).not.toContain('class="rynke-events"');
@@ -425,14 +433,14 @@ describe("GET /me breakdown (US3a)", () => {
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		const order = [
 			'<section class="rynke-gauges">',
-			'<section class="rynke-breakdown">',
-			'<section class="rynke-rules">',
+			'<section class="rynke-breakdown card card-outlined">',
+			'<section class="rynke-rules card card-outlined">',
 		].map((marker) => html.indexOf(marker));
 		expect(order.every((i) => i >= 0)).toBe(true);
 		expect([...order].sort((x, y) => x - y)).toEqual(order);
-		expect(text(section(html, 'class="rynke-breakdown"') ?? "")).toMatch(
-			/^Woher deine Rynke kommen /,
-		);
+		expect(
+			text(section(html, 'class="rynke-breakdown card card-outlined"') ?? ""),
+		).toMatch(/^Woher deine Rynke kommen /);
 
 		await seedBalance(ATHLETE_A, { rulesVersion: 99 });
 		const unknown = (await riderPage(ctx, ATHLETE_A)).html;
@@ -440,7 +448,9 @@ describe("GET /me breakdown (US3a)", () => {
 			"</section>",
 			unknown.indexOf('<section id="rynke"'),
 		);
-		const breakdownStart = unknown.indexOf('<section class="rynke-breakdown">');
+		const breakdownStart = unknown.indexOf(
+			'<section class="rynke-breakdown card card-outlined">',
+		);
 		expect(summaryEnd).toBeGreaterThan(0);
 		expect(
 			unknown.slice(summaryEnd + "</section>".length, breakdownStart),
@@ -449,7 +459,9 @@ describe("GET /me breakdown (US3a)", () => {
 
 	it("has no breakdown before the first evaluation", async () => {
 		const { html } = await riderPage(ctx, ATHLETE_A);
-		expect(html).not.toContain('<section class="rynke-breakdown">');
+		expect(html).not.toContain(
+			'<section class="rynke-breakdown card card-outlined">',
+		);
 	});
 });
 
@@ -534,9 +546,9 @@ describe("GET /me team events (US3b)", () => {
 		]);
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		expect(html).toContain("Kurven &lt;links&gt; &amp; rechts");
-		expect(text(section(html, 'class="rynke-breakdown"') ?? "")).toContain(
-			"Deine Teamtermine",
-		);
+		expect(
+			text(section(html, 'class="rynke-breakdown card card-outlined"') ?? ""),
+		).toContain("Deine Teamtermine");
 		expect(html).not.toContain("noch kein Teamtermin");
 	});
 
@@ -627,7 +639,9 @@ describe("GET /me team events (US3b)", () => {
 			ATHLETE_A,
 		]);
 		const { html } = await riderPage(ctx, ATHLETE_A, "/me", "en");
-		const shown = text(section(html, 'class="rynke-breakdown"') ?? "");
+		const shown = text(
+			section(html, 'class="rynke-breakdown card card-outlined"') ?? "",
+		);
 		expect(shown).toContain(
 			"Training-weekend day attended 1 × → 5 Team Rynke, 10 Training Rynke",
 		);
@@ -1168,7 +1182,7 @@ describe("GET /me/rides paging (US5)", () => {
 async function rulesAndNotice(athleteId = ATHLETE_A, acceptLanguage?: string) {
 	const { html } = await riderPage(ctx, athleteId, "/me", acceptLanguage);
 	const notice = section(html, 'class="notice" role="status"');
-	const rules = section(html, 'class="rynke-rules"');
+	const rules = section(html, 'class="rynke-rules card card-outlined"');
 	return {
 		html,
 		notice: notice === null ? null : text(notice),
@@ -1192,7 +1206,7 @@ describe("GET /me rules and notices (US6)", () => {
 			`Berechnet nach Regel-Version ${VERSION}, gültig seit dem 07.10.2026.`,
 		);
 		expect(rules).toContain("Es zählt alles ab dem 01.01.2026.");
-		const link = section(html, 'class="rynke-rules"')?.match(
+		const link = section(html, 'class="rynke-rules card card-outlined"')?.match(
 			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
 		);
 		expect(link?.[1]).toBe(RULES_HANDOUT_URL);
@@ -1240,7 +1254,7 @@ describe("GET /me rules and notices (US6)", () => {
 		expect(after.notice).toBe(
 			"Deine Fahrten seit dem 01.01.2026 werden noch importiert. Deine Rynke wachsen, sobald sie da sind.",
 		);
-		expect(after.html).toContain('class="rynke-summary"');
+		expect(after.html).toContain('class="rynke-summary verdict card"');
 		// Said once: feature 001's status line shows only a finished import.
 		expect(after.html.split("werden noch importiert").length - 1).toBe(1);
 		expect(after.html).not.toContain("werden importiert …");
@@ -1373,9 +1387,9 @@ describe("GET /me isolation and access (US1)", () => {
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		const order = [
 			"<p>Import abgeschlossen</p>",
-			'<section id="rynke" class="rynke-summary">',
-			'<section class="rynke-breakdown">',
-			'<section class="rynke-rules">',
+			'<section id="rynke" class="rynke-summary verdict card">',
+			'<section class="rynke-breakdown card card-outlined">',
+			'<section class="rynke-rules card card-outlined">',
 		].map((marker) => html.indexOf(marker));
 		expect(order.every((i) => i >= 0)).toBe(true);
 		expect([...order].sort((x, y) => x - y)).toEqual(order);

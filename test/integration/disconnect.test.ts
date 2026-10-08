@@ -87,9 +87,11 @@ describe("GET /me/disconnect", () => {
 			"RynkePoints gibt den Zugriff auf dein Strava-Konto zurück und löscht sofort alle Daten über dich.",
 		);
 		expect(text).toMatch(
-			/<form method="post" action="\/me\/disconnect"><button>Ja, alles löschen<\/button><\/form>/,
+			/<form method="post" action="\/me\/disconnect"><button class="danger">Ja, alles löschen<\/button><\/form>/,
 		);
-		expect(text).toContain('<a href="/me">Abbrechen</a>');
+		expect(text).toContain(
+			'<a class="button-outlined" href="/me">Abbrechen</a>',
+		);
 		expect(text).toContain('name="next" value="/me/disconnect"');
 		expect(fake.calls).toEqual([]);
 	});

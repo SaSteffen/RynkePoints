@@ -195,7 +195,7 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 			'<form method="post" action="/connect">',
 			'<input type="checkbox" name="consent" value="1" required>',
 			`<p>${escapeHtml(de["me.consent.renew.leave"])}</p>`,
-			`<a href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
+			`<a class="danger" href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
 			'<form method="post" action="/logout">',
 		];
 		let at = -1;

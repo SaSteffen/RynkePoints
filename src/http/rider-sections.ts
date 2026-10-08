@@ -99,7 +99,9 @@ export function renderSummary(i18n: I18n, summary: Summary): SafeHtml {
 	] as const;
 	const missing = unmet.flatMap(({ condition, id }) =>
 		condition && !condition.reached
-			? [html`<li>${i18n.t(id, { n: whole(i18n, condition.missing) })}</li>`]
+			? [
+					html`<li><span class="chip">${i18n.t(id, { n: whole(i18n, condition.missing) })}</span></li>`,
+				]
 			: [],
 	);
 	const verdict = summary.qualified
@@ -121,7 +123,7 @@ ${missing.length > 0 ? html`<ul class="rynke-missing">${missing}</ul>` : null}`;
 		return html`<dt>${label}</dt><dd>${amount} · ${state}</dd>
 `;
 	};
-	return html`<section id="rynke" class="rynke-summary">
+	return html`<section id="rynke" class="rynke-summary verdict card">
 <h2>${i18n.t("rynke.summary.heading")}</h2>
 ${verdict}
 <dl>
@@ -174,6 +176,7 @@ export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 ${figures}</section>`;
 }
 
+/** One gauge in its own card (feature 011 contracts/pages.md "Overview"). */
 function figure(i18n: I18n, gauge: Gauge, caption: string): SafeHtml {
 	const reached = gauge.reached
 		? html` · ${i18n.t("rynke.gauge.reached")}`
@@ -193,10 +196,12 @@ function figure(i18n: I18n, gauge: Gauge, caption: string): SafeHtml {
 					(part) =>
 						html`<li><span class="gauge-key ${PART_CLASS[part.source]}" aria-hidden="true"></span>${i18n.t(`rynke.source.${part.source}`)}: ${whole(i18n, part.value)}</li>`,
 				)}</ul>`;
-	return html`<figure class="gauge${gauge.reached ? " gauge-reached" : ""}">
+	return html`<section class="card">
+<figure class="gauge${gauge.reached ? " gauge-reached" : ""}">
 <figcaption>${caption}${reached}</figcaption>
 <div class="gauge-bar" aria-hidden="true">${bar}</div>
 ${legend}</figure>
+</section>
 `;
 }
 
@@ -208,7 +213,7 @@ export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
 		rynke: whole(i18n, breakdown.elevationRynke),
 		toNext: metres(breakdown.toNextStepM),
 	};
-	return html`<section class="rynke-breakdown">
+	return html`<section class="rynke-breakdown card card-outlined">
 <h2>${i18n.t("rynke.breakdown.heading")}</h2>
 <dl>
 <dt>${i18n.t("rynke.source.distance")}</dt><dd>${i18n.t("rynke.breakdown.trainingRynke", { n: whole(i18n, breakdown.distanceRynke) })}</dd>
@@ -270,7 +275,7 @@ export function renderRules(i18n: I18n, rules: RulesInfo): SafeHtml {
 					start,
 					deadline: day(i18n, rules.deadline),
 				});
-	return html`<section class="rynke-rules">
+	return html`<section class="rynke-rules card card-outlined">
 <h2>${i18n.t("rynke.rules.heading")}</h2>
 <p>${i18n.t("rynke.rules.version", {
 		version: String(rules.version),

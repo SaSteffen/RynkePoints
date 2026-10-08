@@ -135,10 +135,11 @@ describe("GET /me on an older version (US4 scenario 2)", () => {
 			...CONSENT_TEXTS.map((id) => `<p>${escapeHtml(de[id])}</p>`),
 			'<form method="post" action="/me/consent">',
 			`<input type="checkbox" name="consent" value="2" required> ${escapeHtml(de["consent.agree"])}`,
-			`<button>${escapeHtml(de["me.consent.renew.button"])}</button>`,
+			`<button class="button">${escapeHtml(de["me.consent.renew.button"])}</button>`,
 			`<p>${escapeHtml(de["me.consent.renew.leave"])}</p>`,
-			`<a href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
+			`<a class="danger" href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
 			'<form method="post" action="/logout">',
+			`<button class="button-outlined">${escapeHtml(de["layout.logout"])}</button>`,
 		]);
 		expect(page).not.toContain('action="/connect"');
 		expect(page).not.toContain(escapeHtml(de["me.consent.renew.strava"]));
@@ -177,6 +178,7 @@ describe("GET /me when version 2 needs a new permission (US4 scenario 4)", () =>
 			`<p>${escapeHtml(de["me.consent.renew.strava"])}</p>`,
 			'<form method="post" action="/connect">',
 			'<input type="checkbox" name="consent" value="2" required>',
+			`<button><img class="cws cws-light" src="${de["brand.connectWithStrava.src"]}" alt="${escapeHtml(de["brand.connectWithStrava.alt"])}"><img class="cws cws-dark" src="${de["brand.connectWithStrava.srcDark"]}" alt="${escapeHtml(de["brand.connectWithStrava.alt"])}"></button>`,
 		]);
 		expect(page).not.toContain('action="/me/consent"');
 	});

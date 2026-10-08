@@ -14,11 +14,15 @@ import { riderPage, seedBalance, seedRide } from "../support/rider-view";
 const ctx = makeCtx();
 const { de } = CATALOGS;
 
-/** `main`'s content. */
+/** `main`'s content, inside the grid that holds all of it (011 pages.md). */
 async function main(): Promise<string> {
 	const { status, html } = await riderPage(ctx, ATHLETE_A);
 	expect(status).toBe(200);
-	return html.match(/<main>([\s\S]*?)<\/main>/)?.[1] ?? "";
+	const grid = html.match(
+		/<main>\s*<div class="overview-grid">([\s\S]*)<\/div>\s*<\/main>/,
+	);
+	expect(grid).not.toBeNull();
+	return grid?.[1] ?? "";
 }
 
 function expectInOrder(page: string, parts: string[]) {
@@ -32,10 +36,10 @@ function expectInOrder(page: string, parts: string[]) {
 
 const PARTS = [
 	'<p class="greeting">',
-	'<section id="rynke" class="rynke-summary">',
+	'<section id="rynke" class="rynke-summary verdict card">',
 	'<section class="rynke-gauges">',
-	'<section class="rynke-breakdown">',
-	'<section class="rynke-rules">',
+	'<section class="rynke-breakdown card card-outlined">',
+	'<section class="rynke-rules card card-outlined">',
 	`href="${RULES_HANDOUT_URL}"`,
 	'<aside id="install"',
 ];
@@ -57,6 +61,22 @@ describe("GET /me Overview", () => {
 		expect(page).not.toContain("notice-error");
 	});
 
+	it("puts each gauge in its own card (011 US3)", async () => {
+		await seedRider(ctx);
+		await seedBalance(ATHLETE_A);
+		const gauges = (await main()).match(
+			/<section class="rynke-gauges">([\s\S]*?)<section class="rynke-breakdown/,
+		)?.[1];
+		const figures = [...(gauges ?? "").matchAll(/<figure class="gauge/g)];
+		const cards = [
+			...(gauges ?? "").matchAll(
+				/<section class="card">\n<figure class="gauge/g,
+			),
+		];
+		expect(figures.length).toBeGreaterThan(1);
+		expect(cards).toHaveLength(figures.length);
+	});
+
 	it("starts with the reconnect notice, then 005's notices", async () => {
 		await seedRider(ctx, {
 			status: "needs_reconnect",
@@ -72,7 +92,7 @@ describe("GET /me Overview", () => {
 			`<a class="button" href="/connect">${escapeHtml(de["me.reconnect"])}</a>`,
 			'<section class="notice" role="status">',
 			'<p class="greeting">',
-			'<section id="rynke" class="rynke-summary">',
+			'<section id="rynke" class="rynke-summary verdict card">',
 		]);
 	});
 

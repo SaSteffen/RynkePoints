@@ -71,7 +71,7 @@ ${consentForm(i18n, current, next)}`;
 	}
 	return html`<form method="post" action="/me/consent">
 ${nextInput(next)}<p><label><input type="checkbox" name="consent" value="${current}" required> ${i18n.t("consent.agree")}</label></p>
-<button>${i18n.t("me.consent.renew.button")}</button>
+<button class="button">${i18n.t("me.consent.renew.button")}</button>
 </form>`;
 }
 
@@ -89,6 +89,7 @@ export function consentGate(
 			path,
 			body: html`<h1>${i18n.t("me.consent.renew.heading")}</h1>
 ${intro(i18n, current, gate)}
+<section class="card">
 <h2>${i18n.t("consent.heading")}</h2>
 <p>${i18n.t("landing.dataRead")}</p>
 <p>${i18n.t("landing.private")}</p>
@@ -99,9 +100,10 @@ ${intro(i18n, current, gate)}
 <p>${i18n.t("consent.required")}</p>
 <p>${i18n.t("consent.write")}</p>
 ${form(i18n, current, gate, path)}
+</section>
 <p>${i18n.t("me.consent.renew.leave")}</p>
-<p><a href="/me/disconnect">${i18n.t("me.disconnect.button")}</a></p>
-<form method="post" action="/logout"><input type="hidden" name="push_endpoint" value=""><button>${i18n.t("layout.logout")}</button></form>`,
+<p><a class="danger" href="/me/disconnect">${i18n.t("me.disconnect.button")}</a></p>
+<form method="post" action="/logout"><input type="hidden" name="push_endpoint" value=""><button class="button-outlined">${i18n.t("layout.logout")}</button></form>`,
 		}),
 	);
 }

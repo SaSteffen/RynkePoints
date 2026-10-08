@@ -19,13 +19,13 @@ describe("manifest.webmanifest", () => {
 		expect(manifest.description).toBe("RynkePoints");
 	});
 
-	it("opens the rider page in its own window (FR-001, FR-002)", () => {
+	it("opens the rider page in its own window, light (FR-001, FR-002, 011 R12)", () => {
 		expect(manifest.id).toBe("/");
 		expect(manifest.scope).toBe("/");
 		expect(manifest.start_url).toBe("/me");
 		expect(manifest.display).toBe("standalone");
-		expect(manifest.theme_color).toBe("#111111");
-		expect(manifest.background_color).toBe("#ffffff");
+		expect(manifest.theme_color).toBe("#fff8f6");
+		expect(manifest.background_color).toBe("#fff8f6");
 	});
 
 	it("lists the 192, 512 and maskable icons", () => {

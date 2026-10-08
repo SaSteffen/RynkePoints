@@ -42,12 +42,14 @@ ${renderInstallHint(i18n)}
 <p>${i18n.t("landing.backups")}</p>
 <p>${i18n.t("landing.cookies")}</p>
 <p>${i18n.t("landing.notifications")}</p>
+<section class="card">
 <h2>${i18n.t("consent.heading")}</h2>
 <p>${i18n.t("consent.organisers")}</p>
 <p>${i18n.t("consent.team")}</p>
 <p>${i18n.t("consent.required")}</p>
 <p>${i18n.t("consent.write")}</p>
-${consentForm(i18n, currentVersion(ctx.consentVersions).version)}`,
+${consentForm(i18n, currentVersion(ctx.consentVersions).version)}
+</section>`,
 		}),
 	);
 }
