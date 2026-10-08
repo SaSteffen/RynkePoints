@@ -298,3 +298,28 @@ export async function listRidersNeedingEvaluation(
 		.all<{ athlete_id: number }>();
 	return results.map((r) => r.athlete_id);
 }
+
+/** The rider's last rise (issue #45); replaces the one before. */
+export function upsertRiseStatement(
+	db: D1Database,
+	athleteId: number,
+	rise: { training: number; team: number },
+	now: number,
+) {
+	return db
+		.prepare(
+			`INSERT INTO rynke_rises (athlete_id, training_rynke, team_rynke, risen_at)
+			VALUES (?1, ?2, ?3, ?4)
+			ON CONFLICT (athlete_id) DO UPDATE SET
+				training_rynke = ?2, team_rynke = ?3, risen_at = ?4`,
+		)
+		.bind(athleteId, rise.training, rise.team, now);
+}
+
+export function readRiseStatement(db: D1Database, athleteId: number) {
+	return db
+		.prepare(
+			"SELECT training_rynke, team_rynke FROM rynke_rises WHERE athlete_id = ?",
+		)
+		.bind(athleteId);
+}

@@ -35,7 +35,7 @@ export const de = {
 	"landing.cookies":
 		"Wir setzen nur notwendige Cookies: für die Anmeldung und für deine Sprachwahl.",
 	"landing.notifications":
-		"Benachrichtigungen sind freiwillig und gelten pro Gerät. Sie zeigen nur auf deinem Gerät, dass es neue Rynke gibt und was dir noch fehlt. Sie laufen über den Benachrichtigungsdienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die dieser Dienst deinem Gerät gibt, und löschen sie, wenn du die Benachrichtigungen ausschaltest, dich abmeldest oder gehst.",
+		"Benachrichtigungen sind freiwillig und gelten pro Gerät. Sie zeigen nur auf deinem Gerät, wie viele Rynke neu sind und was dir noch fehlt. Sie laufen über den Benachrichtigungsdienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die dieser Dienst deinem Gerät gibt, und löschen sie, wenn du die Benachrichtigungen ausschaltest, dich abmeldest oder gehst.",
 
 	"consent.heading": "Was du mit dem Verbinden erlaubst",
 	"consent.organisers":
@@ -239,7 +239,8 @@ export const de = {
 
 	// Feature 010: the installable app and its notification. `push.body` reaches
 	// the device only through /notification-text and has no placeholder (SC-008);
-	// `push.body.missing` only through the signed-in /me/notification-text.
+	// `push.body.rise*` and `push.rise.*` only through the signed-in
+	// /me/notification-text.
 	"install.button": "Als App installieren",
 	"install.ios":
 		"Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.",
@@ -248,10 +249,13 @@ export const de = {
 	"offline.body":
 		"RynkePoints braucht eine Internetverbindung. Versuch es gleich noch einmal.",
 	"push.body": "Neue Rynke – tippe zum Ansehen",
-	"push.body.missing": "Neue Rynke! Dir fehlen noch {missing}.",
+	"push.body.rise": "Neue Rynke: {rise}.",
+	"push.body.riseMissing": "Neue Rynke: {rise}. Dir fehlen noch {missing}.",
+	"push.rise.training": "+{n} Trainingsrynke",
+	"push.rise.team": "+{n} Teamrynke",
 	"notifications.heading": "Benachrichtigungen",
 	"notifications.explain":
-		"Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast, und was dir noch fehlt.",
+		"Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast: wie viele und was dir noch fehlt.",
 	"notifications.on": "Benachrichtigungen sind auf diesem Gerät an.",
 	"notifications.off": "Benachrichtigungen sind auf diesem Gerät aus.",
 	"notifications.turnOn": "Benachrichtigungen einschalten",

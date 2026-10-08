@@ -1,3 +1,4 @@
+import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Ctx } from "../../src/ctx";
 import { createSessionCookie } from "../../src/http/session";
@@ -94,7 +95,7 @@ describe("install hint (FR-004)", () => {
 describe("notifications section (FR-010, FR-011)", () => {
 	const SECTION = `<section id="notifications" data-push-key="${vapidPublicKey(ctx.env)}" hidden>
 <h2>Benachrichtigungen</h2>
-<p>Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast, und was dir noch fehlt.</p>
+<p>Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast: wie viele und was dir noch fehlt.</p>
 <p data-state="on" hidden>Benachrichtigungen sind auf diesem Gerät an.</p>
 <p data-state="off" hidden>Benachrichtigungen sind auf diesem Gerät aus.</p>
 <p data-state="blocked" hidden>Benachrichtigungen bleiben aus, weil dein Gerät sie für RynkePoints blockiert. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.</p>
@@ -191,7 +192,25 @@ describe("GET /me/notification-text (issue #45)", () => {
 		};
 	}
 
-	it("names what is still missing", async () => {
+	async function seedRise(training: number, team: number) {
+		await env.DB.prepare(
+			"INSERT INTO rynke_rises (athlete_id, training_rynke, team_rynke, risen_at) VALUES (?, ?, ?, ?)",
+		)
+			.bind(ATHLETE_A, training, team, NOW)
+			.run();
+	}
+
+	const IN = {
+		trainingRynke: 262,
+		trainingMissing: 0,
+		teamRynke: 25,
+		teamMissing: 0,
+		trainingWithoutVirtual: 262,
+		virtualShareMissing: 0,
+		qualified: true,
+	};
+
+	it("names the new Rynke and what is still missing", async () => {
 		await seedBalance(ATHLETE_A, {
 			trainingRynke: 34,
 			trainingMissing: 216,
@@ -200,48 +219,47 @@ describe("GET /me/notification-text (issue #45)", () => {
 			trainingWithoutVirtual: 34,
 			virtualShareMissing: 133,
 		});
+		await seedRise(3, 0);
 		expect(await riderText()).toEqual({
 			status: 200,
 			body: {
 				title: "RynkePoints",
-				body: "Neue Rynke! Dir fehlen noch 216 Trainingsrynke und 2 Teamrynke.",
+				body: "Neue Rynke: +3 Trainingsrynke. Dir fehlen noch 216 Trainingsrynke und 2 Teamrynke.",
 			},
 		});
 		expect((await riderText("en")).body?.body).toBe(
-			"New Rynke! You still need 216 Training Rynke and 2 Team Rynke.",
+			"New Rynke: +3 Training Rynke. You still need 216 Training Rynke and 2 Team Rynke.",
+		);
+	});
+
+	it("names only the new Rynke once nothing is missing", async () => {
+		await seedBalance(ATHLETE_A, IN);
+		await seedRise(12, 1);
+		expect((await riderText()).body?.body).toBe(
+			"Neue Rynke: +12 Trainingsrynke und +1 Teamrynke.",
 		);
 	});
 
 	it("names the outdoor share once the rider has a virtual ride", async () => {
 		await seedBalance(ATHLETE_A, {
-			trainingRynke: 262,
-			trainingMissing: 0,
-			teamRynke: 25,
-			teamMissing: 0,
+			...IN,
 			trainingWithoutVirtual: 160,
 			virtualShareMissing: 7,
+			qualified: false,
 		});
 		await seedRide(ATHLETE_A, {
 			id: 8_100_001,
 			sport_type: "VirtualRide",
 			result: { counts: true, distanceRynke: 102, isVirtual: true },
 		});
+		await seedRise(0, 1);
 		expect((await riderText()).body?.body).toBe(
-			"Neue Rynke! Dir fehlen noch 7 Trainingsrynke aus Fahrten draußen (nicht virtuell).",
+			"Neue Rynke: +1 Teamrynke. Dir fehlen noch 7 Trainingsrynke aus Fahrten draußen (nicht virtuell).",
 		);
 	});
 
-	it("has nothing to add once nothing is missing or before a balance", async () => {
-		expect(await riderText()).toEqual({ status: 204, body: null });
-		await seedBalance(ATHLETE_A, {
-			trainingRynke: 262,
-			trainingMissing: 0,
-			teamRynke: 25,
-			teamMissing: 0,
-			trainingWithoutVirtual: 262,
-			virtualShareMissing: 0,
-			qualified: true,
-		});
+	it("has nothing to add without a stored rise", async () => {
+		await seedBalance(ATHLETE_A, IN);
 		expect(await riderText()).toEqual({ status: 204, body: null });
 	});
 

@@ -198,7 +198,10 @@ const CONTRACT_IDS = [
 	"offline.title",
 	"offline.body",
 	"push.body",
-	"push.body.missing",
+	"push.body.rise",
+	"push.body.riseMissing",
+	"push.rise.team",
+	"push.rise.training",
 	// Feature 010, US3
 	"notifications.heading",
 	"notifications.explain",

@@ -99,6 +99,7 @@ describe("riders", () => {
 			strava_rate_limit: 1,
 			ride_results: 0,
 			rynke_balances: 0,
+			rynke_rises: 0,
 			team_events: 0,
 			attendances: 0,
 			push_subscriptions: 0,
