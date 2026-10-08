@@ -303,4 +303,46 @@ export const de = {
 	"error.forbidden.title": "Anfrage abgelehnt",
 	"error.forbidden.body":
 		"Bitte lade die Seite neu und versuche es noch einmal.",
+
+	"organiser.title": "Orga",
+	"organiser.link": "Zu den Orga-Seiten",
+	"organiser.back": "Zurück zu den Terminen",
+	"organiser.formerOrganiser": "ehemaliges Orga-Mitglied",
+	"organiser.changedBy": "Zuletzt geändert von {name} am {date}",
+	"organiser.error.unknown_kind": "Bitte eine Terminart wählen.",
+	"organiser.error.invalid_date": "Bitte ein gültiges Datum eingeben.",
+	"organiser.error.invalid_name": "Der Name darf höchstens 100 Zeichen haben.",
+	"organiser.error.event_missing": "Diesen Termin gibt es nicht mehr.",
+	"organiser.error.rider_not_connected":
+		"Jemand ist ausgetreten oder muss sich erst neu verbinden.",
+	"organiser.error.outside_season": "Das Datum liegt außerhalb der Saison.",
+	"organiser.error.future_event":
+		"Die Teilnahme lässt sich erst eintragen, wenn der Termin war.",
+	"organiser.error.rider_not_listed":
+		"Die Liste hat sich geändert. Bitte prüfen und noch einmal speichern.",
+	"organiser.error.invalid_amount":
+		"Bitte ganze Zahlen eingeben; mindestens eine darf nicht 0 sein.",
+	"organiser.error.invalid_reason":
+		"Bitte einen Grund mit höchstens 200 Zeichen angeben.",
+	"organiser.error.correction_missing": "Diese Korrektur gibt es nicht mehr.",
+	"organiser.done.created": "Termin angelegt.",
+	"organiser.done.saved": "Gespeichert.",
+	"organiser.done.deleted": "Termin gelöscht.",
+	"organiser.done.attendance": "Teilnahme gespeichert.",
+	"organiser.done.added": "Korrektur hinzugefügt.",
+	"organiser.done.removed": "Korrektur entfernt.",
+	"organiser.events.heading": "Teamtermine dieser Saison",
+	"organiser.events.none": "In dieser Saison gibt es noch keine Teamtermine.",
+	"organiser.events.attendees": "{count} dabei",
+	"organiser.events.new": "Neuer Termin",
+	"organiser.event.heading": "Termin bearbeiten",
+	"organiser.field.kind": "Art",
+	"organiser.field.date": "Datum",
+	"organiser.field.name": "Name (optional)",
+	"organiser.add": "Anlegen",
+	"organiser.save": "Speichern",
+	"organiser.event.delete": "Termin löschen…",
+	"organiser.event.deleteWarning":
+		"Das löscht den Termin und seine Teilnahmen; die Rynke der Fahrenden passen sich an.",
+	"organiser.event.deleteConfirm": "Ja, löschen",
 } satisfies Record<string, string>;

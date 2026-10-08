@@ -79,9 +79,15 @@ export interface TeamEventInput {
 	name: string | null;
 }
 
+/** `by` is the organiser making the change (feature 014 FR-040). */
 export type TeamEventChange =
-	| { kind: "create-event"; event: TeamEventInput }
-	| { kind: "update-event"; eventId: number; event: TeamEventInput }
+	| { kind: "create-event"; event: TeamEventInput; by?: number }
+	| {
+			kind: "update-event";
+			eventId: number;
+			event: TeamEventInput;
+			by?: number;
+	  }
 	| { kind: "delete-event"; eventId: number }
 	| { kind: "add-attendance"; eventId: number; athleteIds: number[] }
 	| { kind: "remove-attendance"; eventId: number; athleteIds: number[] };
@@ -215,9 +221,12 @@ export async function applyTeamEventChange(
 ): Promise<{ eventId: number | null; affected: number[]; rose: number[] }> {
 	if (change.kind === "create-event") {
 		const event = validEvent(change.event);
-		const eventId = await insertTeamEventStatement(db, event).first<number>(
-			"event_id",
-		);
+		const eventId = await insertTeamEventStatement(
+			db,
+			event,
+			change.by ?? null,
+			now,
+		).first<number>("event_id");
 		return { eventId, affected: [], rose: [] };
 	}
 	const event =
@@ -255,7 +264,7 @@ export async function applyTeamEventChange(
 			affected = counted ? [...attendees] : [];
 			statement =
 				counted || next.name !== stored.name
-					? updateTeamEventStatement(db, eventId, next)
+					? updateTeamEventStatement(db, eventId, next, change.by ?? null, now)
 					: null;
 			edit = (attendance) => [
 				...without(attendance),
