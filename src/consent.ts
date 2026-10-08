@@ -40,3 +40,9 @@ export function currentVersion(versions: ConsentVersions): ConsentVersion {
 
 /** The current version, for code that has no `Ctx`. */
 export const CONSENT_VERSION = currentVersion(CONSENT_VERSIONS).version;
+
+/**
+ * The lowest consent version whose text includes the FR-020 sharing with
+ * organisers and the team (004 research R6, R13).
+ */
+export const SHARING_SINCE_VERSION = 1;
