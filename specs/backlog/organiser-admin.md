@@ -19,12 +19,12 @@ Only organisers reach these pages; everyone else gets "not allowed". Organisers 
   the roles-and-consent spec.
 - Corrections: add a signed Training and/or Team Rynke amount with reason and date
   to a rider; remove one. Show a rider's corrections.
-- Rules: view and change the rule values of feature 003 FR-012 (including the
+- As a separate independent user story, to be implemtned much later: Rules: view and change the rule values of feature 003 FR-012 (including the
   qualification deadline and the excluded sport types). A change creates a new rules
   version and triggers recalculation (FR-021, FR-023). Changes that need data the app
   doesn't store are refused (FR-025).
-- Recalculation: start a full recalculation (FR-024) and see whether one is running.
-- Optionally: Team Settings from feature 001 (season start, club) instead of
+- As a separate independent user story, to be implemtned much later: Recalculation: start a full recalculation (FR-024) and see whether one is running.
+- As a separate independent user story, to be implemtned much later Optionally: Team Settings from feature 001 (season start, club) instead of
   deployment configuration.
 
 Every change records which organiser made it and when, kept as long as the input
