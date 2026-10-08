@@ -7,7 +7,7 @@ import { shellPage } from "../shell";
 // Team at `/team` (feature 011 FR-013): a placeholder until the team
 // leaderboard fills it, under the coin's Hamburg–Paris side (feature 012
 // FR-003). It reads nothing beyond the viewer, so it can't show another rider's
-// data.
+// data. Organisers also get the way to their pages (feature 014 FR-002, R2).
 
 export function handleTeam(
 	request: Request,
@@ -20,10 +20,15 @@ export function handleTeam(
 		i18n,
 		"team",
 		"/team",
-		() => html`<section class="placeholder">
+		({ rider }) => html`<section class="placeholder">
 ${coin("back", "large")}
 <h2>${i18n.t("team.placeholder.heading")}</h2>
 <p>${i18n.t("team.placeholder.body")}</p>
-</section>`,
+</section>${
+			rider.organiser
+				? html`
+<p class="organiser-entry"><a class="button-outlined" href="/organiser">${i18n.t("organiser.link")}</a></p>`
+				: null
+		}`,
 	);
 }

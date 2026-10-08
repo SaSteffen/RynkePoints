@@ -76,8 +76,26 @@ const COLUMNS: Record<string, string[]> = {
 	rynke_rises: ["athlete_id", "training_rynke", "team_rynke", "risen_at"],
 	rynke_seen: ["athlete_id", "training_rynke", "team_rynke"],
 	team_event_kinds: ["kind"],
-	team_events: ["event_id", "kind", "event_date", "name"],
-	attendances: ["event_id", "athlete_id"],
+	// Feature 014: the change record of each organiser input (research R9).
+	team_events: [
+		"event_id",
+		"kind",
+		"event_date",
+		"name",
+		"changed_by",
+		"changed_at",
+	],
+	attendances: ["event_id", "athlete_id", "changed_by", "changed_at"],
+	corrections: [
+		"correction_id",
+		"athlete_id",
+		"training",
+		"team",
+		"reason",
+		"correction_date",
+		"changed_by",
+		"changed_at",
+	],
 	// Feature 010: a device's push endpoint, nothing else (research R7).
 	push_subscriptions: [
 		"subscription_id",
@@ -105,6 +123,7 @@ const DOCUMENTED = new Set([
 	"riders.first_name",
 	"team_events.name",
 	"activities.name",
+	"corrections.reason",
 ]);
 
 async function columns(table: string): Promise<string[]> {
@@ -134,7 +153,8 @@ describe("schema minimisation", () => {
 			for (const column of await columns(table)) {
 				// `first_name` and a team event's `name` don't come from a ride.
 				// `activities.name` is 008's documented exception: the ride's name,
-				// shown only to its rider (008 research R1).
+				// shown only to its rider (008 research R1). A correction's reason
+				// is organiser-written text, like an event's name (014).
 				if (DOCUMENTED.has(`${table}.${column}`)) continue;
 				for (const word of FORBIDDEN) expect(column).not.toContain(word);
 			}

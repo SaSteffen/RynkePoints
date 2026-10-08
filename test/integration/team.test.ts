@@ -64,3 +64,19 @@ describe.each([
 		expect(mainOf(html).replace(/<[^>]*>/g, "")).not.toMatch(/\d/);
 	});
 });
+
+// Feature 014 FR-002, research R2: the way to the organiser pages, for
+// organisers only.
+describe("the organiser link on /team", () => {
+	it("is there for a rider with the organiser flag", async () => {
+		const { html } = await riderPage(ctx, ATHLETE_C, "/team");
+		expect(mainOf(html)).toContain(
+			`<a class="button-outlined" href="/organiser">${escapeHtml(de["organiser.link"])}</a>`,
+		);
+	});
+
+	it("is not there for a rider without it", async () => {
+		const { html } = await riderPage(ctx, ATHLETE_A, "/team");
+		expect(html).not.toContain('href="/organiser"');
+	});
+});

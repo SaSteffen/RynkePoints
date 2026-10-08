@@ -30,7 +30,8 @@ export interface RiderPage {
 
 /**
  * A connected rider A with a balance, rides in every state and team events, a
- * rider B who must reconnect, and a rider C whose Rynke aren't worked out yet.
+ * rider B who must reconnect, and an organiser C whose Rynke aren't worked out
+ * yet.
  * Every ride has a name, listed in `RIDE_NAMES` (008 FR-008).
  */
 export async function seedPageRiders(ctx: TestCtx): Promise<void> {
@@ -109,7 +110,8 @@ export async function seedPageRiders(ctx: TestCtx): Promise<void> {
 		start_date: "2026-09-17T08:00:00Z",
 		result: { counts: true, distanceRynke: 4, isVirtual: true },
 	});
-	await seedRider(ctx, { athleteId: ATHLETE_C });
+	// C is an organiser, for the organiser pages (feature 014).
+	await seedRider(ctx, { athleteId: ATHLETE_C, organiser: true });
 	await seedRide(ATHLETE_C, { id: 8_900_101, name: "Synthetic ride of C" });
 }
 
@@ -160,6 +162,23 @@ export const RIDER_PAGES: RiderPage[] = [
 		fetch: get("/me/rides", ATHLETE_C),
 	},
 	{ name: "/team", next: null, status: 200, fetch: get("/team", ATHLETE_A) },
+	{
+		name: "/organiser",
+		next: null,
+		status: 200,
+		fetch: get("/organiser", ATHLETE_C),
+	},
+	{
+		name: "/organiser/events/{id}",
+		next: null,
+		status: 200,
+		fetch: async (ctx, headers) => {
+			const id = await env.DB.prepare(
+				"SELECT event_id FROM team_events WHERE event_date = '2026-09-10'",
+			).first<number>("event_id");
+			return get(`/organiser/events/${id}`, ATHLETE_C)(ctx, headers);
+		},
+	},
 	{
 		name: "/me/settings",
 		next: "/me/settings",

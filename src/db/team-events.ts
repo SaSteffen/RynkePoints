@@ -1,8 +1,10 @@
 import type { Attendance, TeamEventKind } from "../rynke/team-events";
+import { SHARED_RIDER_IDS } from "./consents";
 
 // Team events and attendance (feature 003 data-model.md, research R17, R21).
 // Writes are statements for `applyTeamEventChange`'s batch. Reads for several
 // riders are one statement each, filtered with `json_each` over the rider list.
+// Each event carries who last changed it and when (feature 014 research R9).
 
 export interface RiderAttendanceRow {
 	event_id: number;
@@ -21,6 +23,24 @@ export interface TeamEventRow {
 	event_date: string;
 	name: string | null;
 }
+
+/** An event with its change record, for the organiser pages. */
+export interface TeamEventRecordRow extends TeamEventRow {
+	changed_at: number | null;
+	/** Null when the organiser has gone or no longer shares their name (R9). */
+	changed_by_name: string | null;
+}
+
+export interface TeamEventListRow extends TeamEventRecordRow {
+	attendees: number;
+}
+
+/**
+ * The organiser's first name, only through the consent filter (004 FR-021):
+ * `e` is `team_events`, `o` the organiser.
+ */
+const CHANGED_BY = `LEFT JOIN riders o ON o.athlete_id = e.changed_by
+	AND o.athlete_id IN (${SHARED_RIDER_IDS})`;
 
 /** An event as the write functions take it; `kind` already checked. */
 export interface TeamEventFields {
@@ -62,12 +82,35 @@ export function listAttendanceOfRidersStatement(
 		.bind(JSON.stringify(athleteIds));
 }
 
+/** A `TeamEventRecordRow`. */
 export function readTeamEventStatement(db: D1Database, eventId: number) {
 	return db
 		.prepare(
-			"SELECT event_id, kind, event_date, name FROM team_events WHERE event_id = ?",
+			`SELECT e.event_id, e.kind, e.event_date, e.name, e.changed_at,
+				o.first_name AS changed_by_name
+			FROM team_events e ${CHANGED_BY}
+			WHERE e.event_id = ?`,
 		)
 		.bind(eventId);
+}
+
+/**
+ * The season's events, newest first, with their attendee count
+ * (`TeamEventListRow`). An event after the deadline stays listed (feature
+ * 014 FR-010).
+ */
+export function listTeamEventsStatement(db: D1Database, seasonStart: string) {
+	return db
+		.prepare(
+			`SELECT e.event_id, e.kind, e.event_date, e.name, e.changed_at,
+				o.first_name AS changed_by_name,
+				(SELECT COUNT(*) FROM attendances a WHERE a.event_id = e.event_id)
+					AS attendees
+			FROM team_events e ${CHANGED_BY}
+			WHERE e.event_date >= ?
+			ORDER BY e.event_date DESC, e.event_id DESC`,
+		)
+		.bind(seasonStart);
 }
 
 /** `athlete_id` of every attendee, ascending. */
@@ -89,28 +132,36 @@ export function riderStatusesStatement(db: D1Database, athleteIds: number[]) {
 		.bind(JSON.stringify(athleteIds));
 }
 
+/** `by` is the organiser, null when no organiser made the change. */
 export function insertTeamEventStatement(
 	db: D1Database,
 	event: TeamEventFields,
+	by: number | null,
+	now: number,
 ) {
 	return db
 		.prepare(
-			`INSERT INTO team_events (kind, event_date, name) VALUES (?, ?, ?)
+			`INSERT INTO team_events (kind, event_date, name, changed_by, changed_at)
+			VALUES (?, ?, ?, ?, ?)
 			RETURNING event_id`,
 		)
-		.bind(event.kind, event.date, event.name);
+		.bind(event.kind, event.date, event.name, by, now);
 }
 
 export function updateTeamEventStatement(
 	db: D1Database,
 	eventId: number,
 	event: TeamEventFields,
+	by: number | null,
+	now: number,
 ) {
 	return db
 		.prepare(
-			"UPDATE team_events SET kind = ?, event_date = ?, name = ? WHERE event_id = ?",
+			`UPDATE team_events SET kind = ?, event_date = ?, name = ?,
+				changed_by = ?, changed_at = ?
+			WHERE event_id = ?`,
 		)
-		.bind(event.kind, event.date, event.name, eventId);
+		.bind(event.kind, event.date, event.name, by, now, eventId);
 }
 
 /** The event's attendances go by cascade. */

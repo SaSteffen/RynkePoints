@@ -76,7 +76,8 @@ ${links}</nav>
 /**
  * A section at `path` (with its query): a visitor goes to `/`, a rider who
  * hasn't agreed to the current version meets the gate, which returns here
- * (FR-007, research R9); anyone else gets the section in the shell.
+ * (FR-007, research R9); anyone else gets the section in the shell, or the
+ * response `render` returns instead (feature 014's 403 and 404).
  */
 export async function shellPage(
 	request: Request,
@@ -84,7 +85,9 @@ export async function shellPage(
 	i18n: I18n,
 	section: SectionId,
 	path: string,
-	render: (viewer: ShellViewer) => Promise<SafeHtml> | SafeHtml,
+	render: (
+		viewer: ShellViewer,
+	) => Promise<SafeHtml | Response> | SafeHtml | Response,
 ): Promise<Response> {
 	const viewer = await readViewer(request, ctx);
 	if (viewer.kind === "visitor") return redirect("/", 302);
@@ -112,6 +115,7 @@ export async function shellPage(
 		);
 	}
 	const body = await render({ rider: viewer.rider, consent: accepted });
+	if (body instanceof Response) return body;
 	// Each section names itself, so tabs and screen readers tell them apart.
 	const label = SECTIONS.find(({ id }) => id === section)?.label;
 	return htmlResponse(
