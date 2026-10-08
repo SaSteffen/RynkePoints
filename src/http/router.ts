@@ -2,6 +2,7 @@ import type { Ctx } from "../ctx";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
 import { handleCallback, handleConnectForm, handleReconnect } from "./auth";
+import { handleConsent } from "./consent-gate";
 import { notFound } from "./errors";
 import { handleLanding } from "./landing";
 import { handleLang } from "./lang";
@@ -13,7 +14,11 @@ import {
 } from "./me";
 import { handleNotice } from "./notice";
 import { handleNotifications } from "./notifications";
-import { handleNotificationText, handleOffline } from "./pwa";
+import {
+	handleNotificationText,
+	handleOffline,
+	handleRiderNotificationText,
+} from "./pwa";
 import { handleRunDaily } from "./run-daily";
 import { renewSession } from "./session";
 import { handleWebhook } from "./webhook";
@@ -47,6 +52,9 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		if (path === "/notification-text") {
 			return handleNotificationText(request, ctx);
 		}
+		if (path === "/me/notification-text") {
+			return handleRiderNotificationText(request, ctx);
+		}
 		const response = await page(request, path, ctx, i18n);
 		if (response) return renewSession(request, response, ctx);
 	}
@@ -56,6 +64,8 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleConnectForm(request, ctx, i18n);
 			case "/lang":
 				return handleLang(request, ctx, i18n);
+			case "/me/consent":
+				return handleConsent(request, ctx, i18n);
 			case "/me/disconnect":
 				return handleDisconnect(request, ctx, i18n);
 			case "/me/notifications":

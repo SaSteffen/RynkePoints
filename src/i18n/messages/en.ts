@@ -33,7 +33,7 @@ export const en: Catalog = {
 	"landing.cookies":
 		"We only set necessary cookies: for signing in and for your language choice.",
 	"landing.notifications":
-		"Notifications are optional and per device. They only say that there are new Rynke, and they pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address that service gives your device, and delete it when you turn notifications off, sign out or leave.",
+		"Notifications are optional and per device. Only on your device do they show how many Rynke are new and what you still need. They pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address that service gives your device, and delete it when you turn notifications off, sign out or leave.",
 
 	"consent.heading": "What you agree to by connecting",
 	"consent.organisers":
@@ -62,7 +62,15 @@ export const en: Catalog = {
 	"me.consent.heading": "Your consent",
 	"me.consent.accepted": "Agreed on {date} (version {version}):",
 	"me.consent.none":
-		"No consent is recorded for you yet. Sign out and connect again on the start page to agree.",
+		"No consent is recorded for you yet. Please read what you agree to by connecting, and agree; Strava then asks for your permissions again. Until then, nobody on the team sees anything of yours.",
+	"me.consent.renew.heading": "Please agree again",
+	"me.consent.renew.older":
+		"You agreed to version {accepted} on {date}. Version {version} changes this:",
+	"me.consent.renew.strava":
+		"RynkePoints needs another permission for this; Strava asks you for it.",
+	"me.consent.renew.button": "Agree and continue",
+	"me.consent.renew.leave":
+		"If you don't want to agree, you can disconnect; all your data is then deleted.",
 	"me.import.done": "Import complete",
 	"me.recent.heading": "Your rides",
 	"me.recent.empty": "No rides imported yet",
@@ -227,9 +235,13 @@ export const en: Catalog = {
 	"offline.body":
 		"RynkePoints needs an internet connection. Please try again shortly.",
 	"push.body": "New Rynke – tap to view",
+	"push.body.rise": "New Rynke: {rise}.",
+	"push.body.riseMissing": "New Rynke: {rise}. You still need {missing}.",
+	"push.rise.training": "+{n} Training Rynke",
+	"push.rise.team": "+{n} Team Rynke",
 	"notifications.heading": "Notifications",
 	"notifications.explain":
-		"If you like, this device lets you know when you have new Rynke – without figures or rides.",
+		"If you like, this device lets you know when you have new Rynke: how many, and what you still need.",
 	"notifications.on": "Notifications are on for this device.",
 	"notifications.off": "Notifications are off for this device.",
 	"notifications.turnOn": "Turn on notifications",

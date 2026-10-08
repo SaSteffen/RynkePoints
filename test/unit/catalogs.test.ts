@@ -13,7 +13,8 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // Every ID in specs/001-strava-connect-webhook/contracts/messages.md and
 // specs/005-rider-view/contracts/messages.md and
 // specs/008-strava-ride-names/contracts/messages.md and
-// specs/010-pwa-notifications/contracts/messages.md.
+// specs/010-pwa-notifications/contracts/messages.md and
+// specs/004-roles-and-consent/contracts/re-consent.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"meta.intlLocale",
@@ -55,6 +56,11 @@ const CONTRACT_IDS = [
 	"me.consent.heading",
 	"me.consent.accepted",
 	"me.consent.none",
+	"me.consent.renew.heading",
+	"me.consent.renew.older",
+	"me.consent.renew.strava",
+	"me.consent.renew.button",
+	"me.consent.renew.leave",
 	"me.import.done",
 	"me.recent.heading",
 	"me.recent.empty",
@@ -192,6 +198,10 @@ const CONTRACT_IDS = [
 	"offline.title",
 	"offline.body",
 	"push.body",
+	"push.body.rise",
+	"push.body.riseMissing",
+	"push.rise.team",
+	"push.rise.training",
 	// Feature 010, US3
 	"notifications.heading",
 	"notifications.explain",

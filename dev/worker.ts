@@ -1,5 +1,5 @@
 import { berlinDate } from "../src/config";
-import { CONSENT_VERSION } from "../src/consent";
+import { CONSENT_VERSIONS, currentVersion } from "../src/consent";
 import type { Ctx } from "../src/ctx";
 import { clearSessionCookie } from "../src/http/session";
 import { CATALOGS } from "../src/i18n/catalogs";
@@ -46,6 +46,7 @@ export function makeDevCtx(env: Env, exec: ExecutionContext): Ctx {
 		queue: env.WORK_QUEUE,
 		now: () => Math.floor(Date.now() / 1000),
 		catalogs: CATALOGS,
+		consentVersions: CONSENT_VERSIONS,
 		waitUntil: (promise) => exec.waitUntil(promise),
 	};
 }
@@ -213,7 +214,7 @@ async function connectAs(request: Request, ctx: Ctx, url: URL) {
 					Origin: url.origin,
 					"Content-Type": "application/x-www-form-urlencoded",
 				},
-				body: `consent=${CONSENT_VERSION}`,
+				body: `consent=${currentVersion(ctx.consentVersions).version}`,
 			}),
 			ctx,
 		),

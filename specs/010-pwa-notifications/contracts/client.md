@@ -95,7 +95,7 @@ The script contains no rider-facing text, no third-party URL and no
 | `install` | `lang` = the script URL's `lang` param, or `de`. `caches.open("rp-" + lang).addAll(["/offline?lang=" + lang, "/notification-text?lang=" + lang])`, then `skipWaiting()`. |
 | `activate` | Delete every cache starting with `rp-` other than its own. `clients.claim()`. |
 | `fetch` | Only `request.mode === "navigate"`: `respondWith(fetch(request).catch(() => caches.match("/offline?lang=" + lang)))`. Nothing else is intercepted or cached. |
-| `push` | See [push-delivery.md](push-delivery.md). The text comes from the cache, then the network, then the title alone. |
+| `push` | See [push-delivery.md](push-delivery.md). The text comes from `/me/notification-text`, then the cache, then the network, then the title alone. |
 | `notificationclick` | Close; focus or open `/me` (FR-019). |
 
 ## Icons (`public/icons/`)

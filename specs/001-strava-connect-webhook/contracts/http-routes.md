@@ -155,11 +155,22 @@ to `/me` from there.
     date, the sport type as `sport.<SportType>`, distance in km and elevation in m,
     with numbers and dates formatted via `meta.intlLocale`;
   - the consent (FR-025; feature 004, FR-014): version and date of the
-    rider's current consent record and who sees what (`consent.*`), or
-    `me.consent.none` if no record exists;
+    rider's current consent record and who sees what (`consent.*`);
   - the "Disconnect and delete my data" button, which leads to the confirmation
     page;
   - a sign-out button (`POST /logout`).
+- Consent missing, older than the current version, or lacking a scope the
+  current version requires → the consent gate instead of the page (feature 004,
+  [contracts/re-consent.md](../../004-roles-and-consent/contracts/re-consent.md)):
+  `me.consent.none` or what changed, the consent texts and a form posting to
+  `POST /me/consent`, or to `POST /connect` when agreeing needs Strava.
+
+### `POST /me/consent`
+
+Agreeing to a newer consent version without going through Strava (feature 004).
+Requires a session and a same-origin `Origin` header; records the current
+version and redirects `303 /me`. The rules are in
+[004's contracts/re-consent.md](../../004-roles-and-consent/contracts/re-consent.md).
 
 ### `GET /me/disconnect`
 

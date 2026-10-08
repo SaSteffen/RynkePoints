@@ -1,7 +1,12 @@
 import type { Ctx } from "../ctx";
+import { readRiderView } from "../db/rider-view";
+import { readRiseStatement } from "../db/rynke";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
+import { CURRENT_RULES, rulesForVersion } from "../rynke/rules";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
+import { buildRiderView } from "./rider-view";
+import { readSession } from "./session";
 
 // The installable app's server side (feature 010 contracts/client.md and
 // contracts/http-routes.md). `/offline` and `/notification-text` are the only
@@ -46,6 +51,78 @@ export function handleNotificationText(request: Request, ctx: Ctx): Response {
 				Vary: "Accept-Language, Cookie",
 			},
 		},
+	);
+}
+
+/**
+ * How many Rynke the signed-in rider just gained and what they still need, for
+ * the service worker to show instead of `push.body` (issue #45). The push
+ * itself stays empty, so this only reaches the rider's own device. 204 when no
+ * rise is stored; the device then shows the cached text.
+ */
+export async function handleRiderNotificationText(
+	request: Request,
+	ctx: Ctx,
+): Promise<Response> {
+	const headers = { "Cache-Control": "no-store" };
+	const none = (status: number) => new Response(null, { status, headers });
+	const athleteId = await readSession(request, ctx.env, ctx.now());
+	if (athleteId === null) return none(401);
+
+	const db = ctx.env.DB;
+	const [rise, read] = await Promise.all([
+		readRiseStatement(db, athleteId).first<{
+			training_rynke: number;
+			team_rynke: number;
+		}>(),
+		readRiderView(db, athleteId, 1),
+	]);
+	const view = buildRiderView(
+		read,
+		read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
+		CURRENT_RULES,
+		{
+			seasonStart: ctx.env.SEASON_START_DATE,
+			importing: false,
+			rulesFor: rulesForVersion,
+		},
+	);
+	if (!rise || view.state !== "ready") return none(204);
+
+	const i18n = textI18n(request, ctx);
+	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
+	const list = (items: string[]) =>
+		new Intl.ListFormat(i18n.t("meta.intlLocale"), {
+			type: "conjunction",
+		}).format(items);
+	const gained = [
+		{ n: rise.training_rynke, id: "push.rise.training" },
+		{ n: rise.team_rynke, id: "push.rise.team" },
+	] as const;
+	const { summary } = view;
+	const unmet = [
+		{ condition: summary.training, id: "rynke.missing.training" },
+		{ condition: summary.team, id: "rynke.missing.team" },
+		{ condition: summary.withoutVirtual, id: "rynke.missing.withoutVirtual" },
+	] as const;
+	const risen = list(
+		gained.flatMap(({ n, id }) => (n > 0 ? [i18n.t(id, { n: whole(n) })] : [])),
+	);
+	const missing = unmet.flatMap(({ condition, id }) =>
+		condition && !condition.reached
+			? [i18n.t(id, { n: whole(condition.missing) })]
+			: [],
+	);
+	const body =
+		missing.length === 0
+			? i18n.t("push.body.rise", { rise: risen })
+			: i18n.t("push.body.riseMissing", {
+					rise: risen,
+					missing: list(missing),
+				});
+	return Response.json(
+		{ title: i18n.t("app.name"), body },
+		{ headers: { ...headers, "Content-Language": i18n.locale } },
 	);
 }
 

@@ -152,5 +152,12 @@ export async function seed(
 			});
 		}
 	}
+	// The app never sets the flag; the maintainer does it in D1 (004 FR-004).
+	for (const rider of SAMPLE_RIDERS.filter((r) => r.organiser)) {
+		await db
+			.prepare("UPDATE riders SET organiser = 1 WHERE athlete_id = ?")
+			.bind(rider.athleteId)
+			.run();
+	}
 	await markSeeded(db, await sampleFingerprint());
 }

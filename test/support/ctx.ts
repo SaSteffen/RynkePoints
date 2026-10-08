@@ -1,5 +1,9 @@
 import { env } from "cloudflare:test";
-import { CONSENT_VERSION } from "../../src/consent";
+import {
+	CONSENT_VERSION,
+	CONSENT_VERSIONS,
+	type ConsentVersions,
+} from "../../src/consent";
 import { encryptToken } from "../../src/crypto/encrypt";
 import type { Ctx } from "../../src/ctx";
 import {
@@ -29,7 +33,11 @@ const sendResponse = {
 };
 
 export function makeCtx(
-	options: { now?: number; catalogs?: Catalogs } = {},
+	options: {
+		now?: number;
+		catalogs?: Catalogs;
+		consentVersions?: ConsentVersions;
+	} = {},
 ): TestCtx {
 	const sent: SentMessage[] = [];
 	const queue: FakeQueue = {
@@ -55,6 +63,7 @@ export function makeCtx(
 		queue,
 		now: () => now,
 		catalogs: options.catalogs ?? CATALOGS,
+		consentVersions: options.consentVersions ?? CONSENT_VERSIONS,
 		pending,
 		waitUntil: (promise) => {
 			pending.push(promise);
@@ -78,10 +87,13 @@ export interface SeedRiderOptions {
 	refreshToken?: string;
 	expiresAt?: number;
 	/**
-	 * Inserts a consent record of this version accepted now. Defaults to null:
-	 * no record, like a rider connected before `0004`.
+	 * Inserts a consent record of this version accepted now. Defaults to the
+	 * current version; null is no record, like a rider connected before `0004`,
+	 * who meets the consent gate on `/me` (feature 004 research R14).
 	 */
 	consentVersion?: number | null;
+	/** Defaults to false; true sets `riders.organiser` as the maintainer would. */
+	organiser?: boolean;
 }
 
 /** Inserts a rider and encrypted credentials straight into D1. */
@@ -103,7 +115,10 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 		expiresAt: options.expiresAt ?? now + 6 * 3600,
 	};
 	const key = ctx.env.TOKEN_ENCRYPTION_KEY;
-	const consentVersion = options.consentVersion ?? null;
+	const consentVersion =
+		options.consentVersion === undefined
+			? CONSENT_VERSION
+			: options.consentVersion;
 	await ctx.env.DB.batch([
 		ctx.env.DB.prepare(
 			`INSERT INTO riders (athlete_id, first_name, status, scope_read_all,
@@ -144,6 +159,13 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 						VALUES (?, ?, ?)`,
 					).bind(athleteId, consentVersion, now),
 				]),
+		...(options.organiser
+			? [
+					ctx.env.DB.prepare(
+						"UPDATE riders SET organiser = 1 WHERE athlete_id = ?",
+					).bind(athleteId),
+				]
+			: []),
 	]);
 	return rider;
 }
@@ -155,6 +177,7 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM push_subscriptions"),
 		env.DB.prepare("DELETE FROM failed_work"),
 		env.DB.prepare("DELETE FROM rynke_balances"),
+		env.DB.prepare("DELETE FROM rynke_rises"),
 		env.DB.prepare("DELETE FROM ride_results"),
 		env.DB.prepare("DELETE FROM activities"),
 		// `team_event_kinds` stays: migration 0006 seeds it.
@@ -182,6 +205,7 @@ export async function tableCounts(): Promise<Record<string, number>> {
 		"strava_rate_limit",
 		"ride_results",
 		"rynke_balances",
+		"rynke_rises",
 		"team_events",
 		"attendances",
 		"push_subscriptions",

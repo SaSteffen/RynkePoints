@@ -47,6 +47,8 @@ export interface SampleRider {
 	behaviour: Behaviour;
 	rides: readonly RideRecipe[];
 	events?: readonly EventRecipe[];
+	/** Set as the maintainer would, after connecting (feature 004 research R10). */
+	organiser?: true;
 }
 
 /** `count` rides from `recipe(i)`, i = 0 … count − 1. */
@@ -114,10 +116,12 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	{
 		athleteId: 990004,
 		firstName: "Tina TrainingDone",
-		state: "Training target reached without virtual rides; Team Rynke missing",
+		state:
+			"Training target reached without virtual rides; Team Rynke missing; organiser",
 		scopes: ALL_SCOPES,
 		clubMember: true,
 		behaviour: "normal",
+		organiser: true,
 		// 24 rides of 100–110 km: 240 distance Rynke plus about 90 for climbing.
 		rides: rides(24, (i) =>
 			ride(...slot(i), 100 + (i % 11), 600 + ((i * 37) % 300), 25 + (i % 6)),

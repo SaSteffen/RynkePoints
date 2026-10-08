@@ -20,6 +20,7 @@ const COLUMNS: Record<string, string[]> = {
 		"import_status",
 		"reconnect_requested_at",
 		"figures_version",
+		"organiser",
 	],
 	activities: [
 		"strava_activity_id",
@@ -71,6 +72,8 @@ const COLUMNS: Record<string, string[]> = {
 		"computed_at",
 		"team_event_breakdown",
 	],
+	// Issue #45: the last rise, for the notification text.
+	rynke_rises: ["athlete_id", "training_rynke", "team_rynke", "risen_at"],
 	team_event_kinds: ["kind"],
 	team_events: ["event_id", "kind", "event_date", "name"],
 	attendances: ["event_id", "athlete_id"],

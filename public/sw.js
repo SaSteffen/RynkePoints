@@ -9,6 +9,7 @@ const lang = /^[a-z]{2}$/.test(param) ? param : "de";
 const CACHE = `rp-${lang}`;
 const OFFLINE = `/offline?lang=${lang}`;
 const TEXT = `/notification-text?lang=${lang}`;
+const RIDER_TEXT = `/me/notification-text?lang=${lang}`;
 
 self.addEventListener("install", (event) => {
 	event.waitUntil(
@@ -46,8 +47,17 @@ self.addEventListener("fetch", (event) => {
 	);
 });
 
-/** The cached text, else the server's, else the app name alone (FR-032). */
+/**
+ * What the signed-in rider still needs (issue #45), else the cached text, else
+ * the server's, else the app name alone (FR-032).
+ */
 async function notificationText() {
+	try {
+		const response = await fetch(RIDER_TEXT, { cache: "no-store" });
+		if (response.status === 200) return await response.json();
+	} catch {
+		// Offline or signed out on this device: the fixed text below.
+	}
 	try {
 		const response =
 			(await caches.match(TEXT, { ignoreVary: true })) ?? (await fetch(TEXT));
@@ -58,8 +68,8 @@ async function notificationText() {
 	}
 }
 
-// The push has no body; the device shows a fixed text (contracts/push-delivery.md
-// "What the device shows").
+// The push has no body; the device asks the server what to show
+// (contracts/push-delivery.md "What the device shows").
 self.addEventListener("push", (event) => {
 	event.waitUntil(
 		(async () => {

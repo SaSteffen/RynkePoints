@@ -2,7 +2,7 @@
 
 **Feature**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md) | **Date**: 2026-10-07
 
-One table is added. Every other table is unchanged; the full schema is in 001's
+Two tables are added (`rynke_rises` by issue #45). Every other table is unchanged; the full schema is in 001's
 [data-model.md](../001-strava-connect-webhook/data-model.md) and 003's for the
 Rynke tables.
 
@@ -106,3 +106,17 @@ fresh one gets a new cookie (research R10).
 |---|---|---|---|
 | `PUSH_VAPID_KEY` | secret (required) | Cloudflare secret, `.dev.vars`, `dev/fake.env` (synthetic), `vitest.config.ts` (synthetic) | EC P-256 private key as JWK JSON (research R4). |
 | `PUSH_SUBJECT` | var | `wrangler.jsonc` | The VAPID `sub` contact: `https://trhh-rynke-coins.link`. |
+
+## `rynke_rises` (new, issue #45): the last rise, for the notification text
+
+| Column | Type | Null | Meaning |
+|---|---|---|---|
+| `athlete_id` | `INTEGER PRIMARY KEY` | no | The rider. References `riders`, `ON DELETE CASCADE`. |
+| `training_rynke` | `INTEGER` | no | Training Rynke gained by the last change that raised a total; 0 if that total fell or stayed. |
+| `team_rynke` | `INTEGER` | no | Team Rynke gained by it, likewise. |
+| `risen_at` | `INTEGER` | no | Epoch seconds of that change. |
+
+Written in the same D1 batch as the balance whenever a change raises the
+Training or Team Rynke total (research R5's comparison), and overwritten by the
+next one. Read only by `GET /me/notification-text`. Migration
+`migrations/0009_rynke_rises.sql` only adds the table.
