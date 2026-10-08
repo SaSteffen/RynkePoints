@@ -58,6 +58,15 @@ describe("GET / (signed out)", () => {
 		expect(page).toContain("Mitmachen können nur Mitglieder");
 	});
 
+	it("opens with the Rynke coin and the tagline (012 FR-003)", async () => {
+		const { page } = await get();
+		expect(page).toMatch(
+			new RegExp(
+				`<div class="landing-hero">\\n<svg class="coin coin-hero"[^>]*><use href="#coin-front"/></svg>\\n<h1>RynkePoints</h1>\\n<p class="tagline">${escapeHtml(de["landing.tagline"])}</p>\\n</div>`,
+			),
+		);
+	});
+
 	it("names every activity figure that is read (FR-002)", async () => {
 		const { page: german } = await get();
 		for (const figure of [

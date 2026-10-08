@@ -14,7 +14,7 @@ import {
 	type ShellParts,
 	WORDMARK,
 } from "./html";
-import { BIKE, GAUGE, PEOPLE, REFRESH, SLIDERS } from "./icons";
+import { BIKE, COIN, PEOPLE, REFRESH, SLIDERS } from "./icons";
 import { redirect } from "./redirect";
 import { readViewer, riderConsentState } from "./viewer";
 
@@ -32,7 +32,7 @@ export const SECTIONS: readonly {
 	label: MessageId;
 	icon: SafeHtml;
 }[] = [
-	{ id: "overview", path: "/me", label: "nav.overview", icon: GAUGE },
+	{ id: "overview", path: "/me", label: "nav.overview", icon: COIN },
 	{ id: "rides", path: "/me/rides", label: "nav.rides", icon: BIKE },
 	{ id: "team", path: "/team", label: "nav.team", icon: PEOPLE },
 	{

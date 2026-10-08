@@ -65,33 +65,42 @@ describe("STYLE", () => {
 		);
 	});
 
-	it("centres the Team placeholder under a large tinted icon (FR-013)", () => {
+	it("centres the Team placeholder under the large coin (FR-013, 012 FR-003)", () => {
 		expect(declsOf(".placeholder")).toMatchObject({
 			display: "flex",
 			"flex-direction": "column",
 			"align-items": "center",
 			"text-align": "center",
 		});
-		expect(declsOf(".placeholder svg")).toMatchObject({
-			width: "96px",
-			height: "96px",
-			"border-radius": "var(--md-shape-full)",
-			background: "var(--md-sys-color-primary-container)",
-			color: "var(--md-sys-color-on-primary-container)",
+		expect(declsOf(".coin-large")).toMatchObject({
+			width: "144px",
+			height: "144px",
 		});
+	});
+
+	it("drops the celebration coins in, and keeps them still for reduced motion (012 FR-002)", () => {
+		expect(declsOf(".celebrate-coins .coin-mini").animation).toContain(
+			"coin-drop",
+		);
+		expect(
+			declsOf(".celebrate-coins .coin-mini", "(prefers-reduced-motion:reduce)")
+				.animation,
+		).toBe("none");
 	});
 
 	it("lines figures up with tabular numbers (FR-036)", () => {
 		expect(declsOf("body")["font-variant-numeric"]).toBe("tabular-nums");
 	});
 
-	it("turns the transitions off for reduced motion (FR-038)", () => {
+	it("turns the transitions and animations off for reduced motion (FR-038)", () => {
 		const reduced = RULES.filter(
 			(rule) => rule.media === "(prefers-reduced-motion:reduce)",
 		);
 		expect(reduced.length).toBeGreaterThan(0);
 		for (const rule of reduced) {
-			expect(rule.decls.transition).toMatch(/^none(!important)?$/);
+			expect(rule.decls.transition ?? rule.decls.animation).toMatch(
+				/^none(!important)?$/,
+			);
 		}
 	});
 

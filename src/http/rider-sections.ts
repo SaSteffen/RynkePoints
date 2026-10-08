@@ -1,5 +1,6 @@
 import type { I18n } from "../i18n/i18n";
 import { STRAVA_ORIGIN } from "../strava/result";
+import { coin, miniCoin } from "./coin";
 import { html, type SafeHtml } from "./html";
 import type {
 	Breakdown,
@@ -93,19 +94,28 @@ ${notices.map(
 
 export function renderSummary(i18n: I18n, summary: Summary): SafeHtml {
 	const unmet = [
-		{ condition: summary.training, id: "rynke.missing.training" },
-		{ condition: summary.team, id: "rynke.missing.team" },
-		{ condition: summary.withoutVirtual, id: "rynke.missing.withoutVirtual" },
+		{
+			condition: summary.training,
+			id: "rynke.missing.training",
+			kind: "training",
+		},
+		{ condition: summary.team, id: "rynke.missing.team", kind: "team" },
+		{
+			condition: summary.withoutVirtual,
+			id: "rynke.missing.withoutVirtual",
+			kind: "training",
+		},
 	] as const;
-	const missing = unmet.flatMap(({ condition, id }) =>
+	const missing = unmet.flatMap(({ condition, id, kind }) =>
 		condition && !condition.reached
 			? [
-					html`<li><span class="chip">${i18n.t(id, { n: whole(i18n, condition.missing) })}</span></li>`,
+					html`<li><span class="chip">${miniCoin(kind)}${i18n.t(id, { n: whole(i18n, condition.missing) })}</span></li>`,
 				]
 			: [],
 	);
+	// The coin's Hamburg–Paris side for a rider who made it (feature 012 FR-003).
 	const verdict = summary.qualified
-		? html`<p class="rynke-verdict">${i18n.t("rynke.verdict.in")}</p>`
+		? html`<p class="rynke-verdict">${coin("back", "head")}${i18n.t("rynke.verdict.in")}</p>`
 		: html`<p class="rynke-verdict">${i18n.t("rynke.verdict.notYet")}</p>
 ${missing.length > 0 ? html`<ul class="rynke-missing">${missing}</ul>` : null}`;
 	const line = (label: string, condition: Condition) => {
@@ -134,11 +144,19 @@ ${line(i18n.t("rynke.training"), summary.training)}${line(i18n.t("rynke.team"), 
 /** One stacked gauge per condition, then the elevation step (FR-020–FR-026). */
 export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 	const conditions = [
-		{ label: i18n.t("rynke.training"), gauge: gauges.training },
-		{ label: i18n.t("rynke.team"), gauge: gauges.team },
-		{ label: i18n.t("rynke.withoutVirtual"), gauge: gauges.withoutVirtual },
-	];
-	const figures = conditions.flatMap(({ label, gauge }) =>
+		{
+			label: i18n.t("rynke.training"),
+			gauge: gauges.training,
+			kind: "training",
+		},
+		{ label: i18n.t("rynke.team"), gauge: gauges.team, kind: "team" },
+		{
+			label: i18n.t("rynke.withoutVirtual"),
+			gauge: gauges.withoutVirtual,
+			kind: null,
+		},
+	] as const;
+	const figures = conditions.flatMap(({ label, gauge, kind }) =>
 		gauge
 			? [
 					figure(
@@ -150,6 +168,7 @@ export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 							target: whole(i18n, gauge.target),
 							percent: i18n.t("units.percent", { value: gauge.percent }),
 						}),
+						kind,
 					),
 				]
 			: [],
@@ -176,8 +195,29 @@ export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 ${figures}</section>`;
 }
 
-/** One gauge in its own card (feature 011 contracts/pages.md "Overview"). */
-function figure(i18n: I18n, gauge: Gauge, caption: string): SafeHtml {
+/**
+ * Ten coins, one for each tenth of the way, collected ones of the kind's
+ * colour (feature 012 FR-001); the caption carries the figures.
+ */
+function coinRow(gauge: Gauge, kind: "training" | "team"): SafeHtml {
+	const collected = Math.floor(gauge.percent / 10);
+	const coins = Array.from({ length: 10 }, (_, i) =>
+		i < collected ? miniCoin(kind) : html`<span class="coin-slot"></span>`,
+	);
+	return html`<span class="coin-row" aria-hidden="true">${coins}</span>
+`;
+}
+
+/**
+ * One gauge in its own card (feature 011 contracts/pages.md "Overview"); the
+ * Training and Team gauges under their coin side (feature 012).
+ */
+function figure(
+	i18n: I18n,
+	gauge: Gauge,
+	caption: string,
+	kind: "training" | "team" | null = null,
+): SafeHtml {
 	const reached = gauge.reached
 		? html` · ${i18n.t("rynke.gauge.reached")}`
 		: null;
@@ -198,8 +238,8 @@ function figure(i18n: I18n, gauge: Gauge, caption: string): SafeHtml {
 				)}</ul>`;
 	return html`<section class="card">
 <figure class="gauge${gauge.reached ? " gauge-reached" : ""}">
-<figcaption>${caption}${reached}</figcaption>
-<div class="gauge-bar" aria-hidden="true">${bar}</div>
+<figcaption>${kind ? coin(kind === "team" ? "back" : "front", "head") : null}${caption}${reached}</figcaption>
+${kind ? coinRow(gauge, kind) : null}<div class="gauge-bar" aria-hidden="true">${bar}</div>
 ${legend}</figure>
 </section>
 `;
@@ -291,6 +331,7 @@ export function renderRides(i18n: I18n, rides: RideTable): SafeHtml {
 	if (rides.rows.length === 0) {
 		return html`<section id="rides">
 ${heading}
+${coin("front", "large")}
 <p>${i18n.t("me.recent.empty")}</p>
 </section>`;
 	}
@@ -467,6 +508,11 @@ function rideCard(i18n: I18n, ride: RideLine): SafeHtml {
 	// Never 0 for a ride still being evaluated (FR-041).
 	const pending = ride.status === "being-evaluated";
 	const rynke = pending ? "–" : whole(i18n, ride.distanceRynke);
+	// A mini coin for each ride that earned Training Rynke (feature 012).
+	const earned =
+		ride.status === "counts" && ride.distanceRynke > 0
+			? html` ${miniCoin("training")}`
+			: null;
 	const metres = pending
 		? "–"
 		: i18n.t("units.m", { value: whole(i18n, ride.elevationM) });
@@ -482,7 +528,7 @@ function rideCard(i18n: I18n, ride: RideLine): SafeHtml {
 			: html`<span class="ride-name">${ride.name}</span> `;
 	return html`<li class="ride-card ${status.cls}">
 <div class="ride-head"><span class="ride-date">${date}</span> <span class="chip ride-status">${i18n.t(status.text)}</span></div>
-<dl class="ride-figures"><div><dt>${i18n.t("me.recent.col.distance")}</dt><dd>${km}</dd></div><div><dt>${i18n.t("rynke.training")}</dt><dd>${rynke}</dd></div><div><dt>${i18n.t("rynke.rides.col.elevationTotal")}</dt><dd>${metres}</dd></div></dl>
+<dl class="ride-figures"><div><dt>${i18n.t("me.recent.col.distance")}</dt><dd>${km}</dd></div><div><dt>${i18n.t("rynke.training")}</dt><dd>${rynke}${earned}</dd></div><div><dt>${i18n.t("rynke.rides.col.elevationTotal")}</dt><dd>${metres}</dd></div></dl>
 <p class="ride-strava">${name}<a class="tap strava-activity" href="${STRAVA_ORIGIN}/activities/${ride.activityId}">${i18n.t("brand.viewOnStrava")}</a></p>
 <p class="ride-meta">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</p>
 ${explanation(i18n, ride)}</li>

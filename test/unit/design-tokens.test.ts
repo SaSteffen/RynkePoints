@@ -86,9 +86,9 @@ const TEXT_PAIRS: [string, string][] = [
 const GAUGE = [1, 2, 3, 4, 5, 6].map((n) => `--rp-part-${n}`);
 
 describe("design tokens", () => {
-	it("gives the light scheme the contract's surface", () => {
-		expect(LIGHT[md("surface")]).toBe("#fff8f6");
-		expect(DARK_FIXED[md("surface")]).toBe("#1a110e");
+	it("gives both schemes the contract's surface (Team Rynkeby colours)", () => {
+		expect(LIGHT[md("surface")]).toBe("#fffdf5");
+		expect(DARK_FIXED[md("surface")]).toBe("#12110c");
 	});
 
 	it("defines the same colour names in both schemes", () => {

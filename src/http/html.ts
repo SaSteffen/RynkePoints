@@ -1,4 +1,5 @@
 import type { I18n } from "../i18n/i18n";
+import { COIN_SPRITE, coin } from "./coin";
 import { STYLE } from "./style";
 
 // Server-rendered HTML (research R13). Templates hold markup only; every piece
@@ -48,11 +49,14 @@ export function html(
  * Applies the device's colour scheme choice before the page paints (feature
  * 011 contracts/client.md, research R6, R12). It holds no text.
  */
-export const SCHEME_SCRIPT = `try{const s=localStorage.getItem("rp-scheme");if(s==="light"||s==="dark"){document.documentElement.dataset.scheme=s;for(const m of document.querySelectorAll('meta[name="theme-color"]')){m.removeAttribute("media");m.content=s==="dark" ? "#1a110e" : "#fff8f6";}}}catch{}`;
+export const SCHEME_SCRIPT = `try{const s=localStorage.getItem("rp-scheme");if(s==="light"||s==="dark"){document.documentElement.dataset.scheme=s;for(const m of document.querySelectorAll('meta[name="theme-color"]')){m.removeAttribute("media");m.content=s==="dark" ? "#12110c" : "#fffdf5";}}}catch{}`;
 
-/** The brand name, the same in every language (011 contracts/pages.md). */
+/**
+ * The brand name, the same in every language (011 contracts/pages.md), behind
+ * the Rynke coin (feature 012).
+ */
 export const WORDMARK = new SafeHtml(
-	'<span class="wordmark">Rynke<span>Points</span></span>',
+	`<span class="wordmark">${coin("front", "mark")}<span class="wordmark-name">Rynke<span>Points</span></span></span>`,
 );
 
 /** The top bar and navigation of a signed-in section, from `shell.ts`. */
@@ -93,13 +97,15 @@ export function layout(
 <header class="top-bar">${shell.header}</header>`
 		: html`<body class="public">
 <header class="top-bar">${WORDMARK}${languageForm(i18n, path)}</header>`;
+	// Once per page, for every coin's `<use>` (feature 012).
+	const sprite = new SafeHtml(COIN_SPRITE);
 	return html`<!doctype html>
 <html lang="${i18n.locale}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff8f6">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a110e">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fffdf5">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12110c">
 <script>${new SafeHtml(SCHEME_SCRIPT)}</script>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
@@ -109,6 +115,7 @@ export function layout(
 <style>${new SafeHtml(STYLE)}</style>
 </head>
 ${header}
+${sprite}
 <main>
 ${body}
 </main>

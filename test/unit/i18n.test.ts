@@ -9,10 +9,10 @@ const en = createI18n("en", CATALOGS);
 describe("t", () => {
 	it("substitutes params", () => {
 		expect(de.t("me.greeting", { firstName: "Testrider A" })).toBe(
-			"Hallo Testrider A!",
+			"Hallo Testrider A! 🦧",
 		);
 		expect(en.t("me.greeting", { firstName: "Testrider A" })).toBe(
-			"Hi Testrider A!",
+			"Hi Testrider A! 🦧",
 		);
 	});
 
@@ -40,7 +40,7 @@ describe("tHtml", () => {
 
 	it("escapes plain-string params", () => {
 		const out = de.tHtml("me.greeting", { firstName: "<b>A</b>" });
-		expect(String(out)).toBe("Hallo &lt;b&gt;A&lt;/b&gt;!");
+		expect(String(out)).toBe("Hallo &lt;b&gt;A&lt;/b&gt;! 🦧");
 	});
 
 	it("escapes the message text itself", () => {

@@ -3,6 +3,7 @@ import { currentVersion } from "../consent";
 import type { Ctx } from "../ctx";
 import { getRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
+import { coin } from "./coin";
 import { consentForm } from "./consent-form";
 import { html, htmlResponse, layout } from "./html";
 import { renderInstallHint } from "./pwa";
@@ -11,7 +12,8 @@ import { readSession } from "./session";
 
 // The public start page: what RynkePoints reads and why, who can join, how to
 // leave, who sees what, and the consent form with the Connect with Strava
-// button (FR-001, FR-002, FR-022a; feature 004 FR-010, FR-011; research R21).
+// button (FR-001, FR-002, FR-022a; feature 004 FR-010, FR-011; research R21),
+// under the Rynke coin (feature 012 FR-003).
 
 export async function handleLanding(
 	request: Request,
@@ -31,7 +33,11 @@ export async function handleLanding(
 		layout(i18n, {
 			title,
 			path: "/",
-			body: html`<h1>${i18n.t("app.name")}</h1>
+			body: html`<div class="landing-hero">
+${coin("front", "hero")}
+<h1>${i18n.t("app.name")}</h1>
+<p class="tagline">${i18n.t("landing.tagline")}</p>
+</div>
 ${renderInstallHint(i18n)}
 <p>${i18n.t("landing.intro")}</p>
 <p>${i18n.tHtml("landing.who", { clubLink })}</p>
