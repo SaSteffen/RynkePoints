@@ -150,6 +150,9 @@ The spec has no open questions. These are the design decisions for Stories 1–3
   - Display:
     - `changed_at` NULL: rows from before this feature; nothing is shown.
     - `changed_by` NULL with `changed_at` set: "former organiser".
+    - `changed_by` set but the organiser no longer passes `SHARED_RIDER_IDS`:
+      "former organiser" too, so a name is only ever shown through the consent
+      filter (004 FR-021).
     - Otherwise: the organiser's first name and the date.
 - **Rationale**: no name or ID of a departed rider survives (Principle I), and
   the schema does the clearing, so there's no clean-up code.
@@ -165,6 +168,8 @@ The spec has no open questions. These are the design decisions for Stories 1–3
   name. That includes the organiser themselves.
   - Clashing first names (case-insensitive) get a "View on Strava" link to
     `https://www.strava.com/athletes/<id>` (004 FR-022).
+  - The event list shows the season's events: `event_date >= SEASON_START_DATE`
+    (FR-010). Events after the deadline stay listed (spec edge cases).
   - The event list's attendee count is a plain `COUNT(*)` over attendances. It
     is a number, not riders, and FR-010 asks for it.
 - **Rationale**: the consent filter sits inside SQL as 004 requires.

@@ -8,11 +8,11 @@ exists.
 
 | Area | Test | Covers |
 |---|---|---|
-| Access | `organiser-access`: a visitor GET gives 302 `/`. A rider without the flag gets 403 on every GET and POST route, and nothing changes. A POST from another origin gives 403. A flag cleared between GET and POST gives 403. `/team` shows the link to organisers only. | FR-001, FR-002, SC-002 |
-| Events | `organiser-events`: create with today's date and no name; update kind, date and name; delete one that has attendance (its attendance is gone and the balances follow); a date outside the season gives `outside_season`; an update to an event deleted meanwhile gives `event_missing`; the list is newest first and shows the attendee count. | FR-010–FR-013 |
+| Access | `organiser-access`: a visitor GET gives 302 `/` and a visitor POST 403. An organiser without current consent meets the gate on GET and gets 403 on POST. A rider without the flag gets 403 on every GET and POST route, and nothing changes. A POST from another origin gives 403. A flag cleared between GET and POST gives 403. `/team` shows the link to organisers only. | FR-001, FR-002, SC-002 |
+| Events | `organiser-events`: create with today's date and no name; update kind, date and name; delete one that has attendance (its attendance is gone and the balances follow); a date outside the season gives `outside_season`; a 101-character name gives `invalid_name`; delete sits in a `<details>`; an update to an event deleted meanwhile gives `event_missing`; the list shows the season's events newest first with the attendee count. | FR-010–FR-013 |
 | Attendance | `organiser-attendance`: tick 2 of 3 riders; tick again (credited once); untick; tick a rider for an event before they connected; same first names get Strava links; a rider without consent is not listed and is untouched by a save; a future event gives `future_event` and has no form; a forged id gives `rider_not_listed`; a second organiser's tick survives the first organiser's save. | FR-020–FR-022, SC-003 |
 | Corrections | `organiser-corrections`: add +10 Training (the balance includes it); both amounts 0, a non-integer or an empty reason are refused; remove one (the balance follows); −20 Team for a rider with 5 gives 0; a full re-evaluation (`evaluate-rider`) keeps corrections. | FR-030, FR-031, 003 FR-010 |
-| Change record | The rows carry `changed_by` and `changed_at`. Deleting the organiser rider shows "former organiser". | FR-040, SC-005 |
+| Change record | The rows carry `changed_by` and `changed_at`. Deleting the organiser rider, or the organiser leaving the consent filter, shows "former organiser". | FR-040, SC-005 |
 | Copy | `no-hardcoded-copy` and the catalog parity tests cover the `organiser.*` keys. | FR-043 |
 | Unit | Correction validation; `extrasFrom` with attendance plus corrections; `tally` clamping a negative correction. | R7, R8 |
 

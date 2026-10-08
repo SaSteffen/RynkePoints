@@ -73,8 +73,9 @@ entry link on `/team`.
     `Rider` or a 403 response.
   - `noticeFromQuery(url, i18n)`: renders `?done=` or `?error=` only for codes in
     the contract's allow-lists; anything else renders nothing.
-  - `changeRecord(i18n, changedBy, changedAt)`: nothing when `changedAt` is NULL,
-    "former organiser" when `changedBy` is NULL, otherwise first name and date.
+  - `changeRecord(i18n, firstName, changedAt)`: nothing when `changedAt` is NULL,
+    "former organiser" when `firstName` is NULL (organiser gone, or no longer
+    passing the consent filter), otherwise first name and date.
   - `redirect(path, param, code)`: a `303` with the encoded query.
 - [ ] T007 Add the organiser card to `src/http/sections/team.ts` for organisers
   only, with its 44 px link style in `src/http/style.ts`. T004 passes.
@@ -92,7 +93,10 @@ and check the list and the stored rows; as a rider without the flag every route
 is refused.
 
 - [ ] T008 [P] [US1] Tests first (failing), `test/integration/organiser-access.test.ts`
-  (FR-001, SC-002): a visitor's `GET /organiser` gives 302 `/`; a rider without
+  (FR-001, SC-002): a visitor's `GET /organiser` gives 302 `/` and a visitor's
+  POST to every US1 route gives 403 with nothing changed; an organiser who hasn't
+  agreed to the current consent version meets the consent gate on
+  `GET /organiser` and gets 403 on every US1 POST; a rider without
   the flag gets 403 on `GET /organiser`, `GET /organiser/events/{id}` and every
   US1 POST, and the stored events don't change; a POST with a foreign `Origin`
   gives 403; an organiser whose flag is cleared between GET and POST gets 403.
@@ -105,26 +109,37 @@ is refused.
   - delete an event with attendance → `/organiser?done=deleted`, its attendance
     rows are gone and the attendee's `rynke_balances.team_rynke` drops;
   - a date before the season start or after the deadline → `?error=outside_season`,
-    nothing written; an unknown kind → `?error=unknown_kind`;
+    nothing written; an unknown kind → `?error=unknown_kind`; a 101-character
+    name → `?error=invalid_name`;
   - update or delete of an event deleted meanwhile → 303 `/organiser?error=event_missing`;
-  - `GET /organiser` lists newest first with the attendee count; an unknown event
+  - `GET /organiser` lists newest first with the attendee count, leaves out an
+    event dated before the season start and keeps one after the deadline; the
+    event page has the delete button inside a `<details>` (FR-013); an unknown event
     id gives 404; `?error=bogus` renders no message;
-  - deleting the organiser's rider row leaves the event and shows "former organiser".
+  - deleting the organiser's rider row leaves the event and shows "former
+    organiser"; so does an organiser who no longer passes the consent filter
+    (their first name doesn't appear).
 - [ ] T010 [US1] Add `by?: number` to `create-event` and `update-event` in
   `TeamEventChange` in `src/rynke/apply.ts`; pass `by ?? null` and `now` as epoch
   seconds to `insertTeamEventStatement` and `updateTeamEventStatement` in
   `src/db/team-events.ts`, which now also write `changed_by` and `changed_at`.
   Existing callers without `by` keep working (`team-events-apply.test.ts` passes).
-- [ ] T011 [P] [US1] Add `listTeamEventsStatement(db)` to `src/db/team-events.ts`:
-  every event with `kind`, `event_date`, `name`, `COUNT(attendances)` as
-  `attendees`, `changed_at` and the organiser's `first_name` via `LEFT JOIN riders`
-  on `changed_by`, ordered `event_date DESC, event_id DESC`. Extend
-  `readTeamEventStatement` with the same change-record fields.
+- [ ] T011 [P] [US1] Add `listTeamEventsStatement(db, seasonStart)` to
+  `src/db/team-events.ts`: events with `event_date >= seasonStart` (FR-010; events
+  after the deadline stay listed), with `kind`, `event_date`, `name`,
+  `COUNT(attendances)` as `attendees`, `changed_at`, `changed_by` and the
+  organiser's `first_name` via `LEFT JOIN riders ON athlete_id = changed_by AND
+  athlete_id IN (${SHARED_RIDER_IDS})`, so a name only comes through the consent
+  filter (R9); ordered `event_date DESC, event_id DESC`. Extend
+  `readTeamEventStatement` with the same change-record fields and join.
+  `changeRecord` (T006) shows "former organiser" when `changed_at` is set and the
+  joined name is NULL.
 - [ ] T012 [US1] Add the US1 keys to both catalogs: list headings, empty list,
-  the kind labels if not already present, form labels (kind, date, name, save,
-  add), "Delete event…", the delete warning and confirm button.
+  form labels (date, name, save, add; the kind labels reuse
+  `rynke.source.<kind>`), "Delete event…", the delete warning and confirm button.
 - [ ] T013 [US1] Create `src/http/organiser/events.ts`:
-  - `GET /organiser`: the notice, the event list (each row links to its page and
+  - `GET /organiser`: the notice, the event list from
+    `listTeamEventsStatement(db, env.SEASON_START_DATE)` (each row links to its page and
     shows the change record), the new-event form (kind select, date defaulting to
     `berlinDate(now)`, optional name) and a link to `/organiser/riders` (rendered
     once US3 exists; until then omit it).
@@ -172,8 +187,8 @@ check the attendance rows and that each balance includes the event once.
   - organiser B ticks rider X after organiser A loaded the page with X unticked;
     A saves without X → X stays recorded (R6);
   - no listed riders → the page says so.
-  Add `POST /organiser/events/{id}/attendance` to the 403 table in
-  `organiser-access.test.ts`.
+  Add `POST /organiser/events/{id}/attendance` to the route table in
+  `organiser-access.test.ts` (visitor, no consent, no flag).
 - [ ] T017 [P] [US2] Create `src/db/organiser.ts` with `listListedRidersStatement(db)`:
   `athlete_id, first_name` of connected riders
   `WHERE athlete_id IN (${SHARED_RIDER_IDS})`, ordered by first name (R10), and
@@ -226,14 +241,16 @@ the stored rows and that the balance includes each exactly once.
     removing it again → `?error=correction_missing`;
   - −20 Team for a rider with 5 → recorded, `team_rynke` is 0;
   - an `evaluate-rider` run afterwards keeps the correction in the balance;
+  - each correction's remove button sits inside a `<details>` (FR-031);
   - `/organiser/riders` lists listed riders only (no rider without consent), a
     rider not listed gives 404 on their page, and no balances appear (FR-042);
   - deleting the rider deletes their corrections; deleting the organiser shows
     "former organiser".
   Add `GET /organiser/riders`, `GET /organiser/riders/{id}` and both US3 POSTs to
-  the 403 table in `organiser-access.test.ts`.
+  the route table in `organiser-access.test.ts` (visitor, no consent, no flag).
 - [ ] T023 [US3] Create `src/db/corrections.ts`: `listRiderCorrectionsStatement`
-  (newest first, with the organiser's first name), `listCorrectionsOfRidersStatement`
+  (newest first, with the organiser's first name joined through
+  `SHARED_RIDER_IDS` as in T011), `listCorrectionsOfRidersStatement`
   (`training, team, athlete_id` filtered with `json_each`),
   `readCorrectionStatement`, `insertCorrectionStatement` and
   `deleteCorrectionStatement`.

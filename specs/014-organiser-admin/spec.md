@@ -253,10 +253,12 @@ app uses the new value.
 
 **All changes**
 
-- **FR-040**: Every change (event created, changed or deleted; attendance
-  recorded or removed; correction added or removed) MUST record which organiser
-  made it and when. That record MUST be kept as long as the input it belongs to
-  exists; it MUST NOT keep the organiser's name after the organiser has left.
+- **FR-040**: Every stored input (event created or changed; attendance
+  recorded; correction added) MUST record which organiser made the change and
+  when. That record MUST be kept as long as the input it belongs to exists; it
+  MUST NOT keep the organiser's name after the organiser has left. Deleting an
+  event or removing attendance or a correction leaves no record, since the record
+  goes with its input.
 - **FR-041**: Changes MUST take effect through feature 003 (FR-003): this feature
   stores inputs and computes no Rynke itself.
 - **FR-042**: Organiser pages MUST NOT show riders' balances, qualification or
@@ -281,7 +283,8 @@ app uses the new value.
 ### Key Entities
 
 - **Team Event**, **Attendance**, **Correction**: as in feature 003 Key Entities;
-  this feature adds no new inputs, only the pages to change them.
+  this feature adds no new inputs, only the pages to change them (corrections
+  were defined in feature 003 but never stored; their store is built here).
 - **Change Record**: who (which organiser) made a change to an input and when;
   kept with that input, gone when the input is gone. Shows "former organiser"
   once the organiser has left.

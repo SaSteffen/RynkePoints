@@ -17,10 +17,14 @@ POST requests:
 
 | Path | Shows |
 |---|---|
-| `/organiser` | Event list, newest first: kind, date, name and attendee count, each linking to its page (FR-010). A "new event" form (kind, date defaulting to today, optional name). A link to `/organiser/riders`. |
+| `/organiser` | The season's events (dated on or after the season start, so an event past the deadline stays listed), newest first: kind, date, name and attendee count, each linking to its page (FR-010). A "new event" form (kind, date defaulting to today, optional name). A link to `/organiser/riders`. |
 | `/organiser/events/{id}` | The edit form (kind, date, name) and the change record. The attendance checklist of listed riders (FR-020), or only the list with a note when the event is in the future (FR-022). Delete inside a `<details>` confirmation (FR-013). An unknown id gives 404. |
 | `/organiser/riders` | Listed riders by first name, with a Strava link where names clash, each linking to the rider's corrections. Says so when there are none. |
 | `/organiser/riders/{athleteId}` | The rider's corrections, newest first: amounts, reason, date and change record, each with a confirmed "Remove". A form to add one (FR-030, FR-031). A rider who isn't listed gives 404. |
+
+The change record shows the organiser's first name only while that organiser
+passes the consent filter (`SHARED_RIDER_IDS`); otherwise it shows "former
+organiser" (R9).
 
 `/team` gains an "Organiser" link to `/organiser`, for organisers only (FR-002).
 

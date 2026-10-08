@@ -54,4 +54,6 @@ Corrections are never updated (FR-031): a wrong one is deleted and added again.
 - **Event row**: `{ eventId, kind, date, name, attendees: number, changedBy:
   string | "former" | null, changedAt }`.
 - **Change record display**: `changed_at` NULL shows nothing; `changed_by` NULL
-  shows "former organiser"; otherwise the organiser's first name and the date.
+  shows "former organiser"; so does an organiser who no longer passes the
+  consent filter (`SHARED_RIDER_IDS`); otherwise the organiser's first name and
+  the date.

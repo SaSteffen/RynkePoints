@@ -79,7 +79,7 @@ follows within seconds.
 
 **Scale/Scope**:
 - a handful of organisers, about 30 riders and about 60 events a season;
-- 5 GET routes and 6 POST routes;
+- 4 GET routes and 6 POST routes, plus the link on `/team`;
 - about 45 catalog keys.
 
 ## Constitution Check
