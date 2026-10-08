@@ -9,8 +9,9 @@ const icon = (paths: string): SafeHtml =>
 		`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths}</svg>`,
 	);
 
-export const GAUGE = icon(
-	'<path d="M4 19a8 8 0 1 1 16 0"/><path d="M12 19l4-6"/><path d="M12 19h.01"/>',
+/** The Rynke coin as a line: its rim and the chain ring (feature 012). */
+export const COIN = icon(
+	'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5" stroke-dasharray="2.2 1.8"/>',
 );
 
 export const BIKE = icon(

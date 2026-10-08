@@ -90,8 +90,8 @@ describe("layout (de)", () => {
 	it("colours the browser for both schemes before the scheme script (011 R12)", () => {
 		const head = page.slice(0, page.indexOf("</head>"));
 		const metas = [
-			'<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff8f6">',
-			'<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a110e">',
+			'<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fffdf5">',
+			'<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12110c">',
 		];
 		const at = [...metas, "<script>", "<style>"].map((m) => head.indexOf(m));
 		expect(at.every((i) => i >= 0)).toBe(true);

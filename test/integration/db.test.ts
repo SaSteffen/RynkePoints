@@ -100,6 +100,7 @@ describe("riders", () => {
 			ride_results: 0,
 			rynke_balances: 0,
 			rynke_rises: 0,
+			rynke_seen: 0,
 			team_events: 0,
 			attendances: 0,
 			push_subscriptions: 0,

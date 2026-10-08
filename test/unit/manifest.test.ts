@@ -24,8 +24,8 @@ describe("manifest.webmanifest", () => {
 		expect(manifest.scope).toBe("/");
 		expect(manifest.start_url).toBe("/me");
 		expect(manifest.display).toBe("standalone");
-		expect(manifest.theme_color).toBe("#fff8f6");
-		expect(manifest.background_color).toBe("#fff8f6");
+		expect(manifest.theme_color).toBe("#fffdf5");
+		expect(manifest.background_color).toBe("#fffdf5");
 	});
 
 	it("lists the 192, 512 and maskable icons", () => {

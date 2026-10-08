@@ -182,7 +182,7 @@ async function notifications() {
 }
 
 /** The `surface` colour of each scheme, as in the head script (research R12). */
-const THEME_COLOR = { light: "#fff8f6", dark: "#1a110e" };
+const THEME_COLOR = { light: "#fffdf5", dark: "#12110c" };
 
 /**
  * The Appearance group in Settings (FR-032a): System, Light or Dark for this

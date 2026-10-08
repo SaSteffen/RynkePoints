@@ -13,14 +13,15 @@ import { RIDE_NAMES, seedPageRiders } from "../support/pages";
 import { riderPage } from "../support/rider-view";
 
 // Team at `/team`: a placeholder for riders and organisers alike, with no
-// rider's data even when the team has some (feature 011 FR-013, US5-AS1–3).
+// rider's data even when the team has some (feature 011 FR-013, US5-AS1–3),
+// under the coin's Hamburg–Paris side (feature 012 FR-003).
 
 const ctx = makeCtx();
 const { de } = CATALOGS;
 const RIDERS = [ATHLETE_A, ATHLETE_B, ATHLETE_C];
 
 const PLACEHOLDER =
-	/<section class="placeholder">\n<svg [^>]*aria-hidden="true"[^>]*>[\s\S]*?<\/svg>\n<h2>([^<]*)<\/h2>\n<p>([^<]*)<\/p>\n<\/section>/;
+	/<section class="placeholder">\n<svg [^>]*aria-hidden="true"[^>]*><use href="#coin-back"\/><\/svg>\n<h2>([^<]*)<\/h2>\n<p>([^<]*)<\/p>\n<\/section>/;
 
 /** The `main` element of a page. */
 function mainOf(page: string): string {

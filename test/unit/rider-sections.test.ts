@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { renderRides, renderRules } from "../../src/http/rider-sections";
+import {
+	renderGauges,
+	renderRides,
+	renderRules,
+	renderSummary,
+} from "../../src/http/rider-sections";
 import type { ReasonLine, RideLine } from "../../src/http/rider-view";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
@@ -141,5 +146,97 @@ describe("renderRides ride name (008 FR-005, FR-010)", () => {
 		const out = table(line({ name: null }));
 		expect(out).not.toContain("ride-name");
 		expect(out).toContain('<p class="ride-strava"><a ');
+	});
+});
+
+// The Rynke coin in the sections (feature 012 FR-001, FR-003, FR-004).
+describe("coins", () => {
+	const condition = (value: number, target: number) => ({
+		value,
+		target,
+		missing: Math.max(target - value, 0),
+		reached: value >= target,
+	});
+	const gauge = (value: number, target: number) => ({
+		value,
+		target,
+		percent: Math.min(Math.floor((value * 100) / target), 100),
+		reached: value >= target,
+		parts: [],
+	});
+
+	it("marks a counting ride's Training Rynke with a mini coin", () => {
+		const html = table(
+			line({ status: "counts", distanceRynke: 2, fixHint: false }),
+		);
+		expect(html).toContain(
+			'<dd>2 <svg class="coin coin-mini" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#coin-mini"/></svg></dd>',
+		);
+	});
+
+	it("puts no coin on a ride that earned none", () => {
+		expect(table(line({ status: "counts", distanceRynke: 0 }))).not.toContain(
+			"coin-mini",
+		);
+	});
+
+	it("shows the coin above an empty ride list", () => {
+		const html = renderRides(en, {
+			rows: [],
+			position: { from: 0, to: 0, total: 0 },
+			pager: null,
+		}).toString();
+		expect(html).toMatch(
+			/<h2>Your rides<\/h2>\n<svg class="coin coin-large"[^>]*><use href="#coin-front"\/><\/svg>\n<p>No rides imported yet<\/p>/,
+		);
+	});
+
+	it("gives each missing chip its kind's mini coin", () => {
+		const html = renderSummary(en, {
+			training: condition(17, 20),
+			team: condition(3, 4),
+			withoutVirtual: null,
+			qualified: false,
+		}).toString();
+		expect(html).toContain(
+			'<span class="chip"><svg class="coin coin-mini" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#coin-mini"/></svg>3 Training Rynke</span>',
+		);
+		expect(html).toContain(
+			'<span class="chip"><svg class="coin coin-mini coin-team" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#coin-mini"/></svg>1 Team Rynke</span>',
+		);
+	});
+
+	it("shows the Hamburg–Paris side to a rider who qualified", () => {
+		const html = renderSummary(en, {
+			training: condition(20, 20),
+			team: condition(4, 4),
+			withoutVirtual: null,
+			qualified: true,
+		}).toString();
+		expect(html).toContain('<use href="#coin-back"/>');
+	});
+
+	it("heads the Training and Team gauges with their coin and a row of ten", () => {
+		const html = renderGauges(en, {
+			training: gauge(130, 250),
+			team: gauge(25, 25),
+			withoutVirtual: null,
+			elevation: { ...gauge(400, 10000), stepRynke: 5 },
+		}).toString();
+		const figures = [...html.matchAll(/<figure[\s\S]*?<\/figure>/g)].map(
+			([f]) => f,
+		);
+		expect(figures[0]).toContain('<use href="#coin-front"/>');
+		expect(figures[1]).toContain('<use href="#coin-back"/>');
+		const row = (f = "") =>
+			f.match(
+				/<span class="coin-row" aria-hidden="true">([\s\S]*?)<\/span>\n/,
+			)?.[1] ?? "";
+		expect(row(figures[0]).match(/class="coin coin-mini"/g)).toHaveLength(5);
+		expect(row(figures[0]).match(/coin-slot/g)).toHaveLength(5);
+		expect(
+			row(figures[1]).match(/class="coin coin-mini coin-team"/g),
+		).toHaveLength(10);
+		expect(figures[2]).not.toContain("coin-row");
 	});
 });
