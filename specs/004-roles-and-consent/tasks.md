@@ -253,7 +253,7 @@ consent), every viewer × subject × item answer matches FR-020 and FR-021
 (SC-002), and a `SUM`/`COUNT` with `SHARED_RIDER_IDS` leaves the rider without
 consent out.
 
-- [ ] T026 [P] [US3] Tests first (failing), new `test/unit/visibility.test.ts`:
+- [x] T026 [P] [US3] Tests first (failing), new `test/unit/visibility.test.ts`:
   - `VISIBILITY` equals the [data-model.md](data-model.md) table cell by cell
     for `organiser` and `rider`;
   - `SINCE_VERSION` is `SHARING_SINCE_VERSION` (1) for every `RiderData`;
@@ -265,7 +265,7 @@ consent out.
     `organiser`; unflagged → `rider`;
   - the synthetic team, every viewer × subject × `RiderData`: answers match
     FR-020/FR-021, and the subject's own `organiser` flag changes nothing (FR-007).
-- [ ] T027 [P] [US3] Tests first (failing), new
+- [x] T027 [P] [US3] Tests first (failing), new
   `test/integration/shared-riders.test.ts`:
   - `listSharedRiderIds` returns riders with a record ordered by athlete ID, and
     leaves out a rider without one; `consentVersionOf` gives their version or
@@ -274,10 +274,10 @@ consent out.
     `SUM` over `rynke_balances` leaves the rider without consent out of both;
   - after `deleteRider`, the rider is not shared and `consentVersionOf` is
     `null` (FR-015, SC-001).
-- [ ] T028 [US3] In `src/consent.ts`, add `SHARING_SINCE_VERSION = 1` with a
+- [x] T028 [US3] In `src/consent.ts`, add `SHARING_SINCE_VERSION = 1` with a
   comment: the lowest consent version that includes the FR-020 sharing
   (research R6).
-- [ ] T029 [US3] In `src/db/consents.ts`, add:
+- [x] T029 [US3] In `src/db/consents.ts`, add:
   - `sharedRiderIdsSince(version: number): string`, the subquery
     `SELECT athlete_id FROM consent_records WHERE version >= <version>`
     (`version` is a number from code, never request input);
@@ -288,7 +288,7 @@ consent out.
   `athlete_id IN (${SHARED_RIDER_IDS})`, or
   `sharedRiderIdsSince(SINCE_VERSION[item])` for an item shared later (FR-021,
   FR-013).
-- [ ] T030 [US3] Create pure `src/visibility.ts` with:
+- [x] T030 [US3] Create pure `src/visibility.ts` with:
   - `RiderData`, `Audience`, `VISIBILITY` (the [data-model.md](data-model.md)
     table);
   - `SINCE_VERSION: Readonly<Record<RiderData, number>>`, every item
@@ -302,7 +302,7 @@ consent out.
 
   No D1, clock or text; imports only the `Viewer` type and
   `SHARING_SINCE_VERSION`.
-- [ ] T031 [US3] Run `pnpm test`: T026 and T027 pass.
+- [x] T031 [US3] Run `pnpm test`: T026 and T027 pass.
 
 **Checkpoint**: US3 complete; organiser-admin and team-leaderboard can build on
 `readViewer`, `maySee` and `SHARED_RIDER_IDS`.
