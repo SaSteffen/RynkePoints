@@ -413,17 +413,17 @@ placeholder, even with synthetic team data in D1.
 
 ## Phase 8: Polish & Cross-Cutting
 
-- [ ] T059 [P] Run `test/unit/dev-guard.test.ts` and
+- [X] T059 [P] Run `test/unit/dev-guard.test.ts` and
   `test/integration/no-hardcoded-copy.test.ts` against the new
   `src/http/sections/`, `shell.ts`, `icons.ts` and `style.ts`: no `dev/` import,
   no inline rider text (the wordmark is the one allowed brand name; add it to the
   test's allow-list if needed).
-- [ ] T060 [P] Update the comments in `src/http/me.ts`, `consent-gate.ts`,
+- [X] T060 [P] Update the comments in `src/http/me.ts`, `consent-gate.ts`,
   `rider-sections.ts` and `rider-view.ts` that say "`/me`" where they now mean a
   section, and the route comment in `src/http/router.ts`.
-- [ ] T061 Run the asset check in `public/strava/README.md` (every `brand.*.src`
+- [X] T061 Run the asset check in `public/strava/README.md` (every `brand.*.src`
   and `srcDark` path exists under `public/`).
-- [ ] T062 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
+- [X] T062 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
 
 ---
 
