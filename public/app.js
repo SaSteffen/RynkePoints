@@ -154,9 +154,17 @@ async function notifications() {
 			show("failed");
 		}
 	};
-	toggle.addEventListener("click", () =>
-		toggle.getAttribute("aria-checked") === "true" ? turnOff() : turnOn(),
-	);
+	// One change at a time: a second tap mid-way would subscribe twice.
+	toggle.addEventListener("click", async () => {
+		toggle.disabled = true;
+		try {
+			await (toggle.getAttribute("aria-checked") === "true"
+				? turnOff()
+				: turnOn());
+		} finally {
+			toggle.disabled = false;
+		}
+	});
 
 	if (Notification.permission === "denied") {
 		show("blocked");

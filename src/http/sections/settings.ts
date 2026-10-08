@@ -9,7 +9,8 @@ import { acceptedOn, shellPage } from "../shell";
 // Settings at `/me/settings` in the seven groups of feature 011 FR-014: the
 // language, this device's scheme, the notifications on this device, installing
 // the app, the connection to Strava with the granted permissions, the stored
-// consent (feature 004 FR-014), and signing out or leaving. For a signed-in rider the language switcher is only here (FR-016).
+// consent (feature 004 FR-014), and signing out or leaving. For a signed-in
+// rider the language switcher is only here (FR-016).
 
 /** One group of the page, in contracts/pages.md "Settings" order. */
 function group(id: string, heading: string, body: SafeHtml): SafeHtml {
