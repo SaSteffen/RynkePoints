@@ -6,12 +6,7 @@ import { handleConsent } from "./consent-gate";
 import { notFound } from "./errors";
 import { handleLanding } from "./landing";
 import { handleLang } from "./lang";
-import {
-	handleDisconnect,
-	handleDisconnectPage,
-	handleLogout,
-	handleMe,
-} from "./me";
+import { handleDisconnect, handleDisconnectPage, handleLogout } from "./me";
 import { handleNotice } from "./notice";
 import { handleNotifications } from "./notifications";
 import {
@@ -19,7 +14,12 @@ import {
 	handleOffline,
 	handleRiderNotificationText,
 } from "./pwa";
+import { redirect } from "./redirect";
 import { handleRunDaily } from "./run-daily";
+import { handleOverview } from "./sections/overview";
+import { handleRides } from "./sections/rides";
+import { handleSettings } from "./sections/settings";
+import { handleTeam } from "./sections/team";
 import { renewSession } from "./session";
 import { handleWebhook } from "./webhook";
 
@@ -48,6 +48,10 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	}
 
 	if (method === "GET" || method === "HEAD") {
+		// The ride list's old address, before any session read (011 FR-006, R2).
+		if (path === "/me" && url.searchParams.has("page")) {
+			return redirect(`/me/rides${url.search}`, 301);
+		}
 		if (path === "/offline") return handleOffline(request, ctx);
 		if (path === "/notification-text") {
 			return handleNotificationText(request, ctx);
@@ -91,7 +95,13 @@ async function page(
 		case "/auth/callback":
 			return handleCallback(request, ctx);
 		case "/me":
-			return handleMe(request, ctx, i18n);
+			return handleOverview(request, ctx, i18n);
+		case "/me/rides":
+			return handleRides(request, ctx, i18n);
+		case "/team":
+			return handleTeam(request, ctx, i18n);
+		case "/me/settings":
+			return handleSettings(request, ctx, i18n);
 		case "/me/disconnect":
 			return handleDisconnectPage(request, ctx, i18n);
 	}

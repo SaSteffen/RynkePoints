@@ -15,7 +15,7 @@ import { RIDER_PAGES, seedPageRiders } from "../support/pages";
 
 const qps = Object.fromEntries(
 	Object.entries(de).map(([id, value]) => {
-		if (id === "meta.intlLocale" || /^brand\.\w+\.src$/.test(id)) {
+		if (id === "meta.intlLocale" || /^brand\.\w+\.src(Dark)?$/.test(id)) {
 			return [id, value];
 		}
 		if (id === "meta.languageName") return [id, "⟦Pseudo⟧"];
@@ -28,6 +28,9 @@ const LANGUAGE_NAMES = new Set(
 	Object.values(CATALOGS).map((c) => c["meta.languageName"]),
 );
 const NUMBERS_AND_PUNCTUATION = /^[\d.,:/\s·–-]+$/;
+
+/** The wordmark is the brand name, not catalog text (011 contracts/pages.md). */
+const WORDMARK = new Set(["Rynke", "Points"]);
 
 /** Visible text left once every (possibly nested) ⟦…⟧ is removed. */
 function unmarkedText(page: string): string[] {
@@ -58,7 +61,11 @@ describe.each(RIDER_PAGES)("$name in the pseudo-locale", (page) => {
 		const html = await res.text();
 		expect(html).toContain('<html lang="qps">');
 		for (const text of unmarkedText(html)) {
-			if (NUMBERS_AND_PUNCTUATION.test(text) || LANGUAGE_NAMES.has(text)) {
+			if (
+				NUMBERS_AND_PUNCTUATION.test(text) ||
+				LANGUAGE_NAMES.has(text) ||
+				WORDMARK.has(text)
+			) {
 				continue;
 			}
 			expect.fail(`hard-coded text on ${page.name}: ${JSON.stringify(text)}`);
@@ -70,10 +77,13 @@ describe.each(RIDER_PAGES)("$name in the pseudo-locale", (page) => {
 		}
 	});
 
-	it("lists the pseudo-locale in the switcher", async () => {
-		const res = await page.fetch(ctx, { cookies: { rp_lang: "qps" } });
-		expect(await res.text()).toContain(
-			'<button name="lang" value="qps" lang="qps" aria-current="true">⟦Pseudo⟧</button>',
-		);
-	});
+	it.runIf(page.next !== null)(
+		"lists the pseudo-locale in the switcher",
+		async () => {
+			const res = await page.fetch(ctx, { cookies: { rp_lang: "qps" } });
+			expect(await res.text()).toContain(
+				'<button class="segmented" name="lang" value="qps" lang="qps" aria-current="true">⟦Pseudo⟧</button>',
+			);
+		},
+	);
 });

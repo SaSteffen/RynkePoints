@@ -192,11 +192,11 @@ describe("GET / (signed in)", () => {
 	});
 });
 
-describe("GET /me consent section (008 FR-007)", () => {
+describe("GET /me/settings consent section (008 FR-007)", () => {
 	it("shows a connected rider what is read, before who sees what", async () => {
 		await seedRider(ctx, { consentVersion: CONSENT_VERSION });
 		const res = await handleFetch(
-			request("/me", { cookies: await sessionCookie(ctx, ATHLETE_A) }),
+			request("/me/settings", { cookies: await sessionCookie(ctx, ATHLETE_A) }),
 			ctx,
 		);
 		const page = await res.text();

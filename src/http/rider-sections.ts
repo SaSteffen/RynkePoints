@@ -17,7 +17,8 @@ import type {
 	Summary,
 } from "./rider-view";
 
-// The Rynke sections of /me (feature 005 contracts/rider-page.md), rendered
+// The Rynke sections of the Overview and Rides (feature 005
+// contracts/rider-page.md, feature 011 contracts/pages.md), rendered
 // from the view model. All text from the catalogs, all numbers through
 // `I18n`; the markup and class names are the contract the tests check.
 
@@ -314,7 +315,7 @@ function renderPager(i18n: I18n, pager: Pager): SafeHtml {
 		return page === null
 			? []
 			: [
-					html`<a class="tap" href="/me?page=${page}#rides" rel="${rel}">${i18n.t(text)}</a>`,
+					html`<a class="tap" href="/me/rides?page=${page}" rel="${rel}">${i18n.t(text)}</a>`,
 				];
 	});
 	return html`<nav class="pager" aria-label="${i18n.t("rynke.pager.label")}">${links}</nav>

@@ -64,10 +64,10 @@ describe("layout (de)", () => {
 			'<input type="hidden" name="next" value="/notice/&quot;x&quot;">',
 		);
 		expect(page).toContain(
-			'<button name="lang" value="de" lang="de" aria-current="true">Deutsch</button>',
+			'<button class="segmented" name="lang" value="de" lang="de" aria-current="true">Deutsch</button>',
 		);
 		expect(page).toContain(
-			'<button name="lang" value="en" lang="en">English</button>',
+			'<button class="segmented" name="lang" value="en" lang="en">English</button>',
 		);
 	});
 
@@ -86,10 +86,10 @@ describe("layout (en)", () => {
 		expect(page).toContain('<html lang="en">');
 		expect(page).toContain('aria-label="Language"');
 		expect(page).toContain(
-			'<button name="lang" value="en" lang="en" aria-current="true">English</button>',
+			'<button class="segmented" name="lang" value="en" lang="en" aria-current="true">English</button>',
 		);
 		expect(page).toContain(
-			'<button name="lang" value="de" lang="de">Deutsch</button>',
+			'<button class="segmented" name="lang" value="de" lang="de">Deutsch</button>',
 		);
 	});
 });

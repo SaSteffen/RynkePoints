@@ -3,17 +3,19 @@ import type { Ctx } from "../ctx";
 import { recordConsent } from "../db/consents";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
-import { consentForm } from "./consent-form";
+import { consentForm, nextInput } from "./consent-form";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
+import { sectionNext } from "./lang";
 import { redirect } from "./redirect";
 import { isSameOrigin } from "./session";
 import { readViewer, riderConsentState } from "./viewer";
 
 // The consent gate (feature 004 contracts/re-consent.md, research R14): shown
-// on `/me` instead of the rest of the page until the rider agrees to the
+// on every section instead of its content until the rider agrees to the
 // current consent version. It says why, shows the current consent texts and a
-// form to agree, and how to leave instead.
+// form to agree, and how to leave instead. Both forms return the rider to the
+// section asked for (feature 011 research R9).
 
 /**
  * Why the rider meets the gate: no consent record yet (US1), an older version
@@ -56,28 +58,35 @@ ${gate.changes.map(
 }
 
 /** Through Strava when a permission is needed, else straight to `/me/consent`. */
-function form(i18n: I18n, current: number, gate: GateState): SafeHtml {
-	if (gate.state === "missing") return consentForm(i18n, current);
+function form(
+	i18n: I18n,
+	current: number,
+	gate: GateState,
+	next: string,
+): SafeHtml {
+	if (gate.state === "missing") return consentForm(i18n, current, next);
 	if (gate.state === "scopes" || gate.viaStrava) {
 		return html`<p>${i18n.t("me.consent.renew.strava")}</p>
-${consentForm(i18n, current)}`;
+${consentForm(i18n, current, next)}`;
 	}
 	return html`<form method="post" action="/me/consent">
-<p><label><input type="checkbox" name="consent" value="${current}" required> ${i18n.t("consent.agree")}</label></p>
+${nextInput(next)}<p><label><input type="checkbox" name="consent" value="${current}" required> ${i18n.t("consent.agree")}</label></p>
 <button>${i18n.t("me.consent.renew.button")}</button>
 </form>`;
 }
 
+/** The gate on the section at `path`, which the forms return to. */
 export function consentGate(
 	i18n: I18n,
 	current: number,
 	gate: GateState,
+	path: string,
 ): Response {
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
 			title: i18n.t("me.title"),
-			path: "/me",
+			path,
 			body: html`<h1>${i18n.t("me.consent.renew.heading")}</h1>
 ${intro(i18n, current, gate)}
 <h2>${i18n.t("consent.heading")}</h2>
@@ -89,7 +98,7 @@ ${intro(i18n, current, gate)}
 <p>${i18n.t("consent.team")}</p>
 <p>${i18n.t("consent.required")}</p>
 <p>${i18n.t("consent.write")}</p>
-${form(i18n, current, gate)}
+${form(i18n, current, gate, path)}
 <p>${i18n.t("me.consent.renew.leave")}</p>
 <p><a href="/me/disconnect">${i18n.t("me.disconnect.button")}</a></p>
 <form method="post" action="/logout"><input type="hidden" name="push_endpoint" value=""><button>${i18n.t("layout.logout")}</button></form>`,
@@ -111,10 +120,11 @@ export async function handleConsent(
 	if (viewer.kind === "visitor") return redirect("/", 302);
 	const current = currentVersion(ctx.consentVersions).version;
 	const form = await request.formData().catch(() => null);
-	if (form?.get("consent") !== String(current)) return redirect("/me", 303);
+	const next = sectionNext(form?.get("next"));
+	if (form?.get("consent") !== String(current)) return redirect(next, 303);
 	const state = riderConsentState(viewer, ctx);
 	// The gate shows the Strava form instead; a current rider has nothing to do.
-	if (state.viaStrava || state.kind === "current") return redirect("/me", 303);
+	if (state.viaStrava || state.kind === "current") return redirect(next, 303);
 	await recordConsent(ctx.env.DB, viewer.rider.athleteId, current, ctx.now());
-	return redirect("/me", 303);
+	return redirect(next, 303);
 }

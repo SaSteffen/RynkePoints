@@ -15,11 +15,12 @@ import { seedBalance, seedRide } from "./rider-view";
 import { attendRaw, insertEvent } from "./rynke";
 
 // Every rider-facing page (SC-010, SC-011), for the language guards. `next` is
-// the path the page's language switcher sends back to.
+// the path the page's language switcher sends back to, or null for a section
+// without one: signed in, it is only in Settings (feature 011 FR-016).
 
 export interface RiderPage {
 	name: string;
-	next: string;
+	next: string | null;
 	status: number;
 	fetch(
 		ctx: TestCtx,
@@ -142,19 +143,44 @@ export const RIDER_PAGES: RiderPage[] = [
 	{ name: "/ signed out", next: "/", status: 200, fetch: get("/") },
 	{
 		name: "/me connected",
-		next: "/me",
+		next: null,
 		status: 200,
 		fetch: get("/me", ATHLETE_A),
 	},
 	{
+		name: "/me/rides connected",
+		next: null,
+		status: 200,
+		fetch: get("/me/rides", ATHLETE_A),
+	},
+	{
+		name: "/me/rides not worked out",
+		next: null,
+		status: 200,
+		fetch: get("/me/rides", ATHLETE_C),
+	},
+	{ name: "/team", next: null, status: 200, fetch: get("/team", ATHLETE_A) },
+	{
+		name: "/me/settings",
+		next: "/me/settings",
+		status: 200,
+		fetch: get("/me/settings", ATHLETE_A),
+	},
+	{
+		name: "/me/settings needs reconnect",
+		next: "/me/settings",
+		status: 200,
+		fetch: get("/me/settings", ATHLETE_B),
+	},
+	{
 		name: "/me needs reconnect",
-		next: "/me",
+		next: null,
 		status: 200,
 		fetch: get("/me", ATHLETE_B),
 	},
 	{
 		name: "/me not worked out",
-		next: "/me",
+		next: null,
 		status: 200,
 		fetch: get("/me", ATHLETE_C),
 	},

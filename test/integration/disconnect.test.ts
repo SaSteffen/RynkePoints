@@ -101,10 +101,13 @@ describe("GET /me/disconnect", () => {
 	});
 });
 
-describe("GET /me links to the disconnect page", () => {
+describe("GET /me/settings links to the disconnect page", () => {
 	it("shows the disconnect button", async () => {
 		await seedConnected();
-		const { text } = await page("/me", await sessionCookie(ctx, ATHLETE_A));
+		const { text } = await page(
+			"/me/settings",
+			await sessionCookie(ctx, ATHLETE_A),
+		);
 		expect(text).toContain(
 			'<a href="/me/disconnect">Verbindung trennen und meine Daten löschen</a>',
 		);

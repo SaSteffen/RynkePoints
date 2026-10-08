@@ -10,9 +10,10 @@ import { RIDE_NAMES, RIDER_PAGES, seedPageRiders } from "../support/pages";
 // searched for each name, raw and as the page would escape it.
 
 const ctx = makeCtx();
+// Since feature 011 the rides are only in the Rides section.
 const OWN_PAGES = new Map([
-	["/me connected", ATHLETE_A],
-	["/me not worked out", ATHLETE_C],
+	["/me/rides connected", ATHLETE_A],
+	["/me/rides not worked out", ATHLETE_C],
 ]);
 
 function names(athleteId: number): string[] {

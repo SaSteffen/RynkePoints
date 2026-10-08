@@ -44,22 +44,49 @@ export function html(
 	return new SafeHtml(out);
 }
 
+/** The brand name, the same in every language (011 contracts/pages.md). */
+export const WORDMARK = new SafeHtml(
+	'<span class="wordmark">Rynke<span>Points</span></span>',
+);
+
+/** The top bar and navigation of a signed-in section, from `shell.ts`. */
+export interface ShellParts {
+	header: SafeHtml;
+	nav: SafeHtml;
+}
+
 export interface LayoutOptions {
 	title: string;
 	/** Current path, sent as `next` by the language switcher. */
 	path: string;
 	body: SafeHtml;
+	/**
+	 * A signed-in section (feature 011 research R3): its top bar replaces the
+	 * language form, and the navigation follows the footer. Without it the page
+	 * is public.
+	 */
+	shell?: ShellParts;
+}
+
+/** The language switcher, returning to `path` (FR-046). */
+export function languageForm(i18n: I18n, path: string): SafeHtml {
+	const buttons = i18n.locales.map(({ locale, languageName }) =>
+		locale === i18n.locale
+			? html`<button class="segmented" name="lang" value="${locale}" lang="${locale}" aria-current="true">${languageName}</button>`
+			: html`<button class="segmented" name="lang" value="${locale}" lang="${locale}">${languageName}</button>`,
+	);
+	return html`<form method="post" action="/lang" aria-label="${i18n.t("layout.switcher.label")}"><input type="hidden" name="next" value="${path}">${buttons}</form>`;
 }
 
 export function layout(
 	i18n: I18n,
-	{ title, path, body }: LayoutOptions,
+	{ title, path, body, shell }: LayoutOptions,
 ): SafeHtml {
-	const buttons = i18n.locales.map(({ locale, languageName }) =>
-		locale === i18n.locale
-			? html`<button name="lang" value="${locale}" lang="${locale}" aria-current="true">${languageName}</button>`
-			: html`<button name="lang" value="${locale}" lang="${locale}">${languageName}</button>`,
-	);
+	const header = shell
+		? html`<body class="shell">
+<header class="top-bar">${shell.header}</header>`
+		: html`<body class="public">
+<header class="top-bar">${WORDMARK}${languageForm(i18n, path)}</header>`;
 	return html`<!doctype html>
 <html lang="${i18n.locale}">
 <head>
@@ -73,13 +100,12 @@ export function layout(
 <title>${title}</title>
 <style>${new SafeHtml(STYLE)}</style>
 </head>
-<body>
-<header><form method="post" action="/lang" aria-label="${i18n.t("layout.switcher.label")}"><input type="hidden" name="next" value="${path}">${buttons}</form></header>
+${header}
 <main>
 ${body}
 </main>
 <footer><img src="${i18n.t("brand.poweredByStrava.src")}" alt="${i18n.t("brand.poweredByStrava.alt")}"></footer>
-</body>
+${shell?.nav ?? null}</body>
 </html>
 `;
 }

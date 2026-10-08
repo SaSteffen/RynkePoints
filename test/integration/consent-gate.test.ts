@@ -50,9 +50,9 @@ beforeEach(async () => {
 	ctx = withVersion2();
 });
 
-async function getMe(): Promise<string> {
+async function getMe(path = "/me"): Promise<string> {
 	const res = await handleFetch(
-		request("/me", { cookies: await sessionCookie(ctx, ATHLETE_A) }),
+		request(path, { cookies: await sessionCookie(ctx, ATHLETE_A) }),
 		ctx,
 	);
 	expect(res.status).toBe(200);
@@ -159,8 +159,8 @@ describe("GET /me on an older version (US4 scenario 2)", () => {
 		]);
 		const page = await getMe();
 		expect(page).toContain("Hallo Testrider A!");
-		expect(page).toContain("(Version 2):");
 		expect(page).not.toContain(escapeHtml(de["me.consent.renew.heading"]));
+		expect(await getMe("/me/settings")).toContain("(Version 2):");
 	});
 });
 
@@ -250,6 +250,20 @@ describe("POST /me/consent", () => {
 		await seedRider(ctx, { consentVersion: 2 });
 		expectSeeOther(await postConsent({ consent: "2" }));
 		expect(await consentRows()).toEqual([{ version: 2, accepted_at: NOW }]);
+	});
+
+	it.each([
+		["/me/settings", "/me/settings"],
+		["/me/rides?page=2", "/me/rides?page=2"],
+		["/team", "/team"],
+		["https://evil.example/", "/me"],
+		["/", "/me"],
+	])("returns to next=%s at %s (011 R9)", async (next, location) => {
+		await seedRider(ctx, { consentVersion: 1 });
+		const res = await postConsent({ consent: "2", next });
+		expect(res.status).toBe(303);
+		expect(res.headers.get("Location")).toBe(location);
+		expect(await consentRows()).toHaveLength(2);
 	});
 
 	it("keeps the first acceptance when posted twice", async () => {

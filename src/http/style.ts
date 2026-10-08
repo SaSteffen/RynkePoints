@@ -41,4 +41,16 @@ figure.gauge{display:block;width:100%;margin:0 0 1rem}
 .gauge-reached .gauge-fill{background:var(--rp-reached)}
 .gauge-legend{display:flex;flex-wrap:wrap;gap:0 1rem;list-style:none;margin:.25rem 0 0;padding:0;font-size:.875rem}
 .gauge-key{display:inline-block;width:.75rem;height:.75rem;margin-right:.25rem;vertical-align:middle}
-@media (max-width:36rem){table.rides th,table.rides td{padding:.2rem .25rem}nav.pager{gap:.25rem .5rem}}`;
+@media (max-width:36rem){table.rides th,table.rides td{padding:.2rem .25rem}nav.pager{gap:.25rem .5rem}}
+header.top-bar{display:flex;align-items:center;gap:.5rem;padding-top:env(safe-area-inset-top)}
+.wordmark{font-weight:700;margin-right:auto}
+.wordmark span{color:#c43d00}
+h1.section-title{flex:1;margin:0;font-size:1.375rem}
+.icon-button{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;border-radius:50%;color:inherit}
+nav.app-nav{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,1fr);height:80px;padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #ddd;z-index:10}
+nav.app-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:44px;color:#444;text-decoration:none;font-size:12px}
+nav.app-nav .nav-icon{display:flex;align-items:center;justify-content:center;width:64px;height:32px;border-radius:16px;transition:background-color .2s}
+nav.app-nav a[aria-current=page]{color:#222;font-weight:600}
+nav.app-nav a[aria-current=page] .nav-icon{background:#ffdbcc}
+body.shell main{padding-bottom:calc(80px + env(safe-area-inset-bottom))}
+@media (min-width:600px){body.shell{position:relative}body.shell main{padding-bottom:0}h1.section-title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}nav.app-nav{position:absolute;top:calc(1rem + env(safe-area-inset-top));right:3.75rem;left:auto;bottom:auto;display:flex;gap:.25rem;height:auto;padding:0;border:0;background:none}nav.app-nav a{flex-direction:row;gap:.25rem;padding:0 .75rem;border-radius:22px;font-size:.875rem}nav.app-nav .nav-icon{width:auto;height:auto}nav.app-nav a[aria-current=page]{background:#ffdbcc}nav.app-nav a[aria-current=page] .nav-icon{background:none}}`;

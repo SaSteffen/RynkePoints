@@ -52,7 +52,7 @@ function rides(
 
 async function getMe(acceptLanguage?: string) {
 	const res = await handleFetch(
-		request("/me", {
+		request("/me/rides", {
 			cookies: await sessionCookie(ctx, ATHLETE_A),
 			acceptLanguage,
 		}),
@@ -89,7 +89,7 @@ function details(page: string): string[] {
 
 beforeEach(resetDb);
 
-describe("GET /me recent rides", () => {
+describe("GET /me/rides recent rides", () => {
 	it("lists only the rider's 20 newest activities, newest first", async () => {
 		await seedRider(ctx, { athleteId: ATHLETE_A });
 		await seedRider(ctx, { athleteId: ATHLETE_B });

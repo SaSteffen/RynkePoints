@@ -106,17 +106,20 @@ describe("notifications section (FR-010, FR-011)", () => {
 <button type="button" data-action="off" class="tap" hidden>Benachrichtigungen ausschalten</button>
 </section>`;
 
-	it("is on /me between the rules and the ride table, all hidden", async () => {
+	it("is in Settings, all hidden, and not on the Overview (011 FR-014)", async () => {
 		await evaluateChange(ctx, ATHLETE_A, { kind: "none" });
-		const { page } = await get("/me", await sessionCookie(ctx, ATHLETE_A));
-		const at = page.indexOf(SECTION);
-		expect(at).toBeGreaterThan(page.indexOf('<section class="rynke-rules">'));
-		expect(page.indexOf('<section class="rynke-rules">')).toBeGreaterThan(0);
-		expect(at).toBeLessThan(page.indexOf("<h2>Deine Fahrten</h2>"));
+		const cookies = await sessionCookie(ctx, ATHLETE_A);
+		expect((await get("/me/settings", cookies)).page).toContain(SECTION);
+		expect((await get("/me", cookies)).page).not.toContain(
+			'id="notifications"',
+		);
 	});
 
 	it("puts an empty push_endpoint into the sign-out form", async () => {
-		const { page } = await get("/me", await sessionCookie(ctx, ATHLETE_A));
+		const { page } = await get(
+			"/me/settings",
+			await sessionCookie(ctx, ATHLETE_A),
+		);
 		expect(page).toContain(
 			'<form method="post" action="/logout"><input type="hidden" name="push_endpoint" value="">',
 		);

@@ -31,6 +31,15 @@ export function safeNext(next: string | null): string {
 	return "/";
 }
 
+/**
+ * `safeNext()` for where a rider lands after signing in or agreeing: the app,
+ * never the start page (feature 011 research R9).
+ */
+export function sectionNext(next: unknown): string {
+	const safe = safeNext(typeof next === "string" ? next : null);
+	return safe === "/" ? "/me" : safe;
+}
+
 export async function handleLang(
 	request: Request,
 	ctx: Ctx,

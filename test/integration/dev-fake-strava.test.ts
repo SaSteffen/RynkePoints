@@ -119,10 +119,16 @@ async function count(sql: string, ...params: unknown[]): Promise<number> {
 	);
 }
 
+/** The Overview and Rides, which split the old `/me` (feature 011). */
 async function mePage(athleteId: number): Promise<string> {
-	const res = await get("/me", await sessionCookie(ctx, athleteId));
-	expect(res.status).toBe(200);
-	return res.text();
+	const cookies = await sessionCookie(ctx, athleteId);
+	let page = "";
+	for (const path of ["/me", "/me/rides"]) {
+		const res = await get(path, cookies);
+		expect(res.status).toBe(200);
+		page += await res.text();
+	}
+	return page;
 }
 
 beforeEach(async () => {
