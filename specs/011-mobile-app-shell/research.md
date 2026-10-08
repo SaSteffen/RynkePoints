@@ -302,15 +302,17 @@ and [contracts/client.md](contracts/client.md) restates it.
 
 **Decision**: add a catalog key `brand.poweredByStrava.srcDark` for Strava's
 white "Powered by Strava" logo. It points at
-`/strava/en/powered-by-strava-white.svg`, which the maintainer adds from the same
+`/strava/en/powered-by-strava-white.svg`, which the maintainer added from the same
 zip as the existing logo; `public/strava/README.md` is updated to say so.
 
 The footer renders both images, `class="pbs pbs-light"` and `pbs pbs-dark`, and
 the scheme CSS hides one. `<picture>` isn't used, because a `media` source
 follows only the system setting and not a fixed choice.
 
-The "Connect with Strava" button image is Strava's orange button and works on
-both surfaces. "View on Strava" links keep 008's bold underlined style in the
+The "Connect with Strava" button does the same with a new key
+`brand.connectWithStrava.srcDark` for Strava's white button
+(`/strava/en/connect-with-strava-white.svg`): `class="cws cws-light"` and
+`cws cws-dark`. "View on Strava" links keep 008's bold underlined style in the
 primary colour.
 
 ## R14. Tabular figures, reduced motion, and long words

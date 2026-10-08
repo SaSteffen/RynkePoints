@@ -145,7 +145,7 @@ src/http/
 src/i18n/messages/{de,en}.ts           # new keys (contracts/pages.md)
 public/app.js            # scheme picker, refresh on return, switch
 public/manifest.webmanifest            # colours
-public/strava/README.md  # + the white "Powered by Strava" logo
+public/strava/README.md  # + the white "Powered by Strava" logo and Connect button
 test/unit/, test/integration/          # per quickstart.md §1
 ```
 

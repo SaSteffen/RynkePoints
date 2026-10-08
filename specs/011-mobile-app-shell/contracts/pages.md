@@ -171,6 +171,13 @@ Nothing else, and no rider's data (FR-013).
 The same markup as feature 004, in the public layout. Both forms gain
 `<input type="hidden" name="next" value="{path asked for}">`.
 
+The Connect with Strava button, here and on the landing page, holds both of
+Strava's buttons and the scheme CSS shows one (R13):
+
+```html
+<button><img class="cws cws-light" src="{brand.connectWithStrava.src}" alt="{brand.connectWithStrava.alt}"><img class="cws cws-dark" src="{brand.connectWithStrava.srcDark}" alt="{brand.connectWithStrava.alt}"></button>
+```
+
 ## Control size (FR-022)
 
 These classes must have `min-height: var(--rp-tap)` (and `min-width` where they
@@ -208,6 +215,7 @@ Both catalogs get these keys:
 | `rynke.ride.why` | Why? |
 | `notifications.switch` | Notifications on this device |
 | `brand.poweredByStrava.srcDark` | /strava/en/powered-by-strava-white.svg |
+| `brand.connectWithStrava.srcDark` | /strava/en/connect-with-strava-white.svg |
 
 The German texts are written at implementation time and reviewed in the PR.
 `notifications.turnOn`/`turnOff` become unused and are removed from both

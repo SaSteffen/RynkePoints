@@ -50,5 +50,5 @@ The maintainer checks SC-001, SC-003 and SC-007 on real phones on the live site
 (iPhone with the home indicator, Android, installed app and browser, light and
 dark). Issue #20 is closed by the PR (SC-008).
 
-Before deploying, add `public/strava/en/powered-by-strava-white.svg` from Strava's
-brand zip and run the asset check in `public/strava/README.md`.
+Before deploying, run the asset check in `public/strava/README.md`; the two white
+Strava images are already in `public/strava/en/`.
