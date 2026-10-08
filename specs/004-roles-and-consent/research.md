@@ -1,11 +1,11 @@
-# Research: Roles and Rider Consent (User Stories 1–3)
+# Research: Roles and Rider Consent (User Stories 1–4)
 
 **Feature**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md) | **Date**: 2026-10-07
 
 Each section records the decision, why it was taken, and what else was considered.
 "001" is feature 001-strava-connect-webhook, whose code this plan reads and extends.
-User Stories 4 and 5 are out of scope for this plan; where a decision prepares for
-them, the section says so.
+R1–R10 were decided for User Stories 1–3 (2026-10-07), R11–R17 for User Story 4
+(2026-10-08). User Story 5 is deferred and needs no code.
 
 ## R1. User Story 1 is mostly built already; only the rider without a record is left
 
@@ -269,3 +269,200 @@ mirrors production: the app's connect flow never sets it (R2).
 **Alternatives considered**: no organiser in the samples until organiser-admin —
 nothing shows the role yet, but the walk-through couldn't show the flag surviving a
 reconnect; rejected.
+
+## R11. Consent versions are a registry in code, passed in through `Ctx`
+
+**Decision**:
+- `src/consent.ts` replaces the bare `CONSENT_VERSION = 1` with a registry:
+
+  ```ts
+  interface ConsentVersion {
+    version: number;              // 1, 2, …
+    published: string;            // "YYYY-MM-DD", the team's calendar day
+    requiredScopes: readonly string[]; // Strava scopes the rider must have granted
+    changes: readonly MessageId[];     // what grew compared with version - 1
+  }
+  ```
+
+  `CONSENT_VERSIONS` lists them in order; version 1 is
+  `{ version: 1, published: "2026-10-06", requiredScopes: ["read", "activity:read"],
+  changes: [] }`. `CONSENT_VERSION` stays as the last entry's number, for code
+  that has no `Ctx` (seed scripts).
+- `Ctx` gains `consentVersions: ConsentVersions` (a non-empty, ordered list).
+  `src/index.ts` and `dev/worker.ts` pass `CONSENT_VERSIONS`; `makeCtx` accepts
+  a `consentVersions` option, like `catalogs`. Every request path that used
+  `CONSENT_VERSION` (`POST /connect`, the callback, `/me`) reads the current
+  version from `ctx.consentVersions`.
+- A version is part of the app, not rider data (spec Key Entities): no table.
+- Raising the version stays a code change reviewed in a PR: a new entry, its
+  `consent.changes.v<N>` keys in every catalog, and the landing texts changed
+  together ([contracts/re-consent.md](contracts/re-consent.md) "Publishing a new
+  version").
+
+**Rationale**:
+- US4's behaviour only shows once a version 2 exists, and there is none yet. Tests
+  need a synthetic version 2 without shipping one; injecting the registry through
+  `Ctx` is how the project already lets tests swap catalogs (001 research R12).
+- `consent_records` can't hold a version 0, so a rider "older than current" can only
+  be tested with a current version above 1.
+- "What changed" (FR-013, US4 scenario 2) needs a text per version, and the
+  permissions a version needs decide whether agreeing goes through Strava
+  (scenario 4); both belong next to the number.
+
+**Alternatives considered**:
+- A `consent_versions` table: versions are code and catalog text, changed by a
+  PR; a table would need a migration and seeding for the same content; rejected.
+- Mocking the module in tests (`vi.mock`): works poorly in the Workers pool and
+  hides the dependency; rejected.
+- Keeping each version's full text to show a rider exactly what they agreed to
+  back then: the catalogs would carry every old text forever. The gate shows what
+  changed plus the current text; a rider on the current version sees the text
+  they agreed to (FR-014). Rejected.
+
+## R12. FR-014 (what the rider agreed to) is already met on `/me`
+
+**Decision**: `/me` already shows the version and date
+(`me.consent.accepted`), what is read (`landing.dataRead`), who sees what
+(`consent.organisers`, `consent.team`), the granted permissions
+(`me.scope.readAll`/`sharedOnly`, `me.scope.write`/`noWrite`) and the "Disconnect
+and delete my data" link (001). US4 scenario 1 gets one test that checks all of
+them together; no code change.
+
+**Rationale**: built by 001 with this spec (R1); only the scenario lacks its own
+test.
+
+## R13. Being "shown as far as the accepted version allows": a version per item
+
+**Decision**:
+- `src/visibility.ts` gains `SINCE_VERSION: Record<RiderData, number>`: the first
+  consent version that shares the item. Today every item is `1`
+  (`SHARING_SINCE_VERSION`). A future version that shares something new adds a
+  `RiderData` value with its own since-version, or raises an existing one only if
+  it shares that item with more people.
+- `maySee(audience, data, subjectVersion: number | null)` replaces the boolean
+  `subjectShared` of R5: rule 3 becomes "`subjectVersion` is `null` or below
+  `SINCE_VERSION[data]` → `false`". The other rules stay.
+- `src/db/consents.ts`: `sharedRiderIdsSince(version)` returns the subquery
+  `SELECT athlete_id FROM consent_records WHERE version >= <version>`;
+  `SHARED_RIDER_IDS` is `sharedRiderIdsSince(SHARING_SINCE_VERSION)`. A query for an
+  item filters with `sharedRiderIdsSince(SINCE_VERSION[item])`.
+- `isShared(db, athleteId)` becomes `consentVersionOf(db, athleteId):
+  Promise<number | null>` (the highest accepted version), which is what `maySee`
+  now takes. `listSharedRiderIds` stays.
+
+**Rationale**:
+- FR-013: "until they agree, others MUST see them only as far as the version they
+  accepted allows". Versions only grow (Principle I: a new version is needed when
+  sharing grows), so "accepted ≥ since-version" is exactly "their consent covers
+  this item".
+- The rider's records are kept per version (`PRIMARY KEY (athlete_id, version)`),
+  so `version >= n` works on the existing table; the highest is the current one.
+- Changing US3's signature now, before any of it is built, avoids a second
+  version of the same function.
+
+**Alternatives considered**:
+- Hiding every rider who hasn't accepted the newest version: simpler, but takes
+  away what they already agreed to, and FR-013 says "as far as the version they
+  accepted allows"; rejected.
+- A since-version per audience *and* item: no planned change needs it; a version
+  that shares an item with more people adds a new item or raises its since-version.
+  Rejected until a version needs it.
+
+## R14. The consent gate on `/me`, and how agreeing works
+
+**Decision**:
+- `consentState(versions, accepted, grantedScopes)` (pure, `src/consent.ts`)
+  answers one of:
+  - `{ kind: "current" }`: accepted ≥ current;
+  - `{ kind: "missing" }`: no record (the US1 edge case);
+  - `{ kind: "older", accepted, changes }`: `changes` concatenates the `changes`
+    of every version after `accepted` up to current;
+  plus `viaStrava: boolean`: true when there is no record, or when the current
+  version's `requiredScopes` aren't all in the rider's `riders.scopes`.
+- `/me`: when the state isn't `current`, the page shows the **gate** instead of
+  the rider's content ([contracts/re-consent.md](contracts/re-consent.md)): the
+  accepted version and date, what changed, the current consent texts, a form, and
+  the link to "Disconnect and delete my data". Status, Rynke, rides and the
+  notification switch are not shown until they agree ("before using the app
+  further"). Sign-out, `/me/disconnect` and `GET /connect` stay reachable.
+- The form:
+  - `viaStrava` → `consentForm(i18n, current)`, posting to `POST /connect`; the
+    callback already records the version for an existing rider (001 R21), and
+    Strava asks for the missing permission (scenario 4);
+  - otherwise → a form posting `consent=<current>` to the new
+    `POST /me/consent`, with a text button `me.consent.renew.button`.
+- `POST /me/consent`: same-origin, signed-in rider, `consent` equals the current
+  version, and `viaStrava` false; then `recordConsent(…, current, now)` and `303
+  /me`. Not signed in → `302 /`; another origin → 403 (`forbidden`); a wrong
+  or missing value → `303 /me`, where the gate asks again (the
+  `consent-required` notice sends riders to the start page, which is wrong
+  here); a rider who needs Strava → `303 /me`, where the gate shows the Strava
+  form.
+- Planned views call `requireConsent(viewer, ctx)` after `requireRider`: `302
+  /me` unless the state is `current`.
+- This supersedes R1's "the form doesn't block the rest of `/me`": a rider
+  without a record now gets the gate too, with the same texts and form R1 chose.
+- Background work (webhooks, imports, the daily run, notifications to the rider
+  themselves) goes on: it reads only what the version they accepted covers and
+  shows nothing to anyone else.
+
+**Rationale**:
+- Scenario 2 asks for "before using the app further": `/me` is the only page a
+  rider uses today, and future views get one helper.
+- Scenario 4 needs Strava only for a new permission; sending every re-consent
+  through Strava would cost one authorisation and token exchange per rider
+  for nothing (Principle II).
+- Leaving stays the existing, tested path (scenario 5, 001 FR-023).
+
+**Alternatives considered**:
+- Redirecting every page to a separate `/consent` page: one more GET route, and
+  `/me` is already where the consent lives; rejected.
+- Always through Strava (no `POST /me/consent`): simpler, but against Principle II
+  for a text-only change; rejected.
+- Pausing background work until the rider agrees: imports would fall behind and
+  need catching up; the old consent still covers reading. Rejected.
+
+## R15. The viewer carries the accepted version
+
+**Decision**: `Viewer`'s rider variant becomes
+`{ kind: "rider"; rider: Rider; consentVersion: number | null }`. `readViewer`
+reads it with `consentVersionOf` in the same request (R13), so `/me` and
+`requireConsent` don't read it again.
+
+**Rationale**: every signed-in page needs it for the gate; one more primary-key
+read per request is negligible at ≤ 10 riders.
+
+**Alternatives considered**: a separate call in each page: easy to forget,
+which is what `readViewer` exists to prevent (R4); rejected.
+
+## R16. Texts
+
+**Decision**:
+- New keys, in `de` and `en` (FR-040):
+  - `me.consent.renew.heading`: the gate's heading;
+  - `me.consent.renew.older`: "You agreed to version {accepted} on {date}. Version
+    {version} changes this:";
+  - `me.consent.renew.strava`: Strava asks for permissions again;
+  - `me.consent.renew.button`: "Agree and continue";
+  - `me.consent.renew.leave`: if they don't agree, they can leave, and leaving
+    deletes all their data.
+- `me.consent.none` (reworded in US1) introduces the gate for a rider without a
+  record.
+- Each future version N adds `consent.changes.v<N>.*` keys and lists them in its
+  registry entry's `changes`. Version 1 has none.
+
+**Rationale**: the catalog tests already require every key in every language
+(001 FR-028), which covers SC-008 for future versions too.
+
+## R17. One delivery for US1–US4
+
+**Decision**: US4 is planned into the same PR as US1–US3 (plan "Delivery").
+
+**Rationale**: US4 changes two things US1–US3 introduce and haven't built yet:
+`maySee`'s third argument (R13) and the `/me` consent section for riders without
+a record (R14). Building US1–US3 first and changing them in a second PR would
+build both twice. With only version 1 published, US4 adds no visible change for
+riders who have a record.
+
+**Alternatives considered**: a second PR after US1–US3: smaller PRs, but both
+changes would land twice; rejected.
