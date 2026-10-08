@@ -43,11 +43,15 @@ function intro(i18n: I18n, current: number, gate: GateState): SafeHtml | null {
 				date: gate.date,
 				version: String(current),
 			})}</p>
-<ul>
+${
+	gate.changes.length === 0
+		? null
+		: html`<ul>
 ${gate.changes.map(
 	(id) => html`<li>${i18n.t(id)}</li>
 `,
-)}</ul>`;
+)}</ul>`
+}`;
 	}
 }
 
