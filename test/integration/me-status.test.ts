@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { CONSENT_VERSIONS } from "../../src/consent";
+import { escapeHtml } from "../../src/http/html";
+import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import {
 	makeCtx,
@@ -10,6 +13,7 @@ import {
 import { ATHLETE_A } from "../support/fixtures";
 
 const ctx = makeCtx();
+const { de, en } = CATALOGS;
 
 async function getMe(acceptLanguage?: string) {
 	const res = await handleFetch(
@@ -76,15 +80,6 @@ describe("GET /me for a connected rider", () => {
 		expect(page).not.toContain("noch keine Zustimmung");
 	});
 
-	it("says when no consent is stored", async () => {
-		await seedRider(ctx);
-		const { page } = await getMe();
-		expect(page).toContain(
-			"Für dich ist noch keine Zustimmung gespeichert. Melde dich ab und verbinde dich auf der Startseite neu, um zuzustimmen.",
-		);
-		expect(page).not.toContain("Zugestimmt am");
-	});
-
 	it("shows the granted level", async () => {
 		await seedRider(ctx, { scopeReadAll: true });
 		expect((await getMe()).page).toContain(
@@ -129,6 +124,103 @@ describe("GET /me for a connected rider", () => {
 		await seedRider(ctx, { firstName: "<b>Testrider</b>" });
 		const { page } = await getMe();
 		expect(page).toContain("Hallo &lt;b&gt;Testrider&lt;/b&gt;!");
+	});
+});
+
+describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
+	it("shows only the consent gate, in order", async () => {
+		await seedRider(ctx, { consentVersion: null, importStatus: "running" });
+		const { res, page } = await getMe();
+		expect(res.status).toBe(200);
+		expect(page).toContain("<title>Deine RynkePoints</title>");
+		const order = [
+			`<h1>${escapeHtml(de["me.consent.renew.heading"])}</h1>`,
+			`<p>${escapeHtml(de["me.consent.none"])}</p>`,
+			`<h2>${escapeHtml(de["consent.heading"])}</h2>`,
+			...(
+				[
+					"landing.dataRead",
+					"landing.private",
+					"landing.purpose",
+					"landing.leave",
+					"consent.organisers",
+					"consent.team",
+					"consent.required",
+					"consent.write",
+				] as const
+			).map((id) => `<p>${escapeHtml(de[id])}</p>`),
+			'<form method="post" action="/connect">',
+			'<input type="checkbox" name="consent" value="1" required>',
+			`<p>${escapeHtml(de["me.consent.renew.leave"])}</p>`,
+			`<a href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
+			'<form method="post" action="/logout">',
+		];
+		let at = -1;
+		for (const part of order) {
+			const next = page.indexOf(part, at + 1);
+			expect(next, part).toBeGreaterThan(at);
+			at = next;
+		}
+	});
+
+	it("hides the rest of /me until the rider agrees", async () => {
+		await seedRider(ctx, { consentVersion: null, importStatus: "running" });
+		const { page } = await getMe();
+		for (const hidden of [
+			"Hallo Testrider A!",
+			de["me.status.connected"],
+			de["me.scope.readAll"],
+			de["me.scope.noWrite"],
+			de["me.changePermissions"],
+			"werden noch importiert",
+			de["me.recent.heading"],
+			de["me.consent.heading"],
+			'id="install"',
+			'id="notifications"',
+		]) {
+			expect(page).not.toContain(hidden);
+		}
+	});
+
+	it("offers the current version from ctx.consentVersions", async () => {
+		const v2Ctx = makeCtx({
+			consentVersions: [
+				...CONSENT_VERSIONS,
+				{
+					version: 2,
+					published: "2026-11-01",
+					requiredScopes: ["read", "activity:read"],
+					changes: ["consent.team"],
+				},
+			],
+		});
+		await seedRider(v2Ctx, { consentVersion: null });
+		const res = await handleFetch(
+			request("/me", { cookies: await sessionCookie(v2Ctx, ATHLETE_A) }),
+			v2Ctx,
+		);
+		const page = await res.text();
+		expect(page).toContain(
+			'<input type="checkbox" name="consent" value="2" required>',
+		);
+	});
+
+	it("speaks English for an English browser", async () => {
+		await seedRider(ctx, { consentVersion: null });
+		const { page } = await getMe("en");
+		expect(page).toContain(
+			`<h1>${escapeHtml(en["me.consent.renew.heading"])}</h1>`,
+		);
+		expect(page).toContain(escapeHtml(en["me.consent.none"]));
+	});
+
+	it("shows a rider with a record the page and no consent form", async () => {
+		await seedRider(ctx, { consentVersion: 1 });
+		const { page } = await getMe();
+		expect(page).toContain("Hallo Testrider A!");
+		expect(page).toContain("(Version 1):");
+		expect(page).not.toContain('action="/connect"');
+		expect(page).not.toContain(escapeHtml(de["me.consent.renew.heading"]));
 	});
 });
 

@@ -1,6 +1,7 @@
 import { berlinDate } from "../config";
+import { currentVersion } from "../consent";
 import type { Ctx } from "../ctx";
-import { getCurrentConsent } from "../db/consents";
+import { type Consent, getCurrentConsent } from "../db/consents";
 import {
 	deleteSubscription,
 	MAX_ENDPOINT_LENGTH,
@@ -11,6 +12,7 @@ import type { I18n } from "../i18n/i18n";
 import { vapidPublicKey } from "../push/vapid";
 import { CURRENT_RULES, rulesForVersion } from "../rynke/rules";
 import { revokeStoredToken } from "../strava/tokens";
+import { consentGate } from "./consent-gate";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
 import { renderInstallHint, renderNotifications } from "./pwa";
@@ -33,17 +35,8 @@ import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 // own and only read), the stored consent (feature 004 FR-014), disconnecting
 // with deletion (FR-023), and signing out.
 
-/**
- * The rider's current consent, what is read and who sees what, or that none is
- * stored.
- */
-async function consent(
-	ctx: Ctx,
-	i18n: I18n,
-	athleteId: number,
-): Promise<SafeHtml> {
-	const current = await getCurrentConsent(ctx.env.DB, athleteId);
-	if (!current) return html`<p>${i18n.t("me.consent.none")}</p>`;
+/** The rider's current consent, what is read and who sees what. */
+function consent(i18n: I18n, current: Consent): SafeHtml {
 	// The team's calendar day, passed as UTC midnight like the season start.
 	const date = i18n.formatDate(`${berlinDate(current.acceptedAt)}T00:00:00Z`);
 	return html`<p>${i18n.t("me.consent.accepted", { version: String(current.version), date })}</p>
@@ -67,6 +60,12 @@ export async function handleMe(
 ): Promise<Response> {
 	const rider = await signedInRider(request, ctx);
 	if (!rider) return redirect("/", 302);
+	// Nothing else of `/me` until the rider agrees (004 research R14).
+	const accepted = await getCurrentConsent(ctx.env.DB, rider.athleteId);
+	if (!accepted) {
+		const current = currentVersion(ctx.consentVersions).version;
+		return consentGate(i18n, current, { state: "missing" });
+	}
 
 	const title = i18n.t("me.title");
 	const status =
@@ -113,7 +112,7 @@ ${renderNotifications(i18n, vapidPublicKey(ctx.env))}
 ${renderRides(i18n, view.rides)}
 <section>
 <h2>${i18n.t("me.consent.heading")}</h2>
-${await consent(ctx, i18n, rider.athleteId)}
+${consent(i18n, accepted)}
 </section>
 <p><a href="/me/disconnect">${i18n.t("me.disconnect.button")}</a></p>
 <form method="post" action="/logout"><input type="hidden" name="push_endpoint" value=""><button>${i18n.t("layout.logout")}</button></form>`,

@@ -33,6 +33,7 @@ One row per connected member of the team club.
 | `import_status` | TEXT NOT NULL | `pending` \| `running` \| `done`. |
 | `reconnect_requested_at` | INTEGER NULL | When the rider became `needs_reconnect`; `NULL` exactly when `status=connected` (CHECK). Riders more than 7 days past it are deleted (FR-020). |
 | `figures_version` | INTEGER NOT NULL DEFAULT 0 | ≥ 0. Version of the FR-013 field set the rider's activities were last read with (R20). New riders get the current `ACTIVITY_FIGURES_VERSION`; a lower value makes the daily cron re-read them once. Added by `0002`; the current version is 3 (`0003` added `is_flagged`, `0007` the ride's name). |
+| `organiser` | INTEGER NOT NULL DEFAULT 0 | `CHECK (organiser IN (0, 1))`; 1 marks an organiser (feature 004 FR-002). Set and cleared by the maintainer only, in the database; the app never writes it. Deleted with the row. Added by `0009`. |
 
 Not stored, by design: last name, profile photo, city, gender, weight, email
 (Principle I), and the rider's language. The language is a per-browser preference

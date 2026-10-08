@@ -1,8 +1,9 @@
 import { clubId } from "../config";
-import { CONSENT_VERSION } from "../consent";
+import { currentVersion } from "../consent";
 import type { Ctx } from "../ctx";
 import { getRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
+import { consentForm } from "./consent-form";
 import { html, htmlResponse, layout } from "./html";
 import { renderInstallHint } from "./pwa";
 import { redirect } from "./redirect";
@@ -46,10 +47,7 @@ ${renderInstallHint(i18n)}
 <p>${i18n.t("consent.team")}</p>
 <p>${i18n.t("consent.required")}</p>
 <p>${i18n.t("consent.write")}</p>
-<form method="post" action="/connect">
-<p><label><input type="checkbox" name="consent" value="${CONSENT_VERSION}" required> ${i18n.t("consent.agree")}</label></p>
-<button><img src="${i18n.t("brand.connectWithStrava.src")}" alt="${i18n.t("brand.connectWithStrava.alt")}"></button>
-</form>`,
+${consentForm(i18n, currentVersion(ctx.consentVersions).version)}`,
 		}),
 	);
 }

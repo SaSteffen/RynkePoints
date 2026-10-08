@@ -1,5 +1,5 @@
 import { clientId, clubId, seasonStart } from "../config";
-import { CONSENT_VERSION } from "../consent";
+import { currentVersion } from "../consent";
 import type { Ctx } from "../ctx";
 import { recordConsent } from "../db/consents";
 import {
@@ -78,10 +78,11 @@ export async function handleConnectForm(
 	} catch {
 		form = new FormData();
 	}
-	if (form.get("consent") !== String(CONSENT_VERSION)) {
+	const version = currentVersion(ctx.consentVersions).version;
+	if (form.get("consent") !== String(version)) {
 		return redirect("/notice/consent-required", 303);
 	}
-	return authorizeRedirect(request, ctx, CONSENT_VERSION);
+	return authorizeRedirect(request, ctx, version);
 }
 
 /** `GET /connect`: reconnecting or changing permissions, signed in only. */
@@ -135,7 +136,8 @@ export async function handleCallback(
 	}
 
 	// A new athlete who didn't agree on the way in is never stored (R21).
-	if (!existing && expected.consentVersion !== CONSENT_VERSION) {
+	const version = currentVersion(ctx.consentVersions).version;
+	if (!existing && expected.consentVersion !== version) {
 		await revokeToken(ctx, token.accessToken);
 		return notice("consent-required");
 	}
@@ -169,7 +171,7 @@ export async function handleCallback(
 		await insertRider(
 			ctx.env.DB,
 			{ athleteId: token.athleteId, ...grant },
-			{ version: CONSENT_VERSION, acceptedAt: now },
+			{ version, acceptedAt: now },
 		);
 		await saveCredentials(ctx.env, token.athleteId, credentials);
 		startImport = true;
@@ -177,8 +179,8 @@ export async function handleCallback(
 		// Reconnect rules (data-model.md). A change of write access alone starts
 		// no import and deletes nothing.
 		await updateRiderOnReconnect(ctx.env.DB, token.athleteId, grant);
-		if (expected.consentVersion === CONSENT_VERSION) {
-			await recordConsent(ctx.env.DB, token.athleteId, CONSENT_VERSION, now);
+		if (expected.consentVersion === version) {
+			await recordConsent(ctx.env.DB, token.athleteId, version, now);
 		}
 		await saveCredentials(ctx.env, token.athleteId, credentials);
 		if (membership.kind === "ok") {

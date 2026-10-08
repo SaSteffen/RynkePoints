@@ -64,7 +64,10 @@ export const de = {
 	"me.consent.heading": "Deine Zustimmung",
 	"me.consent.accepted": "Zugestimmt am {date} (Version {version}):",
 	"me.consent.none":
-		"Für dich ist noch keine Zustimmung gespeichert. Melde dich ab und verbinde dich auf der Startseite neu, um zuzustimmen.",
+		"Für dich ist noch keine Zustimmung gespeichert. Lies bitte, was du mit dem Verbinden erlaubst, und stimme zu; Strava fragt dann noch einmal nach deinen Berechtigungen. Bis dahin sieht niemand im Team etwas von dir.",
+	"me.consent.renew.heading": "Bitte stimme erneut zu",
+	"me.consent.renew.leave":
+		"Wenn du nicht zustimmen möchtest, kannst du die Verbindung trennen; dabei werden alle deine Daten gelöscht.",
 	"me.import.done": "Import abgeschlossen",
 	"me.recent.heading": "Deine Fahrten",
 	"me.recent.empty": "Noch keine Fahrten importiert",

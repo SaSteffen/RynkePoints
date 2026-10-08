@@ -83,7 +83,7 @@ read, written or shown means a new version.
 | `me.changePermissions` | | Berechtigungen auf Strava ändern | Change permissions on Strava |
 | `me.consent.heading` | | Deine Zustimmung | Your consent |
 | `me.consent.accepted` | `version`, `date` | Zugestimmt am {date} (Version {version}): | Agreed on {date} (version {version}): |
-| `me.consent.none` | | Für dich ist noch keine Zustimmung gespeichert. Melde dich ab und verbinde dich auf der Startseite neu, um zuzustimmen. | No consent is recorded for you yet. Sign out and connect again on the start page to agree. |
+| `me.consent.none` | | Für dich ist noch keine Zustimmung gespeichert. Lies bitte, was du mit dem Verbinden erlaubst, und stimme zu; Strava fragt dann noch einmal nach deinen Berechtigungen. Bis dahin sieht niemand im Team etwas von dir. | No consent is recorded for you yet. Please read what you agree to by connecting, and agree; Strava then asks for your permissions again. Until then, nobody on the team sees anything of yours. |
 | `me.import.running` | `date` | Deine Fahrten seit dem {date} werden importiert … | Importing your rides since {date} … |
 | `me.import.done` | | Import abgeschlossen | Import complete |
 | `me.recent.heading` | | Zuletzt importierte Fahrten | Recently imported rides |

@@ -23,6 +23,8 @@ export interface Rider {
 	reconnectRequestedAt: number | null;
 	/** FR-013 field set the rider's activities were last read with (R20). */
 	figuresVersion: number;
+	/** Set by the maintainer only; the app never writes it (004 FR-002, R2). */
+	organiser: boolean;
 }
 
 export interface Credentials {
@@ -44,6 +46,7 @@ interface RiderRow {
 	import_status: ImportStatus;
 	reconnect_requested_at: number | null;
 	figures_version: number;
+	organiser: number;
 }
 
 export interface RiderGrant {
@@ -76,6 +79,7 @@ export async function getRider(
 				importStatus: row.import_status,
 				reconnectRequestedAt: row.reconnect_requested_at,
 				figuresVersion: row.figures_version,
+				organiser: row.organiser === 1,
 			}
 		: null;
 }

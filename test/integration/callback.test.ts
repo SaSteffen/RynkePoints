@@ -377,7 +377,7 @@ describe("GET /auth/callback consent and write access", () => {
 	});
 
 	it("signs in an existing rider who came without a new agreement", async () => {
-		await seedExistingRider();
+		await seedExistingRider({ consentVersion: null });
 		const res = await approve(
 			ctx,
 			fake,
@@ -394,7 +394,7 @@ describe("GET /auth/callback consent and write access", () => {
 	});
 
 	it("records the consent of an existing rider without one", async () => {
-		await seedExistingRider();
+		await seedExistingRider({ consentVersion: null });
 		await approve(ctx, fake, ATHLETE_A);
 		expect(await consentRows()).toEqual([
 			{ athlete_id: ATHLETE_A, version: 1, accepted_at: NOW },

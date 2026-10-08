@@ -20,6 +20,7 @@ const COLUMNS: Record<string, string[]> = {
 		"import_status",
 		"reconnect_requested_at",
 		"figures_version",
+		"organiser",
 	],
 	activities: [
 		"strava_activity_id",

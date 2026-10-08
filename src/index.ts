@@ -1,3 +1,4 @@
+import { CONSENT_VERSIONS } from "./consent";
 import type { Ctx } from "./ctx";
 import { route } from "./http/router";
 import { CATALOGS } from "./i18n/catalogs";
@@ -30,6 +31,7 @@ function makeCtx(env: Env, exec: ExecutionContext): Ctx {
 		queue: env.WORK_QUEUE,
 		now: () => Math.floor(Date.now() / 1000),
 		catalogs: CATALOGS,
+		consentVersions: CONSENT_VERSIONS,
 		waitUntil: (promise) => exec.waitUntil(promise),
 	};
 }

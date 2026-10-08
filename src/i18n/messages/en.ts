@@ -62,7 +62,10 @@ export const en: Catalog = {
 	"me.consent.heading": "Your consent",
 	"me.consent.accepted": "Agreed on {date} (version {version}):",
 	"me.consent.none":
-		"No consent is recorded for you yet. Sign out and connect again on the start page to agree.",
+		"No consent is recorded for you yet. Please read what you agree to by connecting, and agree; Strava then asks for your permissions again. Until then, nobody on the team sees anything of yours.",
+	"me.consent.renew.heading": "Please agree again",
+	"me.consent.renew.leave":
+		"If you don't want to agree, you can disconnect; all your data is then deleted.",
 	"me.import.done": "Import complete",
 	"me.recent.heading": "Your rides",
 	"me.recent.empty": "No rides imported yet",
