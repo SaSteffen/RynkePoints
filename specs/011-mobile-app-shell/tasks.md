@@ -83,7 +83,7 @@ the same section.
 
 ### Tests for User Story 1
 
-- [ ] T008 [P] [US1] New `test/integration/sections.test.ts` (FR-001–FR-003,
+- [X] T008 [P] [US1] New `test/integration/sections.test.ts` (FR-001–FR-003,
   FR-007, FR-016, US1-AS1/2/6/7/8): for each of `/me`, `/me/rides`, `/team`,
   `/me/settings`:
   - no session, or a deleted rider → `302 /`;
@@ -99,36 +99,36 @@ the same section.
     after the footer, and no `form[action="/lang"]` outside Settings;
   - `HEAD` behaves like `GET`, and a 10-day-old session cookie is renewed on each
     (as `test/integration/session-renewal.test.ts` does for `/me`).
-- [ ] T009 [P] [US1] New `test/integration/overview.test.ts` (FR-010, US1-AS1):
+- [X] T009 [P] [US1] New `test/integration/overview.test.ts` (FR-010, US1-AS1):
   `main` children in order reconnect notice (only for a `needs_reconnect` rider)
   → 005 notices → `p.greeting` → verdict → gauges → breakdown → rules with the
   handout link; no `ol.ride-list`, no `table.rides`, no `#notifications`, no
   consent text, no `/me/disconnect` link, no logout form.
-- [ ] T010 [P] [US1] New `test/integration/rides-redirect.test.ts` (FR-006):
+- [X] T010 [P] [US1] New `test/integration/rides-redirect.test.ts` (FR-006):
   `/me?page=3` → `301 Location: /me/rides?page=3`; `/me?page=x` →
   `301 /me/rides?page=x`; without a session still `301` (no D1 read); `/me`
   without `page` is the Overview.
-- [ ] T011 [P] [US1] Update `test/integration/me-rynke.test.ts`,
+- [X] T011 [P] [US1] Update `test/integration/me-rynke.test.ts`,
   `test/integration/me-activities.test.ts` and
   `test/unit/rider-sections.test.ts` so everything about the ride list and the
   pager requests `/me/rides` (and `/me/rides?page=N`); pager links are
   `/me/rides?page=N` without `#rides` (research R2). Gauge, summary, breakdown
   and rules assertions stay on `/me`.
-- [ ] T012 [P] [US1] Update `test/integration/me-status.test.ts`: connection
+- [X] T012 [P] [US1] Update `test/integration/me-status.test.ts`: connection
   status, scopes, consent record, reconnect, disconnect link and sign-out are
   asserted on `/me/settings`, and asserted absent from `/me`.
-- [ ] T013 [P] [US1] Update `test/integration/consent-gate.test.ts` (R9):
+- [X] T013 [P] [US1] Update `test/integration/consent-gate.test.ts` (R9):
   `POST /me/consent` with `next=/me/settings` → `303 /me/settings`; with
   `next=/me/rides?page=2` → there; with `next=https://evil.example/` or missing →
   `303 /me`.
-- [ ] T014 [P] [US1] Update `test/integration/connect.test.ts`,
+- [X] T014 [P] [US1] Update `test/integration/connect.test.ts`,
   `test/integration/callback.test.ts` and `test/unit/session.test.ts` (R9,
   data-model.md): `POST /connect` with `next=/team` stores
   `<state>:<consentVersion>:/team` in the signed state cookie; a bad `next`
   stores `/me`; the callback's success answers `302 /team`; an old two-part
   cookie `<state>:<consentVersion>` still finishes and lands on `/me`; every error
   outcome is unchanged.
-- [ ] T015 [P] [US1] Update `test/support/pages.ts` `RIDER_PAGES`: add
+- [X] T015 [P] [US1] Update `test/support/pages.ts` `RIDER_PAGES`: add
   `/me/rides`, `/team` and `/me/settings` for rider A; shell pages other than
   `/me/settings` have no language switcher, so give `RiderPage` a way to say so
   (e.g. `next: null`) and update the language guards that read it
@@ -139,7 +139,7 @@ the same section.
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] `src/http/html.ts`: `LayoutOptions` gets an optional
+- [X] T016 [US1] `src/http/html.ts`: `LayoutOptions` gets an optional
   `section?: SectionId`. Without it the page is `body.public` with
   `header.top-bar` holding the wordmark
   `<span class="wordmark">Rynke<span>Points</span></span>` and today's language
@@ -147,50 +147,50 @@ the same section.
   bar has the wordmark, `h1.section-title` with `nav.<id>`, and the refresh link;
   no language form; `nav.app-nav` after the footer
   ([contracts/pages.md](contracts/pages.md) "Layout").
-- [ ] T017 [US1] New `src/http/shell.ts`: `SECTIONS` (id, path, label key, icon
+- [X] T017 [US1] New `src/http/shell.ts`: `SECTIONS` (id, path, label key, icon
   from T006, in the order of data-model.md) and
   `shellPage(request, ctx, i18n, section, path, render)`: reads the viewer;
   visitor → `302 /`; no current consent → `consentGate()` with `next = path`;
   otherwise `htmlResponse` of `layout(…, { section })` around `render(viewer)`.
-- [ ] T018 [US1] `src/http/consent-gate.ts` and `src/http/consent-form.ts`: both
+- [X] T018 [US1] `src/http/consent-gate.ts` and `src/http/consent-form.ts`: both
   forms take an optional `next` and render the hidden input when given;
   `handleConsent` redirects to `safeNext(next)` and falls back to `/me` when
   `safeNext` answers `/` (so T013 passes).
-- [ ] T019 [US1] `src/http/session.ts` and `src/http/auth.ts`:
+- [X] T019 [US1] `src/http/session.ts` and `src/http/auth.ts`:
   `createOAuthStateCookie` takes `next`; `readOAuthState` parses three parts and
   reads two parts as `next = "/me"`; `handleConnectForm` reads `next` through
   `safeNext()` (`/` becomes `/me`); `handleCallback`'s success redirects to it.
   `handleReconnect` (`GET /connect`) keeps `/me`.
-- [ ] T020 [P] [US1] New `src/http/sections/overview.ts` (`handleOverview`):
+- [X] T020 [P] [US1] New `src/http/sections/overview.ts` (`handleOverview`):
   moves the Overview parts of `handleMe` from `src/http/me.ts` in the order of
   FR-010, with `renderInstallHint` after the rules (FR-017), through
   `shellPage(…, "overview", "/me", …)`.
-- [ ] T021 [P] [US1] New `src/http/sections/rides.ts` (`handleRides`): the
+- [X] T021 [P] [US1] New `src/http/sections/rides.ts` (`handleRides`): the
   `page` parameter, `readRiderView` and `renderRides` as on `/me` today, plus
   `p.rides-position` and the "updating"/"importing" notices; `path` is
   `/me/rides` or `/me/rides?page=N`.
-- [ ] T022 [P] [US1] New `src/http/sections/team.ts` (`handleTeam`): the
+- [X] T022 [P] [US1] New `src/http/sections/team.ts` (`handleTeam`): the
   `section.placeholder` of [contracts/pages.md](contracts/pages.md) "Team" with
   the `PEOPLE` icon, reading nothing but the viewer.
-- [ ] T023 [P] [US1] New `src/http/sections/settings.ts` (`handleSettings`):
+- [X] T023 [P] [US1] New `src/http/sections/settings.ts` (`handleSettings`):
   moves from `handleMe` the status, scopes, reconnect, change-permissions link,
   `renderNotifications`, consent record, disconnect link and logout form, in
   their current markup for now (US4 groups them).
-- [ ] T024 [US1] `src/http/rider-sections.ts`: pager links
+- [X] T024 [US1] `src/http/rider-sections.ts`: pager links
   `/me/rides?page=N` without `#rides`. `src/http/me.ts`: remove `handleMe` and
   its helpers that moved; keep disconnect page, disconnect and logout.
-- [ ] T025 [US1] `src/http/router.ts`: `GET /me` with a `page` query → `301`
+- [X] T025 [US1] `src/http/router.ts`: `GET /me` with a `page` query → `301`
   to `/me/rides?page=<as given>` before any session read (T010); otherwise
   `/me` → `handleOverview`, `/me/rides` → `handleRides`, `/team` →
   `handleTeam`, `/me/settings` → `handleSettings`. Session renewal applies to
   all four.
-- [ ] T026 [US1] `src/http/style.ts`: the navigation bar (research R3): below
+- [X] T026 [US1] `src/http/style.ts`: the navigation bar (research R3): below
   600 px `nav.app-nav` fixed at the bottom, 80 px plus
   `env(safe-area-inset-bottom)`, four equal columns with a 64 × 32 px indicator
   pill around the icon of `[aria-current=page]` and a 12 px label; `main` gets
   matching bottom padding in `body.shell`. From 600 px the nav sits in the top
   bar as 44 px pill tabs and `h1.section-title` is hidden.
-- [ ] T027 [US1] `public/app.js`: on `visibilitychange` remember `hiddenAt`;
+- [X] T027 [US1] `public/app.js`: on `visibilitychange` remember `hiddenAt`;
   when visible again, if `document.querySelector("nav.app-nav")` and more than
   60000 ms passed, `location.reload()` ([contracts/client.md](contracts/client.md),
   FR-009).
