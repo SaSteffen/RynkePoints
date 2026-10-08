@@ -15,15 +15,20 @@ import { ATHLETE_A } from "../support/fixtures";
 const ctx = makeCtx();
 const { de, en } = CATALOGS;
 
-async function getMe(acceptLanguage?: string) {
+async function getMe(acceptLanguage?: string, path = "/me") {
 	const res = await handleFetch(
-		request("/me", {
+		request(path, {
 			cookies: await sessionCookie(ctx, ATHLETE_A),
 			acceptLanguage,
 		}),
 		ctx,
 	);
 	return { res, page: await res.text() };
+}
+
+/** Settings holds the connection, permissions, consent and account (011 FR-014). */
+function getSettings(acceptLanguage?: string) {
+	return getMe(acceptLanguage, "/me/settings");
 }
 
 beforeEach(resetDb);
@@ -50,21 +55,41 @@ describe("GET /me for a connected rider", () => {
 		expect(res.headers.get("Content-Language")).toBe("de");
 		expect(page).toContain("<title>Deine RynkePoints</title>");
 		expect(page).toContain("Hallo Testrider A!");
-		expect(page).toContain("Mit Strava verbunden");
-		expect(page).toContain(
+		expect(page).not.toContain("Erneut verbinden");
+		const settings = (await getSettings()).page;
+		expect(settings).toContain("Mit Strava verbunden");
+		expect(settings).toContain(
 			'<a href="/connect">Berechtigungen auf Strava ändern</a>',
 		);
-		expect(page).not.toContain("Erneut verbinden");
+		expect(settings).not.toContain("Erneut verbinden");
+	});
+
+	it("keeps settings, consent and account off the Overview (011 FR-010)", async () => {
+		await seedRider(ctx, { scopeWrite: true });
+		const { page } = await getMe();
+		for (const hidden of [
+			de["me.status.connected"],
+			escapeHtml(de["me.scope.readAll"]),
+			escapeHtml(de["me.scope.write"]),
+			escapeHtml(de["me.changePermissions"]),
+			escapeHtml(de["me.consent.heading"]),
+			escapeHtml(de["landing.dataRead"]),
+			'href="/me/disconnect"',
+			'action="/logout"',
+			'id="notifications"',
+		]) {
+			expect(page).not.toContain(hidden);
+		}
 	});
 
 	it("shows whether write access was granted", async () => {
 		await seedRider(ctx, { scopeWrite: true });
-		expect((await getMe()).page).toContain(
+		expect((await getSettings()).page).toContain(
 			"Schreibzugriff erteilt: Sobald es die Funktion gibt, schreibt RynkePoints einen Rynke-Abschnitt in deine Fahrtbeschreibungen.",
 		);
 		await resetDb();
 		await seedRider(ctx, { scopeWrite: false });
-		expect((await getMe()).page).toContain(
+		expect((await getSettings()).page).toContain(
 			"Kein Schreibzugriff: RynkePoints schreibt nichts in deine Fahrtbeschreibungen.",
 		);
 	});
@@ -72,7 +97,7 @@ describe("GET /me for a connected rider", () => {
 	it("shows the stored consent on its Berlin date, what is read and who sees what", async () => {
 		const late = makeCtx({ now: Date.parse("2026-10-06T23:30:00Z") / 1000 });
 		await seedRider(late, { consentVersion: 1 });
-		const { page } = await getMe();
+		const { page } = await getSettings();
 		expect(page).toContain("<h2>Deine Zustimmung</h2>");
 		expect(page).toMatch(
 			/<p>Zugestimmt am 07\.10\.2026 \(Version 1\):<\/p>\n<p>Wir lesen von deinen Radfahrten nur Namen, .*<\/p>\n<p>Die Organisatorinnen und Organisatoren des Teams sehen .*<\/p>\n<p>Alle anderen im Team sehen deine gesammelten Rynke/,
@@ -82,12 +107,12 @@ describe("GET /me for a connected rider", () => {
 
 	it("shows the granted level", async () => {
 		await seedRider(ctx, { scopeReadAll: true });
-		expect((await getMe()).page).toContain(
+		expect((await getSettings()).page).toContain(
 			"Einschließlich deiner privaten Aktivitäten",
 		);
 		await resetDb();
 		await seedRider(ctx, { scopeReadAll: false });
-		expect((await getMe()).page).toContain(
+		expect((await getSettings()).page).toContain(
 			"Nur geteilte Aktivitäten – private („Nur du“) Aktivitäten werden nicht importiert.",
 		);
 	});
@@ -111,10 +136,12 @@ describe("GET /me for a connected rider", () => {
 		expect(page).not.toContain("werden noch importiert");
 	});
 
-	it("offers the switcher and sign-out", async () => {
+	it("offers the switcher and sign-out in Settings", async () => {
 		await seedRider(ctx);
-		const { page } = await getMe();
-		expect(page).toContain('<input type="hidden" name="next" value="/me">');
+		const { page } = await getSettings();
+		expect(page).toContain(
+			'<input type="hidden" name="next" value="/me/settings">',
+		);
 		expect(page).toMatch(
 			/<form method="post" action="\/logout"><input type="hidden" name="push_endpoint" value=""><button>Abmelden<\/button><\/form>/,
 		);
@@ -122,7 +149,7 @@ describe("GET /me for a connected rider", () => {
 
 	it("shows what was agreed, the permissions, who sees what and how to leave (004 US4 scenario 1, R12)", async () => {
 		await seedRider(ctx, { consentVersion: 1, scopeWrite: true });
-		const { page } = await getMe();
+		const { page } = await getSettings();
 		for (const shown of [
 			"Zugestimmt am 06.10.2026 (Version 1):",
 			escapeHtml(de["landing.dataRead"]),
@@ -168,7 +195,7 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 			'<form method="post" action="/connect">',
 			'<input type="checkbox" name="consent" value="1" required>',
 			`<p>${escapeHtml(de["me.consent.renew.leave"])}</p>`,
-			`<a href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
+			`<a class="danger" href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
 			'<form method="post" action="/logout">',
 		];
 		let at = -1;
@@ -234,9 +261,9 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 		await seedRider(ctx, { consentVersion: 1 });
 		const { page } = await getMe();
 		expect(page).toContain("Hallo Testrider A!");
-		expect(page).toContain("(Version 1):");
 		expect(page).not.toContain('action="/connect"');
 		expect(page).not.toContain(escapeHtml(de["me.consent.renew.heading"]));
+		expect((await getSettings()).page).toContain("(Version 1):");
 	});
 });
 
@@ -244,9 +271,20 @@ describe("GET /me for a needs_reconnect rider", () => {
 	it("asks the rider to reconnect", async () => {
 		await seedRider(ctx, { status: "needs_reconnect" });
 		const { page } = await getMe();
-		expect(page).toContain("Die Verbindung zu Strava muss erneuert werden.");
-		expect(page).toContain('<a href="/connect">Erneut verbinden</a>');
-		expect(page).not.toContain("Mit Strava verbunden");
+		expect(page).toContain(
+			'<aside class="notice notice-error">\n<p>Die Verbindung zu Strava muss erneuert werden.</p>',
+		);
+		expect(page).toContain(
+			'<a class="button" href="/connect">Erneut verbinden</a>',
+		);
+		const settings = (await getSettings()).page;
+		expect(settings).toContain(
+			"Die Verbindung zu Strava muss erneuert werden.",
+		);
+		expect(settings).toContain(
+			'<a class="button" href="/connect">Erneut verbinden</a>',
+		);
+		expect(settings).not.toContain("Mit Strava verbunden");
 	});
 });
 
@@ -255,7 +293,7 @@ describe("GET /me in English", () => {
 		await seedRider(ctx, { importStatus: "running" });
 		const { res, page } = await getMe("en");
 		expect(res.headers.get("Content-Language")).toBe("en");
-		expect(page).toContain("Connected to Strava");
+		expect((await getSettings("en")).page).toContain("Connected to Strava");
 		expect(page).toContain(
 			"Your rides since 01/01/2026 are still being imported.",
 		);

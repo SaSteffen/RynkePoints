@@ -12,7 +12,7 @@ export function notFound(i18n: I18n, path: string): Response {
 			path,
 			body: html`<h1>${title}</h1>
 <p>${i18n.t("error.notFound.body")}</p>
-<p><a href="/">${i18n.t("notice.backToStart")}</a></p>`,
+<p><a class="button-outlined" href="/">${i18n.t("notice.backToStart")}</a></p>`,
 		}),
 		404,
 	);
@@ -27,7 +27,7 @@ export function forbidden(i18n: I18n, path: string): Response {
 			path,
 			body: html`<h1>${title}</h1>
 <p>${i18n.t("error.forbidden.body")}</p>
-<p><a href="/">${i18n.t("notice.backToStart")}</a></p>`,
+<p><a class="button-outlined" href="/">${i18n.t("notice.backToStart")}</a></p>`,
 		}),
 		403,
 	);

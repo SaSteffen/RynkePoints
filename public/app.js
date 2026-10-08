@@ -1,8 +1,8 @@
 // RynkePoints page script (feature 010 contracts/client.md, research R16). It
 // only wires up what a server-rendered page can't do itself: the service worker,
-// the install prompt and the notifications switch. It holds no text: every word
-// shown comes from the page's markup, rendered from the catalogs and hidden
-// until this shows it.
+// the install prompt, the notifications switch and reloading a section on
+// return. It holds no text: every word shown comes from the page's markup,
+// rendered from the catalogs and hidden until this shows it.
 
 function registerWorker() {
 	if (!("serviceWorker" in navigator)) return;
@@ -160,6 +160,27 @@ async function notifications() {
 	}
 }
 
+/**
+ * A section brought back after more than a minute in the background reloads,
+ * so its figures are current (feature 011 FR-009, research R8). Public pages
+ * have no `nav.app-nav` and keep what the rider typed.
+ */
+function refreshOnReturn() {
+	let hiddenAt = null;
+	document.addEventListener("visibilitychange", () => {
+		if (document.visibilityState === "hidden") {
+			hiddenAt = Date.now();
+		} else if (
+			hiddenAt !== null &&
+			Date.now() - hiddenAt > 60000 &&
+			document.querySelector("nav.app-nav")
+		) {
+			location.reload();
+		}
+	});
+}
+
 registerWorker();
 installHint();
+refreshOnReturn();
 notifications().catch(() => {});

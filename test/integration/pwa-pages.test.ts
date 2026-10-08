@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Ctx } from "../../src/ctx";
+import { SCHEME_SCRIPT } from "../../src/http/html";
 import { createSessionCookie } from "../../src/http/session";
 import { handleFetch } from "../../src/index";
 import { vapidPublicKey } from "../../src/push/vapid";
@@ -26,7 +27,9 @@ const HEAD = [
 	'<link rel="manifest" href="/manifest.webmanifest">',
 	'<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">',
 	'<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">',
-	'<meta name="theme-color" content="#111111">',
+	'<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff8f6">',
+	'<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a110e">',
+	`<script>${SCHEME_SCRIPT}</script>`,
 	'<script src="/app.js" defer></script>',
 ];
 
@@ -63,19 +66,31 @@ describe("every page's head", () => {
 	it.each([
 		["/", false],
 		["/me", true],
+		["/me/rides", true],
+		["/team", true],
+		["/me/settings", true],
 		["/me/disconnect", true],
 		["/notice/deleted", false],
-	])("%s links the manifest, icons and app.js", async (path, signedIn) => {
-		const cookies = signedIn ? await sessionCookie(ctx, ATHLETE_A) : undefined;
-		const { res, page } = await get(path, cookies);
-		expect(res.status).toBe(200);
-		const head = page.slice(page.indexOf("<head>"), page.indexOf("</head>"));
-		for (const line of HEAD) expect(head).toContain(line);
-		expect(head).toContain(
-			'<meta name="viewport" content="width=device-width, initial-scale=1">',
-		);
-		expect(page).not.toContain("viewport-fit");
-	});
+	])(
+		"%s links the manifest, icons, app.js and the scheme script",
+		async (path, signedIn) => {
+			const cookies = signedIn
+				? await sessionCookie(ctx, ATHLETE_A)
+				: undefined;
+			const { res, page } = await get(path, cookies);
+			expect(res.status).toBe(200);
+			const head = page.slice(page.indexOf("<head>"), page.indexOf("</head>"));
+			for (const line of HEAD) expect(head).toContain(line);
+			expect(head.indexOf("<script>")).toBeLessThan(head.indexOf("<style>"));
+			expect(page.match(/<script[^>]*>/gi)).toEqual([
+				"<script>",
+				'<script src="/app.js" defer>',
+			]);
+			expect(head).toContain(
+				'<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
+			);
+		},
+	);
 });
 
 describe("install hint (FR-004)", () => {
@@ -106,17 +121,20 @@ describe("notifications section (FR-010, FR-011)", () => {
 <button type="button" data-action="off" class="tap" hidden>Benachrichtigungen ausschalten</button>
 </section>`;
 
-	it("is on /me between the rules and the ride table, all hidden", async () => {
+	it("is in Settings, all hidden, and not on the Overview (011 FR-014)", async () => {
 		await evaluateChange(ctx, ATHLETE_A, { kind: "none" });
-		const { page } = await get("/me", await sessionCookie(ctx, ATHLETE_A));
-		const at = page.indexOf(SECTION);
-		expect(at).toBeGreaterThan(page.indexOf('<section class="rynke-rules">'));
-		expect(page.indexOf('<section class="rynke-rules">')).toBeGreaterThan(0);
-		expect(at).toBeLessThan(page.indexOf("<h2>Deine Fahrten</h2>"));
+		const cookies = await sessionCookie(ctx, ATHLETE_A);
+		expect((await get("/me/settings", cookies)).page).toContain(SECTION);
+		expect((await get("/me", cookies)).page).not.toContain(
+			'id="notifications"',
+		);
 	});
 
 	it("puts an empty push_endpoint into the sign-out form", async () => {
-		const { page } = await get("/me", await sessionCookie(ctx, ATHLETE_A));
+		const { page } = await get(
+			"/me/settings",
+			await sessionCookie(ctx, ATHLETE_A),
+		);
 		expect(page).toContain(
 			'<form method="post" action="/logout"><input type="hidden" name="push_endpoint" value="">',
 		);
@@ -141,6 +159,7 @@ describe("GET /offline", () => {
 		expect(page).toContain(`<h1>${title}</h1>`);
 		expect(page).toContain(body);
 		expect(page).toContain("powered-by-strava.svg");
+		expect(page).toContain("powered-by-strava-white.svg");
 	});
 
 	it.each([

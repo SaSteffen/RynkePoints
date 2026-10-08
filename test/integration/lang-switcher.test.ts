@@ -54,7 +54,7 @@ describe("POST /lang", () => {
 		expect(res.headers.get("Content-Language")).toBe("en");
 		expect(page).toContain("Sign-in expired");
 		expect(page).toContain(
-			'<button name="lang" value="en" lang="en" aria-current="true">English</button>',
+			'<button class="segmented" name="lang" value="en" lang="en" aria-current="true">English</button>',
 		);
 	});
 
@@ -91,6 +91,11 @@ describe("POST /lang", () => {
 		"/me?foo=1",
 		"/me?page=01",
 		"/me?page=10000",
+		"/me/rides?page=0",
+		"/me/rides?page=10000",
+		"/me/rides?page=x",
+		"/me/settings/x",
+		"//team",
 		undefined,
 	])("redirects %j to /", async (next) => {
 		const res = await switchTo("en", next);
@@ -104,6 +109,11 @@ describe("POST /lang", () => {
 		"/notice/team-full",
 		"/me?page=2",
 		"/me?page=9999",
+		"/me/rides",
+		"/me/rides?page=1",
+		"/me/rides?page=9999",
+		"/me/settings",
+		"/team",
 	])("keeps %s", async (next) => {
 		const res = await switchTo("en", next);
 		expect(res.headers.get("Location")).toBe(next);
@@ -130,7 +140,7 @@ describe("POST /lang", () => {
 	});
 });
 
-describe("the switcher on /me (US5)", () => {
+describe("the switcher for a signed-in rider (US5, 011 FR-016)", () => {
 	beforeEach(async () => {
 		await seedRider(ctx, { athleteId: ATHLETE_A });
 		await seedBalance(ATHLETE_A);
@@ -142,13 +152,20 @@ describe("the switcher on /me (US5)", () => {
 		expect(res.headers.get("Location")).toBe("/me?page=2");
 	});
 
-	it.each([
-		["/me?page=2", "/me?page=2"],
-		["/me?page=1", "/me"],
-		["/me", "/me"],
-		["/me?page=99", "/me?page=3"],
-	])("on %s sends next %s", async (path, next) => {
-		const { html } = await riderPage(ctx, ATHLETE_A, path);
-		expect(html).toContain(`<input type="hidden" name="next" value="${next}">`);
+	it("is only in Settings, which it returns to (011 FR-016)", async () => {
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/settings");
+		expect(html).toContain(
+			'<input type="hidden" name="next" value="/me/settings">',
+		);
+		for (const path of ["/me", "/me/rides", "/me/rides?page=2", "/team"]) {
+			expect((await riderPage(ctx, ATHLETE_A, path)).html).not.toContain(
+				'action="/lang"',
+			);
+		}
+	});
+
+	it("lands on Settings after switching there (011 US4-AS2)", async () => {
+		const res = await switchTo("en", "/me/settings");
+		expect(res.headers.get("Location")).toBe("/me/settings");
 	});
 });

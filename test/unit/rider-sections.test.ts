@@ -72,17 +72,45 @@ describe("renderRules window", () => {
 	});
 });
 
+describe("renderRides card disclosure (011 FR-021, clarification Q5)", () => {
+	it.each([
+		["does-not-count", "ride-not-counting", true],
+		["counts", "ride-counting", false],
+		["being-evaluated", "ride-pending", false],
+	] as const)("a ride that %s gets %s, open: %s", (status, cls, open) => {
+		const out = table(line({ status }));
+		expect(out).toContain(`<li class="ride-card ${cls}">`);
+		expect(out).toContain(
+			`<details class="ride-why"${open ? " open" : ""}><summary class="tap">Why?</summary>`,
+		);
+	});
+
+	it("leaves the disclosure out when there is nothing to explain", () => {
+		const out = table(line({ status: "counts", fixHint: false }));
+		expect(out).not.toContain("<details");
+		expect(out).not.toContain("<summary");
+	});
+
+	it("puts the explanation inside the disclosure", () => {
+		const out = table(line({ reasons: [{ code: "unknown", stored: "x" }] }));
+		expect(out).toMatch(
+			/<details class="ride-why" open><summary class="tap">Why\?<\/summary><ul class="ride-reasons">/,
+		);
+	});
+});
+
 describe("renderRides link to Strava (008 FR-009, FR-011)", () => {
 	const link =
-		'<tr class="ride-details"><td colspan="5"><p class="ride-strava"><a class="tap strava-activity" href="https://www.strava.com/activities/8000001">View on Strava</a></p>';
+		'<p class="ride-strava"><a class="tap strava-activity" href="https://www.strava.com/activities/8000001">View on Strava</a></p>';
 
 	for (const status of [
 		"being-evaluated",
 		"counts",
 		"does-not-count",
 	] as const) {
-		it(`starts the detail row with the link for a ride that ${status}`, () => {
-			expect(table(line({ status, activityId: 8000001 }))).toContain(link);
+		it(`puts the link after the figures for a ride that ${status}`, () => {
+			const out = table(line({ status, activityId: 8000001 }));
+			expect(out).toContain(`</dl>\n${link}`);
 		});
 	}
 

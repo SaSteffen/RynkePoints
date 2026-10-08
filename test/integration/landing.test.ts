@@ -15,6 +15,10 @@ import { ATHLETE_A } from "../support/fixtures";
 const ctx = makeCtx();
 const { de, en } = CATALOGS;
 
+/** Strava's button in both variants; the scheme CSS shows one (011 R13). */
+const connectButton = (c: typeof de) =>
+	`<button><img class="cws cws-light" src="${c["brand.connectWithStrava.src"]}" alt="${escapeHtml(c["brand.connectWithStrava.alt"])}"><img class="cws cws-dark" src="${c["brand.connectWithStrava.srcDark"]}" alt="${escapeHtml(c["brand.connectWithStrava.alt"])}"></button>`;
+
 async function get(options: Parameters<typeof request>[1] = {}) {
 	const res = await handleFetch(request("/", options), ctx);
 	return { res, page: await res.text() };
@@ -120,9 +124,8 @@ describe("GET / (signed out)", () => {
 		expect(page).toContain(
 			'<input type="checkbox" name="consent" value="1" required>',
 		);
-		expect(page).toContain(
-			`<button><img src="${de["brand.connectWithStrava.src"]}" alt="Mit Strava verbinden"></button>`,
-		);
+		expect(page).toContain(connectButton(de));
+		expect(page).toContain('alt="Mit Strava verbinden"');
 		expect(page).not.toContain('<a href="/connect">');
 	});
 
@@ -130,7 +133,7 @@ describe("GET / (signed out)", () => {
 		const form = (version: number) =>
 			`<form method="post" action="/connect">
 <p><label><input type="checkbox" name="consent" value="${version}" required> ${escapeHtml(de["consent.agree"])}</label></p>
-<button><img src="${de["brand.connectWithStrava.src"]}" alt="Mit Strava verbinden"></button>
+${connectButton(de)}
 </form>`;
 		expect((await get()).page).toContain(form(1));
 
@@ -163,9 +166,8 @@ describe("GET / (signed out)", () => {
 		expect(page).toContain('<html lang="en">');
 		expect(page).toContain(escapeHtml(en["landing.backups"]));
 		expect(page).toContain(escapeHtml(en["consent.agree"]));
-		expect(page).toContain(
-			`<img src="${en["brand.connectWithStrava.src"]}" alt="Connect with Strava">`,
-		);
+		expect(page).toContain(connectButton(en));
+		expect(page).toContain('alt="Connect with Strava"');
 	});
 
 	it("renders English when rp_lang=en beats a German browser", async () => {
@@ -192,11 +194,11 @@ describe("GET / (signed in)", () => {
 	});
 });
 
-describe("GET /me consent section (008 FR-007)", () => {
+describe("GET /me/settings consent section (008 FR-007)", () => {
 	it("shows a connected rider what is read, before who sees what", async () => {
 		await seedRider(ctx, { consentVersion: CONSENT_VERSION });
 		const res = await handleFetch(
-			request("/me", { cookies: await sessionCookie(ctx, ATHLETE_A) }),
+			request("/me/settings", { cookies: await sessionCookie(ctx, ATHLETE_A) }),
 			ctx,
 		);
 		const page = await res.text();

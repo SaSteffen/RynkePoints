@@ -16,6 +16,7 @@ import {
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
 import {
+	rideCards,
 	riderPage,
 	type SeedRide,
 	seedBalance,
@@ -59,19 +60,14 @@ function text(fragment: string): string {
 		.trim();
 }
 
-/** The cell texts of the ride table's main rows. */
+/** Each ride card's date, distance, status, Training Rynke and elevation. */
 function mainRows(page: string): string[][] {
-	return [...page.matchAll(/<tr class="ride [^"]*">([\s\S]*?)<\/tr>/g)].map(
-		(row) =>
-			[...(row[1] ?? "").matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((c) =>
-				text(c[1] ?? ""),
-			),
-	);
+	return rideCards(page).map((card) => card.cells);
 }
 
 async function summary(athleteId = ATHLETE_A): Promise<string> {
 	const { html } = await riderPage(ctx, athleteId);
-	const found = section(html, 'class="rynke-summary"');
+	const found = section(html, 'class="rynke-summary verdict card"');
 	if (found === null) throw new Error("no summary section");
 	return text(found);
 }
@@ -107,7 +103,9 @@ describe("GET /me Rynke summary (US1)", () => {
 			qualified: true,
 		});
 		const { html } = await riderPage(ctx, ATHLETE_A);
-		const shown = text(section(html, 'class="rynke-summary"') ?? "");
+		const shown = text(
+			section(html, 'class="rynke-summary verdict card"') ?? "",
+		);
 		expect(shown).toContain(
 			"Du bist dabei: Du hast alles, was du für die Tour brauchst.",
 		);
@@ -155,7 +153,11 @@ describe("GET /me Rynke summary (US1)", () => {
 			/<ul class="rynke-missing">([\s\S]*?)<\/ul>/,
 		)?.[1];
 		expect(
-			[...(missing ?? "").matchAll(/<li>([\s\S]*?)<\/li>/g)].map((m) => m[1]),
+			[
+				...(missing ?? "").matchAll(
+					/<li><span class="chip">([\s\S]*?)<\/span><\/li>/g,
+				),
+			].map((m) => m[1]),
 		).toEqual(["5 Teamrynke"]);
 		expect(text(html)).toContain("400 von 250");
 	});
@@ -167,10 +169,12 @@ describe("GET /me Rynke summary (US1)", () => {
 		expect(text(notice ?? "")).toBe(
 			"Deine Rynke werden gerade berechnet. Schau in ein paar Minuten wieder vorbei.",
 		);
-		expect(html).not.toContain('class="rynke-summary"');
+		expect(html).not.toContain('class="rynke-summary verdict card"');
 		expect(html).not.toContain("von 250");
 		expect(html).not.toContain("dabei");
-		expect(section(html, 'id="rides"')).not.toBeNull();
+		expect(section(html, 'id="rides"')).toBeNull();
+		const rides = (await riderPage(ctx, ATHLETE_A, "/me/rides")).html;
+		expect(section(rides, 'id="rides"')).not.toBeNull();
 	});
 });
 
@@ -316,9 +320,9 @@ describe("GET /me gauges (US2)", () => {
 		await seedBalance(ATHLETE_A);
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		const order = [
-			'<section id="rynke" class="rynke-summary">',
+			'<section id="rynke" class="rynke-summary verdict card">',
 			'<section class="rynke-gauges">',
-			'<section id="rides">',
+			'<section class="rynke-breakdown card card-outlined">',
 		].map((marker) => html.indexOf(marker));
 		expect(order.every((i) => i >= 0)).toBe(true);
 		expect([...order].sort((x, y) => x - y)).toEqual(order);
@@ -329,21 +333,21 @@ describe("GET /me gauges (US2)", () => {
 
 	it("has no gauges before the first evaluation", async () => {
 		const { html } = await riderPage(ctx, ATHLETE_A);
-		expect(html).not.toContain("rynke-gauges");
+		expect(html).not.toContain('class="rynke-gauges"');
 	});
 
 	it("has no gauges for an unknown rules version (FR-013)", async () => {
 		await seedBalance(ATHLETE_A, { trainingRynke: 12, rulesVersion: 99 });
 		const { html } = await riderPage(ctx, ATHLETE_A);
-		expect(html).toContain('class="rynke-summary"');
-		expect(html).not.toContain("rynke-gauges");
+		expect(html).toContain('class="rynke-summary verdict card"');
+		expect(html).not.toContain('class="rynke-gauges"');
 	});
 });
 
 /** The breakdown's term and description texts, as `[dt, dd]` pairs. */
 async function breakdown(athleteId = ATHLETE_A): Promise<string[][]> {
 	const { html } = await riderPage(ctx, athleteId);
-	const found = section(html, 'class="rynke-breakdown"');
+	const found = section(html, 'class="rynke-breakdown card card-outlined"');
 	if (found === null) throw new Error("no breakdown section");
 	return [...found.matchAll(/<dt>([\s\S]*?)<\/dt><dd>([\s\S]*?)<\/dd>/g)].map(
 		([, dt = "", dd = ""]) => [text(dt), text(dd)],
@@ -403,7 +407,9 @@ describe("GET /me breakdown (US3a)", () => {
 			["Gesamt", "0 Trainingsrynke · 0 Teamrynke"],
 		]);
 		const { html } = await riderPage(ctx, ATHLETE_A);
-		expect(text(section(html, 'class="rynke-breakdown"') ?? "")).toContain(
+		expect(
+			text(section(html, 'class="rynke-breakdown card card-outlined"') ?? ""),
+		).toContain(
 			"Deine Teamtermine Für dich ist noch kein Teamtermin eingetragen.",
 		);
 		expect(html).not.toContain('class="rynke-events"');
@@ -427,14 +433,14 @@ describe("GET /me breakdown (US3a)", () => {
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		const order = [
 			'<section class="rynke-gauges">',
-			'<section class="rynke-breakdown">',
-			'<section id="rides">',
+			'<section class="rynke-breakdown card card-outlined">',
+			'<section class="rynke-rules card card-outlined">',
 		].map((marker) => html.indexOf(marker));
 		expect(order.every((i) => i >= 0)).toBe(true);
 		expect([...order].sort((x, y) => x - y)).toEqual(order);
-		expect(text(section(html, 'class="rynke-breakdown"') ?? "")).toMatch(
-			/^Woher deine Rynke kommen /,
-		);
+		expect(
+			text(section(html, 'class="rynke-breakdown card card-outlined"') ?? ""),
+		).toMatch(/^Woher deine Rynke kommen /);
 
 		await seedBalance(ATHLETE_A, { rulesVersion: 99 });
 		const unknown = (await riderPage(ctx, ATHLETE_A)).html;
@@ -442,7 +448,9 @@ describe("GET /me breakdown (US3a)", () => {
 			"</section>",
 			unknown.indexOf('<section id="rynke"'),
 		);
-		const breakdownStart = unknown.indexOf('<section class="rynke-breakdown">');
+		const breakdownStart = unknown.indexOf(
+			'<section class="rynke-breakdown card card-outlined">',
+		);
 		expect(summaryEnd).toBeGreaterThan(0);
 		expect(
 			unknown.slice(summaryEnd + "</section>".length, breakdownStart),
@@ -451,7 +459,9 @@ describe("GET /me breakdown (US3a)", () => {
 
 	it("has no breakdown before the first evaluation", async () => {
 		const { html } = await riderPage(ctx, ATHLETE_A);
-		expect(html).not.toContain('<section class="rynke-breakdown">');
+		expect(html).not.toContain(
+			'<section class="rynke-breakdown card card-outlined">',
+		);
 	});
 });
 
@@ -536,9 +546,9 @@ describe("GET /me team events (US3b)", () => {
 		]);
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		expect(html).toContain("Kurven &lt;links&gt; &amp; rechts");
-		expect(text(section(html, 'class="rynke-breakdown"') ?? "")).toContain(
-			"Deine Teamtermine",
-		);
+		expect(
+			text(section(html, 'class="rynke-breakdown card card-outlined"') ?? ""),
+		).toContain("Deine Teamtermine");
 		expect(html).not.toContain("noch kein Teamtermin");
 	});
 
@@ -629,7 +639,9 @@ describe("GET /me team events (US3b)", () => {
 			ATHLETE_A,
 		]);
 		const { html } = await riderPage(ctx, ATHLETE_A, "/me", "en");
-		const shown = text(section(html, 'class="rynke-breakdown"') ?? "");
+		const shown = text(
+			section(html, 'class="rynke-breakdown card card-outlined"') ?? "",
+		);
 		expect(shown).toContain(
 			"Training-weekend day attended 1 × → 5 Team Rynke, 10 Training Rynke",
 		);
@@ -648,25 +660,23 @@ describe("GET /me team events (US3b)", () => {
 	});
 });
 
-/** Each ride's detail row: its reason lines and its whole text. */
+/** Each ride card: its reason lines and its text below the figures. */
 async function details(athleteId = ATHLETE_A, acceptLanguage?: string) {
-	const { html } = await riderPage(ctx, athleteId, "/me", acceptLanguage);
-	return [...html.matchAll(/<tr class="ride-details">([\s\S]*?)<\/tr>/g)].map(
-		([, inner = ""]) => ({
-			reasons: [
-				...(
-					inner.match(/<ul class="ride-reasons">([\s\S]*?)<\/ul>/)?.[1] ?? ""
-				).matchAll(/<li>([\s\S]*?)<\/li>/g),
-			].map((m) => text(m[1] ?? "")),
-			all: text(inner),
-		}),
-	);
+	const { html } = await riderPage(ctx, athleteId, "/me/rides", acceptLanguage);
+	return rideCards(html).map(({ html: inner }) => ({
+		reasons: [
+			...(
+				inner.match(/<ul class="ride-reasons">([\s\S]*?)<\/ul>/)?.[1] ?? ""
+			).matchAll(/<li>([\s\S]*?)<\/li>/g),
+		].map((m) => text(m[1] ?? "")),
+		all: text(inner.slice(inner.indexOf("</dl>"))),
+	}));
 }
 
 const FIX_HINT =
 	"Du kannst die Fahrt auf Strava korrigieren oder dich an das Orga-Team wenden.";
 
-describe("GET /me ride reasons (US4)", () => {
+describe("GET /me/rides ride reasons (US4)", () => {
 	beforeEach(() => seedBalance(ATHLETE_A));
 
 	async function seedOverlap() {
@@ -858,7 +868,7 @@ describe("GET /me ride reasons (US4)", () => {
 	});
 });
 
-describe("GET /me ride table (US1)", () => {
+describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 	beforeEach(() => seedBalance(ATHLETE_A));
 
 	it("S1-6: shows a counting ride's Rynke and metres", async () => {
@@ -869,28 +879,47 @@ describe("GET /me ride table (US1)", () => {
 			elevation_gain_m: 1240,
 			result: { counts: true, distanceRynke: 7, elevationDm: 12400 },
 		});
-		const { html } = await riderPage(ctx, ATHLETE_A);
-		expect(mainRows(html)).toEqual([
-			["06.10.2026", "79,0 km", "zählt", "7", "1.240 m"],
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
+		const [card, ...more] = rideCards(html);
+		expect(more).toEqual([]);
+		expect(card?.status).toBe("ride-counting");
+		expect(card?.cells).toEqual([
+			"06.10.2026",
+			"79,0 km",
+			"zählt",
+			"7",
+			"1.240 m",
 		]);
-		expect(html).toContain('<tr class="ride ride-counting">');
 		// No elevation Rynke per ride, anywhere (FR-040).
-		const details = html.match(/<tr class="ride-details">([\s\S]*?)<\/tr>/);
-		expect(text(details?.[1] ?? "")).toBe("View on Strava Radfahrt · 1.240 m");
+		expect(card?.meta).toBe("Radfahrt · 1.240 m");
+		expect(
+			text(card?.html.match(/<p class="ride-strava">[\s\S]*?<\/p>/)?.[0] ?? ""),
+		).toBe("View on Strava");
+		// Nothing to explain: no disclosure.
+		expect(card?.why).toBeNull();
+		expect(html).toContain('<ol class="ride-list">');
+		expect(html).not.toContain("<table");
 	});
 
-	it("S1-7: shows a ride that doesn't count with nothing", async () => {
+	it("S1-7: shows a ride that doesn't count with nothing, reasons open", async () => {
 		await seedRide(ATHLETE_A, {
 			id: 8_100_001,
 			start_date: "2026-10-05T08:00:00Z",
 			distance_m: 30000,
 			result: { counts: false, reasons: ["too_slow"] },
 		});
-		const { html } = await riderPage(ctx, ATHLETE_A);
-		expect(mainRows(html)).toEqual([
-			["05.10.2026", "30,0 km", "zählt nicht", "0", "0 m"],
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
+		const [card] = rideCards(html);
+		expect(card?.status).toBe("ride-not-counting");
+		expect(card?.cells).toEqual([
+			"05.10.2026",
+			"30,0 km",
+			"zählt nicht",
+			"0",
+			"0 m",
 		]);
-		expect(html).toContain('<tr class="ride ride-not-counting">');
+		expect(card?.open).toBe(true);
+		expect(card?.why).toContain('<summary class="tap">Warum?</summary>');
 	});
 
 	it("S1-8: shows a ride without a result as being evaluated", async () => {
@@ -899,14 +928,35 @@ describe("GET /me ride table (US1)", () => {
 			start_date: "2026-10-04T08:00:00Z",
 			distance_m: 40000,
 		});
-		const { html } = await riderPage(ctx, ATHLETE_A);
-		expect(mainRows(html)).toEqual([
-			["04.10.2026", "40,0 km", "wird ausgewertet", "–", "–"],
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
+		const [card] = rideCards(html);
+		expect(card?.status).toBe("ride-pending");
+		expect(card?.cells).toEqual([
+			"04.10.2026",
+			"40,0 km",
+			"wird ausgewertet",
+			"–",
+			"–",
 		]);
-		expect(html).toContain('<tr class="ride ride-pending">');
+		expect(card?.open).toBe(false);
 	});
 
-	it("marks a virtual ride in its details", async () => {
+	it("keeps a counting ride's explanation closed (clarification Q5)", async () => {
+		await seedRide(ATHLETE_A, {
+			id: 8_100_001,
+			result: {
+				counts: true,
+				distanceRynke: 4,
+				unknownFigures: ["elapsed_time"],
+			},
+		});
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
+		const [card] = rideCards(html);
+		expect(card?.why).toMatch(/^<details class="ride-why"><summary/);
+		expect(card?.open).toBe(false);
+	});
+
+	it("marks a virtual ride in its meta line", async () => {
 		await seedRide(ATHLETE_A, {
 			id: 8_100_001,
 			sport_type: "VirtualRide",
@@ -918,30 +968,22 @@ describe("GET /me ride table (US1)", () => {
 				isVirtual: true,
 			},
 		});
-		const { html } = await riderPage(ctx, ATHLETE_A);
-		const details = html.match(/<tr class="ride-details">([\s\S]*?)<\/tr>/);
-		expect(text(details?.[1] ?? "")).toBe(
-			"View on Strava Virtuelle Fahrt · 300 m · virtuell",
-		);
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
+		expect(rideCards(html)[0]?.meta).toBe("Virtuelle Fahrt · 300 m · virtuell");
 	});
 
-	it("labels the columns", async () => {
+	it("labels the figures", async () => {
 		await seedRide(ATHLETE_A, { id: 8_100_001 });
-		const { html } = await riderPage(ctx, ATHLETE_A);
-		const head = html.match(/<thead>([\s\S]*?)<\/thead>/)?.[1] ?? "";
-		expect(
-			[...head.matchAll(/<th>([\s\S]*?)<\/th>/g)].map((m) => m[1]),
-		).toEqual([
-			"Datum",
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
+		expect(rideCards(html)[0]?.labels).toEqual([
 			"Distanz",
-			"Zählt?",
 			"Trainingsrynke",
 			"Für die Höhenmeter",
 		]);
 	});
 });
 
-describe("GET /me paging (US5)", () => {
+describe("GET /me/rides paging (US5)", () => {
 	beforeEach(() => seedBalance(ATHLETE_A));
 
 	/** The ride table's position line and pager links, `rel` → `href`. */
@@ -980,32 +1022,32 @@ describe("GET /me paging (US5)", () => {
 
 	it("S5-1: shows the 20 newest and links to the older ones", async () => {
 		await seedRides(ATHLETE_A, 45, "2026-10-06");
-		const page = await pager("/me");
+		const page = await pager("/me/rides");
 		expect(page.rows).toHaveLength(20);
 		expect(page.rows[0]?.[0]).toBe(DAY_1);
 		expect(page.position).toBe("Fahrten 1–20 von 45");
 		expect(page.nav).toContain('aria-label="Seiten"');
 		expect(page.links).toEqual({
-			next: { href: "/me?page=2#rides", cls: "tap", text: "Ältere ›" },
-			last: { href: "/me?page=3#rides", cls: "tap", text: "Älteste »" },
+			next: { href: "/me/rides?page=2", cls: "tap", text: "Ältere ›" },
+			last: { href: "/me/rides?page=3", cls: "tap", text: "Älteste »" },
 		});
 	});
 
 	it("S5-2: pages through the older rides", async () => {
 		await seedRides(ATHLETE_A, 45, "2026-10-06");
 
-		const second = await pager("/me?page=2");
+		const second = await pager("/me/rides?page=2");
 		expect(second.rows).toHaveLength(20);
 		expect(second.rows[0]?.[0]).toBe(DAY_21);
 		expect(second.position).toBe("Fahrten 21–40 von 45");
 		expect(second.links).toEqual({
-			first: { href: "/me?page=1#rides", cls: "tap", text: "« Neueste" },
-			prev: { href: "/me?page=1#rides", cls: "tap", text: "‹ Neuere" },
-			next: { href: "/me?page=3#rides", cls: "tap", text: "Ältere ›" },
-			last: { href: "/me?page=3#rides", cls: "tap", text: "Älteste »" },
+			first: { href: "/me/rides?page=1", cls: "tap", text: "« Neueste" },
+			prev: { href: "/me/rides?page=1", cls: "tap", text: "‹ Neuere" },
+			next: { href: "/me/rides?page=3", cls: "tap", text: "Ältere ›" },
+			last: { href: "/me/rides?page=3", cls: "tap", text: "Älteste »" },
 		});
 
-		const third = await pager("/me?page=3");
+		const third = await pager("/me/rides?page=3");
 		expect(third.rows.map((row) => row[0])).toEqual([
 			DAY_41,
 			"26.08.2026",
@@ -1015,14 +1057,14 @@ describe("GET /me paging (US5)", () => {
 		]);
 		expect(third.position).toBe("Fahrten 41–45 von 45");
 		expect(third.links).toEqual({
-			first: { href: "/me?page=1#rides", cls: "tap", text: "« Neueste" },
-			prev: { href: "/me?page=2#rides", cls: "tap", text: "‹ Neuere" },
+			first: { href: "/me/rides?page=1", cls: "tap", text: "« Neueste" },
+			prev: { href: "/me/rides?page=2", cls: "tap", text: "‹ Neuere" },
 		});
 	});
 
 	it("S5-3: shows no pager and no position for 20 rides", async () => {
 		await seedRides(ATHLETE_A, 20, "2026-10-06");
-		const page = await pager("/me");
+		const page = await pager("/me/rides");
 		expect(page.rows).toHaveLength(20);
 		expect(page.nav).toBeNull();
 		expect(page.html).not.toContain("rides-position");
@@ -1039,7 +1081,7 @@ describe("GET /me paging (US5)", () => {
 				overlapsActivityId: 8_000_001,
 			},
 		});
-		const { html } = await riderPage(ctx, ATHLETE_A, "/me?page=3");
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides?page=3");
 		expect(text(html)).toContain(
 			`Doppelt aufgezeichnet: Deine Fahrt vom ${DAY_1}, 08:00 Uhr, 40,0 km zählt stattdessen.`,
 		);
@@ -1047,25 +1089,25 @@ describe("GET /me paging (US5)", () => {
 
 	it("shows the last page for a page past the end", async () => {
 		await seedRides(ATHLETE_A, 45, "2026-10-06");
-		const page = await pager("/me?page=99");
+		const page = await pager("/me/rides?page=99");
 		expect(page.rows).toHaveLength(5);
 		expect(page.position).toBe("Fahrten 41–45 von 45");
-		expect(page.links.prev?.href).toBe("/me?page=2#rides");
+		expect(page.links.prev?.href).toBe("/me/rides?page=2");
 	});
 
 	it("shows page 1 for a page that isn't a number", async () => {
 		await seedRides(ATHLETE_A, 45, "2026-10-06");
-		const page = await pager("/me?page=abc");
+		const page = await pager("/me/rides?page=abc");
 		expect(page.position).toBe("Fahrten 1–20 von 45");
 	});
 
 	it("SC-005: pages through 500 rides by the rider's index", async () => {
 		await seedRides(ATHLETE_A, 500, "2026-10-06");
-		for (const path of ["/me", "/me?page=25"]) {
+		for (const path of ["/me/rides", "/me/rides?page=25"]) {
 			const page = await pager(path);
 			expect(page.rows).toHaveLength(20);
 		}
-		expect((await pager("/me?page=25")).position).toBe(
+		expect((await pager("/me/rides?page=25")).position).toBe(
 			"Fahrten 481–500 von 500",
 		);
 
@@ -1087,11 +1129,11 @@ describe("GET /me paging (US5)", () => {
 		).toEqual([]);
 	});
 
-	/** The `href` and text of every link to Strava, and the detail-row count. */
+	/** The `href` and text of every link to Strava, and the card count. */
 	async function stravaLinks(path: string, acceptLanguage?: string) {
 		const { html } = await riderPage(ctx, ATHLETE_A, path, acceptLanguage);
 		return {
-			details: html.match(/<tr class="ride-details">/g)?.length ?? 0,
+			details: rideCards(html).length,
 			links: [
 				...html.matchAll(
 					/<a class="tap strava-activity" href="([^"]*)">([\s\S]*?)<\/a>/g,
@@ -1110,8 +1152,8 @@ describe("GET /me paging (US5)", () => {
 	it("SC-001: links every ride on pages 1 and 3 to Strava (008 FR-009)", async () => {
 		await seedRides(ATHLETE_A, 45, "2026-10-06");
 		for (const [path, expected] of [
-			["/me?page=1", hrefs(1, 20)],
-			["/me?page=3", hrefs(41, 45)],
+			["/me/rides?page=1", hrefs(1, 20)],
+			["/me/rides?page=3", hrefs(41, 45)],
 		] as const) {
 			const page = await stravaLinks(path);
 			expect(page.links.map((link) => link.href)).toEqual(expected);
@@ -1120,7 +1162,7 @@ describe("GET /me paging (US5)", () => {
 				new Set(["View on Strava"]),
 			);
 		}
-		const english = await stravaLinks("/me?page=1", "en");
+		const english = await stravaLinks("/me/rides?page=1", "en");
 		expect(english.links.map((link) => link.href)).toEqual(hrefs(1, 20));
 		expect(new Set(english.links.map((link) => link.text))).toEqual(
 			new Set(["View on Strava"]),
@@ -1129,7 +1171,7 @@ describe("GET /me paging (US5)", () => {
 
 	it("links a private ride like any other (008 FR-011, S1-3)", async () => {
 		await seedRide(ATHLETE_A, { id: 8_900_201, is_private: 1 });
-		const page = await stravaLinks("/me");
+		const page = await stravaLinks("/me/rides");
 		expect(page.links.map((link) => link.href)).toEqual([
 			"https://www.strava.com/activities/8900201",
 		]);
@@ -1140,7 +1182,7 @@ describe("GET /me paging (US5)", () => {
 async function rulesAndNotice(athleteId = ATHLETE_A, acceptLanguage?: string) {
 	const { html } = await riderPage(ctx, athleteId, "/me", acceptLanguage);
 	const notice = section(html, 'class="notice" role="status"');
-	const rules = section(html, 'class="rynke-rules"');
+	const rules = section(html, 'class="rynke-rules card card-outlined"');
 	return {
 		html,
 		notice: notice === null ? null : text(notice),
@@ -1164,7 +1206,7 @@ describe("GET /me rules and notices (US6)", () => {
 			`Berechnet nach Regel-Version ${VERSION}, gültig seit dem 07.10.2026.`,
 		);
 		expect(rules).toContain("Es zählt alles ab dem 01.01.2026.");
-		const link = section(html, 'class="rynke-rules"')?.match(
+		const link = section(html, 'class="rynke-rules card card-outlined"')?.match(
 			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
 		);
 		expect(link?.[1]).toBe(RULES_HANDOUT_URL);
@@ -1212,7 +1254,7 @@ describe("GET /me rules and notices (US6)", () => {
 		expect(after.notice).toBe(
 			"Deine Fahrten seit dem 01.01.2026 werden noch importiert. Deine Rynke wachsen, sobald sie da sind.",
 		);
-		expect(after.html).toContain('class="rynke-summary"');
+		expect(after.html).toContain('class="rynke-summary verdict card"');
 		// Said once: feature 001's status line shows only a finished import.
 		expect(after.html.split("werden noch importiert").length - 1).toBe(1);
 		expect(after.html).not.toContain("werden importiert …");
@@ -1253,13 +1295,19 @@ describe("GET /me isolation and access (US1)", () => {
 			result: { counts: true, distanceRynke: 9 },
 		});
 
-		const a = text((await riderPage(ctx, ATHLETE_A)).html);
+		const shown = async (athleteId: number) =>
+			text(
+				(await riderPage(ctx, athleteId)).html +
+					(await riderPage(ctx, athleteId, "/me/rides")).html,
+			);
+
+		const a = await shown(ATHLETE_A);
 		expect(a).toContain("111 von 250");
 		expect(a).toContain("51,0 km");
 		expect(a).not.toContain("222 von");
 		expect(a).not.toContain("93,0 km");
 
-		const b = text((await riderPage(ctx, ATHLETE_B)).html);
+		const b = await shown(ATHLETE_B);
 		expect(b).toContain("222 von 250");
 		expect(b).toContain("93,0 km");
 		expect(b).not.toContain("111 von");
@@ -1318,7 +1366,12 @@ describe("GET /me isolation and access (US1)", () => {
 		const counts = await tableCounts();
 		const rows = await snapshot(ATHLETE_A);
 
-		for (const path of ["/me", "/me?page=2", "/me?page=3"]) {
+		for (const path of [
+			"/me",
+			"/me/rides",
+			"/me/rides?page=2",
+			"/me/rides?page=3",
+		]) {
 			expect((await riderPage(ctx, ATHLETE_A, path)).status).toBe(200);
 		}
 
@@ -1328,19 +1381,19 @@ describe("GET /me isolation and access (US1)", () => {
 		expect(fake.calls).toEqual([]);
 	});
 
-	it("places the sections after the import status, before consent", async () => {
+	it("places the sections after the import status, without rides or consent", async () => {
 		await seedBalance(ATHLETE_A);
 		await seedRide(ATHLETE_A, { id: 8_100_001 });
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		const order = [
 			"<p>Import abgeschlossen</p>",
-			'<section id="rynke" class="rynke-summary">',
-			'<section class="rynke-breakdown">',
-			'<section class="rynke-rules">',
-			'<section id="rides">',
-			"<h2>Deine Zustimmung</h2>",
+			'<section id="rynke" class="rynke-summary verdict card">',
+			'<section class="rynke-breakdown card card-outlined">',
+			'<section class="rynke-rules card card-outlined">',
 		].map((marker) => html.indexOf(marker));
 		expect(order.every((i) => i >= 0)).toBe(true);
 		expect([...order].sort((x, y) => x - y)).toEqual(order);
+		expect(html).not.toContain('<section id="rides">');
+		expect(html).not.toContain("<h2>Deine Zustimmung</h2>");
 	});
 });

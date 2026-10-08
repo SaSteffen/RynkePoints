@@ -266,13 +266,20 @@ export async function sessionCookie(
 	return cookiePair(await createSessionCookie(athleteId, ctx.now(), ctx.env));
 }
 
-/** A valid signed `rp_oauth_state` cookie carrying `state` and a consent version. */
+/** A valid signed `rp_oauth_state` cookie carrying `state`, a consent version and `next`. */
 export async function oauthStateCookie(
 	ctx: Ctx,
 	state: string,
 	consentVersion = CONSENT_VERSION,
+	next = "/me",
 ): Promise<Record<string, string>> {
 	return cookiePair(
-		await createOAuthStateCookie(state, consentVersion, ctx.now(), ctx.env),
+		await createOAuthStateCookie(
+			state,
+			consentVersion,
+			next,
+			ctx.now(),
+			ctx.env,
+		),
 	);
 }
