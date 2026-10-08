@@ -91,6 +91,11 @@ describe("POST /lang", () => {
 		"/me?foo=1",
 		"/me?page=01",
 		"/me?page=10000",
+		"/me/rides?page=0",
+		"/me/rides?page=10000",
+		"/me/rides?page=x",
+		"/me/settings/x",
+		"//team",
 		undefined,
 	])("redirects %j to /", async (next) => {
 		const res = await switchTo("en", next);
@@ -104,6 +109,11 @@ describe("POST /lang", () => {
 		"/notice/team-full",
 		"/me?page=2",
 		"/me?page=9999",
+		"/me/rides",
+		"/me/rides?page=1",
+		"/me/rides?page=9999",
+		"/me/settings",
+		"/team",
 	])("keeps %s", async (next) => {
 		const res = await switchTo("en", next);
 		expect(res.headers.get("Location")).toBe(next);

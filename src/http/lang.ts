@@ -9,14 +9,23 @@ import { isSameOrigin } from "./session";
 // The picked language lives only in the rp_lang cookie; nothing touches D1.
 
 const LANG_COOKIE_MAX_AGE = 365 * 24 * 3600;
-const NEXT_PATHS = new Set(["/", "/me", "/me/disconnect"]);
+const NEXT_PATHS = new Set([
+	"/",
+	"/me",
+	"/me/rides",
+	"/me/settings",
+	"/me/disconnect",
+	"/team",
+]);
 
 /** Only known rider-facing GET paths; anything else becomes `/`. */
 export function safeNext(next: string | null): string {
 	if (next === null) return "/";
 	if (NEXT_PATHS.has(next)) return next;
-	// The rider page's table page, so the switch keeps it (feature 005 FR-046).
-	if (/^\/me\?page=[1-9][0-9]{0,3}$/.test(next)) return next;
+	// The ride list's page, so the switch keeps it (feature 005 FR-046). The old
+	// `/me?page=N` still counts and redirects to `/me/rides` (feature 011 R2).
+	// None of these contain `:`, which the OAuth state cookie relies on.
+	if (/^\/me(\/rides)?\?page=[1-9][0-9]{0,3}$/.test(next)) return next;
 	const notice = next.match(/^\/notice\/([a-z-]+)$/);
 	if (notice?.[1] && isNoticeId(notice[1])) return next;
 	return "/";
