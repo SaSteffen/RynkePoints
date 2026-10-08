@@ -119,6 +119,16 @@ describe("maySee", () => {
 		}
 	});
 
+	it("hides an item shared from a later version until the subject agrees to it (US4 scenario 3)", () => {
+		const since = { ...SINCE_VERSION, accumulatedRynke: 2 };
+		for (const audience of ["organiser", "rider"] as const) {
+			expect(maySee(audience, "accumulatedRynke", 1, since)).toBe(false);
+			expect(maySee(audience, "accumulatedRynke", 2, since)).toBe(true);
+		}
+		expect(maySee("organiser", "firstName", 1, since)).toBe(true);
+		expect(maySee("self", "accumulatedRynke", 1, since)).toBe(true);
+	});
+
 	it("shows nobody else the rides or the consent records", () => {
 		for (const audience of ["organiser", "rider", "visitor"] as const) {
 			expect(maySee(audience, "rides", 1)).toBe(false);

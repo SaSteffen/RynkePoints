@@ -42,6 +42,50 @@ export function currentVersion(versions: ConsentVersions): ConsentVersion {
 export const CONSENT_VERSION = currentVersion(CONSENT_VERSIONS).version;
 
 /**
+ * Where a rider stands against the current version (004 data-model.md
+ * "Consent state", research R14). `viaStrava`: agreeing needs a trip through
+ * Strava, always for `missing`, else when a scope the current version
+ * requires isn't granted.
+ */
+export type ConsentState = (
+	| { kind: "current" }
+	| { kind: "missing" }
+	| { kind: "older"; accepted: number; changes: readonly MessageId[] }
+) & { viaStrava: boolean };
+
+export function consentState(
+	versions: ConsentVersions,
+	accepted: number | null,
+	grantedScopes: readonly string[],
+): ConsentState {
+	const current = currentVersion(versions);
+	if (accepted === null) return { kind: "missing", viaStrava: true };
+	const viaStrava = current.requiredScopes.some(
+		(scope) => !grantedScopes.includes(scope),
+	);
+	if (accepted >= current.version) return { kind: "current", viaStrava };
+	const changes = versions
+		.filter((entry) => entry.version > accepted)
+		.flatMap((entry) => entry.changes);
+	return { kind: "older", accepted, changes, viaStrava };
+}
+
+/**
+ * Whether the rider may use the app: agreed to the current version and granted
+ * every scope it requires. A rider who agreed through Strava but left out a
+ * newly required scope keeps meeting the gate (contracts/re-consent.md
+ * "Through Strava").
+ */
+export function hasAgreed(state: ConsentState): boolean {
+	return state.kind === "current" && !state.viaStrava;
+}
+
+/** The scopes a rider granted, as stored in `riders.scopes`. */
+export function grantedScopes(scopes: string): string[] {
+	return scopes.split(/[\s,]+/).filter((scope) => scope !== "");
+}
+
+/**
  * The lowest consent version whose text includes the FR-020 sharing with
  * organisers and the team (004 research R6, R13).
  */

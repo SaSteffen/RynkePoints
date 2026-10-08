@@ -1,9 +1,13 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { seasonStartEpoch } from "../../src/config";
+import { CONSENT_VERSIONS } from "../../src/consent";
 import { upsertActivity } from "../../src/db/activities";
 import { getCurrentConsent } from "../../src/db/consents";
 import { getCredentials, getRider } from "../../src/db/riders";
+import { escapeHtml } from "../../src/http/html";
+import { CATALOGS } from "../../src/i18n/catalogs";
+import { handleFetch } from "../../src/index";
 import { toActivityRecord } from "../../src/strava/activity";
 import {
 	approve,
@@ -15,6 +19,7 @@ import {
 } from "../support/callback";
 import {
 	makeCtx,
+	request,
 	resetDb,
 	seedRider,
 	sessionCookie,
@@ -408,6 +413,75 @@ describe("GET /auth/callback consent and write access", () => {
 		expect(await consentRows()).toEqual([
 			{ athlete_id: ATHLETE_A, version: 1, accepted_at: NOW },
 		]);
+	});
+});
+
+describe("GET /auth/callback for a new version that needs a scope (004 US4 scenario 4)", () => {
+	beforeEach(() => {
+		ctx = makeCtx({
+			consentVersions: [
+				...CONSENT_VERSIONS,
+				{
+					version: 2,
+					published: "2026-11-01",
+					requiredScopes: ["read", "activity:read", "activity:write"],
+					changes: ["consent.write"],
+				},
+			],
+		});
+	});
+
+	async function versions() {
+		const { results } = await env.DB.prepare(
+			"SELECT version FROM consent_records WHERE athlete_id = ? ORDER BY version",
+		)
+			.bind(ATHLETE_A)
+			.all<{ version: number }>();
+		return results.map((row) => row.version);
+	}
+
+	it("records version 2 and the new scopes of a rider who grants them", async () => {
+		await seedExistingRider({ consentVersion: 1 });
+		const res = await approve(
+			ctx,
+			fake,
+			ATHLETE_A,
+			SCOPES_ALL,
+			{},
+			{
+				consentVersion: 2,
+			},
+		);
+		expect(res.headers.get("Location")).toBe("/me");
+		expect(await versions()).toEqual([1, 2]);
+		const rider = await getRider(env.DB, ATHLETE_A);
+		expect(rider?.scopes).toBe(SCOPES_ALL);
+		expect(rider?.scopeWrite).toBe(true);
+	});
+
+	it("connects a rider who leaves the new scope out and keeps the gate", async () => {
+		await seedExistingRider({ consentVersion: 1 });
+		const res = await approve(
+			ctx,
+			fake,
+			ATHLETE_A,
+			SCOPES_NO_WRITE,
+			{},
+			{
+				consentVersion: 2,
+			},
+		);
+		expect(res.headers.get("Location")).toBe("/me");
+		expect(await versions()).toEqual([1, 2]);
+		const me = await handleFetch(
+			request("/me", { cookies: await sessionCookie(ctx, ATHLETE_A) }),
+			ctx,
+		);
+		const page = await me.text();
+		expect(page).toContain(escapeHtml(CATALOGS.de["me.consent.renew.strava"]));
+		expect(page).toContain('<form method="post" action="/connect">');
+		expect(page).not.toContain('action="/me/consent"');
+		expect(page).not.toContain("Hallo Testrider A!");
 	});
 });
 

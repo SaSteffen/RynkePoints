@@ -1,3 +1,9 @@
+import {
+	type ConsentState,
+	consentState,
+	grantedScopes,
+	hasAgreed,
+} from "../consent";
 import type { Ctx } from "../ctx";
 import { consentVersionOf } from "../db/consents";
 import { getRider, type Rider } from "../db/riders";
@@ -26,4 +32,28 @@ export async function readViewer(request: Request, ctx: Ctx): Promise<Viewer> {
 /** `302 /` for a visitor (where they sign in with Strava), else null. */
 export function requireRider(viewer: Viewer): Response | null {
 	return viewer.kind === "visitor" ? redirect("/", 302) : null;
+}
+
+/** A rider's consent state against `ctx.consentVersions` (004 research R14). */
+export function riderConsentState(
+	viewer: Extract<Viewer, { kind: "rider" }>,
+	ctx: Ctx,
+): ConsentState {
+	return consentState(
+		ctx.consentVersions,
+		viewer.consentVersion,
+		grantedScopes(viewer.rider.scopes),
+	);
+}
+
+/**
+ * `302 /me` for a rider who hasn't agreed to the current version, where the
+ * gate asks them (contracts/re-consent.md "Planned views"), else null. Call
+ * after `requireRider`, which handles visitors.
+ */
+export function requireConsent(viewer: Viewer, ctx: Ctx): Response | null {
+	if (viewer.kind === "visitor") return null;
+	return hasAgreed(riderConsentState(viewer, ctx))
+		? null
+		: redirect("/me", 302);
 }

@@ -1,5 +1,5 @@
 import { clientId, clubId, seasonStart } from "../config";
-import { currentVersion } from "../consent";
+import { currentVersion, grantedScopes } from "../consent";
 import type { Ctx } from "../ctx";
 import { recordConsent } from "../db/consents";
 import {
@@ -130,7 +130,7 @@ export async function handleCallback(
 	};
 
 	const scopes = token.scope ?? params.get("scope") ?? "";
-	const granted = new Set(scopes.split(/[\s,]+/));
+	const granted = new Set(grantedScopes(scopes));
 	if (!granted.has("read") || !granted.has("activity:read")) {
 		return refuse("denied", "denied-deleted");
 	}

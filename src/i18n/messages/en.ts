@@ -64,6 +64,11 @@ export const en: Catalog = {
 	"me.consent.none":
 		"No consent is recorded for you yet. Please read what you agree to by connecting, and agree; Strava then asks for your permissions again. Until then, nobody on the team sees anything of yours.",
 	"me.consent.renew.heading": "Please agree again",
+	"me.consent.renew.older":
+		"You agreed to version {accepted} on {date}. Version {version} changes this:",
+	"me.consent.renew.strava":
+		"RynkePoints needs another permission for this; Strava asks you for it.",
+	"me.consent.renew.button": "Agree and continue",
 	"me.consent.renew.leave":
 		"If you don't want to agree, you can disconnect; all your data is then deleted.",
 	"me.import.done": "Import complete",

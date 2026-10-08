@@ -1,5 +1,5 @@
 import { berlinDate } from "../config";
-import { currentVersion } from "../consent";
+import { currentVersion, hasAgreed } from "../consent";
 import type { Ctx } from "../ctx";
 import { type Consent, getCurrentConsent } from "../db/consents";
 import {
@@ -27,7 +27,7 @@ import {
 } from "./rider-sections";
 import { buildRiderView, parsePage } from "./rider-view";
 import { clearSessionCookie, isSameOrigin, readSession } from "./session";
-import { readViewer, requireRider } from "./viewer";
+import { readViewer, requireRider, riderConsentState } from "./viewer";
 
 // The rider's own pages (contracts/http-routes.md): `/me` with connection
 // status, granted level and write access, import progress, the rider's Rynke
@@ -36,10 +36,14 @@ import { readViewer, requireRider } from "./viewer";
 // own and only read), the stored consent (feature 004 FR-014), disconnecting
 // with deletion (FR-023), and signing out.
 
+/** The team's calendar day of an acceptance, passed as UTC midnight like the season start. */
+function acceptedOn(i18n: I18n, consent: Consent): string {
+	return i18n.formatDate(`${berlinDate(consent.acceptedAt)}T00:00:00Z`);
+}
+
 /** The rider's current consent, what is read and who sees what. */
 function consent(i18n: I18n, current: Consent): SafeHtml {
-	// The team's calendar day, passed as UTC midnight like the season start.
-	const date = i18n.formatDate(`${berlinDate(current.acceptedAt)}T00:00:00Z`);
+	const date = acceptedOn(i18n, current);
 	return html`<p>${i18n.t("me.consent.accepted", { version: String(current.version), date })}</p>
 <p>${i18n.t("landing.dataRead")}</p>
 <p>${i18n.t("consent.organisers")}</p>
@@ -54,13 +58,26 @@ export async function handleMe(
 	const viewer = await readViewer(request, ctx);
 	if (viewer.kind === "visitor") return redirect("/", 302);
 	// Nothing else of `/me` until the rider agrees (004 research R14).
+	const state = riderConsentState(viewer, ctx);
 	const accepted =
 		viewer.consentVersion === null
 			? null
 			: await getCurrentConsent(ctx.env.DB, viewer.rider.athleteId);
-	if (!accepted) {
+	if (!hasAgreed(state) || !accepted) {
 		const current = currentVersion(ctx.consentVersions).version;
-		return consentGate(i18n, current, { state: "missing" });
+		return consentGate(
+			i18n,
+			current,
+			state.kind === "older" && accepted
+				? {
+						state: "older",
+						accepted: state.accepted,
+						date: acceptedOn(i18n, accepted),
+						changes: state.changes,
+						viaStrava: state.viaStrava,
+					}
+				: { state: accepted ? "scopes" : "missing" },
+		);
 	}
 	const { rider } = viewer;
 

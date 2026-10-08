@@ -1,6 +1,12 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
-import { readViewer, requireRider, type Viewer } from "../../src/http/viewer";
+import { CONSENT_VERSIONS } from "../../src/consent";
+import {
+	readViewer,
+	requireConsent,
+	requireRider,
+	type Viewer,
+} from "../../src/http/viewer";
 import { handleFetch } from "../../src/index";
 import {
 	makeCtx,
@@ -113,5 +119,59 @@ describe("requireRider", () => {
 	it("lets a rider through", async () => {
 		await seedRider(ctx);
 		expect(requireRider(await viewerOf(ATHLETE_A))).toBeNull();
+	});
+});
+
+describe("requireConsent (004 US4, contracts/re-consent.md)", () => {
+	const v2Ctx = makeCtx({
+		consentVersions: [
+			...CONSENT_VERSIONS,
+			{
+				version: 2,
+				published: "2026-11-01",
+				requiredScopes: ["read", "activity:read"],
+				changes: ["consent.team"],
+			},
+		],
+	});
+
+	function expectToMe(res: Response | null) {
+		expect(res?.status).toBe(302);
+		expect(res?.headers.get("Location")).toBe("/me");
+	}
+
+	it("sends a rider without a record to /me", async () => {
+		await seedRider(ctx, { consentVersion: null });
+		expectToMe(requireConsent(await viewerOf(ATHLETE_A), ctx));
+	});
+
+	it("sends a rider on an older version to /me", async () => {
+		await seedRider(ctx, { consentVersion: 1 });
+		expectToMe(requireConsent(await viewerOf(ATHLETE_A), v2Ctx));
+	});
+
+	it("sends a rider on the current version without a scope it requires to /me", async () => {
+		const scopeCtx = makeCtx({
+			consentVersions: [
+				...CONSENT_VERSIONS,
+				{
+					version: 2,
+					published: "2026-11-01",
+					requiredScopes: ["read", "activity:read", "activity:write"],
+					changes: ["consent.write"],
+				},
+			],
+		});
+		await seedRider(scopeCtx, { consentVersion: 2, scopeWrite: false });
+		expectToMe(requireConsent(await viewerOf(ATHLETE_A), scopeCtx));
+	});
+
+	it("lets a current rider through", async () => {
+		await seedRider(ctx, { consentVersion: 1 });
+		expect(requireConsent(await viewerOf(ATHLETE_A), ctx)).toBeNull();
+	});
+
+	it("leaves a visitor to requireRider", () => {
+		expect(requireConsent({ kind: "visitor" }, ctx)).toBeNull();
 	});
 });

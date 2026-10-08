@@ -66,6 +66,11 @@ export const de = {
 	"me.consent.none":
 		"Für dich ist noch keine Zustimmung gespeichert. Lies bitte, was du mit dem Verbinden erlaubst, und stimme zu; Strava fragt dann noch einmal nach deinen Berechtigungen. Bis dahin sieht niemand im Team etwas von dir.",
 	"me.consent.renew.heading": "Bitte stimme erneut zu",
+	"me.consent.renew.older":
+		"Du hast am {date} Version {accepted} zugestimmt. Version {version} ändert Folgendes:",
+	"me.consent.renew.strava":
+		"Dafür braucht RynkePoints eine weitere Berechtigung; Strava fragt dich danach.",
+	"me.consent.renew.button": "Zustimmen und weiter",
 	"me.consent.renew.leave":
 		"Wenn du nicht zustimmen möchtest, kannst du die Verbindung trennen; dabei werden alle deine Daten gelöscht.",
 	"me.import.done": "Import abgeschlossen",

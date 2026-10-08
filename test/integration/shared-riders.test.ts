@@ -68,6 +68,19 @@ describe("SHARED_RIDER_IDS", () => {
 		).all<{ athlete_id: number }>();
 		expect(results.map((r) => r.athlete_id)).toEqual([ATHLETE_C]);
 	});
+
+	it("keeps a version 1 rider out of a sum shared from version 2 (US4 scenario 3)", async () => {
+		await env.DB.prepare(
+			"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, 2, ?)",
+		)
+			.bind(ATHLETE_C, ctx.now())
+			.run();
+		const row = await env.DB.prepare(
+			`SELECT SUM(training_rynke) AS training FROM rynke_balances
+			WHERE athlete_id IN (${sharedRiderIdsSince(2)})`,
+		).first<{ training: number }>();
+		expect(row?.training).toBe(1);
+	});
 });
 
 describe("a rider who leaves", () => {

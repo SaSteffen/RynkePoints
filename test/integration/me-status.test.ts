@@ -120,6 +120,22 @@ describe("GET /me for a connected rider", () => {
 		);
 	});
 
+	it("shows what was agreed, the permissions, who sees what and how to leave (004 US4 scenario 1, R12)", async () => {
+		await seedRider(ctx, { consentVersion: 1, scopeWrite: true });
+		const { page } = await getMe();
+		for (const shown of [
+			"Zugestimmt am 06.10.2026 (Version 1):",
+			escapeHtml(de["landing.dataRead"]),
+			escapeHtml(de["consent.organisers"]),
+			escapeHtml(de["consent.team"]),
+			escapeHtml(de["me.scope.readAll"]),
+			escapeHtml(de["me.scope.write"]),
+			`<a href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
+		]) {
+			expect(page).toContain(shown);
+		}
+	});
+
 	it("escapes the first name", async () => {
 		await seedRider(ctx, { firstName: "<b>Testrider</b>" });
 		const { page } = await getMe();
