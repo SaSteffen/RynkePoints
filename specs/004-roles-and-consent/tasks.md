@@ -196,7 +196,7 @@ R10, R15; [contracts/viewer-and-visibility.md](contracts/viewer-and-visibility.m
 `readViewer` with their session cookies, clear the flag between two requests, and
 check the role each time (US2 scenarios 1, 2, 4, 5; SC-006).
 
-- [ ] T019 [P] [US2] Tests first (failing), new
+- [x] T019 [P] [US2] Tests first (failing), new
   `test/integration/viewer.test.ts`:
   - no cookie or an invalid cookie → `{ kind: "visitor" }`;
   - a session whose rider row was deleted → visitor;
@@ -210,13 +210,13 @@ check the role each time (US2 scenarios 1, 2, 4, 5; SC-006).
   - no rider flagged → `/me` still works for a rider (US2 scenario 5, FR-006);
   - `requireRider(visitor)` is a `302` to `/`; `requireRider(rider)` is `null`
     (US3 scenario 5).
-- [ ] T020 [P] [US2] Test first (failing), `test/integration/dev-fake-strava.test.ts`:
+- [x] T020 [P] [US2] Test first (failing), `test/integration/dev-fake-strava.test.ts`:
   after seeding, 990004 (Tina TrainingDone) has `organiser = 1` and every other
   sample rider `0`.
-- [ ] T021 [US2] In `src/db/consents.ts`, add `consentVersionOf(db, athleteId):
+- [x] T021 [US2] In `src/db/consents.ts`, add `consentVersionOf(db, athleteId):
   Promise<number | null>`: the rider's highest accepted version
   (`SELECT MAX(version) …`), `null` without a record (research R13).
-- [ ] T022 [US2] Create `src/http/viewer.ts` with:
+- [x] T022 [US2] Create `src/http/viewer.ts` with:
   - `Viewer` (`{ kind: "visitor" } | { kind: "rider"; rider: Rider;
     consentVersion: number | null }`);
   - `readViewer(request, ctx)`: session via `readSession`, then `getRider`, then
@@ -224,17 +224,17 @@ check the role each time (US2 scenarios 1, 2, 4, 5; SC-006).
   - `requireRider(viewer)`: `redirect("/", 302)` for a visitor, else `null`.
 
   The role is never put in a cookie or cached (research R4).
-- [ ] T023 [US2] In `src/http/me.ts`, replace the local `signedInRider` with
+- [x] T023 [US2] In `src/http/me.ts`, replace the local `signedInRider` with
   `readViewer` in `handleMe` and `handleDisconnect`, keeping the same-origin
   check and `forbidden` answer. The gate decision from T016 uses
   `viewer.consentVersion === null`. Behaviour unchanged. Remove `signedInRider`.
-- [ ] T024 [P] [US2] In `dev/fake-strava/samples.ts`, add `organiser?: true` to
+- [x] T024 [P] [US2] In `dev/fake-strava/samples.ts`, add `organiser?: true` to
   `SampleRider` and set it on Tina TrainingDone (990004). In
   `dev/fake-strava/seed.ts`, after connecting the club members, run
   `UPDATE riders SET organiser = 1 WHERE athlete_id = ?` for each sample with
   `organiser` (research R10). Confirm the samples' fingerprint changes so an
   existing fake database is seeded again.
-- [ ] T025 [US2] Run `pnpm test`: T019 and T020 pass; `me-status`,
+- [x] T025 [US2] Run `pnpm test`: T019 and T020 pass; `me-status`,
   `disconnect` and `session-renewal` tests still pass.
 
 **Checkpoint**: US2 complete; the role follows the flag per request, and nobody
