@@ -1,16 +1,18 @@
 import { berlinDate } from "../config";
+import { currentVersion, hasAgreed } from "../consent";
 import type { Ctx } from "../ctx";
-import { getCurrentConsent } from "../db/consents";
+import { type Consent, getCurrentConsent } from "../db/consents";
 import {
 	deleteSubscription,
 	MAX_ENDPOINT_LENGTH,
 } from "../db/push-subscriptions";
 import { readRiderView } from "../db/rider-view";
-import { deleteRider, getRider, type Rider } from "../db/riders";
+import { deleteRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { vapidPublicKey } from "../push/vapid";
 import { CURRENT_RULES, rulesForVersion } from "../rynke/rules";
 import { revokeStoredToken } from "../strava/tokens";
+import { consentGate } from "./consent-gate";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
 import { renderInstallHint, renderNotifications } from "./pwa";
@@ -25,6 +27,7 @@ import {
 } from "./rider-sections";
 import { buildRiderView, parsePage } from "./rider-view";
 import { clearSessionCookie, isSameOrigin, readSession } from "./session";
+import { readViewer, requireRider, riderConsentState } from "./viewer";
 
 // The rider's own pages (contracts/http-routes.md): `/me` with connection
 // status, granted level and write access, import progress, the rider's Rynke
@@ -33,31 +36,18 @@ import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 // own and only read), the stored consent (feature 004 FR-014), disconnecting
 // with deletion (FR-023), and signing out.
 
-/**
- * The rider's current consent, what is read and who sees what, or that none is
- * stored.
- */
-async function consent(
-	ctx: Ctx,
-	i18n: I18n,
-	athleteId: number,
-): Promise<SafeHtml> {
-	const current = await getCurrentConsent(ctx.env.DB, athleteId);
-	if (!current) return html`<p>${i18n.t("me.consent.none")}</p>`;
-	// The team's calendar day, passed as UTC midnight like the season start.
-	const date = i18n.formatDate(`${berlinDate(current.acceptedAt)}T00:00:00Z`);
+/** The team's calendar day of an acceptance, passed as UTC midnight like the season start. */
+function acceptedOn(i18n: I18n, consent: Consent): string {
+	return i18n.formatDate(`${berlinDate(consent.acceptedAt)}T00:00:00Z`);
+}
+
+/** The rider's current consent, what is read and who sees what. */
+function consent(i18n: I18n, current: Consent): SafeHtml {
+	const date = acceptedOn(i18n, current);
 	return html`<p>${i18n.t("me.consent.accepted", { version: String(current.version), date })}</p>
 <p>${i18n.t("landing.dataRead")}</p>
 <p>${i18n.t("consent.organisers")}</p>
 <p>${i18n.t("consent.team")}</p>`;
-}
-
-async function signedInRider(
-	request: Request,
-	ctx: Ctx,
-): Promise<Rider | null> {
-	const athleteId = await readSession(request, ctx.env, ctx.now());
-	return athleteId === null ? null : getRider(ctx.env.DB, athleteId);
 }
 
 export async function handleMe(
@@ -65,8 +55,31 @@ export async function handleMe(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	const rider = await signedInRider(request, ctx);
-	if (!rider) return redirect("/", 302);
+	const viewer = await readViewer(request, ctx);
+	if (viewer.kind === "visitor") return redirect("/", 302);
+	// Nothing else of `/me` until the rider agrees (004 research R14).
+	const state = riderConsentState(viewer, ctx);
+	const accepted =
+		viewer.consentVersion === null
+			? null
+			: await getCurrentConsent(ctx.env.DB, viewer.rider.athleteId);
+	if (!hasAgreed(state) || !accepted) {
+		const current = currentVersion(ctx.consentVersions).version;
+		return consentGate(
+			i18n,
+			current,
+			state.kind === "older" && accepted
+				? {
+						state: "older",
+						accepted: state.accepted,
+						date: acceptedOn(i18n, accepted),
+						changes: state.changes,
+						viaStrava: state.viaStrava,
+					}
+				: { state: accepted ? "scopes" : "missing" },
+		);
+	}
+	const { rider } = viewer;
 
 	const title = i18n.t("me.title");
 	const status =
@@ -113,7 +126,7 @@ ${renderNotifications(i18n, vapidPublicKey(ctx.env))}
 ${renderRides(i18n, view.rides)}
 <section>
 <h2>${i18n.t("me.consent.heading")}</h2>
-${await consent(ctx, i18n, rider.athleteId)}
+${consent(i18n, accepted)}
 </section>
 <p><a href="/me/disconnect">${i18n.t("me.disconnect.button")}</a></p>
 <form method="post" action="/logout"><input type="hidden" name="push_endpoint" value=""><button>${i18n.t("layout.logout")}</button></form>`,
@@ -126,7 +139,8 @@ export async function handleDisconnectPage(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	if (!(await signedInRider(request, ctx))) return redirect("/", 302);
+	const denied = requireRider(await readViewer(request, ctx));
+	if (denied) return denied;
 	const title = i18n.t("disconnect.title");
 	return htmlResponse(
 		i18n,
@@ -150,10 +164,9 @@ export async function handleDisconnect(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	const rider = isSameOrigin(request)
-		? await signedInRider(request, ctx)
-		: null;
-	if (!rider) return forbidden(i18n, "/me/disconnect");
+	const viewer = isSameOrigin(request) ? await readViewer(request, ctx) : null;
+	if (viewer?.kind !== "rider") return forbidden(i18n, "/me/disconnect");
+	const { rider } = viewer;
 
 	let revoked = await revokeStoredToken(ctx, rider.athleteId);
 	if (revoked.kind === "transient") {

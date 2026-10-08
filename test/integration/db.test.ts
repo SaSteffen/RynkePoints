@@ -132,7 +132,55 @@ describe("riders", () => {
 			importStatus: "pending",
 			reconnectRequestedAt: null,
 			figuresVersion: ACTIVITY_FIGURES_VERSION,
+			organiser: false,
 		});
+	});
+
+	it("reads the organiser flag the app never writes (004 FR-002 to FR-004)", async () => {
+		const setOrganiser = () =>
+			db
+				.prepare("UPDATE riders SET organiser = 1 WHERE athlete_id = ?")
+				.bind(ATHLETE_A)
+				.run();
+		await seedRider(makeCtx());
+		expect((await getRider(db, ATHLETE_A))?.organiser).toBe(false);
+
+		await setOrganiser();
+		expect((await getRider(db, ATHLETE_A))?.organiser).toBe(true);
+
+		await updateRiderOnReconnect(db, ATHLETE_A, {
+			firstName: "Testrider A",
+			scopes: "read,activity:read",
+			scopeReadAll: false,
+			scopeWrite: false,
+			now: NOW + 30,
+		});
+		expect((await getRider(db, ATHLETE_A))?.organiser).toBe(true);
+
+		await deleteRider(db, ATHLETE_A);
+		await insertRider(
+			db,
+			{
+				athleteId: ATHLETE_A,
+				firstName: "Testrider A",
+				scopes: "read,activity:read",
+				scopeReadAll: false,
+				scopeWrite: false,
+				now: NOW + 60,
+			},
+			{ version: 1, acceptedAt: NOW + 60 },
+		);
+		expect((await getRider(db, ATHLETE_A))?.organiser).toBe(false);
+	});
+
+	it("rejects an organiser flag other than 0 or 1", async () => {
+		await seedRider(makeCtx());
+		await expect(
+			db
+				.prepare("UPDATE riders SET organiser = 2 WHERE athlete_id = ?")
+				.bind(ATHLETE_A)
+				.run(),
+		).rejects.toThrow(/CHECK/);
 	});
 
 	it("gives riders stored before 0002 figures version 0", async () => {
@@ -310,7 +358,7 @@ describe("consent records", () => {
 	});
 
 	it("never stores version 0", async () => {
-		await seedRider(makeCtx());
+		await seedRider(makeCtx(), { consentVersion: null });
 		await expect(
 			db
 				.prepare(

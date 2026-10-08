@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { CONSENT_VERSION } from "../../src/consent";
+import { CONSENT_VERSION, CONSENT_VERSIONS } from "../../src/consent";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
@@ -124,6 +124,29 @@ describe("GET / (signed out)", () => {
 			`<button><img src="${de["brand.connectWithStrava.src"]}" alt="Mit Strava verbinden"></button>`,
 		);
 		expect(page).not.toContain('<a href="/connect">');
+	});
+
+	it("renders the shared consent form with the current version (004 R11)", async () => {
+		const form = (version: number) =>
+			`<form method="post" action="/connect">
+<p><label><input type="checkbox" name="consent" value="${version}" required> ${escapeHtml(de["consent.agree"])}</label></p>
+<button><img src="${de["brand.connectWithStrava.src"]}" alt="Mit Strava verbinden"></button>
+</form>`;
+		expect((await get()).page).toContain(form(1));
+
+		const v2Ctx = makeCtx({
+			consentVersions: [
+				...CONSENT_VERSIONS,
+				{
+					version: 2,
+					published: "2026-11-01",
+					requiredScopes: ["read", "activity:read"],
+					changes: ["consent.team"],
+				},
+			],
+		});
+		const res = await handleFetch(request("/"), v2Ctx);
+		expect(await res.text()).toContain(form(2));
 	});
 
 	it("offers the language switcher before connecting", async () => {

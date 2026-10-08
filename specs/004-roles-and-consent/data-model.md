@@ -1,4 +1,4 @@
-# Data Model: Roles and Rider Consent (User Stories 1–3)
+# Data Model: Roles and Rider Consent (User Stories 1–4)
 
 **Feature**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md) | **Date**: 2026-10-07
 
@@ -43,24 +43,70 @@ No last name is stored (FR-022). 001's [data-model.md](../001-strava-connect-web
 | `accepted_at` | INTEGER, epoch s | first acceptance of that version (`INSERT OR IGNORE`) |
 
 Primary key `(athlete_id, version)`. The highest version is the rider's current
-consent (`getCurrentConsent`).
+consent (`getCurrentConsent`). A rider who agrees to a new version gets one more
+row; the older rows stay until the rider leaves (US4, research R13).
 
 ## In code (no storage)
 
-### Consent Version (`src/consent.ts`)
+### Consent Version (`src/consent.ts`, research R11)
+
+`ConsentVersion`, one per published version (spec Key Entities):
+
+| Field | Type | Rule |
+|---|---|---|
+| `version` | number | 1, 2, …; entries are ordered and consecutive |
+| `published` | `"YYYY-MM-DD"` | the team's calendar day it was published |
+| `requiredScopes` | `readonly string[]` | Strava scopes a rider must have granted; version 1: `read`, `activity:read` (FR-012) |
+| `changes` | `readonly MessageId[]` | what grew compared with the version before; empty for version 1 |
 
 | Constant | Value | Meaning |
 |---|---|---|
-| `CONSENT_VERSION` | 1 (unchanged) | the version the forms ask for today |
+| `CONSENT_VERSIONS` | `[version 1]` | the registry; production passes it as `Ctx.consentVersions` |
+| `CONSENT_VERSION` | 1 (unchanged) | the last entry's number, for code without a `Ctx` |
 | `SHARING_SINCE_VERSION` | 1 (new) | the lowest version whose consent includes the FR-020 sharing |
+
+`Ctx.consentVersions` is non-empty; the last entry is the **current** version.
+
+### Consent state (`consentState`, research R14)
+
+Derived per request from the registry, the rider's highest accepted version and
+`riders.scopes`; never stored:
+
+| Accepted version | State | `changes` |
+|---|---|---|
+| ≥ current | `current` | — |
+| none | `missing` | — |
+| below current | `older` | the `changes` of every version after the accepted one, up to current, in order |
+
+`viaStrava` is `true` for `missing`, and for `current` or `older` when a scope in
+the current version's `requiredScopes` isn't in `riders.scopes`; otherwise
+`false`.
+
+A rider has **agreed** (`hasAgreed`) only when the state is `current` and
+`viaStrava` is `false`. A rider who accepted the current version through Strava
+but left out a scope it requires has not agreed: the gate stays, offering only
+the way through Strava (contracts/re-consent.md "Through Strava").
+
+State transitions of a rider's consent:
+
+```text
+none ──agree via Strava──▶ current
+older ──agree (POST /me/consent, or via Strava if viaStrava)──▶ current
+current, scope left out ──grant it via Strava──▶ current, agreed
+current ──a new version is published──▶ older
+any ──leave (disconnect, revoke, not a member)──▶ rider and records deleted
+```
 
 ### Viewer (`src/http/viewer.ts`)
 
 ```ts
 type Viewer =
   | { kind: "visitor" }
-  | { kind: "rider"; rider: Rider };
+  | { kind: "rider"; rider: Rider; consentVersion: number | null };
 ```
+
+`consentVersion` is the rider's highest accepted version, read with the row (US4,
+research R15).
 
 Derived per request, never stored (Key Entities "Role"):
 
@@ -102,32 +148,42 @@ Without a rider row there is no flag, so only a connected rider can be an organi
 | `rides` | Individual rides, ride results and activity figures | no | no |
 | `consentRecords` | Consent records | no | no |
 
-`maySee(audience, data, subjectShared)`:
+`SINCE_VERSION: Record<RiderData, number>`: the first consent version that
+shares the item with others. Every item is `1` (`SHARING_SINCE_VERSION`) today
+(US4, research R13).
+
+`maySee(audience, data, subjectVersion)`, where `subjectVersion` is the subject's
+highest accepted version or `null`:
 
 1. `self` → `true`;
 2. `visitor` → `false`;
-3. `subjectShared` is `false` → `false` (FR-021);
+3. `subjectVersion` is `null` or below `SINCE_VERSION[data]` → `false` (FR-021,
+   FR-013);
 4. otherwise `VISIBILITY[data].has(audience)`.
 
 The subject's own role is not an input (FR-007).
 
 ### Shared riders (`src/db/consents.ts`)
 
-A rider is **shared** when a consent record with `version >= SHARING_SINCE_VERSION`
-exists (research R6).
+A rider is **shared** for an item when a consent record with
+`version >= SINCE_VERSION[item]` exists (research R6, R13).
 
 | Export | Shape | Used by |
 |---|---|---|
-| `SHARED_RIDER_IDS` | SQL subquery string, `SELECT athlete_id FROM consent_records WHERE version >= 1` | team queries: `… WHERE athlete_id IN (${SHARED_RIDER_IDS})`, inside every aggregate (FR-021) |
+| `sharedRiderIdsSince(version)` | SQL subquery string, `SELECT athlete_id FROM consent_records WHERE version >= <version>` | team queries for an item: `… WHERE athlete_id IN (${sharedRiderIdsSince(SINCE_VERSION[item])})` |
+| `SHARED_RIDER_IDS` | `sharedRiderIdsSince(SHARING_SINCE_VERSION)` | team queries, inside every aggregate (FR-021) |
 | `listSharedRiderIds(db)` | `Promise<number[]>`, ascending | views that list riders |
-| `isShared(db, athleteId)` | `Promise<boolean>` | `maySee`'s `subjectShared` for a single rider |
+| `consentVersionOf(db, athleteId)` | `Promise<number \| null>`, the highest accepted version | `readViewer`; `maySee`'s `subjectVersion` for a single rider |
 
 Deleting a rider deletes their records by cascade, so they stop being shared in
 the same statement (FR-015).
 
 ## Changed behaviour on `/me` (US1 edge case, research R1)
 
-| Rider's current consent | `/me` consent section |
+| Rider's consent state | `/me` |
 |---|---|
-| a record exists | as today: version, date, `landing.dataRead`, `consent.organisers`, `consent.team` |
-| none | `me.consent.none` (reworded), then the consent texts and the consent form posting to `POST /connect` |
+| `current` | the page as today, with the consent section: version, date, `landing.dataRead`, `consent.organisers`, `consent.team` (FR-014) |
+| `missing` | the gate: `me.consent.none` (reworded), the consent texts and the consent form posting to `POST /connect` (US1 R1, US4 R14) |
+| `older` | the gate: what changed, the consent texts, and a form posting to `POST /me/consent`, or to `POST /connect` when `viaStrava` (US4 R14) |
+
+The gate's layout is in [contracts/re-consent.md](contracts/re-consent.md).

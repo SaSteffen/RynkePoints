@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { CONSENT_VERSIONS } from "../../src/consent";
 import { readOAuthState } from "../../src/http/session";
 import { handleFetch } from "../../src/index";
 import {
@@ -106,6 +107,44 @@ describe("POST /connect without agreement", () => {
 			expect(res.headers.get("Set-Cookie")).toBeNull();
 		},
 	);
+});
+
+describe("POST /connect after a new consent version (004 research R11)", () => {
+	const v2Ctx = makeCtx({
+		consentVersions: [
+			...CONSENT_VERSIONS,
+			{
+				version: 2,
+				published: "2026-11-01",
+				requiredScopes: ["read", "activity:read"],
+				changes: ["consent.team"],
+			},
+		],
+	});
+
+	function post(consent: string) {
+		return handleFetch(
+			request("/connect", { method: "POST", form: { consent } }),
+			v2Ctx,
+		);
+	}
+
+	it("accepts the current version", async () => {
+		const res = await post("2");
+		expectAuthorize(res);
+		const back = request("/auth/callback", {
+			cookies: cookiePair(res.headers.get("Set-Cookie") ?? ""),
+		});
+		expect(
+			(await readOAuthState(back, v2Ctx.env, v2Ctx.now()))?.consentVersion,
+		).toBe(2);
+	});
+
+	it("refuses an older version like a missing tick", async () => {
+		const res = await post("1");
+		expect(res.status).toBe(303);
+		expect(res.headers.get("Location")).toBe("/notice/consent-required");
+	});
 });
 
 describe("GET /connect", () => {
