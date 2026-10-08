@@ -268,7 +268,7 @@ theme-color metas and both variants of each Strava image.
 
 ### Tests for User Story 3
 
-- [ ] T037 [P] [US3] New `test/unit/design-tokens.test.ts` (FR-031–FR-033,
+- [X] T037 [P] [US3] New `test/unit/design-tokens.test.ts` (FR-031–FR-033,
   FR-035, SC-006): parse the light `:root` block and the dark blocks in
   `STYLE`; both define the same token names; the contrast pairs of
   [contracts/design-tokens.md](contracts/design-tokens.md) reach 4.5 : 1 (text)
@@ -276,13 +276,13 @@ theme-color metas and both variants of each Strava image.
   other and from `--rp-track` (no 3 : 1 check for them); the colours in the head
   script equal `--md-sys-color-surface` light and dark; every rule outside the
   token blocks uses colours only through `var(--…)`.
-- [ ] T038 [P] [US3] Extend `test/unit/style.test.ts` (FR-036–FR-038):
+- [X] T038 [P] [US3] Extend `test/unit/style.test.ts` (FR-036–FR-038):
   `body` has `font-variant-numeric: tabular-nums`; a
   `@media (prefers-reduced-motion: reduce)` block sets the transitions to none;
   no `url(` to another origin and no `@import`; `.pbs-dark` and `.cws-dark` are
   hidden in light and shown in dark, and the reverse for `-light`, under both
   the media query and `[data-scheme]`.
-- [ ] T039 [P] [US3] Update `test/unit/html.test.ts` and
+- [X] T039 [P] [US3] Update `test/unit/html.test.ts` and
   `test/integration/pwa-pages.test.ts` (FR-034, FR-039, R6, R12): two
   `meta[name=theme-color]` with the light and dark media and `#fff8f6` /
   `#1a110e`; the one inline script (the scheme script) comes after them and
@@ -290,16 +290,16 @@ theme-color metas and both variants of each Strava image.
   `/app.js` (replaces 010's "ships no script but /app.js"); the footer has
   `img.pbs.pbs-light` from `brand.poweredByStrava.src` and `img.pbs.pbs-dark`
   from `brand.poweredByStrava.srcDark`.
-- [ ] T040 [P] [US3] Update `test/integration/landing.test.ts` and
+- [X] T040 [P] [US3] Update `test/integration/landing.test.ts` and
   `test/integration/consent-gate.test.ts`: the Connect button holds
   `img.cws.cws-light` from `brand.connectWithStrava.src` and `img.cws.cws-dark`
   from `brand.connectWithStrava.srcDark`, both with the same alt text.
-- [ ] T041 [P] [US3] Update `test/unit/manifest.test.ts`: `theme_color` and
+- [X] T041 [P] [US3] Update `test/unit/manifest.test.ts`: `theme_color` and
   `background_color` are `#fff8f6`.
 
 ### Implementation for User Story 3
 
-- [ ] T042 [US3] Rewrite `src/http/style.ts` around the tokens of
+- [X] T042 [US3] Rewrite `src/http/style.ts` around the tokens of
   [contracts/design-tokens.md](contracts/design-tokens.md) (research R4, R5):
   light tokens on `:root`; dark under
   `@media (prefers-color-scheme: dark) { :root:not([data-scheme=light]) {…} }`
@@ -311,26 +311,26 @@ theme-color metas and both variants of each Strava image.
   `.overview-grid` two columns from 600 px with notices, greeting and verdict
   spanning both; the light/dark image rules; `tabular-nums`; reduced motion;
   system font stack.
-- [ ] T043 [US3] `src/http/html.ts`: the two theme-color metas and the inline
+- [X] T043 [US3] `src/http/html.ts`: the two theme-color metas and the inline
   scheme script of [contracts/client.md](contracts/client.md) after them and
   before `<style>`; the footer's two Powered-by-Strava images.
-- [ ] T044 [P] [US3] `src/http/consent-form.ts`: the Connect button holds both
+- [X] T044 [P] [US3] `src/http/consent-form.ts`: the Connect button holds both
   images (`cws cws-light` / `cws cws-dark`).
-- [ ] T045 [P] [US3] Give the public pages the Material look through their
+- [X] T045 [P] [US3] Give the public pages the Material look through their
   markup hooks only: `src/http/landing.ts`, `src/http/notice.ts`,
   `src/http/errors.ts`, `src/http/consent-gate.ts`, the disconnect page in
   `src/http/me.ts` and `handleOffline` in `src/http/pwa.ts` use `card`,
   `button`/`button-outlined` and `danger` where [contracts/pages.md](contracts/pages.md)
   names them; no new text.
-- [ ] T046 [P] [US3] The Overview's verdict in
+- [X] T046 [P] [US3] The Overview's verdict in
   `src/http/sections/overview.ts` and `renderSummary` in
   `src/http/rider-sections.ts`: `section.verdict.card`, each missing amount as
   `span.chip`, each gauge in its own `section.card`, breakdown and rules in
   `section.card.card-outlined`, inside `.overview-grid` (contracts/pages.md
   "Overview").
-- [ ] T047 [P] [US3] `public/manifest.webmanifest`: `theme_color` and
+- [X] T047 [P] [US3] `public/manifest.webmanifest`: `theme_color` and
   `background_color` `#fff8f6`.
-- [ ] T048 [P] [US3] `public/strava/README.md`: list the two white variants
+- [X] T048 [P] [US3] `public/strava/README.md`: list the two white variants
   (`connect-with-strava-white.svg`, `powered-by-strava-white.svg`), their
   `brand.*.srcDark` keys, and that both variants of each image are rendered and
   the scheme CSS shows one.
