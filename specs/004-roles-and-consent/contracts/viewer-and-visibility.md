@@ -55,6 +55,7 @@ export function maySee(
   audience: Audience,
   data: RiderData,
   subjectVersion: number | null, // the subject's highest accepted version
+  since?: Readonly<Record<RiderData, number>>, // defaults to SINCE_VERSION; tests only
 ): boolean;
 ```
 
