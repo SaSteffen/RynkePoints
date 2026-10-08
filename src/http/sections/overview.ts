@@ -34,15 +34,16 @@ function renderCelebration(
 	const training = Math.max(now.training - seen.training, 0);
 	const team = Math.max(now.team - seen.team, 0);
 	if (training === 0 && team === 0) return null;
+	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const text =
 		training > 0 && team > 0
 			? i18n.t("celebrate.both", {
-					training: String(training),
-					team: String(team),
+					training: whole(training),
+					team: whole(team),
 				})
 			: training > 0
-				? i18n.t("celebrate.training", { n: String(training) })
-				: i18n.t("celebrate.team", { n: String(team) });
+				? i18n.t("celebrate.training", { n: whole(training) })
+				: i18n.t("celebrate.team", { n: whole(team) });
 	// Two coins drop in: one of each kind that rose, or two of the one.
 	const coins =
 		training > 0 && team > 0
