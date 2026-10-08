@@ -63,6 +63,9 @@ describe("every page's head", () => {
 	it.each([
 		["/", false],
 		["/me", true],
+		["/me/rides", true],
+		["/team", true],
+		["/me/settings", true],
 		["/me/disconnect", true],
 		["/notice/deleted", false],
 	])("%s links the manifest, icons and app.js", async (path, signedIn) => {
@@ -72,9 +75,8 @@ describe("every page's head", () => {
 		const head = page.slice(page.indexOf("<head>"), page.indexOf("</head>"));
 		for (const line of HEAD) expect(head).toContain(line);
 		expect(head).toContain(
-			'<meta name="viewport" content="width=device-width, initial-scale=1">',
+			'<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">',
 		);
-		expect(page).not.toContain("viewport-fit");
 	});
 });
 

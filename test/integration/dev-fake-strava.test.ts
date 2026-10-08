@@ -184,7 +184,7 @@ describe("seeding (FR-005, FR-012)", () => {
 		const page = await mePage(TINA);
 		expect(page).toContain("erreicht ✓");
 		expect(page).toContain("Noch nicht dabei");
-		expect(page.match(/<tr class="ride /g)).toHaveLength(20);
+		expect(page.match(/<li class="ride-card /g)).toHaveLength(20);
 
 		// FR-006, SC-002: fake answers never touch the request budget.
 		expect(await rateLimitRow()).toEqual(before);
@@ -448,7 +448,9 @@ describe("sample riders in every state (US2)", () => {
 			),
 		).toBe(45);
 		// The table shows the newest 20; feature 005's pager links the rest.
-		expect((await mePage(PAULA)).match(/<tr class="ride /g)).toHaveLength(20);
+		expect((await mePage(PAULA)).match(/<li class="ride-card /g)).toHaveLength(
+			20,
+		);
 	});
 
 	it("enters Paula Paging's team events, one that doesn't count", async () => {

@@ -300,11 +300,8 @@ ${heading}
 `;
 	return html`<section id="rides">
 ${heading}
-${position}<table class="rides">
-<thead><tr><th>${i18n.t("me.recent.col.date")}</th><th>${i18n.t("me.recent.col.distance")}</th><th>${i18n.t("rynke.rides.col.status")}</th><th>${i18n.t("rynke.training")}</th><th>${i18n.t("rynke.rides.col.elevationTotal")}</th></tr></thead>
-<tbody>
-${rides.rows.map((ride) => rideRows(i18n, ride))}</tbody>
-</table>
+${position}<ol class="ride-list">
+${rides.rows.map((ride) => rideCard(i18n, ride))}</ol>
 ${rides.pager && renderPager(i18n, rides.pager)}</section>`;
 }
 
@@ -428,8 +425,12 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 	}
 }
 
-/** Reasons, unknown figures and the fix hint below the main row (FR-042–FR-044). */
-function explanation(i18n: I18n, ride: RideLine): SafeHtml {
+/**
+ * Reasons, unknown figures and the fix hint in the card's disclosure, open
+ * only for a ride that doesn't count (011 clarification Q5); none when
+ * there is nothing to explain (FR-042–FR-044).
+ */
+function explanation(i18n: I18n, ride: RideLine): SafeHtml | null {
 	const reasons =
 		ride.reasons.length === 0
 			? null
@@ -446,10 +447,14 @@ function explanation(i18n: I18n, ride: RideLine): SafeHtml {
 	const fixHint = ride.fixHint
 		? html`<p>${i18n.t("rynke.ride.fixHint")}</p>`
 		: null;
-	return html`${reasons}${unknown}${fixHint}`;
+	if (!reasons && !unknown && !fixHint) return null;
+	const open = ride.status === "does-not-count" ? html` open` : null;
+	return html`<details class="ride-why"${open}><summary class="tap">${i18n.t("rynke.ride.why")}</summary>${reasons}${unknown}${fixHint}</details>
+`;
 }
 
-function rideRows(i18n: I18n, ride: RideLine): SafeHtml {
+/** One ride as a card (011 contracts/pages.md "Rides", research R7). */
+function rideCard(i18n: I18n, ride: RideLine): SafeHtml {
 	const status = STATUS[ride.status];
 	// The rider's local date: Strava writes local wall-clock time with a `Z`.
 	const date = i18n.formatDate(ride.startDateLocal);
@@ -470,8 +475,11 @@ function rideRows(i18n: I18n, ride: RideLine): SafeHtml {
 		ride.name === null
 			? null
 			: html`<span class="ride-name">${ride.name}</span> `;
-	const strava = html`<p class="ride-strava">${name}<a class="tap strava-activity" href="${STRAVA_ORIGIN}/activities/${ride.activityId}">${i18n.t("brand.viewOnStrava")}</a></p>`;
-	return html`<tr class="ride ${status.cls}"><td>${date}</td><td class="num">${km}</td><td>${i18n.t(status.text)}</td><td class="num">${rynke}</td><td class="num">${metres}</td></tr>
-<tr class="ride-details"><td colspan="5">${strava}${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}${explanation(i18n, ride)}</td></tr>
+	return html`<li class="ride-card ${status.cls}">
+<div class="ride-head"><span class="ride-date">${date}</span> <span class="chip ride-status">${i18n.t(status.text)}</span></div>
+<dl class="ride-figures"><div><dt>${i18n.t("me.recent.col.distance")}</dt><dd>${km}</dd></div><div><dt>${i18n.t("rynke.training")}</dt><dd>${rynke}</dd></div><div><dt>${i18n.t("rynke.rides.col.elevationTotal")}</dt><dd>${metres}</dd></div></dl>
+<p class="ride-strava">${name}<a class="tap strava-activity" href="${STRAVA_ORIGIN}/activities/${ride.activityId}">${i18n.t("brand.viewOnStrava")}</a></p>
+<p class="ride-meta">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</p>
+${explanation(i18n, ride)}</li>
 `;
 }

@@ -16,6 +16,7 @@ import {
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
 import {
+	rideCards,
 	riderPage,
 	type SeedRide,
 	seedBalance,
@@ -59,14 +60,9 @@ function text(fragment: string): string {
 		.trim();
 }
 
-/** The cell texts of the ride table's main rows. */
+/** Each ride card's date, distance, status, Training Rynke and elevation. */
 function mainRows(page: string): string[][] {
-	return [...page.matchAll(/<tr class="ride [^"]*">([\s\S]*?)<\/tr>/g)].map(
-		(row) =>
-			[...(row[1] ?? "").matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((c) =>
-				text(c[1] ?? ""),
-			),
-	);
+	return rideCards(page).map((card) => card.cells);
 }
 
 async function summary(athleteId = ATHLETE_A): Promise<string> {
@@ -650,19 +646,17 @@ describe("GET /me team events (US3b)", () => {
 	});
 });
 
-/** Each ride's detail row: its reason lines and its whole text. */
+/** Each ride card: its reason lines and its text below the figures. */
 async function details(athleteId = ATHLETE_A, acceptLanguage?: string) {
 	const { html } = await riderPage(ctx, athleteId, "/me/rides", acceptLanguage);
-	return [...html.matchAll(/<tr class="ride-details">([\s\S]*?)<\/tr>/g)].map(
-		([, inner = ""]) => ({
-			reasons: [
-				...(
-					inner.match(/<ul class="ride-reasons">([\s\S]*?)<\/ul>/)?.[1] ?? ""
-				).matchAll(/<li>([\s\S]*?)<\/li>/g),
-			].map((m) => text(m[1] ?? "")),
-			all: text(inner),
-		}),
-	);
+	return rideCards(html).map(({ html: inner }) => ({
+		reasons: [
+			...(
+				inner.match(/<ul class="ride-reasons">([\s\S]*?)<\/ul>/)?.[1] ?? ""
+			).matchAll(/<li>([\s\S]*?)<\/li>/g),
+		].map((m) => text(m[1] ?? "")),
+		all: text(inner.slice(inner.indexOf("</dl>"))),
+	}));
 }
 
 const FIX_HINT =
@@ -860,7 +854,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 	});
 });
 
-describe("GET /me/rides ride table (US1)", () => {
+describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 	beforeEach(() => seedBalance(ATHLETE_A));
 
 	it("S1-6: shows a counting ride's Rynke and metres", async () => {
@@ -872,16 +866,28 @@ describe("GET /me/rides ride table (US1)", () => {
 			result: { counts: true, distanceRynke: 7, elevationDm: 12400 },
 		});
 		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
-		expect(mainRows(html)).toEqual([
-			["06.10.2026", "79,0 km", "zählt", "7", "1.240 m"],
+		const [card, ...more] = rideCards(html);
+		expect(more).toEqual([]);
+		expect(card?.status).toBe("ride-counting");
+		expect(card?.cells).toEqual([
+			"06.10.2026",
+			"79,0 km",
+			"zählt",
+			"7",
+			"1.240 m",
 		]);
-		expect(html).toContain('<tr class="ride ride-counting">');
 		// No elevation Rynke per ride, anywhere (FR-040).
-		const details = html.match(/<tr class="ride-details">([\s\S]*?)<\/tr>/);
-		expect(text(details?.[1] ?? "")).toBe("View on Strava Radfahrt · 1.240 m");
+		expect(card?.meta).toBe("Radfahrt · 1.240 m");
+		expect(
+			text(card?.html.match(/<p class="ride-strava">[\s\S]*?<\/p>/)?.[0] ?? ""),
+		).toBe("View on Strava");
+		// Nothing to explain: no disclosure.
+		expect(card?.why).toBeNull();
+		expect(html).toContain('<ol class="ride-list">');
+		expect(html).not.toContain("<table");
 	});
 
-	it("S1-7: shows a ride that doesn't count with nothing", async () => {
+	it("S1-7: shows a ride that doesn't count with nothing, reasons open", async () => {
 		await seedRide(ATHLETE_A, {
 			id: 8_100_001,
 			start_date: "2026-10-05T08:00:00Z",
@@ -889,10 +895,17 @@ describe("GET /me/rides ride table (US1)", () => {
 			result: { counts: false, reasons: ["too_slow"] },
 		});
 		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
-		expect(mainRows(html)).toEqual([
-			["05.10.2026", "30,0 km", "zählt nicht", "0", "0 m"],
+		const [card] = rideCards(html);
+		expect(card?.status).toBe("ride-not-counting");
+		expect(card?.cells).toEqual([
+			"05.10.2026",
+			"30,0 km",
+			"zählt nicht",
+			"0",
+			"0 m",
 		]);
-		expect(html).toContain('<tr class="ride ride-not-counting">');
+		expect(card?.open).toBe(true);
+		expect(card?.why).toContain('<summary class="tap">Warum?</summary>');
 	});
 
 	it("S1-8: shows a ride without a result as being evaluated", async () => {
@@ -902,13 +915,34 @@ describe("GET /me/rides ride table (US1)", () => {
 			distance_m: 40000,
 		});
 		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
-		expect(mainRows(html)).toEqual([
-			["04.10.2026", "40,0 km", "wird ausgewertet", "–", "–"],
+		const [card] = rideCards(html);
+		expect(card?.status).toBe("ride-pending");
+		expect(card?.cells).toEqual([
+			"04.10.2026",
+			"40,0 km",
+			"wird ausgewertet",
+			"–",
+			"–",
 		]);
-		expect(html).toContain('<tr class="ride ride-pending">');
+		expect(card?.open).toBe(false);
 	});
 
-	it("marks a virtual ride in its details", async () => {
+	it("keeps a counting ride's explanation closed (clarification Q5)", async () => {
+		await seedRide(ATHLETE_A, {
+			id: 8_100_001,
+			result: {
+				counts: true,
+				distanceRynke: 4,
+				unknownFigures: ["elapsed_time"],
+			},
+		});
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
+		const [card] = rideCards(html);
+		expect(card?.why).toMatch(/^<details class="ride-why"><summary/);
+		expect(card?.open).toBe(false);
+	});
+
+	it("marks a virtual ride in its meta line", async () => {
 		await seedRide(ATHLETE_A, {
 			id: 8_100_001,
 			sport_type: "VirtualRide",
@@ -921,22 +955,14 @@ describe("GET /me/rides ride table (US1)", () => {
 			},
 		});
 		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
-		const details = html.match(/<tr class="ride-details">([\s\S]*?)<\/tr>/);
-		expect(text(details?.[1] ?? "")).toBe(
-			"View on Strava Virtuelle Fahrt · 300 m · virtuell",
-		);
+		expect(rideCards(html)[0]?.meta).toBe("Virtuelle Fahrt · 300 m · virtuell");
 	});
 
-	it("labels the columns", async () => {
+	it("labels the figures", async () => {
 		await seedRide(ATHLETE_A, { id: 8_100_001 });
 		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
-		const head = html.match(/<thead>([\s\S]*?)<\/thead>/)?.[1] ?? "";
-		expect(
-			[...head.matchAll(/<th>([\s\S]*?)<\/th>/g)].map((m) => m[1]),
-		).toEqual([
-			"Datum",
+		expect(rideCards(html)[0]?.labels).toEqual([
 			"Distanz",
-			"Zählt?",
 			"Trainingsrynke",
 			"Für die Höhenmeter",
 		]);
@@ -1089,11 +1115,11 @@ describe("GET /me/rides paging (US5)", () => {
 		).toEqual([]);
 	});
 
-	/** The `href` and text of every link to Strava, and the detail-row count. */
+	/** The `href` and text of every link to Strava, and the card count. */
 	async function stravaLinks(path: string, acceptLanguage?: string) {
 		const { html } = await riderPage(ctx, ATHLETE_A, path, acceptLanguage);
 		return {
-			details: html.match(/<tr class="ride-details">/g)?.length ?? 0,
+			details: rideCards(html).length,
 			links: [
 				...html.matchAll(
 					/<a class="tap strava-activity" href="([^"]*)">([\s\S]*?)<\/a>/g,

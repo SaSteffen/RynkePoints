@@ -74,7 +74,6 @@ export const en: Catalog = {
 	"me.import.done": "Import complete",
 	"me.recent.heading": "Your rides",
 	"me.recent.empty": "No rides imported yet",
-	"me.recent.col.date": "Date",
 	"me.recent.col.distance": "Distance",
 	"me.disconnect.button": "Disconnect and delete my data",
 
@@ -107,7 +106,6 @@ export const en: Catalog = {
 	"rynke.summary.ofTarget": "{value} of {target}",
 	"rynke.summary.missing": "{n} still missing",
 	"rynke.summary.reached": "reached ✓",
-	"rynke.rides.col.status": "Counts?",
 	"rynke.rides.col.elevationTotal": "Towards elevation",
 	"rynke.rides.position": "Rides {from}–{to} of {total}",
 	"rynke.pager.label": "Pages",

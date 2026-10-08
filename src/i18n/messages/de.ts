@@ -76,7 +76,6 @@ export const de = {
 	"me.import.done": "Import abgeschlossen",
 	"me.recent.heading": "Deine Fahrten",
 	"me.recent.empty": "Noch keine Fahrten importiert",
-	"me.recent.col.date": "Datum",
 	"me.recent.col.distance": "Distanz",
 	"me.disconnect.button": "Verbindung trennen und meine Daten löschen",
 
@@ -110,7 +109,6 @@ export const de = {
 	"rynke.summary.ofTarget": "{value} von {target}",
 	"rynke.summary.missing": "{n} fehlen noch",
 	"rynke.summary.reached": "erreicht ✓",
-	"rynke.rides.col.status": "Zählt?",
 	"rynke.rides.col.elevationTotal": "Für die Höhenmeter",
 	"rynke.rides.position": "Fahrten {from}–{to} von {total}",
 	"rynke.pager.label": "Seiten",
