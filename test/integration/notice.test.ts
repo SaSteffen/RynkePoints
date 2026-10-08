@@ -75,13 +75,15 @@ describe("GET /notice/:id", () => {
 			expect(page).toContain(`<title>${title}</title>`);
 			expect(page).toContain(`<h1>${title}</h1>`);
 			expect(page).toContain(body);
-			expect(page).toContain('<a href="/">Zur Startseite</a>');
+			expect(page).toContain(
+				'<a class="button-outlined" href="/">Zur Startseite</a>',
+			);
 			expect(page).toContain(
 				`<input type="hidden" name="next" value="/notice/${id}">`,
 			);
 
 			// Retrying starts at the consent form on the start page.
-			const retry = '<a href="/">Noch einmal versuchen</a>';
+			const retry = '<a class="button" href="/">Noch einmal versuchen</a>';
 			if (RETRY.includes(id)) expect(page).toContain(retry);
 			else expect(page).not.toContain(retry);
 			expect(page).not.toContain('href="/connect"');

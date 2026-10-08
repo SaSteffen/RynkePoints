@@ -61,7 +61,29 @@ describe("POST /connect with the box ticked", () => {
 	it("stores the same state and consent version 1 in rp_oauth_state", async () => {
 		const res = await connectForm({ consent: "1" });
 		const state = expectAuthorize(res).get("state");
-		expect(await stateCookie(res)).toEqual({ state, consentVersion: 1 });
+		expect(await stateCookie(res)).toEqual({
+			state,
+			consentVersion: 1,
+			next: "/me",
+		});
+	});
+
+	it.each([
+		["/team", "/team"],
+		["/me/rides?page=2", "/me/rides?page=2"],
+		["/", "/me"],
+		["https://evil.example/", "/me"],
+		["/me:evil", "/me"],
+	])("stores next=%s as %s (011 R9)", async (next, stored) => {
+		const res = await connectForm({ consent: "1", next });
+		const state = expectAuthorize(res).get("state");
+		expect(await stateCookie(res)).toEqual({
+			state,
+			consentVersion: 1,
+			next: stored,
+		});
+		const raw = res.headers.get("Set-Cookie") ?? "";
+		expect(raw).toContain(`rp_oauth_state=${state}:1:${stored}.`);
 	});
 
 	it("uses a fresh state every time", async () => {
@@ -175,6 +197,7 @@ describe("GET /connect", () => {
 		expect(await stateCookie(res)).toEqual({
 			state: params.get("state"),
 			consentVersion: 0,
+			next: "/me",
 		});
 	});
 });

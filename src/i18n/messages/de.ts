@@ -76,7 +76,6 @@ export const de = {
 	"me.import.done": "Import abgeschlossen",
 	"me.recent.heading": "Deine Fahrten",
 	"me.recent.empty": "Noch keine Fahrten importiert",
-	"me.recent.col.date": "Datum",
 	"me.recent.col.distance": "Distanz",
 	"me.disconnect.button": "Verbindung trennen und meine Daten löschen",
 
@@ -110,7 +109,6 @@ export const de = {
 	"rynke.summary.ofTarget": "{value} von {target}",
 	"rynke.summary.missing": "{n} fehlen noch",
 	"rynke.summary.reached": "erreicht ✓",
-	"rynke.rides.col.status": "Zählt?",
 	"rynke.rides.col.elevationTotal": "Für die Höhenmeter",
 	"rynke.rides.position": "Fahrten {from}–{to} von {total}",
 	"rynke.pager.label": "Seiten",
@@ -268,6 +266,30 @@ export const de = {
 		"Dieser Browser kann keine Benachrichtigungen anzeigen.",
 	"notifications.failed":
 		"Das hat nicht geklappt. Versuch es bitte noch einmal.",
+
+	// Feature 011: the app shell's sections, navigation and Settings groups.
+	// Strava ships its white assets in English only, as with the others.
+	"nav.label": "Bereiche",
+	"nav.overview": "Übersicht",
+	"nav.rides": "Fahrten",
+	"nav.team": "Team",
+	"nav.settings": "Einstellungen",
+	"shell.refresh": "Aktualisieren",
+	"team.placeholder.heading": "Die Teamansicht kommt bald",
+	"team.placeholder.body": "Hier siehst du bald, wie es im ganzen Team läuft.",
+	"settings.language": "Sprache",
+	"settings.appearance": "Darstellung",
+	"settings.scheme.system": "System",
+	"settings.scheme.light": "Hell",
+	"settings.scheme.dark": "Dunkel",
+	"settings.appearance.hint": "Gilt nur für dieses Gerät.",
+	"settings.app": "App",
+	"settings.strava": "Strava-Verbindung",
+	"settings.account": "Konto",
+	"rynke.ride.why": "Warum?",
+	"notifications.switch": "Benachrichtigungen auf diesem Gerät",
+	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",
+	"brand.connectWithStrava.srcDark": "/strava/en/connect-with-strava-white.svg",
 
 	"error.notFound.title": "Seite nicht gefunden",
 	"error.notFound.body": "Diese Seite gibt es nicht.",

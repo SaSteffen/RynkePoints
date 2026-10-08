@@ -74,23 +74,33 @@ describe.each(RIDER_PAGES)("$name", (page) => {
 		},
 	);
 
-	it("has one switcher that returns to this page", async () => {
+	it.runIf(page.next === null)("has no switcher (011 FR-016)", async () => {
 		const { html } = await render(page, {});
-		expect(html.match(/<form method="post" action="\/lang"/g)).toHaveLength(1);
-		expect(html.match(/name="next"/g)).toHaveLength(1);
-		expect(html).toContain(
-			`<input type="hidden" name="next" value="${page.next}">`,
-		);
-		for (const [locale, catalog] of Object.entries(CATALOGS)) {
-			expect(html).toContain(
-				`value="${locale}" lang="${locale}"${locale === "de" ? ' aria-current="true"' : ""}>${catalog["meta.languageName"]}</button>`,
-			);
-		}
+		expect(html).not.toContain('action="/lang"');
 	});
+
+	it.runIf(page.next !== null)(
+		"has one switcher that returns to this page",
+		async () => {
+			const { html } = await render(page, {});
+			expect(html.match(/<form method="post" action="\/lang"/g)).toHaveLength(
+				1,
+			);
+			expect(html.match(/name="next"/g)).toHaveLength(1);
+			expect(html).toContain(
+				`<input type="hidden" name="next" value="${page.next}">`,
+			);
+			for (const [locale, catalog] of Object.entries(CATALOGS)) {
+				expect(html).toContain(
+					`value="${locale}" lang="${locale}"${locale === "de" ? ' aria-current="true"' : ""}>${catalog["meta.languageName"]}</button>`,
+				);
+			}
+		},
+	);
 
 	it("stays English after picking it, whatever the browser prefers", async () => {
 		const picked = await handleFetch(
-			request("/lang", { form: { lang: "en", next: page.next } }),
+			request("/lang", { form: { lang: "en", next: page.next ?? "/" } }),
 			ctx,
 		);
 		const cookies = cookiePair(picked.headers.get("Set-Cookie") ?? "");

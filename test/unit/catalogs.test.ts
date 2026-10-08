@@ -14,7 +14,8 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // specs/005-rider-view/contracts/messages.md and
 // specs/008-strava-ride-names/contracts/messages.md and
 // specs/010-pwa-notifications/contracts/messages.md and
-// specs/004-roles-and-consent/contracts/re-consent.md.
+// specs/004-roles-and-consent/contracts/re-consent.md and
+// specs/011-mobile-app-shell/contracts/pages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"meta.intlLocale",
@@ -64,7 +65,6 @@ const CONTRACT_IDS = [
 	"me.import.done",
 	"me.recent.heading",
 	"me.recent.empty",
-	"me.recent.col.date",
 	"me.recent.col.distance",
 	"me.disconnect.button",
 	"units.km",
@@ -117,7 +117,6 @@ const CONTRACT_IDS = [
 	"rynke.missing.training",
 	"rynke.missing.team",
 	"rynke.missing.withoutVirtual",
-	"rynke.rides.col.status",
 	"rynke.rides.col.elevationTotal",
 	"rynke.ride.counts",
 	"rynke.ride.doesNotCount",
@@ -213,6 +212,28 @@ const CONTRACT_IDS = [
 	"notifications.needsHomeScreen",
 	"notifications.unsupported",
 	"notifications.failed",
+	// Feature 011
+	"nav.label",
+	"nav.overview",
+	"nav.rides",
+	"nav.team",
+	"nav.settings",
+	"shell.refresh",
+	"team.placeholder.heading",
+	"team.placeholder.body",
+	"settings.language",
+	"settings.appearance",
+	"settings.scheme.system",
+	"settings.scheme.light",
+	"settings.scheme.dark",
+	"settings.appearance.hint",
+	"settings.app",
+	"settings.strava",
+	"settings.account",
+	"rynke.ride.why",
+	"notifications.switch",
+	"brand.poweredByStrava.srcDark",
+	"brand.connectWithStrava.srcDark",
 ];
 
 const placeholders = (text: string) =>
@@ -314,6 +335,17 @@ describe("catalog contents", () => {
 	it("keeps Strava's exact attribution wording in every locale", () => {
 		expect(de["brand.poweredByStrava.alt"]).toBe("Powered by Strava");
 		expect(en["brand.poweredByStrava.alt"]).toBe("Powered by Strava");
+	});
+
+	it("uses Strava's English white assets in every locale (011 R13)", () => {
+		for (const catalog of Object.values(CATALOGS)) {
+			expect(catalog["brand.poweredByStrava.srcDark"]).toBe(
+				"/strava/en/powered-by-strava-white.svg",
+			);
+			expect(catalog["brand.connectWithStrava.srcDark"]).toBe(
+				"/strava/en/connect-with-strava-white.svg",
+			);
+		}
 	});
 
 	it("keeps Strava's link text in English in every locale (008 FR-009)", () => {

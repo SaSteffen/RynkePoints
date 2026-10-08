@@ -87,9 +87,11 @@ describe("GET /me/disconnect", () => {
 			"RynkePoints gibt den Zugriff auf dein Strava-Konto zurück und löscht sofort alle Daten über dich.",
 		);
 		expect(text).toMatch(
-			/<form method="post" action="\/me\/disconnect"><button>Ja, alles löschen<\/button><\/form>/,
+			/<form method="post" action="\/me\/disconnect"><button class="danger">Ja, alles löschen<\/button><\/form>/,
 		);
-		expect(text).toContain('<a href="/me">Abbrechen</a>');
+		expect(text).toContain(
+			'<a class="button-outlined" href="/me">Abbrechen</a>',
+		);
 		expect(text).toContain('name="next" value="/me/disconnect"');
 		expect(fake.calls).toEqual([]);
 	});
@@ -101,10 +103,13 @@ describe("GET /me/disconnect", () => {
 	});
 });
 
-describe("GET /me links to the disconnect page", () => {
+describe("GET /me/settings links to the disconnect page", () => {
 	it("shows the disconnect button", async () => {
 		await seedConnected();
-		const { text } = await page("/me", await sessionCookie(ctx, ATHLETE_A));
+		const { text } = await page(
+			"/me/settings",
+			await sessionCookie(ctx, ATHLETE_A),
+		);
 		expect(text).toContain(
 			'<a href="/me/disconnect">Verbindung trennen und meine Daten löschen</a>',
 		);

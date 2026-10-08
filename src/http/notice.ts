@@ -104,8 +104,8 @@ export function handleNotice(id: string, ctx: Ctx, i18n: I18n): Response {
 			path,
 			body: html`<h1>${title}</h1>
 ${paragraphs}
-${notice.retry ? html`<p><a href="/">${i18n.t("notice.retry")}</a></p>` : ""}
-<p><a href="/">${i18n.t("notice.backToStart")}</a></p>`,
+${notice.retry ? html`<p><a class="button" href="/">${i18n.t("notice.retry")}</a></p>` : ""}
+<p><a class="button-outlined" href="/">${i18n.t("notice.backToStart")}</a></p>`,
 		}),
 	);
 }

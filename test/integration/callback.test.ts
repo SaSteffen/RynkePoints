@@ -1,7 +1,8 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { seasonStartEpoch } from "../../src/config";
-import { CONSENT_VERSIONS } from "../../src/consent";
+import { CONSENT_VERSION, CONSENT_VERSIONS } from "../../src/consent";
+import { signValue } from "../../src/crypto/sign";
 import { upsertActivity } from "../../src/db/activities";
 import { getCurrentConsent } from "../../src/db/consents";
 import { getCredentials, getRider } from "../../src/db/riders";
@@ -206,6 +207,54 @@ describe("GET /auth/callback club check", () => {
 });
 
 describe("GET /auth/callback success", () => {
+	it("returns the rider to the section in the state cookie (011 R9)", async () => {
+		const res = await approve(
+			ctx,
+			fake,
+			ATHLETE_A,
+			SCOPES_ALL,
+			{},
+			{
+				next: "/team",
+			},
+		);
+		expect(res.status).toBe(302);
+		expect(res.headers.get("Location")).toBe("/team");
+		expect(setCookies(res).rp_session).toMatch(
+			new RegExp(`^rp_session=${ATHLETE_A}\\.`),
+		);
+	});
+
+	it("finishes a sign-in started before 011 with a two-part cookie (R9)", async () => {
+		const value = await signValue(
+			`synthetic-state-old:${CONSENT_VERSION}`,
+			ctx.now() + 600,
+			ctx.env.SESSION_SIGNING_KEY,
+			"rp_oauth_state",
+		);
+		fake.addAthlete({ id: ATHLETE_A });
+		fake.codes.set("synthetic-code-old", ATHLETE_A);
+		const res = await callback(ctx, {
+			params: {
+				code: "synthetic-code-old",
+				scope: SCOPES_ALL,
+				state: "synthetic-state-old",
+			},
+			cookieState: null,
+			cookies: { rp_oauth_state: value },
+		});
+		expect(res.status).toBe(302);
+		expect(res.headers.get("Location")).toBe("/me");
+	});
+
+	it("keeps refusals on their notice whatever next says", async () => {
+		const res = await callback(ctx, {
+			params: { error: "access_denied" },
+			next: "/team",
+		});
+		expectNotice(res, "denied");
+	});
+
 	it("connects a new member with both scopes", async () => {
 		const res = await approve(ctx, fake, ATHLETE_A, SCOPES_ALL);
 		expect(res.status).toBe(302);

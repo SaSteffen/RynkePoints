@@ -21,6 +21,8 @@ export interface CallbackOptions {
 	cookies?: Record<string, string>;
 	/** Consent version carried by the state cookie; defaults to the current one. */
 	consentVersion?: number;
+	/** Where the state cookie returns the rider; defaults to `/me`. */
+	next?: string;
 }
 
 export async function callback(
@@ -37,6 +39,7 @@ export async function callback(
 					ctx,
 					cookieState,
 					options.consentVersion ?? CONSENT_VERSION,
+					options.next,
 				)),
 		...options.cookies,
 	};
@@ -53,7 +56,7 @@ export async function approve(
 	athleteId: number,
 	scope = SCOPES_ALL,
 	cookies: Record<string, string> = {},
-	options: Pick<CallbackOptions, "consentVersion"> = {},
+	options: Pick<CallbackOptions, "consentVersion" | "next"> = {},
 ): Promise<Response> {
 	const athlete =
 		fake.athletes.get(athleteId) ?? fake.addAthlete({ id: athleteId });

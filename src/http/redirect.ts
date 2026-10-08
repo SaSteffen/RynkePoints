@@ -1,7 +1,7 @@
 /** A redirect, plus any cookies to set on the way. */
 export function redirect(
 	location: string,
-	status: 302 | 303,
+	status: 301 | 302 | 303,
 	cookies: string[] = [],
 ): Response {
 	const headers = new Headers({ Location: location });

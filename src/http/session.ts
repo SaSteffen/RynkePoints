@@ -121,25 +121,34 @@ export interface OAuthState {
 	state: string;
 	/** The consent version the rider agreed to on the way in; 0 for none (R21). */
 	consentVersion: number;
+	/** Where the callback returns the rider (feature 011 research R9). */
+	next: string;
 }
 
-/** Signs `<state>:<consentVersion>`; the signed format reserves `.`. */
+/**
+ * Signs `<state>:<consentVersion>:<next>`; the signed format reserves `.`, and
+ * `next` is one of `safeNext()`'s paths, none of which contains `:`.
+ */
 export function createOAuthStateCookie(
 	state: string,
 	consentVersion: number,
+	next: string,
 	now: number,
 	env: Keys,
 ): Promise<string> {
 	return signedCookie(
 		OAUTH_STATE_COOKIE,
-		`${state}:${consentVersion}`,
+		`${state}:${consentVersion}:${next}`,
 		OAUTH_STATE_MAX_AGE,
 		now,
 		env,
 	);
 }
 
-/** Null if missing, tampered, expired or without a consent version. */
+/**
+ * Null if missing, tampered, expired or without a consent version. A value
+ * from before feature 011 has no `next` and returns to `/me`.
+ */
 export async function readOAuthState(
 	request: Request,
 	env: Keys,
@@ -147,11 +156,13 @@ export async function readOAuthState(
 ): Promise<OAuthState | null> {
 	const value = (await readSigned(request, OAUTH_STATE_COOKIE, env, now))
 		?.value;
-	const colon = value?.lastIndexOf(":") ?? -1;
-	if (!value || colon === -1) return null;
-	const version = value.slice(colon + 1);
-	if (!/^\d+$/.test(version)) return null;
-	return { state: value.slice(0, colon), consentVersion: Number(version) };
+	const parts = value?.match(/^([^:]*):(\d+)(?::(.*))?$/);
+	if (!parts) return null;
+	return {
+		state: parts[1] ?? "",
+		consentVersion: Number(parts[2]),
+		next: parts[3] || "/me",
+	};
 }
 
 export function clearOAuthStateCookie(): string {

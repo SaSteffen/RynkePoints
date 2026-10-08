@@ -20,6 +20,7 @@ import {
 	NOW,
 	type StravaActivityFixture,
 } from "../support/fixtures";
+import { rideCards } from "../support/rider-view";
 
 const ctx = makeCtx();
 
@@ -52,7 +53,7 @@ function rides(
 
 async function getMe(acceptLanguage?: string) {
 	const res = await handleFetch(
-		request("/me", {
+		request("/me/rides", {
 			cookies: await sessionCookie(ctx, ATHLETE_A),
 			acceptLanguage,
 		}),
@@ -61,35 +62,19 @@ async function getMe(acceptLanguage?: string) {
 	return res.text();
 }
 
-function text(fragment: string): string {
-	return fragment
-		.replace(/<[^>]*>/g, " ")
-		.replace(/\s+/g, " ")
-		.trim();
-}
-
-/** The main rows of the ride table, as lists of cell texts. */
+/** Each card's date, distance, status, Training Rynke and elevation. */
 function rows(page: string): string[][] {
-	return [...page.matchAll(/<tr class="ride [^"]*">([\s\S]*?)<\/tr>/g)].map(
-		(row) =>
-			[...(row[1] ?? "").matchAll(/<td[^>]*>([\s\S]*?)<\/td>/g)].map((c) =>
-				text(c[1] ?? ""),
-			),
-	);
+	return rideCards(page).map((card) => card.cells);
 }
 
-/** The detail rows below each main row (sport type and gain). */
-/** Each detail row's text after the name and link (008's `p.ride-strava`). */
+/** Each card's meta line: sport type, gain and "virtual". */
 function details(page: string): string[] {
-	return [...page.matchAll(/<tr class="ride-details">([\s\S]*?)<\/tr>/g)].map(
-		(row) =>
-			text((row[1] ?? "").replace(/<p class="ride-strava">[\s\S]*?<\/p>/, "")),
-	);
+	return rideCards(page).map((card) => card.meta);
 }
 
 beforeEach(resetDb);
 
-describe("GET /me recent rides", () => {
+describe("GET /me/rides recent rides", () => {
 	it("lists only the rider's 20 newest activities, newest first", async () => {
 		await seedRider(ctx, { athleteId: ATHLETE_A });
 		await seedRider(ctx, { athleteId: ATHLETE_B });
@@ -139,15 +124,11 @@ describe("GET /me recent rides", () => {
 
 		const page = await getMe();
 		expect(page).toContain("<h2>Deine Fahrten</h2>");
-		for (const header of [
-			"Datum",
+		expect(rideCards(page)[0]?.labels).toEqual([
 			"Distanz",
-			"Zählt?",
 			"Trainingsrynke",
 			"Für die Höhenmeter",
-		]) {
-			expect(page).toContain(`<th>${header}</th>`);
-		}
+		]);
 		expect(rows(page)).toEqual([
 			["06.10.2026", "42,2 km", "wird ausgewertet", "–", "–"],
 			["01.10.2026", "42,2 km", "wird ausgewertet", "–", "–"],
@@ -173,15 +154,11 @@ describe("GET /me recent rides", () => {
 
 		const page = await getMe("en");
 		expect(page).toContain("<h2>Your rides</h2>");
-		for (const header of [
-			"Date",
+		expect(rideCards(page)[0]?.labels).toEqual([
 			"Distance",
-			"Counts?",
 			"Training Rynke",
 			"Towards elevation",
-		]) {
-			expect(page).toContain(`<th>${header}</th>`);
-		}
+		]);
 		expect(rows(page)).toEqual([
 			["06/10/2026", "42.2 km", "being evaluated", "–", "–"],
 		]);
@@ -196,6 +173,6 @@ describe("GET /me recent rides", () => {
 		const page = await getMe();
 		expect(page).toContain("<h2>Deine Fahrten</h2>");
 		expect(page).toContain("Noch keine Fahrten importiert");
-		expect(page).not.toContain("<table");
+		expect(page).not.toContain('<ol class="ride-list">');
 	});
 });

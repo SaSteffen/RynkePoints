@@ -143,3 +143,63 @@ export async function riderPage(
 	);
 	return { status: response.status, html: await response.text() };
 }
+
+/** The tags-stripped, whitespace-collapsed text of an HTML fragment. */
+function plain(fragment: string): string {
+	return fragment
+		.replace(/<[^>]*>/g, " ")
+		.replace(/\s+/g, " ")
+		.trim();
+}
+
+/** One ride card of `ol.ride-list` (feature 011 contracts/pages.md "Rides"). */
+export interface RideCard {
+	/** `ride-counting`, `ride-not-counting` or `ride-pending`. */
+	status: string;
+	/** Date, distance, chip, Training Rynke, elevation: 005's old column order. */
+	cells: string[];
+	/** The `dt` labels of `dl.ride-figures`. */
+	labels: string[];
+	/** The `p.ride-meta` text: sport, gain and "virtual". */
+	meta: string;
+	/** `details.ride-why`'s HTML, `null` without one. */
+	why: string | null;
+	/** Whether `details.ride-why` is rendered `open`. */
+	open: boolean;
+	/** The card's inner HTML. */
+	html: string;
+}
+
+/** The ride cards of a page, in order. */
+export function rideCards(page: string): RideCard[] {
+	return [
+		...page.matchAll(
+			/<li class="ride-card ([^"]*)">([\s\S]*?)<\/li>\n(?=<li class="ride-card|<\/ol>)/g,
+		),
+	].map(([, status = "", inner = ""]) => {
+		const pick = (re: RegExp) => plain(inner.match(re)?.[1] ?? "");
+		const figures = [...inner.matchAll(/<dd>([\s\S]*?)<\/dd>/g)].map((m) =>
+			plain(m[1] ?? ""),
+		);
+		const why = inner.match(
+			/<details class="ride-why"[^>]*>[\s\S]*?<\/details>/,
+		);
+		return {
+			status,
+			cells: [
+				pick(/<span class="ride-date">([\s\S]*?)<\/span>/),
+				figures[0] ?? "",
+				pick(/<span class="chip ride-status">([\s\S]*?)<\/span>/),
+				figures[1] ?? "",
+				figures[2] ?? "",
+			],
+			labels: [...inner.matchAll(/<dt>([\s\S]*?)<\/dt>/g)].map((m) =>
+				plain(m[1] ?? ""),
+			),
+			meta: pick(/<p class="ride-meta">([\s\S]*?)<\/p>/),
+			why: why?.[0] ?? null,
+			open: /^<details class="ride-why" open>/.test(why?.[0] ?? ""),
+			html: inner,
+		};
+	});
+}

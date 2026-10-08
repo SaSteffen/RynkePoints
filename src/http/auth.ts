@@ -18,6 +18,7 @@ import { isClubMember } from "../strava/client";
 import { STRAVA_ORIGIN } from "../strava/result";
 import { exchangeCode, revokeToken } from "../strava/tokens";
 import { forbidden } from "./errors";
+import { sectionNext } from "./lang";
 import type { NoticeId } from "./notice";
 import { redirect } from "./redirect";
 import {
@@ -49,6 +50,7 @@ async function authorizeRedirect(
 	request: Request,
 	ctx: Ctx,
 	consentVersion: number,
+	next: string,
 ): Promise<Response> {
 	const state = randomState();
 	const authorize = new URL(`${STRAVA_ORIGIN}/oauth/authorize`);
@@ -61,11 +63,20 @@ async function authorizeRedirect(
 		state,
 	}).toString();
 	return redirect(authorize.href, 302, [
-		await createOAuthStateCookie(state, consentVersion, ctx.now(), ctx.env),
+		await createOAuthStateCookie(
+			state,
+			consentVersion,
+			next,
+			ctx.now(),
+			ctx.env,
+		),
 	]);
 }
 
-/** `POST /connect`: the consent form on the landing page. */
+/**
+ * `POST /connect`: the consent form on the landing page and the consent gate,
+ * which also sends the section to return to (feature 011 research R9).
+ */
 export async function handleConnectForm(
 	request: Request,
 	ctx: Ctx,
@@ -82,7 +93,12 @@ export async function handleConnectForm(
 	if (form.get("consent") !== String(version)) {
 		return redirect("/notice/consent-required", 303);
 	}
-	return authorizeRedirect(request, ctx, version);
+	return authorizeRedirect(
+		request,
+		ctx,
+		version,
+		sectionNext(form.get("next")),
+	);
 }
 
 /** `GET /connect`: reconnecting or changing permissions, signed in only. */
@@ -94,7 +110,7 @@ export async function handleReconnect(
 	if (athleteId === null || !(await getRider(ctx.env.DB, athleteId))) {
 		return redirect("/", 302);
 	}
-	return authorizeRedirect(request, ctx, 0);
+	return authorizeRedirect(request, ctx, 0, "/me");
 }
 
 function notice(id: NoticeId, cookies: string[] = []): Response {
@@ -211,7 +227,7 @@ export async function handleCallback(
 		});
 	}
 
-	return redirect("/me", 302, [
+	return redirect(sectionNext(expected.next), 302, [
 		clearOAuthStateCookie(),
 		await createSessionCookie(token.athleteId, now, ctx.env),
 	]);

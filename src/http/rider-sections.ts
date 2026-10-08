@@ -17,7 +17,8 @@ import type {
 	Summary,
 } from "./rider-view";
 
-// The Rynke sections of /me (feature 005 contracts/rider-page.md), rendered
+// The Rynke sections of the Overview and Rides (feature 005
+// contracts/rider-page.md, feature 011 contracts/pages.md), rendered
 // from the view model. All text from the catalogs, all numbers through
 // `I18n`; the markup and class names are the contract the tests check.
 
@@ -98,7 +99,9 @@ export function renderSummary(i18n: I18n, summary: Summary): SafeHtml {
 	] as const;
 	const missing = unmet.flatMap(({ condition, id }) =>
 		condition && !condition.reached
-			? [html`<li>${i18n.t(id, { n: whole(i18n, condition.missing) })}</li>`]
+			? [
+					html`<li><span class="chip">${i18n.t(id, { n: whole(i18n, condition.missing) })}</span></li>`,
+				]
 			: [],
 	);
 	const verdict = summary.qualified
@@ -120,7 +123,7 @@ ${missing.length > 0 ? html`<ul class="rynke-missing">${missing}</ul>` : null}`;
 		return html`<dt>${label}</dt><dd>${amount} · ${state}</dd>
 `;
 	};
-	return html`<section id="rynke" class="rynke-summary">
+	return html`<section id="rynke" class="rynke-summary verdict card">
 <h2>${i18n.t("rynke.summary.heading")}</h2>
 ${verdict}
 <dl>
@@ -173,6 +176,7 @@ export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 ${figures}</section>`;
 }
 
+/** One gauge in its own card (feature 011 contracts/pages.md "Overview"). */
 function figure(i18n: I18n, gauge: Gauge, caption: string): SafeHtml {
 	const reached = gauge.reached
 		? html` · ${i18n.t("rynke.gauge.reached")}`
@@ -192,10 +196,12 @@ function figure(i18n: I18n, gauge: Gauge, caption: string): SafeHtml {
 					(part) =>
 						html`<li><span class="gauge-key ${PART_CLASS[part.source]}" aria-hidden="true"></span>${i18n.t(`rynke.source.${part.source}`)}: ${whole(i18n, part.value)}</li>`,
 				)}</ul>`;
-	return html`<figure class="gauge${gauge.reached ? " gauge-reached" : ""}">
+	return html`<section class="card">
+<figure class="gauge${gauge.reached ? " gauge-reached" : ""}">
 <figcaption>${caption}${reached}</figcaption>
 <div class="gauge-bar" aria-hidden="true">${bar}</div>
 ${legend}</figure>
+</section>
 `;
 }
 
@@ -207,7 +213,7 @@ export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
 		rynke: whole(i18n, breakdown.elevationRynke),
 		toNext: metres(breakdown.toNextStepM),
 	};
-	return html`<section class="rynke-breakdown">
+	return html`<section class="rynke-breakdown card card-outlined">
 <h2>${i18n.t("rynke.breakdown.heading")}</h2>
 <dl>
 <dt>${i18n.t("rynke.source.distance")}</dt><dd>${i18n.t("rynke.breakdown.trainingRynke", { n: whole(i18n, breakdown.distanceRynke) })}</dd>
@@ -269,7 +275,7 @@ export function renderRules(i18n: I18n, rules: RulesInfo): SafeHtml {
 					start,
 					deadline: day(i18n, rules.deadline),
 				});
-	return html`<section class="rynke-rules">
+	return html`<section class="rynke-rules card card-outlined">
 <h2>${i18n.t("rynke.rules.heading")}</h2>
 <p>${i18n.t("rynke.rules.version", {
 		version: String(rules.version),
@@ -299,11 +305,8 @@ ${heading}
 `;
 	return html`<section id="rides">
 ${heading}
-${position}<table class="rides">
-<thead><tr><th>${i18n.t("me.recent.col.date")}</th><th>${i18n.t("me.recent.col.distance")}</th><th>${i18n.t("rynke.rides.col.status")}</th><th>${i18n.t("rynke.training")}</th><th>${i18n.t("rynke.rides.col.elevationTotal")}</th></tr></thead>
-<tbody>
-${rides.rows.map((ride) => rideRows(i18n, ride))}</tbody>
-</table>
+${position}<ol class="ride-list">
+${rides.rows.map((ride) => rideCard(i18n, ride))}</ol>
 ${rides.pager && renderPager(i18n, rides.pager)}</section>`;
 }
 
@@ -314,7 +317,7 @@ function renderPager(i18n: I18n, pager: Pager): SafeHtml {
 		return page === null
 			? []
 			: [
-					html`<a class="tap" href="/me?page=${page}#rides" rel="${rel}">${i18n.t(text)}</a>`,
+					html`<a class="tap" href="/me/rides?page=${page}" rel="${rel}">${i18n.t(text)}</a>`,
 				];
 	});
 	return html`<nav class="pager" aria-label="${i18n.t("rynke.pager.label")}">${links}</nav>
@@ -427,8 +430,12 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 	}
 }
 
-/** Reasons, unknown figures and the fix hint below the main row (FR-042–FR-044). */
-function explanation(i18n: I18n, ride: RideLine): SafeHtml {
+/**
+ * Reasons, unknown figures and the fix hint in the card's disclosure, open
+ * only for a ride that doesn't count (011 clarification Q5); none when
+ * there is nothing to explain (FR-042–FR-044).
+ */
+function explanation(i18n: I18n, ride: RideLine): SafeHtml | null {
 	const reasons =
 		ride.reasons.length === 0
 			? null
@@ -445,10 +452,14 @@ function explanation(i18n: I18n, ride: RideLine): SafeHtml {
 	const fixHint = ride.fixHint
 		? html`<p>${i18n.t("rynke.ride.fixHint")}</p>`
 		: null;
-	return html`${reasons}${unknown}${fixHint}`;
+	if (!reasons && !unknown && !fixHint) return null;
+	const open = ride.status === "does-not-count" ? html` open` : null;
+	return html`<details class="ride-why"${open}><summary class="tap">${i18n.t("rynke.ride.why")}</summary>${reasons}${unknown}${fixHint}</details>
+`;
 }
 
-function rideRows(i18n: I18n, ride: RideLine): SafeHtml {
+/** One ride as a card (011 contracts/pages.md "Rides", research R7). */
+function rideCard(i18n: I18n, ride: RideLine): SafeHtml {
 	const status = STATUS[ride.status];
 	// The rider's local date: Strava writes local wall-clock time with a `Z`.
 	const date = i18n.formatDate(ride.startDateLocal);
@@ -469,8 +480,11 @@ function rideRows(i18n: I18n, ride: RideLine): SafeHtml {
 		ride.name === null
 			? null
 			: html`<span class="ride-name">${ride.name}</span> `;
-	const strava = html`<p class="ride-strava">${name}<a class="tap strava-activity" href="${STRAVA_ORIGIN}/activities/${ride.activityId}">${i18n.t("brand.viewOnStrava")}</a></p>`;
-	return html`<tr class="ride ${status.cls}"><td>${date}</td><td class="num">${km}</td><td>${i18n.t(status.text)}</td><td class="num">${rynke}</td><td class="num">${metres}</td></tr>
-<tr class="ride-details"><td colspan="5">${strava}${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}${explanation(i18n, ride)}</td></tr>
+	return html`<li class="ride-card ${status.cls}">
+<div class="ride-head"><span class="ride-date">${date}</span> <span class="chip ride-status">${i18n.t(status.text)}</span></div>
+<dl class="ride-figures"><div><dt>${i18n.t("me.recent.col.distance")}</dt><dd>${km}</dd></div><div><dt>${i18n.t("rynke.training")}</dt><dd>${rynke}</dd></div><div><dt>${i18n.t("rynke.rides.col.elevationTotal")}</dt><dd>${metres}</dd></div></dl>
+<p class="ride-strava">${name}<a class="tap strava-activity" href="${STRAVA_ORIGIN}/activities/${ride.activityId}">${i18n.t("brand.viewOnStrava")}</a></p>
+<p class="ride-meta">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</p>
+${explanation(i18n, ride)}</li>
 `;
 }
