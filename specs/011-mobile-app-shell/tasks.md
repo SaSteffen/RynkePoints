@@ -350,7 +350,7 @@ disconnect page returns there.
 
 ### Tests for User Story 4
 
-- [ ] T049 [P] [US4] New `test/integration/settings.test.ts` (FR-014, US4-AS1/5):
+- [X] T049 [P] [US4] New `test/integration/settings.test.ts` (FR-014, US4-AS1/5):
   `section.settings-group` ids in order `settings-language`,
   `settings-appearance`, `notifications`, `settings-app`, `settings-strava`,
   `settings-consent`, `settings-account`, each with its `h2`; the language form
@@ -362,30 +362,30 @@ disconnect page returns there.
   `section#settings-app` is `hidden` and holds `aside#install`; "Reconnect" only
   for a `needs_reconnect` rider; the logout form has the hidden `push_endpoint`;
   the disconnect link is `a.danger[href="/me/disconnect"]`.
-- [ ] T050 [P] [US4] Update `test/integration/lang-switcher.test.ts`
+- [X] T050 [P] [US4] Update `test/integration/lang-switcher.test.ts`
   (FR-016, US4-AS2): switching from Settings answers `303 /me/settings`; the
   Overview, Rides and Team have no switcher.
-- [ ] T051 [P] [US4] Update `test/integration/disconnect.test.ts` (FR-015,
+- [X] T051 [P] [US4] Update `test/integration/disconnect.test.ts` (FR-015,
   US4-AS4): "Cancel" links to `/me/settings`.
 
 ### Implementation for User Story 4
 
-- [ ] T052 [US4] `src/http/sections/settings.ts`: the seven groups and their
+- [X] T052 [US4] `src/http/sections/settings.ts`: the seven groups and their
   contents per [contracts/pages.md](contracts/pages.md) "Settings"; extract the
   language buttons from `layout()` in `src/http/html.ts` into a shared
   `languageForm(i18n, next)` used by both.
-- [ ] T053 [US4] `src/http/pwa.ts` `renderNotifications`: replace the two
+- [X] T053 [US4] `src/http/pwa.ts` `renderNotifications`: replace the two
   buttons with the switch; remove `notifications.turnOn` and
   `notifications.turnOff` from `src/i18n/messages/en.ts` and `de.ts`.
-- [ ] T054 [US4] `public/app.js` ([contracts/client.md](contracts/client.md)):
+- [X] T054 [US4] `public/app.js` ([contracts/client.md](contracts/client.md)):
   `show(state, checked)` with the switch table; the toggle runs 010's "on" flow
   when `aria-checked` is `false`, else the "off" flow; the scheme picker checks
   the stored radio, stores on `change` (`system` removes `rp-scheme`) and applies
   `dataset.scheme` and theme-color as the head script does; the install hint
   unhides and hides a parent `section#settings-app`.
-- [ ] T055 [US4] `src/http/me.ts` disconnect page: "Cancel" links to
+- [X] T055 [US4] `src/http/me.ts` disconnect page: "Cancel" links to
   `/me/settings`.
-- [ ] T056 [US4] `src/http/style.ts`: settings groups, `segmented-group` with
+- [X] T056 [US4] `src/http/style.ts`: settings groups, `segmented-group` with
   44 px labels, the Material switch (`[role=switch]`, thumb transition covered by
   reduced motion), `danger` link in the error colour.
 
