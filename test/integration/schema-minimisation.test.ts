@@ -74,6 +74,7 @@ const COLUMNS: Record<string, string[]> = {
 	],
 	// Issue #45: the last rise, for the notification text.
 	rynke_rises: ["athlete_id", "training_rynke", "team_rynke", "risen_at"],
+	rynke_seen: ["athlete_id", "training_rynke", "team_rynke"],
 	team_event_kinds: ["kind"],
 	team_events: ["event_id", "kind", "event_date", "name"],
 	attendances: ["event_id", "athlete_id"],

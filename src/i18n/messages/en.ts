@@ -47,7 +47,7 @@ export const en: Catalog = {
 		"I agree that RynkePoints reads my rides and shares my Rynke as described.",
 
 	"me.title": "Your RynkePoints",
-	"me.greeting": "Hi {firstName}!",
+	"me.greeting": "Hi {firstName}! 🦧",
 	"me.status.connected": "Connected to Strava",
 	"me.status.needsReconnect": "Your Strava connection needs to be renewed.",
 	"me.reconnect": "Reconnect",
@@ -97,8 +97,9 @@ export const en: Catalog = {
 	"rynke.notice.notWorkedOut":
 		"Your Rynke are still being worked out. Check back in a few minutes.",
 	"rynke.summary.heading": "Your Rynke",
-	"rynke.verdict.in": "You're in: you have everything you need for the tour.",
-	"rynke.verdict.notYet": "Not in yet. You still need:",
+	"rynke.verdict.in":
+		"You're in: you have everything you need for the tour. On to Paris! 🗼",
+	"rynke.verdict.notYet": "Not in yet 🍌 You still need:",
 	"rynke.missing.training": "{n} Training Rynke",
 	"rynke.missing.team": "{n} Team Rynke",
 	"rynke.missing.withoutVirtual":
@@ -123,9 +124,9 @@ export const en: Catalog = {
 	"rynke.rules.window": "Everything from {start} counts.",
 	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
 	"rynke.rules.handout": "How Rynke work (rules handout, in German)",
-	"rynke.ride.counts": "counts",
+	"rynke.ride.counts": "counts 🪙",
 	"rynke.ride.doesNotCount": "doesn't count",
-	"rynke.ride.beingEvaluated": "being evaluated",
+	"rynke.ride.beingEvaluated": "🦧 being evaluated",
 	"rynke.ride.virtual": "virtual",
 	"rynke.ride.fixHint":
 		"You can correct the ride on Strava or ask an organiser.",
@@ -168,7 +169,7 @@ export const en: Catalog = {
 		"Whether the ride was on an indoor trainer isn't known yet.",
 	"rynke.unknown.flagged": "Whether Strava flagged the ride isn't known yet.",
 	"rynke.unknown.mayChange": "The result may still change.",
-	"rynke.gauges.heading": "Your progress",
+	"rynke.gauges.heading": "Your progress 🪙",
 	"rynke.gauge.caption": "{label}: {value} of {target} · {percent}",
 	"rynke.gauge.reached": "✓ reached",
 	"rynke.gauge.elevation":
@@ -242,8 +243,6 @@ export const en: Catalog = {
 		"If you like, this device lets you know when you have new Rynke: how many, and what you still need.",
 	"notifications.on": "Notifications are on for this device.",
 	"notifications.off": "Notifications are off for this device.",
-	"notifications.turnOn": "Turn on notifications",
-	"notifications.turnOff": "Turn off notifications",
 	"notifications.blocked":
 		"Notifications stay off because your device blocks them for RynkePoints. You can allow them in your browser's or device's settings.",
 	"notifications.needsHomeScreen":
@@ -259,8 +258,17 @@ export const en: Catalog = {
 	"nav.team": "Team",
 	"nav.settings": "Settings",
 	"shell.refresh": "Refresh",
+	"shell.title": "{section} – RynkePoints",
 	"team.placeholder.heading": "Team view coming soon",
-	"team.placeholder.body": "Here you'll soon see how the whole team is doing.",
+	"team.placeholder.body":
+		"Here you'll soon see how the whole team is doing on the way from Hamburg to Paris. 🦧🚴",
+	"hero.training": "{n} Training Rynke",
+	"hero.team": "and {n} Team Rynke on the road to Paris",
+	"celebrate.training": "+{n} Training Rynke since your last visit 🎉",
+	"celebrate.team": "+{n} Team Rynke since your last visit 🎉",
+	"celebrate.both":
+		"+{training} Training Rynke and +{team} Team Rynke since your last visit 🎉",
+	"landing.tagline": "Collect your Rynke 🦧",
 	"settings.language": "Language",
 	"settings.appearance": "Appearance",
 	"settings.scheme.system": "System",

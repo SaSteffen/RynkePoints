@@ -112,8 +112,8 @@ describe.each(PAGES)("GET $url", ({ url, current }) => {
 		);
 		const header = html.match(/<header[\s\S]*?<\/header>/)?.[0] ?? "";
 		expect(header).toContain('<header class="top-bar">');
-		expect(header).toContain(
-			'<span class="wordmark">Rynke<span>Points</span></span>',
+		expect(header).toMatch(
+			/<span class="wordmark"><svg class="coin coin-mark"[^>]*><use href="#coin-front"\/><\/svg><span class="wordmark-name">Rynke<span>Points<\/span><\/span><\/span>/,
 		);
 		expect(header).not.toContain('action="/lang"');
 		const lang = html.match(/<form method="post" action="\/lang"/g) ?? [];

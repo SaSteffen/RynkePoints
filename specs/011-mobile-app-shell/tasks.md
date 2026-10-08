@@ -350,7 +350,7 @@ disconnect page returns there.
 
 ### Tests for User Story 4
 
-- [ ] T049 [P] [US4] New `test/integration/settings.test.ts` (FR-014, US4-AS1/5):
+- [X] T049 [P] [US4] New `test/integration/settings.test.ts` (FR-014, US4-AS1/5):
   `section.settings-group` ids in order `settings-language`,
   `settings-appearance`, `notifications`, `settings-app`, `settings-strava`,
   `settings-consent`, `settings-account`, each with its `h2`; the language form
@@ -362,30 +362,30 @@ disconnect page returns there.
   `section#settings-app` is `hidden` and holds `aside#install`; "Reconnect" only
   for a `needs_reconnect` rider; the logout form has the hidden `push_endpoint`;
   the disconnect link is `a.danger[href="/me/disconnect"]`.
-- [ ] T050 [P] [US4] Update `test/integration/lang-switcher.test.ts`
+- [X] T050 [P] [US4] Update `test/integration/lang-switcher.test.ts`
   (FR-016, US4-AS2): switching from Settings answers `303 /me/settings`; the
   Overview, Rides and Team have no switcher.
-- [ ] T051 [P] [US4] Update `test/integration/disconnect.test.ts` (FR-015,
+- [X] T051 [P] [US4] Update `test/integration/disconnect.test.ts` (FR-015,
   US4-AS4): "Cancel" links to `/me/settings`.
 
 ### Implementation for User Story 4
 
-- [ ] T052 [US4] `src/http/sections/settings.ts`: the seven groups and their
+- [X] T052 [US4] `src/http/sections/settings.ts`: the seven groups and their
   contents per [contracts/pages.md](contracts/pages.md) "Settings"; extract the
   language buttons from `layout()` in `src/http/html.ts` into a shared
   `languageForm(i18n, next)` used by both.
-- [ ] T053 [US4] `src/http/pwa.ts` `renderNotifications`: replace the two
+- [X] T053 [US4] `src/http/pwa.ts` `renderNotifications`: replace the two
   buttons with the switch; remove `notifications.turnOn` and
   `notifications.turnOff` from `src/i18n/messages/en.ts` and `de.ts`.
-- [ ] T054 [US4] `public/app.js` ([contracts/client.md](contracts/client.md)):
+- [X] T054 [US4] `public/app.js` ([contracts/client.md](contracts/client.md)):
   `show(state, checked)` with the switch table; the toggle runs 010's "on" flow
   when `aria-checked` is `false`, else the "off" flow; the scheme picker checks
   the stored radio, stores on `change` (`system` removes `rp-scheme`) and applies
   `dataset.scheme` and theme-color as the head script does; the install hint
   unhides and hides a parent `section#settings-app`.
-- [ ] T055 [US4] `src/http/me.ts` disconnect page: "Cancel" links to
+- [X] T055 [US4] `src/http/me.ts` disconnect page: "Cancel" links to
   `/me/settings`.
-- [ ] T056 [US4] `src/http/style.ts`: settings groups, `segmented-group` with
+- [X] T056 [US4] `src/http/style.ts`: settings groups, `segmented-group` with
   44 px labels, the Material switch (`[role=switch]`, thumb transition covered by
   reduced motion), `danger` link in the error colour.
 
@@ -400,30 +400,30 @@ disconnect page returns there.
 **Independent Test**: `/team` for a rider and an organiser shows only the
 placeholder, even with synthetic team data in D1.
 
-- [ ] T057 [US5] New `test/integration/team.test.ts` (FR-013, US5-AS1–3): for a
+- [X] T057 [US5] New `test/integration/team.test.ts` (FR-013, US5-AS1–3): for a
   rider and for an organiser (flag set), `/team` shows `section.placeholder` with
   `team.placeholder.heading` and `.body` and Team marked current; with
   `seedPageRiders` data present, the page contains none of `RIDE_NAMES`, no other
   rider's name and no Rynke figure. It passes against T022; fix
   `src/http/sections/team.ts` if it doesn't.
-- [ ] T058 [US5] `src/http/style.ts`: the centred `section.placeholder` with a
+- [X] T058 [US5] `src/http/style.ts`: the centred `section.placeholder` with a
   large tinted icon.
 
 ---
 
 ## Phase 8: Polish & Cross-Cutting
 
-- [ ] T059 [P] Run `test/unit/dev-guard.test.ts` and
+- [X] T059 [P] Run `test/unit/dev-guard.test.ts` and
   `test/integration/no-hardcoded-copy.test.ts` against the new
   `src/http/sections/`, `shell.ts`, `icons.ts` and `style.ts`: no `dev/` import,
   no inline rider text (the wordmark is the one allowed brand name; add it to the
   test's allow-list if needed).
-- [ ] T060 [P] Update the comments in `src/http/me.ts`, `consent-gate.ts`,
+- [X] T060 [P] Update the comments in `src/http/me.ts`, `consent-gate.ts`,
   `rider-sections.ts` and `rider-view.ts` that say "`/me`" where they now mean a
   section, and the route comment in `src/http/router.ts`.
-- [ ] T061 Run the asset check in `public/strava/README.md` (every `brand.*.src`
+- [X] T061 Run the asset check in `public/strava/README.md` (every `brand.*.src`
   and `srcDark` path exists under `public/`).
-- [ ] T062 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
+- [X] T062 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
 
 ---
 

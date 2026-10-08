@@ -6,6 +6,24 @@ import { declsOf, RULES } from "../support/css";
 // FR-031–FR-033, FR-035, SC-006): the same names in light and dark, readable
 // contrast for the pairs the pages use, and colours only through tokens.
 
+declare global {
+	interface ImportMeta {
+		glob(
+			pattern: string,
+			options: { query: "?raw"; import: "default"; eager: true },
+		): Record<string, string>;
+	}
+}
+
+const APP_JS =
+	Object.values(
+		import.meta.glob("../../public/app.js", {
+			query: "?raw",
+			import: "default",
+			eager: true,
+		}),
+	)[0] ?? "";
+
 type Tokens = Record<string, string>;
 
 const HEX = /^#[0-9a-f]{6}$/;
@@ -68,9 +86,9 @@ const TEXT_PAIRS: [string, string][] = [
 const GAUGE = [1, 2, 3, 4, 5, 6].map((n) => `--rp-part-${n}`);
 
 describe("design tokens", () => {
-	it("gives the light scheme the contract's surface", () => {
-		expect(LIGHT[md("surface")]).toBe("#fff8f6");
-		expect(DARK_FIXED[md("surface")]).toBe("#1a110e");
+	it("gives both schemes the contract's surface (Team Rynkeby colours)", () => {
+		expect(LIGHT[md("surface")]).toBe("#fffdf5");
+		expect(DARK_FIXED[md("surface")]).toBe("#12110c");
 	});
 
 	it("defines the same colour names in both schemes", () => {
@@ -78,6 +96,13 @@ describe("design tokens", () => {
 		expect(names.length).toBeGreaterThan(20);
 		expect(Object.keys(DARK_FIXED).sort()).toEqual(names);
 		expect(Object.keys(DARK_SYSTEM).sort()).toEqual(names);
+	});
+
+	it("keeps the coin's colours in both schemes (012 FR-005)", () => {
+		const coin = (tokens: Tokens) =>
+			Object.entries(tokens).filter(([name]) => name.startsWith("--rp-coin-"));
+		expect(coin(LIGHT).length).toBeGreaterThan(5);
+		expect(coin(DARK_FIXED)).toEqual(coin(LIGHT));
 	});
 
 	it("uses the same dark values for the system and a fixed choice", () => {
@@ -125,6 +150,15 @@ describe("design tokens", () => {
 		const [, dark, light] =
 			SCHEME_SCRIPT.match(/"dark" \? "(#[0-9a-f]{6})" : "(#[0-9a-f]{6})"/) ??
 			[];
+		expect(light).toBe(LIGHT[md("surface")]);
+		expect(dark).toBe(DARK_FIXED[md("surface")]);
+	});
+
+	it("gives the scheme picker in app.js the surface colours (FR-032a)", () => {
+		const [, light, dark] =
+			APP_JS.match(
+				/THEME_COLOR = \{ light: "(#[0-9a-f]{6})", dark: "(#[0-9a-f]{6})" \}/,
+			) ?? [];
 		expect(light).toBe(LIGHT[md("surface")]);
 		expect(dark).toBe(DARK_FIXED[md("surface")]);
 	});

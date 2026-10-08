@@ -18,7 +18,7 @@ try {
     // one theme-color for the fixed scheme (R12)
     for (const m of document.querySelectorAll('meta[name="theme-color"]')) {
       m.removeAttribute("media");
-      m.content = s === "dark" ? "#1a110e" : "#fff8f6";
+      m.content = s === "dark" ? "#12110c" : "#fffdf5";
     }
   }
 } catch {}

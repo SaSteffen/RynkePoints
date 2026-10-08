@@ -49,7 +49,7 @@ export const de = {
 		"Ich bin einverstanden, dass RynkePoints meine Fahrten liest und meine Rynke wie beschrieben teilt.",
 
 	"me.title": "Deine RynkePoints",
-	"me.greeting": "Hallo {firstName}!",
+	"me.greeting": "Hallo {firstName}! 🦧",
 	"me.status.connected": "Mit Strava verbunden",
 	"me.status.needsReconnect": "Die Verbindung zu Strava muss erneuert werden.",
 	"me.reconnect": "Erneut verbinden",
@@ -100,8 +100,8 @@ export const de = {
 		"Deine Rynke werden gerade berechnet. Schau in ein paar Minuten wieder vorbei.",
 	"rynke.summary.heading": "Deine Rynke",
 	"rynke.verdict.in":
-		"Du bist dabei: Du hast alles, was du für die Tour brauchst.",
-	"rynke.verdict.notYet": "Noch nicht dabei. Dir fehlen:",
+		"Du bist dabei: Du hast alles, was du für die Tour brauchst. Auf nach Paris! 🗼",
+	"rynke.verdict.notYet": "Noch nicht dabei 🍌 Dir fehlen:",
 	"rynke.missing.training": "{n} Trainingsrynke",
 	"rynke.missing.team": "{n} Teamrynke",
 	"rynke.missing.withoutVirtual":
@@ -127,9 +127,9 @@ export const de = {
 	"rynke.rules.windowDeadline":
 		"Es zählt alles vom {start} bis zum {deadline}.",
 	"rynke.rules.handout": "So funktionieren die Rynke (Regeln zum Nachlesen)",
-	"rynke.ride.counts": "zählt",
+	"rynke.ride.counts": "zählt 🪙",
 	"rynke.ride.doesNotCount": "zählt nicht",
-	"rynke.ride.beingEvaluated": "wird ausgewertet",
+	"rynke.ride.beingEvaluated": "🦧 wird ausgewertet",
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint":
 		"Du kannst die Fahrt auf Strava korrigieren oder dich an das Orga-Team wenden.",
@@ -173,7 +173,7 @@ export const de = {
 	"rynke.unknown.flagged":
 		"Ob Strava die Fahrt markiert hat, ist noch nicht bekannt.",
 	"rynke.unknown.mayChange": "Das Ergebnis kann sich noch ändern.",
-	"rynke.gauges.heading": "Dein Fortschritt",
+	"rynke.gauges.heading": "Dein Fortschritt 🪙",
 	"rynke.gauge.caption": "{label}: {value} von {target} · {percent}",
 	"rynke.gauge.reached": "✓ erreicht",
 	"rynke.gauge.elevation":
@@ -256,8 +256,6 @@ export const de = {
 		"Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast: wie viele und was dir noch fehlt.",
 	"notifications.on": "Benachrichtigungen sind auf diesem Gerät an.",
 	"notifications.off": "Benachrichtigungen sind auf diesem Gerät aus.",
-	"notifications.turnOn": "Benachrichtigungen einschalten",
-	"notifications.turnOff": "Benachrichtigungen ausschalten",
 	"notifications.blocked":
 		"Benachrichtigungen bleiben aus, weil dein Gerät sie für RynkePoints blockiert. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.",
 	"notifications.needsHomeScreen":
@@ -275,8 +273,17 @@ export const de = {
 	"nav.team": "Team",
 	"nav.settings": "Einstellungen",
 	"shell.refresh": "Aktualisieren",
+	"shell.title": "{section} – RynkePoints",
 	"team.placeholder.heading": "Die Teamansicht kommt bald",
-	"team.placeholder.body": "Hier siehst du bald, wie es im ganzen Team läuft.",
+	"team.placeholder.body":
+		"Hier siehst du bald, wie es im ganzen Team auf dem Weg von Hamburg nach Paris läuft. 🦧🚴",
+	"hero.training": "{n} Trainingsrynke",
+	"hero.team": "und {n} Teamrynke – auf dem Weg nach Paris",
+	"celebrate.training": "+{n} Trainingsrynke seit deinem letzten Besuch 🎉",
+	"celebrate.team": "+{n} Teamrynke seit deinem letzten Besuch 🎉",
+	"celebrate.both":
+		"+{training} Trainingsrynke und +{team} Teamrynke seit deinem letzten Besuch 🎉",
+	"landing.tagline": "Sammle deine Rynke 🦧",
 	"settings.language": "Sprache",
 	"settings.appearance": "Darstellung",
 	"settings.scheme.system": "System",

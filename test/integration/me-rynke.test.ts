@@ -82,7 +82,7 @@ describe("GET /me Rynke summary (US1)", () => {
 			virtualShareMissing: 155,
 		});
 		const shown = await summary();
-		expect(shown).toContain("Noch nicht dabei. Dir fehlen:");
+		expect(shown).toContain("Noch nicht dabei 🍌 Dir fehlen:");
 		expect(shown).toContain("12 von 250");
 		expect(shown).toContain("238 fehlen noch");
 		expect(shown).toContain("0 von 25");
@@ -157,7 +157,7 @@ describe("GET /me Rynke summary (US1)", () => {
 				...(missing ?? "").matchAll(
 					/<li><span class="chip">([\s\S]*?)<\/span><\/li>/g,
 				),
-			].map((m) => m[1]),
+			].map((m) => text(m[1] ?? "")),
 		).toEqual(["5 Teamrynke"]);
 		expect(text(html)).toContain("400 von 250");
 	});
@@ -177,6 +177,15 @@ describe("GET /me Rynke summary (US1)", () => {
 		expect(section(rides, 'id="rides"')).not.toBeNull();
 	});
 });
+
+/**
+ * Every table's row count but the Overview's seen totals: remembering what
+ * the rider saw is the pages' one write (feature 012 FR-007).
+ */
+async function readOnlyCounts() {
+	const { rynke_seen: _seen, ...counts } = await tableCounts();
+	return counts;
+}
 
 /** Each gauge's classes, caption text, bar and legend items. */
 async function gauges(athleteId = ATHLETE_A) {
@@ -886,7 +895,7 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 		expect(card?.cells).toEqual([
 			"06.10.2026",
 			"79,0 km",
-			"zählt",
+			"zählt 🪙",
 			"7",
 			"1.240 m",
 		]);
@@ -934,7 +943,7 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 		expect(card?.cells).toEqual([
 			"04.10.2026",
 			"40,0 km",
-			"wird ausgewertet",
+			"🦧 wird ausgewertet",
 			"–",
 			"–",
 		]);
@@ -1327,12 +1336,12 @@ describe("GET /me isolation and access (US1)", () => {
 			result: { counts: true, distanceRynke: 4 },
 		});
 		await seedRide(ATHLETE_A, { id: 8_100_002 });
-		const counts = await tableCounts();
+		const counts = await readOnlyCounts();
 		const rows = await snapshot(ATHLETE_A);
 
 		expect((await riderPage(ctx, ATHLETE_A)).status).toBe(200);
 
-		expect(await tableCounts()).toEqual(counts);
+		expect(await readOnlyCounts()).toEqual(counts);
 		expect(await snapshot(ATHLETE_A)).toEqual(rows);
 		expect(ctx.queue.sent).toEqual([]);
 		expect(fake.calls).toEqual([]);
@@ -1347,13 +1356,13 @@ describe("GET /me isolation and access (US1)", () => {
 		await attendRaw(await insertEvent("team_training", "2026-05-12"), [
 			ATHLETE_A,
 		]);
-		const counts = await tableCounts();
+		const counts = await readOnlyCounts();
 		const attendance = await attendanceRows();
 		const rows = await snapshot(ATHLETE_A);
 
 		expect((await riderPage(ctx, ATHLETE_A)).status).toBe(200);
 
-		expect(await tableCounts()).toEqual(counts);
+		expect(await readOnlyCounts()).toEqual(counts);
 		expect(await attendanceRows()).toEqual(attendance);
 		expect(await snapshot(ATHLETE_A)).toEqual(rows);
 		expect(ctx.queue.sent).toEqual([]);
@@ -1363,7 +1372,7 @@ describe("GET /me isolation and access (US1)", () => {
 	it("SC-004: paging only reads", async () => {
 		await seedBalance(ATHLETE_A);
 		await seedRides(ATHLETE_A, 45, "2026-10-06");
-		const counts = await tableCounts();
+		const counts = await readOnlyCounts();
 		const rows = await snapshot(ATHLETE_A);
 
 		for (const path of [
@@ -1375,7 +1384,7 @@ describe("GET /me isolation and access (US1)", () => {
 			expect((await riderPage(ctx, ATHLETE_A, path)).status).toBe(200);
 		}
 
-		expect(await tableCounts()).toEqual(counts);
+		expect(await readOnlyCounts()).toEqual(counts);
 		expect(await snapshot(ATHLETE_A)).toEqual(rows);
 		expect(ctx.queue.sent).toEqual([]);
 		expect(fake.calls).toEqual([]);

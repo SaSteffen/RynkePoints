@@ -27,7 +27,8 @@ import { handleWebhook } from "./webhook";
 // in plain English; every other route is rider-facing and gets an I18n for the
 // language resolved once per request. A GET or HEAD page renews the session
 // (010 research R10), except the two texts the service worker caches, which
-// must be the same for everyone.
+// must be the same for everyone. The signed-in app is four sections, each its
+// own address: `/me`, `/me/rides`, `/team` and `/me/settings` (011 FR-001).
 
 const WEBHOOK_PREFIX = "/strava/webhook/";
 

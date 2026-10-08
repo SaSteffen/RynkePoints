@@ -96,6 +96,28 @@ describe("GET /me Overview", () => {
 		]);
 	});
 
+	it("greets the rider in the coin hero with their totals (012 US1)", async () => {
+		await seedRider(ctx);
+		await seedBalance(ATHLETE_A, { trainingRynke: 17, teamRynke: 3 });
+		const hero = (await main()).match(
+			/<section class="hero">([\s\S]*?)<\/section>/,
+		)?.[1];
+		expect(hero).toContain('<use href="#coin-front"/>');
+		expectInOrder(hero ?? "", [
+			'<p class="greeting">',
+			`<p class="hero-total">${escapeHtml(de["hero.training"].replace("{n}", "17"))}</p>`,
+			`<p>${escapeHtml(de["hero.team"].replace("{n}", "3"))}</p>`,
+		]);
+	});
+
+	it("puts the coin sprite on the page once", async () => {
+		await seedRider(ctx);
+		await seedBalance(ATHLETE_A);
+		const { html } = await riderPage(ctx, ATHLETE_A);
+		expect(html.match(/<symbol id="coin-front"/g)).toHaveLength(1);
+		expect(html.match(/<symbol id="coin-back"/g)).toHaveLength(1);
+	});
+
 	it("has no rides, notifications, consent or account actions", async () => {
 		await seedRider(ctx);
 		await seedBalance(ATHLETE_A);

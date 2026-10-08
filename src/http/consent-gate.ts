@@ -19,7 +19,7 @@ import { readViewer, riderConsentState } from "./viewer";
 
 /**
  * Why the rider meets the gate: no consent record yet (US1), an older version
- * than the current one (US4), accepted on `date` as `/me` shows it, or the
+ * than the current one (US4), accepted on `date` as Settings shows it, or the
  * current version without a scope it requires ("Through Strava").
  */
 export type GateState =
