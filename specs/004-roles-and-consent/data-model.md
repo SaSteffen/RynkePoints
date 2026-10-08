@@ -78,14 +78,21 @@ Derived per request from the registry, the rider's highest accepted version and
 | none | `missing` | — |
 | below current | `older` | the `changes` of every version after the accepted one, up to current, in order |
 
-`viaStrava` is `true` for `missing`, and for `older` when a scope in the current
-version's `requiredScopes` isn't in `riders.scopes`; otherwise `false`.
+`viaStrava` is `true` for `missing`, and for `current` or `older` when a scope in
+the current version's `requiredScopes` isn't in `riders.scopes`; otherwise
+`false`.
+
+A rider has **agreed** (`hasAgreed`) only when the state is `current` and
+`viaStrava` is `false`. A rider who accepted the current version through Strava
+but left out a scope it requires has not agreed: the gate stays, offering only
+the way through Strava (contracts/re-consent.md "Through Strava").
 
 State transitions of a rider's consent:
 
 ```text
 none ──agree via Strava──▶ current
 older ──agree (POST /me/consent, or via Strava if viaStrava)──▶ current
+current, scope left out ──grant it via Strava──▶ current, agreed
 current ──a new version is published──▶ older
 any ──leave (disconnect, revoke, not a member)──▶ rider and records deleted
 ```
