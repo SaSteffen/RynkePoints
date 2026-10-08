@@ -59,7 +59,7 @@ describe("GET /me for a connected rider", () => {
 		const settings = (await getSettings()).page;
 		expect(settings).toContain("Mit Strava verbunden");
 		expect(settings).toContain(
-			'<a class="button-outlined" href="/connect">Berechtigungen auf Strava ändern</a>',
+			'<a class="button-outlined" href="/connect?next=/me/settings">Berechtigungen auf Strava ändern</a>',
 		);
 		expect(settings).not.toContain("Erneut verbinden");
 	});
@@ -282,7 +282,7 @@ describe("GET /me for a needs_reconnect rider", () => {
 			"Die Verbindung zu Strava muss erneuert werden.",
 		);
 		expect(settings).toContain(
-			'<a class="button" href="/connect">Erneut verbinden</a>',
+			'<a class="button" href="/connect?next=/me/settings">Erneut verbinden</a>',
 		);
 		expect(settings).not.toContain("Mit Strava verbunden");
 	});

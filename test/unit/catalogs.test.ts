@@ -217,6 +217,7 @@ const CONTRACT_IDS = [
 	"nav.team",
 	"nav.settings",
 	"shell.refresh",
+	"shell.title",
 	"team.placeholder.heading",
 	"team.placeholder.body",
 	"settings.language",

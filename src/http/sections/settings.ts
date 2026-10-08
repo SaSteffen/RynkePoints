@@ -53,7 +53,7 @@ export function handleSettings(
 				rider.status === "connected"
 					? html`<p>${i18n.t("me.status.connected")}</p>`
 					: html`<p>${i18n.t("me.status.needsReconnect")}</p>
-<p><a class="button" href="/connect">${i18n.t("me.reconnect")}</a></p>`;
+<p><a class="button" href="/connect?next=/me/settings">${i18n.t("me.reconnect")}</a></p>`;
 			return html`${group("settings-language", i18n.t("settings.language"), languageForm(i18n, "/me/settings"))}
 ${group("settings-appearance", i18n.t("settings.appearance"), appearance(i18n))}
 ${renderNotifications(i18n, vapidPublicKey(ctx.env))}
@@ -67,7 +67,7 @@ ${group(
 	html`${status}
 <p>${i18n.t(rider.scopeReadAll ? "me.scope.readAll" : "me.scope.sharedOnly")}</p>
 <p>${i18n.t(rider.scopeWrite ? "me.scope.write" : "me.scope.noWrite")}</p>
-<p><a class="button-outlined" href="/connect">${i18n.t("me.changePermissions")}</a></p>`,
+<p><a class="button-outlined" href="/connect?next=/me/settings">${i18n.t("me.changePermissions")}</a></p>`,
 )}
 ${group("settings-consent", i18n.t("me.consent.heading"), consent(i18n, accepted))}
 ${group(

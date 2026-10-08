@@ -112,8 +112,8 @@ describe("GET /me/settings (011 FR-014)", () => {
 	});
 
 	it("only offers Reconnect when the connection needs it", async () => {
-		const reconnect = `<a class="button" href="/connect">${escapeHtml(de["me.reconnect"])}</a>`;
-		const change = `<a class="button-outlined" href="/connect">${escapeHtml(de["me.changePermissions"])}</a>`;
+		const reconnect = `<a class="button" href="/connect?next=/me/settings">${escapeHtml(de["me.reconnect"])}</a>`;
+		const change = `<a class="button-outlined" href="/connect?next=/me/settings">${escapeHtml(de["me.changePermissions"])}</a>`;
 		const connected = (await settings()).group["settings-strava"];
 		expect(connected).toContain(change);
 		expect(connected).not.toContain(reconnect);
@@ -123,6 +123,17 @@ describe("GET /me/settings (011 FR-014)", () => {
 		];
 		expect(needs).toContain(reconnect);
 		expect(needs).toContain(change);
+	});
+
+	it.each([
+		["/me", de["me.title"]],
+		["/me/rides", `${de["nav.rides"]} – RynkePoints`],
+		["/team", `${de["nav.team"]} – RynkePoints`],
+		["/me/settings", `${de["nav.settings"]} – RynkePoints`],
+	])("names %s in the page title", async (path, title) => {
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		const { html } = await riderPage(ctx, ATHLETE_A, path);
+		expect(html).toContain(`<title>${escapeHtml(title)}</title>`);
 	});
 
 	it("signs out with this device's endpoint and links to disconnecting", async () => {

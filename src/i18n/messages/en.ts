@@ -257,6 +257,7 @@ export const en: Catalog = {
 	"nav.team": "Team",
 	"nav.settings": "Settings",
 	"shell.refresh": "Refresh",
+	"shell.title": "{section} – RynkePoints",
 	"team.placeholder.heading": "Team view coming soon",
 	"team.placeholder.body": "Here you'll soon see how the whole team is doing.",
 	"settings.language": "Language",

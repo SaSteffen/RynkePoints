@@ -273,6 +273,7 @@ export const de = {
 	"nav.team": "Team",
 	"nav.settings": "Einstellungen",
 	"shell.refresh": "Aktualisieren",
+	"shell.title": "{section} – RynkePoints",
 	"team.placeholder.heading": "Die Teamansicht kommt bald",
 	"team.placeholder.body": "Hier siehst du bald, wie es im ganzen Team läuft.",
 	"settings.language": "Sprache",

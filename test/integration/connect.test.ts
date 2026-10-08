@@ -200,4 +200,19 @@ describe("GET /connect", () => {
 			next: "/me",
 		});
 	});
+
+	it.each([
+		["/me/settings", "/me/settings"],
+		["https://evil.example/", "/me"],
+		["/", "/me"],
+	])("stores next=%s as %s (011 R9)", async (next, stored) => {
+		await seedRider(ctx);
+		const res = await handleFetch(
+			request(`/connect?next=${encodeURIComponent(next)}`, {
+				cookies: await sessionCookie(ctx, ATHLETE_A),
+			}),
+			ctx,
+		);
+		expect((await stateCookie(res))?.next).toBe(stored);
+	});
 });
