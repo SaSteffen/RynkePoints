@@ -62,7 +62,7 @@ outcome is unchanged.
 ## Static assets (changed)
 
 - `public/manifest.webmanifest`: `theme_color` and `background_color` become
-  `#fff8f6` (R12).
+  `#fffdf5` (R12).
 - `public/app.js`: see [client.md](client.md).
 - `public/strava/en/powered-by-strava-white.svg` and
   `public/strava/en/connect-with-strava-white.svg` are new (R13).

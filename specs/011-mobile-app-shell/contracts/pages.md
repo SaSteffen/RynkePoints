@@ -21,8 +21,8 @@ unchanged except for the class hooks listed here.
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fff8f6">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1a110e">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fffdf5">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12110c">
 <script>/* scheme script, client.md */</script>
 <link rel="manifest" …> <link rel="icon" …> <link rel="apple-touch-icon" …>
 <script src="/app.js" defer></script>
@@ -46,7 +46,8 @@ This covers the landing page, the consent gate, notices, the disconnect page,
 
 `header.top-bar` holds:
 
-- the wordmark `<span class="wordmark">Rynke<span>Points</span></span>`, a fixed
+- the wordmark `<span class="wordmark">{coin mark}<span class="wordmark-name">Rynke<span>Points</span></span></span>`
+  (feature 012; below 600 px the shell shows only the coin), a fixed
   brand name and not a catalog text;
 - today's language form `<form method="post" action="/lang">`. Its buttons get the
   class `segmented`, and the current one keeps `aria-current="true"`.
@@ -87,7 +88,9 @@ on `/me/rides?page=N`.
 1. Feature 005's notices (`renderNotice`). When `needs_reconnect`, first an
    `<aside class="notice notice-error">` with `{me.status.needsReconnect}` and
    `<a class="button" href="/connect">{me.reconnect}</a>`.
-2. `<p class="greeting">{me.greeting}</p>`.
+2. `<section class="hero">`: the coin, `<p class="greeting">{me.greeting}</p>` and the
+   totals (feature 012), then the celebration `<aside class="celebrate">` when
+   there are new Rynke.
 3. `<section class="verdict card">`, feature 005's summary. Where the rider is
    not in yet, each missing amount becomes a `<span class="chip">`.
 4. The gauges: each `figure.gauge` in its own `section.card`.
@@ -143,7 +146,7 @@ or logout form.
 
 ```html
 <section class="placeholder">
-{people icon, aria-hidden}
+{the coin's Hamburg–Paris side, aria-hidden (feature 012)}
 <h2>{team.placeholder.heading}</h2>
 <p>{team.placeholder.body}</p>
 </section>
