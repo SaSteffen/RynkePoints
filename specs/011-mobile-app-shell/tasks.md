@@ -30,7 +30,7 @@ placeholder.
 
 ## Phase 1: Setup
 
-- [ ] T001 Run `pnpm install`, then `pnpm lint`, `pnpm typecheck` and `pnpm test`.
+- [X] T001 Run `pnpm install`, then `pnpm lint`, `pnpm typecheck` and `pnpm test`.
   All pass before any change, so later failures are this feature's.
 
 ---
@@ -40,29 +40,29 @@ placeholder.
 **Purpose**: the catalog keys, icons, the style module and the `next` allow-list
 every section and form uses.
 
-- [ ] T002 [P] Tests first (failing), `test/unit/catalogs.test.ts`: every key in
+- [X] T002 [P] Tests first (failing), `test/unit/catalogs.test.ts`: every key in
   the "New catalog keys" table of [contracts/pages.md](contracts/pages.md),
   including `brand.connectWithStrava.srcDark`, exists in both `de` and `en`.
   `brand.*.srcDark` values are the same in both catalogs (Strava ships English
   assets only).
-- [ ] T003 [P] Tests first (failing), `test/integration/lang-switcher.test.ts`:
+- [X] T003 [P] Tests first (failing), `test/integration/lang-switcher.test.ts`:
   `safeNext()` (via `POST /lang`) accepts `/me/rides`, `/me/rides?page=1` and
   `?page=9999`, `/me/settings` and `/team`; still accepts `/me?page=N`; rejects
   `/me/rides?page=0`, `/me/rides?page=10000`, `/me/rides?page=x`,
   `/me/settings/x` and `//team` → `/` (contracts/http-routes.md `POST /lang`).
-- [ ] T004 Add the new keys to `src/i18n/messages/en.ts` and
+- [X] T004 Add the new keys to `src/i18n/messages/en.ts` and
   `src/i18n/messages/de.ts` (en texts from [contracts/pages.md](contracts/pages.md);
   German written now, reviewed in the PR). Keep the obsolete keys until the
   stories that stop using them (T034, T053).
-- [ ] T005 [P] Extend `NEXT_PATHS` and the page regex in `safeNext()` in
+- [X] T005 [P] Extend `NEXT_PATHS` and the page regex in `safeNext()` in
   `src/http/lang.ts` so T003 passes: `/me/rides`, `/me/settings`, `/team`, and
   `/me/rides?page=N` with the same `[1-9][0-9]{0,3}` rule as `/me?page=N`. None
   of them may contain `:` (data-model.md "OAuth state cookie").
-- [ ] T006 [P] Create `src/http/icons.ts`: five inline 24 px stroke SVGs as
+- [X] T006 [P] Create `src/http/icons.ts`: five inline 24 px stroke SVGs as
   `SafeHtml` constants (`GAUGE`, `BIKE`, `PEOPLE`, `SLIDERS`, `REFRESH`), each
   `aria-hidden="true" focusable="false"`, using `currentColor`, shapes from the
   mock-up (research R3). No text inside.
-- [ ] T007 [P] Move the `STYLE` string unchanged from `src/http/html.ts` into a
+- [X] T007 [P] Move the `STYLE` string unchanged from `src/http/html.ts` into a
   new `src/http/style.ts` (`export const STYLE`), and import it in `html.ts`.
   `pnpm test` still passes.
 
