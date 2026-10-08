@@ -7,7 +7,7 @@ import {
 	MAX_ENDPOINT_LENGTH,
 } from "../db/push-subscriptions";
 import { readRiderView } from "../db/rider-view";
-import { deleteRider, getRider, type Rider } from "../db/riders";
+import { deleteRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { vapidPublicKey } from "../push/vapid";
 import { CURRENT_RULES, rulesForVersion } from "../rynke/rules";
@@ -27,6 +27,7 @@ import {
 } from "./rider-sections";
 import { buildRiderView, parsePage } from "./rider-view";
 import { clearSessionCookie, isSameOrigin, readSession } from "./session";
+import { readViewer, requireRider } from "./viewer";
 
 // The rider's own pages (contracts/http-routes.md): `/me` with connection
 // status, granted level and write access, import progress, the rider's Rynke
@@ -45,27 +46,23 @@ function consent(i18n: I18n, current: Consent): SafeHtml {
 <p>${i18n.t("consent.team")}</p>`;
 }
 
-async function signedInRider(
-	request: Request,
-	ctx: Ctx,
-): Promise<Rider | null> {
-	const athleteId = await readSession(request, ctx.env, ctx.now());
-	return athleteId === null ? null : getRider(ctx.env.DB, athleteId);
-}
-
 export async function handleMe(
 	request: Request,
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	const rider = await signedInRider(request, ctx);
-	if (!rider) return redirect("/", 302);
+	const viewer = await readViewer(request, ctx);
+	if (viewer.kind === "visitor") return redirect("/", 302);
 	// Nothing else of `/me` until the rider agrees (004 research R14).
-	const accepted = await getCurrentConsent(ctx.env.DB, rider.athleteId);
+	const accepted =
+		viewer.consentVersion === null
+			? null
+			: await getCurrentConsent(ctx.env.DB, viewer.rider.athleteId);
 	if (!accepted) {
 		const current = currentVersion(ctx.consentVersions).version;
 		return consentGate(i18n, current, { state: "missing" });
 	}
+	const { rider } = viewer;
 
 	const title = i18n.t("me.title");
 	const status =
@@ -125,7 +122,8 @@ export async function handleDisconnectPage(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	if (!(await signedInRider(request, ctx))) return redirect("/", 302);
+	const denied = requireRider(await readViewer(request, ctx));
+	if (denied) return denied;
 	const title = i18n.t("disconnect.title");
 	return htmlResponse(
 		i18n,
@@ -149,10 +147,9 @@ export async function handleDisconnect(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	const rider = isSameOrigin(request)
-		? await signedInRider(request, ctx)
-		: null;
-	if (!rider) return forbidden(i18n, "/me/disconnect");
+	const viewer = isSameOrigin(request) ? await readViewer(request, ctx) : null;
+	if (viewer?.kind !== "rider") return forbidden(i18n, "/me/disconnect");
+	const { rider } = viewer;
 
 	let revoked = await revokeStoredToken(ctx, rider.athleteId);
 	if (revoked.kind === "transient") {

@@ -352,6 +352,19 @@ describe("sample riders in every state (US2)", () => {
 		);
 	});
 
+	it("flags Tina TrainingDone as the only organiser (004 research R10)", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			"SELECT athlete_id, organiser FROM riders ORDER BY athlete_id",
+		).all<{ athlete_id: number; organiser: number }>();
+		for (const row of results) {
+			expect(row.organiser, String(row.athlete_id)).toBe(
+				row.athlete_id === 990004 ? 1 : 0,
+			);
+		}
+		expect(results.some((r) => r.athlete_id === 990004)).toBe(true);
+	});
+
 	it("keeps Ida Importing's import waiting", async () => {
 		await seeded();
 		expect((await riderRow(IDA))?.import_status).toBe("pending");

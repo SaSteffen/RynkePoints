@@ -44,3 +44,16 @@ export async function getCurrentConsent(
 		.first<{ version: number; accepted_at: number }>();
 	return row ? { version: row.version, acceptedAt: row.accepted_at } : null;
 }
+
+/** The rider's highest accepted version, null without a record (004 R13). */
+export async function consentVersionOf(
+	db: D1Database,
+	athleteId: number,
+): Promise<number | null> {
+	return db
+		.prepare(
+			"SELECT MAX(version) AS version FROM consent_records WHERE athlete_id = ?",
+		)
+		.bind(athleteId)
+		.first<number | null>("version");
+}
