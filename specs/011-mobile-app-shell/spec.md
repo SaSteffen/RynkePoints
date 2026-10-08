@@ -18,6 +18,25 @@ bottom navigation bar on phones, a top bar on wider screens. Material Design
 dark mode following the system setting. Pages stay server-rendered; no heavy
 framework."
 
+## Clarifications
+
+### Session 2026-10-08
+
+- Q: Must the site work without JavaScript or in old browsers? → A: No, that's out
+  of scope; pages may break there.
+- Q: Must pages be designed for a phone in landscape? → A: No, it isn't a real use
+  case; only the lowest effort: nothing beyond what the portrait layout gives.
+- Q: How does the installed app pick up new Rynke after it comes back from the
+  background? → A: It reloads the current section when it returns to the
+  foreground after more than a minute away, and when the rider taps the section
+  that is already open; every section also has a visible refresh button.
+- Q: Can riders choose light or dark mode themselves? → A: Yes. The app follows
+  the system by default; Settings offers "System / Light / Dark", remembered on
+  that device.
+- Q: On a ride card, do the reasons start closed or open? → A: Closed for rides
+  that count, open for rides that don't count; the rider can open or close
+  either with a tap.
+
 ## User Scenarios & Testing *(mandatory)*
 
 Riders open RynkePoints mostly on their phone, often as the installed app
@@ -108,8 +127,8 @@ and long ride names, and check reading, scrolling and tap target sizes.
 2. **Given** Rides on a phone, **When** the rider looks at a ride, **Then** they see
    its date, distance, whether it counts, its Training Rynke and its metres without
    opening anything, and sport type, elevation gain, the virtual mark, the
-   "View on Strava" link and the reasons are on the same card, the reasons behind a
-   tap.
+   "View on Strava" link and the reasons are on the same card; the reasons are
+   closed behind a tap for a ride that counts and open for a ride that doesn't.
 3. **Given** a ride with a very long name, **When** its card is shown, **Then** the
    name wraps and no part of the page scrolls sideways.
 4. **Given** a phone, **When** the rider taps a navigation bar entry, a paging
@@ -128,7 +147,7 @@ and long ride names, and check reading, scrolling and tap target sizes.
 Every page, public or signed in, follows Material Design: the same colours, type,
 spacing, cards, buttons and navigation. The Strava orange stays the brand colour and
 the "Powered by Strava" attribution stays visible. When the phone is set to dark
-mode, RynkePoints is dark too.
+mode, RynkePoints is dark too, unless the rider picked a fixed scheme in Settings.
 
 **Why this priority**: The sections work without it, but a consistent, familiar look
 is what makes the installed app feel like an app rather than a web page. It comes
@@ -144,6 +163,10 @@ links follow Strava's brand guidelines.
 1. **Given** the system is in light mode, **When** any page is opened, **Then** it
    uses the light colour scheme, and in dark mode the dark one, without the rider
    doing anything.
+6. **Given** a rider picked "Dark" in Settings on their phone, **When** they open
+   any page on that phone, public pages included, **Then** it is dark whatever the
+   system setting, without first flashing light; their other devices still follow
+   their own setting.
 2. **Given** any two pages, **When** they are compared, **Then** headings, body text,
    buttons, cards and links look the same on both.
 3. **Given** either colour scheme, **When** the gauges are shown, **Then** each part
@@ -158,7 +181,8 @@ links follow Strava's brand guidelines.
 
 ### User Story 4 - Rider finds every setting in one place (Priority: P2)
 
-A rider who wants to turn notifications on, switch the language, install the app,
+A rider who wants to turn notifications on, switch the language or light and dark
+mode, install the app,
 change the Strava permissions, read what they agreed to, leave or sign out goes to
 Settings and finds all of it there, grouped.
 
@@ -166,16 +190,16 @@ Settings and finds all of it there, grouped.
 crowd the Overview, but each must stay easy to find.
 
 **Independent Test**: Open Settings as a synthetic rider and do each action: change
-the language, turn notifications on and off, open the Strava permission change,
+the language and the appearance, turn notifications on and off, open the Strava permission change,
 start leaving, and sign out.
 
 **Acceptance Scenarios**:
 
 1. **Given** Settings, **When** the rider looks at it, **Then** it shows the groups
-   Language, Notifications, App (install), Strava connection (status, which
-   permissions are given, change permissions, reconnect if needed), Consent (the
-   accepted version and date, what is read and who sees what), and Account (leave,
-   sign out).
+   Language, Appearance (System / Light / Dark), Notifications, App (install),
+   Strava connection (status, which permissions are given, change permissions,
+   reconnect if needed), Consent (the accepted version and date, what is read and
+   who sees what), and Account (leave, sign out).
 2. **Given** Settings, **When** the rider picks the other language, **Then** Settings
    shows again in that language.
 3. **Given** a signed-in rider, **When** they look at any section other than
@@ -222,9 +246,6 @@ and check that it shows the placeholder text and no data of any rider.
   at the top, and Settings shows the same state in the Strava connection group.
 - **Numbers are being updated** (rule change, feature 005 US6): the notice shows on
   the Overview and on Rides.
-- **No JavaScript or old browser**: every section, the navigation bar, paging and
-  opening the reasons of a ride work without scripts; only the parts feature 010
-  already needs scripts for (install, notifications) need them.
 - **Offline in the installed app**: the offline page (feature 010) takes the new look
   without the navigation bar, because no section can be shown offline.
 - **Language switch on a section**: switching the language in Settings keeps the
@@ -233,8 +254,11 @@ and check that it shows the placeholder text and no data of any rider.
 - **Very small or very large text settings**: with the phone's text size raised,
   the navigation bar labels may wrap or shorten but every entry stays tappable and
   the page still doesn't scroll sideways.
-- **Landscape phone**: pages work without sideways scrolling; the navigation bar may
-  sit at the top or the bottom.
+- **Landscape phone**: not designed for. Pages get whatever the portrait or wide
+  layout gives them; nothing extra is built or tested for it.
+- **Rider returns to the installed app after a ride**: the section reloads by
+  itself if the app was in the background for more than a minute; otherwise the
+  refresh control or tapping the current section shows the latest numbers.
 - **Session ends while the rider switches sections**: the next section they open
   sends them to the landing page, as `/me` does today.
 - **Organiser**: sees the same four sections as every rider; organiser pages
@@ -259,8 +283,9 @@ and check that it shows the placeholder text and no data of any rider.
 - **FR-004**: On screens narrower than a tablet the navigation bar MUST sit fixed at
   the bottom of the screen, clear of the home indicator and screen edges, and MUST
   NOT cover page content. On wider screens it MUST sit at the top of the page.
-- **FR-005**: The sections, the navigation bar, paging and opening a ride's reasons
-  MUST work without scripts.
+- **FR-005**: The site MAY rely on JavaScript and on current browsers (the last two
+  major versions of Safari on iOS, Chrome on Android, and desktop Chrome, Firefox,
+  Safari and Edge). Without JavaScript or in older browsers pages may break.
 - **FR-006**: The address `/me?page=N` MUST lead to `/me/rides?page=N`.
 - **FR-007**: The sections MUST follow the access rules of `/me` today: a visitor is
   sent to the landing page, and a rider without the current consent sees the consent
@@ -268,6 +293,12 @@ and check that it shows the placeholder text and no data of any rider.
   for after agreeing.
 - **FR-008**: Tapping a notification (feature 010) and opening the installed app
   MUST still lead to the Overview.
+
+- **FR-009**: Every section MUST have a visible refresh control that reloads it.
+  The current section MUST also reload when the rider taps its entry in the
+  navigation bar, and when the page comes back to the foreground after more than
+  one minute in the background. A reload keeps the rider on the same section and
+  rides page.
 
 **Section contents**
 
@@ -283,9 +314,9 @@ and check that it shows the placeholder text and no data of any rider.
   US4, US5), with the same paging and the same 20 rides per page.
 - **FR-013**: Team MUST show only a short text that the team leaderboard is coming. It
   MUST NOT show any data of any rider until the team leaderboard feature replaces it.
-- **FR-014**: Settings MUST group, in this order: Language, Notifications (feature
-  010's controls and states), App (feature 010's install hint, left out where 010
-  leaves it out), Strava connection (status, given permissions, change permissions,
+- **FR-014**: Settings MUST group, in this order: Language, Appearance (FR-032a),
+  Notifications (feature 010's controls and states), App (feature 010's install
+  hint, left out where 010 leaves it out), Strava connection (status, given permissions, change permissions,
   reconnect if needed), Consent (accepted version and date, what is read, who sees
   what), Account (leave with its confirmation, sign out).
 - **FR-015**: The disconnect confirmation's "cancel" MUST lead back to Settings.
@@ -303,8 +334,10 @@ and check that it shows the placeholder text and no data of any rider.
 - **FR-021**: On a narrow screen each ride MUST be shown as a card that keeps date,
   distance, whether the ride counts, its Training Rynke and its metres in view;
   sport type, elevation gain, the virtual mark, the "View on Strava" link and the
-  reasons MUST stay on the card, the reasons MAY be collapsed behind a tap. This
-  refines feature 005 FR-071. On wide screens Rides MAY stay a table.
+  reasons MUST stay on the card. The reasons MUST start closed (one tap opens
+  them) for a ride that counts and open for a ride that doesn't count; the rider
+  can close or open either. This refines feature 005 FR-071. On wide screens
+  Rides MAY stay a table.
 - **FR-022**: Every control MUST be easy to tap: navigation bar entries, buttons,
   links that stand alone, paging controls, the language switcher and the control
   that opens a ride's reasons MUST offer a target of at least about 44 × 44 pixels.
@@ -322,7 +355,12 @@ and check that it shows the placeholder text and no data of any rider.
   for the whole site, so changing one of them changes it on every page.
 - **FR-032**: The colour scheme MUST be derived from the Strava orange used today
   as the brand colour. The site MUST offer a light and a dark scheme and follow the
-  system setting.
+  system setting by default.
+- **FR-032a**: Settings MUST offer the choice "System", "Light" or "Dark"
+  (default "System"). The choice MUST be remembered on that device only, apply to
+  every page there (public pages included) from the first paint without flashing
+  the other scheme, and survive signing out. It is not rider data and is not
+  stored on the server with the rider.
 - **FR-033**: Text and controls MUST meet a contrast of at least 4.5 : 1 for body
   text and 3 : 1 for large text, icons and control outlines, in both schemes.
 - **FR-034**: The "Powered by Strava" attribution MUST stay on every page in
@@ -386,6 +424,7 @@ and check that it shows the placeholder text and no data of any rider.
   005's assumptions. Its pull request closes issue #20.
 - The sections, phone layouts and the Material look ship together in one release; the
   user stories give the build order, not separate releases.
+- Phones in landscape and browsers without JavaScript are out of scope (FR-005).
 - "Tablet" in FR-004 follows Material's window size classes: below about 600 pixels
   wide the bar sits at the bottom. The exact breakpoint is a planning decision.
 - Material Design here means its published guidelines, not a component library;
@@ -453,7 +492,7 @@ flowchart LR
     end
     subgraph s["Settings"]
         direction TB
-        s1["Language: Deutsch · English"]
+        s1["Language: Deutsch · English<br/>Appearance: System · Light · Dark"]
         s2["Notifications: on / off"]
         s3["App: install"]
         s4["Strava connection, permissions"]
