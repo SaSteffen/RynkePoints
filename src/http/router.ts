@@ -10,6 +10,13 @@ import { handleDisconnect, handleDisconnectPage, handleLogout } from "./me";
 import { handleNotice } from "./notice";
 import { handleNotifications } from "./notifications";
 import {
+	handleCreateEvent,
+	handleDeleteEvent,
+	handleOrganiserEvent,
+	handleOrganiserEvents,
+	handleUpdateEvent,
+} from "./organiser/events";
+import {
 	handleNotificationText,
 	handleOffline,
 	handleRiderNotificationText,
@@ -29,8 +36,12 @@ import { handleWebhook } from "./webhook";
 // (010 research R10), except the two texts the service worker caches, which
 // must be the same for everyone. The signed-in app is four sections, each its
 // own address: `/me`, `/me/rides`, `/team` and `/me/settings` (011 FR-001).
+// Organisers manage the team under `/organiser` (feature 014).
 
 const WEBHOOK_PREFIX = "/strava/webhook/";
+
+/** `/organiser/events/{id}` and its `/delete`; `id` is a stored event's. */
+const ORGANISER_EVENT = /^\/organiser\/events\/(\d{1,15})(\/delete)?$/;
 
 export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	const url = new URL(request.url);
@@ -77,6 +88,15 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleNotifications(request, ctx);
 			case "/logout":
 				return handleLogout(request, ctx, i18n);
+			case "/organiser/events":
+				return handleCreateEvent(request, ctx, i18n);
+		}
+		const event = path.match(ORGANISER_EVENT);
+		if (event) {
+			const eventId = Number(event[1]);
+			return event[2]
+				? handleDeleteEvent(request, ctx, i18n, eventId)
+				: handleUpdateEvent(request, ctx, i18n, eventId);
 		}
 	}
 	return notFound(i18n, path);
@@ -105,6 +125,12 @@ async function page(
 			return handleSettings(request, ctx, i18n);
 		case "/me/disconnect":
 			return handleDisconnectPage(request, ctx, i18n);
+		case "/organiser":
+			return handleOrganiserEvents(request, ctx, i18n);
+	}
+	const event = path.match(ORGANISER_EVENT);
+	if (event && !event[2]) {
+		return handleOrganiserEvent(request, ctx, i18n, Number(event[1]));
 	}
 	if (path.startsWith("/notice/")) {
 		return handleNotice(path.slice("/notice/".length), ctx, i18n);

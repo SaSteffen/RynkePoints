@@ -69,6 +69,19 @@ ul.rynke-missing{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);list-style:no
 .rynke-gauges .card{margin:0 0 var(--rp-space-3)}
 .placeholder{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-4);padding:var(--rp-space-6) var(--rp-space-6) 48px;text-align:center;color:var(--md-sys-color-on-surface-variant)}
 .placeholder h2,.placeholder p{margin:0}
+.organiser-entry{margin:var(--rp-space-4) 0 0;text-align:center}
+.organiser-form{display:grid;gap:var(--rp-space-3);margin:0 0 var(--rp-space-5)}
+.organiser-form label{display:grid;gap:var(--rp-space-1);font:var(--md-type-label)}
+.organiser-form input,.organiser-form select{box-sizing:border-box;width:100%;min-height:var(--rp-tap);padding:0 var(--rp-space-3);border:1px solid var(--md-sys-color-outline);border-radius:var(--md-shape-xs);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:var(--md-type-body-large)}
+.organiser-form button{justify-self:start}
+ul.organiser-events{margin:0;padding:0;list-style:none}
+.organiser-event{margin:0 0 var(--rp-space-3);padding:var(--rp-space-3) var(--rp-space-4);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container)}
+.organiser-event>a{display:grid;min-height:var(--rp-tap);color:inherit;text-decoration:none}
+.organiser-event-title{font:var(--md-type-title);color:var(--md-sys-color-primary)}
+.organiser-event-name{overflow-wrap:anywhere}
+.change-record{margin:var(--rp-space-1) 0 0;font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
+.organiser-confirm{margin:var(--rp-space-5) 0 0}
+.organiser-confirm>summary{display:flex;align-items:center;min-height:var(--rp-tap);cursor:pointer;color:var(--md-sys-color-error);font:var(--md-type-label)}
 .chip{display:inline-flex;align-items:center;min-height:32px;padding:0 var(--rp-space-3);border-radius:var(--md-shape-sm);font:var(--md-type-label);background:var(--rp-neutral-container);color:var(--rp-on-neutral-container)}
 .ride-counting .chip{background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
 .ride-not-counting .chip{background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container)}

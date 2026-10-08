@@ -15,7 +15,8 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // specs/008-strava-ride-names/contracts/messages.md and
 // specs/010-pwa-notifications/contracts/messages.md and
 // specs/004-roles-and-consent/contracts/re-consent.md and
-// specs/011-mobile-app-shell/contracts/pages.md.
+// specs/011-mobile-app-shell/contracts/pages.md and
+// specs/014-organiser-admin/contracts/http-routes.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"meta.intlLocale",
@@ -239,6 +240,41 @@ const CONTRACT_IDS = [
 	"notifications.switch",
 	"brand.poweredByStrava.srcDark",
 	"brand.connectWithStrava.srcDark",
+	"organiser.title",
+	"organiser.link",
+	"organiser.back",
+	"organiser.formerOrganiser",
+	"organiser.changedBy",
+	"organiser.error.unknown_kind",
+	"organiser.error.invalid_date",
+	"organiser.error.invalid_name",
+	"organiser.error.event_missing",
+	"organiser.error.rider_not_connected",
+	"organiser.error.outside_season",
+	"organiser.error.future_event",
+	"organiser.error.rider_not_listed",
+	"organiser.error.invalid_amount",
+	"organiser.error.invalid_reason",
+	"organiser.error.correction_missing",
+	"organiser.done.created",
+	"organiser.done.saved",
+	"organiser.done.deleted",
+	"organiser.done.attendance",
+	"organiser.done.added",
+	"organiser.done.removed",
+	"organiser.events.heading",
+	"organiser.events.none",
+	"organiser.events.attendees",
+	"organiser.events.new",
+	"organiser.event.heading",
+	"organiser.field.kind",
+	"organiser.field.date",
+	"organiser.field.name",
+	"organiser.add",
+	"organiser.save",
+	"organiser.event.delete",
+	"organiser.event.deleteWarning",
+	"organiser.event.deleteConfirm",
 ];
 
 const placeholders = (text: string) =>

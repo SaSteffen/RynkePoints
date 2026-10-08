@@ -32,6 +32,10 @@ describe("STYLE", () => {
 		"[role=switch]",
 		".danger",
 		".segmented-group label",
+		".organiser-form input",
+		".organiser-form select",
+		".organiser-event>a",
+		".organiser-confirm>summary",
 	])("gives %s the 44 px tap height", (selector) => {
 		expect(declsOf(selector)["min-height"]).toBe("var(--rp-tap)");
 	});

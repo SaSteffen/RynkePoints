@@ -287,4 +287,46 @@ export const en: Catalog = {
 	"error.notFound.body": "This page doesn't exist.",
 	"error.forbidden.title": "Request refused",
 	"error.forbidden.body": "Please reload the page and try again.",
+
+	"organiser.title": "Organiser",
+	"organiser.link": "Organiser pages",
+	"organiser.back": "Back to the events",
+	"organiser.formerOrganiser": "a former organiser",
+	"organiser.changedBy": "Last changed by {name} on {date}",
+	"organiser.error.unknown_kind": "Please choose a kind of event.",
+	"organiser.error.invalid_date": "Please enter a valid date.",
+	"organiser.error.invalid_name": "The name may have at most 100 characters.",
+	"organiser.error.event_missing": "This event no longer exists.",
+	"organiser.error.rider_not_connected":
+		"A rider has left or must reconnect first.",
+	"organiser.error.outside_season": "The date is outside the season.",
+	"organiser.error.future_event":
+		"Attendance can be recorded once the event has taken place.",
+	"organiser.error.rider_not_listed":
+		"The list of riders has changed. Please check it and save again.",
+	"organiser.error.invalid_amount":
+		"Please enter whole numbers; at least one must not be 0.",
+	"organiser.error.invalid_reason":
+		"Please give a reason of at most 200 characters.",
+	"organiser.error.correction_missing": "This correction no longer exists.",
+	"organiser.done.created": "Event added.",
+	"organiser.done.saved": "Saved.",
+	"organiser.done.deleted": "Event deleted.",
+	"organiser.done.attendance": "Attendance saved.",
+	"organiser.done.added": "Correction added.",
+	"organiser.done.removed": "Correction removed.",
+	"organiser.events.heading": "Team events this season",
+	"organiser.events.none": "No team events this season yet.",
+	"organiser.events.attendees": "{count} attended",
+	"organiser.events.new": "New event",
+	"organiser.event.heading": "Edit event",
+	"organiser.field.kind": "Kind",
+	"organiser.field.date": "Date",
+	"organiser.field.name": "Name (optional)",
+	"organiser.add": "Add",
+	"organiser.save": "Save",
+	"organiser.event.delete": "Delete event…",
+	"organiser.event.deleteWarning":
+		"This deletes the event and its attendance; the riders' Rynke follow.",
+	"organiser.event.deleteConfirm": "Yes, delete",
 };

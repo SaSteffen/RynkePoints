@@ -15,7 +15,8 @@ ignores it.
    [004-roles-and-consent](../004-roles-and-consent/spec.md); first, while there are no
    users: which roles and which rider consents the app needs, and whether Strava
    allows the leaderboard at all. Everything below depends on it.
-2. [organiser-admin.md](organiser-admin.md) — organiser pages for the inputs of
+2. organiser admin — specified in
+   [014-organiser-admin](../014-organiser-admin/spec.md); organiser pages for the inputs of
    feature 003 (team events, attendance, corrections, rules, recalculation).
 3. rider view — specified in [005-rider-view](../005-rider-view/spec.md); a
    rider's own balance and ride results.
