@@ -35,7 +35,7 @@ has no automated tests and no code; no tasks here.
 
 ## Phase 1: Setup
 
-- [ ] T001 On branch `004-roles-and-consent`, run `pnpm install`, then
+- [x] T001 On branch `004-roles-and-consent`, run `pnpm install`, then
   `pnpm lint`, `pnpm typecheck` and `pnpm test`. All pass before any change, so
   later failures are this feature's.
 
@@ -48,14 +48,14 @@ has no automated tests and no code; no tasks here.
   step 1; research R2, R3, R9; [contracts/organiser-flag.md](contracts/organiser-flag.md));
 - the consent-version registry passed in through `Ctx` (step 8; research R11).
 
-- [ ] T002 [P] Tests first (failing):
+- [x] T002 [P] Tests first (failing):
   - `test/integration/schema-minimisation.test.ts`: `organiser` joins the
     `riders` columns.
   - `test/integration/db.test.ts`: `getRider` returns `organiser: false` for a
     new rider and `true` after `UPDATE riders SET organiser = 1`;
     `updateRiderOnReconnect` keeps `organiser = 1`; deleting the rider and
     inserting them again gives `organiser = 0` (US2 scenario 3, FR-003, FR-004).
-- [ ] T003 [P] Tests first (failing):
+- [x] T003 [P] Tests first (failing):
   - new `test/unit/consent-versions.test.ts`, registry part:
     - `CONSENT_VERSIONS` is non-empty, starts at 1, and is ordered and
       consecutive;
@@ -68,25 +68,25 @@ has no automated tests and no code; no tasks here.
     `changes` reusing existing keys such as `consent.team`), `POST /connect`
     with `consent=2` redirects to Strava and `consent=1` is refused like a
     missing tick.
-- [ ] T004 Create `migrations/0009_organiser_flag.sql`: add only
+- [x] T004 Create `migrations/0009_organiser_flag.sql`: add only
   `ALTER TABLE riders ADD COLUMN organiser INTEGER NOT NULL DEFAULT 0 CHECK
   (organiser IN (0, 1))`, with a header comment naming feature 004 FR-002 and
   that the app never writes it (FR-004). No rename, no drop (CLAUDE.md).
-- [ ] T005 In `src/db/riders.ts`, add `organiser: boolean` to `Rider` and map it
+- [x] T005 In `src/db/riders.ts`, add `organiser: boolean` to `Rider` and map it
   in `getRider` (and every other place a `Rider` is built from a row). Leave
   `insertRider` and `updateRiderOnReconnect` without the column, so the app
   never writes it (research R2).
-- [ ] T006 [P] In `test/support/ctx.ts`:
+- [x] T006 [P] In `test/support/ctx.ts`:
   - add `organiser?: boolean` (default `false`) to `SeedRiderOptions`;
     `seedRider` sets `riders.organiser = 1` with an `UPDATE` after inserting
     when it is `true`;
   - add `consentVersions?: ConsentVersions` to `makeCtx`'s options, defaulting
     to `CONSENT_VERSIONS`, the same way as `catalogs`.
-- [ ] T007 [P] In `specs/001-strava-connect-webhook/data-model.md`, add
+- [x] T007 [P] In `specs/001-strava-connect-webhook/data-model.md`, add
   `organiser` to the `riders` table: `INTEGER NOT NULL DEFAULT 0`,
   `CHECK (organiser IN (0, 1))`, set by the maintainer only (feature 004 FR-002),
   deleted with the row.
-- [ ] T008 In `src/consent.ts`, replace the bare constant with the registry
+- [x] T008 In `src/consent.ts`, replace the bare constant with the registry
   (research R11, [data-model.md](data-model.md) "Consent Version"):
   - `interface ConsentVersion { version: number; published: string;
     requiredScopes: readonly string[]; changes: readonly MessageId[] }` with doc
@@ -99,12 +99,12 @@ has no automated tests and no code; no tasks here.
   - `currentVersion(versions): ConsentVersion` returning the last entry;
   - `CONSENT_VERSION = currentVersion(CONSENT_VERSIONS).version`, commented as
     "for code that has no `Ctx`".
-- [ ] T009 Add `consentVersions: ConsentVersions` to `Ctx` in `src/ctx.ts`.
+- [x] T009 Add `consentVersions: ConsentVersions` to `Ctx` in `src/ctx.ts`.
   Pass `CONSENT_VERSIONS` where `Ctx` is built: `src/index.ts`,
   `dev/worker.ts`, and every test that builds a `Ctx` by hand (today
   `test/integration/evaluate-rider.test.ts` and
   `test/integration/run-daily.test.ts`; `pnpm typecheck` finds any other).
-- [ ] T010 Read the current version from `ctx.consentVersions` instead of
+- [x] T010 Read the current version from `ctx.consentVersions` instead of
   `CONSENT_VERSION` on every request path:
   - `src/http/auth.ts`: `handleConnectForm`'s check and `authorizeRedirect`
     call, and the callback's new-rider check, consent record and
@@ -114,7 +114,7 @@ has no automated tests and no code; no tasks here.
   `dev/fake-strava/seed.ts`, `test/support/callback.ts` and
   `test/support/ctx.ts` keep `CONSENT_VERSION` (no `Ctx` there, or the
   default).
-- [ ] T011 Run `pnpm test`: T002 and T003 pass; `callback`, `connect`,
+- [x] T011 Run `pnpm test`: T002 and T003 pass; `callback`, `connect`,
   `reconnect-scope` and `dev-fake-strava` tests still pass.
 
 **Checkpoint**: the flag exists and is read; nobody is an organiser (FR-006).
@@ -134,7 +134,7 @@ superseded by R14; [contracts/rider-pages.md](contracts/rider-pages.md),
 existing tests per scenario pass, and `/me` of a rider without a consent record
 shows only the gate, with a form posting the current version to `/connect`.
 
-- [ ] T012 [P] [US1] Tests first (failing), `test/integration/me-status.test.ts`:
+- [x] T012 [P] [US1] Tests first (failing), `test/integration/me-status.test.ts`:
   - a rider without a consent record sees:
     - the `<h1>` `me.consent.renew.heading`, then `me.consent.none`;
     - `consent.heading`, `landing.dataRead`, `landing.private`,
@@ -150,17 +150,17 @@ shows only the gate, with a form posting the current version to `/connect`.
     form's checkbox has `value="2"`;
   - a rider with a record sees the version and date as today and no consent
     form.
-- [ ] T013 [P] [US1] `test/integration/landing.test.ts`: assert the landing form
+- [x] T013 [P] [US1] `test/integration/landing.test.ts`: assert the landing form
   markup (action, required checkbox with the current version, Connect with
   Strava button image and alt) so the move in T014 is checked to change nothing.
-- [ ] T014 [US1] Create `src/http/consent-form.ts` with
+- [x] T014 [US1] Create `src/http/consent-form.ts` with
   `consentForm(i18n: I18n, version: number): SafeHtml`, rendering exactly the
   form now inline in `src/http/landing.ts`, with `version` as the checkbox value
   ([contracts/rider-pages.md](contracts/rider-pages.md) "The consent form,
   shared"). Replace the inline form in `src/http/landing.ts` with
   `consentForm(i18n, currentVersion(ctx.consentVersions).version)`; drop the
   then-unused `CONSENT_VERSION` import there.
-- [ ] T015 [US1] Create `src/http/consent-gate.ts` with a function rendering the
+- [x] T015 [US1] Create `src/http/consent-gate.ts` with a function rendering the
   gate page (`layout`, title `me.title`, `<h1>` `me.consent.renew.heading`).
   Follow the order of [contracts/re-consent.md](contracts/re-consent.md)
   "`GET /me`, the gate": intro, current consent texts, form, leave text and
@@ -169,16 +169,16 @@ shows only the gate, with a form posting the current version to `/connect`.
     `consentForm(i18n, current)`.
   - Shape its parameters so US4 can add the `older` state and the
     `/me/consent` form (T040).
-- [ ] T016 [US1] In `src/http/me.ts` `handleMe`: when the rider has no consent
+- [x] T016 [US1] In `src/http/me.ts` `handleMe`: when the rider has no consent
   record (`getCurrentConsent` returns none), answer with the gate from T015
   instead of the page; otherwise the page is unchanged. Remove the now-unused
   "no record" branch of `consent()`.
-- [ ] T017 [P] [US1] In `src/i18n/messages/de.ts` and `src/i18n/messages/en.ts`:
+- [x] T017 [P] [US1] In `src/i18n/messages/de.ts` and `src/i18n/messages/en.ts`:
   - reword `me.consent.none` to the texts in
     [contracts/rider-pages.md](contracts/rider-pages.md) "Messages";
   - add `me.consent.renew.heading` and `me.consent.renew.leave` with the texts in
     [contracts/re-consent.md](contracts/re-consent.md) "Messages" (FR-040).
-- [ ] T018 [US1] Run `pnpm test`: T012 and T013 pass, and the 001 tests listed in
+- [x] T018 [US1] Run `pnpm test`: T012 and T013 pass, and the 001 tests listed in
   [quickstart.md](quickstart.md) §1 for US1 scenarios 1–6 still pass
   (plan "Delivery" step 7).
 
