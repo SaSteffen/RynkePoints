@@ -1,7 +1,11 @@
 import type { Ctx } from "../ctx";
+import { readRiderView } from "../db/rider-view";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
+import { CURRENT_RULES, rulesForVersion } from "../rynke/rules";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
+import { buildRiderView } from "./rider-view";
+import { readSession } from "./session";
 
 // The installable app's server side (feature 010 contracts/client.md and
 // contracts/http-routes.md). `/offline` and `/notification-text` are the only
@@ -46,6 +50,64 @@ export function handleNotificationText(request: Request, ctx: Ctx): Response {
 				Vary: "Accept-Language, Cookie",
 			},
 		},
+	);
+}
+
+/**
+ * What the signed-in rider still needs, for the service worker to show instead
+ * of `push.body` (issue #45). The push itself stays empty, so this only
+ * reaches the rider's own device. 204 when there is nothing to add: no
+ * balance yet, or nothing missing; the device then shows the cached text.
+ */
+export async function handleRiderNotificationText(
+	request: Request,
+	ctx: Ctx,
+): Promise<Response> {
+	const headers = { "Cache-Control": "no-store" };
+	const athleteId = await readSession(request, ctx.env, ctx.now());
+	if (athleteId === null) return new Response(null, { status: 401, headers });
+
+	const read = await readRiderView(ctx.env.DB, athleteId, 1);
+	const view = buildRiderView(
+		read,
+		read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
+		CURRENT_RULES,
+		{
+			seasonStart: ctx.env.SEASON_START_DATE,
+			importing: false,
+			rulesFor: rulesForVersion,
+		},
+	);
+	if (view.state !== "ready")
+		return new Response(null, { status: 204, headers });
+
+	const i18n = textI18n(request, ctx);
+	const { summary } = view;
+	const unmet = [
+		{ condition: summary.training, id: "rynke.missing.training" },
+		{ condition: summary.team, id: "rynke.missing.team" },
+		{ condition: summary.withoutVirtual, id: "rynke.missing.withoutVirtual" },
+	] as const;
+	const missing = unmet.flatMap(({ condition, id }) =>
+		condition && !condition.reached
+			? [
+					i18n.t(id, {
+						n: i18n.formatNumber(condition.missing, { fractionDigits: 0 }),
+					}),
+				]
+			: [],
+	);
+	if (missing.length === 0) return new Response(null, { status: 204, headers });
+
+	const list = new Intl.ListFormat(i18n.t("meta.intlLocale"), {
+		type: "conjunction",
+	}).format(missing);
+	return Response.json(
+		{
+			title: i18n.t("app.name"),
+			body: i18n.t("push.body.missing", { missing: list }),
+		},
+		{ headers: { ...headers, "Content-Language": i18n.locale } },
 	);
 }
 

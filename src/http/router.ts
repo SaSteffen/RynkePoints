@@ -14,7 +14,11 @@ import {
 } from "./me";
 import { handleNotice } from "./notice";
 import { handleNotifications } from "./notifications";
-import { handleNotificationText, handleOffline } from "./pwa";
+import {
+	handleNotificationText,
+	handleOffline,
+	handleRiderNotificationText,
+} from "./pwa";
 import { handleRunDaily } from "./run-daily";
 import { renewSession } from "./session";
 import { handleWebhook } from "./webhook";
@@ -47,6 +51,9 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		if (path === "/offline") return handleOffline(request, ctx);
 		if (path === "/notification-text") {
 			return handleNotificationText(request, ctx);
+		}
+		if (path === "/me/notification-text") {
+			return handleRiderNotificationText(request, ctx);
 		}
 		const response = await page(request, path, ctx, i18n);
 		if (response) return renewSession(request, response, ctx);

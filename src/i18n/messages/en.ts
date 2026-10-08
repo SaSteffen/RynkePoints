@@ -33,7 +33,7 @@ export const en: Catalog = {
 	"landing.cookies":
 		"We only set necessary cookies: for signing in and for your language choice.",
 	"landing.notifications":
-		"Notifications are optional and per device. They only say that there are new Rynke, and they pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address that service gives your device, and delete it when you turn notifications off, sign out or leave.",
+		"Notifications are optional and per device. Only on your device do they show that there are new Rynke and what you still need. They pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address that service gives your device, and delete it when you turn notifications off, sign out or leave.",
 
 	"consent.heading": "What you agree to by connecting",
 	"consent.organisers":
@@ -235,9 +235,10 @@ export const en: Catalog = {
 	"offline.body":
 		"RynkePoints needs an internet connection. Please try again shortly.",
 	"push.body": "New Rynke – tap to view",
+	"push.body.missing": "New Rynke! You still need {missing}.",
 	"notifications.heading": "Notifications",
 	"notifications.explain":
-		"If you like, this device lets you know when you have new Rynke – without figures or rides.",
+		"If you like, this device lets you know when you have new Rynke, and what you still need.",
 	"notifications.on": "Notifications are on for this device.",
 	"notifications.off": "Notifications are off for this device.",
 	"notifications.turnOn": "Turn on notifications",
