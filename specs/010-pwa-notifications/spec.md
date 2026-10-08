@@ -35,12 +35,14 @@ earned. It doesn't need to be usable offline."
 
 ### Session 2026-10-08 (issue #45)
 
-- Q: May a notification say more than that there are new Rynke? → A: Yes, what the
-  rider still needs, like the rider page's list ("Neue Rynke! Dir fehlen noch 16
-  Trainingsrynke und 2 Teamrynke."). Once nothing is missing it keeps the fixed text;
-  it never says the rider is in. The push itself stays empty: the device fetches the
-  text from RynkePoints, so the notification service still learns nothing. This
-  supersedes the 2026-10-07 answer on the lock screen.
+- Q: May a notification say more than that there are new Rynke? → A: Yes: how many
+  Training and Team Rynke the change earned, then what the rider still needs, like
+  the rider page's list ("Neue Rynke: +3 Trainingsrynke. Dir fehlen noch 16
+  Trainingsrynke und 2 Teamrynke."). Once nothing is missing it names only the new
+  Rynke ("Neue Rynke: +3 Trainingsrynke."); it never says the rider is in. The push
+  itself stays empty: the device fetches the text from RynkePoints, so the
+  notification service still learns nothing. This supersedes the 2026-10-07 answer
+  on the lock screen.
 - Q: Does the import of a new rider's earlier season rides send a notification? →
   A: No, neither the import nor the one-time re-read sends any.
 
@@ -136,9 +138,9 @@ that tapping it opens the rider page.
    a positive correction, **When** the rider's total rises, **Then** the rider gets a
    notification like for a ride.
 7. **Given** a notification on the lock screen, **When** anyone looks at it,
-   **Then** it shows that there are new Rynke and what the rider still needs, or
-   only that there are new Rynke once nothing is missing; never the qualification
-   or a ride name (FR-015).
+   **Then** it shows how many Rynke are new and what the rider still needs, or only
+   the new Rynke once nothing is missing; never the qualification or a ride name
+   (FR-015).
 8. **Given** a rider with notifications on for their phone and their computer,
    **When** they earn new Rynke, **Then** both devices show the notification.
 9. **Given** a notification on the lock screen, **When** the rider taps it, **Then**
@@ -300,11 +302,12 @@ get none. Repeat with the browser's permission denied and check the page explain
   because of a new or updated ride, recorded team-event attendance or an organiser
   correction, the system MUST send one notification to every device the rider has
   notifications on for, as soon as the new results are stored and at any time of
-  day. The notification MUST say that there are new Rynke and what the rider still
-  needs, as the rider page lists it (e.g. "Neue Rynke! Dir fehlen noch 16
-  Trainingsrynke und 2 Teamrynke."), or only that there are new Rynke when nothing
-  is missing or the device can't fetch the text (e.g. "Neue Rynke – tippe zum
-  Ansehen"). It MUST NOT contain whether the rider qualifies, ride names or any
+  day. The notification MUST say how many Training and Team Rynke the change
+  earned and what the rider still needs, as the rider page lists it (e.g. "Neue
+  Rynke: +3 Trainingsrynke. Dir fehlen noch 16 Trainingsrynke und 2 Teamrynke."),
+  only the new Rynke when nothing is missing (e.g. "Neue Rynke: +3
+  Trainingsrynke."), and only that there are new Rynke when the device can't fetch
+  the text (e.g. "Neue Rynke – tippe zum Ansehen"). It MUST NOT contain whether the rider qualifies, ride names or any
   other rider data. The push itself MUST carry no rider data: the device fetches
   the text from RynkePoints with the rider's sign-in, so nothing passes through the
   notification service (issue #45).
@@ -400,7 +403,8 @@ get none. Repeat with the browser's permission denied and check the page explain
 - **SC-007**: Without a connection, the installed app shows 0 rider data and the
   connection notice instead.
 - **SC-008**: 0 pushes carry rider data, and 0 notifications contain the
-  qualification, a ride name or any rider data beyond what is still missing, in all
+  qualification, a ride name or any rider data beyond the new Rynke and what is
+  still missing, in all
   cases tested.
 
 ## Assumptions
