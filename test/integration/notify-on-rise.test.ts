@@ -46,6 +46,15 @@ async function rose(change: ActivityChange, now = NOW) {
 	).rose;
 }
 
+/** The stored last rise (issue #45). */
+async function storedRise(athleteId = ATHLETE_A) {
+	return env.DB.prepare(
+		"SELECT training_rynke, team_rynke, risen_at FROM rynke_rises WHERE athlete_id = ?",
+	)
+		.bind(athleteId)
+		.first();
+}
+
 const upsert = (...records: ActivityRecord[]) =>
 	({ kind: "upsert", records }) as const;
 
@@ -62,6 +71,31 @@ describe("rose (contracts/push-delivery.md case table)", () => {
 			true,
 		);
 		expect(await balanceRow()).toMatchObject({ distance_rynke: 7 });
+		expect(await storedRise()).toEqual({
+			training_rynke: 7,
+			team_rynke: 0,
+			risen_at: NOW,
+		});
+	});
+
+	it("stores only the latest rise, and none for a change that earns 0", async () => {
+		await rose(upsert(activityRecord(1, { distance_m: 79000 })));
+		await rose(
+			upsert(
+				activityRecord(2, {
+					distance_m: 31000,
+					start_date: "2026-05-02T08:00:00Z",
+				}),
+			),
+			NOW + 60,
+		);
+		expect(await storedRise()).toEqual({
+			training_rynke: 3,
+			team_rynke: 0,
+			risen_at: NOW + 60,
+		});
+		await rose({ kind: "delete", activityIds: [2] }, NOW + 120);
+		expect(await storedRise()).toMatchObject({ risen_at: NOW + 60 });
 	});
 
 	it.each<[string, Partial<ActivityRecord>]>([
@@ -138,6 +172,7 @@ describe("rose (contracts/push-delivery.md case table)", () => {
 					})
 				).rose,
 			).toEqual([ATHLETE_A, ATHLETE_B]);
+			expect(await storedRise(ATHLETE_B)).toMatchObject({ team_rynke: 1 });
 			expect(
 				(
 					await apply({

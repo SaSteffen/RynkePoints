@@ -8,7 +8,8 @@
 // Each change also reports whether a rider's Training or Team Rynke rose,
 // comparing the state before and after it, both evaluated now (feature 010
 // research R5). Callers decide whether a rise notifies
-// (010 contracts/push-delivery.md "Which changes notify").
+// (010 contracts/push-delivery.md "Which changes notify"). A rise is stored
+// with the change, so a notification can say how many Rynke are new (#45).
 
 import type { Ctx } from "../ctx";
 import {
@@ -30,6 +31,7 @@ import {
 	toStoredRideResult,
 	upsertBalanceStatement,
 	upsertRideResultsStatement,
+	upsertRiseStatement,
 } from "../db/rynke";
 import {
 	type AttendanceOfRidersRow,
@@ -176,8 +178,10 @@ export async function applyAndEvaluate(
 
 	const after = evaluateState(state, rules, window);
 	writes.push(...riderWrites(db, athleteId, state, after, rules, now));
+	const risen = rose(before, after.balance);
+	if (risen) writes.push(riseWrite(db, athleteId, before, after.balance, now));
 	if (writes.length > 0) await db.batch(writes);
-	return { rose: rose(before, after.balance) };
+	return { rose: risen };
 }
 
 /** `applyAndEvaluate` under the current rules, for the work handlers. */
@@ -312,7 +316,10 @@ export async function applyTeamEventChange(
 			state.attendance = edit(state.attendance);
 			const after = evaluateState(state, rules, window);
 			writes.push(...riderWrites(db, athleteId, state, after, rules, now));
-			if (rose(before, after.balance)) risen.push(athleteId);
+			if (rose(before, after.balance)) {
+				writes.push(riseWrite(db, athleteId, before, after.balance, now));
+				risen.push(athleteId);
+			}
 		}
 	}
 	if (writes.length > 0) await db.batch(writes);
@@ -421,6 +428,25 @@ function rose(before: Balance, after: Balance): boolean {
 	return (
 		after.trainingRynke > before.trainingRynke ||
 		after.teamRynke > before.teamRynke
+	);
+}
+
+/** What the rider gained; a total that fell counts as 0. */
+function riseWrite(
+	db: D1Database,
+	athleteId: number,
+	before: Balance,
+	after: Balance,
+	now: number,
+): D1PreparedStatement {
+	return upsertRiseStatement(
+		db,
+		athleteId,
+		{
+			training: Math.max(0, after.trainingRynke - before.trainingRynke),
+			team: Math.max(0, after.teamRynke - before.teamRynke),
+		},
+		now,
 	);
 }
 
