@@ -65,6 +65,23 @@ The same `lang` handling as `/offline`. It returns JSON:
 - No session, no D1, `Cache-Control: no-cache`.
 - The texts are fixed per language and contain no rider data (FR-015).
 
+## `GET /me/notification-text` (new, issue #45)
+
+The same `lang` handling as `/notification-text`. With a valid session and a
+stored balance where something is still missing, it returns JSON:
+
+```json
+{ "title": "<app.name>", "body": "<push.body.missing>" }
+```
+
+`{missing}` is the page's `rynke.missing.*` items (the outdoor share only once
+the rider has a virtual ride), joined with `Intl.ListFormat` (conjunction).
+
+- `401`, empty, without a session; `204`, empty, without a balance or when
+  nothing is missing.
+- `Cache-Control: no-store`; never cached by the service worker, never renews
+  the session.
+
 ## Session renewal on every GET/HEAD (changed router behaviour)
 
 After any GET or HEAD route has produced its response, the router checks:

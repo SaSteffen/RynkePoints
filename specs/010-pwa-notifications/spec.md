@@ -32,6 +32,15 @@ earned. It doesn't need to be usable offline."
 - Q: Are notifications held back at night? → A: No. They are sent as soon as the
   new Rynke are stored, at any time; the phone's own Do Not Disturb handles the
   night.
+
+### Session 2026-10-08 (issue #45)
+
+- Q: May a notification say more than that there are new Rynke? → A: Yes, what the
+  rider still needs, like the rider page's list ("Neue Rynke! Dir fehlen noch 16
+  Trainingsrynke und 2 Teamrynke."). Once nothing is missing it keeps the fixed text;
+  it never says the rider is in. The push itself stays empty: the device fetches the
+  text from RynkePoints, so the notification service still learns nothing. This
+  supersedes the 2026-10-07 answer on the lock screen.
 - Q: Does the import of a new rider's earlier season rides send a notification? →
   A: No, neither the import nor the one-time re-read sends any.
 
@@ -127,8 +136,9 @@ that tapping it opens the rider page.
    a positive correction, **When** the rider's total rises, **Then** the rider gets a
    notification like for a ride.
 7. **Given** a notification on the lock screen, **When** anyone looks at it,
-   **Then** it shows only that there are new Rynke: no amounts, totals,
-   qualification or ride name (FR-015).
+   **Then** it shows that there are new Rynke and what the rider still needs, or
+   only that there are new Rynke once nothing is missing; never the qualification
+   or a ride name (FR-015).
 8. **Given** a rider with notifications on for their phone and their computer,
    **When** they earn new Rynke, **Then** both devices show the notification.
 9. **Given** a notification on the lock screen, **When** the rider taps it, **Then**
@@ -290,11 +300,14 @@ get none. Repeat with the browser's permission denied and check the page explain
   because of a new or updated ride, recorded team-event attendance or an organiser
   correction, the system MUST send one notification to every device the rider has
   notifications on for, as soon as the new results are stored and at any time of
-  day. The notification MUST say only that there are new Rynke
-  (e.g. "Neue Rynke – tippe zum Ansehen"). It MUST NOT contain amounts, totals, what
-  is still missing, whether the rider qualifies, ride names or any other rider data,
-  so nothing personal shows on the lock screen or passes through the notification
-  service.
+  day. The notification MUST say that there are new Rynke and what the rider still
+  needs, as the rider page lists it (e.g. "Neue Rynke! Dir fehlen noch 16
+  Trainingsrynke und 2 Teamrynke."), or only that there are new Rynke when nothing
+  is missing or the device can't fetch the text (e.g. "Neue Rynke – tippe zum
+  Ansehen"). It MUST NOT contain whether the rider qualifies, ride names or any
+  other rider data. The push itself MUST carry no rider data: the device fetches
+  the text from RynkePoints with the rider's sign-in, so nothing passes through the
+  notification service (issue #45).
 - **FR-016**: Changes that lower or don't change a total MUST NOT send a
   notification. A recalculation after a rule change (feature 003, User Story 5) MUST
   NOT send one either, even where it raises a total. The past-season import when a rider
@@ -386,8 +399,9 @@ get none. Repeat with the browser's permission denied and check the page explain
   of cases (feature 001, SC-003), with notifications turned on for every rider.
 - **SC-007**: Without a connection, the installed app shows 0 rider data and the
   connection notice instead.
-- **SC-008**: 0 notifications contain an amount, a total, the qualification, a ride
-  name or any other rider data, in all cases tested.
+- **SC-008**: 0 pushes carry rider data, and 0 notifications contain the
+  qualification, a ride name or any rider data beyond what is still missing, in all
+  cases tested.
 
 ## Assumptions
 
@@ -401,7 +415,7 @@ get none. Repeat with the browser's permission denied and check the page explain
   (FR-011), not only in the installed app.
 - Notifications reach devices through the notification service of the browser's or
   phone's maker, which the app cannot avoid; what passes through it is protected so
-  only the device can read it, it carries no rider data (FR-015), and the privacy
+  only the device can read it, the push carries no rider data (FR-015), and the privacy
   text names it (FR-030). This is not
   growth of the consent under constitution Principle I: it needs no Strava permission
   or request and shows nothing to anyone but the rider.

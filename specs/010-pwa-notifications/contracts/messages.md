@@ -12,7 +12,7 @@ fixed. Tests assert the German text.
 | `install.ios` | Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“. | As an app on your iPhone: in Safari, tap "Share" and then "Add to Home Screen". |
 | `install.dismiss` | Ausblenden | Dismiss |
 | `notifications.heading` | Benachrichtigungen | Notifications |
-| `notifications.explain` | Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast – ohne Zahlen oder Fahrten. | If you like, this device lets you know when you have new Rynke – without figures or rides. |
+| `notifications.explain` | Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast, und was dir noch fehlt. | If you like, this device lets you know when you have new Rynke, and what you still need. |
 | `notifications.on` | Benachrichtigungen sind auf diesem Gerät an. | Notifications are on for this device. |
 | `notifications.off` | Benachrichtigungen sind auf diesem Gerät aus. | Notifications are off for this device. |
 | `notifications.turnOn` | Benachrichtigungen einschalten | Turn on notifications |
@@ -22,9 +22,10 @@ fixed. Tests assert the German text.
 | `notifications.unsupported` | Dieser Browser kann keine Benachrichtigungen anzeigen. | This browser can't show notifications. |
 | `notifications.failed` | Das hat nicht geklappt. Versuch es bitte noch einmal. | That didn't work. Please try again. |
 | `push.body` | Neue Rynke – tippe zum Ansehen | New Rynke – tap to view |
+| `push.body.missing` | Neue Rynke! Dir fehlen noch {missing}. | New Rynke! You still need {missing}. |
 | `offline.title` | Keine Verbindung | No connection |
 | `offline.body` | RynkePoints braucht eine Internetverbindung. Versuch es gleich noch einmal. | RynkePoints needs an internet connection. Please try again shortly. |
-| `landing.notifications` | Benachrichtigungen sind freiwillig und gelten pro Gerät. Sie sagen nur, dass es neue Rynke gibt, und laufen über den Benachrichtigungsdienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die dieser Dienst deinem Gerät gibt, und löschen sie, wenn du die Benachrichtigungen ausschaltest, dich abmeldest oder gehst. | Notifications are optional and per device. They only say that there are new Rynke, and they pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address that service gives your device, and delete it when you turn notifications off, sign out or leave. |
+| `landing.notifications` | Benachrichtigungen sind freiwillig und gelten pro Gerät. Sie zeigen nur auf deinem Gerät, dass es neue Rynke gibt und was dir noch fehlt. Sie laufen über den Benachrichtigungsdienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die dieser Dienst deinem Gerät gibt, und löschen sie, wenn du die Benachrichtigungen ausschaltest, dich abmeldest oder gehst. | Notifications are optional and per device. Only on your device do they show that there are new Rynke and what you still need. They pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address that service gives your device, and delete it when you turn notifications off, sign out or leave. |
 
 Rules:
 
@@ -35,6 +36,7 @@ Rules:
 - **Where the text appears**: `install.*` and `notifications.*` are rendered
   into the hidden markup of [client.md](client.md), never written by script.
   `push.body` and `app.name` reach the device only through
-  `/notification-text`.
+  `/notification-text`; `push.body.missing` only through the signed-in
+  `/me/notification-text`.
 - **Consent version**: `CONSENT_VERSION` stays 1. A comment in
   `src/consent.ts` names research R14 as the reason.
