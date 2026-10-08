@@ -17,10 +17,10 @@ import type { TeamEventKind, TeamEventSum } from "../rynke/team-events";
 import type { CyclingSportType } from "../strava/activity";
 
 // The rider page's view model (feature 005 data-model.md, research R6): what
-// the Rynke sections of /me show, built from one reading. Pure: no D1, no
-// clock, no text. Every number is stored or derived from stored values
-// (FR-004); every rule value comes from the rules of the stored version, and
-// is left out when that version is unknown (FR-013).
+// the Rynke sections of the Overview and Rides show, built from one reading.
+// Pure: no D1, no clock, no text. Every number is stored or derived from
+// stored values (FR-004); every rule value comes from the rules of the stored
+// version, and is left out when that version is unknown (FR-013).
 
 export type RiderView =
 	| { state: "not-worked-out"; importing: boolean; rides: RideTable }

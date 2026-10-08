@@ -101,7 +101,7 @@ export async function handleConnectForm(
 	);
 }
 
-/** `GET /connect`: reconnecting or changing permissions, signed in only. */
+/** `GET /connect?next=`: reconnecting or changing permissions, signed in only. */
 export async function handleReconnect(
 	request: Request,
 	ctx: Ctx,
@@ -110,7 +110,9 @@ export async function handleReconnect(
 	if (athleteId === null || !(await getRider(ctx.env.DB, athleteId))) {
 		return redirect("/", 302);
 	}
-	return authorizeRedirect(request, ctx, 0, "/me");
+	// Settings asks to come back to it (feature 011 research R9).
+	const next = new URL(request.url).searchParams.get("next");
+	return authorizeRedirect(request, ctx, 0, sectionNext(next));
 }
 
 function notice(id: NoticeId, cookies: string[] = []): Response {

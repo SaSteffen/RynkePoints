@@ -166,6 +166,7 @@ describe("the switcher for a signed-in rider (US5, 011 FR-016)", () => {
 
 	it("lands on Settings after switching there (011 US4-AS2)", async () => {
 		const res = await switchTo("en", "/me/settings");
+		expect(res.status).toBe(303);
 		expect(res.headers.get("Location")).toBe("/me/settings");
 	});
 });

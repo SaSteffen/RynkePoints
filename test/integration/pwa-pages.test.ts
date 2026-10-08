@@ -108,7 +108,7 @@ describe("install hint (FR-004)", () => {
 });
 
 describe("notifications section (FR-010, FR-011)", () => {
-	const SECTION = `<section id="notifications" data-push-key="${vapidPublicKey(ctx.env)}" hidden>
+	const SECTION = `<section id="notifications" class="settings-group" data-push-key="${vapidPublicKey(ctx.env)}" hidden>
 <h2>Benachrichtigungen</h2>
 <p>Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast: wie viele und was dir noch fehlt.</p>
 <p data-state="on" hidden>Benachrichtigungen sind auf diesem Gerät an.</p>
@@ -117,8 +117,7 @@ describe("notifications section (FR-010, FR-011)", () => {
 <p data-state="needsHomeScreen" hidden>Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.</p>
 <p data-state="unsupported" hidden>Dieser Browser kann keine Benachrichtigungen anzeigen.</p>
 <p data-state="failed" hidden>Das hat nicht geklappt. Versuch es bitte noch einmal.</p>
-<button type="button" data-action="on" class="tap" hidden>Benachrichtigungen einschalten</button>
-<button type="button" data-action="off" class="tap" hidden>Benachrichtigungen ausschalten</button>
+<button type="button" role="switch" data-action="toggle" aria-checked="false" aria-label="Benachrichtigungen auf diesem Gerät" hidden></button>
 </section>`;
 
 	it("is in Settings, all hidden, and not on the Overview (011 FR-014)", async () => {

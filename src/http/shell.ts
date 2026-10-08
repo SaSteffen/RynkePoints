@@ -112,10 +112,15 @@ export async function shellPage(
 		);
 	}
 	const body = await render({ rider: viewer.rider, consent: accepted });
+	// Each section names itself, so tabs and screen readers tell them apart.
+	const label = SECTIONS.find(({ id }) => id === section)?.label;
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
-			title: i18n.t("me.title"),
+			title:
+				section === "overview" || !label
+					? i18n.t("me.title")
+					: i18n.t("shell.title", { section: i18n.t(label) }),
 			path,
 			body,
 			shell: shellParts(i18n, section, path),

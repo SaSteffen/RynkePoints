@@ -1,7 +1,7 @@
 // RynkePoints page script (feature 010 contracts/client.md, research R16). It
 // only wires up what a server-rendered page can't do itself: the service worker,
-// the install prompt, the notifications switch and reloading a section on
-// return. It holds no text: every word shown comes from the page's markup,
+// the install prompt, the notifications switch, the scheme picker and reloading
+// a section on return. It holds no text: every word shown comes from the page's markup,
 // rendered from the catalogs and hidden until this shows it.
 
 function registerWorker() {
@@ -12,7 +12,10 @@ function registerWorker() {
 		.catch(() => {});
 }
 
-/** The hint on `/` and `/me` (FR-004, research R11). */
+/**
+ * The hint on `/`, Overview and Settings (FR-004, research R11). In Settings
+ * its App group shows and hides with it (feature 011 contracts/client.md).
+ */
 function installHint() {
 	const hint = document.getElementById("install");
 	const DISMISSED = "rp-install-dismissed";
@@ -21,16 +24,21 @@ function installHint() {
 		navigator.standalone === true;
 	if (!hint || standalone || localStorage.getItem(DISMISSED)) return;
 
+	const group = hint.closest("section#settings-app");
+	const setShown = (shown) => {
+		hint.hidden = !shown;
+		if (group) group.hidden = !shown;
+	};
 	const prompt = hint.querySelector('[data-install="prompt"]');
 	let deferred = null;
 	window.addEventListener("beforeinstallprompt", (event) => {
 		event.preventDefault();
 		deferred = event;
 		prompt.hidden = false;
-		hint.hidden = false;
+		setShown(true);
 	});
 	prompt.querySelector("button").addEventListener("click", () => {
-		hint.hidden = true;
+		setShown(false);
 		deferred?.prompt();
 		deferred = null;
 	});
@@ -38,17 +46,17 @@ function installHint() {
 	// Only Safari on iOS defines it, and false means "not on the home screen".
 	if (navigator.standalone === false) {
 		hint.querySelector('[data-install="ios"]').hidden = false;
-		hint.hidden = false;
+		setShown(true);
 	}
 
 	window.addEventListener("appinstalled", () => {
-		hint.hidden = true;
+		setShown(false);
 	});
 	hint
 		.querySelector('[data-install="dismiss"]')
 		.addEventListener("click", () => {
 			localStorage.setItem(DISMISSED, "1");
-			hint.hidden = true;
+			setShown(false);
 		});
 }
 
@@ -78,18 +86,24 @@ function setSignOutEndpoint(endpoint) {
 	}
 }
 
-/** The section on `/me` (FR-010, FR-011, research R8's state table). */
+/**
+ * The section in Settings (FR-010, FR-011, research R8's state table; feature
+ * 011 contracts/client.md "Notifications switch").
+ */
 async function notifications() {
 	const section = document.getElementById("notifications");
 	if (!section) return;
-	/** Shows exactly one state and at most one button. */
-	const show = (state, action) => {
+	const toggle = section.querySelector('[data-action="toggle"]');
+	/**
+	 * Shows exactly one state. The switch shows for on, off and failed; failed
+	 * keeps the value it had before the attempt.
+	 */
+	const show = (state, checked) => {
 		for (const p of section.querySelectorAll("[data-state]")) {
 			p.hidden = p.dataset.state !== state;
 		}
-		for (const button of section.querySelectorAll("[data-action]")) {
-			button.hidden = button.dataset.action !== action;
-		}
+		toggle.hidden = !["on", "off", "failed"].includes(state);
+		if (checked !== undefined) toggle.setAttribute("aria-checked", checked);
 		section.hidden = false;
 	};
 
@@ -109,54 +123,105 @@ async function notifications() {
 	let subscription = await pushManager.getSubscription();
 	if (subscription) setSignOutEndpoint(subscription.endpoint);
 
-	section
-		.querySelector('[data-action="on"]')
-		.addEventListener("click", async () => {
-			try {
-				// Asked inside the tap, before anything else (FR-010).
-				const permission = await Notification.requestPermission();
-				if (permission === "denied") return show("blocked");
-				if (permission !== "granted") return show("off", "on");
-				subscription ??= await pushManager.subscribe({
-					userVisibleOnly: true,
-					applicationServerKey: fromBase64Url(section.dataset.pushKey),
-				});
-				await post("on", subscription.endpoint);
-				setSignOutEndpoint(subscription.endpoint);
-				show("on", "off");
-			} catch {
-				show("failed", "on");
+	const turnOn = async () => {
+		try {
+			// Asked inside the tap, before anything else (FR-010).
+			const permission = await Notification.requestPermission();
+			if (permission === "denied") return show("blocked");
+			if (permission !== "granted") return show("off", false);
+			subscription ??= await pushManager.subscribe({
+				userVisibleOnly: true,
+				applicationServerKey: fromBase64Url(section.dataset.pushKey),
+			});
+			await post("on", subscription.endpoint);
+			setSignOutEndpoint(subscription.endpoint);
+			show("on", true);
+		} catch {
+			show("failed");
+		}
+	};
+	const turnOff = async () => {
+		try {
+			if (subscription) {
+				const { endpoint } = subscription;
+				await subscription.unsubscribe();
+				subscription = null;
+				setSignOutEndpoint("");
+				await post("off", endpoint);
 			}
-		});
-	section
-		.querySelector('[data-action="off"]')
-		.addEventListener("click", async () => {
-			try {
-				if (subscription) {
-					const { endpoint } = subscription;
-					await subscription.unsubscribe();
-					subscription = null;
-					setSignOutEndpoint("");
-					await post("off", endpoint);
-				}
-				show("off", "on");
-			} catch {
-				show("failed", "off");
-			}
-		});
+			show("off", false);
+		} catch {
+			show("failed");
+		}
+	};
+	// One change at a time: a second tap mid-way would subscribe twice.
+	toggle.addEventListener("click", async () => {
+		toggle.disabled = true;
+		try {
+			await (toggle.getAttribute("aria-checked") === "true"
+				? turnOff()
+				: turnOn());
+		} finally {
+			toggle.disabled = false;
+		}
+	});
 
 	if (Notification.permission === "denied") {
 		show("blocked");
 	} else if (!subscription) {
-		show("off", "on");
+		show("off", false);
 	} else {
 		try {
 			// The server decides: sign-out or another rider may have ended it.
 			const on = await post("check", subscription.endpoint);
-			show(on ? "on" : "off", on ? "off" : "on");
+			show(on ? "on" : "off", on);
 		} catch {
-			show("failed", "on");
+			show("failed", false);
 		}
+	}
+}
+
+/** The `surface` colour of each scheme, as in the head script (research R12). */
+const THEME_COLOR = { light: "#fff8f6", dark: "#1a110e" };
+
+/**
+ * The Appearance group in Settings (FR-032a): System, Light or Dark for this
+ * device only. It applies the choice the way the head script does on load.
+ */
+function schemePicker() {
+	const radios = document.querySelectorAll("input[name=scheme]");
+	if (radios.length === 0) return;
+	const KEY = "rp-scheme";
+	let stored = null;
+	try {
+		stored = localStorage.getItem(KEY);
+	} catch {}
+	const current = stored === "light" || stored === "dark" ? stored : "system";
+	for (const radio of radios) {
+		radio.checked = radio.value === current;
+		radio.addEventListener("change", () => {
+			const scheme = radio.value;
+			try {
+				if (scheme === "system") localStorage.removeItem(KEY);
+				else localStorage.setItem(KEY, scheme);
+			} catch {}
+			const metas = document.querySelectorAll('meta[name="theme-color"]');
+			if (scheme === "system") {
+				delete document.documentElement.dataset.scheme;
+				// Back to one colour per system setting, as the page is served.
+				for (const [i, m] of [...metas].entries()) {
+					const s = i === 0 ? "light" : "dark";
+					m.media = `(prefers-color-scheme: ${s})`;
+					m.content = THEME_COLOR[s];
+				}
+			} else {
+				document.documentElement.dataset.scheme = scheme;
+				for (const m of metas) {
+					m.removeAttribute("media");
+					m.content = THEME_COLOR[scheme];
+				}
+			}
+		});
 	}
 }
 
@@ -182,5 +247,6 @@ function refreshOnReturn() {
 
 registerWorker();
 installHint();
+schemePicker();
 refreshOnReturn();
 notifications().catch(() => {});
