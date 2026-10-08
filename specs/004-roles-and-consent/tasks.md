@@ -438,18 +438,18 @@ for riders with a record. Publishing version 2 is the documented PR
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T044 [P] Check that no athlete ID added in this feature is a real person's:
+- [X] T044 [P] Check that no athlete ID added in this feature is a real person's:
   tests, fixtures and `dev/` use only synthetic IDs (US2 scenario 6, SC-007,
   research R8).
-- [ ] T045 [P] Check the catalog tests (`test/unit/catalogs.test.ts`,
+- [X] T045 [P] Check the catalog tests (`test/unit/catalogs.test.ts`,
   `test/integration/no-hardcoded-copy.test.ts`) pass with the reworded
   `me.consent.none` and the five `me.consent.renew.*` keys in both languages
   (FR-040, SC-008).
-- [ ] T046 [P] In `specs/001-strava-connect-webhook/contracts/http-routes.md`,
+- [X] T046 [P] In `specs/001-strava-connect-webhook/contracts/http-routes.md`,
   add `POST /me/consent` with a link to this feature's
   [contracts/re-consent.md](contracts/re-consent.md), and note that `/me` shows
   the consent gate when consent is missing or older.
-- [ ] T047 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
+- [X] T047 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
 
 ---
 
