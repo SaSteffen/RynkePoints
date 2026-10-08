@@ -400,13 +400,13 @@ disconnect page returns there.
 **Independent Test**: `/team` for a rider and an organiser shows only the
 placeholder, even with synthetic team data in D1.
 
-- [ ] T057 [US5] New `test/integration/team.test.ts` (FR-013, US5-AS1–3): for a
+- [X] T057 [US5] New `test/integration/team.test.ts` (FR-013, US5-AS1–3): for a
   rider and for an organiser (flag set), `/team` shows `section.placeholder` with
   `team.placeholder.heading` and `.body` and Team marked current; with
   `seedPageRiders` data present, the page contains none of `RIDE_NAMES`, no other
   rider's name and no Rynke figure. It passes against T022; fix
   `src/http/sections/team.ts` if it doesn't.
-- [ ] T058 [US5] `src/http/style.ts`: the centred `section.placeholder` with a
+- [X] T058 [US5] `src/http/style.ts`: the centred `section.placeholder` with a
   large tinted icon.
 
 ---
