@@ -210,7 +210,7 @@ rides that don't count, and the style and layout tests prove 44 px targets,
 
 ### Tests for User Story 2
 
-- [ ] T028 [P] [US2] Update `test/integration/me-rynke.test.ts` and
+- [X] T028 [P] [US2] Update `test/integration/me-rynke.test.ts` and
   `test/integration/me-activities.test.ts` to the card markup in
   [contracts/pages.md](contracts/pages.md) "Rides" (FR-012, FR-021,
   clarification Q5): `ol.ride-list` replaces `table.rides`; each `li.ride-card`
@@ -219,17 +219,17 @@ rides that don't count, and the style and layout tests prove 44 px targets,
   only on `ride-not-counting`, closed on `ride-counting` and `ride-pending`, and
   absent when there is nothing to explain; 20 per page; a bad `page` as in 005.
   Rewrite the `rows()` helpers to read cards.
-- [ ] T029 [P] [US2] Update `test/unit/rider-sections.test.ts` (008 link and
+- [X] T029 [P] [US2] Update `test/unit/rider-sections.test.ts` (008 link and
   name tests) to the card: the link sits in `p.ride-strava` after the escaped
   name, for every status.
-- [ ] T030 [P] [US2] Update `test/integration/pwa-pages.test.ts`: the viewport
+- [X] T030 [P] [US2] Update `test/integration/pwa-pages.test.ts`: the viewport
   meta is `width=device-width, initial-scale=1, viewport-fit=cover` on every page
   (it asserted the opposite for 010).
-- [ ] T031 [P] [US2] New `test/integration/layout.test.ts` (FR-020, FR-016): for
+- [X] T031 [P] [US2] New `test/integration/layout.test.ts` (FR-020, FR-016): for
   every entry of `RIDER_PAGES`, no inline `width` or `min-width` above 360 px in
   the markup; every public page has `body.public`, the header language form and
   no `nav.app-nav`.
-- [ ] T032 [P] [US2] New `test/unit/style.test.ts` (FR-022, FR-023): parse
+- [X] T032 [P] [US2] New `test/unit/style.test.ts` (FR-022, FR-023): parse
   `STYLE` from `src/http/style.ts`; every selector in the "Control size" list of
   [contracts/pages.md](contracts/pages.md) has `min-height: var(--rp-tap)` and
   `--rp-tap` is `44px`; `main` has `overflow-wrap: anywhere`; no rule sets a
@@ -238,16 +238,16 @@ rides that don't count, and the style and layout tests prove 44 px targets,
 
 ### Implementation for User Story 2
 
-- [ ] T033 [US2] `src/http/rider-sections.ts`: rewrite `renderRides` and
+- [X] T033 [US2] `src/http/rider-sections.ts`: rewrite `renderRides` and
   `rideRows` into the card markup of [contracts/pages.md](contracts/pages.md)
   "Rides", reusing `explanation()` inside `details.ride-why` with
   `summary` = `rynke.ride.why` and `open` only for "doesn't count"; pager links
   get class `tap`.
-- [ ] T034 [US2] Remove `me.recent.col.date` and `rynke.rides.col.status` from
+- [X] T034 [US2] Remove `me.recent.col.date` and `rynke.rides.col.status` from
   `src/i18n/messages/en.ts` and `de.ts` once nothing uses them.
-- [ ] T035 [US2] `src/http/html.ts`: viewport meta with `viewport-fit=cover`;
+- [X] T035 [US2] `src/http/html.ts`: viewport meta with `viewport-fit=cover`;
   `header.top-bar` pads `env(safe-area-inset-top)`.
-- [ ] T036 [US2] `src/http/style.ts`: ride cards (head row, chip,
+- [X] T036 [US2] `src/http/style.ts`: ride cards (head row, chip,
   `dl.ride-figures` as three columns, `details` with a turning chevron, two
   columns from 600 px), `--rp-tap: 44px` and the 44 px rule for every control
   class in the list, `main { overflow-wrap: anywhere }`, `min-width: 0` on grid
