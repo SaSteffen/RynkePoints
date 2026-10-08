@@ -59,6 +59,12 @@ describe("STYLE", () => {
 		);
 	});
 
+	it("shows keyboard focus on the label of a hidden scheme radio (FR-014)", () => {
+		expect(declsOf(".segmented-group label:has(:focus-visible)").outline).toBe(
+			declsOf(":focus-visible").outline,
+		);
+	});
+
 	it("lines figures up with tabular numbers (FR-036)", () => {
 		expect(declsOf("body")["font-variant-numeric"]).toBe("tabular-nums");
 	});

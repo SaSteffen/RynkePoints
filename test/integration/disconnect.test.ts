@@ -73,7 +73,7 @@ async function expectNothingDeleted() {
 }
 
 describe("GET /me/disconnect", () => {
-	it("shows the German confirmation page", async () => {
+	it("shows the German confirmation page, cancelling back to Settings (011 FR-015)", async () => {
 		await seedConnected();
 		const { res, text } = await page(
 			"/me/disconnect",
@@ -90,7 +90,7 @@ describe("GET /me/disconnect", () => {
 			/<form method="post" action="\/me\/disconnect"><button class="danger">Ja, alles löschen<\/button><\/form>/,
 		);
 		expect(text).toContain(
-			'<a class="button-outlined" href="/me">Abbrechen</a>',
+			'<a class="button-outlined" href="/me/settings">Abbrechen</a>',
 		);
 		expect(text).toContain('name="next" value="/me/disconnect"');
 		expect(fake.calls).toEqual([]);
@@ -111,7 +111,7 @@ describe("GET /me/settings links to the disconnect page", () => {
 			await sessionCookie(ctx, ATHLETE_A),
 		);
 		expect(text).toContain(
-			'<a href="/me/disconnect">Verbindung trennen und meine Daten löschen</a>',
+			'<a class="danger" href="/me/disconnect">Verbindung trennen und meine Daten löschen</a>',
 		);
 	});
 });

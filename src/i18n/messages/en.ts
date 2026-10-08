@@ -242,8 +242,6 @@ export const en: Catalog = {
 		"If you like, this device lets you know when you have new Rynke: how many, and what you still need.",
 	"notifications.on": "Notifications are on for this device.",
 	"notifications.off": "Notifications are off for this device.",
-	"notifications.turnOn": "Turn on notifications",
-	"notifications.turnOff": "Turn off notifications",
 	"notifications.blocked":
 		"Notifications stay off because your device blocks them for RynkePoints. You can allow them in your browser's or device's settings.",
 	"notifications.needsHomeScreen":

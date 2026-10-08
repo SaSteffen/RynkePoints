@@ -256,8 +256,6 @@ export const de = {
 		"Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast: wie viele und was dir noch fehlt.",
 	"notifications.on": "Benachrichtigungen sind auf diesem Gerät an.",
 	"notifications.off": "Benachrichtigungen sind auf diesem Gerät aus.",
-	"notifications.turnOn": "Benachrichtigungen einschalten",
-	"notifications.turnOff": "Benachrichtigungen ausschalten",
 	"notifications.blocked":
 		"Benachrichtigungen bleiben aus, weil dein Gerät sie für RynkePoints blockiert. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.",
 	"notifications.needsHomeScreen":

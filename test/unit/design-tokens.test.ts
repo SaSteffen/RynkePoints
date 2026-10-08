@@ -6,6 +6,24 @@ import { declsOf, RULES } from "../support/css";
 // FR-031–FR-033, FR-035, SC-006): the same names in light and dark, readable
 // contrast for the pairs the pages use, and colours only through tokens.
 
+declare global {
+	interface ImportMeta {
+		glob(
+			pattern: string,
+			options: { query: "?raw"; import: "default"; eager: true },
+		): Record<string, string>;
+	}
+}
+
+const APP_JS =
+	Object.values(
+		import.meta.glob("../../public/app.js", {
+			query: "?raw",
+			import: "default",
+			eager: true,
+		}),
+	)[0] ?? "";
+
 type Tokens = Record<string, string>;
 
 const HEX = /^#[0-9a-f]{6}$/;
@@ -125,6 +143,15 @@ describe("design tokens", () => {
 		const [, dark, light] =
 			SCHEME_SCRIPT.match(/"dark" \? "(#[0-9a-f]{6})" : "(#[0-9a-f]{6})"/) ??
 			[];
+		expect(light).toBe(LIGHT[md("surface")]);
+		expect(dark).toBe(DARK_FIXED[md("surface")]);
+	});
+
+	it("gives the scheme picker in app.js the surface colours (FR-032a)", () => {
+		const [, light, dark] =
+			APP_JS.match(
+				/THEME_COLOR = \{ light: "(#[0-9a-f]{6})", dark: "(#[0-9a-f]{6})" \}/,
+			) ?? [];
 		expect(light).toBe(LIGHT[md("surface")]);
 		expect(dark).toBe(DARK_FIXED[md("surface")]);
 	});

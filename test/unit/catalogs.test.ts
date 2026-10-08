@@ -206,8 +206,6 @@ const CONTRACT_IDS = [
 	"notifications.explain",
 	"notifications.on",
 	"notifications.off",
-	"notifications.turnOn",
-	"notifications.turnOff",
 	"notifications.blocked",
 	"notifications.needsHomeScreen",
 	"notifications.unsupported",
