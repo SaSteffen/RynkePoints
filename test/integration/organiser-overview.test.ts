@@ -114,8 +114,18 @@ describe("GET /organiser/riders, who may see it (US4 #4)", () => {
 		expect(html).not.toContain('<li class="rider-card');
 	});
 
-	it("shows it to an organiser", async () => {
-		expect((await overview()).status).toBe(200);
+	it("shows it to an organiser under Orga, with the switch to the events", async () => {
+		const { status, html } = await overview();
+		expect(status).toBe(200);
+		expect(html).toMatch(/<a href="\/organiser\/riders" aria-current="page">/);
+		const switcher = sectionOf(html, '<nav class="organiser-switch"', "</nav>");
+		expect(switcher).toContain(
+			`<a class="segmented" href="/organiser/riders" aria-current="true">`,
+		);
+		expect(switcher).toContain(
+			`${escapeHtml(de["organiser.switch.riders"])}</a>`,
+		);
+		expect(switcher).toContain(`<a class="segmented" href="/organiser">`);
 	});
 });
 

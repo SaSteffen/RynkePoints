@@ -375,7 +375,6 @@ describe("GET /team, the team's progress (US2)", () => {
 			'<figure class="peloton',
 			'<figure class="team-chart',
 			'<section class="leaderboard',
-			'<p class="organiser-entry"',
 		].map(at);
 		expect(order.every((i) => i > 0)).toBe(true);
 		expect(order).toEqual([...order].sort((a, b) => a - b));

@@ -44,7 +44,8 @@ import { handleWebhook } from "./webhook";
 // (010 research R10), except the two texts the service worker caches, which
 // must be the same for everyone. The signed-in app is four sections, each its
 // own address: `/me`, `/me/rides`, `/team` and `/me/settings` (011 FR-001).
-// Organisers manage the team under `/organiser` (feature 014).
+// Organisers manage the team under `/organiser` (feature 014), their Orga tab
+// (feature 016).
 
 const WEBHOOK_PREFIX = "/strava/webhook/";
 

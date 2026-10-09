@@ -296,9 +296,9 @@ describe("the riders pages", () => {
 		expect(await corrections()).toEqual([]);
 	});
 
-	it("links the team overview from /organiser", async () => {
+	it("switches to the team overview from /organiser", async () => {
 		expect(await page("/organiser")).toContain(
-			`<a href="/organiser/riders">${escapeHtml(de["organiser.riders.link"])}</a>`,
+			`<a class="segmented" href="/organiser/riders">`,
 		);
 	});
 });

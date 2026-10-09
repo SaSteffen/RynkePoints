@@ -256,6 +256,7 @@ export const en: Catalog = {
 	"nav.overview": "Overview",
 	"nav.rides": "Rides",
 	"nav.team": "Team",
+	"nav.organiser": "Orga",
 	"nav.settings": "Settings",
 	"shell.refresh": "Refresh",
 	"shell.title": "{section} – RynkePoints",
@@ -286,8 +287,10 @@ export const en: Catalog = {
 	"error.forbidden.body": "Please reload the page and try again.",
 
 	"organiser.title": "Organiser",
-	"organiser.link": "Organiser pages",
 	"organiser.back": "Back to the events",
+	"organiser.switch.label": "Orga views",
+	"organiser.switch.riders": "Riders",
+	"organiser.switch.events": "Events",
 	"organiser.formerOrganiser": "a former organiser",
 	"organiser.changedBy": "Last changed by {name} on {date}",
 	"organiser.error.unknown_kind": "Please choose a kind of event.",
@@ -333,7 +336,6 @@ export const en: Catalog = {
 		"Attendance can be recorded once the event has taken place.",
 	"organiser.attendance.none":
 		"Nobody who shares their data with the team is connected yet.",
-	"organiser.riders.link": "Team overview",
 	"organiser.riders.back": "Back to the team overview",
 	"organiser.corrections.heading": "Corrections for {name}",
 	"organiser.corrections.none": "No corrections yet.",
@@ -394,7 +396,6 @@ export const en: Catalog = {
 	"team.chart.week": "Week ending",
 	"team.chart.total": "Total",
 	"team.chart.gain": "Gain",
-	"team.organiser.overview": "Team overview",
 
 	// Feature 016: the organiser overview (contracts/messages.md "Organiser overview").
 	"organiser.overview.heading": "Team overview",

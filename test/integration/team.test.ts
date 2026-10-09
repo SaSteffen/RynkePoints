@@ -55,24 +55,24 @@ describe.each([
 	});
 });
 
-// Feature 014 FR-002, 016 FR-002, research R8: the way to the team overview
-// and the organiser pages, for organisers only.
-describe("the organiser entry on /team", () => {
-	it("links the overview and the organiser pages for a rider with the organiser flag", async () => {
+// Feature 014 FR-002, 016 FR-002: the way to the organiser pages is the Orga
+// tab before Settings, for organisers only.
+describe("the Orga tab", () => {
+	it("sits before Settings for a rider with the organiser flag", async () => {
 		const { html } = await riderPage(ctx, ATHLETE_C, "/team");
-		const main = mainOf(html);
-		expect(main).toContain('<p class="organiser-entry">');
-		expect(main).toContain(
-			`<a class="button-outlined" href="/organiser/riders">${escapeHtml(de["team.organiser.overview"])}</a>`,
+		const orga = html.indexOf(
+			`<a href="/organiser/riders"><span class="nav-icon">`,
 		);
-		expect(main).toContain(
-			`<a class="button-outlined" href="/organiser">${escapeHtml(de["organiser.link"])}</a>`,
+		expect(orga).toBeGreaterThan(html.indexOf('<nav class="app-nav"'));
+		expect(orga).toBeLessThan(html.indexOf('<a href="/me/settings"'));
+		expect(html).toContain(
+			`<span class="nav-label">${escapeHtml(de["nav.organiser"])}</span>`,
 		);
+		expect(mainOf(html)).not.toContain('href="/organiser');
 	});
 
 	it("is not there for a rider without it", async () => {
 		const { html } = await riderPage(ctx, ATHLETE_A, "/team");
-		expect(mainOf(html)).not.toContain("organiser-entry");
 		expect(html).not.toContain('href="/organiser');
 	});
 });

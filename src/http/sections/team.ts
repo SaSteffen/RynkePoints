@@ -286,11 +286,7 @@ export function handleTeam(
 				all,
 				neighbourhood(rows, all),
 				rows.length,
-			)}${
-				rider.organiser
-					? html`<p class="organiser-entry"><a class="button-outlined" href="/organiser/riders">${i18n.t("team.organiser.overview")}</a> <a class="button-outlined" href="/organiser">${i18n.t("organiser.link")}</a></p>`
-					: null
-			}`;
+			)}`;
 		},
 	);
 }

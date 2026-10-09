@@ -273,6 +273,7 @@ export const de = {
 	"nav.overview": "Übersicht",
 	"nav.rides": "Fahrten",
 	"nav.team": "Team",
+	"nav.organiser": "Orga",
 	"nav.settings": "Einstellungen",
 	"shell.refresh": "Aktualisieren",
 	"shell.title": "{section} – RynkePoints",
@@ -304,8 +305,10 @@ export const de = {
 		"Bitte lade die Seite neu und versuche es noch einmal.",
 
 	"organiser.title": "Orga",
-	"organiser.link": "Zu den Orga-Seiten",
 	"organiser.back": "Zurück zu den Terminen",
+	"organiser.switch.label": "Orga-Ansichten",
+	"organiser.switch.riders": "Rider",
+	"organiser.switch.events": "Termine",
 	"organiser.formerOrganiser": "ehemaliges Orga-Mitglied",
 	"organiser.changedBy": "Zuletzt geändert von {name} am {date}",
 	"organiser.error.unknown_kind": "Bitte eine Terminart wählen.",
@@ -351,7 +354,6 @@ export const de = {
 		"Die Teilnahme lässt sich eintragen, sobald der Termin war.",
 	"organiser.attendance.none":
 		"Noch ist niemand verbunden, der seine Daten mit dem Team teilt.",
-	"organiser.riders.link": "Teamübersicht",
 	"organiser.riders.back": "Zurück zur Teamübersicht",
 	"organiser.corrections.heading": "Korrekturen für {name}",
 	"organiser.corrections.none": "Noch keine Korrekturen.",
@@ -412,7 +414,6 @@ export const de = {
 	"team.chart.week": "Woche bis",
 	"team.chart.total": "Gesamt",
 	"team.chart.gain": "Plus",
-	"team.organiser.overview": "Teamübersicht",
 
 	// Feature 016: the organiser overview (contracts/messages.md "Organiser overview").
 	"organiser.overview.heading": "Teamübersicht",

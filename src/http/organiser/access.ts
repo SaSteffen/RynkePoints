@@ -5,6 +5,7 @@ import type { Rider } from "../../db/riders";
 import type { I18n } from "../../i18n/i18n";
 import { forbidden } from "../errors";
 import { html, type SafeHtml } from "../html";
+import { CALENDAR, PEOPLE } from "../icons";
 import { redirect } from "../redirect";
 import { isSameOrigin } from "../session";
 import { type ShellViewer, shellPage } from "../shell";
@@ -44,7 +45,7 @@ export type DoneCode = (typeof DONE_CODES)[number];
 export type ErrorCode = (typeof ERROR_CODES)[number];
 
 /**
- * An organiser page at `path`, in the shell with Team current: a visitor goes
+ * An organiser page at `path`, in the shell with Orga current: a visitor goes
  * to `/` and a rider without current consent meets the gate, as on every
  * section; a rider who isn't an organiser gets 403 (FR-001).
  */
@@ -57,7 +58,7 @@ export function organiserPage(
 		viewer: ShellViewer,
 	) => Promise<SafeHtml | Response> | SafeHtml | Response,
 ): Promise<Response> {
-	return shellPage(request, ctx, i18n, "team", path, (viewer) =>
+	return shellPage(request, ctx, i18n, "organiser", path, (viewer) =>
 		viewer.rider.organiser ? render(viewer) : forbidden(i18n, path),
 	);
 }
@@ -83,6 +84,23 @@ export async function requireOrganiserPost(
 		return forbidden(i18n, path);
 	}
 	return viewer.rider;
+}
+
+/**
+ * The switch between Orga's two views, the team overview and the events, like
+ * the Team page's Training and Team (feature 016).
+ */
+export function organiserSwitch(
+	i18n: I18n,
+	current: "riders" | "events",
+): SafeHtml {
+	const segment = (view: "riders" | "events", href: string, icon: SafeHtml) =>
+		html`<a class="segmented" href="${href}"${view === current ? html` aria-current="true"` : null}>${icon}${i18n.t(`organiser.switch.${view}`)}</a>`;
+	return html`<nav class="organiser-switch" aria-label="${i18n.t("organiser.switch.label")}">
+${segment("riders", "/organiser/riders", PEOPLE)}
+${segment("events", "/organiser", CALENDAR)}
+</nav>
+`;
 }
 
 /** The confirmation or refusal named in the query, for known codes only. */

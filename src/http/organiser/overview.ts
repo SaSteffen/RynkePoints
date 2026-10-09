@@ -16,7 +16,7 @@ import { dayNumber } from "../../rynke/weeks";
 import { thresholdBars } from "../charts";
 import { coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
-import { noticeFromQuery, organiserPage } from "./access";
+import { noticeFromQuery, organiserPage, organiserSwitch } from "./access";
 
 // The organiser overview at `/organiser/riders` (feature 016 US4, FR-030–FR-035,
 // contracts/pages.md): the deadline, who qualifies, and every listed rider by
@@ -429,7 +429,6 @@ export function overviewBody(
 ${shown.map((r) => renderCard(i18n, rules, r, passed))}</ul>
 ${renderTable(i18n, rules, shown, passed)}${renderQualified(i18n, riders)}`;
 	return html`<div class="team-overview">
-<p><a href="/organiser">${i18n.t("organiser.link")}</a></p>
 <h2>${i18n.t("organiser.overview.heading")}</h2>
 ${renderDeadline(i18n, window, today, riders)}${renderTiles(i18n, riders, group, passed)}${list}</div>`;
 }
@@ -451,6 +450,6 @@ export function handleOrganiserOverview(
 		group === null ? "/organiser/riders" : `/organiser/riders?group=${group}`;
 	return organiserPage(request, ctx, i18n, path, async () => {
 		const read = await readTeam(ctx.env.DB);
-		return html`${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n)}`;
+		return html`${organiserSwitch(i18n, "riders")}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n)}`;
 	});
 }
