@@ -1,10 +1,15 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { escapeHtml } from "../../src/http/html";
 import {
 	CATALOGS,
 	type Catalog,
 	type MessageId,
 } from "../../src/i18n/catalogs";
 import { de } from "../../src/i18n/messages/de";
+import {
+	QUOTES_ON_TRACK,
+	QUOTES_PUSH,
+} from "../../src/i18n/messages/quotes.de";
 import { makeCtx, resetDb } from "../support/ctx";
 import { RIDER_PAGES, seedPageRiders } from "../support/pages";
 
@@ -31,6 +36,11 @@ const NUMBERS_AND_PUNCTUATION = /^[\d.,:/\s·–-]+$/;
 
 /** The wordmark is the brand name, not catalog text (011 contracts/pages.md). */
 const WORDMARK = new Set(["Rynke", "Points"]);
+
+/** Team-page quotes are German in every language (016 FR-023), not catalog text. */
+const QUOTES = new Set(
+	[...QUOTES_PUSH, ...QUOTES_ON_TRACK].map((q) => escapeHtml(q)),
+);
 
 /** Visible text left once every (possibly nested) ⟦…⟧ is removed. */
 function unmarkedText(page: string): string[] {
@@ -68,7 +78,8 @@ describe.each(RIDER_PAGES)("$name in the pseudo-locale", (page) => {
 			if (
 				NUMBERS_AND_PUNCTUATION.test(text) ||
 				LANGUAGE_NAMES.has(text) ||
-				WORDMARK.has(text)
+				WORDMARK.has(text) ||
+				QUOTES.has(text)
 			) {
 				continue;
 			}
