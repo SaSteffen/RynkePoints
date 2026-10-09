@@ -249,16 +249,16 @@ describe("stored ride results and balance", () => {
 		await deliver(event(A, "create"));
 		expect(await balanceRow()).toMatchObject({ distance_rynke: 7 });
 
-		const rules = { ...CURRENT_RULES, qualificationDeadline: "2026-08-31" };
+		const window = { ...countingWindow(env), deadline: "2026-08-31" };
 		await applyAndEvaluate(
 			env.DB,
 			ATHLETE_A,
 			{ kind: "none" },
-			rules,
-			countingWindow(env, rules),
+			CURRENT_RULES,
+			window,
 			NOW,
 		);
-		await expectConsistent(ATHLETE_A, rules);
+		await expectConsistent(ATHLETE_A, CURRENT_RULES, window);
 
 		expect(await result(A)).toMatchObject({
 			counts: 0,
@@ -332,7 +332,7 @@ describe("stored ride results and balance", () => {
 			ATHLETE_A,
 			{ kind: "none" },
 			CURRENT_RULES,
-			countingWindow(env, CURRENT_RULES),
+			countingWindow(env),
 			NOW + 3600,
 		);
 		await expectConsistent();

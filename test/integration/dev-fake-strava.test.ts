@@ -183,7 +183,7 @@ describe("seeding (FR-005, FR-012)", () => {
 		await drain();
 		const page = await mePage(TINA);
 		expect(page).toContain("erreicht ✓");
-		expect(page).toContain("Noch nicht dabei");
+		expect(page).toContain("Noch nicht qualifiziert");
 		expect(page.match(/<li class="ride-card /g)).toHaveLength(20);
 
 		// FR-006, SC-002: fake answers never touch the request budget.

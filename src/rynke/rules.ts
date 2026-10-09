@@ -40,8 +40,6 @@ export interface RynkeRules {
 	maxSpeedKmh: number;
 	maxClimbMPerH: number;
 	excludedSportTypes: readonly string[];
-	/** `YYYY-MM-DD`, inclusive; `null` = open. */
-	qualificationDeadline: string | null;
 	trainingThreshold: number;
 	teamThreshold: number;
 	maxVirtualShare: Share;
@@ -60,7 +58,6 @@ const RULES_V1: RynkeRules = {
 	maxSpeedKmh: 45,
 	maxClimbMPerH: 1500,
 	excludedSportTypes: ["EBikeRide", "EMountainBikeRide"],
-	qualificationDeadline: null,
 	trainingThreshold: 250,
 	teamThreshold: 25,
 	maxVirtualShare: { num: 1, den: 3 },
@@ -88,16 +85,19 @@ export function rulesForVersion(version: number): RynkeRules | null {
 /** Inclusive `YYYY-MM-DD` bounds a ride's local start date must fall in (FR-011). */
 export interface CountingWindow {
 	seasonStart: string;
-	deadline: string | null;
+	deadline: string;
 }
 
+/** `SEASON_START_DATE` to `QUALIFICATION_DEADLINE`, team settings like the club. */
 export function countingWindow(
-	env: Pick<Env, "SEASON_START_DATE">,
-	rules: RynkeRules,
+	env: Pick<Env, "SEASON_START_DATE" | "QUALIFICATION_DEADLINE">,
 ): CountingWindow {
+	if (!isCalendarDate(env.QUALIFICATION_DEADLINE)) {
+		throw new Error("QUALIFICATION_DEADLINE must be a date YYYY-MM-DD");
+	}
 	return {
 		seasonStart: env.SEASON_START_DATE,
-		deadline: rules.qualificationDeadline,
+		deadline: env.QUALIFICATION_DEADLINE,
 	};
 }
 
@@ -106,10 +106,7 @@ export function inCountingWindow(
 	date: string,
 	window: CountingWindow,
 ): boolean {
-	return (
-		date >= window.seasonStart &&
-		(window.deadline === null || date <= window.deadline)
-	);
+	return date >= window.seasonStart && date <= window.deadline;
 }
 
 /** Throws on rules no evaluation can use; that is a programming error. */
@@ -162,9 +159,6 @@ export function assertValidRules(rules: RynkeRules): void {
 		}
 	}
 	assertDate("effectiveDate", rules.effectiveDate);
-	if (rules.qualificationDeadline !== null) {
-		assertDate("qualificationDeadline", rules.qualificationDeadline);
-	}
 }
 
 function assertDate(field: string, value: string): void {

@@ -15,17 +15,23 @@ import {
 	type ShellParts,
 	WORDMARK,
 } from "./html";
-import { BIKE, COIN, PEOPLE, REFRESH, SLIDERS } from "./icons";
+import { BIKE, CLIPBOARD, COIN, PEOPLE, REFRESH, SLIDERS } from "./icons";
 import { renderAppPrompt } from "./pwa";
 import { redirect } from "./redirect";
 import { readViewer, riderConsentState } from "./viewer";
 
 // The signed-in area's four sections (feature 011 data-model.md "Section",
-// research R1, R3, R8). Each is its own page; `shellPage()` applies the access
-// rules of `/me` to all of them and wraps the section in the top bar and the
-// navigation. The current section comes from the route, never the client.
+// research R1, R3, R8), plus Orga for organisers before Settings (feature 016).
+// Each is its own page; `shellPage()` applies the access rules of `/me` to all
+// of them and wraps the section in the top bar and the navigation. The current
+// section comes from the route, never the client.
 
-export type SectionId = "overview" | "rides" | "team" | "settings";
+export type SectionId =
+	| "overview"
+	| "rides"
+	| "team"
+	| "organiser"
+	| "settings";
 
 /** In navigation order (FR-002). */
 export const SECTIONS: readonly {
@@ -33,10 +39,18 @@ export const SECTIONS: readonly {
 	path: string;
 	label: MessageId;
 	icon: SafeHtml;
+	organiserOnly?: true;
 }[] = [
 	{ id: "overview", path: "/me", label: "nav.overview", icon: COIN },
 	{ id: "rides", path: "/me/rides", label: "nav.rides", icon: BIKE },
 	{ id: "team", path: "/team", label: "nav.team", icon: PEOPLE },
+	{
+		id: "organiser",
+		path: "/organiser/riders",
+		label: "nav.organiser",
+		icon: CLIPBOARD,
+		organiserOnly: true,
+	},
 	{
 		id: "settings",
 		path: "/me/settings",
@@ -61,9 +75,10 @@ function shellParts(
 	section: SectionId,
 	path: string,
 	pushKey: string,
+	organiser: boolean,
 ): ShellParts {
 	const current = SECTIONS.find(({ id }) => id === section);
-	const links = SECTIONS.map(
+	const links = SECTIONS.filter((s) => organiser || !s.organiserOnly).map(
 		({ id, path: href, label, icon }) =>
 			html`<a href="${href}"${id === section ? html` aria-current="page"` : null}><span class="nav-icon">${icon}</span><span class="nav-label">${i18n.t(label)}</span></a>
 `,
@@ -136,7 +151,13 @@ export async function shellPage(
 					: i18n.t("shell.title", { section: i18n.t(label) }),
 			path,
 			body,
-			shell: shellParts(i18n, section, path, vapidPublicKey(ctx.env)),
+			shell: shellParts(
+				i18n,
+				section,
+				path,
+				vapidPublicKey(ctx.env),
+				viewer.rider.organiser,
+			),
 		}),
 	);
 }

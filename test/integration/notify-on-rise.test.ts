@@ -31,7 +31,7 @@ import { activityRecord, balanceRow, insertEvent } from "../support/rynke";
 // Which changes notify (feature 010 contracts/push-delivery.md, research R5,
 // FR-015, FR-016, FR-018).
 
-const window = countingWindow(env, CURRENT_RULES);
+const window = countingWindow(env);
 
 async function rose(change: ActivityChange, now = NOW) {
 	return (

@@ -169,6 +169,12 @@ export const RIDER_PAGES: RiderPage[] = [
 		fetch: get("/organiser", ATHLETE_C),
 	},
 	{
+		name: "/organiser/riders",
+		next: null,
+		status: 200,
+		fetch: get("/organiser/riders", ATHLETE_C),
+	},
+	{
 		name: "/organiser/events/{id}",
 		next: null,
 		status: 200,

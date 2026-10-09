@@ -37,7 +37,7 @@ export const en: Catalog = {
 
 	"consent.heading": "What you agree to by connecting",
 	"consent.organisers":
-		"The team's organisers see your first name from Strava, your Rynke with their breakdown, what you still need, whether you qualify, your attendance at team events and corrections.",
+		"The team's organisers see your first name from Strava, your Rynke with their breakdown, what you still need, whether you've reached your training goal, your attendance at team events and corrections.",
 	"consent.team":
 		"Everyone else on the team sees your accumulated Rynke, overall and per week, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
@@ -98,8 +98,8 @@ export const en: Catalog = {
 		"Because you've just connected, we're fetching your rides since {date} from Strava, once. This only happens this one time. Check back in about 5 minutes – this page updates by itself.",
 	"rynke.summary.heading": "Your Rynke",
 	"rynke.verdict.in":
-		"You're in: you have everything you need for the tour. On to Paris! 🗼",
-	"rynke.verdict.notYet": "Not in yet 🍌 You still need:",
+		"Qualified for Paris! 🗼 You have everything you need for the tour.",
+	"rynke.verdict.notYet": "Not qualified yet 🍌 You still need:",
 	"rynke.missing.training": "{n} Training Rynke",
 	"rynke.missing.team": "{n} Team Rynke",
 	"rynke.missing.withoutVirtual":
@@ -119,7 +119,6 @@ export const en: Catalog = {
 	"rynke.rules.heading": "Rules",
 	"rynke.rules.version":
 		"Computed with rules version {version}, in effect since {date}.",
-	"rynke.rules.window": "Everything from {start} counts.",
 	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
 	"rynke.rules.handout": "How Rynke work (rules handout, in German)",
 	"rynke.ride.counts": "counts 🪙",
@@ -153,7 +152,6 @@ export const en: Catalog = {
 	"rynke.reason.excluded_sport_type": "{sport} doesn't count for Rynke.",
 	"rynke.reason.outside_window": "Before the season start on {date}.",
 	"rynke.reason.outside_window.afterDeadline": "After the deadline on {date}.",
-	"rynke.reason.outside_window.afterDeadlineNoDate": "After the deadline.",
 	"rynke.reason.overlap":
 		"Recorded twice: your ride of {date}, {time}, {distance} counts instead.",
 	"rynke.reason.overlap.noRide":
@@ -258,12 +256,10 @@ export const en: Catalog = {
 	"nav.overview": "Overview",
 	"nav.rides": "Rides",
 	"nav.team": "Team",
+	"nav.organiser": "Orga",
 	"nav.settings": "Settings",
 	"shell.refresh": "Refresh",
 	"shell.title": "{section} – RynkePoints",
-	"team.placeholder.heading": "Team view coming soon",
-	"team.placeholder.body":
-		"Here you'll soon see how the whole team is doing on the way from Hamburg to Paris. 🦧🚴",
 	"hero.training": "{n} Training Rynke",
 	"hero.team": "and {n} Team Rynke on the road to Paris",
 	"celebrate.training": "+{n} Training Rynke since your last visit 🎉",
@@ -291,8 +287,10 @@ export const en: Catalog = {
 	"error.forbidden.body": "Please reload the page and try again.",
 
 	"organiser.title": "Organiser",
-	"organiser.link": "Organiser pages",
 	"organiser.back": "Back to the events",
+	"organiser.switch.label": "Orga views",
+	"organiser.switch.riders": "Riders",
+	"organiser.switch.events": "Events",
 	"organiser.formerOrganiser": "a former organiser",
 	"organiser.changedBy": "Last changed by {name} on {date}",
 	"organiser.error.unknown_kind": "Please choose a kind of event.",
@@ -338,11 +336,7 @@ export const en: Catalog = {
 		"Attendance can be recorded once the event has taken place.",
 	"organiser.attendance.none":
 		"Nobody who shares their data with the team is connected yet.",
-	"organiser.riders.link": "Riders and corrections",
-	"organiser.riders.heading": "Riders",
-	"organiser.riders.none":
-		"Nobody who shares their data with the team is connected yet.",
-	"organiser.riders.back": "Back to the riders",
+	"organiser.riders.back": "Back to the team overview",
 	"organiser.corrections.heading": "Corrections for {name}",
 	"organiser.corrections.none": "No corrections yet.",
 	"organiser.corrections.new": "New correction",
@@ -355,4 +349,106 @@ export const en: Catalog = {
 	"organiser.corrections.removeWarning":
 		"This removes the correction; the rider's Rynke follow.",
 	"organiser.corrections.removeConfirm": "Yes, remove",
+
+	// Feature 016: the Team page (contracts/messages.md "Team page").
+	"team.heading": "Team",
+	"team.total.label": "Team Rynkeby Hamburg 🦧",
+	"team.total.value": "{n} Rynke",
+	"team.total.kind": "{kind} Rynke collected together",
+	"team.total.thisWeek": "+{n} this week 🔥",
+	"team.kind.label": "Which Rynke",
+	"team.kind.training": "Training",
+	"team.kind.team": "Team",
+	"team.place": "You're {place} of {count} riders 🚴",
+	"team.place.joint": "You're joint {place} of {count} riders 🚴",
+	"team.place.next": "{n} Rynke to pass the next place",
+	"team.place.lead": "You lead the peloton. Bring the others along!",
+	"team.quote.push": "For you 🍌",
+	"team.quote.onTrack": "For you 🤝",
+	"team.peloton.heading": "The peloton 🚴",
+	"team.peloton.hint":
+		"Every coin is a rider. The front of the bunch rides on the right.",
+	"team.peloton.back": "Back of the bunch",
+	"team.peloton.front": "Front 🏁",
+	"team.peloton.label":
+		"{count} riders between {min} and {max} Rynke; you have {own}",
+	"team.peloton.you": "You",
+	"team.peloton.breakaway": "Breakaway 🏁",
+	"team.peloton.hint.breakaway":
+		"Every coin is a rider. Far ahead, past the gap, rides the breakaway.",
+	"team.peloton.label.breakaway":
+		"{count} riders between {min} and {max} Rynke, {away} of them in the breakaway; you have {own}",
+	"team.list.heading": "Leaderboard",
+	"team.list.count": "{n} riders listed",
+	"team.list.hint":
+		"No names, just Rynke. The line shows each rider's season so far.",
+	"team.list.scope": "Show",
+	"team.list.around": "Around you",
+	"team.list.everyone": "Everyone",
+	"team.list.ahead": "· · · {n} riders ahead · · ·",
+	"team.list.behind": "· · · {n} riders behind · · ·",
+	"team.list.you": "You 🦧",
+	"team.list.other": "{n} {kind}",
+	"team.list.weeks": "Week by week: {values}",
+	"team.chart.heading": "The team, week by week",
+	"team.chart.hint":
+		"Everyone's {kind} Rynke added up, at the end of each week.",
+	"team.chart.now": "this week",
+	"team.chart.label":
+		"Team {kind} at the end of each week, {weeks} weeks, now {total}",
+	"team.chart.best": "Best team week so far: +{n} in the week ending {date} 🔥",
+	"team.chart.table": "All weeks",
+	"team.chart.week": "Week ending",
+	"team.chart.total": "Total",
+	"team.chart.gain": "Gain",
+
+	// Feature 016: the organiser overview (contracts/messages.md "Organiser overview").
+	"organiser.overview.heading": "Team overview",
+	"organiser.overview.deadline": "Qualification deadline · {date}",
+	"organiser.overview.daysLeft": "{n} days to go ⏳",
+	"organiser.overview.deadlinePassed": "The deadline has passed",
+	"organiser.overview.qualified":
+		"{n} of {count} reached their training goal 🎯",
+	"organiser.overview.groups": "Groups",
+	"organiser.overview.group.push": "Need a push 🍌",
+	"organiser.overview.group.notYet": "Training goal not reached yet",
+	"organiser.overview.group.onTrack": "On track 🚴",
+	"organiser.overview.group.in": "Training goal reached 🎯",
+	"organiser.overview.group.all": "Everyone",
+	"organiser.overview.showing": "Showing: {group}",
+	"organiser.overview.hint":
+		"The tick on each bar marks the even pace to the deadline: today {training} Training and {team} Team.",
+	"organiser.overview.training": "Training {n} of {threshold}",
+	"organiser.overview.team": "Team {n} of {threshold}",
+	"organiser.overview.outdoor": "Outdoor Training {n} of {required}",
+	"organiser.overview.toGo.training": "{n} Training to go",
+	"organiser.overview.toGo.team": "{n} Team to go",
+	"organiser.overview.toGo.outdoor": "{n} outdoor Training to go",
+	"organiser.overview.behind": "behind pace",
+	"organiser.overview.breakdown": "Where the Rynke come from",
+	"organiser.overview.distance": "Distance {n}",
+	"organiser.overview.elevation": "Elevation {n}",
+	"organiser.overview.event":
+		"{kind}: {attended}× → {training} Training, {team} Team",
+	"organiser.overview.corrections":
+		"Corrections {training} Training, {team} Team",
+	"organiser.overview.virtual": "Virtual rides {n} % of Training",
+	"organiser.overview.amounts": "{training} Training, {team} Team",
+	"organiser.overview.percent": "{n}%",
+	"organiser.overview.qualifiedList": "Training goal reached 🎯",
+	"organiser.overview.qualifiedHint":
+		"Both thresholds and the outdoor share met.",
+	"organiser.overview.nobodyYet": "Nobody has reached the training goal yet.",
+	"organiser.overview.none": "No riders share their Rynke yet.",
+	"organiser.overview.column.name": "Rider",
+	"organiser.overview.column.group": "Group",
+	"organiser.overview.column.training": "Training",
+	"organiser.overview.column.team": "Team",
+	"organiser.overview.column.outdoor": "Outdoor",
+	"organiser.overview.column.missing": "Still to go",
+	"organiser.overview.column.distance": "Distance",
+	"organiser.overview.column.elevation": "Elevation",
+	"organiser.overview.column.events": "Team events",
+	"organiser.overview.column.corrections": "Corrections",
+	"organiser.overview.column.virtual": "Virtual",
 };

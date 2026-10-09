@@ -15,6 +15,7 @@ import {
 	rideFromRow,
 } from "../../src/rynke/rides";
 import {
+	type CountingWindow,
 	CURRENT_RULES,
 	countingWindow,
 	type RynkeRules,
@@ -145,7 +146,7 @@ export async function storedCorrections(athleteId = ATHLETE_A) {
  */
 export async function expectedRynke(rules: RynkeRules, athleteId = ATHLETE_A) {
 	const rows = await listRecentActivities(env.DB, athleteId, 10_000);
-	const window = countingWindow(env, rules);
+	const window = countingWindow(env);
 	const evaluation = evaluateRides(rows.map(rideFromRow), rules, window);
 	const attendance = evaluateAttendance(
 		await storedAttendance(athleteId),
@@ -174,6 +175,7 @@ export async function expectedRynke(rules: RynkeRules, athleteId = ATHLETE_A) {
 export async function expectConsistent(
 	athleteId = ATHLETE_A,
 	rules: RynkeRules = CURRENT_RULES,
+	window: CountingWindow = countingWindow(env),
 ) {
 	const { balance, results } = await readRynke(env.DB, athleteId);
 	if (!balance) throw new Error(`no balance for ${athleteId}`);
@@ -214,7 +216,7 @@ export async function expectConsistent(
 	const attendance = evaluateAttendance(
 		await storedAttendance(athleteId),
 		rules,
-		countingWindow(env, rules),
+		window,
 	);
 	expect(balance.teamEvents).toEqual(attendance.byKind);
 	const corrections = await storedCorrections(athleteId);

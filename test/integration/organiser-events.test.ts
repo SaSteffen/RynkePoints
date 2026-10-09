@@ -77,7 +77,7 @@ async function attend(eventId: number, athleteIds: number[]): Promise<void> {
 		env.DB,
 		{ kind: "add-attendance", eventId, athleteIds },
 		CURRENT_RULES,
-		countingWindow(env, CURRENT_RULES),
+		countingWindow(env),
 		NOW,
 	);
 }
@@ -235,7 +235,10 @@ describe("GET /organiser", () => {
 		await attend(older, [RIDER]);
 		const { status, html } = await page("/organiser");
 		expect(status).toBe(200);
-		expect(html).toMatch(/<a href="\/team" aria-current="page">/);
+		expect(html).toMatch(/<a href="\/organiser\/riders" aria-current="page">/);
+		expect(html).toContain(
+			`<a class="segmented" href="/organiser" aria-current="true">`,
+		);
 		const items = listItems(html);
 		expect(items).toHaveLength(3);
 		expect(items[0]).toContain(`href="/organiser/events/${later}"`);

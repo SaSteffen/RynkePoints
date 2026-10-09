@@ -31,6 +31,7 @@ import {
 
 const CONTEXT: ViewContext = {
 	seasonStart: "2026-01-01",
+	deadline: "2027-06-30",
 	rulesFor: rulesForVersion,
 };
 
@@ -722,21 +723,10 @@ describe("buildRiderView ride reasons", () => {
 			lineOf(["outside_window"], { startDateLocal: "2025-12-31T23:00:00Z" })
 				.reasons,
 		).toEqual([{ code: "before_season", date: "2026-01-01" }]);
-		const rules = { ...CURRENT_RULES, qualificationDeadline: "2027-05-31" };
 		expect(
-			lineOf(
-				["outside_window"],
-				{ startDateLocal: "2027-06-01T08:00:00Z" },
-				{ context: { rulesFor: () => rules } },
-			).reasons,
-		).toEqual([{ code: "after_deadline", date: "2027-05-31" }]);
-		expect(
-			lineOf(
-				["outside_window"],
-				{ startDateLocal: "2027-06-01T08:00:00Z" },
-				{ result: { rulesVersion: 99 } },
-			).reasons,
-		).toEqual([{ code: "after_deadline", date: null }]);
+			lineOf(["outside_window"], { startDateLocal: "2027-07-01T08:00:00Z" })
+				.reasons,
+		).toEqual([{ code: "after_deadline", date: "2027-06-30" }]);
 	});
 
 	it("S4-1: carries the ride that counted instead", () => {
@@ -1023,17 +1013,15 @@ describe("buildRiderView team events (US3b)", () => {
 			event(2, "team_training", "2026-01-01"),
 			event(1, "team_training", "2025-12-31"),
 		];
-		const counts = (rules: RynkeRules | null) =>
+		const counts = (rules: RynkeRules | null, context = CONTEXT) =>
 			ready(
-				buildRiderView(read({ attendance }), rules, CURRENT_RULES, CONTEXT),
+				buildRiderView(read({ attendance }), rules, CURRENT_RULES, context),
 			).breakdown.events.map((e) => e.counts);
-		const withDeadline = {
-			...CURRENT_RULES,
-			qualificationDeadline: "2026-09-30",
-		};
-		expect(counts(withDeadline)).toEqual([false, true, true, false]);
+		expect(
+			counts(CURRENT_RULES, { ...CONTEXT, deadline: "2026-09-30" }),
+		).toEqual([false, true, true, false]);
 		expect(counts(CURRENT_RULES)).toEqual([true, true, true, false]);
-		// Unknown rules: only the season start is known (FR-013).
+		// The window is a team setting, so unknown rules use it too (FR-013).
 		expect(counts(null)).toEqual([true, true, true, false]);
 	});
 
@@ -1096,7 +1084,6 @@ describe("buildRiderView rules and notices (US6)", () => {
 		...CURRENT_RULES,
 		version: CURRENT_RULES.version + 1,
 		effectiveDate: "2026-11-01",
-		qualificationDeadline: "2027-03-31",
 	};
 
 	it("S6-1: is not being updated under the version in effect", () => {
@@ -1135,7 +1122,7 @@ describe("buildRiderView rules and notices (US6)", () => {
 			version: NEXT_RULES.version,
 			effectiveDate: "2026-11-01",
 			seasonStart: "2026-01-01",
-			deadline: "2027-03-31",
+			deadline: "2027-06-30",
 		});
 		expect(view.updating).toEqual({
 			inEffectVersion: CURRENT_RULES.version,
@@ -1143,10 +1130,10 @@ describe("buildRiderView rules and notices (US6)", () => {
 		});
 	});
 
-	it("has no deadline when there is none or the rules are unknown", () => {
+	it("names the configured deadline, even when the rules are unknown", () => {
 		for (const rules of [CURRENT_RULES, null]) {
 			const view = ready(buildRiderView(read(), rules, CURRENT_RULES, CONTEXT));
-			expect(view.rules.deadline).toBeNull();
+			expect(view.rules.deadline).toBe("2027-06-30");
 		}
 	});
 });

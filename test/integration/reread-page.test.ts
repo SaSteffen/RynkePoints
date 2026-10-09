@@ -234,7 +234,7 @@ describe("reread-page", () => {
 			ATHLETE_A,
 			{ kind: "upsert", records },
 			CURRENT_RULES,
-			countingWindow(env, CURRENT_RULES),
+			countingWindow(env),
 			NOW - 86400,
 		);
 	}

@@ -13,7 +13,6 @@ import { handleSaveAttendance } from "./organiser/attendance";
 import {
 	handleAddCorrection,
 	handleOrganiserRider,
-	handleOrganiserRiders,
 	handleRemoveCorrection,
 } from "./organiser/corrections";
 import {
@@ -23,6 +22,7 @@ import {
 	handleOrganiserEvents,
 	handleUpdateEvent,
 } from "./organiser/events";
+import { handleOrganiserOverview } from "./organiser/overview";
 import {
 	handleNotificationText,
 	handleOffline,
@@ -44,7 +44,8 @@ import { handleWebhook } from "./webhook";
 // (010 research R10), except the two texts the service worker caches, which
 // must be the same for everyone. The signed-in app is four sections, each its
 // own address: `/me`, `/me/rides`, `/team` and `/me/settings` (011 FR-001).
-// Organisers manage the team under `/organiser` (feature 014).
+// Organisers manage the team under `/organiser` (feature 014), their Orga tab
+// (feature 016).
 
 const WEBHOOK_PREFIX = "/strava/webhook/";
 
@@ -160,7 +161,7 @@ async function page(
 		case "/organiser":
 			return handleOrganiserEvents(request, ctx, i18n);
 		case "/organiser/riders":
-			return handleOrganiserRiders(request, ctx, i18n);
+			return handleOrganiserOverview(request, ctx, i18n);
 	}
 	const event = path.match(ORGANISER_EVENT);
 	if (event && !event[2]) {

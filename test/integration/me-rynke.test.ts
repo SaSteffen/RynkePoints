@@ -82,14 +82,14 @@ describe("GET /me Rynke summary (US1)", () => {
 			virtualShareMissing: 155,
 		});
 		const shown = await summary();
-		expect(shown).toContain("Noch nicht dabei 🍌 Dir fehlen:");
+		expect(shown).toContain("Noch nicht qualifiziert 🍌 Dir fehlen:");
 		expect(shown).toContain("12 von 250");
 		expect(shown).toContain("238 fehlen noch");
 		expect(shown).toContain("0 von 25");
 		expect(shown).toContain("25 fehlen noch");
 		expect(shown).toContain("238 Trainingsrynke");
 		expect(shown).toContain("25 Teamrynke");
-		expect(shown).not.toContain("Du bist dabei");
+		expect(shown).not.toContain("Qualifiziert für Paris");
 	});
 
 	it("S1-2: says the rider is in, without a line for virtual rides", async () => {
@@ -107,7 +107,7 @@ describe("GET /me Rynke summary (US1)", () => {
 			section(html, 'class="rynke-summary verdict card"') ?? "",
 		);
 		expect(shown).toContain(
-			"Du bist dabei: Du hast alles, was du für die Tour brauchst.",
+			"Qualifiziert für Paris! 🗼 Du hast alles, was du für die Tour brauchst.",
 		);
 		expect(shown).toContain("262 von 250");
 		expect(shown).toContain("25 von 25");
@@ -136,7 +136,7 @@ describe("GET /me Rynke summary (US1)", () => {
 		expect(shown).toContain(
 			"7 Trainingsrynke aus Fahrten draußen (nicht virtuell)",
 		);
-		expect(shown).toContain("Noch nicht dabei");
+		expect(shown).toContain("Noch nicht qualifiziert");
 	});
 
 	it("S1-4: names only the missing Team Rynke", async () => {
@@ -170,7 +170,7 @@ describe("GET /me Rynke summary (US1)", () => {
 			expect(section(html, 'class="notice" role="status"')).toBeNull();
 			expect(html).not.toContain('class="rynke-summary verdict card"');
 			expect(html).not.toContain("von 250");
-			expect(html).not.toContain("dabei");
+			expect(html).not.toMatch(/qualifiziert/i);
 			expect(section(html, 'id="rides"')).toBeNull();
 		}
 	});
@@ -308,7 +308,7 @@ describe("GET /me gauges (US2)", () => {
 		expect(training?.classes).toBe("gauge gauge-reached");
 		expect(team?.classes).toBe("gauge gauge-reached");
 		expect(team?.caption).toBe("Teamrynke: 25 von 25 · 100 % · ✓ erreicht");
-		expect(await summary()).toContain("Du bist dabei");
+		expect(await summary()).toContain("Qualifiziert für Paris");
 	});
 
 	it("S2-9: tells everything in text, beside a hidden bar", async () => {
@@ -569,8 +569,8 @@ describe("GET /me team events (US3b)", () => {
 	});
 
 	it("FR-033: marks an event outside the counting window as not counting", async () => {
-		// No stored rules version has a deadline, so the season start stands in;
-		// the deadline is covered by rider-view.test.ts.
+		// The configured deadline lies past both events, so the season start
+		// stands in; the deadline is covered by rider-view.test.ts.
 		await seedBalance(ATHLETE_A);
 		await attendRaw(await insertEvent("technique_training", "2025-12-20"), [
 			ATHLETE_A,
@@ -777,7 +777,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 				start_date: "2025-12-20T08:00:00Z",
 				result: { counts: false, reasons: ["outside_window"] },
 			},
-			// No version of RULES_HISTORY has a deadline yet: an unknown one.
+			// After the season start, so past the deadline, under any rules version.
 			{
 				result: {
 					counts: false,
@@ -804,7 +804,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 				"Zu viele Höhenmeter für die Zeit: 1.501 m/h bergauf, höchstens 1.500 m/h sind erlaubt.",
 			],
 			["E-Bike-Fahrt zählt nicht für die Rynke."],
-			["Nach dem Stichtag."],
+			["Nach dem Stichtag am 30.06.2027."],
 			["Vor dem Saisonstart am 01.01.2026."],
 		]);
 	});
@@ -1220,7 +1220,9 @@ describe("GET /me rules and notices (US6)", () => {
 		expect(rules).toContain(
 			`Berechnet nach Regel-Version ${VERSION}, gültig seit dem 07.10.2026.`,
 		);
-		expect(rules).toContain("Es zählt alles ab dem 01.01.2026.");
+		expect(rules).toContain(
+			"Es zählt alles vom 01.01.2026 bis zum 30.06.2027.",
+		);
 		const link = section(html, 'class="rynke-rules card card-outlined"')?.match(
 			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
 		);

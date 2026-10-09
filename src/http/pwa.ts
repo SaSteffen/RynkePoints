@@ -3,7 +3,7 @@ import { readRiderView } from "../db/rider-view";
 import { readRiseStatement } from "../db/rynke";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
-import { CURRENT_RULES, rulesForVersion } from "../rynke/rules";
+import { CURRENT_RULES, countingWindow, rulesForVersion } from "../rynke/rules";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
 import { CLOSE } from "./icons";
 import { buildRiderView } from "./rider-view";
@@ -83,7 +83,7 @@ export async function handleRiderNotificationText(
 		read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
 		CURRENT_RULES,
 		{
-			seasonStart: ctx.env.SEASON_START_DATE,
+			...countingWindow(ctx.env),
 			rulesFor: rulesForVersion,
 		},
 	);

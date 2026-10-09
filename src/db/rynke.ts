@@ -272,7 +272,7 @@ export async function listRidersNeedingEvaluation(
 	const attended = `SELECT e.kind, count(*) FROM attendances a
 		JOIN team_events e ON e.event_id = a.event_id
 		WHERE a.athlete_id = r.athlete_id AND e.event_date >= ?2
-			AND (?3 IS NULL OR e.event_date <= ?3)
+			AND e.event_date <= ?3
 		GROUP BY e.kind`;
 	const stored = `SELECT json_extract(value, '$.kind'),
 			json_extract(value, '$.attended')

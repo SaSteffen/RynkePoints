@@ -250,7 +250,7 @@ export function evaluateChange(
 		athleteId,
 		change,
 		CURRENT_RULES,
-		countingWindow(ctx.env, CURRENT_RULES),
+		countingWindow(ctx.env),
 		ctx.now(),
 	);
 }
@@ -404,7 +404,7 @@ export async function teamEventChange(
 		ctx.env.DB,
 		change,
 		CURRENT_RULES,
-		countingWindow(ctx.env, CURRENT_RULES),
+		countingWindow(ctx.env),
 		ctx.now(),
 	);
 	await sendAll(
@@ -502,7 +502,7 @@ export async function correctionChange(
 		ctx.env.DB,
 		change,
 		CURRENT_RULES,
-		countingWindow(ctx.env, CURRENT_RULES),
+		countingWindow(ctx.env),
 		ctx.now(),
 	);
 	await sendAll(ctx, [{ kind: "evaluate-rider", athleteId: result.athleteId }]);
