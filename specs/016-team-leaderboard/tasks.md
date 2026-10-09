@@ -285,9 +285,8 @@ matching list ([quickstart.md](quickstart.md) §1 "Team page").
   `<blockquote class="quote quote-push|quote-on-track" lang="de">` with the
   catalog heading and `<p>` quote after `section.my-place`
   ([contracts/pages.md](contracts/pages.md) `/team` section 4). The viewer's
-  status is `riderStatus(own balance, CURRENT_RULES, countingWindow(ctx.env,
-  CURRENT_RULES), today)`; a viewer who isn't
-  listed gets no quote. T026 and T027 pass.
+  status is `riderStatus(own balance, CURRENT_RULES, countingWindow(ctx.env),
+  today)`; a viewer who isn't listed gets no quote. T026 and T027 pass.
 - [x] T029 [US3] In `src/http/style.ts`, style `.quote` (Rynkeby accent per list,
   readable at 360 px, light and dark).
 
@@ -307,7 +306,7 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
 
 ### Tests for User Story 4 (write first, confirm they fail)
 
-- [ ] T030 [P] [US4] `test/unit/overview.test.ts` (new) for the pure
+- [X] T030 [P] [US4] `test/unit/overview.test.ts` (new) for the pure
   `overviewRiders(read, rules, window, today)` and `overviewBody(read, rules,
   window, today, group, i18n)` exported from `src/http/organiser/overview.ts` (data-model.md
   `OverviewRider`), with `CURRENT_RULES` and a window whose deadline lies
@@ -321,17 +320,17 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
   - group counts for push, on_track, in and all; with a passed deadline there
     is no on_track (spec edge cases);
   - `overviewBody` with the running deadline renders `organiser.overview.deadline`
-    with the hand-worked days to go, the "Need a push" and "On track" tiles with
+    and `organiser.overview.daysLeft` with the hand-worked days to go, the "Need a push" and "On track" tiles with
     their counts, the even-pace marks, and `?group=on_track` renders only the
     on-track riders; with a passed deadline it renders
     `organiser.overview.deadlinePassed` and no "On track" tile (FR-031, FR-032).
-- [ ] T031 [P] [US4] `test/integration/organiser-overview.test.ts` (new), through
+- [X] T031 [P] [US4] `test/integration/organiser-overview.test.ts` (new), through
   `handleFetch` with synthetic listed riders (one qualified, two named Jonas, one
   without consent):
   - access: visitor `302 /`, rider who isn't an organiser `403`, organiser `200`
     (US4 #4);
-  - `organiser.overview.deadline` for `QUALIFICATION_DEADLINE` with the days
-    to go from the test clock; tiles "Need a push", "On track", "In for Paris",
+  - `organiser.overview.deadline` for `QUALIFICATION_DEADLINE` and
+    `organiser.overview.daysLeft` with the days to go from the test clock; tiles "Need a push", "On track", "In for Paris",
     "Everyone" with counts; "{n} of {count} in for Paris";
   - `?group=in` renders only the qualified rider and marks its tile
     `aria-current="true"`; `?group=on_track` renders only on-track riders;
@@ -343,45 +342,45 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
     `organiser.overview.none`;
   - the unconsented rider appears nowhere;
   - the read-only wrapper and `fetch` spy of T013 on `/organiser/riders` (FR-003).
-- [ ] T032 [P] [US4] Update `test/integration/organiser-corrections.test.ts`:
+- [X] T032 [P] [US4] Update `test/integration/organiser-corrections.test.ts`:
   "lists the listed riders only, without balances (FR-042)" becomes "lists the
   listed riders only" (balances are now shown, 016 FR-033); the
   `?error=rider_not_listed` and `?error=correction_missing` redirects still show
   their notice on the overview; `/organiser` links to `/organiser/riders` with
   the new `organiser.riders.link` text; the corrections page's back link leads
   to `/organiser/riders`.
-- [ ] T033 [P] [US4] `test/unit/style.test.ts`: below 840 px `.rider-table` is
+- [X] T033 [P] [US4] `test/unit/style.test.ts`: below 840 px `.rider-table` is
   `display:none` and, without `aria-current` on a tile, cards outside
   `.status-push` are hidden; from 840 px `.rider-cards` is `display:none`
   (research R9, FR-035).
 
 ### Implementation for User Story 4
 
-- [ ] T034 [P] [US4] Add the `organiser.overview.*` keys of
+- [X] T034 [P] [US4] Add the `organiser.overview.*` keys of
   [contracts/messages.md](contracts/messages.md) to both catalogs and to
   `test/unit/catalogs.test.ts`; change `organiser.riders.link` to "Team overview" /
   "Teamübersicht"; remove `organiser.riders.heading` and `organiser.riders.none`
   if nothing uses them any more (keep `organiser.riders.back`).
-- [ ] T035 [P] [US4] Add `thresholdBars(value, threshold, pace)` to
+- [X] T035 [P] [US4] Add `thresholdBars(value, threshold, pace)` to
   `src/http/charts.ts`: `aria-hidden="true"`, a filled bar and an even-pace mark
   when `pace` is set (research R12).
-- [ ] T036 [US4] Create `src/http/organiser/overview.ts`: `overviewRiders` and
+- [X] T036 [US4] Create `src/http/organiser/overview.ts`: `overviewRiders` and
   `overviewBody` per T030, and `handleOrganiserOverview(request, ctx, i18n)` through
   `organiserPage(…, "/organiser/riders", …)` that reads `readTeam`, keeps the
   `noticeFromQuery` notice, parses `group` per
   [contracts/http-routes.md](contracts/http-routes.md), and renders
-  `overviewBody(read, CURRENT_RULES, countingWindow(ctx.env, CURRENT_RULES),
+  `overviewBody(read, CURRENT_RULES, countingWindow(ctx.env),
   berlinDate(ctx.now()), group, i18n)`. The body
   is pure and holds the deadline card, qualified card, `nav.group-tiles`,
   `ul.rider-cards`, `table.rider-table` and `section.qualified` in the order of [contracts/pages.md](contracts/pages.md)
   `/organiser/riders`. Without `group`, a visually hidden "Showing: …" line per
   breakpoint (research R9). T030 passes.
-- [ ] T037 [US4] Remove `handleOrganiserRiders` from
+- [X] T037 [US4] Remove `handleOrganiserRiders` from
   `src/http/organiser/corrections.ts` (keep `LIST` for the redirects), route
   `/organiser/riders` to `handleOrganiserOverview` in `src/http/router.ts`, and
   add the overview to `RIDER_PAGES` in `test/support/pages.ts` as an organiser
   page (`ATHLETE_C`). T031 and T032 pass.
-- [ ] T038 [US4] In `src/http/style.ts`, add `.group-tiles`, `.rider-card` with
+- [X] T038 [US4] In `src/http/style.ts`, add `.group-tiles`, `.rider-card` with
   its `status-*` accents, the threshold bars, `.rider-table` in its own scroll
   container, and the 840 px media queries of T033. T033 passes.
 
@@ -391,14 +390,14 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T039 [P] `test/integration/no-hardcoded-copy.test.ts` covers `/team` and
+- [X] T039 [P] `test/integration/no-hardcoded-copy.test.ts` covers `/team` and
   `/organiser/riders` in the pseudo-locale and passes; `test/unit/catalogs.test.ts`
   passes with the added and removed keys; `grep -rn "team.placeholder"` over
   `src/` and `test/` finds nothing.
-- [ ] T040 [P] `test/unit/dev-guard.test.ts` still passes (no `src/` import of
+- [X] T040 [P] `test/unit/dev-guard.test.ts` still passes (no `src/` import of
   `dev/`), and `src/http/sections/team.ts` and `src/http/organiser/overview.ts`
   import nothing from `src/rynke/apply.ts` or `src/strava/` (research R11).
-- [ ] T041 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
+- [X] T041 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
 
 ---
 

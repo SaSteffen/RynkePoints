@@ -58,8 +58,9 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | Key | English | German |
 |---|---|---|
 | `organiser.overview.heading` | Team overview | Teamübersicht |
-| `organiser.overview.deadline` | Deadline {date} · {n} days to go | Stichtag {date} · noch {n} Tage |
-| `organiser.overview.deadlinePassed` | The deadline {date} has passed | Der Stichtag {date} ist vorbei |
+| `organiser.overview.deadline` | Qualification deadline · {date} | Stichtag · {date} |
+| `organiser.overview.daysLeft` | {n} days to go ⏳ | Noch {n} Tage ⏳ |
+| `organiser.overview.deadlinePassed` | The deadline has passed | Der Stichtag ist vorbei |
 | `organiser.overview.qualified` | {n} of {count} in for Paris 🗼 | {n} von {count} sind dabei in Paris 🗼 |
 | `organiser.overview.groups` | Groups | Gruppen |
 | `organiser.overview.group.push` | Need a push 🍌 | Brauchen Schwung 🍌 |
@@ -71,20 +72,35 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `organiser.overview.training` | Training {n} of {threshold} | Training {n} von {threshold} |
 | `organiser.overview.team` | Team {n} of {threshold} | Team {n} von {threshold} |
 | `organiser.overview.outdoor` | Outdoor Training {n} of {required} | Training draußen {n} von {required} |
-| `organiser.overview.pace` | Even pace today: {n} | Gleichmäßiges Tempo heute: {n} |
-| `organiser.overview.missing` | Missing: {n} | Fehlen: {n} |
+| `organiser.overview.toGo.training` | {n} Training to go | Noch {n} Training |
+| `organiser.overview.toGo.team` | {n} Team to go | Noch {n} Team |
+| `organiser.overview.toGo.outdoor` | {n} outdoor Training to go | Noch {n} Training draußen |
 | `organiser.overview.behind` | behind pace | hinter dem Tempo |
 | `organiser.overview.breakdown` | Where the Rynke come from | Woher die Rynke kommen |
-| `organiser.overview.distance` | Distance {n} | Strecke {n} |
+| `organiser.overview.distance` | Distance {n} | Distanz {n} |
 | `organiser.overview.elevation` | Elevation {n} | Höhenmeter {n} |
-| `organiser.overview.event` | {kind}: {attended}× → {training} Training, {team} Team | {kind}: {attended}× → {training} Training, {team} Team |
-| `organiser.overview.corrections` | Corrections {training} Training, {team} Team | Korrekturen {training} Training, {team} Team |
 | `organiser.overview.virtual` | Virtual rides {n} % of Training | Virtuelle Fahrten {n} % vom Training |
-| `organiser.overview.qualifiedList` | In for Paris | Dabei in Paris |
+| `organiser.overview.amounts` | {training} Training, {team} Team | {training} Training, {team} Team |
+| `organiser.overview.percent` | {n}% | {n} % |
+| `organiser.overview.qualifiedList` | In for Paris 🗼 | Dabei in Paris 🗼 |
 | `organiser.overview.nobodyYet` | Nobody qualifies yet. | Noch hat sich niemand qualifiziert. |
-| `organiser.overview.none` | No riders share their Rynke yet. | Noch teilt niemand seine Rynke. |
+| `organiser.overview.none` | No riders share their Rynke yet. | Noch teilt niemand Rynke mit dem Team. |
 | `organiser.overview.column.name` | Rider | Wer |
 | `organiser.overview.column.group` | Group | Gruppe |
+| `organiser.overview.column.training` | Training | Training |
+| `organiser.overview.column.team` | Team | Team |
+| `organiser.overview.column.outdoor` | Outdoor | Draußen |
+| `organiser.overview.column.missing` | Still to go | Fehlt noch |
+| `organiser.overview.column.distance` | Distance | Distanz |
+| `organiser.overview.column.elevation` | Elevation | Höhenmeter |
+| `organiser.overview.column.events` | Team events | Termine |
+| `organiser.overview.column.corrections` | Corrections | Korrekturen |
+| `organiser.overview.column.virtual` | Virtual | Virtuell |
+
+`organiser.riders.link` becomes "Team overview" / "Teamübersicht" and
+`organiser.riders.back` "Back to the team overview" / "Zurück zur Teamübersicht";
+`organiser.riders.heading` and `organiser.riders.none` are removed with 014's plain
+list.
 
 Team-event kind names reuse the existing `rynke.source.<kind>` keys (005). German
 text says "du" and prefers neutral words ("Leute", "alle", "das Team", "wer …").

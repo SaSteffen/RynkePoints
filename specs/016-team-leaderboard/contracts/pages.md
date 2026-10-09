@@ -56,23 +56,42 @@ The draft's look, section by section: colours come from the tokens in
 
 ## `/organiser/riders`
 
-1. **Deadline card**: deadline date and "{n} days to go", or "The deadline has
-   passed".
-2. **Qualified card**: "{n} of {count} in for Paris 🗼".
-3. **Group tiles** `nav.group-tiles`: "Need a push 🍌" (or "Not yet in" once the
-   deadline has passed), "On track 🚴" (only before the deadline), "In for Paris
-   🗼", "Everyone", each with its count (research R9).
-4. **Cards** `ul.rider-cards` (below 840 px), one `li.rider-card.status-{status}`:
+The draft's "Organiser overview" boards (phone and desktop) give the look. A link
+back to the organiser pages and the heading "Team overview" come first.
+
+1. **Deadline and qualified** `section.overview-deadline`: one card on the coin's
+   ink with its gold rim, the coin's back at 72 px; "Qualification deadline ·
+   {date}" small, "{n} days to go ⏳" large in Rynkeby yellow (or "The deadline
+   has passed"), then "{n} of {count} in for Paris 🗼".
+2. **Group tiles** `nav.group-tiles`: links with the count large above the
+   label: "Need a push 🍌" (or "Not yet in" once the deadline has passed), "On
+   track 🚴" (only before the deadline), "In for Paris 🗼", "Everyone" (research
+   R9). Two columns on a phone, four from 840 px; the picked tile (or the
+   default one, `.default` without `group`) in yellow.
+3. **Hint** (before the deadline only): "The tick on each bar marks the even pace
+   to the deadline: today {training} Training and {team} Team." This is the text
+   for the bars' ticks (FR-041).
+4. **Cards** `ul.rider-cards` (below 840 px), one `li.rider-card.status-{status}`,
+   the riders missing the most first (share missing of Training plus that of
+   Team), then by first name:
    - first name linking to the corrections page, "View on Strava" link when
-     another listed rider shares the first name (014 `withProfileLinks`);
-   - Training and Team bars against the threshold with the even-pace mark;
-   - missing amounts (Training, Team, outdoor Training), "behind pace" marked;
-   - `<details>` breakdown (FR-033).
-5. **Table** `table.rider-table` (from 840 px): one row per rider; columns first
-   name, group, Training, Team, outdoor Training, each missing amount, distance,
+     another listed rider shares the first name (014 `withProfileLinks`), and a
+     status chip (orange for push, green for on track, ink and yellow for in);
+   - Training (yellow) and Team (Elbe blue) bars against the threshold with the
+     even-pace tick, each under "{mini coin} Training {n} of {threshold}";
+   - one chip per missing amount ("{n} Training to go", "{n} Team to go", "{n}
+     outdoor Training to go"), orange with "· behind pace" when behind;
+   - `<details>` "Where the Rynke come from": distance, elevation, each team-event
+     kind, corrections, outdoor Training of its amount, virtual share (FR-033).
+5. **Table** `table.rider-table` in `div.table-scroll` (from 840 px): one row per
+   rider in the same order; columns first name, group, Training (figure and
+   bar), Team (figure and bar), outdoor Training, still to go, distance,
    elevation, team events, corrections, virtual share.
-6. **Qualified list** `section.qualified`: first names of riders who qualify, or a
-   line saying nobody qualifies yet (FR-034).
+6. **Qualified list** `section.qualified`: a card on the coin's ink, "In for
+   Paris 🗼", "Both thresholds and the outdoor share met." and one pill per rider
+   with the mini coin; or "Nobody qualifies yet." (FR-034).
+
+With nobody listed, "No riders share their Rynke yet." stands in place of 3–6.
 
 ## Both
 
