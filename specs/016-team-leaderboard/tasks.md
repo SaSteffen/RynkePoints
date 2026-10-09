@@ -124,7 +124,7 @@ both list modes ([quickstart.md](quickstart.md) §2 steps 1–2).
 
 ### Tests for User Story 1 (write first, confirm they fail)
 
-- [ ] T009 [P] [US1] `test/unit/leaderboard.test.ts` for `src/rynke/leaderboard.ts`
+- [x] T009 [P] [US1] `test/unit/leaderboard.test.ts` for `src/rynke/leaderboard.ts`
   (research R6, data-model.md `LeaderboardRow`, `Neighbourhood`):
   - order by the picked kind descending, then the other kind descending, then
     athlete ID ascending; `kind: "team"` reorders;
@@ -140,12 +140,12 @@ both list modes ([quickstart.md](quickstart.md) §2 steps 1–2).
     (spec edge cases);
   - no returned object has an `athleteId`, `firstName` or `profileLink` key
     (checked with `JSON.stringify`).
-- [ ] T010 [P] [US1] `test/unit/charts.test.ts` for `src/http/charts.ts`:
+- [x] T010 [P] [US1] `test/unit/charts.test.ts` for `src/http/charts.ts`:
   `sparkline(values, label)` renders one `svg` with `role="img"`, the escaped
   `aria-label`, a `viewBox`, `preserveAspectRatio="none"` and one `polyline`
   whose point count equals `values.length`; all-zero values draw a flat line, not
   NaN (research R5, R12).
-- [ ] T011 [P] [US1] `test/integration/team-leaderboard.test.ts` (new), through
+- [x] T011 [P] [US1] `test/integration/team-leaderboard.test.ts` (new), through
   `handleFetch` with 14 synthetic listed riders seeded with balances, the viewer
   6th in Training, one listed rider without a balance, plus one rider without
   consent with the largest balance:
@@ -162,33 +162,33 @@ both list modes ([quickstart.md](quickstart.md) §2 steps 1–2).
   - the rider without a balance is counted with 0 (last place);
   - a viewer who is also an organiser is ranked like everyone else;
   - a visitor gets `302 /` (FR-001).
-- [ ] T012 [P] [US1] Replace the placeholder assertions in
+- [x] T012 [P] [US1] Replace the placeholder assertions in
   `test/integration/team.test.ts` with: the Team tab is current and
   `section.leaderboard` is rendered; keep the organiser-entry cases and expect
   both links (`/organiser/riders` with `team.organiser.overview`, `/organiser`)
   for organisers only (FR-002, research R8). The consent gate on `/team` stays
   covered by `test/integration/consent-gate.test.ts`.
-- [ ] T013 [P] [US1] `test/integration/team-leaderboard.test.ts`, read-only case:
+- [x] T013 [P] [US1] `test/integration/team-leaderboard.test.ts`, read-only case:
   wrap `env.DB` so `prepare` throws for any statement not starting with
   `SELECT`, spy on `globalThis.fetch`, open `/team` and `/team?kind=team&all=1`:
   `200`, no throw, no `fetch` call (FR-003, SC-003, research R11).
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Add the `team.*` keys of
+- [x] T014 [P] [US1] Add the `team.*` keys of
   [contracts/messages.md](contracts/messages.md) "Team page" to
   `src/i18n/messages/de.ts` and `en.ts` (the wording rule at the end of that file
   applies), plus a small English ordinal helper for `{place}` (`1st`, `2nd`,
   `3rd`, `4th`, `11th`–`13th`) in `src/i18n/` and the German `{place}.`. Remove
   `team.placeholder.heading` and `team.placeholder.body` from both catalogs and
   from the key list in `test/unit/catalogs.test.ts`; add the new keys there.
-- [ ] T015 [US1] Create `src/rynke/leaderboard.ts` with `leaderboardRows(riders,
+- [x] T015 [US1] Create `src/rynke/leaderboard.ts` with `leaderboardRows(riders,
   viewerId, kind)` (the rows and the `Viewer` of [data-model.md](data-model.md))
   and `neighbourhood(rows, all)` per T009; rows carry only `you`, `place`,
   `joint`, `total`, `other`, `weeks`. T009 passes.
-- [ ] T016 [P] [US1] Create `src/http/charts.ts` with `sparkline(values, label)`
+- [x] T016 [P] [US1] Create `src/http/charts.ts` with `sparkline(values, label)`
   per T010 (inline SVG, no library). T010 passes.
-- [ ] T017 [US1] Rewrite `src/http/sections/team.ts`: `handleTeam` reads
+- [x] T017 [US1] Rewrite `src/http/sections/team.ts`: `handleTeam` reads
   `readTeam`, builds week ends from `SEASON_START_DATE` and
   `lastDay(berlinDate(ctx.now()), CURRENT_RULES.qualificationDeadline)`, each
   listed rider's `riderWeeks`, then the rows and neighbourhood; parses `kind` and
@@ -197,7 +197,7 @@ both list modes ([quickstart.md](quickstart.md) §2 steps 1–2).
   and 8 (`nav.kind-switch`, `section.my-place`, `section.leaderboard`,
   `p.organiser-entry` with two links). The sparkline label is
   `team.list.weeks` with locale-formatted values. T011, T012 and T013 pass.
-- [ ] T018 [US1] In `src/http/style.ts`, add styles for `.kind-switch`,
+- [x] T018 [US1] In `src/http/style.ts`, add styles for `.kind-switch`,
   `.my-place`, `.leaderboard`, `.list-scope`, `li.row`, `li.row.you` and the
   sparkline: Rynkeby colours and the mini coin (012), 44 px controls (011), no
   horizontal scrolling at 360 px, light and dark (FR-040). Remove the
