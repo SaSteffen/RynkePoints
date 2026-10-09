@@ -37,7 +37,7 @@ function apply(
 		athleteId,
 		change,
 		rules,
-		countingWindow(env, rules),
+		countingWindow(env),
 		now,
 	);
 }

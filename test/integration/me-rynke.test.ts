@@ -569,8 +569,8 @@ describe("GET /me team events (US3b)", () => {
 	});
 
 	it("FR-033: marks an event outside the counting window as not counting", async () => {
-		// No stored rules version has a deadline, so the season start stands in;
-		// the deadline is covered by rider-view.test.ts.
+		// The configured deadline lies past both events, so the season start
+		// stands in; the deadline is covered by rider-view.test.ts.
 		await seedBalance(ATHLETE_A);
 		await attendRaw(await insertEvent("technique_training", "2025-12-20"), [
 			ATHLETE_A,
@@ -777,7 +777,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 				start_date: "2025-12-20T08:00:00Z",
 				result: { counts: false, reasons: ["outside_window"] },
 			},
-			// No version of RULES_HISTORY has a deadline yet: an unknown one.
+			// After the season start, so past the deadline, under any rules version.
 			{
 				result: {
 					counts: false,
@@ -804,7 +804,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 				"Zu viele Höhenmeter für die Zeit: 1.501 m/h bergauf, höchstens 1.500 m/h sind erlaubt.",
 			],
 			["E-Bike-Fahrt zählt nicht für die Rynke."],
-			["Nach dem Stichtag."],
+			["Nach dem Stichtag am 30.06.2027."],
 			["Vor dem Saisonstart am 01.01.2026."],
 		]);
 	});
@@ -1220,7 +1220,9 @@ describe("GET /me rules and notices (US6)", () => {
 		expect(rules).toContain(
 			`Berechnet nach Regel-Version ${VERSION}, gültig seit dem 07.10.2026.`,
 		);
-		expect(rules).toContain("Es zählt alles ab dem 01.01.2026.");
+		expect(rules).toContain(
+			"Es zählt alles vom 01.01.2026 bis zum 30.06.2027.",
+		);
 		const link = section(html, 'class="rynke-rules card card-outlined"')?.match(
 			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
 		);

@@ -121,7 +121,6 @@ export const de = {
 	"rynke.rules.heading": "Regeln",
 	"rynke.rules.version":
 		"Berechnet nach Regel-Version {version}, gültig seit dem {date}.",
-	"rynke.rules.window": "Es zählt alles ab dem {start}.",
 	"rynke.rules.windowDeadline":
 		"Es zählt alles vom {start} bis zum {deadline}.",
 	"rynke.rules.handout": "So funktionieren die Rynke (Regeln zum Nachlesen)",
@@ -156,7 +155,6 @@ export const de = {
 	"rynke.reason.excluded_sport_type": "{sport} zählt nicht für die Rynke.",
 	"rynke.reason.outside_window": "Vor dem Saisonstart am {date}.",
 	"rynke.reason.outside_window.afterDeadline": "Nach dem Stichtag am {date}.",
-	"rynke.reason.outside_window.afterDeadlineNoDate": "Nach dem Stichtag.",
 	"rynke.reason.overlap":
 		"Doppelt aufgezeichnet: Deine Fahrt vom {date}, {time} Uhr, {distance} zählt stattdessen.",
 	"rynke.reason.overlap.noRide":
@@ -395,7 +393,7 @@ export const de = {
 		"{count} Leute zwischen {min} und {max} Rynke; du hast {own}",
 	"team.peloton.you": "Du",
 	"team.list.heading": "Rangliste",
-	"team.list.count": "{n} im Team",
+	"team.list.count": "{n} Rider",
 	"team.list.hint":
 		"Keine Namen, nur Rynke. Die Linie zeigt die bisherige Saison jeder Person.",
 	"team.list.scope": "Zeigen",

@@ -256,22 +256,22 @@ export function handleTeam(
 		teamHref(kind, all),
 		async ({ rider }) => {
 			const team = await readTeam(ctx.env.DB);
-			const seasonStart = ctx.env.SEASON_START_DATE;
+			const window = countingWindow(ctx.env);
 			const ends = weekEnds(
-				seasonStart,
-				lastDay(berlinDate(ctx.now()), CURRENT_RULES.qualificationDeadline),
+				window.seasonStart,
+				lastDay(berlinDate(ctx.now()), window.deadline),
 			);
 			const riders = team.map((listed) => ({
 				athleteId: listed.athleteId,
 				balance: listed.balance,
-				weeks: riderWeeks(listed, seasonStart, ends, listed.balance),
+				weeks: riderWeeks(listed, window, ends, listed.balance),
 			}));
 			const { rows, viewer } = leaderboardRows(riders, rider.athleteId, kind);
 			const status = riderStatus(
 				team.find((listed) => listed.athleteId === rider.athleteId)?.balance ??
 					null,
 				CURRENT_RULES,
-				countingWindow(ctx.env, CURRENT_RULES),
+				window,
 				berlinDate(ctx.now()),
 			);
 			const totals = teamTotals(

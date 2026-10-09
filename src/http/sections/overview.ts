@@ -3,7 +3,11 @@ import type { Ctx } from "../../ctx";
 import { readRiderView } from "../../db/rider-view";
 import { readSeen, type SeenRynke, writeSeen } from "../../db/rynke-seen";
 import type { I18n } from "../../i18n/i18n";
-import { CURRENT_RULES, rulesForVersion } from "../../rynke/rules";
+import {
+	CURRENT_RULES,
+	countingWindow,
+	rulesForVersion,
+} from "../../rynke/rules";
 import { coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import {
@@ -72,7 +76,7 @@ export function handleOverview(
 			read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
 			CURRENT_RULES,
 			{
-				seasonStart: ctx.env.SEASON_START_DATE,
+				...countingWindow(ctx.env),
 				rulesFor: rulesForVersion,
 			},
 		);

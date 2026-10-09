@@ -70,13 +70,7 @@ describe("renderRules window", () => {
 		seasonStart: "2026-01-01",
 	};
 
-	it("names only the start without a deadline", () => {
-		expect(renderRules(en, { ...rules, deadline: null }).toString()).toContain(
-			"Everything from 01/01/2026 counts.",
-		);
-	});
-
-	it("names the deadline when the rules have one", () => {
+	it("names the start and the deadline", () => {
 		expect(
 			renderRules(en, { ...rules, deadline: "2027-03-31" }).toString(),
 		).toContain("Everything from 01/01/2026 to 31/03/2027 counts.");

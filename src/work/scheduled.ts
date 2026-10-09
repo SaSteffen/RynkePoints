@@ -96,7 +96,7 @@ export async function fanOutEvaluations(ctx: Ctx): Promise<void> {
 	const ids = await listRidersNeedingEvaluation(
 		ctx.env.DB,
 		CURRENT_RULES.version,
-		countingWindow(ctx.env, CURRENT_RULES),
+		countingWindow(ctx.env),
 	);
 	await sendAll(
 		ctx,

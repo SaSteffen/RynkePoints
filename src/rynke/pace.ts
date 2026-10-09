@@ -24,7 +24,7 @@ export function evenPace(
 
 /**
  * `in` when the stored balance qualifies; `push` when any of Training, Team and
- * outdoor Training is below its even pace, or without a running deadline;
+ * outdoor Training is below its even pace, or once the deadline has passed;
  * otherwise `on_track`. No balance counts as `push`.
  */
 export function riderStatus(
@@ -35,7 +35,7 @@ export function riderStatus(
 ): RiderStatus {
 	if (balance?.qualified) return "in";
 	const { seasonStart, deadline } = window;
-	if (balance === null || deadline === null || today > deadline) return "push";
+	if (balance === null || today > deadline) return "push";
 	const behind = (value: number, amount: number) =>
 		value < evenPace(amount, seasonStart, deadline, today);
 	return behind(balance.trainingRynke, rules.trainingThreshold) ||

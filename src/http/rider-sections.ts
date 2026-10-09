@@ -302,14 +302,10 @@ function eventItem(i18n: I18n, event: EventLine): SafeHtml {
 
 /** The rules version, the counting window and the handout (FR-050, FR-053). */
 export function renderRules(i18n: I18n, rules: RulesInfo): SafeHtml {
-	const start = day(i18n, rules.seasonStart);
-	const window =
-		rules.deadline === null
-			? i18n.t("rynke.rules.window", { start })
-			: i18n.t("rynke.rules.windowDeadline", {
-					start,
-					deadline: day(i18n, rules.deadline),
-				});
+	const window = i18n.t("rynke.rules.windowDeadline", {
+		start: day(i18n, rules.seasonStart),
+		deadline: day(i18n, rules.deadline),
+	});
 	return html`<section class="rynke-rules card card-outlined">
 <h2>${i18n.t("rynke.rules.heading")}</h2>
 <p>${i18n.t("rynke.rules.version", {
@@ -446,11 +442,9 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 				date: day(i18n, reason.date),
 			});
 		case "after_deadline":
-			return reason.date === null
-				? i18n.t("rynke.reason.outside_window.afterDeadlineNoDate")
-				: i18n.t("rynke.reason.outside_window.afterDeadline", {
-						date: day(i18n, reason.date),
-					});
+			return i18n.t("rynke.reason.outside_window.afterDeadline", {
+				date: day(i18n, reason.date),
+			});
 		case "overlap": {
 			const ride = reason.countedInstead;
 			return ride === null

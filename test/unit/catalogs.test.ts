@@ -168,7 +168,6 @@ const CONTRACT_IDS = [
 	"rynke.reason.excluded_sport_type",
 	"rynke.reason.outside_window",
 	"rynke.reason.outside_window.afterDeadline",
-	"rynke.reason.outside_window.afterDeadlineNoDate",
 	"rynke.reason.overlap",
 	"rynke.reason.overlap.noRide",
 	"rynke.reason.unknown",
@@ -188,7 +187,6 @@ const CONTRACT_IDS = [
 	"rynke.notice.updating",
 	"rynke.rules.heading",
 	"rynke.rules.version",
-	"rynke.rules.window",
 	"rynke.rules.windowDeadline",
 	"rynke.rules.handout",
 	// Feature 010, US1

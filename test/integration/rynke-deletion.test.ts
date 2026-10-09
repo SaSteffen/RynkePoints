@@ -71,7 +71,7 @@ async function seedEvaluated(athleteId = ATHLETE_A) {
 		athleteId,
 		{ kind: "none" },
 		CURRENT_RULES,
-		countingWindow(env, CURRENT_RULES),
+		countingWindow(env),
 		NOW,
 	);
 	expect(await balanceRow(athleteId)).toMatchObject({ distance_rynke: 15 });
@@ -198,7 +198,7 @@ describe("deleting Rynke rows", () => {
 			env.DB,
 			{ kind: "delete-event", eventId },
 			CURRENT_RULES,
-			countingWindow(env, CURRENT_RULES),
+			countingWindow(env),
 			NOW,
 		);
 

@@ -30,21 +30,18 @@ afterEach(() => vi.restoreAllMocks());
 /** The version in effect, and a newer one. */
 const VERSION = CURRENT_RULES.version;
 const NEXT = VERSION + 1;
-const WINDOW = countingWindow(env, CURRENT_RULES);
+const WINDOW = countingWindow(env);
 
 function needing(version = VERSION, window = WINDOW) {
 	return listRidersNeedingEvaluation(db, version, window);
 }
 
-function evaluate(athleteId: number, rules: RynkeRules = CURRENT_RULES) {
-	return applyAndEvaluate(
-		db,
-		athleteId,
-		{ kind: "none" },
-		rules,
-		countingWindow(env, rules),
-		NOW,
-	);
+function evaluate(
+	athleteId: number,
+	rules: RynkeRules = CURRENT_RULES,
+	window = WINDOW,
+) {
+	return applyAndEvaluate(db, athleteId, { kind: "none" }, rules, window, NOW);
 }
 
 /** A connected rider with one evaluated ride. */
@@ -186,15 +183,11 @@ describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
 	});
 
 	it("finds an event moved past the deadline", async () => {
-		const rules: RynkeRules = {
-			...CURRENT_RULES,
-			qualificationDeadline: "2026-08-31",
-		};
-		const window = countingWindow(env, rules);
+		const window = { ...WINDOW, deadline: "2026-08-31" };
 		await evaluatedRider(RIDER, 1);
 		const eventId = await insertEvent("team_training", "2026-08-31");
 		await attendRaw(eventId, [RIDER]);
-		await evaluate(RIDER, rules);
+		await evaluate(RIDER, CURRENT_RULES, window);
 		expect(await needing(VERSION, window)).toEqual([]);
 
 		await sql(
@@ -202,7 +195,7 @@ describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
 			eventId,
 		);
 		expect(await needing(VERSION, window)).toEqual([RIDER]);
-		await evaluate(RIDER, rules);
+		await evaluate(RIDER, CURRENT_RULES, window);
 		expect(await needing(VERSION, window)).toEqual([]);
 	});
 

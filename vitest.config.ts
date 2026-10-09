@@ -32,6 +32,7 @@ export default defineConfig(async () => {
 						STRAVA_SUBSCRIPTION_ID: "777",
 						// Pinned so tests don't follow the production season start.
 						SEASON_START_DATE: "2026-01-01",
+						QUALIFICATION_DEADLINE: "2027-06-30",
 						READY_POLL_SECONDS: "10",
 					},
 				},

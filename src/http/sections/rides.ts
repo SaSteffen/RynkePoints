@@ -2,7 +2,11 @@ import { readyPollSeconds } from "../../config";
 import type { Ctx } from "../../ctx";
 import { readRiderView } from "../../db/rider-view";
 import type { I18n } from "../../i18n/i18n";
-import { CURRENT_RULES, rulesForVersion } from "../../rynke/rules";
+import {
+	CURRENT_RULES,
+	countingWindow,
+	rulesForVersion,
+} from "../../rynke/rules";
 import { html } from "../html";
 import { renderNotice, renderRides, renderWaiting } from "../rider-sections";
 import { buildRiderView, parsePage } from "../rider-view";
@@ -28,7 +32,7 @@ export function handleRides(
 			read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
 			CURRENT_RULES,
 			{
-				seasonStart: ctx.env.SEASON_START_DATE,
+				...countingWindow(ctx.env),
 				rulesFor: rulesForVersion,
 			},
 		);

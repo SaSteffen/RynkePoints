@@ -3,7 +3,7 @@
 // figures from 003's own functions, and the last point is the stored balance.
 
 import type { RidingSums } from "./rides";
-import { CURRENT_RULES, rulesForVersion } from "./rules";
+import { type CountingWindow, CURRENT_RULES, rulesForVersion } from "./rules";
 import { type Balance, extrasFrom, tally } from "./tally";
 import { type Attendance, evaluateAttendance } from "./team-events";
 
@@ -73,8 +73,8 @@ export function weekEnds(seasonStart: string, last: string): string[] {
 }
 
 /** Today, or the deadline once it has passed (research R3). */
-export function lastDay(today: string, deadline: string | null): string {
-	return deadline !== null && today > deadline ? deadline : today;
+export function lastDay(today: string, deadline: string): string {
+	return today > deadline ? deadline : today;
 }
 
 /**
@@ -84,13 +84,12 @@ export function lastDay(today: string, deadline: string | null): string {
  */
 export function riderWeeks(
 	inputs: RiderInputs,
-	seasonStart: string,
+	window: CountingWindow,
 	ends: readonly string[],
 	balance: Balance | null,
 ): WeekPoint[] {
 	const rules =
 		(balance && rulesForVersion(balance.rulesVersion)) ?? CURRENT_RULES;
-	const window = { seasonStart, deadline: rules.qualificationDeadline };
 	const stepDm = rules.elevationStepM * 10;
 	return ends.map((weekEnd, i) => {
 		if (i === ends.length - 1) {

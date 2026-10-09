@@ -13,6 +13,7 @@ import {
 // figures only.
 
 const SEASON_START = "2026-01-01"; // a Thursday
+const WINDOW = { seasonStart: SEASON_START, deadline: "2027-06-30" };
 
 const NO_INPUTS: RiderInputs = { rides: [], attendance: [], corrections: [] };
 
@@ -70,10 +71,6 @@ describe("weekEnds", () => {
 });
 
 describe("lastDay", () => {
-	it("is today without a deadline", () => {
-		expect(lastDay("2026-03-25", null)).toBe("2026-03-25");
-	});
-
 	it("is today until the deadline has passed", () => {
 		expect(lastDay("2026-03-25", "2026-05-31")).toBe("2026-03-25");
 		expect(lastDay("2026-05-31", "2026-05-31")).toBe("2026-05-31");
@@ -98,7 +95,7 @@ describe("riderWeeks", () => {
 		};
 		const weeks = riderWeeks(
 			inputs,
-			SEASON_START,
+			WINDOW,
 			ENDS,
 			balance({ trainingRynke: 14 }),
 		);
@@ -119,7 +116,7 @@ describe("riderWeeks", () => {
 		};
 		const weeks = riderWeeks(
 			inputs,
-			SEASON_START,
+			WINDOW,
 			ENDS,
 			balance({ trainingRynke: 17, teamRynke: 4 }),
 		);
@@ -137,7 +134,7 @@ describe("riderWeeks", () => {
 			rides: [{ weekEnd: "2026-01-04", distanceRynke: 5, elevationDm: 0 }],
 			corrections: [{ date: "2026-01-06", training: -20, team: -1 }],
 		};
-		const weeks = riderWeeks(inputs, SEASON_START, ENDS, balance());
+		const weeks = riderWeeks(inputs, WINDOW, ENDS, balance());
 		expect(weeks[1]).toEqual({ weekEnd: "2026-01-11", training: 0, team: 0 });
 	});
 
@@ -150,7 +147,7 @@ describe("riderWeeks", () => {
 		};
 		const weeks = riderWeeks(
 			inputs,
-			SEASON_START,
+			WINDOW,
 			ENDS,
 			balance({ trainingRynke: 11, teamRynke: 1 }),
 		);
@@ -163,12 +160,12 @@ describe("riderWeeks", () => {
 			...NO_INPUTS,
 			attendance: [{ eventId: 1, kind: "team_training", date: "2025-12-20" }],
 		};
-		const weeks = riderWeeks(inputs, SEASON_START, ENDS, balance());
+		const weeks = riderWeeks(inputs, WINDOW, ENDS, balance());
 		expect(weeks[0]).toEqual({ weekEnd: "2026-01-04", training: 0, team: 0 });
 	});
 
 	it("gives every point 0 to a rider without a balance or inputs", () => {
-		expect(riderWeeks(NO_INPUTS, SEASON_START, ENDS, null)).toEqual(
+		expect(riderWeeks(NO_INPUTS, WINDOW, ENDS, null)).toEqual(
 			ENDS.map((weekEnd) => ({ weekEnd, training: 0, team: 0 })),
 		);
 	});

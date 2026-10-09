@@ -44,8 +44,8 @@ export interface RulesInfo {
 	effectiveDate: string;
 	/** `YYYY-MM-DD`, `SEASON_START_DATE`. */
 	seasonStart: string;
-	/** Of the balance's rules; `null` when there is none or they are unknown. */
-	deadline: string | null;
+	/** `YYYY-MM-DD`, `QUALIFICATION_DEADLINE`. */
+	deadline: string;
 }
 
 /** Other rules are in effect, so the numbers are being updated (research R4). */
@@ -205,7 +205,8 @@ export type ReasonLine =
 	| { code: "excluded_sport_type"; sportType: CyclingSportType }
 	/** `SEASON_START_DATE`. */
 	| { code: "before_season"; date: string }
-	| { code: "after_deadline"; date: string | null }
+	/** `QUALIFICATION_DEADLINE`. */
+	| { code: "after_deadline"; date: string }
 	| {
 			code: "overlap";
 			countedInstead: { startDateLocal: string; distanceM: number } | null;
@@ -222,9 +223,7 @@ const FIXABLE = new Set<string>([
 	"manual",
 ]);
 
-export interface ViewContext {
-	/** `YYYY-MM-DD`, `SEASON_START_DATE`. */
-	seasonStart: string;
+export interface ViewContext extends CountingWindow {
 	/** `rulesForVersion`, passed in to keep this module pure. */
 	rulesFor: (version: number) => RynkeRules | null;
 }
@@ -259,7 +258,7 @@ export function buildRiderView(
 			version: balance.rulesVersion,
 			effectiveDate: balance.rulesEffectiveDate,
 			seasonStart: context.seasonStart,
-			deadline: rules?.qualificationDeadline ?? null,
+			deadline: context.deadline,
 		},
 		rides: rideTable(read, context),
 	};
@@ -271,12 +270,6 @@ function breakdown(
 	attendance: AttendedEvent[],
 	context: ViewContext,
 ): Breakdown {
-	// Feature 003's window for attendance; with unknown rules only the season
-	// start is known (FR-013).
-	const window: CountingWindow = {
-		seasonStart: context.seasonStart,
-		deadline: rules?.qualificationDeadline ?? null,
-	};
 	return {
 		distanceRynke: balance.distanceRynke,
 		elevationM: Math.floor(balance.elevationDm / 10),
@@ -291,7 +284,7 @@ function breakdown(
 			date,
 			kind,
 			name,
-			counts: inCountingWindow(date, window),
+			counts: inCountingWindow(date, context),
 		})),
 	};
 }
@@ -526,7 +519,7 @@ function reasonLines(
 					? { code: "before_season", date: context.seasonStart }
 					: {
 							code: "after_deadline",
-							date: rules?.qualificationDeadline ?? null,
+							date: context.deadline,
 						};
 			case "overlap":
 				return { code, countedInstead: ride.countedInstead };

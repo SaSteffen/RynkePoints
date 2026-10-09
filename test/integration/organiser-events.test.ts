@@ -77,7 +77,7 @@ async function attend(eventId: number, athleteIds: number[]): Promise<void> {
 		env.DB,
 		{ kind: "add-attendance", eventId, athleteIds },
 		CURRENT_RULES,
-		countingWindow(env, CURRENT_RULES),
+		countingWindow(env),
 		NOW,
 	);
 }

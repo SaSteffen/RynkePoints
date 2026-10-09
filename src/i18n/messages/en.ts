@@ -119,7 +119,6 @@ export const en: Catalog = {
 	"rynke.rules.heading": "Rules",
 	"rynke.rules.version":
 		"Computed with rules version {version}, in effect since {date}.",
-	"rynke.rules.window": "Everything from {start} counts.",
 	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
 	"rynke.rules.handout": "How Rynke work (rules handout, in German)",
 	"rynke.ride.counts": "counts 🪙",
@@ -153,7 +152,6 @@ export const en: Catalog = {
 	"rynke.reason.excluded_sport_type": "{sport} doesn't count for Rynke.",
 	"rynke.reason.outside_window": "Before the season start on {date}.",
 	"rynke.reason.outside_window.afterDeadline": "After the deadline on {date}.",
-	"rynke.reason.outside_window.afterDeadlineNoDate": "After the deadline.",
 	"rynke.reason.overlap":
 		"Recorded twice: your ride of {date}, {time}, {distance} counts instead.",
 	"rynke.reason.overlap.noRide":

@@ -30,7 +30,6 @@ describe("CURRENT_RULES", () => {
 			maxSpeedKmh: 45,
 			maxClimbMPerH: 1500,
 			excludedSportTypes: ["EBikeRide", "EMountainBikeRide"],
-			qualificationDeadline: null,
 			trainingThreshold: 250,
 			teamThreshold: 25,
 			maxVirtualShare: { num: 1, den: 3 },
@@ -50,7 +49,7 @@ describe("CURRENT_RULES", () => {
 			'"elevationStepRynke":5,"excludedSportTypes":["EBikeRide","EMountainBikeRide"],' +
 			'"maxClimbMPerH":1500,"maxPausedShare":{"den":2,"num":1},"maxSpeedKmh":45,' +
 			'"maxVirtualShare":{"den":3,"num":1},"minSpeedKmh":10,' +
-			'"qualificationDeadline":null,"teamEvents":{' +
+			'"teamEvents":{' +
 			'"team_training":{"team":1,"training":5},' +
 			'"technique_training":{"team":5,"training":5},' +
 			'"training_weekend_day":{"team":5,"training":10}},' +
@@ -158,9 +157,6 @@ describe("assertValidRules", () => {
 			expect(() =>
 				assertValidRules({ ...CURRENT_RULES, effectiveDate: date }),
 			).toThrow();
-			expect(() =>
-				assertValidRules({ ...CURRENT_RULES, qualificationDeadline: date }),
-			).toThrow();
 		},
 	);
 
@@ -193,32 +189,29 @@ describe("assertValidRules", () => {
 			}),
 		).not.toThrow();
 	});
-
-	it("accepts a qualification deadline", () => {
-		expect(() =>
-			assertValidRules({
-				...CURRENT_RULES,
-				qualificationDeadline: "2026-08-31",
-			}),
-		).not.toThrow();
-	});
 });
 
 describe("countingWindow", () => {
-	it("runs from the season start to the rules' deadline", () => {
+	it("runs from the season start to the configured deadline", () => {
 		expect(
-			countingWindow({ SEASON_START_DATE: "2026-01-01" }, CURRENT_RULES),
-		).toEqual({
-			seasonStart: "2026-01-01",
-			deadline: CURRENT_RULES.qualificationDeadline,
-		});
-		expect(
-			countingWindow(
-				{ SEASON_START_DATE: "2026-01-01" },
-				{ ...CURRENT_RULES, qualificationDeadline: "2026-08-31" },
-			),
-		).toEqual({ seasonStart: "2026-01-01", deadline: "2026-08-31" });
+			countingWindow({
+				SEASON_START_DATE: "2026-01-01",
+				QUALIFICATION_DEADLINE: "2027-06-30",
+			}),
+		).toEqual({ seasonStart: "2026-01-01", deadline: "2027-06-30" });
 	});
+
+	it.each(["", "2027-6-30", "30.06.2027", "2027-02-30"])(
+		"rejects the deadline %j",
+		(deadline) => {
+			expect(() =>
+				countingWindow({
+					SEASON_START_DATE: "2026-01-01",
+					QUALIFICATION_DEADLINE: deadline,
+				}),
+			).toThrow("QUALIFICATION_DEADLINE");
+		},
+	);
 });
 
 describe("RULES_HISTORY", () => {

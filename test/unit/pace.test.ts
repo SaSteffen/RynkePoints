@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { evenPace, riderStatus } from "../../src/rynke/pace";
-import {
-	type CountingWindow,
-	CURRENT_RULES,
-	type RynkeRules,
-} from "../../src/rynke/rules";
+import { type CountingWindow, CURRENT_RULES } from "../../src/rynke/rules";
 import { type Balance, NO_EXTRAS } from "../../src/rynke/tally";
 
 // The even pace and the rider status behind the quote lists and the organiser
@@ -14,10 +10,6 @@ const SEASON_START = "2026-01-01";
 const DEADLINE = "2026-05-31"; // 150 days after the season start
 const TODAY = "2026-03-25"; // 83 days after the season start
 
-const WITH_DEADLINE: RynkeRules = {
-	...CURRENT_RULES,
-	qualificationDeadline: DEADLINE,
-};
 const RUNNING: CountingWindow = {
 	seasonStart: SEASON_START,
 	deadline: DEADLINE,
@@ -74,7 +66,7 @@ describe("riderStatus", () => {
 		expect(
 			riderStatus(
 				balance({ qualified: true, trainingRynke: 0 }),
-				WITH_DEADLINE,
+				CURRENT_RULES,
 				RUNNING,
 				TODAY,
 			),
@@ -82,7 +74,7 @@ describe("riderStatus", () => {
 	});
 
 	it("is on track at the even pace on every amount", () => {
-		expect(riderStatus(balance(), WITH_DEADLINE, RUNNING, TODAY)).toBe(
+		expect(riderStatus(balance(), CURRENT_RULES, RUNNING, TODAY)).toBe(
 			"on_track",
 		);
 	});
@@ -93,29 +85,19 @@ describe("riderStatus", () => {
 			{ teamRynke: PACE.team - 1 },
 			{ trainingWithoutVirtual: PACE.outdoor - 1 },
 		]) {
-			expect(riderStatus(balance(behind), WITH_DEADLINE, RUNNING, TODAY)).toBe(
+			expect(riderStatus(balance(behind), CURRENT_RULES, RUNNING, TODAY)).toBe(
 				"push",
 			);
 		}
 	});
 
-	it("follows qualification only without a deadline", () => {
-		const open: CountingWindow = { seasonStart: SEASON_START, deadline: null };
-		expect(
-			riderStatus(balance({ trainingRynke: 249 }), CURRENT_RULES, open, TODAY),
-		).toBe("push");
-		expect(
-			riderStatus(balance({ qualified: true }), CURRENT_RULES, open, TODAY),
-		).toBe("in");
-	});
-
 	it("follows qualification only once the deadline has passed", () => {
-		expect(riderStatus(balance(), WITH_DEADLINE, RUNNING, "2026-06-01")).toBe(
+		expect(riderStatus(balance(), CURRENT_RULES, RUNNING, "2026-06-01")).toBe(
 			"push",
 		);
 	});
 
 	it("is push for a rider without a balance", () => {
-		expect(riderStatus(null, WITH_DEADLINE, RUNNING, TODAY)).toBe("push");
+		expect(riderStatus(null, CURRENT_RULES, RUNNING, TODAY)).toBe("push");
 	});
 });

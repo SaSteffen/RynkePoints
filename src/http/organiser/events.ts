@@ -9,7 +9,6 @@ import {
 import type { I18n } from "../../i18n/i18n";
 import { TeamEventRefused, teamEventChange } from "../../rynke/apply";
 import {
-	CURRENT_RULES,
 	countingWindow,
 	inCountingWindow,
 	isCalendarDate,
@@ -55,8 +54,7 @@ async function eventForm(request: Request) {
 /** Whether a valid `date` falls outside the season (R5). */
 function outsideSeason(ctx: Ctx, date: string): boolean {
 	return (
-		isCalendarDate(date) &&
-		!inCountingWindow(date, countingWindow(ctx.env, CURRENT_RULES))
+		isCalendarDate(date) && !inCountingWindow(date, countingWindow(ctx.env))
 	);
 }
 
