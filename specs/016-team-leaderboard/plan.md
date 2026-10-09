@@ -2,6 +2,9 @@
 
 **Branch**: `016-team-leaderboard` | **Date**: 2026-10-09 | **Spec**: [spec.md](spec.md)
 
+**Amended**: 2026-10-09 on `016-peloton-breakaway` for the peloton's breakaway
+(FR-018, research R13).
+
 **Input**: Feature specification from `/specs/016-team-leaderboard/spec.md`
 
 ## Summary
@@ -21,6 +24,9 @@ nothing.
 - **Page mechanics (R5, R9)**: the kind switch, the list toggle and the group tiles
   are links with query parameters; no client script. The quote is picked on the
   server per request. Charts are inline SVG.
+- **Breakaway (R13)**: a pure `src/rynke/breakaway.ts` gives the upper
+  outlier fence of the totals. Riders above it ride past a gap in the
+  peloton's road, in order but not to scale; the bunch stays to scale.
 - **Quotes (R10)**: the German lists in `src/i18n/messages/quotes.de.ts` and the
   copy-guard exemption are already committed.
 
@@ -61,7 +67,7 @@ that.
 
 - about 30 riders and 40 weeks a season;
 - 2 GET routes (one replaced), no POST;
-- about 60 catalog keys ([contracts/messages.md](contracts/messages.md)).
+- about 63 catalog keys ([contracts/messages.md](contracts/messages.md)).
 
 ## Constitution Check
 
@@ -78,7 +84,8 @@ that.
 
 **Post-design re-check**: still passes. `leaderboard.ts` returns rows without
 athlete IDs, so a rendering bug can't leak one; the integration test checks the
-HTML for every other rider's first name and ID (SC-002).
+HTML for every other rider's first name and ID (SC-002). The breakaway (R13) is
+worked out from the same anonymous totals and shows no identity either.
 
 ## Project Structure
 
@@ -107,9 +114,10 @@ src/
 ├── rynke/
 │   ├── weeks.ts                 # new: week ends, week-end totals per rider (R1, R3)
 │   ├── pace.ts                  # new: evenPace, riderStatus (R4)
+│   ├── breakaway.ts             # new: breakawayFence, the peloton's outlier fence (R13)
 │   └── leaderboard.ts           # new: rows, places, neighbourhood, team totals (R6)
 ├── http/
-│   ├── charts.ts                # new: peloton, sparkline, weekly bars, threshold bars (SVG)
+│   ├── charts.ts                # new: peloton (with its breakaway gap), sparkline, weekly bars, threshold bars (SVG)
 │   ├── sections/team.ts         # placeholder → leaderboard
 │   ├── organiser/overview.ts    # new: the organiser overview (replaces the riders list)
 │   ├── organiser/corrections.ts # − the old riders list handler
@@ -124,6 +132,7 @@ test/
 │   ├── weeks.test.ts
 │   ├── pace.test.ts
 │   ├── leaderboard.test.ts
+│   ├── breakaway.test.ts
 │   ├── charts.test.ts
 │   ├── overview.test.ts
 │   └── quotes.test.ts

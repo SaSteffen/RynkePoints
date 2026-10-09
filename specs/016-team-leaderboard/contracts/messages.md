@@ -32,6 +32,13 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `team.peloton.front` | Front 🏁 | Spitze 🏁 |
 | `team.peloton.label` | {count} riders between {min} and {max} Rynke; you have {own} | {count} Leute zwischen {min} und {max} Rynke; du hast {own} |
 | `team.peloton.you` | You | Du |
+| `team.peloton.breakaway` | Breakaway 🏁 | Breakaway 🏁 |
+| `team.peloton.hint.breakaway` | Every coin is a rider. Far ahead, past the gap, rides the breakaway. | Jede Münze ist eine Person aus dem Team. Weit vorn, jenseits der Lücke, fährt der Breakaway. |
+| `team.peloton.label.breakaway` | {count} riders between {min} and {max} Rynke, {away} of them in the breakaway; you have {own} | {count} Leute zwischen {min} und {max} Rynke, davon {away} im Breakaway; du hast {own} |
+
+The breakaway keys replace `team.peloton.front`, `team.peloton.hint` and
+`team.peloton.label` when the peloton has a breakaway (FR-018). "Breakaway" stays
+English in German on purpose (spec clarification).
 | `team.list.heading` | Leaderboard | Rangliste |
 | `team.list.count` | {n} riders listed | {n} Rider |
 | `team.list.hint` | No names, just Rynke. The line shows each rider's season so far. | Keine Namen, nur Rynke. Die Linie zeigt die bisherige Saison jeder Person. |

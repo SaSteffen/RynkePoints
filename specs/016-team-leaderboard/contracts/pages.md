@@ -34,6 +34,10 @@ The draft's look, section by section: colours come from the tokens in
    coin's front at 40 px with a yellow "You" tag; `role="img"` and a catalog
    label (research R12). "Back of the bunch" and "Front 🏁" below. No
    threshold line (US2 scenario 3).
+   - With a breakaway (FR-018, research R13): a slanted gap in the card's colour
+     cuts the road; the breakaway riders' coins sit right of it in order of
+     total, the bunch's to scale left of it. The hint, the label and the right
+     end ("Breakaway 🏁") change to their breakaway text.
 6. **Team chart** `figure.team-chart`: heading with the kind on the right, a
    one-line hint; one bar per week of the team total, the current week in
    yellow with an outline; the first week's date and "this week" below; "Best
