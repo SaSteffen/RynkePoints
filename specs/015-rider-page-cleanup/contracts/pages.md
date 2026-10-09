@@ -72,12 +72,14 @@ once the rider has agreed (not on the consent gate):
     <button type="button" class="tap" data-action="decline">{prompt.notify.decline}</button>
   </div>
   <button type="button" class="icon-button" data-action="close"
-          aria-label="{prompt.close}">✕</button>
+          aria-label="{prompt.close}">{CLOSE icon}</button>
 </aside>
 ```
 
 - It is `position: fixed` above `nav.app-nav` and the safe area, and as wide as
   the content column. It never changes the layout of the content (FR-012).
+- The close button shows the `CLOSE` stroke icon from `src/http/icons.ts`, not a
+  text glyph, so the page holds no text outside the catalogs.
 - It has no `role=dialog` and no focus trap. Its buttons are reachable by Tab,
   are at least 44 px, and Escape closes it like close (FR-016).
 - The script reveals one panel at a time ([client.md](client.md)). The

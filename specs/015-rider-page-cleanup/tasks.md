@@ -171,7 +171,7 @@ reconnect and rule-change notices below it.
 
 ### Tests for User Story 2 (write first, confirm they fail)
 
-- [ ] T021 [P] [US2] `test/integration/overview.test.ts`: for the four states,
+- [X] T021 [P] [US2] `test/integration/overview.test.ts`: for the four states,
   the first element child of `div.overview-grid` is `section.hero`; for
   `needs_reconnect` the reconnect `aside.notice.notice-error` comes after it, and
   for rules-updating the `rynke.notice.updating` section comes after it and before
@@ -179,7 +179,7 @@ reconnect and rule-change notices below it.
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] In `src/http/sections/overview.ts`, render in this order: hero,
+- [X] T022 [US2] In `src/http/sections/overview.ts`, render in this order: hero,
   reconnect notice, rule-change notice, then the waiting section or the
   celebration, summary, gauges, breakdown and rules
   ([contracts/pages.md](contracts/pages.md) "Overview"). Check the two-column
@@ -201,7 +201,7 @@ rows, and §2 steps 5–6.
 
 ### Tests for User Story 3 (write first, confirm they fail)
 
-- [ ] T023 [P] [US3] `test/integration/pwa-pages.test.ts`: `/` and `/me` have no
+- [X] T023 [P] [US3] `test/integration/pwa-pages.test.ts`: `/` and `/me` have no
   `aside#install` and no `data-install="dismiss"`; `/me/settings` has
   `section#settings-app aside#install` with `data-install="prompt"` and
   `data-install="ios"` and no dismiss; `/me`, `/me/rides`, `/team` and
@@ -212,43 +212,43 @@ rows, and §2 steps 5–6.
   buttons, and a `data-action="close"` button with `aria-label` = `prompt.close`;
   `/` has no `#app-prompt` (FR-010–FR-012, FR-016). Update the existing
   assertions on the inline hint and its dismiss button.
-- [ ] T024 [P] [US3] `test/unit/style.test.ts`: `.app-prompt` is
+- [X] T024 [P] [US3] `test/unit/style.test.ts`: `.app-prompt` is
   `position:fixed` and its `bottom` uses `--rp-nav-height` and
   `env(safe-area-inset-bottom)`; its buttons keep the 44 px minimum (FR-012, R8).
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Add to both catalogs `prompt.install.text`, `prompt.notify.text`,
+- [X] T025 [P] [US3] Add to both catalogs `prompt.install.text`, `prompt.notify.text`,
   `prompt.notify.accept`, `prompt.notify.decline` and `prompt.close` with the
   German of [contracts/catalog.md](contracts/catalog.md) and an English copy;
   remove `install.dismiss` from both catalogs and from the key list in
   `test/unit/catalogs.test.ts`.
-- [ ] T026 [P] [US3] In `src/http/pwa.ts`, drop the dismiss button from
+- [X] T026 [P] [US3] In `src/http/pwa.ts`, drop the dismiss button from
   `renderInstallHint`, and add `renderAppPrompt(i18n, pushKey)` with the markup
   of [contracts/pages.md](contracts/pages.md) "App prompt".
-- [ ] T027 [US3] In `src/http/shell.ts`, render `renderAppPrompt` once in every
+- [X] T027 [US3] In `src/http/shell.ts`, render `renderAppPrompt` once in every
   signed-in section, after the content and before `nav.app-nav`, only once the
   rider has agreed (not on the consent gate), with the VAPID
   public key the Settings section already uses for `data-push-key`.
-- [ ] T028 [US3] Remove the install hint from `src/http/sections/overview.ts` and
+- [X] T028 [US3] Remove the install hint from `src/http/sections/overview.ts` and
   `src/http/landing.ts`; keep it in `src/http/sections/settings.ts`. T023 passes.
-- [ ] T029 [US3] In `src/http/style.ts`, add `.app-prompt`: `position:fixed`,
+- [X] T029 [US3] In `src/http/style.ts`, add `.app-prompt`: `position:fixed`,
   `bottom: calc(var(--rp-nav-height) + env(safe-area-inset-bottom) + <space>)`,
   as wide as the content column, surface colour, elevation and radius from the
   design tokens, the close button in the corner, and no layout effect on the
   content (FR-012). T024 passes.
-- [ ] T030 [US3] In `public/app.js`, extract `subscribePush(pushKey)` from
+- [X] T030 [US3] In `public/app.js`, extract `subscribePush(pushKey)` from
   `notifications()` per [contracts/client.md](contracts/client.md) (permission
   inside the tap, `pushManager.subscribe`, `POST /me/notifications action=on`,
   the sign-out endpoint field; resolves `"on" | "off" | "blocked"`, throws on
   failure), and make the Settings switch use it with unchanged behaviour (R10).
-- [ ] T031 [US3] In `public/app.js`, rename `installHint()` to
+- [X] T031 [US3] In `public/app.js`, rename `installHint()` to
   `installSettings()` and limit it to `#settings-app #install`: show on
   `beforeinstallprompt` (the `prompt` paragraph) or iOS Safari (the `ios`
   paragraph), hide when standalone or on `appinstalled`, no dismiss, and ignore
   both prompt keys (R11). Keep the `beforeinstallprompt` event in one shared
   listener so `installSettings()` and `appPrompt()` can both call `prompt()`.
-- [ ] T032 [US3] In `public/app.js`, add `appPrompt()` per the table in
+- [X] T032 [US3] In `public/app.js`, add `appPrompt()` per the table in
   [contracts/client.md](contracts/client.md) and [data-model.md](data-model.md)
   "Prompt panel transitions":
   - if `localStorage` throws, do nothing; remove `rp-install-dismissed` without
@@ -272,10 +272,10 @@ rows, and §2 steps 5–6.
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T033 [P] `test/integration/no-hardcoded-copy.test.ts` and
+- [X] T033 [P] `test/integration/no-hardcoded-copy.test.ts` and
   `test/unit/catalogs.test.ts` pass with the added and removed keys; `grep -rn` over `src/` and `public/` finds none of the removed keys and no
   `rp-install-dismissed` write.
-- [ ] T034 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
+- [X] T034 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
 
 ---
 
