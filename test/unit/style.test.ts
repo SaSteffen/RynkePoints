@@ -104,6 +104,13 @@ describe("STYLE", () => {
 		);
 	});
 
+	it("gives each quote list its own Rynkeby accent (016 T029)", () => {
+		expect(declsOf(".quote")["border-left"]).toContain("var(--rp-coin-yellow)");
+		expect(declsOf(".quote-on-track")["border-left-color"]).toBe(
+			"var(--rp-coin-team)",
+		);
+	});
+
 	it("drops the celebration coins in, and keeps them still for reduced motion (012 FR-002)", () => {
 		expect(declsOf(".celebrate-coins .coin-mini").animation).toContain(
 			"coin-drop",

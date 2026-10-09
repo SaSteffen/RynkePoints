@@ -2,13 +2,18 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
+import {
+	QUOTES_ON_TRACK,
+	QUOTES_PUSH,
+} from "../../src/i18n/messages/quotes.de";
 import { handleFetch } from "../../src/index";
 import { makeCtx, request, resetDb, seedRider } from "../support/ctx";
 import { riderPage, seedBalance, seedRide } from "../support/rider-view";
 
 // Where the rider stands at `/team` and how the team is doing (016 US1, US2,
 // FR-010–FR-017, FR-041, SC-002, SC-003, contracts/pages.md,
-// contracts/http-routes.md). Synthetic riders only.
+// contracts/http-routes.md), and the quote that fits the viewer (US3,
+// FR-020–FR-024). Synthetic riders only.
 
 const ctx = makeCtx();
 const { de, en } = CATALOGS;
@@ -62,6 +67,8 @@ const pelotonOf = (page: string) =>
 	sectionOf(page, '<figure class="peloton', "</figure>");
 const teamChartOf = (page: string) =>
 	sectionOf(page, '<figure class="team-chart', "</figure>");
+const quoteOf = (page: string) =>
+	sectionOf(page, '<blockquote class="quote', "</blockquote>");
 const leaderboardOf = (page: string) =>
 	sectionOf(page, '<section class="leaderboard">', "</section>");
 const myPlaceOf = (page: string) =>
@@ -353,6 +360,7 @@ describe("GET /team, the team's progress (US2)", () => {
 			'<section class="team-total',
 			'<nav class="kind-switch"',
 			'<section class="my-place',
+			'<blockquote class="quote',
 			'<figure class="peloton',
 			'<section class="leaderboard"',
 			'<figure class="team-chart',
@@ -374,6 +382,64 @@ describe("GET /team without a gain this week", () => {
 		expect(teamChartOf(html)).not.toContain(
 			escapeHtml(de["team.chart.best"].split("{date}")[0] ?? ""),
 		);
+	});
+});
+
+describe("GET /team, a quote for the viewer (US3)", () => {
+	/** The quote's text, unescaped back to the list's string. */
+	function quoteTextOf(page: string): string | undefined {
+		const text = quoteOf(page).match(/<p>([^<]*)<\/p>/)?.[1];
+		return [...QUOTES_PUSH, ...QUOTES_ON_TRACK].find(
+			(quote) => escapeHtml(quote) === text,
+		);
+	}
+
+	it("gives a viewer who doesn't qualify a push quote in German (US3 #1)", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const quote = quoteOf(html);
+		expect(quote).toMatch(/^<blockquote class="quote quote-push" lang="de">/);
+		expect(quote).toContain(escapeHtml(de["team.quote.push"]));
+		expect(QUOTES_PUSH).toContain(quoteTextOf(html));
+	});
+
+	it("gives a viewer who qualifies an on-track quote (US3 #2)", async () => {
+		await seedBalance(VIEWER, {
+			trainingRynke: 120,
+			teamRynke: 25,
+			qualified: true,
+		});
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const quote = quoteOf(html);
+		expect(quote).toMatch(
+			/^<blockquote class="quote quote-on-track" lang="de">/,
+		);
+		expect(quote).toContain(escapeHtml(de["team.quote.onTrack"]));
+		expect(QUOTES_ON_TRACK).toContain(quoteTextOf(html));
+	});
+
+	it("keeps the quote German in English, under an English heading (US3 #4)", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team", "en");
+		const quote = quoteOf(html);
+		expect(quote).toMatch(/^<blockquote class="quote quote-push" lang="de">/);
+		expect(quote).toContain(escapeHtml(en["team.quote.push"]));
+		expect(QUOTES_PUSH).toContain(quoteTextOf(html));
+	});
+
+	it("picks the quote at random on each load (US3 #3)", async () => {
+		const random = vi.spyOn(crypto, "getRandomValues");
+		const pick = async (value: number) => {
+			random.mockImplementationOnce((array) => {
+				if (array instanceof Uint32Array) array[0] = value;
+				return array;
+			});
+			return quoteTextOf((await riderPage(ctx, VIEWER, "/team")).html);
+		};
+		try {
+			expect(await pick(0)).toBe(QUOTES_PUSH[0]);
+			expect(await pick(QUOTES_PUSH.length + 1)).toBe(QUOTES_PUSH[1]);
+		} finally {
+			random.mockRestore();
+		}
 	});
 });
 

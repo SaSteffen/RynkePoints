@@ -2,6 +2,7 @@ import { berlinDate } from "../../config";
 import type { Ctx } from "../../ctx";
 import { readTeam } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
+import { QUOTES_ON_TRACK, QUOTES_PUSH } from "../../i18n/messages/quotes.de";
 import { formatPlace } from "../../i18n/ordinal";
 import {
 	type LeaderboardRow,
@@ -13,17 +14,18 @@ import {
 	teamTotals,
 	type Viewer,
 } from "../../rynke/leaderboard";
-import { CURRENT_RULES } from "../../rynke/rules";
+import { type RiderStatus, riderStatus } from "../../rynke/pace";
+import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
 import { lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
 import { peloton, sparkline, weekBars } from "../charts";
 import { coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import { shellPage } from "../shell";
 
-// Team at `/team` (feature 011 FR-013, feature 016 US1, US2): how the team is
+// Team at `/team` (feature 011 FR-013, feature 016 US1–US3): how the team is
 // doing and where the viewer stands among 014's listed riders, in Training or
-// Team Rynke, around their own row or for everyone (contracts/pages.md,
-// contracts/http-routes.md). The page only reads (FR-003); nothing on it
+// Team Rynke, around their own row or for everyone, with a German quote that
+// fits the viewer (contracts/pages.md, contracts/http-routes.md). The page only reads (FR-003); nothing on it
 // carries a name or an athlete ID (FR-010).
 // Organisers also get the way to the team overview and their pages (FR-002).
 
@@ -120,6 +122,27 @@ ${rows}</tbody>
 </table>
 </details>
 </figure>`;
+}
+
+/** A random quote from the list for `status` (FR-021, FR-022). */
+export function pickQuote(status: RiderStatus): {
+	list: "push" | "onTrack";
+	text: string;
+} {
+	const list = status === "push" ? "push" : "onTrack";
+	const quotes = list === "push" ? QUOTES_PUSH : QUOTES_ON_TRACK;
+	const [random = 0] = crypto.getRandomValues(new Uint32Array(1));
+	return { list, text: quotes[random % quotes.length] ?? "" };
+}
+
+/** German in every language (FR-023); the heading follows the page's. */
+function renderQuote(i18n: I18n, status: RiderStatus): SafeHtml {
+	const { list, text } = pickQuote(status);
+	return html`<blockquote class="quote ${list === "push" ? "quote-push" : "quote-on-track"}" lang="de">
+<p class="quote-heading" lang="${i18n.locale}">${i18n.t(`team.quote.${list}`)}</p>
+<p>${text}</p>
+</blockquote>
+`;
 }
 
 function segment(href: string, current: boolean, label: string): SafeHtml {
@@ -222,13 +245,20 @@ export function handleTeam(
 				weeks: riderWeeks(listed, seasonStart, ends, listed.balance),
 			}));
 			const { rows, viewer } = leaderboardRows(riders, rider.athleteId, kind);
+			const status = riderStatus(
+				team.find((listed) => listed.athleteId === rider.athleteId)?.balance ??
+					null,
+				CURRENT_RULES,
+				countingWindow(ctx.env, CURRENT_RULES),
+				berlinDate(ctx.now()),
+			);
 			const totals = teamTotals(
 				riders.map((listed) => listed.weeks),
 				kind,
 			);
 			return html`${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
 				viewer ? renderPlace(i18n, viewer) : null
-			}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderLeaderboard(
+			}${viewer ? renderQuote(i18n, status) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderLeaderboard(
 				i18n,
 				kind,
 				all,

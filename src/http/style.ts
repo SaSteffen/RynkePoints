@@ -70,6 +70,11 @@ ul.rynke-missing{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);list-style:no
 .waiting{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-4);padding:var(--rp-space-6);text-align:center}
 .waiting .coin{animation:coin-spin 2.4s linear infinite}
 .organiser-entry{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--rp-space-2);margin:var(--rp-space-4) 0 0}
+.quote{margin:0 0 var(--rp-space-3);padding:var(--rp-space-3) var(--rp-space-4);border-left:4px solid var(--rp-coin-yellow);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container)}
+.quote-on-track{border-left-color:var(--rp-coin-team)}
+.quote p{margin:0}
+.quote-heading{margin:0 0 var(--rp-space-1);font:var(--md-type-label);color:var(--md-sys-color-on-surface-variant)}
+.quote p:last-child{font:italic var(--md-type-body-large)}
 .kind-switch,.list-scope{display:flex;margin:0 0 var(--rp-space-3)}
 .kind-switch .segmented,.list-scope .segmented{flex:1}
 .my-place .place{margin:0 0 var(--rp-space-1);font:var(--md-type-title-large)}
