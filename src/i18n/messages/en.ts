@@ -373,6 +373,11 @@ export const en: Catalog = {
 	"team.peloton.label":
 		"{count} riders between {min} and {max} Rynke; you have {own}",
 	"team.peloton.you": "You",
+	"team.peloton.breakaway": "Breakaway 🏁",
+	"team.peloton.hint.breakaway":
+		"Every coin is a rider. Far ahead, past the gap, rides the breakaway.",
+	"team.peloton.label.breakaway":
+		"{count} riders between {min} and {max} Rynke, {away} of them in the breakaway; you have {own}",
 	"team.list.heading": "Leaderboard",
 	"team.list.count": "{n} riders listed",
 	"team.list.hint":

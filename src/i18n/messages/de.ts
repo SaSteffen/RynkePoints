@@ -391,6 +391,11 @@ export const de = {
 	"team.peloton.label":
 		"{count} Leute zwischen {min} und {max} Rynke; du hast {own}",
 	"team.peloton.you": "Du",
+	"team.peloton.breakaway": "Breakaway 🏁",
+	"team.peloton.hint.breakaway":
+		"Jede Münze ist eine Person aus dem Team. Weit vorn, jenseits der Lücke, fährt der Breakaway.",
+	"team.peloton.label.breakaway":
+		"{count} Leute zwischen {min} und {max} Rynke, davon {away} im Breakaway; du hast {own}",
 	"team.list.heading": "Rangliste",
 	"team.list.count": "{n} Rider",
 	"team.list.hint":

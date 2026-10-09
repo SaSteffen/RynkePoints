@@ -4,6 +4,7 @@ import { readTeam } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
 import { QUOTES_ON_TRACK, QUOTES_PUSH } from "../../i18n/messages/quotes.de";
 import { formatPlace } from "../../i18n/ordinal";
+import { breakawayFence } from "../../rynke/breakaway";
 import {
 	type LeaderboardRow,
 	leaderboardRows,
@@ -75,17 +76,25 @@ function renderPeloton(
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const totals = rows.map((row) => row.total);
 	const own = rows.findIndex((row) => row.you);
-	const label = i18n.t("team.peloton.label", {
+	const fence = breakawayFence(totals);
+	const figures = {
 		count: whole(rows.length),
 		min: whole(Math.min(...totals)),
 		max: whole(Math.max(...totals)),
 		own: whole(rows[own]?.total ?? 0),
-	});
+	};
+	const label =
+		fence === null
+			? i18n.t("team.peloton.label", figures)
+			: i18n.t("team.peloton.label.breakaway", {
+					...figures,
+					away: whole(totals.filter((total) => total > fence).length),
+				});
 	return html`<figure class="peloton card">
 <figcaption>${i18n.t("team.peloton.heading")}</figcaption>
-<p class="team-hint">${i18n.t("team.peloton.hint")}</p>
-${peloton(totals, own, { label, you: i18n.t("team.peloton.you") }, kind)}
-<p class="chart-axis"><span>${i18n.t("team.peloton.back")}</span><span>${i18n.t("team.peloton.front")}</span></p>
+<p class="team-hint">${i18n.t(fence === null ? "team.peloton.hint" : "team.peloton.hint.breakaway")}</p>
+${peloton(totals, own, fence, { label, you: i18n.t("team.peloton.you") }, kind)}
+<p class="chart-axis"><span>${i18n.t("team.peloton.back")}</span><span>${i18n.t(fence === null ? "team.peloton.front" : "team.peloton.breakaway")}</span></p>
 </figure>
 `;
 }

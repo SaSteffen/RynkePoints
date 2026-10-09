@@ -211,10 +211,59 @@ happens.
 **Decision**:
 
 - Peloton SVG: `role="img"` with an `aria-label` from the catalog ("14 riders
-  between {min} and {max} Rynke; you have {own}").
+  between {min} and {max} Rynke; you have {own}"). With a breakaway, a second
+  label also says how many ride in it (R13).
 - Sparklines: `role="img"` with an `aria-label` listing the rider's week-end totals
   ("Week by week: {values}"), formatted with the locale's number format.
 - Team chart: `role="img"` with a summary label, followed by a `<details>` table
   of every week's team total and gain.
 - Organiser bars: `aria-hidden`; the same figures stand as text in the card or
   table cell.
+
+## R13. The breakaway (FR-018)
+
+**Decision**:
+
+- A pure `breakawayFence(totals)` in `src/rynke/breakaway.ts` returns the upper
+  outlier fence, Q3 + 1.5 × (Q3 − Q1), or `null` when there is no breakaway:
+  fewer than five totals, or no total strictly above the fence. Quartiles
+  interpolate linearly between the closest ranks (the common default, as in
+  Excel's `QUARTILE.INC`, and what the mock-up computes).
+- `renderPeloton` calls it once. The fence decides who rides in the breakaway,
+  the front label ("Breakaway 🏁" or "Front 🏁"), the hint and the label for
+  assistive technology. `peloton()` in `src/http/charts.ts` gets the fence and
+  does only the layout.
+- Layout on the 320-unit road, in the mock-up's proportions:
+
+  | Part | Without a breakaway | With a breakaway |
+  |---|---|---|
+  | Bunch | `ROAD_INSET` to 298, to scale against the highest total | `ROAD_INSET` to 198 (62 %), to scale against the bunch's highest total |
+  | Gap | none | a slanted band in the card's colour at 237 (74 %), cutting the road and its middle line |
+  | Breakaway | — | the distinct totals in ascending order, evenly from 269 (84 %) to 294 (92 %); one distinct total at 282 (88 %) |
+
+  Equal totals in the breakaway share a position, so the order shown is never
+  made up. Coins keep their lanes. The viewer's 40-unit coin still fits on
+  either side of the gap and at the front end.
+- The bunch's highest total can be 0: early in the season, two riders with rides
+  among six with none are a breakaway. The bunch then sits at the back, like an
+  all-zero road today.
+
+**Rationale**: the fence is the textbook rule for "far ahead". It needs no tuning,
+and when everyone is close it does nothing, so most weeks the road stays as it
+is. Below five totals the quartiles say little, so the spec leaves the road
+alone. Positions in the breakaway only need the order: the gap already says "far
+ahead", and drawing it to scale would bring back the squashing. Keeping the
+fence in `src/rynke/` makes it testable without SVG, and the page can use it for
+its labels.
+
+**Alternatives considered**:
+
+- Leaving the riders far ahead out, or a logarithmic road: both rejected in the
+  spec's clarification.
+- A fixed rule (more than twice the median, or the top three): the factor is
+  arbitrary, and the top three would always break away, even in a close team.
+- Other quartile methods (exclusive, Tukey's hinges): they differ only for small
+  teams, and the linear one matches the mock-up.
+- A broken axis with both sides to scale: one rider far ahead of the other
+  breakaway riders would squash them again, and a reader would take both sides
+  for one scale.

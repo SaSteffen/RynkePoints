@@ -40,6 +40,12 @@ const ORGANISER = 910_004;
 const WITHOUT_BALANCE = { id: 910_014, name: "Rotraut" };
 const UNCONSENTED = { id: 910_015, name: "Ermentrude" };
 
+/** Two riders far ahead in Training, seeded only where the breakaway is tested. */
+const BREAKAWAY = [
+	{ id: 910_016, name: "Wiltrud", training: 900 },
+	{ id: 910_017, name: "Gerlinde", training: 1200 },
+];
+
 const OTHERS = [...LISTED, WITHOUT_BALANCE, UNCONSENTED].filter(
 	(r) => r.id !== VIEWER,
 );
@@ -318,6 +324,27 @@ describe("GET /team, the team's progress (US2)", () => {
 		expect(figure).toContain(escapeHtml(de["team.peloton.hint"]));
 		expect(figure).toContain(escapeHtml(de["team.peloton.back"]));
 		expect(figure).toContain(escapeHtml(de["team.peloton.front"]));
+		expect(figure).not.toContain("road-gap");
+		expect(figure).not.toContain(escapeHtml(de["team.peloton.breakaway"]));
+	});
+
+	it("lets two riders far ahead ride in the breakaway (US2 #4, FR-018)", async () => {
+		for (const { id, name, training } of BREAKAWAY) {
+			await seedRider(ctx, { athleteId: id, firstName: name });
+			await seedBalance(id, { trainingRynke: training, teamRynke: 0 });
+		}
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const figure = pelotonOf(html);
+		expect(figure.match(/href="#coin-mini"/g)).toHaveLength(15);
+		expect(figure).toContain('<path class="road-gap"');
+		// Q1 67.5, Q3 257.5: the fence 542.5 leaves both far ahead.
+		expect(figure).toContain(
+			`aria-label="${fill(de["team.peloton.label.breakaway"], { count: 16, min: 0, max: "1.200", away: 2, own: 120 })}"`,
+		);
+		expect(figure).toContain(escapeHtml(de["team.peloton.hint.breakaway"]));
+		expect(figure).toContain(escapeHtml(de["team.peloton.breakaway"]));
+		expect(figure).not.toContain(escapeHtml(de["team.peloton.front"]));
+		expect(figure).not.toContain(`>${escapeHtml(de["team.peloton.hint"])}<`);
 	});
 
 	it("draws one bar per week and names the best week", async () => {
