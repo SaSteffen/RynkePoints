@@ -112,14 +112,14 @@ see the open page switch to the figures without a reload ([quickstart.md](quicks
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Add `hasBalance(db, athleteId): Promise<boolean>` to
+- [ ] T013 [P] [US1] Add `hasBalance(db, athleteId): Promise<boolean>` to
   `src/db/rider-view.ts`: one `SELECT 1` on the rider's balance row.
 - [ ] T014 [US1] In `src/http/rider-view.ts`, rename the `"not-worked-out"` state
   to `"waiting"` with no other fields, and remove `importing` from `ViewContext`,
   `RiderView` and every caller that sets it (`src/http/sections/overview.ts`,
-  `src/http/sections/rides.ts`). `"waiting"` ⇔ `read.balance === null`. T005
+  `src/http/sections/rides.ts`, and `handleNotificationText` in `src/http/pwa.ts`). `"waiting"` ⇔ `read.balance === null`. T005
   passes.
-- [ ] T015 [US1] Add to both `src/i18n/messages/de.ts` and `src/i18n/messages/en.ts`
+- [ ] T015 [P] [US1] Add to both `src/i18n/messages/de.ts` and `src/i18n/messages/en.ts`
   the keys `waiting.heading`, `waiting.body` (`{date}` placeholder) and
   `me.recent.none` with the German of [contracts/catalog.md](contracts/catalog.md)
   and an English copy. Remove `me.import.done`, `me.recent.empty`,
@@ -218,16 +218,17 @@ rows, and §2 steps 5–6.
 
 ### Implementation for User Story 3
 
-- [ ] T025 [US3] Add to both catalogs `prompt.install.text`, `prompt.notify.text`,
+- [ ] T025 [P] [US3] Add to both catalogs `prompt.install.text`, `prompt.notify.text`,
   `prompt.notify.accept`, `prompt.notify.decline` and `prompt.close` with the
   German of [contracts/catalog.md](contracts/catalog.md) and an English copy;
   remove `install.dismiss` from both catalogs and from the key list in
   `test/unit/catalogs.test.ts`.
-- [ ] T026 [US3] In `src/http/pwa.ts`, drop the dismiss button from
+- [ ] T026 [P] [US3] In `src/http/pwa.ts`, drop the dismiss button from
   `renderInstallHint`, and add `renderAppPrompt(i18n, pushKey)` with the markup
   of [contracts/pages.md](contracts/pages.md) "App prompt".
 - [ ] T027 [US3] In `src/http/shell.ts`, render `renderAppPrompt` once in every
-  signed-in section, after the content and before `nav.app-nav`, with the VAPID
+  signed-in section, after the content and before `nav.app-nav`, only once the
+  rider has agreed (not on the consent gate), with the VAPID
   public key the Settings section already uses for `data-push-key`.
 - [ ] T028 [US3] Remove the install hint from `src/http/sections/overview.ts` and
   `src/http/landing.ts`; keep it in `src/http/sections/settings.ts`. T023 passes.
@@ -275,10 +276,6 @@ rows, and §2 steps 5–6.
   `test/unit/catalogs.test.ts` pass with the added and removed keys; `grep -rn` over `src/` and `public/` finds none of the removed keys and no
   `rp-install-dismissed` write.
 - [ ] T034 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
-- [ ] T035 Walk through [quickstart.md](quickstart.md) §2 with `pnpm dev`,
-  including the poll interval: set `READY_POLL_SECONDS` to `"5"` in
-  `wrangler.jsonc`, confirm the network panel shows `/me/ready` every 5 s, and
-  set it back to `"10"`.
 
 ---
 

@@ -87,7 +87,7 @@ script.
 | II. Capacity | The ~50-rider figure in the spec is about timing, and the code assumes no capacity. Connecting more than 10 riders still needs the Developer Program review (#31), independent of this feature. | ✅ |
 | III. Rider-authored content | Not touched. | ✅ |
 | IV. Serverless, minimal deps | No dependency and no migration. The waiting animation is CSS, and polling is a plain `fetch` with no SSE, WebSocket or Durable Object (R5). | ✅ |
-| V. Test-first | Every server-side FR gets a failing test first ([quickstart.md](quickstart.md) §1). The client script's behaviour has no harness today, so it gets a scripted walk-through instead (R12). | ✅ |
+| V. Test-first | Every server-side FR gets a failing test first ([quickstart.md](quickstart.md) §1), including the markup the client script relies on. The client script's own behaviour has no test harness, so it is a justified exception (see Complexity Tracking, R12). | ⚠️ exception |
 | Language | German source keys and English copies. Removed keys are removed from both catalogs ([contracts/catalog.md](contracts/catalog.md)). | ✅ |
 | Repo rules | Text only in catalogs; `src/` doesn't import `dev/`; synthetic fixtures. | ✅ |
 
@@ -155,4 +155,6 @@ module next to `pwa.ts`, which also serves JSON to the page script.
 
 ## Complexity Tracking
 
-No constitution violations.
+| Deviation | Why it's needed | Simpler alternative rejected because |
+|---|---|---|
+| Principle V: the new behaviour in `public/app.js` (`waitForFirstData`, `appPrompt`, `subscribePush`, `installSettings`) has no failing test first (FR-004, FR-012–FR-016 client side). | The script is a plain browser file loaded with `defer`, with no module boundary, and runs in the browser, not in workerd. The server side it depends on (the `/me/ready` contract, the `data-poll-seconds`, `#app-prompt` and Settings markup) is tested first. The behaviour is checked in the local walk-through with the fake Strava ([quickstart.md](quickstart.md) §2) and on the live site after release, as in features 010 and 011. | A DOM test runner (jsdom or happy-dom, or a browser runner) is a new dev dependency and a second test setup for one 8 KB script (Principle IV). Splitting the script into ES modules to test the deciding parts would change how every page loads it. Revisit if `app.js` keeps growing. |

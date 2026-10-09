@@ -35,6 +35,9 @@ exists.
    appears. Answer it, reload, and it's gone. Settings still offers installing
    with no hide button.
 6. Tab through the prompt with the keyboard; Escape closes it.
+7. Set `READY_POLL_SECONDS` to `"5"` in `wrangler.jsonc`, restart `pnpm dev`, and
+   on a waiting page check the network panel shows `/me/ready` every 5 s. Set it
+   back to `"10"`.
 
 ## 3. After release
 

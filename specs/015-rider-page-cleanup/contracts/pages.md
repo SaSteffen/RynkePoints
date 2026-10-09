@@ -55,7 +55,8 @@ There is no `aside#install` and no `#app-prompt` (FR-010, Assumptions).
 
 ## App prompt (every signed-in section, new)
 
-Rendered by `shellPage` after the section content, before the navigation:
+Rendered by `shellPage` after the section content, before the navigation, only
+once the rider has agreed (not on the consent gate):
 
 ```html
 <aside id="app-prompt" class="app-prompt" aria-labelledby="app-prompt-title"

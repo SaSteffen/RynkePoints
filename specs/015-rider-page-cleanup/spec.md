@@ -130,14 +130,12 @@ still offers installing where possible.
   stays until the import can run, with the same message; it doesn't count down or
   promise a new time, and nothing tells the rider about budgets.
 - A rider reconnects and their rides are fetched again (e.g. after granting private
-  activities): they already have data, so they never see the waiting state or its
-  one-time message.
+  activities): they already have data, so they keep seeing it, with no waiting
+  state, no one-time message and no import notice.
 - The rider leaves the waiting page open in the background: when they come back,
   the page shows the current data (as feature 011 already reloads after a minute).
 - A rule change is being applied while the rider has data: the existing "rules have
   changed" notice still appears, below the greeting; it is not an import notice.
-- A rider reconnects and an import starts again (e.g. after granting private
-  activities): they keep seeing their current data, with no import notice.
 - A rider dismisses the install prompt, then installs later from Settings: the
   notifications offer still appears once after that install.
 - The rider has turned on notifications from Settings before installing: no
@@ -223,8 +221,8 @@ still offers installing where possible.
 
 ### Measurable Outcomes
 
-- **SC-001**: A new rider never sees a text about calculating, an import in
-  progress or a finished import; their first screen shows the greeting and either
+- **SC-001**: A new rider never sees a text about their first calculation, an
+  import in progress or a finished import; their first screen shows the greeting and either
   their figures or the waiting state, which says it happens once.
 - **SC-002**: With Strava's budget available, a newly connected rider who keeps the
   Overview open sees their real figures within the 5 minutes the waiting message
@@ -259,8 +257,7 @@ still offers installing where possible.
 - Getting the first data to the open page by checking the app's own server
   periodically is acceptable; a push notification is not used for this, since a new
   rider has not turned notifications on yet.
-- Prompt state is per device and per browser, like the existing install dismissal
-  and scheme choice; a second device shows each prompt once more.
+- Prompt state is per device and per browser, like the scheme choice; a second device shows each prompt once more.
 - Devices that cannot install the app (e.g. some desktop browsers) get neither
   prompt; their riders turn notifications on in Settings.
 - The "rules have changed" notice (feature 005) is not part of the import status
