@@ -3,9 +3,11 @@ import type { Ctx } from "../../src/ctx";
 import { handleFetch } from "../../src/index";
 import { teamEventChange } from "../../src/rynke/apply";
 import {
+	EVENT_ORGANISER,
 	eventDay,
 	recipeToActivity,
 	SAMPLE_RIDERS,
+	SAMPLE_TEAM_EVENTS,
 	type SampleRider,
 } from "./samples";
 import {
@@ -85,7 +87,9 @@ export async function connectThroughApp(
 export async function sampleFingerprint(): Promise<string> {
 	const digest = await crypto.subtle.digest(
 		"SHA-256",
-		new TextEncoder().encode(JSON.stringify(SAMPLE_RIDERS)),
+		new TextEncoder().encode(
+			JSON.stringify([SAMPLE_RIDERS, SAMPLE_TEAM_EVENTS]),
+		),
 	);
 	return [...new Uint8Array(digest)]
 		.map((b) => b.toString(16).padStart(2, "0"))
@@ -95,9 +99,9 @@ export async function sampleFingerprint(): Promise<string> {
 /**
  * Deletes every rider, team event and fake activity, resets the request
  * budget, then stores the recipes, connects every club member and enters
- * their team events. `seedDay` is the
- * Europe/Berlin day (`YYYY-MM-DD`) the recipes count back from. Only a seeding
- * that finishes is recorded, so one that fails is tried again.
+ * their team events, then the shared ones. `seedDay` is the Europe/Berlin day
+ * (`YYYY-MM-DD`) the recipes count back from. Only a seeding that finishes is
+ * recorded, so one that fails is tried again.
  */
 export async function seed(
 	ctx: Ctx,
@@ -151,6 +155,25 @@ export async function seed(
 				athleteIds: [rider.athleteId],
 			});
 		}
+	}
+	// Entered as an organiser would, with the change record (feature 014).
+	for (const recipe of SAMPLE_TEAM_EVENTS) {
+		const { eventId } = await teamEventChange(ctx, {
+			kind: "create-event",
+			event: {
+				kind: recipe.kind,
+				date: eventDay(recipe, seedDay, ctx.env.SEASON_START_DATE),
+				name: recipe.name,
+			},
+			by: EVENT_ORGANISER,
+		});
+		if (eventId === null) throw new Error("No event ID");
+		await teamEventChange(ctx, {
+			kind: "add-attendance",
+			eventId,
+			athleteIds: [...recipe.attendees],
+			by: EVENT_ORGANISER,
+		});
 	}
 	// The app never sets the flag; the maintainer does it in D1 (004 FR-004).
 	for (const rider of SAMPLE_RIDERS.filter((r) => r.organiser)) {

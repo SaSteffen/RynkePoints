@@ -460,6 +460,22 @@ describe("sample riders in every state (US2)", () => {
 		expect(items).toContain("Sample cornering");
 	});
 
+	it("enters the shared team events, recorded by Tina TrainingDone (014)", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			`SELECT e.name, e.changed_by, COUNT(a.athlete_id) AS riders
+			FROM team_events e JOIN attendances a ON a.event_id = e.event_id
+			WHERE e.name IN ('Sample team ride', 'Sample training weekend')
+			GROUP BY e.event_id ORDER BY e.name`,
+		).all<{ name: string; changed_by: number; riders: number }>();
+		expect(results).toEqual([
+			{ name: "Sample team ride", changed_by: TINA, riders: 4 },
+			{ name: "Sample training weekend", changed_by: TINA, riders: 2 },
+		]);
+		const res = await get("/organiser", await sessionCookie(ctx, OLGA));
+		expect(await res.text()).toContain("Sample team ride");
+	});
+
 	it("hides Olli OptionalDenied's private rides", async () => {
 		await seeded();
 		expect((await riderRow(OLLI))?.scope_read_all).toBe(0);

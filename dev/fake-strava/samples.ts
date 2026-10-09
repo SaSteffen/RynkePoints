@@ -233,6 +233,30 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	},
 ];
 
+/** A team event several sample riders attended, entered by an organiser. */
+export interface TeamEventRecipe extends EventRecipe {
+	attendees: readonly number[];
+}
+
+/** Records the team events below (feature 014 FR-040). */
+export const EVENT_ORGANISER = 990004;
+
+// Tina TrainingDone stays without Team Rynke, as her state says.
+export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
+	{
+		daysAgo: 5,
+		kind: "team_training",
+		name: "Sample team ride",
+		attendees: [990003, 990005, 990008, 990011],
+	},
+	{
+		daysAgo: 12,
+		kind: "training_weekend_day",
+		name: "Sample training weekend",
+		attendees: [990005, 990011],
+	},
+];
+
 export function sampleRider(athleteId: number): SampleRider | undefined {
 	return SAMPLE_RIDERS.find((r) => r.athleteId === athleteId);
 }
