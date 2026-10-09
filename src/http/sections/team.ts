@@ -9,19 +9,22 @@ import {
 	type Neighbourhood,
 	neighbourhood,
 	type RynkeKind,
+	type TeamTotals,
+	teamTotals,
 	type Viewer,
 } from "../../rynke/leaderboard";
 import { CURRENT_RULES } from "../../rynke/rules";
 import { lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
-import { sparkline } from "../charts";
-import { miniCoin } from "../coin";
+import { peloton, sparkline, weekBars } from "../charts";
+import { coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import { shellPage } from "../shell";
 
-// Team at `/team` (feature 011 FR-013, feature 016 US1): where the viewer
-// stands among 014's listed riders, in Training or Team Rynke, around their
-// own row or for everyone (contracts/pages.md, contracts/http-routes.md). The
-// page only reads (FR-003); no row carries a name or an athlete ID (FR-010).
+// Team at `/team` (feature 011 FR-013, feature 016 US1, US2): how the team is
+// doing and where the viewer stands among 014's listed riders, in Training or
+// Team Rynke, around their own row or for everyone (contracts/pages.md,
+// contracts/http-routes.md). The page only reads (FR-003); nothing on it
+// carries a name or an athlete ID (FR-010).
 // Organisers also get the way to the team overview and their pages (FR-002).
 
 /** Places 1–3, by place, so a shared 2nd gives two 🥈 (research R6). */
@@ -38,6 +41,85 @@ function teamHref(kind: RynkeKind, all: boolean): string {
 		.filter((part) => part !== null)
 		.join("&");
 	return query ? `/team?${query}` : "/team";
+}
+
+function renderTeamTotal(
+	i18n: I18n,
+	kind: RynkeKind,
+	totals: TeamTotals,
+): SafeHtml {
+	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
+	return html`<section class="team-total card">
+${coin(kind === "training" ? "front" : "back", "large")}<p class="team-total-label">${i18n.t("team.total.label", { kind: i18n.t(`team.kind.${kind}`) })}</p>
+<p class="team-total-value">${whole(totals.total)}</p>
+${
+	totals.thisWeek > 0
+		? html`<p class="team-total-week">${i18n.t("team.total.thisWeek", { n: whole(totals.thisWeek) })}</p>
+`
+		: null
+}</section>
+`;
+}
+
+/** Every listed rider on the road; only with the viewer among them. */
+function renderPeloton(
+	i18n: I18n,
+	kind: RynkeKind,
+	rows: readonly LeaderboardRow[],
+): SafeHtml {
+	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
+	const totals = rows.map((row) => row.total);
+	const own = rows.findIndex((row) => row.you);
+	const label = i18n.t("team.peloton.label", {
+		count: whole(rows.length),
+		min: whole(Math.min(...totals)),
+		max: whole(Math.max(...totals)),
+		own: whole(rows[own]?.total ?? 0),
+	});
+	return html`<figure class="peloton card">
+<figcaption>${i18n.t("team.peloton.heading")}</figcaption>
+${peloton(totals, own, { label, you: i18n.t("team.peloton.you") }, kind)}
+</figure>
+`;
+}
+
+function renderTeamChart(
+	i18n: I18n,
+	kind: RynkeKind,
+	totals: TeamTotals,
+): SafeHtml {
+	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
+	const label = i18n.t("team.chart.label", {
+		kind: i18n.t(`team.kind.${kind}`),
+		weeks: whole(totals.weeks.length),
+		total: whole(totals.total),
+	});
+	const best = totals.bestWeek;
+	const rows = totals.weeks.map(
+		(week) =>
+			html`<tr><td>${i18n.formatDate(week.weekEnd)}</td><td>${whole(week.total)}</td><td>${week.gain === null ? "" : whole(week.gain)}</td></tr>
+`,
+	);
+	return html`
+<figure class="team-chart card">
+<figcaption>${i18n.t("team.chart.heading")}</figcaption>
+${weekBars(
+	totals.weeks.map((week) => week.total),
+	label,
+)}
+${
+	best
+		? html`<p class="chart-best">${i18n.t("team.chart.best", { date: i18n.formatDate(best.weekEnd), n: whole(best.gain) })}</p>
+`
+		: null
+}<details class="chart-table"><summary class="tap">${i18n.t("team.chart.table")}</summary>
+<table>
+<thead><tr><th scope="col">${i18n.t("team.chart.week")}</th><th scope="col">${i18n.t("team.chart.total")}</th><th scope="col">${i18n.t("team.chart.gain")}</th></tr></thead>
+<tbody>
+${rows}</tbody>
+</table>
+</details>
+</figure>`;
 }
 
 function segment(href: string, current: boolean, label: string): SafeHtml {
@@ -134,18 +216,24 @@ export function handleTeam(
 				seasonStart,
 				lastDay(berlinDate(ctx.now()), CURRENT_RULES.qualificationDeadline),
 			);
-			const { rows, viewer } = leaderboardRows(
-				team.map((listed) => ({
-					athleteId: listed.athleteId,
-					balance: listed.balance,
-					weeks: riderWeeks(listed, seasonStart, ends, listed.balance),
-				})),
-				rider.athleteId,
+			const riders = team.map((listed) => ({
+				athleteId: listed.athleteId,
+				balance: listed.balance,
+				weeks: riderWeeks(listed, seasonStart, ends, listed.balance),
+			}));
+			const { rows, viewer } = leaderboardRows(riders, rider.athleteId, kind);
+			const totals = teamTotals(
+				riders.map((listed) => listed.weeks),
 				kind,
 			);
-			return html`${renderKindSwitch(i18n, kind, all)}${
+			return html`${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
 				viewer ? renderPlace(i18n, viewer) : null
-			}${renderLeaderboard(i18n, kind, all, neighbourhood(rows, all))}${
+			}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderLeaderboard(
+				i18n,
+				kind,
+				all,
+				neighbourhood(rows, all),
+			)}${renderTeamChart(i18n, kind, totals)}${
 				rider.organiser
 					? html`
 <p class="organiser-entry"><a class="button-outlined" href="/organiser/riders">${i18n.t("team.organiser.overview")}</a> <a class="button-outlined" href="/organiser">${i18n.t("organiser.link")}</a></p>`

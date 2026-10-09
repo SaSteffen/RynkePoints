@@ -87,6 +87,23 @@ describe("STYLE", () => {
 		});
 	});
 
+	it("fits the peloton and the team chart to the page's width (016 FR-040)", () => {
+		expect(declsOf(".peloton-road")).toMatchObject({
+			width: "100%",
+			height: "auto",
+		});
+		expect(declsOf(".week-bars").width).toBe("100%");
+	});
+
+	it("highlights the current week's bar in the team chart (016 contracts/pages.md)", () => {
+		expect(declsOf(".week-bars rect.current").fill).toBe(
+			"var(--md-sys-color-primary)",
+		);
+		expect(declsOf(".week-bars rect").fill).not.toBe(
+			declsOf(".week-bars rect.current").fill,
+		);
+	});
+
 	it("drops the celebration coins in, and keeps them still for reduced motion (012 FR-002)", () => {
 		expect(declsOf(".celebrate-coins .coin-mini").animation).toContain(
 			"coin-drop",

@@ -4,10 +4,11 @@ import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import { makeCtx, request, resetDb, seedRider } from "../support/ctx";
-import { riderPage, seedBalance } from "../support/rider-view";
+import { riderPage, seedBalance, seedRide } from "../support/rider-view";
 
-// Where the rider stands at `/team` (016 US1, FR-010–FR-016, SC-002, SC-003,
-// contracts/pages.md, contracts/http-routes.md). Synthetic riders only.
+// Where the rider stands at `/team` and how the team is doing (016 US1, US2,
+// FR-010–FR-017, FR-041, SC-002, SC-003, contracts/pages.md,
+// contracts/http-routes.md). Synthetic riders only.
 
 const ctx = makeCtx();
 const { de, en } = CATALOGS;
@@ -55,6 +56,12 @@ function sectionOf(page: string, open: string, close: string): string {
 	return page.slice(start, page.indexOf(close, start) + close.length);
 }
 
+const teamTotalOf = (page: string) =>
+	sectionOf(page, '<section class="team-total', "</section>");
+const pelotonOf = (page: string) =>
+	sectionOf(page, '<figure class="peloton', "</figure>");
+const teamChartOf = (page: string) =>
+	sectionOf(page, '<figure class="team-chart', "</figure>");
 const leaderboardOf = (page: string) =>
 	sectionOf(page, '<section class="leaderboard">', "</section>");
 const myPlaceOf = (page: string) =>
@@ -249,6 +256,125 @@ describe("GET /team with a kind or Everyone", () => {
 			expect(linksOf(html, "list-scope")).toEqual(scopes);
 		},
 	);
+});
+
+describe("GET /team, the team's progress (US2)", () => {
+	// The test season starts on 2026-01-01 and today is Tuesday 2026-10-06:
+	// 40 Sundays from 2026-01-04, then today, so 41 weeks. Rides add Training in
+	// the weeks ending 2026-09-27 (10) and 2026-10-04 (5); the current week is
+	// the stored balances (Training 1790, Team 199). The unconsented rider's ride
+	// counts nowhere.
+	beforeEach(async () => {
+		const ride = (id: number, start: string, distanceRynke: number) => ({
+			id,
+			start_date: `${start}T08:00:00Z`,
+			result: { counts: true, distanceRynke, elevationDm: 0 },
+		});
+		await seedRide(VIEWER, ride(8_400_001, "2026-09-22", 10));
+		await seedRide(FIRST, ride(8_400_002, "2026-09-30", 5));
+		await seedRide(UNCONSENTED.id, ride(8_400_003, "2026-09-30", 50));
+	});
+
+	it("gives the Training team total and this week's gain (US2 #1)", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const total = teamTotalOf(html);
+		expect(total).toContain('href="#coin-front"');
+		expect(total).toContain(
+			fill(de["team.total.label"], { kind: de["team.kind.training"] }),
+		);
+		expect(total).toContain(">1.790<");
+		expect(total).toContain(fill(de["team.total.thisWeek"], { n: "1.775" }));
+	});
+
+	it("gives the Team team total with the coin's back", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team?kind=team", "en");
+		const total = teamTotalOf(html);
+		expect(total).toContain('href="#coin-back"');
+		expect(total).toContain(
+			fill(en["team.total.label"], { kind: en["team.kind.team"] }),
+		);
+		expect(total).toContain(">199<");
+		expect(total).toContain(fill(en["team.total.thisWeek"], { n: 199 }));
+	});
+
+	it("draws all 14 listed riders in the peloton, also around the viewer (US2 #2, #3)", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const figure = pelotonOf(html);
+		expect(figure.match(/href="#coin-mini"/g)).toHaveLength(14);
+		expect(figure).toContain(
+			`aria-label="${fill(de["team.peloton.label"], { count: 14, min: 0, max: 300, own: 120 })}"`,
+		);
+		expect(figure).toContain(escapeHtml(de["team.peloton.heading"]));
+		expect(figure).toContain(`>${escapeHtml(de["team.peloton.you"])}<`);
+	});
+
+	it("draws one bar per week and names the best week", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const chart = teamChartOf(html);
+		expect(chart.match(/<rect /g)).toHaveLength(41);
+		expect(chart.match(/<rect [^>]*class="current"/g)).toHaveLength(1);
+		expect(chart).toContain(
+			`aria-label="${fill(de["team.chart.label"], { kind: de["team.kind.training"], weeks: 41, total: "1.790" })}"`,
+		);
+		expect(chart).toContain(
+			fill(de["team.chart.best"], { date: "06.10.2026", n: "1.775" }),
+		);
+	});
+
+	it("lists every week's total and gain in a details table (FR-041)", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const details = sectionOf(teamChartOf(html), "<details", "</details>");
+		expect(details).toContain(escapeHtml(de["team.chart.table"]));
+		const rows = [
+			...details.matchAll(
+				/<tr><td>([^<]*)<\/td><td>([^<]*)<\/td><td>([^<]*)<\/td><\/tr>/g,
+			),
+		].map((m) => [m[1], m[2], m[3]]);
+		expect(rows).toHaveLength(41);
+		expect(rows[0]).toEqual(["04.01.2026", "0", ""]);
+		expect(rows.slice(-3)).toEqual([
+			["27.09.2026", "10", "10"],
+			["04.10.2026", "15", "5"],
+			["06.10.2026", "1.790", "1.775"],
+		]);
+	});
+
+	it("follows the Team kind in the chart", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team?kind=team");
+		expect(teamChartOf(html)).toContain(
+			fill(de["team.chart.best"], { date: "06.10.2026", n: 199 }),
+		);
+	});
+
+	it("orders the sections as the contract does", async () => {
+		const { html } = await riderPage(ctx, ORGANISER, "/team");
+		const at = (marker: string) => html.indexOf(marker, html.indexOf("<main"));
+		const order = [
+			'<section class="team-total',
+			'<nav class="kind-switch"',
+			'<section class="my-place',
+			'<figure class="peloton',
+			'<section class="leaderboard"',
+			'<figure class="team-chart',
+			'<p class="organiser-entry"',
+		].map(at);
+		expect(order.every((i) => i > 0)).toBe(true);
+		expect(order).toEqual([...order].sort((a, b) => a - b));
+	});
+});
+
+describe("GET /team without a gain this week", () => {
+	it("shows no this-week badge and no best week", async () => {
+		await resetDb();
+		await seedRider(ctx, { athleteId: VIEWER, firstName: "Gertrude" });
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const total = teamTotalOf(html);
+		expect(total).toContain(">0<");
+		expect(total).not.toContain("🔥");
+		expect(teamChartOf(html)).not.toContain(
+			escapeHtml(de["team.chart.best"].split("{date}")[0] ?? ""),
+		);
+	});
 });
 
 describe("GET /team for others", () => {

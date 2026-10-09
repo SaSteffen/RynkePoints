@@ -1,5 +1,6 @@
-// Places, ties and the neighbourhood of the Team page (feature 016 research
-// R6, data-model.md `LeaderboardRow`, `Viewer`, `Neighbourhood`). Pure. The
+// Places, ties, the neighbourhood and the team totals of the Team page
+// (feature 016 research R6, data-model.md `LeaderboardRow`, `Viewer`,
+// `Neighbourhood`, `TeamTotals`). Pure. The
 // riders come in with their athlete IDs, which only order them and find the
 // viewer; the rows leave with nothing that names anyone (FR-010, SC-002).
 
@@ -45,6 +46,23 @@ export interface Neighbourhood {
 	hiddenBehind: number;
 	/** The "Around you / Everyone" toggle is shown. */
 	toggle: boolean;
+}
+
+export interface TeamWeek {
+	weekEnd: string;
+	total: number;
+	/** The total minus the week before's; `null` for the first week. */
+	gain: number | null;
+}
+
+export interface TeamTotals {
+	/** The picked kind summed over the listed riders. */
+	total: number;
+	/** `total` minus the week before's team total; 0 with one week. */
+	thisWeek: number;
+	weeks: TeamWeek[];
+	/** The largest gain, the earliest on ties; none without a gain. */
+	bestWeek: { weekEnd: string; gain: number } | null;
 }
 
 /** Rows shown either side of the viewer's own (FR-013). */
@@ -117,5 +135,35 @@ export function neighbourhood(
 		hiddenAhead: first,
 		hiddenBehind: rows.length - end,
 		toggle,
+	};
+}
+
+/**
+ * The team total of `kind` at each week end; every rider's points share the
+ * same week ends (`riderWeeks`).
+ */
+export function teamTotals(
+	riderWeeks: readonly (readonly WeekPoint[])[],
+	kind: RynkeKind,
+): TeamTotals {
+	const weeks: TeamWeek[] = (riderWeeks[0] ?? []).map((point, i) => ({
+		weekEnd: point.weekEnd,
+		total: riderWeeks.reduce((sum, rider) => sum + (rider[i]?.[kind] ?? 0), 0),
+		gain: null,
+	}));
+	let bestWeek: TeamTotals["bestWeek"] = null;
+	for (let i = 1; i < weeks.length; i++) {
+		const week = weeks[i] as TeamWeek;
+		const gain = week.total - (weeks[i - 1] as TeamWeek).total;
+		week.gain = gain;
+		if (gain > (bestWeek?.gain ?? 0))
+			bestWeek = { weekEnd: week.weekEnd, gain };
+	}
+	const last = weeks.at(-1);
+	return {
+		total: last?.total ?? 0,
+		thisWeek: last?.gain ?? 0,
+		weeks,
+		bestWeek,
 	};
 }

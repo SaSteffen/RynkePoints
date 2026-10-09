@@ -4,7 +4,9 @@ import {
 	type LeaderboardRow,
 	leaderboardRows,
 	neighbourhood,
+	teamTotals,
 } from "../../src/rynke/leaderboard";
+import type { WeekPoint } from "../../src/rynke/weeks";
 
 // Places, ties and the neighbourhood of the Team page (016 research R6,
 // data-model.md `LeaderboardRow`, `Viewer`, `Neighbourhood`). Synthetic riders
@@ -236,6 +238,78 @@ describe("neighbourhood", () => {
 			hiddenAhead: 0,
 			hiddenBehind: 0,
 			toggle: true,
+		});
+	});
+});
+
+describe("teamTotals", () => {
+	const ENDS = ["2026-09-20", "2026-09-27", "2026-10-04", "2026-10-06"];
+
+	/** One rider's points: Training as given, Team twice as much. */
+	const weeks = (...training: number[]): WeekPoint[] =>
+		training.map((value, i) => ({
+			weekEnd: ENDS[i] ?? "",
+			training: value,
+			team: value * 2,
+		}));
+
+	it("sums each week end over the riders", () => {
+		const totals = teamTotals(
+			[weeks(0, 10, 15, 20), weeks(5, 5, 30, 32)],
+			"training",
+		);
+		expect(totals.total).toBe(52);
+		expect(totals.weeks).toEqual([
+			{ weekEnd: "2026-09-20", total: 5, gain: null },
+			{ weekEnd: "2026-09-27", total: 15, gain: 10 },
+			{ weekEnd: "2026-10-04", total: 45, gain: 30 },
+			{ weekEnd: "2026-10-06", total: 52, gain: 7 },
+		]);
+	});
+
+	it("takes the picked kind", () => {
+		const totals = teamTotals([weeks(1, 4), weeks(2, 3)], "team");
+		expect(totals.weeks.map((w) => w.total)).toEqual([6, 14]);
+		expect(totals).toMatchObject({ total: 14, thisWeek: 8 });
+	});
+
+	it("gives this week as the last week end minus the one before", () => {
+		const totals = teamTotals([weeks(0, 10, 15, 20)], "training");
+		expect(totals.thisWeek).toBe(5);
+	});
+
+	it("gives 0 this week and no best week with one week", () => {
+		const totals = teamTotals([weeks(12)], "training");
+		expect(totals).toEqual({
+			total: 12,
+			thisWeek: 0,
+			weeks: [{ weekEnd: "2026-09-20", total: 12, gain: null }],
+			bestWeek: null,
+		});
+	});
+
+	it("names the week with the largest gain, the earliest on ties", () => {
+		const totals = teamTotals([weeks(100, 110, 130, 150)], "training");
+		expect(totals.bestWeek).toEqual({ weekEnd: "2026-10-04", gain: 20 });
+	});
+
+	it("doesn't count the first week's total as a gain", () => {
+		const totals = teamTotals([weeks(100, 101, 102)], "training");
+		expect(totals.bestWeek).toEqual({ weekEnd: "2026-09-27", gain: 1 });
+	});
+
+	it("names no best week without any gain", () => {
+		const totals = teamTotals([weeks(5, 5, 4)], "training");
+		expect(totals.bestWeek).toBeNull();
+		expect(totals.thisWeek).toBe(-1);
+	});
+
+	it("gives 0 and no weeks for nobody", () => {
+		expect(teamTotals([], "training")).toEqual({
+			total: 0,
+			thisWeek: 0,
+			weeks: [],
+			bestWeek: null,
 		});
 	});
 });

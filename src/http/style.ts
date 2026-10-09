@@ -86,6 +86,23 @@ li.row.you .row-other{color:inherit}
 .sparkline polyline{fill:none;stroke:var(--md-sys-color-primary);stroke-width:2;stroke-linejoin:round}
 li.row.you .sparkline polyline{stroke:currentColor}
 .list-hidden{margin:var(--rp-space-2) 0;text-align:center;font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
+.team-total{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-1);text-align:center}
+.team-total p{margin:0}
+.team-total-label{font:var(--md-type-label);color:var(--md-sys-color-on-surface-variant)}
+.team-total-value{font:var(--md-type-display)}
+.team-total-week{padding:var(--rp-space-1) var(--rp-space-3);border-radius:var(--md-shape-full);background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);font:var(--md-type-label)}
+.peloton,.team-chart{margin-inline:0}
+.peloton figcaption,.team-chart figcaption{margin:0 0 var(--rp-space-2);font:var(--md-type-title)}
+.peloton-road{display:block;width:100%;height:auto}
+.peloton-road .road{fill:var(--md-sys-color-outline-variant)}
+.peloton-you{fill:var(--md-sys-color-on-surface);font:700 11px var(--md-ref-typeface)}
+.week-bars{display:block;width:100%;height:96px}
+.week-bars rect{fill:var(--md-sys-color-outline)}
+.week-bars rect.current{fill:var(--md-sys-color-primary)}
+.chart-best{margin:var(--rp-space-2) 0 0;font:var(--md-type-label)}
+.chart-table table{width:100%;border-collapse:collapse;font:var(--md-type-caption);font-variant-numeric:tabular-nums}
+.chart-table th,.chart-table td{padding:var(--rp-space-1) var(--rp-space-2);border-bottom:1px solid var(--md-sys-color-outline-variant);text-align:right}
+.chart-table th:first-child,.chart-table td:first-child{text-align:left}
 .organiser-form{display:grid;gap:var(--rp-space-3);margin:0 0 var(--rp-space-5)}
 .organiser-form label{display:grid;gap:var(--rp-space-1);font:var(--md-type-label)}
 .organiser-form input,.organiser-form select{box-sizing:border-box;width:100%;min-height:var(--rp-tap);padding:0 var(--rp-space-3);border:1px solid var(--md-sys-color-outline);border-radius:var(--md-shape-xs);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);font:var(--md-type-body-large)}
