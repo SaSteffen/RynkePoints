@@ -9,6 +9,7 @@ type Settings = Pick<
 	| "STRAVA_CLIENT_ID"
 	| "STRAVA_CLIENT_SECRET"
 	| "STRAVA_WEBHOOK_VERIFY_TOKEN"
+	| "READY_POLL_SECONDS"
 >;
 
 const SEASON_TIME_ZONE = "Europe/Berlin";
@@ -26,6 +27,17 @@ export function subscriptionId(
 	env: Pick<Settings, "STRAVA_SUBSCRIPTION_ID">,
 ): number {
 	return integer("STRAVA_SUBSCRIPTION_ID", env.STRAVA_SUBSCRIPTION_ID);
+}
+
+/** Seconds between the waiting page's checks for the first data (015 R5). */
+export function readyPollSeconds(
+	env: Pick<Settings, "READY_POLL_SECONDS">,
+): number {
+	const seconds = integer("READY_POLL_SECONDS", env.READY_POLL_SECONDS);
+	if (seconds < 1 || seconds > 60) {
+		throw new Error("READY_POLL_SECONDS must be between 1 and 60");
+	}
+	return seconds;
 }
 
 export function clientId(env: Pick<Settings, "STRAVA_CLIENT_ID">): string {
