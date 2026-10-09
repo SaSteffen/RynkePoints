@@ -41,7 +41,6 @@ const PARTS = [
 	'<section class="rynke-breakdown card card-outlined">',
 	'<section class="rynke-rules card card-outlined">',
 	`href="${RULES_HANDOUT_URL}"`,
-	'<aside id="install"',
 ];
 
 beforeEach(resetDb);
@@ -51,14 +50,34 @@ describe("GET /me Overview", () => {
 		await seedRider(ctx);
 		await seedBalance(ATHLETE_A);
 		const page = await main();
-		expect(page.trimStart().startsWith("<p>Import abgeschlossen</p>")).toBe(
-			true,
-		);
 		expectInOrder(page, PARTS);
 		expect(page).toContain(
 			`<p class="greeting">${escapeHtml(de["me.greeting"].replace("{firstName}", "Testrider A"))}</p>`,
 		);
 		expect(page).not.toContain("notice-error");
+	});
+
+	it("shows only the greeting and the waiting state before the first balance (015 US1)", async () => {
+		await seedRider(ctx, { importStatus: "running" });
+		const page = await main();
+		expectInOrder(page, [
+			'<p class="greeting">',
+			'<section class="waiting" role="status" data-waiting data-poll-seconds="10">',
+			'<use href="#coin-front"/>',
+			`<h2>${escapeHtml(de["waiting.heading"])}</h2>`,
+			`<p>${escapeHtml(de["waiting.body"].replace("{date}", "01.01.2026"))}</p>`,
+		]);
+		for (const absent of [
+			"hero-total",
+			"rynke-summary",
+			"rynke-gauges",
+			"rynke-breakdown",
+			"rynke-rules",
+			'class="celebrate"',
+			'<section class="notice"',
+		]) {
+			expect(page).not.toContain(absent);
+		}
 	});
 
 	it("puts each gauge in its own card (011 US3)", async () => {
@@ -77,23 +96,41 @@ describe("GET /me Overview", () => {
 		expect(cards).toHaveLength(figures.length);
 	});
 
-	it("starts with the reconnect notice, then 005's notices", async () => {
-		await seedRider(ctx, {
-			status: "needs_reconnect",
-			importStatus: "running",
+	describe("puts the greeting first (015 US2, FR-008, FR-009, SC-004)", () => {
+		const startsWithHero = (page: string) =>
+			expect(page.trimStart().startsWith('<section class="hero">')).toBe(true);
+
+		it.each([
+			["waiting", { importStatus: "running" as const }, null],
+			["ready", {}, {}],
+			["needs_reconnect", { status: "needs_reconnect" as const }, {}],
+			["rules-updating", {}, { rulesVersion: CURRENT_RULES.version + 1 }],
+		])("when %s", async (_state, rider, balance) => {
+			await seedRider(ctx, rider);
+			if (balance) await seedBalance(ATHLETE_A, balance);
+			const page = await main();
+			startsWithHero(page);
+			if (balance) expect(page).toContain('<p class="hero-total">');
+			else expect(page).not.toContain("hero-total");
 		});
-		await seedBalance(ATHLETE_A, { rulesVersion: CURRENT_RULES.version + 1 });
-		const page = await main();
-		expect(
-			page.trimStart().startsWith('<aside class="notice notice-error">'),
-		).toBe(true);
-		expectInOrder(page, [
-			`<p>${escapeHtml(de["me.status.needsReconnect"])}</p>`,
-			`<a class="button" href="/connect">${escapeHtml(de["me.reconnect"])}</a>`,
-			'<section class="notice" role="status">',
-			'<p class="greeting">',
-			'<section id="rynke" class="rynke-summary verdict card">',
-		]);
+
+		it("then the reconnect notice, then the rule-change notice", async () => {
+			await seedRider(ctx, {
+				status: "needs_reconnect",
+				importStatus: "running",
+			});
+			await seedBalance(ATHLETE_A, { rulesVersion: CURRENT_RULES.version + 1 });
+			const page = await main();
+			startsWithHero(page);
+			expectInOrder(page, [
+				'<p class="greeting">',
+				'<aside class="notice notice-error">',
+				`<p>${escapeHtml(de["me.status.needsReconnect"])}</p>`,
+				`<a class="button" href="/connect">${escapeHtml(de["me.reconnect"])}</a>`,
+				'<section class="notice" role="status">',
+				'<section id="rynke" class="rynke-summary verdict card">',
+			]);
+		});
 	});
 
 	it("greets the rider in the coin hero with their totals (012 US1)", async () => {
@@ -137,6 +174,7 @@ describe("GET /me Overview", () => {
 			'href="/me/disconnect"',
 			'action="/logout"',
 			'action="/lang"',
+			'id="install"',
 		]) {
 			expect(page).not.toContain(absent);
 		}

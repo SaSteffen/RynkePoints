@@ -49,7 +49,10 @@
 		// "0" until the webhook subscription is created (quickstart §3 step 12).
 		"STRAVA_SUBSCRIPTION_ID": "375559",
 		// VAPID contact for the push services (010 research R4).
-		"PUSH_SUBJECT": "https://trhh-rynke-coins.link"
+		"PUSH_SUBJECT": "https://trhh-rynke-coins.link",
+		// Seconds between the waiting page's checks for the first data, 1–60
+		// (015 research R5).
+		"READY_POLL_SECONDS": "10"
 	},
 	// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing
 	// them here makes `pnpm types` independent of what's in your `.dev.vars`.

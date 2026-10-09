@@ -4,6 +4,7 @@ import {
 	clientId,
 	clientSecret,
 	clubId,
+	readyPollSeconds,
 	seasonStartEpoch,
 	subscriptionId,
 	verifyToken,
@@ -47,5 +48,20 @@ describe("env accessors", () => {
 		expect(clientId(env)).toBe("10001");
 		expect(clientSecret(env)).toBe("test-client-secret");
 		expect(verifyToken(env)).toBe("test-verify-token");
+	});
+});
+
+describe("readyPollSeconds", () => {
+	it("reads the configured interval", () => {
+		expect(readyPollSeconds({ READY_POLL_SECONDS: "10" })).toBe(10);
+		expect(readyPollSeconds(env)).toBe(10);
+	});
+
+	it.each(["1", "60"])("accepts %j", (value) => {
+		expect(readyPollSeconds({ READY_POLL_SECONDS: value })).toBe(Number(value));
+	});
+
+	it.each(["0", "61", "x", "", "1.5"])("rejects %j", (value) => {
+		expect(() => readyPollSeconds({ READY_POLL_SECONDS: value })).toThrow();
 	});
 });

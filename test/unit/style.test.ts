@@ -92,6 +92,22 @@ describe("STYLE", () => {
 		).toBe("none");
 	});
 
+	it("spins the waiting coin, and keeps it still for reduced motion (015 FR-007)", () => {
+		expect(STYLE).toContain("@keyframes coin-spin");
+		expect(declsOf(".waiting .coin").animation).toContain("coin-spin");
+		expect(
+			declsOf(".waiting .coin", "(prefers-reduced-motion:reduce)").animation,
+		).toBe("none");
+	});
+
+	it("floats the app prompt above the bottom bar and the home indicator (015 FR-012)", () => {
+		const prompt = declsOf(".app-prompt");
+		expect(prompt.position).toBe("fixed");
+		expect(prompt.bottom).toContain("var(--rp-nav-height)");
+		expect(prompt.bottom).toContain("env(safe-area-inset-bottom)");
+		// Its buttons are `.tap` and `.icon-button`, 44 px above.
+	});
+
 	it("lines figures up with tabular numbers (FR-036)", () => {
 		expect(declsOf("body")["font-variant-numeric"]).toBe("tabular-nums");
 	});

@@ -60,36 +60,31 @@ function day(i18n: I18n, date: string): string {
 	return i18n.formatDate(`${date}T00:00:00Z`);
 }
 
-/** The page's notices, in contract order, or nothing when none applies. */
-export function renderNotice(
+/**
+ * The spinning coin and the one-time message before the first data (015
+ * contracts/pages.md); the page script polls every `pollSeconds` (R5).
+ */
+export function renderWaiting(
 	i18n: I18n,
-	view: RiderView,
 	seasonStart: string,
-): SafeHtml | null {
-	const notices: string[] = [];
-	if (view.state === "not-worked-out") {
-		notices.push(i18n.t("rynke.notice.notWorkedOut"));
-	} else if (view.updating) {
-		notices.push(
-			i18n.t("rynke.notice.updating", {
-				date: day(i18n, view.updating.inEffectSince),
-				version: String(view.rules.version),
-			}),
-		);
-	}
-	// The only import line while it runs: feature 001's status line shows only
-	// a finished import.
-	if (view.importing) {
-		notices.push(
-			i18n.t("rynke.notice.importing", { date: day(i18n, seasonStart) }),
-		);
-	}
-	if (notices.length === 0) return null;
+	pollSeconds: number,
+): SafeHtml {
+	return html`<section class="waiting" role="status" data-waiting data-poll-seconds="${pollSeconds}">
+${coin("front", "large")}
+<h2>${i18n.t("waiting.heading")}</h2>
+<p>${i18n.t("waiting.body", { date: day(i18n, seasonStart) })}</p>
+</section>`;
+}
+
+/** The rule-change notice, or nothing when the rules are current (015 R2). */
+export function renderNotice(i18n: I18n, view: RiderView): SafeHtml | null {
+	if (view.state !== "ready" || !view.updating) return null;
 	return html`<section class="notice" role="status">
-${notices.map(
-	(notice) => html`<p>${notice}</p>
-`,
-)}</section>`;
+<p>${i18n.t("rynke.notice.updating", {
+		date: day(i18n, view.updating.inEffectSince),
+		version: String(view.rules.version),
+	})}</p>
+</section>`;
 }
 
 export function renderSummary(i18n: I18n, summary: Summary): SafeHtml {
@@ -332,7 +327,7 @@ export function renderRides(i18n: I18n, rides: RideTable): SafeHtml {
 		return html`<section id="rides">
 ${heading}
 ${coin("front", "large")}
-<p>${i18n.t("me.recent.empty")}</p>
+<p>${i18n.t("me.recent.none")}</p>
 </section>`;
 	}
 	const { from, to, total } = rides.position;

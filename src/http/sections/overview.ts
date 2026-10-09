@@ -1,3 +1,4 @@
+import { readyPollSeconds } from "../../config";
 import type { Ctx } from "../../ctx";
 import { readRiderView } from "../../db/rider-view";
 import { readSeen, type SeenRynke, writeSeen } from "../../db/rynke-seen";
@@ -5,24 +6,24 @@ import type { I18n } from "../../i18n/i18n";
 import { CURRENT_RULES, rulesForVersion } from "../../rynke/rules";
 import { coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
-import { renderInstallHint } from "../pwa";
 import {
 	renderBreakdown,
 	renderGauges,
 	renderNotice,
 	renderRules,
 	renderSummary,
+	renderWaiting,
 } from "../rider-sections";
 import { buildRiderView } from "../rider-view";
 import { shellPage } from "../shell";
 
-// The Overview at `/me` (feature 011 FR-010): what needs the rider's attention,
-// the greeting, and the rider's Rynke with their gauges, where they come from
-// and the rules behind them (feature 005). The rides, settings and account are
-// in their own sections. A `page` query never gets here: the router sends it to
-// Rides (FR-006). The greeting sits in the coin hero, followed by a
-// celebration of the Rynke that are new since the rider last opened the
-// Overview (feature 012 US1, US2).
+// The Overview at `/me` (feature 011 FR-010): the greeting first, then what
+// needs the rider's attention (015 FR-008, FR-009), and the rider's Rynke
+// with their gauges, where they come from and the rules behind them (feature
+// 005). The rides, settings and account are in their own sections. A `page`
+// query never gets here: the router sends it to Rides (FR-006). The greeting
+// sits in the coin hero; a celebration of the Rynke that are new since the
+// rider last opened the Overview follows the notices (feature 012 US1, US2).
 
 /** New Rynke since `seen`, or nothing to celebrate. */
 function renderCelebration(
@@ -72,7 +73,6 @@ export function handleOverview(
 			CURRENT_RULES,
 			{
 				seasonStart: ctx.env.SEASON_START_DATE,
-				importing: rider.importStatus !== "done",
 				rulesFor: rulesForVersion,
 			},
 		);
@@ -98,11 +98,8 @@ export function handleOverview(
 		) {
 			await writeSeen(ctx.env.DB, rider.athleteId, totals);
 		}
-		// The install hint comes last, so it never pushes the totals down (FR-017).
 		// One grid holds it all: two columns on wider screens (contracts/pages.md).
 		return html`<div class="overview-grid">
-${reconnect}${rider.importStatus === "done" ? html`<p>${i18n.t("me.import.done")}</p>` : null}
-${renderNotice(i18n, view, ctx.env.SEASON_START_DATE)}
 <section class="hero">
 ${coin("front", "hero")}
 <div>
@@ -115,11 +112,12 @@ ${
 		: null
 }</div>
 </section>
+${reconnect}${renderNotice(i18n, view)}
+${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env))}
 ${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}
 ${ready ? renderBreakdown(i18n, ready.breakdown) : null}
 ${ready ? renderRules(i18n, ready.rules) : null}
-${renderInstallHint(i18n)}
 </div>`;
 	});
 }

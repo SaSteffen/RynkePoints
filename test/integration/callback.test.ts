@@ -255,7 +255,7 @@ describe("GET /auth/callback success", () => {
 		expectNotice(res, "denied");
 	});
 
-	it("connects a new member with both scopes", async () => {
+	it("connects a new member with both scopes and starts the import (015 FR-005)", async () => {
 		const res = await approve(ctx, fake, ATHLETE_A, SCOPES_ALL);
 		expect(res.status).toBe(302);
 		expect(res.headers.get("Location")).toBe("/me");

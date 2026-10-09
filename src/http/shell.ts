@@ -5,6 +5,7 @@ import { type Consent, getCurrentConsent } from "../db/consents";
 import type { Rider } from "../db/riders";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
+import { vapidPublicKey } from "../push/vapid";
 import { consentGate } from "./consent-gate";
 import {
 	html,
@@ -15,6 +16,7 @@ import {
 	WORDMARK,
 } from "./html";
 import { BIKE, COIN, PEOPLE, REFRESH, SLIDERS } from "./icons";
+import { renderAppPrompt } from "./pwa";
 import { redirect } from "./redirect";
 import { readViewer, riderConsentState } from "./viewer";
 
@@ -54,7 +56,12 @@ export function acceptedOn(i18n: I18n, consent: Consent): string {
 	return i18n.formatDate(`${berlinDate(consent.acceptedAt)}T00:00:00Z`);
 }
 
-function shellParts(i18n: I18n, section: SectionId, path: string): ShellParts {
+function shellParts(
+	i18n: I18n,
+	section: SectionId,
+	path: string,
+	pushKey: string,
+): ShellParts {
 	const current = SECTIONS.find(({ id }) => id === section);
 	const links = SECTIONS.map(
 		({ id, path: href, label, icon }) =>
@@ -66,8 +73,10 @@ function shellParts(i18n: I18n, section: SectionId, path: string): ShellParts {
 		header: html`${WORDMARK}
 <h1 class="section-title">${current ? i18n.t(current.label) : null}</h1>
 <a class="icon-button refresh" href="${path}" aria-label="${i18n.t("shell.refresh")}">${REFRESH}</a>`,
-		// After the footer, so screen readers reach the content first.
-		nav: html`<nav class="app-nav" aria-label="${i18n.t("nav.label")}">
+		// After the footer, so screen readers reach the content first. The app
+		// prompt floats above it on phones (015 FR-012, research R8).
+		nav: html`${renderAppPrompt(i18n, pushKey)}
+<nav class="app-nav" aria-label="${i18n.t("nav.label")}">
 ${links}</nav>
 `,
 	};
@@ -127,7 +136,7 @@ export async function shellPage(
 					: i18n.t("shell.title", { section: i18n.t(label) }),
 			path,
 			body,
-			shell: shellParts(i18n, section, path),
+			shell: shellParts(i18n, section, path, vapidPublicKey(ctx.env)),
 		}),
 	);
 }
