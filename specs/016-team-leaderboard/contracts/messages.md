@@ -63,7 +63,7 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `organiser.overview.deadlinePassed` | The deadline has passed | Der Stichtag ist vorbei |
 | `organiser.overview.qualified` | {n} of {count} in for Paris 🗼 | {n} von {count} sind dabei in Paris 🗼 |
 | `organiser.overview.groups` | Groups | Gruppen |
-| `organiser.overview.group.push` | Need a push 🍌 | Brauchen Schwung 🍌 |
+| `organiser.overview.group.push` | Need a push 🍌 | Braucht Schwung 🍌 |
 | `organiser.overview.group.notYet` | Not yet in | Noch nicht dabei |
 | `organiser.overview.group.onTrack` | On track 🚴 | Gut unterwegs 🚴 |
 | `organiser.overview.group.in` | In for Paris 🗼 | Dabei in Paris 🗼 |

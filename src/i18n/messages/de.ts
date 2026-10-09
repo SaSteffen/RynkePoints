@@ -421,7 +421,7 @@ export const de = {
 	"organiser.overview.deadlinePassed": "Der Stichtag ist vorbei",
 	"organiser.overview.qualified": "{n} von {count} sind dabei in Paris 🗼",
 	"organiser.overview.groups": "Gruppen",
-	"organiser.overview.group.push": "Brauchen Schwung 🍌",
+	"organiser.overview.group.push": "Braucht Schwung 🍌",
 	"organiser.overview.group.notYet": "Noch nicht dabei",
 	"organiser.overview.group.onTrack": "Gut unterwegs 🚴",
 	"organiser.overview.group.in": "Dabei in Paris 🗼",
