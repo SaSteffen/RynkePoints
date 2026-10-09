@@ -17,6 +17,9 @@ US3 P2; the phases run US1 → US2 → US3 → US4 because US1–US3 all build `
 and US4 is a separate page. The quotes (`src/i18n/messages/quotes.de.ts`) and their
 copy-guard exemption are already committed.
 
+**Amended**: 2026-10-09 on `016-peloton-breakaway`. Phase 8 adds the peloton's
+breakaway (FR-018, research R13) to the finished US2; T001–T041 are done.
+
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: can run in parallel (different files, no dependency on an unfinished task)
@@ -404,6 +407,7 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
 ## Dependencies and order
 
 - Setup → Foundational (T002–T008) → US1 → US2 → US3 → US4 → Polish.
+- The breakaway (Phase 8) needs only the finished US2 peloton.
 - US4 needs only Foundational and could run beside US1–US3, but every story edits
   `style.ts`, `charts.ts` and the catalogs, so doing them in order avoids
   conflicts.
@@ -419,6 +423,7 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
 - US2: T019–T021 together; T022 beside T023.
 - US3: T026 and T027 together.
 - US4: T030–T033 together; T034 beside T035.
+- Breakaway: T042–T045 together; T046 beside T047 and T048.
 
 ## Implementation strategy
 
@@ -427,3 +432,71 @@ replaces the placeholder. US2 completes the "team" feeling with little new
 logic. US3 is small; the lists already exist. US4 replaces a working page, so it
 can ship in a later release if time is short; until then organisers keep 014's
 plain list.
+
+---
+
+## Phase 8: The peloton's breakaway (US2, FR-018)
+
+**Goal**: riders far ahead ride in a breakaway past a gap in the road, so the
+bunch is no longer squashed to the left (research R13, US2 #4–#5).
+
+**Independent Test**: for synthetic totals, compare the fence with a hand-worked
+Q3 + 1.5 × (Q3 − Q1) and check the coins' positions on either side of the gap.
+
+### Tests for the breakaway (write first, confirm they fail)
+
+- [ ] T042 [P] [US2] Create `test/unit/breakaway.test.ts` for
+  `breakawayFence(totals)` (data-model.md "Breakaway fence"): quartiles
+  interpolate linearly between the closest ranks, so `[1, 2, 3, 4, 100]` gives 7;
+  spec US2 #4's totals 52, 80, 105, …, 355 (steps of 25 after 80), 384, 760 and
+  912 give 617.5, so only 760 and 912 are above it; four totals give `null`;
+  all-equal totals give `null`; `[1, 2, 3, 4, 7]` gives `null` (a total equal to the fence stays in the bunch);
+  six at 0 plus 50 and 80 give 31.25; the input order doesn't matter and the
+  array is not changed.
+- [ ] T043 [P] [US2] In `test/unit/charts.test.ts`, extend the peloton cases for
+  `peloton(totals, own, fence, text, kind)`: with `fence` `null` no `.road-gap`
+  and the coins at `ROAD_INSET` to 298 against the highest total (US2 #5); with
+  `[1, 2, 3, 4, 100]` and fence 7 a `.road-gap` at 237, the bunch from 22 up to
+  198 for 4, and 100 alone at 282; two breakaway totals at 269 and 294 in
+  ascending order; equal breakaway totals at one position; a bunch of only 0
+  at 22; the viewer in the breakaway gets the 40-unit front coin past the gap and
+  the "You" tag stays inside the 320-unit road.
+- [ ] T044 [P] [US2] In `test/integration/team-leaderboard.test.ts`, add a case
+  that seeds two more synthetic riders far ahead in Training (separately from the
+  shared 14-rider fixture, so the existing places and counts hold):
+  `figure.peloton` has the `.road-gap`, `team.peloton.breakaway` instead of
+  `team.peloton.front`, `team.peloton.hint.breakaway`, and the
+  `team.peloton.label.breakaway` label with `away` 2. The existing peloton case
+  still shows `team.peloton.front` and no gap (US2 #4–#5, FR-041).
+- [ ] T045 [P] [US2] In `test/unit/catalogs.test.ts`, list the three new keys of
+  T046.
+
+### Implementation for the breakaway
+
+- [ ] T046 [P] [US2] Add `team.peloton.breakaway`, `team.peloton.hint.breakaway`
+  and `team.peloton.label.breakaway` to `src/i18n/messages/de.ts` and `en.ts`
+  with the text of [contracts/messages.md](contracts/messages.md); "Breakaway"
+  stays English in German. T045 passes.
+- [ ] T047 [P] [US2] Create `src/rynke/breakaway.ts` with the pure
+  `breakawayFence(totals: readonly number[]): number | null` per R13: `null` below
+  five totals or when no total is strictly above Q3 + 1.5 × (Q3 − Q1). It sees
+  only totals. T042 passes.
+- [ ] T048 [US2] In `src/http/charts.ts`, give `peloton` a `fence: number | null`
+  after `own`. Without a fence the layout stays as it is. With one, the bunch
+  (totals ≤ fence) maps from `ROAD_INSET` to 198 against its own highest total
+  (0 puts it at the back), a slanted `path.road-gap` band at 237 cuts the road
+  and its middle line, and the distinct breakaway totals sit in ascending order
+  evenly from 269 to 294, or at 282 when there is one; coins keep their lanes.
+  Update the file's comment. T043 passes.
+- [ ] T049 [US2] In `renderPeloton` in `src/http/sections/team.ts`, call
+  `breakawayFence(totals)` once, pass the fence to `peloton`, and with a fence use
+  `team.peloton.label.breakaway` (with `away` = the count of totals above the
+  fence), `team.peloton.hint.breakaway` and `team.peloton.breakaway`; otherwise
+  the existing keys. T044 passes.
+- [ ] T050 [US2] In `src/http/style.ts`, fill `.peloton-road .road-gap` with the
+  card's colour (`--md-sys-color-surface-container`), light and dark.
+- [ ] T051 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass,
+  including `test/integration/no-hardcoded-copy.test.ts` and
+  `test/unit/dev-guard.test.ts`.
+
+**Checkpoint**: US2 #4 and #5 hold; the other stories are unchanged.
