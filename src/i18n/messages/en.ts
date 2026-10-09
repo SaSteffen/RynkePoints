@@ -227,7 +227,11 @@ export const en: Catalog = {
 	"install.button": "Install as an app",
 	"install.ios":
 		'As an app on your iPhone: in Safari, tap "Share" and then "Add to Home Screen".',
-	"install.dismiss": "Dismiss",
+	"prompt.install.text": "Get RynkePoints as an app on your home screen.",
+	"prompt.notify.text": "Shall we tell you when you get new Rynke?",
+	"prompt.notify.accept": "Turn on notifications",
+	"prompt.notify.decline": "Not now",
+	"prompt.close": "Close",
 	"offline.title": "No connection",
 	"offline.body":
 		"RynkePoints needs an internet connection. Please try again shortly.",

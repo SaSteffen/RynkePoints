@@ -193,7 +193,11 @@ const CONTRACT_IDS = [
 	// Feature 010, US1
 	"install.button",
 	"install.ios",
-	"install.dismiss",
+	"prompt.install.text",
+	"prompt.notify.text",
+	"prompt.notify.accept",
+	"prompt.notify.decline",
+	"prompt.close",
 	"offline.title",
 	"offline.body",
 	"push.body",

@@ -240,7 +240,13 @@ export const de = {
 	"install.button": "Als App installieren",
 	"install.ios":
 		"Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.",
-	"install.dismiss": "Ausblenden",
+	"prompt.install.text":
+		"Hol dir RynkePoints als App auf deinen Startbildschirm.",
+	"prompt.notify.text":
+		"Sollen wir dir Bescheid sagen, wenn du neue Rynke bekommst?",
+	"prompt.notify.accept": "Benachrichtigungen einschalten",
+	"prompt.notify.decline": "Nicht jetzt",
+	"prompt.close": "Schließen",
 	"offline.title": "Keine Verbindung",
 	"offline.body":
 		"RynkePoints braucht eine Internetverbindung. Versuch es gleich noch einmal.",
