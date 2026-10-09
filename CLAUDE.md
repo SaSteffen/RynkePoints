@@ -41,8 +41,9 @@ and commit messages must follow
 - CI runs the same `pnpm lint`, `pnpm typecheck`, `pnpm test` and commitlint
   (commits and PR title) as the local hooks.
 - The six check jobs' names are the required-check contexts. Renaming one means
-  updating both `.github/rulesets/*.json` files in the same change. `deploy-gate`
-  and `deploy` are not contexts and must never be added to them.
+  updating both `.github/rulesets/*.json` files in the same change.
+  `already-checked`, `deploy-gate` and `deploy` are not contexts and must never be
+  added to them.
 
 ## Non-negotiables
 

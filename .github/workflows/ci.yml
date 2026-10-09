@@ -3,8 +3,10 @@ name: CI
 on:
   pull_request:
     branches: [main, develop]
+  # Not develop: it only takes up-to-date pull requests, whose checks already ran on
+  # exactly the commit it gets (spec FR-012).
   push:
-    branches: [main, develop]
+    branches: [main]
   # Re-deploy: on main it re-runs the checks and deploys the tip of main. No inputs,
   # so a dispatch can't pick a commit (research R16).
   workflow_dispatch:
@@ -12,7 +14,7 @@ on:
 permissions:
   contents: read
 
-# Outdated PR runs are cancelled. Pushes and dispatches on main/develop always run
+# Outdated PR runs are cancelled. Pushes and dispatches on main always run
 # to the end, so runs on main queue one at a time (research R14).
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -20,10 +22,65 @@ concurrency:
 
 # The six check jobs (here and in pr-policy.yml) are the required-check contexts in
 # .github/rulesets/*.json. Renaming one means updating both ruleset files in the same
-# change. deploy-gate and deploy are not contexts and must never be added to them.
+# change. already-checked, deploy-gate and deploy are not contexts and must never be
+# added to them.
 jobs:
+  # On a push to main: checked=true when the merge commit has exactly the content of
+  # the merged branch's head and the latest lint, typecheck and test on that head
+  # passed, the results the main ruleset accepted for the merge (spec FR-012). Then
+  # those three are skipped. Any doubt leaves checked=false.
+  already-checked:
+    name: already-checked
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+    outputs:
+      checked: ${{ steps.decide.outputs.checked }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+      - id: decide
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          checked=true
+          read -r _ _ head extra <<< "$(git rev-list --parents -n 1 "$GITHUB_SHA")"
+          if [ -z "${head:-}" ] || [ -n "${extra:-}" ]; then
+            checked=false
+            echo "$GITHUB_SHA is not a merge of one pull request."
+          elif [ "$(git rev-parse "$GITHUB_SHA^{tree}")" != "$(git rev-parse "$head^{tree}")" ]; then
+            checked=false
+            echo "$GITHUB_SHA has content that $head lacks, e.g. a hotfix not yet merged back."
+          else
+            for check in lint typecheck test; do
+              conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/$head/check-runs?check_name=$check&filter=latest" \
+                --jq '[.check_runs[] | select(.app.slug == "github-actions")][0].conclusion // ""') || conclusion=""
+              if [ "$conclusion" != success ]; then
+                checked=false
+                echo "$check on $head: ${conclusion:-not found}."
+              fi
+            done
+          fi
+
+          if [ "$checked" = true ]; then
+            echo "::notice::The checks already passed on $head, which has the same content; not re-running them."
+          fi
+          echo "checked=$checked" >> "$GITHUB_OUTPUT"
+
+  # !cancelled() lets them run when already-checked is skipped (pull requests,
+  # dispatches) or failed.
   lint:
     name: lint
+    needs: already-checked
+    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -33,6 +90,8 @@ jobs:
 
   typecheck:
     name: typecheck
+    needs: already-checked
+    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -42,6 +101,8 @@ jobs:
 
   test:
     name: test
+    needs: already-checked
+    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -70,10 +131,17 @@ jobs:
 
   # Refuses to deploy a commit older than the live one, e.g. on a re-run of an old
   # run (research R14, contracts/deploy.md). No environment, so a skip records nothing.
+  # Runs only after the three checks passed, or were skipped because they already
+  # passed on this content (spec FR-024).
   deploy-gate:
     name: deploy-gate
-    needs: [lint, typecheck, test]
-    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    needs: [already-checked, lint, typecheck, test]
+    if: >-
+      !cancelled()
+      && github.ref == 'refs/heads/main'
+      && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      && (needs.already-checked.outputs.checked == 'true'
+        || (needs.lint.result == 'success' && needs.typecheck.result == 'success' && needs.test.result == 'success'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

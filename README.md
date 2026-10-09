@@ -133,8 +133,11 @@ command you can run locally:
 | `pr-title` | `printf '%s (#%s)\n' "<title>" <number> \| pnpm commitlint` |
 | `pr-source` | PRs into `main` must come from `develop` or `hotfix/*` |
 
-`ci.yml` also has the jobs `deploy-gate` and `deploy`. They run only on `main`,
-show as skipped on pull requests and are not required checks.
+`ci.yml` also has the jobs `already-checked`, `deploy-gate` and `deploy`. They
+run only on `main`, show as skipped on pull requests and are not required checks.
+After a merge into `main`, `already-checked` skips `lint`, `typecheck` and `test`
+when the merged commit has the same content as the pull request they passed on.
+Merges into `develop` don't re-run them at all.
 
 The lefthook git hooks run the same Biome, `tsc` and commitlint before each
 commit, so a branch that commits cleanly usually passes. A check that failed for
