@@ -445,7 +445,7 @@ Q3 + 1.5 × (Q3 − Q1) and check the coins' positions on either side of the gap
 
 ### Tests for the breakaway (write first, confirm they fail)
 
-- [ ] T042 [P] [US2] Create `test/unit/breakaway.test.ts` for
+- [X] T042 [P] [US2] Create `test/unit/breakaway.test.ts` for
   `breakawayFence(totals)` (data-model.md "Breakaway fence"): quartiles
   interpolate linearly between the closest ranks, so `[1, 2, 3, 4, 100]` gives 7;
   spec US2 #4's totals 52, 80, 105, …, 355 (steps of 25 after 80), 384, 760 and
@@ -453,7 +453,7 @@ Q3 + 1.5 × (Q3 − Q1) and check the coins' positions on either side of the gap
   all-equal totals give `null`; `[1, 2, 3, 4, 7]` gives `null` (a total equal to the fence stays in the bunch);
   six at 0 plus 50 and 80 give 31.25; the input order doesn't matter and the
   array is not changed.
-- [ ] T043 [P] [US2] In `test/unit/charts.test.ts`, extend the peloton cases for
+- [X] T043 [P] [US2] In `test/unit/charts.test.ts`, extend the peloton cases for
   `peloton(totals, own, fence, text, kind)`: with `fence` `null` no `.road-gap`
   and the coins at `ROAD_INSET` to 298 against the highest total (US2 #5); with
   `[1, 2, 3, 4, 100]` and fence 7 a `.road-gap` at 237, the bunch from 22 up to
@@ -461,41 +461,41 @@ Q3 + 1.5 × (Q3 − Q1) and check the coins' positions on either side of the gap
   ascending order; equal breakaway totals at one position; a bunch of only 0
   at 22; the viewer in the breakaway gets the 40-unit front coin past the gap and
   the "You" tag stays inside the 320-unit road.
-- [ ] T044 [P] [US2] In `test/integration/team-leaderboard.test.ts`, add a case
+- [X] T044 [P] [US2] In `test/integration/team-leaderboard.test.ts`, add a case
   that seeds two more synthetic riders far ahead in Training (separately from the
   shared 14-rider fixture, so the existing places and counts hold):
   `figure.peloton` has the `.road-gap`, `team.peloton.breakaway` instead of
   `team.peloton.front`, `team.peloton.hint.breakaway`, and the
   `team.peloton.label.breakaway` label with `away` 2. The existing peloton case
   still shows `team.peloton.front` and no gap (US2 #4–#5, FR-041).
-- [ ] T045 [P] [US2] In `test/unit/catalogs.test.ts`, list the three new keys of
+- [X] T045 [P] [US2] In `test/unit/catalogs.test.ts`, list the three new keys of
   T046.
 
 ### Implementation for the breakaway
 
-- [ ] T046 [P] [US2] Add `team.peloton.breakaway`, `team.peloton.hint.breakaway`
+- [X] T046 [P] [US2] Add `team.peloton.breakaway`, `team.peloton.hint.breakaway`
   and `team.peloton.label.breakaway` to `src/i18n/messages/de.ts` and `en.ts`
   with the text of [contracts/messages.md](contracts/messages.md); "Breakaway"
   stays English in German. T045 passes.
-- [ ] T047 [P] [US2] Create `src/rynke/breakaway.ts` with the pure
+- [X] T047 [P] [US2] Create `src/rynke/breakaway.ts` with the pure
   `breakawayFence(totals: readonly number[]): number | null` per R13: `null` below
   five totals or when no total is strictly above Q3 + 1.5 × (Q3 − Q1). It sees
   only totals. T042 passes.
-- [ ] T048 [US2] In `src/http/charts.ts`, give `peloton` a `fence: number | null`
+- [X] T048 [US2] In `src/http/charts.ts`, give `peloton` a `fence: number | null`
   after `own`. Without a fence the layout stays as it is. With one, the bunch
   (totals ≤ fence) maps from `ROAD_INSET` to 198 against its own highest total
   (0 puts it at the back), a slanted `path.road-gap` band at 237 cuts the road
   and its middle line, and the distinct breakaway totals sit in ascending order
   evenly from 269 to 294, or at 282 when there is one; coins keep their lanes.
   Update the file's comment. T043 passes.
-- [ ] T049 [US2] In `renderPeloton` in `src/http/sections/team.ts`, call
+- [X] T049 [US2] In `renderPeloton` in `src/http/sections/team.ts`, call
   `breakawayFence(totals)` once, pass the fence to `peloton`, and with a fence use
   `team.peloton.label.breakaway` (with `away` = the count of totals above the
   fence), `team.peloton.hint.breakaway` and `team.peloton.breakaway`; otherwise
   the existing keys. T044 passes.
-- [ ] T050 [US2] In `src/http/style.ts`, fill `.peloton-road .road-gap` with the
+- [X] T050 [US2] In `src/http/style.ts`, fill `.peloton-road .road-gap` with the
   card's colour (`--md-sys-color-surface-container`), light and dark.
-- [ ] T051 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass,
+- [X] T051 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass,
   including `test/integration/no-hardcoded-copy.test.ts` and
   `test/unit/dev-guard.test.ts`.
 
