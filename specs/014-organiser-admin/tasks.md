@@ -169,7 +169,7 @@ is refused.
 **Independent test**: tick and untick synthetic riders for a synthetic event and
 check the attendance rows and that each balance includes the event once.
 
-- [ ] T016 [P] [US2] Tests first (failing), `test/integration/organiser-attendance.test.ts`
+- [X] T016 [P] [US2] Tests first (failing), `test/integration/organiser-attendance.test.ts`
   (FR-020–FR-022, SC-003):
   - tick 2 of 3 riders → `?done=attendance`, two rows with `changed_by` set, the
     page shows them ticked;
@@ -189,17 +189,17 @@ check the attendance rows and that each balance includes the event once.
   - no listed riders → the page says so.
   Add `POST /organiser/events/{id}/attendance` to the route table in
   `organiser-access.test.ts` (visitor, no consent, no flag).
-- [ ] T017 [P] [US2] Create `src/db/organiser.ts` with `listListedRidersStatement(db)`:
+- [X] T017 [P] [US2] Create `src/db/organiser.ts` with `listListedRidersStatement(db)`:
   `athlete_id, first_name` of connected riders
   `WHERE athlete_id IN (${SHARED_RIDER_IDS})`, ordered by first name (R10), and
   a pure `withProfileLinks(rows)` setting `profileLink` when another row has the
   same first name, case-insensitive.
-- [ ] T018 [US2] Add `by?: number` to `add-attendance` in `src/rynke/apply.ts` and
+- [X] T018 [US2] Add `by?: number` to `add-attendance` in `src/rynke/apply.ts` and
   write `changed_by`/`changed_at` in `insertAttendancesStatement` in
   `src/db/team-events.ts`; `ON CONFLICT DO NOTHING` keeps the first recorder.
-- [ ] T019 [US2] Add the US2 keys to both catalogs: checklist heading, "Save
+- [X] T019 [US2] Add the US2 keys to both catalogs: checklist heading, "Save
   attendance", "View on Strava", the future-event note and the no-riders note.
-- [ ] T020 [US2] Create `src/http/organiser/attendance.ts`:
+- [X] T020 [US2] Create `src/http/organiser/attendance.ts`:
   - `attendanceSection(...)` for the event page: one form, per listed rider a
     44 px checkbox `attend=<id>` and a hidden `shown=<id>:<0|1>`, the profile
     link where needed; for an event after `berlinDate(now)` only the list and the
