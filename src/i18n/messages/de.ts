@@ -345,4 +345,11 @@ export const de = {
 	"organiser.event.deleteWarning":
 		"Das löscht den Termin und seine Teilnahmen; die Rynke der Fahrenden passen sich an.",
 	"organiser.event.deleteConfirm": "Ja, löschen",
+	"organiser.attendance.heading": "Wer war dabei?",
+	"organiser.attendance.save": "Teilnahme speichern",
+	"organiser.attendance.profile": "Auf Strava ansehen",
+	"organiser.attendance.future":
+		"Die Teilnahme lässt sich eintragen, sobald der Termin war.",
+	"organiser.attendance.none":
+		"Noch ist niemand verbunden, der seine Daten mit dem Team teilt.",
 } satisfies Record<string, string>;

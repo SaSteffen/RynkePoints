@@ -9,6 +9,7 @@ import { handleLang } from "./lang";
 import { handleDisconnect, handleDisconnectPage, handleLogout } from "./me";
 import { handleNotice } from "./notice";
 import { handleNotifications } from "./notifications";
+import { handleSaveAttendance } from "./organiser/attendance";
 import {
 	handleCreateEvent,
 	handleDeleteEvent,
@@ -40,8 +41,12 @@ import { handleWebhook } from "./webhook";
 
 const WEBHOOK_PREFIX = "/strava/webhook/";
 
-/** `/organiser/events/{id}` and its `/delete`; `id` is a stored event's. */
-const ORGANISER_EVENT = /^\/organiser\/events\/(\d{1,15})(\/delete)?$/;
+/**
+ * `/organiser/events/{id}`, its `/delete` and its `/attendance`; `id` is a
+ * stored event's.
+ */
+const ORGANISER_EVENT =
+	/^\/organiser\/events\/(\d{1,15})(?:\/(delete|attendance))?$/;
 
 export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	const url = new URL(request.url);
@@ -94,9 +99,14 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		const event = path.match(ORGANISER_EVENT);
 		if (event) {
 			const eventId = Number(event[1]);
-			return event[2]
-				? handleDeleteEvent(request, ctx, i18n, eventId)
-				: handleUpdateEvent(request, ctx, i18n, eventId);
+			switch (event[2]) {
+				case "delete":
+					return handleDeleteEvent(request, ctx, i18n, eventId);
+				case "attendance":
+					return handleSaveAttendance(request, ctx, i18n, eventId);
+				default:
+					return handleUpdateEvent(request, ctx, i18n, eventId);
+			}
 		}
 	}
 	return notFound(i18n, path);

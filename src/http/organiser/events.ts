@@ -24,10 +24,12 @@ import {
 	redirectWith,
 	requireOrganiserPost,
 } from "./access";
+import { attendanceSection, isFutureEvent, readAttendance } from "./attendance";
 
 // The organiser's team events (feature 014 Story 1, contracts/http-routes.md):
 // the season's list with a new-event form at `/organiser`, and each event's
-// edit form and delete confirmation at `/organiser/events/{id}`. Every change
+// edit form, attendance checklist and delete confirmation at
+// `/organiser/events/{id}`. Every change
 // goes through `teamEventChange`, so the riders' Rynke follow (FR-011–FR-013).
 // The season check is this layer's (research R5); 003 checks the rest.
 
@@ -114,7 +116,10 @@ ${list}
 	});
 }
 
-/** `GET /organiser/events/{id}`: the edit form and the delete confirmation. */
+/**
+ * `GET /organiser/events/{id}`: the edit form, the attendance checklist and the
+ * delete confirmation.
+ */
 export function handleOrganiserEvent(
 	request: Request,
 	ctx: Ctx,
@@ -128,6 +133,8 @@ export function handleOrganiserEvent(
 			eventId,
 		).first<TeamEventRecordRow>();
 		if (!event) return notFound(i18n, path);
+		const { riders, attendees } = await readAttendance(ctx, eventId);
+		const future = isFutureEvent(ctx, event.event_date);
 		return html`${noticeFromQuery(new URL(request.url), i18n)}
 <section class="organiser">
 <p><a href="${LIST}">${i18n.t("organiser.back")}</a></p>
@@ -137,6 +144,7 @@ ${eventFields(i18n, event)}
 <button class="button">${i18n.t("organiser.save")}</button>
 </form>
 ${changeRecord(i18n, event.changed_by_name, event.changed_at)}
+${attendanceSection(i18n, { eventId, future }, riders, attendees)}
 <details class="organiser-confirm">
 <summary>${i18n.t("organiser.event.delete")}</summary>
 <p>${i18n.t("organiser.event.deleteWarning")}</p>

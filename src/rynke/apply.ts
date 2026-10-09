@@ -89,7 +89,12 @@ export type TeamEventChange =
 			by?: number;
 	  }
 	| { kind: "delete-event"; eventId: number }
-	| { kind: "add-attendance"; eventId: number; athleteIds: number[] }
+	| {
+			kind: "add-attendance";
+			eventId: number;
+			athleteIds: number[];
+			by?: number;
+	  }
 	| { kind: "remove-attendance"; eventId: number; athleteIds: number[] };
 
 /** The refusal codes of contracts/ride-evaluation.md; nothing was written. */
@@ -294,7 +299,13 @@ export async function applyTeamEventChange(
 			);
 			statement =
 				affected.length > 0
-					? insertAttendancesStatement(db, eventId, affected)
+					? insertAttendancesStatement(
+							db,
+							eventId,
+							affected,
+							change.by ?? null,
+							now,
+						)
 					: null;
 			edit = (attendance) => [
 				...attendance,

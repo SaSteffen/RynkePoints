@@ -10,7 +10,7 @@ import {
 	seedRider,
 	sessionCookie,
 } from "../support/ctx";
-import { ATHLETE_A, ATHLETE_C } from "../support/fixtures";
+import { ATHLETE_A, ATHLETE_B, ATHLETE_C } from "../support/fixtures";
 import { attendRaw, insertEvent } from "../support/rynke";
 
 // Who may use the organiser pages (feature 014 FR-001, SC-002, research R1):
@@ -38,6 +38,10 @@ const POSTS: { path: string; form: Record<string, string> }[] = [
 		form: { kind: "technique_training", date: "2026-10-02", name: "Changed" },
 	},
 	{ path: "/organiser/events/{id}/delete", form: {} },
+	{
+		path: "/organiser/events/{id}/attendance",
+		form: { attend: String(ATHLETE_B), shown: `${ATHLETE_B}:0` },
+	},
 ];
 
 const at = (path: string) => path.replace("{id}", String(eventId));
@@ -82,6 +86,7 @@ beforeEach(async () => {
 	await resetDb();
 	await seedRider(ctx, { athleteId: ORGANISER, organiser: true });
 	await seedRider(ctx, { athleteId: RIDER });
+	await seedRider(ctx, { athleteId: ATHLETE_B });
 	eventId = await insertEvent("team_training", "2026-09-10");
 	await attendRaw(eventId, [RIDER]);
 });

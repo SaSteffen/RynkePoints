@@ -275,6 +275,11 @@ const CONTRACT_IDS = [
 	"organiser.event.delete",
 	"organiser.event.deleteWarning",
 	"organiser.event.deleteConfirm",
+	"organiser.attendance.heading",
+	"organiser.attendance.save",
+	"organiser.attendance.profile",
+	"organiser.attendance.future",
+	"organiser.attendance.none",
 ];
 
 const placeholders = (text: string) =>

@@ -329,4 +329,11 @@ export const en: Catalog = {
 	"organiser.event.deleteWarning":
 		"This deletes the event and its attendance; the riders' Rynke follow.",
 	"organiser.event.deleteConfirm": "Yes, delete",
+	"organiser.attendance.heading": "Who was there?",
+	"organiser.attendance.save": "Save attendance",
+	"organiser.attendance.profile": "View on Strava",
+	"organiser.attendance.future":
+		"Attendance can be recorded once the event has taken place.",
+	"organiser.attendance.none":
+		"Nobody who shares their data with the team is connected yet.",
 };
