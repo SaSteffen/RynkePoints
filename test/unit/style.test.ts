@@ -171,6 +171,31 @@ describe("STYLE", () => {
 		// Its buttons are `.tap` and `.icon-button`, 44 px above.
 	});
 
+	it("pins the top bar below the status bar, above the content (#62)", () => {
+		const bar = declsOf("header.top-bar");
+		expect(bar).toMatchObject({ position: "sticky", top: "0" });
+		expect(bar.padding).toContain("env(safe-area-inset-top)");
+		expect(Number(bar["z-index"])).toBeGreaterThan(0);
+		// Scrolled to, a target stops below the bar instead of under it.
+		expect(declsOf("html")["scroll-padding-top"]).toContain(
+			"var(--rp-topbar-height) + env(safe-area-inset-top)",
+		);
+	});
+
+	it("lifts the top bar once content scrolls under it (#62)", () => {
+		const bar = declsOf("header.top-bar");
+		expect(bar.animation).toContain("top-bar-lift");
+		expect(bar["animation-timeline"]).toBe("scroll()");
+		expect(STYLE).toContain("@keyframes top-bar-lift");
+	});
+
+	it("keeps the navigation in the top bar while the page scrolls from 600 px (#62)", () => {
+		expect(declsOf("nav.app-nav", WIDE).position).toBe("fixed");
+		expect(Number(declsOf("nav.app-nav")["z-index"])).toBeGreaterThan(
+			Number(declsOf("header.top-bar")["z-index"]),
+		);
+	});
+
 	it("lines figures up with tabular numbers (FR-036)", () => {
 		expect(declsOf("body")["font-variant-numeric"]).toBe("tabular-nums");
 	});
