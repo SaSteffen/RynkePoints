@@ -302,6 +302,7 @@ describe("sample riders in every state (US2)", () => {
 	const OLLI = 990008;
 	const REMY = 990009;
 	const NOAH = 990010;
+	const OLGA = 990011;
 
 	async function seeded() {
 		expect((await get("/_dev/")).status).toBe(200);
@@ -358,17 +359,14 @@ describe("sample riders in every state (US2)", () => {
 		);
 	});
 
-	it("flags Tina TrainingDone as the only organiser (004 research R10)", async () => {
+	it("flags Tina TrainingDone and Olga Organiser as the organisers (004 research R10)", async () => {
 		await seeded();
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id, organiser FROM riders ORDER BY athlete_id",
-		).all<{ athlete_id: number; organiser: number }>();
-		for (const row of results) {
-			expect(row.organiser, String(row.athlete_id)).toBe(
-				row.athlete_id === 990004 ? 1 : 0,
-			);
-		}
-		expect(results.some((r) => r.athlete_id === 990004)).toBe(true);
+			"SELECT athlete_id FROM riders WHERE organiser = 1 ORDER BY athlete_id",
+		).all<{ athlete_id: number }>();
+		expect(results.map((r) => r.athlete_id)).toEqual([TINA, OLGA]);
+		const res = await get("/organiser", await sessionCookie(ctx, OLGA));
+		expect(res.status).toBe(200);
 	});
 
 	it("keeps Ida Importing's import waiting", async () => {
@@ -387,7 +385,16 @@ describe("sample riders in every state (US2)", () => {
 
 	it("shows Nora NoRides without rides", async () => {
 		await seeded();
-		expect(await mePage(NORA)).toContain("Noch keine Fahrten importiert");
+		const page = await mePage(NORA);
+		expect(page).toContain("Noch keine Fahrten in dieser Saison.");
+		expect(page).not.toContain('class="waiting"');
+	});
+
+	it("shows Ida Importing the waiting state (015 US1)", async () => {
+		await seeded();
+		const page = await mePage(IDA);
+		expect(page).toContain('<section class="waiting" role="status"');
+		expect(page).not.toContain('<section id="rides">');
 	});
 
 	it("leaves Fiona FarAway far from both targets", async () => {
@@ -460,6 +467,22 @@ describe("sample riders in every state (US2)", () => {
 		expect(items.match(/<li/g)).toHaveLength(4);
 		expect(items.match(/event-not-counting/g)).toHaveLength(1);
 		expect(items).toContain("Sample cornering");
+	});
+
+	it("enters the shared team events, recorded by Tina TrainingDone (014)", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			`SELECT e.name, e.changed_by, COUNT(a.athlete_id) AS riders
+			FROM team_events e JOIN attendances a ON a.event_id = e.event_id
+			WHERE e.name IN ('Sample team ride', 'Sample training weekend')
+			GROUP BY e.event_id ORDER BY e.name`,
+		).all<{ name: string; changed_by: number; riders: number }>();
+		expect(results).toEqual([
+			{ name: "Sample team ride", changed_by: TINA, riders: 4 },
+			{ name: "Sample training weekend", changed_by: TINA, riders: 2 },
+		]);
+		const res = await get("/organiser", await sessionCookie(ctx, OLGA));
+		expect(await res.text()).toContain("Sample team ride");
 	});
 
 	it("hides Olli OptionalDenied's private rides", async () => {

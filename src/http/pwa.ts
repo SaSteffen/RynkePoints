@@ -5,6 +5,7 @@ import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
 import { CURRENT_RULES, rulesForVersion } from "../rynke/rules";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
+import { CLOSE } from "./icons";
 import { buildRiderView } from "./rider-view";
 import { readSession } from "./session";
 
@@ -83,7 +84,6 @@ export async function handleRiderNotificationText(
 		CURRENT_RULES,
 		{
 			seasonStart: ctx.env.SEASON_START_DATE,
-			importing: false,
 			rulesFor: rulesForVersion,
 		},
 	);
@@ -154,11 +154,37 @@ ${state("failed")}
 </section>`;
 }
 
-/** Hidden; `public/app.js` shows it where installing helps (FR-004, R11). */
+/** The two ways to install: the browser's own prompt, or iPhone steps. */
+function installWays(i18n: I18n): SafeHtml {
+	return html`<p data-install="prompt" hidden><button type="button" class="tap">${i18n.t("install.button")}</button></p>
+<p data-install="ios" hidden>${i18n.t("install.ios")}</p>`;
+}
+
+/**
+ * Hidden; `public/app.js` shows it in Settings where installing helps
+ * (FR-004, 015 FR-011, research R11).
+ */
 export function renderInstallHint(i18n: I18n): SafeHtml {
 	return html`<aside id="install" class="notice" hidden>
-<p data-install="prompt" hidden><button type="button" class="tap">${i18n.t("install.button")}</button></p>
-<p data-install="ios" hidden>${i18n.t("install.ios")}</p>
-<button type="button" data-install="dismiss" class="tap">${i18n.t("install.dismiss")}</button>
+${installWays(i18n)}
+</aside>`;
+}
+
+/**
+ * Hidden; `public/app.js` shows one panel at a time, once per device: first
+ * installing, then turning on notifications (015 FR-012–FR-016, research R8).
+ */
+export function renderAppPrompt(i18n: I18n, pushKey: string): SafeHtml {
+	return html`<aside id="app-prompt" class="app-prompt" aria-labelledby="app-prompt-title" data-push-key="${pushKey}" hidden>
+<div data-panel="install" hidden>
+<p id="app-prompt-title">${i18n.t("prompt.install.text")}</p>
+${installWays(i18n)}
+</div>
+<div data-panel="notify" hidden>
+<p>${i18n.t("prompt.notify.text")}</p>
+<button type="button" class="tap" data-action="accept">${i18n.t("prompt.notify.accept")}</button>
+<button type="button" class="tap" data-action="decline">${i18n.t("prompt.notify.decline")}</button>
+</div>
+<button type="button" class="icon-button" data-action="close" aria-label="${i18n.t("prompt.close")}">${CLOSE}</button>
 </aside>`;
 }

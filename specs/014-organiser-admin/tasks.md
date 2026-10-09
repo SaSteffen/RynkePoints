@@ -169,7 +169,7 @@ is refused.
 **Independent test**: tick and untick synthetic riders for a synthetic event and
 check the attendance rows and that each balance includes the event once.
 
-- [ ] T016 [P] [US2] Tests first (failing), `test/integration/organiser-attendance.test.ts`
+- [X] T016 [P] [US2] Tests first (failing), `test/integration/organiser-attendance.test.ts`
   (FR-020–FR-022, SC-003):
   - tick 2 of 3 riders → `?done=attendance`, two rows with `changed_by` set, the
     page shows them ticked;
@@ -189,17 +189,17 @@ check the attendance rows and that each balance includes the event once.
   - no listed riders → the page says so.
   Add `POST /organiser/events/{id}/attendance` to the route table in
   `organiser-access.test.ts` (visitor, no consent, no flag).
-- [ ] T017 [P] [US2] Create `src/db/organiser.ts` with `listListedRidersStatement(db)`:
+- [X] T017 [P] [US2] Create `src/db/organiser.ts` with `listListedRidersStatement(db)`:
   `athlete_id, first_name` of connected riders
   `WHERE athlete_id IN (${SHARED_RIDER_IDS})`, ordered by first name (R10), and
   a pure `withProfileLinks(rows)` setting `profileLink` when another row has the
   same first name, case-insensitive.
-- [ ] T018 [US2] Add `by?: number` to `add-attendance` in `src/rynke/apply.ts` and
+- [X] T018 [US2] Add `by?: number` to `add-attendance` in `src/rynke/apply.ts` and
   write `changed_by`/`changed_at` in `insertAttendancesStatement` in
   `src/db/team-events.ts`; `ON CONFLICT DO NOTHING` keeps the first recorder.
-- [ ] T019 [US2] Add the US2 keys to both catalogs: checklist heading, "Save
+- [X] T019 [US2] Add the US2 keys to both catalogs: checklist heading, "Save
   attendance", "View on Strava", the future-event note and the no-riders note.
-- [ ] T020 [US2] Create `src/http/organiser/attendance.ts`:
+- [X] T020 [US2] Create `src/http/organiser/attendance.ts`:
   - `attendanceSection(...)` for the event page: one form, per listed rider a
     44 px checkbox `attend=<id>` and a hidden `shown=<id>:<0|1>`, the profile
     link where needed; for an event after `berlinDate(now)` only the list and the
@@ -224,12 +224,12 @@ evaluation keeps (feature 003 Story 6).
 **Independent test**: add and remove corrections for a synthetic rider and check
 the stored rows and that the balance includes each exactly once.
 
-- [ ] T021 [P] [US3] Tests first (failing), `test/unit/tally.test.ts`:
+- [X] T021 [P] [US3] Tests first (failing), `test/unit/tally.test.ts`:
   `extrasFrom(attendance, corrections)` adds the correction sums to attendance's
   Training and Team Rynke and leaves `teamEvents` unchanged; with no corrections
   it equals `extrasFromAttendance`; `tally` with a −20 Team correction on 5 Team
   Rynke gives 0.
-- [ ] T022 [P] [US3] Tests first (failing), `test/integration/organiser-corrections.test.ts`
+- [X] T022 [P] [US3] Tests first (failing), `test/integration/organiser-corrections.test.ts`
   (FR-030, FR-031, 003 FR-010):
   - add +10 Training, reason "Ride lost, broken device", today →
     `?done=added`, the row has `changed_by` and `changed_at`, and
@@ -248,17 +248,17 @@ the stored rows and that the balance includes each exactly once.
     "former organiser".
   Add `GET /organiser/riders`, `GET /organiser/riders/{id}` and both US3 POSTs to
   the route table in `organiser-access.test.ts` (visitor, no consent, no flag).
-- [ ] T023 [US3] Create `src/db/corrections.ts`: `listRiderCorrectionsStatement`
+- [X] T023 [US3] Create `src/db/corrections.ts`: `listRiderCorrectionsStatement`
   (newest first, with the organiser's first name joined through
   `SHARED_RIDER_IDS` as in T011), `listCorrectionsOfRidersStatement`
   (`training, team, athlete_id` filtered with `json_each`),
   `readCorrectionStatement`, `insertCorrectionStatement` and
   `deleteCorrectionStatement`.
-- [ ] T024 [US3] In `src/rynke/tally.ts` add `extrasFrom(attendance, corrections)`;
+- [X] T024 [US3] In `src/rynke/tally.ts` add `extrasFrom(attendance, corrections)`;
   in `src/rynke/apply.ts` add `corrections` to `RiderState`, read it in
   `readRiders` with `listCorrectionsOfRidersStatement`, and use `extrasFrom` in
   `evaluateState`. T021 passes and the 003 tests still pass.
-- [ ] T025 [US3] In `src/rynke/apply.ts` add `CorrectionChange`
+- [X] T025 [US3] In `src/rynke/apply.ts` add `CorrectionChange`
   (`add-correction` with `athleteId`, `correction: { training, team, reason, date }`
   and `by`; `remove-correction` with `correctionId`), `CorrectionRefused` with the
   codes of R8, `applyCorrectionChange(db, change, rules, window, now)` (validate,
@@ -266,10 +266,10 @@ the stored rows and that the balance includes each exactly once.
   changed rows and any rise in one batch, as `applyTeamEventChange` does) and the
   `correctionChange(ctx, change)` wrapper that sends `evaluate-rider` and
   notifies on a rise.
-- [ ] T026 [US3] Add the US3 keys to both catalogs: riders heading, no-riders
+- [X] T026 [US3] Add the US3 keys to both catalogs: riders heading, no-riders
   note, corrections heading, empty list, form labels (Training Rynke, Team Rynke,
   reason, date, add), "Remove…", the remove warning and confirm button.
-- [ ] T027 [US3] Create `src/http/organiser/corrections.ts`:
+- [X] T027 [US3] Create `src/http/organiser/corrections.ts`:
   - `GET /organiser/riders`: the listed riders with profile links where needed,
     each linking to `/organiser/riders/{id}`.
   - `GET /organiser/riders/{id}`: 404 unless listed; the notice, the corrections
@@ -288,10 +288,10 @@ the stored rows and that the balance includes each exactly once.
 
 ## Phase 6: Polish
 
-- [ ] T028 [P] Add two sample events with attendance for the sample riders to
+- [X] T028 [P] Add two sample events with attendance for the sample riders to
   `dev/fake-strava/seed.ts`, recorded by "Tina TrainingDone", so `pnpm dev` shows
   data (synthetic only; `src/` still doesn't import `dev/`).
-- [ ] T029 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; confirm
+- [X] T029 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; confirm
   `no-hardcoded-copy`, catalog parity and `dev-guard` pass.
 
 ---

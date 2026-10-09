@@ -1,7 +1,8 @@
-// Applies a change to a rider's activities, or to team events and attendance,
-// and stores the result of a full evaluation of every affected rider in the
-// same D1 batch, so a reader never sees an input, its ride results and the
-// balance disagree (research R11, R21, FR-014b). Both kinds of change share
+// Applies a change to a rider's activities, to team events and attendance, or
+// to a rider's corrections (feature 014), and stores the result of a full
+// evaluation of every affected rider in the same D1 batch, so a reader never
+// sees an input, its ride results and the balance disagree (research R11, R21,
+// FR-014b). Every kind of change shares
 // one read (`readRiders`) and one evaluate-and-diff (`riderWrites`); only rows
 // that changed are written (research R13).
 //
@@ -19,6 +20,14 @@ import {
 	listActivitiesOfRidersStatement,
 	upsertActivityStatement,
 } from "../db/activities";
+import {
+	type CorrectionFields,
+	type CorrectionOfRidersRow,
+	deleteCorrectionStatement,
+	insertCorrectionStatement,
+	listCorrectionsOfRidersStatement,
+	readCorrectionStatement,
+} from "../db/corrections";
 import {
 	type BalanceRow,
 	deleteRideResultsStatement,
@@ -59,7 +68,7 @@ import {
 	isCalendarDate,
 	type RynkeRules,
 } from "./rules";
-import { type Balance, extrasFromAttendance, tally } from "./tally";
+import { type Balance, extrasFrom, tally } from "./tally";
 import {
 	type Attendance,
 	evaluateAttendance,
@@ -89,7 +98,12 @@ export type TeamEventChange =
 			by?: number;
 	  }
 	| { kind: "delete-event"; eventId: number }
-	| { kind: "add-attendance"; eventId: number; athleteIds: number[] }
+	| {
+			kind: "add-attendance";
+			eventId: number;
+			athleteIds: number[];
+			by?: number;
+	  }
 	| { kind: "remove-attendance"; eventId: number; athleteIds: number[] };
 
 /** The refusal codes of contracts/ride-evaluation.md; nothing was written. */
@@ -108,12 +122,47 @@ export class TeamEventRefused extends Error {
 	}
 }
 
+/** A correction as an organiser enters it; checked before anything is read. */
+export interface CorrectionInput {
+	training: number;
+	team: number;
+	reason: string;
+	date: string;
+}
+
+/** `by` is the organiser adding it (feature 014 FR-040). */
+export type CorrectionChange =
+	| {
+			kind: "add-correction";
+			athleteId: number;
+			correction: CorrectionInput;
+			by: number;
+	  }
+	| { kind: "remove-correction"; correctionId: number };
+
+/** The refusal codes of feature 014 research R8; nothing was written. */
+export class CorrectionRefused extends Error {
+	readonly code:
+		| "invalid_amount"
+		| "invalid_reason"
+		| "invalid_date"
+		| "correction_missing"
+		| "rider_not_connected";
+
+	constructor(code: CorrectionRefused["code"]) {
+		super(`correction change refused: ${code}`);
+		this.name = "CorrectionRefused";
+		this.code = code;
+	}
+}
+
 /** What a full evaluation of one rider needs, as stored. */
 interface RiderState {
 	activities: Map<number, ActivityRow>;
 	results: StoredRideResult[];
 	balance: StoredBalance | null;
 	attendance: Attendance[];
+	corrections: { correctionId: number; training: number; team: number }[];
 }
 
 export async function applyAndEvaluate(
@@ -294,7 +343,13 @@ export async function applyTeamEventChange(
 			);
 			statement =
 				affected.length > 0
-					? insertAttendancesStatement(db, eventId, affected)
+					? insertAttendancesStatement(
+							db,
+							eventId,
+							affected,
+							change.by ?? null,
+							now,
+						)
 					: null;
 			edit = (attendance) => [
 				...attendance,
@@ -360,6 +415,126 @@ export async function teamEventChange(
 	return result;
 }
 
+/**
+ * Adds or removes a correction and re-evaluates its rider in one batch, as
+ * `applyTeamEventChange` does (feature 014 research R8). Refusals throw
+ * `CorrectionRefused` before anything is written. `athleteId` is the
+ * correction's rider.
+ */
+export async function applyCorrectionChange(
+	db: D1Database,
+	change: CorrectionChange,
+	rules: RynkeRules,
+	window: CountingWindow,
+	now: number,
+): Promise<{ athleteId: number; rose: boolean }> {
+	let athleteId: number;
+	let statement: D1PreparedStatement;
+	let edit: (state: RiderState) => void;
+	const extraReads: D1PreparedStatement[] = [];
+	if (change.kind === "add-correction") {
+		const correction = validCorrection(change.correction);
+		athleteId = change.athleteId;
+		statement = insertCorrectionStatement(
+			db,
+			athleteId,
+			correction,
+			change.by,
+			now,
+		);
+		edit = (state) => {
+			state.corrections.push({
+				correctionId: 0,
+				training: correction.training,
+				team: correction.team,
+			});
+		};
+		extraReads.push(riderStatusesStatement(db, [athleteId]));
+	} else {
+		const { correctionId } = change;
+		const stored = await readCorrectionStatement(db, correctionId).first<{
+			athlete_id: number;
+		}>();
+		if (!stored) throw new CorrectionRefused("correction_missing");
+		athleteId = stored.athlete_id;
+		statement = deleteCorrectionStatement(db, correctionId);
+		edit = (state) => {
+			state.corrections = state.corrections.filter(
+				(c) => c.correctionId !== correctionId,
+			);
+		};
+	}
+
+	const {
+		riders,
+		extra: [statusRows],
+	} = await readRiders(db, [athleteId], extraReads);
+	if (
+		statusRows &&
+		(statusRows.results as { status: string }[])[0]?.status !== "connected"
+	) {
+		throw new CorrectionRefused("rider_not_connected");
+	}
+	const state = riders.get(athleteId) as RiderState;
+	const before = evaluateState(state, rules, window).balance;
+	edit(state);
+	const after = evaluateState(state, rules, window);
+	const writes = [
+		statement,
+		...riderWrites(db, athleteId, state, after, rules, now),
+	];
+	const risen = rose(before, after.balance);
+	if (risen) writes.push(riseWrite(db, athleteId, before, after.balance, now));
+	await db.batch(writes);
+	return { athleteId, rose: risen };
+}
+
+/**
+ * `applyCorrectionChange` under the current rules, for the organiser pages:
+ * one `evaluate-rider` settles a race with an activity event, and a rise
+ * notifies the rider, as `teamEventChange` does.
+ */
+export async function correctionChange(
+	ctx: Ctx,
+	change: CorrectionChange,
+): Promise<{ athleteId: number; rose: boolean }> {
+	const result = await applyCorrectionChange(
+		ctx.env.DB,
+		change,
+		CURRENT_RULES,
+		countingWindow(ctx.env, CURRENT_RULES),
+		ctx.now(),
+	);
+	await sendAll(ctx, [{ kind: "evaluate-rider", athleteId: result.athleteId }]);
+	await notifyRiders(ctx, result.rose ? [result.athleteId] : []);
+	return result;
+}
+
+/** The bounds of the `corrections` table (data-model.md, R8). */
+const MAX_AMOUNT = 10000;
+
+function validCorrection(correction: CorrectionInput): CorrectionFields {
+	const { training, team } = correction;
+	if (
+		![training, team].every(
+			(n) => Number.isInteger(n) && Math.abs(n) <= MAX_AMOUNT,
+		) ||
+		(training === 0 && team === 0)
+	) {
+		throw new CorrectionRefused("invalid_amount");
+	}
+	const reason = correction.reason.trim();
+	// Characters as SQLite's length() counts them.
+	const length = [...reason].length;
+	if (length < 1 || length > 200) {
+		throw new CorrectionRefused("invalid_reason");
+	}
+	if (!isCalendarDate(correction.date)) {
+		throw new CorrectionRefused("invalid_date");
+	}
+	return { training, team, reason, date: correction.date };
+}
+
 function validEvent(event: TeamEventInput): TeamEventFields {
 	if (!isTeamEventKind(event.kind)) throw new TeamEventRefused("unknown_kind");
 	if (!isCalendarDate(event.date)) throw new TeamEventRefused("invalid_date");
@@ -380,21 +555,40 @@ async function readRiders(
 	athleteIds: number[],
 	extraReads: D1PreparedStatement[],
 ): Promise<{ riders: Map<number, RiderState>; extra: D1Result[] }> {
-	const [activityRows, resultRows, balanceRows, attendanceRows, ...extra] =
-		await db.batch([
-			listActivitiesOfRidersStatement(db, athleteIds),
-			readRideResultsOfRidersStatement(db, athleteIds),
-			readBalancesOfRidersStatement(db, athleteIds),
-			listAttendanceOfRidersStatement(db, athleteIds),
-			...extraReads,
-		]);
-	if (!activityRows || !resultRows || !balanceRows || !attendanceRows) {
+	const [
+		activityRows,
+		resultRows,
+		balanceRows,
+		attendanceRows,
+		correctionRows,
+		...extra
+	] = await db.batch([
+		listActivitiesOfRidersStatement(db, athleteIds),
+		readRideResultsOfRidersStatement(db, athleteIds),
+		readBalancesOfRidersStatement(db, athleteIds),
+		listAttendanceOfRidersStatement(db, athleteIds),
+		listCorrectionsOfRidersStatement(db, athleteIds),
+		...extraReads,
+	]);
+	if (
+		!activityRows ||
+		!resultRows ||
+		!balanceRows ||
+		!attendanceRows ||
+		!correctionRows
+	) {
 		throw new Error("D1 batch returned too few results");
 	}
 	const riders = new Map<number, RiderState>(
 		athleteIds.map((id) => [
 			id,
-			{ activities: new Map(), results: [], balance: null, attendance: [] },
+			{
+				activities: new Map(),
+				results: [],
+				balance: null,
+				attendance: [],
+				corrections: [],
+			},
 		]),
 	);
 	for (const row of activityRows.results as ActivityRow[]) {
@@ -409,6 +603,13 @@ async function readRiders(
 	}
 	for (const row of attendanceRows.results as AttendanceOfRidersRow[]) {
 		riders.get(row.athlete_id)?.attendance.push(toAttendance(row));
+	}
+	for (const row of correctionRows.results as CorrectionOfRidersRow[]) {
+		riders.get(row.athlete_id)?.corrections.push({
+			correctionId: row.correction_id,
+			training: row.training,
+			team: row.team,
+		});
 	}
 	return { riders, extra };
 }
@@ -426,7 +627,10 @@ function evaluateState(
 	);
 	const balance = tally(
 		evaluation.riding,
-		extrasFromAttendance(evaluateAttendance(state.attendance, rules, window)),
+		extrasFrom(
+			evaluateAttendance(state.attendance, rules, window),
+			state.corrections,
+		),
 		rules,
 	);
 	return { evaluation, balance };

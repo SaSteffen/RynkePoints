@@ -9,6 +9,13 @@ import { handleLang } from "./lang";
 import { handleDisconnect, handleDisconnectPage, handleLogout } from "./me";
 import { handleNotice } from "./notice";
 import { handleNotifications } from "./notifications";
+import { handleSaveAttendance } from "./organiser/attendance";
+import {
+	handleAddCorrection,
+	handleOrganiserRider,
+	handleOrganiserRiders,
+	handleRemoveCorrection,
+} from "./organiser/corrections";
 import {
 	handleCreateEvent,
 	handleDeleteEvent,
@@ -21,6 +28,7 @@ import {
 	handleOffline,
 	handleRiderNotificationText,
 } from "./pwa";
+import { handleReady } from "./ready";
 import { redirect } from "./redirect";
 import { handleRunDaily } from "./run-daily";
 import { handleOverview } from "./sections/overview";
@@ -40,8 +48,18 @@ import { handleWebhook } from "./webhook";
 
 const WEBHOOK_PREFIX = "/strava/webhook/";
 
-/** `/organiser/events/{id}` and its `/delete`; `id` is a stored event's. */
-const ORGANISER_EVENT = /^\/organiser\/events\/(\d{1,15})(\/delete)?$/;
+/**
+ * `/organiser/events/{id}`, its `/delete` and its `/attendance`; `id` is a
+ * stored event's.
+ */
+const ORGANISER_EVENT =
+	/^\/organiser\/events\/(\d{1,15})(?:\/(delete|attendance))?$/;
+
+/** `/organiser/riders/{athleteId}` and its `/corrections`. */
+const ORGANISER_RIDER = /^\/organiser\/riders\/(\d{1,15})(\/corrections)?$/;
+
+/** `/organiser/corrections/{id}/delete`. */
+const ORGANISER_CORRECTION = /^\/organiser\/corrections\/(\d{1,15})\/delete$/;
 
 export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	const url = new URL(request.url);
@@ -71,6 +89,7 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		if (path === "/me/notification-text") {
 			return handleRiderNotificationText(request, ctx);
 		}
+		if (path === "/me/ready") return handleReady(request, ctx);
 		const response = await page(request, path, ctx, i18n);
 		if (response) return renewSession(request, response, ctx);
 	}
@@ -94,9 +113,22 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		const event = path.match(ORGANISER_EVENT);
 		if (event) {
 			const eventId = Number(event[1]);
-			return event[2]
-				? handleDeleteEvent(request, ctx, i18n, eventId)
-				: handleUpdateEvent(request, ctx, i18n, eventId);
+			switch (event[2]) {
+				case "delete":
+					return handleDeleteEvent(request, ctx, i18n, eventId);
+				case "attendance":
+					return handleSaveAttendance(request, ctx, i18n, eventId);
+				default:
+					return handleUpdateEvent(request, ctx, i18n, eventId);
+			}
+		}
+		const rider = path.match(ORGANISER_RIDER);
+		if (rider?.[2]) {
+			return handleAddCorrection(request, ctx, i18n, Number(rider[1]));
+		}
+		const correction = path.match(ORGANISER_CORRECTION);
+		if (correction) {
+			return handleRemoveCorrection(request, ctx, i18n, Number(correction[1]));
 		}
 	}
 	return notFound(i18n, path);
@@ -127,10 +159,16 @@ async function page(
 			return handleDisconnectPage(request, ctx, i18n);
 		case "/organiser":
 			return handleOrganiserEvents(request, ctx, i18n);
+		case "/organiser/riders":
+			return handleOrganiserRiders(request, ctx, i18n);
 	}
 	const event = path.match(ORGANISER_EVENT);
 	if (event && !event[2]) {
 		return handleOrganiserEvent(request, ctx, i18n, Number(event[1]));
+	}
+	const rider = path.match(ORGANISER_RIDER);
+	if (rider && !rider[2]) {
+		return handleOrganiserRider(request, ctx, i18n, Number(rider[1]));
 	}
 	if (path.startsWith("/notice/")) {
 		return handleNotice(path.slice("/notice/".length), ctx, i18n);

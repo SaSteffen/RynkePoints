@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Ctx } from "../../src/ctx";
 import { SCHEME_SCRIPT } from "../../src/http/html";
+import { CLOSE } from "../../src/http/icons";
 import { createSessionCookie } from "../../src/http/session";
 import { handleFetch } from "../../src/index";
 import { vapidPublicKey } from "../../src/push/vapid";
@@ -36,7 +37,6 @@ const HEAD = [
 const INSTALL_HINT = `<aside id="install" class="notice" hidden>
 <p data-install="prompt" hidden><button type="button" class="tap">Als App installieren</button></p>
 <p data-install="ios" hidden>Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.</p>
-<button type="button" data-install="dismiss" class="tap">Ausblenden</button>
 </aside>`;
 
 async function get(path: string, cookies?: Record<string, string>) {
@@ -93,17 +93,61 @@ describe("every page's head", () => {
 	);
 });
 
-describe("install hint (FR-004)", () => {
-	it("is on / and /me, hidden, with the German texts", async () => {
-		const landing = await get("/");
-		const me = await get("/me", await sessionCookie(ctx, ATHLETE_A));
-		expect(landing.page).toContain(INSTALL_HINT);
-		expect(me.page).toContain(INSTALL_HINT);
+describe("install group (015 FR-010, FR-011)", () => {
+	it("is only in Settings' App group, hidden, without a dismiss", async () => {
+		const cookies = await sessionCookie(ctx, ATHLETE_A);
+		const settings = (await get("/me/settings", cookies)).page;
+		const group = settings.match(
+			/<section id="settings-app"[\s\S]*?<\/section>/,
+		)?.[0];
+		expect(group).toContain(INSTALL_HINT);
+		for (const path of ["/", "/me", "/me/rides", "/team"]) {
+			const { page } = await get(path, path === "/" ? undefined : cookies);
+			expect(page, path).not.toContain('id="install"');
+		}
+		expect(settings).not.toContain('data-install="dismiss"');
 	});
 
 	it("is not on the other pages", async () => {
 		const { page } = await get("/notice/deleted");
 		expect(page).not.toContain('id="install"');
+	});
+});
+
+describe("app prompt (015 FR-010–FR-012, FR-016)", () => {
+	const PROMPT = `<aside id="app-prompt" class="app-prompt" aria-labelledby="app-prompt-title" data-push-key="${vapidPublicKey(ctx.env)}" hidden>
+<div data-panel="install" hidden>
+<p id="app-prompt-title">Hol dir RynkePoints als App auf deinen Startbildschirm.</p>
+<p data-install="prompt" hidden><button type="button" class="tap">Als App installieren</button></p>
+<p data-install="ios" hidden>Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.</p>
+</div>
+<div data-panel="notify" hidden>
+<p>Sollen wir dir Bescheid sagen, wenn du neue Rynke bekommst?</p>
+<button type="button" class="tap" data-action="accept">Benachrichtigungen einschalten</button>
+<button type="button" class="tap" data-action="decline">Nicht jetzt</button>
+</div>
+<button type="button" class="icon-button" data-action="close" aria-label="Schließen">${CLOSE}</button>
+</aside>`;
+
+	it.each(["/me", "/me/rides", "/team", "/me/settings"])(
+		"is on %s once, hidden, before the navigation",
+		async (path) => {
+			const { page } = await get(path, await sessionCookie(ctx, ATHLETE_A));
+			expect(vapidPublicKey(ctx.env)).not.toBe("");
+			expect(page.split('id="app-prompt"')).toHaveLength(2);
+			expect(page).toContain(PROMPT);
+			expect(page.indexOf(PROMPT)).toBeLessThan(
+				page.indexOf('<nav class="app-nav"'),
+			);
+		},
+	);
+
+	it("is not on / nor on the consent gate", async () => {
+		expect((await get("/")).page).not.toContain('id="app-prompt"');
+		await resetDb();
+		await seedRider(ctx, { athleteId: ATHLETE_A, consentVersion: null });
+		const gate = await get("/me", await sessionCookie(ctx, ATHLETE_A));
+		expect(gate.page).not.toContain('id="app-prompt"');
 	});
 });
 

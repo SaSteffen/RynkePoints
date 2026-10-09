@@ -31,7 +31,6 @@ import {
 
 const CONTEXT: ViewContext = {
 	seasonStart: "2026-01-01",
-	importing: false,
 	rulesFor: rulesForVersion,
 };
 
@@ -274,17 +273,27 @@ describe("buildRiderView summary", () => {
 });
 
 describe("buildRiderView without a balance", () => {
-	it("S1-9: is not worked out yet and has no summary", () => {
+	it("015 R1: is waiting for the first data and holds nothing else", () => {
 		const view = buildRiderView(
 			read({ balance: null, rideCount: 1, rides: [ride(1)] }),
 			null,
 			CURRENT_RULES,
-			{ ...CONTEXT, importing: true },
+			CONTEXT,
 		);
-		expect(view.state).toBe("not-worked-out");
-		expect(view).not.toHaveProperty("summary");
-		expect(view.importing).toBe(true);
-		expect(view.rides.rows.map((r) => r.activityId)).toEqual([1]);
+		expect(view).toEqual({ state: "waiting" });
+	});
+
+	it("015 R3: is ready with an empty ride list once a balance exists", () => {
+		const view = ready(
+			buildRiderView(
+				read({ rideCount: 0, virtualCount: 0, rides: [] }),
+				CURRENT_RULES,
+				CURRENT_RULES,
+				CONTEXT,
+			),
+		);
+		expect(view.rides.rows).toEqual([]);
+		expect(view).not.toHaveProperty("importing");
 	});
 });
 
@@ -303,11 +312,13 @@ describe("buildRiderView ride lines", () => {
 		),
 		ride(4, result(4, { isVirtual: true, distanceRynke: 3, elevationDm: 55 })),
 	];
-	const lines = buildRiderView(
-		read({ rideCount: 4, virtualCount: 1, rides: rows }),
-		CURRENT_RULES,
-		CURRENT_RULES,
-		CONTEXT,
+	const lines = ready(
+		buildRiderView(
+			read({ rideCount: 4, virtualCount: 1, rides: rows }),
+			CURRENT_RULES,
+			CURRENT_RULES,
+			CONTEXT,
+		),
 	).rides.rows;
 
 	it("keeps the read order", () => {
@@ -353,31 +364,37 @@ describe("buildRiderView ride lines", () => {
 	});
 
 	it("carries the ride's name, or none (008 FR-005)", () => {
-		const named = buildRiderView(
-			read({
-				rideCount: 2,
-				rides: [ride(1, null, { name: "Synthetic loop" }), ride(2)],
-			}),
-			CURRENT_RULES,
-			CURRENT_RULES,
-			CONTEXT,
+		const named = ready(
+			buildRiderView(
+				read({
+					rideCount: 2,
+					rides: [ride(1, null, { name: "Synthetic loop" }), ride(2)],
+				}),
+				CURRENT_RULES,
+				CURRENT_RULES,
+				CONTEXT,
+			),
 		).rides.rows;
 		expect(named.map((l) => l.name)).toEqual(["Synthetic loop", null]);
 	});
 
 	it("places the rows in the whole table", () => {
-		const view = buildRiderView(
-			read({ rideCount: 4, rides: rows }),
-			CURRENT_RULES,
-			CURRENT_RULES,
-			CONTEXT,
+		const view = ready(
+			buildRiderView(
+				read({ rideCount: 4, rides: rows }),
+				CURRENT_RULES,
+				CURRENT_RULES,
+				CONTEXT,
+			),
 		);
 		expect(view.rides.position).toEqual({ from: 1, to: 4, total: 4 });
 		expect(view.rides.pager).toBeNull();
 	});
 
 	it("has an empty position without rides", () => {
-		const view = buildRiderView(read(), CURRENT_RULES, CURRENT_RULES, CONTEXT);
+		const view = ready(
+			buildRiderView(read(), CURRENT_RULES, CURRENT_RULES, CONTEXT),
+		);
 		expect(view.rides.rows).toEqual([]);
 		expect(view.rides.position).toEqual({ from: 0, to: 0, total: 0 });
 		expect(view.rides.pager).toBeNull();
@@ -419,15 +436,17 @@ describe("parsePage (US5, contracts/http-routes.md)", () => {
 describe("buildRiderView pager (US5)", () => {
 	function table(rideCount: number, page: number) {
 		const shown = Math.max(0, Math.min(20, rideCount - (page - 1) * 20));
-		return buildRiderView(
-			read({
-				rideCount,
-				page,
-				rides: Array.from({ length: shown }, (_, i) => ride(i + 1)),
-			}),
-			CURRENT_RULES,
-			CURRENT_RULES,
-			CONTEXT,
+		return ready(
+			buildRiderView(
+				read({
+					rideCount,
+					page,
+					rides: Array.from({ length: shown }, (_, i) => ride(i + 1)),
+				}),
+				CURRENT_RULES,
+				CURRENT_RULES,
+				CONTEXT,
+			),
 		).rides;
 	}
 
@@ -623,11 +642,13 @@ function lineOf(
 		elevationDm: 0,
 		...options.result,
 	});
-	const line = buildRiderView(
-		read({ rideCount: 1, rides: [ride(1, stored, activity)] }),
-		CURRENT_RULES,
-		CURRENT_RULES,
-		{ ...CONTEXT, ...options.context },
+	const line = ready(
+		buildRiderView(
+			read({ rideCount: 1, rides: [ride(1, stored, activity)] }),
+			CURRENT_RULES,
+			CURRENT_RULES,
+			{ ...CONTEXT, ...options.context },
+		),
 	).rides.rows[0];
 	if (!line) throw new Error("no line");
 	return line;
@@ -787,24 +808,28 @@ describe("buildRiderView ride reasons", () => {
 	});
 
 	it("has no reasons, and no fix hint, for a ride that counts", () => {
-		const line = buildRiderView(
-			read({ rideCount: 1, rides: [ride(1, result(1))] }),
-			CURRENT_RULES,
-			CURRENT_RULES,
-			CONTEXT,
+		const line = ready(
+			buildRiderView(
+				read({ rideCount: 1, rides: [ride(1, result(1))] }),
+				CURRENT_RULES,
+				CURRENT_RULES,
+				CONTEXT,
+			),
 		).rides.rows[0];
 		expect(line).toMatchObject({ reasons: [], fixHint: false });
 	});
 
 	it("S4-6: passes on the unknown figures of a counting ride", () => {
-		const line = buildRiderView(
-			read({
-				rideCount: 1,
-				rides: [ride(1, result(1, { unknownFigures: ["elapsed_time"] }))],
-			}),
-			CURRENT_RULES,
-			CURRENT_RULES,
-			CONTEXT,
+		const line = ready(
+			buildRiderView(
+				read({
+					rideCount: 1,
+					rides: [ride(1, result(1, { unknownFigures: ["elapsed_time"] }))],
+				}),
+				CURRENT_RULES,
+				CURRENT_RULES,
+				CONTEXT,
+			),
 		).rides.rows[0];
 		expect(line).toMatchObject({
 			status: "counts",
@@ -1122,19 +1147,6 @@ describe("buildRiderView rules and notices (US6)", () => {
 		for (const rules of [CURRENT_RULES, null]) {
 			const view = ready(buildRiderView(read(), rules, CURRENT_RULES, CONTEXT));
 			expect(view.rules.deadline).toBeNull();
-		}
-	});
-
-	it("S6-4: takes importing from the context, in both states", () => {
-		for (const importing of [true, false]) {
-			const context = { ...CONTEXT, importing };
-			expect(
-				buildRiderView(read(), CURRENT_RULES, CURRENT_RULES, context).importing,
-			).toBe(importing);
-			expect(
-				buildRiderView(read({ balance: null }), null, CURRENT_RULES, context)
-					.importing,
-			).toBe(importing);
 		}
 	});
 });

@@ -10,7 +10,7 @@ import {
 	seedRider,
 	sessionCookie,
 } from "../support/ctx";
-import { ATHLETE_A, ATHLETE_C } from "../support/fixtures";
+import { ATHLETE_A, ATHLETE_B, ATHLETE_C } from "../support/fixtures";
 import { attendRaw, insertEvent } from "../support/rynke";
 
 // Who may use the organiser pages (feature 014 FR-001, SC-002, research R1):
@@ -23,9 +23,18 @@ const ORGANISER = ATHLETE_C;
 const RIDER = ATHLETE_A;
 
 let eventId: number;
+let correctionId: number;
 
-/** The GET pages, `{id}` being a stored event. */
-const PAGES = ["/organiser", "/organiser/events/{id}"];
+/**
+ * The GET pages, `{id}` being a stored event, `{rider}` a listed rider and
+ * `{correction}` a stored correction.
+ */
+const PAGES = [
+	"/organiser",
+	"/organiser/events/{id}",
+	"/organiser/riders",
+	"/organiser/riders/{rider}",
+];
 
 /** The changes, with a form that would succeed for an organiser. */
 const POSTS: { path: string; form: Record<string, string> }[] = [
@@ -38,11 +47,24 @@ const POSTS: { path: string; form: Record<string, string> }[] = [
 		form: { kind: "technique_training", date: "2026-10-02", name: "Changed" },
 	},
 	{ path: "/organiser/events/{id}/delete", form: {} },
+	{
+		path: "/organiser/events/{id}/attendance",
+		form: { attend: String(ATHLETE_B), shown: `${ATHLETE_B}:0` },
+	},
+	{
+		path: "/organiser/riders/{rider}/corrections",
+		form: { training: "5", team: "", reason: "Lost ride", date: "2026-10-01" },
+	},
+	{ path: "/organiser/corrections/{correction}/delete", form: {} },
 ];
 
-const at = (path: string) => path.replace("{id}", String(eventId));
+const at = (path: string) =>
+	path
+		.replace("{id}", String(eventId))
+		.replace("{rider}", String(RIDER))
+		.replace("{correction}", String(correctionId));
 
-/** Every stored event and attendance, to show nothing changed. */
+/** Every stored event, attendance and correction, to show nothing changed. */
 async function stored(): Promise<unknown[]> {
 	const events = await env.DB.prepare(
 		"SELECT * FROM team_events ORDER BY event_id",
@@ -50,7 +72,10 @@ async function stored(): Promise<unknown[]> {
 	const attendances = await env.DB.prepare(
 		"SELECT * FROM attendances ORDER BY event_id, athlete_id",
 	).all();
-	return [events.results, attendances.results];
+	const corrections = await env.DB.prepare(
+		"SELECT * FROM corrections ORDER BY correction_id",
+	).all();
+	return [events.results, attendances.results, corrections.results];
 }
 
 async function post(
@@ -82,8 +107,18 @@ beforeEach(async () => {
 	await resetDb();
 	await seedRider(ctx, { athleteId: ORGANISER, organiser: true });
 	await seedRider(ctx, { athleteId: RIDER });
+	await seedRider(ctx, { athleteId: ATHLETE_B });
 	eventId = await insertEvent("team_training", "2026-09-10");
 	await attendRaw(eventId, [RIDER]);
+	correctionId =
+		(await env.DB.prepare(
+			`INSERT INTO corrections (athlete_id, training, team, reason,
+				correction_date, changed_at)
+			VALUES (?, 3, 0, 'Synthetic', '2026-09-10', ?)
+			RETURNING correction_id`,
+		)
+			.bind(RIDER, ctx.now())
+			.first<number>("correction_id")) ?? 0;
 });
 
 describe("a visitor", () => {

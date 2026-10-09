@@ -71,9 +71,8 @@ export const en: Catalog = {
 	"me.consent.renew.button": "Agree and continue",
 	"me.consent.renew.leave":
 		"If you don't want to agree, you can disconnect; all your data is then deleted.",
-	"me.import.done": "Import complete",
 	"me.recent.heading": "Your rides",
-	"me.recent.empty": "No rides imported yet",
+	"me.recent.none": "No rides this season yet.",
 	"me.recent.col.distance": "Distance",
 	"me.disconnect.button": "Disconnect and delete my data",
 
@@ -94,8 +93,9 @@ export const en: Catalog = {
 	"rynke.training": "Training Rynke",
 	"rynke.team": "Team Rynke",
 	"rynke.withoutVirtual": "Training Rynke without virtual rides",
-	"rynke.notice.notWorkedOut":
-		"Your Rynke are still being worked out. Check back in a few minutes.",
+	"waiting.heading": "Fetching your rides",
+	"waiting.body":
+		"Because you've just connected, we're fetching your rides since {date} from Strava, once. This only happens this one time. Check back in about 5 minutes – this page updates by itself.",
 	"rynke.summary.heading": "Your Rynke",
 	"rynke.verdict.in":
 		"You're in: you have everything you need for the tour. On to Paris! 🗼",
@@ -116,8 +116,6 @@ export const en: Catalog = {
 	"rynke.pager.last": "Oldest »",
 	"rynke.notice.updating":
 		"The rules have changed: new rules apply since {date}. Your numbers are being updated; until then you see them under rules version {version}.",
-	"rynke.notice.importing":
-		"Your rides since {date} are still being imported. Your Rynke will grow as they arrive.",
 	"rynke.rules.heading": "Rules",
 	"rynke.rules.version":
 		"Computed with rules version {version}, in effect since {date}.",
@@ -229,7 +227,11 @@ export const en: Catalog = {
 	"install.button": "Install as an app",
 	"install.ios":
 		'As an app on your iPhone: in Safari, tap "Share" and then "Add to Home Screen".',
-	"install.dismiss": "Dismiss",
+	"prompt.install.text": "Get RynkePoints as an app on your home screen.",
+	"prompt.notify.text": "Shall we tell you when you get new Rynke?",
+	"prompt.notify.accept": "Turn on notifications",
+	"prompt.notify.decline": "Not now",
+	"prompt.close": "Close",
 	"offline.title": "No connection",
 	"offline.body":
 		"RynkePoints needs an internet connection. Please try again shortly.",
@@ -329,4 +331,28 @@ export const en: Catalog = {
 	"organiser.event.deleteWarning":
 		"This deletes the event and its attendance; the riders' Rynke follow.",
 	"organiser.event.deleteConfirm": "Yes, delete",
+	"organiser.attendance.heading": "Who was there?",
+	"organiser.attendance.save": "Save attendance",
+	"organiser.attendance.profile": "View on Strava",
+	"organiser.attendance.future":
+		"Attendance can be recorded once the event has taken place.",
+	"organiser.attendance.none":
+		"Nobody who shares their data with the team is connected yet.",
+	"organiser.riders.link": "Riders and corrections",
+	"organiser.riders.heading": "Riders",
+	"organiser.riders.none":
+		"Nobody who shares their data with the team is connected yet.",
+	"organiser.riders.back": "Back to the riders",
+	"organiser.corrections.heading": "Corrections for {name}",
+	"organiser.corrections.none": "No corrections yet.",
+	"organiser.corrections.new": "New correction",
+	"organiser.corrections.training": "{amount} Training Rynke",
+	"organiser.corrections.team": "{amount} Team Rynke",
+	"organiser.field.training": "Training Rynke (+ or −, empty is 0)",
+	"organiser.field.team": "Team Rynke (+ or −, empty is 0)",
+	"organiser.field.reason": "Reason",
+	"organiser.corrections.remove": "Remove…",
+	"organiser.corrections.removeWarning":
+		"This removes the correction; the rider's Rynke follow.",
+	"organiser.corrections.removeConfirm": "Yes, remove",
 };

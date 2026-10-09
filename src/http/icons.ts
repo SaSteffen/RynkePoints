@@ -29,3 +29,6 @@ export const SLIDERS = icon(
 export const REFRESH = icon(
 	'<path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/>',
 );
+
+/** Closes the app prompt (feature 015). */
+export const CLOSE = icon('<path d="M6 6l12 12M18 6 6 18"/>');

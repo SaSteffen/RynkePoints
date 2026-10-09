@@ -10,11 +10,9 @@ import { RIDE_NAMES, RIDER_PAGES, seedPageRiders } from "../support/pages";
 // searched for each name, raw and as the page would escape it.
 
 const ctx = makeCtx();
-// Since feature 011 the rides are only in the Rides section.
-const OWN_PAGES = new Map([
-	["/me/rides connected", ATHLETE_A],
-	["/me/rides not worked out", ATHLETE_C],
-]);
+// Since feature 011 the rides are only in the Rides section. A rider without a
+// balance sees only the waiting state there, so no names either (015 US1).
+const OWN_PAGES = new Map([["/me/rides connected", ATHLETE_A]]);
 
 function names(athleteId: number): string[] {
 	return RIDE_NAMES[athleteId] ?? [];

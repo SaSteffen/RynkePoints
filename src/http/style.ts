@@ -68,6 +68,8 @@ ul.rynke-missing{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);list-style:no
 .overview-grid>*{margin:0}
 .rynke-gauges .card{margin:0 0 var(--rp-space-3)}
 .placeholder{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-4);padding:var(--rp-space-6) var(--rp-space-6) 48px;text-align:center;color:var(--md-sys-color-on-surface-variant)}
+.waiting{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-4);padding:var(--rp-space-6);text-align:center}
+.waiting .coin{animation:coin-spin 2.4s linear infinite}
 .placeholder h2,.placeholder p{margin:0}
 .organiser-entry{margin:var(--rp-space-4) 0 0;text-align:center}
 .organiser-form{display:grid;gap:var(--rp-space-3);margin:0 0 var(--rp-space-5)}
@@ -80,6 +82,9 @@ ul.organiser-events{margin:0;padding:0;list-style:none}
 .organiser-event-title{font:var(--md-type-title);color:var(--md-sys-color-primary)}
 .organiser-event-name{overflow-wrap:anywhere}
 .change-record{margin:var(--rp-space-1) 0 0;font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
+ul.attendance-list{margin:0 0 var(--rp-space-4);padding:0;list-style:none}
+.attendance-rider{display:flex;flex-wrap:wrap;align-items:center;gap:var(--rp-space-2);min-height:var(--rp-tap)}
+.attendance-rider label{display:flex;flex:1;align-items:center;min-height:var(--rp-tap);cursor:pointer}
 .organiser-confirm{margin:var(--rp-space-5) 0 0}
 .organiser-confirm>summary{display:flex;align-items:center;min-height:var(--rp-tap);cursor:pointer;color:var(--md-sys-color-error);font:var(--md-type-label)}
 .chip{display:inline-flex;align-items:center;min-height:32px;padding:0 var(--rp-space-3);border-radius:var(--md-shape-sm);font:var(--md-type-label);background:var(--rp-neutral-container);color:var(--rp-on-neutral-container)}
@@ -193,6 +198,10 @@ nav.app-nav .nav-icon{display:flex;align-items:center;justify-content:center;wid
 nav.app-nav a[aria-current=page]{color:var(--md-sys-color-on-surface);font-weight:600}
 nav.app-nav a[aria-current=page] .nav-icon{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
 body.shell{padding-bottom:calc(var(--rp-nav-height) + env(safe-area-inset-bottom))}
-@media (min-width:600px){body.shell .wordmark-name{position:static;width:auto;height:auto;overflow:visible;clip:auto}:root{--rp-page-padding:32px;--rp-topbar-height:72px;--md-type-display:600 40px/48px var(--md-ref-typeface)}ol.ride-list{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid>*{grid-column:1/-1}.overview-grid>.card-outlined{grid-column:auto}.rynke-gauges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-3)}.rynke-gauges>h2{grid-column:1/-1;margin:0}.rynke-gauges .card{margin:0}body.shell{position:relative;padding-bottom:0}h1.section-title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}nav.app-nav{position:absolute;top:calc((var(--rp-topbar-height) - var(--rp-tap)) / 2 + env(safe-area-inset-top));right:calc(var(--rp-page-padding) + var(--rp-tap) + var(--rp-space-2));left:auto;bottom:auto;display:flex;gap:var(--rp-space-1);height:auto;padding:0;background:none}nav.app-nav a{flex-direction:row;gap:var(--rp-space-1);padding:0 var(--rp-space-3);border-radius:var(--md-shape-full);font:var(--md-type-label)}nav.app-nav .nav-icon{width:auto;height:auto}nav.app-nav a[aria-current=page]{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}nav.app-nav a[aria-current=page] .nav-icon{background:none}}
-@media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,.ride-why>summary::after{transition:none}.celebrate-coins .coin-mini{animation:none}}
+.app-prompt{position:fixed;left:var(--rp-page-padding);right:var(--rp-page-padding);bottom:calc(var(--rp-nav-height) + env(safe-area-inset-bottom) + var(--rp-space-3));max-width:calc(40rem - 2 * var(--rp-page-padding));margin:0 auto;padding:var(--rp-space-3) calc(var(--rp-tap) + var(--rp-space-2)) var(--rp-space-3) var(--rp-space-4);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container-high);color:var(--md-sys-color-on-surface);border:1px solid var(--md-sys-color-outline-variant);box-shadow:0 2px 6px var(--md-sys-color-outline);z-index:11}
+.app-prompt p{margin:0 0 var(--rp-space-2)}
+.app-prompt [data-action=close]{position:absolute;top:0;right:0}
+@media (min-width:600px){body.shell .wordmark-name{position:static;width:auto;height:auto;overflow:visible;clip:auto}:root{--rp-page-padding:32px;--rp-topbar-height:72px;--md-type-display:600 40px/48px var(--md-ref-typeface)}ol.ride-list{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid>*{grid-column:1/-1}.overview-grid>.card-outlined{grid-column:auto}.rynke-gauges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-3)}.rynke-gauges>h2{grid-column:1/-1;margin:0}.rynke-gauges .card{margin:0}body.shell{position:relative;padding-bottom:0}.app-prompt{bottom:calc(var(--rp-space-4) + env(safe-area-inset-bottom))}h1.section-title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}nav.app-nav{position:absolute;top:calc((var(--rp-topbar-height) - var(--rp-tap)) / 2 + env(safe-area-inset-top));right:calc(var(--rp-page-padding) + var(--rp-tap) + var(--rp-space-2));left:auto;bottom:auto;display:flex;gap:var(--rp-space-1);height:auto;padding:0;background:none}nav.app-nav a{flex-direction:row;gap:var(--rp-space-1);padding:0 var(--rp-space-3);border-radius:var(--md-shape-full);font:var(--md-type-label)}nav.app-nav .nav-icon{width:auto;height:auto}nav.app-nav a[aria-current=page]{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}nav.app-nav a[aria-current=page] .nav-icon{background:none}}
+@media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,.ride-why>summary::after{transition:none}.celebrate-coins .coin-mini{animation:none}.waiting .coin{animation:none}}
+@keyframes coin-spin{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}
 @keyframes coin-drop{from{transform:translateY(-40px) rotate(-180deg);opacity:0}to{transform:none;opacity:1}}`;

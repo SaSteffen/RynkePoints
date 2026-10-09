@@ -1,0 +1,160 @@
+# Implementation Plan: Rider Page Cleanup
+
+**Branch**: `015-rider-page-cleanup` | **Date**: 2026-10-09 | **Spec**: [spec.md](spec.md)
+
+**Input**: Feature specification from `/specs/015-rider-page-cleanup/spec.md`
+
+## Summary
+
+The rider's pages stop talking about the import. They put the greeting first,
+and they move "install the app" from inline boxes into one floating prompt that
+shows once per device and is followed by a one-time notifications offer.
+
+- **Waiting state (US1)**:
+  - A rider with no balance yet sees the Rynke coin spinning and a one-time "come
+    back in about 5 minutes" message on Overview and Rides (R1, R4).
+  - The page polls a new `GET /me/ready` every `READY_POLL_SECONDS` (a
+    `wrangler.jsonc` var, default 10 s) while visible. It's one D1 read with no
+    Strava call. The page reloads once the first balance exists (R5).
+  - `importing`, the two import and calculating notices, "Import abgeschlossen"
+    and "Noch keine Fahrten importiert" all go (R2, R3).
+  - The import already starts at the first connection (feature 001). It stays as
+    it is and gets a test (R6).
+- **Greeting on top (US2)**: the hero comes first on the Overview, followed by the
+  reconnect and rule-change notices (R7).
+- **Install, then notifications (US3)**:
+  - `shellPage` renders one hidden `aside#app-prompt` with an install panel and a
+    notify panel (R8).
+  - `public/app.js` shows each panel once per device, tracked by two
+    `localStorage` keys (R9), and shares the subscribe step with the Settings
+    switch (R10).
+  - The inline hint and its "Ausblenden" button leave the Overview and the
+    landing page. Settings keeps installing, without the hide button (R11).
+
+There is no migration, no new Strava request, no scope and no consent version.
+
+## Technical Context
+
+**Language/Version**: TypeScript (`tsc --noEmit`) on Cloudflare Workers, plus
+plain browser JavaScript in `public/app.js`, as in features 010 and 011.
+
+**Primary Dependencies**: none new.
+
+**Configuration**: one new `wrangler.jsonc` var, `READY_POLL_SECONDS = "10"`
+(R5); `pnpm types` regenerates `worker-configuration.d.ts`.
+
+**Storage**: D1 unchanged. `riders.import_status` stays for the workers
+([data-model.md](data-model.md)). There are two new `localStorage` keys on the
+device.
+
+**Testing**: Vitest in workerd (`pnpm test`). Integration tests go through
+`handleFetch`, and unit tests cover the view model. `app.js` behaviour is checked
+in the walk-through ([quickstart.md](quickstart.md)).
+
+**Target Platform**: Cloudflare Workers. Phone browsers are 360 px wide, and
+installs happen on Android/Chromium and iOS Safari.
+
+**Project Type**: web service with server-rendered pages and one small page
+script.
+
+**Performance Goals**:
+- SC-002: the first figures within 5 minutes. The poll adds at most one
+  interval (10 s by default) after the balance is written.
+- FR-004: within one minute.
+
+**Constraints**:
+- the poll makes no Strava request (FR-006);
+- the reduced-motion setting is respected (FR-007);
+- the prompt never moves content and doesn't trap focus (FR-012, FR-016);
+- all text comes from the catalogs in German and English (FR-017);
+- controls are at least 44 px tall (011).
+
+**Scale/Scope**:
+- about 50 riders, which means one D1 read every 10 s per open waiting page,
+  and only for the few minutes before the first data arrives;
+- 1 new route;
+- changes to about 10 server modules plus `app.js`;
+- 8 keys added and 5 removed.
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Check | Status |
+|---|---|---|
+| I. Privacy and consent | Nothing new is read from Strava, stored or shown to anyone else. `/me/ready` tells the signed-in rider only whether their own balance exists. The prompt state stays on the device and is never sent. | ✅ |
+| II. Strava API citizenship | No new Strava call. The import keeps its single-consumer queue and budget deferral (R6). Polling hits our own D1 only. | ✅ |
+| II. Capacity | The ~50-rider figure in the spec is about timing, and the code assumes no capacity. Connecting more than 10 riders still needs the Developer Program review (#31), independent of this feature. | ✅ |
+| III. Rider-authored content | Not touched. | ✅ |
+| IV. Serverless, minimal deps | No dependency and no migration. The waiting animation is CSS, and polling is a plain `fetch` with no SSE, WebSocket or Durable Object (R5). | ✅ |
+| V. Test-first | Every server-side FR gets a failing test first ([quickstart.md](quickstart.md) §1), including the markup the client script relies on. The client script's own behaviour has no test harness, so it is a justified exception (see Complexity Tracking, R12). | ⚠️ exception |
+| Language | German source keys and English copies. Removed keys are removed from both catalogs ([contracts/catalog.md](contracts/catalog.md)). | ✅ |
+| Repo rules | Text only in catalogs; `src/` doesn't import `dev/`; synthetic fixtures. | ✅ |
+
+**Post-design re-check**: still passes. The design adds one read-only route and
+one client element and removes texts. The old dismissal key is ignored (R9),
+so every rider who hasn't installed sees the new prompt once.
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/015-rider-page-cleanup/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── http-routes.md   # GET /me/ready; callback enqueue asserted
+│   ├── pages.md         # waiting state, Overview order, app prompt markup
+│   ├── client.md        # app.js: poll, prompt, subscribe, Settings install
+│   └── catalog.md       # keys added and removed
+└── tasks.md             # /speckit-tasks
+```
+
+### Source Code (repository root)
+
+```text
+src/
+├── http/
+│   ├── router.ts              # + GET/HEAD /me/ready, before the page dispatcher
+│   ├── ready.ts               # new: handleReady (session → balance exists?)
+│   ├── rider-view.ts          # "not-worked-out" → "waiting"; drop importing
+│   ├── rider-sections.ts      # + renderWaiting (with data-poll-seconds);
+│   │                          #   renderNotice keeps only "updating";
+│   │                          #   empty rides → me.recent.none
+│   ├── sections/overview.ts   # hero first; waiting or content; no install hint,
+│   │                          #   no import line
+│   ├── sections/rides.ts      # waiting, or notice + rides
+│   ├── sections/settings.ts   # install group without dismiss
+│   ├── landing.ts             # no install hint
+│   ├── pwa.ts                 # renderInstallHint without dismiss; + renderAppPrompt
+│   ├── shell.ts               # + app prompt in every section
+│   └── style.ts               # + .waiting, coin-spin, .app-prompt, reduced motion
+├── config.ts                  # + readyPollSeconds (READY_POLL_SECONDS, 1–60)
+├── db/rider-view.ts           # + hasBalance read for /me/ready
+└── i18n/messages/{de,en}.ts   # + waiting.*, prompt.*, me.recent.none; − 5 keys
+
+wrangler.jsonc                 # + vars.READY_POLL_SECONDS = "10"
+vitest.config.ts               # + the same var for tests
+
+public/app.js                  # + waitForFirstData, appPrompt, subscribePush;
+                               #   installHint → installSettings
+
+test/
+├── unit/                      # config, rider-view, rider-sections, style
+└── integration/
+    ├── me-ready.test.ts       # new
+    └── …                      # overview, me-status, me-rynke, me-activities,
+                               #   pwa-pages, callback
+```
+
+**Structure Decision**: same single Worker. `/me/ready` gets its own small
+module next to `pwa.ts`, which also serves JSON to the page script.
+
+## Complexity Tracking
+
+| Deviation | Why it's needed | Simpler alternative rejected because |
+|---|---|---|
+| Principle V: the new behaviour in `public/app.js` (`waitForFirstData`, `appPrompt`, `subscribePush`, `installSettings`) has no failing test first (FR-004, FR-012–FR-016 client side). | The script is a plain browser file loaded with `defer`, with no module boundary, and runs in the browser, not in workerd. The server side it depends on (the `/me/ready` contract, the `data-poll-seconds`, `#app-prompt` and Settings markup) is tested first. The behaviour is checked in the local walk-through with the fake Strava ([quickstart.md](quickstart.md) §2) and on the live site after release, as in features 010 and 011. | A DOM test runner (jsdom or happy-dom, or a browser runner) is a new dev dependency and a second test setup for one 8 KB script (Principle IV). Splitting the script into ES modules to test the deciding parts would change how every page loads it. Revisit if `app.js` keeps growing. |

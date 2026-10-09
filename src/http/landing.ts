@@ -6,7 +6,6 @@ import type { I18n } from "../i18n/i18n";
 import { coin } from "./coin";
 import { consentForm } from "./consent-form";
 import { html, htmlResponse, layout } from "./html";
-import { renderInstallHint } from "./pwa";
 import { redirect } from "./redirect";
 import { readSession } from "./session";
 
@@ -38,7 +37,6 @@ ${coin("front", "hero")}
 <h1>${i18n.t("app.name")}</h1>
 <p class="tagline">${i18n.t("landing.tagline")}</p>
 </div>
-${renderInstallHint(i18n)}
 <p>${i18n.t("landing.intro")}</p>
 <p>${i18n.tHtml("landing.who", { clubLink })}</p>
 <p>${i18n.t("landing.dataRead")}</p>

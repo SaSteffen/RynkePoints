@@ -7,6 +7,7 @@ import {
 import { CURRENT_RULES, type RynkeRules } from "../../src/rynke/rules";
 import {
 	type Extras,
+	extrasFrom,
 	extrasFromAttendance,
 	NO_EXTRAS,
 	tally,
@@ -302,5 +303,56 @@ describe("virtualShareRequired", () => {
 				maxVirtualShare: { num: 1, den: 3 },
 			}),
 		).toBe(200);
+	});
+});
+
+describe("extrasFrom (feature 014 Story 3)", () => {
+	const attendance = evaluateAttendance(
+		[
+			{ eventId: 1, kind: "team_training", date: "2026-05-01" },
+			{ eventId: 2, kind: "technique_training", date: "2026-05-02" },
+		],
+		CURRENT_RULES,
+		WINDOW,
+	);
+
+	it("adds the corrections to attendance's Training and Team Rynke", () => {
+		const base = extrasFromAttendance(attendance);
+		expect(
+			extrasFrom(attendance, [
+				{ training: 10, team: 0 },
+				{ training: -3, team: 2 },
+			]),
+		).toEqual({
+			training: base.training + 7,
+			team: base.team + 2,
+			teamEvents: base.teamEvents,
+		});
+	});
+
+	it("equals extrasFromAttendance without corrections", () => {
+		expect(extrasFrom(attendance, [])).toEqual(
+			extrasFromAttendance(attendance),
+		);
+	});
+
+	it("clamps Team Rynke at 0 after a -20 correction on 5", () => {
+		const fromAttendance = evaluateAttendance(
+			Array.from({ length: 5 }, (_, i) => ({
+				eventId: i + 1,
+				kind: "team_training" as const,
+				date: "2026-05-01",
+			})),
+			CURRENT_RULES,
+			WINDOW,
+		);
+		expect(fromAttendance.team).toBe(5);
+		expect(
+			tally(
+				riding(sums(0)),
+				extrasFrom(fromAttendance, [{ training: 0, team: -20 }]),
+				CURRENT_RULES,
+			).teamRynke,
+		).toBe(0);
 	});
 });
