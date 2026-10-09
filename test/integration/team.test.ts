@@ -12,16 +12,13 @@ import {
 import { RIDE_NAMES, seedPageRiders } from "../support/pages";
 import { riderPage } from "../support/rider-view";
 
-// Team at `/team`: a placeholder for riders and organisers alike, with no
-// rider's data even when the team has some (feature 011 FR-013, US5-AS1–3),
-// under the coin's Hamburg–Paris side (feature 012 FR-003).
+// Team at `/team`: the leaderboard for riders and organisers alike, with no
+// other rider's name or rides (feature 011 FR-013, feature 016 FR-010), and the
+// way to the organiser pages for organisers (016 FR-002, research R8).
 
 const ctx = makeCtx();
 const { de } = CATALOGS;
 const RIDERS = [ATHLETE_A, ATHLETE_B, ATHLETE_C];
-
-const PLACEHOLDER =
-	/<section class="placeholder">\n<svg [^>]*aria-hidden="true"[^>]*><use href="#coin-back"\/><\/svg>\n<h2>([^<]*)<\/h2>\n<p>([^<]*)<\/p>\n<\/section>/;
 
 /** The `main` element of a page. */
 function mainOf(page: string): string {
@@ -40,20 +37,14 @@ describe.each([
 	["a rider", ATHLETE_A],
 	["an organiser", ATHLETE_C],
 ])("GET /team for %s", (_name, viewer) => {
-	it("shows the placeholder with Team marked current (US5-AS1, US5-AS2)", async () => {
+	it("shows the leaderboard with Team marked current (011 US5-AS1, US5-AS2)", async () => {
 		const { status, html } = await riderPage(ctx, viewer, "/team");
 		expect(status).toBe(200);
-		const main = mainOf(html);
-		const [, heading, body] = main.match(PLACEHOLDER) ?? [];
-		expect(heading).toBe(escapeHtml(de["team.placeholder.heading"]));
-		expect(body).toBe(escapeHtml(de["team.placeholder.body"]));
-		expect(main.match(/<section[^>]*>/g)).toEqual([
-			'<section class="placeholder">',
-		]);
+		expect(mainOf(html)).toContain('<section class="leaderboard">');
 		expect(html).toMatch(/<a href="\/team" aria-current="page">/);
 	});
 
-	it("shows no rider's data, though the team has some (US5-AS3)", async () => {
+	it("shows no other rider's name or rides, though the team has some", async () => {
 		const { html } = await riderPage(ctx, viewer, "/team");
 		for (const name of Object.values(RIDE_NAMES).flat()) {
 			expect(html).not.toContain(escapeHtml(name));
@@ -61,22 +52,27 @@ describe.each([
 		for (const other of RIDERS.filter((id) => id !== viewer)) {
 			expect(html).not.toContain(firstNameFor(other));
 		}
-		expect(mainOf(html).replace(/<[^>]*>/g, "")).not.toMatch(/\d/);
 	});
 });
 
-// Feature 014 FR-002, research R2: the way to the organiser pages, for
-// organisers only.
-describe("the organiser link on /team", () => {
-	it("is there for a rider with the organiser flag", async () => {
+// Feature 014 FR-002, 016 FR-002, research R8: the way to the team overview
+// and the organiser pages, for organisers only.
+describe("the organiser entry on /team", () => {
+	it("links the overview and the organiser pages for a rider with the organiser flag", async () => {
 		const { html } = await riderPage(ctx, ATHLETE_C, "/team");
-		expect(mainOf(html)).toContain(
+		const main = mainOf(html);
+		expect(main).toContain('<p class="organiser-entry">');
+		expect(main).toContain(
+			`<a class="button-outlined" href="/organiser/riders">${escapeHtml(de["team.organiser.overview"])}</a>`,
+		);
+		expect(main).toContain(
 			`<a class="button-outlined" href="/organiser">${escapeHtml(de["organiser.link"])}</a>`,
 		);
 	});
 
 	it("is not there for a rider without it", async () => {
 		const { html } = await riderPage(ctx, ATHLETE_A, "/team");
-		expect(html).not.toContain('href="/organiser"');
+		expect(mainOf(html)).not.toContain("organiser-entry");
+		expect(html).not.toContain('href="/organiser');
 	});
 });

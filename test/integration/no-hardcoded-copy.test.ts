@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { escapeHtml } from "../../src/http/html";
+import { MEDALS } from "../../src/http/sections/team";
 import {
 	CATALOGS,
 	type Catalog,
@@ -42,6 +43,9 @@ const QUOTES = new Set(
 	[...QUOTES_PUSH, ...QUOTES_ON_TRACK].map((q) => escapeHtml(q)),
 );
 
+/** The leaderboard's medals stand for places 1–3, not words (016 contracts/pages.md). */
+const MEDAL_TEXT = new Set(MEDALS);
+
 /** Visible text left once every (possibly nested) ⟦…⟧ is removed. */
 function unmarkedText(page: string): string[] {
 	let text = page
@@ -79,7 +83,8 @@ describe.each(RIDER_PAGES)("$name in the pseudo-locale", (page) => {
 				NUMBERS_AND_PUNCTUATION.test(text) ||
 				LANGUAGE_NAMES.has(text) ||
 				WORDMARK.has(text) ||
-				QUOTES.has(text)
+				QUOTES.has(text) ||
+				MEDAL_TEXT.has(text)
 			) {
 				continue;
 			}

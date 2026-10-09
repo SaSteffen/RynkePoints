@@ -16,7 +16,8 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // specs/010-pwa-notifications/contracts/messages.md and
 // specs/004-roles-and-consent/contracts/re-consent.md and
 // specs/011-mobile-app-shell/contracts/pages.md and
-// specs/014-organiser-admin/contracts/http-routes.md.
+// specs/014-organiser-admin/contracts/http-routes.md and
+// specs/016-team-leaderboard/contracts/messages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"meta.intlLocale",
@@ -222,8 +223,6 @@ const CONTRACT_IDS = [
 	"nav.settings",
 	"shell.refresh",
 	"shell.title",
-	"team.placeholder.heading",
-	"team.placeholder.body",
 	"hero.training",
 	"hero.team",
 	"celebrate.training",
@@ -298,6 +297,38 @@ const CONTRACT_IDS = [
 	"organiser.corrections.remove",
 	"organiser.corrections.removeWarning",
 	"organiser.corrections.removeConfirm",
+	"team.heading",
+	"team.total.label",
+	"team.total.thisWeek",
+	"team.kind.label",
+	"team.kind.training",
+	"team.kind.team",
+	"team.place",
+	"team.place.joint",
+	"team.place.next",
+	"team.place.lead",
+	"team.quote.push",
+	"team.quote.onTrack",
+	"team.peloton.heading",
+	"team.peloton.label",
+	"team.peloton.you",
+	"team.list.heading",
+	"team.list.scope",
+	"team.list.around",
+	"team.list.everyone",
+	"team.list.ahead",
+	"team.list.behind",
+	"team.list.you",
+	"team.list.other",
+	"team.list.weeks",
+	"team.chart.heading",
+	"team.chart.label",
+	"team.chart.best",
+	"team.chart.table",
+	"team.chart.week",
+	"team.chart.total",
+	"team.chart.gain",
+	"team.organiser.overview",
 ];
 
 const placeholders = (text: string) =>

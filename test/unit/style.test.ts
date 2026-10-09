@@ -69,16 +69,21 @@ describe("STYLE", () => {
 		);
 	});
 
-	it("centres the Team placeholder under the large coin (FR-013, 012 FR-003)", () => {
-		expect(declsOf(".placeholder")).toMatchObject({
-			display: "flex",
-			"flex-direction": "column",
-			"align-items": "center",
-			"text-align": "center",
-		});
-		expect(declsOf(".coin-large")).toMatchObject({
-			width: "144px",
-			height: "144px",
+	it("lays the kind switch and the list toggle out as full-width segments (016)", () => {
+		for (const nav of [".kind-switch", ".list-scope"]) {
+			expect(declsOf(nav).display).toBe("flex");
+			expect(declsOf(`${nav} .segmented`).flex).toBe("1");
+		}
+	});
+
+	it("marks the viewer's own row in the coin's gold (016, 012)", () => {
+		expect(declsOf("li.row.you")["border-color"]).toBe("var(--rp-coin-rim)");
+	});
+
+	it("stretches the sparkline across its row without a fixed width (016 R5)", () => {
+		expect(declsOf(".sparkline")).toMatchObject({
+			width: "100%",
+			flex: "1 0 100%",
 		});
 	});
 
