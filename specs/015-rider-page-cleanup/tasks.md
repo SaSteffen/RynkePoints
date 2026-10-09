@@ -26,7 +26,7 @@ the foundation is in; doing them in order avoids conflicts in `overview.ts`,
 
 ## Phase 1: Setup
 
-- [ ] T001 Run `pnpm install --frozen-lockfile`, then `pnpm lint`, `pnpm typecheck`
+- [X] T001 Run `pnpm install --frozen-lockfile`, then `pnpm lint`, `pnpm typecheck`
   and `pnpm test`. All pass before any change, so later failures are this
   feature's.
 
@@ -36,15 +36,15 @@ the foundation is in; doing them in order avoids conflicts in `overview.ts`,
 
 **Purpose**: the poll interval setting, which US1's markup and the client need.
 
-- [ ] T002 [P] Tests first (failing), `test/unit/config.test.ts`:
+- [X] T002 [P] Tests first (failing), `test/unit/config.test.ts`:
   `readyPollSeconds({ READY_POLL_SECONDS: "10" })` returns `10`; `"1"` and `"60"`
   are accepted; `"0"`, `"61"`, `"x"`, `""` and `"1.5"` throw (R5).
-- [ ] T003 Add `"READY_POLL_SECONDS": "10"` to `vars` in `wrangler.jsonc` with a
+- [X] T003 Add `"READY_POLL_SECONDS": "10"` to `vars` in `wrangler.jsonc` with a
   one-line comment ("seconds between the waiting page's checks for the first
   data, 1–60; 015 research R5"), the same var to the test bindings in
   `vitest.config.ts`, and run `pnpm types` to regenerate
   `worker-configuration.d.ts`.
-- [ ] T004 Add `readyPollSeconds(env)` to `src/config.ts`, using the existing
+- [X] T004 Add `readyPollSeconds(env)` to `src/config.ts`, using the existing
   `integer()` helper plus a 1–60 range check that throws
   `"READY_POLL_SECONDS must be between 1 and 60"`. Add `READY_POLL_SECONDS` to the
   `Settings` pick. T002 passes.
@@ -65,29 +65,29 @@ see the open page switch to the figures without a reload ([quickstart.md](quicks
 
 ### Tests for User Story 1 (write first, confirm they fail)
 
-- [ ] T005 [P] [US1] `test/unit/rider-view.test.ts`: no balance gives exactly
+- [X] T005 [P] [US1] `test/unit/rider-view.test.ts`: no balance gives exactly
   `{ state: "waiting" }`; a balance with no rides gives `state: "ready"` with
   empty `rides.rows`; neither state nor `ViewContext` has `importing`. Replace
   the existing `"not-worked-out"` and `importing` cases (R1, R2, data-model.md).
-- [ ] T006 [P] [US1] `test/unit/rider-sections.test.ts`: `renderWaiting(i18n,
+- [X] T006 [P] [US1] `test/unit/rider-sections.test.ts`: `renderWaiting(i18n,
   seasonStart, pollSeconds)` renders
   `section.waiting[role=status][data-waiting][data-poll-seconds="<n>"]` with
   `svg.coin.coin-large` using `#coin-front`, an `h2` with `waiting.heading` and a
   `p` with `waiting.body` and the formatted season start; `renderNotice` renders
   only the rule-change notice (`rynke.notice.updating`) and nothing for a view
   without `updating` ([contracts/pages.md](contracts/pages.md)).
-- [ ] T007 [P] [US1] `test/unit/style.test.ts`: the stylesheet has
+- [X] T007 [P] [US1] `test/unit/style.test.ts`: the stylesheet has
   `@keyframes coin-spin`, `.waiting .coin` uses it, and the
   `prefers-reduced-motion: reduce` block sets `.waiting .coin{animation:none}`
   (FR-007, R4).
-- [ ] T008 [P] [US1] `test/integration/me-ready.test.ts` (new), through
+- [X] T008 [P] [US1] `test/integration/me-ready.test.ts` (new), through
   `handleFetch`: no session → `401` with an empty body; a session whose rider was
   deleted → `401`; a rider with no balance → `200` `{"ready":false}`; a rider with
   a balance (also zero) → `{"ready":true}`; `Content-Type: application/json`,
   `Cache-Control: no-store`, no `Set-Cookie`; `HEAD` gives the same status with no
   body; a `vi.spyOn(globalThis, "fetch")` sees no call
   ([contracts/http-routes.md](contracts/http-routes.md), FR-004, FR-006, SC-005).
-- [ ] T009 [P] [US1] `test/integration/overview.test.ts` and
+- [X] T009 [P] [US1] `test/integration/overview.test.ts` and
   `test/integration/me-status.test.ts`: a rider without a balance sees
   `section.waiting[data-waiting]` with the coin, `waiting.heading`, `waiting.body`
   with the season start and `data-poll-seconds="10"`, and no summary, gauges,
@@ -96,57 +96,57 @@ see the open page switch to the figures without a reload ([quickstart.md](quicks
   importiert", "werden gerade berechnet" or "Noch keine Fahrten importiert".
   Update the existing assertions that expect those texts (FR-001, FR-001a,
   FR-002, FR-003, US1 #1, #4).
-- [ ] T010 [P] [US1] `test/integration/me-activities.test.ts` and
+- [X] T010 [P] [US1] `test/integration/me-activities.test.ts` and
   `test/integration/me-rynke.test.ts`: a rider without a balance on `/me/rides`
   sees `section.waiting` and no `section#rides`; a rider with a zero balance and
   no rides sees the real Overview with zero Rynke and `me.recent.none` on Rides
   (US1 #2, #5, R3). Update the existing assertions on `me.recent.empty` and the
   import notices.
-- [ ] T011 [P] [US1] `test/integration/callback.test.ts`: a new rider's callback
+- [X] T011 [P] [US1] `test/integration/callback.test.ts`: a new rider's callback
   sends one `import-page` message with page 1 and `after` = the season start to
   `WORK_QUEUE` before the redirect (FR-005, US1 #6, R6). It should pass at once;
   it pins existing behaviour.
-- [ ] T012 [P] [US1] `test/integration/dev-fake-strava.test.ts`: update any
+- [X] T012 [P] [US1] `test/integration/dev-fake-strava.test.ts`: update any
   assertion on the removed import texts so it checks the waiting state or the
   figures instead.
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Add `hasBalance(db, athleteId): Promise<boolean>` to
+- [X] T013 [P] [US1] Add `hasBalance(db, athleteId): Promise<boolean>` to
   `src/db/rider-view.ts`: one `SELECT 1` on the rider's balance row.
-- [ ] T014 [US1] In `src/http/rider-view.ts`, rename the `"not-worked-out"` state
+- [X] T014 [US1] In `src/http/rider-view.ts`, rename the `"not-worked-out"` state
   to `"waiting"` with no other fields, and remove `importing` from `ViewContext`,
   `RiderView` and every caller that sets it (`src/http/sections/overview.ts`,
   `src/http/sections/rides.ts`, and `handleNotificationText` in `src/http/pwa.ts`). `"waiting"` ⇔ `read.balance === null`. T005
   passes.
-- [ ] T015 [P] [US1] Add to both `src/i18n/messages/de.ts` and `src/i18n/messages/en.ts`
+- [X] T015 [P] [US1] Add to both `src/i18n/messages/de.ts` and `src/i18n/messages/en.ts`
   the keys `waiting.heading`, `waiting.body` (`{date}` placeholder) and
   `me.recent.none` with the German of [contracts/catalog.md](contracts/catalog.md)
   and an English copy. Remove `me.import.done`, `me.recent.empty`,
   `rynke.notice.notWorkedOut` and `rynke.notice.importing` from both catalogs and
   from the key list in `test/unit/catalogs.test.ts`.
-- [ ] T016 [US1] In `src/http/rider-sections.ts`, add
+- [X] T016 [US1] In `src/http/rider-sections.ts`, add
   `renderWaiting(i18n, seasonStart, pollSeconds)` per
   [contracts/pages.md](contracts/pages.md); reduce `renderNotice` to the
   rule-change notice; make the empty ride list render `coin-large` and
   `me.recent.none`. T006 passes.
-- [ ] T017 [US1] In `src/http/style.ts`, add the `.waiting` layout (centred,
+- [X] T017 [US1] In `src/http/style.ts`, add the `.waiting` layout (centred,
   coin above heading and text), `@keyframes coin-spin` (`rotateY` 0→360deg,
   2.4 s linear infinite) on `.waiting .coin`, and `.waiting .coin{animation:none}`
   inside the existing reduced-motion block. T007 passes.
-- [ ] T018 [US1] In `src/http/sections/overview.ts`, render `renderWaiting(…,
+- [X] T018 [US1] In `src/http/sections/overview.ts`, render `renderWaiting(…,
   readyPollSeconds(env))` instead of the Rynke content when the view is
   `"waiting"`, and drop the `me.import.done` line. In
   `src/http/sections/rides.ts`, render only the waiting section when waiting,
   otherwise the rule-change notice and `section#rides`. T009 and T010 pass.
-- [ ] T019 [US1] Create `src/http/ready.ts` with `handleReady(request, env)`: read
+- [X] T019 [US1] Create `src/http/ready.ts` with `handleReady(request, env)`: read
   the session without renewing it (as the `/me/notification-text` handler does),
   `401` with an empty body when there is none or the rider is gone, otherwise
   `hasBalance` → `{"ready":boolean}` with `Content-Type: application/json` and
   `Cache-Control: no-store`; `HEAD` drops the body. Route `GET`/`HEAD` `/me/ready`
   to it in `src/http/router.ts` next to `/me/notification-text`, before the page
   dispatcher. T008 passes.
-- [ ] T020 [US1] In `public/app.js`, add `waitForFirstData()` per
+- [X] T020 [US1] In `public/app.js`, add `waitForFirstData()` per
   [contracts/client.md](contracts/client.md): on a page with `[data-waiting]`,
   read `data-poll-seconds` (10 when missing or not a positive integer), and on
   each tick while `document.visibilityState === "visible"` fetch `/me/ready`
