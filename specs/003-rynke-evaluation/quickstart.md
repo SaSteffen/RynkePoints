@@ -15,7 +15,8 @@ results work. Tests never touch production or Strava.
 pnpm docs:pdf
 ```
 
-Expected: `wrote dist/rynke-punkte.pdf`. Compare the PDF with [spec.md](spec.md):
+Expected: `wrote public/rynke-punkte.pdf`; commit it, the rider page links to
+it. Compare the PDF with [spec.md](spec.md):
 every rule value, threshold and example must match (acceptance scenario 2,
 FR-019). Recheck whenever the spec or a rule value changes.
 

@@ -10,8 +10,8 @@ import {
 import { makeRide, type RideSpec } from "../support/rides";
 
 // SC-001: synthetic riders whose expected totals were worked out by hand from
-// the rules of version 2 (10 km = 1, 1000 m of the summed elevation = 5,
-// paused at most half the moving time, 10–45 km/h, at most 1500 m/h, no
+// the rules of version 3 (10 km = 1, 1000 m of the summed elevation = 5,
+// paused at most as long as moving, 10–45 km/h, at most 1500 m/h, no
 // e-bikes, flagged or manual rides, larger recording wins an overlap; a team
 // training 1 team + 5 training, a training-weekend day 5 + 10, a technique
 // training 5 + 5, each event once, inside the window; 250 training and 25 team
@@ -110,12 +110,12 @@ const RIDERS: Rider[] = [
 		training: 4,
 		qualified: false,
 	},
-	// Paused exactly half of 2 h → counts (4); 2 h + 1 s of 4 h → pause (0).
+	// Paused exactly the 2 h moving → counts (4); 4 h + 1 s on 4 h → pause (0).
 	{
 		name: "pause limit",
 		rides: [
-			{ id: 1, km: 40, movingH: 2, pausedH: 1 },
-			{ id: 2, km: 100, movingH: 4, pausedH: 2 + 1 / 3600, start: DAY2 },
+			{ id: 1, km: 40, movingH: 2, pausedH: 2 },
+			{ id: 2, km: 100, movingH: 4, pausedH: 4 + 1 / 3600, start: DAY2 },
 		],
 		training: 4,
 		qualified: false,
@@ -262,7 +262,7 @@ const RIDERS: Rider[] = [
 	{
 		name: "overlap with a ride that doesn't count",
 		rides: [
-			{ id: 1, km: 100, movingH: 4, pausedH: 3 },
+			{ id: 1, km: 100, movingH: 4, pausedH: 5 },
 			{ id: 2, km: 60, movingH: 3, start: "2026-05-01T09:00:00Z" },
 		],
 		training: 6,

@@ -719,7 +719,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 			id: 8_100_003,
 			distance_m: 100000,
 			moving_time_s: 14400,
-			elapsed_time_s: 25200,
+			elapsed_time_s: 32400,
 			result: { counts: false, reasons: ["pause"] },
 		});
 	}
@@ -736,7 +736,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 		await seedPause();
 		const [pause] = await details();
 		expect(pause?.reasons).toEqual([
-			"Zu lange Pause: 3 h 0 min Pause bei 4 h 0 min Bewegungszeit – mehr als die Hälfte ist nicht erlaubt.",
+			"Zu lange Pause: 5 h 0 min Pause bei 4 h 0 min Bewegungszeit – mehr Pause als Bewegungszeit ist nicht erlaubt.",
 		]);
 	});
 
@@ -879,7 +879,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 			"Recorded twice: your ride of 06/10/2026, 08:00, 80.0 km counts instead.",
 		]);
 		expect(pause?.reasons).toEqual([
-			"Paused too long: 3 h 0 min paused for 4 h 0 min moving time – more than half is not allowed.",
+			"Paused too long: 5 h 0 min paused for 4 h 0 min moving time – pausing longer than moving is not allowed.",
 		]);
 	});
 });
@@ -1211,23 +1211,23 @@ const VERSION = CURRENT_RULES.version;
 const NEXT = VERSION + 1;
 
 const UPDATING =
-	"Die Regeln haben sich geändert: Seit dem 07.10.2026 gelten neue Regeln.";
+	"Die Regeln haben sich geändert: Seit dem 09.10.2026 gelten neue Regeln.";
 
 describe("GET /me rules and notices (US6)", () => {
 	it("S6-1: names the rules version, the window and the handout", async () => {
 		await seedBalance(ATHLETE_A);
 		const { html, notice, rules } = await rulesAndNotice();
 		expect(rules).toContain(
-			`Berechnet nach Regel-Version ${VERSION}, gültig seit dem 07.10.2026.`,
+			`Berechnet nach Regel-Version ${VERSION}, gültig seit dem 09.10.2026.`,
 		);
 		expect(rules).toContain(
 			"Es zählt alles vom 01.01.2026 bis zum 30.06.2027.",
 		);
 		const link = section(html, 'class="rynke-rules card card-outlined"')?.match(
-			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
+			/<a class="tap" href="([^"]*)" download>([^<]*)<\/a>/,
 		);
 		expect(link?.[1]).toBe(RULES_HANDOUT_URL);
-		expect(link?.[2]).toBe("So funktionieren die Rynke (Regeln zum Nachlesen)");
+		expect(link?.[2]).toBe("So funktionieren die Rynke (Regeln als PDF)");
 		expect(notice).toBeNull();
 		expect(html).not.toContain("Die Regeln haben sich geändert");
 	});

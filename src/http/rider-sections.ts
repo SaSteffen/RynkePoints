@@ -47,9 +47,8 @@ const PART_CLASS: Record<GaugeSource, string> = {
 	technique_training: "gauge-part-5",
 };
 
-/** The rules handout, published in the public repository (research R14). */
-export const RULES_HANDOUT_URL =
-	"https://github.com/SaSteffen/RynkePoints/blob/main/docs/rynke-punkte.md";
+/** The rules handout PDF, a static asset from `pnpm docs:pdf` (research R14). */
+export const RULES_HANDOUT_URL = "/rynke-punkte.pdf";
 
 function whole(i18n: I18n, n: number): string {
 	return i18n.formatNumber(n, { fractionDigits: 0 });
@@ -313,7 +312,7 @@ export function renderRules(i18n: I18n, rules: RulesInfo): SafeHtml {
 		date: day(i18n, rules.effectiveDate),
 	})}</p>
 <p>${window}</p>
-<p><a class="tap" href="${RULES_HANDOUT_URL}">${i18n.t("rynke.rules.handout")}</a></p>
+<p><a class="tap" href="${RULES_HANDOUT_URL}" download>${i18n.t("rynke.rules.handout")}</a></p>
 </section>`;
 }
 
@@ -400,6 +399,7 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 			};
 			if (!reason.share) return i18n.t("rynke.reason.pause.noLimit", times);
 			const { num, den } = reason.share;
+			if (num === den) return i18n.t("rynke.reason.pause.moving", times);
 			return num * 2 === den
 				? i18n.t("rynke.reason.pause", times)
 				: i18n.t("rynke.reason.pause.share", {
