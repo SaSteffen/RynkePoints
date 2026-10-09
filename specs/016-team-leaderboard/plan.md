@@ -124,8 +124,11 @@ test/
 │   ├── weeks.test.ts
 │   ├── pace.test.ts
 │   ├── leaderboard.test.ts
+│   ├── charts.test.ts
+│   ├── overview.test.ts
 │   └── quotes.test.ts
 └── integration/
+    ├── team-read.test.ts
     ├── team-leaderboard.test.ts
     ├── organiser-overview.test.ts
     └── no-hardcoded-copy.test.ts   # done; the overview joins its page list

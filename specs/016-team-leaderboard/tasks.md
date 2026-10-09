@@ -95,7 +95,9 @@ pages need.
   and `rulesForVersion` (falling back to `CURRENT_RULES` for an unknown version).
   "Values never fall below 0". T002 passes.
 - [ ] T008 [P] Create `src/rynke/pace.ts` with `evenPace` and `riderStatus` as in
-  T003; whole days via `berlinDate`-style `YYYY-MM-DD` strings. T003 passes.
+  T003. Dates are `YYYY-MM-DD` strings (today is `berlinDate(ctx.now())` at the
+  caller); whole days are the difference of their `Date.UTC` values ÷ 86 400 000.
+  T003 passes.
 
 **Checkpoint**: the read and the pure history and pace are tested; no page changed
 yet.
@@ -125,7 +127,9 @@ both list modes ([quickstart.md](quickstart.md) §2 steps 1–2).
     `hiddenBehind` 5; viewer 2nd → places 1–5; viewer last → the last 4 rows;
     7 rows → every row and `toggle: false`; 8 rows → `toggle: true`;
     `all: true` → every row;
-  - a viewer who is not listed → every row, no `you` row, no viewer figures;
+  - a viewer who is not listed → every row, no `you` row, no `Viewer`;
+  - a listed rider without a balance counts with 0 in both kinds and gets a row
+    (spec edge cases);
   - no returned object has an `athleteId`, `firstName` or `profileLink` key
     (checked with `JSON.stringify`).
 - [ ] T010 [P] [US1] `test/unit/charts.test.ts` for `src/http/charts.ts`:
@@ -135,7 +139,8 @@ both list modes ([quickstart.md](quickstart.md) §2 steps 1–2).
   NaN (research R5, R12).
 - [ ] T011 [P] [US1] `test/integration/team-leaderboard.test.ts` (new), through
   `handleFetch` with 14 synthetic listed riders seeded with balances, the viewer
-  6th in Training, plus one rider without consent with the largest balance:
+  6th in Training, one listed rider without a balance, plus one rider without
+  consent with the largest balance:
   - "6th of 14" (`team.place`), the gap to 5th, `ol` with `start="3"` and rows
     3–9, `li.row.you` with "You 🦧"/"Du 🦧", "2 … ahead" and "5 … behind";
   - `?all=1` shows 14 rows; `?kind=team` reorders and changes the place;
@@ -146,12 +151,15 @@ both list modes ([quickstart.md](quickstart.md) §2 steps 1–2).
   - the HTML contains no other rider's first name, athlete ID or
     `strava.com/athletes` link, and nothing of the unconsented rider (SC-002,
     US1 #5, US2 #2);
+  - the rider without a balance is counted with 0 (last place);
+  - a viewer who is also an organiser is ranked like everyone else;
   - a visitor gets `302 /` (FR-001).
 - [ ] T012 [P] [US1] Replace the placeholder assertions in
   `test/integration/team.test.ts` with: the Team tab is current and
   `section.leaderboard` is rendered; keep the organiser-entry cases and expect
   both links (`/organiser/riders` with `team.organiser.overview`, `/organiser`)
-  for organisers only (FR-002, research R8).
+  for organisers only (FR-002, research R8). The consent gate on `/team` stays
+  covered by `test/integration/consent-gate.test.ts`.
 - [ ] T013 [P] [US1] `test/integration/team-leaderboard.test.ts`, read-only case:
   wrap `env.DB` so `prepare` throws for any statement not starting with
   `SELECT`, spy on `globalThis.fetch`, open `/team` and `/team?kind=team&all=1`:
@@ -167,8 +175,9 @@ both list modes ([quickstart.md](quickstart.md) §2 steps 1–2).
   `team.placeholder.heading` and `team.placeholder.body` from both catalogs and
   from the key list in `test/unit/catalogs.test.ts`; add the new keys there.
 - [ ] T015 [US1] Create `src/rynke/leaderboard.ts` with `leaderboardRows(riders,
-  viewerId, kind)` and `neighbourhood(rows, all)` per T009; rows carry only `you`,
-  `place`, `joint`, `total`, `other`, `weeks`. T009 passes.
+  viewerId, kind)` (the rows and the `Viewer` of [data-model.md](data-model.md))
+  and `neighbourhood(rows, all)` per T009; rows carry only `you`, `place`,
+  `joint`, `total`, `other`, `weeks`. T009 passes.
 - [ ] T016 [P] [US1] Create `src/http/charts.ts` with `sparkline(values, label)`
   per T010 (inline SVG, no library). T010 passes.
 - [ ] T017 [US1] Rewrite `src/http/sections/team.ts`: `handleTeam` reads
@@ -265,8 +274,7 @@ matching list ([quickstart.md](quickstart.md) §1 "Team page").
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Add `pickQuote(status)` beside the quote lists' consumer in
-  `src/http/sections/team.ts` (or a small helper it imports): `"push"` →
+- [ ] T028 [US3] Add `pickQuote(status)` to `src/http/sections/team.ts`: `"push"` →
   `QUOTES_PUSH`, otherwise `QUOTES_ON_TRACK`, index from
   `crypto.getRandomValues(new Uint32Array(1))`. Render
   `<blockquote class="quote quote-push|quote-on-track" lang="de">` with the
@@ -294,10 +302,11 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
 ### Tests for User Story 4 (write first, confirm they fail)
 
 - [ ] T030 [P] [US4] `test/unit/overview.test.ts` (new) for the pure
-  `overviewRiders(read, rules, today)` exported from
-  `src/http/organiser/overview.ts` (data-model.md `OverviewRider`), with a rules
-  copy that has a running deadline (`{ ...CURRENT_RULES, qualificationDeadline:
-  "<date after today>" }`), since `CURRENT_RULES` has none:
+  `overviewRiders(read, rules, today)` and `overviewBody(read, rules, today, group,
+  i18n)` exported from `src/http/organiser/overview.ts` (data-model.md
+  `OverviewRider`), with a rules copy that has a running deadline (`{
+  ...CURRENT_RULES, qualificationDeadline: "<date after today>" }`), since
+  `CURRENT_RULES` has none:
   - each rider's `status` is `riderStatus`'s; `pace` per amount is `evenPace`;
     `missing` is `trainingMissing`, `teamMissing`, `virtualShareMissing` from the
     balance, each flagged `behind` when its amount is below its pace;
@@ -305,7 +314,12 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
     kind the attended count with its Training and Team, corrections summed from
     the read, virtual share in whole percent;
   - group counts for push, on_track, in and all; with no deadline and with a
-    passed deadline there is no on_track (spec edge cases).
+    passed deadline there is no on_track (spec edge cases);
+  - `overviewBody` with the running deadline renders `organiser.overview.deadline`
+    with the hand-worked days to go, the "Need a push" and "On track" tiles with
+    their counts, the even-pace marks, and `?group=on_track` renders only the
+    on-track riders; with a passed deadline it renders
+    `organiser.overview.deadlinePassed` and no "On track" tile (FR-031, FR-032).
 - [ ] T031 [P] [US4] `test/integration/organiser-overview.test.ts` (new), through
   `handleFetch` with synthetic listed riders (one qualified, two named Jonas, one
   without consent):
@@ -345,13 +359,14 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
 - [ ] T035 [P] [US4] Add `thresholdBars(value, threshold, pace)` to
   `src/http/charts.ts`: `aria-hidden="true"`, a filled bar and an even-pace mark
   when `pace` is set (research R12).
-- [ ] T036 [US4] Create `src/http/organiser/overview.ts`: `overviewRiders` per
-  T030, and `handleOrganiserOverview(request, ctx, i18n)` through
+- [ ] T036 [US4] Create `src/http/organiser/overview.ts`: `overviewRiders` and
+  `overviewBody` per T030, and `handleOrganiserOverview(request, ctx, i18n)` through
   `organiserPage(…, "/organiser/riders", …)` that reads `readTeam`, keeps the
   `noticeFromQuery` notice, parses `group` per
-  [contracts/http-routes.md](contracts/http-routes.md), and renders the deadline
-  card, qualified card, `nav.group-tiles`, `ul.rider-cards`, `table.rider-table`
-  and `section.qualified` in the order of [contracts/pages.md](contracts/pages.md)
+  [contracts/http-routes.md](contracts/http-routes.md), and renders
+  `overviewBody(read, CURRENT_RULES, berlinDate(ctx.now()), group, i18n)`. The body
+  is pure and holds the deadline card, qualified card, `nav.group-tiles`,
+  `ul.rider-cards`, `table.rider-table` and `section.qualified` in the order of [contracts/pages.md](contracts/pages.md)
   `/organiser/riders`. Without `group`, a visually hidden "Showing: …" line per
   breakpoint (research R9). T030 passes.
 - [ ] T037 [US4] Remove `handleOrganiserRiders` from

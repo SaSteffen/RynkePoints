@@ -83,7 +83,7 @@ different weeks in the app.
 - `evenPace(amount, seasonStart, deadline, day)` = ⌊amount × (day − seasonStart) ÷
   (deadline − seasonStart)⌋ in whole days, clamped to 0…amount. This is the spec's
   FR-030 definition.
-- `riderStatus(balance, rules, window, today)` returns `"in"` when the balance
+- `riderStatus(balance, rules, today)` returns `"in"` when the balance
   qualifies, else `"push"` when the deadline is set, not passed, and any of
   Training, Team or outdoor Training (`trainingWithoutVirtual` against
   `virtualShareRequired`) is below its even pace; else `"on_track"`. Without a

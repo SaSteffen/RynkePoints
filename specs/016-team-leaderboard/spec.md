@@ -147,8 +147,8 @@ the overview is refused.
 
 **Acceptance Scenarios**:
 
-1. **Given** an organiser, **When** they open the overview, **Then** "Need a push"
-   is selected and lists every rider who is behind the even pace (FR-030) on
+1. **Given** an organiser on a phone and a running deadline, **When** they open the
+   overview, **Then** "Need a push" is selected and lists every rider who is behind the even pace (FR-030) on
    Training, Team or outdoor Training Rynke and does not yet qualify.
 2. **Given** a rider who qualifies (feature 003 FR-013), **When** the organiser looks,
    **Then** the rider is in "In for Paris" and in the list of who qualified.
@@ -178,6 +178,9 @@ the overview is refused.
 - The first week of the season can be shorter (feature 009's week).
 - An organiser who is also a rider appears in the leaderboard and the overview like
   every other consenting rider.
+- A consenting rider whose Strava connection needs renewing is left out of both views
+  until they reconnect, as on feature 014's organiser pages; "consenting riders"
+  throughout means connected riders with a current consent.
 
 ## Requirements *(mandatory)*
 
@@ -190,7 +193,7 @@ the overview is refused.
   no rider data (feature 004 FR-020).
 - **FR-002**: Only organisers MUST reach the organiser overview, checked on every
   request; others get "not allowed" (feature 014 FR-001). Organisers MUST find it
-  from Team (an "Organisers" entry on the Team page) and from the organiser pages'
+  from Team (an organiser entry on the Team page) and from the organiser pages'
   navigation; riders who are not organisers MUST NOT see either entry (feature 014
   FR-002).
 - **FR-003**: Both views MUST read the balances and results feature 003 stores and
@@ -244,8 +247,7 @@ the overview is refused.
 
 **Organiser overview**
 
-- **FR-030**: The **even pace** of a threshold on a day MUST be feature 009's pace
-  line: the threshold × the days since season start ÷ the days from season start to
+- **FR-030**: The **even pace** of a threshold on a day MUST be the threshold × the days since season start ÷ the days from season start to
   the deadline, rounded down. It applies to the Training threshold, the Team
   threshold and the outdoor Training amount (feature 003 FR-013a).
 - **FR-031**: The overview MUST show the qualification deadline, the days left, and
@@ -281,7 +283,7 @@ the overview is refused.
   overall and per week; no identity beyond "this is you".
 - **Team totals**: the sums of all leaderboard rows, per week.
 - **Quote**: a German sentence in one of two lists ("needs a push", "on track"),
-  kept in the i18n catalogs.
+  kept in a German-only list beside the i18n catalogs (FR-023).
 - **Rider status** (organiser view): Need a push, On track or In for Paris, worked
   out from the stored balance, the thresholds, the deadline and the day.
 

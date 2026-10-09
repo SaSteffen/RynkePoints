@@ -43,6 +43,15 @@ Earlier points are rebuilt with `tally`; the last point is the stored balance
 | `other` | the other kind's total |
 | `weeks` | the picked kind per `WeekPoint` (sparkline) |
 
+`leaderboardRows(riders, viewerId, kind)` returns the rows and a `Viewer`, or no
+`Viewer` when the viewer isn't listed:
+
+| `Viewer` field | Meaning |
+|---|---|
+| `place`, `joint` | the viewer's row's |
+| `count` | the number of rows |
+| `toNext` | the Rynke to pass the next place, or none in 1st place (`lead`) |
+
 No athlete ID or name leaves `leaderboard.ts`: rows are built from the riders and
 then carry only these fields (FR-010, SC-002).
 
@@ -63,7 +72,6 @@ then carry only these fields (FR-010, SC-002).
 | `thisWeek` | `total` minus the previous week's team total |
 | `weeks` | team total per week end |
 | `bestWeek` | the week end with the largest weekly gain, earliest on ties; none before the second week |
-| `viewer` | the viewer's place, the count of rows, and the Rynke to pass the next place |
 
 ### `RiderStatus` (`pace.ts`)
 
