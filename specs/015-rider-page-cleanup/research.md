@@ -145,8 +145,9 @@
 
   Accept runs the same subscribe as the Settings switch. Accept, not now and
   close all set the key.
-  The old key `rp-install-dismissed` counts as `rp-install-prompt` done, because
-  a rider who hid the old hint already said no once.
+  The old key `rp-install-dismissed` is ignored and removed on the first run,
+  so every rider who hasn't installed sees the new prompt once, including those
+  who hid the old inline hint.
 - **Rationale**: FR-013 – FR-015 and the edge cases (dismiss then install from
   Settings still gets one offer; notifications already on means no offer;
   blocked means no offer). It's per device and survives sign-out and another

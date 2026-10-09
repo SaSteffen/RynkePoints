@@ -88,9 +88,8 @@ script.
 | Repo rules | Text only in catalogs; `src/` doesn't import `dev/`; synthetic fixtures. | ✅ |
 
 **Post-design re-check**: still passes. The design adds one read-only route and
-one client element and removes texts. It keeps the old dismissal key as
-"install prompt done" (R9), so riders who already hid the hint aren't asked
-again.
+one client element and removes texts. The old dismissal key is ignored (R9),
+so every rider who hasn't installed sees the new prompt once.
 
 ## Project Structure
 

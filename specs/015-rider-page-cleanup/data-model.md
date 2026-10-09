@@ -28,7 +28,7 @@ progress record. No rider-facing page reads it any more (R2).
 |---|---|---|---|
 | `rp-install-prompt` | `"done"` | the rider taps install or close on the install panel, or `appinstalled` fires | deciding whether to show the install panel |
 | `rp-notify-offer` | `"done"` | the rider taps turn on, not now or close on the offer | deciding whether to show the offer |
-| `rp-install-dismissed` | `"1"` (feature 010, legacy) | no longer written | read once as `rp-install-prompt` done |
+| `rp-install-dismissed` | `"1"` (feature 010, legacy) | no longer written | never; removed on the first run, so it doesn't hold back the new prompt |
 
 The values stay on the device. They are not rider data and are never sent
 (spec Key Entities). If `localStorage` fails (some private modes), no prompt

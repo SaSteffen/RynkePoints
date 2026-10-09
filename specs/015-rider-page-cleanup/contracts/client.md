@@ -26,7 +26,7 @@ On a page with `#app-prompt` (signed-in sections only):
 | Step | Condition | Action |
 |---|---|---|
 | Read state | `localStorage` throws | do nothing |
-| Legacy | `rp-install-dismissed` set | treat `rp-install-prompt` as done |
+| Legacy | `rp-install-dismissed` set | remove it; it doesn't count as an answer |
 | Install panel | not standalone, `rp-install-prompt` unset, and `beforeinstallprompt` fired (call `preventDefault`, keep the event) or `navigator.standalone === false` | show `[data-panel=install]` with the matching `data-install` paragraph |
 | Install tap | | `deferred.prompt()`, set `rp-install-prompt`, hide the panel |
 | `appinstalled` | | set `rp-install-prompt`, hide the install panel, then try the notify panel |
