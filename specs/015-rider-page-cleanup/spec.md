@@ -21,8 +21,9 @@ which turns into the real page once the first data arrives.
 
 A rider who has just connected opens the app before any of their rides have been
 worked out. Instead of status texts about calculating and importing, they see the
-Rynke coin turning like a spinner with a short German message to come back a little
-later. When their first data arrives while the page is open, the page switches to
+Rynke coin turning like a spinner with a short German message: their rides since
+the season start are being fetched once, now that they have connected, and they can
+come back in about 5 minutes. When their first data arrives while the page is open, the page switches to
 their real Overview by itself. From then on the app never talks about importing:
 whatever has arrived is shown, and later rides simply add to it.
 
@@ -39,7 +40,8 @@ a manual reload.
 
 1. **Given** a signed-in rider with no Rynke worked out yet, **When** they open the
    Overview, **Then** they see the greeting, the coin as a waiting animation and a
-   message to come back later, and no figures, gauges, notices about calculating or
+   message that their rides are being fetched once, after connecting, and to come
+   back in about 5 minutes, and no figures, gauges, notices about calculating or
    importing, or "Import abgeschlossen" line.
 2. **Given** the same rider, **When** they open Rides, **Then** they see the same
    waiting state instead of "Noch keine Fahrten importiert".
@@ -53,9 +55,8 @@ a manual reload.
    the Overview, **Then** they see their real Overview with zero Rynke, not the
    waiting state.
 6. **Given** a rider who has just connected for the first time, **When** the
-   connection is complete, **Then** fetching their rides is already under way, so
-   the waiting state lasts only as long as Strava's request budget and the queue
-   need for the first page.
+   connection is complete, **Then** fetching their rides is already under way, without
+   waiting for the daily scheduled run.
 
 ---
 
@@ -126,7 +127,14 @@ still offers installing where possible.
 ### Edge Cases
 
 - The Strava request budget is used up when a new rider connects: the waiting state
-  stays until the import can run; nothing tells the rider about budgets.
+  stays until the import can run, with the same message; it doesn't count down or
+  promise a new time, and nothing tells the rider about budgets.
+- The whole team connects within a few minutes, e.g. right after launch: the
+  imports run one after another; with the current team size they all fit in the
+  5 minutes the message names.
+- A rider reconnects and their rides are fetched again (e.g. after granting private
+  activities): they already have data, so they never see the waiting state or its
+  one-time message.
 - The rider leaves the waiting page open in the background: when they come back,
   the page shows the current data (as feature 011 already reloads after a minute).
 - A rule change is being applied while the rider has data: the existing "rules have
@@ -150,8 +158,10 @@ still offers installing where possible.
 
 - **FR-001**: The Overview and Rides sections MUST show a waiting state while the
   rider has no Rynke worked out yet: the Rynke coin as a looping animation and a
-  short message telling the rider their rides are on the way and to come back a
-  little later.
+  short message.
+- **FR-001a**: The waiting message MUST tell the rider that this is a one-time
+  fetch of their rides since the season start, which happens only after they first
+  connect, and that they can come back in about 5 minutes.
 - **FR-002**: The waiting state MUST replace the "Deine Rynke werden gerade
   berechnet" and "Deine Fahrten seit dem … werden noch importiert" notices, the
   "Import abgeschlossen" line and the "Noch keine Fahrten importiert" message; none
@@ -163,8 +173,8 @@ still offers installing where possible.
   content within one minute after their first data is worked out, without the rider
   reloading, while the page is open and visible.
 - **FR-005**: Fetching a new rider's rides MUST start as part of their first
-  connection, so the first page of rides is worked out as soon as Strava's request
-  budget and the queue allow, ahead of any regular scheduled work for that rider.
+  connection, not wait for the daily scheduled run, and MUST cost no more Strava
+  requests than reading the rider's rides since the season start needs.
 - **FR-006**: Checking whether the first data has arrived MUST NOT make any Strava
   request and MUST stop once the real content is shown.
 - **FR-007**: The waiting animation MUST respect the device's reduced-motion
@@ -216,12 +226,12 @@ still offers installing where possible.
 
 ### Measurable Outcomes
 
-- **SC-001**: A new rider never sees a text about calculating, importing or a
-  finished import; their first screen shows the greeting and either their figures
-  or the waiting state.
+- **SC-001**: A new rider never sees a text about calculating, an import in
+  progress or a finished import; their first screen shows the greeting and either
+  their figures or the waiting state, which says it happens once.
 - **SC-002**: With Strava's budget available, a newly connected rider who keeps the
-  Overview open sees their real figures within 2 minutes of connecting, without
-  reloading.
+  Overview open sees their real figures within the 5 minutes the waiting message
+  names, without reloading, also when the whole team connects at the same time.
 - **SC-003**: Each device shows the install prompt at most once and the
   notifications offer at most once.
 - **SC-004**: The Overview's first block is the greeting card in 100% of its states.
@@ -236,8 +246,18 @@ still offers installing where possible.
 - The coin logo is the one on the app's start screen; the waiting state reuses the
   existing coin artwork, animated, rather than a new image.
 - The season import already starts at the first connection (feature 001); FR-005
-  keeps that and makes sure the first page isn't queued behind regular work. No new
-  kind of Strava request is added, so no new consent version is needed.
+  keeps that. All the app's background work shares one queue, processed one
+  message at a time because of the shared Strava budget, so a new rider's import
+  can only wait behind work already queued: other riders' imports, ride updates
+  from Strava, or the daily run's checks. No new kind of Strava request is added,
+  so no new consent version is needed.
+- Imports of two riders are not merged. Strava lists rides only per rider, with
+  that rider's own permission, so a combined request doesn't exist and merging
+  would save no requests. A season so far is usually one request per rider (up to
+  200 rides each), so even the whole team connecting at once stays far below
+  Strava's limits.
+- "About 5 minutes" is a fixed, generous estimate, not computed from the queue or
+  the budget.
 - Getting the first data to the open page by checking the app's own server
   periodically is acceptable; a push notification is not used for this, since a new
   rider has not turned notifications on yet.

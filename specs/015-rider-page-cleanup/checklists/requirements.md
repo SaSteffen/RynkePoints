@@ -33,5 +33,5 @@
 
 - No clarification markers: the open choices (what "no data" means, per-device
   prompt state, devices that can't install) are recorded as assumptions.
-- FR-005 overlaps feature 001's existing import start at connect; the plan should
-  check whether anything beyond keeping it is needed.
+- FR-005 keeps feature 001's import start at connect; merging riders' imports was
+  considered and ruled out (see Assumptions).
