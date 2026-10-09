@@ -578,8 +578,9 @@ requirements.
   with their own version. Otherwise no such notice is shown.
 - **FR-052**: While the rider's past-season import is running (feature 001), the page
   MUST say that the balance will grow as more rides are imported.
-- **FR-053**: The page MUST link to the rules handout (feature 003 FR-017). The handout
-  is German only (feature 003 FR-020); in other languages the link MUST say so.
+- **FR-053**: The page MUST link to the rules handout as a downloadable PDF served by
+  the app (feature 003 FR-017, FR-018). The handout is German only (feature 003
+  FR-020); in other languages the link MUST say so.
 
 **Language**
 
@@ -688,8 +689,9 @@ This feature stores nothing new. It reads:
 - Making the rest of the site mobile friendly is tracked in issue
   [#20](https://github.com/SaSteffen/RynkePoints/issues/20); this feature only makes
   its own sections work on phones (FR-070–FR-072).
-- The rules handout link points to the handout as published in the public
-  repository (`docs/rynke-punkte.md`); serving the PDF from the app is out of scope.
+- The rules handout link points to the handout PDF the app serves
+  (`/rynke-punkte.pdf`, rendered from `docs/rynke-punkte.md` by feature 003's
+  script and committed); riders download it from the page.
   The handout's section "Wo sehe ich meinen Stand?" describes this page; its
   sentence that only the rider sees their balance predates feature 004 (organisers
   and the team see parts of it) and is for feature 003 to align (its FR-019).

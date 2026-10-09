@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Renders the German rules handout (docs/rynke-punkte.md) to
-# dist/rynke-punkte.pdf: pandoc turns it into a standalone HTML page, and a
-# headless Chrome/Chromium prints that page to PDF. Neither tool is a project
-# dependency, since this is a seldom-run organiser task. Set CHROME to the
-# browser binary if it isn't found on the PATH.
+# public/rynke-punkte.pdf: pandoc turns it into a standalone HTML page, and a
+# headless Chrome/Chromium prints that page to PDF. The PDF is committed and the
+# app serves it as a static asset, so the rider page links to it. Neither tool is
+# a project dependency, since this is a seldom-run organiser task. Set CHROME to
+# the browser binary if it isn't found on the PATH.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -36,8 +37,7 @@ pandoc docs/rynke-punkte.md \
 	--css docs/print.css \
 	--output "$html"
 
-mkdir -p dist
 "$chrome" --headless --disable-gpu --no-pdf-header-footer \
-	--print-to-pdf="$PWD/dist/rynke-punkte.pdf" "file://$html" 2>/dev/null
+	--print-to-pdf="$PWD/public/rynke-punkte.pdf" "file://$html" 2>/dev/null
 
-echo "wrote dist/rynke-punkte.pdf"
+echo "wrote public/rynke-punkte.pdf"

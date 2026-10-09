@@ -123,7 +123,7 @@ export const de = {
 		"Berechnet nach Regel-Version {version}, gültig seit dem {date}.",
 	"rynke.rules.windowDeadline":
 		"Es zählt alles vom {start} bis zum {deadline}.",
-	"rynke.rules.handout": "So funktionieren die Rynke (Regeln zum Nachlesen)",
+	"rynke.rules.handout": "So funktionieren die Rynke (Regeln als PDF)",
 	"rynke.ride.counts": "zählt 🪙",
 	"rynke.ride.doesNotCount": "zählt nicht",
 	"rynke.ride.beingEvaluated": "🦧 wird ausgewertet",

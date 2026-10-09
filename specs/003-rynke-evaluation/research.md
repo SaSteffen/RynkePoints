@@ -7,7 +7,8 @@ cover Story 3. Stories 5 and 6 add their own entries later.
 
 - **Decision**: no new work beyond the review. `docs/rynke-punkte.md` (German,
   opening with the team purpose) and `scripts/docs-pdf.sh` (`pnpm docs:pdf`,
-  pandoc plus headless Chrome, output `dist/rynke-punkte.pdf`, gitignored)
+  pandoc plus headless Chrome, output `public/rynke-punkte.pdf`, committed and
+  served by the app since 2026-10-09; before, `dist/`, gitignored)
   already exist and cover every topic FR-017 lists. Acceptance scenario 2 is a
   manual comparison against the spec, repeated whenever the spec or a rule value
   changes (FR-019). The handout states that rides Strava has flagged never count

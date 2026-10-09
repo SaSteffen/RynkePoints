@@ -9,7 +9,8 @@ lang: de
 <!--
 Maintainers: this handout is informational only. The specification
 specs/003-rynke-evaluation/spec.md is authoritative; if the two differ, fix this
-file (FR-019). Render it with `pnpm docs:pdf`.
+file (FR-019). Render it with `pnpm docs:pdf` and commit
+public/rynke-punkte.pdf: the app links riders to that PDF.
 -->
 
 # Gemeinsam nach Paris

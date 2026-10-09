@@ -1224,10 +1224,10 @@ describe("GET /me rules and notices (US6)", () => {
 			"Es zählt alles vom 01.01.2026 bis zum 30.06.2027.",
 		);
 		const link = section(html, 'class="rynke-rules card card-outlined"')?.match(
-			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
+			/<a class="tap" href="([^"]*)" download>([^<]*)<\/a>/,
 		);
 		expect(link?.[1]).toBe(RULES_HANDOUT_URL);
-		expect(link?.[2]).toBe("So funktionieren die Rynke (Regeln zum Nachlesen)");
+		expect(link?.[2]).toBe("So funktionieren die Rynke (Regeln als PDF)");
 		expect(notice).toBeNull();
 		expect(html).not.toContain("Die Regeln haben sich geändert");
 	});

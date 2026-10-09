@@ -699,13 +699,15 @@ re-evaluation, and check the correction is still applied exactly once.
   attendance recording (FR-007), rides during team events (FR-008), the counting
   window (FR-011), corrections (FR-010) and the qualification rule (FR-013).
 - **FR-018**: The repository MUST contain a script that converts the handout to a
-  PDF with one command. The handout and the script are a seldom-used manual
-  organiser task and need no automated tests.
+  PDF with one command. The PDF is committed and served by the app, which links
+  riders to it (feature 005 FR-053); it is regenerated whenever the handout
+  changes. The handout and the script are a seldom-used manual organiser task and
+  need no automated tests.
 - **FR-019**: This spec is authoritative. The handout is informational only; where
   they differ, the spec applies and the handout MUST be corrected. Whenever a rule
   in this spec or a configured value changes, the handout MUST be updated.
-- **FR-020**: The handout is a static document outside the app. It is German only
-  and is not part of the app's translation strings.
+- **FR-020**: The handout is a static document, not an app page. It is German
+  only and is not part of the app's translation strings.
 
 ### Key Entities
 
