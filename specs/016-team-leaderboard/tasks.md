@@ -218,16 +218,16 @@ gain, the weekly bars and the best week with hand-worked sums.
 
 ### Tests for User Story 2 (write first, confirm they fail)
 
-- [ ] T019 [P] [US2] `test/unit/leaderboard.test.ts`: `teamTotals(riderWeeks,
+- [x] T019 [P] [US2] `test/unit/leaderboard.test.ts`: `teamTotals(riderWeeks,
   kind)` sums per week end; `thisWeek` = last minus previous week (0 with one
   week); `bestWeek` = the largest gain, earliest on ties, none before the second
   week (data-model.md `TeamTotals`).
-- [ ] T020 [P] [US2] `test/unit/charts.test.ts`: `peloton(totals, own, label)`
+- [x] T020 [P] [US2] `test/unit/charts.test.ts`: `peloton(totals, own, label)`
   draws one mini coin per total, the viewer's larger with the `team.peloton.you`
   text, `role="img"` and the label, and no threshold line; `weekBars(points,
   label)` draws one `rect` per week with the last one marked current, `role="img"`
   and the label (research R12).
-- [ ] T021 [P] [US2] `test/integration/team-leaderboard.test.ts`: on `/team` and
+- [x] T021 [P] [US2] `test/integration/team-leaderboard.test.ts`: on `/team` and
   `/team?kind=team`, `section.team-total` shows the sum over the 14 listed riders
   (the unconsented rider excluded) and the week's gain; `figure.peloton` has 14
   coins also on the neighbourhood view; `figure.team-chart` has one bar per week,
@@ -237,17 +237,17 @@ gain, the weekly bars and the best week with hand-worked sums.
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Add `teamTotals` to `src/rynke/leaderboard.ts` per T019. T019
+- [x] T022 [US2] Add `teamTotals` to `src/rynke/leaderboard.ts` per T019. T019
   passes.
-- [ ] T023 [P] [US2] Add `peloton` and `weekBars` to `src/http/charts.ts` per
+- [x] T023 [P] [US2] Add `peloton` and `weekBars` to `src/http/charts.ts` per
   T020, using `viewBox` and `preserveAspectRatio="none"` where they stretch and
   the coin symbols of `src/http/coin.ts`. T020 passes.
-- [ ] T024 [US2] In `src/http/sections/team.ts`, render `section.team-total`
+- [x] T024 [US2] In `src/http/sections/team.ts`, render `section.team-total`
   (coin front for Training, back for Team; no "this week" badge when 0),
   `figure.peloton` and `figure.team-chart` with its details table in the order of
   [contracts/pages.md](contracts/pages.md) `/team` sections 1, 5 and 7. Dates use
   the locale's date format. T021 passes.
-- [ ] T025 [US2] In `src/http/style.ts`, add `.team-total`, `.peloton` and
+- [x] T025 [US2] In `src/http/style.ts`, add `.team-total`, `.peloton` and
   `.team-chart` styles (current week highlighted), light and dark, 360 px.
 
 **Checkpoint**: US1 and US2 hold; `/team` is complete except the quote.
