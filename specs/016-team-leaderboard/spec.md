@@ -18,7 +18,8 @@ feature 003 stores and never trigger an evaluation.
 The look follows feature 012's "full fun" style and is agreed in the Claude Design
 mock-up "RynkePoints Team Leaderboard" (team leaderboard on a phone in light and dark
 mode, organiser overview on a phone and a desktop, sample season on Thursday
-25 March 2027).
+25 March 2027). The peloton's breakaway (FR-018) was agreed later and added to the
+mock-up's team leaderboard, with a `breakaway` tweak for its three sample states.
 
 ## Clarifications
 
@@ -40,6 +41,10 @@ mode, organiser overview on a phone and a desktop, sample season on Thursday
   stored like the season start date (`QUALIFICATION_DEADLINE`), and for now it is
   30 June 2027. Without it the app can't tell who is on track, so there is always
   one; it no longer belongs to the versioned rules.
+- Q: A few riders far ahead squash everyone else to the left of the peloton. Leave
+  them out or use a logarithmic road? → A: Neither. Riders far ahead ride in a
+  "Breakaway" past a gap in the road, in order but not to scale; the bunch stays to
+  scale. The label is "Breakaway" in German too, because it is more fun.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -83,7 +88,8 @@ out by hand, for both kinds and both list modes.
 
 Above the leaderboard, a rider sees the team's combined Rynke of the picked kind
 with "+N this week 🔥", a "peloton" where every rider is a coin on a road placed by
-their total (the viewer's coin bigger and marked "You"), and a bar chart of the
+their total (the viewer's coin bigger and marked "You"; riders far ahead of the
+bunch ride in a breakaway past a gap in the road), and a bar chart of the
 team's accumulated Rynke at the end of each week, the current week highlighted, with
 the team's best week so far.
 
@@ -101,6 +107,13 @@ gain, the weekly bars and the best week with sums worked out by hand.
    their Rynke are in no total, bar, coin, place or count.
 3. **Given** the peloton, **When** it is shown, **Then** it shows every consenting
    rider, whatever the list mode, with no names and no threshold line.
+4. **Given** 14 riders with 52 to 384 Training Rynke and two more with 760 and 912,
+   **When** the peloton is shown, **Then** the two ride in the breakaway right of
+   the gap, 760 behind 912, and the bunch spreads to scale from the left up to its
+   front rider with 384.
+5. **Given** no rider far enough ahead (FR-018), **When** the peloton is shown,
+   **Then** it has no gap and every coin is placed to scale against the highest
+   total.
 
 ---
 
@@ -173,6 +186,10 @@ the overview is refused.
   not shown.
 - A viewer whose place is 1st: "You lead the peloton. Bring the others along!"
   instead of the Rynke to the next place.
+- A viewer in the breakaway: their larger coin rides past the gap like the other
+  breakaway riders.
+- A team of four or fewer consenting riders: the peloton has no breakaway; with so
+  few totals the outlier rule says nothing useful.
 - A rider without any stored balance yet (no evaluated rides): counted with 0 Rynke.
 - The deadline has passed: the days-to-go card says the deadline has passed; groups
   and quote lists follow qualification only.
@@ -229,6 +246,15 @@ the overview is refused.
   current week, a peloton of every consenting rider placed by total (the viewer's
   coin larger and marked), and a bar chart of the team's accumulated Rynke at the end
   of each week with the current week highlighted and the best week named.
+- **FR-018**: A consenting rider whose total of the picked kind is above the upper
+  outlier fence (third quartile + 1.5 × the interquartile range of all consenting
+  riders' totals) MUST ride in the peloton's **breakaway**, from five consenting
+  riders on. The road then shows a gap; the bunch sits left of it, placed to scale
+  against its own highest total, and the breakaway right of it, in order of total
+  but not to scale. The road's front end is labelled "Breakaway 🏁" instead of
+  "Front 🏁", in German too, and the text for assistive technology says how many
+  riders are in the breakaway (FR-041). Without a breakaway the road has no gap and
+  is placed to scale against the highest total.
 
 **Quotes**
 
