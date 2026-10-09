@@ -203,7 +203,7 @@ describe("overviewBody", () => {
 		const html = page(null);
 		expect(html).toContain("Qualification deadline · 31/05/2026");
 		expect(html).toContain("67 days to go ⏳");
-		expect(html).toContain("1 of 4 in for Paris 🗼");
+		expect(html).toContain("1 of 4 reached their training goal 🎯");
 		expect(page(null, TODAY, de)).toContain("Noch 67 Tage ⏳");
 	});
 
@@ -211,7 +211,7 @@ describe("overviewBody", () => {
 		expect(tiles(page(null))).toEqual([
 			["push", "2", "Need a push 🍌"],
 			["on_track", "1", "On track 🚴"],
-			["in", "1", "In for Paris 🗼"],
+			["in", "1", "Training goal reached 🎯"],
 			["all", "4", "Everyone"],
 		]);
 	});
@@ -284,8 +284,8 @@ describe("overviewBody", () => {
 		expect(html).toContain("The deadline has passed");
 		expect(html).not.toContain("days to go");
 		expect(tiles(html).map(([group, , label]) => [group, label])).toEqual([
-			["push", "Not yet in"],
-			["in", "In for Paris 🗼"],
+			["push", "Training goal not reached yet"],
+			["in", "Training goal reached 🎯"],
 			["all", "Everyone"],
 		]);
 		expect(html).not.toContain("pace-mark");
@@ -301,7 +301,7 @@ describe("overviewBody", () => {
 			null,
 			en,
 		).value;
-		expect(nobody).toContain("Nobody qualifies yet.");
+		expect(nobody).toContain("Nobody has reached the training goal yet.");
 		const none = overviewBody(
 			[],
 			CURRENT_RULES,

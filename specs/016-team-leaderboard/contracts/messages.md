@@ -70,12 +70,12 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `organiser.overview.deadline` | Qualification deadline · {date} | Stichtag · {date} |
 | `organiser.overview.daysLeft` | {n} days to go ⏳ | Noch {n} Tage ⏳ |
 | `organiser.overview.deadlinePassed` | The deadline has passed | Der Stichtag ist vorbei |
-| `organiser.overview.qualified` | {n} of {count} in for Paris 🗼 | {n} von {count} sind dabei in Paris 🗼 |
+| `organiser.overview.qualified` | {n} of {count} reached their training goal 🎯 | {n} von {count} haben ihr Trainingsziel erreicht 🎯 |
 | `organiser.overview.groups` | Groups | Gruppen |
 | `organiser.overview.group.push` | Need a push 🍌 | Braucht Schwung 🍌 |
-| `organiser.overview.group.notYet` | Not yet in | Noch nicht dabei |
+| `organiser.overview.group.notYet` | Training goal not reached yet | Trainingsziel noch nicht erreicht |
 | `organiser.overview.group.onTrack` | On track 🚴 | Gut unterwegs 🚴 |
-| `organiser.overview.group.in` | In for Paris 🗼 | Dabei in Paris 🗼 |
+| `organiser.overview.group.in` | Training goal reached 🎯 | Trainingsziel erreicht 🎯 |
 | `organiser.overview.group.all` | Everyone | Alle |
 | `organiser.overview.showing` | Showing: {group} | Angezeigt: {group} |
 | `organiser.overview.training` | Training {n} of {threshold} | Training {n} von {threshold} |
@@ -91,8 +91,8 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `organiser.overview.virtual` | Virtual rides {n} % of Training | Virtuelle Fahrten {n} % vom Training |
 | `organiser.overview.amounts` | {training} Training, {team} Team | {training} Training, {team} Team |
 | `organiser.overview.percent` | {n}% | {n} % |
-| `organiser.overview.qualifiedList` | In for Paris 🗼 | Dabei in Paris 🗼 |
-| `organiser.overview.nobodyYet` | Nobody qualifies yet. | Noch hat sich niemand qualifiziert. |
+| `organiser.overview.qualifiedList` | Training goal reached 🎯 | Trainingsziel erreicht 🎯 |
+| `organiser.overview.nobodyYet` | Nobody has reached the training goal yet. | Noch hat niemand das Trainingsziel erreicht. |
 | `organiser.overview.none` | No riders share their Rynke yet. | Noch teilt niemand Rynke mit dem Team. |
 | `organiser.overview.column.name` | Rider | Wer |
 | `organiser.overview.column.group` | Group | Gruppe |

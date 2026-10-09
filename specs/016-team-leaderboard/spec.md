@@ -135,9 +135,9 @@ list and changes between loads.
 ### User Story 4 - Organisers see who needs help (Priority: P1)
 
 An organiser opens the organiser overview and sees how many days are left until the
-qualification deadline, how many riders are "in for Paris 🗼", and every consenting
+qualification deadline, how many riders "reached their training goal 🎯", and every consenting
 rider by first name, sorted into three groups: "Need a push 🍌", "On track 🚴" and
-"In for Paris 🗼". Each rider shows Training and Team bars with a mark for the even
+"Training goal reached 🎯". Each rider shows Training and Team bars with a mark for the even
 pace, what is still missing (Training, Team, outdoor Training), and, on request,
 the breakdown of where their Rynke come from, including attendance and corrections.
 A list shows who qualified.
@@ -155,7 +155,7 @@ the overview is refused.
    overview, **Then** "Need a push" is selected and lists every rider who is behind the even pace (FR-030) on
    Training, Team or outdoor Training Rynke and does not yet qualify.
 2. **Given** a rider who qualifies (feature 003 FR-013), **When** the organiser looks,
-   **Then** the rider is in "In for Paris" and in the list of who qualified.
+   **Then** the rider is in "Training goal reached" and in the list of who qualified.
 3. **Given** two riders named Jonas, **When** they are shown, **Then** each carries a
    "View on Strava" link to their Strava profile.
 4. **Given** a rider who is not an organiser, **When** they ask for the overview,
@@ -258,7 +258,7 @@ the overview is refused.
 - **FR-032**: The overview MUST show every consenting rider by first name (feature
   004 FR-022), with a "View on Strava" link when two connected riders share a first
   name, in three groups: **Need a push** (FR-021's rule), **On track** (not
-  qualified, not behind) and **In for Paris** (qualifies, feature 003 FR-013). Tiles
+  qualified, not behind) and **Training goal reached** (qualifies, feature 003 FR-013). Tiles
   with each group's size MUST filter the list; "Need a push" is selected when the
   page opens on a phone, all riders on a desktop.
 - **FR-033**: For each rider the overview MUST show Training and Team Rynke against
@@ -287,7 +287,7 @@ the overview is refused.
 - **Team totals**: the sums of all leaderboard rows, per week.
 - **Quote**: a German sentence in one of two lists ("needs a push", "on track"),
   kept in a German-only list beside the i18n catalogs (FR-023).
-- **Rider status** (organiser view): Need a push, On track or In for Paris, worked
+- **Rider status** (organiser view): Need a push, On track or Training goal reached, worked
   out from the stored balance, the thresholds, the deadline and the day.
 
 ## Success Criteria *(mandatory)*

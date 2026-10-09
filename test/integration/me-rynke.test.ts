@@ -82,14 +82,14 @@ describe("GET /me Rynke summary (US1)", () => {
 			virtualShareMissing: 155,
 		});
 		const shown = await summary();
-		expect(shown).toContain("Noch nicht dabei 🍌 Dir fehlen:");
+		expect(shown).toContain("Noch nicht qualifiziert 🍌 Dir fehlen:");
 		expect(shown).toContain("12 von 250");
 		expect(shown).toContain("238 fehlen noch");
 		expect(shown).toContain("0 von 25");
 		expect(shown).toContain("25 fehlen noch");
 		expect(shown).toContain("238 Trainingsrynke");
 		expect(shown).toContain("25 Teamrynke");
-		expect(shown).not.toContain("Du bist dabei");
+		expect(shown).not.toContain("Qualifiziert für Paris");
 	});
 
 	it("S1-2: says the rider is in, without a line for virtual rides", async () => {
@@ -107,7 +107,7 @@ describe("GET /me Rynke summary (US1)", () => {
 			section(html, 'class="rynke-summary verdict card"') ?? "",
 		);
 		expect(shown).toContain(
-			"Du bist dabei: Du hast alles, was du für die Tour brauchst.",
+			"Qualifiziert für Paris! 🗼 Du hast alles, was du für die Tour brauchst.",
 		);
 		expect(shown).toContain("262 von 250");
 		expect(shown).toContain("25 von 25");
@@ -136,7 +136,7 @@ describe("GET /me Rynke summary (US1)", () => {
 		expect(shown).toContain(
 			"7 Trainingsrynke aus Fahrten draußen (nicht virtuell)",
 		);
-		expect(shown).toContain("Noch nicht dabei");
+		expect(shown).toContain("Noch nicht qualifiziert");
 	});
 
 	it("S1-4: names only the missing Team Rynke", async () => {
@@ -170,7 +170,7 @@ describe("GET /me Rynke summary (US1)", () => {
 			expect(section(html, 'class="notice" role="status"')).toBeNull();
 			expect(html).not.toContain('class="rynke-summary verdict card"');
 			expect(html).not.toContain("von 250");
-			expect(html).not.toContain("dabei");
+			expect(html).not.toContain("qualifiziert");
 			expect(section(html, 'id="rides"')).toBeNull();
 		}
 	});
@@ -308,7 +308,7 @@ describe("GET /me gauges (US2)", () => {
 		expect(training?.classes).toBe("gauge gauge-reached");
 		expect(team?.classes).toBe("gauge gauge-reached");
 		expect(team?.caption).toBe("Teamrynke: 25 von 25 · 100 % · ✓ erreicht");
-		expect(await summary()).toContain("Du bist dabei");
+		expect(await summary()).toContain("Qualifiziert für Paris");
 	});
 
 	it("S2-9: tells everything in text, beside a hidden bar", async () => {

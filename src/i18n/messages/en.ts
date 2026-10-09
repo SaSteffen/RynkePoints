@@ -37,7 +37,7 @@ export const en: Catalog = {
 
 	"consent.heading": "What you agree to by connecting",
 	"consent.organisers":
-		"The team's organisers see your first name from Strava, your Rynke with their breakdown, what you still need, whether you qualify, your attendance at team events and corrections.",
+		"The team's organisers see your first name from Strava, your Rynke with their breakdown, what you still need, whether you've reached your training goal, your attendance at team events and corrections.",
 	"consent.team":
 		"Everyone else on the team sees your accumulated Rynke, overall and per week, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
@@ -98,8 +98,8 @@ export const en: Catalog = {
 		"Because you've just connected, we're fetching your rides since {date} from Strava, once. This only happens this one time. Check back in about 5 minutes – this page updates by itself.",
 	"rynke.summary.heading": "Your Rynke",
 	"rynke.verdict.in":
-		"You're in: you have everything you need for the tour. On to Paris! 🗼",
-	"rynke.verdict.notYet": "Not in yet 🍌 You still need:",
+		"Qualified for Paris! 🗼 You have everything you need for the tour.",
+	"rynke.verdict.notYet": "Not qualified yet 🍌 You still need:",
 	"rynke.missing.training": "{n} Training Rynke",
 	"rynke.missing.team": "{n} Team Rynke",
 	"rynke.missing.withoutVirtual":
@@ -402,12 +402,13 @@ export const en: Catalog = {
 	"organiser.overview.deadline": "Qualification deadline · {date}",
 	"organiser.overview.daysLeft": "{n} days to go ⏳",
 	"organiser.overview.deadlinePassed": "The deadline has passed",
-	"organiser.overview.qualified": "{n} of {count} in for Paris 🗼",
+	"organiser.overview.qualified":
+		"{n} of {count} reached their training goal 🎯",
 	"organiser.overview.groups": "Groups",
 	"organiser.overview.group.push": "Need a push 🍌",
-	"organiser.overview.group.notYet": "Not yet in",
+	"organiser.overview.group.notYet": "Training goal not reached yet",
 	"organiser.overview.group.onTrack": "On track 🚴",
-	"organiser.overview.group.in": "In for Paris 🗼",
+	"organiser.overview.group.in": "Training goal reached 🎯",
 	"organiser.overview.group.all": "Everyone",
 	"organiser.overview.showing": "Showing: {group}",
 	"organiser.overview.hint":
@@ -429,10 +430,10 @@ export const en: Catalog = {
 	"organiser.overview.virtual": "Virtual rides {n} % of Training",
 	"organiser.overview.amounts": "{training} Training, {team} Team",
 	"organiser.overview.percent": "{n}%",
-	"organiser.overview.qualifiedList": "In for Paris 🗼",
+	"organiser.overview.qualifiedList": "Training goal reached 🎯",
 	"organiser.overview.qualifiedHint":
 		"Both thresholds and the outdoor share met.",
-	"organiser.overview.nobodyYet": "Nobody qualifies yet.",
+	"organiser.overview.nobodyYet": "Nobody has reached the training goal yet.",
 	"organiser.overview.none": "No riders share their Rynke yet.",
 	"organiser.overview.column.name": "Rider",
 	"organiser.overview.column.group": "Group",
