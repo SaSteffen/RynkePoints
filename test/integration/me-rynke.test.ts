@@ -170,7 +170,7 @@ describe("GET /me Rynke summary (US1)", () => {
 			expect(section(html, 'class="notice" role="status"')).toBeNull();
 			expect(html).not.toContain('class="rynke-summary verdict card"');
 			expect(html).not.toContain("von 250");
-			expect(html).not.toContain("qualifiziert");
+			expect(html).not.toMatch(/qualifiziert/i);
 			expect(section(html, 'id="rides"')).toBeNull();
 		}
 	});
