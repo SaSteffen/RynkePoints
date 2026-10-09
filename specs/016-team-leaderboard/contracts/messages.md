@@ -2,7 +2,8 @@
 
 New keys in `src/i18n/messages/de.ts` and `en.ts` (FR-042). The quotes themselves
 are not catalog keys (research R10). `team.placeholder.*` are removed with the
-placeholder; `organiser.riders.link` changes its text.
+placeholder; `organiser.link` and `organiser.riders.link` are removed with the
+links the Orga tab and its switch replace.
 
 Ordinals: English places use `{place}` already formatted by a small helper
 (`1st`, `2nd`, `3rd`, `4th`, `11th`–`13th`); German uses `{place}.`.
@@ -51,7 +52,15 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `team.chart.week` | Week ending | Woche bis |
 | `team.chart.total` | Total | Gesamt |
 | `team.chart.gain` | Gain | Plus |
-| `team.organiser.overview` | Team overview | Teamübersicht |
+
+## Orga tab and switch
+
+| ID | en | de |
+|----|----|----|
+| `nav.organiser` | Orga | Orga |
+| `organiser.switch.label` | Orga views | Orga-Ansichten |
+| `organiser.switch.riders` | Riders | Rider |
+| `organiser.switch.events` | Events | Termine |
 
 ## Organiser overview (`organiser.overview.*`)
 
@@ -97,8 +106,7 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `organiser.overview.column.corrections` | Corrections | Korrekturen |
 | `organiser.overview.column.virtual` | Virtual | Virtuell |
 
-`organiser.riders.link` becomes "Team overview" / "Teamübersicht" and
-`organiser.riders.back` "Back to the team overview" / "Zurück zur Teamübersicht";
+`organiser.riders.back` becomes "Back to the team overview" / "Zurück zur Teamübersicht";
 `organiser.riders.heading` and `organiser.riders.none` are removed with 014's plain
 list.
 

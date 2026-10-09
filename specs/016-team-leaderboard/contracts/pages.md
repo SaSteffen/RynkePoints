@@ -52,12 +52,15 @@ The draft's look, section by section: colours come from the tokens in
        nothing else that identifies anyone;
      - on the right the total with the mini coin, the other kind in small
        print below.
-8. **Organiser entry** `p.organiser-entry` (organisers only).
 
 ## `/organiser/riders`
 
-The draft's "Organiser overview" boards (phone and desktop) give the look. A link
-back to the organiser pages and the heading "Team overview" come first.
+The draft's "Organiser overview" boards (phone and desktop) give the look. The
+page sits in the "Orga" tab (organisers only, left of Settings, current on every
+`/organiser` page). First comes `nav.organiser-switch`: a pill like the kind
+switch with "Riders" (`/organiser/riders`) and "Events" (`/organiser`), each
+with its icon and the current one `aria-current="true"`. `/organiser` starts
+with the same switch. Then the heading "Team overview".
 
 1. **Deadline and qualified** `section.overview-deadline`: one card on the coin's
    ink with its gold rim, the coin's back at 72 px; "Qualification deadline ·

@@ -15,8 +15,8 @@ Both pages render inside the app shell with the Team tab current, and only read
   today).
 - The switch and toggle are links to the four combinations. Each keeps the other
   parameter, so switching the kind keeps "Everyone".
-- Organisers additionally see the organiser entry: "Team overview" →
-  `/organiser/riders` and "Organiser pages" → `/organiser` (FR-002, research R8).
+- Organisers reach `/organiser/riders` through the "Orga" tab left of Settings,
+  not from this page (FR-002, research R8).
 
 ## `GET /organiser/riders` (organisers only)
 

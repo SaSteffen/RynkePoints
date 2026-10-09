@@ -194,9 +194,9 @@ the overview is refused.
   no rider data (feature 004 FR-020).
 - **FR-002**: Only organisers MUST reach the organiser overview, checked on every
   request; others get "not allowed" (feature 014 FR-001). Organisers MUST find it
-  from Team (an organiser entry on the Team page) and from the organiser pages'
-  navigation; riders who are not organisers MUST NOT see either entry (feature 014
-  FR-002).
+  under an "Orga" tab in the app navigation, left of Settings, whose page switches
+  between the overview and the events like Team's Training and Team switch; riders
+  who are not organisers MUST NOT see the tab (feature 014 FR-002).
 - **FR-003**: Both views MUST read the balances and results feature 003 stores and
   MUST NOT trigger an evaluation or a Strava request.
 - **FR-004**: Riders without a current consent MUST be left out of every row,

@@ -110,7 +110,7 @@ src/
 │   └── leaderboard.ts           # new: rows, places, neighbourhood, team totals (R6)
 ├── http/
 │   ├── charts.ts                # new: peloton, sparkline, weekly bars, threshold bars (SVG)
-│   ├── sections/team.ts         # placeholder → leaderboard; organiser entry with two links
+│   ├── sections/team.ts         # placeholder → leaderboard
 │   ├── organiser/overview.ts    # new: the organiser overview (replaces the riders list)
 │   ├── organiser/corrections.ts # − the old riders list handler
 │   ├── router.ts                # /organiser/riders → overview

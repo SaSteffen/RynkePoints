@@ -155,9 +155,11 @@ the overview would then list riders 014's correction page refuses.
 
 - `/organiser/riders` becomes the organiser overview. Each rider's card or table
   row links to their existing corrections page `/organiser/riders/{id}`.
-- `/organiser` keeps its link to it, renamed "Team overview".
-- The Team page's organiser entry gets two links: "Team overview" and the existing
-  "Organiser" (events).
+- Organisers get a fifth tab, "Orga", left of Settings, opening
+  `/organiser/riders`. It is current on every `/organiser` page. Both
+  `/organiser/riders` and `/organiser` start with `nav.organiser-switch`, a pill
+  with "Riders" and "Events" like Team's kind switch. The Team page has no
+  organiser entry, and the two pages no longer link each other in text.
 
 **Rationale**: the old page listed the same riders by first name with Strava links
 and nothing else; the overview is a superset with the same audience and data rules,
