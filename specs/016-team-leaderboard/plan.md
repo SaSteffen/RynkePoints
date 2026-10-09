@@ -33,9 +33,9 @@ features 001–015.
 
 **Primary Dependencies**: none new. Inline SVG and CSS, no client JavaScript (R5).
 
-**Storage**: D1, read only. One new grouped `SELECT` (R2); 014's
-`listCorrectionsOfRidersStatement` gains `correction_date`
-([data-model.md](data-model.md)).
+**Storage**: D1, read only. One batch of five `SELECT`s, each limited to 014's
+listed riders by one shared subquery; the ride read is grouped per week (R2,
+[data-model.md](data-model.md)).
 
 **Testing**: Vitest in workerd (`pnpm test`) with synthetic riders. Unit tests for
 the three pure modules, integration tests through `handleFetch`
@@ -103,7 +103,7 @@ specs/016-team-leaderboard/
 src/
 ├── db/
 │   ├── team.ts                  # new: weekly ride sums; one read batch for both pages
-│   └── corrections.ts           # + correction_date in the of-riders read
+│   └── organiser.ts             # + LISTED_RIDER_IDS, the listed-rider subquery
 ├── rynke/
 │   ├── weeks.ts                 # new: week ends, week-end totals per rider (R1, R3)
 │   ├── pace.ts                  # new: evenPace, riderStatus (R4)

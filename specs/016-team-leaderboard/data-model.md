@@ -5,15 +5,18 @@ have; nothing is written.
 
 ## Read per request
 
-One `db.batch` of `SELECT`s per page view (research R11):
+One `db.batch` of `SELECT`s per page view (research R11). The riders' IDs aren't
+known before the batch runs, so every read after the first is limited by the same
+subquery, `LISTED_RIDER_IDS` from `src/db/organiser.ts` (014's listed riders:
+connected and sharing, filtered in SQL). The statements live in `src/db/team.ts`:
 
 | Read | Statement | Rows |
 |---|---|---|
-| Listed riders | `listListedRidersStatement` (014), consent-filtered in SQL | athlete ID, first name |
-| Balances | `readBalancesOfRidersStatement` (003) | one per rider with a balance |
-| Weekly ride sums | new `listWeeklyRideSumsStatement` in `src/db/team.ts` (research R2) | athlete ID, `week_end`, distance Rynke, elevation dm |
-| Attendance | `listAttendanceOfRidersStatement` (003) | athlete ID, event kind, event date |
-| Corrections | `listCorrectionsOfRidersStatement` (014), gains `correction_date` | athlete ID, Training, Team, date |
+| Listed riders | `listListedRidersStatement` (014) | athlete ID, first name |
+| Balances | `listTeamBalancesStatement` | one `rynke_balances` row per rider with a balance |
+| Weekly ride sums | `listWeeklyRideSumsStatement` (research R2) | athlete ID, `week_end`, distance Rynke, elevation dm |
+| Attendance | `listTeamAttendanceStatement` | athlete ID, event ID, event kind, event date |
+| Corrections | `listTeamCorrectionsStatement` | athlete ID, Training, Team, `correction_date` |
 
 The leaderboard needs the first names only to know who is listed; it never renders
 them (FR-010). A rider with no balance row counts with every figure 0.
@@ -28,7 +31,7 @@ them (FR-010). A rider with no balance row counts with every figure 0.
 | `training` | Training Rynke accumulated at the end of the week |
 | `team` | Team Rynke accumulated at the end of the week |
 
-`riderWeeks(inputs, rules, weekEnds, balance)` gives one `WeekPoint` per week end.
+`riderWeeks(inputs, seasonStart, weekEnds, balance)` gives one `WeekPoint` per week end.
 Earlier points are rebuilt with `tally`; the last point is the stored balance
 (research R1). Values never fall below 0 (003 floor).
 

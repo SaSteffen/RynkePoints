@@ -25,7 +25,7 @@ copy-guard exemption are already committed.
 
 ## Phase 1: Setup
 
-- [ ] T001 Run `pnpm install --frozen-lockfile`, then `pnpm lint`, `pnpm typecheck`
+- [x] T001 Run `pnpm install --frozen-lockfile`, then `pnpm lint`, `pnpm typecheck`
   and `pnpm test`. All pass before any change, so later failures are this
   feature's.
 
@@ -38,7 +38,7 @@ pages need.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T002 [P] `test/unit/weeks.test.ts` for `src/rynke/weeks.ts` (research R1, R3,
+- [x] T002 [P] `test/unit/weeks.test.ts` for `src/rynke/weeks.ts` (research R1, R3,
   data-model.md `WeekPoint`):
   - `weekEnds(seasonStart, lastDay)`: Sundays from the first Sunday on or after
     the season start up to the week holding `lastDay`, the last entry being
@@ -47,54 +47,62 @@ pages need.
     gives exactly one week end.
   - `lastDay(today, deadline)`: today, or the deadline once it has passed, or
     today when the deadline is null.
-  - `riderWeeks(inputs, rules, weekEnds, balance)`: distance and elevation sums
+  - `riderWeeks(inputs, seasonStart, weekEnds, balance)`, with the rules of the
+    balance's version: distance and elevation sums
     accumulate per week with elevation floored on the running total (not per
     week); attendance counts from its event date and corrections from their
     `correction_date`, both through `tally`; a negative correction floors the
     total at 0; the last point equals the stored balance's `trainingRynke` and
     `teamRynke` even when the rebuilt figure would differ (a future-dated event);
     a rider with no balance and no inputs gives every point 0.
-- [ ] T003 [P] `test/unit/pace.test.ts` for `src/rynke/pace.ts` (research R4,
+- [x] T003 [P] `test/unit/pace.test.ts` for `src/rynke/pace.ts` (research R4,
   FR-030, data-model.md `RiderStatus`):
   - `evenPace(amount, seasonStart, deadline, day)`: 0 on the season start,
     `amount` on the deadline, ⌊amount × elapsed ÷ total⌋ midway (a case where it
     rounds down), clamped to 0 before the start and to `amount` after the
     deadline.
-  - `riderStatus(balance, rules, today)`: `"in"` when `balance.qualified`;
+  - `riderStatus(balance, rules, window, today)` (`window` is 003's
+    `CountingWindow`: season start and deadline): `"in"` when `balance.qualified`;
     `"push"` when Training alone, Team alone or outdoor Training
     (`trainingWithoutVirtual` against `virtualShareRequired`) alone is below its
     even pace; `"on_track"` when all are on or above it; with
     `qualificationDeadline: null` or a deadline before `today` only `"in"` or
     `"push"`; a rider without a balance (null) is `"push"`.
-- [ ] T004 [P] `test/integration/team-read.test.ts` (new) for `src/db/team.ts`
+- [x] T004 [P] `test/integration/team-read.test.ts` (new) for `src/db/team.ts`
   against the test D1: `readTeam(db)` returns the listed riders (014's
   `listListedRidersStatement`: connected and sharing consent; a rider without
-  consent and one with `needs_reconnect` are missing), their balances, the weekly
-  ride sums, attendance with event dates and corrections with
-  `correction_date`. The weekly sums: two counting rides on Monday and Sunday of
+  consent and one with `needs_reconnect` are missing, with all their rows), their
+  balances, the weekly ride sums, attendance with event kinds and dates and
+  corrections with `correction_date`. The weekly sums: two counting rides on Monday and Sunday of
   one week land in the same `week_end` (that Sunday); a ride on the next Monday
   in the next week; a ride with `counts = 0` is left out; elevation comes back in
   decimetres unfloored (research R2).
 
 ### Implementation
 
-- [ ] T005 Add `correction_date` to the columns of
-  `listCorrectionsOfRidersStatement` and its row type in `src/db/corrections.ts`;
-  keep every existing caller compiling.
-- [ ] T006 Create `src/db/team.ts`:
+- [x] T005 Export `LISTED_RIDER_IDS`, the listed-rider subquery (`SELECT athlete_id
+  FROM riders WHERE status = 'connected' AND athlete_id IN (SHARED_RIDER_IDS)`),
+  from `src/db/organiser.ts` and build `listListedRidersStatement` on it; 014's
+  tests keep passing.
+- [x] T006 Create `src/db/team.ts`:
   - `listWeeklyRideSumsStatement(db)` with research R2's SQL (`date(substr(
     a.start_date_local, 1, 10), 'weekday 0') AS week_end`, `SUM` of
     `distance_rynke` and `elevation_dm`, `counts = 1`, riders limited to
-    `SHARED_RIDER_IDS` and `status = 'connected'`, `GROUP BY 1, 2`).
+    `LISTED_RIDER_IDS`, `GROUP BY 1, 2`);
+  - `listTeamBalancesStatement`, `listTeamAttendanceStatement` (with the event's
+    kind and date) and `listTeamCorrectionsStatement` (with `correction_date`),
+    each limited to `LISTED_RIDER_IDS`, since one batch can't pass the riders'
+    IDs on;
   - `readTeam(db)`: one `db.batch` of the five statements in
-    [data-model.md](data-model.md) "Read per request" (listed riders, balances,
-    weekly sums, attendance, corrections), returning typed arrays. Only
+    [data-model.md](data-model.md) "Read per request", returning the listed
+    riders with their balance, weekly ride sums, attendance and corrections. Only
     `SELECT`s (research R11). T004 passes.
-- [ ] T007 [P] Create `src/rynke/weeks.ts` with `weekEnds`, `lastDay` and
+- [x] T007 [P] Create `src/rynke/weeks.ts` with `weekEnds`, `lastDay` and
   `riderWeeks` as in T002, reusing `tally`, `extrasFrom`, `evaluateAttendance`
-  and `rulesForVersion` (falling back to `CURRENT_RULES` for an unknown version).
+  and `rulesForVersion` (falling back to `CURRENT_RULES` for an unknown version
+  or no balance).
   "Values never fall below 0". T002 passes.
-- [ ] T008 [P] Create `src/rynke/pace.ts` with `evenPace` and `riderStatus` as in
+- [x] T008 [P] Create `src/rynke/pace.ts` with `evenPace` and `riderStatus` as in
   T003. Dates are `YYYY-MM-DD` strings (today is `berlinDate(ctx.now())` at the
   caller); whole days are the difference of their `Date.UTC` values ÷ 86 400 000.
   T003 passes.
@@ -280,7 +288,8 @@ matching list ([quickstart.md](quickstart.md) §1 "Team page").
   `<blockquote class="quote quote-push|quote-on-track" lang="de">` with the
   catalog heading and `<p>` quote after `section.my-place`
   ([contracts/pages.md](contracts/pages.md) `/team` section 4). The viewer's
-  status is `riderStatus(own balance, CURRENT_RULES, today)`; a viewer who isn't
+  status is `riderStatus(own balance, CURRENT_RULES, countingWindow(ctx.env,
+  CURRENT_RULES), today)`; a viewer who isn't
   listed gets no quote. T026 and T027 pass.
 - [ ] T029 [US3] In `src/http/style.ts`, style `.quote` (Rynkeby accent per list,
   readable at 360 px, light and dark).
@@ -302,8 +311,8 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
 ### Tests for User Story 4 (write first, confirm they fail)
 
 - [ ] T030 [P] [US4] `test/unit/overview.test.ts` (new) for the pure
-  `overviewRiders(read, rules, today)` and `overviewBody(read, rules, today, group,
-  i18n)` exported from `src/http/organiser/overview.ts` (data-model.md
+  `overviewRiders(read, rules, window, today)` and `overviewBody(read, rules,
+  window, today, group, i18n)` exported from `src/http/organiser/overview.ts` (data-model.md
   `OverviewRider`), with a rules copy that has a running deadline (`{
   ...CURRENT_RULES, qualificationDeadline: "<date after today>" }`), since
   `CURRENT_RULES` has none:
@@ -364,7 +373,8 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
   `organiserPage(…, "/organiser/riders", …)` that reads `readTeam`, keeps the
   `noticeFromQuery` notice, parses `group` per
   [contracts/http-routes.md](contracts/http-routes.md), and renders
-  `overviewBody(read, CURRENT_RULES, berlinDate(ctx.now()), group, i18n)`. The body
+  `overviewBody(read, CURRENT_RULES, countingWindow(ctx.env, CURRENT_RULES),
+  berlinDate(ctx.now()), group, i18n)`. The body
   is pure and holds the deadline card, qualified card, `nav.group-tiles`,
   `ul.rider-cards`, `table.rider-table` and `section.qualified` in the order of [contracts/pages.md](contracts/pages.md)
   `/organiser/riders`. Without `group`, a visually hidden "Showing: …" line per
