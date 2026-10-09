@@ -10,8 +10,8 @@ extends.
 
 **Decision**:
 
-- Feature 009 is specified but not built, so nothing stores or computes a rider's
-  Rynke over time yet. 016 builds the weekly part on its own: a pure module
+- Nothing stores or computes a rider's Rynke over time yet. 016 builds it on its
+  own: a pure module
   `src/rynke/weeks.ts` that turns stored inputs into each rider's Training and Team
   Rynke at the end of every week.
 - Inputs, all already stored by 003 and 014:
@@ -39,8 +39,9 @@ extends.
 
 - *Store a weekly snapshot table written by the evaluation*: one more write per
   evaluation and a backfill for past weeks; rejected as more moving parts.
-- *Wait for 009's day-by-day curve*: 016 would block on a P3 feature. 009 can later
-  reuse `weeks.ts`'s accumulation for its day steps.
+- *Wait for 009's day-by-day curve*: 009 is not built, and the Team page may
+  make it unnecessary. Nothing here is shaped for 009; if it is ever built, it
+  reuses these modules only where that is cheap.
 
 ## R2. One grouped SQL read for the rides (FR-003)
 
@@ -80,8 +81,8 @@ different weeks in the app.
 **Decision**: `src/rynke/pace.ts`:
 
 - `evenPace(amount, seasonStart, deadline, day)` = ⌊amount × (day − seasonStart) ÷
-  (deadline − seasonStart)⌋ in whole days, clamped to 0…amount. This is 009 FR-038's
-  pace line, so 009 will import it instead of writing its own.
+  (deadline − seasonStart)⌋ in whole days, clamped to 0…amount. This is the spec's
+  FR-030 definition.
 - `riderStatus(balance, rules, window, today)` returns `"in"` when the balance
   qualifies, else `"push"` when the deadline is set, not passed, and any of
   Training, Team or outdoor Training (`trainingWithoutVirtual` against

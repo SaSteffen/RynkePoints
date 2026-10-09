@@ -11,11 +11,10 @@
 are server-rendered pages that read what 003 and 014 store in one batch and write
 nothing.
 
-- **Weekly history (R1–R3)**: feature 009 is specified but not built, so nothing
-  computes Rynke over time yet. A pure `src/rynke/weeks.ts` rebuilds each rider's
+- **Weekly history (R1–R3)**: nothing computes Rynke over time yet. A pure `src/rynke/weeks.ts` rebuilds each rider's
   week-end totals from ride sums grouped per week in SQL, attendance and
   corrections, with 003's `tally`. The current week is the stored balance itself.
-- **Pace and status (R4)**: a pure `src/rynke/pace.ts` holds 009's even pace and
+- **Pace and status (R4)**: a pure `src/rynke/pace.ts` holds the even pace (FR-030) and
   one `riderStatus` used for both the viewer's quote list and the organiser groups.
 - **Leaderboard (R6)**: a pure `src/rynke/leaderboard.ts` orders rows, shares
   places on ties, cuts the neighbourhood and drops every identity before rendering.
@@ -133,9 +132,9 @@ test/
 ```
 
 **Structure Decision**: same single Worker. The pure parts go next to 003's rules
-in `src/rynke/` so feature 009 can reuse `weeks.ts` and `pace.ts`; the SVG helpers
-get their own `src/http/charts.ts` because both pages, and later 009, draw with
-them.
+in `src/rynke/`; the SVG helpers get their own `src/http/charts.ts` because both
+pages draw with them. Nothing is shaped for feature 009, which the Team page may
+make unnecessary.
 
 ## Complexity Tracking
 

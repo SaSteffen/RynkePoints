@@ -78,6 +78,7 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `organiser.overview.column.name` | Rider | Wer |
 | `organiser.overview.column.group` | Group | Gruppe |
 
-Team-event kind names reuse the existing `rynke.source.<kind>` keys (005). The German
-wording follows the catalog's existing style: "du", and "Fahrerinnen und Fahrer"
-or a neutral word rather than a gender star.
+Team-event kind names reuse the existing `rynke.source.<kind>` keys (005). German
+text says "du" and prefers neutral words ("Leute", "alle", "das Team", "wer …").
+Where only a personal noun works, it uses the colon form, which screen readers read
+as a pause ("Fahrer:innen"); never the gender star or the slash form.
