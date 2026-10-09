@@ -12,7 +12,9 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | Key | English | German |
 |---|---|---|
 | `team.heading` | Team | Team |
-| `team.total.label` | Team {kind} | Team-{kind} |
+| `team.total.label` | Team Rynkeby Hamburg 🦧 | Team Rynkeby Hamburg 🦧 |
+| `team.total.value` | {n} Rynke | {n} Rynke |
+| `team.total.kind` | {kind} Rynke collected together | {kind}-Rynke gemeinsam gesammelt |
 | `team.total.thisWeek` | +{n} this week 🔥 | +{n} diese Woche 🔥 |
 | `team.kind.label` | Which Rynke | Welche Rynke |
 | `team.kind.training` | Training | Training |
@@ -23,10 +25,15 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `team.place.lead` | You lead the peloton. Bring the others along! | Du führst das Peloton an. Nimm die anderen mit! |
 | `team.quote.push` | For you 🍌 | Für dich 🍌 |
 | `team.quote.onTrack` | For you 🤝 | Für dich 🤝 |
-| `team.peloton.heading` | The peloton | Das Peloton |
+| `team.peloton.heading` | The peloton 🚴 | Das Peloton 🚴 |
+| `team.peloton.hint` | Every coin is a rider. The front of the bunch rides on the right. | Jede Münze ist eine Person aus dem Team. Die Spitze des Feldes fährt rechts. |
+| `team.peloton.back` | Back of the bunch | Ende des Feldes |
+| `team.peloton.front` | Front 🏁 | Spitze 🏁 |
 | `team.peloton.label` | {count} riders between {min} and {max} Rynke; you have {own} | {count} Leute zwischen {min} und {max} Rynke; du hast {own} |
 | `team.peloton.you` | You | Du |
 | `team.list.heading` | Leaderboard | Rangliste |
+| `team.list.count` | {n} riders listed | {n} im Team |
+| `team.list.hint` | No names, just Rynke. The line shows each rider's season so far. | Keine Namen, nur Rynke. Die Linie zeigt die bisherige Saison jeder Person. |
 | `team.list.scope` | Show | Zeigen |
 | `team.list.around` | Around you | Um dich herum |
 | `team.list.everyone` | Everyone | Alle |
@@ -35,9 +42,11 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `team.list.you` | You 🦧 | Du 🦧 |
 | `team.list.other` | {n} {kind} | {n} {kind} |
 | `team.list.weeks` | Week by week: {values} | Woche für Woche: {values} |
-| `team.chart.heading` | The team week by week | Das Team Woche für Woche |
+| `team.chart.heading` | The team, week by week | Das Team, Woche für Woche |
+| `team.chart.hint` | Everyone's {kind} Rynke added up, at the end of each week. | Die {kind}-Rynke aller zusammengezählt, am Ende jeder Woche. |
+| `team.chart.now` | this week | diese Woche |
 | `team.chart.label` | Team {kind} at the end of each week, {weeks} weeks, now {total} | Team-{kind} am Ende jeder Woche, {weeks} Wochen, jetzt {total} |
-| `team.chart.best` | Best week: {date} (+{n}) | Beste Woche: {date} (+{n}) |
+| `team.chart.best` | Best team week so far: +{n} in the week ending {date} 🔥 | Beste Teamwoche bisher: +{n} in der Woche bis {date} 🔥 |
 | `team.chart.table` | All weeks | Alle Wochen |
 | `team.chart.week` | Week ending | Woche bis |
 | `team.chart.total` | Total | Gesamt |
