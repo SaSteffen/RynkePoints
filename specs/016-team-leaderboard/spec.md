@@ -238,8 +238,8 @@ the overview is refused.
   ask riders to bring others along: encourage teammates, plan team rides, share
   tips.
 - **FR-023**: Quotes MUST be German in every language of the app, an exception to
-  feature 001 FR-028 ("in every language"); they still live in the i18n catalogs,
-  not in pages or logic. They MUST be marked as German for assistive technology.
+  feature 001 FR-028 ("in every language"); they live in a German-only list beside
+  the i18n catalogs, not in pages or logic. They MUST be marked as German for assistive technology.
 - **FR-024**: Quotes MUST NOT name, rank or compare individual riders.
 
 **Organiser overview**
@@ -308,8 +308,8 @@ the overview is refused.
 - Features 003, 004, 011, 012 and 014 are in place; the overview uses 014's
   organiser check and navigation.
 - Weeks run Monday to Sunday in Europe/Berlin, as in feature 009.
-- The quotes are written in German by the project; the owner reviews both lists
-  before release.
+- The quotes are written in German by the project and ship as written; the owner
+  may edit either list at any time without a spec change.
 - The mock-up's figures are a synthetic sample season; real figures come from feature
   003's stored balances.
 - Teams have tens of riders, not hundreds; no paging is needed.
