@@ -280,6 +280,21 @@ const CONTRACT_IDS = [
 	"organiser.attendance.profile",
 	"organiser.attendance.future",
 	"organiser.attendance.none",
+	"organiser.riders.link",
+	"organiser.riders.heading",
+	"organiser.riders.none",
+	"organiser.riders.back",
+	"organiser.corrections.heading",
+	"organiser.corrections.none",
+	"organiser.corrections.new",
+	"organiser.corrections.training",
+	"organiser.corrections.team",
+	"organiser.field.training",
+	"organiser.field.team",
+	"organiser.field.reason",
+	"organiser.corrections.remove",
+	"organiser.corrections.removeWarning",
+	"organiser.corrections.removeConfirm",
 ];
 
 const placeholders = (text: string) =>

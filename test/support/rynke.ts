@@ -19,7 +19,7 @@ import {
 	countingWindow,
 	type RynkeRules,
 } from "../../src/rynke/rules";
-import { extrasFromAttendance, tally } from "../../src/rynke/tally";
+import { extrasFrom, tally } from "../../src/rynke/tally";
 import {
 	type Attendance,
 	evaluateAttendance,
@@ -129,7 +129,20 @@ export async function attendanceRows() {
 	return results;
 }
 
-/** What a full evaluation of the rider's stored activities and attendance gives. */
+/** The rider's stored corrections' amounts (feature 014 Story 3). */
+export async function storedCorrections(athleteId = ATHLETE_A) {
+	const { results } = await env.DB.prepare(
+		"SELECT training, team FROM corrections WHERE athlete_id = ?",
+	)
+		.bind(athleteId)
+		.all<{ training: number; team: number }>();
+	return results;
+}
+
+/**
+ * What a full evaluation of the rider's stored activities, attendance and
+ * corrections gives.
+ */
 export async function expectedRynke(rules: RynkeRules, athleteId = ATHLETE_A) {
 	const rows = await listRecentActivities(env.DB, athleteId, 10_000);
 	const window = countingWindow(env, rules);
@@ -141,7 +154,11 @@ export async function expectedRynke(rules: RynkeRules, athleteId = ATHLETE_A) {
 	);
 	return {
 		results: evaluation.results,
-		balance: tally(evaluation.riding, extrasFromAttendance(attendance), rules),
+		balance: tally(
+			evaluation.riding,
+			extrasFrom(attendance, await storedCorrections(athleteId)),
+			rules,
+		),
 	};
 }
 
@@ -149,9 +166,10 @@ export async function expectedRynke(rules: RynkeRules, athleteId = ATHLETE_A) {
  * The invariants of data-model.md, checked against what is stored (FR-014b):
  * every activity has exactly one result and no result lacks its activity, no
  * two counting results overlap, the balance is `tally` of the stored counting
- * results and attendance, and every row carries one rules version. The
- * breakdown equals the evaluated attendance; Team Rynke are its Team sum and
- * Training Rynke the riding plus its Training sum (Story 3).
+ * results, attendance and corrections, and every row carries one rules
+ * version. The breakdown equals the evaluated attendance; Team Rynke are its
+ * Team sum and Training Rynke the riding plus its Training sum (Story 3), each
+ * plus the corrections and at least 0 (feature 014 Story 3).
  */
 export async function expectConsistent(
 	athleteId = ATHLETE_A,
@@ -199,12 +217,23 @@ export async function expectConsistent(
 		countingWindow(env, rules),
 	);
 	expect(balance.teamEvents).toEqual(attendance.byKind);
-	expect(balance.teamRynke).toBe(attendance.team);
+	const corrections = await storedCorrections(athleteId);
+	const corrected = (key: "training" | "team") =>
+		corrections.reduce((n, c) => n + c[key], 0);
+	expect(balance.teamRynke).toBe(
+		Math.max(0, attendance.team + corrected("team")),
+	);
 	expect(balance.trainingRynke).toBe(
-		riding.distanceRynke + riding.elevationRynke + attendance.training,
+		Math.max(
+			0,
+			riding.distanceRynke +
+				riding.elevationRynke +
+				attendance.training +
+				corrected("training"),
+		),
 	);
 	expect(fields).toEqual(
-		tally(riding, extrasFromAttendance(attendance), rules),
+		tally(riding, extrasFrom(attendance, corrections), rules),
 	);
 	expect(new Set(results.map((r) => r.rulesVersion))).toEqual(
 		new Set(results.length > 0 ? [balance.rulesVersion] : []),

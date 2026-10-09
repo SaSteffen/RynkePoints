@@ -105,6 +105,7 @@ export function handleOrganiserEvents(
 		};
 		return html`${noticeFromQuery(new URL(request.url), i18n)}
 <section class="organiser">
+<p><a href="/organiser/riders">${i18n.t("organiser.riders.link")}</a></p>
 <h2>${i18n.t("organiser.events.new")}</h2>
 <form method="post" action="/organiser/events" class="organiser-form">
 ${eventFields(i18n, today)}

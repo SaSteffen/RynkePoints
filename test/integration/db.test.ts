@@ -103,6 +103,7 @@ describe("riders", () => {
 			rynke_seen: 0,
 			team_events: 0,
 			attendances: 0,
+			corrections: 0,
 			push_subscriptions: 0,
 		});
 		expect(await getCurrentConsent(db, ATHLETE_A)).toBeNull();
