@@ -65,10 +65,11 @@ with the same switch. Then the heading "Team overview".
 1. **Deadline and qualified** `section.overview-deadline`: one card on the coin's
    ink with its gold rim, the coin's back at 72 px; "Qualification deadline ·
    {date}" small, "{n} days to go ⏳" large in Rynkeby yellow (or "The deadline
-   has passed"), then "{n} of {count} in for Paris 🗼".
+   has passed"), then "{n} of {count} reached their training goal 🎯".
 2. **Group tiles** `nav.group-tiles`: links with the count large above the
-   label: "Need a push 🍌" (or "Not yet in" once the deadline has passed), "On
-   track 🚴" (only before the deadline), "In for Paris 🗼", "Everyone" (research
+   label: "Need a push 🍌" (or "Training goal not reached yet" once the deadline
+   has passed), "On track 🚴" (only before the deadline), "Training goal reached
+   🎯", "Everyone" (research
    R9). Two columns on a phone, four from 840 px; the picked tile (or the
    default one, `.default` without `group`) in yellow.
 3. **Hint** (before the deadline only): "The tick on each bar marks the even pace
@@ -90,9 +91,9 @@ with the same switch. Then the heading "Team overview".
    rider in the same order; columns first name, group, Training (figure and
    bar), Team (figure and bar), outdoor Training, still to go, distance,
    elevation, team events, corrections, virtual share.
-6. **Qualified list** `section.qualified`: a card on the coin's ink, "In for
-   Paris 🗼", "Both thresholds and the outdoor share met." and one pill per rider
-   with the mini coin; or "Nobody qualifies yet." (FR-034).
+6. **Qualified list** `section.qualified`: a card on the coin's ink, "Training
+   goal reached 🎯", "Both thresholds and the outdoor share met." and one pill per rider
+   with the mini coin; or "Nobody has reached the training goal yet." (FR-034).
 
 With nobody listed, "No riders share their Rynke yet." stands in place of 3–6.
 

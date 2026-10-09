@@ -87,7 +87,7 @@ then carry only these fields (FR-010, SC-002).
 | `on_track` | otherwise |
 
 The deadline is the team setting `QUALIFICATION_DEADLINE` (spec FR-005), always
-set. Once it has passed, the overview labels `push` as "Not yet in" and shows no
+set. Once it has passed, the overview labels `push` as "Training goal not reached yet" and shows no
 "On track" tile (spec edge cases).
 
 ### `OverviewRider` (organiser only)

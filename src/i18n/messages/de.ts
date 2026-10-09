@@ -39,7 +39,7 @@ export const de = {
 
 	"consent.heading": "Was du mit dem Verbinden erlaubst",
 	"consent.organisers":
-		"Die Organisatorinnen und Organisatoren des Teams sehen deinen Vornamen von Strava, deine Rynke mit Aufschlüsselung, was dir noch fehlt, ob du dich qualifiziert hast, deine Teilnahme an Team-Events und Korrekturen.",
+		"Die Organisatorinnen und Organisatoren des Teams sehen deinen Vornamen von Strava, deine Rynke mit Aufschlüsselung, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teilnahme an Team-Events und Korrekturen.",
 	"consent.team":
 		"Alle anderen im Team sehen deine gesammelten Rynke, insgesamt und pro Woche, ohne deinen Namen.",
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
@@ -100,8 +100,8 @@ export const de = {
 		"Weil du dich gerade verbunden hast, holen wir einmalig deine Fahrten seit dem {date} von Strava. Das passiert nur dieses eine Mal. Schau in etwa 5 Minuten wieder vorbei – diese Seite aktualisiert sich von selbst.",
 	"rynke.summary.heading": "Deine Rynke",
 	"rynke.verdict.in":
-		"Du bist dabei: Du hast alles, was du für die Tour brauchst. Auf nach Paris! 🗼",
-	"rynke.verdict.notYet": "Noch nicht dabei 🍌 Dir fehlen:",
+		"Qualifiziert für Paris! 🗼 Du hast alles, was du für die Tour brauchst.",
+	"rynke.verdict.notYet": "Noch nicht qualifiziert 🍌 Dir fehlen:",
 	"rynke.missing.training": "{n} Trainingsrynke",
 	"rynke.missing.team": "{n} Teamrynke",
 	"rynke.missing.withoutVirtual":
@@ -420,12 +420,13 @@ export const de = {
 	"organiser.overview.deadline": "Stichtag · {date}",
 	"organiser.overview.daysLeft": "Noch {n} Tage ⏳",
 	"organiser.overview.deadlinePassed": "Der Stichtag ist vorbei",
-	"organiser.overview.qualified": "{n} von {count} sind dabei in Paris 🗼",
+	"organiser.overview.qualified":
+		"{n} von {count} haben ihr Trainingsziel erreicht 🎯",
 	"organiser.overview.groups": "Gruppen",
 	"organiser.overview.group.push": "Braucht Schwung 🍌",
-	"organiser.overview.group.notYet": "Noch nicht dabei",
+	"organiser.overview.group.notYet": "Trainingsziel noch nicht erreicht",
 	"organiser.overview.group.onTrack": "Gut unterwegs 🚴",
-	"organiser.overview.group.in": "Dabei in Paris 🗼",
+	"organiser.overview.group.in": "Trainingsziel erreicht 🎯",
 	"organiser.overview.group.all": "Alle",
 	"organiser.overview.showing": "Angezeigt: {group}",
 	"organiser.overview.hint":
@@ -447,10 +448,11 @@ export const de = {
 	"organiser.overview.virtual": "Virtuelle Fahrten {n} % vom Training",
 	"organiser.overview.amounts": "{training} Training, {team} Team",
 	"organiser.overview.percent": "{n} %",
-	"organiser.overview.qualifiedList": "Dabei in Paris 🗼",
+	"organiser.overview.qualifiedList": "Trainingsziel erreicht 🎯",
 	"organiser.overview.qualifiedHint":
 		"Beide Schwellen und der Anteil draußen erreicht.",
-	"organiser.overview.nobodyYet": "Noch hat sich niemand qualifiziert.",
+	"organiser.overview.nobodyYet":
+		"Noch hat niemand das Trainingsziel erreicht.",
 	"organiser.overview.none": "Noch teilt niemand Rynke mit dem Team.",
 	"organiser.overview.column.name": "Wer",
 	"organiser.overview.column.group": "Gruppe",

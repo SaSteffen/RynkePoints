@@ -44,8 +44,8 @@ added with its story.
 | ID | Params | de | en |
 |---|---|---|---|
 | `rynke.summary.heading` | | Deine Rynke | Your Rynke |
-| `rynke.verdict.in` | | Du bist dabei: Du hast alles, was du für die Tour brauchst. | You're in: you have everything you need for the tour. |
-| `rynke.verdict.notYet` | | Noch nicht dabei. Dir fehlen: | Not in yet. You still need: |
+| `rynke.verdict.in` | | Qualifiziert für Paris! 🗼 Du hast alles, was du für die Tour brauchst. | Qualified for Paris! 🗼 You have everything you need for the tour. |
+| `rynke.verdict.notYet` | | Noch nicht qualifiziert 🍌 Dir fehlen: | Not qualified yet 🍌 You still need: |
 | `rynke.missing.training` | `n` | {n} Trainingsrynke | {n} Training Rynke |
 | `rynke.missing.team` | `n` | {n} Teamrynke | {n} Team Rynke |
 | `rynke.missing.withoutVirtual` | `n` | {n} Trainingsrynke aus Fahrten draußen (nicht virtuell) | {n} Training Rynke from outdoor (non-virtual) rides |
