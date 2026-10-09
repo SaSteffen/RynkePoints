@@ -129,9 +129,6 @@ still offers installing where possible.
 - The Strava request budget is used up when a new rider connects: the waiting state
   stays until the import can run, with the same message; it doesn't count down or
   promise a new time, and nothing tells the rider about budgets.
-- The whole team connects within a few minutes, e.g. right after launch: the
-  imports run one after another; with the current team size they all fit in the
-  5 minutes the message names.
 - A rider reconnects and their rides are fetched again (e.g. after granting private
   activities): they already have data, so they never see the waiting state or its
   one-time message.
@@ -254,8 +251,9 @@ still offers installing where possible.
 - Imports of two riders are not merged. Strava lists rides only per rider, with
   that rider's own permission, so a combined request doesn't exist and merging
   would save no requests. A season so far is usually one request per rider (up to
-  200 rides each), so even the whole team connecting at once stays far below
-  Strava's limits.
+  200 rides each), so even the whole team of about 50 riders connecting at once
+  needs about 50 requests, within Strava's 100 reads per 15 minutes and the 5
+  minutes the waiting message names.
 - "About 5 minutes" is a fixed, generous estimate, not computed from the queue or
   the budget.
 - Getting the first data to the open page by checking the app's own server
