@@ -105,17 +105,19 @@ stehen und zählt mit deinen nächsten Fahrten weiter.
 
 ## Eine Ausfahrt, eine Aufzeichnung
 
-Eine Fahrt zählt **gar nicht**, wenn deine Pausen zusammen **länger als die
-Hälfte deiner Fahrzeit** dauern. Fahrzeit ist die Zeit, in der du dich bewegt
-hast. Dann gibt es weder für Kilometer noch für Höhenmeter Rynke, und ihre
-Höhenmeter zählen auch nicht zu deiner Saisonsumme. Wer 4 Stunden fährt, darf
-also höchstens 2 Stunden Pause machen.
+Eine Fahrt zählt **gar nicht**, wenn deine Pausen zusammen **länger als deine
+Fahrzeit** dauern, also mehr als die Hälfte der ganzen Aufzeichnung ausmachen.
+Fahrzeit ist die Zeit, in der du dich bewegt hast. Dann gibt es weder für
+Kilometer noch für Höhenmeter Rynke, und ihre Höhenmeter zählen auch nicht zu
+deiner Saisonsumme. Wer 4 Stunden fährt, darf also höchstens 4 Stunden Pause
+machen.
 
 | Aufzeichnung                                        | Fahrzeit | Pause | Trainingsrynke |
 |-----------------------------------------------------|---------:|------:|---------------:|
 | 150 km mit Kaffee- und Mittagspause                 |      6 h |   2 h |             15 |
-| 150 km, Pause genau halb so lang wie die Fahrzeit   |      6 h |   3 h |             15 |
-| 100 km mit sehr langer Café-Pause                   |      4 h |   3 h |              0 |
+| 100 km mit langer Café-Pause                        |      4 h |   3 h |             10 |
+| 150 km, Pause genau so lang wie die Fahrzeit        |      6 h |   6 h |             15 |
+| 100 km mit sehr langer Café-Pause                   |      4 h |   5 h |              0 |
 | 600 km über Nacht                                   |     24 h |   6 h |             60 |
 | Weg zur Arbeit und zurück, 40 km, eine Aufzeichnung |      2 h |   7 h |              0 |
 | alle Fahrten einer Woche als eine Aufzeichnung      |     10 h | 150 h |              0 |

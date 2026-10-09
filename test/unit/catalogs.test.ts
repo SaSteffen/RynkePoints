@@ -155,6 +155,7 @@ const CONTRACT_IDS = [
 	"rynke.ride.fixHint",
 	"rynke.reason.flagged",
 	"rynke.reason.pause",
+	"rynke.reason.pause.moving",
 	"rynke.reason.pause.share",
 	"rynke.reason.pause.noLimit",
 	"rynke.reason.pause.noMovingTime",

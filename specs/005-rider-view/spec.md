@@ -234,9 +234,9 @@ check each row's reason texts in German and English.
    computer recording of the same ride, **When** the rider views their rides,
    **Then** the 78 km ride shows that it does not count because it overlaps the ride
    that counted instead, identified by its date, start time and distance.
-2. **Given** a 100 km ride with 4 h moving time and 3 h paused, **When** the rider
+2. **Given** a 100 km ride with 4 h moving time and 5 h paused, **When** the rider
    views their rides, **Then** it shows that it does not count because it was paused
-   for 3 h, more than half of its 4 h moving time.
+   for 5 h, longer than its 4 h moving time.
 3. **Given** a 15 km activity entered manually with 2 h moving time, **When** the
    rider views their rides, **Then** it lists both reasons: entered manually, and an
    average speed of 7.5 km/h below the lowest allowed 10 km/h.
@@ -540,8 +540,8 @@ requirements.
   limit of the rules the ride result was computed with (left out as in FR-013):
   - flagged by Strava: Strava flagged the ride, and a rider who disagrees settles it
     with Strava;
-  - pause: the paused time against the moving time, and that more than half is not
-    allowed;
+  - pause: the paused time against the moving time, and the largest allowed share
+    of it (pausing longer than moving under rules version 3, more than half before);
   - manual entry: entered manually on Strava;
   - too slow / too fast: the average speed against the lowest / highest allowed;
   - climbing rate: metres climbed per hour against the highest allowed;
@@ -1048,7 +1048,7 @@ flowchart TD
     unk -- yes --> un["Note: rule not checked yet,<br/>result may change"]
     counts -- no --> each["For every stored reason"]
     each --> flagged["Flagged by Strava<br/>→ settle it with Strava"]
-    each --> pause["Pause<br/>→ paused 3 h, more than half of 4 h moving"]
+    each --> pause["Pause<br/>→ paused 5 h, longer than 4 h moving"]
     each --> manual["Manual entry"]
     each --> speed["Too slow / too fast<br/>→ 7.5 km/h, lowest allowed 10 km/h"]
     each --> climb["Climbing rate<br/>→ 2,000 m/h, highest allowed 1,500 m/h"]

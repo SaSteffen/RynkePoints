@@ -134,6 +134,8 @@ export const de = {
 		"Strava hat die Fahrt markiert. Wenn du anderer Meinung bist, kläre das bitte mit Strava.",
 	"rynke.reason.pause":
 		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr als die Hälfte ist nicht erlaubt.",
+	"rynke.reason.pause.moving":
+		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr Pause als Bewegungszeit ist nicht erlaubt.",
 	"rynke.reason.pause.share":
 		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr als {share} ist nicht erlaubt.",
 	"rynke.reason.pause.noLimit":

@@ -131,6 +131,8 @@ export const en: Catalog = {
 		"Strava flagged this ride. If you disagree, please settle it with Strava.",
 	"rynke.reason.pause":
 		"Paused too long: {paused} paused for {moving} moving time – more than half is not allowed.",
+	"rynke.reason.pause.moving":
+		"Paused too long: {paused} paused for {moving} moving time – pausing longer than moving is not allowed.",
 	"rynke.reason.pause.share":
 		"Paused too long: {paused} paused for {moving} moving time – more than {share} is not allowed.",
 	"rynke.reason.pause.noLimit":

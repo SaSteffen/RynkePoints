@@ -11,7 +11,8 @@
 //
 // The team-event amounts are rule values too (FR-012). Version 2 is Story 3's
 // logic change: every evaluation counts attendance, with the same values as
-// version 1 (research R18).
+// version 1 (research R18). Version 3 lets a ride pause as long as it moves,
+// half of its elapsed time, instead of half its moving time (FR-005a).
 
 import { TEAM_EVENT_KINDS, type TeamEventKind } from "./team-events";
 
@@ -68,14 +69,25 @@ const RULES_V1: RynkeRules = {
 	},
 };
 
-export const CURRENT_RULES: RynkeRules = {
+const RULES_V2: RynkeRules = {
 	...RULES_V1,
 	version: 2,
 	effectiveDate: "2026-10-07",
 };
 
+export const CURRENT_RULES: RynkeRules = {
+	...RULES_V2,
+	version: 3,
+	effectiveDate: "2026-10-09",
+	maxPausedShare: { num: 1, den: 1 },
+};
+
 /** Every version ever in effect, `CURRENT_RULES` being the highest. */
-export const RULES_HISTORY: readonly RynkeRules[] = [RULES_V1, CURRENT_RULES];
+export const RULES_HISTORY: readonly RynkeRules[] = [
+	RULES_V1,
+	RULES_V2,
+	CURRENT_RULES,
+];
 
 /** The rules of a stored version; `null` for a version this code doesn't know. */
 export function rulesForVersion(version: number): RynkeRules | null {

@@ -191,21 +191,21 @@ describe("pause rule (FR-005a)", () => {
 		expect(training(riding)).toBe(15);
 	});
 
-	it("US2-9: 100 km paused for 3 of 4 h moving earns nothing", () => {
+	it("US2-9: 100 km paused for 5 h on 4 h moving earns nothing", () => {
 		const { results } = evaluate([
-			makeRide({ id: 1, km: 100, movingH: 4, pausedH: 3 }),
+			makeRide({ id: 1, km: 100, movingH: 4, pausedH: 5 }),
 		]);
 		expect(resultFor(results, 1).reasons).toEqual(["pause"]);
 	});
 
-	it("US2-10: paused exactly half the moving time counts, a second more doesn't", () => {
+	it("US2-10: paused exactly as long as moving counts, a second more doesn't", () => {
 		const { results } = evaluate([
-			makeRide({ id: 1, km: 60, movingH: 6, pausedH: 3, start: day(1) }),
+			makeRide({ id: 1, km: 60, movingH: 6, pausedH: 6, start: day(1) }),
 			makeRide({
 				id: 2,
 				km: 60,
 				movingH: 6,
-				pausedH: 3 + 1 / 3600,
+				pausedH: 6 + 1 / 3600,
 				start: day(2),
 			}),
 		]);

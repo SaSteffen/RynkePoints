@@ -38,10 +38,10 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
   stretched over several days? → A: A ride whose paused time (elapsed time minus
   moving time) is more than half of its moving time earns no Rynke at all. This
   rules out recording the way to work and back as one ride, and recording a whole
-  week as one ride.
+  week as one ride. (Limit superseded, see Session 2026-10-09.)
 - Q: Is "half the ride time" half of the elapsed time or half of the moving time?
   → A: Half of the moving time, the stricter reading (a hard limit): 4 h riding
-  with 3 h of breaks does not count.
+  with 3 h of breaks does not count. (Superseded, see Session 2026-10-09.)
 - Q: Is there an additional limit on a ride's total duration or on rides crossing
   midnight? → A: No. Long rides, including overnight rides, count as long as they
   pass the pause rule.
@@ -93,6 +93,15 @@ algorithm that derives these two numbers." Rules as given by the team (sheet
   read the flag, which can take until the activity is next read from Strava;
   the delay is accepted.
 
+### Session 2026-10-09
+
+- Q (raised by the project owner): Is half of the moving time too strict for
+  the pause rule? → A: Yes. A ride now counts as long as its paused time is not
+  more than half of its elapsed time (paused plus moving time), i.e. as long as
+  it pauses no longer than it moves: 4 h riding with 3 h of breaks counts, 4 h
+  with 5 h does not. Like every rule change, it applies retroactively to the
+  whole season.
+
 ## User Scenarios & Testing *(mandatory)*
 
 Terms: **Training Rynke** (German label "Trainingsrynke") reward riding volume;
@@ -132,7 +141,7 @@ RynkePoints adds to their Training Rynke: 1 for every full 10 km of that ride,
 and its elevation gain adds to a season total that earns 5 for every full
 1000 m. Distance leftovers below a full step are lost, so a 79 km ride earns 7;
 elevation gain is never lost, so two rides of 500 m earn 5. A ride whose breaks
-add up to more than half of its moving time (e.g. the way to work and back
+add up to more than its moving time (e.g. the way to work and back
 recorded as one ride) earns nothing. So do rides Strava has flagged, manual
 entries, e-bike rides, rides too slow or too fast to be bike rides, and second
 recordings of the same ride.
@@ -167,11 +176,11 @@ value.
    that ride earns 0 Training Rynke.
 8. **Given** a 150 km ride with 6 h moving time and 2 h paused, **When** the
    balance is evaluated, **Then** it earns 15 Training Rynke from distance as usual
-   (2 h is less than half of 6 h).
-9. **Given** a 100 km ride with 4 h moving time and 3 h paused, **When** the
-   balance is evaluated, **Then** it earns 0 Training Rynke (3 h is more than half
-   of 4 h).
-10. **Given** a ride with 6 h moving time and exactly 3 h paused, **When** the
+   (2 h is less than 6 h).
+9. **Given** a 100 km ride with 4 h moving time and 5 h paused, **When** the
+   balance is evaluated, **Then** it earns 0 Training Rynke (5 h is more than
+   4 h, so more than half of the 9 h elapsed).
+10. **Given** a ride with 6 h moving time and exactly 6 h paused, **When** the
     balance is evaluated, **Then** it counts.
 11. **Given** a 600 km overnight ride with 24 h moving time and 6 h paused,
     starting on one day and ending on the next, **When** the balance is evaluated,
@@ -284,7 +293,7 @@ results.
    ride with 600 m is stored, **Then** each ride result shows 600 m towards the
    total and the tally shows 1200 m earning 5 Training Rynke; neither ride result
    carries those 5.
-3. **Given** a 100 km ride with 4 h moving time and 3 h paused, **When** it is
+3. **Given** a 100 km ride with 4 h moving time and 5 h paused, **When** it is
    stored, **Then** its ride result shows that it does not count because of the
    pause rule, with 0 Training Rynke and 0 m, and the tally is unchanged.
 4. **Given** a 15 km activity entered manually with 2 h moving time, **When** it
@@ -396,8 +405,8 @@ re-evaluation, and check the correction is still applied exactly once.
   remaining 999 m count towards the next 1000 m together with the elevation gain
   of all other counting rides of the season. Splitting or merging rides makes no
   difference to elevation Rynke.
-- **Merged or stretched recordings**: a ride whose paused time is more than half
-  of its moving time earns no Rynke at all, neither for distance nor for
+- **Merged or stretched recordings**: a ride whose paused time is more than its
+  moving time (more than half of its elapsed time) earns no Rynke at all, neither for distance nor for
   elevation. This covers commutes recorded as one ride with the working day in
   between, several rides recorded as one, and long rides with very long breaks.
   Duration itself is not limited: overnight and other very long rides count when
@@ -502,10 +511,12 @@ re-evaluation, and check the correction is still applied exactly once.
 - **FR-005**: Only activities stored by feature 001 (cycling activities of the
   rider) count; other sports never earn Rynke.
 - **FR-005a**: A ride whose paused time (elapsed time minus moving time) is more
-  than half of its moving time MUST earn no Training Rynke, neither from distance
-  nor from elevation gain (its elevation gain is not added to the season total).
-  A ride paused for exactly half of its moving time still counts. A ride with
-  0 moving time counts as paused for all of it and earns nothing. The share of half is a rule value (FR-012). There MUST be no other limit
+  than its moving time, i.e. more than half of its elapsed time, MUST earn no
+  Training Rynke, neither from distance nor from elevation gain (its elevation
+  gain is not added to the season total). A ride paused exactly as long as it
+  moved still counts. A ride with 0 moving time counts as paused for all of it
+  and earns nothing. The largest paused share of the moving time (1/1; 1/2 up
+  to rules version 2) is a rule value (FR-012). There MUST be no other limit
   on a ride's duration, and a ride spanning several calendar days MUST NOT be
   excluded for that reason alone.
 - **FR-005g**: A ride that Strava has flagged (Strava then keeps it out of club

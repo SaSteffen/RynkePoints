@@ -159,8 +159,8 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			ride(1, "07:00", 20, 50, 8),
 			// 60 km/h, above 45.
 			ride(2, "07:00", 60, 100, 60),
-			// 60 minutes' pause on 90 moving, more than half.
-			{ ...ride(3, "07:00", 40, 200, 26.67), elapsedMin: 150 },
+			// 110 minutes' pause on 90 moving, longer than moving.
+			{ ...ride(3, "07:00", 40, 200, 26.67), elapsedMin: 200 },
 			// 3,000 m in 90 minutes: 2,000 m/h, above 1,500.
 			ride(4, "07:00", 30, 3000, 20),
 			ride(5, "07:00", 40, 200, 25, { manual: true }),

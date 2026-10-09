@@ -400,6 +400,7 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 			};
 			if (!reason.share) return i18n.t("rynke.reason.pause.noLimit", times);
 			const { num, den } = reason.share;
+			if (num === den) return i18n.t("rynke.reason.pause.moving", times);
 			return num * 2 === den
 				? i18n.t("rynke.reason.pause", times)
 				: i18n.t("rynke.reason.pause.share", {
