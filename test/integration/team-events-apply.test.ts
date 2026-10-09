@@ -48,8 +48,8 @@ const NAME = "Synthetic team ride";
 let fake: FakeStrava;
 let ctx: TestCtx;
 
-function change(c: TeamEventChange, now = NOW, rules = CURRENT_RULES) {
-	return applyTeamEventChange(db, c, rules, countingWindow(env, rules), now);
+function change(c: TeamEventChange, now = NOW, window = countingWindow(env)) {
+	return applyTeamEventChange(db, c, CURRENT_RULES, window, now);
 }
 
 function evaluate(athleteId: number, rules: RynkeRules = CURRENT_RULES) {
@@ -58,7 +58,7 @@ function evaluate(athleteId: number, rules: RynkeRules = CURRENT_RULES) {
 		athleteId,
 		{ kind: "none" },
 		rules,
-		countingWindow(env, rules),
+		countingWindow(env),
 		NOW,
 	);
 }
@@ -324,15 +324,12 @@ describe("update-event", () => {
 	});
 
 	it("moving the event past the deadline takes its Rynke away", async () => {
-		const rules: RynkeRules = {
-			...CURRENT_RULES,
-			qualificationDeadline: "2026-08-31",
-		};
+		const window = { ...countingWindow(env), deadline: "2026-08-31" };
 		const eventId = await insertEvent("team_training", "2026-08-31");
 		await change(
 			{ kind: "add-attendance", eventId, athleteIds: [ATHLETE_A] },
 			NOW,
-			rules,
+			window,
 		);
 		expect((await balance(ATHLETE_A)).teamRynke).toBe(1);
 
@@ -343,11 +340,11 @@ describe("update-event", () => {
 				event: { kind: "team_training", date: "2026-09-01", name: null },
 			},
 			NOW,
-			rules,
+			window,
 		);
 
 		expect((await balance(ATHLETE_A)).teamRynke).toBe(0);
-		await expectConsistent(ATHLETE_A, rules);
+		await expectConsistent(ATHLETE_A, CURRENT_RULES, window);
 	});
 
 	it("is refused for invalid input", async () => {
@@ -663,7 +660,7 @@ describe("many attendees", () => {
 			counting,
 			{ kind: "delete-event", eventId },
 			CURRENT_RULES,
-			countingWindow(env, CURRENT_RULES),
+			countingWindow(env),
 			NOW,
 		);
 

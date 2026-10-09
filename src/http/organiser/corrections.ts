@@ -22,11 +22,11 @@ import {
 	requireOrganiserPost,
 } from "./access";
 
-// A rider's corrections (feature 014 Story 3, contracts/http-routes.md): the
-// listed riders at `/organiser/riders`, and each rider's corrections with an
-// add form at `/organiser/riders/{id}`. Every change goes through
-// `correctionChange`, so the rider's Rynke follow (FR-030, FR-031). The pages
-// show no balances (FR-042).
+// A rider's corrections (feature 014 Story 3, contracts/http-routes.md): each
+// rider's corrections with an add form at `/organiser/riders/{id}`, reached
+// from the team overview at `/organiser/riders` (feature 016). Every change
+// goes through `correctionChange`, so the rider's Rynke follow (FR-030,
+// FR-031).
 
 const LIST = "/organiser/riders";
 
@@ -86,34 +86,6 @@ ${changeRecord(i18n, correction.changed_by_name, correction.changed_at)}
 <form method="post" action="/organiser/corrections/${correction.correction_id}/delete"><button class="danger">${i18n.t("organiser.corrections.removeConfirm")}</button></form>
 </details>
 </li>`;
-}
-
-/** `GET /organiser/riders`: the listed riders by first name. */
-export function handleOrganiserRiders(
-	request: Request,
-	ctx: Ctx,
-	i18n: I18n,
-): Promise<Response> {
-	return organiserPage(request, ctx, i18n, LIST, async () => {
-		const riders = await listedRiders(ctx);
-		const list =
-			riders.length === 0
-				? html`<p>${i18n.t("organiser.riders.none")}</p>`
-				: html`<ul class="attendance-list">${riders.map(
-						(r) =>
-							html`<li class="attendance-rider"><a href="${riderPath(r.athlete_id)}" class="rider-name">${r.first_name}</a>${
-								r.profileLink === null
-									? ""
-									: html` <a href="${r.profileLink}">${i18n.t("organiser.attendance.profile")}</a>`
-							}</li>`,
-					)}</ul>`;
-		return html`${noticeFromQuery(new URL(request.url), i18n)}
-<section class="organiser">
-<p><a href="/organiser">${i18n.t("organiser.back")}</a></p>
-<h2>${i18n.t("organiser.riders.heading")}</h2>
-${list}
-</section>`;
-	});
 }
 
 /** `GET /organiser/riders/{id}`: the rider's corrections and a new one. */

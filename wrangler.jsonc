@@ -46,6 +46,8 @@
 	"vars": {
 		"STRAVA_CLUB_ID": "2372209",
 		"SEASON_START_DATE": "2026-09-01",
+		// Last day rides and team events count; the even pace runs to it (016).
+		"QUALIFICATION_DEADLINE": "2027-06-30",
 		// "0" until the webhook subscription is created (quickstart §3 step 12).
 		"STRAVA_SUBSCRIPTION_ID": "375559",
 		// VAPID contact for the push services (010 research R4).

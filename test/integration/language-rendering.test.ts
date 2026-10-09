@@ -49,8 +49,14 @@ function expectLanguage(
 	expect(html).toContain(`<html lang="${locale}">`);
 	expect(res.headers.get("Content-Language")).toBe(locale);
 	expect(res.headers.get("Vary")).toBe("Accept-Language, Cookie");
+	// The Team page's quote is German in every language (016 FR-023) and is
+	// picked at random, so its words can match either catalog.
+	const page = html.replace(
+		/<blockquote [^>]*lang="de">[\s\S]*?<\/blockquote>/g,
+		"",
+	);
 	for (const text of locale === "de" ? ENGLISH_ONLY : GERMAN_ONLY) {
-		expect(html).not.toContain(text);
+		expect(page).not.toContain(text);
 	}
 }
 

@@ -147,3 +147,25 @@ describe.each(PAGES)("GET $url", ({ url, current }) => {
 		}
 	});
 });
+
+// Feature 016: organisers get Orga before Settings, on every section.
+describe("the navigation of an organiser", () => {
+	it.each(SECTIONS)("has Orga before Settings on $path", async ({ path }) => {
+		await seedRider(ctx, { organiser: true });
+		const { html } = await get(path);
+		const [nav] = navs(html);
+		const hrefs = [...(nav ?? "").matchAll(/<a href="([^"]*)"/g)].map(
+			(m) => m[1],
+		);
+		expect(hrefs).toEqual([
+			"/me",
+			"/me/rides",
+			"/team",
+			"/organiser/riders",
+			"/me/settings",
+		]);
+		expect(nav).toContain(
+			`<span class="nav-label">${de["nav.organiser"]}</span>`,
+		);
+	});
+});

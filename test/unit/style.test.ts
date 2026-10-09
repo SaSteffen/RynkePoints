@@ -69,17 +69,80 @@ describe("STYLE", () => {
 		);
 	});
 
-	it("centres the Team placeholder under the large coin (FR-013, 012 FR-003)", () => {
-		expect(declsOf(".placeholder")).toMatchObject({
-			display: "flex",
-			"flex-direction": "column",
-			"align-items": "center",
-			"text-align": "center",
+	it("lays the kind switch out as full-width segments and the list toggle as chips (016)", () => {
+		expect(declsOf("nav.kind-switch").display).toBe("flex");
+		expect(declsOf(".kind-switch .segmented").flex).toBe("1");
+		expect(declsOf("nav.list-scope").display).toBe("flex");
+		expect(declsOf(".list-scope .segmented").flex).toBeUndefined();
+	});
+
+	it("marks the viewer's own row in Rynkeby yellow (016, the draft)", () => {
+		expect(declsOf("li.row.you").background).toBe(
+			"var(--md-sys-color-secondary-container)",
+		);
+	});
+
+	it("keeps the sparkline small beside the row's figures (016, the draft)", () => {
+		expect(declsOf(".sparkline")).toMatchObject({
+			width: "96px",
+			height: "22px",
 		});
-		expect(declsOf(".coin-large")).toMatchObject({
-			width: "144px",
-			height: "144px",
+	});
+
+	it("puts the team total on the coin's ink with its gold rim (016, the draft)", () => {
+		expect(declsOf(".team-total")).toMatchObject({
+			background: "var(--rp-coin-ink)",
+			border: "2px solid var(--rp-coin-rim)",
 		});
+	});
+
+	it("fits the peloton and the team chart to the page's width (016 FR-040)", () => {
+		expect(declsOf(".peloton-road")).toMatchObject({
+			width: "100%",
+			height: "auto",
+		});
+		expect(declsOf(".week-bars").width).toBe("100%");
+	});
+
+	it("highlights the current week's bar in the team chart (016 contracts/pages.md)", () => {
+		expect(declsOf(".week-bars rect.current").fill).toBe(
+			"var(--rp-coin-yellow)",
+		);
+		expect(declsOf(".week-bars rect").fill).not.toBe(
+			declsOf(".week-bars rect.current").fill,
+		);
+	});
+
+	it("colours the push quote orange and the on-track quote green (016, the draft)", () => {
+		expect(declsOf(".quote")).toMatchObject({
+			"border-left": "6px solid var(--rp-push-accent)",
+			background: "var(--rp-push-container)",
+		});
+		expect(declsOf(".quote-on-track")).toMatchObject({
+			"border-left-color": "var(--rp-ok-accent)",
+			background: "var(--rp-ok-container)",
+		});
+	});
+
+	it("shows the overview as cards below 840 px and as a table from 840 px (016 FR-035, research R9)", () => {
+		const PHONE = "(max-width:839.98px)";
+		const DESKTOP = "(min-width:840px)";
+		expect(declsOf(".table-scroll", PHONE).display).toBe("none");
+		expect(
+			declsOf(".rider-cards.default .rider-card:not(.status-push)", PHONE)
+				.display,
+		).toBe("none");
+		expect(declsOf("ul.rider-cards", DESKTOP).display).toBe("none");
+		expect(declsOf(".table-scroll")["overflow-x"]).toBe("auto");
+		// The tile shown by default looks like a picked one.
+		expect(declsOf(".group-tiles.default .tile-push", PHONE)).toEqual(
+			declsOf(".group-tile[aria-current]"),
+		);
+		expect(declsOf(".group-tiles.default .tile-all", DESKTOP)).toEqual(
+			declsOf(".group-tile[aria-current]"),
+		);
+		expect(declsOf(".showing-wide", PHONE).display).toBe("none");
+		expect(declsOf(".showing-phone", DESKTOP).display).toBe("none");
 	});
 
 	it("drops the celebration coins in, and keeps them still for reduced motion (012 FR-002)", () => {
