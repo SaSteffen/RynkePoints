@@ -101,7 +101,7 @@ uses rim, ink, face and yellow too.
 | `--rp-content-max` | 1040 px; the Overview uses 2 columns at ≥ 600 px, the other sections 1 column at max 640 px |
 | `--rp-tap` | 44 px, the minimum height and width of every control (FR-022) |
 | `--rp-nav-height` | 80 px, plus `env(safe-area-inset-bottom)` (< 600 px) |
-| `--rp-topbar-height` | 64 px (< 600 px), 72 px (≥ 600 px), plus `env(safe-area-inset-top)` |
+| `--rp-topbar-height` | 64 px at every width (Material 3 small top app bar; pinned since #62), plus `env(safe-area-inset-top)` |
 | Breakpoint | 600 px (`@media (min-width: 600px)`) |
 
 ## Shapes
