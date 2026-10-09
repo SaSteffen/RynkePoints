@@ -288,10 +288,10 @@ the stored rows and that the balance includes each exactly once.
 
 ## Phase 6: Polish
 
-- [ ] T028 [P] Add two sample events with attendance for the sample riders to
+- [X] T028 [P] Add two sample events with attendance for the sample riders to
   `dev/fake-strava/seed.ts`, recorded by "Tina TrainingDone", so `pnpm dev` shows
   data (synthetic only; `src/` still doesn't import `dev/`).
-- [ ] T029 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; confirm
+- [X] T029 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; confirm
   `no-hardcoded-copy`, catalog parity and `dev-guard` pass.
 
 ---
