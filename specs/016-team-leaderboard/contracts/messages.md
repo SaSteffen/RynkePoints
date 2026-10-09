@@ -32,7 +32,7 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `team.peloton.label` | {count} riders between {min} and {max} Rynke; you have {own} | {count} Leute zwischen {min} und {max} Rynke; du hast {own} |
 | `team.peloton.you` | You | Du |
 | `team.list.heading` | Leaderboard | Rangliste |
-| `team.list.count` | {n} riders listed | {n} im Team |
+| `team.list.count` | {n} riders listed | {n} Rider |
 | `team.list.hint` | No names, just Rynke. The line shows each rider's season so far. | Keine Namen, nur Rynke. Die Linie zeigt die bisherige Saison jeder Person. |
 | `team.list.scope` | Show | Zeigen |
 | `team.list.around` | Around you | Um dich herum |
@@ -60,7 +60,6 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `organiser.overview.heading` | Team overview | Teamübersicht |
 | `organiser.overview.deadline` | Deadline {date} · {n} days to go | Stichtag {date} · noch {n} Tage |
 | `organiser.overview.deadlinePassed` | The deadline {date} has passed | Der Stichtag {date} ist vorbei |
-| `organiser.overview.noDeadline` | No deadline set yet | Noch kein Stichtag festgelegt |
 | `organiser.overview.qualified` | {n} of {count} in for Paris 🗼 | {n} von {count} sind dabei in Paris 🗼 |
 | `organiser.overview.groups` | Groups | Gruppen |
 | `organiser.overview.group.push` | Need a push 🍌 | Brauchen Schwung 🍌 |

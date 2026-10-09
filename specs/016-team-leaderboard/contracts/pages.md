@@ -26,7 +26,8 @@ The draft's look, section by section: colours come from the tokens in
      quote list's meaning, so it comes from the catalog in each language
      ("For you").
    - One quote from `QUOTES_PUSH` or `QUOTES_ON_TRACK` (research R4, R10),
-     bold, in German quotation marks.
+     bold, in German quotation marks. No footer under the quote (the draft's
+     "Dein Tempo bis …" line is left out on purpose).
 5. **Peloton** `figure.peloton`: heading "The peloton 🚴" and a one-line hint;
    a dark road with a dashed yellow middle line and one mini coin per other
    listed rider at its total's position in three lanes, the viewer as the
@@ -55,11 +56,11 @@ The draft's look, section by section: colours come from the tokens in
 
 ## `/organiser/riders`
 
-1. **Deadline card**: deadline date and "{n} days to go", "The deadline has
-   passed", or "No deadline set yet".
+1. **Deadline card**: deadline date and "{n} days to go", or "The deadline has
+   passed".
 2. **Qualified card**: "{n} of {count} in for Paris 🗼".
-3. **Group tiles** `nav.group-tiles`: "Need a push 🍌" (or "Not yet in" without a
-   running deadline), "On track 🚴" (only with a running deadline), "In for Paris
+3. **Group tiles** `nav.group-tiles`: "Need a push 🍌" (or "Not yet in" once the
+   deadline has passed), "On track 🚴" (only before the deadline), "In for Paris
    🗼", "Everyone", each with its count (research R9).
 4. **Cards** `ul.rider-cards` (below 840 px), one `li.rider-card.status-{status}`:
    - first name linking to the corrections page, "View on Strava" link when

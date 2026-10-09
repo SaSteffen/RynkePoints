@@ -84,11 +84,13 @@ different weeks in the app.
   (deadline − seasonStart)⌋ in whole days, clamped to 0…amount. This is the spec's
   FR-030 definition.
 - `riderStatus(balance, rules, window, today)` returns `"in"` when the balance
-  qualifies, else `"push"` when the deadline is set, not passed, and any of
-  Training, Team or outdoor Training (`trainingWithoutVirtual` against
-  `virtualShareRequired`) is below its even pace; else `"on_track"`. Without a
-  deadline, or once it has passed, an unqualified rider is `"push"` (the spec's
-  "Not yet in" group and "needs a push" quotes).
+  qualifies, else `"push"` when the deadline has passed or any of Training, Team
+  or outdoor Training (`trainingWithoutVirtual` against `virtualShareRequired`)
+  is below its even pace; else `"on_track"`.
+- The deadline is the team setting `QUALIFICATION_DEADLINE` (spec FR-005), read
+  with the season start by `countingWindow(env)`; it is always set, so there is
+  no "no deadline" case. It left `RynkeRules` (`qualificationDeadline`): a team
+  date, not a rule value, and the even pace needs it from day one.
 - The leaderboard calls it only for the viewer (their own quote list); the overview
   calls it for every rider.
 - Thresholds come from `CURRENT_RULES`; the stored balance's `qualified` decides

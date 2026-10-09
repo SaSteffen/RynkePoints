@@ -28,7 +28,7 @@ organiser.
 |---|---|---|
 | `group` | `push`, `on_track`, `in`, `all` | none: every rider rendered, CSS shows "Need a push" below 840 px (research R9) |
 
-- Without a running deadline, `on_track` is treated as `all` and its tile is not
+- Once the deadline has passed, `on_track` is treated as `all` and its tile is not
   shown (data-model.md `RiderStatus`).
 - Each rider links to `/organiser/riders/{athleteId}` (014's corrections page,
   unchanged).

@@ -36,6 +36,10 @@ mode, organiser overview on a phone and a desktop, sample season on Thursday
   well on track get different lists of about 200 quotes each; the on-track list
   reminds riders to encourage others, plan team rides and the like. The quote
   changes only when the page loads; there is no button for the next one.
+- Q: Where does the qualification deadline come from? → A: It is a team setting,
+  stored like the season start date (`QUALIFICATION_DEADLINE`), and for now it is
+  30 June 2027. Without it the app can't tell who is on track, so there is always
+  one; it no longer belongs to the versioned rules.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -147,7 +151,7 @@ the overview is refused.
 
 **Acceptance Scenarios**:
 
-1. **Given** an organiser on a phone and a running deadline, **When** they open the
+1. **Given** an organiser on a phone before the deadline, **When** they open the
    overview, **Then** "Need a push" is selected and lists every rider who is behind the even pace (FR-030) on
    Training, Team or outdoor Training Rynke and does not yet qualify.
 2. **Given** a rider who qualifies (feature 003 FR-013), **When** the organiser looks,
@@ -170,9 +174,6 @@ the overview is refused.
 - A viewer whose place is 1st: "You lead the peloton. Bring the others along!"
   instead of the Rynke to the next place.
 - A rider without any stored balance yet (no evaluated rides): counted with 0 Rynke.
-- No qualification deadline set: no even pace, no days to go, no pace marks; the
-  organiser groups are "Not yet in" and "In for Paris", and the quote list is "on
-  track" for riders who qualify and "needs a push" for the others.
 - The deadline has passed: the days-to-go card says the deadline has passed; groups
   and quote lists follow qualification only.
 - The first week of the season can be shorter (feature 009's week).
@@ -200,6 +201,9 @@ the overview is refused.
   MUST NOT trigger an evaluation or a Strava request.
 - **FR-004**: Riders without a current consent MUST be left out of every row,
   coin, count, total, bar, place and group (feature 004 FR-021).
+- **FR-005**: The qualification deadline MUST be a team setting like the season
+  start date (feature 002), always set: the last day rides and team events count
+  (feature 003 FR-011) and the end of the even pace (FR-030). It is 30 June 2027.
 
 **Team leaderboard**
 
@@ -233,8 +237,7 @@ the overview is refused.
   no control for the next quote.
 - **FR-021**: The "needs a push" list MUST be used for a rider who does not qualify
   and is behind the even pace (FR-030) on Training, Team or outdoor Training Rynke;
-  the "on track" list for every other rider. Without a deadline, the lists follow
-  qualification only.
+  the "on track" list for every other rider.
 - **FR-022**: Each list MUST hold about 200 quotes in German, fun and mostly
   motivating, from several angles (cycling, the team, Paris, the coin and its
   orangutan, weather, the cause the team rides for). The "on track" list MUST mostly

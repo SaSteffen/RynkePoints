@@ -83,11 +83,12 @@ then carry only these fields (FR-010, SC-002).
 | Status | When |
 |---|---|
 | `in` | the stored balance qualifies (003 FR-013) |
-| `push` | not `in`, and either no running deadline, or any of Training, Team, outdoor Training below its even pace |
+| `push` | not `in`, and either the deadline has passed, or any of Training, Team, outdoor Training below its even pace |
 | `on_track` | otherwise |
 
-"Running deadline" means set and not passed. Without one, the overview labels
-`push` as "Not yet in" and shows no "On track" tile (spec edge cases).
+The deadline is the team setting `QUALIFICATION_DEADLINE` (spec FR-005), always
+set. Once it has passed, the overview labels `push` as "Not yet in" and shows no
+"On track" tile (spec edge cases).
 
 ### `OverviewRider` (organiser only)
 

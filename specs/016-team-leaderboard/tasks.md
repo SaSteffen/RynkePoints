@@ -45,9 +45,8 @@ pages need.
     `lastDay` itself; a season starting on a Wednesday gives a short first week;
     `lastDay` on a Sunday ends on that Sunday; a `lastDay` before the season start
     gives exactly one week end.
-  - `lastDay(today, deadline)`: today, or the deadline once it has passed, or
-    today when the deadline is null.
-  - `riderWeeks(inputs, seasonStart, weekEnds, balance)`, with the rules of the
+  - `lastDay(today, deadline)`: today, or the deadline once it has passed.
+  - `riderWeeks(inputs, window, weekEnds, balance)`, with the rules of the
     balance's version: distance and elevation sums
     accumulate per week with elevation floored on the running total (not per
     week); attendance counts from its event date and corrections from their
@@ -65,9 +64,8 @@ pages need.
     `CountingWindow`: season start and deadline): `"in"` when `balance.qualified`;
     `"push"` when Training alone, Team alone or outdoor Training
     (`trainingWithoutVirtual` against `virtualShareRequired`) alone is below its
-    even pace; `"on_track"` when all are on or above it; with
-    `qualificationDeadline: null` or a deadline before `today` only `"in"` or
-    `"push"`; a rider without a balance (null) is `"push"`.
+    even pace; `"on_track"` when all are on or above it; with a deadline
+    before `today` only `"in"` or `"push"`; a rider without a balance (null) is `"push"`.
 - [x] T004 [P] `test/integration/team-read.test.ts` (new) for `src/db/team.ts`
   against the test D1: `readTeam(db)` returns the listed riders (014's
   `listListedRidersStatement`: connected and sharing consent; a rider without
@@ -189,8 +187,8 @@ both list modes ([quickstart.md](quickstart.md) §2 steps 1–2).
 - [x] T016 [P] [US1] Create `src/http/charts.ts` with `sparkline(values, label)`
   per T010 (inline SVG, no library). T010 passes.
 - [x] T017 [US1] Rewrite `src/http/sections/team.ts`: `handleTeam` reads
-  `readTeam`, builds week ends from `SEASON_START_DATE` and
-  `lastDay(berlinDate(ctx.now()), CURRENT_RULES.qualificationDeadline)`, each
+  `readTeam`, builds week ends from `countingWindow(ctx.env)` (season start and
+  `QUALIFICATION_DEADLINE`) and `lastDay(berlinDate(ctx.now()), deadline)`, each
   listed rider's `riderWeeks`, then the rows and neighbourhood; parses `kind` and
   `all` per [contracts/http-routes.md](contracts/http-routes.md) and renders in
   the order of [contracts/pages.md](contracts/pages.md) `/team` sections 2, 3, 6
@@ -273,9 +271,8 @@ matching list ([quickstart.md](quickstart.md) §1 "Team page").
 - [x] T027 [P] [US3] `test/integration/team-leaderboard.test.ts`: a viewer who
   doesn't qualify gets `blockquote.quote.quote-push[lang="de"]` whose text is in
   `QUOTES_PUSH`; a viewer whose balance has `qualified = 1` gets
-  `.quote-on-track` with a text in `QUOTES_ON_TRACK` (the current rules have no
-  deadline, so the lists follow qualification; the deadline cases are covered by
-  T003); with `rp_lang=en` the quote is still from the German list, still
+  `.quote-on-track` with a text in `QUOTES_ON_TRACK` (the pace cases are
+  covered by T003); with `rp_lang=en` the quote is still from the German list, still
   `lang="de"`, and its heading is the English `team.quote.*` (US3 #1, #2, #4).
   Stub `crypto.getRandomValues` to show two loads can pick different quotes
   (US3 #3).
@@ -313,17 +310,16 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
 - [ ] T030 [P] [US4] `test/unit/overview.test.ts` (new) for the pure
   `overviewRiders(read, rules, window, today)` and `overviewBody(read, rules,
   window, today, group, i18n)` exported from `src/http/organiser/overview.ts` (data-model.md
-  `OverviewRider`), with a rules copy that has a running deadline (`{
-  ...CURRENT_RULES, qualificationDeadline: "<date after today>" }`), since
-  `CURRENT_RULES` has none:
+  `OverviewRider`), with `CURRENT_RULES` and a window whose deadline lies
+  after `today`:
   - each rider's `status` is `riderStatus`'s; `pace` per amount is `evenPace`;
     `missing` is `trainingMissing`, `teamMissing`, `virtualShareMissing` from the
     balance, each flagged `behind` when its amount is below its pace;
   - `breakdown`: distance and elevation Rynke from the balance, per team-event
     kind the attended count with its Training and Team, corrections summed from
     the read, virtual share in whole percent;
-  - group counts for push, on_track, in and all; with no deadline and with a
-    passed deadline there is no on_track (spec edge cases);
+  - group counts for push, on_track, in and all; with a passed deadline there
+    is no on_track (spec edge cases);
   - `overviewBody` with the running deadline renders `organiser.overview.deadline`
     with the hand-worked days to go, the "Need a push" and "On track" tiles with
     their counts, the even-pace marks, and `?group=on_track` renders only the
@@ -334,10 +330,11 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
   without consent):
   - access: visitor `302 /`, rider who isn't an organiser `403`, organiser `200`
     (US4 #4);
-  - `organiser.overview.noDeadline`; tiles "Not yet in", "In for Paris",
-    "Everyone" with counts and no "On track" tile; "{n} of {count} in for Paris";
+  - `organiser.overview.deadline` for `QUALIFICATION_DEADLINE` with the days
+    to go from the test clock; tiles "Need a push", "On track", "In for Paris",
+    "Everyone" with counts; "{n} of {count} in for Paris";
   - `?group=in` renders only the qualified rider and marks its tile
-    `aria-current="true"`; `?group=on_track` without a deadline renders everyone;
+    `aria-current="true"`; `?group=on_track` renders only on-track riders;
   - both Jonas carry "View on Strava" links, other riders none (US4 #3);
   - each rider's name links to `/organiser/riders/{id}`; the card and the table
     row show the stored balance's Training, Team and outdoor Training and the
