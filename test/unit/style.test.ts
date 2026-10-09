@@ -69,21 +69,30 @@ describe("STYLE", () => {
 		);
 	});
 
-	it("lays the kind switch and the list toggle out as full-width segments (016)", () => {
-		for (const nav of [".kind-switch", ".list-scope"]) {
-			expect(declsOf(nav).display).toBe("flex");
-			expect(declsOf(`${nav} .segmented`).flex).toBe("1");
-		}
+	it("lays the kind switch out as full-width segments and the list toggle as chips (016)", () => {
+		expect(declsOf("nav.kind-switch").display).toBe("flex");
+		expect(declsOf(".kind-switch .segmented").flex).toBe("1");
+		expect(declsOf("nav.list-scope").display).toBe("flex");
+		expect(declsOf(".list-scope .segmented").flex).toBeUndefined();
 	});
 
-	it("marks the viewer's own row in the coin's gold (016, 012)", () => {
-		expect(declsOf("li.row.you")["border-color"]).toBe("var(--rp-coin-rim)");
+	it("marks the viewer's own row in Rynkeby yellow (016, the draft)", () => {
+		expect(declsOf("li.row.you").background).toBe(
+			"var(--md-sys-color-secondary-container)",
+		);
 	});
 
-	it("stretches the sparkline across its row without a fixed width (016 R5)", () => {
+	it("keeps the sparkline small beside the row's figures (016, the draft)", () => {
 		expect(declsOf(".sparkline")).toMatchObject({
-			width: "100%",
-			flex: "1 0 100%",
+			width: "96px",
+			height: "22px",
+		});
+	});
+
+	it("puts the team total on the coin's ink with its gold rim (016, the draft)", () => {
+		expect(declsOf(".team-total")).toMatchObject({
+			background: "var(--rp-coin-ink)",
+			border: "2px solid var(--rp-coin-rim)",
 		});
 	});
 
@@ -97,18 +106,22 @@ describe("STYLE", () => {
 
 	it("highlights the current week's bar in the team chart (016 contracts/pages.md)", () => {
 		expect(declsOf(".week-bars rect.current").fill).toBe(
-			"var(--md-sys-color-primary)",
+			"var(--rp-coin-yellow)",
 		);
 		expect(declsOf(".week-bars rect").fill).not.toBe(
 			declsOf(".week-bars rect.current").fill,
 		);
 	});
 
-	it("gives each quote list its own Rynkeby accent (016 T029)", () => {
-		expect(declsOf(".quote")["border-left"]).toContain("var(--rp-coin-yellow)");
-		expect(declsOf(".quote-on-track")["border-left-color"]).toBe(
-			"var(--rp-coin-team)",
-		);
+	it("colours the push quote orange and the on-track quote green (016, the draft)", () => {
+		expect(declsOf(".quote")).toMatchObject({
+			"border-left": "6px solid var(--rp-push-accent)",
+			background: "var(--rp-push-container)",
+		});
+		expect(declsOf(".quote-on-track")).toMatchObject({
+			"border-left-color": "var(--rp-ok-accent)",
+			background: "var(--rp-ok-container)",
+		});
 	});
 
 	it("drops the celebration coins in, and keeps them still for reduced motion (012 FR-002)", () => {

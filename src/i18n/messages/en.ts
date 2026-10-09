@@ -355,7 +355,9 @@ export const en: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
-	"team.total.label": "Team {kind}",
+	"team.total.label": "Team Rynkeby Hamburg 🦧",
+	"team.total.value": "{n} Rynke",
+	"team.total.kind": "{kind} Rynke collected together",
 	"team.total.thisWeek": "+{n} this week 🔥",
 	"team.kind.label": "Which Rynke",
 	"team.kind.training": "Training",
@@ -366,11 +368,18 @@ export const en: Catalog = {
 	"team.place.lead": "You lead the peloton. Bring the others along!",
 	"team.quote.push": "For you 🍌",
 	"team.quote.onTrack": "For you 🤝",
-	"team.peloton.heading": "The peloton",
+	"team.peloton.heading": "The peloton 🚴",
+	"team.peloton.hint":
+		"Every coin is a rider. The front of the bunch rides on the right.",
+	"team.peloton.back": "Back of the bunch",
+	"team.peloton.front": "Front 🏁",
 	"team.peloton.label":
 		"{count} riders between {min} and {max} Rynke; you have {own}",
 	"team.peloton.you": "You",
 	"team.list.heading": "Leaderboard",
+	"team.list.count": "{n} riders listed",
+	"team.list.hint":
+		"No names, just Rynke. The line shows each rider's season so far.",
 	"team.list.scope": "Show",
 	"team.list.around": "Around you",
 	"team.list.everyone": "Everyone",
@@ -379,10 +388,13 @@ export const en: Catalog = {
 	"team.list.you": "You 🦧",
 	"team.list.other": "{n} {kind}",
 	"team.list.weeks": "Week by week: {values}",
-	"team.chart.heading": "The team week by week",
+	"team.chart.heading": "The team, week by week",
+	"team.chart.hint":
+		"Everyone's {kind} Rynke added up, at the end of each week.",
+	"team.chart.now": "this week",
 	"team.chart.label":
 		"Team {kind} at the end of each week, {weeks} weeks, now {total}",
-	"team.chart.best": "Best week: {date} (+{n})",
+	"team.chart.best": "Best team week so far: +{n} in the week ending {date} 🔥",
 	"team.chart.table": "All weeks",
 	"team.chart.week": "Week ending",
 	"team.chart.total": "Total",

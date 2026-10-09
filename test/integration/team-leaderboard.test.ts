@@ -70,7 +70,7 @@ const teamChartOf = (page: string) =>
 const quoteOf = (page: string) =>
 	sectionOf(page, '<blockquote class="quote', "</blockquote>");
 const leaderboardOf = (page: string) =>
-	sectionOf(page, '<section class="leaderboard">', "</section>");
+	sectionOf(page, '<section class="leaderboard', "</section>");
 const myPlaceOf = (page: string) =>
 	sectionOf(page, '<section class="my-place', "</section>");
 
@@ -286,10 +286,11 @@ describe("GET /team, the team's progress (US2)", () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team");
 		const total = teamTotalOf(html);
 		expect(total).toContain('href="#coin-front"');
+		expect(total).toContain(escapeHtml(de["team.total.label"]));
+		expect(total).toContain(fill(de["team.total.value"], { n: "1.790" }));
 		expect(total).toContain(
-			fill(de["team.total.label"], { kind: de["team.kind.training"] }),
+			fill(de["team.total.kind"], { kind: de["team.kind.training"] }),
 		);
-		expect(total).toContain(">1.790<");
 		expect(total).toContain(fill(de["team.total.thisWeek"], { n: "1.775" }));
 	});
 
@@ -297,22 +298,26 @@ describe("GET /team, the team's progress (US2)", () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team?kind=team", "en");
 		const total = teamTotalOf(html);
 		expect(total).toContain('href="#coin-back"');
+		expect(total).toContain(fill(en["team.total.value"], { n: 199 }));
 		expect(total).toContain(
-			fill(en["team.total.label"], { kind: en["team.kind.team"] }),
+			fill(en["team.total.kind"], { kind: en["team.kind.team"] }),
 		);
-		expect(total).toContain(">199<");
 		expect(total).toContain(fill(en["team.total.thisWeek"], { n: 199 }));
 	});
 
 	it("draws all 14 listed riders in the peloton, also around the viewer (US2 #2, #3)", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team");
 		const figure = pelotonOf(html);
-		expect(figure.match(/href="#coin-mini"/g)).toHaveLength(14);
+		expect(figure.match(/href="#coin-mini"/g)).toHaveLength(13);
+		expect(figure.match(/href="#coin-front"/g)).toHaveLength(1);
 		expect(figure).toContain(
 			`aria-label="${fill(de["team.peloton.label"], { count: 14, min: 0, max: 300, own: 120 })}"`,
 		);
 		expect(figure).toContain(escapeHtml(de["team.peloton.heading"]));
 		expect(figure).toContain(`>${escapeHtml(de["team.peloton.you"])}<`);
+		expect(figure).toContain(escapeHtml(de["team.peloton.hint"]));
+		expect(figure).toContain(escapeHtml(de["team.peloton.back"]));
+		expect(figure).toContain(escapeHtml(de["team.peloton.front"]));
 	});
 
 	it("draws one bar per week and names the best week", async () => {
@@ -325,6 +330,12 @@ describe("GET /team, the team's progress (US2)", () => {
 		);
 		expect(chart).toContain(
 			fill(de["team.chart.best"], { date: "06.10.2026", n: "1.775" }),
+		);
+		expect(chart).toContain(
+			fill(de["team.chart.hint"], { kind: de["team.kind.training"] }),
+		);
+		expect(chart).toContain(
+			`<p class="chart-axis"><span>04.01.2026</span><span>${escapeHtml(de["team.chart.now"])}</span></p>`,
 		);
 	});
 
@@ -362,8 +373,8 @@ describe("GET /team, the team's progress (US2)", () => {
 			'<section class="my-place',
 			'<blockquote class="quote',
 			'<figure class="peloton',
-			'<section class="leaderboard"',
 			'<figure class="team-chart',
+			'<section class="leaderboard',
 			'<p class="organiser-entry"',
 		].map(at);
 		expect(order.every((i) => i > 0)).toBe(true);
@@ -377,10 +388,10 @@ describe("GET /team without a gain this week", () => {
 		await seedRider(ctx, { athleteId: VIEWER, firstName: "Gertrude" });
 		const { html } = await riderPage(ctx, VIEWER, "/team");
 		const total = teamTotalOf(html);
-		expect(total).toContain(">0<");
+		expect(total).toContain(fill(de["team.total.value"], { n: 0 }));
 		expect(total).not.toContain("🔥");
 		expect(teamChartOf(html)).not.toContain(
-			escapeHtml(de["team.chart.best"].split("{date}")[0] ?? ""),
+			escapeHtml(de["team.chart.best"].split("{n}")[0] ?? ""),
 		);
 	});
 });

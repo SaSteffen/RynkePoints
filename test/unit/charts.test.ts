@@ -58,24 +58,29 @@ describe("peloton", () => {
 		label: "4 riders between 0 and 30 Rynke; you have 20",
 		you: "You",
 	};
+	/** The riders' mini coins, then the viewer's front. */
 	const coinsOf = (svg: string) =>
-		[...svg.matchAll(/<use [^>]*href="#coin-mini"[^>]*>/g)].map((m) => m[0]);
+		[...svg.matchAll(/<use [^>]*href="#coin-(?:mini|front)"[^>]*>/g)].map(
+			(m) => m[0],
+		);
 	const sizeOf = (use: string) => Number(use.match(/ width="([\d.]+)"/)?.[1]);
 	const xOf = (use: string) => Number(use.match(/ x="([\d.]+)"/)?.[1]);
 
-	it("is one labelled image with one mini coin per total", () => {
+	it("is one labelled image with one coin per total", () => {
 		const svg = peloton([30, 20, 10, 0], 1, TEXT, "training").value;
 		expect(svg.match(/<svg[\s>]/g)).toHaveLength(1);
 		expect(svg).toMatch(/^<svg [^>]*role="img"/);
 		expect(svg).toContain(`aria-label="${TEXT.label}"`);
 		expect(coinsOf(svg)).toHaveLength(4);
+		expect(svg.match(/href="#coin-mini"/g)).toHaveLength(3);
 		expect(svg).not.toContain("NaN");
 	});
 
-	it("draws the viewer's coin larger, last, with the You text", () => {
+	it("draws the viewer's coin as the larger front, last, with the You tag", () => {
 		const svg = peloton([30, 20, 10, 0], 1, TEXT, "training").value;
 		const coins = coinsOf(svg);
 		const own = coins.at(-1) ?? "";
+		expect(own).toContain('href="#coin-front"');
 		for (const other of coins.slice(0, -1)) {
 			expect(sizeOf(own)).toBeGreaterThan(sizeOf(other));
 		}

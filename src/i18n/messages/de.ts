@@ -373,7 +373,9 @@ export const de = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
-	"team.total.label": "Team-{kind}",
+	"team.total.label": "Team Rynkeby Hamburg 🦧",
+	"team.total.value": "{n} Rynke",
+	"team.total.kind": "{kind}-Rynke gemeinsam gesammelt",
 	"team.total.thisWeek": "+{n} diese Woche 🔥",
 	"team.kind.label": "Welche Rynke",
 	"team.kind.training": "Training",
@@ -384,11 +386,18 @@ export const de = {
 	"team.place.lead": "Du führst das Peloton an. Nimm die anderen mit!",
 	"team.quote.push": "Für dich 🍌",
 	"team.quote.onTrack": "Für dich 🤝",
-	"team.peloton.heading": "Das Peloton",
+	"team.peloton.heading": "Das Peloton 🚴",
+	"team.peloton.hint":
+		"Jede Münze ist eine Person aus dem Team. Die Spitze des Feldes fährt rechts.",
+	"team.peloton.back": "Ende des Feldes",
+	"team.peloton.front": "Spitze 🏁",
 	"team.peloton.label":
 		"{count} Leute zwischen {min} und {max} Rynke; du hast {own}",
 	"team.peloton.you": "Du",
 	"team.list.heading": "Rangliste",
+	"team.list.count": "{n} im Team",
+	"team.list.hint":
+		"Keine Namen, nur Rynke. Die Linie zeigt die bisherige Saison jeder Person.",
 	"team.list.scope": "Zeigen",
 	"team.list.around": "Um dich herum",
 	"team.list.everyone": "Alle",
@@ -397,10 +406,13 @@ export const de = {
 	"team.list.you": "Du 🦧",
 	"team.list.other": "{n} {kind}",
 	"team.list.weeks": "Woche für Woche: {values}",
-	"team.chart.heading": "Das Team Woche für Woche",
+	"team.chart.heading": "Das Team, Woche für Woche",
+	"team.chart.hint":
+		"Die {kind}-Rynke aller zusammengezählt, am Ende jeder Woche.",
+	"team.chart.now": "diese Woche",
 	"team.chart.label":
 		"Team-{kind} am Ende jeder Woche, {weeks} Wochen, jetzt {total}",
-	"team.chart.best": "Beste Woche: {date} (+{n})",
+	"team.chart.best": "Beste Teamwoche bisher: +{n} in der Woche bis {date} 🔥",
 	"team.chart.table": "Alle Wochen",
 	"team.chart.week": "Woche bis",
 	"team.chart.total": "Gesamt",

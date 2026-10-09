@@ -52,14 +52,17 @@ function renderTeamTotal(
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	return html`<section class="team-total card">
-${coin(kind === "training" ? "front" : "back", "large")}<p class="team-total-label">${i18n.t("team.total.label", { kind: i18n.t(`team.kind.${kind}`) })}</p>
-<p class="team-total-value">${whole(totals.total)}</p>
+${coin(kind === "training" ? "front" : "back", "large")}<div class="team-total-text">
+<p class="team-total-label">${i18n.t("team.total.label")}</p>
+<p class="team-total-value">${i18n.t("team.total.value", { n: whole(totals.total) })}</p>
+<p class="team-total-kind">${i18n.t("team.total.kind", { kind: i18n.t(`team.kind.${kind}`) })}</p>
 ${
 	totals.thisWeek > 0
 		? html`<p class="team-total-week">${i18n.t("team.total.thisWeek", { n: whole(totals.thisWeek) })}</p>
 `
 		: null
-}</section>
+}</div>
+</section>
 `;
 }
 
@@ -80,7 +83,9 @@ function renderPeloton(
 	});
 	return html`<figure class="peloton card">
 <figcaption>${i18n.t("team.peloton.heading")}</figcaption>
+<p class="team-hint">${i18n.t("team.peloton.hint")}</p>
 ${peloton(totals, own, { label, you: i18n.t("team.peloton.you") }, kind)}
+<p class="chart-axis"><span>${i18n.t("team.peloton.back")}</span><span>${i18n.t("team.peloton.front")}</span></p>
 </figure>
 `;
 }
@@ -102,14 +107,20 @@ function renderTeamChart(
 			html`<tr><td>${i18n.formatDate(week.weekEnd)}</td><td>${whole(week.total)}</td><td>${week.gain === null ? "" : whole(week.gain)}</td></tr>
 `,
 	);
-	return html`
-<figure class="team-chart card">
-<figcaption>${i18n.t("team.chart.heading")}</figcaption>
+	const first = totals.weeks[0];
+	return html`<figure class="team-chart card">
+<figcaption>${i18n.t("team.chart.heading")}<span class="team-chart-kind">${i18n.t(`team.kind.${kind}`)}</span></figcaption>
+<p class="team-hint">${i18n.t("team.chart.hint", { kind: i18n.t(`team.kind.${kind}`) })}</p>
 ${weekBars(
 	totals.weeks.map((week) => week.total),
 	label,
 )}
 ${
+	first
+		? html`<p class="chart-axis"><span>${i18n.formatDate(first.weekEnd)}</span><span>${i18n.t("team.chart.now")}</span></p>
+`
+		: null
+}${
 	best
 		? html`<p class="chart-best">${i18n.t("team.chart.best", { date: i18n.formatDate(best.weekEnd), n: whole(best.gain) })}</p>
 `
@@ -121,7 +132,8 @@ ${
 ${rows}</tbody>
 </table>
 </details>
-</figure>`;
+</figure>
+`;
 }
 
 /** A random quote from the list for `status` (FR-021, FR-022). */
@@ -145,14 +157,19 @@ function renderQuote(i18n: I18n, status: RiderStatus): SafeHtml {
 `;
 }
 
-function segment(href: string, current: boolean, label: string): SafeHtml {
-	return html`<a class="segmented" href="${href}"${current ? html` aria-current="true"` : null}>${label}</a>`;
+function segment(
+	href: string,
+	current: boolean,
+	label: string,
+	icon: SafeHtml | null = null,
+): SafeHtml {
+	return html`<a class="segmented" href="${href}"${current ? html` aria-current="true"` : null}>${icon}${label}</a>`;
 }
 
 function renderKindSwitch(i18n: I18n, kind: RynkeKind, all: boolean): SafeHtml {
 	return html`<nav class="kind-switch" aria-label="${i18n.t("team.kind.label")}">
-${segment(teamHref("training", all), kind === "training", i18n.t("team.kind.training"))}
-${segment(teamHref("team", all), kind === "team", i18n.t("team.kind.team"))}
+${segment(teamHref("training", all), kind === "training", i18n.t("team.kind.training"), miniCoin("training"))}
+${segment(teamHref("team", all), kind === "team", i18n.t("team.kind.team"), miniCoin("team"))}
 </nav>
 `;
 }
@@ -164,12 +181,14 @@ function renderPlace(i18n: I18n, viewer: Viewer): SafeHtml {
 		count: whole(viewer.count),
 	};
 	return html`<section class="my-place card">
+<span class="place-badge" aria-hidden="true">${whole(viewer.place)}</span><div>
 <p class="place">${i18n.t(viewer.joint ? "team.place.joint" : "team.place", place)}</p>
 <p class="place-next">${
 		viewer.toNext === null
 			? i18n.t("team.place.lead")
 			: i18n.t("team.place.next", { n: whole(viewer.toNext) })
 	}</p>
+</div>
 </section>
 `;
 }
@@ -177,17 +196,17 @@ function renderPlace(i18n: I18n, viewer: Viewer): SafeHtml {
 function renderRow(i18n: I18n, kind: RynkeKind, row: LeaderboardRow): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const other = OTHER_KIND[kind];
-	return html`<li class="row${row.you ? " you" : ""}"><span class="row-place">${MEDALS[row.place - 1] ?? whole(row.place)}</span>${
+	return html`<li class="row${row.you ? " you" : ""}"><span class="row-place">${MEDALS[row.place - 1] ?? whole(row.place)}</span><span class="row-line">${
 		row.you
 			? html`<span class="row-you">${i18n.t("team.list.you")}</span>`
 			: null
-	}<span class="row-total">${miniCoin(kind)} ${whole(row.total)}</span><span class="row-other">${i18n.t(
-		"team.list.other",
-		{ n: whole(row.other), kind: i18n.t(`team.kind.${other}`) },
-	)}</span>${sparkline(
+	}${sparkline(
 		row.weeks,
 		i18n.t("team.list.weeks", { values: row.weeks.map(whole).join(", ") }),
-	)}</li>
+	)}</span><span class="row-figures"><span class="row-total">${miniCoin(kind)} ${whole(row.total)}</span><span class="row-other">${i18n.t(
+		"team.list.other",
+		{ n: whole(row.other), kind: i18n.t(`team.kind.${other}`) },
+	)}</span></span></li>
 `;
 }
 
@@ -196,14 +215,16 @@ function renderLeaderboard(
 	kind: RynkeKind,
 	all: boolean,
 	shown: Neighbourhood,
+	count: number,
 ): SafeHtml {
 	const hidden = (id: "team.list.ahead" | "team.list.behind", n: number) =>
 		n > 0
 			? html`<p class="list-hidden">${i18n.t(id, { n: i18n.formatNumber(n, { fractionDigits: 0 }) })}</p>
 `
 			: null;
-	return html`<section class="leaderboard">
-<h2>${i18n.t("team.list.heading")}</h2>
+	return html`<section class="leaderboard card">
+<div class="leaderboard-head"><h2>${i18n.t("team.list.heading")}</h2><span>${i18n.t("team.list.count", { n: i18n.formatNumber(count, { fractionDigits: 0 }) })}</span></div>
+<p class="team-hint">${i18n.t("team.list.hint")}</p>
 ${
 	shown.toggle
 		? html`<nav class="list-scope" aria-label="${i18n.t("team.list.scope")}">
@@ -214,7 +235,8 @@ ${segment(teamHref(kind, true), all, i18n.t("team.list.everyone"))}
 		: null
 }${hidden("team.list.ahead", shown.hiddenAhead)}<ol start="${shown.rows[0]?.place ?? 1}">
 ${shown.rows.map((row) => renderRow(i18n, kind, row))}</ol>
-${hidden("team.list.behind", shown.hiddenBehind)}</section>`;
+${hidden("team.list.behind", shown.hiddenBehind)}</section>
+`;
 }
 
 export function handleTeam(
@@ -258,15 +280,15 @@ export function handleTeam(
 			);
 			return html`${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
 				viewer ? renderPlace(i18n, viewer) : null
-			}${viewer ? renderQuote(i18n, status) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderLeaderboard(
+			}${viewer ? renderQuote(i18n, status) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${renderLeaderboard(
 				i18n,
 				kind,
 				all,
 				neighbourhood(rows, all),
-			)}${renderTeamChart(i18n, kind, totals)}${
+				rows.length,
+			)}${
 				rider.organiser
-					? html`
-<p class="organiser-entry"><a class="button-outlined" href="/organiser/riders">${i18n.t("team.organiser.overview")}</a> <a class="button-outlined" href="/organiser">${i18n.t("organiser.link")}</a></p>`
+					? html`<p class="organiser-entry"><a class="button-outlined" href="/organiser/riders">${i18n.t("team.organiser.overview")}</a> <a class="button-outlined" href="/organiser">${i18n.t("organiser.link")}</a></p>`
 					: null
 			}`;
 		},

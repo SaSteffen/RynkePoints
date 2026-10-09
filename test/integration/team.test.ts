@@ -40,7 +40,7 @@ describe.each([
 	it("shows the leaderboard with Team marked current (011 US5-AS1, US5-AS2)", async () => {
 		const { status, html } = await riderPage(ctx, viewer, "/team");
 		expect(status).toBe(200);
-		expect(mainOf(html)).toContain('<section class="leaderboard">');
+		expect(mainOf(html)).toContain('<section class="leaderboard card">');
 		expect(html).toMatch(/<a href="\/team" aria-current="page">/);
 	});
 

@@ -80,6 +80,7 @@ const TEXT_PAIRS: [string, string][] = [
 	[md("error"), md("surface")],
 	[md("on-primary"), md("primary")],
 	["--rp-on-ok-container", "--rp-ok-container"],
+	["--rp-on-push-container", "--rp-push-container"],
 	["--rp-on-neutral-container", "--rp-neutral-container"],
 ];
 
