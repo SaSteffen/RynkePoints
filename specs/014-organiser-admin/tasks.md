@@ -224,12 +224,12 @@ evaluation keeps (feature 003 Story 6).
 **Independent test**: add and remove corrections for a synthetic rider and check
 the stored rows and that the balance includes each exactly once.
 
-- [ ] T021 [P] [US3] Tests first (failing), `test/unit/tally.test.ts`:
+- [X] T021 [P] [US3] Tests first (failing), `test/unit/tally.test.ts`:
   `extrasFrom(attendance, corrections)` adds the correction sums to attendance's
   Training and Team Rynke and leaves `teamEvents` unchanged; with no corrections
   it equals `extrasFromAttendance`; `tally` with a −20 Team correction on 5 Team
   Rynke gives 0.
-- [ ] T022 [P] [US3] Tests first (failing), `test/integration/organiser-corrections.test.ts`
+- [X] T022 [P] [US3] Tests first (failing), `test/integration/organiser-corrections.test.ts`
   (FR-030, FR-031, 003 FR-010):
   - add +10 Training, reason "Ride lost, broken device", today →
     `?done=added`, the row has `changed_by` and `changed_at`, and
@@ -248,17 +248,17 @@ the stored rows and that the balance includes each exactly once.
     "former organiser".
   Add `GET /organiser/riders`, `GET /organiser/riders/{id}` and both US3 POSTs to
   the route table in `organiser-access.test.ts` (visitor, no consent, no flag).
-- [ ] T023 [US3] Create `src/db/corrections.ts`: `listRiderCorrectionsStatement`
+- [X] T023 [US3] Create `src/db/corrections.ts`: `listRiderCorrectionsStatement`
   (newest first, with the organiser's first name joined through
   `SHARED_RIDER_IDS` as in T011), `listCorrectionsOfRidersStatement`
   (`training, team, athlete_id` filtered with `json_each`),
   `readCorrectionStatement`, `insertCorrectionStatement` and
   `deleteCorrectionStatement`.
-- [ ] T024 [US3] In `src/rynke/tally.ts` add `extrasFrom(attendance, corrections)`;
+- [X] T024 [US3] In `src/rynke/tally.ts` add `extrasFrom(attendance, corrections)`;
   in `src/rynke/apply.ts` add `corrections` to `RiderState`, read it in
   `readRiders` with `listCorrectionsOfRidersStatement`, and use `extrasFrom` in
   `evaluateState`. T021 passes and the 003 tests still pass.
-- [ ] T025 [US3] In `src/rynke/apply.ts` add `CorrectionChange`
+- [X] T025 [US3] In `src/rynke/apply.ts` add `CorrectionChange`
   (`add-correction` with `athleteId`, `correction: { training, team, reason, date }`
   and `by`; `remove-correction` with `correctionId`), `CorrectionRefused` with the
   codes of R8, `applyCorrectionChange(db, change, rules, window, now)` (validate,
@@ -266,10 +266,10 @@ the stored rows and that the balance includes each exactly once.
   changed rows and any rise in one batch, as `applyTeamEventChange` does) and the
   `correctionChange(ctx, change)` wrapper that sends `evaluate-rider` and
   notifies on a rise.
-- [ ] T026 [US3] Add the US3 keys to both catalogs: riders heading, no-riders
+- [X] T026 [US3] Add the US3 keys to both catalogs: riders heading, no-riders
   note, corrections heading, empty list, form labels (Training Rynke, Team Rynke,
   reason, date, add), "Remove…", the remove warning and confirm button.
-- [ ] T027 [US3] Create `src/http/organiser/corrections.ts`:
+- [X] T027 [US3] Create `src/http/organiser/corrections.ts`:
   - `GET /organiser/riders`: the listed riders with profile links where needed,
     each linking to `/organiser/riders/{id}`.
   - `GET /organiser/riders/{id}`: 404 unless listed; the notice, the corrections
