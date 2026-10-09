@@ -265,12 +265,12 @@ matching list ([quickstart.md](quickstart.md) §1 "Team page").
 
 ### Tests for User Story 3 (write first, confirm they fail)
 
-- [ ] T026 [P] [US3] `test/unit/quotes.test.ts`: `QUOTES_PUSH` and
+- [x] T026 [P] [US3] `test/unit/quotes.test.ts`: `QUOTES_PUSH` and
   `QUOTES_ON_TRACK` each have at least 180 entries, no duplicates within or
   across the lists, no empty or whitespace-only strings, and none contains `*`
   or `/` as a gender mark (research R10). It should pass at once; it pins the
   committed lists.
-- [ ] T027 [P] [US3] `test/integration/team-leaderboard.test.ts`: a viewer who
+- [x] T027 [P] [US3] `test/integration/team-leaderboard.test.ts`: a viewer who
   doesn't qualify gets `blockquote.quote.quote-push[lang="de"]` whose text is in
   `QUOTES_PUSH`; a viewer whose balance has `qualified = 1` gets
   `.quote-on-track` with a text in `QUOTES_ON_TRACK` (the current rules have no
@@ -282,7 +282,7 @@ matching list ([quickstart.md](quickstart.md) §1 "Team page").
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Add `pickQuote(status)` to `src/http/sections/team.ts`: `"push"` →
+- [x] T028 [US3] Add `pickQuote(status)` to `src/http/sections/team.ts`: `"push"` →
   `QUOTES_PUSH`, otherwise `QUOTES_ON_TRACK`, index from
   `crypto.getRandomValues(new Uint32Array(1))`. Render
   `<blockquote class="quote quote-push|quote-on-track" lang="de">` with the
@@ -291,7 +291,7 @@ matching list ([quickstart.md](quickstart.md) §1 "Team page").
   status is `riderStatus(own balance, CURRENT_RULES, countingWindow(ctx.env,
   CURRENT_RULES), today)`; a viewer who isn't
   listed gets no quote. T026 and T027 pass.
-- [ ] T029 [US3] In `src/http/style.ts`, style `.quote` (Rynkeby accent per list,
+- [x] T029 [US3] In `src/http/style.ts`, style `.quote` (Rynkeby accent per list,
   readable at 360 px, light and dark).
 
 **Checkpoint**: `/team` is complete.
