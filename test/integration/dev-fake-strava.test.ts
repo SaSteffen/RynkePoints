@@ -302,6 +302,7 @@ describe("sample riders in every state (US2)", () => {
 	const OLLI = 990008;
 	const REMY = 990009;
 	const NOAH = 990010;
+	const OLGA = 990011;
 
 	async function seeded() {
 		expect((await get("/_dev/")).status).toBe(200);
@@ -358,17 +359,14 @@ describe("sample riders in every state (US2)", () => {
 		);
 	});
 
-	it("flags Tina TrainingDone as the only organiser (004 research R10)", async () => {
+	it("flags Tina TrainingDone and Olga Organiser as the organisers (004 research R10)", async () => {
 		await seeded();
 		const { results } = await env.DB.prepare(
-			"SELECT athlete_id, organiser FROM riders ORDER BY athlete_id",
-		).all<{ athlete_id: number; organiser: number }>();
-		for (const row of results) {
-			expect(row.organiser, String(row.athlete_id)).toBe(
-				row.athlete_id === 990004 ? 1 : 0,
-			);
-		}
-		expect(results.some((r) => r.athlete_id === 990004)).toBe(true);
+			"SELECT athlete_id FROM riders WHERE organiser = 1 ORDER BY athlete_id",
+		).all<{ athlete_id: number }>();
+		expect(results.map((r) => r.athlete_id)).toEqual([TINA, OLGA]);
+		const res = await get("/organiser", await sessionCookie(ctx, OLGA));
+		expect(res.status).toBe(200);
 	});
 
 	it("keeps Ida Importing's import waiting", async () => {

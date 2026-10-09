@@ -221,6 +221,16 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		behaviour: "normal",
 		rides: rides(3, (i) => ride(...slot(i), 50, 300, 25)),
 	},
+	{
+		athleteId: 990011,
+		firstName: "Olga Organiser",
+		state: "Organiser: manages team events and attendance at /organiser",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		organiser: true,
+		rides: rides(5, (i) => ride(...slot(i), 60, 400, 25)),
+	},
 ];
 
 export function sampleRider(athleteId: number): SampleRider | undefined {
