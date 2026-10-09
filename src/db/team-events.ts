@@ -4,7 +4,8 @@ import { SHARED_RIDER_IDS } from "./consents";
 // Team events and attendance (feature 003 data-model.md, research R17, R21).
 // Writes are statements for `applyTeamEventChange`'s batch. Reads for several
 // riders are one statement each, filtered with `json_each` over the rider list.
-// Each event carries who last changed it and when (feature 014 research R9).
+// Each event carries who last changed it and when, each attendance who
+// recorded it (feature 014 research R9).
 
 export interface RiderAttendanceRow {
 	event_id: number;
@@ -169,19 +170,24 @@ export function deleteTeamEventStatement(db: D1Database, eventId: number) {
 	return db.prepare("DELETE FROM team_events WHERE event_id = ?").bind(eventId);
 }
 
-/** Recording a rider twice changes nothing (Story 3 scenario 4). */
+/**
+ * Recording a rider twice changes nothing (Story 3 scenario 4), so a row keeps
+ * its first recorder. `by` is the organiser, null when no organiser recorded it.
+ */
 export function insertAttendancesStatement(
 	db: D1Database,
 	eventId: number,
 	athleteIds: number[],
+	by: number | null,
+	now: number,
 ) {
 	return db
 		.prepare(
-			`INSERT INTO attendances (event_id, athlete_id)
-			SELECT ?1, value FROM json_each(?2) WHERE true
+			`INSERT INTO attendances (event_id, athlete_id, changed_by, changed_at)
+			SELECT ?1, value, ?3, ?4 FROM json_each(?2) WHERE true
 			ON CONFLICT DO NOTHING`,
 		)
-		.bind(eventId, JSON.stringify(athleteIds));
+		.bind(eventId, JSON.stringify(athleteIds), by, now);
 }
 
 export function deleteAttendancesStatement(

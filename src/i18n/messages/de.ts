@@ -345,4 +345,28 @@ export const de = {
 	"organiser.event.deleteWarning":
 		"Das löscht den Termin und seine Teilnahmen; die Rynke der Fahrenden passen sich an.",
 	"organiser.event.deleteConfirm": "Ja, löschen",
+	"organiser.attendance.heading": "Wer war dabei?",
+	"organiser.attendance.save": "Teilnahme speichern",
+	"organiser.attendance.profile": "Auf Strava ansehen",
+	"organiser.attendance.future":
+		"Die Teilnahme lässt sich eintragen, sobald der Termin war.",
+	"organiser.attendance.none":
+		"Noch ist niemand verbunden, der seine Daten mit dem Team teilt.",
+	"organiser.riders.link": "Fahrende und Korrekturen",
+	"organiser.riders.heading": "Fahrende",
+	"organiser.riders.none":
+		"Noch ist niemand verbunden, der seine Daten mit dem Team teilt.",
+	"organiser.riders.back": "Zurück zu den Fahrenden",
+	"organiser.corrections.heading": "Korrekturen für {name}",
+	"organiser.corrections.none": "Noch keine Korrekturen.",
+	"organiser.corrections.new": "Neue Korrektur",
+	"organiser.corrections.training": "{amount} Trainingsrynke",
+	"organiser.corrections.team": "{amount} Teamrynke",
+	"organiser.field.training": "Trainingsrynke (+ oder −, leer ist 0)",
+	"organiser.field.team": "Teamrynke (+ oder −, leer ist 0)",
+	"organiser.field.reason": "Grund",
+	"organiser.corrections.remove": "Entfernen…",
+	"organiser.corrections.removeWarning":
+		"Das entfernt die Korrektur; die Rynke der Person passen sich an.",
+	"organiser.corrections.removeConfirm": "Ja, entfernen",
 } satisfies Record<string, string>;

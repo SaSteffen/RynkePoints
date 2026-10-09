@@ -329,4 +329,28 @@ export const en: Catalog = {
 	"organiser.event.deleteWarning":
 		"This deletes the event and its attendance; the riders' Rynke follow.",
 	"organiser.event.deleteConfirm": "Yes, delete",
+	"organiser.attendance.heading": "Who was there?",
+	"organiser.attendance.save": "Save attendance",
+	"organiser.attendance.profile": "View on Strava",
+	"organiser.attendance.future":
+		"Attendance can be recorded once the event has taken place.",
+	"organiser.attendance.none":
+		"Nobody who shares their data with the team is connected yet.",
+	"organiser.riders.link": "Riders and corrections",
+	"organiser.riders.heading": "Riders",
+	"organiser.riders.none":
+		"Nobody who shares their data with the team is connected yet.",
+	"organiser.riders.back": "Back to the riders",
+	"organiser.corrections.heading": "Corrections for {name}",
+	"organiser.corrections.none": "No corrections yet.",
+	"organiser.corrections.new": "New correction",
+	"organiser.corrections.training": "{amount} Training Rynke",
+	"organiser.corrections.team": "{amount} Team Rynke",
+	"organiser.field.training": "Training Rynke (+ or −, empty is 0)",
+	"organiser.field.team": "Team Rynke (+ or −, empty is 0)",
+	"organiser.field.reason": "Reason",
+	"organiser.corrections.remove": "Remove…",
+	"organiser.corrections.removeWarning":
+		"This removes the correction; the rider's Rynke follow.",
+	"organiser.corrections.removeConfirm": "Yes, remove",
 };

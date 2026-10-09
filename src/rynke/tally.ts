@@ -11,7 +11,8 @@ import {
 
 /**
  * Rynke from outside the rides: Story 3 fills them from team events, with the
- * per-kind breakdown the balance stores; Story 6 adds corrections.
+ * per-kind breakdown the balance stores; Story 6 adds corrections (feature 014
+ * Story 3).
  */
 export interface Extras {
 	training: number;
@@ -36,6 +37,22 @@ export function extrasFromAttendance(evaluation: AttendanceEvaluation): Extras {
 		team: evaluation.team,
 		teamEvents: evaluation.byKind,
 	};
+}
+
+/**
+ * Attendance plus the signed corrections; the breakdown stays attendance's
+ * (feature 014 data-model.md).
+ */
+export function extrasFrom(
+	evaluation: AttendanceEvaluation,
+	corrections: readonly { training: number; team: number }[],
+): Extras {
+	const extras = extrasFromAttendance(evaluation);
+	for (const correction of corrections) {
+		extras.training += correction.training;
+		extras.team += correction.team;
+	}
+	return extras;
 }
 
 /** The fields of a `rynke_balances` row except `athlete_id` and `computed_at`. */

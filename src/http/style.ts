@@ -80,6 +80,9 @@ ul.organiser-events{margin:0;padding:0;list-style:none}
 .organiser-event-title{font:var(--md-type-title);color:var(--md-sys-color-primary)}
 .organiser-event-name{overflow-wrap:anywhere}
 .change-record{margin:var(--rp-space-1) 0 0;font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
+ul.attendance-list{margin:0 0 var(--rp-space-4);padding:0;list-style:none}
+.attendance-rider{display:flex;flex-wrap:wrap;align-items:center;gap:var(--rp-space-2);min-height:var(--rp-tap)}
+.attendance-rider label{display:flex;flex:1;align-items:center;min-height:var(--rp-tap);cursor:pointer}
 .organiser-confirm{margin:var(--rp-space-5) 0 0}
 .organiser-confirm>summary{display:flex;align-items:center;min-height:var(--rp-tap);cursor:pointer;color:var(--md-sys-color-error);font:var(--md-type-label)}
 .chip{display:inline-flex;align-items:center;min-height:32px;padding:0 var(--rp-space-3);border-radius:var(--md-shape-sm);font:var(--md-type-label);background:var(--rp-neutral-container);color:var(--rp-on-neutral-container)}

@@ -40,6 +40,8 @@ function unmarkedText(page: string): string[] {
 		.replace(/<script>[\s\S]*?<\/script>/g, "")
 		// Ride names are rider data, not copy (008 research R8).
 		.replace(/<span class="ride-name">[\s\S]*?<\/span>/g, "")
+		// So are riders' first names (feature 014 Story 2).
+		.replace(/<span class="rider-name">[\s\S]*?<\/span>/g, "")
 		.replace(/<[^>]*>/g, "\n");
 	let previous: string;
 	do {

@@ -19,7 +19,7 @@ exists.
 ## 2. Local walk-through (`pnpm dev`)
 
 1. Run `pnpm dev`, open `http://localhost:8789` and sign in as the sample
-   organiser "Tina TrainingDone".
+   organiser "Olga Organiser" (or "Tina TrainingDone", the other organiser).
 2. Go to Team → Organiser. Add a team training for today, open it, tick three
    riders and save. Then check the "Saved" note and the ticks.
 3. On a phone-width window (360 px), check there is no horizontal scrolling on
