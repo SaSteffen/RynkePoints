@@ -14,11 +14,18 @@ export interface ListedRider extends ListedRiderRow {
 	profileLink: string | null;
 }
 
+/**
+ * The listed riders' IDs as a subquery, for reads that run in the same batch as
+ * `listListedRidersStatement` (feature 016 data-model.md).
+ */
+export const LISTED_RIDER_IDS = `SELECT athlete_id FROM riders
+	WHERE status = 'connected' AND athlete_id IN (${SHARED_RIDER_IDS})`;
+
 /** `ListedRiderRow`s ordered by first name. */
 export function listListedRidersStatement(db: D1Database) {
 	return db.prepare(
 		`SELECT athlete_id, first_name FROM riders
-		WHERE status = 'connected' AND athlete_id IN (${SHARED_RIDER_IDS})
+		WHERE athlete_id IN (${LISTED_RIDER_IDS})
 		ORDER BY first_name COLLATE NOCASE, athlete_id`,
 	);
 }
