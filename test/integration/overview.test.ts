@@ -51,14 +51,34 @@ describe("GET /me Overview", () => {
 		await seedRider(ctx);
 		await seedBalance(ATHLETE_A);
 		const page = await main();
-		expect(page.trimStart().startsWith("<p>Import abgeschlossen</p>")).toBe(
-			true,
-		);
 		expectInOrder(page, PARTS);
 		expect(page).toContain(
 			`<p class="greeting">${escapeHtml(de["me.greeting"].replace("{firstName}", "Testrider A"))}</p>`,
 		);
 		expect(page).not.toContain("notice-error");
+	});
+
+	it("shows only the greeting and the waiting state before the first balance (015 US1)", async () => {
+		await seedRider(ctx, { importStatus: "running" });
+		const page = await main();
+		expectInOrder(page, [
+			'<p class="greeting">',
+			'<section class="waiting" role="status" data-waiting data-poll-seconds="10">',
+			'<use href="#coin-front"/>',
+			`<h2>${escapeHtml(de["waiting.heading"])}</h2>`,
+			`<p>${escapeHtml(de["waiting.body"].replace("{date}", "01.01.2026"))}</p>`,
+		]);
+		for (const absent of [
+			"hero-total",
+			"rynke-summary",
+			"rynke-gauges",
+			"rynke-breakdown",
+			"rynke-rules",
+			'class="celebrate"',
+			'<section class="notice"',
+		]) {
+			expect(page).not.toContain(absent);
+		}
 	});
 
 	it("puts each gauge in its own card (011 US3)", async () => {

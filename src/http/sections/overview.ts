@@ -1,3 +1,4 @@
+import { readyPollSeconds } from "../../config";
 import type { Ctx } from "../../ctx";
 import { readRiderView } from "../../db/rider-view";
 import { readSeen, type SeenRynke, writeSeen } from "../../db/rynke-seen";
@@ -12,6 +13,7 @@ import {
 	renderNotice,
 	renderRules,
 	renderSummary,
+	renderWaiting,
 } from "../rider-sections";
 import { buildRiderView } from "../rider-view";
 import { shellPage } from "../shell";
@@ -72,7 +74,6 @@ export function handleOverview(
 			CURRENT_RULES,
 			{
 				seasonStart: ctx.env.SEASON_START_DATE,
-				importing: rider.importStatus !== "done",
 				rulesFor: rulesForVersion,
 			},
 		);
@@ -101,8 +102,7 @@ export function handleOverview(
 		// The install hint comes last, so it never pushes the totals down (FR-017).
 		// One grid holds it all: two columns on wider screens (contracts/pages.md).
 		return html`<div class="overview-grid">
-${reconnect}${rider.importStatus === "done" ? html`<p>${i18n.t("me.import.done")}</p>` : null}
-${renderNotice(i18n, view, ctx.env.SEASON_START_DATE)}
+${reconnect}${renderNotice(i18n, view)}
 <section class="hero">
 ${coin("front", "hero")}
 <div>
@@ -115,6 +115,7 @@ ${
 		: null
 }</div>
 </section>
+${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env))}
 ${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}
 ${ready ? renderBreakdown(i18n, ready.breakdown) : null}

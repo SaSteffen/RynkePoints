@@ -83,7 +83,6 @@ export async function handleRiderNotificationText(
 		CURRENT_RULES,
 		{
 			seasonStart: ctx.env.SEASON_START_DATE,
-			importing: false,
 			rulesFor: rulesForVersion,
 		},
 	);

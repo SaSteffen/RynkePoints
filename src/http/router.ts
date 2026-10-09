@@ -28,6 +28,7 @@ import {
 	handleOffline,
 	handleRiderNotificationText,
 } from "./pwa";
+import { handleReady } from "./ready";
 import { redirect } from "./redirect";
 import { handleRunDaily } from "./run-daily";
 import { handleOverview } from "./sections/overview";
@@ -88,6 +89,7 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		if (path === "/me/notification-text") {
 			return handleRiderNotificationText(request, ctx);
 		}
+		if (path === "/me/ready") return handleReady(request, ctx);
 		const response = await page(request, path, ctx, i18n);
 		if (response) return renewSession(request, response, ctx);
 	}

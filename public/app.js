@@ -245,8 +245,40 @@ function refreshOnReturn() {
 	});
 }
 
+/**
+ * The waiting state before the first data (015 contracts/client.md): asks
+ * /me/ready every data-poll-seconds while the page is visible, and reloads once
+ * the first balance is there. A 401, a network error or "not yet" just waits
+ * for the next tick.
+ */
+function waitForFirstData() {
+	const waiting = document.querySelector("[data-waiting]");
+	if (!waiting) return;
+	const configured = Number(waiting.dataset.pollSeconds);
+	const seconds =
+		Number.isInteger(configured) && configured > 0 ? configured : 10;
+	const timer = setInterval(async () => {
+		if (document.visibilityState !== "visible") return;
+		try {
+			const res = await fetch("/me/ready", {
+				credentials: "same-origin",
+				cache: "no-store",
+			});
+			if (!res.ok) return;
+			const { ready } = await res.json();
+			if (ready === true) {
+				clearInterval(timer);
+				location.reload();
+			}
+		} catch {
+			// Offline or a bad answer: try again on the next tick.
+		}
+	}, seconds * 1000);
+}
+
 registerWorker();
 installHint();
 schemePicker();
 refreshOnReturn();
+waitForFirstData();
 notifications().catch(() => {});

@@ -92,6 +92,14 @@ describe("STYLE", () => {
 		).toBe("none");
 	});
 
+	it("spins the waiting coin, and keeps it still for reduced motion (015 FR-007)", () => {
+		expect(STYLE).toContain("@keyframes coin-spin");
+		expect(declsOf(".waiting .coin").animation).toContain("coin-spin");
+		expect(
+			declsOf(".waiting .coin", "(prefers-reduced-motion:reduce)").animation,
+		).toBe("none");
+	});
+
 	it("lines figures up with tabular numbers (FR-036)", () => {
 		expect(declsOf("body")["font-variant-numeric"]).toBe("tabular-nums");
 	});

@@ -20,7 +20,7 @@ import {
 	NOW,
 	type StravaActivityFixture,
 } from "../support/fixtures";
-import { rideCards } from "../support/rider-view";
+import { rideCards, seedBalance } from "../support/rider-view";
 
 const ctx = makeCtx();
 
@@ -72,11 +72,18 @@ function details(page: string): string[] {
 	return rideCards(page).map((card) => card.meta);
 }
 
+// The ride list shows once the rider has a balance; before that, Rides shows
+// the waiting state (015 US1).
+async function seedReadyRider(athleteId = ATHLETE_A) {
+	await seedRider(ctx, { athleteId });
+	await seedBalance(athleteId);
+}
+
 beforeEach(resetDb);
 
 describe("GET /me/rides recent rides", () => {
 	it("lists only the rider's 20 newest activities, newest first", async () => {
-		await seedRider(ctx, { athleteId: ATHLETE_A });
+		await seedReadyRider();
 		await seedRider(ctx, { athleteId: ATHLETE_B });
 		await upsertActivities(env.DB, rides(ATHLETE_A, 25, 7_100_001));
 		await upsertActivities(
@@ -106,7 +113,7 @@ describe("GET /me/rides recent rides", () => {
 	});
 
 	it("formats the rows in German by default", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		await upsertActivities(env.DB, [
 			record(ATHLETE_A, {
 				sport_type: "GravelRide",
@@ -138,11 +145,11 @@ describe("GET /me/rides recent rides", () => {
 			"Radfahrt · 1.234 m",
 		]);
 		expect(page).not.toContain("GravelRide");
-		expect(page).not.toContain("Noch keine Fahrten importiert");
+		expect(page).not.toContain("Noch keine Fahrten in dieser Saison.");
 	});
 
 	it("formats the rows in English", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		await upsertActivities(env.DB, [
 			record(ATHLETE_A, {
 				sport_type: "GravelRide",
@@ -165,14 +172,27 @@ describe("GET /me/rides recent rides", () => {
 		expect(details(page)).toEqual(["Gravel ride · 1,234 m"]);
 	});
 
-	it("shows the empty state for a rider without activities", async () => {
-		await seedRider(ctx, { athleteId: ATHLETE_A });
+	it("shows the empty state for a rider with a balance but no rides (015 R3)", async () => {
+		await seedReadyRider();
 		await seedRider(ctx, { athleteId: ATHLETE_B });
 		await upsertActivities(env.DB, rides(ATHLETE_B, 3, 7_200_001));
 
 		const page = await getMe();
 		expect(page).toContain("<h2>Deine Fahrten</h2>");
-		expect(page).toContain("Noch keine Fahrten importiert");
+		expect(page).toContain("<p>Noch keine Fahrten in dieser Saison.</p>");
 		expect(page).not.toContain('<ol class="ride-list">');
+		expect(page).not.toContain('class="waiting"');
+	});
+
+	it("shows only the waiting state before the first balance (015 US1)", async () => {
+		await seedRider(ctx);
+		await upsertActivities(env.DB, rides(ATHLETE_A, 3, 7_100_001));
+
+		const page = await getMe();
+		expect(page).toContain(
+			'<section class="waiting" role="status" data-waiting data-poll-seconds="10">',
+		);
+		expect(page).not.toContain('<section id="rides">');
+		expect(page).not.toContain('class="notice"');
 	});
 });

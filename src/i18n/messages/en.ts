@@ -71,9 +71,8 @@ export const en: Catalog = {
 	"me.consent.renew.button": "Agree and continue",
 	"me.consent.renew.leave":
 		"If you don't want to agree, you can disconnect; all your data is then deleted.",
-	"me.import.done": "Import complete",
 	"me.recent.heading": "Your rides",
-	"me.recent.empty": "No rides imported yet",
+	"me.recent.none": "No rides this season yet.",
 	"me.recent.col.distance": "Distance",
 	"me.disconnect.button": "Disconnect and delete my data",
 
@@ -94,8 +93,9 @@ export const en: Catalog = {
 	"rynke.training": "Training Rynke",
 	"rynke.team": "Team Rynke",
 	"rynke.withoutVirtual": "Training Rynke without virtual rides",
-	"rynke.notice.notWorkedOut":
-		"Your Rynke are still being worked out. Check back in a few minutes.",
+	"waiting.heading": "Fetching your rides",
+	"waiting.body":
+		"Because you've just connected, we're fetching your rides since {date} from Strava, once. This only happens this one time. Check back in about 5 minutes – this page updates by itself.",
 	"rynke.summary.heading": "Your Rynke",
 	"rynke.verdict.in":
 		"You're in: you have everything you need for the tour. On to Paris! 🗼",
@@ -116,8 +116,6 @@ export const en: Catalog = {
 	"rynke.pager.last": "Oldest »",
 	"rynke.notice.updating":
 		"The rules have changed: new rules apply since {date}. Your numbers are being updated; until then you see them under rules version {version}.",
-	"rynke.notice.importing":
-		"Your rides since {date} are still being imported. Your Rynke will grow as they arrive.",
 	"rynke.rules.heading": "Rules",
 	"rynke.rules.version":
 		"Computed with rules version {version}, in effect since {date}.",

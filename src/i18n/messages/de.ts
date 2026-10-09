@@ -73,9 +73,8 @@ export const de = {
 	"me.consent.renew.button": "Zustimmen und weiter",
 	"me.consent.renew.leave":
 		"Wenn du nicht zustimmen möchtest, kannst du die Verbindung trennen; dabei werden alle deine Daten gelöscht.",
-	"me.import.done": "Import abgeschlossen",
 	"me.recent.heading": "Deine Fahrten",
-	"me.recent.empty": "Noch keine Fahrten importiert",
+	"me.recent.none": "Noch keine Fahrten in dieser Saison.",
 	"me.recent.col.distance": "Distanz",
 	"me.disconnect.button": "Verbindung trennen und meine Daten löschen",
 
@@ -96,8 +95,9 @@ export const de = {
 	"rynke.training": "Trainingsrynke",
 	"rynke.team": "Teamrynke",
 	"rynke.withoutVirtual": "Trainingsrynke ohne virtuelle Fahrten",
-	"rynke.notice.notWorkedOut":
-		"Deine Rynke werden gerade berechnet. Schau in ein paar Minuten wieder vorbei.",
+	"waiting.heading": "Deine Fahrten werden geholt",
+	"waiting.body":
+		"Weil du dich gerade verbunden hast, holen wir einmalig deine Fahrten seit dem {date} von Strava. Das passiert nur dieses eine Mal. Schau in etwa 5 Minuten wieder vorbei – diese Seite aktualisiert sich von selbst.",
 	"rynke.summary.heading": "Deine Rynke",
 	"rynke.verdict.in":
 		"Du bist dabei: Du hast alles, was du für die Tour brauchst. Auf nach Paris! 🗼",
@@ -118,8 +118,6 @@ export const de = {
 	"rynke.pager.last": "Älteste »",
 	"rynke.notice.updating":
 		"Die Regeln haben sich geändert: Seit dem {date} gelten neue Regeln. Deine Zahlen werden gerade neu berechnet; bis dahin siehst du sie nach Regel-Version {version}.",
-	"rynke.notice.importing":
-		"Deine Fahrten seit dem {date} werden noch importiert. Deine Rynke wachsen, sobald sie da sind.",
 	"rynke.rules.heading": "Regeln",
 	"rynke.rules.version":
 		"Berechnet nach Regel-Version {version}, gültig seit dem {date}.",

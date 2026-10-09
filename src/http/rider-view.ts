@@ -23,10 +23,10 @@ import type { CyclingSportType } from "../strava/activity";
 // version, and is left out when that version is unknown (FR-013).
 
 export type RiderView =
-	| { state: "not-worked-out"; importing: boolean; rides: RideTable }
+	/** No balance yet: the first data is still on its way (015 research R1). */
+	| { state: "waiting" }
 	| {
 			state: "ready";
-			importing: boolean;
 			/** `null` when the balance is of the version in effect (FR-051). */
 			updating: UpdateNotice | null;
 			summary: Summary;
@@ -225,8 +225,6 @@ const FIXABLE = new Set<string>([
 export interface ViewContext {
 	/** `YYYY-MM-DD`, `SEASON_START_DATE`. */
 	seasonStart: string;
-	/** The import isn't done, so more rides may still arrive (FR-052). */
-	importing: boolean;
 	/** `rulesForVersion`, passed in to keep this module pure. */
 	rulesFor: (version: number) => RynkeRules | null;
 }
@@ -241,14 +239,10 @@ export function buildRiderView(
 	inEffect: RynkeRules,
 	context: ViewContext,
 ): RiderView {
-	const rides = rideTable(read, context);
 	const balance = read.balance;
-	if (!balance) {
-		return { state: "not-worked-out", importing: context.importing, rides };
-	}
+	if (!balance) return { state: "waiting" };
 	return {
 		state: "ready",
-		importing: context.importing,
 		// "Differs", not "older": a higher version only shows while a deploy is
 		// rolled back, and then the numbers are about to change too (research R4).
 		updating:
@@ -267,7 +261,7 @@ export function buildRiderView(
 			seasonStart: context.seasonStart,
 			deadline: rules?.qualificationDeadline ?? null,
 		},
-		rides,
+		rides: rideTable(read, context),
 	};
 }
 

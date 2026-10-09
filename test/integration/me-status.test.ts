@@ -11,6 +11,7 @@ import {
 	sessionCookie,
 } from "../support/ctx";
 import { ATHLETE_A } from "../support/fixtures";
+import { seedBalance } from "../support/rider-view";
 
 const ctx = makeCtx();
 const { de, en } = CATALOGS;
@@ -117,23 +118,41 @@ describe("GET /me for a connected rider", () => {
 		);
 	});
 
-	it.each(["pending", "running"] as const)(
-		"shows a %s import with the season start",
+	// The import is no longer shown, only the waiting state before the first
+	// balance (015 FR-001a, FR-002, FR-003).
+	const IMPORT_TEXTS = [
+		"Import abgeschlossen",
+		"werden noch importiert",
+		"werden gerade berechnet",
+		"Noch keine Fahrten importiert",
+	];
+
+	it.each(["pending", "running", "done"] as const)(
+		"says nothing about a %s import on any rider page",
 		async (importStatus) => {
 			await seedRider(ctx, { importStatus });
-			const { page } = await getMe();
-			expect(page).toContain(
-				"Deine Fahrten seit dem 01.01.2026 werden noch importiert.",
-			);
-			expect(page).not.toContain("Import abgeschlossen");
+			for (const withBalance of [false, true]) {
+				if (withBalance) await seedBalance(ATHLETE_A);
+				for (const path of ["/me", "/me/rides", "/me/settings", "/team"]) {
+					const { page } = await getMe(undefined, path);
+					for (const text of IMPORT_TEXTS) {
+						expect(page, `${path} ${text}`).not.toContain(text);
+					}
+				}
+			}
 		},
 	);
 
-	it("shows a finished import", async () => {
+	it("shows the waiting state before the first balance", async () => {
 		await seedRider(ctx, { importStatus: "done" });
 		const { page } = await getMe();
-		expect(page).toContain("Import abgeschlossen");
-		expect(page).not.toContain("werden noch importiert");
+		expect(page).toContain(
+			'<section class="waiting" role="status" data-waiting data-poll-seconds="10">',
+		);
+		expect(page).toContain(`<h2>${escapeHtml(de["waiting.heading"])}</h2>`);
+		expect(page).toContain(
+			`<p>${escapeHtml(de["waiting.body"].replace("{date}", "01.01.2026"))}</p>`,
+		);
 	});
 
 	it("offers the switcher and sign-out in Settings", async () => {
@@ -295,7 +314,7 @@ describe("GET /me in English", () => {
 		expect(res.headers.get("Content-Language")).toBe("en");
 		expect((await getSettings("en")).page).toContain("Connected to Strava");
 		expect(page).toContain(
-			"Your rides since 01/01/2026 are still being imported.",
+			`<p>${escapeHtml(en["waiting.body"].replace("{date}", "01/01/2026"))}</p>`,
 		);
 	});
 });

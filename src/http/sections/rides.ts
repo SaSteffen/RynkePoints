@@ -1,15 +1,17 @@
+import { readyPollSeconds } from "../../config";
 import type { Ctx } from "../../ctx";
 import { readRiderView } from "../../db/rider-view";
 import type { I18n } from "../../i18n/i18n";
 import { CURRENT_RULES, rulesForVersion } from "../../rynke/rules";
 import { html } from "../html";
-import { renderNotice, renderRides } from "../rider-sections";
+import { renderNotice, renderRides, renderWaiting } from "../rider-sections";
 import { buildRiderView, parsePage } from "../rider-view";
 import { shellPage } from "../shell";
 
 // Rides at `/me/rides?page=N` (feature 011 FR-012): all the rider's rides, 20 a
 // page, with what each earns and why (feature 005 US1, US4, US5), and the
-// notices that say the figures are still changing.
+// notice that says the figures are still changing; before the first data, only
+// the waiting state (015 US1).
 
 export function handleRides(
 	request: Request,
@@ -27,11 +29,17 @@ export function handleRides(
 			CURRENT_RULES,
 			{
 				seasonStart: ctx.env.SEASON_START_DATE,
-				importing: rider.importStatus !== "done",
 				rulesFor: rulesForVersion,
 			},
 		);
-		return html`${renderNotice(i18n, view, ctx.env.SEASON_START_DATE)}
+		if (view.state === "waiting") {
+			return renderWaiting(
+				i18n,
+				ctx.env.SEASON_START_DATE,
+				readyPollSeconds(ctx.env),
+			);
+		}
+		return html`${renderNotice(i18n, view)}
 ${renderRides(i18n, view.rides)}`;
 	});
 }

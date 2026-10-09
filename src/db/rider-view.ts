@@ -158,3 +158,21 @@ function toRideRow(row: RidePageRow): RideRow {
 					},
 	};
 }
+
+/**
+ * Whether the rider has a balance yet, for the waiting state's poll (015
+ * research R5), or `null` when the rider is gone. One read.
+ */
+export async function hasBalance(
+	db: D1Database,
+	athleteId: number,
+): Promise<boolean | null> {
+	const row = await db
+		.prepare(
+			`SELECT EXISTS (SELECT 1 FROM rynke_balances WHERE athlete_id = ?1) AS ready
+			FROM riders WHERE athlete_id = ?1`,
+		)
+		.bind(athleteId)
+		.first<{ ready: number }>();
+	return row === null ? null : row.ready === 1;
+}

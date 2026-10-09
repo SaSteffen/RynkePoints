@@ -162,19 +162,26 @@ describe("GET /me Rynke summary (US1)", () => {
 		expect(text(html)).toContain("400 von 250");
 	});
 
-	it("S1-9: shows only a notice before the first evaluation", async () => {
+	it("S1-9: shows only the waiting state before the first evaluation (015 US1)", async () => {
 		await seedRide(ATHLETE_A, { id: 8_100_001 });
+		for (const path of ["/me", "/me/rides"]) {
+			const { html } = await riderPage(ctx, ATHLETE_A, path);
+			expect(html).toContain('<section class="waiting" role="status"');
+			expect(section(html, 'class="notice" role="status"')).toBeNull();
+			expect(html).not.toContain('class="rynke-summary verdict card"');
+			expect(html).not.toContain("von 250");
+			expect(html).not.toContain("dabei");
+			expect(section(html, 'id="rides"')).toBeNull();
+		}
+	});
+
+	it("015 US1 #5: shows zero Rynke and no rides once the balance exists", async () => {
+		await seedBalance(ATHLETE_A);
 		const { html } = await riderPage(ctx, ATHLETE_A);
-		const notice = section(html, 'class="notice" role="status"');
-		expect(text(notice ?? "")).toBe(
-			"Deine Rynke werden gerade berechnet. Schau in ein paar Minuten wieder vorbei.",
-		);
-		expect(html).not.toContain('class="rynke-summary verdict card"');
-		expect(html).not.toContain("von 250");
-		expect(html).not.toContain("dabei");
-		expect(section(html, 'id="rides"')).toBeNull();
+		expect(html).toContain('class="rynke-summary verdict card"');
+		expect(html).not.toContain('class="waiting"');
 		const rides = (await riderPage(ctx, ATHLETE_A, "/me/rides")).html;
-		expect(section(rides, 'id="rides"')).not.toBeNull();
+		expect(rides).toContain("<p>Noch keine Fahrten in dieser Saison.</p>");
 	});
 });
 
@@ -1205,7 +1212,6 @@ const NEXT = VERSION + 1;
 
 const UPDATING =
 	"Die Regeln haben sich geändert: Seit dem 07.10.2026 gelten neue Regeln.";
-const IMPORTING = "Deine Fahrten seit dem 01.01.2026 werden noch importiert.";
 
 describe("GET /me rules and notices (US6)", () => {
 	it("S6-1: names the rules version, the window and the handout", async () => {
@@ -1251,22 +1257,18 @@ describe("GET /me rules and notices (US6)", () => {
 		expect(rules).toContain(`Regel-Version ${VERSION}`);
 	});
 
-	it("S6-4: says the Rynke will grow while the import runs", async () => {
+	it("S6-4: says nothing about a running import (015 FR-002)", async () => {
 		await seedRider(ctx, { athleteId: ATHLETE_B, importStatus: "running" });
 		const before = await rulesAndNotice(ATHLETE_B);
-		expect(before.notice).toContain("Deine Rynke werden gerade berechnet.");
-		expect(before.notice).toContain(IMPORTING);
+		expect(before.notice).toBeNull();
 		expect(before.rules).toBeNull();
+		expect(before.html).toContain('<section class="waiting" role="status"');
 
 		await seedBalance(ATHLETE_B, { trainingRynke: 12, trainingMissing: 238 });
 		const after = await rulesAndNotice(ATHLETE_B);
-		expect(after.notice).toBe(
-			"Deine Fahrten seit dem 01.01.2026 werden noch importiert. Deine Rynke wachsen, sobald sie da sind.",
-		);
+		expect(after.notice).toBeNull();
 		expect(after.html).toContain('class="rynke-summary verdict card"');
-		// Said once: feature 001's status line shows only a finished import.
-		expect(after.html.split("werden noch importiert").length - 1).toBe(1);
-		expect(after.html).not.toContain("werden importiert …");
+		expect(after.html).not.toContain("importiert");
 	});
 
 	it("S6-5: says in English that the handout is in German", async () => {
@@ -1390,12 +1392,12 @@ describe("GET /me isolation and access (US1)", () => {
 		expect(fake.calls).toEqual([]);
 	});
 
-	it("places the sections after the import status, without rides or consent", async () => {
+	it("places the sections after the greeting, without rides or consent", async () => {
 		await seedBalance(ATHLETE_A);
 		await seedRide(ATHLETE_A, { id: 8_100_001 });
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		const order = [
-			"<p>Import abgeschlossen</p>",
+			'<p class="greeting">',
 			'<section id="rynke" class="rynke-summary verdict card">',
 			'<section class="rynke-breakdown card card-outlined">',
 			'<section class="rynke-rules card card-outlined">',

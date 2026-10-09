@@ -385,7 +385,16 @@ describe("sample riders in every state (US2)", () => {
 
 	it("shows Nora NoRides without rides", async () => {
 		await seeded();
-		expect(await mePage(NORA)).toContain("Noch keine Fahrten importiert");
+		const page = await mePage(NORA);
+		expect(page).toContain("Noch keine Fahrten in dieser Saison.");
+		expect(page).not.toContain('class="waiting"');
+	});
+
+	it("shows Ida Importing the waiting state (015 US1)", async () => {
+		await seeded();
+		const page = await mePage(IDA);
+		expect(page).toContain('<section class="waiting" role="status"');
+		expect(page).not.toContain('<section id="rides">');
 	});
 
 	it("leaves Fiona FarAway far from both targets", async () => {

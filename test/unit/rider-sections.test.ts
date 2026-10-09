@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
 import {
 	renderGauges,
+	renderNotice,
 	renderRides,
 	renderRules,
 	renderSummary,
+	renderWaiting,
 } from "../../src/http/rider-sections";
-import type { ReasonLine, RideLine } from "../../src/http/rider-view";
+import type {
+	ReasonLine,
+	RideLine,
+	RiderView,
+} from "../../src/http/rider-view";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 
@@ -187,7 +193,7 @@ describe("coins", () => {
 			pager: null,
 		}).toString();
 		expect(html).toMatch(
-			/<h2>Your rides<\/h2>\n<svg class="coin coin-large"[^>]*><use href="#coin-front"\/><\/svg>\n<p>No rides imported yet<\/p>/,
+			/<h2>Your rides<\/h2>\n<svg class="coin coin-large"[^>]*><use href="#coin-front"\/><\/svg>\n<p>No rides this season yet\.<\/p>/,
 		);
 	});
 
@@ -238,5 +244,47 @@ describe("coins", () => {
 			row(figures[1]).match(/class="coin coin-mini coin-team"/g),
 		).toHaveLength(10);
 		expect(figures[2]).not.toContain("coin-row");
+	});
+});
+
+// The waiting state before the first data (015 contracts/pages.md).
+describe("renderWaiting", () => {
+	it("shows the spinning coin, the heading and the one-time message", () => {
+		const html = renderWaiting(de, "2026-09-01", 7).toString();
+		expect(html).toMatch(
+			/^<section class="waiting" role="status" data-waiting data-poll-seconds="7">\n<svg class="coin coin-large"[^>]*><use href="#coin-front"\/><\/svg>\n/,
+		);
+		expect(html).toContain(`<h2>${de.t("waiting.heading")}</h2>`);
+		expect(html).toContain(
+			`<p>${de.t("waiting.body", { date: de.formatDate("2026-09-01T00:00:00Z") })}</p>`,
+		);
+		expect(html).toContain("01.09.2026");
+	});
+});
+
+describe("renderNotice", () => {
+	it("shows nothing while waiting", () => {
+		expect(renderNotice(en, { state: "waiting" })).toBeNull();
+	});
+
+	it("shows only the rule-change notice", () => {
+		const view = {
+			state: "ready",
+			updating: { inEffectVersion: 3, inEffectSince: "2026-11-01" },
+			rules: { version: 2 },
+		} as unknown as RiderView;
+		const html = renderNotice(en, view)?.toString() ?? "";
+		expect(html).toBe(`<section class="notice" role="status">
+<p>${en.t("rynke.notice.updating", { date: "01/11/2026", version: "2" })}</p>
+</section>`);
+	});
+
+	it("shows nothing when the rules are current", () => {
+		const view = {
+			state: "ready",
+			updating: null,
+			rules: { version: 2 },
+		} as unknown as RiderView;
+		expect(renderNotice(en, view)).toBeNull();
 	});
 });
