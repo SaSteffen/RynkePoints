@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { peloton, sparkline, weekBars } from "../../src/http/charts";
+import {
+	peloton,
+	sparkline,
+	thresholdBars,
+	weekBars,
+} from "../../src/http/charts";
 
 // The inline SVG charts of the Team page (016 research R5, R12). No library and
 // no client script.
@@ -153,5 +158,29 @@ describe("weekBars", () => {
 		const svg = weekBars([0, 0], "x").value;
 		expect(svg).not.toContain("NaN");
 		expect(rectsOf(svg)).toHaveLength(2);
+	});
+});
+
+describe("thresholdBars", () => {
+	const widthOf = (svg: string) =>
+		Number(svg.match(/class="threshold-fill"[^>]* width="([^"]*)"/)?.[1]);
+	const tickOf = (svg: string) =>
+		svg.match(/<line class="pace-mark" x1="([^"]*)"/)?.[1];
+
+	it("is decoration: the card or table cell carries the figures (research R12)", () => {
+		const svg = thresholdBars(100, 250, 138).value;
+		expect(svg).toMatch(/^<svg class="threshold-bar"[^>]* aria-hidden="true"/);
+		expect(svg).not.toContain("role=");
+	});
+
+	it("fills the bar by the share of the threshold, up to full", () => {
+		expect(widthOf(thresholdBars(100, 250, null).value)).toBe(40);
+		expect(widthOf(thresholdBars(0, 250, null).value)).toBe(0);
+		expect(widthOf(thresholdBars(300, 250, null).value)).toBe(100);
+	});
+
+	it("ticks the even pace only when there is one", () => {
+		expect(tickOf(thresholdBars(100, 250, 138).value)).toBe("55.2");
+		expect(thresholdBars(100, 250, null).value).not.toContain("pace-mark");
 	});
 });

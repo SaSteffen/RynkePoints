@@ -229,14 +229,30 @@ describe("POST /organiser/corrections/{id}/delete", () => {
 });
 
 describe("the riders pages", () => {
-	it("lists the listed riders only, without balances (FR-042)", async () => {
+	it("lists the listed riders only (016 FR-033 shows their balances)", async () => {
 		await add({ ...VALID, training: "4321" });
 		const html = await page("/organiser/riders");
 		expect(html).toContain(`href="${ridersPath(RIDER)}"`);
 		expect(html).toContain("Anna");
+		expect(html).toContain(">4.321<");
 		expect(html).not.toContain("Nora");
 		expect(html).not.toContain(ridersPath(NOT_LISTED));
-		expect(html).not.toContain("4321");
+	});
+
+	it.each(["rider_not_listed", "correction_missing"] as const)(
+		"shows the %s refusal on the overview",
+		async (code) => {
+			const html = await page(`/organiser/riders?error=${code}`);
+			expect(html).toContain(
+				`<p class="notice notice-error" role="alert">${escapeHtml(de[`organiser.error.${code}`])}</p>`,
+			);
+		},
+	);
+
+	it("leads back from a rider's corrections to the overview", async () => {
+		expect(await page(ridersPath(RIDER))).toContain(
+			`<a href="/organiser/riders">${escapeHtml(de["organiser.riders.back"])}</a>`,
+		);
 	});
 
 	it("gives 404 for a rider who isn't listed", async () => {
@@ -280,7 +296,9 @@ describe("the riders pages", () => {
 		expect(await corrections()).toEqual([]);
 	});
 
-	it("links the riders from /organiser", async () => {
-		expect(await page("/organiser")).toContain('href="/organiser/riders"');
+	it("links the team overview from /organiser", async () => {
+		expect(await page("/organiser")).toContain(
+			`<a href="/organiser/riders">${escapeHtml(de["organiser.riders.link"])}</a>`,
+		);
 	});
 });

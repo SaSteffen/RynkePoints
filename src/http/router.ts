@@ -13,7 +13,6 @@ import { handleSaveAttendance } from "./organiser/attendance";
 import {
 	handleAddCorrection,
 	handleOrganiserRider,
-	handleOrganiserRiders,
 	handleRemoveCorrection,
 } from "./organiser/corrections";
 import {
@@ -23,6 +22,7 @@ import {
 	handleOrganiserEvents,
 	handleUpdateEvent,
 } from "./organiser/events";
+import { handleOrganiserOverview } from "./organiser/overview";
 import {
 	handleNotificationText,
 	handleOffline,
@@ -160,7 +160,7 @@ async function page(
 		case "/organiser":
 			return handleOrganiserEvents(request, ctx, i18n);
 		case "/organiser/riders":
-			return handleOrganiserRiders(request, ctx, i18n);
+			return handleOrganiserOverview(request, ctx, i18n);
 	}
 	const event = path.match(ORGANISER_EVENT);
 	if (event && !event[2]) {

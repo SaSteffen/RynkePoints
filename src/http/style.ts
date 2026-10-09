@@ -268,6 +268,59 @@ body.shell{padding-bottom:calc(var(--rp-nav-height) + env(safe-area-inset-bottom
 .app-prompt{position:fixed;left:var(--rp-page-padding);right:var(--rp-page-padding);bottom:calc(var(--rp-nav-height) + env(safe-area-inset-bottom) + var(--rp-space-3));max-width:calc(40rem - 2 * var(--rp-page-padding));margin:0 auto;padding:var(--rp-space-3) calc(var(--rp-tap) + var(--rp-space-2)) var(--rp-space-3) var(--rp-space-4);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container-high);color:var(--md-sys-color-on-surface);border:1px solid var(--md-sys-color-outline-variant);box-shadow:0 2px 6px var(--md-sys-color-outline);z-index:11}
 .app-prompt p{margin:0 0 var(--rp-space-2)}
 .app-prompt [data-action=close]{position:absolute;top:0;right:0}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+main:has(>.team-overview){max-width:var(--rp-content-max)}
+.team-overview h3{margin:0;font:600 17px/24px var(--md-ref-typeface)}
+.overview-deadline{display:flex;align-items:center;gap:var(--rp-space-4);margin:0 0 var(--rp-space-3);padding:var(--rp-space-4);border:2px solid var(--rp-coin-rim);border-radius:24px;background:var(--rp-coin-ink);color:var(--rp-coin-face)}
+.overview-deadline .coin-large{width:72px;height:72px}
+.overview-deadline p{margin:0;font:var(--md-type-body)}
+.overview-deadline .overview-deadline-date{color:var(--rp-hero-label)}
+.overview-deadline .overview-deadline-days{font:700 32px/38px var(--md-ref-typeface);color:var(--rp-coin-yellow)}
+nav.group-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-2);margin:0 0 var(--rp-space-2)}
+.group-tile{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:76px;padding:10px var(--rp-space-3);border:2px solid transparent;border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);text-decoration:none}
+.tile-count{font:700 26px/32px var(--md-ref-typeface)}
+.tile-label{font:600 12px/16px var(--md-ref-typeface)}
+.group-tile[aria-current]{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}
+ul.rider-cards{display:grid;gap:var(--rp-space-2);margin:0 0 var(--rp-space-3);padding:0;list-style:none}
+.rider-card{display:flex;flex-direction:column;gap:10px;padding:14px var(--rp-space-4) 6px;border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container)}
+.rider-head{display:flex;flex-wrap:wrap;align-items:center;gap:var(--rp-space-2)}
+.rider-head h3{flex:1}
+.rider-head h3 a{color:inherit}
+.rider-profile{display:inline-flex;align-items:center;min-height:var(--rp-tap);font:700 13px/18px var(--md-ref-typeface)}
+.status-chip{flex:none;padding:0 10px;border-radius:var(--md-shape-md);font:700 12px/24px var(--md-ref-typeface);white-space:nowrap;background:var(--rp-push-container);color:var(--rp-on-push-container)}
+.status-on_track .status-chip{background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
+.status-in .status-chip{background:var(--rp-coin-ink);color:var(--rp-coin-yellow)}
+.rider-bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-3)}
+.amount p{display:flex;align-items:center;gap:6px;margin:0 0 var(--rp-space-1);font:var(--md-type-caption)}
+.amount .coin-mini{width:16px;height:16px}
+.threshold-bar{display:block;width:100%;height:12px;overflow:visible}
+.threshold-track{fill:var(--rp-track);opacity:.2}
+.threshold-fill{fill:var(--rp-coin-yellow)}
+.amount-team .threshold-fill,.rider-table td:nth-child(4) .threshold-fill{fill:var(--rp-coin-team)}
+.pace-mark{stroke:var(--md-sys-color-on-surface);stroke-width:2}
+ul.rider-missing{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-style:none}
+.rider-missing li{display:inline-flex;align-items:center;min-height:26px;padding:0 10px;border:1px solid var(--md-sys-color-outline);border-radius:13px;font:600 12px/16px var(--md-ref-typeface)}
+.rider-missing li.behind{border-color:var(--rp-push-accent);background:var(--rp-push-container);color:var(--rp-on-push-container)}
+.rider-breakdown{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
+.rider-breakdown ul{margin:0 0 var(--rp-space-2);padding:0;list-style:none}
+.rider-breakdown li{padding:6px 0;border-bottom:1px solid var(--md-sys-color-outline-variant)}
+.table-scroll{overflow-x:auto;margin:0 0 var(--rp-space-3);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-lg)}
+.rider-table{width:100%;border-collapse:collapse;font:var(--md-type-body)}
+.rider-table thead tr{background:var(--md-sys-color-surface-container)}
+.rider-table th,.rider-table td{padding:10px var(--rp-space-2);border-top:1px solid var(--md-sys-color-outline-variant);text-align:left;vertical-align:middle}
+.rider-table th:first-child{padding-left:var(--rp-space-4);white-space:nowrap}
+.rider-table .number{text-align:right}
+.rider-table .bar-cell{min-width:120px}
+.rider-table .bar-cell span{display:block;font-weight:700}
+.rider-table .behind{color:var(--rp-on-push-container);font-weight:600}
+.qualified{margin:0 0 var(--rp-space-3);padding:var(--rp-space-4);border:2px solid var(--rp-coin-rim);border-radius:24px;background:var(--rp-coin-ink);color:var(--rp-coin-face)}
+.qualified h2{margin:0 0 var(--rp-space-1);font:700 18px/24px var(--md-ref-typeface);color:var(--rp-coin-yellow)}
+.qualified p{margin:0;font:var(--md-type-caption);color:var(--rp-hero-label)}
+.qualified ul{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);margin:var(--rp-space-3) 0 0;padding:0;list-style:none}
+.qualified li{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 var(--rp-space-3) 0 var(--rp-space-1);border-radius:18px;background:var(--rp-road);font:600 14px/20px var(--md-ref-typeface)}
+.qualified .coin-mini{width:28px;height:28px}
+@media (max-width:839.98px){.table-scroll{display:none}.rider-cards.default .rider-card:not(.status-push){display:none}.group-tiles.default .tile-push{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}.showing-wide{display:none}}
+@media (min-width:840px){ul.rider-cards{display:none}nav.group-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}.group-tiles.default .tile-all{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}.showing-phone{display:none}}
 @media (min-width:600px){body.shell .wordmark-name{position:static;width:auto;height:auto;overflow:visible;clip:auto}:root{--rp-page-padding:32px;--rp-topbar-height:72px;--md-type-display:600 40px/48px var(--md-ref-typeface)}ol.ride-list{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid>*{grid-column:1/-1}.overview-grid>.card-outlined{grid-column:auto}.rynke-gauges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-3)}.rynke-gauges>h2{grid-column:1/-1;margin:0}.rynke-gauges .card{margin:0}body.shell{position:relative;padding-bottom:0}.app-prompt{bottom:calc(var(--rp-space-4) + env(safe-area-inset-bottom))}h1.section-title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}nav.app-nav{position:absolute;top:calc((var(--rp-topbar-height) - var(--rp-tap)) / 2 + env(safe-area-inset-top));right:calc(var(--rp-page-padding) + var(--rp-tap) + var(--rp-space-2));left:auto;bottom:auto;display:flex;gap:var(--rp-space-1);height:auto;padding:0;background:none}nav.app-nav a{flex-direction:row;gap:var(--rp-space-1);padding:0 var(--rp-space-3);border-radius:var(--md-shape-full);font:var(--md-type-label)}nav.app-nav .nav-icon{width:auto;height:auto}nav.app-nav a[aria-current=page]{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}nav.app-nav a[aria-current=page] .nav-icon{background:none}}
 @media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,.ride-why>summary::after{transition:none}.celebrate-coins .coin-mini{animation:none}.waiting .coin{animation:none}}
 @keyframes coin-spin{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}

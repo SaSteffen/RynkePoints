@@ -124,6 +124,27 @@ describe("STYLE", () => {
 		});
 	});
 
+	it("shows the overview as cards below 840 px and as a table from 840 px (016 FR-035, research R9)", () => {
+		const PHONE = "(max-width:839.98px)";
+		const DESKTOP = "(min-width:840px)";
+		expect(declsOf(".table-scroll", PHONE).display).toBe("none");
+		expect(
+			declsOf(".rider-cards.default .rider-card:not(.status-push)", PHONE)
+				.display,
+		).toBe("none");
+		expect(declsOf("ul.rider-cards", DESKTOP).display).toBe("none");
+		expect(declsOf(".table-scroll")["overflow-x"]).toBe("auto");
+		// The tile shown by default looks like a picked one.
+		expect(declsOf(".group-tiles.default .tile-push", PHONE)).toEqual(
+			declsOf(".group-tile[aria-current]"),
+		);
+		expect(declsOf(".group-tiles.default .tile-all", DESKTOP)).toEqual(
+			declsOf(".group-tile[aria-current]"),
+		);
+		expect(declsOf(".showing-wide", PHONE).display).toBe("none");
+		expect(declsOf(".showing-phone", DESKTOP).display).toBe("none");
+	});
+
 	it("drops the celebration coins in, and keeps them still for reduced motion (012 FR-002)", () => {
 		expect(declsOf(".celebrate-coins .coin-mini").animation).toContain(
 			"coin-drop",
