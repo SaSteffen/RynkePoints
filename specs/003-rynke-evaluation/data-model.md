@@ -42,11 +42,11 @@ Filled by every activity write and by the one-time re-read that
 
 | Field | Value | Rule |
 |---|---|---|
-| `version` | 2 (1 before Story 3) | FR-023; raised with every change of values or logic (R8, R18). |
+| `version` | 3 (pause rule of 2026-10-09; 2 from Story 3; 1 before) | FR-023; raised with every change of values or logic (R8, R18). |
 | `effectiveDate` | the date the version ships | FR-023 |
 | `distanceStepKm`, `distanceStepRynke` | 10, 1 | FR-004 |
 | `elevationStepM`, `elevationStepRynke` | 1000, 5 | FR-004a |
-| `maxPausedShare` | `{ num: 1, den: 2 }` | FR-005a |
+| `maxPausedShare` | `{ num: 1, den: 1 }` (`{ num: 1, den: 2 }` up to version 2) | FR-005a |
 | `minSpeedKmh`, `maxSpeedKmh` | 10, 45 | FR-005c |
 | `maxClimbMPerH` | 1500 | FR-005c |
 | `excludedSportTypes` | `EBikeRide`, `EMountainBikeRide` | FR-005e |

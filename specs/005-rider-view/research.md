@@ -349,16 +349,18 @@ What other features still have to build, and how this plan handles it:
 
 ## R14. Rules handout link (FR-053)
 
-- **Decision**: `RULES_HANDOUT_URL =
-  "https://github.com/SaSteffen/RynkePoints/blob/main/docs/rynke-punkte.md"` is a
-  constant in `src/http/rider-sections.ts`. The link text comes from the catalog.
-  The English text says "(in German)".
-- **Rationale**: The handout is published in the public repository (spec
-  Assumptions), and GitHub renders it, mermaid included. A URL is not
-  rider-facing text, so it doesn't belong in the catalogs. `landing.ts` builds
-  the Strava club link the same way.
-- **Alternatives considered**: serving the Markdown or PDF from the Worker,
-  rejected because the spec rules it out.
+- **Decision** (revised 2026-10-09): `RULES_HANDOUT_URL = "/rynke-punkte.pdf"`
+  is a constant in `src/http/rider-sections.ts`, and the link carries
+  `download`. `pnpm docs:pdf` writes the PDF to `public/`, it is committed, and
+  the Workers static assets serve it. A unit test checks that the linked file is
+  a PDF. The link text comes from the catalog. The English text says
+  "(in German)".
+- **Rationale**: Riders get the printable handout in one tap, without leaving
+  for GitHub. A URL is not rider-facing text, so it doesn't belong in the
+  catalogs.
+- **Alternatives considered**: linking the Markdown on GitHub (the first
+  decision), replaced because riders should get the PDF; rendering the PDF in
+  CI, rejected as in feature 003 research R1.
 
 ## R15. When the virtual-ride share is shown (FR-012)
 

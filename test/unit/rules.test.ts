@@ -20,12 +20,12 @@ describe("CURRENT_RULES", () => {
 	it("has the values of data-model.md", () => {
 		const { effectiveDate, ...values } = CURRENT_RULES;
 		expect(values).toEqual({
-			version: 2,
+			version: 3,
 			distanceStepKm: 10,
 			distanceStepRynke: 1,
 			elevationStepM: 1000,
 			elevationStepRynke: 5,
-			maxPausedShare: { num: 1, den: 2 },
+			maxPausedShare: { num: 1, den: 1 },
 			minSpeedKmh: 10,
 			maxSpeedKmh: 45,
 			maxClimbMPerH: 1500,
@@ -43,18 +43,18 @@ describe("CURRENT_RULES", () => {
 	});
 
 	it("pins its values to its version", () => {
-		// version: 2
+		// version: 3
 		const fingerprint =
 			'{"distanceStepKm":10,"distanceStepRynke":1,"elevationStepM":1000,' +
 			'"elevationStepRynke":5,"excludedSportTypes":["EBikeRide","EMountainBikeRide"],' +
-			'"maxClimbMPerH":1500,"maxPausedShare":{"den":2,"num":1},"maxSpeedKmh":45,' +
+			'"maxClimbMPerH":1500,"maxPausedShare":{"den":1,"num":1},"maxSpeedKmh":45,' +
 			'"maxVirtualShare":{"den":3,"num":1},"minSpeedKmh":10,' +
 			'"teamEvents":{' +
 			'"team_training":{"team":1,"training":5},' +
 			'"technique_training":{"team":5,"training":5},' +
 			'"training_weekend_day":{"team":5,"training":10}},' +
 			'"teamThreshold":25,"trainingThreshold":250}';
-		expect(CURRENT_RULES.version).toBe(2);
+		expect(CURRENT_RULES.version).toBe(3);
 		expect(
 			rulesFingerprint(CURRENT_RULES),
 			"a rule value changed: raise CURRENT_RULES.version and effectiveDate, then update this fingerprint",
@@ -223,14 +223,14 @@ describe("RULES_HISTORY", () => {
 		expect(Math.max(...versions)).toBe(CURRENT_RULES.version);
 	});
 
-	it("holds versions 1 and 2, in this order", () => {
-		expect(RULES_HISTORY.map((rules) => rules.version)).toEqual([1, 2]);
+	it("holds versions 1 to 3, in this order", () => {
+		expect(RULES_HISTORY.map((rules) => rules.version)).toEqual([1, 2, 3]);
 	});
 
 	it("keeps the event amounts in version 1: version 2 changes logic, not values", () => {
 		expect(rulesForVersion(1)?.teamEvents).toEqual(TEAM_EVENTS);
 		expect(rulesFingerprint(rulesForVersion(1) as RynkeRules)).toBe(
-			rulesFingerprint(CURRENT_RULES),
+			rulesFingerprint(rulesForVersion(2) as RynkeRules),
 		);
 	});
 

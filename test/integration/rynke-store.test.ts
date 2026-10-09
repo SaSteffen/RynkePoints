@@ -179,7 +179,7 @@ describe("stored ride results and balance", () => {
 		ride(B, {
 			km: 100,
 			movingH: 4,
-			pausedH: 3,
+			pausedH: 5,
 			start: "2026-10-06T07:00:00Z",
 		});
 		await deliver(event(B, "create"));

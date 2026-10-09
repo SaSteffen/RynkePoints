@@ -656,15 +656,15 @@ function lineOf(
 }
 
 describe("buildRiderView ride reasons", () => {
-	it("S4-2: gives the paused and the moving time under a ½ limit", () => {
+	it("S4-2: gives the paused and the moving time under a 1/1 limit", () => {
 		expect(
-			lineOf(["pause"], { movingS: 14400, elapsedS: 25200 }).reasons,
+			lineOf(["pause"], { movingS: 14400, elapsedS: 32400 }).reasons,
 		).toEqual([
 			{
 				code: "pause",
-				pausedS: 10800,
+				pausedS: 18000,
 				movingS: 14400,
-				share: { num: 1, den: 2 },
+				share: { num: 1, den: 1 },
 			},
 		]);
 	});
@@ -682,7 +682,7 @@ describe("buildRiderView ride reasons", () => {
 
 	it("has no paused time without moving time", () => {
 		expect(lineOf(["pause"], { movingS: 0, elapsedS: 3600 }).reasons).toEqual([
-			{ code: "pause", pausedS: null, movingS: 0, share: { num: 1, den: 2 } },
+			{ code: "pause", pausedS: null, movingS: 0, share: { num: 1, den: 1 } },
 		]);
 	});
 

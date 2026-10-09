@@ -123,7 +123,7 @@ export const de = {
 		"Berechnet nach Regel-Version {version}, gültig seit dem {date}.",
 	"rynke.rules.windowDeadline":
 		"Es zählt alles vom {start} bis zum {deadline}.",
-	"rynke.rules.handout": "So funktionieren die Rynke (Regeln zum Nachlesen)",
+	"rynke.rules.handout": "So funktionieren die Rynke (Regeln als PDF)",
 	"rynke.ride.counts": "zählt 🪙",
 	"rynke.ride.doesNotCount": "zählt nicht",
 	"rynke.ride.beingEvaluated": "🦧 wird ausgewertet",
@@ -134,6 +134,8 @@ export const de = {
 		"Strava hat die Fahrt markiert. Wenn du anderer Meinung bist, kläre das bitte mit Strava.",
 	"rynke.reason.pause":
 		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr als die Hälfte ist nicht erlaubt.",
+	"rynke.reason.pause.moving":
+		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr Pause als Bewegungszeit ist nicht erlaubt.",
 	"rynke.reason.pause.share":
 		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr als {share} ist nicht erlaubt.",
 	"rynke.reason.pause.noLimit":

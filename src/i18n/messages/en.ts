@@ -120,7 +120,7 @@ export const en: Catalog = {
 	"rynke.rules.version":
 		"Computed with rules version {version}, in effect since {date}.",
 	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
-	"rynke.rules.handout": "How Rynke work (rules handout, in German)",
+	"rynke.rules.handout": "How Rynke work (rules as PDF, in German)",
 	"rynke.ride.counts": "counts 🪙",
 	"rynke.ride.doesNotCount": "doesn't count",
 	"rynke.ride.beingEvaluated": "🦧 being evaluated",
@@ -131,6 +131,8 @@ export const en: Catalog = {
 		"Strava flagged this ride. If you disagree, please settle it with Strava.",
 	"rynke.reason.pause":
 		"Paused too long: {paused} paused for {moving} moving time – more than half is not allowed.",
+	"rynke.reason.pause.moving":
+		"Paused too long: {paused} paused for {moving} moving time – pausing longer than moving is not allowed.",
 	"rynke.reason.pause.share":
 		"Paused too long: {paused} paused for {moving} moving time – more than {share} is not allowed.",
 	"rynke.reason.pause.noLimit":
