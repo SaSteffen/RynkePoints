@@ -13,8 +13,9 @@ shows once per device and is followed by a one-time notifications offer.
 - **Waiting state (US1)**:
   - A rider with no balance yet sees the Rynke coin spinning and a one-time "come
     back in about 5 minutes" message on Overview and Rides (R1, R4).
-  - The page polls a new `GET /me/ready` every 15 s while visible. It's one D1
-    read with no Strava call. The page reloads once the first balance exists (R5).
+  - The page polls a new `GET /me/ready` every `READY_POLL_SECONDS` (a
+    `wrangler.jsonc` var, default 10 s) while visible. It's one D1 read with no
+    Strava call. The page reloads once the first balance exists (R5).
   - `importing`, the two import and calculating notices, "Import abgeschlossen"
     and "Noch keine Fahrten importiert" all go (R2, R3).
   - The import already starts at the first connection (feature 001). It stays as
@@ -39,6 +40,9 @@ plain browser JavaScript in `public/app.js`, as in features 010 and 011.
 
 **Primary Dependencies**: none new.
 
+**Configuration**: one new `wrangler.jsonc` var, `READY_POLL_SECONDS = "10"`
+(R5); `pnpm types` regenerates `worker-configuration.d.ts`.
+
 **Storage**: D1 unchanged. `riders.import_status` stays for the workers
 ([data-model.md](data-model.md)). There are two new `localStorage` keys on the
 device.
@@ -54,8 +58,8 @@ installs happen on Android/Chromium and iOS Safari.
 script.
 
 **Performance Goals**:
-- SC-002: the first figures within 5 minutes. The poll's 15 s adds at most 15 s
-  after the balance is written.
+- SC-002: the first figures within 5 minutes. The poll adds at most one
+  interval (10 s by default) after the balance is written.
 - FR-004: within one minute.
 
 **Constraints**:
@@ -66,7 +70,7 @@ script.
 - controls are at least 44 px tall (011).
 
 **Scale/Scope**:
-- about 50 riders, which means one D1 read every 15 s per open waiting page,
+- about 50 riders, which means one D1 read every 10 s per open waiting page,
   and only for the few minutes before the first data arrives;
 - 1 new route;
 - changes to about 10 server modules plus `app.js`;
@@ -117,7 +121,8 @@ src/
 │   ├── router.ts              # + GET/HEAD /me/ready, before the page dispatcher
 │   ├── ready.ts               # new: handleReady (session → balance exists?)
 │   ├── rider-view.ts          # "not-worked-out" → "waiting"; drop importing
-│   ├── rider-sections.ts      # + renderWaiting; renderNotice keeps only "updating";
+│   ├── rider-sections.ts      # + renderWaiting (with data-poll-seconds);
+│   │                          #   renderNotice keeps only "updating";
 │   │                          #   empty rides → me.recent.none
 │   ├── sections/overview.ts   # hero first; waiting or content; no install hint,
 │   │                          #   no import line
@@ -127,14 +132,18 @@ src/
 │   ├── pwa.ts                 # renderInstallHint without dismiss; + renderAppPrompt
 │   ├── shell.ts               # + app prompt in every section
 │   └── style.ts               # + .waiting, coin-spin, .app-prompt, reduced motion
+├── config.ts                  # + readyPollSeconds (READY_POLL_SECONDS, 1–60)
 ├── db/rider-view.ts           # + hasBalance read for /me/ready
 └── i18n/messages/{de,en}.ts   # + waiting.*, prompt.*, me.recent.none; − 5 keys
+
+wrangler.jsonc                 # + vars.READY_POLL_SECONDS = "10"
+vitest.config.ts               # + the same var for tests
 
 public/app.js                  # + waitForFirstData, appPrompt, subscribePush;
                                #   installHint → installSettings
 
 test/
-├── unit/                      # rider-view, rider-sections, style
+├── unit/                      # config, rider-view, rider-sections, style
 └── integration/
     ├── me-ready.test.ts       # new
     └── …                      # overview, me-status, me-rynke, me-activities,

@@ -9,7 +9,8 @@ script still holds no text and no dependencies. `sw.js` is unchanged.
 
 On a page with `[data-waiting]`:
 
-- every 15 s, while `document.visibilityState === "visible"`, it fetches
+- every `data-poll-seconds` seconds (10 if the attribute is missing or not a
+  positive number), while `document.visibilityState === "visible"`, it fetches
   `GET /me/ready` with `credentials: "same-origin"` and `cache: "no-store"`;
 - on `{"ready":true}` it stops and calls `location.reload()` once;
 - on a 401, a network error or `{"ready":false}` it waits for the next tick;

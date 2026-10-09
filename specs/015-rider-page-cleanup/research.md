@@ -57,12 +57,17 @@
 
 - **Decision**: a new `GET /me/ready` answers `{"ready": boolean}` with
   `Cache-Control: no-store`, `401` without a session. It is one D1 read: does
-  the rider have a balance. `public/app.js` polls it every 15 s, but only on a page
-  with `[data-waiting]` and only while the page is visible. When it answers
+  the rider have a balance. `public/app.js` polls it every `READY_POLL_SECONDS`
+  (a `wrangler.jsonc` var, default `"10"`), but only on a page with
+  `[data-waiting]` and only while the page is visible. The server reads the
+  var through `readyPollSeconds(env)` in `src/config.ts`, which accepts an
+  integer from 1 to 60 and throws otherwise, like the other settings, and
+  renders it as `data-poll-seconds` on the waiting section. When it answers
   `ready: true`, the page reloads once and polling stops. A 401 or a network error
   just waits for the next tick.
-- **Rationale**: FR-004 needs the switch within a minute, and 15 s leaves room
-  for a missed tick. FR-006: the route never touches Strava. The service worker
+- **Rationale**: FR-004 needs the switch within a minute, and 10 s leaves room
+  for missed ticks. The interval is a var so it can be tuned without a code
+  change; the upper bound of 60 keeps FR-004 true. FR-006: the route never touches Strava. The service worker
   ignores non-navigation fetches, so nothing is cached. The route answers before
   the page dispatcher, so polling doesn't renew the session (like
   `/me/notification-text`). It needs no consent check, since it tells the

@@ -9,7 +9,7 @@ are what the tests check. Texts are catalog keys; German is in
 ## Waiting state (Overview and Rides)
 
 ```html
-<section class="waiting" role="status" data-waiting>
+<section class="waiting" role="status" data-waiting data-poll-seconds="10">
   <svg class="coin coin-large" …><use href="#coin-front"/></svg>
   <h2>{waiting.heading}</h2>
   <p>{waiting.body, date = season start}</p>
@@ -18,6 +18,8 @@ are what the tests check. Texts are catalog keys; German is in
 
 - It is shown when the view is `"waiting"` (no balance) and replaces all the
   Rynke content of the section.
+- `data-poll-seconds` carries the configured `READY_POLL_SECONDS` for the page
+  script (R5).
 - `.waiting .coin` spins with `@keyframes coin-spin`. Under
   `prefers-reduced-motion: reduce` it has `animation: none` (FR-007).
 - No rider page contains `me.import.done`, `me.recent.empty`,
