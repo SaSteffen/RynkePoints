@@ -72,6 +72,19 @@ had a change merged here wait for the maintainer to click **Approve and run**.
 - Show: `gh api repos/SaSteffen/RynkePoints/actions/permissions/fork-pr-contributor-approval`
   (expected: `{"approval_policy":"first_time_contributors"}`)
 
+## Dependabot alerts and security updates: on
+
+Security updates open a pull request for a vulnerable package as soon as an
+alert appears. The daily version updates need no setting: they come from
+[dependabot.yml](dependabot.yml) on the default branch.
+
+- UI: **Advanced Security → Dependabot**: *Dependabot alerts* and *Dependabot
+  security updates* enabled
+- Apply: `gh api --method PUT repos/SaSteffen/RynkePoints/vulnerability-alerts` then
+  `gh api --method PUT repos/SaSteffen/RynkePoints/automated-security-fixes`
+- Show: `gh api repos/SaSteffen/RynkePoints/automated-security-fixes`
+  (expected: `{"enabled":true,"paused":false}`)
+
 ## Environment `production`: `main` only, no admin bypass
 
 The boundary that releases the deploy credential: only a job in a run on `main`
