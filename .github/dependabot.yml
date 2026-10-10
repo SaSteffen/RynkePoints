@@ -1,0 +1,18 @@
+version: 2
+
+updates:
+  # One pull request a day with every outdated npm package, into develop like any
+  # other change. Its title is a Conventional Commit, so pr-title passes.
+  - package-ecosystem: npm
+    directory: /
+    target-branch: develop
+    schedule:
+      interval: daily
+      time: "05:00"
+      timezone: Europe/Berlin
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      npm-packages:
+        patterns: ["*"]
