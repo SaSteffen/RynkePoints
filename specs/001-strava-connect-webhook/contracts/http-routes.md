@@ -48,13 +48,13 @@ Cookies:
 
 - Signed in → `302 /me`.
 - Otherwise `200` HTML containing:
-  - a plain explanation of what is read and why, who can join (club link), how
-    to leave, and that deleted data stays in backups for up to 7 days (FR-002,
-    FR-022a);
-  - the consent of feature 004 (its FR-010, FR-011): what write access is for
-    and that it is optional, who sees what, and that reading and sharing are
-    required (`consent.*`);
-  - which cookies are set (`landing.cookies`);
+  - what RynkePoints is (`landing.intro`) and who can join (club link);
+  - the consent of feature 004 (its FR-010, FR-011): short sentences on what is
+    and isn't read and who sees what, then, one tap away in `details.more`,
+    every field read and why, what write access is for and that it is optional,
+    how to leave, that deleted data stays in backups for up to 7 days, which
+    cookies are set and the notifications (FR-002, FR-022a), and that reading
+    and sharing are required ([messages.md](messages.md) "Consent");
   - the consent form (FR-001, FR-002, research R19, R21):
 
     ```html

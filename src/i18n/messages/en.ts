@@ -17,32 +17,39 @@ export const en: Catalog = {
 
 	"landing.title": "Connect with Strava",
 	"landing.intro":
-		"RynkePoints collects Team Rynkeby Hamburg's rides for points and events.",
+		"Your rides on Strava turn into Rynke, the points of Team Rynkeby Hamburg.",
 	"landing.who": "Only members of {clubLink} can take part.",
 	"club.linkText": "our team club on Strava",
 	"landing.dataRead":
-		"From your rides we only read name, sport type, start time, distance, moving time, elapsed time including pauses, elevation gain, whether the ride was entered manually or ridden on an indoor trainer, and whether Strava has flagged it – no GPS tracks, maps, photos or health data.",
+		"From each ride we only read its name, sport type, start time, distance, moving time, elapsed time including pauses, elevation gain, whether it was entered manually or ridden on an indoor trainer, and whether Strava has flagged it.",
 	"landing.private":
-		'On Strava you decide whether your private ("Only You") activities are included: Strava lists this as viewing your private activities. If you untick it, your private rides don\'t count for Rynke.',
+		'Private ("Only You") rides only count if you allow viewing your private activities on Strava.',
 	"landing.purpose":
-		"We use the data only for the team's Rynke (points) and events. Nobody but you sees your individual rides or their names.",
+		"We use the data only for Rynke and team events. Only you see your individual rides and their names.",
 	"landing.leave":
-		"You can leave at any time: on your RynkePoints page, or by removing RynkePoints in your Strava settings. We then delete all data about you, including your Rynke; on your RynkePoints page we confirm it right away. If you leave the club, we delete your data within 24 hours.",
+		"You can leave at any time: in Settings, or by removing RynkePoints on Strava. We then delete all data about you, including your Rynke. If you leave the club, we delete it within 24 hours.",
 	"landing.backups":
-		"Deleted data stays in our hosting provider's backups for up to 7 days and then disappears automatically.",
+		"Deleted data stays in our hosting provider's backups for up to 7\u00a0days.",
 	"landing.cookies":
-		"We only set necessary cookies: for signing in and for your language choice.",
+		"We only set necessary cookies: for signing in and your language choice.",
 	"landing.notifications":
-		"Notifications are optional and per device. Only on your device do they show how many Rynke are new and what you still need. They pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address that service gives your device, and delete it when you turn notifications off, sign out or leave.",
+		"Notifications are optional, per device, and show only you how many Rynke are new and what you still need. They pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address it gives your device, and delete it when you turn them off, sign out or leave.",
 
 	"consent.heading": "What you agree to by connecting",
+	"consent.short.notRead":
+		"We don't read GPS tracks, maps, photos or health data.",
+	"consent.short.read":
+		"We only read the key figures of your rides, such as distance, time and elevation, and turn them into Rynke.",
+	"consent.short.shown":
+		"The team sees your Rynke without your name, the organisers with your first name.",
+	"consent.details": "All the details",
 	"consent.organisers":
-		"The team's organisers see your first name from Strava, your Rynke with their breakdown, what you still need, whether you've reached your training goal, your attendance at team events and corrections.",
+		"The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections.",
 	"consent.team":
-		"Everyone else on the team sees your accumulated Rynke, overall and per week, without your name.",
+		"Everyone else on the team sees your Rynke, overall and per week, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
 	"consent.write":
-		"If you like, you can allow RynkePoints on Strava to edit your activities. Once the feature exists, we then write a short Rynke section into your ride descriptions; we never change your own text. Whoever may see the ride on Strava sees the section. Strava lists this permission as uploading activities to Strava; RynkePoints never uploads activities. You take part just the same without this permission, so you can untick it.",
+		"Optional: Strava also asks whether RynkePoints may upload activities. We never upload anything; later we use it to write a short Rynke section into your ride descriptions, visible to whoever may see the ride. We never change your own text. You take part just the same without this permission.",
 	"consent.agree":
 		"I agree that RynkePoints reads my rides and shares my Rynke as described.",
 
@@ -51,18 +58,16 @@ export const en: Catalog = {
 	"me.status.connected": "Connected to Strava",
 	"me.status.needsReconnect": "Your Strava connection needs to be renewed.",
 	"me.reconnect": "Reconnect",
-	"me.scope.readAll": "Including your private activities",
-	"me.scope.sharedOnly":
-		'Shared activities only – private ("Only You") activities are not imported.',
+	"me.scope.readAll": "Private activities count too.",
+	"me.scope.sharedOnly": 'Private ("Only You") activities don\'t count.',
 	"me.scope.write":
-		"Write access granted: once the feature exists, RynkePoints writes a Rynke section into your ride descriptions.",
-	"me.scope.noWrite":
-		"No write access: RynkePoints writes nothing into your ride descriptions.",
+		"RynkePoints may write a Rynke section into your ride descriptions once the feature exists.",
+	"me.scope.noWrite": "RynkePoints writes nothing into your ride descriptions.",
 	"me.changePermissions": "Change permissions on Strava",
 	"me.consent.heading": "Your consent",
-	"me.consent.accepted": "Agreed on {date} (version {version}):",
+	"me.consent.accepted": "Agreed on {date} (version {version}).",
 	"me.consent.none":
-		"No consent is recorded for you yet. Please read what you agree to by connecting, and agree; Strava then asks for your permissions again. Until then, nobody on the team sees anything of yours.",
+		"Please agree so we can count your rides. Strava then asks for the permissions again. Until then, the team sees nothing of yours.",
 	"me.consent.renew.heading": "Please agree again",
 	"me.consent.renew.older":
 		"You agreed to version {accepted} on {date}. Version {version} changes this:",
@@ -70,19 +75,19 @@ export const en: Catalog = {
 		"RynkePoints needs another permission for this; Strava asks you for it.",
 	"me.consent.renew.button": "Agree and continue",
 	"me.consent.renew.leave":
-		"If you don't want to agree, you can disconnect; all your data is then deleted.",
+		"Don't want to agree? Then disconnect; we delete all your data.",
 	"me.recent.heading": "Your rides",
 	"me.recent.none": "No rides this season yet.",
 	"me.recent.col.distance": "Distance",
 	"me.disconnect.button": "Disconnect and delete my data",
 
-	"units.km": "{value} km",
-	"units.m": "{value} m",
+	"units.km": "{value}\u00a0km",
+	"units.m": "{value}\u00a0m",
 	"units.percent": "{value}%",
-	"units.kmh": "{value} km/h",
-	"units.mPerH": "{value} m/h",
-	"units.duration": "{h} h {min} min",
-	"units.durationMin": "{min} min",
+	"units.kmh": "{value}\u00a0km/h",
+	"units.mPerH": "{value}\u00a0m/h",
+	"units.duration": "{h}\u00a0h {min}\u00a0min",
+	"units.durationMin": "{min}\u00a0min",
 	"sport.Ride": "Ride",
 	"sport.MountainBikeRide": "Mountain bike ride",
 	"sport.GravelRide": "Gravel ride",
@@ -92,22 +97,17 @@ export const en: Catalog = {
 
 	"rynke.training": "Training Rynke",
 	"rynke.team": "Team Rynke",
-	"rynke.withoutVirtual": "Training Rynke without virtual rides",
+	"rynke.withoutVirtual": "Training Rynke outdoors",
 	"waiting.heading": "Fetching your rides",
 	"waiting.body":
-		"Because you've just connected, we're fetching your rides since {date} from Strava, once. This only happens this one time. Check back in about 5 minutes – this page updates by itself.",
-	"rynke.summary.heading": "Your Rynke",
-	"rynke.verdict.in":
-		"Qualified for Paris! 🗼 You have everything you need for the tour.",
-	"rynke.verdict.notYet": "Not qualified yet 🍌 You still need:",
-	"rynke.missing.training": "{n} Training Rynke",
-	"rynke.missing.team": "{n} Team Rynke",
-	"rynke.missing.withoutVirtual":
-		"{n} Training Rynke from outdoor (non-virtual) rides",
-	"rynke.summary.ofTarget": "{value} of {target}",
-	"rynke.summary.missing": "{n} still missing",
-	"rynke.summary.reached": "reached ✓",
-	"rynke.rides.col.elevationTotal": "Towards elevation",
+		"We're fetching your rides since {date} from Strava, once. That takes about 5\u00a0minutes; this page updates by itself.",
+	"rynke.verdict.in": "Qualified for Paris! 🗼",
+	"rynke.verdict.notYet": "Not qualified yet 🍌",
+	"rynke.verdict.missing": "You still need:",
+	"rynke.missing.training": "{n}\u00a0Training Rynke",
+	"rynke.missing.team": "{n}\u00a0Team Rynke",
+	"rynke.missing.withoutVirtual": "{n}\u00a0Training Rynke outdoors",
+	"rynke.rides.col.elevationTotal": "Elevation counted",
 	"rynke.rides.position": "Rides {from}–{to} of {total}",
 	"rynke.pager.label": "Pages",
 	"rynke.pager.first": "« Newest",
@@ -115,12 +115,11 @@ export const en: Catalog = {
 	"rynke.pager.next": "Older ›",
 	"rynke.pager.last": "Oldest »",
 	"rynke.notice.updating":
-		"The rules have changed: new rules apply since {date}. Your numbers are being updated; until then you see them under rules version {version}.",
+		"New rules apply since {date}. Your Rynke are being recalculated; until then you see them under rules version {version}.",
 	"rynke.rules.heading": "Rules",
-	"rynke.rules.version":
-		"Computed with rules version {version}, in effect since {date}.",
+	"rynke.rules.version": "Rules version {version}, in effect since {date}.",
 	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
-	"rynke.rules.handout": "How Rynke work (rules as PDF, in German)",
+	"rynke.rules.handout": "The rules as PDF (in German)",
 	"rynke.ride.counts": "counts 🪙",
 	"rynke.ride.doesNotCount": "doesn't count",
 	"rynke.ride.beingEvaluated": "🦧 being evaluated",
@@ -130,11 +129,11 @@ export const en: Catalog = {
 	"rynke.reason.flagged":
 		"Strava flagged this ride. If you disagree, please settle it with Strava.",
 	"rynke.reason.pause":
-		"Paused too long: {paused} paused for {moving} moving time – more than half is not allowed.",
+		"Paused too long: {paused} paused for {moving} moving time; more than half is not allowed.",
 	"rynke.reason.pause.moving":
-		"Paused too long: {paused} paused for {moving} moving time – pausing longer than moving is not allowed.",
+		"Paused too long: {paused} paused for {moving} moving time; pausing longer than moving is not allowed.",
 	"rynke.reason.pause.share":
-		"Paused too long: {paused} paused for {moving} moving time – more than {share} is not allowed.",
+		"Paused too long: {paused} paused for {moving} moving time; more than {share} is not allowed.",
 	"rynke.reason.pause.noLimit":
 		"Paused too long: {paused} paused for {moving} moving time.",
 	"rynke.reason.pause.noMovingTime":
@@ -171,22 +170,17 @@ export const en: Catalog = {
 	"rynke.gauge.caption": "{label}: {value} of {target} · {percent}",
 	"rynke.gauge.reached": "✓ reached",
 	"rynke.gauge.elevation":
-		"Elevation towards the next {stepRynke} Training Rynke: {value} of {target} · {percent} · {missing} to go",
+		"Elevation: {value} of {target}, {missing} to go for +{stepRynke}\u00a0Training Rynke",
 	"rynke.source.distance": "Distance",
 	"rynke.source.elevation": "Elevation",
 	"rynke.source.team_training": "Team training",
 	"rynke.source.training_weekend_day": "Training-weekend day",
 	"rynke.source.technique_training": "Technique training",
 	"rynke.breakdown.heading": "Where your Rynke come from",
-	"rynke.breakdown.trainingRynke": "{n} Training Rynke",
-	"rynke.breakdown.elevation":
-		"{metres} in total → {rynke} Training Rynke, {toNext} to the next {stepRynke}",
-	"rynke.breakdown.elevationNoStep":
-		"{metres} in total → {rynke} Training Rynke, {toNext} to the next step",
-	"rynke.breakdown.total": "Total",
-	"rynke.breakdown.totals": "{training} Training Rynke · {team} Team Rynke",
+	"rynke.breakdown.trainingRynke": "{n}\u00a0Training Rynke",
+	"rynke.breakdown.elevation": "{metres} → {rynke}\u00a0Training Rynke",
 	"rynke.breakdown.kind":
-		"attended {count} × → {team} Team Rynke, {training} Training Rynke",
+		"attended {count}× → {team}\u00a0Team Rynke, {training}\u00a0Training Rynke",
 	"rynke.events.heading": "Your team events",
 	"rynke.events.none": "No team event has been recorded for you yet.",
 	"rynke.events.notCounting": "doesn't count: outside the counting period",
@@ -205,7 +199,7 @@ export const en: Catalog = {
 	"notice.denied.body": "RynkePoints can't work without this permission.",
 	"notice.consentRequired.title": "Please agree first",
 	"notice.consentRequired.body":
-		"We can't connect you without your agreement. Read on the start page what RynkePoints reads and shares, and tick the box.",
+		"We can't connect you without your agreement. Tick the box on the start page.",
 	"notice.teamFull.title": "The team is full for now",
 	"notice.teamFull.body":
 		"Strava doesn't allow RynkePoints any more riders right now. We'll let you know when there's room again.",
@@ -238,15 +232,15 @@ export const en: Catalog = {
 	"push.body": "New Rynke – tap to view",
 	"push.body.rise": "New Rynke: {rise}.",
 	"push.body.riseMissing": "New Rynke: {rise}. You still need {missing}.",
-	"push.rise.training": "+{n} Training Rynke",
-	"push.rise.team": "+{n} Team Rynke",
+	"push.rise.training": "+{n}\u00a0Training Rynke",
+	"push.rise.team": "+{n}\u00a0Team Rynke",
 	"notifications.heading": "Notifications",
 	"notifications.explain":
-		"If you like, this device lets you know when you have new Rynke: how many, and what you still need.",
-	"notifications.on": "Notifications are on for this device.",
-	"notifications.off": "Notifications are off for this device.",
+		"This device lets you know when you have new Rynke, and what you still need.",
+	"notifications.on": "On for this device.",
+	"notifications.off": "Off for this device.",
 	"notifications.blocked":
-		"Notifications stay off because your device blocks them for RynkePoints. You can allow them in your browser's or device's settings.",
+		"Your device blocks notifications for RynkePoints. You can allow them in your browser's or device's settings.",
 	"notifications.needsHomeScreen":
 		"On an iPhone, notifications only work once RynkePoints is on your home screen. Then open it from there.",
 	"notifications.unsupported": "This browser can't show notifications.",
@@ -262,12 +256,12 @@ export const en: Catalog = {
 	"nav.settings": "Settings",
 	"shell.refresh": "Refresh",
 	"shell.title": "{section} – RynkePoints",
-	"hero.training": "{n} Training Rynke",
-	"hero.team": "and {n} Team Rynke on the road to Paris",
-	"celebrate.training": "+{n} Training Rynke since your last visit 🎉",
-	"celebrate.team": "+{n} Team Rynke since your last visit 🎉",
+	"hero.training": "{n}\u00a0Training Rynke",
+	"hero.team": "{n}\u00a0Team Rynke",
+	"celebrate.training": "+{n}\u00a0Training Rynke since your last visit 🎉",
+	"celebrate.team": "+{n}\u00a0Team Rynke since your last visit 🎉",
 	"celebrate.both":
-		"+{training} Training Rynke and +{team} Team Rynke since your last visit 🎉",
+		"+{training}\u00a0Training Rynke and +{team}\u00a0Team Rynke since your last visit 🎉",
 	"landing.tagline": "Collect your Rynke 🦧",
 	"settings.language": "Language",
 	"settings.appearance": "Appearance",
@@ -342,8 +336,8 @@ export const en: Catalog = {
 	"organiser.corrections.heading": "Corrections for {name}",
 	"organiser.corrections.none": "No corrections yet.",
 	"organiser.corrections.new": "New correction",
-	"organiser.corrections.training": "{amount} Training Rynke",
-	"organiser.corrections.team": "{amount} Team Rynke",
+	"organiser.corrections.training": "{amount}\u00a0Training Rynke",
+	"organiser.corrections.team": "{amount}\u00a0Team Rynke",
 	"organiser.field.training": "Training Rynke (+ or −, empty is 0)",
 	"organiser.field.team": "Team Rynke (+ or −, empty is 0)",
 	"organiser.field.reason": "Reason",
@@ -355,49 +349,46 @@ export const en: Catalog = {
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
 	"team.total.label": "Team Rynkeby Hamburg 🦧",
-	"team.total.value": "{n} Rynke",
-	"team.total.kind": "{kind} Rynke collected together",
+	"team.total.value": "{n}\u00a0Rynke",
+	"team.total.kind": "collected together",
 	"team.total.thisWeek": "+{n} this week 🔥",
 	"team.kind.label": "Which Rynke",
 	"team.kind.training": "Training",
 	"team.kind.team": "Team",
 	"team.place": "You're {place} of {count} riders 🚴",
 	"team.place.joint": "You're joint {place} of {count} riders 🚴",
-	"team.place.next": "{n} Rynke to pass the next place",
+	"team.place.next": "{n}\u00a0Rynke to pass the next place",
 	"team.place.lead": "You lead the peloton. Bring the others along!",
 	"team.quote.push": "For you 🍌",
 	"team.quote.onTrack": "For you 🤝",
 	"team.peloton.heading": "The peloton 🚴",
-	"team.peloton.hint":
-		"Every coin is a rider. The front of the bunch rides on the right.",
+	"team.peloton.hint": "Every coin is a rider. The front rides on the right.",
 	"team.peloton.back": "Back of the bunch",
 	"team.peloton.front": "Front 🏁",
 	"team.peloton.label":
-		"{count} riders between {min} and {max} Rynke; you have {own}",
+		"{count} riders between {min} and {max}\u00a0Rynke; you have {own}",
 	"team.peloton.you": "You",
 	"team.peloton.breakaway": "Breakaway 🏁",
 	"team.peloton.hint.breakaway":
-		"Every coin is a rider. Far ahead, past the gap, rides the breakaway.",
+		"Every coin is a rider. Far right, past the gap, rides the breakaway.",
 	"team.peloton.label.breakaway":
-		"{count} riders between {min} and {max} Rynke, {away} of them in the breakaway; you have {own}",
+		"{count} riders between {min} and {max}\u00a0Rynke, {away} of them in the breakaway; you have {own}",
 	"team.list.heading": "Leaderboard",
 	"team.list.count": "{n} riders listed",
-	"team.list.hint":
-		"No names, just Rynke. The line shows each rider's season so far.",
+	"team.list.hint": "No names. The line shows the season so far.",
 	"team.list.scope": "Show",
 	"team.list.around": "Around you",
 	"team.list.everyone": "Everyone",
 	"team.list.ahead": "· · · {n} riders ahead · · ·",
 	"team.list.behind": "· · · {n} riders behind · · ·",
 	"team.list.you": "You 🦧",
-	"team.list.other": "{n} {kind}",
 	"team.list.weeks": "Week by week: {values}",
 	"team.chart.heading": "The team, week by week",
 	"team.chart.hint":
-		"Everyone's {kind} Rynke added up, at the end of each week.",
+		"All the team's Rynke added up, as at the end of each week.",
 	"team.chart.now": "this week",
 	"team.chart.label":
-		"Team {kind} at the end of each week, {weeks} weeks, now {total}",
+		"The team's {kind} at the end of each week, {weeks} weeks, now {total}",
 	"team.chart.best": "Best team week so far: +{n} in the week ending {date} 🔥",
 	"team.chart.table": "All weeks",
 	"team.chart.week": "Week ending",

@@ -49,6 +49,11 @@ function teamHref(kind: RynkeKind, all: boolean): string {
 	return query ? `/team?${query}` : "/team";
 }
 
+/** The kind's mini coin; its name only for screen readers, the coin says it. */
+function coinOf(i18n: I18n, kind: RynkeKind): SafeHtml {
+	return html`${miniCoin(kind)}<span class="visually-hidden">${i18n.t(`rynke.${kind}`)}</span>`;
+}
+
 function renderTeamTotal(
 	i18n: I18n,
 	kind: RynkeKind,
@@ -59,7 +64,7 @@ function renderTeamTotal(
 ${coin(kind === "training" ? "front" : "back", "large")}<div class="team-total-text">
 <p class="team-total-label">${i18n.t("team.total.label")}</p>
 <p class="team-total-value">${i18n.t("team.total.value", { n: whole(totals.total) })}</p>
-<p class="team-total-kind">${i18n.t("team.total.kind", { kind: i18n.t(`team.kind.${kind}`) })}</p>
+<p class="team-total-kind">${i18n.t("team.total.kind")}</p>
 ${
 	totals.thisWeek > 0
 		? html`<p class="team-total-week">${i18n.t("team.total.thisWeek", { n: whole(totals.thisWeek) })}</p>
@@ -109,7 +114,7 @@ function renderTeamChart(
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const label = i18n.t("team.chart.label", {
-		kind: i18n.t(`team.kind.${kind}`),
+		kind: i18n.t(`rynke.${kind}`),
 		weeks: whole(totals.weeks.length),
 		total: whole(totals.total),
 	});
@@ -121,8 +126,8 @@ function renderTeamChart(
 	);
 	const first = totals.weeks[0];
 	return html`<figure class="team-chart card">
-<figcaption>${i18n.t("team.chart.heading")}<span class="team-chart-kind">${i18n.t(`team.kind.${kind}`)}</span></figcaption>
-<p class="team-hint">${i18n.t("team.chart.hint", { kind: i18n.t(`team.kind.${kind}`) })}</p>
+<figcaption>${i18n.t("team.chart.heading")}<span class="team-chart-kind">${coinOf(i18n, kind)}</span></figcaption>
+<p class="team-hint">${i18n.t("team.chart.hint")}</p>
 ${weekBars(
 	totals.weeks.map((week) => week.total),
 	label,
@@ -215,10 +220,7 @@ function renderRow(i18n: I18n, kind: RynkeKind, row: LeaderboardRow): SafeHtml {
 	}${sparkline(
 		row.weeks,
 		i18n.t("team.list.weeks", { values: row.weeks.map(whole).join(", ") }),
-	)}</span><span class="row-figures"><span class="row-total">${miniCoin(kind)} ${whole(row.total)}</span><span class="row-other">${i18n.t(
-		"team.list.other",
-		{ n: whole(row.other), kind: i18n.t(`team.kind.${other}`) },
-	)}</span></span></li>
+	)}</span><span class="row-figures"><span class="row-total">${coinOf(i18n, kind)} ${whole(row.total)}</span><span class="row-other">${coinOf(i18n, other)} ${whole(row.other)}</span></span></li>
 `;
 }
 

@@ -82,11 +82,9 @@ describe("GET /me Rynke summary (US1)", () => {
 			virtualShareMissing: 155,
 		});
 		const shown = await summary();
-		expect(shown).toContain("Noch nicht qualifiziert 🍌 Dir fehlen:");
-		expect(shown).toContain("12 von 250");
-		expect(shown).toContain("238 fehlen noch");
-		expect(shown).toContain("0 von 25");
-		expect(shown).toContain("25 fehlen noch");
+		expect(shown).toContain("Noch nicht qualifiziert 🍌 Dir fehlen noch:");
+		// The gauges carry the figures (issue: wording review).
+		expect(shown).not.toContain("von 250");
 		expect(shown).toContain("238 Trainingsrynke");
 		expect(shown).toContain("25 Teamrynke");
 		expect(shown).not.toContain("Qualifiziert für Paris");
@@ -106,13 +104,7 @@ describe("GET /me Rynke summary (US1)", () => {
 		const shown = text(
 			section(html, 'class="rynke-summary verdict card"') ?? "",
 		);
-		expect(shown).toContain(
-			"Qualifiziert für Paris! 🗼 Du hast alles, was du für die Tour brauchst.",
-		);
-		expect(shown).toContain("262 von 250");
-		expect(shown).toContain("25 von 25");
-		expect(shown.match(/erreicht ✓/g)).toHaveLength(2);
-		expect(shown).not.toContain("Trainingsrynke ohne virtuelle Fahrten");
+		expect(shown).toBe("Qualifiziert für Paris! 🗼");
 		expect(html).not.toContain('class="rynke-missing"');
 	});
 
@@ -131,11 +123,7 @@ describe("GET /me Rynke summary (US1)", () => {
 			result: { counts: true, distanceRynke: 102, isVirtual: true },
 		});
 		const shown = await summary();
-		expect(shown).toContain("Trainingsrynke ohne virtuelle Fahrten");
-		expect(shown).toContain("160 von 167");
-		expect(shown).toContain(
-			"7 Trainingsrynke aus Fahrten draußen (nicht virtuell)",
-		);
+		expect(shown).toContain("7 Trainingsrynke draußen");
 		expect(shown).toContain("Noch nicht qualifiziert");
 	});
 
@@ -223,7 +211,9 @@ describe("GET /me gauges (US2)", () => {
 		const [training, team, elevation, ...rest] = await gauges();
 		expect(training?.caption).toBe("Trainingsrynke: 12 von 250 · 4 %");
 		expect(team?.caption).toBe("Teamrynke: 0 von 25 · 0 %");
-		expect(elevation?.caption).toContain("Höhenmeter bis zu den nächsten 5");
+		expect(elevation?.caption).toBe(
+			"Höhenmeter: 0 m von 1.000 m, noch 1.000 m bis +5 Trainingsrynke",
+		);
 		expect(rest).toEqual([]);
 		expect(training?.classes).toBe("gauge");
 		expect(training?.bar).toContain(
@@ -274,7 +264,7 @@ describe("GET /me gauges (US2)", () => {
 		const shown = await gauges();
 		expect(shown).toHaveLength(4);
 		expect(shown[2]?.caption).toBe(
-			"Trainingsrynke ohne virtuelle Fahrten: 160 von 167 · 95 %",
+			"Trainingsrynke draußen: 160 von 167 · 95 %",
 		);
 	});
 
@@ -288,7 +278,7 @@ describe("GET /me gauges (US2)", () => {
 		});
 		const elevation = (await gauges()).at(-1);
 		expect(elevation?.caption).toBe(
-			"Höhenmeter bis zu den nächsten 5 Trainingsrynke: 240 m von 1.000 m · 24 % · noch 760 m",
+			"Höhenmeter: 240 m von 1.000 m, noch 760 m bis +5 Trainingsrynke",
 		);
 		expect(elevation?.bar).toContain('style="width:24%"');
 	});
@@ -371,7 +361,7 @@ async function breakdown(athleteId = ATHLETE_A): Promise<string[][]> {
 }
 
 describe("GET /me breakdown (US3a)", () => {
-	it("S3-1: shows distance, elevation and the total", async () => {
+	it("S3-1: shows distance, elevation and each kind of team event", async () => {
 		await seedBalance(ATHLETE_A, {
 			distanceRynke: 7,
 			elevationDm: 12400,
@@ -384,14 +374,10 @@ describe("GET /me breakdown (US3a)", () => {
 		});
 		expect(await breakdown()).toEqual([
 			["Distanz", "7 Trainingsrynke"],
-			[
-				"Höhenmeter",
-				"1.240 m gesamt → 5 Trainingsrynke, noch 760 m bis zu den nächsten 5",
-			],
-			["Teamtraining", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Tag Trainingswochenende", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Techniktraining", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Gesamt", "12 Trainingsrynke · 0 Teamrynke"],
+			["Höhenmeter", "1.240 m → 5 Trainingsrynke"],
+			["Teamtraining", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Tag Trainingswochenende", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Techniktraining", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
 		]);
 	});
 
@@ -405,7 +391,7 @@ describe("GET /me breakdown (US3a)", () => {
 		});
 		expect((await breakdown())[1]).toEqual([
 			"Höhenmeter",
-			"3.000 m gesamt → 15 Trainingsrynke, noch 1.000 m bis zu den nächsten 5",
+			"3.000 m → 15 Trainingsrynke",
 		]);
 	});
 
@@ -413,14 +399,10 @@ describe("GET /me breakdown (US3a)", () => {
 		await seedBalance(ATHLETE_A);
 		expect(await breakdown()).toEqual([
 			["Distanz", "0 Trainingsrynke"],
-			[
-				"Höhenmeter",
-				"0 m gesamt → 0 Trainingsrynke, noch 1.000 m bis zu den nächsten 5",
-			],
-			["Teamtraining", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Tag Trainingswochenende", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Techniktraining", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Gesamt", "0 Trainingsrynke · 0 Teamrynke"],
+			["Höhenmeter", "0 m → 0 Trainingsrynke"],
+			["Teamtraining", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Tag Trainingswochenende", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Techniktraining", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
 		]);
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		expect(
@@ -431,7 +413,7 @@ describe("GET /me breakdown (US3a)", () => {
 		expect(html).not.toContain('class="rynke-events"');
 	});
 
-	it("names no step for an unknown rules version (FR-013)", async () => {
+	it("shows the elevation for an unknown rules version (FR-013)", async () => {
 		await seedBalance(ATHLETE_A, {
 			elevationDm: 12400,
 			elevationRynke: 5,
@@ -440,7 +422,7 @@ describe("GET /me breakdown (US3a)", () => {
 		});
 		expect((await breakdown())[1]).toEqual([
 			"Höhenmeter",
-			"1.240 m gesamt → 5 Trainingsrynke, noch 760 m bis zur nächsten Stufe",
+			"1.240 m → 5 Trainingsrynke",
 		]);
 	});
 
@@ -525,10 +507,9 @@ describe("GET /me team events (US3b)", () => {
 			teamEvents: kindSums([2, 2, 10], [0, 0, 0], [1, 5, 5]),
 		});
 		expect((await breakdown()).slice(2)).toEqual([
-			["Teamtraining", "2 × dabei → 2 Teamrynke, 10 Trainingsrynke"],
-			["Tag Trainingswochenende", "0 × dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Techniktraining", "1 × dabei → 5 Teamrynke, 5 Trainingsrynke"],
-			["Gesamt", "15 Trainingsrynke · 7 Teamrynke"],
+			["Teamtraining", "2× dabei → 2 Teamrynke, 10 Trainingsrynke"],
+			["Tag Trainingswochenende", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Techniktraining", "1× dabei → 5 Teamrynke, 5 Trainingsrynke"],
 		]);
 	});
 
@@ -659,7 +640,7 @@ describe("GET /me team events (US3b)", () => {
 			section(html, 'class="rynke-breakdown card card-outlined"') ?? "",
 		);
 		expect(shown).toContain(
-			"Training-weekend day attended 1 × → 5 Team Rynke, 10 Training Rynke",
+			"Training-weekend day attended 1× → 5 Team Rynke, 10 Training Rynke",
 		);
 		expect(shown).toContain(
 			"Your team events 09/05/2026 · Training-weekend day",
@@ -671,7 +652,6 @@ describe("GET /me team events (US3b)", () => {
 		expect((await breakdown()).map(([dt]) => dt)).toEqual([
 			"Distanz",
 			"Höhenmeter",
-			"Gesamt",
 		]);
 	});
 });
@@ -690,7 +670,7 @@ async function details(athleteId = ATHLETE_A, acceptLanguage?: string) {
 }
 
 const FIX_HINT =
-	"Du kannst die Fahrt auf Strava korrigieren oder dich an das Orga-Team wenden.";
+	"Du kannst die Fahrt auf Strava korrigieren oder dich an die Orga wenden.";
 
 describe("GET /me/rides ride reasons (US4)", () => {
 	beforeEach(() => seedBalance(ATHLETE_A));
@@ -736,7 +716,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 		await seedPause();
 		const [pause] = await details();
 		expect(pause?.reasons).toEqual([
-			"Zu lange Pause: 5 h 0 min Pause bei 4 h 0 min Bewegungszeit – mehr Pause als Bewegungszeit ist nicht erlaubt.",
+			"Zu lange Pause: 5 h 0 min Pause bei 4 h 0 min Bewegungszeit; mehr Pause als Bewegung ist nicht erlaubt.",
 		]);
 	});
 
@@ -803,7 +783,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 			[
 				"Zu viele Höhenmeter für die Zeit: 1.501 m/h bergauf, höchstens 1.500 m/h sind erlaubt.",
 			],
-			["E-Bike-Fahrt zählt nicht für die Rynke."],
+			["E-Bike-Fahrt zählt nicht für Rynke."],
 			["Nach dem Stichtag am 30.06.2027."],
 			["Vor dem Saisonstart am 01.01.2026."],
 		]);
@@ -879,7 +859,7 @@ describe("GET /me/rides ride reasons (US4)", () => {
 			"Recorded twice: your ride of 06/10/2026, 08:00, 80.0 km counts instead.",
 		]);
 		expect(pause?.reasons).toEqual([
-			"Paused too long: 5 h 0 min paused for 4 h 0 min moving time – pausing longer than moving is not allowed.",
+			"Paused too long: 5 h 0 min paused for 4 h 0 min moving time; pausing longer than moving is not allowed.",
 		]);
 	});
 });
@@ -994,7 +974,7 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 		expect(rideCards(html)[0]?.labels).toEqual([
 			"Distanz",
 			"Trainingsrynke",
-			"Für die Höhenmeter",
+			"Gezählte Höhenmeter",
 		]);
 	});
 });
@@ -1210,15 +1190,14 @@ async function rulesAndNotice(athleteId = ATHLETE_A, acceptLanguage?: string) {
 const VERSION = CURRENT_RULES.version;
 const NEXT = VERSION + 1;
 
-const UPDATING =
-	"Die Regeln haben sich geändert: Seit dem 09.10.2026 gelten neue Regeln.";
+const UPDATING = "Seit dem 09.10.2026 gelten neue Regeln.";
 
 describe("GET /me rules and notices (US6)", () => {
 	it("S6-1: names the rules version, the window and the handout", async () => {
 		await seedBalance(ATHLETE_A);
 		const { html, notice, rules } = await rulesAndNotice();
 		expect(rules).toContain(
-			`Berechnet nach Regel-Version ${VERSION}, gültig seit dem 09.10.2026.`,
+			`Regel-Version ${VERSION}, gültig seit dem 09.10.2026.`,
 		);
 		expect(rules).toContain(
 			"Es zählt alles vom 01.01.2026 bis zum 30.06.2027.",
@@ -1227,9 +1206,9 @@ describe("GET /me rules and notices (US6)", () => {
 			/<a class="tap" href="([^"]*)" download>([^<]*)<\/a>/,
 		);
 		expect(link?.[1]).toBe(RULES_HANDOUT_URL);
-		expect(link?.[2]).toBe("So funktionieren die Rynke (Regeln als PDF)");
+		expect(link?.[2]).toBe("Die Regeln als PDF");
 		expect(notice).toBeNull();
-		expect(html).not.toContain("Die Regeln haben sich geändert");
+		expect(html).not.toContain("gelten neue Regeln");
 	});
 
 	it("S6-2: says the numbers are being updated to other rules", async () => {
@@ -1243,7 +1222,7 @@ describe("GET /me rules and notices (US6)", () => {
 			`bis dahin siehst du sie nach Regel-Version ${NEXT}.`,
 		);
 		expect(rules).toContain(
-			`Berechnet nach Regel-Version ${NEXT}, gültig seit dem 01.11.2026.`,
+			`Regel-Version ${NEXT}, gültig seit dem 01.11.2026.`,
 		);
 		// NEXT isn't in RULES_HISTORY: no targets, no gauges (FR-013).
 		expect(html).not.toContain('class="rynke-gauges"');
@@ -1276,9 +1255,7 @@ describe("GET /me rules and notices (US6)", () => {
 	it("S6-5: says in English that the handout is in German", async () => {
 		await seedBalance(ATHLETE_A);
 		const { rules } = await rulesAndNotice(ATHLETE_A, "en");
-		expect(rules).toContain(
-			`Computed with rules version ${VERSION}, in effect since`,
-		);
+		expect(rules).toContain(`Rules version ${VERSION}, in effect since`);
 		expect(rules).toContain("in German");
 	});
 

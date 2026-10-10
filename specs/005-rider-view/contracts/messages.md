@@ -29,32 +29,29 @@ added with its story.
 |---|---|---|---|
 | `rynke.training` | Trainingsrynke | Training Rynke | US1 |
 | `rynke.team` | Teamrynke | Team Rynke | US1 |
-| `rynke.withoutVirtual` | Trainingsrynke ohne virtuelle Fahrten | Training Rynke without virtual rides | US1 |
+| `rynke.withoutVirtual` | Trainingsrynke draußen | Training Rynke outdoors | US1 |
 
 ## Notices (`section.notice`)
 
 | ID | Params | de | en | Delivery |
 |---|---|---|---|---|
 | `rynke.notice.notWorkedOut` | | Deine Rynke werden gerade berechnet. Schau in ein paar Minuten wieder vorbei. | Your Rynke are still being worked out. Check back in a few minutes. | US1 |
-| `rynke.notice.updating` | `date`, `version` | Die Regeln haben sich geändert: Seit dem {date} gelten neue Regeln. Deine Zahlen werden gerade neu berechnet; bis dahin siehst du sie nach Regel-Version {version}. | The rules have changed: new rules apply since {date}. Your numbers are being updated; until then you see them under rules version {version}. | US6 |
+| `rynke.notice.updating` | `date`, `version` | Seit dem {date} gelten neue Regeln. Deine Rynke werden gerade neu berechnet; bis dahin siehst du sie nach Regel-Version {version}. | New rules apply since {date}. Your Rynke are being recalculated; until then you see them under rules version {version}. | US6 |
 | `rynke.notice.importing` | `date` | Deine Fahrten seit dem {date} werden noch importiert. Deine Rynke wachsen, sobald sie da sind. | Your rides since {date} are still being imported. Your Rynke will grow as they arrive. | US6 |
 
 ## Summary (US1)
 
 | ID | Params | de | en |
 |---|---|---|---|
-| `rynke.summary.heading` | | Deine Rynke | Your Rynke |
-| `rynke.verdict.in` | | Qualifiziert für Paris! 🗼 Du hast alles, was du für die Tour brauchst. | Qualified for Paris! 🗼 You have everything you need for the tour. |
-| `rynke.verdict.notYet` | | Noch nicht qualifiziert 🍌 Dir fehlen: | Not qualified yet 🍌 You still need: |
+| `rynke.verdict.in` | | Qualifiziert für Paris! 🗼 | Qualified for Paris! 🗼 |
+| `rynke.verdict.notYet` | | Noch nicht qualifiziert 🍌 | Not qualified yet 🍌 |
+| `rynke.verdict.missing` | | Dir fehlen noch: | You still need: |
 | `rynke.missing.training` | `n` | {n} Trainingsrynke | {n} Training Rynke |
 | `rynke.missing.team` | `n` | {n} Teamrynke | {n} Team Rynke |
-| `rynke.missing.withoutVirtual` | `n` | {n} Trainingsrynke aus Fahrten draußen (nicht virtuell) | {n} Training Rynke from outdoor (non-virtual) rides |
-| `rynke.summary.ofTarget` | `value`, `target` | {value} von {target} | {value} of {target} |
-| `rynke.summary.missing` | `n` | {n} fehlen noch | {n} still missing |
-| `rynke.summary.reached` | | erreicht ✓ | reached ✓ |
+| `rynke.missing.withoutVirtual` | `n` | {n} Trainingsrynke draußen | {n} Training Rynke outdoors |
 
-With an unknown target (FR-013), the formatted value is printed on its own,
-without `rynke.summary.ofTarget`.
+The summary only says where the rider stands; the gauges carry the figures
+(wording review, PR #80).
 
 ## Gauges (US2)
 
@@ -63,7 +60,7 @@ without `rynke.summary.ofTarget`.
 | `rynke.gauges.heading` | | Dein Fortschritt | Your progress |
 | `rynke.gauge.caption` | `label`, `value`, `target`, `percent` | {label}: {value} von {target} · {percent} | {label}: {value} of {target} · {percent} |
 | `rynke.gauge.reached` | | ✓ erreicht | ✓ reached |
-| `rynke.gauge.elevation` | `value`, `target`, `percent`, `missing`, `stepRynke` | Höhenmeter bis zu den nächsten {stepRynke} Trainingsrynke: {value} von {target} · {percent} · noch {missing} | Elevation towards the next {stepRynke} Training Rynke: {value} of {target} · {percent} · {missing} to go |
+| `rynke.gauge.elevation` | `value`, `target`, `missing`, `stepRynke` | Höhenmeter: {value} von {target}, noch {missing} bis +{stepRynke} Trainingsrynke | Elevation: {value} of {target}, {missing} to go for +{stepRynke} Training Rynke |
 | `rynke.source.distance` | | Distanz | Distance |
 | `rynke.source.elevation` | | Höhenmeter | Elevation |
 
@@ -73,15 +70,12 @@ without `rynke.summary.ofTarget`.
 |---|---|---|---|---|
 | `rynke.breakdown.heading` | | Woher deine Rynke kommen | Where your Rynke come from | US3a |
 | `rynke.breakdown.trainingRynke` | `n` | {n} Trainingsrynke | {n} Training Rynke | US3a |
-| `rynke.breakdown.elevation` | `metres`, `rynke`, `toNext`, `stepRynke` | {metres} gesamt → {rynke} Trainingsrynke, noch {toNext} bis zu den nächsten {stepRynke} | {metres} in total → {rynke} Training Rynke, {toNext} to the next {stepRynke} | US3a |
-| `rynke.breakdown.elevationNoStep` | `metres`, `rynke`, `toNext` | {metres} gesamt → {rynke} Trainingsrynke, noch {toNext} bis zur nächsten Stufe | {metres} in total → {rynke} Training Rynke, {toNext} to the next step | US3a |
-| `rynke.breakdown.total` | | Gesamt | Total | US3a |
-| `rynke.breakdown.totals` | `training`, `team` | {training} Trainingsrynke · {team} Teamrynke | {training} Training Rynke · {team} Team Rynke | US3a |
+| `rynke.breakdown.elevation` | `metres`, `rynke` | {metres} → {rynke} Trainingsrynke | {metres} → {rynke} Training Rynke | US3a |
 
 | `rynke.source.team_training` | | Teamtraining | Team training | US3b |
 | `rynke.source.training_weekend_day` | | Tag Trainingswochenende | Training-weekend day | US3b |
 | `rynke.source.technique_training` | | Techniktraining | Technique training | US3b |
-| `rynke.breakdown.kind` | `count`, `team`, `training` | {count} × dabei → {team} Teamrynke, {training} Trainingsrynke | attended {count} × → {team} Team Rynke, {training} Training Rynke | US3b |
+| `rynke.breakdown.kind` | `count`, `team`, `training` | {count}× dabei → {team} Teamrynke, {training} Trainingsrynke | attended {count}× → {team} Team Rynke, {training} Training Rynke | US3b |
 | `rynke.events.heading` | | Deine Teamtermine | Your team events | US3b |
 | `rynke.events.none` | | Für dich ist noch kein Teamtermin eingetragen. | No team event has been recorded for you yet. | US3b |
 | `rynke.events.notCounting` | | zählt nicht: außerhalb des Wertungszeitraums | doesn't count: outside the counting period | US3b |
@@ -109,10 +103,10 @@ tasks:
 | ID | Params | de | en |
 |---|---|---|---|
 | `rynke.rules.heading` | | Regeln | Rules |
-| `rynke.rules.version` | `version`, `date` | Berechnet nach Regel-Version {version}, gültig seit dem {date}. | Computed with rules version {version}, in effect since {date}. |
+| `rynke.rules.version` | `version`, `date` | Regel-Version {version}, gültig seit dem {date}. | Rules version {version}, in effect since {date}. |
 | `rynke.rules.window` | `start` | Es zählt alles ab dem {start}. | Everything from {start} counts. |
 | `rynke.rules.windowDeadline` | `start`, `deadline` | Es zählt alles vom {start} bis zum {deadline}. | Everything from {start} to {deadline} counts. |
-| `rynke.rules.handout` | | So funktionieren die Rynke (Regeln zum Nachlesen) | How Rynke work (rules handout, in German) |
+| `rynke.rules.handout` | | Die Regeln als PDF | The rules as PDF (in German) |
 
 ## Rides (US1, US4, US5)
 
@@ -120,12 +114,12 @@ tasks:
 |---|---|---|---|---|
 | `me.recent.heading` *(changed text)* | | Deine Fahrten | Your rides | US5 |
 | `rynke.rides.col.status` | | Zählt? | Counts? | US1 |
-| `rynke.rides.col.elevationTotal` | | Für die Höhenmeter | Towards elevation | US1 |
+| `rynke.rides.col.elevationTotal` | | Gezählte Höhenmeter | Elevation counted | US1 |
 | `rynke.ride.counts` | | zählt | counts | US1 |
 | `rynke.ride.doesNotCount` | | zählt nicht | doesn't count | US1 |
 | `rynke.ride.beingEvaluated` | | wird ausgewertet | being evaluated | US1 |
 | `rynke.ride.virtual` | | virtuell | virtual | US1 |
-| `rynke.ride.fixHint` | | Du kannst die Fahrt auf Strava korrigieren oder dich an das Orga-Team wenden. | You can correct the ride on Strava or ask an organiser. | US4 |
+| `rynke.ride.fixHint` | | Du kannst die Fahrt auf Strava korrigieren oder dich an die Orga wenden. | You can correct the ride on Strava or ask an organiser. | US4 |
 | `rynke.rides.position` | `from`, `to`, `total` | Fahrten {from}–{to} von {total} | Rides {from}–{to} of {total} | US5 |
 | `rynke.pager.label` | | Seiten | Pages | US5 |
 | `rynke.pager.first` | | « Neueste | « Newest |  US5 |
@@ -142,8 +136,8 @@ cover rule values that are unknown (FR-013) and special figures (research R12).
 | ID | Params | de | en |
 |---|---|---|---|
 | `rynke.reason.flagged` | | Strava hat die Fahrt markiert. Wenn du anderer Meinung bist, kläre das bitte mit Strava. | Strava flagged this ride. If you disagree, please settle it with Strava. |
-| `rynke.reason.pause` | `paused`, `moving` | Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr als die Hälfte ist nicht erlaubt. | Paused too long: {paused} paused for {moving} moving time – more than half is not allowed. |
-| `rynke.reason.pause.share` | `paused`, `moving`, `share` | Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr als {share} ist nicht erlaubt. | Paused too long: {paused} paused for {moving} moving time – more than {share} is not allowed. |
+| `rynke.reason.pause` | `paused`, `moving` | Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit; mehr als die Hälfte ist nicht erlaubt. | Paused too long: {paused} paused for {moving} moving time; more than half is not allowed. |
+| `rynke.reason.pause.share` | `paused`, `moving`, `share` | Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit; mehr als {share} ist nicht erlaubt. | Paused too long: {paused} paused for {moving} moving time; more than {share} is not allowed. |
 | `rynke.reason.pause.noLimit` | `paused`, `moving` | Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit. | Paused too long: {paused} paused for {moving} moving time. |
 | `rynke.reason.pause.noMovingTime` | | Keine Bewegungszeit: Die Fahrt gilt als ganz pausiert. | No moving time: the ride counts as paused throughout. |
 | `rynke.reason.manual` | | Manuell auf Strava eingetragen. | Entered manually on Strava. |
@@ -153,7 +147,7 @@ cover rule values that are unknown (FR-013) and special figures (research R12).
 | `rynke.reason.too_fast.noLimit` | `speed` | Zu schnell für eine Radfahrt: {speed} im Schnitt. | Too fast for a bike ride: {speed} on average. |
 | `rynke.reason.climbing_rate` | `rate`, `limit` | Zu viele Höhenmeter für die Zeit: {rate} bergauf, höchstens {limit} sind erlaubt. | Too much climbing for the time: {rate} uphill, at most {limit} allowed. |
 | `rynke.reason.climbing_rate.noLimit` | `rate` | Zu viele Höhenmeter für die Zeit: {rate} bergauf. | Too much climbing for the time: {rate} uphill. |
-| `rynke.reason.excluded_sport_type` | `sport` | {sport} zählt nicht für die Rynke. | {sport} doesn't count for Rynke. |
+| `rynke.reason.excluded_sport_type` | `sport` | {sport} zählt nicht für Rynke. | {sport} doesn't count for Rynke. |
 | `rynke.reason.outside_window` | `date` | Vor dem Saisonstart am {date}. | Before the season start on {date}. |
 | `rynke.reason.outside_window.afterDeadline` | `date` | Nach dem Stichtag am {date}. | After the deadline on {date}. |
 | `rynke.reason.outside_window.afterDeadlineNoDate` | | Nach dem Stichtag. | After the deadline. |

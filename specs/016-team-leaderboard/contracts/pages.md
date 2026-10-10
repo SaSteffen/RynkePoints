@@ -12,7 +12,8 @@ The draft's look, section by section: colours come from the tokens in
 1. **Team total** `section.team-total`: a card on the coin's ink with its gold
    rim, the coin (front for Training, back for Team, 012) at 80 px on the left;
    beside it "Team Rynkeby Hamburg 🦧", "{n} Rynke" large in Rynkeby yellow,
-   "{kind} Rynke collected together" and "+{n} this week 🔥" (left out when 0).
+   "collected together" (the coin says which kind) and "+{n} this week 🔥" (left
+   out when 0).
 2. **Kind switch** `nav.kind-switch`: one pill with two full-width links, each
    with its mini coin, the current one `aria-current="true"` in yellow.
 3. **Place** `section.my-place` (left out when the viewer isn't listed): a
@@ -38,7 +39,8 @@ The draft's look, section by section: colours come from the tokens in
      cuts the road; the breakaway riders' coins sit right of it in order of
      total, the bunch's to scale left of it. The hint, the label and the right
      end ("Breakaway 🏁") change to their breakaway text.
-6. **Team chart** `figure.team-chart`: heading with the kind on the right, a
+6. **Team chart** `figure.team-chart`: heading with the kind's mini coin on the
+   right (its name for screen readers only), a
    one-line hint; one bar per week of the team total, the current week in
    yellow with an outline; the first week's date and "this week" below; "Best
    team week so far: +{n} in the week ending {date} 🔥" on the ok container; a
@@ -54,8 +56,10 @@ The draft's look, section by section: colours come from the tokens in
      - medal 🥇🥈🥉 for places 1–3, otherwise the place number;
      - "You 🦧" on the viewer's row above a small sparkline SVG (research R12),
        nothing else that identifies anyone;
-     - on the right the total with the mini coin, the other kind in small
-       print below.
+     - on the right the total with the mini coin, the other kind's total with
+       its mini coin in small print below. No kind names are printed: each
+       mini coin carries its kind's name (`rynke.training` / `rynke.team`) in
+       a `span.visually-hidden`.
 
 ## `/organiser/riders`
 

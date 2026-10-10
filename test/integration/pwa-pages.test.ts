@@ -154,10 +154,10 @@ describe("app prompt (015 FR-010–FR-012, FR-016)", () => {
 describe("notifications section (FR-010, FR-011)", () => {
 	const SECTION = `<section id="notifications" class="settings-group" data-push-key="${vapidPublicKey(ctx.env)}" hidden>
 <h2>Benachrichtigungen</h2>
-<p>Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast: wie viele und was dir noch fehlt.</p>
-<p data-state="on" hidden>Benachrichtigungen sind auf diesem Gerät an.</p>
-<p data-state="off" hidden>Benachrichtigungen sind auf diesem Gerät aus.</p>
-<p data-state="blocked" hidden>Benachrichtigungen bleiben aus, weil dein Gerät sie für RynkePoints blockiert. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.</p>
+<p>Dieses Gerät sagt dir Bescheid, wenn du neue Rynke hast, und was dir noch fehlt.</p>
+<p data-state="on" hidden>Auf diesem Gerät an.</p>
+<p data-state="off" hidden>Auf diesem Gerät aus.</p>
+<p data-state="blocked" hidden>Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.</p>
 <p data-state="needsHomeScreen" hidden>Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.</p>
 <p data-state="unsupported" hidden>Dieser Browser kann keine Benachrichtigungen anzeigen.</p>
 <p data-state="failed" hidden>Das hat nicht geklappt. Versuch es bitte noch einmal.</p>
@@ -286,11 +286,11 @@ describe("GET /me/notification-text (issue #45)", () => {
 			status: 200,
 			body: {
 				title: "RynkePoints",
-				body: "Neue Rynke: +3 Trainingsrynke. Dir fehlen noch 216 Trainingsrynke und 2 Teamrynke.",
+				body: "Neue Rynke: +3\u00a0Trainingsrynke. Dir fehlen noch 216\u00a0Trainingsrynke und 2\u00a0Teamrynke.",
 			},
 		});
 		expect((await riderText("en")).body?.body).toBe(
-			"New Rynke: +3 Training Rynke. You still need 216 Training Rynke and 2 Team Rynke.",
+			"New Rynke: +3\u00a0Training Rynke. You still need 216\u00a0Training Rynke and 2\u00a0Team Rynke.",
 		);
 	});
 
@@ -298,7 +298,7 @@ describe("GET /me/notification-text (issue #45)", () => {
 		await seedBalance(ATHLETE_A, IN);
 		await seedRise(12, 1);
 		expect((await riderText()).body?.body).toBe(
-			"Neue Rynke: +12 Trainingsrynke und +1 Teamrynke.",
+			"Neue Rynke: +12\u00a0Trainingsrynke und +1\u00a0Teamrynke.",
 		);
 	});
 
@@ -316,7 +316,7 @@ describe("GET /me/notification-text (issue #45)", () => {
 		});
 		await seedRise(0, 1);
 		expect((await riderText()).body?.body).toBe(
-			"Neue Rynke: +1 Teamrynke. Dir fehlen noch 7 Trainingsrynke aus Fahrten draußen (nicht virtuell).",
+			"Neue Rynke: +1\u00a0Teamrynke. Dir fehlen noch 7\u00a0Trainingsrynke draußen.",
 		);
 	});
 

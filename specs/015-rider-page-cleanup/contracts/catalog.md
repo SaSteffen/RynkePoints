@@ -11,7 +11,7 @@ contract.
 | Key | German |
 |---|---|
 | `waiting.heading` | Deine Fahrten werden geholt |
-| `waiting.body` | Weil du dich gerade verbunden hast, holen wir einmalig deine Fahrten seit dem {date} von Strava. Das passiert nur dieses eine Mal. Schau in etwa 5 Minuten wieder vorbei – diese Seite aktualisiert sich von selbst. |
+| `waiting.body` | Wir holen einmalig deine Fahrten seit dem {date} von Strava. Das dauert etwa 5 Minuten; die Seite aktualisiert sich von selbst. |
 | `me.recent.none` | Noch keine Fahrten in dieser Saison. |
 | `prompt.install.text` | Hol dir RynkePoints als App auf deinen Startbildschirm. |
 | `prompt.notify.text` | Sollen wir dir Bescheid sagen, wenn du neue Rynke bekommst? |

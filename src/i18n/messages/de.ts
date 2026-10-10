@@ -1,5 +1,6 @@
 // German source catalog (research R16). Its keys define `MessageId`; every other
 // catalog must have exactly these keys. Inventory: contracts/messages.md.
+// `\u00a0` keeps a number on one line with its unit or its Rynke.
 
 export const de = {
 	"meta.languageName": "Deutsch",
@@ -19,32 +20,39 @@ export const de = {
 
 	"landing.title": "Mit Strava verbinden",
 	"landing.intro":
-		"RynkePoints sammelt die Radfahrten von Team Rynkeby Hamburg für Punkte und Events.",
+		"Aus deinen Radfahrten auf Strava werden Rynke, die Punkte von Team Rynkeby Hamburg.",
 	"landing.who": "Mitmachen können nur Mitglieder {clubLink}.",
 	"club.linkText": "unseres Team-Clubs auf Strava",
 	"landing.dataRead":
-		"Wir lesen von deinen Radfahrten nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob die Fahrt manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat – keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.",
+		"Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.",
 	"landing.private":
-		"Auf Strava entscheidest du selbst, ob auch deine privaten („Nur du“) Aktivitäten dazugehören: Strava nennt das Anzeigen deiner privaten Aktivitäten. Wenn du das abwählst, zählen deine privaten Fahrten nicht für Rynke.",
+		"Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.",
 	"landing.purpose":
-		"Wir nutzen die Daten nur für die Rynke (Punkte) und Events des Teams. Deine einzelnen Fahrten und ihre Namen sieht niemand außer dir.",
+		"Wir nutzen die Daten nur für Rynke und Teamtermine. Deine einzelnen Fahrten und ihre Namen siehst nur du.",
 	"landing.leave":
-		"Du kannst jederzeit aussteigen: auf deiner RynkePoints-Seite oder indem du RynkePoints in deinen Strava-Einstellungen entfernst. Dann löschen wir alle Daten über dich, auch deine Rynke; auf deiner RynkePoints-Seite bestätigen wir dir das sofort. Wenn du den Club verlässt, löschen wir deine Daten innerhalb von 24 Stunden.",
+		"Aussteigen geht jederzeit: in den Einstellungen oder indem du RynkePoints auf Strava entfernst. Dann löschen wir alle Daten über dich, auch deine Rynke. Verlässt du den Club, löschen wir sie innerhalb von 24\u00a0Stunden.",
 	"landing.backups":
-		"Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters und verschwinden danach automatisch.",
+		"Gelöschte Daten bleiben noch bis zu 7\u00a0Tage in den Sicherungen unseres Hosting-Anbieters.",
 	"landing.cookies":
-		"Wir setzen nur notwendige Cookies: für die Anmeldung und für deine Sprachwahl.",
+		"Wir setzen nur notwendige Cookies: für die Anmeldung und deine Sprachwahl.",
 	"landing.notifications":
-		"Benachrichtigungen sind freiwillig und gelten pro Gerät. Sie zeigen nur auf deinem Gerät, wie viele Rynke neu sind und was dir noch fehlt. Sie laufen über den Benachrichtigungsdienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die dieser Dienst deinem Gerät gibt, und löschen sie, wenn du die Benachrichtigungen ausschaltest, dich abmeldest oder gehst.",
+		"Benachrichtigungen sind freiwillig, gelten pro Gerät und zeigen nur dir, wie viele Rynke neu sind und was dir noch fehlt. Sie laufen über den Dienst des Geräte- oder Browserherstellers (z.\u00a0B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die er deinem Gerät gibt, und löschen sie, wenn du sie ausschaltest, dich abmeldest oder gehst.",
 
 	"consent.heading": "Was du mit dem Verbinden erlaubst",
+	"consent.short.notRead":
+		"Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.",
+	"consent.short.read":
+		"Wir lesen nur die Eckdaten deiner Radfahrten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke.",
+	"consent.short.shown":
+		"Das Team sieht deine Rynke ohne Namen, die Orga mit deinem Vornamen.",
+	"consent.details": "Alle Details",
 	"consent.organisers":
-		"Die Organisatorinnen und Organisatoren des Teams sehen deinen Vornamen von Strava, deine Rynke mit Aufschlüsselung, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teilnahme an Team-Events und Korrekturen.",
+		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen.",
 	"consent.team":
-		"Alle anderen im Team sehen deine gesammelten Rynke, insgesamt und pro Woche, ohne deinen Namen.",
+		"Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen.",
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
 	"consent.write":
-		"Freiwillig kannst du RynkePoints auf Strava erlauben, deine Aktivitäten zu bearbeiten. Sobald es die Funktion gibt, schreiben wir dann einen kurzen Rynke-Abschnitt in die Beschreibung deiner Fahrten; deinen eigenen Text ändern wir nie. Den Abschnitt sieht, wer die Fahrt auf Strava sehen darf. Strava nennt diese Erlaubnis das Hochladen von Aktivitäten zu Strava; RynkePoints lädt nie Aktivitäten hoch. Ohne diese Erlaubnis machst du genauso mit, du kannst sie also abwählen.",
+		"Freiwillig: Strava fragt auch, ob RynkePoints Aktivitäten hochladen darf. Wir laden nie etwas hoch, sondern schreiben damit später einen kurzen Rynke-Abschnitt in deine Fahrtbeschreibungen, sichtbar für alle, die die Fahrt sehen dürfen. Deinen eigenen Text ändern wir nie. Ohne diese Erlaubnis machst du genauso mit.",
 	"consent.agree":
 		"Ich bin einverstanden, dass RynkePoints meine Fahrten liest und meine Rynke wie beschrieben teilt.",
 
@@ -53,38 +61,37 @@ export const de = {
 	"me.status.connected": "Mit Strava verbunden",
 	"me.status.needsReconnect": "Die Verbindung zu Strava muss erneuert werden.",
 	"me.reconnect": "Erneut verbinden",
-	"me.scope.readAll": "Einschließlich deiner privaten Aktivitäten",
-	"me.scope.sharedOnly":
-		"Nur geteilte Aktivitäten – private („Nur du“) Aktivitäten werden nicht importiert.",
+	"me.scope.readAll": "Private Aktivitäten zählen mit.",
+	"me.scope.sharedOnly": "Private („Nur du“) Aktivitäten zählen nicht.",
 	"me.scope.write":
-		"Schreibzugriff erteilt: Sobald es die Funktion gibt, schreibt RynkePoints einen Rynke-Abschnitt in deine Fahrtbeschreibungen.",
+		"RynkePoints darf einen Rynke-Abschnitt in deine Fahrtbeschreibungen schreiben, sobald es die Funktion gibt.",
 	"me.scope.noWrite":
-		"Kein Schreibzugriff: RynkePoints schreibt nichts in deine Fahrtbeschreibungen.",
+		"RynkePoints schreibt nichts in deine Fahrtbeschreibungen.",
 	"me.changePermissions": "Berechtigungen auf Strava ändern",
 	"me.consent.heading": "Deine Zustimmung",
-	"me.consent.accepted": "Zugestimmt am {date} (Version {version}):",
+	"me.consent.accepted": "Zugestimmt am {date} (Version\u00a0{version}).",
 	"me.consent.none":
-		"Für dich ist noch keine Zustimmung gespeichert. Lies bitte, was du mit dem Verbinden erlaubst, und stimme zu; Strava fragt dann noch einmal nach deinen Berechtigungen. Bis dahin sieht niemand im Team etwas von dir.",
+		"Bitte stimme zu, damit wir deine Fahrten auswerten können. Strava fragt danach noch einmal nach den Berechtigungen. Bis dahin sieht das Team nichts von dir.",
 	"me.consent.renew.heading": "Bitte stimme erneut zu",
 	"me.consent.renew.older":
-		"Du hast am {date} Version {accepted} zugestimmt. Version {version} ändert Folgendes:",
+		"Du hast am {date} Version\u00a0{accepted} zugestimmt. Version\u00a0{version} ändert Folgendes:",
 	"me.consent.renew.strava":
 		"Dafür braucht RynkePoints eine weitere Berechtigung; Strava fragt dich danach.",
 	"me.consent.renew.button": "Zustimmen und weiter",
 	"me.consent.renew.leave":
-		"Wenn du nicht zustimmen möchtest, kannst du die Verbindung trennen; dabei werden alle deine Daten gelöscht.",
+		"Du möchtest nicht zustimmen? Dann trenn die Verbindung; dabei löschen wir alle deine Daten.",
 	"me.recent.heading": "Deine Fahrten",
 	"me.recent.none": "Noch keine Fahrten in dieser Saison.",
 	"me.recent.col.distance": "Distanz",
 	"me.disconnect.button": "Verbindung trennen und meine Daten löschen",
 
-	"units.km": "{value} km",
-	"units.m": "{value} m",
-	"units.percent": "{value} %",
-	"units.kmh": "{value} km/h",
-	"units.mPerH": "{value} m/h",
-	"units.duration": "{h} h {min} min",
-	"units.durationMin": "{min} min",
+	"units.km": "{value}\u00a0km",
+	"units.m": "{value}\u00a0m",
+	"units.percent": "{value}\u00a0%",
+	"units.kmh": "{value}\u00a0km/h",
+	"units.mPerH": "{value}\u00a0m/h",
+	"units.duration": "{h}\u00a0h {min}\u00a0min",
+	"units.durationMin": "{min}\u00a0min",
 	"sport.Ride": "Radfahrt",
 	"sport.MountainBikeRide": "Mountainbike-Fahrt",
 	"sport.GravelRide": "Gravel-Fahrt",
@@ -94,22 +101,17 @@ export const de = {
 
 	"rynke.training": "Trainingsrynke",
 	"rynke.team": "Teamrynke",
-	"rynke.withoutVirtual": "Trainingsrynke ohne virtuelle Fahrten",
+	"rynke.withoutVirtual": "Trainingsrynke draußen",
 	"waiting.heading": "Deine Fahrten werden geholt",
 	"waiting.body":
-		"Weil du dich gerade verbunden hast, holen wir einmalig deine Fahrten seit dem {date} von Strava. Das passiert nur dieses eine Mal. Schau in etwa 5 Minuten wieder vorbei – diese Seite aktualisiert sich von selbst.",
-	"rynke.summary.heading": "Deine Rynke",
-	"rynke.verdict.in":
-		"Qualifiziert für Paris! 🗼 Du hast alles, was du für die Tour brauchst.",
-	"rynke.verdict.notYet": "Noch nicht qualifiziert 🍌 Dir fehlen:",
-	"rynke.missing.training": "{n} Trainingsrynke",
-	"rynke.missing.team": "{n} Teamrynke",
-	"rynke.missing.withoutVirtual":
-		"{n} Trainingsrynke aus Fahrten draußen (nicht virtuell)",
-	"rynke.summary.ofTarget": "{value} von {target}",
-	"rynke.summary.missing": "{n} fehlen noch",
-	"rynke.summary.reached": "erreicht ✓",
-	"rynke.rides.col.elevationTotal": "Für die Höhenmeter",
+		"Wir holen einmalig deine Fahrten seit dem {date} von Strava. Das dauert etwa 5\u00a0Minuten; die Seite aktualisiert sich von selbst.",
+	"rynke.verdict.in": "Qualifiziert für Paris! 🗼",
+	"rynke.verdict.notYet": "Noch nicht qualifiziert 🍌",
+	"rynke.verdict.missing": "Dir fehlen noch:",
+	"rynke.missing.training": "{n}\u00a0Trainingsrynke",
+	"rynke.missing.team": "{n}\u00a0Teamrynke",
+	"rynke.missing.withoutVirtual": "{n}\u00a0Trainingsrynke draußen",
+	"rynke.rides.col.elevationTotal": "Gezählte Höhenmeter",
 	"rynke.rides.position": "Fahrten {from}–{to} von {total}",
 	"rynke.pager.label": "Seiten",
 	"rynke.pager.first": "« Neueste",
@@ -117,27 +119,27 @@ export const de = {
 	"rynke.pager.next": "Ältere ›",
 	"rynke.pager.last": "Älteste »",
 	"rynke.notice.updating":
-		"Die Regeln haben sich geändert: Seit dem {date} gelten neue Regeln. Deine Zahlen werden gerade neu berechnet; bis dahin siehst du sie nach Regel-Version {version}.",
+		"Seit dem {date} gelten neue Regeln. Deine Rynke werden gerade neu berechnet; bis dahin siehst du sie nach Regel-Version\u00a0{version}.",
 	"rynke.rules.heading": "Regeln",
 	"rynke.rules.version":
-		"Berechnet nach Regel-Version {version}, gültig seit dem {date}.",
+		"Regel-Version\u00a0{version}, gültig seit dem {date}.",
 	"rynke.rules.windowDeadline":
 		"Es zählt alles vom {start} bis zum {deadline}.",
-	"rynke.rules.handout": "So funktionieren die Rynke (Regeln als PDF)",
+	"rynke.rules.handout": "Die Regeln als PDF",
 	"rynke.ride.counts": "zählt 🪙",
 	"rynke.ride.doesNotCount": "zählt nicht",
 	"rynke.ride.beingEvaluated": "🦧 wird ausgewertet",
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint":
-		"Du kannst die Fahrt auf Strava korrigieren oder dich an das Orga-Team wenden.",
+		"Du kannst die Fahrt auf Strava korrigieren oder dich an die Orga wenden.",
 	"rynke.reason.flagged":
 		"Strava hat die Fahrt markiert. Wenn du anderer Meinung bist, kläre das bitte mit Strava.",
 	"rynke.reason.pause":
-		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr als die Hälfte ist nicht erlaubt.",
+		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit; mehr als die Hälfte ist nicht erlaubt.",
 	"rynke.reason.pause.moving":
-		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr Pause als Bewegungszeit ist nicht erlaubt.",
+		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit; mehr Pause als Bewegung ist nicht erlaubt.",
 	"rynke.reason.pause.share":
-		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit – mehr als {share} ist nicht erlaubt.",
+		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit; mehr als {share} ist nicht erlaubt.",
 	"rynke.reason.pause.noLimit":
 		"Zu lange Pause: {paused} Pause bei {moving} Bewegungszeit.",
 	"rynke.reason.pause.noMovingTime":
@@ -154,11 +156,11 @@ export const de = {
 		"Zu viele Höhenmeter für die Zeit: {rate} bergauf, höchstens {limit} sind erlaubt.",
 	"rynke.reason.climbing_rate.noLimit":
 		"Zu viele Höhenmeter für die Zeit: {rate} bergauf.",
-	"rynke.reason.excluded_sport_type": "{sport} zählt nicht für die Rynke.",
+	"rynke.reason.excluded_sport_type": "{sport} zählt nicht für Rynke.",
 	"rynke.reason.outside_window": "Vor dem Saisonstart am {date}.",
 	"rynke.reason.outside_window.afterDeadline": "Nach dem Stichtag am {date}.",
 	"rynke.reason.overlap":
-		"Doppelt aufgezeichnet: Deine Fahrt vom {date}, {time} Uhr, {distance} zählt stattdessen.",
+		"Doppelt aufgezeichnet: Deine Fahrt vom {date}, {time}\u00a0Uhr, {distance} zählt stattdessen.",
 	"rynke.reason.overlap.noRide":
 		"Doppelt aufgezeichnet: Eine andere deiner Fahrten zählt stattdessen.",
 	"rynke.reason.unknown": "Zählt nach den aktuellen Regeln nicht.",
@@ -175,29 +177,24 @@ export const de = {
 	"rynke.gauge.caption": "{label}: {value} von {target} · {percent}",
 	"rynke.gauge.reached": "✓ erreicht",
 	"rynke.gauge.elevation":
-		"Höhenmeter bis zu den nächsten {stepRynke} Trainingsrynke: {value} von {target} · {percent} · noch {missing}",
+		"Höhenmeter: {value} von {target}, noch {missing} bis +{stepRynke}\u00a0Trainingsrynke",
 	"rynke.source.distance": "Distanz",
 	"rynke.source.elevation": "Höhenmeter",
 	"rynke.source.team_training": "Teamtraining",
 	"rynke.source.training_weekend_day": "Tag Trainingswochenende",
 	"rynke.source.technique_training": "Techniktraining",
 	"rynke.breakdown.heading": "Woher deine Rynke kommen",
-	"rynke.breakdown.trainingRynke": "{n} Trainingsrynke",
-	"rynke.breakdown.elevation":
-		"{metres} gesamt → {rynke} Trainingsrynke, noch {toNext} bis zu den nächsten {stepRynke}",
-	"rynke.breakdown.elevationNoStep":
-		"{metres} gesamt → {rynke} Trainingsrynke, noch {toNext} bis zur nächsten Stufe",
-	"rynke.breakdown.total": "Gesamt",
-	"rynke.breakdown.totals": "{training} Trainingsrynke · {team} Teamrynke",
+	"rynke.breakdown.trainingRynke": "{n}\u00a0Trainingsrynke",
+	"rynke.breakdown.elevation": "{metres} → {rynke}\u00a0Trainingsrynke",
 	"rynke.breakdown.kind":
-		"{count} × dabei → {team} Teamrynke, {training} Trainingsrynke",
+		"{count}× dabei → {team}\u00a0Teamrynke, {training}\u00a0Trainingsrynke",
 	"rynke.events.heading": "Deine Teamtermine",
 	"rynke.events.none": "Für dich ist noch kein Teamtermin eingetragen.",
 	"rynke.events.notCounting": "zählt nicht: außerhalb des Wertungszeitraums",
 
 	"disconnect.title": "Daten löschen?",
 	"disconnect.explain":
-		"RynkePoints gibt den Zugriff auf dein Strava-Konto zurück und löscht sofort alle Daten über dich. Deine Aktivitäten auf Strava bleiben unverändert.",
+		"RynkePoints gibt den Zugriff auf dein Strava-Konto zurück und löscht sofort alle Daten über dich. Deine Aktivitäten auf Strava bleiben, wie sie sind.",
 	"disconnect.confirm": "Ja, alles löschen",
 	"disconnect.cancel": "Abbrechen",
 
@@ -212,10 +209,10 @@ export const de = {
 		"Ohne diese Berechtigung kann RynkePoints nicht funktionieren.",
 	"notice.consentRequired.title": "Bitte stimme zuerst zu",
 	"notice.consentRequired.body":
-		"Ohne deine Zustimmung können wir dich nicht verbinden. Lies auf der Startseite, was RynkePoints liest und teilt, und setze den Haken.",
+		"Ohne deine Zustimmung können wir dich nicht verbinden. Setz auf der Startseite den Haken.",
 	"notice.teamFull.title": "Das Team ist im Moment voll",
 	"notice.teamFull.body":
-		"Strava erlaubt RynkePoints gerade keine weiteren Fahrerinnen und Fahrer. Wir melden uns, sobald wieder Platz ist.",
+		"Strava erlaubt RynkePoints gerade keine weiteren Rider. Wir melden uns, sobald wieder Platz ist.",
 	"notice.failed.title": "Verbindung fehlgeschlagen",
 	"notice.failed.body":
 		"Die Verbindung zu Strava hat nicht geklappt. Bitte versuche es noch einmal.",
@@ -253,15 +250,15 @@ export const de = {
 	"push.body": "Neue Rynke – tippe zum Ansehen",
 	"push.body.rise": "Neue Rynke: {rise}.",
 	"push.body.riseMissing": "Neue Rynke: {rise}. Dir fehlen noch {missing}.",
-	"push.rise.training": "+{n} Trainingsrynke",
-	"push.rise.team": "+{n} Teamrynke",
+	"push.rise.training": "+{n}\u00a0Trainingsrynke",
+	"push.rise.team": "+{n}\u00a0Teamrynke",
 	"notifications.heading": "Benachrichtigungen",
 	"notifications.explain":
-		"Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast: wie viele und was dir noch fehlt.",
-	"notifications.on": "Benachrichtigungen sind auf diesem Gerät an.",
-	"notifications.off": "Benachrichtigungen sind auf diesem Gerät aus.",
+		"Dieses Gerät sagt dir Bescheid, wenn du neue Rynke hast, und was dir noch fehlt.",
+	"notifications.on": "Auf diesem Gerät an.",
+	"notifications.off": "Auf diesem Gerät aus.",
 	"notifications.blocked":
-		"Benachrichtigungen bleiben aus, weil dein Gerät sie für RynkePoints blockiert. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.",
+		"Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben.",
 	"notifications.needsHomeScreen":
 		"Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort.",
 	"notifications.unsupported":
@@ -279,12 +276,13 @@ export const de = {
 	"nav.settings": "Einstellungen",
 	"shell.refresh": "Aktualisieren",
 	"shell.title": "{section} – RynkePoints",
-	"hero.training": "{n} Trainingsrynke",
-	"hero.team": "und {n} Teamrynke – auf dem Weg nach Paris",
-	"celebrate.training": "+{n} Trainingsrynke seit deinem letzten Besuch 🎉",
-	"celebrate.team": "+{n} Teamrynke seit deinem letzten Besuch 🎉",
+	"hero.training": "{n}\u00a0Trainingsrynke",
+	"hero.team": "{n}\u00a0Teamrynke",
+	"celebrate.training":
+		"+{n}\u00a0Trainingsrynke seit deinem letzten Besuch 🎉",
+	"celebrate.team": "+{n}\u00a0Teamrynke seit deinem letzten Besuch 🎉",
 	"celebrate.both":
-		"+{training} Trainingsrynke und +{team} Teamrynke seit deinem letzten Besuch 🎉",
+		"+{training}\u00a0Trainingsrynke und +{team}\u00a0Teamrynke seit deinem letzten Besuch 🎉",
 	"landing.tagline": "Sammle deine Rynke 🦧",
 	"settings.language": "Sprache",
 	"settings.appearance": "Darstellung",
@@ -347,7 +345,7 @@ export const de = {
 	"organiser.save": "Speichern",
 	"organiser.event.delete": "Termin löschen…",
 	"organiser.event.deleteWarning":
-		"Das löscht den Termin und seine Teilnahmen; die Rynke der Fahrenden passen sich an.",
+		"Das löscht den Termin und seine Teilnahmen; die Rynke der Rider passen sich an.",
 	"organiser.event.deleteConfirm": "Ja, löschen",
 	"organiser.attendance.heading": "Wer war dabei?",
 	"organiser.attendance.save": "Teilnahme speichern",
@@ -360,8 +358,8 @@ export const de = {
 	"organiser.corrections.heading": "Korrekturen für {name}",
 	"organiser.corrections.none": "Noch keine Korrekturen.",
 	"organiser.corrections.new": "Neue Korrektur",
-	"organiser.corrections.training": "{amount} Trainingsrynke",
-	"organiser.corrections.team": "{amount} Teamrynke",
+	"organiser.corrections.training": "{amount}\u00a0Trainingsrynke",
+	"organiser.corrections.team": "{amount}\u00a0Teamrynke",
 	"organiser.field.training": "Trainingsrynke (+ oder −, leer ist 0)",
 	"organiser.field.team": "Teamrynke (+ oder −, leer ist 0)",
 	"organiser.field.reason": "Grund",
@@ -373,49 +371,46 @@ export const de = {
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
 	"team.total.label": "Team Rynkeby Hamburg 🦧",
-	"team.total.value": "{n} Rynke",
-	"team.total.kind": "{kind}-Rynke gemeinsam gesammelt",
+	"team.total.value": "{n}\u00a0Rynke",
+	"team.total.kind": "gemeinsam gesammelt",
 	"team.total.thisWeek": "+{n} diese Woche 🔥",
 	"team.kind.label": "Welche Rynke",
 	"team.kind.training": "Training",
 	"team.kind.team": "Team",
 	"team.place": "Du bist {place} von {count} 🚴",
 	"team.place.joint": "Du bist gemeinsam {place} von {count} 🚴",
-	"team.place.next": "Noch {n} Rynke bis zum nächsten Platz",
+	"team.place.next": "Noch {n}\u00a0Rynke bis zum nächsten Platz",
 	"team.place.lead": "Du führst das Peloton an. Nimm die anderen mit!",
 	"team.quote.push": "Für dich 🍌",
 	"team.quote.onTrack": "Für dich 🤝",
 	"team.peloton.heading": "Das Peloton 🚴",
-	"team.peloton.hint":
-		"Jede Münze ist eine Person aus dem Team. Die Spitze des Feldes fährt rechts.",
+	"team.peloton.hint": "Jede Münze ist ein Rider. Rechts fährt die Spitze.",
 	"team.peloton.back": "Ende des Feldes",
 	"team.peloton.front": "Spitze 🏁",
 	"team.peloton.label":
-		"{count} Leute zwischen {min} und {max} Rynke; du hast {own}",
+		"{count} Rider zwischen {min} und {max}\u00a0Rynke; du hast {own}",
 	"team.peloton.you": "Du",
 	"team.peloton.breakaway": "Breakaway 🏁",
 	"team.peloton.hint.breakaway":
-		"Jede Münze ist eine Person aus dem Team. Weit vorn, jenseits der Lücke, fährt der Breakaway.",
+		"Jede Münze ist ein Rider. Ganz rechts, hinter der Lücke, fährt der Breakaway.",
 	"team.peloton.label.breakaway":
-		"{count} Leute zwischen {min} und {max} Rynke, davon {away} im Breakaway; du hast {own}",
+		"{count} Rider zwischen {min} und {max}\u00a0Rynke, davon {away} im Breakaway; du hast {own}",
 	"team.list.heading": "Rangliste",
-	"team.list.count": "{n} Rider",
-	"team.list.hint":
-		"Keine Namen, nur Rynke. Die Linie zeigt die bisherige Saison jeder Person.",
+	"team.list.count": "{n}\u00a0Rider",
+	"team.list.hint": "Ohne Namen. Die Linie zeigt die Saison bisher.",
 	"team.list.scope": "Zeigen",
 	"team.list.around": "Um dich herum",
 	"team.list.everyone": "Alle",
 	"team.list.ahead": "· · · {n} weitere vor dir · · ·",
 	"team.list.behind": "· · · {n} weitere hinter dir · · ·",
 	"team.list.you": "Du 🦧",
-	"team.list.other": "{n} {kind}",
 	"team.list.weeks": "Woche für Woche: {values}",
 	"team.chart.heading": "Das Team, Woche für Woche",
 	"team.chart.hint":
-		"Die {kind}-Rynke aller zusammengezählt, am Ende jeder Woche.",
+		"Alle Rynke des Teams zusammengezählt, Stand am Ende jeder Woche.",
 	"team.chart.now": "diese Woche",
 	"team.chart.label":
-		"Team-{kind} am Ende jeder Woche, {weeks} Wochen, jetzt {total}",
+		"{kind} des Teams am Ende jeder Woche, {weeks} Wochen, jetzt {total}",
 	"team.chart.best": "Beste Teamwoche bisher: +{n} in der Woche bis {date} 🔥",
 	"team.chart.table": "Alle Wochen",
 	"team.chart.week": "Woche bis",

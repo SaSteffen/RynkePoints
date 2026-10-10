@@ -134,7 +134,7 @@ describe("GET /me/rides recent rides", () => {
 		expect(rideCards(page)[0]?.labels).toEqual([
 			"Distanz",
 			"Trainingsrynke",
-			"Für die Höhenmeter",
+			"Gezählte Höhenmeter",
 		]);
 		expect(rows(page)).toEqual([
 			["06.10.2026", "42,2 km", "🦧 wird ausgewertet", "–", "–"],
@@ -164,7 +164,7 @@ describe("GET /me/rides recent rides", () => {
 		expect(rideCards(page)[0]?.labels).toEqual([
 			"Distance",
 			"Training Rynke",
-			"Towards elevation",
+			"Elevation counted",
 		]);
 		expect(rows(page)).toEqual([
 			["06/10/2026", "42.2 km", "🦧 being evaluated", "–", "–"],
