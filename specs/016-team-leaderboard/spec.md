@@ -266,9 +266,9 @@ the overview is refused.
   the "on track" list for every other rider.
 - **FR-022**: Each list MUST hold about 200 quotes in German, fun and mostly
   motivating, from several angles (cycling, the team, Paris, the coin and its
-  orangutan, weather, the cause the team rides for). The "on track" list MUST mostly
-  ask riders to bring others along: encourage teammates, plan team rides, share
-  tips.
+  orangutan, weather). The "on track" list MUST mostly ask riders to bring others
+  along: encourage teammates, plan team rides, share tips. No quote is about the
+  charity or fundraising: riders already do that.
 - **FR-023**: Quotes MUST be German in every language of the app, an exception to
   feature 001 FR-028 ("in every language"); they live in a German-only list beside
   the i18n catalogs, not in pages or logic. They MUST be marked as German for assistive technology.
