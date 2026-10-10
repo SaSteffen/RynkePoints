@@ -245,6 +245,8 @@ is shown to others only as the version they accepted allows until they agree.
 
 Once the app needs more than 10 connected athletes, the maintainer applies through
 Strava's review form, with screenshots of every place Strava data appears (F-5).
+The step-by-step procedure is in
+[docs/strava-developer-program.md](../../docs/strava-developer-program.md).
 
 **Why this priority**: The team has more than 10 riders, so the whole team can only
 take part after Strava raises the capacity. Not needed to build roles and consent.
