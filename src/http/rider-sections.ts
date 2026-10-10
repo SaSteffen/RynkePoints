@@ -293,7 +293,7 @@ export function renderRules(i18n: I18n, rules: RulesInfo): SafeHtml {
 		date: day(i18n, rules.effectiveDate),
 	})}</p>
 <p>${window}</p>
-<p><a class="tap" href="${RULES_HANDOUT_URL}" download>${i18n.t("rynke.rules.handout")}</a></p>
+<p><a class="tap" href="${RULES_HANDOUT_URL}">${i18n.t("rynke.rules.handout")}</a></p>
 </section>`;
 }
 
