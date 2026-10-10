@@ -9,13 +9,15 @@ constitution Principle I).
 
 ## Section (code only)
 
-A fixed list in `src/http/shell.ts`. The order is the navigation order (FR-002).
+A fixed list in `src/http/shell.ts`. The order is the navigation order (FR-002);
+Orga (feature 016) sits before Settings for organisers. Team comes first and is
+where the app sends a signed-in rider (issue #73).
 
 | id | Path | Label key | Icon | Reads |
 |---|---|---|---|---|
-| `overview` | `/me` | `nav.overview` | coin (feature 012) | rider view, page 1 |
+| `team` | `/team` | `nav.team` | people | the team (feature 016) |
+| `you` | `/me` | `nav.you` | coin (feature 012) | rider view, page 1 |
 | `rides` | `/me/rides` | `nav.rides` | bike | rider view, page `N` |
-| `team` | `/team` | `nav.team` | people | nothing beyond the viewer |
 | `settings` | `/me/settings` | `nav.settings` | sliders | current consent record |
 
 The current section comes from the route, never from the client.

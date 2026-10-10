@@ -71,9 +71,10 @@ content first. Its links are, in this order:
 
 ```html
 <nav class="app-nav" aria-label="{nav.label}">
-<a href="/me" aria-current="page"><span class="nav-icon">{svg aria-hidden}</span><span class="nav-label">{nav.overview}</span></a>
+<a href="/team" aria-current="page"><span class="nav-icon">{svg aria-hidden}</span><span class="nav-label">{nav.team}</span></a>
+<a href="/me">…{nav.you}…</a>
 <a href="/me/rides">…{nav.rides}…</a>
-<a href="/team">…{nav.team}…</a>
+<a href="/organiser/riders">…{nav.organiser}…</a>  <!-- organisers only, feature 016 -->
 <a href="/me/settings">…{nav.settings}…</a>
 </nav>
 ```
@@ -199,7 +200,7 @@ Both catalogs get these keys:
 | Key | en |
 |---|---|
 | `nav.label` | Sections |
-| `nav.overview` | Overview |
+| `nav.you` | You (de: Du; was `nav.overview`, issue #73) |
 | `nav.rides` | Rides |
 | `nav.team` | Team |
 | `nav.settings` | Settings |
