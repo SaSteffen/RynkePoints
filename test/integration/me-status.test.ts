@@ -86,12 +86,12 @@ describe("GET /me for a connected rider", () => {
 	it("shows whether write access was granted", async () => {
 		await seedRider(ctx, { scopeWrite: true });
 		expect((await getSettings()).page).toContain(
-			"Schreibzugriff erteilt: Sobald es die Funktion gibt, schreibt RynkePoints einen Rynke-Abschnitt in deine Fahrtbeschreibungen.",
+			escapeHtml(de["me.scope.write"]),
 		);
 		await resetDb();
 		await seedRider(ctx, { scopeWrite: false });
 		expect((await getSettings()).page).toContain(
-			"Kein Schreibzugriff: RynkePoints schreibt nichts in deine Fahrtbeschreibungen.",
+			escapeHtml(de["me.scope.noWrite"]),
 		);
 	});
 
@@ -101,7 +101,7 @@ describe("GET /me for a connected rider", () => {
 		const { page } = await getSettings();
 		expect(page).toContain("<h2>Deine Zustimmung</h2>");
 		expect(page).toMatch(
-			/<p>Zugestimmt am 07\.10\.2026 \(Version 1\):<\/p>\n<p>Wir lesen von deinen Radfahrten nur Namen, .*<\/p>\n<p>Die Organisatorinnen und Organisatoren des Teams sehen .*<\/p>\n<p>Alle anderen im Team sehen deine gesammelten Rynke/,
+			/<p>Zugestimmt am 07\.10\.2026 \(Version\u00a01\)\.<\/p>\n<p>Wir lesen keine GPS-Spuren, .*<br>Wir lesen nur .*<\/p>\n<p>Das Team sieht deine Rynke ohne Namen, .*<\/p>\n<details class="more">.*\n<p>Von jeder Radfahrt lesen wir nur Namen, /,
 		);
 		expect(page).not.toContain("noch keine Zustimmung");
 	});
@@ -109,12 +109,12 @@ describe("GET /me for a connected rider", () => {
 	it("shows the granted level", async () => {
 		await seedRider(ctx, { scopeReadAll: true });
 		expect((await getSettings()).page).toContain(
-			"Einschließlich deiner privaten Aktivitäten",
+			escapeHtml(de["me.scope.readAll"]),
 		);
 		await resetDb();
 		await seedRider(ctx, { scopeReadAll: false });
 		expect((await getSettings()).page).toContain(
-			"Nur geteilte Aktivitäten – private („Nur du“) Aktivitäten werden nicht importiert.",
+			escapeHtml(de["me.scope.sharedOnly"]),
 		);
 	});
 
@@ -170,7 +170,7 @@ describe("GET /me for a connected rider", () => {
 		await seedRider(ctx, { consentVersion: 1, scopeWrite: true });
 		const { page } = await getSettings();
 		for (const shown of [
-			"Zugestimmt am 06.10.2026 (Version 1):",
+			"Zugestimmt am 06.10.2026 (Version\u00a01).",
 			escapeHtml(de["landing.dataRead"]),
 			escapeHtml(de["consent.organisers"]),
 			escapeHtml(de["consent.team"]),
@@ -199,18 +199,22 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 			`<h1>${escapeHtml(de["me.consent.renew.heading"])}</h1>`,
 			`<p>${escapeHtml(de["me.consent.none"])}</p>`,
 			`<h2>${escapeHtml(de["consent.heading"])}</h2>`,
+			`<p>${escapeHtml(de["consent.short.notRead"])}<br>${escapeHtml(de["consent.short.read"])}</p>`,
+			`<p>${escapeHtml(de["consent.short.shown"])}</p>`,
+			`<summary class="tap">${escapeHtml(de["consent.details"])}</summary>`,
 			...(
 				[
 					"landing.dataRead",
 					"landing.private",
 					"landing.purpose",
-					"landing.leave",
 					"consent.organisers",
 					"consent.team",
-					"consent.required",
 					"consent.write",
+					"landing.leave",
 				] as const
 			).map((id) => `<p>${escapeHtml(de[id])}</p>`),
+			"</details>",
+			`<p>${escapeHtml(de["consent.required"])}</p>`,
 			'<form method="post" action="/connect">',
 			'<input type="checkbox" name="consent" value="1" required>',
 			`<p>${escapeHtml(de["me.consent.renew.leave"])}</p>`,
@@ -282,7 +286,7 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 		expect(page).toContain("Hallo Testrider A!");
 		expect(page).not.toContain('action="/connect"');
 		expect(page).not.toContain(escapeHtml(de["me.consent.renew.heading"]));
-		expect((await getSettings()).page).toContain("(Version 1):");
+		expect((await getSettings()).page).toContain("(Version\u00a01).");
 	});
 });
 

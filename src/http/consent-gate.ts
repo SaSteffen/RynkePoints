@@ -3,7 +3,7 @@ import type { Ctx } from "../ctx";
 import { recordConsent } from "../db/consents";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
-import { consentForm, nextInput } from "./consent-form";
+import { consentForm, consentSummary, nextInput } from "./consent-form";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
 import { sectionNext } from "./lang";
@@ -91,14 +91,7 @@ export function consentGate(
 ${intro(i18n, current, gate)}
 <section class="card">
 <h2>${i18n.t("consent.heading")}</h2>
-<p>${i18n.t("landing.dataRead")}</p>
-<p>${i18n.t("landing.private")}</p>
-<p>${i18n.t("landing.purpose")}</p>
-<p>${i18n.t("landing.leave")}</p>
-<p>${i18n.t("consent.organisers")}</p>
-<p>${i18n.t("consent.team")}</p>
-<p>${i18n.t("consent.required")}</p>
-<p>${i18n.t("consent.write")}</p>
+${consentSummary(i18n)}<p>${i18n.t("consent.required")}</p>
 ${form(i18n, current, gate, path)}
 </section>
 <p>${i18n.t("me.consent.renew.leave")}</p>

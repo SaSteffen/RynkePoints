@@ -4,7 +4,7 @@ import type { Ctx } from "../ctx";
 import { getRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { coin } from "./coin";
-import { consentForm } from "./consent-form";
+import { consentForm, consentSummary } from "./consent-form";
 import { html, htmlResponse, layout } from "./html";
 import { HOME, redirect } from "./redirect";
 import { readSession } from "./session";
@@ -39,19 +39,9 @@ ${coin("front", "hero")}
 </div>
 <p>${i18n.t("landing.intro")}</p>
 <p>${i18n.tHtml("landing.who", { clubLink })}</p>
-<p>${i18n.t("landing.dataRead")}</p>
-<p>${i18n.t("landing.private")}</p>
-<p>${i18n.t("landing.purpose")}</p>
-<p>${i18n.t("landing.leave")}</p>
-<p>${i18n.t("landing.backups")}</p>
-<p>${i18n.t("landing.cookies")}</p>
-<p>${i18n.t("landing.notifications")}</p>
 <section class="card">
 <h2>${i18n.t("consent.heading")}</h2>
-<p>${i18n.t("consent.organisers")}</p>
-<p>${i18n.t("consent.team")}</p>
-<p>${i18n.t("consent.required")}</p>
-<p>${i18n.t("consent.write")}</p>
+${consentSummary(i18n)}<p>${i18n.t("consent.required")}</p>
 ${consentForm(i18n, currentVersion(ctx.consentVersions).version)}
 </section>`,
 		}),

@@ -97,15 +97,18 @@ function expectSeeOther(res: Response) {
 	expect(res.headers.get("Location")).toBe("/team");
 }
 
+/** Behind "Alle Details", in this order (`consentSummary`). */
 const CONSENT_TEXTS = [
 	"landing.dataRead",
 	"landing.private",
 	"landing.purpose",
-	"landing.leave",
 	"consent.organisers",
 	"consent.team",
-	"consent.required",
 	"consent.write",
+	"landing.leave",
+	"landing.backups",
+	"landing.cookies",
+	"landing.notifications",
 ] as const;
 
 const HIDDEN = [
@@ -132,7 +135,12 @@ describe("GET /me on an older version (US4 scenario 2)", () => {
 			`<li>${escapeHtml(de["consent.team"])}</li>`,
 			`<li>${escapeHtml(de["consent.organisers"])}</li>`,
 			`<h2>${escapeHtml(de["consent.heading"])}</h2>`,
+			`<p>${escapeHtml(de["consent.short.notRead"])}<br>${escapeHtml(de["consent.short.read"])}</p>`,
+			`<p>${escapeHtml(de["consent.short.shown"])}</p>`,
+			`<details class="more"><summary class="tap">${escapeHtml(de["consent.details"])}</summary>`,
 			...CONSENT_TEXTS.map((id) => `<p>${escapeHtml(de[id])}</p>`),
+			"</details>",
+			`<p>${escapeHtml(de["consent.required"])}</p>`,
 			'<form method="post" action="/me/consent">',
 			`<input type="checkbox" name="consent" value="2" required> ${escapeHtml(de["consent.agree"])}`,
 			`<button class="button">${escapeHtml(de["me.consent.renew.button"])}</button>`,
@@ -161,7 +169,7 @@ describe("GET /me on an older version (US4 scenario 2)", () => {
 		const page = await getMe();
 		expect(page).toContain("Hallo Testrider A!");
 		expect(page).not.toContain(escapeHtml(de["me.consent.renew.heading"]));
-		expect(await getMe("/me/settings")).toContain("(Version 2):");
+		expect(await getMe("/me/settings")).toContain("(Version\u00a02).");
 	});
 });
 

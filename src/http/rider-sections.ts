@@ -5,7 +5,6 @@ import { coin, miniCoin } from "./coin";
 import { html, type SafeHtml } from "./html";
 import type {
 	Breakdown,
-	Condition,
 	EventLine,
 	Gauge,
 	GaugeSource,
@@ -122,30 +121,18 @@ export function renderSummary(i18n: I18n, summary: Summary): SafeHtml {
 			: [],
 	);
 	// The coin's Hamburg–Paris side for a rider who made it (feature 012 FR-003).
+	// The gauges below carry the figures; this says only where the rider stands.
 	const verdict = summary.qualified
 		? html`<p class="rynke-verdict">${coin("back", "head")}${i18n.t("rynke.verdict.in")}</p>`
 		: html`<p class="rynke-verdict">${i18n.t("rynke.verdict.notYet")}</p>
-${missing.length > 0 ? html`<ul class="rynke-missing">${missing}</ul>` : null}`;
-	const line = (label: string, condition: Condition) => {
-		const value = whole(i18n, condition.value);
-		const amount =
-			condition.target === null
-				? value
-				: i18n.t("rynke.summary.ofTarget", {
-						value,
-						target: whole(i18n, condition.target),
-					});
-		const state = condition.reached
-			? i18n.t("rynke.summary.reached")
-			: i18n.t("rynke.summary.missing", { n: whole(i18n, condition.missing) });
-		return html`<dt>${label}</dt><dd>${amount} · ${state}</dd>
-`;
-	};
+${
+	missing.length > 0
+		? html`<p>${i18n.t("rynke.verdict.missing")}</p>
+<ul class="rynke-missing">${missing}</ul>`
+		: null
+}`;
 	return html`<section id="rynke" class="rynke-summary verdict card">
-<h2>${i18n.t("rynke.summary.heading")}</h2>
 ${verdict}
-<dl>
-${line(i18n.t("rynke.training"), summary.training)}${line(i18n.t("rynke.team"), summary.team)}${summary.withoutVirtual ? line(i18n.t("rynke.withoutVirtual"), summary.withoutVirtual) : null}</dl>
 </section>`;
 }
 
@@ -192,7 +179,6 @@ export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 			i18n.t("rynke.gauge.elevation", {
 				value: metres(Math.floor(elevation.value / 10)),
 				target: metres(elevation.target / 10),
-				percent: i18n.t("units.percent", { value: elevation.percent }),
 				missing: metres(Math.ceil((elevation.target - elevation.value) / 10)),
 				stepRynke: whole(i18n, elevation.stepRynke),
 			}),
@@ -253,26 +239,14 @@ ${legend}</figure>
 `;
 }
 
-/** Where the Rynke come from, adding up to the totals (FR-030–FR-033, FR-035). */
+/** Where the Rynke come from (FR-030–FR-033, FR-035); the hero has the totals. */
 export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
 	const metres = (m: number) => i18n.t("units.m", { value: whole(i18n, m) });
-	const elevation = {
-		metres: metres(breakdown.elevationM),
-		rynke: whole(i18n, breakdown.elevationRynke),
-		toNext: metres(breakdown.toNextStepM),
-	};
 	return html`<section class="rynke-breakdown card card-outlined">
 <h2>${i18n.t("rynke.breakdown.heading")}</h2>
 <dl>
 <dt>${i18n.t("rynke.source.distance")}</dt><dd>${i18n.t("rynke.breakdown.trainingRynke", { n: whole(i18n, breakdown.distanceRynke) })}</dd>
-<dt>${i18n.t("rynke.source.elevation")}</dt><dd>${
-		breakdown.elevationStepRynke === null
-			? i18n.t("rynke.breakdown.elevationNoStep", elevation)
-			: i18n.t("rynke.breakdown.elevation", {
-					...elevation,
-					stepRynke: whole(i18n, breakdown.elevationStepRynke),
-				})
-	}</dd>
+<dt>${i18n.t("rynke.source.elevation")}</dt><dd>${i18n.t("rynke.breakdown.elevation", { metres: metres(breakdown.elevationM), rynke: whole(i18n, breakdown.elevationRynke) })}</dd>
 ${breakdown.kinds.map(
 	(kind) =>
 		html`<dt>${i18n.t(`rynke.source.${kind.kind}`)}</dt><dd>${i18n.t(
@@ -284,14 +258,7 @@ ${breakdown.kinds.map(
 			},
 		)}</dd>
 `,
-)}<dt>${i18n.t("rynke.breakdown.total")}</dt><dd>${i18n.t(
-		"rynke.breakdown.totals",
-		{
-			training: whole(i18n, breakdown.trainingTotal),
-			team: whole(i18n, breakdown.teamTotal),
-		},
-	)}</dd>
-</dl>
+)}</dl>
 <h3>${i18n.t("rynke.events.heading")}</h3>
 ${
 	breakdown.events.length === 0
