@@ -41,19 +41,14 @@ At most one of the first two, plus the import line when it applies:
 
 ```html
 <section id="rynke" class="rynke-summary">
-  <h2>{rynke.summary.heading}</h2>
   <p class="rynke-verdict">{rynke.verdict.in | rynke.verdict.notYet}</p>
+  <p>{rynke.verdict.missing}</p>                                 <!-- only when not in -->
   <ul class="rynke-missing">…one li per unmet condition…</ul>   <!-- only when not in -->
-  <dl>
-    <dt>{rynke.training}</dt><dd>{rynke.summary.ofTarget value target} · {rynke.summary.missing n | rynke.summary.reached}</dd>
-    <dt>{rynke.team}</dt><dd>…</dd>
-    <dt>{rynke.withoutVirtual}</dt><dd>…</dd>   <!-- only with a virtual ride (FR-012) -->
-  </dl>
 </section>
 ```
 
-- `rynke.summary.ofTarget` "{value} von {target}". With an unknown target
-  (FR-013), `rynke.summary.valueOnly` "{value}" is used instead.
+- The summary has no figures of its own: the gauges show each value against
+  its target (wording review, PR #80).
 - The unmet-condition lines are `rynke.missing.training` {n},
   `rynke.missing.team` {n} and `rynke.missing.withoutVirtual` {n}, in that
   order (FR-011). Surplus Rynke are never mentioned.
@@ -81,7 +76,7 @@ elevation.
 - `percent` follows research R7: rounded down, capped at 100, and
   `gauge-reached` exactly when 100.
 - The elevation gauge's caption is `rynke.gauge.elevation` {value} {target}
-  {percent} {missing} {stepRynke}, in metres.
+  {missing} {stepRynke}, in metres; the bar shows the percentage.
 - The Training gauge's parts are distance, elevation, team training,
   training-weekend day and technique training (each kind's Training Rynke); the
   Team gauge's parts are the three kinds' Team Rynke. Corrections join both as
@@ -99,10 +94,9 @@ elevation.
   <h2>{rynke.breakdown.heading}</h2>
   <dl>
     <dt>{rynke.source.distance}</dt><dd>{n} {rynke.training}</dd>
-    <dt>{rynke.source.elevation}</dt><dd>{rynke.breakdown.elevation metres rynke toNext stepRynke}</dd>
+    <dt>{rynke.source.elevation}</dt><dd>{rynke.breakdown.elevation metres rynke}</dd>
     <dt>{rynke.source.team_training}</dt><dd>{rynke.breakdown.kind count team training}</dd>   <!-- US3b: one per kind -->
     <!-- Story 6: corrections: {rynke.breakdown.corrections training team} (signed) -->
-    <dt>{rynke.breakdown.total}</dt><dd>{training} {rynke.training} · {team} {rynke.team}</dd>
   </dl>
   <!-- Story 6: <p>{rynke.breakdown.neverBelowZero}</p> when clamped -->
   <h3>{rynke.events.heading}</h3>                                   <!-- US3b -->

@@ -40,15 +40,15 @@ The complete set of message IDs for this feature. These are the keys of
 | ID | Params | de | en |
 |---|---|---|---|
 | `landing.title` | | Mit Strava verbinden | Connect with Strava |
-| `landing.intro` | | RynkePoints sammelt die Radfahrten von Team Rynkeby Hamburg für Punkte und Events. | RynkePoints collects Team Rynkeby Hamburg's rides for points and events. |
+| `landing.intro` | | Aus deinen Radfahrten auf Strava werden Rynke, die Punkte von Team Rynkeby Hamburg. | Your rides on Strava turn into Rynke, the points of Team Rynkeby Hamburg. |
 | `landing.who` | `clubLink` *html* | Mitmachen können nur Mitglieder {clubLink}. | Only members of {clubLink} can take part. |
 | `club.linkText` | | unseres Team-Clubs auf Strava | our team club on Strava |
-| `landing.dataRead` | | Wir lesen von deinen Radfahrten nur Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob die Fahrt manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat – keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten. | From your rides we only read sport type, start time, distance, moving time, elapsed time including pauses, elevation gain, whether the ride was entered manually or ridden on an indoor trainer, and whether Strava has flagged it – no GPS tracks, maps, photos or health data. |
-| `landing.private` | | Auf Strava entscheidest du selbst, ob auch deine privaten („Nur du“) Aktivitäten dazugehören. | On Strava you decide whether your private ("Only You") activities are included. |
-| `landing.purpose` | | Wir nutzen die Daten nur für die Rynke (Punkte) und Events des Teams. Deine einzelnen Fahrten sieht niemand außer dir. | We use the data only for the team's Rynke (points) and events. Nobody but you sees your individual rides. |
-| `landing.leave` | | Du kannst jederzeit aussteigen: auf deiner RynkePoints-Seite oder indem du RynkePoints in deinen Strava-Einstellungen entfernst. Dann löschen wir alle Daten über dich, auch deine Rynke; auf deiner RynkePoints-Seite bestätigen wir dir das sofort. Wenn du den Club verlässt, löschen wir deine Daten innerhalb von 24 Stunden. | You can leave at any time: on your RynkePoints page, or by removing RynkePoints in your Strava settings. We then delete all data about you, including your Rynke; on your RynkePoints page we confirm it right away. If you leave the club, we delete your data within 24 hours. |
-| `landing.backups` | | Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters und verschwinden danach automatisch. | Deleted data stays in our hosting provider's backups for up to 7 days and then disappears automatically. |
-| `landing.cookies` | | Wir setzen nur notwendige Cookies: für die Anmeldung und für deine Sprachwahl. | We only set necessary cookies: for signing in and for your language choice. |
+| `landing.dataRead` | | Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat. | From each ride we only read its name, sport type, start time, distance, moving time, elapsed time including pauses, elevation gain, whether it was entered manually or ridden on an indoor trainer, and whether Strava has flagged it. |
+| `landing.private` | | Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst. | Private ("Only You") rides only count if you allow viewing your private activities on Strava. |
+| `landing.purpose` | | Wir nutzen die Daten nur für Rynke und Teamtermine. Deine einzelnen Fahrten und ihre Namen siehst nur du. | We use the data only for Rynke and team events. Only you see your individual rides and their names. |
+| `landing.leave` | | Aussteigen geht jederzeit: in den Einstellungen oder indem du RynkePoints auf Strava entfernst. Dann löschen wir alle Daten über dich, auch deine Rynke. Verlässt du den Club, löschen wir sie innerhalb von 24 Stunden. | You can leave at any time: in Settings, or by removing RynkePoints on Strava. We then delete all data about you, including your Rynke. If you leave the club, we delete it within 24 hours. |
+| `landing.backups` | | Gelöschte Daten bleiben noch bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters. | Deleted data stays in our hosting provider's backups for up to 7 days. |
+| `landing.cookies` | | Wir setzen nur notwendige Cookies: für die Anmeldung und deine Sprachwahl. | We only set necessary cookies: for signing in and your language choice. |
 
 ## Consent (`GET /`, `GET /me`)
 
@@ -58,13 +58,28 @@ Together with `landing.dataRead`, `landing.private`, `landing.purpose` and
 `landing.leave` this is the text of `CONSENT_VERSION` 1: changing what it says is
 read, written or shown means a new version.
 
+Under the heading come the three short sentences: `consent.short.notRead` and
+`consent.short.read` in one paragraph, a line break between them, then
+`consent.short.shown`. They sum up the full text, which follows in a
+`details.more` closed by default, with `consent.details` as its summary:
+`landing.dataRead`, `landing.private`, `landing.purpose`, `consent.organisers`,
+`consent.team`, `consent.write`, `landing.leave`, `landing.backups`,
+`landing.cookies` and `landing.notifications`. `consent.required` and the form
+follow the `details`. The full text still names every field read (constitution
+Principle I); the short sentences only summarise it, so they are no new version
+(wording review, PR #80).
+
 | ID | Params | de | en |
 |---|---|---|---|
 | `consent.heading` | | Was du mit dem Verbinden erlaubst | What you agree to by connecting |
-| `consent.organisers` | | Die Organisatorinnen und Organisatoren des Teams sehen deinen Vornamen von Strava, deine Rynke mit Aufschlüsselung, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teilnahme an Team-Events und Korrekturen. | The team's organisers see your first name from Strava, your Rynke with their breakdown, what you still need, whether you've reached your training goal, your attendance at team events and corrections. |
-| `consent.team` | | Alle anderen im Team sehen deine gesammelten Rynke, insgesamt und pro Woche, ohne deinen Namen. | Everyone else on the team sees your accumulated Rynke, overall and per week, without your name. |
+| `consent.short.notRead` | | Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten. | We don't read GPS tracks, maps, photos or health data. |
+| `consent.short.read` | | Wir lesen nur die Eckdaten deiner Radfahrten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke. | We only read the key figures of your rides, such as distance, time and elevation, and turn them into Rynke. |
+| `consent.short.shown` | | Das Team sieht deine Rynke ohne Namen, die Orga mit deinem Vornamen. | The team sees your Rynke without your name, the organisers with your first name. |
+| `consent.details` | | Alle Details | All the details |
+| `consent.organisers` | | Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen. | The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections. |
+| `consent.team` | | Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen. | Everyone else on the team sees your Rynke, overall and per week, without your name. |
 | `consent.required` | | Lesen und Teilen sind Voraussetzung fürs Mitmachen. | Reading and sharing are required to take part. |
-| `consent.write` | | Freiwillig kannst du RynkePoints auf Strava erlauben, deine Aktivitäten zu bearbeiten. Sobald es die Funktion gibt, schreiben wir dann einen kurzen Rynke-Abschnitt in die Beschreibung deiner Fahrten; deinen eigenen Text ändern wir nie. Den Abschnitt sieht, wer die Fahrt auf Strava sehen darf. Ohne diese Erlaubnis machst du genauso mit. | If you like, you can allow RynkePoints on Strava to edit your activities. Once the feature exists, we then write a short Rynke section into your ride descriptions; we never change your own text. Whoever may see the ride on Strava sees the section. You take part just the same without this permission. |
+| `consent.write` | | Freiwillig: Strava fragt auch, ob RynkePoints Aktivitäten hochladen darf. Wir laden nie etwas hoch, sondern schreiben damit später einen kurzen Rynke-Abschnitt in deine Fahrtbeschreibungen, sichtbar für alle, die die Fahrt sehen dürfen. Deinen eigenen Text ändern wir nie. Ohne diese Erlaubnis machst du genauso mit. | Optional: Strava also asks whether RynkePoints may upload activities. We never upload anything; later we use it to write a short Rynke section into your ride descriptions, visible to whoever may see the ride. We never change your own text. You take part just the same without this permission. |
 | `consent.agree` | | Ich bin einverstanden, dass RynkePoints meine Fahrten liest und meine Rynke wie beschrieben teilt. | I agree that RynkePoints reads my rides and shares my Rynke as described. |
 
 ## Rider page (`GET /me`)
@@ -76,14 +91,14 @@ read, written or shown means a new version.
 | `me.status.connected` | | Mit Strava verbunden | Connected to Strava |
 | `me.status.needsReconnect` | | Die Verbindung zu Strava muss erneuert werden. | Your Strava connection needs to be renewed. |
 | `me.reconnect` | | Erneut verbinden | Reconnect |
-| `me.scope.readAll` | | Einschließlich deiner privaten Aktivitäten | Including your private activities |
-| `me.scope.sharedOnly` | | Nur geteilte Aktivitäten – private („Nur du“) Aktivitäten werden nicht importiert. | Shared activities only – private ("Only You") activities are not imported. |
-| `me.scope.write` | | Schreibzugriff erteilt: Sobald es die Funktion gibt, schreibt RynkePoints einen Rynke-Abschnitt in deine Fahrtbeschreibungen. | Write access granted: once the feature exists, RynkePoints writes a Rynke section into your ride descriptions. |
-| `me.scope.noWrite` | | Kein Schreibzugriff: RynkePoints schreibt nichts in deine Fahrtbeschreibungen. | No write access: RynkePoints writes nothing into your ride descriptions. |
+| `me.scope.readAll` | | Private Aktivitäten zählen mit. | Private activities count too. |
+| `me.scope.sharedOnly` | | Private („Nur du“) Aktivitäten zählen nicht. | Private ("Only You") activities don't count. |
+| `me.scope.write` | | RynkePoints darf einen Rynke-Abschnitt in deine Fahrtbeschreibungen schreiben, sobald es die Funktion gibt. | RynkePoints may write a Rynke section into your ride descriptions once the feature exists. |
+| `me.scope.noWrite` | | RynkePoints schreibt nichts in deine Fahrtbeschreibungen. | RynkePoints writes nothing into your ride descriptions. |
 | `me.changePermissions` | | Berechtigungen auf Strava ändern | Change permissions on Strava |
 | `me.consent.heading` | | Deine Zustimmung | Your consent |
-| `me.consent.accepted` | `version`, `date` | Zugestimmt am {date} (Version {version}): | Agreed on {date} (version {version}): |
-| `me.consent.none` | | Für dich ist noch keine Zustimmung gespeichert. Lies bitte, was du mit dem Verbinden erlaubst, und stimme zu; Strava fragt dann noch einmal nach deinen Berechtigungen. Bis dahin sieht niemand im Team etwas von dir. | No consent is recorded for you yet. Please read what you agree to by connecting, and agree; Strava then asks for your permissions again. Until then, nobody on the team sees anything of yours. |
+| `me.consent.accepted` | `version`, `date` | Zugestimmt am {date} (Version {version}). | Agreed on {date} (version {version}). |
+| `me.consent.none` | | Bitte stimme zu, damit wir deine Fahrten auswerten können. Strava fragt danach noch einmal nach den Berechtigungen. Bis dahin sieht das Team nichts von dir. | Please agree so we can count your rides. Strava then asks for the permissions again. Until then, the team sees nothing of yours. |
 | `me.import.running` | `date` | Deine Fahrten seit dem {date} werden importiert … | Importing your rides since {date} … |
 | `me.import.done` | | Import abgeschlossen | Import complete |
 | `me.recent.heading` | | Zuletzt importierte Fahrten | Recently imported rides |
@@ -96,8 +111,8 @@ read, written or shown means a new version.
 
 `me.import.running` is shown for both `pending` and `running`; `{date}` is the
 season start, formatted via `meta.intlLocale` (e.g. `01.01.2026` / `01/01/2026`).
-`me.consent.accepted` formats `{date}` the same way and is followed by
-`consent.organisers` and `consent.team`.
+`me.consent.accepted` formats `{date}` the same way and is followed by the
+same short sentences and `details.more` as the consent section.
 
 ## Units and sport types
 
@@ -122,7 +137,7 @@ for every member of `CYCLING_SPORT_TYPES`.
 | ID | de | en |
 |---|---|---|
 | `disconnect.title` | Daten löschen? | Delete your data? |
-| `disconnect.explain` | RynkePoints gibt den Zugriff auf dein Strava-Konto zurück und löscht sofort alle Daten über dich. Deine Aktivitäten auf Strava bleiben unverändert. | RynkePoints gives up its access to your Strava account and immediately deletes all data about you. Your activities on Strava stay as they are. |
+| `disconnect.explain` | RynkePoints gibt den Zugriff auf dein Strava-Konto zurück und löscht sofort alle Daten über dich. Deine Aktivitäten auf Strava bleiben, wie sie sind. | RynkePoints gives up its access to your Strava account and immediately deletes all data about you. Your activities on Strava stay as they are. |
 | `disconnect.confirm` | Ja, alles löschen | Yes, delete everything |
 | `disconnect.cancel` | Abbrechen | Cancel |
 
@@ -137,9 +152,9 @@ for every member of `CYCLING_SPORT_TYPES`.
 | `notice.denied.title` | | RynkePoints braucht Lesezugriff auf deine Aktivitäten | RynkePoints needs read access to your activities |
 | `notice.denied.body` | | Ohne diese Berechtigung kann RynkePoints nicht funktionieren. | RynkePoints can't work without this permission. |
 | `notice.consentRequired.title` | | Bitte stimme zuerst zu | Please agree first |
-| `notice.consentRequired.body` | | Ohne deine Zustimmung können wir dich nicht verbinden. Lies auf der Startseite, was RynkePoints liest und teilt, und setze den Haken. | We can't connect you without your agreement. Read on the start page what RynkePoints reads and shares, and tick the box. |
+| `notice.consentRequired.body` | | Ohne deine Zustimmung können wir dich nicht verbinden. Setz auf der Startseite den Haken. | We can't connect you without your agreement. Tick the box on the start page. |
 | `notice.teamFull.title` | | Das Team ist im Moment voll | The team is full for now |
-| `notice.teamFull.body` | | Strava erlaubt RynkePoints gerade keine weiteren Fahrerinnen und Fahrer. Wir melden uns, sobald wieder Platz ist. | Strava doesn't allow RynkePoints any more riders right now. We'll let you know when there's room again. |
+| `notice.teamFull.body` | | Strava erlaubt RynkePoints gerade keine weiteren Rider. Wir melden uns, sobald wieder Platz ist. | Strava doesn't allow RynkePoints any more riders right now. We'll let you know when there's room again. |
 | `notice.failed.title` | | Verbindung fehlgeschlagen | Connection failed |
 | `notice.failed.body` | | Die Verbindung zu Strava hat nicht geklappt. Bitte versuche es noch einmal. | Connecting to Strava didn't work. Please try again. |
 | `notice.notMember.title` | | Nur für Club-Mitglieder | Club members only |

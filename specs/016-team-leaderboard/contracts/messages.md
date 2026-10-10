@@ -15,7 +15,7 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `team.heading` | Team | Team |
 | `team.total.label` | Team Rynkeby Hamburg 🦧 | Team Rynkeby Hamburg 🦧 |
 | `team.total.value` | {n} Rynke | {n} Rynke |
-| `team.total.kind` | {kind} Rynke collected together | {kind}-Rynke gemeinsam gesammelt |
+| `team.total.kind` | collected together | gemeinsam gesammelt |
 | `team.total.thisWeek` | +{n} this week 🔥 | +{n} diese Woche 🔥 |
 | `team.kind.label` | Which Rynke | Welche Rynke |
 | `team.kind.training` | Training | Training |
@@ -27,38 +27,43 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `team.quote.push` | For you 🍌 | Für dich 🍌 |
 | `team.quote.onTrack` | For you 🤝 | Für dich 🤝 |
 | `team.peloton.heading` | The peloton 🚴 | Das Peloton 🚴 |
-| `team.peloton.hint` | Every coin is a rider. The front of the bunch rides on the right. | Jede Münze ist eine Person aus dem Team. Die Spitze des Feldes fährt rechts. |
+| `team.peloton.hint` | Every coin is a rider. The front rides on the right. | Jede Münze ist ein Rider. Rechts fährt die Spitze. |
 | `team.peloton.back` | Back of the bunch | Ende des Feldes |
 | `team.peloton.front` | Front 🏁 | Spitze 🏁 |
-| `team.peloton.label` | {count} riders between {min} and {max} Rynke; you have {own} | {count} Leute zwischen {min} und {max} Rynke; du hast {own} |
+| `team.peloton.label` | {count} riders between {min} and {max} Rynke; you have {own} | {count} Rider zwischen {min} und {max} Rynke; du hast {own} |
 | `team.peloton.you` | You | Du |
 | `team.peloton.breakaway` | Breakaway 🏁 | Breakaway 🏁 |
-| `team.peloton.hint.breakaway` | Every coin is a rider. Far ahead, past the gap, rides the breakaway. | Jede Münze ist eine Person aus dem Team. Weit vorn, jenseits der Lücke, fährt der Breakaway. |
-| `team.peloton.label.breakaway` | {count} riders between {min} and {max} Rynke, {away} of them in the breakaway; you have {own} | {count} Leute zwischen {min} und {max} Rynke, davon {away} im Breakaway; du hast {own} |
+| `team.peloton.hint.breakaway` | Every coin is a rider. Far right, past the gap, rides the breakaway. | Jede Münze ist ein Rider. Ganz rechts, hinter der Lücke, fährt der Breakaway. |
+| `team.peloton.label.breakaway` | {count} riders between {min} and {max} Rynke, {away} of them in the breakaway; you have {own} | {count} Rider zwischen {min} und {max} Rynke, davon {away} im Breakaway; du hast {own} |
 
 The breakaway keys replace `team.peloton.front`, `team.peloton.hint` and
 `team.peloton.label` when the peloton has a breakaway (FR-018). "Breakaway" stays
 English in German on purpose (spec clarification).
 | `team.list.heading` | Leaderboard | Rangliste |
 | `team.list.count` | {n} riders listed | {n} Rider |
-| `team.list.hint` | No names, just Rynke. The line shows each rider's season so far. | Keine Namen, nur Rynke. Die Linie zeigt die bisherige Saison jeder Person. |
+| `team.list.hint` | No names. The line shows the season so far. | Ohne Namen. Die Linie zeigt die Saison bisher. |
 | `team.list.scope` | Show | Zeigen |
 | `team.list.around` | Around you | Um dich herum |
 | `team.list.everyone` | Everyone | Alle |
 | `team.list.ahead` | · · · {n} riders ahead · · · | · · · {n} weitere vor dir · · · |
 | `team.list.behind` | · · · {n} riders behind · · · | · · · {n} weitere hinter dir · · · |
 | `team.list.you` | You 🦧 | Du 🦧 |
-| `team.list.other` | {n} {kind} | {n} {kind} |
 | `team.list.weeks` | Week by week: {values} | Woche für Woche: {values} |
 | `team.chart.heading` | The team, week by week | Das Team, Woche für Woche |
-| `team.chart.hint` | Everyone's {kind} Rynke added up, at the end of each week. | Die {kind}-Rynke aller zusammengezählt, am Ende jeder Woche. |
+| `team.chart.hint` | All the team's Rynke added up, as at the end of each week. | Alle Rynke des Teams zusammengezählt, Stand am Ende jeder Woche. |
 | `team.chart.now` | this week | diese Woche |
-| `team.chart.label` | Team {kind} at the end of each week, {weeks} weeks, now {total} | Team-{kind} am Ende jeder Woche, {weeks} Wochen, jetzt {total} |
+| `team.chart.label` | The team's {kind} at the end of each week, {weeks} weeks, now {total} | {kind} des Teams am Ende jeder Woche, {weeks} Wochen, jetzt {total} |
 | `team.chart.best` | Best team week so far: +{n} in the week ending {date} 🔥 | Beste Teamwoche bisher: +{n} in der Woche bis {date} 🔥 |
 | `team.chart.table` | All weeks | Alle Wochen |
 | `team.chart.week` | Week ending | Woche bis |
 | `team.chart.total` | Total | Gesamt |
 | `team.chart.gain` | Gain | Plus |
+
+`team.list.other` is removed: a row's other kind is its mini coin and the number
+(wording review, PR #80). The coins say which kind; where a text needs the kind's
+name (`team.chart.label`, and the screen-reader text beside a mini coin), it is
+`rynke.training` or `rynke.team` (005), never `team.kind.*`, which only label the
+kind switch.
 
 ## Orga tab and switch
 
@@ -118,6 +123,6 @@ English in German on purpose (spec clarification).
 list.
 
 Team-event kind names reuse the existing `rynke.source.<kind>` keys (005). German
-text says "du" and prefers neutral words ("Leute", "alle", "das Team", "wer …").
+text says "du" and prefers neutral words ("Rider", "Orga", "alle", "das Team", "wer …").
 Where only a personal noun works, it uses the colon form, which screen readers read
 as a pause ("Fahrer:innen"); never the gender star or the slash form.

@@ -167,7 +167,7 @@ Nothing else, and no rider's data (FR-013).
 | `notifications` | `{notifications.heading}` | feature 010's section with the switch ([client.md](client.md)), still starting `hidden` |
 | `settings-app` | `{settings.app}` | `aside#install` (hidden); the group is `hidden` and `app.js` shows it with the hint |
 | `settings-strava` | `{settings.strava}` | status line, scope lines, `<a class="button-outlined" href="/connect">{me.changePermissions}</a>`, and when `needs_reconnect` `<a class="button" href="/connect">{me.reconnect}</a>` |
-| `settings-consent` | `{me.consent.heading}` | feature 004's accepted line, the read and visibility texts |
+| `settings-consent` | `{me.consent.heading}` | feature 004's accepted line, then the consent's short sentences and its `details.more` with the full text |
 | `settings-account` | `{settings.account}` | `<form method="post" action="/logout">` with the hidden `push_endpoint` and `button.button-outlined`; `<a class="danger" href="/me/disconnect">{me.disconnect.button}</a>` |
 
 ## Consent gate (changed)
