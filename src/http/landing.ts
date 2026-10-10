@@ -6,7 +6,7 @@ import type { I18n } from "../i18n/i18n";
 import { coin } from "./coin";
 import { consentForm } from "./consent-form";
 import { html, htmlResponse, layout } from "./html";
-import { redirect } from "./redirect";
+import { HOME, redirect } from "./redirect";
 import { readSession } from "./session";
 
 // The public start page: what RynkePoints reads and why, who can join, how to
@@ -22,7 +22,7 @@ export async function handleLanding(
 	const athleteId = await readSession(request, ctx.env, ctx.now());
 	// A session for a deleted rider counts as signed out (research R9).
 	if (athleteId !== null && (await getRider(ctx.env.DB, athleteId))) {
-		return redirect("/me", 302);
+		return redirect(HOME, 302);
 	}
 
 	const title = i18n.t("landing.title");

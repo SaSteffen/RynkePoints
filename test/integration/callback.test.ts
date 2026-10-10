@@ -244,7 +244,7 @@ describe("GET /auth/callback success", () => {
 			cookies: { rp_oauth_state: value },
 		});
 		expect(res.status).toBe(302);
-		expect(res.headers.get("Location")).toBe("/me");
+		expect(res.headers.get("Location")).toBe("/team");
 	});
 
 	it("keeps refusals on their notice whatever next says", async () => {

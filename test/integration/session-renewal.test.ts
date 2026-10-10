@@ -87,13 +87,13 @@ describe("session renewal", () => {
 		expect(sessionSetCookies(res)).toHaveLength(1);
 	});
 
-	it("renews on GET / for a signed-in rider, who is sent to /me", async () => {
+	it("renews on GET / for a signed-in rider, who is sent to /team", async () => {
 		const res = await handleFetch(
 			request("/", { cookies: await issuedAgo(10 * DAY) }),
 			ctx,
 		);
 		expect(res.status).toBe(302);
-		expect(res.headers.get("Location")).toBe("/me");
+		expect(res.headers.get("Location")).toBe("/team");
 		expect(sessionSetCookies(res)).toHaveLength(1);
 	});
 

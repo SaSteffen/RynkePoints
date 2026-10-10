@@ -216,7 +216,7 @@ const CONTRACT_IDS = [
 	"notifications.failed",
 	// Feature 011
 	"nav.label",
-	"nav.overview",
+	"nav.you",
 	"nav.rides",
 	"nav.team",
 	"nav.settings",

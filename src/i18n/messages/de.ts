@@ -272,7 +272,7 @@ export const de = {
 	// Feature 011: the app shell's sections, navigation and Settings groups.
 	// Strava ships its white assets in English only, as with the others.
 	"nav.label": "Bereiche",
-	"nav.overview": "Übersicht",
+	"nav.you": "Du",
 	"nav.rides": "Fahrten",
 	"nav.team": "Team",
 	"nav.organiser": "Orga",

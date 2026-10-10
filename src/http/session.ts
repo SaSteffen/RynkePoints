@@ -5,6 +5,7 @@ import {
 } from "../crypto/sign";
 import type { Ctx } from "../ctx";
 import { getCookie } from "./cookies";
+import { HOME } from "./redirect";
 
 // Signed session and OAuth state cookies, plus the Origin check for POSTs
 // (research R9). The session slides: page views renew it (010 research R10).
@@ -147,7 +148,7 @@ export function createOAuthStateCookie(
 
 /**
  * Null if missing, tampered, expired or without a consent version. A value
- * from before feature 011 has no `next` and returns to `/me`.
+ * from before feature 011 has no `next` and returns home.
  */
 export async function readOAuthState(
 	request: Request,
@@ -161,7 +162,7 @@ export async function readOAuthState(
 	return {
 		state: parts[1] ?? "",
 		consentVersion: Number(parts[2]),
-		next: parts[3] || "/me",
+		next: parts[3] || HOME,
 	};
 }
 

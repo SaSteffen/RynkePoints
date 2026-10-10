@@ -94,7 +94,7 @@ function expectInOrder(page: string, parts: string[]) {
 
 function expectSeeOther(res: Response) {
 	expect(res.status).toBe(303);
-	expect(res.headers.get("Location")).toBe("/me");
+	expect(res.headers.get("Location")).toBe("/team");
 }
 
 const CONSENT_TEXTS = [
@@ -258,8 +258,9 @@ describe("POST /me/consent", () => {
 		["/me/settings", "/me/settings"],
 		["/me/rides?page=2", "/me/rides?page=2"],
 		["/team", "/team"],
-		["https://evil.example/", "/me"],
-		["/", "/me"],
+		["/me", "/me"],
+		["https://evil.example/", "/team"],
+		["/", "/team"],
 	])("returns to next=%s at %s (011 R9)", async (next, location) => {
 		await seedRider(ctx, { consentVersion: 1 });
 		const res = await postConsent({ consent: "2", next });

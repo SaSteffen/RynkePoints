@@ -3,6 +3,7 @@ import type { I18n } from "../i18n/i18n";
 import { LANG_COOKIE } from "../i18n/resolve";
 import { forbidden } from "./errors";
 import { isNoticeId } from "./notice";
+import { HOME } from "./redirect";
 import { isSameOrigin } from "./session";
 
 // The language switcher's target (contracts/http-routes.md, research R18).
@@ -37,7 +38,7 @@ export function safeNext(next: string | null): string {
  */
 export function sectionNext(next: unknown): string {
 	const safe = safeNext(typeof next === "string" ? next : null);
-	return safe === "/" ? "/me" : safe;
+	return safe === "/" ? HOME : safe;
 }
 
 export async function handleLang(

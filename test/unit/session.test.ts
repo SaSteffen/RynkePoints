@@ -123,12 +123,12 @@ describe("OAuth state cookie", () => {
 		});
 	});
 
-	it("reads a two-part value from before 011 as next /me (R9)", async () => {
+	it("reads a two-part value from before 011 as next /team (R9, #73)", async () => {
 		const cookie = await rawStateCookie("abc:1");
 		expect(await readOAuthState(withCookie(cookie), env, NOW)).toEqual({
 			state: "abc",
 			consentVersion: 1,
-			next: "/me",
+			next: "/team",
 		});
 	});
 

@@ -1,3 +1,6 @@
+/** Where the app sends a signed-in rider: the Team page (issue #73). */
+export const HOME = "/team";
+
 /** A redirect, plus any cookies to set on the way. */
 export function redirect(
 	location: string,
