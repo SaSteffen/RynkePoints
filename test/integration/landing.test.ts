@@ -190,11 +190,11 @@ ${connectButton(de)}
 });
 
 describe("GET / (signed in)", () => {
-	it("redirects a connected rider to /me", async () => {
+	it("redirects a connected rider to /team (#73)", async () => {
 		await seedRider(ctx);
 		const { res } = await get({ cookies: await sessionCookie(ctx, ATHLETE_A) });
 		expect(res.status).toBe(302);
-		expect(res.headers.get("Location")).toBe("/me");
+		expect(res.headers.get("Location")).toBe("/team");
 	});
 
 	it("treats a session for a deleted rider as signed out", async () => {

@@ -296,6 +296,14 @@ describe("GET /me for a needs_reconnect rider", () => {
 		expect(page).toContain(
 			'<a class="button" href="/connect">Erneut verbinden</a>',
 		);
+		// Team is where the app opens (#73).
+		const team = (await getMe(undefined, "/team")).page;
+		expect(team).toContain(
+			'<aside class="notice notice-error">\n<p>Die Verbindung zu Strava muss erneuert werden.</p>',
+		);
+		expect(team).toContain(
+			'<a class="button" href="/connect">Erneut verbinden</a>',
+		);
 		const settings = (await getSettings()).page;
 		expect(settings).toContain(
 			"Die Verbindung zu Strava muss erneuert werden.",

@@ -265,7 +265,7 @@ describe("connect flow (FR-008)", () => {
 
 		const landed = await get(callback.href, stateCookie);
 		expect(landed.status).toBe(302);
-		expect(landed.headers.get("Location")).toBe("/me");
+		expect(landed.headers.get("Location")).toBe("/team");
 		expect(landed.headers.getSetCookie().join("\n")).toMatch(/rp_session=\w/);
 	});
 

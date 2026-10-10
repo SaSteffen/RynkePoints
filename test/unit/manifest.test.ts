@@ -22,7 +22,7 @@ describe("manifest.webmanifest", () => {
 	it("opens the rider page in its own window, light (FR-001, FR-002, 011 R12)", () => {
 		expect(manifest.id).toBe("/");
 		expect(manifest.scope).toBe("/");
-		expect(manifest.start_url).toBe("/me");
+		expect(manifest.start_url).toBe("/team");
 		expect(manifest.display).toBe("standalone");
 		expect(manifest.theme_color).toBe("#fffdf5");
 		expect(manifest.background_color).toBe("#fffdf5");

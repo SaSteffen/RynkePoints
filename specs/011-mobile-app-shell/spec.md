@@ -274,9 +274,12 @@ and check that it shows the placeholder text and no data of any rider.
   address: Overview (`/me`), Rides (`/me/rides`), Team (`/team`) and Settings
   (`/me/settings`), with the contents listed in the sections table above.
 - **FR-002**: Every section MUST show the navigation bar with one labelled entry per
-  section, in the order Overview, Rides, Team, Settings. Each entry MUST have an icon
-  and a text label, and the current section MUST be marked both visibly and for
-  screen readers.
+  section, in the order Team, You (the Overview), Rides, Orga (organisers only,
+  feature 016), Settings. Each entry MUST have an icon and a text label, and the
+  current section MUST be marked both visibly and for screen readers. Team is the
+  main page: a signed-in rider who opens `/`, signs in, agrees, or starts the
+  installed app lands on `/team`, and Team also shows the reconnect notice. The
+  addresses stay as in FR-001 (issue #73).
 - **FR-003**: Switching sections MUST be ordinary page navigation: each section can
   be reloaded, bookmarked and reached with the back and forward buttons, and the
   rides page shown is part of the Rides address.

@@ -1,3 +1,4 @@
+import type { Rider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { STRAVA_ORIGIN } from "../strava/result";
 import { coin, miniCoin } from "./coin";
@@ -73,6 +74,19 @@ ${coin("front", "large")}
 <h2>${i18n.t("waiting.heading")}</h2>
 <p>${i18n.t("waiting.body", { date: day(i18n, seasonStart) })}</p>
 </section>`;
+}
+
+/**
+ * The way back to Strava for a rider whose token stopped working, on You and on
+ * Team, where the app opens (issue #73).
+ */
+export function renderReconnect(i18n: I18n, rider: Rider): SafeHtml | null {
+	if (rider.status !== "needs_reconnect") return null;
+	return html`<aside class="notice notice-error">
+<p>${i18n.t("me.status.needsReconnect")}</p>
+<p><a class="button" href="/connect">${i18n.t("me.reconnect")}</a></p>
+</aside>
+`;
 }
 
 /** The rule-change notice, or nothing when the rules are current (015 R2). */

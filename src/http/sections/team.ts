@@ -21,6 +21,7 @@ import { lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
 import { peloton, sparkline, weekBars } from "../charts";
 import { coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
+import { renderReconnect } from "../rider-sections";
 import { shellPage } from "../shell";
 
 // Team at `/team` (feature 011 FR-013, feature 016 US1–US3): how the team is
@@ -29,6 +30,8 @@ import { shellPage } from "../shell";
 // fits the viewer (contracts/pages.md, contracts/http-routes.md). The page only reads (FR-003); nothing on it
 // carries a name or an athlete ID (FR-010).
 // Organisers also get the way to the team overview and their pages (FR-002).
+// It's where the app opens, so a rider who must reconnect learns it here too
+// (issue #73).
 
 /** Places 1–3, by place, so a shared 2nd gives two 🥈 (research R6). */
 export const MEDALS = ["🥇", "🥈", "🥉"];
@@ -287,7 +290,7 @@ export function handleTeam(
 				riders.map((listed) => listed.weeks),
 				kind,
 			);
-			return html`${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
+			return html`${renderReconnect(i18n, rider)}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
 				viewer ? renderPlace(i18n, viewer) : null
 			}${viewer ? renderQuote(i18n, status) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${renderLeaderboard(
 				i18n,
