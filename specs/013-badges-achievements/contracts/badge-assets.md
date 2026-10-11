@@ -23,11 +23,13 @@ as earned (FR-003, SC-003).
   no `width`/`height` (the page sizes it: 64, 128 or 280 px, FR-002a/b).
 - First child `<title>`: the badge id. Then a comment naming the original and the
   command that made it.
-- Self-contained: explicit hex fills from the coin palette only, no CSS
-  variables, no external references, no scripts, no `<image>`.
+- Self-contained: explicit hex fills from the coin palette plus the sunflower
+  amber `#f0b400` of the back petals, no CSS variables, no `<style>`, no
+  external references, no scripts, no `<image>`.
 - Layers in order: frame edge, ring, window, picture group
   (`clip-path` = window circle, `transform` per research R4), stars.
-- At most 60 KB.
+- Normally under 100 KB (the frame is about 5 KB: each petal is drawn once and
+  reused with `<use>`).
 
 ## `pnpm badge-art` (exists)
 
@@ -71,7 +73,7 @@ badges (the slow part); everything else still runs in full.
    run never deletes another badge.
 5. Writes `src/badges/pictures.ts` from every finished SVG in `public/badges/`,
    so the list stays complete after a filtered run.
-6. Prints one line per badge it built with its size; warns above 60 KB.
+6. Prints one line per badge it built with its size; warns above 100 KB.
 
 Needs ImageMagick and potrace, like `pnpm illustrations`. Running it twice without changes changes no file.
 
@@ -81,6 +83,12 @@ Needs ImageMagick and potrace, like `pnpm illustrations`. Running it twice witho
   - `validateBadges(data) → string[]`: problems, empty when valid (data model rules).
   - `buildPrompt(template, snippets, badge) → string`.
 - `scripts/badge-frame.mjs`
-  - `WINDOW = { cx: 50, cy: 50, r }`, `PICTURE_TRANSFORM` (research R4).
-  - `RYNKE`: the coin's Rynke markup.
-  - `frameSvg(kind, pictureMarkup, title) → string`: the finished badge SVG.
+  - `WINDOW = { cx: 50, cy: 50, r: 28.7 }`, `PICTURE_TRANSFORM` (research R4).
+  - `RYNKE`: the coin's Rynke markup, as in `src/http/coin.ts`.
+  - `frameSvg(kind, pictureMarkup, title, transform = PICTURE_TRANSFORM) →
+    string`: the finished badge SVG.
+  - `placeholderSvg(kind) → string`: the frame with the coin's Rynke.
+- `scripts/trace.mjs` (needs ImageMagick and potrace; not tested in Vitest)
+  - `traceImage(file) → { height, markup }`: the layered paths, 100 units wide.
+  - `snapToPalette(file, out)`: the original snapped to the palette, as an
+    indexed PNG of at most 2048 px.

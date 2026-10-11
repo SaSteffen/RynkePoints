@@ -99,7 +99,9 @@ names what was chosen, why, and what else was considered.
 - **Rationale**: Raw Gemini PNGs are around 1 to 3 MB each; 69 of them would add
   well over 100 MB to a public repo, and again with every retake. A
   palette-snapped image has 7 colours and compresses to roughly 50 to 150 KB,
-  and re-tracing it gives the same SVG, since snapping is idempotent.
+  and snapping it again changes nothing, so every build traces the same
+  pixels. (Measured on two of #101's Gemini images: 1.5 and 2.0 MB raw, 52 KB
+  snapped; the first snap may move a few edge pixels against the raw file.)
 - **Alternatives**: Committing raw originals as #101 does for three images:
   fine for three, not for 69. Not committing originals at all: retuning the
   tracer would need new Gemini images.

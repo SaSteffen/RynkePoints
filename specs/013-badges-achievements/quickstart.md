@@ -44,7 +44,7 @@ pnpm badge-build
 ```
 
 Expected: the original is snapped in place (a few hundred KB at most),
-`public/badges/distance-100.svg` exists (under 60 KB) and
+`public/badges/distance-100.svg` exists (under 100 KB) and
 `src/badges/pictures.ts` lists `distance-100`. Open the SVG at 64, 128 and 280 px
 in a browser: picture inside the window, nothing cut off that matters, no white
 halo, outlines crisp; it looks the same on a light and a dark background.

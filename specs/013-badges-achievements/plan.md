@@ -49,7 +49,8 @@ Google account; outputs are static assets served by the Worker.
 **Project Type**: build-time tooling for the existing Cloudflare Worker web app.
 
 **Performance Goals**: a full run of 69 badges unattended, within Gemini's usage
-limits (resumable); each finished badge SVG at most 60 KB so a page with a dozen
+limits (resumable); each finished badge SVG at most about 100 KB (traced
+illustrations measure 47 to 74 KB, the frame 5 KB) so a page with a dozen
 badges stays light.
 
 **Constraints**: no rider data anywhere in the pipeline; Gemini's page is not an
