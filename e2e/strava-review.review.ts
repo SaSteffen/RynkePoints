@@ -46,7 +46,9 @@ async function shoot(page: Page, lang: string, slug: string, what: string) {
 	const path = new URL(page.url()).pathname;
 	// A sticky top bar covers the top of every screenful after the first, so
 	// each one moves on by what shows below it. The page ends at its lowest
-	// text or image: padding doesn't need a screenful of its own.
+	// text or image: padding doesn't need a screenful of its own. Never below
+	// the page's own bottom, which clipped or hidden content can reach past, or
+	// the last screenful repeats.
 	// In the page; a string, as e2e/ is typechecked without the DOM's types.
 	const { height, end, bar } = await page.evaluate<{
 		height: number;
@@ -59,9 +61,10 @@ async function shoot(page: Page, lang: string, slug: string, what: string) {
 		const bottoms = [...document.body.querySelectorAll("*")]
 			.filter((el) => el.childElementCount === 0)
 			.map((el) => el.getBoundingClientRect().bottom + window.scrollY);
+		const height = document.documentElement.scrollHeight;
 		return {
-			height: document.documentElement.scrollHeight,
-			end: Math.max(...bottoms),
+			height,
+			end: Math.min(Math.max(...bottoms), height),
 			bar: sticky ? header.getBoundingClientRect().bottom : 0,
 		};
 	})()`);
