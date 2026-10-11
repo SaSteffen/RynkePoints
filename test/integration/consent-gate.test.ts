@@ -92,9 +92,10 @@ function expectInOrder(page: string, parts: string[]) {
 	}
 }
 
+/** Home for the seeded rider, who has no ride yet. */
 function expectSeeOther(res: Response) {
 	expect(res.status).toBe(303);
-	expect(res.headers.get("Location")).toBe("/team");
+	expect(res.headers.get("Location")).toBe("/me");
 }
 
 /** Behind "Alle Details", in this order (`consentSummary`). */
@@ -267,8 +268,8 @@ describe("POST /me/consent", () => {
 		["/me/rides?page=2", "/me/rides?page=2"],
 		["/team", "/team"],
 		["/me", "/me"],
-		["https://evil.example/", "/team"],
-		["/", "/team"],
+		["https://evil.example/", "/me"],
+		["/", "/me"],
 	])("returns to next=%s at %s (011 R9)", async (next, location) => {
 		await seedRider(ctx, { consentVersion: 1 });
 		const res = await postConsent({ consent: "2", next });
