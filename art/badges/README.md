@@ -23,7 +23,11 @@ A badge is two parts:
   attached to every prompt as the character and style reference (`personal` or
   `team` by the badge's group). Made by hand (Gemini, then edited); the frame in
   code follows this design.
-- `originals/`: the generator's raster originals, `<id>.png` (or `.jpg`).
+- `originals/`: one original per badge, `<id>.png`, snapped to the palette by
+  `pnpm badge-build` (a fresh download may be `.png` or `.jpg` until then).
+- `scripts/badge-prompts.mjs` checks `badges.json` and assembles the prompts;
+  `pnpm badge-art` and `pnpm badge-build` refuse to run when it finds a
+  problem. `scripts/badge-frame.mjs` draws the frame.
 
 ## Making the pictures
 
@@ -79,12 +83,24 @@ each picture; to retry one, delete it or use `--force`.
 rebuilds the named ones (quick for a retake). Both keep the picture list
 complete.
 
-The originals go through the same tracer as the rider-state illustrations
-(`scripts/illustrations.mjs`, PR #101): white paper removed, colours snapped to
-the coin palette, one potrace layer per colour. The removed paper lets the
-window's cream show through. The tracer currently reads `art/illustrations/`
-only; pointing it at `art/badges/originals/` with `public/badges/` as output is
-part of implementing this feature, after #101 is merged.
+It writes the two placeholders (`public/badges/placeholder-{personal,team}.svg`),
+then for each original:
+
+1. snaps it to the coin palette in place, as `originals/<id>.png` (about 50 KB
+   instead of 1 to 2 MB; snapping again changes nothing). The raw download stays
+   on your machine in `~/.cache/rynkepoints/badge-art/raw/`;
+2. traces it with the same tracer as the rider-state illustrations
+   (`scripts/trace.mjs`): white paper removed, one potrace layer per colour; the
+   removed paper lets the window's cream show through;
+3. puts the picture into the frame (`scripts/badge-frame.mjs`) as
+   `public/badges/<id>.svg`;
+4. lists every badge with a picture in `src/badges/pictures.ts`, which the app
+   reads to pick the picture or the placeholder.
+
+A run without ids also removes badge SVGs whose original is gone. It needs
+ImageMagick and potrace, like `pnpm illustrations`, and a second run without
+changes changes no file. Commit the originals, `public/badges/` and
+`src/badges/pictures.ts` together.
 
 ## Checking a picture
 

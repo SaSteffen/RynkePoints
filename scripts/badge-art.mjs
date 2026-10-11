@@ -27,15 +27,25 @@
 // (default 300). Pacing, in seconds, as a fixed value or a random range:
 // --step <s> between the steps of a badge (default 3-8), --pause <s> between
 // badges (default 90-180), --max <n> badges per run (default 10).
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+	copyFileSync,
+	mkdirSync,
+	readdirSync,
+	readFileSync,
+	writeFileSync,
+} from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import { buildPrompt, validateBadges } from "./badge-prompts.mjs";
 
 const ART = fileURLToPath(new URL("../art/badges/", import.meta.url));
 const OUT = join(ART, "originals");
 const DEBUG = join(tmpdir(), "rynkepoints-badge-art");
+// pnpm badge-build snaps the originals to the palette in place (research R7);
+// the raw downloads are kept here, outside the repo, in case they're needed.
+const RAW = join(homedir(), ".cache/rynkepoints/badge-art/raw");
 const REFERENCE = {
 	personal: join(ART, "reference/badge-personal.png"),
 	team: join(ART, "reference/badge-team.png"),
@@ -84,19 +94,16 @@ const { values: opts, positionals: only } = parseArgs({
 	},
 });
 
-const { snippets, badges } = JSON.parse(
-	readFileSync(join(ART, "badges.json"), "utf8"),
-);
+const data = JSON.parse(readFileSync(join(ART, "badges.json"), "utf8"));
 const template = readFileSync(join(ART, "prompt.txt"), "utf8").trim();
-
-/** The badge's full prompt: the template with its scene and snippets filled in. */
-function prompt(badge) {
-	const scene = badge.scene.replace(/{{(\w+)}}/g, (_, name) => {
-		if (!(name in snippets)) throw new Error(`${badge.id}: no snippet ${name}`);
-		return snippets[name];
-	});
-	return template.replace("{{scene}}", scene);
+const problems = validateBadges(data);
+if (!template.includes("{{scene}}")) problems.push("prompt.txt: no {{scene}}");
+if (problems.length > 0) {
+	console.error(`art/badges is not valid:\n  ${problems.join("\n  ")}`);
+	process.exit(2);
 }
+const { snippets, badges } = data;
+const prompt = (badge) => buildPrompt(template, snippets, badge);
 
 function existing(id) {
 	try {
@@ -254,6 +261,13 @@ async function waitForImage(page, seconds) {
 	return handle.jsonValue();
 }
 
+/** A copy of the raw download, by id and time, so retakes don't overwrite it. */
+function keepRaw(path, id) {
+	mkdirSync(RAW, { recursive: true });
+	const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+	copyFileSync(path, join(RAW, `${id}-${stamp}${extname(path)}`));
+}
+
 async function download(page, index, id) {
 	const answer = page.locator(SELECTORS.response).last();
 	const img = answer.locator("img").nth(index);
@@ -269,6 +283,7 @@ async function download(page, index, id) {
 		const ext = extname(file.suggestedFilename()) || ".png";
 		const path = join(OUT, `${id}${ext}`);
 		await file.saveAs(path);
+		keepRaw(path, id);
 		return { path, full: true };
 	} catch {
 		// The preview in the page, smaller than the full-size download.
@@ -282,6 +297,7 @@ async function download(page, index, id) {
 		const ext = type === "image/jpeg" ? ".jpg" : ".png";
 		const path = join(OUT, `${id}${ext}`);
 		writeFileSync(path, Buffer.from(b64, "base64"));
+		keepRaw(path, id);
 		return { path, full: false };
 	}
 }
