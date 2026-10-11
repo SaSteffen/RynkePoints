@@ -8,9 +8,17 @@ attributes are the contract.
 
 ## Where
 
-On the Overview (`/me`, "Du"), after the Rynke figures, inside the existing
-`overview-grid`, spanning its full width. Not rendered while the waiting state
-shows (FR-005), nor for a rider without a balance.
+On the Overview (`/me`, "Du") with the rider's own badges only: after the
+Rynke figures, inside the existing `overview-grid`, spanning its full width.
+Not rendered while the waiting state shows (FR-005), nor for a rider without a
+balance.
+
+On the Team page (`/team`) with the team's badges only: after the
+leaderboard, for every signed-in rider.
+
+The reveal is not inside the section: it sits at the top of the page, on the
+Overview right after feature 012's coin celebration (new own badges), on the
+Team page right after the reconnect notice (new team badges).
 
 ## Markup
 
@@ -19,10 +27,7 @@ shows (FR-005), nor for a rider without a balance.
   <h2 id="badges-heading">Abzeichen</h2>
   <p class="badges-intro">Wie weit es noch bis zum nächsten Abzeichen ist – welches es wird, bleibt geheim.</p>
 
-  <!-- reveal: only when badges are new for this rider (research R16) -->
-  <aside class="badges-reveal" role="status">…new badges, names, one celebration…</aside>
-
-  <!-- per group: personal first, then team -->
+  <!-- one group: personal on the Overview, team on the Team page -->
   <section class="badge-group badge-group-personal" aria-labelledby="…">
     <h3>Meine neuesten Abzeichen</h3>
     <ul class="badge-cards">
@@ -50,6 +55,7 @@ shows (FR-005), nor for a rider without a balance.
     </details>
   </section>
 
+  <!-- on the Team page instead: -->
   <section class="badge-group badge-group-team">…"Team-Abzeichen", "Alle Team-Abzeichen (5)"…</section>
 
   <section class="badge-not-yet" aria-labelledby="…">
@@ -65,6 +71,12 @@ shows (FR-005), nor for a rider without a balance.
     <p>erreicht am 3. Mai 2026</p>
   </div>
 </section>
+```
+
+The reveal, at the top of the page (research R16):
+
+```html
+<aside class="badges-reveal" role="status">…new badges, names, one celebration…</aside>
 ```
 
 ## Rules the tests check
@@ -87,12 +99,13 @@ shows (FR-005), nor for a rider without a balance.
   badges in the group. It has every category of the group, also those without
   a badge yet; each lists its earned badges, then one empty `li.badge-slot` per
   badge still to earn, with no id, name, picture or text (issue #109).
-- **Not yet**: one row per category without an earned badge, personal then
-  team, with the group's bar colour.
+- **Not yet**: one row per category of the page's group without an earned
+  badge, with the group's bar colour.
 - **Large view**: a `popover` per earned badge, opened by its buttons (tap,
   click, keyboard); with a mouse also on hover (`public/app.js`). It fits 360 px
   and, on wider screens, opens beside the badge (FR-002b).
-- **Reveal**: present only when badges are new for this rider; a GET writes
+- **Reveal**: present only when badges of the page's group are new for this
+  rider, at the top of the page next to the coin celebration; a GET writes
   their `badge_reveals`, a HEAD doesn't (like `rynke_seen`); honours reduced
   motion (feature 012).
 - **Sizes**: 128 px cards, 96 px gallery, 280 px popover (FR-002a/b); two cards

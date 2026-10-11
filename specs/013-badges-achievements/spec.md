@@ -157,8 +157,9 @@ evaluate it twice, then make it stop counting.
 1. **Given** a ride that earns a badge, **When** it is evaluated, **Then** the badge
    is stored once with the ride's date, also when the ride is evaluated again.
 2. **Given** a newly earned badge, **When** the rider next opens their page, **Then**
-   the badge is revealed once with a celebration (honouring reduced motion, as in
-   feature 012), and not again on later visits.
+   the badge is revealed once with a celebration at the top of the page, next to
+   feature 012's coin celebration (honouring reduced motion), and not again on
+   later visits.
 3. **Given** a rider with notifications on, **When** an evaluation earns them a
    badge, **Then** the notification they get for that evaluation names the new badge.
 4. **Given** a ride that earned a badge stops counting (deleted, made private
@@ -209,8 +210,8 @@ unchanged.
 
 ### User Story 4 - Team badges (Priority: P2)
 
-Every rider also sees the team's badges under "Team-Abzeichen", laid out like
-their own: newest per category, the gallery collapsed below, in the team blue. The whole team
+Every rider also sees the team's badges under "Team-Abzeichen" on the Team page,
+laid out like their own: newest per category, the gallery collapsed below, in the team blue. The whole team
 works on them together, through amounts it collects together (the team's Rynke
 reaching 5,000) and through taking part in team activities (10 riders at one team
 training, 100 attendances at team events over the season). Like personal badges,
