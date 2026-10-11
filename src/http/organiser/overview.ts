@@ -21,9 +21,9 @@ import { noticeFromQuery, organiserPage, organiserSwitch } from "./access";
 
 // The organiser overview at `/organiser/riders` (feature 016 US4, FR-030–FR-035,
 // contracts/pages.md): the deadline, who qualifies, and every listed rider by
-// first name in the groups of `riderStatus`, as cards on a phone and a table
-// from 840 px. It only reads (FR-003). The body is pure, so the tests can set
-// the day.
+// first name in the groups of `riderStatus`, as cards below 1100 px (two
+// columns from 840 px) and a table from 1100 px, where all its columns fit. It
+// only reads (FR-003). The body is pure, so the tests can set the day.
 
 export type Group = RiderStatus | "all";
 
