@@ -1,6 +1,6 @@
 Using the attached badge as the exact reference for character and style (the character: same head shape, orange fur, light muzzle, round black eyes, two-dot nose, yellow cycling helmet with three vents, yellow jersey), draw a new picture for the round cream window in the middle of this badge.
 
-Draw ONLY the picture that goes inside the window. Do not draw the badge itself: no gold scalloped edge, no ring, no stars on a ring, no circle, no frame of any kind.
+Draw ONLY the picture that goes inside the window. Do not draw the badge itself: no sunflower petals, no ring, no stars, no circle, no frame of any kind.
 
 Scene: {{scene}}
 

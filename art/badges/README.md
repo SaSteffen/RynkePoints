@@ -3,11 +3,11 @@
 A badge is two parts:
 
 - **The frame**, drawn exactly in SVG like the coin, never by the image
-  generator (its circles are never round): a gold scalloped edge, a ring and a
-  round cream window. Personal badges have a black ring with one star, team
-  badges a blue ring with three stars. `reference/badge-personal.svg` and
-  `reference/badge-team.svg` are the frames with the coin's Rynke in the window;
-  that is also the placeholder for every badge without a picture of its own.
+  generator (its circles are never round): an edge of yellow sunflower petals,
+  a ring with three yellow stars at the top and a round cream window. Personal
+  badges have a black ring, team badges a light blue one. With the coin's Rynke
+  in the window, the frame is the placeholder for every badge without a picture
+  of its own.
 - **The picture** inside the window, one per badge, generated with Gemini and
   traced into a flat SVG.
 
@@ -19,9 +19,10 @@ A badge is two parts:
   coins) that scenes pull in with `{{name}}`.
 - `prompt.txt`: the prompt every badge uses; `{{scene}}` is the badge's scene.
   Each prompt is self-contained, so any one badge can be made again on its own.
-- `reference/badge-*.png`: the frames rendered at 1024 px, attached to every
-  prompt as the character and style reference (`personal` or `team` by the
-  badge's group).
+- `reference/badge-*.png`: the badge design with the coin's Rynke, 1024 px,
+  attached to every prompt as the character and style reference (`personal` or
+  `team` by the badge's group). Made by hand (Gemini, then edited); the frame in
+  code follows this design.
 - `originals/`: the generator's raster originals, `<id>.png` (or `.jpg`).
 
 ## Making the pictures
