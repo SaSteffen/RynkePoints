@@ -134,6 +134,7 @@ const CONTRACT_IDS = [
 	"rynke.gauges.heading",
 	"rynke.gauge.caption",
 	"rynke.gauge.elevation",
+	"rynke.gauge.step",
 	"rynke.source.distance",
 	"rynke.source.elevation",
 	// Feature 005, US3a

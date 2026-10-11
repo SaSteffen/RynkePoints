@@ -172,7 +172,8 @@ export const en: Catalog = {
 	"rynke.gauges.heading": "Your progress 🪙",
 	"rynke.gauge.caption": "{label}: {value} of {target} · {percent}",
 	"rynke.gauge.elevation":
-		"Elevation: {value} of {target}, {missing} to go for +{stepRynke}",
+		"Elevation: {value} of {target}, {missing} to go for {step}",
+	"rynke.gauge.step": "+{n}",
 	"rynke.source.distance": "Distance",
 	"rynke.source.elevation": "Elevation",
 	"rynke.source.team_training": "Team training",

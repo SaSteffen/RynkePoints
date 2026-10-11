@@ -179,7 +179,8 @@ export const de = {
 	"rynke.gauges.heading": "Dein Fortschritt 🪙",
 	"rynke.gauge.caption": "{label}: {value} von {target} · {percent}",
 	"rynke.gauge.elevation":
-		"Höhenmeter: {value} von {target}, noch {missing} bis +{stepRynke}",
+		"Höhenmeter: {value} von {target}, noch {missing} bis {step}",
+	"rynke.gauge.step": "+{n}",
 	"rynke.source.distance": "Distanz",
 	"rynke.source.elevation": "Höhenmeter",
 	"rynke.source.team_training": "Teamtraining",
