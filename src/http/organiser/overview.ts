@@ -16,6 +16,7 @@ import { dayNumber } from "../../rynke/weeks";
 import { thresholdBars } from "../charts";
 import { coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
+import { statusArt } from "../status-art";
 import { noticeFromQuery, organiserPage, organiserSwitch } from "./access";
 
 // The organiser overview at `/organiser/riders` (feature 016 US4, FR-030–FR-035,
@@ -219,7 +220,7 @@ function renderTiles(
 	const tiles = GROUPS.filter((g) => !(passed && g === "on_track")).map((g) => {
 		const count =
 			g === "all" ? riders.length : riders.filter((r) => r.status === g).length;
-		return html`<a class="group-tile tile-${g}" href="/organiser/riders?group=${g}"${group === g ? html` aria-current="true"` : null}><span class="tile-count">${i18n.formatNumber(count, { fractionDigits: 0 })}</span><span class="tile-label">${groupLabel(i18n, g, passed)}</span></a>
+		return html`<a class="group-tile tile-${g}" href="/organiser/riders?group=${g}"${group === g ? html` aria-current="true"` : null}><span class="tile-count">${i18n.formatNumber(count, { fractionDigits: 0 })}</span><span class="tile-label">${groupLabel(i18n, g, passed)}</span>${g === "all" ? null : statusArt(g, "tile")}</a>
 `;
 	});
 	const showing = (g: Group, when: string) =>
@@ -272,7 +273,7 @@ function statusChip(
 	rider: OverviewRider,
 	passed: boolean,
 ): SafeHtml {
-	return html`<span class="status-chip">${groupLabel(i18n, rider.status, passed)}</span>`;
+	return html`<span class="status-chip">${statusArt(rider.status, "chip")}${groupLabel(i18n, rider.status, passed)}</span>`;
 }
 
 function renderCard(

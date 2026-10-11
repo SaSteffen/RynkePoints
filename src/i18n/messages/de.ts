@@ -106,8 +106,11 @@ export const de = {
 	"waiting.body":
 		"Wir holen einmalig deine Fahrten seit dem {date} von Strava. Das dauert etwa 5\u00a0Minuten; die Seite aktualisiert sich von selbst.",
 	"rynke.verdict.in": "Qualifiziert für Paris! 🗼",
-	"rynke.verdict.notYet": "Noch nicht qualifiziert 🍌",
+	"rynke.verdict.notYet": "Noch nicht qualifiziert",
 	"rynke.verdict.missing": "Dir fehlen noch:",
+	"rynke.status.push": "Du liegst hinter dem Plan.",
+	"rynke.status.onTrack": "Du liegst im Plan.",
+	"rynke.status.in": "Plan übererfüllt: Trainingsziel erreicht.",
 	"rynke.missing.training": "{n}\u00a0Trainingsrynke",
 	"rynke.missing.team": "{n}\u00a0Teamrynke",
 	"rynke.missing.withoutVirtual": "{n}\u00a0Trainingsrynke draußen",
@@ -424,10 +427,10 @@ export const de = {
 	"organiser.overview.qualified":
 		"{n} von {count} haben ihr Trainingsziel erreicht 🎯",
 	"organiser.overview.groups": "Gruppen",
-	"organiser.overview.group.push": "Braucht Schwung 🍌",
+	"organiser.overview.group.push": "Braucht Schwung",
 	"organiser.overview.group.notYet": "Trainingsziel noch nicht erreicht",
-	"organiser.overview.group.onTrack": "Gut unterwegs 🚴",
-	"organiser.overview.group.in": "Trainingsziel erreicht 🎯",
+	"organiser.overview.group.onTrack": "Gut unterwegs",
+	"organiser.overview.group.in": "Trainingsziel erreicht",
 	"organiser.overview.group.all": "Alle",
 	"organiser.overview.showing": "Angezeigt: {group}",
 	"organiser.overview.hint":

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { escapeHtml } from "../../src/http/html";
 import {
 	renderGauges,
 	renderNotice,
@@ -194,12 +195,16 @@ describe("coins", () => {
 	});
 
 	it("gives each missing chip its kind's mini coin", () => {
-		const html = renderSummary(en, {
-			training: condition(17, 20),
-			team: condition(3, 4),
-			withoutVirtual: null,
-			qualified: false,
-		}).toString();
+		const html = renderSummary(
+			en,
+			{
+				training: condition(17, 20),
+				team: condition(3, 4),
+				withoutVirtual: null,
+				qualified: false,
+			},
+			"push",
+		).toString();
 		expect(html).toContain(
 			'<span class="chip"><svg class="coin coin-mini" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#coin-mini"/></svg>3\u00a0Training Rynke</span>',
 		);
@@ -208,14 +213,51 @@ describe("coins", () => {
 		);
 	});
 
-	it("shows the Hamburg–Paris side to a rider who qualified", () => {
-		const html = renderSummary(en, {
-			training: condition(20, 20),
-			team: condition(4, 4),
+	it("shows Rynke on a bike and the plan sentence for each status (issues #92, #93)", () => {
+		const behind = {
+			training: condition(17, 20),
+			team: condition(3, 4),
 			withoutVirtual: null,
-			qualified: true,
-		}).toString();
-		expect(html).toContain('<use href="#coin-back"/>');
+			qualified: false,
+		};
+		const cases = [
+			[behind, "push", "You're behind the plan."],
+			[behind, "on_track", "You're on plan."],
+			[
+				{
+					training: condition(20, 20),
+					team: condition(4, 4),
+					withoutVirtual: null,
+					qualified: true,
+				},
+				"in",
+				"Ahead of plan: training goal reached.",
+			],
+		] as const;
+		for (const [summary, status, sentence] of cases) {
+			const html = renderSummary(en, summary, status).toString();
+			expect(html).toContain(
+				`<img class="status-art status-art-banner" src="/illustrations/status_${status}_fun.svg" alt="" width="96" height="96">`,
+			);
+			expect(html).toContain(
+				`<p class="rynke-status">${escapeHtml(sentence)}</p>`,
+			);
+		}
+	});
+
+	it("says a qualified rider made it, with no list of what's missing", () => {
+		const html = renderSummary(
+			en,
+			{
+				training: condition(20, 20),
+				team: condition(4, 4),
+				withoutVirtual: null,
+				qualified: true,
+			},
+			"in",
+		).toString();
+		expect(html).toContain("Qualified for Paris! 🗼");
+		expect(html).not.toContain("rynke-missing");
 	});
 
 	it("edges the Training and Team gauges in their colour, with a row of ten", () => {

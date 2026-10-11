@@ -102,8 +102,11 @@ export const en: Catalog = {
 	"waiting.body":
 		"We're fetching your rides since {date} from Strava, once. That takes about 5\u00a0minutes; this page updates by itself.",
 	"rynke.verdict.in": "Qualified for Paris! 🗼",
-	"rynke.verdict.notYet": "Not qualified yet 🍌",
+	"rynke.verdict.notYet": "Not qualified yet",
 	"rynke.verdict.missing": "You still need:",
+	"rynke.status.push": "You're behind the plan.",
+	"rynke.status.onTrack": "You're on plan.",
+	"rynke.status.in": "Ahead of plan: training goal reached.",
 	"rynke.missing.training": "{n}\u00a0Training Rynke",
 	"rynke.missing.team": "{n}\u00a0Team Rynke",
 	"rynke.missing.withoutVirtual": "{n}\u00a0Training Rynke outdoors",
@@ -402,10 +405,10 @@ export const en: Catalog = {
 	"organiser.overview.qualified":
 		"{n} of {count} reached their training goal 🎯",
 	"organiser.overview.groups": "Groups",
-	"organiser.overview.group.push": "Need a push 🍌",
+	"organiser.overview.group.push": "Need a push",
 	"organiser.overview.group.notYet": "Training goal not reached yet",
-	"organiser.overview.group.onTrack": "On track 🚴",
-	"organiser.overview.group.in": "Training goal reached 🎯",
+	"organiser.overview.group.onTrack": "On track",
+	"organiser.overview.group.in": "Training goal reached",
 	"organiser.overview.group.all": "Everyone",
 	"organiser.overview.showing": "Showing: {group}",
 	"organiser.overview.hint":
