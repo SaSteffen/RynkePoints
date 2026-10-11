@@ -541,13 +541,13 @@ export const de = {
 	"badges.about.running":
 		"Alle Kilometer deiner Läufe in dieser Saison, ohne Laufband und virtuelle Läufe.",
 	"badges.about.team_training_rynke":
-		"Die Trainings-Rynke aller Rider, die ihre Daten mit dem Team teilen, in dieser Saison zusammengezählt.",
+		"Die Trainings-Rynke aller Rider in dieser Saison zusammengezählt.",
 	"badges.about.team_distance":
-		"Die Kilometer aller Radfahrten des Teams in dieser Saison zusammengezählt, von allen Ridern, die ihre Daten teilen.",
+		"Die Kilometer aller Radfahrten des Teams in dieser Saison zusammengezählt.",
 	"badges.about.team_elevation":
-		"Die Höhenmeter aller Radfahrten des Teams in dieser Saison zusammengezählt, von allen Ridern, die ihre Daten teilen.",
+		"Die Höhenmeter aller Radfahrten des Teams in dieser Saison zusammengezählt.",
 	"badges.about.team_running":
-		"Die Kilometer aller Läufe des Teams in dieser Saison zusammengezählt, von allen Ridern, die ihre Daten teilen.",
+		"Die Kilometer aller Läufe des Teams in dieser Saison zusammengezählt.",
 	"badges.about.big_training":
 		"Die meisten Rider, die in dieser Saison bei einem einzigen Teamtermin dabei waren.",
 	"badges.about.attendances":

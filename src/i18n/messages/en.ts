@@ -518,13 +518,13 @@ export const en: Catalog = {
 	"badges.about.running":
 		"All the kilometres of your runs this season, without treadmill and virtual runs.",
 	"badges.about.team_training_rynke":
-		"The Training Rynke of all riders who share their data with the team, added up for this season.",
+		"The Training Rynke of all riders, added up for this season.",
 	"badges.about.team_distance":
-		"The kilometres of all the team's rides this season added up, from every rider who shares their data.",
+		"The kilometres of all the team's rides this season added up.",
 	"badges.about.team_elevation":
-		"The elevation of all the team's rides this season added up, from every rider who shares their data.",
+		"The elevation of all the team's rides this season added up.",
 	"badges.about.team_running":
-		"The kilometres of all the team's runs this season added up, from every rider who shares their data.",
+		"The kilometres of all the team's runs this season added up.",
 	"badges.about.big_training":
 		"The most riders at a single team event this season.",
 	"badges.about.attendances":
