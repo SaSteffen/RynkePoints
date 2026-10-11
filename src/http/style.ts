@@ -258,6 +258,8 @@ dl.ride-figures dd .coin-mini{width:18px;height:18px;vertical-align:-3px}
 nav.pager{display:flex;flex-wrap:wrap;gap:var(--rp-space-1) var(--rp-space-2);margin-top:var(--rp-space-2)}
 figure.gauge{display:block;width:100%;margin:0}
 figure.gauge figcaption{display:flex;align-items:center;gap:var(--rp-space-2);margin:0 0 var(--rp-space-2);font:var(--md-type-body)}
+.gauge-step{white-space:nowrap}
+.gauge-step .coin-mini{width:18px;height:18px;margin-left:4px;vertical-align:-4px}
 .gauge-bar{display:flex;height:12px;background:var(--rp-track);border-radius:var(--md-shape-sm);overflow:hidden}
 .gauge-part,.gauge-fill{display:block;height:100%}
 .gauge-part+.gauge-part{border-left:2px solid var(--md-sys-color-surface-container)}

@@ -187,16 +187,18 @@ export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 	// rounded up.
 	const elevation = gauges.elevation;
 	const metres = (m: number) => i18n.t("units.m", { value: whole(i18n, m) });
+	// One inline run, so the sentence wraps as text; the step and its coin stay
+	// together on a narrow screen (issue #92).
 	figures.push(
 		figure(
 			i18n,
 			elevation,
-			html`${i18n.t("rynke.gauge.elevation", {
+			html`<span class="gauge-caption">${i18n.tHtml("rynke.gauge.elevation", {
 				value: metres(Math.floor(elevation.value / 10)),
 				target: metres(elevation.target / 10),
 				missing: metres(Math.ceil((elevation.target - elevation.value) / 10)),
-				stepRynke: whole(i18n, elevation.stepRynke),
-			})}${coinLabel(i18n, "training")}`,
+				step: html`<span class="gauge-step">${i18n.t("rynke.gauge.step", { n: whole(i18n, elevation.stepRynke) })}${coinLabel(i18n, "training")}</span>`,
+			})}</span>`,
 		),
 	);
 	return html`<section class="rynke-gauges">

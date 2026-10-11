@@ -287,7 +287,7 @@ describe("GET /me gauges (US2)", () => {
 		// The coin stands for the word (issue #92).
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		expect(html).toMatch(
-			/bis \+5<svg class="coin coin-mini"[^>]*>.*?<\/svg><span class="visually-hidden">Trainingsrynke<\/span><\/figcaption>/,
+			/bis <span class="gauge-step">\+5<svg class="coin coin-mini"[^>]*>.*?<\/svg><span class="visually-hidden">Trainingsrynke<\/span><\/span><\/span><\/figcaption>/,
 		);
 	});
 
