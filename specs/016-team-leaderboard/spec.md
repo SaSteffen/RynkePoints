@@ -50,7 +50,7 @@ mock-up's team leaderboard, with a `breakaway` tweak for its three sample states
 
 ### User Story 1 - Rider sees where they stand in the team (Priority: P1)
 
-A rider opens Team and sees the team's combined Rynke, their own place ("You're 6th
+A rider opens Team and sees the team's combined Rynke, their own place ("Position 6
 of 14 riders 🚴") and how many Rynke they need to move up a place, then the
 leaderboard around their place: three anonymous rows ahead, their own row marked
 "You 🦧", and three rows behind. Each row shows the rider's total of the picked kind

@@ -17,8 +17,8 @@ The draft's look, section by section: colours come from the tokens in
 2. **Kind switch** `nav.kind-switch`: one pill with two full-width links, each
    with its mini coin, the current one `aria-current="true"` in yellow.
 3. **Place** `section.my-place` (left out when the viewer isn't listed): a
-   yellow card with the place in a dark round badge, then "You're {place} of
-   {count} riders 🚴" (with "joint" when shared) and "{n} Rynke to pass the
+   yellow card with the place in a dark round badge, then "Position {place} of
+   {count} riders 🚴" (shared places too) and "{n} Rynke to pass the
    next place", or "You lead the peloton. Bring the others along!" for 1st.
 4. **Quote** `blockquote.quote.quote-push` or `.quote-on-track`, `lang="de"`:
    orange edge on a light orange card for push, green on the ok container for
@@ -28,7 +28,7 @@ The draft's look, section by section: colours come from the tokens in
      ("For you").
    - One quote from `QUOTES_PUSH` or `QUOTES_ON_TRACK`, or from that list's
      `SEASON_QUOTES_*` array for today's season (FR-025, research R4, R10),
-     bold, in German quotation marks. No footer under the quote (the draft's
+     bold, without quotation marks. No footer under the quote (the draft's
      "Dein Tempo bis …" line is left out on purpose).
 5. **Peloton** `figure.peloton`: heading "The peloton 🚴" and a one-line hint;
    a dark road with a dashed yellow middle line and one mini coin per other
