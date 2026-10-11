@@ -1,4 +1,5 @@
 import { env } from "cloudflare:test";
+import { BADGE_CATALOG_VERSION } from "../../src/badges/catalog";
 import {
 	CONSENT_VERSION,
 	CONSENT_VERSIONS,
@@ -83,6 +84,8 @@ export interface SeedRiderOptions {
 	importStatus?: "pending" | "running" | "done";
 	/** Defaults to the current version; 0 is a rider stored before `0002`. */
 	figuresVersion?: number;
+	/** Defaults to the current catalog; 0 is a rider stored before `0012`. */
+	badgesVersion?: number;
 	accessToken?: string;
 	refreshToken?: string;
 	expiresAt?: number;
@@ -124,8 +127,8 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 			`INSERT INTO riders (athlete_id, first_name, status, scope_read_all,
 				scope_write, scopes, connected_at, scopes_updated_at,
 				membership_checked_at, import_status, reconnect_requested_at,
-				figures_version)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+				figures_version, badges_version)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		).bind(
 			athleteId,
 			options.firstName ?? firstNameFor(athleteId),
@@ -141,6 +144,7 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 				? (options.reconnectRequestedAt ?? now)
 				: null,
 			options.figuresVersion ?? ACTIVITY_FIGURES_VERSION,
+			options.badgesVersion ?? BADGE_CATALOG_VERSION,
 		),
 		ctx.env.DB.prepare(
 			`INSERT INTO strava_credentials (athlete_id, access_token_enc,
@@ -179,6 +183,10 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM rynke_balances"),
 		env.DB.prepare("DELETE FROM rynke_rises"),
 		env.DB.prepare("DELETE FROM rynke_seen"),
+		env.DB.prepare("DELETE FROM rider_badges"),
+		env.DB.prepare("DELETE FROM badge_reveals"),
+		env.DB.prepare("DELETE FROM badge_rises"),
+		env.DB.prepare("DELETE FROM runs"),
 		env.DB.prepare("DELETE FROM ride_results"),
 		env.DB.prepare("DELETE FROM activities"),
 		// `team_event_kinds` stays: migration 0006 seeds it.

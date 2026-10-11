@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { insertCorrectionStatement } from "../../src/db/corrections";
-import { readTeam } from "../../src/db/team";
+import { readTeam, readTeamBadgeSums } from "../../src/db/team";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
 import { seedBalance, seedRide } from "../support/rider-view";
@@ -114,5 +114,77 @@ describe("readTeam", () => {
 	it("returns nothing when nobody is listed", async () => {
 		await resetDb();
 		expect(await readTeam(env.DB)).toEqual([]);
+	});
+});
+
+describe("readTeamBadgeSums (feature 013 R15)", () => {
+	it("sums the listed riders' counting rides per day, without ids", async () => {
+		const { riders } = await readTeamBadgeSums(env.DB);
+		expect(riders).toEqual([
+			{
+				rides: [
+					{
+						date: "2026-09-07",
+						distanceM: 40000,
+						distanceRynke: 4,
+						elevationDm: 3000,
+					},
+					{
+						date: "2026-09-13",
+						distanceM: 40000,
+						distanceRynke: 5,
+						elevationDm: 4500,
+					},
+					{
+						date: "2026-09-14",
+						distanceM: 40000,
+						distanceRynke: 2,
+						elevationDm: 100,
+					},
+				],
+				attendance: [
+					{
+						eventId: expect.any(Number),
+						kind: "team_training",
+						date: "2026-09-10",
+					},
+				],
+				corrections: [{ date: "2026-09-12", training: 3, team: -1 }],
+			},
+		]);
+	});
+
+	it("counts only listed attendees per event (US4 scenario 4)", async () => {
+		const { events } = await readTeamBadgeSums(env.DB);
+		expect(events).toEqual([
+			{ eventId: expect.any(Number), date: "2026-09-10", attendees: 1 },
+		]);
+	});
+
+	it("sums the listed riders' runs per day", async () => {
+		await env.DB.batch(
+			[
+				[8_500_001, LISTED, "2026-09-05T08:00:00Z", 7800],
+				[8_500_002, WITHOUT_BALANCE, "2026-09-05T18:00:00Z", 4600],
+				[8_500_003, NO_CONSENT, "2026-09-05T08:00:00Z", 21000],
+			].map(([id, athleteId, start, distance]) =>
+				env.DB.prepare(
+					`INSERT INTO runs (strava_activity_id, athlete_id, start_date,
+						start_date_local, distance_m, is_private, refreshed_at)
+					VALUES (?1, ?2, ?3, ?3, ?4, 0, ?5)`,
+				).bind(id, athleteId, start, distance, NOW),
+			),
+		);
+		const { runs } = await readTeamBadgeSums(env.DB);
+		expect(runs).toEqual([{ date: "2026-09-05", distanceM: 12400 }]);
+	});
+
+	it("returns nothing when nobody is listed", async () => {
+		await resetDb();
+		expect(await readTeamBadgeSums(env.DB)).toEqual({
+			riders: [],
+			runs: [],
+			events: [],
+		});
 	});
 });

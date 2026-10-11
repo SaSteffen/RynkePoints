@@ -1,3 +1,4 @@
+import { BADGE_CATALOG_VERSION } from "../badges/catalog";
 import { seasonStart } from "../config";
 import type { Ctx } from "../ctx";
 import {
@@ -90,13 +91,14 @@ export async function fanOutFiguresReread(ctx: Ctx): Promise<void> {
  * One `evaluate-rider` per connected rider whose stored Rynke are missing or
  * stale: after the first deploy, a rules-version bump, a lost message, or
  * attendance entered by hand that the balance doesn't reflect yet (feature 003
- * research R14, R22).
+ * research R14, R22), or a new badge catalog (feature 013 research R18).
  */
 export async function fanOutEvaluations(ctx: Ctx): Promise<void> {
 	const ids = await listRidersNeedingEvaluation(
 		ctx.env.DB,
 		CURRENT_RULES.version,
 		countingWindow(ctx.env),
+		BADGE_CATALOG_VERSION,
 	);
 	await sendAll(
 		ctx,

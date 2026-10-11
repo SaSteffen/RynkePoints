@@ -173,7 +173,7 @@ describe("add-attendance", () => {
 			NOW + 60,
 		);
 
-		expect(result).toEqual({
+		expect(result).toMatchObject({
 			eventId: null,
 			affected: [ATHLETE_A, ATHLETE_B],
 			rose: [ATHLETE_A, ATHLETE_B],
@@ -262,7 +262,7 @@ describe("update-event", () => {
 			event: { kind: "technique_training", date: "2026-05-02", name: NAME },
 		});
 
-		expect(result).toEqual({
+		expect(result).toMatchObject({
 			eventId: null,
 			affected: [ATHLETE_A, ATHLETE_B],
 			rose: [ATHLETE_A, ATHLETE_B],
@@ -378,7 +378,11 @@ describe("remove-attendance", () => {
 			athleteIds: [ATHLETE_A],
 		});
 
-		expect(result).toEqual({ eventId: null, affected: [ATHLETE_A], rose: [] });
+		expect(result).toMatchObject({
+			eventId: null,
+			affected: [ATHLETE_A],
+			rose: [],
+		});
 		expect(await balance(ATHLETE_A)).toMatchObject({
 			teamRynke: 0,
 			trainingRynke: withEvent.trainingRynke - 5,
@@ -464,7 +468,7 @@ describe("delete-event", () => {
 
 		const result = await change({ kind: "delete-event", eventId });
 
-		expect(result).toEqual({
+		expect(result).toMatchObject({
 			eventId: null,
 			affected: [ATHLETE_A, ATHLETE_B],
 			rose: [],

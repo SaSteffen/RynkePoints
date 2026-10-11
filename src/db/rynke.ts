@@ -262,12 +262,14 @@ export async function readRynke(
  * result computed from its current figures, or attendance inside `window`
  * whose count per kind differs from the stored breakdown (`EXCEPT` both ways).
  * A renamed event, or attendance moved to another event of the same kind,
- * changes no count and lists no one.
+ * changes no count and lists no one. Also riders whose badges were worked out
+ * with another badge catalog (feature 013 research R18).
  */
 export async function listRidersNeedingEvaluation(
 	db: D1Database,
 	rulesVersion: number,
 	window: CountingWindow,
+	badgesVersion: number,
 ): Promise<number[]> {
 	const attended = `SELECT e.kind, count(*) FROM attendances a
 		JOIN team_events e ON e.event_id = a.event_id
@@ -291,10 +293,11 @@ export async function listRidersNeedingEvaluation(
 						OR x.activity_refreshed_at <> a.refreshed_at))
 				OR EXISTS (${attended} EXCEPT ${stored})
 				OR EXISTS (${stored} EXCEPT ${attended})
+				OR r.badges_version <> ?4
 			)
 			ORDER BY athlete_id`,
 		)
-		.bind(rulesVersion, window.seasonStart, window.deadline)
+		.bind(rulesVersion, window.seasonStart, window.deadline, badgesVersion)
 		.all<{ athlete_id: number }>();
 	return results.map((r) => r.athlete_id);
 }
@@ -319,7 +322,7 @@ export function upsertRiseStatement(
 export function readRiseStatement(db: D1Database, athleteId: number) {
 	return db
 		.prepare(
-			"SELECT training_rynke, team_rynke FROM rynke_rises WHERE athlete_id = ?",
+			"SELECT training_rynke, team_rynke, risen_at FROM rynke_rises WHERE athlete_id = ?",
 		)
 		.bind(athleteId);
 }

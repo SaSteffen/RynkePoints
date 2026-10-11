@@ -15,6 +15,7 @@ import {
 	devQueue,
 	removeStravaInterceptor,
 } from "../../dev/worker";
+import { BADGES } from "../../src/badges/catalog";
 import { CONSENT_VERSION } from "../../src/consent";
 import { clearSessionCookie } from "../../src/http/session";
 import {
@@ -294,6 +295,20 @@ describe("requests the fake has no answer for (FR-010)", () => {
 	});
 });
 
+describe("every badge at /_dev/badges (013)", () => {
+	it("shows every personal and team badge earned, with its large view", async () => {
+		const res = await get("/_dev/badges");
+		expect(res.status).toBe(200);
+		const page = await res.text();
+		expect(page).toContain('<section class="badge-group badge-group-personal"');
+		expect(page).toContain('<section class="badge-group badge-group-team"');
+		for (const badge of BADGES) {
+			expect(page, badge.id).toContain(`<div popover id="badge-${badge.id}"`);
+		}
+		expect(page).not.toContain('class="badge-not-yet"');
+	});
+});
+
 describe("sample riders in every state (US2)", () => {
 	const IDA = 990001;
 	const NORA = 990002;
@@ -436,7 +451,7 @@ describe("sample riders in every state (US2)", () => {
 		}
 		// Each ride breaks only its own rule.
 		for (const r of results) expect(JSON.parse(r.reasons)).toHaveLength(1);
-		// The app imports only cycling (src/strava/activity.ts).
+		// Runs never reach the rides (src/strava/activity.ts), only `runs`.
 		expect(
 			await count(
 				"SELECT COUNT(*) AS n FROM activities WHERE athlete_id = ? AND sport_type = 'Run'",
@@ -467,6 +482,96 @@ describe("sample riders in every state (US2)", () => {
 		expect(items.match(/<li/g)).toHaveLength(4);
 		expect(items.match(/event-not-counting/g)).toHaveLength(1);
 		expect(items).toContain("Sample cornering");
+	});
+
+	it("gives Bea Badges earlier and later badges in a category and a full one (013)", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			"SELECT badge_id FROM rider_badges WHERE athlete_id = ? ORDER BY badge_id",
+		)
+			.bind(990012)
+			.all<{ badge_id: string }>();
+		expect(results.map((r) => r.badge_id)).toEqual(
+			expect.arrayContaining([
+				"distance-100",
+				"distance-500",
+				"elevation-1000",
+				"elevation-5000",
+				"technique-1",
+				"technique-2",
+				"team-events-1",
+			]),
+		);
+		const page = await mePage(990012);
+		expect(page).toContain('<section class="badges"');
+		expect(page).toContain('data-category="technique"');
+		expect(await mePage(990002)).not.toContain(
+			'class="badge-group badge-group-personal"',
+		);
+	});
+
+	it("shows Nick NearlyThere just short and Carla Complete done (013)", async () => {
+		await seeded();
+		const badgesOf = async (athleteId: number) => {
+			const { results } = await env.DB.prepare(
+				"SELECT badge_id FROM rider_badges WHERE athlete_id = ?",
+			)
+				.bind(athleteId)
+				.all<{ badge_id: string }>();
+			return results.map((r) => r.badge_id).sort();
+		};
+		expect(await badgesOf(990013)).toEqual(["training-rynke-1"]);
+		const nick = await mePage(990013);
+		expect(nick).toContain("Noch 1 km");
+		expect(nick).toContain("Noch 10 m");
+
+		const complete = BADGES.filter(
+			(b) =>
+				b.group === "personal" &&
+				b.category !== "run_length" &&
+				b.category !== "running",
+		).map((b) => b.id);
+		expect(await badgesOf(990014)).toEqual(complete.sort());
+		const carla = await mePage(990014);
+		const personal =
+			carla.match(
+				/<section class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
+			)?.[0] ?? "";
+		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(5);
+		expect(
+			carla.match(/class="badge-not-yet-row badge-group-personal"/g),
+		).toHaveLength(2);
+	});
+
+	it("counts only Rudi Runner's outdoor runs (013 US3)", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			"SELECT distance_m FROM runs WHERE athlete_id = ? ORDER BY distance_m",
+		)
+			.bind(990015)
+			.all<{ distance_m: number }>();
+		expect(results.map((r) => r.distance_m)).toEqual([4600, 7800]);
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM rider_badges WHERE athlete_id = ? AND badge_id IN ('run-length-5', 'running-10')",
+				990015,
+			),
+		).toBe(2);
+		const page = await mePage(990015);
+		expect(page).toContain('data-category="run_length"');
+		expect(page).toContain("Noch 2,2\u00a0km");
+	});
+
+	it("shows every sample rider the team's badges and progress (013 US4)", async () => {
+		await seeded();
+		for (const athleteId of [990002, 990012]) {
+			const res = await get("/team", await sessionCookie(ctx, athleteId));
+			expect(res.status).toBe(200);
+			const page = await res.text();
+			expect(page).toContain('<section class="badge-group badge-group-team"');
+			expect(page).toContain('popovertarget="badge-big-training-5"');
+			expect(page).toContain('popovertarget="badge-attendances-25"');
+		}
 	});
 
 	it("enters the shared team events, recorded by Tina TrainingDone (014)", async () => {

@@ -171,6 +171,17 @@ describe("STYLE", () => {
 		).toBe("none");
 	});
 
+	it("pops the revealed badges in, and keeps them still for reduced motion (013 FR-031)", () => {
+		expect(STYLE).toContain("@keyframes badge-pop");
+		expect(declsOf(".badges-reveal-pictures img").animation).toContain(
+			"badge-pop",
+		);
+		expect(
+			declsOf(".badges-reveal-pictures img", "(prefers-reduced-motion:reduce)")
+				.animation,
+		).toBe("none");
+	});
+
 	it("spins the waiting coin, and keeps it still for reduced motion (015 FR-007)", () => {
 		expect(STYLE).toContain("@keyframes coin-spin");
 		expect(declsOf(".waiting .coin").animation).toContain("coin-spin");
@@ -215,6 +226,43 @@ describe("STYLE", () => {
 		expect(declsOf("nav.app-nav", WIDE).position).toBe("fixed");
 		expect(Number(declsOf("nav.app-nav")["z-index"])).toBeGreaterThan(
 			Number(declsOf("header.top-bar")["z-index"]),
+		);
+	});
+
+	it("lays the badge cards out two per row and four from 840 px (013 FR-002a, the drafts)", () => {
+		expect(declsOf(".badge-cards")["grid-template-columns"]).toBe(
+			"repeat(2,minmax(0,1fr))",
+		);
+		expect(
+			declsOf(".badge-cards", "(min-width:840px)")["grid-template-columns"],
+		).toBe("repeat(4,minmax(0,1fr))");
+		expect(declsOf(".badge-card .badge").width).toBe("128px");
+		expect(declsOf(".badge-gallery .badge").width).toBe("96px");
+		expect(declsOf(".badge-large .badge")).toMatchObject({
+			width: "280px",
+			"max-width": "100%",
+		});
+	});
+
+	it("puts the milestone on the ribbon's box, yellow on personal and ink on team (013 FR-040b)", () => {
+		expect(declsOf(".badge-ribbon-text")).toMatchObject({
+			left: "13%",
+			top: "70%",
+			width: "74%",
+			height: "14%",
+			color: "var(--rp-coin-yellow)",
+		});
+		expect(declsOf(".badge-group-team .badge-ribbon-text").color).toBe(
+			"var(--rp-coin-ink)",
+		);
+	});
+
+	it("fills personal bars yellow and team bars team blue (013 FR-002c)", () => {
+		expect(declsOf(".badges .bar>span").background).toBe(
+			"var(--rp-coin-yellow)",
+		);
+		expect(declsOf(".badge-group-team .bar>span").background).toBe(
+			"var(--rp-coin-team)",
 		);
 	});
 

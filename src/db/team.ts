@@ -1,3 +1,4 @@
+import type { TeamBadgeSums, TeamRiderDays } from "../badges/team";
 import type { Attendance, TeamEventKind } from "../rynke/team-events";
 import type {
 	DatedCorrection,
@@ -140,6 +141,121 @@ export async function readTeam(db: D1Database): Promise<TeamRider[]> {
 		attendance: attendance.get(row.athlete_id) ?? [],
 		corrections: corrections.get(row.athlete_id) ?? [],
 	}));
+}
+
+/**
+ * What the team badges need (feature 013 research R15), in one batch over the
+ * listed riders only: per rider and day their counting rides, with their
+ * attendance and corrections for the Training Rynke; the runs summed per day;
+ * and per team event its number of listed attendees. Riders leave the sums
+ * once they're no longer listed (US4 scenario 4). Nothing leaves this
+ * function with a rider's id on it.
+ */
+export async function readTeamBadgeSums(
+	db: D1Database,
+): Promise<TeamBadgeSums> {
+	const [rideRows, attendanceRows, correctionRows, runRows, eventRows] =
+		await db.batch([
+			db.prepare(
+				`SELECT r.athlete_id, substr(a.start_date_local, 1, 10) AS date,
+					SUM(a.distance_m) AS distance_m,
+					SUM(r.distance_rynke) AS distance_rynke,
+					SUM(r.elevation_dm) AS elevation_dm
+				FROM ride_results r
+				JOIN activities a ON a.strava_activity_id = r.strava_activity_id
+				WHERE r.counts = 1 AND r.athlete_id IN (${LISTED_RIDER_IDS})
+				GROUP BY 1, 2
+				ORDER BY 1, 2`,
+			),
+			listTeamAttendanceStatement(db),
+			listTeamCorrectionsStatement(db),
+			db.prepare(
+				`SELECT substr(start_date_local, 1, 10) AS date,
+					SUM(distance_m) AS distance_m
+				FROM runs WHERE athlete_id IN (${LISTED_RIDER_IDS})
+				GROUP BY 1
+				ORDER BY 1`,
+			),
+			db.prepare(
+				`SELECT e.event_id, e.event_date, count(*) AS attendees
+				FROM attendances a JOIN team_events e ON e.event_id = a.event_id
+				WHERE a.athlete_id IN (${LISTED_RIDER_IDS})
+				GROUP BY e.event_id
+				ORDER BY e.event_date, e.event_id`,
+			),
+		]);
+	if (
+		!rideRows ||
+		!attendanceRows ||
+		!correctionRows ||
+		!runRows ||
+		!eventRows
+	) {
+		throw new Error("D1 batch returned too few results");
+	}
+	const riders = new Map<
+		number,
+		{
+			rides: TeamRiderDays["rides"][number][];
+			attendance: Attendance[];
+			corrections: DatedCorrection[];
+		}
+	>();
+	const rider = (athleteId: number) => {
+		let found = riders.get(athleteId);
+		if (!found) {
+			found = { rides: [], attendance: [], corrections: [] };
+			riders.set(athleteId, found);
+		}
+		return found;
+	};
+	for (const row of rideRows.results as DailyRideSumRow[]) {
+		rider(row.athlete_id).rides.push({
+			date: row.date,
+			distanceM: row.distance_m,
+			distanceRynke: row.distance_rynke,
+			elevationDm: row.elevation_dm,
+		});
+	}
+	for (const row of attendanceRows.results as TeamAttendanceRow[]) {
+		rider(row.athlete_id).attendance.push({
+			eventId: row.event_id,
+			kind: row.kind,
+			date: row.event_date,
+		});
+	}
+	for (const row of correctionRows.results as TeamCorrectionRow[]) {
+		rider(row.athlete_id).corrections.push({
+			date: row.correction_date,
+			training: row.training,
+			team: row.team,
+		});
+	}
+	return {
+		riders: [...riders.values()],
+		runs: (runRows.results as { date: string; distance_m: number }[]).map(
+			(row) => ({ date: row.date, distanceM: row.distance_m }),
+		),
+		events: (
+			eventRows.results as {
+				event_id: number;
+				event_date: string;
+				attendees: number;
+			}[]
+		).map((row) => ({
+			eventId: row.event_id,
+			date: row.event_date,
+			attendees: row.attendees,
+		})),
+	};
+}
+
+interface DailyRideSumRow {
+	athlete_id: number;
+	date: string;
+	distance_m: number;
+	distance_rynke: number;
+	elevation_dm: number;
 }
 
 function push<T>(map: Map<number, T[]>, key: number, value: T): void {

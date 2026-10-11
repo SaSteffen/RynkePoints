@@ -98,7 +98,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	{
 		athleteId: 990002,
 		firstName: "Nora NoRides",
-		state: "No rides",
+		state: "No rides, so no badges yet",
 		scopes: ALL_SCOPES,
 		clubMember: true,
 		behaviour: "normal",
@@ -149,7 +149,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		athleteId: 990006,
 		firstName: "Rex Rejected",
 		state:
-			"Rides that don't count, one per rule, and a run the app never imports",
+			"Rides that don't count, one per rule, and a run that counts only for the running badges",
 		scopes: ALL_SCOPES,
 		clubMember: true,
 		behaviour: "normal",
@@ -231,6 +231,72 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		organiser: true,
 		rides: rides(5, (i) => ride(...slot(i), 60, 400, 25)),
 	},
+	{
+		athleteId: 990012,
+		firstName: "Bea Badges",
+		state:
+			"Badges (feature 013): earlier and later ones in a category, both technique trainings",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		// 12 rides of 60 km and 500 m: 720 km and 6,000 m, so distance 100 and
+		// 500 and elevation 1,000 and 5,000, each a few days apart.
+		rides: rides(12, (i) => ride(...slot(i), 60, 500, 25)),
+		events: [
+			{ daysAgo: 9, kind: "technique_training", name: "Sample braking" },
+			{ daysAgo: 2, kind: "technique_training", name: "Sample cornering" },
+			{ daysAgo: 4, kind: "team_training", name: null },
+		],
+	},
+	{
+		athleteId: 990013,
+		firstName: "Nick NearlyThere",
+		state:
+			"Badges (feature 013): just short of the first distance and elevation badges",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		// 99.6 km and 990 m: "Noch 1 km" and "Noch 10 m". The 9 distance Rynke
+		// already earn the first Training Rynke badge.
+		rides: [ride(1, "07:00", 50, 500, 25), ride(3, "07:00", 49.6, 490, 25)],
+	},
+	{
+		athleteId: 990014,
+		firstName: "Carla Complete",
+		state:
+			"Badges (feature 013): every personal riding and team-event badge, no runs",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		// 25 rides of 200 km and 1,000 m: 5,000 km, 25,000 m and 625 Training
+		// Rynke, each category's last badge.
+		rides: rides(25, (i) => ride(...slot(i), 200, 1000, 25)),
+		// 20 team events, both technique trainings among them.
+		events: Array.from({ length: 20 }, (_, i) => ({
+			daysAgo: 1 + i,
+			kind: i < 2 ? "technique_training" : "team_training",
+			name: null,
+		})),
+	},
+	{
+		athleteId: 990015,
+		firstName: "Rudi Runner",
+		state:
+			"Badges (feature 013): outdoor runs for the running badges; treadmill, virtual and manual runs that don't count",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		rides: [
+			...rides(3, (i) => ride(...slot(i), 40, 200, 25)),
+			// Outdoors: 7.8 + 4.6 = 12.4 km, the longest 7.8 km.
+			ride(6, "07:00", 7.8, 40, 10, { sportType: "Run" }),
+			ride(3, "18:00", 4.6, 120, 8, { sportType: "TrailRun" }),
+			// None of these counts (FR-020, FR-020a).
+			ride(2, "18:00", 12, 0, 11, { sportType: "Run", trainer: true }),
+			ride(4, "18:00", 15, 0, 12, { sportType: "VirtualRun", trainer: true }),
+			ride(5, "18:00", 21.1, 0, 10, { sportType: "Run", manual: true }),
+		],
+	},
 ];
 
 /** A team event several sample riders attended, entered by an organiser. */
@@ -254,6 +320,14 @@ export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
 		kind: "training_weekend_day",
 		name: "Sample training weekend",
 		attendees: [990005, 990011],
+	},
+	// Six listed riders at one event: the team's first big training (feature
+	// 013 US4).
+	{
+		daysAgo: 7,
+		kind: "team_training",
+		name: "Sample big training",
+		attendees: [990003, 990005, 990008, 990011, 990012, 990015],
 	},
 ];
 

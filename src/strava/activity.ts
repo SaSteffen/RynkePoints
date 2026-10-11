@@ -2,7 +2,9 @@
 // The mapping is an explicit allow-list: the figures, and the ride's name for
 // its rider's own ride table (feature 008 FR-001). Nothing else Strava sends
 // (GPS, polylines, descriptions, heart rate, power, photos, ...) can reach
-// storage.
+// storage. Outdoor runs get a record of their own with even less: date,
+// distance and the private flag, for the running badges (feature 013 FR-020,
+// research R11).
 
 export const CYCLING_SPORT_TYPES = [
 	"Ride",
@@ -19,9 +21,10 @@ export type CyclingSportType = (typeof CYCLING_SPORT_TYPES)[number];
  * Version of the FR-013 field set. Goes up whenever the mapping gains a field,
  * so the daily cron re-reads riders stored with an older one (research R20).
  * Version 1 added elapsed time and the manual and trainer flags, version 2
- * Strava's `flagged`, version 3 the ride's name (feature 008).
+ * Strava's `flagged`, version 3 the ride's name (feature 008), version 4 runs
+ * (feature 013).
  */
-export const ACTIVITY_FIGURES_VERSION = 3;
+export const ACTIVITY_FIGURES_VERSION = 4;
 
 /** The fields we read from a Strava summary or detailed activity. */
 export interface StravaActivity {
@@ -68,6 +71,20 @@ export interface ActivityRecord {
  */
 export type ActivityRow = Omit<ActivityRecord, "name">;
 
+/** Runs that count for the running badges, outdoors (feature 013 FR-020). */
+export const RUN_SPORT_TYPES = ["Run", "TrailRun"] as const;
+
+/** An outdoor, recorded run: only what the running badges need (R11). */
+export interface RunRecord {
+	strava_activity_id: number;
+	athlete_id: number;
+	start_date: string;
+	start_date_local: string;
+	distance_m: number;
+	is_private: 0 | 1;
+	refreshed_at: number;
+}
+
 export function isCycling(sportType: string): sportType is CyclingSportType {
 	return (CYCLING_SPORT_TYPES as readonly string[]).includes(sportType);
 }
@@ -96,6 +113,34 @@ export function toActivityRecord(
 		is_private: activity.private ? 1 : 0,
 		refreshed_at: now,
 		name: rideName(activity.name),
+	};
+}
+
+/**
+ * Returns the run to store, or null unless it is a `Run` or `TrailRun` that
+ * is neither on a treadmill nor entered by hand (FR-020, FR-020a). A flag
+ * Strava doesn't send counts as not set: an unknown figure never excludes.
+ */
+export function toRunRecord(
+	activity: StravaActivity,
+	athleteId: number,
+	now: number,
+): RunRecord | null {
+	if (
+		!(RUN_SPORT_TYPES as readonly string[]).includes(activity.sport_type) ||
+		activity.trainer === true ||
+		activity.manual === true
+	) {
+		return null;
+	}
+	return {
+		strava_activity_id: activity.id,
+		athlete_id: athleteId,
+		start_date: activity.start_date,
+		start_date_local: activity.start_date_local,
+		distance_m: activity.distance,
+		is_private: activity.private ? 1 : 0,
+		refreshed_at: now,
 	};
 }
 

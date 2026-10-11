@@ -40,14 +40,14 @@ export const en: Catalog = {
 	"consent.short.notRead":
 		"We don't read GPS tracks, maps, photos or health data.",
 	"consent.short.read":
-		"We only read the key figures of your rides, such as distance, time and elevation, and turn them into Rynke.",
+		"We only read the key figures of your rides and runs, such as distance, time and elevation, and turn them into Rynke and badges.",
 	"consent.short.shown":
 		"The team sees your Rynke without your name, the organisers with your first name.",
 	"consent.details": "All the details",
 	"consent.organisers":
 		"The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections.",
 	"consent.team":
-		"Everyone else on the team sees your Rynke, overall and per week, without your name.",
+		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation count towards the team sums of the team badges, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
 	"consent.write":
 		"Optional: Strava also asks whether RynkePoints may upload activities. We never upload anything; later we use it to write a short Rynke section into your ride descriptions, visible to whoever may see the ride. We never change your own text. You take part just the same without this permission.",
@@ -473,4 +473,91 @@ export const en: Catalog = {
 	"organiser.overview.column.events": "Team events",
 	"organiser.overview.column.corrections": "Corrections",
 	"organiser.overview.column.virtual": "Virtual",
+
+	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
+	// names aren't here: they are German in every language (badges.de.ts).
+	"badges.heading": "Badges",
+	"badges.intro":
+		"How far it is to your next badge – which one it will be stays a secret.",
+	"badges.personal.newest": "My newest badges",
+	"badges.personal.all": "All my badges ({n})",
+	"badges.team.newest": "Team badges",
+	"badges.team.all": "All team badges ({n})",
+	"badges.notYet": "No badge yet",
+	"badges.empty": "No badge yet – your first ride brings you closer.",
+	"badges.missing": "{value} to go",
+	"badges.earnedOn": "earned on {date}",
+	"badges.label": "{name}, {value}",
+	"badges.reveal.one": "New badge: {name}",
+	"badges.reveal.many": "{n} new badges",
+	"badges.category.distance": "Distance",
+	"badges.category.elevation": "Elevation",
+	"badges.category.team_events": "Team events",
+	"badges.category.technique": "Technique training",
+	"badges.category.training_rynke": "Training Rynke",
+	"badges.category.run_length": "Longest run",
+	"badges.category.running": "Running total",
+	"badges.category.team_training_rynke": "Training Rynke together",
+	"badges.category.team_distance": "Distance together",
+	"badges.category.team_elevation": "Elevation together",
+	"badges.category.team_running": "Running together",
+	"badges.category.big_training": "Big training",
+	"badges.category.attendances": "Attendances",
+	"badges.about.distance":
+		"All the kilometres of your rides this season that count for Training Rynke.",
+	"badges.about.elevation":
+		"All the elevation of your rides this season that count for Training Rynke.",
+	"badges.about.team_events":
+		"Every team event this season you were at, of any kind.",
+	"badges.about.technique":
+		"The technique trainings this season you were at: one badge for the first, one for both.",
+	"badges.about.training_rynke":
+		"All the Training Rynke you collected this season.",
+	"badges.about.run_length":
+		"Your longest single run this season, outdoors; treadmill and virtual runs don't count.",
+	"badges.about.running":
+		"All the kilometres of your runs this season, without treadmill and virtual runs.",
+	"badges.about.team_training_rynke":
+		"The Training Rynke of all riders, added up for this season.",
+	"badges.about.team_distance":
+		"The kilometres of all the team's rides this season added up.",
+	"badges.about.team_elevation":
+		"The elevation of all the team's rides this season added up.",
+	"badges.about.team_running":
+		"The kilometres of all the team's runs this season added up.",
+	"badges.about.big_training":
+		"The most riders at a single team event this season.",
+	"badges.about.attendances":
+		"How often riders came to team events this season, over all events: 12 at a training and 18 on a training weekend make 30.",
+	"badges.for.distance": "You rode {value} by bike this season.",
+	"badges.for.elevation": "You climbed {value} by bike this season.",
+	"badges.for.team_events": "You joined {value} this season.",
+	"badges.for.technique": "You attended {value} this season.",
+	"badges.for.training_rynke": "You collected {value} in training this season.",
+	"badges.for.run_length": "Your longest run this season: {value} in one go.",
+	"badges.for.running": "You ran {value} this season.",
+	"badges.for.team_training_rynke":
+		"All riders together collected {value} in training this season.",
+	"badges.for.team_distance": "All riders together rode {value} this season.",
+	"badges.for.team_elevation":
+		"All riders together climbed {value} by bike this season.",
+	"badges.for.team_running": "All riders together ran {value} this season.",
+	"badges.for.big_training": "{value} came to a single team event together.",
+	"badges.for.attendances":
+		"All team events this season together had {value}: every rider at every event counts one.",
+	"badges.value.km": "{n}\u00a0km",
+	"badges.value.m": "{n}\u00a0m",
+	"badges.value.rynke": "{n}\u00a0Rynke",
+	"badges.value.events": "{n}\u00a0team events",
+	"badges.value.events.one": "{n}\u00a0team event",
+	"badges.value.trainings": "{n}\u00a0technique trainings",
+	"badges.value.trainings.one": "{n}\u00a0technique training",
+	"badges.value.riders": "{n}\u00a0cyclists",
+	"badges.value.riders.one": "{n}\u00a0cyclist",
+	"badges.value.attendances": "{n}\u00a0visits",
+	"badges.value.attendances.one": "{n}\u00a0visit",
+	"badges.value.half": "Half marathon",
+	"badges.value.marathon": "Marathon",
+	"notification.badge": "New badge: {name} 🏅",
+	"notification.badges": "{n} new badges 🏅",
 };

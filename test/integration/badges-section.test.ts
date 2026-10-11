@@ -1,0 +1,348 @@
+import { env } from "cloudflare:test";
+import { beforeEach, describe, expect, it } from "vitest";
+import { BADGES } from "../../src/badges/catalog";
+import { BADGE_PICTURES } from "../../src/badges/pictures";
+import { escapeHtml } from "../../src/http/html";
+import { CATALOGS } from "../../src/i18n/catalogs";
+import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
+import { makeCtx, resetDb, seedRider } from "../support/ctx";
+import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
+import { riderPage, seedBalance, seedRides } from "../support/rider-view";
+import { attendRaw, insertEvent } from "../support/rynke";
+
+// The Abzeichen section on the Overview and the Team page (feature 013 US1,
+// US4, contracts/abzeichen-section.md "Rules the tests check"). Synthetic
+// badges.
+
+const ctx = makeCtx();
+const { de } = CATALOGS;
+
+function nameOf(id: string): string {
+	const name = BADGE_NAMES[id];
+	if (!name) throw new Error(`no name for ${id}`);
+	return name;
+}
+
+async function earn(athleteId: number, badges: [string, string][]) {
+	await env.DB.batch(
+		badges.map(([id, date]) =>
+			env.DB.prepare(
+				"INSERT INTO rider_badges (athlete_id, badge_id, earned_on) VALUES (?, ?, ?)",
+			).bind(athleteId, id, date),
+		),
+	);
+}
+
+/** The section's markup, or null when the page has none. */
+async function section(
+	athleteId = ATHLETE_A,
+	acceptLanguage?: string,
+	path = "/me",
+) {
+	const { status, html } = await riderPage(
+		ctx,
+		athleteId,
+		path,
+		acceptLanguage,
+	);
+	expect(status).toBe(200);
+	return {
+		html,
+		section:
+			html.match(
+				/<section class="badges"[\s\S]*<\/section>(?=\n<\/div>|\n?<\/main>)/,
+			)?.[0] ?? null,
+	};
+}
+
+const teamSection = () => section(ATHLETE_A, undefined, "/team");
+
+const EARNED: [string, string][] = [
+	["distance-100", "2026-03-08"],
+	["distance-500", "2026-05-01"],
+	["elevation-1000", "2026-04-12"],
+];
+
+beforeEach(async () => {
+	await resetDb();
+	await seedRider(ctx, { athleteId: ATHLETE_A });
+	await seedRider(ctx, { athleteId: ATHLETE_B });
+});
+
+describe("the Abzeichen section", () => {
+	beforeEach(async () => {
+		await seedBalance(ATHLETE_A);
+		// 13 counting rides of 40 km and 300 m: 520 km, 3,900 m.
+		await seedRides(ATHLETE_A, 13, "2026-05-10");
+		await earn(ATHLETE_A, EARNED);
+	});
+
+	it("follows the Rynke figures with heading and intro", async () => {
+		const { html, section: badges } = await section();
+		expect(badges).not.toBeNull();
+		expect(html.indexOf('<section class="badges"')).toBeGreaterThan(
+			html.indexOf('class="hero"'),
+		);
+		expect(badges).toContain(
+			`<h2 id="badges-heading">${de["badges.heading"]}</h2>`,
+		);
+		expect(badges).toContain(escapeHtml(de["badges.intro"]));
+	});
+
+	it("shows one card per category, newest first, with the ribbon and what is missing", async () => {
+		const { section: badges } = await section();
+		const cards = [
+			...(badges ?? "").matchAll(
+				/<li class="badge-card" data-category="(\w+)">([\s\S]*?)<\/li>/g,
+			),
+		];
+		expect(cards.map((m) => m[1])).toEqual(["distance", "elevation"]);
+		const distance = cards[0]?.[2] ?? "";
+		expect(distance).toContain('popovertarget="badge-distance-500"');
+		expect(distance).toContain(
+			`<span class="badge-ribbon-text">500\u00a0km</span>`,
+		);
+		expect(distance).toContain(
+			escapeHtml(de["badges.missing"].replace("{value}", "480\u00a0km")),
+		);
+		expect(distance).toContain('<span style="width:52%"></span>');
+		expect(badges).toContain(
+			escapeHtml(de["badges.missing"].replace("{value}", "1.100\u00a0m")),
+		);
+		expect(distance).toContain(
+			`aria-label="${escapeHtml(`${nameOf("distance-500")}, 500\u00a0km`)}"`,
+		);
+	});
+
+	it("uses the finished picture or the placeholder", async () => {
+		const missing = BADGES.find(
+			(b) => b.group === "personal" && !BADGE_PICTURES.has(b.id),
+		);
+		if (missing) await earn(ATHLETE_A, [[missing.id, "2026-05-02"]]);
+		const { section: badges } = await section();
+		if (BADGE_PICTURES.has("distance-500")) {
+			expect(badges).toContain('src="/badges/distance-500-ribbon.svg"');
+			expect(badges).toContain('src="/badges/distance-500.svg"');
+		}
+		if (missing) {
+			expect(badges).toContain('src="/badges/placeholder-personal-ribbon.svg"');
+			expect(badges).toContain('src="/badges/placeholder-personal.svg"');
+			expect(badges).not.toContain(`/badges/${missing.id}`);
+		}
+	});
+
+	it("keeps the gallery closed, counted, in catalog order", async () => {
+		const { section: badges } = await section();
+		expect(badges).toContain('<details class="badge-gallery">');
+		expect(badges).toContain(
+			`<summary>${de["badges.personal.all"].replace("{n}", "3")}</summary>`,
+		);
+		const gallery = badges?.match(/<details[\s\S]*?<\/details>/)?.[0] ?? "";
+		expect(
+			[...gallery.matchAll(/popovertarget="badge-([\w-]+)"/g)].map((m) => m[1]),
+		).toEqual(["distance-500", "distance-100", "elevation-1000"]);
+	});
+
+	it("shows the badges still to earn as empty outlines in the gallery (#109)", async () => {
+		const { section: badges } = await section();
+		const gallery = badges?.match(/<details[\s\S]*?<\/details>/)?.[0] ?? "";
+		const lists = [...gallery.matchAll(/<ul>([\s\S]*?)<\/ul>/g)].map(
+			(m) => m[1] ?? "",
+		);
+		// Distance: 2 of 5 earned; elevation: 1 of 4; the other categories have
+		// none yet and show only outlines.
+		const slots = (list: string) =>
+			list.match(/<li class="badge-slot" aria-hidden="true"><\/li>/g)?.length;
+		expect(lists.map(slots)).toEqual([3, 3, 4, 2, 10, 4, 6]);
+		expect(lists.slice(2).join("")).not.toContain("popovertarget");
+		expect(lists[0]?.lastIndexOf('popovertarget="')).toBeLessThan(
+			lists[0]?.indexOf("badge-slot") ?? 0,
+		);
+	});
+
+	it("lists the categories without a badge with their bar", async () => {
+		const { section: badges } = await section();
+		const rows = [
+			...(badges ?? "").matchAll(
+				/<li class="badge-not-yet-row badge-group-personal" data-category="(\w+)">/g,
+			),
+		].map((m) => m[1]);
+		expect(rows).toEqual([
+			"team_events",
+			"technique",
+			"training_rynke",
+			"run_length",
+			"running",
+		]);
+		expect(badges).toContain(
+			escapeHtml(de["badges.missing"].replace("{value}", "1\u00a0Termin")),
+		);
+	});
+
+	it("explains each category under its name", async () => {
+		const { section: badges } = await section();
+		const about = (category: "distance" | "running") =>
+			escapeHtml(de[`badges.about.${category}`]);
+		// On the card and in the gallery.
+		expect(badges).toContain(
+			`<h4>${escapeHtml(de["badges.category.distance"])}</h4>\n<p class="badge-about">${about("distance")}</p>`,
+		);
+		expect(badges?.split(about("distance")).length).toBe(3);
+		// In the not-yet row.
+		expect(badges).toContain(
+			`<span class="badge-category">${escapeHtml(de["badges.category.running"])}</span><span class="badge-about">${about("running")}</span>`,
+		);
+	});
+
+	it("opens a large view per earned badge with name, what it was for and the date", async () => {
+		const { section: badges } = await section();
+		const popovers = [
+			...(badges ?? "").matchAll(
+				/<div popover id="badge-([\w-]+)" class="badge-large">([\s\S]*?)<\/div>/g,
+			),
+		];
+		expect(popovers.map((m) => m[1]).sort()).toEqual(
+			EARNED.map(([id]) => id).sort(),
+		);
+		const large = popovers.find((m) => m[1] === "distance-100")?.[2] ?? "";
+		expect(large).toContain(`<h4>${escapeHtml(nameOf("distance-100"))}</h4>`);
+		expect(large).toContain(
+			escapeHtml(de["badges.for.distance"].replace("{value}", "100\u00a0km")),
+		);
+		expect(large).toContain(
+			escapeHtml(de["badges.earnedOn"].replace("{date}", "08.03.2026")),
+		);
+	});
+
+	it("shows the German names on the English page (FR-041)", async () => {
+		const { section: badges } = await section(ATHLETE_A, "en");
+		expect(badges).toContain(escapeHtml(nameOf("distance-500")));
+		expect(badges).toContain(CATALOGS.en["badges.heading"]);
+	});
+
+	it("sends nothing of an unearned badge (SC-003)", async () => {
+		const { html } = await section();
+		const earned = new Set(EARNED.map(([id]) => id));
+		for (const badge of BADGES) {
+			if (earned.has(badge.id)) continue;
+			expect(html).not.toContain(`badge-${badge.id}"`);
+			expect(html).not.toContain(`/badges/${badge.id}.svg`);
+			expect(html).not.toContain(`/badges/${badge.id}-ribbon.svg`);
+			expect(html, badge.id).not.toContain(`>${escapeHtml(nameOf(badge.id))}<`);
+		}
+	});
+
+	it("shows another rider nothing of these badges", async () => {
+		await seedBalance(ATHLETE_B, { trainingRynke: 5 });
+		const { html } = await section(ATHLETE_B);
+		for (const [id] of EARNED) expect(html).not.toContain(id);
+	});
+});
+
+describe("the Abzeichen section without badges", () => {
+	it("encourages a rider without badges (US1 scenario 4)", async () => {
+		await seedBalance(ATHLETE_A);
+		const { section: badges } = await section();
+		expect(badges).toContain(escapeHtml(de["badges.empty"]));
+		expect(badges).not.toContain('class="badge-cards"');
+		expect(badges).not.toContain("<details");
+		expect([
+			...(badges ?? "").matchAll(
+				/class="badge-not-yet-row badge-group-personal"/g,
+			),
+		]).toHaveLength(7);
+	});
+
+	it("isn't there in the waiting state (US1 scenario 5)", async () => {
+		const { html, section: badges } = await section();
+		expect(badges).toBeNull();
+		expect(html).not.toContain('class="badges"');
+	});
+});
+
+describe("the team's badges (US4)", () => {
+	const TEAM = [900011, 900012, 900013, 900014, 900015];
+
+	beforeEach(async () => {
+		await seedBalance(ATHLETE_A);
+		await earn(ATHLETE_A, EARNED);
+		for (const athleteId of TEAM) {
+			await seedRider(ctx, { athleteId, firstName: `Teamrider${athleteId}` });
+		}
+		// Five listed riders at one team training: the first big training.
+		await attendRaw(await insertEvent("team_training", "2026-04-11"), TEAM);
+	});
+
+	const teamGroup = (badges: string | null) =>
+		badges?.match(
+			/<section class="badge-group badge-group-team"[\s\S]*?<\/section>/,
+		)?.[0] ?? "";
+
+	it("shows them on the Team page after the leaderboard, with their own heading and count", async () => {
+		const { html, section: badges } = await teamSection();
+		const team = teamGroup(badges);
+		expect(team).toContain(
+			`<h3 id="badges-team-heading">${de["badges.team.newest"]}</h3>`,
+		);
+		expect(team).toContain(
+			`<summary>${de["badges.team.all"].replace("{n}", "1")}</summary>`,
+		);
+		expect(team).toContain('popovertarget="badge-big-training-5"');
+		expect(html.indexOf('class="badges"')).toBeGreaterThan(
+			html.indexOf('class="leaderboard card"'),
+		);
+		if (!BADGE_PICTURES.has("big-training-5")) {
+			expect(team).toContain('src="/badges/placeholder-team-ribbon.svg"');
+		}
+		expect(badges).toContain(
+			'<div popover id="badge-big-training-5" class="badge-large badge-large-team">',
+		);
+	});
+
+	it("keeps the rider's own badges off the Team page", async () => {
+		const { section: badges } = await teamSection();
+		expect(badges).not.toContain("badge-group-personal");
+		expect(badges).not.toContain("distance-");
+		expect(badges).not.toContain('class="badges-empty"');
+	});
+
+	it("keeps team badges off the Overview (FR-014)", async () => {
+		const { section: badges } = await section();
+		expect(badges).not.toContain("badge-group-team");
+		expect(badges).not.toContain("big-training");
+		expect(badges).toContain(
+			`<summary>${de["badges.personal.all"].replace("{n}", "3")}</summary>`,
+		);
+	});
+
+	it("names no rider (FR-032)", async () => {
+		const { section: badges } = await teamSection();
+		for (const athleteId of TEAM) {
+			expect(badges).not.toContain(`Teamrider${athleteId}`);
+		}
+	});
+
+	it("lists only the team categories without a badge", async () => {
+		const { section: badges } = await teamSection();
+		const rows = [
+			...(badges ?? "").matchAll(
+				/<li class="badge-not-yet-row badge-group-(\w+)" data-category="(\w+)">/g,
+			),
+		].map((m) => `${m[1]}:${m[2]}`);
+		expect(rows).toEqual([
+			"team:team_training_rynke",
+			"team:team_distance",
+			"team:team_elevation",
+			"team:team_running",
+			"team:attendances",
+		]);
+	});
+
+	it("counts a rider without a current consent towards nothing (US4 scenario 4)", async () => {
+		await env.DB.prepare("DELETE FROM consent_records WHERE athlete_id = ?")
+			.bind(TEAM[0])
+			.run();
+		const { section: badges } = await teamSection();
+		expect(badges).not.toContain("big-training-5");
+	});
+});

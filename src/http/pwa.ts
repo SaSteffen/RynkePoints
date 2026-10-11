@@ -1,7 +1,9 @@
 import type { Ctx } from "../ctx";
+import { readBadgeRiseStatement } from "../db/badges";
 import { readRiderView } from "../db/rider-view";
 import { readRiseStatement } from "../db/rynke";
 import { createI18n, type I18n } from "../i18n/i18n";
+import { BADGE_NAMES } from "../i18n/messages/badges.de";
 import { resolveLocale } from "../i18n/resolve";
 import { CURRENT_RULES, countingWindow, rulesForVersion } from "../rynke/rules";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
@@ -59,7 +61,10 @@ export function handleNotificationText(request: Request, ctx: Ctx): Response {
  * How many Rynke the signed-in rider just gained and what they still need, for
  * the service worker to show instead of `push.body` (issue #45). The push
  * itself stays empty, so this only reaches the rider's own device. 204 when no
- * rise is stored; the device then shows the cached text.
+ * rise is stored; the device then shows the cached text. When the rider's
+ * latest rise brought badges, it names them instead (feature 013 research
+ * R17); a badge rise at the same time as a Rynke rise wins, since it came from
+ * the same change.
  */
 export async function handleRiderNotificationText(
 	request: Request,
@@ -71,10 +76,15 @@ export async function handleRiderNotificationText(
 	if (athleteId === null) return none(401);
 
 	const db = ctx.env.DB;
-	const [rise, read] = await Promise.all([
+	const [rise, badgeRise, read] = await Promise.all([
 		readRiseStatement(db, athleteId).first<{
 			training_rynke: number;
 			team_rynke: number;
+			risen_at: number;
+		}>(),
+		readBadgeRiseStatement(db, athleteId).first<{
+			badge_ids: string;
+			risen_at: number;
 		}>(),
 		readRiderView(db, athleteId, 1),
 	]);
@@ -87,9 +97,26 @@ export async function handleRiderNotificationText(
 			rulesFor: rulesForVersion,
 		},
 	);
-	if (!rise || view.state !== "ready") return none(204);
+	if (view.state !== "ready") return none(204);
 
 	const i18n = textI18n(request, ctx);
+	if (badgeRise && badgeRise.risen_at >= (rise?.risen_at ?? 0)) {
+		const ids = JSON.parse(badgeRise.badge_ids) as string[];
+		const body =
+			ids.length === 1
+				? i18n.t("notification.badge", {
+						name: BADGE_NAMES[ids[0] ?? ""] ?? "",
+					})
+				: i18n.t("notification.badges", {
+						n: i18n.formatNumber(ids.length, { fractionDigits: 0 }),
+					});
+		return Response.json(
+			{ title: i18n.t("app.name"), body },
+			{ headers: { ...headers, "Content-Language": i18n.locale } },
+		);
+	}
+	if (!rise) return none(204);
+
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const list = (items: string[]) =>
 		new Intl.ListFormat(i18n.t("meta.intlLocale"), {
