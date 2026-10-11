@@ -12,9 +12,22 @@ const FILES = import.meta.glob("../../public/*.pdf", {
 	eager: true,
 });
 
+// The bracket keeps it a glob: Vite's crawler fails on this plain path.
+const HEADERS = import.meta.glob("../../public/_header[s]", {
+	query: "?raw",
+	import: "default",
+	eager: true,
+});
+
 describe("rules handout", () => {
 	it("links to a PDF the app serves", () => {
 		const pdf = FILES[`../../public${RULES_HANDOUT_URL}`];
 		expect(pdf?.startsWith("%PDF-")).toBe(true);
+	});
+
+	it("serves it as a download (research R14)", () => {
+		expect(HEADERS["../../public/_headers"]).toContain(
+			`${RULES_HANDOUT_URL}\n  Content-Disposition: attachment; filename="rynke-punkte.pdf"`,
+		);
 	});
 });
