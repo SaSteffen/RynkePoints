@@ -57,6 +57,5 @@ the existing Rynke text.
 
 Team badges notify since issue #125: when every badge in the rise is a team
 badge, `notification.teamBadge` ("Neues Team-Abzeichen: {name} 🏅") or
-`notification.teamBadges` ("{n} neue Team-Abzeichen 🏅"), and the response's
-`url` is `/team`, which the service worker opens on a click; otherwise `url` is
-`/me`.
+`notification.teamBadges` ("{n} neue Team-Abzeichen 🏅"). Either way the
+response's `url` is `/me/badges`, which the service worker opens on a click.

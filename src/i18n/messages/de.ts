@@ -262,6 +262,8 @@ export const de = {
 	"tour.rider.you": "Du: deine Rynke und was dir noch zur Qualifikation fehlt.",
 	"tour.rider.rides":
 		"Fahrten: jede Fahrt, was sie gebracht hat, und warum, wenn sie nicht zählt.",
+	"tour.rider.badges":
+		"Abzeichen: deine und die des Teams, und wie weit es bis zum nächsten ist.",
 	"tour.rider.settings":
 		"Einstellungen: Sprache, Benachrichtigungen, deine Strava-Verbindung, die Regeln und dieser Rundgang.",
 	"tour.organiser.intro":
@@ -298,8 +300,10 @@ export const de = {
 	"nav.you": "Du",
 	"nav.rides": "Fahrten",
 	"nav.team": "Team",
+	"nav.badges": "Abzeichen",
 	"nav.organiser": "Orga",
 	"nav.settings": "Einstellungen",
+	"nav.settings.short": "Einst.",
 	"shell.refresh": "Aktualisieren",
 	"shell.title": "{section} – RynkePoints",
 	"hero.training": "{n} Trainingsrynke",

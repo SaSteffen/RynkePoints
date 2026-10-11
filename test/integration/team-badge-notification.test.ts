@@ -176,7 +176,7 @@ describe("GET /me/notification-text with a team badge rise", () => {
 		await seedBalance(ATHLETE_A, { trainingRynke: 30 });
 	});
 
-	it("names one team badge as the team's and opens the Team page", async () => {
+	it("names one team badge as the team's and opens the badges page", async () => {
 		await seedBadgeRise(["big-training-5"]);
 		expect(await riderText()).toEqual({
 			title: CATALOGS.de["app.name"],
@@ -184,7 +184,7 @@ describe("GET /me/notification-text with a team badge rise", () => {
 				"{name}",
 				BADGE_NAMES["big-training-5"] ?? "",
 			),
-			url: "/team",
+			url: "/me/badges",
 		});
 	});
 
@@ -195,12 +195,12 @@ describe("GET /me/notification-text with a team badge rise", () => {
 		);
 	});
 
-	it("counts personal and team badges together and opens the rider page", async () => {
+	it("counts personal and team badges together and opens the badges page", async () => {
 		await seedBadgeRise(["team-events-1", "big-training-5"]);
 		const text = await riderText();
 		expect(text.body).toBe(
 			CATALOGS.de["notification.badges"].replace("{n}", "2"),
 		);
-		expect(text.url).toBe("/me");
+		expect(text.url).toBe("/me/badges");
 	});
 });

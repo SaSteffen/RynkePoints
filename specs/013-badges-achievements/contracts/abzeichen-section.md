@@ -8,26 +8,22 @@ attributes are the contract.
 
 ## Where
 
-On the Overview (`/me`, "Du") with the rider's own badges only: after the
-Rynke figures, inside the existing `overview-grid`, spanning its full width.
-Not rendered while the waiting state shows (FR-005), nor for a rider without a
-balance.
+Its own section `/me/badges` ("Abzeichen"), between Rides and Orga/Settings
+in the navigation: the rider's own badges, then the team's. While the waiting
+state shows, or for a rider without a balance, the page shows only the waiting
+state, as Rides does (FR-005). The Overview and the Team page have no badges.
 
-On the Team page (`/team`) with the team's badges only: after the
-leaderboard, for every signed-in rider.
-
-The reveal is not inside the section: it sits at the top of the page, on the
-Overview right after feature 012's coin celebration (new own badges), on the
-Team page right after the reconnect notice (new team badges).
+The reveal is not inside the section: it sits at the top of the page, before
+it, with new own badges and new team badges together.
 
 ## Markup
 
 ```html
 <section class="badges" aria-labelledby="badges-heading">
-  <h2 id="badges-heading">Abzeichen</h2>
+  <h2 id="badges-heading" class="visually-hidden">Abzeichen</h2> <!-- the top bar already says it -->
   <p class="badges-intro">Wie weit es noch bis zum nächsten Abzeichen ist – welches es wird, bleibt geheim.</p>
 
-  <!-- one group: personal on the Overview, team on the Team page -->
+  <!-- the personal group first -->
   <section class="badge-group badge-group-personal" aria-labelledby="…">
     <h3>Meine Abzeichen</h3>
     <ul class="badge-cards">
@@ -65,7 +61,7 @@ Team page right after the reconnect notice (new team badges).
     </details>
   </section>
 
-  <!-- on the Team page instead: -->
+  <!-- then the team group: -->
   <section class="badge-group badge-group-team">…"Team-Abzeichen", "Alle Team-Abzeichen (5)"…</section>
 
   <!-- one popover per earned badge, outside the cards -->

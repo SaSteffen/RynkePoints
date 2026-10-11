@@ -31,6 +31,7 @@ import {
 import { handleReady } from "./ready";
 import { redirect } from "./redirect";
 import { handleRunDaily } from "./run-daily";
+import { handleBadges } from "./sections/badges";
 import { handleOverview } from "./sections/overview";
 import { handleRides } from "./sections/rides";
 import { handleSettings } from "./sections/settings";
@@ -43,8 +44,9 @@ import { handleWebhook } from "./webhook";
 // in plain English; every other route is rider-facing and gets an I18n for the
 // language resolved once per request. A GET or HEAD page renews the session
 // (010 research R10), except the two texts the service worker caches, which
-// must be the same for everyone. The signed-in app is four sections, each its
-// own address: `/me`, `/me/rides`, `/team` and `/me/settings` (011 FR-001).
+// must be the same for everyone. The signed-in app is five sections, each its
+// own address: `/team`, `/me`, `/me/rides`, `/me/badges` and `/me/settings`
+// (011 FR-001).
 // Organisers manage the team under `/organiser` (feature 014), their Orga tab
 // (feature 016).
 
@@ -155,6 +157,8 @@ async function page(
 			return handleOverview(request, ctx, i18n);
 		case "/me/rides":
 			return handleRides(request, ctx, i18n);
+		case "/me/badges":
+			return handleBadges(request, ctx, i18n);
 		case "/team":
 			return handleTeam(request, ctx, i18n);
 		case "/me/settings":

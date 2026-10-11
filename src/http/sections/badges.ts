@@ -1,8 +1,9 @@
-// The Abzeichen section, on the Overview with the rider's own badges and on
-// the Team page with the team's (feature 013 US1, US4,
-// contracts/abzeichen-section.md): the newest badge per category as cards with
-// the milestone on the ribbon and the categories without a badge as dotted
-// outlines, the closed gallery of every badge, and one popover per earned badge. Only earned
+// The Abzeichen section at `/me/badges`, its own tab: the rider's own badges,
+// then the team's (feature 013 US1, US4, contracts/abzeichen-section.md),
+// before the first data only the waiting state, as on Rides. The newest badge
+// per category as cards with the milestone on the ribbon and the categories
+// without a badge as dotted outlines, the closed gallery of every badge, and
+// one popover per earned badge. Only earned
 // badges are named or pictured, so the next one stays a surprise (SC-003); the
 // gallery shows the ones still to earn as empty outlines (issue #109).
 
@@ -15,15 +16,31 @@ import {
 } from "../../badges/catalog";
 import type { EarnedBadge } from "../../badges/evaluate";
 import { BADGE_PICTURES } from "../../badges/pictures";
-import type {
-	BadgeSection,
-	Card,
-	NotYetRow,
-	ProgressView,
+import { evaluateTeamBadges } from "../../badges/team";
+import {
+	type BadgeSection,
+	buildBadgeSection,
+	type Card,
+	type NotYetRow,
+	type ProgressView,
+	personalProgress,
 } from "../../badges/view";
+import { berlinDate, readyPollSeconds } from "../../config";
+import type { Ctx } from "../../ctx";
+import { readRiderBadges, upsertRevealsStatement } from "../../db/badges";
+import { type RiderViewRead, readRiderView } from "../../db/rider-view";
+import type { Rider } from "../../db/riders";
+import { readTeamBadgeSums } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
 import { BADGE_NAMES } from "../../i18n/messages/badges.de";
+import {
+	type CountingWindow,
+	CURRENT_RULES,
+	countingWindow,
+} from "../../rynke/rules";
 import { html, type SafeHtml } from "../html";
+import { renderWaiting } from "../rider-sections";
+import { shellPage } from "../shell";
 
 /** Units with a singular form, for "Noch 1 Termin". */
 const SINGULAR = new Set<BadgeUnit>([
@@ -224,7 +241,81 @@ export function renderBadges(i18n: I18n, section: BadgeSection): SafeHtml {
 		(view) => view?.gallery.flatMap((g) => g.badges) ?? [],
 	);
 	return html`<section class="badges" aria-labelledby="badges-heading">
-<h2 id="badges-heading">${i18n.t("badges.heading")}</h2>
+<h2 id="badges-heading" class="visually-hidden">${i18n.t("badges.heading")}</h2>
 <p class="badges-intro">${i18n.t("badges.intro")}</p>
 ${group(i18n, "personal", section.personal, section.notYet)}${group(i18n, "team", section.team, section.notYet)}${earned.map((b) => popover(i18n, b))}</section>`;
+}
+
+/**
+ * The rider's stored badges and the team's, worked out from the listed
+ * riders' sums on every request (research R15), with the ones new for the
+ * rider: of the team's only those earned since they connected. Only a GET
+ * marks them as revealed, as with `rynke_seen` (FR-032, research R16).
+ */
+async function badgesOf(
+	request: Request,
+	ctx: Ctx,
+	rider: Rider,
+	attendance: RiderViewRead["attendance"],
+	trainingRynke: number,
+	window: CountingWindow,
+): Promise<BadgeSection | null> {
+	const db = ctx.env.DB;
+	const [badges, sums] = await Promise.all([
+		readRiderBadges(db, rider.athleteId, window),
+		readTeamBadgeSums(db),
+	]);
+	const section = buildBadgeSection({
+		waiting: false,
+		personal: {
+			earned: badges.earned,
+			progress: personalProgress(
+				{ ...badges, attendance, trainingRynke },
+				window,
+			),
+		},
+		team: evaluateTeamBadges(sums, CURRENT_RULES, window),
+		revealed: badges.revealed,
+		connectedOn: berlinDate(rider.connectedAt),
+	});
+	if (section && section.reveal.length > 0 && request.method === "GET") {
+		await upsertRevealsStatement(db, rider.athleteId, section.reveal).run();
+	}
+	return section;
+}
+
+export function handleBadges(
+	request: Request,
+	ctx: Ctx,
+	i18n: I18n,
+): Promise<Response> {
+	return shellPage(
+		request,
+		ctx,
+		i18n,
+		"badges",
+		"/me/badges",
+		async ({ rider }) => {
+			const read = await readRiderView(ctx.env.DB, rider.athleteId, 1);
+			const window = countingWindow(ctx.env);
+			if (!read.balance) {
+				return renderWaiting(
+					i18n,
+					ctx.env.SEASON_START_DATE,
+					readyPollSeconds(ctx.env),
+				);
+			}
+			const section = await badgesOf(
+				request,
+				ctx,
+				rider,
+				read.attendance,
+				read.balance.trainingRynke,
+				window,
+			);
+			return section
+				? html`${renderBadgeReveal(i18n, section.reveal)}${renderBadges(i18n, section)}`
+				: html``;
+		},
+	);
 }

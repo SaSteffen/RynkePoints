@@ -15,9 +15,8 @@ import { ATHLETE_A } from "../support/fixtures";
 import { riderPage, seedBalance } from "../support/rider-view";
 import { attendRaw, insertEvent } from "../support/rynke";
 
-// Badges new for the rider are revealed once at the top of the page that shows
-// them: their own on the Overview, the team's on the Team page (feature 013
-// US2, FR-031, research R16). Synthetic badges, stored straight in D1.
+// Badges new for the rider are revealed once at the top of the badges page,
+// their own and the team's (feature 013 US2, FR-031, research R16). Synthetic badges, stored straight in D1.
 
 const ctx = makeCtx();
 const { de } = CATALOGS;
@@ -42,7 +41,7 @@ async function takeBack(id: string) {
 }
 
 /** The reveal's text on a GET of `path`, or null when there is none. */
-async function reveal(path = "/me"): Promise<string | null> {
+async function reveal(path = "/me/badges"): Promise<string | null> {
 	const { status, html } = await riderPage(ctx, ATHLETE_A, path);
 	expect(status).toBe(200);
 	return (
@@ -86,19 +85,21 @@ describe("the badge reveal (US2)", () => {
 		expect(await reveal()).toBeNull();
 	});
 
-	it("sits at the top with the Rynke celebration, before the figures", async () => {
+	it("sits at the top of the badges page, before the badges, and nowhere else", async () => {
 		await earn([["distance-100", "2026-05-03"]]);
-		const { html } = await riderPage(ctx, ATHLETE_A);
+		for (const path of ["/me", "/team"]) {
+			expect(await reveal(path), path).toBeNull();
+		}
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/badges");
 		const at = html.indexOf('class="badges-reveal"');
-		expect(at).toBeGreaterThan(html.indexOf('class="hero"'));
+		expect(at).toBeGreaterThan(0);
 		expect(at).toBeLessThan(html.indexOf('class="badges"'));
-		expect(at).toBeLessThan(html.indexOf('class="rynke-summary'));
 	});
 
 	it("writes nothing on a HEAD", async () => {
 		await earn([["distance-100", "2026-05-03"]]);
 		const res = await handleFetch(
-			request("/me", {
+			request("/me/badges", {
 				method: "HEAD",
 				cookies: await sessionCookie(ctx, ATHLETE_A),
 			}),
@@ -162,18 +163,17 @@ describe("the team's badges in the reveal (US4 scenario 5)", () => {
 		await attendRaw(await insertEvent("team_training", date), TEAM);
 	}
 
-	it("reveals a team badge earned after the rider connected on the Team page, once", async () => {
+	it("reveals a team badge earned after the rider connected, once", async () => {
 		// The rider connected on 6 October 2026 (NOW).
 		await bigTraining("2026-10-06");
-		expect(await reveal("/me")).toBeNull();
-		expect(await reveal("/team")).toContain(one("big-training-5"));
+		expect(await reveal()).toContain(one("big-training-5"));
 		expect(await reveals()).toEqual([["big-training-5", "2026-10-06"]]);
-		expect(await reveal("/team")).toBeNull();
+		expect(await reveal()).toBeNull();
 	});
 
 	it("shows one earned before the rider connected without a reveal", async () => {
 		await bigTraining("2026-04-11");
-		expect(await reveal("/team")).toBeNull();
+		expect(await reveal()).toBeNull();
 		expect(await reveals()).toEqual([]);
 	});
 });

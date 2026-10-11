@@ -69,8 +69,8 @@ export function handleNotificationText(request: Request, ctx: Ctx): Response {
  * rise is stored; the device then shows the cached text. When the rider's
  * latest rise brought badges, it names them instead (feature 013 research
  * R17); a badge rise at the same time as a Rynke rise wins, since it came from
- * the same change. Team badges (#125) say so, and open the Team page, where
- * they are revealed.
+ * the same change. Team badges (#125) say so. Both open the badges page,
+ * where they are revealed.
  */
 export async function handleRiderNotificationText(
 	request: Request,
@@ -118,7 +118,7 @@ export async function handleRiderNotificationText(
 						n: i18n.formatNumber(ids.length, { fractionDigits: 0 }),
 					});
 		return Response.json(
-			{ title: i18n.t("app.name"), body, url: team ? "/team" : "/me" },
+			{ title: i18n.t("app.name"), body, url: "/me/badges" },
 			{ headers: { ...headers, "Content-Language": i18n.locale } },
 		);
 	}

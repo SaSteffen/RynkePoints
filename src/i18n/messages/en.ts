@@ -244,6 +244,8 @@ export const en: Catalog = {
 	"tour.rider.you": "You: your Rynke and what you still need to qualify.",
 	"tour.rider.rides":
 		"Rides: every ride, what it earned, and why when it didn't count.",
+	"tour.rider.badges":
+		"Badges: yours and the team's, and how far it is to the next one.",
 	"tour.rider.settings":
 		"Settings: language, notifications, your Strava connection, the rules, and this tour again.",
 	"tour.organiser.intro":
@@ -278,8 +280,10 @@ export const en: Catalog = {
 	"nav.you": "You",
 	"nav.rides": "Rides",
 	"nav.team": "Team",
+	"nav.badges": "Badges",
 	"nav.organiser": "Orga",
 	"nav.settings": "Settings",
+	"nav.settings.short": "Settings",
 	"shell.refresh": "Refresh",
 	"shell.title": "{section} – RynkePoints",
 	"hero.training": "{n} Training Rynke",

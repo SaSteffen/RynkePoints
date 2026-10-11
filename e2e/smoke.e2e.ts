@@ -77,7 +77,13 @@ test.describe("a rider", () => {
 		await signIn(page, "Tina TrainingDone");
 	});
 
-	for (const path of ["/team", "/me", "/me/rides", "/me/settings"]) {
+	for (const path of [
+		"/team",
+		"/me",
+		"/me/rides",
+		"/me/badges",
+		"/me/settings",
+	]) {
 		test(`sees ${path}`, async ({ page }) => {
 			await checkPage(page, path);
 		});
@@ -138,9 +144,10 @@ test("a rider walks through the tour, one page each", async ({ page }) => {
 	await page.goto("/team?tour=rider");
 	const tour = page.locator("aside.tour");
 	for (const [path, step] of [
-		["/team", "1 von 4"],
-		["/me", "2 von 4"],
-		["/me/rides", "3 von 4"],
+		["/team", "1 von 5"],
+		["/me", "2 von 5"],
+		["/me/rides", "3 von 5"],
+		["/me/badges", "4 von 5"],
 	] as const) {
 		await expect(tour).toContainText(step);
 		await expect(page.locator(`nav.app-nav a[href="${path}"]`)).toHaveClass(
@@ -149,7 +156,7 @@ test("a rider walks through the tour, one page each", async ({ page }) => {
 		await tour.getByRole("link", { name: "Weiter" }).click();
 	}
 	await expect(page).toHaveURL(/\/me\/settings\?tour=rider$/);
-	await expect(tour).toContainText("4 von 4");
+	await expect(tour).toContainText("5 von 5");
 	await tour.getByRole("button", { name: "Alles klar" }).click();
 	await expect(page).toHaveURL(/\/me\/settings$/);
 	await expect(tour).toHaveCount(0);
@@ -162,7 +169,7 @@ test("a rider opens a badge's large view on a phone (013)", async ({
 }) => {
 	await signIn(page, "Bea Badges");
 	await page.setViewportSize(PHONE);
-	await page.goto("/me");
+	await page.goto("/me/badges");
 	const section = page.locator("section.badges");
 	await expect(section).toBeVisible();
 	await expectNoSidewaysScroll(page);
