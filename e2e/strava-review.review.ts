@@ -104,14 +104,14 @@ for (const lang of LANGS) {
 				page,
 				lang,
 				"01-landing",
-				"Landing page with consent and Connect with Strava",
+				"Landing page: what we read and who sees it, the rider's consent, and the official Connect with Strava button",
 			);
 			await page.goto("/notice/team-full");
 			await shoot(
 				page,
 				lang,
 				"02-team-full",
-				"Notice when Strava refuses another athlete",
+				"Shown when Strava refuses another athlete because the app is at capacity",
 			);
 		});
 
@@ -121,16 +121,28 @@ for (const lang of LANGS) {
 				[
 					"/me",
 					"03-me",
-					"Rider overview: their Rynke, derived from their rides",
+					"The rider's own overview: points derived from their rides. Only the rider sees it.",
 				],
-				["/me/rides", "04-rides", "Rider's rides, names and links to Strava"],
-				["/team", "05-team", "Team leaderboard: Rynke without names"],
+				[
+					"/me/rides",
+					"04-rides",
+					"The rider's own rides, with names and View on Strava links. Only the rider sees it.",
+				],
+				[
+					"/team",
+					"05-team",
+					"Team page: every rider's points without names, for the whole team",
+				],
 				[
 					"/me/settings",
 					"06-settings",
-					"Settings: language, notifications, leaving",
+					"The rider's settings: language, notifications, disconnecting",
 				],
-				["/me/disconnect", "07-disconnect", "Disconnect and delete all data"],
+				[
+					"/me/disconnect",
+					"07-disconnect",
+					"Disconnecting: deletes all of the rider's data and revokes the app's access",
+				],
 			] as const;
 			for (const [path, slug, what] of pages) {
 				await visit(page, path);
@@ -142,27 +154,32 @@ for (const lang of LANGS) {
 		test("an organiser's pages", async ({ page }) => {
 			await signIn(page, "Olga Organiser");
 			await visit(page, "/organiser");
-			await shoot(page, lang, "08-organiser-events", "Organiser: team events");
+			await shoot(
+				page,
+				lang,
+				"08-organiser-events",
+				"Organisers: the team's events",
+			);
 			await visit(page, await firstLink(page, "/organiser/events/"));
 			await shoot(
 				page,
 				lang,
 				"09-organiser-event",
-				"Organiser: one event and its attendance",
+				"Organisers: one event and which riders attended (first names)",
 			);
 			await visit(page, "/organiser/riders");
 			await shoot(
 				page,
 				lang,
 				"10-organiser-riders",
-				"Organiser: riders and their status",
+				"Organisers: the riders by first name, with their points status",
 			);
 			await visit(page, await firstLink(page, "/organiser/riders/", "Tina"));
 			await shoot(
 				page,
 				lang,
 				"11-organiser-rider",
-				"Organiser: one rider, corrections",
+				"Organisers: one rider's points and where they come from (first name)",
 			);
 		});
 
@@ -184,7 +201,7 @@ for (const lang of LANGS) {
 			await page.setViewportSize(SIZES.phone);
 			// Waits for "load", so the icon is in.
 			await page.setContent(`<!doctype html>
-<style>body{margin:0;padding:24px;background:#1c1b1f;font-family:system-ui,sans-serif}
+<style>body{margin:0;padding:24px;background:#1c1b1f;font-family:system-ui,sans-serif;width:342px}
 .n{display:flex;gap:12px;background:#f4eff4;border-radius:24px;padding:16px;color:#1c1b1f}
 .n img{width:40px;height:40px;border-radius:50%}.t{font-weight:600}</style>
 <div class="n"><img src="${icon}" alt=""><div><div class="t"></div><div class="b"></div></div></div>`);
@@ -195,11 +212,11 @@ for (const lang of LANGS) {
 				el.textContent = text;
 			}, body);
 			const file = join(lang, "phone", "12-notification.png");
-			await page.screenshot({ path: join(OUT, file) });
+			await page.locator("body").screenshot({ path: join(OUT, file) });
 			manifest.push({
 				file,
 				path: "(push)",
-				what: "Push notification with new Rynke (mock-up of the phone's notification, the app's real text)",
+				what: "Push notification to the rider's own device about new points (mock-up of the phone's notification with the app's real text)",
 			});
 		});
 	});
