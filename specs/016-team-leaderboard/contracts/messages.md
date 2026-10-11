@@ -83,10 +83,10 @@ kind switch.
 | `organiser.overview.deadlinePassed` | The deadline has passed | Der Stichtag ist vorbei |
 | `organiser.overview.qualified` | {n} of {count} reached their training goal 🎯 | {n} von {count} haben ihr Trainingsziel erreicht 🎯 |
 | `organiser.overview.groups` | Groups | Gruppen |
-| `organiser.overview.group.push` | Need a push 🍌 | Braucht Schwung 🍌 |
+| `organiser.overview.group.push` | Need a push | Braucht Schwung |
 | `organiser.overview.group.notYet` | Training goal not reached yet | Trainingsziel noch nicht erreicht |
-| `organiser.overview.group.onTrack` | On track 🚴 | Gut unterwegs 🚴 |
-| `organiser.overview.group.in` | Training goal reached 🎯 | Trainingsziel erreicht 🎯 |
+| `organiser.overview.group.onTrack` | On track | Gut unterwegs |
+| `organiser.overview.group.in` | Training goal reached | Trainingsziel erreicht |
 | `organiser.overview.group.all` | Everyone | Alle |
 | `organiser.overview.showing` | Showing: {group} | Angezeigt: {group} |
 | `organiser.overview.training` | Training {n} of {threshold} | Training {n} von {threshold} |

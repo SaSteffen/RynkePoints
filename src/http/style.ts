@@ -63,6 +63,11 @@ footer img{height:24px}
 .card-outlined{border:1px solid var(--md-sys-color-outline-variant);background:var(--md-sys-color-surface-container-low)}
 .verdict{background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container)}
 .rynke-verdict{font:var(--md-type-title-large)}
+.rynke-summary{display:flex;align-items:flex-start;gap:var(--rp-space-4)}
+.rynke-summary>div{flex:1;min-width:0}
+.rynke-summary p{margin:0 0 var(--rp-space-2)}
+.status-art{flex:none;border-radius:var(--md-shape-full);background:var(--rp-coin-face)}
+.status-art-banner{width:96px;height:96px}
 ul.rynke-missing{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);list-style:none;margin:0 0 var(--rp-space-3);padding:0}
 .verdict .chip{background:var(--rp-coin-ink);color:var(--rp-coin-face)}
 .rynke-breakdown h3{font:var(--md-type-label);margin:var(--rp-space-5) 0 var(--rp-space-2)}
@@ -246,7 +251,6 @@ button:has(>img.cws){display:inline-block;min-height:0;padding:0;border:0;border
 .coin-slot{width:24px;height:24px;border:2px dashed var(--md-sys-color-outline);border-radius:var(--md-shape-full)}
 .chip .coin-mini{margin-right:6px}
 dl.ride-figures dd .coin-mini{width:18px;height:18px;vertical-align:-3px}
-.rynke-verdict .coin-head{margin-right:var(--rp-space-2)}
 #rides .coin-large{display:block;width:96px;height:96px;margin:var(--rp-space-4) auto}
 .landing-hero{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-2);margin:var(--rp-space-4) 0;text-align:center}
 .landing-hero h1{margin:0}
@@ -287,9 +291,11 @@ main:has(>.team-overview){max-width:var(--rp-content-max)}
 .overview-deadline .overview-deadline-date{color:var(--rp-hero-label)}
 .overview-deadline .overview-deadline-days{font:700 32px/38px var(--md-ref-typeface);color:var(--rp-coin-yellow)}
 nav.group-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-2);margin:0 0 var(--rp-space-2)}
-.group-tile{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:76px;padding:10px var(--rp-space-3);border:2px solid transparent;border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);text-decoration:none}
+.group-tile{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;align-items:center;gap:2px var(--rp-space-2);min-height:76px;padding:10px var(--rp-space-3);border:2px solid transparent;border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);text-decoration:none}
 .tile-count{font:700 26px/32px var(--md-ref-typeface)}
 .tile-label{font:600 12px/16px var(--md-ref-typeface)}
+.tile-count,.tile-label{grid-column:1}
+.status-art-tile{grid-column:2;grid-row:1/span 2;width:48px;height:48px}
 .group-tile[aria-current]{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}
 ul.rider-cards{display:grid;gap:var(--rp-space-2);margin:0 0 var(--rp-space-3);padding:0;list-style:none}
 .rider-card{display:flex;flex-direction:column;gap:10px;padding:14px var(--rp-space-4) 6px;border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container)}
@@ -297,9 +303,10 @@ ul.rider-cards{display:grid;gap:var(--rp-space-2);margin:0 0 var(--rp-space-3);p
 .rider-head h3{flex:1}
 .rider-head h3 a{color:inherit}
 .rider-profile{display:inline-flex;align-items:center;min-height:var(--rp-tap);font:700 13px/18px var(--md-ref-typeface)}
-.status-chip{flex:none;padding:0 10px;border-radius:var(--md-shape-md);font:700 12px/24px var(--md-ref-typeface);white-space:nowrap;background:var(--rp-push-container);color:var(--rp-on-push-container)}
+.status-chip{flex:none;display:inline-flex;align-items:center;gap:4px;padding:0 10px 0 2px;border-radius:var(--md-shape-md);font:700 12px/24px var(--md-ref-typeface);white-space:nowrap;background:var(--rp-push-container);color:var(--rp-on-push-container)}
 .status-on_track .status-chip{background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
 .status-in .status-chip{background:var(--rp-coin-ink);color:var(--rp-coin-yellow)}
+.status-art-chip{width:20px;height:20px}
 .rider-bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-3)}
 .amount p{display:flex;align-items:center;gap:6px;margin:0 0 var(--rp-space-1);font:var(--md-type-caption)}
 .amount .coin-mini{width:16px;height:16px}

@@ -44,8 +44,11 @@ added with its story.
 | ID | Params | de | en |
 |---|---|---|---|
 | `rynke.verdict.in` | | Qualifiziert für Paris! 🗼 | Qualified for Paris! 🗼 |
-| `rynke.verdict.notYet` | | Noch nicht qualifiziert 🍌 | Not qualified yet 🍌 |
+| `rynke.verdict.notYet` | | Noch nicht qualifiziert | Not qualified yet |
 | `rynke.verdict.missing` | | Dir fehlen noch: | You still need: |
+| `rynke.status.push` | | Du liegst hinter dem Plan. | You're behind the plan. |
+| `rynke.status.onTrack` | | Du liegst im Plan. | You're on plan. |
+| `rynke.status.in` | | Plan übererfüllt: Trainingsziel erreicht. | Ahead of plan: training goal reached. |
 | `rynke.missing.training` | `n` | {n} Trainingsrynke | {n} Training Rynke |
 | `rynke.missing.team` | `n` | {n} Teamrynke | {n} Team Rynke |
 | `rynke.missing.withoutVirtual` | `n` | {n} Trainingsrynke draußen | {n} Training Rynke outdoors |

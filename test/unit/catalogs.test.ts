@@ -117,6 +117,10 @@ const CONTRACT_IDS = [
 	"rynke.verdict.in",
 	"rynke.verdict.notYet",
 	"rynke.verdict.missing",
+	// Issue #93: the plan status in the rider banner
+	"rynke.status.push",
+	"rynke.status.onTrack",
+	"rynke.status.in",
 	"rynke.missing.training",
 	"rynke.missing.team",
 	"rynke.missing.withoutVirtual",
