@@ -141,16 +141,14 @@ describe("GET /team, Training around the viewer", () => {
 		const { status, html } = await riderPage(ctx, VIEWER, "/team");
 		expect(status).toBe(200);
 		const place = myPlaceOf(html);
-		expect(place).toContain(fill(de["team.place"], { place: "6.", count: 14 }));
+		expect(place).toContain(fill(de["team.place"], { place: "6", count: 14 }));
 		expect(place).toContain(fill(de["team.place.next"], { n: 31 }));
 	});
 
-	it("words the place in English with an ordinal", async () => {
+	it("words the place in English", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team", "en");
 		const place = myPlaceOf(html);
-		expect(place).toContain(
-			fill(en["team.place"], { place: "6th", count: 14 }),
-		);
+		expect(place).toContain(fill(en["team.place"], { place: "6", count: 14 }));
 		expect(place).toContain(fill(en["team.place.next"], { n: 31 }));
 	});
 
@@ -221,7 +219,7 @@ describe("GET /team with a kind or Everyone", () => {
 	it("reorders by Team and gives the leader the lead line (US1 #4)", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team?kind=team");
 		const place = myPlaceOf(html);
-		expect(place).toContain(fill(de["team.place"], { place: "1.", count: 14 }));
+		expect(place).toContain(fill(de["team.place"], { place: "1", count: 14 }));
 		expect(place).toContain(escapeHtml(de["team.place.lead"]));
 		expect(place).not.toContain(
 			escapeHtml(de["team.place.next"].split("{n}")[0] ?? ""),
@@ -239,7 +237,7 @@ describe("GET /team with a kind or Everyone", () => {
 	it("counts an unknown kind as Training", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team?kind=bogus");
 		expect(myPlaceOf(html)).toContain(
-			fill(de["team.place"], { place: "6.", count: 14 }),
+			fill(de["team.place"], { place: "6", count: 14 }),
 		);
 	});
 
@@ -490,14 +488,14 @@ describe("GET /team for others", () => {
 	it("gives 1st place the lead line in Training", async () => {
 		const { html } = await riderPage(ctx, FIRST, "/team");
 		const place = myPlaceOf(html);
-		expect(place).toContain(fill(de["team.place"], { place: "1.", count: 14 }));
+		expect(place).toContain(fill(de["team.place"], { place: "1", count: 14 }));
 		expect(place).toContain(escapeHtml(de["team.place.lead"]));
 	});
 
 	it("ranks an organiser like everyone else", async () => {
 		const { html } = await riderPage(ctx, ORGANISER, "/team");
 		expect(myPlaceOf(html)).toContain(
-			fill(de["team.place"], { place: "4.", count: 14 }),
+			fill(de["team.place"], { place: "4", count: 14 }),
 		);
 		expect(rowsOf(html).find((r) => r.you)).toEqual({ you: true, place: "4" });
 	});

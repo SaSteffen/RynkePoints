@@ -242,9 +242,7 @@ describe("GET /me gauges (US2)", () => {
 			trainingMissing: 0,
 		});
 		const [training] = await gauges();
-		expect(training?.caption).toBe(
-			"Trainingsrynke: 262 von 250 · 100 % · ✓ erreicht",
-		);
+		expect(training?.caption).toBe("Trainingsrynke: 262 von 250 · 100 %");
 		expect(training?.classes).toBe("gauge gauge-reached");
 	});
 
@@ -281,6 +279,11 @@ describe("GET /me gauges (US2)", () => {
 			"Höhenmeter: 240 m von 1.000 m, noch 760 m bis +5 Trainingsrynke",
 		);
 		expect(elevation?.bar).toContain('style="width:24%"');
+		// The coin stands for the word (issue #92).
+		const { html } = await riderPage(ctx, ATHLETE_A);
+		expect(html).toMatch(
+			/bis \+5<svg class="coin coin-mini"[^>]*>.*?<\/svg><span class="visually-hidden">Trainingsrynke<\/span><\/figcaption>/,
+		);
 	});
 
 	it("S2-8: shows every gauge reached for a rider who is in", async () => {
@@ -297,7 +300,7 @@ describe("GET /me gauges (US2)", () => {
 		const [training, team] = await gauges();
 		expect(training?.classes).toBe("gauge gauge-reached");
 		expect(team?.classes).toBe("gauge gauge-reached");
-		expect(team?.caption).toBe("Teamrynke: 25 von 25 · 100 % · ✓ erreicht");
+		expect(team?.caption).toBe("Teamrynke: 25 von 25 · 100 %");
 		expect(await summary()).toContain("Qualifiziert für Paris");
 	});
 
@@ -350,14 +353,20 @@ describe("GET /me gauges (US2)", () => {
 	});
 });
 
-/** The breakdown's term and description texts, as `[dt, dd]` pairs. */
+/** The breakdown's rows: `[source and what it counted, Training, Team]`. */
 async function breakdown(athleteId = ATHLETE_A): Promise<string[][]> {
 	const { html } = await riderPage(ctx, athleteId);
 	const found = section(html, 'class="rynke-breakdown card card-outlined"');
 	if (found === null) throw new Error("no breakdown section");
-	return [...found.matchAll(/<dt>([\s\S]*?)<\/dt><dd>([\s\S]*?)<\/dd>/g)].map(
-		([, dt = "", dd = ""]) => [text(dt), text(dd)],
-	);
+	return [
+		...found.matchAll(
+			/<tr><th scope="row">([\s\S]*?)<\/th><td>([^<]*)<\/td><td>([^<]*)<\/td><\/tr>/g,
+		),
+	].map(([, source = "", training = "", team = ""]) => [
+		text(source),
+		training,
+		team,
+	]);
 }
 
 describe("GET /me breakdown (US3a)", () => {
@@ -373,12 +382,20 @@ describe("GET /me breakdown (US3a)", () => {
 			virtualShareMissing: 155,
 		});
 		expect(await breakdown()).toEqual([
-			["Distanz", "7 Trainingsrynke"],
-			["Höhenmeter", "1.240 m → 5 Trainingsrynke"],
-			["Teamtraining", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Tag Trainingswochenende", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Techniktraining", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Distanz", "7", ""],
+			["Höhenmeter 1.240 m", "5", ""],
+			["Teamtraining 0× dabei", "0", "0"],
+			["Tag Trainingswochenende 0× dabei", "0", "0"],
+			["Techniktraining 0× dabei", "0", "0"],
 		]);
+		const { html } = await riderPage(ctx, ATHLETE_A);
+		const head = html.match(
+			/<table class="breakdown-table">\n<thead>([\s\S]*?)<\/thead>/,
+		)?.[1];
+		// The coins head the columns; their names are there for screen readers.
+		expect(head).toMatch(
+			/<th scope="col"><svg class="coin coin-mini"[^>]*>.*?<\/svg><span class="visually-hidden">Trainingsrynke<\/span><\/th><th scope="col"><svg class="coin coin-mini coin-team"[^>]*>.*?<\/svg><span class="visually-hidden">Teamrynke<\/span><\/th>/,
+		);
 	});
 
 	it("S3-4: gives 15 Training Rynke for 3000 m", async () => {
@@ -389,20 +406,17 @@ describe("GET /me breakdown (US3a)", () => {
 			trainingRynke: 15,
 			trainingMissing: 235,
 		});
-		expect((await breakdown())[1]).toEqual([
-			"Höhenmeter",
-			"3.000 m → 15 Trainingsrynke",
-		]);
+		expect((await breakdown())[1]).toEqual(["Höhenmeter 3.000 m", "15", ""]);
 	});
 
 	it("S3-5: shows 0 everywhere for a rider without rides", async () => {
 		await seedBalance(ATHLETE_A);
 		expect(await breakdown()).toEqual([
-			["Distanz", "0 Trainingsrynke"],
-			["Höhenmeter", "0 m → 0 Trainingsrynke"],
-			["Teamtraining", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Tag Trainingswochenende", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Techniktraining", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
+			["Distanz", "0", ""],
+			["Höhenmeter 0 m", "0", ""],
+			["Teamtraining 0× dabei", "0", "0"],
+			["Tag Trainingswochenende 0× dabei", "0", "0"],
+			["Techniktraining 0× dabei", "0", "0"],
 		]);
 		const { html } = await riderPage(ctx, ATHLETE_A);
 		expect(
@@ -420,10 +434,7 @@ describe("GET /me breakdown (US3a)", () => {
 			elevationToNextStepDm: 7600,
 			rulesVersion: 99,
 		});
-		expect((await breakdown())[1]).toEqual([
-			"Höhenmeter",
-			"1.240 m → 5 Trainingsrynke",
-		]);
+		expect((await breakdown())[1]).toEqual(["Höhenmeter 1.240 m", "5", ""]);
 	});
 
 	it("follows the gauges, or the summary without them", async () => {
@@ -432,7 +443,6 @@ describe("GET /me breakdown (US3a)", () => {
 		const order = [
 			'<section class="rynke-gauges">',
 			'<section class="rynke-breakdown card card-outlined">',
-			'<section class="rynke-rules card card-outlined">',
 		].map((marker) => html.indexOf(marker));
 		expect(order.every((i) => i >= 0)).toBe(true);
 		expect([...order].sort((x, y) => x - y)).toEqual(order);
@@ -507,9 +517,9 @@ describe("GET /me team events (US3b)", () => {
 			teamEvents: kindSums([2, 2, 10], [0, 0, 0], [1, 5, 5]),
 		});
 		expect((await breakdown()).slice(2)).toEqual([
-			["Teamtraining", "2× dabei → 2 Teamrynke, 10 Trainingsrynke"],
-			["Tag Trainingswochenende", "0× dabei → 0 Teamrynke, 0 Trainingsrynke"],
-			["Techniktraining", "1× dabei → 5 Teamrynke, 5 Trainingsrynke"],
+			["Teamtraining 2× dabei", "10", "2"],
+			["Tag Trainingswochenende 0× dabei", "0", "0"],
+			["Techniktraining 1× dabei", "5", "5"],
 		]);
 	});
 
@@ -639,9 +649,7 @@ describe("GET /me team events (US3b)", () => {
 		const shown = text(
 			section(html, 'class="rynke-breakdown card card-outlined"') ?? "",
 		);
-		expect(shown).toContain(
-			"Training-weekend day attended 1× → 5 Team Rynke, 10 Training Rynke",
-		);
+		expect(shown).toContain("Training-weekend day attended 1× 10 5");
 		expect(shown).toContain(
 			"Your team events 09/05/2026 · Training-weekend day",
 		);
@@ -649,9 +657,9 @@ describe("GET /me team events (US3b)", () => {
 
 	it("shows no kind rows for a balance stored before team events (R5)", async () => {
 		await seedBalance(ATHLETE_A, { teamEvents: [], rulesVersion: 1 });
-		expect((await breakdown()).map(([dt]) => dt)).toEqual([
+		expect((await breakdown()).map(([source]) => source)).toEqual([
 			"Distanz",
-			"Höhenmeter",
+			"Höhenmeter 0 m",
 		]);
 	});
 });
@@ -1174,13 +1182,20 @@ describe("GET /me/rides paging (US5)", () => {
 	});
 });
 
-/** The text of the notice and rules sections, `null` when absent. */
+/**
+ * The text of the Overview's notice and of the rules group in Settings, where
+ * they moved (issue #92); the notice is `null` when absent.
+ */
 async function rulesAndNotice(athleteId = ATHLETE_A, acceptLanguage?: string) {
 	const { html } = await riderPage(ctx, athleteId, "/me", acceptLanguage);
+	const settings = (
+		await riderPage(ctx, athleteId, "/me/settings", acceptLanguage)
+	).html;
 	const notice = section(html, 'class="notice" role="status"');
-	const rules = section(html, 'class="rynke-rules card card-outlined"');
+	const rules = section(settings, 'id="settings-rules"');
 	return {
 		html,
+		settings,
 		notice: notice === null ? null : text(notice),
 		rules: rules === null ? null : text(rules),
 	};
@@ -1195,14 +1210,14 @@ const UPDATING = "Seit dem 09.10.2026 gelten neue Regeln.";
 describe("GET /me rules and notices (US6)", () => {
 	it("S6-1: names the rules version, the window and the handout", async () => {
 		await seedBalance(ATHLETE_A);
-		const { html, notice, rules } = await rulesAndNotice();
+		const { html, settings, notice, rules } = await rulesAndNotice();
 		expect(rules).toContain(
 			`Regel-Version ${VERSION}, gültig seit dem 09.10.2026.`,
 		);
 		expect(rules).toContain(
 			"Es zählt alles vom 01.01.2026 bis zum 30.06.2027.",
 		);
-		const link = section(html, 'class="rynke-rules card card-outlined"')?.match(
+		const link = section(settings, 'id="settings-rules"')?.match(
 			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
 		);
 		expect(link?.[1]).toBe(RULES_HANDOUT_URL);
@@ -1242,7 +1257,7 @@ describe("GET /me rules and notices (US6)", () => {
 		await seedRider(ctx, { athleteId: ATHLETE_B, importStatus: "running" });
 		const before = await rulesAndNotice(ATHLETE_B);
 		expect(before.notice).toBeNull();
-		expect(before.rules).toBeNull();
+		expect(before.rules).toContain(`Regel-Version ${VERSION}`);
 		expect(before.html).toContain('<section class="waiting" role="status"');
 
 		await seedBalance(ATHLETE_B, { trainingRynke: 12, trainingMissing: 238 });
@@ -1379,7 +1394,6 @@ describe("GET /me isolation and access (US1)", () => {
 			'<p class="greeting">',
 			'<section id="rynke" class="rynke-summary verdict card">',
 			'<section class="rynke-breakdown card card-outlined">',
-			'<section class="rynke-rules card card-outlined">',
 		].map((marker) => html.indexOf(marker));
 		expect(order.every((i) => i >= 0)).toBe(true);
 		expect([...order].sort((x, y) => x - y)).toEqual(order);

@@ -57,7 +57,7 @@ Steps:
 |---|---|
 | `name` | `deploy` |
 | `needs` | `deploy-gate` |
-| `if` | `needs.deploy-gate.outputs.deploy == 'true'` (implicit `success()`) |
+| `if` | `!cancelled() && needs.deploy-gate.result == 'success' && needs.deploy-gate.outputs.deploy == 'true'` (not the implicit `success()`: it also counts the checks skipped by `already-checked`, FR-012) |
 | `environment` | `name: production`, `url: https://trhh-rynke-coins.link` |
 | `concurrency` | `group: deploy-production`, `cancel-in-progress: false` |
 | `permissions` | `contents: read` |

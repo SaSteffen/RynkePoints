@@ -5,8 +5,8 @@ are not catalog keys (research R10). `team.placeholder.*` are removed with the
 placeholder; `organiser.link` and `organiser.riders.link` are removed with the
 links the Orga tab and its switch replace.
 
-Ordinals: English places use `{place}` already formatted by a small helper
-(`1st`, `2nd`, `3rd`, `4th`, `11th`–`13th`); German uses `{place}.`.
+`{place}` is the plain number in every language, shared places included
+(issue #91).
 
 ## Team page (`team.*`)
 
@@ -20,8 +20,7 @@ Ordinals: English places use `{place}` already formatted by a small helper
 | `team.kind.label` | Which Rynke | Welche Rynke |
 | `team.kind.training` | Training | Training |
 | `team.kind.team` | Team | Team |
-| `team.place` | You're {place} of {count} riders 🚴 | Du bist {place} von {count} 🚴 |
-| `team.place.joint` | You're joint {place} of {count} riders 🚴 | Du bist gemeinsam {place} von {count} 🚴 |
+| `team.place` | Position {place} of {count} riders 🚴 | Position {place} von {count} 🚴 |
 | `team.place.next` | {n} Rynke to pass the next place | Noch {n} Rynke bis zum nächsten Platz |
 | `team.place.lead` | You lead the peloton. Bring the others along! | Du führst das Peloton an. Nimm die anderen mit! |
 | `team.quote.push` | For you 🍌 | Für dich 🍌 |

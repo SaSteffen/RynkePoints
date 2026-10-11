@@ -218,10 +218,12 @@ jobs:
 
   # Migrations first, then the code; wrangler deploy stays the last step (research
   # R19–R21). The secret is only in the env of the two wrangler steps (R22).
+  # !cancelled() instead of the implicit success(), which also counts the checks
+  # behind deploy-gate and so skipped the deploy whenever already-checked skipped them.
   deploy:
     name: deploy
     needs: deploy-gate
-    if: needs.deploy-gate.outputs.deploy == 'true'
+    if: ${{ !cancelled() && needs.deploy-gate.result == 'success' && needs.deploy-gate.outputs.deploy == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
