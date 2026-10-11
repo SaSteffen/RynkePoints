@@ -14,7 +14,9 @@
 // send, download), rests one to three minutes between badges (twice as long
 // after a failure) and stops after 10 badges per run; run it again to go on. Gemini's page is not an API: when its markup changes, update
 // SELECTORS below. On a failure the page is screenshotted to the temp folder
-// and the next badge is tried; a usage-limit message stops the run.
+// and the next badge is tried; a usage-limit message stops the run. When
+// Gemini is busy ("ask me again later") it rests and asks again in the same
+// chat, a few times, before giving up on that badge.
 //
 //   pnpm badge-art                      every badge without an original
 //   pnpm badge-art distance-100 run-length-marathon
@@ -26,7 +28,9 @@
 // --browser chrome|chromium (default chrome), --timeout <seconds> per image
 // (default 300). Pacing, in seconds, as a fixed value or a random range:
 // --step <s> between the steps of a badge (default 3-8), --pause <s> between
-// badges (default 90-180), --max <n> badges per run (default 10).
+// badges (default 90-180), --busy <s> before asking a busy Gemini again
+// (default 120-300), --retries <n> such asks per badge (default 3), --max <n>
+// badges per run (default 10).
 import {
 	copyFileSync,
 	mkdirSync,
@@ -76,6 +80,9 @@ const SELECTORS = {
 		/download full[- ]size|herunterladen|in originalgröße|in voller größe|download/i,
 	limit:
 		/(reached|hit) your (daily )?limit|limit (for|on) (image|images)|limit erreicht|kontingent/i,
+	// Not a limit: Gemini is busy right now and asks to be asked again.
+	busy: /ask me again later|more images than usual|später (noch )?(einmal|mal) (fragen|versuchen)|mehr bilder als (sonst|üblich)/i,
+	again: "Please try again.",
 };
 
 const { values: opts, positionals: only } = parseArgs({
@@ -91,6 +98,8 @@ const { values: opts, positionals: only } = parseArgs({
 		browser: { type: "string", default: "chrome" },
 		step: { type: "string", default: "3-8" },
 		pause: { type: "string", default: "90-180" },
+		busy: { type: "string", default: "120-300" },
+		retries: { type: "string", default: "3" },
 		max: { type: "string", default: "10" },
 		timeout: { type: "string", default: "300" },
 	},
@@ -158,6 +167,12 @@ const PAUSE = range("pause", opts.pause);
 const MAX = Number(opts.max);
 if (!(Number.isInteger(MAX) && MAX > 0)) {
 	console.error(`--max needs a whole number above 0, not ${opts.max}`);
+	process.exit(2);
+}
+const BUSY = range("busy", opts.busy);
+const RETRIES = Number(opts.retries);
+if (!(Number.isInteger(RETRIES) && RETRIES >= 0)) {
+	console.error(`--retries needs a whole number, not ${opts.retries}`);
 	process.exit(2);
 }
 /** Seconds at a random point in the range. */
@@ -251,15 +266,20 @@ async function send(page, editor, text) {
 	else await editor.press("Enter");
 }
 
-/** Waits for a full image in the last answer; returns its index there. */
-async function waitForImage(page, seconds) {
+/**
+ * Waits for a full image in the first answer after the `before` earlier ones;
+ * returns its index there, or what Gemini said instead (limit or busy).
+ */
+async function waitForImage(page, seconds, before) {
 	const handle = await page.waitForFunction(
-		({ response, limit }) => {
+		({ response, limit, busy, before }) => {
 			const answers = document.querySelectorAll(response);
+			if (answers.length <= before) return false;
 			const last = answers[answers.length - 1];
-			if (!last) return false;
-			const limited = new RegExp(limit.source, limit.flags);
-			if (limited.test(last.textContent ?? "")) return { limit: true };
+			const text = last.textContent ?? "";
+			if (new RegExp(limit.source, limit.flags).test(text))
+				return { limit: true };
+			if (new RegExp(busy.source, busy.flags).test(text)) return { busy: true };
 			const imgs = [...last.querySelectorAll("img")];
 			const i = imgs.findIndex(
 				(img) => img.complete && img.naturalWidth >= 512,
@@ -269,6 +289,8 @@ async function waitForImage(page, seconds) {
 		{
 			response: SELECTORS.response,
 			limit: { source: SELECTORS.limit.source, flags: SELECTORS.limit.flags },
+			busy: { source: SELECTORS.busy.source, flags: SELECTORS.busy.flags },
+			before,
 		},
 		{ timeout: seconds * 1000, polling: 2000 },
 	);
@@ -354,9 +376,21 @@ for (const [n, badge] of batch.entries()) {
 		await step();
 		await attach(page, editor, REFERENCE[badge.group]);
 		await step();
+		let before = await page.locator(SELECTORS.response).count();
 		await send(page, editor, prompt(badge));
 		console.log(`  sent; waiting up to ${opts.timeout} s for the image`);
-		const result = await waitForImage(page, Number(opts.timeout));
+		let result = await waitForImage(page, Number(opts.timeout), before);
+		for (let retry = 1; result.busy && retry <= RETRIES; retry++) {
+			const seconds = pick(BUSY);
+			console.log(
+				`  Gemini is busy; asking again in ${Math.round(seconds)} s (${retry}/${RETRIES}, until ${new Date(Date.now() + seconds * 1000).toLocaleTimeString()})`,
+			);
+			await sleep(seconds);
+			before = await page.locator(SELECTORS.response).count();
+			await send(page, editor, SELECTORS.again);
+			result = await waitForImage(page, Number(opts.timeout), before);
+		}
+		if (result.busy) throw new Error(`Gemini still busy after ${RETRIES} asks`);
 		if (result.limit) {
 			console.error("Gemini's usage limit reached; stopping. Run again later.");
 			failed.push(badge.id);

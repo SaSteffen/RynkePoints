@@ -74,6 +74,10 @@ each picture; to retry one, delete it or use `--force`.
   `scripts/badge-art.mjs`.
 - **Usage limit**: when Gemini says the image limit is reached, the run stops;
   run it again later and it picks up where it stopped.
+- **Busy**: when Gemini asks to be asked again later ("more images than
+  usual"), the script rests 2 to 5 minutes and asks again in the same chat, up
+  to 3 times (`--busy 120-300`, `--retries 3`); then that badge counts as
+  failed and the run goes on.
 - When the full-size download fails, the script keeps the preview image instead
   and says so; it is smaller but usually still traces well.
 
