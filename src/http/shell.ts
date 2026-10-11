@@ -16,7 +16,7 @@ import {
 	type ShellParts,
 	WORDMARK,
 } from "./html";
-import { BIKE, CLIPBOARD, COIN, PEOPLE, REFRESH, SLIDERS } from "./icons";
+import { BIKE, CLIPBOARD, PEOPLE, PERSON, REFRESH, SLIDERS } from "./icons";
 import { renderAppPrompt } from "./pwa";
 import { redirect } from "./redirect";
 import { type TourHint, tourHint } from "./tour";
@@ -40,7 +40,7 @@ export const SECTIONS: readonly {
 	organiserOnly?: true;
 }[] = [
 	{ id: "team", path: "/team", label: "nav.team", icon: PEOPLE },
-	{ id: "you", path: "/me", label: "nav.you", icon: COIN },
+	{ id: "you", path: "/me", label: "nav.you", icon: PERSON },
 	{ id: "rides", path: "/me/rides", label: "nav.rides", icon: BIKE },
 	{
 		id: "organiser",
