@@ -3,7 +3,7 @@ import type { I18n } from "../i18n/i18n";
 import { LANG_COOKIE } from "../i18n/resolve";
 import { forbidden } from "./errors";
 import { isNoticeId } from "./notice";
-import { HOME } from "./redirect";
+import { home } from "./redirect";
 import { isSameOrigin } from "./session";
 
 // The language switcher's target (contracts/http-routes.md, research R18).
@@ -33,12 +33,23 @@ export function safeNext(next: string | null): string {
 }
 
 /**
- * `safeNext()` for where a rider lands after signing in or agreeing: the app,
- * never the start page (feature 011 research R9).
+ * `safeNext()` for where a rider lands after signing in or agreeing. `/` stays
+ * until `arrival()` knows the rider.
  */
 export function sectionNext(next: unknown): string {
-	const safe = safeNext(typeof next === "string" ? next : null);
-	return safe === "/" ? HOME : safe;
+	return safeNext(typeof next === "string" ? next : null);
+}
+
+/**
+ * A `sectionNext()` value for the signed-in rider: the app, never the start
+ * page (feature 011 research R9).
+ */
+export async function arrival(
+	next: string,
+	db: D1Database,
+	athleteId: number,
+): Promise<string> {
+	return next === "/" ? home(db, athleteId) : next;
 }
 
 export async function handleLang(

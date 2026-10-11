@@ -6,7 +6,7 @@ import type { I18n } from "../i18n/i18n";
 import { consentForm, consentSummary, nextInput } from "./consent-form";
 import { forbidden } from "./errors";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
-import { sectionNext } from "./lang";
+import { arrival, sectionNext } from "./lang";
 import { redirect } from "./redirect";
 import { isSameOrigin } from "./session";
 import { readViewer, riderConsentState } from "./viewer";
@@ -115,7 +115,11 @@ export async function handleConsent(
 	if (viewer.kind === "visitor") return redirect("/", 302);
 	const current = currentVersion(ctx.consentVersions).version;
 	const form = await request.formData().catch(() => null);
-	const next = sectionNext(form?.get("next"));
+	const next = await arrival(
+		sectionNext(form?.get("next")),
+		ctx.env.DB,
+		viewer.rider.athleteId,
+	);
 	if (form?.get("consent") !== String(current)) return redirect(next, 303);
 	const state = riderConsentState(viewer, ctx);
 	// The gate shows the Strava form instead; a current rider has nothing to do.

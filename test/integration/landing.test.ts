@@ -1,8 +1,11 @@
+import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { CONSENT_VERSION, CONSENT_VERSIONS } from "../../src/consent";
+import { upsertActivity } from "../../src/db/activities";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
+import { toActivityRecord } from "../../src/strava/activity";
 import {
 	makeCtx,
 	request,
@@ -10,7 +13,7 @@ import {
 	seedRider,
 	sessionCookie,
 } from "../support/ctx";
-import { ATHLETE_A } from "../support/fixtures";
+import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
 
 const ctx = makeCtx();
 const { de, en } = CATALOGS;
@@ -211,8 +214,18 @@ ${connectButton(de)}
 });
 
 describe("GET / (signed in)", () => {
-	it("redirects a connected rider to /team (#73)", async () => {
+	it("redirects a rider without an imported ride to /me", async () => {
 		await seedRider(ctx);
+		const { res } = await get({ cookies: await sessionCookie(ctx, ATHLETE_A) });
+		expect(res.status).toBe(302);
+		expect(res.headers.get("Location")).toBe("/me");
+	});
+
+	it("redirects a rider with an imported ride to /team (#73)", async () => {
+		await seedRider(ctx);
+		const ride = toActivityRecord(makeStravaActivity(), ATHLETE_A, NOW);
+		if (!ride) throw new Error("fixture is not a cycling activity");
+		await upsertActivity(env.DB, ride);
 		const { res } = await get({ cookies: await sessionCookie(ctx, ATHLETE_A) });
 		expect(res.status).toBe(302);
 		expect(res.headers.get("Location")).toBe("/team");
