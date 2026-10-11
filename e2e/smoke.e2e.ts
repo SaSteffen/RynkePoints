@@ -1,4 +1,5 @@
 import { test as base, expect, type Page } from "@playwright/test";
+import { signIn } from "./sign-in";
 
 // Smoke tests in every browser (chromium, firefox, webkit): each page loads
 // without a script error, fits a phone and a desktop without sideways
@@ -34,20 +35,6 @@ const test = base.extend<{ errors: string[]; noPushInWebKit: undefined }>({
 		{ auto: true },
 	],
 });
-
-/** Signs in through the fake Strava's permission screen. */
-async function signIn(page: Page, rider: string) {
-	await page.goto("/_dev/");
-	await page
-		.getByRole("row")
-		.filter({ hasText: rider })
-		.getByRole("button", { name: "Connect as" })
-		.click();
-	await page.getByRole("button", { name: "Authorize" }).click();
-	await page.waitForURL(
-		(url) => !/^\/(_dev|auth)\//.test(url.pathname) && url.pathname !== "/",
-	);
-}
 
 const PHONE = { width: 360, height: 740 };
 const DESKTOP = { width: 1280, height: 800 };
