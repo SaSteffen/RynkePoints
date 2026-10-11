@@ -93,7 +93,8 @@ then for each original:
    (`scripts/trace.mjs`): white paper removed, one potrace layer per colour; the
    removed paper lets the window's cream show through;
 3. puts the picture into the frame (`scripts/badge-frame.mjs`) as
-   `public/badges/<id>.svg`;
+   `public/badges/<id>.svg`, and again with the empty milestone ribbon as
+   `<id>-ribbon.svg` (the page writes the milestone onto it);
 4. lists every badge with a picture in `src/badges/pictures.ts`, which the app
    reads to pick the picture or the placeholder.
 

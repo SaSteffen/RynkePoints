@@ -101,6 +101,29 @@ const STARS = [-26, 0, 26]
 	)
 	.join("");
 
+/**
+ * The milestone ribbon across the lower edge (spec FR-040b), in the ring's
+ * colour. Only the shape: the page puts the milestone into `box` as its own
+ * text, in `text`'s colour, so it is translated and readable by screen
+ * readers. It covers the bottom 15 % of the window, which the prompt keeps
+ * free.
+ */
+export const RIBBON = {
+	box: { x: 13, y: 70, width: 74, height: 14 },
+	text: { personal: C.yellow, team: C.ink },
+};
+
+function ribbonSvg(colour) {
+	const { x, y, width, height } = RIBBON.box;
+	const tail = (dir) => {
+		const x0 = 50 + dir * 34;
+		const x1 = 50 + dir * 47;
+		const xn = 50 + dir * 43;
+		return `<path class="ribbon-tail" d="M${x0},${y + 3} L${x1},${y + 3} L${xn},${y + 9.5} L${x1},${y + 16} L${x0},${y + 16} Z" fill="${colour}" stroke="${C.ink}" stroke-width="0.9" stroke-linejoin="round"/>`;
+	};
+	return `${tail(-1)}${tail(1)}<rect class="ribbon" x="${x}" y="${y}" width="${width}" height="${height}" rx="1.5" fill="${colour}" stroke="${C.ink}" stroke-width="1"/>`;
+}
+
 const escapeXml = (s) =>
 	String(s).replace(
 		/[&<>"]/g,
@@ -110,9 +133,14 @@ const escapeXml = (s) =>
 /**
  * The finished badge: petals, ring (black for personal, light blue for team),
  * window, the picture clipped to the window and placed by `transform`, the
- * window's outline and the stars on top.
+ * window's outline, the ribbon when asked for, and the stars on top.
  */
-export function frameSvg(kind, picture, title, transform = PICTURE_TRANSFORM) {
+export function frameSvg(
+	kind,
+	picture,
+	title,
+	{ transform = PICTURE_TRANSFORM, ribbon = false } = {},
+) {
 	const ring = kind === "team" ? C.team : C.ink;
 	const { cx, cy, r } = WINDOW;
 	return (
@@ -124,11 +152,15 @@ export function frameSvg(kind, picture, title, transform = PICTURE_TRANSFORM) {
 		`<circle class="window" cx="${cx}" cy="${cy}" r="${r}" fill="${C.cream}"/>` +
 		`<g clip-path="url(#window)"><g transform="${transform}">${picture}</g></g>` +
 		`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${C.ink}" stroke-width="${OUTLINE}"/>` +
+		(ribbon ? ribbonSvg(ring) : "") +
 		`${STARS}</svg>\n`
 	);
 }
 
 /** The frame with the coin's Rynke: the badge until it has a picture (FR-040a). */
-export function placeholderSvg(kind) {
-	return frameSvg(kind, inline(RYNKE), `placeholder-${kind}`, RYNKE_TRANSFORM);
+export function placeholderSvg(kind, { ribbon = false } = {}) {
+	return frameSvg(kind, inline(RYNKE), `placeholder-${kind}`, {
+		transform: RYNKE_TRANSFORM,
+		ribbon,
+	});
 }

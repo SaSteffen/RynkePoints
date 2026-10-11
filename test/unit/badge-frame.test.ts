@@ -3,6 +3,7 @@ import {
 	frameSvg,
 	PICTURE_TRANSFORM,
 	placeholderSvg,
+	RIBBON,
 	RYNKE,
 	WINDOW,
 } from "../../scripts/badge-frame.mjs";
@@ -118,6 +119,72 @@ describe("frameSvg", () => {
 	it("draws the stars above the picture", () => {
 		const svg = frameSvg("personal", picture, "x");
 		expect(svg.indexOf('class="star"')).toBeGreaterThan(svg.indexOf(picture));
+	});
+});
+
+describe("the ribbon (FR-040b)", () => {
+	const picture = '<path fill="#c8641e" d="M0 0H100V100H0Z"/>';
+	const ribbonParts = (svg: string) =>
+		svg.match(/<[a-z]+ class="ribbon[^"]*"[^>]*>/g) ?? [];
+
+	it("is not drawn unless asked for", () => {
+		for (const kind of ["personal", "team"] as const)
+			expect(frameSvg(kind, picture, "x")).not.toContain('class="ribbon');
+	});
+
+	for (const [kind, colour] of [
+		["personal", "#1c1b13"],
+		["team", "#8cc4f0"],
+	] as const) {
+		it(`is a band with two notched tails in the ${kind} ring colour`, () => {
+			const svg = frameSvg(kind, picture, "x", { ribbon: true });
+			const parts = ribbonParts(svg);
+			expect(
+				parts.filter((p) => p.includes('class="ribbon-tail"')),
+			).toHaveLength(2);
+			expect(parts.filter((p) => p.includes('class="ribbon"'))).toHaveLength(1);
+			for (const part of parts) {
+				expect(part).toContain(`fill="${colour}"`);
+				expect(part).toContain('stroke="#1c1b13"');
+			}
+		});
+
+		it(`lies on top of the ${kind} picture and carries no text`, () => {
+			const svg = frameSvg(kind, picture, "x", { ribbon: true });
+			expect(svg.indexOf('class="ribbon')).toBeGreaterThan(
+				svg.indexOf(picture),
+			);
+			expect(svg).not.toContain("<text");
+		});
+	}
+
+	it("tells the page where the milestone goes and in which colour", () => {
+		expect(RIBBON.box.x).toBeGreaterThan(0);
+		expect(RIBBON.box.x + RIBBON.box.width).toBeLessThan(100);
+		// Covers the bottom of the window, where the prompt keeps 15 % free.
+		const { r } = WINDOW;
+		const windowBottom = 50 + r;
+		const freeFrom = windowBottom - 0.15 * 2 * r;
+		expect(RIBBON.box.y).toBeGreaterThanOrEqual(freeFrom - 0.5);
+		expect(RIBBON.box.y).toBeLessThan(windowBottom);
+		expect(RIBBON.text).toEqual({ personal: "#fbe122", team: "#1c1b13" });
+	});
+
+	it("leaves everything else unchanged", () => {
+		const plain = frameSvg("team", picture, "x");
+		const ribboned = frameSvg("team", picture, "x", { ribbon: true });
+		const without = ribboned.replace(
+			/<[a-z]+ class="ribbon[^"]*"[^>]*\/>/g,
+			"",
+		);
+		expect(without).toBe(plain);
+	});
+
+	it("is available on the placeholders too", () => {
+		expect(placeholderSvg("personal", { ribbon: true })).toContain(
+			'class="ribbon"',
+		);
+		expect(placeholderSvg("personal")).not.toContain('class="ribbon');
 	});
 });
 

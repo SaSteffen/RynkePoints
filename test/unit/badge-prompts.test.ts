@@ -54,6 +54,12 @@ describe("validateBadges", () => {
 		}
 	});
 
+	it("rejects ids ending in -ribbon, the name of a badge's ribbon file", () => {
+		expect(
+			validateBadges(valid([badge({ id: "distance-ribbon" })])).join("\n"),
+		).toMatch(/ribbon/);
+	});
+
 	it("rejects an unknown group", () => {
 		expect(
 			validateBadges(valid([badge({ group: "club" })])).join("\n"),

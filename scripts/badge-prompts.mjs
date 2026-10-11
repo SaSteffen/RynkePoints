@@ -22,6 +22,10 @@ export function validateBadges(data) {
 		const where = id || `badge #${i + 1}`;
 		if (!ID.test(id))
 			problems.push(`${where}: id must be lower-case words joined by dashes`);
+		else if (id.endsWith("-ribbon"))
+			problems.push(
+				`${id}: ids can't end in -ribbon (the ribbon files' suffix)`,
+			);
 		else if (seen.has(id)) problems.push(`${id}: duplicate id`);
 		seen.add(id);
 
