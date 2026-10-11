@@ -109,7 +109,7 @@ nav.organiser-switch .segmented svg{width:20px;height:20px}
 .peloton-road .road{fill:var(--rp-road)}
 .peloton-road .road-middle{fill:none;stroke:var(--rp-coin-yellow);stroke-width:2;stroke-dasharray:6 4;opacity:.6}
 .peloton-road .road-gap{fill:var(--md-sys-color-surface-container)}
-.peloton-road .road-gap-edge{fill:none;stroke:var(--rp-coin-yellow);stroke-width:2}
+.peloton-road .road-gap-edge{fill:none;stroke:var(--rp-coin-yellow);stroke-width:1.5}
 .peloton-you rect{fill:var(--rp-coin-yellow)}
 .peloton-you text{fill:var(--rp-coin-ink);font:700 11px var(--md-ref-typeface)}
 .week-bars{display:block;width:100%;height:120px;border-bottom:1px solid var(--md-sys-color-outline)}

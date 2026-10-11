@@ -59,8 +59,8 @@ const BREAKAWAY_TO = 294;
 /** A breakaway of one distinct total. */
 const BREAKAWAY_ALONE = 282;
 /** Half the gap's width and how far it leans at the top and bottom. */
-const GAP_HALF = 7;
-const GAP_LEAN = 5;
+const GAP_HALF = 3;
+const GAP_LEAN = 9;
 
 /**
  * Each total's position on the road. Without a fence, its share of the largest
