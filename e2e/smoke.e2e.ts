@@ -88,6 +88,29 @@ test.describe("a rider", () => {
 		await expect(section.locator("[data-state]:visible")).toHaveCount(1);
 	});
 
+	test("keeps the scroll position on the Team switches (#113)", async ({
+		page,
+	}) => {
+		await page.setViewportSize(PHONE);
+		await page.goto("/team");
+		const other = page.locator("nav.kind-switch a:not([aria-current])");
+		const html = page.locator("html");
+		const scrollTop = () => html.evaluate((root) => root.scrollTop);
+		// The switch is at the top: a real tap there would scroll back up
+		// first, so the page is scrolled down and the link clicked as is.
+		await html.evaluate((root) => {
+			root.scrollTop = Math.min(200, root.scrollHeight - root.clientHeight);
+		});
+		const before = await scrollTop();
+		expect(before).toBeGreaterThan(0);
+		await other.dispatchEvent("click");
+		await page.waitForURL(/kind=team/);
+		await expect.poll(scrollTop).toBe(before);
+		// Another way to the page still starts at the top.
+		await page.goto("/team");
+		expect(await scrollTop()).toBe(0);
+	});
+
 	test("picks the dark scheme for this device", async ({ page }) => {
 		await page.goto("/me/settings");
 		await skipTours(page);

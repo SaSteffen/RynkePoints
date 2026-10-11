@@ -205,7 +205,7 @@ button:has(>img.cws){display:inline-block;min-height:0;padding:0;border:0;border
 .ripple{position:absolute;border-radius:50%;background:currentColor;opacity:.16;pointer-events:none;transform:scale(0)}
 .button[aria-busy=true],.button-outlined[aria-busy=true],.danger[aria-busy=true],.segmented[aria-busy=true]{pointer-events:none}
 .button[aria-busy=true]::after,.button-outlined[aria-busy=true]::after,.danger[aria-busy=true]::after,.segmented[aria-busy=true]::after{content:"";flex:none;width:16px;height:16px;margin-left:var(--rp-space-2);border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:busy-spin .8s linear infinite}
-.segmented,.segmented-group label{display:inline-flex;align-items:center;justify-content:center;min-height:var(--rp-tap);min-width:var(--rp-tap);padding:0 var(--rp-space-4);border:1px solid var(--md-sys-color-outline);background:none;color:var(--md-sys-color-on-surface);font:var(--md-type-label);cursor:pointer}
+.segmented,.segmented-group label{display:inline-flex;align-items:center;justify-content:center;min-height:var(--rp-tap);min-width:var(--rp-tap);padding:0 var(--rp-space-4);border:1px solid var(--md-sys-color-outline);background:none;color:var(--md-sys-color-on-surface);font:var(--md-type-label);text-decoration:none;cursor:pointer}
 .segmented+.segmented,.segmented-group label+label{margin-left:-1px}
 .segmented:first-of-type,.segmented-group label:first-of-type{border-radius:var(--md-shape-full) 0 0 var(--md-shape-full)}
 .segmented:last-of-type,.segmented-group label:last-of-type{border-radius:0 var(--md-shape-full) var(--md-shape-full) 0}

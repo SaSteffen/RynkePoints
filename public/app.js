@@ -546,6 +546,55 @@ function waitForFirstData() {
 	}, seconds * 1000);
 }
 
+/** Where a `data-keep-scroll` link left the page (issue #113). */
+const KEEP_SCROLL = "rp-keep-scroll";
+
+/**
+ * Links that show the same page in another view, like the Team section's
+ * switches, open the next page where this one was instead of at the top
+ * (issue #113). The position goes to session storage on the tap and is used
+ * once, only by the page the link went to.
+ */
+function keepScroll() {
+	try {
+		const kept = sessionStorage.getItem(KEEP_SCROLL);
+		sessionStorage.removeItem(KEEP_SCROLL);
+		if (kept !== null) {
+			const { url, y } = JSON.parse(kept);
+			if (url === location.pathname + location.search && Number.isFinite(y)) {
+				scrollTo(0, y);
+			}
+		}
+	} catch {
+		// No storage, or a bad entry: the page opens at the top.
+	}
+	document.addEventListener("click", (event) => {
+		if (
+			event.defaultPrevented ||
+			event.button !== 0 ||
+			event.metaKey ||
+			event.ctrlKey ||
+			event.shiftKey ||
+			event.altKey
+		) {
+			return;
+		}
+		const link =
+			event.target instanceof Element
+				? event.target.closest("a[href][data-keep-scroll]")
+				: null;
+		if (!(link instanceof HTMLAnchorElement)) return;
+		const url = new URL(link.href);
+		if (url.origin !== location.origin) return;
+		try {
+			sessionStorage.setItem(
+				KEEP_SCROLL,
+				JSON.stringify({ url: url.pathname + url.search, y: scrollY }),
+			);
+		} catch {}
+	});
+}
+
 /** The Material buttons that show press feedback (issue #107). */
 const PRESSABLE =
 	".button,.button-outlined,.danger,.segmented,.segmented-group label,.icon-button";
@@ -638,6 +687,7 @@ function pendingSubmit() {
 }
 
 const registered = registerWorker();
+keepScroll();
 pressFeedback();
 pendingSubmit();
 installSettings();

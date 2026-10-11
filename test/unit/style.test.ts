@@ -76,6 +76,10 @@ describe("STYLE", () => {
 		expect(declsOf(".list-scope .segmented").flex).toBeUndefined();
 	});
 
+	it("draws the switches' links as buttons, not underlined links (#113)", () => {
+		expect(declsOf(".segmented")["text-decoration"]).toBe("none");
+	});
+
 	it("marks the viewer's own row in Rynkeby yellow (016, the draft)", () => {
 		expect(declsOf("li.row.you").background).toBe(
 			"var(--md-sys-color-secondary-container)",
