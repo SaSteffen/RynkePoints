@@ -2,7 +2,8 @@
 // contracts/abzeichen-section.md): the newest badge per category as cards with
 // the milestone on the ribbon, the closed gallery of every badge, the
 // categories without a badge, and one popover per earned badge. Only earned
-// badges are named or pictured, so the next one stays a surprise (SC-003).
+// badges are named or pictured, so the next one stays a surprise (SC-003); the
+// gallery shows the ones still to earn as empty outlines (issue #109).
 
 import {
 	type Badge,
@@ -129,6 +130,9 @@ function group(
 <ul>${g.badges.map(
 			(b) =>
 				html`<li>${badgeButton(i18n, b, 96)}<span class="badge-value">${milestone(i18n, badgeOf(b))}</span></li>`,
+		)}${Array.from(
+			{ length: g.unearned },
+			() => html`<li class="badge-slot" aria-hidden="true"></li>`,
 		)}</ul>
 `,
 	);

@@ -135,6 +135,21 @@ describe("the Abzeichen section", () => {
 		).toEqual(["distance-500", "distance-100", "elevation-1000"]);
 	});
 
+	it("shows the badges still to earn as empty outlines in the gallery (#109)", async () => {
+		const { section: badges } = await section();
+		const gallery = badges?.match(/<details[\s\S]*?<\/details>/)?.[0] ?? "";
+		const lists = [...gallery.matchAll(/<ul>([\s\S]*?)<\/ul>/g)].map(
+			(m) => m[1] ?? "",
+		);
+		// Distance: 2 of 5 earned; elevation: 1 of 4.
+		const slots = (list: string) =>
+			list.match(/<li class="badge-slot" aria-hidden="true"><\/li>/g)?.length;
+		expect(lists.map(slots)).toEqual([3, 3]);
+		expect(lists[0]?.lastIndexOf('popovertarget="')).toBeLessThan(
+			lists[0]?.indexOf("badge-slot") ?? 0,
+		);
+	});
+
 	it("lists the categories without a badge with their bar", async () => {
 		const { section: badges } = await section();
 		const rows = [

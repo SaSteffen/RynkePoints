@@ -146,6 +146,8 @@ describe("buildBadgeSection", () => {
 			["distance", ["distance-500", "distance-100"]],
 			["technique", ["technique-1"]],
 		]);
+		// The badges still to earn, as empty outlines (issue #109).
+		expect(section?.personal.gallery.map((g) => g.unearned)).toEqual([3, 1]);
 	});
 
 	it("lists categories without a badge under not yet, with their progress", () => {

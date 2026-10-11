@@ -40,6 +40,8 @@ export interface GalleryGroup {
 	category: BadgeCategoryId;
 	/** Newest first. */
 	badges: EarnedBadge[];
+	/** How many of the category's badges are still to earn (issue #109). */
+	unearned: number;
 }
 
 export interface NotYetRow {
@@ -145,7 +147,11 @@ function groupView({ earned, progress }: Evaluated): {
 			continue;
 		}
 		cards.push({ category: category.id, badge: highest, progress: shown });
-		gallery.push({ category: category.id, badges });
+		gallery.push({
+			category: category.id,
+			badges,
+			unearned: category.ladder.length - badges.length,
+		});
 	}
 	cards.sort((a, b) => newestFirst(a.badge, b.badge));
 	return {

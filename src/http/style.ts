@@ -395,6 +395,7 @@ button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full)
 .badge-gallery ul{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:var(--rp-space-3);margin:0;padding:0;list-style:none}
 .badge-gallery li{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-1)}
 .badge-gallery .badge{width:96px}
+.badge-slot::before{content:"";display:block;width:96px;height:96px;box-sizing:border-box;border:2px dotted var(--md-sys-color-outline);border-radius:var(--md-shape-full)}
 .badge-value{font:var(--md-type-caption)}
 .badge-not-yet ul{display:grid;gap:var(--rp-space-3);margin:0;padding:0;list-style:none}
 .badge-not-yet-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--rp-space-1) var(--rp-space-3);align-items:baseline}
