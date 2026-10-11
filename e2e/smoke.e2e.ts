@@ -129,6 +129,11 @@ test.describe("a rider", () => {
 
 test("a rider walks through the tour, one page each", async ({ page }) => {
 	await signIn(page, "Vera Virtual");
+	// The tour waits for the first import (issue #119); the page polls itself.
+	await page.goto("/me");
+	await expect(page.locator("[data-waiting]")).toHaveCount(0, {
+		timeout: 30_000,
+	});
 	// Started as from Settings, so it doesn't depend on another browser's run.
 	await page.goto("/team?tour=rider");
 	const tour = page.locator("aside.tour");

@@ -2,6 +2,7 @@ import { berlinDate } from "../config";
 import { currentVersion, hasAgreed } from "../consent";
 import type { Ctx } from "../ctx";
 import { type Consent, getCurrentConsent } from "../db/consents";
+import { hasBalance } from "../db/rider-view";
 import type { Rider } from "../db/riders";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
@@ -139,6 +140,18 @@ export async function shellPage(
 	}
 	const body = await render({ rider: viewer.rider, consent: accepted });
 	if (body instanceof Response) return body;
+	// No tour while the first import still runs: the pages it points at only
+	// show the waiting placeholder then (issue #119). Read only when there is
+	// a hint to hold back.
+	let hint = tourHint(
+		i18n,
+		viewer.rider,
+		path,
+		new URL(request.url).searchParams.get("tour"),
+	);
+	if (hint && !(await hasBalance(ctx.env.DB, viewer.rider.athleteId))) {
+		hint = null;
+	}
 	// Each section names itself, so tabs and screen readers tell them apart.
 	const label = SECTIONS.find(({ id }) => id === section)?.label;
 	return htmlResponse(
@@ -156,12 +169,7 @@ export async function shellPage(
 				path,
 				vapidPublicKey(ctx.env),
 				viewer.rider.organiser,
-				tourHint(
-					i18n,
-					viewer.rider,
-					path,
-					new URL(request.url).searchParams.get("tour"),
-				),
+				hint,
 			),
 		}),
 	);
