@@ -302,8 +302,8 @@ export const de = {
 	"nav.settings": "Einstellungen",
 	"shell.refresh": "Aktualisieren",
 	"shell.title": "{section} – RynkePoints",
-	"hero.training": "{n}\u00a0Trainingsrynke",
-	"hero.team": "{n}\u00a0Teamrynke",
+	"hero.training": "{n} Trainingsrynke",
+	"hero.team": "{n} Teamrynke",
 	"celebrate.training":
 		"+{n}\u00a0Trainingsrynke seit deinem letzten Besuch 🎉",
 	"celebrate.team": "+{n}\u00a0Teamrynke seit deinem letzten Besuch 🎉",
@@ -400,7 +400,7 @@ export const de = {
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
 	"team.total.label": "Team Rynkeby Hamburg 🦧",
-	"team.total.value": "{n}\u00a0Rynke",
+	"team.total.value": "{n} Rynke",
 	"team.total.kind": "gemeinsam gesammelt",
 	"team.total.thisWeek": "+{n} diese Woche 🔥",
 	"team.kind.label": "Welche Rynke",

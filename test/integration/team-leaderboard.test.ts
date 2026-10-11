@@ -306,7 +306,12 @@ describe("GET /team, the team's progress (US2)", () => {
 		const total = teamTotalOf(html);
 		expect(total).toContain('href="#coin-front"');
 		expect(total).toContain(escapeHtml(de["team.total.label"]));
-		expect(total).toContain(fill(de["team.total.value"], { n: "1.790" }));
+		expect(total).toContain(
+			escapeHtml(de["team.total.value"]).replace(
+				"{n}",
+				'<span class="rynke-amount">1.790</span>',
+			),
+		);
 		expect(total).toContain(escapeHtml(de["team.total.kind"]));
 		expect(total).toContain(fill(de["team.total.thisWeek"], { n: "1.775" }));
 	});
@@ -315,7 +320,12 @@ describe("GET /team, the team's progress (US2)", () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team?kind=team", "en");
 		const total = teamTotalOf(html);
 		expect(total).toContain('href="#coin-back"');
-		expect(total).toContain(fill(en["team.total.value"], { n: 199 }));
+		expect(total).toContain(
+			escapeHtml(en["team.total.value"]).replace(
+				"{n}",
+				'<span class="rynke-amount">199</span>',
+			),
+		);
 		expect(total).toContain(escapeHtml(en["team.total.kind"]));
 		expect(total).toContain(fill(en["team.total.thisWeek"], { n: 199 }));
 	});
@@ -424,7 +434,12 @@ describe("GET /team without a gain this week", () => {
 		await seedRider(ctx, { athleteId: VIEWER, firstName: "Gertrude" });
 		const { html } = await riderPage(ctx, VIEWER, "/team");
 		const total = teamTotalOf(html);
-		expect(total).toContain(fill(de["team.total.value"], { n: 0 }));
+		expect(total).toContain(
+			escapeHtml(de["team.total.value"]).replace(
+				"{n}",
+				'<span class="rynke-amount">0</span>',
+			),
+		);
 		expect(total).not.toContain("🔥");
 		expect(teamChartOf(html)).not.toContain(
 			escapeHtml(de["team.chart.best"].split("{n}")[0] ?? ""),

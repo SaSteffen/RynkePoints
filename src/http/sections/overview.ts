@@ -9,7 +9,7 @@ import {
 	countingWindow,
 	rulesForVersion,
 } from "../../rynke/rules";
-import { coin, miniCoin } from "../coin";
+import { amount, coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import {
 	renderBreakdown,
@@ -108,8 +108,8 @@ ${coin("front", "hero")}
 <p class="greeting">${i18n.t("me.greeting", { firstName: rider.firstName })}</p>
 ${
 	totals
-		? html`<p class="hero-total">${i18n.t("hero.training", { n: i18n.formatNumber(totals.training, { fractionDigits: 0 }) })}</p>
-<p class="hero-total hero-team">${i18n.t("hero.team", { n: i18n.formatNumber(totals.team, { fractionDigits: 0 }) })}</p>
+		? html`<p class="hero-total">${i18n.tHtml("hero.training", { n: amount(i18n, totals.training) })}</p>
+<p class="hero-total hero-team">${i18n.tHtml("hero.team", { n: amount(i18n, totals.team) })}</p>
 `
 		: null
 }</div>
