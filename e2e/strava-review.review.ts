@@ -223,21 +223,44 @@ for (const lang of LANGS) {
 				"Organisers: one rider's points and where they come from (first name)",
 			);
 		});
+	});
+}
 
+// After both languages' pages, as it adds a ride to Tina's.
+for (const lang of LANGS) {
+	test.describe(lang, () => {
 		test("a push notification", async ({ page }) => {
 			await signIn(page, "Tina TrainingDone");
-			// The text the service worker shows: the rider's own rise, else the
-			// cached general text.
-			let response = await page.request.get(
-				`/me/notification-text?lang=${lang}`,
-			);
-			if (response.status() !== 200) {
-				response = await page.request.get(`/notification-text?lang=${lang}`);
-			}
-			const { title, body } = (await response.json()) as {
-				title: string;
-				body: string;
+			// The seed's latest rise is badges; a short new ride, through fake
+			// Strava's webhook, makes it points, which the review describes.
+			await page.request.post("/_dev/events", {
+				form: {
+					action: "create",
+					athleteId: "990004",
+					distanceKm: "20",
+					elevationM: "0",
+				},
+			});
+			// The text the service worker shows for the rider's own rise; a badge
+			// rise links to the badges. The queue collects for up to 5 s first.
+			let notification: { title: string; body: string; url?: string } = {
+				title: "",
+				body: "",
 			};
+			await expect
+				.poll(
+					async () => {
+						const response = await page.request.get(
+							`/me/notification-text?lang=${lang}`,
+						);
+						if (response.status() !== 200) return "none";
+						notification = await response.json();
+						return notification.url ?? "points";
+					},
+					{ timeout: 30_000 },
+				)
+				.toBe("points");
+			const { title, body } = notification;
 			const icon = new URL("/icons/icon-192.png", page.url()).href;
 			// Waits for "load", so the icon is in.
 			await page.setContent(`<!doctype html>
