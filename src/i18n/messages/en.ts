@@ -514,7 +514,7 @@ export const en: Catalog = {
 	"badges.about.training_rynke":
 		"All the Training Rynke you collected this season.",
 	"badges.about.run_length":
-		"Your longest single run this season, outdoors; treadmill and virtual runs don't count.",
+		"Your longest single run this season, without treadmill and virtual runs.",
 	"badges.about.running":
 		"All the kilometres of your runs this season, without treadmill and virtual runs.",
 	"badges.about.team_training_rynke":
@@ -528,7 +528,7 @@ export const en: Catalog = {
 	"badges.about.big_training":
 		"The most riders at a single team event this season.",
 	"badges.about.attendances":
-		"How often riders came to team events this season, over all events: 12 at a training and 18 on a training weekend make 30.",
+		"All riders' attendances at team events this season, added up.",
 	"badges.for.distance": "You rode {value} by bike this season.",
 	"badges.for.elevation": "You climbed {value} by bike this season.",
 	"badges.for.team_events": "You joined {value} this season.",

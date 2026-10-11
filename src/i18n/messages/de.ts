@@ -537,7 +537,7 @@ export const de = {
 	"badges.about.training_rynke":
 		"Alle Trainings-Rynke, die du in dieser Saison gesammelt hast.",
 	"badges.about.run_length":
-		"Dein längster Lauf dieser Saison am Stück, draußen; Laufband und virtuelle Läufe zählen nicht.",
+		"Dein längster Lauf dieser Saison am Stück, ohne Laufband und virtuelle Läufe.",
 	"badges.about.running":
 		"Alle Kilometer deiner Läufe in dieser Saison, ohne Laufband und virtuelle Läufe.",
 	"badges.about.team_training_rynke":
@@ -551,7 +551,7 @@ export const de = {
 	"badges.about.big_training":
 		"Die meisten Rider, die in dieser Saison bei einem einzigen Teamtermin dabei waren.",
 	"badges.about.attendances":
-		"Wie oft Rider in dieser Saison bei Teamterminen dabei waren, über alle Termine: 12 beim Training und 18 am Trainingswochenende machen 30.",
+		"Alle Teilnahmen der Rider an Teamterminen dieser Saison zusammengezählt.",
 	"badges.for.distance": "Du bist in dieser Saison {value} Rad gefahren.",
 	"badges.for.elevation":
 		"Du bist in dieser Saison mit dem Rad {value} bergauf gefahren.",
