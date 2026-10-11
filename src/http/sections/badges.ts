@@ -112,23 +112,7 @@ function badgeButton(
 		value: milestone(i18n, badge),
 	});
 	const ribbon = size === 200;
-	return html`<button
-    class="badge"
-    popovertarget="badge-${badge.id}"
-    aria-label="${label}"
-  >
-    <img
-      src="${picture(badge, ribbon)}"
-      alt=""
-      loading="lazy"
-      width="${size}"
-      height="${size}"
-    />${
-			ribbon
-				? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>`
-				: null
-		}
-  </button>`;
+	return html`<button class="badge" popovertarget="badge-${badge.id}" aria-label="${label}"><img src="${picture(badge, ribbon)}" alt="" loading="lazy" width="${size}" height="${size}">${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}</button>`;
 }
 
 function progressBar(
@@ -143,45 +127,30 @@ function progressBar(
 		progress.missing,
 		category === "run_length" ? 1 : 0,
 	);
-	return html`<span class="bar" aria-hidden="true"
-      ><span style="width:${progress.percent}%"></span></span
-    ><span class="badge-missing"
-      >${i18n.t("badges.missing", { value: missing })}</span
-    >`;
+	return html`<span class="bar" aria-hidden="true"><span style="width:${progress.percent}%"></span></span><span class="badge-missing">${i18n.t("badges.missing", { value: missing })}</span>`;
 }
 
 /** The category's name in bold with the sentence on how it counts below. */
 function categoryHeading(i18n: I18n, category: BadgeCategoryId): SafeHtml {
 	return html`<h4>${i18n.t(`badges.category.${category}`)}</h4>
-    <p class="badge-about">${i18n.t(`badges.about.${category}`)}</p>`;
+<p class="badge-about">${i18n.t(`badges.about.${category}`)}</p>`;
 }
 
 function card(i18n: I18n, card: Card): SafeHtml {
 	return html`<li class="badge-card" data-category="${card.category}">
-    ${categoryHeading(i18n, card.category)}
-    ${badgeButton(i18n, card.badge, 200)}
-    ${
-			card.progress
-				? html`<div class="badge-progress">
-          ${progressBar(i18n, card.category, card.progress)}
-        </div>`
-				: null
-		}
-  </li>`;
+${categoryHeading(i18n, card.category)}
+${badgeButton(i18n, card.badge, 200)}
+${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.category, card.progress)}</div>` : null}
+</li>`;
 }
 
 /** A category without a badge: a dotted outline, its sentence on phones too. */
 function emptyCard(i18n: I18n, row: NotYetRow): SafeHtml {
-	return html`<li
-    class="badge-card badge-card-empty"
-    data-category="${row.category}"
-  >
-    ${categoryHeading(i18n, row.category)}
-    <span class="badge-slot" aria-hidden="true"></span>
-    <div class="badge-progress">
-      ${progressBar(i18n, row.category, row.progress)}
-    </div>
-  </li>`;
+	return html`<li class="badge-card badge-card-empty" data-category="${row.category}">
+${categoryHeading(i18n, row.category)}
+<span class="badge-slot" aria-hidden="true"></span>
+<div class="badge-progress">${progressBar(i18n, row.category, row.progress)}</div>
+</li>`;
 }
 
 function group(
@@ -193,50 +162,31 @@ function group(
 	if (!view) return null;
 	const empty = notYet.filter((row) => row.group === kind);
 	const gallery = view.gallery.map(
-		(g) =>
-			html`${categoryHeading(i18n, g.category)}
-        <ul>
-          ${g.badges.map(
-						(b) =>
-							html`<li>
-                ${badgeButton(i18n, b, 96)}<span class="badge-value"
-                  >${milestone(i18n, badgeOf(b))}</span
-                >
-              </li>`,
-					)}${Array.from(
-						{ length: g.unearned },
-						() => html`<li class="badge-slot" aria-hidden="true"></li>`,
-					)}
-        </ul> `,
+		(g) => html`${categoryHeading(i18n, g.category)}
+<ul>${g.badges.map(
+			(b) =>
+				html`<li>${badgeButton(i18n, b, 96)}<span class="badge-value">${milestone(i18n, badgeOf(b))}</span></li>`,
+		)}${Array.from(
+			{ length: g.unearned },
+			() => html`<li class="badge-slot" aria-hidden="true"></li>`,
+		)}</ul>
+`,
 	);
-	return html`<section
-    class="badge-group badge-group-${kind}"
-    aria-labelledby="badges-${kind}-heading"
-  >
-    <h3 id="badges-${kind}-heading">${i18n.t(`badges.${kind}.newest`)}</h3>
-    ${
-			kind === "personal" && view.count === 0
-				? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>`
-				: null
-		}
-    <ul class="badge-cards">
-      ${view.cards.map((c) => card(i18n, c))}${empty.map((row) =>
-				emptyCard(i18n, row),
-			)}
-    </ul>
-    ${
-			view.count > 0
-				? html`<details class="badge-gallery">
-          <summary>
-            ${i18n.t(`badges.${kind}.all`, {
-							n: i18n.formatNumber(view.count, { fractionDigits: 0 }),
-						})}
-          </summary>
-          ${gallery}
-        </details>`
-				: null
-		}
-  </section> `;
+	return html`<section class="badge-group badge-group-${kind}" aria-labelledby="badges-${kind}-heading">
+<h3 id="badges-${kind}-heading">${i18n.t(`badges.${kind}.newest`)}</h3>
+${kind === "personal" && view.count === 0 ? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>` : null}
+<ul class="badge-cards">
+${view.cards.map((c) => card(i18n, c))}${empty.map((row) => emptyCard(i18n, row))}
+</ul>
+${
+	view.count > 0
+		? html`<details class="badge-gallery">
+<summary>${i18n.t(`badges.${kind}.all`, { n: i18n.formatNumber(view.count, { fractionDigits: 0 }) })}</summary>
+${gallery}</details>`
+		: null
+}
+</section>
+`;
 }
 
 /**
@@ -249,30 +199,13 @@ function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 	const value = milestone(i18n, badge);
 	const team = badge.group === "team" ? " badge-large-team" : "";
 	return html`<div popover id="badge-${badge.id}" class="badge-large${team}">
-    <button
-      type="button"
-      class="icon-button badge-large-close"
-      popovertarget="badge-${badge.id}"
-      popovertargetaction="hide"
-      aria-label="${i18n.t("badges.close")}"
-    >
-      ${CLOSE}
-    </button>
-    <span class="badge"
-      ><img
-        src="${picture(badge, true)}"
-        alt=""
-        loading="lazy"
-        width="280"
-        height="280"
-      /><span class="badge-ribbon-text">${value}</span></span
-    >
-    <h4>${BADGE_NAMES[badge.id] ?? ""}</h4>
-    <p>${i18n.t(`badges.for.${badge.category}`, { value })}</p>
-    <p>
-      ${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}
-    </p>
-  </div> `;
+<button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
+<span class="badge"><img src="${picture(badge, true)}" alt="" loading="lazy" width="280" height="280"><span class="badge-ribbon-text">${value}</span></span>
+<h4>${BADGE_NAMES[badge.id] ?? ""}</h4>
+<p>${i18n.t(`badges.for.${badge.category}`, { value })}</p>
+<p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
+</div>
+`;
 }
 
 /** At most this many pictures in the reveal; the text has the count. */
@@ -298,19 +231,15 @@ export function renderBadgeReveal(
 					n: i18n.formatNumber(badges.length, { fractionDigits: 0 }),
 				});
 	return html`<aside class="badges-reveal" role="status">
-    <span class="badges-reveal-pictures" aria-hidden="true"
-      >${badges.slice(0, REVEAL_PICTURES).map(
-				(b) =>
-					html`<img
-              src="${picture(badgeOf(b), false)}"
-              alt=""
-              width="48"
-              height="48"
-            />`,
-			)}</span
-    >
-    <p>${text}</p>
-  </aside> `;
+<span class="badges-reveal-pictures" aria-hidden="true">${badges
+		.slice(0, REVEAL_PICTURES)
+		.map(
+			(b) =>
+				html`<img src="${picture(badgeOf(b), false)}" alt="" width="48" height="48">`,
+		)}</span>
+<p>${text}</p>
+</aside>
+`;
 }
 
 export function renderBadges(i18n: I18n, section: BadgeSection): SafeHtml {
@@ -318,16 +247,8 @@ export function renderBadges(i18n: I18n, section: BadgeSection): SafeHtml {
 		(view) => view?.gallery.flatMap((g) => g.badges) ?? [],
 	);
 	return html`<section class="badges" aria-labelledby="badges-heading">
-    <h2 id="badges-heading" class="visually-hidden">
-      ${i18n.t("badges.heading")}
-    </h2>
-    ${group(i18n, "personal", section.personal, section.notYet)}${group(
-			i18n,
-			"team",
-			section.team,
-			section.notYet,
-		)}${earned.map((b) => popover(i18n, b))}
-  </section>`;
+<h2 id="badges-heading" class="visually-hidden">${i18n.t("badges.heading")}</h2>
+${group(i18n, "personal", section.personal, section.notYet)}${group(i18n, "team", section.team, section.notYet)}${earned.map((b) => popover(i18n, b))}</section>`;
 }
 
 /**
@@ -398,10 +319,7 @@ export function handleBadges(
 				window,
 			);
 			return section
-				? html`${renderBadgeReveal(i18n, section.reveal)}${renderBadges(
-						i18n,
-						section,
-					)}`
+				? html`${renderBadgeReveal(i18n, section.reveal)}${renderBadges(i18n, section)}`
 				: html``;
 		},
 	);
