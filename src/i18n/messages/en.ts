@@ -14,6 +14,7 @@ export const en: Catalog = {
 
 	"layout.switcher.label": "Language",
 	"layout.logout": "Sign out",
+	"layout.loading": "Loading the page",
 
 	"landing.title": "Connect with Strava",
 	"landing.intro":
@@ -172,7 +173,8 @@ export const en: Catalog = {
 	"rynke.gauges.heading": "Your progress 🪙",
 	"rynke.gauge.caption": "{label}: {value} of {target} · {percent}",
 	"rynke.gauge.elevation":
-		"Elevation: {value} of {target}, {missing} to go for +{stepRynke}",
+		"Elevation: {value} of {target}, {missing} to go for {step}",
+	"rynke.gauge.step": "+{n}",
 	"rynke.source.distance": "Distance",
 	"rynke.source.elevation": "Elevation",
 	"rynke.source.team_training": "Team training",
@@ -419,6 +421,7 @@ export const en: Catalog = {
 	"organiser.overview.toGo.training": "{n} Training to go",
 	"organiser.overview.toGo.team": "{n} Team to go",
 	"organiser.overview.toGo.outdoor": "{n} outdoor Training to go",
+	"organiser.overview.toGo.short": "{n} to go",
 	"organiser.overview.behind": "behind pace",
 	"organiser.overview.breakdown": "Where the Rynke come from",
 	"organiser.overview.distance": "Distance {n}",
@@ -440,7 +443,6 @@ export const en: Catalog = {
 	"organiser.overview.column.training": "Training",
 	"organiser.overview.column.team": "Team",
 	"organiser.overview.column.outdoor": "Outdoor",
-	"organiser.overview.column.missing": "Still to go",
 	"organiser.overview.column.distance": "Distance",
 	"organiser.overview.column.elevation": "Elevation",
 	"organiser.overview.column.events": "Team events",

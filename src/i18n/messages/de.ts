@@ -17,6 +17,7 @@ export const de = {
 
 	"layout.switcher.label": "Sprache",
 	"layout.logout": "Abmelden",
+	"layout.loading": "Seite wird geladen",
 
 	"landing.title": "Mit Strava verbinden",
 	"landing.intro":
@@ -179,7 +180,8 @@ export const de = {
 	"rynke.gauges.heading": "Dein Fortschritt 🪙",
 	"rynke.gauge.caption": "{label}: {value} von {target} · {percent}",
 	"rynke.gauge.elevation":
-		"Höhenmeter: {value} von {target}, noch {missing} bis +{stepRynke}",
+		"Höhenmeter: {value} von {target}, noch {missing} bis {step}",
+	"rynke.gauge.step": "+{n}",
 	"rynke.source.distance": "Distanz",
 	"rynke.source.elevation": "Höhenmeter",
 	"rynke.source.team_training": "Teamtraining",
@@ -441,6 +443,7 @@ export const de = {
 	"organiser.overview.toGo.training": "Noch {n} Training",
 	"organiser.overview.toGo.team": "Noch {n} Team",
 	"organiser.overview.toGo.outdoor": "Noch {n} Training draußen",
+	"organiser.overview.toGo.short": "noch {n}",
 	"organiser.overview.behind": "hinter dem Tempo",
 	"organiser.overview.breakdown": "Woher die Rynke kommen",
 	"organiser.overview.distance": "Distanz {n}",
@@ -463,7 +466,6 @@ export const de = {
 	"organiser.overview.column.training": "Training",
 	"organiser.overview.column.team": "Team",
 	"organiser.overview.column.outdoor": "Draußen",
-	"organiser.overview.column.missing": "Fehlt noch",
 	"organiser.overview.column.distance": "Distanz",
 	"organiser.overview.column.elevation": "Höhenmeter",
 	"organiser.overview.column.events": "Termine",

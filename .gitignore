@@ -12,6 +12,9 @@ dist/
 test-results/
 playwright-report/
 
+# Screenshots and form draft for Strava's review (pnpm strava:review)
+strava-review/
+
 # Local secrets — Strava client secret, token encryption key, etc. Production
 # secrets live in Cloudflare (`wrangler secret put`), never in git
 # (constitution Principle I). .dev.vars.example IS committed.

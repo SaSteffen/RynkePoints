@@ -124,9 +124,17 @@ describe("STYLE", () => {
 		});
 	});
 
-	it("shows the overview as cards below 840 px and as a table from 840 px (016 FR-035, research R9)", () => {
-		const PHONE = "(max-width:839.98px)";
-		const DESKTOP = "(min-width:840px)";
+	it("shows the overview as cards below 1100 px and as a table from 1100 px (016 FR-035, research R9)", () => {
+		const PHONE = "(max-width:1099.98px)";
+		const DESKTOP = "(min-width:1100px)";
+		const MEDIUM = "(min-width:840px)";
+		// From 840 px the cards sit in two columns and the page spans the window.
+		expect(declsOf("ul.rider-cards", MEDIUM)["grid-template-columns"]).toBe(
+			"repeat(2,minmax(0,1fr))",
+		);
+		expect(declsOf("main:has(>.team-overview)", MEDIUM)["max-width"]).toBe(
+			"none",
+		);
 		expect(declsOf(".table-scroll", PHONE).display).toBe("none");
 		expect(
 			declsOf(".rider-cards.default .rider-card:not(.status-push)", PHONE)
@@ -206,6 +214,23 @@ describe("STYLE", () => {
 		expect(declsOf("body")["font-variant-numeric"]).toBe("tabular-nums");
 	});
 
+	it("pins the page progress bar to the top, below the status bar (issue #108)", () => {
+		expect(declsOf(".page-loading")).toMatchObject({
+			position: "fixed",
+			top: "env(safe-area-inset-top)",
+			"pointer-events": "none",
+		});
+		expect(Number(declsOf(".page-loading")["z-index"])).toBeGreaterThan(
+			Number(declsOf("nav.app-nav")["z-index"]),
+		);
+		expect(declsOf(".page-loading::before").animation).toContain(
+			"page-loading",
+		);
+		expect(
+			declsOf(".page-loading::before", "(prefers-reduced-motion:reduce)"),
+		).toMatchObject({ width: "100%", animation: "none" });
+	});
+
 	it("turns the transitions and animations off for reduced motion (FR-038)", () => {
 		const reduced = RULES.filter(
 			(rule) => rule.media === "(prefers-reduced-motion:reduce)",
@@ -247,6 +272,66 @@ describe("STYLE", () => {
 			),
 		);
 		expect(unguarded).toEqual([]);
+	});
+
+	describe.each([
+		".button",
+		".button-outlined",
+		".danger",
+		".segmented",
+		".segmented-group label",
+		".icon-button",
+	])("press feedback on %s (issue #107)", (selector) => {
+		it("lays a state layer in the button's own colour over it", () => {
+			expect(declsOf(`${selector}::before`)).toMatchObject({
+				position: "absolute",
+				background: "currentColor",
+				opacity: "0",
+			});
+			expect(declsOf(selector).overflow).toBe("hidden");
+		});
+
+		it("shows the layer on hover only where the pointer can hover", () => {
+			expect(declsOf(`${selector}:hover::before`)).toEqual({});
+			expect(
+				declsOf(`${selector}:hover::before`, "(hover:hover)").opacity,
+			).toBe(".08");
+		});
+
+		it("shows a stronger layer when pressed and no ripple runs", () => {
+			expect(
+				Number(
+					declsOf(`:root:not(.ripples) ${selector}:active::before`).opacity,
+				),
+			).toBeGreaterThan(0.08);
+		});
+	});
+
+	it("shrinks a pressed button a little, except with reduced motion", () => {
+		for (const selector of [".button", ".button-outlined", ".danger"]) {
+			expect(declsOf(`${selector}:active`).transform).toBeUndefined();
+			expect(
+				declsOf(`${selector}:active`, "(prefers-reduced-motion:no-preference)")
+					.transform,
+			).toBe("scale(.96)");
+		}
+	});
+
+	it("keeps joined segments in place when pressed", () => {
+		expect(declsOf(".segmented:active").transform).toBeUndefined();
+	});
+
+	it("blocks a busy button and spins only without reduced motion", () => {
+		expect(declsOf(".button[aria-busy=true]")["pointer-events"]).toBe("none");
+		expect(declsOf(".button[aria-busy=true]::after").animation).toContain(
+			"busy-spin",
+		);
+		expect(
+			declsOf(
+				".button[aria-busy=true]::after",
+				"(prefers-reduced-motion:reduce)",
+			).animation,
+		).toBe("none");
 	});
 
 	it("loads nothing from another origin (FR-037)", () => {

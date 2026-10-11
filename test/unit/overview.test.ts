@@ -261,8 +261,9 @@ describe("overviewBody", () => {
 		const html = page(null);
 		expect(html).toContain("today 138 Training and 13 Team.");
 		expect(html.match(/<line class="pace-mark"/g)).toHaveLength(
-			// Training and Team, in a card and a table row, for four riders.
-			2 * 2 * 4,
+			// Training and Team in a card, plus outdoor Training in the table
+			// row, for four riders.
+			(2 + 3) * 4,
 		);
 		expect(html).toMatch(/<svg class="threshold-bar"[^>]*aria-hidden="true"/);
 	});

@@ -1,9 +1,10 @@
 // RynkePoints page script (feature 010 contracts/client.md, research R16). It
 // only wires up what a server-rendered page can't do itself: the service worker,
 // the install group and the app prompt, the notifications switch, the scheme
-// picker, reloading a section on return and waiting for the first data. It
-// holds no text: every word shown comes from the page's markup, rendered from
-// the catalogs and hidden until this shows it.
+// picker, reloading a section on return, waiting for the first data and the
+// buttons' press and busy feedback. It holds no text: every word shown comes
+// from the page's markup, rendered from the catalogs and hidden until this
+// shows it.
 
 /**
  * Resolves to whether the service worker is registered. Firefox's private
@@ -419,6 +420,79 @@ function schemePicker() {
 	}
 }
 
+/** How long the next page may take before the progress bar shows (issue #108). */
+const LOADING_DELAY_MS = 1000;
+let loadingTimer = null;
+
+/**
+ * Shows the page's progress bar if the next page isn't there within a second
+ * (issue #108). Every page is a full round trip to the server, and until it
+ * answers the browser keeps showing this one as if nothing happened.
+ */
+function startLoading() {
+	const bar = document.querySelector(".page-loading");
+	if (!bar || loadingTimer !== null) return;
+	loadingTimer = setTimeout(() => {
+		bar.hidden = false;
+	}, LOADING_DELAY_MS);
+}
+
+function stopLoading() {
+	clearTimeout(loadingTimer);
+	loadingTimer = null;
+	const bar = document.querySelector(".page-loading");
+	if (bar) bar.hidden = true;
+}
+
+/**
+ * Starts the progress bar for whatever leaves this page for another of ours: a
+ * link, the top bar's refresh, a form. Links to another site, a new tab, a
+ * download or a file don't count: this page stays. A page restored from the
+ * back-forward cache, or left for another app (Strava's, say), starts without
+ * it.
+ */
+function pageLoading() {
+	document.addEventListener("click", (event) => {
+		if (
+			event.defaultPrevented ||
+			event.button !== 0 ||
+			event.metaKey ||
+			event.ctrlKey ||
+			event.shiftKey ||
+			event.altKey
+		) {
+			return;
+		}
+		const link =
+			event.target instanceof Element ? event.target.closest("a[href]") : null;
+		if (
+			!(link instanceof HTMLAnchorElement) ||
+			link.hasAttribute("download") ||
+			(link.target !== "" && link.target !== "_self")
+		) {
+			return;
+		}
+		const url = new URL(link.href);
+		const samePage =
+			url.pathname === location.pathname && url.search === location.search;
+		if (
+			url.origin !== location.origin ||
+			(samePage && url.hash !== "") ||
+			/\.[a-z0-9]+$/i.test(url.pathname)
+		) {
+			return;
+		}
+		startLoading();
+	});
+	document.addEventListener("submit", (event) => {
+		if (!event.defaultPrevented) startLoading();
+	});
+	window.addEventListener("pageshow", stopLoading);
+	document.addEventListener("visibilitychange", () => {
+		if (document.visibilityState === "hidden") stopLoading();
+	});
+}
+
 /**
  * A section brought back after more than a minute in the background reloads,
  * so its figures are current (feature 011 FR-009, research R8). Public pages
@@ -434,6 +508,7 @@ function refreshOnReturn() {
 			Date.now() - hiddenAt > 60000 &&
 			document.querySelector("nav.app-nav")
 		) {
+			startLoading();
 			location.reload();
 		}
 	});
@@ -462,6 +537,7 @@ function waitForFirstData() {
 			const { ready } = await res.json();
 			if (ready === true) {
 				clearInterval(timer);
+				startLoading();
 				location.reload();
 			}
 		} catch {
@@ -470,10 +546,104 @@ function waitForFirstData() {
 	}, seconds * 1000);
 }
 
+/** The Material buttons that show press feedback (issue #107). */
+const PRESSABLE =
+	".button,.button-outlined,.danger,.segmented,.segmented-group label,.icon-button";
+
+/**
+ * A ripple from the point of the tap on a Material button (issue #107). Without
+ * it, or with reduced motion, the stylesheet's flat pressed layer shows instead:
+ * the `ripples` class on the root switches that layer off.
+ */
+function pressFeedback() {
+	// Safari on iOS applies :active on touch only once a touch listener exists.
+	document.addEventListener("touchstart", () => {}, { passive: true });
+	if (
+		matchMedia("(prefers-reduced-motion: reduce)").matches ||
+		typeof Element.prototype.animate !== "function"
+	) {
+		return;
+	}
+	document.documentElement.classList.add("ripples");
+	document.addEventListener("pointerdown", (event) => {
+		if (!event.isPrimary || event.button !== 0) return;
+		const target =
+			event.target instanceof Element ? event.target.closest(PRESSABLE) : null;
+		if (!target || target.getAttribute("aria-busy") === "true") return;
+		const box = target.getBoundingClientRect();
+		const x = event.clientX - box.left;
+		const y = event.clientY - box.top;
+		const radius = Math.hypot(
+			Math.max(x, box.width - x),
+			Math.max(y, box.height - y),
+		);
+		const ripple = document.createElement("span");
+		ripple.className = "ripple";
+		ripple.setAttribute("aria-hidden", "true");
+		ripple.style.left = `${x - radius}px`;
+		ripple.style.top = `${y - radius}px`;
+		ripple.style.width = ripple.style.height = `${radius * 2}px`;
+		target.append(ripple);
+		const grow = ripple.animate(
+			[{ transform: "scale(0)" }, { transform: "scale(1)" }],
+			{ duration: 300, easing: "cubic-bezier(0.2, 0, 0, 1)", fill: "forwards" },
+		);
+		const ends = ["pointerup", "pointercancel", "pointerleave"];
+		const release = () => {
+			for (const type of ends) target.removeEventListener(type, release);
+			grow.finished
+				.then(
+					() =>
+						ripple.animate([{ opacity: 0 }], {
+							duration: 150,
+							fill: "forwards",
+						}).finished,
+				)
+				.catch(() => {})
+				.finally(() => ripple.remove());
+		};
+		for (const type of ends) target.addEventListener(type, release);
+	});
+}
+
+/**
+ * Marks the button that sent a form as busy until the next page arrives, and
+ * ignores a second submit meanwhile (issue #107). The button stays enabled: a
+ * disabled submitter drops its name and value from the form data, which the
+ * language buttons need. A page restored from the back-forward cache starts
+ * idle again.
+ */
+function pendingSubmit() {
+	document.addEventListener("submit", (event) => {
+		const form = event.target;
+		if (event.defaultPrevented || !(form instanceof HTMLFormElement)) return;
+		if (form.dataset.submitting === "true") {
+			event.preventDefault();
+			return;
+		}
+		form.dataset.submitting = "true";
+		const button =
+			event.submitter ?? form.querySelector("button:not([type=button])");
+		button?.setAttribute("aria-busy", "true");
+	});
+	window.addEventListener("pageshow", (event) => {
+		if (!event.persisted) return;
+		for (const form of document.querySelectorAll("form[data-submitting]")) {
+			delete form.dataset.submitting;
+		}
+		for (const button of document.querySelectorAll("[aria-busy=true]")) {
+			button.removeAttribute("aria-busy");
+		}
+	});
+}
+
 const registered = registerWorker();
+pressFeedback();
+pendingSubmit();
 installSettings();
 appPrompt();
 schemePicker();
 refreshOnReturn();
 waitForFirstData();
+pageLoading();
 notifications().catch(() => {});

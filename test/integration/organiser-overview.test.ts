@@ -234,6 +234,14 @@ describe("GET /organiser/riders, the overview", () => {
 			expect(row).toContain(`>${figure}<`);
 		}
 		expect(row).toContain(escapeHtml(de["organiser.overview.group.push"]));
+		expect(row).toContain(
+			`<span class="to-go behind">${fill(de["organiser.overview.toGo.short"], { n: 200 })}<span class="visually-hidden"> · ${escapeHtml(de["organiser.overview.behind"])}</span></span>`,
+		);
+	});
+
+	it("leaves the to-go figure out of the table row once an amount is met", async () => {
+		const row = rowOf((await overview()).html, QUALIFIED.id);
+		expect(row).not.toContain('class="to-go');
 	});
 
 	it("names the even pace for the bars (FR-033, FR-041)", async () => {

@@ -84,7 +84,7 @@ with the same switch. Then the heading "Team overview".
 3. **Hint** (before the deadline only): "The tick on each bar marks the even pace
    to the deadline: today {training} Training and {team} Team." This is the text
    for the bars' ticks (FR-041).
-4. **Cards** `ul.rider-cards` (below 840 px), one `li.rider-card.status-{status}`,
+4. **Cards** `ul.rider-cards` (below 1100 px, two columns from 840 px), one `li.rider-card.status-{status}`,
    the riders missing the most first (share missing of Training plus that of
    Team), then by first name:
    - first name linking to the corrections page, "View on Strava" link when
@@ -96,10 +96,12 @@ with the same switch. Then the heading "Team overview".
      outdoor Training to go"), orange with "· behind pace" when behind;
    - `<details>` "Where the Rynke come from": distance, elevation, each team-event
      kind, corrections, outdoor Training of its amount, virtual share (FR-033).
-5. **Table** `table.rider-table` in `div.table-scroll` (from 840 px): one row per
-   rider in the same order; columns first name, group, Training (figure and
-   bar), Team (figure and bar), outdoor Training, still to go, distance,
-   elevation, team events, corrections, virtual share.
+5. **Table** `table.rider-table` in `div.table-scroll` (from 1100 px): one row per
+   rider in the same order; columns first name, group, Training, Team and
+   outdoor Training (each its figure, "{n} to go" while some is missing, in
+   the push colour when behind pace, and its bar), distance, elevation, team
+   events and corrections (Training and Team beside their mini coins),
+   virtual share. From 840 px the page uses the full width of the window.
 6. **Qualified list** `section.qualified`: a card on the coin's ink, "Training
    goal reached 🎯", "Both thresholds and the outdoor share met." and one pill per rider
    with the mini coin; or "Nobody has reached the training goal yet." (FR-034).
@@ -109,5 +111,6 @@ With nobody listed, "No riders share their Rynke yet." stands in place of 3–6.
 ## Both
 
 - 360 px wide without horizontal scrolling, light and dark (FR-040). The table
-  scrolls inside its own container only from 840 px, where it fits.
+  scrolls inside its own container only from 1100 px, where it fits; the
+  breakpoint sits where all columns fit without scrolling.
 - Controls are at least 44 px tall (011).

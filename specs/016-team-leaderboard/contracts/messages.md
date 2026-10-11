@@ -95,6 +95,7 @@ kind switch.
 | `organiser.overview.toGo.training` | {n} Training to go | Noch {n} Training |
 | `organiser.overview.toGo.team` | {n} Team to go | Noch {n} Team |
 | `organiser.overview.toGo.outdoor` | {n} outdoor Training to go | Noch {n} Training draußen |
+| `organiser.overview.toGo.short` | {n} to go | noch {n} |
 | `organiser.overview.behind` | behind pace | hinter dem Tempo |
 | `organiser.overview.breakdown` | Where the Rynke come from | Woher die Rynke kommen |
 | `organiser.overview.distance` | Distance {n} | Distanz {n} |
@@ -110,7 +111,6 @@ kind switch.
 | `organiser.overview.column.training` | Training | Training |
 | `organiser.overview.column.team` | Team | Team |
 | `organiser.overview.column.outdoor` | Outdoor | Draußen |
-| `organiser.overview.column.missing` | Still to go | Fehlt noch |
 | `organiser.overview.column.distance` | Distance | Distanz |
 | `organiser.overview.column.elevation` | Elevation | Höhenmeter |
 | `organiser.overview.column.events` | Team events | Termine |

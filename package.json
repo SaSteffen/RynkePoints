@@ -22,6 +22,7 @@
 		"icons": "node scripts/icons.mjs",
 		"illustrations": "node scripts/illustrations.mjs",
 		"daily:run": "scripts/run-daily.sh",
+		"strava:review": "node scripts/strava-review.mjs",
 		"prepare": "lefthook install"
 	},
 	"devDependencies": {

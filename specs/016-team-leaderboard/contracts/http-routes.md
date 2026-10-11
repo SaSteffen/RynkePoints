@@ -26,7 +26,7 @@ organiser.
 
 | Query | Values | Default |
 |---|---|---|
-| `group` | `push`, `on_track`, `in`, `all` | none: every rider rendered, CSS shows "Need a push" below 840 px (research R9) |
+| `group` | `push`, `on_track`, `in`, `all` | none: every rider rendered, CSS shows "Need a push" below 1100 px (research R9) |
 
 - Once the deadline has passed, `on_track` is treated as `all` and its tile is not
   shown (data-model.md `RiderStatus`).

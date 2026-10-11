@@ -34,6 +34,7 @@ The complete set of message IDs for this feature. These are the keys of
 |---|---|---|
 | `layout.switcher.label` | Sprache | Language |
 | `layout.logout` | Abmelden | Sign out |
+| `layout.loading` | Seite wird geladen | Loading the page |
 
 ## Landing page (`GET /`)
 
