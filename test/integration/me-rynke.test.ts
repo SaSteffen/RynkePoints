@@ -82,7 +82,9 @@ describe("GET /me Rynke summary (US1)", () => {
 			virtualShareMissing: 155,
 		});
 		const shown = await summary();
-		expect(shown).toContain("Noch nicht qualifiziert 🍌 Dir fehlen noch:");
+		expect(shown).toContain(
+			"Noch nicht qualifiziert Du liegst hinter dem Plan. Dir fehlen noch:",
+		);
 		// The gauges carry the figures (issue: wording review).
 		expect(shown).not.toContain("von 250");
 		expect(shown).toContain("238 Trainingsrynke");
@@ -104,7 +106,10 @@ describe("GET /me Rynke summary (US1)", () => {
 		const shown = text(
 			section(html, 'class="rynke-summary verdict card"') ?? "",
 		);
-		expect(shown).toBe("Qualifiziert für Paris! 🗼");
+		expect(shown).toBe(
+			"Qualifiziert für Paris! 🗼 Plan übererfüllt: Trainingsziel erreicht.",
+		);
+		expect(html).toContain('src="/illustrations/status_in_fun.svg"');
 		expect(html).not.toContain('class="rynke-missing"');
 	});
 

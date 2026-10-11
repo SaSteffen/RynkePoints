@@ -1,8 +1,9 @@
-import { readyPollSeconds } from "../../config";
+import { berlinDate, readyPollSeconds } from "../../config";
 import type { Ctx } from "../../ctx";
 import { readRiderView } from "../../db/rider-view";
 import { readSeen, type SeenRynke, writeSeen } from "../../db/rynke-seen";
 import type { I18n } from "../../i18n/i18n";
+import { riderStatus } from "../../rynke/pace";
 import {
 	CURRENT_RULES,
 	countingWindow,
@@ -71,14 +72,19 @@ export function handleOverview(
 ): Promise<Response> {
 	return shellPage(request, ctx, i18n, "you", "/me", async ({ rider }) => {
 		const read = await readRiderView(ctx.env.DB, rider.athleteId, 1);
+		const window = countingWindow(ctx.env);
 		const view = buildRiderView(
 			read,
 			read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
 			CURRENT_RULES,
-			{
-				...countingWindow(ctx.env),
-				rulesFor: rulesForVersion,
-			},
+			{ ...window, rulesFor: rulesForVersion },
+		);
+		// The same rule as the Team quote and the organiser groups (016 FR-030).
+		const status = riderStatus(
+			read.balance,
+			CURRENT_RULES,
+			window,
+			berlinDate(ctx.now()),
 		);
 		const ready = view.state === "ready" ? view : null;
 		const totals = ready && {
@@ -110,7 +116,7 @@ ${
 </section>
 ${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}
 ${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env))}
-${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary) : null}
+${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary, status) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}
 ${ready ? renderBreakdown(i18n, ready.breakdown) : null}
 </div>`;

@@ -1,5 +1,6 @@
 import type { Rider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
+import type { RiderStatus } from "../rynke/pace";
 import { STRAVA_ORIGIN } from "../strava/result";
 import { coin, miniCoin } from "./coin";
 import { html, type SafeHtml } from "./html";
@@ -17,6 +18,7 @@ import type {
 	RulesInfo,
 	Summary,
 } from "./rider-view";
+import { statusArt } from "./status-art";
 
 // The Rynke sections of the Overview and Rides (feature 005
 // contracts/rider-page.md, feature 011 contracts/pages.md), rendered
@@ -39,6 +41,13 @@ const STATUS = {
  * Each source's colour class, the same in every gauge and legend
  * (contracts/rider-page.md); 6 is kept for feature 003 Story 6's corrections.
  */
+/** The plan status sentence of each rider status (issue #93). */
+const STATUS_SENTENCE = {
+	push: "rynke.status.push",
+	on_track: "rynke.status.onTrack",
+	in: "rynke.status.in",
+} as const;
+
 const PART_CLASS: Record<GaugeSource, string> = {
 	distance: "gauge-part-1",
 	elevation: "gauge-part-2",
@@ -99,7 +108,15 @@ export function renderNotice(i18n: I18n, view: RiderView): SafeHtml | null {
 </section>`;
 }
 
-export function renderSummary(i18n: I18n, summary: Summary): SafeHtml {
+/**
+ * Where the rider stands: Rynke on a bike for their status with the plan
+ * sentence (issues #92, #93), then what they still need.
+ */
+export function renderSummary(
+	i18n: I18n,
+	summary: Summary,
+	status: RiderStatus,
+): SafeHtml {
 	const unmet = [
 		{
 			condition: summary.training,
@@ -120,19 +137,17 @@ export function renderSummary(i18n: I18n, summary: Summary): SafeHtml {
 				]
 			: [],
 	);
-	// The coin's Hamburg–Paris side for a rider who made it (feature 012 FR-003).
 	// The gauges below carry the figures; this says only where the rider stands.
-	const verdict = summary.qualified
-		? html`<p class="rynke-verdict">${coin("back", "head")}${i18n.t("rynke.verdict.in")}</p>`
-		: html`<p class="rynke-verdict">${i18n.t("rynke.verdict.notYet")}</p>
+	return html`<section id="rynke" class="rynke-summary verdict card">
+${statusArt(status, "banner")}<div>
+<p class="rynke-verdict">${i18n.t(summary.qualified ? "rynke.verdict.in" : "rynke.verdict.notYet")}</p>
+<p class="rynke-status">${i18n.t(STATUS_SENTENCE[status])}</p>
 ${
 	missing.length > 0
 		? html`<p>${i18n.t("rynke.verdict.missing")}</p>
 <ul class="rynke-missing">${missing}</ul>`
 		: null
-}`;
-	return html`<section id="rynke" class="rynke-summary verdict card">
-${verdict}
+}</div>
 </section>`;
 }
 

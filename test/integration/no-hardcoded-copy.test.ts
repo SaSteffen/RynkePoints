@@ -100,6 +100,9 @@ describe.each(RIDER_PAGES)("$name in the pseudo-locale", (page) => {
 		for (const [, attr, value] of html.matchAll(
 			/\s(alt|title|aria-label)="([^"]*)"/g,
 		)) {
+			// An empty alt marks a decorative image, like the status
+			// illustrations next to their label (012 FR-004).
+			if (attr === "alt" && value === "") continue;
 			expect(value, `${attr} on ${page.name}`).toMatch(/^⟦[\s\S]*⟧$/);
 		}
 	});

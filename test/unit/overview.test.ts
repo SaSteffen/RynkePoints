@@ -191,7 +191,7 @@ describe("overviewBody", () => {
 	const tiles = (html: string) =>
 		[
 			...html.matchAll(
-				/<a class="group-tile tile-(\w+)"[^>]*>(?:(?!<\/a>)[\s\S])*?<span class="tile-count">(\d+)<\/span><span class="tile-label">([^<]*)<\/span><\/a>/g,
+				/<a class="group-tile tile-(\w+)"[^>]*>(?:(?!<\/a>)[\s\S])*?<span class="tile-count">(\d+)<\/span><span class="tile-label">([^<]*)<\/span>(?:<img [^>]*>)?<\/a>/g,
 			),
 		].map((m) => [m[1], m[2], m[3]]);
 	const cards = (html: string) =>
@@ -209,11 +209,28 @@ describe("overviewBody", () => {
 
 	it("has a tile per group with its count (FR-032)", () => {
 		expect(tiles(page(null))).toEqual([
-			["push", "2", "Need a push 🍌"],
-			["on_track", "1", "On track 🚴"],
-			["in", "1", "Training goal reached 🎯"],
+			["push", "2", "Need a push"],
+			["on_track", "1", "On track"],
+			["in", "1", "Training goal reached"],
 			["all", "4", "Everyone"],
 		]);
+	});
+
+	it("puts Rynke on a bike on each group's tile and chip (issue #93)", () => {
+		const html = page(null);
+		const tile = (group: string) =>
+			html.match(
+				new RegExp(`<a class="group-tile tile-${group}"[\\s\\S]*?</a>`),
+			)?.[0];
+		for (const status of ["push", "on_track", "in"]) {
+			expect(tile(status)).toContain(
+				`<img class="status-art status-art-tile" src="/illustrations/status_${status}_fun.svg" alt="" width="48" height="48">`,
+			);
+		}
+		expect(tile("all")).not.toContain("<img");
+		expect(html).toContain(
+			'<span class="status-chip"><img class="status-art status-art-chip" src="/illustrations/status_on_track_fun.svg" alt="" width="20" height="20">On track</span>',
+		);
 	});
 
 	it("renders every rider without a group, phone first on Need a push (research R9)", () => {
@@ -223,7 +240,7 @@ describe("overviewBody", () => {
 		expect(html).toContain('<nav class="group-tiles default"');
 		expect(html).not.toContain('aria-current="true"');
 		expect(html).toContain(
-			'<p class="visually-hidden showing-phone">Showing: Need a push 🍌</p>',
+			'<p class="visually-hidden showing-phone">Showing: Need a push</p>',
 		);
 		expect(html).toContain(
 			'<p class="visually-hidden showing-wide">Showing: Everyone</p>',
@@ -285,7 +302,7 @@ describe("overviewBody", () => {
 		expect(html).not.toContain("days to go");
 		expect(tiles(html).map(([group, , label]) => [group, label])).toEqual([
 			["push", "Training goal not reached yet"],
-			["in", "Training goal reached 🎯"],
+			["in", "Training goal reached"],
 			["all", "Everyone"],
 		]);
 		expect(html).not.toContain("pace-mark");
