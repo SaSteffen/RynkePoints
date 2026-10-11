@@ -6,7 +6,7 @@ import { test as base, expect, type Page } from "@playwright/test";
 // fake mode's synthetic samples (dev/fake-strava/samples.ts).
 
 /** Fails the test on any uncaught error or `console.error` in the page. */
-const test = base.extend<{ errors: string[] }>({
+const test = base.extend<{ errors: string[]; noPushInWebKit: undefined }>({
 	errors: [
 		async ({ page }, use) => {
 			const errors: string[] = [];
@@ -16,6 +16,20 @@ const test = base.extend<{ errors: string[] }>({
 			});
 			await use(errors);
 			expect(errors).toEqual([]);
+		},
+		{ auto: true },
+	],
+	// Playwright's WebKit has no push service: getSubscription() never returns
+	// and blocks the page. Without PushManager, the app treats it as a browser
+	// without push and Settings shows notifications as unsupported.
+	noPushInWebKit: [
+		async ({ page, browserName }, use) => {
+			if (browserName === "webkit") {
+				await page.addInitScript(() => {
+					delete (globalThis as { PushManager?: unknown }).PushManager;
+				});
+			}
+			await use(undefined);
 		},
 		{ auto: true },
 	],

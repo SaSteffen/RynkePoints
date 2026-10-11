@@ -92,12 +92,12 @@ pnpm test:e2e
 pnpm test:e2e --project=firefox                         # one browser
 ```
 
-Where a browser doesn't run natively (WebKit on Arch, for one), serve all three
-from Playwright's Docker image and point the tests at it:
+Where WebKit doesn't run natively (Arch, for one), serve it from Playwright's
+Docker image and point the tests at it:
 
 ```bash
-pnpm test:e2e:browsers                                   # keeps running
-PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:3000/ pnpm test:e2e
+pnpm test:e2e:webkit                                     # keeps running
+E2E_WEBKIT_SERVER=ws://127.0.0.1:3797/ pnpm test:e2e
 ```
 
 Against the real Strava you need your own

@@ -18,9 +18,9 @@ pnpm test             # Vitest inside the Workers runtime
 pnpm test:e2e         # Playwright smoke tests in Chromium, Firefox and WebKit,
                       # against fake mode on port 8797 (started for you);
                       # first `pnpm exec playwright install chromium firefox webkit`
-pnpm test:e2e:browsers  # browsers in Docker where they don't run natively
-                        # (WebKit on Arch); then run the tests with
-                        # PW_TEST_CONNECT_WS_ENDPOINT=ws://127.0.0.1:3000/
+pnpm test:e2e:webkit  # WebKit in Docker where it doesn't run natively (Arch);
+                      # then run the tests with
+                      # E2E_WEBKIT_SERVER=ws://127.0.0.1:3797/
 pnpm lint             # Biome lint + format check
 pnpm format           # Biome autofix
 pnpm typecheck        # tsc --noEmit
