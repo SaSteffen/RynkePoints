@@ -25,6 +25,10 @@ export interface Rider {
 	figuresVersion: number;
 	/** Set by the maintainer only; the app never writes it (004 FR-002, R2). */
 	organiser: boolean;
+	/** When the rider finished or skipped the rider tour; null: still to show (#90). */
+	onboardedAt: number | null;
+	/** The same for the organiser tour; cleared with the organiser flag (#90). */
+	organiserOnboardedAt: number | null;
 }
 
 export interface Credentials {
@@ -47,6 +51,8 @@ interface RiderRow {
 	reconnect_requested_at: number | null;
 	figures_version: number;
 	organiser: number;
+	onboarded_at: number | null;
+	organiser_onboarded_at: number | null;
 }
 
 export interface RiderGrant {
@@ -80,6 +86,8 @@ export async function getRider(
 				reconnectRequestedAt: row.reconnect_requested_at,
 				figuresVersion: row.figures_version,
 				organiser: row.organiser === 1,
+				onboardedAt: row.onboarded_at,
+				organiserOnboardedAt: row.organiser_onboarded_at,
 			}
 		: null;
 }
@@ -157,6 +165,22 @@ export async function markNeedsReconnect(
 			WHERE athlete_id = ?1 AND status = 'connected'`,
 		)
 		.bind(athleteId, now)
+		.run();
+}
+
+export type TourId = "rider" | "organiser";
+
+/** Records that the rider finished or skipped a tour, on every device (#90). */
+export async function setOnboarded(
+	db: D1Database,
+	athleteId: number,
+	tour: TourId,
+	now: number,
+): Promise<void> {
+	const column = tour === "rider" ? "onboarded_at" : "organiser_onboarded_at";
+	await db
+		.prepare(`UPDATE riders SET ${column} = ? WHERE athlete_id = ?`)
+		.bind(now, athleteId)
 		.run();
 }
 

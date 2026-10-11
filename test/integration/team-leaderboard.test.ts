@@ -272,6 +272,16 @@ describe("GET /team with a kind or Everyone", () => {
 			expect(linksOf(html, "list-scope")).toEqual(scopes);
 		},
 	);
+
+	it("marks the switch and toggle links to keep the scroll position (#113)", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		for (const name of ["kind-switch", "list-scope"]) {
+			const nav = sectionOf(html, `<nav class="${name}"`, "</nav>");
+			const links = [...nav.matchAll(/<a [^>]*>/g)].map((m) => m[0]);
+			expect(links.length).toBeGreaterThan(0);
+			for (const link of links) expect(link).toContain(" data-keep-scroll");
+		}
+	});
 });
 
 describe("GET /team, the team's progress (US2)", () => {

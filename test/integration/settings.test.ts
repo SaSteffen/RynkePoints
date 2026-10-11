@@ -19,6 +19,7 @@ const GROUPS = [
 	["settings-strava", "settings.strava"],
 	["settings-consent", "me.consent.heading"],
 	["settings-rules", "rynke.rules.heading"],
+	["settings-tour", "settings.tour"],
 	["settings-account", "settings.account"],
 ] as const;
 

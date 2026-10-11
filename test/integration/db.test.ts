@@ -136,6 +136,8 @@ describe("riders", () => {
 			reconnectRequestedAt: null,
 			figuresVersion: ACTIVITY_FIGURES_VERSION,
 			organiser: false,
+			onboardedAt: null,
+			organiserOnboardedAt: null,
 		});
 	});
 

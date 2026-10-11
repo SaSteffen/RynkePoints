@@ -41,7 +41,7 @@ describe.each([
 		const { status, html } = await riderPage(ctx, viewer, "/team");
 		expect(status).toBe(200);
 		expect(mainOf(html)).toContain('<section class="leaderboard card">');
-		expect(html).toMatch(/<a href="\/team" aria-current="page">/);
+		expect(html).toMatch(/<a href="\/team" aria-current="page"[ >]/);
 	});
 
 	it("shows no other rider's name or rides, though the team has some", async () => {
