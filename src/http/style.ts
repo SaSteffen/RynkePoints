@@ -405,6 +405,7 @@ button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full)
 .badge-value{font:var(--md-type-caption)}
 .badge-large{width:min(312px,calc(100vw - 2 * var(--rp-space-4)));box-sizing:border-box;padding:var(--rp-space-4);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);text-align:center;box-shadow:0 2px 6px var(--md-sys-color-outline)}
 .badge-large-close{position:absolute;top:var(--rp-space-1);right:var(--rp-space-1);z-index:1;padding:0;border:0;background:var(--md-sys-color-surface)}
+.badge-large-hover{inset:auto;margin:0;pointer-events:none}
 .badge-large-hover .badge-large-close{display:none}
 .badge-large .badge{display:block;width:280px;max-width:100%;margin:0 auto}
 .badge-large h4{margin:var(--rp-space-3) 0 var(--rp-space-1);font:var(--md-type-title-large)}

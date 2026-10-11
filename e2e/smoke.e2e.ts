@@ -164,36 +164,41 @@ test("a rider walks through the tour, one page each", async ({ page }) => {
 	await expect(tour).toHaveCount(0);
 });
 
-test("a rider opens a badge's large view on a phone (013)", async ({
-	page,
-}) => {
-	await signIn(page, "Bea Badges");
-	await page.setViewportSize(PHONE);
-	await page.goto("/me/badges");
-	const section = page.locator("section.badges");
-	await expect(section).toBeVisible();
-	await expectNoSidewaysScroll(page);
+test.describe("on a touch screen", () => {
+	// Taps, not a mouse: a mouse opens the large view on hover.
+	test.use({ hasTouch: true });
 
-	const gallery = section.locator(
-		".badge-group-personal details.badge-gallery",
-	);
-	await gallery.locator("summary").click();
-	await expect(gallery).toHaveAttribute("open", "");
-	const badge = gallery.locator("button.badge").first();
-	const large = page.locator(
-		`[id="${await badge.getAttribute("popovertarget")}"]`,
-	);
-	await badge.click();
-	await expect(large).toBeVisible();
-	await expectNoSidewaysScroll(page);
-	await page.keyboard.press("Escape");
-	await expect(large).toBeHidden();
-	await badge.click();
-	await large.locator(".badge-large-close").click();
-	await expect(large).toBeHidden();
+	test("a rider opens a badge's large view on a phone (013)", async ({
+		page,
+	}) => {
+		await signIn(page, "Bea Badges");
+		await page.setViewportSize(PHONE);
+		await page.goto("/me/badges");
+		const section = page.locator("section.badges");
+		await expect(section).toBeVisible();
+		await expectNoSidewaysScroll(page);
+
+		const gallery = section.locator(
+			".badge-group-personal details.badge-gallery",
+		);
+		await gallery.locator("summary").tap();
+		await expect(gallery).toHaveAttribute("open", "");
+		const badge = gallery.locator("button.badge").first();
+		const large = page.locator(
+			`[id="${await badge.getAttribute("popovertarget")}"]`,
+		);
+		await badge.tap();
+		await expect(large).toBeVisible();
+		await expectNoSidewaysScroll(page);
+		await page.keyboard.press("Escape");
+		await expect(large).toBeHidden();
+		await badge.tap();
+		await large.locator(".badge-large-close").tap();
+		await expect(large).toBeHidden();
+	});
 });
 
-test("a mouse opens a badge's large view on hover, without a close button (013)", async ({
+test("a mouse opens a badge's large view beside it on hover, without a close button (013)", async ({
 	page,
 }) => {
 	await signIn(page, "Bea Badges");
@@ -202,10 +207,15 @@ test("a mouse opens a badge's large view on hover, without a close button (013)"
 	const large = page.locator(
 		`[id="${await badge.getAttribute("popovertarget")}"]`,
 	);
-	// The opened view may lie over the badge; don't wait for it to be uncovered.
-	await badge.hover({ force: true });
+	await badge.hover();
 	await expect(large).toBeVisible();
 	await expect(large.locator(".badge-large-close")).toBeHidden();
+	// Beside the mouse, which rests on the badge's middle.
+	const pointer = await badge.boundingBox();
+	const view = await large.boundingBox();
+	if (!pointer || !view) throw new Error("no box");
+	const x = pointer.x + pointer.width / 2;
+	expect(view.x > x || view.x + view.width < x).toBe(true);
 	await page.mouse.move(0, 0);
 	await expect(large).toBeHidden();
 });

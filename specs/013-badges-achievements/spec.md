@@ -303,9 +303,9 @@ their badge names examples.
   show it at 280 px with its ribbon, name, what it was for and the date earned:
   on hover with a mouse, on keyboard focus, and on tap on a touch screen
   (another tap, tapping elsewhere or its close button in the top right corner
-  closes it; opened by hover it closes when the mouse moves away and shows no
-  close button). It MUST stay within the screen
-  at 360 px width and not cover the badge pointed at on wider screens.
+  closes it; opened by hover it floats beside the mouse, follows it, closes
+  when the mouse leaves the badge and shows no close button). It MUST stay
+  within the screen at 360 px width.
 - **FR-002c**: Progress bars MUST be yellow for personal categories and the team
   blue of the team frame for team categories.
 - **FR-003**: For each category not yet complete, the group

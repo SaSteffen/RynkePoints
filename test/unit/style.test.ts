@@ -262,7 +262,12 @@ describe("STYLE", () => {
 			width: "280px",
 			"max-width": "100%",
 		});
-		// Hover holds the large view open and leaving closes it: no close button.
+		// Hover holds the large view open beside the mouse, letting the
+		// pointer through; leaving closes it, so no close button.
+		expect(declsOf(".badge-large-hover")).toMatchObject({
+			inset: "auto",
+			"pointer-events": "none",
+		});
 		expect(declsOf(".badge-large-hover .badge-large-close").display).toBe(
 			"none",
 		);

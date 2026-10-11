@@ -699,30 +699,40 @@ function badgeHover() {
 	)) {
 		const large = document.getElementById(button.getAttribute("popovertarget"));
 		if (!large) continue;
-		// While hover holds the large view open, leaving closes it, so it
-		// hides its close button.
+		// While hover holds the large view open it floats beside the mouse
+		// and follows it, lets the pointer through to the badge, and hides
+		// its close button: leaving the badge closes it.
 		let byHover = false;
 		const hover = (on) => {
 			byHover = on;
 			large.classList.toggle("badge-large-hover", on);
+			if (!on) large.style.removeProperty("left");
+			if (!on) large.style.removeProperty("top");
+		};
+		const follow = (event) => {
+			if (event.pointerType !== "mouse" || !byHover) return;
+			const gap = 16;
+			const { width, height } = large.getBoundingClientRect();
+			let left = event.clientX + gap;
+			if (left + width > innerWidth - gap) left = event.clientX - gap - width;
+			let top = event.clientY + gap;
+			if (top + height > innerHeight - gap) top = innerHeight - gap - height;
+			large.style.left = `${Math.max(gap, left)}px`;
+			large.style.top = `${Math.max(gap, top)}px`;
 		};
 		button.addEventListener("pointerenter", (event) => {
 			if (event.pointerType !== "mouse" || large.matches(":popover-open"))
 				return;
-			large.showPopover();
 			hover(true);
+			large.showPopover();
+			follow(event);
 		});
-		// Moving onto the large view, which can cover the badge on a narrow
-		// window, keeps it open; closing it there would uncover the badge and
-		// open it again, over and over.
-		const leave = (event, other) => {
+		button.addEventListener("pointermove", follow);
+		button.addEventListener("pointerleave", (event) => {
 			if (event.pointerType !== "mouse" || !byHover) return;
-			if (other.contains(event.relatedTarget)) return;
 			hover(false);
 			if (large.matches(":popover-open")) large.hidePopover();
-		};
-		button.addEventListener("pointerleave", (event) => leave(event, large));
-		large.addEventListener("pointerleave", (event) => leave(event, button));
+		});
 		large.addEventListener("toggle", (event) => {
 			if (event.newState === "closed") hover(false);
 		});
