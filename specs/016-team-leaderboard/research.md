@@ -172,12 +172,12 @@ so a second list would only duplicate it.
 - The tiles are links: `?group=push`, `?group=on_track`, `?group=in`, `?group=all`.
   With an explicit `group` the server renders only that group and marks its tile
   `aria-current="true"`.
-- Without `group`, the page renders every rider; a CSS rule below 840 px hides the
+- Without `group`, the page renders every rider; a CSS rule below 1100 px hides the
   cards outside "Need a push" and highlights its tile, so a phone opens on "Need a
   push" and a desktop on everyone. A visually hidden line names the filter in each
   case and is switched by the same media query.
 - Phone and desktop get the same markup data twice: a card list (shown below
-  840 px) and a table (shown from 840 px). Hidden copies use `display: none`, so
+  1100 px) and a table (shown from 1100 px). Hidden copies use `display: none`, so
   assistive technology reads only one.
 - On a phone the breakdown is a `<details>` per card (folded); the table shows it
   in columns.

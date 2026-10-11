@@ -124,9 +124,17 @@ describe("STYLE", () => {
 		});
 	});
 
-	it("shows the overview as cards below 840 px and as a table from 840 px (016 FR-035, research R9)", () => {
-		const PHONE = "(max-width:839.98px)";
-		const DESKTOP = "(min-width:840px)";
+	it("shows the overview as cards below 1100 px and as a table from 1100 px (016 FR-035, research R9)", () => {
+		const PHONE = "(max-width:1099.98px)";
+		const DESKTOP = "(min-width:1100px)";
+		const MEDIUM = "(min-width:840px)";
+		// From 840 px the cards sit in two columns and the page spans the window.
+		expect(declsOf("ul.rider-cards", MEDIUM)["grid-template-columns"]).toBe(
+			"repeat(2,minmax(0,1fr))",
+		);
+		expect(declsOf("main:has(>.team-overview)", MEDIUM)["max-width"]).toBe(
+			"none",
+		);
 		expect(declsOf(".table-scroll", PHONE).display).toBe("none");
 		expect(
 			declsOf(".rider-cards.default .rider-card:not(.status-push)", PHONE)
