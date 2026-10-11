@@ -112,7 +112,7 @@ specs/013-badges-achievements/
 │   ├── abzeichen-section.md  # B: the section's markup and behaviour
 │   └── badge-messages.md     # B: catalog keys, German names, notification text
 ├── drafts/              # Mobile and desktop drafts of the section
-└── tasks.md             # Part A tasks (done); part B tasks next
+└── tasks.md             # Part A tasks (T001–T023), part B tasks (T024–T073)
 ```
 
 ### Source Code (repository root)
