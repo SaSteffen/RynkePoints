@@ -503,19 +503,48 @@ export const en: Catalog = {
 	"badges.category.team_running": "Running together",
 	"badges.category.big_training": "Big training",
 	"badges.category.attendances": "Attendances",
-	"badges.for.distance": "{value} ridden by bike",
-	"badges.for.elevation": "{value} climbed by bike",
-	"badges.for.team_events": "Joined {value}",
-	"badges.for.technique": "Attended {value}",
-	"badges.for.training_rynke": "{value} collected in training",
-	"badges.for.run_length": "{value} run in one go",
-	"badges.for.running": "{value} run",
-	"badges.for.team_training_rynke": "{value} collected in training as a team",
-	"badges.for.team_distance": "{value} ridden as a team",
-	"badges.for.team_elevation": "{value} climbed as a team",
-	"badges.for.team_running": "{value} run as a team",
-	"badges.for.big_training": "{value} at one team event",
-	"badges.for.attendances": "{value} at team events",
+	"badges.about.distance":
+		"All the kilometres of your rides this season that count for Training Rynke.",
+	"badges.about.elevation":
+		"All the elevation of your rides this season that count for Training Rynke.",
+	"badges.about.team_events":
+		"Every team event this season you were at, of any kind.",
+	"badges.about.technique":
+		"The technique trainings this season you were at: one badge for the first, one for both.",
+	"badges.about.training_rynke":
+		"All the Training Rynke you collected this season.",
+	"badges.about.run_length":
+		"Your longest single run this season, outdoors; treadmill and virtual runs don't count.",
+	"badges.about.running":
+		"All the kilometres of your runs this season, without treadmill and virtual runs.",
+	"badges.about.team_training_rynke":
+		"The Training Rynke of all riders who share their data with the team, added up for this season.",
+	"badges.about.team_distance":
+		"The kilometres of all the team's rides this season added up, from every rider who shares their data.",
+	"badges.about.team_elevation":
+		"The elevation of all the team's rides this season added up, from every rider who shares their data.",
+	"badges.about.team_running":
+		"The kilometres of all the team's runs this season added up, from every rider who shares their data.",
+	"badges.about.big_training":
+		"The most riders at a single team event this season.",
+	"badges.about.attendances":
+		"How often riders came to team events this season, over all events: 12 at a training and 18 on a training weekend make 30.",
+	"badges.for.distance": "You rode {value} by bike this season.",
+	"badges.for.elevation": "You climbed {value} by bike this season.",
+	"badges.for.team_events": "You joined {value} this season.",
+	"badges.for.technique": "You attended {value} this season.",
+	"badges.for.training_rynke": "You collected {value} in training this season.",
+	"badges.for.run_length": "Your longest run this season: {value} in one go.",
+	"badges.for.running": "You ran {value} this season.",
+	"badges.for.team_training_rynke":
+		"All riders together collected {value} in training this season.",
+	"badges.for.team_distance": "All riders together rode {value} this season.",
+	"badges.for.team_elevation":
+		"All riders together climbed {value} by bike this season.",
+	"badges.for.team_running": "All riders together ran {value} this season.",
+	"badges.for.big_training": "{value} came to a single team event together.",
+	"badges.for.attendances":
+		"All team events this season together had {value}: every rider at every event counts one.",
 	"badges.value.km": "{n}\u00a0km",
 	"badges.value.m": "{n}\u00a0m",
 	"badges.value.rynke": "{n}\u00a0Rynke",

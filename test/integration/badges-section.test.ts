@@ -179,6 +179,21 @@ describe("the Abzeichen section", () => {
 		);
 	});
 
+	it("explains each category under its name", async () => {
+		const { section: badges } = await section();
+		const about = (category: "distance" | "running") =>
+			escapeHtml(de[`badges.about.${category}`]);
+		// On the card and in the gallery.
+		expect(badges).toContain(
+			`<h4>${escapeHtml(de["badges.category.distance"])}</h4>\n<p class="badge-about">${about("distance")}</p>`,
+		);
+		expect(badges?.split(about("distance")).length).toBe(3);
+		// In the not-yet row.
+		expect(badges).toContain(
+			`<span class="badge-category">${escapeHtml(de["badges.category.running"])}</span><span class="badge-about">${about("running")}</span>`,
+		);
+	});
+
 	it("opens a large view per earned badge with name, what it was for and the date", async () => {
 		const { section: badges } = await section();
 		const popovers = [

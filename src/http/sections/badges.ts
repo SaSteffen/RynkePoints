@@ -112,9 +112,15 @@ function progressBar(
 	return html`<span class="bar" aria-hidden="true"><span style="width:${progress.percent}%"></span></span><span class="badge-missing">${i18n.t("badges.missing", { value: missing })}</span>`;
 }
 
+/** The category's name in bold with the sentence on how it counts below. */
+function categoryHeading(i18n: I18n, category: BadgeCategoryId): SafeHtml {
+	return html`<h4>${i18n.t(`badges.category.${category}`)}</h4>
+<p class="badge-about">${i18n.t(`badges.about.${category}`)}</p>`;
+}
+
 function card(i18n: I18n, card: Card): SafeHtml {
 	return html`<li class="badge-card" data-category="${card.category}">
-<h4>${i18n.t(`badges.category.${card.category}`)}</h4>
+${categoryHeading(i18n, card.category)}
 ${badgeButton(i18n, card.badge, 128)}
 ${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.category, card.progress)}</div>` : null}
 </li>`;
@@ -127,7 +133,7 @@ function group(
 ): SafeHtml | null {
 	if (!view || view.count === 0) return null;
 	const gallery = view.gallery.map(
-		(g) => html`<h4>${i18n.t(`badges.category.${g.category}`)}</h4>
+		(g) => html`${categoryHeading(i18n, g.category)}
 <ul>${g.badges.map(
 			(b) =>
 				html`<li>${badgeButton(i18n, b, 96)}<span class="badge-value">${milestone(i18n, badgeOf(b))}</span></li>`,
@@ -155,7 +161,7 @@ function notYet(i18n: I18n, rows: readonly NotYetRow[]): SafeHtml | null {
 <h3 id="badges-not-yet-heading">${i18n.t("badges.notYet")}</h3>
 <ul>${rows.map(
 		(row) =>
-			html`<li class="badge-not-yet-row badge-group-${row.group}" data-category="${row.category}"><span class="badge-category">${i18n.t(`badges.category.${row.category}`)}</span>${progressBar(i18n, row.category, row.progress)}</li>`,
+			html`<li class="badge-not-yet-row badge-group-${row.group}" data-category="${row.category}"><span class="badge-category">${i18n.t(`badges.category.${row.category}`)}</span><span class="badge-about">${i18n.t(`badges.about.${row.category}`)}</span>${progressBar(i18n, row.category, row.progress)}</li>`,
 	)}</ul>
 </section>
 `;
