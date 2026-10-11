@@ -10,6 +10,8 @@ const CACHE = `rp-${lang}`;
 const OFFLINE = `/offline?lang=${lang}`;
 const TEXT = `/notification-text?lang=${lang}`;
 const RIDER_TEXT = `/me/notification-text?lang=${lang}`;
+/** Where a notification may lead; the rider page unless the text says. */
+const PAGES = ["/me", "/team"];
 
 self.addEventListener("install", (event) => {
 	event.waitUntil(
@@ -80,30 +82,35 @@ self.addEventListener("push", (event) => {
 				renotify: true,
 				icon: "/icons/icon-192.png",
 				badge: "/icons/badge-96.png",
-				data: { url: "/me" },
+				// Team badges open the Team page (#125); anything else the rider page.
+				data: { url: PAGES.includes(text.url) ? text.url : "/me" },
 			});
 		})(),
 	);
 });
 
-// Opens the rider page in an open RynkePoints window, or a new one (FR-019).
+// Opens the notification's page in an open RynkePoints window, or a new one
+// (FR-019).
 self.addEventListener("notificationclick", (event) => {
 	event.notification.close();
 	event.waitUntil(
 		(async () => {
+			const url = PAGES.includes(event.notification.data?.url)
+				? event.notification.data.url
+				: "/me";
 			const [open] = await self.clients.matchAll({
 				type: "window",
 				includeUncontrolled: true,
 			});
 			try {
 				if (open) {
-					await (await open.focus()).navigate("/me");
+					await (await open.focus()).navigate(url);
 					return;
 				}
 			} catch {
 				// A window this worker doesn't control can't be navigated.
 			}
-			await self.clients.openWindow("/me");
+			await self.clients.openWindow(url);
 		})(),
 	);
 });

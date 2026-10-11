@@ -54,4 +54,10 @@ whole kilometres; run length's ladder with one decimal (21,1 km).
 
 When the rider's latest rise is a badge rise: `notification.badge` with the
 first new badge's German name, or `notification.badges` for several. Otherwise
-the existing Rynke text. Team badges never notify.
+the existing Rynke text.
+
+Team badges notify since issue #125: when every badge in the rise is a team
+badge, `notification.teamBadge` ("Neues Team-Abzeichen: {name} 🏅") or
+`notification.teamBadges` ("{n} neue Team-Abzeichen 🏅"), and the response's
+`url` is `/team`, which the service worker opens on a click; otherwise `url` is
+`/me`.

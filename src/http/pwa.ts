@@ -1,3 +1,4 @@
+import { BADGES } from "../badges/catalog";
 import type { Ctx } from "../ctx";
 import { readBadgeRiseStatement } from "../db/badges";
 import { readRiderView } from "../db/rider-view";
@@ -15,6 +16,10 @@ import { readSession } from "./session";
 // contracts/http-routes.md). `/offline` and `/notification-text` are the only
 // responses the service worker caches, so they read neither the session nor D1
 // and are the same for everyone in a language (FR-005, SC-007, SC-008).
+
+const TEAM_BADGE_IDS = new Set(
+	BADGES.filter((b) => b.group === "team").map((b) => b.id),
+);
 
 /** The `lang` the service worker asks for, else the usual resolution. */
 function textI18n(request: Request, ctx: Ctx): I18n {
@@ -64,7 +69,8 @@ export function handleNotificationText(request: Request, ctx: Ctx): Response {
  * rise is stored; the device then shows the cached text. When the rider's
  * latest rise brought badges, it names them instead (feature 013 research
  * R17); a badge rise at the same time as a Rynke rise wins, since it came from
- * the same change.
+ * the same change. Team badges (#125) say so, and open the Team page, where
+ * they are revealed.
  */
 export async function handleRiderNotificationText(
 	request: Request,
@@ -102,16 +108,17 @@ export async function handleRiderNotificationText(
 	const i18n = textI18n(request, ctx);
 	if (badgeRise && badgeRise.risen_at >= (rise?.risen_at ?? 0)) {
 		const ids = JSON.parse(badgeRise.badge_ids) as string[];
+		const team = ids.every((id) => TEAM_BADGE_IDS.has(id));
 		const body =
 			ids.length === 1
-				? i18n.t("notification.badge", {
+				? i18n.t(team ? "notification.teamBadge" : "notification.badge", {
 						name: BADGE_NAMES[ids[0] ?? ""] ?? "",
 					})
-				: i18n.t("notification.badges", {
+				: i18n.t(team ? "notification.teamBadges" : "notification.badges", {
 						n: i18n.formatNumber(ids.length, { fractionDigits: 0 }),
 					});
 		return Response.json(
-			{ title: i18n.t("app.name"), body },
+			{ title: i18n.t("app.name"), body, url: team ? "/team" : "/me" },
 			{ headers: { ...headers, "Content-Language": i18n.locale } },
 		);
 	}

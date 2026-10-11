@@ -88,6 +88,7 @@ import type {
 } from "../strava/activity";
 import { sendAll } from "../work/messages";
 import { notifyRiders } from "../work/send-notification";
+import { teamBadgeNews } from "../work/team-badge-news";
 import { type Evaluation, evaluateRides, rideFromRow } from "./rides";
 import {
 	type CountingWindow,
@@ -490,7 +491,8 @@ export async function applyTeamEventChange(
  * serial queue consumer (the organiser pages). One `evaluate-rider` per
  * affected rider then settles a race with an activity event (research R21).
  * Each rider whose Rynke rose or who has a new badge gets a notification on
- * their devices (feature 013 research R17).
+ * their devices (feature 013 research R17), as does each listed rider a new
+ * team badge is new to (#125).
  */
 export async function teamEventChange(
 	ctx: Ctx,
@@ -507,9 +509,12 @@ export async function teamEventChange(
 		ctx,
 		result.affected.map((athleteId) => ({ kind: "evaluate-rider", athleteId })),
 	);
+	const team = await teamBadgeNews(ctx);
 	await notifyRiders(
 		ctx,
-		[...new Set([...result.rose, ...result.earned])].sort((a, b) => a - b),
+		[...new Set([...result.rose, ...result.earned, ...team])].sort(
+			(a, b) => a - b,
+		),
 	);
 	return result;
 }
@@ -596,7 +601,8 @@ export async function applyCorrectionChange(
 /**
  * `applyCorrectionChange` under the current rules, for the organiser pages:
  * one `evaluate-rider` settles a race with an activity event, and a rise or
- * a new badge notifies the rider, as `teamEventChange` does.
+ * a new badge notifies the rider, and a new team badge the listed riders, as
+ * `teamEventChange` does.
  */
 export async function correctionChange(
 	ctx: Ctx,
@@ -610,9 +616,11 @@ export async function correctionChange(
 		ctx.now(),
 	);
 	await sendAll(ctx, [{ kind: "evaluate-rider", athleteId: result.athleteId }]);
+	const team = await teamBadgeNews(ctx);
+	const own = result.rose || result.badges.length > 0 ? [result.athleteId] : [];
 	await notifyRiders(
 		ctx,
-		result.rose || result.badges.length > 0 ? [result.athleteId] : [],
+		[...new Set([...own, ...team])].sort((a, b) => a - b),
 	);
 	return result;
 }

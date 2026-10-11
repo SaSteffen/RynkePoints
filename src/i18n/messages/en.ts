@@ -560,4 +560,6 @@ export const en: Catalog = {
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "New badge: {name} 🏅",
 	"notification.badges": "{n} new badges 🏅",
+	"notification.teamBadge": "New team badge: {name} 🏅",
+	"notification.teamBadges": "{n} new team badges 🏅",
 };
