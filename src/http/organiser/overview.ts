@@ -328,6 +328,29 @@ ${
 `;
 }
 
+/** A figure with its bar and, while some is missing, how much: in the
+ * push colour when the rider is behind the even pace (the bar's mark). */
+function barCell(
+	i18n: I18n,
+	value: number,
+	threshold: number,
+	pace: number | null,
+	missing: Missing,
+): SafeHtml {
+	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
+	const toGo =
+		missing.amount > 0
+			? html`<span class="to-go${missing.behind ? " behind" : ""}">${i18n.t("organiser.overview.toGo.short", { n: whole(missing.amount) })}${missing.behind ? html`<span class="visually-hidden"> · ${i18n.t("organiser.overview.behind")}</span>` : null}</span>`
+			: null;
+	return html`<td class="bar-cell"><span class="bar-figures"><span class="figure">${whole(value)}</span>${toGo}</span>${thresholdBars(value, threshold, pace)}</td>`;
+}
+
+/** Training and Team amounts as the two mini coins, read out in words. */
+function coinPair(i18n: I18n, training: number, team: number): SafeHtml {
+	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
+	return html`<td class="number"><span class="coin-pair" aria-hidden="true"><span>${miniCoin("training")}${whole(training)}</span><span>${miniCoin("team")}${whole(team)}</span></span><span class="visually-hidden">${amounts(i18n, training, team)}</span></td>`;
+}
+
 function renderTable(
 	i18n: I18n,
 	rules: RynkeRules,
@@ -342,13 +365,14 @@ function renderTable(
 			| "training"
 			| "team"
 			| "outdoor"
-			| "missing"
 			| "distance"
 			| "elevation"
 			| "events"
 			| "corrections"
 			| "virtual",
-	) => html`<th scope="col">${i18n.t(`organiser.overview.column.${key}`)}</th>`;
+		number = false,
+	) =>
+		html`<th scope="col"${number ? html` class="number"` : null}>${i18n.t(`organiser.overview.column.${key}`)}</th>`;
 	const rows = riders.map((rider) => {
 		const events = rider.breakdown.teamEvents.reduce(
 			(sum, e) => ({
@@ -357,24 +381,22 @@ function renderTable(
 			}),
 			{ training: 0, team: 0 },
 		);
-		const missing = missingItems(i18n, rider);
 		return html`<tr class="status-${rider.status}">
 <th scope="row">${nameLinks(i18n, rider)}</th>
 <td>${statusChip(i18n, rider, passed)}</td>
-<td class="bar-cell"><span>${whole(rider.training)}</span>${thresholdBars(rider.training, rules.trainingThreshold, rider.pace?.training ?? null)}</td>
-<td class="bar-cell"><span>${whole(rider.team)}</span>${thresholdBars(rider.team, rules.teamThreshold, rider.pace?.team ?? null)}</td>
-<td>${whole(rider.outdoorTraining)}</td>
-<td>${missing.map((m, i) => html`${i > 0 ? html`<br>` : null}<span${m.behind ? html` class="behind"` : null}>${m.text}</span>`)}</td>
+${barCell(i18n, rider.training, rules.trainingThreshold, rider.pace?.training ?? null, rider.missing.training)}
+${barCell(i18n, rider.team, rules.teamThreshold, rider.pace?.team ?? null, rider.missing.team)}
+${barCell(i18n, rider.outdoorTraining, virtualShareRequired(rules), rider.pace?.outdoor ?? null, rider.missing.outdoor)}
 <td class="number">${whole(rider.breakdown.distanceRynke)}</td>
 <td class="number">${whole(rider.breakdown.elevationRynke)}</td>
-<td class="number">${amounts(i18n, events.training, events.team)}</td>
-<td class="number">${amounts(i18n, rider.breakdown.corrections.training, rider.breakdown.corrections.team)}</td>
+${coinPair(i18n, events.training, events.team)}
+${coinPair(i18n, rider.breakdown.corrections.training, rider.breakdown.corrections.team)}
 <td class="number">${i18n.t("organiser.overview.percent", { n: whole(rider.breakdown.virtualShare) })}</td>
 </tr>
 `;
 	});
 	return html`<div class="table-scroll"><table class="rider-table">
-<thead><tr>${column("name")}${column("group")}${column("training")}${column("team")}${column("outdoor")}${column("missing")}${column("distance")}${column("elevation")}${column("events")}${column("corrections")}${column("virtual")}</tr></thead>
+<thead><tr>${column("name")}${column("group")}${column("training")}${column("team")}${column("outdoor")}${column("distance", true)}${column("elevation", true)}${column("events", true)}${column("corrections", true)}${column("virtual", true)}</tr></thead>
 <tbody>
 ${rows}</tbody>
 </table></div>

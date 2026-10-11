@@ -97,9 +97,11 @@ with the same switch. Then the heading "Team overview".
    - `<details>` "Where the Rynke come from": distance, elevation, each team-event
      kind, corrections, outdoor Training of its amount, virtual share (FR-033).
 5. **Table** `table.rider-table` in `div.table-scroll` (from 840 px): one row per
-   rider in the same order; columns first name, group, Training (figure and
-   bar), Team (figure and bar), outdoor Training, still to go, distance,
-   elevation, team events, corrections, virtual share.
+   rider in the same order; columns first name, group, Training, Team and
+   outdoor Training (each its figure, "{n} to go" while some is missing, in
+   the push colour when behind pace, and its bar), distance, elevation, team
+   events and corrections (Training and Team beside their mini coins),
+   virtual share. From 840 px the page uses the full width of the window.
 6. **Qualified list** `section.qualified`: a card on the coin's ink, "Training
    goal reached 🎯", "Both thresholds and the outdoor share met." and one pill per rider
    with the mini coin; or "Nobody has reached the training goal yet." (FR-034).
