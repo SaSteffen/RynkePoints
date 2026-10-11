@@ -69,11 +69,18 @@ describe("frameSvg", () => {
 
 			it("clips the picture to the window and places it", () => {
 				expect(svg).toContain(
-					`<clipPath id="window"><circle cx="50" cy="50" r="${WINDOW.r}"/></clipPath>`,
+					`<clipPath id="window-distance-100"><circle cx="50" cy="50" r="${WINDOW.r}"/></clipPath>`,
 				);
 				expect(svg).toContain(
-					`<g clip-path="url(#window)"><g transform="${PICTURE_TRANSFORM}">${picture}</g></g>`,
+					`<g clip-path="url(#window-distance-100)"><g transform="${PICTURE_TRANSFORM}">${picture}</g></g>`,
 				);
+			});
+
+			it("draws the ring over the picture, in case the clip is ignored", () => {
+				expect(svg.indexOf('class="ring"')).toBeGreaterThan(
+					svg.indexOf(picture),
+				);
+				expect(svg).toMatch(/<path class="ring"[^>]* fill-rule="evenodd"/);
 			});
 
 			it("has two layers of petals, amber behind yellow, and three stars", () => {
@@ -103,10 +110,16 @@ describe("frameSvg", () => {
 
 	it("draws the ring black for personal and light blue for team", () => {
 		expect(frameSvg("personal", "", "x")).toMatch(
-			/<circle class="ring"[^>]* fill="#1c1b13"/,
+			/<path class="ring"[^>]* fill="#1c1b13"/,
 		);
 		expect(frameSvg("team", "", "x")).toMatch(
-			/<circle class="ring"[^>]* fill="#8cc4f0"/,
+			/<path class="ring"[^>]* fill="#8cc4f0"/,
+		);
+	});
+
+	it("gives every badge its own clip id, safe in a page", () => {
+		expect(frameSvg("team", "", "a<b c")).toContain(
+			'<clipPath id="window-a_b_c">',
 		);
 	});
 

@@ -130,10 +130,20 @@ const escapeXml = (s) =>
 		(c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
 	);
 
+/** A ring between two radii around the centre, as one even-odd path. */
+const annulus = (outer, inner) => {
+	const circle = (r) =>
+		`M${n(50 - r)},50 A${r},${r} 0 1 0 ${n(50 + r)},50 A${r},${r} 0 1 0 ${n(50 - r)},50 Z`;
+	return `${circle(outer)} ${circle(inner)}`;
+};
+
 /**
- * The finished badge: petals, ring (black for personal, light blue for team),
- * window, the picture clipped to the window and placed by `transform`, the
- * window's outline, the ribbon when asked for, and the stars on top.
+ * The finished badge: petals, window, the picture clipped to the window and
+ * placed by `transform`, the ring (black for personal, light blue for team)
+ * over the picture's edge, the ribbon when asked for, and the stars on top.
+ * The ring covers whatever of the picture a renderer fails to clip, and the
+ * clip's id carries the badge's name, so badges inlined into one page don't
+ * share it.
  */
 export function frameSvg(
 	kind,
@@ -143,15 +153,15 @@ export function frameSvg(
 ) {
 	const ring = kind === "team" ? C.team : C.ink;
 	const { cx, cy, r } = WINDOW;
+	const clip = `window-${String(title).replace(/[^\w-]/g, "_")}`;
 	return (
 		`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><title>${escapeXml(title)}</title>` +
-		`<defs><clipPath id="window"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath>${BACK.def}${FRONT.def}</defs>` +
+		`<defs><clipPath id="${clip}"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath>${BACK.def}${FRONT.def}</defs>` +
 		BACK.uses +
 		FRONT.uses +
-		`<circle class="ring" cx="${cx}" cy="${cy}" r="${RING}" fill="${ring}" stroke="${C.ink}" stroke-width="${OUTLINE}"/>` +
 		`<circle class="window" cx="${cx}" cy="${cy}" r="${r}" fill="${C.cream}"/>` +
-		`<g clip-path="url(#window)"><g transform="${transform}">${picture}</g></g>` +
-		`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${C.ink}" stroke-width="${OUTLINE}"/>` +
+		`<g clip-path="url(#${clip})"><g transform="${transform}">${picture}</g></g>` +
+		`<path class="ring" d="${annulus(RING, r)}" fill="${ring}" fill-rule="evenodd" stroke="${C.ink}" stroke-width="${OUTLINE}"/>` +
 		(ribbon ? ribbonSvg(ring) : "") +
 		`${STARS}</svg>\n`
 	);
