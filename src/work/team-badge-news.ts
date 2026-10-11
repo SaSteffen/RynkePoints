@@ -3,11 +3,11 @@ import { berlinDate } from "../config";
 import type { Ctx } from "../ctx";
 import {
 	advanceTeamBadgeNoticesStatement,
-	mergeBadgeRiseStatement,
 	readTeamBadgeNoticesStatement,
 	revealedOf,
 	seedTeamBadgeNoticesStatement,
 	teamBadgeAudienceStatements,
+	teamBadgeRiseStatement,
 } from "../db/badges";
 import { readTeamBadgeSums } from "../db/team";
 import { CURRENT_RULES, countingWindow } from "../rynke/rules";
@@ -22,15 +22,20 @@ import { CURRENT_RULES, countingWindow } from "../rynke/rules";
 // contributed: only sums are read, and every listed rider gets the same news.
 //
 // A notification is a courtesy (010 FR-018): this never throws, and a change it
-// misses is caught by the next check, since the stored ids only grow.
+// misses is caught by the next check, since the announced ids and the riders'
+// rises are stored in one batch.
 
 /**
  * Announces the team badges new since the last check and returns the riders to
- * notify, sorted. Never throws.
+ * notify, sorted. `keep` are the riders whose badge rise the same change just
+ * wrote; their team badges join it. Never throws.
  */
-export async function teamBadgeNews(ctx: Ctx): Promise<number[]> {
+export async function teamBadgeNews(
+	ctx: Ctx,
+	keep: readonly number[],
+): Promise<number[]> {
 	try {
-		return await announce(ctx);
+		return await announce(ctx, new Set(keep));
 	} catch (err) {
 		const name = err instanceof Error ? err.name : "unknown error";
 		console.error(`Checking team badges failed: ${name}`);
@@ -38,41 +43,38 @@ export async function teamBadgeNews(ctx: Ctx): Promise<number[]> {
 	}
 }
 
-async function announce(ctx: Ctx): Promise<number[]> {
+async function announce(ctx: Ctx, keep: Set<number>): Promise<number[]> {
 	const db = ctx.env.DB;
 	const window = countingWindow(ctx.env);
+	const { seasonStart } = window;
 	const now = ctx.now();
 	const [sums, stored] = await Promise.all([
 		readTeamBadgeSums(db),
-		readTeamBadgeNoticesStatement(db, window.seasonStart).first<{
-			badge_ids: string;
+		readTeamBadgeNoticesStatement(db, seasonStart).first<{
+			badge_ids: string | null;
+			checked: number;
 		}>(),
 	]);
 	const { earned } = evaluateTeamBadges(sums, CURRENT_RULES, window);
-	if (!stored) {
-		// The season's first check, e.g. right after deploying: no news.
+	let previous = stored?.badge_ids ?? null;
+	if (previous === null) {
+		// The very first check, right after deploying, stores what the team has
+		// without news. A later season starts with none announced, so the change
+		// that brings its first badges announces them.
+		const first = stored?.checked !== 1;
+		previous = JSON.stringify([]);
 		await seedTeamBadgeNoticesStatement(
 			db,
-			window.seasonStart,
-			earned.map((b) => b.badgeId).sort(),
+			seasonStart,
+			first ? earned.map((b) => b.badgeId).sort() : [],
 			now,
 		).run();
-		return [];
+		if (first) return [];
 	}
 
-	const announced = new Set(JSON.parse(stored.badge_ids) as string[]);
+	const announced = new Set(JSON.parse(previous) as string[]);
 	const fresh = earned.filter((b) => !announced.has(b.badgeId));
 	if (fresh.length === 0) return [];
-	const advanced = await advanceTeamBadgeNoticesStatement(
-		db,
-		window.seasonStart,
-		stored.badge_ids,
-		[...announced, ...fresh.map((b) => b.badgeId)].sort(),
-		now,
-	).run();
-	// Another check announced them first.
-	if (advanced.meta.changes !== 1) return [];
-
 	const [riderRows, revealRows] = await db.batch(
 		teamBadgeAudienceStatements(
 			db,
@@ -91,8 +93,12 @@ async function announce(ctx: Ctx): Promise<number[]> {
 		reveals.set(row.athlete_id, [...(reveals.get(row.athlete_id) ?? []), row]);
 	}
 
+	const notice = {
+		seasonStart,
+		announced: [...announced, ...fresh.map((b) => b.badgeId)].sort(),
+	};
 	const notify: number[] = [];
-	const writes: D1PreparedStatement[] = [];
+	const rises: D1PreparedStatement[] = [];
 	for (const rider of riderRows.results as {
 		athlete_id: number;
 		connected_at: number;
@@ -107,15 +113,28 @@ async function announce(ctx: Ctx): Promise<number[]> {
 		});
 		if (news.length === 0) continue;
 		notify.push(rider.athlete_id);
-		writes.push(
-			mergeBadgeRiseStatement(
+		rises.push(
+			teamBadgeRiseStatement(
 				db,
 				rider.athlete_id,
 				news.map((b) => b.badgeId),
+				keep.has(rider.athlete_id),
+				notice,
 				now,
 			),
 		);
 	}
-	if (writes.length > 0) await db.batch(writes);
+	const [advanced] = await db.batch([
+		advanceTeamBadgeNoticesStatement(
+			db,
+			seasonStart,
+			previous,
+			notice.announced,
+			now,
+		),
+		...rises,
+	]);
+	// Another check announced them first.
+	if (advanced?.meta.changes !== 1) return [];
 	return notify;
 }
