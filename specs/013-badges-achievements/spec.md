@@ -286,7 +286,8 @@ their badge names examples.
   - **all**: a collapsible gallery of every earned badge of the group ("Alle
     meine Abzeichen (14)", "Alle Team-Abzeichen (5)", with the count), closed by
     default, grouped by category, newest first within a category, with the
-    milestone written below each badge. Three per row on a phone. After a
+    milestone written below each badge. Three per row on a phone. Every
+    category of the group is in it, also one without a badge yet: after a
     category's earned badges, each badge of that category still to earn is an
     empty dotted outline of the same size, without name, picture or text
     (issue #109).
@@ -307,8 +308,7 @@ their badge names examples.
   against the value needed, and what is still missing in that category's unit
   ("Noch 1.500 km", "Noch 5 Fahrer"). It MUST NOT show the
   next badge's name or picture, nor any badge after it. Only the gallery's empty
-  outlines (FR-002) tell how many badges a category has, and only for a
-  category with an earned badge.
+  outlines (FR-002) tell how many badges a category has.
 - **FR-004**: A category whose last badge is earned MUST keep its card, without a
   progress bar and without a sign that it is complete.
 - **FR-005**: The section MUST NOT show while feature 015's waiting state is shown.

@@ -74,7 +74,7 @@ Rewritten by every `pnpm badge-build`; committed.
 
 # Part B: the app
 
-## D1 (`migrations/0012_badges.sql`, adds only)
+## D1 (`migrations/0013_badges.sql`, adds only)
 
 Every table cascades from `riders`, so a rider who leaves takes all of it along
 (Principle I). The previous release never reads them.

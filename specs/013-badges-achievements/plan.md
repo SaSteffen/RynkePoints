@@ -52,7 +52,7 @@ tools. Part B: none new; D1, Queues and the existing typed i18n catalogs; the
 browser's Popover API and `<details>` for the section's interactions.
 
 **Storage**: Part A: files in the repo (`art/badges/`, `public/badges/`,
-`src/badges/pictures.ts`). Part B: D1 migration `0012_badges.sql`: `runs`,
+`src/badges/pictures.ts`). Part B: D1 migration `0013_badges.sql`: `runs`,
 `rider_badges`, `badge_reveals`, `badge_rises` and `riders.badges_version`, all
 cascading from `riders` (Principle I).
 
@@ -125,7 +125,7 @@ public/badges/                 # <id>.svg, <id>-ribbon.svg, placeholders
 src/badges/pictures.ts         # generated: badges with a picture
 
 # Part B
-migrations/0012_badges.sql     # runs, rider_badges, badge_reveals, badge_rises, riders.badges_version
+migrations/0013_badges.sql     # runs, rider_badges, badge_reveals, badge_rises, riders.badges_version
 src/strava/activity.ts         # + RunRecord, toRunRecord (outdoor, not manual)
 src/db/runs.ts                 # run statements
 src/db/badges.ts               # rider_badges, badge_reveals, badge_rises statements

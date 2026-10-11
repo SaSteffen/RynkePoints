@@ -117,7 +117,7 @@ back, without a notification.
 ## 9. Existing riders
 
 On a copy of the local database from before this release, apply
-`0012_badges.sql` and run the daily cron (`pnpm daily:run` in fake mode): riders
+`0013_badges.sql` and run the daily cron (`pnpm daily:run` in fake mode): riders
 are re-read once for their runs (figures version 4) and re-evaluated once for
 the badge catalog, without notifications.
 

@@ -84,9 +84,9 @@ shows (FR-005), nor for a rider without a balance.
   category's unit, rounded down, never "Noch 0 …" (spec Assumptions). Never the
   next badge's name, picture or the number of badges left (FR-003).
 - **Gallery**: `<details>` without `open`; its count is the number of earned
-  badges in the group. Each category lists its earned badges, then one empty
-  `li.badge-slot` per badge still to earn, with no id, name, picture or text
-  (issue #109).
+  badges in the group. It has every category of the group, also those without
+  a badge yet; each lists its earned badges, then one empty `li.badge-slot` per
+  badge still to earn, with no id, name, picture or text (issue #109).
 - **Not yet**: one row per category without an earned badge, personal then
   team, with the group's bar colour.
 - **Large view**: a `popover` per earned badge, opened by its buttons (tap,

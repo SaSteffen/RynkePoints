@@ -252,7 +252,7 @@ fail before the task that makes it pass.
   check that deleting a rider removes their `runs`, `rider_badges`,
   `badge_reveals` and `badge_rises` rows, and that an existing rider gets
   `badges_version` 0.
-- [X] T025 Write `migrations/0012_badges.sql`, adding only (the previous release
+- [X] T025 Write `migrations/0013_badges.sql`, adding only (the previous release
   never reads it):
   `runs` (`strava_activity_id INTEGER PRIMARY KEY`, `athlete_id INTEGER NOT
   NULL REFERENCES riders ON DELETE CASCADE`, `start_date TEXT NOT NULL`,
