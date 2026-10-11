@@ -2,10 +2,7 @@ version: 2
 
 updates:
   # One pull request a day with every outdated npm package, into develop like any
-  # other change. Dependabot has no setting for the case of "bump": it copies the
-  # last Dependabot commit on main, and without one it reads our Co-Authored-By
-  # trailers as capitalised subjects and writes "Bump", which pr-title refuses.
-  # So a Dependabot PR merged with a lowercase title keeps the next ones lowercase.
+  # other change. Its title is a Conventional Commit, so pr-title passes.
   - package-ecosystem: npm
     directory: /
     target-branch: develop
