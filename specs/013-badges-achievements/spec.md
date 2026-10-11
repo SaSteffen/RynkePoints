@@ -26,6 +26,7 @@ next one."
   riders or the team reaching a number of Rynke.
 - Q: Do runs count? → A: Runs give badges of their own and never Rynke. Each run
   counts its full kilometres, rounded down per run (a 7.8 km run counts 7 km).
+  (Rounding superseded, see below.)
 - Q: Does the rider see the badges still to earn? → A: No, they are a surprise.
   Per category the rider sees only how far they are from the next badge, never its
   name, picture or the badges after it. Supersedes the draft's "earned and locked"
@@ -40,6 +41,9 @@ next one."
 - Q: What is "Team Rynke" as a badge category? → A: Dropped: the name clashed with
   feature 003's Team Rynke (the Rynke kind earned at team events). The team's
   amount category is "Rynke together" (FR-011).
+- Q (raised by the project owner): Are run kilometres still rounded down per run?
+  → A: No. The running category counts the overall kilometres of all runs; no
+  metre is lost (runs of 7.8 km and 4.6 km make 12.4 km).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -105,19 +109,22 @@ evaluate it twice, then make it stop counting.
 
 ### User Story 3 - Running badges (Priority: P2)
 
-A rider who also runs gets running badges for the full kilometres of their runs.
+A rider who also runs gets running badges for the overall kilometres of their runs.
 Runs never appear among their rides and never change their Rynke.
 
 **Why this priority**: Many riders run in the off-season; badges reward that
 without bending the Rynke rules.
 
 **Independent Test**: Give a sample rider runs of 7.8 km and 4.6 km and a ride;
-check the running category shows 11 km and the Rynke and ride list are unchanged.
+check the running category counts 12.4 km and the Rynke and ride list are
+unchanged.
 
 **Acceptance Scenarios**:
 
 1. **Given** runs of 7.8 km and 4.6 km, **When** they are evaluated, **Then** the
-   running category counts 11 km (7 + 4).
+   running category counts 12.4 km, shown as 12 km.
+1a. **Given** runs of 4.6 km and then 0.5 km, **When** the second is evaluated,
+   **Then** the 5 km badge is earned with the second run's date.
 2. **Given** a run, **When** it is evaluated, **Then** the rider's Training Rynke,
    Team Rynke, ride list, team leaderboard and team badges are exactly as without
    it.
@@ -215,7 +222,7 @@ check every rider's page shows the team badge with the training's date.
   - Training Rynke: the rider's Training Rynke total.
   - Tour: a single badge for qualifying for the tour (feature 003 FR-013). It shows
     no progress bar of its own; the Overview already shows both targets.
-  - Running: the season total of full kilometres of runs (FR-020).
+  - Running: the season total of kilometres of runs (FR-020).
 - **FR-011**: Team categories are worked on by the whole team together and MUST be:
   - Amounts collected together:
     - Rynke together: all Rynke of both kinds (Training and Team Rynke) that the
@@ -237,8 +244,8 @@ check every rider's page shows the team badge with the training's date.
 
 - **FR-020**: Outdoor runs (Strava sport types Run and TrailRun) from the season
   start MUST be kept with the minimum needed for badges: date, distance and whether
-  they were entered manually. Each run counts its distance in full kilometres,
-  rounded down per run; manual runs count 0.
+  they were entered manually. Runs count their whole distance, added up over the
+  season with no rounding per run; manual runs count 0.
 - **FR-020a**: Virtual runs (VirtualRun) and runs Strava marks as indoor (treadmill)
   MUST count nothing and MUST NOT be kept. A run changed on Strava from indoor to
   outdoor, or back, MUST be added or removed on its next update.
