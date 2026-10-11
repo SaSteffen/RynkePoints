@@ -183,7 +183,7 @@ section img{flex:1;min-height:0;object-fit:contain;object-position:left top;bord
 </style>
 <h1>RynkePoints: where Strava data is shown</h1>
 <p>Every page that shows Strava data or data derived from it, with made-up
-sample riders. Each page carries the "Powered by Strava" logo.</p>
+sample riders. Each page carries the "Powered by Strava" logo in its footer.</p>
 <table>
 <tr><th>#</th><th>Page</th><th>What it shows, and to whom</th></tr>
 ${english.map((p, i) => `<tr><td>${i + 1}</td><td><code>${text(p.path)}</code></td><td>${text(p.what)}</td></tr>`).join("\n")}
