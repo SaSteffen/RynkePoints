@@ -56,6 +56,8 @@ halo, outlines crisp; it looks the same on a light and a dark background.
 - `pnpm badge-art --print team-running-500`: prints the prompt and the team
   reference path, opens no browser.
 - `pnpm badge-art nope`: exits with code 2.
+- Pacing: with three badges to make, `pnpm badge-art --max 2` makes two, rests
+  between them (watch the "resting" line, 90 to 180 s), and reports one left.
 
 ## 5. A retake
 

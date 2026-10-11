@@ -35,9 +35,19 @@ pnpm badge-art --print distance-100 # just print the prompt to paste by hand
 ```
 
 For each badge the script opens a fresh Gemini chat in Chrome, attaches the
-reference, pastes the prompt, waits for the image (up to 5 minutes), downloads
-it at full size into `originals/` and moves on after a pause. It skips badges
-that already have an original, so an interrupted run just continues. Look at
+reference, pastes the prompt, waits for the image (up to 5 minutes) and
+downloads it at full size into `originals/`. It skips badges that already have
+an original, so an interrupted run just continues.
+
+To go easy on Gemini it works strictly one badge at a time, in one tab:
+
+- 3 to 8 seconds between the steps of a badge (open, attach, paste, send,
+  download): `--step 3-8`;
+- 90 to 180 seconds between badges, twice that after a failure: `--pause 90-180`;
+- at most 10 badges per run, then it stops; run it again later: `--max 10`.
+
+Each wait is a random point in its range. A full set of 69 badges takes 7 runs
+of about half an hour each. Look at
 each picture; to retry one, delete it or use `--force`.
 
 - **Sign-in**: the first run opens Chrome with its own profile

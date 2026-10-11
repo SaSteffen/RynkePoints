@@ -9,7 +9,10 @@
 // like the illustrations (art/badges/README.md).
 //
 // It drives a real, signed-in Chrome with Playwright; nothing here runs in CI
-// or tests. Gemini's page is not an API: when its markup changes, update
+// or tests. To go easy on Gemini it works strictly one badge at a time in one
+// tab, waits a few seconds between the steps of a badge (open, attach, paste,
+// send, download), rests one to three minutes between badges (twice as long
+// after a failure) and stops after 10 badges per run; run it again to go on. Gemini's page is not an API: when its markup changes, update
 // SELECTORS below. On a failure the page is screenshotted to the temp folder
 // and the next badge is tried; a usage-limit message stops the run.
 //
@@ -20,8 +23,10 @@
 //   pnpm badge-art --cdp http://127.0.0.1:9222   use a Chrome you started
 //
 // Other options: --profile <dir> (default ~/.cache/rynkepoints/gemini-profile),
-// --browser chrome|chromium (default chrome), --pause <seconds> between badges
-// (default 20), --timeout <seconds> per image (default 300).
+// --browser chrome|chromium (default chrome), --timeout <seconds> per image
+// (default 300). Pacing, in seconds, as a fixed value or a random range:
+// --step <s> between the steps of a badge (default 3-8), --pause <s> between
+// badges (default 90-180), --max <n> badges per run (default 10).
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { extname, join } from "node:path";
@@ -72,7 +77,9 @@ const { values: opts, positionals: only } = parseArgs({
 			default: join(homedir(), ".cache/rynkepoints/gemini-profile"),
 		},
 		browser: { type: "string", default: "chrome" },
-		pause: { type: "string", default: "20" },
+		step: { type: "string", default: "3-8" },
+		pause: { type: "string", default: "90-180" },
+		max: { type: "string", default: "10" },
 		timeout: { type: "string", default: "300" },
 	},
 });
@@ -125,6 +132,29 @@ mkdirSync(OUT, { recursive: true });
 mkdirSync(DEBUG, { recursive: true });
 
 const sleep = (s) => new Promise((r) => setTimeout(r, s * 1000));
+
+/** "90-180" or "120": seconds, a random point in the range for each wait. */
+function range(name, value) {
+	const m = /^(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?$/.exec(value);
+	const lo = m ? Number(m[1]) : Number.NaN;
+	const hi = m?.[2] ? Number(m[2]) : lo;
+	if (!(lo >= 0 && hi >= lo)) {
+		console.error(`--${name} needs seconds like 120 or 90-180, not ${value}`);
+		process.exit(2);
+	}
+	return { lo, hi };
+}
+const STEP = range("step", opts.step);
+const PAUSE = range("pause", opts.pause);
+const MAX = Number(opts.max);
+if (!(Number.isInteger(MAX) && MAX > 0)) {
+	console.error(`--max needs a whole number above 0, not ${opts.max}`);
+	process.exit(2);
+}
+const wait = ({ lo, hi }, factor = 1) =>
+	sleep((lo + Math.random() * (hi - lo)) * factor);
+/** A breather between two steps of one badge. */
+const step = () => wait(STEP);
 
 async function firstVisible(page, selectors, timeout) {
 	const deadline = Date.now() + timeout;
@@ -191,6 +221,7 @@ async function attach(page, editor, file) {
 async function send(page, editor, text) {
 	await editor.click();
 	await editor.fill(text);
+	await step();
 	const button = page.getByRole("button", { name: SELECTORS.send }).first();
 	// Disabled while the attachment is still uploading.
 	for (let i = 0; i < 60 && !(await button.isEnabled().catch(() => false)); i++)
@@ -218,7 +249,7 @@ async function waitForImage(page, seconds) {
 			response: SELECTORS.response,
 			limit: { source: SELECTORS.limit.source, flags: SELECTORS.limit.flags },
 		},
-		{ timeout: seconds * 1000, polling: 1000 },
+		{ timeout: seconds * 1000, polling: 2000 },
 	);
 	return handle.jsonValue();
 }
@@ -269,13 +300,22 @@ const context = browser
 	? browser.contexts()[0]
 	: await chromium.launchPersistentContext(opts.profile, launch);
 
+const batch = todo.slice(0, MAX);
+if (todo.length > batch.length)
+	console.log(
+		`${todo.length} badges to make; this run does ${batch.length} (--max).`,
+	);
 const failed = [];
-for (const [n, badge] of todo.entries()) {
-	console.log(`[${n + 1}/${todo.length}] ${badge.id}`);
+// Strictly one badge after the other, never two chats at once.
+for (const [n, badge] of batch.entries()) {
+	console.log(`[${n + 1}/${batch.length}] ${badge.id}`);
 	const page = await context.newPage();
+	let ok = false;
 	try {
 		const editor = await openChat(page);
+		await step();
 		await attach(page, editor, REFERENCE[badge.group]);
+		await step();
 		await send(page, editor, prompt(badge));
 		const result = await waitForImage(page, Number(opts.timeout));
 		if (result.limit) {
@@ -283,6 +323,7 @@ for (const [n, badge] of todo.entries()) {
 			failed.push(badge.id);
 			break;
 		}
+		await step();
 		const old = existing(badge.id);
 		const saved = await download(page, result.index, badge.id);
 		if (old && join(OUT, old) !== saved.path)
@@ -290,6 +331,7 @@ for (const [n, badge] of todo.entries()) {
 		console.log(
 			`  saved ${saved.path}${saved.full ? "" : " (preview size: the full-size download failed)"}`,
 		);
+		ok = true;
 	} catch (error) {
 		const shot = join(DEBUG, `${badge.id}.png`);
 		await page.screenshot({ path: shot, fullPage: true }).catch(() => {});
@@ -298,8 +340,14 @@ for (const [n, badge] of todo.entries()) {
 	} finally {
 		await page.close().catch(() => {});
 	}
-	if (n < todo.length - 1) await sleep(Number(opts.pause));
+	if (n < batch.length - 1) {
+		// Twice the rest after a failure, in case Gemini was the trouble.
+		console.log(`  resting before the next badge${ok ? "" : " (longer)"}`);
+		await wait(PAUSE, ok ? 1 : 2);
+	}
 }
+const left = todo.length - batch.length;
+if (left > 0) console.log(`${left} badges left; run pnpm badge-art again.`);
 
 if (browser) await browser.close();
 else await context.close();

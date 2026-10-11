@@ -78,8 +78,10 @@ names what was chosen, why, and what else was considered.
 - **Decision**: `scripts/badge-art.mjs` (exists) drives Google Chrome with its
   own profile outside the repo (or an already running Chrome over CDP): a fresh
   Gemini chat per badge, reference attached, prompt pasted, image downloaded at
-  full size. Resumable, skips existing originals, stops on a usage limit,
-  screenshots failures. Selectors in one `SELECTORS` table, English and German.
+  full size. Strictly sequential and paced so it doesn't stress Gemini: a few
+  seconds between steps, one to three minutes between badges (doubled after a
+  failure), at most 10 badges per run. Resumable, skips existing originals,
+  stops on a usage limit, screenshots failures. Selectors in one `SELECTORS` table, English and German.
 - **Rationale**: The project owner wants the proven manual flow (web Gemini,
   prompt plus reference) without the copy and paste. Playwright is already a dev
   dependency.

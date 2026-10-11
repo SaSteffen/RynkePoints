@@ -34,8 +34,14 @@ as earned (FR-003, SC-003).
 ```text
 pnpm badge-art [id ...] [--force] [--print] [--cdp <url>]
                [--profile <dir>] [--browser chrome|chromium]
-               [--pause <seconds>] [--timeout <seconds>]
+               [--step <s>] [--pause <s>] [--max <n>] [--timeout <seconds>]
 ```
+
+- Sequential: one badge at a time, one tab, never two chats at once.
+- Pacing (seconds, fixed or a random range): `--step` between the steps of a
+  badge (default `3-8`), `--pause` between badges (default `90-180`, doubled
+  after a failure), `--max` badges per run (default 10; the rest is left for
+  the next run). A malformed value exits 2 before the browser opens.
 
 - No ids: every badge without an original. Unknown id: exit 2, nothing done.
 - Writes `art/badges/originals/<id>.<ext>` (raw download).

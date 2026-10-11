@@ -33,7 +33,9 @@ frame and team pictures serve US4 (team badges).
   spec's ladders in `art/badges/badges.json` (69 badges, snippets `bike`,
   `runner`, `team`, `coins`).
 - [X] T002 Generation script `scripts/badge-art.mjs` with `pnpm badge-art`
-  (`package.json`), documented in `art/badges/README.md`.
+  (`package.json`), documented in `art/badges/README.md`; strictly sequential,
+  paced (`--step 3-8`, `--pause 90-180` doubled after a failure, `--max 10` per
+  run).
 - [X] T003 Reference images `art/badges/reference/badge-{personal,team}.png`:
   the project owner's design (sunflower petals, ring, three stars, Rynke),
   hand-made, 1024 px each.
