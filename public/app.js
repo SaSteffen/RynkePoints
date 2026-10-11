@@ -706,11 +706,17 @@ function badgeHover() {
 			large.showPopover();
 			byHover = true;
 		});
-		button.addEventListener("pointerleave", (event) => {
+		// Moving onto the large view, which can cover the badge on a narrow
+		// window, keeps it open; closing it there would uncover the badge and
+		// open it again, over and over.
+		const leave = (event, other) => {
 			if (event.pointerType !== "mouse" || !byHover) return;
+			if (other.contains(event.relatedTarget)) return;
 			byHover = false;
 			if (large.matches(":popover-open")) large.hidePopover();
-		});
+		};
+		button.addEventListener("pointerleave", (event) => leave(event, large));
+		large.addEventListener("pointerleave", (event) => leave(event, button));
 		button.addEventListener("click", (event) => {
 			if (!byHover) return;
 			byHover = false;
