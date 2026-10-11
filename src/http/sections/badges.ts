@@ -191,7 +191,8 @@ ${gallery}</details>`
 
 /**
  * The large view: the badge at 280 px with its name, what it was for and the
- * date, and a close button for phones, where there's little outside to tap.
+ * date, and a close button for phones, where there's little outside to tap
+ * (hidden while hover holds it open).
  */
 function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 	const badge = badgeOf(earned);

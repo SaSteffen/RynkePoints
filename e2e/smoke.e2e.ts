@@ -193,6 +193,23 @@ test("a rider opens a badge's large view on a phone (013)", async ({
 	await expect(large).toBeHidden();
 });
 
+test("a mouse opens a badge's large view on hover, without a close button (013)", async ({
+	page,
+}) => {
+	await signIn(page, "Bea Badges");
+	await page.goto("/me/badges");
+	const badge = page.locator(".badge-card button.badge").first();
+	const large = page.locator(
+		`[id="${await badge.getAttribute("popovertarget")}"]`,
+	);
+	// The opened view may lie over the badge; don't wait for it to be uncovered.
+	await badge.hover({ force: true });
+	await expect(large).toBeVisible();
+	await expect(large.locator(".badge-large-close")).toBeHidden();
+	await page.mouse.move(0, 0);
+	await expect(large).toBeHidden();
+});
+
 test("an organiser sees the Orga pages", async ({ page }) => {
 	await signIn(page, "Olga Organiser");
 	for (const path of ["/organiser/riders", "/organiser"]) {

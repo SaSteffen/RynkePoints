@@ -262,6 +262,10 @@ describe("STYLE", () => {
 			width: "280px",
 			"max-width": "100%",
 		});
+		// Hover holds the large view open and leaving closes it: no close button.
+		expect(declsOf(".badge-large-hover .badge-large-close").display).toBe(
+			"none",
+		);
 	});
 
 	it("puts the milestone on the ribbon's box, yellow on personal and ink on team (013 FR-040b)", () => {

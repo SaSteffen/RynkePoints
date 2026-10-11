@@ -107,7 +107,8 @@ The reveal, at the top of the page (research R16):
 - **Large view**: a `popover` per earned badge, opened by its buttons (tap,
   click, keyboard); with a mouse also on hover (`public/app.js`). It fits 360 px
   and, on wider screens, opens beside the badge (FR-002b). A close button
-  (×) sits in its top right corner.
+  (×) sits in its top right corner, except while hover holds it open
+  (`.badge-large-hover`), where moving the mouse away closes it.
 - **Reveal**: present only when badges of the page's group are new for this
   rider, at the top of the page next to the coin celebration; a GET writes
   their `badge_reveals`, a HEAD doesn't (like `rynke_seen`); honours reduced

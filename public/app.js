@@ -699,12 +699,18 @@ function badgeHover() {
 	)) {
 		const large = document.getElementById(button.getAttribute("popovertarget"));
 		if (!large) continue;
+		// While hover holds the large view open, leaving closes it, so it
+		// hides its close button.
 		let byHover = false;
+		const hover = (on) => {
+			byHover = on;
+			large.classList.toggle("badge-large-hover", on);
+		};
 		button.addEventListener("pointerenter", (event) => {
 			if (event.pointerType !== "mouse" || large.matches(":popover-open"))
 				return;
 			large.showPopover();
-			byHover = true;
+			hover(true);
 		});
 		// Moving onto the large view, which can cover the badge on a narrow
 		// window, keeps it open; closing it there would uncover the badge and
@@ -712,14 +718,17 @@ function badgeHover() {
 		const leave = (event, other) => {
 			if (event.pointerType !== "mouse" || !byHover) return;
 			if (other.contains(event.relatedTarget)) return;
-			byHover = false;
+			hover(false);
 			if (large.matches(":popover-open")) large.hidePopover();
 		};
 		button.addEventListener("pointerleave", (event) => leave(event, large));
 		large.addEventListener("pointerleave", (event) => leave(event, button));
+		large.addEventListener("toggle", (event) => {
+			if (event.newState === "closed") hover(false);
+		});
 		button.addEventListener("click", (event) => {
 			if (!byHover) return;
-			byHover = false;
+			hover(false);
 			event.preventDefault();
 		});
 	}
