@@ -60,8 +60,10 @@ const SELECTORS = {
 		'[role="textbox"][contenteditable="true"]',
 	],
 	uploadMenu:
-		/open upload file menu|upload|add files|hochladen|dateien hinzufügen|upload-menü/i,
+		/uploads (&|and) tools|open upload file menu|upload|add files|hochladen|dateien hinzufügen|upload-menü/i,
 	uploadItem: /^(upload files?|dateien hochladen|datei hochladen)/i,
+	// The menu's hidden image input, in the page once the menu has opened.
+	imageInput: 'input[type="file"][accept^="image"]',
 	attachmentPreview: [
 		"uploader-file-preview",
 		'[data-test-id*="file-preview"]',
@@ -191,20 +193,31 @@ async function openChat(page) {
 	return editor;
 }
 
-/** Attaches the reference through the upload menu, else a drop on the editor. */
+/**
+ * Attaches the reference through the upload menu's image input, else its file
+ * chooser, else a drop on the editor.
+ */
 async function attach(page, editor, file) {
 	try {
-		const chooser = page.waitForEvent("filechooser", { timeout: 10_000 });
 		await page
 			.getByRole("button", { name: SELECTORS.uploadMenu })
 			.first()
 			.click({ timeout: 5_000 });
-		const item = page
-			.getByRole("menuitem", { name: SELECTORS.uploadItem })
-			.or(page.getByRole("button", { name: SELECTORS.uploadItem }))
-			.first();
-		if (await item.isVisible().catch(() => false)) await item.click();
-		await (await chooser).setFiles(file);
+		const input = page.locator(SELECTORS.imageInput).first();
+		if ((await input.count()) > 0) {
+			await input.setInputFiles(file);
+			await page.keyboard.press("Escape").catch(() => {});
+		} else {
+			const chooser = page.waitForEvent("filechooser", { timeout: 10_000 });
+			// Awaited below; without this a failed click leaves it to crash the run.
+			chooser.catch(() => {});
+			await page
+				.getByRole("menuitem", { name: SELECTORS.uploadItem })
+				.or(page.getByRole("button", { name: SELECTORS.uploadItem }))
+				.first()
+				.click({ timeout: 5_000 });
+			await (await chooser).setFiles(file);
+		}
 	} catch {
 		await page.keyboard.press("Escape").catch(() => {});
 		const data = readFileSync(file).toString("base64");
@@ -350,7 +363,20 @@ for (const [n, badge] of batch.entries()) {
 		ok = true;
 	} catch (error) {
 		const shot = join(DEBUG, `${badge.id}.png`);
-		await page.screenshot({ path: shot, fullPage: true }).catch(() => {});
+		await page
+			.screenshot({ path: shot, timeout: 10_000 })
+			.catch((e) => console.error(`  no screenshot: ${e.message}`));
+		// The page's buttons, to fix SELECTORS when Gemini's markup changed.
+		const buttons = await page
+			.locator("button, [role=button], [role=menuitem]")
+			.evaluateAll((els) =>
+				els.map(
+					(el) =>
+						`${el.getAttribute("aria-label") ?? ""} | ${el.textContent?.trim().slice(0, 60)}`,
+				),
+			)
+			.catch(() => []);
+		writeFileSync(join(DEBUG, `${badge.id}.txt`), buttons.join("\n"));
 		console.error(`  failed: ${error.message.split("\n")[0]} (see ${shot})`);
 		failed.push(badge.id);
 	} finally {
