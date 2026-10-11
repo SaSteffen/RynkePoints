@@ -142,6 +142,8 @@ list and changes between loads.
    from the same list may appear.
 4. **Given** a rider who uses the app in English, **When** they open Team, **Then**
    the quote is still in German.
+5. **Given** a quote for winter (FR-025), **When** a rider opens Team in July,
+   **Then** it is never picked; in January it may be.
 
 ---
 
@@ -264,15 +266,20 @@ the overview is refused.
 - **FR-021**: The "needs a push" list MUST be used for a rider who does not qualify
   and is behind the even pace (FR-030) on Training, Team or outdoor Training Rynke;
   the "on track" list for every other rider.
-- **FR-022**: Each list MUST hold about 200 quotes in German, fun and mostly
-  motivating, from several angles (cycling, the team, Paris, the coin and its
-  orangutan, weather). The "on track" list MUST mostly ask riders to bring others
+- **FR-022**: Each list MUST hold at least 200 quotes in German, fun and mostly
+  motivating, from several angles (cycling, the team, Paris, Rynke, weather, practical
+  tips). The coin's orangutan mascot is not a character in the quotes. The "on track" list MUST mostly ask riders to bring others
   along: encourage teammates, plan team rides, share tips. No quote is about the
   charity or fundraising: riders already do that.
 - **FR-023**: Quotes MUST be German in every language of the app, an exception to
   feature 001 FR-028 ("in every language"); they live in a German-only list beside
   the i18n catalogs, not in pages or logic. They MUST be marked as German for assistive technology.
 - **FR-024**: Quotes MUST NOT name, rank or compare individual riders.
+- **FR-025**: Besides FR-022's quotes, which suit any time of year, each list MAY
+  hold quotes for one season only: spring (March to May), summer (June to August),
+  autumn (September to November) or winter (December to February), by the
+  Europe/Berlin date. In its season such a quote MUST be picked like any other quote
+  of its list; outside its season, never.
 
 **Organiser overview**
 
@@ -312,7 +319,8 @@ the overview is refused.
   overall and per week; no identity beyond "this is you".
 - **Team totals**: the sums of all leaderboard rows, per week.
 - **Quote**: a German sentence in one of two lists ("needs a push", "on track"),
-  kept in a German-only list beside the i18n catalogs (FR-023).
+  for any time of year or for one season (FR-025), kept in a German-only list
+  beside the i18n catalogs (FR-023).
 - **Rider status** (organiser view): Need a push, On track or Training goal reached, worked
   out from the stored balance, the thresholds, the deadline and the day.
 

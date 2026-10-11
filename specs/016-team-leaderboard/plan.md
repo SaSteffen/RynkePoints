@@ -28,7 +28,9 @@ nothing.
   outlier fence of the totals. Riders above it ride past a gap in the
   peloton's road, in order but not to scale; the bunch stays to scale.
 - **Quotes (R10)**: the German lists in `src/i18n/messages/quotes.de.ts` and the
-  copy-guard exemption are already committed.
+  copy-guard exemption are already committed. Quotes for one season (FR-025) sit
+  in one array per season beside each list; the picker adds the array for
+  today's Berlin date.
 
 No migration, no new dependency, no Strava request, no consent change.
 

@@ -26,7 +26,8 @@ The draft's look, section by section: colours come from the tokens in
    - A heading "Für dich 🍌" / "Für dich 🤝" in small capitals is part of the
      quote list's meaning, so it comes from the catalog in each language
      ("For you").
-   - One quote from `QUOTES_PUSH` or `QUOTES_ON_TRACK` (research R4, R10),
+   - One quote from `QUOTES_PUSH` or `QUOTES_ON_TRACK`, or from that list's
+     `SEASON_QUOTES_*` array for today's season (FR-025, research R4, R10),
      bold, in German quotation marks. No footer under the quote (the draft's
      "Dein Tempo bis …" line is left out on purpose).
 5. **Peloton** `figure.peloton`: heading "The peloton 🚴" and a one-line hint;
