@@ -160,8 +160,9 @@ if (!(Number.isInteger(MAX) && MAX > 0)) {
 	console.error(`--max needs a whole number above 0, not ${opts.max}`);
 	process.exit(2);
 }
-const wait = ({ lo, hi }, factor = 1) =>
-	sleep((lo + Math.random() * (hi - lo)) * factor);
+/** Seconds at a random point in the range. */
+const pick = ({ lo, hi }) => lo + Math.random() * (hi - lo);
+const wait = (r) => sleep(pick(r));
 /** A breather between two steps of one badge. */
 const step = () => wait(STEP);
 
@@ -321,13 +322,21 @@ const launch = {
 	acceptDownloads: true,
 	// Google refuses sign-ins in browsers that announce automation.
 	ignoreDefaultArgs: ["--enable-automation"],
-	args: ["--disable-blink-features=AutomationControlled"],
+	args: [
+		"--disable-blink-features=AutomationControlled",
+		// No "Restore pages?" after a run was stopped mid-way.
+		"--hide-crash-restore-bubble",
+	],
+	// Playwright turns Chrome's sandbox off by default; Gemini needs no exception.
+	chromiumSandbox: true,
 	...(opts.browser === "chrome" ? { channel: "chrome" } : {}),
 };
 const browser = opts.cdp ? await chromium.connectOverCDP(opts.cdp) : undefined;
 const context = browser
 	? browser.contexts()[0]
 	: await chromium.launchPersistentContext(opts.profile, launch);
+// The tab Chrome opens with, so no blank one sits beside the badge's chat.
+const first = browser ? undefined : context.pages()[0];
 
 const batch = todo.slice(0, MAX);
 if (todo.length > batch.length)
@@ -338,7 +347,7 @@ const failed = [];
 // Strictly one badge after the other, never two chats at once.
 for (const [n, badge] of batch.entries()) {
 	console.log(`[${n + 1}/${batch.length}] ${badge.id}`);
-	const page = await context.newPage();
+	const page = first ?? (await context.newPage());
 	let ok = false;
 	try {
 		const editor = await openChat(page);
@@ -346,6 +355,7 @@ for (const [n, badge] of batch.entries()) {
 		await attach(page, editor, REFERENCE[badge.group]);
 		await step();
 		await send(page, editor, prompt(badge));
+		console.log(`  sent; waiting up to ${opts.timeout} s for the image`);
 		const result = await waitForImage(page, Number(opts.timeout));
 		if (result.limit) {
 			console.error("Gemini's usage limit reached; stopping. Run again later.");
@@ -380,12 +390,15 @@ for (const [n, badge] of batch.entries()) {
 		console.error(`  failed: ${error.message.split("\n")[0]} (see ${shot})`);
 		failed.push(badge.id);
 	} finally {
-		await page.close().catch(() => {});
+		if (page !== first) await page.close().catch(() => {});
 	}
 	if (n < batch.length - 1) {
 		// Twice the rest after a failure, in case Gemini was the trouble.
-		console.log(`  resting before the next badge${ok ? "" : " (longer)"}`);
-		await wait(PAUSE, ok ? 1 : 2);
+		const seconds = pick(PAUSE) * (ok ? 1 : 2);
+		console.log(
+			`  resting ${Math.round(seconds)} s before the next badge (until ${new Date(Date.now() + seconds * 1000).toLocaleTimeString()})`,
+		);
+		await sleep(seconds);
 	}
 }
 const left = todo.length - batch.length;
