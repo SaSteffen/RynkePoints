@@ -248,6 +248,36 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			{ daysAgo: 4, kind: "team_training", name: null },
 		],
 	},
+	{
+		athleteId: 990013,
+		firstName: "Nick NearlyThere",
+		state:
+			"Badges (feature 013): just short of the first distance and elevation badges",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		// 99.6 km and 990 m: "Noch 1 km" and "Noch 10 m". The 9 distance Rynke
+		// already earn the first Training Rynke badge.
+		rides: [ride(1, "07:00", 50, 500, 25), ride(3, "07:00", 49.6, 490, 25)],
+	},
+	{
+		athleteId: 990014,
+		firstName: "Carla Complete",
+		state:
+			"Badges (feature 013): every personal riding and team-event badge, no runs",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		// 25 rides of 200 km and 1,000 m: 5,000 km, 25,000 m and 625 Training
+		// Rynke, each category's last badge.
+		rides: rides(25, (i) => ride(...slot(i), 200, 1000, 25)),
+		// 20 team events, both technique trainings among them.
+		events: Array.from({ length: 20 }, (_, i) => ({
+			daysAgo: 1 + i,
+			kind: i < 2 ? "technique_training" : "team_training",
+			name: null,
+		})),
+	},
 ];
 
 /** A team event several sample riders attended, entered by an organiser. */

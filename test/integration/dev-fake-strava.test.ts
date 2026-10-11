@@ -15,6 +15,7 @@ import {
 	devQueue,
 	removeStravaInterceptor,
 } from "../../dev/worker";
+import { BADGES } from "../../src/badges/catalog";
 import { CONSENT_VERSION } from "../../src/consent";
 import { clearSessionCookie } from "../../src/http/session";
 import {
@@ -294,6 +295,20 @@ describe("requests the fake has no answer for (FR-010)", () => {
 	});
 });
 
+describe("every badge at /_dev/badges (013)", () => {
+	it("shows every personal and team badge earned, with its large view", async () => {
+		const res = await get("/_dev/badges");
+		expect(res.status).toBe(200);
+		const page = await res.text();
+		expect(page).toContain('<section class="badge-group badge-group-personal"');
+		expect(page).toContain('<section class="badge-group badge-group-team"');
+		for (const badge of BADGES) {
+			expect(page, badge.id).toContain(`<div popover id="badge-${badge.id}"`);
+		}
+		expect(page).not.toContain('class="badge-not-yet"');
+	});
+});
+
 describe("sample riders in every state (US2)", () => {
 	const IDA = 990001;
 	const NORA = 990002;
@@ -491,6 +506,33 @@ describe("sample riders in every state (US2)", () => {
 		expect(page).toContain('<section class="badges"');
 		expect(page).toContain('data-category="technique"');
 		expect(await mePage(990002)).not.toContain('class="badge-card"');
+	});
+
+	it("shows Nick NearlyThere just short and Carla Complete done (013)", async () => {
+		await seeded();
+		const badgesOf = async (athleteId: number) => {
+			const { results } = await env.DB.prepare(
+				"SELECT badge_id FROM rider_badges WHERE athlete_id = ?",
+			)
+				.bind(athleteId)
+				.all<{ badge_id: string }>();
+			return results.map((r) => r.badge_id).sort();
+		};
+		expect(await badgesOf(990013)).toEqual(["training-rynke-1"]);
+		const nick = await mePage(990013);
+		expect(nick).toContain("Noch 1 km");
+		expect(nick).toContain("Noch 10 m");
+
+		const complete = BADGES.filter(
+			(b) =>
+				b.group === "personal" &&
+				b.category !== "run_length" &&
+				b.category !== "running",
+		).map((b) => b.id);
+		expect(await badgesOf(990014)).toEqual(complete.sort());
+		const carla = await mePage(990014);
+		expect(carla.match(/<li class="badge-card"/g)).toHaveLength(5);
+		expect(carla.match(/class="badge-not-yet-row /g)).toHaveLength(2);
 	});
 
 	it("enters the shared team events, recorded by Tina TrainingDone (014)", async () => {

@@ -397,7 +397,7 @@ button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full)
 .badge-not-yet-row .badge-missing{grid-area:1/2}
 .badge-not-yet-row .bar{grid-area:2/1/3/3}
 .badge-large{width:min(312px,calc(100vw - 2 * var(--rp-space-4)));box-sizing:border-box;padding:var(--rp-space-4);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);text-align:center;box-shadow:0 2px 6px var(--md-sys-color-outline)}
-.badge-large .badge{width:280px;max-width:100%;margin:0 auto}
+.badge-large .badge{display:block;width:280px;max-width:100%;margin:0 auto}
 .badge-large h4{margin:var(--rp-space-3) 0 var(--rp-space-1);font:var(--md-type-title-large)}
 .badge-large p{margin:0;color:var(--md-sys-color-on-surface-variant)}
 @media (max-width:1099.98px){.table-scroll{display:none}.rider-cards.default .rider-card:not(.status-push){display:none}.group-tiles.default .tile-push{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}.showing-wide{display:none}}

@@ -121,9 +121,9 @@ ${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.cate
 function group(
 	i18n: I18n,
 	kind: BadgeGroup,
-	view: BadgeSection["personal"],
+	view: BadgeSection["personal"] | null,
 ): SafeHtml | null {
-	if (view.count === 0) return null;
+	if (!view || view.count === 0) return null;
 	const gallery = view.gallery.map(
 		(g) => html`<h4>${i18n.t(`badges.category.${g.category}`)}</h4>
 <ul>${g.badges.map(
@@ -160,7 +160,8 @@ function notYet(i18n: I18n, rows: readonly NotYetRow[]): SafeHtml | null {
 function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 	const badge = badgeOf(earned);
 	const value = milestone(i18n, badge);
-	return html`<div popover id="badge-${badge.id}" class="badge-large">
+	const team = badge.group === "team" ? " badge-large-team" : "";
+	return html`<div popover id="badge-${badge.id}" class="badge-large${team}">
 <span class="badge"><img src="${picture(badge, true)}" alt="" loading="lazy" width="280" height="280"><span class="badge-ribbon-text">${value}</span></span>
 <h4>${BADGE_NAMES[badge.id] ?? ""}</h4>
 <p>${i18n.t(`badges.for.${badge.category}`, { value })}</p>
@@ -170,10 +171,12 @@ function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 }
 
 export function renderBadges(i18n: I18n, section: BadgeSection): SafeHtml {
-	const earned = section.personal.gallery.flatMap((g) => g.badges);
+	const earned = [section.personal, section.team].flatMap(
+		(view) => view?.gallery.flatMap((g) => g.badges) ?? [],
+	);
 	return html`<section class="badges" aria-labelledby="badges-heading">
 <h2 id="badges-heading">${i18n.t("badges.heading")}</h2>
 <p class="badges-intro">${i18n.t("badges.intro")}</p>
 ${group(i18n, "personal", section.personal) ?? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>`}
-${notYet(i18n, section.notYet)}${earned.map((b) => popover(i18n, b))}</section>`;
+${group(i18n, "team", section.team)}${notYet(i18n, section.notYet)}${earned.map((b) => popover(i18n, b))}</section>`;
 }

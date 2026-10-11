@@ -56,6 +56,9 @@ export interface GroupView {
 
 export interface BadgeSection {
 	personal: GroupView;
+	/** Null until the team's badges are evaluated (US4). */
+	team: GroupView | null;
+	/** Personal categories first, then team ones. */
 	notYet: NotYetRow[];
 }
 
@@ -68,12 +71,15 @@ export interface Evaluated {
 export function buildBadgeSection(input: {
 	waiting: boolean;
 	personal: Evaluated;
+	team?: Evaluated;
 }): BadgeSection | null {
 	if (input.waiting) return null;
 	const personal = groupView(input.personal);
+	const team = input.team ? groupView(input.team) : null;
 	return {
 		personal: personal.view,
-		notYet: personal.notYet,
+		team: team?.view ?? null,
+		notYet: [...personal.notYet, ...(team?.notYet ?? [])],
 	};
 }
 
