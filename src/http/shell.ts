@@ -18,6 +18,7 @@ import {
 import { BIKE, CLIPBOARD, COIN, PEOPLE, REFRESH, SLIDERS } from "./icons";
 import { renderAppPrompt } from "./pwa";
 import { redirect } from "./redirect";
+import { type TourHint, tourHint } from "./tour";
 import { readViewer, riderConsentState } from "./viewer";
 
 // The signed-in area's four sections (feature 011 data-model.md "Section",
@@ -72,11 +73,12 @@ function shellParts(
 	path: string,
 	pushKey: string,
 	organiser: boolean,
+	hint: TourHint | null,
 ): ShellParts {
 	const current = SECTIONS.find(({ id }) => id === section);
 	const links = SECTIONS.filter((s) => organiser || !s.organiserOnly).map(
 		({ id, path: href, label, icon }) =>
-			html`<a href="${href}"${id === section ? html` aria-current="page"` : null}><span class="nav-icon">${icon}</span><span class="nav-label">${i18n.t(label)}</span></a>
+			html`<a href="${href}"${id === section ? html` aria-current="page"` : null}${id === hint?.section ? html` class="tour-target"` : null}><span class="nav-icon">${icon}</span><span class="nav-label">${i18n.t(label)}</span></a>
 `,
 	);
 	return {
@@ -85,8 +87,9 @@ function shellParts(
 <h1 class="section-title">${current ? i18n.t(current.label) : null}</h1>
 <a class="icon-button refresh" href="${path}" aria-label="${i18n.t("shell.refresh")}">${REFRESH}</a>`,
 		// After the footer, so screen readers reach the content first. The app
-		// prompt floats above it on phones (015 FR-012, research R8).
-		nav: html`${renderAppPrompt(i18n, pushKey)}
+		// prompt floats above it on phones (015 FR-012, research R8); a tour's
+		// hint takes its place while it shows (issue #90).
+		nav: html`${hint?.card ?? null}${renderAppPrompt(i18n, pushKey)}
 <nav class="app-nav" aria-label="${i18n.t("nav.label")}">
 ${links}</nav>
 `,
@@ -153,6 +156,12 @@ export async function shellPage(
 				path,
 				vapidPublicKey(ctx.env),
 				viewer.rider.organiser,
+				tourHint(
+					i18n,
+					viewer.rider,
+					path,
+					new URL(request.url).searchParams.get("tour"),
+				),
 			),
 		}),
 	);

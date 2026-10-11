@@ -21,6 +21,9 @@ const COLUMNS: Record<string, string[]> = {
 		"reconnect_requested_at",
 		"figures_version",
 		"organiser",
+		// Issue #90: when the rider and organiser tours were finished or skipped.
+		"onboarded_at",
+		"organiser_onboarded_at",
 	],
 	activities: [
 		"strava_activity_id",

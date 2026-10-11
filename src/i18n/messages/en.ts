@@ -231,6 +231,27 @@ export const en: Catalog = {
 	"prompt.notify.accept": "Turn on notifications",
 	"prompt.notify.decline": "Not now",
 	"prompt.close": "Close",
+
+	"tour.label": "Getting started",
+	"tour.progress": "{step} of {total}",
+	"tour.next": "Next",
+	"tour.done": "Got it",
+	"tour.skip": "Skip",
+	"tour.start": "Show me",
+	"tour.rider.intro": "New here? Let us show you where everything is.",
+	"tour.rider.team":
+		"Team: how the whole team is doing and where you are in the peloton.",
+	"tour.rider.you": "You: your Rynke and what you still need to qualify.",
+	"tour.rider.rides":
+		"Rides: every ride, what it earned, and why when it didn't count.",
+	"tour.rider.settings":
+		"Settings: language, notifications, your Strava connection, the rules, and this tour again.",
+	"tour.organiser.intro":
+		"You're an organiser now: the Orga tab is new. Let us show you around.",
+	"tour.organiser.riders":
+		"Riders: who's on track and who needs a push. Tap a rider to add a correction.",
+	"tour.organiser.events":
+		"Events: add team events, then open one to tick who was there.",
 	"offline.title": "No connection",
 	"offline.body":
 		"RynkePoints needs an internet connection. Please try again shortly.",
@@ -277,6 +298,9 @@ export const en: Catalog = {
 	"settings.app": "App",
 	"settings.strava": "Strava connection",
 	"settings.account": "Account",
+	"settings.tour": "Tours",
+	"settings.tour.rider": "Show the tour again",
+	"settings.tour.organiser": "Show the Orga tour again",
 	"rynke.ride.why": "Why?",
 	"notifications.switch": "Notifications on this device",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",

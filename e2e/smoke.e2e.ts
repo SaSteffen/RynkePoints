@@ -1,5 +1,5 @@
 import { test as base, expect, type Page } from "@playwright/test";
-import { signIn } from "./sign-in";
+import { signIn, skipTours } from "./sign-in";
 
 // Smoke tests in every browser (chromium, firefox, webkit): each page loads
 // without a script error, fits a phone and a desktop without sideways
@@ -90,6 +90,7 @@ test.describe("a rider", () => {
 
 	test("picks the dark scheme for this device", async ({ page }) => {
 		await page.goto("/me/settings");
+		await skipTours(page);
 		await page.locator("label", { has: page.locator("[value=dark]") }).click();
 		await expect(page.locator("html")).toHaveAttribute("data-scheme", "dark");
 		await expect(page.locator("body")).toHaveCSS(
@@ -99,6 +100,31 @@ test.describe("a rider", () => {
 		await page.reload();
 		await expect(page.locator("html")).toHaveAttribute("data-scheme", "dark");
 	});
+});
+
+test("a rider walks through the tour, one page each", async ({ page }) => {
+	await signIn(page, "Vera Virtual");
+	// Started as from Settings, so it doesn't depend on another browser's run.
+	await page.goto("/team?tour=rider");
+	const tour = page.locator("aside.tour");
+	for (const [path, step] of [
+		["/team", "1 von 4"],
+		["/me", "2 von 4"],
+		["/me/rides", "3 von 4"],
+	] as const) {
+		await expect(tour).toContainText(step);
+		await expect(page.locator(`nav.app-nav a[href="${path}"]`)).toHaveClass(
+			"tour-target",
+		);
+		await tour.getByRole("link", { name: "Weiter" }).click();
+	}
+	await expect(page).toHaveURL(/\/me\/settings\?tour=rider$/);
+	await expect(tour).toContainText("4 von 4");
+	await tour.getByRole("button", { name: "Alles klar" }).click();
+	await expect(page).toHaveURL(/\/me\/settings$/);
+	await expect(tour).toHaveCount(0);
+	await page.goto("/team");
+	await expect(tour).toHaveCount(0);
 });
 
 test("an organiser sees the Orga pages", async ({ page }) => {
@@ -123,6 +149,7 @@ for (const [way, userAgent] of Object.entries(MANUAL_INSTALL)) {
 		test("show in the app prompt and in Settings", async ({ page }) => {
 			await signIn(page, "Tina TrainingDone");
 			await page.goto("/me");
+			await skipTours(page);
 			await expect(
 				page.locator(`#app-prompt [data-install="${way}"]`),
 			).toBeVisible();

@@ -36,6 +36,7 @@ import { handleRides } from "./sections/rides";
 import { handleSettings } from "./sections/settings";
 import { handleTeam } from "./sections/team";
 import { renewSession } from "./session";
+import { handleTour } from "./tour";
 import { handleWebhook } from "./webhook";
 
 // A small path switch (research R13). `/health` and the Strava webhook answer
@@ -106,6 +107,8 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleDisconnect(request, ctx, i18n);
 			case "/me/notifications":
 				return handleNotifications(request, ctx);
+			case "/me/tour":
+				return handleTour(request, ctx, i18n);
 			case "/logout":
 				return handleLogout(request, ctx, i18n);
 			case "/organiser/events":
