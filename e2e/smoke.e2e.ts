@@ -93,6 +93,7 @@ test.describe("a rider", () => {
 	}) => {
 		await page.setViewportSize(PHONE);
 		await page.goto("/team");
+		await skipTours(page);
 		const other = page.locator("nav.kind-switch a:not([aria-current])");
 		const html = page.locator("html");
 		const scrollTop = () => html.evaluate((root) => root.scrollTop);
