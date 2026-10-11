@@ -400,7 +400,8 @@ export const de = {
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
 	"team.total.label": "Team Rynkeby Hamburg 🦧",
-	"team.total.value": "{n} Rynke",
+	"team.total.training": "{n} Trainingsrynke",
+	"team.total.team": "{n} Teamrynke",
 	"team.total.kind": "gemeinsam gesammelt",
 	"team.total.thisWeek": "+{n} diese Woche 🔥",
 	"team.kind.label": "Welche Rynke",

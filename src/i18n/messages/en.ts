@@ -378,7 +378,8 @@ export const en: Catalog = {
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
 	"team.total.label": "Team Rynkeby Hamburg 🦧",
-	"team.total.value": "{n} Rynke",
+	"team.total.training": "{n} Training Rynke",
+	"team.total.team": "{n} Team Rynke",
 	"team.total.kind": "collected together",
 	"team.total.thisWeek": "+{n} this week 🔥",
 	"team.kind.label": "Which Rynke",
