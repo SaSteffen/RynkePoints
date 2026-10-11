@@ -40,8 +40,11 @@ describe("STYLE", () => {
 		expect(declsOf(selector)["min-height"]).toBe("var(--rp-tap)");
 	});
 
-	it("breaks long words in main", () => {
-		expect(declsOf("main")["overflow-wrap"]).toBe("anywhere");
+	it("hyphenates long words in main and breaks them only as a last resort (#115)", () => {
+		const main = declsOf("main");
+		expect(main.hyphens).toBe("auto");
+		// `anywhere` split words letter by letter on small phones.
+		expect(main["overflow-wrap"]).toBe("break-word");
 	});
 
 	it(`sets no width above ${PHONE_PX} px below 600 px`, () => {

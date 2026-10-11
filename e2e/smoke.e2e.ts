@@ -2,7 +2,7 @@ import { test as base, expect, type Page } from "@playwright/test";
 import { signIn, skipTours } from "./sign-in";
 
 // Smoke tests in every browser (chromium, firefox, webkit): each page loads
-// without a script error, fits a phone and a desktop without sideways
+// without a script error, fits a small phone, a phone and a desktop without sideways
 // scrolling, and the parts `public/app.js` drives show up. The riders are the
 // fake mode's synthetic samples (dev/fake-strava/samples.ts).
 
@@ -37,6 +37,8 @@ const test = base.extend<{ errors: string[]; noPushInWebKit: undefined }>({
 });
 
 const PHONE = { width: 360, height: 740 };
+/** The narrowest phones still in use, such as the first iPhone SE (#115). */
+const SMALL_PHONE = { width: 320, height: 568 };
 const DESKTOP = { width: 1280, height: 800 };
 
 async function expectNoSidewaysScroll(page: Page) {
@@ -49,7 +51,7 @@ async function expectNoSidewaysScroll(page: Page) {
 
 /** Loads `path` at both sizes and checks the shell around the content. */
 async function checkPage(page: Page, path: string, shell = true) {
-	for (const size of [PHONE, DESKTOP]) {
+	for (const size of [SMALL_PHONE, PHONE, DESKTOP]) {
 		await page.setViewportSize(size);
 		const response = await page.goto(path);
 		expect(response?.status(), path).toBe(200);
