@@ -9,12 +9,13 @@ import { html, languageForm, type SafeHtml } from "../html";
 import { renderInstallHint, renderNotifications } from "../pwa";
 import { renderRules } from "../rider-sections";
 import { acceptedOn, shellPage } from "../shell";
+import { stepHref } from "../tour";
 
 // Settings at `/me/settings` in the seven groups of feature 011 FR-014: the
 // language, this device's scheme, the notifications on this device, installing
 // the app, the connection to Strava with the granted permissions, the stored
 // consent (feature 004 FR-014), and signing out or leaving; the rules moved
-// here from the Overview (issue #92). For a signed-in rider the language
+// here from the Overview (issue #92), and the tours start again here (#90). For a signed-in rider the language
 // switcher is only here (FR-016).
 
 /** One group of the page, in contracts/pages.md "Settings" order. */
@@ -86,6 +87,12 @@ ${group(
 )}
 ${group("settings-consent", i18n.t("me.consent.heading"), consent(i18n, accepted))}
 ${group("settings-rules", i18n.t("rynke.rules.heading"), renderRules(i18n, rules))}
+${group(
+	"settings-tour",
+	i18n.t("settings.tour"),
+	html`<p><a class="button-outlined" href="${stepHref("rider", 0)}">${i18n.t("settings.tour.rider")}</a></p>
+${rider.organiser ? html`<p><a class="button-outlined" href="${stepHref("organiser", 0)}">${i18n.t("settings.tour.organiser")}</a></p>` : null}`,
+)}
 ${group(
 	"settings-account",
 	i18n.t("settings.account"),

@@ -249,6 +249,27 @@ export const de = {
 	"prompt.notify.accept": "Benachrichtigungen einschalten",
 	"prompt.notify.decline": "Nicht jetzt",
 	"prompt.close": "Schließen",
+
+	"tour.label": "Erste Schritte",
+	"tour.progress": "{step} von {total}",
+	"tour.next": "Weiter",
+	"tour.done": "Alles klar",
+	"tour.skip": "Überspringen",
+	"tour.start": "Zeig mal",
+	"tour.rider.intro": "Neu hier? Wir zeigen dir kurz, wo du was findest.",
+	"tour.rider.team":
+		"Team: wie das ganze Team dasteht und wo du im Peloton fährst.",
+	"tour.rider.you": "Du: deine Rynke und was dir noch zur Qualifikation fehlt.",
+	"tour.rider.rides":
+		"Fahrten: jede Fahrt, was sie gebracht hat, und warum, wenn sie nicht zählt.",
+	"tour.rider.settings":
+		"Einstellungen: Sprache, Benachrichtigungen, deine Strava-Verbindung, die Regeln und dieser Rundgang.",
+	"tour.organiser.intro":
+		"Du bist jetzt in der Orga: Der Orga-Tab ist neu. Wir zeigen dir, was drin ist.",
+	"tour.organiser.riders":
+		"Rider: wer im Plan liegt und wer einen Schubs braucht. Tipp auf einen Rider für eine Korrektur.",
+	"tour.organiser.events":
+		"Termine: Teamtermine anlegen, dann einen öffnen und abhaken, wer da war.",
 	"offline.title": "Keine Verbindung",
 	"offline.body":
 		"RynkePoints braucht eine Internetverbindung. Versuch es gleich noch einmal.",
@@ -298,6 +319,9 @@ export const de = {
 	"settings.app": "App",
 	"settings.strava": "Strava-Verbindung",
 	"settings.account": "Konto",
+	"settings.tour": "Rundgang",
+	"settings.tour.rider": "Rundgang noch mal zeigen",
+	"settings.tour.organiser": "Orga-Rundgang noch mal zeigen",
 	"rynke.ride.why": "Warum?",
 	"notifications.switch": "Benachrichtigungen auf diesem Gerät",
 	"brand.poweredByStrava.srcDark": "/strava/en/powered-by-strava-white.svg",

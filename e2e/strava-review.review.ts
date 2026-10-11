@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, type Page, test } from "@playwright/test";
-import { signIn } from "./sign-in";
+import { signIn, skipTours } from "./sign-in";
 
 // Screenshots of every page that shows Strava data, or data derived from it,
 // for Strava's Developer Program review (docs/strava-developer-program.md,
@@ -145,6 +145,8 @@ for (const lang of LANGS) {
 
 		test("a rider's pages", async ({ page }) => {
 			await signIn(page, "Tina TrainingDone");
+			// The tour hints would cover the pages (issue #90).
+			await skipTours(page);
 			const pages = [
 				[
 					"/me",
@@ -181,6 +183,8 @@ for (const lang of LANGS) {
 
 		test("an organiser's pages", async ({ page }) => {
 			await signIn(page, "Olga Organiser");
+			// The tour hints would cover the pages (issue #90).
+			await skipTours(page);
 			await visit(page, "/organiser");
 			await shoot(
 				page,

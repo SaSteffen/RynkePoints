@@ -54,6 +54,8 @@ function rider(athleteId: number, organiser: boolean): Rider {
 		reconnectRequestedAt: null,
 		figuresVersion: 1,
 		organiser,
+		onboardedAt: null,
+		organiserOnboardedAt: null,
 	};
 }
 
