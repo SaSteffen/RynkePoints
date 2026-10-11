@@ -138,8 +138,13 @@ export async function seed(
 
 	// Non-members would only be turned away; their state is reached through
 	// "Connect as" (research R6).
-	for (const rider of SAMPLE_RIDERS.filter((r) => r.clubMember)) {
+	const members = SAMPLE_RIDERS.filter((r) => r.clubMember);
+	for (const rider of members) {
 		await connectThroughApp(ctx, origin, rider);
+	}
+	// Entered as an organiser would, with the change record (feature 014), once
+	// the organiser's rider row exists.
+	for (const rider of members) {
 		for (const recipe of rider.events ?? []) {
 			const { eventId } = await teamEventChange(ctx, {
 				kind: "create-event",
@@ -148,16 +153,17 @@ export async function seed(
 					date: eventDay(recipe, seedDay, ctx.env.SEASON_START_DATE),
 					name: recipe.name,
 				},
+				by: EVENT_ORGANISER,
 			});
 			if (eventId === null) throw new Error("No event ID");
 			await teamEventChange(ctx, {
 				kind: "add-attendance",
 				eventId,
 				athleteIds: [rider.athleteId],
+				by: EVENT_ORGANISER,
 			});
 		}
 	}
-	// Entered as an organiser would, with the change record (feature 014).
 	for (const recipe of SAMPLE_TEAM_EVENTS) {
 		const { eventId } = await teamEventChange(ctx, {
 			kind: "create-event",

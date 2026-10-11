@@ -46,7 +46,9 @@ async function shoot(page: Page, lang: string, slug: string, what: string) {
 	const path = new URL(page.url()).pathname;
 	// A sticky top bar covers the top of every screenful after the first, so
 	// each one moves on by what shows below it. The page ends at its lowest
-	// text or image: padding doesn't need a screenful of its own.
+	// text or image: padding doesn't need a screenful of its own. Never below
+	// the page's own bottom, which clipped or hidden content can reach past, or
+	// the last screenful repeats.
 	// In the page; a string, as e2e/ is typechecked without the DOM's types.
 	const { height, end, bar } = await page.evaluate<{
 		height: number;
@@ -59,9 +61,10 @@ async function shoot(page: Page, lang: string, slug: string, what: string) {
 		const bottoms = [...document.body.querySelectorAll("*")]
 			.filter((el) => el.childElementCount === 0)
 			.map((el) => el.getBoundingClientRect().bottom + window.scrollY);
+		const height = document.documentElement.scrollHeight;
 		return {
-			height: document.documentElement.scrollHeight,
-			end: Math.max(...bottoms),
+			height,
+			end: Math.min(Math.max(...bottoms), height),
 			bar: sticky ? header.getBoundingClientRect().bottom : 0,
 		};
 	})()`);
@@ -220,21 +223,44 @@ for (const lang of LANGS) {
 				"Organisers: one rider's points and where they come from (first name)",
 			);
 		});
+	});
+}
 
+// After both languages' pages, as it adds a ride to Tina's.
+for (const lang of LANGS) {
+	test.describe(lang, () => {
 		test("a push notification", async ({ page }) => {
 			await signIn(page, "Tina TrainingDone");
-			// The text the service worker shows: the rider's own rise, else the
-			// cached general text.
-			let response = await page.request.get(
-				`/me/notification-text?lang=${lang}`,
-			);
-			if (response.status() !== 200) {
-				response = await page.request.get(`/notification-text?lang=${lang}`);
-			}
-			const { title, body } = (await response.json()) as {
-				title: string;
-				body: string;
+			// The seed's latest rise is badges; a short new ride, through fake
+			// Strava's webhook, makes it points, which the review describes.
+			await page.request.post("/_dev/events", {
+				form: {
+					action: "create",
+					athleteId: "990004",
+					distanceKm: "20",
+					elevationM: "0",
+				},
+			});
+			// The text the service worker shows for the rider's own rise; a badge
+			// rise links to the badges. The queue collects for up to 5 s first.
+			let notification: { title: string; body: string; url?: string } = {
+				title: "",
+				body: "",
 			};
+			await expect
+				.poll(
+					async () => {
+						const response = await page.request.get(
+							`/me/notification-text?lang=${lang}`,
+						);
+						if (response.status() !== 200) return "none";
+						notification = await response.json();
+						return notification.url ?? "points";
+					},
+					{ timeout: 30_000 },
+				)
+				.toBe("points");
+			const { title, body } = notification;
 			const icon = new URL("/icons/icon-192.png", page.url()).href;
 			// Waits for "load", so the icon is in.
 			await page.setContent(`<!doctype html>
