@@ -30,6 +30,16 @@ next one."
   Per category the rider sees only how far they are from the next badge, never its
   name, picture or the badges after it. Supersedes the draft's "earned and locked"
   list (old FR-002).
+- Q: Where do team badges show? → A: In their own "Team-Badges" group, apart from
+  the rider's own badges.
+- Q: What is a team badge? → A: A badge the whole team works on together: amounts
+  the team collects together and participation in team activities. A team badge
+  is never one rider's achievement.
+- Q: Which runs count? → A: Outdoor runs only. Virtual runs and treadmill runs count
+  nothing.
+- Q: What is "Team Rynke" as a badge category? → A: Dropped: the name clashed with
+  feature 003's Team Rynke (the Rynke kind earned at team events). The team's
+  amount category is "Rynke together" (FR-011).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -109,21 +119,26 @@ check the running category shows 11 km and the Rynke and ride list are unchanged
 1. **Given** runs of 7.8 km and 4.6 km, **When** they are evaluated, **Then** the
    running category counts 11 km (7 + 4).
 2. **Given** a run, **When** it is evaluated, **Then** the rider's Training Rynke,
-   Team Rynke, ride list and team leaderboard are exactly as without it.
+   Team Rynke, ride list, team leaderboard and team badges are exactly as without
+   it.
 3. **Given** a rider who connected before this feature, **When** it is released,
    **Then** their runs since the season start are picked up without the rider doing
    anything.
 4. **Given** a run entered manually on Strava, **When** it is evaluated, **Then** it
    counts no kilometres.
+5. **Given** a virtual run or a run Strava marks as on a treadmill, **When** it is
+   evaluated, **Then** it counts no kilometres.
 
 ---
 
 ### User Story 4 - Team badges (Priority: P2)
 
-Every rider also sees the team's badges, earned by the team together: for example a
-team training attended by at least 10 riders, or the team's Rynke reaching 5,000.
-Like personal badges, team badges are a surprise; the team categories show only the
-progress towards the next one.
+Every rider also sees the team's badges in a "Team-Badges" group. The whole team
+works on them together, through amounts it collects together (the team's Rynke
+reaching 5,000) and through taking part in team activities (10 riders at one team
+training, 100 attendances at team events over the season). Like personal badges,
+team badges are a surprise; the team categories show only the progress towards the
+next one.
 
 **Why this priority**: Team Rynkeby is a team; shared goals make riders pull others
 along. It builds on the personal badges.
@@ -137,12 +152,15 @@ check every rider's page shows the team badge with the training's date.
    attendance is evaluated, **Then** the team badge "10 riders at one training" is
    earned with that training's date and every rider sees it in the team group of
    their Badges section.
-2. **Given** the team's combined Training Rynke is 4,210 and the next team badge is
-   at 5,000, **When** a rider opens their page, **Then** the team category shows
-   "noch 790" and nothing about the badge itself.
-3. **Given** riders without a current consent, **When** team badges are worked out,
+2. **Given** the team has collected 4,210 Rynke together and the next team badge
+   is at 5,000, **When** a rider opens their page, **Then** the "Rynke together"
+   category shows "noch 790" and nothing about the badge itself.
+3. **Given** riders have attended team events 92 times this season and the next
+   team badge is at 100, **When** a rider opens their page, **Then** the
+   attendance category shows "noch 8".
+4. **Given** riders without a current consent, **When** team badges are worked out,
    **Then** those riders count towards nothing (feature 004 FR-021).
-4. **Given** a team badge earned before a rider connected, **When** that rider opens
+5. **Given** a team badge earned before a rider connected, **When** that rider opens
    their page, **Then** they see it as the team's badge with its original date, and
    it is not celebrated as if they had just earned it.
 
@@ -178,8 +196,9 @@ check every rider's page shows the team badge with the training's date.
   and the date earned.
 - **FR-003**: For each category not yet complete (except Tour, FR-010), the group
   MUST show the progress towards the next badge only: current value, the value
-  needed and what is still missing, in that category's unit. It MUST NOT show the next badge's name or
-  picture, nor any badge after it, nor how many badges a category has.
+  needed and what is still missing, in that category's unit. It MUST NOT show the
+  next badge's name or picture, nor any badge after it, nor how many badges a
+  category has.
 - **FR-004**: A category whose last badge is earned MUST show no progress and no
   sign that it is complete.
 - **FR-005**: The section MUST NOT show while feature 015's waiting state is shown.
@@ -191,14 +210,23 @@ check every rider's page shows the team badge with the training's date.
     (feature 003).
   - Longest ride: the longest single counting ride of the season.
   - Elevation: the season total of elevation gain of counting rides.
-  - Team events: the number of team events of any kind the rider attended.
+  - Team events attended: the number of team events of any kind the rider
+    attended.
   - Training Rynke: the rider's Training Rynke total.
   - Tour: a single badge for qualifying for the tour (feature 003 FR-013). It shows
     no progress bar of its own; the Overview already shows both targets.
   - Running: the season total of full kilometres of runs (FR-020).
-- **FR-011**: Team categories MUST be:
-  - Big training: the most riders at a single team event the season.
-  - Team Rynke: the combined Training Rynke of all consenting riders.
+- **FR-011**: Team categories are worked on by the whole team together and MUST be:
+  - Amounts collected together:
+    - Rynke together: all Rynke of both kinds (Training and Team Rynke) that the
+      consenting riders collected this season, the team totals feature 016 already
+      shows.
+  - Participation in team activities:
+    - Big training: the most riders at a single team event of the season.
+    - Attendances: the number of times riders attended team events this season,
+      summed over all events and riders.
+- **FR-014**: Team badges MUST show in the "Team-Badges" group only, never among a
+  rider's own badges, and MUST NOT be credited to a single rider.
 - **FR-012**: Each category MUST be a ladder of thresholds; the first set is in
   Assumptions. Changing the ladders is a release, after which badges are worked out
   again under FR-031's silent rules.
@@ -207,10 +235,13 @@ check every rider's page shows the team badge with the training's date.
 
 **Runs**
 
-- **FR-020**: Runs (Strava sport types Run, TrailRun and VirtualRun) from the
-  season start MUST be kept with the minimum needed for badges: date, distance and
-  whether they were entered manually. Each run counts its distance in full
-  kilometres, rounded down per run; manual runs count 0.
+- **FR-020**: Outdoor runs (Strava sport types Run and TrailRun) from the season
+  start MUST be kept with the minimum needed for badges: date, distance and whether
+  they were entered manually. Each run counts its distance in full kilometres,
+  rounded down per run; manual runs count 0.
+- **FR-020a**: Virtual runs (VirtualRun) and runs Strava marks as indoor (treadmill)
+  MUST count nothing and MUST NOT be kept. A run changed on Strava from indoor to
+  outdoor, or back, MUST be added or removed on its next update.
 - **FR-021**: Runs MUST NOT earn Rynke, appear in the ride list, take part in
   feature 003's ride rules (overlap, pause, speed) or show up anywhere other riders
   can see.
@@ -264,8 +295,8 @@ check every rider's page shows the team badge with the training's date.
   twice.
 - **SC-003**: No badge that is still to be earned can be identified from the page:
   its name and picture appear nowhere in what the rider page sends to the browser.
-- **SC-004**: Adding any number of runs leaves every rider's Rynke, ride list and
-  team leaderboard unchanged.
+- **SC-004**: Adding any number of runs leaves every rider's Rynke, ride list, team
+  leaderboard and team badges unchanged.
 - **SC-005**: The Badges section works at 360 px width in both colour modes.
 
 ## Assumptions
@@ -276,23 +307,25 @@ check every rider's page shows the team badge with the training's date.
 - First ladders, to be confirmed with the organisers before release (thresholds
   only; names and pictures are written during planning):
 
-  | Category        | Unit   | Thresholds                          |
-  |-----------------|--------|-------------------------------------|
-  | Distance        | km     | 100, 500, 1,000, 2,500, 5,000       |
-  | Longest ride    | km     | 50, 100, 150, 200                   |
-  | Elevation       | m      | 1,000, 5,000, 10,000, 25,000        |
-  | Team events     | events | 1, 5, 10, 20                        |
-  | Training Rynke  | Rynke  | 1, 100, 250                         |
-  | Tour            | –      | qualified (feature 003 FR-013)      |
-  | Running         | km     | 5, 21, 42, 100, 250                 |
-  | Big training    | riders | 5, 10, 15, 20                       |
-  | Team Rynke      | Rynke  | 1,000, 2,500, 5,000, 10,000         |
+  | Category              | Unit        | Thresholds                     |
+  |-----------------------|-------------|--------------------------------|
+  | Distance              | km          | 100, 500, 1,000, 2,500, 5,000  |
+  | Longest ride          | km          | 50, 100, 150, 200              |
+  | Elevation             | m           | 1,000, 5,000, 10,000, 25,000   |
+  | Team events attended  | events      | 1, 5, 10, 20                   |
+  | Training Rynke        | Rynke       | 1, 100, 250                    |
+  | Tour                  | –           | qualified (feature 003 FR-013) |
+  | Running               | km          | 5, 21, 42, 100, 250            |
+  | Rynke together (team) | Rynke       | 1,000, 2,500, 5,000, 10,000    |
+  | Big training (team)   | riders      | 5, 10, 15, 20                  |
+  | Attendances (team)    | attendances | 25, 50, 100, 200               |
 
-- The team category "Team Rynke" counts Training Rynke only, the kind on which the team leaderboard
-  opens; Team Rynke from events is already covered by the team-events category.
+- Team amounts are Rynke only. Team totals of kilometres, elevation or running
+  kilometres would show something new to other riders (Principle I) and need a new
+  consent version; they are left for a later change.
 - Badges belong to one season, like Rynke; a new season starts every category at
   zero.
-- The team group lives on each rider's own page next to their personal badges; the
+- The "Team-Badges" group lives on each rider's own page below "Meine Badges"; the
   Team tab stays as feature 016 defines it.
 - Distance-type progress is shown in whole units, rounded down, so "noch 0 km" never
   appears for a badge not yet earned.
