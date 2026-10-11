@@ -158,6 +158,18 @@ describe("peloton", () => {
 			expect(xs.reduce((sum, x) => sum + x, 0) / xs.length).toBe(237);
 		});
 
+		it("marks the gap's two slanted edges, so it shows in the dark scheme", () => {
+			const svg = peloton([1, 2, 3, 4, 100], 0, 7, TEXT, "training").value;
+			const edges = svg.match(/<path class="road-gap-edge" d="([^"]*)"/)?.[1];
+			expect(edges?.match(/M/g)).toHaveLength(2);
+			const xs = [...(edges ?? "").matchAll(/[ML]([\d.]+) /g)].map((m) =>
+				Number(m[1]),
+			);
+			expect(xs.sort((a, b) => a - b)).toEqual(
+				gapOf(svg).sort((a, b) => a - b),
+			);
+		});
+
 		it("draws the bunch to scale up to 198 and the breakaway past the gap", () => {
 			const coins = coinsOf(
 				peloton([1, 2, 3, 4, 100], 0, 7, TEXT, "training").value,

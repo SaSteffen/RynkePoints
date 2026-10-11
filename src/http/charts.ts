@@ -59,8 +59,8 @@ const BREAKAWAY_TO = 294;
 /** A breakaway of one distinct total. */
 const BREAKAWAY_ALONE = 282;
 /** Half the gap's width and how far it leans at the top and bottom. */
-const GAP_HALF = 7;
-const GAP_LEAN = 5;
+const GAP_HALF = 3;
+const GAP_LEAN = 9;
 
 /**
  * Each total's position on the road. Without a fence, its share of the largest
@@ -91,9 +91,16 @@ function roadPositions(
 		total > fence ? first + away.indexOf(total) * step : bunch(total);
 }
 
-/** A slanted band across the road at `GAP_AT`, in the card's colour. */
-const roadGap = () =>
-	html`<path class="road-gap" d="M${GAP_AT - GAP_HALF + GAP_LEAN} 0L${GAP_AT + GAP_HALF + GAP_LEAN} 0L${GAP_AT + GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}L${GAP_AT - GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}Z"/>`;
+/**
+ * A slanted band across the road at `GAP_AT`, in the card's colour, its two
+ * cut edges marked: in the dark scheme the road and the card are too close
+ * to tell apart without them.
+ */
+const roadGap = () => {
+	const left = `M${GAP_AT - GAP_HALF + GAP_LEAN} 0L${GAP_AT - GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}`;
+	const right = `M${GAP_AT + GAP_HALF + GAP_LEAN} 0L${GAP_AT + GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}`;
+	return html`<path class="road-gap" d="M${GAP_AT - GAP_HALF + GAP_LEAN} 0L${GAP_AT + GAP_HALF + GAP_LEAN} 0L${GAP_AT + GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}L${GAP_AT - GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}Z"/><path class="road-gap-edge" d="${left}${right}"/>`;
+};
 
 /**
  * The listed riders as mini coins on a dark road with a dashed middle line;
