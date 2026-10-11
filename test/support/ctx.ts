@@ -186,6 +186,7 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM rider_badges"),
 		env.DB.prepare("DELETE FROM badge_reveals"),
 		env.DB.prepare("DELETE FROM badge_rises"),
+		env.DB.prepare("DELETE FROM team_badge_notices"),
 		env.DB.prepare("DELETE FROM runs"),
 		env.DB.prepare("DELETE FROM ride_results"),
 		env.DB.prepare("DELETE FROM activities"),

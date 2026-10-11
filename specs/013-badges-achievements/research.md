@@ -254,6 +254,18 @@ R1 to R9 belong to part A, the art pipeline; R10 to R22 to part B, the app (see
 - **Rationale**: FR-031 wants the badge named in that evaluation's
   notification, and runs give badges without any Rynke, so a badge alone must
   be able to notify. Team badges never notify (FR-032).
+- **Amendment (issue #125)**: team badges notify too. They are still worked
+  out on read (R15); after each change that notifies, `teamBadgeNews`
+  (`src/work/team-badge-news.ts`) works them out once more and compares them
+  with `team_badge_notices`, the badge ids already announced this season. Each
+  new one is announced once per season (taking a badge back and earning it
+  again doesn't notify twice) and written as a badge rise of every listed rider
+  it is new to by R16's rule: earned on or after the day they connected and not
+  yet revealed. A season's first check stores what the team has without
+  notifying, so deploying doesn't announce every badge so far. Only sums are
+  read and every listed rider gets the same news, so nothing tells who
+  contributed. A change that doesn't notify (imports, consents, departures) is
+  caught by the next check.
 - **Alternatives**: Adding columns to `rynke_rises`: mixes two kinds of rise in
   one row with different write rules.
 

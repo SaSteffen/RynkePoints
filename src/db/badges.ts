@@ -4,6 +4,7 @@
 
 import type { EarnedBadge } from "../badges/evaluate";
 import type { CountingWindow } from "../rynke/rules";
+import { LISTED_RIDER_IDS } from "./organiser";
 
 export interface RiderBadgeRow {
 	athlete_id: number;
@@ -207,4 +208,101 @@ export async function readRiderBadges(
 		longestRunM: run?.longest_m ?? 0,
 		runDistanceM: run?.distance_m ?? 0,
 	};
+}
+
+// Team badge notices (issue #125): per season, the team badges already
+// announced. Ids only, nothing about riders (FR-032).
+
+/** The announced team badge ids of a season; no row: never checked. */
+export function readTeamBadgeNoticesStatement(
+	db: D1Database,
+	seasonStart: string,
+) {
+	return db
+		.prepare("SELECT badge_ids FROM team_badge_notices WHERE season_start = ?")
+		.bind(seasonStart);
+}
+
+/** The season's first check: stores what the team has, announcing nothing. */
+export function seedTeamBadgeNoticesStatement(
+	db: D1Database,
+	seasonStart: string,
+	badgeIds: readonly string[],
+	now: number,
+) {
+	return db
+		.prepare(
+			`INSERT INTO team_badge_notices (season_start, badge_ids, checked_at)
+			VALUES (?, ?, ?) ON CONFLICT (season_start) DO NOTHING`,
+		)
+		.bind(seasonStart, JSON.stringify(badgeIds), now);
+}
+
+/**
+ * Replaces the announced ids only if they are still `previous` (exactly as
+ * read), so of two checks racing each other one announces and the other
+ * changes nothing.
+ */
+export function advanceTeamBadgeNoticesStatement(
+	db: D1Database,
+	seasonStart: string,
+	previous: string,
+	badgeIds: readonly string[],
+	now: number,
+) {
+	return db
+		.prepare(
+			`UPDATE team_badge_notices SET badge_ids = ?, checked_at = ?
+			WHERE season_start = ? AND badge_ids = ?`,
+		)
+		.bind(JSON.stringify(badgeIds), now, seasonStart, previous);
+}
+
+/**
+ * The listed riders with the day they connected and the reveals they already
+ * have of `badgeIds`, for working out to whom a team badge is new (R16).
+ */
+export function teamBadgeAudienceStatements(
+	db: D1Database,
+	badgeIds: readonly string[],
+): D1PreparedStatement[] {
+	return [
+		db.prepare(
+			`SELECT athlete_id, connected_at FROM riders
+			WHERE athlete_id IN (${LISTED_RIDER_IDS}) ORDER BY athlete_id`,
+		),
+		db
+			.prepare(
+				`SELECT athlete_id, badge_id, earned_on FROM badge_reveals
+				WHERE athlete_id IN (${LISTED_RIDER_IDS})
+				AND badge_id IN (SELECT value FROM json_each(?1))`,
+			)
+			.bind(JSON.stringify(badgeIds)),
+	];
+}
+
+/**
+ * Writes `badgeIds` as the rider's badge rise, keeping the badges of a rise
+ * written in the last minute (the same change's personal badges) alongside.
+ */
+export function mergeBadgeRiseStatement(
+	db: D1Database,
+	athleteId: number,
+	badgeIds: readonly string[],
+	now: number,
+) {
+	return db
+		.prepare(
+			`INSERT INTO badge_rises (athlete_id, badge_ids, risen_at)
+			VALUES (?1, ?2, ?3)
+			ON CONFLICT (athlete_id) DO UPDATE SET
+				badge_ids = CASE WHEN badge_rises.risen_at >= ?3 - 60 THEN (
+					SELECT json_group_array(value) FROM (
+						SELECT value FROM json_each(badge_rises.badge_ids)
+						UNION SELECT value FROM json_each(?2)
+					)
+				) ELSE ?2 END,
+				risen_at = ?3`,
+		)
+		.bind(athleteId, JSON.stringify(badgeIds), now);
 }

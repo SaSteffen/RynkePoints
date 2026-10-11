@@ -591,4 +591,6 @@ export const de = {
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "Neues Abzeichen: {name} 🏅",
 	"notification.badges": "{n} neue Abzeichen 🏅",
+	"notification.teamBadge": "Neues Team-Abzeichen: {name} 🏅",
+	"notification.teamBadges": "{n} neue Team-Abzeichen 🏅",
 } satisfies Record<string, string>;

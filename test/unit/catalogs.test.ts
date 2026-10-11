@@ -469,6 +469,8 @@ const CONTRACT_IDS = [
 	"badges.value.marathon",
 	"notification.badge",
 	"notification.badges",
+	"notification.teamBadge",
+	"notification.teamBadges",
 ];
 
 const placeholders = (text: string) =>

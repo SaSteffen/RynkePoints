@@ -384,7 +384,9 @@ their badge names examples.
   notify and MUST be revealed together in one reveal.
 - **FR-032**: Team badges MUST be worked out from consenting riders only and MUST
   NOT reveal which riders contributed. A team badge earned after a rider connected
-  MUST be revealed once to that rider; it MUST NOT send notifications.
+  MUST be revealed once to that rider. *(Amended by issue #125: a newly earned
+  team badge MUST notify each listed rider it is new to, once per season, through
+  feature 010's notification; see research R17.)*
 
 **Look and language**
 

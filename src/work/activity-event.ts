@@ -4,13 +4,15 @@ import { getActivity } from "../strava/client";
 import type { Handler } from "./consumer";
 import type { ActivityEventMessage } from "./messages";
 import { notifyRiders } from "./send-notification";
+import { teamBadgeNews } from "./team-badge-news";
 
 // One webhook event (contracts/queue-messages.md, decision table). Every path
 // converges to Strava's current state, so duplicates and reordering are
 // harmless (FR-017). Writes go through `evaluateChange`, so the rider's Rynke
 // change in the same batch (feature 003 research R11). When the rider's Rynke
 // rose or a badge is new, each of their devices gets a notification (feature
-// 010 FR-015, feature 013 research R17).
+// 010 FR-015, feature 013 research R17). A new or changed ride or run may also
+// earn a team badge, which notifies every listed rider it is new to (#125).
 
 export const activityEvent: Handler<ActivityEventMessage> = async (
 	message,
@@ -19,7 +21,10 @@ export const activityEvent: Handler<ActivityEventMessage> = async (
 ) => {
 	const evaluate = async (change: ActivityChange) => {
 		const { rose, badges } = await evaluateChange(ctx, rider.athleteId, change);
-		if (rose || badges.length > 0) await notifyRiders(ctx, [rider.athleteId]);
+		// Removing a ride or run never raises the team's sums.
+		const team = change.kind === "upsert" ? await teamBadgeNews(ctx) : [];
+		const own = rose || badges.length > 0 ? [rider.athleteId] : [];
+		await notifyRiders(ctx, [...new Set([...own, ...team])]);
 		return { kind: "ok" } as const;
 	};
 	const remove = () =>

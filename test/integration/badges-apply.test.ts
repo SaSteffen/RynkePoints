@@ -313,7 +313,7 @@ describe("new badges (US2, research R16 to R18)", () => {
 		]);
 	});
 
-	it("never writes a rise for a team badge (FR-032)", async () => {
+	it("never writes a rise for a team badge itself (FR-032; teamBadgeNews does, #125)", async () => {
 		const team = [900011, 900012, 900013, 900014];
 		for (const athleteId of team) await seedRider(makeCtx(), { athleteId });
 		const eventId = await insertEvent("team_training", "2026-05-09");
