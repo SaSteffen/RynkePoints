@@ -218,7 +218,7 @@ describe("coins", () => {
 		expect(html).toContain('<use href="#coin-back"/>');
 	});
 
-	it("heads the Training and Team gauges with their coin and a row of ten", () => {
+	it("edges the Training and Team gauges in their colour, with a row of ten", () => {
 		const html = renderGauges(en, {
 			training: gauge(130, 250),
 			team: gauge(25, 25),
@@ -228,8 +228,17 @@ describe("coins", () => {
 		const figures = [...html.matchAll(/<figure[\s\S]*?<\/figure>/g)].map(
 			([f]) => f,
 		);
-		expect(figures[0]).toContain('<use href="#coin-front"/>');
-		expect(figures[1]).toContain('<use href="#coin-back"/>');
+		const cards = [...html.matchAll(/<section class="([^"]*)">\n<figure/g)].map(
+			([, classes]) => classes,
+		);
+		expect(cards).toEqual([
+			"card gauge-card-training",
+			"card gauge-card-team",
+			"card",
+		]);
+		// The coin rows use the coins; the captions don't repeat them (issue #92).
+		expect(html).not.toContain('<use href="#coin-front"/>');
+		expect(html).not.toContain('<use href="#coin-back"/>');
 		const row = (f = "") =>
 			f.match(
 				/<span class="coin-row" aria-hidden="true">([\s\S]*?)<\/span>\n/,

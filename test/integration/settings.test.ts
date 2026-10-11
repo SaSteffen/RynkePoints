@@ -18,6 +18,7 @@ const GROUPS = [
 	["settings-app", "settings.app"],
 	["settings-strava", "settings.strava"],
 	["settings-consent", "me.consent.heading"],
+	["settings-rules", "rynke.rules.heading"],
 	["settings-account", "settings.account"],
 ] as const;
 
@@ -43,7 +44,7 @@ async function settings(options: { needsReconnect?: boolean } = {}) {
 beforeEach(resetDb);
 
 describe("GET /me/settings (011 FR-014)", () => {
-	it("has the seven groups in order, each with its heading", async () => {
+	it("has the groups in order, each with its heading", async () => {
 		const { page, group } = await settings();
 		expect(groups(page).map(([id]) => id)).toEqual(GROUPS.map(([id]) => id));
 		for (const [id, key] of GROUPS) {

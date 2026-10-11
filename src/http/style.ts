@@ -64,8 +64,14 @@ footer img{height:24px}
 .verdict{background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container)}
 .rynke-verdict{font:var(--md-type-title-large)}
 ul.rynke-missing{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);list-style:none;margin:0 0 var(--rp-space-3);padding:0}
-.verdict .chip{border:1px solid var(--md-sys-color-on-primary-container);background:none;color:var(--md-sys-color-on-primary-container)}
-.rynke-breakdown dd{margin:0 0 var(--rp-space-2)}
+.verdict .chip{background:var(--rp-coin-ink);color:var(--rp-coin-face)}
+.rynke-breakdown h3{font:var(--md-type-label);margin:var(--rp-space-5) 0 var(--rp-space-2)}
+.breakdown-table{width:100%;border-collapse:collapse}
+.breakdown-table th,.breakdown-table td{padding:var(--rp-space-2) 0;border-bottom:1px solid var(--md-sys-color-outline-variant);text-align:right}
+.breakdown-table thead th,.breakdown-table thead td{padding-top:0}
+.breakdown-table th[scope=row]{text-align:left;font:var(--md-type-label)}
+.breakdown-table tbody td{width:4.5em;font-weight:700}
+.breakdown-detail{display:block;font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 .rynke-events .event-not-counting{color:var(--md-sys-color-on-surface-variant)}
 .greeting{font:var(--md-type-title-large)}
 .notice{margin:0 0 var(--rp-space-3);padding:var(--rp-space-3) var(--rp-space-4);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container)}
@@ -229,6 +235,7 @@ button:has(>img.cws){display:inline-block;min-height:0;padding:0;border:0;border
 .hero p{margin:0}
 .hero .greeting{font:var(--md-type-body)}
 .hero-total{font:var(--md-type-title-large);color:var(--rp-coin-yellow)}
+.hero-team{color:var(--rp-coin-team)}
 .celebrate{display:flex;align-items:center;gap:var(--rp-space-3);padding:var(--rp-space-3) var(--rp-space-4);border-radius:var(--md-shape-lg);background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
 .celebrate p{margin:0;font-weight:600}
 .celebrate-coins{display:flex}
@@ -257,6 +264,8 @@ figure.gauge figcaption{display:flex;align-items:center;gap:var(--rp-space-2);ma
 .gauge-part-5{background:var(--rp-part-5)}
 .gauge-part-6{background:var(--rp-part-6)}
 .gauge-reached .gauge-fill{background:var(--rp-reached)}
+.gauge-card-training{border-left:6px solid var(--rp-coin-yellow)}
+.gauge-card-team{border-left:6px solid var(--rp-coin-team)}
 .gauge-legend{display:flex;flex-wrap:wrap;gap:0 var(--rp-space-4);list-style:none;margin:var(--rp-space-2) 0 0;padding:0;font:var(--md-type-caption)}
 .gauge-key{display:inline-block;width:12px;height:12px;margin-right:var(--rp-space-1);border:1px solid var(--rp-track);border-radius:var(--md-shape-xs);vertical-align:middle}
 .icon-button{display:inline-flex;align-items:center;justify-content:center;min-width:var(--rp-tap);min-height:var(--rp-tap);border-radius:var(--md-shape-full);color:var(--md-sys-color-on-surface-variant)}

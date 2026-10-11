@@ -1,17 +1,21 @@
 import type { Ctx } from "../../ctx";
 import type { Consent } from "../../db/consents";
+import { type BalanceRow, readBalanceStatement } from "../../db/rynke";
 import type { I18n } from "../../i18n/i18n";
 import { vapidPublicKey } from "../../push/vapid";
+import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
 import { consentSummary } from "../consent-form";
 import { html, languageForm, type SafeHtml } from "../html";
 import { renderInstallHint, renderNotifications } from "../pwa";
+import { renderRules } from "../rider-sections";
 import { acceptedOn, shellPage } from "../shell";
 
 // Settings at `/me/settings` in the seven groups of feature 011 FR-014: the
 // language, this device's scheme, the notifications on this device, installing
 // the app, the connection to Strava with the granted permissions, the stored
-// consent (feature 004 FR-014), and signing out or leaving. For a signed-in
-// rider the language switcher is only here (FR-016).
+// consent (feature 004 FR-014), and signing out or leaving; the rules moved
+// here from the Overview (issue #92). For a signed-in rider the language
+// switcher is only here (FR-016).
 
 /** One group of the page, in contracts/pages.md "Settings" order. */
 function group(id: string, heading: string, body: SafeHtml): SafeHtml {
@@ -47,7 +51,19 @@ export function handleSettings(
 		i18n,
 		"settings",
 		"/me/settings",
-		({ rider, consent: accepted }) => {
+		async ({ rider, consent: accepted }) => {
+			// The version the rider's Rynke were computed with (feature 005
+			// FR-050), or the one in effect before their first evaluation.
+			const balance = await readBalanceStatement(
+				ctx.env.DB,
+				rider.athleteId,
+			).first<BalanceRow>();
+			const rules = {
+				version: balance?.rules_version ?? CURRENT_RULES.version,
+				effectiveDate:
+					balance?.rules_effective_date ?? CURRENT_RULES.effectiveDate,
+				...countingWindow(ctx.env),
+			};
 			const status =
 				rider.status === "connected"
 					? html`<p>${i18n.t("me.status.connected")}</p>`
@@ -69,6 +85,7 @@ ${group(
 <p><a class="button-outlined" href="/connect?next=/me/settings">${i18n.t("me.changePermissions")}</a></p>`,
 )}
 ${group("settings-consent", i18n.t("me.consent.heading"), consent(i18n, accepted))}
+${group("settings-rules", i18n.t("rynke.rules.heading"), renderRules(i18n, rules))}
 ${group(
 	"settings-account",
 	i18n.t("settings.account"),

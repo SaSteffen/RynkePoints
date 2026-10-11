@@ -182,7 +182,7 @@ describe("seeding (FR-005, FR-012)", () => {
 
 		await drain();
 		const page = await mePage(TINA);
-		expect(page).toContain("✓ erreicht");
+		expect(page).toContain('<figure class="gauge gauge-reached">');
 		expect(page).toContain("Noch nicht qualifiziert");
 		expect(page.match(/<li class="ride-card /g)).toHaveLength(20);
 
@@ -408,7 +408,7 @@ describe("sample riders in every state (US2)", () => {
 		expect(row?.training_rynke).toBeGreaterThanOrEqual(250);
 		expect(row?.training_without_virtual).toBeLessThan(167);
 		const page = await mePage(VERA);
-		expect(page).toContain("✓ erreicht");
+		expect(page).toContain('<figure class="gauge gauge-reached">');
 		expect(page).toContain("Trainingsrynke draußen");
 	});
 
