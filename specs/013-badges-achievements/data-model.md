@@ -35,6 +35,10 @@ self-contained (no reference to other prompts).
 | personal | 22 sunflower petals per layer: amber `#f0b400` back layer (gold veins), yellow `#fbe122` front layer (amber veins), ink outlines; tips at r 48.3 and 46.4 | ink `#1c1b13`, r 36.6 | 3 yellow, middle of the ring, at −26°, 0°, 26° | cream `#fffdf5`, r 28.7 at (50, 50), ink outline |
 | team | same | team blue `#8cc4f0`, ink outline | same | same |
 
+Ribbon (optional, FR-040b): a band at x 13 to 87, y 70 to 84, with notched tails
+out to x 3 and 97, in the ring colour with ink outlines, over the bottom 15 % of
+the window. No text; the page writes the milestone into the band.
+
 ViewBox `0 0 100 100`. The window clips the picture. Radii measured from
 `art/badges/reference/` (T009); the picture transform (research R4) follows the
 window radius.

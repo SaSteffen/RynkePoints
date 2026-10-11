@@ -175,14 +175,14 @@ several Rynkes in the picture.
 `drafts/abzeichen-{mobile,desktop}.png`; the text on it is the app's (its own
 tasks).
 
-- [ ] T021 [US1] Tests first in `test/unit/badge-frame.test.ts`: `frameSvg` with a
+- [X] T021 [US1] Tests first in `test/unit/badge-frame.test.ts`: `frameSvg` with a
   ribbon option draws the band and its two notched tails after the window and
   before nothing that covers them, in the ring colour (`#1c1b13` personal,
   `#8cc4f0` team) with an ink outline, and contains no `<text>`; without the
   option nothing changes; `RIBBON` exports the band's box in badge units (where
   the page puts the milestone). Then implement in `scripts/badge-frame.mjs`,
   matching `drafts/abzeichen-mock.mjs`.
-- [ ] T022 [US1] `pnpm badge-build` writes each badge twice, with and without the
+- [X] T022 [US1] `pnpm badge-build` writes each badge twice, with and without the
   ribbon (`public/badges/<id>.svg` and `<id>-ribbon.svg`, same for the
   placeholders); update `contracts/badge-assets.md` and `src/badges/pictures.ts`
   stays one id per badge.
