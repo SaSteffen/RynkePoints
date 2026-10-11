@@ -221,6 +221,10 @@ export const en: Catalog = {
 	"install.button": "Install as an app",
 	"install.ios":
 		'As an app on your iPhone: in Safari, tap "Share" and then "Add to Home Screen".',
+	"install.firefox":
+		'As an app with Firefox: tap the menu ⋮ and then "Install" or "Add to Home screen".',
+	"install.macSafari":
+		'As an app on your Mac: in Safari, choose "File" > "Add to Dock".',
 	"prompt.install.text": "Get RynkePoints as an app on your home screen.",
 	"prompt.notify.text": "Shall we tell you when you get new Rynke?",
 	"prompt.notify.accept": "Turn on notifications",

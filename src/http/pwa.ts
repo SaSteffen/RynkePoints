@@ -154,10 +154,15 @@ ${state("failed")}
 </section>`;
 }
 
-/** The two ways to install: the browser's own prompt, or iPhone steps. */
+/**
+ * The ways to install: the browser's own prompt, or the steps where the
+ * browser has none (iPhone, Firefox on Android, Safari on the Mac).
+ */
 function installWays(i18n: I18n): SafeHtml {
 	return html`<p data-install="prompt" hidden><button type="button" class="tap">${i18n.t("install.button")}</button></p>
-<p data-install="ios" hidden>${i18n.t("install.ios")}</p>`;
+<p data-install="ios" hidden>${i18n.t("install.ios")}</p>
+<p data-install="firefox" hidden>${i18n.t("install.firefox")}</p>
+<p data-install="macSafari" hidden>${i18n.t("install.macSafari")}</p>`;
 }
 
 /**

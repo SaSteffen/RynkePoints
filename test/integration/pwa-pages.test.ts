@@ -37,6 +37,8 @@ const HEAD = [
 const INSTALL_HINT = `<aside id="install" class="notice" hidden>
 <p data-install="prompt" hidden><button type="button" class="tap">Als App installieren</button></p>
 <p data-install="ios" hidden>Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.</p>
+<p data-install="firefox" hidden>Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.</p>
+<p data-install="macSafari" hidden>Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.</p>
 </aside>`;
 
 async function get(path: string, cookies?: Record<string, string>) {
@@ -120,6 +122,8 @@ describe("app prompt (015 FR-010–FR-012, FR-016)", () => {
 <p id="app-prompt-title">Hol dir RynkePoints als App auf deinen Startbildschirm.</p>
 <p data-install="prompt" hidden><button type="button" class="tap">Als App installieren</button></p>
 <p data-install="ios" hidden>Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.</p>
+<p data-install="firefox" hidden>Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.</p>
+<p data-install="macSafari" hidden>Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.</p>
 </div>
 <div data-panel="notify" hidden>
 <p>Sollen wir dir Bescheid sagen, wenn du neue Rynke bekommst?</p>

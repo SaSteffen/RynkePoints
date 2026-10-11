@@ -116,6 +116,9 @@ still offers installing where possible.
 5. **Given** an iPhone rider in Safari, **When** they see the prompt, **Then** it
    explains how to add the app to the home screen, and the notifications offer
    appears the first time they open the app from the home screen.
+5a. **Given** a rider in Firefox on Android or Safari on the Mac, **When** they see
+   the prompt or the App group in Settings, **Then** it explains the browser's own
+   menu steps to install the app.
 6. **Given** the app is already installed or the device can't install it, **When**
    the rider opens a section, **Then** no install prompt appears.
 7. **Given** any rider, **When** they open the Overview or the landing page,
@@ -187,7 +190,9 @@ still offers installing where possible.
 - **FR-010**: The inline install box with its "Ausblenden" button MUST be removed
   from the Overview and the landing page.
 - **FR-011**: Settings MUST keep offering to install the app (including the iPhone
-  home-screen explanation) where the device allows it, without a hide button, and
+  home-screen explanation, and the steps for Firefox on Android and Safari on the
+  Mac, whose browsers offer no install prompt of their own) where the device
+  allows it, without a hide button, and
   hide the App group where installing isn't possible or the app is installed.
 - **FR-012**: On a device that can install the app and isn't running it installed,
   a signed-in rider MUST be shown a one-time install prompt that floats over the
