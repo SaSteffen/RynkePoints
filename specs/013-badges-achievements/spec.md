@@ -348,9 +348,9 @@ their badge names examples.
 **Runs**
 
 - **FR-020**: Outdoor runs (Strava sport types Run and TrailRun) from the season
-  start MUST be kept with the minimum needed for badges: date, distance and whether
-  they were entered manually. Runs count their whole distance, added up over the
-  season with no rounding per run; manual runs count 0.
+  start MUST be kept with the minimum needed for badges: date and distance. Runs
+  count their whole distance, added up over the season with no rounding per run.
+  Runs entered manually count nothing and MUST NOT be kept.
 - **FR-020a**: Virtual runs (VirtualRun) and runs Strava marks as indoor (treadmill)
   MUST count nothing and MUST NOT be kept. A run changed on Strava from indoor to
   outdoor, or back, MUST be added or removed on its next update.
