@@ -186,7 +186,7 @@ tasks).
   ribbon (`public/badges/<id>.svg` and `<id>-ribbon.svg`, same for the
   placeholders); update `contracts/badge-assets.md` and `src/badges/pictures.ts`
   stays one id per badge.
-- [ ] T023 [P] [US1] Add to `art/badges/prompt.txt`: keep the lowest strip of the
+- [X] T023 [P] [US1] Add to `art/badges/prompt.txt`: keep the lowest strip of the
   circle (about the bottom 15 %) free of anything important, a ribbon goes there;
   check `pnpm badge-art --print` and the prompt tests.
 
