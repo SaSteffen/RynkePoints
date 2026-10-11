@@ -6,15 +6,13 @@ import { signIn } from "./sign-in";
 // Screenshots of every page that shows Strava data, or data derived from it,
 // for Strava's Developer Program review (docs/strava-developer-program.md,
 // step 6). Fake mode's synthetic riders only (constitution Principle I), in
-// both languages, on a phone and a desktop. Run through
-// `scripts/strava-review.sh`, which reads the manifest written at the end.
+// both languages, at desktop size. A page taller than the screen is taken
+// screenful by screenful, so nothing is cut off or shrunk. Run through
+// `pnpm strava:review`, which reads the manifest written at the end.
 
 const OUT = process.env.STRAVA_REVIEW_OUT ?? "strava-review/manual";
 const LANGS = ["de", "en"] as const;
-const SIZES = {
-	phone: { width: 390, height: 844 },
-	desktop: { width: 1280, height: 800 },
-} as const;
+const SCREEN = { width: 1280, height: 800 };
 
 interface Shot {
 	file: string;
@@ -44,12 +42,41 @@ const COVERED = new Set([
 ]);
 
 async function shoot(page: Page, lang: string, slug: string, what: string) {
-	for (const [size, viewport] of Object.entries(SIZES)) {
-		await page.setViewportSize(viewport);
-		const path = new URL(page.url()).pathname;
-		await page.reload({ waitUntil: "networkidle" });
-		const file = join(lang, size, `${slug}.png`);
-		await page.screenshot({ path: join(OUT, file), fullPage: true });
+	const path = new URL(page.url()).pathname;
+	// A sticky top bar covers the top of every screenful after the first, so
+	// each one moves on by what shows below it. The page ends at its lowest
+	// text or image: padding doesn't need a screenful of its own.
+	// In the page; a string, as e2e/ is typechecked without the DOM's types.
+	const { height, end, bar } = await page.evaluate<{
+		height: number;
+		end: number;
+		bar: number;
+	}>(`(() => {
+		const header = document.querySelector("header");
+		const sticky =
+			header && /sticky|fixed/.test(getComputedStyle(header).position);
+		const bottoms = [...document.body.querySelectorAll("*")]
+			.filter((el) => el.childElementCount === 0)
+			.map((el) => el.getBoundingClientRect().bottom + window.scrollY);
+		return {
+			height: document.documentElement.scrollHeight,
+			end: Math.max(...bottoms),
+			bar: sticky ? header.getBoundingClientRect().bottom : 0,
+		};
+	})()`);
+	const step = SCREEN.height - bar;
+	const parts = Math.max(1, Math.ceil((end - bar) / step));
+	for (let part = 0; part < parts; part++) {
+		// The last screenful ends at the bottom of the page, overlapping the one
+		// before rather than showing empty space.
+		const top = Math.min(part * step, height - SCREEN.height);
+		await page.evaluate(`window.scrollTo(0, ${top})`);
+		await page.waitForTimeout(200);
+		const file = join(
+			lang,
+			parts === 1 ? `${slug}.png` : `${slug}-${part + 1}.png`,
+		);
+		await page.screenshot({ path: join(OUT, file) });
 		manifest.push({ file, path, what });
 	}
 }
@@ -91,7 +118,8 @@ test("every page route is in the review", () => {
 
 for (const lang of LANGS) {
 	test.describe(lang, () => {
-		test.beforeEach(async ({ context, baseURL }) => {
+		test.beforeEach(async ({ context, page, baseURL }) => {
+			await page.setViewportSize(SCREEN);
 			await context.addCookies([
 				{ name: "rp_lang", value: lang, url: baseURL ?? "" },
 			]);
@@ -198,7 +226,6 @@ for (const lang of LANGS) {
 				body: string;
 			};
 			const icon = new URL("/icons/icon-192.png", page.url()).href;
-			await page.setViewportSize(SIZES.phone);
 			// Waits for "load", so the icon is in.
 			await page.setContent(`<!doctype html>
 <style>body{margin:0;padding:24px;background:#1c1b1f;font-family:system-ui,sans-serif;width:342px}
@@ -211,7 +238,7 @@ for (const lang of LANGS) {
 			await page.locator(".b").evaluate((el, text) => {
 				el.textContent = text;
 			}, body);
-			const file = join(lang, "phone", "12-notification.png");
+			const file = join(lang, "12-notification.png");
 			await page.locator("body").screenshot({ path: join(OUT, file) });
 			manifest.push({
 				file,

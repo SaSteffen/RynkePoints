@@ -63,8 +63,9 @@ production numbers are left out. The run fails when a page route in
 6. **Take screenshots** of the "Connect with Strava" button and every page showing
    Strava data or data derived from it, with synthetic riders only, never real
    riders' data. `pnpm strava:review` takes them in fake mode
-   (`e2e/strava-review.review.ts`), German and English, phone and desktop;
-   the PDF has the English ones, which is all the form asks for:
+   (`e2e/strava-review.review.ts`), German and English, at desktop size, a
+   long page screenful by screenful; the PDF has the English ones, which is
+   all the form asks for:
    - `/` (landing, "Connect with Strava") and `/notice/team-full`
    - `/me`, `/me/rides`, `/me/settings`, `/me/disconnect`
    - `/team` (team leaderboard)

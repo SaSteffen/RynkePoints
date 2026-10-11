@@ -4,7 +4,8 @@
 // ignores:
 //
 // - screenshots of every page with Strava data, in fake mode with synthetic
-//   riders, German and English, phone and desktop (e2e/strava-review.review.ts);
+//   riders, German and English, at desktop size, a long page screenful by
+//   screenful (e2e/strava-review.review.ts);
 // - screenshots.pdf: those screenshots in one file, for the form's single
 //   "App Images" upload;
 // - application.md: the form's fields, drafted from the code (scopes, Strava
@@ -109,22 +110,19 @@ const description = `RynkePoints turns the rides of one charity cycling team (Te
 
 Riders agree before connecting. We read only each ride's key figures (distance, time, elevation), never GPS tracks, maps, photos or health data. New rides arrive through the webhook; we don't poll. Leaving the app, deauthorising it on Strava or leaving the club deletes all of the rider's data.`;
 
-// The pictures, per language and page, in the order they were taken.
+// The pictures, per language and page, in the order they were taken; a long
+// page has several.
 const pages = [
-	...Map.groupBy(shots, (s) => {
-		const [lang, , name] = s.file.split("/");
-		return `${lang}/${name}`;
-	}).values(),
-].map((group) => {
-	const image = (size) => group.find((s) => s.file.split("/")[1] === size);
-	return {
-		lang: group[0].file.split("/")[0],
-		path: group[0].path,
-		what: group[0].what,
-		desktop: image("desktop")?.file,
-		phone: image("phone")?.file,
-	};
-});
+	...Map.groupBy(
+		shots,
+		(s) => `${s.file.split("/")[0]} ${s.path} ${s.what}`,
+	).values(),
+].map((group) => ({
+	lang: group[0].file.split("/")[0],
+	path: group[0].path,
+	what: group[0].what,
+	images: group.map((s) => s.file),
+}));
 // The review doesn't ask for every language: English is shown, German only
 // in application.md, folded away.
 const english = pages.filter((p) => p.lang === "en");
@@ -144,27 +142,24 @@ const gallery = english
 		[
 			`### ${i + 1}. \`${p.path}\``,
 			p.what,
-			p.desktop && `![${p.what}, desktop](${p.desktop})`,
-			p.phone &&
-				folded(
-					"Phone",
-					`<img src="${p.phone}" width="390" alt="${p.what}, phone">`,
-				),
-		]
-			.filter(Boolean)
-			.join("\n\n"),
+			...p.images.map((file) => `![${p.what}](${file})`),
+		].join("\n\n"),
 	)
 	.join("\n\n");
 const germanGallery = folded(
 	"German pages",
 	german
-		.map((p) => `\`${p.path}\`\n\n![${p.what}](${p.desktop ?? p.phone})`)
+		.map((p) =>
+			[
+				`\`${p.path}\``,
+				...p.images.map((file) => `![${p.what}](${file})`),
+			].join("\n\n"),
+		)
 		.join("\n\n"),
 );
 
 // The form takes one file for "App Images", so the English pictures go into
-// one PDF: an overview, then one sheet per page, desktop and phone side by
-// side. A page taller than the sheet shows its top.
+// one PDF: an overview, then one sheet per screenful.
 const text = (s) =>
 	s.replace(
 		/[&<>"]/g,
@@ -184,10 +179,7 @@ p{margin:0 0 4mm}code{font-size:10pt;color:#555}
 table{border-collapse:collapse;width:100%;font-size:11pt}
 td,th{border-top:1px solid #ccc;padding:1.5mm 2mm;text-align:left;vertical-align:top}
 section{break-before:page;height:185mm;display:flex;flex-direction:column}
-.shots{flex:1;min-height:0;display:flex;gap:6mm;align-items:flex-start}
-.frame{max-height:100%;overflow:hidden;border:1px solid #ccc}
-.frame img{display:block;width:100%}
-.desktop{width:68%}.phone{width:24%}
+section img{flex:1;min-height:0;object-fit:contain;object-position:left top;border:1px solid #ccc;max-width:100%;align-self:flex-start}
 </style>
 <h1>RynkePoints: where Strava data is shown</h1>
 <p>Every page that shows Strava data or data derived from it, with made-up
@@ -197,15 +189,14 @@ sample riders. Each page carries the "Powered by Strava" logo.</p>
 ${english.map((p, i) => `<tr><td>${i + 1}</td><td><code>${text(p.path)}</code></td><td>${text(p.what)}</td></tr>`).join("\n")}
 </table>
 ${english
-	.map(
-		(p, i) => `<section>
-<h2>${i + 1}. ${text(p.path)}</h2>
+	.flatMap((p, i) =>
+		p.images.map(
+			(file, part) => `<section>
+<h2>${i + 1}. ${text(p.path)}${p.images.length > 1 ? ` (${part + 1} of ${p.images.length})` : ""}</h2>
 <p>${text(p.what)}</p>
-<div class="shots">
-${p.desktop ? `<div class="frame desktop"><img src="${p.desktop}" alt=""></div>` : ""}
-${p.phone ? `<div class="frame phone"><img src="${p.phone}" alt=""></div>` : ""}
-</div>
+<img src="${file}" alt="">
 </section>`,
+		),
 	)
 	.join("\n")}
 </html>
