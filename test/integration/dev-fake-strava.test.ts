@@ -155,6 +155,8 @@ afterEach(() => {
 });
 
 describe("seeding (FR-005, FR-012)", () => {
+	// The first seed of the file does all the sample data; it takes well under a
+	// second locally but has run past the default 5 s on a slow CI runner.
 	it("connects the sample riders and shows Tina TrainingDone's rides", async () => {
 		const before = await rateLimitRow();
 		const index = await get("/_dev/");
@@ -188,7 +190,7 @@ describe("seeding (FR-005, FR-012)", () => {
 
 		// FR-006, SC-002: fake answers never touch the request budget.
 		expect(await rateLimitRow()).toEqual(before);
-	});
+	}, 30_000);
 });
 
 describe("seeding again", () => {
