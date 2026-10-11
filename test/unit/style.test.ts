@@ -183,7 +183,13 @@ describe("STYLE", () => {
 	});
 
 	it("lifts the top bar once content scrolls under it (#62)", () => {
-		const bar = declsOf("header.top-bar");
+		// Without scroll timelines (Firefox) the animation would run at once
+		// and leave the bar lifted for good.
+		expect(declsOf("header.top-bar").animation).toBeUndefined();
+		const bar = declsOf(
+			"header.top-bar",
+			"@supports (animation-timeline:scroll())",
+		);
 		expect(bar.animation).toContain("top-bar-lift");
 		expect(bar["animation-timeline"]).toBe("scroll()");
 		expect(STYLE).toContain("@keyframes top-bar-lift");

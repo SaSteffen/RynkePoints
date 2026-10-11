@@ -47,7 +47,8 @@ input[type=checkbox]{width:20px;height:20px;margin:0 var(--rp-space-2) 0 0;verti
 .pbs-light,.cws-light{display:inline}
 ${SHOW_DARK(FIXED_DARK)}
 html{scroll-padding-top:calc(var(--rp-topbar-height) + env(safe-area-inset-top) + var(--rp-space-2))}
-header.top-bar{position:sticky;top:0;z-index:9;display:flex;align-items:center;gap:var(--rp-space-2);min-height:calc(var(--rp-topbar-height) + env(safe-area-inset-top));padding:env(safe-area-inset-top) var(--rp-page-padding) 0;background:var(--md-sys-color-surface-container);animation:top-bar-lift linear both;animation-timeline:scroll();animation-range:0 8px}
+header.top-bar{position:sticky;top:0;z-index:9;display:flex;align-items:center;gap:var(--rp-space-2);min-height:calc(var(--rp-topbar-height) + env(safe-area-inset-top));padding:env(safe-area-inset-top) var(--rp-page-padding) 0;background:var(--md-sys-color-surface-container)}
+@supports (animation-timeline:scroll()){header.top-bar{animation:top-bar-lift linear both;animation-timeline:scroll();animation-range:0 8px}}
 header form{display:flex}
 .wordmark{display:inline-flex;align-items:center;font:var(--md-type-title-large);margin-right:auto;color:var(--md-sys-color-on-surface)}
 .wordmark-name>span{margin-left:2px;padding:0 var(--rp-space-1);border-radius:var(--md-shape-xs);background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container)}
