@@ -13,7 +13,7 @@ import {
 	sessionCookie,
 } from "../support/ctx";
 import { ATHLETE_A, NOW } from "../support/fixtures";
-import { riderPage } from "../support/rider-view";
+import { riderPage, seedBalance } from "../support/rider-view";
 
 // Onboarding tours (issue #90): a hint per page of the rider tour, then the
 // organiser tour for organisers; each shown until finished or skipped, which is
@@ -54,11 +54,17 @@ const setOrganiser = (value: 0 | 1) =>
 		.bind(value, ATHLETE_A)
 		.run();
 
+/** A rider past the first import, which the tours wait for (issue #119). */
+async function seedReadyRider(options?: Parameters<typeof seedRider>[1]) {
+	await seedRider(ctx, options);
+	await seedBalance(ATHLETE_A);
+}
+
 beforeEach(resetDb);
 
 describe("the rider tour", () => {
 	it("starts on its first page for a rider who hasn't seen it", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		const { card, target: at } = await hintOn("/team");
 		expect(card).toContain(t("tour.rider.team"));
 		expect(card).toContain("1 von 4");
@@ -67,7 +73,7 @@ describe("the rider tour", () => {
 	});
 
 	it("offers to start on any other page", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		const { card, target: at } = await hintOn("/me/rides");
 		expect(card).toContain(t("tour.rider.intro"));
 		expect(card).toContain('href="/team?tour=rider"');
@@ -75,7 +81,7 @@ describe("the rider tour", () => {
 	});
 
 	it("covers every rider page, one step each, pointing at its nav item", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		expect(TOURS.rider.map((s) => s.path)).toEqual([
 			"/team",
 			"/me",
@@ -93,7 +99,7 @@ describe("the rider tour", () => {
 	});
 
 	it("can be skipped at any step, and doesn't come back", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		const { card } = await hintOn("/me?tour=rider");
 		expect(card).toContain('<form method="post" action="/me/tour">');
 		expect(card).toContain(t("tour.skip"));
@@ -107,20 +113,20 @@ describe("the rider tour", () => {
 	});
 
 	it("is remembered on the rider, not the device", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		await finish("rider");
 		// A fresh session cookie, as on another device.
 		expect((await hintOn("/team")).card).toBeNull();
 	});
 
 	it("shows for riders stored before the release", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		expect((await getRider(env.DB, ATHLETE_A))?.onboardedAt).toBeNull();
 		expect((await hintOn("/team")).card).not.toBeNull();
 	});
 
 	it("starts again from Settings", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		await finish("rider");
 		const { page } = await hintOn("/me/settings");
 		expect(page).toContain('<section id="settings-tour"');
@@ -134,9 +140,33 @@ describe("the rider tour", () => {
 	});
 });
 
+describe("while the first import runs", () => {
+	it("shows no tour, not even one started from Settings", async () => {
+		await seedRider(ctx, { organiser: true });
+		for (const path of [
+			"/team",
+			"/me",
+			"/me/rides",
+			"/me/settings",
+			"/me?tour=rider",
+			"/organiser/riders?tour=organiser",
+		]) {
+			expect((await hintOn(path)).card).toBeNull();
+		}
+	});
+
+	it("starts once the first Rynke are in", async () => {
+		await seedRider(ctx);
+		expect((await hintOn("/team")).card).toBeNull();
+		await seedBalance(ATHLETE_A);
+		expect((await hintOn("/team")).card).toContain(t("tour.rider.team"));
+		expect((await getRider(env.DB, ATHLETE_A))?.onboardedAt).toBeNull();
+	});
+});
+
 describe("the organiser tour", () => {
 	it("is never shown to a rider who isn't an organiser", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		await finish("rider");
 		expect((await hintOn("/team")).card).toBeNull();
 		expect((await hintOn("/me?tour=organiser")).card).toBeNull();
@@ -147,7 +177,7 @@ describe("the organiser tour", () => {
 	});
 
 	it("follows the rider tour for a rider made organiser on their first day", async () => {
-		await seedRider(ctx, { organiser: true });
+		await seedReadyRider({ organiser: true });
 		expect((await hintOn("/team")).card).toContain(t("tour.rider.team"));
 		const done = await finish("rider", "/me/settings");
 		expect(done.headers.get("Location")).toBe("/me/settings");
@@ -158,7 +188,7 @@ describe("the organiser tour", () => {
 	});
 
 	it("covers only the organiser pages", async () => {
-		await seedRider(ctx, { organiser: true });
+		await seedReadyRider({ organiser: true });
 		await finish("rider");
 		expect(TOURS.organiser.map((s) => s.path)).toEqual([
 			"/organiser/riders",
@@ -177,7 +207,7 @@ describe("the organiser tour", () => {
 	});
 
 	it("shows again when organiser rights are removed and given again", async () => {
-		await seedRider(ctx, { organiser: true });
+		await seedReadyRider({ organiser: true });
 		await finish("rider");
 		await finish("organiser");
 		expect((await hintOn("/team")).card).toBeNull();
@@ -190,7 +220,7 @@ describe("the organiser tour", () => {
 	});
 
 	it("starts again from Settings", async () => {
-		await seedRider(ctx, { organiser: true });
+		await seedReadyRider({ organiser: true });
 		await finish("rider");
 		await finish("organiser");
 		expect((await hintOn("/me/settings")).page).toContain(
@@ -201,7 +231,7 @@ describe("the organiser tour", () => {
 
 describe("POST /me/tour", () => {
 	it("refuses another origin", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		const response = await handleFetch(
 			request("/me/tour", {
 				form: { tour: "rider", page: "/me" },
@@ -223,7 +253,7 @@ describe("POST /me/tour", () => {
 	});
 
 	it("only returns to a tour's own pages", async () => {
-		await seedRider(ctx);
+		await seedReadyRider();
 		const response = await finish("rider", "https://evil.test/");
 		expect(response.headers.get("Location")).toBe("/me");
 	});
