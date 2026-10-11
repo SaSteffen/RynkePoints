@@ -55,6 +55,9 @@ next one."
 - Q (raised by the project owner): What does the team's Rynke category count? →
   A: Training Rynke, collected by the whole team together ("Training Rynke
   together"), with more thresholds than the first draft.
+- Q (raised by the project owner): Is there a badge for technique training? → A:
+  Yes, a personal category with two badges: one for attending one of the season's
+  two planned technique trainings, one for attending both.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -238,6 +241,8 @@ check every rider's page shows the team badge with the training's date.
   - Elevation: the season total of elevation gain of counting rides.
   - Team events attended: the number of team events of any kind the rider
     attended.
+  - Technique training: the number of technique trainings (feature 003 FR-006)
+    the rider attended; one badge for the first, one for both planned trainings.
   - Training Rynke: the rider's Training Rynke total.
   - Run length: the longest single run of the season (FR-020). Its highest badge
     is marathon distance (42.195 km).
@@ -339,6 +344,7 @@ check every rider's page shows the team badge with the training's date.
   | Distance                       | km          | 100, 500, 1,000, 2,500, 5,000                           |
   | Elevation                      | m           | 1,000, 5,000, 10,000, 25,000                            |
   | Team events attended           | events      | 1, 5, 10, 20                                            |
+  | Technique training             | trainings   | 1, 2 (both planned)                                     |
   | Training Rynke                 | Rynke       | 1, 25, 50, 100, 150, 200, 250, 300, 400, 500            |
   | Run length                     | km          | 5, 10, half marathon (21.0975), marathon (42.195)       |
   | Running                        | km          | 10, 25, 50, 100, 250, 500                               |
@@ -349,6 +355,8 @@ check every rider's page shows the team badge with the training's date.
 - Team amounts are Training Rynke only. Team totals of kilometres, elevation or running
   kilometres would show something new to other riders (Principle I) and need a new
   consent version; they are left for a later change.
+- The season has two planned technique trainings; should organisers plan more, the
+  ladder changes with a release (FR-012).
 - Badges belong to one season, like Rynke; a new season starts every category at
   zero.
 - The "Team-Badges" group lives on each rider's own page below "Meine Badges"; the
