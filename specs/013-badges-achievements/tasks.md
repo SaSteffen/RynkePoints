@@ -169,6 +169,29 @@ several Rynkes in the picture.
 
 ---
 
+## Phase 6: Ribbon (FR-040b)
+
+**Purpose**: the frame carries the milestone ribbon of the drafts in
+`drafts/abzeichen-{mobile,desktop}.png`; the text on it is the app's (its own
+tasks).
+
+- [ ] T021 [US1] Tests first in `test/unit/badge-frame.test.ts`: `frameSvg` with a
+  ribbon option draws the band and its two notched tails after the window and
+  before nothing that covers them, in the ring colour (`#1c1b13` personal,
+  `#8cc4f0` team) with an ink outline, and contains no `<text>`; without the
+  option nothing changes; `RIBBON` exports the band's box in badge units (where
+  the page puts the milestone). Then implement in `scripts/badge-frame.mjs`,
+  matching `drafts/abzeichen-mock.mjs`.
+- [ ] T022 [US1] `pnpm badge-build` writes each badge twice, with and without the
+  ribbon (`public/badges/<id>.svg` and `<id>-ribbon.svg`, same for the
+  placeholders); update `contracts/badge-assets.md` and `src/badges/pictures.ts`
+  stays one id per badge.
+- [ ] T023 [P] [US1] Add to `art/badges/prompt.txt`: keep the lowest strip of the
+  circle (about the bottom 15 %) free of anything important, a ribbon goes there;
+  check `pnpm badge-art --print` and the prompt tests.
+
+---
+
 ## Dependencies & execution order
 
 - T004 → T011. T005 → T006 → T007. T008 → T009 → T011.
@@ -176,6 +199,7 @@ several Rynkes in the picture.
   T012 and T014.
 - T011 → T012 → T013 → T014 → T014a → T015 → T016 → T017.
 - T018 after T014; T020 last.
+- T021 → T022. T023 any time, before the pictures are generated (T015, T017).
 - Generation (T015, T017) can start any time with `pnpm badge-art`: originals
   wait in `art/badges/originals/` until `badge-build` exists.
 

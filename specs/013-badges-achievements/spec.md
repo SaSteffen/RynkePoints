@@ -31,8 +31,8 @@ next one."
   Per category the rider sees only how far they are from the next badge, never its
   name, picture or the badges after it. Supersedes the draft's "earned and locked"
   list (old FR-002).
-- Q: Where do team badges show? → A: In their own "Team-Badges" group, apart from
-  the rider's own badges.
+- Q: Where do team badges show? → A: In their own group, apart from the rider's
+  own badges ("Team-Abzeichen", see below).
 - Q: What is a team badge? → A: A badge the whole team works on together: amounts
   the team collects together and participation in team activities. A team badge
   is never one rider's achievement.
@@ -67,6 +67,23 @@ next one."
 - Q (raised by the project owner): How large are badges shown? → A: A category's
   highest earned badge is shown larger than its earlier ones; pointing at any
   earned badge shows it large (FR-002a, FR-002b).
+- Q (raised by the project owner): How is the milestone shown as text? → A: On a
+  ribbon across the lower edge of the badge, in the ring's colour; the ribbon is
+  part of the frame, its text comes from the page (translated, crisp, readable by
+  screen readers), never from the image. Small gallery badges have no ribbon; the
+  value is written below them.
+- Q (raised by the project owner): How does the section look on a phone, with many
+  badges? → A: As in the drafts `drafts/abzeichen-mobile.png` and
+  `drafts/abzeichen-desktop.png`: per group the newest badge of each category as
+  a card, every earned badge in a collapsible gallery below, categories without
+  a badge as slim progress bars. The pictures are fun, so all of them stay one
+  tap away.
+- Q (raised by the project owner): What is the section called? → A: "Abzeichen"
+  in German ("Meine neuesten Abzeichen", "Alle meine Abzeichen", "Team-Abzeichen",
+  "Alle Team-Abzeichen", "Noch kein Abzeichen"); the progress line reads "Noch
+  1.500 km", and one line under the heading explains the surprise once.
+- Q (raised by the project owner): Which colour do the progress bars have? → A:
+  Personal categories yellow, team categories the team blue of their frame.
 - Q (raised by the project owner): Is there a badge for technique training? → A:
   Yes, a personal category with two badges: one for attending one of the season's
   two planned technique trainings, one for attending both.
@@ -75,10 +92,13 @@ next one."
 
 ### User Story 1 - See my badges on my page (Priority: P1)
 
-A rider opens their own page and finds a "Badges" section. It shows the badges they
-have earned, each with its picture, name, what it was for and the date they earned
-it. Below them, every category shows a progress bar towards its next badge ("noch
-12 km"), without naming the badge or showing its picture.
+A rider opens their own page and finds the "Abzeichen" section
+([mobile](drafts/abzeichen-mobile.png), [desktop](drafts/abzeichen-desktop.png)).
+"Meine neuesten Abzeichen" shows one card per category with its newest badge,
+the milestone on the badge's ribbon and a progress bar towards the next badge
+("Noch 1.500 km"), without naming that badge or showing its picture. Below, a
+collapsible gallery holds every badge they have earned, to look at again; any
+badge opens large with its name, what it was for and the date.
 
 **Why this priority**: The section is the feature; without it no badge is visible,
 and the progress towards the next surprise is what brings riders back.
@@ -89,25 +109,31 @@ badges, a few badges and every badge of a category.
 **Acceptance Scenarios**:
 
 1. **Given** a rider whose rides add up to their first 100 km, **When** they open
-   their page, **Then** the Badges section shows that badge as earned, with the
-   date of the ride that reached 100 km.
+   their page, **Then** the distance card shows that badge with "100 km" on its
+   ribbon, and opening it shows the date of the ride that reached 100 km.
 2. **Given** a rider with 412 km in the distance category whose next badge is at
    500 km, **When** they open their page, **Then** the distance category shows
-   progress 412 of 500 km and "noch 88 km", and nothing about what the badge is
+   progress 412 of 500 km and "Noch 88 km", and nothing about what the badge is
    or which badges follow.
 3. **Given** a rider who has earned the last badge of a category, **When** they open
-   their page, **Then** that category shows no further progress bar and no hint that
+   their page, **Then** that category's card shows no progress bar and no hint that
    it was the last.
 4. **Given** a rider with no badge yet, **When** they open their page, **Then** the
-   section shows an encouraging empty state and the progress of every category.
+   section shows an encouraging empty state and every category under "Noch kein
+   Abzeichen" with its progress.
 5. **Given** a rider still in feature 015's waiting state, **When** they open their
-   page, **Then** no Badges section is shown until their first data arrives.
+   page, **Then** no Abzeichen section is shown until their first data arrives.
 6. **Given** a rider with the 100 and 500 km distance badges, **When** they open
-   their page, **Then** the distance row shows the 500 km badge large and the 100
-   km badge small next to it.
-7. **Given** any earned badge, **When** the rider hovers over it, focuses it with
-   the keyboard or taps it, **Then** it shows large with its name, what it was
-   for and its date; **When** they move away or tap again, **Then** it closes.
+   their page, **Then** the distance card shows the 500 km badge; **When** they
+   open "Alle meine Abzeichen", **Then** both badges are there under "Distanz",
+   newest first, with "500 km" and "100 km" below them.
+7. **Given** any earned badge, card or gallery, **When** the rider hovers over it,
+   focuses it with the keyboard or taps it, **Then** it shows large with its
+   ribbon, name, what it was for and its date; **When** they move away or tap
+   again, **Then** it closes.
+8. **Given** cards for a distance badge earned in May and a running badge earned in
+   June, **When** the rider opens their page, **Then** the running card comes
+   first.
 
 ---
 
@@ -180,7 +206,8 @@ unchanged.
 
 ### User Story 4 - Team badges (Priority: P2)
 
-Every rider also sees the team's badges in a "Team-Badges" group. The whole team
+Every rider also sees the team's badges under "Team-Abzeichen", laid out like
+their own: newest per category, the gallery collapsed below, in the team blue. The whole team
 works on them together, through amounts it collects together (the team's Rynke
 reaching 5,000) and through taking part in team activities (10 riders at one team
 training, 100 attendances at team events over the season). Like personal badges,
@@ -197,8 +224,8 @@ check every rider's page shows the team badge with the training's date.
 
 1. **Given** an organiser records the 10th rider at a team training, **When** the
    attendance is evaluated, **Then** the team badge "10 riders at one training" is
-   earned with that training's date and every rider sees it in the team group of
-   their Badges section.
+   earned with that training's date and every rider sees it under
+   "Team-Abzeichen".
 2. **Given** the team has collected 4,210 Training Rynke together and the next team
    badge is at 5,000, **When** a rider opens their page, **Then** the "Training
    Rynke together"
@@ -237,25 +264,46 @@ check every rider's page shows the team badge with the training's date.
 
 **Section and display**
 
-- **FR-001**: The rider's own page ("Du") MUST get a "Badges" section below the
-  Rynke figures. The app shell keeps its tabs; there is no Badges tab.
-- **FR-002**: The section MUST show two groups, "Meine Badges" and "Team-Badges".
-  Each shows one row per category: the category's highest earned badge, its
-  earlier badges and the progress towards the next one (FR-003). Every earned
-  badge shows its picture, name and date earned.
-- **FR-002a**: Badge sizes: a category's highest earned badge 128 px wide, its
-  earlier badges 64 px; a category with no earned badge shows only its progress.
-- **FR-002b**: Pointing at an earned badge MUST show it at 280 px with its name,
-  what it was for and the date earned: on hover with a mouse, on keyboard focus,
-  and on tap on a touch screen (another tap or tapping elsewhere closes it). It
-  MUST stay within the screen at 360 px width.
+The drafts [drafts/abzeichen-mobile.png](drafts/abzeichen-mobile.png) (360 px)
+and [drafts/abzeichen-desktop.png](drafts/abzeichen-desktop.png) (1100 px) show
+the layout these requirements describe; their pictures are placeholders and
+their badge names examples.
+
+- **FR-001**: The rider's own page ("Du") MUST get an "Abzeichen" section below
+  the Rynke figures, mobile first. The app shell keeps its tabs; there is no
+  Abzeichen tab. One line under the heading explains the surprise once ("Wie weit
+  es noch bis zum nächsten Abzeichen ist – welches es wird, bleibt geheim.").
+- **FR-002**: The section MUST show the rider's own badges first, then the team's,
+  each group in three parts:
+  - **newest**: one card per category with an earned badge ("Meine neuesten
+    Abzeichen", "Team-Abzeichen"): category name, the category's highest earned
+    badge with its ribbon (FR-040b), and the progress towards the next badge
+    (FR-003). Cards are ordered by the date that badge was earned, newest first;
+    two per row on a phone, more on wider screens (four at 1100 px).
+  - **all**: a collapsible gallery of every earned badge of the group ("Alle
+    meine Abzeichen (14)", "Alle Team-Abzeichen (5)", with the count), closed by
+    default, grouped by category, newest first within a category, with the
+    milestone written below each badge. Three per row on a phone.
+  - **not yet**: every category without an earned badge as one slim progress bar
+    with its name and what is missing, under "Noch kein Abzeichen" (one list for
+    both groups, after the team badges).
+- **FR-002a**: Badge sizes: 128 px on a card, with its ribbon; 96 px in the
+  gallery, without a ribbon.
+- **FR-002b**: Pointing at an earned badge, on a card or in the gallery, MUST
+  show it at 280 px with its ribbon, name, what it was for and the date earned:
+  on hover with a mouse, on keyboard focus, and on tap on a touch screen
+  (another tap or tapping elsewhere closes it). It MUST stay within the screen
+  at 360 px width and not cover the badge pointed at on wider screens.
+- **FR-002c**: Progress bars MUST be yellow for personal categories and the team
+  blue of the team frame for team categories.
 - **FR-003**: For each category not yet complete, the group
-  MUST show the progress towards the next badge only: current value, the value
-  needed and what is still missing, in that category's unit. It MUST NOT show the
+  MUST show the progress towards the next badge only: a bar for the current value
+  against the value needed, and what is still missing in that category's unit
+  ("Noch 1.500 km", "Noch 5 Fahrer"). It MUST NOT show the
   next badge's name or picture, nor any badge after it, nor how many badges a
   category has.
-- **FR-004**: A category whose last badge is earned MUST show no progress and no
-  sign that it is complete.
+- **FR-004**: A category whose last badge is earned MUST keep its card, without a
+  progress bar and without a sign that it is complete.
 - **FR-005**: The section MUST NOT show while feature 015's waiting state is shown.
 
 **Categories (first set)**
@@ -286,7 +334,7 @@ check every rider's page shows the team badge with the training's date.
       all events: a team training with 12 riders and a training-weekend day with
       18 riders make 30 attendances. Where Big training rewards one well-attended
       event, Attendances rewards the team turning up again and again.
-- **FR-014**: Team badges MUST show in the "Team-Badges" group only, never among a
+- **FR-014**: Team badges MUST show under "Team-Abzeichen" only, never among a
   rider's own badges, and MUST NOT be credited to a single rider.
 - **FR-012**: Each category MUST be a ladder of thresholds; the first set is in
   Assumptions. Changing the ladders is a release, after which badges are worked out
@@ -339,6 +387,12 @@ check every rider's page shows the team badge with the training's date.
 - **FR-040a**: A badge without a picture of its own MUST show the frame with the
   coin's Rynke as a placeholder. Adding or replacing a picture MUST NOT change
   any badge's rules, ids or earned state.
+- **FR-040b**: The frame MUST be able to carry a ribbon across its lower edge, in
+  the ring's colour (black with yellow text for personal, team blue with dark
+  text for team badges), with notched tails over the petals. The ribbon shape is
+  part of the frame; the milestone on it ("1.000 km", "Halbmarathon") is page
+  text from the catalogs, never part of the image. Pictures MUST keep the strip
+  the ribbon covers free of anything important.
 - **FR-041**: Names, what each badge was for, units and the empty state MUST come
   from the i18n catalogs in every language (FR-028).
 - **FR-042**: The section MUST work at 360 px width and be readable with a screen
@@ -366,7 +420,8 @@ check every rider's page shows the team badge with the training's date.
   its name and picture appear nowhere in what the rider page sends to the browser.
 - **SC-004**: Adding any number of runs leaves every rider's Rynke, ride list, team
   leaderboard and every team badge except "Running together" unchanged.
-- **SC-005**: The Badges section works at 360 px width in both colour modes.
+- **SC-005**: The Abzeichen section works at 360 px width in both colour modes,
+  without horizontal scrolling however many badges a rider has.
 
 ## Assumptions
 
@@ -402,8 +457,8 @@ check every rider's page shows the team badge with the training's date.
   release may ship with placeholders only.
 - Badges belong to one season, like Rynke; a new season starts every category at
   zero.
-- The "Team-Badges" group lives on each rider's own page below "Meine Badges"; the
-  Team tab stays as feature 016 defines it.
+- The team badges live on each rider's own page below the rider's own; the Team
+  tab stays as feature 016 defines it.
 - Run length progress and thresholds are shown with one decimal (21.1 km, 42.2 km);
   other distance-type progress is shown in whole units.
 - Distance-type progress is rounded down, so "noch 0 km" never
