@@ -144,10 +144,17 @@ describe("buildBadgeSection", () => {
 			]),
 		).toEqual([
 			["distance", ["distance-500", "distance-100"]],
+			["elevation", []],
+			["team_events", []],
 			["technique", ["technique-1"]],
+			["training_rynke", []],
+			["run_length", []],
+			["running", []],
 		]);
 		// The badges still to earn, as empty outlines (issue #109).
-		expect(section?.personal.gallery.map((g) => g.unearned)).toEqual([3, 1]);
+		expect(section?.personal.gallery.map((g) => g.unearned)).toEqual([
+			3, 4, 4, 1, 10, 4, 6,
+		]);
 	});
 
 	it("lists categories without a badge under not yet, with their progress", () => {
@@ -178,7 +185,8 @@ describe("buildBadgeSection", () => {
 			waiting: false,
 			personal: personal([]),
 		});
-		expect(section?.personal).toEqual({ cards: [], gallery: [], count: 0 });
+		expect(section?.personal.cards).toEqual([]);
+		expect(section?.personal.count).toBe(0);
 		expect(section?.notYet).toHaveLength(7);
 	});
 });

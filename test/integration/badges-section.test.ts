@@ -141,10 +141,12 @@ describe("the Abzeichen section", () => {
 		const lists = [...gallery.matchAll(/<ul>([\s\S]*?)<\/ul>/g)].map(
 			(m) => m[1] ?? "",
 		);
-		// Distance: 2 of 5 earned; elevation: 1 of 4.
+		// Distance: 2 of 5 earned; elevation: 1 of 4; the other categories have
+		// none yet and show only outlines.
 		const slots = (list: string) =>
 			list.match(/<li class="badge-slot" aria-hidden="true"><\/li>/g)?.length;
-		expect(lists.map(slots)).toEqual([3, 3]);
+		expect(lists.map(slots)).toEqual([3, 3, 4, 2, 10, 4, 6]);
+		expect(lists.slice(2).join("")).not.toContain("popovertarget");
 		expect(lists[0]?.lastIndexOf('popovertarget="')).toBeLessThan(
 			lists[0]?.indexOf("badge-slot") ?? 0,
 		);

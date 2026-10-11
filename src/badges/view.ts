@@ -136,6 +136,12 @@ function groupView({ earned, progress }: Evaluated): {
 		const highest = [...badges].sort(
 			(a, b) => badgeOrder(b.badgeId) - badgeOrder(a.badgeId),
 		)[0];
+		// Every category, the ones without a badge as outlines only (issue #109).
+		gallery.push({
+			category: category.id,
+			badges,
+			unearned: category.ladder.length - badges.length,
+		});
 		if (!highest) {
 			if (shown) {
 				notYet.push({
@@ -147,11 +153,6 @@ function groupView({ earned, progress }: Evaluated): {
 			continue;
 		}
 		cards.push({ category: category.id, badge: highest, progress: shown });
-		gallery.push({
-			category: category.id,
-			badges,
-			unearned: category.ladder.length - badges.length,
-		});
 	}
 	cards.sort((a, b) => newestFirst(a.badge, b.badge));
 	return {
