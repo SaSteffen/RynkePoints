@@ -481,8 +481,6 @@ export const en: Catalog = {
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
 	// names aren't here: they are German in every language (badges.de.ts).
 	"badges.heading": "Badges",
-	"badges.intro":
-		"How far it is to your next badge – which one it will be stays a secret.",
 	"badges.personal.newest": "My badges",
 	"badges.personal.all": "All my badges ({n})",
 	"badges.team.newest": "Team badges",

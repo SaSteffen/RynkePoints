@@ -248,7 +248,6 @@ export function renderBadges(i18n: I18n, section: BadgeSection): SafeHtml {
 	);
 	return html`<section class="badges" aria-labelledby="badges-heading">
 <h2 id="badges-heading" class="visually-hidden">${i18n.t("badges.heading")}</h2>
-<p class="badges-intro">${i18n.t("badges.intro")}</p>
 ${group(i18n, "personal", section.personal, section.notYet)}${group(i18n, "team", section.team, section.notYet)}${earned.map((b) => popover(i18n, b))}</section>`;
 }
 

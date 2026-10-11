@@ -504,8 +504,6 @@ export const de = {
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
 	// names aren't here: they are German in every language (badges.de.ts).
 	"badges.heading": "Abzeichen",
-	"badges.intro":
-		"Wie weit es noch bis zum nächsten Abzeichen ist – welches es wird, bleibt geheim.",
 	"badges.personal.newest": "Meine Abzeichen",
 	"badges.personal.all": "Alle meine Abzeichen ({n})",
 	"badges.team.newest": "Team-Abzeichen",

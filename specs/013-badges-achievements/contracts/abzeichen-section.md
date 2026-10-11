@@ -21,7 +21,6 @@ it, with new own badges and new team badges together.
 ```html
 <section class="badges" aria-labelledby="badges-heading">
   <h2 id="badges-heading" class="visually-hidden">Abzeichen</h2> <!-- the top bar already says it -->
-  <p class="badges-intro">Wie weit es noch bis zum nächsten Abzeichen ist – welches es wird, bleibt geheim.</p>
 
   <!-- the personal group first -->
   <section class="badge-group badge-group-personal" aria-labelledby="…">
