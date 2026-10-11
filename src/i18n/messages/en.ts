@@ -479,11 +479,10 @@ export const en: Catalog = {
 	"badges.heading": "Badges",
 	"badges.intro":
 		"How far it is to your next badge – which one it will be stays a secret.",
-	"badges.personal.newest": "My newest badges",
+	"badges.personal.newest": "My badges",
 	"badges.personal.all": "All my badges ({n})",
 	"badges.team.newest": "Team badges",
 	"badges.team.all": "All team badges ({n})",
-	"badges.notYet": "No badge yet",
 	"badges.empty": "No badge yet – your first ride brings you closer.",
 	"badges.missing": "{value} to go",
 	"badges.earnedOn": "earned on {date}",

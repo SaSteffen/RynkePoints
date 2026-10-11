@@ -242,9 +242,14 @@ describe("STYLE", () => {
 		// Name, sentence, badge and bar line up across a row.
 		expect(declsOf(".badge-card")["grid-template-rows"]).toBe("subgrid");
 		expect(
-			declsOf(".badge-card .badge-about", "(max-width:599.98px)").display,
+			declsOf(
+				".badge-card:not(.badge-card-empty) .badge-about",
+				"(max-width:599.98px)",
+			).display,
 		).toBe("none");
 		expect(declsOf(".badge-card .badge").width).toBe("128px");
+		// A category without a badge: a dotted outline in the badge's place.
+		expect(declsOf(".badge-card .badge-slot").width).toBe("128px");
 		expect(declsOf(".badge-gallery .badge").width).toBe("96px");
 		expect(declsOf(".badge-large .badge")).toMatchObject({
 			width: "280px",

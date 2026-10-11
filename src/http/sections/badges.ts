@@ -1,8 +1,8 @@
 // The Abzeichen section, on the Overview with the rider's own badges and on
 // the Team page with the team's (feature 013 US1, US4,
 // contracts/abzeichen-section.md): the newest badge per category as cards with
-// the milestone on the ribbon, the closed gallery of every badge, the
-// categories without a badge, and one popover per earned badge. Only earned
+// the milestone on the ribbon and the categories without a badge as dotted
+// outlines, the closed gallery of every badge, and one popover per earned badge. Only earned
 // badges are named or pictured, so the next one stays a surprise (SC-003); the
 // gallery shows the ones still to earn as empty outlines (issue #109).
 
@@ -126,12 +126,23 @@ ${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.cate
 </li>`;
 }
 
+/** A category without a badge: a dotted outline, its sentence on phones too. */
+function emptyCard(i18n: I18n, row: NotYetRow): SafeHtml {
+	return html`<li class="badge-card badge-card-empty" data-category="${row.category}">
+${categoryHeading(i18n, row.category)}
+<span class="badge-slot" aria-hidden="true"></span>
+<div class="badge-progress">${progressBar(i18n, row.category, row.progress)}</div>
+</li>`;
+}
+
 function group(
 	i18n: I18n,
 	kind: BadgeGroup,
 	view: BadgeSection["personal"] | null,
+	notYet: readonly NotYetRow[],
 ): SafeHtml | null {
-	if (!view || view.count === 0) return null;
+	if (!view) return null;
+	const empty = notYet.filter((row) => row.group === kind);
 	const gallery = view.gallery.map(
 		(g) => html`${categoryHeading(i18n, g.category)}
 <ul>${g.badges.map(
@@ -145,24 +156,17 @@ function group(
 	);
 	return html`<section class="badge-group badge-group-${kind}" aria-labelledby="badges-${kind}-heading">
 <h3 id="badges-${kind}-heading">${i18n.t(`badges.${kind}.newest`)}</h3>
+${kind === "personal" && view.count === 0 ? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>` : null}
 <ul class="badge-cards">
-${view.cards.map((c) => card(i18n, c))}
+${view.cards.map((c) => card(i18n, c))}${empty.map((row) => emptyCard(i18n, row))}
 </ul>
-<details class="badge-gallery">
+${
+	view.count > 0
+		? html`<details class="badge-gallery">
 <summary>${i18n.t(`badges.${kind}.all`, { n: i18n.formatNumber(view.count, { fractionDigits: 0 }) })}</summary>
-${gallery}</details>
-</section>
-`;
+${gallery}</details>`
+		: null
 }
-
-function notYet(i18n: I18n, rows: readonly NotYetRow[]): SafeHtml | null {
-	if (rows.length === 0) return null;
-	return html`<section class="badge-not-yet" aria-labelledby="badges-not-yet-heading">
-<h3 id="badges-not-yet-heading">${i18n.t("badges.notYet")}</h3>
-<ul>${rows.map(
-		(row) =>
-			html`<li class="badge-not-yet-row badge-group-${row.group}" data-category="${row.category}"><span class="badge-category">${i18n.t(`badges.category.${row.category}`)}</span><span class="badge-about">${i18n.t(`badges.about.${row.category}`)}</span>${progressBar(i18n, row.category, row.progress)}</li>`,
-	)}</ul>
 </section>
 `;
 }
@@ -222,6 +226,5 @@ export function renderBadges(i18n: I18n, section: BadgeSection): SafeHtml {
 	return html`<section class="badges" aria-labelledby="badges-heading">
 <h2 id="badges-heading">${i18n.t("badges.heading")}</h2>
 <p class="badges-intro">${i18n.t("badges.intro")}</p>
-${section.personal ? (group(i18n, "personal", section.personal) ?? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>`) : null}
-${group(i18n, "team", section.team)}${notYet(i18n, section.notYet)}${earned.map((b) => popover(i18n, b))}</section>`;
+${group(i18n, "personal", section.personal, section.notYet)}${group(i18n, "team", section.team, section.notYet)}${earned.map((b) => popover(i18n, b))}</section>`;
 }

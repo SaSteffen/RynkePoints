@@ -160,13 +160,15 @@ describe("the Abzeichen section", () => {
 		);
 	});
 
-	it("lists the categories without a badge with their bar", async () => {
+	it("shows the categories without a badge as dotted cards after the others, with their bar", async () => {
 		const { section: badges } = await section();
-		const rows = [
+		const cards = [
 			...(badges ?? "").matchAll(
-				/<li class="badge-not-yet-row badge-group-personal" data-category="(\w+)">/g,
+				/<li class="badge-card( badge-card-empty)?" data-category="(\w+)">/g,
 			),
-		].map((m) => m[1]);
+		];
+		expect(cards.findIndex((m) => m[1])).toBe(2);
+		const rows = cards.filter((m) => m[1]).map((m) => m[2]);
 		expect(rows).toEqual([
 			"team_events",
 			"technique",
@@ -176,6 +178,9 @@ describe("the Abzeichen section", () => {
 		]);
 		expect(badges).toContain(
 			escapeHtml(de["badges.missing"].replace("{value}", "1\u00a0Termin")),
+		);
+		expect(badges).toContain(
+			'<span class="badge-slot" aria-hidden="true"></span>',
 		);
 	});
 
@@ -188,9 +193,9 @@ describe("the Abzeichen section", () => {
 			`<h4>${escapeHtml(de["badges.category.distance"])}</h4>\n<p class="badge-about">${about("distance")}</p>`,
 		);
 		expect(badges?.split(about("distance")).length).toBe(3);
-		// In the not-yet row.
+		// On the card of a category without a badge.
 		expect(badges).toContain(
-			`<span class="badge-category">${escapeHtml(de["badges.category.running"])}</span><span class="badge-about">${about("running")}</span>`,
+			`<h4>${escapeHtml(de["badges.category.running"])}</h4>\n<p class="badge-about">${about("running")}</p>`,
 		);
 	});
 
@@ -244,12 +249,10 @@ describe("the Abzeichen section without badges", () => {
 		await seedBalance(ATHLETE_A);
 		const { section: badges } = await section();
 		expect(badges).toContain(escapeHtml(de["badges.empty"]));
-		expect(badges).not.toContain('class="badge-cards"');
 		expect(badges).not.toContain("<details");
+		expect(badges).not.toContain("popovertarget");
 		expect([
-			...(badges ?? "").matchAll(
-				/class="badge-not-yet-row badge-group-personal"/g,
-			),
+			...(badges ?? "").matchAll(/<li class="badge-card badge-card-empty"/g),
 		]).toHaveLength(7);
 	});
 
@@ -322,19 +325,19 @@ describe("the team's badges (US4)", () => {
 		}
 	});
 
-	it("lists only the team categories without a badge", async () => {
+	it("shows only the team categories without a badge, in the team group", async () => {
 		const { section: badges } = await teamSection();
 		const rows = [
-			...(badges ?? "").matchAll(
-				/<li class="badge-not-yet-row badge-group-(\w+)" data-category="(\w+)">/g,
+			...teamGroup(badges).matchAll(
+				/<li class="badge-card badge-card-empty" data-category="(\w+)">/g,
 			),
-		].map((m) => `${m[1]}:${m[2]}`);
+		].map((m) => m[1]);
 		expect(rows).toEqual([
-			"team:team_training_rynke",
-			"team:team_distance",
-			"team:team_elevation",
-			"team:team_running",
-			"team:attendances",
+			"team_training_rynke",
+			"team_distance",
+			"team_elevation",
+			"team_running",
+			"attendances",
 		]);
 	});
 

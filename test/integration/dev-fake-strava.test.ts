@@ -305,7 +305,7 @@ describe("every badge at /_dev/badges (013)", () => {
 		for (const badge of BADGES) {
 			expect(page, badge.id).toContain(`<div popover id="badge-${badge.id}"`);
 		}
-		expect(page).not.toContain('class="badge-not-yet"');
+		expect(page).not.toContain('<li class="badge-card badge-card-empty"');
 	});
 });
 
@@ -505,9 +505,7 @@ describe("sample riders in every state (US2)", () => {
 		const page = await mePage(990012);
 		expect(page).toContain('<section class="badges"');
 		expect(page).toContain('data-category="technique"');
-		expect(await mePage(990002)).not.toContain(
-			'class="badge-group badge-group-personal"',
-		);
+		expect(await mePage(990002)).not.toContain('<li class="badge-card" ');
 	});
 
 	it("shows Nick NearlyThere just short and Carla Complete done (013)", async () => {
@@ -539,7 +537,7 @@ describe("sample riders in every state (US2)", () => {
 			)?.[0] ?? "";
 		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(5);
 		expect(
-			carla.match(/class="badge-not-yet-row badge-group-personal"/g),
+			personal.match(/<li class="badge-card badge-card-empty"/g),
 		).toHaveLength(2);
 	});
 

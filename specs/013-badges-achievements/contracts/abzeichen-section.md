@@ -29,7 +29,7 @@ Team page right after the reconnect notice (new team badges).
 
   <!-- one group: personal on the Overview, team on the Team page -->
   <section class="badge-group badge-group-personal" aria-labelledby="…">
-    <h3>Meine neuesten Abzeichen</h3>
+    <h3>Meine Abzeichen</h3>
     <ul class="badge-cards">
       <li class="badge-card" data-category="distance">
         <h4>Distanz</h4>                       <!-- the category's name, bold -->
@@ -43,7 +43,15 @@ Team page right after the reconnect notice (new team badges).
           <span class="badge-missing">Noch 1.500 km</span>
         </div>
       </li>
+      <!-- after the cards with a badge, in catalog order: a category without one -->
+      <li class="badge-card badge-card-empty" data-category="running">
+        <h4>Laufen gesamt</h4>
+        <p class="badge-about">Alle Kilometer deiner Läufe in dieser Saison, …</p>  <!-- also on phones -->
+        <span class="badge-slot" aria-hidden="true"></span>                       <!-- dotted outline, 128 px -->
+        <div class="badge-progress">…<span class="badge-missing">Noch 10 km</span></div>
+      </li>
     </ul>
+    <!-- the gallery only once the group has a badge -->
     <details class="badge-gallery">
       <summary>Alle meine Abzeichen (14)</summary>
       <h4>Distanz</h4>
@@ -59,11 +67,6 @@ Team page right after the reconnect notice (new team badges).
 
   <!-- on the Team page instead: -->
   <section class="badge-group badge-group-team">…"Team-Abzeichen", "Alle Team-Abzeichen (5)"…</section>
-
-  <section class="badge-not-yet" aria-labelledby="…">
-    <h3>Noch kein Abzeichen</h3>
-    <ul><li class="badge-not-yet-row badge-group-personal"><span class="badge-category">Höhenmeter</span> <span class="badge-about">Alle Höhenmeter deiner Radfahrten …</span> <span class="bar">…</span> Noch 380 m</li></ul>
-  </section>
 
   <!-- one popover per earned badge, outside the cards -->
   <div popover id="badge-distance-1000" class="badge-large">
@@ -101,8 +104,9 @@ The reveal, at the top of the page (research R16):
   badges in the group. It has every category of the group, also those without
   a badge yet; each lists its earned badges, then one empty `li.badge-slot` per
   badge still to earn, with no id, name, picture or text (issue #109).
-- **Not yet**: one row per category of the page's group without an earned
-  badge, with the group's bar colour.
+- **Not yet**: one `li.badge-card.badge-card-empty` per category of the
+  page's group without an earned badge, after the other cards, with the group's
+  bar colour; the gallery is left out while the group has no badge.
 - **Large view**: a `popover` per earned badge, opened by its buttons (tap,
   click, keyboard); with a mouse also on hover (`public/app.js`). It fits 360 px
   and, on wider screens, opens beside the badge (FR-002b).
@@ -111,5 +115,6 @@ The reveal, at the top of the page (research R16):
   their `badge_reveals`, a HEAD doesn't (like `rynke_seen`); honours reduced
   motion (feature 012).
 - **Sizes**: 128 px cards, 96 px gallery, 280 px popover (FR-002a/b); two cards
-  per row at every width, without the category sentence below 600 px; no
+  per row at every width; below 600 px only cards without a badge keep the
+  category sentence; no
   horizontal scrolling (SC-005).

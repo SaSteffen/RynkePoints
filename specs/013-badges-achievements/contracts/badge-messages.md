@@ -21,11 +21,10 @@ the implementation together with the project owner.
 |-----|--------|
 | `badges.heading` | Abzeichen |
 | `badges.intro` | Wie weit es noch bis zum nächsten Abzeichen ist – welches es wird, bleibt geheim. |
-| `badges.personal.newest` | Meine neuesten Abzeichen |
+| `badges.personal.newest` | Meine Abzeichen |
 | `badges.personal.all` | Alle meine Abzeichen ({n}) |
 | `badges.team.newest` | Team-Abzeichen |
 | `badges.team.all` | Alle Team-Abzeichen ({n}) |
-| `badges.notYet` | Noch kein Abzeichen |
 | `badges.empty` | Noch kein Abzeichen – deine erste Fahrt bringt dich näher. (encouraging empty state, US1 scenario 4) |
 | `badges.missing` | Noch {value} |
 | `badges.earnedOn` | erreicht am {date} |

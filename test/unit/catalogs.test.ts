@@ -408,7 +408,6 @@ const CONTRACT_IDS = [
 	"badges.personal.all",
 	"badges.team.newest",
 	"badges.team.all",
-	"badges.notYet",
 	"badges.empty",
 	"badges.missing",
 	"badges.earnedOn",
