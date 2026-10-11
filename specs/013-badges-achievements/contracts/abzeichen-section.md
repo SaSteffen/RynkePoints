@@ -32,7 +32,8 @@ Team page right after the reconnect notice (new team badges).
     <h3>Meine neuesten Abzeichen</h3>
     <ul class="badge-cards">
       <li class="badge-card" data-category="distance">
-        <h4>Distanz</h4>
+        <h4>Distanz</h4>                       <!-- the category's name, bold -->
+        <p class="badge-about">Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.</p>
         <button class="badge" popovertarget="badge-distance-1000" aria-label="Hamburg–Paris, 1.000 km">
           <img src="/badges/distance-1000-ribbon.svg" alt="" loading="lazy" width="128" height="128">
           <span class="badge-ribbon-text">1.000 km</span>
@@ -46,6 +47,7 @@ Team page right after the reconnect notice (new team badges).
     <details class="badge-gallery">
       <summary>Alle meine Abzeichen (14)</summary>
       <h4>Distanz</h4>
+      <p class="badge-about">Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.</p>
       <ul>
         <li><button class="badge" popovertarget="…"><img src="/badges/distance-1000.svg" alt="" loading="lazy" width="96" height="96"></button>
             <span class="badge-value">1.000 km</span></li>
@@ -60,14 +62,14 @@ Team page right after the reconnect notice (new team badges).
 
   <section class="badge-not-yet" aria-labelledby="…">
     <h3>Noch kein Abzeichen</h3>
-    <ul><li class="badge-not-yet-row badge-group-personal">Höhenmeter <span class="bar">…</span> Noch 380 m</li></ul>
+    <ul><li class="badge-not-yet-row badge-group-personal"><span class="badge-category">Höhenmeter</span> <span class="badge-about">Alle Höhenmeter deiner Radfahrten …</span> <span class="bar">…</span> Noch 380 m</li></ul>
   </section>
 
   <!-- one popover per earned badge, outside the cards -->
   <div popover id="badge-distance-1000" class="badge-large">
     <span class="badge"><img src="/badges/distance-1000-ribbon.svg" alt="" width="280" height="280"><span class="badge-ribbon-text">1.000 km</span></span>
     <h4>Hamburg–Paris</h4>
-    <p>1.000 km mit dem Rad gefahren</p>
+    <p>Du bist in dieser Saison 1.000 km Rad gefahren.</p>
     <p>erreicht am 3. Mai 2026</p>
   </div>
 </section>

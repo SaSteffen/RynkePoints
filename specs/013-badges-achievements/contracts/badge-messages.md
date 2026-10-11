@@ -32,7 +32,8 @@ the implementation together with the project owner.
 | `badges.label` | {name}, {value} (a badge button's accessible name) |
 | `badges.reveal.one` / `badges.reveal.many` | Neues Abzeichen: {name} / {n} neue Abzeichen |
 | `badges.category.<id>` | Distanz, Höhenmeter, Teamtermine, Techniktraining, Trainings-Rynke, Längster Lauf, Laufen gesamt, Trainings-Rynke gemeinsam, Kilometer gemeinsam, Höhenmeter gemeinsam, Laufen gemeinsam, Große Ausfahrt, Teilnahmen |
-| `badges.for.<category>` | what the badge was for, with `{value}`: "{value} mit dem Rad gefahren", "{value} am Stück gelaufen", "{value} als Team gesammelt", … |
+| `badges.about.<category>` | one sentence under each category name on how it counts: "Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.", "Die meisten Rider, die in dieser Saison bei einem einzigen Teamtermin dabei waren.", … |
+| `badges.for.<category>` | how the badge was earned, a sentence with `{value}`: "Du bist in dieser Saison {value} Rad gefahren.", "Dein längster Lauf dieser Saison: {value} am Stück.", "Alle Rider zusammen haben in dieser Saison {value} im Training gesammelt.", … |
 | `badges.value.<unit>` | the milestone in its unit: "{n} km", "{n} m", "{n} Rynke", "{n} Termine", "{n} Trainings", "{n} Rider", "{n} Teilnahmen" |
 | `badges.value.<unit>.one` | the singular for "Noch 1 …": events, trainings, riders, attendances ("{n} Termin", "{n} Training", "{n} Rider", "{n} Teilnahme") |
 | `badges.value.half`, `badges.value.marathon` | Halbmarathon, Marathon (run length's top badges) |
