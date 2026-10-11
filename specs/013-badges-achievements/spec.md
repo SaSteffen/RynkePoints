@@ -64,6 +64,9 @@ next one."
   with Rynke from the coin as the reference; each badge's picture is generated
   with Gemini from a prompt plus that reference, then traced like the rider-state
   illustrations.
+- Q (raised by the project owner): How large are badges shown? → A: A category's
+  highest earned badge is shown larger than its earlier ones; pointing at any
+  earned badge shows it large (FR-002a, FR-002b).
 - Q (raised by the project owner): Is there a badge for technique training? → A:
   Yes, a personal category with two badges: one for attending one of the season's
   two planned technique trainings, one for attending both.
@@ -99,6 +102,12 @@ badges, a few badges and every badge of a category.
    section shows an encouraging empty state and the progress of every category.
 5. **Given** a rider still in feature 015's waiting state, **When** they open their
    page, **Then** no Badges section is shown until their first data arrives.
+6. **Given** a rider with the 100 and 500 km distance badges, **When** they open
+   their page, **Then** the distance row shows the 500 km badge large and the 100
+   km badge small next to it.
+7. **Given** any earned badge, **When** the rider hovers over it, focuses it with
+   the keyboard or taps it, **Then** it shows large with its name, what it was
+   for and its date; **When** they move away or tap again, **Then** it closes.
 
 ---
 
@@ -231,11 +240,15 @@ check every rider's page shows the team badge with the training's date.
 - **FR-001**: The rider's own page ("Du") MUST get a "Badges" section below the
   Rynke figures. The app shell keeps its tabs; there is no Badges tab.
 - **FR-002**: The section MUST show two groups, "Meine Badges" and "Team-Badges".
-  Each lists its earned badges, newest first, with picture, name, what it was for
-  and the date earned.
-- **FR-002a**: Earned badges MUST be shown large enough to enjoy their picture (at
-  least 96 px wide in the list); tapping one MUST open it large, up to the width
-  of the screen, with its name, what it was for and the date earned.
+  Each shows one row per category: the category's highest earned badge, its
+  earlier badges and the progress towards the next one (FR-003). Every earned
+  badge shows its picture, name and date earned.
+- **FR-002a**: Badge sizes: a category's highest earned badge 128 px wide, its
+  earlier badges 64 px; a category with no earned badge shows only its progress.
+- **FR-002b**: Pointing at an earned badge MUST show it at 280 px with its name,
+  what it was for and the date earned: on hover with a mouse, on keyboard focus,
+  and on tap on a touch screen (another tap or tapping elsewhere closes it). It
+  MUST stay within the screen at 360 px width.
 - **FR-003**: For each category not yet complete, the group
   MUST show the progress towards the next badge only: current value, the value
   needed and what is still missing, in that category's unit. It MUST NOT show the
