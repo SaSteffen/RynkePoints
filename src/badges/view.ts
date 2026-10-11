@@ -57,8 +57,9 @@ export interface GroupView {
 }
 
 export interface BadgeSection {
-	personal: GroupView;
-	/** Null until the team's badges are evaluated (US4). */
+	/** Null on the Team page, which has only the team's badges. */
+	personal: GroupView | null;
+	/** Null on the Overview, which has only the rider's own badges. */
 	team: GroupView | null;
 	/** Personal categories first, then team ones. */
 	notYet: NotYetRow[];
@@ -71,10 +72,13 @@ export interface Evaluated {
 	progress: readonly CategoryProgress[];
 }
 
-/** Nothing while the waiting state shows (FR-005). */
+/**
+ * The rider's own badges for the Overview or the team's for the Team page.
+ * Nothing while the waiting state shows (FR-005).
+ */
 export function buildBadgeSection(input: {
 	waiting: boolean;
-	personal: Evaluated;
+	personal?: Evaluated;
 	team?: Evaluated;
 	/** Badge id → the date it had when revealed; absent: no reveal at all. */
 	revealed?: ReadonlyMap<string, string>;
@@ -82,16 +86,16 @@ export function buildBadgeSection(input: {
 	connectedOn?: string;
 }): BadgeSection | null {
 	if (input.waiting) return null;
-	const personal = groupView(input.personal);
+	const personal = input.personal ? groupView(input.personal) : null;
 	const team = input.team ? groupView(input.team) : null;
 	const { revealed, connectedOn = "" } = input;
 	return {
-		personal: personal.view,
+		personal: personal?.view ?? null,
 		team: team?.view ?? null,
-		notYet: [...personal.notYet, ...(team?.notYet ?? [])],
+		notYet: [...(personal?.notYet ?? []), ...(team?.notYet ?? [])],
 		reveal: revealed
 			? [
-					...input.personal.earned,
+					...(input.personal?.earned ?? []),
 					...(input.team?.earned ?? []).filter(
 						(b) => b.earnedOn >= connectedOn,
 					),

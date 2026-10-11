@@ -69,9 +69,12 @@ async function rideIds() {
 }
 
 /** A page without the Team page's random quote. */
+/** Without the random quote, and without the team's badges, which runs feed. */
 async function page(path: string) {
 	const { html } = await riderPage(ctx, ATHLETE_A, path);
-	return html.replace(/<blockquote class="quote[\s\S]*?<\/blockquote>/, "");
+	return html
+		.replace(/<blockquote class="quote[\s\S]*?<\/blockquote>/, "")
+		.replace(/<section class="badges"[\s\S]*?(?=<\/main>)/, "");
 }
 
 async function setActivity(activity: ReturnType<typeof makeStravaActivity>) {

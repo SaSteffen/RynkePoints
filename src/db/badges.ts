@@ -131,6 +131,22 @@ export function readBadgeRiseStatement(db: D1Database, athleteId: number) {
 		.bind(athleteId);
 }
 
+/** The badges revealed to the rider; the Overview's and the Team page's read. */
+export function listRevealsStatement(db: D1Database, athleteId: number) {
+	return db
+		.prepare(
+			"SELECT badge_id, earned_on FROM badge_reveals WHERE athlete_id = ?",
+		)
+		.bind(athleteId);
+}
+
+/** Badge id → the date it had when it was revealed (research R16). */
+export function revealedOf(
+	rows: readonly { badge_id: string; earned_on: string }[],
+): Map<string, string> {
+	return new Map(rows.map((row) => [row.badge_id, row.earned_on]));
+}
+
 /** What the Overview's Abzeichen section needs beyond the rider view. */
 export interface RiderBadgesRead {
 	earned: EarnedBadge[];
@@ -151,11 +167,7 @@ export async function readRiderBadges(
 ): Promise<RiderBadgesRead> {
 	const [badges, reveals, sums, runs] = await db.batch([
 		listRiderBadgesStatement(db, athleteId),
-		db
-			.prepare(
-				"SELECT badge_id, earned_on FROM badge_reveals WHERE athlete_id = ?",
-			)
-			.bind(athleteId),
+		listRevealsStatement(db, athleteId),
 		db
 			.prepare(
 				`SELECT coalesce(sum(a.distance_m), 0) AS distance_m,
@@ -187,10 +199,8 @@ export async function readRiderBadges(
 			badgeId: row.badge_id,
 			earnedOn: row.earned_on,
 		})),
-		revealed: new Map(
-			(reveals.results as { badge_id: string; earned_on: string }[]).map(
-				(row) => [row.badge_id, row.earned_on],
-			),
+		revealed: revealedOf(
+			reveals.results as { badge_id: string; earned_on: string }[],
 		),
 		distanceM: sum?.distance_m ?? 0,
 		elevationDm: sum?.elevation_dm ?? 0,

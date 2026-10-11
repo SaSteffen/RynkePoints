@@ -1,4 +1,5 @@
-// The Abzeichen section on the Overview (feature 013 US1,
+// The Abzeichen section, on the Overview with the rider's own badges and on
+// the Team page with the team's (feature 013 US1, US4,
 // contracts/abzeichen-section.md): the newest badge per category as cards with
 // the milestone on the ribbon, the closed gallery of every badge, the
 // categories without a badge, and one popover per earned badge. Only earned
@@ -179,9 +180,13 @@ const REVEAL_PICTURES = 5;
 
 /**
  * The badges new for the rider since their last visit, celebrated once
- * (FR-031, research R16), in the look of feature 012's coin celebration.
+ * (FR-031, research R16), in the look of feature 012's coin celebration and
+ * next to it at the top of the page.
  */
-function reveal(i18n: I18n, badges: readonly EarnedBadge[]): SafeHtml | null {
+export function renderBadgeReveal(
+	i18n: I18n,
+	badges: readonly EarnedBadge[],
+): SafeHtml | null {
 	const first = badges[0];
 	if (!first) return null;
 	const text =
@@ -211,6 +216,6 @@ export function renderBadges(i18n: I18n, section: BadgeSection): SafeHtml {
 	return html`<section class="badges" aria-labelledby="badges-heading">
 <h2 id="badges-heading">${i18n.t("badges.heading")}</h2>
 <p class="badges-intro">${i18n.t("badges.intro")}</p>
-${reveal(i18n, section.reveal)}${group(i18n, "personal", section.personal) ?? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>`}
+${section.personal ? (group(i18n, "personal", section.personal) ?? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>`) : null}
 ${group(i18n, "team", section.team)}${notYet(i18n, section.notYet)}${earned.map((b) => popover(i18n, b))}</section>`;
 }

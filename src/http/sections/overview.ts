@@ -1,4 +1,3 @@
-import { evaluateTeamBadges } from "../../badges/team";
 import {
 	type BadgeSection,
 	buildBadgeSection,
@@ -11,7 +10,6 @@ import { type RiderViewRead, readRiderView } from "../../db/rider-view";
 import type { Rider } from "../../db/riders";
 import type { StoredBalance } from "../../db/rynke";
 import { readSeen, type SeenRynke, writeSeen } from "../../db/rynke-seen";
-import { readTeamBadgeSums } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
 import { riderStatus } from "../../rynke/pace";
 import {
@@ -32,7 +30,7 @@ import {
 } from "../rider-sections";
 import { buildRiderView } from "../rider-view";
 import { shellPage } from "../shell";
-import { renderBadges } from "./badges";
+import { renderBadgeReveal, renderBadges } from "./badges";
 
 // The Overview at `/me`, labelled "You" (feature 011 FR-010, issue #73): the greeting first, then what
 // needs the rider's attention (015 FR-008, FR-009), and the rider's Rynke
@@ -78,9 +76,8 @@ function renderCelebration(
 }
 
 /**
- * The Abzeichen section's view model: the rider's stored badges and the
- * team's, worked out from the listed riders' sums on every request (research
- * R15), with the badges new for the rider. Only a GET marks them as
+ * The Abzeichen section's view model: the rider's stored badges, with the
+ * ones new for the rider; the team's are on the Team page. Only a GET marks them as
  * revealed, as with `rynke_seen` (research R16).
  */
 async function badgesOf(
@@ -91,11 +88,7 @@ async function badgesOf(
 	balance: StoredBalance,
 	window: CountingWindow,
 ): Promise<BadgeSection | null> {
-	const db = ctx.env.DB;
-	const [badges, teamSums] = await Promise.all([
-		readRiderBadges(db, rider.athleteId, window),
-		readTeamBadgeSums(db),
-	]);
+	const badges = await readRiderBadges(ctx.env.DB, rider.athleteId, window);
 	const section = buildBadgeSection({
 		waiting: false,
 		personal: {
@@ -109,12 +102,14 @@ async function badgesOf(
 				window,
 			),
 		},
-		team: evaluateTeamBadges(teamSums, CURRENT_RULES, window),
 		revealed: badges.revealed,
-		connectedOn: berlinDate(rider.connectedAt),
 	});
 	if (section && section.reveal.length > 0 && request.method === "GET") {
-		await upsertRevealsStatement(db, rider.athleteId, section.reveal).run();
+		await upsertRevealsStatement(
+			ctx.env.DB,
+			rider.athleteId,
+			section.reveal,
+		).run();
 	}
 	return section;
 }
@@ -174,7 +169,7 @@ ${
 </section>
 ${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}
 ${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env))}
-${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary, status) : null}
+${totals ? renderCelebration(i18n, seen, totals) : null}${badgeSection ? renderBadgeReveal(i18n, badgeSection.reveal) : null}${ready ? renderSummary(i18n, ready.summary, status) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}
 ${ready ? renderBreakdown(i18n, ready.breakdown) : null}
 ${badgeSection ? renderBadges(i18n, badgeSection) : null}

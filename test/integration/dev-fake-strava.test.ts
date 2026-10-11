@@ -565,7 +565,9 @@ describe("sample riders in every state (US2)", () => {
 	it("shows every sample rider the team's badges and progress (013 US4)", async () => {
 		await seeded();
 		for (const athleteId of [990002, 990012]) {
-			const page = await mePage(athleteId);
+			const res = await get("/team", await sessionCookie(ctx, athleteId));
+			expect(res.status).toBe(200);
+			const page = await res.text();
 			expect(page).toContain('<section class="badge-group badge-group-team"');
 			expect(page).toContain('popovertarget="badge-big-training-5"');
 			expect(page).toContain('popovertarget="badge-attendances-25"');

@@ -112,20 +112,20 @@ describe("buildBadgeSection", () => {
 			),
 		});
 		expect(
-			section?.personal.cards.map((c) => [c.badge.badgeId, c.progress?.next]),
+			section?.personal?.cards.map((c) => [c.badge.badgeId, c.progress?.next]),
 		).toEqual([
 			["elevation-1000", 5000],
 			["distance-500", 1000],
 			// Complete: no progress (FR-004).
 			["technique-2", undefined],
 		]);
-		expect(section?.personal.cards[1]?.progress).toEqual({
+		expect(section?.personal?.cards[1]?.progress).toEqual({
 			unit: "km",
 			next: 1000,
 			missing: 388,
 			percent: 61,
 		});
-		expect(section?.personal.count).toBe(5);
+		expect(section?.personal?.count).toBe(5);
 	});
 
 	it("groups the gallery in catalog order, newest first inside (US1 scenario 6)", () => {
@@ -138,7 +138,7 @@ describe("buildBadgeSection", () => {
 			]),
 		});
 		expect(
-			section?.personal.gallery.map((g) => [
+			section?.personal?.gallery.map((g) => [
 				g.category,
 				g.badges.map((b) => b.badgeId),
 			]),
@@ -152,7 +152,7 @@ describe("buildBadgeSection", () => {
 			["running", []],
 		]);
 		// The badges still to earn, as empty outlines (issue #109).
-		expect(section?.personal.gallery.map((g) => g.unearned)).toEqual([
+		expect(section?.personal?.gallery.map((g) => g.unearned)).toEqual([
 			3, 4, 4, 1, 10, 4, 6,
 		]);
 	});
@@ -185,8 +185,8 @@ describe("buildBadgeSection", () => {
 			waiting: false,
 			personal: personal([]),
 		});
-		expect(section?.personal.cards).toEqual([]);
-		expect(section?.personal.count).toBe(0);
+		expect(section?.personal?.cards).toEqual([]);
+		expect(section?.personal?.count).toBe(0);
 		expect(section?.notYet).toHaveLength(7);
 	});
 });
