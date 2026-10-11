@@ -6,8 +6,7 @@ are in [contracts/badge-assets.md](contracts/badge-assets.md).
 ## Prerequisites
 
 - `pnpm install`; Google Chrome; a Google account with Gemini image generation.
-- `rsvg-convert` (librsvg), ImageMagick and potrace on the `PATH`
-  (`pacman -S librsvg imagemagick potrace`).
+- ImageMagick and potrace on the `PATH` (`pacman -S imagemagick potrace`).
 
 ## 1. Pure parts
 
@@ -24,10 +23,10 @@ assembly, coin Rynke match, composition).
 pnpm badge-build
 ```
 
-Expected: `art/badges/reference/` and `public/badges/placeholder-*.svg` written;
+Expected: `public/badges/placeholder-*.svg` written;
 with no originals, `src/badges/pictures.ts` lists nothing. Open both
-placeholders: frame round, Rynke centred in the window, personal black ring with
-one star, team blue ring with three stars. Run it again: `git status` shows no
+placeholders next to `art/badges/reference/`: same design (petals, ring, three
+stars), Rynke centred in the window, personal black ring, team light blue ring. Run it again: `git status` shows no
 change.
 
 ## 3. One picture end to end

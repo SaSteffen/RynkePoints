@@ -51,8 +51,8 @@ pnpm badge-build
 
 1. Validates `badges.json` and `prompt.txt` (exit 2 on any error, nothing
    written).
-2. Writes `art/badges/reference/badge-{personal,team}.{svg,png}` (PNG 1024 px
-   via `rsvg-convert`) and `public/badges/placeholder-{personal,team}.svg`.
+2. Writes `public/badges/placeholder-{personal,team}.svg` (the reference
+   images in `art/badges/reference/` are hand-made and not touched).
 3. Snaps every original in `art/badges/originals/` to the palette, in place
    (research R7); an original whose id isn't in `badges.json` is an error.
 4. Traces each original and writes `public/badges/<id>.svg`; removes finished
@@ -60,8 +60,7 @@ pnpm badge-build
 5. Writes `src/badges/pictures.ts`.
 6. Prints one line per badge with its size; warns above 60 KB.
 
-Needs `rsvg-convert`, ImageMagick and potrace, like `pnpm icons` and
-`pnpm illustrations`. Running it twice without changes changes no file.
+Needs ImageMagick and potrace, like `pnpm illustrations`. Running it twice without changes changes no file.
 
 ## Pure modules (tested in Vitest)
 
@@ -69,6 +68,6 @@ Needs `rsvg-convert`, ImageMagick and potrace, like `pnpm icons` and
   - `validateBadges(data) → string[]`: problems, empty when valid (data model rules).
   - `buildPrompt(template, snippets, badge) → string`.
 - `scripts/badge-frame.mjs`
-  - `WINDOW = { cx: 50, cy: 50, r: 31 }`, `PICTURE_TRANSFORM` (research R4).
+  - `WINDOW = { cx: 50, cy: 50, r }`, `PICTURE_TRANSFORM` (research R4).
   - `RYNKE`: the coin's Rynke markup.
   - `frameSvg(kind, pictureMarkup, title) → string`: the finished badge SVG.

@@ -13,10 +13,12 @@ will use: one finished SVG per badge and a list of the badges that have one.
 
 ## Summary
 
-A badge is a frame drawn exactly in code (personal: black ring, one star; team:
-blue ring, three stars) with a picture in its round window. The pictures are
+A badge is a frame drawn exactly in code (an edge of sunflower petals, a ring
+with three stars, a round cream window; the ring black for personal badges and
+light blue for team badges) with a picture in its window. The design comes from
+the hand-made reference images in `art/badges/reference/`. The pictures are
 generated with Gemini in the browser, one fresh chat per badge, from a shared
-prompt, a per-badge scene and the frame-with-Rynke reference image
+prompt, a per-badge scene and that reference image
 (`pnpm badge-art`), then traced into flat SVG with the tracer of PR #101 and
 composed with the frame into one self-contained SVG per badge in
 `public/badges/`. Until a badge has a picture, the app shows the frame with the
@@ -29,8 +31,8 @@ the app never asks for a file that doesn't exist.
 `scripts/`; one generated TypeScript module for the app.
 
 **Primary Dependencies**: Playwright (`@playwright/test`, already a dev
-dependency) driving the user's Google Chrome; `rsvg-convert` (librsvg),
-ImageMagick and potrace as external tools, like `pnpm icons` and
+dependency) driving the user's Google Chrome; ImageMagick and potrace as
+external tools, like `pnpm icons` and
 `pnpm illustrations`. No new runtime or dev dependency.
 
 **Storage**: files in the repo: `art/badges/` (inputs and palette-snapped
@@ -95,7 +97,7 @@ art/badges/
 ├── README.md            # How to make and check badge pictures
 ├── badges.json          # Every badge: id, group, category, threshold, scene; snippets
 ├── prompt.txt           # Shared prompt template ({{scene}})
-├── reference/           # badge-{personal,team}.{svg,png}: frame + coin Rynke (generated)
+├── reference/           # badge-{personal,team}.png: the design with Rynke (hand-made)
 └── originals/           # <id>.png: palette-snapped originals (committed)
 
 scripts/

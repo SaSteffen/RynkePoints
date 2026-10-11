@@ -34,8 +34,9 @@ frame and team pictures serve US4 (team badges).
   `runner`, `team`, `coins`).
 - [X] T002 Generation script `scripts/badge-art.mjs` with `pnpm badge-art`
   (`package.json`), documented in `art/badges/README.md`.
-- [X] T003 First frame references `art/badges/reference/badge-{personal,team}.{svg,png}`,
-  drawn with a one-off script (replaced in T009).
+- [X] T003 Reference images `art/badges/reference/badge-{personal,team}.png`:
+  the project owner's design (sunflower petals, ring, three stars, Rynke),
+  hand-made, 1024 px each.
 - [ ] T004 Add `"badge-build": "node scripts/badge-build.mjs"` to `package.json`
   next to `badge-art`, and a stub `scripts/badge-build.mjs` that only prints its
   usage.
@@ -63,16 +64,23 @@ frame and team pictures serve US4 (team badges).
   as before.
 - [ ] T008 [P] Tests first: new `test/unit/badge-frame.test.ts`:
   `WINDOW` is `{ cx: 50, cy: 50, r: 31 }`; `PICTURE_TRANSFORM` maps the
-  generated circle (r 43.95 at 50, 50) onto the window (research R4);
+  generated circle (r 43.95 at 50, 50) onto the window, `scale(WINDOW.r /
+  43.95)` (research R4);
   `RYNKE` is contained in `COIN_SPRITE` from `src/http/coin.ts`; `frameSvg`
   returns an SVG per contracts/badge-assets.md: `viewBox="0 0 100 100"`, no
   `width`/`height`, `<title>` first, picture inside a group clipped to the
-  window with the transform, 1 star for personal and 3 for team, team ring fill
-  `#8cc4f0`, no `var(`, `<script>`, `<image>` or `href="http`.
+  window with the transform, 3 stars for both kinds, ring fill `#1c1b13` for
+  personal and `#8cc4f0` for team, two petal layers (gold `#c99a2e` behind,
+  yellow `#fbe122` in front), no `var(`, `<script>`, `<image>` or `href="http`.
 - [ ] T009 Implement `WINDOW`, `PICTURE_TRANSFORM`, `RYNKE` and `frameSvg(kind,
-  pictureMarkup, title)` in new `scripts/badge-frame.mjs`, porting the frame of
-  `art/badges/reference/badge-personal.svg` (20 scallops, ring r 39, window
-  r 31, stars) with explicit coin colours, until T008 passes.
+  pictureMarkup, title)` in new `scripts/badge-frame.mjs`, drawing the design of
+  `art/badges/reference/badge-{personal,team}.png` in SVG with explicit coin
+  colours: two layers of pointed petals (gold behind, offset half a petal;
+  yellow in front), each with a centre vein, ink outlines; the ring; three
+  yellow stars at the top of the ring; the cream window. Compare the rendered
+  placeholder with the reference side by side and match proportions (petal
+  count and length, ring width, window radius) until T008 passes and they look
+  alike.
 - [ ] T010 After PR #101 is merged: move its tracing out of
   `scripts/illustrations.mjs` into new `scripts/trace.mjs`
   (`traceImage(file) → { viewBox, paths }`, plus `snapToPalette(file, out)` for
@@ -91,11 +99,9 @@ the app can show (FR-040, FR-040a).
 **Independent test**: quickstart.md §2 and §3 with `distance-100`.
 
 - [ ] T011 [US1] `scripts/badge-build.mjs` steps 1 and 2 of the contract:
-  validate (exit 2, nothing written, on problems), write
-  `art/badges/reference/badge-{personal,team}.svg` and `.png` (1024 px,
-  `rsvg-convert`) and `public/badges/placeholder-{personal,team}.svg` from
-  `frameSvg(kind, RYNKE, …)`. Commit the regenerated references (they replace
-  T003's).
+  validate (exit 2, nothing written, on problems) and write
+  `public/badges/placeholder-{personal,team}.svg` from `frameSvg(kind, RYNKE,
+  …)`. The reference images stay as they are.
 - [ ] T012 [US1] `scripts/badge-build.mjs` step 3: snap every file in
   `art/badges/originals/` (except dotfiles) in place to an indexed PNG of at
   most 2048 px with `snapToPalette` (research R7); a file whose id isn't in
@@ -122,13 +128,13 @@ the app can show (FR-040, FR-040a).
 
 **Goal**: team badges get the team frame and their pictures.
 
-**Independent test**: quickstart.md §3 with `big-training-5`: blue ring, three
-stars, several Rynkes in the picture.
+**Independent test**: quickstart.md §3 with `big-training-5`: light blue ring,
+several Rynkes in the picture.
 
 - [ ] T016 [US4] Check `public/badges/placeholder-team.svg` and one finished team
   badge at 64, 128 and 280 px on light and dark backgrounds; adjust the team
-  ring or stars in `scripts/badge-frame.mjs` (with T008's test) if they don't
-  read.
+  ring colour in `scripts/badge-frame.mjs` (with T008's test) if personal and
+  team don't tell apart at a glance.
 - [ ] T017 [US4] Generate and review the 34 team pictures as in T015 (the team
   reference is attached automatically by group), `pnpm badge-build`, commit.
 
@@ -138,7 +144,7 @@ stars, several Rynkes in the picture.
 
 - [ ] T018 [P] Update `art/badges/README.md`: `pnpm badge-build`, the snapped
   originals and the raw copies, tracing via `scripts/trace.mjs` instead of "after
-  #101"; remove the note about the one-off frame drawing.
+  #101".
 - [ ] T019 [P] Note for the app's own tasks (later in this feature): a test that
   the app's badge catalog and `art/badges/badges.json` have the same ids,
   groups, categories and thresholds (research R9); add it to this file when

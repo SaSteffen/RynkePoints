@@ -5,8 +5,8 @@ names what was chosen, why, and what else was considered.
 
 ## R1 Frame in code, picture from Gemini
 
-- **Decision**: The badge frame (gold scalloped edge, ring, stars, round cream
-  window) is drawn exactly in SVG by our code. Gemini draws only the picture for
+- **Decision**: The badge frame (sunflower-petal edge, ring with three stars,
+  round cream window) is drawn exactly in SVG by our code. Gemini draws only the picture for
   the window, on plain white.
 - **Rationale**: Gemini's circles and repeated shapes are never exact, and 69
   frames drawn by Gemini would all differ. The rider-state illustrations (PR
@@ -34,10 +34,13 @@ names what was chosen, why, and what else was considered.
 
 - **Decision**: A dependency-free module exports the frame markup for both kinds,
   the window geometry and the coin's Rynke as the placeholder picture. The
-  reference PNGs, the placeholders and every finished badge come from it. The
-  one-off drawing used for the first references is replaced by it.
-- **Rationale**: One definition, so the reference Gemini sees, the placeholder
-  and the shipped badges can't drift apart. A test checks that its Rynke matches
+  placeholders and every finished badge come from it. Its design follows the
+  hand-made reference images in `art/badges/reference/` (the project owner's
+  design, 2026-10-11): two layers of petals (gold behind, yellow in front, each
+  with a centre vein), the ring, three stars, the window.
+- **Rationale**: One definition, so the placeholder and the shipped badges can't
+  drift apart. The reference images stay hand-made: Gemini only needs the look,
+  and an exact SVG copy of a raster design would be redrawn by hand anyway. A test checks that its Rynke matches
   the coin's front in `src/http/coin.ts`, so a change to the coin can't be
   forgotten here.
 - **Alternatives**: Importing `coin.ts` from the script: Node can't resolve the
@@ -47,9 +50,10 @@ names what was chosen, why, and what else was considered.
 
 - **Decision**: Gemini's canvas is 2048 px with the scene inside a centred circle
   of 1800 px (`prompt.txt`). Traced over the full canvas into 100 units, that
-  circle has radius 1800 / 2048 × 50 = 43.95 at (50, 50). The window has radius
-  31 at (50, 50), so the picture is placed with
-  `translate(50 50) scale(0.7054) translate(-50 -50)` and clipped to the window.
+  circle has radius 1800 / 2048 × 50 = 43.95 at (50, 50). With the window's
+  radius `r` (set when the frame is drawn, T009), the picture is placed with
+  `translate(50 50) scale(r / 43.95) translate(-50 -50)` and clipped to the
+  window; for `r` = 31 that is `scale(0.7054)`.
 - **Rationale**: Every picture is generated on the same canvas, so one fixed
   transform fits all, like the illustrations keep a shared scale.
 - **Alternatives**: Fitting each picture to its own bounding box: pictures would

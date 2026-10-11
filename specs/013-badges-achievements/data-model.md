@@ -32,10 +32,12 @@ self-contained (no reference to other prompts).
 
 | Kind | Edge | Ring | Stars | Window |
 |------|------|------|-------|--------|
-| personal | gold `#c99a2e`, 20 scallops, ink outline | ink `#1c1b13`, r 39 | 1, top | cream `#fffdf5`, r 31 at (50, 50) |
-| team | same | team blue `#8cc4f0`, r 39, ink outline | 3, top (−24°, 0°, 24°) | same |
+| personal | sunflower petals: gold `#c99a2e` back layer, yellow `#fbe122` front layer, each petal with a centre vein, ink outlines | ink `#1c1b13` | 3 yellow, at the top of the ring | cream `#fffdf5`, round, centred |
+| team | same | team blue `#8cc4f0`, ink outline | same | same |
 
-ViewBox `0 0 100 100`. The window clips the picture.
+ViewBox `0 0 100 100`. The window clips the picture. Exact radii are set when
+the frame is drawn (T009) to match `art/badges/reference/`; the picture
+transform (research R4) follows the window radius.
 
 ## Picture
 
