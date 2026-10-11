@@ -183,7 +183,13 @@ describe("STYLE", () => {
 	});
 
 	it("lifts the top bar once content scrolls under it (#62)", () => {
-		const bar = declsOf("header.top-bar");
+		// Without scroll timelines (Firefox) the animation would run at once
+		// and leave the bar lifted for good.
+		expect(declsOf("header.top-bar").animation).toBeUndefined();
+		const bar = declsOf(
+			"header.top-bar",
+			"@supports (animation-timeline:scroll())",
+		);
 		expect(bar.animation).toContain("top-bar-lift");
 		expect(bar["animation-timeline"]).toBe("scroll()");
 		expect(STYLE).toContain("@keyframes top-bar-lift");
@@ -210,6 +216,37 @@ describe("STYLE", () => {
 				/^none(!important)?$/,
 			);
 		}
+	});
+
+	// Chrome-only so far: outside `@supports` they would leave Firefox (and
+	// older Safari) with a half-applied rule, as the top bar's lift did.
+	const NOT_EVERYWHERE = [
+		/^animation-timeline$/,
+		/^animation-range/,
+		/^(scroll|view)-timeline/,
+		/^anchor-name$/,
+		/^position-anchor$/,
+		/^position-try/,
+		/^position-area$/,
+		/^field-sizing$/,
+		/^interpolate-size$/,
+		/^text-box/,
+		/^corner-shape$/,
+		/^reading-flow$/,
+		/\banchor\(|\bcalc-size\(|\bsibling-(index|count)\(|\bif\(|base-select/,
+	];
+
+	it("keeps features some browsers lack inside @supports", () => {
+		const unguarded = RULES.filter(
+			(rule) => !rule.media?.startsWith("@supports"),
+		).flatMap((rule) =>
+			Object.entries(rule.decls).flatMap(([prop, value]) =>
+				NOT_EVERYWHERE.some((p) => p.test(prop) || p.test(value))
+					? [`${rule.selectors.join(",")} ${prop}:${value}`]
+					: [],
+			),
+		);
+		expect(unguarded).toEqual([]);
 	});
 
 	it("loads nothing from another origin (FR-037)", () => {

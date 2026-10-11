@@ -237,6 +237,10 @@ export const de = {
 	"install.button": "Als App installieren",
 	"install.ios":
 		"Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.",
+	"install.firefox":
+		"Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.",
+	"install.macSafari":
+		"Als App auf dem Mac: Wähle in Safari „Ablage“ > „Zum Dock hinzufügen“.",
 	"prompt.install.text":
 		"Hol dir RynkePoints als App auf deinen Startbildschirm.",
 	"prompt.notify.text":

@@ -5,12 +5,20 @@
 // holds no text: every word shown comes from the page's markup, rendered from
 // the catalogs and hidden until this shows it.
 
+/**
+ * Resolves to whether the service worker is registered. Firefox's private
+ * windows have `navigator.serviceWorker` but may refuse to register one, and
+ * its `ready` then never resolves.
+ */
 function registerWorker() {
-	if (!("serviceWorker" in navigator)) return;
+	if (!("serviceWorker" in navigator)) return Promise.resolve(false);
 	const lang = encodeURIComponent(document.documentElement.lang);
-	navigator.serviceWorker
+	return navigator.serviceWorker
 		.register(`/sw.js?lang=${lang}`, { scope: "/" })
-		.catch(() => {});
+		.then(
+			() => true,
+			() => false,
+		);
 }
 
 function standalone() {
@@ -31,6 +39,26 @@ window.addEventListener("beforeinstallprompt", (event) => {
 	installEvent = event;
 	for (const callback of installable) callback();
 });
+
+/**
+ * The steps to show where the browser has no install prompt of its own: Safari
+ * on iOS, Firefox on Android and Safari 17+ on the Mac. Null elsewhere.
+ */
+function manualInstall() {
+	// Only Safari on iOS defines it, and false means "not on the home screen".
+	if (navigator.standalone === false) return "ios";
+	const agent = navigator.userAgent;
+	if (/Android/.test(agent) && /Firefox\//.test(agent)) return "firefox";
+	const safari = agent.match(/Macintosh.*Version\/(\d+)[\d.]* Safari\//);
+	if (
+		safari &&
+		Number(safari[1]) >= 17 &&
+		!/Chrome|Chromium|Edg|Firefox|OPR/.test(agent)
+	) {
+		return "macSafari";
+	}
+	return null;
+}
 
 /** Shows the browser's install prompt once; the event can't be reused. */
 function promptInstall() {
@@ -62,9 +90,9 @@ function installSettings() {
 		promptInstall();
 	});
 
-	// Only Safari on iOS defines it, and false means "not on the home screen".
-	if (navigator.standalone === false) {
-		hint.querySelector('[data-install="ios"]').hidden = false;
+	const manual = manualInstall();
+	if (manual) {
+		hint.querySelector(`[data-install="${manual}"]`).hidden = false;
 		setShown(true);
 	}
 
@@ -157,8 +185,19 @@ async function notifications() {
 		show("needsHomeScreen");
 		return;
 	}
-	const { pushManager } = await navigator.serviceWorker.ready;
-	let subscription = await pushManager.getSubscription();
+	if (!(await registered)) {
+		show("unsupported");
+		return;
+	}
+	let pushManager;
+	let subscription;
+	try {
+		({ pushManager } = await navigator.serviceWorker.ready);
+		subscription = await pushManager.getSubscription();
+	} catch {
+		show("unsupported");
+		return;
+	}
 	if (subscription) setSignOutEndpoint(subscription.endpoint);
 
 	const turnOn = async () => {
@@ -276,7 +315,8 @@ function appPrompt() {
 			!("serviceWorker" in navigator) ||
 			!("PushManager" in window) ||
 			!("Notification" in window) ||
-			Notification.permission !== "default"
+			Notification.permission !== "default" ||
+			!(await registered)
 		) {
 			return;
 		}
@@ -296,8 +336,8 @@ function appPrompt() {
 		};
 		installable.push(() => showInstall("prompt"));
 		if (installEvent) showInstall("prompt");
-		// Only Safari on iOS defines it, and false means "not on the home screen".
-		if (navigator.standalone === false) showInstall("ios");
+		const manual = manualInstall();
+		if (manual) showInstall(manual);
 		panels.install
 			.querySelector('[data-install="prompt"] button')
 			.addEventListener("click", () => {
@@ -430,7 +470,7 @@ function waitForFirstData() {
 	}, seconds * 1000);
 }
 
-registerWorker();
+const registered = registerWorker();
 installSettings();
 appPrompt();
 schemePicker();

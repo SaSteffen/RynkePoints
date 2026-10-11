@@ -4,7 +4,10 @@ import { STYLE } from "../../src/http/style";
 // (feature 011 research R15).
 
 export interface Rule {
-	/** The enclosing `@media` condition, `null` at the top level. */
+	/**
+	 * The enclosing `@media` condition, or the whole `@supports …` prelude;
+	 * `null` at the top level.
+	 */
 	media: string | null;
 	selectors: string[];
 	decls: Record<string, string>;
@@ -19,7 +22,7 @@ export function rules(css: string): Rule[] {
 			const open = body.indexOf("{", at);
 			if (open < 0) break;
 			const head = body.slice(at, open).trim();
-			if (head.startsWith("@media")) {
+			if (head.startsWith("@media") || head.startsWith("@supports")) {
 				let depth = 1;
 				let end = open + 1;
 				while (depth > 0 && end < body.length) {
@@ -27,7 +30,10 @@ export function rules(css: string): Rule[] {
 					if (body[end] === "}") depth--;
 					end++;
 				}
-				block(body.slice(open + 1, end - 1), head.slice(6).trim());
+				block(
+					body.slice(open + 1, end - 1),
+					head.startsWith("@media") ? head.slice(6).trim() : head,
+				);
 				at = end;
 				continue;
 			}

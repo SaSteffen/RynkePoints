@@ -83,6 +83,23 @@ pnpm dev                    # local Worker on http://localhost:8789 with a fake 
 answers instead, and `http://localhost:8789/_dev/` signs you in as any of them
 ([feature 006 quickstart](specs/006-local-frontend-dev/quickstart.md)).
 
+The browser smoke tests run the same fake mode, on port 8797 with its own state,
+in Chromium, Firefox and WebKit:
+
+```bash
+pnpm exec playwright install chromium firefox webkit   # once
+pnpm test:e2e
+pnpm test:e2e --project=firefox                         # one browser
+```
+
+Where WebKit doesn't run natively (Arch, for one), serve it from Playwright's
+Docker image and point the tests at it:
+
+```bash
+pnpm test:e2e:webkit                                     # keeps running
+E2E_WEBKIT_SERVER=ws://127.0.0.1:3797/ pnpm test:e2e
+```
+
 Against the real Strava you need your own
 [Strava API application](https://www.strava.com/settings/api):
 
@@ -121,7 +138,7 @@ stay within 100 characters, so keep titles to about 90.
 
 ### What has to pass
 
-Every pull request into `main` or `develop` runs six checks. Each mirrors a
+Every pull request into `main` or `develop` runs seven checks. Each mirrors a
 command you can run locally:
 
 | Check | Local command |
@@ -129,14 +146,16 @@ command you can run locally:
 | `lint` | `pnpm lint` |
 | `typecheck` | `pnpm typecheck` |
 | `test` | `pnpm test` |
+| `e2e` | `pnpm test:e2e` (Chromium, Firefox, WebKit) |
 | `commit-messages` | `pnpm commitlint --from origin/develop --to HEAD` |
 | `pr-title` | `printf '%s (#%s)\n' "<title>" <number> \| pnpm commitlint` |
 | `pr-source` | PRs into `main` must come from `develop` or `hotfix/*` |
 
 `ci.yml` also has the jobs `already-checked`, `deploy-gate` and `deploy`. They
 run only on `main`, show as skipped on pull requests and are not required checks.
-After a merge into `main`, `already-checked` skips `lint`, `typecheck` and `test`
-when the merged commit has the same content as the pull request they passed on.
+After a merge into `main`, `already-checked` skips `lint`, `typecheck`, `test`
+and `e2e` when the merged commit has the same content as the pull request they
+passed on.
 Merges into `develop` don't re-run them at all.
 
 The lefthook git hooks run the same Biome, `tsc` and commitlint before each
@@ -163,7 +182,7 @@ source of truth.
 gh pr create --base main --head develop --title "chore: release"
 ```
 
-The same six checks run, and `pr-source` only allows `develop` and `hotfix/*`
+The same seven checks run, and `pr-source` only allows `develop` and `hotfix/*`
 as sources for `main`. Merge with **Create a merge commit**, the only method
 `main` allows. The release PR doesn't need to be up to date with `main`, because
 the checks already run on the result of merging it. Afterwards, `main` has

@@ -28,3 +28,12 @@ contract.
 
 `install.button` and `install.ios` are used by both the prompt and Settings, and
 `rynke.notice.updating` is kept too.
+
+## Added later (cross-browser install steps)
+
+Used by both the prompt and Settings, like `install.ios`:
+
+| ID | de |
+|---|---|
+| `install.firefox` | Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“. |
+| `install.macSafari` | Als App auf dem Mac: Wähle in Safari „Ablage“ > „Zum Dock hinzufügen“. |

@@ -191,6 +191,8 @@ const CONTRACT_IDS = [
 	// Feature 010, US1
 	"install.button",
 	"install.ios",
+	"install.firefox",
+	"install.macSafari",
 	"prompt.install.text",
 	"prompt.notify.text",
 	"prompt.notify.accept",
