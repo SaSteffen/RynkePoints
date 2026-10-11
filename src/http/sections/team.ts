@@ -68,7 +68,7 @@ function renderTeamTotal(
 	return html`<section class="team-total card">
 ${coin(kind === "training" ? "front" : "back", "large")}<div class="team-total-text">
 <p class="team-total-label">${i18n.t("team.total.label")}</p>
-<p class="team-total-value">${i18n.tHtml("team.total.value", { n: amount(i18n, totals.total) })}</p>
+<p class="team-total-value">${i18n.tHtml(kind === "training" ? "team.total.training" : "team.total.team", { n: amount(i18n, totals.total) })}</p>
 <p class="team-total-kind">${i18n.t("team.total.kind")}</p>
 ${
 	totals.thisWeek > 0

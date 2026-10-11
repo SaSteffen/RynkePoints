@@ -14,7 +14,8 @@ links the Orga tab and its switch replace.
 |---|---|---|
 | `team.heading` | Team | Team |
 | `team.total.label` | Team Rynkeby Hamburg 🦧 | Team Rynkeby Hamburg 🦧 |
-| `team.total.value` | {n} Rynke | {n} Rynke |
+| `team.total.training` | {n} Training Rynke | {n} Trainingsrynke |
+| `team.total.team` | {n} Team Rynke | {n} Teamrynke |
 | `team.total.kind` | collected together | gemeinsam gesammelt |
 | `team.total.thisWeek` | +{n} this week 🔥 | +{n} diese Woche 🔥 |
 | `team.kind.label` | Which Rynke | Welche Rynke |

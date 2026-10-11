@@ -307,7 +307,7 @@ describe("GET /team, the team's progress (US2)", () => {
 		expect(total).toContain('href="#coin-front"');
 		expect(total).toContain(escapeHtml(de["team.total.label"]));
 		expect(total).toContain(
-			escapeHtml(de["team.total.value"]).replace(
+			escapeHtml(de["team.total.training"]).replace(
 				"{n}",
 				'<span class="rynke-amount">1.790</span>',
 			),
@@ -321,7 +321,7 @@ describe("GET /team, the team's progress (US2)", () => {
 		const total = teamTotalOf(html);
 		expect(total).toContain('href="#coin-back"');
 		expect(total).toContain(
-			escapeHtml(en["team.total.value"]).replace(
+			escapeHtml(en["team.total.team"]).replace(
 				"{n}",
 				'<span class="rynke-amount">199</span>',
 			),
@@ -435,7 +435,7 @@ describe("GET /team without a gain this week", () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team");
 		const total = teamTotalOf(html);
 		expect(total).toContain(
-			escapeHtml(de["team.total.value"]).replace(
+			escapeHtml(de["team.total.training"]).replace(
 				"{n}",
 				'<span class="rynke-amount">0</span>',
 			),
