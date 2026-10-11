@@ -20,7 +20,6 @@ the implementation together with the project owner.
 | Key | German |
 |-----|--------|
 | `badges.heading` | Abzeichen |
-| `badges.intro` | Wie weit es noch bis zum nächsten Abzeichen ist – welches es wird, bleibt geheim. |
 | `badges.personal.newest` | Meine Abzeichen |
 | `badges.personal.all` | Alle meine Abzeichen ({n}) |
 | `badges.team.newest` | Team-Abzeichen |

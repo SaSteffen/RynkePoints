@@ -369,7 +369,6 @@ ul.rider-missing{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-sty
 .qualified li{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 var(--rp-space-3) 0 var(--rp-space-1);border-radius:18px;background:var(--rp-road);font:600 14px/20px var(--md-ref-typeface)}
 .qualified .coin-mini{width:28px;height:28px}
 .badges h2{margin:var(--rp-space-4) 0 var(--rp-space-1);font:var(--md-type-headline)}
-.badges-intro{margin:0 0 var(--rp-space-4);color:var(--md-sys-color-on-surface-variant)}
 .badges-reveal{display:flex;align-items:center;gap:var(--rp-space-3);margin:0 0 var(--rp-space-4);padding:var(--rp-space-3) var(--rp-space-4);border-radius:var(--md-shape-lg);background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
 .badges-reveal p{margin:0;font-weight:600}
 .badges-reveal-pictures{display:flex;flex:none}

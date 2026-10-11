@@ -9,6 +9,7 @@ import {
 	applyTeamEventChange,
 } from "../../src/rynke/apply";
 import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import type { ActivityRecord } from "../../src/strava/activity";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
 import { seedBalance } from "../support/rider-view";
@@ -132,6 +133,26 @@ describe("badges in applyAndEvaluate", () => {
 		});
 
 		expect(await badges()).toContainEqual(["distance-100", "2026-05-02"]);
+	});
+
+	it("tells whether the figures the team badges add up changed", async () => {
+		await seedRides();
+		await apply({ kind: "none" });
+		const ride = (overrides: Partial<ActivityRecord>) =>
+			apply({
+				kind: "upsert",
+				records: [
+					activityRecord(3, {
+						start_date: "2026-05-03T08:00:00Z",
+						elevation_gain_m: 0,
+						...overrides,
+					}),
+				],
+			});
+
+		expect((await ride({ name: "Renamed" })).figuresChanged).toBe(false);
+		expect((await ride({ distance_m: 50000 })).figuresChanged).toBe(true);
+		expect((await apply({ kind: "none" })).figuresChanged).toBe(false);
 	});
 });
 
@@ -279,6 +300,40 @@ describe("new badges (US2, research R16 to R18)", () => {
 		expect(await rise()).toBeNull();
 		expect(await reveals()).toContainEqual(["distance-100", "2026-05-03"]);
 		expect(await badgesVersion()).toBe(BADGE_CATALOG_VERSION);
+	});
+
+	it("still names a badge the change itself brings under new rules", async () => {
+		// 80 km under older rules, then a 30 km ride crosses 100 km.
+		for (const day of [1, 2]) {
+			await upsertActivity(
+				db,
+				activityRecord(day, {
+					start_date: `2026-05-0${day}T08:00:00Z`,
+					elevation_gain_m: 0,
+				}),
+			);
+		}
+		await seedBalance(ATHLETE_A, { rulesVersion: CURRENT_RULES.version - 1 });
+
+		const result = await apply({
+			kind: "upsert",
+			records: [
+				activityRecord(3, {
+					start_date: "2026-05-03T08:00:00Z",
+					distance_m: 30000,
+					elevation_gain_m: 0,
+				}),
+			],
+		});
+
+		expect(result.badges).toEqual(["distance-100"]);
+		expect(await rise()).toEqual({
+			badge_ids: JSON.stringify(["distance-100"]),
+			risen_at: NOW,
+		});
+		const revealed = (await reveals()).map(([id]) => id);
+		expect(revealed).toContain("training-rynke-1");
+		expect(revealed).not.toContain("distance-100");
 	});
 
 	it("isn't silent for a new rider's first import page (FR-031)", async () => {

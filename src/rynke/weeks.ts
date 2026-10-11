@@ -155,16 +155,26 @@ export function riderDays(
 			...inputs.corrections.map((c) => c.date),
 		]),
 	].sort();
-	return dates.map((date) => ({
-		date,
-		...tallyUpTo(
+	// The rides add up as the dates go, rather than again for every date.
+	const rides = [...inputs.rides].sort((a, b) =>
+		a.date < b.date ? -1 : a.date > b.date ? 1 : 0,
+	);
+	const sum = { distanceRynke: 0, elevationDm: 0 };
+	let next = 0;
+	return dates.map((date) => {
+		for (
+			let ride = rides[next];
+			ride && ride.date <= date;
+			ride = rides[++next]
+		) {
+			sum.distanceRynke += ride.distanceRynke;
+			sum.elevationDm += ride.elevationDm;
+		}
+		return {
 			date,
-			inputs.rides.filter((ride) => ride.date <= date),
-			inputs,
-			rules,
-			window,
-		),
-	}));
+			...tallyUpTo(date, [sum], inputs, rules, window),
+		};
+	});
 }
 
 /** Training and Team Rynke from these rides plus the extras dated up to `date`. */

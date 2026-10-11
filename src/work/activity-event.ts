@@ -20,9 +20,17 @@ export const activityEvent: Handler<ActivityEventMessage> = async (
 	ctx,
 ) => {
 	const evaluate = async (change: ActivityChange) => {
-		const { rose, badges } = await evaluateChange(ctx, rider.athleteId, change);
-		// Removing a ride or run never raises the team's sums.
-		const team = change.kind === "upsert" ? await teamBadgeNews(ctx) : [];
+		const { rose, badges, figuresChanged } = await evaluateChange(
+			ctx,
+			rider.athleteId,
+			change,
+		);
+		// Removing a ride or run never raises the team's sums, and neither does
+		// an edit that leaves its figures alone, such as a new title.
+		const team =
+			change.kind === "upsert" && figuresChanged
+				? await teamBadgeNews(ctx, badges.length > 0 ? [rider.athleteId] : [])
+				: [];
 		const own = rose || badges.length > 0 ? [rider.athleteId] : [];
 		await notifyRiders(ctx, [...new Set([...own, ...team])]);
 		return { kind: "ok" } as const;

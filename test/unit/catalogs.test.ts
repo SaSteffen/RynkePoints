@@ -406,7 +406,6 @@ const CONTRACT_IDS = [
 	"organiser.overview.column.corrections",
 	"organiser.overview.column.virtual",
 	"badges.heading",
-	"badges.intro",
 	"badges.personal.newest",
 	"badges.personal.all",
 	"badges.team.newest",

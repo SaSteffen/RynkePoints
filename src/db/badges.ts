@@ -213,17 +213,28 @@ export async function readRiderBadges(
 // Team badge notices (issue #125): per season, the team badges already
 // announced. Ids only, nothing about riders (FR-032).
 
-/** The announced team badge ids of a season; no row: never checked. */
+/**
+ * The announced team badge ids of a season (null: never checked), and whether
+ * any season was checked before (`checked` is 1).
+ */
 export function readTeamBadgeNoticesStatement(
 	db: D1Database,
 	seasonStart: string,
 ) {
 	return db
-		.prepare("SELECT badge_ids FROM team_badge_notices WHERE season_start = ?")
+		.prepare(
+			`SELECT
+				(SELECT badge_ids FROM team_badge_notices WHERE season_start = ?)
+					AS badge_ids,
+				EXISTS (SELECT 1 FROM team_badge_notices) AS checked`,
+		)
 		.bind(seasonStart);
 }
 
-/** The season's first check: stores what the team has, announcing nothing. */
+/**
+ * The season's first check: stores `badgeIds` as announced, unless another
+ * check stored the season first.
+ */
 export function seedTeamBadgeNoticesStatement(
 	db: D1Database,
 	seasonStart: string,
@@ -282,21 +293,30 @@ export function teamBadgeAudienceStatements(
 }
 
 /**
- * Writes `badgeIds` as the rider's badge rise, keeping the badges of a rise
- * written in the last minute (the same change's personal badges) alongside.
+ * Writes `badgeIds`, new team badges, as the rider's badge rise; with `keep`,
+ * alongside the badges of the rise the same change already wrote. It goes in
+ * one batch after `advanceTeamBadgeNoticesStatement(…, announced, now)` and
+ * only writes while the season's notice is what that stored, so the
+ * announcement and its rises are stored together, and a check that lost the
+ * race writes nothing new.
  */
-export function mergeBadgeRiseStatement(
+export function teamBadgeRiseStatement(
 	db: D1Database,
 	athleteId: number,
 	badgeIds: readonly string[],
+	keep: boolean,
+	notice: { seasonStart: string; announced: readonly string[] },
 	now: number,
 ) {
 	return db
 		.prepare(
 			`INSERT INTO badge_rises (athlete_id, badge_ids, risen_at)
-			VALUES (?1, ?2, ?3)
+			SELECT ?1, ?2, ?3 WHERE EXISTS (
+				SELECT 1 FROM team_badge_notices
+				WHERE season_start = ?5 AND badge_ids = ?6 AND checked_at = ?3
+			)
 			ON CONFLICT (athlete_id) DO UPDATE SET
-				badge_ids = CASE WHEN badge_rises.risen_at >= ?3 - 60 THEN (
+				badge_ids = CASE WHEN ?4 THEN (
 					SELECT json_group_array(value) FROM (
 						SELECT value FROM json_each(badge_rises.badge_ids)
 						UNION SELECT value FROM json_each(?2)
@@ -304,5 +324,12 @@ export function mergeBadgeRiseStatement(
 				) ELSE ?2 END,
 				risen_at = ?3`,
 		)
-		.bind(athleteId, JSON.stringify(badgeIds), now);
+		.bind(
+			athleteId,
+			JSON.stringify(badgeIds),
+			now,
+			keep ? 1 : 0,
+			notice.seasonStart,
+			JSON.stringify(notice.announced),
+		);
 }
