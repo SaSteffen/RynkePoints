@@ -1,8 +1,9 @@
 // RynkePoints page script (feature 010 contracts/client.md, research R16). It
 // only wires up what a server-rendered page can't do itself: the service worker,
 // the install group and the app prompt, the notifications switch, the scheme
-// picker, reloading a section on return, waiting for the first data and the
-// buttons' press and busy feedback. It holds no text: every word shown comes
+// picker, reloading a section on return, waiting for the first data, the
+// buttons' press and busy feedback and opening a badge's large view on mouse
+// hover (feature 013 research R19). It holds no text: every word shown comes
 // from the page's markup, rendered from the catalogs and hidden until this
 // shows it.
 
@@ -686,6 +687,63 @@ function pendingSubmit() {
 	});
 }
 
+/**
+ * A badge's large view also opens while a mouse rests on the badge (feature
+ * 013 research R19); tap, click and keyboard stay the popover's own. A click
+ * on a badge the hover opened keeps it open instead of toggling it shut.
+ */
+function badgeHover() {
+	if (!("showPopover" in HTMLElement.prototype)) return;
+	for (const button of document.querySelectorAll(
+		"button.badge[popovertarget]",
+	)) {
+		const large = document.getElementById(button.getAttribute("popovertarget"));
+		if (!large) continue;
+		// While hover holds the large view open it floats beside the mouse
+		// and follows it, lets the pointer through to the badge, and hides
+		// its close button: leaving the badge closes it.
+		let byHover = false;
+		const hover = (on) => {
+			byHover = on;
+			large.classList.toggle("badge-large-hover", on);
+			if (!on) large.style.removeProperty("left");
+			if (!on) large.style.removeProperty("top");
+		};
+		const follow = (event) => {
+			if (event.pointerType !== "mouse" || !byHover) return;
+			const gap = 16;
+			const { width, height } = large.getBoundingClientRect();
+			let left = event.clientX + gap;
+			if (left + width > innerWidth - gap) left = event.clientX - gap - width;
+			let top = event.clientY + gap;
+			if (top + height > innerHeight - gap) top = innerHeight - gap - height;
+			large.style.left = `${Math.max(gap, left)}px`;
+			large.style.top = `${Math.max(gap, top)}px`;
+		};
+		button.addEventListener("pointerenter", (event) => {
+			if (event.pointerType !== "mouse" || large.matches(":popover-open"))
+				return;
+			hover(true);
+			large.showPopover();
+			follow(event);
+		});
+		button.addEventListener("pointermove", follow);
+		button.addEventListener("pointerleave", (event) => {
+			if (event.pointerType !== "mouse" || !byHover) return;
+			hover(false);
+			if (large.matches(":popover-open")) large.hidePopover();
+		});
+		large.addEventListener("toggle", (event) => {
+			if (event.newState === "closed") hover(false);
+		});
+		button.addEventListener("click", (event) => {
+			if (!byHover) return;
+			hover(false);
+			event.preventDefault();
+		});
+	}
+}
+
 const registered = registerWorker();
 keepScroll();
 pressFeedback();
@@ -696,4 +754,5 @@ schemePicker();
 refreshOnReturn();
 waitForFirstData();
 pageLoading();
+badgeHover();
 notifications().catch(() => {});

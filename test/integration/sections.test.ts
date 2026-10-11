@@ -19,11 +19,17 @@ const ctx = makeCtx();
 const { de } = CATALOGS;
 const DAY = 86400;
 
-const SECTIONS = [
+/** `short`: the navigation's label where the full one doesn't fit. */
+const SECTIONS: { path: string; label: string; short?: string }[] = [
 	{ path: "/team", label: de["nav.team"] },
 	{ path: "/me", label: de["nav.you"] },
 	{ path: "/me/rides", label: de["nav.rides"] },
-	{ path: "/me/settings", label: de["nav.settings"] },
+	{ path: "/me/badges", label: de["nav.badges"] },
+	{
+		path: "/me/settings",
+		label: de["nav.settings"],
+		short: de["nav.settings.short"],
+	},
 ];
 
 /** Each section's URL and the nav link it marks current. */
@@ -87,11 +93,18 @@ describe.each(PAGES)("GET $url", ({ url, current }) => {
 			links.map(([, attrs]) => attrs?.match(/href="([^"]*)"/)?.[1]),
 		).toEqual(SECTIONS.map(({ path }) => path));
 		links.forEach(([, attrs = "", inner = ""], i) => {
+			const section = SECTIONS[i];
 			expect(inner).toMatch(
 				/^<span class="nav-icon"><svg [^>]*aria-hidden="true"[\s\S]*<\/svg><\/span>/,
 			);
 			expect(inner).toContain(
-				`<span class="nav-label">${SECTIONS[i]?.label}</span>`,
+				section?.short
+					? `<span class="nav-label nav-label-short">${section.short}</span><span class="nav-label nav-label-full">${section.label}</span>`
+					: `<span class="nav-label">${section?.label}</span>`,
+			);
+			// A short label keeps the full one as the link's name.
+			expect(attrs.includes(`aria-label="${section?.label}"`)).toBe(
+				section?.short !== undefined,
 			);
 			expect(attrs.includes('aria-current="page"')).toBe(
 				SECTIONS[i]?.path === current,
@@ -161,6 +174,7 @@ describe("the navigation of an organiser", () => {
 			"/team",
 			"/me",
 			"/me/rides",
+			"/me/badges",
 			"/organiser/riders",
 			"/me/settings",
 		]);

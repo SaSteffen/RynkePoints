@@ -194,7 +194,7 @@ ${
 		"Fake mode",
 		html`<h1>Fake mode</h1>
 ${flash ? html`<p role="status"><strong>${flash}</strong></p>` : null}
-<p><a href="/me">/me</a> · <a href="/__scheduled">run the daily cron (/__scheduled)</a></p>
+<p><a href="/me">/me</a> · <a href="/__scheduled">run the daily cron (/__scheduled)</a> · <a href="/_dev/badges">every badge, team ones too (/_dev/badges)</a></p>
 <table>
 <thead><tr><th>Sample rider</th><th>State</th><th>Stored</th><th></th></tr></thead>
 <tbody>

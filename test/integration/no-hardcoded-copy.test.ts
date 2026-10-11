@@ -6,6 +6,7 @@ import {
 	type Catalog,
 	type MessageId,
 } from "../../src/i18n/catalogs";
+import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
 import { de } from "../../src/i18n/messages/de";
 import {
 	QUOTES_ON_TRACK,
@@ -50,6 +51,11 @@ const QUOTES = new Set(
 	].map((q) => escapeHtml(q)),
 );
 
+/** Badge names are German in every language (013 FR-041), not catalog text. */
+const BADGE_NAME_TEXT = new Set(
+	Object.values(BADGE_NAMES).map((n) => escapeHtml(n)),
+);
+
 /** The leaderboard's medals stand for places 1–3, not words (016 contracts/pages.md). */
 const MEDAL_TEXT = new Set(MEDALS);
 
@@ -91,6 +97,7 @@ describe.each(RIDER_PAGES)("$name in the pseudo-locale", (page) => {
 				LANGUAGE_NAMES.has(text) ||
 				WORDMARK.has(text) ||
 				QUOTES.has(text) ||
+				BADGE_NAME_TEXT.has(text) ||
 				MEDAL_TEXT.has(text)
 			) {
 				continue;

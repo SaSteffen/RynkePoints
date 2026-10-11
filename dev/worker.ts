@@ -15,6 +15,7 @@ import {
 } from "./fake-strava/pages";
 import { SAMPLE_RIDERS, sampleRider } from "./fake-strava/samples";
 import { sampleFingerprint, seed } from "./fake-strava/seed";
+import { badgesPage } from "./fake-strava/showcase";
 import { getActivity, riderActivities, seededWith } from "./fake-strava/store";
 import { encodeCode } from "./fake-strava/tokens";
 
@@ -275,6 +276,8 @@ async function devRoute(
 				url.searchParams.get("flash"),
 				berlinDate(ctx.now()),
 			);
+		case "GET /_dev/badges":
+			return badgesPage(url.searchParams.get("lang"), berlinDate(ctx.now()));
 		case "POST /_dev/events": {
 			const flash = await simulateEvent(ctx, url.origin, await form(request));
 			return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);

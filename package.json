@@ -21,6 +21,8 @@
 		"docs:pdf": "scripts/docs-pdf.sh",
 		"icons": "node scripts/icons.mjs",
 		"illustrations": "node scripts/illustrations.mjs",
+		"badge-art": "node scripts/badge-art.mjs",
+		"badge-build": "node scripts/badge-build.mjs",
 		"daily:run": "scripts/run-daily.sh",
 		"strava:review": "node scripts/strava-review.mjs",
 		"prepare": "lefthook install"

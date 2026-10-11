@@ -17,6 +17,11 @@ on it.
 | `work/evaluate-rider.ts` | rule change, catch-up, race settling | no |
 | `http/auth.ts` | private rides removed after a scope change | no (it can't rise anyway) |
 
+The three callers that notify also run `teamBadgeNews` (issue #125): every
+listed rider a newly announced team badge is new to is notified with them, one
+push per device. Activity events run it for new or changed rides and runs only,
+since removing one never raises the team's sums.
+
 `rose` is `true` when, comparing the stored state before the change with the
 state after it, both evaluated now under `CURRENT_RULES` and the current
 counting window, `trainingRynke` or `teamRynke` is higher afterwards.
@@ -106,10 +111,10 @@ showNotification(text.title, {
   renotify: true,
   icon: "/icons/icon-192.png",
   badge: "/icons/badge-96.png",
-  data: { url: "/me" },
+  data: { url: text.url }, // "/me" or "/team" (#125); anything else is "/me"
 });
 ```
 
 `notificationclick` closes the notification. It then focuses an open
-RynkePoints window and navigates it to `/me`, or opens `/me` if none is open
-(FR-019).
+RynkePoints window and navigates it to the notification's page, or opens it if
+none is open (FR-019).

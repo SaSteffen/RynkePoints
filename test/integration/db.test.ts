@@ -109,6 +109,75 @@ describe("riders", () => {
 		expect(await getCurrentConsent(db, ATHLETE_A)).toBeNull();
 	});
 
+	it("deleting a rider removes their runs and badges (feature 013)", async () => {
+		const ctx = makeCtx();
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		await seedRider(ctx, { athleteId: ATHLETE_B });
+		await db.batch(
+			[ATHLETE_A, ATHLETE_B].flatMap((athleteId, i) => [
+				db
+					.prepare(
+						`INSERT INTO runs (strava_activity_id, athlete_id, start_date,
+							start_date_local, distance_m, is_private, refreshed_at)
+						VALUES (?, ?, '2026-05-02T07:00:00Z', '2026-05-02T09:00:00Z', 7800, 0, ?)`,
+					)
+					.bind(8001 + i, athleteId, NOW),
+				db
+					.prepare(
+						"INSERT INTO rider_badges (athlete_id, badge_id, earned_on) VALUES (?, 'distance-100', '2026-05-02')",
+					)
+					.bind(athleteId),
+				db
+					.prepare(
+						"INSERT INTO badge_reveals (athlete_id, badge_id, earned_on) VALUES (?, 'distance-100', '2026-05-02')",
+					)
+					.bind(athleteId),
+				db
+					.prepare(
+						`INSERT INTO badge_rises (athlete_id, badge_ids, risen_at)
+						VALUES (?, '["distance-100"]', ?)`,
+					)
+					.bind(athleteId, NOW),
+			]),
+		);
+
+		await deleteRider(db, ATHLETE_A);
+
+		for (const table of [
+			"runs",
+			"rider_badges",
+			"badge_reveals",
+			"badge_rises",
+		]) {
+			const { results } = await db
+				.prepare(`SELECT athlete_id FROM ${table}`)
+				.all<{ athlete_id: number }>();
+			expect(results.map((r) => r.athlete_id)).toEqual([ATHLETE_B]);
+		}
+	});
+
+	it("gives riders stored before 0012 badges version 0", async () => {
+		// Without the column, as every insert before 0012 was.
+		await insertRider(
+			db,
+			{
+				athleteId: ATHLETE_A,
+				firstName: "Testrider A",
+				scopes: "read,activity:read",
+				scopeReadAll: false,
+				scopeWrite: false,
+				now: NOW,
+			},
+			{ version: 1, acceptedAt: NOW },
+		);
+		expect(
+			await db
+				.prepare("SELECT badges_version FROM riders WHERE athlete_id = ?")
+				.bind(ATHLETE_A)
+				.first("badges_version"),
+		).toBe(0);
+	});
+
 	it("inserts and reads a rider", async () => {
 		await insertRider(
 			db,

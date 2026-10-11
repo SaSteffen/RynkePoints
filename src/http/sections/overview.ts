@@ -9,7 +9,7 @@ import {
 	countingWindow,
 	rulesForVersion,
 } from "../../rynke/rules";
-import { coin, miniCoin } from "../coin";
+import { amount, coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import {
 	renderBreakdown,
@@ -25,7 +25,8 @@ import { shellPage } from "../shell";
 // The Overview at `/me`, labelled "You" (feature 011 FR-010, issue #73): the greeting first, then what
 // needs the rider's attention (015 FR-008, FR-009), and the rider's Rynke
 // with their gauges and where they come from (feature 005). The rides, the
-// settings with the rules (issue #92) and the account are in their own sections. A `page`
+// badges, the settings with the rules (issue #92) and the account are in their
+// own sections. A `page`
 // query never gets here: the router sends it to Rides (FR-006). The greeting
 // sits in the coin hero; a celebration of the Rynke that are new since the
 // rider last opened the Overview follows the notices (feature 012 US1, US2).
@@ -108,8 +109,8 @@ ${coin("front", "hero")}
 <p class="greeting">${i18n.t("me.greeting", { firstName: rider.firstName })}</p>
 ${
 	totals
-		? html`<p class="hero-total">${i18n.t("hero.training", { n: i18n.formatNumber(totals.training, { fractionDigits: 0 }) })}</p>
-<p class="hero-total hero-team">${i18n.t("hero.team", { n: i18n.formatNumber(totals.team, { fractionDigits: 0 }) })}</p>
+		? html`<p class="hero-total">${i18n.tHtml("hero.training", { n: amount(i18n, totals.training) })}</p>
+<p class="hero-total hero-team">${i18n.tHtml("hero.team", { n: amount(i18n, totals.team) })}</p>
 `
 		: null
 }</div>

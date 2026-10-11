@@ -43,14 +43,14 @@ export const de = {
 	"consent.short.notRead":
 		"Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.",
 	"consent.short.read":
-		"Wir lesen nur die Eckdaten deiner Radfahrten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke.",
+		"Wir lesen nur die Eckdaten deiner Rad- und Laufaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.",
 	"consent.short.shown":
 		"Das Team sieht deine Rynke ohne Namen, die Orga mit deinem Vornamen.",
 	"consent.details": "Alle Details",
 	"consent.organisers":
 		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen.",
 	"consent.team":
-		"Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen.",
+		"Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter zählen ohne Namen zu den Team-Summen der Team-Abzeichen.",
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
 	"consent.write":
 		"Freiwillig: Strava fragt auch, ob RynkePoints Aktivitäten hochladen darf. Wir laden nie etwas hoch, sondern schreiben damit später einen kurzen Rynke-Abschnitt in deine Fahrtbeschreibungen, sichtbar für alle, die die Fahrt sehen dürfen. Deinen eigenen Text ändern wir nie. Ohne diese Erlaubnis machst du genauso mit.",
@@ -262,6 +262,8 @@ export const de = {
 	"tour.rider.you": "Du: deine Rynke und was dir noch zur Qualifikation fehlt.",
 	"tour.rider.rides":
 		"Fahrten: jede Fahrt, was sie gebracht hat, und warum, wenn sie nicht zählt.",
+	"tour.rider.badges":
+		"Abzeichen: deine und die des Teams, und wie weit es bis zum nächsten ist.",
 	"tour.rider.settings":
 		"Einstellungen: Sprache, Benachrichtigungen, deine Strava-Verbindung, die Regeln und dieser Rundgang.",
 	"tour.organiser.intro":
@@ -298,12 +300,14 @@ export const de = {
 	"nav.you": "Du",
 	"nav.rides": "Fahrten",
 	"nav.team": "Team",
+	"nav.badges": "Abzeichen",
 	"nav.organiser": "Orga",
 	"nav.settings": "Einstellungen",
+	"nav.settings.short": "Einst.",
 	"shell.refresh": "Aktualisieren",
 	"shell.title": "{section} – RynkePoints",
-	"hero.training": "{n}\u00a0Trainingsrynke",
-	"hero.team": "{n}\u00a0Teamrynke",
+	"hero.training": "{n} Trainingsrynke",
+	"hero.team": "{n} Teamrynke",
 	"celebrate.training":
 		"+{n}\u00a0Trainingsrynke seit deinem letzten Besuch 🎉",
 	"celebrate.team": "+{n}\u00a0Teamrynke seit deinem letzten Besuch 🎉",
@@ -400,7 +404,8 @@ export const de = {
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
 	"team.total.label": "Team Rynkeby Hamburg 🦧",
-	"team.total.value": "{n}\u00a0Rynke",
+	"team.total.training": "{n} Trainingsrynke",
+	"team.total.team": "{n} Teamrynke",
 	"team.total.kind": "gemeinsam gesammelt",
 	"team.total.thisWeek": "+{n} diese Woche 🔥",
 	"team.kind.label": "Welche Rynke",
@@ -495,4 +500,101 @@ export const de = {
 	"organiser.overview.column.events": "Termine",
 	"organiser.overview.column.corrections": "Korrekturen",
 	"organiser.overview.column.virtual": "Virtuell",
+
+	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
+	// names aren't here: they are German in every language (badges.de.ts).
+	"badges.heading": "Abzeichen",
+	"badges.intro":
+		"Wie weit es noch bis zum nächsten Abzeichen ist – welches es wird, bleibt geheim.",
+	"badges.personal.newest": "Meine Abzeichen",
+	"badges.personal.all": "Alle meine Abzeichen ({n})",
+	"badges.team.newest": "Team-Abzeichen",
+	"badges.team.all": "Alle Team-Abzeichen ({n})",
+	"badges.empty": "Noch kein Abzeichen – deine erste Fahrt bringt dich näher.",
+	"badges.missing": "Noch {value}",
+	"badges.earnedOn": "erreicht am {date}",
+	"badges.close": "Schließen",
+	"badges.label": "{name}, {value}",
+	"badges.reveal.one": "Neues Abzeichen: {name}",
+	"badges.reveal.many": "{n} neue Abzeichen",
+	"badges.category.distance": "Distanz",
+	"badges.category.elevation": "Höhenmeter",
+	"badges.category.team_events": "Teamtermine",
+	"badges.category.technique": "Techniktraining",
+	"badges.category.training_rynke": "Trainings-Rynke",
+	"badges.category.run_length": "Längster Lauf",
+	"badges.category.running": "Laufen gesamt",
+	"badges.category.team_training_rynke": "Trainings-Rynke gemeinsam",
+	"badges.category.team_distance": "Kilometer gemeinsam",
+	"badges.category.team_elevation": "Höhenmeter gemeinsam",
+	"badges.category.team_running": "Laufen gemeinsam",
+	"badges.category.big_training": "Große Ausfahrt",
+	"badges.category.attendances": "Teilnahmen",
+	"badges.about.distance":
+		"Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.",
+	"badges.about.elevation":
+		"Alle Höhenmeter deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.",
+	"badges.about.team_events":
+		"Jeder Teamtermin dieser Saison, bei dem du dabei warst, egal welcher Art.",
+	"badges.about.technique":
+		"Die Techniktrainings dieser Saison, bei denen du dabei warst: eins für das erste, eins für beide.",
+	"badges.about.training_rynke":
+		"Alle Trainings-Rynke, die du in dieser Saison gesammelt hast.",
+	"badges.about.run_length":
+		"Dein längster Lauf dieser Saison am Stück, ohne Laufband und virtuelle Läufe.",
+	"badges.about.running":
+		"Alle Kilometer deiner Läufe in dieser Saison, ohne Laufband und virtuelle Läufe.",
+	"badges.about.team_training_rynke":
+		"Die Trainings-Rynke aller Rider in dieser Saison zusammengezählt.",
+	"badges.about.team_distance":
+		"Die Kilometer aller Radfahrten des Teams in dieser Saison zusammengezählt.",
+	"badges.about.team_elevation":
+		"Die Höhenmeter aller Radfahrten des Teams in dieser Saison zusammengezählt.",
+	"badges.about.team_running":
+		"Die Kilometer aller Läufe des Teams in dieser Saison zusammengezählt.",
+	"badges.about.big_training":
+		"Die meisten Rider, die in dieser Saison bei einem einzigen Teamtermin dabei waren.",
+	"badges.about.attendances":
+		"Alle Teilnahmen der Rider an Teamterminen dieser Saison zusammengezählt.",
+	"badges.for.distance": "Du bist in dieser Saison {value} Rad gefahren.",
+	"badges.for.elevation":
+		"Du bist in dieser Saison mit dem Rad {value} bergauf gefahren.",
+	"badges.for.team_events":
+		"Du hast in dieser Saison {value} des Teams besucht.",
+	"badges.for.technique":
+		"Du hast in dieser Saison {value} zur Fahrtechnik besucht.",
+	"badges.for.training_rynke":
+		"Du hast in dieser Saison {value} im Training gesammelt.",
+	"badges.for.run_length":
+		"Dein längster Lauf dieser Saison: {value} am Stück.",
+	"badges.for.running": "Du bist in dieser Saison {value} gelaufen.",
+	"badges.for.team_training_rynke":
+		"Alle Rider zusammen haben in dieser Saison {value} im Training gesammelt.",
+	"badges.for.team_distance":
+		"Alle Rider zusammen sind in dieser Saison {value} Rad gefahren.",
+	"badges.for.team_elevation":
+		"Alle Rider zusammen sind in dieser Saison {value} bergauf gefahren.",
+	"badges.for.team_running":
+		"Alle Rider zusammen sind in dieser Saison {value} gelaufen.",
+	"badges.for.big_training":
+		"{value} waren bei einem einzigen Teamtermin zusammen dabei.",
+	"badges.for.attendances":
+		"Alle Teamtermine dieser Saison zusammen hatten {value}: Jeder Rider bei jedem Termin zählt eins.",
+	"badges.value.km": "{n}\u00a0km",
+	"badges.value.m": "{n}\u00a0m",
+	"badges.value.rynke": "{n}\u00a0Rynke",
+	"badges.value.events": "{n}\u00a0Termine",
+	"badges.value.events.one": "{n}\u00a0Termin",
+	"badges.value.trainings": "{n}\u00a0Trainings",
+	"badges.value.trainings.one": "{n}\u00a0Training",
+	"badges.value.riders": "{n}\u00a0Rider",
+	"badges.value.riders.one": "{n}\u00a0Rider",
+	"badges.value.attendances": "{n}\u00a0Teilnahmen",
+	"badges.value.attendances.one": "{n}\u00a0Teilnahme",
+	"badges.value.half": "Halbmarathon",
+	"badges.value.marathon": "Marathon",
+	"notification.badge": "Neues Abzeichen: {name} 🏅",
+	"notification.badges": "{n} neue Abzeichen 🏅",
+	"notification.teamBadge": "Neues Team-Abzeichen: {name} 🏅",
+	"notification.teamBadges": "{n} neue Team-Abzeichen 🏅",
 } satisfies Record<string, string>;

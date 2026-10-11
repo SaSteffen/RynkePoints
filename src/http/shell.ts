@@ -2,6 +2,7 @@ import { berlinDate } from "../config";
 import { currentVersion, hasAgreed } from "../consent";
 import type { Ctx } from "../ctx";
 import { type Consent, getCurrentConsent } from "../db/consents";
+import { hasBalance } from "../db/rider-view";
 import type { Rider } from "../db/riders";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
@@ -15,32 +16,50 @@ import {
 	type ShellParts,
 	WORDMARK,
 } from "./html";
-import { BIKE, CLIPBOARD, COIN, PEOPLE, REFRESH, SLIDERS } from "./icons";
+import {
+	BIKE,
+	CLIPBOARD,
+	MEDAL,
+	PEOPLE,
+	PERSON,
+	REFRESH,
+	SLIDERS,
+} from "./icons";
 import { renderAppPrompt } from "./pwa";
 import { redirect } from "./redirect";
 import { type TourHint, tourHint } from "./tour";
 import { readViewer, riderConsentState } from "./viewer";
 
-// The signed-in area's four sections (feature 011 data-model.md "Section",
-// research R1, R3, R8), plus Orga for organisers before Settings (feature 016).
+// The signed-in area's sections (feature 011 data-model.md "Section",
+// research R1, R3, R8), with the badges in their own after Rides, and Orga for
+// organisers before Settings (feature 016).
 // Team comes first: it's where the app sends a signed-in rider (issue #73).
 // Each is its own page; `shellPage()` applies the access rules of `/me` to all
 // of them and wraps the section in the top bar and the navigation. The current
 // section comes from the route, never the client.
 
-export type SectionId = "team" | "you" | "rides" | "organiser" | "settings";
+export type SectionId =
+	| "team"
+	| "you"
+	| "rides"
+	| "badges"
+	| "organiser"
+	| "settings";
 
 /** In navigation order (FR-002). */
 export const SECTIONS: readonly {
 	id: SectionId;
 	path: string;
 	label: MessageId;
+	/** The navigation's label on narrower screens, where the full one doesn't fit. */
+	short?: MessageId;
 	icon: SafeHtml;
 	organiserOnly?: true;
 }[] = [
 	{ id: "team", path: "/team", label: "nav.team", icon: PEOPLE },
-	{ id: "you", path: "/me", label: "nav.you", icon: COIN },
+	{ id: "you", path: "/me", label: "nav.you", icon: PERSON },
 	{ id: "rides", path: "/me/rides", label: "nav.rides", icon: BIKE },
+	{ id: "badges", path: "/me/badges", label: "nav.badges", icon: MEDAL },
 	{
 		id: "organiser",
 		path: "/organiser/riders",
@@ -52,6 +71,7 @@ export const SECTIONS: readonly {
 		id: "settings",
 		path: "/me/settings",
 		label: "nav.settings",
+		short: "nav.settings.short",
 		icon: SLIDERS,
 	},
 ];
@@ -77,8 +97,12 @@ function shellParts(
 ): ShellParts {
 	const current = SECTIONS.find(({ id }) => id === section);
 	const links = SECTIONS.filter((s) => organiser || !s.organiserOnly).map(
-		({ id, path: href, label, icon }) =>
-			html`<a href="${href}"${id === section ? html` aria-current="page"` : null}${id === hint?.section ? html` class="tour-target"` : null}><span class="nav-icon">${icon}</span><span class="nav-label">${i18n.t(label)}</span></a>
+		({ id, path: href, label, short, icon }) =>
+			html`<a href="${href}"${short ? html` aria-label="${i18n.t(label)}"` : null}${id === section ? html` aria-current="page"` : null}${id === hint?.section ? html` class="tour-target"` : null}><span class="nav-icon">${icon}</span>${
+				short
+					? html`<span class="nav-label nav-label-short">${i18n.t(short)}</span><span class="nav-label nav-label-full">${i18n.t(label)}</span>`
+					: html`<span class="nav-label">${i18n.t(label)}</span>`
+			}</a>
 `,
 	);
 	return {
@@ -139,6 +163,18 @@ export async function shellPage(
 	}
 	const body = await render({ rider: viewer.rider, consent: accepted });
 	if (body instanceof Response) return body;
+	// No tour while the first import still runs: the pages it points at only
+	// show the waiting placeholder then (issue #119). Read only when there is
+	// a hint to hold back.
+	let hint = tourHint(
+		i18n,
+		viewer.rider,
+		path,
+		new URL(request.url).searchParams.get("tour"),
+	);
+	if (hint && !(await hasBalance(ctx.env.DB, viewer.rider.athleteId))) {
+		hint = null;
+	}
 	// Each section names itself, so tabs and screen readers tell them apart.
 	const label = SECTIONS.find(({ id }) => id === section)?.label;
 	return htmlResponse(
@@ -156,12 +192,7 @@ export async function shellPage(
 				path,
 				vapidPublicKey(ctx.env),
 				viewer.rider.organiser,
-				tourHint(
-					i18n,
-					viewer.rider,
-					path,
-					new URL(request.url).searchParams.get("tour"),
-				),
+				hint,
 			),
 		}),
 	);

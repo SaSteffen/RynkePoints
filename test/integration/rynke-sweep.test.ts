@@ -1,5 +1,6 @@
 import { createScheduledController, env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { BADGE_CATALOG_VERSION } from "../../src/badges/catalog";
 import { upsertActivity } from "../../src/db/activities";
 import { listRidersNeedingEvaluation } from "../../src/db/rynke";
 import { handleScheduled } from "../../src/index";
@@ -33,7 +34,12 @@ const NEXT = VERSION + 1;
 const WINDOW = countingWindow(env);
 
 function needing(version = VERSION, window = WINDOW) {
-	return listRidersNeedingEvaluation(db, version, window);
+	return listRidersNeedingEvaluation(
+		db,
+		version,
+		window,
+		BADGE_CATALOG_VERSION,
+	);
 }
 
 function evaluate(

@@ -11,7 +11,13 @@
 // research R5). Callers decide whether a rise notifies
 // (010 contracts/push-delivery.md "Which changes notify"). A rise is stored
 // with the change, so a notification can say how many Rynke are new (#45).
+//
+// The rider's personal badges are worked out from the same evaluation and
+// written as a diff in the same batch (feature 013 research R13). New ones are
+// reported and stored as a badge rise like a Rynke rise (R17).
 
+import { BADGE_CATALOG_VERSION } from "../badges/catalog";
+import { type EarnedBadge, evaluateBadges } from "../badges/evaluate";
 import type { Ctx } from "../ctx";
 import {
 	activityOwnersStatement,
@@ -21,6 +27,17 @@ import {
 	upsertActivityStatement,
 } from "../db/activities";
 import {
+	type BadgesVersionRow,
+	deleteRiderBadgesStatement,
+	listBadgesOfRidersStatement,
+	type RiderBadgeRow,
+	readBadgesVersionsStatement,
+	setBadgesVersionStatement,
+	upsertBadgeRiseStatement,
+	upsertRevealsStatement,
+	upsertRiderBadgesStatement,
+} from "../db/badges";
+import {
 	type CorrectionFields,
 	type CorrectionOfRidersRow,
 	deleteCorrectionStatement,
@@ -28,6 +45,13 @@ import {
 	listCorrectionsOfRidersStatement,
 	readCorrectionStatement,
 } from "../db/corrections";
+import {
+	deletePrivateRunsStatement,
+	deleteRunStatement,
+	listRunsOfRidersStatement,
+	runOwnersStatement,
+	upsertRunStatement,
+} from "../db/runs";
 import {
 	type BalanceRow,
 	deleteRideResultsStatement,
@@ -57,9 +81,14 @@ import {
 	toAttendance,
 	updateTeamEventStatement,
 } from "../db/team-events";
-import type { ActivityRecord, ActivityRow } from "../strava/activity";
+import type {
+	ActivityRecord,
+	ActivityRow,
+	RunRecord,
+} from "../strava/activity";
 import { sendAll } from "../work/messages";
 import { notifyRiders } from "../work/send-notification";
+import { teamBadgeNews } from "../work/team-badge-news";
 import { type Evaluation, evaluateRides, rideFromRow } from "./rides";
 import {
 	type CountingWindow,
@@ -75,9 +104,14 @@ import {
 	isTeamEventKind,
 } from "./team-events";
 
+/**
+ * `runs` are outdoor runs (feature 013); an activity id is stored as a ride or
+ * a run, so upserting one as either removes it as the other. `delete` and
+ * `delete-private` remove runs as well as rides.
+ */
 export type ActivityChange =
 	| { kind: "none" }
-	| { kind: "upsert"; records: ActivityRecord[] }
+	| { kind: "upsert"; records: ActivityRecord[]; runs?: RunRecord[] }
 	| { kind: "delete"; activityIds: number[] }
 	| { kind: "delete-private" };
 
@@ -122,6 +156,14 @@ export class TeamEventRefused extends Error {
 	}
 }
 
+export interface TeamEventResult {
+	eventId: number | null;
+	affected: number[];
+	rose: number[];
+	/** The affected riders with a new personal badge (feature 013 R17). */
+	earned: number[];
+}
+
 /** A correction as an organiser enters it; checked before anything is read. */
 export interface CorrectionInput {
 	training: number;
@@ -139,6 +181,13 @@ export type CorrectionChange =
 			by: number;
 	  }
 	| { kind: "remove-correction"; correctionId: number };
+
+export interface CorrectionResult {
+	athleteId: number;
+	rose: boolean;
+	/** The rider's new personal badges, catalog order (feature 013 R17). */
+	badges: string[];
+}
 
 /** The refusal codes of feature 014 research R8; nothing was written. */
 export class CorrectionRefused extends Error {
@@ -162,7 +211,18 @@ interface RiderState {
 	results: StoredRideResult[];
 	balance: StoredBalance | null;
 	attendance: Attendance[];
-	corrections: { correctionId: number; training: number; team: number }[];
+	corrections: {
+		correctionId: number;
+		training: number;
+		team: number;
+		date: string;
+	}[];
+	/** Stored personal badges: badge id → `earned_on` (feature 013). */
+	badges: Map<string, string>;
+	/** The `BADGE_CATALOG_VERSION` the stored badges were worked out with. */
+	badgesVersion: number;
+	/** Outdoor runs by activity id (feature 013). */
+	runs: Map<number, RunRecord>;
 }
 
 export async function applyAndEvaluate(
@@ -172,23 +232,24 @@ export async function applyAndEvaluate(
 	rules: RynkeRules,
 	window: CountingWindow,
 	now: number,
-): Promise<{ rose: boolean }> {
+): Promise<{ rose: boolean; badges: string[] }> {
+	const ids =
+		change.kind === "upsert"
+			? [...change.records, ...(change.runs ?? [])].map(
+					(r) => r.strava_activity_id,
+				)
+			: [];
 	const ownerReads =
 		change.kind === "upsert"
-			? [
-					activityOwnersStatement(
-						db,
-						change.records.map((r) => r.strava_activity_id),
-					),
-				]
+			? [activityOwnersStatement(db, ids), runOwnersStatement(db, ids)]
 			: [];
 	const {
 		riders,
-		extra: [ownerRows],
+		extra: [ownerRows, runOwnerRows],
 	} = await readRiders(db, [athleteId], ownerReads);
 	const state = riders.get(athleteId) as RiderState;
-	const { activities } = state;
-	const before = evaluateState(state, rules, window).balance;
+	const { activities, runs } = state;
+	const before = evaluateState(state, rules, window);
 
 	const writes: D1PreparedStatement[] = [];
 	switch (change.kind) {
@@ -196,18 +257,34 @@ export async function applyAndEvaluate(
 			break;
 		case "upsert": {
 			const owners = new Map<number, number>();
-			for (const row of (ownerRows?.results ?? []) as {
+			for (const row of [
+				...(ownerRows?.results ?? []),
+				...(runOwnerRows?.results ?? []),
+			] as {
 				strava_activity_id: number;
 				athlete_id: number;
 			}[]) {
 				owners.set(row.strava_activity_id, row.athlete_id);
 			}
+			// The SQL guards leave another rider's activity alone; so does this.
+			const own = (r: { strava_activity_id: number; athlete_id: number }) =>
+				r.athlete_id === athleteId &&
+				(owners.get(r.strava_activity_id) ?? athleteId) === athleteId;
 			for (const record of change.records) {
-				// The SQL guard leaves another rider's activity alone; so does this.
-				const owner = owners.get(record.strava_activity_id) ?? athleteId;
-				if (owner !== athleteId || record.athlete_id !== athleteId) continue;
-				activities.set(record.strava_activity_id, record);
+				if (!own(record)) continue;
+				const id = record.strava_activity_id;
+				activities.set(id, record);
 				writes.push(upsertActivityStatement(db, record));
+				if (runs.delete(id)) writes.push(deleteRunStatement(db, athleteId, id));
+			}
+			for (const run of change.runs ?? []) {
+				if (!own(run)) continue;
+				const id = run.strava_activity_id;
+				runs.set(id, run);
+				writes.push(upsertRunStatement(db, run));
+				if (activities.delete(id)) {
+					writes.push(deleteActivityStatement(db, athleteId, id));
+				}
 			}
 			break;
 		}
@@ -216,6 +293,7 @@ export async function applyAndEvaluate(
 				if (activities.delete(id)) {
 					writes.push(deleteActivityStatement(db, athleteId, id));
 				}
+				if (runs.delete(id)) writes.push(deleteRunStatement(db, athleteId, id));
 			}
 			break;
 		case "delete-private": {
@@ -227,16 +305,28 @@ export async function applyAndEvaluate(
 				}
 			}
 			if (removed) writes.push(deletePrivateActivitiesStatement(db, athleteId));
+			let removedRuns = false;
+			for (const [id, run] of runs) {
+				if (run.is_private === 1) {
+					runs.delete(id);
+					removedRuns = true;
+				}
+			}
+			if (removedRuns) writes.push(deletePrivateRunsStatement(db, athleteId));
 			break;
 		}
 	}
 
 	const after = evaluateState(state, rules, window);
 	writes.push(...riderWrites(db, athleteId, state, after, rules, now));
-	const risen = rose(before, after.balance);
-	if (risen) writes.push(riseWrite(db, athleteId, before, after.balance, now));
+	const risen = rose(before.balance, after.balance);
+	if (risen) {
+		writes.push(riseWrite(db, athleteId, before.balance, after.balance, now));
+	}
+	const news = badgeNews(db, athleteId, state, before, after, rules, now);
+	writes.push(...news.writes);
 	if (writes.length > 0) await db.batch(writes);
-	return { rose: risen };
+	return { rose: risen, badges: news.badges };
 }
 
 /** `applyAndEvaluate` under the current rules, for the work handlers. */
@@ -244,7 +334,7 @@ export function evaluateChange(
 	ctx: Ctx,
 	athleteId: number,
 	change: ActivityChange,
-): Promise<{ rose: boolean }> {
+): Promise<{ rose: boolean; badges: string[] }> {
 	return applyAndEvaluate(
 		ctx.env.DB,
 		athleteId,
@@ -259,7 +349,7 @@ export function evaluateChange(
  * Applies a team-event change and re-evaluates every affected rider, all in
  * one batch (research R21). Refusals throw `TeamEventRefused` before anything
  * is written. `eventId` is set for `create-event` only; `rose` lists the
- * affected riders whose Rynke rose, sorted.
+ * affected riders whose Rynke rose, `earned` those with a new badge, sorted.
  */
 export async function applyTeamEventChange(
 	db: D1Database,
@@ -267,7 +357,7 @@ export async function applyTeamEventChange(
 	rules: RynkeRules,
 	window: CountingWindow,
 	now: number,
-): Promise<{ eventId: number | null; affected: number[]; rose: number[] }> {
+): Promise<TeamEventResult> {
 	if (change.kind === "create-event") {
 		const event = validEvent(change.event);
 		const eventId = await insertTeamEventStatement(
@@ -276,7 +366,7 @@ export async function applyTeamEventChange(
 			change.by ?? null,
 			now,
 		).first<number>("event_id");
-		return { eventId, affected: [], rose: [] };
+		return { eventId, affected: [], rose: [], earned: [] };
 	}
 	const event =
 		change.kind === "update-event" ? validEvent(change.event) : null;
@@ -372,34 +462,42 @@ export async function applyTeamEventChange(
 
 	const writes = statement ? [statement] : [];
 	const risen: number[] = [];
+	const earned: number[] = [];
 	if (affected.length > 0) {
 		const { riders } = await readRiders(db, affected, []);
 		for (const athleteId of affected) {
 			const state = riders.get(athleteId) as RiderState;
-			const before = evaluateState(state, rules, window).balance;
+			const before = evaluateState(state, rules, window);
 			state.attendance = edit(state.attendance);
 			const after = evaluateState(state, rules, window);
 			writes.push(...riderWrites(db, athleteId, state, after, rules, now));
-			if (rose(before, after.balance)) {
-				writes.push(riseWrite(db, athleteId, before, after.balance, now));
+			if (rose(before.balance, after.balance)) {
+				writes.push(
+					riseWrite(db, athleteId, before.balance, after.balance, now),
+				);
 				risen.push(athleteId);
 			}
+			const news = badgeNews(db, athleteId, state, before, after, rules, now);
+			writes.push(...news.writes);
+			if (news.badges.length > 0) earned.push(athleteId);
 		}
 	}
 	if (writes.length > 0) await db.batch(writes);
-	return { eventId: null, affected, rose: risen };
+	return { eventId: null, affected, rose: risen, earned };
 }
 
 /**
  * `applyTeamEventChange` under the current rules, for callers outside the
  * serial queue consumer (the organiser pages). One `evaluate-rider` per
  * affected rider then settles a race with an activity event (research R21).
- * Each rider whose Rynke rose gets a notification on their devices.
+ * Each rider whose Rynke rose or who has a new badge gets a notification on
+ * their devices (feature 013 research R17), as does each listed rider a new
+ * team badge is new to (#125).
  */
 export async function teamEventChange(
 	ctx: Ctx,
 	change: TeamEventChange,
-): Promise<{ eventId: number | null; affected: number[]; rose: number[] }> {
+): Promise<TeamEventResult> {
 	const result = await applyTeamEventChange(
 		ctx.env.DB,
 		change,
@@ -411,7 +509,13 @@ export async function teamEventChange(
 		ctx,
 		result.affected.map((athleteId) => ({ kind: "evaluate-rider", athleteId })),
 	);
-	await notifyRiders(ctx, result.rose);
+	const team = await teamBadgeNews(ctx);
+	await notifyRiders(
+		ctx,
+		[...new Set([...result.rose, ...result.earned, ...team])].sort(
+			(a, b) => a - b,
+		),
+	);
 	return result;
 }
 
@@ -427,7 +531,7 @@ export async function applyCorrectionChange(
 	rules: RynkeRules,
 	window: CountingWindow,
 	now: number,
-): Promise<{ athleteId: number; rose: boolean }> {
+): Promise<CorrectionResult> {
 	let athleteId: number;
 	let statement: D1PreparedStatement;
 	let edit: (state: RiderState) => void;
@@ -447,6 +551,7 @@ export async function applyCorrectionChange(
 				correctionId: 0,
 				training: correction.training,
 				team: correction.team,
+				date: correction.date,
 			});
 		};
 		extraReads.push(riderStatusesStatement(db, [athleteId]));
@@ -476,28 +581,33 @@ export async function applyCorrectionChange(
 		throw new CorrectionRefused("rider_not_connected");
 	}
 	const state = riders.get(athleteId) as RiderState;
-	const before = evaluateState(state, rules, window).balance;
+	const before = evaluateState(state, rules, window);
 	edit(state);
 	const after = evaluateState(state, rules, window);
 	const writes = [
 		statement,
 		...riderWrites(db, athleteId, state, after, rules, now),
 	];
-	const risen = rose(before, after.balance);
-	if (risen) writes.push(riseWrite(db, athleteId, before, after.balance, now));
+	const risen = rose(before.balance, after.balance);
+	if (risen) {
+		writes.push(riseWrite(db, athleteId, before.balance, after.balance, now));
+	}
+	const news = badgeNews(db, athleteId, state, before, after, rules, now);
+	writes.push(...news.writes);
 	await db.batch(writes);
-	return { athleteId, rose: risen };
+	return { athleteId, rose: risen, badges: news.badges };
 }
 
 /**
  * `applyCorrectionChange` under the current rules, for the organiser pages:
- * one `evaluate-rider` settles a race with an activity event, and a rise
- * notifies the rider, as `teamEventChange` does.
+ * one `evaluate-rider` settles a race with an activity event, and a rise or
+ * a new badge notifies the rider, and a new team badge the listed riders, as
+ * `teamEventChange` does.
  */
 export async function correctionChange(
 	ctx: Ctx,
 	change: CorrectionChange,
-): Promise<{ athleteId: number; rose: boolean }> {
+): Promise<CorrectionResult> {
 	const result = await applyCorrectionChange(
 		ctx.env.DB,
 		change,
@@ -506,7 +616,12 @@ export async function correctionChange(
 		ctx.now(),
 	);
 	await sendAll(ctx, [{ kind: "evaluate-rider", athleteId: result.athleteId }]);
-	await notifyRiders(ctx, result.rose ? [result.athleteId] : []);
+	const team = await teamBadgeNews(ctx);
+	const own = result.rose || result.badges.length > 0 ? [result.athleteId] : [];
+	await notifyRiders(
+		ctx,
+		[...new Set([...own, ...team])].sort((a, b) => a - b),
+	);
 	return result;
 }
 
@@ -561,6 +676,9 @@ async function readRiders(
 		balanceRows,
 		attendanceRows,
 		correctionRows,
+		badgeRows,
+		versionRows,
+		runRows,
 		...extra
 	] = await db.batch([
 		listActivitiesOfRidersStatement(db, athleteIds),
@@ -568,6 +686,9 @@ async function readRiders(
 		readBalancesOfRidersStatement(db, athleteIds),
 		listAttendanceOfRidersStatement(db, athleteIds),
 		listCorrectionsOfRidersStatement(db, athleteIds),
+		listBadgesOfRidersStatement(db, athleteIds),
+		readBadgesVersionsStatement(db, athleteIds),
+		listRunsOfRidersStatement(db, athleteIds),
 		...extraReads,
 	]);
 	if (
@@ -575,7 +696,10 @@ async function readRiders(
 		!resultRows ||
 		!balanceRows ||
 		!attendanceRows ||
-		!correctionRows
+		!correctionRows ||
+		!badgeRows ||
+		!versionRows ||
+		!runRows
 	) {
 		throw new Error("D1 batch returned too few results");
 	}
@@ -588,6 +712,9 @@ async function readRiders(
 				balance: null,
 				attendance: [],
 				corrections: [],
+				badges: new Map(),
+				badgesVersion: 0,
+				runs: new Map(),
 			},
 		]),
 	);
@@ -609,7 +736,18 @@ async function readRiders(
 			correctionId: row.correction_id,
 			training: row.training,
 			team: row.team,
+			date: row.correction_date,
 		});
+	}
+	for (const row of badgeRows.results as RiderBadgeRow[]) {
+		riders.get(row.athlete_id)?.badges.set(row.badge_id, row.earned_on);
+	}
+	for (const row of versionRows.results as BadgesVersionRow[]) {
+		const rider = riders.get(row.athlete_id);
+		if (rider) rider.badgesVersion = row.badges_version;
+	}
+	for (const row of runRows.results as RunRecord[]) {
+		riders.get(row.athlete_id)?.runs.set(row.strava_activity_id, row);
 	}
 	return { riders, extra };
 }
@@ -619,7 +757,7 @@ function evaluateState(
 	state: RiderState,
 	rules: RynkeRules,
 	window: CountingWindow,
-): { evaluation: Evaluation; balance: Balance } {
+): { evaluation: Evaluation; balance: Balance; badges: EarnedBadge[] } {
 	const evaluation = evaluateRides(
 		[...state.activities.values()].map(rideFromRow),
 		rules,
@@ -633,7 +771,93 @@ function evaluateState(
 		),
 		rules,
 	);
-	return { evaluation, balance };
+	return {
+		evaluation,
+		balance,
+		badges: personalBadges(state, evaluation, rules, window),
+	};
+}
+
+/**
+ * The rider's personal badges from their counting rides, outdoor runs and
+ * extras (R13, R14).
+ */
+function personalBadges(
+	state: RiderState,
+	evaluation: Evaluation,
+	rules: RynkeRules,
+	window: CountingWindow,
+): EarnedBadge[] {
+	const rides = [];
+	for (const result of evaluation.results) {
+		const activity = state.activities.get(result.activityId);
+		if (!result.counts || !activity) continue;
+		rides.push({
+			date: activity.start_date_local.slice(0, 10),
+			distanceM: activity.distance_m,
+			distanceRynke: result.distanceRynke,
+			elevationDm: result.elevationDm,
+		});
+	}
+	return evaluateBadges(
+		{
+			rides,
+			runs: [...state.runs.values()].map((run) => ({
+				date: run.start_date_local.slice(0, 10),
+				distanceM: run.distance_m,
+			})),
+			attendance: state.attendance,
+			corrections: state.corrections,
+		},
+		rules,
+		window,
+	).earned;
+}
+
+/**
+ * The badges new with this change, compared with the state before it evaluated
+ * now (as `rose` does), written as the rider's badge rise (feature 013
+ * research R17). Under new rules or a new badge catalog the awards are silent:
+ * the badges that appear are marked as revealed instead, and none is new
+ * (FR-012, FR-031, research R16, R18). A rider's first evaluation has no
+ * balance yet and is never silent, so the import still shows its reveal.
+ */
+function badgeNews(
+	db: D1Database,
+	athleteId: number,
+	state: RiderState,
+	before: { badges: EarnedBadge[] },
+	after: { badges: EarnedBadge[] },
+	rules: RynkeRules,
+	now: number,
+): { writes: D1PreparedStatement[]; badges: string[] } {
+	const silent =
+		state.balance !== null &&
+		(state.balance.rulesVersion !== rules.version ||
+			state.badgesVersion !== BADGE_CATALOG_VERSION);
+	if (silent) {
+		const appeared = after.badges.filter(
+			(b) => state.badges.get(b.badgeId) !== b.earnedOn,
+		);
+		return {
+			writes:
+				appeared.length > 0
+					? [upsertRevealsStatement(db, athleteId, appeared)]
+					: [],
+			badges: [],
+		};
+	}
+	const had = new Set(before.badges.map((b) => b.badgeId));
+	const badges = after.badges
+		.map((b) => b.badgeId)
+		.filter((id) => !had.has(id));
+	return {
+		writes:
+			badges.length > 0
+				? [upsertBadgeRiseStatement(db, athleteId, badges, now)]
+				: [],
+		badges,
+	};
 }
 
 /** Whether the rider gained Training or Team Rynke (research R5). */
@@ -668,7 +892,11 @@ function riderWrites(
 	db: D1Database,
 	athleteId: number,
 	state: RiderState,
-	{ evaluation, balance }: { evaluation: Evaluation; balance: Balance },
+	{
+		evaluation,
+		balance,
+		badges,
+	}: { evaluation: Evaluation; balance: Balance; badges: EarnedBadge[] },
 	rules: RynkeRules,
 	now: number,
 ): D1PreparedStatement[] {
@@ -692,6 +920,34 @@ function riderWrites(
 	}
 	if (!state.balance || !sameBalance(state.balance, balance)) {
 		writes.push(upsertBalanceStatement(db, athleteId, balance, now));
+	}
+	writes.push(...badgeWrites(db, athleteId, state, badges));
+	return writes;
+}
+
+/** Only badges that appeared, disappeared or changed date (research R13). */
+function badgeWrites(
+	db: D1Database,
+	athleteId: number,
+	state: RiderState,
+	badges: EarnedBadge[],
+): D1PreparedStatement[] {
+	const writes: D1PreparedStatement[] = [];
+	const gone = new Set(state.badges.keys());
+	const changed = badges.filter((b) => {
+		gone.delete(b.badgeId);
+		return state.badges.get(b.badgeId) !== b.earnedOn;
+	});
+	if (gone.size > 0) {
+		writes.push(deleteRiderBadgesStatement(db, athleteId, [...gone]));
+	}
+	if (changed.length > 0) {
+		writes.push(upsertRiderBadgesStatement(db, athleteId, changed));
+	}
+	if (state.badgesVersion !== BADGE_CATALOG_VERSION) {
+		writes.push(
+			setBadgesVersionStatement(db, athleteId, BADGE_CATALOG_VERSION),
+		);
 	}
 	return writes;
 }

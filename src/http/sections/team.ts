@@ -24,7 +24,7 @@ import { type RiderStatus, riderStatus } from "../../rynke/pace";
 import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
 import { lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
 import { peloton, sparkline, weekBars } from "../charts";
-import { coin, miniCoin } from "../coin";
+import { amount, coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import { renderReconnect } from "../rider-sections";
 import { shellPage } from "../shell";
@@ -68,7 +68,7 @@ function renderTeamTotal(
 	return html`<section class="team-total card">
 ${coin(kind === "training" ? "front" : "back", "large")}<div class="team-total-text">
 <p class="team-total-label">${i18n.t("team.total.label")}</p>
-<p class="team-total-value">${i18n.t("team.total.value", { n: whole(totals.total) })}</p>
+<p class="team-total-value${kind === "team" ? " hero-team" : ""}">${i18n.tHtml(kind === "training" ? "team.total.training" : "team.total.team", { n: amount(i18n, totals.total) })}</p>
 <p class="team-total-kind">${i18n.t("team.total.kind")}</p>
 ${
 	totals.thisWeek > 0
@@ -295,8 +295,8 @@ export function handleTeam(
 		"team",
 		teamHref(kind, all),
 		async ({ rider }) => {
-			const team = await readTeam(ctx.env.DB);
 			const window = countingWindow(ctx.env);
+			const team = await readTeam(ctx.env.DB);
 			const today = berlinDate(ctx.now());
 			const ends = weekEnds(
 				window.seasonStart,

@@ -3,7 +3,12 @@
 // figures from 003's own functions, and the last point is the stored balance.
 
 import type { RidingSums } from "./rides";
-import { type CountingWindow, CURRENT_RULES, rulesForVersion } from "./rules";
+import {
+	type CountingWindow,
+	CURRENT_RULES,
+	type RynkeRules,
+	rulesForVersion,
+} from "./rules";
 import { type Balance, extrasFrom, tally } from "./tally";
 import { type Attendance, evaluateAttendance } from "./team-events";
 
@@ -90,7 +95,6 @@ export function riderWeeks(
 ): WeekPoint[] {
 	const rules =
 		(balance && rulesForVersion(balance.rulesVersion)) ?? CURRENT_RULES;
-	const stepDm = rules.elevationStepM * 10;
 	return ends.map((weekEnd, i) => {
 		if (i === ends.length - 1) {
 			return {
@@ -99,32 +103,103 @@ export function riderWeeks(
 				team: balance?.teamRynke ?? 0,
 			};
 		}
-		let distanceRynke = 0;
-		let elevationDm = 0;
-		for (const ride of inputs.rides) {
-			if (ride.weekEnd > weekEnd) continue;
-			distanceRynke += ride.distanceRynke;
-			elevationDm += ride.elevationDm;
-		}
-		const riding: RidingSums = {
-			distanceRynke,
-			elevationDm,
-			elevationRynke:
-				Math.floor(elevationDm / stepDm) * rules.elevationStepRynke,
-		};
-		// Only Training and Team are read, so the outdoor split doesn't matter.
-		const week = tally(
-			{ ...riding, withoutVirtual: riding },
-			extrasFrom(
-				evaluateAttendance(
-					inputs.attendance.filter((a) => a.date <= weekEnd),
-					rules,
-					window,
-				),
-				inputs.corrections.filter((c) => c.date <= weekEnd),
+		return {
+			weekEnd,
+			...tallyUpTo(
+				weekEnd,
+				inputs.rides.filter((ride) => ride.weekEnd <= weekEnd),
+				inputs,
+				rules,
+				window,
 			),
-			rules,
-		);
-		return { weekEnd, training: week.trainingRynke, team: week.teamRynke };
+		};
 	});
+}
+
+/** A rider's counting rides of one day (feature 013 research R14). */
+export interface DailyRideSum {
+	/** `YYYY-MM-DD`, the ride's local start date. */
+	date: string;
+	distanceRynke: number;
+	/** Unfloored, so the total is floored once (003 FR-004a). */
+	elevationDm: number;
+}
+
+export interface DailyInputs {
+	rides: readonly DailyRideSum[];
+	attendance: readonly Attendance[];
+	corrections: readonly DatedCorrection[];
+}
+
+export interface DayPoint {
+	/** `YYYY-MM-DD` */
+	date: string;
+	training: number;
+	team: number;
+}
+
+/**
+ * The rider's Training and Team Rynke after each day that has an input (a
+ * ride, an attended event or a correction), in date order, so a badge knows
+ * the day its threshold was reached (feature 013 research R14).
+ */
+export function riderDays(
+	inputs: DailyInputs,
+	window: CountingWindow,
+	rules: RynkeRules,
+): DayPoint[] {
+	const dates = [
+		...new Set([
+			...inputs.rides.map((r) => r.date),
+			...inputs.attendance.map((a) => a.date),
+			...inputs.corrections.map((c) => c.date),
+		]),
+	].sort();
+	return dates.map((date) => ({
+		date,
+		...tallyUpTo(
+			date,
+			inputs.rides.filter((ride) => ride.date <= date),
+			inputs,
+			rules,
+			window,
+		),
+	}));
+}
+
+/** Training and Team Rynke from these rides plus the extras dated up to `date`. */
+function tallyUpTo(
+	date: string,
+	rides: readonly { distanceRynke: number; elevationDm: number }[],
+	extras: Pick<RiderInputs, "attendance" | "corrections">,
+	rules: RynkeRules,
+	window: CountingWindow,
+): { training: number; team: number } {
+	let distanceRynke = 0;
+	let elevationDm = 0;
+	for (const ride of rides) {
+		distanceRynke += ride.distanceRynke;
+		elevationDm += ride.elevationDm;
+	}
+	const riding: RidingSums = {
+		distanceRynke,
+		elevationDm,
+		elevationRynke:
+			Math.floor(elevationDm / (rules.elevationStepM * 10)) *
+			rules.elevationStepRynke,
+	};
+	// Only Training and Team are read, so the outdoor split doesn't matter.
+	const point = tally(
+		{ ...riding, withoutVirtual: riding },
+		extrasFrom(
+			evaluateAttendance(
+				extras.attendance.filter((a) => a.date <= date),
+				rules,
+				window,
+			),
+			extras.corrections.filter((c) => c.date <= date),
+		),
+		rules,
+	);
+	return { training: point.trainingRynke, team: point.teamRynke };
 }

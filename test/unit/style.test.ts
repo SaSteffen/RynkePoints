@@ -40,8 +40,12 @@ describe("STYLE", () => {
 		expect(declsOf(selector)["min-height"]).toBe("var(--rp-tap)");
 	});
 
-	it("breaks long words in main", () => {
-		expect(declsOf("main")["overflow-wrap"]).toBe("anywhere");
+	it("breaks a word in main only when it can't fit a line of its own (#115)", () => {
+		const main = declsOf("main");
+		// `anywhere` split words letter by letter on small phones, and
+		// hyphenation would split the Rynke words too.
+		expect(main["overflow-wrap"]).toBe("break-word");
+		expect(main.hyphens).toBeUndefined();
 	});
 
 	it(`sets no width above ${PHONE_PX} px below 600 px`, () => {
@@ -167,6 +171,17 @@ describe("STYLE", () => {
 		).toBe("none");
 	});
 
+	it("pops the revealed badges in, and keeps them still for reduced motion (013 FR-031)", () => {
+		expect(STYLE).toContain("@keyframes badge-pop");
+		expect(declsOf(".badges-reveal-pictures img").animation).toContain(
+			"badge-pop",
+		);
+		expect(
+			declsOf(".badges-reveal-pictures img", "(prefers-reduced-motion:reduce)")
+				.animation,
+		).toBe("none");
+	});
+
 	it("spins the waiting coin, and keeps it still for reduced motion (015 FR-007)", () => {
 		expect(STYLE).toContain("@keyframes coin-spin");
 		expect(declsOf(".waiting .coin").animation).toContain("coin-spin");
@@ -211,6 +226,72 @@ describe("STYLE", () => {
 		expect(declsOf("nav.app-nav", WIDE).position).toBe("fixed");
 		expect(Number(declsOf("nav.app-nav")["z-index"])).toBeGreaterThan(
 			Number(declsOf("header.top-bar")["z-index"]),
+		);
+	});
+
+	it("lays the badge cards out two per row at every width (013 FR-002a)", () => {
+		expect(declsOf(".badge-cards")["grid-template-columns"]).toBe(
+			"repeat(2,minmax(0,1fr))",
+		);
+		expect(
+			RULES.filter(
+				(rule) =>
+					rule.media !== null && rule.selectors.includes(".badge-cards"),
+			),
+		).toEqual([]);
+		// Name, sentence, badge and bar line up across a row.
+		expect(declsOf(".badge-card")["grid-template-rows"]).toBe("subgrid");
+		expect(
+			declsOf(
+				".badge-card:not(.badge-card-empty) .badge-about",
+				"(max-width:599.98px)",
+			).display,
+		).toBe("none");
+		// As wide as the card allows, up to 200 px.
+		expect(declsOf(".badge-card .badge")).toMatchObject({
+			width: "100%",
+			"max-width": "200px",
+		});
+		// A category without a badge: a dotted outline in the badge's place.
+		expect(declsOf(".badge-card .badge-slot")).toMatchObject({
+			width: "100%",
+			"max-width": "200px",
+		});
+		expect(declsOf(".badge-gallery .badge").width).toBe("96px");
+		expect(declsOf(".badge-large .badge")).toMatchObject({
+			width: "280px",
+			"max-width": "100%",
+		});
+		// Hover holds the large view open beside the mouse, letting the
+		// pointer through; leaving closes it, so no close button.
+		expect(declsOf(".badge-large-hover")).toMatchObject({
+			inset: "auto",
+			"pointer-events": "none",
+		});
+		expect(declsOf(".badge-large-hover .badge-large-close").display).toBe(
+			"none",
+		);
+	});
+
+	it("puts the milestone on the ribbon's box, yellow on personal and ink on team (013 FR-040b)", () => {
+		expect(declsOf(".badge-ribbon-text")).toMatchObject({
+			left: "13%",
+			top: "70%",
+			width: "74%",
+			height: "14%",
+			color: "var(--rp-coin-yellow)",
+		});
+		expect(declsOf(".badge-group-team .badge-ribbon-text").color).toBe(
+			"var(--rp-coin-ink)",
+		);
+	});
+
+	it("fills personal bars yellow and team bars team blue (013 FR-002c)", () => {
+		expect(declsOf(".badges .bar>span").background).toBe(
+			"var(--rp-coin-yellow)",
+		);
+		expect(declsOf(".badge-group-team .bar>span").background).toBe(
+			"var(--rp-coin-team)",
 		);
 	});
 
