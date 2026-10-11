@@ -7,8 +7,7 @@
 			"!.specify",
 			"!.claude",
 			"!worker-configuration.d.ts",
-			"!public/strava",
-			"!public/illustrations"
+			"!public/strava"
 		]
 	},
 	"formatter": { "enabled": true },
