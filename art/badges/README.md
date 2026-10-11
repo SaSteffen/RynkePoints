@@ -108,7 +108,8 @@ changes changes no file. Commit the originals, `public/badges/` and
 - Rynke looks like the reference (helmet with three vents, orange fur, light
   muzzle); team pictures show several copies of him.
 - No frame, ring or circle drawn around the scene; nothing important near the
-  edge, as the window crops it round, and nothing important in the bottom 15 %
-  of the circle, where the milestone ribbon goes (spec FR-040b).
+  edge, as the window crops it round, and nothing at all in the bottom 15 %
+  of the circle, where the milestone ribbon goes (spec FR-040b): the prompt
+  asks for the bottom fifth of the canvas to stay empty, for some margin.
 - Detailed enough to enjoy at full size (the badge opens large), with the main
   subject still clear; no text or numbers.
