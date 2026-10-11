@@ -1203,7 +1203,7 @@ describe("GET /me rules and notices (US6)", () => {
 			"Es zählt alles vom 01.01.2026 bis zum 30.06.2027.",
 		);
 		const link = section(html, 'class="rynke-rules card card-outlined"')?.match(
-			/<a class="tap" href="([^"]*)" download>([^<]*)<\/a>/,
+			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
 		);
 		expect(link?.[1]).toBe(RULES_HANDOUT_URL);
 		expect(link?.[2]).toBe("Die Regeln als PDF");

@@ -349,18 +349,21 @@ What other features still have to build, and how this plan handles it:
 
 ## R14. Rules handout link (FR-053)
 
-- **Decision** (revised 2026-10-09): `RULES_HANDOUT_URL = "/rynke-punkte.pdf"`
-  is a constant in `src/http/rider-sections.ts`, and the link carries
-  `download`. `pnpm docs:pdf` writes the PDF to `public/`, it is committed, and
-  the Workers static assets serve it. A unit test checks that the linked file is
-  a PDF. The link text comes from the catalog. The English text says
-  "(in German)".
+- **Decision** (revised 2026-10-11): `RULES_HANDOUT_URL = "/rynke-punkte.pdf"`
+  is a constant in `src/http/rider-sections.ts`. `pnpm docs:pdf` writes the PDF
+  to `public/`, it is committed, and the Workers static assets serve it with
+  `Content-Disposition: attachment` from `public/_headers`. A unit test checks
+  that the linked file is a PDF and that `_headers` makes it a download. The
+  link text comes from the catalog. The English text says "(in German)".
 - **Rationale**: Riders get the printable handout in one tap, without leaving
   for GitHub. A URL is not rider-facing text, so it doesn't belong in the
-  catalogs.
+  catalogs. The server's header works in every browser, including installed
+  apps.
 - **Alternatives considered**: linking the Markdown on GitHub (the first
   decision), replaced because riders should get the PDF; rendering the PDF in
-  CI, rejected as in feature 003 research R1.
+  CI, rejected as in feature 003 research R1; the link's `download` attribute
+  (the 2026-10-09 decision), replaced because riders on Firefox for Android
+  couldn't download the PDF with it.
 
 ## R15. When the virtual-ride share is shown (FR-012)
 
