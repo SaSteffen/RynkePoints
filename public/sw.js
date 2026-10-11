@@ -11,7 +11,7 @@ const OFFLINE = `/offline?lang=${lang}`;
 const TEXT = `/notification-text?lang=${lang}`;
 const RIDER_TEXT = `/me/notification-text?lang=${lang}`;
 /** Where a notification may lead; the rider page unless the text says. */
-const PAGES = ["/me", "/team"];
+const PAGES = ["/me", "/me/badges"];
 
 self.addEventListener("install", (event) => {
 	event.waitUntil(
@@ -82,7 +82,7 @@ self.addEventListener("push", (event) => {
 				renotify: true,
 				icon: "/icons/icon-192.png",
 				badge: "/icons/badge-96.png",
-				// Team badges open the Team page (#125); anything else the rider page.
+				// Badges open the badges page (#125); anything else the rider page.
 				data: { url: PAGES.includes(text.url) ? text.url : "/me" },
 			});
 		})(),

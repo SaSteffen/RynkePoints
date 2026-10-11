@@ -17,7 +17,12 @@
 // reported and stored as a badge rise like a Rynke rise (R17).
 
 import { BADGE_CATALOG_VERSION } from "../badges/catalog";
-import { type EarnedBadge, evaluateBadges } from "../badges/evaluate";
+import {
+	type CountingRide,
+	type DatedRun,
+	type EarnedBadge,
+	evaluateBadges,
+} from "../badges/evaluate";
 import type { Ctx } from "../ctx";
 import {
 	activityOwnersStatement,
@@ -114,6 +119,19 @@ export type ActivityChange =
 	| { kind: "upsert"; records: ActivityRecord[]; runs?: RunRecord[] }
 	| { kind: "delete"; activityIds: number[] }
 	| { kind: "delete-private" };
+
+/** What an activity change did to the rider. */
+export interface ActivityResult {
+	/** Their Training or Team Rynke rose. */
+	rose: boolean;
+	/** Their new personal badges. */
+	badges: string[];
+	/**
+	 * The figures of their counting rides or outdoor runs changed, which the
+	 * team badges add up.
+	 */
+	figuresChanged: boolean;
+}
 
 /** An event as an organiser enters it; checked before anything is read. */
 export interface TeamEventInput {
@@ -232,7 +250,7 @@ export async function applyAndEvaluate(
 	rules: RynkeRules,
 	window: CountingWindow,
 	now: number,
-): Promise<{ rose: boolean; badges: string[] }> {
+): Promise<ActivityResult> {
 	const ids =
 		change.kind === "upsert"
 			? [...change.records, ...(change.runs ?? [])].map(
@@ -326,7 +344,12 @@ export async function applyAndEvaluate(
 	const news = badgeNews(db, athleteId, state, before, after, rules, now);
 	writes.push(...news.writes);
 	if (writes.length > 0) await db.batch(writes);
-	return { rose: risen, badges: news.badges };
+	return {
+		rose: risen,
+		badges: news.badges,
+		figuresChanged:
+			JSON.stringify(before.figures) !== JSON.stringify(after.figures),
+	};
 }
 
 /** `applyAndEvaluate` under the current rules, for the work handlers. */
@@ -334,7 +357,7 @@ export function evaluateChange(
 	ctx: Ctx,
 	athleteId: number,
 	change: ActivityChange,
-): Promise<{ rose: boolean; badges: string[] }> {
+): Promise<ActivityResult> {
 	return applyAndEvaluate(
 		ctx.env.DB,
 		athleteId,
@@ -509,7 +532,7 @@ export async function teamEventChange(
 		ctx,
 		result.affected.map((athleteId) => ({ kind: "evaluate-rider", athleteId })),
 	);
-	const team = await teamBadgeNews(ctx);
+	const team = await teamBadgeNews(ctx, result.earned);
 	await notifyRiders(
 		ctx,
 		[...new Set([...result.rose, ...result.earned, ...team])].sort(
@@ -616,7 +639,10 @@ export async function correctionChange(
 		ctx.now(),
 	);
 	await sendAll(ctx, [{ kind: "evaluate-rider", athleteId: result.athleteId }]);
-	const team = await teamBadgeNews(ctx);
+	const team = await teamBadgeNews(
+		ctx,
+		result.badges.length > 0 ? [result.athleteId] : [],
+	);
 	const own = result.rose || result.badges.length > 0 ? [result.athleteId] : [];
 	await notifyRiders(
 		ctx,
@@ -752,12 +778,23 @@ async function readRiders(
 	return { riders, extra };
 }
 
+/** The rider's counting rides and outdoor runs, as the badges add them up. */
+interface Figures {
+	rides: CountingRide[];
+	runs: DatedRun[];
+}
+
 /** A full evaluation of the rider's state. */
 function evaluateState(
 	state: RiderState,
 	rules: RynkeRules,
 	window: CountingWindow,
-): { evaluation: Evaluation; balance: Balance; badges: EarnedBadge[] } {
+): {
+	evaluation: Evaluation;
+	balance: Balance;
+	badges: EarnedBadge[];
+	figures: Figures;
+} {
 	const evaluation = evaluateRides(
 		[...state.activities.values()].map(rideFromRow),
 		rules,
@@ -771,23 +808,28 @@ function evaluateState(
 		),
 		rules,
 	);
+	const figures = figuresOf(state, evaluation);
 	return {
 		evaluation,
 		balance,
-		badges: personalBadges(state, evaluation, rules, window),
+		badges: evaluateBadges(
+			{
+				...figures,
+				attendance: state.attendance,
+				corrections: state.corrections,
+			},
+			rules,
+			window,
+		).earned,
+		figures,
 	};
 }
 
 /**
- * The rider's personal badges from their counting rides, outdoor runs and
- * extras (R13, R14).
+ * The rider's counting rides and outdoor runs, which their personal badges
+ * (R13, R14) and the team's (R15) are worked out from.
  */
-function personalBadges(
-	state: RiderState,
-	evaluation: Evaluation,
-	rules: RynkeRules,
-	window: CountingWindow,
-): EarnedBadge[] {
+function figuresOf(state: RiderState, evaluation: Evaluation): Figures {
 	const rides = [];
 	for (const result of evaluation.results) {
 		const activity = state.activities.get(result.activityId);
@@ -799,27 +841,22 @@ function personalBadges(
 			elevationDm: result.elevationDm,
 		});
 	}
-	return evaluateBadges(
-		{
-			rides,
-			runs: [...state.runs.values()].map((run) => ({
-				date: run.start_date_local.slice(0, 10),
-				distanceM: run.distance_m,
-			})),
-			attendance: state.attendance,
-			corrections: state.corrections,
-		},
-		rules,
-		window,
-	).earned;
+	return {
+		rides,
+		runs: [...state.runs.values()].map((run) => ({
+			date: run.start_date_local.slice(0, 10),
+			distanceM: run.distance_m,
+		})),
+	};
 }
 
 /**
  * The badges new with this change, compared with the state before it evaluated
  * now (as `rose` does), written as the rider's badge rise (feature 013
  * research R17). Under new rules or a new badge catalog the awards are silent:
- * the badges that appear are marked as revealed instead, and none is new
- * (FR-012, FR-031, research R16, R18). A rider's first evaluation has no
+ * the badges they bring (already in `before`, which is worked out under them)
+ * are marked as revealed instead (FR-012, FR-031, research R16, R18). A badge
+ * the change itself brings is still new. A rider's first evaluation has no
  * balance yet and is never silent, so the import still shows its reveal.
  */
 function badgeNews(
@@ -835,27 +872,24 @@ function badgeNews(
 		state.balance !== null &&
 		(state.balance.rulesVersion !== rules.version ||
 			state.badgesVersion !== BADGE_CATALOG_VERSION);
-	if (silent) {
-		const appeared = after.badges.filter(
-			(b) => state.badges.get(b.badgeId) !== b.earnedOn,
-		);
-		return {
-			writes:
-				appeared.length > 0
-					? [upsertRevealsStatement(db, athleteId, appeared)]
-					: [],
-			badges: [],
-		};
-	}
 	const had = new Set(before.badges.map((b) => b.badgeId));
+	const appeared = silent
+		? after.badges.filter(
+				(b) => had.has(b.badgeId) && state.badges.get(b.badgeId) !== b.earnedOn,
+			)
+		: [];
 	const badges = after.badges
 		.map((b) => b.badgeId)
 		.filter((id) => !had.has(id));
 	return {
-		writes:
-			badges.length > 0
+		writes: [
+			...(appeared.length > 0
+				? [upsertRevealsStatement(db, athleteId, appeared)]
+				: []),
+			...(badges.length > 0
 				? [upsertBadgeRiseStatement(db, athleteId, badges, now)]
-				: [],
+				: []),
+		],
 		badges,
 	};
 }

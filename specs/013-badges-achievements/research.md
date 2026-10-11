@@ -261,11 +261,14 @@ R1 to R9 belong to part A, the art pipeline; R10 to R22 to part B, the app (see
   new one is announced once per season (taking a badge back and earning it
   again doesn't notify twice) and written as a badge rise of every listed rider
   it is new to by R16's rule: earned on or after the day they connected and not
-  yet revealed. A season's first check stores what the team has without
-  notifying, so deploying doesn't announce every badge so far. Only sums are
-  read and every listed rider gets the same news, so nothing tells who
-  contributed. A change that doesn't notify (imports, consents, departures) is
-  caught by the next check.
+  yet revealed. The very first check stores what the team has without
+  notifying, so deploying doesn't announce every badge so far; a later season
+  starts with none announced. The announced ids and the rises are written in
+  one batch. The rise replaces the rider's last one, except that it joins the
+  same change's personal badges. Only sums are read and every listed rider
+  gets the same news, so nothing tells who contributed. A change that doesn't
+  notify (imports, consents, departures, edits that leave the figures alone)
+  is caught by the next check.
 - **Alternatives**: Adding columns to `rynke_rises`: mixes two kinds of rise in
   one row with different write rules.
 

@@ -1,6 +1,9 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
-import { advanceTeamBadgeNoticesStatement } from "../../src/db/badges";
+import {
+	advanceTeamBadgeNoticesStatement,
+	seedTeamBadgeNoticesStatement,
+} from "../../src/db/badges";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
 import { handleFetch } from "../../src/index";
@@ -83,13 +86,13 @@ beforeEach(async () => {
 describe("teamBadgeNews", () => {
 	it("stores what the team has on the season's first check, announcing nothing", async () => {
 		await attendRaw(await insertEvent("team_training", TODAY), TEAM);
-		expect(await teamBadgeNews(ctx)).toEqual([]);
+		expect(await teamBadgeNews(ctx, [])).toEqual([]);
 		expect(await announced()).toEqual(["big-training-5"]);
 		expect(await badgeRise(ATHLETE_A)).toBeNull();
 	});
 
 	it("notifies every listed rider of a new team badge, with their own news", async () => {
-		await teamBadgeNews(ctx);
+		await teamBadgeNews(ctx, []);
 		await bigTraining(TODAY);
 		expect(await announced()).toEqual(["big-training-5"]);
 		expect(notified()).toEqual([...TEAM].sort((a, b) => a - b));
@@ -100,7 +103,7 @@ describe("teamBadgeNews", () => {
 	});
 
 	it("announces a team badge once, even when taken back and earned again", async () => {
-		await teamBadgeNews(ctx);
+		await teamBadgeNews(ctx, []);
 		const eventId = await bigTraining(TODAY);
 		await teamEventChange(ctx, {
 			kind: "remove-attendance",
@@ -119,7 +122,7 @@ describe("teamBadgeNews", () => {
 	});
 
 	it("leaves out riders who connected after the badge's date", async () => {
-		await teamBadgeNews(ctx);
+		await teamBadgeNews(ctx, []);
 		await bigTraining("2026-09-12");
 		expect(await announced()).toEqual(["big-training-5"]);
 		for (const athleteId of TEAM) {
@@ -131,14 +134,43 @@ describe("teamBadgeNews", () => {
 		const outsider = 900099;
 		await seedRider(ctx, { athleteId: outsider, consentVersion: null });
 		await seedSubscription(outsider, pushEndpoint(99));
-		await teamBadgeNews(ctx);
+		await teamBadgeNews(ctx, []);
 		await bigTraining(TODAY);
 		expect(notified()).not.toContain(outsider);
 		expect(await badgeRise(outsider)).toBeNull();
 	});
 
+	it("announces a new season's first badges, once an earlier season was checked", async () => {
+		await seedTeamBadgeNoticesStatement(env.DB, "2025-01-01", [], NOW).run();
+		await bigTraining(TODAY);
+		expect(await announced()).toEqual(["big-training-5"]);
+		for (const athleteId of TEAM) {
+			expect(await badgeRise(athleteId)).toContain("big-training-5");
+		}
+	});
+
+	it("replaces an earlier change's rise, and joins the same change's", async () => {
+		await teamBadgeNews(ctx, []);
+		for (const athleteId of [ATHLETE_A, 900011]) {
+			await env.DB.prepare(
+				"INSERT INTO badge_rises (athlete_id, badge_ids, risen_at) VALUES (?, ?, ?)",
+			)
+				.bind(athleteId, JSON.stringify(["distance-500"]), NOW - 30)
+				.run();
+		}
+		await attendRaw(await insertEvent("team_training", TODAY), TEAM);
+
+		expect(await teamBadgeNews(ctx, [ATHLETE_A])).toEqual(
+			[...TEAM].sort((a, b) => a - b),
+		);
+		expect(await badgeRise(ATHLETE_A)).toEqual(
+			expect.arrayContaining(["distance-500", "big-training-5"]),
+		);
+		expect(await badgeRise(900011)).toEqual(["big-training-5"]);
+	});
+
 	it("announces nothing when another check got there first", async () => {
-		await teamBadgeNews(ctx);
+		await teamBadgeNews(ctx, []);
 		await attendRaw(await insertEvent("team_training", TODAY), TEAM);
 		await advanceTeamBadgeNoticesStatement(
 			env.DB,
@@ -147,7 +179,7 @@ describe("teamBadgeNews", () => {
 			["big-training-5"],
 			NOW,
 		).run();
-		expect(await teamBadgeNews(ctx)).toEqual([]);
+		expect(await teamBadgeNews(ctx, [])).toEqual([]);
 		expect(await badgeRise(ATHLETE_A)).toBeNull();
 	});
 });
