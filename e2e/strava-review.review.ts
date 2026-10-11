@@ -34,6 +34,7 @@ const COVERED = new Set([
 	"/",
 	"/me",
 	"/me/rides",
+	"/me/badges",
 	"/team",
 	"/me/settings",
 	"/me/disconnect",
@@ -159,18 +160,23 @@ for (const lang of LANGS) {
 					"The rider's own rides, with names and View on Strava links. Only the rider sees it.",
 				],
 				[
+					"/me/badges",
+					"05-badges",
+					"The rider's badges and the team's, from the same figures. Only the rider sees it.",
+				],
+				[
 					"/team",
-					"05-team",
+					"06-team",
 					"Team page: every rider's points without names, for the whole team",
 				],
 				[
 					"/me/settings",
-					"06-settings",
+					"07-settings",
 					"The rider's settings: language, notifications, disconnecting",
 				],
 				[
 					"/me/disconnect",
-					"07-disconnect",
+					"08-disconnect",
 					"Disconnecting: deletes all of the rider's data and revokes the app's access",
 				],
 			] as const;
@@ -189,28 +195,28 @@ for (const lang of LANGS) {
 			await shoot(
 				page,
 				lang,
-				"08-organiser-events",
+				"09-organiser-events",
 				"Organisers: the team's events",
 			);
 			await visit(page, await firstLink(page, "/organiser/events/"));
 			await shoot(
 				page,
 				lang,
-				"09-organiser-event",
+				"10-organiser-event",
 				"Organisers: one event and which riders attended (first names)",
 			);
 			await visit(page, "/organiser/riders");
 			await shoot(
 				page,
 				lang,
-				"10-organiser-riders",
+				"11-organiser-riders",
 				"Organisers: the riders by first name, with their points status",
 			);
 			await visit(page, await firstLink(page, "/organiser/riders/", "Tina"));
 			await shoot(
 				page,
 				lang,
-				"11-organiser-rider",
+				"12-organiser-rider",
 				"Organisers: one rider's points and where they come from (first name)",
 			);
 		});
@@ -242,7 +248,7 @@ for (const lang of LANGS) {
 			await page.locator(".b").evaluate((el, text) => {
 				el.textContent = text;
 			}, body);
-			const file = join(lang, "12-notification.png");
+			const file = join(lang, "13-notification.png");
 			await page.locator("body").screenshot({ path: join(OUT, file) });
 			manifest.push({
 				file,

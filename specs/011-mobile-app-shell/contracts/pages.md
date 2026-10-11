@@ -47,14 +47,15 @@ This covers the landing page, the consent gate, notices, the disconnect page,
 `header.top-bar` holds:
 
 - the wordmark `<span class="wordmark">{coin mark}<span class="wordmark-name">Rynke<span>Points</span></span></span>`
-  (feature 012; below 600 px the shell shows only the coin), a fixed
+  (feature 012; below 600 px the shell shows only the coin, shell pages up to
+  839 px too), a fixed
   brand name and not a catalog text;
 - today's language form `<form method="post" action="/lang">`. Its buttons get the
   class `segmented`, and the current one keeps `aria-current="true"`.
 
 There is no `nav.app-nav`.
 
-### Shell pages (`body.shell`, the four sections)
+### Shell pages (`body.shell`, the sections)
 
 `header.top-bar` holds:
 
@@ -74,10 +75,16 @@ content first. Its links are, in this order:
 <a href="/team" aria-current="page"><span class="nav-icon">{svg aria-hidden}</span><span class="nav-label">{nav.team}</span></a>
 <a href="/me">…{nav.you}…</a>
 <a href="/me/rides">…{nav.rides}…</a>
+<a href="/me/badges">…{nav.badges}…</a>  <!-- feature 013 -->
 <a href="/organiser/riders">…{nav.organiser}…</a>  <!-- organisers only, feature 016 -->
-<a href="/me/settings">…{nav.settings}…</a>
+<a href="/me/settings" aria-label="{nav.settings}">…<span class="nav-label nav-label-short">{nav.settings.short}</span><span class="nav-label nav-label-full">{nav.settings}</span></a>
 </nav>
 ```
+
+From 600 px the nav sits in the top bar. Up to 1023 px only the current
+link shows its label there; the others show their icon, their label visually
+hidden. Settings shows `nav.settings.short` below 840 px and `nav.settings`
+from there on.
 
 Exactly one link has `aria-current="page"`. On Rides it is the Rides link, also
 on `/me/rides?page=N`.
@@ -204,6 +211,8 @@ Both catalogs get these keys:
 | `nav.rides` | Rides |
 | `nav.team` | Team |
 | `nav.settings` | Settings |
+| `nav.settings.short` | Settings (de: Einst.; the navigation's label below 840px; the full one is the link's `aria-label`) |
+| `nav.badges` | Badges (de: Abzeichen; feature 013) |
 | `shell.refresh` | Refresh |
 | `team.placeholder.heading` | Team view coming soon |
 | `team.placeholder.body` | Here you'll soon see how the whole team is doing. |

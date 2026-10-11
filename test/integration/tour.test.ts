@@ -67,7 +67,7 @@ describe("the rider tour", () => {
 		await seedReadyRider();
 		const { card, target: at } = await hintOn("/team");
 		expect(card).toContain(t("tour.rider.team"));
-		expect(card).toContain("1 von 4");
+		expect(card).toContain("1 von 5");
 		expect(card).toContain('href="/me?tour=rider"');
 		expect(at).toBe("/team");
 	});
@@ -86,6 +86,7 @@ describe("the rider tour", () => {
 			"/team",
 			"/me",
 			"/me/rides",
+			"/me/badges",
 			"/me/settings",
 		]);
 		for (const [i, step] of TOURS.rider.entries()) {
@@ -107,7 +108,13 @@ describe("the rider tour", () => {
 		expect(response.status).toBe(303);
 		expect(response.headers.get("Location")).toBe("/me");
 		expect((await getRider(env.DB, ATHLETE_A))?.onboardedAt).toBe(NOW);
-		for (const path of ["/team", "/me", "/me/rides", "/me/settings"]) {
+		for (const path of [
+			"/team",
+			"/me",
+			"/me/rides",
+			"/me/badges",
+			"/me/settings",
+		]) {
 			expect((await hintOn(path)).card).toBeNull();
 		}
 	});

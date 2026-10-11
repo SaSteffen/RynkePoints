@@ -292,7 +292,8 @@ R1 to R9 belong to part A, the art pipeline; R10 to R22 to part B, the app (see
   HTML; the gallery is a `<details>` closed by default; each earned badge is a
   `<button popovertarget>` that opens a `popover` with the 280 px badge, its
   name, what it was for and the date; `public/app.js` also opens it on
-  `pointerenter` for mouse pointers and closes it on `pointerleave`. The badge
+  `pointerenter` for mouse pointers, floating beside the mouse and following
+  it, and closes it on `pointerleave`. The badge
   image is `<img loading="lazy" alt="">` (`<id>-ribbon.svg` on cards and in the
   popover, `<id>.svg` in the gallery, the group's placeholder when
   `BADGE_PICTURES` lacks the id); the milestone is an HTML `<span>` placed over

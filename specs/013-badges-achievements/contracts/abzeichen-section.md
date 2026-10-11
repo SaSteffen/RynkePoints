@@ -8,34 +8,30 @@ attributes are the contract.
 
 ## Where
 
-On the Overview (`/me`, "Du") with the rider's own badges only: after the
-Rynke figures, inside the existing `overview-grid`, spanning its full width.
-Not rendered while the waiting state shows (FR-005), nor for a rider without a
-balance.
+Its own section `/me/badges` ("Abzeichen"), between Rides and Orga/Settings
+in the navigation: the rider's own badges, then the team's. While the waiting
+state shows, or for a rider without a balance, the page shows only the waiting
+state, as Rides does (FR-005). The Overview and the Team page have no badges.
 
-On the Team page (`/team`) with the team's badges only: after the
-leaderboard, for every signed-in rider.
-
-The reveal is not inside the section: it sits at the top of the page, on the
-Overview right after feature 012's coin celebration (new own badges), on the
-Team page right after the reconnect notice (new team badges).
+The reveal is not inside the section: it sits at the top of the page, before
+it, with new own badges and new team badges together.
 
 ## Markup
 
 ```html
 <section class="badges" aria-labelledby="badges-heading">
-  <h2 id="badges-heading">Abzeichen</h2>
+  <h2 id="badges-heading" class="visually-hidden">Abzeichen</h2> <!-- the top bar already says it -->
   <p class="badges-intro">Wie weit es noch bis zum nächsten Abzeichen ist – welches es wird, bleibt geheim.</p>
 
-  <!-- one group: personal on the Overview, team on the Team page -->
+  <!-- the personal group first -->
   <section class="badge-group badge-group-personal" aria-labelledby="…">
-    <h3>Meine neuesten Abzeichen</h3>
+    <h3>Meine Abzeichen</h3>
     <ul class="badge-cards">
       <li class="badge-card" data-category="distance">
         <h4>Distanz</h4>                       <!-- the category's name, bold -->
         <p class="badge-about">Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.</p>
         <button class="badge" popovertarget="badge-distance-1000" aria-label="Hamburg–Paris, 1.000 km">
-          <img src="/badges/distance-1000-ribbon.svg" alt="" loading="lazy" width="128" height="128">
+          <img src="/badges/distance-1000-ribbon.svg" alt="" loading="lazy" width="200" height="200">
           <span class="badge-ribbon-text">1.000 km</span>
         </button>
         <div class="badge-progress">          <!-- absent when the category is complete (FR-004) -->
@@ -43,7 +39,15 @@ Team page right after the reconnect notice (new team badges).
           <span class="badge-missing">Noch 1.500 km</span>
         </div>
       </li>
+      <!-- after the cards with a badge, in catalog order: a category without one -->
+      <li class="badge-card badge-card-empty" data-category="running">
+        <h4>Laufen gesamt</h4>
+        <p class="badge-about">Alle Kilometer deiner Läufe in dieser Saison, …</p>  <!-- also on phones -->
+        <span class="badge-slot" aria-hidden="true"></span>                       <!-- dotted outline, card width up to 200 px -->
+        <div class="badge-progress">…<span class="badge-missing">Noch 10 km</span></div>
+      </li>
     </ul>
+    <!-- the gallery only once the group has a badge -->
     <details class="badge-gallery">
       <summary>Alle meine Abzeichen (14)</summary>
       <h4>Distanz</h4>
@@ -57,16 +61,12 @@ Team page right after the reconnect notice (new team badges).
     </details>
   </section>
 
-  <!-- on the Team page instead: -->
+  <!-- then the team group: -->
   <section class="badge-group badge-group-team">…"Team-Abzeichen", "Alle Team-Abzeichen (5)"…</section>
-
-  <section class="badge-not-yet" aria-labelledby="…">
-    <h3>Noch kein Abzeichen</h3>
-    <ul><li class="badge-not-yet-row badge-group-personal"><span class="badge-category">Höhenmeter</span> <span class="badge-about">Alle Höhenmeter deiner Radfahrten …</span> <span class="bar">…</span> Noch 380 m</li></ul>
-  </section>
 
   <!-- one popover per earned badge, outside the cards -->
   <div popover id="badge-distance-1000" class="badge-large">
+    <button type="button" class="icon-button badge-large-close" popovertarget="badge-distance-1000" popovertargetaction="hide" aria-label="Schließen">…</button>
     <span class="badge"><img src="/badges/distance-1000-ribbon.svg" alt="" width="280" height="280"><span class="badge-ribbon-text">1.000 km</span></span>
     <h4>Hamburg–Paris</h4>
     <p>Du bist in dieser Saison 1.000 km Rad gefahren.</p>
@@ -101,14 +101,19 @@ The reveal, at the top of the page (research R16):
   badges in the group. It has every category of the group, also those without
   a badge yet; each lists its earned badges, then one empty `li.badge-slot` per
   badge still to earn, with no id, name, picture or text (issue #109).
-- **Not yet**: one row per category of the page's group without an earned
-  badge, with the group's bar colour.
+- **Not yet**: one `li.badge-card.badge-card-empty` per category of the
+  page's group without an earned badge, after the other cards, with the group's
+  bar colour; the gallery is left out while the group has no badge.
 - **Large view**: a `popover` per earned badge, opened by its buttons (tap,
   click, keyboard); with a mouse also on hover (`public/app.js`). It fits 360 px
-  and, on wider screens, opens beside the badge (FR-002b).
+  (FR-002b). A close button (×) sits in its top right corner, except while
+  hover holds it open (`.badge-large-hover`): then it floats beside the mouse
+  and follows it, and leaving the badge closes it.
 - **Reveal**: present only when badges of the page's group are new for this
   rider, at the top of the page next to the coin celebration; a GET writes
   their `badge_reveals`, a HEAD doesn't (like `rynke_seen`); honours reduced
   motion (feature 012).
-- **Sizes**: 128 px cards, 96 px gallery, 280 px popover (FR-002a/b); two cards
-  per row at 360 px, four at 1100 px; no horizontal scrolling (SC-005).
+- **Sizes**: cards as wide as they allow, up to 200 px; 96 px gallery, 280 px popover (FR-002a/b); two cards
+  per row at every width; below 600 px only cards without a badge keep the
+  category sentence; no
+  horizontal scrolling (SC-005).

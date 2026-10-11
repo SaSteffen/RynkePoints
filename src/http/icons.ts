@@ -22,6 +22,11 @@ export const PEOPLE = icon(
 	'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.6 0 4.5 1.8 4.5 4.5"/>',
 );
 
+/** A medal on its ribbon, for the badges. */
+export const MEDAL = icon(
+	'<path d="M8 3h8l-2.5 6h-3z"/><circle cx="12" cy="15" r="6"/><path d="M12 12.5v5"/>',
+);
+
 export const SLIDERS = icon(
 	'<path d="M4 7h9"/><path d="M17 7h3"/><circle cx="15" cy="7" r="2"/><path d="M4 17h3"/><path d="M11 17h9"/><circle cx="9" cy="17" r="2"/>',
 );

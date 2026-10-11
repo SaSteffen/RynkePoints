@@ -77,7 +77,13 @@ test.describe("a rider", () => {
 		await signIn(page, "Tina TrainingDone");
 	});
 
-	for (const path of ["/team", "/me", "/me/rides", "/me/settings"]) {
+	for (const path of [
+		"/team",
+		"/me",
+		"/me/rides",
+		"/me/badges",
+		"/me/settings",
+	]) {
 		test(`sees ${path}`, async ({ page }) => {
 			await checkPage(page, path);
 		});
@@ -138,9 +144,10 @@ test("a rider walks through the tour, one page each", async ({ page }) => {
 	await page.goto("/team?tour=rider");
 	const tour = page.locator("aside.tour");
 	for (const [path, step] of [
-		["/team", "1 von 4"],
-		["/me", "2 von 4"],
-		["/me/rides", "3 von 4"],
+		["/team", "1 von 5"],
+		["/me", "2 von 5"],
+		["/me/rides", "3 von 5"],
+		["/me/badges", "4 von 5"],
 	] as const) {
 		await expect(tour).toContainText(step);
 		await expect(page.locator(`nav.app-nav a[href="${path}"]`)).toHaveClass(
@@ -149,7 +156,7 @@ test("a rider walks through the tour, one page each", async ({ page }) => {
 		await tour.getByRole("link", { name: "Weiter" }).click();
 	}
 	await expect(page).toHaveURL(/\/me\/settings\?tour=rider$/);
-	await expect(tour).toContainText("4 von 4");
+	await expect(tour).toContainText("5 von 5");
 	await tour.getByRole("button", { name: "Alles klar" }).click();
 	await expect(page).toHaveURL(/\/me\/settings$/);
 	await expect(tour).toHaveCount(0);
@@ -157,29 +164,59 @@ test("a rider walks through the tour, one page each", async ({ page }) => {
 	await expect(tour).toHaveCount(0);
 });
 
-test("a rider opens a badge's large view on a phone (013)", async ({
+test.describe("on a touch screen", () => {
+	// Taps, not a mouse: a mouse opens the large view on hover.
+	test.use({ hasTouch: true });
+
+	test("a rider opens a badge's large view on a phone (013)", async ({
+		page,
+	}) => {
+		await signIn(page, "Bea Badges");
+		await page.setViewportSize(PHONE);
+		await page.goto("/me/badges");
+		const section = page.locator("section.badges");
+		await expect(section).toBeVisible();
+		await expectNoSidewaysScroll(page);
+
+		const gallery = section.locator(
+			".badge-group-personal details.badge-gallery",
+		);
+		await gallery.locator("summary").tap();
+		await expect(gallery).toHaveAttribute("open", "");
+		const badge = gallery.locator("button.badge").first();
+		const large = page.locator(
+			`[id="${await badge.getAttribute("popovertarget")}"]`,
+		);
+		await badge.tap();
+		await expect(large).toBeVisible();
+		await expectNoSidewaysScroll(page);
+		await page.keyboard.press("Escape");
+		await expect(large).toBeHidden();
+		await badge.tap();
+		await large.locator(".badge-large-close").tap();
+		await expect(large).toBeHidden();
+	});
+});
+
+test("a mouse opens a badge's large view beside it on hover, without a close button (013)", async ({
 	page,
 }) => {
 	await signIn(page, "Bea Badges");
-	await page.setViewportSize(PHONE);
-	await page.goto("/me");
-	const section = page.locator("section.badges");
-	await expect(section).toBeVisible();
-	await expectNoSidewaysScroll(page);
-
-	const gallery = section.locator(
-		".badge-group-personal details.badge-gallery",
-	);
-	await gallery.locator("summary").click();
-	await expect(gallery).toHaveAttribute("open", "");
-	const badge = gallery.locator("button.badge").first();
+	await page.goto("/me/badges");
+	const badge = page.locator(".badge-card button.badge").first();
 	const large = page.locator(
 		`[id="${await badge.getAttribute("popovertarget")}"]`,
 	);
-	await badge.click();
+	await badge.hover();
 	await expect(large).toBeVisible();
-	await expectNoSidewaysScroll(page);
-	await page.keyboard.press("Escape");
+	await expect(large.locator(".badge-large-close")).toBeHidden();
+	// Beside the mouse, which rests on the badge's middle.
+	const pointer = await badge.boundingBox();
+	const view = await large.boundingBox();
+	if (!pointer || !view) throw new Error("no box");
+	const x = pointer.x + pointer.width / 2;
+	expect(view.x > x || view.x + view.width < x).toBe(true);
+	await page.mouse.move(0, 0);
 	await expect(large).toBeHidden();
 });
 

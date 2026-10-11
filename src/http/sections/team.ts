@@ -1,14 +1,6 @@
-import { evaluateTeamBadges } from "../../badges/team";
-import { buildBadgeSection } from "../../badges/view";
 import { berlinDate } from "../../config";
 import type { Ctx } from "../../ctx";
-import {
-	listRevealsStatement,
-	revealedOf,
-	upsertRevealsStatement,
-} from "../../db/badges";
-import type { Rider } from "../../db/riders";
-import { readTeam, readTeamBadgeSums } from "../../db/team";
+import { readTeam } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
 import {
 	QUOTES_ON_TRACK,
@@ -29,18 +21,13 @@ import {
 	type Viewer,
 } from "../../rynke/leaderboard";
 import { type RiderStatus, riderStatus } from "../../rynke/pace";
-import {
-	type CountingWindow,
-	CURRENT_RULES,
-	countingWindow,
-} from "../../rynke/rules";
+import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
 import { lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
 import { peloton, sparkline, weekBars } from "../charts";
 import { amount, coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import { renderReconnect } from "../rider-sections";
 import { shellPage } from "../shell";
-import { renderBadgeReveal, renderBadges } from "./badges";
 
 // Team at `/team` (feature 011 FR-013, feature 016 US1–US3): how the team is
 // doing and where the viewer stands among 014's listed riders, in Training or
@@ -49,7 +36,7 @@ import { renderBadgeReveal, renderBadges } from "./badges";
 // carries a name or an athlete ID (FR-010).
 // Organisers also get the way to the team overview and their pages (FR-002).
 // It's where the app opens, so a rider who must reconnect learns it here too
-// (issue #73). The team's badges close the page (feature 013 US4).
+// (issue #73).
 
 /** Places 1–3, by place, so a shared 2nd gives two 🥈 (research R6). */
 export const MEDALS = ["🥇", "🥈", "🥉"];
@@ -292,38 +279,6 @@ ${hidden("team.list.behind", shown.hiddenBehind)}</section>
 `;
 }
 
-/**
- * The team's badges, worked out from the listed riders' sums on every request
- * (feature 013 research R15), with the ones new for the rider: only those
- * earned since they connected, and only a GET marks them as revealed
- * (FR-032, research R16).
- */
-async function teamBadgesOf(
-	request: Request,
-	ctx: Ctx,
-	rider: Rider,
-	window: CountingWindow,
-) {
-	const db = ctx.env.DB;
-	const [sums, reveals] = await Promise.all([
-		readTeamBadgeSums(db),
-		listRevealsStatement(db, rider.athleteId).all<{
-			badge_id: string;
-			earned_on: string;
-		}>(),
-	]);
-	const section = buildBadgeSection({
-		waiting: false,
-		team: evaluateTeamBadges(sums, CURRENT_RULES, window),
-		revealed: revealedOf(reveals.results),
-		connectedOn: berlinDate(rider.connectedAt),
-	});
-	if (section && section.reveal.length > 0 && request.method === "GET") {
-		await upsertRevealsStatement(db, rider.athleteId, section.reveal).run();
-	}
-	return section;
-}
-
 export function handleTeam(
 	request: Request,
 	ctx: Ctx,
@@ -341,10 +296,7 @@ export function handleTeam(
 		teamHref(kind, all),
 		async ({ rider }) => {
 			const window = countingWindow(ctx.env);
-			const [team, badges] = await Promise.all([
-				readTeam(ctx.env.DB),
-				teamBadgesOf(request, ctx, rider, window),
-			]);
+			const team = await readTeam(ctx.env.DB);
 			const today = berlinDate(ctx.now());
 			const ends = weekEnds(
 				window.seasonStart,
@@ -367,7 +319,7 @@ export function handleTeam(
 				riders.map((listed) => listed.weeks),
 				kind,
 			);
-			return html`${renderReconnect(i18n, rider)}${badges ? renderBadgeReveal(i18n, badges.reveal) : null}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
+			return html`${renderReconnect(i18n, rider)}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
 				viewer ? renderPlace(i18n, viewer) : null
 			}${viewer ? renderQuote(i18n, status, today) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${renderLeaderboard(
 				i18n,
@@ -375,7 +327,7 @@ export function handleTeam(
 				all,
 				neighbourhood(rows, all),
 				rows.length,
-			)}${badges ? renderBadges(i18n, badges) : null}`;
+			)}`;
 		},
 	);
 }

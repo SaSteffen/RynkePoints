@@ -229,19 +229,48 @@ describe("STYLE", () => {
 		);
 	});
 
-	it("lays the badge cards out two per row and four from 840 px (013 FR-002a, the drafts)", () => {
+	it("lays the badge cards out two per row at every width (013 FR-002a)", () => {
 		expect(declsOf(".badge-cards")["grid-template-columns"]).toBe(
 			"repeat(2,minmax(0,1fr))",
 		);
 		expect(
-			declsOf(".badge-cards", "(min-width:840px)")["grid-template-columns"],
-		).toBe("repeat(4,minmax(0,1fr))");
-		expect(declsOf(".badge-card .badge").width).toBe("128px");
+			RULES.filter(
+				(rule) =>
+					rule.media !== null && rule.selectors.includes(".badge-cards"),
+			),
+		).toEqual([]);
+		// Name, sentence, badge and bar line up across a row.
+		expect(declsOf(".badge-card")["grid-template-rows"]).toBe("subgrid");
+		expect(
+			declsOf(
+				".badge-card:not(.badge-card-empty) .badge-about",
+				"(max-width:599.98px)",
+			).display,
+		).toBe("none");
+		// As wide as the card allows, up to 200 px.
+		expect(declsOf(".badge-card .badge")).toMatchObject({
+			width: "100%",
+			"max-width": "200px",
+		});
+		// A category without a badge: a dotted outline in the badge's place.
+		expect(declsOf(".badge-card .badge-slot")).toMatchObject({
+			width: "100%",
+			"max-width": "200px",
+		});
 		expect(declsOf(".badge-gallery .badge").width).toBe("96px");
 		expect(declsOf(".badge-large .badge")).toMatchObject({
 			width: "280px",
 			"max-width": "100%",
 		});
+		// Hover holds the large view open beside the mouse, letting the
+		// pointer through; leaving closes it, so no close button.
+		expect(declsOf(".badge-large-hover")).toMatchObject({
+			inset: "auto",
+			"pointer-events": "none",
+		});
+		expect(declsOf(".badge-large-hover .badge-large-close").display).toBe(
+			"none",
+		);
 	});
 
 	it("puts the milestone on the ribbon's box, yellow on personal and ink on team (013 FR-040b)", () => {

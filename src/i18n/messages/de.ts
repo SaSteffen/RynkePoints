@@ -262,6 +262,8 @@ export const de = {
 	"tour.rider.you": "Du: deine Rynke und was dir noch zur Qualifikation fehlt.",
 	"tour.rider.rides":
 		"Fahrten: jede Fahrt, was sie gebracht hat, und warum, wenn sie nicht zählt.",
+	"tour.rider.badges":
+		"Abzeichen: deine und die des Teams, und wie weit es bis zum nächsten ist.",
 	"tour.rider.settings":
 		"Einstellungen: Sprache, Benachrichtigungen, deine Strava-Verbindung, die Regeln und dieser Rundgang.",
 	"tour.organiser.intro":
@@ -298,8 +300,10 @@ export const de = {
 	"nav.you": "Du",
 	"nav.rides": "Fahrten",
 	"nav.team": "Team",
+	"nav.badges": "Abzeichen",
 	"nav.organiser": "Orga",
 	"nav.settings": "Einstellungen",
+	"nav.settings.short": "Einst.",
 	"shell.refresh": "Aktualisieren",
 	"shell.title": "{section} – RynkePoints",
 	"hero.training": "{n} Trainingsrynke",
@@ -502,14 +506,14 @@ export const de = {
 	"badges.heading": "Abzeichen",
 	"badges.intro":
 		"Wie weit es noch bis zum nächsten Abzeichen ist – welches es wird, bleibt geheim.",
-	"badges.personal.newest": "Meine neuesten Abzeichen",
+	"badges.personal.newest": "Meine Abzeichen",
 	"badges.personal.all": "Alle meine Abzeichen ({n})",
 	"badges.team.newest": "Team-Abzeichen",
 	"badges.team.all": "Alle Team-Abzeichen ({n})",
-	"badges.notYet": "Noch kein Abzeichen",
 	"badges.empty": "Noch kein Abzeichen – deine erste Fahrt bringt dich näher.",
 	"badges.missing": "Noch {value}",
 	"badges.earnedOn": "erreicht am {date}",
+	"badges.close": "Schließen",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "Neues Abzeichen: {name}",
 	"badges.reveal.many": "{n} neue Abzeichen",
@@ -537,7 +541,7 @@ export const de = {
 	"badges.about.training_rynke":
 		"Alle Trainings-Rynke, die du in dieser Saison gesammelt hast.",
 	"badges.about.run_length":
-		"Dein längster Lauf dieser Saison am Stück, draußen; Laufband und virtuelle Läufe zählen nicht.",
+		"Dein längster Lauf dieser Saison am Stück, ohne Laufband und virtuelle Läufe.",
 	"badges.about.running":
 		"Alle Kilometer deiner Läufe in dieser Saison, ohne Laufband und virtuelle Läufe.",
 	"badges.about.team_training_rynke":
@@ -551,7 +555,7 @@ export const de = {
 	"badges.about.big_training":
 		"Die meisten Rider, die in dieser Saison bei einem einzigen Teamtermin dabei waren.",
 	"badges.about.attendances":
-		"Wie oft Rider in dieser Saison bei Teamterminen dabei waren, über alle Termine: 12 beim Training und 18 am Trainingswochenende machen 30.",
+		"Alle Teilnahmen der Rider an Teamterminen dieser Saison zusammengezählt.",
 	"badges.for.distance": "Du bist in dieser Saison {value} Rad gefahren.",
 	"badges.for.elevation":
 		"Du bist in dieser Saison mit dem Rad {value} bergauf gefahren.",

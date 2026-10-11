@@ -79,8 +79,8 @@ next one."
   a badge as slim progress bars. The pictures are fun, so all of them stay one
   tap away.
 - Q (raised by the project owner): What is the section called? → A: "Abzeichen"
-  in German ("Meine neuesten Abzeichen", "Alle meine Abzeichen", "Team-Abzeichen",
-  "Alle Team-Abzeichen", "Noch kein Abzeichen"); the progress line reads "Noch
+  in German ("Meine Abzeichen", "Alle meine Abzeichen", "Team-Abzeichen",
+  "Alle Team-Abzeichen"); the progress line reads "Noch
   1.500 km", and one line under the heading explains the surprise once.
 - Q (raised by the project owner): Which colour do the progress bars have? → A:
   Personal categories yellow, team categories the team blue of their frame.
@@ -97,7 +97,7 @@ next one."
 
 A rider opens their own page and finds the "Abzeichen" section
 ([mobile](drafts/abzeichen-mobile.png), [desktop](drafts/abzeichen-desktop.png)).
-"Meine neuesten Abzeichen" shows one card per category with its newest badge,
+"Meine Abzeichen" shows one card per category with its newest badge,
 the milestone on the badge's ribbon and a progress bar towards the next badge
 ("Noch 1.500 km"), without naming that badge or showing its picture. Below, a
 collapsible gallery holds every badge they have earned, to look at again; any
@@ -122,8 +122,8 @@ badges, a few badges and every badge of a category.
    their page, **Then** that category's card shows no progress bar and no hint that
    it was the last.
 4. **Given** a rider with no badge yet, **When** they open their page, **Then** the
-   section shows an encouraging empty state and every category under "Noch kein
-   Abzeichen" with its progress.
+   section shows an encouraging empty state and every category as a card with a
+   dotted outline and its progress.
 5. **Given** a rider still in feature 015's waiting state, **When** they open their
    page, **Then** no Abzeichen section is shown until their first data arrives.
 6. **Given** a rider with the 100 and 500 km distance badges, **When** they open
@@ -278,12 +278,14 @@ their badge names examples.
   Abzeichen tab. One line under the heading explains the surprise once ("Wie weit
   es noch bis zum nächsten Abzeichen ist – welches es wird, bleibt geheim.").
 - **FR-002**: The section MUST show the rider's own badges first, then the team's,
-  each group in three parts:
-  - **newest**: one card per category with an earned badge ("Meine neuesten
-    Abzeichen", "Team-Abzeichen"): category name, the category's highest earned
-    badge with its ribbon (FR-040b), and the progress towards the next badge
-    (FR-003). Cards are ordered by the date that badge was earned, newest first;
-    two per row on a phone, more on wider screens (four at 1100 px).
+  each group in two parts:
+  - **cards**: one card per category of the group ("Meine Abzeichen",
+    "Team-Abzeichen"): category name, the sentence on how it counts, the
+    category's highest earned badge with its ribbon (FR-040b), and the progress
+    towards the next badge (FR-003). Cards are ordered by the date that badge
+    was earned, newest first. After them, a card for each category without a
+    badge yet, in catalog order: name, sentence, an empty dotted outline in the
+    badge's place and the progress bar.
   - **all**: a collapsible gallery of every earned badge of the group ("Alle
     meine Abzeichen (14)", "Alle Team-Abzeichen (5)", with the count), closed by
     default, grouped by category, newest first within a category, with the
@@ -291,17 +293,19 @@ their badge names examples.
     category of the group is in it, also one without a badge yet: after a
     category's earned badges, each badge of that category still to earn is an
     empty dotted outline of the same size, without name, picture or text
-    (issue #109).
-  - **not yet**: every category without an earned badge as one slim progress bar
-    with its name and what is missing, under "Noch kein Abzeichen" (one list for
-    both groups, after the team badges).
-- **FR-002a**: Badge sizes: 128 px on a card, with its ribbon; 96 px in the
-  gallery, without a ribbon.
+    (issue #109). Absent while the group has no badge.
+- **FR-002a**: Badge sizes: on a card as wide as the card allows, up to
+  200 px, with its ribbon; 96 px in the
+  gallery, without a ribbon. The cards stand two per row at every width;
+  below 600 px a card with a badge leaves out the sentence on how its category
+  counts; a card without one keeps it.
 - **FR-002b**: Pointing at an earned badge, on a card or in the gallery, MUST
   show it at 280 px with its ribbon, name, what it was for and the date earned:
   on hover with a mouse, on keyboard focus, and on tap on a touch screen
-  (another tap or tapping elsewhere closes it). It MUST stay within the screen
-  at 360 px width and not cover the badge pointed at on wider screens.
+  (another tap, tapping elsewhere or its close button in the top right corner
+  closes it; opened by hover it floats beside the mouse, follows it, closes
+  when the mouse leaves the badge and shows no close button). It MUST stay
+  within the screen at 360 px width.
 - **FR-002c**: Progress bars MUST be yellow for personal categories and the team
   blue of the team frame for team categories.
 - **FR-003**: For each category not yet complete, the group

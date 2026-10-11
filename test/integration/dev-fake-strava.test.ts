@@ -120,11 +120,11 @@ async function count(sql: string, ...params: unknown[]): Promise<number> {
 	);
 }
 
-/** The Overview and Rides, which split the old `/me` (feature 011). */
+/** The Overview, Rides and the badges, which split the old `/me` (feature 011). */
 async function mePage(athleteId: number): Promise<string> {
 	const cookies = await sessionCookie(ctx, athleteId);
 	let page = "";
-	for (const path of ["/me", "/me/rides"]) {
+	for (const path of ["/me", "/me/rides", "/me/badges"]) {
 		const res = await get(path, cookies);
 		expect(res.status).toBe(200);
 		page += await res.text();
@@ -305,7 +305,7 @@ describe("every badge at /_dev/badges (013)", () => {
 		for (const badge of BADGES) {
 			expect(page, badge.id).toContain(`<div popover id="badge-${badge.id}"`);
 		}
-		expect(page).not.toContain('class="badge-not-yet"');
+		expect(page).not.toContain('<li class="badge-card badge-card-empty"');
 	});
 });
 
@@ -505,9 +505,10 @@ describe("sample riders in every state (US2)", () => {
 		const page = await mePage(990012);
 		expect(page).toContain('<section class="badges"');
 		expect(page).toContain('data-category="technique"');
-		expect(await mePage(990002)).not.toContain(
-			'class="badge-group badge-group-personal"',
-		);
+		const personal = (await mePage(990002)).match(
+			/<section class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
+		)?.[0];
+		expect(personal).not.toContain('<li class="badge-card" ');
 	});
 
 	it("shows Nick NearlyThere just short and Carla Complete done (013)", async () => {
@@ -539,7 +540,7 @@ describe("sample riders in every state (US2)", () => {
 			)?.[0] ?? "";
 		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(5);
 		expect(
-			carla.match(/class="badge-not-yet-row badge-group-personal"/g),
+			personal.match(/<li class="badge-card badge-card-empty"/g),
 		).toHaveLength(2);
 	});
 
@@ -565,7 +566,7 @@ describe("sample riders in every state (US2)", () => {
 	it("shows every sample rider the team's badges and progress (013 US4)", async () => {
 		await seeded();
 		for (const athleteId of [990002, 990012]) {
-			const res = await get("/team", await sessionCookie(ctx, athleteId));
+			const res = await get("/me/badges", await sessionCookie(ctx, athleteId));
 			expect(res.status).toBe(200);
 			const page = await res.text();
 			expect(page).toContain('<section class="badge-group badge-group-team"');

@@ -244,6 +244,8 @@ export const en: Catalog = {
 	"tour.rider.you": "You: your Rynke and what you still need to qualify.",
 	"tour.rider.rides":
 		"Rides: every ride, what it earned, and why when it didn't count.",
+	"tour.rider.badges":
+		"Badges: yours and the team's, and how far it is to the next one.",
 	"tour.rider.settings":
 		"Settings: language, notifications, your Strava connection, the rules, and this tour again.",
 	"tour.organiser.intro":
@@ -278,8 +280,10 @@ export const en: Catalog = {
 	"nav.you": "You",
 	"nav.rides": "Rides",
 	"nav.team": "Team",
+	"nav.badges": "Badges",
 	"nav.organiser": "Orga",
 	"nav.settings": "Settings",
+	"nav.settings.short": "Settings",
 	"shell.refresh": "Refresh",
 	"shell.title": "{section} – RynkePoints",
 	"hero.training": "{n} Training Rynke",
@@ -479,14 +483,14 @@ export const en: Catalog = {
 	"badges.heading": "Badges",
 	"badges.intro":
 		"How far it is to your next badge – which one it will be stays a secret.",
-	"badges.personal.newest": "My newest badges",
+	"badges.personal.newest": "My badges",
 	"badges.personal.all": "All my badges ({n})",
 	"badges.team.newest": "Team badges",
 	"badges.team.all": "All team badges ({n})",
-	"badges.notYet": "No badge yet",
 	"badges.empty": "No badge yet – your first ride brings you closer.",
 	"badges.missing": "{value} to go",
 	"badges.earnedOn": "earned on {date}",
+	"badges.close": "Close",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "New badge: {name}",
 	"badges.reveal.many": "{n} new badges",
@@ -514,7 +518,7 @@ export const en: Catalog = {
 	"badges.about.training_rynke":
 		"All the Training Rynke you collected this season.",
 	"badges.about.run_length":
-		"Your longest single run this season, outdoors; treadmill and virtual runs don't count.",
+		"Your longest single run this season, without treadmill and virtual runs.",
 	"badges.about.running":
 		"All the kilometres of your runs this season, without treadmill and virtual runs.",
 	"badges.about.team_training_rynke":
@@ -528,7 +532,7 @@ export const en: Catalog = {
 	"badges.about.big_training":
 		"The most riders at a single team event this season.",
 	"badges.about.attendances":
-		"How often riders came to team events this season, over all events: 12 at a training and 18 on a training weekend make 30.",
+		"All riders' attendances at team events this season, added up.",
 	"badges.for.distance": "You rode {value} by bike this season.",
 	"badges.for.elevation": "You climbed {value} by bike this season.",
 	"badges.for.team_events": "You joined {value} this season.",

@@ -10,9 +10,9 @@ import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
 import { riderPage, seedBalance, seedRides } from "../support/rider-view";
 import { attendRaw, insertEvent } from "../support/rynke";
 
-// The Abzeichen section on the Overview and the Team page (feature 013 US1,
-// US4, contracts/abzeichen-section.md "Rules the tests check"). Synthetic
-// badges.
+// The Abzeichen section on its own page, the rider's badges and the team's
+// (feature 013 US1, US4, contracts/abzeichen-section.md "Rules the tests
+// check"). Synthetic badges.
 
 const ctx = makeCtx();
 const { de } = CATALOGS;
@@ -37,7 +37,7 @@ async function earn(athleteId: number, badges: [string, string][]) {
 async function section(
 	athleteId = ATHLETE_A,
 	acceptLanguage?: string,
-	path = "/me",
+	path = "/me/badges",
 ) {
 	const { status, html } = await riderPage(
 		ctx,
@@ -55,7 +55,11 @@ async function section(
 	};
 }
 
-const teamSection = () => section(ATHLETE_A, undefined, "/team");
+/** The rider's own group; the team's follows it on the same page. */
+const personalGroup = (badges: string | null) =>
+	badges?.match(
+		/<section class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
+	)?.[0] ?? "";
 
 const EARNED: [string, string][] = [
 	["distance-100", "2026-03-08"],
@@ -77,14 +81,11 @@ describe("the Abzeichen section", () => {
 		await earn(ATHLETE_A, EARNED);
 	});
 
-	it("follows the Rynke figures with heading and intro", async () => {
-		const { html, section: badges } = await section();
+	it("has the heading and the intro", async () => {
+		const { section: badges } = await section();
 		expect(badges).not.toBeNull();
-		expect(html.indexOf('<section class="badges"')).toBeGreaterThan(
-			html.indexOf('class="hero"'),
-		);
 		expect(badges).toContain(
-			`<h2 id="badges-heading">${de["badges.heading"]}</h2>`,
+			`<h2 id="badges-heading" class="visually-hidden">${de["badges.heading"]}</h2>`,
 		);
 		expect(badges).toContain(escapeHtml(de["badges.intro"]));
 	});
@@ -160,13 +161,15 @@ describe("the Abzeichen section", () => {
 		);
 	});
 
-	it("lists the categories without a badge with their bar", async () => {
+	it("shows the categories without a badge as dotted cards after the others, with their bar", async () => {
 		const { section: badges } = await section();
-		const rows = [
-			...(badges ?? "").matchAll(
-				/<li class="badge-not-yet-row badge-group-personal" data-category="(\w+)">/g,
+		const cards = [
+			...personalGroup(badges).matchAll(
+				/<li class="badge-card( badge-card-empty)?" data-category="(\w+)">/g,
 			),
-		].map((m) => m[1]);
+		];
+		expect(cards.findIndex((m) => m[1])).toBe(2);
+		const rows = cards.filter((m) => m[1]).map((m) => m[2]);
 		expect(rows).toEqual([
 			"team_events",
 			"technique",
@@ -176,6 +179,9 @@ describe("the Abzeichen section", () => {
 		]);
 		expect(badges).toContain(
 			escapeHtml(de["badges.missing"].replace("{value}", "1\u00a0Termin")),
+		);
+		expect(badges).toContain(
+			'<span class="badge-slot" aria-hidden="true"></span>',
 		);
 	});
 
@@ -188,9 +194,9 @@ describe("the Abzeichen section", () => {
 			`<h4>${escapeHtml(de["badges.category.distance"])}</h4>\n<p class="badge-about">${about("distance")}</p>`,
 		);
 		expect(badges?.split(about("distance")).length).toBe(3);
-		// In the not-yet row.
+		// On the card of a category without a badge.
 		expect(badges).toContain(
-			`<span class="badge-category">${escapeHtml(de["badges.category.running"])}</span><span class="badge-about">${about("running")}</span>`,
+			`<h4>${escapeHtml(de["badges.category.running"])}</h4>\n<p class="badge-about">${about("running")}</p>`,
 		);
 	});
 
@@ -244,11 +250,11 @@ describe("the Abzeichen section without badges", () => {
 		await seedBalance(ATHLETE_A);
 		const { section: badges } = await section();
 		expect(badges).toContain(escapeHtml(de["badges.empty"]));
-		expect(badges).not.toContain('class="badge-cards"');
 		expect(badges).not.toContain("<details");
+		expect(badges).not.toContain("popovertarget");
 		expect([
-			...(badges ?? "").matchAll(
-				/class="badge-not-yet-row badge-group-personal"/g,
+			...personalGroup(badges).matchAll(
+				/<li class="badge-card badge-card-empty"/g,
 			),
 		]).toHaveLength(7);
 	});
@@ -257,6 +263,7 @@ describe("the Abzeichen section without badges", () => {
 		const { html, section: badges } = await section();
 		expect(badges).toBeNull();
 		expect(html).not.toContain('class="badges"');
+		expect(html).toContain('class="waiting');
 	});
 });
 
@@ -278,8 +285,8 @@ describe("the team's badges (US4)", () => {
 			/<section class="badge-group badge-group-team"[\s\S]*?<\/section>/,
 		)?.[0] ?? "";
 
-	it("shows them on the Team page after the leaderboard, with their own heading and count", async () => {
-		const { html, section: badges } = await teamSection();
+	it("shows them after the rider's own, with their own heading and count", async () => {
+		const { section: badges } = await section();
 		const team = teamGroup(badges);
 		expect(team).toContain(
 			`<h3 id="badges-team-heading">${de["badges.team.newest"]}</h3>`,
@@ -288,8 +295,11 @@ describe("the team's badges (US4)", () => {
 			`<summary>${de["badges.team.all"].replace("{n}", "1")}</summary>`,
 		);
 		expect(team).toContain('popovertarget="badge-big-training-5"');
-		expect(html.indexOf('class="badges"')).toBeGreaterThan(
-			html.indexOf('class="leaderboard card"'),
+		expect(badges?.indexOf("badge-group-team")).toBeGreaterThan(
+			badges?.indexOf("badge-group-personal") ?? -1,
+		);
+		expect(badges).toContain(
+			`<summary>${de["badges.personal.all"].replace("{n}", "3")}</summary>`,
 		);
 		if (!BADGE_PICTURES.has("big-training-5")) {
 			expect(team).toContain('src="/badges/placeholder-team-ribbon.svg"');
@@ -299,42 +309,34 @@ describe("the team's badges (US4)", () => {
 		);
 	});
 
-	it("keeps the rider's own badges off the Team page", async () => {
-		const { section: badges } = await teamSection();
-		expect(badges).not.toContain("badge-group-personal");
-		expect(badges).not.toContain("distance-");
-		expect(badges).not.toContain('class="badges-empty"');
-	});
-
-	it("keeps team badges off the Overview (FR-014)", async () => {
-		const { section: badges } = await section();
-		expect(badges).not.toContain("badge-group-team");
-		expect(badges).not.toContain("big-training");
-		expect(badges).toContain(
-			`<summary>${de["badges.personal.all"].replace("{n}", "3")}</summary>`,
-		);
+	it("keeps all badges off the Overview and the Team page", async () => {
+		for (const path of ["/me", "/team"]) {
+			const { html } = await section(ATHLETE_A, undefined, path);
+			expect(html, path).not.toContain('class="badges"');
+			expect(html, path).not.toContain("popovertarget");
+		}
 	});
 
 	it("names no rider (FR-032)", async () => {
-		const { section: badges } = await teamSection();
+		const { section: badges } = await section();
 		for (const athleteId of TEAM) {
 			expect(badges).not.toContain(`Teamrider${athleteId}`);
 		}
 	});
 
-	it("lists only the team categories without a badge", async () => {
-		const { section: badges } = await teamSection();
+	it("shows only the team categories without a badge, in the team group", async () => {
+		const { section: badges } = await section();
 		const rows = [
-			...(badges ?? "").matchAll(
-				/<li class="badge-not-yet-row badge-group-(\w+)" data-category="(\w+)">/g,
+			...teamGroup(badges).matchAll(
+				/<li class="badge-card badge-card-empty" data-category="(\w+)">/g,
 			),
-		].map((m) => `${m[1]}:${m[2]}`);
+		].map((m) => m[1]);
 		expect(rows).toEqual([
-			"team:team_training_rynke",
-			"team:team_distance",
-			"team:team_elevation",
-			"team:team_running",
-			"team:attendances",
+			"team_training_rynke",
+			"team_distance",
+			"team_elevation",
+			"team_running",
+			"attendances",
 		]);
 	});
 
@@ -342,7 +344,7 @@ describe("the team's badges (US4)", () => {
 		await env.DB.prepare("DELETE FROM consent_records WHERE athlete_id = ?")
 			.bind(TEAM[0])
 			.run();
-		const { section: badges } = await teamSection();
+		const { section: badges } = await section();
 		expect(badges).not.toContain("big-training-5");
 	});
 });

@@ -29,6 +29,7 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 		{ path: "/team", section: "team", text: "tour.rider.team" },
 		{ path: "/me", section: "you", text: "tour.rider.you" },
 		{ path: "/me/rides", section: "rides", text: "tour.rider.rides" },
+		{ path: "/me/badges", section: "badges", text: "tour.rider.badges" },
 		{ path: "/me/settings", section: "settings", text: "tour.rider.settings" },
 	],
 	organiser: [
