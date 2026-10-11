@@ -29,10 +29,12 @@ the implementation together with the project owner.
 | `badges.empty` | Noch kein Abzeichen – deine erste Fahrt bringt dich näher. (encouraging empty state, US1 scenario 4) |
 | `badges.missing` | Noch {value} |
 | `badges.earnedOn` | erreicht am {date} |
+| `badges.label` | {name}, {value} (a badge button's accessible name) |
 | `badges.reveal.one` / `badges.reveal.many` | Neues Abzeichen: {name} / {n} neue Abzeichen |
 | `badges.category.<id>` | Distanz, Höhenmeter, Teamtermine, Techniktraining, Trainings-Rynke, Längster Lauf, Laufen gesamt, Trainings-Rynke gemeinsam, Kilometer gemeinsam, Höhenmeter gemeinsam, Laufen gemeinsam, Große Ausfahrt, Teilnahmen |
 | `badges.for.<category>` | what the badge was for, with `{value}`: "{value} mit dem Rad gefahren", "{value} am Stück gelaufen", "{value} als Team gesammelt", … |
-| `badges.value.<unit>` | the milestone in its unit: "{n} km", "{n} m", "{n} Rynke", "{n} Termine", "{n} Trainings", "{n} Fahrer", "{n} Teilnahmen" |
+| `badges.value.<unit>` | the milestone in its unit: "{n} km", "{n} m", "{n} Rynke", "{n} Termine", "{n} Trainings", "{n} Rider", "{n} Teilnahmen" |
+| `badges.value.<unit>.one` | the singular for "Noch 1 …": events, trainings, riders, attendances ("{n} Termin", "{n} Training", "{n} Rider", "{n} Teilnahme") |
 | `badges.value.half`, `badges.value.marathon` | Halbmarathon, Marathon (run length's top badges) |
 | `notification.badge` | Neues Abzeichen: {name} 🏅 |
 | `notification.badges` | {n} neue Abzeichen 🏅 |

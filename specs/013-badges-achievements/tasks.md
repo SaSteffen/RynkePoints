@@ -245,14 +245,14 @@ fail before the task that makes it pass.
 
 **Purpose**: the schema every story writes to.
 
-- [ ] T024 Tests first: in `test/integration/schema-minimisation.test.ts` allow
+- [X] T024 Tests first: in `test/integration/schema-minimisation.test.ts` allow
   exactly the `runs` columns of data-model.md (`strava_activity_id`,
   `athlete_id`, `start_date`, `start_date_local`, `distance_m`, `is_private`,
   `refreshed_at`) and fail on any other; in `test/integration/db.test.ts`
   check that deleting a rider removes their `runs`, `rider_badges`,
   `badge_reveals` and `badge_rises` rows, and that an existing rider gets
   `badges_version` 0.
-- [ ] T025 Write `migrations/0012_badges.sql`, adding only (the previous release
+- [X] T025 Write `migrations/0012_badges.sql`, adding only (the previous release
   never reads it):
   `runs` (`strava_activity_id INTEGER PRIMARY KEY`, `athlete_id INTEGER NOT
   NULL REFERENCES riders ON DELETE CASCADE`, `start_date TEXT NOT NULL`,
@@ -272,34 +272,34 @@ fail before the task that makes it pass.
 
 **Purpose**: the catalog, the names and the text every story shows.
 
-- [ ] T026 [P] Tests first: new `test/unit/badge-catalog.test.ts`: 13
+- [X] T026 [P] Tests first: new `test/unit/badge-catalog.test.ts`: 13
   categories (7 personal, 6 team) with the spec's ladders (Assumptions table),
   each strictly increasing; units as data-model.md "Catalog"; 69 badges with ids
   `<category with dashes>-<threshold>`, except `run-length-half` (21.0975 km)
   and `run-length-marathon` (42.195 km); `BADGE_CATALOG_VERSION` an integer ≥ 1.
   Folds in T019 (research R9, R18): importing `art/badges/badges.json`, both
   list the same ids, groups, categories and thresholds.
-- [ ] T027 Implement `src/badges/catalog.ts`: `BadgeCategory` (`id`, `group`
+- [X] T027 Implement `src/badges/catalog.ts`: `BadgeCategory` (`id`, `group`
   `"personal" | "team"`, `unit` `"km" | "m" | "rynke" | "events" | "trainings" |
   "riders" | "attendances"`, `ladder`), `BADGE_CATEGORIES` in the spec's order,
   `BADGES` derived from them in catalog order, `type BadgeId`, `badgeById`,
   `BADGE_CATALOG_VERSION = 1`. No import from `scripts/` or `art/` (the test
   imports the JSON, the app doesn't). T026 passes.
-- [ ] T028 [P] Tests first: new `test/unit/badge-names.test.ts`: `BADGE_NAMES`
+- [X] T028 [P] Tests first: new `test/unit/badge-names.test.ts`: `BADGE_NAMES`
   has exactly the catalog's ids, no empty name, no name twice; in
   `test/integration/no-hardcoded-copy.test.ts` treat
   `src/i18n/messages/badges.de.ts` like `quotes.de.ts` (German in every
   language, not catalog text).
-- [ ] T029 Write `src/i18n/messages/badges.de.ts` (`BADGE_NAMES:
+- [X] T029 Write `src/i18n/messages/badges.de.ts` (`BADGE_NAMES:
   Record<BadgeId, string>`, research R20): one German name per badge. Draft
   them dry and specific, gender-neutral wording first; the project owner
   confirms the list before the PR is merged (contracts/badge-messages.md).
   T028 passes.
-- [ ] T030 [P] Add the keys of contracts/badge-messages.md "Catalog keys"
+- [X] T030 [P] Add the keys of contracts/badge-messages.md "Catalog keys"
   (`badges.*`, `notification.badge`, `notification.badges`) to
   `src/i18n/messages/de.ts` and `en.ts`, German as in the contract, English
   mirroring it; `test/unit/catalogs.test.ts` keeps both locales' keys equal.
-- [ ] T031 [P] Tests first: new `test/unit/badge-ribbon.test.ts`: the box
+- [X] T031 [P] Tests first: new `test/unit/badge-ribbon.test.ts`: the box
   exported by `src/badges/ribbon.ts` equals `RIBBON.box` of
   `scripts/badge-frame.mjs` and its text colours equal `RIBBON.text` (research
   R19). Then implement `src/badges/ribbon.ts` (box in badge units, plus the
@@ -318,14 +318,14 @@ FR-005, FR-010 without runs, FR-013, FR-030, FR-040 to FR-042).
 **Independent test**: quickstart.md §7 for sample riders with no badges, a few
 badges and a full category.
 
-- [ ] T032 [US1] Tests first in `test/unit/weeks.test.ts`: a new `riderDays`
+- [X] T032 [US1] Tests first in `test/unit/weeks.test.ts`: a new `riderDays`
   gives a rider's Training Rynke after each day that has an input (ride,
   attendance, correction), with the season elevation total floored once
   (003 FR-004a) as `riderWeeks` does; the existing `riderWeeks` tests keep
   passing.
-- [ ] T033 [US1] Implement `riderDays` in `src/rynke/weeks.ts`, sharing the
+- [X] T033 [US1] Implement `riderDays` in `src/rynke/weeks.ts`, sharing the
   per-date tally with `riderWeeks` (one helper, research R14). T032 passes.
-- [ ] T034 [P] [US1] Tests first: new `test/unit/badge-evaluate.test.ts` for
+- [X] T034 [P] [US1] Tests first: new `test/unit/badge-evaluate.test.ts` for
   `evaluateBadges(inputs, rules, window)` → `{ earned: EarnedBadge[], progress:
   CategoryProgress[] }` (data-model.md "Evaluation"), personal categories
   without runs: distance and elevation from counting rides only, by local start
@@ -336,30 +336,30 @@ badges and a full category.
   earned: `next` none), two thresholds crossed by one ride share its date, a
   correction's date dates a Training Rynke badge, a ride that stops counting
   drops the badge. Same inputs, same output.
-- [ ] T035 [US1] Implement `src/badges/evaluate.ts` (pure, no D1) until T034
+- [X] T035 [US1] Implement `src/badges/evaluate.ts` (pure, no D1) until T034
   passes.
-- [ ] T036 [US1] Tests first: new `test/integration/badges-apply.test.ts`:
+- [X] T036 [US1] Tests first: new `test/integration/badges-apply.test.ts`:
   `applyAndEvaluate` stores the rider's personal badges in `rider_badges` in the
   same batch as the Rynke; evaluating again writes no badge row (SC-002, US2
   scenario 1); a deleted ride takes its badge back; `applyTeamEventChange` and
   `applyCorrectionChange` award and take back too; `riders.badges_version` is set
   to `BADGE_CATALOG_VERSION`.
-- [ ] T037 [US1] Implement: new `src/db/badges.ts` (read the riders' badges and
+- [X] T037 [US1] Implement: new `src/db/badges.ts` (read the riders' badges and
   `badges_version`, upsert and delete `rider_badges` rows, set
   `badges_version`); in `src/rynke/apply.ts` `readRiders` reads them in its one
   batch, `RiderState` gains `badges` and `badgesVersion`, its corrections gain
   their date (`listCorrectionsOfRidersStatement` in `src/db/corrections.ts`
   selects `correction_date`), and `riderWrites` writes only badges that
   appeared, disappeared or changed date (research R13). T036 passes.
-- [ ] T038 [P] [US1] Tests first: new `test/unit/badge-view.test.ts` for
+- [X] T038 [P] [US1] Tests first: new `test/unit/badge-view.test.ts` for
   `buildBadgeSection` (data-model.md "View model"): cards one per category with
   its highest earned badge, newest first (US1 scenario 8); gallery in catalog
   order, newest first inside (scenario 6); counts; not-yet rows for categories
   without a badge; no progress on a complete category (FR-004); the missing
   value from the value rounded down, whole units, run length to one decimal,
   never 0 (spec Assumptions); nothing while the waiting state shows (FR-005).
-- [ ] T039 [US1] Implement `src/badges/view.ts` (pure) until T038 passes.
-- [ ] T040 [US1] Tests first: new `test/integration/badges-section.test.ts`
+- [X] T039 [US1] Implement `src/badges/view.ts` (pure) until T038 passes.
+- [X] T040 [US1] Tests first: new `test/integration/badges-section.test.ts`
   against contracts/abzeichen-section.md "Rules the tests check": the section
   after the Rynke figures with heading and intro; cards, gallery `<details>`
   without `open`, not-yet list; images `/badges/<id>-ribbon.svg` and
@@ -370,12 +370,12 @@ badges and a full category.
   scenario 5); the English page shows the German names; SC-003: no unearned
   badge's id or name anywhere in the HTML; `/me` of another rider shows nothing
   of this rider's badges.
-- [ ] T041 [US1] Implement `src/http/sections/badges.ts` and wire it into
+- [X] T041 [US1] Implement `src/http/sections/badges.ts` and wire it into
   `src/http/sections/overview.ts` inside `overview-grid`, full width; the rider's
   badges come with the Overview's existing read (`readRiderView` in
   `src/db/rider-view.ts`). Numbers and dates through `I18n.formatNumber` and
   `formatDate`. T040 passes.
-- [ ] T042 [P] [US1] Section styles in `src/http/style.ts`, following
+- [X] T042 [P] [US1] Section styles in `src/http/style.ts`, following
   `drafts/abzeichen-{mobile,desktop}.png`: 128 px cards two per row at 360 px
   and four at 1100 px, 96 px gallery three per row, 280 px popover within 360 px
   and beside the badge on wider screens (FR-002b), ribbon text placed by the
@@ -383,10 +383,10 @@ badges and a full category.
   personal bars yellow and team bars team blue (FR-002c) from feature 011's
   tokens, light and dark mode, no horizontal scroll (SC-005); extend the CSS
   checks in `test/integration/layout.test.ts` as for earlier sections.
-- [ ] T043 [P] [US1] `public/app.js`: on `pointerenter` with `pointerType ===
+- [X] T043 [P] [US1] `public/app.js`: on `pointerenter` with `pointerType ===
   "mouse"` a `.badge` button shows its popover, `pointerleave` hides it; tap,
   click and keyboard stay native (research R19).
-- [ ] T044 [US1] `dev/fake-strava/samples.ts`: sample riders with no badge, a few
+- [X] T044 [US1] `dev/fake-strava/samples.ts`: sample riders with no badge, a few
   badges, a full category (both technique trainings) and earlier and later
   badges in one category, so quickstart.md §7 shows every case; extend
   `test/integration/dev-fake-strava.test.ts` if it lists the samples.
@@ -483,7 +483,7 @@ gesamt" at 12 km, Rynke, ride list and Team page unchanged.
   `src/work/activity-page.ts` map each activity with `toRunRecord` when
   `toActivityRecord` gives null, with the same private-scope rule. T057
   passes.
-- [ ] T059 [US3] Tests first in `test/unit/badge-evaluate.test.ts`: run length
+- [X] T059 [US3] Tests first in `test/unit/badge-evaluate.test.ts`: run length
   and running from runs by local start date: US3 scenarios 1 (7.8 + 4.6 km →
   12.4 km, shown as 12), 1a (9.6 then 0.5 km → the 10 km running badge on the
   second run's date), 1b (a first run of 10.4 km → run length 5 and 10 and
