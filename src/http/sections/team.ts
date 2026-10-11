@@ -9,7 +9,6 @@ import {
 	SEASON_QUOTES_PUSH,
 	type Season,
 } from "../../i18n/messages/quotes.de";
-import { formatPlace } from "../../i18n/ordinal";
 import { breakawayFence } from "../../rynke/breakaway";
 import {
 	type LeaderboardRow,
@@ -219,12 +218,12 @@ ${segment(teamHref("team", all), kind === "team", i18n.t("team.kind.team"), mini
 function renderPlace(i18n: I18n, viewer: Viewer): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const place = {
-		place: formatPlace(i18n, viewer.place),
+		place: whole(viewer.place),
 		count: whole(viewer.count),
 	};
 	return html`<section class="my-place card">
 <span class="place-badge" aria-hidden="true">${whole(viewer.place)}</span><div>
-<p class="place">${i18n.t(viewer.joint ? "team.place.joint" : "team.place", place)}</p>
+<p class="place">${i18n.t("team.place", place)}</p>
 <p class="place-next">${
 		viewer.toNext === null
 			? i18n.t("team.place.lead")

@@ -305,7 +305,6 @@ const CONTRACT_IDS = [
 	"team.kind.training",
 	"team.kind.team",
 	"team.place",
-	"team.place.joint",
 	"team.place.next",
 	"team.place.lead",
 	"team.quote.push",

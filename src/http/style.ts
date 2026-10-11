@@ -99,8 +99,6 @@ nav.organiser-switch .segmented svg{width:20px;height:20px}
 .quote p{margin:0}
 .quote-heading{padding-bottom:6px;font:700 12px/16px var(--md-ref-typeface);letter-spacing:.04em;text-transform:uppercase}
 .quote p:last-child{font:600 17px/24px var(--md-ref-typeface)}
-.quote p:last-child::before{content:"„"}
-.quote p:last-child::after{content:"“"}
 .peloton,.team-chart{margin-inline:0}
 .peloton figcaption,.team-chart figcaption{display:flex;align-items:baseline;justify-content:space-between;gap:var(--rp-space-2);font:var(--md-type-title)}
 .team-chart-kind{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
