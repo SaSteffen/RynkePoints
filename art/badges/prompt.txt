@@ -1,0 +1,13 @@
+Using the attached badge as the exact reference for character and style (the character: same head shape, orange fur, light muzzle, round black eyes, two-dot nose, yellow cycling helmet with three vents, yellow jersey), draw a new picture for the round cream window in the middle of this badge.
+
+Draw ONLY the picture that goes inside the window. Do not draw the badge itself: no gold scalloped edge, no ring, no stars on a ring, no circle, no frame of any kind.
+
+Scene: {{scene}}
+
+Mood: playful, cheeky cartoon with lots of personality, like a sticker you'd want to collect.
+
+Style: flat vector-style illustration, identical to the reference. Bold uniform black outlines (#1C1B13) about 56 px thick on every shape, including around yellow objects so they stay separate from the yellow jersey. Solid flat fills only, no gradients, no shading, no texture, no highlights, no drop shadow, no ground shadow. Use only these colors: yellow #FBE122, orange fur #C8641E, muzzle #F0A868, black #1C1B13, cream #FFFDF5, gold #C99A2E, light blue #8CC4F0 (only for water, ice, sky details and sweat drops).
+
+Proportions: chibi, every character's head about 40% of its figure height so faces read at icon size. Few, large shapes: the picture must still read when the badge is shown 48 px wide.
+
+Canvas: square 1:1, 2048 x 2048 px, plain pure white background. Everything fits inside a centered circle of 1800 px diameter, the main subject in the middle: the picture is cropped to a circle. No text, no letters, no numbers, no border, no ground line unless the scene asks for one.

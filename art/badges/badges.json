@@ -1,0 +1,493 @@
+{
+	"snippets": {
+		"bike": "The bike: road bike with a yellow frame and fork (#FBE122), black handlebar tape, black saddle. Both wheels identical and WITHOUT spokes: a thick black tyre, a yellow rim ring inside it, a solid cream (#FFFDF5) inner disc and a small black hub dot in the center. No spokes, no spoke lines.",
+		"runner": "For running the character wears no helmet: a yellow (#FBE122) sweatband around the head instead, the yellow jersey as a running shirt, black shorts and black running shoes with cream soles. No bike.",
+		"team": "The team: several copies of the same character, every one exactly the reference character design (same face, fur, helmet and jersey), in slightly different poses and expressions.",
+		"coins": "Coins: plain gold (#C99A2E) discs with a black outline and a thin cream inner ring, no symbols, letters or faces on them."
+	},
+	"badges": [
+		{
+			"id": "distance-100",
+			"group": "personal",
+			"category": "distance",
+			"threshold": 100,
+			"scene": "The character riding a road bike, side view, rolling along happily and holding one hand up proudly as if waving to a crowd. A small gold milestone stone at the roadside. {{bike}}"
+		},
+		{
+			"id": "distance-500",
+			"group": "personal",
+			"category": "distance",
+			"threshold": 500,
+			"scene": "The character riding a road bike with a small black saddle bag and a water bottle, side view, a big round gold sun rising behind, determined grin, a few black motion lines behind the rear wheel. {{bike}}"
+		},
+		{
+			"id": "distance-1000",
+			"group": "personal",
+			"category": "distance",
+			"threshold": 1000,
+			"scene": "The character riding a road bike, side view, between two tiny landmarks: the wavy-roofed Elbphilharmonie concert hall behind him on the left and the Eiffel Tower ahead on the right, both small and simple in black outline with cream and gold fills. Wide-eyed and amazed at how far he got. {{bike}}"
+		},
+		{
+			"id": "distance-2500",
+			"group": "personal",
+			"category": "distance",
+			"threshold": 2500,
+			"scene": "The character riding a road bike through a desert, side view, a small cream neck flap hanging from the back of his helmet against the sun. Two tall cream sand dunes behind, a cactus cheering him on with its arms up, a single sweat drop. Cheeky and unstoppable. {{bike}}"
+		},
+		{
+			"id": "distance-5000",
+			"group": "personal",
+			"category": "distance",
+			"threshold": 5000,
+			"scene": "The character riding a road bike on top of a small round globe, like riding around the planet. Continents in gold, oceans in light blue, black outlines. Arms raised in triumph while riding, huge grin. {{bike}}"
+		},
+		{
+			"id": "elevation-1000",
+			"group": "personal",
+			"category": "elevation",
+			"threshold": 1000,
+			"scene": "The character pushing his road bike up the last steep bit of a rounded hill, then standing on the top with one foot on the pedal, a small gold flag planted on the summit, proud and a bit out of breath, one sweat drop. {{bike}}"
+		},
+		{
+			"id": "elevation-5000",
+			"group": "personal",
+			"category": "elevation",
+			"threshold": 5000,
+			"scene": "The character riding a road bike up a steep mountain road with tight hairpin bends drawn in cream on a gold mountain, side view near the top, a cream snow cap on the peak, puffed cheeks, tongue out with effort. {{bike}}"
+		},
+		{
+			"id": "elevation-10000",
+			"group": "personal",
+			"category": "elevation",
+			"threshold": 10000,
+			"scene": "The character on the snowy summit of a very high, pointy mountain, holding his road bike above his head with both hands, a small gold flag next to him, clouds below the summit in cream. Ecstatic, mouth wide open in a cheer. {{bike}}"
+		},
+		{
+			"id": "elevation-25000",
+			"group": "personal",
+			"category": "elevation",
+			"threshold": 25000,
+			"scene": "The character riding a road bike over the rounded top of a giant crater volcano on another planet, ground in fur orange with small craters, a few small cream stars and a gold ringed planet in the sky above. Wearing a round cream space helmet bubble over the yellow cycling helmet, delighted and giggling. {{bike}}"
+		},
+		{
+			"id": "team-events-1",
+			"group": "personal",
+			"category": "team_events",
+			"threshold": 1,
+			"scene": "The character standing next to his road bike giving an enthusiastic high five to a second character (the same character design), both grinning, a small gold burst where their hands meet. {{bike}}"
+		},
+		{
+			"id": "team-events-5",
+			"group": "personal",
+			"category": "team_events",
+			"threshold": 5,
+			"scene": "The character at a coffee stop during a group ride: sitting at a tiny round table with a cream coffee cup in one hand and a slice of cake on a plate, his road bike leaning against the table, laughing at a joke. {{bike}}"
+		},
+		{
+			"id": "team-events-10",
+			"group": "personal",
+			"category": "team_events",
+			"threshold": 10,
+			"scene": "The character riding a road bike in the middle of a short paceline of three riders (all the same character design), front view slightly from the side, giving a thumbs up towards the viewer, everyone smiling. {{bike}} {{team}}"
+		},
+		{
+			"id": "team-events-20",
+			"group": "personal",
+			"category": "team_events",
+			"threshold": 20,
+			"scene": "The character standing proudly with a black captain's armband with a gold star on his upper arm, one foot on his road bike's pedal, chest puffed out, a whistle on a black cord around his neck. Cheeky, knowing smile. {{bike}}"
+		},
+		{
+			"id": "technique-1",
+			"group": "personal",
+			"category": "technique",
+			"threshold": 1,
+			"scene": "The character doing a slow, wobbly track stand on his road bike between three small gold traffic cones, arms out for balance, tongue poking out in concentration, one tiny sweat drop. {{bike}}"
+		},
+		{
+			"id": "technique-2",
+			"group": "personal",
+			"category": "technique",
+			"threshold": 2,
+			"scene": "The character slaloming smoothly through a row of small gold traffic cones on his road bike, leaning into the curve like a pro, relaxed half-closed eyes and a cool smirk, curved black motion lines tracing his path. {{bike}}"
+		},
+		{
+			"id": "training-rynke-1",
+			"group": "personal",
+			"category": "training_rynke",
+			"threshold": 1,
+			"scene": "The character holding up a single shiny gold coin with both hands, staring at it with huge sparkling eyes and an open-mouthed 'wow', a few small gold sparkles around the coin. {{coins}}"
+		},
+		{
+			"id": "training-rynke-25",
+			"group": "personal",
+			"category": "training_rynke",
+			"threshold": 25,
+			"scene": "The character sitting cross-legged next to a neat little stack of gold coins, carefully adding one more coin on top with the tip of his tongue out in concentration. {{coins}}"
+		},
+		{
+			"id": "training-rynke-50",
+			"group": "personal",
+			"category": "training_rynke",
+			"threshold": 50,
+			"scene": "The character hugging a round gold piggy bank that is full to bursting, a coin popping out of the slot, the character grinning slyly. {{coins}}"
+		},
+		{
+			"id": "training-rynke-100",
+			"group": "personal",
+			"category": "training_rynke",
+			"threshold": 100,
+			"scene": "The character standing next to a pyramid of gold coins as tall as himself, one hand proudly on the pyramid, the other giving a thumbs up, big confident grin. {{coins}}"
+		},
+		{
+			"id": "training-rynke-150",
+			"group": "personal",
+			"category": "training_rynke",
+			"threshold": 150,
+			"scene": "The character pushing a black wheelbarrow overflowing with gold coins, leaning into it, cheeks puffed, a few coins bouncing out over the edge. {{coins}}"
+		},
+		{
+			"id": "training-rynke-200",
+			"group": "personal",
+			"category": "training_rynke",
+			"threshold": 200,
+			"scene": "The character diving head first into a big heap of gold coins like into a swimming pool, legs and tail sticking up, coins splashing up around him. {{coins}}"
+		},
+		{
+			"id": "training-rynke-250",
+			"group": "personal",
+			"category": "training_rynke",
+			"threshold": 250,
+			"scene": "The character lifting a giant gold coin as big as himself above his head like a weightlifter, knees bent, face scrunched up with effort but grinning, a few small motion lines showing it wobbling. {{coins}}"
+		},
+		{
+			"id": "training-rynke-300",
+			"group": "personal",
+			"category": "training_rynke",
+			"threshold": 300,
+			"scene": "The character standing with arms wide open and face turned up, laughing, while gold coins rain down from above around him, a small black umbrella forgotten upside down at his feet filling with coins. {{coins}}"
+		},
+		{
+			"id": "training-rynke-400",
+			"group": "personal",
+			"category": "training_rynke",
+			"threshold": 400,
+			"scene": "The character sitting on top of a tall, slightly wobbly tower of gold coins that reaches into a few cream clouds, legs dangling, eating a banana, totally relaxed. {{coins}}"
+		},
+		{
+			"id": "training-rynke-500",
+			"group": "personal",
+			"category": "training_rynke",
+			"threshold": 500,
+			"scene": "The character as a king: lounging on a throne made of stacked gold coins, a small gold crown balanced on top of his yellow helmet, holding a banana like a scepter, smug and delighted. {{coins}}"
+		},
+		{
+			"id": "run-length-5",
+			"group": "personal",
+			"category": "run_length",
+			"threshold": 5,
+			"scene": "The character jogging happily, side view, mid-stride with both feet off the ground, arms swinging, a little puff of dust behind the back foot. {{runner}}"
+		},
+		{
+			"id": "run-length-10",
+			"group": "personal",
+			"category": "run_length",
+			"threshold": 10,
+			"scene": "The character running in a race with a blank cream race bib pinned to his shirt (no number on it), side view, focused face, steady stride, three short black motion lines behind him. {{runner}}"
+		},
+		{
+			"id": "run-length-half",
+			"group": "personal",
+			"category": "run_length",
+			"threshold": 21.0975,
+			"scene": "The character running past a cheering spot, grabbing a cream paper cup from a small table while running, water splashing out in light blue, cheeky grin, a blank cream race bib on his shirt. {{runner}}"
+		},
+		{
+			"id": "run-length-marathon",
+			"group": "personal",
+			"category": "run_length",
+			"threshold": 42.195,
+			"scene": "The character breaking through a cream finish-line tape with both arms raised high, a gold laurel wreath around his head, mouth wide open in a victory shout, the tape flying apart, small gold stars bursting around him. {{runner}}"
+		},
+		{
+			"id": "running-10",
+			"group": "personal",
+			"category": "running",
+			"threshold": 10,
+			"scene": "The character lacing up a pair of brand new black running shoes, sitting on the ground, one shoe on and one in hand, excited eager face, small gold sparkles on the shiny new shoes. {{runner}}"
+		},
+		{
+			"id": "running-25",
+			"group": "personal",
+			"category": "running",
+			"threshold": 25,
+			"scene": "The character jogging through rain and jumping into a puddle, light blue splash flying up, light blue raindrops falling, laughing with joy instead of minding the weather. {{runner}}"
+		},
+		{
+			"id": "running-50",
+			"group": "personal",
+			"category": "running",
+			"threshold": 50,
+			"scene": "The character jogging at sunrise with black headphones over the sweatband, eyes closed, head bobbing to the beat, a small black music note floating behind him, a big round gold sun low behind. {{runner}}"
+		},
+		{
+			"id": "running-100",
+			"group": "personal",
+			"category": "running",
+			"threshold": 100,
+			"scene": "The character running along a river bank with small light blue waves, a black harbour crane in the background, side view, relaxed and smiling, one hand waving to the viewer. {{runner}}"
+		},
+		{
+			"id": "running-250",
+			"group": "personal",
+			"category": "running",
+			"threshold": 250,
+			"scene": "The character trail running down a rocky hill, leaping from one gold rock to the next, arms out, grinning wildly, a few pebbles flying. {{runner}}"
+		},
+		{
+			"id": "running-500",
+			"group": "personal",
+			"category": "running",
+			"threshold": 500,
+			"scene": "The character sitting on the ground, proudly holding up a completely worn-out black running shoe with holes in the sole, his toes poking out of the other shoe, laughing at it. {{runner}}"
+		},
+		{
+			"id": "team-training-rynke-500",
+			"group": "team",
+			"category": "team_training_rynke",
+			"threshold": 500,
+			"scene": "Three characters standing around a small heap of gold coins, each tossing one more coin onto it, all cheering. {{team}} {{coins}}"
+		},
+		{
+			"id": "team-training-rynke-1000",
+			"group": "team",
+			"category": "team_training_rynke",
+			"threshold": 1000,
+			"scene": "Three characters building a coin pyramid together: two holding the base steady, one standing on their shoulders placing the top coin, all concentrating, tongues out. {{team}} {{coins}}"
+		},
+		{
+			"id": "team-training-rynke-2500",
+			"group": "team",
+			"category": "team_training_rynke",
+			"threshold": 2500,
+			"scene": "Four characters carrying a giant gold coin together on their shoulders like a log, marching in step, one of them counting out loud with an open mouth, the others grinning. {{team}} {{coins}}"
+		},
+		{
+			"id": "team-training-rynke-5000",
+			"group": "team",
+			"category": "team_training_rynke",
+			"threshold": 5000,
+			"scene": "Four characters jumping into a big pool of gold coins at the same time, mid-air, holding hands, coins splashing everywhere, all screaming with joy. {{team}} {{coins}}"
+		},
+		{
+			"id": "team-training-rynke-7500",
+			"group": "team",
+			"category": "team_training_rynke",
+			"threshold": 7500,
+			"scene": "Three characters riding road bikes side by side, each with a small black trailer full of gold coins bouncing behind, coins flying out, all laughing. {{team}} {{bike}} {{coins}}"
+		},
+		{
+			"id": "team-training-rynke-10000",
+			"group": "team",
+			"category": "team_training_rynke",
+			"threshold": 10000,
+			"scene": "Five characters standing on top of a mountain made of gold coins, planting a gold flag together, arms raised. {{team}} {{coins}}"
+		},
+		{
+			"id": "team-training-rynke-15000",
+			"group": "team",
+			"category": "team_training_rynke",
+			"threshold": 15000,
+			"scene": "Four characters in a small black rowing boat floating on a sea of gold coins, rowing with oars, one of them at the front looking ahead through a black telescope. {{team}} {{coins}}"
+		},
+		{
+			"id": "team-training-rynke-20000",
+			"group": "team",
+			"category": "team_training_rynke",
+			"threshold": 20000,
+			"scene": "Five characters lifting one of them high in the air in celebration, the one on top holding up a gold trophy cup filled with gold coins, coins flying, everyone cheering wildly. {{team}} {{coins}}"
+		},
+		{
+			"id": "team-distance-1000",
+			"group": "team",
+			"category": "team_distance",
+			"threshold": 1000,
+			"scene": "Three characters riding road bikes in a line on a road, side view, close together, the front one pointing ahead, all smiling. {{team}} {{bike}}"
+		},
+		{
+			"id": "team-distance-5000",
+			"group": "team",
+			"category": "team_distance",
+			"threshold": 5000,
+			"scene": "Four characters riding road bikes past a tall signpost with several blank gold arrow signs pointing in all directions (no text on them), side view, everyone looking up at it curiously. {{team}} {{bike}}"
+		},
+		{
+			"id": "team-distance-10000",
+			"group": "team",
+			"category": "team_distance",
+			"threshold": 10000,
+			"scene": "Four characters riding road bikes along the top of a long winding wall with small square battlements over gold hills, side view, waving. {{team}} {{bike}}"
+		},
+		{
+			"id": "team-distance-25000",
+			"group": "team",
+			"category": "team_distance",
+			"threshold": 25000,
+			"scene": "Four characters riding road bikes in a line over the top of a small round globe, continents in gold and oceans in light blue, the riders halfway round, all grinning. {{team}} {{bike}}"
+		},
+		{
+			"id": "team-distance-50000",
+			"group": "team",
+			"category": "team_distance",
+			"threshold": 50000,
+			"scene": "Five characters riding road bikes in a circle all the way around a small round globe, continents in gold and oceans in light blue, a black dashed line showing they have already gone round more than once. {{team}} {{bike}}"
+		},
+		{
+			"id": "team-distance-100000",
+			"group": "team",
+			"category": "team_distance",
+			"threshold": 100000,
+			"scene": "Five characters riding road bikes along a gold ring orbiting a small round globe like a planet's ring, the globe with gold continents and light blue oceans, small cream stars around, everyone cheering. {{team}} {{bike}}"
+		},
+		{
+			"id": "team-elevation-10000",
+			"group": "team",
+			"category": "team_elevation",
+			"threshold": 10000,
+			"scene": "Three characters on the snowy summit of a pointy mountain peeking above cream clouds, a small black airplane flying past at the same height, the characters waving at the airplane. {{team}}"
+		},
+		{
+			"id": "team-elevation-50000",
+			"group": "team",
+			"category": "team_elevation",
+			"threshold": 50000,
+			"scene": "Three characters in the black basket of a big round cream balloon, rising high above cream clouds, the characters leaning over the edge of the basket and looking down, amazed. {{team}}"
+		},
+		{
+			"id": "team-elevation-100000",
+			"group": "team",
+			"category": "team_elevation",
+			"threshold": 100000,
+			"scene": "Three characters riding road bikes up a steep road that leaves the ground and climbs into space, the curved edge of the earth below in light blue, small cream stars around, all wide-eyed with excitement. {{team}} {{bike}}"
+		},
+		{
+			"id": "team-elevation-250000",
+			"group": "team",
+			"category": "team_elevation",
+			"threshold": 250000,
+			"scene": "Three characters riding together on a simple cream rocket, legs dangling like on a bench, the rocket blasting upwards with a gold flame, all cheering, small cream stars around. {{team}}"
+		},
+		{
+			"id": "team-elevation-500000",
+			"group": "team",
+			"category": "team_elevation",
+			"threshold": 500000,
+			"scene": "Three characters floating weightless in space with their road bikes, upside down and laughing, a simple cream space station with gold solar panels behind them, small cream stars around. {{team}} {{bike}}"
+		},
+		{
+			"id": "team-running-100",
+			"group": "team",
+			"category": "team_running",
+			"threshold": 100,
+			"scene": "Three characters jogging together side by side, side view, chatting and laughing while running. {{team}} {{runner}}"
+		},
+		{
+			"id": "team-running-500",
+			"group": "team",
+			"category": "team_running",
+			"threshold": 500,
+			"scene": "A relay race: one character handing a gold baton to the next character while both run, the next one reaching back with a determined grin. {{team}} {{runner}}"
+		},
+		{
+			"id": "team-running-1000",
+			"group": "team",
+			"category": "team_running",
+			"threshold": 1000,
+			"scene": "Four characters running along a river bank with small light blue waves and a black harbour crane behind, a small seagull flying alongside, everyone smiling. {{team}} {{runner}}"
+		},
+		{
+			"id": "team-running-2500",
+			"group": "team",
+			"category": "team_running",
+			"threshold": 2500,
+			"scene": "Four characters running up a mountain trail in a line, the leader at the top turning back and reaching a hand down to pull the next one up. {{team}} {{runner}}"
+		},
+		{
+			"id": "team-running-5000",
+			"group": "team",
+			"category": "team_running",
+			"threshold": 5000,
+			"scene": "Five characters running across the top of a small round globe, continents in gold and oceans in light blue, holding hands in a chain, all laughing. {{team}} {{runner}}"
+		},
+		{
+			"id": "big-training-5",
+			"group": "team",
+			"category": "big_training",
+			"threshold": 5,
+			"scene": "Five characters riding road bikes in a tight little group, slightly from the front, all grinning at the viewer. {{team}} {{bike}}"
+		},
+		{
+			"id": "big-training-10",
+			"group": "team",
+			"category": "big_training",
+			"threshold": 10,
+			"scene": "A long paceline of characters on road bikes snaking along a winding road, side view, the ones in front small and far, the closest one big and waving. {{team}} {{bike}}"
+		},
+		{
+			"id": "big-training-15",
+			"group": "team",
+			"category": "big_training",
+			"threshold": 15,
+			"scene": "A packed peloton of characters on road bikes coming straight towards the viewer, many helmets and grinning faces stacked behind each other, the front one shouting with joy. {{team}} {{bike}}"
+		},
+		{
+			"id": "big-training-20",
+			"group": "team",
+			"category": "big_training",
+			"threshold": 20,
+			"scene": "A team photo: rows of characters standing behind their road bikes, the front row kneeling, everyone pulling a funny face for the camera, a small black camera on a tripod in the corner. {{team}} {{bike}}"
+		},
+		{
+			"id": "big-training-30",
+			"group": "team",
+			"category": "big_training",
+			"threshold": 30,
+			"scene": "A huge crowd of characters on road bikes seen from above, riding in a formation that makes a big heart shape on a cream road, all looking up and waving. {{team}} {{bike}}"
+		},
+		{
+			"id": "attendances-25",
+			"group": "team",
+			"category": "attendances",
+			"threshold": 25,
+			"scene": "Three characters stacking their hands on top of each other in a team huddle, cheering, viewed slightly from above. {{team}}"
+		},
+		{
+			"id": "attendances-50",
+			"group": "team",
+			"category": "attendances",
+			"threshold": 50,
+			"scene": "Four characters sharing a big cake with a gold star on top, cutting slices and laughing, cream cups around. {{team}}"
+		},
+		{
+			"id": "attendances-100",
+			"group": "team",
+			"category": "attendances",
+			"threshold": 100,
+			"scene": "Four characters arm in arm, swaying and singing together with mouths wide open, small black music notes floating above. {{team}}"
+		},
+		{
+			"id": "attendances-200",
+			"group": "team",
+			"category": "attendances",
+			"threshold": 200,
+			"scene": "Five characters doing a human pyramid, the one on top holding a small gold flag, the bottom ones wobbling and laughing. {{team}}"
+		},
+		{
+			"id": "attendances-400",
+			"group": "team",
+			"category": "attendances",
+			"threshold": 400,
+			"scene": "A big group of characters all jumping in the air at the same moment for a photo, arms and legs flung out, gold confetti flying. {{team}}"
+		}
+	]
+}
