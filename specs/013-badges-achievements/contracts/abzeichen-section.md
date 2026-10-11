@@ -111,4 +111,5 @@ The reveal, at the top of the page (research R16):
   their `badge_reveals`, a HEAD doesn't (like `rynke_seen`); honours reduced
   motion (feature 012).
 - **Sizes**: 128 px cards, 96 px gallery, 280 px popover (FR-002a/b); two cards
-  per row at 360 px, four at 1100 px; no horizontal scrolling (SC-005).
+  per row at every width, without the category sentence below 600 px; no
+  horizontal scrolling (SC-005).

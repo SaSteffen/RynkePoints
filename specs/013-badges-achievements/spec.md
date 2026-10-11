@@ -296,7 +296,8 @@ their badge names examples.
     with its name and what is missing, under "Noch kein Abzeichen" (one list for
     both groups, after the team badges).
 - **FR-002a**: Badge sizes: 128 px on a card, with its ribbon; 96 px in the
-  gallery, without a ribbon.
+  gallery, without a ribbon. The cards stand two per row at every width;
+  below 600 px a card leaves out the sentence on how its category counts.
 - **FR-002b**: Pointing at an earned badge, on a card or in the gallery, MUST
   show it at 280 px with its ribbon, name, what it was for and the date earned:
   on hover with a mouse, on keyboard focus, and on tap on a touch screen

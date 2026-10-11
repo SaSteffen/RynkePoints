@@ -229,13 +229,21 @@ describe("STYLE", () => {
 		);
 	});
 
-	it("lays the badge cards out two per row and four from 840 px (013 FR-002a, the drafts)", () => {
+	it("lays the badge cards out two per row at every width (013 FR-002a)", () => {
 		expect(declsOf(".badge-cards")["grid-template-columns"]).toBe(
 			"repeat(2,minmax(0,1fr))",
 		);
 		expect(
-			declsOf(".badge-cards", "(min-width:840px)")["grid-template-columns"],
-		).toBe("repeat(4,minmax(0,1fr))");
+			RULES.filter(
+				(rule) =>
+					rule.media !== null && rule.selectors.includes(".badge-cards"),
+			),
+		).toEqual([]);
+		// Name, sentence, badge and bar line up across a row.
+		expect(declsOf(".badge-card")["grid-template-rows"]).toBe("subgrid");
+		expect(
+			declsOf(".badge-card .badge-about", "(max-width:599.98px)").display,
+		).toBe("none");
 		expect(declsOf(".badge-card .badge").width).toBe("128px");
 		expect(declsOf(".badge-gallery .badge").width).toBe("96px");
 		expect(declsOf(".badge-large .badge")).toMatchObject({
