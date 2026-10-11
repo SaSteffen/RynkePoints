@@ -1,4 +1,13 @@
-import { SafeHtml } from "./html";
+import type { I18n } from "../i18n/i18n";
+import { html, SafeHtml } from "./html";
+
+/**
+ * A whole Rynke amount for a hero total, on a line of its own: the Rynke word
+ * that follows starts the next line and is never broken (#115).
+ */
+export function amount(i18n: I18n, n: number): SafeHtml {
+	return html`<span class="rynke-amount">${i18n.formatNumber(n, { fractionDigits: 0 })}</span>`;
+}
 
 // The Rynke coin, simplified from the team's coin for the app (feature 012
 // FR-006, the Claude Design mock-up "RynkePoints Coin Explorations"). The

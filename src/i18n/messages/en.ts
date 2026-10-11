@@ -282,8 +282,8 @@ export const en: Catalog = {
 	"nav.settings": "Settings",
 	"shell.refresh": "Refresh",
 	"shell.title": "{section} – RynkePoints",
-	"hero.training": "{n}\u00a0Training Rynke",
-	"hero.team": "{n}\u00a0Team Rynke",
+	"hero.training": "{n} Training Rynke",
+	"hero.team": "{n} Team Rynke",
 	"celebrate.training": "+{n}\u00a0Training Rynke since your last visit 🎉",
 	"celebrate.team": "+{n}\u00a0Team Rynke since your last visit 🎉",
 	"celebrate.both":
@@ -378,7 +378,7 @@ export const en: Catalog = {
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
 	"team.total.label": "Team Rynkeby Hamburg 🦧",
-	"team.total.value": "{n}\u00a0Rynke",
+	"team.total.value": "{n} Rynke",
 	"team.total.kind": "collected together",
 	"team.total.thisWeek": "+{n} this week 🔥",
 	"team.kind.label": "Which Rynke",

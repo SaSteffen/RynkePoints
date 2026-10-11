@@ -40,8 +40,12 @@ describe("STYLE", () => {
 		expect(declsOf(selector)["min-height"]).toBe("var(--rp-tap)");
 	});
 
-	it("breaks long words in main", () => {
-		expect(declsOf("main")["overflow-wrap"]).toBe("anywhere");
+	it("breaks a word in main only when it can't fit a line of its own (#115)", () => {
+		const main = declsOf("main");
+		// `anywhere` split words letter by letter on small phones, and
+		// hyphenation would split the Rynke words too.
+		expect(main["overflow-wrap"]).toBe("break-word");
+		expect(main.hyphens).toBeUndefined();
 	});
 
 	it(`sets no width above ${PHONE_PX} px below 600 px`, () => {

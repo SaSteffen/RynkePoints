@@ -140,8 +140,9 @@ describe("GET /me Overview", () => {
 		expect(hero).toContain('<use href="#coin-front"/>');
 		expectInOrder(hero ?? "", [
 			'<p class="greeting">',
-			`<p class="hero-total">${escapeHtml(de["hero.training"].replace("{n}", "17"))}</p>`,
-			`<p class="hero-total hero-team">${escapeHtml(de["hero.team"].replace("{n}", "3"))}</p>`,
+			// The amount on a line of its own, the Rynke word after it (#115).
+			`<p class="hero-total">${escapeHtml(de["hero.training"]).replace("{n}", '<span class="rynke-amount">17</span>')}</p>`,
+			`<p class="hero-total hero-team">${escapeHtml(de["hero.team"]).replace("{n}", '<span class="rynke-amount">3</span>')}</p>`,
 		]);
 	});
 
