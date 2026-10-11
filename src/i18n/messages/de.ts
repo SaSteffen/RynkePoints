@@ -17,6 +17,7 @@ export const de = {
 
 	"layout.switcher.label": "Sprache",
 	"layout.logout": "Abmelden",
+	"layout.loading": "Seite wird geladen",
 
 	"landing.title": "Mit Strava verbinden",
 	"landing.intro":

@@ -29,6 +29,7 @@ const CONTRACT_IDS = [
 	"brand.viewOnStrava",
 	"layout.switcher.label",
 	"layout.logout",
+	"layout.loading",
 	"landing.title",
 	"landing.intro",
 	"landing.who",

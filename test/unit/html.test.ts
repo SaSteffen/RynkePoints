@@ -78,6 +78,12 @@ describe("layout (de)", () => {
 		);
 	});
 
+	it("holds a hidden progress bar for a slow next page (issue #108)", () => {
+		expect(page).toContain(
+			'<div class="page-loading" role="progressbar" aria-label="Seite wird geladen" hidden></div>',
+		);
+	});
+
 	it("ships the scheme script and /app.js, no other script (011 R6)", () => {
 		expect(page.match(/<script[^>]*>/gi)).toEqual([
 			"<script>",

@@ -14,6 +14,7 @@ export const en: Catalog = {
 
 	"layout.switcher.label": "Language",
 	"layout.logout": "Sign out",
+	"layout.loading": "Loading the page",
 
 	"landing.title": "Connect with Strava",
 	"landing.intro":

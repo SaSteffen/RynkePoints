@@ -115,6 +115,7 @@ export function layout(
 <style>${new SafeHtml(STYLE)}</style>
 </head>
 ${header}
+<div class="page-loading" role="progressbar" aria-label="${i18n.t("layout.loading")}" hidden></div>
 ${sprite}
 <main>
 ${body}

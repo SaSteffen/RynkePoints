@@ -420,6 +420,79 @@ function schemePicker() {
 	}
 }
 
+/** How long the next page may take before the progress bar shows (issue #108). */
+const LOADING_DELAY_MS = 1000;
+let loadingTimer = null;
+
+/**
+ * Shows the page's progress bar if the next page isn't there within a second
+ * (issue #108). Every page is a full round trip to the server, and until it
+ * answers the browser keeps showing this one as if nothing happened.
+ */
+function startLoading() {
+	const bar = document.querySelector(".page-loading");
+	if (!bar || loadingTimer !== null) return;
+	loadingTimer = setTimeout(() => {
+		bar.hidden = false;
+	}, LOADING_DELAY_MS);
+}
+
+function stopLoading() {
+	clearTimeout(loadingTimer);
+	loadingTimer = null;
+	const bar = document.querySelector(".page-loading");
+	if (bar) bar.hidden = true;
+}
+
+/**
+ * Starts the progress bar for whatever leaves this page for another of ours: a
+ * link, the top bar's refresh, a form. Links to another site, a new tab, a
+ * download or a file don't count: this page stays. A page restored from the
+ * back-forward cache, or left for another app (Strava's, say), starts without
+ * it.
+ */
+function pageLoading() {
+	document.addEventListener("click", (event) => {
+		if (
+			event.defaultPrevented ||
+			event.button !== 0 ||
+			event.metaKey ||
+			event.ctrlKey ||
+			event.shiftKey ||
+			event.altKey
+		) {
+			return;
+		}
+		const link =
+			event.target instanceof Element ? event.target.closest("a[href]") : null;
+		if (
+			!(link instanceof HTMLAnchorElement) ||
+			link.hasAttribute("download") ||
+			(link.target !== "" && link.target !== "_self")
+		) {
+			return;
+		}
+		const url = new URL(link.href);
+		const samePage =
+			url.pathname === location.pathname && url.search === location.search;
+		if (
+			url.origin !== location.origin ||
+			(samePage && url.hash !== "") ||
+			/\.[a-z0-9]+$/i.test(url.pathname)
+		) {
+			return;
+		}
+		startLoading();
+	});
+	document.addEventListener("submit", (event) => {
+		if (!event.defaultPrevented) startLoading();
+	});
+	window.addEventListener("pageshow", stopLoading);
+	document.addEventListener("visibilitychange", () => {
+		if (document.visibilityState === "hidden") stopLoading();
+	});
+}
+
 /**
  * A section brought back after more than a minute in the background reloads,
  * so its figures are current (feature 011 FR-009, research R8). Public pages
@@ -435,6 +508,7 @@ function refreshOnReturn() {
 			Date.now() - hiddenAt > 60000 &&
 			document.querySelector("nav.app-nav")
 		) {
+			startLoading();
 			location.reload();
 		}
 	});
@@ -463,6 +537,7 @@ function waitForFirstData() {
 			const { ready } = await res.json();
 			if (ready === true) {
 				clearInterval(timer);
+				startLoading();
 				location.reload();
 			}
 		} catch {
@@ -570,4 +645,5 @@ appPrompt();
 schemePicker();
 refreshOnReturn();
 waitForFirstData();
+pageLoading();
 notifications().catch(() => {});
