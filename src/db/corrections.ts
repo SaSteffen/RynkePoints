@@ -22,6 +22,7 @@ export interface CorrectionOfRidersRow {
 	athlete_id: number;
 	training: number;
 	team: number;
+	correction_date: string;
 }
 
 /** A correction as the write functions take it; already checked. */
@@ -56,8 +57,8 @@ export function listCorrectionsOfRidersStatement(
 ) {
 	return db
 		.prepare(
-			`SELECT correction_id, athlete_id, training, team FROM corrections
-			WHERE athlete_id IN (SELECT value FROM json_each(?1))
+			`SELECT correction_id, athlete_id, training, team, correction_date
+			FROM corrections WHERE athlete_id IN (SELECT value FROM json_each(?1))
 			ORDER BY athlete_id, correction_id`,
 		)
 		.bind(JSON.stringify(athleteIds));

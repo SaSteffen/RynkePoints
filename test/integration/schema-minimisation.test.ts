@@ -24,6 +24,8 @@ const COLUMNS: Record<string, string[]> = {
 		// Issue #90: when the rider and organiser tours were finished or skipped.
 		"onboarded_at",
 		"organiser_onboarded_at",
+		// Feature 013: the badge catalog version the rider's badges follow (R18).
+		"badges_version",
 	],
 	activities: [
 		"strava_activity_id",
@@ -99,6 +101,19 @@ const COLUMNS: Record<string, string[]> = {
 		"changed_by",
 		"changed_at",
 	],
+	// Feature 013: outdoor runs, only what badges need (research R11).
+	runs: [
+		"strava_activity_id",
+		"athlete_id",
+		"start_date",
+		"start_date_local",
+		"distance_m",
+		"is_private",
+		"refreshed_at",
+	],
+	rider_badges: ["athlete_id", "badge_id", "earned_on"],
+	badge_reveals: ["athlete_id", "badge_id", "earned_on"],
+	badge_rises: ["athlete_id", "badge_ids", "risen_at"],
 	// Feature 010: a device's push endpoint, nothing else (research R7).
 	push_subscriptions: [
 		"subscription_id",

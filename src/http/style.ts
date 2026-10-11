@@ -184,9 +184,9 @@ dl.ride-figures dd{margin:0;font:var(--md-type-title);white-space:nowrap}
 .ride-meta{font:var(--md-type-body);color:var(--md-sys-color-on-surface-variant)}
 .ride-why{font:var(--md-type-body)}
 .ride-why>summary,.more>summary{display:flex;align-items:center;min-height:var(--rp-tap);cursor:pointer;list-style:none;color:var(--md-sys-color-primary);font:var(--md-type-label)}
-.ride-why>summary::-webkit-details-marker,.more>summary::-webkit-details-marker{display:none}
-.ride-why>summary::after,.more>summary::after{content:"";width:8px;height:8px;margin-left:var(--rp-space-2);border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform var(--rp-motion)}
-.ride-why[open]>summary::after,.more[open]>summary::after{transform:rotate(-135deg)}
+.ride-why>summary::-webkit-details-marker,.more>summary::-webkit-details-marker,.badge-gallery>summary::-webkit-details-marker{display:none}
+.ride-why>summary::after,.more>summary::after,.badge-gallery>summary::after{content:"";width:8px;height:8px;margin-left:var(--rp-space-2);border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform var(--rp-motion)}
+.ride-why[open]>summary::after,.more[open]>summary::after,.badge-gallery[open]>summary::after{transform:rotate(-135deg)}
 .ride-why ul,.ride-why p{margin:var(--rp-space-1) 0}
 a.strava-activity{font-weight:700;text-decoration:underline}
 .ride-name{overflow-wrap:anywhere;color:var(--md-sys-color-on-surface)}
@@ -367,12 +367,45 @@ ul.rider-missing{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-sty
 .qualified ul{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);margin:var(--rp-space-3) 0 0;padding:0;list-style:none}
 .qualified li{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 var(--rp-space-3) 0 var(--rp-space-1);border-radius:18px;background:var(--rp-road);font:600 14px/20px var(--md-ref-typeface)}
 .qualified .coin-mini{width:28px;height:28px}
+.badges h2{margin:var(--rp-space-4) 0 var(--rp-space-1);font:var(--md-type-headline)}
+.badges-intro{margin:0 0 var(--rp-space-4);color:var(--md-sys-color-on-surface-variant)}
+.badges h3{margin:var(--rp-space-5) 0 var(--rp-space-3);font:var(--md-type-title)}
+.badge-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-3);margin:0;padding:0;list-style:none}
+.badge-card{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-2);padding:var(--rp-space-3);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container-low);text-align:center}
+.badge-card h4{margin:0;font:var(--md-type-label)}
+button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full);background:none;cursor:pointer}
+.badge{position:relative;container-type:inline-size}
+.badge img{display:block;width:100%;height:auto}
+.badge-card .badge{width:128px;max-width:100%}
+.badge-ribbon-text{position:absolute;left:13%;top:70%;width:74%;height:14%;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;color:var(--rp-coin-yellow);font:700 clamp(8px,8.5cqi,26px)/1 var(--md-ref-typeface)}
+.badge-group-team .badge-ribbon-text,.badge-large-team .badge-ribbon-text{color:var(--rp-coin-ink)}
+.badge-progress{display:flex;flex-direction:column;gap:var(--rp-space-1);width:100%}
+.badges .bar{display:block;height:10px;border-radius:var(--md-shape-full);background:var(--md-sys-color-surface-container-high);overflow:hidden}
+.badges .bar>span{display:block;min-width:10px;height:100%;box-sizing:border-box;border:1.5px solid var(--rp-coin-ink);border-radius:var(--md-shape-full);background:var(--rp-coin-yellow)}
+.badge-group-team .bar>span{background:var(--rp-coin-team)}
+.badge-missing{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
+.badge-gallery{margin:var(--rp-space-3) 0 0}
+.badge-gallery>summary{display:flex;align-items:center;justify-content:space-between;min-height:var(--rp-tap);padding:0 var(--rp-space-4);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-lg);cursor:pointer;list-style:none;font:var(--md-type-label)}
+.badge-gallery h4{margin:var(--rp-space-3) 0 var(--rp-space-2);font:var(--md-type-label);color:var(--md-sys-color-on-surface-variant)}
+.badge-gallery ul{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:var(--rp-space-3);margin:0;padding:0;list-style:none}
+.badge-gallery li{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-1)}
+.badge-gallery .badge{width:96px}
+.badge-value{font:var(--md-type-caption)}
+.badge-not-yet ul{display:grid;gap:var(--rp-space-3);margin:0;padding:0;list-style:none}
+.badge-not-yet-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--rp-space-1) var(--rp-space-3);align-items:baseline}
+.badge-category{grid-area:1/1;font:var(--md-type-label)}
+.badge-not-yet-row .badge-missing{grid-area:1/2}
+.badge-not-yet-row .bar{grid-area:2/1/3/3}
+.badge-large{width:min(312px,calc(100vw - 2 * var(--rp-space-4)));box-sizing:border-box;padding:var(--rp-space-4);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);text-align:center;box-shadow:0 2px 6px var(--md-sys-color-outline)}
+.badge-large .badge{width:280px;max-width:100%;margin:0 auto}
+.badge-large h4{margin:var(--rp-space-3) 0 var(--rp-space-1);font:var(--md-type-title-large)}
+.badge-large p{margin:0;color:var(--md-sys-color-on-surface-variant)}
 @media (max-width:1099.98px){.table-scroll{display:none}.rider-cards.default .rider-card:not(.status-push){display:none}.group-tiles.default .tile-push{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}.showing-wide{display:none}}
-@media (min-width:840px){main:has(>.team-overview){max-width:none}nav.group-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}ul.rider-cards{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}
+@media (min-width:840px){.badge-cards{grid-template-columns:repeat(4,minmax(0,1fr))}.badge-not-yet ul{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--rp-space-6)}main:has(>.team-overview){max-width:none}nav.group-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}ul.rider-cards{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}
 @media (min-width:1100px){ul.rider-cards{display:none}.group-tiles.default .tile-all{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}.showing-phone{display:none}}
 @media (min-width:600px){.wordmark-name{position:static;width:auto;height:auto;overflow:visible;clip:auto}:root{--rp-page-padding:32px;--md-type-display:600 40px/48px var(--md-ref-typeface)}ol.ride-list{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid>*{grid-column:1/-1}.overview-grid>.card-outlined{grid-column:auto}.rynke-gauges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-3)}.rynke-gauges>h2{grid-column:1/-1;margin:0}.rynke-gauges .card{margin:0}body.shell{position:relative;padding-bottom:0}.app-prompt{bottom:calc(var(--rp-space-4) + env(safe-area-inset-bottom))}.tour{top:calc(var(--rp-topbar-height) + env(safe-area-inset-top) + var(--rp-space-2));bottom:auto;left:auto;max-width:24rem}nav.app-nav a.tour-target{outline:2px solid var(--md-sys-color-primary);outline-offset:2px}nav.app-nav a.tour-target .nav-icon{outline:0;animation:none}h1.section-title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}nav.app-nav{position:fixed;top:calc((var(--rp-topbar-height) - var(--rp-tap)) / 2 + env(safe-area-inset-top));right:calc(var(--rp-page-padding) + var(--rp-tap) + var(--rp-space-2));left:auto;bottom:auto;display:flex;gap:var(--rp-space-1);height:auto;padding:0;background:none}nav.app-nav a{flex-direction:row;gap:var(--rp-space-1);padding:0 var(--rp-space-3);border-radius:var(--md-shape-full);font:var(--md-type-label)}nav.app-nav .nav-icon{width:auto;height:auto}nav.app-nav a[aria-current=page]{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}nav.app-nav a[aria-current=page] .nav-icon{background:none}}
 @media (max-width:399.98px){:root{--rp-page-padding:12px}.hero,.team-total,.overview-deadline{gap:var(--rp-space-3);padding:var(--rp-space-3)}.hero .coin-hero,.team-total .coin-large{width:64px;height:64px}.overview-deadline .coin-large{width:56px;height:56px}.overview-deadline .overview-deadline-days{font:700 28px/34px var(--md-ref-typeface)}.rynke-verdict{font:600 20px/26px var(--md-ref-typeface)}.rynke-summary{gap:var(--rp-space-3)}.status-art-banner{width:72px;height:72px}.group-tile{padding:10px}dl.ride-figures{grid-template-columns:repeat(3,auto);justify-content:space-between}nav.app-nav .nav-icon{width:56px}}
-@media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,.ride-why>summary::after,.more>summary::after{transition:none}.button,.button-outlined,.danger,.icon-button{transition:none}.button[aria-busy=true]::after,.button-outlined[aria-busy=true]::after,.danger[aria-busy=true]::after,.segmented[aria-busy=true]::after{animation:none}.celebrate-coins .coin-mini{animation:none}.waiting .coin{animation:none}}
+@media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,.ride-why>summary::after,.more>summary::after,.badge-gallery>summary::after{transition:none}.button,.button-outlined,.danger,.icon-button{transition:none}.button[aria-busy=true]::after,.button-outlined[aria-busy=true]::after,.danger[aria-busy=true]::after,.segmented[aria-busy=true]::after{animation:none}.celebrate-coins .coin-mini{animation:none}.waiting .coin{animation:none}}
 @keyframes top-bar-lift{from{box-shadow:none}to{background:var(--md-sys-color-surface-container-high);box-shadow:0 1px 0 var(--md-sys-color-outline-variant)}}
 @keyframes busy-spin{to{transform:rotate(360deg)}}
 @keyframes tour-point{50%{outline-offset:5px}}

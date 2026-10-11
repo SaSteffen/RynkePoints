@@ -98,7 +98,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	{
 		athleteId: 990002,
 		firstName: "Nora NoRides",
-		state: "No rides",
+		state: "No rides, so no badges yet",
 		scopes: ALL_SCOPES,
 		clubMember: true,
 		behaviour: "normal",
@@ -230,6 +230,23 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		behaviour: "normal",
 		organiser: true,
 		rides: rides(5, (i) => ride(...slot(i), 60, 400, 25)),
+	},
+	{
+		athleteId: 990012,
+		firstName: "Bea Badges",
+		state:
+			"Badges (feature 013): earlier and later ones in a category, both technique trainings",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		// 12 rides of 60 km and 500 m: 720 km and 6,000 m, so distance 100 and
+		// 500 and elevation 1,000 and 5,000, each a few days apart.
+		rides: rides(12, (i) => ride(...slot(i), 60, 500, 25)),
+		events: [
+			{ daysAgo: 9, kind: "technique_training", name: "Sample braking" },
+			{ daysAgo: 2, kind: "technique_training", name: "Sample cornering" },
+			{ daysAgo: 4, kind: "team_training", name: null },
+		],
 	},
 ];
 

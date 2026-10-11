@@ -1,8 +1,9 @@
 // RynkePoints page script (feature 010 contracts/client.md, research R16). It
 // only wires up what a server-rendered page can't do itself: the service worker,
 // the install group and the app prompt, the notifications switch, the scheme
-// picker, reloading a section on return, waiting for the first data and the
-// buttons' press and busy feedback. It holds no text: every word shown comes
+// picker, reloading a section on return, waiting for the first data, the
+// buttons' press and busy feedback and opening a badge's large view on mouse
+// hover (feature 013 research R19). It holds no text: every word shown comes
 // from the page's markup, rendered from the catalogs and hidden until this
 // shows it.
 
@@ -686,6 +687,38 @@ function pendingSubmit() {
 	});
 }
 
+/**
+ * A badge's large view also opens while a mouse rests on the badge (feature
+ * 013 research R19); tap, click and keyboard stay the popover's own. A click
+ * on a badge the hover opened keeps it open instead of toggling it shut.
+ */
+function badgeHover() {
+	if (!("showPopover" in HTMLElement.prototype)) return;
+	for (const button of document.querySelectorAll(
+		"button.badge[popovertarget]",
+	)) {
+		const large = document.getElementById(button.getAttribute("popovertarget"));
+		if (!large) continue;
+		let byHover = false;
+		button.addEventListener("pointerenter", (event) => {
+			if (event.pointerType !== "mouse" || large.matches(":popover-open"))
+				return;
+			large.showPopover();
+			byHover = true;
+		});
+		button.addEventListener("pointerleave", (event) => {
+			if (event.pointerType !== "mouse" || !byHover) return;
+			byHover = false;
+			if (large.matches(":popover-open")) large.hidePopover();
+		});
+		button.addEventListener("click", (event) => {
+			if (!byHover) return;
+			byHover = false;
+			event.preventDefault();
+		});
+	}
+}
+
 const registered = registerWorker();
 keepScroll();
 pressFeedback();
@@ -696,4 +729,5 @@ schemePicker();
 refreshOnReturn();
 waitForFirstData();
 pageLoading();
+badgeHover();
 notifications().catch(() => {});

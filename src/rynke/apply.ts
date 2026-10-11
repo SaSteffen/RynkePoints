@@ -11,7 +11,12 @@
 // research R5). Callers decide whether a rise notifies
 // (010 contracts/push-delivery.md "Which changes notify"). A rise is stored
 // with the change, so a notification can say how many Rynke are new (#45).
+//
+// The rider's personal badges are worked out from the same evaluation and
+// written as a diff in the same batch (feature 013 research R13).
 
+import { BADGE_CATALOG_VERSION } from "../badges/catalog";
+import { type EarnedBadge, evaluateBadges } from "../badges/evaluate";
 import type { Ctx } from "../ctx";
 import {
 	activityOwnersStatement,
@@ -20,6 +25,15 @@ import {
 	listActivitiesOfRidersStatement,
 	upsertActivityStatement,
 } from "../db/activities";
+import {
+	type BadgesVersionRow,
+	deleteRiderBadgesStatement,
+	listBadgesOfRidersStatement,
+	type RiderBadgeRow,
+	readBadgesVersionsStatement,
+	setBadgesVersionStatement,
+	upsertRiderBadgesStatement,
+} from "../db/badges";
 import {
 	type CorrectionFields,
 	type CorrectionOfRidersRow,
@@ -162,7 +176,16 @@ interface RiderState {
 	results: StoredRideResult[];
 	balance: StoredBalance | null;
 	attendance: Attendance[];
-	corrections: { correctionId: number; training: number; team: number }[];
+	corrections: {
+		correctionId: number;
+		training: number;
+		team: number;
+		date: string;
+	}[];
+	/** Stored personal badges: badge id → `earned_on` (feature 013). */
+	badges: Map<string, string>;
+	/** The `BADGE_CATALOG_VERSION` the stored badges were worked out with. */
+	badgesVersion: number;
 }
 
 export async function applyAndEvaluate(
@@ -447,6 +470,7 @@ export async function applyCorrectionChange(
 				correctionId: 0,
 				training: correction.training,
 				team: correction.team,
+				date: correction.date,
 			});
 		};
 		extraReads.push(riderStatusesStatement(db, [athleteId]));
@@ -561,6 +585,8 @@ async function readRiders(
 		balanceRows,
 		attendanceRows,
 		correctionRows,
+		badgeRows,
+		versionRows,
 		...extra
 	] = await db.batch([
 		listActivitiesOfRidersStatement(db, athleteIds),
@@ -568,6 +594,8 @@ async function readRiders(
 		readBalancesOfRidersStatement(db, athleteIds),
 		listAttendanceOfRidersStatement(db, athleteIds),
 		listCorrectionsOfRidersStatement(db, athleteIds),
+		listBadgesOfRidersStatement(db, athleteIds),
+		readBadgesVersionsStatement(db, athleteIds),
 		...extraReads,
 	]);
 	if (
@@ -575,7 +603,9 @@ async function readRiders(
 		!resultRows ||
 		!balanceRows ||
 		!attendanceRows ||
-		!correctionRows
+		!correctionRows ||
+		!badgeRows ||
+		!versionRows
 	) {
 		throw new Error("D1 batch returned too few results");
 	}
@@ -588,6 +618,8 @@ async function readRiders(
 				balance: null,
 				attendance: [],
 				corrections: [],
+				badges: new Map(),
+				badgesVersion: 0,
 			},
 		]),
 	);
@@ -609,7 +641,15 @@ async function readRiders(
 			correctionId: row.correction_id,
 			training: row.training,
 			team: row.team,
+			date: row.correction_date,
 		});
+	}
+	for (const row of badgeRows.results as RiderBadgeRow[]) {
+		riders.get(row.athlete_id)?.badges.set(row.badge_id, row.earned_on);
+	}
+	for (const row of versionRows.results as BadgesVersionRow[]) {
+		const rider = riders.get(row.athlete_id);
+		if (rider) rider.badgesVersion = row.badges_version;
 	}
 	return { riders, extra };
 }
@@ -619,7 +659,7 @@ function evaluateState(
 	state: RiderState,
 	rules: RynkeRules,
 	window: CountingWindow,
-): { evaluation: Evaluation; balance: Balance } {
+): { evaluation: Evaluation; balance: Balance; badges: EarnedBadge[] } {
 	const evaluation = evaluateRides(
 		[...state.activities.values()].map(rideFromRow),
 		rules,
@@ -633,7 +673,41 @@ function evaluateState(
 		),
 		rules,
 	);
-	return { evaluation, balance };
+	return {
+		evaluation,
+		balance,
+		badges: personalBadges(state, evaluation, rules, window),
+	};
+}
+
+/** The rider's personal badges from their counting rides and extras (R13, R14). */
+function personalBadges(
+	state: RiderState,
+	evaluation: Evaluation,
+	rules: RynkeRules,
+	window: CountingWindow,
+): EarnedBadge[] {
+	const rides = [];
+	for (const result of evaluation.results) {
+		const activity = state.activities.get(result.activityId);
+		if (!result.counts || !activity) continue;
+		rides.push({
+			date: activity.start_date_local.slice(0, 10),
+			distanceM: activity.distance_m,
+			distanceRynke: result.distanceRynke,
+			elevationDm: result.elevationDm,
+		});
+	}
+	return evaluateBadges(
+		{
+			rides,
+			runs: [],
+			attendance: state.attendance,
+			corrections: state.corrections,
+		},
+		rules,
+		window,
+	).earned;
 }
 
 /** Whether the rider gained Training or Team Rynke (research R5). */
@@ -668,7 +742,11 @@ function riderWrites(
 	db: D1Database,
 	athleteId: number,
 	state: RiderState,
-	{ evaluation, balance }: { evaluation: Evaluation; balance: Balance },
+	{
+		evaluation,
+		balance,
+		badges,
+	}: { evaluation: Evaluation; balance: Balance; badges: EarnedBadge[] },
 	rules: RynkeRules,
 	now: number,
 ): D1PreparedStatement[] {
@@ -692,6 +770,34 @@ function riderWrites(
 	}
 	if (!state.balance || !sameBalance(state.balance, balance)) {
 		writes.push(upsertBalanceStatement(db, athleteId, balance, now));
+	}
+	writes.push(...badgeWrites(db, athleteId, state, badges));
+	return writes;
+}
+
+/** Only badges that appeared, disappeared or changed date (research R13). */
+function badgeWrites(
+	db: D1Database,
+	athleteId: number,
+	state: RiderState,
+	badges: EarnedBadge[],
+): D1PreparedStatement[] {
+	const writes: D1PreparedStatement[] = [];
+	const gone = new Set(state.badges.keys());
+	const changed = badges.filter((b) => {
+		gone.delete(b.badgeId);
+		return state.badges.get(b.badgeId) !== b.earnedOn;
+	});
+	if (gone.size > 0) {
+		writes.push(deleteRiderBadgesStatement(db, athleteId, [...gone]));
+	}
+	if (changed.length > 0) {
+		writes.push(upsertRiderBadgesStatement(db, athleteId, changed));
+	}
+	if (state.badgesVersion !== BADGE_CATALOG_VERSION) {
+		writes.push(
+			setBadgesVersionStatement(db, athleteId, BADGE_CATALOG_VERSION),
+		);
 	}
 	return writes;
 }

@@ -1,0 +1,179 @@
+// The Abzeichen section on the Overview (feature 013 US1,
+// contracts/abzeichen-section.md): the newest badge per category as cards with
+// the milestone on the ribbon, the closed gallery of every badge, the
+// categories without a badge, and one popover per earned badge. Only earned
+// badges are named or pictured, so the next one stays a surprise (SC-003).
+
+import {
+	type Badge,
+	type BadgeCategoryId,
+	type BadgeGroup,
+	type BadgeUnit,
+	badgeById,
+} from "../../badges/catalog";
+import type { EarnedBadge } from "../../badges/evaluate";
+import { BADGE_PICTURES } from "../../badges/pictures";
+import type {
+	BadgeSection,
+	Card,
+	NotYetRow,
+	ProgressView,
+} from "../../badges/view";
+import type { I18n } from "../../i18n/i18n";
+import { BADGE_NAMES } from "../../i18n/messages/badges.de";
+import { html, type SafeHtml } from "../html";
+
+/** Units with a singular form, for "Noch 1 Termin". */
+const SINGULAR = new Set<BadgeUnit>([
+	"events",
+	"trainings",
+	"riders",
+	"attendances",
+]);
+
+function valueText(
+	i18n: I18n,
+	unit: BadgeUnit,
+	n: number,
+	fractionDigits = 0,
+): string {
+	const value = i18n.formatNumber(n, { fractionDigits });
+	return n === 1 && SINGULAR.has(unit)
+		? i18n.t(`badges.value.${unit as "events"}.one`, { n: value })
+		: i18n.t(`badges.value.${unit}`, { n: value });
+}
+
+const UNITS: Record<BadgeCategoryId, BadgeUnit> = {
+	distance: "km",
+	elevation: "m",
+	team_events: "events",
+	technique: "trainings",
+	training_rynke: "rynke",
+	run_length: "km",
+	running: "km",
+	team_training_rynke: "rynke",
+	team_distance: "km",
+	team_elevation: "m",
+	team_running: "km",
+	big_training: "riders",
+	attendances: "attendances",
+};
+
+/** The milestone on the ribbon: "1.000 km", "Halbmarathon". */
+function milestone(i18n: I18n, badge: Badge): string {
+	if (badge.id === "run-length-half") return i18n.t("badges.value.half");
+	if (badge.id === "run-length-marathon")
+		return i18n.t("badges.value.marathon");
+	return valueText(i18n, UNITS[badge.category], badge.threshold);
+}
+
+function picture(badge: Badge, ribbon: boolean): string {
+	const suffix = ribbon ? "-ribbon" : "";
+	return BADGE_PICTURES.has(badge.id)
+		? `/badges/${badge.id}${suffix}.svg`
+		: `/badges/placeholder-${badge.group}${suffix}.svg`;
+}
+
+function badgeOf(earned: EarnedBadge): Badge {
+	const badge = badgeById(earned.badgeId);
+	if (!badge) throw new Error(`Unknown badge ${earned.badgeId}`);
+	return badge;
+}
+
+/** A badge as a button that opens its large view. */
+function badgeButton(
+	i18n: I18n,
+	earned: EarnedBadge,
+	size: 128 | 96,
+): SafeHtml {
+	const badge = badgeOf(earned);
+	const label = i18n.t("badges.label", {
+		name: BADGE_NAMES[badge.id] ?? "",
+		value: milestone(i18n, badge),
+	});
+	const ribbon = size === 128;
+	return html`<button class="badge" popovertarget="badge-${badge.id}" aria-label="${label}"><img src="${picture(badge, ribbon)}" alt="" loading="lazy" width="${size}" height="${size}">${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}</button>`;
+}
+
+function progressBar(
+	i18n: I18n,
+	category: BadgeCategoryId,
+	progress: ProgressView,
+): SafeHtml {
+	// The width is a number the view model computed, never user input.
+	const missing = valueText(
+		i18n,
+		progress.unit,
+		progress.missing,
+		category === "run_length" ? 1 : 0,
+	);
+	return html`<span class="bar" aria-hidden="true"><span style="width:${progress.percent}%"></span></span><span class="badge-missing">${i18n.t("badges.missing", { value: missing })}</span>`;
+}
+
+function card(i18n: I18n, card: Card): SafeHtml {
+	return html`<li class="badge-card" data-category="${card.category}">
+<h4>${i18n.t(`badges.category.${card.category}`)}</h4>
+${badgeButton(i18n, card.badge, 128)}
+${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.category, card.progress)}</div>` : null}
+</li>`;
+}
+
+function group(
+	i18n: I18n,
+	kind: BadgeGroup,
+	view: BadgeSection["personal"],
+): SafeHtml | null {
+	if (view.count === 0) return null;
+	const gallery = view.gallery.map(
+		(g) => html`<h4>${i18n.t(`badges.category.${g.category}`)}</h4>
+<ul>${g.badges.map(
+			(b) =>
+				html`<li>${badgeButton(i18n, b, 96)}<span class="badge-value">${milestone(i18n, badgeOf(b))}</span></li>`,
+		)}</ul>
+`,
+	);
+	return html`<section class="badge-group badge-group-${kind}" aria-labelledby="badges-${kind}-heading">
+<h3 id="badges-${kind}-heading">${i18n.t(`badges.${kind}.newest`)}</h3>
+<ul class="badge-cards">
+${view.cards.map((c) => card(i18n, c))}
+</ul>
+<details class="badge-gallery">
+<summary>${i18n.t(`badges.${kind}.all`, { n: i18n.formatNumber(view.count, { fractionDigits: 0 }) })}</summary>
+${gallery}</details>
+</section>
+`;
+}
+
+function notYet(i18n: I18n, rows: readonly NotYetRow[]): SafeHtml | null {
+	if (rows.length === 0) return null;
+	return html`<section class="badge-not-yet" aria-labelledby="badges-not-yet-heading">
+<h3 id="badges-not-yet-heading">${i18n.t("badges.notYet")}</h3>
+<ul>${rows.map(
+		(row) =>
+			html`<li class="badge-not-yet-row badge-group-${row.group}" data-category="${row.category}"><span class="badge-category">${i18n.t(`badges.category.${row.category}`)}</span>${progressBar(i18n, row.category, row.progress)}</li>`,
+	)}</ul>
+</section>
+`;
+}
+
+/** The large view: the badge at 280 px with its name, what it was for and the date. */
+function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
+	const badge = badgeOf(earned);
+	const value = milestone(i18n, badge);
+	return html`<div popover id="badge-${badge.id}" class="badge-large">
+<span class="badge"><img src="${picture(badge, true)}" alt="" loading="lazy" width="280" height="280"><span class="badge-ribbon-text">${value}</span></span>
+<h4>${BADGE_NAMES[badge.id] ?? ""}</h4>
+<p>${i18n.t(`badges.for.${badge.category}`, { value })}</p>
+<p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
+</div>
+`;
+}
+
+export function renderBadges(i18n: I18n, section: BadgeSection): SafeHtml {
+	const earned = section.personal.gallery.flatMap((g) => g.badges);
+	return html`<section class="badges" aria-labelledby="badges-heading">
+<h2 id="badges-heading">${i18n.t("badges.heading")}</h2>
+<p class="badges-intro">${i18n.t("badges.intro")}</p>
+${group(i18n, "personal", section.personal) ?? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>`}
+${notYet(i18n, section.notYet)}${earned.map((b) => popover(i18n, b))}</section>`;
+}

@@ -3,8 +3,10 @@ import { CURRENT_RULES } from "../../src/rynke/rules";
 import type { Balance } from "../../src/rynke/tally";
 import { NO_EXTRAS } from "../../src/rynke/tally";
 import {
+	type DailyInputs,
 	lastDay,
 	type RiderInputs,
+	riderDays,
 	riderWeeks,
 	weekEnds,
 } from "../../src/rynke/weeks";
@@ -168,5 +170,42 @@ describe("riderWeeks", () => {
 		expect(riderWeeks(NO_INPUTS, WINDOW, ENDS, null)).toEqual(
 			ENDS.map((weekEnd) => ({ weekEnd, training: 0, team: 0 })),
 		);
+	});
+});
+
+describe("riderDays", () => {
+	const NO_DAILY: DailyInputs = { rides: [], attendance: [], corrections: [] };
+
+	it("gives the Training Rynke after each day with an input, elevation floored on the total", () => {
+		const inputs: DailyInputs = {
+			...NO_DAILY,
+			rides: [
+				{ date: "2026-01-05", distanceRynke: 3, elevationDm: 6000 },
+				{ date: "2026-01-02", distanceRynke: 4, elevationDm: 6000 },
+				{ date: "2026-01-05", distanceRynke: 1, elevationDm: 0 },
+			],
+		};
+		expect(riderDays(inputs, WINDOW, CURRENT_RULES)).toEqual([
+			{ date: "2026-01-02", training: 4, team: 0 },
+			// 12 000 dm together: one full step of 5 Rynke; per day it would be 0.
+			{ date: "2026-01-05", training: 13, team: 0 },
+		]);
+	});
+
+	it("dates attendance by its event and corrections by their date", () => {
+		const inputs: DailyInputs = {
+			rides: [{ date: "2026-01-02", distanceRynke: 10, elevationDm: 0 }],
+			attendance: [{ eventId: 1, kind: "team_training", date: "2026-01-08" }],
+			corrections: [{ date: "2026-01-15", training: 2, team: 3 }],
+		};
+		expect(riderDays(inputs, WINDOW, CURRENT_RULES)).toEqual([
+			{ date: "2026-01-02", training: 10, team: 0 },
+			{ date: "2026-01-08", training: 15, team: 1 },
+			{ date: "2026-01-15", training: 17, team: 4 },
+		]);
+	});
+
+	it("gives nothing without inputs", () => {
+		expect(riderDays(NO_DAILY, WINDOW, CURRENT_RULES)).toEqual([]);
 	});
 });

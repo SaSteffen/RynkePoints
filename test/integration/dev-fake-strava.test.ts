@@ -469,6 +469,30 @@ describe("sample riders in every state (US2)", () => {
 		expect(items).toContain("Sample cornering");
 	});
 
+	it("gives Bea Badges earlier and later badges in a category and a full one (013)", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			"SELECT badge_id FROM rider_badges WHERE athlete_id = ? ORDER BY badge_id",
+		)
+			.bind(990012)
+			.all<{ badge_id: string }>();
+		expect(results.map((r) => r.badge_id)).toEqual(
+			expect.arrayContaining([
+				"distance-100",
+				"distance-500",
+				"elevation-1000",
+				"elevation-5000",
+				"technique-1",
+				"technique-2",
+				"team-events-1",
+			]),
+		);
+		const page = await mePage(990012);
+		expect(page).toContain('<section class="badges"');
+		expect(page).toContain('data-category="technique"');
+		expect(await mePage(990002)).not.toContain('class="badge-card"');
+	});
+
 	it("enters the shared team events, recorded by Tina TrainingDone (014)", async () => {
 		await seeded();
 		const { results } = await env.DB.prepare(
