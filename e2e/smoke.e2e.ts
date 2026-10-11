@@ -188,6 +188,9 @@ test("a rider opens a badge's large view on a phone (013)", async ({
 	await expectNoSidewaysScroll(page);
 	await page.keyboard.press("Escape");
 	await expect(large).toBeHidden();
+	await badge.click();
+	await large.locator(".badge-large-close").click();
+	await expect(large).toBeHidden();
 });
 
 test("an organiser sees the Orga pages", async ({ page }) => {

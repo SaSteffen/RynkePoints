@@ -385,7 +385,7 @@ ul.rider-missing{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-sty
 button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full);background:none;cursor:pointer}
 .badge{position:relative;container-type:inline-size}
 .badge img{display:block;width:100%;height:auto}
-.badge-card .badge,.badge-card .badge-slot{width:128px;max-width:100%}
+.badge-card .badge,.badge-card .badge-slot{width:100%;max-width:200px}
 .badge-card .badge-slot::before{width:100%;height:auto;aspect-ratio:1}
 .badge-ribbon-text{position:absolute;left:13%;top:70%;width:74%;height:14%;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;color:var(--rp-coin-yellow);font:700 clamp(8px,8.5cqi,26px)/1 var(--md-ref-typeface)}
 .badge-group-team .badge-ribbon-text,.badge-large-team .badge-ribbon-text{color:var(--rp-coin-ink)}
@@ -404,6 +404,7 @@ button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full)
 .badge-slot::before{content:"";display:block;width:96px;height:96px;box-sizing:border-box;border:2px dotted var(--md-sys-color-outline);border-radius:var(--md-shape-full)}
 .badge-value{font:var(--md-type-caption)}
 .badge-large{width:min(312px,calc(100vw - 2 * var(--rp-space-4)));box-sizing:border-box;padding:var(--rp-space-4);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);text-align:center;box-shadow:0 2px 6px var(--md-sys-color-outline)}
+.badge-large-close{position:absolute;top:var(--rp-space-1);right:var(--rp-space-1);z-index:1;padding:0;border:0;background:var(--md-sys-color-surface)}
 .badge-large .badge{display:block;width:280px;max-width:100%;margin:0 auto}
 .badge-large h4{margin:var(--rp-space-3) 0 var(--rp-space-1);font:var(--md-type-title-large)}
 .badge-large p{margin:0;color:var(--md-sys-color-on-surface-variant)}

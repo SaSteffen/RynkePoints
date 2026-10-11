@@ -294,14 +294,16 @@ their badge names examples.
     category's earned badges, each badge of that category still to earn is an
     empty dotted outline of the same size, without name, picture or text
     (issue #109). Absent while the group has no badge.
-- **FR-002a**: Badge sizes: 128 px on a card, with its ribbon; 96 px in the
+- **FR-002a**: Badge sizes: on a card as wide as the card allows, up to
+  200 px, with its ribbon; 96 px in the
   gallery, without a ribbon. The cards stand two per row at every width;
   below 600 px a card with a badge leaves out the sentence on how its category
   counts; a card without one keeps it.
 - **FR-002b**: Pointing at an earned badge, on a card or in the gallery, MUST
   show it at 280 px with its ribbon, name, what it was for and the date earned:
   on hover with a mouse, on keyboard focus, and on tap on a touch screen
-  (another tap or tapping elsewhere closes it). It MUST stay within the screen
+  (another tap, tapping elsewhere or its close button in the top right corner
+  closes it). It MUST stay within the screen
   at 360 px width and not cover the badge pointed at on wider screens.
 - **FR-002c**: Progress bars MUST be yellow for personal categories and the team
   blue of the team frame for team categories.

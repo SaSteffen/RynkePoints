@@ -247,9 +247,16 @@ describe("STYLE", () => {
 				"(max-width:599.98px)",
 			).display,
 		).toBe("none");
-		expect(declsOf(".badge-card .badge").width).toBe("128px");
+		// As wide as the card allows, up to 200 px.
+		expect(declsOf(".badge-card .badge")).toMatchObject({
+			width: "100%",
+			"max-width": "200px",
+		});
 		// A category without a badge: a dotted outline in the badge's place.
-		expect(declsOf(".badge-card .badge-slot").width).toBe("128px");
+		expect(declsOf(".badge-card .badge-slot")).toMatchObject({
+			width: "100%",
+			"max-width": "200px",
+		});
 		expect(declsOf(".badge-gallery .badge").width).toBe("96px");
 		expect(declsOf(".badge-large .badge")).toMatchObject({
 			width: "280px",

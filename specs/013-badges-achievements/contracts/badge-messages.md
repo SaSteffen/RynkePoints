@@ -28,6 +28,7 @@ the implementation together with the project owner.
 | `badges.empty` | Noch kein Abzeichen – deine erste Fahrt bringt dich näher. (encouraging empty state, US1 scenario 4) |
 | `badges.missing` | Noch {value} |
 | `badges.earnedOn` | erreicht am {date} |
+| `badges.close` | Schließen (close button of the large view) |
 | `badges.label` | {name}, {value} (a badge button's accessible name) |
 | `badges.reveal.one` / `badges.reveal.many` | Neues Abzeichen: {name} / {n} neue Abzeichen |
 | `badges.category.<id>` | Distanz, Höhenmeter, Teamtermine, Techniktraining, Trainings-Rynke, Längster Lauf, Laufen gesamt, Trainings-Rynke gemeinsam, Kilometer gemeinsam, Höhenmeter gemeinsam, Laufen gemeinsam, Große Ausfahrt, Teilnahmen |

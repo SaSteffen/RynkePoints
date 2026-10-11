@@ -39,6 +39,7 @@ import {
 	countingWindow,
 } from "../../rynke/rules";
 import { html, type SafeHtml } from "../html";
+import { CLOSE } from "../icons";
 import { renderWaiting } from "../rider-sections";
 import { shellPage } from "../shell";
 
@@ -103,14 +104,14 @@ function badgeOf(earned: EarnedBadge): Badge {
 function badgeButton(
 	i18n: I18n,
 	earned: EarnedBadge,
-	size: 128 | 96,
+	size: 200 | 96,
 ): SafeHtml {
 	const badge = badgeOf(earned);
 	const label = i18n.t("badges.label", {
 		name: BADGE_NAMES[badge.id] ?? "",
 		value: milestone(i18n, badge),
 	});
-	const ribbon = size === 128;
+	const ribbon = size === 200;
 	return html`<button class="badge" popovertarget="badge-${badge.id}" aria-label="${label}"><img src="${picture(badge, ribbon)}" alt="" loading="lazy" width="${size}" height="${size}">${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}</button>`;
 }
 
@@ -138,7 +139,7 @@ function categoryHeading(i18n: I18n, category: BadgeCategoryId): SafeHtml {
 function card(i18n: I18n, card: Card): SafeHtml {
 	return html`<li class="badge-card" data-category="${card.category}">
 ${categoryHeading(i18n, card.category)}
-${badgeButton(i18n, card.badge, 128)}
+${badgeButton(i18n, card.badge, 200)}
 ${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.category, card.progress)}</div>` : null}
 </li>`;
 }
@@ -188,12 +189,16 @@ ${gallery}</details>`
 `;
 }
 
-/** The large view: the badge at 280 px with its name, what it was for and the date. */
+/**
+ * The large view: the badge at 280 px with its name, what it was for and the
+ * date, and a close button for phones, where there's little outside to tap.
+ */
 function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 	const badge = badgeOf(earned);
 	const value = milestone(i18n, badge);
 	const team = badge.group === "team" ? " badge-large-team" : "";
 	return html`<div popover id="badge-${badge.id}" class="badge-large${team}">
+<button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
 <span class="badge"><img src="${picture(badge, true)}" alt="" loading="lazy" width="280" height="280"><span class="badge-ribbon-text">${value}</span></span>
 <h4>${BADGE_NAMES[badge.id] ?? ""}</h4>
 <p>${i18n.t(`badges.for.${badge.category}`, { value })}</p>

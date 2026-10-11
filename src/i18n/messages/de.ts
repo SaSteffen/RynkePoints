@@ -513,6 +513,7 @@ export const de = {
 	"badges.empty": "Noch kein Abzeichen – deine erste Fahrt bringt dich näher.",
 	"badges.missing": "Noch {value}",
 	"badges.earnedOn": "erreicht am {date}",
+	"badges.close": "Schließen",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "Neues Abzeichen: {name}",
 	"badges.reveal.many": "{n} neue Abzeichen",

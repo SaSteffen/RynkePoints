@@ -31,7 +31,7 @@ it, with new own badges and new team badges together.
         <h4>Distanz</h4>                       <!-- the category's name, bold -->
         <p class="badge-about">Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.</p>
         <button class="badge" popovertarget="badge-distance-1000" aria-label="Hamburg–Paris, 1.000 km">
-          <img src="/badges/distance-1000-ribbon.svg" alt="" loading="lazy" width="128" height="128">
+          <img src="/badges/distance-1000-ribbon.svg" alt="" loading="lazy" width="200" height="200">
           <span class="badge-ribbon-text">1.000 km</span>
         </button>
         <div class="badge-progress">          <!-- absent when the category is complete (FR-004) -->
@@ -43,7 +43,7 @@ it, with new own badges and new team badges together.
       <li class="badge-card badge-card-empty" data-category="running">
         <h4>Laufen gesamt</h4>
         <p class="badge-about">Alle Kilometer deiner Läufe in dieser Saison, …</p>  <!-- also on phones -->
-        <span class="badge-slot" aria-hidden="true"></span>                       <!-- dotted outline, 128 px -->
+        <span class="badge-slot" aria-hidden="true"></span>                       <!-- dotted outline, card width up to 200 px -->
         <div class="badge-progress">…<span class="badge-missing">Noch 10 km</span></div>
       </li>
     </ul>
@@ -66,6 +66,7 @@ it, with new own badges and new team badges together.
 
   <!-- one popover per earned badge, outside the cards -->
   <div popover id="badge-distance-1000" class="badge-large">
+    <button type="button" class="icon-button badge-large-close" popovertarget="badge-distance-1000" popovertargetaction="hide" aria-label="Schließen">…</button>
     <span class="badge"><img src="/badges/distance-1000-ribbon.svg" alt="" width="280" height="280"><span class="badge-ribbon-text">1.000 km</span></span>
     <h4>Hamburg–Paris</h4>
     <p>Du bist in dieser Saison 1.000 km Rad gefahren.</p>
@@ -105,12 +106,13 @@ The reveal, at the top of the page (research R16):
   bar colour; the gallery is left out while the group has no badge.
 - **Large view**: a `popover` per earned badge, opened by its buttons (tap,
   click, keyboard); with a mouse also on hover (`public/app.js`). It fits 360 px
-  and, on wider screens, opens beside the badge (FR-002b).
+  and, on wider screens, opens beside the badge (FR-002b). A close button
+  (×) sits in its top right corner.
 - **Reveal**: present only when badges of the page's group are new for this
   rider, at the top of the page next to the coin celebration; a GET writes
   their `badge_reveals`, a HEAD doesn't (like `rynke_seen`); honours reduced
   motion (feature 012).
-- **Sizes**: 128 px cards, 96 px gallery, 280 px popover (FR-002a/b); two cards
+- **Sizes**: cards as wide as they allow, up to 200 px; 96 px gallery, 280 px popover (FR-002a/b); two cards
   per row at every width; below 600 px only cards without a badge keep the
   category sentence; no
   horizontal scrolling (SC-005).
