@@ -39,10 +39,10 @@
   is gone; Tour and longest-ride categories are dropped; running has two
   categories (run length up to marathon, overall km); technique training gets its
   own category.
-- Team amounts are limited to Training Rynke (Assumptions): team totals of
-  kilometres or elevation would be newly shown to other riders and need a new
-  consent version.
+- Team sums of kilometres, elevation and running kilometres need no new consent
+  version, by the project owner's decision (Clarifications, FR-023): they show no
+  single rider's figures.
 - Strava sport type names (FR-020) are domain terms riders know from Strava, not an
   implementation detail.
 - Storing runs is checked against Principle I in FR-023: data the app already
-  receives, shown only to the rider, so no new consent version.
+  receives, shown to others only as a team sum.

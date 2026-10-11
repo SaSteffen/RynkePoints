@@ -55,6 +55,10 @@ next one."
 - Q (raised by the project owner): What does the team's Rynke category count? →
   A: Training Rynke, collected by the whole team together ("Training Rynke
   together"), with more thresholds than the first draft.
+- Q (raised by the project owner): Do team totals of kilometres, elevation and
+  running kilometres need a new consent version? → A: No. They are sums over the
+  whole team that show no single rider's figures, covered by the consent to show
+  points to the team. They are part of this feature.
 - Q (raised by the project owner): Is there a badge for technique training? → A:
   Yes, a personal category with two badges: one for attending one of the season's
   two planned technique trainings, one for attending both.
@@ -148,8 +152,8 @@ unchanged.
    **Then** the run-length category shows the progress towards marathon distance
    (42.2 km), as long as the marathon badge is not earned.
 2. **Given** a run, **When** it is evaluated, **Then** the rider's Training Rynke,
-   Team Rynke, ride list, team leaderboard and team badges are exactly as without
-   it.
+   Team Rynke, ride list and team leaderboard are exactly as without it; only the
+   running categories (the rider's own and "Running together") change.
 3. **Given** a rider who connected before this feature, **When** it is released,
    **Then** their runs since the season start are picked up without the rider doing
    anything.
@@ -251,6 +255,10 @@ check every rider's page shows the team badge with the training's date.
   - Amounts collected together:
     - Training Rynke together: all Training Rynke the consenting riders collected
       this season, the team total feature 016 already shows.
+    - Distance together: the kilometres of all counting rides of consenting riders.
+    - Elevation together: the elevation gain of all counting rides of consenting
+      riders.
+    - Running together: the kilometres of all runs of consenting riders (FR-020).
   - Participation in team activities:
     - Big training: the most riders at a single team event of the season.
     - Attendances: how often riders attended team events this season, summed over
@@ -274,15 +282,18 @@ check every rider's page shows the team badge with the training's date.
 - **FR-020a**: Virtual runs (VirtualRun) and runs Strava marks as indoor (treadmill)
   MUST count nothing and MUST NOT be kept. A run changed on Strava from indoor to
   outdoor, or back, MUST be added or removed on its next update.
-- **FR-021**: Runs MUST NOT earn Rynke, appear in the ride list, take part in
-  feature 003's ride rules (overlap, pause, speed) or show up anywhere other riders
-  can see.
+- **FR-021**: Runs MUST NOT earn Rynke, appear in the ride list or take part in
+  feature 003's ride rules (overlap, pause, speed). Other riders MUST NOT see any
+  single run or a rider's running figures; runs reach them only inside the team
+  sum "Running together" (FR-011).
 - **FR-022**: Runs since the season start of riders who connected before this
   feature MUST be picked up once after release, within the Strava request budget
   (Principle II), like feature 008's one-time re-read.
-- **FR-023**: The consent text MUST name that runs are read and kept for the rider's
-  own badges. As this keeps data the app already receives and shows it only to the
-  rider, it needs no new consent version (constitution Principle I).
+- **FR-023**: The consent text MUST name that runs are read and kept for badges,
+  and that ride and run kilometres and elevation count towards team sums. Per the
+  project owner's decision (Clarifications), keeping data the app already receives
+  and showing it to the team only as sums over all riders needs no new consent
+  version (constitution Principle I).
 
 **Evaluation**
 
@@ -328,7 +339,7 @@ check every rider's page shows the team badge with the training's date.
 - **SC-003**: No badge that is still to be earned can be identified from the page:
   its name and picture appear nowhere in what the rider page sends to the browser.
 - **SC-004**: Adding any number of runs leaves every rider's Rynke, ride list, team
-  leaderboard and team badges unchanged.
+  leaderboard and every team badge except "Running together" unchanged.
 - **SC-005**: The Badges section works at 360 px width in both colour modes.
 
 ## Assumptions
@@ -349,12 +360,15 @@ check every rider's page shows the team badge with the training's date.
   | Run length                     | km          | 5, 10, half marathon (21.0975), marathon (42.195)       |
   | Running                        | km          | 10, 25, 50, 100, 250, 500                               |
   | Training Rynke together (team) | Rynke       | 500, 1,000, 2,500, 5,000, 7,500, 10,000, 15,000, 20,000 |
+  | Distance together (team)       | km          | 1,000, 5,000, 10,000, 25,000, 50,000, 100,000           |
+  | Elevation together (team)      | m           | 10,000, 50,000, 100,000, 250,000, 500,000               |
+  | Running together (team)        | km          | 100, 500, 1,000, 2,500, 5,000                           |
   | Big training (team)            | riders      | 5, 10, 15, 20, 30                                       |
   | Attendances (team)             | attendances | 25, 50, 100, 200, 400                                   |
 
-- Team amounts are Training Rynke only. Team totals of kilometres, elevation or running
-  kilometres would show something new to other riders (Principle I) and need a new
-  consent version; they are left for a later change.
+- Team sums show no single rider's figures. While very few riders run, "Running
+  together" is close to those riders' own totals; this is accepted, since riders
+  see no names or per-rider shares.
 - The season has two planned technique trainings; should organisers plan more, the
   ladder changes with a release (FR-012).
 - Badges belong to one season, like Rynke; a new season starts every category at
