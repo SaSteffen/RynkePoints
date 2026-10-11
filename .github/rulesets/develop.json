@@ -29,6 +29,7 @@
 					{ "context": "lint", "integration_id": 15368 },
 					{ "context": "typecheck", "integration_id": 15368 },
 					{ "context": "test", "integration_id": 15368 },
+					{ "context": "e2e", "integration_id": 15368 },
 					{ "context": "commit-messages", "integration_id": 15368 },
 					{ "context": "pr-title", "integration_id": 15368 },
 					{ "context": "pr-source", "integration_id": 15368 }

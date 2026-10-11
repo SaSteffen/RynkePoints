@@ -8,6 +8,10 @@ node_modules/
 .wrangler/
 dist/
 
+# Playwright's results and traces (pnpm test:e2e)
+test-results/
+playwright-report/
+
 # Local secrets — Strava client secret, token encryption key, etc. Production
 # secrets live in Cloudflare (`wrangler secret put`), never in git
 # (constitution Principle I). .dev.vars.example IS committed.

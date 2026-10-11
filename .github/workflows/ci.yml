@@ -20,15 +20,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
-# The six check jobs (here and in pr-policy.yml) are the required-check contexts in
+# The seven check jobs (here and in pr-policy.yml) are the required-check contexts in
 # .github/rulesets/*.json. Renaming one means updating both ruleset files in the same
 # change. already-checked, deploy-gate and deploy are not contexts and must never be
 # added to them.
 jobs:
   # On a push to main: checked=true when the merge commit has exactly the content of
-  # the merged branch's head and the latest lint, typecheck and test on that head
+  # the merged branch's head and the latest lint, typecheck, test and e2e on that head
   # passed, the results the main ruleset accepted for the merge (spec FR-012). Then
-  # those three are skipped. Any doubt leaves checked=false.
+  # those four are skipped. Any doubt leaves checked=false.
   already-checked:
     name: already-checked
     if: github.event_name == 'push'
@@ -60,7 +60,7 @@ jobs:
             checked=false
             echo "$GITHUB_SHA has content that $head lacks, e.g. a hotfix not yet merged back."
           else
-            for check in lint typecheck test; do
+            for check in lint typecheck test e2e; do
               conclusion=$(gh api "repos/$GITHUB_REPOSITORY/commits/$head/check-runs?check_name=$check&filter=latest" \
                 --jq '[.check_runs[] | select(.app.slug == "github-actions")][0].conclusion // ""') || conclusion=""
               if [ "$conclusion" != success ]; then
@@ -112,6 +112,28 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm test
 
+  # Smoke tests in Chromium, Firefox and WebKit against the app in fake mode
+  # (synthetic riders, no request leaves the runner).
+  e2e:
+    name: e2e
+    needs: already-checked
+    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: ./.github/actions/setup
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-results
+          path: test-results/
+          retention-days: 7
+
   # Merge commits ("Merge pull request #…", "Merge branch …") are skipped by the
   # config-conventional default ignores, so release and sync PRs need no special case.
   commit-messages:
@@ -131,17 +153,17 @@ jobs:
 
   # Refuses to deploy a commit older than the live one, e.g. on a re-run of an old
   # run (research R14, contracts/deploy.md). No environment, so a skip records nothing.
-  # Runs only after the three checks passed, or were skipped because they already
+  # Runs only after the four checks passed, or were skipped because they already
   # passed on this content (spec FR-024).
   deploy-gate:
     name: deploy-gate
-    needs: [already-checked, lint, typecheck, test]
+    needs: [already-checked, lint, typecheck, test, e2e]
     if: >-
       !cancelled()
       && github.ref == 'refs/heads/main'
       && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
       && (needs.already-checked.outputs.checked == 'true'
-        || (needs.lint.result == 'success' && needs.typecheck.result == 'success' && needs.test.result == 'success'))
+        || (needs.lint.result == 'success' && needs.typecheck.result == 'success' && needs.test.result == 'success' && needs.e2e.result == 'success'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
