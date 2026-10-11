@@ -252,6 +252,52 @@ describe("send-notification messages", () => {
 		expect(notifications()).toEqual([]);
 	});
 
+	it("queues one per device for a new badge without new Rynke (013 R17)", async () => {
+		const [a1, a2] = await devices();
+		// 95 km in 9 Rynke; a 6 km ride crosses 100 km and earns 0 Rynke.
+		for (const [id, km] of [
+			[1, 40],
+			[2, 40],
+			[3, 15],
+		] as const) {
+			await upsertActivity(
+				env.DB,
+				activityRecord(id, {
+					start_date: `2026-05-0${id}T08:00:00Z`,
+					distance_m: km * 1000,
+					moving_time_s: km * 180,
+					elapsed_time_s: km * 180,
+					elevation_gain_m: 0,
+				}),
+			);
+		}
+		await rose({ kind: "none" });
+		fake.addActivity(
+			ATHLETE_A,
+			makeStravaActivity({
+				id: 507,
+				start_date: "2026-05-04T08:00:00Z",
+				start_date_local: "2026-05-04T10:00:00Z",
+				distance: 6000,
+				moving_time: 1200,
+				elapsed_time: 1200,
+				total_elevation_gain: 0,
+			}),
+		);
+
+		await deliver(event(507));
+		expect(await balanceRow()).toMatchObject({ distance_rynke: 9 });
+		expect(notifications()).toEqual([
+			{ kind: "send-notification", athleteId: ATHLETE_A, subscriptionId: a1 },
+			{ kind: "send-notification", athleteId: ATHLETE_A, subscriptionId: a2 },
+		]);
+
+		// Taking the badge back notifies no one.
+		ctx.queue.sent.length = 0;
+		await deliver(event(507, "delete"));
+		expect(notifications()).toEqual([]);
+	});
+
 	it("queues none for a ride earning 0 or a delete", async () => {
 		await devices();
 		fake.addActivity(

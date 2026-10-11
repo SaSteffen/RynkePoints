@@ -1,12 +1,21 @@
-import { buildBadgeSection, personalProgress } from "../../badges/view";
+import { evaluateTeamBadges } from "../../badges/team";
+import {
+	type BadgeSection,
+	buildBadgeSection,
+	personalProgress,
+} from "../../badges/view";
 import { berlinDate, readyPollSeconds } from "../../config";
 import type { Ctx } from "../../ctx";
-import { readRiderBadges } from "../../db/badges";
-import { readRiderView } from "../../db/rider-view";
+import { readRiderBadges, upsertRevealsStatement } from "../../db/badges";
+import { type RiderViewRead, readRiderView } from "../../db/rider-view";
+import type { Rider } from "../../db/riders";
+import type { StoredBalance } from "../../db/rynke";
 import { readSeen, type SeenRynke, writeSeen } from "../../db/rynke-seen";
+import { readTeamBadgeSums } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
 import { riderStatus } from "../../rynke/pace";
 import {
+	type CountingWindow,
 	CURRENT_RULES,
 	countingWindow,
 	rulesForVersion,
@@ -68,6 +77,48 @@ function renderCelebration(
 `;
 }
 
+/**
+ * The Abzeichen section's view model: the rider's stored badges and the
+ * team's, worked out from the listed riders' sums on every request (research
+ * R15), with the badges new for the rider. Only a GET marks them as
+ * revealed, as with `rynke_seen` (research R16).
+ */
+async function badgesOf(
+	request: Request,
+	ctx: Ctx,
+	rider: Rider,
+	read: RiderViewRead,
+	balance: StoredBalance,
+	window: CountingWindow,
+): Promise<BadgeSection | null> {
+	const db = ctx.env.DB;
+	const [badges, teamSums] = await Promise.all([
+		readRiderBadges(db, rider.athleteId, window),
+		readTeamBadgeSums(db),
+	]);
+	const section = buildBadgeSection({
+		waiting: false,
+		personal: {
+			earned: badges.earned,
+			progress: personalProgress(
+				{
+					...badges,
+					attendance: read.attendance,
+					trainingRynke: balance.trainingRynke,
+				},
+				window,
+			),
+		},
+		team: evaluateTeamBadges(teamSums, CURRENT_RULES, window),
+		revealed: badges.revealed,
+		connectedOn: berlinDate(rider.connectedAt),
+	});
+	if (section && section.reveal.length > 0 && request.method === "GET") {
+		await upsertRevealsStatement(db, rider.athleteId, section.reveal).run();
+	}
+	return section;
+}
+
 export function handleOverview(
 	request: Request,
 	ctx: Ctx,
@@ -103,27 +154,10 @@ export function handleOverview(
 		) {
 			await writeSeen(ctx.env.DB, rider.athleteId, totals);
 		}
-		const badges =
-			ready && read.balance
-				? await readRiderBadges(ctx.env.DB, rider.athleteId)
-				: null;
 		const badgeSection =
-			badges &&
-			read.balance &&
-			buildBadgeSection({
-				waiting: false,
-				personal: {
-					earned: badges.earned,
-					progress: personalProgress(
-						{
-							...badges,
-							attendance: read.attendance,
-							trainingRynke: read.balance.trainingRynke,
-						},
-						window,
-					),
-				},
-			});
+			ready && read.balance
+				? await badgesOf(request, ctx, rider, read, read.balance, window)
+				: null;
 		// One grid holds it all: two columns on wider screens (contracts/pages.md).
 		return html`<div class="overview-grid">
 <section class="hero">

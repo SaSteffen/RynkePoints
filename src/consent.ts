@@ -11,6 +11,9 @@ import type { MessageId } from "./i18n/catalogs";
 // Feature 010 named the push service without one either: notifications need no
 // Strava scope or request and show nothing to anyone but the rider
 // (010 research R14; constitution v2.1.0).
+// Feature 013 named runs and the team sums without one either: every read
+// already returned the runs, they only give the rider their own badges, and
+// others see only sums without names (013 FR-023, research R22).
 
 export interface ConsentVersion {
 	version: number;

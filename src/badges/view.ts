@@ -60,6 +60,8 @@ export interface BadgeSection {
 	team: GroupView | null;
 	/** Personal categories first, then team ones. */
 	notYet: NotYetRow[];
+	/** Badges new for this rider (research R16), in catalog order. */
+	reveal: EarnedBadge[];
 }
 
 export interface Evaluated {
@@ -72,15 +74,42 @@ export function buildBadgeSection(input: {
 	waiting: boolean;
 	personal: Evaluated;
 	team?: Evaluated;
+	/** Badge id → the date it had when revealed; absent: no reveal at all. */
+	revealed?: ReadonlyMap<string, string>;
+	/** `YYYY-MM-DD` the rider connected; older team badges aren't new. */
+	connectedOn?: string;
 }): BadgeSection | null {
 	if (input.waiting) return null;
 	const personal = groupView(input.personal);
 	const team = input.team ? groupView(input.team) : null;
+	const { revealed, connectedOn = "" } = input;
 	return {
 		personal: personal.view,
 		team: team?.view ?? null,
 		notYet: [...personal.notYet, ...(team?.notYet ?? [])],
+		reveal: revealed
+			? [
+					...input.personal.earned,
+					...(input.team?.earned ?? []).filter(
+						(b) => b.earnedOn >= connectedOn,
+					),
+				]
+					.filter((b) => isNew(b, revealed))
+					.sort((a, b) => badgeOrder(a.badgeId) - badgeOrder(b.badgeId))
+			: [],
 	};
+}
+
+/**
+ * Earned with no reveal yet, or revealed with an earlier date: taken back and
+ * earned again later (research R16, spec edge case).
+ */
+function isNew(
+	badge: EarnedBadge,
+	revealed: ReadonlyMap<string, string>,
+): boolean {
+	const shown = revealed.get(badge.badgeId);
+	return shown === undefined || shown < badge.earnedOn;
 }
 
 /** Newest first; on the same day the higher badge first. */
@@ -158,6 +187,9 @@ export interface PersonalFigures {
 	elevationDm: number;
 	attendance: readonly Pick<Attendance, "eventId" | "kind" | "date">[];
 	trainingRynke: number;
+	/** Over the rider's outdoor runs inside the counting window. */
+	longestRunM: number;
+	runDistanceM: number;
 }
 
 /**
@@ -183,7 +215,7 @@ export function personalProgress(
 		progressOf("team_events", events()),
 		progressOf("technique", events("technique_training")),
 		progressOf("training_rynke", figures.trainingRynke),
-		progressOf("run_length", 0),
-		progressOf("running", 0),
+		progressOf("run_length", figures.longestRunM / 1000),
+		progressOf("running", figures.runDistanceM / 1000),
 	];
 }

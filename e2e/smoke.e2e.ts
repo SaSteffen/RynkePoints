@@ -157,6 +157,32 @@ test("a rider walks through the tour, one page each", async ({ page }) => {
 	await expect(tour).toHaveCount(0);
 });
 
+test("a rider opens a badge's large view on a phone (013)", async ({
+	page,
+}) => {
+	await signIn(page, "Bea Badges");
+	await page.setViewportSize(PHONE);
+	await page.goto("/me");
+	const section = page.locator("section.badges");
+	await expect(section).toBeVisible();
+	await expectNoSidewaysScroll(page);
+
+	const gallery = section.locator(
+		".badge-group-personal details.badge-gallery",
+	);
+	await gallery.locator("summary").click();
+	await expect(gallery).toHaveAttribute("open", "");
+	const badge = gallery.locator("button.badge").first();
+	const large = page.locator(
+		`[id="${await badge.getAttribute("popovertarget")}"]`,
+	);
+	await badge.click();
+	await expect(large).toBeVisible();
+	await expectNoSidewaysScroll(page);
+	await page.keyboard.press("Escape");
+	await expect(large).toBeHidden();
+});
+
 test("an organiser sees the Orga pages", async ({ page }) => {
 	await signIn(page, "Olga Organiser");
 	for (const path of ["/organiser/riders", "/organiser"]) {

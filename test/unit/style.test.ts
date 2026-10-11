@@ -171,6 +171,17 @@ describe("STYLE", () => {
 		).toBe("none");
 	});
 
+	it("pops the revealed badges in, and keeps them still for reduced motion (013 FR-031)", () => {
+		expect(STYLE).toContain("@keyframes badge-pop");
+		expect(declsOf(".badges-reveal-pictures img").animation).toContain(
+			"badge-pop",
+		);
+		expect(
+			declsOf(".badges-reveal-pictures img", "(prefers-reduced-motion:reduce)")
+				.animation,
+		).toBe("none");
+	});
+
 	it("spins the waiting coin, and keeps it still for reduced motion (015 FR-007)", () => {
 		expect(STYLE).toContain("@keyframes coin-spin");
 		expect(declsOf(".waiting .coin").animation).toContain("coin-spin");

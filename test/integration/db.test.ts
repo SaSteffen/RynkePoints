@@ -157,7 +157,19 @@ describe("riders", () => {
 	});
 
 	it("gives riders stored before 0012 badges version 0", async () => {
-		await seedRider(makeCtx());
+		// Without the column, as every insert before 0012 was.
+		await insertRider(
+			db,
+			{
+				athleteId: ATHLETE_A,
+				firstName: "Testrider A",
+				scopes: "read,activity:read",
+				scopeReadAll: false,
+				scopeWrite: false,
+				now: NOW,
+			},
+			{ version: 1, acceptedAt: NOW },
+		);
 		expect(
 			await db
 				.prepare("SELECT badges_version FROM riders WHERE athlete_id = ?")

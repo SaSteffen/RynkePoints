@@ -451,7 +451,7 @@ describe("sample riders in every state (US2)", () => {
 		}
 		// Each ride breaks only its own rule.
 		for (const r of results) expect(JSON.parse(r.reasons)).toHaveLength(1);
-		// The app imports only cycling (src/strava/activity.ts).
+		// Runs never reach the rides (src/strava/activity.ts), only `runs`.
 		expect(
 			await count(
 				"SELECT COUNT(*) AS n FROM activities WHERE athlete_id = ? AND sport_type = 'Run'",
@@ -505,7 +505,9 @@ describe("sample riders in every state (US2)", () => {
 		const page = await mePage(990012);
 		expect(page).toContain('<section class="badges"');
 		expect(page).toContain('data-category="technique"');
-		expect(await mePage(990002)).not.toContain('class="badge-card"');
+		expect(await mePage(990002)).not.toContain(
+			'class="badge-group badge-group-personal"',
+		);
 	});
 
 	it("shows Nick NearlyThere just short and Carla Complete done (013)", async () => {
@@ -531,8 +533,43 @@ describe("sample riders in every state (US2)", () => {
 		).map((b) => b.id);
 		expect(await badgesOf(990014)).toEqual(complete.sort());
 		const carla = await mePage(990014);
-		expect(carla.match(/<li class="badge-card"/g)).toHaveLength(5);
-		expect(carla.match(/class="badge-not-yet-row /g)).toHaveLength(2);
+		const personal =
+			carla.match(
+				/<section class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
+			)?.[0] ?? "";
+		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(5);
+		expect(
+			carla.match(/class="badge-not-yet-row badge-group-personal"/g),
+		).toHaveLength(2);
+	});
+
+	it("counts only Rudi Runner's outdoor runs (013 US3)", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			"SELECT distance_m FROM runs WHERE athlete_id = ? ORDER BY distance_m",
+		)
+			.bind(990015)
+			.all<{ distance_m: number }>();
+		expect(results.map((r) => r.distance_m)).toEqual([4600, 7800]);
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM rider_badges WHERE athlete_id = ? AND badge_id IN ('run-length-5', 'running-10')",
+				990015,
+			),
+		).toBe(2);
+		const page = await mePage(990015);
+		expect(page).toContain('data-category="run_length"');
+		expect(page).toContain("Noch 2,2\u00a0km");
+	});
+
+	it("shows every sample rider the team's badges and progress (013 US4)", async () => {
+		await seeded();
+		for (const athleteId of [990002, 990012]) {
+			const page = await mePage(athleteId);
+			expect(page).toContain('<section class="badge-group badge-group-team"');
+			expect(page).toContain('popovertarget="badge-big-training-5"');
+			expect(page).toContain('popovertarget="badge-attendances-25"');
+		}
 	});
 
 	it("enters the shared team events, recorded by Tina TrainingDone (014)", async () => {

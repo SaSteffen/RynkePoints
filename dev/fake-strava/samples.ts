@@ -149,7 +149,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		athleteId: 990006,
 		firstName: "Rex Rejected",
 		state:
-			"Rides that don't count, one per rule, and a run the app never imports",
+			"Rides that don't count, one per rule, and a run that counts only for the running badges",
 		scopes: ALL_SCOPES,
 		clubMember: true,
 		behaviour: "normal",
@@ -278,6 +278,25 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			name: null,
 		})),
 	},
+	{
+		athleteId: 990015,
+		firstName: "Rudi Runner",
+		state:
+			"Badges (feature 013): outdoor runs for the running badges; treadmill, virtual and manual runs that don't count",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		rides: [
+			...rides(3, (i) => ride(...slot(i), 40, 200, 25)),
+			// Outdoors: 7.8 + 4.6 = 12.4 km, the longest 7.8 km.
+			ride(6, "07:00", 7.8, 40, 10, { sportType: "Run" }),
+			ride(3, "18:00", 4.6, 120, 8, { sportType: "TrailRun" }),
+			// None of these counts (FR-020, FR-020a).
+			ride(2, "18:00", 12, 0, 11, { sportType: "Run", trainer: true }),
+			ride(4, "18:00", 15, 0, 12, { sportType: "VirtualRun", trainer: true }),
+			ride(5, "18:00", 21.1, 0, 10, { sportType: "Run", manual: true }),
+		],
+	},
 ];
 
 /** A team event several sample riders attended, entered by an organiser. */
@@ -301,6 +320,14 @@ export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
 		kind: "training_weekend_day",
 		name: "Sample training weekend",
 		attendees: [990005, 990011],
+	},
+	// Six listed riders at one event: the team's first big training (feature
+	// 013 US4).
+	{
+		daysAgo: 7,
+		kind: "team_training",
+		name: "Sample big training",
+		attendees: [990003, 990005, 990008, 990011, 990012, 990015],
 	},
 ];
 

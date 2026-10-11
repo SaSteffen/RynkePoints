@@ -4,6 +4,7 @@ import {
 	CYCLING_SPORT_TYPES,
 	isCycling,
 	toActivityRecord,
+	toRunRecord,
 } from "../../src/strava/activity";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
 
@@ -149,8 +150,8 @@ describe("toActivityRecord", () => {
 		expect(record?.[column]).toBeNull();
 	});
 
-	it("is at figures version 3, which added the ride's name", () => {
-		expect(ACTIVITY_FIGURES_VERSION).toBe(3);
+	it("is at figures version 4, which added runs (feature 013)", () => {
+		expect(ACTIVITY_FIGURES_VERSION).toBe(4);
 	});
 
 	it("keeps the ride's name exactly as Strava sends it (008 FR-001)", () => {
@@ -176,5 +177,58 @@ describe("toActivityRecord", () => {
 			toActivityRecord(makeStravaActivity({ private: true }), ATHLETE_A, NOW)
 				?.is_private,
 		).toBe(1);
+	});
+});
+
+describe("toRunRecord (feature 013 FR-020, research R11)", () => {
+	const run = (overrides: Parameters<typeof makeStravaActivity>[0] = {}) =>
+		makeStravaActivity({
+			sport_type: "Run",
+			type: "Run",
+			distance: 7800,
+			...overrides,
+		});
+
+	it("keeps outdoor runs and trail runs with only the runs columns", () => {
+		const activity = run({ id: 42 });
+		expect(toRunRecord(activity, ATHLETE_A, NOW)).toEqual({
+			strava_activity_id: 42,
+			athlete_id: ATHLETE_A,
+			start_date: activity.start_date,
+			start_date_local: activity.start_date_local,
+			distance_m: 7800,
+			is_private: 0,
+			refreshed_at: NOW,
+		});
+		expect(
+			toRunRecord(run({ sport_type: "TrailRun" }), ATHLETE_A, NOW),
+		).not.toBeNull();
+	});
+
+	it.each<[string, Parameters<typeof makeStravaActivity>[0]]>([
+		["a virtual run", { sport_type: "VirtualRun" }],
+		["a treadmill run", { trainer: true }],
+		["a manual run", { manual: true }],
+		["a ride", { sport_type: "Ride" }],
+		["a walk", { sport_type: "Walk" }],
+	])("returns null for %s", (_, overrides) => {
+		expect(toRunRecord(run(overrides), ATHLETE_A, NOW)).toBeNull();
+	});
+
+	it("counts a flag Strava doesn't send as not set", () => {
+		const activity = run();
+		delete activity.trainer;
+		delete activity.manual;
+		expect(toRunRecord(activity, ATHLETE_A, NOW)).not.toBeNull();
+	});
+
+	it("marks private runs", () => {
+		expect(
+			toRunRecord(run({ private: true }), ATHLETE_A, NOW)?.is_private,
+		).toBe(1);
+	});
+
+	it("is never a ride", () => {
+		expect(toActivityRecord(run(), ATHLETE_A, NOW)).toBeNull();
 	});
 });

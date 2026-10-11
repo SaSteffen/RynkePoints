@@ -38,6 +38,54 @@ function personal(
 	};
 }
 
+describe("buildBadgeSection reveal (research R16, US4 scenario 5)", () => {
+	const team = (earned: EarnedBadge[]) => ({
+		earned,
+		progress: [progress("big_training", 5, 10)],
+	});
+
+	it("reveals badges without a reveal or with an earlier date, in catalog order", () => {
+		const section = buildBadgeSection({
+			waiting: false,
+			personal: personal([
+				{ badgeId: "elevation-1000", earnedOn: "2026-05-01" },
+				{ badgeId: "distance-100", earnedOn: "2026-05-20" },
+				{ badgeId: "technique-1", earnedOn: "2026-04-01" },
+			]),
+			revealed: new Map([
+				["distance-100", "2026-05-03"],
+				["technique-1", "2026-04-01"],
+			]),
+		});
+		expect(section?.reveal.map((b) => b.badgeId)).toEqual([
+			"distance-100",
+			"elevation-1000",
+		]);
+	});
+
+	it("leaves out team badges earned before the rider connected", () => {
+		const section = buildBadgeSection({
+			waiting: false,
+			personal: personal([]),
+			team: team([
+				{ badgeId: "big-training-5", earnedOn: "2026-04-11" },
+				{ badgeId: "attendances-25", earnedOn: "2026-06-01" },
+			]),
+			revealed: new Map(),
+			connectedOn: "2026-05-01",
+		});
+		expect(section?.reveal.map((b) => b.badgeId)).toEqual(["attendances-25"]);
+	});
+
+	it("reveals nothing without the rider's reveals", () => {
+		const section = buildBadgeSection({
+			waiting: false,
+			personal: personal([{ badgeId: "distance-100", earnedOn: "2026-05-20" }]),
+		});
+		expect(section?.reveal).toEqual([]);
+	});
+});
+
 describe("buildBadgeSection", () => {
 	it("shows nothing while the waiting state shows (FR-005)", () => {
 		expect(buildBadgeSection({ waiting: true, personal: personal([]) })).toBe(

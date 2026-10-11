@@ -170,6 +170,36 @@ function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 `;
 }
 
+/** At most this many pictures in the reveal; the text has the count. */
+const REVEAL_PICTURES = 5;
+
+/**
+ * The badges new for the rider since their last visit, celebrated once
+ * (FR-031, research R16), in the look of feature 012's coin celebration.
+ */
+function reveal(i18n: I18n, badges: readonly EarnedBadge[]): SafeHtml | null {
+	const first = badges[0];
+	if (!first) return null;
+	const text =
+		badges.length === 1
+			? i18n.t("badges.reveal.one", {
+					name: BADGE_NAMES[first.badgeId] ?? "",
+				})
+			: i18n.t("badges.reveal.many", {
+					n: i18n.formatNumber(badges.length, { fractionDigits: 0 }),
+				});
+	return html`<aside class="badges-reveal" role="status">
+<span class="badges-reveal-pictures" aria-hidden="true">${badges
+		.slice(0, REVEAL_PICTURES)
+		.map(
+			(b) =>
+				html`<img src="${picture(badgeOf(b), false)}" alt="" width="48" height="48">`,
+		)}</span>
+<p>${text}</p>
+</aside>
+`;
+}
+
 export function renderBadges(i18n: I18n, section: BadgeSection): SafeHtml {
 	const earned = [section.personal, section.team].flatMap(
 		(view) => view?.gallery.flatMap((g) => g.badges) ?? [],
@@ -177,6 +207,6 @@ export function renderBadges(i18n: I18n, section: BadgeSection): SafeHtml {
 	return html`<section class="badges" aria-labelledby="badges-heading">
 <h2 id="badges-heading">${i18n.t("badges.heading")}</h2>
 <p class="badges-intro">${i18n.t("badges.intro")}</p>
-${group(i18n, "personal", section.personal) ?? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>`}
+${reveal(i18n, section.reveal)}${group(i18n, "personal", section.personal) ?? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>`}
 ${group(i18n, "team", section.team)}${notYet(i18n, section.notYet)}${earned.map((b) => popover(i18n, b))}</section>`;
 }

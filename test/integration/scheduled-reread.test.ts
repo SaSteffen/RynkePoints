@@ -1,11 +1,24 @@
-import { createScheduledController, env } from "cloudflare:test";
+import {
+	createExecutionContext,
+	createMessageBatch,
+	createScheduledController,
+	env,
+	getQueueResult,
+} from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { seasonStart } from "../../src/config";
 import { getRider } from "../../src/db/riders";
-import { handleScheduled } from "../../src/index";
+import { handleQueue, handleScheduled } from "../../src/index";
 import { ACTIVITY_FIGURES_VERSION } from "../../src/strava/activity";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
-import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
+import { installFakeStrava } from "../support/fake-strava";
+import {
+	ATHLETE_A,
+	ATHLETE_B,
+	makeStravaActivity,
+	NOW,
+} from "../support/fixtures";
+import { pushEndpoint, seedSubscription } from "../support/push";
 
 // Cron step 4: the one-time re-read of riders whose activities were stored
 // before an FR-013 figure was added (research R20).
@@ -130,5 +143,55 @@ describe("scheduled: figures re-read", () => {
 		await runCron();
 		expect(rereads()).toHaveLength(1);
 		expect(await figuresVersion()).toBe(ACTIVITY_FIGURES_VERSION);
+	});
+
+	it("re-reads a rider at version 3 for their runs, without a notification (013 FR-022)", async () => {
+		const fake = installFakeStrava();
+		try {
+			fake.addAthlete({ id: ATHLETE_A });
+			await seedRider(ctx, { figuresVersion: 3 });
+			await seedSubscription(ATHLETE_A, pushEndpoint(1));
+			fake.addActivity(
+				ATHLETE_A,
+				makeStravaActivity({
+					id: 7_400_001,
+					sport_type: "Run",
+					type: "Run",
+					distance: 10400,
+					start_date: "2026-05-02T06:00:00Z",
+					start_date_local: "2026-05-02T08:00:00Z",
+				}),
+			);
+
+			await runCron();
+			const [reread] = rereads();
+			ctx.queue.sent.length = 0;
+			const batch = createMessageBatch("rynke-points-work", [
+				{
+					id: "m1",
+					timestamp: new Date(NOW * 1000),
+					attempts: 1,
+					body: reread,
+				},
+			]);
+			await handleQueue(batch, ctx);
+			expect(
+				(await getQueueResult(batch, createExecutionContext())).explicitAcks,
+			).toEqual(["m1"]);
+
+			const { results } = await env.DB.prepare(
+				"SELECT badge_id FROM rider_badges ORDER BY badge_id",
+			).all<{ badge_id: string }>();
+			expect(results.map((r) => r.badge_id)).toEqual([
+				"run-length-10",
+				"run-length-5",
+				"running-10",
+			]);
+			expect(
+				ctx.queue.sent.filter((m) => m.body.kind === "send-notification"),
+			).toEqual([]);
+		} finally {
+			fake.restore();
+		}
 	});
 });

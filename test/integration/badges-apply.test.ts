@@ -11,6 +11,7 @@ import {
 import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
+import { seedBalance } from "../support/rider-view";
 import { activityRecord, insertEvent } from "../support/rynke";
 
 // Personal badges stored in the evaluation batch (feature 013 research R13,
@@ -192,5 +193,143 @@ describe("badges in team-event and correction changes", () => {
 			NOW,
 		);
 		expect(await badges()).toEqual([]);
+	});
+});
+
+async function rise(athleteId = ATHLETE_A) {
+	return db
+		.prepare("SELECT badge_ids, risen_at FROM badge_rises WHERE athlete_id = ?")
+		.bind(athleteId)
+		.first<{ badge_ids: string; risen_at: number }>();
+}
+
+async function reveals(athleteId = ATHLETE_A) {
+	const { results } = await db
+		.prepare(
+			"SELECT badge_id, earned_on FROM badge_reveals WHERE athlete_id = ? ORDER BY badge_id",
+		)
+		.bind(athleteId)
+		.all<{ badge_id: string; earned_on: string }>();
+	return results.map((r) => [r.badge_id, r.earned_on]);
+}
+
+describe("new badges (US2, research R16 to R18)", () => {
+	it("writes and returns the new badges as a rise", async () => {
+		// 80 km, then a 30 km ride crosses 100 km.
+		for (const day of [1, 2]) {
+			await upsertActivity(
+				db,
+				activityRecord(day, {
+					start_date: `2026-05-0${day}T08:00:00Z`,
+					elevation_gain_m: 0,
+				}),
+			);
+		}
+		await apply({ kind: "none" });
+
+		const result = await apply(
+			{
+				kind: "upsert",
+				records: [
+					activityRecord(3, {
+						start_date: "2026-05-03T08:00:00Z",
+						distance_m: 30000,
+						elevation_gain_m: 0,
+					}),
+				],
+			},
+			NOW + 60,
+		);
+
+		expect(result.badges).toEqual(["distance-100"]);
+		expect(await rise()).toEqual({
+			badge_ids: JSON.stringify(["distance-100"]),
+			risen_at: NOW + 60,
+		});
+		expect(await reveals()).toEqual([]);
+	});
+
+	it("writes no rise for a badge taken back or evaluated again", async () => {
+		await seedRides();
+		await apply({ kind: "none" });
+		await db.prepare("DELETE FROM badge_rises").run();
+
+		expect((await apply({ kind: "none" }, NOW + 60)).badges).toEqual([]);
+		expect((await apply({ kind: "delete", activityIds: [3] })).badges).toEqual(
+			[],
+		);
+		expect(await rise()).toBeNull();
+	});
+
+	it("awards silently under new rules: revealed, no rise", async () => {
+		await seedRides();
+		await seedBalance(ATHLETE_A, { rulesVersion: CURRENT_RULES.version - 1 });
+
+		expect((await apply({ kind: "none" })).badges).toEqual([]);
+		expect(await rise()).toBeNull();
+		expect(await reveals()).toContainEqual(["distance-100", "2026-05-03"]);
+	});
+
+	it("awards silently for a rider on an older badge catalog", async () => {
+		await db.prepare("UPDATE riders SET badges_version = 0").run();
+		await seedRides();
+		await seedBalance(ATHLETE_A);
+
+		expect((await apply({ kind: "none" })).badges).toEqual([]);
+		expect(await rise()).toBeNull();
+		expect(await reveals()).toContainEqual(["distance-100", "2026-05-03"]);
+		expect(await badgesVersion()).toBe(BADGE_CATALOG_VERSION);
+	});
+
+	it("isn't silent for a new rider's first import page (FR-031)", async () => {
+		await db.prepare("UPDATE riders SET badges_version = 0").run();
+		const records = [1, 2, 3].map((day) =>
+			activityRecord(day, {
+				start_date: `2026-05-0${day}T08:00:00Z`,
+				elevation_gain_m: 0,
+			}),
+		);
+
+		expect((await apply({ kind: "upsert", records })).badges).toContain(
+			"distance-100",
+		);
+		expect(await reveals()).toEqual([]);
+	});
+
+	it("names the riders with a new badge after a team-event change", async () => {
+		const eventId = await insertEvent("technique_training", "2026-05-09");
+		const result = await applyTeamEventChange(
+			db,
+			{ kind: "add-attendance", eventId, athleteIds: [ATHLETE_A] },
+			CURRENT_RULES,
+			countingWindow(env),
+			NOW,
+		);
+		expect(result.earned).toEqual([ATHLETE_A]);
+		expect(JSON.parse((await rise())?.badge_ids ?? "[]")).toEqual([
+			"team-events-1",
+			"technique-1",
+			"training-rynke-1",
+		]);
+	});
+
+	it("never writes a rise for a team badge (FR-032)", async () => {
+		const team = [900011, 900012, 900013, 900014];
+		for (const athleteId of team) await seedRider(makeCtx(), { athleteId });
+		const eventId = await insertEvent("team_training", "2026-05-09");
+		await applyTeamEventChange(
+			db,
+			{ kind: "add-attendance", eventId, athleteIds: [ATHLETE_A, ...team] },
+			CURRENT_RULES,
+			countingWindow(env),
+			NOW,
+		);
+		const { results } = await db
+			.prepare("SELECT badge_ids FROM badge_rises")
+			.all<{ badge_ids: string }>();
+		expect(results).toHaveLength(5);
+		for (const { badge_ids } of results) {
+			expect(badge_ids).not.toContain("big-training");
+		}
 	});
 });
