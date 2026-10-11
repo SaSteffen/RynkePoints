@@ -133,7 +133,7 @@ the app can show (FR-040, FR-040a).
   filtered run; `src/badges/pictures.ts` from every finished SVG on disk. Check:
   `pnpm badge-build distance-100` touches only `distance-100`'s files and leaves
   the list complete.
-- [ ] T015 [US1] Generate and review the personal pictures: `pnpm badge-art` for
+- [X] T015 [US1] Generate and review the personal pictures: `pnpm badge-art` for
   the 35 personal ids, check each against "Checking a picture" in
   `art/badges/README.md`, retake with `--force` where needed, `pnpm
   badge-build`, commit originals, SVGs and `src/badges/pictures.ts`.
@@ -149,13 +149,13 @@ the app can show (FR-040, FR-040a).
 **Independent test**: quickstart.md §3 with `big-training-5`: light blue ring,
 several Rynkes in the picture.
 
-- [ ] T016 [US4] Check `public/badges/placeholder-team.svg` and one finished team
+- [X] T016 [US4] Check `public/badges/placeholder-team.svg` and one finished team
   badge at 64, 128 and 280 px on light and dark backgrounds (placeholders
   checked: both kinds read at all three sizes on both backgrounds; open: one
   finished team badge, after T017); adjust the team
   ring colour in `scripts/badge-frame.mjs` (with T008's test) if personal and
   team don't tell apart at a glance.
-- [ ] T017 [US4] Generate and review the 34 team pictures as in T015 (the team
+- [X] T017 [US4] Generate and review the 34 team pictures as in T015 (the team
   reference is attached automatically by group), `pnpm badge-build`, commit.
 
 ---
