@@ -84,6 +84,9 @@ next one."
   1.500 km", and one line under the heading explains the surprise once.
 - Q (raised by the project owner): Which colour do the progress bars have? → A:
   Personal categories yellow, team categories the team blue of their frame.
+- Q (raised by the project owner): Are badge names translated? → A: No. Names are
+  German only, in every app language, kept in one German-only list like the Team
+  page's quotes; the rest of the section's text is translated as usual.
 - Q (raised by the project owner): Is there a badge for technique training? → A:
   Yes, a personal category with two badges: one for attending one of the season's
   two planned technique trainings, one for attending both.
@@ -393,8 +396,12 @@ their badge names examples.
   part of the frame; the milestone on it ("1.000 km", "Halbmarathon") is page
   text from the catalogs, never part of the image. Pictures MUST keep the strip
   the ribbon covers free of anything important.
-- **FR-041**: Names, what each badge was for, units and the empty state MUST come
-  from the i18n catalogs in every language (FR-028).
+- **FR-041**: Badge names ("Wochenend-Krieger") MUST be German only and stay
+  German in every app language: one list keyed by badge id, kept beside the
+  catalogs in `src/i18n/messages/`, like feature 016's German-only quotes
+  (`quotes.de.ts`). Everything else the section says (what each badge was for,
+  the milestone on the ribbon, units, headings, the empty state) MUST come from
+  the i18n catalogs in every language (FR-028).
 - **FR-042**: The section MUST work at 360 px width and be readable with a screen
   reader: progress bars carry their values as text.
 
@@ -402,7 +409,7 @@ their badge names examples.
 
 - **Badge category**: a fixed definition: id, group (personal or team), unit, how
   its value is worked out, and its ladder of thresholds.
-- **Badge**: one level of a category: category, threshold, name, picture.
+- **Badge**: one level of a category: category, threshold, German name, picture.
 - **Earned badge**: rider (or the team), badge, date earned, and whether it has been
   revealed to the rider.
 - **Run**: rider, Strava activity, date, distance, manual or not. Never linked to
