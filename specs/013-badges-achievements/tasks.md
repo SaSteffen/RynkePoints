@@ -402,49 +402,49 @@ cases stay silent (FR-031, SC-001, SC-002).
 
 **Independent test**: quickstart.md §8.
 
-- [ ] T045 [US2] Tests first: new `test/integration/badge-reveals.test.ts`: a
+- [X] T045 [US2] Tests first: new `test/integration/badge-reveals.test.ts`: a
   GET of `/me` with a newly earned badge shows `.badges-reveal` once and writes
   its `badge_reveals` row; a HEAD writes nothing; a reload shows no reveal; a
   badge taken back and earned again on a later date is revealed again, on the
   same date it isn't (spec edge case); a new rider's first visit after the
   import shows one reveal for all their badges (FR-031); the reveal's animation
   stops under `prefers-reduced-motion`.
-- [ ] T046 [US2] Implement reveals: reveal statements in `src/db/badges.ts`,
+- [X] T046 [US2] Implement reveals: reveal statements in `src/db/badges.ts`,
   `reveal` in `src/badges/view.ts` (earned without a reveal row, or with an
   earlier `earned_on`, research R16), the `.badges-reveal` aside in
   `src/http/sections/badges.ts` in the look of feature 012's `.celebrate`, and
   the rows written on GET only in `src/http/sections/overview.ts`, like
   `writeSeen`. T045 passes.
-- [ ] T047 [US2] Tests first in `test/integration/badges-apply.test.ts`: an
+- [X] T047 [US2] Tests first in `test/integration/badges-apply.test.ts`: an
   ordinary evaluation with new personal badges writes `badge_rises` (their ids
   in catalog order) and returns them; a badge taken back writes no rise; an
   evaluation under new rules (stored balance on an older rules version) or a
   rider on an older `badges_version` writes `badge_reveals` rows for the badges
   that appear instead, and no rise (research R16, R18).
-- [ ] T048 [US2] Implement in `src/rynke/apply.ts`: the silent check, the
+- [X] T048 [US2] Implement in `src/rynke/apply.ts`: the silent check, the
   `badge_rises` write in the same batch, and the new badges in the results of
   `applyAndEvaluate`, `applyTeamEventChange` and `applyCorrectionChange` next to
   `rose`. T047 passes.
-- [ ] T049 [US2] Tests first in `test/integration/notify-on-rise.test.ts`: an
+- [X] T049 [US2] Tests first in `test/integration/notify-on-rise.test.ts`: an
   activity event, a team-event change or a correction that earns a badge without
   any Rynke rise notifies the rider; the import, the re-read, `evaluate-rider`
   and a taken-back badge don't (feature 010 "Which changes notify").
-- [ ] T050 [US2] Implement: `src/work/activity-event.ts`, `teamEventChange` and
+- [X] T050 [US2] Implement: `src/work/activity-event.ts`, `teamEventChange` and
   `correctionChange` in `src/rynke/apply.ts` notify when Rynke rose or a badge
   is new. T049 passes.
-- [ ] T051 [US2] Tests first: new `test/integration/badge-notification.test.ts`
+- [X] T051 [US2] Tests first: new `test/integration/badge-notification.test.ts`
   for `/me/notification-text`: the latest rise is a badge rise →
   `notification.badge` with the German name (also with English as the app
   language), several → `notification.badges`; a later Rynke rise → the existing
   Rynke text; no rise → 204 as today.
-- [ ] T052 [US2] Implement in `src/http/pwa.ts`: read `badge_rises` next to
+- [X] T052 [US2] Implement in `src/http/pwa.ts`: read `badge_rises` next to
   `rynke_rises` (statement in `src/db/badges.ts`) and pick the later by
   `risen_at` (research R17). T051 passes.
-- [ ] T053 [US2] Tests first: new `test/integration/badges-scheduled.test.ts`:
+- [X] T053 [US2] Tests first: new `test/integration/badges-scheduled.test.ts`:
   the daily cron sends one `evaluate-rider` per connected rider on an older
   `badges_version`, the evaluation awards silently (reveal rows, no rise, no
   notification), and the next cron run sends nothing for them.
-- [ ] T054 [US2] Implement: `listRidersNeedingEvaluation` in `src/db/rynke.ts`
+- [X] T054 [US2] Implement: `listRidersNeedingEvaluation` in `src/db/rynke.ts`
   also lists riders with `badges_version <> ?`, given `BADGE_CATALOG_VERSION`
   from `fanOutEvaluations` in `src/work/scheduled.ts`. T053 passes.
 
@@ -460,23 +460,23 @@ without touching any Rynke (FR-020 to FR-023, SC-004).
 **Independent test**: a sample rider with runs of 7.8 and 4.6 km: "Laufen
 gesamt" at 12 km, Rynke, ride list and Team page unchanged.
 
-- [ ] T055 [P] [US3] Tests first in `test/unit/activity.test.ts`:
+- [X] T055 [P] [US3] Tests first in `test/unit/activity.test.ts`:
   `toRunRecord` keeps `Run` and `TrailRun`, returns null for `VirtualRun`, for
   `trainer: true`, for `manual: true` and for cycling; a flag Strava doesn't
   send counts as not set (research R11); the record has only the `runs`
   columns; `toActivityRecord` still returns null for runs;
   `ACTIVITY_FIGURES_VERSION` is 4.
-- [ ] T056 [US3] Implement `RunRecord` and `toRunRecord` in
+- [X] T056 [US3] Implement `RunRecord` and `toRunRecord` in
   `src/strava/activity.ts`; raise `ACTIVITY_FIGURES_VERSION` to 4 with "version
   4 runs (feature 013)" in its comment (research R12). T055 passes.
-- [ ] T057 [US3] Tests first: new `test/integration/runs-intake.test.ts`: an
+- [X] T057 [US3] Tests first: new `test/integration/runs-intake.test.ts`: an
   activity event for an outdoor run stores it in `runs`, never in `activities`;
   an update to treadmill or virtual removes it (FR-020a), as do a delete event,
   a 404 and a private run without read-all; `delete-private` removes private
   runs; a list page (import and re-read) stores runs; leaving deletes them; with
   and without runs, `ride_results`, `rynke_balances`, the ride list and the Team
   page are identical (SC-004, US3 scenario 2).
-- [ ] T058 [US3] Implement: new `src/db/runs.ts`; in `src/rynke/apply.ts`
+- [X] T058 [US3] Implement: new `src/db/runs.ts`; in `src/rynke/apply.ts`
   `ActivityChange`'s `upsert` carries `runs: RunRecord[]` too, `delete` removes
   runs with those ids, `delete-private` removes private runs, `readRiders` reads
   the riders' runs in its batch; `src/work/activity-event.ts` and
@@ -489,18 +489,18 @@ gesamt" at 12 km, Rynke, ride list and Team page unchanged.
   second run's date), 1b (a first run of 10.4 km → run length 5 and 10 and
   running 10, one date), 1c (longest 21.3 km → progress towards 42.2 km, one
   decimal); a first run of 22 km earns 5, 10 and half marathon on one date.
-- [ ] T060 [US3] Implement the run categories in `src/badges/evaluate.ts` from
+- [X] T060 [US3] Implement the run categories in `src/badges/evaluate.ts` from
   `RiderState.runs`. T059 passes.
-- [ ] T061 [US3] Tests first in `test/integration/scheduled-reread.test.ts`: a
+- [X] T061 [US3] Tests first in `test/integration/scheduled-reread.test.ts`: a
   rider on figures version 3 is re-read once, their runs since the season start
   are stored, their badges come without a notification (US3 scenario 3, FR-022).
   Make it pass (expected: no code beyond T056 and T058).
-- [ ] T062 [P] [US3] Tests first in `test/unit/consent-versions.test.ts`: the
+- [X] T062 [P] [US3] Tests first in `test/unit/consent-versions.test.ts`: the
   German `consent.short.read` and details mention runs ("Lauf") and team sums
   ("Team"), and `CONSENT_VERSIONS` stays at 1; then update `de.ts`, `en.ts` and
   the comment in `src/consent.ts` (feature 013 next to 008 and 010, research
   R22).
-- [ ] T063 [US3] `dev/fake-strava/samples.ts`: a run rider with outdoor runs, a
+- [X] T063 [US3] `dev/fake-strava/samples.ts`: a run rider with outdoor runs, a
   trail run, a treadmill run, a virtual run and a manual run, so only the
   outdoor ones count (quickstart.md §7).
 
@@ -516,23 +516,23 @@ under "Team-Abzeichen" (FR-011, FR-014, FR-032).
 **Independent test**: 10 sample riders at one team training: every rider's page
 shows the team badge with that training's date.
 
-- [ ] T064 [P] [US4] Tests first: new `test/unit/badge-team.test.ts` for
+- [X] T064 [P] [US4] Tests first: new `test/unit/badge-team.test.ts` for
   `evaluateTeamBadges(sums, rules, window)` → earned team badges with dates and
   progress: big training as the most attendees at one event, dated by that
   event (US4 scenario 1); attendances summed over events (scenario 3: 92 →
   `missing` 8); Training Rynke together as the sum of each rider's `riderDays`
   (scenario 2: 4,210 → `missing` 790); distance, elevation and running
   together per day; a badge taken back when the sums fall.
-- [ ] T065 [US4] Implement `src/badges/team.ts` (pure) until T064 passes.
-- [ ] T066 [US4] Tests first in `test/integration/team-read.test.ts`: a new
+- [X] T065 [US4] Implement `src/badges/team.ts` (pure) until T064 passes.
+- [X] T066 [US4] Tests first in `test/integration/team-read.test.ts`: a new
   `readTeamBadgeSums(db)` reads in one batch, only over `LISTED_RIDER_IDS`:
   per rider and day the counting ride distance and elevation and the Training
   Rynke inputs, run distance per day, and per team event its date and number of
   listed attendees; riders without a current consent count towards nothing (US4
   scenario 4).
-- [ ] T067 [US4] Implement `readTeamBadgeSums` in `src/db/team.ts`, next to
+- [X] T067 [US4] Implement `readTeamBadgeSums` in `src/db/team.ts`, next to
   `readTeam`. T066 passes.
-- [ ] T068 [US4] Tests first in `test/integration/badges-section.test.ts` and
+- [X] T068 [US4] Tests first in `test/integration/badges-section.test.ts` and
   `test/integration/badge-reveals.test.ts`: the team group after the personal
   one with "Team-Abzeichen" and "Alle Team-Abzeichen (n)", team placeholders and
   team-blue bars; team badges never in the personal cards or gallery (FR-014);
@@ -540,10 +540,10 @@ shows the team badge with that training's date.
   the personal ones; a team badge earned after the rider's `connected_at` is
   revealed once, one earned before is shown without a reveal (US4 scenario 5);
   team badges never write `badge_rises` or notify (FR-032).
-- [ ] T069 [US4] Implement: the Overview reads `readTeamBadgeSums` and passes
+- [X] T069 [US4] Implement: the Overview reads `readTeamBadgeSums` and passes
   `evaluateTeamBadges`'s result to `buildBadgeSection`; the view adds the team
   group, team not-yet rows and team reveals by `connected_at`. T068 passes.
-- [ ] T070 [US4] `dev/fake-strava/samples.ts`: team events with enough sample
+- [X] T070 [US4] `dev/fake-strava/samples.ts`: team events with enough sample
   attendees to earn the first big-training and attendance badges, and team
   sums that show progress in every team category.
 
@@ -553,12 +553,12 @@ shows the team badge with that training's date.
 
 ## Phase 13: Polish (part B)
 
-- [ ] T071 [P] `e2e/smoke.e2e.ts`: on a sample rider with badges at 360 px, the
+- [X] T071 [P] `e2e/smoke.e2e.ts`: on a sample rider with badges at 360 px, the
   Abzeichen section shows without horizontal scroll, "Alle meine Abzeichen"
   opens, tapping a badge opens its large view and Escape closes it.
 - [ ] T072 Run [quickstart.md](quickstart.md) §6 to §9 at 360 px and desktop
   width, light and dark mode.
-- [ ] T073 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`.
+- [X] T073 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`.
 
 ---
 
