@@ -59,6 +59,11 @@ next one."
   running kilometres need a new consent version? → A: No. They are sums over the
   whole team that show no single rider's figures, covered by the consent to show
   points to the team. They are part of this feature.
+- Q (raised by the project owner): How are badges drawn? → A: Placeholders first,
+  real pictures later. A fixed badge frame (one for personal, one for team badges)
+  with Rynke from the coin as the reference; each badge's picture is generated
+  with Gemini from a prompt plus that reference, then traced like the rider-state
+  illustrations.
 - Q (raised by the project owner): Is there a badge for technique training? → A:
   Yes, a personal category with two badges: one for attending one of the season's
   two planned technique trainings, one for attending both.
@@ -311,8 +316,13 @@ check every rider's page shows the team badge with the training's date.
 
 **Look and language**
 
-- **FR-040**: Badge pictures MUST use the Rynke coin style (feature 012) and work in
-  light and dark mode; the progress bars use feature 011's design tokens.
+- **FR-040**: Every badge MUST be drawn as the badge frame (personal or team) with
+  its own picture in the frame's window, in the Rynke coin style (feature 012),
+  working in light and dark mode; the progress bars use feature 011's design
+  tokens.
+- **FR-040a**: A badge without a picture of its own MUST show the frame with the
+  coin's Rynke as a placeholder. Adding or replacing a picture MUST NOT change
+  any badge's rules, ids or earned state.
 - **FR-041**: Names, what each badge was for, units and the empty state MUST come
   from the i18n catalogs in every language (FR-028).
 - **FR-042**: The section MUST work at 360 px width and be readable with a screen
@@ -371,6 +381,9 @@ check every rider's page shows the team badge with the training's date.
   see no names or per-rider shares.
 - The season has two planned technique trainings; should organisers plan more, the
   ladder changes with a release (FR-012).
+- Badge pictures are made outside the app, with an image generator and the art
+  pipeline in `art/badges/` (frames, prompts, generation script); the first
+  release may ship with placeholders only.
 - Badges belong to one season, like Rynke; a new season starts every category at
   zero.
 - The "Team-Badges" group lives on each rider's own page below "Meine Badges"; the
