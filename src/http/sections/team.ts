@@ -2,7 +2,13 @@ import { berlinDate } from "../../config";
 import type { Ctx } from "../../ctx";
 import { readTeam } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
-import { QUOTES_ON_TRACK, QUOTES_PUSH } from "../../i18n/messages/quotes.de";
+import {
+	QUOTES_ON_TRACK,
+	QUOTES_PUSH,
+	SEASON_QUOTES_ON_TRACK,
+	SEASON_QUOTES_PUSH,
+	type Season,
+} from "../../i18n/messages/quotes.de";
 import { formatPlace } from "../../i18n/ordinal";
 import { breakawayFence } from "../../rynke/breakaway";
 import {
@@ -153,20 +159,39 @@ ${rows}</tbody>
 `;
 }
 
-/** A random quote from the list for `status` (FR-021, FR-022). */
-export function pickQuote(status: RiderStatus): {
+/** The season of a Berlin date (`YYYY-MM-DD`), by whole months (FR-025). */
+export function seasonOf(date: string): Season {
+	const month = Number(date.slice(5, 7));
+	if (month >= 3 && month <= 5) return "spring";
+	if (month >= 6 && month <= 8) return "summer";
+	if (month >= 9 && month <= 11) return "autumn";
+	return "winter";
+}
+
+/**
+ * A random quote from the list for `status`, together with that list's quotes
+ * for the season of `date` (FR-021, FR-022, FR-025).
+ */
+export function pickQuote(
+	status: RiderStatus,
+	date: string,
+): {
 	list: "push" | "onTrack";
 	text: string;
 } {
 	const list = status === "push" ? "push" : "onTrack";
-	const quotes = list === "push" ? QUOTES_PUSH : QUOTES_ON_TRACK;
+	const season = seasonOf(date);
+	const quotes =
+		list === "push"
+			? [...QUOTES_PUSH, ...SEASON_QUOTES_PUSH[season]]
+			: [...QUOTES_ON_TRACK, ...SEASON_QUOTES_ON_TRACK[season]];
 	const [random = 0] = crypto.getRandomValues(new Uint32Array(1));
 	return { list, text: quotes[random % quotes.length] ?? "" };
 }
 
 /** German in every language (FR-023); the heading follows the page's. */
-function renderQuote(i18n: I18n, status: RiderStatus): SafeHtml {
-	const { list, text } = pickQuote(status);
+function renderQuote(i18n: I18n, status: RiderStatus, today: string): SafeHtml {
+	const { list, text } = pickQuote(status, today);
 	return html`<blockquote class="quote ${list === "push" ? "quote-push" : "quote-on-track"}" lang="de">
 <p class="quote-heading" lang="${i18n.locale}">${i18n.t(`team.quote.${list}`)}</p>
 <p>${text}</p>
@@ -271,9 +296,10 @@ export function handleTeam(
 		async ({ rider }) => {
 			const team = await readTeam(ctx.env.DB);
 			const window = countingWindow(ctx.env);
+			const today = berlinDate(ctx.now());
 			const ends = weekEnds(
 				window.seasonStart,
-				lastDay(berlinDate(ctx.now()), window.deadline),
+				lastDay(today, window.deadline),
 			);
 			const riders = team.map((listed) => ({
 				athleteId: listed.athleteId,
@@ -286,7 +312,7 @@ export function handleTeam(
 					null,
 				CURRENT_RULES,
 				window,
-				berlinDate(ctx.now()),
+				today,
 			);
 			const totals = teamTotals(
 				riders.map((listed) => listed.weeks),
@@ -294,7 +320,7 @@ export function handleTeam(
 			);
 			return html`${renderReconnect(i18n, rider)}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
 				viewer ? renderPlace(i18n, viewer) : null
-			}${viewer ? renderQuote(i18n, status) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${renderLeaderboard(
+			}${viewer ? renderQuote(i18n, status, today) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${renderLeaderboard(
 				i18n,
 				kind,
 				all,

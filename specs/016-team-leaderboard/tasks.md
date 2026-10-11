@@ -20,6 +20,9 @@ copy-guard exemption are already committed.
 **Amended**: 2026-10-09 on `016-peloton-breakaway`. Phase 8 adds the peloton's
 breakaway (FR-018, research R13) to the finished US2; T001–T041 are done.
 
+**Amended**: 2026-10-11 on `feat/016-season-quotes`. Phase 9 adds quotes for one
+season (FR-025, research R10) to the finished US3.
+
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: can run in parallel (different files, no dependency on an unfinished task)
@@ -267,7 +270,7 @@ matching list ([quickstart.md](quickstart.md) §1 "Team page").
 ### Tests for User Story 3 (write first, confirm they fail)
 
 - [x] T026 [P] [US3] `test/unit/quotes.test.ts`: `QUOTES_PUSH` and
-  `QUOTES_ON_TRACK` each have at least 180 entries, no duplicates within or
+  `QUOTES_ON_TRACK` each have at least 200 entries, no duplicates within or
   across the lists, no empty or whitespace-only strings, and none contains `*`
   or `/` as a gender mark (research R10). It should pass at once; it pins the
   committed lists.
@@ -408,6 +411,7 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
 
 - Setup → Foundational (T002–T008) → US1 → US2 → US3 → US4 → Polish.
 - The breakaway (Phase 8) needs only the finished US2 peloton.
+- The season quotes (Phase 9) need only the finished US3 quote.
 - US4 needs only Foundational and could run beside US1–US3, but every story edits
   `style.ts`, `charts.ts` and the catalogs, so doing them in order avoids
   conflicts.
@@ -424,6 +428,7 @@ and check the overview is refused ([quickstart.md](quickstart.md) §2 step 3).
 - US3: T026 and T027 together.
 - US4: T030–T033 together; T034 beside T035.
 - Breakaway: T042–T045 together; T046 beside T047 and T048.
+- Season quotes: T052–T054 together.
 
 ## Implementation strategy
 
@@ -500,3 +505,45 @@ Q3 + 1.5 × (Q3 − Q1) and check the coins' positions on either side of the gap
   `test/unit/dev-guard.test.ts`.
 
 **Checkpoint**: US2 #4 and #5 hold; the other stories are unchanged.
+
+---
+
+## Phase 9: Quotes for one season (US3, FR-025)
+
+**Goal**: quotes about the weather, the light or the time of year show only in
+their season, picked like any other quote of their list (research R10, US3 #5).
+
+**Independent Test**: stub the random number and check that a pick on a July date
+gives the list or a summer quote, never a winter one.
+
+### Tests for the season quotes (write first, confirm they fail)
+
+- [X] T052 [P] [US3] In `test/unit/quotes.test.ts`, run the existing checks over
+  each list with its `SEASON_QUOTES_PUSH` or `SEASON_QUOTES_ON_TRACK` arrays (no
+  duplicates within a list and its seasons, none shared between the lists, no
+  empty string, no `*` or `/`); keep the at-least-200 check on the lists alone.
+  Check `seasonOf` at each season's first and last day, and that `pickQuote`
+  with every random value up to twice the pool's size gives exactly the list plus
+  the date's season for a push rider in July and January and an on-track rider in
+  April and October.
+- [X] T053 [P] [US3] In `test/integration/team-leaderboard.test.ts`, accept the
+  list plus its autumn quotes (the test day is 6 October); with the random value
+  at the list's length the first autumn quote is picked, and the list's length
+  plus its autumn quotes plus 1 wraps around to the list's second quote.
+- [X] T054 [P] [US3] In `test/integration/no-hardcoded-copy.test.ts`, let every
+  season quote through too.
+
+### Implementation for the season quotes
+
+- [X] T055 [US3] In `src/i18n/messages/quotes.de.ts`, add the `Season` type and
+  `SEASON_QUOTES_PUSH` and `SEASON_QUOTES_ON_TRACK` (one array per season, a
+  German comment with its months), and move quotes that only fit one season
+  there. T052 passes.
+- [X] T056 [US3] In `src/http/sections/team.ts`, add `seasonOf(date)` (March to
+  May spring, June to August summer, September to November autumn, otherwise
+  winter) and give `pickQuote` today's Berlin date, already worked out for the
+  weeks and the status, to add that season's array to the list. T053 and T054
+  pass.
+- [X] T057 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; all pass.
+
+**Checkpoint**: US3 #1–#5 hold; the other stories are unchanged.
