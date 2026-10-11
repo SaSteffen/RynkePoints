@@ -214,6 +214,23 @@ describe("STYLE", () => {
 		expect(declsOf("body")["font-variant-numeric"]).toBe("tabular-nums");
 	});
 
+	it("pins the page progress bar to the top, below the status bar (issue #108)", () => {
+		expect(declsOf(".page-loading")).toMatchObject({
+			position: "fixed",
+			top: "env(safe-area-inset-top)",
+			"pointer-events": "none",
+		});
+		expect(Number(declsOf(".page-loading")["z-index"])).toBeGreaterThan(
+			Number(declsOf("nav.app-nav")["z-index"]),
+		);
+		expect(declsOf(".page-loading::before").animation).toContain(
+			"page-loading",
+		);
+		expect(
+			declsOf(".page-loading::before", "(prefers-reduced-motion:reduce)"),
+		).toMatchObject({ width: "100%", animation: "none" });
+	});
+
 	it("turns the transitions and animations off for reduced motion (FR-038)", () => {
 		const reduced = RULES.filter(
 			(rule) => rule.media === "(prefers-reduced-motion:reduce)",

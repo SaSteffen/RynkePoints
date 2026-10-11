@@ -221,6 +221,9 @@ button:has(>img.cws){display:inline-block;min-height:0;padding:0;border:0;border
 .settings-group{margin:0 0 var(--rp-space-3);padding:var(--rp-space-4);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container)}
 .settings-group .notice{margin:0;padding:0}
 [hidden]{display:none!important}
+.page-loading{position:fixed;top:env(safe-area-inset-top);left:0;right:0;height:4px;overflow:hidden;background:var(--md-sys-color-outline-variant);pointer-events:none;z-index:12}
+.page-loading::before{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:var(--md-sys-color-primary);animation:page-loading 1.2s cubic-bezier(.4,0,.2,1) infinite}
+@media (prefers-reduced-motion:reduce){.page-loading::before{width:100%;animation:none}}
 .sprite{position:absolute;width:0;height:0;overflow:hidden}
 .coin{display:inline-block;flex:none;vertical-align:middle}
 .coin-mark{width:32px;height:32px;margin-right:var(--rp-space-2)}
@@ -362,4 +365,5 @@ ul.rider-missing{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-sty
 @keyframes top-bar-lift{from{box-shadow:none}to{background:var(--md-sys-color-surface-container-high);box-shadow:0 1px 0 var(--md-sys-color-outline-variant)}}
 @keyframes busy-spin{to{transform:rotate(360deg)}}
 @keyframes coin-spin{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}
-@keyframes coin-drop{from{transform:translateY(-40px) rotate(-180deg);opacity:0}to{transform:none;opacity:1}}`;
+@keyframes coin-drop{from{transform:translateY(-40px) rotate(-180deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes page-loading{from{transform:translateX(-100%)}to{transform:translateX(250%)}}`;
