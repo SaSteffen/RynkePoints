@@ -36,8 +36,8 @@
 - Answered by the project owner (Clarifications, 2026-10-11): team badges have
   their own group and are worked on by the whole team (amounts and participation);
   virtual and treadmill runs count nothing; the clashing "Team Rynke" category name
-  is gone.
-- Team amounts are limited to Rynke (Assumptions): team totals of kilometres or
+  is gone; Tour and longest-ride categories are dropped; running has two categories (run length up to marathon, overall km).
+- Team amounts are limited to Training Rynke (Assumptions): team totals of kilometres or
   elevation would be newly shown to other riders and need a new consent version.
 - Strava sport type names (FR-020) are domain terms riders know from Strava, not an
   implementation detail.

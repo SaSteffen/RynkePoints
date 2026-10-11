@@ -40,10 +40,21 @@ next one."
   nothing.
 - Q: What is "Team Rynke" as a badge category? → A: Dropped: the name clashed with
   feature 003's Team Rynke (the Rynke kind earned at team events). The team's
-  amount category is "Rynke together" (FR-011).
+  amount category is "Training Rynke together" (FR-011).
 - Q (raised by the project owner): Are run kilometres still rounded down per run?
   → A: No. The running category counts the overall kilometres of all runs; no
   metre is lost (runs of 7.8 km and 4.6 km make 12.4 km).
+- Q (raised by the project owner): Is there a badge for qualifying for the tour?
+  → A: No. Who goes on the tour is a decision people make, not a badge. The Tour
+  category is dropped.
+- Q (raised by the project owner): Is there a badge for the longest ride? → A: No,
+  the category is dropped.
+- Q (raised by the project owner): Which running badges? → A: Two categories: the
+  longest single run, up to marathon distance as the highest badge, and the
+  overall kilometres of all runs.
+- Q (raised by the project owner): What does the team's Rynke category count? →
+  A: Training Rynke, collected by the whole team together ("Training Rynke
+  together"), with more thresholds than the first draft.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -109,8 +120,9 @@ evaluate it twice, then make it stop counting.
 
 ### User Story 3 - Running badges (Priority: P2)
 
-A rider who also runs gets running badges for the overall kilometres of their runs.
-Runs never appear among their rides and never change their Rynke.
+A rider who also runs gets running badges in two categories: the length of their
+longest single run, up to marathon distance, and the overall kilometres of all
+their runs. Runs never appear among their rides and never change their Rynke.
 
 **Why this priority**: Many riders run in the off-season; badges reward that
 without bending the Rynke rules.
@@ -123,8 +135,15 @@ unchanged.
 
 1. **Given** runs of 7.8 km and 4.6 km, **When** they are evaluated, **Then** the
    running category counts 12.4 km, shown as 12 km.
-1a. **Given** runs of 4.6 km and then 0.5 km, **When** the second is evaluated,
-   **Then** the 5 km badge is earned with the second run's date.
+1a. **Given** runs of 9.6 km and then 0.5 km, **When** the second is evaluated,
+   **Then** the overall-running badge for 10 km is earned with the second run's
+   date.
+1b. **Given** a first run of 10.4 km, **When** it is evaluated, **Then** the
+   run-length badges for 5 km and 10 km and the overall-running badge for 10 km
+   are earned with its date.
+1c. **Given** a rider whose longest run is 21.3 km, **When** they open their page,
+   **Then** the run-length category shows the progress towards marathon distance
+   (42.2 km), as long as the marathon badge is not earned.
 2. **Given** a run, **When** it is evaluated, **Then** the rider's Training Rynke,
    Team Rynke, ride list, team leaderboard and team badges are exactly as without
    it.
@@ -159,8 +178,9 @@ check every rider's page shows the team badge with the training's date.
    attendance is evaluated, **Then** the team badge "10 riders at one training" is
    earned with that training's date and every rider sees it in the team group of
    their Badges section.
-2. **Given** the team has collected 4,210 Rynke together and the next team badge
-   is at 5,000, **When** a rider opens their page, **Then** the "Rynke together"
+2. **Given** the team has collected 4,210 Training Rynke together and the next team
+   badge is at 5,000, **When** a rider opens their page, **Then** the "Training
+   Rynke together"
    category shows "noch 790" and nothing about the badge itself.
 3. **Given** riders have attended team events 92 times this season and the next
    team badge is at 100, **When** a rider opens their page, **Then** the
@@ -180,7 +200,7 @@ check every rider's page shows the team badge with the training's date.
 - A rider who leaves loses their badges with their other data (Principle I); team
   badges are worked out again without them and may be taken back.
 - One activity crossing two thresholds of a category (a first run of 22 km passes
-  both 5 and 21 km) earns both badges, with the same date.
+  5 km, 10 km and half-marathon length) earns all of them, with the same date.
 - The past-season import and feature 008's re-read award badges silently: a new
   rider's first visit shows their earned badges without one celebration per badge,
   only a single reveal of all of them.
@@ -201,7 +221,7 @@ check every rider's page shows the team badge with the training's date.
 - **FR-002**: The section MUST show two groups, "Meine Badges" and "Team-Badges".
   Each lists its earned badges, newest first, with picture, name, what it was for
   and the date earned.
-- **FR-003**: For each category not yet complete (except Tour, FR-010), the group
+- **FR-003**: For each category not yet complete, the group
   MUST show the progress towards the next badge only: current value, the value
   needed and what is still missing, in that category's unit. It MUST NOT show the
   next badge's name or picture, nor any badge after it, nor how many badges a
@@ -215,23 +235,23 @@ check every rider's page shows the team badge with the training's date.
 - **FR-010**: Personal categories MUST be:
   - Distance: the season total of kilometres of rides that count for Training Rynke
     (feature 003).
-  - Longest ride: the longest single counting ride of the season.
   - Elevation: the season total of elevation gain of counting rides.
   - Team events attended: the number of team events of any kind the rider
     attended.
   - Training Rynke: the rider's Training Rynke total.
-  - Tour: a single badge for qualifying for the tour (feature 003 FR-013). It shows
-    no progress bar of its own; the Overview already shows both targets.
+  - Run length: the longest single run of the season (FR-020). Its highest badge
+    is marathon distance (42.195 km).
   - Running: the season total of kilometres of runs (FR-020).
 - **FR-011**: Team categories are worked on by the whole team together and MUST be:
   - Amounts collected together:
-    - Rynke together: all Rynke of both kinds (Training and Team Rynke) that the
-      consenting riders collected this season, the team totals feature 016 already
-      shows.
+    - Training Rynke together: all Training Rynke the consenting riders collected
+      this season, the team total feature 016 already shows.
   - Participation in team activities:
     - Big training: the most riders at a single team event of the season.
-    - Attendances: the number of times riders attended team events this season,
-      summed over all events and riders.
+    - Attendances: how often riders attended team events this season, summed over
+      all events: a team training with 12 riders and a training-weekend day with
+      18 riders make 30 attendances. Where Big training rewards one well-attended
+      event, Attendances rewards the team turning up again and again.
 - **FR-014**: Team badges MUST show in the "Team-Badges" group only, never among a
   rider's own badges, and MUST NOT be credited to a single rider.
 - **FR-012**: Each category MUST be a ladder of thresholds; the first set is in
@@ -314,25 +334,26 @@ check every rider's page shows the team badge with the training's date.
 - First ladders, to be confirmed with the organisers before release (thresholds
   only; names and pictures are written during planning):
 
-  | Category              | Unit        | Thresholds                     |
-  |-----------------------|-------------|--------------------------------|
-  | Distance              | km          | 100, 500, 1,000, 2,500, 5,000  |
-  | Longest ride          | km          | 50, 100, 150, 200              |
-  | Elevation             | m           | 1,000, 5,000, 10,000, 25,000   |
-  | Team events attended  | events      | 1, 5, 10, 20                   |
-  | Training Rynke        | Rynke       | 1, 100, 250                    |
-  | Tour                  | –           | qualified (feature 003 FR-013) |
-  | Running               | km          | 5, 21, 42, 100, 250            |
-  | Rynke together (team) | Rynke       | 1,000, 2,500, 5,000, 10,000    |
-  | Big training (team)   | riders      | 5, 10, 15, 20                  |
-  | Attendances (team)    | attendances | 25, 50, 100, 200               |
+  | Category                       | Unit        | Thresholds                                              |
+  |--------------------------------|-------------|---------------------------------------------------------|
+  | Distance                       | km          | 100, 500, 1,000, 2,500, 5,000                           |
+  | Elevation                      | m           | 1,000, 5,000, 10,000, 25,000                            |
+  | Team events attended           | events      | 1, 5, 10, 20                                            |
+  | Training Rynke                 | Rynke       | 1, 25, 50, 100, 150, 200, 250, 300, 400, 500            |
+  | Run length                     | km          | 5, 10, half marathon (21.0975), marathon (42.195)       |
+  | Running                        | km          | 10, 25, 50, 100, 250, 500                               |
+  | Training Rynke together (team) | Rynke       | 500, 1,000, 2,500, 5,000, 7,500, 10,000, 15,000, 20,000 |
+  | Big training (team)            | riders      | 5, 10, 15, 20, 30                                       |
+  | Attendances (team)             | attendances | 25, 50, 100, 200, 400                                   |
 
-- Team amounts are Rynke only. Team totals of kilometres, elevation or running
+- Team amounts are Training Rynke only. Team totals of kilometres, elevation or running
   kilometres would show something new to other riders (Principle I) and need a new
   consent version; they are left for a later change.
 - Badges belong to one season, like Rynke; a new season starts every category at
   zero.
 - The "Team-Badges" group lives on each rider's own page below "Meine Badges"; the
   Team tab stays as feature 016 defines it.
-- Distance-type progress is shown in whole units, rounded down, so "noch 0 km" never
+- Run length progress and thresholds are shown with one decimal (21.1 km, 42.2 km);
+  other distance-type progress is shown in whole units.
+- Distance-type progress is rounded down, so "noch 0 km" never
   appears for a badge not yet earned.
