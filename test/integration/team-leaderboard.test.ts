@@ -305,6 +305,7 @@ describe("GET /team, the team's progress (US2)", () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team");
 		const total = teamTotalOf(html);
 		expect(total).toContain('href="#coin-front"');
+		expect(total).toContain('<p class="team-total-value">');
 		expect(total).toContain(escapeHtml(de["team.total.label"]));
 		expect(total).toContain(
 			escapeHtml(de["team.total.training"]).replace(
@@ -320,6 +321,8 @@ describe("GET /team, the team's progress (US2)", () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team?kind=team", "en");
 		const total = teamTotalOf(html);
 		expect(total).toContain('href="#coin-back"');
+		// In the Teamrynke blue, as on the personal page.
+		expect(total).toContain('<p class="team-total-value hero-team">');
 		expect(total).toContain(
 			escapeHtml(en["team.total.team"]).replace(
 				"{n}",
