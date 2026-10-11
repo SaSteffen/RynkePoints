@@ -218,6 +218,37 @@ describe("STYLE", () => {
 		}
 	});
 
+	// Chrome-only so far: outside `@supports` they would leave Firefox (and
+	// older Safari) with a half-applied rule, as the top bar's lift did.
+	const NOT_EVERYWHERE = [
+		/^animation-timeline$/,
+		/^animation-range/,
+		/^(scroll|view)-timeline/,
+		/^anchor-name$/,
+		/^position-anchor$/,
+		/^position-try/,
+		/^position-area$/,
+		/^field-sizing$/,
+		/^interpolate-size$/,
+		/^text-box/,
+		/^corner-shape$/,
+		/^reading-flow$/,
+		/\banchor\(|\bcalc-size\(|\bsibling-(index|count)\(|\bif\(|base-select/,
+	];
+
+	it("keeps features some browsers lack inside @supports", () => {
+		const unguarded = RULES.filter(
+			(rule) => !rule.media?.startsWith("@supports"),
+		).flatMap((rule) =>
+			Object.entries(rule.decls).flatMap(([prop, value]) =>
+				NOT_EVERYWHERE.some((p) => p.test(prop) || p.test(value))
+					? [`${rule.selectors.join(",")} ${prop}:${value}`]
+					: [],
+			),
+		);
+		expect(unguarded).toEqual([]);
+	});
+
 	it("loads nothing from another origin (FR-037)", () => {
 		expect(STYLE).not.toContain("@import");
 		expect(STYLE).not.toMatch(/url\(\s*["']?(https?:)?\/\//);
