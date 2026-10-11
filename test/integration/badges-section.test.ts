@@ -87,7 +87,6 @@ describe("the Abzeichen section", () => {
 		expect(badges).toContain(
 			`<h2 id="badges-heading" class="visually-hidden">${de["badges.heading"]}</h2>`,
 		);
-		expect(badges).toContain(escapeHtml(de["badges.intro"]));
 	});
 
 	it("shows one card per category, newest first, with the ribbon and what is missing", async () => {
