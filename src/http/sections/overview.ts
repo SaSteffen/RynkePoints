@@ -15,7 +15,6 @@ import {
 	renderGauges,
 	renderNotice,
 	renderReconnect,
-	renderRules,
 	renderSummary,
 	renderWaiting,
 } from "../rider-sections";
@@ -24,8 +23,8 @@ import { shellPage } from "../shell";
 
 // The Overview at `/me`, labelled "You" (feature 011 FR-010, issue #73): the greeting first, then what
 // needs the rider's attention (015 FR-008, FR-009), and the rider's Rynke
-// with their gauges, where they come from and the rules behind them (feature
-// 005). The rides, settings and account are in their own sections. A `page`
+// with their gauges and where they come from (feature 005). The rides, the
+// settings with the rules (issue #92) and the account are in their own sections. A `page`
 // query never gets here: the router sends it to Rides (FR-006). The greeting
 // sits in the coin hero; a celebration of the Rynke that are new since the
 // rider last opened the Overview follows the notices (feature 012 US1, US2).
@@ -104,7 +103,7 @@ ${coin("front", "hero")}
 ${
 	totals
 		? html`<p class="hero-total">${i18n.t("hero.training", { n: i18n.formatNumber(totals.training, { fractionDigits: 0 }) })}</p>
-<p>${i18n.t("hero.team", { n: i18n.formatNumber(totals.team, { fractionDigits: 0 }) })}</p>
+<p class="hero-total hero-team">${i18n.t("hero.team", { n: i18n.formatNumber(totals.team, { fractionDigits: 0 }) })}</p>
 `
 		: null
 }</div>
@@ -114,7 +113,6 @@ ${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds
 ${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}
 ${ready ? renderBreakdown(i18n, ready.breakdown) : null}
-${ready ? renderRules(i18n, ready.rules) : null}
 </div>`;
 	});
 }

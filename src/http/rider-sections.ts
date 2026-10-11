@@ -176,17 +176,22 @@ export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 		figure(
 			i18n,
 			elevation,
-			i18n.t("rynke.gauge.elevation", {
+			html`${i18n.t("rynke.gauge.elevation", {
 				value: metres(Math.floor(elevation.value / 10)),
 				target: metres(elevation.target / 10),
 				missing: metres(Math.ceil((elevation.target - elevation.value) / 10)),
 				stepRynke: whole(i18n, elevation.stepRynke),
-			}),
+			})}${coinLabel(i18n, "training")}`,
 		),
 	);
 	return html`<section class="rynke-gauges">
 <h2>${i18n.t("rynke.gauges.heading")}</h2>
 ${figures}</section>`;
+}
+
+/** A kind's mini coin in place of its name, the name kept for screen readers. */
+function coinLabel(i18n: I18n, kind: "training" | "team"): SafeHtml {
+	return html`${miniCoin(kind)}<span class="visually-hidden">${i18n.t(`rynke.${kind}`)}</span>`;
 }
 
 /**
@@ -204,17 +209,15 @@ function coinRow(gauge: Gauge, kind: "training" | "team"): SafeHtml {
 
 /**
  * One gauge in its own card (feature 011 contracts/pages.md "Overview"); the
- * Training and Team gauges under their coin side (feature 012).
+ * Training and Team gauges edged in their coin's colour (issue #92). A full
+ * bar at 100 % says it's reached.
  */
 function figure(
 	i18n: I18n,
 	gauge: Gauge,
-	caption: string,
+	caption: string | SafeHtml,
 	kind: "training" | "team" | null = null,
 ): SafeHtml {
-	const reached = gauge.reached
-		? html` · ${i18n.t("rynke.gauge.reached")}`
-		: null;
 	// Widths are numbers the view model computed, never user input.
 	const bar =
 		gauge.parts.length === 0
@@ -230,35 +233,55 @@ function figure(
 					(part) =>
 						html`<li><span class="gauge-key ${PART_CLASS[part.source]}" aria-hidden="true"></span>${i18n.t(`rynke.source.${part.source}`)}: ${whole(i18n, part.value)}</li>`,
 				)}</ul>`;
-	return html`<section class="card">
+	return html`<section class="card${kind ? ` gauge-card-${kind}` : ""}">
 <figure class="gauge${gauge.reached ? " gauge-reached" : ""}">
-<figcaption>${kind ? coin(kind === "team" ? "back" : "front", "head") : null}${caption}${reached}</figcaption>
+<figcaption>${caption}</figcaption>
 ${kind ? coinRow(gauge, kind) : null}<div class="gauge-bar" aria-hidden="true">${bar}</div>
 ${legend}</figure>
 </section>
 `;
 }
 
+/**
+ * One source's row: its name over what it counted, then its Training and Team
+ * Rynke; the cell stays empty where a source brings none of a kind.
+ */
+function breakdownRow(
+	label: string,
+	detail: string | null,
+	training: number,
+	team: number | null,
+	i18n: I18n,
+): SafeHtml {
+	const counted =
+		detail && html`<span class="breakdown-detail">${detail}</span>`;
+	return html`<tr><th scope="row">${label}${counted}</th><td>${whole(i18n, training)}</td><td>${team === null ? null : whole(i18n, team)}</td></tr>
+`;
+}
+
 /** Where the Rynke come from (FR-030–FR-033, FR-035); the hero has the totals. */
 export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
-	const metres = (m: number) => i18n.t("units.m", { value: whole(i18n, m) });
+	const metres = i18n.t("units.m", {
+		value: whole(i18n, breakdown.elevationM),
+	});
 	return html`<section class="rynke-breakdown card card-outlined">
 <h2>${i18n.t("rynke.breakdown.heading")}</h2>
-<dl>
-<dt>${i18n.t("rynke.source.distance")}</dt><dd>${i18n.t("rynke.breakdown.trainingRynke", { n: whole(i18n, breakdown.distanceRynke) })}</dd>
-<dt>${i18n.t("rynke.source.elevation")}</dt><dd>${i18n.t("rynke.breakdown.elevation", { metres: metres(breakdown.elevationM), rynke: whole(i18n, breakdown.elevationRynke) })}</dd>
-${breakdown.kinds.map(
+<table class="breakdown-table">
+<thead><tr><td></td><th scope="col">${coinLabel(i18n, "training")}</th><th scope="col">${coinLabel(i18n, "team")}</th></tr></thead>
+<tbody>
+${breakdownRow(i18n.t("rynke.source.distance"), null, breakdown.distanceRynke, null, i18n)}${breakdownRow(i18n.t("rynke.source.elevation"), metres, breakdown.elevationRynke, null, i18n)}${breakdown.kinds.map(
 	(kind) =>
-		html`<dt>${i18n.t(`rynke.source.${kind.kind}`)}</dt><dd>${i18n.t(
-			"rynke.breakdown.kind",
-			{
+		breakdownRow(
+			i18n.t(`rynke.source.${kind.kind}`),
+			i18n.t("rynke.breakdown.attended", {
 				count: whole(i18n, kind.attended),
-				team: whole(i18n, kind.team),
-				training: whole(i18n, kind.training),
-			},
-		)}</dd>
-`,
-)}</dl>
+			}),
+			kind.training,
+			kind.team,
+			i18n,
+		),
+)}</tbody>
+</table>
 <h3>${i18n.t("rynke.events.heading")}</h3>
 ${
 	breakdown.events.length === 0
@@ -280,21 +303,21 @@ function eventItem(i18n: I18n, event: EventLine): SafeHtml {
 		: html`<li class="event-not-counting">${parts.join(" · ")}</li>`;
 }
 
-/** The rules version, the counting window and the handout (FR-050, FR-053). */
+/**
+ * The rules version, the counting window and the handout (FR-050, FR-053),
+ * for their group in Settings (issue #92).
+ */
 export function renderRules(i18n: I18n, rules: RulesInfo): SafeHtml {
 	const window = i18n.t("rynke.rules.windowDeadline", {
 		start: day(i18n, rules.seasonStart),
 		deadline: day(i18n, rules.deadline),
 	});
-	return html`<section class="rynke-rules card card-outlined">
-<h2>${i18n.t("rynke.rules.heading")}</h2>
-<p>${i18n.t("rynke.rules.version", {
+	return html`<p>${i18n.t("rynke.rules.version", {
 		version: String(rules.version),
 		date: day(i18n, rules.effectiveDate),
 	})}</p>
 <p>${window}</p>
-<p><a class="tap" href="${RULES_HANDOUT_URL}">${i18n.t("rynke.rules.handout")}</a></p>
-</section>`;
+<p><a class="tap" href="${RULES_HANDOUT_URL}">${i18n.t("rynke.rules.handout")}</a></p>`;
 }
 
 export function renderRides(i18n: I18n, rides: RideTable): SafeHtml {

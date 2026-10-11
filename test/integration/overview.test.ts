@@ -8,8 +8,8 @@ import { ATHLETE_A } from "../support/fixtures";
 import { riderPage, seedBalance, seedRide } from "../support/rider-view";
 
 // The Overview at `/me` (feature 011 FR-010, US1 scenario 1): notices, the
-// greeting, the summary, the gauges, the breakdown and the rules, in this
-// order, and nothing of Rides, Settings or the account.
+// greeting, the summary, the gauges and the breakdown, in this order, and
+// nothing of Rides, Settings (the rules among them) or the account.
 
 const ctx = makeCtx();
 const { de } = CATALOGS;
@@ -39,14 +39,12 @@ const PARTS = [
 	'<section id="rynke" class="rynke-summary verdict card">',
 	'<section class="rynke-gauges">',
 	'<section class="rynke-breakdown card card-outlined">',
-	'<section class="rynke-rules card card-outlined">',
-	`href="${RULES_HANDOUT_URL}"`,
 ];
 
 beforeEach(resetDb);
 
 describe("GET /me Overview", () => {
-	it("shows greeting, summary, gauges, breakdown and rules in order", async () => {
+	it("shows greeting, summary, gauges and breakdown in order", async () => {
 		await seedRider(ctx);
 		await seedBalance(ATHLETE_A);
 		const page = await main();
@@ -89,7 +87,7 @@ describe("GET /me Overview", () => {
 		const figures = [...(gauges ?? "").matchAll(/<figure class="gauge/g)];
 		const cards = [
 			...(gauges ?? "").matchAll(
-				/<section class="card">\n<figure class="gauge/g,
+				/<section class="card[^"]*">\n<figure class="gauge/g,
 			),
 		];
 		expect(figures.length).toBeGreaterThan(1);
@@ -143,7 +141,7 @@ describe("GET /me Overview", () => {
 		expectInOrder(hero ?? "", [
 			'<p class="greeting">',
 			`<p class="hero-total">${escapeHtml(de["hero.training"].replace("{n}", "17"))}</p>`,
-			`<p>${escapeHtml(de["hero.team"].replace("{n}", "3"))}</p>`,
+			`<p class="hero-total hero-team">${escapeHtml(de["hero.team"].replace("{n}", "3"))}</p>`,
 		]);
 	});
 
@@ -155,7 +153,7 @@ describe("GET /me Overview", () => {
 		expect(html.match(/<symbol id="coin-back"/g)).toHaveLength(1);
 	});
 
-	it("has no rides, notifications, consent or account actions", async () => {
+	it("has no rides, notifications, consent, rules or account actions", async () => {
 		await seedRider(ctx);
 		await seedBalance(ATHLETE_A);
 		await seedRide(ATHLETE_A, {
@@ -175,6 +173,8 @@ describe("GET /me Overview", () => {
 			'action="/logout"',
 			'action="/lang"',
 			'id="install"',
+			`<h2>${escapeHtml(de["rynke.rules.heading"])}</h2>`,
+			`href="${RULES_HANDOUT_URL}"`,
 		]) {
 			expect(page).not.toContain(absent);
 		}
