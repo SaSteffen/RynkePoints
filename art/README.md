@@ -1,11 +1,13 @@
-# Illustrations: originals
+# Art: illustration originals
 
-Raster originals of the app's illustrations, as they come out of the image
-generator. `pnpm illustrations` traces every `.png`, `.jpg`, `.jpeg` and `.webp`
-in this folder into a flat SVG with the same base name in `public/illustrations/`
-(`rynke-push.png` → `public/illustrations/rynke-push.svg`). Commit the original
-and the SVG together; to change an illustration, replace the original and run
-the script again.
+`illustrations/` holds the raster originals of the app's illustrations, as they
+come out of the image generator. `pnpm illustrations` traces every file in it,
+whatever its name or extension (ImageMagick goes by the content), into a flat
+SVG with the same base name in `public/illustrations/` (`rynke-push.jpeg` →
+`public/illustrations/rynke-push.svg`), overwriting an SVG of that name. Only
+images belong in that folder; dotfiles are skipped. Commit the original and the
+SVG together; to change an illustration, replace the original and run the
+script again.
 
 The script (`scripts/illustrations.mjs`) needs ImageMagick (`magick` or
 `convert`) and potrace on the `PATH`; neither is a project dependency.
@@ -25,11 +27,10 @@ The script (`scripts/illustrations.mjs`) needs ImageMagick (`magick` or
 
 ## Rider states (issue #93)
 
-`rynke-push.png`, `rynke-on-track.png` and `rynke-in.png`, one per
-`RiderStatus` in `src/rynke/pace.ts`. Generated with Gemini, each prompt with
-`reference/rynke-coin-front.png` (the front of `src/http/coin.ts`, rendered at
-1024 px) attached as the character reference. The script doesn't look into
-subfolders, so the reference isn't traced.
+One image per `RiderStatus` in `src/rynke/pace.ts` (`push`, `on_track`, `in`).
+Generated with Gemini, each prompt with `reference/rynke-coin-front.png` (the
+front of `src/http/coin.ts`, rendered at 1024 px) attached as the character
+reference.
 
 ### `push`
 

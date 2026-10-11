@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-// Traces the illustrations' original rasters (art/illustrations/, from the
-// image generator) into flat SVGs in public/illustrations/, one per file, same
-// base name. Like icons.mjs it shells out to tools that aren't project
-// dependencies, ImageMagick (`magick` or `convert`) and potrace: the outputs
-// are committed and only change with the artwork.
+// Traces every file in art/illustrations/ (the image generator's originals,
+// any name, any format ImageMagick reads; it goes by the content, not the
+// extension) into a flat SVG in public/illustrations/ with the same base name,
+// overwriting an SVG of that name; other SVGs there stay. Dotfiles (the
+// folder's .gitkeep) are skipped. Like icons.mjs it shells out to tools that
+// aren't project dependencies, ImageMagick (`magick` or `convert`) and potrace:
+// the outputs are committed and only change with the artwork.
 //
 // Per image: scale down to at most 2048 px, flood the white paper in from the
 // edges and drop it, snap every other pixel to the nearest coin colour, smooth
@@ -17,7 +19,6 @@ import { fileURLToPath } from "node:url";
 
 const SRC = fileURLToPath(new URL("../art/illustrations/", import.meta.url));
 const OUT = fileURLToPath(new URL("../public/illustrations/", import.meta.url));
-const INPUTS = new Set([".png", ".jpg", ".jpeg", ".webp"]);
 
 // The coin's colours (`--rp-coin-*` in src/http/style.ts), bottom to top. Ink
 // comes last: the outlines sit on top of every fill.
@@ -217,8 +218,9 @@ function illustration(file) {
 }
 
 mkdirSync(OUT, { recursive: true });
-const files = readdirSync(SRC)
-	.filter((f) => INPUTS.has(extname(f).toLowerCase()))
+const files = readdirSync(SRC, { withFileTypes: true })
+	.filter((e) => e.isFile() && !e.name.startsWith("."))
+	.map((e) => e.name)
 	.sort();
 if (files.length === 0) console.log(`No images in ${SRC}`);
 for (const f of files) {
