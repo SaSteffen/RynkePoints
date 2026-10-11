@@ -96,14 +96,14 @@ test.describe("a rider", () => {
 		const other = page.locator("nav.kind-switch a:not([aria-current])");
 		const html = page.locator("html");
 		const scrollTop = () => html.evaluate((root) => root.scrollTop);
-		// Scrolled down, then to the link: where the tap leaves the page.
+		// The switch is at the top: a real tap there would scroll back up
+		// first, so the page is scrolled down and the link clicked as is.
 		await html.evaluate((root) => {
-			root.scrollTop = root.scrollHeight;
+			root.scrollTop = Math.min(200, root.scrollHeight - root.clientHeight);
 		});
-		await other.hover();
 		const before = await scrollTop();
 		expect(before).toBeGreaterThan(0);
-		await other.click();
+		await other.dispatchEvent("click");
 		await page.waitForURL(/kind=team/);
 		await expect.poll(scrollTop).toBe(before);
 		// Another way to the page still starts at the top.
