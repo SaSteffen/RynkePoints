@@ -46,19 +46,26 @@ pnpm badge-art [id ...] [--force] [--print] [--cdp <url>]
 ## `pnpm badge-build` (new)
 
 ```text
-pnpm badge-build
+pnpm badge-build [id ...]
 ```
 
-1. Validates `badges.json` and `prompt.txt` (exit 2 on any error, nothing
-   written).
+Without ids it builds every badge. With ids, steps 3 and 4 only handle those
+badges (the slow part); everything else still runs in full.
+
+1. Validates `badges.json` and `prompt.txt`, always in full (exit 2 on any
+   error, nothing written). An unknown id is an error too (exit 2).
 2. Writes `public/badges/placeholder-{personal,team}.svg` (the reference
    images in `art/badges/reference/` are hand-made and not touched).
-3. Snaps every original in `art/badges/originals/` to the palette, in place
-   (research R7); an original whose id isn't in `badges.json` is an error.
-4. Traces each original and writes `public/badges/<id>.svg`; removes finished
-   SVGs whose original is gone.
-5. Writes `src/badges/pictures.ts`.
-6. Prints one line per badge with its size; warns above 60 KB.
+3. Snaps every original in `art/badges/originals/` (with ids: only theirs) to
+   the palette, in place (research R7); an original whose id isn't in
+   `badges.json` is an error. A named id without an original is skipped with a
+   note.
+4. Traces each of those originals and writes `public/badges/<id>.svg`. Only a
+   run without ids removes finished SVGs whose original is gone, so a filtered
+   run never deletes another badge.
+5. Writes `src/badges/pictures.ts` from every finished SVG in `public/badges/`,
+   so the list stays complete after a filtered run.
+6. Prints one line per badge it built with its size; warns above 60 KB.
 
 Needs ImageMagick and potrace, like `pnpm illustrations`. Running it twice without changes changes no file.
 

@@ -60,5 +60,6 @@ halo, outlines crisp; it looks the same on a light and a dark background.
 ## 5. A retake
 
 Delete `art/badges/originals/distance-100.png` (or `pnpm badge-art --force
-distance-100`), generate again, `pnpm badge-build`: the SVG changes, the list
-stays the same.
+distance-100`), generate again, `pnpm badge-build distance-100`: only that
+badge's SVG changes, the list stays the same. `pnpm badge-build nope` exits with
+code 2.

@@ -115,6 +115,13 @@ the app can show (FR-040, FR-040a).
   `src/badges/pictures.ts` (`export const BADGE_PICTURES: ReadonlySet<string>`,
   sorted ids, a "generated, don't edit" header), print sizes and warn above
   60 KB. A second run without changes leaves `git status` clean.
+- [ ] T014a [US1] `scripts/badge-build.mjs` takes badge ids (contract: `pnpm
+  badge-build [id ...]`): validation and placeholders always in full; snapping,
+  tracing and composing only for the named ids; unknown id exits 2; a named id
+  without an original is skipped with a note; no removal of finished SVGs in a
+  filtered run; `src/badges/pictures.ts` from every finished SVG on disk. Check:
+  `pnpm badge-build distance-100` touches only `distance-100`'s files and leaves
+  the list complete.
 - [ ] T015 [US1] Generate and review the personal pictures: `pnpm badge-art` for
   the 35 personal ids, check each against "Checking a picture" in
   `art/badges/README.md`, retake with `--force` where needed, `pnpm
@@ -159,7 +166,7 @@ several Rynkes in the picture.
 - T004 → T011. T005 → T006 → T007. T008 → T009 → T011.
 - T010 needs PR #101 merged into `develop` and this branch rebased; it blocks
   T012 and T014.
-- T011 → T012 → T013 → T014 → T015 → T016 → T017.
+- T011 → T012 → T013 → T014 → T014a → T015 → T016 → T017.
 - T018 after T014; T020 last.
 - Generation (T015, T017) can start any time with `pnpm badge-art`: originals
   wait in `art/badges/originals/` until `badge-build` exists.

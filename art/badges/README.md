@@ -65,6 +65,10 @@ each picture; to retry one, delete it or use `--force`.
 
 ## Tracing
 
+`pnpm badge-build` builds every badge; `pnpm badge-build distance-100` only
+rebuilds the named ones (quick for a retake). Both keep the picture list
+complete.
+
 The originals go through the same tracer as the rider-state illustrations
 (`scripts/illustrations.mjs`, PR #101): white paper removed, colours snapped to
 the coin palette, one potrace layer per colour. The removed paper lets the
