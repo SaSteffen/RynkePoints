@@ -64,16 +64,17 @@ describe("POST /connect with the box ticked", () => {
 		expect(await stateCookie(res)).toEqual({
 			state,
 			consentVersion: 1,
-			next: "/me",
+			next: "/",
 		});
 	});
 
 	it.each([
 		["/team", "/team"],
 		["/me/rides?page=2", "/me/rides?page=2"],
-		["/", "/me"],
-		["https://evil.example/", "/me"],
-		["/me:evil", "/me"],
+		["/me", "/me"],
+		["/", "/"],
+		["https://evil.example/", "/"],
+		["/me:evil", "/"],
 	])("stores next=%s as %s (011 R9)", async (next, stored) => {
 		const res = await connectForm({ consent: "1", next });
 		const state = expectAuthorize(res).get("state");
@@ -197,14 +198,14 @@ describe("GET /connect", () => {
 		expect(await stateCookie(res)).toEqual({
 			state: params.get("state"),
 			consentVersion: 0,
-			next: "/me",
+			next: "/",
 		});
 	});
 
 	it.each([
 		["/me/settings", "/me/settings"],
-		["https://evil.example/", "/me"],
-		["/", "/me"],
+		["https://evil.example/", "/"],
+		["/", "/"],
 	])("stores next=%s as %s (011 R9)", async (next, stored) => {
 		await seedRider(ctx);
 		const res = await handleFetch(

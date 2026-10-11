@@ -4,9 +4,9 @@ import type { Ctx } from "../ctx";
 import { getRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { coin } from "./coin";
-import { consentForm } from "./consent-form";
+import { consentForm, consentSummary } from "./consent-form";
 import { html, htmlResponse, layout } from "./html";
-import { redirect } from "./redirect";
+import { home, redirect } from "./redirect";
 import { readSession } from "./session";
 
 // The public start page: what RynkePoints reads and why, who can join, how to
@@ -22,7 +22,7 @@ export async function handleLanding(
 	const athleteId = await readSession(request, ctx.env, ctx.now());
 	// A session for a deleted rider counts as signed out (research R9).
 	if (athleteId !== null && (await getRider(ctx.env.DB, athleteId))) {
-		return redirect("/me", 302);
+		return redirect(await home(ctx.env.DB, athleteId), 302);
 	}
 
 	const title = i18n.t("landing.title");
@@ -39,19 +39,9 @@ ${coin("front", "hero")}
 </div>
 <p>${i18n.t("landing.intro")}</p>
 <p>${i18n.tHtml("landing.who", { clubLink })}</p>
-<p>${i18n.t("landing.dataRead")}</p>
-<p>${i18n.t("landing.private")}</p>
-<p>${i18n.t("landing.purpose")}</p>
-<p>${i18n.t("landing.leave")}</p>
-<p>${i18n.t("landing.backups")}</p>
-<p>${i18n.t("landing.cookies")}</p>
-<p>${i18n.t("landing.notifications")}</p>
 <section class="card">
 <h2>${i18n.t("consent.heading")}</h2>
-<p>${i18n.t("consent.organisers")}</p>
-<p>${i18n.t("consent.team")}</p>
-<p>${i18n.t("consent.required")}</p>
-<p>${i18n.t("consent.write")}</p>
+${consentSummary(i18n)}<p>${i18n.t("consent.required")}</p>
 ${consentForm(i18n, currentVersion(ctx.consentVersions).version)}
 </section>`,
 		}),

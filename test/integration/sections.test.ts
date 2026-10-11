@@ -20,9 +20,9 @@ const { de } = CATALOGS;
 const DAY = 86400;
 
 const SECTIONS = [
-	{ path: "/me", label: de["nav.overview"] },
-	{ path: "/me/rides", label: de["nav.rides"] },
 	{ path: "/team", label: de["nav.team"] },
+	{ path: "/me", label: de["nav.you"] },
+	{ path: "/me/rides", label: de["nav.rides"] },
 	{ path: "/me/settings", label: de["nav.settings"] },
 ];
 
@@ -158,9 +158,9 @@ describe("the navigation of an organiser", () => {
 			(m) => m[1],
 		);
 		expect(hrefs).toEqual([
+			"/team",
 			"/me",
 			"/me/rides",
-			"/team",
 			"/organiser/riders",
 			"/me/settings",
 		]);

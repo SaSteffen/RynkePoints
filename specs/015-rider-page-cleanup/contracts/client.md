@@ -28,7 +28,7 @@ On a page with `#app-prompt` (signed-in sections only):
 |---|---|---|
 | Read state | `localStorage` throws | do nothing |
 | Legacy | `rp-install-dismissed` set | remove it; it doesn't count as an answer |
-| Install panel | not standalone, `rp-install-prompt` unset, and `beforeinstallprompt` fired (call `preventDefault`, keep the event) or `navigator.standalone === false` | show `[data-panel=install]` with the matching `data-install` paragraph |
+| Install panel | not standalone, `rp-install-prompt` unset, and `beforeinstallprompt` fired (call `preventDefault`, keep the event) or `manualInstall()` names a paragraph | show `[data-panel=install]` with the matching `data-install` paragraph |
 | Install tap | | `deferred.prompt()`, set `rp-install-prompt`, hide the panel |
 | `appinstalled` | | set `rp-install-prompt`, hide the install panel, then try the notify panel |
 | Notify panel | (`appinstalled` fired or the display is standalone), `rp-notify-offer` unset, push supported, `Notification.permission === "default"`, no `pushManager` subscription | show `[data-panel=notify]` |
@@ -50,11 +50,16 @@ and the offer both use it (FR-014).
 
 Only `#settings-app #install`:
 
-- it shows the group on `beforeinstallprompt` (with the `prompt` paragraph) or on
-  iOS Safari (with the `ios` paragraph);
+- it shows the group on `beforeinstallprompt` (with the `prompt` paragraph) or
+  where `manualInstall()` names a browser's own steps (with that paragraph);
 - it hides the group when standalone or on `appinstalled`;
 - the install button calls the kept `beforeinstallprompt` event's `prompt()`;
 - it has no dismiss and ignores both prompt keys (FR-011).
+
+`manualInstall()` names the paragraph for browsers without an install prompt:
+`ios` when `navigator.standalone === false`, `firefox` for Firefox on Android,
+`macSafari` for Safari 17+ on the Mac (not Chrome, Edge, Firefox or Opera there),
+else none. The install panel of `appPrompt()` uses it the same way.
 
 Both `appPrompt()` and `installSettings()` listen for `beforeinstallprompt`. One
 shared listener keeps the event for both, so either can call `prompt()` once.

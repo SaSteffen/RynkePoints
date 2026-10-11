@@ -2,7 +2,13 @@ import { berlinDate } from "../../config";
 import type { Ctx } from "../../ctx";
 import { readTeam } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
-import { QUOTES_ON_TRACK, QUOTES_PUSH } from "../../i18n/messages/quotes.de";
+import {
+	QUOTES_ON_TRACK,
+	QUOTES_PUSH,
+	SEASON_QUOTES_ON_TRACK,
+	SEASON_QUOTES_PUSH,
+	type Season,
+} from "../../i18n/messages/quotes.de";
 import { formatPlace } from "../../i18n/ordinal";
 import { breakawayFence } from "../../rynke/breakaway";
 import {
@@ -21,6 +27,7 @@ import { lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
 import { peloton, sparkline, weekBars } from "../charts";
 import { coin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
+import { renderReconnect } from "../rider-sections";
 import { shellPage } from "../shell";
 
 // Team at `/team` (feature 011 FR-013, feature 016 US1–US3): how the team is
@@ -29,6 +36,8 @@ import { shellPage } from "../shell";
 // fits the viewer (contracts/pages.md, contracts/http-routes.md). The page only reads (FR-003); nothing on it
 // carries a name or an athlete ID (FR-010).
 // Organisers also get the way to the team overview and their pages (FR-002).
+// It's where the app opens, so a rider who must reconnect learns it here too
+// (issue #73).
 
 /** Places 1–3, by place, so a shared 2nd gives two 🥈 (research R6). */
 export const MEDALS = ["🥇", "🥈", "🥉"];
@@ -46,6 +55,11 @@ function teamHref(kind: RynkeKind, all: boolean): string {
 	return query ? `/team?${query}` : "/team";
 }
 
+/** The kind's mini coin; its name only for screen readers, the coin says it. */
+function coinOf(i18n: I18n, kind: RynkeKind): SafeHtml {
+	return html`${miniCoin(kind)}<span class="visually-hidden">${i18n.t(`rynke.${kind}`)}</span>`;
+}
+
 function renderTeamTotal(
 	i18n: I18n,
 	kind: RynkeKind,
@@ -56,7 +70,7 @@ function renderTeamTotal(
 ${coin(kind === "training" ? "front" : "back", "large")}<div class="team-total-text">
 <p class="team-total-label">${i18n.t("team.total.label")}</p>
 <p class="team-total-value">${i18n.t("team.total.value", { n: whole(totals.total) })}</p>
-<p class="team-total-kind">${i18n.t("team.total.kind", { kind: i18n.t(`team.kind.${kind}`) })}</p>
+<p class="team-total-kind">${i18n.t("team.total.kind")}</p>
 ${
 	totals.thisWeek > 0
 		? html`<p class="team-total-week">${i18n.t("team.total.thisWeek", { n: whole(totals.thisWeek) })}</p>
@@ -106,7 +120,7 @@ function renderTeamChart(
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const label = i18n.t("team.chart.label", {
-		kind: i18n.t(`team.kind.${kind}`),
+		kind: i18n.t(`rynke.${kind}`),
 		weeks: whole(totals.weeks.length),
 		total: whole(totals.total),
 	});
@@ -118,8 +132,8 @@ function renderTeamChart(
 	);
 	const first = totals.weeks[0];
 	return html`<figure class="team-chart card">
-<figcaption>${i18n.t("team.chart.heading")}<span class="team-chart-kind">${i18n.t(`team.kind.${kind}`)}</span></figcaption>
-<p class="team-hint">${i18n.t("team.chart.hint", { kind: i18n.t(`team.kind.${kind}`) })}</p>
+<figcaption>${i18n.t("team.chart.heading")}<span class="team-chart-kind">${coinOf(i18n, kind)}</span></figcaption>
+<p class="team-hint">${i18n.t("team.chart.hint")}</p>
 ${weekBars(
 	totals.weeks.map((week) => week.total),
 	label,
@@ -145,20 +159,39 @@ ${rows}</tbody>
 `;
 }
 
-/** A random quote from the list for `status` (FR-021, FR-022). */
-export function pickQuote(status: RiderStatus): {
+/** The season of a Berlin date (`YYYY-MM-DD`), by whole months (FR-025). */
+export function seasonOf(date: string): Season {
+	const month = Number(date.slice(5, 7));
+	if (month >= 3 && month <= 5) return "spring";
+	if (month >= 6 && month <= 8) return "summer";
+	if (month >= 9 && month <= 11) return "autumn";
+	return "winter";
+}
+
+/**
+ * A random quote from the list for `status`, together with that list's quotes
+ * for the season of `date` (FR-021, FR-022, FR-025).
+ */
+export function pickQuote(
+	status: RiderStatus,
+	date: string,
+): {
 	list: "push" | "onTrack";
 	text: string;
 } {
 	const list = status === "push" ? "push" : "onTrack";
-	const quotes = list === "push" ? QUOTES_PUSH : QUOTES_ON_TRACK;
+	const season = seasonOf(date);
+	const quotes =
+		list === "push"
+			? [...QUOTES_PUSH, ...SEASON_QUOTES_PUSH[season]]
+			: [...QUOTES_ON_TRACK, ...SEASON_QUOTES_ON_TRACK[season]];
 	const [random = 0] = crypto.getRandomValues(new Uint32Array(1));
 	return { list, text: quotes[random % quotes.length] ?? "" };
 }
 
 /** German in every language (FR-023); the heading follows the page's. */
-function renderQuote(i18n: I18n, status: RiderStatus): SafeHtml {
-	const { list, text } = pickQuote(status);
+function renderQuote(i18n: I18n, status: RiderStatus, today: string): SafeHtml {
+	const { list, text } = pickQuote(status, today);
 	return html`<blockquote class="quote ${list === "push" ? "quote-push" : "quote-on-track"}" lang="de">
 <p class="quote-heading" lang="${i18n.locale}">${i18n.t(`team.quote.${list}`)}</p>
 <p>${text}</p>
@@ -212,10 +245,7 @@ function renderRow(i18n: I18n, kind: RynkeKind, row: LeaderboardRow): SafeHtml {
 	}${sparkline(
 		row.weeks,
 		i18n.t("team.list.weeks", { values: row.weeks.map(whole).join(", ") }),
-	)}</span><span class="row-figures"><span class="row-total">${miniCoin(kind)} ${whole(row.total)}</span><span class="row-other">${i18n.t(
-		"team.list.other",
-		{ n: whole(row.other), kind: i18n.t(`team.kind.${other}`) },
-	)}</span></span></li>
+	)}</span><span class="row-figures"><span class="row-total">${coinOf(i18n, kind)} ${whole(row.total)}</span><span class="row-other">${coinOf(i18n, other)} ${whole(row.other)}</span></span></li>
 `;
 }
 
@@ -266,9 +296,10 @@ export function handleTeam(
 		async ({ rider }) => {
 			const team = await readTeam(ctx.env.DB);
 			const window = countingWindow(ctx.env);
+			const today = berlinDate(ctx.now());
 			const ends = weekEnds(
 				window.seasonStart,
-				lastDay(berlinDate(ctx.now()), window.deadline),
+				lastDay(today, window.deadline),
 			);
 			const riders = team.map((listed) => ({
 				athleteId: listed.athleteId,
@@ -281,15 +312,15 @@ export function handleTeam(
 					null,
 				CURRENT_RULES,
 				window,
-				berlinDate(ctx.now()),
+				today,
 			);
 			const totals = teamTotals(
 				riders.map((listed) => listed.weeks),
 				kind,
 			);
-			return html`${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
+			return html`${renderReconnect(i18n, rider)}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
 				viewer ? renderPlace(i18n, viewer) : null
-			}${viewer ? renderQuote(i18n, status) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${renderLeaderboard(
+			}${viewer ? renderQuote(i18n, status, today) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${renderLeaderboard(
 				i18n,
 				kind,
 				all,

@@ -87,7 +87,7 @@ describe("session renewal", () => {
 		expect(sessionSetCookies(res)).toHaveLength(1);
 	});
 
-	it("renews on GET / for a signed-in rider, who is sent to /me", async () => {
+	it("renews on GET / for a signed-in rider, who is sent home", async () => {
 		const res = await handleFetch(
 			request("/", { cookies: await issuedAgo(10 * DAY) }),
 			ctx,

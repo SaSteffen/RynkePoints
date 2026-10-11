@@ -88,7 +88,8 @@ at the end of this file.
 
 - **Decision**:
   - `ci.yml` runs on `pull_request` (targeting `main` or `develop`) and on `push` to
-    `main` and `develop`. `commit-messages` runs only for `pull_request`.
+    `main` (amended 2026-10-10: no longer on `push` to `develop`, see R13).
+    `commit-messages` runs only for `pull_request`.
   - `pr-policy.yml` runs on `pull_request` with types `opened`, `edited`,
     `synchronize`, `reopened`. A title edit then re-runs only the cheap policy
     jobs, not the test suite.
@@ -337,6 +338,31 @@ at the end of this file.
   - Only the three checks that FR-012 runs on pushes gate the deploy.
     `commit-messages`, `pr-title` and `pr-source` already passed on the pull
     request that created the commit.
+- **Amendment (2026-10-10): don't re-run checks whose result is known** (FR-012,
+  FR-024).
+  - A job `already-checked` runs first on a push to `main`. It outputs
+    `checked=true` only when all of these hold:
+    - the commit is a merge with exactly two parents;
+    - its tree equals that of its second parent, the merged branch's head;
+    - the latest GitHub Actions `lint`, `typecheck` and `test` runs on that head
+      concluded `success`.
+  - `lint`, `typecheck` and `test` then skip (`if: !cancelled() && checked !=
+    'true'`). The `!cancelled()` lets them run when `already-checked` is skipped
+    (pull requests, dispatches) or failed.
+  - `deploy-gate` runs with `!cancelled()` and requires either `checked == 'true'`
+    or all three checks `success`. A cancelled, failed or wrongly skipped check
+    therefore still blocks the deploy.
+  - **Why the tree and not ancestry**: every release leaves a merge commit only on
+    `main` (R7), so `develop` never contains the old `main`. The tree is the same
+    whenever `main` holds nothing `develop` lacks, which is true for every release
+    without an unmerged hotfix.
+  - **Why it's safe**: the head's tree went through the checks. A `develop` commit
+    is made by merging an up-to-date pull request (R7), whose test merge has
+    exactly the head's tree. A hotfix branch cut from the current `main` is tested
+    the same way. The head's check results are the ones the `main` ruleset
+    accepted for the merge.
+  - Pushes to `develop` no longer trigger `ci.yml`: by R7 their content already
+    passed the checks, and nothing deploys from `develop`.
 
 ## R14. One deployment at a time, never older after newer (FR-026)
 

@@ -1,8 +1,11 @@
+import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { CONSENT_VERSION, CONSENT_VERSIONS } from "../../src/consent";
+import { upsertActivity } from "../../src/db/activities";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
+import { toActivityRecord } from "../../src/strava/activity";
 import {
 	makeCtx,
 	request,
@@ -10,7 +13,7 @@ import {
 	seedRider,
 	sessionCookie,
 } from "../support/ctx";
-import { ATHLETE_A } from "../support/fixtures";
+import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
 
 const ctx = makeCtx();
 const { de, en } = CATALOGS;
@@ -41,6 +44,10 @@ describe("GET / (signed out)", () => {
 			"landing.backups",
 			"landing.cookies",
 			"consent.heading",
+			"consent.short.notRead",
+			"consent.short.read",
+			"consent.short.shown",
+			"consent.details",
 			"consent.organisers",
 			"consent.team",
 			"consent.required",
@@ -50,7 +57,7 @@ describe("GET / (signed out)", () => {
 			expect(page).toContain(escapeHtml(de[id]));
 		}
 		expect(page).toContain(
-			"Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters",
+			"Gelöschte Daten bleiben noch bis zu 7\u00a0Tage in den Sicherungen unseres Hosting-Anbieters",
 		);
 		expect(page).toContain(
 			'<a href="https://www.strava.com/clubs/2372209">unseres Team-Clubs auf Strava</a>',
@@ -88,13 +95,30 @@ describe("GET / (signed out)", () => {
 		}
 	});
 
+	it("says in short what is read and keeps every detail one tap away", async () => {
+		const { page } = await get();
+		const short = page.indexOf(
+			`<p>${escapeHtml(de["consent.short.notRead"])}<br>${escapeHtml(de["consent.short.read"])}</p>`,
+		);
+		const details = page.indexOf(
+			`<details class="more"><summary class="tap">${escapeHtml(de["consent.details"])}</summary>`,
+		);
+		const dataRead = page.indexOf(
+			`<p>${escapeHtml(de["landing.dataRead"])}</p>`,
+		);
+		expect(short).toBeGreaterThan(0);
+		expect(details).toBeGreaterThan(short);
+		expect(dataRead).toBeGreaterThan(details);
+		expect(page.indexOf("</details>")).toBeGreaterThan(dataRead);
+	});
+
 	it("names the ride name among the data read (008 FR-007)", async () => {
 		const { page: german } = await get();
 		expect(german).toContain("nur Namen, Sportart");
 		expect(german).toContain("Deine einzelnen Fahrten und ihre Namen");
 		const { page: english } = await get({ acceptLanguage: "en" });
-		expect(english).toContain("only read name, sport type");
-		expect(english).toContain("your individual rides or their names");
+		expect(english).toContain("only read its name, sport type");
+		expect(english).toContain("your individual rides and their names");
 		// Named, not a new consent: no new scope or request (clarification Q1).
 		expect(CONSENT_VERSION).toBe(1);
 	});
@@ -121,7 +145,7 @@ describe("GET / (signed out)", () => {
 		const { page } = await get();
 		expect(page).toContain("<h2>Was du mit dem Verbinden erlaubst</h2>");
 		expect(page).toContain(
-			"Deine einzelnen Fahrten und ihre Namen sieht niemand außer dir.",
+			"Deine einzelnen Fahrten und ihre Namen siehst nur du.",
 		);
 		expect(page).toContain("ohne deinen Namen");
 		expect(page).toContain("Ohne diese Erlaubnis machst du genauso mit");
@@ -190,11 +214,21 @@ ${connectButton(de)}
 });
 
 describe("GET / (signed in)", () => {
-	it("redirects a connected rider to /me", async () => {
+	it("redirects a rider without an imported ride to /me", async () => {
 		await seedRider(ctx);
 		const { res } = await get({ cookies: await sessionCookie(ctx, ATHLETE_A) });
 		expect(res.status).toBe(302);
 		expect(res.headers.get("Location")).toBe("/me");
+	});
+
+	it("redirects a rider with an imported ride to /team (#73)", async () => {
+		await seedRider(ctx);
+		const ride = toActivityRecord(makeStravaActivity(), ATHLETE_A, NOW);
+		if (!ride) throw new Error("fixture is not a cycling activity");
+		await upsertActivity(env.DB, ride);
+		const { res } = await get({ cookies: await sessionCookie(ctx, ATHLETE_A) });
+		expect(res.status).toBe(302);
+		expect(res.headers.get("Location")).toBe("/team");
 	});
 
 	it("treats a session for a deleted rider as signed out", async () => {

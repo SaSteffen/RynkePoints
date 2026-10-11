@@ -53,13 +53,15 @@ describe("renderRides reasons", () => {
 	it("shows a whole speed limit without decimals", () => {
 		expect(
 			rendered({ code: "too_slow", kmhTenths: 99, limitKmh: 10 }),
-		).toContain("Too slow: 9.9 km/h on average, at least 10 km/h needed.");
+		).toContain(
+			"Too slow: 9.9\u00a0km/h on average, at least 10\u00a0km/h needed.",
+		);
 	});
 
 	it("keeps a fractional speed limit", () => {
 		expect(
 			rendered({ code: "too_slow", kmhTenths: 99, limitKmh: 12.5 }),
-		).toContain("at least 12.5 km/h needed.");
+		).toContain("at least 12.5\u00a0km/h needed.");
 	});
 });
 
@@ -199,10 +201,10 @@ describe("coins", () => {
 			qualified: false,
 		}).toString();
 		expect(html).toContain(
-			'<span class="chip"><svg class="coin coin-mini" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#coin-mini"/></svg>3 Training Rynke</span>',
+			'<span class="chip"><svg class="coin coin-mini" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#coin-mini"/></svg>3\u00a0Training Rynke</span>',
 		);
 		expect(html).toContain(
-			'<span class="chip"><svg class="coin coin-mini coin-team" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#coin-mini"/></svg>1 Team Rynke</span>',
+			'<span class="chip"><svg class="coin coin-mini coin-team" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><use href="#coin-mini"/></svg>1\u00a0Team Rynke</span>',
 		);
 	});
 

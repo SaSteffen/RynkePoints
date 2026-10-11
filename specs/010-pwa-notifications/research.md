@@ -270,6 +270,7 @@ state:
 |---|---|
 | no `serviceWorker`, `PushManager` or `Notification` | `unsupported` |
 | `navigator.standalone === false` (iOS/iPadOS browser tab) | `needsHomeScreen` |
+| the service worker can't be registered (e.g. a private window), or its push manager throws | `unsupported` |
 | `Notification.permission === "denied"` | `blocked` |
 | no `pushManager.getSubscription()`, or the server's `check` says no | `off` + turn-on button |
 | otherwise | `on` + turn-off button |

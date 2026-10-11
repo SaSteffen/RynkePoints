@@ -41,6 +41,10 @@ const CONTRACT_IDS = [
 	"landing.cookies",
 	"landing.notifications",
 	"consent.heading",
+	"consent.short.notRead",
+	"consent.short.read",
+	"consent.short.shown",
+	"consent.details",
 	"consent.organisers",
 	"consent.team",
 	"consent.required",
@@ -110,12 +114,9 @@ const CONTRACT_IDS = [
 	"rynke.withoutVirtual",
 	"waiting.heading",
 	"waiting.body",
-	"rynke.summary.heading",
-	"rynke.summary.ofTarget",
-	"rynke.summary.missing",
-	"rynke.summary.reached",
 	"rynke.verdict.in",
 	"rynke.verdict.notYet",
+	"rynke.verdict.missing",
 	"rynke.missing.training",
 	"rynke.missing.team",
 	"rynke.missing.withoutVirtual",
@@ -136,9 +137,6 @@ const CONTRACT_IDS = [
 	"rynke.breakdown.heading",
 	"rynke.breakdown.trainingRynke",
 	"rynke.breakdown.elevation",
-	"rynke.breakdown.elevationNoStep",
-	"rynke.breakdown.total",
-	"rynke.breakdown.totals",
 	// Feature 005, US3b team events
 	"rynke.source.team_training",
 	"rynke.source.training_weekend_day",
@@ -193,6 +191,8 @@ const CONTRACT_IDS = [
 	// Feature 010, US1
 	"install.button",
 	"install.ios",
+	"install.firefox",
+	"install.macSafari",
 	"prompt.install.text",
 	"prompt.notify.text",
 	"prompt.notify.accept",
@@ -216,7 +216,7 @@ const CONTRACT_IDS = [
 	"notifications.failed",
 	// Feature 011
 	"nav.label",
-	"nav.overview",
+	"nav.you",
 	"nav.rides",
 	"nav.team",
 	"nav.settings",
@@ -328,7 +328,6 @@ const CONTRACT_IDS = [
 	"team.list.ahead",
 	"team.list.behind",
 	"team.list.you",
-	"team.list.other",
 	"team.list.weeks",
 	"team.chart.heading",
 	"team.chart.hint",
@@ -463,7 +462,7 @@ describe("catalog contents", () => {
 
 	it("carries the German source texts", () => {
 		expect(de["landing.backups"]).toBe(
-			"Gelöschte Daten bleiben bis zu 7 Tage in den Sicherungen unseres Hosting-Anbieters und verschwinden danach automatisch.",
+			"Gelöschte Daten bleiben noch bis zu 7\u00a0Tage in den Sicherungen unseres Hosting-Anbieters.",
 		);
 		expect(de["brand.connectWithStrava.alt"]).toBe("Mit Strava verbinden");
 	});

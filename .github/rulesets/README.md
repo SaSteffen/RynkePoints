@@ -10,9 +10,9 @@ commands below that the live rulesets still match them.
 | `main.json` | `protect-main` | merge commit | not required |
 | `develop.json` | `protect-develop` | squash, merge commit | required |
 
-Both block deletion and force pushes, require a pull request whose six checks
-(`lint`, `typecheck`, `test`, `commit-messages`, `pr-title`, `pr-source`) passed,
-and have no bypass list, so they bind the owner too. The reasons are in
+Both block deletion and force pushes, require a pull request whose seven checks
+(`lint`, `typecheck`, `test`, `e2e`, `commit-messages`, `pr-title`, `pr-source`)
+passed, and have no bypass list, so they bind the owner too. The reasons are in
 [specs/002-ci-branch-protection/research.md](../../specs/002-ci-branch-protection/research.md)
 (R1–R7).
 
@@ -22,7 +22,7 @@ Run them from the repository root.
 ## When to apply
 
 Only after the pull request that adds `.github/workflows/` has been merged into
-`develop`, so that all six checks exist. A ruleset applied earlier blocks every
+`develop`, so that all seven checks exist. A ruleset applied earlier blocks every
 pull request, including that one, on checks that have never run.
 
 ## Create
@@ -78,7 +78,7 @@ was changed and not applied. Fix whichever side is wrong.
 
 - [ ] `bypass_actors` stays `[]` in both files. Adding an entry needs a spec
       change first.
-- [ ] The six `required_status_checks` contexts equal the job `name:` values in
+- [ ] The seven `required_status_checks` contexts equal the job `name:` values in
       `.github/workflows/`.
 - [ ] Renaming a job means updating both files and re-applying them in the same
       pull request. Otherwise every pull request waits for a check that never

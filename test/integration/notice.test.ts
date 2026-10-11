@@ -29,7 +29,7 @@ const GERMAN: Record<string, [string, string]> = {
 	],
 	"team-full": [
 		"Das Team ist im Moment voll",
-		"Strava erlaubt RynkePoints gerade keine weiteren Fahrerinnen und Fahrer.",
+		"Strava erlaubt RynkePoints gerade keine weiteren Rider.",
 	],
 	failed: [
 		"Verbindung fehlgeschlagen",

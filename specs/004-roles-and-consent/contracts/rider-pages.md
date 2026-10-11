@@ -27,8 +27,11 @@ With US4 this is the consent gate in its `missing` state: it takes the place of
 the rest of `/me` ([re-consent.md](re-consent.md)). It shows, in this order:
 
 1. `me.consent.none` (reworded, below);
-2. `landing.dataRead`, `landing.private`, `landing.purpose`, `landing.leave`;
-3. `consent.organisers`, `consent.team`, `consent.required`, `consent.write`;
+2. `consent.short.notRead`, `consent.short.read` and `consent.short.shown`;
+3. `details.more` with the summary `consent.details`, holding the full text in
+   the order of feature 001's
+   [messages.md](../../001-strava-connect-webhook/contracts/messages.md)
+   "Consent", then `consent.required`;
 4. `consentForm(i18n)`.
 
 These are the texts of consent version 1 (001 research R21). Submitting the form
@@ -44,7 +47,7 @@ catalogs change together (001 FR-028).
 
 | ID | de | en |
 |---|---|---|
-| `me.consent.none` | Für dich ist noch keine Zustimmung gespeichert. Lies bitte, was du mit dem Verbinden erlaubst, und stimme zu; Strava fragt dann noch einmal nach deinen Berechtigungen. Bis dahin sieht niemand im Team etwas von dir. | No consent is recorded for you yet. Please read what you agree to by connecting, and agree; Strava then asks for your permissions again. Until then, nobody on the team sees anything of yours. |
+| `me.consent.none` | Bitte stimme zu, damit wir deine Fahrten auswerten können. Strava fragt danach noch einmal nach den Berechtigungen. Bis dahin sieht das Team nichts von dir. | Please agree so we can count your rides. Strava then asks for the permissions again. Until then, the team sees nothing of yours. |
 
 Wording may be polished during implementation; the file and tests change in the
 same change.

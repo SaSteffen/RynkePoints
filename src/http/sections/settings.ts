@@ -2,6 +2,7 @@ import type { Ctx } from "../../ctx";
 import type { Consent } from "../../db/consents";
 import type { I18n } from "../../i18n/i18n";
 import { vapidPublicKey } from "../../push/vapid";
+import { consentSummary } from "../consent-form";
 import { html, languageForm, type SafeHtml } from "../html";
 import { renderInstallHint, renderNotifications } from "../pwa";
 import { acceptedOn, shellPage } from "../shell";
@@ -32,9 +33,7 @@ function appearance(i18n: I18n): SafeHtml {
 function consent(i18n: I18n, current: Consent): SafeHtml {
 	const date = acceptedOn(i18n, current);
 	return html`<p>${i18n.t("me.consent.accepted", { version: String(current.version), date })}</p>
-<p>${i18n.t("landing.dataRead")}</p>
-<p>${i18n.t("consent.organisers")}</p>
-<p>${i18n.t("consent.team")}</p>`;
+${consentSummary(i18n)}`;
 }
 
 export function handleSettings(

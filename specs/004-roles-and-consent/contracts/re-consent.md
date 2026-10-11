@@ -15,9 +15,10 @@ In this order:
    - `older`: `me.consent.renew.older` with `{accepted}`, `{date}` (the accepted
      record's day, formatted as on `/me`) and `{version}` (current), then a list
      with one item per key in `changes`.
-2. The current consent: `consent.heading`, `landing.dataRead`, `landing.private`,
-   `landing.purpose`, `landing.leave`, `consent.organisers`, `consent.team`,
-   `consent.required`, `consent.write`.
+2. The current consent: `consent.heading`, the short sentences and the
+   `details.more` with the full text, then `consent.required`, as on the start
+   page (feature 001 [messages.md](../../001-strava-connect-webhook/contracts/messages.md)
+   "Consent").
 3. The form:
    - `viaStrava`: `me.consent.renew.strava` (only for `older`; `me.consent.none`
      already says it), then `consentForm(i18n, current)` posting to `/connect`;
@@ -79,7 +80,7 @@ implementation; the catalogs and tests change together.
 | `me.consent.renew.older` | Du hast am {date} Version {accepted} zugestimmt. Version {version} ändert Folgendes: | You agreed to version {accepted} on {date}. Version {version} changes this: |
 | `me.consent.renew.strava` | Dafür braucht RynkePoints eine weitere Berechtigung; Strava fragt dich danach. | RynkePoints needs another permission for this; Strava asks you for it. |
 | `me.consent.renew.button` | Zustimmen und weiter | Agree and continue |
-| `me.consent.renew.leave` | Wenn du nicht zustimmen möchtest, kannst du die Verbindung trennen; dabei werden alle deine Daten gelöscht. | If you don't want to agree, you can disconnect; all your data is then deleted. |
+| `me.consent.renew.leave` | Du möchtest nicht zustimmen? Dann trenn die Verbindung; dabei löschen wir alle deine Daten. | Don't want to agree? Then disconnect; we delete all your data. |
 
 ## Publishing a new version
 

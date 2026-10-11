@@ -1,0 +1,6 @@
+# Response headers for the static assets (Workers static assets).
+
+# The rules handout downloads as a file in every browser, not only where the
+# link's `download` attribute works (feature 005 research R14).
+/rynke-punkte.pdf
+  Content-Disposition: attachment; filename="rynke-punkte.pdf"

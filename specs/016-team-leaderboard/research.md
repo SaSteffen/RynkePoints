@@ -188,16 +188,29 @@ hold.
 **Alternatives considered**: one responsive table restyled as cards; the breakdown
 column set doesn't fold into a `<details>` without duplicating cells anyway.
 
-## R10. Quotes outside the catalogs (FR-022–FR-024)
+## R10. Quotes outside the catalogs (FR-022–FR-025)
 
 **Decision**: `src/i18n/messages/quotes.de.ts` exports `QUOTES_PUSH` and
 `QUOTES_ON_TRACK` (already committed). The quote is rendered as
 `<blockquote class="quote" lang="de"><p>…</p></blockquote>`. The hard-coded-copy
 test lets exactly these strings through (already committed). A unit test checks
-both lists: at least 180 entries each, no duplicates, no empty strings.
+both lists: at least 200 entries each, no duplicates, no empty strings.
+
+Quotes for one season (FR-025) are `SEASON_QUOTES_PUSH` and
+`SEASON_QUOTES_ON_TRACK`, one array per season. `seasonOf` turns today's Berlin
+date (`berlinDate`) into a season by month, and `pickQuote` draws from the list
+plus that season's array, so a season quote is as likely as any other quote of its
+list. The unit test also covers the season arrays (no duplicates across a list's
+arrays, none shared between lists) and checks that every pick on a summer, winter,
+spring and autumn date comes from the list or that season.
 
 **Rationale**: the catalogs require every key in every language; the quotes are
-German by decision (FR-023).
+German by decision (FR-023). Whole months keep the rule simple to state and test,
+and each season array reads as one block in review.
+
+**Alternatives considered** (seasons): a month range on each quote, which fits
+quotes like Advent better but makes every entry an object; astronomical seasons,
+whose start moves by a day between years.
 
 ## R11. No evaluation, no Strava (FR-003, SC-003)
 

@@ -5,6 +5,8 @@ import { CATALOGS } from "../../src/i18n/catalogs";
 import {
 	QUOTES_ON_TRACK,
 	QUOTES_PUSH,
+	SEASON_QUOTES_ON_TRACK,
+	SEASON_QUOTES_PUSH,
 } from "../../src/i18n/messages/quotes.de";
 import { handleFetch } from "../../src/index";
 import { makeCtx, request, resetDb, seedRider } from "../support/ctx";
@@ -13,7 +15,7 @@ import { riderPage, seedBalance, seedRide } from "../support/rider-view";
 // Where the rider stands at `/team` and how the team is doing (016 US1, US2,
 // FR-010–FR-017, FR-041, SC-002, SC-003, contracts/pages.md,
 // contracts/http-routes.md), and the quote that fits the viewer (US3,
-// FR-020–FR-024). Synthetic riders only.
+// FR-020–FR-025). Synthetic riders only.
 
 const ctx = makeCtx();
 const { de, en } = CATALOGS;
@@ -90,7 +92,7 @@ function rowItemsOf(page: string): string[] {
 /** A row's total, after its mini coin. */
 function totalOf(row: string): string | undefined {
 	return row.match(
-		/<span class="row-total">(?:<svg[\s\S]*?<\/svg>)?\s*([^<]*)<\/span>/,
+		/<span class="row-total">(?:<svg[\s\S]*?<\/svg>)?(?:<span class="visually-hidden">[^<]*<\/span>)?\s*([^<]*)<\/span>/,
 	)?.[1];
 }
 
@@ -181,8 +183,11 @@ describe("GET /team, Training around the viewer", () => {
 			rowItemsOf(html).find((li) => li.startsWith('<li class="row you">')) ??
 			"";
 		expect(totalOf(own)).toBe("120");
-		expect(own).toContain(
-			fill(de["team.list.other"], { n: 25, kind: de["team.kind.team"] }),
+		// The coin says which kind; its name is for screen readers only.
+		expect(own).toMatch(
+			new RegExp(
+				`<span class="row-other"><svg class="coin coin-mini coin-team"[^>]*>.*?</svg><span class="visually-hidden">${de["rynke.team"]}</span> 25</span>`,
+			),
 		);
 		expect(own).toMatch(/<svg [^>]*role="img"/);
 		expect(own).toMatch(/aria-label="Woche für Woche: [\d, ]*120"/);
@@ -294,9 +299,7 @@ describe("GET /team, the team's progress (US2)", () => {
 		expect(total).toContain('href="#coin-front"');
 		expect(total).toContain(escapeHtml(de["team.total.label"]));
 		expect(total).toContain(fill(de["team.total.value"], { n: "1.790" }));
-		expect(total).toContain(
-			fill(de["team.total.kind"], { kind: de["team.kind.training"] }),
-		);
+		expect(total).toContain(escapeHtml(de["team.total.kind"]));
 		expect(total).toContain(fill(de["team.total.thisWeek"], { n: "1.775" }));
 	});
 
@@ -305,9 +308,7 @@ describe("GET /team, the team's progress (US2)", () => {
 		const total = teamTotalOf(html);
 		expect(total).toContain('href="#coin-back"');
 		expect(total).toContain(fill(en["team.total.value"], { n: 199 }));
-		expect(total).toContain(
-			fill(en["team.total.kind"], { kind: en["team.kind.team"] }),
-		);
+		expect(total).toContain(escapeHtml(en["team.total.kind"]));
 		expect(total).toContain(fill(en["team.total.thisWeek"], { n: 199 }));
 	});
 
@@ -353,13 +354,14 @@ describe("GET /team, the team's progress (US2)", () => {
 		expect(chart.match(/<rect /g)).toHaveLength(41);
 		expect(chart.match(/<rect [^>]*class="current"/g)).toHaveLength(1);
 		expect(chart).toContain(
-			`aria-label="${fill(de["team.chart.label"], { kind: de["team.kind.training"], weeks: 41, total: "1.790" })}"`,
+			`aria-label="${fill(de["team.chart.label"], { kind: de["rynke.training"], weeks: 41, total: "1.790" })}"`,
 		);
 		expect(chart).toContain(
 			fill(de["team.chart.best"], { date: "06.10.2026", n: "1.775" }),
 		);
+		expect(chart).toContain(escapeHtml(de["team.chart.hint"]));
 		expect(chart).toContain(
-			fill(de["team.chart.hint"], { kind: de["team.kind.training"] }),
+			`<span class="team-chart-kind"><svg class="coin coin-mini"`,
 		);
 		expect(chart).toContain(
 			`<p class="chart-axis"><span>04.01.2026</span><span>${escapeHtml(de["team.chart.now"])}</span></p>`,
@@ -423,12 +425,14 @@ describe("GET /team without a gain this week", () => {
 });
 
 describe("GET /team, a quote for the viewer (US3)", () => {
+	// makeCtx's day, 6 October, is in autumn (FR-025).
+	const PUSH = [...QUOTES_PUSH, ...SEASON_QUOTES_PUSH.autumn];
+	const ON_TRACK = [...QUOTES_ON_TRACK, ...SEASON_QUOTES_ON_TRACK.autumn];
+
 	/** The quote's text, unescaped back to the list's string. */
 	function quoteTextOf(page: string): string | undefined {
 		const text = quoteOf(page).match(/<p>([^<]*)<\/p>/)?.[1];
-		return [...QUOTES_PUSH, ...QUOTES_ON_TRACK].find(
-			(quote) => escapeHtml(quote) === text,
-		);
+		return [...PUSH, ...ON_TRACK].find((quote) => escapeHtml(quote) === text);
 	}
 
 	it("gives a viewer who doesn't qualify a push quote in German (US3 #1)", async () => {
@@ -436,7 +440,7 @@ describe("GET /team, a quote for the viewer (US3)", () => {
 		const quote = quoteOf(html);
 		expect(quote).toMatch(/^<blockquote class="quote quote-push" lang="de">/);
 		expect(quote).toContain(escapeHtml(de["team.quote.push"]));
-		expect(QUOTES_PUSH).toContain(quoteTextOf(html));
+		expect(PUSH).toContain(quoteTextOf(html));
 	});
 
 	it("gives a viewer who qualifies an on-track quote (US3 #2)", async () => {
@@ -451,7 +455,7 @@ describe("GET /team, a quote for the viewer (US3)", () => {
 			/^<blockquote class="quote quote-on-track" lang="de">/,
 		);
 		expect(quote).toContain(escapeHtml(de["team.quote.onTrack"]));
-		expect(QUOTES_ON_TRACK).toContain(quoteTextOf(html));
+		expect(ON_TRACK).toContain(quoteTextOf(html));
 	});
 
 	it("keeps the quote German in English, under an English heading (US3 #4)", async () => {
@@ -459,7 +463,7 @@ describe("GET /team, a quote for the viewer (US3)", () => {
 		const quote = quoteOf(html);
 		expect(quote).toMatch(/^<blockquote class="quote quote-push" lang="de">/);
 		expect(quote).toContain(escapeHtml(en["team.quote.push"]));
-		expect(QUOTES_PUSH).toContain(quoteTextOf(html));
+		expect(PUSH).toContain(quoteTextOf(html));
 	});
 
 	it("picks the quote at random on each load (US3 #3)", async () => {
@@ -473,7 +477,9 @@ describe("GET /team, a quote for the viewer (US3)", () => {
 		};
 		try {
 			expect(await pick(0)).toBe(QUOTES_PUSH[0]);
-			expect(await pick(QUOTES_PUSH.length + 1)).toBe(QUOTES_PUSH[1]);
+			expect(await pick(PUSH.length + 1)).toBe(QUOTES_PUSH[1]);
+			// In autumn, the autumn quotes follow the list's (FR-025).
+			expect(await pick(QUOTES_PUSH.length)).toBe(SEASON_QUOTES_PUSH.autumn[0]);
 		} finally {
 			random.mockRestore();
 		}

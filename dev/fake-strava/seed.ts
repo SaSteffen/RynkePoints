@@ -73,6 +73,7 @@ export async function connectThroughApp(
 		ctx,
 	);
 	const landed = callback.headers.get("Location");
+	// A new rider has no rides yet, so lands on their own page.
 	if (landed !== "/me") {
 		throw new Error(
 			`Seeding ${rider.firstName} (${rider.athleteId}): the callback answered ${callback.status} to ${landed}`,

@@ -65,6 +65,8 @@ once the rider has agreed (not on the consent gate):
     <p id="app-prompt-title">{prompt.install.text}</p>
     <p data-install="prompt" hidden><button type="button" class="tap">{install.button}</button></p>
     <p data-install="ios" hidden>{install.ios}</p>
+    <p data-install="firefox" hidden>{install.firefox}</p>
+    <p data-install="macSafari" hidden>{install.macSafari}</p>
   </div>
   <div data-panel="notify" hidden>
     <p>{prompt.notify.text}</p>

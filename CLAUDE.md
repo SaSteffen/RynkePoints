@@ -15,6 +15,12 @@ pnpm dev              # the app on http://localhost:8789 with a fake Strava and
 pnpm dev:strava       # the app on port 8789 against the real Strava (.dev.vars);
                       # uses the app's Strava request budget
 pnpm test             # Vitest inside the Workers runtime
+pnpm test:e2e         # Playwright smoke tests in Chromium, Firefox and WebKit,
+                      # against fake mode on port 8797 (started for you);
+                      # first `pnpm exec playwright install chromium firefox webkit`
+pnpm test:e2e:webkit  # WebKit in Docker where it doesn't run natively (Arch);
+                      # then run the tests with
+                      # E2E_WEBKIT_SERVER=ws://127.0.0.1:3797/
 pnpm lint             # Biome lint + format check
 pnpm format           # Biome autofix
 pnpm typecheck        # tsc --noEmit
@@ -38,11 +44,12 @@ and commit messages must follow
 - Every change reaches them through a pull request whose title is a Conventional
   Commit (it becomes the squash commit, plus ` (#N)`, within 100 characters).
 - Pushing and `gh pr create` are outward-facing: only do them when the user asks.
-- CI runs the same `pnpm lint`, `pnpm typecheck`, `pnpm test` and commitlint
+- CI runs the same `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` and commitlint
   (commits and PR title) as the local hooks.
-- The six check jobs' names are the required-check contexts. Renaming one means
-  updating both `.github/rulesets/*.json` files in the same change. `deploy-gate`
-  and `deploy` are not contexts and must never be added to them.
+- The seven check jobs' names are the required-check contexts. Renaming one means
+  updating both `.github/rulesets/*.json` files in the same change.
+  `already-checked`, `deploy-gate` and `deploy` are not contexts and must never be
+  added to them.
 
 ## Non-negotiables
 

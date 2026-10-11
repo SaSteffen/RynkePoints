@@ -15,6 +15,28 @@ export function nextInput(next?: string): SafeHtml | null {
 `;
 }
 
+/**
+ * What the rider allows, in three sentences, with every field read and who
+ * sees what one tap away (constitution Principle I names them all).
+ */
+export function consentSummary(i18n: I18n): SafeHtml {
+	return html`<p>${i18n.t("consent.short.notRead")}<br>${i18n.t("consent.short.read")}</p>
+<p>${i18n.t("consent.short.shown")}</p>
+<details class="more"><summary class="tap">${i18n.t("consent.details")}</summary>
+<p>${i18n.t("landing.dataRead")}</p>
+<p>${i18n.t("landing.private")}</p>
+<p>${i18n.t("landing.purpose")}</p>
+<p>${i18n.t("consent.organisers")}</p>
+<p>${i18n.t("consent.team")}</p>
+<p>${i18n.t("consent.write")}</p>
+<p>${i18n.t("landing.leave")}</p>
+<p>${i18n.t("landing.backups")}</p>
+<p>${i18n.t("landing.cookies")}</p>
+<p>${i18n.t("landing.notifications")}</p>
+</details>
+`;
+}
+
 export function consentForm(
 	i18n: I18n,
 	version: number,

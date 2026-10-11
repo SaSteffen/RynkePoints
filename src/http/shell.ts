@@ -22,16 +22,12 @@ import { readViewer, riderConsentState } from "./viewer";
 
 // The signed-in area's four sections (feature 011 data-model.md "Section",
 // research R1, R3, R8), plus Orga for organisers before Settings (feature 016).
+// Team comes first: it's where the app sends a signed-in rider (issue #73).
 // Each is its own page; `shellPage()` applies the access rules of `/me` to all
 // of them and wraps the section in the top bar and the navigation. The current
 // section comes from the route, never the client.
 
-export type SectionId =
-	| "overview"
-	| "rides"
-	| "team"
-	| "organiser"
-	| "settings";
+export type SectionId = "team" | "you" | "rides" | "organiser" | "settings";
 
 /** In navigation order (FR-002). */
 export const SECTIONS: readonly {
@@ -41,9 +37,9 @@ export const SECTIONS: readonly {
 	icon: SafeHtml;
 	organiserOnly?: true;
 }[] = [
-	{ id: "overview", path: "/me", label: "nav.overview", icon: COIN },
-	{ id: "rides", path: "/me/rides", label: "nav.rides", icon: BIKE },
 	{ id: "team", path: "/team", label: "nav.team", icon: PEOPLE },
+	{ id: "you", path: "/me", label: "nav.you", icon: COIN },
+	{ id: "rides", path: "/me/rides", label: "nav.rides", icon: BIKE },
 	{
 		id: "organiser",
 		path: "/organiser/riders",
@@ -146,7 +142,7 @@ export async function shellPage(
 		i18n,
 		layout(i18n, {
 			title:
-				section === "overview" || !label
+				section === "you" || !label
 					? i18n.t("me.title")
 					: i18n.t("shell.title", { section: i18n.t(label) }),
 			path,

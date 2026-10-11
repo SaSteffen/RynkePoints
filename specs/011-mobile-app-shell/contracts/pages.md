@@ -71,9 +71,10 @@ content first. Its links are, in this order:
 
 ```html
 <nav class="app-nav" aria-label="{nav.label}">
-<a href="/me" aria-current="page"><span class="nav-icon">{svg aria-hidden}</span><span class="nav-label">{nav.overview}</span></a>
+<a href="/team" aria-current="page"><span class="nav-icon">{svg aria-hidden}</span><span class="nav-label">{nav.team}</span></a>
+<a href="/me">…{nav.you}…</a>
 <a href="/me/rides">…{nav.rides}…</a>
-<a href="/team">…{nav.team}…</a>
+<a href="/organiser/riders">…{nav.organiser}…</a>  <!-- organisers only, feature 016 -->
 <a href="/me/settings">…{nav.settings}…</a>
 </nav>
 ```
@@ -166,7 +167,7 @@ Nothing else, and no rider's data (FR-013).
 | `notifications` | `{notifications.heading}` | feature 010's section with the switch ([client.md](client.md)), still starting `hidden` |
 | `settings-app` | `{settings.app}` | `aside#install` (hidden); the group is `hidden` and `app.js` shows it with the hint |
 | `settings-strava` | `{settings.strava}` | status line, scope lines, `<a class="button-outlined" href="/connect">{me.changePermissions}</a>`, and when `needs_reconnect` `<a class="button" href="/connect">{me.reconnect}</a>` |
-| `settings-consent` | `{me.consent.heading}` | feature 004's accepted line, the read and visibility texts |
+| `settings-consent` | `{me.consent.heading}` | feature 004's accepted line, then the consent's short sentences and its `details.more` with the full text |
 | `settings-account` | `{settings.account}` | `<form method="post" action="/logout">` with the hidden `push_endpoint` and `button.button-outlined`; `<a class="danger" href="/me/disconnect">{me.disconnect.button}</a>` |
 
 ## Consent gate (changed)
@@ -199,7 +200,7 @@ Both catalogs get these keys:
 | Key | en |
 |---|---|
 | `nav.label` | Sections |
-| `nav.overview` | Overview |
+| `nav.you` | You (de: Du; was `nav.overview`, issue #73) |
 | `nav.rides` | Rides |
 | `nav.team` | Team |
 | `nav.settings` | Settings |

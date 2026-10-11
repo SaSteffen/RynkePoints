@@ -147,7 +147,7 @@ export function createOAuthStateCookie(
 
 /**
  * Null if missing, tampered, expired or without a consent version. A value
- * from before feature 011 has no `next` and returns to `/me`.
+ * from before feature 011 has no `next` and returns home.
  */
 export async function readOAuthState(
 	request: Request,
@@ -161,7 +161,7 @@ export async function readOAuthState(
 	return {
 		state: parts[1] ?? "",
 		consentVersion: Number(parts[2]),
-		next: parts[3] || "/me",
+		next: parts[3] || "/",
 	};
 }
 

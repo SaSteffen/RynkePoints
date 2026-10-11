@@ -15,6 +15,11 @@ merging to main." User Stories 1–4 are implemented; the amendment adds User St
 and FR-023 to FR-036, and revises FR-018, FR-021 and the Assumptions that kept
 deploying out of scope.
 
+**Amendment** (2026-10-10): "A merged PR to main runs lint, test and typecheck again.
+Those are useless, we just did them on the same commit." Revises FR-012, FR-023,
+FR-024, User Story 5 and SC-009: pushes no longer re-run checks whose result is
+already known.
+
 ## Clarifications
 
 ### Session 2026-10-06
@@ -35,6 +40,16 @@ deploying out of scope.
   itself, or leave them to the maintainer? → A: Apply them automatically, before
   publishing the code, forward-only (never rolled back). If a migration fails, the
   deployment stops without publishing the code.
+
+### Session 2026-10-10
+
+- Q: Which pushes still re-run the checks? → A: None to `develop`: it only accepts
+  pull requests that are up to date, so its new commit holds exactly what the checks
+  passed on. A push to `main` re-runs them only when the merged commit's content
+  differs from the merged branch's, i.e. `main` held something the branch lacks
+  (e.g. a hotfix merged before a release that doesn't contain it yet). Otherwise
+  production gets exactly the branch content the checks passed on. Manual re-deploys
+  (FR-030) still re-run them.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -170,7 +185,7 @@ request, then carry it back through a back-merge branch and a pull request into
 
 When a release (`develop` → `main`) or hotfix pull request is merged, the
 repository publishes the new state of `main` to production by itself: once the
-required checks have passed on the merged commit, the Worker is deployed and riders
+required checks have passed on the merged content, the Worker is deployed and riders
 use the new version without the maintainer running anything on their own machine.
 Merging into `main` is therefore the one deliberate act that releases a change, and
 production always runs what `main` holds.
@@ -190,9 +205,9 @@ production does not change.
 **Acceptance Scenarios**:
 
 1. **Given** a release pull request was merged into `main`, **When** the required
-   checks pass on the resulting commit of `main`, **Then** that commit is deployed to
-   production without further action and the deployment is recorded with the commit
-   it came from.
+   checks have passed on the resulting content of `main` (FR-012), **Then** that
+   commit is deployed to production without further action and the deployment is
+   recorded with the commit it came from.
 2. **Given** a hotfix pull request was merged into `main`, **When** the checks pass,
    **Then** it is deployed the same way.
 3. **Given** a commit on `main` whose checks fail, **When** the checks finish,
@@ -316,8 +331,13 @@ production does not change.
 - **FR-011**: The checks MUST run with exactly the dependency versions recorded in the
   lockfile and the tool versions the project pins (Node version, package manager), and
   MUST fail if the lockfile does not match the declared dependencies.
-- **FR-012**: The checks MUST also run on every push to `main` and `develop` (i.e.
-  after each merge), so the state of each long-lived branch is visibly green or red.
+- **FR-012**: The checks MUST also run on a push to `main` (i.e. after a merge)
+  unless they already passed on exactly the content of the new commit: the new
+  commit's content equals that of the merged branch, and the checks passed on that
+  branch's last commit. A manual re-deploy (FR-030) always runs them. Pushes to `develop` MUST NOT re-run
+  them, because `develop` only accepts pull requests that are up to date (FR-008),
+  so its new commit holds exactly what the checks passed on. When it can't be shown
+  that the checks already passed, they run.
 - **FR-013**: The checks MUST re-run automatically on every new commit pushed to an
   open pull request; results from an older commit MUST NOT count for a newer one.
 - **FR-014**: When a newer commit is pushed to the same pull request while checks are
@@ -354,10 +374,11 @@ production does not change.
 **Deploying on merge to `main`**
 
 - **FR-023**: Every new commit on `main` MUST be deployed to production automatically
-  once all checks of FR-012 have passed on that commit. No other branch, pull request
+  once the checks of FR-012 have passed on its content. No other branch, pull request
   or event MAY deploy to production, except the manual re-deploy of FR-030.
 - **FR-024**: A commit on `main` whose checks failed, were cancelled or did not finish
-  MUST NOT be deployed.
+  MUST NOT be deployed, nor a commit whose checks were skipped without having passed
+  on its content before (FR-012).
 - **FR-025**: The deployed version MUST be built from exactly the merged commit, with
   the dependency and tool versions of FR-011; nothing from outside the repository
   (local files, uncommitted changes, a contributor's machine) MAY enter it.
@@ -445,7 +466,7 @@ production does not change.
   commit within 15 minutes in 100% of cases where the checks and the deployment
   succeed, without any action by the maintainer.
 - **SC-009**: 100% of production deployments after this amendment is enabled come from
-  a commit of `main` whose checks passed; zero come from another branch, a pull
+  a commit of `main` whose content passed the checks (FR-012); zero come from another branch, a pull
   request or a contributor's machine.
 - **SC-010**: For any point in time, the maintainer can tell from the repository alone
   which commit of `main` production was running.

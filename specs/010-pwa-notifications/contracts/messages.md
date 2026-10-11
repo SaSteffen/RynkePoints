@@ -12,12 +12,12 @@ fixed. Tests assert the German text.
 | `install.ios` | Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“. | As an app on your iPhone: in Safari, tap "Share" and then "Add to Home Screen". |
 | `install.dismiss` | Ausblenden | Dismiss |
 | `notifications.heading` | Benachrichtigungen | Notifications |
-| `notifications.explain` | Auf Wunsch sagt dir dieses Gerät Bescheid, wenn du neue Rynke hast: wie viele und was dir noch fehlt. | If you like, this device lets you know when you have new Rynke: how many, and what you still need. |
-| `notifications.on` | Benachrichtigungen sind auf diesem Gerät an. | Notifications are on for this device. |
-| `notifications.off` | Benachrichtigungen sind auf diesem Gerät aus. | Notifications are off for this device. |
+| `notifications.explain` | Dieses Gerät sagt dir Bescheid, wenn du neue Rynke hast, und was dir noch fehlt. | This device lets you know when you have new Rynke, and what you still need. |
+| `notifications.on` | Auf diesem Gerät an. | On for this device. |
+| `notifications.off` | Auf diesem Gerät aus. | Off for this device. |
 | `notifications.turnOn` | Benachrichtigungen einschalten | Turn on notifications |
 | `notifications.turnOff` | Benachrichtigungen ausschalten | Turn off notifications |
-| `notifications.blocked` | Benachrichtigungen bleiben aus, weil dein Gerät sie für RynkePoints blockiert. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben. | Notifications stay off because your device blocks them for RynkePoints. You can allow them in your browser's or device's settings. |
+| `notifications.blocked` | Dein Gerät blockiert Benachrichtigungen für RynkePoints. Du kannst sie in den Einstellungen des Browsers oder Geräts erlauben. | Your device blocks notifications for RynkePoints. You can allow them in your browser's or device's settings. |
 | `notifications.needsHomeScreen` | Auf dem iPhone gibt es Benachrichtigungen nur, wenn RynkePoints auf dem Home-Bildschirm liegt. Öffne es dann von dort. | On an iPhone, notifications only work once RynkePoints is on your home screen. Then open it from there. |
 | `notifications.unsupported` | Dieser Browser kann keine Benachrichtigungen anzeigen. | This browser can't show notifications. |
 | `notifications.failed` | Das hat nicht geklappt. Versuch es bitte noch einmal. | That didn't work. Please try again. |
@@ -28,7 +28,7 @@ fixed. Tests assert the German text.
 | `push.rise.team` | +{n} Teamrynke | +{n} Team Rynke |
 | `offline.title` | Keine Verbindung | No connection |
 | `offline.body` | RynkePoints braucht eine Internetverbindung. Versuch es gleich noch einmal. | RynkePoints needs an internet connection. Please try again shortly. |
-| `landing.notifications` | Benachrichtigungen sind freiwillig und gelten pro Gerät. Sie zeigen nur auf deinem Gerät, wie viele Rynke neu sind und was dir noch fehlt. Sie laufen über den Benachrichtigungsdienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die dieser Dienst deinem Gerät gibt, und löschen sie, wenn du die Benachrichtigungen ausschaltest, dich abmeldest oder gehst. | Notifications are optional and per device. Only on your device do they show how many Rynke are new and what you still need. They pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address that service gives your device, and delete it when you turn notifications off, sign out or leave. |
+| `landing.notifications` | Benachrichtigungen sind freiwillig, gelten pro Gerät und zeigen nur dir, wie viele Rynke neu sind und was dir noch fehlt. Sie laufen über den Dienst des Geräte- oder Browserherstellers (z. B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die er deinem Gerät gibt, und löschen sie, wenn du sie ausschaltest, dich abmeldest oder gehst. | Notifications are optional, per device, and show only you how many Rynke are new and what you still need. They pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address it gives your device, and delete it when you turn them off, sign out or leave. |
 
 Rules:
 

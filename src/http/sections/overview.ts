@@ -14,6 +14,7 @@ import {
 	renderBreakdown,
 	renderGauges,
 	renderNotice,
+	renderReconnect,
 	renderRules,
 	renderSummary,
 	renderWaiting,
@@ -21,7 +22,7 @@ import {
 import { buildRiderView } from "../rider-view";
 import { shellPage } from "../shell";
 
-// The Overview at `/me` (feature 011 FR-010): the greeting first, then what
+// The Overview at `/me`, labelled "You" (feature 011 FR-010, issue #73): the greeting first, then what
 // needs the rider's attention (015 FR-008, FR-009), and the rider's Rynke
 // with their gauges, where they come from and the rules behind them (feature
 // 005). The rides, settings and account are in their own sections. A `page`
@@ -69,7 +70,7 @@ export function handleOverview(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	return shellPage(request, ctx, i18n, "overview", "/me", async ({ rider }) => {
+	return shellPage(request, ctx, i18n, "you", "/me", async ({ rider }) => {
 		const read = await readRiderView(ctx.env.DB, rider.athleteId, 1);
 		const view = buildRiderView(
 			read,
@@ -80,14 +81,6 @@ export function handleOverview(
 				rulesFor: rulesForVersion,
 			},
 		);
-		const reconnect =
-			rider.status === "needs_reconnect"
-				? html`<aside class="notice notice-error">
-<p>${i18n.t("me.status.needsReconnect")}</p>
-<p><a class="button" href="/connect">${i18n.t("me.reconnect")}</a></p>
-</aside>
-`
-				: null;
 		const ready = view.state === "ready" ? view : null;
 		const totals = ready && {
 			training: ready.summary.training.value,
@@ -116,7 +109,7 @@ ${
 		: null
 }</div>
 </section>
-${reconnect}${renderNotice(i18n, view)}
+${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}
 ${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env))}
 ${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}

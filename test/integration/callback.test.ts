@@ -244,7 +244,33 @@ describe("GET /auth/callback success", () => {
 			cookies: { rp_oauth_state: value },
 		});
 		expect(res.status).toBe(302);
+		// A new rider has no ride yet, so home is their own page.
 		expect(res.headers.get("Location")).toBe("/me");
+	});
+
+	it("sends a new rider home to /me before any ride is imported", async () => {
+		const res = await approve(
+			ctx,
+			fake,
+			ATHLETE_A,
+			SCOPES_ALL,
+			{},
+			{ next: "/" },
+		);
+		expect(res.headers.get("Location")).toBe("/me");
+	});
+
+	it("sends a rider with an imported ride home to /team (#73)", async () => {
+		await seedExistingRider();
+		const res = await approve(
+			ctx,
+			fake,
+			ATHLETE_A,
+			SCOPES_ALL,
+			{},
+			{ next: "/" },
+		);
+		expect(res.headers.get("Location")).toBe("/team");
 	});
 
 	it("keeps refusals on their notice whatever next says", async () => {
