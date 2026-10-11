@@ -257,6 +257,66 @@ describe("STYLE", () => {
 		expect(unguarded).toEqual([]);
 	});
 
+	describe.each([
+		".button",
+		".button-outlined",
+		".danger",
+		".segmented",
+		".segmented-group label",
+		".icon-button",
+	])("press feedback on %s (issue #107)", (selector) => {
+		it("lays a state layer in the button's own colour over it", () => {
+			expect(declsOf(`${selector}::before`)).toMatchObject({
+				position: "absolute",
+				background: "currentColor",
+				opacity: "0",
+			});
+			expect(declsOf(selector).overflow).toBe("hidden");
+		});
+
+		it("shows the layer on hover only where the pointer can hover", () => {
+			expect(declsOf(`${selector}:hover::before`)).toEqual({});
+			expect(
+				declsOf(`${selector}:hover::before`, "(hover:hover)").opacity,
+			).toBe(".08");
+		});
+
+		it("shows a stronger layer when pressed and no ripple runs", () => {
+			expect(
+				Number(
+					declsOf(`:root:not(.ripples) ${selector}:active::before`).opacity,
+				),
+			).toBeGreaterThan(0.08);
+		});
+	});
+
+	it("shrinks a pressed button a little, except with reduced motion", () => {
+		for (const selector of [".button", ".button-outlined", ".danger"]) {
+			expect(declsOf(`${selector}:active`).transform).toBeUndefined();
+			expect(
+				declsOf(`${selector}:active`, "(prefers-reduced-motion:no-preference)")
+					.transform,
+			).toBe("scale(.96)");
+		}
+	});
+
+	it("keeps joined segments in place when pressed", () => {
+		expect(declsOf(".segmented:active").transform).toBeUndefined();
+	});
+
+	it("blocks a busy button and spins only without reduced motion", () => {
+		expect(declsOf(".button[aria-busy=true]")["pointer-events"]).toBe("none");
+		expect(declsOf(".button[aria-busy=true]::after").animation).toContain(
+			"busy-spin",
+		);
+		expect(
+			declsOf(
+				".button[aria-busy=true]::after",
+				"(prefers-reduced-motion:reduce)",
+			).animation,
+		).toBe("none");
+	});
+
 	it("loads nothing from another origin (FR-037)", () => {
 		expect(STYLE).not.toContain("@import");
 		expect(STYLE).not.toMatch(/url\(\s*["']?(https?:)?\/\//);

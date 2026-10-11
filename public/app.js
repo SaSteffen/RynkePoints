@@ -1,9 +1,10 @@
 // RynkePoints page script (feature 010 contracts/client.md, research R16). It
 // only wires up what a server-rendered page can't do itself: the service worker,
 // the install group and the app prompt, the notifications switch, the scheme
-// picker, reloading a section on return and waiting for the first data. It
-// holds no text: every word shown comes from the page's markup, rendered from
-// the catalogs and hidden until this shows it.
+// picker, reloading a section on return, waiting for the first data and the
+// buttons' press and busy feedback. It holds no text: every word shown comes
+// from the page's markup, rendered from the catalogs and hidden until this
+// shows it.
 
 /**
  * Resolves to whether the service worker is registered. Firefox's private
@@ -470,7 +471,100 @@ function waitForFirstData() {
 	}, seconds * 1000);
 }
 
+/** The Material buttons that show press feedback (issue #107). */
+const PRESSABLE =
+	".button,.button-outlined,.danger,.segmented,.segmented-group label,.icon-button";
+
+/**
+ * A ripple from the point of the tap on a Material button (issue #107). Without
+ * it, or with reduced motion, the stylesheet's flat pressed layer shows instead:
+ * the `ripples` class on the root switches that layer off.
+ */
+function pressFeedback() {
+	// Safari on iOS applies :active on touch only once a touch listener exists.
+	document.addEventListener("touchstart", () => {}, { passive: true });
+	if (
+		matchMedia("(prefers-reduced-motion: reduce)").matches ||
+		typeof Element.prototype.animate !== "function"
+	) {
+		return;
+	}
+	document.documentElement.classList.add("ripples");
+	document.addEventListener("pointerdown", (event) => {
+		if (!event.isPrimary || event.button !== 0) return;
+		const target =
+			event.target instanceof Element ? event.target.closest(PRESSABLE) : null;
+		if (!target || target.getAttribute("aria-busy") === "true") return;
+		const box = target.getBoundingClientRect();
+		const x = event.clientX - box.left;
+		const y = event.clientY - box.top;
+		const radius = Math.hypot(
+			Math.max(x, box.width - x),
+			Math.max(y, box.height - y),
+		);
+		const ripple = document.createElement("span");
+		ripple.className = "ripple";
+		ripple.setAttribute("aria-hidden", "true");
+		ripple.style.left = `${x - radius}px`;
+		ripple.style.top = `${y - radius}px`;
+		ripple.style.width = ripple.style.height = `${radius * 2}px`;
+		target.append(ripple);
+		const grow = ripple.animate(
+			[{ transform: "scale(0)" }, { transform: "scale(1)" }],
+			{ duration: 300, easing: "cubic-bezier(0.2, 0, 0, 1)", fill: "forwards" },
+		);
+		const ends = ["pointerup", "pointercancel", "pointerleave"];
+		const release = () => {
+			for (const type of ends) target.removeEventListener(type, release);
+			grow.finished
+				.then(
+					() =>
+						ripple.animate([{ opacity: 0 }], {
+							duration: 150,
+							fill: "forwards",
+						}).finished,
+				)
+				.catch(() => {})
+				.finally(() => ripple.remove());
+		};
+		for (const type of ends) target.addEventListener(type, release);
+	});
+}
+
+/**
+ * Marks the button that sent a form as busy until the next page arrives, and
+ * ignores a second submit meanwhile (issue #107). The button stays enabled: a
+ * disabled submitter drops its name and value from the form data, which the
+ * language buttons need. A page restored from the back-forward cache starts
+ * idle again.
+ */
+function pendingSubmit() {
+	document.addEventListener("submit", (event) => {
+		const form = event.target;
+		if (event.defaultPrevented || !(form instanceof HTMLFormElement)) return;
+		if (form.dataset.submitting === "true") {
+			event.preventDefault();
+			return;
+		}
+		form.dataset.submitting = "true";
+		const button =
+			event.submitter ?? form.querySelector("button:not([type=button])");
+		button?.setAttribute("aria-busy", "true");
+	});
+	window.addEventListener("pageshow", (event) => {
+		if (!event.persisted) return;
+		for (const form of document.querySelectorAll("form[data-submitting]")) {
+			delete form.dataset.submitting;
+		}
+		for (const button of document.querySelectorAll("[aria-busy=true]")) {
+			button.removeAttribute("aria-busy");
+		}
+	});
+}
+
 const registered = registerWorker();
+pressFeedback();
+pendingSubmit();
 installSettings();
 appPrompt();
 schemePicker();
