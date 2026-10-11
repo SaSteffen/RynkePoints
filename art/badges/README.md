@@ -77,4 +77,5 @@ part of implementing this feature, after #101 is merged.
   muzzle); team pictures show several copies of him.
 - No frame, ring or circle drawn around the scene; nothing important near the
   edge, as the window crops it round.
-- Still readable at 48 px; no text or numbers.
+- Detailed enough to enjoy at full size (the badge opens large), with the main
+  subject still clear; no text or numbers.

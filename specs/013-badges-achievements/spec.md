@@ -233,6 +233,9 @@ check every rider's page shows the team badge with the training's date.
 - **FR-002**: The section MUST show two groups, "Meine Badges" and "Team-Badges".
   Each lists its earned badges, newest first, with picture, name, what it was for
   and the date earned.
+- **FR-002a**: Earned badges MUST be shown large enough to enjoy their picture (at
+  least 96 px wide in the list); tapping one MUST open it large, up to the width
+  of the screen, with its name, what it was for and the date earned.
 - **FR-003**: For each category not yet complete, the group
   MUST show the progress towards the next badge only: current value, the value
   needed and what is still missing, in that category's unit. It MUST NOT show the

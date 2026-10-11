@@ -6,8 +6,10 @@ Scene: {{scene}}
 
 Mood: playful, cheeky cartoon with lots of personality, like a sticker you'd want to collect.
 
-Style: flat vector-style illustration, identical to the reference. Bold uniform black outlines (#1C1B13) about 56 px thick on every shape, including around yellow objects so they stay separate from the yellow jersey. Solid flat fills only, no gradients, no shading, no texture, no highlights, no drop shadow, no ground shadow. Use only these colors: yellow #FBE122, orange fur #C8641E, muzzle #F0A868, black #1C1B13, cream #FFFDF5, gold #C99A2E, light blue #8CC4F0 (only for water, ice, sky details and sweat drops).
+Detail: the badge is shown large, so the picture can be rich: a little setting around the main subject, props, background elements and small funny touches that reward a closer look. Keep the main subject big and clear in the middle; the details support it and never crowd it.
 
-Proportions: chibi, every character's head about 40% of its figure height so faces read at icon size. Few, large shapes: the picture must still read when the badge is shown 48 px wide.
+Style: flat vector-style illustration, identical to the reference. Uniform black outlines (#1C1B13) about 32 px thick on every shape (background elements may use about 20 px), including around yellow objects so they stay separate from the yellow jersey. Solid flat fills only, no gradients, no shading, no texture, no highlights, no drop shadow, no ground shadow. Use only these colors: yellow #FBE122, orange fur #C8641E, muzzle #F0A868, black #1C1B13, cream #FFFDF5, gold #C99A2E, light blue #8CC4F0 (only for water, ice, sky details and sweat drops).
+
+Proportions: chibi like the reference, every character's head about 40% of its figure height. Smallest details at least about 24 px across and no lines thinner than about 20 px, so the picture stays clean when it is traced into a vector graphic.
 
 Canvas: square 1:1, 2048 x 2048 px, plain pure white background. Everything fits inside a centered circle of 1800 px diameter, the main subject in the middle: the picture is cropped to a circle. No text, no letters, no numbers, no border, no ground line unless the scene asks for one.
