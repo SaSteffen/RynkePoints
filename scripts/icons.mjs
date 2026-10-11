@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 // Draws the Rynke-Coin badge as SVG (public/icons/icon.svg) and renders the
-// app icons next to it with rsvg-convert (from librsvg), which isn't a project
+// app icons with rsvg-convert (from librsvg), which isn't a project
 // dependency: the outputs are committed and only change with the artwork.
 // The lettering is drawn from stroked glyphs below, so no font is needed.
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
+import { registerHooks } from "node:module";
+import { extname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const OUT = fileURLToPath(new URL("../public/icons/", import.meta.url));
@@ -227,6 +229,47 @@ const mono = svg(
 	96,
 );
 
+// The installed app's icons and launch screen: the coin front that spins while
+// rides import, taken from the app's own sprite and colours. The full badge's
+// lettering looks wrong that large and centred on the launch screen (#120).
+// The app's sources import without file extensions, so `.ts` is added here;
+// coin.ts gets a stand-in for html.ts, which Node can't strip the types of.
+registerHooks({
+	resolve(specifier, context, next) {
+		if (specifier === "./html" && context.parentURL?.endsWith("/coin.ts")) {
+			const stub = "export class SafeHtml {} export function html() {}";
+			return { url: `data:text/javascript,${stub}`, shortCircuit: true };
+		}
+		return specifier.startsWith(".") && !extname(specifier)
+			? next(`${specifier}.ts`, context)
+			: next(specifier, context);
+	},
+});
+const { COIN_SPRITE } = await import("../src/http/coin.ts");
+const { STYLE } = await import("../src/http/style.ts");
+// The light scheme's tokens come first.
+const tokens = {};
+for (const [, name, value] of STYLE.matchAll(
+	/(--rp-coin-[a-z]+):(#[0-9a-f]+)/g,
+)) {
+	tokens[name] ??= value;
+}
+const coinRules = [...STYLE.matchAll(/^\.c-[a-z]+\{.*\}$/gm)]
+	.map(([rule]) =>
+		rule.replace(/var\((--rp-coin-[a-z]+)\)/g, (_, name) => tokens[name]),
+	)
+	.filter((rule) => !rule.includes("var("))
+	.join("");
+const front = COIN_SPRITE.match(
+	/<symbol id="coin-front" viewBox="0 0 100 100">(.*?)<\/symbol>/,
+)[1];
+// Transparent around the coin, or scaled on the launch screen's background
+// (manifest background_color) for the maskable icon.
+const launch = (scale, background) =>
+	svg(
+		`<style>${coinRules}</style>${background ? `<rect width="512" height="512" fill="${tokens["--rp-coin-face"]}"/>` : ""}<g transform="translate(256 256) scale(${r1(scale * 5.12 * 1000) / 1000}) translate(-50 -50)">${front}</g>`,
+	);
+
 function png(name, size, source) {
 	execFileSync("rsvg-convert", ["-w", size, "-h", size, "-o", OUT + name], {
 		input: source,
@@ -238,8 +281,8 @@ const icon = svg(
 );
 writeFileSync(`${OUT}icon.svg`, icon);
 writeFileSync(`${OUT}favicon.svg`, favicon);
-png("icon-192.png", "192", icon);
-png("icon-512.png", "512", icon);
-png("icon-maskable-512.png", "512", framed(0.8));
+png("icon-192.png", "192", launch(1));
+png("icon-512.png", "512", launch(1));
+png("icon-maskable-512.png", "512", launch(0.8, true));
 png("apple-touch-icon.png", "180", framed(0.92));
 png("badge-96.png", "96", mono);
