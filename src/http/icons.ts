@@ -9,9 +9,9 @@ const icon = (paths: string): SafeHtml =>
 		`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths}</svg>`,
 	);
 
-/** The Rynke coin as a line: its rim and the chain ring (feature 012). */
-export const COIN = icon(
-	'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5.5" stroke-dasharray="2.2 1.8"/>',
+/** One rider: the larger figure of PEOPLE, centred, for the "you" tab. */
+export const PERSON = icon(
+	'<circle cx="12" cy="8" r="3.75"/><path d="M5 20c0-3.9 3.1-6.5 7-6.5s7 2.6 7 6.5"/>',
 );
 
 export const BIKE = icon(
