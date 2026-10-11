@@ -3,7 +3,7 @@
 	"name": "RynkePoints",
 	"short_name": "RynkePoints",
 	"description": "RynkePoints",
-	"start_url": "/team",
+	"start_url": "/",
 	"scope": "/",
 	"display": "standalone",
 	"theme_color": "#fffdf5",

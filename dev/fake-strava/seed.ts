@@ -1,6 +1,5 @@
 import { CONSENT_VERSION } from "../../src/consent";
 import type { Ctx } from "../../src/ctx";
-import { HOME } from "../../src/http/redirect";
 import { handleFetch } from "../../src/index";
 import { teamEventChange } from "../../src/rynke/apply";
 import {
@@ -74,7 +73,8 @@ export async function connectThroughApp(
 		ctx,
 	);
 	const landed = callback.headers.get("Location");
-	if (landed !== HOME) {
+	// A new rider has no rides yet, so lands on their own page.
+	if (landed !== "/me") {
 		throw new Error(
 			`Seeding ${rider.firstName} (${rider.athleteId}): the callback answered ${callback.status} to ${landed}`,
 		);

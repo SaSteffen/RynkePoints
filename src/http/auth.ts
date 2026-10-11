@@ -18,7 +18,7 @@ import { isClubMember } from "../strava/client";
 import { STRAVA_ORIGIN } from "../strava/result";
 import { exchangeCode, revokeToken } from "../strava/tokens";
 import { forbidden } from "./errors";
-import { sectionNext } from "./lang";
+import { arrival, sectionNext } from "./lang";
 import type { NoticeId } from "./notice";
 import { redirect } from "./redirect";
 import {
@@ -229,7 +229,12 @@ export async function handleCallback(
 		});
 	}
 
-	return redirect(sectionNext(expected.next), 302, [
+	const next = await arrival(
+		sectionNext(expected.next),
+		ctx.env.DB,
+		token.athleteId,
+	);
+	return redirect(next, 302, [
 		clearOAuthStateCookie(),
 		await createSessionCookie(token.athleteId, now, ctx.env),
 	]);
