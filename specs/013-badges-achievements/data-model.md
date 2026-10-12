@@ -282,7 +282,7 @@ No D1 change.
   `team-surprise-new-years-eve`, `team-surprise-sunday-outing`. 23 categories
   (16 personal, 7 team), 113 badges.
 - **TeamBadgeSums** gains `active: { athleteId, date, hour }[]` (counting
-  rides and outdoor runs of listed riders, distinct) and `connectedOn:
+  rides, outdoor runs and swims of listed riders, distinct) and `connectedOn:
   string[]` (each listed rider's connection date, Berlin).
 - Rules as research R40; progress `{ next: null }`.
 

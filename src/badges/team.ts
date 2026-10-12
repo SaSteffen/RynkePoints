@@ -34,7 +34,8 @@ export interface TeamEventSum {
 }
 
 /**
- * A listed rider's counting ride or outdoor run, reduced to when it started
+ * A listed rider's counting ride, outdoor run or swim, reduced to when it
+ * started
  * (part E, research R39). The id only tells riders apart inside this pure
  * function; nothing of it reaches the page (FR-016a).
  */

@@ -192,7 +192,8 @@ export async function readTeamBadgeSums(
 				ORDER BY e.event_date, e.event_id`,
 		),
 		// For the team surprises (part E, research R39): when listed riders'
-		// counting rides and outdoor runs started; never swims (FR-025).
+		// counting rides, outdoor runs and swims started; nothing else of a
+		// swim (FR-025).
 		db.prepare(
 			`SELECT DISTINCT athlete_id, substr(start_date_local, 1, 10) AS date,
 					CAST(substr(start_date_local, 12, 2) AS INTEGER) AS hour
@@ -203,6 +204,9 @@ export async function readTeamBadgeSums(
 					WHERE r.counts = 1 AND r.athlete_id IN (${LISTED_RIDER_IDS})
 					UNION ALL
 					SELECT athlete_id, start_date_local FROM runs
+					WHERE athlete_id IN (${LISTED_RIDER_IDS})
+					UNION ALL
+					SELECT athlete_id, start_date_local FROM swims
 					WHERE athlete_id IN (${LISTED_RIDER_IDS})
 				)
 				ORDER BY 2, 1, 3`,

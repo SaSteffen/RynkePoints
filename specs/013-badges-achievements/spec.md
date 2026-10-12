@@ -155,9 +155,10 @@ next one."
 - Q: Who is "everyone"? → A: Every listed rider (feature 014) who had already
   connected on that day, at least two; a rider who joins later doesn't take
   the badge back.
-- Q: Which activities count for the team? → A: Counting rides and outdoor
-  runs of listed riders, which team sums already include. Swims stay out of
-  everything the team sees (FR-025).
+- Q (raised by the project owner): Which activities count for the team? → A:
+  Counting rides, outdoor runs and swims of listed riders, swims just like
+  runs. Only whether and when someone was active counts, never a swim's
+  figures (FR-025, FR-016a).
 - Q: When is a team day off known? → A: Like the rest day: with the team's
   next activity after it, and only between the team's first activity of the
   season and that next one.
@@ -440,8 +441,9 @@ surprise badges and that no rider is named.
    Eve badge is earned; four are not enough.
 7. **Given** ten listed riders active on a Sunday without a team event,
    **Then** the Sunday outing badge is earned; with a team event that day, not.
-8. **Given** a swim on an otherwise empty day, **Then** that day still counts
-   as a team day off.
+8. **Given** a swim by a listed rider on an otherwise empty day, **Then** that
+   day is no team day off, and the swim counts for the other team surprises
+   like a run.
 
 ### Edge Cases
 
@@ -584,7 +586,8 @@ their badge names examples.
 - **FR-016**: A team category "Team-Überraschungen" MUST hold six single
   badges, shown as FR-015b shows the personal ones ("?" until earned, then why;
   the newest on the card; never a bar), worked out from the listed riders'
-  counting rides and outdoor runs by local start date and time (FR-032):
+  counting rides, outdoor runs and swims by local start date and time
+  (FR-032):
   - Day off: a date with no activity between the team's first activity of the
     season and a later one;
   - All out: a date on which every listed rider connected by then, at least
@@ -660,7 +663,9 @@ their badge names examples.
   MUST NOT be kept.
 - **FR-025**: Swims MUST NOT earn Rynke, appear in the ride list or take part in
   feature 003's ride rules. Other riders MUST NOT see any single swim or a
-  rider's swimming figures; swims count towards no team category.
+  rider's swimming figures; swims count towards no team category except the
+  team surprises, where only the date and hour of a swim count, like a run's
+  (FR-016).
 
 **Evaluation**
 
@@ -729,7 +734,8 @@ their badge names examples.
   For a surprise badge not even its rule: the page shows only "?".
 - **SC-004**: Adding any number of runs leaves every rider's Rynke, ride list, team
   leaderboard and every team badge except "Running together" unchanged; adding
-  any number of swims leaves them all unchanged.
+  any number of swims leaves them all unchanged except the team surprises
+  (FR-016).
 - **SC-005**: The Abzeichen section works at 360 px width in both colour modes,
   without horizontal scrolling however many badges a rider has.
 

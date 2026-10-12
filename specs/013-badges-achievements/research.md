@@ -581,15 +581,18 @@ D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
 ## R39 What the team sums add
 
 - **Decision**: `readTeamBadgeSums` adds two reads to its batch, over listed
-  riders only: per rider, local date and start hour of every counting ride
-  and outdoor run (`SELECT DISTINCT athlete_id, date, hour`), and each listed
+  riders only: per rider, local date and start hour of every counting ride,
+  outdoor run and swim (`SELECT DISTINCT athlete_id, date, hour`), and each listed
   rider's connection date (`berlinDate(connected_at)`). `TeamBadgeSums` gains
   `active` (date → rider count and the set of start hours, with rider ids
   only to count distinct riders and test "everyone"; never leaving the pure
   function) and `connectedOn` (the listed riders' connection dates). Team
   event dates already come with `events`.
 - **Rationale**: Enough for all six rules, nothing per rider reaches the view
-  (FR-016a); swims are not read (FR-025).
+  (FR-016a). Swims count like runs (project owner, 2026-10-12): only their
+  date and hour, never their figures (FR-025). A change that touches only
+  swims therefore sets `figuresChanged` again, so `teamBadgeNews` (#125) can
+  announce a team surprise a swim completed (this reverses R26's rule).
 - **Alternatives**: Per-day counts in SQL only: "everyone connected by then"
   needs the rider ids per day.
 

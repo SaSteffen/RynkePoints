@@ -517,17 +517,28 @@ describe("the team surprise badges on the page", () => {
 		expect(card(badges)).not.toContain("badge-progress");
 	});
 
-	it("earns the day off from listed riders' rides, not from a swim (US7 2, 8)", async () => {
+	const swimOn = (id: number, athleteId: number, day: string) =>
+		env.DB.prepare(
+			`INSERT INTO swims (strava_activity_id, athlete_id, start_date,
+				start_date_local, distance_m, is_private, refreshed_at)
+			VALUES (?, ?, ?, ?, 1500, 0, 0)`,
+		)
+			.bind(id, athleteId, `${day}T06:00:00Z`, `${day}T08:00:00Z`)
+			.run();
+
+	it("counts a swim like a run: no day off on a swim's day (US7 8)", async () => {
 		// Rides on 3 and 5 May, a swim on 4 May.
 		await seedRides(ATHLETE_A, 1, "2026-05-03", 8_200_001);
 		await seedRides(ATHLETE_B, 1, "2026-05-05", 8_200_002);
-		await env.DB.prepare(
-			`INSERT INTO swims (strava_activity_id, athlete_id, start_date,
-				start_date_local, distance_m, is_private, refreshed_at)
-			VALUES (9_200_001, ?, '2026-05-04T06:00:00Z', '2026-05-04T08:00:00Z', 1500, 0, 0)`,
-		)
-			.bind(ATHLETE_A)
-			.run();
+		await swimOn(9_200_001, ATHLETE_A, "2026-05-04");
+		const { html } = await section();
+		expect(html).not.toContain('badge-team-surprise-day-off"');
+	});
+
+	it("earns the day off between listed riders' activities (US7 2)", async () => {
+		// A ride on 3 May, nothing on 4 May, a swim on 5 May.
+		await seedRides(ATHLETE_A, 1, "2026-05-03", 8_200_001);
+		await swimOn(9_200_002, ATHLETE_B, "2026-05-05");
 		const { html, section: badges } = await section();
 		const team = card(badges);
 		expect(team).toContain('popovertarget="badge-team-surprise-day-off"');

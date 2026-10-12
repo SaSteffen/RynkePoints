@@ -181,7 +181,7 @@ describe("swims from list pages and scope changes", () => {
 	});
 });
 
-describe("swims change nothing but the swim badges (SC-004, FR-025)", () => {
+describe("swims change nothing but the swim badges and team surprises (SC-004, FR-025)", () => {
 	it("leaves results, balance, ride list and the whole Team page as they were", async () => {
 		fake.addActivity(ATHLETE_A, makeStravaActivity({ id: RIDE }));
 		await deliver(event(RIDE));
@@ -200,7 +200,7 @@ describe("swims change nothing but the swim badges (SC-004, FR-025)", () => {
 		expect(await page("/team")).toBe(before.team);
 	});
 
-	it("never marks the team's figures as changed", async () => {
+	it("marks the team's figures as changed, for the team surprises (FR-016)", async () => {
 		const record = toSwimRecord(swim(POOL), ATHLETE_A, NOW);
 		if (!record) throw new Error("not a swim");
 		const result = await applyAndEvaluate(
@@ -211,7 +211,7 @@ describe("swims change nothing but the swim badges (SC-004, FR-025)", () => {
 			countingWindow(env),
 			NOW,
 		);
-		expect(result.figuresChanged).toBe(false);
+		expect(result.figuresChanged).toBe(true);
 		expect(result.badges).toEqual(["swim-length-500", "swim-length-1000"]);
 	});
 

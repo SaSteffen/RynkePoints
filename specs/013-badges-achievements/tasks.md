@@ -943,7 +943,7 @@ already in `art/badges/badges.json`; pictures are the project owner's run
   the rules in `src/badges/team.ts` (research R40).
 - [X] T115 [US7] Tests first in a new describe of
   `test/integration/badges-section.test.ts`: `readTeamBadgeSums` reads only
-  listed riders' rides and runs, never swims (US7 scenario 8); the team group
+  listed riders' rides, runs and swims (US7 scenario 8); the team group
   shows "Team-Überraschungen" with "?", no bar, and an earned team surprise
   with its ribbon and why-text, no rider named (FR-016a). Then implement the
   reads in `src/db/team.ts` (research R39).

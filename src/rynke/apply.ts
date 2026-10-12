@@ -848,12 +848,11 @@ interface Figures {
 }
 
 /**
- * Whether what the team badges add up changed: rides and runs, never swims,
- * which count towards no team category (FR-025, research R26).
+ * Whether what the team badges read changed: rides and runs, and swims, whose
+ * dates and hours count for the team surprises (FR-016, research R39).
  */
 function teamFiguresChanged(before: Figures, after: Figures): boolean {
-	const team = ({ rides, runs }: Figures) => JSON.stringify({ rides, runs });
-	return team(before) !== team(after);
+	return JSON.stringify(before) !== JSON.stringify(after);
 }
 
 /** A full evaluation of the rider's state. */
