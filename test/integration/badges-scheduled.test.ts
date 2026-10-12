@@ -89,4 +89,96 @@ describe("the badge catalog's cron evaluation", () => {
 		await fanOutEvaluations(ctx);
 		expect(sent("evaluate-rider")).toEqual([]);
 	});
+
+	it("gives riders on catalog version 1 the part C badges once, silently (FR-012)", async () => {
+		// A 60 km ride: ride length 50 under catalog version 2.
+		await upsertActivity(
+			env.DB,
+			activityRecord(4, {
+				start_date: "2026-05-04T08:00:00Z",
+				distance_m: 60000,
+			}),
+		);
+		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_A });
+		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_B });
+		await env.DB.batch([
+			env.DB.prepare(
+				"DELETE FROM rider_badges WHERE badge_id LIKE 'ride-length-%'",
+			),
+			env.DB.prepare(
+				"DELETE FROM badge_reveals WHERE badge_id LIKE 'ride-length-%'",
+			),
+			env.DB.prepare("DELETE FROM badge_rises"),
+			env.DB.prepare(
+				"UPDATE riders SET badges_version = 1 WHERE athlete_id = ?",
+			).bind(ATHLETE_A),
+		]);
+		await seedSubscription(ATHLETE_A, pushEndpoint(1));
+		ctx.queue.sent.length = 0;
+
+		await fanOutEvaluations(ctx);
+		expect(sent("evaluate-rider")).toEqual([
+			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
+		]);
+		ctx.queue.sent.length = 0;
+		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_A });
+
+		const { results } = await env.DB.prepare(
+			`SELECT b.badge_id FROM rider_badges b JOIN badge_reveals r
+				USING (athlete_id, badge_id, earned_on)
+			WHERE b.athlete_id = ? AND b.badge_id LIKE 'ride-length-%'`,
+		)
+			.bind(ATHLETE_A)
+			.all();
+		expect(results.map((r) => r.badge_id)).toEqual(["ride-length-50"]);
+		expect(
+			await env.DB.prepare("SELECT count(*) AS n FROM badge_rises").first("n"),
+		).toBe(0);
+		expect(sent("send-notification")).toEqual([]);
+	});
+
+	it("gives riders on catalog version 2 their surprise badges once, silently (part D)", async () => {
+		await upsertActivity(
+			env.DB,
+			activityRecord(5, {
+				start_date: "2026-05-05T22:15:00Z",
+			}),
+		);
+		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_A });
+		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_B });
+		await env.DB.batch([
+			env.DB.prepare(
+				"DELETE FROM rider_badges WHERE badge_id LIKE 'surprise-%'",
+			),
+			env.DB.prepare(
+				"DELETE FROM badge_reveals WHERE badge_id LIKE 'surprise-%'",
+			),
+			env.DB.prepare("DELETE FROM badge_rises"),
+			env.DB.prepare(
+				"UPDATE riders SET badges_version = 2 WHERE athlete_id = ?",
+			).bind(ATHLETE_A),
+		]);
+		await seedSubscription(ATHLETE_A, pushEndpoint(1));
+		ctx.queue.sent.length = 0;
+
+		await fanOutEvaluations(ctx);
+		expect(sent("evaluate-rider")).toEqual([
+			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
+		]);
+		ctx.queue.sent.length = 0;
+		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_A });
+
+		const { results } = await env.DB.prepare(
+			`SELECT b.badge_id FROM rider_badges b JOIN badge_reveals r
+				USING (athlete_id, badge_id, earned_on)
+			WHERE b.athlete_id = ? AND b.badge_id LIKE 'surprise-%'`,
+		)
+			.bind(ATHLETE_A)
+			.all();
+		expect(results.map((r) => r.badge_id)).toEqual(["surprise-night-owl"]);
+		expect(
+			await env.DB.prepare("SELECT count(*) AS n FROM badge_rises").first("n"),
+		).toBe(0);
+		expect(sent("send-notification")).toEqual([]);
+	});
 });

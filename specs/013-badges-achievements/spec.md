@@ -91,6 +91,88 @@ next one."
   Yes, a personal category with two badges: one for attending one of the season's
   two planned technique trainings, one for attending both.
 
+### Session 2026-10-12
+
+- Q (raised by the project owner): Is there a badge for the longest ride after
+  all? → A: Yes. A personal category "Ride length": the longest single counting
+  ride of the season, up to 300 km. Supersedes the 2026-10-11 answer that dropped
+  it.
+- Q (raised by the project owner): Do virtual rides get badges of their own? → A:
+  Yes. A personal category "Virtual rides": the season total of kilometres of
+  virtual rides (feature 003 FR-013a). Those kilometres still count in Distance.
+- Q (raised by the project owner): Do swims give badges? → A: Yes, like runs: two
+  personal categories, the longest single swim and the season total of swim
+  kilometres. Pool and open-water swims both count; manual swims count nothing.
+  Swims never earn Rynke. There is no team category for swimming. Supersedes the
+  edge case that excluded swims.
+- Q (raised by the project owner): Is there a badge for riding in challenging
+  conditions? → A: Yes, as four personal winter categories, one per month
+  (November, December, January, February), each with badges for 1, 5 and 10
+  days. Strava gives no weather data, so the calendar month stands in for the
+  conditions.
+- Q: Do the winter categories count rides or days? → A: Days with at least one
+  outdoor counting ride, so splitting a ride earns nothing extra.
+- Q: Are winter cards shown outside their month? → A: Yes, all four cards show
+  all season, like every other category.
+- Q: Is there a "Swimming together" team category? → A: No.
+
+### Session 2026-10-12 (surprise badges)
+
+- Q (raised by the project owner): Are there badges whose rule is a secret? →
+  A: Yes, "Überraschungen" (surprise badges): one personal category of six
+  single badges. Riders know they exist from the outlines, but the category's
+  sentence and every unearned badge say only "?". Once earned, a badge says why
+  it was earned. They are meant to be extra fun.
+- Q (raised by the project owner): Which surprise badges? → A: New Year (an
+  activity on 1 January), Christmas Eve (on 24 December), Christmas (on 25 or
+  26 December), night owl (a ride started after 21:30), early bird (a ride
+  started before 6:00) and rest day (a day off after at least a full week with
+  an activity every day). The rest day badge shows the figure on a couch,
+  wrapped in a warm cream and black striped blanket, with a cup of cocoa.
+- Q: Which activities count for the holiday and rest-day badges? → A: Every
+  activity the badges already count: counting rides of any kind (virtual
+  included), outdoor runs and swims. Night owl and early bird count counting
+  rides only, as asked.
+- Q: Where exactly are the time limits? → A: By the activity's local start
+  time: night owl from 21:30 on (21:30 counts), early bird before 6:00 (5:59
+  counts, 6:00 doesn't). A ride starting at 0:30 is an early bird.
+- Q: When is a rest day known? → A: With the rider's next activity after it:
+  the day is a rest day when the seven days before it each had an activity, it
+  had none, and a later activity shows the day is over. The badge is dated with
+  the rest day.
+
+### Session 2026-10-12 (clock and pictures)
+
+- Q (raised by the project owner): Can a badge be earned for a date in the
+  future? → A: No. Nothing dated after today's date in Berlin counts towards
+  any badge or bar; a rest day or a team day off is earned only once its day
+  is over in Berlin (FR-030a).
+- Q (raised by the project owner): Is the personal rest day extra fun too? →
+  A: No, it is calm: the figure on a light sofa with the striped blanket and
+  cocoa. Sofas are light sage green, since black clashed with the ribbon.
+
+### Session 2026-10-12 (team surprise badges)
+
+- Q (raised by the project owner): Are there surprise badges for the team? →
+  A: Yes, "Team-Überraschungen", shown like the personal ones ("?" until
+  earned): a day nobody in the team is active, a day everyone is active, and
+  four more the owner took from Claude's proposals: team activities started in
+  every hour of one day ("Rund um die Uhr"), someone active every day for 30
+  days in a row ("Staffelstab"), at least five riders active on 31 December
+  ("Silvesterrunde"), and ten or more riders active on the same Sunday without
+  a team event ("Sonntagsausflug"). Extra fun pictures, as for the personal
+  ones.
+- Q: Who is "everyone"? → A: Every listed rider (feature 014) who had already
+  connected on that day, at least two; a rider who joins later doesn't take
+  the badge back.
+- Q (raised by the project owner): Which activities count for the team? → A:
+  Counting rides, outdoor runs and swims of listed riders, swims just like
+  runs. Only whether and when someone was active counts, never a swim's
+  figures (FR-025, FR-016a).
+- Q: When is a team day off known? → A: Like the rest day: with the team's
+  next activity after it, and only between the team's first activity of the
+  season and that next one.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - See my badges on my page (Priority: P1)
@@ -243,6 +325,136 @@ check every rider's page shows the team badge with the training's date.
    their page, **Then** they see it as the team's badge with its original date, and
    it is not celebrated as if they had just earned it.
 
+---
+
+### User Story 5 - Long rides, virtual rides, swims and winter riding (Priority: P3)
+
+A rider gets badges for their longest ride of the season, for the kilometres they
+ride on a trainer, for swimming, and for riding outdoors through the winter
+months, one category per month from November to February.
+
+**Why this priority**: These reward what Rynke don't: the one big day out, the
+indoor work and the swims of the off-season, and the stubbornness to ride
+outdoors in winter. They build on the personal badges and the runs' storage.
+
+**Independent Test**: Give a sample rider an outdoor ride of 104 km in December,
+two outdoor rides on one January day, a virtual ride and two swims; check each
+category's value and that Rynke and ride list are unchanged by the swims.
+
+**Acceptance Scenarios**:
+
+1. **Given** a rider whose longest counting ride is 104 km, **When** they open
+   their page, **Then** the ride-length category has the 50 and 100 km badges,
+   dated with the rides that first reached them, and shows progress towards
+   the next.
+2. **Given** a ride of 312 km, **When** it is evaluated, **Then** every
+   ride-length badge up to 300 km is earned with its date.
+3. **Given** virtual rides of 30 km and 25 km, **When** they are evaluated,
+   **Then** the virtual-rides category counts 55 km and earns the 50 km badge,
+   and Distance counts both rides as before.
+4. **Given** swims of 1.2 km in a pool and 0.8 km in open water, **When** they
+   are evaluated, **Then** the swimming category counts 2.0 km and the
+   swim-length category 1.2 km; Rynke, ride list and every team category are
+   unchanged.
+5. **Given** a swim entered manually on Strava, **When** it is evaluated,
+   **Then** it counts nothing.
+6. **Given** two outdoor rides on 10 January and one on 11 January, **When**
+   they are evaluated, **Then** the January category counts 2 days.
+7. **Given** a virtual ride or a ride with Strava's trainer flag on a December
+   day, **When** it is evaluated, **Then** the December category does not count
+   that day.
+8. **Given** a ride starting 30 November at 23:30 local time, **When** it is
+   evaluated, **Then** it counts for November.
+9. **Given** it is March and a rider has 3 days in February, **When** they open
+   their page, **Then** the February card shows its 1-day badge and no
+   progress bar.
+
+---
+
+### User Story 6 - Surprise badges (Priority: P3)
+
+A rider sees a category "Überraschungen" with six empty outlines and only "?"
+where the other categories explain how they count. Riding on New Year's Day,
+Christmas Eve or the Christmas holidays, very late or very early, or resting
+after a full week of daily training reveals a badge with an extra funny
+picture, and only then the text says why it was earned.
+
+**Why this priority**: The surprise is the fun: riders talk about what the
+outlines could be, and a badge for a holiday ride or a well-earned rest day
+rewards things no ladder does.
+
+**Independent Test**: Give a sample rider a ride starting at 22:00 on 24
+December and seven days of activities followed by a day off and another
+activity; check the night owl, Christmas Eve and rest day badges, and that a
+rider without them sees only "?".
+
+**Acceptance Scenarios**:
+
+1. **Given** a rider without surprise badges, **When** they open their page,
+   **Then** the "Überraschungen" card shows a dotted outline with "?" as its
+   sentence and no progress bar, and the gallery shows six empty outlines.
+2. **Given** a counting ride, an outdoor run or a swim on 1 January, **When**
+   it is evaluated, **Then** the New Year badge is earned with that date, and
+   its large view says it was earned for being active on New Year's Day.
+3. **Given** an activity on 24 December, **When** it is evaluated, **Then** the
+   Christmas Eve badge is earned; **given** one on 25 or 26 December, the
+   Christmas badge is earned.
+4. **Given** a counting ride starting at 21:30 local time, **When** it is
+   evaluated, **Then** the night owl badge is earned; a ride starting at 21:29
+   earns nothing.
+5. **Given** a counting ride starting at 5:59 local time, **When** it is
+   evaluated, **Then** the early bird badge is earned; one starting at 6:00
+   earns nothing. A run at 5:00 earns nothing (rides only).
+6. **Given** activities on seven days in a row, none on the eighth day and one
+   on the ninth, **When** the ninth day's activity is evaluated, **Then** the
+   rest day badge is earned, dated the eighth day.
+7. **Given** activities on six days in a row and none on the seventh, **When**
+   a later activity is evaluated, **Then** no rest day badge is earned.
+8. **Given** a rider with the night owl badge, **When** they open their page,
+   **Then** the "Überraschungen" card shows their newest surprise badge, the
+   card's sentence is still "?", and nothing on the page names or pictures a
+   surprise badge they haven't earned.
+
+---
+
+### User Story 7 - Team surprise badges (Priority: P3)
+
+Under "Team-Abzeichen" every rider sees "Team-Überraschungen" with six empty
+outlines and "?". When the whole team rests on the same day, all turn out on
+the same day, or the team covers every hour of a day, keeps a 30-day relay
+going, rides together on New Year's Eve or a big Sunday, a team badge appears,
+and only then says why.
+
+**Why this priority**: The team gets the same fun as the rider, from things
+nobody can do alone; no rider is named.
+
+**Independent Test**: Give the listed sample riders a day without activities
+between active days, and a day on which each of them rides; check both team
+surprise badges and that no rider is named.
+
+**Acceptance Scenarios**:
+
+1. **Given** no team surprise badge, **When** a rider opens their page,
+   **Then** "Team-Überraschungen" shows "?" and an outline, six outlines in the
+   gallery, no bar.
+2. **Given** listed riders active on 3 and 5 May and none on 4 May, **When**
+   the 5 May activity is evaluated, **Then** the day-off badge is earned, dated
+   4 May.
+3. **Given** every listed rider connected by 6 May is active on 6 May, **Then**
+   the all-out badge is earned, dated 6 May; a rider connecting on 8 May
+   doesn't take it back.
+4. **Given** counting rides and runs of listed riders starting in each of the
+   24 hours of one local date, **Then** the round-the-clock badge is earned.
+5. **Given** 30 dates in a row with at least one listed rider active, **Then**
+   the relay badge is earned with the 30th date.
+6. **Given** five listed riders active on 31 December, **Then** the New Year's
+   Eve badge is earned; four are not enough.
+7. **Given** ten listed riders active on a Sunday without a team event,
+   **Then** the Sunday outing badge is earned; with a team event that day, not.
+8. **Given** a swim by a listed rider on an otherwise empty day, **Then** that
+   day is no team day off, and the swim counts for the other team surprises
+   like a run.
+
 ### Edge Cases
 
 - Recalculations after a rule change (feature 003) award or take back badges
@@ -258,7 +470,19 @@ check every rider's page shows the team badge with the training's date.
   only a single reveal of all of them.
 - A run and a ride overlapping in time do not affect each other: runs are not part
   of feature 003's overlap rule (FR-005d).
-- Activities of other sports (swim, walk, hike, e-bike rides) give no badges.
+- A swim, like a run, does not affect rides overlapping it in time (FR-024).
+- A ride that stops counting can lower the longest ride, take back a winter day
+  or lower the virtual kilometres, and its badges are taken back like any other
+  (US2).
+- A winter month whose days are corrected after the month is over (a ride deleted
+  in March) still changes that month's category; the card shows no progress bar
+  either way (FR-004a).
+- Activities of other sports (walk, hike, e-bike rides) give no badges.
+- Two rides on one day count as one activity day for the rest day; a ride
+  across midnight belongs to the day it started.
+- A surprise badge taken back (its only activity deleted) shows "?" again.
+- The rest day needs the seven days directly before it; a longer streak earns
+  the badge once, dated with its first rest day.
 - Personal badges are the rider's own; other riders never see them (feature 004's
   visibility rules), unless a later feature decides otherwise.
 
@@ -311,11 +535,16 @@ their badge names examples.
 - **FR-003**: For each category not yet complete, the group
   MUST show the progress towards the next badge only: a bar for the current value
   against the value needed, and what is still missing in that category's unit
-  ("Noch 1.500 km", "Noch 5 Fahrer"). It MUST NOT show the
+  ("Noch 1.500 km", "Noch 5 Fahrer", "Noch 4 Tage"). It MUST NOT show the
   next badge's name or picture, nor any badge after it. Only the gallery's empty
   outlines (FR-002) tell how many badges a category has.
 - **FR-004**: A category whose last badge is earned MUST keep its card, without a
   progress bar and without a sign that it is complete.
+- **FR-004a**: A winter category (FR-010) whose month of the season is over,
+  by today's Berlin date, MUST keep its card without a progress bar, whether or not its badges are
+  earned; with no badge, the card keeps its dotted outline. Its badges still to
+  earn stay as empty outlines in the gallery. Before and during its month the
+  card shows its progress like any other category.
 - **FR-005**: The section MUST NOT show while feature 015's waiting state is shown.
 
 **Categories (first set)**
@@ -332,6 +561,19 @@ their badge names examples.
   - Run length: the longest single run of the season (FR-020). Its highest badge
     is marathon distance (42.195 km).
   - Running: the season total of kilometres of runs (FR-020).
+  - Ride length: the longest single counting ride of the season, virtual rides
+    included. Its highest badge is 300 km.
+  - Virtual rides: the season total of kilometres of counting virtual rides
+    (feature 003 FR-013a: Strava's virtual-ride sport type or the trainer flag).
+    These kilometres count in Distance as well.
+  - Swim length: the longest single swim of the season (FR-024).
+  - Swimming: the season total of kilometres of swims (FR-024).
+  - Winter November, Winter December, Winter January, Winter February: four
+    categories, one per month, each counting the days of that month with at
+    least one outdoor counting ride. An outdoor ride is a counting ride that is
+    not a virtual ride (FR-013a). A ride belongs to the day and month of its
+    local start date, as every badge date (FR-013). Several rides on one day
+    make one day.
 - **FR-011**: Team categories are worked on by the whole team together and MUST be:
   - Amounts collected together:
     - Training Rynke together: all Training Rynke the consenting riders collected
@@ -340,6 +582,7 @@ their badge names examples.
     - Elevation together: the elevation gain of all counting rides of consenting
       riders.
     - Running together: the kilometres of all runs of consenting riders (FR-020).
+    - Swims have no team category.
   - Participation in team activities:
     - Big training: the most riders at a single team event of the season.
     - Attendances: how often riders attended team events this season, summed over
@@ -348,8 +591,56 @@ their badge names examples.
       event, Attendances rewards the team turning up again and again.
 - **FR-014**: Team badges MUST show under "Team-Abzeichen" only, never among a
   rider's own badges, and MUST NOT be credited to a single rider.
-- **FR-012**: Each category MUST be a ladder of thresholds; the first set is in
-  Assumptions. Changing the ladders is a release, after which badges are worked out
+**Team surprise badges (2026-10-12)**
+
+- **FR-016**: A team category "Team-Überraschungen" MUST hold six single
+  badges, shown as FR-015b shows the personal ones ("?" until earned, then why;
+  the newest on the card; never a bar), worked out from the listed riders'
+  counting rides, outdoor runs and swims by local start date and time
+  (FR-032):
+  - Day off: a date with no activity between the team's first activity of the
+    season and a later one;
+  - All out: a date on which every listed rider connected by then, at least
+    two, is active;
+  - Round the clock: a date with activities starting in each of its 24 hours;
+  - Relay: 30 dates in a row each with at least one active rider (dated the
+    30th);
+  - New Year's Eve: at least five riders active on 31 December;
+  - Sunday outing: at least ten riders active on a Sunday without a team
+    event.
+- **FR-016a**: Team surprise badges MUST NOT reveal which riders were or
+  weren't active; only the date and the badge show. The consent text's team
+  part names that the days and hours of rides, runs and swims count for them
+  without names; like FR-023, no new consent version.
+
+**Surprise badges (2026-10-12)**
+
+- **FR-015**: A personal category "Überraschungen" MUST hold six single badges,
+  each earned once per season by its own rule (FR-015a). It has no ladder and
+  no progress bar.
+- **FR-015a**: The surprise badges and their rules, by the activity's local
+  start date and time (counting rides of any kind, outdoor runs and swims,
+  unless named otherwise):
+  - New Year: an activity on 1 January;
+  - Christmas Eve: an activity on 24 December;
+  - Christmas: an activity on 25 or 26 December;
+  - Night owl: a counting ride starting at 21:30 or later;
+  - Early bird: a counting ride starting before 6:00;
+  - Rest day: a day without any activity directly after seven days in a row
+    each with at least one, once a later activity shows the day is over;
+    dated with the rest day.
+- **FR-015b**: Wherever another category shows its sentence on how it counts
+  (card and gallery), "Überraschungen" MUST show only "?". An earned surprise
+  badge's large view MUST say why it was earned; an unearned one is an empty
+  outline only (FR-002, SC-003). The card shows the newest earned surprise
+  badge, with its name on the ribbon.
+- **FR-015c**: Surprise badges MUST be drawn extra fun: each picture a gag of
+  its own (art scenes in `art/badges/badges.json`), except the personal rest
+  day, which is calm.
+
+- **FR-012**: Each category except the two surprise categories (FR-015,
+  FR-016) MUST be a ladder
+  of thresholds; the first set is in Assumptions. Changing the ladders is a release, after which badges are worked out
   again under FR-031's silent rules.
 - **FR-013**: A badge's date earned MUST be the date of the activity, team event or
   correction that first made the value reach its threshold.
@@ -367,19 +658,32 @@ their badge names examples.
   feature 003's ride rules (overlap, pause, speed). Other riders MUST NOT see any
   single run or a rider's running figures; runs reach them only inside the team
   sum "Running together" (FR-011).
-- **FR-022**: Runs since the season start of riders who connected before this
-  feature MUST be picked up once after release, within the Strava request budget
-  (Principle II), like feature 008's one-time re-read.
-- **FR-023**: The consent text MUST name that runs are read and kept for badges,
-  and that ride and run kilometres and elevation count towards team sums. Per the
+- **FR-022**: Runs and swims since the season start of riders who connected
+  before they were added MUST be picked up once after release, within the Strava
+  request budget (Principle II), like feature 008's one-time re-read.
+- **FR-023**: The consent text MUST name that runs and swims are read and kept for
+  badges, and that ride and run kilometres and elevation count towards team sums. Per the
   project owner's decision (Clarifications), keeping data the app already receives
   and showing it to the team only as sums over all riders needs no new consent
   version (constitution Principle I).
 
+**Swims**
+
+- **FR-024**: Swims (Strava sport type Swim) from the season start MUST be kept
+  with the minimum needed for badges: date and distance, like runs (FR-020).
+  Pool and open-water swims both count their whole distance, added up over the
+  season with no rounding per swim. Swims entered manually count nothing and
+  MUST NOT be kept.
+- **FR-025**: Swims MUST NOT earn Rynke, appear in the ride list or take part in
+  feature 003's ride rules. Other riders MUST NOT see any single swim or a
+  rider's swimming figures; swims count towards no team category except the
+  team surprises, where only the date and hour of a swim count, like a run's
+  (FR-016).
+
 **Evaluation**
 
 - **FR-030**: Badges MUST be a pure function of what features 001 and 003 store
-  (rides, runs, team events, attendance, corrections) and be worked out again on
+  (rides, runs, swims, team events, attendance, corrections) and be worked out again on
   every evaluation; evaluating the same data twice MUST NOT change anything
   (Principle II).
 - **FR-031**: Newly earned personal badges MUST be revealed once per rider with a
@@ -391,6 +695,11 @@ their badge names examples.
   MUST be revealed once to that rider. *(Amended by issue #125: a newly earned
   team badge MUST notify each listed rider it is new to, once per season, through
   feature 010's notification; see research R17.)*
+
+- **FR-030a**: No badge and no progress bar MUST count anything dated after
+  today's date in Berlin. A rest day (FR-015a) or team day off (FR-016) MUST
+  be earned only once that day is over in Berlin, shown by a later activity
+  dated today or earlier.
 
 **Look and language**
 
@@ -425,6 +734,10 @@ their badge names examples.
   revealed to the rider.
 - **Run**: rider, Strava activity, date, distance, manual or not. Never linked to
   Rynke.
+- **Swim**: rider, Strava activity, date, distance, manual or not. Never linked
+  to Rynke.
+- **Surprise badge**: a single badge of "Überraschungen" with its own rule, no
+  threshold shown and no progress.
 
 ## Success Criteria *(mandatory)*
 
@@ -436,8 +749,11 @@ their badge names examples.
   twice.
 - **SC-003**: No badge that is still to be earned can be identified from the page:
   its name and picture appear nowhere in what the rider page sends to the browser.
+  For a surprise badge not even its rule: the page shows only "?".
 - **SC-004**: Adding any number of runs leaves every rider's Rynke, ride list, team
-  leaderboard and every team badge except "Running together" unchanged.
+  leaderboard and every team badge except "Running together" unchanged; adding
+  any number of swims leaves them all unchanged except the team surprises
+  (FR-016).
 - **SC-005**: The Abzeichen section works at 360 px width in both colour modes,
   without horizontal scrolling however many badges a rider has.
 
@@ -458,6 +774,16 @@ their badge names examples.
   | Training Rynke                 | Rynke       | 1, 25, 50, 100, 150, 200, 250, 300, 400, 500            |
   | Run length                     | km          | 5, 10, half marathon (21.0975), marathon (42.195)       |
   | Running                        | km          | 10, 25, 50, 100, 250, 500                               |
+  | Ride length                    | km          | 50, 100, 150, 200, 250, 300                             |
+  | Virtual rides                  | km          | 50, 100, 250, 500, 1,000                                |
+  | Swim length                    | km          | 0.5, 1, 1.9, 3.8                                        |
+  | Swimming                       | km          | 5, 10, 25, 50, 100                                      |
+  | Winter November                | days        | 1, 5, 10                                                |
+  | Winter December                | days        | 1, 5, 10                                                |
+  | Winter January                 | days        | 1, 5, 10                                                |
+  | Winter February                | days        | 1, 5, 10                                                |
+  | Überraschungen                 | —           | six single badges (FR-015a), no ladder                  |
+  | Team-Überraschungen (team)     | —           | six single badges (FR-016), no ladder                   |
   | Training Rynke together (team) | Rynke       | 500, 1,000, 2,500, 5,000, 7,500, 10,000, 15,000, 20,000 |
   | Distance together (team)       | km          | 1,000, 5,000, 10,000, 25,000, 50,000, 100,000           |
   | Elevation together (team)      | m           | 10,000, 50,000, 100,000, 250,000, 500,000               |
@@ -477,7 +803,20 @@ their badge names examples.
   zero.
 - The team badges live on each rider's own page below the rider's own; the Team
   tab stays as feature 016 defines it.
-- Run length progress and thresholds are shown with one decimal (21.1 km, 42.2 km);
-  other distance-type progress is shown in whole units.
+- Run length, Swim length and Swimming progress and thresholds are shown with one
+  decimal (21.1 km, 42.2 km, 1.9 km); other distance-type progress is shown in
+  whole units.
+- With the season starting on 1 September and the tour in summer, each winter
+  month falls into a season exactly once.
+- Strava offers no weather data; the winter categories use the month as the
+  stand-in for challenging conditions.
+- With eight new personal categories the rider has 15 personal cards; all show
+  all season (Clarifications 2026-10-12), so the cards' two-per-row layout
+  (FR-002a) carries them.
+- The rest day reads the rider's local start dates; Strava's activity list
+  gives no information about days without activities, so a later activity is
+  what shows a day was a rest day.
+- With "Überraschungen" the rider has 16 personal cards; with
+  "Team-Überraschungen" there are 7 team cards and 113 badges in all.
 - Distance-type progress is rounded down, so "noch 0 km" never
   appears for a badge not yet earned.

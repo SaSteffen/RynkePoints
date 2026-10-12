@@ -1,5 +1,9 @@
 import { type ActivityChange, evaluateChange } from "../rynke/apply";
-import { toActivityRecord, toRunRecord } from "../strava/activity";
+import {
+	toActivityRecord,
+	toRunRecord,
+	toSwimRecord,
+} from "../strava/activity";
 import { getActivity } from "../strava/client";
 import type { Handler } from "./consumer";
 import type { ActivityEventMessage } from "./messages";
@@ -67,7 +71,12 @@ export const activityEvent: Handler<ActivityEventMessage> = async (
 	const run = record
 		? null
 		: toRunRecord(result.value, rider.athleteId, ctx.now());
-	const kept = record ?? run;
+	// A swim counts for the swim badges (feature 013 FR-024).
+	const swim =
+		record || run
+			? null
+			: toSwimRecord(result.value, rider.athleteId, ctx.now());
+	const kept = record ?? run ?? swim;
 	// The stored grant decides, even if Strava returns more (FR-007).
 	if (!kept || (kept.is_private === 1 && !rider.scopeReadAll)) {
 		return remove();
@@ -75,6 +84,11 @@ export const activityEvent: Handler<ActivityEventMessage> = async (
 	return evaluate(
 		record
 			? { kind: "upsert", records: [record] }
-			: { kind: "upsert", records: [], runs: run ? [run] : [] },
+			: {
+					kind: "upsert",
+					records: [],
+					runs: run ? [run] : [],
+					swims: swim ? [swim] : [],
+				},
 	);
 };

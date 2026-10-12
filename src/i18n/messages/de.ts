@@ -43,14 +43,14 @@ export const de = {
 	"consent.short.notRead":
 		"Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.",
 	"consent.short.read":
-		"Wir lesen nur die Eckdaten deiner Rad- und Laufaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.",
+		"Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.",
 	"consent.short.shown":
 		"Das Team sieht deine Rynke ohne Namen, die Orga mit deinem Vornamen.",
 	"consent.details": "Alle Details",
 	"consent.organisers":
 		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen.",
 	"consent.team":
-		"Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter zählen ohne Namen zu den Team-Summen der Team-Abzeichen.",
+		"Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter zählen ohne Namen zu den Team-Summen der Team-Abzeichen. An welchen Tagen und zu welcher Stunde du fährst, läufst oder schwimmst, zählt ohne Namen für die Team-Überraschungen.",
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
 	"consent.write":
 		"Freiwillig: Strava fragt auch, ob RynkePoints Aktivitäten hochladen darf. Wir laden nie etwas hoch, sondern schreiben damit später einen kurzen Rynke-Abschnitt in deine Fahrtbeschreibungen, sichtbar für alle, die die Fahrt sehen dürfen. Deinen eigenen Text ändern wir nie. Ohne diese Erlaubnis machst du genauso mit.",
@@ -522,12 +522,22 @@ export const de = {
 	"badges.category.training_rynke": "Trainings-Rynke",
 	"badges.category.run_length": "Längster Lauf",
 	"badges.category.running": "Laufen gesamt",
+	"badges.category.ride_length": "Längste Fahrt",
+	"badges.category.virtual_rides": "Virtuell",
+	"badges.category.swim_length": "Längstes Schwimmen",
+	"badges.category.swimming": "Schwimmen gesamt",
+	"badges.category.winter_november": "Winter: November",
+	"badges.category.winter_december": "Winter: Dezember",
+	"badges.category.winter_january": "Winter: Januar",
+	"badges.category.winter_february": "Winter: Februar",
+	"badges.category.surprise": "Überraschungen",
 	"badges.category.team_training_rynke": "Trainings-Rynke gemeinsam",
 	"badges.category.team_distance": "Kilometer gemeinsam",
 	"badges.category.team_elevation": "Höhenmeter gemeinsam",
 	"badges.category.team_running": "Laufen gemeinsam",
 	"badges.category.big_training": "Große Ausfahrt",
 	"badges.category.attendances": "Teilnahmen",
+	"badges.category.team_surprise": "Team-Überraschungen",
 	"badges.about.distance":
 		"Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.",
 	"badges.about.elevation":
@@ -542,6 +552,23 @@ export const de = {
 		"Dein längster Lauf dieser Saison am Stück, ohne Laufband und virtuelle Läufe.",
 	"badges.about.running":
 		"Alle Kilometer deiner Läufe in dieser Saison, ohne Laufband und virtuelle Läufe.",
+	"badges.about.ride_length":
+		"Deine längste Radfahrt dieser Saison am Stück, die für Trainings-Rynke zählt.",
+	"badges.about.virtual_rides":
+		"Alle Kilometer deiner virtuellen Fahrten und Fahrten auf der Rolle in dieser Saison.",
+	"badges.about.swim_length":
+		"Dein längstes Schwimmen dieser Saison am Stück, im Becken oder im Freiwasser.",
+	"badges.about.swimming":
+		"Alle Kilometer, die du in dieser Saison geschwommen bist.",
+	"badges.about.winter_november":
+		"Tage im November, an denen du draußen gefahren bist, nicht auf der Rolle.",
+	"badges.about.winter_december":
+		"Tage im Dezember, an denen du draußen gefahren bist, nicht auf der Rolle.",
+	"badges.about.winter_january":
+		"Tage im Januar, an denen du draußen gefahren bist, nicht auf der Rolle.",
+	"badges.about.winter_february":
+		"Tage im Februar, an denen du draußen gefahren bist, nicht auf der Rolle.",
+	"badges.about.surprise": "?",
 	"badges.about.team_training_rynke":
 		"Die Trainings-Rynke aller Rider in dieser Saison zusammengezählt.",
 	"badges.about.team_distance":
@@ -554,6 +581,7 @@ export const de = {
 		"Die meisten Rider, die in dieser Saison bei einem einzigen Teamtermin dabei waren.",
 	"badges.about.attendances":
 		"Alle Teilnahmen der Rider an Teamterminen dieser Saison zusammengezählt.",
+	"badges.about.team_surprise": "?",
 	"badges.for.distance": "Du bist in dieser Saison {value} Rad gefahren.",
 	"badges.for.elevation":
 		"Du bist in dieser Saison mit dem Rad {value} bergauf gefahren.",
@@ -566,6 +594,17 @@ export const de = {
 	"badges.for.run_length":
 		"Dein längster Lauf dieser Saison: {value} am Stück.",
 	"badges.for.running": "Du bist in dieser Saison {value} gelaufen.",
+	"badges.for.ride_length":
+		"Deine längste Fahrt dieser Saison: {value} am Stück.",
+	"badges.for.virtual_rides":
+		"Du bist in dieser Saison {value} virtuell gefahren.",
+	"badges.for.swim_length":
+		"Dein längstes Schwimmen dieser Saison: {value} am Stück.",
+	"badges.for.swimming": "Du bist in dieser Saison {value} geschwommen.",
+	"badges.for.winter_november": "Im November: {value} draußen auf dem Rad.",
+	"badges.for.winter_december": "Im Dezember: {value} draußen auf dem Rad.",
+	"badges.for.winter_january": "Im Januar: {value} draußen auf dem Rad.",
+	"badges.for.winter_february": "Im Februar: {value} draußen auf dem Rad.",
 	"badges.for.team_training_rynke":
 		"Alle Rider zusammen haben in dieser Saison {value} im Training gesammelt.",
 	"badges.for.team_distance":
@@ -589,6 +628,40 @@ export const de = {
 	"badges.value.riders.one": "{n}\u00a0Rider",
 	"badges.value.attendances": "{n}\u00a0Teilnahmen",
 	"badges.value.attendances.one": "{n}\u00a0Teilnahme",
+	"badges.value.days": "{n}\u00a0Tage",
+	"badges.value.days.one": "{n}\u00a0Tag",
+	"badges.surprise.new-year": "Neujahr",
+	"badges.surprise.new-year.for": "Du warst am Neujahrstag unterwegs.",
+	"badges.surprise.christmas-eve": "Heiligabend",
+	"badges.surprise.christmas-eve.for": "Du warst an Heiligabend unterwegs.",
+	"badges.surprise.christmas": "Weihnachten",
+	"badges.surprise.christmas.for":
+		"Du warst an den Weihnachtsfeiertagen unterwegs.",
+	"badges.surprise.night-owl": "Nachteule",
+	"badges.surprise.night-owl.for": "Du bist nach 21:30 Uhr losgefahren.",
+	"badges.surprise.early-bird": "Frühaufsteher",
+	"badges.surprise.early-bird.for": "Du bist vor 6 Uhr losgefahren.",
+	"badges.surprise.rest-day": "Ruhetag",
+	"badges.surprise.rest-day.for":
+		"Eine Woche lang jeden Tag aktiv – und dann einen Tag Pause. Verdient!",
+	"badges.surprise.day-off": "Teampause",
+	"badges.surprise.day-off.for":
+		"Ein Tag, an dem das ganze Team die Füße hochgelegt hat.",
+	"badges.surprise.all-out": "Alle draußen",
+	"badges.surprise.all-out.for":
+		"Ein Tag, an dem wirklich alle unterwegs waren.",
+	"badges.surprise.round-the-clock": "Rund um die Uhr",
+	"badges.surprise.round-the-clock.for":
+		"Zu jeder Stunde eines Tages war jemand aus dem Team unterwegs.",
+	"badges.surprise.relay": "Staffelstab",
+	"badges.surprise.relay.for":
+		"30 Tage am Stück war jeden Tag jemand aus dem Team aktiv.",
+	"badges.surprise.new-years-eve": "Silvesterrunde",
+	"badges.surprise.new-years-eve.for":
+		"Mindestens fünf aus dem Team waren an Silvester unterwegs.",
+	"badges.surprise.sunday-outing": "Sonntagsausflug",
+	"badges.surprise.sunday-outing.for":
+		"Mindestens zehn aus dem Team an einem Sonntag ohne Teamtermin.",
 	"badges.value.half": "Halbmarathon",
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "Neues Abzeichen: {name} 🏅",

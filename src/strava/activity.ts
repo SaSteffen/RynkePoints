@@ -4,7 +4,7 @@
 // (GPS, polylines, descriptions, heart rate, power, photos, ...) can reach
 // storage. Outdoor runs get a record of their own with even less: date,
 // distance and the private flag, for the running badges (feature 013 FR-020,
-// research R11).
+// research R11); swims the same, for the swim badges (013 FR-024, R26).
 
 export const CYCLING_SPORT_TYPES = [
 	"Ride",
@@ -22,9 +22,9 @@ export type CyclingSportType = (typeof CYCLING_SPORT_TYPES)[number];
  * so the daily cron re-reads riders stored with an older one (research R20).
  * Version 1 added elapsed time and the manual and trainer flags, version 2
  * Strava's `flagged`, version 3 the ride's name (feature 008), version 4 runs
- * (feature 013).
+ * (feature 013), version 5 swims (feature 013 part C).
  */
-export const ACTIVITY_FIGURES_VERSION = 4;
+export const ACTIVITY_FIGURES_VERSION = 5;
 
 /** The fields we read from a Strava summary or detailed activity. */
 export interface StravaActivity {
@@ -85,6 +85,12 @@ export interface RunRecord {
 	refreshed_at: number;
 }
 
+/** Swims that count for the swim badges, pool and open water (FR-024). */
+export const SWIM_SPORT_TYPES = ["Swim"] as const;
+
+/** A recorded swim: the same few fields as a run (research R26). */
+export type SwimRecord = RunRecord;
+
 export function isCycling(sportType: string): sportType is CyclingSportType {
 	return (CYCLING_SPORT_TYPES as readonly string[]).includes(sportType);
 }
@@ -129,6 +135,33 @@ export function toRunRecord(
 	if (
 		!(RUN_SPORT_TYPES as readonly string[]).includes(activity.sport_type) ||
 		activity.trainer === true ||
+		activity.manual === true
+	) {
+		return null;
+	}
+	return {
+		strava_activity_id: activity.id,
+		athlete_id: athleteId,
+		start_date: activity.start_date,
+		start_date_local: activity.start_date_local,
+		distance_m: activity.distance,
+		is_private: activity.private ? 1 : 0,
+		refreshed_at: now,
+	};
+}
+
+/**
+ * Returns the swim to store, or null unless it is a `Swim` that wasn't
+ * entered by hand (FR-024). The trainer flag is ignored: a pool swim covers
+ * its distance. A flag Strava doesn't send counts as not set.
+ */
+export function toSwimRecord(
+	activity: StravaActivity,
+	athleteId: number,
+	now: number,
+): SwimRecord | null {
+	if (
+		!(SWIM_SPORT_TYPES as readonly string[]).includes(activity.sport_type) ||
 		activity.manual === true
 	) {
 		return null;

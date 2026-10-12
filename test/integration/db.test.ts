@@ -109,7 +109,7 @@ describe("riders", () => {
 		expect(await getCurrentConsent(db, ATHLETE_A)).toBeNull();
 	});
 
-	it("deleting a rider removes their runs and badges (feature 013)", async () => {
+	it("deleting a rider removes their runs, swims and badges (feature 013)", async () => {
 		const ctx = makeCtx();
 		await seedRider(ctx, { athleteId: ATHLETE_A });
 		await seedRider(ctx, { athleteId: ATHLETE_B });
@@ -122,6 +122,13 @@ describe("riders", () => {
 						VALUES (?, ?, '2026-05-02T07:00:00Z', '2026-05-02T09:00:00Z', 7800, 0, ?)`,
 					)
 					.bind(8001 + i, athleteId, NOW),
+				db
+					.prepare(
+						`INSERT INTO swims (strava_activity_id, athlete_id, start_date,
+							start_date_local, distance_m, is_private, refreshed_at)
+						VALUES (?, ?, '2026-05-03T07:00:00Z', '2026-05-03T09:00:00Z', 1200, 0, ?)`,
+					)
+					.bind(9001 + i, athleteId, NOW),
 				db
 					.prepare(
 						"INSERT INTO rider_badges (athlete_id, badge_id, earned_on) VALUES (?, 'distance-100', '2026-05-02')",
@@ -145,6 +152,7 @@ describe("riders", () => {
 
 		for (const table of [
 			"runs",
+			"swims",
 			"rider_badges",
 			"badge_reveals",
 			"badge_rises",

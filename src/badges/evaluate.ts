@@ -16,6 +16,7 @@ import {
 	type BadgeCategoryId,
 	type BadgeId,
 	categoryById,
+	surpriseName,
 } from "./catalog";
 
 /** A counting ride (its result counts), by the ride's local start date. */
@@ -25,6 +26,10 @@ export interface CountingRide {
 	distanceM: number;
 	distanceRynke: number;
 	elevationDm: number;
+	/** A virtual or indoor-trainer ride (003 FR-013a); absent: outdoor. */
+	virtual?: boolean;
+	/** Local start time `HH:MM`, for night owl and early bird (part D). */
+	startTime?: string;
 }
 
 /** An outdoor run, by its local start date. */
@@ -34,9 +39,14 @@ export interface DatedRun {
 	distanceM: number;
 }
 
+/** A recorded swim, pool or open water, by its local start date (part C). */
+export type DatedSwim = DatedRun;
+
 export interface PersonalInputs {
 	rides: readonly CountingRide[];
 	runs: readonly DatedRun[];
+	/** Absent: no swims. */
+	swims?: readonly DatedSwim[];
 	attendance: readonly Attendance[];
 	corrections: readonly DatedCorrection[];
 }
@@ -59,13 +69,51 @@ export interface CategoryProgress {
 /** A category's value after each day that changed it, in date order. */
 type Series = { date: string; value: number }[];
 
+/**
+ * The counting window for badges on `today` (`YYYY-MM-DD`, Berlin): it ends
+ * today at the latest, so nothing dated in the future earns a badge, and a
+ * day only counts as over (a rest day, a team day off) once a later activity
+ * dated today or earlier shows it.
+ */
+export function badgeWindow(
+	window: CountingWindow,
+	today: string,
+): CountingWindow {
+	return today < window.deadline ? { ...window, deadline: today } : window;
+}
+
+/** Only what is dated on or before the window's last day. */
+export function notAfter<T extends { date: string }>(
+	items: readonly T[],
+	window: CountingWindow,
+): T[] {
+	return items.filter((item) => item.date <= window.deadline);
+}
+
 export function evaluateBadges(
-	inputs: PersonalInputs,
+	all: PersonalInputs,
 	rules: RynkeRules,
 	window: CountingWindow,
 ): { earned: EarnedBadge[]; progress: CategoryProgress[] } {
+	const inputs: PersonalInputs = {
+		rides: notAfter(all.rides, window),
+		runs: notAfter(all.runs, window),
+		swims: notAfter(all.swims ?? [], window),
+		attendance: notAfter(all.attendance, window),
+		corrections: notAfter(all.corrections, window),
+	};
 	const series = personalSeries(inputs, rules, window);
-	return fromSeries(series, "personal");
+	const { earned, progress } = fromSeries(series, "personal");
+	const surprises = surpriseBadges(inputs, window);
+	return {
+		// Surprises are the last personal category, so catalog order holds.
+		earned: [...earned, ...surprises],
+		progress: progress.map((p) =>
+			categoryById(p.category).surprise
+				? progressOf(p.category, surprises.length)
+				: p,
+		),
+	};
 }
 
 /**
@@ -99,7 +147,9 @@ export function progressOf(
 	category: BadgeCategoryId,
 	value: number,
 ): CategoryProgress {
-	const next = categoryById(category).ladder.find((t) => t > value) ?? null;
+	const { ladder, surprise } = categoryById(category);
+	// Surprise badges have no next step to show (FR-015).
+	const next = surprise ? null : (ladder.find((t) => t > value) ?? null);
 	return {
 		category,
 		value,
@@ -155,13 +205,24 @@ function personalSeries(
 			].map(([, date]) => ({ date, amount: 1 })),
 		);
 	const runs = inputs.runs.filter((r) => inCountingWindow(r.date, window));
-	let longest = 0;
-	const runLength: Series = [];
-	for (const run of [...runs].sort((a, b) => a.date.localeCompare(b.date))) {
-		if (run.distanceM / 1000 <= longest) continue;
-		longest = run.distanceM / 1000;
-		if (runLength.at(-1)?.date === run.date) runLength.pop();
-		runLength.push({ date: run.date, value: longest });
+	const swims = (inputs.swims ?? []).filter((s) =>
+		inCountingWindow(s.date, window),
+	);
+	const km = (items: readonly { date: string; distanceM: number }[]) =>
+		items.map((i) => ({ date: i.date, amount: i.distanceM / 1000 }));
+	const winter: Partial<Record<BadgeCategoryId, Series>> = {};
+	for (const category of BADGE_CATEGORIES) {
+		if (category.month === undefined) continue;
+		const days = new Set(
+			inputs.rides
+				.filter(
+					(r) => !r.virtual && Number(r.date.slice(5, 7)) === category.month,
+				)
+				.map((r) => r.date),
+		);
+		winter[category.id] = cumulative(
+			[...days].map((date) => ({ date, amount: 1 })),
+		);
 	}
 	return {
 		distance: cumulative(
@@ -181,9 +242,96 @@ function personalSeries(
 			window,
 			rules,
 		).map((day) => ({ date: day.date, value: day.training })),
-		run_length: runLength,
-		running: cumulative(
-			runs.map((r) => ({ date: r.date, amount: r.distanceM / 1000 })),
-		),
+		run_length: longestSoFar(runs),
+		running: cumulative(km(runs)),
+		ride_length: longestSoFar(inputs.rides),
+		virtual_rides: cumulative(km(inputs.rides.filter((r) => r.virtual))),
+		swim_length: longestSoFar(swims),
+		swimming: cumulative(km(swims)),
+		...winter,
 	};
+}
+
+/** The longest single activity so far, in km, after each day that raised it. */
+function longestSoFar(
+	items: readonly { date: string; distanceM: number }[],
+): Series {
+	let longest = 0;
+	const series: Series = [];
+	for (const item of [...items].sort((a, b) => a.date.localeCompare(b.date))) {
+		if (item.distanceM / 1000 <= longest) continue;
+		longest = item.distanceM / 1000;
+		if (series.at(-1)?.date === item.date) series.pop();
+		series.push({ date: item.date, value: longest });
+	}
+	return series;
+}
+
+/**
+ * The surprise badges and the first date each rule was met (FR-015a,
+ * research R33): holidays by any activity's local date, night owl and early
+ * bird by a counting ride's local start time, and the rest day once a later
+ * activity shows the day off is over.
+ */
+function surpriseBadges(
+	inputs: PersonalInputs,
+	window: CountingWindow,
+): EarnedBadge[] {
+	const rides = inputs.rides.filter((r) => inCountingWindow(r.date, window));
+	const days = new Set(
+		[...rides, ...inputs.runs, ...(inputs.swims ?? [])]
+			.map((a) => a.date)
+			.filter((date) => inCountingWindow(date, window)),
+	);
+	const sorted = [...days].sort();
+	const first = (dates: readonly string[]) => [...dates].sort()[0];
+	const on = (...monthDays: string[]) =>
+		first(sorted.filter((d) => monthDays.includes(d.slice(5))));
+	const startingAt = (test: (time: string) => boolean) =>
+		first(
+			rides
+				.filter((r) => r.startTime !== undefined && test(r.startTime))
+				.map((r) => r.date),
+		);
+	const found: Record<string, string | undefined> = {
+		"new-year": on("01-01"),
+		"christmas-eve": on("12-24"),
+		christmas: on("12-25", "12-26"),
+		"night-owl": startingAt((time) => time >= "21:30"),
+		"early-bird": startingAt((time) => time < "06:00"),
+		"rest-day": restDay(sorted, days),
+	};
+	return BADGES.flatMap((badge) => {
+		const name = surpriseName(badge);
+		const earnedOn = name === null ? undefined : found[name];
+		return earnedOn ? [{ badgeId: badge.id, earnedOn }] : [];
+	});
+}
+
+/** `YYYY-MM-DD` shifted by `days`. */
+function shift(date: string, days: number): string {
+	return new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000)
+		.toISOString()
+		.slice(0, 10);
+}
+
+/**
+ * The first day without an activity right after seven days in a row with
+ * one, once an activity after it shows the day is over.
+ */
+function restDay(
+	sorted: readonly string[],
+	days: ReadonlySet<string>,
+): string | undefined {
+	const last = sorted.at(-1);
+	for (const date of sorted) {
+		const rest = shift(date, 1);
+		if (days.has(rest) || last === undefined || last <= rest) continue;
+		let week = true;
+		for (let back = 1; back <= 7; back++) {
+			if (!days.has(shift(rest, -back))) week = false;
+		}
+		if (week) return rest;
+	}
+	return undefined;
 }

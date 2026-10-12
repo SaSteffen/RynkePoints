@@ -1,7 +1,9 @@
 # Research: Badges and Achievements
 
 Each decision names what was chosen, why, and what else was considered.
-R1 to R9 belong to part A, the art pipeline; R10 to R22 to part B, the app (see
+R1 to R9 belong to part A, the art pipeline; R10 to R22 to part B, the app;
+R23 to R31 to part C, the categories added on 2026-10-12; R32 to R37 to part
+D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
 [plan.md](plan.md)).
 
 # Part A: art pipeline
@@ -345,4 +347,275 @@ R1 to R9 belong to part A, the art pipeline; R10 to R22 to part B, the app (see
   shows others only team sums (constitution v2.1.0).
 - **Alternatives**: Version 2 and asking every rider again: rejected by the
   project owner.
+
+# Part C: more categories (2026-10-12)
+
+## R23 Ride length, virtual rides and winter from the counting rides
+
+- **Decision**: `figuresOf` in `rynke/apply.ts` already builds the rider's
+  counting rides for the badges from feature 003's evaluation; each
+  `CountingRide` gains `virtual`, taken from the evaluation result's
+  `isVirtual` (003 FR-013a, `rynke/rides.ts`). `evaluateBadges` then works out
+  ride length (the longest counting ride so far, like run length), virtual
+  rides (cumulative kilometres of virtual counting rides) and the four winter
+  categories (days with at least one non-virtual counting ride in that month)
+  from the same list.
+- **Rationale**: One definition of "counting" and of "virtual" for Rynke and
+  badges: an excluded, overlapping or private ride drops out of these
+  categories exactly as it drops out of Distance, and is taken back the same
+  way (US2). An unknown trainer flag makes only a `VirtualRide` virtual, as in
+  003, so older rows never lose a winter day.
+- **Alternatives**: Reading `activities` directly for these categories: a
+  second set of ride rules, and rides that earn no Rynke would earn badges.
+
+## R24 Winter days by the ride's local start date
+
+- **Decision**: A ride's winter day is the first 10 characters of its
+  `start_date_local`, the date every badge uses (FR-013, R14); the month is
+  characters 6 and 7. Several rides on one date count once. The spec's
+  scenario 8 and FR-010 were aligned to this (they first said Berlin time).
+- **Rationale**: The riders ride around Hamburg, where local time is Berlin
+  time; on a training camp abroad the rider's own calendar day is the natural
+  one. A second date rule would let a badge's date differ from the day shown
+  for the ride.
+- **Alternatives**: Converting `start_date` to Europe/Berlin: an extra rule for
+  no gain; counting rides instead of days: rejected by the project owner
+  (splitting a ride would earn badges).
+
+## R25 A winter month that is over
+
+- **Decision**: The catalog gives each winter category its month (11, 12, 1,
+  2). The season's month falls in the year of `SEASON_START_DATE` for
+  November and December and the year after for January and February (the
+  season starts on 1 September, spec Assumptions). `buildBadgeSection` gets
+  `today` (`berlinDate(now)`, as the section already uses for `connectedOn`)
+  and drops a winter category's progress once `today` is past the last day of
+  its month, so its card shows no bar (FR-004a); an earned card stays, a card
+  without a badge keeps its outline. The evaluation stays a pure function of
+  stored data (FR-030): only the view looks at the clock.
+- **Rationale**: Keeps the "never moving bar" out of the page without a
+  stored flag or a cron job; a later correction still changes the month's
+  value and badges (spec edge case).
+- **Alternatives**: A `closed` flag written by the daily cron: state for what
+  is a pure function of the date.
+
+## R26 Swims in a table of their own
+
+- **Decision**: A new `swims` table with exactly `runs`' columns, and
+  `toSwimRecord` in `strava/activity.ts`: an activity is kept when its sport
+  type is `Swim` and its `manual` flag isn't true. The trainer flag is ignored
+  (a pool swim covers its distance). Intake follows runs everywhere: the
+  webhook (`work/activity-event.ts`) and list pages (`work/activity-page.ts`)
+  pass `swims` in the `upsert` change; `delete` and `delete-private` remove
+  swims as they remove runs; `readRiders` reads them into `RiderState.swims`.
+  A change that touches only swims leaves `figuresChanged` false, so team
+  badges are never re-announced for a swim.
+- **Rationale**: The same reasoning as R10 and R11: no Rynke code, ride list
+  or team sum can see a swim (FR-025, SC-004), and nothing is kept that no
+  badge uses (Principle I).
+- **Alternatives**: One `other_activities` table with a sport column: every
+  reader would need the filter R10 avoided.
+
+## R27 Existing riders' swims and the new categories
+
+- **Decision**: Raise `ACTIVITY_FIGURES_VERSION` from 4 to 5 (the daily cron
+  re-reads every rider once, within the Strava budget, and the pages now keep
+  swims, R12) and `BADGE_CATALOG_VERSION` from 1 to 2 (the daily cron
+  re-evaluates every rider once, R18). Both award silently and reveal together
+  (FR-031).
+- **Rationale**: FR-022 and FR-012 ask for exactly these mechanisms; ride
+  length, virtual rides and winter need only the re-evaluation, swims need the
+  re-read.
+- **Alternatives**: A swim backfill job: a second paging job with the same
+  budget logic.
+
+## R28 Catalog: eight categories, ids, units and decimals
+
+- **Decision**: `BADGE_CATEGORIES` gains, after `running` and before the team
+  ones: `ride_length` (km), `virtual_rides` (km), `swim_length` (km),
+  `swimming` (km), `winter_november`, `winter_december`, `winter_january`,
+  `winter_february` (new unit `days`), with the spec's ladders: 21 categories,
+  101 badges. Swim length's thresholds are in km (0.5, 1, 1.9, 3.8) but its ids
+  are in metres (`swim-length-500`, `-1000`, `-1900`, `-3800`) through
+  `NAMED_THRESHOLDS`, since ids allow no dot (`scripts/badge-prompts.mjs`). The
+  ids equal `art/badges/badges.json`, which already lists them (part C's art
+  commit). Run length, swim length and swimming show one decimal
+  (`shownMissing`, the ribbon and the gallery); the rest whole units.
+- **Rationale**: The catalog test keeps app and art equal (R18); one id
+  scheme per category keeps the art files and `BADGE_PICTURES` stable.
+- **Alternatives**: Swim length in metres as its unit: the spec shows
+  kilometres like the other distances.
+
+## R29 The Overview's figures for the new categories
+
+- **Decision**: `readRiderBadges` (`db/badges.ts`) adds, in its one batch:
+  `max(a.distance_m)` over counting rides and `sum(a.distance_m)` over
+  counting rides with `r.is_virtual = 1` (from `ride_results` joined with
+  `activities`, as Distance); per winter month the number of distinct
+  `substr(a.start_date_local, 1, 10)` of counting rides with `r.is_virtual =
+  0`; and `max`/`sum` of `swims.distance_m` in the counting window, like runs.
+  `PersonalFigures` and `personalProgress` gain the same values.
+- **Rationale**: The section keeps reading stored figures instead of
+  re-evaluating every ride (R13), with no extra round trip.
+- **Alternatives**: Storing per-category values: a second copy of what the
+  results already hold.
+
+## R30 Consent wording names swims, still version 1
+
+- **Decision**: `consent.short.read` and the details name swims next to rides
+  and runs ("deine Rad-, Lauf- und Schwimmaktivitäten"); `CONSENT_VERSIONS`
+  stays at 1. Swims count towards no team sum, so the team wording is
+  unchanged.
+- **Rationale**: The same decision as R22 (spec Clarifications, FR-023): the
+  app already receives swims with every read and keeps them only for the
+  rider's own badges.
+- **Alternatives**: A new consent version: rejected for runs by the project
+  owner, and swims are shown to no one else.
+
+## R31 Sample data and pictures
+
+- **Decision**: The fake Strava's sample riders get a ride over 300 km,
+  virtual rides, outdoor and virtual rides on several days in November to
+  February (two on one day), pool, open-water and manual swims. Until the
+  project owner generates the 32 new pictures (`pnpm badge-art`, then
+  `pnpm badge-build`), the new badges show the placeholder (FR-040a); the app
+  needs no change when they arrive.
+- **Rationale**: Every new category must be checkable locally (SC-005) without
+  waiting for the art.
+- **Alternatives**: none worth keeping.
+
+# Part D: surprise badges (2026-10-12)
+
+## R32 One category, six named badges
+
+- **Decision**: `surprise` is one personal category in the catalog with
+  `ladder: [1, 2, 3, 4, 5, 6]` only to order its badges, marked `surprise:
+  true`, and `NAMED_THRESHOLDS` giving the ids `surprise-new-year`,
+  `-christmas-eve`, `-christmas`, `-night-owl`, `-early-bird`, `-rest-day`
+  (the ids already in `art/badges/badges.json`). `BADGE_CATALOG_VERSION`
+  becomes 3, so every rider is re-evaluated once, silently (R18).
+- **Rationale**: The catalog, the art list and the catalog test keep one shape;
+  ids stay stable for the pictures; the section's gallery already shows one
+  outline per badge still to earn (issue #109), which is exactly "riders know
+  they exist".
+- **Alternatives**: Six categories of one badge each: six cards of "?" instead
+  of one; a separate surprise list outside the catalog: a second id scheme.
+
+## R33 Surprise rules in the pure evaluation
+
+- **Decision**: `evaluateBadges` works the surprise badges out from its
+  inputs, apart from the threshold series: each rule finds the first date of
+  the season that meets it (FR-013). `CountingRide` gains `startTime`
+  (`HH:MM`, characters 12 to 16 of `start_date_local`); runs and swims add
+  their dates to the activity days. Holidays look at the date's `MM-DD`;
+  night owl and early bird at counting rides' `startTime` (`>= "21:30"`,
+  `< "06:00"`); the rest day is the first date D with no activity, an
+  activity on each of the seven dates before it and one on a date after it.
+  The surprise category's progress is `{ value: earned count, next: null }`,
+  so no bar ever shows (FR-015).
+- **Rationale**: Pure and idempotent like every other badge (FR-030); taken
+  back when its activity goes (US2); no clock needed, because the later
+  activity is what proves the rest day is over (spec Clarifications).
+- **Alternatives**: The daily cron awarding rest days at midnight: a clock in
+  the evaluation and a second award path.
+
+## R34 "?" until earned, why once earned
+
+- **Decision**: `badges.about.surprise` is "?" in every language, so card and
+  gallery show only "?" (FR-015b). Each surprise badge gets a ribbon text
+  `badges.surprise.<name>` ("Neujahr", "Heiligabend", "Weihnachten",
+  "Nachteule", "Frühaufsteher", "Ruhetag") and a why-text
+  `badges.surprise.<name>.for` for its large view, used instead of the
+  category's `badges.for.*`. Both reach the page only for earned badges, like
+  names and pictures (SC-003).
+- **Rationale**: The surprise holds in the HTML; the text stays translatable
+  (FR-041 keeps only names German-only).
+- **Alternatives**: Showing the German name on the ribbon: names are not
+  translated, ribbons are.
+
+## R35 The surprise card
+
+- **Decision**: In `groupView` the surprise card shows the newest earned
+  surprise badge (by `earnedOn`, then catalog order) instead of the highest,
+  never with progress; without one it is an outline card without a bar
+  (`NotYetRow.progress` null, as for a winter month that is over). The
+  gallery lists earned surprise badges newest first, then one outline per
+  badge still to earn.
+- **Rationale**: For single badges "highest" means nothing; the newest is the
+  one worth showing.
+- **Alternatives**: none worth keeping.
+
+## R36 The Overview's figures
+
+- **Decision**: Nothing new to read: the surprise card needs only the stored
+  earned badges (`rider_badges`); its progress comes from their count.
+- **Rationale**: The rules need every activity's date and time, which only the
+  evaluation batch has; the page shows no bar for them.
+- **Alternatives**: none.
+
+## R37 Samples and art
+
+- **Decision**: Wanda Winter (R31) gains a ride at 22:00 on 24 December
+  (Christmas Eve and night owl) and one at 5:30 on 1 January (New Year and
+  early bird); a new streak of seven daily activities with a day off and an
+  activity after it gives a sample rider the rest day badge. The six art
+  scenes and a shared `surprise` snippet asking for extra fun are already in
+  `art/badges/badges.json` (FR-015c).
+- **Rationale**: Every surprise badge checkable locally (SC-005).
+- **Alternatives**: none.
+
+# Part E: team surprise badges (2026-10-12)
+
+## R38 Same shape as the personal surprises
+
+- **Decision**: `team_surprise`, a team category with `surprise: true`,
+  ladder 1 to 6 and named ids `team-surprise-day-off`, `-all-out`,
+  `-round-the-clock`, `-relay`, `-new-years-eve`, `-sunday-outing` (already in
+  `art/badges/badges.json`); `BADGE_CATALOG_VERSION` 4. `surpriseName` works
+  for every category marked `surprise`, so the view (newest on the card, no
+  bar) and the section ("?", ribbon and why-text keys
+  `badges.surprise.<name>`) need no new branch.
+- **Rationale**: One mechanism for both groups.
+- **Alternatives**: none worth keeping.
+
+## R39 What the team sums add
+
+- **Decision**: `readTeamBadgeSums` adds two reads to its batch, over listed
+  riders only: per rider, local date and start hour of every counting ride,
+  outdoor run and swim (`SELECT DISTINCT athlete_id, date, hour`), and each listed
+  rider's connection date (`berlinDate(connected_at)`). `TeamBadgeSums` gains
+  `active` (date → rider count and the set of start hours, with rider ids
+  only to count distinct riders and test "everyone"; never leaving the pure
+  function) and `connectedOn` (the listed riders' connection dates). Team
+  event dates already come with `events`.
+- **Rationale**: Enough for all six rules, nothing per rider reaches the view
+  (FR-016a). Swims count like runs (project owner, 2026-10-12): only their
+  date and hour, never their figures (FR-025). A change that touches only
+  swims therefore sets `figuresChanged` again, so `teamBadgeNews` (#125) can
+  announce a team surprise a swim completed (this reverses R26's rule).
+- **Alternatives**: Per-day counts in SQL only: "everyone connected by then"
+  needs the rider ids per day.
+
+## R40 The rules
+
+- **Decision**: In `team.ts`, each rule the first date that meets it, within
+  the counting window: day off, the first date after the team's first active
+  date and before its last one without an active rider; all out, a date whose
+  active riders include every listed rider connected on or before it, at
+  least two; round the clock, a date with 24 distinct start hours; relay, the
+  30th of 30 consecutive active dates; New Year's Eve, 12-31 with at least
+  five riders; Sunday outing, a Sunday (UTC weekday of the date) with at least
+  ten riders and no team event that day. Progress `{ next: null }`.
+- **Rationale**: Pure and recomputed on every request, like every team badge
+  (R15): consent changes and departures follow; notifications come through
+  `teamBadgeNews` (#125) unchanged.
+- **Alternatives**: none.
+
+## R41 Samples
+
+- **Decision**: The fake Strava's listed riders already ride on most recent
+  days; tests cover each rule with synthetic riders. No sample change is
+  needed beyond what earns at least one team surprise on its own.
+- **Rationale**: Six riders can't make a realistic Sunday outing of ten.
+- **Alternatives**: none.
 

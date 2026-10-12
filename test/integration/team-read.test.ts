@@ -185,6 +185,8 @@ describe("readTeamBadgeSums (feature 013 R15)", () => {
 			riders: [],
 			runs: [],
 			events: [],
+			active: [],
+			connectedOn: new Map(),
 		});
 	});
 });

@@ -1,10 +1,10 @@
 # Implementation Plan: Badges and Achievements
 
-**Branch**: `013-badges-achievements` | **Date**: 2026-10-11 | **Spec**: [spec.md](spec.md)
+**Branch**: `013-badges-achievements` | **Date**: 2026-10-11, parts C to E 2026-10-12 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `/specs/013-badges-achievements/spec.md`
 
-The plan has two parts, planned and built one after the other at the project
+The plan has five parts, planned and built one after the other at the project
 owner's request:
 
 - **Part A, art pipeline** (built, tasks T001 to T023): the badge frames, the
@@ -13,6 +13,16 @@ owner's request:
 - **Part B, the app**: runs, evaluating and storing badges, team badges, the
   Abzeichen section on the rider page, reveals and notifications (FR-001 to
   FR-032, FR-041, FR-042). Part B uses part A's files and nothing else from it.
+- **Part C, more categories** (added 2026-10-12): ride length, virtual rides,
+  swims and the four winter months (FR-004a, FR-010, FR-022 to FR-025), with
+  their art scenes (already in `art/badges/badges.json`). It extends part B's
+  code; no new mechanism.
+- **Part D, surprise badges** (added 2026-10-12): the "Überraschungen"
+  category of six single badges with secret rules (FR-015 to FR-015c); art
+  scenes already in `art/badges/badges.json`.
+- **Part E, team surprise badges** (added 2026-10-12): "Team-Überraschungen",
+  six single team badges (FR-016, FR-016a), worked out per request from
+  per-day activity of listed riders.
 
 ## Summary
 
@@ -41,6 +51,25 @@ per category as cards with the milestone ribbon, a collapsible gallery, bars for
 categories without a badge, and the large view as a native popover. New badges
 are revealed once per rider and named in the existing notification.
 
+**Part C.** Ride length, virtual rides and the winter months come from the
+counting rides the evaluation already hands to the badges, each now carrying
+003's virtual flag; winter months count distinct local dates of non-virtual
+counting rides. Swims follow runs exactly: a `swims` table, `toSwimRecord`,
+intake through the same webhook and list-page paths, never seen by Rynke code
+or team sums. Raising the activity figures version re-reads every rider once
+for their swims; raising the catalog version re-evaluates everyone once,
+silently. The view learns today's date only to drop the bar of a winter month
+that is over. The 32 new pictures come from the art pipeline unchanged; until
+then the placeholder shows.
+
+**Part D.** "Überraschungen" is one more personal category whose six badges
+have rules instead of a ladder, worked out in the same pure evaluation from
+each activity's local date and start time; the rest day is proven by the next
+activity, so no clock is needed. The page shows "?" for the category and
+nothing of an unearned surprise badge; an earned one gets its ribbon text and
+why-text. No migration; the catalog version re-evaluates everyone once,
+silently.
+
 ## Technical Context
 
 **Language/Version**: TypeScript on Cloudflare Workers (app); JavaScript (Node
@@ -54,7 +83,8 @@ browser's Popover API and `<details>` for the section's interactions.
 **Storage**: Part A: files in the repo (`art/badges/`, `public/badges/`,
 `src/badges/pictures.ts`). Part B: D1 migration `0013_badges.sql`: `runs`,
 `rider_badges`, `badge_reveals`, `badge_rises` and `riders.badges_version`, all
-cascading from `riders` (Principle I).
+cascading from `riders` (Principle I). Part C: `0015_swims.sql` adds `swims`,
+the same shape as `runs`.
 
 **Testing**: Vitest in the Workers runtime against local D1/Queue bindings:
 unit tests for the catalog, the pure badge evaluation, team sums and the view
@@ -77,8 +107,9 @@ minimised to what badges need (Principle I); team sums only over listed riders
 and never per rider (FR-032, FR-021); badge names German only (FR-041); the
 surprise holds in the HTML (SC-003).
 
-**Scale/Scope**: about 40 riders; 13 categories, 69 badges; a rider has at most
-about 40 personal badges and sees up to 34 team badges.
+**Scale/Scope**: about 40 riders; 21 categories, 101 badges (part C: 8
+categories, 32 badges); a rider has at most 72 personal badges in 15 categories
+and sees up to 34 team badges.
 
 ## Constitution Check
 
@@ -91,9 +122,10 @@ about 40 personal badges and sees up to 34 team badges.
 | III. Rider-authored content | Nothing written to Strava; runs get no Rynke block. | Pass |
 | IV. Serverless, minimal deps | No new dependency; D1 tables via a forward-only migration that adds only; pure functions for personal and team badges; Popover API and `<details>` instead of a UI library. | Pass |
 | V. Test-first | Every part B task starts with a failing test; part A's pure modules too. Part A's Gemini automation and tracer are the one exception (Complexity Tracking). | Pass with a justified exception |
+| Part C | Swims keep the same minimal fields as runs, only non-manual `Swim` activities, shown to no one else and in no team sum; the consent text names them without a new version, the same decision as runs (FR-023, research R30). Re-read and re-evaluation reuse the existing throttled cron mechanisms (R27); no new request kind. New ride categories read the counting rides already evaluated (R23). Test-first for every task. | Pass |
 | Language | Rider-facing text from the catalogs in every language, except badge names, which are German only and live beside the catalogs like 016's quotes (FR-041, research R20). Code, tests and docs in English. | Pass |
 
-Post-design re-check (after Phase 1): unchanged. The migration only adds tables
+Post-design re-check (after Phase 1, parts B and C): unchanged. The migration only adds tables
 and a column; the previous version never reads them. Team badges are not stored,
 so a consent change or a departure needs no extra job.
 
@@ -104,15 +136,15 @@ so a consent change or a departure needs no extra job.
 ```text
 specs/013-badges-achievements/
 ├── plan.md              # This file (parts A and B)
-├── research.md          # A: R1–R9; B: R10–R22
-├── data-model.md        # A: art entities; B: D1 tables, catalog, evaluation
-├── quickstart.md        # A: art pipeline; B: the app
+├── research.md          # A: R1–R9; B: R10–R22; C: R23–R31; D: R32–R37; E: R38–R41
+├── data-model.md        # A: art entities; B: D1 tables, catalog, evaluation; C: swims, catalog v2
+├── quickstart.md        # A: art pipeline; B: the app; C: §10–§13
 ├── contracts/
 │   ├── badge-assets.md  # A: files, SVG format, commands, picture list
 │   ├── abzeichen-section.md  # B: the section's markup and behaviour
 │   └── badge-messages.md     # B: catalog keys, German names, notification text
 ├── drafts/              # Mobile and desktop drafts of the section
-└── tasks.md             # Part A tasks (T001–T023), part B tasks (T024–T073)
+└── tasks.md             # A (T001–T023), B (T024–T073), C (T074–T099), D (T100–T111), E (T112–)
 ```
 
 ### Source Code (repository root)
@@ -152,6 +184,24 @@ test/unit/        badge-catalog, badge-evaluate, badge-team, badge-view, run-rec
 test/integration/ runs-intake, badges-apply, badges-section, badge-reveals,
                   badge-notification, badges-scheduled, badge-art-consistency
 e2e/smoke.e2e.ts  # + the Abzeichen section on the fake Strava
+
+# Part C
+migrations/0015_swims.sql      # swims, as runs
+src/strava/activity.ts         # + SwimRecord, toSwimRecord; ACTIVITY_FIGURES_VERSION 5
+src/db/swims.ts                # swim statements, as src/db/runs.ts
+src/badges/catalog.ts          # + 8 categories, unit "days", winter months, version 2
+src/badges/evaluate.ts         # + ride length, virtual, swims, winter series
+src/badges/view.ts             # + today: no bar once a winter month is over; decimals
+src/rynke/apply.ts             # + swims in changes, reads and deletes; CountingRide.virtual
+src/db/badges.ts               # + figures for the new categories (readRiderBadges)
+src/work/activity-{event,page}.ts  # swims through the same intake as runs
+src/http/sections/badges.ts    # passes today; days unit; one-decimal categories
+src/i18n/messages/{de,en}.ts   # categories, sentences, days unit, consent names swims
+src/i18n/messages/badges.de.ts # + 32 German names
+dev/fake-strava/samples.ts     # long, virtual, winter rides; swims
+
+test/unit/        badge-catalog, badge-evaluate, badge-view, badge-names, activity
+test/integration/ swims-intake, badges-apply, badges-section, schema-minimisation, db
 ```
 
 **Structure Decision**: Badge logic gets its own folder `src/badges/`, pure and

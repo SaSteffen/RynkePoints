@@ -1,6 +1,7 @@
 # Quickstart: Badges and Achievements
 
-Part A validates the art pipeline, part B the app (see [plan.md](plan.md)).
+Part A validates the art pipeline, part B the app, part C the categories added
+on 2026-10-12 (see [plan.md](plan.md)).
 
 # Part A: art pipeline
 
@@ -120,4 +121,85 @@ On a copy of the local database from before this release, apply
 `0013_badges.sql` and run the daily cron (`pnpm daily:run` in fake mode): riders
 are re-read once for their runs (figures version 4) and re-evaluated once for
 the badge catalog, without notifications.
+
+# Part C: more categories (2026-10-12)
+
+## 10. Pictures for the new badges
+
+```bash
+pnpm badge-art --print winter-december-10   # read one prompt first
+pnpm badge-art                              # the 32 badges without an original
+pnpm badge-build
+```
+
+Expected: 32 new originals in `art/badges/originals/`, their SVGs in
+`public/badges/`, and `src/badges/pictures.ts` listing them. Check each
+picture as in part A ("Checking a picture"); swims show the yellow swim cap
+with three stripes instead of the helmet. Until then the new badges show the
+placeholder, and nothing else changes.
+
+## 11. Tests
+
+```bash
+pnpm test badge && pnpm test swims && pnpm test runs
+```
+
+Expected: catalog (21 categories, 101 badges, same as `art/badges/badges.json`),
+evaluation of ride length, virtual rides, swims and the winter months, the view
+of a winter month that is over, swim intake and the section pass.
+
+## 12. The new categories on the fake Strava
+
+```bash
+pnpm dev
+```
+
+On the sample riders (research R31), at 360 px and desktop, light and dark:
+
+- the ride-length card counts the longest counting ride, also a virtual one;
+  every badge up to 300 km for the rider with the 312 km ride;
+- virtual rides add up only virtual and trainer rides, and Distance still
+  includes them;
+- two outdoor rides on one January day count as one day; a trainer ride on a
+  December day doesn't count for December;
+- swims: pool and open water count, the manual swim doesn't; the Rynke, ride
+  list, Team page and every team category are the same as without the swims
+  (SC-004);
+- set the clock past February (or a sample rider's season that is over): the
+  winter cards show no bar, the earned ones keep their badge, the others their
+  outline.
+
+## 13. Existing riders
+
+On a copy of the local database from before this release, apply
+`0015_swims.sql` and run the daily cron (`pnpm daily:run` in fake mode): riders
+are re-read once for their swims (figures version 5) and re-evaluated once for
+the new categories (catalog version 2), without notifications; their first
+visit shows one reveal of every new badge.
+
+# Part D: surprise badges (2026-10-12)
+
+## 14. Pictures
+
+```bash
+pnpm badge-art surprise-new-year surprise-christmas-eve surprise-christmas \
+  surprise-night-owl surprise-early-bird surprise-rest-day
+pnpm badge-build
+```
+
+Each picture should be a gag of its own (FR-015c); the rest day shows the
+character on a couch in a cream and black striped blanket with cocoa.
+
+## 15. On the fake Strava
+
+```bash
+pnpm dev
+```
+
+- A rider without surprise badges: "Überraschungen" with "?" and an outline,
+  six outlines in the gallery, no bar.
+- Wanda Winter: Christmas Eve, night owl, New Year and early bird; their large
+  views say why; the card shows the newest.
+- The rest-day sample rider: the rest day badge, dated the day off.
+- Page source: no unearned surprise badge's id, name, ribbon or why-text.
 

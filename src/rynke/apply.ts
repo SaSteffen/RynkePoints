@@ -18,11 +18,14 @@
 
 import { BADGE_CATALOG_VERSION } from "../badges/catalog";
 import {
+	badgeWindow,
 	type CountingRide,
 	type DatedRun,
+	type DatedSwim,
 	type EarnedBadge,
 	evaluateBadges,
 } from "../badges/evaluate";
+import { berlinDate } from "../config";
 import type { Ctx } from "../ctx";
 import {
 	activityOwnersStatement,
@@ -72,6 +75,13 @@ import {
 	upsertRiseStatement,
 } from "../db/rynke";
 import {
+	deletePrivateSwimsStatement,
+	deleteSwimStatement,
+	listSwimsOfRidersStatement,
+	swimOwnersStatement,
+	upsertSwimStatement,
+} from "../db/swims";
+import {
 	type AttendanceOfRidersRow,
 	deleteAttendancesStatement,
 	deleteTeamEventStatement,
@@ -90,6 +100,7 @@ import type {
 	ActivityRecord,
 	ActivityRow,
 	RunRecord,
+	SwimRecord,
 } from "../strava/activity";
 import { sendAll } from "../work/messages";
 import { notifyRiders } from "../work/send-notification";
@@ -110,13 +121,19 @@ import {
 } from "./team-events";
 
 /**
- * `runs` are outdoor runs (feature 013); an activity id is stored as a ride or
- * a run, so upserting one as either removes it as the other. `delete` and
- * `delete-private` remove runs as well as rides.
+ * `runs` are outdoor runs and `swims` swims (feature 013); an activity id is
+ * stored as a ride, a run or a swim, so upserting it as one removes it as the
+ * others. `delete` and `delete-private` remove runs and swims as well as
+ * rides.
  */
 export type ActivityChange =
 	| { kind: "none" }
-	| { kind: "upsert"; records: ActivityRecord[]; runs?: RunRecord[] }
+	| {
+			kind: "upsert";
+			records: ActivityRecord[];
+			runs?: RunRecord[];
+			swims?: SwimRecord[];
+	  }
 	| { kind: "delete"; activityIds: number[] }
 	| { kind: "delete-private" };
 
@@ -241,6 +258,8 @@ interface RiderState {
 	badgesVersion: number;
 	/** Outdoor runs by activity id (feature 013). */
 	runs: Map<number, RunRecord>;
+	/** Swims by activity id (feature 013 part C). */
+	swims: Map<number, SwimRecord>;
 }
 
 export async function applyAndEvaluate(
@@ -253,21 +272,27 @@ export async function applyAndEvaluate(
 ): Promise<ActivityResult> {
 	const ids =
 		change.kind === "upsert"
-			? [...change.records, ...(change.runs ?? [])].map(
-					(r) => r.strava_activity_id,
-				)
+			? [
+					...change.records,
+					...(change.runs ?? []),
+					...(change.swims ?? []),
+				].map((r) => r.strava_activity_id)
 			: [];
 	const ownerReads =
 		change.kind === "upsert"
-			? [activityOwnersStatement(db, ids), runOwnersStatement(db, ids)]
+			? [
+					activityOwnersStatement(db, ids),
+					runOwnersStatement(db, ids),
+					swimOwnersStatement(db, ids),
+				]
 			: [];
 	const {
 		riders,
-		extra: [ownerRows, runOwnerRows],
+		extra: [ownerRows, runOwnerRows, swimOwnerRows],
 	} = await readRiders(db, [athleteId], ownerReads);
 	const state = riders.get(athleteId) as RiderState;
-	const { activities, runs } = state;
-	const before = evaluateState(state, rules, window);
+	const { activities, runs, swims } = state;
+	const before = evaluateState(state, rules, window, now);
 
 	const writes: D1PreparedStatement[] = [];
 	switch (change.kind) {
@@ -278,6 +303,7 @@ export async function applyAndEvaluate(
 			for (const row of [
 				...(ownerRows?.results ?? []),
 				...(runOwnerRows?.results ?? []),
+				...(swimOwnerRows?.results ?? []),
 			] as {
 				strava_activity_id: number;
 				athlete_id: number;
@@ -294,6 +320,9 @@ export async function applyAndEvaluate(
 				activities.set(id, record);
 				writes.push(upsertActivityStatement(db, record));
 				if (runs.delete(id)) writes.push(deleteRunStatement(db, athleteId, id));
+				if (swims.delete(id)) {
+					writes.push(deleteSwimStatement(db, athleteId, id));
+				}
 			}
 			for (const run of change.runs ?? []) {
 				if (!own(run)) continue;
@@ -303,6 +332,19 @@ export async function applyAndEvaluate(
 				if (activities.delete(id)) {
 					writes.push(deleteActivityStatement(db, athleteId, id));
 				}
+				if (swims.delete(id)) {
+					writes.push(deleteSwimStatement(db, athleteId, id));
+				}
+			}
+			for (const swim of change.swims ?? []) {
+				if (!own(swim)) continue;
+				const id = swim.strava_activity_id;
+				swims.set(id, swim);
+				writes.push(upsertSwimStatement(db, swim));
+				if (activities.delete(id)) {
+					writes.push(deleteActivityStatement(db, athleteId, id));
+				}
+				if (runs.delete(id)) writes.push(deleteRunStatement(db, athleteId, id));
 			}
 			break;
 		}
@@ -312,6 +354,9 @@ export async function applyAndEvaluate(
 					writes.push(deleteActivityStatement(db, athleteId, id));
 				}
 				if (runs.delete(id)) writes.push(deleteRunStatement(db, athleteId, id));
+				if (swims.delete(id)) {
+					writes.push(deleteSwimStatement(db, athleteId, id));
+				}
 			}
 			break;
 		case "delete-private": {
@@ -331,11 +376,21 @@ export async function applyAndEvaluate(
 				}
 			}
 			if (removedRuns) writes.push(deletePrivateRunsStatement(db, athleteId));
+			let removedSwims = false;
+			for (const [id, swim] of swims) {
+				if (swim.is_private === 1) {
+					swims.delete(id);
+					removedSwims = true;
+				}
+			}
+			if (removedSwims) {
+				writes.push(deletePrivateSwimsStatement(db, athleteId));
+			}
 			break;
 		}
 	}
 
-	const after = evaluateState(state, rules, window);
+	const after = evaluateState(state, rules, window, now);
 	writes.push(...riderWrites(db, athleteId, state, after, rules, now));
 	const risen = rose(before.balance, after.balance);
 	if (risen) {
@@ -347,8 +402,7 @@ export async function applyAndEvaluate(
 	return {
 		rose: risen,
 		badges: news.badges,
-		figuresChanged:
-			JSON.stringify(before.figures) !== JSON.stringify(after.figures),
+		figuresChanged: teamFiguresChanged(before.figures, after.figures),
 	};
 }
 
@@ -490,9 +544,9 @@ export async function applyTeamEventChange(
 		const { riders } = await readRiders(db, affected, []);
 		for (const athleteId of affected) {
 			const state = riders.get(athleteId) as RiderState;
-			const before = evaluateState(state, rules, window);
+			const before = evaluateState(state, rules, window, now);
 			state.attendance = edit(state.attendance);
-			const after = evaluateState(state, rules, window);
+			const after = evaluateState(state, rules, window, now);
 			writes.push(...riderWrites(db, athleteId, state, after, rules, now));
 			if (rose(before.balance, after.balance)) {
 				writes.push(
@@ -604,9 +658,9 @@ export async function applyCorrectionChange(
 		throw new CorrectionRefused("rider_not_connected");
 	}
 	const state = riders.get(athleteId) as RiderState;
-	const before = evaluateState(state, rules, window);
+	const before = evaluateState(state, rules, window, now);
 	edit(state);
-	const after = evaluateState(state, rules, window);
+	const after = evaluateState(state, rules, window, now);
 	const writes = [
 		statement,
 		...riderWrites(db, athleteId, state, after, rules, now),
@@ -705,6 +759,7 @@ async function readRiders(
 		badgeRows,
 		versionRows,
 		runRows,
+		swimRows,
 		...extra
 	] = await db.batch([
 		listActivitiesOfRidersStatement(db, athleteIds),
@@ -715,6 +770,7 @@ async function readRiders(
 		listBadgesOfRidersStatement(db, athleteIds),
 		readBadgesVersionsStatement(db, athleteIds),
 		listRunsOfRidersStatement(db, athleteIds),
+		listSwimsOfRidersStatement(db, athleteIds),
 		...extraReads,
 	]);
 	if (
@@ -725,7 +781,8 @@ async function readRiders(
 		!correctionRows ||
 		!badgeRows ||
 		!versionRows ||
-		!runRows
+		!runRows ||
+		!swimRows
 	) {
 		throw new Error("D1 batch returned too few results");
 	}
@@ -741,6 +798,7 @@ async function readRiders(
 				badges: new Map(),
 				badgesVersion: 0,
 				runs: new Map(),
+				swims: new Map(),
 			},
 		]),
 	);
@@ -775,20 +833,39 @@ async function readRiders(
 	for (const row of runRows.results as RunRecord[]) {
 		riders.get(row.athlete_id)?.runs.set(row.strava_activity_id, row);
 	}
+	for (const row of swimRows.results as SwimRecord[]) {
+		riders.get(row.athlete_id)?.swims.set(row.strava_activity_id, row);
+	}
 	return { riders, extra };
 }
 
-/** The rider's counting rides and outdoor runs, as the badges add them up. */
+/**
+ * The rider's counting rides, outdoor runs and swims, as the badges add them
+ * up.
+ */
 interface Figures {
 	rides: CountingRide[];
 	runs: DatedRun[];
+	swims: DatedSwim[];
 }
 
-/** A full evaluation of the rider's state. */
+/**
+ * Whether what the team badges read changed: rides and runs, and swims, whose
+ * dates and hours count for the team surprises (FR-016, research R39).
+ */
+function teamFiguresChanged(before: Figures, after: Figures): boolean {
+	return JSON.stringify(before) !== JSON.stringify(after);
+}
+
+/**
+ * A full evaluation of the rider's state at `now`: the Rynke over the whole
+ * counting window, the badges only up to today in Berlin (`badgeWindow`).
+ */
 function evaluateState(
 	state: RiderState,
 	rules: RynkeRules,
 	window: CountingWindow,
+	now: number,
 ): {
 	evaluation: Evaluation;
 	balance: Balance;
@@ -819,7 +896,7 @@ function evaluateState(
 				corrections: state.corrections,
 			},
 			rules,
-			window,
+			badgeWindow(window, berlinDate(now)),
 		).earned,
 		figures,
 	};
@@ -839,14 +916,18 @@ function figuresOf(state: RiderState, evaluation: Evaluation): Figures {
 			distanceM: activity.distance_m,
 			distanceRynke: result.distanceRynke,
 			elevationDm: result.elevationDm,
+			virtual: result.isVirtual,
+			startTime: activity.start_date_local.slice(11, 16),
 		});
 	}
+	const dated = (activity: RunRecord | SwimRecord) => ({
+		date: activity.start_date_local.slice(0, 10),
+		distanceM: activity.distance_m,
+	});
 	return {
 		rides,
-		runs: [...state.runs.values()].map((run) => ({
-			date: run.start_date_local.slice(0, 10),
-			distanceM: run.distance_m,
-		})),
+		runs: [...state.runs.values()].map(dated),
+		swims: [...state.swims.values()].map(dated),
 	};
 }
 
