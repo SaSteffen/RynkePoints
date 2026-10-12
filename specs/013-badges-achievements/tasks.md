@@ -1,11 +1,12 @@
 ---
-description: "Task list for feature 013: part A, the art pipeline; part B, the app"
+description: "Task list for feature 013: part A, the art pipeline; part B, the app; part C, more categories"
 ---
 
 # Tasks: Badges and Achievements
 
 Part A (the art pipeline, T001 to T023) comes first; part B (the app) starts at
-[T024](#part-b-the-app). Both follow [plan.md](plan.md).
+[T024](#part-b-the-app), part C (the categories added on 2026-10-12) at
+[T074](#part-c-more-categories). All follow [plan.md](plan.md).
 
 # Part A: the art pipeline
 
@@ -593,3 +594,252 @@ MVP: Phases 7 to 9, the section with personal ride, event and Rynke badges
 on placeholders. Then US2 (reveal and notification, which make it fun), then US3
 and US4 in either order. Each phase ends green and can be released on its own;
 pictures arrive from the art branch without touching any of it.
+
+---
+
+# Part C: more categories
+
+**Prerequisites**: [plan.md](plan.md) part C, [research.md](research.md) R23 to
+R31, [data-model.md](data-model.md) "Part C",
+[contracts/abzeichen-section.md](contracts/abzeichen-section.md) and
+[contracts/badge-messages.md](contracts/badge-messages.md) "Part C",
+[quickstart.md](quickstart.md) §10 to §13.
+
+**Scope**: ride length, virtual rides, swim length, swimming and the four
+winter months (spec Clarifications 2026-10-12, User Story 5, FR-004a, FR-010,
+FR-022 to FR-025). The 32 art scenes are already in `art/badges/badges.json`;
+generating their pictures (quickstart §10) is the project owner's run and
+blocks nothing: the app shows the placeholder until then (FR-040a).
+
+**Tests**: REQUIRED (constitution Principle V): write each test first and see it
+fail before the task that makes it pass.
+
+**Story**: US5 long rides, virtual rides, swims and winter riding (P3), in
+three slices that each end green: rides (US5 scenarios 1 to 3, 6 to 8), swims
+(4, 5), winter months that are over (9).
+
+## Phase 14: Setup (part C)
+
+**Purpose**: the table swims are written to.
+
+- [ ] T074 Tests first: in `test/integration/schema-minimisation.test.ts` allow
+  exactly the `swims` columns of data-model.md "Part C" (the same as `runs`)
+  and fail on any other; in `test/integration/db.test.ts` check that deleting a
+  rider removes their `swims` rows.
+- [ ] T075 Write `migrations/0015_swims.sql`, adding only: `swims` with `runs`'
+  columns, checks and cascade, index `swims_by_rider (athlete_id,
+  start_date_local)`. T074 passes.
+
+---
+
+## Phase 15: Foundational (part C, blocking)
+
+**Purpose**: the catalog, names and text every new category shows. Until T077
+lands, `test/unit/badge-catalog.test.ts` fails against the art list, which
+already has the 101 badges.
+
+- [ ] T076 [P] Tests first in `test/unit/badge-catalog.test.ts`: 21 categories
+  (15 personal, 6 team) with the new ones after `running` as in data-model.md
+  "Part C"; unit `days` for the winter categories, each with its month (11,
+  12, 1, 2); 101 badges, ids as there (`swim-length-500` to `-3800` for 0.5 to
+  3.8 km); `BADGE_CATALOG_VERSION` is 2; the list still equals
+  `art/badges/badges.json`.
+- [ ] T077 Implement in `src/badges/catalog.ts`: the 8 categories and their
+  ladders, `BadgeUnit` gains `"days"`, a `month` on the winter categories,
+  swim length's ids through `NAMED_THRESHOLDS`, `BADGE_CATALOG_VERSION = 2`,
+  the comments' counts (101 badges). Add the new categories to every
+  `Record<BadgeCategoryId, …>` (`evaluate.ts` series default to empty until
+  T083) so `pnpm typecheck` passes. T076 passes.
+- [ ] T078 [P] `src/i18n/messages/badges.de.ts`: German names for the 32 new
+  badges, drafted dry and specific; the project owner confirms them before the
+  PR is merged (contracts/badge-messages.md). `test/unit/badge-names.test.ts`
+  (exactly the catalog's ids) passes.
+- [ ] T079 [P] Add the keys of contracts/badge-messages.md "Part C"
+  (`badges.category.*`, `badges.about.*`, `badges.for.*` for the 8 categories,
+  `badges.value.days` and `.one`) to `de.ts` and `en.ts`;
+  `test/unit/catalogs.test.ts` keeps the locales equal.
+- [ ] T080 Tests first in `test/unit/badge-view.test.ts`: `shownMissing` gives
+  one decimal for `swim_length` and `swimming` as for `run_length` (0.5 km
+  swum of 1 → 0.5; 4.31 of 5 → 0.7), whole units for `ride_length`,
+  `virtual_rides` and the winter categories; in
+  `test/integration/badges-section.test.ts` the ribbon and gallery values read
+  "0,5 km" and "1,9 km" for swim length, "5 Tage" for a winter badge, and the
+  progress "Noch 1 Tag". Then implement
+  in `src/badges/view.ts` and `src/http/sections/badges.ts` (one list of
+  one-decimal categories, research R28).
+
+**Checkpoint**: `pnpm test badge` and `pnpm typecheck` pass; the new
+categories show as empty cards with their progress at 0.
+
+---
+
+## Phase 16: User Story 5, rides: ride length, virtual rides, winter (P3)
+
+**Goal**: three ride-based kinds of category from the counting rides the
+evaluation already has (research R23, R24).
+
+**Independent test**: a sample rider with a 104 km December ride, two outdoor
+rides on one January day, a trainer ride on a December day and two virtual
+rides of 30 and 25 km: ride length 50 and 100, virtual 50, January 1 day,
+December 1 day.
+
+- [ ] T081 [US5] Tests first in `test/unit/badge-evaluate.test.ts`: ride
+  length is the longest counting ride so far, dated by the ride that reached
+  each threshold (US5 scenarios 1, 2: 312 km earns every badge to 300 on one
+  date); virtual rides add up only rides with `virtual` (scenario 3) and
+  Distance still counts them; winter months count distinct local dates of
+  rides without `virtual` (scenario 6: two rides on 10 January and one on 11
+  January → 2; scenario 7: a virtual ride's day doesn't count; scenario 8: a
+  ride on 30 November at 23:30 local is November); rides outside the counting
+  window and in other months count for no winter category; a ride that stops
+  counting takes its badges back.
+- [ ] T082 [US5] Implement: `CountingRide.virtual`; in `src/badges/evaluate.ts`
+  the series `ride_length` (as `run_length`), `virtual_rides` (cumulative) and
+  `winter_<month>` (cumulative distinct dates, month from the catalog). T081
+  passes.
+- [ ] T083 [US5] Tests first in `test/integration/badges-apply.test.ts`: a
+  counting `VirtualRide` and a `Ride` with `is_trainer = 1` count for virtual
+  rides and not for winter; a `Ride` with `is_trainer` unknown (null) counts
+  as outdoor (003 research R6); an excluded ride (overlap, private without
+  read-all) counts for none of the new categories. Then set `virtual` from
+  the evaluation result's `isVirtual` in `figuresOf` (`src/rynke/apply.ts`).
+- [ ] T084 [US5] Tests first in `test/integration/badges-section.test.ts`: the
+  section's progress for ride length, virtual rides and each winter month
+  equals what `evaluateBadges` ends on (data-model.md "Part C",
+  `PersonalFigures`). Then extend `readRiderBadges` (`src/db/badges.ts`) with
+  the longest counting ride, virtual km and distinct winter days per month in
+  its one batch (research R29), and `personalProgress` with the new values.
+
+**Checkpoint**: quickstart.md §12's ride bullets pass on the fake Strava once
+T094 adds the samples.
+
+---
+
+## Phase 17: User Story 5, swims (P3)
+
+**Goal**: swims are kept on their own and give swim length and swimming,
+without touching any Rynke or team sum (FR-024, FR-025, SC-004).
+
+**Independent test**: a sample rider with a 1.2 km pool swim, a 0.8 km
+open-water swim and a manual swim: swimming 2.0 km, swim length 1.2 km,
+everything else unchanged.
+
+- [ ] T085 [P] [US5] Tests first in `test/unit/activity.test.ts`:
+  `toSwimRecord` keeps `Swim` with and without `trainer: true`, returns null
+  for `manual: true`, for runs and for cycling; a flag Strava doesn't send
+  counts as not set; the record has only the `swims` columns;
+  `ACTIVITY_FIGURES_VERSION` is 5.
+- [ ] T086 [US5] Implement `SwimRecord`, `SWIM_SPORT_TYPES` and `toSwimRecord`
+  in `src/strava/activity.ts`; raise `ACTIVITY_FIGURES_VERSION` to 5 with
+  "version 5 swims (feature 013)" in its comment (research R27). T085 passes.
+- [ ] T087 [US5] Tests first: new `test/integration/swims-intake.test.ts`, as
+  `runs-intake.test.ts`: an activity event for a swim stores it in `swims`,
+  never in `activities` or `runs`; an update to manual removes it, as do a
+  delete event, a 404 and a private swim without read-all; `delete-private`
+  removes private swims; a list page stores swims; leaving deletes them; with
+  and without swims, `ride_results`, `rynke_balances`, the ride list, the Team
+  page and every team category are identical, and a swim-only change notifies
+  no team badge (SC-004, research R26).
+- [ ] T088 [US5] Implement: new `src/db/swims.ts` (as `src/db/runs.ts`); in
+  `src/rynke/apply.ts` the `upsert` change carries `swims`, `delete` and
+  `delete-private` remove swims, `readRiders` reads them into
+  `RiderState.swims`, and a change that touches only swims leaves
+  `figuresChanged` false; `src/work/activity-event.ts` and
+  `src/work/activity-page.ts` map with `toSwimRecord` when neither
+  `toActivityRecord` nor `toRunRecord` gives a record, with the same
+  private-scope rule. T087 passes.
+- [ ] T089 [US5] Tests first in `test/unit/badge-evaluate.test.ts`: US5
+  scenario 4 (1.2 + 0.8 km → swimming 2.0 km, swim length 1.2 km); a first
+  swim of 2 km earns swim length 0.5, 1 and 1.9 on one date; swims outside the
+  counting window count nothing. Then implement `PersonalInputs.swims` and the
+  series `swim_length` and `swimming` in `src/badges/evaluate.ts`, fed from
+  `RiderState.swims` in `figuresOf`.
+- [ ] T090 [US5] Tests first in `test/integration/badges-section.test.ts`: the
+  swim progress equals the evaluation's. Then extend `readRiderBadges` and
+  `personalProgress` with the longest swim and swim km in the counting window
+  (research R29).
+- [ ] T091 [US5] Tests first in `test/integration/scheduled-reread.test.ts`: a
+  rider on figures version 4 is re-read once, their swims since the season
+  start are stored, their badges come without a notification (FR-022). Make it
+  pass (expected: no code beyond T086 and T088).
+- [ ] T092 [P] [US5] Tests first in `test/unit/consent-versions.test.ts`: the
+  German `consent.short.read` mentions swims ("Schwimm") and `CONSENT_VERSIONS`
+  stays at 1; then update `de.ts`, `en.ts` and the comment in `src/consent.ts`
+  (research R30).
+
+**Checkpoint**: quickstart.md §12's swim bullet passes once T094 adds the
+samples.
+
+---
+
+## Phase 18: User Story 5, winter months that are over (P3)
+
+**Goal**: a winter card stops showing a bar once its month is over (FR-004a,
+research R25).
+
+- [ ] T093 [US5] Tests first in `test/unit/badge-view.test.ts`:
+  `buildBadgeSection` with `today` and the counting window: in October every
+  winter category shows its progress; on 1 March (season starting 1
+  September of the year before) the February card keeps its 1-day badge
+  without progress (US5 scenario 9), a winter category without a badge stays
+  as an empty card without progress, and non-winter categories are
+  unaffected; on 30 November the November bar still shows. In
+  `test/integration/badges-section.test.ts` the empty card renders without
+  `.badge-progress`. Then implement: `NotYetRow.progress` may be null, the
+  view drops a winter category's progress after its season month, and
+  `src/http/sections/badges.ts` passes `berlinDate(ctx.now())` and the window.
+
+---
+
+## Phase 19: Rollout and polish (part C)
+
+- [ ] T094 [US5] `dev/fake-strava/samples.ts`: a rider with a 312 km ride,
+  virtual and trainer rides, outdoor rides on several days from November to
+  February (two on one day, one trainer ride on a December day), and pool,
+  open-water and manual swims (research R31).
+- [ ] T095 Tests first in `test/integration/badges-scheduled.test.ts`: riders
+  on badges version 1 are re-evaluated once by the daily cron with catalog
+  version 2; the new badges their stored rides earn are awarded silently and
+  revealed together, without a notification (FR-012, FR-031). Make it pass
+  (expected: no code beyond T077).
+- [ ] T096 [P] Update the counts in `art/badges/README.md`,
+  `specs/013-badges-achievements/contracts/badge-assets.md` and code comments
+  that still say 69 badges or 13 categories.
+- [ ] T097 Run [quickstart.md](quickstart.md) §11 to §13 at 360 px and desktop
+  width, light and dark mode.
+- [ ] T098 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`.
+- [ ] T099 Project owner: generate and check the 32 pictures (quickstart §10:
+  `pnpm badge-art`, `pnpm badge-build`) and commit the originals,
+  `public/badges/` and `src/badges/pictures.ts` together. Independent of every
+  other part C task.
+
+---
+
+## Dependencies & execution order (part C)
+
+- T074 → T075 before T087.
+- Foundational: T076 → T077 first (it fixes CI's catalog test); T078, T079,
+  T080 after T077, alongside each other.
+- Rides: T081 → T082 → T083 → T084, after T077.
+- Swims: T085 → T086 → T087 → T088 → T089 → T090; T091 after T088; T092 any
+  time. Independent of the rides slice except `figuresOf` (T083 and T089 touch
+  it; do them one after the other).
+- Winter months over: T093 after T082 and T080.
+- Rollout: T094 after T084 and T090; T095 after T077; T096 any time; T097,
+  T098 last. T099 runs on its own.
+
+## Parallel opportunities (part C)
+
+- T078, T079 and T080 once T077 stands; T085 and T092 at any time.
+- The rides slice (T081 to T084) next to the swims slice (T085 to T091).
+- T099 (the pictures) in parallel with everything.
+
+## Implementation strategy (part C)
+
+Land T076 and T077 first: they bring the app's catalog level with the art list
+and make CI green again. Then the rides slice, which needs no new data and
+already gives ride length, virtual and winter badges to every existing rider
+through the silent catalog re-evaluation (T095). Then swims, which need the
+migration and the re-read. Last the winter view, which matters from 1
+December. Each slice ends green and can be released on its own.
+
