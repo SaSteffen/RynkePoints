@@ -50,7 +50,7 @@ To go easy on Gemini it works strictly one badge at a time, in one tab:
 - 90 to 180 seconds between badges, twice that after a failure: `--pause 90-180`;
 - at most 10 badges per run, then it stops; run it again later: `--max 10`.
 
-Each wait is a random point in its range. A full set of 101 badges takes 11 runs
+Each wait is a random point in its range. A full set of 107 badges takes 11 runs
 of about half an hour each. Look at
 each picture; to retry one, delete it or use `--force`.
 

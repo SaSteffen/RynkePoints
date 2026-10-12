@@ -6,7 +6,8 @@
 		"coins": "Coins: plain gold (#C99A2E) discs with a black outline and a thin cream inner ring, no symbols, letters or faces on them.",
 		"swimmer": "For swimming the character wears no helmet and no jersey: a yellow (#FBE122) swim cap with three small black stripes instead of the helmet, black swim goggles and a yellow swimsuit. No bike. Water in light blue (#8CC4F0) with black outlined wave shapes; the water's surface lies in the middle of the picture, never at the bottom.",
 		"trainer": "Indoors: the road bike stands on a black indoor trainer that holds its rear wheel, the front wheel resting on a small black block, so the bike stays in place. Nothing outdoors around him.",
-		"winter": "Winter kit: the yellow helmet and yellow jersey as always, plus a black scarf, long black tights and thick black gloves. Little cream clouds of breath in front of his mouth. Snow in cream (#FFFDF5) with black outlines, ice in light blue."
+		"winter": "Winter kit: the yellow helmet and yellow jersey as always, plus a black scarf, long black tights and thick black gloves. Little cream clouds of breath in front of his mouth. Snow in cream (#FFFDF5) with black outlines, ice in light blue.",
+		"surprise": "This is a secret surprise badge, so make it EXTRA fun: over the top, slapstick, a little absurd, with an exaggerated expression and one unexpected visual gag that makes people laugh out loud. Still one clear main subject in the middle."
 	},
 	"badges": [
 		{
@@ -477,6 +478,48 @@
 			"category": "winter_february",
 			"threshold": 10,
 			"scene": "The character standing proudly next to his road bike, covered from helmet to shoes in a crust of cream frost and light blue icicles, raising one fist, while a gold sun peeks out behind him and three little cream and yellow snowdrop flowers push up through the snow beside him: he made it through winter. {{bike}} {{winter}}"
+		},
+		{
+			"id": "surprise-new-year",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 1,
+			"scene": "New Year's Day: the character riding his road bike straight out of a gold party-popper explosion, still wearing a gold cone party hat over his helmet, a party horn in his mouth blowing a long curly cream streamer, cream and gold confetti everywhere, a tangle of streamers caught in his spokeless wheels, eyes tiny and puffy as if he hasn't slept but grinning madly. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-christmas-eve",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 2,
+			"scene": "Christmas Eve: the character racing on his road bike with a huge black sack of gold-wrapped presents on his back, far too big for him, a cream and gold Santa hat flapping over his helmet, a tiny fir tree strapped upright behind the saddle, one present flying off the top of the sack, his face panicked like he's late for the delivery. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-christmas",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 3,
+			"scene": "Christmas holidays: the character after a giant feast, belly so round and full that his yellow jersey is stretched tight and one button has popped off flying through the air, still bravely pedalling his road bike, a half-eaten gold drumstick in one hand and a slice of cream Christmas stollen in his mouth, a small fir tree with gold baubles at the roadside watching in shock. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-night-owl",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 4,
+			"scene": "Night owl: the character riding his road bike at night under a big gold full moon and small cream stars, wearing comically huge round black-rimmed goggles that make his eyes look enormous, and a real owl riding along on his handlebar wearing an identical tiny pair, both staring wide-eyed straight at the viewer with the exact same expression. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-early-bird",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 5,
+			"scene": "Early bird: the character riding his road bike at dawn, the gold sun only half over the horizon, still in a cream nightcap over his helmet and one fluffy cream slipper on a pedal, eyes half closed and yawning hugely, a small yellow bird sitting on his helmet and loudly chirping into his ear like an alarm clock, a cream coffee cup balanced in his bottle cage. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-rest-day",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 6,
+			"scene": "Rest day after a full week of training: the character sunk deep into a big cosy black sofa, wrapped up to the chin like a burrito in a warm, thick blanket with wide cream (#FFFDF5) and black stripes, only his face and one hand peeking out, holding a giant steaming cream mug of hot cocoa with a little cream cloud of whipped cream on top, eyes closed in total bliss, a tiny cream 'zzz' bubble without letters drawn as three small wavy shapes. His yellow helmet hangs on the handlebar of his road bike leaning against the wall behind the sofa, which looks almost jealous; his running shoes and swim goggles lie abandoned on the floor in front of the sofa. No helmet on his head. {{bike}} {{surprise}}"
 		},
 		{
 			"id": "team-training-rynke-500",
