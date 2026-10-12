@@ -347,6 +347,7 @@ describe("the team's badges (US4)", () => {
 			"team_elevation",
 			"team_running",
 			"attendances",
+			"team_surprise",
 		]);
 	});
 
