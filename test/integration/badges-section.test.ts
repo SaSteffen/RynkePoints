@@ -480,7 +480,10 @@ describe("the surprise badges on the page", () => {
 			"early-bird",
 			"rest-day",
 		] as const) {
-			expect(html).not.toContain(`surprise-${name}`);
+			// Whole ids: "surprise-christmas" is a prefix of "-christmas-eve".
+			expect(html).not.toContain(`badge-surprise-${name}"`);
+			expect(html).not.toContain(`/badges/surprise-${name}.svg`);
+			expect(html).not.toContain(`/badges/surprise-${name}-ribbon.svg`);
 			expect(html).not.toContain(escapeHtml(de[`badges.surprise.${name}.for`]));
 			expect(html).not.toContain(
 				`>${escapeHtml(de[`badges.surprise.${name}`])}<`,

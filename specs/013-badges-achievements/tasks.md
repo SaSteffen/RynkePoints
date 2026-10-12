@@ -862,20 +862,20 @@ fail before the task that makes it pass.
 
 ## Phase 20: Foundational (part D)
 
-- [ ] T100 Tests first in `test/unit/badge-catalog.test.ts`: 22 categories (16
+- [X] T100 Tests first in `test/unit/badge-catalog.test.ts`: 22 categories (16
   personal), `surprise` after `winter_february` with `surprise: true` and the
   six ids of data-model.md "Part D" in that order; 107 badges equal to
   `art/badges/badges.json`; `BADGE_CATALOG_VERSION` is 3.
-- [ ] T101 Implement in `src/badges/catalog.ts`: the `surprise` category,
+- [X] T101 Implement in `src/badges/catalog.ts`: the `surprise` category,
   its `NAMED_THRESHOLDS`, the `surprise` flag, version 3. T100 passes.
-- [ ] T102 [P] `src/i18n/messages/badges.de.ts`: the six names (drafts in
+- [X] T102 [P] `src/i18n/messages/badges.de.ts`: the six names (drafts in
   contracts/badge-messages.md "Part D"; the project owner confirms them).
-- [ ] T103 [P] Add the keys of contracts/badge-messages.md "Part D" to
+- [X] T103 [P] Add the keys of contracts/badge-messages.md "Part D" to
   `de.ts`, `en.ts` and the inventory in `test/unit/catalogs.test.ts`.
 
 ## Phase 21: User Story 6, the rules (P3)
 
-- [ ] T104 [US6] Tests first in `test/unit/badge-evaluate.test.ts`: US6
+- [X] T104 [US6] Tests first in `test/unit/badge-evaluate.test.ts`: US6
   scenarios 2 to 7: New Year, Christmas Eve and Christmas from a ride, a run
   or a swim, each dated by its first activity; night owl at 21:30 but not
   21:29, early bird at 5:59 but not 6:00, from rides only; the rest day after
@@ -883,19 +883,19 @@ fail before the task that makes it pass.
   not after six; activities outside the counting window count for none; the
   surprise progress has no next. In `test/integration/badges-apply.test.ts`:
   a deleted holiday ride takes its badge back.
-- [ ] T105 [US6] Implement: `CountingRide.startTime` from `start_date_local`
+- [X] T105 [US6] Implement: `CountingRide.startTime` from `start_date_local`
   in `figuresOf` (`src/rynke/apply.ts`); the surprise rules and progress in
   `src/badges/evaluate.ts` (research R33). T104 passes.
 
 ## Phase 22: User Story 6, the page (P3)
 
-- [ ] T106 [US6] Tests first in `test/unit/badge-view.test.ts`: the surprise
+- [X] T106 [US6] Tests first in `test/unit/badge-view.test.ts`: the surprise
   card shows the newest earned surprise badge without progress, an outline row
   without progress before any; in `test/integration/badges-section.test.ts`:
   "?" as the sentence in card and gallery, six outlines in the gallery, no
   bar, the ribbon and why-text of an earned surprise badge, and no id, name,
   ribbon or why-text of an unearned one (US6 scenarios 1 and 8, SC-003).
-- [ ] T107 [US6] Implement in `src/badges/view.ts` (newest surprise badge on
+- [X] T107 [US6] Implement in `src/badges/view.ts` (newest surprise badge on
   the card, research R35) and `src/http/sections/badges.ts` (ribbon from
   `badges.surprise.<name>`, why-text from `badges.surprise.<name>.for`). T106
   passes. Update the counts of existing section and sample tests (16 personal
@@ -903,13 +903,13 @@ fail before the task that makes it pass.
 
 ## Phase 23: Rollout (part D)
 
-- [ ] T108 [US6] `dev/fake-strava/samples.ts`: Wanda Winter's rides on 24
+- [X] T108 [US6] `dev/fake-strava/samples.ts`: Wanda Winter's rides on 24
   December at 22:00 and 1 January at 5:30, and a sample rider with seven daily
   activities, a day off and one more (research R37); a test in
   `test/integration/dev-fake-strava.test.ts` for both.
-- [ ] T109 Tests first in `test/integration/badges-scheduled.test.ts`: riders
+- [X] T109 Tests first in `test/integration/badges-scheduled.test.ts`: riders
   on catalog version 2 get their surprise badges once, silently.
-- [ ] T110 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; then
+- [X] T110 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; then
   quickstart.md §15.
 - [ ] T111 Project owner: the six pictures (quickstart §14), committed with
   `public/badges/` and `src/badges/pictures.ts`.
