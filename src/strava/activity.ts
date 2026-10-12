@@ -95,6 +95,19 @@ export function isCycling(sportType: string): sportType is CyclingSportType {
 	return (CYCLING_SPORT_TYPES as readonly string[]).includes(sportType);
 }
 
+/**
+ * Whether an activity starts at or after the season start (epoch seconds).
+ * Nothing older is stored: the import asks Strava only for activities after
+ * it, and this keeps a webhook event about an older one out too.
+ */
+export function startsInSeason(
+	startDate: string,
+	seasonStartEpoch: number,
+): boolean {
+	const started = Date.parse(startDate);
+	return Number.isFinite(started) && started / 1000 >= seasonStartEpoch;
+}
+
 /** Returns the record to store, or null if the activity isn't cycling. */
 export function toActivityRecord(
 	activity: StravaActivity,

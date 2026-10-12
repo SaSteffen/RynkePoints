@@ -136,3 +136,10 @@ Cron: `17 3 * * *` (daily, 03:17 UTC).
    `reread-page { page: 1, after: <current season start> }`, then set
    `figures_version = ACTIVITY_FIGURES_VERSION` (research R20). Send before
    marking: if marking fails, the next run sends again, which is harmless.
+5. Delete every stored ride, run and swim whose `start_date` is before the
+   season start, through the rider's Rynke evaluation. Nothing older is
+   stored: `activity-event` and the import pages skip such an activity (and an
+   `activity-event` removes one already stored). This step removes what was
+   stored before that rule, or under an earlier season start. Such a ride
+   never counts, so balances don't change. Runs before feature 003's
+   evaluation sweep.
