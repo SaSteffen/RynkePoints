@@ -52,6 +52,12 @@ describe("CONSENT_VERSIONS", () => {
 		expect(CONSENT_VERSION).toBe(1);
 	});
 
+	it("names swims without a new version (013 part C, R30)", () => {
+		expect(CATALOGS.de["consent.short.read"]).toContain("Schwimm");
+		expect(CATALOGS.en["consent.short.read"]).toContain("swims");
+		expect(CONSENT_VERSION).toBe(1);
+	});
+
 	it("keeps CONSENT_VERSION at the last entry", () => {
 		expect(CONSENT_VERSION).toBe(CONSENT_VERSIONS.at(-1)?.version);
 		expect(currentVersion(CONSENT_VERSIONS).version).toBe(CONSENT_VERSION);

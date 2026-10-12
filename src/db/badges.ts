@@ -159,6 +159,14 @@ export interface RiderBadgesRead {
 	/** Over the rider's outdoor runs, for the running progress bars. */
 	longestRunM: number;
 	runDistanceM: number;
+	/** Over the rider's counting rides (part C, research R29). */
+	longestRideM: number;
+	virtualDistanceM: number;
+	/** Calendar month → days with a counting ride that isn't virtual. */
+	winterDays: Partial<Record<number, number>>;
+	/** Over the rider's swims, for the swim progress bars. */
+	longestSwimM: number;
+	swimDistanceM: number;
 }
 
 export async function readRiderBadges(
@@ -166,13 +174,16 @@ export async function readRiderBadges(
 	athleteId: number,
 	window: CountingWindow,
 ): Promise<RiderBadgesRead> {
-	const [badges, reveals, sums, runs] = await db.batch([
+	const [badges, reveals, sums, runs, days, swims] = await db.batch([
 		listRiderBadgesStatement(db, athleteId),
 		listRevealsStatement(db, athleteId),
 		db
 			.prepare(
 				`SELECT coalesce(sum(a.distance_m), 0) AS distance_m,
-					coalesce(sum(r.elevation_dm), 0) AS elevation_dm
+					coalesce(sum(r.elevation_dm), 0) AS elevation_dm,
+					coalesce(max(a.distance_m), 0) AS longest_m,
+					coalesce(sum(CASE WHEN r.is_virtual = 1 THEN a.distance_m END), 0)
+						AS virtual_m
 				FROM ride_results r JOIN activities a
 					ON a.strava_activity_id = r.strava_activity_id
 				WHERE r.athlete_id = ?1 AND r.counts = 1`,
@@ -187,14 +198,46 @@ export async function readRiderBadges(
 					AND substr(start_date_local, 1, 10) BETWEEN ?2 AND ?3`,
 			)
 			.bind(athleteId, window.seasonStart, window.deadline),
+		// Days with an outdoor counting ride, per calendar month, by the local
+		// start date as the evaluation counts them (research R24).
+		db
+			.prepare(
+				`SELECT CAST(substr(a.start_date_local, 6, 2) AS INTEGER) AS month,
+					count(DISTINCT substr(a.start_date_local, 1, 10)) AS days
+				FROM ride_results r JOIN activities a
+					ON a.strava_activity_id = r.strava_activity_id
+				WHERE r.athlete_id = ?1 AND r.counts = 1 AND r.is_virtual = 0
+				GROUP BY month`,
+			)
+			.bind(athleteId),
+		db
+			.prepare(
+				`SELECT coalesce(max(distance_m), 0) AS longest_m,
+					coalesce(sum(distance_m), 0) AS distance_m
+				FROM swims WHERE athlete_id = ?1
+					AND substr(start_date_local, 1, 10) BETWEEN ?2 AND ?3`,
+			)
+			.bind(athleteId, window.seasonStart, window.deadline),
 	]);
-	if (!badges || !reveals || !sums || !runs) {
+	if (!badges || !reveals || !sums || !runs || !days || !swims) {
 		throw new Error("D1 batch returned too few results");
 	}
 	const sum = (
-		sums.results as { distance_m: number; elevation_dm: number }[]
+		sums.results as {
+			distance_m: number;
+			elevation_dm: number;
+			longest_m: number;
+			virtual_m: number;
+		}[]
 	)[0];
 	const run = (runs.results as { longest_m: number; distance_m: number }[])[0];
+	const swim = (
+		swims.results as { longest_m: number; distance_m: number }[]
+	)[0];
+	const winterDays: Partial<Record<number, number>> = {};
+	for (const row of days.results as { month: number; days: number }[]) {
+		winterDays[row.month] = row.days;
+	}
 	return {
 		earned: (badges.results as RiderBadgeRow[]).map((row) => ({
 			badgeId: row.badge_id,
@@ -207,6 +250,11 @@ export async function readRiderBadges(
 		elevationDm: sum?.elevation_dm ?? 0,
 		longestRunM: run?.longest_m ?? 0,
 		runDistanceM: run?.distance_m ?? 0,
+		longestRideM: sum?.longest_m ?? 0,
+		virtualDistanceM: sum?.virtual_m ?? 0,
+		winterDays,
+		longestSwimM: swim?.longest_m ?? 0,
+		swimDistanceM: swim?.distance_m ?? 0,
 	};
 }
 

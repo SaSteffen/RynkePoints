@@ -12,7 +12,7 @@ import {
 // the art pipeline's list (research R9, R18; part A's T019).
 
 describe("badge catalog", () => {
-	it("has the spec's 13 categories with their groups, units and ladders", () => {
+	it("has the spec's 21 categories with their groups, units and ladders", () => {
 		expect(
 			BADGE_CATEGORIES.map((c) => [c.id, c.group, c.unit, c.ladder]),
 		).toEqual([
@@ -28,6 +28,14 @@ describe("badge catalog", () => {
 			],
 			["run_length", "personal", "km", [5, 10, 21.0975, 42.195]],
 			["running", "personal", "km", [10, 25, 50, 100, 250, 500]],
+			["ride_length", "personal", "km", [50, 100, 150, 200, 250, 300]],
+			["virtual_rides", "personal", "km", [50, 100, 250, 500, 1000]],
+			["swim_length", "personal", "km", [0.5, 1, 1.9, 3.8]],
+			["swimming", "personal", "km", [5, 10, 25, 50, 100]],
+			["winter_november", "personal", "days", [1, 5, 10]],
+			["winter_december", "personal", "days", [1, 5, 10]],
+			["winter_january", "personal", "days", [1, 5, 10]],
+			["winter_february", "personal", "days", [1, 5, 10]],
 			[
 				"team_training_rynke",
 				"team",
@@ -46,8 +54,22 @@ describe("badge catalog", () => {
 			["attendances", "team", "attendances", [25, 50, 100, 200, 400]],
 		]);
 		expect(BADGE_CATEGORIES.filter((c) => c.group === "personal")).toHaveLength(
-			7,
+			15,
 		);
+	});
+
+	it("gives each winter category its month and no other category one", () => {
+		expect(
+			BADGE_CATEGORIES.filter((c) => c.month !== undefined).map((c) => [
+				c.id,
+				c.month,
+			]),
+		).toEqual([
+			["winter_november", 11],
+			["winter_december", 12],
+			["winter_january", 1],
+			["winter_february", 2],
+		]);
 	});
 
 	it("keeps every ladder strictly increasing", () => {
@@ -56,8 +78,8 @@ describe("badge catalog", () => {
 				expect(ladder[i]).toBeGreaterThan(ladder[i - 1] as number);
 	});
 
-	it("derives 69 badges in catalog order with ids from category and threshold", () => {
-		expect(BADGES).toHaveLength(69);
+	it("derives 101 badges in catalog order with ids from category and threshold", () => {
+		expect(BADGES).toHaveLength(101);
 		expect(BADGES.slice(0, 2)).toEqual([
 			{
 				id: "distance-100",
@@ -80,14 +102,23 @@ describe("badge catalog", () => {
 			"run-length-half",
 			"run-length-marathon",
 		]);
+		expect(
+			BADGES.filter((b) => b.category === "swim_length").map((b) => b.id),
+		).toEqual([
+			"swim-length-500",
+			"swim-length-1000",
+			"swim-length-1900",
+			"swim-length-3800",
+		]);
+		expect(badgeById("swim-length-1900")?.threshold).toBe(1.9);
+		expect(badgeById("winter-february-10")?.category).toBe("winter_february");
 		expect(badgeById("team-training-rynke-500")?.threshold).toBe(500);
 		expect(badgeById("nope")).toBeUndefined();
-		expect(new Set(BADGES.map((b) => b.id)).size).toBe(69);
+		expect(new Set(BADGES.map((b) => b.id)).size).toBe(101);
 	});
 
-	it("has an integer version of at least 1", () => {
-		expect(Number.isInteger(BADGE_CATALOG_VERSION)).toBe(true);
-		expect(BADGE_CATALOG_VERSION).toBeGreaterThanOrEqual(1);
+	it("is at version 2 since part C's categories", () => {
+		expect(BADGE_CATALOG_VERSION).toBe(2);
 	});
 
 	it("lists the same badges as art/badges/badges.json", () => {

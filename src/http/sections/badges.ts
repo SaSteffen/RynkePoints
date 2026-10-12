@@ -13,6 +13,8 @@ import {
 	type BadgeGroup,
 	type BadgeUnit,
 	badgeById,
+	categoryById,
+	ONE_DECIMAL,
 } from "../../badges/catalog";
 import type { EarnedBadge } from "../../badges/evaluate";
 import { BADGE_PICTURES } from "../../badges/pictures";
@@ -49,6 +51,7 @@ const SINGULAR = new Set<BadgeUnit>([
 	"trainings",
 	"riders",
 	"attendances",
+	"days",
 ]);
 
 function valueText(
@@ -63,28 +66,20 @@ function valueText(
 		: i18n.t(`badges.value.${unit}`, { n: value });
 }
 
-const UNITS: Record<BadgeCategoryId, BadgeUnit> = {
-	distance: "km",
-	elevation: "m",
-	team_events: "events",
-	technique: "trainings",
-	training_rynke: "rynke",
-	run_length: "km",
-	running: "km",
-	team_training_rynke: "rynke",
-	team_distance: "km",
-	team_elevation: "m",
-	team_running: "km",
-	big_training: "riders",
-	attendances: "attendances",
-};
-
-/** The milestone on the ribbon: "1.000 km", "Halbmarathon". */
+/**
+ * The milestone on the ribbon: "1.000 km", "Halbmarathon", "1,9 km": a
+ * decimal only where the threshold has one (research R28).
+ */
 function milestone(i18n: I18n, badge: Badge): string {
 	if (badge.id === "run-length-half") return i18n.t("badges.value.half");
 	if (badge.id === "run-length-marathon")
 		return i18n.t("badges.value.marathon");
-	return valueText(i18n, UNITS[badge.category], badge.threshold);
+	return valueText(
+		i18n,
+		categoryById(badge.category).unit,
+		badge.threshold,
+		Number.isInteger(badge.threshold) ? 0 : 1,
+	);
 }
 
 function picture(badge: Badge, ribbon: boolean): string {
@@ -125,7 +120,7 @@ function progressBar(
 		i18n,
 		progress.unit,
 		progress.missing,
-		category === "run_length" ? 1 : 0,
+		ONE_DECIMAL.has(category) ? 1 : 0,
 	);
 	return html`<span class="bar" aria-hidden="true"><span style="width:${progress.percent}%"></span></span><span class="badge-missing">${i18n.t("badges.missing", { value: missing })}</span>`;
 }
@@ -144,12 +139,15 @@ ${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.cate
 </li>`;
 }
 
-/** A category without a badge: a dotted outline, its sentence on phones too. */
+/**
+ * A category without a badge: a dotted outline, its sentence on phones too;
+ * no bar once its winter month is over (FR-004a).
+ */
 function emptyCard(i18n: I18n, row: NotYetRow): SafeHtml {
 	return html`<li class="badge-card badge-card-empty" data-category="${row.category}">
 ${categoryHeading(i18n, row.category)}
 <span class="badge-slot" aria-hidden="true"></span>
-<div class="badge-progress">${progressBar(i18n, row.category, row.progress)}</div>
+${row.progress ? html`<div class="badge-progress">${progressBar(i18n, row.category, row.progress)}</div>` : null}
 </li>`;
 }
 
@@ -282,6 +280,8 @@ async function badgesOf(
 		team: evaluateTeamBadges(sums, CURRENT_RULES, window),
 		revealed: badges.revealed,
 		connectedOn: berlinDate(rider.connectedAt),
+		today: berlinDate(ctx.now()),
+		seasonStart: window.seasonStart,
 	});
 	if (section && section.reveal.length > 0 && request.method === "GET") {
 		await upsertRevealsStatement(db, rider.athleteId, section.reveal).run();

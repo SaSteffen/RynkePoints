@@ -111,6 +111,16 @@ const COLUMNS: Record<string, string[]> = {
 		"is_private",
 		"refreshed_at",
 	],
+	// Feature 013 part C: swims, the same as runs (research R26).
+	swims: [
+		"strava_activity_id",
+		"athlete_id",
+		"start_date",
+		"start_date_local",
+		"distance_m",
+		"is_private",
+		"refreshed_at",
+	],
 	rider_badges: ["athlete_id", "badge_id", "earned_on"],
 	badge_reveals: ["athlete_id", "badge_id", "earned_on"],
 	badge_rises: ["athlete_id", "badge_ids", "risen_at"],

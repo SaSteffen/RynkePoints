@@ -13,7 +13,9 @@ import type { MessageId } from "./i18n/catalogs";
 // (010 research R14; constitution v2.1.0).
 // Feature 013 named runs and the team sums without one either: every read
 // already returned the runs, they only give the rider their own badges, and
-// others see only sums without names (013 FR-023, research R22).
+// others see only sums without names (013 FR-023, research R22). Swims
+// followed the same way: read anyway, kept for the rider's own badges only
+// (013 part C, research R30).
 
 export interface ConsentVersion {
 	version: number;

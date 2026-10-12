@@ -40,7 +40,7 @@ export const en: Catalog = {
 	"consent.short.notRead":
 		"We don't read GPS tracks, maps, photos or health data.",
 	"consent.short.read":
-		"We only read the key figures of your rides and runs, such as distance, time and elevation, and turn them into Rynke and badges.",
+		"We only read the key figures of your rides, runs and swims, such as distance, time and elevation, and turn them into Rynke and badges.",
 	"consent.short.shown":
 		"The team sees your Rynke without your name, the organisers with your first name.",
 	"consent.details": "All the details",
@@ -499,6 +499,14 @@ export const en: Catalog = {
 	"badges.category.training_rynke": "Training Rynke",
 	"badges.category.run_length": "Longest run",
 	"badges.category.running": "Running total",
+	"badges.category.ride_length": "Longest ride",
+	"badges.category.virtual_rides": "Virtual",
+	"badges.category.swim_length": "Longest swim",
+	"badges.category.swimming": "Swimming total",
+	"badges.category.winter_november": "Winter: November",
+	"badges.category.winter_december": "Winter: December",
+	"badges.category.winter_january": "Winter: January",
+	"badges.category.winter_february": "Winter: February",
 	"badges.category.team_training_rynke": "Training Rynke together",
 	"badges.category.team_distance": "Distance together",
 	"badges.category.team_elevation": "Elevation together",
@@ -519,6 +527,21 @@ export const en: Catalog = {
 		"Your longest single run this season, without treadmill and virtual runs.",
 	"badges.about.running":
 		"All the kilometres of your runs this season, without treadmill and virtual runs.",
+	"badges.about.ride_length":
+		"Your longest single ride this season that counts for Training Rynke.",
+	"badges.about.virtual_rides":
+		"All the kilometres of your virtual and indoor-trainer rides this season.",
+	"badges.about.swim_length":
+		"Your longest single swim this season, in the pool or in open water.",
+	"badges.about.swimming": "All the kilometres you swam this season.",
+	"badges.about.winter_november":
+		"Days in November on which you rode outdoors, not on a trainer.",
+	"badges.about.winter_december":
+		"Days in December on which you rode outdoors, not on a trainer.",
+	"badges.about.winter_january":
+		"Days in January on which you rode outdoors, not on a trainer.",
+	"badges.about.winter_february":
+		"Days in February on which you rode outdoors, not on a trainer.",
 	"badges.about.team_training_rynke":
 		"The Training Rynke of all riders, added up for this season.",
 	"badges.about.team_distance":
@@ -538,6 +561,14 @@ export const en: Catalog = {
 	"badges.for.training_rynke": "You collected {value} in training this season.",
 	"badges.for.run_length": "Your longest run this season: {value} in one go.",
 	"badges.for.running": "You ran {value} this season.",
+	"badges.for.ride_length": "Your longest ride this season: {value} in one go.",
+	"badges.for.virtual_rides": "You rode {value} virtually this season.",
+	"badges.for.swim_length": "Your longest swim this season: {value} in one go.",
+	"badges.for.swimming": "You swam {value} this season.",
+	"badges.for.winter_november": "In November: {value} outdoors on the bike.",
+	"badges.for.winter_december": "In December: {value} outdoors on the bike.",
+	"badges.for.winter_january": "In January: {value} outdoors on the bike.",
+	"badges.for.winter_february": "In February: {value} outdoors on the bike.",
 	"badges.for.team_training_rynke":
 		"All riders together collected {value} in training this season.",
 	"badges.for.team_distance": "All riders together rode {value} this season.",
@@ -558,6 +589,8 @@ export const en: Catalog = {
 	"badges.value.riders.one": "{n}\u00a0cyclist",
 	"badges.value.attendances": "{n}\u00a0visits",
 	"badges.value.attendances.one": "{n}\u00a0visit",
+	"badges.value.days": "{n}\u00a0days",
+	"badges.value.days.one": "{n}\u00a0day",
 	"badges.value.half": "Half marathon",
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "New badge: {name} 🏅",

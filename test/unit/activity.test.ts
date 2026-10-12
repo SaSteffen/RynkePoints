@@ -5,6 +5,7 @@ import {
 	isCycling,
 	toActivityRecord,
 	toRunRecord,
+	toSwimRecord,
 } from "../../src/strava/activity";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
 
@@ -150,8 +151,8 @@ describe("toActivityRecord", () => {
 		expect(record?.[column]).toBeNull();
 	});
 
-	it("is at figures version 4, which added runs (feature 013)", () => {
-		expect(ACTIVITY_FIGURES_VERSION).toBe(4);
+	it("is at figures version 5, which added swims (feature 013 part C)", () => {
+		expect(ACTIVITY_FIGURES_VERSION).toBe(5);
 	});
 
 	it("keeps the ride's name exactly as Strava sends it (008 FR-001)", () => {
@@ -230,5 +231,60 @@ describe("toRunRecord (feature 013 FR-020, research R11)", () => {
 
 	it("is never a ride", () => {
 		expect(toActivityRecord(run(), ATHLETE_A, NOW)).toBeNull();
+	});
+});
+
+describe("toSwimRecord (feature 013 FR-024, research R26)", () => {
+	const swim = (overrides: Parameters<typeof makeStravaActivity>[0] = {}) =>
+		makeStravaActivity({
+			sport_type: "Swim",
+			type: "Swim",
+			distance: 1200,
+			...overrides,
+		});
+
+	it("keeps swims with only the swims columns", () => {
+		const activity = swim({ id: 43 });
+		expect(toSwimRecord(activity, ATHLETE_A, NOW)).toEqual({
+			strava_activity_id: 43,
+			athlete_id: ATHLETE_A,
+			start_date: activity.start_date,
+			start_date_local: activity.start_date_local,
+			distance_m: 1200,
+			is_private: 0,
+			refreshed_at: NOW,
+		});
+	});
+
+	it("keeps a pool swim Strava marks as on a trainer", () => {
+		expect(
+			toSwimRecord(swim({ trainer: true }), ATHLETE_A, NOW),
+		).not.toBeNull();
+	});
+
+	it.each<[string, Parameters<typeof makeStravaActivity>[0]]>([
+		["a manual swim", { manual: true }],
+		["a run", { sport_type: "Run" }],
+		["a ride", { sport_type: "Ride" }],
+		["a walk", { sport_type: "Walk" }],
+	])("returns null for %s", (_, overrides) => {
+		expect(toSwimRecord(swim(overrides), ATHLETE_A, NOW)).toBeNull();
+	});
+
+	it("counts a flag Strava doesn't send as not set", () => {
+		const activity = swim();
+		delete activity.manual;
+		expect(toSwimRecord(activity, ATHLETE_A, NOW)).not.toBeNull();
+	});
+
+	it("marks private swims", () => {
+		expect(
+			toSwimRecord(swim({ private: true }), ATHLETE_A, NOW)?.is_private,
+		).toBe(1);
+	});
+
+	it("is never a ride or a run", () => {
+		expect(toActivityRecord(swim(), ATHLETE_A, NOW)).toBeNull();
+		expect(toRunRecord(swim(), ATHLETE_A, NOW)).toBeNull();
 	});
 });

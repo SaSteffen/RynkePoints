@@ -12,7 +12,8 @@ export type BadgeUnit =
 	| "events"
 	| "trainings"
 	| "riders"
-	| "attendances";
+	| "attendances"
+	| "days";
 
 export type BadgeCategoryId =
 	| "distance"
@@ -22,6 +23,14 @@ export type BadgeCategoryId =
 	| "training_rynke"
 	| "run_length"
 	| "running"
+	| "ride_length"
+	| "virtual_rides"
+	| "swim_length"
+	| "swimming"
+	| "winter_november"
+	| "winter_december"
+	| "winter_january"
+	| "winter_february"
 	| "team_training_rynke"
 	| "team_distance"
 	| "team_elevation"
@@ -35,6 +44,8 @@ export interface BadgeCategory {
 	unit: BadgeUnit;
 	/** Thresholds in the category's unit, strictly increasing. */
 	ladder: readonly number[];
+	/** A winter category's calendar month, 1 to 12 (part C, research R25). */
+	month?: number;
 }
 
 export interface Badge {
@@ -45,7 +56,7 @@ export interface Badge {
 }
 
 /** Raised with any ladder change; riders on an older one are re-evaluated (FR-012). */
-export const BADGE_CATALOG_VERSION = 1;
+export const BADGE_CATALOG_VERSION = 2;
 
 /** In the spec's order: personal first, then team. */
 export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
@@ -86,6 +97,59 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		unit: "km",
 		ladder: [10, 25, 50, 100, 250, 500],
 	},
+	// Part C (2026-10-12, research R28).
+	{
+		id: "ride_length",
+		group: "personal",
+		unit: "km",
+		ladder: [50, 100, 150, 200, 250, 300],
+	},
+	{
+		id: "virtual_rides",
+		group: "personal",
+		unit: "km",
+		ladder: [50, 100, 250, 500, 1000],
+	},
+	{
+		id: "swim_length",
+		group: "personal",
+		unit: "km",
+		ladder: [0.5, 1, 1.9, 3.8],
+	},
+	{
+		id: "swimming",
+		group: "personal",
+		unit: "km",
+		ladder: [5, 10, 25, 50, 100],
+	},
+	{
+		id: "winter_november",
+		group: "personal",
+		unit: "days",
+		ladder: [1, 5, 10],
+		month: 11,
+	},
+	{
+		id: "winter_december",
+		group: "personal",
+		unit: "days",
+		ladder: [1, 5, 10],
+		month: 12,
+	},
+	{
+		id: "winter_january",
+		group: "personal",
+		unit: "days",
+		ladder: [1, 5, 10],
+		month: 1,
+	},
+	{
+		id: "winter_february",
+		group: "personal",
+		unit: "days",
+		ladder: [1, 5, 10],
+		month: 2,
+	},
 	{
 		id: "team_training_rynke",
 		group: "team",
@@ -124,10 +188,16 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 	},
 ];
 
-/** Run length's top two steps are named, not numbered. */
+/**
+ * Run length's top two steps are named, not numbered; swim length's ids are in
+ * metres, since ids have no dot (research R28).
+ */
 const NAMED_THRESHOLDS: Partial<
 	Record<BadgeCategoryId, Record<number, string>>
-> = { run_length: { 21.0975: "half", 42.195: "marathon" } };
+> = {
+	run_length: { 21.0975: "half", 42.195: "marathon" },
+	swim_length: { 0.5: "500", 1: "1000", 1.9: "1900", 3.8: "3800" },
+};
 
 const badgeIdOf = (category: BadgeCategoryId, threshold: number): string =>
 	`${category.replaceAll("_", "-")}-${NAMED_THRESHOLDS[category]?.[threshold] ?? threshold}`;
@@ -135,7 +205,7 @@ const badgeIdOf = (category: BadgeCategoryId, threshold: number): string =>
 /** Every badge's id; a string here, checked against the catalog at runtime. */
 export type BadgeId = string;
 
-/** All 69 badges in catalog order: by category, then by threshold. */
+/** All 101 badges in catalog order: by category, then by threshold. */
 export const BADGES: readonly Badge[] = BADGE_CATEGORIES.flatMap((c) =>
 	c.ladder.map((threshold) => ({
 		id: badgeIdOf(c.id, threshold),
@@ -155,3 +225,10 @@ export const badgeOrder = (id: string): number =>
 
 export const categoryById = (id: BadgeCategoryId): BadgeCategory =>
 	BADGE_CATEGORIES.find((c) => c.id === id) as BadgeCategory;
+
+/** The categories that show one decimal (spec Assumptions, research R28). */
+export const ONE_DECIMAL: ReadonlySet<BadgeCategoryId> = new Set([
+	"run_length",
+	"swim_length",
+	"swimming",
+]);

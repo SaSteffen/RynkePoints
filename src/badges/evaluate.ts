@@ -25,6 +25,8 @@ export interface CountingRide {
 	distanceM: number;
 	distanceRynke: number;
 	elevationDm: number;
+	/** A virtual or indoor-trainer ride (003 FR-013a); absent: outdoor. */
+	virtual?: boolean;
 }
 
 /** An outdoor run, by its local start date. */
@@ -34,9 +36,14 @@ export interface DatedRun {
 	distanceM: number;
 }
 
+/** A recorded swim, pool or open water, by its local start date (part C). */
+export type DatedSwim = DatedRun;
+
 export interface PersonalInputs {
 	rides: readonly CountingRide[];
 	runs: readonly DatedRun[];
+	/** Absent: no swims. */
+	swims?: readonly DatedSwim[];
 	attendance: readonly Attendance[];
 	corrections: readonly DatedCorrection[];
 }
@@ -155,13 +162,24 @@ function personalSeries(
 			].map(([, date]) => ({ date, amount: 1 })),
 		);
 	const runs = inputs.runs.filter((r) => inCountingWindow(r.date, window));
-	let longest = 0;
-	const runLength: Series = [];
-	for (const run of [...runs].sort((a, b) => a.date.localeCompare(b.date))) {
-		if (run.distanceM / 1000 <= longest) continue;
-		longest = run.distanceM / 1000;
-		if (runLength.at(-1)?.date === run.date) runLength.pop();
-		runLength.push({ date: run.date, value: longest });
+	const swims = (inputs.swims ?? []).filter((s) =>
+		inCountingWindow(s.date, window),
+	);
+	const km = (items: readonly { date: string; distanceM: number }[]) =>
+		items.map((i) => ({ date: i.date, amount: i.distanceM / 1000 }));
+	const winter: Partial<Record<BadgeCategoryId, Series>> = {};
+	for (const category of BADGE_CATEGORIES) {
+		if (category.month === undefined) continue;
+		const days = new Set(
+			inputs.rides
+				.filter(
+					(r) => !r.virtual && Number(r.date.slice(5, 7)) === category.month,
+				)
+				.map((r) => r.date),
+		);
+		winter[category.id] = cumulative(
+			[...days].map((date) => ({ date, amount: 1 })),
+		);
 	}
 	return {
 		distance: cumulative(
@@ -181,9 +199,27 @@ function personalSeries(
 			window,
 			rules,
 		).map((day) => ({ date: day.date, value: day.training })),
-		run_length: runLength,
-		running: cumulative(
-			runs.map((r) => ({ date: r.date, amount: r.distanceM / 1000 })),
-		),
+		run_length: longestSoFar(runs),
+		running: cumulative(km(runs)),
+		ride_length: longestSoFar(inputs.rides),
+		virtual_rides: cumulative(km(inputs.rides.filter((r) => r.virtual))),
+		swim_length: longestSoFar(swims),
+		swimming: cumulative(km(swims)),
+		...winter,
 	};
+}
+
+/** The longest single activity so far, in km, after each day that raised it. */
+function longestSoFar(
+	items: readonly { date: string; distanceM: number }[],
+): Series {
+	let longest = 0;
+	const series: Series = [];
+	for (const item of [...items].sort((a, b) => a.date.localeCompare(b.date))) {
+		if (item.distanceM / 1000 <= longest) continue;
+		longest = item.distanceM / 1000;
+		if (series.at(-1)?.date === item.date) series.pop();
+		series.push({ date: item.date, value: longest });
+	}
+	return series;
 }
