@@ -7,7 +7,7 @@ keys (FR-028). Badge names are the one exception (FR-041, research R20).
 
 ```ts
 export const BADGE_NAMES: Record<BadgeId, string> = {
-  "distance-100": "…",   // one German name per badge of the catalog, 69 in all
+  "distance-100": "…",   // one German name per badge of the catalog, 101 in all (69 before part C)
 };
 ```
 

@@ -100,6 +100,7 @@ describe("the badge catalog's cron evaluation", () => {
 			}),
 		);
 		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_A });
+		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_B });
 		await env.DB.batch([
 			env.DB.prepare(
 				"DELETE FROM rider_badges WHERE badge_id LIKE 'ride-length-%'",

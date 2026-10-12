@@ -180,7 +180,7 @@ describe("ride length, virtual rides and winter in applyAndEvaluate", () => {
 		});
 		const ids = (await badges()).map(([id]) => id);
 		expect(ids).toContain("virtual-rides-100");
-		expect(ids.some((id) => id.startsWith("winter-december"))).toBe(false);
+		expect(ids.some((id) => id?.startsWith("winter-december"))).toBe(false);
 		expect(ids).toContain("ride-length-50");
 	});
 
