@@ -26,7 +26,8 @@ consent text on the start page.
   notifications and logs; who sees what; the legal bases; retention and every
   deletion trigger, backups and logs; the processors and recipients (Cloudflare,
   push services) and transfers; Strava as a separate controller, its privacy
-  policy and its use of usage data (§6.5); the rider's rights; and how changes
+  policy and its use of usage data (§6.5); the links to Strava, whose content
+  Strava alone is responsible for; the rider's rights; and how changes
   are handled. It carries the date it last changed (`PRIVACY_UPDATED` in
   `src/http/privacy.ts`).
 - **FR-005** The notice describes the app as built. A change to what is stored,

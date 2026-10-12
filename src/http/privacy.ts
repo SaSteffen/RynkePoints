@@ -64,6 +64,7 @@ const SECTIONS: [MessageId, MessageId[]][] = [
 			"privacy.recipients.usage",
 		],
 	],
+	["privacy.links.heading", ["privacy.links.body"]],
 	["privacy.rights.heading", ["privacy.rights.body"]],
 	["privacy.changes.heading", ["privacy.changes.body"]],
 ];

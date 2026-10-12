@@ -26,6 +26,7 @@ const HEADINGS = [
 	"privacy.legal.heading",
 	"privacy.retention.heading",
 	"privacy.recipients.heading",
+	"privacy.links.heading",
 	"privacy.rights.heading",
 	"privacy.changes.heading",
 ] as const;

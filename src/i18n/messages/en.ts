@@ -699,6 +699,9 @@ export const en: Catalog = {
 	"privacy.recipients.stravaPrivacy": "Strava Privacy Policy",
 	"privacy.recipients.usage":
 		"Strava may collect usage data about how RynkePoints uses the Strava API, and use it for any business purpose, such as improving the API and the Strava platform, providing support, or checking compliance with its terms.",
+	"privacy.links.heading": "Links to Strava",
+	"privacy.links.body":
+		"Links to Strava lead to pages run by Strava, which alone is responsible for their content. RynkePoints doesn't adopt that content as its own and has no influence on it. If we learn of unlawful content on a linked page, we remove the link.",
 	"privacy.rights.heading": "Your rights",
 	"privacy.rights.body":
 		"You have the right of access, rectification, erasure, restriction of processing, data portability and objection (Art. 15 to 21 GDPR). You can withdraw your consent at any time, most simply by disconnecting in the app; what happened before stays lawful. You can also complain to a data protection supervisory authority, in particular where you live. For anything, reach us at {email}.",

@@ -736,6 +736,9 @@ export const de = {
 	"privacy.recipients.stravaPrivacy": "Datenschutzerklärung von Strava",
 	"privacy.recipients.usage":
 		"Strava kann Nutzungsdaten darüber erheben, wie RynkePoints die Strava-Schnittstelle nutzt, und sie für beliebige geschäftliche Zwecke verwenden, etwa um die Schnittstelle und die Strava-Plattform zu verbessern, Support zu leisten oder die Einhaltung seiner Bedingungen zu prüfen.",
+	"privacy.links.heading": "Links zu Strava",
+	"privacy.links.body":
+		"Links zu Strava führen auf Seiten, die Strava betreibt und für deren Inhalt allein Strava verantwortlich ist. RynkePoints macht sich diese Inhalte nicht zu eigen und hat keinen Einfluss auf sie. Erfahren wir von rechtswidrigen Inhalten auf einer verlinkten Seite, entfernen wir den Link.",
 	"privacy.rights.heading": "Deine Rechte",
 	"privacy.rights.body":
 		"Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15 bis 21 DSGVO). Deine Einwilligung kannst du jederzeit widerrufen, am einfachsten, indem du dich in der App trennst; was bis dahin geschah, bleibt rechtmäßig. Du kannst dich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, insbesondere dort, wo du wohnst. Für alle Anliegen erreichst du uns unter {email}.",

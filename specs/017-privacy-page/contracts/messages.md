@@ -51,6 +51,8 @@ footer link on every page.
 | `privacy.recipients.strava` |
 | `privacy.recipients.stravaPrivacy` |
 | `privacy.recipients.usage` |
+| `privacy.links.heading` |
+| `privacy.links.body` |
 | `privacy.rights.heading` |
 | `privacy.rights.body` |
 | `privacy.changes.heading` |
