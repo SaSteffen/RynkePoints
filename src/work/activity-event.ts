@@ -1,5 +1,7 @@
+import { seasonStart } from "../config";
 import { type ActivityChange, evaluateChange } from "../rynke/apply";
 import {
+	startsInSeason,
 	toActivityRecord,
 	toRunRecord,
 	toSwimRecord,
@@ -77,8 +79,14 @@ export const activityEvent: Handler<ActivityEventMessage> = async (
 			? null
 			: toSwimRecord(result.value, rider.athleteId, ctx.now());
 	const kept = record ?? run ?? swim;
-	// The stored grant decides, even if Strava returns more (FR-007).
-	if (!kept || (kept.is_private === 1 && !rider.scopeReadAll)) {
+	// The stored grant decides, even if Strava returns more (FR-007). An
+	// activity from before the season start is never stored, also when an edit
+	// on Strava sends an event about it; one stored earlier goes.
+	if (
+		!kept ||
+		(kept.is_private === 1 && !rider.scopeReadAll) ||
+		!startsInSeason(kept.start_date, seasonStart(ctx.env))
+	) {
 		return remove();
 	}
 	return evaluate(

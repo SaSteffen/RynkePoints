@@ -1,6 +1,7 @@
 import { BADGE_CATALOG_VERSION } from "../badges/catalog";
 import { seasonStart } from "../config";
 import type { Ctx } from "../ctx";
+import { listPreSeasonActivities } from "../db/pre-season";
 import {
 	deleteFailedWorkFirstFailedBefore,
 	listFailedWorkFirstFailedSince,
@@ -12,6 +13,7 @@ import {
 	setFiguresVersion,
 } from "../db/riders";
 import { listRidersNeedingEvaluation } from "../db/rynke";
+import { evaluateChange } from "../rynke/apply";
 import { CURRENT_RULES, countingWindow } from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
 import { parseWorkMessage, sendAll, type WorkMessage } from "./messages";
@@ -88,6 +90,22 @@ export async function fanOutFiguresReread(ctx: Ctx): Promise<void> {
 }
 
 /**
+ * Deletes every stored ride, run and swim that starts before the season
+ * start, with the rider's Rynke: what was stored before nothing older could
+ * be, and the last season's after the season start moves on. Such a ride never
+ * counted, so the balance stays as it was.
+ */
+export async function purgePreSeasonActivities(ctx: Ctx): Promise<void> {
+	const before = new Date(seasonStart(ctx.env) * 1000)
+		.toISOString()
+		.replace(".000Z", "Z");
+	const byRider = await listPreSeasonActivities(ctx.env.DB, before);
+	for (const [athleteId, activityIds] of byRider) {
+		await evaluateChange(ctx, athleteId, { kind: "delete", activityIds });
+	}
+}
+
+/**
  * One `evaluate-rider` per connected rider whose stored Rynke are missing or
  * stale: after the first deploy, a rules-version bump, a lost message, or
  * attendance entered by hand that the balance doesn't reflect yet (feature 003
@@ -127,6 +145,7 @@ export async function handleScheduled(
 		expireReconnectRiders,
 		requeueFailedWork,
 		fanOutFiguresReread,
+		purgePreSeasonActivities,
 		fanOutEvaluations,
 	]) {
 		try {
