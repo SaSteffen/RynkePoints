@@ -233,6 +233,10 @@ Event delivery. MUST answer within 2 s and never call Strava (FR-011).
     documented) or the boolean `false` → `delete-rider {
     athleteId: owner_id, reason: "deauthorized", revoke: false }`.
   - Any other athlete update → `200`, dropped.
+- Any failure while answering (for example the queue refusing the message) →
+  `503`, so Strava retries. The log line names the error type only: the URL
+  carries the secret. Cloudflare's invocation logs, which record request URLs,
+  are off (`wrangler.jsonc`).
 
 Accepted event shape (all other fields ignored):
 
