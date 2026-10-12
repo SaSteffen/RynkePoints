@@ -76,7 +76,7 @@ R21 was added, and R1 revised, after constitution v2.0.0 and feature
   - `GET` on that path answers the validation handshake: check
     `hub.mode=subscribe` and `hub.verify_token`, then reply
     `{"hub.challenge": "<challenge>"}` as JSON.
-  - `POST` on that path checks a 1,000-byte body limit, JSON shape, and
+  - `POST` on that path checks a 4 KiB body limit (originally 1,000 bytes), JSON shape, and
     `subscription_id === STRAVA_SUBSCRIPTION_ID`. Valid events are enqueued and
     answered `200` with nothing else done. A wrong path secret gives 404, an
     invalid shape 400, and a valid but foreign subscription 200 with the event

@@ -110,8 +110,8 @@ describe("POST /strava/webhook/:secret (events)", () => {
 		expect(ctx.queue.sent).toEqual([]);
 	});
 
-	it("rejects a body over 1,000 bytes", async () => {
-		const res = await post(event({ padding: "x".repeat(1000) }));
+	it("rejects a body over 4 KiB", async () => {
+		const res = await post(event({ padding: "x".repeat(4096) }));
 		expect(res.status).toBe(400);
 		expectNotRiderFacing(res);
 		expect(ctx.queue.sent).toEqual([]);
@@ -183,6 +183,50 @@ describe("POST /strava/webhook/:secret (events)", () => {
 				activityId: 7_100_001,
 				aspect: "delete",
 				changed: [],
+			},
+		]);
+	});
+
+	it("queues an update whose long emoji title is JSON-escaped", async () => {
+		// 255 bike emoji, each sent as two \uXXXX escapes: over 3,000 bytes.
+		const escaped = "\\ud83d\\udeb4".repeat(255);
+		const body = JSON.stringify(
+			event({ aspect_type: "update", updates: { title: "TITLE" } }),
+		).replace('"TITLE"', `"${escaped}"`);
+		expect(body.length).toBeGreaterThan(3000);
+		const res = await post(body);
+		expect(res.status).toBe(200);
+		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
+			{
+				kind: "activity-event",
+				athleteId: ATHLETE_A,
+				activityId: 7_100_001,
+				aspect: "update",
+				changed: ["title"],
+			},
+		]);
+	});
+
+	it.each([
+		["the documented string", "false"],
+		["a boolean", false],
+	])("queues a deletion for a deauthorization as %s", async (_name, value) => {
+		const res = await post(
+			event({
+				object_type: "athlete",
+				object_id: ATHLETE_A,
+				aspect_type: "update",
+				updates: { authorized: value },
+			}),
+		);
+		expect(res.status).toBe(200);
+		expectNotRiderFacing(res);
+		expect(ctx.queue.sent.map((m) => m.body)).toEqual([
+			{
+				kind: "delete-rider",
+				athleteId: ATHLETE_A,
+				reason: "deauthorized",
+				revoke: false,
 			},
 		]);
 	});
