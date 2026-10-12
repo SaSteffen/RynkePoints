@@ -69,11 +69,39 @@ export interface CategoryProgress {
 /** A category's value after each day that changed it, in date order. */
 type Series = { date: string; value: number }[];
 
+/**
+ * The counting window for badges on `today` (`YYYY-MM-DD`, Berlin): it ends
+ * today at the latest, so nothing dated in the future earns a badge, and a
+ * day only counts as over (a rest day, a team day off) once a later activity
+ * dated today or earlier shows it.
+ */
+export function badgeWindow(
+	window: CountingWindow,
+	today: string,
+): CountingWindow {
+	return today < window.deadline ? { ...window, deadline: today } : window;
+}
+
+/** Only what is dated on or before the window's last day. */
+export function notAfter<T extends { date: string }>(
+	items: readonly T[],
+	window: CountingWindow,
+): T[] {
+	return items.filter((item) => item.date <= window.deadline);
+}
+
 export function evaluateBadges(
-	inputs: PersonalInputs,
+	all: PersonalInputs,
 	rules: RynkeRules,
 	window: CountingWindow,
 ): { earned: EarnedBadge[]; progress: CategoryProgress[] } {
+	const inputs: PersonalInputs = {
+		rides: notAfter(all.rides, window),
+		runs: notAfter(all.runs, window),
+		swims: notAfter(all.swims ?? [], window),
+		attendance: notAfter(all.attendance, window),
+		corrections: notAfter(all.corrections, window),
+	};
 	const series = personalSeries(inputs, rules, window);
 	const { earned, progress } = fromSeries(series, "personal");
 	const surprises = surpriseBadges(inputs, window);

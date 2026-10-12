@@ -1,10 +1,13 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { BADGES } from "../../src/badges/catalog";
+import { badgeWindow } from "../../src/badges/evaluate";
 import { BADGE_PICTURES } from "../../src/badges/pictures";
+import { readRiderBadges } from "../../src/db/badges";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
+import { countingWindow } from "../../src/rynke/rules";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
 import { riderPage, seedBalance, seedRides } from "../support/rider-view";
@@ -394,11 +397,19 @@ describe("the part C categories on the page", () => {
 		expect(card(badges, "winter_december")).toContain("badge-progress");
 	});
 
-	it("counts outdoor winter days from the stored results", async () => {
-		// 3 counting rides of 40 km on 4 to 6 December, as outdoor rides.
-		await seedRides(ATHLETE_A, 3, "2026-12-06");
+	it("counts outdoor winter days from the stored results, none after today", async () => {
+		// 3 outdoor counting rides on 4 to 6 February; 2 in December, after
+		// the test clock's today (6 October 2026).
+		await seedRides(ATHLETE_A, 3, "2026-02-06");
+		await seedRides(ATHLETE_A, 2, "2026-12-06", 8_300_001);
+		const read = await readRiderBadges(
+			env.DB,
+			ATHLETE_A,
+			badgeWindow(countingWindow(env), "2026-10-06"),
+		);
+		expect(read.winterDays).toEqual({ 2: 3 });
 		const { section: badges } = await section();
-		expect(card(badges, "winter_december")).toContain(missing("2\u00a0Tage"));
+		expect(card(badges, "winter_december")).toContain(missing("1\u00a0Tag"));
 	});
 
 	it("shows swims with one decimal, and decimals on the ribbon only where they are", async () => {

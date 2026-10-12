@@ -281,3 +281,23 @@ describe("evaluateTeamBadges for the team surprises", () => {
 		});
 	});
 });
+
+describe("evaluateTeamBadges and future dates", () => {
+	it("finds no day off before a later activity dated today at the latest", () => {
+		const window = { seasonStart: "2026-01-01", deadline: "2026-05-04" };
+		const result = evaluateTeamBadges(
+			{
+				...NONE,
+				active: [
+					{ athleteId: 1, date: "2026-05-03", hour: 10 },
+					{ athleteId: 2, date: "2026-05-05", hour: 10 },
+				],
+			},
+			CURRENT_RULES,
+			window,
+		);
+		expect(
+			result.earned.filter((b) => b.badgeId.startsWith("team-surprise-")),
+		).toEqual([]);
+	});
+});

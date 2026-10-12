@@ -18,12 +18,14 @@
 
 import { BADGE_CATALOG_VERSION } from "../badges/catalog";
 import {
+	badgeWindow,
 	type CountingRide,
 	type DatedRun,
 	type DatedSwim,
 	type EarnedBadge,
 	evaluateBadges,
 } from "../badges/evaluate";
+import { berlinDate } from "../config";
 import type { Ctx } from "../ctx";
 import {
 	activityOwnersStatement,
@@ -290,7 +292,7 @@ export async function applyAndEvaluate(
 	} = await readRiders(db, [athleteId], ownerReads);
 	const state = riders.get(athleteId) as RiderState;
 	const { activities, runs, swims } = state;
-	const before = evaluateState(state, rules, window);
+	const before = evaluateState(state, rules, window, now);
 
 	const writes: D1PreparedStatement[] = [];
 	switch (change.kind) {
@@ -388,7 +390,7 @@ export async function applyAndEvaluate(
 		}
 	}
 
-	const after = evaluateState(state, rules, window);
+	const after = evaluateState(state, rules, window, now);
 	writes.push(...riderWrites(db, athleteId, state, after, rules, now));
 	const risen = rose(before.balance, after.balance);
 	if (risen) {
@@ -542,9 +544,9 @@ export async function applyTeamEventChange(
 		const { riders } = await readRiders(db, affected, []);
 		for (const athleteId of affected) {
 			const state = riders.get(athleteId) as RiderState;
-			const before = evaluateState(state, rules, window);
+			const before = evaluateState(state, rules, window, now);
 			state.attendance = edit(state.attendance);
-			const after = evaluateState(state, rules, window);
+			const after = evaluateState(state, rules, window, now);
 			writes.push(...riderWrites(db, athleteId, state, after, rules, now));
 			if (rose(before.balance, after.balance)) {
 				writes.push(
@@ -656,9 +658,9 @@ export async function applyCorrectionChange(
 		throw new CorrectionRefused("rider_not_connected");
 	}
 	const state = riders.get(athleteId) as RiderState;
-	const before = evaluateState(state, rules, window);
+	const before = evaluateState(state, rules, window, now);
 	edit(state);
-	const after = evaluateState(state, rules, window);
+	const after = evaluateState(state, rules, window, now);
 	const writes = [
 		statement,
 		...riderWrites(db, athleteId, state, after, rules, now),
@@ -855,11 +857,15 @@ function teamFiguresChanged(before: Figures, after: Figures): boolean {
 	return JSON.stringify(before) !== JSON.stringify(after);
 }
 
-/** A full evaluation of the rider's state. */
+/**
+ * A full evaluation of the rider's state at `now`: the Rynke over the whole
+ * counting window, the badges only up to today in Berlin (`badgeWindow`).
+ */
 function evaluateState(
 	state: RiderState,
 	rules: RynkeRules,
 	window: CountingWindow,
+	now: number,
 ): {
 	evaluation: Evaluation;
 	balance: Balance;
@@ -890,7 +896,7 @@ function evaluateState(
 				corrections: state.corrections,
 			},
 			rules,
-			window,
+			badgeWindow(window, berlinDate(now)),
 		).earned,
 		figures,
 	};

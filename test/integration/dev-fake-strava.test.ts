@@ -585,21 +585,27 @@ describe("sample riders in every state (US2)", () => {
 				"ride-length-50",
 				"ride-length-100",
 				"virtual-rides-50",
-				"winter-november-1",
-				"winter-december-1",
 				"winter-january-1",
 				"winter-february-1",
 				"winter-february-5",
 				"swim-length-500",
 				"swim-length-1000",
 				"surprise-new-year",
-				"surprise-christmas-eve",
 				"surprise-night-owl",
 				"surprise-early-bird",
 				"surprise-rest-day",
 			]),
 		);
 		expect(ids).not.toContain("surprise-christmas");
+		// Her November, December and Christmas Eve rides lie after the test
+		// clock's today (6 October 2026): nothing for them yet.
+		for (const id of [
+			"winter-november-1",
+			"winter-december-1",
+			"surprise-christmas-eve",
+		]) {
+			expect(ids).not.toContain(id);
+		}
 		expect(ids).not.toContain("swim-length-1900");
 		expect(
 			await count(
@@ -609,9 +615,9 @@ describe("sample riders in every state (US2)", () => {
 		).toBe(2);
 		const page = await mePage(990016);
 		expect(page).toContain('data-category="winter_february"');
-		// November and December: one day each, still to come in the tests'
-		// season; January and February are over, so their cards show no bar.
-		expect(page).toContain("Noch 4\u00a0Tage");
+		// November and December count nothing before their days; January and
+		// February are over, so their cards show no bar.
+		expect(page).toContain("Noch 1\u00a0Tag");
 	});
 
 	it("shows every sample rider the team's badges and progress (013 US4)", async () => {

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { evaluateBadges, type PersonalInputs } from "../../src/badges/evaluate";
+import {
+	badgeWindow,
+	evaluateBadges,
+	type PersonalInputs,
+} from "../../src/badges/evaluate";
 import { CURRENT_RULES } from "../../src/rynke/rules";
 
 // A rider's personal badges and progress from what they have stored (feature
@@ -499,5 +503,58 @@ describe("evaluateBadges for the surprise badges", () => {
 			next: null,
 			missing: null,
 		});
+	});
+});
+
+// No badge for anything dated after the window's last day; callers end it
+// today in Berlin (badgeWindow).
+describe("badgeWindow and future dates", () => {
+	it("ends the window today, or at the deadline once it has passed", () => {
+		const season = { seasonStart: "2026-09-01", deadline: "2027-07-31" };
+		expect(badgeWindow(season, "2026-10-12")).toEqual({
+			seasonStart: "2026-09-01",
+			deadline: "2026-10-12",
+		});
+		expect(badgeWindow(season, "2027-08-15")).toEqual(season);
+	});
+
+	it("counts no ride, run or swim after the window's last day", () => {
+		const window = badgeWindow(
+			{ seasonStart: "2026-09-01", deadline: "2027-07-31" },
+			"2026-10-12",
+		);
+		const result = evaluateBadges(
+			{
+				...NONE,
+				rides: [{ ...ride("2026-10-13", 120), startTime: "22:00" }],
+				runs: [{ date: "2026-10-13", distanceM: 12000 }],
+				swims: [{ date: "2026-12-24", distanceM: 2000 }],
+			},
+			CURRENT_RULES,
+			window,
+		);
+		expect(result.earned).toEqual([]);
+	});
+
+	it("needs the later activity, dated today at the latest, for a rest day", () => {
+		const window = badgeWindow(
+			{ seasonStart: "2026-09-01", deadline: "2027-07-31" },
+			"2026-10-09",
+		);
+		const runs = [1, 2, 3, 4, 5, 6, 7].map((d) => ({
+			date: `2026-10-0${d}`,
+			distanceM: 5000,
+		}));
+		const rest = (later: string) =>
+			evaluateBadges(
+				{ ...NONE, runs: [...runs, { date: later, distanceM: 5000 }] },
+				CURRENT_RULES,
+				window,
+			).earned.filter((b) => b.badgeId === "surprise-rest-day");
+		// 8 October off; a run dated 10 October is in the future.
+		expect(rest("2026-10-10")).toEqual([]);
+		expect(rest("2026-10-09")).toEqual([
+			{ badgeId: "surprise-rest-day", earnedOn: "2026-10-08" },
+		]);
 	});
 });

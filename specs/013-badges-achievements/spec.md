@@ -141,6 +141,16 @@ next one."
   had none, and a later activity shows the day is over. The badge is dated with
   the rest day.
 
+### Session 2026-10-12 (clock and pictures)
+
+- Q (raised by the project owner): Can a badge be earned for a date in the
+  future? → A: No. Nothing dated after today's date in Berlin counts towards
+  any badge or bar; a rest day or a team day off is earned only once its day
+  is over in Berlin (FR-030a).
+- Q (raised by the project owner): Is the personal rest day extra fun too? →
+  A: No, it is calm: the figure on a light sofa with the striped blanket and
+  cocoa. Sofas are light sage green, since black clashed with the ribbon.
+
 ### Session 2026-10-12 (team surprise badges)
 
 - Q (raised by the project owner): Are there surprise badges for the team? →
@@ -625,7 +635,8 @@ their badge names examples.
   outline only (FR-002, SC-003). The card shows the newest earned surprise
   badge, with its name on the ribbon.
 - **FR-015c**: Surprise badges MUST be drawn extra fun: each picture a gag of
-  its own (art scenes in `art/badges/badges.json`).
+  its own (art scenes in `art/badges/badges.json`), except the personal rest
+  day, which is calm.
 
 - **FR-012**: Each category except the two surprise categories (FR-015,
   FR-016) MUST be a ladder
@@ -684,6 +695,11 @@ their badge names examples.
   MUST be revealed once to that rider. *(Amended by issue #125: a newly earned
   team badge MUST notify each listed rider it is new to, once per season, through
   feature 010's notification; see research R17.)*
+
+- **FR-030a**: No badge and no progress bar MUST count anything dated after
+  today's date in Berlin. A rest day (FR-015a) or team day off (FR-016) MUST
+  be earned only once that day is over in Berlin, shown by a later activity
+  dated today or earlier.
 
 **Look and language**
 

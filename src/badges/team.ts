@@ -17,6 +17,7 @@ import {
 	type DatedRun,
 	type EarnedBadge,
 	fromSeries,
+	notAfter,
 	progressOf,
 } from "./evaluate";
 
@@ -61,10 +62,24 @@ export interface TeamBadgeSums {
 type Series = { date: string; value: number }[];
 
 export function evaluateTeamBadges(
-	sums: TeamBadgeSums,
+	all: TeamBadgeSums,
 	rules: RynkeRules,
 	window: CountingWindow,
 ): { earned: EarnedBadge[]; progress: CategoryProgress[] } {
+	// Nothing after the window's last day, which callers end today at the
+	// latest (`badgeWindow`).
+	const sums: TeamBadgeSums = {
+		...all,
+		riders: all.riders.map((rider) => ({
+			...rider,
+			rides: notAfter(rider.rides, window),
+			attendance: notAfter(rider.attendance, window),
+			corrections: notAfter(rider.corrections, window),
+		})),
+		runs: notAfter(all.runs, window),
+		events: notAfter(all.events, window),
+		active: notAfter(all.active ?? [], window),
+	};
 	const rides = sums.riders.flatMap((r) => r.rides);
 	const events = sums.events
 		.filter((e) => inCountingWindow(e.date, window))

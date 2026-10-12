@@ -186,9 +186,10 @@ export async function readRiderBadges(
 						AS virtual_m
 				FROM ride_results r JOIN activities a
 					ON a.strava_activity_id = r.strava_activity_id
-				WHERE r.athlete_id = ?1 AND r.counts = 1`,
+				WHERE r.athlete_id = ?1 AND r.counts = 1
+					AND substr(a.start_date_local, 1, 10) <= ?2`,
 			)
-			.bind(athleteId),
+			.bind(athleteId, window.deadline),
 		// By local start date, as the evaluation counts them.
 		db
 			.prepare(
@@ -207,9 +208,10 @@ export async function readRiderBadges(
 				FROM ride_results r JOIN activities a
 					ON a.strava_activity_id = r.strava_activity_id
 				WHERE r.athlete_id = ?1 AND r.counts = 1 AND r.is_virtual = 0
+					AND substr(a.start_date_local, 1, 10) <= ?2
 				GROUP BY month`,
 			)
-			.bind(athleteId),
+			.bind(athleteId, window.deadline),
 		db
 			.prepare(
 				`SELECT coalesce(max(distance_m), 0) AS longest_m,

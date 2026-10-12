@@ -17,7 +17,7 @@ import {
 	ONE_DECIMAL,
 	surpriseName,
 } from "../../badges/catalog";
-import type { EarnedBadge } from "../../badges/evaluate";
+import { badgeWindow, type EarnedBadge } from "../../badges/evaluate";
 import { BADGE_PICTURES } from "../../badges/pictures";
 import { evaluateTeamBadges } from "../../badges/team";
 import {
@@ -290,9 +290,11 @@ async function badgesOf(
 	rider: Rider,
 	attendance: RiderViewRead["attendance"],
 	trainingRynke: number,
-	window: CountingWindow,
+	seasonWindow: CountingWindow,
 ): Promise<BadgeSection | null> {
 	const db = ctx.env.DB;
+	// Nothing dated after today counts towards a badge or a bar.
+	const window = badgeWindow(seasonWindow, berlinDate(ctx.now()));
 	const [badges, sums] = await Promise.all([
 		readRiderBadges(db, rider.athleteId, window),
 		readTeamBadgeSums(db),
