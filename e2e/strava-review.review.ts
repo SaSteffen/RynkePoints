@@ -32,6 +32,7 @@ const NOT_SHOWN = new Set([
 /** Every route in src/http/router.ts's `page()`, by the path it answers. */
 const COVERED = new Set([
 	"/",
+	"/privacy",
 	"/me",
 	"/me/rides",
 	"/me/badges",
@@ -137,6 +138,13 @@ for (const lang of LANGS) {
 				lang,
 				"01-landing",
 				"Landing page: what we read and who sees it, the rider's consent, and the official Connect with Strava button",
+			);
+			await visit(page, "/privacy");
+			await shoot(
+				page,
+				lang,
+				"01b-privacy",
+				"Privacy notice, linked from every page's footer: what we store, who sees it, how long we keep it, who processes it, and the contact address",
 			);
 			await page.goto("/notice/team-full");
 			await shoot(

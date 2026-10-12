@@ -143,6 +143,7 @@ function get(path: string, athleteId?: number): RiderPage["fetch"] {
 
 export const RIDER_PAGES: RiderPage[] = [
 	{ name: "/ signed out", next: "/", status: 200, fetch: get("/") },
+	{ name: "/privacy", next: "/privacy", status: 200, fetch: get("/privacy") },
 	{
 		name: "/me connected",
 		next: null,

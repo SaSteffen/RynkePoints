@@ -66,7 +66,8 @@ production numbers are left out. The run fails when a page route in
    (`e2e/strava-review.review.ts`), German and English, at desktop size, a
    long page screenful by screenful; the PDF has the English ones, which is
    all the form asks for:
-   - `/` (landing, "Connect with Strava") and `/notice/team-full`
+   - `/` (landing, "Connect with Strava"), `/privacy` (privacy notice) and
+     `/notice/team-full`
    - `/me`, `/me/rides`, `/me/settings`, `/me/disconnect`
    - `/team` (team leaderboard)
    - `/organiser` and one event, `/organiser/riders` and one rider
@@ -77,8 +78,14 @@ production numbers are left out. The run fails when a page route in
    there. A page added after the review that shows Strava data may need another
    review.
 7. **Submit the [Developer Program form](https://share.hsforms.com/1VXSwPUYqSH6IxK0y51FjHwcnkd8)**
-   with the answers from `application.md` and `screenshots.pdf`. Keep it short
-   and easy for the reviewer: the details stay ready in case Strava asks.
+   with the answers from `application.md` and `screenshots.pdf`. The
+   Application Description answers what Strava asks applicants, one section
+   each: the endpoints and webhook used and why, what is stored and what never
+   is, who sees what, how long data is kept and when it is deleted, where it
+   is processed, and how it is secured. Its scopes and requests come from the
+   code, and the run fails when a Strava request has no purpose written down
+   (`PURPOSES` in the script). The production numbers stay folded away in
+   `application.md`, in case Strava asks.
 8. **Record the outcome** (date, granted capacity, new rate limits, or the refusal
    and its reason) in feature 004's spec (F-5) and in the constitution's Technology
    Constraints, and close #31.

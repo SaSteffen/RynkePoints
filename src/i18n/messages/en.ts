@@ -631,4 +631,81 @@ export const en: Catalog = {
 	"notification.badges": "{n} new badges 🏅",
 	"notification.teamBadge": "New team badge: {name} 🏅",
 	"notification.teamBadges": "{n} new team badges 🏅",
+
+	"privacy.link": "Privacy and contact",
+	"privacy.title": "Privacy",
+	"privacy.updated": "Last updated: {date}",
+	"privacy.intro":
+		"This explains which data RynkePoints processes, what for, who sees it, how long it is kept and what your rights are.",
+	"privacy.controller.heading": "Who is responsible, and how to reach us",
+	"privacy.controller.body":
+		"Responsible for the processing of data in RynkePoints is:",
+	"privacy.contact.body":
+		"For questions, help, a copy of your data or its deletion, write to {email}.",
+	"privacy.purpose.heading": "What RynkePoints processes data for",
+	"privacy.purpose.body":
+		"RynkePoints is the training app of Team Rynkeby Hamburg. It reads the key figures of your activities from Strava, turns them into Rynke (training points) and badges, and shows them to you, the team and the organisers. There are no ads, no payments, no tracking and no analytics tools. Data is never sold or passed on, and never used for AI or machine learning.",
+	"privacy.strava.heading": "Data from Strava",
+	"privacy.strava.rider":
+		"About you: your Strava athlete ID, your first name, the permissions you granted, and the access keys (tokens), stored encrypted.",
+	"privacy.strava.rides":
+		"For each ride: activity ID, title, sport type, start time and time zone, distance, moving and elapsed time, elevation gain, and whether it was entered manually, ridden on an indoor trainer, is private or was flagged by Strava.",
+	"privacy.strava.runsSwims":
+		"For each run and each swim only the activity ID, start time, distance and whether it is private, for the running and swimming badges.",
+	"privacy.strava.private":
+		"Only activities from the season start on are stored, and private (“Only You”) ones only if you granted the permission for them.",
+	"privacy.strava.never":
+		"Never read or stored: GPS tracks, maps, routes, segments, photos, descriptions, heart rate, power, cadence, calories or other health data, your followers, and other athletes' data.",
+	"privacy.strava.how":
+		"Strava reports new, changed and deleted activities by itself; RynkePoints doesn't keep asking. Once a day RynkePoints checks that you are still a member of the team's Strava club.",
+	"privacy.team.heading": "Data from the team, and what is worked out from it",
+	"privacy.team.body":
+		"The organisers record which team events you attended, and can correct your Rynke with a reason and a date. Who changed what, and when, is stored too.",
+	"privacy.team.derived":
+		"From all this RynkePoints works out your Rynke, your badges and which rides count, and why.",
+	"privacy.technical.heading": "Data needed to run the app",
+	"privacy.technical.cookies":
+		"Cookies: “rp_session” keeps you signed in, until 180 days after your last visit; “rp_oauth_state” protects the sign-in with Strava for 10 minutes; “rp_lang” remembers a picked language for a year. There are no other cookies and no trackers.",
+	"privacy.technical.push":
+		"Notifications are optional and per device. Only the address your device's or browser's push service gives it is stored. The notification itself is empty: what it shows, your device fetches straight from RynkePoints. The address is deleted when you turn notifications off, sign out on that device or leave.",
+	"privacy.technical.logs":
+		"Server logs hold only identifiers such as athlete and activity IDs and the kind of an error, never access keys or activity data. RynkePoints doesn't store IP addresses.",
+	"privacy.visibility.heading": "Who sees what",
+	"privacy.visibility.you":
+		"You see your own activities with their titles, your Rynke and your badges. Nobody else sees the titles.",
+	"privacy.visibility.team":
+		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation, and on which days and at what hour you are active, count towards the team sums and team badges, without your name.",
+	"privacy.visibility.organisers":
+		"The organisers see your first name, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, but no individual activities.",
+	"privacy.visibility.public":
+		"None of it is public: every page with this data needs you to sign in with Strava.",
+	"privacy.legal.heading": "Legal basis",
+	"privacy.legal.body":
+		"Reading your Strava data and sharing your Rynke as described rest on your consent, given before you connect (Art. 6(1)(a) GDPR). Team events, corrections, the necessary cookies and the logs rest on the legitimate interest in organising the team's training and running the app securely (Art. 6(1)(f) GDPR; for cookies § 25(2) TDDDG).",
+	"privacy.retention.heading": "How long data is kept",
+	"privacy.retention.body":
+		"Your data is kept while you are connected, and follows Strava: if you delete an activity on Strava, or make it private without having granted the permission for that, it disappears here too as soon as Strava reports it, usually within minutes. Activities from before the season start are deleted.",
+	"privacy.retention.deletion":
+		"All data about you is deleted at once, and access on Strava is revoked where it still works, when you disconnect in the app, remove RynkePoints in your Strava settings, leave the team's Strava club (within 24 hours), or don't renew a broken connection within 7 days.",
+	"privacy.retention.backups":
+		"After that the data stays in the database's automatic backups for at most 7 days, then it is gone. Cloudflare deletes server logs after at most 7 days.",
+	"privacy.recipients.heading": "Who processes the data",
+	"privacy.recipients.cloudflare":
+		"RynkePoints runs on Cloudflare, Inc. as a processor: web server, work queue and database. To deliver the pages and protect them from attacks, Cloudflare necessarily processes your IP address. Cloudflare has data centres worldwide, including in the USA; for transfers there, Cloudflare is certified under the EU-US Data Privacy Framework, and the EU Standard Contractual Clauses apply.",
+	"privacy.recipients.push":
+		"The push services of the device and browser makers (such as Google, Apple, Mozilla, Microsoft) only receive empty notifications to your device's address.",
+	"privacy.recipients.strava":
+		"Strava itself is responsible for the data in your Strava account. The {stravaPrivacy} applies, and takes precedence where it conflicts with this notice.",
+	"privacy.recipients.stravaPrivacy": "Strava Privacy Policy",
+	"privacy.recipients.usage":
+		"Strava may collect usage data about how RynkePoints uses the Strava API, and use it for any business purpose, such as improving the API and the Strava platform, providing support, or checking compliance with its terms.",
+	"privacy.links.heading": "Links to Strava",
+	"privacy.links.body":
+		"Links to Strava lead to pages run by Strava, which alone is responsible for their content. RynkePoints doesn't adopt that content as its own and has no influence on it. If we learn of unlawful content on a linked page, we remove the link.",
+	"privacy.rights.heading": "Your rights",
+	"privacy.rights.body":
+		"You have the right of access, rectification, erasure, restriction of processing, data portability and objection (Art. 15 to 21 GDPR). You can withdraw your consent at any time, most simply by disconnecting in the app; what happened before stays lawful. You can also complain to a data protection supervisory authority, in particular where you live. For anything, reach us at {email}.",
+	"privacy.changes.heading": "Changes",
+	"privacy.changes.body":
+		"If what RynkePoints reads, or who sees it, changes, we ask for your consent again before the app shows you anything.",
 };

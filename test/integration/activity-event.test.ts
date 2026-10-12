@@ -165,6 +165,32 @@ describe("activity-event: create", () => {
 		await deliver(msg(A, "create"));
 		expect(await rows()).toMatchObject([{ is_private: 1 }]);
 	});
+
+	it("stores nothing that starts before the season start", async () => {
+		// The test season starts 2026-01-01, 00:00 Europe/Berlin.
+		await connectedRider();
+		addRide(A, { start_date: "2025-12-31T22:59:59Z" });
+		addRide(B, { start_date: "2025-12-31T23:00:00Z" });
+		addRide(C, {
+			sport_type: "Run",
+			type: "Run",
+			start_date: "2025-06-01T08:00:00Z",
+		});
+		for (const id of [A, B, C]) await deliver(msg(id, "create"));
+		expect(await storedIds()).toEqual([B]);
+		const { results } = await env.DB.prepare("SELECT * FROM runs").all();
+		expect(results).toEqual([]);
+	});
+
+	it("removes a stored activity once an edit dates it before the season", async () => {
+		await connectedRider();
+		addRide(A);
+		await deliver(msg(A, "create"));
+		expect(await storedIds()).toEqual([A]);
+		fakeActivity(A).start_date = "2025-11-30T08:00:00Z";
+		await deliver(msg(A, "update", ["start_date"]));
+		expect(await storedIds()).toEqual([]);
+	});
 });
 
 describe("activity-event: update", () => {

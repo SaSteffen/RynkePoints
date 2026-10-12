@@ -23,6 +23,7 @@ import {
 	handleUpdateEvent,
 } from "./organiser/events";
 import { handleOrganiserOverview } from "./organiser/overview";
+import { handlePrivacy } from "./privacy";
 import {
 	handleNotificationText,
 	handleOffline,
@@ -149,6 +150,8 @@ async function page(
 	switch (path) {
 		case "/":
 			return handleLanding(request, ctx, i18n);
+		case "/privacy":
+			return handlePrivacy(ctx, i18n);
 		case "/connect":
 			return handleReconnect(request, ctx);
 		case "/auth/callback":

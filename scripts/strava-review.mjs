@@ -13,8 +13,9 @@
 //   (connected riders, consents, Strava usage and limits), the checks that
 //   stay manual, and the screenshots.
 //
-// --remote only reads production's D1 (SELECT, through Wrangler's login); it
-// writes nothing. Like the other scripts here it is a manual maintainer task.
+// --remote only reads production's D1 (SELECT, and `d1 info` for the region
+// it is stored in, through Wrangler's login); it writes nothing. Like the
+// other scripts here it is a manual maintainer task.
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
@@ -63,6 +64,26 @@ const brandFiles = [
 const missingBrand = brandFiles.filter(
 	(f) => !existsSync(join(ROOT, "public", f)),
 );
+const seasonStart = read("wrangler.jsonc").match(
+	/"SEASON_START_DATE": "([^"]+)"/,
+)?.[1];
+const contact = read("wrangler.jsonc").match(/"CONTACT_EMAIL": "([^"]+)"/)?.[1];
+
+// Why each Strava request is made, for the description. A request the code
+// makes that has no entry here fails the run, so the text can't fall behind.
+const PURPOSES = {
+	"POST /oauth/token":
+		"exchanges the code after the rider connects, and refreshes the access token when it has expired",
+	"POST /oauth/revoke":
+		"revokes the rider's tokens when they disconnect in the app, leave the club, or don't renew a broken connection within 7 days",
+	"GET /athlete/clubs":
+		"checks that the rider is a member of the team's Strava club: once when connecting, then once a day",
+	"GET /athlete/activities":
+		"imports the rider's activities since the season start, once after connecting (and once more if we start reading a new figure), 200 per page",
+	"GET /activities/{id}":
+		"reads one activity after a webhook event says it was created or changed",
+};
+const unexplained = requests.filter((r) => !(r in PURPOSES));
 
 // From production, read only.
 function d1(sql) {
@@ -86,7 +107,19 @@ function d1(sql) {
 
 let production = "Not read: run `pnpm strava:review --remote` for the numbers.";
 let authenticated = "(run with --remote)";
+// Where the database lives; Cloudflare picks the region when it is created.
+let region =
+	"[region: run with --remote, or see `wrangler d1 info rynke-points`]";
 if (remote) {
+	const info = JSON.parse(
+		execFileSync(
+			"pnpm",
+			["exec", "wrangler", "d1", "info", "rynke-points", "--json"],
+			{ cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] },
+		),
+	);
+	const reported = info.running_in_region ?? info.region;
+	if (reported) region = `Cloudflare's ${reported} region`;
 	const riders = d1(`SELECT
 		(SELECT COUNT(*) FROM riders WHERE status = 'connected') AS connected,
 		(SELECT COUNT(*) FROM riders WHERE status = 'needs_reconnect') AS reconnect,
@@ -104,11 +137,65 @@ if (remote) {
 - Limits Strava last sent: read ${limit.limit_read_15m} / ${limit.limit_read_daily}, overall ${limit.limit_all_15m} / ${limit.limit_all_daily} (15 min / day)`;
 }
 
-// The form's description, short: the reviewer reads many of these. The
-// technical detail stays in application.md, folded away, in case Strava asks.
-const description = `RynkePoints turns the rides of one charity cycling team (Team Rynkeby Hamburg, under 100 riders, all members of the team's Strava club) into training points. Each rider sees their own rides; the team sees everyone's points without names; the organisers see first names.
+// The form's description. Strava asks applicants which endpoints and webhooks
+// they use, how long they keep data, how they handle privacy and where the
+// data is processed, so it answers each of those in its own section, with the
+// scopes and requests taken from the code. The production numbers stay in
+// application.md, folded away, in case Strava asks.
+const requestLines = requests
+	.map((r) => `- ${r}: ${PURPOSES[r] ?? "(no purpose written down)"}.`)
+	.join("\n");
+const description = `RynkePoints turns the training of one charity cycling team, Team Rynkeby Hamburg, into points ("Rynke") and badges. It has fewer than 100 riders, all members of the team's Strava club. It is not commercial: no ads, no payments, no analytics or tracking, and nothing is sold or passed on.
 
-Riders agree before connecting. We read only each ride's key figures (distance, time, elevation), never GPS tracks, maps, photos or health data. New rides arrive through the webhook; we don't poll. Leaving the app, deauthorising it on Strava or leaving the club deletes all of the rider's data.`;
+Privacy policy: https://trhh-rynke-coins.link/privacy, linked from every page's footer, in German and English. Support and data requests: ${contact}.
+
+WHO CAN CONNECT AND WHAT THEY AGREE TO
+- Before Strava's authorisation page, the rider reads and agrees to what is read and who sees what. We store which version of that text they agreed to and when. If the text changes, they must agree again before the app shows them anything.
+- Only members of the team's Strava club can connect. For anyone else, or anyone who doesn't agree, nothing is stored.
+- Scopes requested: ${scopes}. Only read and activity:read are required. Without activity:read_all, private ("Only You") activities are never stored. activity:write is optional and not used: nothing is written to Strava. It is meant for a later, opt-in Rynke line in the rider's own ride descriptions, which would never change the rider's own text.
+
+STRAVA ENDPOINTS AND WEBHOOK
+- One app-wide webhook subscription. New, changed and deleted activities, and deauthorisations, arrive through it. We never poll for new activities.
+- The webhook answers within the 2-second limit: it checks the event and puts it in a queue, and the work happens afterwards. It never calls Strava itself.
+- A deauthorisation event deletes all of the rider's data.
+${requestLines}
+- Every response's rate-limit headers are stored, and the work queue waits when the 15-minute or daily budget runs low, so we stay inside the limits.
+
+WHAT WE STORE
+- Per rider: Strava athlete ID, first name (for the greeting and for the organisers), the granted scopes, the access and refresh tokens (encrypted), connection status, and the consent version and time.
+- Per ride, imported from the season start on${seasonStart ? ` (${seasonStart})` : ""}: activity ID, name, sport type, start time and time zone, distance, moving and elapsed time, elevation gain, and the manual, trainer, private and flagged markers.
+- Per run and per swim: only activity ID, start time, distance and the private marker, for the running and swimming badges.
+- Derived from these: the rider's Rynke, badges, and which rides counted and why.
+- Entered by the team, not from Strava: team events a rider attended, and point corrections by organisers.
+- For each device where a rider turns on notifications: only the address the device's push service gives it. The notification itself carries no content, so no data passes through the push service.
+- We never read or store GPS tracks, maps, routes, segments, photos, descriptions, heart rate, power, cadence, calories or other health data, followers, or any other athlete's data. No IP addresses are stored.
+
+WHO SEES WHAT
+- Each rider sees their own activities, including the names, and their own Rynke and badges. Activity names are shown to nobody else.
+- The rest of the team sees each rider's Rynke and position without their name, and team totals that include them anonymously.
+- The team's organisers see each rider's first name, Rynke and where they come from, what is still missing for the training goal, their team events and corrections. They see no activity names or individual activities' details.
+- Nothing is public. Every page with rider data needs the rider to be signed in with Strava.
+- No Strava data is shared with third parties or used for AI or machine learning.
+
+HOW LONG WE KEEP IT
+- The import reads only from the season start on. Stored data is kept only while the rider stays connected, and is kept up to date through the webhook: an activity deleted on Strava, or made private without activity:read_all, is removed from our database as soon as its event is processed (normally within minutes).
+- All of a rider's data is deleted at once, and their tokens are revoked where they still work, when they:
+  - disconnect in the app (one button);
+  - remove the app in their Strava settings (webhook);
+  - leave the team's Strava club (daily check: deleted within 24 hours);
+  - have a broken connection they don't renew within 7 days.
+- After deletion, the data remains only in the database provider's automatic point-in-time backups for at most 7 days. It is not copied anywhere else.
+- Server logs contain identifiers only, never tokens or activity data, and Cloudflare keeps them for at most 7 days.
+
+WHERE IT IS PROCESSED
+- Everything runs on Cloudflare's serverless platform: Workers for the app, Queues for the work after webhook events, and D1 for the database.
+- The database is stored in ${region}. Code runs in Cloudflare's data centre nearest the request.
+- No other service receives Strava data.
+
+SECURITY
+- Strava tokens are encrypted at rest with AES-256-GCM. The keys and the client secret are Cloudflare secrets and never appear in code or logs.
+- Sessions are signed cookies over HTTPS only. The webhook URL contains a secret, and every event's subscription ID is checked.
+- The code is open source, and every change must pass automated tests, including that no token reaches the logs, that leaving deletes everything, and that activity names and organiser pages reach only those allowed to see them.`;
 
 // The pictures, per language and page, in the order they were taken; a long
 // page has several.
@@ -246,6 +333,9 @@ ${description}
       qualifies for review.
 - [ ] The API Agreement, API Policy and brand guidelines: any changes since
       the date in the runbook.
+- [ ] Read the Application Description against the app: the database
+      region is filled in (it needs \`--remote\`), and the stored fields,
+      who sees what and the deletion rules are still true.
 - [ ] Look through \`screenshots.pdf\`, then submit and record the outcome
       (runbook step 8).
 
@@ -284,3 +374,9 @@ console.log(
 	`\nwrote ${join("strava-review", today)}/application.md and screenshots.pdf`,
 );
 if (missingBrand.length > 0) process.exitCode = 1;
+if (unexplained.length > 0) {
+	console.error(
+		`No purpose written down in PURPOSES for: ${unexplained.join(", ")}`,
+	);
+	process.exitCode = 1;
+}

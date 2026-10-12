@@ -120,7 +120,7 @@ ${sprite}
 <main>
 ${body}
 </main>
-<footer><img class="pbs pbs-light" src="${i18n.t("brand.poweredByStrava.src")}" alt="${i18n.t("brand.poweredByStrava.alt")}"><img class="pbs pbs-dark" src="${i18n.t("brand.poweredByStrava.srcDark")}" alt="${i18n.t("brand.poweredByStrava.alt")}"></footer>
+<footer><img class="pbs pbs-light" src="${i18n.t("brand.poweredByStrava.src")}" alt="${i18n.t("brand.poweredByStrava.alt")}"><img class="pbs pbs-dark" src="${i18n.t("brand.poweredByStrava.srcDark")}" alt="${i18n.t("brand.poweredByStrava.alt")}"><p><a href="/privacy">${i18n.t("privacy.link")}</a></p></footer>
 ${shell?.nav ?? null}</body>
 </html>
 `;

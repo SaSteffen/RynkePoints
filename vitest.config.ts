@@ -34,6 +34,10 @@ export default defineConfig(async () => {
 						SEASON_START_DATE: "2026-01-01",
 						QUALIFICATION_DEADLINE: "2027-06-30",
 						READY_POLL_SECONDS: "10",
+						// Synthetic, so tests don't follow the real controller's details.
+						PRIVACY_CONTROLLER:
+							"Synthetic Controller\nTeststraße 1\n20095 Hamburg",
+						CONTACT_EMAIL: "privacy@example.org",
 					},
 				},
 			}),

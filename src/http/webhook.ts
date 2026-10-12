@@ -1,7 +1,12 @@
 import { subscriptionId, verifyToken } from "../config";
 import { secretEquals } from "../crypto/secret";
 import type { Ctx } from "../ctx";
-import { ACTIVITY_ASPECTS, isId, isOneOf } from "../work/messages";
+import {
+	ACTIVITY_ASPECTS,
+	isId,
+	isOneOf,
+	type WorkMessage,
+} from "../work/messages";
 
 // Strava's push subscription (research R3, contracts/http-routes.md). Strava
 // signs nothing, so the unguessable path secret and the subscription ID are the
@@ -38,19 +43,28 @@ export async function handleWebhook(
 	secret: string,
 	ctx: Ctx,
 ): Promise<Response> {
-	if (!(await secretEquals(secret, verifyToken(ctx.env)))) {
-		return text("Not Found", 404);
-	}
-	switch (request.method) {
-		case "GET":
-			return validateSubscription(new URL(request.url), ctx);
-		case "POST":
-			return receiveEvent(request, ctx);
-		default:
-			return new Response("Method Not Allowed", {
-				status: 405,
-				headers: { Allow: "GET, POST" },
-			});
+	try {
+		if (!(await secretEquals(secret, verifyToken(ctx.env)))) {
+			return text("Not Found", 404);
+		}
+		switch (request.method) {
+			case "GET":
+				return await validateSubscription(new URL(request.url), ctx);
+			case "POST":
+				return await receiveEvent(request, ctx);
+			default:
+				return new Response("Method Not Allowed", {
+					status: 405,
+					headers: { Allow: "GET, POST" },
+				});
+		}
+	} catch (err) {
+		// The URL carries the secret, so nothing here may reach the logs as an
+		// uncaught exception, which would quote the request. The line names the
+		// error type only. Strava retries a delivery that wasn't answered 200.
+		const name = err instanceof Error ? err.name : "unknown error";
+		console.error(`Strava webhook request failed: ${name}`);
+		return text("Service Unavailable", 503);
 	}
 }
 
@@ -77,24 +91,8 @@ async function receiveEvent(request: Request, ctx: Ctx): Promise<Response> {
 		return text("ok", 200);
 	}
 
-	if (event.objectType === "activity") {
-		await ctx.queue.send({
-			kind: "activity-event",
-			athleteId: event.ownerId,
-			activityId: event.objectId,
-			aspect: event.aspect,
-			changed: Object.keys(event.updates),
-		});
-	} else if (isDeauthorization(event.updates)) {
-		// Strava already revoked the grant: nothing to revoke (research R3).
-		await ctx.queue.send({
-			kind: "delete-rider",
-			athleteId: event.ownerId,
-			reason: "deauthorized",
-			revoke: false,
-		});
-	}
-	// Any other athlete update is dropped.
+	const message = toMessage(event);
+	if (message) await ctx.queue.send(message);
 	return text("ok", 200);
 }
 
@@ -105,6 +103,30 @@ async function receiveEvent(request: Request, ctx: Ctx): Promise<Response> {
  */
 function isDeauthorization(updates: Record<string, unknown>): boolean {
 	return updates.authorized === "false" || updates.authorized === false;
+}
+
+/** The queue message for an event, or null for an event we drop. */
+function toMessage(event: StravaEvent): WorkMessage | null {
+	if (event.objectType === "activity") {
+		return {
+			kind: "activity-event",
+			athleteId: event.ownerId,
+			activityId: event.objectId,
+			aspect: event.aspect,
+			changed: Object.keys(event.updates),
+		};
+	}
+	if (isDeauthorization(event.updates)) {
+		// Strava already revoked the grant: nothing to revoke (research R3).
+		return {
+			kind: "delete-rider",
+			athleteId: event.ownerId,
+			reason: "deauthorized",
+			revoke: false,
+		};
+	}
+	// Any other athlete update is dropped.
+	return null;
 }
 
 /** The body as text, or null if it is over the limit. Stops reading there. */
