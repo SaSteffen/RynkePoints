@@ -130,3 +130,17 @@ The reveal, at the top of the page (research R16):
   km"); every other category whole units.
 - **Days**: winter categories read "Noch 4 Tage", "Noch 1 Tag"; their ribbons
   "5 Tage".
+
+## Part D: surprise badges (2026-10-12)
+
+- The "Überraschungen" card: `<p class="badge-about">?</p>` under its name, in
+  the card and the gallery; never a `.badge-progress`. With a badge it shows
+  the newest earned surprise badge with `badges.surprise.<name>` on the ribbon;
+  without one the dotted outline.
+- The gallery lists the earned surprise badges newest first, then one
+  `li.badge-slot` per surprise badge still to earn.
+- A surprise badge's large view says `badges.surprise.<name>.for` instead of
+  the category's `badges.for.*`.
+- No unearned surprise badge's id, name, picture, ribbon or why-text is in the
+  HTML (SC-003).
+

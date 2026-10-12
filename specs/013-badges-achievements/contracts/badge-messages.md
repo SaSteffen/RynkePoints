@@ -76,3 +76,21 @@ response's `url` is `/me/badges`, which the service worker opens on a click.
 - Consent (research R30): `consent.short.read` names swims ("deine Rad-, Lauf-
   und Schwimmaktivitäten"); `CONSENT_VERSIONS` stays 1. A test asserts the
   German text mentions "Schwimm".
+
+## Part D: surprise badges (2026-10-12)
+
+- `badges.de.ts` grows to 107 names; the six surprise names are written with
+  the project owner (drafts: "Prost Neujahr", "Bescherung auf Rädern",
+  "Gänsebraten abgestrampelt", "Nachteule", "Frühaufsteher", "Sofaheld").
+- New keys, German as below, English mirroring them:
+
+| Key | German |
+|-----|--------|
+| `badges.category.surprise` | Überraschungen |
+| `badges.about.surprise` | ? (the same in every language) |
+| `badges.surprise.<name>` | the ribbon: Neujahr, Heiligabend, Weihnachten, Nachteule, Frühaufsteher, Ruhetag |
+| `badges.surprise.<name>.for` | why it was earned: "Du warst am Neujahrstag unterwegs.", "Du warst an Heiligabend unterwegs.", "Du warst an den Weihnachtsfeiertagen unterwegs.", "Du bist nach 21:30 Uhr losgefahren.", "Du bist vor 6 Uhr losgefahren.", "Eine Woche lang jeden Tag aktiv – und dann einen Tag Pause. Verdient!" |
+
+`<name>` is `new-year`, `christmas-eve`, `christmas`, `night-owl`,
+`early-bird`, `rest-day`. None of these reaches the page for an unearned badge.
+

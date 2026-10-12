@@ -235,3 +235,40 @@ New categories after `running`, before the team ones (research R28):
 - **PersonalFigures** gains `longestRideM`, `virtualDistanceM`,
   `winterDays` (month → distinct days), `longestSwimM`, `swimDistanceM` (R29).
 
+# Part D: surprise badges (2026-10-12)
+
+No D1 change.
+
+## Catalog (version 3)
+
+| Category | Unit | Badges (ids) |
+|----------|------|--------------|
+| `surprise` | none shown | `surprise-new-year`, `surprise-christmas-eve`, `surprise-christmas`, `surprise-night-owl`, `surprise-early-bird`, `surprise-rest-day` |
+
+- `surprise: true`; ladder 1 to 6 only orders the badges; no progress.
+- 22 categories (16 personal, 6 team), 107 badges, the same as
+  `art/badges/badges.json`.
+
+## Evaluation
+
+- **CountingRide** gains `startTime` (`HH:MM`, local).
+- Activity days: dates of counting rides, outdoor runs and swims in the
+  counting window.
+- Surprise rules (FR-015a), each the first date that meets it:
+
+| Badge | Rule |
+|-------|------|
+| New Year | an activity day with `MM-DD` 01-01 |
+| Christmas Eve | 12-24 |
+| Christmas | 12-25 or 12-26 |
+| Night owl | a counting ride with `startTime >= "21:30"` |
+| Early bird | a counting ride with `startTime < "06:00"` |
+| Rest day | date D not an activity day, D−1 … D−7 all activity days, some activity day after D |
+
+- Surprise progress: `{ value: number earned, next: null, missing: null }`.
+
+## View model
+
+- The surprise card's badge is the newest earned surprise badge; its progress
+  is always null; without one it is a `NotYetRow` with null progress.
+

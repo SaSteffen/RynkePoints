@@ -2,8 +2,8 @@
 
 Each decision names what was chosen, why, and what else was considered.
 R1 to R9 belong to part A, the art pipeline; R10 to R22 to part B, the app;
-R23 to R31 to part C, the categories added on 2026-10-12 (see
-[plan.md](plan.md)).
+R23 to R31 to part C, the categories added on 2026-10-12; R32 to R37 to part
+D, the surprise badges (see [plan.md](plan.md)).
 
 # Part A: art pipeline
 
@@ -482,4 +482,84 @@ R23 to R31 to part C, the categories added on 2026-10-12 (see
 - **Rationale**: Every new category must be checkable locally (SC-005) without
   waiting for the art.
 - **Alternatives**: none worth keeping.
+
+# Part D: surprise badges (2026-10-12)
+
+## R32 One category, six named badges
+
+- **Decision**: `surprise` is one personal category in the catalog with
+  `ladder: [1, 2, 3, 4, 5, 6]` only to order its badges, marked `surprise:
+  true`, and `NAMED_THRESHOLDS` giving the ids `surprise-new-year`,
+  `-christmas-eve`, `-christmas`, `-night-owl`, `-early-bird`, `-rest-day`
+  (the ids already in `art/badges/badges.json`). `BADGE_CATALOG_VERSION`
+  becomes 3, so every rider is re-evaluated once, silently (R18).
+- **Rationale**: The catalog, the art list and the catalog test keep one shape;
+  ids stay stable for the pictures; the section's gallery already shows one
+  outline per badge still to earn (issue #109), which is exactly "riders know
+  they exist".
+- **Alternatives**: Six categories of one badge each: six cards of "?" instead
+  of one; a separate surprise list outside the catalog: a second id scheme.
+
+## R33 Surprise rules in the pure evaluation
+
+- **Decision**: `evaluateBadges` works the surprise badges out from its
+  inputs, apart from the threshold series: each rule finds the first date of
+  the season that meets it (FR-013). `CountingRide` gains `startTime`
+  (`HH:MM`, characters 12 to 16 of `start_date_local`); runs and swims add
+  their dates to the activity days. Holidays look at the date's `MM-DD`;
+  night owl and early bird at counting rides' `startTime` (`>= "21:30"`,
+  `< "06:00"`); the rest day is the first date D with no activity, an
+  activity on each of the seven dates before it and one on a date after it.
+  The surprise category's progress is `{ value: earned count, next: null }`,
+  so no bar ever shows (FR-015).
+- **Rationale**: Pure and idempotent like every other badge (FR-030); taken
+  back when its activity goes (US2); no clock needed, because the later
+  activity is what proves the rest day is over (spec Clarifications).
+- **Alternatives**: The daily cron awarding rest days at midnight: a clock in
+  the evaluation and a second award path.
+
+## R34 "?" until earned, why once earned
+
+- **Decision**: `badges.about.surprise` is "?" in every language, so card and
+  gallery show only "?" (FR-015b). Each surprise badge gets a ribbon text
+  `badges.surprise.<name>` ("Neujahr", "Heiligabend", "Weihnachten",
+  "Nachteule", "Frühaufsteher", "Ruhetag") and a why-text
+  `badges.surprise.<name>.for` for its large view, used instead of the
+  category's `badges.for.*`. Both reach the page only for earned badges, like
+  names and pictures (SC-003).
+- **Rationale**: The surprise holds in the HTML; the text stays translatable
+  (FR-041 keeps only names German-only).
+- **Alternatives**: Showing the German name on the ribbon: names are not
+  translated, ribbons are.
+
+## R35 The surprise card
+
+- **Decision**: In `groupView` the surprise card shows the newest earned
+  surprise badge (by `earnedOn`, then catalog order) instead of the highest,
+  never with progress; without one it is an outline card without a bar
+  (`NotYetRow.progress` null, as for a winter month that is over). The
+  gallery lists earned surprise badges newest first, then one outline per
+  badge still to earn.
+- **Rationale**: For single badges "highest" means nothing; the newest is the
+  one worth showing.
+- **Alternatives**: none worth keeping.
+
+## R36 The Overview's figures
+
+- **Decision**: Nothing new to read: the surprise card needs only the stored
+  earned badges (`rider_badges`); its progress comes from their count.
+- **Rationale**: The rules need every activity's date and time, which only the
+  evaluation batch has; the page shows no bar for them.
+- **Alternatives**: none.
+
+## R37 Samples and art
+
+- **Decision**: Wanda Winter (R31) gains a ride at 22:00 on 24 December
+  (Christmas Eve and night owl) and one at 5:30 on 1 January (New Year and
+  early bird); a new streak of seven daily activities with a day off and an
+  activity after it gives a sample rider the rest day badge. The six art
+  scenes and a shared `surprise` snippet asking for extra fun are already in
+  `art/badges/badges.json` (FR-015c).
+- **Rationale**: Every surprise badge checkable locally (SC-005).
+- **Alternatives**: none.
 

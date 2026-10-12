@@ -1,10 +1,10 @@
 # Implementation Plan: Badges and Achievements
 
-**Branch**: `013-badges-achievements` | **Date**: 2026-10-11, part C 2026-10-12 | **Spec**: [spec.md](spec.md)
+**Branch**: `013-badges-achievements` | **Date**: 2026-10-11, parts C and D 2026-10-12 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `/specs/013-badges-achievements/spec.md`
 
-The plan has three parts, planned and built one after the other at the project
+The plan has four parts, planned and built one after the other at the project
 owner's request:
 
 - **Part A, art pipeline** (built, tasks T001 to T023): the badge frames, the
@@ -17,6 +17,9 @@ owner's request:
   swims and the four winter months (FR-004a, FR-010, FR-022 to FR-025), with
   their art scenes (already in `art/badges/badges.json`). It extends part B's
   code; no new mechanism.
+- **Part D, surprise badges** (added 2026-10-12): the "Überraschungen"
+  category of six single badges with secret rules (FR-015 to FR-015c); art
+  scenes already in `art/badges/badges.json`.
 
 ## Summary
 
@@ -55,6 +58,14 @@ for their swims; raising the catalog version re-evaluates everyone once,
 silently. The view learns today's date only to drop the bar of a winter month
 that is over. The 32 new pictures come from the art pipeline unchanged; until
 then the placeholder shows.
+
+**Part D.** "Überraschungen" is one more personal category whose six badges
+have rules instead of a ladder, worked out in the same pure evaluation from
+each activity's local date and start time; the rest day is proven by the next
+activity, so no clock is needed. The page shows "?" for the category and
+nothing of an unearned surprise badge; an earned one gets its ribbon text and
+why-text. No migration; the catalog version re-evaluates everyone once,
+silently.
 
 ## Technical Context
 
@@ -122,7 +133,7 @@ so a consent change or a departure needs no extra job.
 ```text
 specs/013-badges-achievements/
 ├── plan.md              # This file (parts A and B)
-├── research.md          # A: R1–R9; B: R10–R22; C: R23–R31
+├── research.md          # A: R1–R9; B: R10–R22; C: R23–R31; D: R32–R37
 ├── data-model.md        # A: art entities; B: D1 tables, catalog, evaluation; C: swims, catalog v2
 ├── quickstart.md        # A: art pipeline; B: the app; C: §10–§13
 ├── contracts/
@@ -130,7 +141,7 @@ specs/013-badges-achievements/
 │   ├── abzeichen-section.md  # B: the section's markup and behaviour
 │   └── badge-messages.md     # B: catalog keys, German names, notification text
 ├── drafts/              # Mobile and desktop drafts of the section
-└── tasks.md             # Part A (T001–T023), part B (T024–T073), part C (T074–)
+└── tasks.md             # Part A (T001–T023), B (T024–T073), C (T074–T099), D (T100–)
 ```
 
 ### Source Code (repository root)

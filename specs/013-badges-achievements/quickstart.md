@@ -177,3 +177,29 @@ are re-read once for their swims (figures version 5) and re-evaluated once for
 the new categories (catalog version 2), without notifications; their first
 visit shows one reveal of every new badge.
 
+# Part D: surprise badges (2026-10-12)
+
+## 14. Pictures
+
+```bash
+pnpm badge-art surprise-new-year surprise-christmas-eve surprise-christmas \
+  surprise-night-owl surprise-early-bird surprise-rest-day
+pnpm badge-build
+```
+
+Each picture should be a gag of its own (FR-015c); the rest day shows the
+character on a couch in a cream and black striped blanket with cocoa.
+
+## 15. On the fake Strava
+
+```bash
+pnpm dev
+```
+
+- A rider without surprise badges: "Überraschungen" with "?" and an outline,
+  six outlines in the gallery, no bar.
+- Wanda Winter: Christmas Eve, night owl, New Year and early bird; their large
+  views say why; the card shows the newest.
+- The rest-day sample rider: the rest day badge, dated the day off.
+- Page source: no unearned surprise badge's id, name, ribbon or why-text.
+
