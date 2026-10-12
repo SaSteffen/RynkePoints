@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { handleFetch } from "../../src/index";
 import { makeCtx, ORIGIN, type TestCtx } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
@@ -243,5 +243,29 @@ describe("POST /strava/webhook/:secret (events)", () => {
 		expect(res.status).toBe(200);
 		expectNotRiderFacing(res);
 		expect(ctx.queue.sent).toEqual([]);
+	});
+});
+
+describe("the webhook's secret never reaches the logs", () => {
+	it("answers 503 and logs only the error type when queueing fails", async () => {
+		const logged: string[] = [];
+		const spy = vi
+			.spyOn(console, "error")
+			.mockImplementation((...args: unknown[]) => {
+				logged.push(args.map(String).join(" "));
+			});
+		// An error that quotes the request, as a careless library might.
+		ctx.queue.send = async () => {
+			throw new TypeError(`could not send for ${ORIGIN}${PATH}`);
+		};
+		try {
+			const res = await post(event());
+			expect(res.status).toBe(503);
+			expectNotRiderFacing(res);
+			expect(logged).toEqual(["Strava webhook request failed: TypeError"]);
+			expect(logged.join("\n")).not.toContain("test-verify-token");
+		} finally {
+			spy.mockRestore();
+		}
 	});
 });
