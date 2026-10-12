@@ -56,7 +56,7 @@ describe("layout (de)", () => {
 	it("carries the Strava attribution in both schemes (011 FR-034)", () => {
 		const { de: c } = CATALOGS;
 		expect(page).toContain(
-			`<footer><img class="pbs pbs-light" src="${c["brand.poweredByStrava.src"]}" alt="${c["brand.poweredByStrava.alt"]}"><img class="pbs pbs-dark" src="${c["brand.poweredByStrava.srcDark"]}" alt="${c["brand.poweredByStrava.alt"]}"></footer>`,
+			`<footer><img class="pbs pbs-light" src="${c["brand.poweredByStrava.src"]}" alt="${c["brand.poweredByStrava.alt"]}"><img class="pbs pbs-dark" src="${c["brand.poweredByStrava.srcDark"]}" alt="${c["brand.poweredByStrava.alt"]}"><p><a href="/privacy">${c["privacy.link"]}</a></p></footer>`,
 		);
 		expect(page).toContain(
 			'<img class="pbs pbs-light" src="/strava/en/powered-by-strava.svg" alt="Powered by Strava">',

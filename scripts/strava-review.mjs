@@ -67,6 +67,7 @@ const missingBrand = brandFiles.filter(
 const seasonStart = read("wrangler.jsonc").match(
 	/"SEASON_START_DATE": "([^"]+)"/,
 )?.[1];
+const contact = read("wrangler.jsonc").match(/"CONTACT_EMAIL": "([^"]+)"/)?.[1];
 
 // Why each Strava request is made, for the description. A request the code
 // makes that has no entry here fails the run, so the text can't fall behind.
@@ -145,6 +146,8 @@ const requestLines = requests
 	.map((r) => `- ${r}: ${PURPOSES[r] ?? "(no purpose written down)"}.`)
 	.join("\n");
 const description = `RynkePoints turns the training of one charity cycling team, Team Rynkeby Hamburg, into points ("Rynke") and badges. It has fewer than 100 riders, all members of the team's Strava club. It is not commercial: no ads, no payments, no analytics or tracking, and nothing is sold or passed on.
+
+Privacy policy: https://trhh-rynke-coins.link/privacy, linked from every page's footer, in German and English. Support and data requests: ${contact}.
 
 WHO CAN CONNECT AND WHAT THEY AGREE TO
 - Before Strava's authorisation page, the rider reads and agrees to what is read and who sees what. We store which version of that text they agreed to and when. If the text changes, they must agree again before the app shows them anything.

@@ -30,33 +30,53 @@ Points and events build on this in later features.
 
 ## Privacy
 
-- **Scopes**: `read` and `activity:read`. `activity:read_all` is optional: only
-  if the rider grants it are their private ("Only You") activities included.
-  `activity:write` is optional too, and nothing writes to Strava yet: a later
-  feature will add a Rynke section to ride descriptions, only for riders who
-  granted it.
-- **What is stored**: per rider the Strava athlete ID, first name (for the
-  greeting), the granted scopes (including whether write access was granted),
-  the Strava tokens, encrypted, and the version and time of the consent they
-  agreed to. Per cycling
-  activity only its name (shown only to that rider), sport type, start time,
+The privacy notice riders see is at `/privacy`, linked from every page's footer
+([feature 017](specs/017-privacy-page/spec.md)). It names the controller and a
+contact address, set as `PRIVACY_CONTROLLER` and `CONTACT_EMAIL` in
+`wrangler.jsonc`. This section is the same in short.
+
+- **Scopes**: `read` and `activity:read` are required. `activity:read_all` is
+  optional: only if the rider grants it are their private ("Only You")
+  activities included. `activity:write` is optional too, and nothing writes to
+  Strava yet: a later feature will add a Rynke section to ride descriptions,
+  only for riders who granted it.
+- **From Strava, per rider**: the athlete ID, first name (for the greeting and
+  the organisers), the granted scopes, and the Strava tokens, encrypted
+  (AES-256-GCM).
+- **Per ride**: its name (shown only to that rider), sport type, start time,
   time zone, distance, moving and elapsed time, elevation gain, the manual,
-  trainer and private flags, and whether Strava has flagged it. No GPS tracks,
-  maps, descriptions, photos, heart rate or power, and no other kinds of
-  activity. Which team events a rider attended
-  (kind, date and an optional event name) as the team records it, not from
-  Strava. For each device a rider turns notifications on for, only the address
-  its push service gives it; it is deleted when they turn notifications off,
+  trainer and private flags, and whether Strava has flagged it. **Per run and
+  per swim**, for the badges: only the start time, distance and private flag.
+  Only activities from the season start on are stored; older ones are skipped
+  and removed daily. No GPS tracks, maps, descriptions, photos, heart rate,
+  power or other health data, and no other kinds of activity.
+- **Entered by the team**: which team events a rider attended (kind, date and
+  an optional event name) and organisers' Rynke corrections, with who changed
+  them and when. **Worked out**: Rynke, badges and why each ride counts.
+- **Consent**: the version and time of the text the rider agreed to. A new
+  version asks every rider again before showing anything.
+- **Who sees what**: riders see their own rides and Rynke; the team sees
+  everyone's Rynke without names; organisers see first names, Rynke and their
+  breakdown, team events and corrections, but no single rides.
+- **Notifications**: for each device a rider turns them on for, only the
+  address its push service gives it. Notifications are sent empty; the device
+  fetches the text. The address is deleted when they turn notifications off,
   sign out on that device or leave.
-- **Deletion**: everything about a rider is deleted at once when they disconnect
-  on their page or remove the app in their Strava settings, within 24 hours
-  after they leave the club, and 7 days after their connection broke if they
-  don't reconnect. Deleted data stays in Cloudflare's D1 backups for up to
-  7 days, then disappears.
+- **Deletion**: everything about a rider is deleted at once, and their Strava
+  access revoked where it still works, when they disconnect on their page or
+  remove the app in their Strava settings, within 24 hours after they leave the
+  club, and 7 days after their connection broke if they don't reconnect.
+  Deleted data stays in Cloudflare's D1 backups for up to 7 days, then
+  disappears.
+- **Logs**: the app's log lines carry identifiers only, never tokens
+  (`test/unit/no-secret-logging.test.ts`). Cloudflare's invocation logs are
+  off, because they record request URLs and the webhook's URL holds its secret.
 - **Cookies**: only necessary ones. `rp_session` keeps a rider signed in
-  (180 days after their last visit), `rp_oauth_state` protects the 10-minute Strava sign-in, and
-  `rp_lang` remembers a picked language. The language is never stored in the
-  database.
+  (180 days after their last visit), `rp_oauth_state` protects the 10-minute
+  Strava sign-in, and `rp_lang` remembers a picked language for a year. The
+  language is never stored in the database.
+- **Processing**: Cloudflare Workers, Queues and D1. No other service receives
+  Strava data, and none of it is used for AI or analytics.
 
 ## Languages
 
