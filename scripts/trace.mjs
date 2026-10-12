@@ -10,8 +10,10 @@
 // layers overlap instead of leaving hairline gaps between them.
 import { execFileSync } from "node:child_process";
 
-// The coin's colours (`--rp-coin-*` in src/http/style.ts), bottom to top. Ink
-// comes last: the outlines sit on top of every fill.
+// The coin's colours (`--rp-coin-*` in src/http/style.ts), bottom to top, plus
+// a light sage for sofas, which black made too heavy next to the badge's
+// ribbon (feature 013 part D/E). Ink comes last: the outlines sit on top of
+// every fill.
 export const PALETTE = [
 	{ name: "cream", hex: "#fffdf5" },
 	{ name: "yellow", hex: "#fbe122" },
@@ -19,6 +21,7 @@ export const PALETTE = [
 	{ name: "fur", hex: "#c8641e" },
 	{ name: "muzzle", hex: "#f0a868" },
 	{ name: "blue", hex: "#8cc4f0" },
+	{ name: "sage", hex: "#b5d6a7" },
 	{ name: "ink", hex: "#1c1b13" },
 ].map((c) => ({
 	...c,

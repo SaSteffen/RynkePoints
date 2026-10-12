@@ -519,7 +519,7 @@
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 6,
-			"scene": "Rest day after a full week of training: the character sunk deep into a big cosy black sofa, wrapped up to the chin like a burrito in a warm, thick blanket with wide cream (#FFFDF5) and black stripes, only her face and one hand peeking out, holding a giant steaming cream mug of hot cocoa with a little cream cloud of whipped cream on top, eyes closed in total bliss, a tiny cream 'zzz' bubble without letters drawn as three small wavy shapes. Her yellow helmet hangs on the handlebar of her road bike leaning against the wall behind the sofa, which looks almost jealous; her running shoes and swim goggles lie abandoned on the floor in front of the sofa. No helmet on her head. {{bike}}"
+			"scene": "Rest day after a full week of training: the character sitting comfortably on a cosy light sage green (#B5D6A7) sofa, wrapped in a warm, thick blanket with wide cream (#FFFDF5) and black stripes, holding a steaming cream mug of hot cocoa with both hands, eyes half closed, a calm and content smile. His yellow helmet hangs on the handlebar of his road bike, which leans against the wall behind the sofa. No helmet on his head. Quiet and cosy, nothing else going on. {{bike}}"
 		},
 		{
 			"id": "team-training-rynke-500",
@@ -764,7 +764,7 @@
 			"group": "team",
 			"category": "team_surprise",
 			"threshold": 1,
-			"scene": "A whole team day off: five characters piled on top of each other on one big saggy black sofa that is clearly too small for them, all fast asleep with their mouths open, one snoring a little cream bubble, one hanging upside down off the armrest, their road bikes leaning in a heap against the wall; through a round window behind them a lonely cream tumbleweed rolls along an empty road. {{team}} {{bike}} {{surprise}}"
+			"scene": "A whole team day off: five characters piled on top of each other on one big saggy light sage green (#B5D6A7) sofa that is clearly too small for them, all fast asleep with their mouths open, one snoring a little cream bubble, one hanging upside down off the armrest, their road bikes leaning in a heap against the wall; through a round window behind them a lonely cream tumbleweed rolls along an empty road. {{team}} {{bike}} {{surprise}}"
 		},
 		{
 			"id": "team-surprise-all-out",
