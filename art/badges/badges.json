@@ -758,6 +758,48 @@
 			"category": "attendances",
 			"threshold": 400,
 			"scene": "A big group of characters all jumping in the air at the same moment for a photo, arms and legs flung out, gold confetti flying. {{team}}"
+		},
+		{
+			"id": "team-surprise-day-off",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 1,
+			"scene": "A whole team day off: five characters piled on top of each other on one big saggy black sofa that is clearly too small for them, all fast asleep with their mouths open, one snoring a little cream bubble, one hanging upside down off the armrest, their road bikes leaning in a heap against the wall; through a round window behind them a lonely cream tumbleweed rolls along an empty road. {{team}} {{bike}} {{surprise}}"
+		},
+		{
+			"id": "team-surprise-all-out",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 2,
+			"scene": "Everyone out on the same day: a huge, chaotic crowd of characters bursting through a doorway at once, all trying to get out first, on road bikes, in running shoes, squeezed together and tangled up, arms and wheels everywhere, a few falling over each other, all laughing and cheering; the door frame bending under the pressure. {{team}} {{bike}} {{surprise}}"
+		},
+		{
+			"id": "team-surprise-round-the-clock",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 3,
+			"scene": "Round the clock: a giant round cream clock face without any numbers or letters, with characters on road bikes riding in a circle around its rim like a race track, each one at a different spot; one side of the picture has a gold sun, the other a gold crescent moon and cream stars; the clock's two black hands spinning so fast they blur with motion lines. {{team}} {{bike}} {{surprise}}"
+		},
+		{
+			"id": "team-surprise-relay",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 4,
+			"scene": "A never-ending relay: a long line of characters passing a gold baton from one to the next, the first ones on road bikes, then runners, the line curving off into the distance and back again in a loop, the one in front exhausted and flopping over while the next grabs the baton with a determined grin, the very last one in the background already yawning in pyjamas. {{team}} {{surprise}}"
+		},
+		{
+			"id": "team-surprise-new-years-eve",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 5,
+			"scene": "New Year's Eve team ride: five characters on road bikes riding side by side under exploding gold fireworks, every helmet topped with a gold cone party hat, one blowing a party horn, one holding a sparkler that showers cream sparks, one with cream streamers wrapped around his whole body like a mummy, all cheering. {{team}} {{bike}} {{surprise}}"
+		},
+		{
+			"id": "team-surprise-sunday-outing",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 6,
+			"scene": "A big Sunday outing: a long happy crowd of characters on road bikes rolling past a small cream church with a gold bell ringing in its tower, every rider with a huge picnic basket, cake or thermos strapped somewhere on the bike, one with a whole gold cake on his helmet, a small black dog running alongside with a sandwich in its mouth. {{team}} {{bike}} {{surprise}}"
 		}
 	]
 }
