@@ -194,4 +194,57 @@ describe("scheduled: figures re-read", () => {
 			fake.restore();
 		}
 	});
+
+	it("re-reads a rider at version 4 for their swims, without a notification (013 part C)", async () => {
+		const fake = installFakeStrava();
+		try {
+			fake.addAthlete({ id: ATHLETE_A });
+			await seedRider(ctx, { figuresVersion: 4 });
+			await seedSubscription(ATHLETE_A, pushEndpoint(1));
+			fake.addActivity(
+				ATHLETE_A,
+				makeStravaActivity({
+					id: 7_400_002,
+					sport_type: "Swim",
+					type: "Swim",
+					distance: 1200,
+					total_elevation_gain: 0,
+					start_date: "2026-05-02T06:00:00Z",
+					start_date_local: "2026-05-02T08:00:00Z",
+				}),
+			);
+
+			await runCron();
+			const [reread] = rereads();
+			ctx.queue.sent.length = 0;
+			const batch = createMessageBatch("rynke-points-work", [
+				{
+					id: "m1",
+					timestamp: new Date(NOW * 1000),
+					attempts: 1,
+					body: reread,
+				},
+			]);
+			await handleQueue(batch, ctx);
+			expect(
+				(await getQueueResult(batch, createExecutionContext())).explicitAcks,
+			).toEqual(["m1"]);
+
+			expect(
+				await env.DB.prepare("SELECT count(*) AS n FROM swims").first("n"),
+			).toBe(1);
+			const { results } = await env.DB.prepare(
+				"SELECT badge_id FROM rider_badges ORDER BY badge_id",
+			).all<{ badge_id: string }>();
+			expect(results.map((r) => r.badge_id)).toEqual([
+				"swim-length-1000",
+				"swim-length-500",
+			]);
+			expect(
+				ctx.queue.sent.filter((m) => m.body.kind === "send-notification"),
+			).toEqual([]);
+		} finally {
+			fake.restore();
+		}
+	});
 });

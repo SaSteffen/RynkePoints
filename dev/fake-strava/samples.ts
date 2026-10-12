@@ -14,6 +14,12 @@ export type Behaviour = "normal" | "import-stuck" | "refused";
 export interface RideRecipe {
 	/** Days before the seeding day; before the season start moves to it. */
 	daysAgo: number;
+	/**
+	 * `MM-DD` in the season instead of `daysAgo`: the months from the season
+	 * start's month on fall in its year, the others in the year after. For the
+	 * winter badges (feature 013 part C), which need a calendar month.
+	 */
+	onDate?: string;
 	/** Local wall-clock time `HH:MM`, Europe/Berlin. */
 	startTime: string;
 	sportType: string;
@@ -256,9 +262,9 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		scopes: ALL_SCOPES,
 		clubMember: true,
 		behaviour: "normal",
-		// 99.6 km and 990 m: "Noch 1 km" and "Noch 10 m". The 9 distance Rynke
-		// already earn the first Training Rynke badge.
-		rides: [ride(1, "07:00", 50, 500, 25), ride(3, "07:00", 49.6, 490, 25)],
+		// 99.6 km and 990 m: "Noch 1 km" and "Noch 10 m". The 8 distance Rynke
+		// already earn the first Training Rynke badge; neither ride is 50 km.
+		rides: [ride(1, "07:00", 49.8, 495, 25), ride(3, "07:00", 49.8, 495, 25)],
 	},
 	{
 		athleteId: 990014,
@@ -295,6 +301,37 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			ride(2, "18:00", 12, 0, 11, { sportType: "Run", trainer: true }),
 			ride(4, "18:00", 15, 0, 12, { sportType: "VirtualRun", trainer: true }),
 			ride(5, "18:00", 21.1, 0, 10, { sportType: "Run", manual: true }),
+		],
+	},
+	{
+		athleteId: 990016,
+		firstName: "Wanda Winter",
+		state:
+			"Badges (feature 013 part C): a long ride, virtual rides, winter days and swims",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		rides: [
+			// Ride length 50 and 100.
+			ride(3, "08:00", 104, 600, 26),
+			// Virtual: 30 + 25 km, so virtual 50; not winter days.
+			ride(5, "18:00", 30, 0, 30, { sportType: "VirtualRide" }),
+			ride(6, "18:00", 25, 0, 30, { trainer: true }),
+			// Winter: a trainer ride on 5 December is no December day; two rides
+			// on 10 January are one day; five days in February.
+			ride(0, "10:00", 40, 200, 24, { onDate: "11-14" }),
+			ride(0, "18:00", 30, 0, 30, { onDate: "12-05", trainer: true }),
+			ride(0, "10:00", 40, 200, 24, { onDate: "12-06" }),
+			ride(0, "09:00", 40, 200, 24, { onDate: "01-10" }),
+			ride(0, "15:00", 30, 100, 24, { onDate: "01-10" }),
+			ride(0, "10:00", 40, 200, 24, { onDate: "01-11" }),
+			...rides(5, (i) =>
+				ride(0, "10:00", 40, 200, 24, { onDate: `02-0${1 + i}` }),
+			),
+			// Swims: pool and open water count, the manual one doesn't.
+			ride(2, "07:00", 1.2, 0, 2.4, { sportType: "Swim", trainer: true }),
+			ride(4, "07:00", 0.8, 0, 2.4, { sportType: "Swim" }),
+			ride(7, "07:00", 1.5, 0, 2.4, { sportType: "Swim", manual: true }),
 		],
 	},
 ];
@@ -359,6 +396,13 @@ export function eventDay(
 		: dayBefore(seedDay, recipe.daysAgo);
 }
 
+/** The `YYYY-MM-DD` of `monthDay` (`MM-DD`) in the season from `seasonStart`. */
+export function seasonDay(monthDay: string, seasonStart: string): string {
+	const startYear = Number(seasonStart.slice(0, 4));
+	const year = monthDay >= seasonStart.slice(5, 10) ? startYear : startYear + 1;
+	return `${year}-${monthDay}`;
+}
+
 /** Europe/Berlin's offset from UTC at `epochMs`, in milliseconds. */
 function berlinOffsetMs(epochMs: number): number {
 	const parts = new Intl.DateTimeFormat("en-GB", {
@@ -406,7 +450,9 @@ export function recipeToActivity(
 	seasonStart: string,
 	id: number,
 ): FakeActivity {
-	const wanted = dayBefore(seedDay, recipe.daysAgo);
+	const wanted = recipe.onDate
+		? seasonDay(recipe.onDate, seasonStart)
+		: dayBefore(seedDay, recipe.daysAgo);
 	const day = wanted < seasonStart ? seasonStart : wanted;
 	const startUtc = berlinToUtcMs(day, recipe.startTime);
 	return {
