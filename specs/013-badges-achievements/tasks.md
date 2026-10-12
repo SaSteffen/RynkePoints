@@ -919,3 +919,37 @@ fail before the task that makes it pass.
 T100 → T101 first; T102, T103 after it; T104 → T105; T106 → T107 after T105;
 T108, T109 after T107; T110 last; T111 any time.
 
+---
+
+# Part E: team surprise badges
+
+**Prerequisites**: [plan.md](plan.md) part E, [research.md](research.md) R38 to
+R41, [data-model.md](data-model.md) "Part E",
+[contracts/badge-messages.md](contracts/badge-messages.md) "Part E". Scenes
+already in `art/badges/badges.json`; pictures are the project owner's run
+(T119). Tests first (Principle V).
+
+- [ ] T112 Tests first in `test/unit/badge-catalog.test.ts`: 23 categories (7
+  team), `team_surprise` last with the six ids, 113 badges equal to the art
+  list, version 4. Then implement in `src/badges/catalog.ts`; `surpriseName`
+  for every `surprise` category.
+- [ ] T113 [P] Names in `badges.de.ts`; keys of the contract's "Part E" in
+  `de.ts`, `en.ts` and the inventory test.
+- [ ] T114 [US7] Tests first in `test/unit/badge-team.test.ts`: US7 scenarios
+  2 to 7 on synthetic sums (day off between active days only, all out by
+  connection date and at least two, 24 hours, 30-day relay, five on 31
+  December, ten on a Sunday without an event), the first date of each,
+  nothing outside the counting window, progress without next. Then implement
+  the rules in `src/badges/team.ts` (research R40).
+- [ ] T115 [US7] Tests first in a new describe of
+  `test/integration/badges-section.test.ts`: `readTeamBadgeSums` reads only
+  listed riders' rides and runs, never swims (US7 scenario 8); the team group
+  shows "Team-Überraschungen" with "?", no bar, and an earned team surprise
+  with its ribbon and why-text, no rider named (FR-016a). Then implement the
+  reads in `src/db/team.ts` (research R39).
+- [ ] T116 Update the counts of existing tests (team cards, gallery outlines,
+  team not-yet rows) and of comments.
+- [ ] T117 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`.
+- [ ] T118 Run [quickstart.md](quickstart.md) §15 for the team group.
+- [ ] T119 Project owner: the six team pictures.
+

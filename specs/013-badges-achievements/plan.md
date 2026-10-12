@@ -1,10 +1,10 @@
 # Implementation Plan: Badges and Achievements
 
-**Branch**: `013-badges-achievements` | **Date**: 2026-10-11, parts C and D 2026-10-12 | **Spec**: [spec.md](spec.md)
+**Branch**: `013-badges-achievements` | **Date**: 2026-10-11, parts C to E 2026-10-12 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `/specs/013-badges-achievements/spec.md`
 
-The plan has four parts, planned and built one after the other at the project
+The plan has five parts, planned and built one after the other at the project
 owner's request:
 
 - **Part A, art pipeline** (built, tasks T001 to T023): the badge frames, the
@@ -20,6 +20,9 @@ owner's request:
 - **Part D, surprise badges** (added 2026-10-12): the "Überraschungen"
   category of six single badges with secret rules (FR-015 to FR-015c); art
   scenes already in `art/badges/badges.json`.
+- **Part E, team surprise badges** (added 2026-10-12): "Team-Überraschungen",
+  six single team badges (FR-016, FR-016a), worked out per request from
+  per-day activity of listed riders.
 
 ## Summary
 
@@ -133,7 +136,7 @@ so a consent change or a departure needs no extra job.
 ```text
 specs/013-badges-achievements/
 ├── plan.md              # This file (parts A and B)
-├── research.md          # A: R1–R9; B: R10–R22; C: R23–R31; D: R32–R37
+├── research.md          # A: R1–R9; B: R10–R22; C: R23–R31; D: R32–R37; E: R38–R41
 ├── data-model.md        # A: art entities; B: D1 tables, catalog, evaluation; C: swims, catalog v2
 ├── quickstart.md        # A: art pipeline; B: the app; C: §10–§13
 ├── contracts/
@@ -141,7 +144,7 @@ specs/013-badges-achievements/
 │   ├── abzeichen-section.md  # B: the section's markup and behaviour
 │   └── badge-messages.md     # B: catalog keys, German names, notification text
 ├── drafts/              # Mobile and desktop drafts of the section
-└── tasks.md             # Part A (T001–T023), B (T024–T073), C (T074–T099), D (T100–)
+└── tasks.md             # A (T001–T023), B (T024–T073), C (T074–T099), D (T100–T111), E (T112–)
 ```
 
 ### Source Code (repository root)

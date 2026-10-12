@@ -3,7 +3,8 @@
 Each decision names what was chosen, why, and what else was considered.
 R1 to R9 belong to part A, the art pipeline; R10 to R22 to part B, the app;
 R23 to R31 to part C, the categories added on 2026-10-12; R32 to R37 to part
-D, the surprise badges (see [plan.md](plan.md)).
+D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
+[plan.md](plan.md)).
 
 # Part A: art pipeline
 
@@ -561,5 +562,57 @@ D, the surprise badges (see [plan.md](plan.md)).
   scenes and a shared `surprise` snippet asking for extra fun are already in
   `art/badges/badges.json` (FR-015c).
 - **Rationale**: Every surprise badge checkable locally (SC-005).
+- **Alternatives**: none.
+
+# Part E: team surprise badges (2026-10-12)
+
+## R38 Same shape as the personal surprises
+
+- **Decision**: `team_surprise`, a team category with `surprise: true`,
+  ladder 1 to 6 and named ids `team-surprise-day-off`, `-all-out`,
+  `-round-the-clock`, `-relay`, `-new-years-eve`, `-sunday-outing` (already in
+  `art/badges/badges.json`); `BADGE_CATALOG_VERSION` 4. `surpriseName` works
+  for every category marked `surprise`, so the view (newest on the card, no
+  bar) and the section ("?", ribbon and why-text keys
+  `badges.surprise.<name>`) need no new branch.
+- **Rationale**: One mechanism for both groups.
+- **Alternatives**: none worth keeping.
+
+## R39 What the team sums add
+
+- **Decision**: `readTeamBadgeSums` adds two reads to its batch, over listed
+  riders only: per rider, local date and start hour of every counting ride
+  and outdoor run (`SELECT DISTINCT athlete_id, date, hour`), and each listed
+  rider's connection date (`berlinDate(connected_at)`). `TeamBadgeSums` gains
+  `active` (date → rider count and the set of start hours, with rider ids
+  only to count distinct riders and test "everyone"; never leaving the pure
+  function) and `connectedOn` (the listed riders' connection dates). Team
+  event dates already come with `events`.
+- **Rationale**: Enough for all six rules, nothing per rider reaches the view
+  (FR-016a); swims are not read (FR-025).
+- **Alternatives**: Per-day counts in SQL only: "everyone connected by then"
+  needs the rider ids per day.
+
+## R40 The rules
+
+- **Decision**: In `team.ts`, each rule the first date that meets it, within
+  the counting window: day off, the first date after the team's first active
+  date and before its last one without an active rider; all out, a date whose
+  active riders include every listed rider connected on or before it, at
+  least two; round the clock, a date with 24 distinct start hours; relay, the
+  30th of 30 consecutive active dates; New Year's Eve, 12-31 with at least
+  five riders; Sunday outing, a Sunday (UTC weekday of the date) with at least
+  ten riders and no team event that day. Progress `{ next: null }`.
+- **Rationale**: Pure and recomputed on every request, like every team badge
+  (R15): consent changes and departures follow; notifications come through
+  `teamBadgeNews` (#125) unchanged.
+- **Alternatives**: none.
+
+## R41 Samples
+
+- **Decision**: The fake Strava's listed riders already ride on most recent
+  days; tests cover each rule with synthetic riders. No sample change is
+  needed beyond what earns at least one team surprise on its own.
+- **Rationale**: Six riders can't make a realistic Sunday outing of ten.
 - **Alternatives**: none.
 

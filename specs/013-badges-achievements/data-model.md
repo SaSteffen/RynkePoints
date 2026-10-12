@@ -272,3 +272,17 @@ No D1 change.
 - The surprise card's badge is the newest earned surprise badge; its progress
   is always null; without one it is a `NotYetRow` with null progress.
 
+# Part E: team surprise badges (2026-10-12)
+
+No D1 change.
+
+- **Catalog (version 4)**: `team_surprise` (team, `surprise: true`), ids
+  `team-surprise-day-off`, `team-surprise-all-out`,
+  `team-surprise-round-the-clock`, `team-surprise-relay`,
+  `team-surprise-new-years-eve`, `team-surprise-sunday-outing`. 23 categories
+  (16 personal, 7 team), 113 badges.
+- **TeamBadgeSums** gains `active: { athleteId, date, hour }[]` (counting
+  rides and outdoor runs of listed riders, distinct) and `connectedOn:
+  string[]` (each listed rider's connection date, Berlin).
+- Rules as research R40; progress `{ next: null }`.
+

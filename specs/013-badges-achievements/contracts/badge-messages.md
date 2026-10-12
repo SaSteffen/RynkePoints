@@ -94,3 +94,17 @@ response's `url` is `/me/badges`, which the service worker opens on a click.
 `<name>` is `new-year`, `christmas-eve`, `christmas`, `night-owl`,
 `early-bird`, `rest-day`. None of these reaches the page for an unearned badge.
 
+## Part E: team surprise badges (2026-10-12)
+
+| Key | German |
+|-----|--------|
+| `badges.category.team_surprise` | Team-Überraschungen |
+| `badges.about.team_surprise` | ? |
+| `badges.surprise.<name>` | Teampause, Alle draußen, Rund um die Uhr, Staffelstab, Silvesterrunde, Sonntagsausflug |
+| `badges.surprise.<name>.for` | "Ein Tag, an dem das ganze Team die Füße hochgelegt hat.", "Ein Tag, an dem wirklich alle unterwegs waren.", "Zu jeder Stunde eines Tages war jemand aus dem Team unterwegs.", "30 Tage am Stück war jeden Tag jemand aus dem Team aktiv.", "Mindestens fünf aus dem Team waren an Silvester unterwegs.", "Mindestens zehn aus dem Team an einem Sonntag ohne Teamtermin." |
+
+`<name>`: `day-off`, `all-out`, `round-the-clock`, `relay`, `new-years-eve`,
+`sunday-outing`. Names (German only): "Kollektiver Couchtag", "Alle Mann an
+Deck", "Die Nacht durchgefahren", "Staffel ohne Ende", "Silvesterknaller",
+"Sonntagskarawane" (the project owner confirms them).
+
