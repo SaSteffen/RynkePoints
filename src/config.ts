@@ -116,7 +116,7 @@ function berlinOffsetMs(epochMs: number): number {
 	return wallClockAsUtc - epochMs;
 }
 
-/** Who is responsible for the riders' data: name and postal address lines. */
+/** Who is responsible for the riders' data, one line each (a name at least). */
 export function privacyController(
 	env: Pick<Settings, "PRIVACY_CONTROLLER">,
 ): string[] {

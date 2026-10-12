@@ -56,8 +56,8 @@
 		// (015 research R5).
 		"READY_POLL_SECONDS": "10",
 		// Who is responsible for the riders' data, and how to reach them, for
-		// the privacy page (/privacy). Name and postal address, one line each.
-		"PRIVACY_CONTROLLER": "TODO name\nTODO street and number\nTODO postcode and town",
+		// the privacy page (/privacy). One line each; the contact is the email.
+		"PRIVACY_CONTROLLER": "Sascha Steffen",
 		"CONTACT_EMAIL": "support@trhh-rynke-coins.link"
 	},
 	// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing

@@ -17,8 +17,8 @@ consent text on the start page.
 - **FR-002** Every page's footer links to it ("Datenschutz und Kontakt"), next
   to the Strava attribution, so it is one click from the start page and from
   every signed-in section.
-- **FR-003** The notice names the controller (`PRIVACY_CONTROLLER`: name and
-  postal address, one line each) and a contact address for support and data
+- **FR-003** The notice names the controller (`PRIVACY_CONTROLLER`: a name,
+  optionally more lines such as an address) and a contact address for support and data
   requests (`CONTACT_EMAIL`), both settings in `wrangler.jsonc`. A missing or
   malformed value is an error, not a blank.
 - **FR-004** It covers: purpose; the data read from Strava, field by field, and
