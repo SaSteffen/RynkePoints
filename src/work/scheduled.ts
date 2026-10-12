@@ -1,11 +1,11 @@
 import { BADGE_CATALOG_VERSION } from "../badges/catalog";
 import { seasonStart } from "../config";
 import type { Ctx } from "../ctx";
-import { listPreSeasonActivities } from "../db/pre-season";
 import {
 	deleteFailedWorkFirstFailedBefore,
 	listFailedWorkFirstFailedSince,
 } from "../db/failed-work";
+import { listPreSeasonActivities } from "../db/pre-season";
 import {
 	listConnectedRiderIds,
 	listExpiredReconnectRiderIds,
