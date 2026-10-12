@@ -141,6 +141,27 @@ next one."
   had none, and a later activity shows the day is over. The badge is dated with
   the rest day.
 
+### Session 2026-10-12 (team surprise badges)
+
+- Q (raised by the project owner): Are there surprise badges for the team? →
+  A: Yes, "Team-Überraschungen", shown like the personal ones ("?" until
+  earned): a day nobody in the team is active, a day everyone is active, and
+  four more the owner took from Claude's proposals: team activities started in
+  every hour of one day ("Rund um die Uhr"), someone active every day for 30
+  days in a row ("Staffelstab"), at least five riders active on 31 December
+  ("Silvesterrunde"), and ten or more riders active on the same Sunday without
+  a team event ("Sonntagsausflug"). Extra fun pictures, as for the personal
+  ones.
+- Q: Who is "everyone"? → A: Every listed rider (feature 014) who had already
+  connected on that day, at least two; a rider who joins later doesn't take
+  the badge back.
+- Q: Which activities count for the team? → A: Counting rides and outdoor
+  runs of listed riders, which team sums already include. Swims stay out of
+  everything the team sees (FR-025).
+- Q: When is a team day off known? → A: Like the rest day: with the team's
+  next activity after it, and only between the team's first activity of the
+  season and that next one.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - See my badges on my page (Priority: P1)
@@ -383,6 +404,45 @@ rider without them sees only "?".
    card's sentence is still "?", and nothing on the page names or pictures a
    surprise badge they haven't earned.
 
+---
+
+### User Story 7 - Team surprise badges (Priority: P3)
+
+Under "Team-Abzeichen" every rider sees "Team-Überraschungen" with six empty
+outlines and "?". When the whole team rests on the same day, all turn out on
+the same day, or the team covers every hour of a day, keeps a 30-day relay
+going, rides together on New Year's Eve or a big Sunday, a team badge appears,
+and only then says why.
+
+**Why this priority**: The team gets the same fun as the rider, from things
+nobody can do alone; no rider is named.
+
+**Independent Test**: Give the listed sample riders a day without activities
+between active days, and a day on which each of them rides; check both team
+surprise badges and that no rider is named.
+
+**Acceptance Scenarios**:
+
+1. **Given** no team surprise badge, **When** a rider opens their page,
+   **Then** "Team-Überraschungen" shows "?" and an outline, six outlines in the
+   gallery, no bar.
+2. **Given** listed riders active on 3 and 5 May and none on 4 May, **When**
+   the 5 May activity is evaluated, **Then** the day-off badge is earned, dated
+   4 May.
+3. **Given** every listed rider connected by 6 May is active on 6 May, **Then**
+   the all-out badge is earned, dated 6 May; a rider connecting on 8 May
+   doesn't take it back.
+4. **Given** counting rides and runs of listed riders starting in each of the
+   24 hours of one local date, **Then** the round-the-clock badge is earned.
+5. **Given** 30 dates in a row with at least one listed rider active, **Then**
+   the relay badge is earned with the 30th date.
+6. **Given** five listed riders active on 31 December, **Then** the New Year's
+   Eve badge is earned; four are not enough.
+7. **Given** ten listed riders active on a Sunday without a team event,
+   **Then** the Sunday outing badge is earned; with a team event that day, not.
+8. **Given** a swim on an otherwise empty day, **Then** that day still counts
+   as a team day off.
+
 ### Edge Cases
 
 - Recalculations after a rule change (feature 003) award or take back badges
@@ -519,6 +579,25 @@ their badge names examples.
       event, Attendances rewards the team turning up again and again.
 - **FR-014**: Team badges MUST show under "Team-Abzeichen" only, never among a
   rider's own badges, and MUST NOT be credited to a single rider.
+**Team surprise badges (2026-10-12)**
+
+- **FR-016**: A team category "Team-Überraschungen" MUST hold six single
+  badges, shown as FR-015b shows the personal ones ("?" until earned, then why;
+  the newest on the card; never a bar), worked out from the listed riders'
+  counting rides and outdoor runs by local start date and time (FR-032):
+  - Day off: a date with no activity between the team's first activity of the
+    season and a later one;
+  - All out: a date on which every listed rider connected by then, at least
+    two, is active;
+  - Round the clock: a date with activities starting in each of its 24 hours;
+  - Relay: 30 dates in a row each with at least one active rider (dated the
+    30th);
+  - New Year's Eve: at least five riders active on 31 December;
+  - Sunday outing: at least ten riders active on a Sunday without a team
+    event.
+- **FR-016a**: Team surprise badges MUST NOT reveal which riders were or
+  weren't active; only the date and the badge show.
+
 **Surprise badges (2026-10-12)**
 
 - **FR-015**: A personal category "Überraschungen" MUST hold six single badges,
@@ -543,7 +622,8 @@ their badge names examples.
 - **FR-015c**: Surprise badges MUST be drawn extra fun: each picture a gag of
   its own (art scenes in `art/badges/badges.json`).
 
-- **FR-012**: Each category except "Überraschungen" (FR-015) MUST be a ladder
+- **FR-012**: Each category except the two surprise categories (FR-015,
+  FR-016) MUST be a ladder
   of thresholds; the first set is in Assumptions. Changing the ladders is a release, after which badges are worked out
   again under FR-031's silent rules.
 - **FR-013**: A badge's date earned MUST be the date of the activity, team event or
@@ -679,6 +759,7 @@ their badge names examples.
   | Winter January                 | days        | 1, 5, 10                                                |
   | Winter February                | days        | 1, 5, 10                                                |
   | Überraschungen                 | —           | six single badges (FR-015a), no ladder                  |
+  | Team-Überraschungen (team)     | —           | six single badges (FR-016), no ladder                   |
   | Training Rynke together (team) | Rynke       | 500, 1,000, 2,500, 5,000, 7,500, 10,000, 15,000, 20,000 |
   | Distance together (team)       | km          | 1,000, 5,000, 10,000, 25,000, 50,000, 100,000           |
   | Elevation together (team)      | m           | 10,000, 50,000, 100,000, 250,000, 500,000               |
@@ -711,6 +792,7 @@ their badge names examples.
 - The rest day reads the rider's local start dates; Strava's activity list
   gives no information about days without activities, so a later activity is
   what shows a day was a rest day.
-- With "Überraschungen" the rider has 16 personal cards and 107 badges in all.
+- With "Überraschungen" the rider has 16 personal cards; with
+  "Team-Überraschungen" there are 7 team cards and 113 badges in all.
 - Distance-type progress is rounded down, so "noch 0 km" never
   appears for a badge not yet earned.
