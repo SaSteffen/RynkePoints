@@ -59,3 +59,20 @@ Team badges notify since issue #125: when every badge in the rise is a team
 badge, `notification.teamBadge` ("Neues Team-Abzeichen: {name} 🏅") or
 `notification.teamBadges` ("{n} neue Team-Abzeichen 🏅"). Either way the
 response's `url` is `/me/badges`, which the service worker opens on a click.
+
+## Part C: more categories (2026-10-12)
+
+- `badges.de.ts` grows to the catalog's 101 badges; the 32 new names are
+  written in the implementation with the project owner, like the first 69.
+- New catalog keys, German as below, English mirroring them:
+
+| Key | German |
+|-----|--------|
+| `badges.category.<id>` | Längste Fahrt, Virtuell, Längstes Schwimmen, Schwimmen gesamt, Winter: November, Winter: Dezember, Winter: Januar, Winter: Februar |
+| `badges.about.<category>` | "Deine längste Radfahrt dieser Saison, die für Trainings-Rynke zählt.", "Alle Kilometer deiner virtuellen Fahrten und Fahrten auf der Rolle in dieser Saison.", "Dein längstes Schwimmen dieser Saison, im Becken oder im Freiwasser.", "Alle Kilometer, die du in dieser Saison geschwommen bist.", per month: "Tage im November, an denen du draußen gefahren bist." (and Dezember, Januar, Februar) |
+| `badges.for.<category>` | "Deine längste Fahrt dieser Saison: {value} am Stück.", "Du bist in dieser Saison {value} virtuell gefahren.", "Dein längstes Schwimmen dieser Saison: {value} am Stück.", "Du bist in dieser Saison {value} geschwommen.", "Im November bist du an {value} draußen gefahren." (per month) |
+| `badges.value.days` / `badges.value.days.one` | {n} Tage / {n} Tag |
+
+- Consent (research R30): `consent.short.read` names swims ("deine Rad-, Lauf-
+  und Schwimmaktivitäten"); `CONSENT_VERSIONS` stays 1. A test asserts the
+  German text mentions "Schwimm".

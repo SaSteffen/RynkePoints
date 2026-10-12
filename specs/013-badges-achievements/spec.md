@@ -306,7 +306,7 @@ category's value and that Rynke and ride list are unchanged by the swims.
 7. **Given** a virtual ride or a ride with Strava's trainer flag on a December
    day, **When** it is evaluated, **Then** the December category does not count
    that day.
-8. **Given** a ride starting 30 November at 23:30 Berlin time, **When** it is
+8. **Given** a ride starting 30 November at 23:30 local time, **When** it is
    evaluated, **Then** it counts for November.
 9. **Given** it is March and a rider has 3 days in February, **When** they open
    their page, **Then** the February card shows its 1-day badge and no
@@ -392,8 +392,8 @@ their badge names examples.
   outlines (FR-002) tell how many badges a category has.
 - **FR-004**: A category whose last badge is earned MUST keep its card, without a
   progress bar and without a sign that it is complete.
-- **FR-004a**: A winter category (FR-010) whose month is over, by today's Berlin
-  date, MUST keep its card without a progress bar, whether or not its badges are
+- **FR-004a**: A winter category (FR-010) whose month of the season is over,
+  by today's Berlin date, MUST keep its card without a progress bar, whether or not its badges are
   earned; with no badge, the card keeps its dotted outline. Its badges still to
   earn stay as empty outlines in the gallery. Before and during its month the
   card shows its progress like any other category.
@@ -423,8 +423,9 @@ their badge names examples.
   - Winter November, Winter December, Winter January, Winter February: four
     categories, one per month, each counting the days of that month with at
     least one outdoor counting ride. An outdoor ride is a counting ride that is
-    not a virtual ride (FR-013a). A ride belongs to the day and month its start
-    falls on in Europe/Berlin. Several rides on one day make one day.
+    not a virtual ride (FR-013a). A ride belongs to the day and month of its
+    local start date, as every badge date (FR-013). Several rides on one day
+    make one day.
 - **FR-011**: Team categories are worked on by the whole team together and MUST be:
   - Amounts collected together:
     - Training Rynke together: all Training Rynke the consenting riders collected

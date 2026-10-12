@@ -1,7 +1,8 @@
 # Research: Badges and Achievements
 
 Each decision names what was chosen, why, and what else was considered.
-R1 to R9 belong to part A, the art pipeline; R10 to R22 to part B, the app (see
+R1 to R9 belong to part A, the art pipeline; R10 to R22 to part B, the app;
+R23 to R31 to part C, the categories added on 2026-10-12 (see
 [plan.md](plan.md)).
 
 # Part A: art pipeline
@@ -345,4 +346,140 @@ R1 to R9 belong to part A, the art pipeline; R10 to R22 to part B, the app (see
   shows others only team sums (constitution v2.1.0).
 - **Alternatives**: Version 2 and asking every rider again: rejected by the
   project owner.
+
+# Part C: more categories (2026-10-12)
+
+## R23 Ride length, virtual rides and winter from the counting rides
+
+- **Decision**: `figuresOf` in `rynke/apply.ts` already builds the rider's
+  counting rides for the badges from feature 003's evaluation; each
+  `CountingRide` gains `virtual`, taken from the evaluation result's
+  `isVirtual` (003 FR-013a, `rynke/rides.ts`). `evaluateBadges` then works out
+  ride length (the longest counting ride so far, like run length), virtual
+  rides (cumulative kilometres of virtual counting rides) and the four winter
+  categories (days with at least one non-virtual counting ride in that month)
+  from the same list.
+- **Rationale**: One definition of "counting" and of "virtual" for Rynke and
+  badges: an excluded, overlapping or private ride drops out of these
+  categories exactly as it drops out of Distance, and is taken back the same
+  way (US2). An unknown trainer flag makes only a `VirtualRide` virtual, as in
+  003, so older rows never lose a winter day.
+- **Alternatives**: Reading `activities` directly for these categories: a
+  second set of ride rules, and rides that earn no Rynke would earn badges.
+
+## R24 Winter days by the ride's local start date
+
+- **Decision**: A ride's winter day is the first 10 characters of its
+  `start_date_local`, the date every badge uses (FR-013, R14); the month is
+  characters 6 and 7. Several rides on one date count once. The spec's
+  scenario 8 and FR-010 were aligned to this (they first said Berlin time).
+- **Rationale**: The riders ride around Hamburg, where local time is Berlin
+  time; on a training camp abroad the rider's own calendar day is the natural
+  one. A second date rule would let a badge's date differ from the day shown
+  for the ride.
+- **Alternatives**: Converting `start_date` to Europe/Berlin: an extra rule for
+  no gain; counting rides instead of days: rejected by the project owner
+  (splitting a ride would earn badges).
+
+## R25 A winter month that is over
+
+- **Decision**: The catalog gives each winter category its month (11, 12, 1,
+  2). The season's month falls in the year of `SEASON_START_DATE` for
+  November and December and the year after for January and February (the
+  season starts on 1 September, spec Assumptions). `buildBadgeSection` gets
+  `today` (`berlinDate(now)`, as the section already uses for `connectedOn`)
+  and drops a winter category's progress once `today` is past the last day of
+  its month, so its card shows no bar (FR-004a); an earned card stays, a card
+  without a badge keeps its outline. The evaluation stays a pure function of
+  stored data (FR-030): only the view looks at the clock.
+- **Rationale**: Keeps the "never moving bar" out of the page without a
+  stored flag or a cron job; a later correction still changes the month's
+  value and badges (spec edge case).
+- **Alternatives**: A `closed` flag written by the daily cron: state for what
+  is a pure function of the date.
+
+## R26 Swims in a table of their own
+
+- **Decision**: A new `swims` table with exactly `runs`' columns, and
+  `toSwimRecord` in `strava/activity.ts`: an activity is kept when its sport
+  type is `Swim` and its `manual` flag isn't true. The trainer flag is ignored
+  (a pool swim covers its distance). Intake follows runs everywhere: the
+  webhook (`work/activity-event.ts`) and list pages (`work/activity-page.ts`)
+  pass `swims` in the `upsert` change; `delete` and `delete-private` remove
+  swims as they remove runs; `readRiders` reads them into `RiderState.swims`.
+  A change that touches only swims leaves `figuresChanged` false, so team
+  badges are never re-announced for a swim.
+- **Rationale**: The same reasoning as R10 and R11: no Rynke code, ride list
+  or team sum can see a swim (FR-025, SC-004), and nothing is kept that no
+  badge uses (Principle I).
+- **Alternatives**: One `other_activities` table with a sport column: every
+  reader would need the filter R10 avoided.
+
+## R27 Existing riders' swims and the new categories
+
+- **Decision**: Raise `ACTIVITY_FIGURES_VERSION` from 4 to 5 (the daily cron
+  re-reads every rider once, within the Strava budget, and the pages now keep
+  swims, R12) and `BADGE_CATALOG_VERSION` from 1 to 2 (the daily cron
+  re-evaluates every rider once, R18). Both award silently and reveal together
+  (FR-031).
+- **Rationale**: FR-022 and FR-012 ask for exactly these mechanisms; ride
+  length, virtual rides and winter need only the re-evaluation, swims need the
+  re-read.
+- **Alternatives**: A swim backfill job: a second paging job with the same
+  budget logic.
+
+## R28 Catalog: eight categories, ids, units and decimals
+
+- **Decision**: `BADGE_CATEGORIES` gains, after `running` and before the team
+  ones: `ride_length` (km), `virtual_rides` (km), `swim_length` (km),
+  `swimming` (km), `winter_november`, `winter_december`, `winter_january`,
+  `winter_february` (new unit `days`), with the spec's ladders: 21 categories,
+  101 badges. Swim length's thresholds are in km (0.5, 1, 1.9, 3.8) but its ids
+  are in metres (`swim-length-500`, `-1000`, `-1900`, `-3800`) through
+  `NAMED_THRESHOLDS`, since ids allow no dot (`scripts/badge-prompts.mjs`). The
+  ids equal `art/badges/badges.json`, which already lists them (part C's art
+  commit). Run length, swim length and swimming show one decimal
+  (`shownMissing`, the ribbon and the gallery); the rest whole units.
+- **Rationale**: The catalog test keeps app and art equal (R18); one id
+  scheme per category keeps the art files and `BADGE_PICTURES` stable.
+- **Alternatives**: Swim length in metres as its unit: the spec shows
+  kilometres like the other distances.
+
+## R29 The Overview's figures for the new categories
+
+- **Decision**: `readRiderBadges` (`db/badges.ts`) adds, in its one batch:
+  `max(a.distance_m)` over counting rides and `sum(a.distance_m)` over
+  counting rides with `r.is_virtual = 1` (from `ride_results` joined with
+  `activities`, as Distance); per winter month the number of distinct
+  `substr(a.start_date_local, 1, 10)` of counting rides with `r.is_virtual =
+  0`; and `max`/`sum` of `swims.distance_m` in the counting window, like runs.
+  `PersonalFigures` and `personalProgress` gain the same values.
+- **Rationale**: The section keeps reading stored figures instead of
+  re-evaluating every ride (R13), with no extra round trip.
+- **Alternatives**: Storing per-category values: a second copy of what the
+  results already hold.
+
+## R30 Consent wording names swims, still version 1
+
+- **Decision**: `consent.short.read` and the details name swims next to rides
+  and runs ("deine Rad-, Lauf- und Schwimmaktivitäten"); `CONSENT_VERSIONS`
+  stays at 1. Swims count towards no team sum, so the team wording is
+  unchanged.
+- **Rationale**: The same decision as R22 (spec Clarifications, FR-023): the
+  app already receives swims with every read and keeps them only for the
+  rider's own badges.
+- **Alternatives**: A new consent version: rejected for runs by the project
+  owner, and swims are shown to no one else.
+
+## R31 Sample data and pictures
+
+- **Decision**: The fake Strava's sample riders get a ride over 300 km,
+  virtual rides, outdoor and virtual rides on several days in November to
+  February (two on one day), pool, open-water and manual swims. Until the
+  project owner generates the 32 new pictures (`pnpm badge-art`, then
+  `pnpm badge-build`), the new badges show the placeholder (FR-040a); the app
+  needs no change when they arrive.
+- **Rationale**: Every new category must be checkable locally (SC-005) without
+  waiting for the art.
+- **Alternatives**: none worth keeping.
 

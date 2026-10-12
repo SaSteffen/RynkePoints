@@ -1,7 +1,8 @@
 # Data Model: Badges and Achievements
 
 Part A (art pipeline) is files in the repo; part B (the app) adds D1 tables and
-pure in-memory structures. See [plan.md](plan.md).
+pure in-memory structures; part C (the 2026-10-12 categories) adds the `swims`
+table and extends the catalog, evaluation and view. See [plan.md](plan.md).
 
 # Part A: art pipeline (files)
 
@@ -169,4 +170,68 @@ silent evaluation by the daily cron.
 - **Section**: `personal` and `team` (cards, gallery groups, counts), `notYet`
   (both groups), `reveal` (badges new for this rider, R16), or nothing while the
   waiting state shows (FR-005).
+
+# Part C: more categories (2026-10-12)
+
+## D1 (`migrations/0015_swims.sql`, adds only)
+
+### `swims` (research R26)
+
+The same columns, rules and index as `runs`:
+
+| Column | Type | Rules |
+|--------|------|-------|
+| `strava_activity_id` | INTEGER PK | Strava's activity id |
+| `athlete_id` | INTEGER NOT NULL | → `riders`, ON DELETE CASCADE |
+| `start_date` | TEXT NOT NULL | ISO UTC, as Strava sends it |
+| `start_date_local` | TEXT NOT NULL | ISO local; its first 10 characters are the swim's date |
+| `distance_m` | REAL NOT NULL | `>= 0` |
+| `is_private` | INTEGER NOT NULL | 0 or 1; private swims go when private access is withdrawn |
+| `refreshed_at` | INTEGER NOT NULL | Unix seconds of the last read |
+
+Index `swims_by_rider (athlete_id, start_date_local)`. Only non-manual `Swim`
+activities get a row, pool and open water alike; nothing else Strava sends
+about a swim is kept. No other table changes.
+
+## Catalog (`src/badges/catalog.ts`, version 2)
+
+New categories after `running`, before the team ones (research R28):
+
+| Category | Unit | Ladder | Ids |
+|----------|------|--------|-----|
+| `ride_length` | km | 50, 100, 150, 200, 250, 300 | `ride-length-<km>` |
+| `virtual_rides` | km | 50, 100, 250, 500, 1000 | `virtual-rides-<km>` |
+| `swim_length` | km | 0.5, 1, 1.9, 3.8 | `swim-length-500`, `-1000`, `-1900`, `-3800` (metres) |
+| `swimming` | km | 5, 10, 25, 50, 100 | `swimming-<km>` |
+| `winter_november` … `winter_february` | days | 1, 5, 10 | `winter-<month>-<days>` |
+
+- New unit `days`. Winter categories carry their `month` (11, 12, 1, 2).
+- 21 categories (15 personal, 6 team), 101 badges, the same as
+  `art/badges/badges.json`.
+- One-decimal categories: `run_length`, `swim_length`, `swimming`.
+- `BADGE_CATALOG_VERSION = 2`; `ACTIVITY_FIGURES_VERSION = 5` (R27).
+
+## Evaluation (pure, in memory)
+
+- **CountingRide** gains `virtual` (003 FR-013a, from the evaluation result).
+- **PersonalInputs** gains `swims` (`DatedSwim`: local date, distance), like
+  `runs`.
+- New series:
+  - `ride_length`: the longest counting ride so far, by date (like
+    `run_length`);
+  - `virtual_rides`: cumulative km of counting rides with `virtual`;
+  - `swim_length`: the longest swim so far; `swimming`: cumulative swim km;
+  - `winter_<month>`: cumulative count of distinct dates in that month with at
+    least one counting ride without `virtual`.
+- **RiderState** (`rynke/apply.ts`) gains `swims` by activity id; the `upsert`
+  change gains `swims?: SwimRecord[]`. Swims never set `figuresChanged`.
+
+## View model
+
+- `buildBadgeSection` gains `today` (`YYYY-MM-DD`, Berlin) and the counting
+  window: a winter category whose season month ended before `today` gets no
+  progress (no bar on its card, no not-yet bar; an outline card stays)
+  (FR-004a, R25).
+- **PersonalFigures** gains `longestRideM`, `virtualDistanceM`,
+  `winterDays` (month → distinct days), `longestSwimM`, `swimDistanceM` (R29).
 

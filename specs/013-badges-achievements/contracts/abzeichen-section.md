@@ -116,3 +116,17 @@ The reveal, at the top of the page (research R16):
   per row at every width; below 600 px only cards without a badge keep the
   category sentence; no
   horizontal scrolling (SC-005).
+
+## Part C: winter months and decimals (2026-10-12)
+
+- **Winter month over** (FR-004a, research R25): once today's Berlin date is
+  past the last day of a winter category's month in this season, its card has
+  no `.badge-progress`, earned or not. Without a badge the
+  `li.badge-card.badge-card-empty` stays, with its outline and its sentence,
+  and no bar. Before and during the month, both behave like any other
+  category.
+- **Decimals** (research R28): the ribbon, the gallery value and "Noch …" show
+  one decimal for run length, swim length and swimming ("1,9 km", "Noch 0,7
+  km"); every other category whole units.
+- **Days**: winter categories read "Noch 4 Tage", "Noch 1 Tag"; their ribbons
+  "5 Tage".
