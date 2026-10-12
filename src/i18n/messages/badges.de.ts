@@ -136,4 +136,11 @@ export const BADGE_NAMES: Record<BadgeId, string> = {
 	"attendances-100": "Hundertmal dabei",
 	"attendances-200": "Eingespielt",
 	"attendances-400": "Alle dabei",
+	// Team-Überraschungen (part E)
+	"team-surprise-day-off": "Kollektiver Couchtag",
+	"team-surprise-all-out": "Alle Mann an Deck",
+	"team-surprise-round-the-clock": "Die Nacht durchgefahren",
+	"team-surprise-relay": "Staffel ohne Ende",
+	"team-surprise-new-years-eve": "Silvesterknaller",
+	"team-surprise-sunday-outing": "Sonntagskarawane",
 };

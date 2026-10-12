@@ -37,7 +37,8 @@ export type BadgeCategoryId =
 	| "team_elevation"
 	| "team_running"
 	| "big_training"
-	| "attendances";
+	| "attendances"
+	| "team_surprise";
 
 export interface BadgeCategory {
 	id: BadgeCategoryId;
@@ -62,7 +63,7 @@ export interface Badge {
 }
 
 /** Raised with any ladder change; riders on an older one are re-evaluated (FR-012). */
-export const BADGE_CATALOG_VERSION = 3;
+export const BADGE_CATALOG_VERSION = 4;
 
 /** In the spec's order: personal first, then team. */
 export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
@@ -200,6 +201,14 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		unit: "attendances",
 		ladder: [25, 50, 100, 200, 400],
 	},
+	// Part E (2026-10-12, research R38).
+	{
+		id: "team_surprise",
+		group: "team",
+		unit: "days",
+		ladder: [1, 2, 3, 4, 5, 6],
+		surprise: true,
+	},
 ];
 
 /**
@@ -219,6 +228,14 @@ const NAMED_THRESHOLDS: Partial<
 		5: "early-bird",
 		6: "rest-day",
 	},
+	team_surprise: {
+		1: "day-off",
+		2: "all-out",
+		3: "round-the-clock",
+		4: "relay",
+		5: "new-years-eve",
+		6: "sunday-outing",
+	},
 };
 
 const badgeIdOf = (category: BadgeCategoryId, threshold: number): string =>
@@ -227,7 +244,7 @@ const badgeIdOf = (category: BadgeCategoryId, threshold: number): string =>
 /** Every badge's id; a string here, checked against the catalog at runtime. */
 export type BadgeId = string;
 
-/** All 107 badges in catalog order: by category, then by threshold. */
+/** All 113 badges in catalog order: by category, then by threshold. */
 export const BADGES: readonly Badge[] = BADGE_CATEGORIES.flatMap((c) =>
 	c.ladder.map((threshold) => ({
 		id: badgeIdOf(c.id, threshold),
@@ -257,6 +274,6 @@ export const ONE_DECIMAL: ReadonlySet<BadgeCategoryId> = new Set([
 
 /** A surprise badge's rule name, `new-year` …, or null for other badges. */
 export const surpriseName = (badge: Badge): string | null =>
-	badge.category === "surprise"
-		? (NAMED_THRESHOLDS.surprise?.[badge.threshold] ?? null)
+	categoryById(badge.category).surprise
+		? (NAMED_THRESHOLDS[badge.category]?.[badge.threshold] ?? null)
 		: null;

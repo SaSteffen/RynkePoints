@@ -74,7 +74,13 @@ type SurpriseName =
 	| "christmas"
 	| "night-owl"
 	| "early-bird"
-	| "rest-day";
+	| "rest-day"
+	| "day-off"
+	| "all-out"
+	| "round-the-clock"
+	| "relay"
+	| "new-years-eve"
+	| "sunday-outing";
 
 /**
  * The milestone on the ribbon: "1.000 km", "Halbmarathon", "1,9 km": a
@@ -210,7 +216,7 @@ function forText(i18n: I18n, badge: Badge, value: string): string {
 	const surprise = surpriseName(badge) as SurpriseName | null;
 	if (surprise) return i18n.t(`badges.surprise.${surprise}.for`);
 	return i18n.t(
-		`badges.for.${badge.category as Exclude<BadgeCategoryId, "surprise">}`,
+		`badges.for.${badge.category as Exclude<BadgeCategoryId, "surprise" | "team_surprise">}`,
 		{ value },
 	);
 }

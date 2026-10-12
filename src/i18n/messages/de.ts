@@ -537,6 +537,7 @@ export const de = {
 	"badges.category.team_running": "Laufen gemeinsam",
 	"badges.category.big_training": "Große Ausfahrt",
 	"badges.category.attendances": "Teilnahmen",
+	"badges.category.team_surprise": "Team-Überraschungen",
 	"badges.about.distance":
 		"Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.",
 	"badges.about.elevation":
@@ -580,6 +581,7 @@ export const de = {
 		"Die meisten Rider, die in dieser Saison bei einem einzigen Teamtermin dabei waren.",
 	"badges.about.attendances":
 		"Alle Teilnahmen der Rider an Teamterminen dieser Saison zusammengezählt.",
+	"badges.about.team_surprise": "?",
 	"badges.for.distance": "Du bist in dieser Saison {value} Rad gefahren.",
 	"badges.for.elevation":
 		"Du bist in dieser Saison mit dem Rad {value} bergauf gefahren.",
@@ -642,6 +644,24 @@ export const de = {
 	"badges.surprise.rest-day": "Ruhetag",
 	"badges.surprise.rest-day.for":
 		"Eine Woche lang jeden Tag aktiv – und dann einen Tag Pause. Verdient!",
+	"badges.surprise.day-off": "Teampause",
+	"badges.surprise.day-off.for":
+		"Ein Tag, an dem das ganze Team die Füße hochgelegt hat.",
+	"badges.surprise.all-out": "Alle draußen",
+	"badges.surprise.all-out.for":
+		"Ein Tag, an dem wirklich alle unterwegs waren.",
+	"badges.surprise.round-the-clock": "Rund um die Uhr",
+	"badges.surprise.round-the-clock.for":
+		"Zu jeder Stunde eines Tages war jemand aus dem Team unterwegs.",
+	"badges.surprise.relay": "Staffelstab",
+	"badges.surprise.relay.for":
+		"30 Tage am Stück war jeden Tag jemand aus dem Team aktiv.",
+	"badges.surprise.new-years-eve": "Silvesterrunde",
+	"badges.surprise.new-years-eve.for":
+		"Mindestens fünf aus dem Team waren an Silvester unterwegs.",
+	"badges.surprise.sunday-outing": "Sonntagsausflug",
+	"badges.surprise.sunday-outing.for":
+		"Mindestens zehn aus dem Team an einem Sonntag ohne Teamtermin.",
 	"badges.value.half": "Halbmarathon",
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "Neues Abzeichen: {name} 🏅",

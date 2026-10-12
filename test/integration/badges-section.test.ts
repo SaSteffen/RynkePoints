@@ -492,3 +492,51 @@ describe("the surprise badges on the page", () => {
 		}
 	});
 });
+
+// Part E: the team's surprises (FR-016, FR-016a, research R39).
+describe("the team surprise badges on the page", () => {
+	const teamGroup = (badges: string | null) =>
+		badges?.match(
+			/<section class="badge-group badge-group-team"[\s\S]*?<\/section>/,
+		)?.[0] ?? "";
+	const card = (badges: string | null) =>
+		teamGroup(badges).match(
+			/<li class="badge-card[^"]*" data-category="team_surprise">[\s\S]*?<\/li>/,
+		)?.[0] ?? "";
+
+	beforeEach(async () => {
+		await seedBalance(ATHLETE_A);
+		await seedBalance(ATHLETE_B);
+	});
+
+	it("shows ? and an outline without a bar before any (US7 1)", async () => {
+		const { section: badges } = await section();
+		expect(card(badges)).toContain("badge-card-empty");
+		expect(card(badges)).toContain('<p class="badge-about">?</p>');
+		expect(card(badges)).not.toContain("badge-progress");
+	});
+
+	it("earns the day off from listed riders' rides, not from a swim (US7 2, 8)", async () => {
+		// Rides on 3 and 5 May, a swim on 4 May.
+		await seedRides(ATHLETE_A, 1, "2026-05-03", 8_200_001);
+		await seedRides(ATHLETE_B, 1, "2026-05-05", 8_200_002);
+		await env.DB.prepare(
+			`INSERT INTO swims (strava_activity_id, athlete_id, start_date,
+				start_date_local, distance_m, is_private, refreshed_at)
+			VALUES (9_200_001, ?, '2026-05-04T06:00:00Z', '2026-05-04T08:00:00Z', 1500, 0, 0)`,
+		)
+			.bind(ATHLETE_A)
+			.run();
+		const { html, section: badges } = await section();
+		const team = card(badges);
+		expect(team).toContain('popovertarget="badge-team-surprise-day-off"');
+		expect(team).toContain(
+			`<span class="badge-ribbon-text">${escapeHtml(de["badges.surprise.day-off"])}</span>`,
+		);
+		expect(badges).toContain(escapeHtml(de["badges.surprise.day-off.for"]));
+		expect(team).not.toContain("badge-progress");
+		// No rider named (FR-016a).
+		expect(teamGroup(badges)).not.toContain("Testrider");
+		expect(html).not.toContain('badge-team-surprise-all-out"');
+	});
+});

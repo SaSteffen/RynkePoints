@@ -514,6 +514,7 @@ export const en: Catalog = {
 	"badges.category.team_running": "Running together",
 	"badges.category.big_training": "Big training",
 	"badges.category.attendances": "Attendances",
+	"badges.category.team_surprise": "Team surprises",
 	"badges.about.distance":
 		"All the kilometres of your rides this season that count for Training Rynke.",
 	"badges.about.elevation":
@@ -556,6 +557,7 @@ export const en: Catalog = {
 		"The most riders at a single team event this season.",
 	"badges.about.attendances":
 		"All riders' attendances at team events this season, added up.",
+	"badges.about.team_surprise": "?",
 	"badges.for.distance": "You rode {value} by bike this season.",
 	"badges.for.elevation": "You climbed {value} by bike this season.",
 	"badges.for.team_events": "You joined {value} this season.",
@@ -606,6 +608,23 @@ export const en: Catalog = {
 	"badges.surprise.rest-day": "Rest day",
 	"badges.surprise.rest-day.for":
 		"Active every day for a week – and then a day off. Well earned!",
+	"badges.surprise.day-off": "Team day off",
+	"badges.surprise.day-off.for":
+		"A day on which the whole team put their feet up.",
+	"badges.surprise.all-out": "All out",
+	"badges.surprise.all-out.for": "A day on which really everyone was out.",
+	"badges.surprise.round-the-clock": "Round the clock",
+	"badges.surprise.round-the-clock.for":
+		"Someone from the team was out in every hour of one day.",
+	"badges.surprise.relay": "Relay",
+	"badges.surprise.relay.for":
+		"For 30 days in a row someone from the team was active every day.",
+	"badges.surprise.new-years-eve": "New Year's Eve",
+	"badges.surprise.new-years-eve.for":
+		"At least five from the team were out on New Year's Eve.",
+	"badges.surprise.sunday-outing": "Sunday outing",
+	"badges.surprise.sunday-outing.for":
+		"At least ten from the team out on a Sunday without a team event.",
 	"badges.value.half": "Half marathon",
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "New badge: {name} 🏅",
