@@ -668,4 +668,78 @@ export const de = {
 	"notification.badges": "{n} neue Abzeichen 🏅",
 	"notification.teamBadge": "Neues Team-Abzeichen: {name} 🏅",
 	"notification.teamBadges": "{n} neue Team-Abzeichen 🏅",
+
+	"privacy.link": "Datenschutz und Kontakt",
+	"privacy.title": "Datenschutz",
+	"privacy.updated": "Stand: {date}",
+	"privacy.intro":
+		"Hier steht, welche Daten RynkePoints verarbeitet, wozu, wer sie sieht, wie lange sie gespeichert werden und welche Rechte du hast.",
+	"privacy.controller.heading": "Verantwortlich und Kontakt",
+	"privacy.controller.body":
+		"Verantwortlich für die Datenverarbeitung in RynkePoints ist:",
+	"privacy.contact.body":
+		"Für Fragen, Hilfe, Auskunft oder Löschung schreib an {email}.",
+	"privacy.purpose.heading": "Wozu RynkePoints Daten verarbeitet",
+	"privacy.purpose.body":
+		"RynkePoints ist die Trainings-App von Team Rynkeby Hamburg. Sie liest die Eckdaten deiner Aktivitäten aus Strava, macht daraus Rynke (Trainingspunkte) und Abzeichen und zeigt sie dir, dem Team und den Organisatoren. Es gibt keine Werbung, keine Zahlungen, kein Tracking und keine Analyse-Werkzeuge. Daten werden weder verkauft noch weitergegeben und nicht für KI oder maschinelles Lernen verwendet.",
+	"privacy.strava.heading": "Daten aus Strava",
+	"privacy.strava.rider":
+		"Zu dir: deine Strava-Athleten-ID, dein Vorname, die Berechtigungen, die du erteilt hast, und die Zugangsschlüssel (Tokens), verschlüsselt gespeichert.",
+	"privacy.strava.rides":
+		"Zu jeder Radfahrt: Aktivitäts-ID, Titel, Sportart, Startzeit und Zeitzone, Distanz, Bewegungs- und Gesamtzeit, Höhenmeter und ob sie manuell eingetragen, auf dem Rollentrainer gefahren, privat oder von Strava markiert ist.",
+	"privacy.strava.runsSwims":
+		"Zu jedem Lauf und jedem Schwimmen nur Aktivitäts-ID, Startzeit, Distanz und ob sie privat ist, für die Lauf- und Schwimmabzeichen.",
+	"privacy.strava.private":
+		"Gespeichert werden nur Aktivitäten ab Saisonbeginn, private („Nur du“) nur, wenn du die Berechtigung dafür erteilt hast.",
+	"privacy.strava.never":
+		"Nie gelesen oder gespeichert werden GPS-Spuren, Karten, Routen, Segmente, Fotos, Beschreibungen, Herzfrequenz, Leistung, Trittfrequenz, Kalorien oder andere Gesundheitsdaten, deine Follower und Daten anderer Athleten.",
+	"privacy.strava.how":
+		"Neue, geänderte und gelöschte Aktivitäten meldet Strava von selbst; RynkePoints fragt nicht regelmäßig nach. Einmal am Tag prüft RynkePoints, ob du noch Mitglied im Strava-Club des Teams bist.",
+	"privacy.team.heading": "Daten vom Team und daraus berechnet",
+	"privacy.team.body":
+		"Die Organisatoren tragen ein, an welchen Teamterminen du teilgenommen hast, und können deine Rynke mit Grund und Datum korrigieren. Gespeichert wird auch, wer das wann geändert hat.",
+	"privacy.team.derived":
+		"Aus all dem berechnet RynkePoints deine Rynke, deine Abzeichen und welche Fahrten warum zählen.",
+	"privacy.technical.heading": "Technisch nötige Daten",
+	"privacy.technical.cookies":
+		"Cookies: „rp_session“ hält dich angemeldet, bis 180 Tage nach deinem letzten Besuch; „rp_oauth_state“ schützt die Anmeldung bei Strava für 10 Minuten; „rp_lang“ merkt sich eine gewählte Sprache für ein Jahr. Andere Cookies und Tracker gibt es nicht.",
+	"privacy.technical.push":
+		"Benachrichtigungen sind freiwillig und gelten pro Gerät. Gespeichert wird nur die Adresse, die der Push-Dienst deines Geräts oder Browsers vergibt. Die Benachrichtigung selbst ist leer: Was sie anzeigt, holt dein Gerät direkt bei RynkePoints. Die Adresse wird gelöscht, wenn du Benachrichtigungen ausschaltest, dich auf dem Gerät abmeldest oder gehst.",
+	"privacy.technical.logs":
+		"Server-Protokolle enthalten nur Kennungen wie Athleten- und Aktivitäts-IDs und die Art eines Fehlers, nie Zugangsschlüssel oder Aktivitätsdaten. IP-Adressen speichert RynkePoints nicht.",
+	"privacy.visibility.heading": "Wer was sieht",
+	"privacy.visibility.you":
+		"Du siehst deine eigenen Aktivitäten mit Titel, deine Rynke und deine Abzeichen. Die Titel sieht sonst niemand.",
+	"privacy.visibility.team":
+		"Das übrige Team sieht deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter und an welchen Tagen und zu welcher Stunde du aktiv bist zählen ohne Namen zu den Teamsummen und Team-Abzeichen.",
+	"privacy.visibility.organisers":
+		"Die Organisatoren sehen deinen Vornamen, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen, aber keine einzelnen Aktivitäten.",
+	"privacy.visibility.public":
+		"Nichts davon ist öffentlich: Jede Seite mit diesen Daten verlangt eine Anmeldung mit Strava.",
+	"privacy.legal.heading": "Rechtsgrundlagen",
+	"privacy.legal.body":
+		"Das Lesen deiner Strava-Daten und das Teilen deiner Rynke wie beschrieben beruhen auf deiner Einwilligung, die du vor dem Verbinden gibst (Art. 6 Abs. 1 lit. a DSGVO). Teamtermine, Korrekturen, die technisch nötigen Cookies und die Protokolle beruhen auf dem berechtigten Interesse, das Training des Teams zu organisieren und die App sicher zu betreiben (Art. 6 Abs. 1 lit. f DSGVO; für Cookies § 25 Abs. 2 TDDDG).",
+	"privacy.retention.heading": "Wie lange gespeichert wird",
+	"privacy.retention.body":
+		"Deine Daten bleiben gespeichert, solange du verbunden bist, und folgen dabei Strava: Löschst du eine Aktivität in Strava oder machst sie privat, ohne die Berechtigung dafür erteilt zu haben, verschwindet sie auch hier, sobald Strava das meldet, meist innerhalb von Minuten. Aktivitäten von vor dem Saisonbeginn werden gelöscht.",
+	"privacy.retention.deletion":
+		"Alle Daten zu dir werden auf einmal gelöscht, und der Zugang bei Strava wird widerrufen, wo er noch gilt, wenn du dich in der App trennst, RynkePoints in deinen Strava-Einstellungen entfernst, den Strava-Club des Teams verlässt (innerhalb von 24 Stunden) oder eine unterbrochene Verbindung nicht innerhalb von 7 Tagen erneuerst.",
+	"privacy.retention.backups":
+		"Danach bleiben die Daten höchstens 7 Tage in den automatischen Sicherungen der Datenbank und verschwinden dann. Server-Protokolle löscht Cloudflare nach höchstens 7 Tagen.",
+	"privacy.recipients.heading": "Wer die Daten verarbeitet",
+	"privacy.recipients.cloudflare":
+		"RynkePoints läuft bei Cloudflare, Inc. als Auftragsverarbeiter: Webserver, Warteschlange und Datenbank. Cloudflare verarbeitet dabei technisch bedingt deine IP-Adresse, um die Seiten auszuliefern und vor Angriffen zu schützen. Cloudflare hat Rechenzentren weltweit, auch in den USA; für Übermittlungen dorthin ist Cloudflare nach dem EU-US Data Privacy Framework zertifiziert, und es gelten die EU-Standardvertragsklauseln.",
+	"privacy.recipients.push":
+		"Die Push-Dienste der Geräte- und Browserhersteller (etwa Google, Apple, Mozilla, Microsoft) erhalten nur leere Benachrichtigungen an die Adresse deines Geräts.",
+	"privacy.recipients.strava":
+		"Für die Daten in deinem Strava-Konto ist Strava selbst verantwortlich. Es gilt die {stravaPrivacy}; sie hat Vorrang, wenn sie dieser Erklärung widerspricht.",
+	"privacy.recipients.stravaPrivacy": "Datenschutzerklärung von Strava",
+	"privacy.recipients.usage":
+		"Strava kann Nutzungsdaten darüber erheben, wie RynkePoints die Strava-Schnittstelle nutzt, und sie für beliebige geschäftliche Zwecke verwenden, etwa um die Schnittstelle und die Strava-Plattform zu verbessern, Support zu leisten oder die Einhaltung seiner Bedingungen zu prüfen.",
+	"privacy.rights.heading": "Deine Rechte",
+	"privacy.rights.body":
+		"Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch (Art. 15 bis 21 DSGVO). Deine Einwilligung kannst du jederzeit widerrufen, am einfachsten, indem du dich in der App trennst; was bis dahin geschah, bleibt rechtmäßig. Du kannst dich außerdem bei einer Datenschutz-Aufsichtsbehörde beschweren, insbesondere dort, wo du wohnst. Für alle Anliegen erreichst du uns unter {email}.",
+	"privacy.changes.heading": "Änderungen",
+	"privacy.changes.body":
+		"Ändert sich, welche Daten RynkePoints liest oder wer sie sieht, bitten wir dich erneut um deine Einwilligung, bevor die App dir wieder etwas zeigt.",
 } satisfies Record<string, string>;

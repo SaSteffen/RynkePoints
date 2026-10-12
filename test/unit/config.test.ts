@@ -4,6 +4,8 @@ import {
 	clientId,
 	clientSecret,
 	clubId,
+	contactEmail,
+	privacyController,
 	readyPollSeconds,
 	seasonStartEpoch,
 	subscriptionId,
@@ -64,4 +66,31 @@ describe("readyPollSeconds", () => {
 	it.each(["0", "61", "x", "", "1.5"])("rejects %j", (value) => {
 		expect(() => readyPollSeconds({ READY_POLL_SECONDS: value })).toThrow();
 	});
+});
+
+describe("privacyController", () => {
+	it("is the non-empty lines, trimmed", () => {
+		expect(
+			privacyController({ PRIVACY_CONTROLLER: " Name \n\n Street 1\n" }),
+		).toEqual(["Name", "Street 1"]);
+	});
+
+	it("rejects an empty setting", () => {
+		expect(() => privacyController({ PRIVACY_CONTROLLER: " \n " })).toThrow();
+	});
+});
+
+describe("contactEmail", () => {
+	it("is the address, trimmed", () => {
+		expect(contactEmail({ CONTACT_EMAIL: " a@b.example " })).toBe(
+			"a@b.example",
+		);
+	});
+
+	it.each(["", "nobody", "a@b", 'a"@b.example', "a b@c.example"])(
+		"rejects %j",
+		(value) => {
+			expect(() => contactEmail({ CONTACT_EMAIL: value })).toThrow();
+		},
+	);
 });

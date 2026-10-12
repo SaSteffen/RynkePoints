@@ -18,7 +18,8 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // specs/011-mobile-app-shell/contracts/pages.md and
 // specs/014-organiser-admin/contracts/http-routes.md and
 // specs/016-team-leaderboard/contracts/messages.md and
-// specs/013-badges-achievements/contracts/badge-messages.md.
+// specs/013-badges-achievements/contracts/badge-messages.md and
+// specs/017-privacy-page/contracts/messages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"meta.intlLocale",
@@ -527,6 +528,50 @@ const CONTRACT_IDS = [
 	"notification.badges",
 	"notification.teamBadge",
 	"notification.teamBadges",
+	"privacy.link",
+	"privacy.title",
+	"privacy.updated",
+	"privacy.intro",
+	"privacy.controller.heading",
+	"privacy.controller.body",
+	"privacy.contact.body",
+	"privacy.purpose.heading",
+	"privacy.purpose.body",
+	"privacy.strava.heading",
+	"privacy.strava.rider",
+	"privacy.strava.rides",
+	"privacy.strava.runsSwims",
+	"privacy.strava.private",
+	"privacy.strava.never",
+	"privacy.strava.how",
+	"privacy.team.heading",
+	"privacy.team.body",
+	"privacy.team.derived",
+	"privacy.technical.heading",
+	"privacy.technical.cookies",
+	"privacy.technical.push",
+	"privacy.technical.logs",
+	"privacy.visibility.heading",
+	"privacy.visibility.you",
+	"privacy.visibility.team",
+	"privacy.visibility.organisers",
+	"privacy.visibility.public",
+	"privacy.legal.heading",
+	"privacy.legal.body",
+	"privacy.retention.heading",
+	"privacy.retention.body",
+	"privacy.retention.deletion",
+	"privacy.retention.backups",
+	"privacy.recipients.heading",
+	"privacy.recipients.cloudflare",
+	"privacy.recipients.push",
+	"privacy.recipients.strava",
+	"privacy.recipients.stravaPrivacy",
+	"privacy.recipients.usage",
+	"privacy.rights.heading",
+	"privacy.rights.body",
+	"privacy.changes.heading",
+	"privacy.changes.body",
 ];
 
 const placeholders = (text: string) =>

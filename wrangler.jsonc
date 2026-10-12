@@ -54,7 +54,11 @@
 		"PUSH_SUBJECT": "https://trhh-rynke-coins.link",
 		// Seconds between the waiting page's checks for the first data, 1–60
 		// (015 research R5).
-		"READY_POLL_SECONDS": "10"
+		"READY_POLL_SECONDS": "10",
+		// Who is responsible for the riders' data, and how to reach them, for
+		// the privacy page (/privacy). Name and postal address, one line each.
+		"PRIVACY_CONTROLLER": "TODO name\nTODO street and number\nTODO postcode and town",
+		"CONTACT_EMAIL": "TODO@trhh-rynke-coins.link"
 	},
 	// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing
 	// them here makes `pnpm types` independent of what's in your `.dev.vars`.

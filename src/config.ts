@@ -10,6 +10,8 @@ type Settings = Pick<
 	| "STRAVA_CLIENT_SECRET"
 	| "STRAVA_WEBHOOK_VERIFY_TOKEN"
 	| "READY_POLL_SECONDS"
+	| "PRIVACY_CONTROLLER"
+	| "CONTACT_EMAIL"
 >;
 
 const SEASON_TIME_ZONE = "Europe/Berlin";
@@ -112,4 +114,24 @@ function berlinOffsetMs(epochMs: number): number {
 		get("second"),
 	);
 	return wallClockAsUtc - epochMs;
+}
+
+/** Who is responsible for the riders' data: name and postal address lines. */
+export function privacyController(
+	env: Pick<Settings, "PRIVACY_CONTROLLER">,
+): string[] {
+	const lines = env.PRIVACY_CONTROLLER.split("\n")
+		.map((line) => line.trim())
+		.filter((line) => line !== "");
+	if (lines.length === 0) throw new Error("PRIVACY_CONTROLLER is empty");
+	return lines;
+}
+
+/** The address riders write to about support and their data. */
+export function contactEmail(env: Pick<Settings, "CONTACT_EMAIL">): string {
+	const email = env.CONTACT_EMAIL.trim();
+	if (!/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(email)) {
+		throw new Error("CONTACT_EMAIL must be an email address");
+	}
+	return email;
 }

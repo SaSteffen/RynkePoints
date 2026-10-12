@@ -66,7 +66,8 @@ production numbers are left out. The run fails when a page route in
    (`e2e/strava-review.review.ts`), German and English, at desktop size, a
    long page screenful by screenful; the PDF has the English ones, which is
    all the form asks for:
-   - `/` (landing, "Connect with Strava") and `/notice/team-full`
+   - `/` (landing, "Connect with Strava"), `/privacy` (privacy notice) and
+     `/notice/team-full`
    - `/me`, `/me/rides`, `/me/settings`, `/me/disconnect`
    - `/team` (team leaderboard)
    - `/organiser` and one event, `/organiser/riders` and one rider
