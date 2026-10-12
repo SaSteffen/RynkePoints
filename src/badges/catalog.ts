@@ -31,6 +31,7 @@ export type BadgeCategoryId =
 	| "winter_december"
 	| "winter_january"
 	| "winter_february"
+	| "surprise"
 	| "team_training_rynke"
 	| "team_distance"
 	| "team_elevation"
@@ -46,6 +47,11 @@ export interface BadgeCategory {
 	ladder: readonly number[];
 	/** A winter category's calendar month, 1 to 12 (part C, research R25). */
 	month?: number;
+	/**
+	 * Single badges with secret rules instead of a ladder; the ladder only
+	 * orders them (part D, FR-015, research R32).
+	 */
+	surprise?: true;
 }
 
 export interface Badge {
@@ -56,7 +62,7 @@ export interface Badge {
 }
 
 /** Raised with any ladder change; riders on an older one are re-evaluated (FR-012). */
-export const BADGE_CATALOG_VERSION = 2;
+export const BADGE_CATALOG_VERSION = 3;
 
 /** In the spec's order: personal first, then team. */
 export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
@@ -150,6 +156,14 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		ladder: [1, 5, 10],
 		month: 2,
 	},
+	// Part D (2026-10-12, research R32): no unit is ever shown.
+	{
+		id: "surprise",
+		group: "personal",
+		unit: "days",
+		ladder: [1, 2, 3, 4, 5, 6],
+		surprise: true,
+	},
 	{
 		id: "team_training_rynke",
 		group: "team",
@@ -197,6 +211,14 @@ const NAMED_THRESHOLDS: Partial<
 > = {
 	run_length: { 21.0975: "half", 42.195: "marathon" },
 	swim_length: { 0.5: "500", 1: "1000", 1.9: "1900", 3.8: "3800" },
+	surprise: {
+		1: "new-year",
+		2: "christmas-eve",
+		3: "christmas",
+		4: "night-owl",
+		5: "early-bird",
+		6: "rest-day",
+	},
 };
 
 const badgeIdOf = (category: BadgeCategoryId, threshold: number): string =>
@@ -205,7 +227,7 @@ const badgeIdOf = (category: BadgeCategoryId, threshold: number): string =>
 /** Every badge's id; a string here, checked against the catalog at runtime. */
 export type BadgeId = string;
 
-/** All 101 badges in catalog order: by category, then by threshold. */
+/** All 107 badges in catalog order: by category, then by threshold. */
 export const BADGES: readonly Badge[] = BADGE_CATEGORIES.flatMap((c) =>
 	c.ladder.map((threshold) => ({
 		id: badgeIdOf(c.id, threshold),
@@ -232,3 +254,9 @@ export const ONE_DECIMAL: ReadonlySet<BadgeCategoryId> = new Set([
 	"swim_length",
 	"swimming",
 ]);
+
+/** A surprise badge's rule name, `new-year` …, or null for other badges. */
+export const surpriseName = (badge: Badge): string | null =>
+	badge.category === "surprise"
+		? (NAMED_THRESHOLDS.surprise?.[badge.threshold] ?? null)
+		: null;

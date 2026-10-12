@@ -530,6 +530,7 @@ export const de = {
 	"badges.category.winter_december": "Winter: Dezember",
 	"badges.category.winter_january": "Winter: Januar",
 	"badges.category.winter_february": "Winter: Februar",
+	"badges.category.surprise": "Überraschungen",
 	"badges.category.team_training_rynke": "Trainings-Rynke gemeinsam",
 	"badges.category.team_distance": "Kilometer gemeinsam",
 	"badges.category.team_elevation": "Höhenmeter gemeinsam",
@@ -566,6 +567,7 @@ export const de = {
 		"Tage im Januar, an denen du draußen gefahren bist, nicht auf der Rolle.",
 	"badges.about.winter_february":
 		"Tage im Februar, an denen du draußen gefahren bist, nicht auf der Rolle.",
+	"badges.about.surprise": "?",
 	"badges.about.team_training_rynke":
 		"Die Trainings-Rynke aller Rider in dieser Saison zusammengezählt.",
 	"badges.about.team_distance":
@@ -626,6 +628,20 @@ export const de = {
 	"badges.value.attendances.one": "{n}\u00a0Teilnahme",
 	"badges.value.days": "{n}\u00a0Tage",
 	"badges.value.days.one": "{n}\u00a0Tag",
+	"badges.surprise.new-year": "Neujahr",
+	"badges.surprise.new-year.for": "Du warst am Neujahrstag unterwegs.",
+	"badges.surprise.christmas-eve": "Heiligabend",
+	"badges.surprise.christmas-eve.for": "Du warst an Heiligabend unterwegs.",
+	"badges.surprise.christmas": "Weihnachten",
+	"badges.surprise.christmas.for":
+		"Du warst an den Weihnachtsfeiertagen unterwegs.",
+	"badges.surprise.night-owl": "Nachteule",
+	"badges.surprise.night-owl.for": "Du bist nach 21:30 Uhr losgefahren.",
+	"badges.surprise.early-bird": "Frühaufsteher",
+	"badges.surprise.early-bird.for": "Du bist vor 6 Uhr losgefahren.",
+	"badges.surprise.rest-day": "Ruhetag",
+	"badges.surprise.rest-day.for":
+		"Eine Woche lang jeden Tag aktiv – und dann einen Tag Pause. Verdient!",
 	"badges.value.half": "Halbmarathon",
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "Neues Abzeichen: {name} 🏅",

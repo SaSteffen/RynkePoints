@@ -912,6 +912,7 @@ function figuresOf(state: RiderState, evaluation: Evaluation): Figures {
 			distanceRynke: result.distanceRynke,
 			elevationDm: result.elevationDm,
 			virtual: result.isVirtual,
+			startTime: activity.start_date_local.slice(11, 16),
 		});
 	}
 	const dated = (activity: RunRecord | SwimRecord) => ({

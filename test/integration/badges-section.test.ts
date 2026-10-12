@@ -154,7 +154,7 @@ describe("the Abzeichen section", () => {
 		const slots = (list: string) =>
 			list.match(/<li class="badge-slot" aria-hidden="true"><\/li>/g)?.length;
 		expect(lists.map(slots)).toEqual([
-			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3,
+			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3, 6,
 		]);
 		expect(lists.slice(2).join("")).not.toContain("popovertarget");
 		expect(lists[0]?.lastIndexOf('popovertarget="')).toBeLessThan(
@@ -185,6 +185,7 @@ describe("the Abzeichen section", () => {
 			"winter_december",
 			"winter_january",
 			"winter_february",
+			"surprise",
 		]);
 		expect(badges).toContain(
 			escapeHtml(de["badges.missing"].replace("{value}", "1\u00a0Termin")),
@@ -265,7 +266,7 @@ describe("the Abzeichen section without badges", () => {
 			...personalGroup(badges).matchAll(
 				/<li class="badge-card badge-card-empty"/g,
 			),
-		]).toHaveLength(15);
+		]).toHaveLength(16);
 	});
 
 	it("isn't there in the waiting state (US1 scenario 5)", async () => {
@@ -433,5 +434,58 @@ describe("the part C categories on the page", () => {
 		expect(card(badges, "winter_november")).toContain(
 			'<span class="badge-ribbon-text">5\u00a0Tage</span>',
 		);
+	});
+});
+
+// Part D: "?" until earned, why once earned (FR-015b, SC-003, research R34).
+describe("the surprise badges on the page", () => {
+	const surpriseCard = (badges: string | null) =>
+		personalGroup(badges).match(
+			/<li class="badge-card[^"]*" data-category="surprise">[\s\S]*?<\/li>/,
+		)?.[0] ?? "";
+	const about = `<h4>${escapeHtml(de["badges.category.surprise"])}</h4>\n<p class="badge-about">?</p>`;
+
+	beforeEach(async () => {
+		await seedBalance(ATHLETE_A);
+	});
+
+	it("shows only ? and an outline without a bar before any (US6 1)", async () => {
+		await earn(ATHLETE_A, [["distance-100", "2026-05-02"]]);
+		const { section: badges } = await section();
+		const card = surpriseCard(badges);
+		expect(card).toContain("badge-card-empty");
+		expect(card).toContain(about);
+		expect(card).not.toContain("badge-progress");
+		const gallery = badges?.match(/<details[\s\S]*?<\/details>/)?.[0] ?? "";
+		expect(gallery).toContain(about);
+	});
+
+	it("names an earned one and says why, and nothing of the others (US6 8)", async () => {
+		await earn(ATHLETE_A, [
+			["surprise-night-owl", "2026-05-02"],
+			["surprise-christmas-eve", "2026-05-04"],
+		]);
+		const { html, section: badges } = await section();
+		const card = surpriseCard(badges);
+		expect(card).toContain(about);
+		expect(card).toContain('popovertarget="badge-surprise-christmas-eve"');
+		expect(card).toContain(
+			`<span class="badge-ribbon-text">${escapeHtml(de["badges.surprise.christmas-eve"])}</span>`,
+		);
+		expect(card).not.toContain("badge-progress");
+		expect(badges).toContain(escapeHtml(de["badges.surprise.night-owl.for"]));
+		for (const name of [
+			"new-year",
+			"christmas",
+			"early-bird",
+			"rest-day",
+		] as const) {
+			expect(html).not.toContain(`surprise-${name}`);
+			expect(html).not.toContain(escapeHtml(de[`badges.surprise.${name}.for`]));
+			expect(html).not.toContain(
+				`>${escapeHtml(de[`badges.surprise.${name}`])}<`,
+			);
+			expect(html).not.toContain(escapeHtml(nameOf(`surprise-${name}`)));
+		}
 	});
 });

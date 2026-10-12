@@ -291,3 +291,50 @@ describe("buildBadgeSection with today (FR-004a, US5 scenario 9)", () => {
 		]);
 	});
 });
+
+// Part D: the surprise card shows the newest, never a bar (research R35).
+describe("buildBadgeSection for surprise badges", () => {
+	const SURPRISE = [{ ...progress("surprise", 0, null) }];
+
+	it("shows the newest earned surprise badge without progress", () => {
+		const section = buildBadgeSection({
+			waiting: false,
+			personal: {
+				earned: [
+					{ badgeId: "surprise-night-owl", earnedOn: "2026-10-04" },
+					{ badgeId: "surprise-new-year", earnedOn: "2027-01-01" },
+					{ badgeId: "surprise-early-bird", earnedOn: "2026-11-02" },
+				],
+				progress: SURPRISE,
+			},
+		});
+		expect(section?.personal?.cards).toEqual([
+			{
+				category: "surprise",
+				badge: { badgeId: "surprise-new-year", earnedOn: "2027-01-01" },
+				progress: null,
+			},
+		]);
+		expect(section?.personal?.gallery).toEqual([
+			{
+				category: "surprise",
+				badges: [
+					{ badgeId: "surprise-new-year", earnedOn: "2027-01-01" },
+					{ badgeId: "surprise-early-bird", earnedOn: "2026-11-02" },
+					{ badgeId: "surprise-night-owl", earnedOn: "2026-10-04" },
+				],
+				unearned: 3,
+			},
+		]);
+	});
+
+	it("is an outline card without progress before the first one", () => {
+		const section = buildBadgeSection({
+			waiting: false,
+			personal: { earned: [], progress: SURPRISE },
+		});
+		expect(section?.notYet).toEqual([
+			{ category: "surprise", group: "personal", progress: null },
+		]);
+	});
+});

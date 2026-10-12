@@ -164,6 +164,7 @@ describe("evaluateBadges", () => {
 			["winter_december", 0, 1],
 			["winter_january", 0, 1],
 			["winter_february", 0, 1],
+			["surprise", 0, null],
 		]);
 	});
 
@@ -390,5 +391,113 @@ describe("evaluateBadges for swims", () => {
 		for (const category of ["distance", "running", "ride_length"]) {
 			expect(progressOf(result, category)?.value).toBe(0);
 		}
+	});
+});
+
+// Part D: surprise badges (spec User Story 6, FR-015a, research R33).
+describe("evaluateBadges for the surprise badges", () => {
+	const SEASON = { seasonStart: "2026-09-01", deadline: "2027-07-31" };
+	const at = (date: string, time: string, km = 20) => ({
+		...ride(date, km),
+		startTime: time,
+	});
+	const run = (date: string) => ({ date, distanceM: 5000 });
+	const surprises = (inputs: Partial<PersonalInputs>) =>
+		evaluateBadges({ ...NONE, ...inputs }, CURRENT_RULES, SEASON).earned.filter(
+			(b) => b.badgeId.startsWith("surprise-"),
+		);
+
+	it("gives the holiday badges for a ride, a run or a swim (US6 2, 3)", () => {
+		expect(
+			surprises({
+				rides: [at("2026-12-24", "10:00")],
+				runs: [run("2027-01-01")],
+				swims: [{ date: "2026-12-26", distanceM: 1000 }],
+			}),
+		).toEqual([
+			{ badgeId: "surprise-new-year", earnedOn: "2027-01-01" },
+			{ badgeId: "surprise-christmas-eve", earnedOn: "2026-12-24" },
+			{ badgeId: "surprise-christmas", earnedOn: "2026-12-26" },
+		]);
+	});
+
+	it("dates Christmas by the first of the two holidays", () => {
+		expect(
+			surprises({
+				rides: [at("2026-12-26", "10:00"), at("2026-12-25", "10:00")],
+			}),
+		).toEqual([{ badgeId: "surprise-christmas", earnedOn: "2026-12-25" }]);
+	});
+
+	it("makes a night owl from 21:30 on (US6 4)", () => {
+		expect(surprises({ rides: [at("2026-10-03", "21:29")] })).toEqual([]);
+		expect(surprises({ rides: [at("2026-10-04", "21:30")] })).toEqual([
+			{ badgeId: "surprise-night-owl", earnedOn: "2026-10-04" },
+		]);
+	});
+
+	it("makes an early bird before 6:00, from rides only (US6 5)", () => {
+		expect(surprises({ rides: [at("2026-10-03", "06:00")] })).toEqual([]);
+		expect(surprises({ rides: [at("2026-10-04", "05:59")] })).toEqual([
+			{ badgeId: "surprise-early-bird", earnedOn: "2026-10-04" },
+		]);
+		expect(surprises({ rides: [at("2026-10-05", "00:30")] })).toEqual([
+			{ badgeId: "surprise-early-bird", earnedOn: "2026-10-05" },
+		]);
+	});
+
+	it("gives the rest day after a full week, dated the day off (US6 6)", () => {
+		const week = Array.from({ length: 7 }, (_, i) => run(`2026-10-0${1 + i}`));
+		// No later activity yet: the day off isn't over.
+		expect(surprises({ runs: week })).toEqual([]);
+		expect(
+			surprises({ runs: week, rides: [at("2026-10-09", "10:00")] }),
+		).toEqual([{ badgeId: "surprise-rest-day", earnedOn: "2026-10-08" }]);
+	});
+
+	it("gives no rest day after six days (US6 7)", () => {
+		const six = Array.from({ length: 6 }, (_, i) => run(`2026-10-0${1 + i}`));
+		expect(surprises({ runs: [...six, run("2026-10-09")] })).toEqual([]);
+	});
+
+	it("counts mixed activities and several on one day towards the week", () => {
+		expect(
+			surprises({
+				rides: [
+					at("2026-10-01", "10:00"),
+					at("2026-10-01", "17:00"),
+					at("2026-10-03", "10:00"),
+				],
+				runs: [run("2026-10-02"), run("2026-10-05"), run("2026-10-07")],
+				swims: [
+					{ date: "2026-10-04", distanceM: 1000 },
+					{ date: "2026-10-06", distanceM: 1000 },
+					{ date: "2026-10-12", distanceM: 1000 },
+				],
+			}),
+		).toEqual([{ badgeId: "surprise-rest-day", earnedOn: "2026-10-08" }]);
+	});
+
+	it("counts nothing outside the counting window", () => {
+		expect(
+			surprises({
+				rides: [at("2026-01-01", "05:00")],
+				runs: [run("2026-08-31")],
+			}),
+		).toEqual([]);
+	});
+
+	it("shows no next step for the surprise category", () => {
+		const result = evaluateBadges(
+			{ ...NONE, rides: [at("2026-12-24", "22:00")] },
+			CURRENT_RULES,
+			SEASON,
+		);
+		expect(progressOf(result, "surprise")).toEqual({
+			category: "surprise",
+			value: 2,
+			next: null,
+			missing: null,
+		});
 	});
 });

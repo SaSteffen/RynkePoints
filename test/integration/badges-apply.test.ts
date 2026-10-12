@@ -224,6 +224,31 @@ describe("ride length, virtual rides and winter in applyAndEvaluate", () => {
 	});
 });
 
+// Part D: surprise badges from the stored rides' local start (research R33).
+describe("surprise badges in applyAndEvaluate", () => {
+	it("awards Christmas Eve and night owl, and takes them back with the ride", async () => {
+		await apply({
+			kind: "upsert",
+			records: [
+				activityRecord(1, {
+					start_date: "2026-12-24T21:45:00Z",
+				}),
+			],
+		});
+		expect(
+			(await badges()).filter(([id]) => id?.startsWith("surprise-")),
+		).toEqual([
+			["surprise-christmas-eve", "2026-12-24"],
+			["surprise-night-owl", "2026-12-24"],
+		]);
+
+		await apply({ kind: "delete", activityIds: [1] });
+		expect(
+			(await badges()).filter(([id]) => id?.startsWith("surprise-")),
+		).toEqual([]);
+	});
+});
+
 describe("badges in team-event and correction changes", () => {
 	it("awards and takes back a team-event badge", async () => {
 		const eventId = await insertEvent("technique_training", "2026-05-09");

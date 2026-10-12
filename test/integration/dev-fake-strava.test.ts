@@ -546,10 +546,11 @@ describe("sample riders in every state (US2)", () => {
 				/<section class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
 			)?.[0] ?? "";
 		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(6);
-		// Running twice, virtual, swimming twice and the four winter months.
+		// Running twice, virtual, swimming twice, the four winter months and
+		// the surprises.
 		expect(
 			personal.match(/<li class="badge-card badge-card-empty"/g),
-		).toHaveLength(9);
+		).toHaveLength(10);
 	});
 
 	it("counts only Rudi Runner's outdoor runs (013 US3)", async () => {
@@ -591,8 +592,14 @@ describe("sample riders in every state (US2)", () => {
 				"winter-february-5",
 				"swim-length-500",
 				"swim-length-1000",
+				"surprise-new-year",
+				"surprise-christmas-eve",
+				"surprise-night-owl",
+				"surprise-early-bird",
+				"surprise-rest-day",
 			]),
 		);
+		expect(ids).not.toContain("surprise-christmas");
 		expect(ids).not.toContain("swim-length-1900");
 		expect(
 			await count(

@@ -507,6 +507,7 @@ export const en: Catalog = {
 	"badges.category.winter_december": "Winter: December",
 	"badges.category.winter_january": "Winter: January",
 	"badges.category.winter_february": "Winter: February",
+	"badges.category.surprise": "Surprises",
 	"badges.category.team_training_rynke": "Training Rynke together",
 	"badges.category.team_distance": "Distance together",
 	"badges.category.team_elevation": "Elevation together",
@@ -542,6 +543,7 @@ export const en: Catalog = {
 		"Days in January on which you rode outdoors, not on a trainer.",
 	"badges.about.winter_february":
 		"Days in February on which you rode outdoors, not on a trainer.",
+	"badges.about.surprise": "?",
 	"badges.about.team_training_rynke":
 		"The Training Rynke of all riders, added up for this season.",
 	"badges.about.team_distance":
@@ -591,6 +593,19 @@ export const en: Catalog = {
 	"badges.value.attendances.one": "{n}\u00a0visit",
 	"badges.value.days": "{n}\u00a0days",
 	"badges.value.days.one": "{n}\u00a0day",
+	"badges.surprise.new-year": "New Year",
+	"badges.surprise.new-year.for": "You were out on New Year's Day.",
+	"badges.surprise.christmas-eve": "Christmas Eve",
+	"badges.surprise.christmas-eve.for": "You were out on Christmas Eve.",
+	"badges.surprise.christmas": "Christmas",
+	"badges.surprise.christmas.for": "You were out over the Christmas holidays.",
+	"badges.surprise.night-owl": "Night owl",
+	"badges.surprise.night-owl.for": "You set off after 9:30 pm.",
+	"badges.surprise.early-bird": "Early bird",
+	"badges.surprise.early-bird.for": "You set off before 6 am.",
+	"badges.surprise.rest-day": "Rest day",
+	"badges.surprise.rest-day.for":
+		"Active every day for a week – and then a day off. Well earned!",
 	"badges.value.half": "Half marathon",
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "New badge: {name} 🏅",

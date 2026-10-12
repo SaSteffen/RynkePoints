@@ -307,7 +307,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		athleteId: 990016,
 		firstName: "Wanda Winter",
 		state:
-			"Badges (feature 013 part C): a long ride, virtual rides, winter days and swims",
+			"Badges (feature 013 parts C and D): a long ride, virtual rides, winter days, swims and surprise badges",
 		scopes: ALL_SCOPES,
 		clubMember: true,
 		behaviour: "normal",
@@ -328,6 +328,16 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			...rides(5, (i) =>
 				ride(0, "10:00", 40, 200, 24, { onDate: `02-0${1 + i}` }),
 			),
+			// Surprises (part D): Christmas Eve and night owl; New Year and early
+			// bird.
+			ride(0, "22:00", 30, 100, 24, { onDate: "12-24" }),
+			ride(0, "05:30", 30, 100, 24, { onDate: "01-01" }),
+			// With the activities on days 2 to 6, a full week from day 8 on (the
+			// manual swim on day 7 doesn't count); day 1 off and a ride on the
+			// seeding day: the rest day.
+			ride(7, "10:00", 30, 100, 24),
+			ride(8, "10:00", 30, 100, 24),
+			ride(0, "10:00", 30, 100, 24),
 			// Swims: pool and open water count, the manual one doesn't.
 			ride(2, "07:00", 1.2, 0, 2.4, { sportType: "Swim", trainer: true }),
 			ride(4, "07:00", 0.8, 0, 2.4, { sportType: "Swim" }),

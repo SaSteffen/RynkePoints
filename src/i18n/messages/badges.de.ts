@@ -89,6 +89,13 @@ export const BADGE_NAMES: Record<BadgeId, string> = {
 	"winter-february-1": "Fasching auf dem Rad",
 	"winter-february-5": "Zugefroren",
 	"winter-february-10": "Winter überstanden",
+	// Überraschungen (part D)
+	"surprise-new-year": "Prost Neujahr",
+	"surprise-christmas-eve": "Bescherung auf Rädern",
+	"surprise-christmas": "Gänsebraten abgestrampelt",
+	"surprise-night-owl": "Nachteule",
+	"surprise-early-bird": "Frühaufsteher",
+	"surprise-rest-day": "Sofaheld",
 	// Trainings-Rynke gemeinsam
 	"team-training-rynke-500": "Gemeinsam angerollt",
 	"team-training-rynke-1000": "Tausend zusammen",

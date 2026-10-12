@@ -16,6 +16,7 @@ import {
 	type BadgeCategoryId,
 	type BadgeId,
 	categoryById,
+	surpriseName,
 } from "./catalog";
 
 /** A counting ride (its result counts), by the ride's local start date. */
@@ -27,6 +28,8 @@ export interface CountingRide {
 	elevationDm: number;
 	/** A virtual or indoor-trainer ride (003 FR-013a); absent: outdoor. */
 	virtual?: boolean;
+	/** Local start time `HH:MM`, for night owl and early bird (part D). */
+	startTime?: string;
 }
 
 /** An outdoor run, by its local start date. */
@@ -72,7 +75,17 @@ export function evaluateBadges(
 	window: CountingWindow,
 ): { earned: EarnedBadge[]; progress: CategoryProgress[] } {
 	const series = personalSeries(inputs, rules, window);
-	return fromSeries(series, "personal");
+	const { earned, progress } = fromSeries(series, "personal");
+	const surprises = surpriseBadges(inputs, window);
+	return {
+		// Surprises are the last personal category, so catalog order holds.
+		earned: [...earned, ...surprises],
+		progress: progress.map((p) =>
+			categoryById(p.category).surprise
+				? progressOf(p.category, surprises.length)
+				: p,
+		),
+	};
 }
 
 /**
@@ -106,7 +119,9 @@ export function progressOf(
 	category: BadgeCategoryId,
 	value: number,
 ): CategoryProgress {
-	const next = categoryById(category).ladder.find((t) => t > value) ?? null;
+	const { ladder, surprise } = categoryById(category);
+	// Surprise badges have no next step to show (FR-015).
+	const next = surprise ? null : (ladder.find((t) => t > value) ?? null);
 	return {
 		category,
 		value,
@@ -222,4 +237,73 @@ function longestSoFar(
 		series.push({ date: item.date, value: longest });
 	}
 	return series;
+}
+
+/**
+ * The surprise badges and the first date each rule was met (FR-015a,
+ * research R33): holidays by any activity's local date, night owl and early
+ * bird by a counting ride's local start time, and the rest day once a later
+ * activity shows the day off is over.
+ */
+function surpriseBadges(
+	inputs: PersonalInputs,
+	window: CountingWindow,
+): EarnedBadge[] {
+	const rides = inputs.rides.filter((r) => inCountingWindow(r.date, window));
+	const days = new Set(
+		[...rides, ...inputs.runs, ...(inputs.swims ?? [])]
+			.map((a) => a.date)
+			.filter((date) => inCountingWindow(date, window)),
+	);
+	const sorted = [...days].sort();
+	const first = (dates: readonly string[]) => [...dates].sort()[0];
+	const on = (...monthDays: string[]) =>
+		first(sorted.filter((d) => monthDays.includes(d.slice(5))));
+	const startingAt = (test: (time: string) => boolean) =>
+		first(
+			rides
+				.filter((r) => r.startTime !== undefined && test(r.startTime))
+				.map((r) => r.date),
+		);
+	const found: Record<string, string | undefined> = {
+		"new-year": on("01-01"),
+		"christmas-eve": on("12-24"),
+		christmas: on("12-25", "12-26"),
+		"night-owl": startingAt((time) => time >= "21:30"),
+		"early-bird": startingAt((time) => time < "06:00"),
+		"rest-day": restDay(sorted, days),
+	};
+	return BADGES.flatMap((badge) => {
+		const name = surpriseName(badge);
+		const earnedOn = name === null ? undefined : found[name];
+		return earnedOn ? [{ badgeId: badge.id, earnedOn }] : [];
+	});
+}
+
+/** `YYYY-MM-DD` shifted by `days`. */
+function shift(date: string, days: number): string {
+	return new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000)
+		.toISOString()
+		.slice(0, 10);
+}
+
+/**
+ * The first day without an activity right after seven days in a row with
+ * one, once an activity after it shows the day is over.
+ */
+function restDay(
+	sorted: readonly string[],
+	days: ReadonlySet<string>,
+): string | undefined {
+	const last = sorted.at(-1);
+	for (const date of sorted) {
+		const rest = shift(date, 1);
+		if (days.has(rest) || last === undefined || last <= rest) continue;
+		let week = true;
+		for (let back = 1; back <= 7; back++) {
+			if (!days.has(shift(rest, -back))) week = false;
+		}
+		if (week) return rest;
+	}
+	return undefined;
 }

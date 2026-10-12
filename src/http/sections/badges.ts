@@ -15,6 +15,7 @@ import {
 	badgeById,
 	categoryById,
 	ONE_DECIMAL,
+	surpriseName,
 } from "../../badges/catalog";
 import type { EarnedBadge } from "../../badges/evaluate";
 import { BADGE_PICTURES } from "../../badges/pictures";
@@ -66,11 +67,23 @@ function valueText(
 		: i18n.t(`badges.value.${unit}`, { n: value });
 }
 
+/** The surprise badges' rule names, as their catalog keys use them. */
+type SurpriseName =
+	| "new-year"
+	| "christmas-eve"
+	| "christmas"
+	| "night-owl"
+	| "early-bird"
+	| "rest-day";
+
 /**
  * The milestone on the ribbon: "1.000 km", "Halbmarathon", "1,9 km": a
- * decimal only where the threshold has one (research R28).
+ * decimal only where the threshold has one (research R28); a surprise
+ * badge's own word, "Nachteule" (research R34).
  */
 function milestone(i18n: I18n, badge: Badge): string {
+	const surprise = surpriseName(badge) as SurpriseName | null;
+	if (surprise) return i18n.t(`badges.surprise.${surprise}`);
 	if (badge.id === "run-length-half") return i18n.t("badges.value.half");
 	if (badge.id === "run-length-marathon")
 		return i18n.t("badges.value.marathon");
@@ -192,6 +205,16 @@ ${gallery}</details>`
  * date, and a close button for phones, where there's little outside to tap
  * (hidden while hover holds it open).
  */
+/** What the badge was for; a surprise badge says why it was earned. */
+function forText(i18n: I18n, badge: Badge, value: string): string {
+	const surprise = surpriseName(badge) as SurpriseName | null;
+	if (surprise) return i18n.t(`badges.surprise.${surprise}.for`);
+	return i18n.t(
+		`badges.for.${badge.category as Exclude<BadgeCategoryId, "surprise">}`,
+		{ value },
+	);
+}
+
 function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 	const badge = badgeOf(earned);
 	const value = milestone(i18n, badge);
@@ -200,7 +223,7 @@ function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 <button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
 <span class="badge"><img src="${picture(badge, true)}" alt="" loading="lazy" width="280" height="280"><span class="badge-ribbon-text">${value}</span></span>
 <h4>${BADGE_NAMES[badge.id] ?? ""}</h4>
-<p>${i18n.t(`badges.for.${badge.category}`, { value })}</p>
+<p>${forText(i18n, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
 </div>
 `;

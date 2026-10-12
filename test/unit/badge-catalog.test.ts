@@ -12,7 +12,7 @@ import {
 // the art pipeline's list (research R9, R18; part A's T019).
 
 describe("badge catalog", () => {
-	it("has the spec's 21 categories with their groups, units and ladders", () => {
+	it("has the spec's 22 categories with their groups, units and ladders", () => {
 		expect(
 			BADGE_CATEGORIES.map((c) => [c.id, c.group, c.unit, c.ladder]),
 		).toEqual([
@@ -36,6 +36,7 @@ describe("badge catalog", () => {
 			["winter_december", "personal", "days", [1, 5, 10]],
 			["winter_january", "personal", "days", [1, 5, 10]],
 			["winter_february", "personal", "days", [1, 5, 10]],
+			["surprise", "personal", "days", [1, 2, 3, 4, 5, 6]],
 			[
 				"team_training_rynke",
 				"team",
@@ -54,7 +55,7 @@ describe("badge catalog", () => {
 			["attendances", "team", "attendances", [25, 50, 100, 200, 400]],
 		]);
 		expect(BADGE_CATEGORIES.filter((c) => c.group === "personal")).toHaveLength(
-			15,
+			16,
 		);
 	});
 
@@ -78,8 +79,8 @@ describe("badge catalog", () => {
 				expect(ladder[i]).toBeGreaterThan(ladder[i - 1] as number);
 	});
 
-	it("derives 101 badges in catalog order with ids from category and threshold", () => {
-		expect(BADGES).toHaveLength(101);
+	it("derives 107 badges in catalog order with ids from category and threshold", () => {
+		expect(BADGES).toHaveLength(107);
 		expect(BADGES.slice(0, 2)).toEqual([
 			{
 				id: "distance-100",
@@ -114,11 +115,24 @@ describe("badge catalog", () => {
 		expect(badgeById("winter-february-10")?.category).toBe("winter_february");
 		expect(badgeById("team-training-rynke-500")?.threshold).toBe(500);
 		expect(badgeById("nope")).toBeUndefined();
-		expect(new Set(BADGES.map((b) => b.id)).size).toBe(101);
+		expect(
+			BADGES.filter((b) => b.category === "surprise").map((b) => b.id),
+		).toEqual([
+			"surprise-new-year",
+			"surprise-christmas-eve",
+			"surprise-christmas",
+			"surprise-night-owl",
+			"surprise-early-bird",
+			"surprise-rest-day",
+		]);
+		expect(BADGE_CATEGORIES.filter((c) => c.surprise).map((c) => c.id)).toEqual(
+			["surprise"],
+		);
+		expect(new Set(BADGES.map((b) => b.id)).size).toBe(107);
 	});
 
-	it("is at version 2 since part C's categories", () => {
-		expect(BADGE_CATALOG_VERSION).toBe(2);
+	it("is at version 3 since part D's surprise badges", () => {
+		expect(BADGE_CATALOG_VERSION).toBe(3);
 	});
 
 	it("lists the same badges as art/badges/badges.json", () => {
