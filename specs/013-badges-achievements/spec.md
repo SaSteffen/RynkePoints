@@ -599,7 +599,9 @@ their badge names examples.
   - Sunday outing: at least ten riders active on a Sunday without a team
     event.
 - **FR-016a**: Team surprise badges MUST NOT reveal which riders were or
-  weren't active; only the date and the badge show.
+  weren't active; only the date and the badge show. The consent text's team
+  part names that the days and hours of rides, runs and swims count for them
+  without names; like FR-023, no new consent version.
 
 **Surprise badges (2026-10-12)**
 

@@ -15,7 +15,9 @@ import type { MessageId } from "./i18n/catalogs";
 // already returned the runs, they only give the rider their own badges, and
 // others see only sums without names (013 FR-023, research R22). Swims
 // followed the same way: read anyway, kept for the rider's own badges only
-// (013 part C, research R30).
+// (013 part C, research R30). The days and hours of rides, runs and swims
+// counting for the team surprises, without names, were named the same way
+// (013 part E, FR-016).
 
 export interface ConsentVersion {
 	version: number;
