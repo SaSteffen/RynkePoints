@@ -3,7 +3,11 @@
 		"bike": "The bike: road bike with a yellow frame and fork (#FBE122), black handlebar tape, black saddle. Both wheels identical and WITHOUT spokes: a thick black tyre, a yellow rim ring inside it, a solid cream (#FFFDF5) inner disc and a small black hub dot in the center. No spokes, no spoke lines.",
 		"runner": "For running the character wears no helmet: a yellow (#FBE122) sweatband around the head instead, the yellow jersey as a running shirt, black shorts and black running shoes with cream soles. No bike.",
 		"team": "The team: several copies of the same character, every one exactly the reference character design (same face, fur, helmet and jersey), in slightly different poses and expressions.",
-		"coins": "Coins: plain gold (#C99A2E) discs with a black outline and a thin cream inner ring, no symbols, letters or faces on them."
+		"coins": "Coins: plain gold (#C99A2E) discs with a black outline and a thin cream inner ring, no symbols, letters or faces on them.",
+		"swimmer": "For swimming the character wears no helmet and no jersey: a yellow (#FBE122) swim cap with three small black stripes instead of the helmet, black swim goggles and a yellow swimsuit. No bike. Water in light blue (#8CC4F0) with black outlined wave shapes; the water's surface lies in the middle of the picture, never at the bottom.",
+		"trainer": "Indoors: the road bike stands on a black indoor trainer that holds its rear wheel, the front wheel resting on a small black block, so the bike stays in place. Nothing outdoors around him.",
+		"winter": "Winter kit: the yellow helmet and yellow jersey as always, plus a black scarf, long black tights and thick black gloves. Little cream clouds of breath in front of his mouth. Snow in cream (#FFFDF5) with black outlines, ice in light blue.",
+		"surprise": "This is a secret surprise badge, so make it EXTRA fun: over the top, slapstick, a little absurd, with an exaggerated expression and one unexpected visual gag that makes people laugh out loud. Still one clear main subject in the middle."
 	},
 	"badges": [
 		{
@@ -252,6 +256,272 @@
 			"scene": "The character sitting on the ground, proudly holding up a completely worn-out black running shoe with holes in the sole, his toes poking out of the other shoe, laughing at it. {{runner}}"
 		},
 		{
+			"id": "ride-length-50",
+			"group": "personal",
+			"category": "ride_length",
+			"threshold": 50,
+			"scene": "The character riding a road bike, side view, a sandwich sticking out of his jersey's back pocket and a banana in his hand, cheerfully setting out on a proper long ride. {{bike}}"
+		},
+		{
+			"id": "ride-length-100",
+			"group": "personal",
+			"category": "ride_length",
+			"threshold": 100,
+			"scene": "The character riding a road bike, side view, two water bottles on the frame, punching one fist into the air as he passes a small gold milestone stone at the roadside, mouth open in a happy shout. {{bike}}"
+		},
+		{
+			"id": "ride-length-150",
+			"group": "personal",
+			"category": "ride_length",
+			"threshold": 150,
+			"scene": "The character riding a road bike, side view, eating while riding: a cream rice cake in one hand and a banana peel flying away behind him, cheeks stuffed like a hamster, still pedalling. {{bike}}"
+		},
+		{
+			"id": "ride-length-200",
+			"group": "personal",
+			"category": "ride_length",
+			"threshold": 200,
+			"scene": "The character riding a road bike, side view, under a sky that holds both a big round gold sun setting on one side and a small cream crescent moon rising on the other, as if he has ridden all day; tired eyes but a proud grin. {{bike}}"
+		},
+		{
+			"id": "ride-length-250",
+			"group": "personal",
+			"category": "ride_length",
+			"threshold": 250,
+			"scene": "The character riding a road bike at night, side view, a bright cream beam of light shining ahead from a small black front lamp, a gold crescent moon and small cream stars above, an owl on a branch watching him in surprise. {{bike}}"
+		},
+		{
+			"id": "ride-length-300",
+			"group": "personal",
+			"category": "ride_length",
+			"threshold": 300,
+			"scene": "The character lying flat on his back in the grass next to his road bike, arms and legs spread like a starfish, eyes closed and a huge blissful smile, a few small gold stars circling over his helmet; three empty water bottles beside him. {{bike}}"
+		},
+		{
+			"id": "virtual-rides-50",
+			"group": "personal",
+			"category": "virtual_rides",
+			"threshold": 50,
+			"scene": "The character pedalling on his road bike on an indoor trainer in his living room, side view, a small cream towel over the handlebar, a little light blue puddle of sweat drops below the bike, determined grin. {{bike}} {{trainer}}"
+		},
+		{
+			"id": "virtual-rides-100",
+			"group": "personal",
+			"category": "virtual_rides",
+			"threshold": 100,
+			"scene": "The character pedalling on his road bike on an indoor trainer, side view, a big black electric fan in front of him blowing so hard that his cheeks and fur flap back, eyes squinting, laughing. {{bike}} {{trainer}}"
+		},
+		{
+			"id": "virtual-rides-250",
+			"group": "personal",
+			"category": "virtual_rides",
+			"threshold": 250,
+			"scene": "The character pedalling on his road bike on an indoor trainer, facing a big black-framed screen that shows a tiny version of himself riding along a road over rolling gold hills; he leans forward, racing his own picture, tongue out. {{bike}} {{trainer}}"
+		},
+		{
+			"id": "virtual-rides-500",
+			"group": "personal",
+			"category": "virtual_rides",
+			"threshold": 500,
+			"scene": "The character pedalling on his road bike on an indoor trainer with eyes closed and a dreamy smile, a big cream thought bubble above him showing him riding over snowy mountains in the sunshine. {{bike}} {{trainer}}"
+		},
+		{
+			"id": "virtual-rides-1000",
+			"group": "personal",
+			"category": "virtual_rides",
+			"threshold": 1000,
+			"scene": "The character pedalling on his road bike on an indoor trainer that floats in space, small cream stars and a gold ringed planet around him, a light blue sweat drop flying off, grinning wildly as if the trainer took him there. {{bike}} {{trainer}}"
+		},
+		{
+			"id": "swim-length-500",
+			"group": "personal",
+			"category": "swim_length",
+			"threshold": 0.5,
+			"scene": "The character floating happily on his back in a pool, holding a yellow pool noodle under his arms, goggles pushed up on his swim cap, kicking his feet so a little light blue splash flies up. {{swimmer}}"
+		},
+		{
+			"id": "swim-length-1000",
+			"group": "personal",
+			"category": "swim_length",
+			"threshold": 1,
+			"scene": "The character diving off a black starting block into a pool, side view, body stretched out mid-air in a perfect dive, arms ahead, a small light blue splash waiting below him on the water's surface. {{swimmer}}"
+		},
+		{
+			"id": "swim-length-1900",
+			"group": "personal",
+			"category": "swim_length",
+			"threshold": 1.9,
+			"scene": "The character swimming front crawl in open water, one arm high out of the water, turning his head to breathe with a cheeky grin, a big round gold buoy floating next to him. {{swimmer}}"
+		},
+		{
+			"id": "swim-length-3800",
+			"group": "personal",
+			"category": "swim_length",
+			"threshold": 3.8,
+			"scene": "The character climbing out of the open water onto a small black jetty, dripping light blue water drops, one fist raised in triumph, a gold laurel wreath around his swim cap, small gold stars bursting around him. {{swimmer}}"
+		},
+		{
+			"id": "swimming-5",
+			"group": "personal",
+			"category": "swimming",
+			"threshold": 5,
+			"scene": "The character doing a cannonball jump into a pool, knees hugged to his chest, eyes squeezed shut and grinning, a big light blue splash rising up where he hits the water. {{swimmer}}"
+		},
+		{
+			"id": "swimming-10",
+			"group": "personal",
+			"category": "swimming",
+			"threshold": 10,
+			"scene": "The character swimming backstroke in a pool, side view, a small yellow rubber duck riding on his tummy, both of them looking pleased with themselves. {{swimmer}}"
+		},
+		{
+			"id": "swimming-25",
+			"group": "personal",
+			"category": "swimming",
+			"threshold": 25,
+			"scene": "The character swimming front crawl along a black lane rope with round cream floats, a small black-outlined fish swimming alongside him and racing him, both with determined faces. {{swimmer}}"
+		},
+		{
+			"id": "swimming-50",
+			"group": "personal",
+			"category": "swimming",
+			"threshold": 50,
+			"scene": "The character swimming in the sea next to a small cream lighthouse with gold stripes on a rock, a seagull standing on his swim cap for a ride, the character rolling his eyes up at it and laughing. {{swimmer}}"
+		},
+		{
+			"id": "swimming-100",
+			"group": "personal",
+			"category": "swimming",
+			"threshold": 100,
+			"scene": "The character swimming butterfly, both arms swinging out of the water at the same time, a big friendly cream whale surfacing beside him and copying the move, light blue spray flying. {{swimmer}}"
+		},
+		{
+			"id": "winter-november-1",
+			"group": "personal",
+			"category": "winter_november",
+			"threshold": 1,
+			"scene": "The character riding a road bike through an autumn wood, side view, gold and fur-orange leaves falling all around him, one leaf stuck to the front of his helmet, curious face. {{bike}} {{winter}}"
+		},
+		{
+			"id": "winter-november-5",
+			"group": "personal",
+			"category": "winter_november",
+			"threshold": 5,
+			"scene": "The character riding a road bike through pouring rain, side view, light blue raindrops all around, a light blue spray flying off his rear wheel, a black rain cape flapping behind him, grinning stubbornly through it. {{bike}} {{winter}}"
+		},
+		{
+			"id": "winter-november-10",
+			"group": "personal",
+			"category": "winter_november",
+			"threshold": 10,
+			"scene": "The character riding a road bike through thick fog, side view, cream fog banks swirling around him, a bright cream beam from his black front lamp cutting through, a black crow on a bare branch staring at him in disbelief. {{bike}} {{winter}}"
+		},
+		{
+			"id": "winter-december-1",
+			"group": "personal",
+			"category": "winter_december",
+			"threshold": 1,
+			"scene": "The character riding a road bike in light falling snow, side view, a black and cream bobble hat pulled over his helmet, a small gold-wrapped present strapped behind his saddle, cheerful. {{bike}} {{winter}}"
+		},
+		{
+			"id": "winter-december-5",
+			"group": "personal",
+			"category": "winter_december",
+			"threshold": 5,
+			"scene": "The character stopped next to his road bike at a small wooden market stall with a black roof and gold fairy lights, holding a steaming cream mug of hot cocoa with both gloved hands, eyes closed in bliss. {{bike}} {{winter}}"
+		},
+		{
+			"id": "winter-december-10",
+			"group": "personal",
+			"category": "winter_december",
+			"threshold": 10,
+			"scene": "The character riding a road bike through snow, side view, small black antlers fixed on top of his helmet, pulling a little cream sled with a small black-outlined fir tree on it, snowflakes falling, laughing. {{bike}} {{winter}}"
+		},
+		{
+			"id": "winter-january-1",
+			"group": "personal",
+			"category": "winter_january",
+			"threshold": 1,
+			"scene": "The character riding a road bike under a sky full of gold fireworks bursts and cream sparkles, side view, looking up at them with an open-mouthed cheer, riding into the new year. {{bike}} {{winter}}"
+		},
+		{
+			"id": "winter-january-5",
+			"group": "personal",
+			"category": "winter_january",
+			"threshold": 5,
+			"scene": "The character riding a road bike over a frosty road, side view, little light blue icicles hanging from the rim of his helmet and from his eyebrows, teeth chattering but still smiling. {{bike}} {{winter}}"
+		},
+		{
+			"id": "winter-january-10",
+			"group": "personal",
+			"category": "winter_january",
+			"threshold": 10,
+			"scene": "The character riding a road bike through a snowstorm, side view, a pile of cream snow on top of his helmet, snowflakes swirling, a snowman at the roadside cheering him on with its stick arms up. {{bike}} {{winter}}"
+		},
+		{
+			"id": "winter-february-1",
+			"group": "personal",
+			"category": "winter_february",
+			"threshold": 1,
+			"scene": "The character riding a road bike in winter, side view, wearing a gold party hat over his helmet and a black carnival eye mask, cream and gold confetti flying around him, cheeky grin. {{bike}} {{winter}}"
+		},
+		{
+			"id": "winter-february-5",
+			"group": "personal",
+			"category": "winter_february",
+			"threshold": 5,
+			"scene": "The character riding a road bike past a gold-framed frozen pond, side view, two small black-outlined ducks sliding across the light blue ice and watching him, the character giving them a wave. {{bike}} {{winter}}"
+		},
+		{
+			"id": "winter-february-10",
+			"group": "personal",
+			"category": "winter_february",
+			"threshold": 10,
+			"scene": "The character standing proudly next to his road bike, covered from helmet to shoes in a crust of cream frost and light blue icicles, raising one fist, while a gold sun peeks out behind him and three little cream and yellow snowdrop flowers push up through the snow beside him: he made it through winter. {{bike}} {{winter}}"
+		},
+		{
+			"id": "surprise-new-year",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 1,
+			"scene": "New Year's Day: the character riding his road bike straight out of a gold party-popper explosion, still wearing a gold cone party hat over his helmet, a party horn in his mouth blowing a long curly cream streamer, cream and gold confetti everywhere, a tangle of streamers caught in his spokeless wheels, eyes tiny and puffy as if he hasn't slept but grinning madly. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-christmas-eve",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 2,
+			"scene": "Christmas Eve: the character racing on his road bike with a huge black sack of gold-wrapped presents on his back, far too big for him, a cream and gold Santa hat flapping over his helmet, a tiny fir tree strapped upright behind the saddle, one present flying off the top of the sack, his face panicked like he's late for the delivery. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-christmas",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 3,
+			"scene": "Christmas holidays: the character after a giant feast, belly so round and full that his yellow jersey is stretched tight and one button has popped off flying through the air, still bravely pedalling his road bike, a half-eaten gold drumstick in one hand and a slice of cream Christmas stollen in his mouth, a small fir tree with gold baubles at the roadside watching in shock. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-night-owl",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 4,
+			"scene": "Night owl: the character riding his road bike at night under a big gold full moon and small cream stars, wearing comically huge round black-rimmed goggles that make his eyes look enormous, and a real owl riding along on his handlebar wearing an identical tiny pair, both staring wide-eyed straight at the viewer with the exact same expression. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-early-bird",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 5,
+			"scene": "Early bird: the character riding his road bike at dawn, the gold sun only half over the horizon, still in a cream nightcap over his helmet and one fluffy cream slipper on a pedal, eyes half closed and yawning hugely, a small yellow bird sitting on his helmet and loudly chirping into his ear like an alarm clock, a cream coffee cup balanced in his bottle cage. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-rest-day",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 6,
+			"scene": "Rest day after a full week of training: the character sitting comfortably on a cosy light sage green (#B5D6A7) sofa, wrapped in a warm, thick blanket with wide cream (#FFFDF5) and black stripes, holding a steaming cream mug of hot cocoa with both hands, eyes half closed, a calm and content smile. His yellow helmet hangs on the handlebar of his road bike, which leans against the wall behind the sofa. No helmet on his head. Quiet and cosy, nothing else going on. {{bike}}"
+		},
+		{
 			"id": "team-training-rynke-500",
 			"group": "team",
 			"category": "team_training_rynke",
@@ -488,6 +758,48 @@
 			"category": "attendances",
 			"threshold": 400,
 			"scene": "A big group of characters all jumping in the air at the same moment for a photo, arms and legs flung out, gold confetti flying. {{team}}"
+		},
+		{
+			"id": "team-surprise-day-off",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 1,
+			"scene": "A whole team day off: five characters piled on top of each other on one big saggy light sage green (#B5D6A7) sofa that is clearly too small for them, all fast asleep with their mouths open, one snoring a little cream bubble, one hanging upside down off the armrest, their road bikes leaning in a heap against the wall; through a round window behind them a lonely cream tumbleweed rolls along an empty road. {{team}} {{bike}} {{surprise}}"
+		},
+		{
+			"id": "team-surprise-all-out",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 2,
+			"scene": "Everyone out on the same day: a huge, chaotic crowd of characters bursting through a doorway at once, all trying to get out first, on road bikes, in running shoes, squeezed together and tangled up, arms and wheels everywhere, a few falling over each other, all laughing and cheering; the door frame bending under the pressure. {{team}} {{bike}} {{surprise}}"
+		},
+		{
+			"id": "team-surprise-round-the-clock",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 3,
+			"scene": "Round the clock: a giant round cream clock face without any numbers or letters, with characters on road bikes riding in a circle around its rim like a race track, each one at a different spot; one side of the picture has a gold sun, the other a gold crescent moon and cream stars; the clock's two black hands spinning so fast they blur with motion lines. {{team}} {{bike}} {{surprise}}"
+		},
+		{
+			"id": "team-surprise-relay",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 4,
+			"scene": "A never-ending relay: a long line of characters passing a gold baton from one to the next, the first ones on road bikes, then runners, the line curving off into the distance and back again in a loop, the one in front exhausted and flopping over while the next grabs the baton with a determined grin, the very last one in the background already yawning in pyjamas. {{team}} {{surprise}}"
+		},
+		{
+			"id": "team-surprise-new-years-eve",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 5,
+			"scene": "New Year's Eve team ride: five characters on road bikes riding side by side under exploding gold fireworks, every helmet topped with a gold cone party hat, one blowing a party horn, one holding a sparkler that showers cream sparks, one with cream streamers wrapped around his whole body like a mummy, all cheering. {{team}} {{bike}} {{surprise}}"
+		},
+		{
+			"id": "team-surprise-sunday-outing",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 6,
+			"scene": "A big Sunday outing: a long happy crowd of characters on road bikes rolling past a small cream church with a gold bell ringing in its tower, every rider with a huge picnic basket, cake or thermos strapped somewhere on the bike, one with a whole gold cake on his helmet, a small black dog running alongside with a sandwich in its mouth. {{team}} {{bike}} {{surprise}}"
 		}
 	]
 }

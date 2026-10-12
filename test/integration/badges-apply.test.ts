@@ -156,6 +156,128 @@ describe("badges in applyAndEvaluate", () => {
 	});
 });
 
+// Part C: the virtual flag comes from feature 003's evaluation (research R23).
+describe("ride length, virtual rides and winter in applyAndEvaluate", () => {
+	const winterRide = (
+		id: number,
+		day: string,
+		overrides: Partial<ActivityRecord> = {},
+	) =>
+		activityRecord(id, {
+			start_date: `${day}T08:00:00Z`,
+			distance_m: 60000,
+			elevation_gain_m: 0,
+			...overrides,
+		});
+
+	it("counts virtual and trainer rides as virtual, not as winter days", async () => {
+		await apply({
+			kind: "upsert",
+			records: [
+				winterRide(1, "2026-01-05", { sport_type: "VirtualRide" }),
+				winterRide(2, "2026-01-06", { is_trainer: 1 }),
+			],
+		});
+		const ids = (await badges()).map(([id]) => id);
+		expect(ids).toContain("virtual-rides-100");
+		expect(ids.some((id) => id?.startsWith("winter-january"))).toBe(false);
+		expect(ids).toContain("ride-length-50");
+	});
+
+	it("counts a ride with an unknown trainer flag as outdoor (003 R6)", async () => {
+		await apply({
+			kind: "upsert",
+			records: [winterRide(1, "2026-01-05", { is_trainer: null })],
+		});
+		expect(await badges()).toContainEqual(["winter-january-1", "2026-01-05"]);
+		expect((await badges()).map(([id]) => id)).not.toContain(
+			"virtual-rides-50",
+		);
+	});
+
+	it("counts no excluded ride for any of the new categories", async () => {
+		await apply({
+			kind: "upsert",
+			records: [winterRide(1, "2026-01-05", { is_manual: 1 })],
+		});
+		expect(
+			(await badges()).filter(
+				([id]) =>
+					id?.startsWith("ride-length") ||
+					id?.startsWith("virtual-rides") ||
+					id?.startsWith("winter-"),
+			),
+		).toEqual([]);
+	});
+
+	it("takes the winter badge back when the day's ride is deleted", async () => {
+		await apply({
+			kind: "upsert",
+			records: [winterRide(1, "2026-02-14")],
+		});
+		expect(await badges()).toContainEqual(["winter-february-1", "2026-02-14"]);
+
+		await apply({ kind: "delete", activityIds: [1] });
+		expect((await badges()).map(([id]) => id)).not.toContain(
+			"winter-february-1",
+		);
+	});
+});
+
+// Nothing dated after today in Berlin earns a badge; a rest day only once
+// it is over (research R33, badgeWindow). The test clock is 6 October 2026.
+describe("badges and the clock", () => {
+	const day = (id: number, date: string) =>
+		activityRecord(id, { start_date: `${date}T10:00:00Z`, distance_m: 60000 });
+	const week = ["09-28", "09-29", "09-30", "10-01", "10-02", "10-03", "10-04"];
+
+	it("awards nothing for an activity dated in the future", async () => {
+		await apply({ kind: "upsert", records: [day(1, "2026-10-09")] });
+		expect(await badges()).toEqual([]);
+	});
+
+	it("gives the rest day only with a later activity dated today at the latest", async () => {
+		const records = week.map((d, i) => day(10 + i, `2026-${d}`));
+		// A week, then 5 October off, then a ride dated 7 October: not yet.
+		await apply({
+			kind: "upsert",
+			records: [...records, day(20, "2026-10-07")],
+		});
+		expect((await badges()).map(([id]) => id)).not.toContain(
+			"surprise-rest-day",
+		);
+
+		// A ride today, 6 October: 5 October is over.
+		await apply({ kind: "upsert", records: [day(21, "2026-10-06")] });
+		expect(await badges()).toContainEqual(["surprise-rest-day", "2026-10-05"]);
+	});
+});
+
+// Part D: surprise badges from the stored rides' local start (research R33).
+describe("surprise badges in applyAndEvaluate", () => {
+	it("awards New Year and night owl, and takes them back with the ride", async () => {
+		await apply({
+			kind: "upsert",
+			records: [
+				activityRecord(1, {
+					start_date: "2026-01-01T21:45:00Z",
+				}),
+			],
+		});
+		expect(
+			(await badges()).filter(([id]) => id?.startsWith("surprise-")),
+		).toEqual([
+			["surprise-new-year", "2026-01-01"],
+			["surprise-night-owl", "2026-01-01"],
+		]);
+
+		await apply({ kind: "delete", activityIds: [1] });
+		expect(
+			(await badges()).filter(([id]) => id?.startsWith("surprise-")),
+		).toEqual([]);
+	});
+});
+
 describe("badges in team-event and correction changes", () => {
 	it("awards and takes back a team-event badge", async () => {
 		const eventId = await insertEvent("technique_training", "2026-05-09");

@@ -163,7 +163,141 @@ describe("evaluateTeamBadges", () => {
 			"team_running",
 			"big_training",
 			"attendances",
+			"team_surprise",
 		]);
 		expect(evaluate(sums)).toEqual(result);
+	});
+});
+
+// Part E: team surprise badges (spec User Story 7, FR-016, research R40).
+describe("evaluateTeamBadges for the team surprises", () => {
+	const act = (athleteId: number, date: string, hour = 10) => ({
+		athleteId,
+		date,
+		hour,
+	});
+	const surprises = (sums: Partial<TeamBadgeSums>) =>
+		evaluate(sums).earned.filter((b) => b.badgeId.startsWith("team-surprise-"));
+	const days = (from: string, n: number) =>
+		Array.from({ length: n }, (_, i) =>
+			new Date(Date.parse(`${from}T00:00:00Z`) + i * 86_400_000)
+				.toISOString()
+				.slice(0, 10),
+		);
+
+	it("finds the team's day off between two active days (US7 2)", () => {
+		expect(
+			surprises({ active: [act(1, "2026-05-03"), act(2, "2026-05-05")] }),
+		).toEqual([{ badgeId: "team-surprise-day-off", earnedOn: "2026-05-04" }]);
+		// Not before the first activity, not after the last.
+		expect(surprises({ active: [act(1, "2026-05-03")] })).toEqual([]);
+	});
+
+	it("finds a day everyone connected by then was out (US7 3)", () => {
+		const connectedOn = new Map([
+			[1, "2026-05-01"],
+			[2, "2026-05-02"],
+			[3, "2026-05-08"],
+		]);
+		expect(
+			surprises({
+				connectedOn,
+				active: [act(1, "2026-05-06"), act(2, "2026-05-06")],
+			}),
+		).toEqual([{ badgeId: "team-surprise-all-out", earnedOn: "2026-05-06" }]);
+		// One rider alone is not a team.
+		expect(
+			surprises({
+				connectedOn: new Map([[1, "2026-05-01"]]),
+				active: [act(1, "2026-05-06")],
+			}),
+		).toEqual([]);
+		// Someone missing: no badge.
+		expect(
+			surprises({
+				connectedOn: new Map([
+					[1, "2026-05-01"],
+					[2, "2026-05-01"],
+				]),
+				active: [act(1, "2026-05-06")],
+			}),
+		).toEqual([]);
+	});
+
+	it("needs all 24 hours of one day (US7 4)", () => {
+		const hours = Array.from({ length: 24 }, (_, h) =>
+			act(1 + (h % 3), "2026-06-20", h),
+		);
+		expect(surprises({ active: hours })).toEqual([
+			{ badgeId: "team-surprise-round-the-clock", earnedOn: "2026-06-20" },
+		]);
+		expect(surprises({ active: hours.slice(1) })).toEqual([]);
+	});
+
+	it("dates the relay with the 30th day in a row (US7 5)", () => {
+		const month = days("2026-04-01", 30).map((d, i) => act(1 + (i % 4), d));
+		expect(surprises({ active: month })).toEqual([
+			{ badgeId: "team-surprise-relay", earnedOn: "2026-04-30" },
+		]);
+		expect(surprises({ active: month.slice(1) })).toEqual([]);
+	});
+
+	it("needs five riders on New Year's Eve (US7 6)", () => {
+		const five = [1, 2, 3, 4, 5].map((id) => act(id, "2026-12-31"));
+		expect(surprises({ active: five })).toEqual([
+			{ badgeId: "team-surprise-new-years-eve", earnedOn: "2026-12-31" },
+		]);
+		expect(surprises({ active: five.slice(1) })).toEqual([]);
+	});
+
+	it("needs ten riders on a Sunday without a team event (US7 7)", () => {
+		// 7 June 2026 is a Sunday.
+		const ten = Array.from({ length: 10 }, (_, i) => act(i + 1, "2026-06-07"));
+		expect(surprises({ active: ten })).toEqual([
+			{ badgeId: "team-surprise-sunday-outing", earnedOn: "2026-06-07" },
+		]);
+		expect(
+			surprises({ active: ten, events: [event(1, "2026-06-07", 4)] }),
+		).toEqual([]);
+		expect(
+			surprises({
+				active: ten.map((a) => ({ ...a, date: "2026-06-06" })),
+			}),
+		).toEqual([]);
+	});
+
+	it("counts nothing outside the counting window and shows no next step", () => {
+		const result = evaluate({
+			active: [act(1, "2025-12-29"), act(2, "2025-12-31")],
+		});
+		expect(
+			result.earned.filter((b) => b.badgeId.startsWith("team-surprise-")),
+		).toEqual([]);
+		expect(progressOf(result, "team_surprise")).toEqual({
+			category: "team_surprise",
+			value: 0,
+			next: null,
+			missing: null,
+		});
+	});
+});
+
+describe("evaluateTeamBadges and future dates", () => {
+	it("finds no day off before a later activity dated today at the latest", () => {
+		const window = { seasonStart: "2026-01-01", deadline: "2026-05-04" };
+		const result = evaluateTeamBadges(
+			{
+				...NONE,
+				active: [
+					{ athleteId: 1, date: "2026-05-03", hour: 10 },
+					{ athleteId: 2, date: "2026-05-05", hour: 10 },
+				],
+			},
+			CURRENT_RULES,
+			window,
+		);
+		expect(
+			result.earned.filter((b) => b.badgeId.startsWith("team-surprise-")),
+		).toEqual([]);
 	});
 });

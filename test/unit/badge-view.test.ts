@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { CategoryProgress, EarnedBadge } from "../../src/badges/evaluate";
-import { buildBadgeSection, shownMissing } from "../../src/badges/view";
+import {
+	buildBadgeSection,
+	shownMissing,
+	winterMonthOver,
+} from "../../src/badges/view";
 
 // The Abzeichen section's view model (feature 013 data-model.md "View model",
 // contracts/abzeichen-section.md). Synthetic badges only.
@@ -202,5 +206,135 @@ describe("shownMissing", () => {
 		expect(shownMissing("run_length", 21.3, 42.195)).toBe(20.9);
 		expect(shownMissing("run_length", 21.095, 21.0975)).toBe(0.1);
 		expect(shownMissing("run_length", 4.2, 5)).toBe(0.8);
+	});
+
+	it("gives swim length and swimming one decimal too (part C)", () => {
+		expect(shownMissing("swim_length", 0.5, 1)).toBe(0.5);
+		expect(shownMissing("swimming", 4.31, 5)).toBe(0.7);
+	});
+
+	it("keeps whole units for ride length, virtual rides and winter days", () => {
+		expect(shownMissing("ride_length", 104.7, 150)).toBe(46);
+		expect(shownMissing("virtual_rides", 49.9, 50)).toBe(1);
+		expect(shownMissing("winter_january", 2, 5)).toBe(3);
+	});
+});
+
+// Part C: a winter month that is over shows no bar (FR-004a, research R25).
+describe("winterMonthOver", () => {
+	const START = "2026-09-01";
+
+	it.each([
+		["winter_november", "2026-11-30", false],
+		["winter_november", "2026-12-01", true],
+		["winter_december", "2026-12-31", false],
+		["winter_december", "2027-01-01", true],
+		["winter_january", "2026-10-12", false],
+		["winter_january", "2027-02-01", true],
+		["winter_february", "2027-02-28", false],
+		["winter_february", "2027-03-01", true],
+	] as const)("%s on %s: %s", (category, today, over) => {
+		expect(winterMonthOver(category, today, START)).toBe(over);
+	});
+
+	it("is never over for a category without a month", () => {
+		expect(winterMonthOver("distance", "2030-01-01", START)).toBe(false);
+	});
+});
+
+describe("buildBadgeSection with today (FR-004a, US5 scenario 9)", () => {
+	const WINTER: CategoryProgress[] = [
+		progress("distance", 300, 500),
+		progress("winter_january", 0, 1),
+		progress("winter_february", 3, 5),
+	];
+	const build = (today: string) =>
+		buildBadgeSection({
+			waiting: false,
+			personal: {
+				earned: [
+					{ badgeId: "distance-100", earnedOn: "2027-01-20" },
+					{ badgeId: "winter-february-1", earnedOn: "2027-02-03" },
+				],
+				progress: WINTER,
+			},
+			today,
+			seasonStart: "2026-09-01",
+		});
+
+	it("shows every bar before and during the winter months", () => {
+		const section = build("2026-10-12");
+		const february = section?.personal?.cards.find(
+			(c) => c.category === "winter_february",
+		);
+		expect(february?.progress).toMatchObject({ next: 5, missing: 2 });
+		expect(section?.notYet).toEqual([
+			expect.objectContaining({
+				category: "winter_january",
+				progress: expect.objectContaining({ next: 1 }),
+			}),
+		]);
+	});
+
+	it("drops the bars of months that are over, keeping cards and outlines", () => {
+		const section = build("2027-03-01");
+		const cards = section?.personal?.cards ?? [];
+		expect(cards.find((c) => c.category === "winter_february")).toMatchObject({
+			badge: { badgeId: "winter-february-1" },
+			progress: null,
+		});
+		expect(
+			cards.find((c) => c.category === "distance")?.progress,
+		).toMatchObject({ next: 500 });
+		expect(section?.notYet).toEqual([
+			{ category: "winter_january", group: "personal", progress: null },
+		]);
+	});
+});
+
+// Part D: the surprise card shows the newest, never a bar (research R35).
+describe("buildBadgeSection for surprise badges", () => {
+	const SURPRISE = [{ ...progress("surprise", 0, null) }];
+
+	it("shows the newest earned surprise badge without progress", () => {
+		const section = buildBadgeSection({
+			waiting: false,
+			personal: {
+				earned: [
+					{ badgeId: "surprise-night-owl", earnedOn: "2026-10-04" },
+					{ badgeId: "surprise-new-year", earnedOn: "2027-01-01" },
+					{ badgeId: "surprise-early-bird", earnedOn: "2026-11-02" },
+				],
+				progress: SURPRISE,
+			},
+		});
+		expect(section?.personal?.cards).toEqual([
+			{
+				category: "surprise",
+				badge: { badgeId: "surprise-new-year", earnedOn: "2027-01-01" },
+				progress: null,
+			},
+		]);
+		expect(section?.personal?.gallery).toEqual([
+			{
+				category: "surprise",
+				badges: [
+					{ badgeId: "surprise-new-year", earnedOn: "2027-01-01" },
+					{ badgeId: "surprise-early-bird", earnedOn: "2026-11-02" },
+					{ badgeId: "surprise-night-owl", earnedOn: "2026-10-04" },
+				],
+				unearned: 3,
+			},
+		]);
+	});
+
+	it("is an outline card without progress before the first one", () => {
+		const section = buildBadgeSection({
+			waiting: false,
+			personal: { earned: [], progress: SURPRISE },
+		});
+		expect(section?.notYet).toEqual([
+			{ category: "surprise", group: "personal", progress: null },
+		]);
 	});
 });

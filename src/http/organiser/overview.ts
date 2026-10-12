@@ -197,7 +197,7 @@ function renderDeadline(
 	return html`<section class="overview-deadline">
 ${coin("back", "large")}<div>
 <p class="overview-deadline-date">${i18n.t("organiser.overview.deadline", { date: i18n.formatDate(window.deadline) })}</p>
-<p class="overview-deadline-days">${
+<p class="overview-deadline-count">${
 		days < 0
 			? i18n.t("organiser.overview.deadlinePassed")
 			: i18n.t("organiser.overview.daysLeft", { n: whole(days) })

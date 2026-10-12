@@ -222,13 +222,15 @@ Subscription validation.
 Event delivery. MUST answer within 2 s and never call Strava (FR-011).
 
 - `:secret` mismatch → `404`.
-- Body over 1,000 bytes or not matching the event shape → `400`.
+- Body over 4 KiB or not matching the event shape → `400`. (Was 1,000 bytes; an
+  update carries the new title, whose length Strava doesn't document.)
 - `subscription_id ≠ STRAVA_SUBSCRIPTION_ID` → `200`, dropped.
 - Otherwise enqueue one message (see [queue-messages.md](queue-messages.md)) and
   answer `200`.
   - `object_type=activity` → `activity-event { athleteId: owner_id, activityId:
     object_id, aspect, changed: keys of updates }`.
-  - `object_type=athlete` with `updates.authorized == "false"` → `delete-rider {
+  - `object_type=athlete` with `updates.authorized` the string `"false"` (as
+    documented) or the boolean `false` → `delete-rider {
     athleteId: owner_id, reason: "deauthorized", revoke: false }`.
   - Any other athlete update → `200`, dropped.
 

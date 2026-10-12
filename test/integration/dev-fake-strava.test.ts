@@ -526,11 +526,18 @@ describe("sample riders in every state (US2)", () => {
 		expect(nick).toContain("Noch 1 km");
 		expect(nick).toContain("Noch 10 m");
 
+		// Every badge of the riding and team-event categories; of part C's
+		// only ride length up to her 200 km rides.
 		const complete = BADGES.filter(
 			(b) =>
-				b.group === "personal" &&
-				b.category !== "run_length" &&
-				b.category !== "running",
+				[
+					"distance",
+					"elevation",
+					"team_events",
+					"technique",
+					"training_rynke",
+				].includes(b.category) ||
+				(b.category === "ride_length" && b.threshold <= 200),
 		).map((b) => b.id);
 		expect(await badgesOf(990014)).toEqual(complete.sort());
 		const carla = await mePage(990014);
@@ -538,10 +545,12 @@ describe("sample riders in every state (US2)", () => {
 			carla.match(
 				/<section class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
 			)?.[0] ?? "";
-		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(5);
+		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(6);
+		// Running twice, virtual, swimming twice, the four winter months and
+		// the surprises.
 		expect(
 			personal.match(/<li class="badge-card badge-card-empty"/g),
-		).toHaveLength(2);
+		).toHaveLength(10);
 	});
 
 	it("counts only Rudi Runner's outdoor runs (013 US3)", async () => {
@@ -561,6 +570,54 @@ describe("sample riders in every state (US2)", () => {
 		const page = await mePage(990015);
 		expect(page).toContain('data-category="run_length"');
 		expect(page).toContain("Noch 2,2\u00a0km");
+	});
+
+	it("gives Wanda Winter the part C badges (013 US5)", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			"SELECT badge_id FROM rider_badges WHERE athlete_id = ? ORDER BY badge_id",
+		)
+			.bind(990016)
+			.all<{ badge_id: string }>();
+		const ids = results.map((r) => r.badge_id);
+		expect(ids).toEqual(
+			expect.arrayContaining([
+				"ride-length-50",
+				"ride-length-100",
+				"virtual-rides-50",
+				"winter-january-1",
+				"winter-february-1",
+				"winter-february-5",
+				"swim-length-500",
+				"swim-length-1000",
+				"surprise-new-year",
+				"surprise-night-owl",
+				"surprise-early-bird",
+				"surprise-rest-day",
+			]),
+		);
+		expect(ids).not.toContain("surprise-christmas");
+		// Her November, December and Christmas Eve rides lie after the test
+		// clock's today (6 October 2026): nothing for them yet.
+		for (const id of [
+			"winter-november-1",
+			"winter-december-1",
+			"surprise-christmas-eve",
+		]) {
+			expect(ids).not.toContain(id);
+		}
+		expect(ids).not.toContain("swim-length-1900");
+		expect(
+			await count(
+				"SELECT COUNT(*) AS n FROM swims WHERE athlete_id = ?",
+				990016,
+			),
+		).toBe(2);
+		const page = await mePage(990016);
+		expect(page).toContain('data-category="winter_february"');
+		// November and December count nothing before their days; January and
+		// February are over, so their cards show no bar.
+		expect(page).toContain("Noch 1\u00a0Tag");
 	});
 
 	it("shows every sample rider the team's badges and progress (013 US4)", async () => {

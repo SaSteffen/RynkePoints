@@ -4,8 +4,10 @@ import { evaluateChange } from "../rynke/apply";
 import {
 	type ActivityRecord,
 	type RunRecord,
+	type SwimRecord,
 	toActivityRecord,
 	toRunRecord,
+	toSwimRecord,
 } from "../strava/activity";
 import { listAthleteActivities } from "../strava/client";
 import type { HandlerResult } from "./consumer";
@@ -20,9 +22,9 @@ export type PageResult =
 	| Exclude<HandlerResult, { kind: "ok" }>;
 
 /**
- * Lists page `page` since `after` and upserts the cycling activities and
- * outdoor runs with the rider's Rynke, also for an empty page, so every rider
- * gets a balance.
+ * Lists page `page` since `after` and upserts the cycling activities,
+ * outdoor runs and swims with the rider's Rynke, also for an empty page, so
+ * every rider gets a balance.
  */
 export async function storeActivityPage(
 	page: { page: number; after: number },
@@ -52,19 +54,24 @@ export async function storeActivityPage(
 	const now = ctx.now();
 	const records: ActivityRecord[] = [];
 	const runs: RunRecord[] = [];
+	const swims: SwimRecord[] = [];
 	for (const activity of result.value) {
 		const record = toActivityRecord(activity, rider.athleteId, now);
 		const run = record ? null : toRunRecord(activity, rider.athleteId, now);
+		const swim =
+			record || run ? null : toSwimRecord(activity, rider.athleteId, now);
 		// The stored grant decides, even if Strava returns more (FR-007).
 		const allowed = (r: { is_private: 0 | 1 }) =>
 			r.is_private === 0 || rider.scopeReadAll;
 		if (record && allowed(record)) records.push(record);
 		if (run && allowed(run)) runs.push(run);
+		if (swim && allowed(swim)) swims.push(swim);
 	}
 	await evaluateChange(ctx, rider.athleteId, {
 		kind: "upsert",
 		records,
 		runs,
+		swims,
 	});
 	return { kind: "stored", listed: result.value.length };
 }

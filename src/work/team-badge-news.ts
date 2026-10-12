@@ -1,3 +1,4 @@
+import { badgeWindow } from "../badges/evaluate";
 import { evaluateTeamBadges } from "../badges/team";
 import { berlinDate } from "../config";
 import type { Ctx } from "../ctx";
@@ -55,7 +56,12 @@ async function announce(ctx: Ctx, keep: Set<number>): Promise<number[]> {
 			checked: number;
 		}>(),
 	]);
-	const { earned } = evaluateTeamBadges(sums, CURRENT_RULES, window);
+	// Nothing dated after today counts (`badgeWindow`).
+	const { earned } = evaluateTeamBadges(
+		sums,
+		CURRENT_RULES,
+		badgeWindow(window, berlinDate(now)),
+	);
 	let previous = stored?.badge_ids ?? null;
 	if (previous === null) {
 		// The very first check, right after deploying, stores what the team has

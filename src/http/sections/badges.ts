@@ -13,8 +13,11 @@ import {
 	type BadgeGroup,
 	type BadgeUnit,
 	badgeById,
+	categoryById,
+	ONE_DECIMAL,
+	surpriseName,
 } from "../../badges/catalog";
-import type { EarnedBadge } from "../../badges/evaluate";
+import { badgeWindow, type EarnedBadge } from "../../badges/evaluate";
 import { BADGE_PICTURES } from "../../badges/pictures";
 import { evaluateTeamBadges } from "../../badges/team";
 import {
@@ -49,6 +52,7 @@ const SINGULAR = new Set<BadgeUnit>([
 	"trainings",
 	"riders",
 	"attendances",
+	"days",
 ]);
 
 function valueText(
@@ -63,28 +67,38 @@ function valueText(
 		: i18n.t(`badges.value.${unit}`, { n: value });
 }
 
-const UNITS: Record<BadgeCategoryId, BadgeUnit> = {
-	distance: "km",
-	elevation: "m",
-	team_events: "events",
-	technique: "trainings",
-	training_rynke: "rynke",
-	run_length: "km",
-	running: "km",
-	team_training_rynke: "rynke",
-	team_distance: "km",
-	team_elevation: "m",
-	team_running: "km",
-	big_training: "riders",
-	attendances: "attendances",
-};
+/** The surprise badges' rule names, as their catalog keys use them. */
+type SurpriseName =
+	| "new-year"
+	| "christmas-eve"
+	| "christmas"
+	| "night-owl"
+	| "early-bird"
+	| "rest-day"
+	| "day-off"
+	| "all-out"
+	| "round-the-clock"
+	| "relay"
+	| "new-years-eve"
+	| "sunday-outing";
 
-/** The milestone on the ribbon: "1.000 km", "Halbmarathon". */
+/**
+ * The milestone on the ribbon: "1.000 km", "Halbmarathon", "1,9 km": a
+ * decimal only where the threshold has one (research R28); a surprise
+ * badge's own word, "Nachteule" (research R34).
+ */
 function milestone(i18n: I18n, badge: Badge): string {
+	const surprise = surpriseName(badge) as SurpriseName | null;
+	if (surprise) return i18n.t(`badges.surprise.${surprise}`);
 	if (badge.id === "run-length-half") return i18n.t("badges.value.half");
 	if (badge.id === "run-length-marathon")
 		return i18n.t("badges.value.marathon");
-	return valueText(i18n, UNITS[badge.category], badge.threshold);
+	return valueText(
+		i18n,
+		categoryById(badge.category).unit,
+		badge.threshold,
+		Number.isInteger(badge.threshold) ? 0 : 1,
+	);
 }
 
 function picture(badge: Badge, ribbon: boolean): string {
@@ -125,7 +139,7 @@ function progressBar(
 		i18n,
 		progress.unit,
 		progress.missing,
-		category === "run_length" ? 1 : 0,
+		ONE_DECIMAL.has(category) ? 1 : 0,
 	);
 	return html`<span class="bar" aria-hidden="true"><span style="width:${progress.percent}%"></span></span><span class="badge-missing">${i18n.t("badges.missing", { value: missing })}</span>`;
 }
@@ -144,12 +158,15 @@ ${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.cate
 </li>`;
 }
 
-/** A category without a badge: a dotted outline, its sentence on phones too. */
+/**
+ * A category without a badge: a dotted outline, its sentence on phones too;
+ * no bar once its winter month is over (FR-004a).
+ */
 function emptyCard(i18n: I18n, row: NotYetRow): SafeHtml {
 	return html`<li class="badge-card badge-card-empty" data-category="${row.category}">
 ${categoryHeading(i18n, row.category)}
 <span class="badge-slot" aria-hidden="true"></span>
-<div class="badge-progress">${progressBar(i18n, row.category, row.progress)}</div>
+${row.progress ? html`<div class="badge-progress">${progressBar(i18n, row.category, row.progress)}</div>` : null}
 </li>`;
 }
 
@@ -194,6 +211,16 @@ ${gallery}</details>`
  * date, and a close button for phones, where there's little outside to tap
  * (hidden while hover holds it open).
  */
+/** What the badge was for; a surprise badge says why it was earned. */
+function forText(i18n: I18n, badge: Badge, value: string): string {
+	const surprise = surpriseName(badge) as SurpriseName | null;
+	if (surprise) return i18n.t(`badges.surprise.${surprise}.for`);
+	return i18n.t(
+		`badges.for.${badge.category as Exclude<BadgeCategoryId, "surprise" | "team_surprise">}`,
+		{ value },
+	);
+}
+
 function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 	const badge = badgeOf(earned);
 	const value = milestone(i18n, badge);
@@ -202,7 +229,7 @@ function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 <button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
 <span class="badge"><img src="${picture(badge, true)}" alt="" loading="lazy" width="280" height="280"><span class="badge-ribbon-text">${value}</span></span>
 <h4>${BADGE_NAMES[badge.id] ?? ""}</h4>
-<p>${i18n.t(`badges.for.${badge.category}`, { value })}</p>
+<p>${forText(i18n, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
 </div>
 `;
@@ -263,9 +290,11 @@ async function badgesOf(
 	rider: Rider,
 	attendance: RiderViewRead["attendance"],
 	trainingRynke: number,
-	window: CountingWindow,
+	seasonWindow: CountingWindow,
 ): Promise<BadgeSection | null> {
 	const db = ctx.env.DB;
+	// Nothing dated after today counts towards a badge or a bar.
+	const window = badgeWindow(seasonWindow, berlinDate(ctx.now()));
 	const [badges, sums] = await Promise.all([
 		readRiderBadges(db, rider.athleteId, window),
 		readTeamBadgeSums(db),
@@ -282,6 +311,8 @@ async function badgesOf(
 		team: evaluateTeamBadges(sums, CURRENT_RULES, window),
 		revealed: badges.revealed,
 		connectedOn: berlinDate(rider.connectedAt),
+		today: berlinDate(ctx.now()),
+		seasonStart: window.seasonStart,
 	});
 	if (section && section.reveal.length > 0 && request.method === "GET") {
 		await upsertRevealsStatement(db, rider.athleteId, section.reveal).run();

@@ -49,6 +49,53 @@ export const BADGE_NAMES: Record<BadgeId, string> = {
 	"running-100": "Hundert zu Fuß",
 	"running-250": "Doppelleben",
 	"running-500": "Neue Sohlen fällig",
+	// Längste Fahrt (part C)
+	"ride-length-50": "Mit Proviant",
+	"ride-length-100": "Hundert am Stück",
+	"ride-length-150": "Satteltag",
+	"ride-length-200": "Von früh bis spät",
+	"ride-length-250": "Durch die Nacht",
+	"ride-length-300": "Alles gegeben",
+	// Virtuell
+	"virtual-rides-50": "Rollenheld",
+	"virtual-rides-100": "Gegenwind vom Ventilator",
+	"virtual-rides-250": "Gegen sich selbst",
+	"virtual-rides-500": "Kopfkino",
+	"virtual-rides-1000": "Wohnzimmer-Weltall",
+	// Längstes Schwimmen
+	"swim-length-500": "Seepferdchen",
+	"swim-length-1000": "Freischwimmer",
+	"swim-length-1900": "Halbe Langdistanz",
+	"swim-length-3800": "Langdistanz",
+	// Schwimmen gesamt
+	"swimming-5": "Arschbombe",
+	"swimming-10": "Mit Quietscheente",
+	"swimming-25": "Bahnen ziehen",
+	"swimming-50": "Möwenexpress",
+	"swimming-100": "Wal in Sicht",
+	// Winter: November
+	"winter-november-1": "Herbstlaub",
+	"winter-november-5": "Schietwetter",
+	"winter-november-10": "Nebelreiter",
+	// Winter: Dezember
+	"winter-december-1": "Erster Schnee",
+	"winter-december-5": "Kakaopause",
+	"winter-december-10": "Rentier auf Rädern",
+	// Winter: Januar
+	"winter-january-1": "Frohes Neues",
+	"winter-january-5": "Eiszapfen",
+	"winter-january-10": "Schneesturm",
+	// Winter: Februar
+	"winter-february-1": "Fasching auf dem Rad",
+	"winter-february-5": "Zugefroren",
+	"winter-february-10": "Winter überstanden",
+	// Überraschungen (part D)
+	"surprise-new-year": "Prost Neujahr",
+	"surprise-christmas-eve": "Bescherung auf Rädern",
+	"surprise-christmas": "Gänsebraten abgestrampelt",
+	"surprise-night-owl": "Nachteule",
+	"surprise-early-bird": "Frühaufsteher",
+	"surprise-rest-day": "Sofaheld",
 	// Trainings-Rynke gemeinsam
 	"team-training-rynke-500": "Gemeinsam angerollt",
 	"team-training-rynke-1000": "Tausend zusammen",
@@ -89,4 +136,11 @@ export const BADGE_NAMES: Record<BadgeId, string> = {
 	"attendances-100": "Hundertmal dabei",
 	"attendances-200": "Eingespielt",
 	"attendances-400": "Alle dabei",
+	// Team-Überraschungen (part E)
+	"team-surprise-day-off": "Kollektiver Couchtag",
+	"team-surprise-all-out": "Alle Mann an Deck",
+	"team-surprise-round-the-clock": "Die Nacht durchgefahren",
+	"team-surprise-relay": "Staffel ohne Ende",
+	"team-surprise-new-years-eve": "Silvesterknaller",
+	"team-surprise-sunday-outing": "Sonntagskarawane",
 };

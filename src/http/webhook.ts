@@ -9,7 +9,12 @@ import { ACTIVITY_ASPECTS, isId, isOneOf } from "../work/messages";
 // event is only queued here, never processed, and Strava is never called
 // (FR-011).
 
-const MAX_BODY_BYTES = 1000;
+// A real event is a few hundred bytes, but an update carries the new title, and
+// Strava doesn't document a title's maximum length. Every character of an emoji
+// title can take 12 bytes once JSON-escaped, so 1,000 bytes could turn away a
+// genuine event, which Strava gives up on after its retries. 4 KiB leaves
+// room and still refuses junk before parsing.
+const MAX_BODY_BYTES = 4096;
 const OBJECT_TYPES = ["activity", "athlete"] as const;
 
 interface StravaEvent {
@@ -80,7 +85,7 @@ async function receiveEvent(request: Request, ctx: Ctx): Promise<Response> {
 			aspect: event.aspect,
 			changed: Object.keys(event.updates),
 		});
-	} else if (event.updates.authorized === "false") {
+	} else if (isDeauthorization(event.updates)) {
 		// Strava already revoked the grant: nothing to revoke (research R3).
 		await ctx.queue.send({
 			kind: "delete-rider",
@@ -91,6 +96,15 @@ async function receiveEvent(request: Request, ctx: Ctx): Promise<Response> {
 	}
 	// Any other athlete update is dropped.
 	return text("ok", 200);
+}
+
+/**
+ * Strava documents `authorized` as the string "false"; a boolean is accepted
+ * too, since dropping a real revocation would keep a rider's data against
+ * their wish (Principle I).
+ */
+function isDeauthorization(updates: Record<string, unknown>): boolean {
+	return updates.authorized === "false" || updates.authorized === false;
 }
 
 /** The body as text, or null if it is over the limit. Stops reading there. */

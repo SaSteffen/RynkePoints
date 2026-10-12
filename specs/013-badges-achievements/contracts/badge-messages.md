@@ -7,7 +7,7 @@ keys (FR-028). Badge names are the one exception (FR-041, research R20).
 
 ```ts
 export const BADGE_NAMES: Record<BadgeId, string> = {
-  "distance-100": "…",   // one German name per badge of the catalog, 69 in all
+  "distance-100": "…",   // one German name per badge of the catalog, 101 in all (69 before part C)
 };
 ```
 
@@ -59,3 +59,52 @@ Team badges notify since issue #125: when every badge in the rise is a team
 badge, `notification.teamBadge` ("Neues Team-Abzeichen: {name} 🏅") or
 `notification.teamBadges` ("{n} neue Team-Abzeichen 🏅"). Either way the
 response's `url` is `/me/badges`, which the service worker opens on a click.
+
+## Part C: more categories (2026-10-12)
+
+- `badges.de.ts` grows to the catalog's 101 badges; the 32 new names are
+  written in the implementation with the project owner, like the first 69.
+- New catalog keys, German as below, English mirroring them:
+
+| Key | German |
+|-----|--------|
+| `badges.category.<id>` | Längste Fahrt, Virtuell, Längstes Schwimmen, Schwimmen gesamt, Winter: November, Winter: Dezember, Winter: Januar, Winter: Februar |
+| `badges.about.<category>` | "Deine längste Radfahrt dieser Saison, die für Trainings-Rynke zählt.", "Alle Kilometer deiner virtuellen Fahrten und Fahrten auf der Rolle in dieser Saison.", "Dein längstes Schwimmen dieser Saison, im Becken oder im Freiwasser.", "Alle Kilometer, die du in dieser Saison geschwommen bist.", per month: "Tage im November, an denen du draußen gefahren bist." (and Dezember, Januar, Februar) |
+| `badges.for.<category>` | "Deine längste Fahrt dieser Saison: {value} am Stück.", "Du bist in dieser Saison {value} virtuell gefahren.", "Dein längstes Schwimmen dieser Saison: {value} am Stück.", "Du bist in dieser Saison {value} geschwommen.", "Im November bist du an {value} draußen gefahren." (per month) |
+| `badges.value.days` / `badges.value.days.one` | {n} Tage / {n} Tag |
+
+- Consent (research R30): `consent.short.read` names swims ("deine Rad-, Lauf-
+  und Schwimmaktivitäten"); `CONSENT_VERSIONS` stays 1. A test asserts the
+  German text mentions "Schwimm".
+
+## Part D: surprise badges (2026-10-12)
+
+- `badges.de.ts` grows to 107 names; the six surprise names are written with
+  the project owner (drafts: "Prost Neujahr", "Bescherung auf Rädern",
+  "Gänsebraten abgestrampelt", "Nachteule", "Frühaufsteher", "Sofaheld").
+- New keys, German as below, English mirroring them:
+
+| Key | German |
+|-----|--------|
+| `badges.category.surprise` | Überraschungen |
+| `badges.about.surprise` | ? (the same in every language) |
+| `badges.surprise.<name>` | the ribbon: Neujahr, Heiligabend, Weihnachten, Nachteule, Frühaufsteher, Ruhetag |
+| `badges.surprise.<name>.for` | why it was earned: "Du warst am Neujahrstag unterwegs.", "Du warst an Heiligabend unterwegs.", "Du warst an den Weihnachtsfeiertagen unterwegs.", "Du bist nach 21:30 Uhr losgefahren.", "Du bist vor 6 Uhr losgefahren.", "Eine Woche lang jeden Tag aktiv – und dann einen Tag Pause. Verdient!" |
+
+`<name>` is `new-year`, `christmas-eve`, `christmas`, `night-owl`,
+`early-bird`, `rest-day`. None of these reaches the page for an unearned badge.
+
+## Part E: team surprise badges (2026-10-12)
+
+| Key | German |
+|-----|--------|
+| `badges.category.team_surprise` | Team-Überraschungen |
+| `badges.about.team_surprise` | ? |
+| `badges.surprise.<name>` | Teampause, Alle draußen, Rund um die Uhr, Staffelstab, Silvesterrunde, Sonntagsausflug |
+| `badges.surprise.<name>.for` | "Ein Tag, an dem das ganze Team die Füße hochgelegt hat.", "Ein Tag, an dem wirklich alle unterwegs waren.", "Zu jeder Stunde eines Tages war jemand aus dem Team unterwegs.", "30 Tage am Stück war jeden Tag jemand aus dem Team aktiv.", "Mindestens fünf aus dem Team waren an Silvester unterwegs.", "Mindestens zehn aus dem Team an einem Sonntag ohne Teamtermin." |
+
+`<name>`: `day-off`, `all-out`, `round-the-clock`, `relay`, `new-years-eve`,
+`sunday-outing`. Names (German only): "Kollektiver Couchtag", "Alle Mann an
+Deck", "Die Nacht durchgefahren", "Staffel ohne Ende", "Silvesterknaller",
+"Sonntagskarawane" (the project owner confirms them).
+
