@@ -91,6 +91,31 @@ next one."
   Yes, a personal category with two badges: one for attending one of the season's
   two planned technique trainings, one for attending both.
 
+### Session 2026-10-12
+
+- Q (raised by the project owner): Is there a badge for the longest ride after
+  all? → A: Yes. A personal category "Ride length": the longest single counting
+  ride of the season, up to 300 km. Supersedes the 2026-10-11 answer that dropped
+  it.
+- Q (raised by the project owner): Do virtual rides get badges of their own? → A:
+  Yes. A personal category "Virtual rides": the season total of kilometres of
+  virtual rides (feature 003 FR-013a). Those kilometres still count in Distance.
+- Q (raised by the project owner): Do swims give badges? → A: Yes, like runs: two
+  personal categories, the longest single swim and the season total of swim
+  kilometres. Pool and open-water swims both count; manual swims count nothing.
+  Swims never earn Rynke. There is no team category for swimming. Supersedes the
+  edge case that excluded swims.
+- Q (raised by the project owner): Is there a badge for riding in challenging
+  conditions? → A: Yes, as four personal winter categories, one per month
+  (November, December, January, February), each with badges for 1, 5 and 10
+  days. Strava gives no weather data, so the calendar month stands in for the
+  conditions.
+- Q: Do the winter categories count rides or days? → A: Days with at least one
+  outdoor counting ride, so splitting a ride earns nothing extra.
+- Q: Are winter cards shown outside their month? → A: Yes, all four cards show
+  all season, like every other category.
+- Q: Is there a "Swimming together" team category? → A: No.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - See my badges on my page (Priority: P1)
@@ -243,6 +268,50 @@ check every rider's page shows the team badge with the training's date.
    their page, **Then** they see it as the team's badge with its original date, and
    it is not celebrated as if they had just earned it.
 
+---
+
+### User Story 5 - Long rides, virtual rides, swims and winter riding (Priority: P3)
+
+A rider gets badges for their longest ride of the season, for the kilometres they
+ride on a trainer, for swimming, and for riding outdoors through the winter
+months, one category per month from November to February.
+
+**Why this priority**: These reward what Rynke don't: the one big day out, the
+indoor work and the swims of the off-season, and the stubbornness to ride
+outdoors in winter. They build on the personal badges and the runs' storage.
+
+**Independent Test**: Give a sample rider an outdoor ride of 104 km in December,
+two outdoor rides on one January day, a virtual ride and two swims; check each
+category's value and that Rynke and ride list are unchanged by the swims.
+
+**Acceptance Scenarios**:
+
+1. **Given** a rider whose longest counting ride is 104 km, **When** they open
+   their page, **Then** the ride-length category has the 50 and 100 km badges,
+   dated with the rides that first reached them, and shows progress towards
+   the next.
+2. **Given** a ride of 312 km, **When** it is evaluated, **Then** every
+   ride-length badge up to 300 km is earned with its date.
+3. **Given** virtual rides of 30 km and 25 km, **When** they are evaluated,
+   **Then** the virtual-rides category counts 55 km and earns the 50 km badge,
+   and Distance counts both rides as before.
+4. **Given** swims of 1.2 km in a pool and 0.8 km in open water, **When** they
+   are evaluated, **Then** the swimming category counts 2.0 km and the
+   swim-length category 1.2 km; Rynke, ride list and every team category are
+   unchanged.
+5. **Given** a swim entered manually on Strava, **When** it is evaluated,
+   **Then** it counts nothing.
+6. **Given** two outdoor rides on 10 January and one on 11 January, **When**
+   they are evaluated, **Then** the January category counts 2 days.
+7. **Given** a virtual ride or a ride with Strava's trainer flag on a December
+   day, **When** it is evaluated, **Then** the December category does not count
+   that day.
+8. **Given** a ride starting 30 November at 23:30 Berlin time, **When** it is
+   evaluated, **Then** it counts for November.
+9. **Given** it is March and a rider has 3 days in February, **When** they open
+   their page, **Then** the February card shows its 1-day badge and no
+   progress bar.
+
 ### Edge Cases
 
 - Recalculations after a rule change (feature 003) award or take back badges
@@ -258,7 +327,14 @@ check every rider's page shows the team badge with the training's date.
   only a single reveal of all of them.
 - A run and a ride overlapping in time do not affect each other: runs are not part
   of feature 003's overlap rule (FR-005d).
-- Activities of other sports (swim, walk, hike, e-bike rides) give no badges.
+- A swim, like a run, does not affect rides overlapping it in time (FR-024).
+- A ride that stops counting can lower the longest ride, take back a winter day
+  or lower the virtual kilometres, and its badges are taken back like any other
+  (US2).
+- A winter month whose days are corrected after the month is over (a ride deleted
+  in March) still changes that month's category; the card shows no progress bar
+  either way (FR-004a).
+- Activities of other sports (walk, hike, e-bike rides) give no badges.
 - Personal badges are the rider's own; other riders never see them (feature 004's
   visibility rules), unless a later feature decides otherwise.
 
@@ -311,11 +387,16 @@ their badge names examples.
 - **FR-003**: For each category not yet complete, the group
   MUST show the progress towards the next badge only: a bar for the current value
   against the value needed, and what is still missing in that category's unit
-  ("Noch 1.500 km", "Noch 5 Fahrer"). It MUST NOT show the
+  ("Noch 1.500 km", "Noch 5 Fahrer", "Noch 4 Tage"). It MUST NOT show the
   next badge's name or picture, nor any badge after it. Only the gallery's empty
   outlines (FR-002) tell how many badges a category has.
 - **FR-004**: A category whose last badge is earned MUST keep its card, without a
   progress bar and without a sign that it is complete.
+- **FR-004a**: A winter category (FR-010) whose month is over, by today's Berlin
+  date, MUST keep its card without a progress bar, whether or not its badges are
+  earned; with no badge, the card keeps its dotted outline. Its badges still to
+  earn stay as empty outlines in the gallery. Before and during its month the
+  card shows its progress like any other category.
 - **FR-005**: The section MUST NOT show while feature 015's waiting state is shown.
 
 **Categories (first set)**
@@ -332,6 +413,18 @@ their badge names examples.
   - Run length: the longest single run of the season (FR-020). Its highest badge
     is marathon distance (42.195 km).
   - Running: the season total of kilometres of runs (FR-020).
+  - Ride length: the longest single counting ride of the season, virtual rides
+    included. Its highest badge is 300 km.
+  - Virtual rides: the season total of kilometres of counting virtual rides
+    (feature 003 FR-013a: Strava's virtual-ride sport type or the trainer flag).
+    These kilometres count in Distance as well.
+  - Swim length: the longest single swim of the season (FR-024).
+  - Swimming: the season total of kilometres of swims (FR-024).
+  - Winter November, Winter December, Winter January, Winter February: four
+    categories, one per month, each counting the days of that month with at
+    least one outdoor counting ride. An outdoor ride is a counting ride that is
+    not a virtual ride (FR-013a). A ride belongs to the day and month its start
+    falls on in Europe/Berlin. Several rides on one day make one day.
 - **FR-011**: Team categories are worked on by the whole team together and MUST be:
   - Amounts collected together:
     - Training Rynke together: all Training Rynke the consenting riders collected
@@ -340,6 +433,7 @@ their badge names examples.
     - Elevation together: the elevation gain of all counting rides of consenting
       riders.
     - Running together: the kilometres of all runs of consenting riders (FR-020).
+    - Swims have no team category.
   - Participation in team activities:
     - Big training: the most riders at a single team event of the season.
     - Attendances: how often riders attended team events this season, summed over
@@ -367,19 +461,30 @@ their badge names examples.
   feature 003's ride rules (overlap, pause, speed). Other riders MUST NOT see any
   single run or a rider's running figures; runs reach them only inside the team
   sum "Running together" (FR-011).
-- **FR-022**: Runs since the season start of riders who connected before this
-  feature MUST be picked up once after release, within the Strava request budget
-  (Principle II), like feature 008's one-time re-read.
-- **FR-023**: The consent text MUST name that runs are read and kept for badges,
-  and that ride and run kilometres and elevation count towards team sums. Per the
+- **FR-022**: Runs and swims since the season start of riders who connected
+  before they were added MUST be picked up once after release, within the Strava
+  request budget (Principle II), like feature 008's one-time re-read.
+- **FR-023**: The consent text MUST name that runs and swims are read and kept for
+  badges, and that ride and run kilometres and elevation count towards team sums. Per the
   project owner's decision (Clarifications), keeping data the app already receives
   and showing it to the team only as sums over all riders needs no new consent
   version (constitution Principle I).
 
+**Swims**
+
+- **FR-024**: Swims (Strava sport type Swim) from the season start MUST be kept
+  with the minimum needed for badges: date and distance, like runs (FR-020).
+  Pool and open-water swims both count their whole distance, added up over the
+  season with no rounding per swim. Swims entered manually count nothing and
+  MUST NOT be kept.
+- **FR-025**: Swims MUST NOT earn Rynke, appear in the ride list or take part in
+  feature 003's ride rules. Other riders MUST NOT see any single swim or a
+  rider's swimming figures; swims count towards no team category.
+
 **Evaluation**
 
 - **FR-030**: Badges MUST be a pure function of what features 001 and 003 store
-  (rides, runs, team events, attendance, corrections) and be worked out again on
+  (rides, runs, swims, team events, attendance, corrections) and be worked out again on
   every evaluation; evaluating the same data twice MUST NOT change anything
   (Principle II).
 - **FR-031**: Newly earned personal badges MUST be revealed once per rider with a
@@ -425,6 +530,8 @@ their badge names examples.
   revealed to the rider.
 - **Run**: rider, Strava activity, date, distance, manual or not. Never linked to
   Rynke.
+- **Swim**: rider, Strava activity, date, distance, manual or not. Never linked
+  to Rynke.
 
 ## Success Criteria *(mandatory)*
 
@@ -437,7 +544,8 @@ their badge names examples.
 - **SC-003**: No badge that is still to be earned can be identified from the page:
   its name and picture appear nowhere in what the rider page sends to the browser.
 - **SC-004**: Adding any number of runs leaves every rider's Rynke, ride list, team
-  leaderboard and every team badge except "Running together" unchanged.
+  leaderboard and every team badge except "Running together" unchanged; adding
+  any number of swims leaves them all unchanged.
 - **SC-005**: The Abzeichen section works at 360 px width in both colour modes,
   without horizontal scrolling however many badges a rider has.
 
@@ -458,6 +566,14 @@ their badge names examples.
   | Training Rynke                 | Rynke       | 1, 25, 50, 100, 150, 200, 250, 300, 400, 500            |
   | Run length                     | km          | 5, 10, half marathon (21.0975), marathon (42.195)       |
   | Running                        | km          | 10, 25, 50, 100, 250, 500                               |
+  | Ride length                    | km          | 50, 100, 150, 200, 250, 300                             |
+  | Virtual rides                  | km          | 50, 100, 250, 500, 1,000                                |
+  | Swim length                    | km          | 0.5, 1, 1.9, 3.8                                        |
+  | Swimming                       | km          | 5, 10, 25, 50, 100                                      |
+  | Winter November                | days        | 1, 5, 10                                                |
+  | Winter December                | days        | 1, 5, 10                                                |
+  | Winter January                 | days        | 1, 5, 10                                                |
+  | Winter February                | days        | 1, 5, 10                                                |
   | Training Rynke together (team) | Rynke       | 500, 1,000, 2,500, 5,000, 7,500, 10,000, 15,000, 20,000 |
   | Distance together (team)       | km          | 1,000, 5,000, 10,000, 25,000, 50,000, 100,000           |
   | Elevation together (team)      | m           | 10,000, 50,000, 100,000, 250,000, 500,000               |
@@ -477,7 +593,15 @@ their badge names examples.
   zero.
 - The team badges live on each rider's own page below the rider's own; the Team
   tab stays as feature 016 defines it.
-- Run length progress and thresholds are shown with one decimal (21.1 km, 42.2 km);
-  other distance-type progress is shown in whole units.
+- Run length, Swim length and Swimming progress and thresholds are shown with one
+  decimal (21.1 km, 42.2 km, 1.9 km); other distance-type progress is shown in
+  whole units.
+- With the season starting on 1 September and the tour in summer, each winter
+  month falls into a season exactly once.
+- Strava offers no weather data; the winter categories use the month as the
+  stand-in for challenging conditions.
+- With eight new personal categories the rider has 15 personal cards; all show
+  all season (Clarifications 2026-10-12), so the cards' two-per-row layout
+  (FR-002a) carries them.
 - Distance-type progress is rounded down, so "noch 0 km" never
   appears for a badge not yet earned.
