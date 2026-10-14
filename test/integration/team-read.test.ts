@@ -217,7 +217,7 @@ describe("readTeamBadgeSums (feature 013 R15)", () => {
 			hour: 18,
 			ride: false,
 		});
-		expect(active.map((a) => a.athleteId)).not.toContain(NO_CONSENT);
+		expect((active ?? []).map((a) => a.athleteId)).not.toContain(NO_CONSENT);
 	});
 
 	it("returns nothing when nobody is listed", async () => {
