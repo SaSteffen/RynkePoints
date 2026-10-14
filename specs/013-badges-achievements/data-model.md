@@ -286,3 +286,43 @@ No D1 change.
   string[]` (each listed rider's connection date, Berlin).
 - Rules as research R40; progress `{ next: null }`.
 
+
+# Part F: surprise badges from cycling traditions (2026-10-14)
+
+No D1 change.
+
+## Catalog (version 5)
+
+| Category | Ladder | New ids |
+|----------|--------|---------|
+| `surprise` | 1 to 13 | `surprise-festive-500`, `surprise-stage-rider`, `surprise-triathlon`, `surprise-pi-day`, `surprise-solstice`, `surprise-easter`, `surprise-everesting` |
+| `team_surprise` | 1 to 7 | `team-surprise-festive-team` |
+
+- 23 categories (16 personal, 7 team), 121 badges, the same as
+  `art/badges/badges.json`.
+
+## Evaluation
+
+- Inputs unchanged for personal badges (`CountingRide` already has `date`,
+  `distanceM`, `elevationDm`, `virtual`).
+- **TeamActivity** gains `ride: boolean`: true for a counting ride, false for
+  an outdoor run or a swim.
+- **`easterSunday(year)`** → `YYYY-MM-DD` (R44).
+- Rules as research R43 (personal) and R45 (team); each the first date that
+  meets it in the counting window; progress unchanged (`next: null`).
+
+## Art scenes (`art/badges/badges.json`, drafts)
+
+Each ends with `{{bike}} {{surprise}}` and is confirmed by the project owner
+before generating.
+
+| Id | Scene |
+|----|-------|
+| `surprise-festive-500` | Between Christmas and New Year: the character riding through a snowy night with a gold kilometre counter on the handlebar showing "500", a half-eaten gingerbread biscuit in his mouth, a string of fairy lights wound round the frame and trailing behind him like a tail, steam rising from his helmet. |
+| `surprise-stage-rider` | A three-day stage race: the character riding with three crumpled race numbers pinned on top of each other on his back, a tiny gold stage-winner's cap over his helmet, legs drawn as a blur, a road sign behind him reading "Etappe 3". |
+| `surprise-triathlon` | Three sports in one day: the character on his road bike still wearing swimming goggles and a cream swim cap over his helmet, running shoes tied to his handlebar by their laces and swinging, water dripping from him, a tired but proud grin. |
+| `surprise-pi-day` | Pi Day: the character riding round in a perfect circle drawn as a gold track, a big black π sign as a flag on a pole behind his saddle, a round pie with a slice missing balanced on his helmet. |
+| `surprise-solstice` | The solstices: the character riding across a badge split in two, left half a cream midsummer day with a huge gold sun, right half a black midwinter night with a cream moon and snow, his bike exactly on the line between them. |
+| `surprise-easter` | Easter: the character riding with tall cream bunny ears over his helmet, a basket of gold eggs on his handlebar, one egg flying out and a chick hatching from it mid-air, looking very surprised. |
+| `surprise-everesting` | Everesting: the character on top of a steep black mountain peak with a gold summit flag reading "8848", gasping, his bike held high above his head in triumph, a ladder of zig-zag hairpin bends below him. |
+| `team-surprise-festive-team` | The whole team at Christmas: a row of small identical characters riding in a tight line through the snow, each wearing a cream and gold Santa hat, the last one pulling a little sledge with a fir tree on it. |

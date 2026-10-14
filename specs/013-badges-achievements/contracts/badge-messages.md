@@ -108,3 +108,23 @@ response's `url` is `/me/badges`, which the service worker opens on a click.
 Deck", "Die Nacht durchgefahren", "Staffel ohne Ende", "Silvesterknaller",
 "Sonntagskarawane" (the project owner confirms them).
 
+
+## Part F: surprise badges from cycling traditions (2026-10-14)
+
+`badges.de.ts` grows to 121 names. New keys, German as below, English
+mirroring them:
+
+| `<name>` | `badges.surprise.<name>` (ribbon) | `badges.surprise.<name>.for` (why) |
+|----------|-----------------------------------|-------------------------------------|
+| `festive-500` | Festive 500 | "Zwischen Heiligabend und Silvester 500 Kilometer gefahren." |
+| `stage-rider` | Etappenfahrer | "Drei Tage am Stück je 100 Kilometer – wie auf der Tour." |
+| `triathlon` | Dreikampf | "Radfahren, Laufen und Schwimmen an einem Tag." |
+| `pi-day` | Kreiszahl | "Am Pi-Tag, dem 14. März, mindestens 31,4 Kilometer am Stück gefahren." |
+| `solstice` | Sonnenwende | "Draußen gefahren am kürzesten und am längsten Tag des Jahres." |
+| `easter` | Ostern | "An Ostern unterwegs gewesen." |
+| `everesting` | Everesting | "In einem Monat 8.848 Höhenmeter gesammelt – einmal Mount Everest." |
+| `festive-team` | Festive Team | "Zwischen Heiligabend und Silvester ist das ganze Team gefahren." |
+
+Names (German only, drafts the project owner confirms): "Plätzchen
+weggestrampelt", "Tour de Rynke", "Dreifach-Held", "Runde Sache", "Licht und
+Schatten", "Osterhase auf Rädern", "Gipfelstürmer", "Festtags-Gang".

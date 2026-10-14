@@ -619,3 +619,109 @@ D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
 - **Rationale**: Six riders can't make a realistic Sunday outing of ten.
 - **Alternatives**: none.
 
+
+# Part F: surprise badges from cycling traditions (2026-10-14)
+
+## R42 Longer ladders, same categories
+
+- **Decision**: `surprise` gets `ladder: [1, …, 13]`, `team_surprise`
+  `[1, …, 7]`. `NAMED_THRESHOLDS` adds `surprise` 7 `festive-500`, 8
+  `stage-rider`, 9 `triathlon`, 10 `pi-day`, 11 `solstice`, 12 `easter`, 13
+  `everesting`, and `team_surprise` 7 `festive-team`, giving the ids
+  `surprise-festive-500` … `surprise-everesting` and
+  `team-surprise-festive-team`. `BADGE_CATALOG_VERSION` becomes 5, so every
+  rider is re-evaluated once, silently (R18): badges the new rules award for
+  past dates appear without a celebration (FR-017b).
+- **Rationale**: Parts D and E made everything downstream (card, gallery
+  outlines, "?", ribbon and why-text keys, notifications, `teamBadgeNews`)
+  follow the catalog; appending keeps the existing ids and their order.
+- **Alternatives**: A third surprise category "Traditionen": a new card
+  and heading for what riders should only discover; rejected with the spec.
+
+## R43 The personal rules
+
+- **Decision**: In `surpriseBadges`, each rule finds the first date of the
+  counting window that meets it (FR-013), from the inputs it already gets:
+
+  | Badge | Rule (rides = counting rides in the window) |
+  |-------|---------------------------------------------|
+  | Festive 500 | rides dated `MM-DD` 12-24 to 12-31 in date order; the date their running sum reaches 500 km |
+  | Etappenfahrer | per date, the sum of rides' km; the third of the first three consecutive dates each ≥ 100 km |
+  | Dreikampf | the first date with a ride, a run and a swim |
+  | Kreiszahl | the first ride on 03-14 with `distanceM >= 31400` |
+  | Sonnenwende | the first non-virtual ride on 06-21, if a non-virtual ride on 12-21 comes before it |
+  | Osterhase | the first activity day equal to Easter Sunday or the day after it, for the date's year |
+  | Everesting | per `YYYY-MM`, rides in date order; the first date a month's running elevation reaches 8,848 m |
+
+  Distances compare in metres and elevation in decimetres
+  (`elevationDm >= 88480`), so no rounding decides a badge. Sums add whole
+  days at once, so a badge is dated with the day whose rides reach the mark.
+- **Rationale**: Pure and idempotent like the rest of part D (R33); a
+  deleted ride takes a badge back on the next evaluation (US2). All seven
+  only read dates, distances, elevation and the virtual flag, which
+  `CountingRide` already carries (R23, R33).
+- **Alternatives**: A single 100 km ride per Etappenfahrer day: rejected in
+  the spec's Clarifications; Everesting in one ride: too rare to be fun for
+  the team (spec).
+
+## R44 Easter
+
+- **Decision**: `src/badges/easter.ts` exports `easterSunday(year: number):
+  string` (`YYYY-MM-DD`), the anonymous Gregorian algorithm (Meeus/Jones/
+  Butcher), integer arithmetic only. Osterhase compares each activity day
+  with `easterSunday(year)` and its day after (`shift(…, 1)`).
+- **Rationale**: Fifteen lines, no dependency (Principle IV), checkable
+  against known dates (2026-04-05, 2027-03-28, 2028-04-16, 2030-04-21).
+- **Alternatives**: A table of dates: runs out and needs maintenance.
+
+## R45 Festive Team
+
+- **Decision**: `TeamActivity` gains `ride: boolean`; part E's read in
+  `readTeamBadgeSums` adds `1 AS ride` to the counting-ride branch and `0` to
+  runs and swims, and keeps `DISTINCT` over all four columns. In `team.ts`:
+  for the December inside the counting window, the riders due are the listed
+  riders with `connectedOn <= YYYY-12-24`; with at least two of them, each
+  needs a `ride` activity dated 12-24 to 12-31; the badge is dated with the
+  latest of their first such dates. A rider connecting later is not due, so
+  doesn't take it back (spec Clarifications).
+- **Rationale**: One bit more in an existing read, nothing per rider leaves
+  the pure function (FR-016a, FR-017a); the existing rules ignore `ride`,
+  so they stay as they are.
+- **Alternatives**: A second read of counting-ride dates only: one more
+  statement for what one column gives.
+
+## R46 Text and names
+
+- **Decision**: Ribbon texts and why-texts as in
+  [contracts/badge-messages.md](contracts/badge-messages.md), in `de.ts` and
+  `en.ts`; German-only names in `badges.de.ts` (FR-041), drafts the project
+  owner confirms. The why-texts name the rule after the fact, which is
+  allowed once earned (FR-015b).
+- **Rationale**: As R34.
+- **Alternatives**: none.
+
+## R47 Art
+
+- **Decision**: Eight new entries in `art/badges/badges.json` with the shared
+  `{{bike}}` and `{{surprise}}` snippets (FR-015c), scenes as drafted in
+  [data-model.md](data-model.md) Part F; the catalog test keeps
+  `badges.json` and the catalog equal. Until `pnpm badge-art` and `pnpm
+  badge-build` have run, the placeholder shows (FR-040a).
+- **Rationale**: The art pipeline is unchanged (part A).
+- **Alternatives**: none.
+
+## R48 Samples
+
+- **Decision**: A new sample rider, "Fritz Festtag", earns all seven
+  personal surprises on the fake Strava: 520 km between 24 and 31 December
+  (two of them Zwift rides), three 100 km days in a row (one of them in two
+  rides), a ride, a run and a swim on one day, a 32 km ride on 14 March,
+  outdoor rides on 21 December and 21 June, a ride on Easter Monday, and
+  8,900 m of climbing in one month. `ride()` gains an option `onEaster`
+  that places a ride relative to the season's Easter Sunday, computed with
+  `easterSunday` (dev may import `src/`, not the reverse). Festive Team is
+  covered by tests with synthetic riders, like R41.
+- **Rationale**: Every new personal badge checkable locally in one place
+  without changing other samples' states.
+- **Alternatives**: Adding them to Wanda Winter: her state would no longer
+  describe her.

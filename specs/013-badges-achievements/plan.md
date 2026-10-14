@@ -1,10 +1,10 @@
 # Implementation Plan: Badges and Achievements
 
-**Branch**: `013-badges-achievements` | **Date**: 2026-10-11, parts C to E 2026-10-12 | **Spec**: [spec.md](spec.md)
+**Branch**: `013-badges-achievements` | **Date**: 2026-10-11, parts C to E 2026-10-12, part F 2026-10-14 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `/specs/013-badges-achievements/spec.md`
 
-The plan has five parts, planned and built one after the other at the project
+The plan has six parts, planned and built one after the other at the project
 owner's request:
 
 - **Part A, art pipeline** (built, tasks T001 to T023): the badge frames, the
@@ -23,6 +23,11 @@ owner's request:
 - **Part E, team surprise badges** (added 2026-10-12): "Team-Überraschungen",
   six single team badges (FR-016, FR-016a), worked out per request from
   per-day activity of listed riders.
+- **Part F, surprise badges from cycling traditions** (added 2026-10-14):
+  seven more personal surprises (Festive 500, Etappenfahrer, Dreikampf,
+  Kreiszahl, Sonnenwende, Osterhase, Everesting) and one team surprise
+  (Festive Team), FR-017 to FR-017b. Parts D and E's mechanism, new rules
+  only; the art scenes are new.
 
 ## Summary
 
@@ -70,6 +75,17 @@ nothing of an unearned surprise badge; an earned one gets its ribbon text and
 why-text. No migration; the catalog version re-evaluates everyone once,
 silently.
 
+**Part F.** The two surprise categories grow (personal 6 → 13, team 6 → 7)
+without a new mechanism: the ladders only order the badges, so the view, the
+section, the "?" and the notifications follow from the catalog. The seven
+personal rules are more first-date searches in `evaluate.ts` over inputs the
+evaluation already has (rides with distance, elevation, virtual flag and
+date; runs; swims); Easter comes from a small pure Gregorian computus. The
+team rule needs one more bit per team activity, whether it was a counting
+ride, added to part E's read. No migration, no new Strava request; catalog
+version 5 re-evaluates everyone once, silently. Eight new art scenes; until
+their pictures are made the placeholder shows.
+
 ## Technical Context
 
 **Language/Version**: TypeScript on Cloudflare Workers (app); JavaScript (Node
@@ -109,7 +125,8 @@ surprise holds in the HTML (SC-003).
 
 **Scale/Scope**: about 40 riders; 21 categories, 101 badges (part C: 8
 categories, 32 badges); a rider has at most 72 personal badges in 15 categories
-and sees up to 34 team badges.
+and sees up to 34 team badges. After parts D to F: 23 categories, 121 badges
+(13 personal and 7 team surprises).
 
 ## Constitution Check
 
@@ -123,9 +140,10 @@ and sees up to 34 team badges.
 | IV. Serverless, minimal deps | No new dependency; D1 tables via a forward-only migration that adds only; pure functions for personal and team badges; Popover API and `<details>` instead of a UI library. | Pass |
 | V. Test-first | Every part B task starts with a failing test; part A's pure modules too. Part A's Gemini automation and tracer are the one exception (Complexity Tracking). | Pass with a justified exception |
 | Part C | Swims keep the same minimal fields as runs, only non-manual `Swim` activities, shown to no one else and in no team sum; the consent text names them without a new version, the same decision as runs (FR-023, research R30). Re-read and re-evaluation reuse the existing throttled cron mechanisms (R27); no new request kind. New ride categories read the counting rides already evaluated (R23). Test-first for every task. | Pass |
+| Part F | No new data: the personal rules read counting rides, outdoor runs and swims the evaluation already has; Dreikampf uses only a swim's date, as part D does. Festive Team reads only whether a listed rider's activity on a date was a counting ride, nothing per rider reaches the page (FR-016a, FR-017a), so the consent text's team part already covers it, no new consent version. No migration, no new Strava request (Principle II); re-evaluation through the existing silent catalog version (R18). Test-first for every rule. | Pass |
 | Language | Rider-facing text from the catalogs in every language, except badge names, which are German only and live beside the catalogs like 016's quotes (FR-041, research R20). Code, tests and docs in English. | Pass |
 
-Post-design re-check (after Phase 1, parts B and C): unchanged. The migration only adds tables
+Post-design re-check (after Phase 1, parts B, C and F): unchanged. The migration only adds tables
 and a column; the previous version never reads them. Team badges are not stored,
 so a consent change or a departure needs no extra job.
 
@@ -136,7 +154,7 @@ so a consent change or a departure needs no extra job.
 ```text
 specs/013-badges-achievements/
 ├── plan.md              # This file (parts A and B)
-├── research.md          # A: R1–R9; B: R10–R22; C: R23–R31; D: R32–R37; E: R38–R41
+├── research.md          # A: R1–R9; B: R10–R22; C: R23–R31; D: R32–R37; E: R38–R41; F: R42–R48
 ├── data-model.md        # A: art entities; B: D1 tables, catalog, evaluation; C: swims, catalog v2
 ├── quickstart.md        # A: art pipeline; B: the app; C: §10–§13
 ├── contracts/
@@ -144,7 +162,7 @@ specs/013-badges-achievements/
 │   ├── abzeichen-section.md  # B: the section's markup and behaviour
 │   └── badge-messages.md     # B: catalog keys, German names, notification text
 ├── drafts/              # Mobile and desktop drafts of the section
-└── tasks.md             # A (T001–T023), B (T024–T073), C (T074–T099), D (T100–T111), E (T112–)
+└── tasks.md             # A (T001–T023), B (T024–T073), C (T074–T099), D (T100–T111), E (T112–T119), F (T120–)
 ```
 
 ### Source Code (repository root)
@@ -202,6 +220,20 @@ dev/fake-strava/samples.ts     # long, virtual, winter rides; swims
 
 test/unit/        badge-catalog, badge-evaluate, badge-view, badge-names, activity
 test/integration/ swims-intake, badges-apply, badges-section, schema-minimisation, db
+
+# Part F
+src/badges/catalog.ts          # surprise ladder 1–13, team_surprise 1–7, 8 names, version 5
+src/badges/easter.ts           # pure: Easter Sunday of a year (Gregorian)
+src/badges/evaluate.ts         # + seven personal surprise rules
+src/badges/team.ts             # + Festive Team; TeamActivity.ride
+src/db/team.ts                 # + whether each team activity is a counting ride
+art/badges/badges.json         # + 8 scenes
+src/i18n/messages/{de,en}.ts   # + ribbon and why-texts for the 8 badges
+src/i18n/messages/badges.de.ts # + 8 German names
+dev/fake-strava/samples.ts     # a sample rider earning the new personal surprises
+
+test/unit/        badge-catalog, badge-easter, badge-evaluate, badge-team, badge-names
+test/integration/ badges-section, team-read, team-badge-notification
 ```
 
 **Structure Decision**: Badge logic gets its own folder `src/badges/`, pure and
