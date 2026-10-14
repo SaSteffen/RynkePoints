@@ -972,7 +972,7 @@ fail before the task that makes it pass.
 
 ## Phase 24: Foundational (part F, blocking)
 
-- [ ] T120 Tests first in `test/unit/badge-catalog.test.ts`: `surprise` with
+- [X] T120 Tests first in `test/unit/badge-catalog.test.ts`: `surprise` with
   ladder `[1, …, 13]` and `team_surprise` with `[1, …, 7]`; the new ids in
   this order after the existing ones: `surprise-festive-500`,
   `surprise-stage-rider`, `surprise-triathlon`, `surprise-pi-day`,
@@ -980,27 +980,27 @@ fail before the task that makes it pass.
   `team-surprise-festive-team` after `team-surprise-sunday-outing`; 121
   badges, all ids distinct, equal to `art/badges/badges.json`;
   `BADGE_CATALOG_VERSION` is 5.
-- [ ] T121 Implement in `src/badges/catalog.ts`: the two longer ladders, the
+- [X] T121 Implement in `src/badges/catalog.ts`: the two longer ladders, the
   eight `NAMED_THRESHOLDS` entries (research R42), version 5, and the comment
   "All 121 badges"; add the eight entries to `art/badges/badges.json` (group,
   category, threshold matching the catalog; scenes from data-model.md "Part
   F", each ending `{{bike}} {{surprise}}`). T120 passes.
-- [ ] T122 [P] `src/i18n/messages/badges.de.ts`: the eight German names
+- [X] T122 [P] `src/i18n/messages/badges.de.ts`: the eight German names
   (drafts in contracts/badge-messages.md "Part F"; the project owner confirms
   them); `test/unit/badge-names.test.ts` stays green.
-- [ ] T123 [P] Add `badges.surprise.<name>` and `badges.surprise.<name>.for`
+- [X] T123 [P] Add `badges.surprise.<name>` and `badges.surprise.<name>.for`
   for `festive-500`, `stage-rider`, `triathlon`, `pi-day`, `solstice`,
   `easter`, `everesting`, `festive-team` to `src/i18n/messages/de.ts` (German
   as contracts/badge-messages.md "Part F") and `src/i18n/messages/en.ts`
   (mirroring them), and to the inventory in `test/unit/catalogs.test.ts`.
-- [ ] T124 [P] Tests first in a new `test/unit/badge-easter.test.ts`:
+- [X] T124 [P] Tests first in a new `test/unit/badge-easter.test.ts`:
   `easterSunday` gives 2026-04-05, 2027-03-28, 2028-04-16, 2030-04-21 and
   2038-04-25. Then implement `src/badges/easter.ts` (research R44: anonymous
   Gregorian algorithm, integer arithmetic, returns `YYYY-MM-DD`). Passes.
 
 ## Phase 25: User Story 8, the personal rules (P3)
 
-- [ ] T125 [US8] Tests first in `test/unit/badge-evaluate.test.ts`, a new
+- [X] T125 [US8] Tests first in `test/unit/badge-evaluate.test.ts`, a new
   describe "Part F" with US8 scenarios 1 to 8 on synthetic inputs:
   Festive 500 from 480 km on 24–30 December plus 25 km on 31 December, dated
   31 December; 499 km nothing; rides on 23 December and 1 January not
@@ -1015,39 +1015,39 @@ fail before the task that makes it pass.
   Everesting at the day March's elevation reaches 88,480 dm; 60,000 dm in
   March and in April nothing. For every rule: activities outside the counting
   window count for nothing, and the surprise progress has no next.
-- [ ] T126 [US8] Implement the seven rules in `surpriseBadges` in
+- [X] T126 [US8] Implement the seven rules in `surpriseBadges` in
   `src/badges/evaluate.ts` as research R43 (distances in metres, elevation in
   decimetres, sums per date, each the first date that meets it), using
   `easterSunday` from `src/badges/easter.ts`. T125 passes.
-- [ ] T127 [US8] Tests first in `test/integration/badges-apply.test.ts`: a
+- [X] T127 [US8] Tests first in `test/integration/badges-apply.test.ts`: a
   deleted ride that carried the Festive 500 over 500 km takes the badge back
   on the next evaluation (spec Edge Cases). Passes with T126; fix
   `src/rynke/apply.ts` only if it doesn't.
 
 ## Phase 26: User Story 8, the team rule (P3)
 
-- [ ] T128 [US8] Tests first in `test/unit/badge-team.test.ts`: Festive Team
+- [X] T128 [US8] Tests first in `test/unit/badge-team.test.ts`: Festive Team
   (US8 scenario 9) on synthetic sums: every listed rider connected by 24
   December, at least two, with a `ride` activity dated 24–31 December, dated
   the day the last of them first rides; a rider without one, nothing; a run
   or swim (`ride: false`) doesn't count; a rider connected on 27 December is
   not due; a single listed rider, nothing. Existing team rules unchanged with
   `ride` set on every activity.
-- [ ] T129 [US8] Implement `TeamActivity.ride: boolean` and the Festive Team
+- [X] T129 [US8] Implement `TeamActivity.ride: boolean` and the Festive Team
   rule in `src/badges/team.ts` (research R45). T128 passes.
-- [ ] T130 [US8] Tests first in `test/integration/team-read.test.ts`:
+- [X] T130 [US8] Tests first in `test/integration/team-read.test.ts`:
   `readTeamBadgeSums` marks counting rides `ride: true` and outdoor runs and
   swims `ride: false`, listed riders only. Then add `1 AS ride` / `0 AS ride`
   to part E's activity read in `src/db/team.ts` and map it. Passes.
 
 ## Phase 27: Rollout and polish (part F)
 
-- [ ] T131 [US8] `dev/fake-strava/samples.ts`: a new sample rider "Fritz
+- [X] T131 [US8] `dev/fake-strava/samples.ts`: a new sample rider "Fritz
   Festtag" (research R48) with an `onEaster` option on `ride()` computed
   with `easterSunday`; a test in `test/integration/dev-fake-strava.test.ts`
-  that he earns all seven new personal surprises once their dates have
-  passed (fixed clock in the test).
-- [ ] T132 Tests first in `test/integration/badges-scheduled.test.ts`: riders
+  that he earns the new personal surprises whose dates have passed at the
+  test clock (6 October 2026), and not yet Festive 500 and Sonnenwende.
+- [X] T132 Tests first in `test/integration/badges-scheduled.test.ts`: riders
   on catalog version 4 are re-evaluated once to version 5, and badges the new
   rules award for past dates are stored without a rise or notification
   (FR-017b). Update the counts of existing tests and comments (gallery

@@ -649,7 +649,7 @@ D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
   | Etappenfahrer | per date, the sum of rides' km; the third of the first three consecutive dates each ≥ 100 km |
   | Dreikampf | the first date with a ride, a run and a swim |
   | Kreiszahl | the first ride on 03-14 with `distanceM >= 31400` |
-  | Sonnenwende | the first non-virtual ride on 06-21, if a non-virtual ride on 12-21 comes before it |
+  | Sonnenwende | the first non-virtual ride on 12-21 and the first on 06-21; dated with the later of the two (21 June in a season from September) |
   | Osterhase | the first activity day equal to Easter Sunday or the day after it, for the date's year |
   | Everesting | per `YYYY-MM`, rides in date order; the first date a month's running elevation reaches 8,848 m |
 
@@ -717,7 +717,9 @@ D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
   (two of them Zwift rides), three 100 km days in a row (one of them in two
   rides), a ride, a run and a swim on one day, a 32 km ride on 14 March,
   outdoor rides on 21 December and 21 June, a ride on Easter Monday, and
-  8,900 m of climbing in one month. `ride()` gains an option `onEaster`
+  9,000 m of climbing in May. As for Wanda Winter, rides dated after today
+  count only once their day has passed, so the test checks the five whose
+  days lie before the test clock's 6 October 2026. `ride()` gains an option `onEaster`
   that places a ride relative to the season's Easter Sunday, computed with
   `easterSunday` (dev may import `src/`, not the reverse). Festive Team is
   covered by tests with synthetic riders, like R41.
