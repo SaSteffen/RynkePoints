@@ -559,8 +559,8 @@ D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
   (Christmas Eve and night owl) and one at 5:30 on 1 January (New Year and
   early bird); a new streak of seven daily activities with a day off and an
   activity after it gives a sample rider the rest day badge. The six art
-  scenes and a shared `surprise` snippet asking for extra fun are already in
-  `art/badges/badges.json` (FR-015c).
+  scenes are already in `art/badges/badges.json`, each with its own gag
+  (FR-015c; the shared `surprise` snippet was removed in part F).
 - **Rationale**: Every surprise badge checkable locally (SC-005).
 - **Alternatives**: none.
 
@@ -703,8 +703,11 @@ D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
 ## R47 Art
 
 - **Decision**: Eight new entries in `art/badges/badges.json` with the shared
-  `{{bike}}` and `{{surprise}}` snippets (FR-015c), scenes as drafted in
-  [data-model.md](data-model.md) Part F; the catalog test keeps
+  `{{bike}}` snippet (and `{{team}}` for the team badge); each scene carries
+  its own over-the-top gag (FR-015c). The shared `surprise` snippet, a
+  generic "make it EXTRA fun" sentence, is removed from every surprise scene
+  of parts D to F and from the snippets: the project owner found it made the
+  pictures less fun. Scenes as in `badges.json`; the catalog test keeps
   `badges.json` and the catalog equal. Until `pnpm badge-art` and `pnpm
   badge-build` have run, the placeholder shows (FR-040a).
 - **Rationale**: The art pipeline is unchanged (part A).

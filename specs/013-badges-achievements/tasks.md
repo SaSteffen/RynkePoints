@@ -984,7 +984,7 @@ fail before the task that makes it pass.
   eight `NAMED_THRESHOLDS` entries (research R42), version 5, and the comment
   "All 121 badges"; add the eight entries to `art/badges/badges.json` (group,
   category, threshold matching the catalog; scenes from data-model.md "Part
-  F", each ending `{{bike}} {{surprise}}`). T120 passes.
+  F", each ending `{{bike}}`). T120 passes.
 - [X] T122 [P] `src/i18n/messages/badges.de.ts`: the eight German names
   (drafts in contracts/badge-messages.md "Part F"; the project owner confirms
   them); `test/unit/badge-names.test.ts` stays green.

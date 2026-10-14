@@ -202,6 +202,11 @@ next one."
   by 24 December, at least two, with a counting ride dated 24 to 31 December;
   dated the day the last of them rides. A rider connecting later doesn't
   take it back.
+- Q (raised by the project owner): How are the surprise pictures made fun?
+  → A: Each scene carries its own gag, a little over the top. The shared
+  "surprise" snippet ("make it EXTRA fun …") is removed from every surprise
+  scene, parts D to F, since a generic fun sentence made the pictures less
+  fun (FR-015c).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -721,8 +726,9 @@ their badge names examples.
   outline only (FR-002, SC-003). The card shows the newest earned surprise
   badge, with its name on the ribbon.
 - **FR-015c**: Surprise badges MUST be drawn extra fun: each picture a gag of
-  its own (art scenes in `art/badges/badges.json`), except the personal rest
-  day, which is calm.
+  its own, a little over the top, written into its own art scene in
+  `art/badges/badges.json`, never a shared generic "make it fun" sentence;
+  except the personal rest day, which is calm.
 
 **Surprise badges from cycling traditions (2026-10-14, part F)**
 

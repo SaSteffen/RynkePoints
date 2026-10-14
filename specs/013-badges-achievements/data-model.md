@@ -313,16 +313,17 @@ No D1 change.
 
 ## Art scenes (`art/badges/badges.json`, drafts)
 
-Each ends with `{{bike}} {{surprise}}` and is confirmed by the project owner
-before generating.
+Each ends with `{{bike}}` (the team badge with `{{team}} {{bike}}`) and
+carries its own gag, a little over the top; no shared "fun" sentence
+(FR-015c). Confirmed by the project owner before generating.
 
 | Id | Scene |
 |----|-------|
-| `surprise-festive-500` | Between Christmas and New Year: the character riding through a snowy night with a gold kilometre counter on the handlebar showing "500", a half-eaten gingerbread biscuit in his mouth, a string of fairy lights wound round the frame and trailing behind him like a tail, steam rising from his helmet. |
-| `surprise-stage-rider` | A three-day stage race: the character riding with three crumpled race numbers pinned on top of each other on his back, a tiny gold stage-winner's cap over his helmet, legs drawn as a blur, a road sign behind him reading "Etappe 3". |
-| `surprise-triathlon` | Three sports in one day: the character on his road bike still wearing swimming goggles and a cream swim cap over his helmet, running shoes tied to his handlebar by their laces and swinging, water dripping from him, a tired but proud grin. |
-| `surprise-pi-day` | Pi Day: the character riding round in a perfect circle drawn as a gold track, a big black π sign as a flag on a pole behind his saddle, a round pie with a slice missing balanced on his helmet. |
-| `surprise-solstice` | The solstices: the character riding across a badge split in two, left half a cream midsummer day with a huge gold sun, right half a black midwinter night with a cream moon and snow, his bike exactly on the line between them. |
-| `surprise-easter` | Easter: the character riding with tall cream bunny ears over his helmet, a basket of gold eggs on his handlebar, one egg flying out and a chick hatching from it mid-air, looking very surprised. |
-| `surprise-everesting` | Everesting: the character on top of a steep black mountain peak with a gold summit flag reading "8848", gasping, his bike held high above his head in triumph, a ladder of zig-zag hairpin bends below him. |
-| `team-surprise-festive-team` | The whole team at Christmas: a row of small identical characters riding in a tight line through the snow, each wearing a cream and gold Santa hat, the last one pulling a little sledge with a fir tree on it. |
+| `surprise-festive-500` | Between Christmas and New Year: the character pedalling his road bike through the snow, a string of fairy lights wound round him and the whole bike and still blinking, a gingerbread biscuit clamped in his teeth, a plate of Christmas biscuits balanced on his back with crumbs trailing behind him, a gold kilometre counter on the handlebar showing "500" with small cream sparks flying off it. |
+| `surprise-stage-rider` | Three stage days in a row: the character on his road bike so tired that his eyes are closed and he is snoring a little cream bubble while his legs keep spinning on their own, three crumpled race numbers pinned one on top of the other on his back, a tiny gold stage-winner's cap squashed over his helmet, a road sign behind him reading "Etappe 3". |
+| `surprise-triathlon` | Swim, ride and run in one day: the character on his road bike still wearing black swim goggles and a dripping yellow swim cap pulled over his helmet, a small puddle trailing behind him, running shoes tied to the handlebar by their laces and swinging wildly, a cream towel flapping behind him like a superhero cape. |
+| `surprise-pi-day` | Pi Day: the character on his road bike riding round a perfectly circular gold track, a big round cream pie with one slice missing balanced on his helmet and the missing slice sticking out of his mouth, a black π sign on a little flag behind his saddle. |
+| `surprise-solstice` | The shortest and the longest day: the character on his road bike exactly on the line between two halves of the picture; the front half a bright cream midsummer day under a huge gold sun, where he wears sunglasses and sweats; the back half a black midwinter night with a cream moon and snow, where he is wrapped in a black scarf and shivering. |
+| `surprise-easter` | Easter: the character on his road bike with tall cream bunny ears over his helmet and a basket of gold eggs on the handlebar, one egg bouncing out and a small yellow chick hatching from it in mid-air and landing on his helmet, both of them looking equally startled. |
+| `surprise-everesting` | Everesting: the character on the very top of a steep black mountain peak, his road bike lifted high above his head, a gold summit flag reading "8848" stuck in the snow beside him, cream clouds far below, his tongue hanging out and his legs trembling, an endless zig-zag of hairpin bends winding down beneath him. |
+| `team-surprise-festive-team` | The whole team over Christmas: a long line of characters on road bikes riding through the snow, every one in a cream and gold Santa hat, fairy lights strung from bike to bike connecting them all, the last one towing a little sledge with a fir tree that is far too big for it. |
