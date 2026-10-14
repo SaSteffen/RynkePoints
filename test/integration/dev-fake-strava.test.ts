@@ -36,12 +36,7 @@ import { NOW } from "../support/fixtures";
 
 const LOCAL = "http://localhost:8789";
 const TINA = 990004;
-const ALL_SCOPES = [
-	"read",
-	"activity:read",
-	"activity:read_all",
-	"activity:write",
-];
+const ALL_SCOPES = ["read", "activity:read", "activity:read_all"];
 
 let ctx: TestCtx;
 let logs: string[];

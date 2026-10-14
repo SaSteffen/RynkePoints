@@ -89,7 +89,7 @@ function slot(i: number): [daysAgo: number, startTime: string] {
 	return [1 + i, i % 2 === 0 ? "07:00" : "17:00"];
 }
 
-const ALL_SCOPES = "read,activity:read,activity:read_all,activity:write";
+const ALL_SCOPES = "read,activity:read,activity:read_all";
 
 export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	{

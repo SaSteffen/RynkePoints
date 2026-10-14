@@ -64,7 +64,7 @@ Under the heading come the three short sentences: `consent.short.notRead` and
 `consent.short.shown`. They sum up the full text, which follows in a
 `details.more` closed by default, with `consent.details` as its summary:
 `landing.dataRead`, `landing.private`, `landing.purpose`, `consent.organisers`,
-`consent.team`, `consent.write`, `landing.leave`, `landing.backups`,
+`consent.team`, `landing.leave`, `landing.backups`,
 `landing.cookies` and `landing.notifications`. `consent.required` and the form
 follow the `details`. The full text still names every field read (constitution
 Principle I); the short sentences only summarise it, so they are no new version
@@ -80,7 +80,6 @@ Principle I); the short sentences only summarise it, so they are no new version
 | `consent.organisers` | | Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen. | The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections. |
 | `consent.team` | | Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen. | Everyone else on the team sees your Rynke, overall and per week, without your name. |
 | `consent.required` | | Lesen und Teilen sind Voraussetzung fürs Mitmachen. | Reading and sharing are required to take part. |
-| `consent.write` | | Freiwillig: Strava fragt auch, ob RynkePoints Aktivitäten hochladen darf. Wir laden nie etwas hoch, sondern schreiben damit später einen kurzen Rynke-Abschnitt in deine Fahrtbeschreibungen, sichtbar für alle, die die Fahrt sehen dürfen. Deinen eigenen Text ändern wir nie. Ohne diese Erlaubnis machst du genauso mit. | Optional: Strava also asks whether RynkePoints may upload activities. We never upload anything; later we use it to write a short Rynke section into your ride descriptions, visible to whoever may see the ride. We never change your own text. You take part just the same without this permission. |
 | `consent.agree` | | Ich bin einverstanden, dass RynkePoints meine Fahrten liest und meine Rynke wie beschrieben teilt. | I agree that RynkePoints reads my rides and shares my Rynke as described. |
 
 ## Rider page (`GET /me`)

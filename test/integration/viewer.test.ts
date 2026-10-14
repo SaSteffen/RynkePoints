@@ -158,7 +158,7 @@ describe("requireConsent (004 US4, contracts/re-consent.md)", () => {
 					version: 2,
 					published: "2026-11-01",
 					requiredScopes: ["read", "activity:read", "activity:write"],
-					changes: ["consent.write"],
+					changes: ["consent.short.read"],
 				},
 			],
 		});

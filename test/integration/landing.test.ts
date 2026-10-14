@@ -51,7 +51,6 @@ describe("GET / (signed out)", () => {
 			"consent.organisers",
 			"consent.team",
 			"consent.required",
-			"consent.write",
 			"consent.agree",
 		] as const) {
 			expect(page).toContain(escapeHtml(de[id]));
