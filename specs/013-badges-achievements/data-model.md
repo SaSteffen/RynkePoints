@@ -286,3 +286,44 @@ No D1 change.
   string[]` (each listed rider's connection date, Berlin).
 - Rules as research R40; progress `{ next: null }`.
 
+
+# Part F: surprise badges from cycling traditions (2026-10-14)
+
+No D1 change.
+
+## Catalog (version 5)
+
+| Category | Ladder | New ids |
+|----------|--------|---------|
+| `surprise` | 1 to 13 | `surprise-festive-500`, `surprise-stage-rider`, `surprise-triathlon`, `surprise-pi-day`, `surprise-solstice`, `surprise-easter`, `surprise-everesting` |
+| `team_surprise` | 1 to 7 | `team-surprise-festive-team` |
+
+- 23 categories (16 personal, 7 team), 121 badges, the same as
+  `art/badges/badges.json`.
+
+## Evaluation
+
+- Inputs unchanged for personal badges (`CountingRide` already has `date`,
+  `distanceM`, `elevationDm`, `virtual`).
+- **TeamActivity** gains `ride: boolean`: true for a counting ride, false for
+  an outdoor run or a swim.
+- **`easterSunday(year)`** → `YYYY-MM-DD` (R44).
+- Rules as research R43 (personal) and R45 (team); each the first date that
+  meets it in the counting window; progress unchanged (`next: null`).
+
+## Art scenes (`art/badges/badges.json`, drafts)
+
+Each ends with `{{bike}}` (the team badge with `{{team}} {{bike}}`) and
+carries its own gag, a little over the top; no shared "fun" sentence
+(FR-015c). Confirmed by the project owner before generating.
+
+| Id | Scene |
+|----|-------|
+| `surprise-festive-500` | Between Christmas and New Year: the character pedalling his road bike through the snow, a string of fairy lights wound round him and the whole bike and still blinking, a gingerbread biscuit clamped in his teeth, a plate of Christmas biscuits balanced on his back with crumbs trailing behind him, a gold kilometre counter on the handlebar showing "500" with small cream sparks flying off it. |
+| `surprise-stage-rider` | Three stage days in a row: the character on his road bike so tired that his eyes are closed and he is snoring a little cream bubble while his legs keep spinning on their own, three crumpled race numbers pinned one on top of the other on his back, a tiny gold stage-winner's cap squashed over his helmet, a road sign behind him reading "Etappe 3". |
+| `surprise-triathlon` | Swim, ride and run in one day: the character on his road bike still wearing black swim goggles and a dripping yellow swim cap pulled over his helmet, a small puddle trailing behind him, running shoes tied to the handlebar by their laces and swinging wildly, a cream towel flapping behind him like a superhero cape. |
+| `surprise-pi-day` | Pi Day: the character on his road bike riding round a perfectly circular gold track, a big round cream pie with one slice missing balanced on his helmet and the missing slice sticking out of his mouth, a black π sign on a little flag behind his saddle. |
+| `surprise-solstice` | The shortest and the longest day: the character on his road bike exactly on the line between two halves of the picture; the front half a bright cream midsummer day under a huge gold sun, where he wears sunglasses and sweats; the back half a black midwinter night with a cream moon and snow, where he is wrapped in a black scarf and shivering. |
+| `surprise-easter` | Easter: the character on his road bike with tall cream bunny ears over his helmet and a basket of gold eggs on the handlebar, one egg bouncing out and a small yellow chick hatching from it in mid-air and landing on his helmet, both of them looking equally startled. |
+| `surprise-everesting` | Everesting: the character on the very top of a steep black mountain peak, his road bike lifted high above his head, a gold summit flag reading "8848" stuck in the snow beside him, cream clouds far below, his tongue hanging out and his legs trembling, an endless zig-zag of hairpin bends winding down beneath him. |
+| `team-surprise-festive-team` | The whole team over Christmas: a long line of characters on road bikes riding through the snow, every one in a cream and gold Santa hat, fairy lights strung from bike to bike connecting them all, the last one towing a little sledge with a fir tree that is far too big for it. |

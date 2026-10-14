@@ -203,3 +203,42 @@ pnpm dev
 - The rest-day sample rider: the rest day badge, dated the day off.
 - Page source: no unearned surprise badge's id, name, ribbon or why-text.
 
+
+# Part F: surprise badges from cycling traditions (2026-10-14)
+
+## 16. Pictures
+
+```bash
+pnpm badge-art surprise-festive-500 surprise-stage-rider surprise-triathlon \
+  surprise-pi-day surprise-solstice surprise-easter surprise-everesting \
+  team-surprise-festive-team
+pnpm badge-build
+```
+
+Until then each shows the placeholder (FR-040a).
+
+## 17. Tests
+
+```bash
+pnpm test -- badge-catalog badge-easter badge-evaluate badge-team badge-names team-read
+```
+
+Expected: 121 badges; every rule of FR-017 and FR-017a passes its spec
+scenario, including the edge values (499 km, 99 km, two 20 km rides on Pi
+Day, a Zwift ride on 21 June, 6,000 m in each of two months).
+
+## 18. On the fake Strava
+
+```bash
+pnpm dev
+```
+
+- Any rider: "Überraschungen" still shows "?"; the gallery now has thirteen
+  outlines less the earned ones; "Team-Überraschungen" seven.
+- Fritz Festtag (R48): each of the seven new personal surprises once its
+  dates have passed, each large view with its why-text; the card shows the
+  newest.
+- Page source: no id, name, ribbon or why-text of an unearned new badge
+  (SC-003).
+- An existing rider after deploying: badges the new rules award for past
+  dates appear without a celebration (catalog version 5, FR-017b).

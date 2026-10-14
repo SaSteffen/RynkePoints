@@ -52,8 +52,6 @@ export const de = {
 	"consent.team":
 		"Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter zählen ohne Namen zu den Team-Summen der Team-Abzeichen. An welchen Tagen und zu welcher Stunde du fährst, läufst oder schwimmst, zählt ohne Namen für die Team-Überraschungen.",
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
-	"consent.write":
-		"Freiwillig: Strava fragt auch, ob RynkePoints Aktivitäten hochladen darf. Wir laden nie etwas hoch, sondern schreiben damit später einen kurzen Rynke-Abschnitt in deine Fahrtbeschreibungen, sichtbar für alle, die die Fahrt sehen dürfen. Deinen eigenen Text ändern wir nie. Ohne diese Erlaubnis machst du genauso mit.",
 	"consent.agree":
 		"Ich bin einverstanden, dass RynkePoints meine Fahrten liest und meine Rynke wie beschrieben teilt.",
 
@@ -662,6 +660,29 @@ export const de = {
 	"badges.surprise.sunday-outing": "Sonntagsausflug",
 	"badges.surprise.sunday-outing.for":
 		"Mindestens zehn aus dem Team an einem Sonntag ohne Teamtermin.",
+	"badges.surprise.festive-500": "Festive 500",
+	"badges.surprise.festive-500.for":
+		"Zwischen Heiligabend und Silvester 500 Kilometer gefahren.",
+	"badges.surprise.stage-rider": "Etappenfahrer",
+	"badges.surprise.stage-rider.for":
+		"Drei Tage am Stück je 100 Kilometer – wie auf der Tour.",
+	"badges.surprise.triathlon": "Dreikampf",
+	"badges.surprise.triathlon.for":
+		"Radfahren, Laufen und Schwimmen an einem Tag.",
+	"badges.surprise.pi-day": "Kreiszahl",
+	"badges.surprise.pi-day.for":
+		"Am Pi-Tag, dem 14. März, mindestens 31,4 Kilometer am Stück gefahren.",
+	"badges.surprise.solstice": "Sonnenwende",
+	"badges.surprise.solstice.for":
+		"Draußen gefahren am kürzesten und am längsten Tag des Jahres.",
+	"badges.surprise.easter": "Ostern",
+	"badges.surprise.easter.for": "An Ostern unterwegs gewesen.",
+	"badges.surprise.everesting": "Everesting",
+	"badges.surprise.everesting.for":
+		"In einem Monat 8.848 Höhenmeter gesammelt – einmal Mount Everest.",
+	"badges.surprise.festive-team": "Festive Team",
+	"badges.surprise.festive-team.for":
+		"Zwischen Heiligabend und Silvester ist das ganze Team gefahren.",
 	"badges.value.half": "Halbmarathon",
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "Neues Abzeichen: {name} 🏅",

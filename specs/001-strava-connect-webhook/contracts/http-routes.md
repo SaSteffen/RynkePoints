@@ -76,7 +76,8 @@ The rider agreed and goes to Strava (research R21). No session needed.
 - Otherwise `302` to `https://www.strava.com/oauth/authorize` with `client_id`,
   `redirect_uri=<origin>/auth/callback`, `response_type=code`,
   `approval_prompt=force`,
-  `scope=read,activity:read,activity:read_all,activity:write` (research R1), and
+  `scope=read,activity:read,activity:read_all` (research R1; `activity:write`
+  dropped by feature 004's clarification of 2026-10-14), and
   `state=<random>`. Sets `rp_oauth_state` to `<state>:<CONSENT_VERSION>`.
 - Strava's approval screen uses the language the rider set on Strava; the app
   can't influence it (spec Assumptions). The rider may untick private

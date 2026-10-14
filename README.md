@@ -37,9 +37,9 @@ contact address, set as `PRIVACY_CONTROLLER` and `CONTACT_EMAIL` in
 
 - **Scopes**: `read` and `activity:read` are required. `activity:read_all` is
   optional: only if the rider grants it are their private ("Only You")
-  activities included. `activity:write` is optional too, and nothing writes to
-  Strava yet: a later feature will add a Rynke section to ride descriptions,
-  only for riders who granted it.
+  activities included. `activity:write` is not requested: nothing writes to
+  Strava. A later feature that adds a Rynke section to ride descriptions will
+  ask for it, with its own consent.
 - **From Strava, per rider**: the athlete ID, first name (for the greeting and
   the organisers), the granted scopes, and the Strava tokens, encrypted
   (AES-256-GCM).

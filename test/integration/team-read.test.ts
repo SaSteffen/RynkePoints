@@ -179,6 +179,47 @@ describe("readTeamBadgeSums (feature 013 R15)", () => {
 		expect(runs).toEqual([{ date: "2026-09-05", distanceM: 12400 }]);
 	});
 
+	it("marks which listed riders' activities were counting rides (part F, R45)", async () => {
+		await env.DB.batch([
+			env.DB.prepare(
+				`INSERT INTO runs (strava_activity_id, athlete_id, start_date,
+					start_date_local, distance_m, is_private, refreshed_at)
+				VALUES (?1, ?2, ?3, ?3, 5000, 0, ?4)`,
+			).bind(8_600_001, LISTED, "2026-09-07T08:30:00Z", NOW),
+			env.DB.prepare(
+				`INSERT INTO swims (strava_activity_id, athlete_id, start_date,
+					start_date_local, distance_m, is_private, refreshed_at)
+				VALUES (?1, ?2, ?3, ?3, 1500, 0, ?4)`,
+			).bind(8_600_002, WITHOUT_BALANCE, "2026-09-06T18:00:00Z", NOW),
+			env.DB.prepare(
+				`INSERT INTO runs (strava_activity_id, athlete_id, start_date,
+					start_date_local, distance_m, is_private, refreshed_at)
+				VALUES (?1, ?2, ?3, ?3, 5000, 0, ?4)`,
+			).bind(8_600_003, NO_CONSENT, "2026-09-06T10:00:00Z", NOW),
+		]);
+		const { active } = await readTeamBadgeSums(env.DB);
+		// A ride and a run in the same hour stay two activities.
+		expect(active).toContainEqual({
+			athleteId: LISTED,
+			date: "2026-09-07",
+			hour: 8,
+			ride: true,
+		});
+		expect(active).toContainEqual({
+			athleteId: LISTED,
+			date: "2026-09-07",
+			hour: 8,
+			ride: false,
+		});
+		expect(active).toContainEqual({
+			athleteId: WITHOUT_BALANCE,
+			date: "2026-09-06",
+			hour: 18,
+			ride: false,
+		});
+		expect((active ?? []).map((a) => a.athleteId)).not.toContain(NO_CONSENT);
+	});
+
 	it("returns nothing when nobody is listed", async () => {
 		await resetDb();
 		expect(await readTeamBadgeSums(env.DB)).toEqual({

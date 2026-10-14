@@ -84,7 +84,7 @@ describe("consentState (research R14)", () => {
 			version: 3,
 			published: "2026-12-01",
 			requiredScopes: ["read", "activity:read", "activity:write"],
-			changes: ["consent.organisers", "consent.write"],
+			changes: ["consent.organisers", "consent.short.read"],
 		},
 	];
 	const ALL = ["read", "activity:read", "activity:read_all", "activity:write"];
@@ -100,13 +100,13 @@ describe("consentState (research R14)", () => {
 		expect(consentState(VERSIONS, 1, ALL)).toEqual({
 			kind: "older",
 			accepted: 1,
-			changes: ["consent.team", "consent.organisers", "consent.write"],
+			changes: ["consent.team", "consent.organisers", "consent.short.read"],
 			viaStrava: false,
 		});
 		expect(consentState(VERSIONS, 2, ALL)).toMatchObject({
 			kind: "older",
 			accepted: 2,
-			changes: ["consent.organisers", "consent.write"],
+			changes: ["consent.organisers", "consent.short.read"],
 		});
 	});
 

@@ -173,6 +173,41 @@ next one."
   next activity after it, and only between the team's first activity of the
   season and that next one.
 
+### Session 2026-10-14 (part F: cycling traditions)
+
+- Q (raised by the project owner): Can there be a Festive 500 badge? → A: Yes,
+  as a personal surprise badge, after Rapha's year-end challenge: at least
+  500 km of counting rides dated 24 to 31 December. Indoor and virtual rides
+  count, as in the challenge's current rules.
+- Q (raised by the project owner): Which other traditions become surprise
+  badges? → A: All of Claude's proposals that no badge covers yet, none of
+  them gender-specific: Etappenfahrer (three days in a row with at least
+  100 km each), Dreikampf (a ride, a run and a swim on one day), Kreiszahl
+  (one ride of at least 31.4 km on Pi Day, 14 March), Sonnenwende (outdoor
+  rides on both solstices of the season), Osterhase (an activity on Easter
+  Sunday or Monday) and Everesting (8,848 m of climbing in one calendar
+  month), plus a team badge, Festive Team (every listed rider rides between
+  24 and 31 December). Brevet distances and Gran Fondo are already
+  `ride_length`; weather badges need data Strava doesn't give.
+- Q: Which rides count? → A: Counting rides of any kind for every new badge
+  (virtual included, like Distance and Elevation), except Sonnenwende, which
+  counts outdoor rides only, like the winter months.
+- Q: Does Etappenfahrer need one ride of 100 km a day? → A: No, the day's
+  counting rides added up; it is dated with the third day.
+- Q: How is Everesting different from the real thing? → A: Real Everesting
+  is 8,848 m in one ride on one hill; the badge asks for the same height in
+  one calendar month of counting rides, dated the day the month's total
+  reaches it.
+- Q: Who counts for Festive Team? → A: Every listed rider who had connected
+  by 24 December, at least two, with a counting ride dated 24 to 31 December;
+  dated the day the last of them rides. A rider connecting later doesn't
+  take it back.
+- Q (raised by the project owner): How are the surprise pictures made fun?
+  → A: Each scene carries its own gag, a little over the top. The shared
+  "surprise" snippet ("make it EXTRA fun …") is removed from every surprise
+  scene, parts D to F, since a generic fun sentence made the pictures less
+  fun (FR-015c).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - See my badges on my page (Priority: P1)
@@ -392,7 +427,8 @@ rider without them sees only "?".
 
 1. **Given** a rider without surprise badges, **When** they open their page,
    **Then** the "Überraschungen" card shows a dotted outline with "?" as its
-   sentence and no progress bar, and the gallery shows six empty outlines.
+   sentence and no progress bar, and the gallery shows thirteen empty outlines
+   (FR-017).
 2. **Given** a counting ride, an outdoor run or a swim on 1 January, **When**
    it is evaluated, **Then** the New Year badge is earned with that date, and
    its large view says it was earned for being active on New Year's Day.
@@ -435,7 +471,7 @@ surprise badges and that no rider is named.
 **Acceptance Scenarios**:
 
 1. **Given** no team surprise badge, **When** a rider opens their page,
-   **Then** "Team-Überraschungen" shows "?" and an outline, six outlines in the
+   **Then** "Team-Überraschungen" shows "?" and an outline, seven outlines (FR-017a) in the
    gallery, no bar.
 2. **Given** listed riders active on 3 and 5 May and none on 4 May, **When**
    the 5 May activity is evaluated, **Then** the day-off badge is earned, dated
@@ -454,6 +490,53 @@ surprise badges and that no rider is named.
 8. **Given** a swim by a listed rider on an otherwise empty day, **Then** that
    day is no team day off, and the swim counts for the other team surprises
    like a run.
+
+---
+
+### User Story 8 - Surprise badges from cycling traditions (Priority: P3)
+
+The surprise categories grow by badges from cycling's own traditions: the
+Festive 500 between Christmas Eve and New Year's Eve, stage days like on the
+tour to Paris, a triathlon day, Pi Day, both solstices, Easter and a month
+of Everesting, and for the team a Christmas week everyone rides. They behave
+like the existing surprises: "?" until earned, then why.
+
+**Why this priority**: Riders who know these traditions recognise them once
+earned, and the rest get something to talk about; it extends the fun of
+User Stories 6 and 7 without a new category.
+
+**Independent Test**: Give a sample rider 520 km of rides between 24 and 31
+December and a ride, a run and a swim on one day; check the Festive 500 and
+Dreikampf badges, and that a rider without them sees only "?" and thirteen
+outlines.
+
+**Acceptance Scenarios**:
+
+1. **Given** counting rides of 480 km dated 24 to 30 December and a 25 km
+   ride on 31 December, **When** the last ride is evaluated, **Then** the
+   Festive 500 badge is earned, dated 31 December; 499 km earn nothing, and
+   a ride on 23 December or 1 January adds nothing.
+2. **Given** a 300 km Zwift ride and outdoor rides of 200 km in that week,
+   **Then** the Festive 500 badge is earned (indoor counts).
+3. **Given** 100 km of counting rides on each of 2, 3 and 4 May, the 3 May in
+   two rides, **Then** the Etappenfahrer badge is earned, dated 4 May; 99 km
+   on 3 May breaks the run.
+4. **Given** a counting ride, an outdoor run and a swim with the same local
+   date, **Then** the Dreikampf badge is earned; with only two of them, not.
+5. **Given** one counting ride of 31.4 km on 14 March, **Then** the Kreiszahl
+   badge is earned; two rides of 20 km that day are not enough.
+6. **Given** an outdoor ride on 21 December and another on 21 June, **Then**
+   the Sonnenwende badge is earned, dated 21 June; a Zwift ride on either day
+   doesn't count.
+7. **Given** an activity on Easter Sunday 28 March 2027 or Easter Monday 29
+   March 2027, **Then** the Osterhase badge is earned; Good Friday earns
+   nothing.
+8. **Given** counting rides with 8,848 m of climbing in March, **Then** the
+   Everesting badge is earned on the day March's total reaches it; 6,000 m in
+   March and 6,000 m in April earn nothing.
+9. **Given** every listed rider connected by 24 December, at least two, rides
+   between 24 and 31 December, **Then** the Festive Team badge is earned,
+   dated the day the last of them rides; if one of them doesn't ride, not.
 
 ### Edge Cases
 
@@ -483,6 +566,14 @@ surprise badges and that no rider is named.
 - A surprise badge taken back (its only activity deleted) shows "?" again.
 - The rest day needs the seven days directly before it; a longer streak earns
   the badge once, dated with its first rest day.
+- A rider whose Festive 500 rides cross 500 km and a later one is deleted
+  loses the badge again; Festive 500 and Festive Team are worked out from the
+  dates alone, so a new season starting on 1 September always holds one
+  whole 24 to 31 December.
+- Easter is computed per year (Gregorian calendar); the season holds exactly
+  one Easter and both solstices.
+- Etappenfahrer's three days and Everesting's month may overlap the season
+  start: only days inside the counting window count.
 - Personal badges are the rider's own; other riders never see them (feature 004's
   visibility rules), unless a later feature decides otherwise.
 
@@ -594,8 +685,8 @@ their badge names examples.
 **Team surprise badges (2026-10-12)**
 
 - **FR-016**: A team category "Team-Überraschungen" MUST hold six single
-  badges, shown as FR-015b shows the personal ones ("?" until earned, then why;
-  the newest on the card; never a bar), worked out from the listed riders'
+  badges (seven with FR-017a), shown as FR-015b shows the personal ones ("?"
+  until earned, then why; the newest on the card; never a bar), worked out from the listed riders'
   counting rides, outdoor runs and swims by local start date and time
   (FR-032):
   - Day off: a date with no activity between the team's first activity of the
@@ -615,9 +706,9 @@ their badge names examples.
 
 **Surprise badges (2026-10-12)**
 
-- **FR-015**: A personal category "Überraschungen" MUST hold six single badges,
-  each earned once per season by its own rule (FR-015a). It has no ladder and
-  no progress bar.
+- **FR-015**: A personal category "Überraschungen" MUST hold six single badges
+  (thirteen with FR-017), each earned once per season by its own rule
+  (FR-015a). It has no ladder and no progress bar.
 - **FR-015a**: The surprise badges and their rules, by the activity's local
   start date and time (counting rides of any kind, outdoor runs and swims,
   unless named otherwise):
@@ -635,8 +726,40 @@ their badge names examples.
   outline only (FR-002, SC-003). The card shows the newest earned surprise
   badge, with its name on the ribbon.
 - **FR-015c**: Surprise badges MUST be drawn extra fun: each picture a gag of
-  its own (art scenes in `art/badges/badges.json`), except the personal rest
-  day, which is calm.
+  its own, a little over the top, written into its own art scene in
+  `art/badges/badges.json`, never a shared generic "make it fun" sentence;
+  except the personal rest day, which is calm.
+
+**Surprise badges from cycling traditions (2026-10-14, part F)**
+
+- **FR-017**: "Überraschungen" MUST hold seven more single badges, thirteen in
+  all, each earned once per season by its rule, by the activity's local start
+  date (counting rides of any kind, virtual included, unless named
+  otherwise):
+  - Festive 500: at least 500 km of counting rides dated 24 to 31 December,
+    dated the day the sum reaches 500 km;
+  - Etappenfahrer: three dates in a row, each with at least 100 km of
+    counting rides added up, dated the third;
+  - Dreikampf: a counting ride, an outdoor run and a swim on the same date;
+  - Kreiszahl: one counting ride of at least 31.4 km on 14 March;
+  - Sonnenwende: an outdoor (not virtual) counting ride on 21 December and
+    another on 21 June of the same season, dated 21 June;
+  - Osterhase: an activity (counting ride, outdoor run or swim) on Easter
+    Sunday or Easter Monday (Gregorian Easter of that year);
+  - Everesting: at least 8,848 m of climbing from counting rides within one
+    calendar month, dated the day the month's sum reaches it.
+- **FR-017a**: "Team-Überraschungen" MUST hold one more single badge, seven
+  in all: Festive Team, every listed rider connected by 24 December, at least
+  two, with a counting ride dated 24 to 31 December, dated the day the last
+  of them rides; a rider connecting later doesn't take it back. Like FR-016a
+  it MUST NOT reveal who rode or didn't; it reads only whether a rider was
+  active on a date, which the consent text's team part already names, so no
+  new consent version.
+- **FR-017b**: The new badges MUST be shown, taken back and celebrated like
+  the other surprise badges (FR-015b, FR-015c, US2): "?" until earned, why
+  once earned, extra fun pictures. The catalog version is raised so riders'
+  badges are worked out again under FR-031's silent rules: badges earned in
+  the past by the new rules appear without a celebration.
 
 - **FR-012**: Each category except the two surprise categories (FR-015,
   FR-016) MUST be a ladder
@@ -782,8 +905,8 @@ their badge names examples.
   | Winter December                | days        | 1, 5, 10                                                |
   | Winter January                 | days        | 1, 5, 10                                                |
   | Winter February                | days        | 1, 5, 10                                                |
-  | Überraschungen                 | —           | six single badges (FR-015a), no ladder                  |
-  | Team-Überraschungen (team)     | —           | six single badges (FR-016), no ladder                   |
+  | Überraschungen                 | —           | 13 single badges (FR-015a, FR-017), no ladder           |
+  | Team-Überraschungen (team)     | —           | 7 single badges (FR-016, FR-017a), no ladder            |
   | Training Rynke together (team) | Rynke       | 500, 1,000, 2,500, 5,000, 7,500, 10,000, 15,000, 20,000 |
   | Distance together (team)       | km          | 1,000, 5,000, 10,000, 25,000, 50,000, 100,000           |
   | Elevation together (team)      | m           | 10,000, 50,000, 100,000, 250,000, 500,000               |
@@ -817,6 +940,7 @@ their badge names examples.
   gives no information about days without activities, so a later activity is
   what shows a day was a rest day.
 - With "Überraschungen" the rider has 16 personal cards; with
-  "Team-Überraschungen" there are 7 team cards and 113 badges in all.
+  "Team-Überraschungen" there are 7 team cards and 113 badges in all; part F's eight surprise
+  badges make 121 (13 personal and 7 team surprises), with no new card.
 - Distance-type progress is rounded down, so "noch 0 km" never
   appears for a badge not yet earned.

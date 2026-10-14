@@ -46,6 +46,8 @@ export interface TeamActivity {
 	date: string;
 	/** Local start hour, 0 to 23. */
 	hour: number;
+	/** A counting ride, not a run or a swim (part F, research R45). */
+	ride: boolean;
 }
 
 export interface TeamBadgeSums {
@@ -126,6 +128,9 @@ export function evaluateTeamBadges(
 const NEW_YEARS_EVE_RIDERS = 5;
 const SUNDAY_OUTING_RIDERS = 10;
 const RELAY_DAYS = 30;
+/** Festive Team: from Christmas Eve to New Year's Eve (part F). */
+const FESTIVE_FROM = "12-24";
+const FESTIVE_TO = "12-31";
 
 /**
  * The team surprise badges and the first date each rule was met (FR-016,
@@ -161,6 +166,7 @@ function teamSurprises(
 			(date) =>
 				date.slice(5) === "12-31" && count(date) >= NEW_YEARS_EVE_RIDERS,
 		),
+		"festive-team": festiveTeam(sums, window, connected),
 		"sunday-outing": dates.find(
 			(date) =>
 				new Date(`${date}T12:00:00Z`).getUTCDay() === 0 &&
@@ -174,6 +180,40 @@ function teamSurprises(
 		const earnedOn = name === null ? undefined : found[name];
 		return earnedOn ? [{ badgeId: badge.id, earnedOn }] : [];
 	});
+}
+
+/**
+ * Festive Team (FR-017a, research R45): every listed rider connected by 24
+ * December, at least two, with a counting ride dated 24 to 31 December; dated
+ * the day the last of them first rides.
+ */
+function festiveTeam(
+	sums: TeamBadgeSums,
+	window: CountingWindow,
+	connected: readonly (readonly [number, string])[],
+): string | undefined {
+	const festive = (date: string) =>
+		date.slice(5) >= FESTIVE_FROM && date.slice(5) <= FESTIVE_TO;
+	const firstRide = new Map<number, string>();
+	for (const a of sums.active ?? []) {
+		if (!a.ride || !festive(a.date) || !inCountingWindow(a.date, window)) {
+			continue;
+		}
+		const known = firstRide.get(a.athleteId);
+		if (known === undefined || a.date < known)
+			firstRide.set(a.athleteId, a.date);
+	}
+	const years = new Set([...firstRide.values()].map((d) => d.slice(0, 4)));
+	for (const year of [...years].sort()) {
+		const due = connected
+			.filter(([, on]) => on <= `${year}-${FESTIVE_FROM}`)
+			.map(([id]) => id);
+		if (due.length < 2) continue;
+		const dates = due.map((id) => firstRide.get(id));
+		if (dates.some((d) => d === undefined || !d.startsWith(year))) continue;
+		return (dates as string[]).sort().at(-1);
+	}
+	return undefined;
 }
 
 /** `YYYY-MM-DD` shifted by `days`. */

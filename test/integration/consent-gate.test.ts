@@ -105,7 +105,6 @@ const CONSENT_TEXTS = [
 	"landing.purpose",
 	"consent.organisers",
 	"consent.team",
-	"consent.write",
 	"landing.leave",
 	"landing.backups",
 	"landing.cookies",

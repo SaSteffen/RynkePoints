@@ -500,7 +500,7 @@ describe("GET /auth/callback for a new version that needs a scope (004 US4 scena
 					version: 2,
 					published: "2026-11-01",
 					requiredScopes: ["read", "activity:read", "activity:write"],
-					changes: ["consent.write"],
+					changes: ["consent.short.read"],
 				},
 			],
 		});

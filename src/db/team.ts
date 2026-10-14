@@ -192,24 +192,24 @@ export async function readTeamBadgeSums(
 				ORDER BY e.event_date, e.event_id`,
 		),
 		// For the team surprises (part E, research R39): when listed riders'
-		// counting rides, outdoor runs and swims started; nothing else of a
-		// swim (FR-025).
+		// counting rides, outdoor runs and swims started, and whether it was a
+		// counting ride (part F, research R45); nothing else of a swim (FR-025).
 		db.prepare(
 			`SELECT DISTINCT athlete_id, substr(start_date_local, 1, 10) AS date,
-					CAST(substr(start_date_local, 12, 2) AS INTEGER) AS hour
+					CAST(substr(start_date_local, 12, 2) AS INTEGER) AS hour, ride
 				FROM (
-					SELECT a.athlete_id, a.start_date_local
+					SELECT a.athlete_id, a.start_date_local, 1 AS ride
 					FROM ride_results r
 					JOIN activities a ON a.strava_activity_id = r.strava_activity_id
 					WHERE r.counts = 1 AND r.athlete_id IN (${LISTED_RIDER_IDS})
 					UNION ALL
-					SELECT athlete_id, start_date_local FROM runs
+					SELECT athlete_id, start_date_local, 0 FROM runs
 					WHERE athlete_id IN (${LISTED_RIDER_IDS})
 					UNION ALL
-					SELECT athlete_id, start_date_local FROM swims
+					SELECT athlete_id, start_date_local, 0 FROM swims
 					WHERE athlete_id IN (${LISTED_RIDER_IDS})
 				)
-				ORDER BY 2, 1, 3`,
+				ORDER BY 2, 1, 3, 4`,
 		),
 		db.prepare(
 			`SELECT athlete_id, connected_at FROM riders
@@ -282,11 +282,17 @@ export async function readTeamBadgeSums(
 			attendees: row.attendees,
 		})),
 		active: (
-			activeRows.results as { athlete_id: number; date: string; hour: number }[]
+			activeRows.results as {
+				athlete_id: number;
+				date: string;
+				hour: number;
+				ride: number;
+			}[]
 		).map((row) => ({
 			athleteId: row.athlete_id,
 			date: row.date,
 			hour: row.hour,
+			ride: row.ride === 1,
 		})),
 		connectedOn: new Map(
 			(

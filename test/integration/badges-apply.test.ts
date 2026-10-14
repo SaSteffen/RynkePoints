@@ -278,6 +278,35 @@ describe("surprise badges in applyAndEvaluate", () => {
 	});
 });
 
+// Part F: a deleted ride takes a tradition badge back (spec Edge Cases).
+describe("part F surprise badges in applyAndEvaluate", () => {
+	// After the Christmas week, so its rides are no longer in the future.
+	const JANUARY = Date.UTC(2027, 0, 5, 10, 0, 0) / 1000;
+	const long = (id: number, day: string) =>
+		activityRecord(id, {
+			start_date: `2026-12-${day}T08:00:00Z`,
+			distance_m: 130_000,
+			moving_time_s: 18_720,
+			elapsed_time_s: 18_720,
+		});
+	const festive = async () =>
+		(await badges()).filter(([id]) => id === "surprise-festive-500");
+
+	it("awards the Festive 500 and takes it back when a ride goes", async () => {
+		await apply(
+			{
+				kind: "upsert",
+				records: [long(1, "24"), long(2, "26"), long(3, "28"), long(4, "30")],
+			},
+			JANUARY,
+		);
+		expect(await festive()).toEqual([["surprise-festive-500", "2026-12-30"]]);
+
+		await apply({ kind: "delete", activityIds: [2] }, JANUARY);
+		expect(await festive()).toEqual([]);
+	});
+});
+
 describe("badges in team-event and correction changes", () => {
 	it("awards and takes back a team-event badge", async () => {
 		const eventId = await insertEvent("technique_training", "2026-05-09");

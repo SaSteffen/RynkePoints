@@ -17,7 +17,7 @@ import { ATHLETE_A } from "../support/fixtures";
 // (contracts/http-routes.md, research R21).
 
 const ctx = makeCtx();
-const SCOPE = "read,activity:read,activity:read_all,activity:write";
+const SCOPE = "read,activity:read,activity:read_all";
 
 beforeEach(resetDb);
 
