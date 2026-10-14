@@ -36,7 +36,12 @@ describe("badge catalog", () => {
 			["winter_december", "personal", "days", [1, 5, 10]],
 			["winter_january", "personal", "days", [1, 5, 10]],
 			["winter_february", "personal", "days", [1, 5, 10]],
-			["surprise", "personal", "days", [1, 2, 3, 4, 5, 6]],
+			[
+				"surprise",
+				"personal",
+				"days",
+				[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+			],
 			[
 				"team_training_rynke",
 				"team",
@@ -53,7 +58,7 @@ describe("badge catalog", () => {
 			["team_running", "team", "km", [100, 500, 1000, 2500, 5000]],
 			["big_training", "team", "riders", [5, 10, 15, 20, 30]],
 			["attendances", "team", "attendances", [25, 50, 100, 200, 400]],
-			["team_surprise", "team", "days", [1, 2, 3, 4, 5, 6]],
+			["team_surprise", "team", "days", [1, 2, 3, 4, 5, 6, 7]],
 		]);
 		expect(BADGE_CATEGORIES.filter((c) => c.group === "personal")).toHaveLength(
 			16,
@@ -80,8 +85,8 @@ describe("badge catalog", () => {
 				expect(ladder[i]).toBeGreaterThan(ladder[i - 1] as number);
 	});
 
-	it("derives 113 badges in catalog order with ids from category and threshold", () => {
-		expect(BADGES).toHaveLength(113);
+	it("derives 121 badges in catalog order with ids from category and threshold", () => {
+		expect(BADGES).toHaveLength(121);
 		expect(BADGES.slice(0, 2)).toEqual([
 			{
 				id: "distance-100",
@@ -125,6 +130,13 @@ describe("badge catalog", () => {
 			"surprise-night-owl",
 			"surprise-early-bird",
 			"surprise-rest-day",
+			"surprise-festive-500",
+			"surprise-stage-rider",
+			"surprise-triathlon",
+			"surprise-pi-day",
+			"surprise-solstice",
+			"surprise-easter",
+			"surprise-everesting",
 		]);
 		expect(BADGE_CATEGORIES.filter((c) => c.surprise).map((c) => c.id)).toEqual(
 			["surprise", "team_surprise"],
@@ -138,12 +150,13 @@ describe("badge catalog", () => {
 			"team-surprise-relay",
 			"team-surprise-new-years-eve",
 			"team-surprise-sunday-outing",
+			"team-surprise-festive-team",
 		]);
-		expect(new Set(BADGES.map((b) => b.id)).size).toBe(113);
+		expect(new Set(BADGES.map((b) => b.id)).size).toBe(121);
 	});
 
-	it("is at version 4 since part E's team surprise badges", () => {
-		expect(BADGE_CATALOG_VERSION).toBe(4);
+	it("is at version 5 since part F's surprise badges from cycling traditions", () => {
+		expect(BADGE_CATALOG_VERSION).toBe(5);
 	});
 
 	it("lists the same badges as art/badges/badges.json", () => {

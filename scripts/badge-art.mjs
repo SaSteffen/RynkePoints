@@ -36,6 +36,7 @@ import {
 	mkdirSync,
 	readdirSync,
 	readFileSync,
+	rmSync,
 	writeFileSync,
 } from "node:fs";
 import { homedir, tmpdir } from "node:os";
@@ -297,6 +298,17 @@ async function waitForImage(page, seconds, before) {
 	return handle.jsonValue();
 }
 
+/**
+ * Removes the badge's other originals once `path` is saved: a retake that
+ * comes back as JPEG must replace a PNG, or badge-build finds two originals.
+ * The raw copies keep every earlier take.
+ */
+function dropOthers(path, id) {
+	for (const f of readdirSync(OUT)) {
+		if (f.startsWith(`${id}.`) && join(OUT, f) !== path) rmSync(join(OUT, f));
+	}
+}
+
 /** A copy of the raw download, by id and time, so retakes don't overwrite it. */
 function keepRaw(path, id) {
 	mkdirSync(RAW, { recursive: true });
@@ -320,6 +332,7 @@ async function download(page, index, id) {
 		const path = join(OUT, `${id}${ext}`);
 		await file.saveAs(path);
 		keepRaw(path, id);
+		dropOthers(path, id);
 		return { path, full: true };
 	} catch {
 		// The preview in the page, smaller than the full-size download.
@@ -334,6 +347,7 @@ async function download(page, index, id) {
 		const path = join(OUT, `${id}${ext}`);
 		writeFileSync(path, Buffer.from(b64, "base64"));
 		keepRaw(path, id);
+		dropOthers(path, id);
 		return { path, full: false };
 	}
 }

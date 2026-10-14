@@ -660,6 +660,29 @@ export const de = {
 	"badges.surprise.sunday-outing": "Sonntagsausflug",
 	"badges.surprise.sunday-outing.for":
 		"Mindestens zehn aus dem Team an einem Sonntag ohne Teamtermin.",
+	"badges.surprise.festive-500": "Festive 500",
+	"badges.surprise.festive-500.for":
+		"Zwischen Heiligabend und Silvester 500 Kilometer gefahren.",
+	"badges.surprise.stage-rider": "Etappenfahrer",
+	"badges.surprise.stage-rider.for":
+		"Drei Tage am Stück je 100 Kilometer – wie auf der Tour.",
+	"badges.surprise.triathlon": "Dreikampf",
+	"badges.surprise.triathlon.for":
+		"Radfahren, Laufen und Schwimmen an einem Tag.",
+	"badges.surprise.pi-day": "Kreiszahl",
+	"badges.surprise.pi-day.for":
+		"Am Pi-Tag, dem 14. März, mindestens 31,4 Kilometer am Stück gefahren.",
+	"badges.surprise.solstice": "Sonnenwende",
+	"badges.surprise.solstice.for":
+		"Draußen gefahren am kürzesten und am längsten Tag des Jahres.",
+	"badges.surprise.easter": "Ostern",
+	"badges.surprise.easter.for": "An Ostern unterwegs gewesen.",
+	"badges.surprise.everesting": "Everesting",
+	"badges.surprise.everesting.for":
+		"In einem Monat 8.848 Höhenmeter gesammelt – einmal Mount Everest.",
+	"badges.surprise.festive-team": "Festive Team",
+	"badges.surprise.festive-team.for":
+		"Zwischen Heiligabend und Silvester ist das ganze Team gefahren.",
 	"badges.value.half": "Halbmarathon",
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "Neues Abzeichen: {name} 🏅",

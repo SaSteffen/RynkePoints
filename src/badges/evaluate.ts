@@ -18,6 +18,7 @@ import {
 	categoryById,
 	surpriseName,
 } from "./catalog";
+import { easterSunday } from "./easter";
 
 /** A counting ride (its result counts), by the ride's local start date. */
 export interface CountingRide {
@@ -271,7 +272,8 @@ function longestSoFar(
  * The surprise badges and the first date each rule was met (FR-015a,
  * research R33): holidays by any activity's local date, night owl and early
  * bird by a counting ride's local start time, and the rest day once a later
- * activity shows the day off is over.
+ * activity shows the day off is over. Part F's traditions (FR-017, research
+ * R43) look at counting rides' distances, elevation and virtual flag.
  */
 function surpriseBadges(
 	inputs: PersonalInputs,
@@ -300,12 +302,124 @@ function surpriseBadges(
 		"night-owl": startingAt((time) => time >= "21:30"),
 		"early-bird": startingAt((time) => time < "06:00"),
 		"rest-day": restDay(sorted, days),
+		...traditions(rides, inputs, window, days),
 	};
 	return BADGES.flatMap((badge) => {
 		const name = surpriseName(badge);
 		const earnedOn = name === null ? undefined : found[name];
 		return earnedOn ? [{ badgeId: badge.id, earnedOn }] : [];
 	});
+}
+
+/** Festive 500: 500 km of counting rides dated 24 to 31 December. */
+const FESTIVE_M = 500_000;
+/** Etappenfahrer: three dates in a row with 100 km each. */
+const STAGE_M = 100_000;
+const STAGE_DAYS = 3;
+/** Kreiszahl: one ride of 31.4 km on 14 March. */
+const PI_M = 31_400;
+/** Everesting: 8,848 m of climbing in one calendar month. */
+const EVEREST_DM = 88_480;
+
+type DatedRide = Pick<
+	CountingRide,
+	"date" | "distanceM" | "elevationDm" | "virtual"
+>;
+
+/**
+ * The first date a running sum of `amount` over `rides` in date order,
+ * restarted for every new `group`, reaches `goal`; whole days at once.
+ */
+function firstReached(
+	rides: readonly DatedRide[],
+	amount: (ride: DatedRide) => number,
+	goal: number,
+	group: (date: string) => string = () => "",
+): string | undefined {
+	const perDay = new Map<string, number>();
+	for (const ride of rides) {
+		perDay.set(ride.date, (perDay.get(ride.date) ?? 0) + amount(ride));
+	}
+	const totals = new Map<string, number>();
+	for (const date of [...perDay.keys()].sort()) {
+		const key = group(date);
+		const total = (totals.get(key) ?? 0) + (perDay.get(date) ?? 0);
+		if (total >= goal) return date;
+		totals.set(key, total);
+	}
+	return undefined;
+}
+
+/** Part F's seven surprise rules (FR-017, research R43). */
+function traditions(
+	rides: readonly DatedRide[],
+	inputs: PersonalInputs,
+	window: CountingWindow,
+	days: ReadonlySet<string>,
+): Record<string, string | undefined> {
+	const inWindow = (date: string) => inCountingWindow(date, window);
+	const monthDay = (date: string) => date.slice(5);
+	const outdoor = rides.filter((r) => !r.virtual);
+	// Per date, the counting rides' metres, for the stage days.
+	const metres = new Map<string, number>();
+	for (const ride of rides) {
+		metres.set(ride.date, (metres.get(ride.date) ?? 0) + ride.distanceM);
+	}
+	const stageDays = [...metres.keys()]
+		.filter((date) => (metres.get(date) ?? 0) >= STAGE_M)
+		.sort();
+	const stage = stageDays.find((date) => {
+		for (let back = 1; back < STAGE_DAYS; back++) {
+			if ((metres.get(shift(date, -back)) ?? 0) < STAGE_M) return false;
+		}
+		return true;
+	});
+	const runDays = new Set(
+		inputs.runs.map((r) => r.date).filter((date) => inWindow(date)),
+	);
+	const swimDays = new Set(
+		(inputs.swims ?? []).map((s) => s.date).filter((date) => inWindow(date)),
+	);
+	const triathlon = [...new Set(rides.map((r) => r.date))]
+		.sort()
+		.find((date) => runDays.has(date) && swimDays.has(date));
+	const firstOutdoor = (day: string) =>
+		outdoor
+			.filter((r) => monthDay(r.date) === day)
+			.map((r) => r.date)
+			.sort()[0];
+	const winterSolstice = firstOutdoor("12-21");
+	const summerSolstice = firstOutdoor("06-21");
+	const easter = [...days].sort().find((date) => {
+		const sunday = easterSunday(Number(date.slice(0, 4)));
+		return date === sunday || date === shift(sunday, 1);
+	});
+	return {
+		"festive-500": firstReached(
+			rides.filter((r) => monthDay(r.date) >= "12-24"),
+			(r) => r.distanceM,
+			FESTIVE_M,
+		),
+		"stage-rider": stage,
+		triathlon,
+		"pi-day": rides
+			.filter((r) => monthDay(r.date) === "03-14" && r.distanceM >= PI_M)
+			.map((r) => r.date)
+			.sort()[0],
+		// Both days, dated with the later one (21 June in a season from
+		// September).
+		solstice:
+			winterSolstice && summerSolstice
+				? [winterSolstice, summerSolstice].sort()[1]
+				: undefined,
+		easter,
+		everesting: firstReached(
+			rides,
+			(r) => r.elevationDm,
+			EVEREST_DM,
+			(date) => date.slice(0, 7),
+		),
+	};
 }
 
 /** `YYYY-MM-DD` shifted by `days`. */

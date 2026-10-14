@@ -144,3 +144,10 @@ The reveal, at the top of the page (research R16):
 - No unearned surprise badge's id, name, picture, ribbon or why-text is in the
   HTML (SC-003).
 
+
+## Part F: surprise badges from cycling traditions (2026-10-14)
+
+No markup change. The gallery shows one `li.badge-slot` per surprise badge
+still to earn, now up to thirteen for "Überraschungen" and seven for
+"Team-Überraschungen"; the rules of Part D hold for the eight new badges,
+including that nothing of an unearned one reaches the HTML (SC-003).

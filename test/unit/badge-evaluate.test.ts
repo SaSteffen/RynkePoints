@@ -194,11 +194,12 @@ describe("evaluateBadges for runs", () => {
 
 	it("dates the running badge by the run that crossed it (US3 scenario 1a)", () => {
 		const result = evaluate({
-			runs: [run("2026-04-01", 9.6), run("2026-04-05", 0.5)],
+			// 2026-04-05 would be Easter Sunday (part F's Osterhase).
+			runs: [run("2026-04-01", 9.6), run("2026-04-07", 0.5)],
 		});
 		expect(result.earned).toEqual([
 			{ badgeId: "run-length-5", earnedOn: "2026-04-01" },
-			{ badgeId: "running-10", earnedOn: "2026-04-05" },
+			{ badgeId: "running-10", earnedOn: "2026-04-07" },
 		]);
 	});
 
@@ -500,6 +501,283 @@ describe("evaluateBadges for the surprise badges", () => {
 		expect(progressOf(result, "surprise")).toEqual({
 			category: "surprise",
 			value: 2,
+			next: null,
+			missing: null,
+		});
+	});
+});
+
+// Part F: surprise badges from cycling traditions (spec User Story 8, FR-017,
+// research R43).
+describe("evaluateBadges for the surprise badges of part F", () => {
+	const SEASON = { seasonStart: "2026-09-01", deadline: "2027-07-31" };
+	const outdoor = (date: string, km: number, elevationM = 0) => ({
+		...ride(date, km, elevationM),
+		startTime: "10:00",
+	});
+	const virtual = (date: string, km: number) => ({
+		...outdoor(date, km),
+		virtual: true,
+	});
+	const run = (date: string) => ({ date, distanceM: 5000 });
+	const swim = (date: string) => ({ date, distanceM: 1000 });
+	const PART_D = new Set([
+		"surprise-new-year",
+		"surprise-christmas-eve",
+		"surprise-christmas",
+		"surprise-night-owl",
+		"surprise-early-bird",
+		"surprise-rest-day",
+	]);
+	const surprises = (
+		inputs: Partial<PersonalInputs>,
+		window: typeof SEASON = SEASON,
+	) =>
+		evaluateBadges({ ...NONE, ...inputs }, CURRENT_RULES, window).earned.filter(
+			(b) => b.badgeId.startsWith("surprise-") && !PART_D.has(b.badgeId),
+		);
+
+	describe("Festive 500", () => {
+		const week = (km: number) =>
+			["24", "25", "26", "27", "28", "29", "30"].map((d) =>
+				outdoor(`2026-12-${d}`, km),
+			);
+
+		it("is earned the day the sum between 24 and 31 December reaches 500 km (US8 1)", () => {
+			// 7 × 68.6 km = 480.2 km until the 30th, then 25 km.
+			expect(
+				surprises({ rides: [...week(68.6), outdoor("2026-12-31", 25)] }),
+			).toEqual([{ badgeId: "surprise-festive-500", earnedOn: "2026-12-31" }]);
+		});
+
+		it("needs the full 500 km", () => {
+			expect(
+				surprises({ rides: [...week(68.4), outdoor("2026-12-31", 20.2)] }),
+			).toEqual([]);
+		});
+
+		it("doesn't count rides on 23 December or 1 January", () => {
+			expect(
+				surprises({
+					rides: [
+						outdoor("2026-12-23", 100),
+						...week(55),
+						outdoor("2027-01-01", 100),
+					],
+				}),
+			).toEqual([]);
+		});
+
+		it("counts virtual rides too (US8 2)", () => {
+			expect(
+				surprises({
+					rides: [
+						virtual("2026-12-26", 300),
+						outdoor("2026-12-28", 100),
+						outdoor("2026-12-29", 100),
+					],
+				}),
+			).toEqual([{ badgeId: "surprise-festive-500", earnedOn: "2026-12-29" }]);
+		});
+	});
+
+	describe("Etappenfahrer", () => {
+		it("is earned on the third day in a row with 100 km each (US8 3)", () => {
+			expect(
+				surprises({
+					rides: [
+						outdoor("2026-10-02", 100),
+						outdoor("2026-10-03", 60),
+						virtual("2026-10-03", 40),
+						outdoor("2026-10-04", 120),
+					],
+				}),
+			).toEqual([{ badgeId: "surprise-stage-rider", earnedOn: "2026-10-04" }]);
+		});
+
+		it("breaks on a day short of 100 km", () => {
+			expect(
+				surprises({
+					rides: [
+						outdoor("2026-10-02", 100),
+						outdoor("2026-10-03", 99),
+						outdoor("2026-10-04", 100),
+						outdoor("2026-10-05", 100),
+					],
+				}),
+			).toEqual([]);
+		});
+
+		it("needs the days to follow each other", () => {
+			expect(
+				surprises({
+					rides: [
+						outdoor("2026-10-02", 100),
+						outdoor("2026-10-03", 100),
+						outdoor("2026-10-05", 100),
+					],
+				}),
+			).toEqual([]);
+		});
+	});
+
+	describe("Dreikampf", () => {
+		it("is earned for a ride, a run and a swim on one day (US8 4)", () => {
+			expect(
+				surprises({
+					rides: [outdoor("2026-10-10", 20)],
+					runs: [run("2026-10-10")],
+					swims: [swim("2026-10-10")],
+				}),
+			).toEqual([{ badgeId: "surprise-triathlon", earnedOn: "2026-10-10" }]);
+		});
+
+		it("needs all three on the same day", () => {
+			expect(
+				surprises({
+					rides: [outdoor("2026-10-10", 20), outdoor("2026-10-12", 20)],
+					runs: [run("2026-10-10"), run("2026-10-11")],
+					swims: [swim("2026-10-11"), swim("2026-10-12")],
+				}),
+			).toEqual([]);
+		});
+	});
+
+	describe("Kreiszahl", () => {
+		it("is earned for one ride of 31.4 km on 14 March (US8 5)", () => {
+			expect(surprises({ rides: [outdoor("2027-03-14", 31.4)] })).toEqual([
+				{ badgeId: "surprise-pi-day", earnedOn: "2027-03-14" },
+			]);
+		});
+
+		it("needs one ride, not the day's sum", () => {
+			expect(
+				surprises({
+					rides: [outdoor("2027-03-14", 20), outdoor("2027-03-14", 20)],
+				}),
+			).toEqual([]);
+			expect(surprises({ rides: [outdoor("2027-03-14", 31.399)] })).toEqual([]);
+			expect(surprises({ rides: [outdoor("2027-03-13", 40)] })).toEqual([]);
+		});
+	});
+
+	describe("Sonnenwende", () => {
+		it("is earned on 21 June after a ride on 21 December (US8 6)", () => {
+			expect(
+				surprises({
+					rides: [outdoor("2026-12-21", 20), outdoor("2027-06-21", 20)],
+				}),
+			).toEqual([{ badgeId: "surprise-solstice", earnedOn: "2027-06-21" }]);
+		});
+
+		it("counts outdoor rides only", () => {
+			expect(
+				surprises({
+					rides: [virtual("2026-12-21", 20), outdoor("2027-06-21", 20)],
+				}),
+			).toEqual([]);
+			expect(
+				surprises({
+					rides: [outdoor("2026-12-21", 20), virtual("2027-06-21", 20)],
+				}),
+			).toEqual([]);
+		});
+
+		it("is dated with the later day when June comes first", () => {
+			const calendarYear = {
+				seasonStart: "2026-01-01",
+				deadline: "2026-12-31",
+			};
+			expect(
+				surprises(
+					{ rides: [outdoor("2026-06-21", 20), outdoor("2026-12-21", 20)] },
+					calendarYear,
+				),
+			).toEqual([{ badgeId: "surprise-solstice", earnedOn: "2026-12-21" }]);
+		});
+
+		it("needs both days", () => {
+			expect(surprises({ rides: [outdoor("2027-06-21", 20)] })).toEqual([]);
+			expect(surprises({ rides: [outdoor("2026-12-21", 20)] })).toEqual([]);
+		});
+	});
+
+	describe("Osterhase", () => {
+		it("is earned on Easter Sunday or Monday (US8 7)", () => {
+			expect(surprises({ runs: [run("2027-03-28")] })).toEqual([
+				{ badgeId: "surprise-easter", earnedOn: "2027-03-28" },
+			]);
+			expect(surprises({ swims: [swim("2027-03-29")] })).toEqual([
+				{ badgeId: "surprise-easter", earnedOn: "2027-03-29" },
+			]);
+			expect(surprises({ rides: [outdoor("2027-03-29", 20)] })).toEqual([
+				{ badgeId: "surprise-easter", earnedOn: "2027-03-29" },
+			]);
+		});
+
+		it("isn't earned on Good Friday or the Sunday after", () => {
+			expect(
+				surprises({ runs: [run("2027-03-26"), run("2027-04-04")] }),
+			).toEqual([]);
+		});
+	});
+
+	describe("Everesting", () => {
+		it("is earned the day a month's climbing reaches 8,848 m (US8 8)", () => {
+			expect(
+				surprises({
+					rides: [
+						outdoor("2027-03-02", 50, 4000),
+						outdoor("2027-03-20", 50, 4000),
+						outdoor("2027-03-25", 50, 848),
+						outdoor("2027-03-30", 50, 1000),
+					],
+				}),
+			).toEqual([{ badgeId: "surprise-everesting", earnedOn: "2027-03-25" }]);
+		});
+
+		it("doesn't add up two months", () => {
+			expect(
+				surprises({
+					rides: [
+						outdoor("2027-03-31", 50, 6000),
+						outdoor("2027-04-01", 50, 6000),
+					],
+				}),
+			).toEqual([]);
+			expect(surprises({ rides: [outdoor("2027-03-31", 50, 8847.9)] })).toEqual(
+				[],
+			);
+		});
+	});
+
+	it("counts nothing outside the counting window", () => {
+		const late = { seasonStart: "2026-12-27", deadline: "2027-07-31" };
+		expect(
+			surprises(
+				{
+					rides: [
+						outdoor("2026-12-24", 300),
+						outdoor("2026-12-28", 300),
+						outdoor("2026-12-25", 100),
+						outdoor("2026-12-26", 100),
+						outdoor("2026-12-27", 100),
+					],
+				},
+				late,
+			),
+		).toEqual([]);
+	});
+
+	it("shows no next step and counts the new badges as earned", () => {
+		const result = evaluateBadges(
+			{ ...NONE, rides: [outdoor("2027-03-14", 32)] },
+			CURRENT_RULES,
+			SEASON,
+		);
+		expect(progressOf(result, "surprise")).toEqual({
+			category: "surprise",
+			value: 1,
 			next: null,
 			missing: null,
 		});

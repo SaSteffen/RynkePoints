@@ -623,6 +623,28 @@ export const en: Catalog = {
 	"badges.surprise.sunday-outing": "Sunday outing",
 	"badges.surprise.sunday-outing.for":
 		"At least ten from the team out on a Sunday without a team event.",
+	"badges.surprise.festive-500": "Festive 500",
+	"badges.surprise.festive-500.for":
+		"Rode 500 kilometres between Christmas Eve and New Year's Eve.",
+	"badges.surprise.stage-rider": "Stage rider",
+	"badges.surprise.stage-rider.for":
+		"100 kilometres on each of three days in a row – like on the tour.",
+	"badges.surprise.triathlon": "Triathlon",
+	"badges.surprise.triathlon.for": "Cycling, running and swimming on one day.",
+	"badges.surprise.pi-day": "Pi Day",
+	"badges.surprise.pi-day.for":
+		"Rode at least 31.4 kilometres in one go on Pi Day, 14 March.",
+	"badges.surprise.solstice": "Solstice",
+	"badges.surprise.solstice.for":
+		"Rode outdoors on the shortest and the longest day of the year.",
+	"badges.surprise.easter": "Easter",
+	"badges.surprise.easter.for": "Out and about at Easter.",
+	"badges.surprise.everesting": "Everesting",
+	"badges.surprise.everesting.for":
+		"Climbed 8,848 metres in one month – once up Mount Everest.",
+	"badges.surprise.festive-team": "Festive Team",
+	"badges.surprise.festive-team.for":
+		"The whole team rode between Christmas Eve and New Year's Eve.",
 	"badges.value.half": "Half marathon",
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "New badge: {name} 🏅",

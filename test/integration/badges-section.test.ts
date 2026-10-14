@@ -157,7 +157,7 @@ describe("the Abzeichen section", () => {
 		const slots = (list: string) =>
 			list.match(/<li class="badge-slot" aria-hidden="true"><\/li>/g)?.length;
 		expect(lists.map(slots)).toEqual([
-			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3, 6,
+			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3, 13,
 		]);
 		expect(lists.slice(2).join("")).not.toContain("popovertarget");
 		expect(lists[0]?.lastIndexOf('popovertarget="')).toBeLessThan(
@@ -491,6 +491,14 @@ describe("the surprise badges on the page", () => {
 			"christmas",
 			"early-bird",
 			"rest-day",
+			// Part F (SC-003).
+			"festive-500",
+			"stage-rider",
+			"triathlon",
+			"pi-day",
+			"solstice",
+			"easter",
+			"everesting",
 		] as const) {
 			// Whole ids: "surprise-christmas" is a prefix of "-christmas-eve".
 			expect(html).not.toContain(`badge-surprise-${name}"`);
