@@ -60,7 +60,7 @@ export const en: Catalog = {
 	"me.scope.readAll": "Private activities count too.",
 	"me.scope.sharedOnly": 'Private ("Only You") activities don\'t count.',
 	"me.scope.write":
-		"RynkePoints may write a Rynke section into your ride descriptions once the feature exists.",
+		'You granted RynkePoints write access when you connected. RynkePoints doesn\'t use it; "Change permissions on Strava" removes it.',
 	"me.scope.noWrite": "RynkePoints writes nothing into your ride descriptions.",
 	"me.changePermissions": "Change permissions on Strava",
 	"me.consent.heading": "Your consent",

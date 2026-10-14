@@ -93,7 +93,7 @@ Principle I); the short sentences only summarise it, so they are no new version
 | `me.reconnect` | | Erneut verbinden | Reconnect |
 | `me.scope.readAll` | | Private Aktivitäten zählen mit. | Private activities count too. |
 | `me.scope.sharedOnly` | | Private („Nur du“) Aktivitäten zählen nicht. | Private ("Only You") activities don't count. |
-| `me.scope.write` | | RynkePoints darf einen Rynke-Abschnitt in deine Fahrtbeschreibungen schreiben, sobald es die Funktion gibt. | RynkePoints may write a Rynke section into your ride descriptions once the feature exists. |
+| `me.scope.write` | | Du hast RynkePoints beim Verbinden Schreibzugriff gegeben. RynkePoints nutzt ihn nicht; mit „Berechtigungen auf Strava ändern“ entfernst du ihn. | You granted RynkePoints write access when you connected. RynkePoints doesn't use it; "Change permissions on Strava" removes it. |
 | `me.scope.noWrite` | | RynkePoints schreibt nichts in deine Fahrtbeschreibungen. | RynkePoints writes nothing into your ride descriptions. |
 | `me.changePermissions` | | Berechtigungen auf Strava ändern | Change permissions on Strava |
 | `me.consent.heading` | | Deine Zustimmung | Your consent |

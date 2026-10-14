@@ -115,6 +115,10 @@ function d1(sql) {
 
 let production = "Not read: run `pnpm strava:review --remote` for the numbers.";
 let authenticated = "(run with --remote)";
+// Riders who connected while activity:write was still requested keep it on
+// their token until they reconnect (004 clarification 2026-10-14).
+let legacyWrite =
+	"Riders who connected before October 2026 were asked for activity:write as an optional scope. It was never used, and it drops when they next reconnect.";
 // Where the database lives; Cloudflare picks the region when it is created.
 let region =
 	"[region: run with --remote, or see `wrangler d1 info rynke-points`]";
@@ -133,12 +137,18 @@ if (remote) {
 		(SELECT COUNT(*) FROM riders WHERE status = 'needs_reconnect') AS reconnect,
 		(SELECT COUNT(DISTINCT athlete_id) FROM consent_records) AS consented,
 		(SELECT COUNT(*) FROM activities) AS activities,
-		(SELECT COUNT(*) FROM push_subscriptions) AS pushes`);
+		(SELECT COUNT(*) FROM push_subscriptions) AS pushes,
+		(SELECT COUNT(*) FROM riders WHERE scope_write = 1) AS write_granted`);
 	const limit = d1("SELECT * FROM strava_rate_limit WHERE id = 1");
 	const observed = new Date(limit.observed_at * 1000).toISOString();
 	authenticated = String(riders.connected);
+	legacyWrite =
+		riders.write_granted > 0
+			? `${riders.write_granted} of the riders who connected before October 2026 granted activity:write, which was then requested as an optional scope. It was never used, and it drops when they next reconnect.`
+			: "";
 	production = `- Connected riders: ${riders.connected} (plus ${riders.reconnect} waiting to reconnect)
 - Riders with a consent record: ${riders.consented}
+- Riders still holding the unused activity:write grant: ${riders.write_granted}
 - Stored activities: ${riders.activities}
 - Push subscriptions: ${riders.pushes}
 - Strava usage last seen ${observed}: read ${limit.read_daily} / ${limit.limit_read_daily} a day, overall ${limit.all_daily} / ${limit.limit_all_daily} a day
@@ -167,7 +177,7 @@ WHY AN APP OF ITS OWN, NOT STRAVA'S CLUB FEATURES
 WHO CAN CONNECT AND WHAT THEY AGREE TO
 - Before Strava's authorisation page, the rider reads and agrees to what is read and who sees what. We store which version of that text they agreed to and when. If the text changes, they must agree again before the app shows them anything.
 - Only members of the team's Strava club can connect. For anyone else, or anyone who doesn't agree, nothing is stored.
-- Scopes requested: ${scopes}. Only read and activity:read are required. Without activity:read_all, private ("Only You") activities are never stored. We request no write scope and write nothing to Strava.
+- Scopes requested: ${scopes}. Only read and activity:read are required. Without activity:read_all, private ("Only You") activities are never stored. We request no write scope and write nothing to Strava.${legacyWrite ? ` ${legacyWrite}` : ""}
 
 STRAVA ENDPOINTS AND WEBHOOK
 - One app-wide webhook subscription. New, changed and deleted activities, and deauthorisations, arrive through it. We never poll for new activities.

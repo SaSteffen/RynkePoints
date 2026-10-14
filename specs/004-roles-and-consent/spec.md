@@ -74,7 +74,10 @@ athlete capacity; say plainly if the leaderboard is not allowed.
   doesn't use weakens the review, so the app stops requesting it and the consent
   text drops `consent.write`. The consent version stays 1: the text now promises
   less, nothing more is read, written or shown. Riders who granted it earlier keep
-  it stored and nothing writes with it. The description feature asks for it again,
+  it stored and nothing writes with it; their settings page says so and that
+  "Change permissions on Strava" removes it, since a reconnect stores only what
+  Strava grants. The Strava application names these riders too, so it matches the
+  grants Strava sees. The description feature asks for it again,
   with its own consent text and version, when it is specified (FR-012, FR-016).
 
 ## Summary of the Strava check
