@@ -6,8 +6,7 @@
 		"coins": "Coins: plain gold (#C99A2E) discs with a black outline and a thin cream inner ring, no symbols, letters or faces on them.",
 		"swimmer": "For swimming the character wears no helmet and no jersey: a yellow (#FBE122) swim cap with three small black stripes instead of the helmet, black swim goggles and a yellow swimsuit. No bike. Water in light blue (#8CC4F0) with black outlined wave shapes; the water's surface lies in the middle of the picture, never at the bottom.",
 		"trainer": "Indoors: the road bike stands on a black indoor trainer that holds its rear wheel, the front wheel resting on a small black block, so the bike stays in place. Nothing outdoors around him.",
-		"winter": "Winter kit: the yellow helmet and yellow jersey as always, plus a black scarf, long black tights and thick black gloves. Little cream clouds of breath in front of his mouth. Snow in cream (#FFFDF5) with black outlines, ice in light blue.",
-		"surprise": "This is a secret surprise badge, so make it EXTRA fun: over the top, slapstick, a little absurd, with an exaggerated expression and one unexpected visual gag that makes people laugh out loud. Still one clear main subject in the middle."
+		"winter": "Winter kit: the yellow helmet and yellow jersey as always, plus a black scarf, long black tights and thick black gloves. Little cream clouds of breath in front of his mouth. Snow in cream (#FFFDF5) with black outlines, ice in light blue."
 	},
 	"badges": [
 		{
@@ -484,35 +483,35 @@
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 1,
-			"scene": "New Year's Day: the character riding his road bike straight out of a gold party-popper explosion, still wearing a gold cone party hat over his helmet, a party horn in his mouth blowing a long curly cream streamer, cream and gold confetti everywhere, a tangle of streamers caught in his spokeless wheels, eyes tiny and puffy as if he hasn't slept but grinning madly. {{bike}} {{surprise}}"
+			"scene": "New Year's Day: the character riding his road bike straight out of a gold party-popper explosion, still wearing a gold cone party hat over his helmet, a party horn in his mouth blowing a long curly cream streamer, cream and gold confetti everywhere, a tangle of streamers caught in his spokeless wheels, eyes tiny and puffy as if he hasn't slept but grinning madly. {{bike}}"
 		},
 		{
 			"id": "surprise-christmas-eve",
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 2,
-			"scene": "Christmas Eve: the character racing on his road bike with a huge black sack of gold-wrapped presents on his back, far too big for him, a cream and gold Santa hat flapping over his helmet, a tiny fir tree strapped upright behind the saddle, one present flying off the top of the sack, his face panicked like he's late for the delivery. {{bike}} {{surprise}}"
+			"scene": "Christmas Eve: the character racing on his road bike with a huge black sack of gold-wrapped presents on his back, far too big for him, a cream and gold Santa hat flapping over his helmet, a tiny fir tree strapped upright behind the saddle, one present flying off the top of the sack, his face panicked like he's late for the delivery. {{bike}}"
 		},
 		{
 			"id": "surprise-christmas",
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 3,
-			"scene": "Christmas holidays: the character after a giant feast, belly so round and full that his yellow jersey is stretched tight and one button has popped off flying through the air, still bravely pedalling his road bike, a half-eaten gold drumstick in one hand and a slice of cream Christmas stollen in his mouth, a small fir tree with gold baubles at the roadside watching in shock. {{bike}} {{surprise}}"
+			"scene": "Christmas holidays: the character after a giant feast, belly so round and full that his yellow jersey is stretched tight and one button has popped off flying through the air, still bravely pedalling his road bike, a half-eaten gold drumstick in one hand and a slice of cream Christmas stollen in his mouth, a small fir tree with gold baubles at the roadside watching in shock. {{bike}}"
 		},
 		{
 			"id": "surprise-night-owl",
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 4,
-			"scene": "Night owl: the character riding his road bike at night under a big gold full moon and small cream stars, wearing comically huge round black-rimmed goggles that make his eyes look enormous, and a real owl riding along on his handlebar wearing an identical tiny pair, both staring wide-eyed straight at the viewer with the exact same expression. {{bike}} {{surprise}}"
+			"scene": "Night owl: the character riding his road bike at night under a big gold full moon and small cream stars, wearing comically huge round black-rimmed goggles that make his eyes look enormous, and a real owl riding along on his handlebar wearing an identical tiny pair, both staring wide-eyed straight at the viewer with the exact same expression. {{bike}}"
 		},
 		{
 			"id": "surprise-early-bird",
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 5,
-			"scene": "Early bird: the character riding his road bike at dawn, the gold sun only half over the horizon, still in a cream nightcap over his helmet and one fluffy cream slipper on a pedal, eyes half closed and yawning hugely, a small yellow bird sitting on his helmet and loudly chirping into his ear like an alarm clock, a cream coffee cup balanced in his bottle cage. {{bike}} {{surprise}}"
+			"scene": "Early bird: the character riding his road bike at dawn, the gold sun only half over the horizon, still in a cream nightcap over his helmet and one fluffy cream slipper on a pedal, eyes half closed and yawning hugely, a small yellow bird sitting on his helmet and loudly chirping into his ear like an alarm clock, a cream coffee cup balanced in his bottle cage. {{bike}}"
 		},
 		{
 			"id": "surprise-rest-day",
@@ -526,49 +525,49 @@
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 7,
-			"scene": "Between Christmas and New Year: the character riding through a snowy night with a gold kilometre counter on the handlebar showing \"500\", a half-eaten gingerbread biscuit in his mouth, a string of fairy lights wound round the frame and trailing behind him like a tail, steam rising from his helmet. {{bike}} {{surprise}}"
+			"scene": "Between Christmas and New Year: the character pedalling his road bike through the snow, a string of fairy lights wound round him and the whole bike and still blinking, a gingerbread biscuit clamped in his teeth, a plate of Christmas biscuits balanced on his back with crumbs trailing behind him, a gold kilometre counter on the handlebar showing \"500\" with small cream sparks flying off it. {{bike}}"
 		},
 		{
 			"id": "surprise-stage-rider",
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 8,
-			"scene": "A three-day stage race: the character riding with three crumpled race numbers pinned on top of each other on his back, a tiny gold stage-winner's cap over his helmet, legs drawn as a blur, a road sign behind him reading \"Etappe 3\". {{bike}} {{surprise}}"
+			"scene": "Three stage days in a row: the character on his road bike so tired that his eyes are closed and he is snoring a little cream bubble while his legs keep spinning on their own, three crumpled race numbers pinned one on top of the other on his back, a tiny gold stage-winner's cap squashed over his helmet, a road sign behind him reading \"Etappe 3\". {{bike}}"
 		},
 		{
 			"id": "surprise-triathlon",
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 9,
-			"scene": "Three sports in one day: the character on his road bike still wearing swimming goggles and a cream swim cap over his helmet, running shoes tied to his handlebar by their laces and swinging, water dripping from him, a tired but proud grin. {{bike}} {{surprise}}"
+			"scene": "Swim, ride and run in one day: the character on his road bike still wearing black swim goggles and a dripping yellow swim cap pulled over his helmet, a small puddle trailing behind him, running shoes tied to the handlebar by their laces and swinging wildly, a cream towel flapping behind him like a superhero cape. {{bike}}"
 		},
 		{
 			"id": "surprise-pi-day",
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 10,
-			"scene": "Pi Day: the character riding round in a perfect circle drawn as a gold track, a big black π sign as a flag on a pole behind his saddle, a round pie with a slice missing balanced on his helmet. {{bike}} {{surprise}}"
+			"scene": "Pi Day: the character on his road bike riding round a perfectly circular gold track, a big round cream pie with one slice missing balanced on his helmet and the missing slice sticking out of his mouth, a black π sign on a little flag behind his saddle. {{bike}}"
 		},
 		{
 			"id": "surprise-solstice",
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 11,
-			"scene": "The solstices: the character riding across a badge split in two, left half a cream midsummer day with a huge gold sun, right half a black midwinter night with a cream moon and snow, his bike exactly on the line between them. {{bike}} {{surprise}}"
+			"scene": "The shortest and the longest day: the character on his road bike exactly on the line between two halves of the picture; the front half a bright cream midsummer day under a huge gold sun, where he wears sunglasses and sweats; the back half a black midwinter night with a cream moon and snow, where he is wrapped in a black scarf and shivering. {{bike}}"
 		},
 		{
 			"id": "surprise-easter",
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 12,
-			"scene": "Easter: the character riding with tall cream bunny ears over his helmet, a basket of gold eggs on his handlebar, one egg flying out and a chick hatching from it mid-air, looking very surprised. {{bike}} {{surprise}}"
+			"scene": "Easter: the character on his road bike with tall cream bunny ears over his helmet and a basket of gold eggs on the handlebar, one egg bouncing out and a small yellow chick hatching from it in mid-air and landing on his helmet, both of them looking equally startled. {{bike}}"
 		},
 		{
 			"id": "surprise-everesting",
 			"group": "personal",
 			"category": "surprise",
 			"threshold": 13,
-			"scene": "Everesting: the character on top of a steep black mountain peak with a gold summit flag reading \"8848\", gasping, his bike held high above his head in triumph, a ladder of zig-zag hairpin bends below him. {{bike}} {{surprise}}"
+			"scene": "Everesting: the character on the very top of a steep black mountain peak, his road bike lifted high above his head, a gold summit flag reading \"8848\" stuck in the snow beside him, cream clouds far below, his tongue hanging out and his legs trembling, an endless zig-zag of hairpin bends winding down beneath him. {{bike}}"
 		},
 		{
 			"id": "team-training-rynke-500",
@@ -813,49 +812,49 @@
 			"group": "team",
 			"category": "team_surprise",
 			"threshold": 1,
-			"scene": "A whole team day off: five characters piled on top of each other on one big saggy light sage green (#B5D6A7) sofa that is clearly too small for them, all fast asleep with their mouths open, one snoring a little cream bubble, one hanging upside down off the armrest, their road bikes leaning in a heap against the wall; through a round window behind them a lonely cream tumbleweed rolls along an empty road. {{team}} {{bike}} {{surprise}}"
+			"scene": "A whole team day off: five characters piled on top of each other on one big saggy light sage green (#B5D6A7) sofa that is clearly too small for them, all fast asleep with their mouths open, one snoring a little cream bubble, one hanging upside down off the armrest, their road bikes leaning in a heap against the wall; through a round window behind them a lonely cream tumbleweed rolls along an empty road. {{team}} {{bike}}"
 		},
 		{
 			"id": "team-surprise-all-out",
 			"group": "team",
 			"category": "team_surprise",
 			"threshold": 2,
-			"scene": "Everyone out on the same day: a huge, chaotic crowd of characters bursting through a doorway at once, all trying to get out first, on road bikes, in running shoes, squeezed together and tangled up, arms and wheels everywhere, a few falling over each other, all laughing and cheering; the door frame bending under the pressure. {{team}} {{bike}} {{surprise}}"
+			"scene": "Everyone out on the same day: a huge, chaotic crowd of characters bursting through a doorway at once, all trying to get out first, on road bikes, in running shoes, squeezed together and tangled up, arms and wheels everywhere, a few falling over each other, all laughing and cheering; the door frame bending under the pressure. {{team}} {{bike}}"
 		},
 		{
 			"id": "team-surprise-round-the-clock",
 			"group": "team",
 			"category": "team_surprise",
 			"threshold": 3,
-			"scene": "Round the clock: a giant round cream clock face without any numbers or letters, with characters on road bikes riding in a circle around its rim like a race track, each one at a different spot; one side of the picture has a gold sun, the other a gold crescent moon and cream stars; the clock's two black hands spinning so fast they blur with motion lines. {{team}} {{bike}} {{surprise}}"
+			"scene": "Round the clock: a giant round cream clock face without any numbers or letters, with characters on road bikes riding in a circle around its rim like a race track, each one at a different spot; one side of the picture has a gold sun, the other a gold crescent moon and cream stars; the clock's two black hands spinning so fast they blur with motion lines. {{team}} {{bike}}"
 		},
 		{
 			"id": "team-surprise-relay",
 			"group": "team",
 			"category": "team_surprise",
 			"threshold": 4,
-			"scene": "A never-ending relay: a long line of characters passing a gold baton from one to the next, the first ones on road bikes, then runners, the line curving off into the distance and back again in a loop, the one in front exhausted and flopping over while the next grabs the baton with a determined grin, the very last one in the background already yawning in pyjamas. {{team}} {{surprise}}"
+			"scene": "A never-ending relay: a long line of characters passing a gold baton from one to the next, the first ones on road bikes, then runners, the line curving off into the distance and back again in a loop, the one in front exhausted and flopping over while the next grabs the baton with a determined grin, the very last one in the background already yawning in pyjamas. {{team}}"
 		},
 		{
 			"id": "team-surprise-new-years-eve",
 			"group": "team",
 			"category": "team_surprise",
 			"threshold": 5,
-			"scene": "New Year's Eve team ride: five characters on road bikes riding side by side under exploding gold fireworks, every helmet topped with a gold cone party hat, one blowing a party horn, one holding a sparkler that showers cream sparks, one with cream streamers wrapped around his whole body like a mummy, all cheering. {{team}} {{bike}} {{surprise}}"
+			"scene": "New Year's Eve team ride: five characters on road bikes riding side by side under exploding gold fireworks, every helmet topped with a gold cone party hat, one blowing a party horn, one holding a sparkler that showers cream sparks, one with cream streamers wrapped around his whole body like a mummy, all cheering. {{team}} {{bike}}"
 		},
 		{
 			"id": "team-surprise-sunday-outing",
 			"group": "team",
 			"category": "team_surprise",
 			"threshold": 6,
-			"scene": "A big Sunday outing: a long happy crowd of characters on road bikes rolling past a small cream church with a gold bell ringing in its tower, every rider with a huge picnic basket, cake or thermos strapped somewhere on the bike, one with a whole gold cake on his helmet, a small black dog running alongside with a sandwich in its mouth. {{team}} {{bike}} {{surprise}}"
+			"scene": "A big Sunday outing: a long happy crowd of characters on road bikes rolling past a small cream church with a gold bell ringing in its tower, every rider with a huge picnic basket, cake or thermos strapped somewhere on the bike, one with a whole gold cake on his helmet, a small black dog running alongside with a sandwich in its mouth. {{team}} {{bike}}"
 		},
 		{
 			"id": "team-surprise-festive-team",
 			"group": "team",
 			"category": "team_surprise",
 			"threshold": 7,
-			"scene": "The whole team at Christmas: a row of small identical characters riding in a tight line through the snow, each wearing a cream and gold Santa hat, the last one pulling a little sledge with a fir tree on it. {{team}} {{bike}} {{surprise}}"
+			"scene": "The whole team over Christmas: a long line of characters on road bikes riding through the snow, every one in a cream and gold Santa hat, fairy lights strung from bike to bike connecting them all, the last one towing a little sledge with a fir tree that is far too big for it. {{team}} {{bike}}"
 		}
 	]
 }
