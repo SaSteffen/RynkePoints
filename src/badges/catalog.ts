@@ -63,7 +63,7 @@ export interface Badge {
 }
 
 /** Raised with any ladder change; riders on an older one are re-evaluated (FR-012). */
-export const BADGE_CATALOG_VERSION = 4;
+export const BADGE_CATALOG_VERSION = 5;
 
 /** In the spec's order: personal first, then team. */
 export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
@@ -157,12 +157,13 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		ladder: [1, 5, 10],
 		month: 2,
 	},
-	// Part D (2026-10-12, research R32): no unit is ever shown.
+	// Part D (2026-10-12, research R32): no unit is ever shown. Part F
+	// (2026-10-14, research R42) adds seven badges from cycling traditions.
 	{
 		id: "surprise",
 		group: "personal",
 		unit: "days",
-		ladder: [1, 2, 3, 4, 5, 6],
+		ladder: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
 		surprise: true,
 	},
 	{
@@ -201,12 +202,12 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		unit: "attendances",
 		ladder: [25, 50, 100, 200, 400],
 	},
-	// Part E (2026-10-12, research R38).
+	// Part E (2026-10-12, research R38); part F adds Festive Team (R42).
 	{
 		id: "team_surprise",
 		group: "team",
 		unit: "days",
-		ladder: [1, 2, 3, 4, 5, 6],
+		ladder: [1, 2, 3, 4, 5, 6, 7],
 		surprise: true,
 	},
 ];
@@ -227,6 +228,13 @@ const NAMED_THRESHOLDS: Partial<
 		4: "night-owl",
 		5: "early-bird",
 		6: "rest-day",
+		7: "festive-500",
+		8: "stage-rider",
+		9: "triathlon",
+		10: "pi-day",
+		11: "solstice",
+		12: "easter",
+		13: "everesting",
 	},
 	team_surprise: {
 		1: "day-off",
@@ -235,6 +243,7 @@ const NAMED_THRESHOLDS: Partial<
 		4: "relay",
 		5: "new-years-eve",
 		6: "sunday-outing",
+		7: "festive-team",
 	},
 };
 
@@ -244,7 +253,7 @@ const badgeIdOf = (category: BadgeCategoryId, threshold: number): string =>
 /** Every badge's id; a string here, checked against the catalog at runtime. */
 export type BadgeId = string;
 
-/** All 113 badges in catalog order: by category, then by threshold. */
+/** All 121 badges in catalog order: by category, then by threshold. */
 export const BADGES: readonly Badge[] = BADGE_CATEGORIES.flatMap((c) =>
 	c.ladder.map((threshold) => ({
 		id: badgeIdOf(c.id, threshold),

@@ -17,7 +17,9 @@ import {
 } from "../../dev/worker";
 import { BADGES } from "../../src/badges/catalog";
 import { CONSENT_VERSION } from "../../src/consent";
+import { escapeHtml } from "../../src/http/html";
 import { clearSessionCookie } from "../../src/http/session";
+import { de } from "../../src/i18n/messages/de";
 import {
 	cookiePair,
 	makeCtx,
@@ -534,18 +536,20 @@ describe("sample riders in every state (US2)", () => {
 				].includes(b.category) ||
 				(b.category === "ride_length" && b.threshold <= 200),
 		).map((b) => b.id);
+		// A 200 km ride every day with 1,000 m: three stage days in a row, and
+		// September's climbing past 8,848 m (part F).
+		complete.push("surprise-stage-rider", "surprise-everesting");
 		expect(await badgesOf(990014)).toEqual(complete.sort());
 		const carla = await mePage(990014);
 		const personal =
 			carla.match(
 				/<section class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
 			)?.[0] ?? "";
-		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(6);
-		// Running twice, virtual, swimming twice, the four winter months and
-		// the surprises.
+		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(7);
+		// Running twice, virtual, swimming twice and the four winter months.
 		expect(
 			personal.match(/<li class="badge-card badge-card-empty"/g),
-		).toHaveLength(10);
+		).toHaveLength(9);
 	});
 
 	it("counts only Rudi Runner's outdoor runs (013 US3)", async () => {
@@ -613,6 +617,33 @@ describe("sample riders in every state (US2)", () => {
 		// November and December count nothing before their days; January and
 		// February are over, so their cards show no bar.
 		expect(page).toContain("Noch 1\u00a0Tag");
+	});
+
+	it("gives Fritz Festtag the part F surprises whose days have passed (013 US8)", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			"SELECT badge_id, earned_on FROM rider_badges WHERE athlete_id = ? AND badge_id LIKE 'surprise-%' ORDER BY badge_id",
+		)
+			.bind(990017)
+			.all<{ badge_id: string; earned_on: string }>();
+		const earned = new Map(results.map((r) => [r.badge_id, r.earned_on]));
+		// The test season starts on 1 January 2026, so Easter Monday is 6 April.
+		expect(earned.get("surprise-easter")).toBe("2026-04-06");
+		expect(earned.get("surprise-pi-day")).toBe("2026-03-14");
+		expect(earned.get("surprise-everesting")).toBe("2026-05-09");
+		for (const id of ["surprise-stage-rider", "surprise-triathlon"]) {
+			expect(earned.has(id)).toBe(true);
+		}
+		// His Christmas week and 21 December lie after the test clock's today
+		// (6 October 2026): nothing for them yet.
+		for (const id of ["surprise-festive-500", "surprise-solstice"]) {
+			expect(earned.has(id)).toBe(false);
+		}
+		const page = await mePage(990017);
+		expect(page).toContain(escapeHtml(de["badges.surprise.easter.for"]));
+		expect(page).not.toContain(
+			escapeHtml(de["badges.surprise.festive-500.for"]),
+		);
 	});
 
 	it("shows every sample rider the team's badges and progress (013 US4)", async () => {

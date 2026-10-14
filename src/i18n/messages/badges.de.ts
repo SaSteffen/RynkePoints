@@ -96,6 +96,14 @@ export const BADGE_NAMES: Record<BadgeId, string> = {
 	"surprise-night-owl": "Nachteule",
 	"surprise-early-bird": "Frühaufsteher",
 	"surprise-rest-day": "Sofaheld",
+	// Überraschungen aus Radsport-Traditionen (part F)
+	"surprise-festive-500": "Plätzchen weggestrampelt",
+	"surprise-stage-rider": "Tour de Rynke",
+	"surprise-triathlon": "Dreifach-Held",
+	"surprise-pi-day": "Runde Sache",
+	"surprise-solstice": "Licht und Schatten",
+	"surprise-easter": "Osterhase auf Rädern",
+	"surprise-everesting": "Gipfelstürmer",
 	// Trainings-Rynke gemeinsam
 	"team-training-rynke-500": "Gemeinsam angerollt",
 	"team-training-rynke-1000": "Tausend zusammen",
@@ -143,4 +151,5 @@ export const BADGE_NAMES: Record<BadgeId, string> = {
 	"team-surprise-relay": "Staffel ohne Ende",
 	"team-surprise-new-years-eve": "Silvesterknaller",
 	"team-surprise-sunday-outing": "Sonntagskarawane",
+	"team-surprise-festive-team": "Festtags-Gang",
 };

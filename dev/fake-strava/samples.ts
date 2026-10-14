@@ -1,3 +1,4 @@
+import { easterSunday } from "../../src/badges/easter";
 import type { TeamEventKind } from "../../src/rynke/team-events";
 import type { FakeActivity } from "./store";
 
@@ -20,6 +21,11 @@ export interface RideRecipe {
 	 * winter badges (feature 013 part C), which need a calendar month.
 	 */
 	onDate?: string;
+	/**
+	 * Days after the season's Easter Sunday (0 Easter Sunday, 1 Easter
+	 * Monday) instead of `daysAgo`; for the Osterhase badge (013 part F).
+	 */
+	onEaster?: number;
 	/** Local wall-clock time `HH:MM`, Europe/Berlin. */
 	startTime: string;
 	sportType: string;
@@ -345,6 +351,52 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 			ride(7, "07:00", 1.5, 0, 2.4, { sportType: "Swim", manual: true }),
 		],
 	},
+	{
+		athleteId: 990017,
+		firstName: "Fritz Festtag",
+		state:
+			"Badges (feature 013 part F): surprise badges from cycling traditions",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		rides: [
+			// Festive 500: 4 × 130 km between Christmas Eve and New Year's Eve,
+			// two of them on Zwift.
+			ride(0, "10:00", 130, 300, 26, { onDate: "12-24" }),
+			ride(0, "10:00", 130, 300, 26, { onDate: "12-26" }),
+			ride(0, "10:00", 130, 0, 30, {
+				onDate: "12-28",
+				sportType: "VirtualRide",
+				trainer: true,
+			}),
+			ride(0, "10:00", 130, 0, 30, {
+				onDate: "12-30",
+				sportType: "VirtualRide",
+				trainer: true,
+			}),
+			// Etappenfahrer: 100 km on three days in a row, the middle one in
+			// two rides.
+			ride(3, "08:00", 100, 500, 25),
+			ride(4, "07:00", 60, 300, 25),
+			ride(4, "15:00", 40, 200, 25),
+			ride(5, "08:00", 100, 500, 25),
+			// Dreikampf: a ride, a run and a swim on one day.
+			ride(8, "07:00", 1.5, 0, 2.4, { sportType: "Swim" }),
+			ride(8, "10:00", 30, 150, 25),
+			ride(8, "18:00", 6, 30, 10, { sportType: "Run" }),
+			// Kreiszahl: 32 km on 14 March.
+			ride(0, "10:00", 32, 150, 24, { onDate: "03-14" }),
+			// Sonnenwende: outdoors on both solstices.
+			ride(0, "10:00", 25, 100, 24, { onDate: "12-21" }),
+			ride(0, "10:00", 25, 100, 24, { onDate: "06-21" }),
+			// Osterhase: a ride on Easter Monday.
+			ride(0, "10:00", 30, 150, 24, { onEaster: 1 }),
+			// Everesting: 9 × 1,000 m in May.
+			...rides(9, (i) =>
+				ride(0, "09:00", 50, 1000, 20, { onDate: `05-0${1 + i}` }),
+			),
+		],
+	},
 ];
 
 /** A team event several sample riders attended, entered by an organiser. */
@@ -414,6 +466,13 @@ export function seasonDay(monthDay: string, seasonStart: string): string {
 	return `${year}-${monthDay}`;
 }
 
+/** The first Easter Sunday on or after the season start. */
+export function seasonEaster(seasonStart: string): string {
+	const year = Number(seasonStart.slice(0, 4));
+	const easter = easterSunday(year);
+	return easter >= seasonStart ? easter : easterSunday(year + 1);
+}
+
 /** Europe/Berlin's offset from UTC at `epochMs`, in milliseconds. */
 function berlinOffsetMs(epochMs: number): number {
 	const parts = new Intl.DateTimeFormat("en-GB", {
@@ -461,9 +520,12 @@ export function recipeToActivity(
 	seasonStart: string,
 	id: number,
 ): FakeActivity {
-	const wanted = recipe.onDate
-		? seasonDay(recipe.onDate, seasonStart)
-		: dayBefore(seedDay, recipe.daysAgo);
+	const wanted =
+		recipe.onEaster !== undefined
+			? dayBefore(seasonEaster(seasonStart), -recipe.onEaster)
+			: recipe.onDate
+				? seasonDay(recipe.onDate, seasonStart)
+				: dayBefore(seedDay, recipe.daysAgo);
 	const day = wanted < seasonStart ? seasonStart : wanted;
 	const startUtc = berlinToUtcMs(day, recipe.startTime);
 	return {

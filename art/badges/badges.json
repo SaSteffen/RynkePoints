@@ -522,6 +522,55 @@
 			"scene": "Rest day after a full week of training: the character sitting comfortably on a cosy light sage green (#B5D6A7) sofa, wrapped in a warm, thick blanket with wide cream (#FFFDF5) and black stripes, holding a steaming cream mug of hot cocoa with both hands, eyes half closed, a calm and content smile. His yellow helmet hangs on the handlebar of his road bike, which leans against the wall behind the sofa. No helmet on his head. Quiet and cosy, nothing else going on. {{bike}}"
 		},
 		{
+			"id": "surprise-festive-500",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 7,
+			"scene": "Between Christmas and New Year: the character riding through a snowy night with a gold kilometre counter on the handlebar showing \"500\", a half-eaten gingerbread biscuit in his mouth, a string of fairy lights wound round the frame and trailing behind him like a tail, steam rising from his helmet. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-stage-rider",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 8,
+			"scene": "A three-day stage race: the character riding with three crumpled race numbers pinned on top of each other on his back, a tiny gold stage-winner's cap over his helmet, legs drawn as a blur, a road sign behind him reading \"Etappe 3\". {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-triathlon",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 9,
+			"scene": "Three sports in one day: the character on his road bike still wearing swimming goggles and a cream swim cap over his helmet, running shoes tied to his handlebar by their laces and swinging, water dripping from him, a tired but proud grin. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-pi-day",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 10,
+			"scene": "Pi Day: the character riding round in a perfect circle drawn as a gold track, a big black π sign as a flag on a pole behind his saddle, a round pie with a slice missing balanced on his helmet. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-solstice",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 11,
+			"scene": "The solstices: the character riding across a badge split in two, left half a cream midsummer day with a huge gold sun, right half a black midwinter night with a cream moon and snow, his bike exactly on the line between them. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-easter",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 12,
+			"scene": "Easter: the character riding with tall cream bunny ears over his helmet, a basket of gold eggs on his handlebar, one egg flying out and a chick hatching from it mid-air, looking very surprised. {{bike}} {{surprise}}"
+		},
+		{
+			"id": "surprise-everesting",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 13,
+			"scene": "Everesting: the character on top of a steep black mountain peak with a gold summit flag reading \"8848\", gasping, his bike held high above his head in triumph, a ladder of zig-zag hairpin bends below him. {{bike}} {{surprise}}"
+		},
+		{
 			"id": "team-training-rynke-500",
 			"group": "team",
 			"category": "team_training_rynke",
@@ -800,6 +849,13 @@
 			"category": "team_surprise",
 			"threshold": 6,
 			"scene": "A big Sunday outing: a long happy crowd of characters on road bikes rolling past a small cream church with a gold bell ringing in its tower, every rider with a huge picnic basket, cake or thermos strapped somewhere on the bike, one with a whole gold cake on his helmet, a small black dog running alongside with a sandwich in its mouth. {{team}} {{bike}} {{surprise}}"
+		},
+		{
+			"id": "team-surprise-festive-team",
+			"group": "team",
+			"category": "team_surprise",
+			"threshold": 7,
+			"scene": "The whole team at Christmas: a row of small identical characters riding in a tight line through the snow, each wearing a cream and gold Santa hat, the last one pulling a little sledge with a fir tree on it. {{team}} {{bike}} {{surprise}}"
 		}
 	]
 }

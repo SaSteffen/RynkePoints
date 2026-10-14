@@ -171,10 +171,11 @@ describe("evaluateTeamBadges", () => {
 
 // Part E: team surprise badges (spec User Story 7, FR-016, research R40).
 describe("evaluateTeamBadges for the team surprises", () => {
-	const act = (athleteId: number, date: string, hour = 10) => ({
+	const act = (athleteId: number, date: string, hour = 10, ride = true) => ({
 		athleteId,
 		date,
 		hour,
+		ride,
 	});
 	const surprises = (sums: Partial<TeamBadgeSums>) =>
 		evaluate(sums).earned.filter((b) => b.badgeId.startsWith("team-surprise-"));
@@ -266,6 +267,86 @@ describe("evaluateTeamBadges for the team surprises", () => {
 		).toEqual([]);
 	});
 
+	// Part F (spec User Story 8, FR-017a, research R45).
+	describe("Festive Team", () => {
+		const connectedOn = new Map([
+			[1, "2026-09-01"],
+			[2, "2026-10-15"],
+			[3, "2026-12-24"],
+		]);
+		// Gaps in these dates are team days off (part E); only Festive Team here.
+		const festive = (sums: Partial<TeamBadgeSums>) =>
+			surprises(sums).filter((b) => b.badgeId === "team-surprise-festive-team");
+
+		it("is earned the day the last rider due rides between 24 and 31 December (US8 9)", () => {
+			expect(
+				festive({
+					connectedOn,
+					active: [
+						act(1, "2026-12-24"),
+						act(2, "2026-12-27"),
+						act(1, "2026-12-29"),
+						act(3, "2026-12-26"),
+						act(2, "2026-12-30"),
+					],
+				}),
+			).toEqual([
+				{ badgeId: "team-surprise-festive-team", earnedOn: "2026-12-27" },
+			]);
+		});
+
+		it("needs every rider due to ride", () => {
+			expect(
+				festive({
+					connectedOn,
+					active: [
+						act(1, "2026-12-24"),
+						act(2, "2026-12-27"),
+						act(3, "2026-12-23"),
+						act(3, "2027-01-01"),
+					],
+				}),
+			).toEqual([]);
+		});
+
+		it("counts rides only, not runs or swims", () => {
+			expect(
+				festive({
+					connectedOn,
+					active: [
+						act(1, "2026-12-24"),
+						act(2, "2026-12-27"),
+						act(3, "2026-12-26", 10, false),
+					],
+				}),
+			).toEqual([]);
+		});
+
+		it("doesn't wait for a rider who connected after 24 December", () => {
+			expect(
+				festive({
+					connectedOn: new Map([...connectedOn, [4, "2026-12-27"]]),
+					active: [
+						act(1, "2026-12-24"),
+						act(2, "2026-12-25"),
+						act(3, "2026-12-31"),
+					],
+				}),
+			).toEqual([
+				{ badgeId: "team-surprise-festive-team", earnedOn: "2026-12-31" },
+			]);
+		});
+
+		it("needs at least two riders due", () => {
+			expect(
+				festive({
+					connectedOn: new Map([[1, "2026-09-01"]]),
+					active: [act(1, "2026-12-24")],
+				}),
+			).toEqual([]);
+		});
+	});
+
 	it("counts nothing outside the counting window and shows no next step", () => {
 		const result = evaluate({
 			active: [act(1, "2025-12-29"), act(2, "2025-12-31")],
@@ -289,8 +370,8 @@ describe("evaluateTeamBadges and future dates", () => {
 			{
 				...NONE,
 				active: [
-					{ athleteId: 1, date: "2026-05-03", hour: 10 },
-					{ athleteId: 2, date: "2026-05-05", hour: 10 },
+					{ athleteId: 1, date: "2026-05-03", hour: 10, ride: true },
+					{ athleteId: 2, date: "2026-05-05", hour: 10, ride: true },
 				],
 			},
 			CURRENT_RULES,

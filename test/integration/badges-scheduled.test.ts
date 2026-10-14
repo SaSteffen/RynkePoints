@@ -181,4 +181,50 @@ describe("the badge catalog's cron evaluation", () => {
 		).toBe(0);
 		expect(sent("send-notification")).toEqual([]);
 	});
+
+	it("gives riders on catalog version 4 part F's badges once, silently (FR-017b)", async () => {
+		// 40 km on Pi Day: Kreiszahl.
+		await upsertActivity(
+			env.DB,
+			activityRecord(6, { start_date: "2026-03-14T08:00:00Z" }),
+		);
+		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_A });
+		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_B });
+		await env.DB.batch([
+			env.DB.prepare(
+				"DELETE FROM rider_badges WHERE badge_id = 'surprise-pi-day'",
+			),
+			env.DB.prepare(
+				"DELETE FROM badge_reveals WHERE badge_id = 'surprise-pi-day'",
+			),
+			env.DB.prepare("DELETE FROM badge_rises"),
+			env.DB.prepare(
+				"UPDATE riders SET badges_version = 4 WHERE athlete_id = ?",
+			).bind(ATHLETE_A),
+		]);
+		await seedSubscription(ATHLETE_A, pushEndpoint(1));
+		ctx.queue.sent.length = 0;
+
+		await fanOutEvaluations(ctx);
+		expect(sent("evaluate-rider")).toEqual([
+			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
+		]);
+		ctx.queue.sent.length = 0;
+		await deliver({ kind: "evaluate-rider", athleteId: ATHLETE_A });
+
+		const { results } = await env.DB.prepare(
+			`SELECT b.badge_id, b.earned_on FROM rider_badges b JOIN badge_reveals r
+				USING (athlete_id, badge_id, earned_on)
+			WHERE b.athlete_id = ? AND b.badge_id = 'surprise-pi-day'`,
+		)
+			.bind(ATHLETE_A)
+			.all();
+		expect(results).toEqual([
+			{ badge_id: "surprise-pi-day", earned_on: "2026-03-14" },
+		]);
+		expect(
+			await env.DB.prepare("SELECT count(*) AS n FROM badge_rises").first("n"),
+		).toBe(0);
+		expect(sent("send-notification")).toEqual([]);
+	});
 });
