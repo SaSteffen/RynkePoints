@@ -86,8 +86,20 @@ production numbers are left out. The run fails when a page route in
    code, and the run fails when a Strava request has no purpose written down
    (`PURPOSES` in the script). The production numbers stay folded away in
    `application.md`, in case Strava asks.
-8. **Record the outcome** (date, granted capacity, new rate limits, or the refusal
+
+   The description also asks for a specific capacity (`REQUESTED_ATHLETES` in the
+   script, also the form's "Number of Intended Users") with the qualification
+   deadline as the reason, explains why Strava's club features don't cover the
+   team's rules, and names the riders' prior express consent (API Policy §5.13)
+   with the landing page as evidence. The app requests no write scope (feature
+   004, clarification of 2026-10-14), so the review isn't asked to approve a scope
+   nothing uses.
+8. **Follow up** if nothing comes back within about two weeks: post in the
+   [Developer Community Hub](https://communityhub.strava.com/developers-api-7)
+   with the client ID and the date submitted. Strava doesn't review requests sent
+   by email.
+9. **Record the outcome** (date, granted capacity, new rate limits, or the refusal
    and its reason) in feature 004's spec (F-5) and in the constitution's Technology
    Constraints, and close #31.
-9. **After approval,** connect an 11th rider and check that the "team is full"
+10. **After approval,** connect an 11th rider and check that the "team is full"
    handling (R14) still matches Strava's real response.

@@ -6,7 +6,7 @@ synthetic data (Principle V).
 
 | Purpose | Request | Auth | Fields read from the response |
 |---|---|---|---|
-| Authorize (browser redirect) | `GET https://www.strava.com/oauth/authorize` with `scope=read,activity:read,activity:read_all,activity:write` (research R1) | — | callback params `code`, `scope`, `state`, `error` |
+| Authorize (browser redirect) | `GET https://www.strava.com/oauth/authorize` with `scope=read,activity:read,activity:read_all` (research R1) | — | callback params `code`, `scope`, `state`, `error` |
 | Token exchange | `POST https://www.strava.com/oauth/token` `grant_type=authorization_code` | client id/secret in form | `access_token`, `refresh_token`, `expires_at`, `scope`, `athlete.id`, `athlete.firstname` |
 | Token refresh | `POST https://www.strava.com/oauth/token` `grant_type=refresh_token` | client id/secret in form | `access_token`, `refresh_token`, `expires_at` |
 | Revoke | `POST https://www.strava.com/oauth/revoke` `token=<token>`: the stored refresh token for a connected rider (no refresh first), or the just-issued access token in the OAuth callback | HTTP Basic `client_id:client_secret` | status only |
@@ -16,8 +16,9 @@ synthetic data (Principle V).
 
 Base URL for `/api/v3/...` is `https://www.strava.com`.
 
-`activity:write` is requested so riders need not reconnect once the description
-feature ships (feature 004, FR-012). No endpoint above writes, and the client
+`activity:write` was requested at first so riders need not reconnect once the
+description feature ships; since feature 004's clarification of 2026-10-14 it is
+no longer requested until that feature exists. No endpoint above writes, and the client
 exposes no write call: this feature never writes to Strava (FR-003). The fake
 Strava in tests fails any `PUT`, `POST` or `DELETE` to `/api/v3/...` (research
 R12).

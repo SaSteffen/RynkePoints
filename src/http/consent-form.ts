@@ -28,7 +28,6 @@ export function consentSummary(i18n: I18n): SafeHtml {
 <p>${i18n.t("landing.purpose")}</p>
 <p>${i18n.t("consent.organisers")}</p>
 <p>${i18n.t("consent.team")}</p>
-<p>${i18n.t("consent.write")}</p>
 <p>${i18n.t("landing.leave")}</p>
 <p>${i18n.t("landing.backups")}</p>
 <p>${i18n.t("landing.cookies")}</p>

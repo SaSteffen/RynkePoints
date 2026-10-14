@@ -49,8 +49,6 @@ export const en: Catalog = {
 	"consent.team":
 		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation count towards the team sums of the team badges, without your name. On which days and at what hour you ride, run or swim counts towards the team surprises, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
-	"consent.write":
-		"Optional: Strava also asks whether RynkePoints may upload activities. We never upload anything; later we use it to write a short Rynke section into your ride descriptions, visible to whoever may see the ride. We never change your own text. You take part just the same without this permission.",
 	"consent.agree":
 		"I agree that RynkePoints reads my rides and shares my Rynke as described.",
 

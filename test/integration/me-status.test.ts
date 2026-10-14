@@ -209,7 +209,6 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 					"landing.purpose",
 					"consent.organisers",
 					"consent.team",
-					"consent.write",
 					"landing.leave",
 				] as const
 			).map((id) => `<p>${escapeHtml(de[id])}</p>`),

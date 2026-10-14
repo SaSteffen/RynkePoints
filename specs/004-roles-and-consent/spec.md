@@ -67,6 +67,16 @@ athlete capacity; say plainly if the leaderboard is not allowed.
   This replaces "organisers listed by Strava athlete ID in deployment configuration
   stored as a secret" from the prompt (FR-002, SC-007).
 
+### Session 2026-10-14
+
+- Q (raised by the project owner, preparing the Strava review, F-5): Keep asking
+  for `activity:write` while nothing uses it? → A: No. Requesting a scope the app
+  doesn't use weakens the review, so the app stops requesting it and the consent
+  text drops `consent.write`. The consent version stays 1: the text now promises
+  less, nothing more is read, written or shown. Riders who granted it earlier keep
+  it stored and nothing writes with it. The description feature asks for it again,
+  with its own consent text and version, when it is specified (FR-012, FR-016).
+
 ## Summary of the Strava check
 
 The team leaderboard **is allowed**. Strava's terms forbid showing a rider's data

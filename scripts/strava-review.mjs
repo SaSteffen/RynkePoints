@@ -68,6 +68,14 @@ const seasonStart = read("wrangler.jsonc").match(
 	/"SEASON_START_DATE": "([^"]+)"/,
 )?.[1];
 const contact = read("wrangler.jsonc").match(/"CONTACT_EMAIL": "([^"]+)"/)?.[1];
+const deadline = read("wrangler.jsonc").match(
+	/"QUALIFICATION_DEADLINE": "([^"]+)"/,
+)?.[1];
+
+// The athlete capacity asked for: the team's riders this season plus room for
+// organisers and newcomers. A specific, justified number is easier to grant
+// than an open-ended one.
+const REQUESTED_ATHLETES = 75;
 
 // Why each Strava request is made, for the description. A request the code
 // makes that has no entry here fails the run, so the text can't fall behind.
@@ -145,14 +153,21 @@ if (remote) {
 const requestLines = requests
 	.map((r) => `- ${r}: ${PURPOSES[r] ?? "(no purpose written down)"}.`)
 	.join("\n");
-const description = `RynkePoints turns the training of one charity cycling team, Team Rynkeby Hamburg, into points ("Rynke") and badges. It has fewer than 100 riders, all members of the team's Strava club. It is not commercial: no ads, no payments, no analytics or tracking, and nothing is sold or passed on.
+const description = `RynkePoints supports Team Rynkeby Hamburg, a charity cycling team whose riders raise money for children with serious illnesses and ride to Paris together each summer. The app turns the team's training into points ("Rynke") and badges, so riders can see whether they will meet the team's training requirement in time. It is not commercial: no ads, no payments, no analytics or tracking, and nothing is sold or passed on.
+
+We ask for an athlete capacity of ${REQUESTED_ATHLETES}: about 50 riders this season, all members of the team's Strava club, plus room for organisers and newcomers. Ten athletes are not enough for the team, and the riders who can't connect are training for a qualification deadline${deadline ? ` (${deadline})` : ""}, so every week without the app counts.
 
 Privacy policy: https://trhh-rynke-coins.link/privacy, linked from every page's footer, in German and English. Support and data requests: ${contact}.
+
+WHY AN APP OF ITS OWN, NOT STRAVA'S CLUB FEATURES
+- The team's qualification rules combine two kinds of points. Training Rynke come mostly from the rider's own rides (distance and elevation). Team Rynke come only from team trainings, training weekends and technique trainings, which the organisers record in the app, not from Strava.
+- Both kinds count towards the team's training requirement, with a deadline. Riders see what they still need and whether they are on pace; organisers see who needs help before the deadline.
+- Strava's club features show distance and activities, but cannot combine rides with team events, apply the team's rules or track the requirement. RynkePoints does not replicate a Strava feature: it adds the team's own rules on top, and links back to Strava.
 
 WHO CAN CONNECT AND WHAT THEY AGREE TO
 - Before Strava's authorisation page, the rider reads and agrees to what is read and who sees what. We store which version of that text they agreed to and when. If the text changes, they must agree again before the app shows them anything.
 - Only members of the team's Strava club can connect. For anyone else, or anyone who doesn't agree, nothing is stored.
-- Scopes requested: ${scopes}. Only read and activity:read are required. Without activity:read_all, private ("Only You") activities are never stored. activity:write is optional and not used: nothing is written to Strava. It is meant for a later, opt-in Rynke line in the rider's own ride descriptions, which would never change the rider's own text.
+- Scopes requested: ${scopes}. Only read and activity:read are required. Without activity:read_all, private ("Only You") activities are never stored. We request no write scope and write nothing to Strava.
 
 STRAVA ENDPOINTS AND WEBHOOK
 - One app-wide webhook subscription. New, changed and deleted activities, and deauthorisations, arrive through it. We never poll for new activities.
@@ -171,8 +186,9 @@ WHAT WE STORE
 - We never read or store GPS tracks, maps, routes, segments, photos, descriptions, heart rate, power, cadence, calories or other health data, followers, or any other athlete's data. No IP addresses are stored.
 
 WHO SEES WHAT
+- Riders give their prior express consent to what is shown to the organisers and the team (API Policy section 5.13) before they connect: the landing page shows the full text and an "I agree" checkbox (first page in the screenshots), and we store which version they agreed to. Nothing is shown to anyone else without it.
 - Each rider sees their own activities, including the names, and their own Rynke and badges. Activity names are shown to nobody else.
-- The rest of the team sees each rider's Rynke and position without their name, and team totals that include them anonymously.
+- The rest of the team sees each rider's Rynke and position without their name, and team totals that include them anonymously. No activities, distances, names or profile links of other riders are shown.
 - The team's organisers see each rider's first name, Rynke and where they come from, what is still missing for the training goal, their team events and corrections. They see no activity names or individual activities' details.
 - Nothing is public. Every page with rider data needs the rider to be signed in with Strava.
 - No Strava data is shared with third parties or used for AI or machine learning.
@@ -313,7 +329,7 @@ them. Procedure: docs/strava-developer-program.md.
 | Strava Client ID | From the [API settings](https://www.strava.com/settings/api) |
 | Additional Apps | Leave empty |
 | Number of Currently Authenticated Users | ${authenticated} |
-| Number of Intended Users | 100 |
+| Number of Intended Users | ${REQUESTED_ATHLETES} |
 | Application Description | Below |
 | Support URL | https://trhh-rynke-coins.link |
 | TOS Compliance | Tick after checking the [API Agreement](https://www.strava.com/legal/api) |

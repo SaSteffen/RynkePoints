@@ -51,7 +51,6 @@ describe("GET / (signed out)", () => {
 			"consent.organisers",
 			"consent.team",
 			"consent.required",
-			"consent.write",
 			"consent.agree",
 		] as const) {
 			expect(page).toContain(escapeHtml(de[id]));
@@ -141,14 +140,14 @@ describe("GET / (signed out)", () => {
 		expect(CONSENT_VERSION).toBe(1);
 	});
 
-	it("names who sees what and that write access is optional", async () => {
+	it("names who sees what and asks for no write access", async () => {
 		const { page } = await get();
 		expect(page).toContain("<h2>Was du mit dem Verbinden erlaubst</h2>");
 		expect(page).toContain(
 			"Deine einzelnen Fahrten und ihre Namen siehst nur du.",
 		);
 		expect(page).toContain("ohne deinen Namen");
-		expect(page).toContain("Ohne diese Erlaubnis machst du genauso mit");
+		expect(page).not.toContain("hochladen");
 	});
 
 	it("shows the consent form with the Connect with Strava button", async () => {
