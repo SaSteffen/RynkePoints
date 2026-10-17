@@ -481,6 +481,19 @@ describe("STYLE", () => {
 		).toBe("none");
 	});
 
+	it("fills the page's width with ride cards, as many per row as fit", () => {
+		expect(declsOf("main:has(>#rides>.ride-list)")["max-width"]).toBe("none");
+		expect(declsOf("ol.ride-list")["grid-template-columns"]).toBe(
+			"repeat(auto-fill,minmax(min(280px,100%),1fr))",
+		);
+		expect(
+			RULES.filter(
+				(rule) =>
+					rule.media !== null && rule.selectors.includes("ol.ride-list"),
+			),
+		).toEqual([]);
+	});
+
 	it("spins while older rides load, only without reduced motion (018 R6)", () => {
 		const spinner = ".rides-more[data-state=loading] .rides-status::before";
 		expect(declsOf(spinner).animation).toContain("busy-spin");
