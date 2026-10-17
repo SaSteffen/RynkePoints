@@ -3,13 +3,13 @@ import { beforeEach, describe, expect, it } from "vitest";
 import {
 	countIntentsStatement,
 	deleteReportsStatement,
-	insertReportStatement,
 	type IntentCountRow,
+	insertReportStatement,
 	listEventReportsStatement,
 	listOpenRequestsStatement,
 	listRiderEventsStatement,
-	openRequestCountStatement,
 	type OpenRequestRow,
+	openRequestCountStatement,
 	type RiderEventRow,
 } from "../../src/db/participation";
 import { countingWindow } from "../../src/rynke/rules";
