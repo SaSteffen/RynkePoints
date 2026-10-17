@@ -114,3 +114,8 @@ With nobody listed, "No riders share their Rynke yet." stands in place of 3–6.
   scrolls inside its own container only from 1100 px, where it fits; the
   breakpoint sits where all columns fit without scrolling.
 - Controls are at least 44 px tall (011).
+
+> **Amended by feature 019** ([spec](../../019-event-participation-requests/spec.md)
+> FR-045, FR-046): the Team page no longer shows the place card or the peloton;
+> its order is the team total, the switch, the quote, the leaderboard and the
+> team chart.

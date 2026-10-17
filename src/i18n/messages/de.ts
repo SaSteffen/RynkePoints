@@ -48,7 +48,7 @@ export const de = {
 		"Das Team sieht deine Rynke ohne Namen, die Orga mit deinem Vornamen.",
 	"consent.details": "Alle Details",
 	"consent.organisers":
-		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen.",
+		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen und bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst.",
 	"consent.team":
 		"Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter zählen ohne Namen zu den Team-Summen der Team-Abzeichen. An welchen Tagen und zu welcher Stunde du fährst, läufst oder schwimmst, zählt ohne Namen für die Team-Überraschungen.",
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
@@ -262,7 +262,7 @@ export const de = {
 	"tour.start": "Zeig mal",
 	"tour.rider.intro": "Neu hier? Wir zeigen dir kurz, wo du was findest.",
 	"tour.rider.team":
-		"Team: wie das ganze Team dasteht und wo du im Peloton fährst.",
+		"Team: wie das ganze Team dasteht und wo du in der Rangliste stehst.",
 	"tour.rider.you": "Du: deine Rynke und was dir noch zur Qualifikation fehlt.",
 	"tour.rider.rides":
 		"Fahrten: jede Fahrt, was sie gebracht hat, und warum, wenn sie nicht zählt.",
@@ -372,7 +372,7 @@ export const de = {
 	"organiser.done.removed": "Korrektur entfernt.",
 	"organiser.events.heading": "Teamtermine dieser Saison",
 	"organiser.events.none": "In dieser Saison gibt es noch keine Teamtermine.",
-	"organiser.events.attendees": "{count} dabei",
+	"organiser.events.attendees": "{count}\u00a0Personen",
 	"organiser.events.new": "Neuer Termin",
 	"organiser.event.heading": "Termin bearbeiten",
 	"organiser.field.kind": "Art",
@@ -415,23 +415,8 @@ export const de = {
 	"team.kind.label": "Welche Rynke",
 	"team.kind.training": "Training",
 	"team.kind.team": "Team",
-	"team.place": "Position {place} von {count} 🚴",
-	"team.place.next": "Noch {n}\u00a0Rynke bis zum nächsten Platz",
-	"team.place.lead": "Du führst das Peloton an. Nimm die anderen mit!",
 	"team.quote.push": "Für dich 🍌",
 	"team.quote.onTrack": "Für dich 🤝",
-	"team.peloton.heading": "Das Peloton 🚴",
-	"team.peloton.hint": "Jede Münze ist ein Rider. Rechts fährt die Spitze.",
-	"team.peloton.back": "Ende des Feldes",
-	"team.peloton.front": "Spitze 🏁",
-	"team.peloton.label":
-		"{count} Rider zwischen {min} und {max}\u00a0Rynke; du hast {own}",
-	"team.peloton.you": "Du",
-	"team.peloton.breakaway": "Breakaway 🏁",
-	"team.peloton.hint.breakaway":
-		"Jede Münze ist ein Rider. Ganz rechts, hinter der Lücke, fährt der Breakaway.",
-	"team.peloton.label.breakaway":
-		"{count} Rider zwischen {min} und {max}\u00a0Rynke, davon {away} im Breakaway; du hast {own}",
 	"team.list.heading": "Rangliste",
 	"team.list.count": "{n}\u00a0Rider",
 	"team.list.hint": "Ohne Namen. Die Linie zeigt die Saison bisher.",
@@ -705,7 +690,7 @@ export const de = {
 		"Neue, geänderte und gelöschte Aktivitäten meldet Strava von selbst; RynkePoints fragt nicht regelmäßig nach. Einmal am Tag prüft RynkePoints, ob du noch Mitglied im Strava-Club des Teams bist.",
 	"privacy.team.heading": "Daten vom Team und daraus berechnet",
 	"privacy.team.body":
-		"Die Organisatoren tragen ein, an welchen Teamterminen du teilgenommen hast, und können deine Rynke mit Grund und Datum korrigieren. Gespeichert wird auch, wer das wann geändert hat.",
+		"Die Organisatoren tragen ein, an welchen Teamterminen du teilgenommen hast, und können deine Rynke mit Grund und Datum korrigieren. Du kannst selbst melden, bei welchen Teamterminen du dabei bist oder warst; die Organisatoren sehen das und entscheiden, ob sie dich eintragen. Gespeichert wird auch, wer das wann geändert hat.",
 	"privacy.team.derived":
 		"Aus all dem berechnet RynkePoints deine Rynke, deine Abzeichen und welche Fahrten warum zählen.",
 	"privacy.technical.heading": "Technisch nötige Daten",
@@ -721,7 +706,7 @@ export const de = {
 	"privacy.visibility.team":
 		"Das übrige Team sieht deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter und an welchen Tagen und zu welcher Stunde du aktiv bist zählen ohne Namen zu den Teamsummen und Team-Abzeichen.",
 	"privacy.visibility.organisers":
-		"Die Organisatoren sehen deinen Vornamen, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen, aber keine einzelnen Aktivitäten.",
+		"Die Organisatoren sehen deinen Vornamen, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen und bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst, aber keine einzelnen Aktivitäten.",
 	"privacy.visibility.public":
 		"Nichts davon ist öffentlich: Jede Seite mit diesen Daten verlangt eine Anmeldung mit Strava.",
 	"privacy.legal.heading": "Rechtsgrundlagen",
@@ -753,4 +738,86 @@ export const de = {
 	"privacy.changes.heading": "Änderungen",
 	"privacy.changes.body":
 		"Ändert sich, welche Daten RynkePoints liest oder wer sie sieht, bitten wir dich erneut um deine Einwilligung, bevor die App dir wieder etwas zeigt.",
+	// Feature 019: team-event reports (contracts/messages.md).
+	"nav.events": "Termine",
+	"nav.organiser.open": "Orga, {n} offene Meldungen",
+	"tour.rider.events":
+		"Termine: sag der Orga, bei welchen Teamterminen du dabei bist oder warst.",
+	"events.heading": "Teamtermine 📅",
+	"events.until": "bis {date}",
+	"events.note.title": "Melde dich hier selbst an",
+	"events.note.body":
+		"Deine Teilnahme an Teamterminen können wir noch nicht aus Spond oder Strava übernehmen. Sag hier Bescheid, bei welchen Terminen du dabei bist oder warst.",
+	"events.upcoming": "Demnächst",
+	"events.upcoming.hint":
+		"„Bin dabei“ sagt der Orga nur Bescheid. Rynke gibt es erst, wenn der Termin vorbei ist und die Orga dich eingetragen hat. Bis dahin kannst du jederzeit wieder absagen.",
+	"events.upcoming.none": "Noch sind keine Teamtermine geplant.",
+	"events.past": "Vorbei",
+	"events.past.none": "In dieser Saison war noch kein Teamtermin.",
+	"events.past.all": "Alle zeigen",
+	"events.amount.team": "+{n} Team",
+	"events.amount.training": "+{n} Training",
+	"events.join": "Bin dabei",
+	"events.leave": "Doch nicht dabei",
+	"events.joined.label": "Bin dabei. Antippen, um abzusagen.",
+	"events.report": "Ich war dabei",
+	"events.reported.label": "Ich war dabei, gemeldet",
+	"events.attended": "Du warst dabei",
+	"events.done.reported": "Erledigt, die Orga sieht es.",
+	"events.done.withdrawn": "Abgesagt.",
+	"events.error.event_over": "Der Termin ist vorbei, absagen geht nicht mehr.",
+	"events.error.already_attending":
+		"Du bist bei diesem Termin schon eingetragen.",
+	"events.error.event_missing": "Diesen Termin gibt es nicht mehr.",
+	"organiser.switch.events.open": "Termine, {n} offene Meldungen",
+	"organiser.requests.heading": "{n} offene Meldungen ⏳",
+	"organiser.requests.heading.one": "1 offene Meldung ⏳",
+	"organiser.requests.intro":
+		"Rider sagen, sie waren dabei – bei {n} Terminen.",
+	"organiser.requests.intro.one":
+		"Rider sagen, sie waren dabei – bei einem Termin.",
+	"organiser.requests.open": "Termin öffnen",
+	"organiser.requests.confirm": "Eintragen",
+	"organiser.requests.confirm.label": "{name} bei {event} eintragen",
+	"organiser.requests.deny.label": "Meldung von {name} bei {event} ablehnen",
+	"organiser.requests.confirmAll": "Alle {n} eintragen",
+	"organiser.requests.wants": "⏳ Will eingetragen werden: {event}",
+	"organiser.done.confirmed": "{names} eingetragen.",
+	"organiser.done.denied": "Meldung von {names} abgelehnt.",
+	"organiser.done.undone": "Rückgängig gemacht.",
+	"organiser.done.attendance.reports":
+		"Gespeichert: {yes} eingetragen, {no} abgelehnt, {open} offen.",
+	"organiser.undo": "Rückgängig",
+	"organiser.error.request_settled":
+		"Diese Meldung hat schon jemand anders erledigt.",
+	"organiser.error.undo_expired":
+		"Das lässt sich nicht mehr rückgängig machen.",
+	"organiser.events.attendees.you": "{count}\u00a0Personen, inklusive dir",
+	"organiser.events.intents": "{count} zugesagt",
+	"organiser.events.open": "⏳ {count} offen",
+	"organiser.events.self": "Ich war auch dabei",
+	"organiser.events.upcoming": "Demnächst",
+	"organiser.events.past": "Vorbei",
+	"organiser.attendance.headingFuture": "Wer kommt?",
+	"organiser.attendance.count": "{count} dabei",
+	"organiser.attendance.countFuture": "{count} zugesagt",
+	"organiser.attendance.legend": "Was die Kästchen zeigen",
+	"organiser.attendance.legend.empty": "Leer – nicht dabei",
+	"organiser.attendance.legend.grey": "Grau – Meldung, noch offen",
+	"organiser.attendance.legend.greyFuture": "Grau – zugesagt",
+	"organiser.attendance.legend.checked": "Haken – dabei, gibt Rynke",
+	"organiser.attendance.greyHint":
+		"Graues Kästchen antippen trägt ein, noch einmal antippen leert es: das lehnt die Meldung ab. Gilt erst mit „Teilnahme speichern“.",
+	"organiser.attendance.confirmAll": "Alle {n} Meldungen eintragen",
+	"organiser.attendance.tag.open": "Meldung offen",
+	"organiser.attendance.tag.yes": "wird eingetragen",
+	"organiser.attendance.tag.no": "wird abgelehnt",
+	"organiser.attendance.tag.intent": "zugesagt",
+	"organiser.attendance.decide.open": "Offen lassen",
+	"organiser.attendance.decide.yes": "Dabei",
+	"organiser.attendance.decide.no": "Nicht dabei",
+	"organiser.attendance.summary":
+		"Meldungen: {yes} werden eingetragen, {no} abgelehnt, {open} offen",
+	"organiser.overview.group.requests": "Rider mit offener Meldung ⏳",
+	"organiser.overview.column.requests": "Meldung",
 } satisfies Record<string, string>;

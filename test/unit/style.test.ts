@@ -104,11 +104,7 @@ describe("STYLE", () => {
 		});
 	});
 
-	it("fits the peloton and the team chart to the page's width (016 FR-040)", () => {
-		expect(declsOf(".peloton-road")).toMatchObject({
-			width: "100%",
-			height: "auto",
-		});
+	it("fits the team chart to the page's width (016 FR-040)", () => {
 		expect(declsOf(".week-bars").width).toBe("100%");
 	});
 
