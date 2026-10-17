@@ -10,7 +10,7 @@ import { html, htmlResponse, layout, type SafeHtml } from "./html";
 // no rider data. Linked from every page's footer.
 
 /** The day the notice last changed in substance; shown on the page. */
-export const PRIVACY_UPDATED = "2026-10-12";
+export const PRIVACY_UPDATED = "2026-10-17";
 
 const STRAVA_PRIVACY_URL = "https://www.strava.com/legal/privacy";
 

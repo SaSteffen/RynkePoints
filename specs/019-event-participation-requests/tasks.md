@@ -8,6 +8,10 @@ description: "Task list for riders reporting team-event participation"
 **Prerequisites**: [plan.md](plan.md), [spec.md](spec.md), [research.md](research.md),
 [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md)
 
+**Status**: T001–T039 and T041–T043 done; T001 and T043 ran in CI, since this
+session couldn't reach the package registry. T040 is left for later (research
+R8); T044 is the owner's walk-through.
+
 **Tests**: REQUIRED (constitution Principle V). Write each test task first, run it
 and confirm it fails, then implement. Riders and events are synthetic; nothing
 contacts Strava.
@@ -26,7 +30,7 @@ and the report state), US7 needs nothing.
 
 ## Phase 1: Setup
 
-- [ ] T001 Run `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck` and
+- [x] T001 Run `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck` and
   `pnpm test` on the branch before any change (or, where the package registry
   can't be reached, confirm the branch's CI checks are green). Later failures are
   then this feature's.
@@ -40,14 +44,14 @@ that recording attendance clears a report.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T002 [P] `test/unit/participation.test.ts` for `src/rynke/participation.ts`
+- [x] T002 [P] `test/unit/participation.test.ts` for `src/rynke/participation.ts`
   (data-model.md "Derived state"): `hasTakenPlace(date, today)` is true on and
   after the date; `reportState({ date, today, attended, reported })` returns
   `join` (upcoming, no report), `intent` (upcoming, report), `report` (taken
   place, no report, no attendance), `request` (taken place, report, no
   attendance) and `attended` (attendance, with or without report); an event
   moved from past to future turns `request` into `intent`.
-- [ ] T003 [P] `test/integration/participation-store.test.ts`: migration `0017`
+- [x] T003 [P] `test/integration/participation-store.test.ts`: migration `0017`
   creates `participation_reports` with primary key `(event_id, athlete_id)`;
   `insertReportStatement` twice keeps one row ("insert or ignore");
   deleting the event or the rider deletes its reports (`ON DELETE CASCADE`);
@@ -58,34 +62,34 @@ that recording attendance clears a report.
   `countIntentsStatement` counts reports at events after today per event;
   `listRiderEventsStatement` returns the counting window's events with the
   viewer's `attended` and `reported` flags.
-- [ ] T004 [P] Extend `test/integration/team-events-apply.test.ts`:
+- [x] T004 [P] Extend `test/integration/team-events-apply.test.ts`:
   `add-attendance` deletes the reports of every rider in the change at that event
   in the same batch, also of a rider already attending; `remove-attendance`
   recreates none; deleting the event deletes its reports.
-- [ ] T005 [P] Extend the visibility unit test (`test/unit/visibility.test.ts`):
+- [x] T005 [P] Extend the visibility unit test (`test/unit/visibility.test.ts`):
   `participationReports` is seen by `self` and `organiser` only.
 
 ### Implementation
 
-- [ ] T006 `migrations/0017_participation_reports.sql` exactly as data-model.md:
+- [x] T006 `migrations/0017_participation_reports.sql` exactly as data-model.md:
   `event_id INTEGER NOT NULL REFERENCES team_events (event_id) ON DELETE CASCADE`,
   `athlete_id INTEGER NOT NULL REFERENCES riders (athlete_id) ON DELETE CASCADE`,
   `reported_at INTEGER NOT NULL`, `PRIMARY KEY (event_id, athlete_id)`, index
   `participation_reports_by_rider`; header comment says it only adds a table.
   Add the table to `test/integration/schema-minimisation.test.ts` if it lists
   tables.
-- [ ] T007 [P] `src/rynke/participation.ts`: `ReportState`, `reportState`, and
+- [x] T007 [P] `src/rynke/participation.ts`: `ReportState`, `reportState`, and
   `hasTakenPlace` in `src/rynke/team-events.ts`; `isFutureEvent` in
   `src/http/organiser/attendance.ts` becomes `!hasTakenPlace` (research R2).
-- [ ] T008 `src/db/participation.ts`: the shared open-request SQL fragment
+- [x] T008 `src/db/participation.ts`: the shared open-request SQL fragment
   (research R7) and the statements of data-model.md "Reads" and "Writes"
   (`insertReportStatement` with `INSERT OR IGNORE` and an explicit
   `reported_at`, `deleteReportStatement`, `deleteReportsStatement`), each
   filtered by 014's `LISTED_RIDER_IDS` and the counting window.
-- [ ] T009 `src/rynke/apply.ts`: `add-attendance` pushes
+- [x] T009 `src/rynke/apply.ts`: `add-attendance` pushes
   `deleteReportsStatement(db, eventId, change.athleteIds)` into its writes,
   whether or not anyone was newly added (research R3).
-- [ ] T010 [P] `src/visibility.ts`: `participationReports: ORGANISER_ONLY`,
+- [x] T010 [P] `src/visibility.ts`: `participationReports: ORGANISER_ONLY`,
   `SINCE_VERSION` `SHARING_SINCE_VERSION` (research R11).
 
 **Checkpoint**: T002–T005 pass.
@@ -100,7 +104,7 @@ window's events with their amounts and the Spond/Strava note.
 **Independent Test**: as a synthetic rider, open `/events`; as an organiser, see
 Orga and no Termine ([quickstart.md](quickstart.md) §2.1–2).
 
-- [ ] T011 [P] [US1] `test/integration/rider-events.test.ts` (GET part): a rider
+- [x] T011 [P] [US1] `test/integration/rider-events.test.ts` (GET part): a rider
   sees the note (`events.note.title`, `events.note.body`), "Demnächst" with the
   "Bin dabei" hint only when upcoming events exist, else
   `events.upcoming.none`; upcoming events soonest first and past newest first,
@@ -108,20 +112,20 @@ Orga and no Termine ([quickstart.md](quickstart.md) §2.1–2).
   events and "Alle zeigen", all with `?past=all`; events outside the counting
   window absent; no Rynke sums; an organiser gets `302 /organiser`; a visitor
   `302 /`; the page shows nothing of other riders (FR-010).
-- [ ] T012 [P] [US1] Extend `test/integration/sections.test.ts`: a rider's
+- [x] T012 [P] [US1] Extend `test/integration/sections.test.ts`: a rider's
   navigation has Team, Du, Fahrten, Abzeichen, Termine, Einstellungen; an
   organiser's has Orga in Termine's place.
-- [ ] T013 [US1] `src/http/shell.ts`: section `events` (`/events`, `nav.events`,
+- [x] T013 [US1] `src/http/shell.ts`: section `events` (`/events`, `nav.events`,
   `CALENDAR`, `riderOnly: true`) after Badges; links filter `riderOnly` for
   organisers like `organiserOnly` for riders (research R8).
-- [ ] T014 [US1] `src/http/sections/events.ts`: `handleEvents` rendering
+- [x] T014 [US1] `src/http/sections/events.ts`: `handleEvents` rendering
   contracts/pages.md "`/events`" from `listRiderEventsStatement` and
   `reportState`, cards with `id="event-{id}"`; route `GET /events` in
   `src/http/router.ts`.
-- [ ] T015 [P] [US1] Catalog keys of contracts/messages.md "Navigation and
+- [x] T015 [P] [US1] Catalog keys of contracts/messages.md "Navigation and
   tour" (`nav.events`) and "Termine tab" in `src/i18n/messages/de.ts` and
   `en.ts`.
-- [ ] T016 [P] [US1] `src/http/style.ts`: event cards (date block, chips with
+- [x] T016 [P] [US1] `src/http/style.ts`: event cards (date block, chips with
   mini coins, note), at 360 px without sideways scrolling, light and dark.
 
 **Checkpoint**: T011–T012 pass.
@@ -134,7 +138,7 @@ Orga and no Termine ([quickstart.md](quickstart.md) §2.1–2).
 
 **Independent Test**: [quickstart.md](quickstart.md) §2.2.
 
-- [ ] T017 [P] [US2] `test/integration/rider-events.test.ts` (POST part, rows of
+- [x] T017 [P] [US2] `test/integration/rider-events.test.ts` (POST part, rows of
   contracts/http-routes.md): `POST /events/{id}/report` stores a report and
   redirects to `/events?done=reported#event-{id}`; twice keeps one; an
   organiser gets `403`; an unknown or out-of-window event `?error=event_missing`;
@@ -144,12 +148,12 @@ Orga and no Termine ([quickstart.md](quickstart.md) §2.1–2).
   post is refused; the page then shows the green button with both labels
   (`events.joined`, `events.leave`) and `aria-pressed="true"`; balances, badges
   and the leaderboard are unchanged (FR-008, SC-003).
-- [ ] T018 [US2] `src/http/sections/events.ts`: `handleReport` and
+- [x] T018 [US2] `src/http/sections/events.ts`: `handleReport` and
   `handleWithdraw` with the checks of research R13 (same origin, signed in,
   current consent, listed, not an organiser, in the counting window, no
   attendance; withdraw only before the event); routes in `src/http/router.ts`;
   notices `events.done.*` and `events.error.*`.
-- [ ] T019 [P] [US2] `src/http/style.ts`: the yellow, green and red button
+- [x] T019 [P] [US2] `src/http/style.ts`: the yellow, green and red button
   states; `.leave` shown and the button red on `:hover` and `:focus-visible`
   only (research R6); 44 px tall.
 
@@ -164,13 +168,13 @@ decides.
 
 **Independent Test**: [quickstart.md](quickstart.md) §2.3 and §2.8.
 
-- [ ] T020 [P] [US3] `test/integration/rider-events.test.ts`: a past event
+- [x] T020 [P] [US3] `test/integration/rider-events.test.ts`: a past event
   without report shows "Ich war dabei" as a form; after the post it shows the
   green locked label (`aria-disabled="true"`, no form); an intent from before
   the event shows the same after the date; after a confirmation "Du warst
   dabei" and no button; after a denial the default button again; the page never
   says pending, confirmed or denied (FR-009).
-- [ ] T021 [US3] `src/http/sections/events.ts`: the past cards' three states
+- [x] T021 [US3] `src/http/sections/events.ts`: the past cards' three states
   (contracts/pages.md "`/events`" item 5).
 
 **Checkpoint**: T020 passes; US1–US3 are the rider's whole side.
@@ -184,10 +188,10 @@ decisions and undo, chips on the event list, and the overview's tile and lines.
 
 **Independent Test**: [quickstart.md](quickstart.md) §2.4 and §2.7.
 
-- [ ] T022 [P] [US4] `test/unit/request-undo.test.ts`: the undo token of
+- [x] T022 [P] [US4] `test/unit/request-undo.test.ts`: the undo token of
   data-model.md round-trips decision, event, riders and `reported_at`; fails
   after 10 minutes, with another context, or tampered.
-- [ ] T023 [P] [US4] `test/integration/organiser-requests.test.ts`:
+- [x] T023 [P] [US4] `test/integration/organiser-requests.test.ts`:
   - counts: an organiser's navigation shows the open-request count on Orga
     (`9+` above 9) and its accessible name; nothing at 0; intents don't count; a
     rider's navigation shows none;
@@ -204,26 +208,26 @@ decisions and undo, chips on the event list, and the overview's tile and lines.
     `?error=undo_expired`;
   - `back` other than `/organiser` or `/organiser/riders?group=…` falls back to
     `/organiser`.
-- [ ] T024 [P] [US4] Extend `test/integration/organiser-overview.test.ts`: the
+- [x] T024 [P] [US4] Extend `test/integration/organiser-overview.test.ts`: the
   tile "Rider mit offener Meldung" counts riders and links to `?group=requests`;
   that group shows only them; with all riders shown they come first; a rider
   with three open requests shows three lines, each with its own forms.
-- [ ] T025 [US4] `src/http/organiser/requests.ts`: undo token
+- [x] T025 [US4] `src/http/organiser/requests.ts`: undo token
   (`signValue`/`verifySignedValue`, context `request-undo`, 10 minutes, key as
   the session's), `handleDecideRequests`, `handleUndoRequests`, the
   open-request block for `/organiser`, the per-rider lines for the overview;
   routes in `src/http/router.ts`; new codes in `src/http/organiser/access.ts`,
   whose notice renders names and the undo form for `confirmed`/`denied`.
-- [ ] T026 [US4] `src/http/shell.ts`: for organisers add
+- [x] T026 [US4] `src/http/shell.ts`: for organisers add
   `openRequestCountStatement` to the shell's read and render the count on Orga;
   `organiserSwitch` in `src/http/organiser/access.ts` takes the count for Termine.
-- [ ] T027 [US4] `src/http/organiser/events.ts`: the open-request block above
+- [x] T027 [US4] `src/http/organiser/events.ts`: the open-request block above
   the list; `n offen` and `n zugesagt` chips.
-- [ ] T028 [US4] `src/http/organiser/overview.ts`: group `requests` in
+- [x] T028 [US4] `src/http/organiser/overview.ts`: group `requests` in
   `GROUPS`/`parseGroup`, its tile first with the alert style while above 0,
   requested riders first, a "Meldung" column in the table and a block in each
   card.
-- [ ] T029 [P] [US4] Catalog keys of contracts/messages.md "Orga › Termine" and
+- [x] T029 [P] [US4] Catalog keys of contracts/messages.md "Orga › Termine" and
   "Overview"; styles for the block, chips, tile and count badge in
   `src/http/style.ts`.
 
@@ -238,7 +242,7 @@ confirms, denies or leaves them open.
 
 **Independent Test**: [quickstart.md](quickstart.md) §2.6.
 
-- [ ] T030 [P] [US5] Extend `test/integration/organiser-attendance.test.ts`: a
+- [x] T030 [P] [US5] Extend `test/integration/organiser-attendance.test.ts`: a
   past event lists requested riders first, each with `shown={id}:r` and the
   three `decide-{id}` radios (`open` checked), the legend and the hint; posting
   `yes`, `no`, `open` for three riders records one attendance, deletes one
@@ -246,17 +250,17 @@ confirms, denies or leaves them open.
   report is gone changes nothing; ticks and unticks of others still work as in
   014; an upcoming event shows reports as disabled grey boxes tagged
   "zugesagt" and no form.
-- [ ] T031 [US5] `src/http/organiser/attendance.ts`: read the event's reports,
+- [x] T031 [US5] `src/http/organiser/attendance.ts`: read the event's reports,
   render rows as contracts/pages.md, extend `attendanceDiff` with
   `shown={id}:r` and `decide-{id}`, apply `yes` through `add-attendance` and
   `no` through `deleteReportsStatement`; `organiser.done.attendance` with the
   counts.
-- [ ] T032 [US5] `public/app.js`: turn each `.tri-state` fieldset into one
+- [x] T032 [US5] `public/app.js`: turn each `.tri-state` fieldset into one
   `role="checkbox"` button with `aria-checked` `mixed`/`true`/`false`, cycling
   grey → ticked → empty → grey, setting the radio, showing the matching tag and
   updating the summary line; "Alle n Meldungen eintragen" sets every open one to
   `yes` (research R5). No text in the script.
-- [ ] T033 [P] [US5] Styles for the box's three states (dashed grey border and
+- [x] T033 [P] [US5] Styles for the box's three states (dashed grey border and
   light tick for grey), the legend and the tags in `src/http/style.ts`; catalog
   keys of contracts/messages.md "Event page".
 
@@ -270,13 +274,13 @@ confirms, denies or leaves them open.
 
 **Independent Test**: [quickstart.md](quickstart.md) §2.5.
 
-- [ ] T034 [P] [US6] Extend `test/integration/organiser-events.test.ts`: past
+- [x] T034 [P] [US6] Extend `test/integration/organiser-events.test.ts`: past
   events without the viewer's attendance show the form, those with it read "n
   Personen, inklusive dir", others "n Personen"; upcoming events have no form;
   `POST /organiser/events/{id}/self` records the organiser with themselves as
   `by` and redirects with `done=attendance`; for an upcoming event
   `?error=future_event`.
-- [ ] T035 [US6] `src/http/organiser/events.ts`: `handleSelfAttendance`, the
+- [x] T035 [US6] `src/http/organiser/events.ts`: `handleSelfAttendance`, the
   form and the count texts; route in `src/http/router.ts`; keys
   `organiser.events.attendees*`, `organiser.events.self`.
 
@@ -290,16 +294,16 @@ confirms, denies or leaves them open.
 
 **Independent Test**: [quickstart.md](quickstart.md) §2.1.
 
-- [ ] T036 [P] [US7] Update `test/integration/team-leaderboard.test.ts`: the
+- [x] T036 [P] [US7] Update `test/integration/team-leaderboard.test.ts`: the
   sections come in the order total, switch, quote, leaderboard, chart; no
   `my-place` and no peloton; the viewer's row and the neighbourhood stay.
-- [ ] T037 [US7] `src/http/sections/team.ts`: drop `renderPlace` and
+- [x] T037 [US7] `src/http/sections/team.ts`: drop `renderPlace` and
   `renderPeloton`, leaderboard before chart; remove the peloton from
   `src/http/charts.ts`, `src/rynke/breakaway.ts`, `test/unit/breakaway.test.ts`
   and the peloton cases of `test/unit/charts.test.ts`, their styles in
   `src/http/style.ts` (and `test/unit/style.test.ts`), and the keys
   `team.place*`, `team.peloton*`; `tour.rider.team` without the peloton.
-- [ ] T038 [P] [US7] Amend `specs/016-team-leaderboard/contracts/pages.md` with a
+- [x] T038 [P] [US7] Amend `specs/016-team-leaderboard/contracts/pages.md` with a
   note that 019 removed the place card and peloton.
 
 **Checkpoint**: T036 passes.
@@ -308,16 +312,18 @@ confirms, denies or leaves them open.
 
 ## Phase 10: Polish & Cross-Cutting
 
-- [ ] T039 [P] Consent and privacy texts name reports (FR-052, research R11):
+- [x] T039 [P] Consent and privacy texts name reports (FR-052, research R11):
   `landing.purpose`, the privacy page's sentence, in de and en; extend
   `test/integration/privacy.test.ts`.
 - [ ] T040 [P] `src/http/tour.ts`: a rider step for Termine (`tour.rider.events`),
   riders who aren't organisers only; extend `test/integration/tour.test.ts`.
-- [ ] T041 [P] `dev/` sample data: intents at upcoming events, open requests at
+  *Not done*: organisers take the same rider tour, so this needs per-rider
+  steps (research R8).
+- [x] T041 [P] `dev/` sample data: intents at upcoming events, open requests at
   three past events, one rider with three and one with two (research R14).
-- [ ] T042 [P] `e2e/smoke.e2e.ts`: a rider taps "Bin dabei", hovers it for
+- [x] T042 [P] `e2e/smoke.e2e.ts`: a rider taps "Bin dabei", hovers it for
   "Doch nicht dabei", withdraws; an organiser cycles a grey box and saves.
-- [ ] T043 Run `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`;
+- [x] T043 Run `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`;
   `test/unit/catalogs.test.ts` and `test/integration/no-hardcoded-copy.test.ts`
   pass with the new and removed keys and pages.
 - [ ] T044 Walk through [quickstart.md](quickstart.md) §2 with `pnpm dev`, at
