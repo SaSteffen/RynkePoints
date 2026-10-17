@@ -402,6 +402,11 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 /** A team event several sample riders attended, entered by an organiser. */
 export interface TeamEventRecipe extends EventRecipe {
 	attendees: readonly number[];
+	/**
+	 * Riders who reported the event themselves (feature 019): "Bin dabei" for
+	 * one still to come (a negative `daysAgo`), "Ich war dabei" for a past one.
+	 */
+	reports?: readonly number[];
 }
 
 /** Records the team events below (feature 014 FR-040). */
@@ -414,12 +419,14 @@ export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
 		kind: "team_training",
 		name: "Sample team ride",
 		attendees: [990003, 990005, 990008, 990011],
+		reports: [990012, 990015],
 	},
 	{
 		daysAgo: 12,
 		kind: "training_weekend_day",
 		name: "Sample training weekend",
 		attendees: [990005, 990011],
+		reports: [990012],
 	},
 	// Six listed riders at one event: the team's first big training (feature
 	// 013 US4).
@@ -428,6 +435,29 @@ export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
 		kind: "team_training",
 		name: "Sample big training",
 		attendees: [990003, 990005, 990008, 990011, 990012, 990015],
+	},
+	// Feature 019: open requests at three events, one rider with three and one
+	// with two, and intents for events still to come. Nobody attended them yet.
+	{
+		daysAgo: 20,
+		kind: "team_training",
+		name: "Sample early ride",
+		attendees: [],
+		reports: [990012, 990015],
+	},
+	{
+		daysAgo: -4,
+		kind: "team_training",
+		name: "Sample ride ahead",
+		attendees: [],
+		reports: [990003, 990005, 990008],
+	},
+	{
+		daysAgo: -18,
+		kind: "technique_training",
+		name: "Sample technique session",
+		attendees: [],
+		reports: [990012],
 	},
 ];
 

@@ -12,7 +12,6 @@ Wording may be polished in implementation; the meaning may not change.
 | `nav.events` | Events | Termine |
 | `nav.organiser.open` | Orga, {n} open reports | Orga, {n} offene Meldungen |
 | `tour.rider.team` *(changed)* | Team: how the whole team is doing and where you are in the ranking. | Team: wie das ganze Team dasteht und wo du in der Rangliste stehst. |
-| `tour.rider.events` | Events: tell the organisers which team events you're coming to or were at. | Termine: sag der Orga, bei welchen Teamterminen du dabei bist oder warst. |
 
 ## Termine tab (`events.*`)
 

@@ -38,9 +38,9 @@ this one reads and extends.
 ## R2. "Has taken place" is the event's date in Berlin (spec terms)
 
 **Decision**: an event has taken place when `event_date <= berlinDate(now)`, the
-negation of 014's `isFutureEvent`. One helper, `hasTakenPlace`, next to it in
-`src/http/organiser/attendance.ts` (moved to `src/rynke/team-events.ts` so both
-the rider tab and the organiser pages import it from a pure module).
+negation of 014's `isFutureEvent`, which now calls it. One pure helper,
+`hasTakenPlace` in `src/rynke/participation.ts`, used by the rider tab and the
+organiser pages alike.
 
 **Rationale**: one boundary for recording attendance and for reports, so the day
 an event becomes recordable is the day its intents become requests.
@@ -183,8 +183,9 @@ decision and attendance change. Rejected.
 - `GET /events` lists the counting window's events: upcoming ascending, then
   past descending, the five newest past ones with "Alle zeigen" as
   `?past=all`. An organiser asking for `/events` is sent to `/organiser` (302).
-- The rider tour (`src/http/tour.ts`) gets a step for Termine; organisers' tour
-  is unchanged.
+- The rider tour (`src/http/tour.ts`) gets no step for Termine: organisers take
+  the same rider tour, and a step only some riders see would need per-rider
+  steps. Left for later.
 
 **Rationale**: the spec puts the tab where Orga is; mirroring `organiserOnly`
 with `riderOnly` keeps the navigation one list.

@@ -329,6 +329,61 @@ test("a mouse opens a badge's large view beside it on hover, without a close but
 	await expect(large).toBeHidden();
 });
 
+// Feature 019: one rider per browser, since the browsers share the app's data.
+const EVENT_RIDER = {
+	chromium: "Nora NoRides",
+	firefox: "Bea Badges",
+	webkit: "Rudi Runner",
+} as const;
+
+test("a rider says Bin dabei and changes their mind (019 US2)", async ({
+	page,
+	browserName,
+}) => {
+	await signIn(page, EVENT_RIDER[browserName]);
+	await checkPage(page, "/events");
+	await skipTours(page);
+	const card = page.locator("li.event-card").filter({
+		hasText: "Sample ride ahead",
+	});
+	await card.getByRole("button", { name: "Bin dabei" }).click();
+	await expect(page).toHaveURL(/done=reported/);
+	const joined = card.locator("button.event-joined");
+	await expect(joined).toHaveAttribute("aria-pressed", "true");
+	await joined.hover();
+	await expect(joined.locator(".event-leave")).toBeVisible();
+	await expect(joined.locator(".event-stay")).toBeHidden();
+	await joined.click();
+	await expect(page).toHaveURL(/done=withdrawn/);
+	await expect(card.locator("button.event-join")).toBeVisible();
+});
+
+test("an organiser cycles a reported rider's box (019 US5)", async ({
+	page,
+}) => {
+	await signIn(page, "Olga Organiser");
+	await page.goto("/organiser");
+	await skipTours(page);
+	await page
+		.locator("li.organiser-event")
+		.filter({ hasText: "Sample early ride" })
+		.getByRole("link")
+		.click();
+	const box = page
+		.getByRole("checkbox")
+		.and(page.locator(".tri-toggle"))
+		.first();
+	await expect(box).toHaveAttribute("aria-checked", "mixed");
+	await expect(page.locator(".tri-summary")).toBeVisible();
+	await box.click();
+	await expect(box).toHaveAttribute("aria-checked", "true");
+	await box.click();
+	await expect(box).toHaveAttribute("aria-checked", "false");
+	await box.click();
+	await expect(box).toHaveAttribute("aria-checked", "mixed");
+	await expectNoSidewaysScroll(page);
+});
+
 test("an organiser sees the Orga pages", async ({ page }) => {
 	await signIn(page, "Olga Organiser");
 	for (const path of ["/organiser/riders", "/organiser"]) {

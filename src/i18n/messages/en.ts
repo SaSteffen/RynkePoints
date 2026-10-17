@@ -704,8 +704,6 @@ export const en: Catalog = {
 	// Feature 019: team-event reports (contracts/messages.md).
 	"nav.events": "Events",
 	"nav.organiser.open": "Orga, {n} open reports",
-	"tour.rider.events":
-		"Events: tell the organisers which team events you're coming to or were at.",
 	"events.heading": "Team events 📅",
 	"events.until": "until {date}",
 	"events.note.title": "Report it here yourself",

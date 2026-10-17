@@ -13,7 +13,7 @@ previously deployed version keeps working:
 CREATE TABLE participation_reports (
 	event_id INTEGER NOT NULL REFERENCES team_events (event_id) ON DELETE CASCADE,
 	athlete_id INTEGER NOT NULL REFERENCES riders (athlete_id) ON DELETE CASCADE,
-	-- Unix ms; orders requests and survives an undo (research R4).
+	-- Unix seconds; orders requests and survives an undo (research R4).
 	reported_at INTEGER NOT NULL,
 	PRIMARY KEY (event_id, athlete_id)
 );

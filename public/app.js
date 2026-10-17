@@ -920,12 +920,12 @@ function triState() {
 	if (sets.length === 0) return;
 	const order = ["open", "yes", "no"];
 	const checked = { open: "mixed", yes: "true", no: "false" };
-	const valueOf = (set) => set.querySelector("input:checked")?.value ?? "open";
+	const stateOf = (set) => set.querySelector("input:checked")?.value ?? "open";
 	const summary = form.querySelector(".tri-summary");
 	const update = () => {
 		if (!summary) return;
 		const counts = { open: 0, yes: 0, no: 0 };
-		for (const set of sets) counts[valueOf(set)] += 1;
+		for (const set of sets) counts[stateOf(set)] += 1;
 		summary.textContent = summary.dataset.text
 			.replace("{yes}", counts.yes)
 			.replace("{no}", counts.no)
@@ -933,7 +933,7 @@ function triState() {
 		summary.hidden = false;
 	};
 	const show = (set) => {
-		const value = valueOf(set);
+		const value = stateOf(set);
 		for (const tag of set.parentElement.querySelectorAll(".tri-tag")) {
 			tag.hidden = !tag.classList.contains(`tri-tag-${value}`);
 		}
@@ -960,7 +960,7 @@ function triState() {
 			...set.querySelector("legend").cloneNode(true).childNodes,
 		);
 		toggle.addEventListener("click", () => {
-			const next = order[(order.indexOf(valueOf(set)) + 1) % order.length];
+			const next = order[(order.indexOf(stateOf(set)) + 1) % order.length];
 			choose(set, next);
 		});
 		set.classList.add("tri-enhanced");
@@ -972,7 +972,7 @@ function triState() {
 		all.hidden = false;
 		all.addEventListener("click", () => {
 			for (const set of sets) {
-				if (valueOf(set) === "open") choose(set, "yes");
+				if (stateOf(set) === "open") choose(set, "yes");
 			}
 		});
 	}

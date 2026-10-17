@@ -590,7 +590,6 @@ const CONTRACT_IDS = [
 	// Feature 019
 	"nav.events",
 	"nav.organiser.open",
-	"tour.rider.events",
 	"events.heading",
 	"events.until",
 	"events.note.title",

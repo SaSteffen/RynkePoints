@@ -122,14 +122,12 @@ src/
 │   ├── participation.ts                # new: report reads and writes, open-request condition (R7)
 │   └── team-events.ts                  # + deleteReportsStatement used by add-attendance
 ├── rynke/
-│   ├── participation.ts                # new: report state per rider and event (pure)
-│   ├── team-events.ts                  # + hasTakenPlace (R2)
+│   ├── participation.ts                # new: hasTakenPlace, report state (pure, R2)
 │   ├── apply.ts                        # add-attendance also deletes reports (R3)
 │   └── breakaway.ts                    # removed (R12)
 ├── visibility.ts                       # + participationReports (R11)
 ├── http/
 │   ├── shell.ts                        # + Termine section (riderOnly), Orga count (R7, R8)
-│   ├── tour.ts                         # + rider step for Termine
 │   ├── sections/events.ts              # new: the Termine tab and its two POSTs
 │   ├── sections/team.ts                # − place card, − peloton, Rangliste before chart
 │   ├── charts.ts                       # − peloton

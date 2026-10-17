@@ -741,8 +741,6 @@ export const de = {
 	// Feature 019: team-event reports (contracts/messages.md).
 	"nav.events": "Termine",
 	"nav.organiser.open": "Orga, {n} offene Meldungen",
-	"tour.rider.events":
-		"Termine: sag der Orga, bei welchen Teamterminen du dabei bist oder warst.",
 	"events.heading": "Teamtermine 📅",
 	"events.until": "bis {date}",
 	"events.note.title": "Melde dich hier selbst an",
