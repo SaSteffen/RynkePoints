@@ -35,12 +35,13 @@ yellow frame.
 
 ## Where the app shows it
 
-The traced coin is the picture wherever the coin is shown large: the landing
-page and the rider's hero (front), the empty ride list (front), the team
-totals (front or back), the organiser overview's deadline card (back) and the
-waiting state before a rider's first data (both sides, turning over). Small
-coins don't read with that much detail, so the simplified sprite in
-`src/http/coin.ts` stays for the wordmark, the mini coins and the chart marks.
+The traced coin is the picture where the coin is shown large: the empty ride
+list (front), the team totals (front or back), the organiser overview's
+deadline card (back) and the waiting state before a rider's first data (both
+sides, turning over). The simplified sprite in `src/http/coin.ts` stays for
+the hero on the landing page and the rider's overview, whose friendlier face
+the team prefers there, and for the small marks (wordmark, mini coins, chart
+marks), where the artwork's detail doesn't read.
 
 The mock-up is the "Coin artwork" artboard of the Claude Design canvas
 "RynkePoints Coin Explorations"

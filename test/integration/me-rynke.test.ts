@@ -943,7 +943,7 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 		expect(card?.cells).toEqual([
 			"04.10.2026",
 			"40,0 km",
-			"🦧 wird ausgewertet",
+			"Wird ausgewertet",
 			"–",
 			"–",
 		]);

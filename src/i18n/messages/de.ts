@@ -53,10 +53,10 @@ export const de = {
 		"Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter zählen ohne Namen zu den Team-Summen der Team-Abzeichen. An welchen Tagen und zu welcher Stunde du fährst, läufst oder schwimmst, zählt ohne Namen für die Team-Überraschungen.",
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
 	"consent.agree":
-		"Ich bin einverstanden, dass RynkePoints meine Fahrten liest und meine Rynke wie beschrieben teilt.",
+		"Einverstanden: RynkePoints liest deine Fahrten und teilt deine Rynke wie beschrieben.",
 
 	"me.title": "Deine RynkePoints",
-	"me.greeting": "Hallo {firstName}! 🦧",
+	"me.greeting": "Hallo {firstName}!",
 	"me.status.connected": "Mit Strava verbunden",
 	"me.status.needsReconnect": "Die Verbindung zu Strava muss erneuert werden.",
 	"me.reconnect": "Erneut verbinden",
@@ -82,7 +82,7 @@ export const de = {
 	"me.recent.heading": "Deine Fahrten",
 	"me.recent.none": "Noch keine Fahrten in dieser Saison.",
 	"me.recent.col.distance": "Distanz",
-	"me.disconnect.button": "Verbindung trennen und meine Daten löschen",
+	"me.disconnect.button": "Verbindung trennen und deine Daten löschen",
 
 	"units.km": "{value}\u00a0km",
 	"units.m": "{value}\u00a0m",
@@ -130,7 +130,7 @@ export const de = {
 	"rynke.rules.handout": "Die Regeln als PDF",
 	"rynke.ride.counts": "zählt 🪙",
 	"rynke.ride.doesNotCount": "zählt nicht",
-	"rynke.ride.beingEvaluated": "🦧 wird ausgewertet",
+	"rynke.ride.beingEvaluated": "Wird ausgewertet",
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint":
 		"Du kannst die Fahrt auf Strava korrigieren oder dich an die Orga wenden.",
@@ -311,7 +311,7 @@ export const de = {
 	"celebrate.team": "+{n}\u00a0Teamrynke seit deinem letzten Besuch 🎉",
 	"celebrate.both":
 		"+{training}\u00a0Trainingsrynke und +{team}\u00a0Teamrynke seit deinem letzten Besuch 🎉",
-	"landing.tagline": "Sammle deine Rynke 🦧",
+	"landing.tagline": "Sammle deine Rynke",
 	"settings.language": "Sprache",
 	"settings.appearance": "Darstellung",
 	"settings.scheme.system": "System",
@@ -401,7 +401,7 @@ export const de = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
-	"team.total.label": "Team Rynkeby Hamburg 🦧",
+	"team.total.label": "Team Rynkeby Hamburg",
 	"team.total.training": "{n} Trainingsrynke",
 	"team.total.team": "{n} Teamrynke",
 	"team.total.kind": "gemeinsam gesammelt",
@@ -434,7 +434,7 @@ export const de = {
 	"team.list.everyone": "Alle",
 	"team.list.ahead": "· · · {n} weitere vor dir · · ·",
 	"team.list.behind": "· · · {n} weitere hinter dir · · ·",
-	"team.list.you": "Du 🦧",
+	"team.list.you": "Du",
 	"team.list.weeks": "Woche für Woche: {values}",
 	"team.chart.heading": "Das Team, Woche für Woche",
 	"team.chart.hint":
@@ -502,8 +502,8 @@ export const de = {
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
 	// names aren't here: they are German in every language (badges.de.ts).
 	"badges.heading": "Abzeichen",
-	"badges.personal.newest": "Meine Abzeichen",
-	"badges.personal.all": "Alle meine Abzeichen ({n})",
+	"badges.personal.newest": "Deine Abzeichen",
+	"badges.personal.all": "Alle deine Abzeichen ({n})",
 	"badges.team.newest": "Team-Abzeichen",
 	"badges.team.all": "Alle Team-Abzeichen ({n})",
 	"badges.empty": "Noch kein Abzeichen – deine erste Fahrt bringt dich näher.",

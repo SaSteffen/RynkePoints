@@ -3,7 +3,7 @@ import { currentVersion } from "../consent";
 import type { Ctx } from "../ctx";
 import { getRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
-import { coinArt } from "./coin";
+import { coin } from "./coin";
 import { consentForm, consentSummary } from "./consent-form";
 import { html, htmlResponse, layout } from "./html";
 import { home, redirect } from "./redirect";
@@ -33,7 +33,7 @@ export async function handleLanding(
 			title,
 			path: "/",
 			body: html`<div class="landing-hero">
-${coinArt("front", "hero")}
+${coin("front", "hero")}
 <h1>${i18n.t("app.name")}</h1>
 <p class="tagline">${i18n.t("landing.tagline")}</p>
 </div>
