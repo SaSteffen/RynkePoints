@@ -58,6 +58,24 @@ const ART_SIZE = 144;
 const art = (side: "front" | "back", extra = "") =>
 	`<img class="coin-art${extra}" src="/coin/rynke-coin-${side}.svg" alt="" width="${ART_SIZE}" height="${ART_SIZE}">`;
 
+/**
+ * How many portraits the Du page's hero coin has (`art/coin/hero/`,
+ * `public/coin/rynke-coin-hero-<n>.svg`, numbered from 1).
+ */
+export const HERO_PORTRAITS = 4;
+
+/**
+ * The hero coin on the Du page: the coin with one of Rynke's portraits, a new
+ * one picked at random on every load. `pick` is in [0, 1), like
+ * `Math.random()`.
+ */
+export function heroCoin(pick = Math.random()): SafeHtml {
+	const n = Math.min(HERO_PORTRAITS, Math.floor(pick * HERO_PORTRAITS) + 1);
+	return new SafeHtml(
+		`<img class="coin-art coin coin-hero" src="/coin/rynke-coin-hero-${n}.svg" alt="" width="${ART_SIZE}" height="${ART_SIZE}">`,
+	);
+}
+
 /** One side of the team's coin as its artwork; `style.ts` sizes it. */
 export function coinArt(side: "front" | "back", size: CoinSize): SafeHtml {
 	return new SafeHtml(art(side, ` coin coin-${size}`));

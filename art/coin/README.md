@@ -9,16 +9,17 @@ The team's own coin designs, and the SVGs the app traces from them.
 | `reference/rynke-coin-line-drawing.jpeg` | Line drawing of both sides with the coin's size (Ø 40 mm, 3 mm): design draft V1 |
 | `reference/rynke-coin-photo.jpeg` | A rendering of the struck coin, both sides: how it looks in enamel and gold |
 | `rynke-coin-line-front.svg`, `rynke-coin-line-back.svg` | The line drawing traced, ink only on transparent paper: for print and the coin maker |
-| `reference/rynke-hero-reference.png` | Four badge pictures of the character: the reference for the hero coin's portrait ([`hero/`](hero/README.md)) |
-| `hero/prompt.txt` | The prompt for the hero coin's portrait; its original goes to `originals/rynke-coin-hero.*` |
+| `originals/rynke-coin-hero-<n>.png` | Rynke's portraits for the Du page's hero coin ([`hero/`](hero/README.md)) |
+| `reference/rynke-hero-reference.png` | Four badge pictures of the character: the reference for those portraits |
+| `hero/prompt.txt` | The prompt the portraits were made with |
 
 `pnpm coin-art` (`scripts/coin-art.mjs`) traces them:
 
 - `originals/rynke-coin-front.jpeg` → `public/coin/rynke-coin-front.svg`
 - `originals/rynke-coin-back.jpeg` → `public/coin/rynke-coin-back.svg`
 - `reference/rynke-coin-line-drawing.jpeg` → the two line SVGs here
-- `originals/rynke-coin-hero.*`, once made → `public/coin/rynke-coin-hero.svg`
-  (the portrait in a coin frame drawn in code)
+- `originals/rynke-coin-hero-<n>.png` → `public/coin/rynke-coin-hero-<n>.svg`
+  (each portrait in a coin frame drawn in code)
 
 Commit the originals and the SVGs together; to change the coin, replace an
 original and run the script again. Like `pnpm illustrations` it needs
@@ -42,10 +43,10 @@ yellow frame.
 The traced coin is the picture where the coin is shown large: the empty ride
 list (front), the team totals (front or back), the organiser overview's
 deadline card (back) and the waiting state before a rider's first data (both
-sides, turning over). The simplified sprite in `src/http/coin.ts` stays for
-the hero on the landing page and the rider's overview, whose friendlier face
-the team prefers there, and for the small marks (wordmark, mini coins, chart
-marks), where the artwork's detail doesn't read.
+sides, turning over). The Du page's hero shows one of the hero portraits at
+random. The simplified sprite in `src/http/coin.ts` stays for the landing
+page's hero and the small marks (wordmark, mini coins, chart marks), where
+the artwork's detail doesn't read.
 
 The mock-up is the "Coin artwork" artboard of the Claude Design canvas
 "RynkePoints Coin Explorations"
