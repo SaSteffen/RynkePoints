@@ -41,8 +41,9 @@ No sums of Rynke, nothing about other riders (FR-003, FR-010).
 
 ## `/team` — Team (board "Rider · Team ohne Position und Peloton")
 
-Team total, Training/Team switch, quote, Rangliste (016 FR-012–FR-015), team
-chart. No place card, no peloton (FR-045, FR-046).
+With Team Rynke (`?kind=team`): team total, Training/Team switch, quote,
+Rangliste (016 FR-012–FR-015), team chart. No place card, no peloton (FR-045,
+FR-046). Training keeps feature 016's page unchanged.
 
 ## `/organiser` — Orga › Termine (board "Orga · Termine")
 

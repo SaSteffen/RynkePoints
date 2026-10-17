@@ -65,6 +65,10 @@ Thursday 25 March 2027.
   the peloton go; they are not useful. The team total, the quote, the Rangliste and
   the team chart stay, and the Rangliste moves to where the peloton was, above the
   team chart. This amends feature 016.
+- Q: Does that hold for both views of the Team page? → A: No, only for Team Rynke
+  (the "Team" side of the Training/Team switch). Training keeps feature 016's page:
+  place card, quote, peloton, team chart, Rangliste. (Corrected after release: the
+  first build dropped them from Training too.)
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -284,22 +288,27 @@ gone; check no button appears on upcoming events.
 
 ### User Story 7 - A leaner Team page (Priority: P2)
 
-The Team page shows the team total, the Training/Team switch, the quote, the
-Rangliste and the team chart, in that order. The place card ("Position 6 von 14",
-"Noch n Rynke bis zum nächsten Platz") and the peloton are gone.
+With Team Rynke chosen, the Team page shows the team total, the Training/Team
+switch, the quote, the Rangliste and the team chart, in that order. The place card
+("Position 6 von 14", "Noch n Rynke bis zum nächsten Platz") and the peloton are
+gone there. Training stays as feature 016 built it.
 
 **Why this priority**: The place card and the peloton add little next to the
 Rangliste, and the Team page gets shorter.
 
-**Independent Test**: Open Team as a synthetic rider and check the order of the
-sections and that neither the place card nor the peloton is shown.
+**Independent Test**: Open Team as a synthetic rider, switch to Team and check the
+order of the sections and that neither the place card nor the peloton is shown;
+switch back to Training and check that both are.
 
 **Acceptance Scenarios**:
 
-1. **Given** any signed-in rider, **When** they open Team, **Then** they see the
-   team total, the switch, the quote, the Rangliste and the team chart, in that
-   order, and no place card or peloton.
-2. **Given** the Rangliste, **When** it is shown, **Then** it still marks the
+1. **Given** any signed-in rider, **When** they open Team with Team Rynke chosen,
+   **Then** they see the team total, the switch, the quote, the Rangliste and the
+   team chart, in that order, and no place card or peloton.
+2. **Given** any signed-in rider, **When** they open Team with Training chosen,
+   **Then** they see feature 016's page: the team total, the switch, the place card,
+   the quote, the peloton, the team chart and the Rangliste.
+3. **Given** the Rangliste, **When** it is shown, **Then** it still marks the
    viewer's row and shows the rows around them by default (feature 016 FR-013,
    FR-014).
 
@@ -438,9 +447,10 @@ sections and that neither the place card nor the peloton is shown.
 
 **Team page (amends feature 016)**
 
-- **FR-045**: The Team page MUST NOT show the place card (feature 016 FR-016) or the
-  peloton with its breakaway (feature 016 FR-017's peloton, FR-018).
-- **FR-046**: The Team page MUST show, in this order: the team total, the
+- **FR-045**: With Team Rynke chosen, the Team page MUST NOT show the place card
+  (feature 016 FR-016) or the peloton with its breakaway (feature 016 FR-017's
+  peloton, FR-018). With Training chosen it MUST keep both as feature 016 has them.
+- **FR-046**: With Team Rynke chosen, the Team page MUST show, in this order: the team total, the
   Training/Team switch, the quote, the Rangliste (feature 016 FR-012–FR-015) and
   the team chart.
 

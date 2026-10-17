@@ -111,4 +111,4 @@ except organisers (FR-010).
 ## Unchanged
 
 `team_events`, `attendances` and their change records (014), balances (003). The
-Team page reads 016's data minus the peloton (research R12).
+Team page reads 016's data (research R12).

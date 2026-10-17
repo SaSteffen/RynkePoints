@@ -393,8 +393,23 @@ export const en: Catalog = {
 	"team.kind.label": "Which Rynke",
 	"team.kind.training": "Training",
 	"team.kind.team": "Team",
+	"team.place": "Position {place} of {count} riders 🚴",
+	"team.place.next": "{n}\u00a0Rynke to pass the next place",
+	"team.place.lead": "You lead the peloton. Bring the others along!",
 	"team.quote.push": "For you 🍌",
 	"team.quote.onTrack": "For you 🤝",
+	"team.peloton.heading": "The peloton 🚴",
+	"team.peloton.hint": "Every coin is a rider. The front rides on the right.",
+	"team.peloton.back": "Back of the bunch",
+	"team.peloton.front": "Front 🏁",
+	"team.peloton.label":
+		"{count} riders between {min} and {max}\u00a0Rynke; you have {own}",
+	"team.peloton.you": "You",
+	"team.peloton.breakaway": "Breakaway 🏁",
+	"team.peloton.hint.breakaway":
+		"Every coin is a rider. Far right, past the gap, rides the breakaway.",
+	"team.peloton.label.breakaway":
+		"{count} riders between {min} and {max}\u00a0Rynke, {away} of them in the breakaway; you have {own}",
 	"team.list.heading": "Leaderboard",
 	"team.list.count": "{n} riders listed",
 	"team.list.hint": "No names. The line shows the season so far.",

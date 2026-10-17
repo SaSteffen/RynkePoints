@@ -49,6 +49,12 @@ const ORGANISER = 910_004;
 const WITHOUT_BALANCE = { id: 910_014, name: "Rotraut" };
 const UNCONSENTED = { id: 910_015, name: "Ermentrude" };
 
+/** Two riders far ahead in Training, seeded only where the breakaway is tested. */
+const BREAKAWAY = [
+	{ id: 910_016, name: "Wiltrud", training: 900 },
+	{ id: 910_017, name: "Gerlinde", training: 1200 },
+];
+
 const OTHERS = [...LISTED, WITHOUT_BALANCE, UNCONSENTED].filter(
 	(r) => r.id !== VIEWER,
 );
@@ -72,12 +78,16 @@ function sectionOf(page: string, open: string, close: string): string {
 
 const teamTotalOf = (page: string) =>
 	sectionOf(page, '<section class="team-total', "</section>");
+const pelotonOf = (page: string) =>
+	sectionOf(page, '<figure class="peloton', "</figure>");
 const teamChartOf = (page: string) =>
 	sectionOf(page, '<figure class="team-chart', "</figure>");
 const quoteOf = (page: string) =>
 	sectionOf(page, '<blockquote class="quote', "</blockquote>");
 const leaderboardOf = (page: string) =>
 	sectionOf(page, '<section class="leaderboard', "</section>");
+const myPlaceOf = (page: string) =>
+	sectionOf(page, '<section class="my-place', "</section>");
 
 /** The shown rows' `li` markup, in order. */
 function rowItemsOf(page: string): string[] {
@@ -134,11 +144,19 @@ beforeEach(async () => {
 });
 
 describe("GET /team, Training around the viewer", () => {
-	it("shows no place card; the viewer's row carries the place (019 FR-045)", async () => {
+	it("gives the viewer's place and the gap to the next (US1 #1)", async () => {
 		const { status, html } = await riderPage(ctx, VIEWER, "/team");
 		expect(status).toBe(200);
-		expect(html).not.toContain("my-place");
-		expect(rowsOf(html).find((r) => r.you)).toEqual({ you: true, place: "6" });
+		const place = myPlaceOf(html);
+		expect(place).toContain(fill(de["team.place"], { place: "6", count: 14 }));
+		expect(place).toContain(fill(de["team.place.next"], { n: 31 }));
+	});
+
+	it("words the place in English", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team", "en");
+		const place = myPlaceOf(html);
+		expect(place).toContain(fill(en["team.place"], { place: "6", count: 14 }));
+		expect(place).toContain(fill(en["team.place.next"], { n: 31 }));
 	});
 
 	it("lists places 3 to 9 with the viewer's own row (US1 #2)", async () => {
@@ -205,8 +223,9 @@ describe("GET /team with a kind or Everyone", () => {
 		expect(totalOf(rows.at(-1) ?? "")).toBe("0");
 	});
 
-	it("reorders by Team (US1 #4)", async () => {
+	it("reorders by Team without a place card (US1 #4, 019 FR-045)", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team?kind=team");
+		expect(html).not.toContain('<section class="my-place');
 		expect(rowsOf(html)[0]).toEqual({ you: true, place: "🥇" });
 	});
 
@@ -219,7 +238,9 @@ describe("GET /team with a kind or Everyone", () => {
 
 	it("counts an unknown kind as Training", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team?kind=bogus");
-		expect(rowsOf(html).find((r) => r.you)).toEqual({ you: true, place: "6" });
+		expect(myPlaceOf(html)).toContain(
+			fill(de["team.place"], { place: "6", count: 14 }),
+		);
 	});
 
 	it.each([
@@ -314,9 +335,40 @@ describe("GET /team, the team's progress (US2)", () => {
 		expect(total).toContain(fill(en["team.total.thisWeek"], { n: 199 }));
 	});
 
-	it("draws no peloton (019 FR-045)", async () => {
+	it("draws all 14 listed riders in the peloton, also around the viewer (US2 #2, #3)", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team");
-		expect(html).not.toContain("peloton");
+		const figure = pelotonOf(html);
+		expect(figure.match(/href="#coin-mini"/g)).toHaveLength(13);
+		expect(figure.match(/href="#coin-front"/g)).toHaveLength(1);
+		expect(figure).toContain(
+			`aria-label="${fill(de["team.peloton.label"], { count: 14, min: 0, max: 300, own: 120 })}"`,
+		);
+		expect(figure).toContain(escapeHtml(de["team.peloton.heading"]));
+		expect(figure).toContain(`>${escapeHtml(de["team.peloton.you"])}<`);
+		expect(figure).toContain(escapeHtml(de["team.peloton.hint"]));
+		expect(figure).toContain(escapeHtml(de["team.peloton.back"]));
+		expect(figure).toContain(escapeHtml(de["team.peloton.front"]));
+		expect(figure).not.toContain("road-gap");
+		expect(figure).not.toContain(escapeHtml(de["team.peloton.breakaway"]));
+	});
+
+	it("lets two riders far ahead ride in the breakaway (US2 #4, FR-018)", async () => {
+		for (const { id, name, training } of BREAKAWAY) {
+			await seedRider(ctx, { athleteId: id, firstName: name });
+			await seedBalance(id, { trainingRynke: training, teamRynke: 0 });
+		}
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const figure = pelotonOf(html);
+		expect(figure.match(/href="#coin-mini"/g)).toHaveLength(15);
+		expect(figure).toContain('<path class="road-gap"');
+		// Q1 67.5, Q3 257.5: the fence 542.5 leaves both far ahead.
+		expect(figure).toContain(
+			`aria-label="${fill(de["team.peloton.label.breakaway"], { count: 16, min: 0, max: "1.200", away: 2, own: 120 })}"`,
+		);
+		expect(figure).toContain(escapeHtml(de["team.peloton.hint.breakaway"]));
+		expect(figure).toContain(escapeHtml(de["team.peloton.breakaway"]));
+		expect(figure).not.toContain(escapeHtml(de["team.peloton.front"]));
+		expect(figure).not.toContain(`>${escapeHtml(de["team.peloton.hint"])}<`);
 	});
 
 	it("draws one bar per week and names the best week", async () => {
@@ -364,8 +416,13 @@ describe("GET /team, the team's progress (US2)", () => {
 		);
 	});
 
-	it("orders the sections as 019 FR-046 does", async () => {
-		const { html } = await riderPage(ctx, ORGANISER, "/team");
+	it("draws no peloton for Team Rynke (019 FR-045)", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team?kind=team");
+		expect(html).not.toContain('<figure class="peloton');
+	});
+
+	it("puts the leaderboard first for Team Rynke (019 FR-046)", async () => {
+		const { html } = await riderPage(ctx, ORGANISER, "/team?kind=team");
 		const at = (marker: string) => html.indexOf(marker, html.indexOf("<main"));
 		const order = [
 			'<section class="team-total',
@@ -373,6 +430,22 @@ describe("GET /team, the team's progress (US2)", () => {
 			'<blockquote class="quote',
 			'<section class="leaderboard',
 			'<figure class="team-chart',
+		].map(at);
+		expect(order.every((i) => i > 0)).toBe(true);
+		expect(order).toEqual([...order].sort((a, b) => a - b));
+	});
+
+	it("orders the Training sections as the contract does", async () => {
+		const { html } = await riderPage(ctx, ORGANISER, "/team");
+		const at = (marker: string) => html.indexOf(marker, html.indexOf("<main"));
+		const order = [
+			'<section class="team-total',
+			'<nav class="kind-switch"',
+			'<section class="my-place',
+			'<blockquote class="quote',
+			'<figure class="peloton',
+			'<figure class="team-chart',
+			'<section class="leaderboard',
 		].map(at);
 		expect(order.every((i) => i > 0)).toBe(true);
 		expect(order).toEqual([...order].sort((a, b) => a - b));
@@ -548,13 +621,18 @@ describe("GET /team, quotes the viewer has seen (issue #96)", () => {
 });
 
 describe("GET /team for others", () => {
-	it("puts 1st place first in Training", async () => {
+	it("gives 1st place the lead line in Training", async () => {
 		const { html } = await riderPage(ctx, FIRST, "/team");
-		expect(rowsOf(html)[0]).toEqual({ you: true, place: "🥇" });
+		const place = myPlaceOf(html);
+		expect(place).toContain(fill(de["team.place"], { place: "1", count: 14 }));
+		expect(place).toContain(escapeHtml(de["team.place.lead"]));
 	});
 
 	it("ranks an organiser like everyone else", async () => {
 		const { html } = await riderPage(ctx, ORGANISER, "/team");
+		expect(myPlaceOf(html)).toContain(
+			fill(de["team.place"], { place: "4", count: 14 }),
+		);
 		expect(rowsOf(html).find((r) => r.you)).toEqual({ you: true, place: "4" });
 	});
 

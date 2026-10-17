@@ -415,8 +415,23 @@ export const de = {
 	"team.kind.label": "Welche Rynke",
 	"team.kind.training": "Training",
 	"team.kind.team": "Team",
+	"team.place": "Position {place} von {count} 🚴",
+	"team.place.next": "Noch {n}\u00a0Rynke bis zum nächsten Platz",
+	"team.place.lead": "Du führst das Peloton an. Nimm die anderen mit!",
 	"team.quote.push": "Für dich 🍌",
 	"team.quote.onTrack": "Für dich 🤝",
+	"team.peloton.heading": "Das Peloton 🚴",
+	"team.peloton.hint": "Jede Münze ist ein Rider. Rechts fährt die Spitze.",
+	"team.peloton.back": "Ende des Feldes",
+	"team.peloton.front": "Spitze 🏁",
+	"team.peloton.label":
+		"{count} Rider zwischen {min} und {max}\u00a0Rynke; du hast {own}",
+	"team.peloton.you": "Du",
+	"team.peloton.breakaway": "Breakaway 🏁",
+	"team.peloton.hint.breakaway":
+		"Jede Münze ist ein Rider. Ganz rechts, hinter der Lücke, fährt der Breakaway.",
+	"team.peloton.label.breakaway":
+		"{count} Rider zwischen {min} und {max}\u00a0Rynke, davon {away} im Breakaway; du hast {own}",
 	"team.list.heading": "Rangliste",
 	"team.list.count": "{n}\u00a0Rider",
 	"team.list.hint": "Ohne Namen. Die Linie zeigt die Saison bisher.",
