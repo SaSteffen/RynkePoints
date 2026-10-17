@@ -296,10 +296,10 @@ describe("coins", () => {
 
 // The waiting state before the first data (015 contracts/pages.md).
 describe("renderWaiting", () => {
-	it("shows the spinning coin, the heading and the one-time message", () => {
+	it("shows the turning coin, the heading and the one-time message", () => {
 		const html = renderWaiting(de, "2026-09-01", 7).toString();
 		expect(html).toMatch(
-			/^<section class="waiting" role="status" data-waiting data-poll-seconds="7">\n<svg class="coin coin-large"[^>]*><use href="#coin-front"\/><\/svg>\n/,
+			/^<section class="waiting" role="status" data-waiting data-poll-seconds="7">\n<span class="coin coin-large coin-flip" aria-hidden="true"><span class="coin-flip-turn"><img class="coin-art" src="\/coin\/rynke-coin-front\.svg" alt=""[^>]*><img class="coin-art coin-flip-back" src="\/coin\/rynke-coin-back\.svg" alt=""[^>]*><\/span><\/span>\n/,
 		);
 		expect(html).toContain(`<h2>${de.t("waiting.heading")}</h2>`);
 		expect(html).toContain(

@@ -48,6 +48,32 @@ export function coin(side: "front" | "back", size: CoinSize): SafeHtml {
 	);
 }
 
+// The team's coin itself, traced from its artwork by `pnpm coin-art` into
+// `public/coin/` (art/coin/README.md), for where the coin is the picture
+// rather than a mark: its detail doesn't read below about 64 px, where the
+// simplified sprite above stays. Decoration too, like every coin.
+
+const ART_SIZE = 144;
+
+const art = (side: "front" | "back", extra = "") =>
+	`<img class="coin-art${extra}" src="/coin/rynke-coin-${side}.svg" alt="" width="${ART_SIZE}" height="${ART_SIZE}">`;
+
+/** One side of the team's coin as its artwork; `style.ts` sizes it. */
+export function coinArt(side: "front" | "back", size: CoinSize): SafeHtml {
+	return new SafeHtml(art(side, ` coin coin-${size}`));
+}
+
+/**
+ * The coin turning over and over, front then back, while the first data is
+ * fetched (015 US1): two faces back to back, so the back never shows the
+ * front mirrored.
+ */
+export function flippingCoin(size: CoinSize): SafeHtml {
+	return new SafeHtml(
+		`<span class="coin coin-${size} coin-flip" aria-hidden="true"><span class="coin-flip-turn">${art("front")}${art("back", " coin-flip-back")}</span></span>`,
+	);
+}
+
 /** The mini coin of a kind of Rynke. */
 export function miniCoin(kind: "training" | "team"): SafeHtml {
 	const team = kind === "team" ? " coin-team" : "";

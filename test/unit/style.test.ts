@@ -182,12 +182,23 @@ describe("STYLE", () => {
 		).toBe("none");
 	});
 
-	it("spins the waiting coin, and keeps it still for reduced motion (015 FR-007)", () => {
-		expect(STYLE).toContain("@keyframes coin-spin");
-		expect(declsOf(".waiting .coin").animation).toContain("coin-spin");
+	it("turns the waiting coin over, and keeps it still for reduced motion (015 FR-007)", () => {
+		expect(STYLE).toContain("@keyframes coin-flip");
+		expect(declsOf(".coin-flip-turn").animation).toContain("coin-flip");
 		expect(
-			declsOf(".waiting .coin", "(prefers-reduced-motion:reduce)").animation,
+			declsOf(".coin-flip-turn", "(prefers-reduced-motion:reduce)").animation,
 		).toBe("none");
+	});
+
+	it("shows each face of the turning coin only from its own side", () => {
+		// Spinning one face showed it mirrored, text and all, half the time.
+		expect(declsOf(".coin-flip-turn")["transform-style"]).toBe("preserve-3d");
+		expect(declsOf(".coin-flip .coin-art")["backface-visibility"]).toBe(
+			"hidden",
+		);
+		expect(declsOf(".coin-flip .coin-flip-back").transform).toBe(
+			"rotateY(180deg)",
+		);
 	});
 
 	it("floats the app prompt above the bottom bar and the home indicator (015 FR-012)", () => {
