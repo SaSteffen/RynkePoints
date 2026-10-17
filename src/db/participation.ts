@@ -197,3 +197,10 @@ export function deleteReportsStatement(
 		)
 		.bind(eventId, JSON.stringify(athleteIds));
 }
+
+/** `event_id` of every event `athleteId` attended (019 FR-036). */
+export function listAttendedEventsStatement(db: D1Database, athleteId: number) {
+	return db
+		.prepare("SELECT event_id FROM attendances WHERE athlete_id = ?")
+		.bind(athleteId);
+}

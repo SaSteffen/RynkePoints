@@ -467,8 +467,34 @@ ol.event-list{display:flex;flex-direction:column;gap:var(--rp-space-2);margin:0;
 .event-joined:hover .event-leave,.event-joined:focus-visible .event-leave{display:inline-flex}
 .event-attended{display:inline-flex;align-items:center;gap:6px;min-height:var(--rp-tap);font:700 14px/20px var(--md-ref-typeface);color:var(--rp-on-ok-container)}
 .event-attended svg{width:18px;height:18px}
+.open-requests{margin:0 0 var(--rp-space-4);padding:var(--rp-space-4);border:2px solid var(--md-sys-color-error);border-radius:var(--md-shape-lg);background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container)}
+.open-requests h2{margin:0;font:var(--md-type-title)}
+.open-requests>p{margin:0 0 var(--rp-space-3);font:var(--md-type-body)}
+.request-event{margin:0 0 var(--rp-space-2);padding:var(--rp-space-3);border-radius:var(--md-shape-md);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface)}
+.request-event-head{display:flex;align-items:center;justify-content:space-between;gap:var(--rp-space-2)}
+.request-event-head p{margin:0;font:700 14px/20px var(--md-ref-typeface)}
+.request-event-head a{display:inline-flex;align-items:center;min-height:var(--rp-tap);font:700 13px/18px var(--md-ref-typeface)}
+ul.requests{margin:0 0 var(--rp-space-2);padding:0;list-style:none}
+.request{display:flex;flex-wrap:wrap;align-items:center;gap:var(--rp-space-2);min-height:52px;border-top:1px solid var(--md-sys-color-outline-variant)}
+.rider-requests .request{border-top:0}
+.request-rider{flex:1;min-width:0;font:600 15px/20px var(--md-ref-typeface)}
+.request-form{display:inline-flex;margin:0}
+.request-yes,.request-no{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-width:var(--rp-tap);min-height:40px;padding:0 var(--rp-space-3);border:2px solid var(--md-sys-color-on-surface);border-radius:var(--md-shape-full);background:var(--md-sys-color-on-surface);color:var(--md-sys-color-surface);font:700 13px/18px var(--md-ref-typeface);cursor:pointer}
+.request-no{padding:0;border-color:var(--md-sys-color-outline);background:transparent;color:var(--md-sys-color-on-surface)}
+.request-yes svg,.request-no svg{width:16px;height:16px;stroke-width:2.6}
+.request-chip{flex:1;min-width:0;display:inline-flex;align-items:center;min-height:28px;padding:2px 10px;border:1px solid var(--md-sys-color-error);border-radius:var(--md-shape-full);background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container);font:700 12px/16px var(--md-ref-typeface);text-decoration:none}
+.requests-cell{min-width:320px}
+.event-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:var(--rp-space-1)}
+.chip-alert{min-height:24px;border:1px solid var(--md-sys-color-error);background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container);font-weight:800}
+.chip-team{min-height:24px;background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+.self-form{display:flex;justify-content:flex-end;margin:var(--rp-space-2) 0 0}
+.self-form .button-outlined{gap:6px}
+.self-form svg{width:16px;height:16px}
+.notice-undo{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--rp-space-2)}
+.notice-undo p,.notice-undo form{margin:0}
+.group-tile.tile-alert:not([aria-current]){border-color:var(--md-sys-color-error);background:var(--md-sys-color-error-container);color:var(--md-sys-color-on-error-container)}
 @media (max-width:1099.98px){.table-scroll{display:none}.rider-cards.default .rider-card:not(.status-push){display:none}.group-tiles.default .tile-push{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}.showing-wide{display:none}}
-@media (min-width:840px){nav.app-nav .nav-label-short{display:none}nav.app-nav .nav-label-full{display:block}main:has(>.team-overview){max-width:none}nav.group-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}ul.rider-cards{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}
+@media (min-width:840px){nav.app-nav .nav-label-short{display:none}nav.app-nav .nav-label-full{display:block}main:has(>.team-overview){max-width:none}nav.group-tiles{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}ul.rider-cards{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}
 @media (min-width:1100px){ul.rider-cards{display:none}.group-tiles.default .tile-all{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}.showing-phone{display:none}}
 @media (min-width:600px){.wordmark-name{position:static;width:auto;height:auto;overflow:visible;clip:auto}:root{--rp-page-padding:32px;--md-type-display:600 40px/48px var(--md-ref-typeface)}ol.ride-list{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-grid>*{grid-column:1/-1}.overview-grid>.card-outlined{grid-column:auto}.rynke-gauges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-3)}.rynke-gauges>h2{grid-column:1/-1;margin:0}.rynke-gauges .card{margin:0}body.shell{position:relative;padding-bottom:0}.app-prompt{bottom:calc(var(--rp-space-4) + env(safe-area-inset-bottom))}.tour{top:calc(var(--rp-topbar-height) + env(safe-area-inset-top) + var(--rp-space-2));bottom:auto;left:auto;max-width:24rem}nav.app-nav a.tour-target{outline:2px solid var(--md-sys-color-primary);outline-offset:2px}nav.app-nav a.tour-target .nav-icon{outline:0;animation:none}h1.section-title{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}nav.app-nav{position:fixed;top:calc((var(--rp-topbar-height) - var(--rp-tap)) / 2 + env(safe-area-inset-top));right:calc(var(--rp-page-padding) + var(--rp-tap) + var(--rp-space-2));left:auto;bottom:auto;display:flex;gap:var(--rp-space-1);height:auto;padding:0;background:none}nav.app-nav a{flex-direction:row;gap:var(--rp-space-1);padding:0 var(--rp-space-3);border-radius:var(--md-shape-full);font:var(--md-type-label)}nav.app-nav .nav-icon{width:auto;height:auto}nav.app-nav a[aria-current=page]{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}nav.app-nav a[aria-current=page] .nav-icon{background:none}}
 @media (min-width:600px) and (max-width:839.98px){body.shell .wordmark-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}

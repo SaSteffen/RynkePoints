@@ -20,9 +20,11 @@ import {
 	handleDeleteEvent,
 	handleOrganiserEvent,
 	handleOrganiserEvents,
+	handleSelfAttendance,
 	handleUpdateEvent,
 } from "./organiser/events";
 import { handleOrganiserOverview } from "./organiser/overview";
+import { handleDecideRequests, handleUndoRequests } from "./organiser/requests";
 import { handlePrivacy } from "./privacy";
 import {
 	handleNotificationText,
@@ -59,7 +61,7 @@ const WEBHOOK_PREFIX = "/strava/webhook/";
  * stored event's.
  */
 const ORGANISER_EVENT =
-	/^\/organiser\/events\/(\d{1,15})(?:\/(delete|attendance))?$/;
+	/^\/organiser\/events\/(\d{1,15})(?:\/(delete|attendance|self))?$/;
 
 /** A rider's report at an event and its withdrawal (feature 019). */
 const EVENT_REPORT = /^\/events\/(\d{1,15})\/report(\/delete)?$/;
@@ -120,6 +122,10 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleLogout(request, ctx, i18n);
 			case "/organiser/events":
 				return handleCreateEvent(request, ctx, i18n);
+			case "/organiser/requests":
+				return handleDecideRequests(request, ctx, i18n);
+			case "/organiser/requests/undo":
+				return handleUndoRequests(request, ctx, i18n);
 		}
 		const event = path.match(ORGANISER_EVENT);
 		if (event) {
@@ -129,6 +135,8 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 					return handleDeleteEvent(request, ctx, i18n, eventId);
 				case "attendance":
 					return handleSaveAttendance(request, ctx, i18n, eventId);
+				case "self":
+					return handleSelfAttendance(request, ctx, i18n, eventId);
 				default:
 					return handleUpdateEvent(request, ctx, i18n, eventId);
 			}
