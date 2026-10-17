@@ -24,6 +24,15 @@ This feature turns Rides into one continuous list: it opens with the newest ride
 and older rides are added below as the rider scrolls towards the end, until the
 season's first ride is shown.
 
+## Clarifications
+
+### Session 2026-10-17
+
+- Q: When a rider scrolled far back, left Rides (Strava, another app) and comes
+  back, or Rides reloads after time in the background, what should Rides show? →
+  A: Restore it: the same rides loaded and the same ride in view, only in that tab
+  and visit.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Scroll through all rides (Priority: P1)
@@ -182,7 +191,8 @@ rides with the pager; open `/me/rides?page=3` with and without scripts.
 - **FR-013**: Coming back to Rides with the back button, or Rides reloading after
   time in the background or by the rider's own reload, MUST show the rides loaded
   before and bring the same ride into view. Opening Rides from the navigation bar
-  MUST start at the top.
+  MUST start at the top. What is restored is kept only in that browser tab for
+  the current visit; a new tab or a later visit starts at the top.
 - **FR-014**: Opening `/me/rides?page=N` with N > 1 MUST show that page's rides,
   a link to the newest rides above them, and add older rides on scrolling as in
   FR-002.
