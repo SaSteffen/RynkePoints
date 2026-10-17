@@ -111,20 +111,6 @@ export function activityOwnersStatement(db: D1Database, ids: number[]) {
 		.bind(JSON.stringify(ids));
 }
 
-/** Whether any of the rider's activities has been imported yet. One read. */
-export async function hasActivities(
-	db: D1Database,
-	athleteId: number,
-): Promise<boolean> {
-	const row = await db
-		.prepare(
-			"SELECT EXISTS (SELECT 1 FROM activities WHERE athlete_id = ?) AS found",
-		)
-		.bind(athleteId)
-		.first<{ found: number }>();
-	return row?.found === 1;
-}
-
 export async function listRecentActivities(
 	db: D1Database,
 	athleteId: number,

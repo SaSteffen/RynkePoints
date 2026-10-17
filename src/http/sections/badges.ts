@@ -393,33 +393,26 @@ async function badgesOf(
 
 /**
  * Whether the badges page has a badge to reveal to the rider, so the app opens
- * on it (issue #150): the same badges as `badgesOf`'s reveal, and only once
- * the rider has Rynke, since the waiting state reveals nothing.
+ * on it (issue #150): the same badges as `badgesOf`'s reveal. Only for a rider
+ * with Rynke, since the waiting state reveals nothing; `connectedAt` is theirs.
  */
 export async function hasNewBadges(
 	ctx: Ctx,
 	athleteId: number,
+	connectedAt: number,
 ): Promise<boolean> {
 	const db = ctx.env.DB;
-	const [riders, badges, reveals] = await db.batch([
-		db
-			.prepare(
-				`SELECT connected_at FROM riders WHERE athlete_id = ?1
-				AND EXISTS (SELECT 1 FROM rynke_balances WHERE athlete_id = ?1)`,
-			)
-			.bind(athleteId),
+	const [badges, reveals] = await db.batch([
 		listRiderBadgesStatement(db, athleteId),
 		listRevealsStatement(db, athleteId),
 	]);
-	if (!riders || !badges || !reveals) {
+	if (!badges || !reveals) {
 		throw new Error("D1 batch returned too few results");
 	}
-	const rider = (riders.results as { connected_at: number }[])[0];
-	if (!rider) return false;
 	const revealed = revealedOf(
 		reveals.results as { badge_id: string; earned_on: string }[],
 	);
-	const connectedOn = berlinDate(rider.connected_at);
+	const connectedOn = berlinDate(connectedAt);
 	const personal = (
 		badges.results as { badge_id: string; earned_on: string }[]
 	).map((row) => ({ badgeId: row.badge_id, earnedOn: row.earned_on }));

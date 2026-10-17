@@ -1,15 +1,28 @@
 import type { Ctx } from "../ctx";
-import { hasActivities } from "../db/activities";
 import { hasNewBadges } from "./sections/badges";
 
 /**
  * Where the app sends a signed-in rider: the badges page while it has a new
  * badge to reveal (issue #150), else their own page until a first ride is
- * imported, then the Team page (issue #73).
+ * imported, then the Team page (issue #73). One read decides, unless the
+ * rider has Rynke and so may have badges.
  */
 export async function home(ctx: Ctx, athleteId: number): Promise<string> {
-	if (await hasNewBadges(ctx, athleteId)) return "/me/badges";
-	return (await hasActivities(ctx.env.DB, athleteId)) ? "/team" : "/me";
+	const row = await ctx.env.DB.prepare(
+		`SELECT connected_at,
+			EXISTS (SELECT 1 FROM rynke_balances WHERE athlete_id = ?1) AS ready,
+			EXISTS (SELECT 1 FROM activities WHERE athlete_id = ?1) AS rode
+		FROM riders WHERE athlete_id = ?1`,
+	)
+		.bind(athleteId)
+		.first<{ connected_at: number; ready: number; rode: number }>();
+	if (
+		row?.ready === 1 &&
+		(await hasNewBadges(ctx, athleteId, row.connected_at))
+	) {
+		return "/me/badges";
+	}
+	return row?.rode === 1 ? "/team" : "/me";
 }
 
 /** A redirect, plus any cookies to set on the way. */
