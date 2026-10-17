@@ -191,7 +191,8 @@ async function readOnlyCounts() {
 async function gauges(athleteId = ATHLETE_A) {
 	const { html } = await riderPage(ctx, athleteId);
 	return [
-		...html.matchAll(/<figure class="([^"]*)">([\s\S]*?)<\/figure>/g),
+		// A gauge a tour step points at carries its `id` (feature 020).
+		...html.matchAll(/<figure class="([^"]*)"[^>]*>([\s\S]*?)<\/figure>/g),
 	].map(([, classes, inner = ""]) => ({
 		classes,
 		caption: text(
@@ -908,6 +909,20 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 		expect(card?.why).toBeNull();
 		expect(html).toContain('<ol class="ride-list">');
 		expect(html).not.toContain("<table");
+	});
+
+	it("shows a counting ride under 10 km without the coin (020 FR-011)", async () => {
+		await seedRide(ATHLETE_A, {
+			id: 8_100_001,
+			start_date: "2026-10-06T08:00:00Z",
+			distance_m: 7400,
+			elevation_gain_m: 40,
+			result: { counts: true, distanceRynke: 0, elevationDm: 400 },
+		});
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides");
+		const [card] = rideCards(html);
+		expect(card?.status).toBe("ride-counting");
+		expect(card?.cells).toEqual(["06.10.2026", "7,4 km", "zählt", "0", "40 m"]);
 	});
 
 	it("S1-7: shows a ride that doesn't count with nothing, reasons open", async () => {

@@ -242,7 +242,9 @@ test.describe("the continuous ride list (018)", () => {
 	});
 });
 
-test("a rider walks through the tour, one page each", async ({ page }) => {
+test("a rider walks through the tour with the example rider (020)", async ({
+	page,
+}) => {
 	await signIn(page, "Vera Virtual");
 	// The tour waits for the first import (issue #119); the page polls itself.
 	await page.goto("/me");
@@ -250,27 +252,48 @@ test("a rider walks through the tour, one page each", async ({ page }) => {
 		timeout: 30_000,
 	});
 	// Started as from Settings, so it doesn't depend on another browser's run.
-	await page.goto("/team?tour=rider");
+	await page.goto("/team?tour=rider&step=1");
 	const tour = page.locator("aside.tour");
-	for (const [path, step] of [
-		["/team", "1 von 5"],
-		["/me", "2 von 5"],
-		["/me/rides", "3 von 5"],
-		["/me/badges", "4 von 5"],
+	// Each step points at its navigation item, or at an element of its page
+	// (feature 020 FR-003); Vera isn't an organiser, so Termine is in (FR-001).
+	for (const [path, step, target] of [
+		["/team", "1 von 11", null],
+		["/team", "2 von 11", "tour-peloton"],
+		["/me", "3 von 11", null],
+		["/me", "4 von 11", "tour-elevation"],
+		["/me", "5 von 11", "tour-team"],
+		["/me", "6 von 11", "tour-outdoor"],
+		["/me/rides", "7 von 11", "tour-rejected-ride"],
+		["/me/rides", "8 von 11", "tour-short-ride"],
+		["/me/badges", "9 von 11", null],
+		["/events", "10 von 11", null],
 	] as const) {
 		await expect(tour).toContainText(step);
-		await expect(page.locator(`nav.app-nav a[href="${path}"]`)).toHaveClass(
-			"tour-target",
+		if (target) {
+			await expect(tour).toHaveAttribute("data-target", target);
+			await expect(page.locator(`#${target}`)).toBeInViewport();
+		} else {
+			await expect(page.locator(`nav.app-nav a[href="${path}"]`)).toHaveClass(
+				"tour-target",
+			);
+		}
+		// Du and Fahrten show the example rider, not Vera's own rides (FR-005).
+		await expect(page.locator(".tour-example")).toHaveCount(
+			path === "/me" || path === "/me/rides" ? 1 : 0,
 		);
 		await tour.getByRole("link", { name: "Weiter" }).click();
 	}
-	await expect(page).toHaveURL(/\/me\/settings\?tour=rider$/);
-	await expect(tour).toContainText("5 von 5");
+	await expect(page).toHaveURL(/\/me\/settings\?tour=rider&step=11$/);
+	await expect(tour).toContainText("11 von 11");
 	await tour.getByRole("button", { name: "Alles klar" }).click();
 	await expect(page).toHaveURL(/\/me\/settings$/);
 	await expect(tour).toHaveCount(0);
 	await page.goto("/team");
 	await expect(tour).toHaveCount(0);
+	// Without the tour, Vera's own rides again.
+	await page.goto("/me/rides");
+	await expect(page.locator(".tour-example")).toHaveCount(0);
+	await expect(page.locator("a.strava-activity").first()).toBeVisible();
 });
 
 test.describe("on a touch screen", () => {
@@ -403,6 +426,54 @@ test("an organiser cycles a reported rider's box (019 US5)", async ({
 	await box.click();
 	await expect(box).toHaveAttribute("aria-checked", "mixed");
 	await expectNoSidewaysScroll(page);
+});
+
+test("an organiser walks through the Orga tour on the example team (020)", async ({
+	page,
+}) => {
+	await signIn(page, "Olga Organiser");
+	await page.goto("/me");
+	await expect(page.locator("[data-waiting]")).toHaveCount(0, {
+		timeout: 30_000,
+	});
+	await page.goto("/organiser/riders?tour=organiser&step=1");
+	const tour = page.locator("aside.tour");
+	// Each step on the example team, which can't be used (FR-013, FR-014).
+	for (const [path, step, target] of [
+		["/organiser/riders", "1 von 7", null],
+		["/organiser/riders", "2 von 7", "tour-groups"],
+		["/organiser/riders", "3 von 7", "tour-pace"],
+		["/organiser", "4 von 7", "tour-requests"],
+		["/organiser", "5 von 7", "tour-new-event"],
+		["/organiser", "6 von 7", "tour-later-event"],
+		["/organiser", "7 von 7", "tour-past-event"],
+	] as const) {
+		await expect(page).toHaveURL(new RegExp(`${path}\\?tour=organiser`));
+		await expect(tour).toContainText(step);
+		await expect(page.locator(".tour-example")).toHaveCount(1);
+		if (target) {
+			await expect(tour).toHaveAttribute("data-target", target);
+			await expect(page.locator(`#${target}`)).toBeInViewport();
+		}
+		if (path === "/organiser/riders") {
+			await expect(page.locator(".team-overview")).toHaveAttribute("inert");
+		} else {
+			await expect(page.locator("#tour-requests")).toHaveAttribute("inert");
+			await expect(page.locator("#tour-new-event")).not.toHaveAttribute(
+				"inert",
+			);
+		}
+		if (step === "7 von 7") break;
+		await tour.getByRole("link", { name: "Weiter" }).click();
+	}
+	await tour.getByRole("button", { name: "Alles klar" }).click();
+	await expect(tour).toHaveCount(0);
+	// Without the tour, the real team again.
+	await page.goto("/organiser/riders");
+	await expect(page.locator(".tour-example")).toHaveCount(0);
+	await expect(
+		page.locator(".rider-name:visible", { hasText: "Olga Organiser" }),
+	).toHaveCount(1);
 });
 
 test("an organiser sees the Orga pages", async ({ page }) => {

@@ -4,6 +4,8 @@
 // other rule takes its colours from them through `var(--…)` (FR-031). No
 // `url(` to another origin and no `@import` (FR-037).
 
+import { TOUR_TARGETS } from "./tour-targets";
+
 /**
  * The Rynke coin's own colours (feature 012), the same in both schemes: the
  * coin looks like the coin. Listed in both so both define the same names.
@@ -28,6 +30,20 @@ const SHOW_DARK = (root: string) =>
 	`${root} .pbs-light,${root} .cws-light{display:none}${root} .pbs-dark,${root} .cws-dark{display:inline}`;
 
 const SYSTEM_DARK = ":root:not([data-scheme=light])";
+
+/**
+ * Each tour target clears the top bar when the step's link scrolls to it, and
+ * is outlined while its step shows (feature 020 FR-003).
+ */
+const TOUR_TARGET_RULES = (() => {
+	const ids = TOUR_TARGETS.map((id) => `#${id}`).join(",");
+	const pointed = TOUR_TARGETS.map(
+		(id) => `body:has(.tour[data-target=${id}]) #${id}`,
+	).join(",");
+	return `${ids}{scroll-margin-top:calc(var(--rp-topbar-height) + env(safe-area-inset-top) + var(--rp-space-4))}
+${pointed}{outline:2px solid var(--md-sys-color-primary);outline-offset:4px;border-radius:var(--md-shape-xs)}
+@media (prefers-reduced-motion:no-preference){${pointed}{animation:tour-point 1.6s ease-in-out infinite}}`;
+})();
 const FIXED_DARK = ":root[data-scheme=dark]";
 
 export const STYLE = `:root{color-scheme:light dark;--md-sys-color-surface:#fffdf5;--md-sys-color-surface-container-low:#fcf9ec;--md-sys-color-surface-container:#f6f2e0;--md-sys-color-surface-container-high:#efead3;--md-sys-color-on-surface:#1c1b13;--md-sys-color-on-surface-variant:#4a4633;--md-sys-color-outline:#7a755c;--md-sys-color-outline-variant:#d3cdb2;--md-sys-color-primary:#1c1b13;--md-sys-color-on-primary:#fbe122;--md-sys-color-primary-container:#fbe122;--md-sys-color-on-primary-container:#1c1b13;--md-sys-color-secondary-container:#fbe122;--md-sys-color-on-secondary-container:#1c1b13;--md-sys-color-error:#ba1a1a;--md-sys-color-error-container:#ffdad6;--md-sys-color-on-error-container:#410002;--rp-ok-container:#e7eee8;--rp-on-ok-container:#0f4f25;--rp-neutral-container:#efead3;--rp-on-neutral-container:#4a4633;--rp-brand:#fc5200;--rp-part-1:#fbe122;--rp-part-2:#8cc4f0;--rp-part-3:#ff9a4d;--rp-part-4:#6fd1c2;--rp-part-5:#d7a6ec;--rp-part-6:#a8a6a0;--rp-reached:#7fcb92;--rp-track:#1c1b13;--rp-push-container:#fdebd9;--rp-on-push-container:#6a3208;--rp-road:#1c1b13;--rp-bar:#7a755c;--rp-badge-edge:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 2px 2px rgba(28,27,19,.3));--rp-badge-lift:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 6px 6px rgba(28,27,19,.3));${TEAM}${COIN}}
@@ -318,6 +334,7 @@ body.shell{padding-bottom:calc(var(--rp-nav-height) + env(safe-area-inset-bottom
 body:has(.tour) .app-prompt{display:none}
 nav.app-nav a.tour-target .nav-icon,body:has(.tour) nav.organiser-switch [aria-current]{outline:2px solid var(--md-sys-color-primary);outline-offset:2px}
 @media (prefers-reduced-motion:no-preference){nav.app-nav a.tour-target .nav-icon,nav.app-nav a.tour-target,body:has(.tour) nav.organiser-switch [aria-current]{animation:tour-point 1.6s ease-in-out infinite}}
+${TOUR_TARGET_RULES}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 main:has(>.team-overview){max-width:var(--rp-content-max)}
 .team-overview h3{margin:0;font:600 17px/24px var(--md-ref-typeface)}

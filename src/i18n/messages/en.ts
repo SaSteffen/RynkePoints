@@ -129,6 +129,7 @@ export const en: Catalog = {
 	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
 	"rynke.rules.handout": "The rules as PDF (in German)",
 	"rynke.ride.counts": "counts 🪙",
+	"rynke.ride.countsWithoutRynke": "counts",
 	"rynke.ride.doesNotCount": "doesn't count",
 	"rynke.ride.beingEvaluated": "Being evaluated",
 	"rynke.ride.virtual": "virtual",
@@ -242,22 +243,48 @@ export const en: Catalog = {
 	"tour.done": "Got it",
 	"tour.skip": "Skip",
 	"tour.start": "Show me",
+	"tour.example":
+		"Example data: this is how it looks once there are a few rides. You'll see your own numbers after the tour.",
 	"tour.rider.intro": "New here? Let us show you where everything is.",
 	"tour.rider.team":
 		"Team: how the whole team is doing and where you are in the ranking.",
+	"tour.rider.peloton":
+		"The peloton: everyone in the team by their Training Rynke, without names; your coin is marked. The further right, the more Rynke. Whoever is well ahead of the rest is in the breakaway.",
 	"tour.rider.you": "You: your Rynke and what you still need to qualify.",
+	"tour.rider.elevation":
+		"The elevation counter: every {elevationM}\u00a0metres of climbing bring you {elevationRynke}\u00a0Training Rynke. It shows how many metres you still need for the next ones.",
+	"tour.rider.teamRynke":
+		"Team Rynke only come from team events the organisers have added you to: {teamTraining} for a team training, {weekendDay} for a day of the training weekend, {technique} for a technique training. You need {teamThreshold} for Paris.",
+	"tour.rider.outdoor":
+		"At most {virtualShare} of your Training Rynke may come from virtual rides. This bar counts everything else: at least {outside} of {trainingThreshold} Training Rynke have to come from riding outside, team events included.",
 	"tour.rider.rides":
-		"Rides: every ride, what it earned, and why when it didn't count.",
+		"Rides: every ride and what it earned. This one doesn't count. “Why?” says what went wrong and what you can do.",
+	"tour.rider.shortRide":
+		"Every full {distanceKm}\u00a0km of a ride earns {distanceRynke}\u00a0Training Rynke. This ride was shorter: it counts, but earns no Rynke for its distance. Its climbing still goes onto the counter.",
 	"tour.rider.badges":
 		"Badges: yours and the team's, and how far it is to the next one.",
+	"tour.rider.events":
+		"Events: the team events. Say beforehand whether you're coming, and report afterwards that you were there. Once the organisers have added you, you get Team Rynke.",
 	"tour.rider.settings":
 		"Settings: language, notifications, your Strava connection, the rules, and this tour again.",
 	"tour.organiser.intro":
 		"You're an organiser now: the Orga tab is new. Let us show you around.",
 	"tour.organiser.riders":
-		"Riders: who's on track and who needs a push. Tap a rider to add a correction.",
-	"tour.organiser.events":
-		"Events: add team events, then open one to tick who was there.",
+		"Riders: everyone in the team with their Training and Team Rynke and what they still need.",
+	"tour.organiser.example":
+		"Example team: this is how Orga looks once the season is under way. Nothing here can be clicked; you'll see the real team after the tour.",
+	"tour.organiser.groups":
+		"The groups: “Need a push” is behind the pace, “On track” is on plan, “Training goal reached” has it all. Tap a tile to see only its riders. First: everyone with an open report.",
+	"tour.organiser.pace":
+		"The mark on each bar is the even pace to the deadline. Riders left of it need a push. Tap a name to open their corrections: Rynke added or taken off, with a reason.",
+	"tour.organiser.requests":
+		"Reports: riders tell you they were at a team event. “Add” gives them the event's Rynke, ✕ declines. You can undo either for a short while.",
+	"tour.organiser.newEvent":
+		"Add team events here: kind, date, and a name if you like. A team training brings {teamTraining}\u00a0Team Rynke, a day of the training weekend {weekendDay}, a technique training {technique}.",
+	"tour.organiser.upcoming":
+		"An upcoming event: riders say beforehand whether they're coming. The number shows how many said yes.",
+	"tour.organiser.past":
+		"A past event: open it and tick who was there; only then do the Rynke count. Grey boxes are open reports. If you were there yourself, tap “I was there too”.",
 	"offline.title": "No connection",
 	"offline.body":
 		"RynkePoints needs an internet connection. Please try again shortly.",

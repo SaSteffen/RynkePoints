@@ -135,6 +135,7 @@ export const de = {
 		"Es zählt alles vom {start} bis zum {deadline}.",
 	"rynke.rules.handout": "Die Regeln als PDF",
 	"rynke.ride.counts": "zählt 🪙",
+	"rynke.ride.countsWithoutRynke": "zählt",
 	"rynke.ride.doesNotCount": "zählt nicht",
 	"rynke.ride.beingEvaluated": "Wird ausgewertet",
 	"rynke.ride.virtual": "virtuell",
@@ -260,22 +261,48 @@ export const de = {
 	"tour.done": "Alles klar",
 	"tour.skip": "Überspringen",
 	"tour.start": "Zeig mal",
+	"tour.example":
+		"Beispieldaten: So sieht es aus, wenn schon ein paar Fahrten da sind. Deine eigenen Zahlen siehst du nach dem Rundgang.",
 	"tour.rider.intro": "Neu hier? Wir zeigen dir kurz, wo du was findest.",
 	"tour.rider.team":
 		"Team: wie das ganze Team dasteht und wo du in der Rangliste stehst.",
+	"tour.rider.peloton":
+		"Das Peloton: alle im Team nach ihren Trainingsrynke, ohne Namen; deine Münze ist markiert. Je weiter rechts, desto mehr Rynke. Wer mit Abstand vorn fährt, ist im Breakaway.",
 	"tour.rider.you": "Du: deine Rynke und was dir noch zur Qualifikation fehlt.",
+	"tour.rider.elevation":
+		"Der Höhenmeter-Zähler: Alle {elevationM}\u00a0Höhenmeter bringen dir {elevationRynke}\u00a0Trainingsrynke. Er zeigt, wie viele Meter dir noch bis zu den nächsten fehlen.",
+	"tour.rider.teamRynke":
+		"Teamrynke gibt es nur für Teamtermine, bei denen die Orga dich eingetragen hat: {teamTraining} für ein Teamtraining, {weekendDay} für einen Tag am Trainingswochenende, {technique} für ein Techniktraining. Für Paris brauchst du {teamThreshold}.",
+	"tour.rider.outdoor":
+		"Höchstens {virtualShare} deiner Trainingsrynke dürfen von virtuellen Fahrten kommen. Dieser Balken zählt alles außer ihnen: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren, Teamtermine zählen mit.",
 	"tour.rider.rides":
-		"Fahrten: jede Fahrt, was sie gebracht hat, und warum, wenn sie nicht zählt.",
+		"Fahrten: jede Fahrt und was sie gebracht hat. Diese hier zählt nicht. Unter „Warum?“ steht, woran es lag und was du tun kannst.",
+	"tour.rider.shortRide":
+		"Für jede volle {distanceKm}\u00a0km einer Fahrt gibt es {distanceRynke}\u00a0Trainingsrynke. Diese Fahrt war kürzer: Sie zählt, bringt aber keine Rynke für die Strecke. Ihre Höhenmeter kommen trotzdem auf den Zähler.",
 	"tour.rider.badges":
 		"Abzeichen: deine und die des Teams, und wie weit es bis zum nächsten ist.",
+	"tour.rider.events":
+		"Termine: die Teamtermine. Sag vorher Bescheid, ob du dabei bist, und melde danach, dass du da warst. Sobald die Orga dich eingetragen hat, gibt es Teamrynke.",
 	"tour.rider.settings":
 		"Einstellungen: Sprache, Benachrichtigungen, deine Strava-Verbindung, die Regeln und dieser Rundgang.",
 	"tour.organiser.intro":
 		"Du bist jetzt in der Orga: Der Orga-Tab ist neu. Wir zeigen dir, was drin ist.",
 	"tour.organiser.riders":
-		"Rider: wer im Plan liegt und wer einen Schubs braucht. Tipp auf einen Rider für eine Korrektur.",
-	"tour.organiser.events":
-		"Termine: Teamtermine anlegen, dann einen öffnen und abhaken, wer da war.",
+		"Rider: alle im Team mit ihren Trainings- und Teamrynke und dem, was ihnen noch fehlt.",
+	"tour.organiser.example":
+		"Beispielteam: So sieht Orga aus, wenn die Saison läuft. Anklicken lässt sich hier nichts; das echte Team siehst du nach dem Rundgang.",
+	"tour.organiser.groups":
+		"Die Gruppen: „Braucht Schwung“ liegt hinter dem Tempo, „Gut unterwegs“ im Plan, „Trainingsziel erreicht“ hat alles zusammen. Tippst du auf eine Kachel, siehst du nur ihre Rider. Ganz vorn: alle mit einer offenen Meldung.",
+	"tour.organiser.pace":
+		"Der Strich auf jedem Balken ist das gleichmäßige Tempo bis zum Stichtag. Wer links davon liegt, braucht Schwung. Ein Tipp auf einen Namen öffnet die Korrekturen: Rynke dazu oder weg, mit Grund.",
+	"tour.organiser.requests":
+		"Meldungen: Rider sagen dir, dass sie bei einem Teamtermin waren. „Eintragen“ gibt ihnen die Rynke des Termins, ✕ lehnt ab. Beides kannst du kurz danach rückgängig machen.",
+	"tour.organiser.newEvent":
+		"Hier legst du Teamtermine an: Art, Datum und, wenn du willst, einen Namen. Ein Teamtraining bringt {teamTraining}\u00a0Teamrynke, ein Tag am Trainingswochenende {weekendDay}, ein Techniktraining {technique}.",
+	"tour.organiser.upcoming":
+		"Ein kommender Termin: Rider sagen vorher, ob sie dabei sind. Die Zahl zeigt, wie viele zugesagt haben.",
+	"tour.organiser.past":
+		"Ein vergangener Termin: Öffne ihn und hake ab, wer da war; erst dann gibt es die Rynke. Graue Kästchen sind offene Meldungen. Warst du selbst dabei, tippe auf „Ich war auch dabei“.",
 	"offline.title": "Keine Verbindung",
 	"offline.body":
 		"RynkePoints braucht eine Internetverbindung. Versuch es gleich noch einmal.",
