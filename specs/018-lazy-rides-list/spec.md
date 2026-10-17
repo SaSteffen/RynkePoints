@@ -190,8 +190,8 @@ rides with the pager; open `/me/rides?page=3` with and without scripts.
 - **FR-011**: Loading more rides MUST NOT cause any request to Strava.
 - **FR-012**: When the page script runs, the pager links MUST NOT be shown, and
   the line above the list MUST give only the season's total of rides ("87 Fahrten
-  in dieser Saison", also for a single ride in its singular form). Without the
-  script the line stays as today ("Fahrten 21–40 von 87").
+  in dieser Saison"). Without the script the line stays as today ("Fahrten
+  21–40 von 87").
 - **FR-013**: Coming back to Rides with the back button, or Rides reloading after
   time in the background or by the rider's own reload, MUST show the rides loaded
   before and bring the same ride into view. Opening Rides from the navigation bar
