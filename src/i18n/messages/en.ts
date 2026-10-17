@@ -50,10 +50,10 @@ export const en: Catalog = {
 		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation count towards the team sums of the team badges, without your name. On which days and at what hour you ride, run or swim counts towards the team surprises, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
 	"consent.agree":
-		"I agree that RynkePoints reads my rides and shares my Rynke as described.",
+		"Agreed: RynkePoints reads your rides and shares your Rynke as described.",
 
 	"me.title": "Your RynkePoints",
-	"me.greeting": "Hi {firstName}! 🦧",
+	"me.greeting": "Hi {firstName}!",
 	"me.status.connected": "Connected to Strava",
 	"me.status.needsReconnect": "Your Strava connection needs to be renewed.",
 	"me.reconnect": "Reconnect",
@@ -78,7 +78,7 @@ export const en: Catalog = {
 	"me.recent.heading": "Your rides",
 	"me.recent.none": "No rides this season yet.",
 	"me.recent.col.distance": "Distance",
-	"me.disconnect.button": "Disconnect and delete my data",
+	"me.disconnect.button": "Disconnect and delete your data",
 
 	"units.km": "{value}\u00a0km",
 	"units.m": "{value}\u00a0m",
@@ -124,7 +124,7 @@ export const en: Catalog = {
 	"rynke.rules.handout": "The rules as PDF (in German)",
 	"rynke.ride.counts": "counts 🪙",
 	"rynke.ride.doesNotCount": "doesn't count",
-	"rynke.ride.beingEvaluated": "🦧 being evaluated",
+	"rynke.ride.beingEvaluated": "Being evaluated",
 	"rynke.ride.virtual": "virtual",
 	"rynke.ride.fixHint":
 		"You can correct the ride on Strava or ask an organiser.",
@@ -290,7 +290,7 @@ export const en: Catalog = {
 	"celebrate.team": "+{n}\u00a0Team Rynke since your last visit 🎉",
 	"celebrate.both":
 		"+{training}\u00a0Training Rynke and +{team}\u00a0Team Rynke since your last visit 🎉",
-	"landing.tagline": "Collect your Rynke 🦧",
+	"landing.tagline": "Collect your Rynke",
 	"settings.language": "Language",
 	"settings.appearance": "Appearance",
 	"settings.scheme.system": "System",
@@ -379,7 +379,7 @@ export const en: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
-	"team.total.label": "Team Rynkeby Hamburg 🦧",
+	"team.total.label": "Team Rynkeby Hamburg",
 	"team.total.training": "{n} Training Rynke",
 	"team.total.team": "{n} Team Rynke",
 	"team.total.kind": "collected together",
@@ -412,7 +412,7 @@ export const en: Catalog = {
 	"team.list.everyone": "Everyone",
 	"team.list.ahead": "· · · {n} riders ahead · · ·",
 	"team.list.behind": "· · · {n} riders behind · · ·",
-	"team.list.you": "You 🦧",
+	"team.list.you": "You",
 	"team.list.weeks": "Week by week: {values}",
 	"team.chart.heading": "The team, week by week",
 	"team.chart.hint":
@@ -479,8 +479,8 @@ export const en: Catalog = {
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
 	// names aren't here: they are German in every language (badges.de.ts).
 	"badges.heading": "Badges",
-	"badges.personal.newest": "My badges",
-	"badges.personal.all": "All my badges ({n})",
+	"badges.personal.newest": "Your badges",
+	"badges.personal.all": "All your badges ({n})",
 	"badges.team.newest": "Team badges",
 	"badges.team.all": "All team badges ({n})",
 	"badges.empty": "No badge yet – your first ride brings you closer.",

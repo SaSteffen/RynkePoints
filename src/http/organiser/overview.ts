@@ -14,7 +14,7 @@ import { virtualShareRequired } from "../../rynke/tally";
 import type { TeamEventSum } from "../../rynke/team-events";
 import { dayNumber } from "../../rynke/weeks";
 import { thresholdBars } from "../charts";
-import { coin, miniCoin } from "../coin";
+import { coinArt, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import { statusArt } from "../status-art";
 import { noticeFromQuery, organiserPage, organiserSwitch } from "./access";
@@ -195,7 +195,7 @@ function renderDeadline(
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const days = dayNumber(window.deadline) - dayNumber(today);
 	return html`<section class="overview-deadline">
-${coin("back", "large")}<div>
+${coinArt("back", "large")}<div>
 <p class="overview-deadline-date">${i18n.t("organiser.overview.deadline", { date: i18n.formatDate(window.deadline) })}</p>
 <p class="overview-deadline-count">${
 		days < 0

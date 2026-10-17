@@ -137,8 +137,8 @@ describe("GET /me/rides recent rides", () => {
 			"Gezählte Höhenmeter",
 		]);
 		expect(rows(page)).toEqual([
-			["06.10.2026", "42,2 km", "🦧 wird ausgewertet", "–", "–"],
-			["01.10.2026", "42,2 km", "🦧 wird ausgewertet", "–", "–"],
+			["06.10.2026", "42,2 km", "Wird ausgewertet", "–", "–"],
+			["01.10.2026", "42,2 km", "Wird ausgewertet", "–", "–"],
 		]);
 		expect(details(page)).toEqual([
 			"Gravel-Fahrt · 312 m",
@@ -167,7 +167,7 @@ describe("GET /me/rides recent rides", () => {
 			"Elevation counted",
 		]);
 		expect(rows(page)).toEqual([
-			["06/10/2026", "42.2 km", "🦧 being evaluated", "–", "–"],
+			["06/10/2026", "42.2 km", "Being evaluated", "–", "–"],
 		]);
 		expect(details(page)).toEqual(["Gravel ride · 1,234 m"]);
 	});

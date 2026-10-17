@@ -23,6 +23,7 @@
 		"illustrations": "node scripts/illustrations.mjs",
 		"badge-art": "node scripts/badge-art.mjs",
 		"badge-build": "node scripts/badge-build.mjs",
+		"coin-art": "node scripts/coin-art.mjs",
 		"daily:run": "scripts/run-daily.sh",
 		"strava:review": "node scripts/strava-review.mjs",
 		"prepare": "lefthook install"

@@ -111,7 +111,7 @@ describe("GET /me/settings links to the disconnect page", () => {
 			await sessionCookie(ctx, ATHLETE_A),
 		);
 		expect(text).toContain(
-			'<a class="danger" href="/me/disconnect">Verbindung trennen und meine Daten löschen</a>',
+			'<a class="danger" href="/me/disconnect">Verbindung trennen und deine Daten löschen</a>',
 		);
 	});
 });
