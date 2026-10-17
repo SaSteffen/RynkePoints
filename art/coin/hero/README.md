@@ -38,7 +38,7 @@ cut it away with an entry in `HERO_CROPS` in the script.
   background. The white around him is removed, so the coin's cream face shows.
 - The head and ears stay inside the gold chain; only the shoulders run over it
   at the bottom, where the face's edge crops them.
-- Still friendly at 96 px (the smallest hero, on small phones): big eyes, few
+- Still friendly at 96 px (the smallest hero, on small phones): clear eyes, few
   large shapes, no thin lines.
 
 ## How it fits the coin
