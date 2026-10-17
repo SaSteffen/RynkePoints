@@ -50,10 +50,10 @@ export const en: Catalog = {
 		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation count towards the team sums of the team badges, without your name. On which days and at what hour you ride, run or swim counts towards the team surprises, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
 	"consent.agree":
-		"I agree that RynkePoints reads my rides and shares my Rynke as described.",
+		"Agreed: RynkePoints reads your rides and shares your Rynke as described.",
 
 	"me.title": "Your RynkePoints",
-	"me.greeting": "Hi {firstName}! 🦧",
+	"me.greeting": "Hi {firstName}!",
 	"me.status.connected": "Connected to Strava",
 	"me.status.needsReconnect": "Your Strava connection needs to be renewed.",
 	"me.reconnect": "Reconnect",
@@ -78,7 +78,7 @@ export const en: Catalog = {
 	"me.recent.heading": "Your rides",
 	"me.recent.none": "No rides this season yet.",
 	"me.recent.col.distance": "Distance",
-	"me.disconnect.button": "Disconnect and delete my data",
+	"me.disconnect.button": "Disconnect and delete your data",
 
 	"units.km": "{value}\u00a0km",
 	"units.m": "{value}\u00a0m",
@@ -124,7 +124,7 @@ export const en: Catalog = {
 	"rynke.rules.handout": "The rules as PDF (in German)",
 	"rynke.ride.counts": "counts 🪙",
 	"rynke.ride.doesNotCount": "doesn't count",
-	"rynke.ride.beingEvaluated": "🦧 being evaluated",
+	"rynke.ride.beingEvaluated": "Being evaluated",
 	"rynke.ride.virtual": "virtual",
 	"rynke.ride.fixHint":
 		"You can correct the ride on Strava or ask an organiser.",
@@ -290,7 +290,7 @@ export const en: Catalog = {
 	"celebrate.team": "+{n}\u00a0Team Rynke since your last visit 🎉",
 	"celebrate.both":
 		"+{training}\u00a0Training Rynke and +{team}\u00a0Team Rynke since your last visit 🎉",
-	"landing.tagline": "Collect your Rynke 🦧",
+	"landing.tagline": "Collect your Rynke",
 	"settings.language": "Language",
 	"settings.appearance": "Appearance",
 	"settings.scheme.system": "System",
@@ -379,7 +379,7 @@ export const en: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
-	"team.total.label": "Team Rynkeby Hamburg 🦧",
+	"team.total.label": "Team Rynkeby Hamburg",
 	"team.total.training": "{n} Training Rynke",
 	"team.total.team": "{n} Team Rynke",
 	"team.total.kind": "collected together",
@@ -412,7 +412,7 @@ export const en: Catalog = {
 	"team.list.everyone": "Everyone",
 	"team.list.ahead": "· · · {n} riders ahead · · ·",
 	"team.list.behind": "· · · {n} riders behind · · ·",
-	"team.list.you": "You 🦧",
+	"team.list.you": "You",
 	"team.list.weeks": "Week by week: {values}",
 	"team.chart.heading": "The team, week by week",
 	"team.chart.hint":
@@ -479,12 +479,14 @@ export const en: Catalog = {
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
 	// names aren't here: they are German in every language (badges.de.ts).
 	"badges.heading": "Badges",
-	"badges.personal.newest": "My badges",
-	"badges.personal.all": "All my badges ({n})",
+	"badges.personal.newest": "Your badges",
+	"badges.personal.all": "All your badges ({n})",
 	"badges.team.newest": "Team badges",
 	"badges.team.all": "All team badges ({n})",
 	"badges.empty": "No badge yet – your first ride brings you closer.",
 	"badges.missing": "{value} to go",
+	"badges.next": "Next badge",
+	"badges.first": "First badge",
 	"badges.earnedOn": "earned on {date}",
 	"badges.close": "Close",
 	"badges.label": "{name}, {value}",
@@ -513,48 +515,28 @@ export const en: Catalog = {
 	"badges.category.big_training": "Big training",
 	"badges.category.attendances": "Attendances",
 	"badges.category.team_surprise": "Team surprises",
-	"badges.about.distance":
-		"All the kilometres of your rides this season that count for Training Rynke.",
-	"badges.about.elevation":
-		"All the elevation of your rides this season that count for Training Rynke.",
-	"badges.about.team_events":
-		"Every team event this season you were at, of any kind.",
-	"badges.about.technique":
-		"The technique trainings this season you were at: one badge for the first, one for both.",
-	"badges.about.training_rynke":
-		"All the Training Rynke you collected this season.",
-	"badges.about.run_length":
-		"Your longest single run this season, without treadmill and virtual runs.",
-	"badges.about.running":
-		"All the kilometres of your runs this season, without treadmill and virtual runs.",
-	"badges.about.ride_length":
-		"Your longest single ride this season that counts for Training Rynke.",
-	"badges.about.virtual_rides":
-		"All the kilometres of your virtual and indoor-trainer rides this season.",
-	"badges.about.swim_length":
-		"Your longest single swim this season, in the pool or in open water.",
-	"badges.about.swimming": "All the kilometres you swam this season.",
-	"badges.about.winter_november":
-		"Days in November on which you rode outdoors, not on a trainer.",
-	"badges.about.winter_december":
-		"Days in December on which you rode outdoors, not on a trainer.",
-	"badges.about.winter_january":
-		"Days in January on which you rode outdoors, not on a trainer.",
-	"badges.about.winter_february":
-		"Days in February on which you rode outdoors, not on a trainer.",
+	"badges.about.distance": "Kilometres on Training Rynke rides.",
+	"badges.about.elevation": "Elevation on Training Rynke rides.",
+	"badges.about.team_events": "Every team event you were at.",
+	"badges.about.technique": "One for the first, one for both.",
+	"badges.about.training_rynke": "All the Training Rynke you collected.",
+	"badges.about.run_length": "Your longest single run, outdoors.",
+	"badges.about.running": "All the kilometres you ran outdoors.",
+	"badges.about.ride_length": "Longest Training Rynke ride.",
+	"badges.about.virtual_rides": "Trainer and virtual kilometres.",
+	"badges.about.swim_length": "Your longest single swim, anywhere.",
+	"badges.about.swimming": "All the kilometres you swam.",
+	"badges.about.winter_november": "Days in November with an outdoor ride.",
+	"badges.about.winter_december": "Days in December with an outdoor ride.",
+	"badges.about.winter_january": "Days in January with an outdoor ride.",
+	"badges.about.winter_february": "Days in February with an outdoor ride.",
 	"badges.about.surprise": "?",
-	"badges.about.team_training_rynke":
-		"The Training Rynke of all riders, added up for this season.",
-	"badges.about.team_distance":
-		"The kilometres of all the team's rides this season added up.",
-	"badges.about.team_elevation":
-		"The elevation of all the team's rides this season added up.",
-	"badges.about.team_running":
-		"The kilometres of all the team's runs this season added up.",
-	"badges.about.big_training":
-		"The most riders at a single team event this season.",
-	"badges.about.attendances":
-		"All riders' attendances at team events this season, added up.",
+	"badges.about.team_training_rynke": "All riders' Training Rynke together.",
+	"badges.about.team_distance": "The whole team's ride kilometres.",
+	"badges.about.team_elevation": "The whole team's ride elevation.",
+	"badges.about.team_running": "The whole team's run kilometres.",
+	"badges.about.big_training": "The most riders at one team event.",
+	"badges.about.attendances": "All attendances at team events.",
 	"badges.about.team_surprise": "?",
 	"badges.for.distance": "You rode {value} by bike this season.",
 	"badges.for.elevation": "You climbed {value} by bike this season.",

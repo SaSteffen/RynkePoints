@@ -14,7 +14,7 @@ import { execFileSync } from "node:child_process";
 // a light sage for sofas, which black made too heavy next to the badge's
 // ribbon (feature 013 part D/E). Ink comes last: the outlines sit on top of
 // every fill.
-export const PALETTE = [
+export const PALETTE = palette([
 	{ name: "cream", hex: "#fffdf5" },
 	{ name: "yellow", hex: "#fbe122" },
 	{ name: "gold", hex: "#c99a2e" },
@@ -23,10 +23,7 @@ export const PALETTE = [
 	{ name: "blue", hex: "#8cc4f0" },
 	{ name: "sage", hex: "#b5d6a7" },
 	{ name: "ink", hex: "#1c1b13" },
-].map((c) => ({
-	...c,
-	rgb: [1, 3, 5].map((i) => Number.parseInt(c.hex.slice(i, i + 2), 16)),
-}));
+]);
 
 const MAX_SIZE = 2048;
 // Paper: near-white and grey-ish, which includes the soft edge pixels around
@@ -65,7 +62,7 @@ function readImage(file) {
 }
 
 /** 0 for removed paper, else 1 + the palette index of the nearest colour. */
-function labels({ w, h, rgba }) {
+function labels({ w, h, rgba }, palette = PALETTE) {
 	const n = w * h;
 	const isPaper = (i) => {
 		const [r, g, b, a] = rgba.subarray(i * 4, i * 4 + 4);
@@ -107,8 +104,8 @@ function labels({ w, h, rgba }) {
 		const [r, g, b] = rgba.subarray(i * 4, i * 4 + 3);
 		let best = 0;
 		let bestDist = Number.POSITIVE_INFINITY;
-		for (let p = 0; p < PALETTE.length; p++) {
-			const [pr, pg, pb] = PALETTE[p].rgb;
+		for (let p = 0; p < palette.length; p++) {
+			const [pr, pg, pb] = palette[p].rgb;
 			// "Redmean" colour distance: cheap and closer to perception than RGB.
 			const mean = (r + pr) / 2;
 			const dr = r - pr;
@@ -129,9 +126,9 @@ function labels({ w, h, rgba }) {
 }
 
 /** Each pixel takes the most common label in its SMOOTH × SMOOTH window. */
-function smooth(src, w, h) {
+function smooth(src, w, h, colours = PALETTE.length) {
 	const out = new Uint8Array(src.length);
-	const counts = new Uint16Array(PALETTE.length + 1);
+	const counts = new Uint16Array(colours + 1);
 	const r = SMOOTH >> 1;
 	for (let y = 0; y < h; y++) {
 		for (let x = 0; x < w; x++) {
@@ -181,26 +178,103 @@ function trace(bitmap) {
 	return transform && d ? { transform, d } : null;
 }
 
+/** `{ name, hex }` colours, bottom to top, as `traceImage` takes them. */
+export function palette(colours) {
+	return colours.map((c) => ({
+		...c,
+		rgb: [1, 3, 5].map((i) => Number.parseInt(c.hex.slice(i, i + 2), 16)),
+	}));
+}
+
+/**
+ * Recolours every region of colour `from` that lies wholly inside `box`
+ * ([x0, y0, x1, y1]) and, if given, inside `ring` ([centre x, centre y,
+ * inner radius, outer radius]), both in the original's pixels before any
+ * scaling down, to the colour `to`: a fix the image generator wouldn't make.
+ * Regions reaching outside, like a background, keep their colour.
+ */
+function recolour(label, w, h, scale, colours, { box, ring, from, to }) {
+	const index = (name) => {
+		const i = colours.findIndex((c) => c.name === name) + 1;
+		if (!i) throw new Error(`Unknown colour ${name}`);
+		return i;
+	};
+	const source = index(from);
+	const target = index(to);
+	const [x0, y0, x1, y1] = box.map((v) => Math.round(v * scale));
+	const [cx, cy, r0, r1] = (ring ?? [0, 0, 0, Number.POSITIVE_INFINITY]).map(
+		(v) => v * scale,
+	);
+	const inRing = (x, y) => {
+		const d = Math.hypot(x - cx, y - cy);
+		return d >= r0 && d <= r1;
+	};
+	const seen = new Uint8Array(label.length);
+	for (let y = y0; y <= y1; y++) {
+		for (let x = x0; x <= x1; x++) {
+			const start = y * w + x;
+			if (label[start] !== source || seen[start]) continue;
+			const region = [start];
+			seen[start] = 1;
+			let inside = true;
+			for (let k = 0; k < region.length; k++) {
+				const i = region[k];
+				const ix = i % w;
+				const iy = (i - ix) / w;
+				if (ix < x0 || ix > x1 || iy < y0 || iy > y1 || !inRing(ix, iy)) {
+					inside = false;
+				}
+				for (const j of [
+					ix > 0 ? i - 1 : -1,
+					ix < w - 1 ? i + 1 : -1,
+					iy > 0 ? i - w : -1,
+					iy < h - 1 ? i + w : -1,
+				]) {
+					if (j >= 0 && !seen[j] && label[j] === source) {
+						seen[j] = 1;
+						region.push(j);
+					}
+				}
+			}
+			if (inside) for (const i of region) label[i] = target;
+		}
+	}
+}
+
 /**
  * Traces an original into one `<g>` of layered paths, 100 units wide over the
  * full canvas (so images made on the same canvas keep their relative scale).
+ * `colours` replaces the coin palette (from `palette()`), `fixes` recolours
+ * regions after snapping (see `recolour`), and colours named in `omit` are
+ * snapped to but not drawn (a line drawing's paper); all are optional.
  */
-export function traceImage(file) {
+export function traceImage(
+	file,
+	{ colours = PALETTE, fixes = [], omit = [] } = {},
+) {
 	const image = readImage(file);
 	const { w, h } = image;
-	const label = smooth(labels(image), w, h);
+	const label = smooth(labels(image, colours), w, h, colours.length);
+	if (fixes.length > 0) {
+		const original = Number(
+			execFileSync(magick, [file, "-auto-orient", "-format", "%w", "info:"])
+				.toString()
+				.trim(),
+		);
+		for (const fix of fixes) recolour(label, w, h, w / original, colours, fix);
+	}
 
-	const used = new Uint32Array(PALETTE.length + 1);
+	const used = new Uint32Array(colours.length + 1);
 	for (const l of label) used[l]++;
 
 	let transform = "";
 	const paths = [];
-	for (let p = 0; p < PALETTE.length; p++) {
-		if (!used[p + 1]) continue;
+	for (let p = 0; p < colours.length; p++) {
+		if (!used[p + 1] || omit.includes(colours[p].name)) continue;
 		const layer = trace(pbm((i) => label[i] > p, w, h));
 		if (!layer) continue;
 		transform = layer.transform;
-		paths.push(`<path fill="${PALETTE[p].hex}" d="${layer.d}"/>`);
+		paths.push(`<path fill="${colours[p].hex}" d="${layer.d}"/>`);
 	}
 
 	// 100 user units across, like the coin's symbols.

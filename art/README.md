@@ -1,5 +1,7 @@
 # Art: illustration originals
 
+(The team's coin designs and their tracing are in [`coin/`](coin/README.md).)
+
 `illustrations/` holds the raster originals of the app's illustrations, as they
 come out of the image generator. `pnpm illustrations` traces every file in it,
 whatever its name or extension (ImageMagick goes by the content), into a flat

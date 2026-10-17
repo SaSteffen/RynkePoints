@@ -2,7 +2,7 @@ import type { Rider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import type { RiderStatus } from "../rynke/pace";
 import { STRAVA_ORIGIN } from "../strava/result";
-import { coin, miniCoin } from "./coin";
+import { coinArt, flippingCoin, miniCoin } from "./coin";
 import { html, type SafeHtml } from "./html";
 import type {
 	Breakdown,
@@ -69,7 +69,7 @@ function day(i18n: I18n, date: string): string {
 }
 
 /**
- * The spinning coin and the one-time message before the first data (015
+ * The turning coin and the one-time message before the first data (015
  * contracts/pages.md); the page script polls every `pollSeconds` (R5).
  */
 export function renderWaiting(
@@ -78,7 +78,7 @@ export function renderWaiting(
 	pollSeconds: number,
 ): SafeHtml {
 	return html`<section class="waiting" role="status" data-waiting data-poll-seconds="${pollSeconds}">
-${coin("front", "large")}
+${flippingCoin("large")}
 <h2>${i18n.t("waiting.heading")}</h2>
 <p>${i18n.t("waiting.body", { date: day(i18n, seasonStart) })}</p>
 </section>`;
@@ -342,7 +342,7 @@ export function renderRides(i18n: I18n, rides: RideTable): SafeHtml {
 	if (rides.rows.length === 0) {
 		return html`<section id="rides">
 ${heading}
-${coin("front", "large")}
+${coinArt("front", "large")}
 <p>${i18n.t("me.recent.none")}</p>
 </section>`;
 	}

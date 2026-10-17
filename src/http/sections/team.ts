@@ -24,7 +24,7 @@ import { type RiderStatus, riderStatus } from "../../rynke/pace";
 import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
 import { lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
 import { peloton, sparkline, weekBars } from "../charts";
-import { amount, coin, miniCoin } from "../coin";
+import { amount, coinArt, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import { renderReconnect } from "../rider-sections";
 import { shellPage } from "../shell";
@@ -66,7 +66,7 @@ function renderTeamTotal(
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	return html`<section class="team-total card">
-${coin(kind === "training" ? "front" : "back", "large")}<div class="team-total-text">
+${coinArt(kind === "training" ? "front" : "back", "large")}<div class="team-total-text">
 <p class="team-total-label">${i18n.t("team.total.label")}</p>
 <p class="team-total-value${kind === "team" ? " hero-team" : ""}">${i18n.tHtml(kind === "training" ? "team.total.training" : "team.total.team", { n: amount(i18n, totals.total) })}</p>
 <p class="team-total-kind">${i18n.t("team.total.kind")}</p>

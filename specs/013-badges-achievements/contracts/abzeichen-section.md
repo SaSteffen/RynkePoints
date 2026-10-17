@@ -34,6 +34,7 @@ it, with new own badges and new team badges together.
           <span class="badge-ribbon-text">1.000 km</span>
         </button>
         <div class="badge-progress">          <!-- absent when the category is complete (FR-004) -->
+          <span class="badge-next">Nächstes Abzeichen</span>   <!-- "Erstes Abzeichen" on a card without a badge -->
           <span class="bar"><span style="width:33%"></span></span>
           <span class="badge-missing">Noch 1.500 km</span>
         </div>
@@ -151,3 +152,88 @@ No markup change. The gallery shows one `li.badge-slot` per surprise badge
 still to earn, now up to thirteen for "Überraschungen" and seven for
 "Team-Überraschungen"; the rules of Part D hold for the eight new badges,
 including that nothing of an unearned one reaches the HTML (SC-003).
+
+
+## Part G: aligned cards, the sentence in the outline, the next badge (2026-10-17)
+
+The look follows the Claude Design mock-up "RynkePoints Badges"
+(https://claude.ai/artifact/7iWpX7C5ero9BjnbAACnDM). Supersedes the card
+markup above where they differ.
+
+```html
+<li class="badge-card" data-category="distance">
+  <h4>Distanz</h4>                              <!-- no sentence: the picture fills the circle -->
+  <button class="badge" …>…</button>
+  <div class="badge-progress">
+    <span class="badge-next">Nächstes Abzeichen</span>
+    <span class="bar" aria-hidden="true"><span style="width:40%"></span></span>
+    <span class="badge-missing">Noch 1.500 km</span>
+  </div>
+</li>
+<li class="badge-card badge-card-empty" data-category="run_length">
+  <h4>Längster Lauf</h4>
+  <div class="badge-slot">
+    <svg class="badge-outline" viewBox="0 0 100 100" aria-hidden="true"><use href="#badge-shape"/></svg>  <!-- circle and ribbon -->
+    <p class="badge-about">Dein längster Lauf am Stück, draußen.</p>     <!-- the sentence above the ribbon -->
+  </div>
+  <div class="badge-progress"><span class="badge-next">Erstes Abzeichen</span>…</div>
+</li>
+```
+
+- **Rows**: a card spans three rows of the shared subgrid (name, badge or
+  outline, progress), each child placed in its row, so badges, outlines and
+  bars line up across a row at every width. This replaces "below 600 px only
+  cards without a badge keep the category sentence".
+- **Outline**: a badge still to earn, on a card and in the gallery
+  (`li.badge-slot`), is the silhouette of a round badge (r 42 of 100, a little
+  inside where the petals reach, so the tails stand out) with the milestone
+  ribbon's tails: only its outer
+  edge, dashed, nothing inside. The ribbon is `scripts/badge-frame.mjs`'s
+  (`RIBBON.box`, `RIBBON.tail`, mirrored in `src/badges/outline.ts`, kept
+  equal by `test/unit/badge-outline.test.ts`). The section defines the shape
+  once (`<g id="badge-shape">` in a hidden `svg.badge-shape-defs`); each
+  outline uses it twice, a dashed stroke and over it a fill in the ground's
+  colour, which hides the inner half of every edge, so the band's own edges
+  inside the circle don't show. In the gallery, whose badges have no ribbon,
+  the outline is the dashed circle alone (`#badge-circle`, r 47, the badges'
+  full size). No id, name or
+  picture of the badge (SC-003).
+- **Sentence**: inside the outline of a card without a badge, 15 px,
+  hyphenated, every line inside the circle; the surprise categories' "?"
+  large. The sentences are short (about 35 characters, so they fit from
+  320 px up, in every language) and leave out "in dieser Saison": the whole
+  page is the season's. A card with a badge has none, and neither has its
+  large view, which already says what the badge was for; the gallery keeps
+  it under each category's name.
+- **Next badge**: "Nächstes Abzeichen" above the bar on a card with a badge,
+  "Erstes Abzeichen" on one without (`badges.next`, `badges.first`). "Noch
+  {missing}" stays below. Still no name, picture or threshold of the next
+  badge (FR-003, SC-003).
+- **Label**: `.badge-next` and `.badge-missing` in the small label size
+  (12 px), regular weight and the muted colour, so both stay below the card's
+  bold 14 px name; the progress keeps 12 px of space to the badge above.
+- **Stickers** (both schemes): badge pictures get a 2 px cut-out edge in
+  `#fffdf5` with a soft shadow (`--rp-badge-edge`, darker shadow in the dark
+  scheme), which also keeps their black ring and ribbon apart from the dark
+  card. A badge button is tilted by `--tilt`, its own angle from its id,
+  2 to 6° either way in tenths (`tiltOf`), the same on card and gallery and on
+  every visit; it straightens on hover and keyboard focus. The large view
+  stays upright. New badges in the reveal land with `badge-slap` (too big,
+  then a small wobble) instead of `badge-pop`.
+- **Sticker effects** (feature 013 Part H, 2026-10-17): the button carries
+  its picture as `--badge-src`, and a glossy band (`--rp-badge-shine`) masked
+  to that picture sweeps across it on hover and keyboard focus
+  (`badge-shine`). While pressed it lifts and tips up in 3D, as if being
+  peeled (`perspective(480px) rotateX(16deg) rotateY(-10deg) scale(1.05)`,
+  `--rp-badge-lift`). A badge earned today or yesterday (Berlin dates; the
+  section's `freshSince` is the day before today) is `button.badge.badge-fresh`:
+  four small yellow stars twinkle around it (`span.badge-sparkles`,
+  `aria-hidden`), and its shine plays once on its own after the page loads
+  (`badge-shine-new`). Reduced motion: no shine, no tip, the stars stand
+  still.
+- **Ribbon text** (supersedes its colour above): on personal badges the
+  milestone is `#f7e27c` (`--rp-ribbon-text`), a softer, paler yellow than
+  the ribbon's `#fbe122`, in weight 600 with 0.04em letter-spacing and a faint
+  glow (`text-shadow: 0 0 2px` at 25 %), so it doesn't glare on the black
+  band. Team ribbons keep `#1c1b13` without the glow. The badge pictures and
+  the app's yellow stay as they are.

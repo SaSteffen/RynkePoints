@@ -141,6 +141,13 @@ describe("GET /organiser/riders, the overview", () => {
 		);
 	});
 
+	it("shows the coin's back as the team's artwork", async () => {
+		const { html } = await overview();
+		expect(html).toContain(
+			'<section class="overview-deadline">\n<img class="coin-art coin coin-large" src="/coin/rynke-coin-back.svg" alt="" width="144" height="144"><div>',
+		);
+	});
+
 	it("has the four tiles with their counts (FR-032)", async () => {
 		const { html } = await overview();
 		const tiles = [

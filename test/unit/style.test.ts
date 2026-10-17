@@ -172,9 +172,9 @@ describe("STYLE", () => {
 	});
 
 	it("pops the revealed badges in, and keeps them still for reduced motion (013 FR-031)", () => {
-		expect(STYLE).toContain("@keyframes badge-pop");
+		expect(STYLE).toContain("@keyframes badge-slap");
 		expect(declsOf(".badges-reveal-pictures img").animation).toContain(
-			"badge-pop",
+			"badge-slap",
 		);
 		expect(
 			declsOf(".badges-reveal-pictures img", "(prefers-reduced-motion:reduce)")
@@ -182,12 +182,25 @@ describe("STYLE", () => {
 		).toBe("none");
 	});
 
-	it("spins the waiting coin, and keeps it still for reduced motion (015 FR-007)", () => {
-		expect(STYLE).toContain("@keyframes coin-spin");
-		expect(declsOf(".waiting .coin").animation).toContain("coin-spin");
+	it("turns the waiting coin over, and keeps it still for reduced motion (015 FR-007)", () => {
+		expect(STYLE).toContain("@keyframes coin-flip");
+		expect(declsOf(".coin-flip-turn").animation).toContain("coin-flip");
 		expect(
-			declsOf(".waiting .coin", "(prefers-reduced-motion:reduce)").animation,
+			declsOf(".coin-flip-turn", "(prefers-reduced-motion:reduce)").animation,
 		).toBe("none");
+	});
+
+	it("shows each face of the turning coin only from its own side", () => {
+		// Spinning one face showed it mirrored, text and all, half the time.
+		expect(declsOf(".coin-flip-turn")["transform-style"]).toBe("preserve-3d");
+		expect(declsOf(".coin-flip .coin-art")["backface-visibility"]).toBe(
+			"hidden",
+		);
+		expect(declsOf(".coin-flip .coin-flip-back").transform).toBe(
+			"rotateY(180deg)",
+		);
+		// Larger than the other large coins: it is the waiting page's picture.
+		expect(declsOf(".waiting .coin-flip").width).toBe("192px");
 	});
 
 	it("floats the app prompt above the bottom bar and the home indicator (015 FR-012)", () => {
@@ -239,25 +252,35 @@ describe("STYLE", () => {
 					rule.media !== null && rule.selectors.includes(".badge-cards"),
 			),
 		).toEqual([]);
-		// Name, sentence, badge and bar line up across a row.
+		// Name, badge or outline, and bar line up across a row.
 		expect(declsOf(".badge-card")["grid-template-rows"]).toBe("subgrid");
-		expect(
-			declsOf(
-				".badge-card:not(.badge-card-empty) .badge-about",
-				"(max-width:599.98px)",
-			).display,
-		).toBe("none");
+		expect(declsOf(".badge-card")["grid-row"]).toBe("span 3");
+		expect(declsOf(".badge-card>.badge")["grid-row"]).toBe("2");
+		expect(declsOf(".badge-card>.badge-slot")["grid-row"]).toBe("2");
+		expect(declsOf(".badge-card>.badge-progress")["grid-row"]).toBe("3");
 		// As wide as the card allows, up to 200 px.
 		expect(declsOf(".badge-card .badge")).toMatchObject({
 			width: "100%",
 			"max-width": "200px",
 		});
-		// A category without a badge: a dotted outline in the badge's place.
+		// A category without a badge: a dashed outline in the badge's place.
 		expect(declsOf(".badge-card .badge-slot")).toMatchObject({
 			width: "100%",
 			"max-width": "200px",
 		});
 		expect(declsOf(".badge-gallery .badge").width).toBe("96px");
+		// Stickers: a cut-out edge with a shadow in both schemes, a small tilt
+		// that straightens on hover and focus, a lift while pressed.
+		expect(declsOf(".badge img").filter).toBe("var(--rp-badge-edge)");
+		expect(declsOf(":root")["--rp-badge-edge"]).toContain("drop-shadow");
+		expect(declsOf("button.badge").transform).toBe("rotate(var(--tilt,0deg))");
+		expect(declsOf("button.badge:hover").transform).toBe("none");
+		expect(declsOf("button.badge:active img").filter).toBe(
+			"var(--rp-badge-lift)",
+		);
+		expect(
+			declsOf("button.badge", "(prefers-reduced-motion:reduce)").transition,
+		).toBe("none");
 		expect(declsOf(".badge-large .badge")).toMatchObject({
 			width: "280px",
 			"max-width": "100%",
@@ -279,8 +302,12 @@ describe("STYLE", () => {
 			top: "70%",
 			width: "74%",
 			height: "14%",
-			color: "var(--rp-coin-yellow)",
+			// A softer yellow than the ribbon's own, lighter and spaced, with a
+			// faint glow: easier on the eyes on the black band (Part G).
+			color: "var(--rp-ribbon-text)",
+			"letter-spacing": ".04em",
 		});
+		expect(declsOf(":root")["--rp-ribbon-text"]).toBe("#f7e27c");
 		expect(declsOf(".badge-group-team .badge-ribbon-text").color).toBe(
 			"var(--rp-coin-ink)",
 		);
