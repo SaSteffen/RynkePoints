@@ -80,8 +80,9 @@ files, no open dependency).
 - [x] T019 Update feature 011's Rides line in
   `specs/011-mobile-app-shell/contracts/pages.md` with a pointer to this
   feature.
-- [ ] T020 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; walk
-  through quickstart.md.
+- [x] T020 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`: green in
+  CI on PR #159 (the writing session had no npm access). The quickstart.md
+  walk-through on a real phone is left to the maintainer.
 
 ## Dependencies
 
