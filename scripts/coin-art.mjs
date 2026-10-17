@@ -178,6 +178,13 @@ try {
 // That circle becomes the face (radius 31); the head stays inside the chain,
 // the shoulders run over it at the bottom, and the face's edge crops them.
 const FACE = 31;
+// The front's colours plus the badges' light blue for the sweat drop, below
+// ink so the outlines stay on top.
+const HERO_COLOURS = palette([
+	...FRONT_COLOURS.slice(0, -1),
+	{ name: "blue", hex: "#8cc4f0" },
+	FRONT_COLOURS[FRONT_COLOURS.length - 1],
+]);
 const GENERATED_R = (1800 / 2048) * 50;
 const STAR =
 	"M0,-4 L0.94,-1.29 L3.8,-1.24 L1.52,0.49 L2.35,3.24 L0,1.6 L-2.35,3.24 L-1.52,0.49 L-3.8,-1.24 L-0.94,-1.29 Z";
@@ -207,7 +214,7 @@ if (hero) {
 	const source = `art/coin/originals/${hero}`;
 	write(
 		"public/coin/rynke-coin-hero.svg",
-		heroSvg(source, traceImage(join(ROOT, source), { colours: FRONT_COLOURS })),
+		heroSvg(source, traceImage(join(ROOT, source), { colours: HERO_COLOURS })),
 	);
 } else {
 	console.log(
