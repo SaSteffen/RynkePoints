@@ -137,7 +137,9 @@ describe("GET /me Overview", () => {
 		const hero = (await main()).match(
 			/<section class="hero">([\s\S]*?)<\/section>/,
 		)?.[1];
-		expect(hero).toContain('<use href="#coin-front"/>');
+		expect(hero).toMatch(
+			/<img class="coin-art coin coin-hero" src="\/coin\/rynke-coin-hero-[1-4]\.svg" alt=""/,
+		);
 		expectInOrder(hero ?? "", [
 			'<p class="greeting">',
 			// The amount on a line of its own, the Rynke word after it (#115).

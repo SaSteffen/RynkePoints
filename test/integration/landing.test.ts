@@ -68,7 +68,7 @@ describe("GET / (signed out)", () => {
 		const { page } = await get();
 		expect(page).toMatch(
 			new RegExp(
-				`<div class="landing-hero">\\n<svg class="coin coin-hero"[^>]*><use href="#coin-front"/></svg>\\n<h1>RynkePoints</h1>\\n<p class="tagline">${escapeHtml(de["landing.tagline"])}</p>\\n</div>`,
+				`<div class="landing-hero">\\n<img class="coin-art coin coin-hero" src="/coin/rynke-coin-hero-2\\.svg" alt=""[^>]*>\\n<h1>RynkePoints</h1>\\n<p class="tagline">${escapeHtml(de["landing.tagline"])}</p>\\n</div>`,
 			),
 		);
 	});
