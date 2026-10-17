@@ -24,7 +24,7 @@ Creates the viewer's report (intent or request, by date). `303
 
 | Case | Result |
 |---|---|
-| allowed (research R13) | report stored, `?done=reported` |
+| allowed (research R13) | report stored, no notice (the button shows it) |
 | report already there | nothing changes, same redirect |
 | attendance already recorded | nothing, `?error=already_attending` |
 | organiser | `403` |
@@ -36,7 +36,7 @@ Withdraws an intent. `303 /events#event-{id}`.
 
 | Case | Result |
 |---|---|
-| event not yet taken place | report deleted, `?done=withdrawn` |
+| event not yet taken place | report deleted, no notice |
 | event taken place | nothing, `?error=event_over` |
 | no report | nothing, same redirect |
 

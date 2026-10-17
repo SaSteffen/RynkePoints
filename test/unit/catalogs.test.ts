@@ -607,8 +607,6 @@ const CONTRACT_IDS = [
 	"events.report",
 	"events.reported.label",
 	"events.attended",
-	"events.done.reported",
-	"events.done.withdrawn",
 	"events.error.event_over",
 	"events.error.already_attending",
 	"events.error.event_missing",

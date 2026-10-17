@@ -140,11 +140,11 @@ Orga and no Termine ([quickstart.md](quickstart.md) §2.1–2).
 
 - [x] T017 [P] [US2] `test/integration/rider-events.test.ts` (POST part, rows of
   contracts/http-routes.md): `POST /events/{id}/report` stores a report and
-  redirects to `/events?done=reported#event-{id}`; twice keeps one; an
+  redirects to `/events#event-{id}`; twice keeps one; an
   organiser gets `403`; an unknown or out-of-window event `?error=event_missing`;
   a rider with attendance `?error=already_attending`;
   `POST /events/{id}/report/delete` before the event deletes it
-  (`?done=withdrawn`), after it refuses (`?error=event_over`); a cross-origin
+  (no notice), after it refuses (`?error=event_over`); a cross-origin
   post is refused; the page then shows the green button with both labels
   (`events.joined`, `events.leave`) and `aria-pressed="true"`; balances, badges
   and the leaderboard are unchanged (FR-008, SC-003).

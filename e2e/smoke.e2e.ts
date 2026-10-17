@@ -347,14 +347,13 @@ test("a rider says Bin dabei and changes their mind (019 US2)", async ({
 		hasText: "Sample ride ahead",
 	});
 	await card.getByRole("button", { name: "Bin dabei" }).click();
-	await expect(page).toHaveURL(/done=reported/);
+	await expect(page).toHaveURL(/\/events#event-\d+$/);
 	const joined = card.locator("button.event-joined");
 	await expect(joined).toHaveAttribute("aria-pressed", "true");
 	await joined.hover();
-	await expect(joined.locator(".event-leave")).toBeVisible();
-	await expect(joined.locator(".event-stay")).toBeHidden();
+	await expect(joined.locator(".event-next")).toBeVisible();
+	await expect(joined.locator(".event-now")).toBeHidden();
 	await joined.click();
-	await expect(page).toHaveURL(/done=withdrawn/);
 	await expect(card.locator("button.event-join")).toBeVisible();
 });
 

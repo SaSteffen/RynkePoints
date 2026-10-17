@@ -723,8 +723,6 @@ export const en: Catalog = {
 	"events.report": "I was there",
 	"events.reported.label": "I was there, reported",
 	"events.attended": "You were there",
-	"events.done.reported": "Done, the organisers can see it.",
-	"events.done.withdrawn": "Cancelled.",
 	"events.error.event_over": "The event is over; you can't cancel any more.",
 	"events.error.already_attending": "You're already added to this event.",
 	"events.error.event_missing": "This event doesn't exist any more.",

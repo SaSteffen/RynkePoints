@@ -18,15 +18,21 @@ control is at least 44 px tall and every page fits 360 px (FR-051).
 1. Title "Teamtermine 📅", "bis {deadline}" beside it.
 2. Note: "Melde dich hier selbst an" — the app can't take participation from
    Spond or Strava yet (FR-003).
-3. "Demnächst", then — only if there are upcoming events — the line that "Bin
+Only refusals show a notice above the title; a report or withdrawal shows
+none, the button already says it.
+
+3. "Demnächst" (bold, larger than body text, like "Vorbei"), then — only if there are upcoming events — the line that "Bin
    dabei" only tells the organisers (FR-007); without upcoming events "Noch sind
    keine Teamtermine geplant."
 4. One card per upcoming event, soonest first: date block (weekday, day, month),
-   kind, name, chips "+n Team" and "+n Training" with the coins, and its button:
-   - no report: yellow "Bin dabei" (form, research R6);
-   - intent: green "Bin dabei ✓"; on hover/focus red "Doch nicht dabei".
+   kind, name, then chips "+n Team" and "+n Training" with the coins and its
+   button on the same line (it wraps below on a narrow phone). Every card has
+   the same background. Hover or focus shows what a tap leads to:
+   - no report: yellow "Bin dabei"; hover green "Bin dabei ✓" (form, research R6);
+   - intent: green "Bin dabei ✓"; hover red "Doch nicht dabei".
 5. "Vorbei", newest first, five then "Alle zeigen": the same card, with
-   - no attendance, no report: outlined "Ich war dabei";
+   - no attendance, no report: outlined "Ich war dabei"; hover green "Ich war
+     dabei ✓";
    - request: green "Ich war dabei ✓", `aria-disabled`, no form;
    - attendance: "Du warst dabei" with a tick, no button.
 6. Each card has `id="event-{id}"` so a post returns to it.

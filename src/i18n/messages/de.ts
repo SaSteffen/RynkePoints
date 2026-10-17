@@ -760,8 +760,6 @@ export const de = {
 	"events.report": "Ich war dabei",
 	"events.reported.label": "Ich war dabei, gemeldet",
 	"events.attended": "Du warst dabei",
-	"events.done.reported": "Erledigt, die Orga sieht es.",
-	"events.done.withdrawn": "Abgesagt.",
 	"events.error.event_over": "Der Termin ist vorbei, absagen geht nicht mehr.",
 	"events.error.already_attending":
 		"Du bist bei diesem Termin schon eingetragen.",

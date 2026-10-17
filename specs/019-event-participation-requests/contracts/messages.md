@@ -35,8 +35,6 @@ Wording may be polished in implementation; the meaning may not change.
 | `events.report` | I was there | Ich war dabei |
 | `events.reported.label` | I was there, reported | Ich war dabei, gemeldet |
 | `events.attended` | You were there | Du warst dabei |
-| `events.done.reported` | Done, the organisers can see it. | Erledigt, die Orga sieht es. |
-| `events.done.withdrawn` | Cancelled. | Abgesagt. |
 | `events.error.event_over` | The event is over; you can't cancel any more. | Der Termin ist vorbei, absagen geht nicht mehr. |
 | `events.error.already_attending` | You're already added to this event. | Du bist bei diesem Termin schon eingetragen. |
 

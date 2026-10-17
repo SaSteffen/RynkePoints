@@ -178,14 +178,14 @@ describe("Bin dabei and Doch nicht dabei (US2)", () => {
 		const res = await post(`/events/${event}/report`);
 		expect(res.status).toBe(303);
 		expect(res.headers.get("Location")).toBe(
-			`/events?done=reported#event-${event}`,
+			`/events#event-${event}`,
 		);
 		expect(await reportsOf()).toEqual([event]);
 		expect(await snapshot()).toEqual(before);
 		const card = cardOf((await page()).html, event);
 		expect(card).toContain(`action="/events/${event}/report/delete"`);
 		expect(card).toContain('aria-pressed="true"');
-		expect(card).toContain(`<span class="event-leave">`);
+		expect(card).toContain(`<span class="event-next">`);
 		expect(card).toContain(escapeHtml(de["events.leave"]));
 		expect(card).toContain(
 			`aria-label="${escapeHtml(de["events.joined.label"])}"`,
@@ -204,7 +204,7 @@ describe("Bin dabei and Doch nicht dabei (US2)", () => {
 		await post(`/events/${event}/report`);
 		const res = await post(`/events/${event}/report/delete`);
 		expect(res.headers.get("Location")).toBe(
-			`/events?done=withdrawn#event-${event}`,
+			`/events#event-${event}`,
 		);
 		expect(await reportsOf()).toEqual([]);
 		const card = cardOf((await page()).html, event);
@@ -226,9 +226,7 @@ describe("Bin dabei and Doch nicht dabei (US2)", () => {
 		expect(await reportsOf()).toEqual([today]);
 	});
 
-	it("shows the notices", async () => {
-		const done = await page("/events?done=withdrawn");
-		expect(done.html).toContain(escapeHtml(de["events.done.withdrawn"]));
+	it("shows the refusal notice", async () => {
 		const error = await page("/events?error=event_over");
 		expect(error.html).toContain(escapeHtml(de["events.error.event_over"]));
 	});

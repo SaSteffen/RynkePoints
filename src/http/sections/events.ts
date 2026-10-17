@@ -44,10 +44,8 @@ const PATH = "/events";
 /** Past events shown before "Alle zeigen" (FR-001). */
 const PAST_SHOWN = 5;
 
-const DONE = ["reported", "withdrawn"] as const;
 const ERRORS = ["event_over", "already_attending", "event_missing"] as const;
 
-type Done = (typeof DONE)[number];
 type Refusal = (typeof ERRORS)[number];
 
 /** One event as the tab shows it. */
@@ -57,11 +55,6 @@ interface ShownEvent {
 }
 
 function notice(url: URL, i18n: I18n): SafeHtml | null {
-	const done = url.searchParams.get("done");
-	if ((DONE as readonly (string | null)[]).includes(done)) {
-		return html`<p class="notice" role="status">${i18n.t(`events.done.${done as Done}`)}</p>
-`;
-	}
 	const error = url.searchParams.get("error");
 	if ((ERRORS as readonly (string | null)[]).includes(error)) {
 		return html`<p class="notice notice-error" role="alert">${i18n.t(`events.error.${error as Refusal}`)}</p>
@@ -90,11 +83,11 @@ function action(i18n: I18n, event: ShownEvent): SafeHtml {
 	const report = `${PATH}/${event.row.event_id}/report`;
 	switch (event.state) {
 		case "join":
-			return html`<form method="post" action="${report}"><button class="event-button event-join">${PLUS}<span>${i18n.t("events.join")}</span></button></form>`;
+			return html`<form method="post" action="${report}"><button class="event-button event-join"><span class="event-now">${PLUS}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.join")}</span></span></button></form>`;
 		case "intent":
-			return html`<form method="post" action="${report}/delete"><button class="event-button event-joined" aria-pressed="true" aria-label="${i18n.t("events.joined.label")}"><span class="event-stay">${CHECK}<span>${i18n.t("events.join")}</span></span><span class="event-leave">${CLOSE}<span>${i18n.t("events.leave")}</span></span></button></form>`;
+			return html`<form method="post" action="${report}/delete"><button class="event-button event-joined" aria-pressed="true" aria-label="${i18n.t("events.joined.label")}"><span class="event-now">${CHECK}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CLOSE}<span>${i18n.t("events.leave")}</span></span></button></form>`;
 		case "report":
-			return html`<form method="post" action="${report}"><button class="event-button event-report">${PLUS}<span>${i18n.t("events.report")}</span></button></form>`;
+			return html`<form method="post" action="${report}"><button class="event-button event-report"><span class="event-now">${PLUS}<span>${i18n.t("events.report")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.report")}</span></span></button></form>`;
 		case "request":
 			return html`<button type="button" class="event-button event-reported" aria-disabled="true" aria-label="${i18n.t("events.reported.label")}">${CHECK}<span>${i18n.t("events.report")}</span></button>`;
 		case "attended":
@@ -112,12 +105,12 @@ function card(i18n: I18n, event: ShownEvent): SafeHtml {
 			? null
 			: html`<p class="event-name">${row.name}</p>
 `;
-	return html`<li class="event-card card event-${event.state}" id="event-${row.event_id}">
+	return html`<li class="event-card card event-state-${event.state}" id="event-${row.event_id}">
 <span class="event-date" aria-hidden="true"><span>${parts.weekday}</span><span class="event-day">${parts.day}</span><span>${parts.month}</span></span>
 <div class="event-body">
 <p class="event-kind"><span class="visually-hidden">${date} · </span>${i18n.t(`rynke.source.${row.kind}`)}</p>
-${name}<p class="event-amounts"><span class="chip">${miniCoin("team")}${i18n.t("events.amount.team", { n: String(amounts.team) })}</span><span class="chip">${miniCoin("training")}${i18n.t("events.amount.training", { n: String(amounts.training) })}</span></p>
-${action(i18n, event)}
+${name}<div class="event-foot"><p class="event-amounts"><span class="chip">${miniCoin("team")}${i18n.t("events.amount.team", { n: String(amounts.team) })}</span><span class="chip">${miniCoin("training")}${i18n.t("events.amount.training", { n: String(amounts.training) })}</span></p>
+${action(i18n, event)}</div>
 </div>
 </li>
 `;
@@ -192,9 +185,10 @@ export function handleEvents(
 	);
 }
 
-/** `303` back to the event's card with a notice. */
-function back(eventId: number, param: "done" | "error", code: string) {
-	return redirect(`${PATH}?${param}=${code}#event-${eventId}`, 303);
+/** `303` back to the event's card, with a notice only when refused. */
+function back(eventId: number, error?: Refusal) {
+	const query = error === undefined ? "" : `?error=${error}`;
+	return redirect(`${PATH}${query}#event-${eventId}`, 303);
 }
 
 /**
@@ -233,17 +227,17 @@ async function changeReport(
 		return redirect(`${PATH}?error=event_missing`, 303);
 	}
 	if (((attendedRows?.results ?? []) as { n: number }[])[0]?.n === 1) {
-		return back(eventId, "error", "already_attending");
+		return back(eventId, "already_attending");
 	}
 	if (withdraw) {
 		if (hasTakenPlace(event.event_date, berlinDate(ctx.now()))) {
-			return back(eventId, "error", "event_over");
+			return back(eventId, "event_over");
 		}
 		await deleteReportsStatement(db, eventId, [athleteId]).run();
-		return back(eventId, "done", "withdrawn");
+		return back(eventId);
 	}
 	await insertReportStatement(db, eventId, athleteId, ctx.now()).run();
-	return back(eventId, "done", "reported");
+	return back(eventId);
 }
 
 /** `POST /events/{id}/report`: "Bin dabei" or "Ich war dabei" (FR-004, FR-005). */
