@@ -46,6 +46,23 @@ describe("GET /privacy", () => {
 		},
 	);
 
+	it("says organisers see what riders report at team events (019 FR-052)", async () => {
+		const { page } = await get("/privacy", "de");
+		for (const id of [
+			"privacy.team.body",
+			"privacy.visibility.organisers",
+		] as const) {
+			expect(page, id).toContain(escapeHtml(CATALOGS.de[id]));
+			expect(CATALOGS.de[id], id).toContain("Teamtermin");
+		}
+		expect(CATALOGS.de["privacy.visibility.organisers"]).toContain(
+			"gemeldet hast, dass du dabei bist oder warst",
+		);
+		expect(CATALOGS.de["consent.organisers"]).toContain(
+			"gemeldet hast, dass du dabei bist oder warst",
+		);
+	});
+
 	it("names the controller and links the contact address", async () => {
 		const { page } = await get("/privacy", "de");
 		expect(page).toContain(

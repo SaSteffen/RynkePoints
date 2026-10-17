@@ -111,6 +111,19 @@ export async function attendRaw(
 	);
 }
 
+/** A participation report written with plain SQL (feature 019). */
+export async function reportRaw(
+	eventId: number,
+	athleteId: number,
+	at = NOW,
+): Promise<void> {
+	await env.DB.prepare(
+		"INSERT INTO participation_reports (event_id, athlete_id, reported_at) VALUES (?, ?, ?)",
+	)
+		.bind(eventId, athleteId, at)
+		.run();
+}
+
 /** The rider's stored attendances, as the evaluation reads them. */
 export async function storedAttendance(
 	athleteId = ATHLETE_A,

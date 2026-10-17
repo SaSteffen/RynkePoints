@@ -5,6 +5,7 @@ import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import { makeCtx, request, resetDb, seedRider } from "../support/ctx";
 import { riderPage, seedBalance } from "../support/rider-view";
+import { insertEvent, reportRaw } from "../support/rynke";
 
 // The organiser overview at `/organiser/riders` (016 US4, FR-031–FR-035,
 // contracts/pages.md, contracts/http-routes.md). The test clock is 6 October
@@ -148,7 +149,7 @@ describe("GET /organiser/riders, the overview", () => {
 		);
 	});
 
-	it("has the four tiles with their counts (FR-032)", async () => {
+	it("has the five tiles with their counts (FR-032, 019 FR-034)", async () => {
 		const { html } = await overview();
 		const tiles = [
 			...sectionOf(html, '<nav class="group-tiles', "</nav>").matchAll(
@@ -156,6 +157,11 @@ describe("GET /organiser/riders, the overview", () => {
 			),
 		].map((m) => [m[1], m[2], m[3]]);
 		expect(tiles).toEqual([
+			[
+				"/organiser/riders?group=requests",
+				"0",
+				escapeHtml(de["organiser.overview.group.requests"]),
+			],
 			[
 				"/organiser/riders?group=push",
 				"2",
@@ -237,9 +243,13 @@ describe("GET /organiser/riders, the overview", () => {
 		expect(card).toContain(fill(de["organiser.overview.elevation"], { n: 5 }));
 		expect(card).toContain(fill(de["organiser.overview.virtual"], { n: 20 }));
 		const row = rowOf(html, JONAS_BEHIND.id);
-		for (const figure of ["50", "5", "40", "41", "20 %"]) {
+		for (const figure of ["50", "5", "41", "20 %"]) {
 			expect(row).toContain(`>${figure}<`);
 		}
+		// One Rynke column, Training above Team (019 follow-up).
+		expect(row.indexOf('class="bar-block bar-training"')).toBeLessThan(
+			row.indexOf('class="bar-block bar-team"'),
+		);
 		expect(row).toContain(escapeHtml(de["organiser.overview.group.push"]));
 		expect(row).toContain(
 			`<span class="to-go behind">${fill(de["organiser.overview.toGo.short"], { n: 200 })}<span class="visually-hidden"> · ${escapeHtml(de["organiser.overview.behind"])}</span></span>`,
@@ -291,6 +301,58 @@ describe("GET /organiser/riders, the overview", () => {
 		expect(html).not.toContain(UNCONSENTED.name);
 		expect(html).not.toContain(`/organiser/riders/${UNCONSENTED.id}`);
 		expect(html).not.toContain(">999<");
+	});
+});
+
+// Feature 019 FR-034: riders with open requests, one line per request.
+describe("GET /organiser/riders with open requests", () => {
+	beforeEach(async () => {
+		const technique = await insertEvent("technique_training", "2026-09-26");
+		const training = await insertEvent("team_training", "2026-09-19");
+		const upcoming = await insertEvent("team_training", "2026-10-10");
+		await reportRaw(technique, JONAS_BEHIND.id);
+		await reportRaw(training, JONAS_BEHIND.id);
+		await reportRaw(training, QUALIFIED.id);
+		await reportRaw(upcoming, JONAS_ON_TRACK.id);
+	});
+
+	it("counts riders with open requests in an alert tile", async () => {
+		const { html } = await overview();
+		expect(html).toMatch(
+			/<a class="group-tile tile-requests tile-alert" href="\/organiser\/riders\?group=requests"><span class="tile-count">2<\/span>/,
+		);
+	});
+
+	it("shows only them under the requests tile", async () => {
+		const { html } = await overview("/organiser/riders?group=requests");
+		expect(cardsOf(html)).toHaveLength(2);
+		expect(cardOf(html, JONAS_ON_TRACK.id)).toBe("");
+		expect(tableOf(html).match(/<tr class="status-/g)).toHaveLength(2);
+	});
+
+	it("puts them first when everyone is shown", async () => {
+		const { html } = await overview("/organiser/riders?group=all");
+		const ids = [...tableOf(html).matchAll(/\/organiser\/riders\/(\d+)"/g)].map(
+			(m) => Number(m[1]),
+		);
+		expect(ids.slice(0, 2).sort()).toEqual(
+			[QUALIFIED.id, JONAS_BEHIND.id].sort(),
+		);
+	});
+
+	it("gives each open request its own line and forms", async () => {
+		const { html } = await overview("/organiser/riders?group=requests");
+		const row = rowOf(html, JONAS_BEHIND.id);
+		expect(row.match(/<li class="request">/g)).toHaveLength(2);
+		expect(row.match(/name="decision" value="confirm"/g)).toHaveLength(2);
+		expect(row.match(/name="decision" value="deny"/g)).toHaveLength(2);
+		expect(row).toContain(
+			'<input type="hidden" name="back" value="/organiser/riders?group=requests">',
+		);
+		expect(cardOf(html, JONAS_BEHIND.id)).toContain("rider-requests");
+		expect(
+			rowOf(html, QUALIFIED.id).match(/<li class="request">/g),
+		).toHaveLength(1);
 	});
 });
 

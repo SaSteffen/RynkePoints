@@ -1,6 +1,17 @@
 import { berlinDate } from "../../config";
 import type { Ctx } from "../../ctx";
 import {
+	type ListedRiderRow,
+	listListedRidersStatement,
+} from "../../db/organiser";
+import {
+	countIntentsStatement,
+	type IntentCountRow,
+	listAttendedEventsStatement,
+	listOpenRequestsStatement,
+	type OpenRequestRow,
+} from "../../db/participation";
+import {
 	listTeamEventsStatement,
 	readTeamEventStatement,
 	type TeamEventListRow,
@@ -8,6 +19,7 @@ import {
 } from "../../db/team-events";
 import type { I18n } from "../../i18n/i18n";
 import { TeamEventRefused, teamEventChange } from "../../rynke/apply";
+import { hasTakenPlace } from "../../rynke/participation";
 import {
 	countingWindow,
 	inCountingWindow,
@@ -16,6 +28,8 @@ import {
 import { TEAM_EVENT_KINDS, type TeamEventKind } from "../../rynke/team-events";
 import { notFound } from "../errors";
 import { html, type SafeHtml } from "../html";
+import { PLUS } from "../icons";
+import { redirect } from "../redirect";
 import {
 	changeRecord,
 	noticeFromQuery,
@@ -24,7 +38,13 @@ import {
 	redirectWith,
 	requireOrganiserPost,
 } from "./access";
-import { attendanceSection, isFutureEvent, readAttendance } from "./attendance";
+import {
+	attendanceNotice,
+	attendanceSection,
+	isFutureEvent,
+	readAttendance,
+} from "./attendance";
+import { decisionNotice, openRequestsBlock } from "./requests";
 
 // The organiser's team events (feature 014 Story 1, contracts/http-routes.md):
 // the season's list with a new-event form at `/organiser`, and each event's
@@ -73,13 +93,48 @@ function eventFields(
 <label>${i18n.t("organiser.field.name")}<input type="text" name="name" value="${event.name ?? ""}" maxlength="100"></label>`;
 }
 
-function listItem(i18n: I18n, event: TeamEventListRow): SafeHtml {
-	return html`<li class="organiser-event"><a href="${eventPath(event.event_id)}">
+/** What feature 019 adds to an event in the list. */
+interface ListExtras {
+	past: boolean;
+	/** Open requests at a past event. */
+	open: number;
+	/** Intents at an event still to come. */
+	intents: number;
+	/** Whether the viewing organiser attended. */
+	you: boolean;
+}
+
+function listItem(
+	i18n: I18n,
+	event: TeamEventListRow,
+	extras: ListExtras,
+): SafeHtml {
+	const count = { count: String(event.attendees) };
+	const people = extras.past
+		? html`<span>${i18n.t(extras.you ? "organiser.events.attendees.you" : "organiser.events.attendees", count)}</span>`
+		: null;
+	const open =
+		extras.open > 0
+			? html`<span class="chip chip-alert">${i18n.t("organiser.events.open", { count: String(extras.open) })}</span>`
+			: null;
+	const intents =
+		extras.intents > 0
+			? html`<span class="chip chip-team">${i18n.t("organiser.events.intents", { count: String(extras.intents) })}</span>`
+			: null;
+	const chips =
+		open || intents
+			? html`<span class="event-chips">${open}${intents}</span>`
+			: null;
+	// "Ich war auch dabei": past events only, no intent (019 FR-036).
+	const self =
+		extras.past && !extras.you
+			? html`<form method="post" action="${eventPath(event.event_id)}/self" class="self-form"><button class="button-outlined">${PLUS}<span>${i18n.t("organiser.events.self")}</span></button></form>`
+			: null;
+	return html`<li class="organiser-event" id="event-${event.event_id}"><a href="${eventPath(event.event_id)}">
 <span class="organiser-event-title">${i18n.formatDate(`${event.event_date}T00:00:00Z`)} · ${i18n.t(`rynke.source.${event.kind}`)}</span>
 ${event.name === null ? "" : html`<span class="organiser-event-name">${event.name}</span>`}
-<span>${i18n.t("organiser.events.attendees", { count: String(event.attendees) })}</span>
-</a>
-${changeRecord(i18n, event.changed_by_name, event.changed_at)}</li>`;
+${people}${chips}</a>
+${self}${changeRecord(i18n, event.changed_by_name, event.changed_at)}</li>`;
 }
 
 /** `GET /organiser`: the season's events, newest first, and a new one. */
@@ -88,21 +143,58 @@ export function handleOrganiserEvents(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	return organiserPage(request, ctx, i18n, LIST, async () => {
-		const { results } = await listTeamEventsStatement(
-			ctx.env.DB,
-			ctx.env.SEASON_START_DATE,
-		).all<TeamEventListRow>();
+	return organiserPage(request, ctx, i18n, LIST, async ({ rider }) => {
+		const db = ctx.env.DB;
+		const day = berlinDate(ctx.now());
+		const window = countingWindow(ctx.env);
+		const [eventRows, requestRows, intentRows, attendedRows, listedRows] =
+			await db.batch([
+				listTeamEventsStatement(db, ctx.env.SEASON_START_DATE),
+				listOpenRequestsStatement(db, day, window),
+				countIntentsStatement(db, day, window),
+				listAttendedEventsStatement(db, rider.athleteId),
+				listListedRidersStatement(db),
+			]);
+		const listed = (listedRows?.results ?? []) as ListedRiderRow[];
+		const results = (eventRows?.results ?? []) as TeamEventListRow[];
+		const requests = (requestRows?.results ?? []) as OpenRequestRow[];
+		const intents = new Map(
+			((intentRows?.results ?? []) as IntentCountRow[]).map((r) => [
+				r.event_id,
+				r.intents,
+			]),
+		);
+		const attended = new Set(
+			((attendedRows?.results ?? []) as { event_id: number }[]).map(
+				(r) => r.event_id,
+			),
+		);
+		const item = (e: TeamEventListRow) =>
+			listItem(i18n, e, {
+				past: hasTakenPlace(e.event_date, day),
+				open: requests.filter((r) => r.event_id === e.event_id).length,
+				intents: intents.get(e.event_id) ?? 0,
+				you: attended.has(e.event_id),
+			});
+		const upcoming = results
+			.filter((e) => !hasTakenPlace(e.event_date, day))
+			.reverse();
+		const past = results.filter((e) => hasTakenPlace(e.event_date, day));
+		const group = (heading: SafeHtml, events: TeamEventListRow[]) =>
+			events.length === 0
+				? null
+				: html`${heading}<ul class="organiser-events">${events.map(item)}</ul>`;
 		const list =
 			results.length === 0
 				? html`<p>${i18n.t("organiser.events.none")}</p>`
-				: html`<ul class="organiser-events">${results.map((e) => listItem(i18n, e))}</ul>`;
+				: html`${group(html`<h3>${i18n.t("organiser.events.upcoming")}</h3>`, upcoming)}${group(html`<h3>${i18n.t("organiser.events.past")}</h3>`, past)}`;
 		const today = {
 			kind: TEAM_EVENT_KINDS[0],
-			event_date: berlinDate(ctx.now()),
+			event_date: day,
 			name: null,
 		};
-		return html`${organiserSwitch(i18n, "events")}${noticeFromQuery(new URL(request.url), i18n)}
+		const url = new URL(request.url);
+		return html`${organiserSwitch(i18n, "events", requests.length)}${await decisionNotice(url, ctx, i18n, LIST)}${noticeFromQuery(url, i18n)}${openRequestsBlock(i18n, requests, LIST, listed)}
 <section class="organiser">
 <h2>${i18n.t("organiser.events.new")}</h2>
 <form method="post" action="/organiser/events" class="organiser-form">
@@ -132,9 +224,9 @@ export function handleOrganiserEvent(
 			eventId,
 		).first<TeamEventRecordRow>();
 		if (!event) return notFound(i18n, path);
-		const { riders, attendees } = await readAttendance(ctx, eventId);
+		const { riders, attendees, reports } = await readAttendance(ctx, eventId);
 		const future = isFutureEvent(ctx, event.event_date);
-		return html`${noticeFromQuery(new URL(request.url), i18n)}
+		return html`${attendanceNotice(new URL(request.url), i18n)}
 <section class="organiser">
 <p><a href="${LIST}">${i18n.t("organiser.back")}</a></p>
 <h2>${i18n.t("organiser.event.heading")}</h2>
@@ -143,7 +235,7 @@ ${eventFields(i18n, event)}
 <button class="button">${i18n.t("organiser.save")}</button>
 </form>
 ${changeRecord(i18n, event.changed_by_name, event.changed_at)}
-${attendanceSection(i18n, { eventId, future }, riders, attendees)}
+${attendanceSection(i18n, { eventId, future }, riders, attendees, reports)}
 <details class="organiser-confirm">
 <summary>${i18n.t("organiser.event.delete")}</summary>
 <p>${i18n.t("organiser.event.deleteWarning")}</p>
@@ -234,6 +326,47 @@ export async function handleDeleteEvent(
 	try {
 		await teamEventChange(ctx, { kind: "delete-event", eventId });
 		return redirectWith(LIST, "done", "deleted");
+	} catch (error) {
+		if (error instanceof TeamEventRefused) {
+			return redirectWith(LIST, "error", error.code);
+		}
+		throw error;
+	}
+}
+
+/**
+ * `POST /organiser/events/{id}/self`: "Ich war auch dabei", the organiser's
+ * own attendance at an event that has taken place (019 FR-036).
+ */
+export async function handleSelfAttendance(
+	request: Request,
+	ctx: Ctx,
+	i18n: I18n,
+	eventId: number,
+): Promise<Response> {
+	const rider = await requireOrganiserPost(
+		request,
+		ctx,
+		i18n,
+		`${eventPath(eventId)}/self`,
+	);
+	if (rider instanceof Response) return rider;
+	const event = await readTeamEventStatement(
+		ctx.env.DB,
+		eventId,
+	).first<TeamEventRecordRow>();
+	if (!event) return redirectWith(LIST, "error", "event_missing");
+	if (isFutureEvent(ctx, event.event_date)) {
+		return redirectWith(LIST, "error", "future_event");
+	}
+	try {
+		await teamEventChange(ctx, {
+			kind: "add-attendance",
+			eventId,
+			athleteIds: [rider.athleteId],
+			by: rider.athleteId,
+		});
+		return redirect(`${LIST}?done=attendance#event-${eventId}`, 303);
 	} catch (error) {
 		if (error instanceof TeamEventRefused) {
 			return redirectWith(LIST, "error", error.code);

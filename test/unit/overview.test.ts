@@ -209,6 +209,7 @@ describe("overviewBody", () => {
 
 	it("has a tile per group with its count (FR-032)", () => {
 		expect(tiles(page(null))).toEqual([
+			["requests", "0", "Riders with an open report ⏳"],
 			["push", "2", "Need a push"],
 			["on_track", "1", "On track"],
 			["in", "1", "Training goal reached"],
@@ -228,6 +229,7 @@ describe("overviewBody", () => {
 			);
 		}
 		expect(tile("all")).not.toContain("<img");
+		expect(tile("requests")).not.toContain("<img");
 		expect(html).toContain(
 			'<span class="status-chip"><img class="status-art status-art-chip" src="/illustrations/status_on_track_fun.svg" alt="" width="20" height="20">On track</span>',
 		);
@@ -261,9 +263,8 @@ describe("overviewBody", () => {
 		const html = page(null);
 		expect(html).toContain("today 138 Training and 13 Team.");
 		expect(html.match(/<line class="pace-mark"/g)).toHaveLength(
-			// Training and Team in a card, plus outdoor Training in the table
-			// row, for four riders.
-			(2 + 3) * 4,
+			// Training and Team in a card and in the table row, for four riders.
+			(2 + 2) * 4,
 		);
 		expect(html).toMatch(/<svg class="threshold-bar"[^>]*aria-hidden="true"/);
 	});
@@ -302,6 +303,7 @@ describe("overviewBody", () => {
 		expect(html).toContain("The deadline has passed");
 		expect(html).not.toContain("days to go");
 		expect(tiles(html).map(([group, , label]) => [group, label])).toEqual([
+			["requests", "Riders with an open report ⏳"],
 			["push", "Training goal not reached yet"],
 			["in", "Training goal reached"],
 			["all", "Everyone"],

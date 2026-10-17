@@ -6,6 +6,10 @@
 
 **Status**: Draft
 
+**Amended by**: [019-event-participation-requests](../019-event-participation-requests/spec.md)
+(FR-045, FR-046): the Team page no longer shows the place card (FR-016) or the
+peloton (FR-017, FR-018); the Rangliste moves above the team chart.
+
 **Input**: Backlog prompt `specs/backlog/team-leaderboard.md` (removed with this
 spec): "Specify the team leaderboard and the organiser overview of RynkePoints.
 Seeing each other's progress is the purpose of the app: it should motivate riders to

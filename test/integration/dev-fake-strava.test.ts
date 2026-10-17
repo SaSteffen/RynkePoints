@@ -191,7 +191,9 @@ describe("seeding (FR-005, FR-012)", () => {
 	}, 30_000);
 });
 
-describe("seeding again", () => {
+// Each test here seeds every sample rider, which takes close to the default
+// 5 s on CI's runners; they timed out there now and then.
+describe("seeding again", { timeout: 20_000 }, () => {
 	const fakeRides = () =>
 		count("SELECT COUNT(*) AS n FROM fake_strava_activities");
 	const allRides = SAMPLE_RIDERS.reduce((n, r) => n + r.rides.length, 0);
@@ -306,7 +308,8 @@ describe("every badge at /_dev/badges (013)", () => {
 	});
 });
 
-describe("sample riders in every state (US2)", () => {
+// Seeding every sample rider again, as above.
+describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 	const IDA = 990001;
 	const NORA = 990002;
 	const FIONA = 990003;

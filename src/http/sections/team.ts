@@ -10,7 +10,6 @@ import {
 	SEASON_QUOTES_PUSH,
 	type Season,
 } from "../../i18n/messages/quotes.de";
-import { breakawayFence } from "../../rynke/breakaway";
 import {
 	type LeaderboardRow,
 	leaderboardRows,
@@ -19,12 +18,11 @@ import {
 	type RynkeKind,
 	type TeamTotals,
 	teamTotals,
-	type Viewer,
 } from "../../rynke/leaderboard";
 import { type RiderStatus, riderStatus } from "../../rynke/pace";
 import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
 import { lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
-import { peloton, sparkline, weekBars } from "../charts";
+import { sparkline, weekBars } from "../charts";
 import { amount, coinArt, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import { renderReconnect } from "../rider-sections";
@@ -80,38 +78,6 @@ ${
 		: null
 }</div>
 </section>
-`;
-}
-
-/** Every listed rider on the road; only with the viewer among them. */
-function renderPeloton(
-	i18n: I18n,
-	kind: RynkeKind,
-	rows: readonly LeaderboardRow[],
-): SafeHtml {
-	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
-	const totals = rows.map((row) => row.total);
-	const own = rows.findIndex((row) => row.you);
-	const fence = breakawayFence(totals);
-	const figures = {
-		count: whole(rows.length),
-		min: whole(Math.min(...totals)),
-		max: whole(Math.max(...totals)),
-		own: whole(rows[own]?.total ?? 0),
-	};
-	const label =
-		fence === null
-			? i18n.t("team.peloton.label", figures)
-			: i18n.t("team.peloton.label.breakaway", {
-					...figures,
-					away: whole(totals.filter((total) => total > fence).length),
-				});
-	return html`<figure class="peloton card">
-<figcaption>${i18n.t("team.peloton.heading")}</figcaption>
-<p class="team-hint">${i18n.t(fence === null ? "team.peloton.hint" : "team.peloton.hint.breakaway")}</p>
-${peloton(totals, own, fence, { label, you: i18n.t("team.peloton.you") }, kind)}
-<p class="chart-axis"><span>${i18n.t("team.peloton.back")}</span><span>${i18n.t(fence === null ? "team.peloton.front" : "team.peloton.breakaway")}</span></p>
-</figure>
 `;
 }
 
@@ -251,25 +217,6 @@ ${segment(teamHref("team", all), kind === "team", i18n.t("team.kind.team"), mini
 `;
 }
 
-function renderPlace(i18n: I18n, viewer: Viewer): SafeHtml {
-	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
-	const place = {
-		place: whole(viewer.place),
-		count: whole(viewer.count),
-	};
-	return html`<section class="my-place card">
-<span class="place-badge" aria-hidden="true">${whole(viewer.place)}</span><div>
-<p class="place">${i18n.t("team.place", place)}</p>
-<p class="place-next">${
-		viewer.toNext === null
-			? i18n.t("team.place.lead")
-			: i18n.t("team.place.next", { n: whole(viewer.toNext) })
-	}</p>
-</div>
-</section>
-`;
-}
-
 function renderRow(i18n: I18n, kind: RynkeKind, row: LeaderboardRow): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const other = OTHER_KIND[kind];
@@ -369,15 +316,16 @@ export function handleTeam(
 					quote.restart,
 				);
 			}
-			return html`${renderReconnect(i18n, rider)}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
-				viewer ? renderPlace(i18n, viewer) : null
-			}${quote ? renderQuote(i18n, quote) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${renderLeaderboard(
+			// No place card and no peloton since feature 019 (research R12): the
+			// leaderboard comes first, then the team chart.
+			const leaderboard = renderLeaderboard(
 				i18n,
 				kind,
 				all,
 				neighbourhood(rows, all),
 				rows.length,
-			)}`;
+			);
+			return html`${renderReconnect(i18n, rider)}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${quote ? renderQuote(i18n, quote) : null}${leaderboard}${renderTeamChart(i18n, kind, totals)}`;
 		},
 	);
 }

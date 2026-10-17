@@ -25,6 +25,8 @@ const SECTIONS: { path: string; label: string; short?: string }[] = [
 	{ path: "/me", label: de["nav.you"] },
 	{ path: "/me/rides", label: de["nav.rides"] },
 	{ path: "/me/badges", label: de["nav.badges"] },
+	// Feature 019: riders who aren't organisers have Termine where Orga is.
+	{ path: "/events", label: de["nav.events"] },
 	{
 		path: "/me/settings",
 		label: de["nav.settings"],
@@ -161,25 +163,29 @@ describe.each(PAGES)("GET $url", ({ url, current }) => {
 	});
 });
 
-// Feature 016: organisers get Orga before Settings, on every section.
+// Feature 016: organisers get Orga before Settings, on every section, and
+// no Termine (feature 019 research R8).
 describe("the navigation of an organiser", () => {
-	it.each(SECTIONS)("has Orga before Settings on $path", async ({ path }) => {
-		await seedRider(ctx, { organiser: true });
-		const { html } = await get(path);
-		const [nav] = navs(html);
-		const hrefs = [...(nav ?? "").matchAll(/<a href="([^"]*)"/g)].map(
-			(m) => m[1],
-		);
-		expect(hrefs).toEqual([
-			"/team",
-			"/me",
-			"/me/rides",
-			"/me/badges",
-			"/organiser/riders",
-			"/me/settings",
-		]);
-		expect(nav).toContain(
-			`<span class="nav-label">${de["nav.organiser"]}</span>`,
-		);
-	});
+	it.each(SECTIONS.filter(({ path }) => path !== "/events"))(
+		"has Orga before Settings on $path",
+		async ({ path }) => {
+			await seedRider(ctx, { organiser: true });
+			const { html } = await get(path);
+			const [nav] = navs(html);
+			const hrefs = [...(nav ?? "").matchAll(/<a href="([^"]*)"/g)].map(
+				(m) => m[1],
+			);
+			expect(hrefs).toEqual([
+				"/team",
+				"/me",
+				"/me/rides",
+				"/me/badges",
+				"/organiser/riders",
+				"/me/settings",
+			]);
+			expect(nav).toContain(
+				`<span class="nav-label">${de["nav.organiser"]}</span>`,
+			);
+		},
+	);
 });

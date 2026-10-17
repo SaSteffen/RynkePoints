@@ -14,7 +14,7 @@ import {
 	sessionCookie,
 } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
-import { attendRaw, insertEvent } from "../support/rynke";
+import { attendRaw, insertEvent, reportRaw } from "../support/rynke";
 
 // Organisers record who attended an event (feature 014 Story 2, FR-020–FR-022,
 // SC-003, research R6, R10). The clock says 2026-10-06; riders connected then,
@@ -309,5 +309,146 @@ describe("the attendance checklist", () => {
 		);
 		expect(html).toContain(escapeHtml(de["organiser.attendance.none"]));
 		expect(html).not.toContain("<form");
+	});
+});
+
+// Feature 019 US5 (FR-040–FR-044, research R5): reports as grey boxes.
+describe("tri-state boxes", () => {
+	const NORA = 900_005;
+	const EMIL = 900_006;
+
+	/** POSTs `shown` ids and `decide-{id}` values as one form. */
+	function decideForm(
+		decisions: [number, "open" | "yes" | "no"][],
+		shown: [number, 0 | 1][] = [],
+	): FormData {
+		const form = attendanceForm([], shown);
+		for (const [id, value] of decisions) {
+			form.append("shown", `${id}:r`);
+			form.append(`decide-${id}`, value);
+		}
+		return form;
+	}
+
+	async function reported(id = eventId): Promise<number[]> {
+		const { results } = await env.DB.prepare(
+			"SELECT athlete_id FROM participation_reports WHERE event_id = ? ORDER BY athlete_id",
+		)
+			.bind(id)
+			.all<{ athlete_id: number }>();
+		return results.map((r) => r.athlete_id);
+	}
+
+	beforeEach(async () => {
+		await seedRider(ctx, { athleteId: NORA, firstName: "Nora" });
+		await seedRider(ctx, { athleteId: EMIL, firstName: "Emil" });
+		await reportRaw(eventId, ATHLETE_A);
+		await reportRaw(eventId, NORA);
+		await reportRaw(eventId, EMIL);
+	});
+
+	it("lists requested riders first with three radios, the legend and the hint", async () => {
+		const html = await eventPage();
+		const list =
+			html.match(/<ul class="attendance-list">[\s\S]*?<\/ul>/)?.[0] ?? "";
+		const firstChecklistRow = list.indexOf('type="checkbox"');
+		for (const id of [ATHLETE_A, NORA, EMIL]) {
+			const at = list.indexOf(
+				`<input type="hidden" name="shown" value="${id}:r">`,
+			);
+			expect(at).toBeGreaterThan(0);
+			expect(at).toBeLessThan(firstChecklistRow);
+			expect(list).toContain(
+				`<input type="radio" name="decide-${id}" value="open" checked>`,
+			);
+			expect(list).toContain(
+				`<input type="radio" name="decide-${id}" value="yes">`,
+			);
+			expect(list).toContain(
+				`<input type="radio" name="decide-${id}" value="no">`,
+			);
+			expect(checkbox(html, id)).toBeNull();
+		}
+		expect(html).toContain('<ul class="tri-legend"');
+		expect(html).toContain(escapeHtml(de["organiser.attendance.legend.grey"]));
+		expect(html).toContain(escapeHtml(de["organiser.attendance.tag.open"]));
+		expect(html).toContain(
+			escapeHtml(de["organiser.attendance.confirmAll"].replace("{n}", "3")),
+		);
+	});
+
+	it("confirms yes, denies no, keeps open, and counts them in the notice (FR-042)", async () => {
+		const res = await postForm(
+			decideForm([
+				[ATHLETE_A, "yes"],
+				[NORA, "no"],
+				[EMIL, "open"],
+			]),
+		);
+		expectRedirect(
+			res,
+			`/organiser/events/${eventId}?done=attendance&yes=1&no=1&open=1`,
+		);
+		expect((await attendances()).map((a) => a.athlete_id)).toEqual([ATHLETE_A]);
+		expect(await reported()).toEqual([EMIL]);
+		const notice = await handleFetch(
+			request(
+				`/organiser/events/${eventId}?done=attendance&yes=1&no=1&open=1`,
+				{
+					cookies: await sessionCookie(ctx, ORGANISER),
+				},
+			),
+			ctx,
+		);
+		expect(await notice.text()).toContain(
+			escapeHtml(
+				de["organiser.done.attendance.reports"]
+					.replace("{yes}", "1")
+					.replace("{no}", "1")
+					.replace("{open}", "1"),
+			),
+		);
+	});
+
+	it("changes nothing for a request settled meanwhile", async () => {
+		await env.DB.prepare(
+			"DELETE FROM participation_reports WHERE athlete_id = ?",
+		)
+			.bind(NORA)
+			.run();
+		await postForm(decideForm([[NORA, "yes"]]));
+		expect(await attendances()).toEqual([]);
+	});
+
+	it("still applies ticks and unticks of other riders (014)", async () => {
+		const form = decideForm([[EMIL, "open"]], [[ATHLETE_B, 0]]);
+		form.append("attend", String(ATHLETE_B));
+		await postForm(form);
+		expect((await attendances()).map((a) => a.athlete_id)).toEqual([ATHLETE_B]);
+		expect(await reported()).toEqual(
+			[ATHLETE_A, NORA, EMIL].sort((a, b) => a - b),
+		);
+	});
+
+	it("shows an upcoming event's intents as locked grey boxes (FR-043)", async () => {
+		const later = await insertEvent("team_training", "2026-10-10");
+		await reportRaw(later, NORA);
+		const html = await eventPage(later);
+		expect(html).toContain(
+			escapeHtml(de["organiser.attendance.headingFuture"]),
+		);
+		expect(html).toContain(
+			escapeHtml(
+				de["organiser.attendance.countFuture"].replace("{count}", "1"),
+			),
+		);
+		expect(html).toContain(
+			escapeHtml(de["organiser.attendance.legend.greyFuture"]),
+		);
+		expect(html).toContain(escapeHtml(de["organiser.attendance.tag.intent"]));
+		expect(html).not.toContain('type="radio"');
+		expect(html).not.toContain(
+			`action="/organiser/events/${later}/attendance"`,
+		);
 	});
 });
