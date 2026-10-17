@@ -359,9 +359,10 @@ sections and that neither the place card nor the peloton is shown.
   a tick and MUST NOT withdraw anything.
 - **FR-006**: For an event where the rider's attendance is recorded, the event MUST
   read "Du warst dabei" and show no button.
-- **FR-007**: The section MUST say that "Bin dabei" only tells the organisers and
+- **FR-007**: Directly under the "Demnächst" heading, and only when there are
+  upcoming events, the tab MUST say that "Bin dabei" only tells the organisers,
   that Rynke come once the event has taken place and an organiser has recorded the
-  attendance.
+  attendance, and that the rider can withdraw until then.
 - **FR-008**: A report MUST NOT earn Rynke, count as attendance, or change any
   balance, badge, leaderboard or overview figure (features 003, 013, 016).
 - **FR-009**: Riders MUST NOT be told about decisions: no message, notification,
