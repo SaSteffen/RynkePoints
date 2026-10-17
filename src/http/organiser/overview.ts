@@ -20,7 +20,9 @@ import { dayNumber } from "../../rynke/weeks";
 import { thresholdBars } from "../charts";
 import { coinArt, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
+import { renderExampleNote } from "../rider-sections";
 import { statusArt } from "../status-art";
+import { exampleTeam } from "../tour-example";
 import { noticeFromQuery, organiserPage, organiserSwitch } from "./access";
 import { decisionNotice, riderRequestLines } from "./requests";
 
@@ -239,7 +241,7 @@ function renderTiles(
 	const showing = (g: Group, when: string) =>
 		html`<p class="visually-hidden showing-${when}">${i18n.t("organiser.overview.showing", { group: groupLabel(i18n, g, passed) })}</p>
 `;
-	return html`<nav class="group-tiles${group === null ? " default" : ""}" aria-label="${i18n.t("organiser.overview.groups")}">
+	return html`<nav class="group-tiles${group === null ? " default" : ""}" id="tour-groups" aria-label="${i18n.t("organiser.overview.groups")}">
 ${tiles}</nav>
 ${group === null ? html`${showing("push", "phone")}${showing("all", "wide")}` : null}`;
 }
@@ -460,7 +462,10 @@ ${
 `;
 }
 
-/** The page's body below the notice, in the order of contracts/pages.md. */
+/**
+ * The page's body below the notice, in the order of contracts/pages.md;
+ * `inert` for the organiser tour's example team (feature 020 FR-014).
+ */
 export function overviewBody(
 	read: readonly TeamRider[],
 	rules: RynkeRules,
@@ -469,6 +474,7 @@ export function overviewBody(
 	group: Group | null,
 	i18n: I18n,
 	requests: RiderRequests = new Map(),
+	inert = false,
 ): SafeHtml {
 	const passed = today > window.deadline;
 	const riders = overviewRiders(read, rules, window, today);
@@ -492,15 +498,27 @@ export function overviewBody(
 `
 			: html`${
 					pace
-						? html`<p class="team-hint">${i18n.t("organiser.overview.hint", { training: whole(pace.training), team: whole(pace.team) })}</p>
+						? html`<p class="team-hint" id="tour-pace">${i18n.t("organiser.overview.hint", { training: whole(pace.training), team: whole(pace.team) })}</p>
 `
 						: null
 				}<ul class="rider-cards${group === null ? " default" : ""}">
 ${shown.map((r) => renderCard(i18n, rules, r, passed, lines(r)))}</ul>
 ${renderTable(i18n, rules, shown, passed, lines)}${renderQualified(i18n, riders)}`;
-	return html`<div class="team-overview">
+	return html`<div class="team-overview"${inert ? html` inert` : null}>
 <h2>${i18n.t("organiser.overview.heading")}</h2>
 ${renderDeadline(i18n, window, today, riders)}${renderTiles(i18n, riders, group, passed, requests)}${list}</div>`;
+}
+
+/** The open requests by rider, in their order. */
+function byRider(rows: readonly OpenRequestRow[]): RiderRequests {
+	const requests = new Map<number, OpenRequestRow[]>();
+	for (const row of rows) {
+		requests.set(row.athlete_id, [
+			...(requests.get(row.athlete_id) ?? []),
+			row,
+		]);
+	}
+	return requests;
 }
 
 /** `GET /organiser/riders`: the overview, organisers only. */
@@ -518,7 +536,13 @@ export function handleOrganiserOverview(
 	);
 	const path =
 		group === null ? "/organiser/riders" : `/organiser/riders?group=${group}`;
-	return organiserPage(request, ctx, i18n, path, async () => {
+	return organiserPage(request, ctx, i18n, path, async ({ example }) => {
+		// On the organiser tour's steps, the example team instead, which can
+		// be looked at but not used (feature 020 FR-013, FR-014).
+		if (example) {
+			const team = exampleTeam(window, today);
+			return html`${organiserSwitch(i18n, "riders", team.requests.length)}${renderExampleNote(i18n, "tour.organiser.example")}${overviewBody(team.riders, CURRENT_RULES, window, today, null, i18n, byRider(team.requests), true)}`;
+		}
 		const [read, { results }] = await Promise.all([
 			readTeam(ctx.env.DB),
 			listOpenRequestsStatement(
@@ -527,14 +551,7 @@ export function handleOrganiserOverview(
 				window,
 			).all<OpenRequestRow>(),
 		]);
-		const requests = new Map<number, OpenRequestRow[]>();
-		for (const row of results) {
-			requests.set(row.athlete_id, [
-				...(requests.get(row.athlete_id) ?? []),
-				row,
-			]);
-		}
 		const notice = await decisionNotice(url, ctx, i18n, path);
-		return html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, requests)}`;
+		return html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, byRider(results))}`;
 	});
 }

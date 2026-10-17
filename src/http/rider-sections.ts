@@ -21,6 +21,7 @@ import {
 	type Summary,
 } from "./rider-view";
 import { statusArt } from "./status-art";
+import type { TourTarget } from "./tour-targets";
 
 // The Rynke sections of the Overview and Rides (feature 005
 // contracts/rider-page.md, feature 011 contracts/pages.md), rendered
@@ -160,15 +161,22 @@ export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 			label: i18n.t("rynke.training"),
 			gauge: gauges.training,
 			kind: "training",
+			id: null,
 		},
-		{ label: i18n.t("rynke.team"), gauge: gauges.team, kind: "team" },
+		{
+			label: i18n.t("rynke.team"),
+			gauge: gauges.team,
+			kind: "team",
+			id: "tour-team",
+		},
 		{
 			label: i18n.t("rynke.withoutVirtual"),
 			gauge: gauges.withoutVirtual,
 			kind: null,
+			id: "tour-outdoor",
 		},
 	] as const;
-	const figures = conditions.flatMap(({ label, gauge, kind }) =>
+	const figures = conditions.flatMap(({ label, gauge, kind, id }) =>
 		gauge
 			? [
 					figure(
@@ -181,6 +189,7 @@ export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 							percent: i18n.t("units.percent", { value: gauge.percent }),
 						}),
 						kind,
+						id,
 					),
 				]
 			: [],
@@ -201,6 +210,8 @@ export function renderGauges(i18n: I18n, gauges: Gauges): SafeHtml {
 				missing: metres(Math.ceil((elevation.target - elevation.value) / 10)),
 				step: html`<span class="gauge-step">${i18n.t("rynke.gauge.step", { n: whole(i18n, elevation.stepRynke) })}${coinLabel(i18n, "training")}</span>`,
 			})}</span>`,
+			null,
+			"tour-elevation",
 		),
 	);
 	return html`<section class="rynke-gauges">
@@ -229,13 +240,15 @@ function coinRow(gauge: Gauge, kind: "training" | "team"): SafeHtml {
 /**
  * One gauge in its own card (feature 011 contracts/pages.md "Overview"); the
  * Training and Team gauges edged in their coin's colour (issue #92). A full
- * bar at 100 % says it's reached.
+ * bar at 100 % says it's reached. `id` is where a tour step points (feature
+ * 020 FR-003).
  */
 function figure(
 	i18n: I18n,
 	gauge: Gauge,
 	caption: string | SafeHtml,
 	kind: "training" | "team" | null = null,
+	id: TourTarget | null = null,
 ): SafeHtml {
 	// Widths are numbers the view model computed, never user input.
 	const bar =
@@ -253,7 +266,7 @@ function figure(
 						html`<li><span class="gauge-key ${PART_CLASS[part.source]}" aria-hidden="true"></span>${i18n.t(`rynke.source.${part.source}`)}: ${whole(i18n, part.value)}</li>`,
 				)}</ul>`;
 	return html`<section class="card${kind ? ` gauge-card-${kind}` : ""}">
-<figure class="gauge${gauge.reached ? " gauge-reached" : ""}">
+<figure class="gauge${gauge.reached ? " gauge-reached" : ""}"${id ? html` id="${id}"` : null}>
 <figcaption>${caption}</figcaption>
 ${kind ? coinRow(gauge, kind) : null}<div class="gauge-bar" aria-hidden="true">${bar}</div>
 ${legend}</figure>
@@ -339,7 +352,33 @@ export function renderRules(i18n: I18n, rules: RulesInfo): SafeHtml {
 <p><a class="tap" href="${RULES_HANDOUT_URL}">${i18n.t("rynke.rules.handout")}</a></p>`;
 }
 
-export function renderRides(i18n: I18n, rides: RideTable): SafeHtml {
+/**
+ * The tour's example rides (feature 020 FR-005, FR-007): no link to Strava;
+ * the card of the ride that doesn't count and the figures of the short ride
+ * are where their steps point.
+ */
+export interface ExampleRides {
+	rejectedRideId: number;
+	shortRideId: number;
+}
+
+/**
+ * The tour's note above the example rider's data or the example team (feature
+ * 020 FR-005, FR-013): what follows isn't real.
+ */
+export function renderExampleNote(
+	i18n: I18n,
+	text: "tour.example" | "tour.organiser.example" = "tour.example",
+): SafeHtml {
+	return html`<p class="notice tour-example" role="note">${i18n.t(text)}</p>
+`;
+}
+
+export function renderRides(
+	i18n: I18n,
+	rides: RideTable,
+	example: ExampleRides | null = null,
+): SafeHtml {
 	const heading = html`<h2>${i18n.t("me.recent.heading")}</h2>`;
 	if (rides.rows.length === 0) {
 		return html`<section id="rides">
@@ -353,7 +392,7 @@ ${coinArt("front", "large")}
 	const lazy = rides.pager;
 	return html`<section id="rides"${lazy ? html` data-lazy` : null}>
 ${heading}
-${lazy && renderListLines(i18n, rides.position, lazy)}${rideList(i18n, rides.rows, rides.more)}
+${lazy && renderListLines(i18n, rides.position, lazy)}${rideList(i18n, rides.rows, rides.more, example)}
 ${lazy && renderMore(i18n)}${lazy && renderPager(i18n, lazy)}</section>`;
 }
 
@@ -397,10 +436,11 @@ function rideList(
 	i18n: I18n,
 	rows: RideLine[],
 	more: RideKey | null,
+	example: ExampleRides | null = null,
 ): SafeHtml {
 	const next = more && html` data-more="${batchUrl(more)}"`;
 	return html`<ol class="ride-list"${next}>
-${rows.map((ride) => rideCard(i18n, ride))}</ol>`;
+${rows.map((ride) => rideCard(i18n, ride, example))}</ol>`;
 }
 
 /** Where the rides after `key` are read (018 contracts/http-routes.md). */
@@ -565,7 +605,11 @@ function explanation(i18n: I18n, ride: RideLine): SafeHtml | null {
 }
 
 /** One ride as a card (011 contracts/pages.md "Rides", research R7). */
-function rideCard(i18n: I18n, ride: RideLine): SafeHtml {
+function rideCard(
+	i18n: I18n,
+	ride: RideLine,
+	example: ExampleRides | null,
+): SafeHtml {
 	const status = STATUS[ride.status];
 	// The rider's local date: Strava writes local wall-clock time with a `Z`.
 	const date = i18n.formatDate(ride.startDateLocal);
@@ -573,11 +617,15 @@ function rideCard(i18n: I18n, ride: RideLine): SafeHtml {
 	// Never 0 for a ride still being evaluated (FR-041).
 	const pending = ride.status === "being-evaluated";
 	const rynke = pending ? "–" : whole(i18n, ride.distanceRynke);
-	// A mini coin for each ride that earned Training Rynke (feature 012).
-	const earned =
-		ride.status === "counts" && ride.distanceRynke > 0
-			? html` ${miniCoin("training")}`
-			: null;
+	// A mini coin for each ride that earned Training Rynke (feature 012); a
+	// ride that counts without them gets no coin on its status either (020
+	// FR-011).
+	const earns = ride.status === "counts" && ride.distanceRynke > 0;
+	const earned = earns ? html` ${miniCoin("training")}` : null;
+	const statusText =
+		ride.status === "counts" && !earns
+			? "rynke.ride.countsWithoutRynke"
+			: status.text;
 	const metres = pending
 		? "–"
 		: i18n.t("units.m", { value: whole(i18n, ride.elevationM) });
@@ -591,11 +639,23 @@ function rideCard(i18n: I18n, ride: RideLine): SafeHtml {
 		ride.name === null
 			? null
 			: html`<span class="ride-name">${ride.name}</span> `;
-	return html`<li class="ride-card ${status.cls}">
-<div class="ride-head"><span class="ride-date">${date}</span> <span class="chip ride-status">${i18n.t(status.text)}</span></div>
-<dl class="ride-figures"><div><dt>${i18n.t("me.recent.col.distance")}</dt><dd>${km}</dd></div><div><dt>${i18n.t("rynke.training")}</dt><dd>${rynke}${earned}</dd></div><div><dt>${i18n.t("rynke.rides.col.elevationTotal")}</dt><dd>${metres}</dd></div></dl>
-<p class="ride-strava">${name}<a class="tap strava-activity" href="${STRAVA_ORIGIN}/activities/${ride.activityId}">${i18n.t("brand.viewOnStrava")}</a></p>
-<p class="ride-meta">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</p>
+	// The tour's example rides are invented: no link (feature 020 FR-007).
+	const strava = example
+		? null
+		: html`<p class="ride-strava">${name}<a class="tap strava-activity" href="${STRAVA_ORIGIN}/activities/${ride.activityId}">${i18n.t("brand.viewOnStrava")}</a></p>
+`;
+	const figures =
+		example?.shortRideId === ride.activityId
+			? html` id="tour-short-ride"`
+			: null;
+	const card =
+		example?.rejectedRideId === ride.activityId
+			? html` id="tour-rejected-ride"`
+			: null;
+	return html`<li class="ride-card ${status.cls}"${card}>
+<div class="ride-head"><span class="ride-date">${date}</span> <span class="chip ride-status">${i18n.t(statusText)}</span></div>
+<dl class="ride-figures"${figures}><div><dt>${i18n.t("me.recent.col.distance")}</dt><dd>${km}</dd></div><div><dt>${i18n.t("rynke.training")}</dt><dd>${rynke}${earned}</dd></div><div><dt>${i18n.t("rynke.rides.col.elevationTotal")}</dt><dd>${metres}</dd></div></dl>
+${strava}<p class="ride-meta">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</p>
 ${explanation(i18n, ride)}</li>
 `;
 }

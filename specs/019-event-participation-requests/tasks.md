@@ -9,7 +9,7 @@ description: "Task list for riders reporting team-event participation"
 [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md)
 
 **Status**: T001–T039 and T041–T043 done; T001 and T043 ran in CI, since this
-session couldn't reach the package registry. T040 is left for later (research
+session couldn't reach the package registry. T040 moved to feature 020 (research
 R8); T044 is the owner's walk-through.
 
 **Tests**: REQUIRED (constitution Principle V). Write each test task first, run it
@@ -317,8 +317,8 @@ confirms, denies or leaves them open.
   `test/integration/privacy.test.ts`.
 - [ ] T040 [P] `src/http/tour.ts`: a rider step for Termine (`tour.rider.events`),
   riders who aren't organisers only; extend `test/integration/tour.test.ts`.
-  *Not done*: organisers take the same rider tour, so this needs per-rider
-  steps (research R8).
+  *Not done here*: organisers take the same rider tour, so this needs per-rider
+  steps (research R8). Moved to feature 020 (issue #157), which adds them.
 - [x] T041 [P] `dev/` sample data: intents at upcoming events, open requests at
   three past events, one rider with three and one with two (research R14).
 - [x] T042 [P] `e2e/smoke.e2e.ts`: a rider taps "Bin dabei", hovers it for

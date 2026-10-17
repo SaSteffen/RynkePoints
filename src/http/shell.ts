@@ -94,6 +94,11 @@ export const SECTIONS: readonly {
 export interface ShellViewer {
 	rider: Rider;
 	consent: Consent;
+	/**
+	 * The page is a tour step that shows the example rider or team instead of
+	 * the real data (feature 020 FR-005, FR-013).
+	 */
+	example: boolean;
 }
 
 /** The team's calendar day of an acceptance, passed as UTC midnight like the season start. */
@@ -198,24 +203,30 @@ export async function shellPage(
 			path,
 		);
 	}
-	const body = await render({ rider: viewer.rider, consent: accepted });
+	// No tour while the first import still runs: the pages it points at only
+	// show the waiting placeholder then (issue #119). Read only when there is
+	// a hint to hold back. Before the section, which shows the example rider
+	// or team on the tour's steps that call for it (feature 020 FR-005,
+	// FR-013).
+	let hint = tourHint(
+		i18n,
+		viewer.rider,
+		path,
+		new URL(request.url).searchParams,
+	);
+	if (hint && !(await hasBalance(ctx.env.DB, viewer.rider.athleteId))) {
+		hint = null;
+	}
+	const body = await render({
+		rider: viewer.rider,
+		consent: accepted,
+		example: hint?.example === true,
+	});
 	if (body instanceof Response) return body;
 	// Organisers see how many reports wait for them on every page (019 FR-030).
 	const openRequests = viewer.rider.organiser
 		? await countOpenRequests(ctx)
 		: 0;
-	// No tour while the first import still runs: the pages it points at only
-	// show the waiting placeholder then (issue #119). Read only when there is
-	// a hint to hold back.
-	let hint = tourHint(
-		i18n,
-		viewer.rider,
-		path,
-		new URL(request.url).searchParams.get("tour"),
-	);
-	if (hint && !(await hasBalance(ctx.env.DB, viewer.rider.athleteId))) {
-		hint = null;
-	}
 	// Each section names itself, so tabs and screen readers tell them apart.
 	const label = SECTIONS.find(({ id }) => id === section)?.label;
 	return htmlResponse(

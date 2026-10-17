@@ -240,15 +240,16 @@ can take a `quiet` flag for confirmations. Not planned.
 for a feature that only acts when they tap it. Rejected; the plan's Constitution
 Check records the reasoning.
 
-## R12. The Team page drops the place card and the peloton (FR-045, FR-046)
+## R12. Team Rynke drop the place card and the peloton (FR-045, FR-046)
 
 **Decision**:
 
-- `src/http/sections/team.ts` stops rendering `renderPlace` and `renderPeloton`
-  and puts the leaderboard before the team chart.
-- Code only the peloton used goes: the peloton in `src/http/charts.ts`,
-  `src/rynke/breakaway.ts` and their tests and styles; catalog keys
-  `team.place*` and `team.peloton*`.
+- `src/http/sections/team.ts` skips `renderPlace` and `renderPeloton` for Team
+  Rynke and puts the leaderboard before the team chart there; Training renders
+  feature 016's page unchanged.
+- The peloton, `src/rynke/breakaway.ts`, their tests and styles and the catalog
+  keys `team.place*` and `team.peloton*` stay for Training. (The first build
+  removed them for both views; restored after release.)
 - `tour.rider.team` loses "wo du im Peloton fährst".
 - `leaderboardRows` keeps the viewer's place: the neighbourhood and the "Du" row
   need it.

@@ -21,7 +21,8 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // specs/013-badges-achievements/contracts/badge-messages.md and
 // specs/017-privacy-page/contracts/messages.md and
 // specs/018-lazy-rides-list/contracts/catalog.md and
-// specs/019-event-participation-requests/contracts/messages.md.
+// specs/019-event-participation-requests/contracts/messages.md and
+// specs/020-onboarding-tour/contracts/messages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"rynke.rides.total",
@@ -136,6 +137,7 @@ const CONTRACT_IDS = [
 	"rynke.missing.withoutVirtual",
 	"rynke.rides.col.elevationTotal",
 	"rynke.ride.counts",
+	"rynke.ride.countsWithoutRynke",
 	"rynke.ride.doesNotCount",
 	"rynke.ride.beingEvaluated",
 	"rynke.ride.virtual",
@@ -224,7 +226,6 @@ const CONTRACT_IDS = [
 	"tour.rider.settings",
 	"tour.organiser.intro",
 	"tour.organiser.riders",
-	"tour.organiser.events",
 	"offline.title",
 	"offline.body",
 	"push.body",
@@ -337,8 +338,20 @@ const CONTRACT_IDS = [
 	"team.kind.label",
 	"team.kind.training",
 	"team.kind.team",
+	"team.place",
+	"team.place.next",
+	"team.place.lead",
 	"team.quote.push",
 	"team.quote.onTrack",
+	"team.peloton.heading",
+	"team.peloton.hint",
+	"team.peloton.back",
+	"team.peloton.front",
+	"team.peloton.label",
+	"team.peloton.you",
+	"team.peloton.breakaway",
+	"team.peloton.hint.breakaway",
+	"team.peloton.label.breakaway",
 	"team.list.heading",
 	"team.list.count",
 	"team.list.hint",
@@ -659,6 +672,21 @@ const CONTRACT_IDS = [
 	"organiser.attendance.summary",
 	"organiser.overview.group.requests",
 	"organiser.overview.column.requests",
+	// Feature 020
+	"tour.example",
+	"tour.rider.elevation",
+	"tour.rider.teamRynke",
+	"tour.rider.outdoor",
+	"tour.rider.shortRide",
+	"tour.rider.events",
+	"tour.rider.peloton",
+	"tour.organiser.example",
+	"tour.organiser.groups",
+	"tour.organiser.pace",
+	"tour.organiser.requests",
+	"tour.organiser.newEvent",
+	"tour.organiser.upcoming",
+	"tour.organiser.past",
 ];
 
 const placeholders = (text: string) =>

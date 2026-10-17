@@ -131,13 +131,15 @@ function decideButtons(
 /**
  * The open requests grouped by event, newest event first (FR-031). `listed`
  * are all listed riders, so a profile link tells apart riders sharing a first
- * name (004 FR-022).
+ * name (004 FR-022). `inert` for the organiser tour's example (feature 020
+ * FR-014).
  */
 export function openRequestsBlock(
 	i18n: I18n,
 	rows: readonly OpenRequestRow[],
 	back: string,
 	listed: readonly ListedRiderRow[],
+	inert = false,
 ): SafeHtml | null {
 	if (rows.length === 0) return null;
 	const links = new Map(
@@ -183,7 +185,7 @@ export function openRequestsBlock(
 ${items}</ul></div>
 `;
 	});
-	return html`<section class="open-requests" aria-labelledby="open-requests">
+	return html`<section class="open-requests" id="tour-requests" aria-labelledby="open-requests"${inert ? html` inert` : null}>
 <h2 id="open-requests">${heading}</h2>
 <p>${intro}</p>
 <div class="request-events">${sections}</div></section>
