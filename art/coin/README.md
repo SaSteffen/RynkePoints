@@ -9,12 +9,16 @@ The team's own coin designs, and the SVGs the app traces from them.
 | `reference/rynke-coin-line-drawing.jpeg` | Line drawing of both sides with the coin's size (Ø 40 mm, 3 mm): design draft V1 |
 | `reference/rynke-coin-photo.jpeg` | A rendering of the struck coin, both sides: how it looks in enamel and gold |
 | `rynke-coin-line-front.svg`, `rynke-coin-line-back.svg` | The line drawing traced, ink only on transparent paper: for print and the coin maker |
+| `reference/rynke-hero-reference.png` | Four badge pictures of the character: the reference for the hero coin's portrait ([`hero/`](hero/README.md)) |
+| `hero/prompt.txt` | The prompt for the hero coin's portrait; its original goes to `originals/rynke-coin-hero.*` |
 
 `pnpm coin-art` (`scripts/coin-art.mjs`) traces them:
 
 - `originals/rynke-coin-front.jpeg` → `public/coin/rynke-coin-front.svg`
 - `originals/rynke-coin-back.jpeg` → `public/coin/rynke-coin-back.svg`
 - `reference/rynke-coin-line-drawing.jpeg` → the two line SVGs here
+- `originals/rynke-coin-hero.*`, once made → `public/coin/rynke-coin-hero.svg`
+  (the portrait in a coin frame drawn in code)
 
 Commit the originals and the SVGs together; to change the coin, replace an
 original and run the script again. Like `pnpm illustrations` it needs

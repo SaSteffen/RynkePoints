@@ -1,0 +1,15 @@
+Using the attached reference sheet as the exact reference for character and style (four pictures of the same character: same head shape, orange fur, light muzzle, big round black eyes, two-dot nose, yellow cycling helmet with three black vents, yellow jersey), draw a portrait of this character for the face of a round coin.
+
+Draw ONLY the portrait. Do not draw the coin: no ring, no chain, no circle, no stars, no frame of any kind, no background.
+
+Portrait: head and shoulders, facing the viewer straight on, the head tilted very slightly to one side. A warm, kind, happy expression: big round black eyes, each with one small cream catch-light dot, gently raised brows, a soft open smile with a little tongue showing, and two small muzzle-coloured (#F0A868) blush ovals on the cheeks. The yellow helmet sits snugly and a little tipped back, its three black vents clearly visible. Round orange ears stick out on both sides of the head. The yellow jersey has a small round black collar and a short black zip line in the middle. No hands, no props, nothing else.
+
+Mood: really sympathetic and a little cute, like a friendly mascot you'd want to hug. Never goofy, never sly, never sad.
+
+Style: flat vector-style illustration, identical to the reference. Bold uniform black outlines (#1C1B13) about 44 px thick around every shape, including around the yellow helmet and jersey; inner lines (vents, brows, mouth, collar, zip) about 32 px. Solid flat fills only, no gradients, no shading, no texture, no highlights other than the two eye dots, no drop shadow. Use only these colors: yellow #FBE122, orange fur #C8641E, muzzle #F0A868, black #1C1B13, cream #FFFDF5, gold #C99A2E.
+
+Proportions: chibi like the reference, a big head on small shoulders. The portrait is shown as small as 96 px, so keep few, large shapes: smallest details at least about 40 px across and no lines thinner than about 32 px.
+
+Canvas: square 1:1, 2048 x 2048 px, plain pure white background. The head is centred horizontally. The head with its ears and helmet fits inside a centered circle of 1560 px diameter: the top of the helmet about 320 px from the top of the canvas, the chin about 1250 px from the top, the head with its ears about 1100 px wide. The shoulders and jersey start right below the chin and run straight off the bottom edge of the canvas, about 1400 px wide there. Everything else is plain pure white. No text, no letters, no numbers.
+
+Check before you finish: only the head and shoulders on plain white; the helmet top and both ears are at least 240 px from the edges of the canvas.
