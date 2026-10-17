@@ -72,6 +72,12 @@ box (research R5).
 
 ## `/organiser/riders` — overview (board "Orga · Rider-Tabelle")
 
+- The desktop table's columns: Wer, Gruppe, **Rynke** (Training's bar above
+  Team's, each with its figure and what's still missing), Virtuell, Distanz,
+  Höhenmeter, Korrekturen, Meldung. 016's Training, Team and Draußen columns
+  became the Rynke column; its Termine column is gone (owner's request,
+  2026-10-17). Outdoor Training stays in the cards' breakdown.
+
 - A tile "Rider mit offener Meldung ⏳" first, counting riders, styled as an
   alert while above 0 (FR-034).
 - With all riders shown, riders with open requests come first.

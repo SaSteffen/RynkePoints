@@ -243,9 +243,13 @@ describe("GET /organiser/riders, the overview", () => {
 		expect(card).toContain(fill(de["organiser.overview.elevation"], { n: 5 }));
 		expect(card).toContain(fill(de["organiser.overview.virtual"], { n: 20 }));
 		const row = rowOf(html, JONAS_BEHIND.id);
-		for (const figure of ["50", "5", "40", "41", "20 %"]) {
+		for (const figure of ["50", "5", "41", "20 %"]) {
 			expect(row).toContain(`>${figure}<`);
 		}
+		// One Rynke column, Training above Team (019 follow-up).
+		expect(row.indexOf('class="bar-block bar-training"')).toBeLessThan(
+			row.indexOf('class="bar-block bar-team"'),
+		);
 		expect(row).toContain(escapeHtml(de["organiser.overview.group.push"]));
 		expect(row).toContain(
 			`<span class="to-go behind">${fill(de["organiser.overview.toGo.short"], { n: 200 })}<span class="visually-hidden"> · ${escapeHtml(de["organiser.overview.behind"])}</span></span>`,

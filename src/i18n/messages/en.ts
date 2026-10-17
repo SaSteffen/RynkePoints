@@ -460,11 +460,10 @@ export const en: Catalog = {
 	"organiser.overview.column.group": "Group",
 	"organiser.overview.column.training": "Training",
 	"organiser.overview.column.team": "Team",
-	"organiser.overview.column.outdoor": "Outdoor",
 	"organiser.overview.column.distance": "Distance",
 	"organiser.overview.column.elevation": "Elevation",
-	"organiser.overview.column.events": "Team events",
 	"organiser.overview.column.corrections": "Corrections",
+	"organiser.overview.column.rynke": "Rynke",
 	"organiser.overview.column.virtual": "Virtual",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge

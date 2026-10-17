@@ -358,9 +358,11 @@ ${
 }
 
 /** A figure with its bar and, while some is missing, how much: in the
- * push colour when the rider is behind the even pace (the bar's mark). */
-function barCell(
+ * push colour when the rider is behind the even pace (the bar's mark). `kind`
+ * names the bar for screen readers and picks its colour. */
+function barBlock(
 	i18n: I18n,
+	kind: "training" | "team",
 	value: number,
 	threshold: number,
 	pace: number | null,
@@ -371,7 +373,7 @@ function barCell(
 		missing.amount > 0
 			? html`<span class="to-go${missing.behind ? " behind" : ""}">${i18n.t("organiser.overview.toGo.short", { n: whole(missing.amount) })}${missing.behind ? html`<span class="visually-hidden"> · ${i18n.t("organiser.overview.behind")}</span>` : null}</span>`
 			: null;
-	return html`<td class="bar-cell"><span class="bar-figures"><span class="figure">${whole(value)}</span>${toGo}</span>${thresholdBars(value, threshold, pace)}</td>`;
+	return html`<div class="bar-block bar-${kind}"><span class="bar-figures"><span class="figure"><span class="visually-hidden">${i18n.t(`organiser.overview.column.${kind}`)} </span>${whole(value)}</span>${toGo}</span>${thresholdBars(value, threshold, pace)}</div>`;
 }
 
 /** Training and Team amounts as the two mini coins, read out in words. */
@@ -392,43 +394,47 @@ function renderTable(
 		key:
 			| "name"
 			| "group"
-			| "training"
-			| "team"
-			| "outdoor"
+			| "rynke"
+			| "virtual"
 			| "distance"
 			| "elevation"
-			| "events"
 			| "corrections"
-			| "virtual"
 			| "requests",
 		number = false,
 	) =>
 		html`<th scope="col"${number ? html` class="number"` : null}>${i18n.t(`organiser.overview.column.${key}`)}</th>`;
+	// Training above Team in one Rynke column, the virtual share beside it.
 	const rows = riders.map((rider) => {
-		const events = rider.breakdown.teamEvents.reduce(
-			(sum, e) => ({
-				training: sum.training + e.training,
-				team: sum.team + e.team,
-			}),
-			{ training: 0, team: 0 },
+		const training = barBlock(
+			i18n,
+			"training",
+			rider.training,
+			rules.trainingThreshold,
+			rider.pace?.training ?? null,
+			rider.missing.training,
+		);
+		const team = barBlock(
+			i18n,
+			"team",
+			rider.team,
+			rules.teamThreshold,
+			rider.pace?.team ?? null,
+			rider.missing.team,
 		);
 		return html`<tr class="status-${rider.status}">
 <th scope="row">${nameLinks(i18n, rider)}</th>
 <td>${statusChip(i18n, rider, passed)}</td>
-${barCell(i18n, rider.training, rules.trainingThreshold, rider.pace?.training ?? null, rider.missing.training)}
-${barCell(i18n, rider.team, rules.teamThreshold, rider.pace?.team ?? null, rider.missing.team)}
-${barCell(i18n, rider.outdoorTraining, virtualShareRequired(rules), rider.pace?.outdoor ?? null, rider.missing.outdoor)}
+<td class="bar-cell">${training}${team}</td>
+<td class="number">${i18n.t("organiser.overview.percent", { n: whole(rider.breakdown.virtualShare) })}</td>
 <td class="number">${whole(rider.breakdown.distanceRynke)}</td>
 <td class="number">${whole(rider.breakdown.elevationRynke)}</td>
-${coinPair(i18n, events.training, events.team)}
 ${coinPair(i18n, rider.breakdown.corrections.training, rider.breakdown.corrections.team)}
-<td class="number">${i18n.t("organiser.overview.percent", { n: whole(rider.breakdown.virtualShare) })}</td>
 <td class="requests-cell">${lines(rider)}</td>
 </tr>
 `;
 	});
 	return html`<div class="table-scroll"><table class="rider-table">
-<thead><tr>${column("name")}${column("group")}${column("training")}${column("team")}${column("outdoor")}${column("distance", true)}${column("elevation", true)}${column("events", true)}${column("corrections", true)}${column("virtual", true)}${column("requests")}</tr></thead>
+<thead><tr>${column("name")}${column("group")}${column("rynke")}${column("virtual", true)}${column("distance", true)}${column("elevation", true)}${column("corrections", true)}${column("requests")}</tr></thead>
 <tbody>
 ${rows}</tbody>
 </table></div>

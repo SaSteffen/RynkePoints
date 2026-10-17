@@ -97,6 +97,11 @@ Wording may be polished in implementation; the meaning may not change.
 |---|---|---|
 | `organiser.overview.group.requests` | Riders with an open report ⏳ | Rider mit offener Meldung ⏳ |
 | `organiser.overview.column.requests` | Report | Meldung |
+| `organiser.overview.column.rynke` | Rynke | Rynke |
+
+The desktop rider table's Draußen and Termine columns are gone, and with them
+`organiser.overview.column.outdoor` and `organiser.overview.column.events`
+([pages.md](pages.md) "`/organiser/riders`").
 
 ## Consent and privacy (FR-052)
 

@@ -483,11 +483,10 @@ export const de = {
 	"organiser.overview.column.group": "Gruppe",
 	"organiser.overview.column.training": "Training",
 	"organiser.overview.column.team": "Team",
-	"organiser.overview.column.outdoor": "Draußen",
 	"organiser.overview.column.distance": "Distanz",
 	"organiser.overview.column.elevation": "Höhenmeter",
-	"organiser.overview.column.events": "Termine",
 	"organiser.overview.column.corrections": "Korrekturen",
+	"organiser.overview.column.rynke": "Rynke",
 	"organiser.overview.column.virtual": "Virtuell",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
