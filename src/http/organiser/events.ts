@@ -38,7 +38,12 @@ import {
 	redirectWith,
 	requireOrganiserPost,
 } from "./access";
-import { attendanceSection, isFutureEvent, readAttendance } from "./attendance";
+import {
+	attendanceNotice,
+	attendanceSection,
+	isFutureEvent,
+	readAttendance,
+} from "./attendance";
 import { decisionNotice, openRequestsBlock } from "./requests";
 
 // The organiser's team events (feature 014 Story 1, contracts/http-routes.md):
@@ -219,9 +224,9 @@ export function handleOrganiserEvent(
 			eventId,
 		).first<TeamEventRecordRow>();
 		if (!event) return notFound(i18n, path);
-		const { riders, attendees } = await readAttendance(ctx, eventId);
+		const { riders, attendees, reports } = await readAttendance(ctx, eventId);
 		const future = isFutureEvent(ctx, event.event_date);
-		return html`${noticeFromQuery(new URL(request.url), i18n)}
+		return html`${attendanceNotice(new URL(request.url), i18n)}
 <section class="organiser">
 <p><a href="${LIST}">${i18n.t("organiser.back")}</a></p>
 <h2>${i18n.t("organiser.event.heading")}</h2>
@@ -230,7 +235,7 @@ ${eventFields(i18n, event)}
 <button class="button">${i18n.t("organiser.save")}</button>
 </form>
 ${changeRecord(i18n, event.changed_by_name, event.changed_at)}
-${attendanceSection(i18n, { eventId, future }, riders, attendees)}
+${attendanceSection(i18n, { eventId, future }, riders, attendees, reports)}
 <details class="organiser-confirm">
 <summary>${i18n.t("organiser.event.delete")}</summary>
 <p>${i18n.t("organiser.event.deleteWarning")}</p>

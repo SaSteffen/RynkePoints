@@ -2,8 +2,9 @@
 // only wires up what a server-rendered page can't do itself: the service worker,
 // the install group and the app prompt, the notifications switch, the scheme
 // picker, reloading a section on return, waiting for the first data, the
-// buttons' press and busy feedback and opening a badge's large view on mouse
-// hover (feature 013 research R19). It holds no text: every word shown comes
+// buttons' press and busy feedback, opening a badge's large view on mouse
+// hover (feature 013 research R19) and the event page's tri-state boxes
+// (feature 019 research R5). It holds no text: every word shown comes
 // from the page's markup, rendered from the catalogs and hidden until this
 // shows it.
 
@@ -906,6 +907,78 @@ function badgeHover() {
 	}
 }
 
+/**
+ * The event page's open requests (feature 019 research R5): each rider's three
+ * radios become one box that cycles grey, ticked, empty and grey again, and
+ * the tag beside it says what saving will do. The radios stay the form's
+ * fields, so saving works the same without this script.
+ */
+function triState() {
+	const form = document.querySelector("form.attendance-form");
+	if (!form) return;
+	const sets = [...form.querySelectorAll("fieldset.tri-state")];
+	if (sets.length === 0) return;
+	const order = ["open", "yes", "no"];
+	const checked = { open: "mixed", yes: "true", no: "false" };
+	const valueOf = (set) => set.querySelector("input:checked")?.value ?? "open";
+	const summary = form.querySelector(".tri-summary");
+	const update = () => {
+		if (!summary) return;
+		const counts = { open: 0, yes: 0, no: 0 };
+		for (const set of sets) counts[valueOf(set)] += 1;
+		summary.textContent = summary.dataset.text
+			.replace("{yes}", counts.yes)
+			.replace("{no}", counts.no)
+			.replace("{open}", counts.open);
+		summary.hidden = false;
+	};
+	const show = (set) => {
+		const value = valueOf(set);
+		for (const tag of set.parentElement.querySelectorAll(".tri-tag")) {
+			tag.hidden = !tag.classList.contains(`tri-tag-${value}`);
+		}
+		const toggle = set.querySelector(".tri-toggle");
+		toggle.setAttribute("aria-checked", checked[value]);
+		toggle.dataset.state = value;
+	};
+	const choose = (set, value) => {
+		const radio = set.querySelector(`input[value="${value}"]`);
+		if (radio) radio.checked = true;
+		show(set);
+		update();
+	};
+	for (const set of sets) {
+		const toggle = document.createElement("button");
+		toggle.type = "button";
+		toggle.className = "tri-toggle";
+		toggle.setAttribute("role", "checkbox");
+		const box = document.createElement("span");
+		box.className = "tri-box";
+		box.setAttribute("aria-hidden", "true");
+		toggle.append(
+			box,
+			...set.querySelector("legend").cloneNode(true).childNodes,
+		);
+		toggle.addEventListener("click", () => {
+			const next = order[(order.indexOf(valueOf(set)) + 1) % order.length];
+			choose(set, next);
+		});
+		set.classList.add("tri-enhanced");
+		set.prepend(toggle);
+		show(set);
+	}
+	const all = form.querySelector(".confirm-all");
+	if (all) {
+		all.hidden = false;
+		all.addEventListener("click", () => {
+			for (const set of sets) {
+				if (valueOf(set) === "open") choose(set, "yes");
+			}
+		});
+	}
+	update();
+}
+
 const registered = registerWorker();
 keepScroll();
 lazyRides();
@@ -918,4 +991,5 @@ refreshOnReturn();
 waitForFirstData();
 pageLoading();
 badgeHover();
+triState();
 notifications().catch(() => {});
