@@ -232,7 +232,7 @@ export async function handleCallback(
 
 	const next = await arrival(
 		sectionNext(expected.next),
-		ctx.env.DB,
+		ctx,
 		token.athleteId,
 	);
 	return redirect(next, 302, [

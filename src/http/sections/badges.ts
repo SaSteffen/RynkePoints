@@ -29,13 +29,20 @@ import {
 	type BadgeSection,
 	buildBadgeSection,
 	type Card,
+	newBadges,
 	type NotYetRow,
 	type ProgressView,
 	personalProgress,
 } from "../../badges/view";
 import { berlinDate, readyPollSeconds } from "../../config";
 import type { Ctx } from "../../ctx";
-import { readRiderBadges, upsertRevealsStatement } from "../../db/badges";
+import {
+	listRevealsStatement,
+	listRiderBadgesStatement,
+	readRiderBadges,
+	revealedOf,
+	upsertRevealsStatement,
+} from "../../db/badges";
 import { type RiderViewRead, readRiderView } from "../../db/rider-view";
 import type { Rider } from "../../db/riders";
 import { readTeamBadgeSums } from "../../db/team";
@@ -382,6 +389,49 @@ async function badgesOf(
 		await upsertRevealsStatement(db, rider.athleteId, section.reveal).run();
 	}
 	return section;
+}
+
+/**
+ * Whether the badges page has a badge to reveal to the rider, so the app opens
+ * on it (issue #150): the same badges as `badgesOf`'s reveal, and only once
+ * the rider has Rynke, since the waiting state reveals nothing.
+ */
+export async function hasNewBadges(
+	ctx: Ctx,
+	athleteId: number,
+): Promise<boolean> {
+	const db = ctx.env.DB;
+	const [riders, badges, reveals] = await db.batch([
+		db
+			.prepare(
+				`SELECT connected_at FROM riders WHERE athlete_id = ?1
+				AND EXISTS (SELECT 1 FROM rynke_balances WHERE athlete_id = ?1)`,
+			)
+			.bind(athleteId),
+		listRiderBadgesStatement(db, athleteId),
+		listRevealsStatement(db, athleteId),
+	]);
+	if (!riders || !badges || !reveals) {
+		throw new Error("D1 batch returned too few results");
+	}
+	const rider = (riders.results as { connected_at: number }[])[0];
+	if (!rider) return false;
+	const revealed = revealedOf(
+		reveals.results as { badge_id: string; earned_on: string }[],
+	);
+	const connectedOn = berlinDate(rider.connected_at);
+	const personal = (
+		badges.results as { badge_id: string; earned_on: string }[]
+	).map((row) => ({ badgeId: row.badge_id, earnedOn: row.earned_on }));
+	if (newBadges(personal, [], revealed, connectedOn).length > 0) return true;
+	// The team's are worked out on read (research R15); only when needed.
+	const window = badgeWindow(countingWindow(ctx.env), berlinDate(ctx.now()));
+	const team = evaluateTeamBadges(
+		await readTeamBadgeSums(db),
+		CURRENT_RULES,
+		window,
+	);
+	return newBadges([], team.earned, revealed, connectedOn).length > 0;
 }
 
 export function handleBadges(

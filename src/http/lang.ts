@@ -46,10 +46,10 @@ export function sectionNext(next: unknown): string {
  */
 export async function arrival(
 	next: string,
-	db: D1Database,
+	ctx: Ctx,
 	athleteId: number,
 ): Promise<string> {
-	return next === "/" ? home(db, athleteId) : next;
+	return next === "/" ? home(ctx, athleteId) : next;
 }
 
 export async function handleLang(

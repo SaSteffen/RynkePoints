@@ -22,7 +22,7 @@ export async function handleLanding(
 	const athleteId = await readSession(request, ctx.env, ctx.now());
 	// A session for a deleted rider counts as signed out (research R9).
 	if (athleteId !== null && (await getRider(ctx.env.DB, athleteId))) {
-		return redirect(await home(ctx.env.DB, athleteId), 302);
+		return redirect(await home(ctx, athleteId), 302);
 	}
 
 	const title = i18n.t("landing.title");

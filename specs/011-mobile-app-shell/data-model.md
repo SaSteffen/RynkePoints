@@ -11,7 +11,8 @@ constitution Principle I).
 
 A fixed list in `src/http/shell.ts`. The order is the navigation order (FR-002);
 Orga (feature 016) sits before Settings for organisers. Team comes first and is
-where the app sends a signed-in rider (issue #73).
+where the app sends a signed-in rider (issue #73), unless the badges page has a
+new badge to reveal (issue #150).
 
 | id | Path | Label key | Icon | Reads |
 |---|---|---|---|---|
