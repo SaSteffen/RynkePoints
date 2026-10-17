@@ -20,15 +20,20 @@ participation request or intent that is not confirmed, with three small example
 boxes explaining the states. Organisers need a signal that there are unconfirmed
 requests (past events only), a quick way to see for which events, and an easy way
 to confirm or deny. Emptying a grey box denies the request. Riders are not told
-about pending, confirmed or denied requests; they may request again."
+about pending, confirmed or denied requests; they may request again." Refined the
+same day: the events go on a new "Termine" tab shown only to riders who are not
+organisers; organisers get an "Ich war auch dabei" button for past events on the
+Orga Termine page; the Team page loses the place card and the peloton, and the
+Rangliste moves up to where the peloton was.
 
 The look follows feature 012's "full fun" style and is agreed in the Claude Design
 mock-up "RynkePoints Teamtermine melden"
-(https://claude.ai/artifact/68rCYVhqbt4QyHFqAXQvMC): the rider's Team page with
-the new Teamtermine section on a phone in light and dark mode, the organiser's
-Termine page with open requests, the event page with tri-state boxes for a past and
-an upcoming event, and the organiser's rider table on a desktop, all for the sample
-season on Thursday 25 March 2027.
+(https://claude.ai/artifact/68rCYVhqbt4QyHFqAXQvMC): the rider's new Termine tab
+on a phone in light and dark mode, the slimmed Team page, the organiser's Termine
+page with open requests and "Ich war auch dabei", the event page with tri-state
+boxes for a past and an upcoming event, and the organiser's rider table on a desktop
+(including riders with several open requests), all for the sample season on
+Thursday 25 March 2027.
 
 ## Clarifications
 
@@ -45,6 +50,18 @@ season on Thursday 25 March 2027.
   denied sees the "Ich war dabei" button again and may report again.
 - Q: How does an organiser deny? → A: By emptying a grey box on the event page and
   saving, or with the quick "Ablehnen" action. A denial leaves no trace.
+- Q: Where do riders find the events? → A: On a new "Termine" tab in the app
+  navigation, only for riders who are not organisers, in the place organisers have
+  "Orga". Organisers manage participation on the Orga page instead.
+- Q: How do organisers record their own attendance? → A: With an "Ich war auch
+  dabei" button on each past event of the Orga Termine page where they are not
+  recorded. A tap records their attendance directly and the button disappears; the
+  event then reads "8 Personen, inklusive dir". There is no intent for organisers:
+  nothing for upcoming events.
+- Q: What happens to the Team page? → A: The place card ("Position 6 von 14") and
+  the peloton go; they are not useful. The team total, the quote, the Rangliste and
+  the team chart stay, and the Rangliste moves to where the peloton was, above the
+  team chart. This amends feature 016.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -63,7 +80,7 @@ Terms as in features 003 and 014: **team event**, **attendance**, **listed rider
 
 ### User Story 1 - Rider sees the season's team events and what they are worth (Priority: P1)
 
-A rider opens Team and finds "Teamtermine 📅" below their place: a card saying how
+A rider who is not an organiser opens the "Termine" tab: a card saying how
 many Team Rynke (and Training Rynke) the upcoming events of the season still hold
 ("Noch 16 Teamrynke drin – bei den nächsten 4 Terminen, dazu 30 Trainingsrynke"),
 then the upcoming events ("Demnächst") and the past events of the season ("Vorbei").
@@ -74,22 +91,24 @@ earns, with the coin.
 seeing the Team Rynke on offer motivates them to come, and the list is where the
 buttons of Stories 2 and 3 live.
 
-**Independent Test**: With synthetic events (`pnpm dev`), sign in as a rider and
-compare the listed events, their amounts and the card's sums with the stored events
+**Independent Test**: With synthetic events (`pnpm dev`), sign in as a rider,
+check the Termine tab is there (and absent for an organiser), and compare the listed events, their amounts and the card's sums with the stored events
 and feature 003 FR-007's fixed amounts.
 
 **Acceptance Scenarios**:
 
 1. **Given** four events after today up to the qualification deadline worth 1, 5, 5
-   and 5 Team Rynke, **When** a rider opens Team, **Then** the card says 16 Team
+   and 5 Team Rynke, **When** a rider opens Termine, **Then** the card says 16 Team
    Rynke at 4 events plus their Training Rynke, and "Demnächst" lists the four,
    soonest first.
-2. **Given** past events of the season, **When** a rider opens Team, **Then**
+2. **Given** past events of the season, **When** a rider opens Termine, **Then**
    "Vorbei" lists them, newest first, each with its amounts.
 3. **Given** a past event where the rider's attendance is recorded, **When** it is
    shown, **Then** it says "Du warst dabei" and has no button.
-4. **Given** no upcoming events, **When** a rider opens Team, **Then** the card
+4. **Given** no upcoming events, **When** a rider opens Termine, **Then** the card
    says no team events are planned yet instead of a sum.
+5. **Given** an organiser, **When** they look at the navigation, **Then** they see
+   "Orga" and no "Termine" tab.
 
 ---
 
@@ -116,7 +135,7 @@ balance changed.
 3. **Given** the green button, **When** the rider clicks or taps it, **Then** the
    intent is deleted and the button shows its default "Bin dabei".
 4. **Given** an intent at an event that has now taken place, **When** the rider
-   opens Team, **Then** the event is under "Vorbei" with a green "Ich war dabei"
+   opens Termine, **Then** the event is under "Vorbei" with a green "Ich war dabei"
    that cannot be withdrawn, and organisers see an open request.
 
 ---
@@ -159,9 +178,10 @@ An organiser sees a red count on the Orga entry of the navigation and on the
 event, each with "Eintragen" and "Ablehnen" (✕) and "Alle n eintragen" per event,
 and a "Rückgängig" for the last action. Past events with open requests carry an
 "n offen" chip in the list; upcoming events show "n zugesagt". The rider table of
-the organiser overview gets a "Meldung offen ⏳" tile that filters to riders with
-open requests, and each such rider shows "Will eingetragen werden: Techniktraining ·
-Sa 13.3." with the same two quick actions.
+the organiser overview gets a "Rider mit offener Meldung ⏳" tile that filters to riders with
+open requests, and each such rider shows one line per open request ("Will eingetragen werden:
+Techniktraining · Sa 13.3.", "… Teamtraining · Sa 6.3.") with the same two quick
+actions on each line.
 
 **Why this priority**: Requests are only useful if organisers see them without
 searching and settle them in a tap.
@@ -185,9 +205,12 @@ attendance and requests.
    request.
 4. **Given** an event with three open requests, **When** an organiser taps "Alle 3
    eintragen", **Then** all three are recorded at once.
-5. **Given** the desktop rider table, **When** an organiser picks "Meldung offen",
-   **Then** only riders with open requests are shown, each naming the event.
-6. **Given** a rider who is not an organiser, **When** they look at any page,
+5. **Given** the desktop rider table, **When** an organiser picks "Rider mit
+   offener Meldung", **Then** only riders with open requests are shown, each naming
+   the event of every open request.
+6. **Given** Nora with open requests at three events, **When** an organiser confirms
+   one on her row, **Then** only that one is recorded and the other two stay open.
+7. **Given** a rider who is not an organiser, **When** they look at any page,
    **Then** they see no count, chip, intent or request of other riders.
 
 ---
@@ -228,6 +251,57 @@ upcoming event and check the boxes cannot be changed.
 7. **Given** a screen reader, **When** it reaches a grey box, **Then** it is
    announced as partly checked ("mixed") with its tag.
 
+---
+
+### User Story 6 - Organiser adds themselves to a past event (Priority: P2)
+
+On the Orga Termine page, each past event where the viewing organiser is not
+recorded carries "Ich war auch dabei". A tap records their attendance at once; the
+button disappears and the event reads "8 Personen, inklusive dir". Upcoming events
+have no such button.
+
+**Why this priority**: Organisers ride along too and today tick themselves on the
+event page; one tap in the list is quicker. They need no request, since they may
+record attendance anyway.
+
+**Independent Test**: As a synthetic organiser, tap the button on a past event and
+check the stored attendance, its change record, the count and that the button is
+gone; check no button appears on upcoming events.
+
+**Acceptance Scenarios**:
+
+1. **Given** a past event with 7 attendees, not including the organiser, **When**
+   they tap "Ich war auch dabei", **Then** their attendance is recorded with their
+   change record, the button disappears and the event reads "8 Personen, inklusive
+   dir".
+2. **Given** a past event where the organiser is recorded, **When** the list is
+   shown, **Then** it reads "n Personen, inklusive dir" and has no button.
+3. **Given** an upcoming event, **When** the list is shown, **Then** it has no
+   button for the organiser.
+
+---
+
+### User Story 7 - A leaner Team page (Priority: P2)
+
+The Team page shows the team total, the Training/Team switch, the quote, the
+Rangliste and the team chart, in that order. The place card ("Position 6 von 14",
+"Noch n Rynke bis zum nächsten Platz") and the peloton are gone.
+
+**Why this priority**: The place card and the peloton add little next to the
+Rangliste, and the Team page gets shorter.
+
+**Independent Test**: Open Team as a synthetic rider and check the order of the
+sections and that neither the place card nor the peloton is shown.
+
+**Acceptance Scenarios**:
+
+1. **Given** any signed-in rider, **When** they open Team, **Then** they see the
+   team total, the switch, the quote, the Rangliste and the team chart, in that
+   order, and no place card or peloton.
+2. **Given** the Rangliste, **When** it is shown, **Then** it still marks the
+   viewer's row and shows the rows around them by default (feature 016 FR-013,
+   FR-014).
+
 ### Edge Cases
 
 - **Event moved to another date**: the stored report keeps; it counts as intent or
@@ -248,7 +322,7 @@ upcoming event and check the boxes cannot be changed.
 - **Rider without a current consent or who must reconnect**: not listed (feature 004
   FR-021); their reports are not shown or counted anywhere and cannot be confirmed
   until they are listed again. Reports of a rider who leaves are deleted with them.
-- **Event outside the counting window** (feature 003 FR-011): not shown on Team and
+- **Event outside the counting window** (feature 003 FR-011): not shown on Termine and
   takes no reports.
 - **Touch screens without hover**: the green "Bin dabei" button reads "Bin dabei"
   with a tick; a tap withdraws it, and a tap brings it back.
@@ -260,10 +334,12 @@ upcoming event and check the boxes cannot be changed.
 
 ### Functional Requirements
 
-**Rider: Teamtermine on Team**
+**Rider: the Termine tab**
 
-- **FR-001**: The Team page (feature 016) MUST show every signed-in rider a
-  "Teamtermine" section with the season's team events inside the counting window
+- **FR-001**: Every signed-in rider who is not an organiser MUST find a "Termine"
+  tab in the app navigation (feature 011), in the place where organisers have "Orga"
+  (feature 016 FR-002); organisers MUST NOT see it. It MUST show the season's team
+  events inside the counting window
   (feature 003 FR-011): "Demnächst" (not yet taken place, soonest first) and
   "Vorbei" (taken place, newest first; the five newest, then a control for all).
 - **FR-002**: Each event MUST show its date, kind, name (if any) and the Team and
@@ -296,8 +372,9 @@ upcoming event and check the boxes cannot be changed.
 - **FR-020**: There MUST be at most one report per rider and event. Whether it is an
   intent or a request MUST follow from the event's date: from its date on (Europe/
   Berlin) it is a request.
-- **FR-021**: Only the rider themselves MUST be able to create a report, and only
-  for an event in the counting window where they have no attendance. Only they MUST
+- **FR-021**: Only the rider themselves MUST be able to create a report, only if
+  they are not an organiser, and only for an event in the counting window where they
+  have no attendance. Only they MUST
   be able to delete an intent; nobody can delete their own request.
 - **FR-022**: Recording a rider's attendance at an event (by any means) MUST delete
   their report there. Deleting an event MUST delete its reports. A rider who leaves
@@ -321,12 +398,18 @@ upcoming event and check the boxes cannot be changed.
 - **FR-033**: The event list MUST mark past events with open requests ("n offen")
   and upcoming events with intents ("n zugesagt").
 - **FR-034**: The organiser overview's rider list (feature 016 FR-032) MUST get a
-  "Meldung offen" tile counting riders with open requests that filters to them, and
+  "Rider mit offener Meldung" tile counting riders with open requests that filters to them, and
   MUST show each open request on the rider's row or card, naming the event, with the
-  same quick actions. Riders with open requests MUST come first when all riders are
-  shown.
+  same quick actions. A rider with several open requests MUST show each one with its
+  own actions; the tile counts riders, the navigation count (FR-030) requests. Riders
+  with open requests MUST come first when all riders are shown.
 - **FR-035**: Confirming MUST record attendance exactly as feature 014 FR-021 does,
   with its change record (FR-040), and take effect through feature 003 (FR-003).
+- **FR-036**: Each event on the Termine page that has taken place and where the
+  viewing organiser has no attendance MUST offer "Ich war auch dabei", which records
+  their attendance as in FR-035 and then disappears. Events that have not taken
+  place MUST NOT offer it. Each past event MUST read "n Personen", with ", inklusive
+  dir" when the viewing organiser is recorded.
 
 **Organisers: tri-state boxes**
 
@@ -350,6 +433,14 @@ upcoming event and check the boxes cannot be changed.
   dashed border and a light tick, plus the tag) and MUST be exposed to assistive
   technology as a partly checked ("mixed") checkbox.
 
+**Team page (amends feature 016)**
+
+- **FR-045**: The Team page MUST NOT show the place card (feature 016 FR-016) or the
+  peloton with its breakaway (feature 016 FR-017's peloton, FR-018).
+- **FR-046**: The Team page MUST show, in this order: the team total, the
+  Training/Team switch, the quote, the Rangliste (feature 016 FR-012–FR-015) and
+  the team chart.
+
 **General**
 
 - **FR-050**: All text MUST come from the i18n catalogs in German and English
@@ -371,7 +462,7 @@ upcoming event and check the boxes cannot be changed.
 
 ### Measurable Outcomes
 
-- **SC-001**: A rider can report an event in one tap from Team, and withdraw an
+- **SC-001**: A rider can report an event in one tap from Termine, and withdraw an
   intent in one more.
 - **SC-002**: An organiser can see which events have open requests within 5 seconds
   of opening the app, and settle five requests at two events on a phone in under a
