@@ -6,7 +6,7 @@
 
 **Status**: Draft
 
-**Amended by**: [018-event-participation-requests](../018-event-participation-requests/spec.md)
+**Amended by**: [019-event-participation-requests](../019-event-participation-requests/spec.md)
 (FR-045, FR-046): the Team page no longer shows the place card (FR-016) or the
 peloton (FR-017, FR-018); the Rangliste moves above the team chart.
 

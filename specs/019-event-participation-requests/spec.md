@@ -1,6 +1,6 @@
 # Feature Specification: Riders Report Team-Event Participation
 
-**Feature Branch**: `018-event-participation-requests`
+**Feature Branch**: `019-event-participation-requests`
 
 **Created**: 2026-10-17
 
