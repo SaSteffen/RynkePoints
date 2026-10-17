@@ -293,7 +293,21 @@ describe("STYLE", () => {
 		});
 		expect(declsOf(".badge-large-hover .badge-large-close").display).toBe(
 			"none",
-		);
+		); // Opening the large view shines its badge once; the shine is the
+		// cards' own band, masked to the picture.
+		expect(
+			declsOf(
+				".badge-large:popover-open .badge::after",
+				"(prefers-reduced-motion:no-preference)",
+			).animation,
+		).toContain("badge-shine-new");
+		expect(
+			RULES.some(
+				(rule) =>
+					rule.selectors.includes(".badge-large .badge::after") &&
+					rule.decls.mask?.includes("var(--badge-src)"),
+			),
+		).toBe(true);
 	});
 
 	it("puts the milestone on the ribbon's box, yellow on personal and ink on team (013 FR-040b)", () => {

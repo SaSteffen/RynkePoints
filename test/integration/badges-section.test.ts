@@ -270,6 +270,12 @@ describe("the Abzeichen section", () => {
 		expect(large).toContain(
 			escapeHtml(de["badges.earnedOn"].replace("{date}", "08.03.2026")),
 		);
+		// Opening it shines the badge and sets stars twinkling, every time,
+		// however old the badge.
+		expect(large).toContain(
+			'<span class="badge" style="--badge-src:url(/badges/',
+		);
+		expect(large).toContain('<span class="badge-sparkles" aria-hidden="true">');
 	});
 
 	it("shows the German names on the English page (FR-041)", async () => {

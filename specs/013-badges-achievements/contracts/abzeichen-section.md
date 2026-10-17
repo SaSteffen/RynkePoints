@@ -231,6 +231,13 @@ markup above where they differ.
   `aria-hidden`), and its shine plays once on its own after the page loads
   (`badge-shine-new`). Reduced motion: no shine, no tip, the stars stand
   still.
+- **Large view** (2026-10-17): its badge carries `--badge-src` and the same
+  four stars (`span.badge-sparkles`, a little closer in so they stay inside
+  the popover), for every earned badge. Each time the view opens, the shine
+  sweeps across the badge once (`.badge-large:popover-open .badge::after`,
+  `badge-shine-new`) and the stars twinkle while it is open; a closed
+  popover isn't rendered, so both start again on the next opening, also when
+  hover opens it. Reduced motion: no shine, the stars stand still.
 - **Ribbon text** (supersedes its colour above): on personal badges the
   milestone is `#f7e27c` (`--rp-ribbon-text`), a softer, paler yellow than
   the ribbon's `#fbe122`, in weight 600 with 0.04em letter-spacing and a faint
