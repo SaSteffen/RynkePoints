@@ -33,6 +33,7 @@ import { handleReady } from "./ready";
 import { redirect } from "./redirect";
 import { handleRunDaily } from "./run-daily";
 import { handleBadges } from "./sections/badges";
+import { handleEvents, handleReport, handleWithdraw } from "./sections/events";
 import { handleOverview } from "./sections/overview";
 import { handleMoreRides, handleRides } from "./sections/rides";
 import { handleSettings } from "./sections/settings";
@@ -59,6 +60,9 @@ const WEBHOOK_PREFIX = "/strava/webhook/";
  */
 const ORGANISER_EVENT =
 	/^\/organiser\/events\/(\d{1,15})(?:\/(delete|attendance))?$/;
+
+/** A rider's report at an event and its withdrawal (feature 019). */
+const EVENT_REPORT = /^\/events\/(\d{1,15})\/report(\/delete)?$/;
 
 /** `/organiser/riders/{athleteId}` and its `/corrections`. */
 const ORGANISER_RIDER = /^\/organiser\/riders\/(\d{1,15})(\/corrections)?$/;
@@ -129,6 +133,13 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 					return handleUpdateEvent(request, ctx, i18n, eventId);
 			}
 		}
+		const report = path.match(EVENT_REPORT);
+		if (report) {
+			const eventId = Number(report[1]);
+			return report[2]
+				? handleWithdraw(request, ctx, i18n, eventId)
+				: handleReport(request, ctx, i18n, eventId);
+		}
 		const rider = path.match(ORGANISER_RIDER);
 		if (rider?.[2]) {
 			return handleAddCorrection(request, ctx, i18n, Number(rider[1]));
@@ -166,6 +177,8 @@ async function page(
 			return handleBadges(request, ctx, i18n);
 		case "/team":
 			return handleTeam(request, ctx, i18n);
+		case "/events":
+			return handleEvents(request, ctx, i18n);
 		case "/me/settings":
 			return handleSettings(request, ctx, i18n);
 		case "/me/disconnect":

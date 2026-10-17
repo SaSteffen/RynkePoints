@@ -12,7 +12,7 @@ import {
 	NOW,
 } from "./fixtures";
 import { seedBalance, seedRide } from "./rider-view";
-import { attendRaw, insertEvent } from "./rynke";
+import { attendRaw, insertEvent, reportRaw } from "./rynke";
 
 // Every rider-facing page (SC-010, SC-011), for the language guards. `next` is
 // the path the page's language switcher sends back to, or null for a section
@@ -112,6 +112,13 @@ export async function seedPageRiders(ctx: TestCtx): Promise<void> {
 	});
 	// C is an organiser, for the organiser pages (feature 014).
 	await seedRider(ctx, { athleteId: ATHLETE_C, organiser: true });
+	// Feature 019: A said "Bin dabei" for an upcoming event and "Ich war dabei"
+	// for a past one, so the Termine tab and the organiser pages show both.
+	await reportRaw(await insertEvent("team_training", "2026-10-10"), ATHLETE_A);
+	await reportRaw(
+		await insertEvent("technique_training", "2026-09-26"),
+		ATHLETE_A,
+	);
 	await seedRide(ATHLETE_C, { id: 8_900_101, name: "Synthetic ride of C" });
 }
 
@@ -163,6 +170,12 @@ export const RIDER_PAGES: RiderPage[] = [
 		fetch: get("/me/rides", ATHLETE_C),
 	},
 	{ name: "/team", next: null, status: 200, fetch: get("/team", ATHLETE_A) },
+	{
+		name: "/events",
+		next: null,
+		status: 200,
+		fetch: get("/events", ATHLETE_A),
+	},
 	{
 		name: "/organiser",
 		next: null,

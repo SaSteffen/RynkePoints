@@ -14,10 +14,11 @@ const COIN =
 /**
  * The Team page's fixed accents (feature 016, the Claude Design draft): the
  * team total sits on the coin's ink and the quote's edge keeps its colour in
- * both schemes.
+ * both schemes. Feature 019's green "Bin dabei", its red "Doch nicht dabei"
+ * and the count of open reports keep theirs too.
  */
 const TEAM =
-	"--rp-hero-label:#e6d9a8;--rp-hero-week:#bfe3c6;--rp-push-accent:#e8833a;--rp-ok-accent:#2e8b57;";
+	"--rp-hero-label:#e6d9a8;--rp-hero-week:#bfe3c6;--rp-push-accent:#e8833a;--rp-ok-accent:#2e8b57;--rp-yes:#1d6b35;--rp-no:#b3261e;--rp-on-yes-no:#ffffff;";
 
 /** The colour roles of the dark scheme, for the system setting and a choice. */
 const DARK = `--rp-badge-edge:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 2px 2px rgba(0,0,0,.6));--rp-badge-lift:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 6px 6px rgba(0,0,0,.6));--md-sys-color-surface:#12110c;--md-sys-color-surface-container-low:#1a1913;--md-sys-color-surface-container:#201f18;--md-sys-color-surface-container-high:#2b2a21;--md-sys-color-on-surface:#eeebdd;--md-sys-color-on-surface-variant:#cec9b3;--md-sys-color-outline:#979279;--md-sys-color-outline-variant:#4a4633;--md-sys-color-primary:#fbe122;--md-sys-color-on-primary:#1c1b13;--md-sys-color-primary-container:#fbe122;--md-sys-color-on-primary-container:#1c1b13;--md-sys-color-secondary-container:#fbe122;--md-sys-color-on-secondary-container:#1c1b13;--md-sys-color-error:#ffb4ab;--md-sys-color-error-container:#93000a;--md-sys-color-on-error-container:#ffdad6;--rp-ok-container:#173a22;--rp-on-ok-container:#bfe3c6;--rp-neutral-container:#2e2c22;--rp-on-neutral-container:#cec9b3;--rp-brand:#fc5200;--rp-part-1:#fbe122;--rp-part-2:#8cc4f0;--rp-part-3:#ff9a4d;--rp-part-4:#6fd1c2;--rp-part-5:#d7a6ec;--rp-part-6:#a8a6a0;--rp-reached:#7fcb92;--rp-track:#3a382c;--rp-push-container:#3a2614;--rp-on-push-container:#f6d2b0;--rp-road:#0a0906;--rp-bar:#6b6650;${TEAM}${COIN}`;
@@ -432,6 +433,40 @@ button.badge:active img{filter:var(--rp-badge-lift)}
 .badge-large .badge{display:block;width:280px;max-width:100%;margin:0 auto}
 .badge-large h4{margin:var(--rp-space-3) 0 var(--rp-space-1);font:var(--md-type-title-large)}
 .badge-large p{margin:0;color:var(--md-sys-color-on-surface-variant)}
+.count-badge{position:absolute;top:-4px;right:-6px;min-width:20px;height:20px;padding:0 5px;box-sizing:border-box;border:2px solid var(--md-sys-color-surface-container);border-radius:var(--md-shape-full);background:var(--rp-no);color:var(--rp-on-yes-no);font:800 11px/16px var(--md-ref-typeface);text-align:center}
+nav.app-nav .nav-icon,.segmented{position:relative}
+.segmented .count-badge{position:static;margin-left:2px}
+.events-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--rp-space-2);margin:0 0 var(--rp-space-3)}
+.events-head h2{margin:0}
+.events-head span{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
+.events-note{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+.events-note p{margin:0}
+.events-note-title{padding-bottom:var(--rp-space-1);font:var(--md-type-title)}
+.events h3{margin:var(--rp-space-4) 0 var(--rp-space-1);font:var(--md-type-label);color:var(--md-sys-color-on-surface-variant)}
+ol.event-list{display:flex;flex-direction:column;gap:var(--rp-space-2);margin:0;padding:0;list-style:none}
+.event-card{display:flex;gap:var(--rp-space-3);margin:0;padding:var(--rp-space-3)}
+.event-date{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;width:52px;height:60px;border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-md);background:var(--md-sys-color-surface);font:600 11px/14px var(--md-ref-typeface);color:var(--md-sys-color-on-surface-variant);text-transform:uppercase}
+.event-date .event-day{font:700 22px/24px var(--md-ref-typeface);color:var(--md-sys-color-on-surface)}
+.event-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.event-body p{margin:0}
+.event-kind{font:700 15px/20px var(--md-ref-typeface)}
+.event-name{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
+.event-amounts{display:flex;flex-wrap:wrap;gap:6px}
+.event-amounts .chip{gap:4px;min-height:24px;padding:0 8px 0 4px;background:var(--md-sys-color-surface)}
+.event-amounts .coin-mini{width:16px;height:16px}
+.event-body form,.event-reported,.event-attended{align-self:flex-end}
+.event-button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:168px;min-height:var(--rp-tap);padding:0 var(--rp-space-4);border:2px solid var(--md-sys-color-on-surface);border-radius:var(--md-shape-full);background:transparent;color:var(--md-sys-color-on-surface);font:700 15px/20px var(--md-ref-typeface);cursor:pointer}
+.event-button svg{width:18px;height:18px;stroke-width:2.6}
+.event-join{border-color:var(--rp-coin-ink);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}
+.event-joined,.event-reported{border-color:var(--rp-yes);background:var(--rp-yes);color:var(--rp-on-yes-no)}
+.event-reported{cursor:default}
+.event-joined>span{display:inline-flex;align-items:center;gap:6px}
+.event-joined .event-leave{display:none}
+.event-joined:hover,.event-joined:focus-visible{border-color:var(--rp-no);background:var(--rp-no)}
+.event-joined:hover .event-stay,.event-joined:focus-visible .event-stay{display:none}
+.event-joined:hover .event-leave,.event-joined:focus-visible .event-leave{display:inline-flex}
+.event-attended{display:inline-flex;align-items:center;gap:6px;min-height:var(--rp-tap);font:700 14px/20px var(--md-ref-typeface);color:var(--rp-on-ok-container)}
+.event-attended svg{width:18px;height:18px}
 @media (max-width:1099.98px){.table-scroll{display:none}.rider-cards.default .rider-card:not(.status-push){display:none}.group-tiles.default .tile-push{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}.showing-wide{display:none}}
 @media (min-width:840px){nav.app-nav .nav-label-short{display:none}nav.app-nav .nav-label-full{display:block}main:has(>.team-overview){max-width:none}nav.group-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}ul.rider-cards{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}
 @media (min-width:1100px){ul.rider-cards{display:none}.group-tiles.default .tile-all{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}.showing-phone{display:none}}

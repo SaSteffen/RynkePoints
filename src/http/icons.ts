@@ -45,3 +45,9 @@ export const REFRESH = icon(
 
 /** Closes the app prompt (feature 015). */
 export const CLOSE = icon('<path d="M6 6l12 12M18 6 6 18"/>');
+
+/** A tick, for "Bin dabei ✓" and confirmed attendance (feature 019). */
+export const CHECK = icon('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
+
+/** A plus, for "Bin dabei" and "Ich war auch dabei" (feature 019). */
+export const PLUS = icon('<path d="M12 5v14M5 12h14"/>');

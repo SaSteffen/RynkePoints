@@ -150,6 +150,11 @@ export function listRiderEventsStatement(
 		.bind(athleteId, w.seasonStart, w.deadline);
 }
 
+/** Whether `athleteId` is a listed rider (004 FR-021): one row with `n` 0 or 1. */
+export function isListedStatement(db: D1Database, athleteId: number) {
+	return db.prepare(`SELECT ? IN (${LISTED_RIDER_IDS}) AS n`).bind(athleteId);
+}
+
 /** Whether `athleteId` attended `eventId`: one row with `n` 0 or 1. */
 export function attendedStatement(
 	db: D1Database,
