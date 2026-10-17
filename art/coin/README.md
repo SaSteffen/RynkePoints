@@ -44,9 +44,9 @@ The traced coin is the picture where the coin is shown large: the empty ride
 list (front), the team totals (front or back), the organiser overview's
 deadline card (back) and the waiting state before a rider's first data (both
 sides, turning over). The Du page's hero shows one of the hero portraits at
-random. The simplified sprite in `src/http/coin.ts` stays for the landing
-page's hero and the small marks (wordmark, mini coins, chart marks), where
-the artwork's detail doesn't read.
+random, the landing page's hero always portrait 2. The simplified sprite in
+`src/http/coin.ts` stays for the small marks (wordmark, mini coins, chart
+marks), where the artwork's detail doesn't read.
 
 The mock-up is the "Coin artwork" artboard of the Claude Design canvas
 "RynkePoints Coin Explorations"

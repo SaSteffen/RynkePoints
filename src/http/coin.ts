@@ -70,7 +70,16 @@ export const HERO_PORTRAITS = 4;
  * `Math.random()`.
  */
 export function heroCoin(pick = Math.random()): SafeHtml {
-	const n = Math.min(HERO_PORTRAITS, Math.floor(pick * HERO_PORTRAITS) + 1);
+	return portraitCoin(
+		Math.min(HERO_PORTRAITS, Math.floor(pick * HERO_PORTRAITS) + 1),
+	);
+}
+
+/** The landing page's portrait: the calm smile with the straight brows. */
+export const LANDING_PORTRAIT = 2;
+
+/** The hero coin with portrait `n` (1 to `HERO_PORTRAITS`). */
+export function portraitCoin(n: number): SafeHtml {
 	return new SafeHtml(
 		`<img class="coin-art coin coin-hero" src="/coin/rynke-coin-hero-${n}.svg" alt="" width="${ART_SIZE}" height="${ART_SIZE}">`,
 	);
