@@ -630,11 +630,19 @@ function rideCard(
 		ride.name === null
 			? null
 			: html`<span class="ride-name">${ride.name}</span> `;
+	// The tour's example rides are invented: no link (feature 020 FR-007).
+	const strava = example
+		? null
+		: html`<p class="ride-strava">${name}<a class="tap strava-activity" href="${STRAVA_ORIGIN}/activities/${ride.activityId}">${i18n.t("brand.viewOnStrava")}</a></p>
+`;
+	const figures =
+		example?.shortRideId === ride.activityId
+			? html` id="tour-short-ride"`
+			: null;
 	return html`<li class="ride-card ${status.cls}">
 <div class="ride-head"><span class="ride-date">${date}</span> <span class="chip ride-status">${i18n.t(status.text)}</span></div>
-<dl class="ride-figures"${example?.shortRideId === ride.activityId ? html` id="tour-short-ride"` : null}><div><dt>${i18n.t("me.recent.col.distance")}</dt><dd>${km}</dd></div><div><dt>${i18n.t("rynke.training")}</dt><dd>${rynke}${earned}</dd></div><div><dt>${i18n.t("rynke.rides.col.elevationTotal")}</dt><dd>${metres}</dd></div></dl>
-${example ? null : html`<p class="ride-strava">${name}<a class="tap strava-activity" href="${STRAVA_ORIGIN}/activities/${ride.activityId}">${i18n.t("brand.viewOnStrava")}</a></p>
-`}<p class="ride-meta">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</p>
+<dl class="ride-figures"${figures}><div><dt>${i18n.t("me.recent.col.distance")}</dt><dd>${km}</dd></div><div><dt>${i18n.t("rynke.training")}</dt><dd>${rynke}${earned}</dd></div><div><dt>${i18n.t("rynke.rides.col.elevationTotal")}</dt><dd>${metres}</dd></div></dl>
+${strava}<p class="ride-meta">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</p>
 ${explanation(i18n, ride)}</li>
 `;
 }
