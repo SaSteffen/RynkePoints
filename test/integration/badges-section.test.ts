@@ -6,7 +6,9 @@ import { BADGE_OUTLINE } from "../../src/badges/outline";
 import { BADGE_PICTURES } from "../../src/badges/pictures";
 import { readRiderBadges } from "../../src/db/badges";
 import { escapeHtml } from "../../src/http/html";
+import { renderBadgeReveal } from "../../src/http/sections/badges";
 import { CATALOGS } from "../../src/i18n/catalogs";
+import { createI18n } from "../../src/i18n/i18n";
 import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
 import { countingWindow } from "../../src/rynke/rules";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
@@ -59,10 +61,16 @@ async function section(
 	};
 }
 
+/** The gallery of the rider's own group, shown by the "Alle" filter. */
+const galleryOf = (badges: string | null) =>
+	badges?.match(
+		/<div class="badge-gallery">[\s\S]*?<\/div>\n<\/section>/,
+	)?.[0] ?? "";
+
 /** The rider's own group; the team's follows it on the same page. */
 const personalGroup = (badges: string | null) =>
 	badges?.match(
-		/<section class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
+		/<section id="badges-personal" class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
 	)?.[0] ?? "";
 
 const EARNED: [string, string][] = [
@@ -91,6 +99,31 @@ describe("the Abzeichen section", () => {
 		expect(badges).toContain(
 			`<h2 id="badges-heading" class="visually-hidden">${de["badges.heading"]}</h2>`,
 		);
+	});
+
+	it("has a switch with links to both groups and a filter for all badges (Part I)", async () => {
+		const { section: badges } = await section();
+		const bar =
+			badges?.match(/<div class="badges-switch">[\s\S]*?<\/fieldset>/)?.[0] ??
+			"";
+		expect(bar).toContain(
+			`<a class="segmented" href="#badges-personal" aria-current="true">${de["badges.switch.personal"]}</a>`,
+		);
+		expect(bar).toContain(
+			`<a class="segmented" href="#badges-team">${de["badges.switch.team"]}</a>`,
+		);
+		expect(bar).toContain(
+			`<label><input type="radio" name="badges-filter" value="newest" autocomplete="off" checked>${de["badges.switch.newest"]}</label>`,
+		);
+		expect(bar).toContain(
+			`<label><input type="radio" name="badges-filter" value="all" autocomplete="off">${de["badges.switch.all"]}</label>`,
+		);
+		// Before both groups; the cards and the gallery are both there.
+		expect(badges?.indexOf("badges-switch")).toBeLessThan(
+			badges?.indexOf('id="badges-personal"') ?? -1,
+		);
+		expect(personalGroup(badges)).toContain('<ul class="badge-cards">');
+		expect(personalGroup(badges)).toContain('<div class="badge-gallery">');
 	});
 
 	it("shows one card per category, newest first, with the ribbon and what is missing", async () => {
@@ -164,13 +197,13 @@ describe("the Abzeichen section", () => {
 		}
 	});
 
-	it("keeps the gallery closed, counted, in catalog order", async () => {
+	it("has the gallery behind the filter, counted, in catalog order", async () => {
 		const { section: badges } = await section();
-		expect(badges).toContain('<details class="badge-gallery">');
+		expect(badges).toContain('<div class="badge-gallery">');
 		expect(badges).toContain(
-			`<summary>${de["badges.personal.all"].replace("{n}", "3")}</summary>`,
+			`<span class="badges-title-all">${de["badges.personal.all"].replace("{n}", "3")}</span>`,
 		);
-		const gallery = badges?.match(/<details[\s\S]*?<\/details>/)?.[0] ?? "";
+		const gallery = galleryOf(badges);
 		expect(
 			[...gallery.matchAll(/popovertarget="badge-([\w-]+)"/g)].map((m) => m[1]),
 		).toEqual(["distance-500", "distance-100", "elevation-1000"]);
@@ -178,7 +211,7 @@ describe("the Abzeichen section", () => {
 
 	it("shows the badges still to earn as empty outlines in the gallery (#109)", async () => {
 		const { section: badges } = await section();
-		const gallery = badges?.match(/<details[\s\S]*?<\/details>/)?.[0] ?? "";
+		const gallery = galleryOf(badges);
 		const lists = [...gallery.matchAll(/<ul>([\s\S]*?)<\/ul>/g)].map(
 			(m) => m[1] ?? "",
 		);
@@ -308,7 +341,8 @@ describe("the Abzeichen section without badges", () => {
 		await seedBalance(ATHLETE_A);
 		const { section: badges } = await section();
 		expect(badges).toContain(escapeHtml(de["badges.empty"]));
-		expect(badges).not.toContain("<details");
+		// The gallery has outlines only (#109).
+		expect(galleryOf(badges)).toContain('<li class="badge-slot"');
 		expect(badges).not.toContain("popovertarget");
 		expect([
 			...personalGroup(badges).matchAll(
@@ -340,30 +374,43 @@ describe("the team's badges (US4)", () => {
 
 	const teamGroup = (badges: string | null) =>
 		badges?.match(
-			/<section class="badge-group badge-group-team"[\s\S]*?<\/section>/,
+			/<section id="badges-team" class="badge-group badge-group-team"[\s\S]*?<\/section>/,
 		)?.[0] ?? "";
 
 	it("shows them after the rider's own, with their own heading and count", async () => {
 		const { section: badges } = await section();
 		const team = teamGroup(badges);
 		expect(team).toContain(
-			`<h3 id="badges-team-heading">${de["badges.team.newest"]}</h3>`,
-		);
-		expect(team).toContain(
-			`<summary>${de["badges.team.all"].replace("{n}", "1")}</summary>`,
+			`<h3 id="badges-team-heading"><span class="badges-title-newest">${de["badges.team.newest"]}</span><span class="badges-title-all">${de["badges.team.all"].replace("{n}", "1")}</span></h3>`,
 		);
 		expect(team).toContain('popovertarget="badge-big-training-5"');
 		expect(badges?.indexOf("badge-group-team")).toBeGreaterThan(
 			badges?.indexOf("badge-group-personal") ?? -1,
 		);
 		expect(badges).toContain(
-			`<summary>${de["badges.personal.all"].replace("{n}", "3")}</summary>`,
+			`<span class="badges-title-all">${de["badges.personal.all"].replace("{n}", "3")}</span>`,
 		);
 		if (!BADGE_PICTURES.has("big-training-5")) {
 			expect(team).toContain('src="/badges/placeholder-team-ribbon.svg"');
 		}
 		expect(badges).toContain(
 			'<div popover id="badge-big-training-5" class="badge-large badge-large-team">',
+		);
+	});
+
+	it("scrolls to the rider's own new badge before the team's (Part I)", async () => {
+		const { html } = await section();
+		expect(html).toContain(
+			'<aside class="badges-reveal" role="status" data-scroll-to="distance">',
+		);
+		const i18n = createI18n("de", CATALOGS);
+		const team = { badgeId: "big-training-5", earnedOn: "2026-04-11" };
+		const own = { badgeId: "elevation-1000", earnedOn: "2026-04-12" };
+		expect(String(renderBadgeReveal(i18n, [team, own]))).toContain(
+			'data-scroll-to="elevation"',
+		);
+		expect(String(renderBadgeReveal(i18n, [team]))).toContain(
+			'data-scroll-to="big_training"',
 		);
 	});
 
@@ -484,7 +531,7 @@ describe("the part C categories on the page", () => {
 		);
 		expect(length).toContain(missing("0,7\u00a0km"));
 		expect(card(badges, "swimming")).toContain(missing("3,0\u00a0km"));
-		const gallery = badges?.match(/<details[\s\S]*?<\/details>/)?.[0] ?? "";
+		const gallery = galleryOf(badges);
 		expect(gallery).toContain('<span class="badge-value">0,5\u00a0km</span>');
 	});
 
@@ -517,7 +564,7 @@ describe("the surprise badges on the page", () => {
 		expect(card).toContain("badge-card-empty");
 		expect(card).toContain(outline);
 		expect(card).not.toContain("badge-progress");
-		const gallery = badges?.match(/<details[\s\S]*?<\/details>/)?.[0] ?? "";
+		const gallery = galleryOf(badges);
 		expect(gallery).toContain(about);
 	});
 
@@ -569,7 +616,7 @@ describe("the surprise badges on the page", () => {
 describe("the team surprise badges on the page", () => {
 	const teamGroup = (badges: string | null) =>
 		badges?.match(
-			/<section class="badge-group badge-group-team"[\s\S]*?<\/section>/,
+			/<section id="badges-team" class="badge-group badge-group-team"[\s\S]*?<\/section>/,
 		)?.[0] ?? "";
 	const card = (badges: string | null) =>
 		teamGroup(badges).match(

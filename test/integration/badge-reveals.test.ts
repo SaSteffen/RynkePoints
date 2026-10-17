@@ -46,7 +46,7 @@ async function reveal(path = "/me/badges"): Promise<string | null> {
 	expect(status).toBe(200);
 	return (
 		html.match(
-			/<aside class="badges-reveal" role="status">([\s\S]*?)<\/aside>/,
+			/<aside class="badges-reveal" role="status" data-scroll-to="\w+">([\s\S]*?)<\/aside>/,
 		)?.[1] ?? null
 	);
 }
