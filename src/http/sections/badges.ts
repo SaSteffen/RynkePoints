@@ -287,7 +287,7 @@ function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 	const team = badge.group === "team" ? " badge-large-team" : "";
 	return html`<div popover id="badge-${badge.id}" class="badge-large${team}">
 <button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
-<span class="badge"><img src="${picture(badge, true)}" alt="" loading="lazy" width="280" height="280"><span class="badge-ribbon-text">${value}</span></span>
+<span class="badge" style="--badge-src:url(${picture(badge, true)})"><img src="${picture(badge, true)}" alt="" loading="lazy" width="280" height="280"><span class="badge-ribbon-text">${value}</span>${SPARKLES}</span>
 <h4>${BADGE_NAMES[badge.id] ?? ""}</h4>
 <p>${forText(i18n, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>

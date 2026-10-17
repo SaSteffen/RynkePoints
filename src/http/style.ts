@@ -391,9 +391,10 @@ button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full)
 .badge img{display:block;width:100%;height:auto;filter:var(--rp-badge-edge)}
 button.badge{transform:rotate(var(--tilt,0deg));transition:transform var(--rp-motion)}
 button.badge:hover,button.badge:focus-visible{transform:none}
-@media (prefers-reduced-motion:no-preference){button.badge:active{transform:perspective(480px) rotateX(16deg) rotateY(-10deg) scale(1.05)}button.badge:hover::after,button.badge:focus-visible::after{animation:badge-shine 900ms ease-out}.badge-fresh::after{animation:badge-shine-new 1200ms ease-out 600ms}}
-button.badge::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(115deg,transparent 38%,var(--rp-badge-shine) 50%,transparent 62%) 150% 0/250% 100% no-repeat;-webkit-mask:var(--badge-src) center/contain no-repeat;mask:var(--badge-src) center/contain no-repeat}
+@media (prefers-reduced-motion:no-preference){button.badge:active{transform:perspective(480px) rotateX(16deg) rotateY(-10deg) scale(1.05)}button.badge:hover::after,button.badge:focus-visible::after{animation:badge-shine 900ms ease-out}.badge-fresh::after{animation:badge-shine-new 1200ms ease-out 600ms}.badge-large:popover-open .badge::after{animation:badge-shine-new 1100ms ease-out 250ms}}
+button.badge::after,.badge-large .badge::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(115deg,transparent 38%,var(--rp-badge-shine) 50%,transparent 62%) 150% 0/250% 100% no-repeat;-webkit-mask:var(--badge-src) center/contain no-repeat;mask:var(--badge-src) center/contain no-repeat}
 .badge-sparkles{position:absolute;inset:-8%;pointer-events:none}
+.badge-large .badge-sparkles{inset:-3%}
 .badge-sparkles>span{position:absolute;width:12%;aspect-ratio:1;background:var(--rp-coin-yellow);clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);filter:drop-shadow(0 0 1px var(--rp-coin-ink));animation:badge-twinkle 1.8s ease-in-out infinite}
 .badge-sparkles>span:nth-child(1){top:2%;left:8%}
 .badge-sparkles>span:nth-child(2){top:10%;right:2%;width:9%;animation-delay:.5s}
