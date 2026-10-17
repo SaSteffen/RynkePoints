@@ -596,6 +596,168 @@ function keepScroll() {
 	});
 }
 
+/** Where Rides keeps its place in this tab (feature 018 research R5). */
+const RIDES_PLACE = "rp-rides-place";
+
+/** The most rides one request may bring back (018 contracts/http-routes.md). */
+const MAX_RIDE_BATCH = 1000;
+
+/**
+ * Rides as one continuous list (feature 018 contracts/client.md): the next
+ * rides load as the end of the list comes within a screen, the season's total
+ * replaces the pager and the page count, and a reload or the back button finds
+ * the same ride in view. Without IntersectionObserver the pager stays.
+ */
+function lazyRides() {
+	const section = document.querySelector("section#rides[data-lazy]");
+	const list = section?.querySelector("ol.ride-list");
+	const more = section?.querySelector(".rides-more");
+	const status = more?.querySelector(".rides-status");
+	const retry = more?.querySelector("[data-retry]");
+	if (!list || !status || !retry) return;
+	if (typeof IntersectionObserver !== "function") return;
+	for (const old of section.querySelectorAll("nav.pager, .rides-position")) {
+		old.hidden = true;
+	}
+	for (const line of section.querySelectorAll(".rides-total, .rides-newest")) {
+		line.hidden = false;
+	}
+	try {
+		history.scrollRestoration = "manual";
+	} catch {}
+
+	const cards = () => Array.from(list.querySelectorAll("li.ride-card"));
+	/** A card's ride, from its "View on Strava" link. */
+	const rideOf = (card) => {
+		const link = card.querySelector("a.strava-activity");
+		return link?.href.match(/\/(\d+)$/)?.[1] ?? null;
+	};
+	const setState = (state) => {
+		if (state) more.dataset.state = state;
+		else more.removeAttribute("data-state");
+		const text = state ? status.dataset[state] : "";
+		status.textContent = text ?? "";
+		retry.hidden = state !== "failed";
+	};
+
+	let busy = false;
+	const observer = new IntersectionObserver(
+		(entries) => {
+			if (entries.some((entry) => entry.isIntersecting)) load();
+		},
+		{ rootMargin: "0px 0px 100% 0px" },
+	);
+	/** Observing afresh reports whether the end is still in reach. */
+	const watch = () => {
+		observer.unobserve(more);
+		if (list.dataset.more) observer.observe(more);
+	};
+
+	/** Appends the next batch, or `limit` rides; `false` once it reloads. */
+	async function load(limit) {
+		const url = list.dataset.more;
+		if (busy || !url) return true;
+		busy = true;
+		setState("loading");
+		list.setAttribute("aria-busy", "true");
+		try {
+			const res = await fetch(limit ? `${url}&limit=${limit}` : url, {
+				credentials: "same-origin",
+				cache: "no-store",
+			});
+			// Signed out, the consent gate or the waiting state: the page shows it.
+			if ([401, 403, 409].includes(res.status)) {
+				startLoading();
+				location.reload();
+				return false;
+			}
+			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(await res.text(), "text/html");
+			const batch = doc.querySelector("ol.ride-list");
+			if (!batch) throw new Error("no ride list");
+			const next = batch.dataset.more;
+			list.append(...batch.children);
+			if (next) list.dataset.more = next;
+			else list.removeAttribute("data-more");
+			setState("added");
+		} catch {
+			// Offline or a bad answer: retry, back online or at the end again.
+			setState("failed");
+			return true;
+		} finally {
+			busy = false;
+			list.removeAttribute("aria-busy");
+		}
+		if (list.dataset.more) {
+			watch();
+		} else {
+			observer.disconnect();
+			more.hidden = true;
+		}
+		return true;
+	}
+
+	retry.addEventListener("click", () => load());
+	addEventListener("online", () => {
+		if (more.dataset.state === "failed") load();
+	});
+
+	addEventListener("pagehide", () => {
+		const bar = document.querySelector("header.top-bar");
+		const top = bar ? bar.getBoundingClientRect().bottom : 0;
+		const all = cards();
+		const anchor = all.find(
+			(card) => card.getBoundingClientRect().bottom > top,
+		);
+		try {
+			sessionStorage.setItem(
+				RIDES_PLACE,
+				JSON.stringify({
+					url: location.pathname + location.search,
+					loaded: all.length,
+					anchor: anchor ? rideOf(anchor) : null,
+					offset: anchor ? anchor.getBoundingClientRect().top : 0,
+					y: scrollY,
+				}),
+			);
+		} catch {}
+	});
+
+	/** After a reload or the back button: the rides and the ride in view. */
+	async function restore() {
+		let place = null;
+		try {
+			place = JSON.parse(sessionStorage.getItem(RIDES_PLACE) ?? "null");
+			sessionStorage.removeItem(RIDES_PLACE);
+		} catch {
+			return true;
+		}
+		const type = performance.getEntriesByType?.("navigation")[0]?.type;
+		if (!place || place.url !== location.pathname + location.search) {
+			return true;
+		}
+		if (type !== "reload" && type !== "back_forward") return true;
+		const missing = Number(place.loaded) - cards().length;
+		if (Number.isInteger(missing) && missing > 0) {
+			if (!(await load(Math.min(missing, MAX_RIDE_BATCH)))) return false;
+		}
+		const anchor = cards().find((card) => rideOf(card) === place.anchor);
+		if (anchor) {
+			const offset = Number(place.offset) || 0;
+			scrollTo(0, anchor.getBoundingClientRect().top + scrollY - offset);
+		} else if (Number.isFinite(place.y)) {
+			scrollTo(0, place.y);
+		}
+		return true;
+	}
+
+	more.hidden = !list.dataset.more;
+	restore().then((going) => {
+		if (going) watch();
+	});
+}
+
 /** The Material buttons that show press feedback (issue #107). */
 const PRESSABLE =
 	".button,.button-outlined,.danger,.segmented,.segmented-group label,.icon-button";
@@ -746,6 +908,7 @@ function badgeHover() {
 
 const registered = registerWorker();
 keepScroll();
+lazyRides();
 pressFeedback();
 pendingSubmit();
 installSettings();

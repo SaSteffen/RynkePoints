@@ -19,9 +19,16 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // specs/014-organiser-admin/contracts/http-routes.md and
 // specs/016-team-leaderboard/contracts/messages.md and
 // specs/013-badges-achievements/contracts/badge-messages.md and
-// specs/017-privacy-page/contracts/messages.md.
+// specs/017-privacy-page/contracts/messages.md and
+// specs/018-lazy-rides-list/contracts/catalog.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
+	"rynke.rides.total",
+	"rynke.rides.newest",
+	"rynke.rides.loading",
+	"rynke.rides.failed",
+	"rynke.rides.retry",
+	"rynke.rides.added",
 	"meta.intlLocale",
 	"app.name",
 	"brand.connectWithStrava.src",

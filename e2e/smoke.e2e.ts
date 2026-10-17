@@ -133,6 +133,115 @@ test.describe("a rider", () => {
 	});
 });
 
+/**
+ * Opens Rides once the sample rider's first data is there; the waiting state
+ * only reloads by itself with the page script on.
+ */
+async function openRides(page: Page, path = "/me/rides") {
+	await expect(async () => {
+		await page.goto(path);
+		await expect(page.locator("[data-waiting]")).toHaveCount(0);
+	}).toPass({ timeout: 30_000 });
+}
+
+/** The distance of the card linking to `href` from the viewport's top. */
+function topOf(page: Page, href: string): Promise<number> {
+	return page
+		.locator(`li.ride-card:has(a.strava-activity[href="${href}"])`)
+		.evaluate((card) => Math.round(card.getBoundingClientRect().top));
+}
+
+test.describe("the continuous ride list (018)", () => {
+	test.beforeEach(async ({ page }) => {
+		await page.setViewportSize(PHONE);
+		await signIn(page, "Paula Paging");
+		await skipTours(page);
+	});
+
+	test("loads every ride by scrolling, with the season's total (US1)", async ({
+		page,
+	}) => {
+		await openRides(page);
+		const rides = page.locator("section#rides");
+		const cards = rides.locator("li.ride-card");
+		await expect(rides.locator("nav.pager")).toBeHidden();
+		await expect(rides.locator(".rides-position")).toBeHidden();
+		await expect(rides.locator(".rides-total")).toHaveText(
+			"45 Fahrten in dieser Saison",
+		);
+		await expect(cards).toHaveCount(20);
+		for (const count of [40, 45]) {
+			await cards.last().scrollIntoViewIfNeeded();
+			await expect(cards).toHaveCount(count);
+		}
+		await expect(rides.locator(".rides-more")).toBeHidden();
+		await expect(page).toHaveURL(/\/me\/rides$/);
+		await expectNoSidewaysScroll(page);
+	});
+
+	test("keeps the ride in view on the way back and on a reload (US2)", async ({
+		page,
+	}) => {
+		await openRides(page);
+		const cards = page.locator("section#rides li.ride-card");
+		for (const count of [40, 45]) {
+			await cards.last().scrollIntoViewIfNeeded();
+			await expect(cards).toHaveCount(count);
+		}
+		const card = cards.nth(35);
+		const href = await card.locator("a.strava-activity").getAttribute("href");
+		if (href === null) throw new Error("no link to Strava on ride 36");
+		await card.evaluate((el) => el.scrollIntoView({ block: "center" }));
+		const before = await topOf(page, href);
+
+		await page.goto("/me");
+		await page.goBack();
+		await expect(cards).toHaveCount(45);
+		await expect.poll(() => topOf(page, href)).toBeCloseTo(before, -1);
+
+		await page.reload();
+		await expect(cards).toHaveCount(45);
+		await expect.poll(() => topOf(page, href)).toBeCloseTo(before, -1);
+
+		// The navigation bar is a fresh visit: the top, the newest rides.
+		await page.locator('nav.app-nav a[href="/me/rides"]').click();
+		await expect(cards).toHaveCount(20);
+		const html = page.locator("html");
+		expect(await html.evaluate((root) => root.scrollTop)).toBe(0);
+	});
+
+	test("continues below a later page, with a link to the newest (US3)", async ({
+		page,
+	}) => {
+		await openRides(page, "/me/rides?page=2");
+		const cards = page.locator("section#rides li.ride-card");
+		await expect(page.locator(".rides-newest a")).toHaveAttribute(
+			"href",
+			"/me/rides",
+		);
+		await expect(cards).toHaveCount(20);
+		await cards.last().scrollIntoViewIfNeeded();
+		await expect(cards).toHaveCount(25);
+	});
+
+	test.describe("without the page script (US3)", () => {
+		test.use({ javaScriptEnabled: false });
+
+		test("pages through the rides as before", async ({ page }) => {
+			await openRides(page);
+			const rides = page.locator("section#rides");
+			await expect(rides.locator("li.ride-card")).toHaveCount(20);
+			await expect(rides.locator(".rides-position")).toHaveText(
+				"Fahrten 1–20 von 45",
+			);
+			await expect(rides.locator(".rides-total")).toBeHidden();
+			await rides.locator('nav.pager a[rel="next"]').click();
+			await expect(page).toHaveURL(/\/me\/rides\?page=2$/);
+			await expect(rides.locator("li.ride-card")).toHaveCount(20);
+		});
+	});
+});
+
 test("a rider walks through the tour, one page each", async ({ page }) => {
 	await signIn(page, "Vera Virtual");
 	// The tour waits for the first import (issue #119); the page polls itself.

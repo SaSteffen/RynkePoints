@@ -34,7 +34,7 @@ import { redirect } from "./redirect";
 import { handleRunDaily } from "./run-daily";
 import { handleBadges } from "./sections/badges";
 import { handleOverview } from "./sections/overview";
-import { handleRides } from "./sections/rides";
+import { handleMoreRides, handleRides } from "./sections/rides";
 import { handleSettings } from "./sections/settings";
 import { handleTeam } from "./sections/team";
 import { renewSession } from "./session";
@@ -160,6 +160,8 @@ async function page(
 			return handleOverview(request, ctx, i18n);
 		case "/me/rides":
 			return handleRides(request, ctx, i18n);
+		case "/me/rides/more":
+			return handleMoreRides(request, ctx, i18n);
 		case "/me/badges":
 			return handleBadges(request, ctx, i18n);
 		case "/team":
