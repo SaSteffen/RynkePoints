@@ -230,11 +230,7 @@ export async function handleCallback(
 		});
 	}
 
-	const next = await arrival(
-		sectionNext(expected.next),
-		ctx,
-		token.athleteId,
-	);
+	const next = await arrival(sectionNext(expected.next), ctx, token.athleteId);
 	return redirect(next, 302, [
 		clearOAuthStateCookie(),
 		await createSessionCookie(token.athleteId, now, ctx.env),

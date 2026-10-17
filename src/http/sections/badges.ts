@@ -29,8 +29,8 @@ import {
 	type BadgeSection,
 	buildBadgeSection,
 	type Card,
-	newBadges,
 	type NotYetRow,
+	newBadges,
 	type ProgressView,
 	personalProgress,
 } from "../../badges/view";
