@@ -1,5 +1,6 @@
 import { berlinDate } from "../../config";
 import type { Ctx } from "../../ctx";
+import { readSeenQuotes, writeSeenQuote } from "../../db/quote-seen";
 import { readTeam } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
 import {
@@ -32,8 +33,10 @@ import { shellPage } from "../shell";
 // Team at `/team` (feature 011 FR-013, feature 016 US1–US3): how the team is
 // doing and where the viewer stands among 014's listed riders, in Training or
 // Team Rynke, around their own row or for everyone, with a German quote that
-// fits the viewer (contracts/pages.md, contracts/http-routes.md). The page only reads (FR-003); nothing on it
-// carries a name or an athlete ID (FR-010).
+// fits the viewer (contracts/pages.md, contracts/http-routes.md). The page only
+// reads (FR-003), except that it marks the shown quote as seen, so the next
+// ones are new to the viewer (issue #96); nothing on it carries a name or an
+// athlete ID (FR-010).
 // Organisers also get the way to the team overview and their pages (FR-002).
 // It's where the app opens, so a rider who must reconnect learns it here too
 // (issue #73).
@@ -168,29 +171,60 @@ export function seasonOf(date: string): Season {
 }
 
 /**
+ * A quote's id for `quote_seen` (issue #96): the 32-bit FNV-1a hash of its
+ * UTF-8 text, as 8 hex digits. A quote whose text changes counts as unseen.
+ */
+export function quoteId(text: string): string {
+	let hash = 0x811c9dc5;
+	for (const byte of new TextEncoder().encode(text)) {
+		hash = Math.imul(hash ^ byte, 0x01000193);
+	}
+	return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+export interface QuotePick {
+	list: "push" | "onTrack";
+	text: string;
+	/** The quote's `quoteId`, to mark it as seen. */
+	id: string;
+	/**
+	 * With the last quote of the list the rider hadn't seen: the ids of all the
+	 * list's quotes, to mark them unseen again for a new round; otherwise null.
+	 */
+	restart: string[] | null;
+}
+
+/**
  * A random quote from the list for `status`, together with that list's quotes
- * for the season of `date` (FR-021, FR-022, FR-025).
+ * for the season of `date` (FR-021, FR-022, FR-025), among those not in `seen`
+ * while there are any (issue #96).
  */
 export function pickQuote(
 	status: RiderStatus,
 	date: string,
-): {
-	list: "push" | "onTrack";
-	text: string;
-} {
+	seen: ReadonlySet<string> = new Set(),
+): QuotePick {
 	const list = status === "push" ? "push" : "onTrack";
 	const season = seasonOf(date);
 	const quotes =
 		list === "push"
 			? [...QUOTES_PUSH, ...SEASON_QUOTES_PUSH[season]]
 			: [...QUOTES_ON_TRACK, ...SEASON_QUOTES_ON_TRACK[season]];
+	const ids = quotes.map(quoteId);
+	const unseen = quotes.filter((_, i) => !seen.has(ids[i] ?? ""));
+	const from = unseen.length > 0 ? unseen : quotes;
 	const [random = 0] = crypto.getRandomValues(new Uint32Array(1));
-	return { list, text: quotes[random % quotes.length] ?? "" };
+	const text = from[random % from.length] ?? "";
+	return {
+		list,
+		text,
+		id: quoteId(text),
+		restart: unseen.length <= 1 ? ids : null,
+	};
 }
 
 /** German in every language (FR-023); the heading follows the page's. */
-function renderQuote(i18n: I18n, status: RiderStatus, today: string): SafeHtml {
-	const { list, text } = pickQuote(status, today);
+function renderQuote(i18n: I18n, { list, text }: QuotePick): SafeHtml {
 	return html`<blockquote class="quote ${list === "push" ? "quote-push" : "quote-on-track"}" lang="de">
 <p class="quote-heading" lang="${i18n.locale}">${i18n.t(`team.quote.${list}`)}</p>
 <p>${text}</p>
@@ -319,9 +353,25 @@ export function handleTeam(
 				riders.map((listed) => listed.weeks),
 				kind,
 			);
+			const quote = viewer
+				? pickQuote(
+						status,
+						today,
+						await readSeenQuotes(ctx.env.DB, rider.athleteId),
+					)
+				: null;
+			// Only a GET marks the quote as seen, as with `rynke_seen`.
+			if (quote && request.method === "GET") {
+				await writeSeenQuote(
+					ctx.env.DB,
+					rider.athleteId,
+					quote.id,
+					quote.restart,
+				);
+			}
 			return html`${renderReconnect(i18n, rider)}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
 				viewer ? renderPlace(i18n, viewer) : null
-			}${viewer ? renderQuote(i18n, status, today) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${renderLeaderboard(
+			}${quote ? renderQuote(i18n, quote) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${renderLeaderboard(
 				i18n,
 				kind,
 				all,
