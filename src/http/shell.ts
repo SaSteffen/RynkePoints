@@ -95,8 +95,8 @@ export interface ShellViewer {
 	rider: Rider;
 	consent: Consent;
 	/**
-	 * The page is a step of the rider tour that shows the example rider instead
-	 * of the rider's own data (feature 020 FR-005).
+	 * The page is a tour step that shows the example rider or team instead of
+	 * the real data (feature 020 FR-005, FR-013).
 	 */
 	example: boolean;
 }
@@ -206,7 +206,8 @@ export async function shellPage(
 	// No tour while the first import still runs: the pages it points at only
 	// show the waiting placeholder then (issue #119). Read only when there is
 	// a hint to hold back. Before the section, which shows the example rider
-	// on the tour's steps that call for it (feature 020 FR-005).
+	// or team on the tour's steps that call for it (feature 020 FR-005,
+	// FR-013).
 	let hint = tourHint(
 		i18n,
 		viewer.rider,

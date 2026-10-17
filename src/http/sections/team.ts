@@ -106,7 +106,7 @@ function renderPeloton(
 					...figures,
 					away: whole(totals.filter((total) => total > fence).length),
 				});
-	return html`<figure class="peloton card">
+	return html`<figure class="peloton card" id="tour-peloton">
 <figcaption>${i18n.t("team.peloton.heading")}</figcaption>
 <p class="team-hint">${i18n.t(fence === null ? "team.peloton.hint" : "team.peloton.hint.breakaway")}</p>
 ${peloton(totals, own, fence, { label, you: i18n.t("team.peloton.you") }, kind)}

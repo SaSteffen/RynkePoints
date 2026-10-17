@@ -21,7 +21,7 @@ import {
 	type Summary,
 } from "./rider-view";
 import { statusArt } from "./status-art";
-import type { TourTarget } from "./tour";
+import type { TourTarget } from "./tour-targets";
 
 // The Rynke sections of the Overview and Rides (feature 005
 // contracts/rider-page.md, feature 011 contracts/pages.md), rendered
@@ -353,19 +353,24 @@ export function renderRules(i18n: I18n, rules: RulesInfo): SafeHtml {
 }
 
 /**
- * The tour's example rides (feature 020 FR-005, FR-007): no link to Strava,
- * and the figures of the short ride are where its step points.
+ * The tour's example rides (feature 020 FR-005, FR-007): no link to Strava;
+ * the card of the ride that doesn't count and the figures of the short ride
+ * are where their steps point.
  */
 export interface ExampleRides {
+	rejectedRideId: number;
 	shortRideId: number;
 }
 
 /**
- * The tour's note above the example rider's data (feature 020 FR-005): what
- * follows isn't the rider's own.
+ * The tour's note above the example rider's data or the example team (feature
+ * 020 FR-005, FR-013): what follows isn't real.
  */
-export function renderExampleNote(i18n: I18n): SafeHtml {
-	return html`<p class="notice tour-example" role="note">${i18n.t("tour.example")}</p>
+export function renderExampleNote(
+	i18n: I18n,
+	text: "tour.example" | "tour.organiser.example" = "tour.example",
+): SafeHtml {
+	return html`<p class="notice tour-example" role="note">${i18n.t(text)}</p>
 `;
 }
 
@@ -643,7 +648,11 @@ function rideCard(
 		example?.shortRideId === ride.activityId
 			? html` id="tour-short-ride"`
 			: null;
-	return html`<li class="ride-card ${status.cls}">
+	const card =
+		example?.rejectedRideId === ride.activityId
+			? html` id="tour-rejected-ride"`
+			: null;
+	return html`<li class="ride-card ${status.cls}"${card}>
 <div class="ride-head"><span class="ride-date">${date}</span> <span class="chip ride-status">${i18n.t(statusText)}</span></div>
 <dl class="ride-figures"${figures}><div><dt>${i18n.t("me.recent.col.distance")}</dt><dd>${km}</dd></div><div><dt>${i18n.t("rynke.training")}</dt><dd>${rynke}${earned}</dd></div><div><dt>${i18n.t("rynke.rides.col.elevationTotal")}</dt><dd>${metres}</dd></div></dl>
 ${strava}<p class="ride-meta">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</p>

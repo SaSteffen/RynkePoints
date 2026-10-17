@@ -25,7 +25,11 @@ import {
 	rideLines,
 } from "../rider-view";
 import { shellPage } from "../shell";
-import { EXAMPLE_SHORT_RIDE_ID, exampleRiderView } from "../tour-example";
+import {
+	EXAMPLE_REJECTED_RIDE_ID,
+	EXAMPLE_SHORT_RIDE_ID,
+	exampleRiderView,
+} from "../tour-example";
 import { readViewer, riderConsentState } from "../viewer";
 
 // Rides at `/me/rides?page=N` (feature 011 FR-012): all the rider's rides, 20 a
@@ -70,6 +74,7 @@ export function handleRides(
 			}
 			if (example) {
 				return html`${renderExampleNote(i18n)}${renderRides(i18n, view.rides, {
+					rejectedRideId: EXAMPLE_REJECTED_RIDE_ID,
 					shortRideId: EXAMPLE_SHORT_RIDE_ID,
 				})}`;
 			}

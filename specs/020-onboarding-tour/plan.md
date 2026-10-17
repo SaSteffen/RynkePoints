@@ -32,6 +32,10 @@ what the pages show during the tour:
   ride cards have no Strava link (R5).
 - **Texts (FR-008, FR-009)**: five new step texts and the note, in `de` and
   `en`; every rule value is a parameter filled from `CURRENT_RULES` (R6).
+- **Owner's review**: a ride that doesn't count in the example, which the first
+  Fahrten step points at (R3); a Team step on the peloton (R7); and an organiser
+  tour of seven steps on an example team on Rider and Termine, inert, with the
+  real new-event form (US4, R8 – R10).
 
 There is no migration, no new stored data, no Strava request, no new route and
 no consent change.
@@ -47,8 +51,8 @@ written.
 
 **Testing**: Vitest in workerd (`pnpm test`): `test/integration/tour.test.ts`
 through `handleFetch`. Playwright (`pnpm test:e2e`): the rider walk-through
-with "Vera Virtual", now ten steps with the example and the highlighted
-elements.
+with "Vera Virtual", now eleven steps with the example and the highlighted
+elements, and "Olga Organiser" through the organiser tour's seven.
 
 **Target Platform**: Cloudflare Workers; phone browsers 320–360 px wide and
 desktop.
@@ -78,7 +82,12 @@ No deviations.
 
 ```text
 src/http/tour.ts               steps with target/example/riderOnly, tourSteps, step addresses
-src/http/tour-example.ts       new: the example rider view
+src/http/tour-example.ts       new: the example rider view and the example team
+src/http/tour-targets.ts       new: the elements a step can point at
+src/http/sections/team.ts      peloton id
+src/http/organiser/overview.ts example team, inert; tiles and pace ids
+src/http/organiser/events.ts   readEvents / example, inert lists, target ids
+src/http/organiser/requests.ts open requests id, inert
 src/http/shell.ts              hint before the section; ShellViewer.example
 src/http/sections/overview.ts  example read, no seen/celebration on it
 src/http/sections/rides.ts     example read and cards
@@ -87,5 +96,6 @@ src/http/rider-sections.ts     gauge ids, example note, example ride cards
 src/http/style.ts              target outline and scroll margin
 src/i18n/messages/{de,en}.ts   new texts
 test/integration/tour.test.ts  extended
-e2e/smoke.e2e.ts               walk-through of the ten steps
+test/unit/tour-example.test.ts new: the examples on any day
+e2e/smoke.e2e.ts               walk-through of the rider and the organiser tour
 ```

@@ -14,7 +14,10 @@ non-qualified rides (too short) and by this explain the 10km rule. explain (via
 the extra progress bar) that a certain amount of outside kilometers must be
 done." Plus the owner's notes on the issue from feature 019: a Termine step for
 riders who aren't organisers, steps chosen per viewer, example data instead of
-empty pages, and hints that point at one element each.
+empty pages, and hints that point at one element each. And the owner's review
+of the first version (2026-10-17): "why do you fail to show an example of a non
+counting ride", "the onboarding for organisers is gravely lacking" and, after
+feature 016's peloton came back to Team, "needs explanation as well".
 
 ## Context
 
@@ -49,8 +52,20 @@ shows "zählt" without it, on the example and on every rider's own rides.
   example data.")
 - Q: The issue asks for a "non-qualified" short ride; the rules count it? → A:
   Follow the rules: the example short ride counts with 0 Training Rynke, and the
-  hint explains the 10 km steps. A ride that doesn't count is already explained
-  on its card ("Warum?").
+  hint explains the 10 km steps.
+- Q: (Owner's review) Is a ride that doesn't count shown in the example? → A:
+  Yes. The example has one, with its "Warum?" open, and the tour's first Fahrten
+  step points at it: a café stop longer than the riding, the most common reason
+  a real ride doesn't count.
+- Q: (Owner's review) Does the tour explain the peloton? → A: Yes, a step on
+  Team right after the first one points at it: everyone by Training Rynke,
+  without names, the rider's own coin marked, the breakaway ahead.
+- Q: (Owner's review) What does the organiser tour show? → A: Like the rider
+  tour, an example on the Orga pages instead of the real team, so a new
+  organiser sees every part even before the first request or event: the groups,
+  the even pace, a request, a new event, an upcoming and a past event. The
+  example can be looked at but not used: no button or link in it acts on
+  anything.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -145,6 +160,49 @@ steps, then the pages without the tour, and check the database and the pages.
 3. **Given** a tour step on Du, **When** it shows, **Then** no "seen Rynke" is
    written and no celebration shows.
 
+---
+
+### User Story 4 - An organiser learns what Orga is for (Priority: P1)
+
+A rider made organiser takes the organiser tour. On Rider it shows an example
+team: the groups (who needs a push, who is on track, who is in), the mark of the
+even pace on every bar, and that a tap on a name leads to corrections. On
+Termine it shows the example's open requests (a rider says they were at a team
+event; Eintragen gives the Team Rynke, ✕ declines), the form for a new event
+with what each kind brings, an upcoming event with how many said they're coming,
+and a past event, which the organiser opens to tick who was there; "Ich war auch
+dabei" adds themselves.
+
+**Why this priority**: Organisers decide who gets Team Rynke. A tour that only
+names the two tabs leaves them to find requests, ticking and corrections by
+trial, on real riders' data.
+
+**Independent Test**: As an organiser who finished the rider tour, take the
+organiser tour on a team without events or requests, and check that each step
+shows its element on the example, highlighted, with the hint next to it, and
+that nothing on the example can be clicked.
+
+**Acceptance Scenarios**:
+
+1. **Given** an organiser on the tour's Rider steps, **When** the page shows,
+   **Then** it shows the example team under a note that it's an example: riders
+   in each group, one with an open request.
+2. **Given** the step on the groups, **When** it shows, **Then** the hint
+   explains the groups and that a tile shows only its riders, and the tiles are
+   highlighted.
+3. **Given** the step on the pace, **When** it shows, **Then** the hint explains
+   the mark on the bars (the even pace to the deadline), that a rider behind it
+   needs a push, and that a tap on a name opens the rider's corrections.
+4. **Given** the tour's Termine steps, **When** they show, **Then** the page
+   shows the example's open requests and events under the note, and in turn
+   highlights the open requests (with Eintragen and ✕ explained), the form for
+   a new event (with the Team Rynke of each kind from the rules in effect), an
+   upcoming event (riders say beforehand whether they come) and a past event
+   (open it and tick who was there; "Ich war auch dabei" for oneself).
+5. **Given** any example on Orga, **When** the organiser taps a button, a tile
+   or a name in it, **Then** nothing happens; the new-event form stays the real
+   one.
+
 ### Edge Cases
 
 - **Old tour links** (`/me?tour=rider` without a step, e.g. from a bookmark or
@@ -161,6 +219,13 @@ steps, then the pages without the tour, and check the database and the pages.
   deadline): the example rides are dated inside the counting window, never after
   today unless the window ended, never before the season start, so they all
   count by the window rule.
+- **No peloton on Team** (the rider isn't on the leaderboard): the Peloton
+  step's hint still shows, with nothing highlighted.
+- **Season start on Orga**: the even pace is 0, so the example has nobody
+  behind; its riders are spread over the groups as far as the day allows.
+- **Wide and narrow screens on Orga**: the riders show as cards or as a table;
+  a step points only at what shows once on both (the tiles, the pace line), not
+  at a rider.
 - **Screen readers**: the hint and the example note are text; the highlighted
   element is reached by the step's link scrolling to it.
 
@@ -168,9 +233,9 @@ steps, then the pages without the tour, and check the database and the pages.
 
 ### Functional Requirements
 
-- **FR-001**: The rider tour MUST be: Team; Du; Du – Höhenmeter; Du – Teamrynke;
-  Du – draußen; Fahrten; Fahrten – kurze Fahrt; Abzeichen; Termine (only riders
-  who aren't organisers); Einstellungen.
+- **FR-001**: The rider tour MUST be: Team; Team – Peloton; Du; Du – Höhenmeter; Du – Teamrynke;
+  Du – draußen; Fahrten – a ride that doesn't count; Fahrten – kurze Fahrt;
+  Abzeichen; Termine (only riders who aren't organisers); Einstellungen.
 - **FR-002**: The steps MUST be chosen for the viewer; the step count ("n von
   m") and every "Weiter" link MUST follow the viewer's steps.
 - **FR-003**: A step MAY point at an element of its page instead of the
@@ -185,9 +250,10 @@ steps, then the pages without the tour, and check the database and the pages.
   that they are an example.
 - **FR-006**: The example data MUST be computed by the same rules functions as
   real Rynke, with the rules in effect, from synthetic rides and team events
-  that live in `src/` (not `dev/`). It MUST include a ride under 10 km, a virtual
-  ride, elevation short of the next elevation step, and attended team events
-  with Team Rynke short of the threshold.
+  that live in `src/` (not `dev/`). It MUST include a ride under 10 km, a ride
+  that doesn't count (a pause longer than its riding) with its "Warum?" open, a
+  virtual ride, elevation short of the next elevation step, and attended team
+  events with Team Rynke short of the threshold.
 - **FR-007**: The example data MUST NOT be stored, MUST NOT write "seen Rynke",
   MUST NOT show a celebration and MUST NOT link to Strava.
 - **FR-008**: The hints' numbers (elevation step and its Rynke, the team-event
@@ -195,11 +261,24 @@ steps, then the pages without the tour, and check the database and the pages.
   outside, the distance step) MUST come from the rules in effect.
 - **FR-009**: All new texts MUST be in the catalogs, in German and English, and
   address the rider as "du".
+- **FR-010**: Finishing, skipping, the invitation on other pages, the wait for
+  the first import and starting again from Einstellungen MUST work as today.
 - **FR-011**: A ride that counts but earns no Training Rynke MUST show "zählt"
   without the coin ("zählt 🪙" only with Training Rynke), on the example rides
   and on every rider's own Fahrten.
-- **FR-010**: Finishing, skipping, the invitation on other pages, the wait for
-  the first import and starting again from Einstellungen MUST work as today.
+- **FR-012**: The organiser tour MUST be: Rider; Rider – Gruppen; Rider – Tempo;
+  Termine – Meldungen; Termine – neuer Termin; Termine – kommender Termin;
+  Termine – vergangener Termin.
+- **FR-013**: On the organiser tour's steps, Rider and Termine MUST show an
+  example team instead of the real one, under the note: riders in every group
+  the day allows, open requests, an upcoming event with riders who said they
+  come, and past events, one with open requests and one without the organiser.
+  Its figures MUST come from the same functions as the real overview's, with the
+  rules in effect.
+- **FR-014**: Nothing in the example on Orga MAY act: no button sends, no link
+  or tile leads anywhere. The new-event form outside it stays the real one.
+- **FR-015**: The organiser tour's example MUST NOT be stored and MUST NOT name
+  or show a real rider or event.
 
 ### Key Entities
 
@@ -207,6 +286,8 @@ steps, then the pages without the tour, and check the database and the pages.
   at, and whether the page shows example data.
 - **Example rider view**: what Du and Fahrten read for a rider, built from
   synthetic rides and attendance instead of D1.
+- **Example team**: what Rider and Termine read for the organiser tour, built
+  from synthetic riders, requests and events instead of D1.
 
 ## Success Criteria *(mandatory)*
 
@@ -215,6 +296,9 @@ steps, then the pages without the tour, and check the database and the pages.
 - **SC-002**: Riders who aren't organisers see a Termine step; organisers never
   get a step that leads off their navigation.
 - **SC-003**: No example figure is ever stored or shown outside a tour step.
+- **SC-004**: A new organiser sees requests, the groups, the pace, a new event
+  and ticking attendance explained on the example before touching a real
+  rider's data.
 
 ## Assumptions
 

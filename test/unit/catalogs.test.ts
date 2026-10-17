@@ -226,7 +226,6 @@ const CONTRACT_IDS = [
 	"tour.rider.settings",
 	"tour.organiser.intro",
 	"tour.organiser.riders",
-	"tour.organiser.events",
 	"offline.title",
 	"offline.body",
 	"push.body",
@@ -680,6 +679,14 @@ const CONTRACT_IDS = [
 	"tour.rider.outdoor",
 	"tour.rider.shortRide",
 	"tour.rider.events",
+	"tour.rider.peloton",
+	"tour.organiser.example",
+	"tour.organiser.groups",
+	"tour.organiser.pace",
+	"tour.organiser.requests",
+	"tour.organiser.newEvent",
+	"tour.organiser.upcoming",
+	"tour.organiser.past",
 ];
 
 const placeholders = (text: string) =>

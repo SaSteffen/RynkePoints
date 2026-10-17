@@ -58,3 +58,24 @@ contacts Strava.
   example's (FR-011).
 - [x] T015 `src/http/rider-sections.ts`, `src/i18n/messages/de.ts`, `en.ts`:
   `rynke.ride.countsWithoutRynke` for such a ride (FR-011).
+
+## Phase 4: Owner's review
+
+- [x] T016 `test/unit/tour-example.test.ts`, `test/integration/tour.test.ts`:
+  the example's ride that doesn't count, its card the Fahrten step's target
+  with "Warum?" open; the peloton step (FR-001, FR-006).
+- [x] T017 Same files: the organiser tour's seven steps and targets; the
+  example team on Rider and Termine, inert, never stored, its groups on any day,
+  the real form and the real team without the tour (FR-012 – FR-015).
+- [x] T018 `src/http/tour-example.ts`: the ride with the long pause and
+  `exampleTeam` (R3, R8).
+- [x] T019 `src/http/tour-targets.ts`, `tour.ts`, `style.ts`: the targets in
+  one list, the peloton step, the rides step's target, the organiser steps
+  (R7, R10).
+- [x] T020 `src/http/sections/team.ts`, `rides.ts`, `rider-sections.ts`,
+  `src/http/organiser/overview.ts`, `events.ts`, `requests.ts`: the ids, the
+  example team and `inert` (R9).
+- [x] T021 `src/i18n/messages/de.ts`, `en.ts`: the peloton, rides and
+  organiser texts; `tour.organiser.events` goes.
+- [x] T022 `e2e/smoke.e2e.ts`: the rider walk-through with eleven steps; Olga
+  walks the organiser tour on the example team.

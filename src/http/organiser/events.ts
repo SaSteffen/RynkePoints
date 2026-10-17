@@ -30,6 +30,13 @@ import { notFound } from "../errors";
 import { html, type SafeHtml } from "../html";
 import { PLUS } from "../icons";
 import { redirect } from "../redirect";
+import { renderExampleNote } from "../rider-sections";
+import {
+	EXAMPLE_PAST_EVENT_ID,
+	EXAMPLE_UPCOMING_EVENT_ID,
+	exampleTeam,
+} from "../tour-example";
+import type { TourTarget } from "../tour-targets";
 import {
 	changeRecord,
 	noticeFromQuery,
@@ -108,6 +115,7 @@ function listItem(
 	i18n: I18n,
 	event: TeamEventListRow,
 	extras: ListExtras,
+	target: TourTarget | null,
 ): SafeHtml {
 	const count = { count: String(event.attendees) };
 	const people = extras.past
@@ -130,12 +138,64 @@ function listItem(
 		extras.past && !extras.you
 			? html`<form method="post" action="${eventPath(event.event_id)}/self" class="self-form"><button class="button-outlined">${PLUS}<span>${i18n.t("organiser.events.self")}</span></button></form>`
 			: null;
-	return html`<li class="organiser-event" id="event-${event.event_id}"><a href="${eventPath(event.event_id)}">
+	return html`<li class="organiser-event" id="${target ?? `event-${event.event_id}`}"><a href="${eventPath(event.event_id)}">
 <span class="organiser-event-title">${i18n.formatDate(`${event.event_date}T00:00:00Z`)} · ${i18n.t(`rynke.source.${event.kind}`)}</span>
 ${event.name === null ? "" : html`<span class="organiser-event-name">${event.name}</span>`}
 ${people}${chips}</a>
 ${self}${changeRecord(i18n, event.changed_by_name, event.changed_at)}</li>`;
 }
+
+/** What the events page reads (feature 019 adds requests, intents, `you`). */
+interface EventsRead {
+	events: readonly TeamEventListRow[];
+	requests: readonly OpenRequestRow[];
+	intents: ReadonlyMap<number, number>;
+	/** The events the viewing organiser attended. */
+	attended: ReadonlySet<number>;
+	listed: readonly ListedRiderRow[];
+}
+
+async function readEvents(
+	ctx: Ctx,
+	organiser: number,
+	day: string,
+): Promise<EventsRead> {
+	const db = ctx.env.DB;
+	const window = countingWindow(ctx.env);
+	const [eventRows, requestRows, intentRows, attendedRows, listedRows] =
+		await db.batch([
+			listTeamEventsStatement(db, ctx.env.SEASON_START_DATE),
+			listOpenRequestsStatement(db, day, window),
+			countIntentsStatement(db, day, window),
+			listAttendedEventsStatement(db, organiser),
+			listListedRidersStatement(db),
+		]);
+	return {
+		events: (eventRows?.results ?? []) as TeamEventListRow[],
+		requests: (requestRows?.results ?? []) as OpenRequestRow[],
+		intents: new Map(
+			((intentRows?.results ?? []) as IntentCountRow[]).map((r) => [
+				r.event_id,
+				r.intents,
+			]),
+		),
+		attended: new Set(
+			((attendedRows?.results ?? []) as { event_id: number }[]).map(
+				(r) => r.event_id,
+			),
+		),
+		listed: (listedRows?.results ?? []) as ListedRiderRow[],
+	};
+}
+
+/**
+ * Where the organiser tour's steps point on its example (feature 020 FR-013):
+ * the upcoming event and the past one.
+ */
+const EXAMPLE_TARGETS: ReadonlyMap<number, TourTarget> = new Map([
+	[EXAMPLE_UPCOMING_EVENT_ID, "tour-later-event"],
+	[EXAMPLE_PAST_EVENT_ID, "tour-past-event"],
+]);
 
 /** `GET /organiser`: the season's events, newest first, and a new one. */
 export function handleOrganiserEvents(
@@ -143,49 +203,38 @@ export function handleOrganiserEvents(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	return organiserPage(request, ctx, i18n, LIST, async ({ rider }) => {
-		const db = ctx.env.DB;
+	return organiserPage(request, ctx, i18n, LIST, async ({ rider, example }) => {
 		const day = berlinDate(ctx.now());
-		const window = countingWindow(ctx.env);
-		const [eventRows, requestRows, intentRows, attendedRows, listedRows] =
-			await db.batch([
-				listTeamEventsStatement(db, ctx.env.SEASON_START_DATE),
-				listOpenRequestsStatement(db, day, window),
-				countIntentsStatement(db, day, window),
-				listAttendedEventsStatement(db, rider.athleteId),
-				listListedRidersStatement(db),
-			]);
-		const listed = (listedRows?.results ?? []) as ListedRiderRow[];
-		const results = (eventRows?.results ?? []) as TeamEventListRow[];
-		const requests = (requestRows?.results ?? []) as OpenRequestRow[];
-		const intents = new Map(
-			((intentRows?.results ?? []) as IntentCountRow[]).map((r) => [
-				r.event_id,
-				r.intents,
-			]),
-		);
-		const attended = new Set(
-			((attendedRows?.results ?? []) as { event_id: number }[]).map(
-				(r) => r.event_id,
-			),
-		);
+		// On the organiser tour's steps, the example team's requests and events,
+		// which can't be used, around the real new-event form (feature 020
+		// FR-013, FR-014).
+		const read: EventsRead = example
+			? exampleTeam(countingWindow(ctx.env), day)
+			: await readEvents(ctx, rider.athleteId, day);
+		const { events, requests, intents, attended, listed } = read;
+		const inert = example ? html` inert` : null;
 		const item = (e: TeamEventListRow) =>
-			listItem(i18n, e, {
-				past: hasTakenPlace(e.event_date, day),
-				open: requests.filter((r) => r.event_id === e.event_id).length,
-				intents: intents.get(e.event_id) ?? 0,
-				you: attended.has(e.event_id),
-			});
-		const upcoming = results
+			listItem(
+				i18n,
+				e,
+				{
+					past: hasTakenPlace(e.event_date, day),
+					open: requests.filter((r) => r.event_id === e.event_id).length,
+					intents: intents.get(e.event_id) ?? 0,
+					you: attended.has(e.event_id),
+				},
+				example ? (EXAMPLE_TARGETS.get(e.event_id) ?? null) : null,
+			);
+		const upcoming = events
 			.filter((e) => !hasTakenPlace(e.event_date, day))
 			.reverse();
-		const past = results.filter((e) => hasTakenPlace(e.event_date, day));
-		const group = (heading: SafeHtml, events: TeamEventListRow[]) =>
-			events.length === 0
+		const past = events.filter((e) => hasTakenPlace(e.event_date, day));
+		const group = (heading: SafeHtml, list: readonly TeamEventListRow[]) =>
+			list.length === 0
 				? null
-				: html`${heading}<ul class="organiser-events">${events.map(item)}</ul>`;
+				: html`${heading}<ul class="organiser-events"${inert}>${list.map(item)}</ul>`;
 		const list =
-			results.length === 0
+			events.length === 0
 				? html`<p>${i18n.t("organiser.events.none")}</p>`
 				: html`${group(html`<h3>${i18n.t("organiser.events.upcoming")}</h3>`, upcoming)}${group(html`<h3>${i18n.t("organiser.events.past")}</h3>`, past)}`;
 		const today = {
@@ -194,10 +243,13 @@ export function handleOrganiserEvents(
 			name: null,
 		};
 		const url = new URL(request.url);
-		return html`${organiserSwitch(i18n, "events", requests.length)}${await decisionNotice(url, ctx, i18n, LIST)}${noticeFromQuery(url, i18n)}${openRequestsBlock(i18n, requests, LIST, listed)}
+		const notices = example
+			? renderExampleNote(i18n, "tour.organiser.example")
+			: html`${await decisionNotice(url, ctx, i18n, LIST)}${noticeFromQuery(url, i18n)}`;
+		return html`${organiserSwitch(i18n, "events", requests.length)}${notices}${openRequestsBlock(i18n, requests, LIST, listed, example)}
 <section class="organiser">
 <h2>${i18n.t("organiser.events.new")}</h2>
-<form method="post" action="/organiser/events" class="organiser-form">
+<form method="post" action="/organiser/events" class="organiser-form" id="tour-new-event">
 ${eventFields(i18n, today)}
 <button class="button">${i18n.t("organiser.add")}</button>
 </form>

@@ -10,6 +10,7 @@ import { html, type SafeHtml } from "./html";
 import { redirect } from "./redirect";
 import { isSameOrigin } from "./session";
 import type { SectionId } from "./shell";
+import type { TourTarget } from "./tour-targets";
 import { readViewer, riderConsentState } from "./viewer";
 
 // Onboarding tours (issue #90, feature 020): hints on the real pages, each
@@ -20,14 +21,8 @@ import { readViewer, riderConsentState } from "./viewer";
 // the organiser tour only for organisers, after it. The steps are chosen per
 // viewer (FR-002): Termine only for riders who aren't organisers, who have Orga
 // in its place (feature 019 research R8). On Du and Fahrten the rider tour
-// shows the example rider of `tour-example.ts` (FR-005).
-
-/** The elements a step can point at, each an `id` on its page. */
-export type TourTarget =
-	| "tour-elevation"
-	| "tour-team"
-	| "tour-outdoor"
-	| "tour-short-ride";
+// shows the example rider of `tour-example.ts` (FR-005), on Orga the organiser
+// tour its example team (FR-013).
 
 export interface TourStep {
 	/** The page the step belongs to, without a query. */
@@ -37,7 +32,7 @@ export interface TourStep {
 	text: MessageId;
 	/** The element it points at instead of the navigation item (FR-003). */
 	target?: TourTarget;
-	/** The page shows the example rider (FR-005). */
+	/** The page shows the example rider or team (FR-005, FR-013). */
 	example?: true;
 	/** Only for riders who aren't organisers (feature 019's Termine). */
 	riderOnly?: true;
@@ -47,6 +42,12 @@ export interface TourStep {
 export const TOURS: Record<TourId, readonly TourStep[]> = {
 	rider: [
 		{ path: "/team", section: "team", text: "tour.rider.team" },
+		{
+			path: "/team",
+			section: "team",
+			text: "tour.rider.peloton",
+			target: "tour-peloton",
+		},
 		{ path: "/me", section: "you", text: "tour.rider.you", example: true },
 		{
 			path: "/me",
@@ -73,6 +74,7 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			path: "/me/rides",
 			section: "rides",
 			text: "tour.rider.rides",
+			target: "tour-rejected-ride",
 			example: true,
 		},
 		{
@@ -96,8 +98,50 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			path: "/organiser/riders",
 			section: "organiser",
 			text: "tour.organiser.riders",
+			example: true,
 		},
-		{ path: "/organiser", section: "organiser", text: "tour.organiser.events" },
+		{
+			path: "/organiser/riders",
+			section: "organiser",
+			text: "tour.organiser.groups",
+			target: "tour-groups",
+			example: true,
+		},
+		{
+			path: "/organiser/riders",
+			section: "organiser",
+			text: "tour.organiser.pace",
+			target: "tour-pace",
+			example: true,
+		},
+		{
+			path: "/organiser",
+			section: "organiser",
+			text: "tour.organiser.requests",
+			target: "tour-requests",
+			example: true,
+		},
+		{
+			path: "/organiser",
+			section: "organiser",
+			text: "tour.organiser.newEvent",
+			target: "tour-new-event",
+			example: true,
+		},
+		{
+			path: "/organiser",
+			section: "organiser",
+			text: "tour.organiser.upcoming",
+			target: "tour-later-event",
+			example: true,
+		},
+		{
+			path: "/organiser",
+			section: "organiser",
+			text: "tour.organiser.past",
+			target: "tour-past-event",
+			example: true,
+		},
 	],
 };
 
@@ -153,7 +197,10 @@ export interface TourHint {
 	card: SafeHtml;
 	/** The navigation item it points at; `null` when it points at an element. */
 	section: SectionId | null;
-	/** Whether the page shows the example rider instead of the rider's own data. */
+	/**
+	 * Whether the page shows the example rider or team instead of the real
+	 * data (FR-005, FR-013).
+	 */
 	example: boolean;
 }
 
