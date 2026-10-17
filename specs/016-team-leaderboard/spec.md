@@ -262,7 +262,9 @@ the overview is refused.
 
 - **FR-020**: The Team page MUST show the viewer one quote picked at random from one
   of two lists, picked anew each time the page loads and never in between; there is
-  no control for the next quote.
+  no control for the next quote. The pick MUST skip the quotes the viewer has
+  already seen until they have seen every quote of the list for today, then start
+  over without repeating the last one right away (issue #96).
 - **FR-021**: The "needs a push" list MUST be used for a rider who does not qualify
   and is behind the even pace (FR-030) on Training, Team or outdoor Training Rynke;
   the "on track" list for every other rider.

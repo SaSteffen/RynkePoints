@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { escapeHtml } from "../../src/http/html";
+import { quoteId } from "../../src/http/sections/team";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import {
 	QUOTES_ON_TRACK,
@@ -9,7 +10,13 @@ import {
 	SEASON_QUOTES_PUSH,
 } from "../../src/i18n/messages/quotes.de";
 import { handleFetch } from "../../src/index";
-import { makeCtx, request, resetDb, seedRider } from "../support/ctx";
+import {
+	makeCtx,
+	request,
+	resetDb,
+	seedRider,
+	sessionCookie,
+} from "../support/ctx";
 import { riderPage, seedBalance, seedRide } from "../support/rider-view";
 
 // Where the rider stands at `/team` and how the team is doing (016 US1, US2,
@@ -503,12 +510,99 @@ describe("GET /team, a quote for the viewer (US3)", () => {
 		};
 		try {
 			expect(await pick(0)).toBe(QUOTES_PUSH[0]);
-			expect(await pick(PUSH.length + 1)).toBe(QUOTES_PUSH[1]);
-			// In autumn, the autumn quotes follow the list's (FR-025).
-			expect(await pick(QUOTES_PUSH.length)).toBe(SEASON_QUOTES_PUSH.autumn[0]);
+			// The first quote is seen now, so the same value gives the next
+			// (issue #96), and a larger one wraps around the rest.
+			expect(await pick(0)).toBe(QUOTES_PUSH[1]);
+			expect(await pick(PUSH.length - 2 + 1)).toBe(QUOTES_PUSH[3]);
+			// In autumn, the autumn quotes follow the list's (FR-025); three are
+			// seen.
+			expect(await pick(QUOTES_PUSH.length - 3)).toBe(
+				SEASON_QUOTES_PUSH.autumn[0],
+			);
 		} finally {
 			random.mockRestore();
 		}
+	});
+});
+
+describe("GET /team, quotes the viewer has seen (issue #96)", () => {
+	// The viewer doesn't qualify and it's autumn: the push list and its autumn
+	// quotes.
+	const PUSH = [...QUOTES_PUSH, ...SEASON_QUOTES_PUSH.autumn];
+
+	async function shownQuote(): Promise<string | undefined> {
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const text = quoteOf(html).match(/<p>([^<]*)<\/p>/)?.[1];
+		return PUSH.find((quote) => escapeHtml(quote) === text);
+	}
+
+	async function seenIds(): Promise<string[]> {
+		const { results } = await env.DB.prepare(
+			"SELECT quote_id FROM quote_seen WHERE athlete_id = ? ORDER BY quote_id",
+		)
+			.bind(VIEWER)
+			.all<{ quote_id: string }>();
+		return results.map((row) => row.quote_id);
+	}
+
+	async function markSeen(quotes: readonly string[]): Promise<void> {
+		await env.DB.prepare(
+			`INSERT INTO quote_seen (athlete_id, quote_id)
+			SELECT ?1, value FROM json_each(?2)`,
+		)
+			.bind(VIEWER, JSON.stringify(quotes.map(quoteId)))
+			.run();
+	}
+
+	it("marks the shown quote as seen", async () => {
+		const quote = await shownQuote();
+		expect(quote).toBeDefined();
+		expect(await seenIds()).toEqual([quoteId(quote ?? "")]);
+	});
+
+	it("shows only quotes the viewer hasn't seen", async () => {
+		const unseen = [QUOTES_PUSH[3] ?? "", SEASON_QUOTES_PUSH.autumn[0] ?? ""];
+		await markSeen(PUSH.filter((quote) => !unseen.includes(quote)));
+
+		const first = await shownQuote();
+		const second = await shownQuote();
+
+		expect([first, second].sort()).toEqual([...unseen].sort());
+	});
+
+	it("starts over after the last unseen quote, without showing it again next", async () => {
+		const last = QUOTES_PUSH[10] ?? "";
+		await markSeen(PUSH.filter((quote) => quote !== last));
+
+		expect(await shownQuote()).toBe(last);
+		expect(await seenIds()).toEqual([quoteId(last)]);
+
+		const next = await shownQuote();
+		expect(next).toBeDefined();
+		expect(next).not.toBe(last);
+		expect(await seenIds()).toHaveLength(2);
+	});
+
+	it("keeps the other list's seen quotes when it starts over", async () => {
+		const last = QUOTES_PUSH[10] ?? "";
+		const onTrack = QUOTES_ON_TRACK[0] ?? "";
+		await markSeen([...PUSH.filter((quote) => quote !== last), onTrack]);
+
+		expect(await shownQuote()).toBe(last);
+
+		expect(await seenIds()).toEqual([quoteId(last), quoteId(onTrack)].sort());
+	});
+
+	it("marks nothing on a HEAD", async () => {
+		const res = await handleFetch(
+			request("/team", {
+				method: "HEAD",
+				cookies: await sessionCookie(ctx, VIEWER),
+			}),
+			ctx,
+		);
+		expect(res.status).toBe(200);
+		expect(await seenIds()).toEqual([]);
 	});
 });
 
@@ -553,14 +647,19 @@ describe("GET /team names nobody (SC-002, US1 #5, US2 #2)", () => {
 
 describe("GET /team only reads (FR-003, SC-003, research R11)", () => {
 	it.each(["/team", "/team?kind=team&all=1"])(
-		"%s writes nothing and calls out to nobody",
+		"%s writes nothing but the seen quote and calls out to nobody",
 		async (path) => {
 			const db = env.DB;
 			const readOnly = new Proxy(db, {
 				get(target, name, receiver) {
 					if (name === "prepare") {
 						return (query: string) => {
-							if (!query.trimStart().toUpperCase().startsWith("SELECT")) {
+							const statement = query.trimStart().toUpperCase();
+							// The shown quote is marked as seen (issue #96).
+							const seenQuote = /^(INSERT INTO|DELETE FROM) QUOTE_SEEN\b/.test(
+								statement,
+							);
+							if (!statement.startsWith("SELECT") && !seenQuote) {
 								throw new Error(`Not a read: ${query}`);
 							}
 							return target.prepare(query);

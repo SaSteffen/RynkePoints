@@ -80,6 +80,8 @@ const COLUMNS: Record<string, string[]> = {
 	// Issue #45: the last rise, for the notification text.
 	rynke_rises: ["athlete_id", "training_rynke", "team_rynke", "risen_at"],
 	rynke_seen: ["athlete_id", "training_rynke", "team_rynke"],
+	// Issue #96: the Team page quotes a rider has seen, by quote id only.
+	quote_seen: ["athlete_id", "quote_id"],
 	team_event_kinds: ["kind"],
 	// Feature 014: the change record of each organiser input (research R9).
 	team_events: [

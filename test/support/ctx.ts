@@ -183,6 +183,7 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM rynke_balances"),
 		env.DB.prepare("DELETE FROM rynke_rises"),
 		env.DB.prepare("DELETE FROM rynke_seen"),
+		env.DB.prepare("DELETE FROM quote_seen"),
 		env.DB.prepare("DELETE FROM rider_badges"),
 		env.DB.prepare("DELETE FROM badge_reveals"),
 		env.DB.prepare("DELETE FROM badge_rises"),

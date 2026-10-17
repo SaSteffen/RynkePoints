@@ -164,6 +164,28 @@ describe("riders", () => {
 		}
 	});
 
+	it("deleting a rider removes the quotes they've seen (issue #96)", async () => {
+		const ctx = makeCtx();
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		await seedRider(ctx, { athleteId: ATHLETE_B });
+		await db.batch(
+			[ATHLETE_A, ATHLETE_B].map((athleteId) =>
+				db
+					.prepare(
+						"INSERT INTO quote_seen (athlete_id, quote_id) VALUES (?, '0123abcd')",
+					)
+					.bind(athleteId),
+			),
+		);
+
+		await deleteRider(db, ATHLETE_A);
+
+		const { results } = await db
+			.prepare("SELECT athlete_id FROM quote_seen")
+			.all<{ athlete_id: number }>();
+		expect(results.map((r) => r.athlete_id)).toEqual([ATHLETE_B]);
+	});
+
 	it("gives riders stored before 0012 badges version 0", async () => {
 		// Without the column, as every insert before 0012 was.
 		await insertRider(
