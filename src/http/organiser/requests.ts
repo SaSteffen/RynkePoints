@@ -174,20 +174,19 @@ export function openRequestsBlock(
 						group.map((r) => r.athlete_id),
 						"confirm",
 						back,
-						html`<button class="button-outlined">${i18n.t("organiser.requests.confirmAll", { n: String(group.length) })}</button>`,
+						html`<button class="button-outlined request-all">${i18n.t("organiser.requests.confirmAll", { n: String(group.length) })}</button>`,
 					)
 				: null;
 		return html`<div class="request-event">
-<div class="request-event-head"><p>${eventLabel(i18n, first)}</p><a href="/organiser/events/${first.event_id}">${i18n.t("organiser.requests.open")}</a></div>
+<div class="request-event-head"><a class="request-event-link" href="/organiser/events/${first.event_id}">${eventLabel(i18n, first)}<span class="visually-hidden"> ${i18n.t("organiser.requests.open")}</span></a>${all}</div>
 <ul class="requests">
-${items}</ul>
-${all}</div>
+${items}</ul></div>
 `;
 	});
 	return html`<section class="open-requests" aria-labelledby="open-requests">
 <h2 id="open-requests">${heading}</h2>
 <p>${intro}</p>
-${sections}</section>
+<div class="request-events">${sections}</div></section>
 `;
 }
 

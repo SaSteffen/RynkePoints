@@ -43,10 +43,13 @@ chart. No place card, no peloton (FR-045, FR-046).
 1. Orga switch Rider | Termine, Termine current, with the red count (FR-030).
 2. Notice of the last decision with **Rückgängig**, if any (FR-032).
 3. If there are open requests: "n offene Meldungen ⏳" — "Rider sagen, sie waren
-   dabei – bei n Terminen"; per event (newest first): kind and date, "Termin
-   öffnen ›", one row per rider (first name, "Auf Strava ansehen" when names
-   clash) with **Eintragen** and **✕** (accessible name "Meldung von {name}
-   ablehnen"), and "Alle n eintragen" when there are several (FR-031).
+   dabei – bei n Terminen"; per event (newest first) a compact card: kind and
+   date as the link to the event (accessible name ends "Termin öffnen"), "Alle
+   n eintragen" beside it when there are several, then one row per rider (first
+   name, "Auf Strava ansehen" when names clash) with **Eintragen** and **✕**
+   (accessible name "Meldung von {name} ablehnen") (FR-031). The cards sit in
+   a grid: one column on a phone held upright, two from about 640 px (phone
+   landscape, desktop).
 4. "Teamtermine dieser Saison", "Neuer Termin" (014).
 5. "Demnächst": each event with "n zugesagt" when there are intents (FR-033).
 6. "Vorbei": each event with "n Personen" or "n Personen, inklusive dir", the
