@@ -121,6 +121,32 @@ describe("the Abzeichen section", () => {
 		);
 	});
 
+	it("sparkles a badge for a day after it was earned", async () => {
+		// The test clock is 6 October 2026: today and yesterday sparkle.
+		await earn(ATHLETE_A, [
+			["distance-1000", "2026-10-05"],
+			["elevation-5000", "2026-10-04"],
+		]);
+		const { section: badges } = await section();
+		const button = (id: string) =>
+			badges?.match(
+				new RegExp(
+					`<button class="[^"]*" popovertarget="badge-${id}"[\\s\\S]*?</button>`,
+				),
+			)?.[0] ?? "";
+		expect(button("distance-1000")).toContain('class="badge badge-fresh"');
+		expect(button("distance-1000")).toContain(
+			'<span class="badge-sparkles" aria-hidden="true">',
+		);
+		expect(button("elevation-5000")).toContain('class="badge"');
+		expect(button("elevation-5000")).not.toContain("badge-sparkles");
+		expect(button("distance-100")).not.toContain("badge-fresh");
+		// The picture shapes its shine; every badge has its own tilt.
+		expect(button("distance-1000")).toMatch(
+			/style="--tilt:-?\d(\.\d)?deg;--badge-src:url\(\/badges\/distance-1000-ribbon\.svg\)"/,
+		);
+	});
+
 	it("uses the finished picture or the placeholder", async () => {
 		const missing = BADGES.find(
 			(b) => b.group === "personal" && !BADGE_PICTURES.has(b.id),

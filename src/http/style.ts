@@ -9,7 +9,7 @@
  * coin looks like the coin. Listed in both so both define the same names.
  */
 const COIN =
-	"--rp-coin-rim:#c99a2e;--rp-coin-ink:#1c1b13;--rp-coin-face:#fffdf5;--rp-coin-yellow:#fbe122;--rp-ribbon-text:#f7e27c;--rp-ribbon-glow:0 0 2px rgba(247,226,124,.25);--rp-coin-fur:#c8641e;--rp-coin-muzzle:#f0a868;--rp-coin-sky:#a9d6f2;--rp-coin-glass:#e8f3fb;--rp-coin-brick:#b5562f;--rp-coin-water:#3a8fd0;--rp-coin-team:#8cc4f0";
+	"--rp-coin-rim:#c99a2e;--rp-coin-ink:#1c1b13;--rp-coin-face:#fffdf5;--rp-coin-yellow:#fbe122;--rp-ribbon-text:#f7e27c;--rp-badge-shine:rgba(255,253,245,.8);--rp-ribbon-glow:0 0 2px rgba(247,226,124,.25);--rp-coin-fur:#c8641e;--rp-coin-muzzle:#f0a868;--rp-coin-sky:#a9d6f2;--rp-coin-glass:#e8f3fb;--rp-coin-brick:#b5562f;--rp-coin-water:#3a8fd0;--rp-coin-team:#8cc4f0";
 
 /**
  * The Team page's fixed accents (feature 016, the Claude Design draft): the
@@ -391,7 +391,14 @@ button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full)
 .badge img{display:block;width:100%;height:auto;filter:var(--rp-badge-edge)}
 button.badge{transform:rotate(var(--tilt,0deg));transition:transform var(--rp-motion)}
 button.badge:hover,button.badge:focus-visible{transform:none}
-@media (prefers-reduced-motion:no-preference){button.badge:active{transform:scale(1.06)}}
+@media (prefers-reduced-motion:no-preference){button.badge:active{transform:perspective(480px) rotateX(16deg) rotateY(-10deg) scale(1.05)}button.badge:hover::after,button.badge:focus-visible::after{animation:badge-shine 900ms ease-out}.badge-fresh::after{animation:badge-shine-new 1200ms ease-out 600ms}}
+button.badge::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(115deg,transparent 38%,var(--rp-badge-shine) 50%,transparent 62%) 150% 0/250% 100% no-repeat;-webkit-mask:var(--badge-src) center/contain no-repeat;mask:var(--badge-src) center/contain no-repeat}
+.badge-sparkles{position:absolute;inset:-8%;pointer-events:none}
+.badge-sparkles>span{position:absolute;width:12%;aspect-ratio:1;background:var(--rp-coin-yellow);clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);filter:drop-shadow(0 0 1px var(--rp-coin-ink));animation:badge-twinkle 1.8s ease-in-out infinite}
+.badge-sparkles>span:nth-child(1){top:2%;left:8%}
+.badge-sparkles>span:nth-child(2){top:10%;right:2%;width:9%;animation-delay:.5s}
+.badge-sparkles>span:nth-child(3){bottom:16%;left:0;width:8%;animation-delay:1s}
+.badge-sparkles>span:nth-child(4){bottom:2%;right:12%;width:11%;animation-delay:1.3s}
 button.badge:active img{filter:var(--rp-badge-lift)}
 .badges-reveal-pictures img{filter:var(--rp-badge-edge)}
 .badge-card .badge,.badge-card .badge-slot{width:100%;max-width:200px}
@@ -437,11 +444,14 @@ button.badge:active img{filter:var(--rp-badge-lift)}
 @media (min-width:600px) and (max-width:839.98px){body.shell .wordmark-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
 @media (min-width:600px) and (max-width:1023.98px){nav.app-nav a:not([aria-current]) .nav-label{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0 0 0 0)}}
 @media (max-width:399.98px){:root{--rp-page-padding:12px}.hero,.team-total,.overview-deadline{gap:var(--rp-space-3);padding:var(--rp-space-3)}.hero .coin-hero,.team-total .coin-large{width:96px;height:96px}.overview-deadline .coin-large{width:96px;height:96px}.overview-deadline .overview-deadline-count{font:700 28px/34px var(--md-ref-typeface)}.rynke-verdict{font:600 20px/26px var(--md-ref-typeface)}.rynke-summary{gap:var(--rp-space-3)}.status-art-banner{width:72px;height:72px}.group-tile{padding:10px}dl.ride-figures{grid-template-columns:repeat(3,auto);justify-content:space-between}nav.app-nav .nav-icon{width:56px}}
-@media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,.ride-why>summary::after,.more>summary::after,.badge-gallery>summary::after{transition:none}.button,.button-outlined,.danger,.icon-button{transition:none}.button[aria-busy=true]::after,.button-outlined[aria-busy=true]::after,.danger[aria-busy=true]::after,.segmented[aria-busy=true]::after{animation:none}.celebrate-coins .coin-mini{animation:none}.badges-reveal-pictures img{animation:none}button.badge{transition:none}.coin-flip-turn{animation:none}}
+@media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,.ride-why>summary::after,.more>summary::after,.badge-gallery>summary::after{transition:none}.button,.button-outlined,.danger,.icon-button{transition:none}.button[aria-busy=true]::after,.button-outlined[aria-busy=true]::after,.danger[aria-busy=true]::after,.segmented[aria-busy=true]::after{animation:none}.celebrate-coins .coin-mini{animation:none}.badges-reveal-pictures img{animation:none}button.badge{transition:none}.badge-sparkles>span{animation:none}.coin-flip-turn{animation:none}}
 @keyframes top-bar-lift{from{box-shadow:none}to{background:var(--md-sys-color-surface-container-high);box-shadow:0 1px 0 var(--md-sys-color-outline-variant)}}
 @keyframes busy-spin{to{transform:rotate(360deg)}}
 @keyframes tour-point{50%{outline-offset:5px}}
 @keyframes coin-flip{0%,30%{transform:rotateY(0deg)}50%,80%{transform:rotateY(180deg)}100%{transform:rotateY(360deg)}}
+@keyframes badge-shine{from{opacity:1;background-position:150% 0}to{opacity:1;background-position:-50% 0}}
+@keyframes badge-shine-new{from{opacity:1;background-position:150% 0}to{opacity:1;background-position:-50% 0}}
+@keyframes badge-twinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0deg)}50%{opacity:1;transform:scale(1) rotate(45deg)}}
 @keyframes badge-slap{from{transform:scale(1.8) rotate(-14deg);opacity:0}45%{transform:scale(.9) rotate(3deg);opacity:1}70%{transform:scale(1.05) rotate(-1deg)}to{transform:none;opacity:1}}
 @keyframes coin-drop{from{transform:translateY(-40px) rotate(-180deg);opacity:0}to{transform:none;opacity:1}}
 @keyframes page-loading{from{transform:translateX(-100%)}to{transform:translateX(250%)}}`;

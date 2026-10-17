@@ -215,12 +215,22 @@ markup above where they differ.
 - **Stickers** (both schemes): badge pictures get a 2 px cut-out edge in
   `#fffdf5` with a soft shadow (`--rp-badge-edge`, darker shadow in the dark
   scheme), which also keeps their black ring and ribbon apart from the dark
-  card. A badge button is tilted by `--tilt`, a fixed angle from its id
-  (±2 to 4°, `tiltOf`), the same on card and gallery; it straightens on hover
-  and keyboard focus, and lifts while pressed (`--rp-badge-lift`, scale 1.06).
-  The large view stays upright. New badges in the reveal land with
-  `badge-slap` (too big, then a small wobble) instead of `badge-pop`. Reduced
-  motion: no animation, no transition, no lift.
+  card. A badge button is tilted by `--tilt`, its own angle from its id,
+  2 to 6° either way in tenths (`tiltOf`), the same on card and gallery and on
+  every visit; it straightens on hover and keyboard focus. The large view
+  stays upright. New badges in the reveal land with `badge-slap` (too big,
+  then a small wobble) instead of `badge-pop`.
+- **Sticker effects** (feature 013 Part H, 2026-10-17): the button carries
+  its picture as `--badge-src`, and a glossy band (`--rp-badge-shine`) masked
+  to that picture sweeps across it on hover and keyboard focus
+  (`badge-shine`). While pressed it lifts and tips up in 3D, as if being
+  peeled (`perspective(480px) rotateX(16deg) rotateY(-10deg) scale(1.05)`,
+  `--rp-badge-lift`). A badge earned today or yesterday (Berlin dates; the
+  section's `freshSince` is the day before today) is `button.badge.badge-fresh`:
+  four small yellow stars twinkle around it (`span.badge-sparkles`,
+  `aria-hidden`), and its shine plays once on its own after the page loads
+  (`badge-shine-new`). Reduced motion: no shine, no tip, the stars stand
+  still.
 - **Ribbon text** (supersedes its colour above): on personal badges the
   milestone is `#f7e27c` (`--rp-ribbon-text`), a softer, paler yellow than
   the ribbon's `#fbe122`, in weight 600 with 0.04em letter-spacing and a faint
