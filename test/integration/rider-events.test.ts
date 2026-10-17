@@ -177,9 +177,7 @@ describe("Bin dabei and Doch nicht dabei (US2)", () => {
 		const before = await snapshot();
 		const res = await post(`/events/${event}/report`);
 		expect(res.status).toBe(303);
-		expect(res.headers.get("Location")).toBe(
-			`/events#event-${event}`,
-		);
+		expect(res.headers.get("Location")).toBe(`/events#event-${event}`);
 		expect(await reportsOf()).toEqual([event]);
 		expect(await snapshot()).toEqual(before);
 		const card = cardOf((await page()).html, event);
@@ -203,9 +201,7 @@ describe("Bin dabei and Doch nicht dabei (US2)", () => {
 		const event = await insertEvent("team_training", "2026-10-10");
 		await post(`/events/${event}/report`);
 		const res = await post(`/events/${event}/report/delete`);
-		expect(res.headers.get("Location")).toBe(
-			`/events#event-${event}`,
-		);
+		expect(res.headers.get("Location")).toBe(`/events#event-${event}`);
 		expect(await reportsOf()).toEqual([]);
 		const card = cardOf((await page()).html, event);
 		expect(card).toContain(`action="/events/${event}/report"`);
