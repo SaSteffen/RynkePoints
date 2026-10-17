@@ -371,7 +371,6 @@ describe("tri-state boxes", () => {
 		}
 		expect(html).toContain('<ul class="tri-legend"');
 		expect(html).toContain(escapeHtml(de["organiser.attendance.legend.grey"]));
-		expect(html).toContain(escapeHtml(de["organiser.attendance.greyHint"]));
 		expect(html).toContain(escapeHtml(de["organiser.attendance.tag.open"]));
 		expect(html).toContain(
 			escapeHtml(de["organiser.attendance.confirmAll"].replace("{n}", "3")),

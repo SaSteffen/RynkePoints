@@ -762,8 +762,6 @@ export const en: Catalog = {
 	"organiser.attendance.legend.grey": "Grey – report, still open",
 	"organiser.attendance.legend.greyFuture": "Grey – coming",
 	"organiser.attendance.legend.checked": "Tick – there, earns Rynke",
-	"organiser.attendance.greyHint":
-		"Tapping a grey box adds the rider; tapping again empties it, which declines the report. Takes effect when you save.",
 	"organiser.attendance.confirmAll": "Add all {n} reports",
 	"organiser.attendance.tag.open": "Report open",
 	"organiser.attendance.tag.yes": "will be added",

@@ -79,7 +79,6 @@ Wording may be polished in implementation; the meaning may not change.
 | `organiser.attendance.legend.grey` | Grey – report, still open | Grau – Meldung, noch offen |
 | `organiser.attendance.legend.greyFuture` | Grey – coming | Grau – zugesagt |
 | `organiser.attendance.legend.checked` | Tick – there, earns Rynke | Haken – dabei, gibt Rynke |
-| `organiser.attendance.greyHint` | Tapping a grey box adds the rider; tapping again empties it, which declines the report. Takes effect when you save. | Graues Kästchen antippen trägt ein, noch einmal antippen leert es: das lehnt die Meldung ab. Gilt erst mit „Teilnahme speichern“. |
 | `organiser.attendance.confirmAll` | Add all {n} reports | Alle {n} Meldungen eintragen |
 | `organiser.attendance.tag.open` | Report open | Meldung offen |
 | `organiser.attendance.tag.yes` | will be added | wird eingetragen |

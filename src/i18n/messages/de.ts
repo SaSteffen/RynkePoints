@@ -803,8 +803,6 @@ export const de = {
 	"organiser.attendance.legend.grey": "Grau – Meldung, noch offen",
 	"organiser.attendance.legend.greyFuture": "Grau – zugesagt",
 	"organiser.attendance.legend.checked": "Haken – dabei, gibt Rynke",
-	"organiser.attendance.greyHint":
-		"Graues Kästchen antippen trägt ein, noch einmal antippen leert es: das lehnt die Meldung ab. Gilt erst mit „Teilnahme speichern“.",
 	"organiser.attendance.confirmAll": "Alle {n} Meldungen eintragen",
 	"organiser.attendance.tag.open": "Meldung offen",
 	"organiser.attendance.tag.yes": "wird eingetragen",

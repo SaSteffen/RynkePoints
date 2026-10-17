@@ -644,7 +644,6 @@ const CONTRACT_IDS = [
 	"organiser.attendance.legend.grey",
 	"organiser.attendance.legend.greyFuture",
 	"organiser.attendance.legend.checked",
-	"organiser.attendance.greyHint",
 	"organiser.attendance.confirmAll",
 	"organiser.attendance.tag.open",
 	"organiser.attendance.tag.yes",

@@ -63,8 +63,7 @@ count, then:
 
 1. The legend: three example boxes, "Leer – nicht dabei", "Grau – Meldung, noch
    offen" ("zugesagt" for an upcoming event), "Haken – dabei, gibt Rynke".
-2. Past: the hint how grey boxes work, "Alle n Meldungen eintragen" when there
-   are several open requests.
+2. Past: "Alle n Meldungen eintragen" when there are several open requests.
 3. The riders, those with a report first; tags "Meldung offen", "wird
    eingetragen", "wird abgelehnt" (or "zugesagt", upcoming).
 4. Past: "Teilnahme speichern" and a live line "Meldungen: n werden eingetragen,

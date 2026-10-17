@@ -162,10 +162,6 @@ export function attendanceSection(
 ${legend(i18n, true)}<p>${i18n.t("organiser.attendance.future")}</p>
 ${items(false)}`;
 	}
-	const hint =
-		open > 0
-			? html`<p class="team-hint">${i18n.t("organiser.attendance.greyHint")}</p>`
-			: null;
 	// Shown by the script, which is what makes it work (research R5).
 	const all =
 		open > 1
@@ -176,7 +172,7 @@ ${items(false)}`;
 			? html`<p class="tri-summary" role="status" hidden data-text="${i18n.t("organiser.attendance.summary", SUMMARY_SLOTS)}"></p>`
 			: null;
 	return html`${heading}
-${legend(i18n, false)}${hint}
+${legend(i18n, false)}
 <form method="post" action="${eventPath(event.eventId)}/attendance" class="attendance-form">
 ${all}${items(true)}
 <button class="button">${i18n.t("organiser.attendance.save")}</button>
