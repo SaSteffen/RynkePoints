@@ -191,7 +191,8 @@ async function readOnlyCounts() {
 async function gauges(athleteId = ATHLETE_A) {
 	const { html } = await riderPage(ctx, athleteId);
 	return [
-		...html.matchAll(/<figure class="([^"]*)">([\s\S]*?)<\/figure>/g),
+		// A gauge a tour step points at carries its `id` (feature 020).
+		...html.matchAll(/<figure class="([^"]*)"[^>]*>([\s\S]*?)<\/figure>/g),
 	].map(([, classes, inner = ""]) => ({
 		classes,
 		caption: text(
