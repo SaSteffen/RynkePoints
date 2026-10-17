@@ -199,6 +199,8 @@ describe("STYLE", () => {
 		expect(declsOf(".coin-flip .coin-flip-back").transform).toBe(
 			"rotateY(180deg)",
 		);
+		// Larger than the other large coins: it is the waiting page's picture.
+		expect(declsOf(".waiting .coin-flip").width).toBe("192px");
 	});
 
 	it("floats the app prompt above the bottom bar and the home indicator (015 FR-012)", () => {

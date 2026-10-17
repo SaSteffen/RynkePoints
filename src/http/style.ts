@@ -88,6 +88,7 @@ ul.rynke-missing{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);list-style:no
 .rynke-gauges .card{margin:0 0 var(--rp-space-3)}
 .waiting{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-4);padding:var(--rp-space-6);text-align:center}
 .coin-flip{position:relative;perspective:600px}
+.waiting .coin-flip{width:192px;height:192px}
 .coin-flip-turn{position:absolute;inset:0;transform-style:preserve-3d;animation:coin-flip 3.2s cubic-bezier(.45,0,.55,1) infinite}
 .coin-flip .coin-art{position:absolute;inset:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .coin-flip .coin-flip-back{transform:rotateY(180deg)}
