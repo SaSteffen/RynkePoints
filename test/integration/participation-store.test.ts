@@ -8,8 +8,8 @@ import {
 	listEventReportsStatement,
 	listOpenRequestsStatement,
 	listRiderEventsStatement,
-	type OpenRequestRow,
 	openRequestCountStatement,
+	type OpenRequestRow,
 	type RiderEventRow,
 } from "../../src/db/participation";
 import { countingWindow } from "../../src/rynke/rules";
