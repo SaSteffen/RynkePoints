@@ -273,6 +273,12 @@ dl.ride-figures dd .coin-mini{width:18px;height:18px;vertical-align:-3px}
 .landing-hero h1{margin:0}
 .tagline{margin:0;font:var(--md-type-title-large)}
 nav.pager{display:flex;flex-wrap:wrap;gap:var(--rp-space-1) var(--rp-space-2);margin-top:var(--rp-space-2)}
+.rides-total,.rides-newest{margin:0 0 var(--rp-space-2)}
+.rides-more{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--rp-space-2);min-height:var(--rp-tap);margin-top:var(--rp-space-3)}
+.rides-status{margin:0;color:var(--md-sys-color-on-surface-variant)}
+.rides-more[data-state=loading] .rides-status::before{content:"";display:inline-block;width:16px;height:16px;margin-right:var(--rp-space-2);vertical-align:-3px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:busy-spin .8s linear infinite}
+@media (prefers-reduced-motion:reduce){.rides-more[data-state=loading] .rides-status::before{animation:none}}
+.rides-more[data-state=added] .rides-status{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 figure.gauge{display:block;width:100%;margin:0}
 figure.gauge figcaption{display:flex;align-items:center;gap:var(--rp-space-2);margin:0 0 var(--rp-space-2);font:var(--md-type-body)}
 .gauge-step{white-space:nowrap}

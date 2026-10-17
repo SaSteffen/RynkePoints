@@ -3,12 +3,14 @@ import { escapeHtml } from "../../src/http/html";
 import {
 	renderGauges,
 	renderNotice,
+	renderRideBatch,
 	renderRides,
 	renderRules,
 	renderSummary,
 	renderWaiting,
 } from "../../src/http/rider-sections";
 import type {
+	Pager,
 	ReasonLine,
 	RideLine,
 	RiderView,
@@ -43,6 +45,7 @@ function table(ride: RideLine, i18n = en): string {
 		rows: [ride],
 		position: { from: 1, to: 1, total: 1 },
 		pager: null,
+		more: null,
 	}).toString();
 }
 
@@ -188,6 +191,7 @@ describe("coins", () => {
 			rows: [],
 			position: { from: 0, to: 0, total: 0 },
 			pager: null,
+			more: null,
 		}).toString();
 		expect(html).toMatch(
 			/<h2>Your rides<\/h2>\n<img class="coin-art coin coin-large" src="\/coin\/rynke-coin-front\.svg" alt=""[^>]*>\n<p>No rides this season yet\.<\/p>/,
@@ -333,5 +337,135 @@ describe("renderNotice", () => {
 			rules: { version: 2 },
 		} as unknown as RiderView;
 		expect(renderNotice(en, view)).toBeNull();
+	});
+});
+
+// The continuous list's markup (018 contracts/pages.md, research R6, R7).
+describe("renderRides lazy list (018 US1, US3)", () => {
+	const KEY = { startDate: "2026-09-16T08:00:00Z", activityId: 8_000_040 };
+	const MORE = "/me/rides/more?after=2026-09-16T08%3A00%3A00Z~8000040";
+
+	function pager(page: number): Pager {
+		return {
+			page,
+			lastPage: 3,
+			first: page > 1 ? 1 : null,
+			previous: page > 1 ? page - 1 : null,
+			next: page < 3 ? page + 1 : null,
+			last: page < 3 ? 3 : null,
+		};
+	}
+
+	function lazy(page: number, more = page < 3 ? KEY : null): string {
+		return renderRides(de, {
+			rows: [line({ activityId: 8_000_040 })],
+			position: { from: (page - 1) * 20 + 1, to: page * 20, total: 45 },
+			pager: pager(page),
+			more,
+		}).toString();
+	}
+
+	it("marks the section and keeps the position line and the pager", () => {
+		const html = lazy(1);
+		expect(html).toMatch(/^<section id="rides" data-lazy>\n<h2>/);
+		expect(html).toContain(
+			'<p class="rides-position">Fahrten 1–20 von 45</p>',
+		);
+		expect(html).toContain('<nav class="pager" aria-label="Seiten">');
+	});
+
+	it("renders the season's total, hidden", () => {
+		expect(lazy(1)).toContain(
+			'<p class="rides-total" hidden>45 Fahrten in dieser Saison</p>',
+		);
+	});
+
+	it("points the list at the rides after its last one", () => {
+		expect(lazy(1)).toContain(
+			`<ol class="ride-list" data-more="${MORE}">\n<li class="ride-card`,
+		);
+	});
+
+	it("renders the status block with its texts and the retry button, hidden", () => {
+		expect(lazy(1)).toContain(
+			'<div class="rides-more" hidden><p class="rides-status" role="status" data-loading="Ältere Fahrten werden geladen …" data-failed="Ältere Fahrten konnten nicht geladen werden." data-added="Weitere Fahrten geladen"></p><button type="button" class="button-outlined" data-retry hidden>Erneut versuchen</button></div>\n<nav class="pager"',
+		);
+	});
+
+	it("links to the newest rides only from page 2 on", () => {
+		const link =
+			'<p class="rides-newest" hidden><a class="tap" href="/me/rides">Zu den neuesten Fahrten</a></p>';
+		expect(lazy(1)).not.toContain("rides-newest");
+		expect(lazy(2)).toContain(link);
+		expect(lazy(3)).toContain(link);
+	});
+
+	it("has no next batch on the last page", () => {
+		const html = lazy(3);
+		expect(html).toContain('<ol class="ride-list">\n');
+		expect(html).not.toContain("data-more");
+	});
+
+	it("leaves a list of 20 rides or fewer as it was", () => {
+		const html = renderRides(de, {
+			rows: [line()],
+			position: { from: 1, to: 1, total: 1 },
+			pager: null,
+			more: null,
+		}).toString();
+		expect(html).toMatch(/^<section id="rides">\n/);
+		for (const part of [
+			"data-lazy",
+			"data-more",
+			"rides-total",
+			"rides-newest",
+			"rides-more",
+		]) {
+			expect(html).not.toContain(part);
+		}
+	});
+
+	it("speaks English in English", () => {
+		const html = renderRides(en, {
+			rows: [line()],
+			position: { from: 21, to: 40, total: 1234 },
+			pager: pager(2),
+			more: KEY,
+		}).toString();
+		expect(html).toContain(
+			'<p class="rides-total" hidden>1,234 rides this season</p>',
+		);
+		expect(html).toContain('href="/me/rides">To your newest rides</a>');
+		expect(html).toContain('data-failed="Couldn&#39;t load older rides."');
+	});
+});
+
+describe("renderRideBatch (018 contracts/http-routes.md)", () => {
+	const KEY = { startDate: "2026-08-27T08:00:00Z", activityId: 8_000_040 };
+
+	it("renders the cards of the page, with the next batch", () => {
+		const rows = [line({ activityId: 7 }), line({ activityId: 8 })];
+		const page = renderRides(de, {
+			rows,
+			position: { from: 21, to: 22, total: 45 },
+			pager: null,
+			more: null,
+		}).toString();
+		const cards = page.slice(page.indexOf("<li "), page.indexOf("</ol>"));
+		expect(renderRideBatch(de, rows, KEY).toString()).toBe(
+			`<ol class="ride-list" data-more="/me/rides/more?after=2026-08-27T08%3A00%3A00Z~8000040">\n${cards}</ol>`,
+		);
+	});
+
+	it("ends without a next batch", () => {
+		expect(renderRideBatch(de, [line()], null).toString()).toMatch(
+			/^<ol class="ride-list">\n<li class="ride-card [^"]*">[\s\S]*<\/li>\n<\/ol>$/,
+		);
+	});
+
+	it("renders an empty list after the last ride", () => {
+		expect(renderRideBatch(de, [], null).toString()).toBe(
+			'<ol class="ride-list">\n</ol>',
+		);
 	});
 });

@@ -460,6 +460,20 @@ describe("STYLE", () => {
 		).toBe("none");
 	});
 
+	it("spins while older rides load, only without reduced motion (018 R6)", () => {
+		const spinner = ".rides-more[data-state=loading] .rides-status::before";
+		expect(declsOf(spinner).animation).toContain("busy-spin");
+		const reduced = declsOf(spinner, "(prefers-reduced-motion:reduce)");
+		expect(reduced.animation).toBe("none");
+	});
+
+	it("keeps the 'more rides loaded' note for screen readers only (018 R6)", () => {
+		const added = declsOf(".rides-more[data-state=added] .rides-status");
+		expect(added.position).toBe("absolute");
+		expect(added.width).toBe("1px");
+		expect(added.overflow).toBe("hidden");
+	});
+
 	it("loads nothing from another origin (FR-037)", () => {
 		expect(STYLE).not.toContain("@import");
 		expect(STYLE).not.toMatch(/url\(\s*["']?(https?:)?\/\//);
