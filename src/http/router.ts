@@ -20,9 +20,11 @@ import {
 	handleDeleteEvent,
 	handleOrganiserEvent,
 	handleOrganiserEvents,
+	handleSelfAttendance,
 	handleUpdateEvent,
 } from "./organiser/events";
 import { handleOrganiserOverview } from "./organiser/overview";
+import { handleDecideRequests, handleUndoRequests } from "./organiser/requests";
 import { handlePrivacy } from "./privacy";
 import {
 	handleNotificationText,
@@ -33,8 +35,9 @@ import { handleReady } from "./ready";
 import { redirect } from "./redirect";
 import { handleRunDaily } from "./run-daily";
 import { handleBadges } from "./sections/badges";
+import { handleEvents, handleReport, handleWithdraw } from "./sections/events";
 import { handleOverview } from "./sections/overview";
-import { handleRides } from "./sections/rides";
+import { handleMoreRides, handleRides } from "./sections/rides";
 import { handleSettings } from "./sections/settings";
 import { handleTeam } from "./sections/team";
 import { renewSession } from "./session";
@@ -58,7 +61,10 @@ const WEBHOOK_PREFIX = "/strava/webhook/";
  * stored event's.
  */
 const ORGANISER_EVENT =
-	/^\/organiser\/events\/(\d{1,15})(?:\/(delete|attendance))?$/;
+	/^\/organiser\/events\/(\d{1,15})(?:\/(delete|attendance|self))?$/;
+
+/** A rider's report at an event and its withdrawal (feature 019). */
+const EVENT_REPORT = /^\/events\/(\d{1,15})\/report(\/delete)?$/;
 
 /** `/organiser/riders/{athleteId}` and its `/corrections`. */
 const ORGANISER_RIDER = /^\/organiser\/riders\/(\d{1,15})(\/corrections)?$/;
@@ -116,6 +122,10 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleLogout(request, ctx, i18n);
 			case "/organiser/events":
 				return handleCreateEvent(request, ctx, i18n);
+			case "/organiser/requests":
+				return handleDecideRequests(request, ctx, i18n);
+			case "/organiser/requests/undo":
+				return handleUndoRequests(request, ctx, i18n);
 		}
 		const event = path.match(ORGANISER_EVENT);
 		if (event) {
@@ -125,9 +135,18 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 					return handleDeleteEvent(request, ctx, i18n, eventId);
 				case "attendance":
 					return handleSaveAttendance(request, ctx, i18n, eventId);
+				case "self":
+					return handleSelfAttendance(request, ctx, i18n, eventId);
 				default:
 					return handleUpdateEvent(request, ctx, i18n, eventId);
 			}
+		}
+		const report = path.match(EVENT_REPORT);
+		if (report) {
+			const eventId = Number(report[1]);
+			return report[2]
+				? handleWithdraw(request, ctx, i18n, eventId)
+				: handleReport(request, ctx, i18n, eventId);
 		}
 		const rider = path.match(ORGANISER_RIDER);
 		if (rider?.[2]) {
@@ -160,10 +179,14 @@ async function page(
 			return handleOverview(request, ctx, i18n);
 		case "/me/rides":
 			return handleRides(request, ctx, i18n);
+		case "/me/rides/more":
+			return handleMoreRides(request, ctx, i18n);
 		case "/me/badges":
 			return handleBadges(request, ctx, i18n);
 		case "/team":
 			return handleTeam(request, ctx, i18n);
+		case "/events":
+			return handleEvents(request, ctx, i18n);
 		case "/me/settings":
 			return handleSettings(request, ctx, i18n);
 		case "/me/disconnect":

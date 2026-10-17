@@ -1,22 +1,24 @@
+import type { RideKey } from "../db/rider-view";
 import type { Rider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import type { RiderStatus } from "../rynke/pace";
 import { STRAVA_ORIGIN } from "../strava/result";
 import { coinArt, flippingCoin, miniCoin } from "./coin";
 import { html, type SafeHtml } from "./html";
-import type {
-	Breakdown,
-	EventLine,
-	Gauge,
-	GaugeSource,
-	Gauges,
-	Pager,
-	ReasonLine,
-	RideLine,
-	RiderView,
-	RideTable,
-	RulesInfo,
-	Summary,
+import {
+	type Breakdown,
+	type EventLine,
+	formatRideKey,
+	type Gauge,
+	type GaugeSource,
+	type Gauges,
+	type Pager,
+	type ReasonLine,
+	type RideLine,
+	type RiderView,
+	type RideTable,
+	type RulesInfo,
+	type Summary,
 } from "./rider-view";
 import { statusArt } from "./status-art";
 
@@ -346,20 +348,73 @@ ${coinArt("front", "large")}
 <p>${i18n.t("me.recent.none")}</p>
 </section>`;
 	}
-	const { from, to, total } = rides.position;
-	const position =
-		rides.pager &&
-		html`<p class="rides-position">${i18n.t("rynke.rides.position", {
-			from: whole(i18n, from),
-			to: whole(i18n, to),
-			total: whole(i18n, total),
-		})}</p>
-`;
-	return html`<section id="rides">
+	// With a pager, the page script turns the pages into one list (feature 018
+	// contracts/pages.md); its lines and controls stay hidden until it does.
+	const lazy = rides.pager;
+	return html`<section id="rides"${lazy ? html` data-lazy` : null}>
 ${heading}
-${position}<ol class="ride-list">
-${rides.rows.map((ride) => rideCard(i18n, ride))}</ol>
-${rides.pager && renderPager(i18n, rides.pager)}</section>`;
+${lazy && renderListLines(i18n, rides.position, lazy)}${rideList(i18n, rides.rows, rides.more)}
+${lazy && renderMore(i18n)}${lazy && renderPager(i18n, lazy)}</section>`;
+}
+
+/** The page's position, the season's total and the way back to the top. */
+function renderListLines(
+	i18n: I18n,
+	{ from, to, total }: RideTable["position"],
+	pager: Pager,
+): SafeHtml {
+	const position = i18n.t("rynke.rides.position", {
+		from: whole(i18n, from),
+		to: whole(i18n, to),
+		total: whole(i18n, total),
+	});
+	const season = i18n.t("rynke.rides.total", { total: whole(i18n, total) });
+	return html`<p class="rides-position">${position}</p>
+<p class="rides-total" hidden>${season}</p>
+${pager.page > 1 ? renderNewest(i18n) : null}`;
+}
+
+/** Back to the top of the list from a later page (feature 018 FR-014). */
+function renderNewest(i18n: I18n): SafeHtml {
+	return html`<p class="rides-newest" hidden><a class="tap" href="/me/rides">${i18n.t("rynke.rides.newest")}</a></p>
+`;
+}
+
+/**
+ * The next rides after `more`'s ride, for `GET /me/rides/more` (feature 018
+ * contracts/http-routes.md): the page's cards, and where the next batch
+ * starts when more follow.
+ */
+export function renderRideBatch(
+	i18n: I18n,
+	rows: RideLine[],
+	more: RideKey | null,
+): SafeHtml {
+	return rideList(i18n, rows, more);
+}
+
+function rideList(
+	i18n: I18n,
+	rows: RideLine[],
+	more: RideKey | null,
+): SafeHtml {
+	const next = more && html` data-more="${batchUrl(more)}"`;
+	return html`<ol class="ride-list"${next}>
+${rows.map((ride) => rideCard(i18n, ride))}</ol>`;
+}
+
+/** Where the rides after `key` are read (018 contracts/http-routes.md). */
+function batchUrl(key: RideKey): string {
+	return `/me/rides/more?after=${encodeURIComponent(formatRideKey(key))}`;
+}
+
+/**
+ * Where the script says what the list is doing; the texts wait in data
+ * attributes, as the script holds none (feature 018 research R6).
+ */
+function renderMore(i18n: I18n): SafeHtml {
+	return html`<div class="rides-more" hidden><p class="rides-status" role="status" data-loading="${i18n.t("rynke.rides.loading")}" data-failed="${i18n.t("rynke.rides.failed")}" data-added="${i18n.t("rynke.rides.added")}"></p><button type="button" class="button-outlined" data-retry hidden>${i18n.t("rynke.rides.retry")}</button></div>
+`;
 }
 
 /** Only the links that apply; each a 44 px tap target (FR-045, FR-070). */

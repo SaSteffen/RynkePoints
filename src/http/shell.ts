@@ -2,11 +2,13 @@ import { berlinDate } from "../config";
 import { currentVersion, hasAgreed } from "../consent";
 import type { Ctx } from "../ctx";
 import { type Consent, getCurrentConsent } from "../db/consents";
+import { openRequestCountStatement } from "../db/participation";
 import { hasBalance } from "../db/rider-view";
 import type { Rider } from "../db/riders";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import { vapidPublicKey } from "../push/vapid";
+import { countingWindow } from "../rynke/rules";
 import { consentGate } from "./consent-gate";
 import {
 	html,
@@ -18,6 +20,7 @@ import {
 } from "./html";
 import {
 	BIKE,
+	CALENDAR,
 	CLIPBOARD,
 	MEDAL,
 	PEOPLE,
@@ -32,7 +35,8 @@ import { readViewer, riderConsentState } from "./viewer";
 
 // The signed-in area's sections (feature 011 data-model.md "Section",
 // research R1, R3, R8), with the badges in their own after Rides, and Orga for
-// organisers before Settings (feature 016).
+// organisers before Settings (feature 016), where everyone else has Termine
+// (feature 019 research R8).
 // Team comes first: it's where the app sends a signed-in rider (issue #73).
 // Each is its own page; `shellPage()` applies the access rules of `/me` to all
 // of them and wraps the section in the top bar and the navigation. The current
@@ -44,6 +48,7 @@ export type SectionId =
 	| "rides"
 	| "badges"
 	| "organiser"
+	| "events"
 	| "settings";
 
 /** In navigation order (FR-002). */
@@ -55,6 +60,8 @@ export const SECTIONS: readonly {
 	short?: MessageId;
 	icon: SafeHtml;
 	organiserOnly?: true;
+	/** Only for riders who aren't organisers (feature 019). */
+	riderOnly?: true;
 }[] = [
 	{ id: "team", path: "/team", label: "nav.team", icon: PEOPLE },
 	{ id: "you", path: "/me", label: "nav.you", icon: PERSON },
@@ -66,6 +73,13 @@ export const SECTIONS: readonly {
 		label: "nav.organiser",
 		icon: CLIPBOARD,
 		organiserOnly: true,
+	},
+	{
+		id: "events",
+		path: "/events",
+		label: "nav.events",
+		icon: CALENDAR,
+		riderOnly: true,
 	},
 	{
 		id: "settings",
@@ -87,6 +101,25 @@ export function acceptedOn(i18n: I18n, consent: Consent): string {
 	return i18n.formatDate(`${berlinDate(consent.acceptedAt)}T00:00:00Z`);
 }
 
+/** The red count of open requests on Orga, `9+` above 9 (019 FR-030). */
+export function countBadge(n: number): SafeHtml {
+	return html`<span class="count-badge" aria-hidden="true">${n > 9 ? "9+" : String(n)}</span>`;
+}
+
+/** The link's accessible name where its label is short or it carries a count. */
+function navLabel(
+	i18n: I18n,
+	id: SectionId,
+	label: MessageId,
+	short: MessageId | undefined,
+	openRequests: number,
+): SafeHtml | null {
+	if (id === "organiser" && openRequests > 0) {
+		return html` aria-label="${i18n.t("nav.organiser.open", { n: String(openRequests) })}"`;
+	}
+	return short ? html` aria-label="${i18n.t(label)}"` : null;
+}
+
 function shellParts(
 	i18n: I18n,
 	section: SectionId,
@@ -94,11 +127,15 @@ function shellParts(
 	pushKey: string,
 	organiser: boolean,
 	hint: TourHint | null,
+	openRequests: number,
 ): ShellParts {
 	const current = SECTIONS.find(({ id }) => id === section);
-	const links = SECTIONS.filter((s) => organiser || !s.organiserOnly).map(
+	const shown = SECTIONS.filter((s) =>
+		organiser ? !s.riderOnly : !s.organiserOnly,
+	);
+	const links = shown.map(
 		({ id, path: href, label, short, icon }) =>
-			html`<a href="${href}"${short ? html` aria-label="${i18n.t(label)}"` : null}${id === section ? html` aria-current="page"` : null}${id === hint?.section ? html` class="tour-target"` : null}><span class="nav-icon">${icon}</span>${
+			html`<a href="${href}"${navLabel(i18n, id, label, short, openRequests)}${id === section ? html` aria-current="page"` : null}${id === hint?.section ? html` class="tour-target"` : null}><span class="nav-icon">${icon}${id === "organiser" && openRequests > 0 ? countBadge(openRequests) : null}</span>${
 				short
 					? html`<span class="nav-label nav-label-short">${i18n.t(short)}</span><span class="nav-label nav-label-full">${i18n.t(label)}</span>`
 					: html`<span class="nav-label">${i18n.t(label)}</span>`
@@ -163,6 +200,10 @@ export async function shellPage(
 	}
 	const body = await render({ rider: viewer.rider, consent: accepted });
 	if (body instanceof Response) return body;
+	// Organisers see how many reports wait for them on every page (019 FR-030).
+	const openRequests = viewer.rider.organiser
+		? await countOpenRequests(ctx)
+		: 0;
 	// No tour while the first import still runs: the pages it points at only
 	// show the waiting placeholder then (issue #119). Read only when there is
 	// a hint to hold back.
@@ -193,7 +234,19 @@ export async function shellPage(
 				vapidPublicKey(ctx.env),
 				viewer.rider.organiser,
 				hint,
+				openRequests,
 			),
 		}),
+	);
+}
+
+/** The open requests, for the count on Orga and on Termine (019 research R7). */
+export async function countOpenRequests(ctx: Ctx): Promise<number> {
+	return (
+		(await openRequestCountStatement(
+			ctx.env.DB,
+			berlinDate(ctx.now()),
+			countingWindow(ctx.env),
+		).first<number>("n")) ?? 0
 	);
 }

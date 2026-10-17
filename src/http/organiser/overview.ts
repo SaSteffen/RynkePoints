@@ -1,6 +1,10 @@
 import { berlinDate } from "../../config";
 import type { Ctx } from "../../ctx";
 import { withProfileLinks } from "../../db/organiser";
+import {
+	listOpenRequestsStatement,
+	type OpenRequestRow,
+} from "../../db/participation";
 import { readTeam, type TeamRider } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
 import { evenPace, type RiderStatus, riderStatus } from "../../rynke/pace";
@@ -18,6 +22,7 @@ import { coinArt, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import { statusArt } from "../status-art";
 import { noticeFromQuery, organiserPage, organiserSwitch } from "./access";
+import { decisionNotice, riderRequestLines } from "./requests";
 
 // The organiser overview at `/organiser/riders` (feature 016 US4, FR-030–FR-035,
 // contracts/pages.md): the deadline, who qualifies, and every listed rider by
@@ -25,9 +30,13 @@ import { noticeFromQuery, organiserPage, organiserSwitch } from "./access";
 // columns from 840 px) and a table from 1100 px, where all its columns fit. It
 // only reads (FR-003). The body is pure, so the tests can set the day.
 
-export type Group = RiderStatus | "all";
+/** `requests`: riders with open requests (feature 019 FR-034). */
+export type Group = RiderStatus | "all" | "requests";
 
-const GROUPS: readonly Group[] = ["push", "on_track", "in", "all"];
+const GROUPS: readonly Group[] = ["requests", "push", "on_track", "in", "all"];
+
+/** Each listed rider's open requests, newest event first (019 FR-034). */
+export type RiderRequests = ReadonlyMap<number, readonly OpenRequestRow[]>;
 
 /** An amount still missing, flagged when the rider is behind its even pace. */
 export interface Missing {
@@ -183,6 +192,8 @@ function groupLabel(i18n: I18n, group: Group, passed: boolean): string {
 			return i18n.t("organiser.overview.group.in");
 		case "all":
 			return i18n.t("organiser.overview.group.all");
+		case "requests":
+			return i18n.t("organiser.overview.group.requests");
 	}
 }
 
@@ -216,11 +227,13 @@ function renderTiles(
 	riders: readonly OverviewRider[],
 	group: Group | null,
 	passed: boolean,
+	requests: RiderRequests,
 ): SafeHtml {
 	const tiles = GROUPS.filter((g) => !(passed && g === "on_track")).map((g) => {
-		const count =
-			g === "all" ? riders.length : riders.filter((r) => r.status === g).length;
-		return html`<a class="group-tile tile-${g}" href="/organiser/riders?group=${g}"${group === g ? html` aria-current="true"` : null}><span class="tile-count">${i18n.formatNumber(count, { fractionDigits: 0 })}</span><span class="tile-label">${groupLabel(i18n, g, passed)}</span>${g === "all" ? null : statusArt(g, "tile")}</a>
+		const count = riders.filter((r) => inGroup(r, g, requests)).length;
+		const alert = g === "requests" && count > 0 ? " tile-alert" : "";
+		const art = g === "all" || g === "requests" ? null : statusArt(g, "tile");
+		return html`<a class="group-tile tile-${g}${alert}" href="/organiser/riders?group=${g}"${group === g ? html` aria-current="true"` : null}><span class="tile-count">${i18n.formatNumber(count, { fractionDigits: 0 })}</span><span class="tile-label">${groupLabel(i18n, g, passed)}</span>${art}</a>
 `;
 	});
 	const showing = (g: Group, when: string) =>
@@ -229,6 +242,21 @@ function renderTiles(
 	return html`<nav class="group-tiles${group === null ? " default" : ""}" aria-label="${i18n.t("organiser.overview.groups")}">
 ${tiles}</nav>
 ${group === null ? html`${showing("push", "phone")}${showing("all", "wide")}` : null}`;
+}
+
+/** Whether `rider` belongs in the tile `group`. */
+function inGroup(
+	rider: OverviewRider,
+	group: Group,
+	requests: RiderRequests,
+): boolean {
+	if (group === "all") return true;
+	if (group === "requests") return hasRequests(rider, requests);
+	return rider.status === group;
+}
+
+function hasRequests(rider: OverviewRider, requests: RiderRequests): boolean {
+	return (requests.get(rider.athleteId)?.length ?? 0) > 0;
 }
 
 function missingItems(
@@ -281,6 +309,7 @@ function renderCard(
 	rules: RynkeRules,
 	rider: OverviewRider,
 	passed: boolean,
+	lines: SafeHtml | null,
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const { breakdown } = rider;
@@ -321,7 +350,7 @@ ${
 		? html`<ul class="rider-missing">${missing.map((m) => html`<li${m.behind ? html` class="behind"` : null}>${m.text}</li>`)}</ul>
 `
 		: null
-}<details class="rider-breakdown"><summary class="tap">${i18n.t("organiser.overview.breakdown")}</summary>
+}${lines}<details class="rider-breakdown"><summary class="tap">${i18n.t("organiser.overview.breakdown")}</summary>
 <ul>${parts.map((part) => html`<li>${part}</li>`)}</ul>
 </details>
 </li>
@@ -329,9 +358,11 @@ ${
 }
 
 /** A figure with its bar and, while some is missing, how much: in the
- * push colour when the rider is behind the even pace (the bar's mark). */
-function barCell(
+ * push colour when the rider is behind the even pace (the bar's mark). `kind`
+ * names the bar for screen readers and picks its colour. */
+function barBlock(
 	i18n: I18n,
+	kind: "training" | "team",
 	value: number,
 	threshold: number,
 	pace: number | null,
@@ -342,7 +373,7 @@ function barCell(
 		missing.amount > 0
 			? html`<span class="to-go${missing.behind ? " behind" : ""}">${i18n.t("organiser.overview.toGo.short", { n: whole(missing.amount) })}${missing.behind ? html`<span class="visually-hidden"> · ${i18n.t("organiser.overview.behind")}</span>` : null}</span>`
 			: null;
-	return html`<td class="bar-cell"><span class="bar-figures"><span class="figure">${whole(value)}</span>${toGo}</span>${thresholdBars(value, threshold, pace)}</td>`;
+	return html`<div class="bar-block bar-${kind}"><span class="bar-figures"><span class="figure"><span class="visually-hidden">${i18n.t(`organiser.overview.column.${kind}`)} </span>${whole(value)}</span>${toGo}</span>${thresholdBars(value, threshold, pace)}</div>`;
 }
 
 /** Training and Team amounts as the two mini coins, read out in words. */
@@ -356,47 +387,54 @@ function renderTable(
 	rules: RynkeRules,
 	riders: readonly OverviewRider[],
 	passed: boolean,
+	lines: (rider: OverviewRider) => SafeHtml | null,
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const column = (
 		key:
 			| "name"
 			| "group"
-			| "training"
-			| "team"
-			| "outdoor"
+			| "rynke"
+			| "virtual"
 			| "distance"
 			| "elevation"
-			| "events"
 			| "corrections"
-			| "virtual",
+			| "requests",
 		number = false,
 	) =>
 		html`<th scope="col"${number ? html` class="number"` : null}>${i18n.t(`organiser.overview.column.${key}`)}</th>`;
+	// Training above Team in one Rynke column, the virtual share beside it.
 	const rows = riders.map((rider) => {
-		const events = rider.breakdown.teamEvents.reduce(
-			(sum, e) => ({
-				training: sum.training + e.training,
-				team: sum.team + e.team,
-			}),
-			{ training: 0, team: 0 },
+		const training = barBlock(
+			i18n,
+			"training",
+			rider.training,
+			rules.trainingThreshold,
+			rider.pace?.training ?? null,
+			rider.missing.training,
+		);
+		const team = barBlock(
+			i18n,
+			"team",
+			rider.team,
+			rules.teamThreshold,
+			rider.pace?.team ?? null,
+			rider.missing.team,
 		);
 		return html`<tr class="status-${rider.status}">
 <th scope="row">${nameLinks(i18n, rider)}</th>
 <td>${statusChip(i18n, rider, passed)}</td>
-${barCell(i18n, rider.training, rules.trainingThreshold, rider.pace?.training ?? null, rider.missing.training)}
-${barCell(i18n, rider.team, rules.teamThreshold, rider.pace?.team ?? null, rider.missing.team)}
-${barCell(i18n, rider.outdoorTraining, virtualShareRequired(rules), rider.pace?.outdoor ?? null, rider.missing.outdoor)}
+<td class="bar-cell">${training}${team}</td>
+<td class="number">${i18n.t("organiser.overview.percent", { n: whole(rider.breakdown.virtualShare) })}</td>
 <td class="number">${whole(rider.breakdown.distanceRynke)}</td>
 <td class="number">${whole(rider.breakdown.elevationRynke)}</td>
-${coinPair(i18n, events.training, events.team)}
 ${coinPair(i18n, rider.breakdown.corrections.training, rider.breakdown.corrections.team)}
-<td class="number">${i18n.t("organiser.overview.percent", { n: whole(rider.breakdown.virtualShare) })}</td>
+<td class="requests-cell">${lines(rider)}</td>
 </tr>
 `;
 	});
 	return html`<div class="table-scroll"><table class="rider-table">
-<thead><tr>${column("name")}${column("group")}${column("training")}${column("team")}${column("outdoor")}${column("distance", true)}${column("elevation", true)}${column("events", true)}${column("corrections", true)}${column("virtual", true)}</tr></thead>
+<thead><tr>${column("name")}${column("group")}${column("rynke")}${column("virtual", true)}${column("distance", true)}${column("elevation", true)}${column("corrections", true)}${column("requests")}</tr></thead>
 <tbody>
 ${rows}</tbody>
 </table></div>
@@ -430,13 +468,22 @@ export function overviewBody(
 	today: string,
 	group: Group | null,
 	i18n: I18n,
+	requests: RiderRequests = new Map(),
 ): SafeHtml {
 	const passed = today > window.deadline;
 	const riders = overviewRiders(read, rules, window, today);
+	// Riders with open requests first (019 FR-034), the order otherwise kept.
 	const shown =
 		group === null || group === "all"
-			? riders
-			: riders.filter((r) => r.status === group);
+			? [
+					...riders.filter((r) => hasRequests(r, requests)),
+					...riders.filter((r) => !hasRequests(r, requests)),
+				]
+			: riders.filter((r) => inGroup(r, group, requests));
+	const back =
+		group === null ? "/organiser/riders" : `/organiser/riders?group=${group}`;
+	const lines = (rider: OverviewRider) =>
+		riderRequestLines(i18n, requests.get(rider.athleteId) ?? [], back);
 	const pace = overviewPace(rules, window, today);
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const list =
@@ -449,11 +496,11 @@ export function overviewBody(
 `
 						: null
 				}<ul class="rider-cards${group === null ? " default" : ""}">
-${shown.map((r) => renderCard(i18n, rules, r, passed))}</ul>
-${renderTable(i18n, rules, shown, passed)}${renderQualified(i18n, riders)}`;
+${shown.map((r) => renderCard(i18n, rules, r, passed, lines(r)))}</ul>
+${renderTable(i18n, rules, shown, passed, lines)}${renderQualified(i18n, riders)}`;
 	return html`<div class="team-overview">
 <h2>${i18n.t("organiser.overview.heading")}</h2>
-${renderDeadline(i18n, window, today, riders)}${renderTiles(i18n, riders, group, passed)}${list}</div>`;
+${renderDeadline(i18n, window, today, riders)}${renderTiles(i18n, riders, group, passed, requests)}${list}</div>`;
 }
 
 /** `GET /organiser/riders`: the overview, organisers only. */
@@ -472,7 +519,22 @@ export function handleOrganiserOverview(
 	const path =
 		group === null ? "/organiser/riders" : `/organiser/riders?group=${group}`;
 	return organiserPage(request, ctx, i18n, path, async () => {
-		const read = await readTeam(ctx.env.DB);
-		return html`${organiserSwitch(i18n, "riders")}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n)}`;
+		const [read, { results }] = await Promise.all([
+			readTeam(ctx.env.DB),
+			listOpenRequestsStatement(
+				ctx.env.DB,
+				today,
+				window,
+			).all<OpenRequestRow>(),
+		]);
+		const requests = new Map<number, OpenRequestRow[]>();
+		for (const row of results) {
+			requests.set(row.athlete_id, [
+				...(requests.get(row.athlete_id) ?? []),
+				row,
+			]);
+		}
+		const notice = await decisionNotice(url, ctx, i18n, path);
+		return html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, requests)}`;
 	});
 }

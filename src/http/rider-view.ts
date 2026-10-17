@@ -1,6 +1,8 @@
 import {
 	type AttendedEvent,
+	MAX_RIDE_BATCH,
 	RIDES_PER_PAGE,
+	type RideKey,
 	type RideRow,
 	type RiderViewRead,
 } from "../db/rider-view";
@@ -147,6 +149,11 @@ export interface RideTable {
 	position: { from: number; to: number; total: number };
 	/** `null` with `RIDES_PER_PAGE` rides or fewer (FR-045). */
 	pager: Pager | null;
+	/**
+	 * Where the next batch starts: the last row's key when older rides follow
+	 * it, else `null` (feature 018 data-model.md "RideTable").
+	 */
+	more: RideKey | null;
 }
 
 /** The pages a link leads to; `null` = the link isn't offered. */
@@ -412,17 +419,62 @@ export function parsePage(url: URL): number {
 	return page && /^[1-9][0-9]{0,3}$/.test(page) ? Number(page) : 1;
 }
 
+/**
+ * A ride key in a query string: `<start_date>~<activity id>` (feature 018
+ * data-model.md "Ride key").
+ */
+export function formatRideKey(key: RideKey): string {
+	return `${key.startDate}~${key.activityId}`;
+}
+
+const RIDE_KEY =
+	/^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z)~([1-9]\d{0,15})$/;
+
+/** The key `formatRideKey` wrote, or `null` for anything else. */
+export function parseRideKey(value: string | null): RideKey | null {
+	const match = value?.match(RIDE_KEY);
+	if (!match?.[1] || !match[2]) return null;
+	const activityId = Number(match[2]);
+	return Number.isSafeInteger(activityId)
+		? { startDate: match[1], activityId }
+		: null;
+}
+
+/**
+ * A batch's `limit`: 1 to `MAX_RIDE_BATCH`, `RIDES_PER_PAGE` when missing,
+ * `null` for anything else, also for several (018 contracts/http-routes.md).
+ */
+export function parseBatchLimit(url: URL): number | null {
+	const limits = url.searchParams.getAll("limit");
+	if (limits.length === 0) return RIDES_PER_PAGE;
+	const limit = limits.length === 1 ? limits[0] : undefined;
+	if (!limit || !/^[1-9][0-9]{0,3}$/.test(limit)) return null;
+	const n = Number(limit);
+	return n <= MAX_RIDE_BATCH ? n : null;
+}
+
+/** The cards of `rides`, as the ride table shows them (018 research R2). */
+export function rideLines(rides: RideRow[], context: ViewContext): RideLine[] {
+	return rides.map((ride) => rideLine(ride, context));
+}
+
 function rideTable(read: RiderViewRead, context: ViewContext): RideTable {
 	const from =
 		read.rides.length === 0 ? 0 : (read.page - 1) * RIDES_PER_PAGE + 1;
+	const last = read.rides.at(-1);
+	const older =
+		last !== undefined && from + read.rides.length - 1 < read.rideCount;
 	return {
-		rows: read.rides.map((ride) => rideLine(ride, context)),
+		rows: rideLines(read.rides, context),
 		position: {
 			from,
 			to: from === 0 ? 0 : from + read.rides.length - 1,
 			total: read.rideCount,
 		},
 		pager: pager(read.page, read.rideCount),
+		more: older
+			? { startDate: last.startDate, activityId: last.activityId }
+			: null,
 	};
 }
 

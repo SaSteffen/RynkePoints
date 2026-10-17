@@ -80,6 +80,8 @@ const COLUMNS: Record<string, string[]> = {
 	// Issue #45: the last rise, for the notification text.
 	rynke_rises: ["athlete_id", "training_rynke", "team_rynke", "risen_at"],
 	rynke_seen: ["athlete_id", "training_rynke", "team_rynke"],
+	// Issue #96: the Team page quotes a rider has seen, by quote id only.
+	quote_seen: ["athlete_id", "quote_id"],
 	team_event_kinds: ["kind"],
 	// Feature 014: the change record of each organiser input (research R9).
 	team_events: [
@@ -91,6 +93,8 @@ const COLUMNS: Record<string, string[]> = {
 		"changed_at",
 	],
 	attendances: ["event_id", "athlete_id", "changed_by", "changed_at"],
+	// Feature 019: who reported which event, and when (data-model.md).
+	participation_reports: ["event_id", "athlete_id", "reported_at"],
 	corrections: [
 		"correction_id",
 		"athlete_id",

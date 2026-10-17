@@ -231,9 +231,63 @@ markup above where they differ.
   `aria-hidden`), and its shine plays once on its own after the page loads
   (`badge-shine-new`). Reduced motion: no shine, no tip, the stars stand
   still.
+- **Large view** (2026-10-17): its badge carries `--badge-src` and the same
+  four stars (`span.badge-sparkles`, a little closer in so they stay inside
+  the popover), for every earned badge. Each time the view opens, the shine
+  sweeps across the badge once (`.badge-large:popover-open .badge::after`,
+  `badge-shine-new`) and the stars twinkle while it is open; a closed
+  popover isn't rendered, so both start again on the next opening, also when
+  hover opens it. Reduced motion: no shine, the stars stand still.
 - **Ribbon text** (supersedes its colour above): on personal badges the
   milestone is `#f7e27c` (`--rp-ribbon-text`), a softer, paler yellow than
   the ribbon's `#fbe122`, in weight 600 with 0.04em letter-spacing and a faint
   glow (`text-shadow: 0 0 2px` at 25 %), so it doesn't glare on the black
   band. Team ribbons keep `#1c1b13` without the glow. The badge pictures and
   the app's yellow stay as they are.
+
+## Part I: the full width and the switch (2026-10-17)
+
+The look follows the Claude Design draft "RynkePoints Badges Switch"
+(https://claude.ai/artifact/KmHELuT8yfg1X6K887Dj28). Supersedes "two cards
+per row at every width" and the closed gallery above.
+
+```html
+<section class="badges" aria-labelledby="badges-heading">
+  <h2 id="badges-heading" class="visually-hidden">Abzeichen</h2>
+  <div class="badges-switch">                     <!-- sticky under the top bar -->
+    <nav class="kind-switch" aria-label="Wessen Abzeichen">
+      <a class="segmented" href="#badges-personal" aria-current="true">Deine</a>
+      <a class="segmented" href="#badges-team">Team</a>
+    </nav>
+    <fieldset class="segmented-group badges-filter"><legend class="visually-hidden">Zeigen</legend>
+      <label><input type="radio" name="badges-filter" value="newest" autocomplete="off" checked>Neueste</label>
+      <label><input type="radio" name="badges-filter" value="all" autocomplete="off">Alle</label>
+    </fieldset>
+  </div>
+  <section id="badges-personal" class="badge-group badge-group-personal" aria-labelledby="badges-personal-heading">
+    <h3 id="badges-personal-heading"><span class="badges-title-newest">Deine Abzeichen</span><span class="badges-title-all">Alle deine Abzeichen (14)</span></h3>
+    <ul class="badge-cards">…</ul>                 <!-- with "Neueste" -->
+    <div class="badge-gallery">                     <!-- with "Alle", always there -->
+      <div class="badge-gallery-category"><h4>Distanz</h4><p class="badge-about">…</p><ul>…</ul></div>
+    </div>
+  </section>
+  <section id="badges-team" class="badge-group badge-group-team" …>…</section>
+</section>
+```
+
+- **Width**: `main:has(>.badges)` has no maximum width. The cards are
+  `repeat(auto-fill, minmax(min(176px, 50% − half the gap), 1fr))`: two on a
+  phone, four on a phone held sideways, seven at 1440 px. The gallery's
+  categories stand side by side, at least 360 px each.
+- **Filter**: CSS alone (`.badges:has(… [value=all]:checked)`): "Neueste"
+  shows the cards and the headings' first span, "Alle" the galleries and the
+  second span, both groups at once. `autocomplete="off"`, so a reload opens on
+  "Neueste". Categories without a badge stay outlined cards in "Neueste".
+- **Group links**: plain anchors (`scroll-margin-top` clears the switch);
+  `public/app.js` (`badgeSwitch`) moves `aria-current` to the group whose top
+  is in the upper third below the switch, and to the last group at the bottom
+  of the page.
+- **New badge**: the reveal carries `data-scroll-to="<category>"`, the
+  category of its first badge, the rider's own before the team's;
+  `public/app.js` (`scrollToNewBadge`) scrolls that card to the middle of the
+  screen on load.

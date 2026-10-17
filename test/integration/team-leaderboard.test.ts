@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { escapeHtml } from "../../src/http/html";
+import { quoteId } from "../../src/http/sections/team";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import {
 	QUOTES_ON_TRACK,
@@ -9,7 +10,13 @@ import {
 	SEASON_QUOTES_PUSH,
 } from "../../src/i18n/messages/quotes.de";
 import { handleFetch } from "../../src/index";
-import { makeCtx, request, resetDb, seedRider } from "../support/ctx";
+import {
+	makeCtx,
+	request,
+	resetDb,
+	seedRider,
+	sessionCookie,
+} from "../support/ctx";
 import { riderPage, seedBalance, seedRide } from "../support/rider-view";
 
 // Where the rider stands at `/team` and how the team is doing (016 US1, US2,
@@ -42,12 +49,6 @@ const ORGANISER = 910_004;
 const WITHOUT_BALANCE = { id: 910_014, name: "Rotraut" };
 const UNCONSENTED = { id: 910_015, name: "Ermentrude" };
 
-/** Two riders far ahead in Training, seeded only where the breakaway is tested. */
-const BREAKAWAY = [
-	{ id: 910_016, name: "Wiltrud", training: 900 },
-	{ id: 910_017, name: "Gerlinde", training: 1200 },
-];
-
 const OTHERS = [...LISTED, WITHOUT_BALANCE, UNCONSENTED].filter(
 	(r) => r.id !== VIEWER,
 );
@@ -71,16 +72,12 @@ function sectionOf(page: string, open: string, close: string): string {
 
 const teamTotalOf = (page: string) =>
 	sectionOf(page, '<section class="team-total', "</section>");
-const pelotonOf = (page: string) =>
-	sectionOf(page, '<figure class="peloton', "</figure>");
 const teamChartOf = (page: string) =>
 	sectionOf(page, '<figure class="team-chart', "</figure>");
 const quoteOf = (page: string) =>
 	sectionOf(page, '<blockquote class="quote', "</blockquote>");
 const leaderboardOf = (page: string) =>
 	sectionOf(page, '<section class="leaderboard', "</section>");
-const myPlaceOf = (page: string) =>
-	sectionOf(page, '<section class="my-place', "</section>");
 
 /** The shown rows' `li` markup, in order. */
 function rowItemsOf(page: string): string[] {
@@ -137,19 +134,11 @@ beforeEach(async () => {
 });
 
 describe("GET /team, Training around the viewer", () => {
-	it("gives the viewer's place and the gap to the next (US1 #1)", async () => {
+	it("shows no place card; the viewer's row carries the place (019 FR-045)", async () => {
 		const { status, html } = await riderPage(ctx, VIEWER, "/team");
 		expect(status).toBe(200);
-		const place = myPlaceOf(html);
-		expect(place).toContain(fill(de["team.place"], { place: "6", count: 14 }));
-		expect(place).toContain(fill(de["team.place.next"], { n: 31 }));
-	});
-
-	it("words the place in English", async () => {
-		const { html } = await riderPage(ctx, VIEWER, "/team", "en");
-		const place = myPlaceOf(html);
-		expect(place).toContain(fill(en["team.place"], { place: "6", count: 14 }));
-		expect(place).toContain(fill(en["team.place.next"], { n: 31 }));
+		expect(html).not.toContain("my-place");
+		expect(rowsOf(html).find((r) => r.you)).toEqual({ you: true, place: "6" });
 	});
 
 	it("lists places 3 to 9 with the viewer's own row (US1 #2)", async () => {
@@ -216,14 +205,8 @@ describe("GET /team with a kind or Everyone", () => {
 		expect(totalOf(rows.at(-1) ?? "")).toBe("0");
 	});
 
-	it("reorders by Team and gives the leader the lead line (US1 #4)", async () => {
+	it("reorders by Team (US1 #4)", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team?kind=team");
-		const place = myPlaceOf(html);
-		expect(place).toContain(fill(de["team.place"], { place: "1", count: 14 }));
-		expect(place).toContain(escapeHtml(de["team.place.lead"]));
-		expect(place).not.toContain(
-			escapeHtml(de["team.place.next"].split("{n}")[0] ?? ""),
-		);
 		expect(rowsOf(html)[0]).toEqual({ you: true, place: "🥇" });
 	});
 
@@ -236,9 +219,7 @@ describe("GET /team with a kind or Everyone", () => {
 
 	it("counts an unknown kind as Training", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team?kind=bogus");
-		expect(myPlaceOf(html)).toContain(
-			fill(de["team.place"], { place: "6", count: 14 }),
-		);
+		expect(rowsOf(html).find((r) => r.you)).toEqual({ you: true, place: "6" });
 	});
 
 	it.each([
@@ -333,40 +314,9 @@ describe("GET /team, the team's progress (US2)", () => {
 		expect(total).toContain(fill(en["team.total.thisWeek"], { n: 199 }));
 	});
 
-	it("draws all 14 listed riders in the peloton, also around the viewer (US2 #2, #3)", async () => {
+	it("draws no peloton (019 FR-045)", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team");
-		const figure = pelotonOf(html);
-		expect(figure.match(/href="#coin-mini"/g)).toHaveLength(13);
-		expect(figure.match(/href="#coin-front"/g)).toHaveLength(1);
-		expect(figure).toContain(
-			`aria-label="${fill(de["team.peloton.label"], { count: 14, min: 0, max: 300, own: 120 })}"`,
-		);
-		expect(figure).toContain(escapeHtml(de["team.peloton.heading"]));
-		expect(figure).toContain(`>${escapeHtml(de["team.peloton.you"])}<`);
-		expect(figure).toContain(escapeHtml(de["team.peloton.hint"]));
-		expect(figure).toContain(escapeHtml(de["team.peloton.back"]));
-		expect(figure).toContain(escapeHtml(de["team.peloton.front"]));
-		expect(figure).not.toContain("road-gap");
-		expect(figure).not.toContain(escapeHtml(de["team.peloton.breakaway"]));
-	});
-
-	it("lets two riders far ahead ride in the breakaway (US2 #4, FR-018)", async () => {
-		for (const { id, name, training } of BREAKAWAY) {
-			await seedRider(ctx, { athleteId: id, firstName: name });
-			await seedBalance(id, { trainingRynke: training, teamRynke: 0 });
-		}
-		const { html } = await riderPage(ctx, VIEWER, "/team");
-		const figure = pelotonOf(html);
-		expect(figure.match(/href="#coin-mini"/g)).toHaveLength(15);
-		expect(figure).toContain('<path class="road-gap"');
-		// Q1 67.5, Q3 257.5: the fence 542.5 leaves both far ahead.
-		expect(figure).toContain(
-			`aria-label="${fill(de["team.peloton.label.breakaway"], { count: 16, min: 0, max: "1.200", away: 2, own: 120 })}"`,
-		);
-		expect(figure).toContain(escapeHtml(de["team.peloton.hint.breakaway"]));
-		expect(figure).toContain(escapeHtml(de["team.peloton.breakaway"]));
-		expect(figure).not.toContain(escapeHtml(de["team.peloton.front"]));
-		expect(figure).not.toContain(`>${escapeHtml(de["team.peloton.hint"])}<`);
+		expect(html).not.toContain("peloton");
 	});
 
 	it("draws one bar per week and names the best week", async () => {
@@ -414,17 +364,15 @@ describe("GET /team, the team's progress (US2)", () => {
 		);
 	});
 
-	it("orders the sections as the contract does", async () => {
+	it("orders the sections as 019 FR-046 does", async () => {
 		const { html } = await riderPage(ctx, ORGANISER, "/team");
 		const at = (marker: string) => html.indexOf(marker, html.indexOf("<main"));
 		const order = [
 			'<section class="team-total',
 			'<nav class="kind-switch"',
-			'<section class="my-place',
 			'<blockquote class="quote',
-			'<figure class="peloton',
-			'<figure class="team-chart',
 			'<section class="leaderboard',
+			'<figure class="team-chart',
 		].map(at);
 		expect(order.every((i) => i > 0)).toBe(true);
 		expect(order).toEqual([...order].sort((a, b) => a - b));
@@ -503,28 +451,110 @@ describe("GET /team, a quote for the viewer (US3)", () => {
 		};
 		try {
 			expect(await pick(0)).toBe(QUOTES_PUSH[0]);
-			expect(await pick(PUSH.length + 1)).toBe(QUOTES_PUSH[1]);
-			// In autumn, the autumn quotes follow the list's (FR-025).
-			expect(await pick(QUOTES_PUSH.length)).toBe(SEASON_QUOTES_PUSH.autumn[0]);
+			// The first quote is seen now, so the same value gives the next
+			// (issue #96), and a larger one wraps around the rest.
+			expect(await pick(0)).toBe(QUOTES_PUSH[1]);
+			expect(await pick(PUSH.length - 2 + 1)).toBe(QUOTES_PUSH[3]);
+			// In autumn, the autumn quotes follow the list's (FR-025); three are
+			// seen.
+			expect(await pick(QUOTES_PUSH.length - 3)).toBe(
+				SEASON_QUOTES_PUSH.autumn[0],
+			);
 		} finally {
 			random.mockRestore();
 		}
 	});
 });
 
+describe("GET /team, quotes the viewer has seen (issue #96)", () => {
+	// The viewer doesn't qualify and it's autumn: the push list and its autumn
+	// quotes.
+	const PUSH = [...QUOTES_PUSH, ...SEASON_QUOTES_PUSH.autumn];
+
+	async function shownQuote(): Promise<string | undefined> {
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const text = quoteOf(html).match(/<p>([^<]*)<\/p>/)?.[1];
+		return PUSH.find((quote) => escapeHtml(quote) === text);
+	}
+
+	async function seenIds(): Promise<string[]> {
+		const { results } = await env.DB.prepare(
+			"SELECT quote_id FROM quote_seen WHERE athlete_id = ? ORDER BY quote_id",
+		)
+			.bind(VIEWER)
+			.all<{ quote_id: string }>();
+		return results.map((row) => row.quote_id);
+	}
+
+	async function markSeen(quotes: readonly string[]): Promise<void> {
+		await env.DB.prepare(
+			`INSERT INTO quote_seen (athlete_id, quote_id)
+			SELECT ?1, value FROM json_each(?2)`,
+		)
+			.bind(VIEWER, JSON.stringify(quotes.map(quoteId)))
+			.run();
+	}
+
+	it("marks the shown quote as seen", async () => {
+		const quote = await shownQuote();
+		expect(quote).toBeDefined();
+		expect(await seenIds()).toEqual([quoteId(quote ?? "")]);
+	});
+
+	it("shows only quotes the viewer hasn't seen", async () => {
+		const unseen = [QUOTES_PUSH[3] ?? "", SEASON_QUOTES_PUSH.autumn[0] ?? ""];
+		await markSeen(PUSH.filter((quote) => !unseen.includes(quote)));
+
+		const first = await shownQuote();
+		const second = await shownQuote();
+
+		expect([first, second].sort()).toEqual([...unseen].sort());
+	});
+
+	it("starts over after the last unseen quote, without showing it again next", async () => {
+		const last = QUOTES_PUSH[10] ?? "";
+		await markSeen(PUSH.filter((quote) => quote !== last));
+
+		expect(await shownQuote()).toBe(last);
+		expect(await seenIds()).toEqual([quoteId(last)]);
+
+		const next = await shownQuote();
+		expect(next).toBeDefined();
+		expect(next).not.toBe(last);
+		expect(await seenIds()).toHaveLength(2);
+	});
+
+	it("keeps the other list's seen quotes when it starts over", async () => {
+		const last = QUOTES_PUSH[10] ?? "";
+		const onTrack = QUOTES_ON_TRACK[0] ?? "";
+		await markSeen([...PUSH.filter((quote) => quote !== last), onTrack]);
+
+		expect(await shownQuote()).toBe(last);
+
+		expect(await seenIds()).toEqual([quoteId(last), quoteId(onTrack)].sort());
+	});
+
+	it("marks nothing on a HEAD", async () => {
+		const res = await handleFetch(
+			request("/team", {
+				method: "HEAD",
+				cookies: await sessionCookie(ctx, VIEWER),
+			}),
+			ctx,
+		);
+		expect(res.status).toBe(200);
+		expect(await seenIds()).toEqual([]);
+	});
+});
+
 describe("GET /team for others", () => {
-	it("gives 1st place the lead line in Training", async () => {
+	it("puts 1st place first in Training", async () => {
 		const { html } = await riderPage(ctx, FIRST, "/team");
-		const place = myPlaceOf(html);
-		expect(place).toContain(fill(de["team.place"], { place: "1", count: 14 }));
-		expect(place).toContain(escapeHtml(de["team.place.lead"]));
+		expect(rowsOf(html)[0]).toEqual({ you: true, place: "🥇" });
 	});
 
 	it("ranks an organiser like everyone else", async () => {
 		const { html } = await riderPage(ctx, ORGANISER, "/team");
-		expect(myPlaceOf(html)).toContain(
-			fill(de["team.place"], { place: "4", count: 14 }),
-		);
 		expect(rowsOf(html).find((r) => r.you)).toEqual({ you: true, place: "4" });
 	});
 
@@ -553,14 +583,19 @@ describe("GET /team names nobody (SC-002, US1 #5, US2 #2)", () => {
 
 describe("GET /team only reads (FR-003, SC-003, research R11)", () => {
 	it.each(["/team", "/team?kind=team&all=1"])(
-		"%s writes nothing and calls out to nobody",
+		"%s writes nothing but the seen quote and calls out to nobody",
 		async (path) => {
 			const db = env.DB;
 			const readOnly = new Proxy(db, {
 				get(target, name, receiver) {
 					if (name === "prepare") {
 						return (query: string) => {
-							if (!query.trimStart().toUpperCase().startsWith("SELECT")) {
+							const statement = query.trimStart().toUpperCase();
+							// The shown quote is marked as seen (issue #96).
+							const seenQuote = /^(INSERT INTO|DELETE FROM) QUOTE_SEEN\b/.test(
+								statement,
+							);
+							if (!statement.startsWith("SELECT") && !seenQuote) {
 								throw new Error(`Not a read: ${query}`);
 							}
 							return target.prepare(query);

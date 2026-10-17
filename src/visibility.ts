@@ -13,6 +13,7 @@ export type RiderData =
 	| "breakdown"
 	| "attendance"
 	| "corrections"
+	| "participationReports"
 	| "rides"
 	| "consentRecords";
 
@@ -31,6 +32,8 @@ export const VISIBILITY: Readonly<Record<RiderData, ReadonlySet<Audience>>> = {
 	breakdown: ORGANISER_ONLY,
 	attendance: ORGANISER_ONLY,
 	corrections: ORGANISER_ONLY,
+	// Feature 019: what the rider reported at team events (research R11).
+	participationReports: ORGANISER_ONLY,
 	rides: NOBODY,
 	consentRecords: NOBODY,
 };
@@ -44,6 +47,7 @@ export const SINCE_VERSION: Readonly<Record<RiderData, number>> = {
 	breakdown: SHARING_SINCE_VERSION,
 	attendance: SHARING_SINCE_VERSION,
 	corrections: SHARING_SINCE_VERSION,
+	participationReports: SHARING_SINCE_VERSION,
 	rides: SHARING_SINCE_VERSION,
 	consentRecords: SHARING_SINCE_VERSION,
 };

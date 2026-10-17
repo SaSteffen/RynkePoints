@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { pickQuote, seasonOf } from "../../src/http/sections/team";
+import { pickQuote, quoteId, seasonOf } from "../../src/http/sections/team";
 import {
 	QUOTES_ON_TRACK,
 	QUOTES_PUSH,
@@ -119,4 +119,64 @@ describe("pickQuote", () => {
 			);
 		},
 	);
+});
+
+describe("quoteId", () => {
+	it("is the 32-bit FNV-1a hash of the UTF-8 text, as 8 hex digits", () => {
+		expect(quoteId("")).toBe("811c9dc5");
+		expect(quoteId("a")).toBe("e40c292c");
+		expect(quoteId("ü")).toMatch(/^[0-9a-f]{8}$/);
+	});
+
+	it("gives every quote of both lists its own id (issue #96)", () => {
+		const all = [
+			...everyQuote(QUOTES_PUSH, SEASON_QUOTES_PUSH),
+			...everyQuote(QUOTES_ON_TRACK, SEASON_QUOTES_ON_TRACK),
+		];
+		expect(new Set(all.map(quoteId)).size).toBe(all.length);
+	});
+});
+
+describe("pickQuote with seen quotes (issue #96)", () => {
+	// 15 July: the push list and its summer quotes.
+	const POOL = [...QUOTES_PUSH, ...SEASON_QUOTES_PUSH.summer];
+	const ids = (quotes: readonly string[]) => new Set(quotes.map(quoteId));
+
+	it("picks only among the quotes not seen yet", () => {
+		const unseen = [QUOTES_PUSH[4] ?? "", SEASON_QUOTES_PUSH.summer[0] ?? ""];
+		const seen = ids(POOL.filter((quote) => !unseen.includes(quote)));
+		for (let i = 0; i < 20; i++) {
+			const pick = pickQuote("push", "2026-07-15", seen);
+			expect(unseen).toContain(pick.text);
+			expect(pick.id).toBe(quoteId(pick.text));
+			expect(pick.restart).toBeNull();
+		}
+	});
+
+	it("asks to start over with the last unseen quote", () => {
+		const last = QUOTES_PUSH[7] ?? "";
+		const pick = pickQuote(
+			"push",
+			"2026-07-15",
+			ids(POOL.filter((quote) => quote !== last)),
+		);
+		expect(pick.text).toBe(last);
+		expect(new Set(pick.restart)).toEqual(ids(POOL));
+	});
+
+	it("picks from the whole list when every quote is seen", () => {
+		const pick = pickQuote("push", "2026-07-15", ids(POOL));
+		expect(POOL).toContain(pick.text);
+		expect(new Set(pick.restart)).toEqual(ids(POOL));
+	});
+
+	it("ignores seen quotes of the other list and other seasons", () => {
+		const seen = ids([
+			...QUOTES_ON_TRACK,
+			...SEASON_QUOTES_PUSH.winter,
+			...QUOTES_PUSH.slice(1),
+		]);
+		const pick = pickQuote("push", "2026-07-15", seen);
+		expect([QUOTES_PUSH[0], ...SEASON_QUOTES_PUSH.summer]).toContain(pick.text);
+	});
 });

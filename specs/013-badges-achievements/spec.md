@@ -208,6 +208,23 @@ next one."
   scene, parts D to F, since a generic fun sentence made the pictures less
   fun (FR-015c).
 
+### Session 2026-10-17 (part I: page width and switch)
+
+- Q (raised by the project owner): Why only two cards per row on a wide
+  screen or a phone held sideways? → A: The page fills the screen's width on
+  every device; the cards fill it, at least two per row (Claude Design draft
+  "RynkePoints Badges Switch",
+  https://claude.ai/artifact/KmHELuT8yfg1X6K887Dj28).
+- Q (raised by the project owner): How does a rider get to the team's badges
+  and to all badges quickly? → A: A switch that stays at the top: "Deine" and
+  "Team" lead to their group and show which group is on the screen while
+  scrolling either way; "Neueste" and "Alle" filter both groups between the
+  cards and the gallery. Categories without a badge stay in "Neueste" as
+  outlines, so riders see they exist.
+- Q (raised by the project owner): Where does the page open when a badge is
+  new? → A: On the card of the new badge (the case where the app opens on the
+  badges page, issue #150); the rider's own before the team's.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - See my badges on my page (Priority: P1)
@@ -601,19 +618,27 @@ their badge names examples.
     was earned, newest first. After them, a card for each category without a
     badge yet, in catalog order: name, sentence, an empty dotted outline in the
     badge's place and the progress bar.
-  - **all**: a collapsible gallery of every earned badge of the group ("Alle
-    meine Abzeichen (14)", "Alle Team-Abzeichen (5)", with the count), closed by
-    default, grouped by category, newest first within a category, with the
+  - **all**: a gallery of every earned badge of the group ("Alle
+    meine Abzeichen (14)", "Alle Team-Abzeichen (5)", with the count), shown
+    instead of the cards by the filter (FR-002c),
+    grouped by category, newest first within a category, with the
     milestone written below each badge. Three per row on a phone. Every
     category of the group is in it, also one without a badge yet: after a
     category's earned badges, each badge of that category still to earn is an
     empty dotted outline of the same size, without name, picture or text
-    (issue #109). Absent while the group has no badge.
+    (issue #109); a group without a badge shows outlines only.
 - **FR-002a**: Badge sizes: on a card as wide as the card allows, up to
   200 px, with its ribbon; 96 px in the
-  gallery, without a ribbon. The cards stand two per row at every width;
+  gallery, without a ribbon. The page fills the screen's width on every
+  device; the cards fill it, at least two per row (part I);
   below 600 px a card with a badge leaves out the sentence on how its category
   counts; a card without one keeps it.
+- **FR-002c** (part I): A switch MUST stay at the top of the page, under the
+  top bar: "Deine" and "Team" lead to their group and mark the group on the
+  screen while the rider scrolls either way; "Neueste" (the cards, the
+  default) and "Alle" (the galleries) filter both groups at once. A page with
+  a new badge MUST open scrolled to that badge's card, the rider's own before
+  the team's.
 - **FR-002b**: Pointing at an earned badge, on a card or in the gallery, MUST
   show it at 280 px with its ribbon, name, what it was for and the date earned:
   on hover with a mouse, on keyboard focus, and on tap on a touch screen

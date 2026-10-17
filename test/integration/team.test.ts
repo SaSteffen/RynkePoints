@@ -60,9 +60,8 @@ describe.each([
 describe("the Orga tab", () => {
 	it("sits before Settings for a rider with the organiser flag", async () => {
 		const { html } = await riderPage(ctx, ATHLETE_C, "/team");
-		const orga = html.indexOf(
-			`<a href="/organiser/riders"><span class="nav-icon">`,
-		);
+		// Its count of open reports adds a name (feature 019 FR-030).
+		const orga = html.indexOf('<a href="/organiser/riders"');
 		expect(orga).toBeGreaterThan(html.indexOf('<nav class="app-nav"'));
 		expect(orga).toBeLessThan(html.indexOf('<a href="/me/settings"'));
 		expect(html).toContain(

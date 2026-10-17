@@ -7,9 +7,12 @@ import type {
 import type { StoredBalance, StoredRideResult } from "../../src/db/rynke";
 import {
 	buildRiderView,
+	formatRideKey,
 	type GaugePart,
 	gaugeParts,
+	parseBatchLimit,
 	parsePage,
+	parseRideKey,
 	type RiderView,
 	type ViewContext,
 } from "../../src/http/rider-view";
@@ -83,6 +86,7 @@ function ride(
 	return {
 		activityId,
 		sportType: "Ride",
+		startDate: "2026-10-06T06:00:00Z",
 		startDateLocal: "2026-10-06T08:00:00Z",
 		distanceM: 79000,
 		movingS: 10800,
@@ -1219,5 +1223,109 @@ describe("gauge invariants (SC-009)", () => {
 							shown.every((gauge) => gauge === null || gauge.reached),
 						);
 					}
+	});
+});
+
+describe("ride key (018 data-model.md)", () => {
+	const key = { startDate: "2026-09-16T08:00:00Z", activityId: 8_000_021 };
+
+	it("writes the start and the id with a tilde", () => {
+		expect(formatRideKey(key)).toBe("2026-09-16T08:00:00Z~8000021");
+	});
+
+	it("reads back what it wrote", () => {
+		expect(parseRideKey(formatRideKey(key))).toEqual(key);
+		const ms = { startDate: "2026-09-16T08:00:00.123Z", activityId: 1 };
+		expect(parseRideKey(formatRideKey(ms))).toEqual(ms);
+	});
+
+	it.each([
+		null,
+		"",
+		"2026-09-16T08:00:00Z",
+		"2026-09-16T08:00:00Z~",
+		"~8000021",
+		"2026-09-16~8000021",
+		"2026-09-16T08:00:00Z~0",
+		"2026-09-16T08:00:00Z~08000021",
+		"2026-09-16T08:00:00Z~80000x1",
+		"2026-09-16T08:00:00Z~8000021~1",
+		"2026-09-16T08:00:00+02:00~8000021",
+		" 2026-09-16T08:00:00Z~8000021",
+		"2026-09-16T08:00:00Z~12345678901234567",
+	])("rejects %j", (value) => {
+		expect(parseRideKey(value)).toBeNull();
+	});
+});
+
+describe("parseBatchLimit (018 contracts/http-routes.md)", () => {
+	const limit = (search: string) =>
+		parseBatchLimit(new URL(`https://example.test/me/rides/more${search}`));
+
+	it("defaults to one batch of 20", () => {
+		expect(limit("?after=x")).toBe(20);
+	});
+
+	it("takes 1 to 1000", () => {
+		expect(limit("?limit=1")).toBe(1);
+		expect(limit("?limit=25")).toBe(25);
+		expect(limit("?limit=1000")).toBe(1000);
+	});
+
+	it.each(["0", "1001", "9999", "01", "-5", "abc", "2.5", ""])(
+		"rejects %j",
+		(value) => {
+			expect(limit(`?limit=${value}`)).toBeNull();
+		},
+	);
+
+	it("rejects several limits", () => {
+		expect(limit("?limit=20&limit=20")).toBeNull();
+	});
+});
+
+describe("buildRiderView more (018 US1)", () => {
+	function table(rideCount: number, page: number) {
+		const shown = Math.max(0, Math.min(20, rideCount - (page - 1) * 20));
+		return ready(
+			buildRiderView(
+				read({
+					rideCount,
+					page,
+					rides: Array.from({ length: shown }, (_, i) =>
+						ride((page - 1) * 20 + i + 1, null, {
+							startDate: `2026-09-${String(30 - i).padStart(2, "0")}T06:00:00Z`,
+						}),
+					),
+				}),
+				CURRENT_RULES,
+				CURRENT_RULES,
+				CONTEXT,
+			),
+		).rides;
+	}
+
+	it("continues after the last ride of page 1 of 45", () => {
+		expect(table(45, 1).more).toEqual({
+			startDate: "2026-09-11T06:00:00Z",
+			activityId: 20,
+		});
+	});
+
+	it("continues after the last ride of page 2 of 45", () => {
+		expect(table(45, 2).more).toEqual({
+			startDate: "2026-09-11T06:00:00Z",
+			activityId: 40,
+		});
+	});
+
+	it("ends on the last page", () => {
+		expect(table(45, 3).more).toBeNull();
+	});
+
+	it("has nothing more with 20 rides or fewer", () => {
+		expect(table(20, 1).more).toBeNull();
+		expect(table(3, 1).more).toBeNull();
+		expect(table(0, 1).more).toBeNull();
 	});
 });

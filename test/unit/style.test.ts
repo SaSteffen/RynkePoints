@@ -104,11 +104,7 @@ describe("STYLE", () => {
 		});
 	});
 
-	it("fits the peloton and the team chart to the page's width (016 FR-040)", () => {
-		expect(declsOf(".peloton-road")).toMatchObject({
-			width: "100%",
-			height: "auto",
-		});
+	it("fits the team chart to the page's width (016 FR-040)", () => {
 		expect(declsOf(".week-bars").width).toBe("100%");
 	});
 
@@ -242,9 +238,27 @@ describe("STYLE", () => {
 		);
 	});
 
-	it("lays the badge cards out two per row at every width (013 FR-002a)", () => {
+	it("keeps the badges switch under the top bar and filters with it (013 Part I)", () => {
+		expect(declsOf(".badges-switch")).toMatchObject({
+			position: "sticky",
+			top: "calc(var(--rp-topbar-height) + env(safe-area-inset-top))",
+		});
+		const all = ".badges:has(.badges-filter [value=all]:checked)";
+		const newest = ".badges:not(:has(.badges-filter [value=all]:checked))";
+		for (const selector of [
+			`${all} .badge-cards`,
+			`${all} .badges-title-newest`,
+			`${newest} .badge-gallery`,
+			`${newest} .badges-title-all`,
+		]) {
+			expect(declsOf(selector).display, selector).toBe("none");
+		}
+	});
+
+	it("fills the page's width with badge cards, at least two per row (013 FR-002a)", () => {
+		expect(declsOf("main:has(>.badges)")["max-width"]).toBe("none");
 		expect(declsOf(".badge-cards")["grid-template-columns"]).toBe(
-			"repeat(2,minmax(0,1fr))",
+			"repeat(auto-fill,minmax(min(176px,calc(50% - var(--rp-space-3) / 2)),1fr))",
 		);
 		expect(
 			RULES.filter(
@@ -269,6 +283,9 @@ describe("STYLE", () => {
 			"max-width": "200px",
 		});
 		expect(declsOf(".badge-gallery .badge").width).toBe("96px");
+		expect(declsOf(".badge-gallery")["grid-template-columns"]).toBe(
+			"repeat(auto-fill,minmax(min(360px,100%),1fr))",
+		);
 		// Stickers: a cut-out edge with a shadow in both schemes, a small tilt
 		// that straightens on hover and focus, a lift while pressed.
 		expect(declsOf(".badge img").filter).toBe("var(--rp-badge-edge)");
@@ -293,7 +310,21 @@ describe("STYLE", () => {
 		});
 		expect(declsOf(".badge-large-hover .badge-large-close").display).toBe(
 			"none",
-		);
+		); // Opening the large view shines its badge once; the shine is the
+		// cards' own band, masked to the picture.
+		expect(
+			declsOf(
+				".badge-large:popover-open .badge::after",
+				"(prefers-reduced-motion:no-preference)",
+			).animation,
+		).toContain("badge-shine-new");
+		expect(
+			RULES.some(
+				(rule) =>
+					rule.selectors.includes(".badge-large .badge::after") &&
+					rule.decls.mask?.includes("var(--badge-src)"),
+			),
+		).toBe(true);
 	});
 
 	it("puts the milestone on the ribbon's box, yellow on personal and ink on team (013 FR-040b)", () => {
@@ -444,6 +475,20 @@ describe("STYLE", () => {
 				"(prefers-reduced-motion:reduce)",
 			).animation,
 		).toBe("none");
+	});
+
+	it("spins while older rides load, only without reduced motion (018 R6)", () => {
+		const spinner = ".rides-more[data-state=loading] .rides-status::before";
+		expect(declsOf(spinner).animation).toContain("busy-spin");
+		const reduced = declsOf(spinner, "(prefers-reduced-motion:reduce)");
+		expect(reduced.animation).toBe("none");
+	});
+
+	it("keeps the 'more rides loaded' note for screen readers only (018 R6)", () => {
+		const added = declsOf(".rides-more[data-state=added] .rides-status");
+		expect(added.position).toBe("absolute");
+		expect(added.width).toBe("1px");
+		expect(added.overflow).toBe("hidden");
 	});
 
 	it("loads nothing from another origin (FR-037)", () => {

@@ -1,5 +1,6 @@
 import { CONSENT_VERSION } from "../../src/consent";
 import type { Ctx } from "../../src/ctx";
+import { insertReportStatement } from "../../src/db/participation";
 import { handleFetch } from "../../src/index";
 import { teamEventChange } from "../../src/rynke/apply";
 import {
@@ -175,12 +176,23 @@ export async function seed(
 			by: EVENT_ORGANISER,
 		});
 		if (eventId === null) throw new Error("No event ID");
-		await teamEventChange(ctx, {
-			kind: "add-attendance",
-			eventId,
-			athleteIds: [...recipe.attendees],
-			by: EVENT_ORGANISER,
-		});
+		if (recipe.attendees.length > 0) {
+			await teamEventChange(ctx, {
+				kind: "add-attendance",
+				eventId,
+				athleteIds: [...recipe.attendees],
+				by: EVENT_ORGANISER,
+			});
+		}
+		// Reported by the riders themselves (feature 019), an hour apart.
+		const reports = recipe.reports ?? [];
+		if (reports.length > 0) {
+			await db.batch(
+				reports.map((athleteId, i) =>
+					insertReportStatement(db, eventId, athleteId, ctx.now() - 3600 * i),
+				),
+			);
+		}
 	}
 	// The app never sets the flag; the maintainer does it in D1 (004 FR-004).
 	for (const rider of SAMPLE_RIDERS.filter((r) => r.organiser)) {

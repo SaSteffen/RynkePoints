@@ -6,6 +6,10 @@
 
 **Status**: Draft
 
+**Amended by**: [019-event-participation-requests](../019-event-participation-requests/spec.md)
+(FR-045, FR-046): the Team page no longer shows the place card (FR-016) or the
+peloton (FR-017, FR-018); the Rangliste moves above the team chart.
+
 **Input**: Backlog prompt `specs/backlog/team-leaderboard.md` (removed with this
 spec): "Specify the team leaderboard and the organiser overview of RynkePoints.
 Seeing each other's progress is the purpose of the app: it should motivate riders to
@@ -262,7 +266,9 @@ the overview is refused.
 
 - **FR-020**: The Team page MUST show the viewer one quote picked at random from one
   of two lists, picked anew each time the page loads and never in between; there is
-  no control for the next quote.
+  no control for the next quote. The pick MUST skip the quotes the viewer has
+  already seen until they have seen every quote of the list for today, then start
+  over without repeating the last one right away (issue #96).
 - **FR-021**: The "needs a push" list MUST be used for a rider who does not qualify
   and is behind the even pace (FR-030) on Training, Team or outdoor Training Rynke;
   the "on track" list for every other rider.

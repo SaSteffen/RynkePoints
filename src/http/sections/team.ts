@@ -1,5 +1,6 @@
 import { berlinDate } from "../../config";
 import type { Ctx } from "../../ctx";
+import { readSeenQuotes, writeSeenQuote } from "../../db/quote-seen";
 import { readTeam } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
 import {
@@ -9,7 +10,6 @@ import {
 	SEASON_QUOTES_PUSH,
 	type Season,
 } from "../../i18n/messages/quotes.de";
-import { breakawayFence } from "../../rynke/breakaway";
 import {
 	type LeaderboardRow,
 	leaderboardRows,
@@ -18,12 +18,11 @@ import {
 	type RynkeKind,
 	type TeamTotals,
 	teamTotals,
-	type Viewer,
 } from "../../rynke/leaderboard";
 import { type RiderStatus, riderStatus } from "../../rynke/pace";
 import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
 import { lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
-import { peloton, sparkline, weekBars } from "../charts";
+import { sparkline, weekBars } from "../charts";
 import { amount, coinArt, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import { renderReconnect } from "../rider-sections";
@@ -32,8 +31,10 @@ import { shellPage } from "../shell";
 // Team at `/team` (feature 011 FR-013, feature 016 US1–US3): how the team is
 // doing and where the viewer stands among 014's listed riders, in Training or
 // Team Rynke, around their own row or for everyone, with a German quote that
-// fits the viewer (contracts/pages.md, contracts/http-routes.md). The page only reads (FR-003); nothing on it
-// carries a name or an athlete ID (FR-010).
+// fits the viewer (contracts/pages.md, contracts/http-routes.md). The page only
+// reads (FR-003), except that it marks the shown quote as seen, so the next
+// ones are new to the viewer (issue #96); nothing on it carries a name or an
+// athlete ID (FR-010).
 // Organisers also get the way to the team overview and their pages (FR-002).
 // It's where the app opens, so a rider who must reconnect learns it here too
 // (issue #73).
@@ -77,38 +78,6 @@ ${
 		: null
 }</div>
 </section>
-`;
-}
-
-/** Every listed rider on the road; only with the viewer among them. */
-function renderPeloton(
-	i18n: I18n,
-	kind: RynkeKind,
-	rows: readonly LeaderboardRow[],
-): SafeHtml {
-	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
-	const totals = rows.map((row) => row.total);
-	const own = rows.findIndex((row) => row.you);
-	const fence = breakawayFence(totals);
-	const figures = {
-		count: whole(rows.length),
-		min: whole(Math.min(...totals)),
-		max: whole(Math.max(...totals)),
-		own: whole(rows[own]?.total ?? 0),
-	};
-	const label =
-		fence === null
-			? i18n.t("team.peloton.label", figures)
-			: i18n.t("team.peloton.label.breakaway", {
-					...figures,
-					away: whole(totals.filter((total) => total > fence).length),
-				});
-	return html`<figure class="peloton card">
-<figcaption>${i18n.t("team.peloton.heading")}</figcaption>
-<p class="team-hint">${i18n.t(fence === null ? "team.peloton.hint" : "team.peloton.hint.breakaway")}</p>
-${peloton(totals, own, fence, { label, you: i18n.t("team.peloton.you") }, kind)}
-<p class="chart-axis"><span>${i18n.t("team.peloton.back")}</span><span>${i18n.t(fence === null ? "team.peloton.front" : "team.peloton.breakaway")}</span></p>
-</figure>
 `;
 }
 
@@ -168,29 +137,60 @@ export function seasonOf(date: string): Season {
 }
 
 /**
+ * A quote's id for `quote_seen` (issue #96): the 32-bit FNV-1a hash of its
+ * UTF-8 text, as 8 hex digits. A quote whose text changes counts as unseen.
+ */
+export function quoteId(text: string): string {
+	let hash = 0x811c9dc5;
+	for (const byte of new TextEncoder().encode(text)) {
+		hash = Math.imul(hash ^ byte, 0x01000193);
+	}
+	return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+export interface QuotePick {
+	list: "push" | "onTrack";
+	text: string;
+	/** The quote's `quoteId`, to mark it as seen. */
+	id: string;
+	/**
+	 * With the last quote of the list the rider hadn't seen: the ids of all the
+	 * list's quotes, to mark them unseen again for a new round; otherwise null.
+	 */
+	restart: string[] | null;
+}
+
+/**
  * A random quote from the list for `status`, together with that list's quotes
- * for the season of `date` (FR-021, FR-022, FR-025).
+ * for the season of `date` (FR-021, FR-022, FR-025), among those not in `seen`
+ * while there are any (issue #96).
  */
 export function pickQuote(
 	status: RiderStatus,
 	date: string,
-): {
-	list: "push" | "onTrack";
-	text: string;
-} {
+	seen: ReadonlySet<string> = new Set(),
+): QuotePick {
 	const list = status === "push" ? "push" : "onTrack";
 	const season = seasonOf(date);
 	const quotes =
 		list === "push"
 			? [...QUOTES_PUSH, ...SEASON_QUOTES_PUSH[season]]
 			: [...QUOTES_ON_TRACK, ...SEASON_QUOTES_ON_TRACK[season]];
+	const ids = quotes.map(quoteId);
+	const unseen = quotes.filter((_, i) => !seen.has(ids[i] ?? ""));
+	const from = unseen.length > 0 ? unseen : quotes;
 	const [random = 0] = crypto.getRandomValues(new Uint32Array(1));
-	return { list, text: quotes[random % quotes.length] ?? "" };
+	const text = from[random % from.length] ?? "";
+	return {
+		list,
+		text,
+		id: quoteId(text),
+		restart: unseen.length <= 1 ? ids : null,
+	};
 }
 
 /** German in every language (FR-023); the heading follows the page's. */
-function renderQuote(i18n: I18n, status: RiderStatus, today: string): SafeHtml {
-	const { list, text } = pickQuote(status, today);
+function renderQuote(i18n: I18n, { list, text }: QuotePick): SafeHtml {
 	return html`<blockquote class="quote ${list === "push" ? "quote-push" : "quote-on-track"}" lang="de">
 <p class="quote-heading" lang="${i18n.locale}">${i18n.t(`team.quote.${list}`)}</p>
 <p>${text}</p>
@@ -214,25 +214,6 @@ function renderKindSwitch(i18n: I18n, kind: RynkeKind, all: boolean): SafeHtml {
 ${segment(teamHref("training", all), kind === "training", i18n.t("team.kind.training"), miniCoin("training"))}
 ${segment(teamHref("team", all), kind === "team", i18n.t("team.kind.team"), miniCoin("team"))}
 </nav>
-`;
-}
-
-function renderPlace(i18n: I18n, viewer: Viewer): SafeHtml {
-	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
-	const place = {
-		place: whole(viewer.place),
-		count: whole(viewer.count),
-	};
-	return html`<section class="my-place card">
-<span class="place-badge" aria-hidden="true">${whole(viewer.place)}</span><div>
-<p class="place">${i18n.t("team.place", place)}</p>
-<p class="place-next">${
-		viewer.toNext === null
-			? i18n.t("team.place.lead")
-			: i18n.t("team.place.next", { n: whole(viewer.toNext) })
-	}</p>
-</div>
-</section>
 `;
 }
 
@@ -319,15 +300,32 @@ export function handleTeam(
 				riders.map((listed) => listed.weeks),
 				kind,
 			);
-			return html`${renderReconnect(i18n, rider)}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${
-				viewer ? renderPlace(i18n, viewer) : null
-			}${viewer ? renderQuote(i18n, status, today) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${renderLeaderboard(
+			const quote = viewer
+				? pickQuote(
+						status,
+						today,
+						await readSeenQuotes(ctx.env.DB, rider.athleteId),
+					)
+				: null;
+			// Only a GET marks the quote as seen, as with `rynke_seen`.
+			if (quote && request.method === "GET") {
+				await writeSeenQuote(
+					ctx.env.DB,
+					rider.athleteId,
+					quote.id,
+					quote.restart,
+				);
+			}
+			// No place card and no peloton since feature 019 (research R12): the
+			// leaderboard comes first, then the team chart.
+			const leaderboard = renderLeaderboard(
 				i18n,
 				kind,
 				all,
 				neighbourhood(rows, all),
 				rows.length,
-			)}`;
+			);
+			return html`${renderReconnect(i18n, rider)}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}${quote ? renderQuote(i18n, quote) : null}${leaderboard}${renderTeamChart(i18n, kind, totals)}`;
 		},
 	);
 }

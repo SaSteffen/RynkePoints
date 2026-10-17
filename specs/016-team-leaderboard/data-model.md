@@ -1,7 +1,8 @@
 # Data Model: Team Leaderboard and Organiser Overview
 
-No migration. Everything is read from tables features 001, 003, 004 and 014 already
-have; nothing is written.
+Everything is read from tables features 001, 003, 004 and 014 already have. The
+one write is the shown quote, marked as seen for the viewer (issue #96, see
+"Seen quotes" below).
 
 ## Read per request
 
@@ -114,6 +115,22 @@ set. Once it has passed, the overview labels `push` as "Training goal not reache
 | `pace` | even pace per amount today, or none |
 | `missing` | `trainingMissing`, `teamMissing`, `virtualShareMissing`, each flagged when behind its pace |
 | `breakdown` | `distanceRynke`, `elevationRynke`, `teamEvents` (per kind: attended, Training, Team), corrections summed from the read, virtual share (003 FR-014a) |
+
+## Seen quotes (issue #96, migration 0016)
+
+### `quote_seen`
+
+| Column | Type | Rules |
+|--------|------|-------|
+| `athlete_id` | INTEGER NOT NULL | → `riders`, ON DELETE CASCADE |
+| `quote_id` | TEXT NOT NULL | `quoteId(text)`: the 32-bit FNV-1a hash of the quote's UTF-8 text, 8 hex digits |
+
+PK `(athlete_id, quote_id)`. The quotes of the current round the rider has seen on
+the Team page. `pickQuote` picks among the quotes of the list (with today's season
+quotes) that have no row; the pick of the last unseen one deletes the rows of the
+whole list and keeps only that quote, so a new round starts without repeating it
+right away. Rows of the other list and of other seasons stay. Only a GET writes,
+as with `rynke_seen`; a quote whose text changes counts as unseen.
 
 ## Visibility (004)
 

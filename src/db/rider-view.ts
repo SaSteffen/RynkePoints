@@ -21,9 +21,24 @@ import {
 
 export const RIDES_PER_PAGE = 20;
 
+/** The most rides one batch may hold: restoring a place (018 research R5). */
+export const MAX_RIDE_BATCH = 1000;
+
+/**
+ * A ride's place in the list's order, `start_date DESC, strava_activity_id
+ * DESC` (feature 018 data-model.md "Ride key").
+ */
+export interface RideKey {
+	/** `activities.start_date`, ISO UTC. */
+	startDate: string;
+	activityId: number;
+}
+
 export interface RideRow {
 	activityId: number;
 	sportType: CyclingSportType;
+	/** ISO UTC, the list's order (feature 018 R1). */
+	startDate: string;
 	/** ISO, local wall clock with a `Z`. */
 	startDateLocal: string;
 	distanceM: number;
@@ -59,11 +74,8 @@ export interface AttendedEvent {
 	name: string | null;
 }
 
-/**
- * One table page, newest first. The OFFSET clamps a page past the end to the
- * last page, the same way `readRiderView` reports it.
- */
-export const RIDE_PAGE_SQL = `SELECT a.strava_activity_id, a.sport_type, a.start_date_local, a.distance_m,
+/** A ride with its result and the ride an overlap counted instead. */
+const RIDE_COLUMNS = `SELECT a.strava_activity_id, a.sport_type, a.start_date, a.start_date_local, a.distance_m,
 	a.moving_time_s, a.elapsed_time_s, a.elevation_gain_m, a.name,
 	r.strava_activity_id AS result_id, r.athlete_id, r.counts, r.reasons,
 	r.overlaps_activity_id, r.distance_rynke, r.elevation_dm, r.is_virtual,
@@ -74,7 +86,13 @@ FROM activities a
 LEFT JOIN ride_results r
 	ON r.athlete_id = a.athlete_id AND r.strava_activity_id = a.strava_activity_id
 LEFT JOIN activities c
-	ON c.athlete_id = a.athlete_id AND c.strava_activity_id = r.overlaps_activity_id
+	ON c.athlete_id = a.athlete_id AND c.strava_activity_id = r.overlaps_activity_id`;
+
+/**
+ * One table page, newest first. The OFFSET clamps a page past the end to the
+ * last page, the same way `readRiderView` reports it.
+ */
+export const RIDE_PAGE_SQL = `${RIDE_COLUMNS}
 WHERE a.athlete_id = ?1
 ORDER BY a.start_date DESC, a.strava_activity_id DESC
 LIMIT ${RIDES_PER_PAGE} OFFSET min((?2 - 1) * ${RIDES_PER_PAGE}, max(0,
@@ -84,6 +102,7 @@ LIMIT ${RIDES_PER_PAGE} OFFSET min((?2 - 1) * ${RIDES_PER_PAGE}, max(0,
 type RidePageRow = Omit<RideResultRow, "strava_activity_id"> & {
 	strava_activity_id: number;
 	sport_type: CyclingSportType;
+	start_date: string;
 	start_date_local: string;
 	distance_m: number;
 	moving_time_s: number;
@@ -139,6 +158,7 @@ function toRideRow(row: RidePageRow): RideRow {
 	return {
 		activityId: row.strava_activity_id,
 		sportType: row.sport_type,
+		startDate: row.start_date,
 		startDateLocal: row.start_date_local,
 		distanceM: row.distance_m,
 		movingS: row.moving_time_s,
@@ -156,6 +176,46 @@ function toRideRow(row: RidePageRow): RideRow {
 						startDateLocal: row.counted_start_date_local,
 						distanceM: row.counted_distance_m,
 					},
+	};
+}
+
+/**
+ * The rides after `after` in the list's order (feature 018 research R1): the
+ * rows that sort after the key, whether or not the key's own ride still
+ * exists. `?4` is one more than asked for, to know whether more follow.
+ */
+export const RIDE_BATCH_SQL = `${RIDE_COLUMNS}
+WHERE a.athlete_id = ?1
+	AND (a.start_date < ?2 OR (a.start_date = ?2 AND a.strava_activity_id < ?3))
+ORDER BY a.start_date DESC, a.strava_activity_id DESC
+LIMIT ?4`;
+
+export interface RideBatch {
+	/** At most the limit asked for, newest first. */
+	rides: RideRow[];
+	/** The last ride's key when older rides follow it, else `null`. */
+	more: RideKey | null;
+}
+
+/** Up to `limit` (1 … `MAX_RIDE_BATCH`) of the rider's rides after `after`. */
+export async function readRideBatch(
+	db: D1Database,
+	athleteId: number,
+	after: RideKey,
+	limit: number,
+): Promise<RideBatch> {
+	const { results } = await db
+		.prepare(RIDE_BATCH_SQL)
+		.bind(athleteId, after.startDate, after.activityId, limit + 1)
+		.all<RidePageRow>();
+	const rides = results.slice(0, limit).map(toRideRow);
+	const last = rides.at(-1);
+	return {
+		rides,
+		more:
+			results.length > limit && last
+				? { startDate: last.startDate, activityId: last.activityId }
+				: null,
 	};
 }
 

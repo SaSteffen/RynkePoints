@@ -146,6 +146,9 @@ or logout form.
 - `details` is left out when the ride has nothing to explain, as today.
 - `nav.pager` links point at `/me/rides?page=N`.
 - Each pager link and `summary` has the class `tap` (44 px).
+- Feature 018 adds the continuous list on top of this markup: with more than 20
+  rides the page script hides the pager and loads older rides as the rider
+  scrolls ([018 contracts/pages.md](../../018-lazy-rides-list/contracts/pages.md)).
 - `ol.ride-list` replaces `table.rides`.
 
 ## Team (`/team`)

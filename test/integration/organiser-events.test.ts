@@ -93,7 +93,9 @@ async function teamRynke(athleteId: number): Promise<number | null> {
 /** The event list items of `/organiser`, in order. */
 function listItems(html: string): string[] {
 	return [
-		...html.matchAll(/<li class="organiser-event">([\s\S]*?)<\/li>/g),
+		...html.matchAll(
+			/<li class="organiser-event" id="event-\d+">([\s\S]*?)<\/li>/g,
+		),
 	].map((m) => m[1] ?? "");
 }
 
@@ -340,5 +342,59 @@ describe("the change record (FR-040, R9)", () => {
 		const id = await insertEvent("team_training", "2026-09-01");
 		const { html } = await page(`/organiser/events/${id}`);
 		expect(html).not.toContain('class="change-record"');
+	});
+});
+
+// Feature 019 US6 (FR-036): "Ich war auch dabei" for past events.
+describe("Ich war auch dabei", () => {
+	const self = (id: number) => `action="/organiser/events/${id}/self"`;
+	const people = (
+		key: "organiser.events.attendees" | "organiser.events.attendees.you",
+		count: number,
+	) => escapeHtml(de[key].replace("{count}", String(count)));
+
+	it("offers it on past events without the organiser, not on upcoming ones", async () => {
+		const past = await insertEvent("team_training", "2026-09-20");
+		const today = await insertEvent("team_training", TODAY);
+		const upcoming = await insertEvent("team_training", "2026-10-10");
+		await attend(past, [RIDER]);
+		const { html } = await page("/organiser");
+		expect(html).toContain(self(past));
+		expect(html).toContain(self(today));
+		expect(html).not.toContain(self(upcoming));
+		expect(html).toContain(escapeHtml(de["organiser.events.self"]));
+		expect(html).toContain(people("organiser.events.attendees", 1));
+	});
+
+	it("records the organiser, drops the button and says 'inklusive dir'", async () => {
+		const past = await insertEvent("team_training", "2026-09-20");
+		await attend(past, [RIDER]);
+		const res = await post(`/organiser/events/${past}/self`, {});
+		expectRedirect(res, `/organiser?done=attendance#event-${past}`);
+		const { results } = await env.DB.prepare(
+			"SELECT athlete_id, changed_by FROM attendances WHERE event_id = ? ORDER BY athlete_id",
+		)
+			.bind(past)
+			.all<{ athlete_id: number; changed_by: number | null }>();
+		expect(results).toContainEqual({
+			athlete_id: ORGANISER,
+			changed_by: ORGANISER,
+		});
+		expect(await teamRynke(ORGANISER)).toBe(1);
+		const { html } = await page("/organiser");
+		expect(html).not.toContain(self(past));
+		expect(html).toContain(people("organiser.events.attendees.you", 2));
+	});
+
+	it("refuses an upcoming event and a rider who isn't an organiser", async () => {
+		const upcoming = await insertEvent("team_training", "2026-10-10");
+		expectRedirect(
+			await post(`/organiser/events/${upcoming}/self`, {}),
+			"/organiser?error=future_event",
+		);
+		const past = await insertEvent("team_training", "2026-09-20");
+		const res = await post(`/organiser/events/${past}/self`, {}, RIDER);
+		expect(res.status).toBe(403);
+		expect(await teamRynke(ORGANISER)).toBeNull();
 	});
 });

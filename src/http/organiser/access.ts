@@ -8,7 +8,7 @@ import { html, type SafeHtml } from "../html";
 import { CALENDAR, PEOPLE } from "../icons";
 import { redirect } from "../redirect";
 import { isSameOrigin } from "../session";
-import { type ShellViewer, shellPage } from "../shell";
+import { countBadge, type ShellViewer, shellPage } from "../shell";
 import { readViewer, riderConsentState } from "../viewer";
 
 // Who may use the organiser pages, and what they share (feature 014 research
@@ -24,6 +24,7 @@ const DONE_CODES = [
 	"attendance",
 	"added",
 	"removed",
+	"undone",
 ] as const;
 
 /** The `?error=` codes of contracts/http-routes.md. */
@@ -39,6 +40,8 @@ const ERROR_CODES = [
 	"invalid_amount",
 	"invalid_reason",
 	"correction_missing",
+	"request_settled",
+	"undo_expired",
 ] as const;
 
 export type DoneCode = (typeof DONE_CODES)[number];
@@ -93,9 +96,17 @@ export async function requireOrganiserPost(
 export function organiserSwitch(
 	i18n: I18n,
 	current: "riders" | "events",
+	openRequests = 0,
 ): SafeHtml {
+	// Termine carries the count of open requests (019 FR-030).
+	const extra = (view: "riders" | "events") =>
+		view === "events" && openRequests > 0
+			? html` aria-label="${i18n.t("organiser.switch.events.open", { n: String(openRequests) })}"`
+			: null;
+	const badge = (view: "riders" | "events") =>
+		view === "events" && openRequests > 0 ? countBadge(openRequests) : null;
 	const segment = (view: "riders" | "events", href: string, icon: SafeHtml) =>
-		html`<a class="segmented" href="${href}"${view === current ? html` aria-current="true"` : null}>${icon}${i18n.t(`organiser.switch.${view}`)}</a>`;
+		html`<a class="segmented" href="${href}"${extra(view)}${view === current ? html` aria-current="true"` : null}>${icon}${i18n.t(`organiser.switch.${view}`)}${badge(view)}</a>`;
 	return html`<nav class="organiser-switch" aria-label="${i18n.t("organiser.switch.label")}">
 ${segment("riders", "/organiser/riders", PEOPLE)}
 ${segment("events", "/organiser", CALENDAR)}

@@ -2,8 +2,9 @@
 // only wires up what a server-rendered page can't do itself: the service worker,
 // the install group and the app prompt, the notifications switch, the scheme
 // picker, reloading a section on return, waiting for the first data, the
-// buttons' press and busy feedback and opening a badge's large view on mouse
-// hover (feature 013 research R19). It holds no text: every word shown comes
+// buttons' press and busy feedback, opening a badge's large view on mouse
+// hover (feature 013 research R19) and the event page's tri-state boxes
+// (feature 019 research R5). It holds no text: every word shown comes
 // from the page's markup, rendered from the catalogs and hidden until this
 // shows it.
 
@@ -596,6 +597,168 @@ function keepScroll() {
 	});
 }
 
+/** Where Rides keeps its place in this tab (feature 018 research R5). */
+const RIDES_PLACE = "rp-rides-place";
+
+/** The most rides one request may bring back (018 contracts/http-routes.md). */
+const MAX_RIDE_BATCH = 1000;
+
+/**
+ * Rides as one continuous list (feature 018 contracts/client.md): the next
+ * rides load as the end of the list comes within a screen, the season's total
+ * replaces the pager and the page count, and a reload or the back button finds
+ * the same ride in view. Without IntersectionObserver the pager stays.
+ */
+function lazyRides() {
+	const section = document.querySelector("section#rides[data-lazy]");
+	const list = section?.querySelector("ol.ride-list");
+	const more = section?.querySelector(".rides-more");
+	const status = more?.querySelector(".rides-status");
+	const retry = more?.querySelector("[data-retry]");
+	if (!list || !status || !retry) return;
+	if (typeof IntersectionObserver !== "function") return;
+	for (const old of section.querySelectorAll("nav.pager, .rides-position")) {
+		old.hidden = true;
+	}
+	for (const line of section.querySelectorAll(".rides-total, .rides-newest")) {
+		line.hidden = false;
+	}
+	try {
+		history.scrollRestoration = "manual";
+	} catch {}
+
+	const cards = () => Array.from(list.querySelectorAll("li.ride-card"));
+	/** A card's ride, from its "View on Strava" link. */
+	const rideOf = (card) => {
+		const link = card.querySelector("a.strava-activity");
+		return link?.href.match(/\/(\d+)$/)?.[1] ?? null;
+	};
+	const setState = (state) => {
+		if (state) more.dataset.state = state;
+		else more.removeAttribute("data-state");
+		const text = state ? status.dataset[state] : "";
+		status.textContent = text ?? "";
+		retry.hidden = state !== "failed";
+	};
+
+	let busy = false;
+	const observer = new IntersectionObserver(
+		(entries) => {
+			if (entries.some((entry) => entry.isIntersecting)) load();
+		},
+		{ rootMargin: "0px 0px 100% 0px" },
+	);
+	/** Observing afresh reports whether the end is still in reach. */
+	const watch = () => {
+		observer.unobserve(more);
+		if (list.dataset.more) observer.observe(more);
+	};
+
+	/** Appends the next batch, or `limit` rides; `false` once it reloads. */
+	async function load(limit) {
+		const url = list.dataset.more;
+		if (busy || !url) return true;
+		busy = true;
+		setState("loading");
+		list.setAttribute("aria-busy", "true");
+		try {
+			const res = await fetch(limit ? `${url}&limit=${limit}` : url, {
+				credentials: "same-origin",
+				cache: "no-store",
+			});
+			// Signed out, the consent gate or the waiting state: the page shows it.
+			if ([401, 403, 409].includes(res.status)) {
+				startLoading();
+				location.reload();
+				return false;
+			}
+			if (!res.ok) throw new Error(`HTTP ${res.status}`);
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(await res.text(), "text/html");
+			const batch = doc.querySelector("ol.ride-list");
+			if (!batch) throw new Error("no ride list");
+			const next = batch.dataset.more;
+			list.append(...batch.children);
+			if (next) list.dataset.more = next;
+			else list.removeAttribute("data-more");
+			setState("added");
+		} catch {
+			// Offline or a bad answer: retry, back online or at the end again.
+			setState("failed");
+			return true;
+		} finally {
+			busy = false;
+			list.removeAttribute("aria-busy");
+		}
+		if (list.dataset.more) {
+			watch();
+		} else {
+			observer.disconnect();
+			more.hidden = true;
+		}
+		return true;
+	}
+
+	retry.addEventListener("click", () => load());
+	addEventListener("online", () => {
+		if (more.dataset.state === "failed") load();
+	});
+
+	addEventListener("pagehide", () => {
+		const bar = document.querySelector("header.top-bar");
+		const top = bar ? bar.getBoundingClientRect().bottom : 0;
+		const all = cards();
+		const anchor = all.find(
+			(card) => card.getBoundingClientRect().bottom > top,
+		);
+		try {
+			sessionStorage.setItem(
+				RIDES_PLACE,
+				JSON.stringify({
+					url: location.pathname + location.search,
+					loaded: all.length,
+					anchor: anchor ? rideOf(anchor) : null,
+					offset: anchor ? anchor.getBoundingClientRect().top : 0,
+					y: scrollY,
+				}),
+			);
+		} catch {}
+	});
+
+	/** After a reload or the back button: the rides and the ride in view. */
+	async function restore() {
+		let place = null;
+		try {
+			place = JSON.parse(sessionStorage.getItem(RIDES_PLACE) ?? "null");
+			sessionStorage.removeItem(RIDES_PLACE);
+		} catch {
+			return true;
+		}
+		const type = performance.getEntriesByType?.("navigation")[0]?.type;
+		if (!place || place.url !== location.pathname + location.search) {
+			return true;
+		}
+		if (type !== "reload" && type !== "back_forward") return true;
+		const missing = Number(place.loaded) - cards().length;
+		if (Number.isInteger(missing) && missing > 0) {
+			if (!(await load(Math.min(missing, MAX_RIDE_BATCH)))) return false;
+		}
+		const anchor = cards().find((card) => rideOf(card) === place.anchor);
+		if (anchor) {
+			const offset = Number(place.offset) || 0;
+			scrollTo(0, anchor.getBoundingClientRect().top + scrollY - offset);
+		} else if (Number.isFinite(place.y)) {
+			scrollTo(0, place.y);
+		}
+		return true;
+	}
+
+	more.hidden = !list.dataset.more;
+	restore().then((going) => {
+		if (going) watch();
+	});
+}
+
 /** The Material buttons that show press feedback (issue #107). */
 const PRESSABLE =
 	".button,.button-outlined,.danger,.segmented,.segmented-group label,.icon-button";
@@ -744,8 +907,137 @@ function badgeHover() {
 	}
 }
 
+/**
+ * The event page's open requests (feature 019 research R5): each rider's three
+ * radios become one box that cycles grey, ticked, empty and grey again, and
+ * the tag beside it says what saving will do. The radios stay the form's
+ * fields, so saving works the same without this script.
+ */
+function triState() {
+	const form = document.querySelector("form.attendance-form");
+	if (!form) return;
+	const sets = [...form.querySelectorAll("fieldset.tri-state")];
+	if (sets.length === 0) return;
+	const order = ["open", "yes", "no"];
+	const checked = { open: "mixed", yes: "true", no: "false" };
+	const stateOf = (set) => set.querySelector("input:checked")?.value ?? "open";
+	const summary = form.querySelector(".tri-summary");
+	const update = () => {
+		if (!summary) return;
+		const counts = { open: 0, yes: 0, no: 0 };
+		for (const set of sets) counts[stateOf(set)] += 1;
+		summary.textContent = summary.dataset.text
+			.replace("{yes}", counts.yes)
+			.replace("{no}", counts.no)
+			.replace("{open}", counts.open);
+		summary.hidden = false;
+	};
+	const show = (set) => {
+		const value = stateOf(set);
+		for (const tag of set.parentElement.querySelectorAll(".tri-tag")) {
+			tag.hidden = !tag.classList.contains(`tri-tag-${value}`);
+		}
+		const toggle = set.querySelector(".tri-toggle");
+		toggle.setAttribute("aria-checked", checked[value]);
+		toggle.dataset.state = value;
+	};
+	const choose = (set, value) => {
+		const radio = set.querySelector(`input[value="${value}"]`);
+		if (radio) radio.checked = true;
+		show(set);
+		update();
+	};
+	for (const set of sets) {
+		const toggle = document.createElement("button");
+		toggle.type = "button";
+		toggle.className = "tri-toggle";
+		toggle.setAttribute("role", "checkbox");
+		const box = document.createElement("span");
+		box.className = "tri-box";
+		box.setAttribute("aria-hidden", "true");
+		toggle.append(
+			box,
+			...set.querySelector("legend").cloneNode(true).childNodes,
+		);
+		toggle.addEventListener("click", () => {
+			const next = order[(order.indexOf(stateOf(set)) + 1) % order.length];
+			choose(set, next);
+		});
+		set.classList.add("tri-enhanced");
+		set.prepend(toggle);
+		show(set);
+	}
+	const all = form.querySelector(".confirm-all");
+	if (all) {
+		all.hidden = false;
+		all.addEventListener("click", () => {
+			for (const set of sets) {
+				if (stateOf(set) === "open") choose(set, "yes");
+			}
+		});
+	}
+	update();
+}
+
+/**
+ * The badges page's switch (feature 013 Part I): "Deine" and "Team" link to
+ * their groups, and the one whose group fills the screen below the switch is
+ * marked while scrolling either way; at the bottom of the page the last
+ * group, however short. Filtering changes the heights, so it is marked again
+ * then.
+ */
+function badgeSwitch() {
+	const bar = document.querySelector(".badges-switch");
+	const links = bar
+		? [...bar.querySelectorAll('nav a.segmented[href^="#"]')]
+		: [];
+	const groups = links.map((link) =>
+		document.getElementById(link.hash.slice(1)),
+	);
+	if (links.length === 0 || groups.includes(null)) return;
+	let frame = 0;
+	const mark = () => {
+		frame = 0;
+		// A group counts once its top is in the upper third below the switch.
+		const below = bar.getBoundingClientRect().bottom;
+		const line = below + (innerHeight - below) / 3;
+		let current = 0;
+		groups.forEach((group, i) => {
+			if (group.getBoundingClientRect().top <= line) current = i;
+		});
+		const bottom = document.documentElement.scrollHeight - innerHeight - 2;
+		if (scrollY > 0 && scrollY >= bottom) current = groups.length - 1;
+		links.forEach((link, i) => {
+			if (i === current) link.setAttribute("aria-current", "true");
+			else link.removeAttribute("aria-current");
+		});
+	};
+	const soon = () => {
+		if (!frame) frame = requestAnimationFrame(mark);
+	};
+	addEventListener("scroll", soon, { passive: true });
+	addEventListener("resize", soon);
+	bar.addEventListener("change", soon);
+	mark();
+}
+
+/**
+ * The badges page opens on the card of the first new badge, the rider's own
+ * before the team's, as the reveal names it (feature 013 Part I), in the
+ * middle of the screen, below the sticky switch.
+ */
+function scrollToNewBadge() {
+	const category = document.querySelector(".badges-reveal[data-scroll-to]")
+		?.dataset.scrollTo;
+	if (!category) return;
+	document
+		.querySelector(`.badge-card[data-category="${CSS.escape(category)}"]`)
+		?.scrollIntoView({ block: "center" });
+}
+
 const registered = registerWorker();
 keepScroll();
+lazyRides();
 pressFeedback();
 pendingSubmit();
 installSettings();
@@ -755,4 +1047,7 @@ refreshOnReturn();
 waitForFirstData();
 pageLoading();
 badgeHover();
+triState();
+scrollToNewBadge();
+badgeSwitch();
 notifications().catch(() => {});

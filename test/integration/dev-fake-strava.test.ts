@@ -191,7 +191,9 @@ describe("seeding (FR-005, FR-012)", () => {
 	}, 30_000);
 });
 
-describe("seeding again", () => {
+// Each test here seeds every sample rider, which takes close to the default
+// 5 s on CI's runners; they timed out there now and then.
+describe("seeding again", { timeout: 20_000 }, () => {
 	const fakeRides = () =>
 		count("SELECT COUNT(*) AS n FROM fake_strava_activities");
 	const allRides = SAMPLE_RIDERS.reduce((n, r) => n + r.rides.length, 0);
@@ -297,8 +299,12 @@ describe("every badge at /_dev/badges (013)", () => {
 		const res = await get("/_dev/badges");
 		expect(res.status).toBe(200);
 		const page = await res.text();
-		expect(page).toContain('<section class="badge-group badge-group-personal"');
-		expect(page).toContain('<section class="badge-group badge-group-team"');
+		expect(page).toContain(
+			'<section id="badges-personal" class="badge-group badge-group-personal"',
+		);
+		expect(page).toContain(
+			'<section id="badges-team" class="badge-group badge-group-team"',
+		);
 		for (const badge of BADGES) {
 			expect(page, badge.id).toContain(`<div popover id="badge-${badge.id}"`);
 		}
@@ -306,7 +312,8 @@ describe("every badge at /_dev/badges (013)", () => {
 	});
 });
 
-describe("sample riders in every state (US2)", () => {
+// Seeding every sample rider again, as above.
+describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 	const IDA = 990001;
 	const NORA = 990002;
 	const FIONA = 990003;
@@ -503,7 +510,7 @@ describe("sample riders in every state (US2)", () => {
 		expect(page).toContain('<section class="badges"');
 		expect(page).toContain('data-category="technique"');
 		const personal = (await mePage(990002)).match(
-			/<section class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
+			/<section id="badges-personal" class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
 		)?.[0];
 		expect(personal).not.toContain('<li class="badge-card" ');
 	});
@@ -543,7 +550,7 @@ describe("sample riders in every state (US2)", () => {
 		const carla = await mePage(990014);
 		const personal =
 			carla.match(
-				/<section class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
+				/<section id="badges-personal" class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
 			)?.[0] ?? "";
 		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(7);
 		// Running twice, virtual, swimming twice and the four winter months.
@@ -652,7 +659,9 @@ describe("sample riders in every state (US2)", () => {
 			const res = await get("/me/badges", await sessionCookie(ctx, athleteId));
 			expect(res.status).toBe(200);
 			const page = await res.text();
-			expect(page).toContain('<section class="badge-group badge-group-team"');
+			expect(page).toContain(
+				'<section id="badges-team" class="badge-group badge-group-team"',
+			);
 			expect(page).toContain('popovertarget="badge-big-training-5"');
 			expect(page).toContain('popovertarget="badge-attendances-25"');
 		}
