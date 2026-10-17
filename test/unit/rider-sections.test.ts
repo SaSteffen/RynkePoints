@@ -368,9 +368,7 @@ describe("renderRides lazy list (018 US1, US3)", () => {
 	it("marks the section and keeps the position line and the pager", () => {
 		const html = lazy(1);
 		expect(html).toMatch(/^<section id="rides" data-lazy>\n<h2>/);
-		expect(html).toContain(
-			'<p class="rides-position">Fahrten 1–20 von 45</p>',
-		);
+		expect(html).toContain('<p class="rides-position">Fahrten 1–20 von 45</p>');
 		expect(html).toContain('<nav class="pager" aria-label="Seiten">');
 	});
 

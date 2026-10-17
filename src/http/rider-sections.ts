@@ -369,14 +369,15 @@ function renderListLines(
 		total: whole(i18n, total),
 	});
 	const season = i18n.t("rynke.rides.total", { total: whole(i18n, total) });
-	const newest =
-		pager.page > 1
-			? html`<p class="rides-newest" hidden><a class="tap" href="/me/rides">${i18n.t("rynke.rides.newest")}</a></p>
-`
-			: null;
 	return html`<p class="rides-position">${position}</p>
 <p class="rides-total" hidden>${season}</p>
-${newest}`;
+${pager.page > 1 ? renderNewest(i18n) : null}`;
+}
+
+/** Back to the top of the list from a later page (feature 018 FR-014). */
+function renderNewest(i18n: I18n): SafeHtml {
+	return html`<p class="rides-newest" hidden><a class="tap" href="/me/rides">${i18n.t("rynke.rides.newest")}</a></p>
+`;
 }
 
 /**
@@ -392,12 +393,19 @@ export function renderRideBatch(
 	return rideList(i18n, rows, more);
 }
 
-function rideList(i18n: I18n, rows: RideLine[], more: RideKey | null): SafeHtml {
-	const next = more
-		? html` data-more="/me/rides/more?after=${encodeURIComponent(formatRideKey(more))}"`
-		: null;
+function rideList(
+	i18n: I18n,
+	rows: RideLine[],
+	more: RideKey | null,
+): SafeHtml {
+	const next = more && html` data-more="${batchUrl(more)}"`;
 	return html`<ol class="ride-list"${next}>
 ${rows.map((ride) => rideCard(i18n, ride))}</ol>`;
+}
+
+/** Where the rides after `key` are read (018 contracts/http-routes.md). */
+function batchUrl(key: RideKey): string {
+	return `/me/rides/more?after=${encodeURIComponent(formatRideKey(key))}`;
 }
 
 /**

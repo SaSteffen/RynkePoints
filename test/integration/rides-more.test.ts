@@ -77,9 +77,7 @@ describe("GET /me/rides/more reading through (018 US1)", () => {
 	it("FR-002, FR-004: continues the list in batches of 20 until the end", async () => {
 		await seedRides(ATHLETE_A, 45, "2026-10-06");
 		const first = await firstMore();
-		expect(first).toBe(
-			"/me/rides/more?after=2026-09-17T08%3A00%3A00Z~8000020",
-		);
+		expect(first).toBe("/me/rides/more?after=2026-09-17T08%3A00%3A00Z~8000020");
 
 		const second = await batch(first);
 		expect(second.status).toBe(200);
@@ -127,9 +125,10 @@ describe("GET /me/rides/more reading through (018 US1)", () => {
 				result: { counts: true },
 			});
 		}
-		const html = await (
-			await batch("/me/rides/more?after=2026-09-01T08%3A00%3A00Z~9000003")
-		).text();
+		const res = await batch(
+			"/me/rides/more?after=2026-09-01T08%3A00%3A00Z~9000003",
+		);
+		const html = await res.text();
 		expect(ids(html)).toEqual([9_000_002, 9_000_001]);
 		expect(more(html)).toBeNull();
 	});
@@ -211,9 +210,10 @@ describe("GET /me/rides/more access (018 FR-010, R3)", () => {
 		await seedRides(ATHLETE_A, 30, "2026-10-06");
 		await seedRides(ATHLETE_B, 30, "2026-10-06", 7_000_001);
 		// Ride 10 of the other rider as the key.
-		const html = await (
-			await batch("/me/rides/more?after=2026-09-27T08%3A00%3A00Z~7000010")
-		).text();
+		const res = await batch(
+			"/me/rides/more?after=2026-09-27T08%3A00%3A00Z~7000010",
+		);
+		const html = await res.text();
 		expect(ids(html)).toEqual(range(8_000_011, 20));
 		expect(html).not.toContain("/70000");
 	});

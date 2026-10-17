@@ -206,7 +206,8 @@ test.describe("the continuous ride list (018)", () => {
 		// The navigation bar is a fresh visit: the top, the newest rides.
 		await page.locator('nav.app-nav a[href="/me/rides"]').click();
 		await expect(cards).toHaveCount(20);
-		expect(await page.evaluate(() => scrollY)).toBe(0);
+		const html = page.locator("html");
+		expect(await html.evaluate((root) => root.scrollTop)).toBe(0);
 	});
 
 	test("continues below a later page, with a link to the newest (US3)", async ({
