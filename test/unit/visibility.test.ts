@@ -21,6 +21,7 @@ const ORGANISER_ROW: Record<RiderData, boolean> = {
 	breakdown: true,
 	attendance: true,
 	corrections: true,
+	participationReports: true,
 	rides: false,
 	consentRecords: false,
 };
@@ -33,6 +34,7 @@ const RIDER_ROW: Record<RiderData, boolean> = {
 	breakdown: false,
 	attendance: false,
 	corrections: false,
+	participationReports: false,
 	rides: false,
 	consentRecords: false,
 };

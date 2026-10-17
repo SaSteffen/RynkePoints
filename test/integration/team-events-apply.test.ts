@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { upsertActivity } from "../../src/db/activities";
+import { insertReportStatement } from "../../src/db/participation";
 import { readRynke } from "../../src/db/rynke";
 import {
 	applyAndEvaluate,
@@ -719,5 +720,62 @@ describe("teamEventChange", () => {
 			),
 		).toBe("rider_not_connected");
 		expect(evaluations()).toEqual([]);
+	});
+});
+
+describe("participation reports (feature 019 research R3)", () => {
+	async function reportedBy(eventId: number): Promise<number[]> {
+		const { results } = await db
+			.prepare(
+				"SELECT athlete_id FROM participation_reports WHERE event_id = ? ORDER BY athlete_id",
+			)
+			.bind(eventId)
+			.all<{ athlete_id: number }>();
+		return results.map((r) => r.athlete_id);
+	}
+
+	async function report(eventId: number, athleteIds: number[]) {
+		await db.batch(
+			athleteIds.map((id) => insertReportStatement(db, eventId, id, NOW)),
+		);
+	}
+
+	it("add-attendance deletes the reports of the riders it records, and only theirs", async () => {
+		const eventId = await insertEvent("team_training", "2026-05-02");
+		await report(eventId, [ATHLETE_A, ATHLETE_B]);
+		await change({ kind: "add-attendance", eventId, athleteIds: [ATHLETE_A] });
+		expect(await reportedBy(eventId)).toEqual([ATHLETE_B]);
+	});
+
+	it("add-attendance deletes the report of a rider already attending", async () => {
+		const eventId = await insertEvent("team_training", "2026-05-02");
+		await attendRaw(eventId, [ATHLETE_A]);
+		await report(eventId, [ATHLETE_A]);
+		const result = await change({
+			kind: "add-attendance",
+			eventId,
+			athleteIds: [ATHLETE_A],
+		});
+		expect(result.affected).toEqual([]);
+		expect(await reportedBy(eventId)).toEqual([]);
+	});
+
+	it("remove-attendance recreates no report", async () => {
+		const eventId = await insertEvent("team_training", "2026-05-02");
+		await report(eventId, [ATHLETE_A]);
+		await change({ kind: "add-attendance", eventId, athleteIds: [ATHLETE_A] });
+		await change({
+			kind: "remove-attendance",
+			eventId,
+			athleteIds: [ATHLETE_A],
+		});
+		expect(await reportedBy(eventId)).toEqual([]);
+	});
+
+	it("delete-event deletes the event's reports", async () => {
+		const eventId = await insertEvent("team_training", "2026-05-02");
+		await report(eventId, [ATHLETE_A, ATHLETE_B]);
+		await change({ kind: "delete-event", eventId });
+		expect(await reportedBy(eventId)).toEqual([]);
 	});
 });

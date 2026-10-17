@@ -192,6 +192,7 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM ride_results"),
 		env.DB.prepare("DELETE FROM activities"),
 		// `team_event_kinds` stays: migration 0006 seeds it.
+		env.DB.prepare("DELETE FROM participation_reports"),
 		env.DB.prepare("DELETE FROM attendances"),
 		env.DB.prepare("DELETE FROM team_events"),
 		env.DB.prepare("DELETE FROM corrections"),

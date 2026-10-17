@@ -93,6 +93,8 @@ const COLUMNS: Record<string, string[]> = {
 		"changed_at",
 	],
 	attendances: ["event_id", "athlete_id", "changed_by", "changed_at"],
+	// Feature 019: who reported which event, and when (data-model.md).
+	participation_reports: ["event_id", "athlete_id", "reported_at"],
 	corrections: [
 		"correction_id",
 		"athlete_id",

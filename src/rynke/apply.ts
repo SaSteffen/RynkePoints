@@ -53,6 +53,7 @@ import {
 	listCorrectionsOfRidersStatement,
 	readCorrectionStatement,
 } from "../db/corrections";
+import { deleteReportsStatement } from "../db/participation";
 import {
 	deletePrivateRunsStatement,
 	deleteRunStatement,
@@ -538,6 +539,10 @@ export async function applyTeamEventChange(
 	affected.sort((a, b) => a - b);
 
 	const writes = statement ? [statement] : [];
+	if (change.kind === "add-attendance") {
+		// Recorded attendance replaces the riders' reports (019 research R3).
+		writes.push(deleteReportsStatement(db, eventId, change.athleteIds));
+	}
 	const risen: number[] = [];
 	const earned: number[] = [];
 	if (affected.length > 0) {

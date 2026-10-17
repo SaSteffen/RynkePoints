@@ -13,6 +13,7 @@ import {
 } from "../../db/team-events";
 import type { I18n } from "../../i18n/i18n";
 import { TeamEventRefused, teamEventChange } from "../../rynke/apply";
+import { hasTakenPlace } from "../../rynke/participation";
 import { html, type SafeHtml } from "../html";
 import { redirectWith, requireOrganiserPost } from "./access";
 
@@ -46,9 +47,9 @@ export async function readAttendance(
 	};
 }
 
-/** Whether `date` is after today in Berlin (FR-022). */
+/** Whether `date` is after today in Berlin (FR-022, 019 research R2). */
 export function isFutureEvent(ctx: Ctx, date: string): boolean {
-	return date > berlinDate(ctx.now());
+	return !hasTakenPlace(date, berlinDate(ctx.now()));
 }
 
 function riderItem(
