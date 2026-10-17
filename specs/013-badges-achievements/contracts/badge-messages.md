@@ -31,7 +31,7 @@ the implementation together with the project owner.
 | `badges.label` | {name}, {value} (a badge button's accessible name) |
 | `badges.reveal.one` / `badges.reveal.many` | Neues Abzeichen: {name} / {n} neue Abzeichen |
 | `badges.category.<id>` | Distanz, Höhenmeter, Teamtermine, Techniktraining, Trainings-Rynke, Längster Lauf, Laufen gesamt, Trainings-Rynke gemeinsam, Kilometer gemeinsam, Höhenmeter gemeinsam, Laufen gemeinsam, Große Ausfahrt, Teilnahmen |
-| `badges.about.<category>` | one sentence under each category name on how it counts: "Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.", "Die meisten Rider, die in dieser Saison bei einem einzigen Teamtermin dabei waren.", … |
+| `badges.about.<category>` | one sentence under each category name on how it counts: "Rad-Kilometer mit Trainings-Rynke.", "Rekord: Rider an einem Termin.", … (short, at most three lines inside the outline on a phone, about 35 characters, without "in dieser Saison": it fits inside the badge outline, Part G of abzeichen-section.md) |
 | `badges.for.<category>` | how the badge was earned, a sentence with `{value}`: "Du bist in dieser Saison {value} Rad gefahren.", "Dein längster Lauf dieser Saison: {value} am Stück.", "Alle Rider zusammen haben in dieser Saison {value} im Training gesammelt.", … |
 | `badges.value.<unit>` | the milestone in its unit: "{n} km", "{n} m", "{n} Rynke", "{n} Termine", "{n} Trainings", "{n} Rider", "{n} Teilnahmen" |
 | `badges.value.<unit>.one` | the singular for "Noch 1 …": events, trainings, riders, attendances ("{n} Termin", "{n} Training", "{n} Rider", "{n} Teilnahme") |
@@ -69,7 +69,7 @@ response's `url` is `/me/badges`, which the service worker opens on a click.
 | Key | German |
 |-----|--------|
 | `badges.category.<id>` | Längste Fahrt, Virtuell, Längstes Schwimmen, Schwimmen gesamt, Winter: November, Winter: Dezember, Winter: Januar, Winter: Februar |
-| `badges.about.<category>` | "Deine längste Radfahrt dieser Saison, die für Trainings-Rynke zählt.", "Alle Kilometer deiner virtuellen Fahrten und Fahrten auf der Rolle in dieser Saison.", "Dein längstes Schwimmen dieser Saison, im Becken oder im Freiwasser.", "Alle Kilometer, die du in dieser Saison geschwommen bist.", per month: "Tage im November, an denen du draußen gefahren bist." (and Dezember, Januar, Februar) |
+| `badges.about.<category>` | "Längste Fahrt mit Trainings-Rynke.", "Kilometer auf der Rolle und virtuell.", "Längstes Schwimmen am Stück.", "Alle Schwimm-Kilometer.", per month: "November-Tage mit Fahrt draußen." (and Dezember, Januar, Februar) |
 | `badges.for.<category>` | "Deine längste Fahrt dieser Saison: {value} am Stück.", "Du bist in dieser Saison {value} virtuell gefahren.", "Dein längstes Schwimmen dieser Saison: {value} am Stück.", "Du bist in dieser Saison {value} geschwommen.", "Im November bist du an {value} draußen gefahren." (per month) |
 | `badges.value.days` / `badges.value.days.one` | {n} Tage / {n} Tag |
 

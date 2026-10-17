@@ -111,15 +111,19 @@ const STARS = [-26, 0, 26]
 export const RIBBON = {
 	box: { x: 13, y: 70, width: 74, height: 14 },
 	text: { personal: C.yellow, team: C.ink },
+	/** The tails behind the band: from the centre out, and down from its top. */
+	tail: { inner: 34, outer: 47, notch: 43, top: 3, bottom: 16 },
 };
 
 function ribbonSvg(colour) {
 	const { x, y, width, height } = RIBBON.box;
+	const { inner, outer, notch, top, bottom } = RIBBON.tail;
+	const middle = (top + bottom) / 2;
 	const tail = (dir) => {
-		const x0 = 50 + dir * 34;
-		const x1 = 50 + dir * 47;
-		const xn = 50 + dir * 43;
-		return `<path class="ribbon-tail" d="M${x0},${y + 3} L${x1},${y + 3} L${xn},${y + 9.5} L${x1},${y + 16} L${x0},${y + 16} Z" fill="${colour}" stroke="${C.ink}" stroke-width="0.9" stroke-linejoin="round"/>`;
+		const x0 = 50 + dir * inner;
+		const x1 = 50 + dir * outer;
+		const xn = 50 + dir * notch;
+		return `<path class="ribbon-tail" d="M${x0},${y + top} L${x1},${y + top} L${xn},${y + middle} L${x1},${y + bottom} L${x0},${y + bottom} Z" fill="${colour}" stroke="${C.ink}" stroke-width="0.9" stroke-linejoin="round"/>`;
 	};
 	return `${tail(-1)}${tail(1)}<rect class="ribbon" x="${x}" y="${y}" width="${width}" height="${height}" rx="1.5" fill="${colour}" stroke="${C.ink}" stroke-width="1"/>`;
 }

@@ -18,6 +18,11 @@ import {
 	surpriseName,
 } from "../../badges/catalog";
 import { badgeWindow, type EarnedBadge } from "../../badges/evaluate";
+import {
+	BADGE_OUTLINE,
+	BADGE_OUTLINE_PLAIN,
+	BADGE_SHAPE_DEFS,
+} from "../../badges/outline";
 import { BADGE_PICTURES } from "../../badges/pictures";
 import { evaluateTeamBadges } from "../../badges/team";
 import {
@@ -41,10 +46,15 @@ import {
 	CURRENT_RULES,
 	countingWindow,
 } from "../../rynke/rules";
-import { html, type SafeHtml } from "../html";
+import { html, SafeHtml } from "../html";
 import { CLOSE } from "../icons";
 import { renderWaiting } from "../rider-sections";
 import { shellPage } from "../shell";
+
+/** A badge still to earn: the badge's own shape as a dashed outline. */
+const OUTLINE = new SafeHtml(BADGE_OUTLINE);
+/** In the gallery, whose badges have no ribbon: the circle alone. */
+const OUTLINE_PLAIN = new SafeHtml(BADGE_OUTLINE_PLAIN);
 
 /** Units with a singular form, for "Noch 1 Termin". */
 const SINGULAR = new Set<BadgeUnit>([
@@ -114,7 +124,17 @@ function badgeOf(earned: EarnedBadge): Badge {
 	return badge;
 }
 
-/** A badge as a button that opens its large view. */
+/**
+ * The badge's own small tilt, as if stuck on by hand: from its id, so it
+ * stays the same on the card and in the gallery.
+ */
+export function tiltOf(id: string): number {
+	let hash = 0;
+	for (const char of id) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+	return [-4, -3, -2, 2, 3, 4][hash % 6] ?? 0;
+}
+
+/** A badge as a button that opens its large view, tilted like a sticker. */
 function badgeButton(
 	i18n: I18n,
 	earned: EarnedBadge,
@@ -126,13 +146,18 @@ function badgeButton(
 		value: milestone(i18n, badge),
 	});
 	const ribbon = size === 200;
-	return html`<button class="badge" popovertarget="badge-${badge.id}" aria-label="${label}"><img src="${picture(badge, ribbon)}" alt="" loading="lazy" width="${size}" height="${size}">${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}</button>`;
+	return html`<button class="badge" popovertarget="badge-${badge.id}" aria-label="${label}" style="--tilt:${tiltOf(badge.id)}deg"><img src="${picture(badge, ribbon)}" alt="" loading="lazy" width="${size}" height="${size}">${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}</button>`;
 }
 
+/**
+ * The way to the next badge: says it is the next (or, without a badge, the
+ * first) one, the bar and what is missing. Never the badge's name or picture (FR-003).
+ */
 function progressBar(
 	i18n: I18n,
 	category: BadgeCategoryId,
 	progress: ProgressView,
+	first: boolean,
 ): SafeHtml {
 	// The width is a number the view model computed, never user input.
 	const missing = valueText(
@@ -141,7 +166,9 @@ function progressBar(
 		progress.missing,
 		ONE_DECIMAL.has(category) ? 1 : 0,
 	);
-	return html`<span class="bar" aria-hidden="true"><span style="width:${progress.percent}%"></span></span><span class="badge-missing">${i18n.t("badges.missing", { value: missing })}</span>`;
+	return html`<span class="badge-next">${i18n.t(first ? "badges.first" : "badges.next")}</span>
+<span class="bar" aria-hidden="true"><span style="width:${progress.percent}%"></span></span>
+<span class="badge-missing">${i18n.t("badges.missing", { value: missing })}</span>`;
 }
 
 /** The category's name in bold with the sentence on how it counts below. */
@@ -150,23 +177,28 @@ function categoryHeading(i18n: I18n, category: BadgeCategoryId): SafeHtml {
 <p class="badge-about">${i18n.t(`badges.about.${category}`)}</p>`;
 }
 
+/**
+ * A card with a badge: its name, the badge and the way to the next one. No
+ * sentence on how the category counts: the picture fills the circle, and the
+ * large view says what the badge was for.
+ */
 function card(i18n: I18n, card: Card): SafeHtml {
 	return html`<li class="badge-card" data-category="${card.category}">
-${categoryHeading(i18n, card.category)}
+<h4>${i18n.t(`badges.category.${card.category}`)}</h4>
 ${badgeButton(i18n, card.badge, 200)}
-${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.category, card.progress)}</div>` : null}
+${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.category, card.progress, false)}</div>` : null}
 </li>`;
 }
 
 /**
- * A category without a badge: a dotted outline, its sentence on phones too;
- * no bar once its winter month is over (FR-004a).
+ * A category without a badge: a dotted outline with the sentence on how it
+ * counts inside; no bar once its winter month is over (FR-004a).
  */
 function emptyCard(i18n: I18n, row: NotYetRow): SafeHtml {
 	return html`<li class="badge-card badge-card-empty" data-category="${row.category}">
-${categoryHeading(i18n, row.category)}
-<span class="badge-slot" aria-hidden="true"></span>
-${row.progress ? html`<div class="badge-progress">${progressBar(i18n, row.category, row.progress)}</div>` : null}
+<h4>${i18n.t(`badges.category.${row.category}`)}</h4>
+<div class="badge-slot">${OUTLINE}<p class="badge-about">${i18n.t(`badges.about.${row.category}`)}</p></div>
+${row.progress ? html`<div class="badge-progress">${progressBar(i18n, row.category, row.progress, true)}</div>` : null}
 </li>`;
 }
 
@@ -185,7 +217,8 @@ function group(
 				html`<li>${badgeButton(i18n, b, 96)}<span class="badge-value">${milestone(i18n, badgeOf(b))}</span></li>`,
 		)}${Array.from(
 			{ length: g.unearned },
-			() => html`<li class="badge-slot" aria-hidden="true"></li>`,
+			() =>
+				html`<li class="badge-slot" aria-hidden="true">${OUTLINE_PLAIN}</li>`,
 		)}</ul>
 `,
 	);
@@ -275,6 +308,7 @@ export function renderBadges(i18n: I18n, section: BadgeSection): SafeHtml {
 	);
 	return html`<section class="badges" aria-labelledby="badges-heading">
 <h2 id="badges-heading" class="visually-hidden">${i18n.t("badges.heading")}</h2>
+${new SafeHtml(BADGE_SHAPE_DEFS)}
 ${group(i18n, "personal", section.personal, section.notYet)}${group(i18n, "team", section.team, section.notYet)}${earned.map((b) => popover(i18n, b))}</section>`;
 }
 

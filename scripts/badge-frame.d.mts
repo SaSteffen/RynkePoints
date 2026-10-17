@@ -15,6 +15,13 @@ export const RYNKE: string;
 export const RIBBON: {
 	box: { x: number; y: number; width: number; height: number };
 	text: Record<BadgeGroup, string>;
+	tail: {
+		inner: number;
+		outer: number;
+		notch: number;
+		top: number;
+		bottom: number;
+	};
 };
 
 /** The finished badge SVG, with the milestone ribbon when `ribbon` is set. */
