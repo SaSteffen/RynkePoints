@@ -237,7 +237,7 @@ describe("coins", () => {
 		for (const [summary, status, sentence] of cases) {
 			const html = renderSummary(en, summary, status).toString();
 			expect(html).toContain(
-				`<img class="status-art status-art-banner" src="/illustrations/status_${status}_fun.svg" alt="" width="96" height="96">`,
+				`<img class="status-art status-art-banner" src="/illustrations/status_${status}_fun.svg" alt="" width="128" height="128">`,
 			);
 			expect(html).toContain(
 				`<p class="rynke-status">${escapeHtml(sentence)}</p>`,
