@@ -24,6 +24,10 @@ the implementation together with the project owner.
 | `badges.personal.all` | Alle meine Abzeichen ({n}) |
 | `badges.team.newest` | Team-Abzeichen |
 | `badges.team.all` | Alle Team-Abzeichen ({n}) |
+| `badges.switch.group` | Wessen Abzeichen (the switch's group links, for screen readers; Part I) |
+| `badges.switch.personal` / `badges.switch.team` | Deine / Team |
+| `badges.switch.scope` | Zeigen (the filter's legend, for screen readers) |
+| `badges.switch.newest` / `badges.switch.all` | Neueste / Alle |
 | `badges.empty` | Noch kein Abzeichen – deine erste Fahrt bringt dich näher. (encouraging empty state, US1 scenario 4) |
 | `badges.missing` | Noch {value} |
 | `badges.earnedOn` | erreicht am {date} |
