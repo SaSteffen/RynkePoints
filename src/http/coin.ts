@@ -49,9 +49,9 @@ export function coin(side: "front" | "back", size: CoinSize): SafeHtml {
 }
 
 // The team's coin itself, traced from its artwork by `pnpm coin-art` into
-// `public/coin/` (art/coin/README.md), for where the coin is the picture
-// rather than a mark: its detail doesn't read below about 64 px, where the
-// simplified sprite above stays. Decoration too, like every coin.
+// `public/coin/` (art/coin/README.md), wherever the coin is shown large;
+// the simplified sprite above stays for the small marks, where that much
+// detail doesn't read. Decoration too, like every coin.
 
 const ART_SIZE = 144;
 

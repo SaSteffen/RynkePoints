@@ -188,11 +188,12 @@ export function palette(colours) {
 
 /**
  * Recolours every region of colour `from` that lies wholly inside `box`
- * ([x0, y0, x1, y1] in the original's pixels, before any scaling down) to the
- * colour `to`: a fix the image generator wouldn't make. Regions reaching
- * outside the box, like a background, keep their colour.
+ * ([x0, y0, x1, y1]) and, if given, inside `ring` ([centre x, centre y,
+ * inner radius, outer radius]), both in the original's pixels before any
+ * scaling down, to the colour `to`: a fix the image generator wouldn't make.
+ * Regions reaching outside, like a background, keep their colour.
  */
-function recolour(label, w, h, scale, colours, { box, from, to }) {
+function recolour(label, w, h, scale, colours, { box, ring, from, to }) {
 	const index = (name) => {
 		const i = colours.findIndex((c) => c.name === name) + 1;
 		if (!i) throw new Error(`Unknown colour ${name}`);
@@ -201,6 +202,13 @@ function recolour(label, w, h, scale, colours, { box, from, to }) {
 	const source = index(from);
 	const target = index(to);
 	const [x0, y0, x1, y1] = box.map((v) => Math.round(v * scale));
+	const [cx, cy, r0, r1] = (ring ?? [0, 0, 0, Number.POSITIVE_INFINITY]).map(
+		(v) => v * scale,
+	);
+	const inRing = (x, y) => {
+		const d = Math.hypot(x - cx, y - cy);
+		return d >= r0 && d <= r1;
+	};
 	const seen = new Uint8Array(label.length);
 	for (let y = y0; y <= y1; y++) {
 		for (let x = x0; x <= x1; x++) {
@@ -213,7 +221,9 @@ function recolour(label, w, h, scale, colours, { box, from, to }) {
 				const i = region[k];
 				const ix = i % w;
 				const iy = (i - ix) / w;
-				if (ix < x0 || ix > x1 || iy < y0 || iy > y1) inside = false;
+				if (ix < x0 || ix > x1 || iy < y0 || iy > y1 || !inRing(ix, iy)) {
+					inside = false;
+				}
 				for (const j of [
 					ix > 0 ? i - 1 : -1,
 					ix < w - 1 ? i + 1 : -1,

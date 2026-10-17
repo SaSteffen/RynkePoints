@@ -56,6 +56,14 @@ const LINE_COLOURS = palette([
 // one colour wholly inside the box changes colour (see trace.mjs).
 const FIXES = {
 	front: [
+		// "TEAM RYNKEBY HAMBURG" in gold like "RYNKE-COIN" on top: the
+		// letters in the black ring's lower half, not its two yellow stars.
+		{
+			box: [0, 1120, 2048, 2048],
+			ring: [1024, 1024, 728, 960],
+			from: "yellow",
+			to: "gold",
+		},
 		// The banana is yellow, not a white peel.
 		{ box: [1340, 490, 1530, 870], from: "cream", to: "yellow" },
 		// The handlebar is black, tape, hoods and all, so it reads apart from

@@ -27,18 +27,20 @@ The front snaps to the coin palette (`--rp-coin-*` in `src/http/style.ts`):
 cream, yellow, gold, fur, muzzle, ink. The back has its own: the coin's sky,
 glass, Elbe water and brick, a quay grey, yellow, gold and ink.
 
-The generated front got two things wrong, fixed after snapping (`FIXES` in the
-script, each a box in the original's pixels): the banana is yellow, not a
-white peel, and the handlebar is black, tape and hoods included, so it stands
-apart from the yellow frame.
+The generated front is corrected after snapping (`FIXES` in the script, each a
+box, and if needed a ring, in the original's pixels): "TEAM RYNKEBY HAMBURG"
+is gold like "RYNKE-COIN" on top, the banana is yellow, not a white peel, and
+the handlebar is black, tape and hoods included, so it stands apart from the
+yellow frame.
 
 ## Where the app shows it
 
-The traced coin is the picture where the coin is shown large: the organiser
-overview's deadline card (the back) and the waiting state before a rider's
-first data (both sides, turning over). Below about 64 px its detail doesn't
-read; the simplified sprite in `src/http/coin.ts` stays for the wordmark, the
-mini coins and the chart marks.
+The traced coin is the picture wherever the coin is shown large: the landing
+page and the rider's hero (front), the empty ride list (front), the team
+totals (front or back), the organiser overview's deadline card (back) and the
+waiting state before a rider's first data (both sides, turning over). Small
+coins don't read with that much detail, so the simplified sprite in
+`src/http/coin.ts` stays for the wordmark, the mini coins and the chart marks.
 
 The mock-up is the "Coin artwork" artboard of the Claude Design canvas
 "RynkePoints Coin Explorations"

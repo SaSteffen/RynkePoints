@@ -190,7 +190,7 @@ describe("coins", () => {
 			pager: null,
 		}).toString();
 		expect(html).toMatch(
-			/<h2>Your rides<\/h2>\n<svg class="coin coin-large"[^>]*><use href="#coin-front"\/><\/svg>\n<p>No rides this season yet\.<\/p>/,
+			/<h2>Your rides<\/h2>\n<img class="coin-art coin coin-large" src="\/coin\/rynke-coin-front\.svg" alt=""[^>]*>\n<p>No rides this season yet\.<\/p>/,
 		);
 	});
 

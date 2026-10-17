@@ -2,7 +2,7 @@ import type { Rider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import type { RiderStatus } from "../rynke/pace";
 import { STRAVA_ORIGIN } from "../strava/result";
-import { coin, flippingCoin, miniCoin } from "./coin";
+import { coinArt, flippingCoin, miniCoin } from "./coin";
 import { html, type SafeHtml } from "./html";
 import type {
 	Breakdown,
@@ -342,7 +342,7 @@ export function renderRides(i18n: I18n, rides: RideTable): SafeHtml {
 	if (rides.rows.length === 0) {
 		return html`<section id="rides">
 ${heading}
-${coin("front", "large")}
+${coinArt("front", "large")}
 <p>${i18n.t("me.recent.none")}</p>
 </section>`;
 	}

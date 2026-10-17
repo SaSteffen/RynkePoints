@@ -9,7 +9,7 @@ import {
 	countingWindow,
 	rulesForVersion,
 } from "../../rynke/rules";
-import { amount, coin, miniCoin } from "../coin";
+import { amount, coinArt, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import {
 	renderBreakdown,
@@ -104,7 +104,7 @@ export function handleOverview(
 		// One grid holds it all: two columns on wider screens (contracts/pages.md).
 		return html`<div class="overview-grid">
 <section class="hero">
-${coin("front", "hero")}
+${coinArt("front", "hero")}
 <div>
 <p class="greeting">${i18n.t("me.greeting", { firstName: rider.firstName })}</p>
 ${
