@@ -251,6 +251,10 @@ describe("the example rider (feature 020)", () => {
 		const { page } = await hintOn("/me/rides?tour=rider&step=7");
 		expect(page).toContain("tour-example");
 		expect(page).toContain('<dl class="ride-figures" id="tour-short-ride">');
+		// It earns no Rynke, so no coin on its status (FR-011).
+		expect(page).toMatch(
+			/<span class="chip ride-status">zählt<\/span><\/div>\s*<dl class="ride-figures" id="tour-short-ride">/,
+		);
 		expect(page).not.toContain('class="tap strava-activity"');
 		expect(page).not.toContain("424242");
 		const own = (await hintOn("/me/rides")).page;

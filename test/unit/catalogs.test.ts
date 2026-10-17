@@ -137,6 +137,7 @@ const CONTRACT_IDS = [
 	"rynke.missing.withoutVirtual",
 	"rynke.rides.col.elevationTotal",
 	"rynke.ride.counts",
+	"rynke.ride.countsWithoutRynke",
 	"rynke.ride.doesNotCount",
 	"rynke.ride.beingEvaluated",
 	"rynke.ride.virtual",

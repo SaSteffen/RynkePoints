@@ -612,11 +612,15 @@ function rideCard(
 	// Never 0 for a ride still being evaluated (FR-041).
 	const pending = ride.status === "being-evaluated";
 	const rynke = pending ? "–" : whole(i18n, ride.distanceRynke);
-	// A mini coin for each ride that earned Training Rynke (feature 012).
-	const earned =
-		ride.status === "counts" && ride.distanceRynke > 0
-			? html` ${miniCoin("training")}`
-			: null;
+	// A mini coin for each ride that earned Training Rynke (feature 012); a
+	// ride that counts without them gets no coin on its status either (020
+	// FR-011).
+	const earns = ride.status === "counts" && ride.distanceRynke > 0;
+	const earned = earns ? html` ${miniCoin("training")}` : null;
+	const statusText =
+		ride.status === "counts" && !earns
+			? "rynke.ride.countsWithoutRynke"
+			: status.text;
 	const metres = pending
 		? "–"
 		: i18n.t("units.m", { value: whole(i18n, ride.elevationM) });
@@ -640,7 +644,7 @@ function rideCard(
 			? html` id="tour-short-ride"`
 			: null;
 	return html`<li class="ride-card ${status.cls}">
-<div class="ride-head"><span class="ride-date">${date}</span> <span class="chip ride-status">${i18n.t(status.text)}</span></div>
+<div class="ride-head"><span class="ride-date">${date}</span> <span class="chip ride-status">${i18n.t(statusText)}</span></div>
 <dl class="ride-figures"${figures}><div><dt>${i18n.t("me.recent.col.distance")}</dt><dd>${km}</dd></div><div><dt>${i18n.t("rynke.training")}</dt><dd>${rynke}${earned}</dd></div><div><dt>${i18n.t("rynke.rides.col.elevationTotal")}</dt><dd>${metres}</dd></div></dl>
 ${strava}<p class="ride-meta">${i18n.t(`sport.${ride.sportType}`)} · ${gain}${virtual}</p>
 ${explanation(i18n, ride)}</li>

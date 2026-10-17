@@ -129,6 +129,7 @@ export const en: Catalog = {
 	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
 	"rynke.rules.handout": "The rules as PDF (in German)",
 	"rynke.ride.counts": "counts 🪙",
+	"rynke.ride.countsWithoutRynke": "counts",
 	"rynke.ride.doesNotCount": "doesn't count",
 	"rynke.ride.beingEvaluated": "Being evaluated",
 	"rynke.ride.virtual": "virtual",

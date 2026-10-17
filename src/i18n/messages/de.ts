@@ -135,6 +135,7 @@ export const de = {
 		"Es zählt alles vom {start} bis zum {deadline}.",
 	"rynke.rules.handout": "Die Regeln als PDF",
 	"rynke.ride.counts": "zählt 🪙",
+	"rynke.ride.countsWithoutRynke": "zählt",
 	"rynke.ride.doesNotCount": "zählt nicht",
 	"rynke.ride.beingEvaluated": "Wird ausgewertet",
 	"rynke.ride.virtual": "virtuell",

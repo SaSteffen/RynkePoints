@@ -53,3 +53,8 @@ contacts Strava.
   again after the tour.
 - [ ] T013 Owner's walk-through on a phone in `pnpm dev`: wording, the
   highlight, and whether the card covers its element.
+- [x] T014 `test/integration/me-rynke.test.ts`, `tour.test.ts`: a counting ride
+  with 0 Training Rynke shows "zählt" without the coin, its own and the
+  example's (FR-011).
+- [x] T015 `src/http/rider-sections.ts`, `src/i18n/messages/de.ts`, `en.ts`:
+  `rynke.ride.countsWithoutRynke` for such a ride (FR-011).

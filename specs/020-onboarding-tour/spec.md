@@ -34,8 +34,9 @@ Termine tab for riders who aren't organisers, and left its tour step for later
 **On "too short"**: the rules have no minimum ride length. Every *full* 10 km of
 a ride earn one Training Rynke; a ride under 10 km counts, but earns no distance
 Rynke, and its elevation still counts towards the elevation total. The tour
-explains exactly that, on a short example ride that shows "zählt 🪙" with 0
-Training Rynke.
+explains exactly that, on a short example ride that shows "zählt" with 0
+Training Rynke. The coin in "zählt 🪙" promises Rynke, so a ride that earns none
+shows "zählt" without it, on the example and on every rider's own rides.
 
 ## Clarifications
 
@@ -87,8 +88,8 @@ afterwards.
    them must be ridden outside, and the "Trainingsrynke draußen" gauge is
    highlighted.
 5. **Given** the tour's Fahrten steps, **When** they show, **Then** the list
-   shows the example rides, one of them under 10 km with 0 Training Rynke, and a
-   hint explains that every full 10 km earn one Training Rynke, a shorter ride
+   shows the example rides, one of them under 10 km with 0 Training Rynke and
+   "zählt" without the coin, and a hint explains that every full 10 km earn one Training Rynke, a shorter ride
    earns none for its distance, and its Höhenmeter still count; that ride's
    figures are highlighted.
 6. **Given** the rule values change (a new rules version), **When** the tour
@@ -194,6 +195,9 @@ steps, then the pages without the tour, and check the database and the pages.
   outside, the distance step) MUST come from the rules in effect.
 - **FR-009**: All new texts MUST be in the catalogs, in German and English, and
   address the rider as "du".
+- **FR-011**: A ride that counts but earns no Training Rynke MUST show "zählt"
+  without the coin ("zählt 🪙" only with Training Rynke), on the example rides
+  and on every rider's own Fahrten.
 - **FR-010**: Finishing, skipping, the invitation on other pages, the wait for
   the first import and starting again from Einstellungen MUST work as today.
 

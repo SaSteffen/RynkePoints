@@ -13,6 +13,8 @@ parameters, filled from `CURRENT_RULES` (research R6): `distanceKm`,
 | `tour.rider.teamRynke` | Teamrynke gibt es nur für Teamtermine, bei denen die Orga dich eingetragen hat: {teamTraining} für ein Teamtraining, {weekendDay} für einen Tag am Trainingswochenende, {technique} für ein Techniktraining. Für Paris brauchst du {teamThreshold}. |
 | `tour.rider.outdoor` | Höchstens {virtualShare} deiner Trainingsrynke dürfen von virtuellen Fahrten kommen. Dieser Balken zählt alles außer ihnen: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren, Teamtermine zählen mit. |
 | `tour.rider.shortRide` | Für jede volle {distanceKm} km einer Fahrt gibt es {distanceRynke} Trainingsrynke. Diese Fahrt war kürzer: Sie zählt, bringt aber keine Rynke für die Strecke. Ihre Höhenmeter kommen trotzdem auf den Zähler. |
+| `rynke.ride.countsWithoutRynke` | zählt |
 | `tour.rider.events` | Termine: die Teamtermine. Sag vorher Bescheid, ob du dabei bist, und melde danach, dass du da warst. Sobald die Orga dich eingetragen hat, gibt es Teamrynke. |
 
-The other tour messages are unchanged.
+The other tour messages are unchanged. `rynke.ride.counts` ("zählt 🪙") is now
+only for a ride with Training Rynke (FR-011).
