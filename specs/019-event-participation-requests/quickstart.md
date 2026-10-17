@@ -26,7 +26,7 @@ Expected coverage, test-first (Principle V):
 | quick decisions, undo, "Ich war auch dabei", counts and chips | `test/integration/organiser-requests.test.ts` |
 | tri-state save with and without `decide-*` fields | `test/integration/organiser-attendance.test.ts` |
 | overview tile, ordering, one line per request | `test/integration/organiser-overview.test.ts` |
-| Team page order, no place card, no peloton | `test/integration/team-leaderboard.test.ts` |
+| Team page order per view, no place card and no peloton for Team Rynke | `test/integration/team-leaderboard.test.ts` |
 | navigation: Termine for riders, Orga with count for organisers | `test/integration/sections.test.ts` |
 | no rider page shows others' reports or counts (FR-010, SC-004) | `test/integration/rider-events.test.ts` |
 | reports never change balances, badges or leaderboards (SC-003) | `test/integration/rider-events.test.ts` |
@@ -42,8 +42,8 @@ Sample data (research R14): upcoming events with intents, open requests at three
 past events, Nora with three, Katrin with two.
 
 1. Sign in as a rider who isn't an organiser. The navigation shows **Termine**
-   instead of Orga; Team shows no place card and no peloton, the Rangliste above
-   the chart.
+   instead of Orga; Team with Team Rynke shows no place card and no peloton, the
+   Rangliste above the chart; Training still shows both.
 2. Termine: the Spond/Strava note on top, "Demnächst" with the "Bin dabei" line
    under it. Tap **Bin dabei**: green with a tick. Hover it: red "Doch nicht
    dabei". Click: back to yellow. Balance on Du unchanged.

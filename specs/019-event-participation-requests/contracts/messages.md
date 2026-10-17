@@ -1,8 +1,8 @@
 # Contract: Catalog Messages
 
 New and changed keys in `src/i18n/messages/de.ts` and `en.ts` (FR-050), the rider
-addressed as "du". Removed with the Team page's place card and peloton (research
-R12): `team.place`, `team.place.next`, `team.place.lead`, every `team.peloton.*`.
+addressed as "du". `team.place*` and `team.peloton.*` stay: Training still shows
+the place card and the peloton (research R12).
 Wording may be polished in implementation; the meaning may not change.
 
 ## Navigation and tour

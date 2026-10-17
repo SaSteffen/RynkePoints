@@ -19,8 +19,9 @@ page and per rider in the overview, and settle them with one-tap forms that
 record attendance through 014's existing path, plus a signed undo (R4). The
 event page's checkboxes become tri-state: radios that `public/app.js` turns into
 one cycling box, so a browser without script never denies by accident (R5).
-Organisers add themselves with "Ich war auch dabei" (R9). The Team page loses
-its place card and peloton; the Rangliste moves up (R12).
+Organisers add themselves with "Ich war auch dabei" (R9). With Team Rynke the
+Team page loses its place card and peloton and the Rangliste moves up; Training
+keeps them (R12).
 
 - **Reports (R1–R3)**: one table, no status; recording attendance anywhere
   deletes the report in the same batch, so a report never sits next to an
@@ -124,13 +125,11 @@ src/
 ├── rynke/
 │   ├── participation.ts                # new: hasTakenPlace, report state (pure, R2)
 │   ├── apply.ts                        # add-attendance also deletes reports (R3)
-│   └── breakaway.ts                    # removed (R12)
 ├── visibility.ts                       # + participationReports (R11)
 ├── http/
 │   ├── shell.ts                        # + Termine section (riderOnly), Orga count (R7, R8)
 │   ├── sections/events.ts              # new: the Termine tab and its two POSTs
-│   ├── sections/team.ts                # − place card, − peloton, Rangliste before chart
-│   ├── charts.ts                       # − peloton
+│   ├── sections/team.ts                # Team Rynke: − place card, − peloton, Rangliste before chart
 │   ├── organiser/requests.ts           # new: confirm/deny, undo, open-request block (R4)
 │   ├── organiser/events.ts             # + open requests, chips, counts, "Ich war auch dabei"
 │   ├── organiser/attendance.ts         # tri-state rows, decide-* fields (R5)
@@ -149,9 +148,7 @@ dev/                                    # sample reports (R14)
 test/
 ├── unit/
 │   ├── participation.test.ts
-│   ├── request-undo.test.ts
-│   ├── charts.test.ts                  # − peloton cases
-│   └── breakaway.test.ts               # removed
+│   └── request-undo.test.ts
 ├── integration/
 │   ├── participation-store.test.ts
 │   ├── rider-events.test.ts
@@ -159,7 +156,7 @@ test/
 │   ├── organiser-attendance.test.ts    # + tri-state
 │   ├── organiser-overview.test.ts      # + requests
 │   ├── team-events-apply.test.ts       # + reports deleted
-│   ├── team-leaderboard.test.ts        # new order, no place, no peloton
+│   ├── team-leaderboard.test.ts        # Team Rynke: new order, no place, no peloton
 │   └── sections.test.ts                # Termine vs Orga
 
 e2e/smoke.e2e.ts                        # Bin dabei / Doch nicht dabei, tri-state box
