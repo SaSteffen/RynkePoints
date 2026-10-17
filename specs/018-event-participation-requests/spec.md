@@ -6,6 +6,9 @@
 
 **Status**: Draft
 
+**Mock-up**: Claude Design "RynkePoints Teamtermine melden",
+https://claude.ai/artifact/68rCYVhqbt4QyHFqAXQvMC
+
 **Input**: User description: "Let riders request to be added as participant of a
 team training. On the team page we add a section for upcoming and past dates and
 show how many Team Rynke can be earned by participating. On any of these events add
@@ -80,33 +83,31 @@ Terms as in features 003 and 014: **team event**, **attendance**, **listed rider
 
 ### User Story 1 - Rider sees the season's team events and what they are worth (Priority: P1)
 
-A rider who is not an organiser opens the "Termine" tab: a card saying how
-many Team Rynke (and Training Rynke) the upcoming events of the season still hold
-("Noch 16 Teamrynke drin – bei den nächsten 4 Terminen, dazu 30 Trainingsrynke"),
-then the upcoming events ("Demnächst") and the past events of the season ("Vorbei").
+A rider who is not an organiser opens the "Termine" tab: a note saying the app
+can't take their participation from Spond or Strava yet, so they report it here
+themselves ("Melde dich hier selbst an"), then the upcoming events ("Demnächst") and the past events of the season ("Vorbei").
 Each event shows its date, kind, name and the Team and Training Rynke attendance
 earns, with the coin.
 
 **Why this priority**: Riders today learn about team events only outside the app;
-seeing the Team Rynke on offer motivates them to come, and the list is where the
-buttons of Stories 2 and 3 live.
+seeing the Team Rynke each event earns motivates them to come, and the list is
+where the buttons of Stories 2 and 3 live.
 
 **Independent Test**: With synthetic events (`pnpm dev`), sign in as a rider,
-check the Termine tab is there (and absent for an organiser), and compare the listed events, their amounts and the card's sums with the stored events
-and feature 003 FR-007's fixed amounts.
+check the Termine tab is there (and absent for an organiser), and compare the listed events and their amounts with the stored events and feature
+003 FR-007's fixed amounts.
 
 **Acceptance Scenarios**:
 
-1. **Given** four events after today up to the qualification deadline worth 1, 5, 5
-   and 5 Team Rynke, **When** a rider opens Termine, **Then** the card says 16 Team
-   Rynke at 4 events plus their Training Rynke, and "Demnächst" lists the four,
-   soonest first.
+1. **Given** four events after today up to the qualification deadline, **When** a
+   rider opens Termine, **Then** the note about Spond and Strava comes first and
+   "Demnächst" lists the four, soonest first, each with its amounts.
 2. **Given** past events of the season, **When** a rider opens Termine, **Then**
    "Vorbei" lists them, newest first, each with its amounts.
 3. **Given** a past event where the rider's attendance is recorded, **When** it is
    shown, **Then** it says "Du warst dabei" and has no button.
-4. **Given** no upcoming events, **When** a rider opens Termine, **Then** the card
-   says no team events are planned yet instead of a sum.
+4. **Given** no upcoming events, **When** a rider opens Termine, **Then**
+   "Demnächst" says no team events are planned yet.
 5. **Given** an organiser, **When** they look at the navigation, **Then** they see
    "Orga" and no "Termine" tab.
 
@@ -345,8 +346,9 @@ sections and that neither the place card nor the peloton is shown.
 - **FR-002**: Each event MUST show its date, kind, name (if any) and the Team and
   Training Rynke its attendance earns (feature 003 FR-007), with the coin (feature
   012).
-- **FR-003**: The section MUST show the sum of Team Rynke, and of Training Rynke,
-  that the events still to take place hold, and how many events that is.
+- **FR-003**: The Termine tab MUST start with a note that the app can't take
+  participation from Spond or Strava yet and that riders report it here themselves.
+  It MUST NOT show sums of the Rynke the upcoming events hold.
 - **FR-004**: For an event that has not taken place the rider MUST get a "Bin dabei"
   button that stores their intent. With an intent the button MUST be green with a
   tick; while hovered or focused it MUST be red and read "Doch nicht dabei"; a click
