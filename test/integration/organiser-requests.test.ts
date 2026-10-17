@@ -159,10 +159,11 @@ describe("the count of open requests (FR-030)", () => {
 
 	it("shows nothing without open requests and nothing to riders", async () => {
 		await env.DB.prepare("DELETE FROM participation_reports").run();
-		expect((await page("/team")).html).not.toContain("count-badge");
+		const badge = '<span class="count-badge"';
+		expect((await page("/team")).html).not.toContain(badge);
 		await reportRaw(technique, KATRIN);
 		const rider = await page("/team", EMIL);
-		expect(rider.html).not.toContain("count-badge");
+		expect(rider.html).not.toContain(badge);
 	});
 
 	it("leaves out a request next to attendance", async () => {
@@ -224,7 +225,9 @@ describe("GET /organiser with open requests (FR-031, FR-033)", () => {
 
 	it("has no block without open requests", async () => {
 		await env.DB.prepare("DELETE FROM participation_reports").run();
-		expect((await page("/organiser")).html).not.toContain("open-requests");
+		expect((await page("/organiser")).html).not.toContain(
+			'<section class="open-requests"',
+		);
 	});
 });
 

@@ -112,6 +112,9 @@ function requestItem(
 	return html`<li class="attendance-rider attendance-requested"><fieldset class="tri-state"><legend><span class="rider-name">${rider.first_name}</span></legend>${radio("open")}${radio("yes")}${radio("no")}</fieldset>${tag("open")}${tag("yes")}${tag("no")}<input type="hidden" name="shown" value="${id}:r">${link}</li>`;
 }
 
+/** The summary's placeholders, kept for `public/app.js` to fill. */
+const SUMMARY_SLOTS = { yes: "{yes}", no: "{no}", open: "{open}" };
+
 /** The three example boxes above the list (019 FR-040). */
 function legend(i18n: I18n, future: boolean): SafeHtml {
 	const item = (box: string, label: SafeHtml | string) =>
@@ -170,7 +173,7 @@ ${items(false)}`;
 			: null;
 	const summary =
 		open > 0
-			? html`<p class="tri-summary" role="status" hidden data-text="${i18n.t("organiser.attendance.summary")}"></p>`
+			? html`<p class="tri-summary" role="status" hidden data-text="${i18n.t("organiser.attendance.summary", SUMMARY_SLOTS)}"></p>`
 			: null;
 	return html`${heading}
 ${legend(i18n, false)}${hint}
