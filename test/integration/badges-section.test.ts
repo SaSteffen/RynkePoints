@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { BADGES } from "../../src/badges/catalog";
 import { badgeWindow } from "../../src/badges/evaluate";
+import { BADGE_OUTLINE } from "../../src/badges/outline";
 import { BADGE_PICTURES } from "../../src/badges/pictures";
 import { readRiderBadges } from "../../src/db/badges";
 import { escapeHtml } from "../../src/http/html";
@@ -109,6 +110,9 @@ describe("the Abzeichen section", () => {
 			escapeHtml(de["badges.missing"].replace("{value}", "480\u00a0km")),
 		);
 		expect(distance).toContain('<span style="width:52%"></span>');
+		expect(distance).toContain(
+			`<span class="badge-next">${escapeHtml(de["badges.next"])}</span>`,
+		);
 		expect(badges).toContain(
 			escapeHtml(de["badges.missing"].replace("{value}", "1.100\u00a0m")),
 		);
@@ -155,7 +159,9 @@ describe("the Abzeichen section", () => {
 		// Distance: 2 of 5 earned; elevation: 1 of 4; the other categories have
 		// none yet and show only outlines (part C's eight after running).
 		const slots = (list: string) =>
-			list.match(/<li class="badge-slot" aria-hidden="true"><\/li>/g)?.length;
+			list.match(
+				/<li class="badge-slot" aria-hidden="true"><svg class="badge-outline badge-outline-plain"/g,
+			)?.length;
 		expect(lists.map(slots)).toEqual([
 			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3, 13,
 		]);
@@ -194,22 +200,29 @@ describe("the Abzeichen section", () => {
 			escapeHtml(de["badges.missing"].replace("{value}", "1\u00a0Termin")),
 		);
 		expect(badges).toContain(
-			'<span class="badge-slot" aria-hidden="true"></span>',
+			`<div class="badge-slot">${BADGE_OUTLINE}<p class="badge-about">`,
 		);
+		expect(badges).toContain('<g id="badge-shape">');
 	});
 
-	it("explains each category under its name", async () => {
+	it("explains each category in the gallery, the large view and the empty outline", async () => {
 		const { section: badges } = await section();
 		const about = (category: "distance" | "running") =>
 			escapeHtml(de[`badges.about.${category}`]);
-		// On the card and in the gallery.
+		// In the gallery under its name and in the large view; the card's
+		// picture fills the circle, so not on the card.
 		expect(badges).toContain(
 			`<h4>${escapeHtml(de["badges.category.distance"])}</h4>\n<p class="badge-about">${about("distance")}</p>`,
 		);
-		expect(badges?.split(about("distance")).length).toBe(3);
-		// On the card of a category without a badge.
+		expect(badges).not.toContain("badge-large-about");
+		const distanceCard =
+			badges?.match(
+				/<li class="badge-card" data-category="distance">[\s\S]*?<\/li>/,
+			)?.[0] ?? "";
+		expect(distanceCard).not.toContain("badge-about");
+		// Inside the outline of a category without a badge.
 		expect(badges).toContain(
-			`<h4>${escapeHtml(de["badges.category.running"])}</h4>\n<p class="badge-about">${about("running")}</p>`,
+			`<h4>${escapeHtml(de["badges.category.running"])}</h4>\n<div class="badge-slot">${BADGE_OUTLINE}<p class="badge-about">${about("running")}</p></div>`,
 		);
 	});
 
@@ -392,8 +405,11 @@ describe("the part C categories on the page", () => {
 	it("shows no bar for a winter month that is over, but keeps its card", async () => {
 		const { section: badges } = await section();
 		const january = card(badges, "winter_january");
-		expect(january).toContain('<span class="badge-slot" aria-hidden="true">');
+		expect(january).toContain('<div class="badge-slot">');
 		expect(january).not.toContain("badge-progress");
+		expect(card(badges, "winter_december")).toContain(
+			`<span class="badge-next">${escapeHtml(de["badges.first"])}</span>`,
+		);
 		expect(card(badges, "winter_december")).toContain("badge-progress");
 	});
 
@@ -456,6 +472,7 @@ describe("the surprise badges on the page", () => {
 			/<li class="badge-card[^"]*" data-category="surprise">[\s\S]*?<\/li>/,
 		)?.[0] ?? "";
 	const about = `<h4>${escapeHtml(de["badges.category.surprise"])}</h4>\n<p class="badge-about">?</p>`;
+	const outline = `<h4>${escapeHtml(de["badges.category.surprise"])}</h4>\n<div class="badge-slot">${BADGE_OUTLINE}<p class="badge-about">?</p></div>`;
 
 	beforeEach(async () => {
 		await seedBalance(ATHLETE_A);
@@ -466,7 +483,7 @@ describe("the surprise badges on the page", () => {
 		const { section: badges } = await section();
 		const card = surpriseCard(badges);
 		expect(card).toContain("badge-card-empty");
-		expect(card).toContain(about);
+		expect(card).toContain(outline);
 		expect(card).not.toContain("badge-progress");
 		const gallery = badges?.match(/<details[\s\S]*?<\/details>/)?.[0] ?? "";
 		expect(gallery).toContain(about);
@@ -479,7 +496,10 @@ describe("the surprise badges on the page", () => {
 		]);
 		const { html, section: badges } = await section();
 		const card = surpriseCard(badges);
-		expect(card).toContain(about);
+		expect(card).toContain(
+			`<h4>${escapeHtml(de["badges.category.surprise"])}</h4>`,
+		);
+		expect(card).not.toContain("badge-about");
 		expect(card).toContain('popovertarget="badge-surprise-christmas-eve"');
 		expect(card).toContain(
 			`<span class="badge-ribbon-text">${escapeHtml(de["badges.surprise.christmas-eve"])}</span>`,

@@ -9,7 +9,7 @@
  * coin looks like the coin. Listed in both so both define the same names.
  */
 const COIN =
-	"--rp-coin-rim:#c99a2e;--rp-coin-ink:#1c1b13;--rp-coin-face:#fffdf5;--rp-coin-yellow:#fbe122;--rp-coin-fur:#c8641e;--rp-coin-muzzle:#f0a868;--rp-coin-sky:#a9d6f2;--rp-coin-glass:#e8f3fb;--rp-coin-brick:#b5562f;--rp-coin-water:#3a8fd0;--rp-coin-team:#8cc4f0";
+	"--rp-coin-rim:#c99a2e;--rp-coin-ink:#1c1b13;--rp-coin-face:#fffdf5;--rp-coin-yellow:#fbe122;--rp-ribbon-text:#f7e27c;--rp-ribbon-glow:0 0 2px rgba(247,226,124,.25);--rp-coin-fur:#c8641e;--rp-coin-muzzle:#f0a868;--rp-coin-sky:#a9d6f2;--rp-coin-glass:#e8f3fb;--rp-coin-brick:#b5562f;--rp-coin-water:#3a8fd0;--rp-coin-team:#8cc4f0";
 
 /**
  * The Team page's fixed accents (feature 016, the Claude Design draft): the
@@ -20,7 +20,7 @@ const TEAM =
 	"--rp-hero-label:#e6d9a8;--rp-hero-week:#bfe3c6;--rp-push-accent:#e8833a;--rp-ok-accent:#2e8b57;";
 
 /** The colour roles of the dark scheme, for the system setting and a choice. */
-const DARK = `--md-sys-color-surface:#12110c;--md-sys-color-surface-container-low:#1a1913;--md-sys-color-surface-container:#201f18;--md-sys-color-surface-container-high:#2b2a21;--md-sys-color-on-surface:#eeebdd;--md-sys-color-on-surface-variant:#cec9b3;--md-sys-color-outline:#979279;--md-sys-color-outline-variant:#4a4633;--md-sys-color-primary:#fbe122;--md-sys-color-on-primary:#1c1b13;--md-sys-color-primary-container:#fbe122;--md-sys-color-on-primary-container:#1c1b13;--md-sys-color-secondary-container:#fbe122;--md-sys-color-on-secondary-container:#1c1b13;--md-sys-color-error:#ffb4ab;--md-sys-color-error-container:#93000a;--md-sys-color-on-error-container:#ffdad6;--rp-ok-container:#173a22;--rp-on-ok-container:#bfe3c6;--rp-neutral-container:#2e2c22;--rp-on-neutral-container:#cec9b3;--rp-brand:#fc5200;--rp-part-1:#fbe122;--rp-part-2:#8cc4f0;--rp-part-3:#ff9a4d;--rp-part-4:#6fd1c2;--rp-part-5:#d7a6ec;--rp-part-6:#a8a6a0;--rp-reached:#7fcb92;--rp-track:#3a382c;--rp-push-container:#3a2614;--rp-on-push-container:#f6d2b0;--rp-road:#0a0906;--rp-bar:#6b6650;${TEAM}${COIN}`;
+const DARK = `--rp-badge-edge:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 2px 2px rgba(0,0,0,.6));--rp-badge-lift:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 6px 6px rgba(0,0,0,.6));--md-sys-color-surface:#12110c;--md-sys-color-surface-container-low:#1a1913;--md-sys-color-surface-container:#201f18;--md-sys-color-surface-container-high:#2b2a21;--md-sys-color-on-surface:#eeebdd;--md-sys-color-on-surface-variant:#cec9b3;--md-sys-color-outline:#979279;--md-sys-color-outline-variant:#4a4633;--md-sys-color-primary:#fbe122;--md-sys-color-on-primary:#1c1b13;--md-sys-color-primary-container:#fbe122;--md-sys-color-on-primary-container:#1c1b13;--md-sys-color-secondary-container:#fbe122;--md-sys-color-on-secondary-container:#1c1b13;--md-sys-color-error:#ffb4ab;--md-sys-color-error-container:#93000a;--md-sys-color-on-error-container:#ffdad6;--rp-ok-container:#173a22;--rp-on-ok-container:#bfe3c6;--rp-neutral-container:#2e2c22;--rp-on-neutral-container:#cec9b3;--rp-brand:#fc5200;--rp-part-1:#fbe122;--rp-part-2:#8cc4f0;--rp-part-3:#ff9a4d;--rp-part-4:#6fd1c2;--rp-part-5:#d7a6ec;--rp-part-6:#a8a6a0;--rp-reached:#7fcb92;--rp-track:#3a382c;--rp-push-container:#3a2614;--rp-on-push-container:#f6d2b0;--rp-road:#0a0906;--rp-bar:#6b6650;${TEAM}${COIN}`;
 
 /** Strava's images come in both variants; the scheme shows one (R13). */
 const SHOW_DARK = (root: string) =>
@@ -29,7 +29,7 @@ const SHOW_DARK = (root: string) =>
 const SYSTEM_DARK = ":root:not([data-scheme=light])";
 const FIXED_DARK = ":root[data-scheme=dark]";
 
-export const STYLE = `:root{color-scheme:light dark;--md-sys-color-surface:#fffdf5;--md-sys-color-surface-container-low:#fcf9ec;--md-sys-color-surface-container:#f6f2e0;--md-sys-color-surface-container-high:#efead3;--md-sys-color-on-surface:#1c1b13;--md-sys-color-on-surface-variant:#4a4633;--md-sys-color-outline:#7a755c;--md-sys-color-outline-variant:#d3cdb2;--md-sys-color-primary:#1c1b13;--md-sys-color-on-primary:#fbe122;--md-sys-color-primary-container:#fbe122;--md-sys-color-on-primary-container:#1c1b13;--md-sys-color-secondary-container:#fbe122;--md-sys-color-on-secondary-container:#1c1b13;--md-sys-color-error:#ba1a1a;--md-sys-color-error-container:#ffdad6;--md-sys-color-on-error-container:#410002;--rp-ok-container:#e7eee8;--rp-on-ok-container:#0f4f25;--rp-neutral-container:#efead3;--rp-on-neutral-container:#4a4633;--rp-brand:#fc5200;--rp-part-1:#fbe122;--rp-part-2:#8cc4f0;--rp-part-3:#ff9a4d;--rp-part-4:#6fd1c2;--rp-part-5:#d7a6ec;--rp-part-6:#a8a6a0;--rp-reached:#7fcb92;--rp-track:#1c1b13;--rp-push-container:#fdebd9;--rp-on-push-container:#6a3208;--rp-road:#1c1b13;--rp-bar:#7a755c;${TEAM}${COIN}}
+export const STYLE = `:root{color-scheme:light dark;--md-sys-color-surface:#fffdf5;--md-sys-color-surface-container-low:#fcf9ec;--md-sys-color-surface-container:#f6f2e0;--md-sys-color-surface-container-high:#efead3;--md-sys-color-on-surface:#1c1b13;--md-sys-color-on-surface-variant:#4a4633;--md-sys-color-outline:#7a755c;--md-sys-color-outline-variant:#d3cdb2;--md-sys-color-primary:#1c1b13;--md-sys-color-on-primary:#fbe122;--md-sys-color-primary-container:#fbe122;--md-sys-color-on-primary-container:#1c1b13;--md-sys-color-secondary-container:#fbe122;--md-sys-color-on-secondary-container:#1c1b13;--md-sys-color-error:#ba1a1a;--md-sys-color-error-container:#ffdad6;--md-sys-color-on-error-container:#410002;--rp-ok-container:#e7eee8;--rp-on-ok-container:#0f4f25;--rp-neutral-container:#efead3;--rp-on-neutral-container:#4a4633;--rp-brand:#fc5200;--rp-part-1:#fbe122;--rp-part-2:#8cc4f0;--rp-part-3:#ff9a4d;--rp-part-4:#6fd1c2;--rp-part-5:#d7a6ec;--rp-part-6:#a8a6a0;--rp-reached:#7fcb92;--rp-track:#1c1b13;--rp-push-container:#fdebd9;--rp-on-push-container:#6a3208;--rp-road:#1c1b13;--rp-bar:#7a755c;--rp-badge-edge:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 2px 2px rgba(28,27,19,.3));--rp-badge-lift:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 6px 6px rgba(28,27,19,.3));${TEAM}${COIN}}
 @media (prefers-color-scheme:dark){${SYSTEM_DARK}{color-scheme:dark;${DARK}}${SHOW_DARK(SYSTEM_DARK)}}
 ${FIXED_DARK}{color-scheme:dark;${DARK}}
 :root[data-scheme=light]{color-scheme:light}
@@ -376,27 +376,38 @@ ul.rider-missing{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-sty
 .badges-reveal{display:flex;align-items:center;gap:var(--rp-space-3);margin:0 0 var(--rp-space-4);padding:var(--rp-space-3) var(--rp-space-4);border-radius:var(--md-shape-lg);background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
 .badges-reveal p{margin:0;font-weight:600}
 .badges-reveal-pictures{display:flex;flex:none}
-.badges-reveal-pictures img{width:48px;height:48px;animation:badge-pop 600ms cubic-bezier(.3,1.4,.5,1) both}
+.badges-reveal-pictures img{width:48px;height:48px;animation:badge-slap 700ms ease-out both}
 .badges-reveal-pictures img+img{margin-left:-20px;animation-delay:120ms}
 .badges h3{margin:var(--rp-space-5) 0 var(--rp-space-3);font:var(--md-type-title)}
 .badges-empty{margin:0 0 var(--rp-space-3)}
 .badge-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-3);margin:0;padding:0;list-style:none}
-.badge-card{display:grid;grid-row:span 4;grid-template-rows:subgrid;justify-items:center;align-content:start;gap:var(--rp-space-2);padding:var(--rp-space-3);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container-low);text-align:center}
-.badge-card h4{margin:0;font:var(--md-type-label);font-weight:700}
-@media (max-width:599.98px){.badge-card:not(.badge-card-empty) .badge-about{display:none}}
+.badge-card{display:grid;grid-row:span 3;grid-template-rows:subgrid;justify-items:center;align-content:start;gap:var(--rp-space-2);padding:var(--rp-space-3);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container-low);text-align:center}
+.badge-card h4{grid-row:1;margin:0;font:var(--md-type-label);font-weight:700}
+.badge-card>.badge,.badge-card>.badge-slot{grid-row:2}
+.badge-card>.badge-progress{grid-row:3}
 .badge-about{margin:0;font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full);background:none;cursor:pointer}
 .badge{position:relative;container-type:inline-size}
-.badge img{display:block;width:100%;height:auto}
+.badge img{display:block;width:100%;height:auto;filter:var(--rp-badge-edge)}
+button.badge{transform:rotate(var(--tilt,0deg));transition:transform var(--rp-motion)}
+button.badge:hover,button.badge:focus-visible{transform:none}
+@media (prefers-reduced-motion:no-preference){button.badge:active{transform:scale(1.06)}}
+button.badge:active img{filter:var(--rp-badge-lift)}
+.badges-reveal-pictures img{filter:var(--rp-badge-edge)}
 .badge-card .badge,.badge-card .badge-slot{width:100%;max-width:200px}
-.badge-card .badge-slot::before{width:100%;height:auto;aspect-ratio:1}
-.badge-ribbon-text{position:absolute;left:13%;top:70%;width:74%;height:14%;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;color:var(--rp-coin-yellow);font:700 clamp(8px,8.5cqi,26px)/1 var(--md-ref-typeface)}
-.badge-group-team .badge-ribbon-text,.badge-large-team .badge-ribbon-text{color:var(--rp-coin-ink)}
-.badge-progress{display:flex;flex-direction:column;gap:var(--rp-space-1);width:100%}
+.badge-card{--rp-slot-ground:var(--md-sys-color-surface-container-low)}
+.badge-card .badge-slot{display:flex;align-items:center;justify-content:center;aspect-ratio:1;box-sizing:border-box;padding:17% 16% 17%;container-type:inline-size}
+.badge-card .badge-slot .badge-about{position:relative;font-size:15px;line-height:1.2;hyphens:auto;color:var(--md-sys-color-on-surface)}
+@media (max-width:359.98px){.badge-card .badge-slot .badge-about{font-size:13px}}
+.badge-card-empty[data-category$=surprise] .badge-slot .badge-about{font:700 clamp(24px,30cqi,64px)/1 var(--md-ref-typeface)}
+.badge-ribbon-text{position:absolute;left:13%;top:70%;width:74%;height:14%;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;color:var(--rp-ribbon-text);font:600 clamp(8px,8.5cqi,26px)/1 var(--md-ref-typeface);letter-spacing:.04em;text-shadow:var(--rp-ribbon-glow)}
+.badge-group-team .badge-ribbon-text,.badge-large-team .badge-ribbon-text{color:var(--rp-coin-ink);text-shadow:none}
+.badge-progress{display:flex;flex-direction:column;gap:var(--rp-space-1);width:100%;margin-top:var(--rp-space-3)}
+.badge-next{font:var(--md-type-label-small);font-weight:400;color:var(--md-sys-color-on-surface-variant)}
 .badges .bar{display:block;height:10px;border-radius:var(--md-shape-full);background:var(--md-sys-color-surface-container-high);overflow:hidden}
 .badges .bar>span{display:block;min-width:10px;height:100%;box-sizing:border-box;border:1.5px solid var(--rp-coin-ink);border-radius:var(--md-shape-full);background:var(--rp-coin-yellow)}
 .badge-group-team .bar>span{background:var(--rp-coin-team)}
-.badge-missing{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
+.badge-missing{font:var(--md-type-label-small);font-weight:400;color:var(--md-sys-color-on-surface-variant)}
 .badge-gallery{margin:var(--rp-space-3) 0 0}
 .badge-gallery>summary{display:flex;align-items:center;justify-content:space-between;min-height:var(--rp-tap);padding:0 var(--rp-space-4);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-lg);cursor:pointer;list-style:none;font:var(--md-type-label)}
 .badge-gallery h4{margin:var(--rp-space-3) 0 0;font:var(--md-type-label);font-weight:700}
@@ -404,7 +415,13 @@ button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full)
 .badge-gallery ul{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:var(--rp-space-3);margin:0;padding:0;list-style:none}
 .badge-gallery li{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-1)}
 .badge-gallery .badge{width:96px}
-.badge-slot::before{content:"";display:block;width:96px;height:96px;box-sizing:border-box;border:2px dotted var(--md-sys-color-outline);border-radius:var(--md-shape-full)}
+.badge-slot{position:relative}
+.badge-gallery li.badge-slot{width:96px;height:96px;justify-self:center}
+.badge-shape-defs{position:absolute;overflow:hidden}
+.badge-outline{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.badge-outline-edge{fill:none;stroke:var(--md-sys-color-outline);stroke-width:3.2;stroke-dasharray:4 3;stroke-linejoin:round}
+.badge-outline-fill{fill:var(--rp-slot-ground,var(--md-sys-color-surface));stroke:none}
+.badge-outline-plain .badge-outline-edge{stroke-width:1.6;stroke-dasharray:4 3}
 .badge-value{font:var(--md-type-caption)}
 .badge-large{width:min(312px,calc(100vw - 2 * var(--rp-space-4)));box-sizing:border-box;padding:var(--rp-space-4);border:1px solid var(--md-sys-color-outline-variant);border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface);text-align:center;box-shadow:0 2px 6px var(--md-sys-color-outline)}
 .badge-large-close{position:absolute;top:var(--rp-space-1);right:var(--rp-space-1);z-index:1;padding:0;border:0;background:var(--md-sys-color-surface)}
@@ -420,11 +437,11 @@ button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full)
 @media (min-width:600px) and (max-width:839.98px){body.shell .wordmark-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
 @media (min-width:600px) and (max-width:1023.98px){nav.app-nav a:not([aria-current]) .nav-label{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0 0 0 0)}}
 @media (max-width:399.98px){:root{--rp-page-padding:12px}.hero,.team-total,.overview-deadline{gap:var(--rp-space-3);padding:var(--rp-space-3)}.hero .coin-hero,.team-total .coin-large{width:96px;height:96px}.overview-deadline .coin-large{width:96px;height:96px}.overview-deadline .overview-deadline-count{font:700 28px/34px var(--md-ref-typeface)}.rynke-verdict{font:600 20px/26px var(--md-ref-typeface)}.rynke-summary{gap:var(--rp-space-3)}.status-art-banner{width:72px;height:72px}.group-tile{padding:10px}dl.ride-figures{grid-template-columns:repeat(3,auto);justify-content:space-between}nav.app-nav .nav-icon{width:56px}}
-@media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,.ride-why>summary::after,.more>summary::after,.badge-gallery>summary::after{transition:none}.button,.button-outlined,.danger,.icon-button{transition:none}.button[aria-busy=true]::after,.button-outlined[aria-busy=true]::after,.danger[aria-busy=true]::after,.segmented[aria-busy=true]::after{animation:none}.celebrate-coins .coin-mini{animation:none}.badges-reveal-pictures img{animation:none}.coin-flip-turn{animation:none}}
+@media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,.ride-why>summary::after,.more>summary::after,.badge-gallery>summary::after{transition:none}.button,.button-outlined,.danger,.icon-button{transition:none}.button[aria-busy=true]::after,.button-outlined[aria-busy=true]::after,.danger[aria-busy=true]::after,.segmented[aria-busy=true]::after{animation:none}.celebrate-coins .coin-mini{animation:none}.badges-reveal-pictures img{animation:none}button.badge{transition:none}.coin-flip-turn{animation:none}}
 @keyframes top-bar-lift{from{box-shadow:none}to{background:var(--md-sys-color-surface-container-high);box-shadow:0 1px 0 var(--md-sys-color-outline-variant)}}
 @keyframes busy-spin{to{transform:rotate(360deg)}}
 @keyframes tour-point{50%{outline-offset:5px}}
 @keyframes coin-flip{0%,30%{transform:rotateY(0deg)}50%,80%{transform:rotateY(180deg)}100%{transform:rotateY(360deg)}}
-@keyframes badge-pop{from{transform:scale(.2) rotate(-30deg);opacity:0}to{transform:none;opacity:1}}
+@keyframes badge-slap{from{transform:scale(1.8) rotate(-14deg);opacity:0}45%{transform:scale(.9) rotate(3deg);opacity:1}70%{transform:scale(1.05) rotate(-1deg)}to{transform:none;opacity:1}}
 @keyframes coin-drop{from{transform:translateY(-40px) rotate(-180deg);opacity:0}to{transform:none;opacity:1}}
 @keyframes page-loading{from{transform:translateX(-100%)}to{transform:translateX(250%)}}`;

@@ -508,6 +508,8 @@ export const de = {
 	"badges.team.all": "Alle Team-Abzeichen ({n})",
 	"badges.empty": "Noch kein Abzeichen – deine erste Fahrt bringt dich näher.",
 	"badges.missing": "Noch {value}",
+	"badges.next": "Nächstes Abzeichen",
+	"badges.first": "Erstes Abzeichen",
 	"badges.earnedOn": "erreicht am {date}",
 	"badges.close": "Schließen",
 	"badges.label": "{name}, {value}",
@@ -536,49 +538,28 @@ export const de = {
 	"badges.category.big_training": "Große Ausfahrt",
 	"badges.category.attendances": "Teilnahmen",
 	"badges.category.team_surprise": "Team-Überraschungen",
-	"badges.about.distance":
-		"Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.",
-	"badges.about.elevation":
-		"Alle Höhenmeter deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.",
-	"badges.about.team_events":
-		"Jeder Teamtermin dieser Saison, bei dem du dabei warst, egal welcher Art.",
-	"badges.about.technique":
-		"Die Techniktrainings dieser Saison, bei denen du dabei warst: eins für das erste, eins für beide.",
-	"badges.about.training_rynke":
-		"Alle Trainings-Rynke, die du in dieser Saison gesammelt hast.",
-	"badges.about.run_length":
-		"Dein längster Lauf dieser Saison am Stück, ohne Laufband und virtuelle Läufe.",
-	"badges.about.running":
-		"Alle Kilometer deiner Läufe in dieser Saison, ohne Laufband und virtuelle Läufe.",
-	"badges.about.ride_length":
-		"Deine längste Radfahrt dieser Saison am Stück, die für Trainings-Rynke zählt.",
-	"badges.about.virtual_rides":
-		"Alle Kilometer deiner virtuellen Fahrten und Fahrten auf der Rolle in dieser Saison.",
-	"badges.about.swim_length":
-		"Dein längstes Schwimmen dieser Saison am Stück, im Becken oder im Freiwasser.",
-	"badges.about.swimming":
-		"Alle Kilometer, die du in dieser Saison geschwommen bist.",
-	"badges.about.winter_november":
-		"Tage im November, an denen du draußen gefahren bist, nicht auf der Rolle.",
-	"badges.about.winter_december":
-		"Tage im Dezember, an denen du draußen gefahren bist, nicht auf der Rolle.",
-	"badges.about.winter_january":
-		"Tage im Januar, an denen du draußen gefahren bist, nicht auf der Rolle.",
-	"badges.about.winter_february":
-		"Tage im Februar, an denen du draußen gefahren bist, nicht auf der Rolle.",
+	"badges.about.distance": "Rad-Kilometer mit Trainings-Rynke.",
+	"badges.about.elevation": "Alle Höhenmeter mit Trainings-Rynke.",
+	"badges.about.team_events": "Jeder Teamtermin mit dir.",
+	"badges.about.technique": "Eins fürs erste, eins für beide.",
+	"badges.about.training_rynke": "Alle deine Trainings-Rynke.",
+	"badges.about.run_length": "Längster Lauf am Stück, draußen.",
+	"badges.about.running": "Deine Lauf-Kilometer draußen.",
+	"badges.about.ride_length": "Längste Fahrt mit Trainings-Rynke.",
+	"badges.about.virtual_rides": "Kilometer auf der Rolle und virtuell.",
+	"badges.about.swim_length": "Längstes Schwimmen am Stück.",
+	"badges.about.swimming": "Alle Schwimm-Kilometer.",
+	"badges.about.winter_november": "November-Tage mit Fahrt draußen.",
+	"badges.about.winter_december": "Dezember-Tage mit Fahrt draußen.",
+	"badges.about.winter_january": "Januar-Tage mit Fahrt draußen.",
+	"badges.about.winter_february": "Februar-Tage mit Fahrt draußen.",
 	"badges.about.surprise": "?",
-	"badges.about.team_training_rynke":
-		"Die Trainings-Rynke aller Rider in dieser Saison zusammengezählt.",
-	"badges.about.team_distance":
-		"Die Kilometer aller Radfahrten des Teams in dieser Saison zusammengezählt.",
-	"badges.about.team_elevation":
-		"Die Höhenmeter aller Radfahrten des Teams in dieser Saison zusammengezählt.",
-	"badges.about.team_running":
-		"Die Kilometer aller Läufe des Teams in dieser Saison zusammengezählt.",
-	"badges.about.big_training":
-		"Die meisten Rider, die in dieser Saison bei einem einzigen Teamtermin dabei waren.",
-	"badges.about.attendances":
-		"Alle Teilnahmen der Rider an Teamterminen dieser Saison zusammengezählt.",
+	"badges.about.team_training_rynke": "Trainings-Rynke aller Rider.",
+	"badges.about.team_distance": "Die Rad-Kilometer des ganzen Teams.",
+	"badges.about.team_elevation": "Die Rad-Höhenmeter des ganzen Teams.",
+	"badges.about.team_running": "Die Lauf-Kilometer des ganzen Teams.",
+	"badges.about.big_training": "Rekord: Rider an einem Termin.",
+	"badges.about.attendances": "Teilnahmen aller Rider zusammen.",
 	"badges.about.team_surprise": "?",
 	"badges.for.distance": "Du bist in dieser Saison {value} Rad gefahren.",
 	"badges.for.elevation":
