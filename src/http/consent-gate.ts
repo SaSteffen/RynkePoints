@@ -117,7 +117,7 @@ export async function handleConsent(
 	const form = await request.formData().catch(() => null);
 	const next = await arrival(
 		sectionNext(form?.get("next")),
-		ctx.env.DB,
+		ctx,
 		viewer.rider.athleteId,
 	);
 	if (form?.get("consent") !== String(current)) return redirect(next, 303);

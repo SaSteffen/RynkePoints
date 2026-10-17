@@ -107,16 +107,31 @@ export function buildBadgeSection(input: {
 		team: team?.view ?? null,
 		notYet: [...(personal?.notYet ?? []), ...(team?.notYet ?? [])],
 		reveal: revealed
-			? [
-					...(input.personal?.earned ?? []),
-					...(input.team?.earned ?? []).filter(
-						(b) => b.earnedOn >= connectedOn,
-					),
-				]
-					.filter((b) => isNew(b, revealed))
-					.sort((a, b) => badgeOrder(a.badgeId) - badgeOrder(b.badgeId))
+			? newBadges(
+					input.personal?.earned ?? [],
+					input.team?.earned ?? [],
+					revealed,
+					connectedOn,
+				)
 			: [],
 	};
+}
+
+/**
+ * The badges new for the rider (research R16), in catalog order: their own
+ * not yet revealed, and the team's earned since they connected (`YYYY-MM-DD`)
+ * and not yet revealed. What the badges page reveals, and why the app opens
+ * on it (issue #150).
+ */
+export function newBadges(
+	personal: readonly EarnedBadge[],
+	team: readonly EarnedBadge[],
+	revealed: ReadonlyMap<string, string>,
+	connectedOn: string,
+): EarnedBadge[] {
+	return [...personal, ...team.filter((b) => b.earnedOn >= connectedOn)]
+		.filter((b) => isNew(b, revealed))
+		.sort((a, b) => badgeOrder(a.badgeId) - badgeOrder(b.badgeId));
 }
 
 /**

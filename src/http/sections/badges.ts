@@ -30,12 +30,19 @@ import {
 	buildBadgeSection,
 	type Card,
 	type NotYetRow,
+	newBadges,
 	type ProgressView,
 	personalProgress,
 } from "../../badges/view";
 import { berlinDate, readyPollSeconds } from "../../config";
 import type { Ctx } from "../../ctx";
-import { readRiderBadges, upsertRevealsStatement } from "../../db/badges";
+import {
+	listRevealsStatement,
+	listRiderBadgesStatement,
+	readRiderBadges,
+	revealedOf,
+	upsertRevealsStatement,
+} from "../../db/badges";
 import { type RiderViewRead, readRiderView } from "../../db/rider-view";
 import type { Rider } from "../../db/riders";
 import { readTeamBadgeSums } from "../../db/team";
@@ -382,6 +389,42 @@ async function badgesOf(
 		await upsertRevealsStatement(db, rider.athleteId, section.reveal).run();
 	}
 	return section;
+}
+
+/**
+ * Whether the badges page has a badge to reveal to the rider, so the app opens
+ * on it (issue #150): the same badges as `badgesOf`'s reveal. Only for a rider
+ * with Rynke, since the waiting state reveals nothing; `connectedAt` is theirs.
+ */
+export async function hasNewBadges(
+	ctx: Ctx,
+	athleteId: number,
+	connectedAt: number,
+): Promise<boolean> {
+	const db = ctx.env.DB;
+	const [badges, reveals] = await db.batch([
+		listRiderBadgesStatement(db, athleteId),
+		listRevealsStatement(db, athleteId),
+	]);
+	if (!badges || !reveals) {
+		throw new Error("D1 batch returned too few results");
+	}
+	const revealed = revealedOf(
+		reveals.results as { badge_id: string; earned_on: string }[],
+	);
+	const connectedOn = berlinDate(connectedAt);
+	const personal = (
+		badges.results as { badge_id: string; earned_on: string }[]
+	).map((row) => ({ badgeId: row.badge_id, earnedOn: row.earned_on }));
+	if (newBadges(personal, [], revealed, connectedOn).length > 0) return true;
+	// The team's are worked out on read (research R15); only when needed.
+	const window = badgeWindow(countingWindow(ctx.env), berlinDate(ctx.now()));
+	const team = evaluateTeamBadges(
+		await readTeamBadgeSums(db),
+		CURRENT_RULES,
+		window,
+	);
+	return newBadges([], team.earned, revealed, connectedOn).length > 0;
 }
 
 export function handleBadges(
