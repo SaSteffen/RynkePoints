@@ -7,6 +7,8 @@
 
 CREATE TABLE quote_seen (
 	athlete_id INTEGER NOT NULL REFERENCES riders (athlete_id) ON DELETE CASCADE,
-	quote_id TEXT NOT NULL CHECK (quote_id GLOB '[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]'),
+	-- 8 hex digits. One class per digit is a GLOB too long for D1.
+	quote_id TEXT NOT NULL
+		CHECK (length(quote_id) = 8 AND quote_id NOT GLOB '*[^0-9a-f]*'),
 	PRIMARY KEY (athlete_id, quote_id)
 );
