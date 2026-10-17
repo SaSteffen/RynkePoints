@@ -34,6 +34,4 @@
 - Addresses (`/me/rides?page=N`) and the "page script" are named because they are
   existing, rider-visible behaviour this feature must keep (feature 005, 011), not
   implementation choices.
-- Open for `/speckit-clarify`: the position line's wording with lazy loading
-  (FR-012), the link to the newest rides when opened at a later page (FR-014), and
-  whether an end-of-list line is wanted.
+- Clarified 2026-10-17: keeping the rider's place (FR-013) and the line above the list (FR-012).

@@ -32,6 +32,9 @@ season's first ride is shown.
   back, or Rides reloads after time in the background, what should Rides show? →
   A: Restore it: the same rides loaded and the same ride in view, only in that tab
   and visit.
+- Q: What should the line above the list say, now that it no longer counts a
+  page? → A: The season's total only ("87 Fahrten in dieser Saison"); the pager
+  page without the script keeps today's "Fahrten 21–40 von 87".
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -68,8 +71,8 @@ each, newest first, without a page load and without using the pager.
 6. **Given** a rider with 20 or fewer rides, **When** they open Rides, **Then**
    all their rides are shown and nothing more is ever loaded.
 7. **Given** the page script runs, **When** Rides is shown, **Then** the pager
-   links are not shown; the position line counts the rides shown so far
-   ("Fahrten 1–40 von 87") and grows as rides are added.
+   links are not shown and the line above the list gives the season's total
+   ("87 Fahrten in dieser Saison"), unchanged while rides are added.
 
 ---
 
@@ -186,8 +189,9 @@ rides with the pager; open `/me/rides?page=3` with and without scripts.
   it MUST return no rides.
 - **FR-011**: Loading more rides MUST NOT cause any request to Strava.
 - **FR-012**: When the page script runs, the pager links MUST NOT be shown, and
-  the position line MUST count the rides shown so far against the season's total
-  and update as rides are added.
+  the line above the list MUST give only the season's total of rides ("87 Fahrten
+  in dieser Saison", also for a single ride in its singular form). Without the
+  script the line stays as today ("Fahrten 21–40 von 87").
 - **FR-013**: Coming back to Rides with the back button, or Rides reloading after
   time in the background or by the rider's own reload, MUST show the rides loaded
   before and bring the same ride into view. Opening Rides from the navigation bar
@@ -204,8 +208,8 @@ rides with the pager; open `/me/rides?page=3` with and without scripts.
 - **FR-017**: Keyboard focus reaching the end of the list MUST load more like
   scrolling does; added rides, the loading state and a failed load MUST be
   announced to assistive technology without moving focus.
-- **FR-018**: Every new text (loading, couldn't load, try again, link to newest
-  rides) MUST come from the message catalogs in every language, addressing the
+- **FR-018**: Every new text (season total, loading, couldn't load, try again,
+  link to newest rides) MUST come from the message catalogs in every language, addressing the
   rider as "du" (FR-028 of earlier features, constitution "Language").
 - **FR-019**: The waiting state, the empty-season text and the notices above the
   list MUST stay as they are.
