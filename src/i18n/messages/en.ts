@@ -242,14 +242,26 @@ export const en: Catalog = {
 	"tour.done": "Got it",
 	"tour.skip": "Skip",
 	"tour.start": "Show me",
+	"tour.example":
+		"Example data: this is how it looks once there are a few rides. You'll see your own numbers after the tour.",
 	"tour.rider.intro": "New here? Let us show you where everything is.",
 	"tour.rider.team":
 		"Team: how the whole team is doing and where you are in the ranking.",
 	"tour.rider.you": "You: your Rynke and what you still need to qualify.",
+	"tour.rider.elevation":
+		"The elevation counter: every {elevationM}\u00a0metres of climbing bring you {elevationRynke}\u00a0Training Rynke. It shows how many metres you still need for the next ones.",
+	"tour.rider.teamRynke":
+		"Team Rynke only come from team events the organisers have added you to: {teamTraining} for a team training, {weekendDay} for a day of the training weekend, {technique} for a technique training. You need {teamThreshold} for Paris.",
+	"tour.rider.outdoor":
+		"At most {virtualShare} of your Training Rynke may come from virtual rides. This bar counts everything else: at least {outside} of {trainingThreshold} Training Rynke have to come from riding outside, team events included.",
 	"tour.rider.rides":
 		"Rides: every ride, what it earned, and why when it didn't count.",
+	"tour.rider.shortRide":
+		"Every full {distanceKm}\u00a0km of a ride earns {distanceRynke}\u00a0Training Rynke. This ride was shorter: it counts, but earns no Rynke for its distance. Its climbing still goes onto the counter.",
 	"tour.rider.badges":
 		"Badges: yours and the team's, and how far it is to the next one.",
+	"tour.rider.events":
+		"Events: the team events. Say beforehand whether you're coming, and report afterwards that you were there. Once the organisers have added you, you get Team Rynke.",
 	"tour.rider.settings":
 		"Settings: language, notifications, your Strava connection, the rules, and this tour again.",
 	"tour.organiser.intro":

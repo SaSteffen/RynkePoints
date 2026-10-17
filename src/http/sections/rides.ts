@@ -1,4 +1,4 @@
-import { readyPollSeconds } from "../../config";
+import { berlinDate, readyPollSeconds } from "../../config";
 import { hasAgreed } from "../../consent";
 import type { Ctx } from "../../ctx";
 import { getCurrentConsent } from "../../db/consents";
@@ -11,6 +11,7 @@ import {
 } from "../../rynke/rules";
 import { html, htmlResponse } from "../html";
 import {
+	renderExampleNote,
 	renderNotice,
 	renderRideBatch,
 	renderRides,
@@ -24,6 +25,7 @@ import {
 	rideLines,
 } from "../rider-view";
 import { shellPage } from "../shell";
+import { EXAMPLE_SHORT_RIDE_ID, exampleRiderView } from "../tour-example";
 import { readViewer, riderConsentState } from "../viewer";
 
 // Rides at `/me/rides?page=N` (feature 011 FR-012): all the rider's rides, 20 a
@@ -40,27 +42,41 @@ export function handleRides(
 	const page = parsePage(new URL(request.url));
 	// The page asked for, so refreshing and the gate return to it (R8, R9).
 	const path = page > 1 ? `/me/rides?page=${page}` : "/me/rides";
-	return shellPage(request, ctx, i18n, "rides", path, async ({ rider }) => {
-		const read = await readRiderView(ctx.env.DB, rider.athleteId, page);
-		const view = buildRiderView(
-			read,
-			read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
-			CURRENT_RULES,
-			{
-				...countingWindow(ctx.env),
-				rulesFor: rulesForVersion,
-			},
-		);
-		if (view.state === "waiting") {
-			return renderWaiting(
-				i18n,
-				ctx.env.SEASON_START_DATE,
-				readyPollSeconds(ctx.env),
+	return shellPage(
+		request,
+		ctx,
+		i18n,
+		"rides",
+		path,
+		async ({ rider, example }) => {
+			const window = countingWindow(ctx.env);
+			// On the rider tour's steps, the example rider's rides instead
+			// (feature 020 FR-005); none of them links to Strava (FR-007).
+			const read = example
+				? exampleRiderView(window, berlinDate(ctx.now()))
+				: await readRiderView(ctx.env.DB, rider.athleteId, page);
+			const view = buildRiderView(
+				read,
+				read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
+				CURRENT_RULES,
+				{ ...window, rulesFor: rulesForVersion },
 			);
-		}
-		return html`${renderNotice(i18n, view)}
+			if (view.state === "waiting") {
+				return renderWaiting(
+					i18n,
+					ctx.env.SEASON_START_DATE,
+					readyPollSeconds(ctx.env),
+				);
+			}
+			if (example) {
+				return html`${renderExampleNote(i18n)}${renderRides(i18n, view.rides, {
+					shortRideId: EXAMPLE_SHORT_RIDE_ID,
+				})}`;
+			}
+			return html`${renderNotice(i18n, view)}
 ${renderRides(i18n, view.rides)}`;
-	});
+		},
+	);
 }
 
 /**

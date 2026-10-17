@@ -2,9 +2,10 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { getRider } from "../../src/db/riders";
 import { escapeHtml } from "../../src/http/html";
-import { TOURS } from "../../src/http/tour";
+import { stepHref, TOURS, tourSteps } from "../../src/http/tour";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
+import { CURRENT_RULES } from "../../src/rynke/rules";
 import {
 	makeCtx,
 	request,
@@ -13,9 +14,10 @@ import {
 	sessionCookie,
 } from "../support/ctx";
 import { ATHLETE_A, NOW } from "../support/fixtures";
-import { riderPage, seedBalance } from "../support/rider-view";
+import { riderPage, seedBalance, seedRide } from "../support/rider-view";
 
-// Onboarding tours (issue #90): a hint per page of the rider tour, then the
+// Onboarding tours (issue #90, feature 020): hints on the rider tour's pages,
+// some pointing at an element and showing the example rider, then the
 // organiser tour for organisers; each shown until finished or skipped, which is
 // stored on the rider row and so counts on every device.
 
@@ -67,8 +69,8 @@ describe("the rider tour", () => {
 		await seedReadyRider();
 		const { card, target: at } = await hintOn("/team");
 		expect(card).toContain(t("tour.rider.team"));
-		expect(card).toContain("1 von 5");
-		expect(card).toContain('href="/me?tour=rider"');
+		expect(card).toContain("1 von 10");
+		expect(card).toContain('href="/me?tour=rider&amp;step=2"');
 		expect(at).toBe("/team");
 	});
 
@@ -76,27 +78,85 @@ describe("the rider tour", () => {
 		await seedReadyRider();
 		const { card, target: at } = await hintOn("/me/rides");
 		expect(card).toContain(t("tour.rider.intro"));
-		expect(card).toContain('href="/team?tour=rider"');
+		expect(card).toContain('href="/team?tour=rider&amp;step=1"');
 		expect(at).toBe("/team");
 	});
 
-	it("covers every rider page, one step each, pointing at its nav item", async () => {
+	it("covers every rider page, pointing at its nav item or one element", async () => {
 		await seedReadyRider();
-		expect(TOURS.rider.map((s) => s.path)).toEqual([
-			"/team",
-			"/me",
-			"/me/rides",
-			"/me/badges",
-			"/me/settings",
+		const steps = tourSteps("rider", { organiser: false });
+		expect(steps.map((s) => [s.path, s.target ?? null])).toEqual([
+			["/team", null],
+			["/me", null],
+			["/me", "tour-elevation"],
+			["/me", "tour-team"],
+			["/me", "tour-outdoor"],
+			["/me/rides", null],
+			["/me/rides", "tour-short-ride"],
+			["/me/badges", null],
+			["/events", null],
+			["/me/settings", null],
 		]);
-		for (const [i, step] of TOURS.rider.entries()) {
-			const { card, target: at } = await hintOn(`${step.path}?tour=rider`);
-			expect(card).toContain(t(step.text));
-			expect(at).toBe(step.path);
-			const next = TOURS.rider[i + 1];
-			if (next) expect(card).toContain(`href="${next.path}?tour=rider"`);
-			else expect(card).toContain(t("tour.done"));
+		for (const [i, step] of steps.entries()) {
+			const {
+				card,
+				target: at,
+				page,
+			} = await hintOn(`${step.path}?tour=rider&step=${i + 1}`);
+			expect(card).toContain(`${i + 1} von ${steps.length}`);
+			if (step.target) {
+				expect(card).toContain(`data-target="${step.target}"`);
+				expect(page).toContain(`id="${step.target}"`);
+				expect(at).toBeNull();
+			} else {
+				expect(card).not.toContain("data-target");
+				expect(at).toBe(step.path);
+			}
+			const next = steps[i + 1];
+			if (next) {
+				expect(card).toContain(
+					`href="${stepHref("rider", { organiser: false }, i + 1).replace("&", "&amp;")}"`,
+				);
+			} else expect(card).toContain(t("tour.done"));
 		}
+	});
+
+	it("names the rule values of the rules in effect (020 FR-008)", async () => {
+		await seedReadyRider();
+		const elevation = (await hintOn("/me?tour=rider&step=3")).card;
+		expect(elevation).toContain(
+			`Alle 1.000\u00a0Höhenmeter bringen dir ${CURRENT_RULES.elevationStepRynke}\u00a0Trainingsrynke`,
+		);
+		const team = (await hintOn("/me?tour=rider&step=4")).card;
+		expect(team).toContain(
+			`Für Paris brauchst du ${CURRENT_RULES.teamThreshold}.`,
+		);
+		const outdoor = (await hintOn("/me?tour=rider&step=5")).card;
+		expect(outdoor).toContain("Höchstens 1/3 deiner Trainingsrynke");
+		expect(outdoor).toContain("Mindestens 167 von 250 Trainingsrynke");
+		const short = (await hintOn("/me/rides?tour=rider&step=7")).card;
+		expect(short).toContain(
+			"Für jede volle 10\u00a0km einer Fahrt gibt es 1\u00a0Trainingsrynke.",
+		);
+	});
+
+	it("shows a page's first step for an old link or a step of another page", async () => {
+		await seedReadyRider();
+		expect((await hintOn("/me?tour=rider")).card).toContain("2 von 10");
+		expect((await hintOn("/team?tour=rider&step=5")).card).toContain(
+			"1 von 10",
+		);
+		expect((await hintOn("/me?tour=rider&step=x")).card).toContain("2 von 10");
+	});
+
+	it("has a Termine step for riders who aren't organisers (019 T040)", async () => {
+		await seedReadyRider();
+		const { card, target: at } = await hintOn("/events?tour=rider&step=9");
+		expect(card).toContain(t("tour.rider.events"));
+		expect(at).toBe("/events");
+		expect((await hintOn("/me/badges?tour=rider&step=8")).card).toContain(
+			'href="/events?tour=rider&amp;step=9"',
+		);
 	});
 
 	it("can be skipped at any step, and doesn't come back", async () => {
@@ -138,12 +198,93 @@ describe("the rider tour", () => {
 		const { page } = await hintOn("/me/settings");
 		expect(page).toContain('<section id="settings-tour"');
 		expect(page).toContain(
-			`<a class="button-outlined" href="/team?tour=rider">${t("settings.tour.rider")}</a>`,
+			`<a class="button-outlined" href="/team?tour=rider&amp;step=1">${t("settings.tour.rider")}</a>`,
 		);
 		expect(page).not.toContain("?tour=organiser");
 		expect((await hintOn("/team?tour=rider")).card).toContain(
 			t("tour.rider.team"),
 		);
+	});
+});
+
+describe("the example rider (feature 020)", () => {
+	/** The Training Rynke in the Overview's hero. */
+	const training = (page: string) =>
+		page.match(
+			/<p class="hero-total"><span class="rynke-amount">([^<]*)<\/span>/,
+		)?.[1];
+
+	/** A rider with Rynke of their own, which the tour's pages must not show. */
+	async function seedOwnRynke() {
+		await seedRider(ctx);
+		await seedBalance(ATHLETE_A, {
+			distanceRynke: 77,
+			trainingRynke: 77,
+			trainingMissing: 173,
+		});
+		await seedRide(ATHLETE_A, {
+			id: 424242,
+			result: { counts: true, distanceRynke: 7 },
+		});
+	}
+
+	it("shows on the tour's Du steps instead of the rider's own Rynke", async () => {
+		await seedOwnRynke();
+		for (const step of [2, 3, 4, 5]) {
+			const { page } = await hintOn(`/me?tour=rider&step=${step}`);
+			expect(page).toContain(
+				`<p class="notice tour-example" role="note">${t("tour.example")}</p>`,
+			);
+			expect(page).toContain('id="tour-elevation"');
+			expect(page).toContain('id="tour-team"');
+			// The example has a virtual ride, so the "draußen" gauge shows.
+			expect(page).toContain('id="tour-outdoor"');
+			expect(training(page)).toBe("43");
+		}
+		const own = (await hintOn("/me")).page;
+		expect(own).not.toContain("tour-example");
+		expect(training(own)).toBe("77");
+	});
+
+	it("shows its rides on the tour's Fahrten steps, without links to Strava", async () => {
+		await seedOwnRynke();
+		const { page } = await hintOn("/me/rides?tour=rider&step=7");
+		expect(page).toContain("tour-example");
+		expect(page).toContain('<dl class="ride-figures" id="tour-short-ride">');
+		expect(page).not.toContain('class="tap strava-activity"');
+		expect(page).not.toContain("424242");
+		const own = (await hintOn("/me/rides")).page;
+		expect(own).not.toContain("tour-example");
+		expect(own).toContain("/activities/424242");
+	});
+
+	it("is never stored, marked as seen or celebrated (FR-007)", async () => {
+		await seedOwnRynke();
+		const before = await env.DB.prepare(
+			"SELECT (SELECT count(*) FROM activities) AS a, (SELECT count(*) FROM ride_results) AS r, (SELECT training_rynke FROM rynke_balances WHERE athlete_id = ?1) AS b, (SELECT count(*) FROM rynke_seen) AS s",
+		)
+			.bind(ATHLETE_A)
+			.first();
+		const { page } = await hintOn("/me?tour=rider&step=2");
+		expect(page).not.toContain('class="celebrate"');
+		await hintOn("/me/rides?tour=rider&step=6");
+		const after = await env.DB.prepare(
+			"SELECT (SELECT count(*) FROM activities) AS a, (SELECT count(*) FROM ride_results) AS r, (SELECT training_rynke FROM rynke_balances WHERE athlete_id = ?1) AS b, (SELECT count(*) FROM rynke_seen) AS s",
+		)
+			.bind(ATHLETE_A)
+			.first();
+		expect(after).toEqual(before);
+	});
+
+	it("doesn't show outside the tour's Du and Fahrten steps", async () => {
+		await seedOwnRynke();
+		for (const path of [
+			"/team?tour=rider&step=1",
+			"/me/badges?tour=rider&step=8",
+			"/me?tour=organiser",
+		]) {
+			expect((await hintOn(path)).page).not.toContain("tour-example");
+		}
 	});
 });
 
@@ -190,8 +331,21 @@ describe("the organiser tour", () => {
 		expect(done.headers.get("Location")).toBe("/me/settings");
 		const { card, target: at } = await hintOn("/me/settings");
 		expect(card).toContain(t("tour.organiser.intro"));
-		expect(card).toContain('href="/organiser/riders?tour=organiser"');
+		expect(card).toContain(
+			'href="/organiser/riders?tour=organiser&amp;step=1"',
+		);
 		expect(at).toBe("/organiser/riders");
+	});
+
+	it("takes the rider tour without Termine (020 FR-002)", async () => {
+		await seedReadyRider({ organiser: true });
+		const steps = tourSteps("rider", { organiser: true });
+		expect(steps.map((s) => s.path)).not.toContain("/events");
+		expect(steps).toHaveLength(TOURS.rider.length - 1);
+		const badges = (await hintOn("/me/badges?tour=rider&step=8")).card;
+		expect(badges).toContain(`8 von ${steps.length}`);
+		expect(badges).toContain('href="/me/settings?tour=rider&amp;step=9"');
+		expect(badges).not.toContain("/events");
 	});
 
 	it("covers only the organiser pages", async () => {
@@ -203,7 +357,9 @@ describe("the organiser tour", () => {
 		]);
 		const riders = await hintOn("/organiser/riders");
 		expect(riders.card).toContain(t("tour.organiser.riders"));
-		expect(riders.card).toContain('href="/organiser?tour=organiser"');
+		expect(riders.card).toContain(
+			'href="/organiser?tour=organiser&amp;step=2"',
+		);
 		expect(riders.target).toBe("/organiser/riders");
 		const events = await hintOn("/organiser?tour=organiser");
 		expect(events.card).toContain(t("tour.organiser.events"));
@@ -231,7 +387,7 @@ describe("the organiser tour", () => {
 		await finish("rider");
 		await finish("organiser");
 		expect((await hintOn("/me/settings")).page).toContain(
-			`<a class="button-outlined" href="/organiser/riders?tour=organiser">${t("settings.tour.organiser")}</a>`,
+			`<a class="button-outlined" href="/organiser/riders?tour=organiser&amp;step=1">${t("settings.tour.organiser")}</a>`,
 		);
 	});
 });

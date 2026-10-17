@@ -318,6 +318,9 @@ body.shell{padding-bottom:calc(var(--rp-nav-height) + env(safe-area-inset-bottom
 body:has(.tour) .app-prompt{display:none}
 nav.app-nav a.tour-target .nav-icon,body:has(.tour) nav.organiser-switch [aria-current]{outline:2px solid var(--md-sys-color-primary);outline-offset:2px}
 @media (prefers-reduced-motion:no-preference){nav.app-nav a.tour-target .nav-icon,nav.app-nav a.tour-target,body:has(.tour) nav.organiser-switch [aria-current]{animation:tour-point 1.6s ease-in-out infinite}}
+#tour-elevation,#tour-team,#tour-outdoor,#tour-short-ride{scroll-margin-top:calc(var(--rp-topbar-height) + env(safe-area-inset-top) + var(--rp-space-4))}
+body:has(.tour[data-target=tour-elevation]) #tour-elevation,body:has(.tour[data-target=tour-team]) #tour-team,body:has(.tour[data-target=tour-outdoor]) #tour-outdoor,body:has(.tour[data-target=tour-short-ride]) #tour-short-ride{outline:2px solid var(--md-sys-color-primary);outline-offset:4px;border-radius:var(--md-shape-xs)}
+@media (prefers-reduced-motion:no-preference){body:has(.tour[data-target=tour-elevation]) #tour-elevation,body:has(.tour[data-target=tour-team]) #tour-team,body:has(.tour[data-target=tour-outdoor]) #tour-outdoor,body:has(.tour[data-target=tour-short-ride]) #tour-short-ride{animation:tour-point 1.6s ease-in-out infinite}}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 main:has(>.team-overview){max-width:var(--rp-content-max)}
 .team-overview h3{margin:0;font:600 17px/24px var(--md-ref-typeface)}

@@ -242,7 +242,9 @@ test.describe("the continuous ride list (018)", () => {
 	});
 });
 
-test("a rider walks through the tour, one page each", async ({ page }) => {
+test("a rider walks through the tour with the example rider (020)", async ({
+	page,
+}) => {
 	await signIn(page, "Vera Virtual");
 	// The tour waits for the first import (issue #119); the page polls itself.
 	await page.goto("/me");
@@ -250,27 +252,47 @@ test("a rider walks through the tour, one page each", async ({ page }) => {
 		timeout: 30_000,
 	});
 	// Started as from Settings, so it doesn't depend on another browser's run.
-	await page.goto("/team?tour=rider");
+	await page.goto("/team?tour=rider&step=1");
 	const tour = page.locator("aside.tour");
-	for (const [path, step] of [
-		["/team", "1 von 5"],
-		["/me", "2 von 5"],
-		["/me/rides", "3 von 5"],
-		["/me/badges", "4 von 5"],
+	// Each step points at its navigation item, or at an element of its page
+	// (feature 020 FR-003); Vera isn't an organiser, so Termine is in (FR-001).
+	for (const [path, step, target] of [
+		["/team", "1 von 10", null],
+		["/me", "2 von 10", null],
+		["/me", "3 von 10", "tour-elevation"],
+		["/me", "4 von 10", "tour-team"],
+		["/me", "5 von 10", "tour-outdoor"],
+		["/me/rides", "6 von 10", null],
+		["/me/rides", "7 von 10", "tour-short-ride"],
+		["/me/badges", "8 von 10", null],
+		["/events", "9 von 10", null],
 	] as const) {
 		await expect(tour).toContainText(step);
-		await expect(page.locator(`nav.app-nav a[href="${path}"]`)).toHaveClass(
-			"tour-target",
+		if (target) {
+			await expect(tour).toHaveAttribute("data-target", target);
+			await expect(page.locator(`#${target}`)).toBeInViewport();
+		} else {
+			await expect(page.locator(`nav.app-nav a[href="${path}"]`)).toHaveClass(
+				"tour-target",
+			);
+		}
+		// Du and Fahrten show the example rider, not Vera's own rides (FR-005).
+		await expect(page.locator(".tour-example")).toHaveCount(
+			path === "/me" || path === "/me/rides" ? 1 : 0,
 		);
 		await tour.getByRole("link", { name: "Weiter" }).click();
 	}
-	await expect(page).toHaveURL(/\/me\/settings\?tour=rider$/);
-	await expect(tour).toContainText("5 von 5");
+	await expect(page).toHaveURL(/\/me\/settings\?tour=rider&step=10$/);
+	await expect(tour).toContainText("10 von 10");
 	await tour.getByRole("button", { name: "Alles klar" }).click();
 	await expect(page).toHaveURL(/\/me\/settings$/);
 	await expect(tour).toHaveCount(0);
 	await page.goto("/team");
 	await expect(tour).toHaveCount(0);
+	// Without the tour, Vera's own rides again.
+	await page.goto("/me/rides");
+	await expect(page.locator(".tour-example")).toHaveCount(0);
+	await expect(page.locator("a.strava-activity").first()).toBeVisible();
 });
 
 test.describe("on a touch screen", () => {

@@ -260,14 +260,26 @@ export const de = {
 	"tour.done": "Alles klar",
 	"tour.skip": "Überspringen",
 	"tour.start": "Zeig mal",
+	"tour.example":
+		"Beispieldaten: So sieht es aus, wenn schon ein paar Fahrten da sind. Deine eigenen Zahlen siehst du nach dem Rundgang.",
 	"tour.rider.intro": "Neu hier? Wir zeigen dir kurz, wo du was findest.",
 	"tour.rider.team":
 		"Team: wie das ganze Team dasteht und wo du in der Rangliste stehst.",
 	"tour.rider.you": "Du: deine Rynke und was dir noch zur Qualifikation fehlt.",
+	"tour.rider.elevation":
+		"Der Höhenmeter-Zähler: Alle {elevationM}\u00a0Höhenmeter bringen dir {elevationRynke}\u00a0Trainingsrynke. Er zeigt, wie viele Meter dir noch bis zu den nächsten fehlen.",
+	"tour.rider.teamRynke":
+		"Teamrynke gibt es nur für Teamtermine, bei denen die Orga dich eingetragen hat: {teamTraining} für ein Teamtraining, {weekendDay} für einen Tag am Trainingswochenende, {technique} für ein Techniktraining. Für Paris brauchst du {teamThreshold}.",
+	"tour.rider.outdoor":
+		"Höchstens {virtualShare} deiner Trainingsrynke dürfen von virtuellen Fahrten kommen. Dieser Balken zählt alles außer ihnen: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren, Teamtermine zählen mit.",
 	"tour.rider.rides":
 		"Fahrten: jede Fahrt, was sie gebracht hat, und warum, wenn sie nicht zählt.",
+	"tour.rider.shortRide":
+		"Für jede volle {distanceKm}\u00a0km einer Fahrt gibt es {distanceRynke}\u00a0Trainingsrynke. Diese Fahrt war kürzer: Sie zählt, bringt aber keine Rynke für die Strecke. Ihre Höhenmeter kommen trotzdem auf den Zähler.",
 	"tour.rider.badges":
 		"Abzeichen: deine und die des Teams, und wie weit es bis zum nächsten ist.",
+	"tour.rider.events":
+		"Termine: die Teamtermine. Sag vorher Bescheid, ob du dabei bist, und melde danach, dass du da warst. Sobald die Orga dich eingetragen hat, gibt es Teamrynke.",
 	"tour.rider.settings":
 		"Einstellungen: Sprache, Benachrichtigungen, deine Strava-Verbindung, die Regeln und dieser Rundgang.",
 	"tour.organiser.intro":

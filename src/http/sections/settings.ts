@@ -90,8 +90,8 @@ ${group("settings-rules", i18n.t("rynke.rules.heading"), renderRules(i18n, rules
 ${group(
 	"settings-tour",
 	i18n.t("settings.tour"),
-	html`<p><a class="button-outlined" href="${stepHref("rider", 0)}">${i18n.t("settings.tour.rider")}</a></p>
-${rider.organiser ? html`<p><a class="button-outlined" href="${stepHref("organiser", 0)}">${i18n.t("settings.tour.organiser")}</a></p>` : null}`,
+	html`<p><a class="button-outlined" href="${stepHref("rider", rider, 0)}">${i18n.t("settings.tour.rider")}</a></p>
+${rider.organiser ? html`<p><a class="button-outlined" href="${stepHref("organiser", rider, 0)}">${i18n.t("settings.tour.organiser")}</a></p>` : null}`,
 )}
 ${group(
 	"settings-account",

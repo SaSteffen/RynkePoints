@@ -13,6 +13,7 @@ import { amount, heroCoin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
 import {
 	renderBreakdown,
+	renderExampleNote,
 	renderGauges,
 	renderNotice,
 	renderReconnect,
@@ -21,6 +22,7 @@ import {
 } from "../rider-sections";
 import { buildRiderView } from "../rider-view";
 import { shellPage } from "../shell";
+import { exampleRiderView } from "../tour-example";
 
 // The Overview at `/me`, labelled "You" (feature 011 FR-010, issue #73): the greeting first, then what
 // needs the rider's attention (015 FR-008, FR-009), and the rider's Rynke
@@ -71,38 +73,50 @@ export function handleOverview(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	return shellPage(request, ctx, i18n, "you", "/me", async ({ rider }) => {
-		const read = await readRiderView(ctx.env.DB, rider.athleteId, 1);
-		const window = countingWindow(ctx.env);
-		const view = buildRiderView(
-			read,
-			read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
-			CURRENT_RULES,
-			{ ...window, rulesFor: rulesForVersion },
-		);
-		// The same rule as the Team quote and the organiser groups (016 FR-030).
-		const status = riderStatus(
-			read.balance,
-			CURRENT_RULES,
-			window,
-			berlinDate(ctx.now()),
-		);
-		const ready = view.state === "ready" ? view : null;
-		const totals = ready && {
-			training: ready.summary.training.value,
-			team: ready.summary.team.value,
-		};
-		// Only a GET marks the Rynke as seen, so a HEAD can't eat the celebration.
-		const seen = totals && (await readSeen(ctx.env.DB, rider.athleteId));
-		if (
-			totals &&
-			request.method === "GET" &&
-			(seen?.training !== totals.training || seen?.team !== totals.team)
-		) {
-			await writeSeen(ctx.env.DB, rider.athleteId, totals);
-		}
-		// One grid holds it all: two columns on wider screens (contracts/pages.md).
-		return html`<div class="overview-grid">
+	return shellPage(
+		request,
+		ctx,
+		i18n,
+		"you",
+		"/me",
+		async ({ rider, example }) => {
+			const window = countingWindow(ctx.env);
+			// On the rider tour's steps, the example rider instead (feature 020
+			// FR-005); it is never marked as seen and never celebrated (FR-007).
+			const read = example
+				? exampleRiderView(window, berlinDate(ctx.now()))
+				: await readRiderView(ctx.env.DB, rider.athleteId, 1);
+			const view = buildRiderView(
+				read,
+				read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
+				CURRENT_RULES,
+				{ ...window, rulesFor: rulesForVersion },
+			);
+			// The same rule as the Team quote and the organiser groups (016 FR-030).
+			const status = riderStatus(
+				read.balance,
+				CURRENT_RULES,
+				window,
+				berlinDate(ctx.now()),
+			);
+			const ready = view.state === "ready" ? view : null;
+			const totals = ready && {
+				training: ready.summary.training.value,
+				team: ready.summary.team.value,
+			};
+			// Only a GET marks the Rynke as seen, so a HEAD can't eat the celebration.
+			const seen =
+				totals && !example ? await readSeen(ctx.env.DB, rider.athleteId) : null;
+			if (
+				totals &&
+				!example &&
+				request.method === "GET" &&
+				(seen?.training !== totals.training || seen?.team !== totals.team)
+			) {
+				await writeSeen(ctx.env.DB, rider.athleteId, totals);
+			}
+			// One grid holds it all: two columns on wider screens (contracts/pages.md).
+			return html`<div class="overview-grid">
 <section class="hero">
 ${heroCoin()}
 <div>
@@ -115,11 +129,12 @@ ${
 		: null
 }</div>
 </section>
-${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}
+${example ? renderExampleNote(i18n) : null}${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}
 ${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env))}
 ${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary, status) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}
 ${ready ? renderBreakdown(i18n, ready.breakdown) : null}
 </div>`;
-	});
+		},
+	);
 }

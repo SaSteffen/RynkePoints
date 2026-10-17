@@ -21,7 +21,8 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // specs/013-badges-achievements/contracts/badge-messages.md and
 // specs/017-privacy-page/contracts/messages.md and
 // specs/018-lazy-rides-list/contracts/catalog.md and
-// specs/019-event-participation-requests/contracts/messages.md.
+// specs/019-event-participation-requests/contracts/messages.md and
+// specs/020-onboarding-tour/contracts/messages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"rynke.rides.total",
@@ -671,6 +672,13 @@ const CONTRACT_IDS = [
 	"organiser.attendance.summary",
 	"organiser.overview.group.requests",
 	"organiser.overview.column.requests",
+	// Feature 020
+	"tour.example",
+	"tour.rider.elevation",
+	"tour.rider.teamRynke",
+	"tour.rider.outdoor",
+	"tour.rider.shortRide",
+	"tour.rider.events",
 ];
 
 const placeholders = (text: string) =>
