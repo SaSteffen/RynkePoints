@@ -61,7 +61,7 @@ describe("GET /me Overview", () => {
 		expectInOrder(page, [
 			'<p class="greeting">',
 			'<section class="waiting" role="status" data-waiting data-poll-seconds="10">',
-			'<use href="#coin-front"/>',
+			'<span class="coin coin-large coin-flip" aria-hidden="true">',
 			`<h2>${escapeHtml(de["waiting.heading"])}</h2>`,
 			`<p>${escapeHtml(de["waiting.body"].replace("{date}", "01.01.2026"))}</p>`,
 		]);
