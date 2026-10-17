@@ -979,6 +979,62 @@ function triState() {
 	update();
 }
 
+/**
+ * The badges page's switch (feature 013 Part I): "Deine" and "Team" link to
+ * their groups, and the one whose group fills the screen below the switch is
+ * marked while scrolling either way; at the bottom of the page the last
+ * group, however short. Filtering changes the heights, so it is marked again
+ * then.
+ */
+function badgeSwitch() {
+	const bar = document.querySelector(".badges-switch");
+	const links = bar
+		? [...bar.querySelectorAll('nav a.segmented[href^="#"]')]
+		: [];
+	const groups = links.map((link) =>
+		document.getElementById(link.hash.slice(1)),
+	);
+	if (links.length === 0 || groups.includes(null)) return;
+	let frame = 0;
+	const mark = () => {
+		frame = 0;
+		// A group counts once its top is in the upper third below the switch.
+		const below = bar.getBoundingClientRect().bottom;
+		const line = below + (innerHeight - below) / 3;
+		let current = 0;
+		groups.forEach((group, i) => {
+			if (group.getBoundingClientRect().top <= line) current = i;
+		});
+		const bottom = document.documentElement.scrollHeight - innerHeight - 2;
+		if (scrollY > 0 && scrollY >= bottom) current = groups.length - 1;
+		links.forEach((link, i) => {
+			if (i === current) link.setAttribute("aria-current", "true");
+			else link.removeAttribute("aria-current");
+		});
+	};
+	const soon = () => {
+		if (!frame) frame = requestAnimationFrame(mark);
+	};
+	addEventListener("scroll", soon, { passive: true });
+	addEventListener("resize", soon);
+	bar.addEventListener("change", soon);
+	mark();
+}
+
+/**
+ * The badges page opens on the card of the first new badge, the rider's own
+ * before the team's, as the reveal names it (feature 013 Part I), in the
+ * middle of the screen, below the sticky switch.
+ */
+function scrollToNewBadge() {
+	const category = document.querySelector(".badges-reveal[data-scroll-to]")
+		?.dataset.scrollTo;
+	if (!category) return;
+	document
+		.querySelector(`.badge-card[data-category="${CSS.escape(category)}"]`)
+		?.scrollIntoView({ block: "center" });
+}
+
 const registered = registerWorker();
 keepScroll();
 lazyRides();
@@ -992,4 +1048,6 @@ waitForFirstData();
 pageLoading();
 badgeHover();
 triState();
+scrollToNewBadge();
+badgeSwitch();
 notifications().catch(() => {});

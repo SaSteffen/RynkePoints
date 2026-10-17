@@ -238,9 +238,27 @@ describe("STYLE", () => {
 		);
 	});
 
-	it("lays the badge cards out two per row at every width (013 FR-002a)", () => {
+	it("keeps the badges switch under the top bar and filters with it (013 Part I)", () => {
+		expect(declsOf(".badges-switch")).toMatchObject({
+			position: "sticky",
+			top: "calc(var(--rp-topbar-height) + env(safe-area-inset-top))",
+		});
+		const all = ".badges:has(.badges-filter [value=all]:checked)";
+		const newest = ".badges:not(:has(.badges-filter [value=all]:checked))";
+		for (const selector of [
+			`${all} .badge-cards`,
+			`${all} .badges-title-newest`,
+			`${newest} .badge-gallery`,
+			`${newest} .badges-title-all`,
+		]) {
+			expect(declsOf(selector).display, selector).toBe("none");
+		}
+	});
+
+	it("fills the page's width with badge cards, at least two per row (013 FR-002a)", () => {
+		expect(declsOf("main:has(>.badges)")["max-width"]).toBe("none");
 		expect(declsOf(".badge-cards")["grid-template-columns"]).toBe(
-			"repeat(2,minmax(0,1fr))",
+			"repeat(auto-fill,minmax(min(176px,calc(50% - var(--rp-space-3) / 2)),1fr))",
 		);
 		expect(
 			RULES.filter(
@@ -265,6 +283,9 @@ describe("STYLE", () => {
 			"max-width": "200px",
 		});
 		expect(declsOf(".badge-gallery .badge").width).toBe("96px");
+		expect(declsOf(".badge-gallery")["grid-template-columns"]).toBe(
+			"repeat(auto-fill,minmax(min(360px,100%),1fr))",
+		);
 		// Stickers: a cut-out edge with a shadow in both schemes, a small tilt
 		// that straightens on hover and focus, a lift while pressed.
 		expect(declsOf(".badge img").filter).toBe("var(--rp-badge-edge)");

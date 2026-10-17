@@ -287,11 +287,12 @@ test.describe("on a touch screen", () => {
 		await expect(section).toBeVisible();
 		await expectNoSidewaysScroll(page);
 
-		const gallery = section.locator(
-			".badge-group-personal details.badge-gallery",
-		);
-		await gallery.locator("summary").tap();
-		await expect(gallery).toHaveAttribute("open", "");
+		// The filter shows every badge instead of the newest per category.
+		const gallery = section.locator(".badge-group-personal .badge-gallery");
+		await expect(gallery).toBeHidden();
+		await section.locator(".badges-filter label").last().tap();
+		await expect(gallery).toBeVisible();
+		await expect(section.locator(".badge-cards").first()).toBeHidden();
 		const badge = gallery.locator("button.badge").first();
 		const large = page.locator(
 			`[id="${await badge.getAttribute("popovertarget")}"]`,
@@ -305,6 +306,27 @@ test.describe("on a touch screen", () => {
 		await large.locator(".badge-large-close").tap();
 		await expect(large).toBeHidden();
 	});
+});
+
+test("the badges switch follows the groups while scrolling (013 Part I)", async ({
+	page,
+}) => {
+	await signIn(page, "Bea Badges");
+	await page.setViewportSize(PHONE);
+	await page.goto("/me/badges");
+	const personal = page.locator('.badges-switch a[href="#badges-personal"]');
+	const team = page.locator('.badges-switch a[href="#badges-team"]');
+	await expect(personal).toHaveAttribute("aria-current", "true");
+	await team.click();
+	await expect(team).toHaveAttribute("aria-current", "true");
+	await expect(personal).not.toHaveAttribute("aria-current");
+	// The switch stays in view, under the top bar.
+	await expect(page.locator(".badges-switch")).toBeInViewport();
+	await page.locator("html").evaluate((root) => {
+		root.scrollTop = 0;
+	});
+	await expect(personal).toHaveAttribute("aria-current", "true");
+	await expectNoSidewaysScroll(page);
 });
 
 test("a mouse opens a badge's large view beside it on hover, without a close button (013)", async ({

@@ -1,9 +1,10 @@
 // The Abzeichen section at `/me/badges`, its own tab: the rider's own badges,
-// then the team's (feature 013 US1, US4, contracts/abzeichen-section.md),
-// before the first data only the waiting state, as on Rides. The newest badge
-// per category as cards with the milestone on the ribbon and the categories
-// without a badge as dotted outlines, the closed gallery of every badge, and
-// one popover per earned badge. Only earned
+// then the team's, under a switch that stays at the top (feature 013 US1, US4,
+// contracts/abzeichen-section.md Part I); before the first data only the
+// waiting state, as on Rides. The newest badge per category as cards with the
+// milestone on the ribbon and the categories without a badge as dotted
+// outlines, or, filtered, the gallery of every badge; one popover per earned
+// badge. Only earned
 // badges are named or pictured, so the next one stays a surprise (SC-003); the
 // gallery shows the ones still to earn as empty outlines (issue #109).
 
@@ -238,7 +239,8 @@ function group(
 	if (!view) return null;
 	const empty = notYet.filter((row) => row.group === kind);
 	const gallery = view.gallery.map(
-		(g) => html`${categoryHeading(i18n, g.category)}
+		(g) => html`<div class="badge-gallery-category">
+${categoryHeading(i18n, g.category)}
 <ul>${g.badges.map(
 			(b) =>
 				html`<li>${badgeButton(i18n, b, 96, isFresh(b))}<span class="badge-value">${milestone(i18n, badgeOf(b))}</span></li>`,
@@ -247,22 +249,45 @@ function group(
 			() =>
 				html`<li class="badge-slot" aria-hidden="true">${OUTLINE_PLAIN}</li>`,
 		)}</ul>
+</div>
 `,
 	);
-	return html`<section class="badge-group badge-group-${kind}" aria-labelledby="badges-${kind}-heading">
-<h3 id="badges-${kind}-heading">${i18n.t(`badges.${kind}.newest`)}</h3>
+	const all = i18n.t(`badges.${kind}.all`, {
+		n: i18n.formatNumber(view.count, { fractionDigits: 0 }),
+	});
+	return html`<section id="badges-${kind}" class="badge-group badge-group-${kind}" aria-labelledby="badges-${kind}-heading">
+<h3 id="badges-${kind}-heading"><span class="badges-title-newest">${i18n.t(`badges.${kind}.newest`)}</span><span class="badges-title-all">${all}</span></h3>
 ${kind === "personal" && view.count === 0 ? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>` : null}
 <ul class="badge-cards">
 ${view.cards.map((c) => card(i18n, c, isFresh))}${empty.map((row) => emptyCard(i18n, row))}
 </ul>
-${
-	view.count > 0
-		? html`<details class="badge-gallery">
-<summary>${i18n.t(`badges.${kind}.all`, { n: i18n.formatNumber(view.count, { fractionDigits: 0 }) })}</summary>
-${gallery}</details>`
-		: null
-}
+<div class="badge-gallery">
+${gallery}</div>
 </section>
+`;
+}
+
+function anchor(kind: BadgeGroup, current: boolean, label: string): SafeHtml {
+	return html`<a class="segmented" href="#badges-${kind}"${current ? html` aria-current="true"` : null}>${label}</a>`;
+}
+
+function filter(value: "newest" | "all", label: string): SafeHtml {
+	return html`<label><input type="radio" name="badges-filter" value="${value}" autocomplete="off"${value === "newest" ? html` checked` : null}>${label}</label>`;
+}
+
+/**
+ * The switch at the top: whose badges, links to the two groups that
+ * `public/app.js` marks while scrolling past them, and a filter between the
+ * newest per category and all, for both groups at once, in CSS alone.
+ */
+function renderSwitch(i18n: I18n): SafeHtml {
+	return html`<div class="badges-switch">
+<nav class="kind-switch" aria-label="${i18n.t("badges.switch.group")}">
+${anchor("personal", true, i18n.t("badges.switch.personal"))}
+${anchor("team", false, i18n.t("badges.switch.team"))}
+</nav>
+<fieldset class="segmented-group badges-filter"><legend class="visually-hidden">${i18n.t("badges.switch.scope")}</legend>${filter("newest", i18n.t("badges.switch.newest"))}${filter("all", i18n.t("badges.switch.all"))}</fieldset>
+</div>
 `;
 }
 
@@ -301,7 +326,8 @@ const REVEAL_PICTURES = 5;
 /**
  * The badges new for the rider since their last visit, celebrated once
  * (FR-031, research R16), in the look of feature 012's coin celebration and
- * next to it at the top of the page.
+ * next to it at the top of the page. It names the category of the first, the
+ * rider's own before the team's, whose card the page then scrolls to.
  */
 export function renderBadgeReveal(
 	i18n: I18n,
@@ -317,7 +343,10 @@ export function renderBadgeReveal(
 			: i18n.t("badges.reveal.many", {
 					n: i18n.formatNumber(badges.length, { fractionDigits: 0 }),
 				});
-	return html`<aside class="badges-reveal" role="status">
+	const reveal = badges.map(badgeOf);
+	const target =
+		reveal.find((badge) => badge.group === "personal") ?? reveal[0];
+	return html`<aside class="badges-reveal" role="status" data-scroll-to="${target?.category}">
 <span class="badges-reveal-pictures" aria-hidden="true">${badges
 		.slice(0, REVEAL_PICTURES)
 		.map(
@@ -345,7 +374,7 @@ export function renderBadges(
 	);
 	return html`<section class="badges" aria-labelledby="badges-heading">
 <h2 id="badges-heading" class="visually-hidden">${i18n.t("badges.heading")}</h2>
-${new SafeHtml(BADGE_SHAPE_DEFS)}
+${section.personal && section.team ? renderSwitch(i18n) : null}${new SafeHtml(BADGE_SHAPE_DEFS)}
 ${group(i18n, "personal", section.personal, section.notYet, isFresh)}${group(i18n, "team", section.team, section.notYet, isFresh)}${earned.map((b) => popover(i18n, b))}</section>`;
 }
 
