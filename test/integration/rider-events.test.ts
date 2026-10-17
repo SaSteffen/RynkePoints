@@ -165,9 +165,7 @@ describe("GET /events (US1)", () => {
 		await attendRaw(past, [ORGANISER]);
 		const { html } = await page();
 		expect(html).not.toContain("Emil");
-		expect(cardOf(html, event)).toContain(
-			'action="/events/' + event + '/report"',
-		);
+		expect(cardOf(html, event)).toContain(`action="/events/${event}/report"`);
 		expect(cardOf(html, past)).toContain(escapeHtml(de["events.report"]));
 		expect(cardOf(html, past)).not.toContain(escapeHtml(de["events.attended"]));
 	});
