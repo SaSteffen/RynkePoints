@@ -15,8 +15,9 @@ description: "Task list for rider progress charts (re-planned 2026-10-19, Chart.
 - Expected figures are worked out by hand, never by running the code under test.
 
 **Organization**: one phase per user story, in delivery order (plan "Delivery"):
-- **US1** is PR 1 and is releasable alone.
-- **US2** is a later PR on top of it.
+- **US1** is built and tested first and works alone.
+- **US2** builds on it. Both went into one PR (#173) at the maintainer's request
+  (FR-004, revised 2026-10-19).
 - **US3** (the diagrams) came with the spec. Its remaining part is the check
   against the build (FR-092), which is the last phase.
 
@@ -148,7 +149,8 @@ September.
   - **(b) The elevation step**: on 20 September, 19 September has 46 and 20
     September has 69, so the step's +5 lands on the day the total passes 2000 m.
   - **(c) The floor of 0**: a correction of −30 Training on a day when the total
-    is 20 gives 0, and a later +5 ride gives 5.
+    is 20 gives 0, and a later +5 ride still gives 0 (25 − 30, the floor applies
+    to the total); with a correction of −20 instead, the later ride gives 5.
   - **(d) Items dated after the last day count on the last day**: attendance
     dated 2026-10-09 with `last` = 2026-10-07 adds to 7 October.
   - **(e) The deadline has passed**: with today 2027-07-10 the last point is
@@ -412,7 +414,7 @@ mouse and keyboard in the e2e tests.
   `pnpm typecheck`, `pnpm test` and `pnpm test:e2e` (WebKit via
   `pnpm test:e2e:webkit` where it doesn't run natively), and fix every failure.
   T002–T022 are all green.
-- [ ] T024 [US1] Check the US1 build against the spec's diagrams (D0, D1, D2,
+- [X] T024 [US1] Check the US1 build against the spec's diagrams (D0, D1, D2,
   D3, D4, D5, D7) and the plan's P1–P6. Where the build differs for a reason the
   spec allows, update the diagram in `specs/009-rider-progress-charts/spec.md` or
   `plan.md` in the same PR (FR-091, FR-092). Re-render them with the Mermaid CLI
@@ -511,12 +513,12 @@ hand-worked figures and with `riderStatus` from `src/rynke/pace.ts`.
 **Independent Test**: a reviewer opens `spec.md` and `plan.md` on GitHub, every
 diagram renders, and each agrees with the requirements and the code.
 
-- [ ] T033 [US3] After PR 2, check D0–D7 in `specs/009-rider-progress-charts/spec.md`
+- [X] T033 [US3] After PR 2, check D0–D7 in `specs/009-rider-progress-charts/spec.md`
   and P1–P6 in `plan.md` against the built section, including the US2 parts of
   D3 and D7. Correct any diagram that differs for a reason the spec allows, and
   update the requirement text in the same change if a requirement changed
   (FR-091).
-- [ ] T034 [US3] Render every Mermaid block of `spec.md` and `plan.md` with the
+- [X] T034 [US3] Render every Mermaid block of `spec.md` and `plan.md` with the
   Mermaid CLI (system Chrome via a puppeteer config in the scratchpad, never in
   the repo) and fix any block that fails to parse.
 

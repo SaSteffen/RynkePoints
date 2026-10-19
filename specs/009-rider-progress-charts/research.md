@@ -192,8 +192,8 @@ tokens.
   makes the scale jump (FR-014). Zoom and pan act on x only (`mode: "x"`).
 - **Lines** (datasets, `pointRadius: 0`, `tension: 0`):
   - the curve, from day 0 to `lastIndex`, and it stops there (FR-013);
-  - the threshold, two points across the axis, with its value as a label at the
-    right end;
+  - the threshold, two points across the axis; its value is in the HTML legend
+    ("Ziel (250)"), not drawn on the canvas, so the canvas holds no text;
   - from US2, the pace line from (0, 0) to (`axisDays`, threshold).
 - **Legend**: Chart.js's legend is off; the server renders an HTML legend with a
   line key per line (R12), so it uses the catalogs and the app's type.

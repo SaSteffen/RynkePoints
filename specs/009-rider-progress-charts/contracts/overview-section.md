@@ -9,7 +9,7 @@ follows research R12.
 ```text
 div.overview-grid
   section.hero · notices · celebration · section.rynke-summary · section.rynke-gauges · section.rynke-breakdown
-  section#progress.progress.card-outlined      ← this feature, both grid columns
+  section#progress.progress.card.card-outlined ← this feature, both grid columns
 ```
 
 **When the section is absent** (`ProgressView.state === "none"`):
@@ -22,7 +22,7 @@ example rider (FR-043).
 ## Markup (User Story 1)
 
 ```html
-<section id="progress" class="progress card-outlined" aria-labelledby="progress-heading"
+<section id="progress" class="progress card card-outlined" aria-labelledby="progress-heading"
 	data-locale="de-DE">
   <h2 id="progress-heading">{progress.heading}</h2>
   <p class="progress-rules">{progress.rules version}</p>
@@ -67,7 +67,8 @@ example rider (FR-043).
 ```
 
 The page's `<head>` gets the vendor scripts before `app.js`, through
-`LayoutOptions.scripts` (research R6):
+`LayoutOptions.scripts`; the Overview returns them with its content as a
+`SectionBody` to `shellPage` (research R6):
 
 ```html
 <script src="/vendor/chart-4.5.1.umd.min.js" defer></script>
@@ -103,6 +104,11 @@ The page's `<head>` gets the vendor scripts before `app.js`, through
   - legend entries `{rynke.withoutVirtual}` and `{progress.legend.needed value}`.
 - **Readout templates**:
   - `data-readout="pace-ahead"`, `"pace-behind"` and `"pace-on"`, one set per line
-    with a pace;
-  - `data-readout="outside"`.
+    with a pace, told apart by `data-series="training|team|outside"`. Each is
+    `{progress.day.series}` with the line's name and the pace part.
+  - `data-readout="outside"`: ` · {progress.day.outside}`, appended to the
+    Training line of the readout.
+- **Readout**: the script fills `p.progress-readout` with one
+  `span.progress-readout-line` per line: the day, then Training, Team and the
+  outdoor curve, each with its pace part.
 - **Table**: gains the outdoor columns (research R11).

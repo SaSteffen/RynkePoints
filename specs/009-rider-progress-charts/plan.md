@@ -15,7 +15,8 @@ The Overview ("Du") gets a progress section below the breakdown:
 - a readout of the selected day;
 - a weekly table as the text version.
 
-US2 later adds the pace lines and the outdoor curve.
+US2 adds the pace lines and the outdoor curve. Both stories are built on this
+branch and delivered together (FR-004, revised 2026-10-19).
 
 - **Curve**: rebuilt on every view by a new `riderCurve` in `src/rynke/weeks.ts`.
   It reuses that file's `tallyUpTo`, the same code behind 016's weekly line, so
@@ -126,9 +127,12 @@ static assets).
 
 | Delivery | Stories | Requirements | Depends on | Releasable alone |
 |---|---|---|---|---|
-| **1 (first PR)** | US1 | FR-001–FR-007, FR-010–FR-016, FR-020–FR-026, FR-030, FR-037, FR-040–FR-043, FR-050, FR-051, FR-053, FR-060, FR-061, FR-070–FR-072, FR-080 | 003, 005, 011, 014, 015, 016, 020, all merged | yes |
-| 2 (later PR) | US2 | FR-038, FR-039, and what FR-030, FR-051 and FR-080 add | delivery 1 | yes |
+| **1 (this PR, built first)** | US1 | FR-001–FR-007, FR-010–FR-016, FR-020–FR-026, FR-030, FR-037, FR-040–FR-043, FR-050, FR-051, FR-053, FR-060, FR-061, FR-070–FR-072, FR-080 | 003, 005, 011, 014, 015, 016, 020, all merged | yes |
+| 1 (same PR) | US2 | FR-038, FR-039, and what FR-030, FR-051 and FR-080 add | US1 | with US1 |
 | with the spec | US3 | FR-090–FR-092 | — | — |
+
+The first plan had US2 as a later PR; at the maintainer's request both stories
+went into one PR (FR-004).
 
 Within PR 1, the tasks follow the dependencies:
 1. The vendored library and the layout's `scripts` option.
@@ -211,9 +215,10 @@ flowchart LR
     ov["http/sections/overview.ts<br/>handleOverview"] --> read["db/rider-view.ts<br/>readRiderView(progress)"]
     ov --> ex["http/tour-example.ts<br/>exampleRiderView (tour)"]
     ov --> pview["http/progress-view.ts<br/>buildProgressView (pure)"]
-    ov --> psec["http/progress-section.ts<br/>renderProgress"]
+    ov --> psec["http/progress-section.ts<br/>renderProgress · CHART_SCRIPTS"]
+    ov --> shell["http/shell.ts → html.ts<br/>layout scripts before app.js"]
     pview --> weeks["rynke/weeks.ts<br/>riderCurve · weekEnds · lastDay"]
-    pview --> pace["rynke/pace.ts<br/>evenPace (US2)"]
+    pview -. "paceAt = evenPace on day indexes,<br/>checked by a test (US2)" .-> pace["rynke/pace.ts<br/>evenPace"]
     weeks --> tally["rynke/tally.ts · team-events.ts<br/>003's functions"]
     team["http/sections/team.ts<br/>riderWeeks (016)"] --> weeks
     psec --> i18n["i18n · html"]
@@ -279,12 +284,12 @@ flowchart TB
         sec --> table["weekly table in details"]
     end
     subgraph browser["Browser"]
-        page["Overview + vendor scripts + app.js"] --> init["progressCharts(): two Chart.js charts,<br/>colours from CSS tokens"]
+        page["Overview + vendor scripts + app.js<br/>(an Overview swapped in place<br/>loads the vendor scripts first)"] --> init["progressCharts(): two Chart.js charts,<br/>colours from CSS tokens"]
         init --> plugin["zoom plugin: mouse drag,<br/>focused wheel, limits"]
         init --> own["our handlers: pinch and sideways drag<br/>(Pointer Events), keys, buttons"]
         plugin & own --> apply["applyPeriod(from, to):<br/>limits 7 days … whole axis"]
         apply --> both["both charts zoomScale (FR-021),<br/>aria-label, aria-pressed, move buttons"]
-        init --> sel["hover, tap, ←/→ → active day<br/>in both charts, crosshair, readout"]
+        init --> sel["mouse over, click, tap, ←/→ → selected day<br/>in both charts, crosshair, readout<br/>(Chart.js's own hover is off)"]
     end
     cv & btn & tpl & json & table --> page
 ```

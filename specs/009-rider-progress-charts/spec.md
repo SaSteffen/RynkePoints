@@ -344,11 +344,12 @@ on GitHub and agrees with the requirements.
 - **FR-003**: Showing or using the charts MUST NOT start an evaluation, change any
   stored data or contact Strava (feature 005 FR-003). Zooming, moving the period and
   pointing at a day MUST NOT contact Strava either.
-- **FR-004**: The first delivery MUST be User Story 1 only (FR-005–FR-007,
-  FR-010–FR-016, FR-020–FR-026, FR-030, FR-037, FR-040–FR-042, FR-050, FR-051, FR-053,
-  FR-060, FR-061, FR-070–FR-072, and FR-080 for what it shows) and MUST be
-  releasable on its own. A later delivery adds User Story 2 and MUST NOT take away
-  anything the first delivery shows.
+- **FR-004**: User Story 1 (FR-005–FR-007, FR-010–FR-016, FR-020–FR-026, FR-030,
+  FR-037, FR-040–FR-042, FR-050, FR-051, FR-053, FR-060, FR-061, FR-070–FR-072, and
+  FR-080 for what it shows) MUST be built and tested first and MUST work on its
+  own. User Story 2 builds on it and MUST NOT take away anything User Story 1
+  shows. Both stories are delivered together (revised 2026-10-19 at the
+  maintainer's request; the first plan had two deliveries).
 
 **What the charts show**
 
@@ -644,16 +645,14 @@ authoritative (FR-091).
 flowchart LR
     spec["With this spec<br/>US3 diagrams"] --> d1
 
-    subgraph d1["First delivery (FR-004)"]
+    subgraph d1["One delivery (FR-004)"]
         us1["US1 season curves<br/>Training and Team Rynke,<br/>threshold lines, period buttons,<br/>free zoom, totals of a day,<br/>weekly table"]
-    end
-
-    subgraph later["Later delivery"]
         us2["US2 pace lines,<br/>curve without virtual rides"]
+        us1 -->|"built and tested first"| us2
     end
 
-    d1 --> us2
-    look["App look: Material 3,<br/>Rynkeby colours, coins<br/>(features 011, 012)"] -.-> d1 & later
+    d1 --> check["US3 diagrams checked<br/>against the build (FR-092)"]
+    look["App look: Material 3,<br/>Rynkeby colours, coins<br/>(features 011, 012)"] -.-> d1
 ```
 
 ### D1. Where the curves come from
@@ -724,10 +723,10 @@ flowchart TB
         subgraph section["Progress section (this spec), full width"]
             direction TB
             label["Rules version 3 · whole season under these rules (FR-040)"]
-            periods["[ Whole season ] [ Last 3 months ] [ Last 4 weeks ] · Reset"]
+            periods["[ Whole season ] [ Last 3 months ] [ Last 4 weeks ]<br/>while zoomed: Earlier · Later · Show whole season"]
             c1["US1 · Training Rynke chart, zoomable<br/>curve 0 → 112, line at 250<br/>US2 · pace line, curve without virtual rides<br/>+ line at 167 + its pace line"]
             c2["US1 · Team Rynke chart, zoomable<br/>curve 0 → 17, line at 25<br/>US2 · pace line"]
-            details["US1 · Day under the pointer<br/>date, Training and Team totals"]
+            details["US1 · Selected day (pointer, tap or keys)<br/>date, Training and Team totals<br/>US2 · ahead of or behind each pace, outdoor total"]
             table["US1 · Table: one row per week (FR-051)"]
             label --> periods --> c1 --> c2 --> details --> table
         end

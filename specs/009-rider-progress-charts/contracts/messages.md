@@ -9,7 +9,7 @@ apply:
   specific, no slogans).
 
 The keys `rynke.training`, `rynke.team` and `rynke.withoutVirtual`
-("Trainingsrynke draußen") are reused.
+("Trainingsrynke draußen", "Training Rynke outdoors") are reused.
 
 Placeholders marked *slot* are rendered as `<span data-slot="…">` with
 `i18n.tHtml` inside a `<template>`. The script fills them (research R9). The
@@ -44,11 +44,14 @@ each canvas's first `aria-label`.
 | ID | Params | de | en |
 |---|---|---|---|
 | `progress.legend.pace` | | Gleichmäßiges Tempo bis zum Stichtag | Even pace to the deadline |
-| `progress.legend.needed` | `value` | Nötig draußen ({value}) | Needed outside ({value}) |
+| `progress.legend.needed` | `value` | Nötig draußen ({value}) | Needed outdoors ({value}) |
 | `progress.day.ahead` | `n`, `pace` (slots) | {n} vor dem Tempo ({pace}) | {n} ahead of pace ({pace}) |
 | `progress.day.behind` | `n`, `pace` (slots) | {n} hinter dem Tempo ({pace}) | {n} behind pace ({pace}) |
 | `progress.day.onPace` | `pace` (slot) | genau im Tempo ({pace}) | right on pace ({pace}) |
-| `progress.day.outside` | `value` (slot) | davon draußen: {value} | of them outside: {value} |
+| `progress.day.series` | `series`, `text` | {series}: {text} | {series}: {text} |
+| `progress.day.outside` | `value` (slot) | davon draußen: {value} | of them outdoors: {value} |
 
-Being behind is stated as a number, never as a broken rule (FR-038, US2 scenario
-5).
+`progress.day.series` puts the line's name before its pace part, so each line
+of the readout says which curve it is about ("Trainingsrynke: 85 vor dem Tempo
+(27)"). Being behind is stated as a number, never as a broken rule (FR-038, US2
+scenario 5).

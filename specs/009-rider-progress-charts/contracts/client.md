@@ -26,7 +26,9 @@ When `#progress` and `#progress-data` exist, the script:
    - datasets: the curve (`values` as `{x: i, y}`), the threshold, and from US2
      the pace and outdoor lines; `pointRadius: 0`, `pointHoverRadius: 4`, 2 px
      surface ring;
-   - `interaction: { mode: "index", intersect: false, axis: "x" }`;
+   - `interaction: { mode: "index", intersect: false, axis: "x" }`, with
+     `events: []`: Chart.js's own hover is off, as the selected day is set by
+     the pointer handlers and keys below;
    - `plugins.legend` and `plugins.tooltip` off;
    - `plugins.zoom` as in research R7: `limits.x = { min: 0, max: axisDays,
      minRange: 7 }`; wheel and drag on, pinch off, `mode: "x"`; pan
@@ -35,6 +37,13 @@ When `#progress` and `#progress-data` exist, the script:
      `onZoomComplete` calls `applyPeriod`.
 6. Adds the pointer handlers of "Gestures" to each canvas.
 7. Selects the last day (`lastIndex`) and fills the readout.
+8. Destroys the charts and drops its listeners when the content is replaced
+   (the `signal` of `enhance`).
+
+**Swapped in place**: when an Overview arrives through `swapPage` (the waiting
+state turning into the first data, a refresh on return), the page may not have
+loaded the vendor scripts yet. `swapPage` loads the new page's head scripts that
+this page lacks, in order, before it runs `enhance`.
 
 `window.Hammer` is never loaded, so the plugin sets no gesture handlers and no
 `touch-action` of its own.
@@ -73,7 +82,7 @@ stylesheet.
 
 ## Selected day
 
-- **Hover, tap or ←/→**: the active index is set on both charts
+- **Mouse over a chart, a click, a tap or ←/→**: the active index is set on both charts
   (`setActiveElements`), the crosshair plugin draws the hairline, and the readout
   is rebuilt from `template[data-readout="day"]` (plus the US2 templates), with
   the slots filled from the values and `Intl` formatting.
