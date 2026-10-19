@@ -299,9 +299,9 @@ D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
   name, what it was for and the date; `public/app.js` also opens it on
   `pointerenter` for mouse pointers, floating beside the mouse and following
   it, and closes it on `pointerleave`. The badge
-  image is `<img loading="lazy" alt="">` (`<id>-ribbon.svg` on cards and in the
-  popover, `<id>.svg` in the gallery, the group's placeholder when
-  `BADGE_PICTURES` lacks the id); the milestone is an HTML `<span>` placed over
+  image is `<img loading="lazy" alt="">` (`<id>.svg`, the group's placeholder
+  when `BADGE_PICTURES` lacks the id; on cards and in the popover with the
+  ribbon drawn over it as inline SVG, issue #180); the milestone is an HTML `<span>` placed over
   the ribbon with `src/badges/ribbon.ts`'s box in percent and its colour per
   group. A test keeps that box equal to `RIBBON` in `scripts/badge-frame.mjs`.
   Progress bars are `<meter>`-like markup with the value as text (FR-042).

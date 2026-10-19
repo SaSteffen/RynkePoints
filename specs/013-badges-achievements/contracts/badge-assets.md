@@ -8,16 +8,16 @@ interface of the scripts.
 
 | Path | Content |
 |------|---------|
-| `public/badges/<id>.svg` | Finished badge for a badge with a picture (gallery, 96 px). |
-| `public/badges/<id>-ribbon.svg` | The same with the empty milestone ribbon (cards 128 px, large view 280 px). |
+| `public/badges/<id>.svg` | Finished badge for a badge with a picture (gallery 96 px, cards 200 px, large view 280 px). |
 | `public/badges/placeholder-personal.svg` | Personal frame with the coin's Rynke. |
 | `public/badges/placeholder-team.svg` | Team frame with the coin's Rynke. |
-| `public/badges/placeholder-{personal,team}-ribbon.svg` | The placeholders with the ribbon. |
 | `src/badges/pictures.ts` | `export const BADGE_PICTURES: ReadonlySet<string>`, generated. |
 
-The app picks `/badges/<id>.svg` (or `-ribbon.svg`) when `BADGE_PICTURES.has(id)`,
-else the placeholder of the badge's group. On a ribbon badge it lays the
-milestone over `RIBBON.box` (badge units, 0 to 100, so percentages of the image)
+The app picks `/badges/<id>.svg` when `BADGE_PICTURES.has(id)`, else the
+placeholder of the badge's group: one file per badge (issue #180). On the cards
+and in the large view it draws the ribbon over the picture itself
+(`src/badges/outline.ts`, the same shapes as `ribbonSvg` in
+`scripts/badge-frame.mjs`) and lays the milestone over `RIBBON.box` (badge units, 0 to 100, so percentages of the image)
 in `RIBBON.text[group]` (FR-040b). It only ever references badges the rider sees
 as earned (FR-003, SC-003).
 
@@ -32,8 +32,8 @@ as earned (FR-003, SC-003).
   external references, no scripts, no `<image>`.
 - Layers in order: frame edge, ring, window, picture group
   (`clip-path` = window circle, `transform` per research R4), window outline,
-  ribbon (`-ribbon` files only: two `ribbon-tail` paths and the `ribbon` band,
-  in the ring colour, no text), stars.
+  stars. No ribbon: the page draws it on top, which looks the same, since the
+  ribbon lies below the stars.
 - Normally under 100 KB (the frame is about 5 KB: each petal is drawn once and
   reused with `<use>`).
 
@@ -68,17 +68,16 @@ badges (the slow part); everything else still runs in full.
 
 1. Validates `badges.json` and `prompt.txt`, always in full (exit 2 on any
    error, nothing written). An unknown id is an error too (exit 2).
-2. Writes `public/badges/placeholder-{personal,team}.svg` and their `-ribbon`
-   versions (the reference images in `art/badges/reference/` are hand-made and
+2. Writes `public/badges/placeholder-{personal,team}.svg` (the reference images in `art/badges/reference/` are hand-made and
    not touched).
 3. Snaps every original in `art/badges/originals/` (with ids: only theirs) to
    the palette, in place (research R7); an original whose id isn't in
    `badges.json` is an error. A named id without an original is skipped with a
    note.
-4. Traces each of those originals and writes `public/badges/<id>.svg` and
-   `<id>-ribbon.svg`. Only a run without ids removes finished SVGs (both
-   versions) whose original is gone, so a filtered run never deletes another
-   badge.
+4. Traces each of those originals and writes `public/badges/<id>.svg`. Only a
+   run without ids removes finished SVGs whose original is gone, so a filtered
+   run never deletes another badge. Any `-ribbon.svg` left from before the page
+   drew the ribbon is removed.
 5. Writes `src/badges/pictures.ts` from every finished SVG in `public/badges/`,
    so the list stays complete after a filtered run.
 6. Prints one line per badge it built with its size; warns above 100 KB.
@@ -93,10 +92,12 @@ Needs ImageMagick and potrace, like `pnpm illustrations`. Running it twice witho
 - `scripts/badge-frame.mjs`
   - `WINDOW = { cx: 50, cy: 50, r: 28.7 }`, `PICTURE_TRANSFORM` (research R4).
   - `RYNKE`: the coin's Rynke markup, as in `src/http/coin.ts`.
-  - `frameSvg(kind, pictureMarkup, title, { transform = PICTURE_TRANSFORM,
-    ribbon = false }) → string`: the finished badge SVG.
-  - `placeholderSvg(kind, { ribbon = false }) → string`: the frame with the
-    coin's Rynke.
+  - `frameSvg(kind, pictureMarkup, title, { transform = PICTURE_TRANSFORM })
+    → string`: the finished badge SVG.
+  - `placeholderSvg(kind) → string`: the frame with the coin's Rynke.
+  - `ribbonSvg(kind) → string`: the ribbon's two `ribbon-tail` paths and the
+    `ribbon` band in the ring colour, no text: what the page draws over the
+    badge (kept equal by `test/unit/badge-outline.test.ts`).
   - `RIBBON = { box: { x: 13, y: 70, width: 74, height: 14 }, text: { personal:
     "#fbe122", team: "#1c1b13" } }`: where and in which colour the page writes
     the milestone.

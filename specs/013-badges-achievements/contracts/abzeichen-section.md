@@ -30,7 +30,7 @@ it, with new own badges and new team badges together.
         <h4>Distanz</h4>                       <!-- the category's name, bold -->
         <p class="badge-about">Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.</p>
         <button class="badge" popovertarget="badge-distance-1000" aria-label="Hamburg–Paris, 1.000 km">
-          <img src="/badges/distance-1000-ribbon.svg" alt="" loading="lazy" width="200" height="200">
+          <span class="badge-art"><img src="/badges/distance-1000.svg" alt="" loading="lazy" width="200" height="200"><svg class="badge-ribbon" viewBox="0 0 100 100" aria-hidden="true"><use href="#badge-ribbon" fill="#1c1b13"/></svg></span>  <!-- the ribbon drawn over the picture -->
           <span class="badge-ribbon-text">1.000 km</span>
         </button>
         <div class="badge-progress">          <!-- absent when the category is complete (FR-004) -->
@@ -53,7 +53,7 @@ it, with new own badges and new team badges together.
       <h4>Distanz</h4>
       <p class="badge-about">Alle Kilometer deiner Radfahrten in dieser Saison, die für Trainings-Rynke zählen.</p>
       <ul>
-        <li><button class="badge" popovertarget="…"><img src="/badges/distance-1000.svg" alt="" loading="lazy" width="96" height="96"></button>
+        <li><button class="badge" popovertarget="…"><span class="badge-art"><img src="/badges/distance-1000.svg" alt="" loading="lazy" width="96" height="96"></span></button>
             <span class="badge-value">1.000 km</span></li>
         <!-- one per badge of the category still to earn: an empty dotted outline -->
         <li class="badge-slot" aria-hidden="true"></li>
@@ -67,7 +67,7 @@ it, with new own badges and new team badges together.
   <!-- one popover per earned badge, outside the cards -->
   <div popover id="badge-distance-1000" class="badge-large">
     <button type="button" class="icon-button badge-large-close" popovertarget="badge-distance-1000" popovertargetaction="hide" aria-label="Schließen">…</button>
-    <span class="badge"><img src="/badges/distance-1000-ribbon.svg" alt="" width="280" height="280"><span class="badge-ribbon-text">1.000 km</span></span>
+    <span class="badge"><span class="badge-art"><img src="/badges/distance-1000.svg" alt="" loading="lazy" width="280" height="280"><svg class="badge-ribbon" viewBox="0 0 100 100" aria-hidden="true"><use href="#badge-ribbon" fill="#1c1b13"/></svg></span><span class="badge-ribbon-text">1.000 km</span></span>
     <h4>Hamburg–Paris</h4>
     <p>Du bist in dieser Saison 1.000 km Rad gefahren.</p>
     <p>erreicht am 3. Mai 2026</p>
@@ -85,9 +85,14 @@ The reveal, at the top of the page (research R16):
 
 - **Order**: cards by the date their badge was earned, newest first (US1
   scenario 8); gallery groups in catalog order, badges newest first inside.
-- **Images**: `/badges/<id>-ribbon.svg` on cards and in popovers,
-  `/badges/<id>.svg` in the gallery, `/badges/placeholder-<group>[-ribbon].svg`
-  when `BADGE_PICTURES` lacks the id. Only earned badges appear anywhere: no
+- **Images**: `/badges/<id>.svg` everywhere, `/badges/placeholder-<group>.svg`
+  when `BADGE_PICTURES` lacks the id: one file per badge (issue #180). On cards
+  and in popovers an inline `svg.badge-ribbon` draws the ribbon over it, a
+  `<use>` of the section's `#badge-ribbon` in the ring's colour (`#1c1b13`
+  personal, `#8cc4f0` team); `.badge-art` gives picture and ribbon one sticker
+  edge. The shine's mask (the picture, plus the ribbon where there is one) is
+  set only while the shine runs, so `loading="lazy"` holds (issue #181), also
+  on the reveal's pictures. Only earned badges appear anywhere: no
   unearned badge id, name or picture is in the HTML (SC-003).
 - **Ribbon text**: `.badge-ribbon-text` sits over the image at the ribbon box of
   `src/badges/ribbon.ts` (left 13 %, top 70 %, width 74 %, height 14 %), in

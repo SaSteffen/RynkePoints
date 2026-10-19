@@ -23,6 +23,7 @@ import {
 	BADGE_OUTLINE,
 	BADGE_OUTLINE_PLAIN,
 	BADGE_SHAPE_DEFS,
+	badgeRibbon,
 } from "../../badges/outline";
 import { BADGE_PICTURES } from "../../badges/pictures";
 import { evaluateTeamBadges, type TeamBadgeSums } from "../../badges/team";
@@ -134,11 +135,19 @@ function milestone(i18n: I18n, badge: Badge): string {
 	);
 }
 
-function picture(badge: Badge, ribbon: boolean): string {
-	const suffix = ribbon ? "-ribbon" : "";
+function picture(badge: Badge): string {
 	return BADGE_PICTURES.has(badge.id)
-		? `/badges/${badge.id}${suffix}.svg`
-		: `/badges/placeholder-${badge.group}${suffix}.svg`;
+		? `/badges/${badge.id}.svg`
+		: `/badges/placeholder-${badge.group}.svg`;
+}
+
+/**
+ * The badge's picture with its sticker edge, and the ribbon drawn over it
+ * when it has one: the same picture with and without (issue #180). The edge
+ * goes round both as one shape.
+ */
+function art(badge: Badge, size: number, ribbon: boolean): SafeHtml {
+	return html`<span class="badge-art"><img src="${picture(badge)}" alt="" loading="lazy" width="${size}" height="${size}">${ribbon ? new SafeHtml(badgeRibbon(badge.group)) : null}</span>`;
 }
 
 function badgeOf(earned: EarnedBadge): Badge {
@@ -184,8 +193,7 @@ function badgeButton(
 		value: milestone(i18n, badge),
 	});
 	const ribbon = size === 200;
-	const src = picture(badge, ribbon);
-	return html`<button class="${fresh ? "badge badge-fresh" : "badge"}" popovertarget="badge-${badge.id}" aria-label="${label}" style="--tilt:${tiltOf(badge.id)}deg;--badge-src:url(${src})"><img src="${src}" alt="" loading="lazy" width="${size}" height="${size}">${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}${fresh ? SPARKLES : null}</button>`;
+	return html`<button class="${fresh ? "badge badge-fresh" : "badge"}" popovertarget="badge-${badge.id}" aria-label="${label}" style="--tilt:${tiltOf(badge.id)}deg;--badge-src:url(${picture(badge)})">${art(badge, size, ribbon)}${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}${fresh ? SPARKLES : null}</button>`;
 }
 
 /**
@@ -324,7 +332,7 @@ function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 	const team = badge.group === "team" ? " badge-large-team" : "";
 	return html`<div popover id="badge-${badge.id}" class="badge-large${team}">
 <button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
-<span class="badge" style="--badge-src:url(${picture(badge, true)})"><img src="${picture(badge, true)}" alt="" loading="lazy" width="280" height="280"><span class="badge-ribbon-text">${value}</span>${SPARKLES}</span>
+<span class="badge" style="--badge-src:url(${picture(badge)})">${art(badge, 280, true)}<span class="badge-ribbon-text">${value}</span>${SPARKLES}</span>
 <h4>${BADGE_NAMES[badge.id] ?? ""}</h4>
 <p>${forText(i18n, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
@@ -363,7 +371,7 @@ export function renderBadgeReveal(
 		.slice(0, REVEAL_PICTURES)
 		.map(
 			(b) =>
-				html`<img src="${picture(badgeOf(b), false)}" alt="" width="48" height="48">`,
+				html`<img src="${picture(badgeOf(b))}" alt="" loading="lazy" width="48" height="48">`,
 		)}</span>
 <p>${text}</p>
 </aside>

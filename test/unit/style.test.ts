@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { BADGE_RIBBON_MASK } from "../../src/badges/outline";
 import { STYLE } from "../../src/http/style";
 import { declsOf, RULES } from "../support/css";
 
@@ -298,11 +299,13 @@ describe("STYLE", () => {
 		);
 		// Stickers: a cut-out edge with a shadow in both schemes, a small tilt
 		// that straightens on hover and focus, a lift while pressed.
-		expect(declsOf(".badge img").filter).toBe("var(--rp-badge-edge)");
+		// The edge goes round the picture and the ribbon drawn over it as one.
+		expect(declsOf(".badge-art").filter).toBe("var(--rp-badge-edge)");
+		expect(declsOf(".badge img").filter).toBeUndefined();
 		expect(declsOf(":root")["--rp-badge-edge"]).toContain("drop-shadow");
 		expect(declsOf("button.badge").transform).toBe("rotate(var(--tilt,0deg))");
 		expect(declsOf("button.badge:hover").transform).toBe("none");
-		expect(declsOf("button.badge:active img").filter).toBe(
+		expect(declsOf("button.badge:active .badge-art").filter).toBe(
 			"var(--rp-badge-lift)",
 		);
 		expect(
@@ -328,13 +331,31 @@ describe("STYLE", () => {
 				"(prefers-reduced-motion:no-preference)",
 			).animation,
 		).toContain("badge-shine-new");
-		expect(
-			RULES.some(
-				(rule) =>
-					rule.selectors.includes(".badge-large .badge::after") &&
-					rule.decls.mask?.includes("var(--badge-src)"),
-			),
-		).toBe(true);
+		// The mask only while the shine runs, so the pictures load lazily
+		// (issue #181); with the ribbon drawn over the picture where it has one.
+		const masked = (selector: string) =>
+			RULES.find((rule) => rule.selectors.includes(selector) && rule.decls.mask)
+				?.decls.mask;
+		expect(masked(".badge-large .badge::after")).toBeUndefined();
+		expect(masked("button.badge::after")).toBeUndefined();
+		for (const selector of [
+			"button.badge:hover::after",
+			"button.badge:focus-visible::after",
+			".badge-fresh::after",
+		])
+			expect(masked(selector)).toBe(
+				"var(--badge-src) center/contain no-repeat",
+			);
+		for (const selector of [
+			"button.badge:hover:has(.badge-ribbon)::after",
+			"button.badge:focus-visible:has(.badge-ribbon)::after",
+			".badge-fresh:has(.badge-ribbon)::after",
+			".badge-large:popover-open .badge::after",
+		])
+			expect(masked(selector)).toBe(
+				`var(--badge-src) center/contain no-repeat,${BADGE_RIBBON_MASK} center/contain no-repeat`,
+			);
+		expect(STYLE.match(/[{;]mask:var\(--badge-src\)/g)).toHaveLength(2);
 	});
 
 	it("puts the milestone on the ribbon's box, yellow on personal and ink on team (013 FR-040b)", () => {

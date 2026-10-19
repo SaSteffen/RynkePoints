@@ -139,6 +139,20 @@ describe("the Abzeichen section", () => {
 		expect(distance).toContain(
 			`<span class="badge-ribbon-text">500\u00a0km</span>`,
 		);
+		// One picture per badge; the page draws the ribbon over it (#180).
+		expect(distance).toContain('<span class="badge-art"><img src="/badges/');
+		expect(distance).toContain(
+			'<svg class="badge-ribbon" viewBox="0 0 100 100" aria-hidden="true"><use href="#badge-ribbon" fill="#1c1b13"/></svg></span><span class="badge-ribbon-text">',
+		);
+		const gallery = badges?.match(
+			/<div class="badge-gallery">([\s\S]*?)<\/section>/,
+		)?.[1];
+		expect(gallery).toContain('class="badge-art"');
+		expect(gallery).not.toContain("badge-ribbon");
+		expect(badges).toMatch(
+			/<div popover id="badge-distance-500" [^>]*>[\s\S]*?<svg class="badge-ribbon"[^>]*><use href="#badge-ribbon" fill="#1c1b13"\/>/,
+		);
+		expect(badges).toContain('<g id="badge-ribbon" stroke="#1c1b13">');
 		expect(distance).toContain(
 			escapeHtml(de["badges.missing"].replace("{value}", "480\u00a0km")),
 		);
@@ -176,7 +190,7 @@ describe("the Abzeichen section", () => {
 		expect(button("distance-100")).not.toContain("badge-fresh");
 		// The picture shapes its shine; every badge has its own tilt.
 		expect(button("distance-1000")).toMatch(
-			/style="--tilt:-?\d(\.\d)?deg;--badge-src:url\(\/badges\/distance-1000-ribbon\.svg\)"/,
+			/style="--tilt:-?\d(\.\d)?deg;--badge-src:url\(\/badges\/distance-1000\.svg\)"/,
 		);
 	});
 
@@ -187,11 +201,9 @@ describe("the Abzeichen section", () => {
 		if (missing) await earn(ATHLETE_A, [[missing.id, "2026-05-02"]]);
 		const { section: badges } = await section();
 		if (BADGE_PICTURES.has("distance-500")) {
-			expect(badges).toContain('src="/badges/distance-500-ribbon.svg"');
 			expect(badges).toContain('src="/badges/distance-500.svg"');
 		}
 		if (missing) {
-			expect(badges).toContain('src="/badges/placeholder-personal-ribbon.svg"');
 			expect(badges).toContain('src="/badges/placeholder-personal.svg"');
 			expect(badges).not.toContain(`/badges/${missing.id}`);
 		}
@@ -324,7 +336,6 @@ describe("the Abzeichen section", () => {
 			if (earned.has(badge.id)) continue;
 			expect(html).not.toContain(`badge-${badge.id}"`);
 			expect(html).not.toContain(`/badges/${badge.id}.svg`);
-			expect(html).not.toContain(`/badges/${badge.id}-ribbon.svg`);
 			expect(html, badge.id).not.toContain(`>${escapeHtml(nameOf(badge.id))}<`);
 		}
 	});
@@ -391,11 +402,12 @@ describe("the team's badges (US4)", () => {
 			`<span class="badges-title-all">${de["badges.personal.all"].replace("{n}", "3")}</span>`,
 		);
 		if (!BADGE_PICTURES.has("big-training-5")) {
-			expect(team).toContain('src="/badges/placeholder-team-ribbon.svg"');
+			expect(team).toContain('src="/badges/placeholder-team.svg"');
 		}
 		expect(badges).toContain(
 			'<div popover id="badge-big-training-5" class="badge-large badge-large-team">',
 		);
+		expect(team).toContain('<use href="#badge-ribbon" fill="#8cc4f0"/>');
 	});
 
 	it("scrolls to the rider's own new badge before the team's (Part I)", async () => {
@@ -602,7 +614,6 @@ describe("the surprise badges on the page", () => {
 			// Whole ids: "surprise-christmas" is a prefix of "-christmas-eve".
 			expect(html).not.toContain(`badge-surprise-${name}"`);
 			expect(html).not.toContain(`/badges/surprise-${name}.svg`);
-			expect(html).not.toContain(`/badges/surprise-${name}-ribbon.svg`);
 			expect(html).not.toContain(escapeHtml(de[`badges.surprise.${name}.for`]));
 			expect(html).not.toContain(
 				`>${escapeHtml(de[`badges.surprise.${name}`])}<`,

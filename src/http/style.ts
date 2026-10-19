@@ -4,6 +4,7 @@
 // other rule takes its colours from them through `var(--…)` (FR-031). No
 // `url(` to another origin and no `@import` (FR-037).
 
+import { BADGE_RIBBON_MASK } from "../badges/outline";
 import { TOUR_TARGETS } from "./tour-targets";
 
 /**
@@ -459,11 +460,15 @@ ul.rider-missing{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-sty
 .badge-about{margin:0;font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 button.badge{display:block;padding:0;border:0;border-radius:var(--md-shape-full);background:none;cursor:pointer}
 .badge{position:relative;container-type:inline-size}
-.badge img{display:block;width:100%;height:auto;filter:var(--rp-badge-edge)}
+.badge-art{display:block;position:relative;filter:var(--rp-badge-edge)}
+.badge img{display:block;width:100%;height:auto}
+.badge-ribbon{position:absolute;inset:0;width:100%;height:100%}
 button.badge{transform:rotate(var(--tilt,0deg));transition:transform var(--rp-motion)}
 button.badge:hover,button.badge:focus-visible{transform:none}
 @media (prefers-reduced-motion:no-preference){button.badge:active{transform:perspective(480px) rotateX(16deg) rotateY(-10deg) scale(1.05)}button.badge:hover::after,button.badge:focus-visible::after{animation:badge-shine 900ms ease-out}.badge-fresh::after{animation:badge-shine-new 1200ms ease-out 600ms}.badge-large:popover-open .badge::after{animation:badge-shine-new 1100ms ease-out 250ms}}
-button.badge::after,.badge-large .badge::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(115deg,transparent 38%,var(--rp-badge-shine) 50%,transparent 62%) 150% 0/250% 100% no-repeat;-webkit-mask:var(--badge-src) center/contain no-repeat;mask:var(--badge-src) center/contain no-repeat}
+button.badge::after,.badge-large .badge::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(115deg,transparent 38%,var(--rp-badge-shine) 50%,transparent 62%) 150% 0/250% 100% no-repeat}
+button.badge:hover::after,button.badge:focus-visible::after,.badge-fresh::after{-webkit-mask:var(--badge-src) center/contain no-repeat;mask:var(--badge-src) center/contain no-repeat}
+button.badge:hover:has(.badge-ribbon)::after,button.badge:focus-visible:has(.badge-ribbon)::after,.badge-fresh:has(.badge-ribbon)::after,.badge-large:popover-open .badge::after{-webkit-mask:var(--badge-src) center/contain no-repeat,${BADGE_RIBBON_MASK} center/contain no-repeat;mask:var(--badge-src) center/contain no-repeat,${BADGE_RIBBON_MASK} center/contain no-repeat}
 .badge-sparkles{position:absolute;inset:-8%;pointer-events:none}
 .badge-large .badge-sparkles{inset:-3%}
 .badge-sparkles>span{position:absolute;width:12%;aspect-ratio:1;background:var(--rp-coin-yellow);clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%);filter:drop-shadow(0 0 1px var(--rp-coin-ink));animation:badge-twinkle 1.8s ease-in-out infinite}
@@ -471,7 +476,7 @@ button.badge::after,.badge-large .badge::after{content:"";position:absolute;inse
 .badge-sparkles>span:nth-child(2){top:10%;right:2%;width:9%;animation-delay:.5s}
 .badge-sparkles>span:nth-child(3){bottom:16%;left:0;width:8%;animation-delay:1s}
 .badge-sparkles>span:nth-child(4){bottom:2%;right:12%;width:11%;animation-delay:1.3s}
-button.badge:active img{filter:var(--rp-badge-lift)}
+button.badge:active .badge-art{filter:var(--rp-badge-lift)}
 .badges-reveal-pictures img{filter:var(--rp-badge-edge)}
 .badge-card .badge,.badge-card .badge-slot{width:100%;max-width:200px}
 .badge-card{--rp-slot-ground:var(--md-sys-color-surface-container-low)}

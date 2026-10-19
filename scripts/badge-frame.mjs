@@ -103,10 +103,11 @@ const STARS = [-26, 0, 26]
 
 /**
  * The milestone ribbon across the lower edge (spec FR-040b), in the ring's
- * colour. Only the shape: the page puts the milestone into `box` as its own
- * text, in `text`'s colour, so it is translated and readable by screen
- * readers. It covers the bottom 15 % of the window, which the prompt keeps
- * free.
+ * colour. The page draws it over the picture (src/badges/outline.ts, issue
+ * #180), so a badge is one file with or without it, and puts the milestone
+ * into `box` as its own text, in `text`'s colour, so it is translated and
+ * readable by screen readers. It covers the bottom 15 % of the window, which
+ * the prompt keeps free.
  */
 export const RIBBON = {
 	box: { x: 13, y: 70, width: 74, height: 14 },
@@ -115,7 +116,13 @@ export const RIBBON = {
 	tail: { inner: 34, outer: 47, notch: 43, top: 3, bottom: 16 },
 };
 
-function ribbonSvg(colour) {
+/**
+ * The ribbon as it lies over a badge of `kind`, after the ring and below the
+ * stars, which it doesn't reach: what the page must draw
+ * (test/unit/badge-outline.test.ts).
+ */
+export function ribbonSvg(kind) {
+	const colour = kind === "team" ? C.team : C.ink;
 	const { x, y, width, height } = RIBBON.box;
 	const { inner, outer, notch, top, bottom } = RIBBON.tail;
 	const middle = (top + bottom) / 2;
@@ -144,7 +151,7 @@ const annulus = (outer, inner) => {
 /**
  * The finished badge: petals, window, the picture clipped to the window and
  * placed by `transform`, the ring (black for personal, light blue for team)
- * over the picture's edge, the ribbon when asked for, and the stars on top.
+ * over the picture's edge, and the stars on top. No ribbon: the page draws it.
  * The ring covers whatever of the picture a renderer fails to clip, and the
  * clip's id carries the badge's name, so badges inlined into one page don't
  * share it.
@@ -153,7 +160,7 @@ export function frameSvg(
 	kind,
 	picture,
 	title,
-	{ transform = PICTURE_TRANSFORM, ribbon = false } = {},
+	{ transform = PICTURE_TRANSFORM } = {},
 ) {
 	const ring = kind === "team" ? C.team : C.ink;
 	const { cx, cy, r } = WINDOW;
@@ -166,15 +173,13 @@ export function frameSvg(
 		`<circle class="window" cx="${cx}" cy="${cy}" r="${r}" fill="${C.cream}"/>` +
 		`<g clip-path="url(#${clip})"><g transform="${transform}">${picture}</g></g>` +
 		`<path class="ring" d="${annulus(RING, r)}" fill="${ring}" fill-rule="evenodd" stroke="${C.ink}" stroke-width="${OUTLINE}"/>` +
-		(ribbon ? ribbonSvg(ring) : "") +
 		`${STARS}</svg>\n`
 	);
 }
 
 /** The frame with the coin's Rynke: the badge until it has a picture (FR-040a). */
-export function placeholderSvg(kind, { ribbon = false } = {}) {
+export function placeholderSvg(kind) {
 	return frameSvg(kind, inline(RYNKE), `placeholder-${kind}`, {
 		transform: RYNKE_TRANSFORM,
-		ribbon,
 	});
 }
