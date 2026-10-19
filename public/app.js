@@ -556,6 +556,9 @@ function waitForFirstData() {
  */
 function swapViews() {
 	const path = location.pathname;
+	/** The view shown, without its fragment: a link to `#…` changes no view. */
+	const viewOf = (url) => url.pathname + url.search;
+	let shown = viewOf(location);
 	let current = null;
 	async function show(url, push) {
 		current?.abort();
@@ -578,6 +581,7 @@ function swapViews() {
 			if (!next || !main) throw new Error("no main");
 			const focused = document.activeElement?.closest("a[data-swap]");
 			main.replaceChildren(...next.childNodes);
+			shown = viewOf(new URL(url));
 			document.title = doc.title;
 			if (push) history.pushState(null, "", url);
 			// Keyboard users stay on the link of the view they picked.
@@ -618,7 +622,9 @@ function swapViews() {
 		if (url.href !== location.href) show(url.href, true);
 	});
 	addEventListener("popstate", () => {
-		if (location.pathname === path) show(location.href, false);
+		if (location.pathname === path && viewOf(location) !== shown) {
+			show(location.href, false);
+		}
 	});
 }
 
