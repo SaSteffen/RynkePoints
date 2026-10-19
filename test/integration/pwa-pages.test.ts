@@ -35,7 +35,7 @@ const HEAD = [
 ];
 
 const INSTALL_HINT = `<aside id="install" class="notice" hidden>
-<p data-install="prompt" hidden><button type="button" class="tap">Als App installieren</button></p>
+<p data-install="prompt" hidden><button type="button" class="button">Als App installieren</button></p>
 <p data-install="ios" hidden>Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.</p>
 <p data-install="firefox" hidden>Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.</p>
 <p data-install="macSafari" hidden>Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.</p>
@@ -120,15 +120,17 @@ describe("app prompt (015 FR-010–FR-012, FR-016)", () => {
 	const PROMPT = `<aside id="app-prompt" class="app-prompt" aria-labelledby="app-prompt-title" data-push-key="${vapidPublicKey(ctx.env)}" hidden>
 <div data-panel="install" hidden>
 <p id="app-prompt-title">Hol dir RynkePoints als App auf deinen Startbildschirm.</p>
-<p data-install="prompt" hidden><button type="button" class="tap">Als App installieren</button></p>
+<p data-install="prompt" hidden><button type="button" class="button">Als App installieren</button></p>
 <p data-install="ios" hidden>Als App auf dem iPhone: Tippe in Safari auf „Teilen“ und dann auf „Zum Home-Bildschirm“.</p>
 <p data-install="firefox" hidden>Als App mit Firefox: Tippe auf das Menü ⋮ und dann auf „Installieren“ oder „Zum Startbildschirm hinzufügen“.</p>
 <p data-install="macSafari" hidden>Als App auf dem Mac: Wähle in Safari „Ablage“ &gt; „Zum Dock hinzufügen“.</p>
 </div>
 <div data-panel="notify" hidden>
 <p>Sollen wir dir Bescheid sagen, wenn du neue Rynke bekommst?</p>
-<button type="button" class="tap" data-action="accept">Benachrichtigungen einschalten</button>
-<button type="button" class="tap" data-action="decline">Nicht jetzt</button>
+<div class="app-prompt-actions">
+<button type="button" class="button-text" data-action="decline">Nicht jetzt</button>
+<button type="button" class="button" data-action="accept">Benachrichtigungen einschalten</button>
+</div>
 </div>
 <button type="button" class="icon-button" data-action="close" aria-label="Schließen">${CLOSE}</button>
 </aside>`;

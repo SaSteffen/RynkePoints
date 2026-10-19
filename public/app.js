@@ -761,7 +761,7 @@ function lazyRides() {
 
 /** The Material buttons that show press feedback (issue #107). */
 const PRESSABLE =
-	".button,.button-outlined,.danger,.segmented,.segmented-group label,.icon-button";
+	".button,.button-outlined,.button-text,.danger,.segmented,.segmented-group label,.icon-button";
 
 /**
  * A ripple from the point of the tap on a Material button (issue #107). Without

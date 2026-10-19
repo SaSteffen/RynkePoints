@@ -63,15 +63,17 @@ once the rider has agreed (not on the consent gate):
        data-push-key="{VAPID public key}" hidden>
   <div data-panel="install" hidden>
     <p id="app-prompt-title">{prompt.install.text}</p>
-    <p data-install="prompt" hidden><button type="button" class="tap">{install.button}</button></p>
+    <p data-install="prompt" hidden><button type="button" class="button">{install.button}</button></p>
     <p data-install="ios" hidden>{install.ios}</p>
     <p data-install="firefox" hidden>{install.firefox}</p>
     <p data-install="macSafari" hidden>{install.macSafari}</p>
   </div>
   <div data-panel="notify" hidden>
     <p>{prompt.notify.text}</p>
-    <button type="button" class="tap" data-action="accept">{prompt.notify.accept}</button>
-    <button type="button" class="tap" data-action="decline">{prompt.notify.decline}</button>
+    <div class="app-prompt-actions">
+      <button type="button" class="button-text" data-action="decline">{prompt.notify.decline}</button>
+      <button type="button" class="button" data-action="accept">{prompt.notify.accept}</button>
+    </div>
   </div>
   <button type="button" class="icon-button" data-action="close"
           aria-label="{prompt.close}">{CLOSE icon}</button>
