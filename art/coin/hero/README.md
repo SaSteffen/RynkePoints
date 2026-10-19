@@ -4,7 +4,9 @@ The coin at the top of the Du page (the rider's overview): the coin's rim,
 black ring, stars and gold chain, with Rynke's head and shoulders in the
 cream face. There are several portraits; the page picks one at random on
 every load (`heroCoin()` in `src/http/coin.ts`, `HERO_PORTRAITS` is how many).
-The landing page's hero always shows portrait 2 (`LANDING_PORTRAIT`). The
+The landing page's hero always shows portrait 2 (`LANDING_PORTRAIT`). So do the
+installed app's icons and launch screen: after changing that portrait, run
+`pnpm icons` as well. The
 small marks keep the simplified sprite. The frame is drawn in code (`scripts/coin-art.mjs`, like the app's
 sprite in `src/http/coin.ts`); only the portrait comes from the image
 generator, made the same way as the badge pictures (`art/badges/README.md`), so

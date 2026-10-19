@@ -4,7 +4,7 @@
 // dependency: the outputs are committed and only change with the artwork.
 // The lettering is drawn from stroked glyphs below, so no font is needed.
 import { execFileSync } from "node:child_process";
-import { writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { registerHooks } from "node:module";
 import { extname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -229,9 +229,11 @@ const mono = svg(
 	96,
 );
 
-// The installed app's icons and launch screen: the coin front that spins while
-// rides import, taken from the app's own sprite and colours. The full badge's
-// lettering looks wrong that large and centred on the launch screen (#120).
+// The installed app's icons and launch screen: the landing page's hero coin,
+// Rynke's portrait in the coin frame (public/coin/rynke-coin-hero-<n>.svg,
+// art/coin/hero/README.md). The full badge's lettering looks wrong that large
+// and centred on the launch screen (#120), and the simplified sprite looked
+// crude there.
 // The app's sources import without file extensions, so `.ts` is added here;
 // coin.ts gets a stand-in for html.ts, which Node can't strip the types of.
 registerHooks({
@@ -245,29 +247,26 @@ registerHooks({
 			: next(specifier, context);
 	},
 });
-const { COIN_SPRITE } = await import("../src/http/coin.ts");
+const { LANDING_PORTRAIT } = await import("../src/http/coin.ts");
 const { STYLE } = await import("../src/http/style.ts");
-// The light scheme's tokens come first.
-const tokens = {};
-for (const [, name, value] of STYLE.matchAll(
-	/(--rp-coin-[a-z]+):(#[0-9a-f]+)/g,
-)) {
-	tokens[name] ??= value;
-}
-const coinRules = [...STYLE.matchAll(/^\.c-[a-z]+\{.*\}$/gm)]
-	.map(([rule]) =>
-		rule.replace(/var\((--rp-coin-[a-z]+)\)/g, (_, name) => tokens[name]),
-	)
-	.filter((rule) => !rule.includes("var("))
-	.join("");
-const front = COIN_SPRITE.match(
-	/<symbol id="coin-front" viewBox="0 0 100 100">(.*?)<\/symbol>/,
-)[1];
+// The launch screen's background (manifest background_color): the light
+// scheme's coin face, which comes first.
+const face = STYLE.match(/--rp-coin-face:(#[0-9a-f]+)/)[1];
+const hero = readFileSync(
+	new URL(
+		`../public/coin/rynke-coin-hero-${LANDING_PORTRAIT}.svg`,
+		import.meta.url,
+	),
+	"utf8",
+)
+	.replace(/^<svg[^>]*>/, "")
+	.replace(/<\/svg>\s*$/, "")
+	.replace(/<title>.*?<\/title>|<!--.*?-->/g, "");
 // Transparent around the coin, or scaled on the launch screen's background
-// (manifest background_color) for the maskable icon.
+// for the maskable icon.
 const launch = (scale, background) =>
 	svg(
-		`<style>${coinRules}</style>${background ? `<rect width="512" height="512" fill="${tokens["--rp-coin-face"]}"/>` : ""}<g transform="translate(256 256) scale(${r1(scale * 5.12 * 1000) / 1000}) translate(-50 -50)">${front}</g>`,
+		`${background ? `<rect width="512" height="512" fill="${face}"/>` : ""}<g transform="translate(256 256) scale(${r1(scale * 5.12 * 1000) / 1000}) translate(-50 -50)">${hero}</g>`,
 	);
 
 function png(name, size, source) {
