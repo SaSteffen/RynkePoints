@@ -27,7 +27,7 @@ unchanged except for the class hooks listed here.
 <link rel="manifest" …> <link rel="icon" …> <link rel="apple-touch-icon" …>
 <script src="/app.js" defer></script>
 <title>…</title>
-<style>/* style.ts */</style>
+<link rel="stylesheet" href="/style-{hash}.css">  <!-- style.ts; since issue #183. /offline keeps <style> inline -->
 </head>
 <body class="shell|public">
 <header class="top-bar">…</header>

@@ -41,6 +41,9 @@ export function handleOffline(request: Request, ctx: Ctx): Response {
 			path: "/me",
 			body: html`<h1>${title}</h1>
 <p>${i18n.t("offline.body")}</p>`,
+			// Offline the linked stylesheet may not be at hand; the notice
+			// brings its own (issue #183).
+			inlineStyle: true,
 		}),
 		200,
 		{ "Cache-Control": "no-cache" },
