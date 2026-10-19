@@ -96,14 +96,23 @@ test.describe("a rider", () => {
 		await expect(section.locator("[data-state]:visible")).toHaveCount(1);
 	});
 
-	test("keeps the scroll position on the Team switches (#113)", async ({
+	test("swaps the Team views in place, at the same scroll position (#113)", async ({
 		page,
 	}) => {
 		await page.setViewportSize(PHONE);
 		await page.goto("/team");
-		const other = page.locator("nav.kind-switch a:not([aria-current])");
+		await page.waitForLoadState();
+		const kind = page.locator("nav.kind-switch a[aria-current]");
 		const html = page.locator("html");
 		const scrollTop = () => html.evaluate((root) => root.scrollTop);
+		// A reload would lose this.
+		await page.evaluate(() => {
+			(globalThis as { samePage?: boolean }).samePage = true;
+		});
+		const samePage = () =>
+			page.evaluate(
+				() => (globalThis as { samePage?: boolean }).samePage === true,
+			);
 		// The switch is at the top: a real tap there would scroll back up
 		// first, so the page is scrolled down and the link clicked as is.
 		await html.evaluate((root) => {
@@ -111,9 +120,19 @@ test.describe("a rider", () => {
 		});
 		const before = await scrollTop();
 		expect(before).toBeGreaterThan(0);
-		await other.dispatchEvent("click");
+		await page
+			.locator("nav.kind-switch a:not([aria-current])")
+			.dispatchEvent("click");
 		await page.waitForURL(/kind=team/);
-		await expect.poll(scrollTop).toBe(before);
+		await expect(kind).toHaveAttribute("href", "/team?kind=team");
+		expect(await scrollTop()).toBe(before);
+		expect(await samePage()).toBe(true);
+
+		// The back button brings the previous view back, still in place.
+		await page.goBack();
+		await expect(kind).toHaveAttribute("href", "/team");
+		expect(await samePage()).toBe(true);
+
 		// Another way to the page still starts at the top.
 		await page.goto("/team");
 		expect(await scrollTop()).toBe(0);

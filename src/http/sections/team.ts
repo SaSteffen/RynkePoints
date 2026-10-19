@@ -238,9 +238,9 @@ function segment(
 	label: string,
 	icon: SafeHtml | null = null,
 ): SafeHtml {
-	// The same page in another view: `public/app.js` keeps the scroll position
-	// (issue #113).
-	return html`<a class="segmented" href="${href}" data-keep-scroll${current ? html` aria-current="true"` : null}>${icon}${label}</a>`;
+	// The same page in another view: `public/app.js` swaps it in place, at the
+	// same scroll position (issue #113).
+	return html`<a class="segmented" href="${href}" data-swap${current ? html` aria-current="true"` : null}>${icon}${label}</a>`;
 }
 
 function renderKindSwitch(i18n: I18n, kind: RynkeKind, all: boolean): SafeHtml {
