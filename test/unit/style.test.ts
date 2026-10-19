@@ -235,6 +235,12 @@ describe("STYLE", () => {
 		expect(STYLE).toContain("@keyframes top-bar-lift");
 	});
 
+	it("keeps the top bar's colour while the page scrolls", () => {
+		const lift = STYLE.match(/@keyframes top-bar-lift\{(.*?\})\}/)?.[1];
+		expect(lift).toBeDefined();
+		expect(lift).not.toContain("background");
+	});
+
 	it("keeps the navigation in the top bar while the page scrolls from 600 px (#62)", () => {
 		expect(declsOf("nav.app-nav", WIDE).position).toBe("fixed");
 		expect(Number(declsOf("nav.app-nav")["z-index"])).toBeGreaterThan(
