@@ -209,7 +209,7 @@ describe("overviewBody", () => {
 
 	it("has a tile per group with its count (FR-032)", () => {
 		expect(tiles(page(null))).toEqual([
-			["requests", "0", "Riders with an open report ⏳"],
+			["requests", "0", "Riders with an open report"],
 			["push", "2", "Need a push"],
 			["on_track", "1", "On track"],
 			["in", "1", "Training goal reached"],
@@ -303,7 +303,7 @@ describe("overviewBody", () => {
 		expect(html).toContain("The deadline has passed");
 		expect(html).not.toContain("days to go");
 		expect(tiles(html).map(([group, , label]) => [group, label])).toEqual([
-			["requests", "Riders with an open report ⏳"],
+			["requests", "Riders with an open report"],
 			["push", "Training goal not reached yet"],
 			["in", "Training goal reached"],
 			["all", "Everyone"],

@@ -809,7 +809,7 @@ export const en: Catalog = {
 	"organiser.attendance.tag.intent": "coming",
 	"organiser.attendance.summary":
 		"Reports: {yes} will be added, {no} declined, {open} open",
-	"organiser.overview.group.requests": "Riders with an open report ⏳",
+	"organiser.overview.group.requests": "Riders with an open report",
 	"organiser.overview.column.requests": "Report",
 	// The Overview's progress charts (feature 009 contracts/messages.md).
 	"progress.heading": "Your season so far",
