@@ -164,8 +164,6 @@ test.describe("the continuous ride list (018)", () => {
 		await openRides(page);
 		const rides = page.locator("section#rides");
 		const cards = rides.locator("li.ride-card");
-		await expect(rides.locator("nav.pager")).toBeHidden();
-		await expect(rides.locator(".rides-position")).toBeHidden();
 		await expect(rides.locator(".rides-total")).toHaveText(
 			"45 Fahrten in dieser Saison",
 		);
@@ -222,23 +220,6 @@ test.describe("the continuous ride list (018)", () => {
 		await expect(cards).toHaveCount(20);
 		await cards.last().scrollIntoViewIfNeeded();
 		await expect(cards).toHaveCount(25);
-	});
-
-	test.describe("without the page script (US3)", () => {
-		test.use({ javaScriptEnabled: false });
-
-		test("pages through the rides as before", async ({ page }) => {
-			await openRides(page);
-			const rides = page.locator("section#rides");
-			await expect(rides.locator("li.ride-card")).toHaveCount(20);
-			await expect(rides.locator(".rides-position")).toHaveText(
-				"Fahrten 1–20 von 45",
-			);
-			await expect(rides.locator(".rides-total")).toBeHidden();
-			await rides.locator('nav.pager a[rel="next"]').click();
-			await expect(page).toHaveURL(/\/me\/rides\?page=2$/);
-			await expect(rides.locator("li.ride-card")).toHaveCount(20);
-		});
 	});
 });
 
@@ -413,6 +394,8 @@ test("an organiser cycles a reported rider's box (019 US5)", async ({
 		.filter({ hasText: "Sample early ride" })
 		.getByRole("link")
 		.click();
+	// The box is in the markup; it cycles once the deferred script has run.
+	await page.waitForLoadState();
 	const box = page
 		.getByRole("checkbox")
 		.and(page.locator(".tri-toggle"))

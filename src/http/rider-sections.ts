@@ -1,4 +1,4 @@
-import type { RideKey } from "../db/rider-view";
+import { RIDES_PER_PAGE, type RideKey } from "../db/rider-view";
 import type { Rider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import type { RiderStatus } from "../rynke/pace";
@@ -12,7 +12,6 @@ import {
 	type Gauge,
 	type GaugeSource,
 	type Gauges,
-	type Pager,
 	type ReasonLine,
 	type RideLine,
 	type RiderView,
@@ -387,35 +386,25 @@ ${coinArt("front", "large")}
 <p>${i18n.t("me.recent.none")}</p>
 </section>`;
 	}
-	// With a pager, the page script turns the pages into one list (feature 018
-	// contracts/pages.md); its lines and controls stay hidden until it does.
-	const lazy = rides.pager;
+	// More than one page: the page script turns the pages into one list
+	// (feature 018 contracts/pages.md).
+	const lazy = rides.total > RIDES_PER_PAGE;
 	return html`<section id="rides"${lazy ? html` data-lazy` : null}>
 ${heading}
-${lazy && renderListLines(i18n, rides.position, lazy)}${rideList(i18n, rides.rows, rides.more, example)}
-${lazy && renderMore(i18n)}${lazy && renderPager(i18n, lazy)}</section>`;
+${lazy && renderListLines(i18n, rides)}${rideList(i18n, rides.rows, rides.more, example)}
+${lazy && renderMore(i18n)}</section>`;
 }
 
-/** The page's position, the season's total and the way back to the top. */
-function renderListLines(
-	i18n: I18n,
-	{ from, to, total }: RideTable["position"],
-	pager: Pager,
-): SafeHtml {
-	const position = i18n.t("rynke.rides.position", {
-		from: whole(i18n, from),
-		to: whole(i18n, to),
-		total: whole(i18n, total),
-	});
+/** The season's total and, from a later page, the way back to the top. */
+function renderListLines(i18n: I18n, { total, page }: RideTable): SafeHtml {
 	const season = i18n.t("rynke.rides.total", { total: whole(i18n, total) });
-	return html`<p class="rides-position">${position}</p>
-<p class="rides-total" hidden>${season}</p>
-${pager.page > 1 ? renderNewest(i18n) : null}`;
+	return html`<p class="rides-total">${season}</p>
+${page > 1 ? renderNewest(i18n) : null}`;
 }
 
 /** Back to the top of the list from a later page (feature 018 FR-014). */
 function renderNewest(i18n: I18n): SafeHtml {
-	return html`<p class="rides-newest" hidden><a class="tap" href="/me/rides">${i18n.t("rynke.rides.newest")}</a></p>
+	return html`<p class="rides-newest"><a class="tap" href="/me/rides">${i18n.t("rynke.rides.newest")}</a></p>
 `;
 }
 
@@ -456,27 +445,6 @@ function renderMore(i18n: I18n): SafeHtml {
 	return html`<div class="rides-more" hidden><p class="rides-status" role="status" data-loading="${i18n.t("rynke.rides.loading")}" data-failed="${i18n.t("rynke.rides.failed")}" data-added="${i18n.t("rynke.rides.added")}"></p><button type="button" class="button-outlined" data-retry hidden>${i18n.t("rynke.rides.retry")}</button></div>
 `;
 }
-
-/** Only the links that apply; each a 44 px tap target (FR-045, FR-070). */
-function renderPager(i18n: I18n, pager: Pager): SafeHtml {
-	const links = PAGER_LINKS.flatMap(({ key, rel, text }) => {
-		const page = pager[key];
-		return page === null
-			? []
-			: [
-					html`<a class="tap" href="/me/rides?page=${page}" rel="${rel}">${i18n.t(text)}</a>`,
-				];
-	});
-	return html`<nav class="pager" aria-label="${i18n.t("rynke.pager.label")}">${links}</nav>
-`;
-}
-
-const PAGER_LINKS = [
-	{ key: "first", rel: "first", text: "rynke.pager.first" },
-	{ key: "previous", rel: "prev", text: "rynke.pager.previous" },
-	{ key: "next", rel: "next", text: "rynke.pager.next" },
-	{ key: "last", rel: "last", text: "rynke.pager.last" },
-] as const;
 
 function kilometres(i18n: I18n, m: number): string {
 	return i18n.t("units.km", {

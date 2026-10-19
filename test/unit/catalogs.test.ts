@@ -189,13 +189,6 @@ const CONTRACT_IDS = [
 	"rynke.unknown.trainer",
 	"rynke.unknown.flagged",
 	"rynke.unknown.mayChange",
-	// Feature 005, US5
-	"rynke.rides.position",
-	"rynke.pager.label",
-	"rynke.pager.first",
-	"rynke.pager.previous",
-	"rynke.pager.next",
-	"rynke.pager.last",
 	// Feature 005, US6
 	"rynke.notice.updating",
 	"rynke.rules.heading",
@@ -666,9 +659,6 @@ const CONTRACT_IDS = [
 	"organiser.attendance.tag.yes",
 	"organiser.attendance.tag.no",
 	"organiser.attendance.tag.intent",
-	"organiser.attendance.decide.open",
-	"organiser.attendance.decide.yes",
-	"organiser.attendance.decide.no",
 	"organiser.attendance.summary",
 	"organiser.overview.group.requests",
 	"organiser.overview.column.requests",

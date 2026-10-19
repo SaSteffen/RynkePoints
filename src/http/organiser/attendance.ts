@@ -95,9 +95,9 @@ function riderItem(
 }
 
 /**
- * A rider with an open request: three radios, open checked, which
- * `public/app.js` turns into one tri-state box (019 research R5). The tags say
- * what saving will do; the script shows the one that fits.
+ * A rider with an open request: one tri-state box, grey, whose state
+ * `public/app.js` cycles into the hidden `decide-{id}` field (019 research
+ * R5). The tags say what saving will do; the script shows the one that fits.
  */
 function requestItem(
 	i18n: I18n,
@@ -105,11 +105,9 @@ function requestItem(
 	link: SafeHtml | string,
 ): SafeHtml {
 	const id = rider.athlete_id;
-	const radio = (value: "open" | "yes" | "no") =>
-		html`<label><input type="radio" name="decide-${id}" value="${value}"${value === "open" ? html` checked` : null}><span>${i18n.t(`organiser.attendance.decide.${value}`)}</span></label>`;
 	const tag = (value: "open" | "yes" | "no") =>
 		html`<span class="tri-tag tri-tag-${value}"${value === "open" ? null : html` hidden`}>${i18n.t(`organiser.attendance.tag.${value}`)}</span>`;
-	return html`<li class="attendance-rider attendance-requested"><fieldset class="tri-state"><legend><span class="rider-name">${rider.first_name}</span></legend>${radio("open")}${radio("yes")}${radio("no")}</fieldset>${tag("open")}${tag("yes")}${tag("no")}<input type="hidden" name="shown" value="${id}:r">${link}</li>`;
+	return html`<li class="attendance-rider attendance-requested"><button type="button" class="tri-toggle" role="checkbox" aria-checked="mixed" data-state="open"><span class="tri-box" aria-hidden="true"></span><span class="rider-name">${rider.first_name}</span></button><input type="hidden" name="decide-${id}" value="open">${tag("open")}${tag("yes")}${tag("no")}<input type="hidden" name="shown" value="${id}:r">${link}</li>`;
 }
 
 /** The summary's placeholders, kept for `public/app.js` to fill. */
@@ -162,14 +160,15 @@ export function attendanceSection(
 ${legend(i18n, true)}<p>${i18n.t("organiser.attendance.future")}</p>
 ${items(false)}`;
 	}
-	// Shown by the script, which is what makes it work (research R5).
+	// Worked by the script (research R5); the summary starts with every
+	// request open and the script keeps it current.
 	const all =
 		open > 1
-			? html`<button type="button" class="button-outlined confirm-all" hidden>${i18n.t("organiser.attendance.confirmAll", { n: String(open) })}</button>`
+			? html`<button type="button" class="button-outlined confirm-all">${i18n.t("organiser.attendance.confirmAll", { n: String(open) })}</button>`
 			: null;
 	const summary =
 		open > 0
-			? html`<p class="tri-summary" role="status" hidden data-text="${i18n.t("organiser.attendance.summary", SUMMARY_SLOTS)}"></p>`
+			? html`<p class="tri-summary" role="status" data-text="${i18n.t("organiser.attendance.summary", SUMMARY_SLOTS)}">${i18n.t("organiser.attendance.summary", { yes: "0", no: "0", open: String(open) })}</p>`
 			: null;
 	return html`${heading}
 ${legend(i18n, false)}

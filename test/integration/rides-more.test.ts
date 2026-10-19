@@ -265,10 +265,10 @@ describe("GET /me/rides lazy markup (018 US3, FR-014)", () => {
 		const { html } = await riderPage(ctx, ATHLETE_A, "/me/rides?page=2");
 		expect(html).toContain('<section id="rides" data-lazy>');
 		expect(html).toContain(
-			'<p class="rides-newest" hidden><a class="tap" href="/me/rides">Zu den neuesten Fahrten</a></p>',
+			'<p class="rides-newest"><a class="tap" href="/me/rides">Zu den neuesten Fahrten</a></p>',
 		);
 		expect(html).toContain(
-			'<p class="rides-total" hidden>45 Fahrten in dieser Saison</p>',
+			'<p class="rides-total">45 Fahrten in dieser Saison</p>',
 		);
 		expect(more(html)).toBe(
 			"/me/rides/more?after=2026-08-28T08%3A00%3A00Z~8000040",
