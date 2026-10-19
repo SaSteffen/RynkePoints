@@ -113,17 +113,17 @@ never rendered, put in the page data or logged (FR-005).
 - touch: a vertical swipe scrolls the page (FR-025).
 
 **Decision**: [Chart.js](https://www.chartjs.org/) 4 with
-[chartjs-plugin-zoom](https://www.chartjs.org/chartjs-plugin-zoom/) 2 and
-[Hammer.js](https://hammerjs.github.io/) 2, which the plugin uses for touch
-gestures. All three are MIT licensed and ship ready-made minified browser builds,
-so there is still no build step for browser code (R6).
+[chartjs-plugin-zoom](https://www.chartjs.org/chartjs-plugin-zoom/) 2. Both are
+MIT licensed and ship ready-made minified browser builds, so there is still no
+build step for browser code (R6). The plugin's own pinch and touch pan need
+[Hammer.js](https://hammerjs.github.io/), which is not loaded: the two gestures
+are done with the browser's Pointer Events instead (below, R7).
 
 | File | Version | Minified | gzip |
 |---|---|---|---|
 | `chart.umd.min.js` | 4.5.1 | 204 KB | 69 KB |
 | `chartjs-plugin-zoom.min.js` | 2.2.0 | 15 KB | 6 KB |
-| `hammer.min.js` | 2.0.8 | 20 KB | 7 KB |
-| **Together** | | 239 KB | 82 KB |
+| **Together** | | 219 KB | 75 KB |
 
 Measured 2026-10-19 from the npm packages. They are loaded only on the Overview and
 then come from the browser cache (R6).
@@ -134,29 +134,37 @@ then come from the browser cache (R6).
   These libraries have years of fixes for exactly that. The hand-rolled `viewBox`
   plan of this morning was only cheaper because it also had to render without
   JavaScript, and that requirement is gone (constitution v2.2.0).
-- The zoom plugin covers most of FR-022/FR-023 out of the box: pinch, mouse drag
-  to a stretch, wheel, pan, limits (`min`, `max`, `minRange` = 7 days) and reset,
-  with an API (`zoom`, `pan`, `zoomScale`, `resetZoom`) for the keys and buttons.
+- The zoom plugin covers most of FR-022/FR-023 out of the box: mouse drag to a
+  stretch, wheel, limits (`min`, `max`, `minRange` = 7 days) and reset, with an
+  API (`zoom`, `pan`, `zoomScale`, `resetZoom`) for the gestures, keys and
+  buttons.
 - Chart.js covers the rest: a linear x axis of day indexes with our own tick list
   and labels (R10), hover and tap picking the nearest day (`interaction.mode:
   "index"`, `intersect: false`), fixed y scales, dashed lines, high-density
   canvases and resizing.
-- Cost: 82 KB gzip once per device, nothing in the Worker bundle, no change to
+- Cost: 75 KB gzip once per device, nothing in the Worker bundle, no change to
   the free tier.
 
-**What we still write** (in `app.js`, R7): the keys, the move and reset buttons,
-keeping both charts on one period, the readout, the crosshair (a 15-line inline
-plugin) and the colours from the CSS tokens.
+**Why not Hammer.js**: the plugin would use it for pinch and touch pan, but
+Hammer has had no release since 2016, and it was written for browsers without
+Pointer Events. Every browser the app supports (011 FR-005) has them now. The
+plugin checks for `window.Hammer` and simply skips its own gestures without it;
+wheel, drag-zoom and the API keep working. Our two gestures are about 50 lines on
+`pointerdown`/`pointermove`/`pointerup` calling the plugin's `zoom` and `pan`
+(R7). That is 7 KB less and one unmaintained dependency fewer, and Hammer's
+`touch-action: none` on the canvas, which would have needed an override, never
+happens.
+
+**What we still write** (in `app.js`, R7): pinch and sideways drag on Pointer
+Events, the keys, the move and reset buttons, keeping both charts on one period,
+the readout, the crosshair (a 15-line inline plugin) and the colours from the CSS
+tokens.
 
 **Known weak spots**, each covered by a test or a rule:
-- Hammer.js has had no release since 2016. It works in current browsers and is
-  only used through the plugin. If it breaks, the plugin's pinch and touch pan
-  stop; mouse, wheel, keys and buttons still work.
-- Hammer sets `touch-action: none` on the canvas when pinch is on, which would
-  stop the page from scrolling under a chart. The script sets
-  `touch-action: pan-y` on each canvas after creating the chart (R7, FR-025). An
-  e2e test checks the style; the swipe itself is part of the device check after
-  release.
+- The gesture code is ours. It only turns pointer positions into a zoom factor
+  or a pan distance; the plugin applies them within its limits. e2e tests drive
+  it with synthetic touch pointer events in all three browsers (R13); a real
+  pinch on a phone is part of the device check after release.
 - A canvas has no text for screen readers. Each canvas is `role="img"` with an
   `aria-label` of the period, and the readout and weekly table carry the figures
   (FR-050, R9, R11).
@@ -164,7 +172,7 @@ plugin) and the colours from the CSS tokens.
 | Option | Why not |
 |---|---|
 | Hand-rolled SVG with `viewBox` zoom (this morning's plan) | Every gesture, the wheel and resizing are ours to get right in three browsers, for a nice graph that is not the app's main feature. |
-| uPlot (~50 KB) | Smaller and faster, but no pinch or touch pan built in; we would write the gestures ourselves again. |
+| uPlot (~50 KB) | Smaller and faster, but no zoom limits, drag-zoom or wheel zoom built in; we would write more than the two gestures. |
 | Apache ECharts (~330 KB gzip full, less with a custom build) | The richest zoom, but four times the size, or a build step for a custom bundle. |
 | D3 (scale, shape, zoom) | Needs a bundler for the browser and leaves the chart itself to us. |
 | ApexCharts (~140 KB gzip) | Larger, with more features we don't need; its zoom is less configurable for touch. |
@@ -201,9 +209,10 @@ plugin) and the colours from the CSS tokens.
     catalogs (R9);
   - it makes no request and writes no storage or cookie.
 - **The library files** are vendored, not built:
-  - `chart.js`, `chartjs-plugin-zoom` and `hammerjs` become exact-pinned
-    `devDependencies`, so the versions are visible and Dependabot sees them.
-  - `scripts/vendor.mjs` (`pnpm vendor`) copies the three minified files into
+  - `chart.js` and `chartjs-plugin-zoom` become exact-pinned `devDependencies`,
+    so the versions are visible and Dependabot sees them. (`hammerjs` comes along
+    as the plugin's dependency in `node_modules`; it is not copied or loaded.)
+  - `scripts/vendor.mjs` (`pnpm vendor`) copies the two minified files into
     `public/vendor/`, with the version in the file name (for example
     `public/vendor/chart-4.5.1.umd.min.js`), plus each package's `LICENSE`.
   - The copies are committed, so deploying needs no build step.
@@ -211,9 +220,9 @@ plugin) and the colours from the CSS tokens.
     runs as part of `pnpm lint`, so CI catches a version bump without a copy.
   - Biome ignores `public/vendor/`.
 - **Loading**: `LayoutOptions` gains `scripts?: string[]`. The Overview passes the
-  three vendor paths when it renders the section. They are emitted as `<script
-  src defer>` before `app.js`, so they run in order: Hammer, Chart.js, the plugin,
-  then `app.js`. No other page loads them.
+  two vendor paths when it renders the section. They are emitted as `<script
+  src defer>` before `app.js`, so they run in order: Chart.js, the plugin, then
+  `app.js`. No other page loads them.
 - **Caching**: `public/_headers` gives `/vendor/*` `Cache-Control: public,
   max-age=31536000, immutable`. The versioned file names make that safe. The
   service worker only handles navigations and needs no change.
@@ -248,18 +257,25 @@ plugin) and the colours from the CSS tokens.
 | Mouse moving over a chart | crosshair and readout on the nearest day | Chart.js hover (`mode: "index"`, `intersect: false`) |
 | Tap or click | select that day in both charts; readout | Chart.js events + `setActiveElements` on the other chart |
 | Mouse drag across a chart | shade the stretch; on release, zoom to it | plugin `zoom.drag` (`mode: "x"`, `threshold: 8`) |
-| Shift + mouse drag | move the period | plugin `pan` (`modifierKey: "shift"`) |
-| Two-finger pinch | zoom around the fingers | plugin `zoom.pinch` (Hammer) |
-| One-finger sideways drag | move the period | plugin `pan` (Hammer, horizontal) |
-| Vertical swipe | scrolls the page | canvas `touch-action: pan-y`, set after Hammer (FR-025) |
+| Shift + mouse drag | move the period | our pointer handler calling `chart.pan`; `pan: { enabled: true, modifierKey: "shift" }` makes the plugin's drag-zoom ignore a shift-drag |
+| Two-finger pinch | zoom around the fingers | our pointer handler: `chart.zoom({ x: d / d0, focalPoint })` with the fingers' distance and midpoint |
+| One-finger sideways drag | move the period | our pointer handler: `chart.pan({ x: dx })` once the finger has moved 8 px |
+| Vertical swipe | scrolls the page | `touch-action: pan-y` on the canvas in the stylesheet: the browser scrolls and sends `pointercancel` (FR-025) |
 | Wheel over a chart that has focus (after a click or Tab) | zoom around the pointer; without focus the page scrolls | plugin `zoom.wheel` + `onZoomStart` returning `false` for a wheel on an unfocused canvas, so the plugin neither zooms nor calls `preventDefault` |
 | Keys on a focused chart | ←/→ previous/next day · `+`/`-` zoom around the selected day · PageUp/PageDown move by half the period · Home/End first/last day · `0` or Escape whole season | our `keydown` handler calling `zoom`, `pan`, `resetZoom` |
 | "Früher", "Später", "Ganze Saison zeigen" buttons | move by half the period; reset. Shown only while zoomed in. 44 × 44 px. | our handler |
 | Period buttons | `zoomScale("x", { min: from, max: to })` on both charts | our handler; `data-from`/`data-to` from the server (R8) |
 
 Rules that apply to every input:
-- **One period for both charts** (FR-021): the plugin's `onZoomComplete` and
-  `onPanComplete` of either chart call one `applyPeriod(from, to)`, which sets the
+- **Pointer gestures**: `pointerdown` records the pointer (for the mouse only with
+  Shift and the main button) and captures it; `pointermove` with one pointer pans
+  by the change in x, with two zooms by the change in their distance;
+  `pointerup` and `pointercancel` forget it, and when the last one is gone the
+  period is applied. `pinch.enabled` stays `false` in the plugin options, and
+  `window.Hammer` is never loaded.
+- **One period for both charts** (FR-021): the plugin's `onZoomComplete` of either
+  chart, and the end of a pointer gesture, call one `applyPeriod(from, to)`, which
+  sets the
   other chart with `zoomScale(…, "none")` and updates the buttons and labels. A
   guard flag stops the two charts from echoing each other.
 - **Limits** (FR-022, FR-023): `limits.x = { min: 0, max: axisDays, minRange: 7 }`
@@ -277,8 +293,7 @@ Rules that apply to every input:
 **Rationale**:
 - Requiring focus for the wheel keeps page scrolling free, the most common
   complaint about zoomable charts.
-- On touch, a sideways drag moves and a pinch zooms, which is what the plugin does
-  and what map apps do. A mouse drag selects a stretch, the usual desktop
+- On touch, a sideways drag moves and a pinch zooms, as in map apps. A mouse drag selects a stretch, the usual desktop
   gesture. The spec's FR-022/FR-023 are worded to match.
 
 ## R8. Period presets in the markup, not in the URL (FR-020, FR-026)
@@ -451,6 +466,9 @@ riders):
 - the keys step the readout and zoom;
 - the wheel only zooms after focus, and scrolls the page before;
 - each canvas has `touch-action: pan-y`;
+- synthetic touch pointer events: two pointers moving apart zoom both charts in,
+  one pointer moving sideways moves both, and a vertical move changes neither;
+- `window.Hammer` is undefined;
 - the readout for 20 September of a sample rider equals the table's figures;
 - dark mode: the line colour is read from the dark tokens;
 - no console error, and the vendor files are served with the immutable header.
@@ -472,7 +490,7 @@ The existing `catalogs.test.ts` and `no-hardcoded-copy.test.ts` cover the new ke
 | Two extra SELECTs | ≤ 600 day rows, ≤ 50 corrections | < 5 ms |
 | Rebuild | ≤ 300 days × (≤ 100 events + corrections) | < 5 ms |
 | JSON data | 2–3 arrays of ≤ 300 integers | about 4 KB |
-| Vendor scripts | first visit only, then cached | 82 KB gzip |
+| Vendor scripts | first visit only, then cached | 75 KB gzip |
 
 Chart.js draws 2 charts of ≤ 300 points each in a few milliseconds, and zooming
 redraws without animation. The Overview stays within 005 SC-005's 2 seconds.

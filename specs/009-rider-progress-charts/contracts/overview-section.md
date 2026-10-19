@@ -70,7 +70,6 @@ The page's `<head>` gets the vendor scripts before `app.js`, through
 `LayoutOptions.scripts` (research R6):
 
 ```html
-<script src="/vendor/hammer-2.0.8.min.js" defer></script>
 <script src="/vendor/chart-4.5.1.umd.min.js" defer></script>
 <script src="/vendor/chartjs-plugin-zoom-2.2.0.min.js" defer></script>
 <script src="/app.js" defer></script>
@@ -90,6 +89,7 @@ The page's `<head>` gets the vendor scripts before `app.js`, through
 | Every button is at least 44 × 44 px (`--rp-tap`). | FR-071 |
 | Each canvas is focusable (`tabindex="0"`) and described by the key help. | FR-053 |
 | The vendor scripts are loaded only on an Overview that shows the section. | research R6 |
+| The stylesheet gives each chart canvas `touch-action: pan-y`: a vertical swipe scrolls the page, the script gets sideways moves and pinches. | FR-025, research R7 |
 
 ## Additions for User Story 2
 

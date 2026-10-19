@@ -22,14 +22,15 @@ US2 later adds the pace lines and the outdoor curve.
   the table's week totals equal the Team section's (R1, R2).
   - Input: two SELECTs added to the Overview's existing batch (R3).
   - Nothing is stored and there is no migration.
-- **Drawing and interaction: Chart.js** 4 with chartjs-plugin-zoom and Hammer.js
+- **Drawing and interaction: Chart.js** 4 with chartjs-plugin-zoom
   (R4), justified under Principle IV. The app requires JavaScript (constitution
   v2.2.0), so the charts are drawn in the browser on two canvases, one x unit per
   day across the whole axis (R5).
   - The library files are vendored into `public/vendor/` from pinned
     devDependencies, without a build step, and loaded only on the Overview (R6).
-  - The plugin gives pinch, mouse drag, wheel, pan, limits and reset.
-    `progressCharts()` in `public/app.js` adds the keys, the buttons, one period
+  - The plugin gives mouse drag, wheel, limits and reset.
+    `progressCharts()` in `public/app.js` adds pinch and sideways drag on
+    Pointer Events (no Hammer.js), the keys, the buttons, one period
     for both charts, the crosshair, the readout and the colours from the CSS
     tokens (R7, R9, R12).
   - The server renders the section around the canvases: heading, period buttons,
@@ -48,7 +49,7 @@ US2 later adds the pace lines and the outdoor curve.
 
 **Primary Dependencies**:
 - New, browser only (devDependencies, vendored into `public/vendor/`, R4, R6):
-  `chart.js` 4.5.1, `chartjs-plugin-zoom` 2.2.0, `hammerjs` 2.0.8, all MIT.
+  `chart.js` 4.5.1, `chartjs-plugin-zoom` 2.2.0, both MIT.
   Nothing new in the Worker bundle.
 - Existing:
 - the `html` template, `I18n` (`t`, `tHtml`, `formatDate`, `formatNumber`);
@@ -74,7 +75,7 @@ static assets).
 **Performance Goals**:
 - The Overview within 2 s at 500 rides (SC-005); the rebuild under 10 ms (R14).
 - Zoom and select respond within 0.5 s on a mid-range phone, without animation.
-- 82 KB gzip of vendor scripts on the first Overview visit, cached for a year
+- 75 KB gzip of vendor scripts on the first Overview visit, cached for a year
   after (versioned names).
 
 **Constraints**:
@@ -103,7 +104,7 @@ static assets).
 | **I. Privacy and consent** | Nothing new is read from Strava and nothing new is stored. The rider sees only their own derived Rynke (FR-002), which their consent covers (spec Assumptions). The page data holds only dates and whole numbers of Rynke. The metre sums used to place elevation steps never leave the Worker (data-model.md). The script makes no request and keeps no storage or cookie. The library is served from the app's own origin, never a CDN, so no third party learns who opens the Overview (R6). Fixtures and e2e samples are synthetic. | Pass |
 | **II. Strava API citizenship** | No Strava request on view, zoom or select (FR-003, SC-006). | Pass |
 | **III. Rider-authored content wins** | Nothing is written. | Pass |
-| **IV. Serverless, TS, minimal deps** | One new browser dependency, justified in R4: Chart.js with its zoom plugin (and Hammer.js, which the plugin needs) instead of hand-rolled gestures. Browser only, vendored without a build step, loaded only on the Overview (R6); the Worker bundle is unchanged. The curve reuses the pure rules functions through `weeks.ts` (R1), so the points stay recomputable from stored data. Two SELECTs, within the free tier. | Pass (justified) |
+| **IV. Serverless, TS, minimal deps** | One new browser dependency, justified in R4: Chart.js with its zoom plugin; the plugin's Hammer.js is not loaded, as Pointer Events cover pinch and drag in about 50 lines (R4). Browser only, vendored without a build step, loaded only on the Overview (R6); the Worker bundle is unchanged. The curve reuses the pure rules functions through `weeks.ts` (R1), so the points stay recomputable from stored data. Two SELECTs, within the free tier. | Pass (justified) |
 | **V. Test-first** | Every FR maps to a test written first ([quickstart.md](quickstart.md) §1). The browser part, untested in the first plan, now gets Playwright tests in three browsers (R13). | Pass |
 | **Language** | 18 keys for US1 and 6 for US2, in `de` and `en`. `app.js` holds no text (R9). Code and docs are in English. | Pass |
 | **Technology constraints (v2.2.0)** | JavaScript is required: no no-script version of the charts (spec FR-052 removed). The weekly table stays for screen readers (FR-050, FR-051). | Pass |
@@ -176,7 +177,7 @@ src/
 └── i18n/messages/{de,en}.ts          # progress.* keys
 
 public/app.js                         # + progressCharts()
-public/vendor/                        # new: chart, chartjs-plugin-zoom, hammer (versioned names) + licences
+public/vendor/                        # new: chart, chartjs-plugin-zoom (versioned names) + licences
 public/_headers                       # /vendor/* immutable for a year
 scripts/vendor.mjs                    # new: copy from node_modules; --check in pnpm lint
 package.json                          # devDependencies (exact pins), "vendor" script, lint runs vendor --check
@@ -217,7 +218,7 @@ flowchart LR
     team["http/sections/team.ts<br/>riderWeeks (016)"] --> weeks
     psec --> i18n["i18n · html"]
     app["public/app.js<br/>progressCharts()"] -. "reads markup + JSON only" .-> psec
-    app --> lib["public/vendor/<br/>Chart.js · zoom plugin · Hammer.js"]
+    app --> lib["public/vendor/<br/>Chart.js · zoom plugin"]
     read -. "SELECT only" .-> d1[("D1")]
 ```
 
@@ -278,9 +279,9 @@ flowchart TB
         sec --> table["weekly table in details"]
     end
     subgraph browser["Browser"]
-        page["Overview + vendor scripts + app.js"] --> init["progressCharts(): two Chart.js charts,<br/>colours from CSS tokens, touch-action pan-y"]
-        init --> plugin["zoom plugin: pinch, mouse drag,<br/>focused wheel, touch pan"]
-        init --> own["our handlers: keys, buttons,<br/>period buttons"]
+        page["Overview + vendor scripts + app.js"] --> init["progressCharts(): two Chart.js charts,<br/>colours from CSS tokens"]
+        init --> plugin["zoom plugin: mouse drag,<br/>focused wheel, limits"]
+        init --> own["our handlers: pinch and sideways drag<br/>(Pointer Events), keys, buttons"]
         plugin & own --> apply["applyPeriod(from, to):<br/>limits 7 days … whole axis"]
         apply --> both["both charts zoomScale (FR-021),<br/>aria-label, aria-pressed, move buttons"]
         init --> sel["hover, tap, ←/→ → active day<br/>in both charts, crosshair, readout"]
@@ -320,4 +321,4 @@ flowchart TB
 
 | Deviation | Why Needed | Simpler Alternative Rejected Because |
 |---|---|---|
-| A new browser dependency (Chart.js, its zoom plugin, Hammer.js), vendored as three files (R4, R6) | Interactive zoom with pinch, wheel and pan in three browsers is the hard part of this feature, and proven code handles it. | Hand-rolled SVG: every gesture and browser quirk is ours to find and fix. A bundler: a build step for every page's script to save about 30 KB. |
+| A new browser dependency (Chart.js and its zoom plugin), vendored as two files (R4, R6) | Interactive zoom with pinch, wheel and pan in three browsers is the hard part of this feature, and proven code handles it. | Hand-rolled SVG: every gesture and browser quirk is ours to find and fix. A bundler: a build step for every page's script to save about 30 KB. |

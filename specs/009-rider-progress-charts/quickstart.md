@@ -47,8 +47,9 @@ pnpm dev     # http://localhost:8789, fake Strava with synthetic sample riders
    it. Then use **Früher**, **Später** and **Ganze Saison zeigen**.
 4. Click a chart, then use ←/→, + and −, and the wheel. The readout follows. The
    wheel scrolls the page until the chart has focus.
-5. In the browser's device mode, pinch and drag sideways on a chart; a vertical
-   swipe scrolls the page.
+5. In the browser's device mode, drag sideways on a chart to move the period; a
+   vertical swipe scrolls the page. (Device mode can't pinch with a mouse; the
+   e2e tests cover pinch with synthetic touch pointers.)
 6. Switch to dark mode in Settings and come back: the lines stay readable.
 7. Start the tour and look at its Du step: the section shows the
    example rider.

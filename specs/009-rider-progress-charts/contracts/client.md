@@ -29,11 +29,30 @@ When `#progress` and `#progress-data` exist, the script:
    - `interaction: { mode: "index", intersect: false, axis: "x" }`;
    - `plugins.legend` and `plugins.tooltip` off;
    - `plugins.zoom` as in research R7: `limits.x = { min: 0, max: axisDays,
-     minRange: 7 }`; wheel, pinch and drag on, `mode: "x"`; pan on with
-     `modifierKey: "shift"` for the mouse; `onZoomStart` refuses a wheel on an
-     unfocused canvas; `onZoomComplete` and `onPanComplete` call `applyPeriod`.
-6. Sets `canvas.style.touchAction = "pan-y"` on each canvas (FR-025).
+     minRange: 7 }`; wheel and drag on, pinch off, `mode: "x"`; pan
+     `{ enabled: true, modifierKey: "shift" }` only so that drag-zoom ignores a
+     shift-drag; `onZoomStart` refuses a wheel on an unfocused canvas;
+     `onZoomComplete` calls `applyPeriod`.
+6. Adds the pointer handlers of "Gestures" to each canvas.
 7. Selects the last day (`lastIndex`) and fills the readout.
+
+`window.Hammer` is never loaded, so the plugin sets no gesture handlers and no
+`touch-action` of its own.
+
+## Gestures (research R7, FR-022, FR-023, FR-025)
+
+Pointer Events on each canvas; the canvas's `touch-action: pan-y` comes from the
+stylesheet.
+- **`pointerdown`**: a touch or pen pointer, or the mouse's main button with
+  Shift, is recorded with its x and y and captured (`setPointerCapture`).
+- **`pointermove`**, one pointer: once it has moved 8 px sideways,
+  `chart.pan({ x: dx }, undefined, "none")` by the change since the last move.
+- **`pointermove`**, two pointers: `chart.zoom({ x: d / dLast, focalPoint:
+  midpoint }, "none")`, `d` the distance between them.
+- **`pointerup`, `pointercancel`**: the pointer is forgotten. When none is left
+  after a pan or zoom, `applyPeriod` with the chart's x `min`/`max`.
+- A pointer that starts on the chart doesn't select a day while it pans or
+  zooms.
 
 ## Period
 

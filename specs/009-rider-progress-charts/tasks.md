@@ -103,13 +103,12 @@ September.
   back. `test/unit/reference-riders.test.ts` must still pass unchanged in what it
   asserts.
 - [ ] T004 [P] Vendor the chart library (research R4, R6):
-  - add `chart.js` 4.5.1, `chartjs-plugin-zoom` 2.2.0 and `hammerjs` 2.0.8 as
+  - add `chart.js` 4.5.1, `chartjs-plugin-zoom` 2.2.0 as
     exact-pinned `devDependencies` in `package.json`;
   - write `scripts/vendor.mjs`: it copies `chart.js/dist/chart.umd.min.js`,
-    `chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js` and
-    `hammerjs/hammer.min.js` into `public/vendor/` as
-    `chart-<version>.umd.min.js`, `chartjs-plugin-zoom-<version>.min.js` and
-    `hammer-<version>.min.js` (versions read from each package's
+    `chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js` into `public/vendor/` as
+    `chart-<version>.umd.min.js` and `chartjs-plugin-zoom-<version>.min.js`
+    (versions read from each package's
     `package.json`), plus each package's licence as `<name>-<version>.LICENSE.txt`,
     and removes older versioned copies. With `--check` it changes nothing and
     exits 1 when a copy is missing or differs;
@@ -127,7 +126,7 @@ September.
   before.
 - [ ] T006 Implement `scripts` in `layout` in `src/http/html.ts` (and pass it
   through `shellPage` if that builds the layout options), so that T005 passes.
-  Export the three vendor paths once, as `CHART_SCRIPTS` in
+  Export the two vendor paths once, as `CHART_SCRIPTS` in
   `src/http/progress-section.ts` or a small constant beside it, matching
   `scripts/vendor.mjs`'s names.
 
@@ -256,7 +255,7 @@ mouse and keyboard in the e2e tests.
   `test/integration/overview-progress.test.ts`, using `test/support/pages.ts`
   helpers, for `GET /me`:
   - **(a) The example rider**: the section appears after `.rynke-breakdown`, with
-    the figures of T012, and the head has the three vendor scripts in order
+    the figures of T012, and the head has the two vendor scripts in order
     before `/app.js`.
   - **(b) A second seeded rider**: their own figures only. No value of the other
     rider appears in the HTML (SC-007).
@@ -300,7 +299,7 @@ mouse and keyboard in the e2e tests.
   - the `.progress` styles: the card spans both grid columns via
     `.overview-grid>.progress{grid-column:1/-1}`;
   - `.progress-plot{position:relative;height:11rem}`, `13rem` from 600 px, with
-    the canvas filling it;
+    the canvas filling it and `touch-action:pan-y` on the canvas (FR-025);
   - the HTML legend keys of research R12: curve 2 px solid in its token;
     threshold 1 px dashed in `--md-sys-color-on-surface-variant`;
   - labels in `--md-type-label` and text tokens only;
@@ -347,11 +346,16 @@ mouse and keyboard in the e2e tests.
   - **Ticks** (research R10): `afterBuildTicks` sets month starts, Mondays or
     every second day by the visible span; `ticks.callback` formats them with
     `Intl.DateTimeFormat(section.dataset.locale, …)`.
-  - **Zoom plugin**: `limits.x = { min: 0, max: axisDays, minRange: 7 }`; wheel,
-    pinch and drag (`threshold: 8`) on with `mode: "x"`; pan on with
-    `modifierKey: "shift"`; `onZoomStart` returns `false` for a wheel event when
-    the canvas is not `document.activeElement`; `onZoomComplete` and
-    `onPanComplete` call `applyPeriod`.
+  - **Zoom plugin**: `limits.x = { min: 0, max: axisDays, minRange: 7 }`; wheel and
+    drag (`threshold: 8`) on, pinch off, `mode: \"x\"`; pan
+    `{ enabled: true, modifierKey: \"shift\" }` so drag-zoom ignores a shift-drag; `onZoomStart` returns `false` for a wheel event when
+    the canvas is not `document.activeElement`; `onZoomComplete` calls
+    `applyPeriod`.
+  - **Gestures** (contracts/client.md \"Gestures\"): Pointer Events on each
+    canvas, no Hammer.js: one touch pointer, or Shift + mouse, pans with
+    `chart.pan` after 8 px sideways; two pointers zoom with `chart.zoom` by the
+    change in their distance around their midpoint; when the last pointer is
+    up or cancelled, `applyPeriod`.
   - **`applyPeriod(from, to)`**: sets the other chart with `zoomScale`, guarded
     against echo; updates `aria-pressed`, both `aria-label`s from
     `template[data-label]`, and `.progress-move`.
@@ -363,7 +367,6 @@ mouse and keyboard in the e2e tests.
     (`setActiveElements`), capped at `lastIndex`; a small crosshair plugin draws
     the 1 px hairline; the readout is rebuilt from `template[data-readout="day"]`
     with `textContent` and `Intl.NumberFormat`. It starts on the last day.
-  - **Touch**: `canvas.style.touchAction = "pan-y"` after each chart is created.
   - **Colours**: tokens and font from `getComputedStyle`, read again on a
     `prefers-color-scheme` change or a `data-scheme` change on `<html>`
     (`MutationObserver`), then `chart.update("none")`.
@@ -390,7 +393,12 @@ mouse and keyboard in the e2e tests.
     changing the x range. After a click, the wheel changes it.
   - **(f) Readout = table**: the readout for a selected day at a week's end
     equals that week's totals in the table.
-  - **(g) Touch**: each canvas's computed `touch-action` is `pan-y`.
+  - **(g) Touch**: each canvas's computed `touch-action` is `pan-y` and
+    `window.Hammer` is undefined. With synthetic `pointerType: "touch"` events
+    (`dispatchEvent` of `pointerdown`/`pointermove`/`pointerup`): two pointers
+    moving apart narrow both charts' x range around their midpoint; one pointer
+    moving 100 px sideways shifts both ranges equally; one pointer moving only
+    vertically changes neither.
   - **(h) Dark mode**: with the dark scheme, the Training dataset's
     `borderColor` equals the token `#a88e00`.
   - **(i) Vendor files**: `/vendor/chart-4.5.1.umd.min.js` responds 200 with

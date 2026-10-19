@@ -74,7 +74,7 @@ built yet. It is brought up to date with them; what a rider sees and the limits
   are removed; the weekly table stays as the text version for screen readers
   (FR-050, FR-051).
 - **Gestures**: on a touch screen a pinch zooms and a sideways drag moves the period,
-  as in map apps and the plan's chart library; dragging across a chart to zoom
+  as in map apps; dragging across a chart to zoom
   stays a mouse gesture (FR-022, FR-023).
 - The rules version in the examples and diagrams is now 3, the current one.
 
