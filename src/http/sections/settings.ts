@@ -70,7 +70,7 @@ export function handleSettings(
 					? html`<p>${i18n.t("me.status.connected")}</p>`
 					: html`<p>${i18n.t("me.status.needsReconnect")}</p>
 <p><a class="button" href="/connect?next=/me/settings">${i18n.t("me.reconnect")}</a></p>`;
-			return html`${group("settings-language", i18n.t("settings.language"), languageForm(i18n, "/me/settings"))}
+			return html`<div class="settings-grid">${group("settings-language", i18n.t("settings.language"), languageForm(i18n, "/me/settings"))}
 ${group("settings-appearance", i18n.t("settings.appearance"), appearance(i18n))}
 ${renderNotifications(i18n, vapidPublicKey(ctx.env))}
 <section id="settings-app" class="settings-group" hidden>
@@ -98,7 +98,7 @@ ${group(
 	i18n.t("settings.account"),
 	html`<form method="post" action="/logout"><input type="hidden" name="push_endpoint" value=""><button class="button-outlined">${i18n.t("layout.logout")}</button></form>
 <p><a class="danger" href="/me/disconnect">${i18n.t("me.disconnect.button")}</a></p>`,
-)}`;
+)}</div>`;
 		},
 	);
 }
