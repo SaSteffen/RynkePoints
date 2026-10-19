@@ -442,7 +442,7 @@ describe("STYLE", () => {
 			expect(declsOf(`${selector}:hover::before`)).toEqual({});
 			expect(
 				declsOf(`${selector}:hover::before`, "(hover:hover)").opacity,
-			).toBe(".08");
+			).toBe(selector === ".button" ? ".18" : ".08");
 		});
 
 		it("shows a stronger layer when pressed and no ripple runs", () => {
@@ -451,6 +451,23 @@ describe("STYLE", () => {
 					declsOf(`:root:not(.ripples) ${selector}:active::before`).opacity,
 				),
 			).toBeGreaterThan(0.08);
+		});
+	});
+
+	it("makes the filled button's hover show on black and on yellow", () => {
+		expect(
+			declsOf(".button:hover", "(hover:hover)")["box-shadow"],
+		).toBeDefined();
+		expect(
+			Number(declsOf(":root:not(.ripples) .button:active::before").opacity),
+		).toBeGreaterThan(0.18);
+	});
+
+	it("draws an icon button as the bare icon, without the browser's button", () => {
+		expect(declsOf(".icon-button")).toMatchObject({
+			padding: "0",
+			border: "0",
+			background: "none",
 		});
 	});
 
