@@ -225,7 +225,7 @@ describe("overviewBody", () => {
 			)?.[0];
 		for (const status of ["push", "on_track", "in"]) {
 			expect(tile(status)).toContain(
-				`<img class="status-art status-art-tile" src="/illustrations/status_${status}_fun.svg" alt="" width="48" height="48">`,
+				`<img class="status-art status-art-tile" src="/illustrations/status_${status}_fun.svg" alt="" width="96" height="96">`,
 			);
 		}
 		expect(tile("all")).not.toContain("<img");
