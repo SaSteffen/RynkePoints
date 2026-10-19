@@ -204,12 +204,6 @@ function badge() {
 const svg = (body, size = 512) =>
 	`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">${body}</svg>\n`;
 
-// Scaled around the centre, on an opaque background (maskable, iOS).
-const framed = (scale) =>
-	svg(
-		`<rect width="512" height="512" fill="${C.white}"/><g transform="translate(256 256) scale(${scale}) translate(-256 -256)">${badge()}</g>`,
-	);
-
 // Favicon: the full badge is unreadable at 16–32 px, so only the head on the
 // coin.
 const favicon = svg(
@@ -272,5 +266,6 @@ writeFileSync(`${OUT}favicon.svg`, favicon);
 png("icon-192.png", "192", launch(1));
 png("icon-512.png", "512", launch(1));
 png("icon-maskable-512.png", "512", launch(0.8, true));
-png("apple-touch-icon.png", "180", framed(0.92));
+// iOS: its home-screen icon and the screen it shows while the app opens.
+png("apple-touch-icon.png", "180", launch(0.92, true));
 png("badge-96.png", "96", mono);
