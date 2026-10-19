@@ -379,11 +379,13 @@ main:has(>.team-overview){max-width:var(--rp-content-max)}
 .overview-deadline .overview-deadline-date{color:var(--rp-hero-label)}
 .overview-deadline .overview-deadline-count{font:700 32px/38px var(--md-ref-typeface);color:var(--rp-coin-yellow)}
 nav.group-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--rp-space-2);margin:0 0 var(--rp-space-2)}
-.group-tile{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;align-items:center;gap:2px var(--rp-space-2);min-height:76px;padding:10px var(--rp-space-3);border:2px solid transparent;border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);text-decoration:none}
+.group-tile{position:relative;isolation:isolate;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr);align-content:center;align-items:center;gap:2px var(--rp-space-2);min-height:76px;padding:10px var(--rp-space-3);border:2px solid transparent;border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface);text-decoration:none}
 .tile-count{font:700 26px/32px var(--md-ref-typeface)}
 .tile-label{font:600 12px/16px var(--md-ref-typeface);-webkit-hyphens:auto;hyphens:auto}
 .tile-count,.tile-label{grid-column:1}
-.status-art-tile{grid-column:2;grid-row:1/span 2;width:48px;height:48px}
+.status-art-tile,.tile-requests::after{position:absolute;z-index:-1;right:-14px;bottom:-22px;width:96px;height:96px;border-radius:0;background:none;opacity:.6;pointer-events:none}
+.tile-requests::after{content:"⏳";content:"⏳"/"";bottom:-34px;font-size:72px;line-height:96px;text-align:center}
+.group-tile:has(.status-art-tile),.tile-requests{padding-right:64px}
 .group-tile[aria-current]{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}
 ul.rider-cards{display:grid;gap:var(--rp-space-2);margin:0 0 var(--rp-space-3);padding:0;list-style:none}
 .rider-card{display:flex;flex-direction:column;gap:10px;padding:14px var(--rp-space-4) 6px;border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container)}

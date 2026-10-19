@@ -13,7 +13,7 @@ const FILE: Record<RiderStatus, string> = {
 };
 
 /** The pixel size each place draws it at, so the layout doesn't jump. */
-const SIZE = { chip: 20, tile: 48, banner: 128 } as const;
+const SIZE = { chip: 20, tile: 96, banner: 128 } as const;
 
 export type StatusArtSize = keyof typeof SIZE;
 

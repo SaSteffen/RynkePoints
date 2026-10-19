@@ -89,8 +89,9 @@ requires JavaScript, constitution v2.2.0.)*
   became the Rynke column; its Termine column is gone (owner's request,
   2026-10-17). Outdoor Training stays in the cards' breakdown.
 
-- A tile "Rider mit offener Meldung ⏳" first, counting riders, styled as an
-  alert while above 0 (FR-034).
+- A tile "Rider mit offener Meldung" first, counting riders, styled as an
+  alert while above 0 (FR-034), with a large faint ⏳ behind the text like
+  the other tiles' riders.
 - With all riders shown, riders with open requests come first.
 - Per rider with open requests, one line per request: "⏳ Will eingetragen
   werden: {kind} · {date}" linking to the event, with ✓ and ✕ (the same forms as
