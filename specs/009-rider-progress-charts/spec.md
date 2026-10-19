@@ -69,6 +69,13 @@ built yet. It is brought up to date with them; what a rider sees and the limits
 - **Language switch**: it moved to Settings (feature 011 FR-016), so it can no
   longer keep a period on the Overview; FR-026 now only asks that zooming and the
   period buttons work without loading the page (US1 scenario 15, D5).
+- **JavaScript required**: the app requires JavaScript (constitution v2.2.0), so the
+  charts need no version for a browser without scripts. FR-052 and US1 scenario 18
+  are removed; the weekly table stays as the text version for screen readers
+  (FR-050, FR-051).
+- **Gestures**: on a touch screen a pinch zooms and a sideways drag moves the period,
+  as in map apps and the plan's chart library; dragging across a chart to zoom
+  stays a mouse gesture (FR-022, FR-023).
 - The rules version in the examples and diagrams is now 3, the current one.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -129,9 +136,9 @@ Rynke over the season with the Team threshold as a line. The time axis runs from
 season start to the deadline, so they can see both how far they have come and how
 much season is left. Buttons switch the period between the whole
 season, the last 3 months and the last 4 weeks. The rider can also zoom into any
-stretch: with a pinch or by dragging across a chart on a phone, with the mouse wheel
-or by dragging across a chart on a computer, or with the keyboard. Zoomed in, they
-move the period backwards and forwards in time, and a reset brings back the whole
+stretch: with a pinch on a phone, with the mouse wheel or by dragging across a chart
+on a computer, or with the keyboard. Zoomed in, they move the period backwards and
+forwards in time (on a phone by dragging sideways), and a reset brings back the whole
 season. Both charts always show the same period. Pointing at or tapping a day shows
 its date and totals. The figures behind each chart can be read as a table.
 
@@ -196,9 +203,7 @@ September with touch, mouse and keyboard and compare the totals shown for each d
 17. **Given** a rider who uses only the keyboard or a screen reader, **When** they
     reach the charts, **Then** they can zoom, move, reset and step from day to day,
     and each day's date and totals are read out as text.
-18. **Given** a browser where the interactive part does not run, **When** the rider
-    opens the section, **Then** both charts show the whole season, and the period
-    buttons and the table still work.
+18. *(Removed 2026-10-19: the app requires JavaScript, constitution v2.2.0.)*
 19. **Given** the example rider, **When** they compare the table with their own line
     in the Team section (feature 016 FR-015), **Then** the totals at the end of each
     week are the same: Training 21, 30, 69, 80, 112 and Team 1, 1, 11, 16, 17.
@@ -340,7 +345,7 @@ on GitHub and agrees with the requirements.
   stored data or contact Strava (feature 005 FR-003). Zooming, moving the period and
   pointing at a day MUST NOT contact Strava either.
 - **FR-004**: The first delivery MUST be User Story 1 only (FR-005–FR-007,
-  FR-010–FR-016, FR-020–FR-026, FR-030, FR-037, FR-040–FR-042, FR-050–FR-053,
+  FR-010–FR-016, FR-020–FR-026, FR-030, FR-037, FR-040–FR-042, FR-050, FR-051, FR-053,
   FR-060, FR-061, FR-070–FR-072, and FR-080 for what it shows) and MUST be
   releasable on its own. A later delivery adds User Story 2 and MUST NOT take away
   anything the first delivery shows.
@@ -404,14 +409,15 @@ on GitHub and agrees with the requirements.
   axis runs on to the deadline.
 - **FR-021**: All charts of the section MUST always show the same period.
 - **FR-022**: The rider MUST be able to zoom into any stretch of the shown season
-  and out again, by pinching or dragging across a chart on a touch screen, by the
-  mouse wheel or dragging across a chart with a mouse, and by the keyboard. The
+  and out again, by pinching on a touch screen, by the mouse wheel or dragging
+  across a chart with a mouse, and by the keyboard. The
   mouse wheel zooms a chart only once it has been clicked or focused, so the page
   still scrolls under the pointer. The shortest period is 7 days, the longest the
   whole time axis (FR-013).
 - **FR-023**: When zoomed in, the rider MUST be able to move the period backwards and
-  forwards in time, no further than the season start and the end of the time axis,
-  and to reset it to the whole season.
+  forwards in time (by dragging sideways on a touch screen, by buttons and by the
+  keyboard), no further than the season start and the end of the time axis, and to
+  reset it to the whole season.
 - **FR-024**: The time axis MUST label months for a long period and days for a short
   one, in the page language.
 - **FR-025**: On a touch screen, a vertical swipe across a chart MUST scroll the page
@@ -479,9 +485,8 @@ on GitHub and agrees with the requirements.
   the Training Rynke and Team Rynke earned in that week and the totals at its end,
   plus the Training Rynke without virtual rides when FR-039 applies. The table MUST
   be readable on a phone 360 pixels wide.
-- **FR-052**: When the interactive part of the charts does not run (e.g. scripts
-  switched off or failed to load), the charts MUST still show the whole season, and
-  the period buttons and the table MUST still work.
+- **FR-052**: *(Removed 2026-10-19: the app requires JavaScript, constitution
+  v2.2.0. The table of FR-051 stays, for screen readers.)*
 - **FR-053**: Period buttons and the zoom, move and reset controls MUST be operable
   by keyboard, with a visible focus, and each control MUST be named for screen
   readers.
@@ -616,11 +621,10 @@ curve with the balance, as a derived value of the same rules version). It reads:
 - The pace line is a guide for the rider, not a rule of feature 003.
 - **Corrections** are recorded by organisers (feature 014) and count on their date
   like a team event.
-- Interactivity (zoom, pointing at a day) needs scripts in the browser, as other
-  sections already use (features 011, 015, 018). Per constitution Principle IV, a
-  charting library is only added if the plan justifies it; the Team section draws
-  its charts as inline SVG without one (feature 016). The charts must stay usable
-  without the script (FR-052).
+- The app requires JavaScript (constitution v2.2.0); the charts are drawn in the
+  browser. Per constitution Principle IV, the charting library the plan picks is
+  justified there. The Team section's small inline SVG charts (feature 016) stay as
+  they are.
 - The charts show no single rides, names or Strava links; the ride table (features
   005, 008) stays the place for a ride's name, figures and reasons.
 - The look is the app's (FR-072); the site is mobile friendly since feature 011
@@ -740,7 +744,7 @@ flowchart TB
     subgraph phone["Phone, portrait"]
         direction TB
         p1["Period buttons, two rows,<br/>44 × 44 px tap targets"]
-        p2["Training chart, full width<br/>pinch or drag sideways to zoom,<br/>swipe up/down scrolls the page"]
+        p2["Training chart, full width<br/>pinch to zoom, drag sideways to move,<br/>swipe up/down scrolls the page"]
         p3["Team chart, full width"]
         p4["Date and totals of the tapped day"]
         p5["Table: week · Training · total · Team · total"]
@@ -773,11 +777,6 @@ stateDiagram-v2
     Zoomed --> Months: button
     Zoomed --> [*]: Overview loaded again<br/>(reload, other section,<br/>language in Settings)
 
-    note right of Season
-        Without the interactive part
-        the buttons and the table
-        still work (FR-052).
-    end note
 ```
 
 ### D6. A rule change while the rider looks

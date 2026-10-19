@@ -12,7 +12,9 @@ The keys `rynke.training`, `rynke.team` and `rynke.withoutVirtual`
 ("Trainingsrynke draußen") are reused.
 
 Placeholders marked *slot* are rendered as `<span data-slot="…">` with
-`i18n.tHtml`. The script fills them (research R9).
+`i18n.tHtml` inside a `<template>`. The script fills them (research R9). The
+server also renders `progress.chart.*` once with the whole season's values, as
+each canvas's first `aria-label`.
 
 ## User Story 1
 

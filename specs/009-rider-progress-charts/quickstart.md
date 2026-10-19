@@ -25,7 +25,9 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm test:e2e
 | FR-014, FR-020, FR-024, FR-037, FR-038 | `test/unit/progress-view.test.ts` |
 | FR-005, FR-007, FR-030, FR-050, FR-060, SC-004 | `test/unit/progress-section.test.ts` |
 | FR-001–FR-003, FR-016, FR-040–FR-043, SC-006, SC-007, SC-009 | `test/integration/overview-progress.test.ts` |
-| FR-021–FR-025, FR-052, FR-053, FR-070–FR-072, SC-008 | `e2e/progress.e2e.ts` (Chromium, Firefox, WebKit) |
+| Vendor scripts only on the Overview, in order before `app.js` | `test/unit/html.test.ts`, `test/integration/overview-progress.test.ts` |
+| Vendored files equal the pinned packages | `pnpm vendor --check` (part of `pnpm lint`) |
+| FR-021–FR-025, FR-053, FR-070–FR-072, SC-008 | `e2e/progress.e2e.ts` (Chromium, Firefox, WebKit) |
 
 The expected figures for the example rider are in the spec (US1 scenarios 1–5, US2
 scenario 1).
@@ -41,13 +43,13 @@ pnpm dev     # http://localhost:8789, fake Strava with synthetic sample riders
    table.
 2. Tap **Letzte 4 Wochen**. Both charts show the last 28 days, and the page does
    not reload.
-3. Drag across a chart: both zoom to the stretch. Then use **Früher**,
-   **Später** and **Ganze Saison zeigen**.
+3. Drag across a chart with the mouse: both zoom to the stretch. Shift-drag moves
+   it. Then use **Früher**, **Später** and **Ganze Saison zeigen**.
 4. Click a chart, then use ←/→, + and −, and the wheel. The readout follows. The
    wheel scrolls the page until the chart has focus.
-5. Switch to dark mode in Settings and come back: the lines stay readable.
-6. Turn JavaScript off and reload: the charts, the period links (`?period=4w`) and
-   the table still work.
+5. In the browser's device mode, pinch and drag sideways on a chart; a vertical
+   swipe scrolls the page.
+6. Switch to dark mode in Settings and come back: the lines stay readable.
 7. Start the tour and look at its Du step: the section shows the
    example rider.
 

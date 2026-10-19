@@ -104,12 +104,10 @@ type ProgressView =
 			lastDay: string;
 			axisDays: number;                 // dayNumber(deadline) − dayNumber(seasonStart)
 			lastIndex: number;                // lastDay's index
-			period: { preset: Preset; from: number; to: number };   // day indexes
-			presets: { preset: Preset; from: number; to: number }[]; // only those offered (FR-020)
+			presets: { preset: Preset; from: number; to: number }[]; // day indexes; only those offered (FR-020)
 			training: ChartSeries;
 			team: ChartSeries;
 			outside: (ChartSeries & { needed: number }) | null;   // US2, only with virtual rides (FR-039)
-			ticks: { index: number; date: string; level: "month" | "week" | "day" }[]; // research R10
 			weeks: WeekRow[];
 	  };
 
@@ -132,15 +130,17 @@ interface WeekRow {
 - the `RiderViewRead`;
 - `rulesForVersion(balance.rulesVersion)`;
 - the `CountingWindow`;
-- `berlinDate(ctx.now())`;
-- the `period` query parameter.
+- `berlinDate(ctx.now())`.
+
+Every load starts with the whole season (FR-026); there is no period parameter
+(research R8).
 
 **Rules**:
 - **Pace (US2)**: the pace of a day `i` is `evenPace(threshold, seasonStart,
   deadline, date(i))` from `src/rynke/pace.ts`, the function behind the rider
   status (016 FR-030). The view model only says whether to draw the pace line. The
-  script and the table compute the pace with the same formula, from `axisDays`
-  and the threshold:
+  script (for the pace line and the readout) and the table compute the pace with
+  the same formula, from `axisDays` and the threshold:
 
   ```text
   ⌊threshold × i ÷ axisDays⌋, within 0 … threshold
@@ -153,14 +153,13 @@ interface WeekRow {
 ## Chart data (`#progress-data`, research R6)
 
 JSON inside `<script type="application/json" id="progress-data">`, with `<`
-escaped as `<`. Here is the example rider on 7 October 2026 (US1):
+escaped as `\u003c`. Here is the example rider on 7 October 2026 (US1):
 
 ```json
 {
 	"axisDays": 302,
 	"lastIndex": 36,
 	"seasonStart": "2026-09-01",
-	"period": { "from": 0, "to": 302 },
 	"training": { "values": [0, 0, 0, 0, 0, 21, …, 112], "threshold": 250, "yMax": 250, "pace": false },
 	"team": { "values": [0, 0, 0, 0, 0, 1, …, 17], "threshold": 25, "yMax": 25, "pace": false },
 	"outside": null
@@ -175,6 +174,8 @@ escaped as `<`. Here is the example rider on 7 October 2026 (US1):
 - **Nothing else**: no names, no ride or event data and no units, only Rynke and
   dates (FR-005, SC-004, SC-007).
 - **Text** lives in the markup's templates, not in the data (research R9).
+- **Presets** are not in the data: they are the period buttons' `data-from` and
+  `data-to` (research R8).
 
 ## The tour's example rider (FR-043)
 
@@ -189,7 +190,8 @@ stored.
 
 ## State over time
 
-The section has no state on the server. In the browser, the period and the
-selected day live in `progressCharts()`'s closure:
-- a reload or any new page load starts again from the server's period (FR-026);
+The section has no state on the server. In the browser, the period lives in the
+two Chart.js instances (their x scale's `min` and `max`), kept equal by
+`applyPeriod`, and the selected day in `progressCharts()`'s closure:
+- a reload or any new page load starts again with the whole season (FR-026);
 - nothing goes to storage, cookies or the network (Principle I).

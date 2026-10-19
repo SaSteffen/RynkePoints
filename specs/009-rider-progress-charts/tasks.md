@@ -1,5 +1,5 @@
 ---
-description: "Task list for rider progress charts (re-planned 2026-10-19)"
+description: "Task list for rider progress charts (re-planned 2026-10-19, Chart.js)"
 ---
 
 # Tasks: Rider Progress Charts
@@ -81,7 +81,7 @@ September.
 
 ## Phase 1: Setup
 
-**Purpose**: a green baseline and shared test data.
+**Purpose**: a green baseline, shared test data and the vendored chart library.
 
 - [ ] T001 In the worktree, run `pnpm install`, `pnpm lint`, `pnpm typecheck`,
   `pnpm test` and `pnpm test:e2e`, and confirm all pass before any change. Note
@@ -102,8 +102,36 @@ September.
   (export the riders, their window and their expected balances), and import it
   back. `test/unit/reference-riders.test.ts` must still pass unchanged in what it
   asserts.
+- [ ] T004 [P] Vendor the chart library (research R4, R6):
+  - add `chart.js` 4.5.1, `chartjs-plugin-zoom` 2.2.0 and `hammerjs` 2.0.8 as
+    exact-pinned `devDependencies` in `package.json`;
+  - write `scripts/vendor.mjs`: it copies `chart.js/dist/chart.umd.min.js`,
+    `chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js` and
+    `hammerjs/hammer.min.js` into `public/vendor/` as
+    `chart-<version>.umd.min.js`, `chartjs-plugin-zoom-<version>.min.js` and
+    `hammer-<version>.min.js` (versions read from each package's
+    `package.json`), plus each package's licence as `<name>-<version>.LICENSE.txt`,
+    and removes older versioned copies. With `--check` it changes nothing and
+    exits 1 when a copy is missing or differs;
+  - add `"vendor": "node scripts/vendor.mjs"` and make `"lint"` run
+    `biome check . && node scripts/vendor.mjs --check`;
+  - exclude `public/vendor` in `biome.json` (`"!public/vendor"`);
+  - add to `public/_headers`:
+    `/vendor/*` → `Cache-Control: public, max-age=31536000, immutable`, with a
+    comment that the file names carry the version;
+  - run `pnpm vendor` and commit the copies. `pnpm lint` passes.
+- [ ] T005 [P] Write failing tests in `test/unit/html.test.ts` for a new
+  `LayoutOptions.scripts?: string[]`: each path is emitted as
+  `<script src="…" defer></script>` in the given order, all before
+  `<script src="/app.js" defer>`; a page without the option renders exactly as
+  before.
+- [ ] T006 Implement `scripts` in `layout` in `src/http/html.ts` (and pass it
+  through `shellPage` if that builds the layout options), so that T005 passes.
+  Export the three vendor paths once, as `CHART_SCRIPTS` in
+  `src/http/progress-section.ts` or a small constant beside it, matching
+  `scripts/vendor.mjs`'s names.
 
-**Checkpoint**: baseline green; test data importable.
+**Checkpoint**: baseline green; test data importable; `/vendor/*` served.
 
 ---
 
@@ -111,7 +139,7 @@ September.
 
 **Purpose**: the curve and the read, which both user stories need (research R1–R3).
 
-- [ ] T004 Write failing tests in `test/unit/curve.test.ts` for
+- [ ] T007 Write failing tests in `test/unit/curve.test.ts` for
   `riderCurve(inputs, window, last, balance, rules)` (data-model.md "Pure
   values"):
   - **(a) The example rider**: 37 points from 2026-09-01 to 2026-10-07, and
@@ -134,8 +162,8 @@ September.
     point equals their expected balance (SC-002), and at every entry of
     `weekEnds(seasonStart, last)` the point equals `riderWeeks(...)`'s point for
     the same week (FR-012).
-- [ ] T005 Implement `CurveRideSum`, `CurveInputs`, `CurvePoint` and
-  `riderCurve` in `src/rynke/weeks.ts`, so that T004 passes:
+- [ ] T008 Implement `CurveRideSum`, `CurveInputs`, `CurvePoint` and
+  `riderCurve` in `src/rynke/weeks.ts`, so that T007 passes:
   - Extend `tallyUpTo` to take the rides without virtual ones and return
     `outside` (`trainingWithoutVirtual`). `riderWeeks` and `riderDays` pass the
     same rides for both, so their results don't change; their existing tests
@@ -144,7 +172,7 @@ September.
   - Place anything dated after `last` on `last`.
   - Override the last point with the balance on a mismatch and
     `console.error("Progress curve disagrees with the stored balance")`.
-- [ ] T006 Write failing tests in `test/integration/rider-view-progress.test.ts`
+- [ ] T009 Write failing tests in `test/integration/rider-view-progress.test.ts`
   for `readRiderView(db, athleteId, 1, { progress: true })` on the seeded example
   rider and a second synthetic rider:
   - `progress.rides` lists the example rider's counting rides per day, with sums
@@ -155,78 +183,68 @@ September.
   - without the option, `progress` is `undefined`;
   - all statements run in the existing single `db.batch`. Spy on `db.batch` and
     assert one call.
-- [ ] T007 Implement the two statements of data-model.md "What is read" in
+- [ ] T010 Implement the two statements of data-model.md "What is read" in
   `src/db/rider-view.ts`:
   - add the optional `{ progress?: boolean }` parameter and `progress?:
     CurveInputs` on `RiderViewRead`;
   - map the existing attendance rows to `Attendance` for `progress.attendance`;
-  - add the statements only when `progress` is set, so T006 passes.
+  - add the statements only when `progress` is set, so T009 passes.
 
-**Checkpoint**: `pnpm test -- curve rider-view-progress weeks reference-riders` is
-green.
+**Checkpoint**: `pnpm test -- curve rider-view-progress weeks reference-riders html`
+is green.
 
 ---
 
 ## Phase 3: User Story 1: Rider sees how their Rynke grew and zooms in (P1, PR 1) 🎯 MVP
 
 **Goal**: below the breakdown on the Overview, the rider gets:
-- the Training and Team charts with threshold lines;
+- the Training and Team charts with threshold lines, drawn by Chart.js;
 - period buttons, free zoom and move;
 - a day readout;
-- a weekly table;
-
-all of it without JavaScript too.
+- a weekly table.
 
 **Independent Test**: seed the example rider, a rider with 0/0, a rider past both
-thresholds and a rider without a balance. Sign in as each and compare the curves,
-labels and table with the figures above. Then zoom to 14–20 September with mouse,
-touch and keyboard in the e2e tests.
+thresholds and a rider without a balance. Sign in as each and compare the chart
+data, labels and table with the figures above. Then zoom to 14–20 September with
+mouse and keyboard in the e2e tests.
 
 ### Tests for User Story 1 (write first, confirm they fail)
 
-- [ ] T008 [P] [US1] Write failing tests in `test/unit/progress-view.test.ts` for
-  `buildProgressView(read, rules, window, today, periodParam)` (data-model.md
-  "View model"):
+- [ ] T011 [P] [US1] Write failing tests in `test/unit/progress-view.test.ts` for
+  `buildProgressView(read, rules, window, today)` (data-model.md "View model"):
   - **(a) Axis**: the example rider has `axisDays` 302 and `lastIndex` 36, and
     `training.values`/`team.values` hold 37 entries, equal to `riderCurve`.
   - **(b) `yMax`** (research R5): 250 for Training at 112, 25 for Team at 17,
     300 for Training at 262 (rounded up to a step of 50), and 30 for Team at 26.
-  - **(c) Presets** (FR-020, research R8):
+  - **(c) Presets** (FR-020, research R8): "season" is always first with `from`
+    0 / `to` 302;
     - on 2026-10-07, "4w" is offered as `from` 9 / `to` 36 (10 September – 7
       October) and "3m" is not offered;
     - on 2026-11-30, "3m" is not offered; on 2026-12-01 it is, with `from` 1
       (2 September);
     - on 2026-09-20, neither is offered.
-  - **(d) The `period` parameter**: `?period=4w` gives the 4w bounds and preset
-    "4w"; `?period=3m` while not offered gives the whole season; `?period=x`
-    gives the whole season.
-  - **(e) Ticks** (research R10): the whole season (303 days) gives the first of
-    each month from October 2026 to June 2027, at level "month". A 28-day period
-    gives Mondays, at level "week". A 7-day period gives every second day, at
-    level "day".
-  - **(f) Weeks** equal the weekly table above (six rows, oldest first, labelled
+  - **(d) Weeks** equal the weekly table above (six rows, oldest first, labelled
     with their first day).
-  - **(g) `nothingYet`** is true for a 0/0 balance.
-  - **(h) `state` is "none"** without a balance and when
+  - **(e) `nothingYet`** is true for a 0/0 balance.
+  - **(f) `state` is "none"** without a balance and when
     `rulesForVersion(balance.rulesVersion)` is `null`.
-- [ ] T009 [P] [US1] Write failing tests in `test/unit/progress-section.test.ts`
+- [ ] T012 [P] [US1] Write failing tests in `test/unit/progress-section.test.ts`
   for `renderProgress(i18n, view)` with the example rider's view, in `de` and
   `en`, following [contracts/overview-section.md](contracts/overview-section.md):
   - **Structure**: `section#progress.progress.card-outlined` with `data-locale`.
-  - **Period links**: three links with `href` `/me#progress` and
-    `/me?period=4w#progress`, plus "3m" only when offered. Each has
-    `data-from`/`data-to`, and `aria-current` is on the drawn period.
-  - **Hidden until the script runs**: `.progress-move` and the readout.
-  - **Each plot**:
-    - an `svg` with `viewBox="0 0 302 100"` for the whole season (or `"9 0 27
-      100"` for 4w) and `preserveAspectRatio="none"`;
-    - a `line.line-threshold` at y 0 (Training 250 of `yMax` 250);
-    - a `polyline.line-curve` whose last point's x is 36;
-    - y labels, the threshold label 250 and date labels as HTML;
-    - an `aria-label` with the period, the value at its end and the target.
-  - **Legend**: a line key and a label per line.
-  - **Readout template**: a `template[data-readout="day"]` whose content has
-    `span[data-slot]` for date, training and team.
+  - **Period buttons**: `button[type=button]` in a `role="group"`, with
+    `data-from`/`data-to`: the season (0/302, `aria-pressed="true"`) and 4w (9/36,
+    `aria-pressed="false"`), plus "3m" only when offered. `.progress-move` is
+    `hidden`.
+  - **Each chart**: a `canvas[data-series]` with `role="img"`, `tabindex="0"`,
+    `aria-describedby="progress-help"` and an `aria-label` with the whole
+    season's period, the value at its end and the target; a
+    `template[data-label]` with `span[data-slot]` for from, to, value and
+    threshold.
+  - **Legend**: a line key and a label per line, with the threshold's value.
+  - **Readout**: `p.progress-readout[aria-live=polite]`, `#progress-help`, and a
+    `template[data-readout="day"]` whose content has `span[data-slot]` for date,
+    training and team.
   - **Table**: a `details.progress-table` with the six week rows.
   - **Chart data**: `#progress-data` JSON parses to exactly the keys of
     data-model.md "Chart data", with only strings of the form `YYYY-MM-DD` and
@@ -234,25 +252,29 @@ touch and keyboard in the e2e tests.
   - **Nothing to see yet**: the "nothing yet" note appears only for 0/0.
   - **Forbidden content** (FR-005, SC-004): the HTML contains no `km`, ` m<`,
     `Höhenmeter`, `km/h` or ride name, and no `strava.com` link.
-- [ ] T010 [P] [US1] Write failing tests in
+- [ ] T013 [P] [US1] Write failing tests in
   `test/integration/overview-progress.test.ts`, using `test/support/pages.ts`
   helpers, for `GET /me`:
   - **(a) The example rider**: the section appears after `.rynke-breakdown`, with
-    the figures of T009.
+    the figures of T012, and the head has the three vendor scripts in order
+    before `/app.js`.
   - **(b) A second seeded rider**: their own figures only. No value of the other
     rider appears in the HTML (SC-007).
-  - **(c) No balance**: the waiting state and no `#progress` (FR-016).
-  - **(d) An unknown rules version**: no `#progress` (FR-040).
-  - **(e) `?period=4w`** draws the 4w `viewBox`.
+  - **(c) No balance**: the waiting state, no `#progress` and no vendor script
+    (FR-016).
+  - **(d) An unknown rules version**: no `#progress` and no vendor script
+    (FR-040).
+  - **(e) Other sections** (`/me/rides`, `/team`, `/settings`) load no vendor
+    script.
   - **(f) `Accept-Language: en`** gives the English texts (SC-009).
   - **(g) The tour's example rider**: on the tour's Overview step the section
-    shows the example rider's curve, not the signed-in rider's (FR-043).
+    shows the example rider's data, not the signed-in rider's (FR-043).
   - **(h) Nothing written or fetched**: no D1 write, no queue message and no
     `fetch` to Strava during any of these requests (SC-006). Use the existing
     spies in `test/support/ctx.ts`.
   - **(i) Rides redirect unchanged**: `/me?page=2` still redirects to
     `/me/rides?page=2`.
-- [ ] T011 [P] [US1] Extend `test/unit/design-tokens.test.ts`:
+- [ ] T014 [P] [US1] Extend `test/unit/design-tokens.test.ts`:
   - `--rp-line-training`, `--rp-line-team` and `--rp-line-outside` are defined in
     both schemes, with the values of research R12 (light `#8a6e00`, `#1f6fb2`,
     `#7b4fa0`; dark `#a88e00`, `#4a94d2`, `#a77fd0`);
@@ -261,120 +283,128 @@ touch and keyboard in the e2e tests.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Add the 18 US1 keys of
+- [ ] T015 [P] [US1] Add the 18 US1 keys of
   [contracts/messages.md](contracts/messages.md) to
   `src/i18n/messages/de.ts` and `src/i18n/messages/en.ts`. Make the
   `progress.chart.*` and `progress.day` placeholders work with `i18n.tHtml` slot
   spans. `test/unit/catalogs.test.ts` and `no-hardcoded-copy` stay green.
-- [ ] T013 [US1] Implement `buildProgressView` in `src/http/progress-view.ts`
+- [ ] T016 [US1] Implement `buildProgressView` in `src/http/progress-view.ts`
   (pure, no I/O):
   - use `riderCurve`, `lastDay` and `weekEnds` from `src/rynke/weeks.ts`;
-  - implement the presets, the `period` parsing, `yMax`, the ticks of research
-    R10 and the week rows of research R11,
+  - implement the presets of research R8, `yMax` of research R5 and the week rows
+    of research R11,
 
-  so that T008 passes.
-- [ ] T014 [US1] Add to `src/http/style.ts`:
+  so that T011 passes.
+- [ ] T017 [US1] Add to `src/http/style.ts`:
   - the `--rp-line-*` tokens in the light and dark token blocks;
   - the `.progress` styles: the card spans both grid columns via
     `.overview-grid>.progress{grid-column:1/-1}`;
-  - plot height `11rem`, and `13rem` from 600 px;
-  - SVG `overflow:hidden`, with paths and lines `fill:none` and
-    `vector-effect:non-scaling-stroke`;
-  - the line styles of research R12: curve 2 px solid; threshold 1 px dashed
-    `4 4` in `--md-sys-color-on-surface-variant`; grid in
-    `--md-sys-color-outline-variant`;
-  - the cursor line 1 px and dot `r=4` with a 2 px surface stroke;
+  - `.progress-plot{position:relative;height:11rem}`, `13rem` from 600 px, with
+    the canvas filling it;
+  - the HTML legend keys of research R12: curve 2 px solid in its token;
+    threshold 1 px dashed in `--md-sys-color-on-surface-variant`;
   - labels in `--md-type-label` and text tokens only;
-  - the period chips and move buttons at `--rp-tap` height;
-  - `.progress.js .progress-plot{touch-action:pan-y;cursor:crosshair}`;
-  - focus-visible outline as elsewhere;
+  - the period chips (`aria-pressed="true"` styled as selected) and move buttons
+    at `--rp-tap` height;
+  - focus-visible outline on the canvases as elsewhere;
   - the table inside `.progress-table-scroll{overflow-x:auto}`;
   - the Training card edge `--rp-coin-yellow` and the Team card edge
     `--rp-coin-team`.
 
-  T011 must pass.
-- [ ] T015 [US1] Implement `renderProgress(i18n, view)` in
+  T014 must pass.
+- [ ] T018 [US1] Implement `renderProgress(i18n, view)` in
   `src/http/progress-section.ts` following
   [contracts/overview-section.md](contracts/overview-section.md):
-  - the SVG coordinates of research R5, rounded to two decimals;
-  - the HTML labels positioned in percent of the drawn period;
+  - the canvases with the whole season's `aria-label`;
   - a mini coin in each figcaption (`miniCoin` from `src/http/coin.ts`);
-  - the hidden templates with `i18n.tHtml` slots;
-  - `data-label-template` on each plot for the script's `aria-label`;
+  - the label and readout templates with `i18n.tHtml` slots;
+  - the period buttons from `view.presets`;
   - the table, formatted with `formatDate`;
   - the JSON escaped with `<` → `<`.
 
-  T009 must pass.
-- [ ] T016 [US1] Wire the section into `src/http/sections/overview.ts`:
+  T012 must pass.
+- [ ] T019 [US1] Wire the section into `src/http/sections/overview.ts`:
   - read with `readRiderView(db, id, 1, { progress: true })`;
-  - pass the `period` query to `buildProgressView` with
-    `berlinDate(ctx.now())` and `countingWindow(ctx.env)`;
-  - render `renderProgress` after `renderBreakdown` inside `.overview-grid`.
+  - call `buildProgressView` with `berlinDate(ctx.now())` and
+    `countingWindow(ctx.env)`;
+  - render `renderProgress` after `renderBreakdown` inside `.overview-grid`;
+  - pass `scripts: CHART_SCRIPTS` to the layout only when the section is
+    rendered.
 
-  Check in `src/http/router.ts` that `/me?period=…` is served by the Overview
-  (only `page` redirects).
-- [ ] T017 [US1] Extend `exampleRiderView` in `src/http/tour-example.ts` to fill
+  T013 (a)–(f), (h), (i) must pass.
+- [ ] T020 [US1] Extend `exampleRiderView` in `src/http/tour-example.ts` to fill
   `progress` from its synthetic rides (summed per day and virtual flag, counting
   rides only), its attendance and no corrections (data-model.md "The tour's
-  example rider"). Nothing is stored and `dev/` is not imported. T010 (g) must
+  example rider"). Nothing is stored and `dev/` is not imported. T013 (g) must
   pass, as must the existing tour tests.
-- [ ] T018 [US1] Add `progressCharts()` to `public/app.js` following
-  [contracts/client.md](contracts/client.md) and research R6, R7, R9 and R10, and
-  call it with the others at the end of the file. It covers:
-  - **Start**: the JSON parse, the `js` class, and focusable plots
-    (`tabindex="0"`, `role="application"`, `aria-describedby="progress-help"`).
-  - **Period**: one shared `{from,to}` state clamped to ≥ 7 days and to
-    `0…axisDays`. Each change sets `viewBox` on both SVGs, re-lays the date
-    labels by the R10 rule using
-    `Intl.DateTimeFormat(section.dataset.locale, …)`, and updates
-    `aria-current`, the plots' `aria-label` from `data-label-template`, and the
-    `.progress-move` visibility.
-  - **Period links**: `preventDefault`, then apply `data-from`/`data-to`.
-  - **Inputs**:
-    - pointer move selects the nearest day up to `lastIndex`;
-    - tap or click (≤ 8 px movement) selects;
-    - a horizontal drag shades the stretch and zooms on release;
-    - two pointers pinch-zoom around their midpoint;
-    - the wheel zooms only when the plot has focus;
-    - keys: ←/→, +/−, PageUp/PageDown, Home/End, 0 and Escape;
-    - the Früher/Später/Reset buttons.
-  - **Selected day**: the cursor line and dot move in both charts, and the
-    readout is rebuilt from `template[data-readout="day"]` with `textContent` and
-    `Intl.NumberFormat`.
-  - **Rendering**: redraws are batched with `requestAnimationFrame`.
+- [ ] T021 [US1] Add `progressCharts()` to `public/app.js` following
+  [contracts/client.md](contracts/client.md) and research R5, R7, R9, R10 and
+  R12, and call it with the others at the end of the file. It covers:
+  - **Start**: the `window.Chart` check, `Chart.register(window.ChartZoom)`, the
+    JSON parse, and one chart per `canvas[data-series]` with the options of the
+    contract (linear x of day indexes, fixed y, no animation, legend and tooltip
+    off, `interaction.mode: "index"`).
+  - **Ticks** (research R10): `afterBuildTicks` sets month starts, Mondays or
+    every second day by the visible span; `ticks.callback` formats them with
+    `Intl.DateTimeFormat(section.dataset.locale, …)`.
+  - **Zoom plugin**: `limits.x = { min: 0, max: axisDays, minRange: 7 }`; wheel,
+    pinch and drag (`threshold: 8`) on with `mode: "x"`; pan on with
+    `modifierKey: "shift"`; `onZoomStart` returns `false` for a wheel event when
+    the canvas is not `document.activeElement`; `onZoomComplete` and
+    `onPanComplete` call `applyPeriod`.
+  - **`applyPeriod(from, to)`**: sets the other chart with `zoomScale`, guarded
+    against echo; updates `aria-pressed`, both `aria-label`s from
+    `template[data-label]`, and `.progress-move`.
+  - **Buttons**: period buttons apply `data-from`/`data-to`; Früher/Später `pan`
+    by half the period; reset `resetZoom` on both.
+  - **Keys** on a focused canvas: ←/→, +/−, PageUp/PageDown, Home/End, 0 and
+    Escape (research R7), calling the plugin's `zoom`, `pan` and `resetZoom`.
+  - **Selected day**: hover, tap or keys set the active index on both charts
+    (`setActiveElements`), capped at `lastIndex`; a small crosshair plugin draws
+    the 1 px hairline; the readout is rebuilt from `template[data-readout="day"]`
+    with `textContent` and `Intl.NumberFormat`. It starts on the last day.
+  - **Touch**: `canvas.style.touchAction = "pan-y"` after each chart is created.
+  - **Colours**: tokens and font from `getComputedStyle`, read again on a
+    `prefers-color-scheme` change or a `data-scheme` change on `<html>`
+    (`MutationObserver`), then `chart.update("none")`.
   - **Not allowed**: no `fetch`, storage, cookie, URL change or literal
     rider-facing text.
-- [ ] T019 [US1] Write `e2e/progress.e2e.ts` for Chromium, Firefox and WebKit,
+- [ ] T022 [US1] Write `e2e/progress.e2e.ts` for Chromium, Firefox and WebKit,
   using the fake mode's sample rider "Paula Paging" (45 rides over several weeks;
   `signIn` and `skipTours` from `e2e/sign-in.ts`) and the `errors` fixture
-  pattern of `e2e/smoke.e2e.ts`:
-  - **(a) Layout**: at 320 × 568 and 360 × 740, `#progress` is visible and the
-    page doesn't scroll sideways.
-  - **(b) Period links**: tapping "Letzte 4 Wochen" changes both SVGs' `viewBox`
-    to the link's `data-from`/`data-to` without a navigation.
-  - **(c) Drag to zoom**: dragging across the Training plot with the mouse from
-    25 % to 50 % of its width zooms both plots to the same `viewBox`, at least 7
-    days wide, and shows the move buttons. "Ganze Saison zeigen" brings back
-    `0 0 302 100` (or the sample season's `axisDays`).
-  - **(d) Keyboard**: focus the Team plot with Tab, press ← three times, and the
-    readout names the date three days before the last day. `+` narrows the
-    `viewBox`.
-  - **(e) Wheel**: a wheel over an unfocused plot scrolls the page without
-    changing the `viewBox`. After a click, the wheel changes it.
-  - **(f) Date labels after a reset** equal those of a fresh page load.
-  - **(g) Dark mode**: with the dark scheme, the computed curve stroke equals the
-    token `#a88e00`.
-  - **(h) Without JavaScript** (`javaScriptEnabled: false`): the charts, the
-    table and the period link `/me?period=4w#progress` work.
-  - **(i)** There is no console error in any test.
+  pattern of `e2e/smoke.e2e.ts`. Read chart state with
+  `page.evaluate(() => Chart.getChart(canvas).scales.x)` (research R13):
+  - **(a) Layout**: at 320 × 568 and 360 × 740, `#progress` is visible, both
+    canvases have a non-zero size, and the page doesn't scroll sideways.
+  - **(b) Period buttons**: tapping "Letzte 4 Wochen" sets both charts' x
+    `min`/`max` to the button's `data-from`/`data-to` without a navigation, and
+    its `aria-pressed` becomes `true`.
+  - **(c) Drag to zoom**: dragging across the Training canvas with the mouse from
+    25 % to 50 % of its width gives both charts the same `min`/`max`, at least 7
+    days apart, and shows the move buttons. "Ganze Saison zeigen" brings back
+    0 … `axisDays`.
+  - **(d) Keyboard**: focus the Team canvas with Tab, press ← three times, and
+    the readout names the date three days before the last day. `+` narrows the
+    x range of both charts.
+  - **(e) Wheel**: a wheel over an unfocused canvas scrolls the page without
+    changing the x range. After a click, the wheel changes it.
+  - **(f) Readout = table**: the readout for a selected day at a week's end
+    equals that week's totals in the table.
+  - **(g) Touch**: each canvas's computed `touch-action` is `pan-y`.
+  - **(h) Dark mode**: with the dark scheme, the Training dataset's
+    `borderColor` equals the token `#a88e00`.
+  - **(i) Vendor files**: `/vendor/chart-4.5.1.umd.min.js` responds 200 with
+    `Cache-Control` containing `immutable`.
+  - **(j)** There is no console error in any test.
 
   If no sample rider has rides in at least three different weeks, add rides to a
   sample in `dev/fake-strava/samples.ts` (synthetic only) rather than changing
   the test.
-- [ ] T020 [US1] Run `pnpm format`, `pnpm lint`, `pnpm typecheck`, `pnpm test`
-  and `pnpm test:e2e` (WebKit via `pnpm test:e2e:webkit` where it doesn't run
-  natively), and fix every failure. T004–T019 are all green.
-- [ ] T021 [US1] Check the US1 build against the spec's diagrams (D0, D1, D2,
+- [ ] T023 [US1] Run `pnpm format`, `pnpm lint` (including `vendor --check`),
+  `pnpm typecheck`, `pnpm test` and `pnpm test:e2e` (WebKit via
+  `pnpm test:e2e:webkit` where it doesn't run natively), and fix every failure.
+  T002–T022 are all green.
+- [ ] T024 [US1] Check the US1 build against the spec's diagrams (D0, D1, D2,
   D3, D4, D5, D7) and the plan's P1–P6. Where the build differs for a reason the
   spec allows, update the diagram in `specs/009-rider-progress-charts/spec.md` or
   `plan.md` in the same PR (FR-091, FR-092). Re-render them with the Mermaid CLI
@@ -399,7 +429,7 @@ hand-worked figures and with `riderStatus` from `src/rynke/pace.ts`.
 
 ### Tests for User Story 2 (write first, confirm they fail)
 
-- [ ] T022 [P] [US2] Extend `test/unit/progress-view.test.ts`:
+- [ ] T025 [P] [US2] Extend `test/unit/progress-view.test.ts`:
   - **(a) Pace for the example rider**: `training.pace` and `team.pace` are
     true. The pace formula `⌊threshold × i ÷ axisDays⌋` gives 27 and 2 at index
     33 (4 October), so the rider is 85 and 15 ahead.
@@ -413,50 +443,53 @@ hand-worked figures and with `riderStatus` from `src/rynke/pace.ts`.
     a value below the pace on any drawn line happens exactly when `riderStatus`
     is `"push"` (and not `"in"`) for that reason (US2 scenario 2).
   - **(e) Week rows** gain `outside` only when `outside` is set.
-- [ ] T023 [P] [US2] Extend `test/unit/progress-section.test.ts`:
-  - **Pace lines**: `line.line-pace` from (0,100) to (302, the threshold's y) in
-    both charts, with a legend entry.
-  - **Riders with virtual rides**: `polyline.line-outside`, `line.line-needed`
-    at 167 and a second `line-pace`, with legend entries.
+- [ ] T026 [P] [US2] Extend `test/unit/progress-section.test.ts`:
+  - **Legend**: a pace entry in both charts; for riders with virtual rides,
+    entries for the outdoor curve and the 167 line.
+  - **Chart data**: `pace` is `true`, and `outside` has `values`, `threshold`
+    167 and `needed` only for riders with virtual rides.
   - **Readout templates**: `template[data-readout="pace-ahead"]`, `"pace-behind"`
     and `"pace-on"`, and `"outside"`.
   - **Table**: the outdoor columns appear only with virtual rides.
   - **Wording**: no German or English text containing "Regel", "verstoßen",
     "rule" or "broken" in the behind template (FR-038).
-- [ ] T024 [P] [US2] Extend `e2e/progress.e2e.ts` with the sample rider "Vera
+- [ ] T027 [P] [US2] Extend `e2e/progress.e2e.ts` with the sample rider "Vera
   Virtual":
-  - the Training chart shows the outdoor curve;
+  - the Training chart has the outdoor and pace datasets (through
+    `Chart.getChart`);
   - selecting a day with the keyboard fills the pace part of the readout with
     "vor dem Tempo" or "hinter dem Tempo" and the outdoor value.
 
 ### Implementation for User Story 2
 
-- [ ] T025 [P] [US2] Add the 6 US2 keys of
+- [ ] T028 [P] [US2] Add the 6 US2 keys of
   [contracts/messages.md](contracts/messages.md) to both catalogs.
-- [ ] T026 [US2] Extend `buildProgressView` in `src/http/progress-view.ts`:
+- [ ] T029 [US2] Extend `buildProgressView` in `src/http/progress-view.ts`:
   - `pace: true` for both series;
   - `outside` with `needed` = `virtualShareRequired(rules)` when `virtualCount >
     0`;
   - the outdoor week columns,
 
-  so that T022 passes.
-- [ ] T027 [US2] Extend `renderProgress` in `src/http/progress-section.ts` and
+  so that T025 passes.
+- [ ] T030 [US2] Extend `renderProgress` in `src/http/progress-section.ts` and
   the styles in `src/http/style.ts`:
-  - `line-pace` (1 px dotted `1 3`, `on-surface-variant`);
-  - `line-outside` (2 px dashed `6 3`, `--rp-line-outside`);
-  - `line-needed` (like the threshold);
-  - the legend entries, the templates and the table columns,
+  - the legend keys: pace 1 px dotted, outdoor 2 px dashed in
+    `--rp-line-outside`, the 167 line like the threshold;
+  - the templates and the table columns,
 
-  so that T023 passes.
-- [ ] T028 [US2] Extend `progressCharts()` in `public/app.js`:
+  so that T026 passes.
+- [ ] T031 [US2] Extend `progressCharts()` in `public/app.js`:
+  - datasets for the pace lines (from (0, 0) to (`axisDays`, threshold), 1 px,
+    `borderDash: [1, 3]`), the outdoor curve (2 px, `borderDash: [6, 3]`,
+    `--rp-line-outside`) and the 167 line;
   - the readout appends, per line with a pace, the ahead, behind or on-pace
     template filled with `n = |value − pace|` and `pace`;
   - for riders with virtual rides, it adds the outdoor template;
   - the pace comes from `⌊threshold × i ÷ axisDays⌋`, clamped to
     `0…threshold`, so no new data is needed.
 
-  T024 must pass.
-- [ ] T029 [US2] Run `pnpm format`, `pnpm lint`, `pnpm typecheck`, `pnpm test`
+  T027 must pass.
+- [ ] T032 [US2] Run `pnpm format`, `pnpm lint`, `pnpm typecheck`, `pnpm test`
   and `pnpm test:e2e`, and fix every failure.
 
 **Checkpoint**: PR 2 (US2) is complete. Nothing US1 shows is taken away (FR-004).
@@ -470,12 +503,12 @@ hand-worked figures and with `riderStatus` from `src/rynke/pace.ts`.
 **Independent Test**: a reviewer opens `spec.md` and `plan.md` on GitHub, every
 diagram renders, and each agrees with the requirements and the code.
 
-- [ ] T030 [US3] After PR 2, check D0–D7 in `specs/009-rider-progress-charts/spec.md`
+- [ ] T033 [US3] After PR 2, check D0–D7 in `specs/009-rider-progress-charts/spec.md`
   and P1–P6 in `plan.md` against the built section, including the US2 parts of
   D3 and D7. Correct any diagram that differs for a reason the spec allows, and
   update the requirement text in the same change if a requirement changed
   (FR-091).
-- [ ] T031 [US3] Render every Mermaid block of `spec.md` and `plan.md` with the
+- [ ] T034 [US3] Render every Mermaid block of `spec.md` and `plan.md` with the
   Mermaid CLI (system Chrome via a puppeteer config in the scratchpad, never in
   the repo) and fix any block that fails to parse.
 
@@ -483,31 +516,32 @@ diagram renders, and each agrees with the requirements and the code.
 
 ## Dependencies & Execution Order
 
-- **Phase 1** (T001–T003) has no dependencies. T002 and T003 run in parallel.
-- **Phase 2**: T004 → T005, and T006 → T007. T006/T007 can run beside
-  T004/T005. Both need T002, and T004 needs T003.
+- **Phase 1** (T001–T006) has no dependencies beyond T001. T002–T005 run in
+  parallel; T006 needs T005.
+- **Phase 2**: T007 → T008, and T009 → T010. T009/T010 can run beside
+  T007/T008. Both need T002, and T007 needs T003.
 - **US1** needs Phase 2:
-  - T008–T011 (tests) in parallel;
-  - T012 and T014 in parallel with T013;
-  - T015 needs T012, T013 and T014;
-  - T016 needs T015 and T007;
-  - T017 needs T016;
-  - T018 needs T015;
-  - T019 needs T016 and T018;
-  - T020 after all of them, then T021.
+  - T011–T014 (tests) in parallel;
+  - T015 and T017 in parallel with T016;
+  - T018 needs T015, T016 and T017;
+  - T019 needs T018, T010 and T006;
+  - T020 needs T019;
+  - T021 needs T018 and T004;
+  - T022 needs T019 and T021;
+  - T023 after all of them, then T024.
 - **US2** needs US1 merged:
-  - T022–T024 in parallel, with T025 beside them;
-  - T026 → T027 → T028 → T029.
-- **US3** (T030, T031) comes last, after US2.
+  - T025–T027 in parallel, with T028 beside them;
+  - T029 → T030 → T031 → T032.
+- **US3** (T033, T034) comes last, after US2.
 
 ## Parallel Examples
 
 ```text
-Phase 1:  T002 (test/support/progress.ts) ‖ T003 (test/support/reference-riders.ts)
-Phase 2:  T004→T005 (weeks.ts) ‖ T006→T007 (rider-view.ts)
-US1 tests: T008 ‖ T009 ‖ T010 ‖ T011
-US1 impl:  T012 (catalogs) ‖ T013 (progress-view.ts) ‖ T014 (style.ts)
-US2 tests: T022 ‖ T023 ‖ T024, with T025 (catalogs)
+Phase 1:  T002 (test/support/progress.ts) ‖ T003 (test/support/reference-riders.ts) ‖ T004 (vendor) ‖ T005 (html.test.ts)
+Phase 2:  T007→T008 (weeks.ts) ‖ T009→T010 (rider-view.ts)
+US1 tests: T011 ‖ T012 ‖ T013 ‖ T014
+US1 impl:  T015 (catalogs) ‖ T016 (progress-view.ts) ‖ T017 (style.ts)
+US2 tests: T025 ‖ T026 ‖ T027, with T028 (catalogs)
 ```
 
 ## Implementation Strategy
@@ -517,4 +551,4 @@ US2 tests: T022 ‖ T023 ‖ T024, with T025 (catalogs)
 2. **PR 2 = Phase 4** (pace and outdoor curve), on top of the merged MVP.
 3. **Phase 5** closes the feature: the diagrams match the build.
 4. Each PR runs the full `pnpm lint`, `pnpm typecheck`, `pnpm test` and
-   `pnpm test:e2e` before review (T020, T029).
+   `pnpm test:e2e` before review (T023, T032).

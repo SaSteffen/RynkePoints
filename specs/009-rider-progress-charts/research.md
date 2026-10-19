@@ -8,11 +8,15 @@ Since the first plan, features 011–020 were built. The ones this plan builds o
 - the Overview at `src/http/sections/overview.ts` (011, 015);
 - `src/rynke/weeks.ts`: the weekly and daily figures of 016 and 013;
 - `src/rynke/pace.ts`: the even pace (016);
-- `src/http/charts.ts`: inline-SVG charts without a library (016);
+- `src/http/charts.ts`: small inline-SVG charts without a library (016), which
+  stay as they are;
 - corrections (014);
 - the tour's example rider (020);
 - `public/app.js` as the one page script (010 R16);
 - Playwright smoke tests in three browsers.
+
+Since constitution v2.2.0 the app requires JavaScript: the charts need no version
+for a browser without scripts (spec FR-052, removed).
 
 ## R1. Rebuild the curve on every view, next to 016's weekly figures (FR-011, FR-012)
 
@@ -96,139 +100,194 @@ balance and the gauges do (FR-041).
 **Privacy**: the metre sums are read only to place the elevation steps. They are
 never rendered, put in the page data or logged (FR-005).
 
-## R4. A charting library? Re-checked: still none (Principle IV, FR-052)
+## R4. A charting library: Chart.js with its zoom plugin (Principle IV)
 
 **What the charts need**:
 - two charts, at most four lines each, at most about 300 points per line;
-- drawn on the server, so they show without the script (FR-052);
-- zoom by pinch, drag, focused wheel and keys, plus move and reset (FR-022,
+- zoom by pinch, mouse drag, focused wheel and keys, plus move and reset (FR-022,
   FR-023, FR-053);
+- both charts always on the same period (FR-021);
 - one readout of a day's totals (FR-030);
-- text alternatives (FR-050);
+- a time axis labelled in the page language (FR-024, FR-061);
 - light and dark mode (FR-072);
-- no build step for browser code: `public/app.js` is served as written.
+- touch: a vertical swipe scrolls the page (FR-025).
 
-**Decision**: no library. The server draws each chart as inline SVG, as
-`src/http/charts.ts` already does for the Team section.
+**Decision**: [Chart.js](https://www.chartjs.org/) 4 with
+[chartjs-plugin-zoom](https://www.chartjs.org/chartjs-plugin-zoom/) 2 and
+[Hammer.js](https://hammerjs.github.io/) 2, which the plugin uses for touch
+gestures. All three are MIT licensed and ship ready-made minified browser builds,
+so there is still no build step for browser code (R6).
 
-The interaction is cheap because **zooming only changes the SVG's `viewBox` on
-the x axis**:
-- The server draws every curve for the whole time axis, one x unit per day.
-- To zoom, the browser sets `viewBox="<from> 0 <days> 100"`.
-- `preserveAspectRatio="none"` stretches the visible stretch to the plot's width,
-  and `vector-effect="non-scaling-stroke"` keeps the lines 2 px wide.
-- The browser never builds a path. It only:
-  - moves the crosshair;
-  - fills the readout;
-  - lays out the date labels for the visible stretch (R10).
+| File | Version | Minified | gzip |
+|---|---|---|---|
+| `chart.umd.min.js` | 4.5.1 | 204 KB | 69 KB |
+| `chartjs-plugin-zoom.min.js` | 2.2.0 | 15 KB | 6 KB |
+| `hammer.min.js` | 2.0.8 | 20 KB | 7 KB |
+| **Together** | | 239 KB | 82 KB |
+
+Measured 2026-10-19 from the npm packages. They are loaded only on the Overview and
+then come from the browser cache (R6).
+
+**Justification (Principle IV)**:
+- The hard part of interactive charts is input handling: pinch on iOS Safari,
+  telling a scroll from a pan, wheel handling, resize, high-density screens.
+  These libraries have years of fixes for exactly that. The hand-rolled `viewBox`
+  plan of this morning was only cheaper because it also had to render without
+  JavaScript, and that requirement is gone (constitution v2.2.0).
+- The zoom plugin covers most of FR-022/FR-023 out of the box: pinch, mouse drag
+  to a stretch, wheel, pan, limits (`min`, `max`, `minRange` = 7 days) and reset,
+  with an API (`zoom`, `pan`, `zoomScale`, `resetZoom`) for the keys and buttons.
+- Chart.js covers the rest: a linear x axis of day indexes with our own tick list
+  and labels (R10), hover and tap picking the nearest day (`interaction.mode:
+  "index"`, `intersect: false`), fixed y scales, dashed lines, high-density
+  canvases and resizing.
+- Cost: 82 KB gzip once per device, nothing in the Worker bundle, no change to
+  the free tier.
+
+**What we still write** (in `app.js`, R7): the keys, the move and reset buttons,
+keeping both charts on one period, the readout, the crosshair (a 15-line inline
+plugin) and the colours from the CSS tokens.
+
+**Known weak spots**, each covered by a test or a rule:
+- Hammer.js has had no release since 2016. It works in current browsers and is
+  only used through the plugin. If it breaks, the plugin's pinch and touch pan
+  stop; mouse, wheel, keys and buttons still work.
+- Hammer sets `touch-action: none` on the canvas when pinch is on, which would
+  stop the page from scrolling under a chart. The script sets
+  `touch-action: pan-y` on each canvas after creating the chart (R7, FR-025). An
+  e2e test checks the style; the swipe itself is part of the device check after
+  release.
+- A canvas has no text for screen readers. Each canvas is `role="img"` with an
+  `aria-label` of the period, and the readout and weekly table carry the figures
+  (FR-050, R9, R11).
 
 | Option | Why not |
 |---|---|
-| uPlot (~50 KB, canvas) | Has drag-to-zoom, but no pinch and no server rendering. A canvas has no text for screen readers. It would be the first vendored browser library. |
-| Chart.js + zoom plugin + Hammer.js (~250 KB, canvas) | Same canvas limits, five times larger. |
-| Apache ECharts (~1 MB; SVG server rendering) | Far too large for two line charts. The server renderer would need its full module in the Worker. |
-| ApexCharts (~500 KB, SVG) | Draws only in the browser, so nothing shows without the script. |
-| D3 (scale, shape, zoom; ~30 KB) | Needs a bundler for the browser. With the `viewBox` approach the paths never change anyway. |
-
-The old plan's shared `public/progress/chart.js`, with `checkJs` and a second
-tsconfig, is dropped. It existed so that the browser could redraw paths exactly
-like the server, and with zoom done through the `viewBox` there are no paths to
-redraw.
-
-**Estimated size**: about 250 lines in `app.js`, a few kilobytes.
+| Hand-rolled SVG with `viewBox` zoom (this morning's plan) | Every gesture, the wheel and resizing are ours to get right in three browsers, for a nice graph that is not the app's main feature. |
+| uPlot (~50 KB) | Smaller and faster, but no pinch or touch pan built in; we would write the gestures ourselves again. |
+| Apache ECharts (~330 KB gzip full, less with a custom build) | The richest zoom, but four times the size, or a build step for a custom bundle. |
+| D3 (scale, shape, zoom) | Needs a bundler for the browser and leaves the chart itself to us. |
+| ApexCharts (~140 KB gzip) | Larger, with more features we don't need; its zoom is less configurable for touch. |
 
 ## R5. Drawing (FR-010, FR-013, FR-014, FR-070)
 
 **Decision**:
-- **Plot**: each chart's plot is
-  `<svg viewBox="0 0 {axisDays} 100" preserveAspectRatio="none">`, where
-  `axisDays` is the deadline's day index (season start = 0). CSS stretches it to
-  the full width, `11rem` high and `13rem` from 600 px up (the Overview's
-  breakpoint).
-- **Coordinates**: x = day index. y = `100 − value / yMax × 100`, rounded to two
-  decimals.
-- **The y scale (`yMax`)**: the larger of the threshold and the season's highest
-  value, rounded up to a step of 50 for Training and 5 for Team. It is fixed for
-  the season, so zooming never moves the threshold out of view or makes the scale
-  jump (FR-014).
-- **Lines**:
-  - the curve is a polyline from day 0 to the last day's index and stops there
-    (FR-013);
-  - the threshold is a horizontal line across the axis;
-  - from US2, the pace is a line from (0, 0) to (`axisDays`, threshold).
-- **Labels**: the y labels, the threshold's value and the date labels are HTML
-  around the SVG, so the stretching never distorts text. Date labels are
-  positioned in percent of the visible stretch (R10).
-- **Clipping**: the SVG has `overflow: hidden`, so the parts outside the viewBox
-  are clipped.
+- **Canvas**: each chart is a `<canvas>` in a box of fixed height, `11rem` and
+  `13rem` from 600 px up (the Overview's breakpoint). Chart.js fills the box's
+  width (`responsive: true`, `maintainAspectRatio: false`).
+- **x axis**: `type: "linear"`, one unit per day, `min: 0`, `max: axisDays`
+  (season start = 0, deadline = `axisDays`). Day indexes avoid a date adapter
+  library; the labels come from R10.
+- **y axis**: `min: 0`, `max: yMax`. `yMax` is the larger of the threshold and the
+  season's highest value, rounded up to a step of 50 for Training and 5 for Team.
+  It is fixed for the season, so zooming never moves the threshold out of view or
+  makes the scale jump (FR-014). Zoom and pan act on x only (`mode: "x"`).
+- **Lines** (datasets, `pointRadius: 0`, `tension: 0`):
+  - the curve, from day 0 to `lastIndex`, and it stops there (FR-013);
+  - the threshold, two points across the axis, with its value as a label at the
+    right end;
+  - from US2, the pace line from (0, 0) to (`axisDays`, threshold).
+- **Legend**: Chart.js's legend is off; the server renders an HTML legend with a
+  line key per line (R12), so it uses the catalogs and the app's type.
+- **Built-in tooltip**: off. The readout under the charts replaces it (R9); a
+  floating box would cover the curve on a 360 px screen.
 
-**Rationale**: the server needs no screen width, and the browser changes only one
-attribute per chart to zoom both (FR-021).
-
-## R6. Browser code lives in `public/app.js` (010 R16)
+## R6. Browser code and how the library is delivered (010 R16)
 
 **Decision**:
-- A `progressCharts()` function in `public/app.js`, called with the others at the
-  end. It follows the file's rules:
-  - it only wires up what the markup can't do;
+- **Our code** is a `progressCharts()` function in `public/app.js`, called with
+  the others at the end. It follows the file's rules:
   - it holds no text: every word comes from the markup, rendered from the
-    catalogs and hidden until the script shows it;
-  - it makes no request and writes no storage.
+    catalogs (R9);
+  - it makes no request and writes no storage or cookie.
+- **The library files** are vendored, not built:
+  - `chart.js`, `chartjs-plugin-zoom` and `hammerjs` become exact-pinned
+    `devDependencies`, so the versions are visible and Dependabot sees them.
+  - `scripts/vendor.mjs` (`pnpm vendor`) copies the three minified files into
+    `public/vendor/`, with the version in the file name (for example
+    `public/vendor/chart-4.5.1.umd.min.js`), plus each package's `LICENSE`.
+  - The copies are committed, so deploying needs no build step.
+  - `pnpm vendor --check` fails when the copies differ from `node_modules`; it
+    runs as part of `pnpm lint`, so CI catches a version bump without a copy.
+  - Biome ignores `public/vendor/`.
+- **Loading**: `LayoutOptions` gains `scripts?: string[]`. The Overview passes the
+  three vendor paths when it renders the section. They are emitted as `<script
+  src defer>` before `app.js`, so they run in order: Hammer, Chart.js, the plugin,
+  then `app.js`. No other page loads them.
+- **Caching**: `public/_headers` gives `/vendor/*` `Cache-Control: public,
+  max-age=31536000, immutable`. The versioned file names make that safe. The
+  service worker only handles navigations and needs no change.
 - **Data**: one `<script type="application/json" id="progress-data">` in the
-  section. It holds only dates, day indexes and whole numbers (data-model.md
-  "Chart data").
+  section, with only dates, day indexes and whole numbers (data-model.md "Chart
+  data").
 - **Formatting**: numbers and dates use `Intl` with the locale in the section's
   `data-locale` (the server's `meta.intlLocale`), with the same options as
   `I18n.formatNumber` and `I18n.formatDate` (FR-061).
-- **No reload trouble**: after a reload (011 FR-009's refresh or the return after a
-  minute), the script starts again on fresh markup.
-
-**Rationale**: the app has one page script, loaded with `defer` on every page. A
-second file would need its own `<script>` tag and cache handling, for no benefit.
-
-## R7. Interaction (FR-022–FR-025, FR-030, FR-053, FR-071)
-
-**Decision**:
-
-| Input | Action |
-|---|---|
-| Mouse moving over a plot | crosshair and readout on the nearest day |
-| Tap, or click without moving more than 8 px | select that day: crosshair in both charts and readout |
-| Horizontal drag (one finger or the mouse) | shade the stretch; on release, zoom to it (at least 7 days) |
-| Two-finger pinch | zoom around the midpoint between the fingers |
-| Vertical swipe | scrolls the page: plots have `touch-action: pan-y` (FR-025) |
-| Wheel over a plot that has focus (after a click or Tab) | zoom around the pointer; without focus the page scrolls |
-| Keys on a focused plot | ←/→ previous/next day · `+`/`-` zoom around the selected day · PageUp/PageDown move by half the period · Home/End first/last day · `0` or Escape whole season |
-| "Früher", "Später", "Ganze Saison" buttons | move by half the period; reset. Shown only while zoomed in. 44 × 44 px. |
-| Period buttons | with the script: change the period in place (`preventDefault`). Without it: links to `/me?period=…#progress` (R8). |
-
-Rules that apply to every input:
-- One state is shared by both plots, so they always show the same period
-  (FR-021).
-- The period is clamped to at least 7 days and to the axis: no further than the
-  season start and the deadline (FR-022, FR-023).
-- The crosshair snaps to the nearest day up to the last day. Days after the last
-  day have no values to show.
-- Redraws are batched with `requestAnimationFrame`.
+- **If the library fails to load** (an old cached page, a network error): the
+  script finds no `window.Chart`, leaves the canvases empty and logs one error. The
+  table still has the figures. This is a failure, not a supported mode.
 
 **Rationale**:
-- Requiring focus for the wheel keeps page scrolling free (dataviz guidance, and
-  the most common complaint about zoomable charts).
-- Drag selects a stretch rather than panning, so phones don't need a gesture
-  mode. Moving uses the buttons and keys instead.
+- Copying ready-made builds keeps the "no bundler for browser code" setup.
+- Loading the files only on the Overview keeps every other page as light as now.
 
-## R8. The period in the URL only for the no-script buttons (FR-020, FR-026, FR-052)
+**Alternatives considered**:
+- *An esbuild step bundling `app.js` with tree-shaken Chart.js*: about 30 KB less,
+  but a build step in dev, CI and deploy for every page's script.
+- *A CDN*: a third party would learn who opens the Overview (Principle I), and
+  the app would depend on it.
+- *Loading the files from `app.js` on demand*: same bytes, but the ordering and
+  error handling become our code instead of the browser's.
+
+## R7. Interaction (FR-021–FR-025, FR-030, FR-053, FR-071)
 
 **Decision**:
-- `/me` accepts `period=3m` or `period=4w`. Anything else, or nothing, means the
-  whole season. There are no free `from`/`to` parameters.
-- The links carry `data-from`/`data-to` (day indexes) worked out by the server. With
-  the script the link is intercepted, so the browser does no calendar
-  arithmetic.
-- `safeNext` is not changed: since 011 FR-016 the language switch is in Settings,
-  and the spec now lets the period reset when the Overview loads again (FR-026).
-- `/me?page=N` keeps redirecting to Rides (011 R2). `period` is a different
-  parameter, so it is unaffected.
+
+| Input | Action | Done by |
+|---|---|---|
+| Mouse moving over a chart | crosshair and readout on the nearest day | Chart.js hover (`mode: "index"`, `intersect: false`) |
+| Tap or click | select that day in both charts; readout | Chart.js events + `setActiveElements` on the other chart |
+| Mouse drag across a chart | shade the stretch; on release, zoom to it | plugin `zoom.drag` (`mode: "x"`, `threshold: 8`) |
+| Shift + mouse drag | move the period | plugin `pan` (`modifierKey: "shift"`) |
+| Two-finger pinch | zoom around the fingers | plugin `zoom.pinch` (Hammer) |
+| One-finger sideways drag | move the period | plugin `pan` (Hammer, horizontal) |
+| Vertical swipe | scrolls the page | canvas `touch-action: pan-y`, set after Hammer (FR-025) |
+| Wheel over a chart that has focus (after a click or Tab) | zoom around the pointer; without focus the page scrolls | plugin `zoom.wheel` + `onZoomStart` returning `false` for a wheel on an unfocused canvas, so the plugin neither zooms nor calls `preventDefault` |
+| Keys on a focused chart | ←/→ previous/next day · `+`/`-` zoom around the selected day · PageUp/PageDown move by half the period · Home/End first/last day · `0` or Escape whole season | our `keydown` handler calling `zoom`, `pan`, `resetZoom` |
+| "Früher", "Später", "Ganze Saison zeigen" buttons | move by half the period; reset. Shown only while zoomed in. 44 × 44 px. | our handler |
+| Period buttons | `zoomScale("x", { min: from, max: to })` on both charts | our handler; `data-from`/`data-to` from the server (R8) |
+
+Rules that apply to every input:
+- **One period for both charts** (FR-021): the plugin's `onZoomComplete` and
+  `onPanComplete` of either chart call one `applyPeriod(from, to)`, which sets the
+  other chart with `zoomScale(…, "none")` and updates the buttons and labels. A
+  guard flag stops the two charts from echoing each other.
+- **Limits** (FR-022, FR-023): `limits.x = { min: 0, max: axisDays, minRange: 7 }`
+  in the plugin, so no input goes past the axis or below 7 days.
+- **After a change**: `aria-pressed` on the period button whose stretch is shown
+  (none while zoomed freely); each canvas's `aria-label` from its label template
+  (R9); `.progress-move` shown unless the whole axis is shown.
+- **Selecting**: days after `lastIndex` can't be selected; the selection snaps to
+  the last day. The keys move the same active index the pointer sets.
+- **Focus**: each canvas has `tabindex="0"`, rendered by the server, with
+  `aria-describedby="progress-help"`.
+- **Animations**: off (`animation: false`), and so no motion for riders who
+  prefer reduced motion.
+
+**Rationale**:
+- Requiring focus for the wheel keeps page scrolling free, the most common
+  complaint about zoomable charts.
+- On touch, a sideways drag moves and a pinch zooms, which is what the plugin does
+  and what map apps do. A mouse drag selects a stretch, the usual desktop
+  gesture. The spec's FR-022/FR-023 are worded to match.
+
+## R8. Period presets in the markup, not in the URL (FR-020, FR-026)
+
+**Decision**:
+- The period buttons are `<button type="button">` with `data-from`/`data-to` (day
+  indexes) worked out by the server, so the browser does no calendar arithmetic.
+- `/me` gets no `period` parameter. Each Overview load starts with the whole
+  season (FR-026); nothing goes into the URL, storage or a cookie.
 - **"Last 4 weeks"** is the 28 days ending on the last day: 10 September – 7
   October in US1 scenario 3.
 - **"Last 3 months"** starts on the same day of the month three calendar months
@@ -238,39 +297,41 @@ Rules that apply to every input:
   September – 1 December.
 
 **Alternatives considered**:
-- *Free zoom in the URL with `replaceState`* (the old plan): it was only needed
-  to keep the period across the language switch, which no longer happens on the
+- *`?period=3m|4w` links* (this morning's plan): only needed for a browser
+  without scripts.
+- *Free zoom in the URL with `replaceState`* (the first plan): only needed to keep
+  the period across the language switch, which no longer happens on the
   Overview.
-- *sessionStorage*: state the spec doesn't ask for.
 
-## R9. Totals of a day: one readout under the charts (FR-030, FR-038)
+## R9. Totals of a day: one readout under the charts (FR-030, FR-038, FR-050)
 
 **Decision**:
 - One `<p class="progress-readout" aria-live="polite">` under both charts gives the
   selected day's date and totals. Values lead and labels follow (dataviz).
   Example: "Sonntag, 20. September 2026 · 69 Trainingsrynke · 11 Teamrynke".
+  Before any selection it shows the last day.
 - From US2 the readout also gives:
   - the pace and how far ahead or behind it the rider is, for each line;
   - the outdoor Training Rynke.
 - **Templates**: the server renders each readout part once from the catalogs into
-  hidden `<template>` elements. Each placeholder is a
+  `<template>` elements. Each placeholder is a
   `<span data-slot="training"></span>`, made with `i18n.tHtml`, so the word order
-  stays the language's.
+  stays the language's. The same is done for each canvas's `aria-label`
+  (`data-label-template`).
 - The script clones the template and fills the slots with `textContent`.
 - **Ahead, behind and on pace** are three templates. The script picks one by the
   sign; it never words them itself. Being behind reads as a number, not a broken
   rule (FR-038).
-- **Without the script** the readout and templates stay hidden, and the table
-  carries the figures (FR-052).
-- **When a day is selected**, a crosshair (1 px hairline) and an 8 px dot with a
-  2 px surface ring mark the day on each curve (dataviz).
+- **The crosshair**: a small inline Chart.js plugin draws a 1 px vertical
+  hairline at the active day; Chart.js draws an 8 px point with a 2 px surface
+  ring on each curve (`pointHoverRadius`, `pointHoverBorderWidth`; dataviz).
 
 **Rationale**:
 - One readout for both charts matches D3/D4.
 - It never covers a curve on a 360 px screen, unlike a floating tooltip.
 - Screen readers announce it (FR-050, US1 scenario 17).
 
-## R10. Date labels: one simple rule, implemented on both sides (FR-024, FR-061)
+## R10. Date labels: one rule, in the browser (FR-024, FR-061)
 
 **Decision**: the visible span picks the labels.
 
@@ -280,15 +341,13 @@ Rules that apply to every input:
 | 15–62 days | each Monday | `{ day: "numeric", month: "short" }` |
 | 7–14 days | every second day from the period's first | `{ day: "numeric", month: "short" }` |
 
-The server renders the labels for the period it draws. The script renders them
-again on every change, in the section's locale.
+The x axis's `afterBuildTicks` replaces Chart.js's ticks with these day indexes,
+and `ticks.callback` formats them in the section's locale. `ticks.autoSkip` drops
+labels that would overlap on a narrow screen.
 
-**Rationale**: the rule is short enough to have two copies (TypeScript on the
-server, JS in `app.js`). An e2e test checks that the script's labels for the
-whole season equal the server's.
-
-**Alternative**: the server pre-renders every day's label for the script to pick
-from. That is about 600 hidden elements for two charts.
+**Rationale**: the server no longer draws the charts, so the rule exists once.
+The old plan's second copy in TypeScript, and the e2e test keeping both in step,
+are gone.
 
 ## R11. The weekly table (FR-037, FR-051)
 
@@ -300,7 +359,8 @@ from. That is about 600 hidden elements for two charts.
 - **Figures**: "earned" is the total at the week's end minus the total at the
   previous week's end, so a negative correction shows as a negative number.
 - **Placement**: in a `<details>`, closed by default, under the readout. It covers
-  the whole season, whatever the period.
+  the whole season, whatever the period. It is the text version of the charts for
+  screen readers (FR-050), rendered by the server.
 - **Width**: at 360 px the five columns fit with compact figures. From US2 the
   table scrolls inside its own box (`overflow-x: auto`), never the page (FR-070).
 
@@ -321,6 +381,7 @@ from. That is about 600 hidden elements for two charts.
 | Threshold, 167 line | `on-surface-variant` | same token | 1 px, dashed `4 4`, value at its right end |
 | US2 pace lines | `on-surface-variant` | same token | 1 px, dotted `1 3` |
 | Grid | `outline-variant` | same token | 1 px |
+| Axis labels | `on-surface-variant` | same token | the app's label type |
 
 - **What the validator showed**:
   - `#fbe122` reaches 1.3:1 and `#8cc4f0` 1.8:1 against the light surface.
@@ -331,11 +392,17 @@ from. That is about 600 hidden elements for two charts.
     to be told apart by colour.
 - **Tokens**: `--rp-line-training`, `--rp-line-team` and `--rp-line-outside`,
   defined in both schemes in `style.ts`. `design-tokens.test.ts` covers them.
+- **Canvas colours**: a canvas can't use CSS variables, so the script reads the
+  tokens with `getComputedStyle` when it creates the charts, and again (then
+  `chart.update("none")`) when the scheme changes: a `prefers-color-scheme`
+  change, or `data-scheme` on `<html>` (observed with a `MutationObserver`).
+  Fonts come from the section's computed `font-family`.
 - **The yellow stays as the accent**: the Training chart's card edge uses
   `--rp-coin-yellow` and the Team chart's `--rp-coin-team`, like the gauge cards.
   Each legend entry carries a mini coin, as the gauges do (012).
-- **Telling lines apart**: line style plus a legend with a line key per line.
-  Colour is never the only cue (FR-050). There are no fills or areas (FR-007).
+- **Telling lines apart**: line style plus the HTML legend with a line key per
+  line. Colour is never the only cue (FR-050). There are no fills or areas
+  (FR-007).
 - **Text**: labels use the text tokens, never the series colour (dataviz).
 
 ## R13. Testing (Principle V, FR-080)
@@ -356,7 +423,6 @@ from. That is about 600 hidden elements for two charts.
 **`test/unit/progress-view.test.ts`**:
 - the presets: when each is offered, and their bounds;
 - `yMax`;
-- the date labels of R10;
 - the weekly rows;
 - the pace values (27 and 2 on 4 October);
 - the even pace equal to `evenPace` on every day;
@@ -367,40 +433,46 @@ from. That is about 600 hidden elements for two charts.
 - the JSON holds only dates and numbers;
 - no unit, metre, km, time or speed appears in the markup or the data (SC-004).
 
+**`test/unit/html.test.ts`** (extended): `scripts` are emitted in order before
+`app.js`, and pages without them are unchanged.
+
 **`test/integration/overview-progress.test.ts`** (`/me` with seeded synthetic
 riders):
 - only the signed-in rider's data (SC-007);
-- the waiting state shows no section;
-- `?period=4w`;
+- the waiting state shows no section and loads no vendor script;
 - German and English;
 - the tour's example rider (FR-043);
 - no writes, no queue messages and no Strava calls (SC-006).
 
 **`e2e/progress.e2e.ts`** (Chromium, Firefox, WebKit, on fake mode's samples):
 - no sideways scroll at 320 and 360 px;
-- the period buttons work with and without JavaScript;
-- drag-to-zoom gives both charts the same period;
-- keys step the readout;
-- the wheel only zooms after focus;
-- the labels after a reset equal the server's;
-- dark mode;
-- no console error.
+- the period buttons set both charts to the same stretch, without a reload;
+- a mouse drag zooms both charts to the same period, and never below 7 days;
+- the keys step the readout and zoom;
+- the wheel only zooms after focus, and scrolls the page before;
+- each canvas has `touch-action: pan-y`;
+- the readout for 20 September of a sample rider equals the table's figures;
+- dark mode: the line colour is read from the dark tokens;
+- no console error, and the vendor files are served with the immutable header.
 
-Real-device checks (pinch on a phone, a screen reader) are part of the walkthrough
-after release (memory "manual tests after deploy"), not tasks.
+Chart.js draws on a canvas, so the e2e tests check state through the charts'
+public API (`Chart.getChart(canvas).scales.x.min/max`) and the DOM, not pixels.
+
+Real-device checks (pinch and swipe on a phone, a screen reader) are part of the
+walkthrough after release (memory "manual tests after deploy"), not tasks.
 
 The existing `catalogs.test.ts` and `no-hardcoded-copy.test.ts` cover the new keys.
 
 ## R14. Performance (SC-005)
 
-**Decision**: no cache.
+**Decision**: no cache on the server.
 
 | Step | Size | Estimate |
 |---|---|---|
 | Two extra SELECTs | ≤ 600 day rows, ≤ 50 corrections | < 5 ms |
 | Rebuild | ≤ 300 days × (≤ 100 events + corrections) | < 5 ms |
-| Markup | 2 polylines of ≤ 300 points | about 8 KB |
 | JSON data | 2–3 arrays of ≤ 300 integers | about 4 KB |
+| Vendor scripts | first visit only, then cached | 82 KB gzip |
 
-Zooming changes two `viewBox` attributes and about 10 labels, well under 16 ms.
-The Overview stays within 005 SC-005's 2 seconds.
+Chart.js draws 2 charts of ≤ 300 points each in a few milliseconds, and zooming
+redraws without animation. The Overview stays within 005 SC-005's 2 seconds.

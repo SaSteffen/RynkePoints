@@ -2,10 +2,11 @@
 
 | Route | Change |
 |---|---|
-| `GET /me` | Accepts `period=3m` or `period=4w`. Any other value, or none, draws the whole season. An offered preset is drawn as is. A preset not offered yet (FR-020) falls back to the whole season. There is no redirect, and the response stays `200`. |
-| `GET /me?page=N` | Unchanged: redirects to `/me/rides?page=N` (011 R2). `period` never triggers it. |
-| `POST /lang` | Unchanged. `safeNext` gains nothing: the language switch is in Settings (011 FR-016) and the period may reset (FR-026). |
-| Static assets | Unchanged: `public/app.js` grows; no new file. |
+| `GET /me` | No new parameter. The Overview always opens with the whole season (FR-026, research R8). When the section is shown, the page also loads the three vendor scripts. |
+| `GET /me?page=N` | Unchanged: redirects to `/me/rides?page=N` (011 R2). |
+| `POST /lang` | Unchanged. `safeNext` gains nothing: the language switch is in Settings (011 FR-016) and the period resets (FR-026). |
+| `GET /vendor/*` | New static assets (research R6): `hammer-2.0.8.min.js`, `chart-4.5.1.umd.min.js`, `chartjs-plugin-zoom-2.2.0.min.js` and their licences. `public/_headers` serves them with `Cache-Control: public, max-age=31536000, immutable`. |
+| `GET /app.js` | Unchanged route; the file gains `progressCharts()`. |
 
 No route reads or writes anything new apart from the two SELECTs of
 [data-model.md](../data-model.md), and none calls Strava (FR-003).

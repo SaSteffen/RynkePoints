@@ -27,37 +27,31 @@ example rider (FR-043).
   <h2 id="progress-heading">{progress.heading}</h2>
   <p class="progress-rules">{progress.rules version}</p>
   <p class="progress-nothing">{progress.nothingYet}</p>          <!-- only when nothingYet (FR-015) -->
-  <nav class="progress-periods" aria-label="{progress.periods.label}">
-    <a class="chip" href="/me#progress" data-from="0" data-to="302" aria-current="true">{progress.period.season}</a>
-    <a class="chip" href="/me?period=3m#progress" data-from="…" data-to="…">{progress.period.3m}</a>  <!-- only if offered -->
-    <a class="chip" href="/me?period=4w#progress" data-from="9" data-to="36">{progress.period.4w}</a>
+  <div class="progress-periods" role="group" aria-label="{progress.periods.label}">
+    <button type="button" class="chip" data-from="0" data-to="302" aria-pressed="true">{progress.period.season}</button>
+    <button type="button" class="chip" data-from="…" data-to="…" aria-pressed="false">{progress.period.3m}</button>  <!-- only if offered -->
+    <button type="button" class="chip" data-from="9" data-to="36" aria-pressed="false">{progress.period.4w}</button>
     <span class="progress-move" hidden>                           <!-- the script shows it while zoomed -->
       <button type="button" class="button-text" data-move="-1">{progress.earlier}</button>
       <button type="button" class="button-text" data-move="1">{progress.later}</button>
       <button type="button" class="button-text" data-reset>{progress.reset}</button>
     </span>
-  </nav>
+  </div>
   <figure class="progress-chart progress-training">
     <figcaption>{mini coin} {rynke.training}</figcaption>
-    <div class="progress-plot" role="img" aria-label="{progress.chart.training from to value threshold}">
-      <div class="progress-y" aria-hidden="true"><span style="bottom:0%">0</span>…</div>
-      <svg viewBox="0 0 302 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-        <g class="grid">…</g>
-        <line class="line-threshold" x1="0" x2="302" y1="0" y2="0"/>
-        <polyline class="line-curve" points="0,100 1,100 … 36,55.2"/>
-        <g class="progress-cursor" hidden><line/><circle r="4"/></g>   <!-- the script moves it -->
-      </svg>
-      <span class="progress-line-label" style="bottom:100%" aria-hidden="true">250</span>
-      <div class="progress-x" aria-hidden="true"><span style="left:0%">Sep.</span>…</div>
+    <div class="progress-plot">
+      <canvas data-series="training" role="img" tabindex="0" aria-describedby="progress-help"
+        aria-label="{progress.chart.training from to value threshold, for the whole season}"></canvas>
     </div>
+    <template data-label="training">{progress.chart.training, with <span data-slot> for each}</template>
     <ul class="progress-legend">
-      <li><svg class="progress-key" …><line class="line-curve" …/></svg>{rynke.training}</li>
-      <li><svg class="progress-key" …><line class="line-threshold" …/></svg>{progress.legend.threshold value}</li>
+      <li><span class="progress-key key-curve" aria-hidden="true"></span>{rynke.training}</li>
+      <li><span class="progress-key key-threshold" aria-hidden="true"></span>{progress.legend.threshold value}</li>
     </ul>
   </figure>
   <figure class="progress-chart progress-team">…the same for Team Rynke…</figure>
-  <p class="progress-readout" aria-live="polite" hidden></p>
-  <p id="progress-help" class="progress-help" hidden>{progress.help}</p>
+  <p class="progress-readout" aria-live="polite"></p>
+  <p id="progress-help" class="progress-help">{progress.help}</p>
   <template data-readout="day">{progress.day date training team, with <span data-slot> for each}</template>
   <details class="progress-table">
     <summary>{progress.table.summary}</summary>
@@ -72,31 +66,40 @@ example rider (FR-043).
 </section>
 ```
 
+The page's `<head>` gets the vendor scripts before `app.js`, through
+`LayoutOptions.scripts` (research R6):
+
+```html
+<script src="/vendor/hammer-2.0.8.min.js" defer></script>
+<script src="/vendor/chart-4.5.1.umd.min.js" defer></script>
+<script src="/vendor/chartjs-plugin-zoom-2.2.0.min.js" defer></script>
+<script src="/app.js" defer></script>
+```
+
 | Rule | Requirement |
 |---|---|
-| The server draws the period of `?period=` and marks that link `aria-current`. With the script, the link of the period shown carries it; none does while zoomed freely. | FR-020, FR-052 |
-| Both plots share one `viewBox`, so they always show the same period. | FR-021 |
-| The `line-curve` points run from index 0 to `lastIndex` and stop there. | FR-010, FR-013 |
-| The y labels and the threshold use the chart's `yMax` (research R5). | FR-014 |
+| The page opens on the whole season: the season button is `aria-pressed="true"`. The script keeps `aria-pressed` on the button whose stretch is shown; none is pressed while zoomed freely. | FR-020, FR-026 |
+| Both canvases always show the same period (`applyPeriod`, research R7). | FR-021 |
+| The curve runs from index 0 to `lastIndex` and stops there. | FR-010, FR-013 |
+| The y scale and the threshold use the chart's `yMax` (research R5). | FR-014 |
 | Date labels follow research R10, in the section's locale. | FR-024, FR-061 |
-| Each plot's `aria-label` gives the period, the value at its end and the threshold. | FR-050 |
+| Each canvas's `aria-label` gives the period, the value at its end and the threshold; the script refills it from `template[data-label]` on every change. | FR-050 |
 | Lines differ by stroke style and legend, not only by colour. There are no fills, areas or bars. | FR-007, FR-050 |
 | No ride, ride name, link, team event, correction, distance, metres, time or speed appears in the section, the JSON or any attribute. | FR-005, FR-030, SC-004 |
-| The table lists every week up to the last day, oldest first, whatever the period. | FR-037, FR-051 |
-| The readout, help, cursor, templates and move buttons stay hidden without the script. | FR-052 |
-| Every link and button is at least 44 × 44 px (`--rp-tap`). | FR-071 |
-| The plots get `tabindex="0"` from the script, not from the server, so nothing is focusable that does nothing. | FR-053 |
+| The table lists every week up to the last day, oldest first, whatever the period. It is the charts' text version for screen readers. | FR-037, FR-050, FR-051 |
+| Every button is at least 44 × 44 px (`--rp-tap`). | FR-071 |
+| Each canvas is focusable (`tabindex="0"`) and described by the key help. | FR-053 |
+| The vendor scripts are loaded only on an Overview that shows the section. | research R6 |
 
 ## Additions for User Story 2
 
-- **Pace**: in each chart, `<line class="line-pace">` from (0, 100) to
-  (`axisDays`, the threshold's y), with the legend entry
-  `{progress.legend.pace}` (FR-038).
+- **Pace**: in each chart, a dataset from (0, 0) to (`axisDays`, the threshold),
+  with the legend entry `{progress.legend.pace}` (FR-038).
 - **Outdoor curve**, only for riders with virtual rides (FR-039). The Training
   chart gains:
-  - `<polyline class="line-outside">` for the outdoor curve;
-  - `<line class="line-needed">` at 167;
-  - a second `line-pace` towards 167;
+  - a dataset for the outdoor curve;
+  - a dataset for the line at 167;
+  - a second pace dataset towards 167;
   - legend entries `{rynke.withoutVirtual}` and `{progress.legend.needed value}`.
 - **Readout templates**:
   - `data-readout="pace-ahead"`, `"pace-behind"` and `"pace-on"`, one set per line
