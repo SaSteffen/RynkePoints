@@ -258,3 +258,6 @@ try {
 } finally {
 	rmSync(heroTmp, { recursive: true, force: true });
 }
+
+// The pictures' hashes for their addresses.
+await import("./art-versions.mjs");

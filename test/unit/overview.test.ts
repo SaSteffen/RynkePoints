@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { TeamRider } from "../../src/db/team";
+import { artUrl } from "../../src/http/art";
 import {
 	overviewBody,
 	overviewRiders,
 	parseGroup,
 } from "../../src/http/organiser/overview";
+
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 import { riderStatus } from "../../src/rynke/pace";
@@ -225,13 +227,13 @@ describe("overviewBody", () => {
 			)?.[0];
 		for (const status of ["push", "on_track", "in"]) {
 			expect(tile(status)).toContain(
-				`<img class="status-art status-art-tile" src="/illustrations/status_${status}_fun.svg" alt="" width="96" height="96">`,
+				`<img class="status-art status-art-tile" src="${artUrl(`/illustrations/status_${status}_fun.svg`)}" alt="" width="96" height="96">`,
 			);
 		}
 		expect(tile("all")).not.toContain("<img");
 		expect(tile("requests")).not.toContain("<img");
 		expect(html).toContain(
-			'<span class="status-chip"><img class="status-art status-art-chip" src="/illustrations/status_on_track_fun.svg" alt="" width="20" height="20">On track</span>',
+			`<span class="status-chip"><img class="status-art status-art-chip" src="${artUrl("/illustrations/status_on_track_fun.svg")}" alt="" width="20" height="20">On track</span>`,
 		);
 	});
 

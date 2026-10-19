@@ -138,7 +138,7 @@ describe("GET /me Overview", () => {
 			/<section class="hero">([\s\S]*?)<\/section>/,
 		)?.[1];
 		expect(hero).toMatch(
-			/<img class="coin-art coin coin-hero" src="\/coin\/rynke-coin-hero-[1-4]\.svg" alt=""/,
+			/<img class="coin-art coin coin-hero" src="\/coin\/rynke-coin-hero-[1-4]\.svg\?v=[0-9a-f]{10}" alt=""/,
 		);
 		expectInOrder(hero ?? "", [
 			'<p class="greeting">',

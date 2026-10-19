@@ -18,6 +18,7 @@
 //    its window. Only a run without ids removes badge SVGs whose original is
 //    gone, so a filtered run never deletes another badge.
 // 5. Writes src/badges/pictures.ts: every badge with a finished SVG.
+// 6. Updates src/http/art-versions.ts, the pictures' hashes (pnpm art-versions).
 //
 // Needs ImageMagick and potrace, like pnpm illustrations. Running it again
 // without changes changes no file.
@@ -165,3 +166,6 @@ export const BADGE_PICTURES: ReadonlySet<string> = new Set([${ids.map((id) => `\
 console.log(
 	`${ids.length} of ${badges.size} badges have a picture (src/badges/pictures.ts).`,
 );
+
+// The pictures' hashes for their addresses.
+await import("./art-versions.mjs");

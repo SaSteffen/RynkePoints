@@ -1,4 +1,5 @@
 import type { RiderStatus } from "../rynke/pace";
+import { artUrl } from "./art";
 import { html, type SafeHtml } from "./html";
 
 // Rynke on a bike, one illustration per rider status (issue #93), traced by
@@ -19,5 +20,5 @@ export type StatusArtSize = keyof typeof SIZE;
 
 export function statusArt(status: RiderStatus, size: StatusArtSize): SafeHtml {
 	const px = SIZE[size];
-	return html`<img class="status-art status-art-${size}" src="/illustrations/${FILE[status]}.svg" alt="" width="${px}" height="${px}">`;
+	return html`<img class="status-art status-art-${size}" src="${artUrl(`/illustrations/${FILE[status]}.svg`)}" alt="" width="${px}" height="${px}">`;
 }

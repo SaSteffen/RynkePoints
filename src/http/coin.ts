@@ -1,4 +1,5 @@
 import type { I18n } from "../i18n/i18n";
+import { artUrl } from "./art";
 import { html, SafeHtml } from "./html";
 
 /**
@@ -56,7 +57,7 @@ export function coin(side: "front" | "back", size: CoinSize): SafeHtml {
 const ART_SIZE = 144;
 
 const art = (side: "front" | "back", extra = "") =>
-	`<img class="coin-art${extra}" src="/coin/rynke-coin-${side}.svg" alt="" width="${ART_SIZE}" height="${ART_SIZE}">`;
+	`<img class="coin-art${extra}" src="${artUrl(`/coin/rynke-coin-${side}.svg`)}" alt="" width="${ART_SIZE}" height="${ART_SIZE}">`;
 
 /**
  * How many portraits the Du page's hero coin has (`art/coin/hero/`,
@@ -81,7 +82,7 @@ export const LANDING_PORTRAIT = 2;
 /** The hero coin with portrait `n` (1 to `HERO_PORTRAITS`). */
 export function portraitCoin(n: number): SafeHtml {
 	return new SafeHtml(
-		`<img class="coin-art coin coin-hero" src="/coin/rynke-coin-hero-${n}.svg" alt="" width="${ART_SIZE}" height="${ART_SIZE}">`,
+		`<img class="coin-art coin coin-hero" src="${artUrl(`/coin/rynke-coin-hero-${n}.svg`)}" alt="" width="${ART_SIZE}" height="${ART_SIZE}">`,
 	);
 }
 

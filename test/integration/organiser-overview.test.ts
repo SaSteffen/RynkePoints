@@ -1,5 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
@@ -145,7 +146,7 @@ describe("GET /organiser/riders, the overview", () => {
 	it("shows the coin's back as the team's artwork", async () => {
 		const { html } = await overview();
 		expect(html).toContain(
-			'<section class="overview-deadline">\n<img class="coin-art coin coin-large" src="/coin/rynke-coin-back.svg" alt="" width="144" height="144"><div>',
+			`<section class="overview-deadline">\n<img class="coin-art coin coin-large" src="${artUrl("/coin/rynke-coin-back.svg")}" alt="" width="144" height="144"><div>`,
 		);
 	});
 

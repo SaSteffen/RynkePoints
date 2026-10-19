@@ -78,7 +78,7 @@ describe("the badge reveal (US2)", () => {
 		const shown = await reveal();
 		expect(shown).toContain(`<p>${one("distance-100")}</p>`);
 		expect(shown).toMatch(
-			/<span class="badges-reveal-pictures" aria-hidden="true"><img src="\/badges\/[\w-]+\.svg" alt="" loading="lazy" width="48" height="48"><\/span>/,
+			/<span class="badges-reveal-pictures" aria-hidden="true"><img src="\/badges\/[\w-]+\.svg\?v=[0-9a-f]{10}" alt="" loading="lazy" width="48" height="48"><\/span>/,
 		);
 		expect(await reveals()).toEqual([["distance-100", "2026-05-03"]]);
 
