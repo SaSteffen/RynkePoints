@@ -147,6 +147,35 @@ describe("design tokens", () => {
 		});
 	});
 
+	it("gives the progress lines their validated colours (009 research R12)", () => {
+		const lines = (tokens: Tokens) => ({
+			training: tokens["--rp-line-training"],
+			team: tokens["--rp-line-team"],
+			outside: tokens["--rp-line-outside"],
+		});
+		expect(lines(LIGHT)).toEqual({
+			training: "#8a6e00",
+			team: "#1f6fb2",
+			outside: "#7b4fa0",
+		});
+		expect(lines(DARK_FIXED)).toEqual({
+			training: "#a88e00",
+			team: "#4a94d2",
+			outside: "#a77fd0",
+		});
+	});
+
+	describe.each(SCHEMES)("progress lines, %s", (_scheme, tokens) => {
+		it.each(["--rp-line-training", "--rp-line-team", "--rp-line-outside"])(
+			"%s on the surface reaches 3 : 1 (FR-050)",
+			(line) => {
+				expect(
+					contrast(tokens[line] as string, tokens[md("surface")] as string),
+				).toBeGreaterThanOrEqual(3);
+			},
+		);
+	});
+
 	it("gives the head script the surface colours (research R6, R12)", () => {
 		const [, dark, light] =
 			SCHEME_SCRIPT.match(/"dark" \? "(#[0-9a-f]{6})" : "(#[0-9a-f]{6})"/) ??

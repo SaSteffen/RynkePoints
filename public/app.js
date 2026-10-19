@@ -4,10 +4,10 @@
 // picker, bringing a section up to date on return and once the first data is
 // there, other views and saves swapped in place (`data-swap`), the
 // buttons' press and busy feedback, opening a badge's large view on mouse
-// hover (feature 013 research R19) and the event page's tri-state boxes
-// (feature 019 research R5). It holds no text: every word shown comes
-// from the page's markup, rendered from the catalogs and hidden until this
-// shows it.
+// hover (feature 013 research R19), the event page's tri-state boxes
+// (feature 019 research R5) and the Overview's progress charts (feature 009).
+// It holds no text: every word shown comes from the page's markup, rendered
+// from the catalogs and hidden until this shows it.
 
 /**
  * Resolves to whether the service worker is registered. Firefox's private
@@ -591,8 +591,41 @@ function swapPage(doc) {
 		if (fresh) document.querySelector(selector)?.replaceWith(fresh);
 	}
 	document.title = doc.title;
-	enhance(content.signal);
+	const { signal } = content;
+	const scripts = missingScripts(doc);
+	if (scripts.length === 0) enhance(signal);
+	else {
+		loadScripts(scripts).then(() => {
+			if (!signal.aborted) enhance(signal);
+		});
+	}
 	return true;
+}
+
+/**
+ * The scripts `doc` loads before this one that this page hasn't, such as the
+ * chart library of an Overview that only now shows its charts (feature 009).
+ */
+function missingScripts(doc) {
+	const loaded = new Set(
+		[...document.scripts].map((script) => script.getAttribute("src")),
+	);
+	return [...doc.head.querySelectorAll("script[src]")]
+		.map((script) => script.getAttribute("src"))
+		.filter((src) => !loaded.has(src));
+}
+
+/** Loads `sources` one after the other; one that fails is passed over. */
+async function loadScripts(sources) {
+	for (const src of sources) {
+		await new Promise((resolve) => {
+			const script = document.createElement("script");
+			script.src = src;
+			script.addEventListener("load", resolve);
+			script.addEventListener("error", resolve);
+			document.head.append(script);
+		});
+	}
 }
 
 /** The page in `res`, when it is this page again and fine to swap in. */
@@ -1197,6 +1230,664 @@ function scrollToNewBadge() {
 		?.scrollIntoView({ block: "center" });
 }
 
+/** The smallest stretch a chart zooms to, in days (feature 009 FR-023). */
+const PROGRESS_MIN_DAYS = 7;
+
+/** How far a finger or a shift-dragged mouse moves before the period follows. */
+const PROGRESS_PAN_SLOP = 8;
+
+/**
+ * The Overview's progress charts (feature 009 contracts/client.md): Chart.js
+ * draws the server's figures on the two canvases, both always on one period.
+ * The zoom plugin gives mouse drag, the focused wheel and the limits; pinch
+ * and a sideways drag come from Pointer Events here, so Hammer.js is never
+ * needed. Every word comes from the section's templates; this only fills in
+ * dates and numbers. Nothing is fetched or kept.
+ */
+function progressCharts(signal) {
+	const section = document.getElementById("progress");
+	const source = document.getElementById("progress-data");
+	if (!section || !source) return;
+	if (!window.Chart || !window.ChartZoom) {
+		console.error("The chart library is missing");
+		return;
+	}
+	let data;
+	try {
+		data = JSON.parse(source.textContent);
+	} catch (error) {
+		console.error("Unreadable progress data", error);
+		return;
+	}
+	const { Chart, ChartZoom } = window;
+	Chart.register(ChartZoom);
+	const { axisDays, lastIndex } = data;
+	const locale = section.dataset.locale;
+	const [year, month, day] = data.seasonStart.split("-").map(Number);
+	const dateOf = (index) => new Date(Date.UTC(year, month - 1, day + index));
+	const shortDate = new Intl.DateTimeFormat(locale, {
+		timeZone: "UTC",
+		day: "numeric",
+		month: "short",
+	});
+	const monthName = new Intl.DateTimeFormat(locale, {
+		timeZone: "UTC",
+		month: "short",
+	});
+	const fullDate = new Intl.DateTimeFormat(locale, {
+		timeZone: "UTC",
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
+	});
+	const longDate = new Intl.DateTimeFormat(locale, {
+		timeZone: "UTC",
+		weekday: "long",
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+	});
+	const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
+	const paceAt = (threshold, index) =>
+		Math.min(
+			threshold,
+			Math.max(0, Math.floor((threshold * index) / axisDays)),
+		);
+	const clampDay = (index) => Math.min(lastIndex, Math.max(0, index));
+
+	/** The colours and type of the scheme shown now (research R12). */
+	const look = () => {
+		const style = getComputedStyle(section);
+		const token = (name) => style.getPropertyValue(name).trim();
+		return {
+			font: style.fontFamily,
+			training: token("--rp-line-training"),
+			team: token("--rp-line-team"),
+			outside: token("--rp-line-outside"),
+			muted: token("--md-sys-color-on-surface-variant"),
+			grid: token("--md-sys-color-outline-variant"),
+			surface: token("--md-sys-color-surface"),
+		};
+	};
+
+	/** The labels on the time axis for the stretch shown (research R10). */
+	function dayTicks(scale) {
+		const from = Math.ceil(scale.min);
+		const to = Math.floor(scale.max);
+		const span = scale.max - scale.min;
+		const ticks = [];
+		for (let i = from; i <= to; i++) {
+			const date = dateOf(i);
+			if (
+				span > 62
+					? date.getUTCDate() === 1
+					: span >= 15
+						? date.getUTCDay() === 1
+						: (i - from) % 2 === 0
+			) {
+				ticks.push({ value: i });
+			}
+		}
+		scale.ticks = ticks;
+	}
+
+	/** The hairline at the selected day (dataviz: thin, behind nothing). */
+	const crosshair = {
+		id: "progressCrosshair",
+		afterDatasetsDraw(chart) {
+			const x = chart.scales.x.getPixelForValue(selected);
+			const { top, bottom, left, right } = chart.chartArea;
+			if (x < left || x > right) return;
+			const { ctx } = chart;
+			ctx.save();
+			ctx.strokeStyle = colours.muted;
+			ctx.lineWidth = 1;
+			ctx.beginPath();
+			ctx.moveTo(Math.round(x) + 0.5, top);
+			ctx.lineTo(Math.round(x) + 0.5, bottom);
+			ctx.stroke();
+			ctx.restore();
+		},
+	};
+
+	let colours = look();
+	let selected = lastIndex;
+	let syncing = false;
+	const charts = [];
+
+	/** The datasets of one chart; curves first, as the selection marks them. */
+	function datasets(kind) {
+		const series = data[kind];
+		const line = (to, colour, dash, width = 1) => ({
+			data: [
+				{ x: 0, y: to === "pace" ? 0 : dash.threshold },
+				{ x: axisDays, y: dash.threshold },
+			],
+			borderColor: colour,
+			borderWidth: width,
+			borderDash: dash.pattern,
+			pointRadius: 0,
+			pointHoverRadius: 0,
+		});
+		const curve = (values, colour, pattern = []) => ({
+			data: values.map((y, x) => ({ x, y })),
+			borderColor: colour,
+			borderWidth: 2,
+			borderDash: pattern,
+			pointRadius: 0,
+			pointHoverRadius: 4,
+			pointHoverBorderWidth: 2,
+			pointHoverBorderColor: colours.surface,
+			pointHoverBackgroundColor: colour,
+		});
+		const sets = [curve(series.values, colours[kind])];
+		const outside = kind === "training" ? data.outside : null;
+		if (outside) {
+			sets.push(curve(outside.values, colours.outside, [6, 3]));
+		}
+		sets.push(
+			line("threshold", colours.muted, {
+				threshold: series.threshold,
+				pattern: [4, 4],
+			}),
+		);
+		if (series.pace) {
+			sets.push(
+				line("pace", colours.muted, {
+					threshold: series.threshold,
+					pattern: [1, 3],
+				}),
+			);
+		}
+		if (outside) {
+			sets.push(
+				line("threshold", colours.muted, {
+					threshold: outside.threshold,
+					pattern: [4, 4],
+				}),
+			);
+			if (outside.pace) {
+				sets.push(
+					line("pace", colours.muted, {
+						threshold: outside.threshold,
+						pattern: [1, 3],
+					}),
+				);
+			}
+		}
+		return sets;
+	}
+
+	/** How many of a chart's first datasets are curves. */
+	const curves = (kind) => (kind === "training" && data.outside ? 2 : 1);
+
+	function makeChart(canvas) {
+		const kind = canvas.dataset.series;
+		const font = { family: colours.font, size: 12 };
+		return new Chart(canvas, {
+			type: "line",
+			data: { datasets: datasets(kind) },
+			plugins: [crosshair],
+			options: {
+				animation: false,
+				responsive: true,
+				maintainAspectRatio: false,
+				// The selection is ours (pointer and keys), not Chart.js's hover.
+				events: [],
+				interaction: { mode: "index", intersect: false, axis: "x" },
+				normalized: true,
+				elements: { line: { tension: 0 } },
+				scales: {
+					x: {
+						type: "linear",
+						min: 0,
+						max: axisDays,
+						afterBuildTicks: dayTicks,
+						grid: { color: colours.grid },
+						border: { color: colours.grid },
+						ticks: {
+							color: colours.muted,
+							font,
+							maxRotation: 0,
+							autoSkip: true,
+							callback(value) {
+								const span = this.max - this.min;
+								return (span > 62 ? monthName : shortDate).format(
+									dateOf(value),
+								);
+							},
+						},
+					},
+					y: {
+						min: 0,
+						max: data[kind].yMax,
+						grid: { color: colours.grid },
+						border: { color: colours.grid },
+						ticks: {
+							color: colours.muted,
+							font,
+							precision: 0,
+							callback: (value) => number.format(value),
+						},
+					},
+				},
+				plugins: {
+					legend: { display: false },
+					tooltip: { enabled: false },
+					zoom: {
+						limits: {
+							x: { min: 0, max: axisDays, minRange: PROGRESS_MIN_DAYS },
+						},
+						pan: {
+							// Only so a shift-drag isn't a drag-zoom; our handler pans.
+							enabled: true,
+							mode: "x",
+							modifierKey: "shift",
+							onPan: ({ chart }) => follow(chart),
+						},
+						zoom: {
+							mode: "x",
+							wheel: { enabled: true },
+							drag: { enabled: true, threshold: PROGRESS_PAN_SLOP },
+							pinch: { enabled: false },
+							// The wheel zooms a chart with focus; otherwise it scrolls.
+							onZoomStart: ({ chart, event }) =>
+								event.type !== "wheel" ||
+								document.activeElement === chart.canvas,
+							onZoom: ({ chart }) => follow(chart),
+						},
+					},
+				},
+			},
+		});
+	}
+
+	/** Puts the other charts on `chart`'s period. */
+	function follow(chart) {
+		if (syncing) return;
+		const { min, max } = chart.scales.x;
+		setPeriod(min, max, chart);
+	}
+
+	/** Shows `from` … `to` (day indexes) in every chart but `except`. */
+	function setPeriod(from, to, except) {
+		syncing = true;
+		try {
+			for (const chart of charts) {
+				if (chart !== except) {
+					chart.zoomScale("x", { min: from, max: to }, "none");
+				}
+			}
+		} finally {
+			syncing = false;
+		}
+		periodShown(from, to);
+	}
+
+	function resetPeriod() {
+		syncing = true;
+		try {
+			for (const chart of charts) chart.resetZoom("none");
+		} finally {
+			syncing = false;
+		}
+		periodShown(0, axisDays);
+	}
+
+	/** Buttons and labels after the period changed (contracts/client.md). */
+	function periodShown(from, to) {
+		const near = (a, b) => Math.abs(a - b) < 0.5;
+		for (const button of section.querySelectorAll("button[data-from]")) {
+			const pressed =
+				near(Number(button.dataset.from), from) &&
+				near(Number(button.dataset.to), to);
+			button.setAttribute("aria-pressed", String(pressed));
+		}
+		const move = section.querySelector(".progress-move");
+		if (move) move.hidden = near(from, 0) && near(to, axisDays);
+		const first = Math.max(0, Math.round(from));
+		const last = Math.min(axisDays, Math.round(to));
+		for (const chart of charts) {
+			const kind = chart.canvas.dataset.series;
+			const template = section.querySelector(`template[data-label="${kind}"]`);
+			if (!template) continue;
+			const label = fill(template, {
+				from: fullDate.format(dateOf(first)),
+				to: fullDate.format(dateOf(last)),
+				value: number.format(data[kind].values[clampDay(last)] ?? 0),
+				threshold: number.format(data[kind].threshold),
+			});
+			chart.canvas.setAttribute("aria-label", label.textContent);
+		}
+	}
+
+	/** A copy of `template`'s content with its slots filled in. */
+	function fill(template, values) {
+		const content = template.content.cloneNode(true);
+		for (const slot of content.querySelectorAll("[data-slot]")) {
+			slot.textContent = values[slot.dataset.slot] ?? "";
+		}
+		return content;
+	}
+
+	const readout = section.querySelector(".progress-readout");
+
+	/** The selected day's figures, line by line (research R9). */
+	function readoutOf(index) {
+		const template = (readout, series) =>
+			section.querySelector(
+				series
+					? `template[data-readout="${readout}"][data-series="${series}"]`
+					: `template[data-readout="${readout}"]`,
+			);
+		const lines = [];
+		const day = template("day");
+		if (day) {
+			lines.push([
+				fill(day, {
+					date: longDate.format(dateOf(index)),
+					training: number.format(data.training.values[index]),
+					team: number.format(data.team.values[index]),
+				}),
+			]);
+		}
+		for (const series of ["training", "team", "outside"]) {
+			const line = data[series];
+			if (!line?.pace) continue;
+			const value = line.values[index];
+			const pace = paceAt(line.threshold, index);
+			const part = template(
+				value > pace ? "pace-ahead" : value < pace ? "pace-behind" : "pace-on",
+				series,
+			);
+			if (!part) continue;
+			const parts = [
+				fill(part, {
+					n: number.format(Math.abs(value - pace)),
+					pace: number.format(pace),
+				}),
+			];
+			const outside = template("outside");
+			if (series === "training" && data.outside && outside) {
+				parts.push(
+					fill(outside, { value: number.format(data.outside.values[index]) }),
+				);
+			}
+			lines.push(parts);
+		}
+		readout?.replaceChildren(
+			...lines.map((parts) => {
+				const line = document.createElement("span");
+				line.className = "progress-readout-line";
+				line.append(...parts);
+				return line;
+			}),
+		);
+	}
+
+	/** Selects `index` in every chart and says so in the readout. */
+	function select(index) {
+		selected = clampDay(index);
+		for (const chart of charts) {
+			const n = curves(chart.canvas.dataset.series);
+			chart.setActiveElements(
+				Array.from({ length: n }, (_, datasetIndex) => ({
+					datasetIndex,
+					index: selected,
+				})),
+			);
+			chart.update("none");
+		}
+		readoutOf(selected);
+	}
+
+	/** The day under `clientX` on `chart`. */
+	const dayAt = (chart, clientX) =>
+		Math.round(
+			chart.scales.x.getValueForPixel(
+				clientX - chart.canvas.getBoundingClientRect().left,
+			),
+		);
+
+	/** Moves the period by half its width: -1 earlier, 1 later. */
+	function move(direction) {
+		const [chart] = charts;
+		if (!chart) return;
+		const { left, right } = chart.chartArea;
+		chart.pan({ x: (-direction * (right - left)) / 2 }, undefined, "none");
+	}
+
+	/** Pinch and a sideways drag (contracts/client.md "Gestures"). */
+	function gestures(chart) {
+		const canvas = chart.canvas;
+		const pointers = new Map();
+		let moved = false;
+		let panning = false;
+		let spread = 0;
+		const local = (event) => {
+			const rect = canvas.getBoundingClientRect();
+			return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+		};
+		const distance = () => {
+			const [a, b] = [...pointers.values()];
+			return Math.hypot(a.x - b.x, a.y - b.y);
+		};
+		canvas.addEventListener(
+			"pointerdown",
+			(event) => {
+				const mouse = event.pointerType === "mouse";
+				if (mouse && !(event.button === 0 && event.shiftKey)) return;
+				pointers.set(event.pointerId, {
+					...local(event),
+					startX: event.clientX,
+				});
+				try {
+					canvas.setPointerCapture(event.pointerId);
+				} catch {
+					// A pointer the browser no longer tracks can't be captured.
+				}
+				if (pointers.size === 2) spread = distance();
+				moved = false;
+				panning = false;
+			},
+			{ signal },
+		);
+		canvas.addEventListener(
+			"pointermove",
+			(event) => {
+				const pointer = pointers.get(event.pointerId);
+				if (!pointer) {
+					// A mouse over the chart selects the day under it.
+					if (event.pointerType === "mouse" && event.buttons === 0) {
+						select(dayAt(chart, event.clientX));
+					}
+					return;
+				}
+				const at = local(event);
+				if (pointers.size === 2) {
+					pointer.x = at.x;
+					pointer.y = at.y;
+					const now = distance();
+					if (spread > 0 && now > 0) {
+						const [a, b] = [...pointers.values()];
+						chart.zoom(
+							{
+								x: now / spread,
+								focalPoint: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
+							},
+							"none",
+						);
+						moved = true;
+					}
+					spread = now;
+					return;
+				}
+				if (
+					!panning &&
+					Math.abs(event.clientX - pointer.startX) < PROGRESS_PAN_SLOP
+				) {
+					return;
+				}
+				const dx = at.x - pointer.x;
+				pointer.x = at.x;
+				pointer.y = at.y;
+				if (!panning) {
+					panning = true;
+					return;
+				}
+				if (dx !== 0) chart.pan({ x: dx }, undefined, "none");
+				moved = true;
+			},
+			{ signal },
+		);
+		const end = (event) => {
+			if (!pointers.has(event.pointerId)) return;
+			pointers.delete(event.pointerId);
+			// A tap selects the day, as a click does.
+			if (
+				event.type === "pointerup" &&
+				!moved &&
+				!panning &&
+				pointers.size === 0
+			) {
+				select(dayAt(chart, event.clientX));
+			}
+			if (pointers.size < 2) spread = 0;
+			if (pointers.size === 0) {
+				if (moved) follow(chart);
+				moved = false;
+				panning = false;
+			}
+		};
+		canvas.addEventListener("pointerup", end, { signal });
+		canvas.addEventListener("pointercancel", end, { signal });
+		// A mouse click without a drag selects the day.
+		canvas.addEventListener(
+			"click",
+			(event) => {
+				if (!event.shiftKey) select(dayAt(chart, event.clientX));
+			},
+			{ signal },
+		);
+	}
+
+	/** The keys of research R7 on a focused chart. */
+	function keys(chart) {
+		chart.canvas.addEventListener(
+			"keydown",
+			(event) => {
+				if (event.altKey || event.ctrlKey || event.metaKey) return;
+				const zoomBy = (factor) => {
+					const { top, bottom } = chart.chartArea;
+					chart.zoom(
+						{
+							x: factor,
+							focalPoint: {
+								x: chart.scales.x.getPixelForValue(selected),
+								y: (top + bottom) / 2,
+							},
+						},
+						"none",
+					);
+				};
+				switch (event.key) {
+					case "ArrowLeft":
+						select(selected - 1);
+						break;
+					case "ArrowRight":
+						select(selected + 1);
+						break;
+					case "Home":
+						select(0);
+						break;
+					case "End":
+						select(lastIndex);
+						break;
+					case "+":
+					case "=":
+						zoomBy(1.5);
+						break;
+					case "-":
+						zoomBy(1 / 1.5);
+						break;
+					case "PageUp":
+						move(-1);
+						break;
+					case "PageDown":
+						move(1);
+						break;
+					case "0":
+					case "Escape":
+						resetPeriod();
+						break;
+					default:
+						return;
+				}
+				event.preventDefault();
+			},
+			{ signal },
+		);
+	}
+
+	/** The scheme changed: the lines take its colours (research R12). */
+	function recolour() {
+		colours = look();
+		for (const chart of charts) {
+			const kind = chart.canvas.dataset.series;
+			const { min, max } = chart.scales.x;
+			chart.data.datasets = datasets(kind);
+			for (const axis of ["x", "y"]) {
+				const scale = chart.options.scales[axis];
+				scale.grid.color = colours.grid;
+				scale.border.color = colours.grid;
+				scale.ticks.color = colours.muted;
+			}
+			chart.options.scales.x.min = min;
+			chart.options.scales.x.max = max;
+			chart.update("none");
+		}
+		select(selected);
+	}
+
+	for (const canvas of section.querySelectorAll("canvas[data-series]")) {
+		const chart = makeChart(canvas);
+		charts.push(chart);
+		gestures(chart);
+		keys(chart);
+	}
+	section.addEventListener(
+		"click",
+		(event) => {
+			const button =
+				event.target instanceof Element ? event.target.closest("button") : null;
+			if (!button || !section.contains(button)) return;
+			if (button.dataset.from !== undefined) {
+				setPeriod(Number(button.dataset.from), Number(button.dataset.to));
+			} else if (button.dataset.move !== undefined) {
+				move(Number(button.dataset.move));
+			} else if (button.hasAttribute("data-reset")) {
+				resetPeriod();
+			}
+		},
+		{ signal },
+	);
+	matchMedia("(prefers-color-scheme: dark)").addEventListener(
+		"change",
+		recolour,
+		{ signal },
+	);
+	const scheme = new MutationObserver(recolour);
+	scheme.observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ["data-scheme"],
+	});
+	signal.addEventListener("abort", () => {
+		scheme.disconnect();
+		for (const chart of charts) chart.destroy();
+	});
+	select(lastIndex);
+}
+
 /**
  * What the page's content needs: run on load and again on content swapped in
  * place (`swapPage`), whose `signal` ends the listeners of the content before.
@@ -1210,6 +1901,7 @@ function enhance(signal) {
 	triState();
 	badgeSwitch(signal);
 	notifications(signal).catch(() => {});
+	progressCharts(signal);
 }
 
 const registered = registerWorker();

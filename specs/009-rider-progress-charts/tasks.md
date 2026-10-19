@@ -209,7 +209,7 @@ mouse and keyboard in the e2e tests.
 
 ### Tests for User Story 1 (write first, confirm they fail)
 
-- [ ] T011 [P] [US1] Write failing tests in `test/unit/progress-view.test.ts` for
+- [X] T011 [P] [US1] Write failing tests in `test/unit/progress-view.test.ts` for
   `buildProgressView(read, rules, window, today)` (data-model.md "View model"):
   - **(a) Axis**: the example rider has `axisDays` 302 and `lastIndex` 36, and
     `training.values`/`team.values` hold 37 entries, equal to `riderCurve`.
@@ -227,7 +227,7 @@ mouse and keyboard in the e2e tests.
   - **(e) `nothingYet`** is true for a 0/0 balance.
   - **(f) `state` is "none"** without a balance and when
     `rulesForVersion(balance.rulesVersion)` is `null`.
-- [ ] T012 [P] [US1] Write failing tests in `test/unit/progress-section.test.ts`
+- [X] T012 [P] [US1] Write failing tests in `test/unit/progress-section.test.ts`
   for `renderProgress(i18n, view)` with the example rider's view, in `de` and
   `en`, following [contracts/overview-section.md](contracts/overview-section.md):
   - **Structure**: `section#progress.progress.card-outlined` with `data-locale`.
@@ -251,7 +251,7 @@ mouse and keyboard in the e2e tests.
   - **Nothing to see yet**: the "nothing yet" note appears only for 0/0.
   - **Forbidden content** (FR-005, SC-004): the HTML contains no `km`, ` m<`,
     `Höhenmeter`, `km/h` or ride name, and no `strava.com` link.
-- [ ] T013 [P] [US1] Write failing tests in
+- [X] T013 [P] [US1] Write failing tests in
   `test/integration/overview-progress.test.ts`, using `test/support/pages.ts`
   helpers, for `GET /me`:
   - **(a) The example rider**: the section appears after `.rynke-breakdown`, with
@@ -273,7 +273,7 @@ mouse and keyboard in the e2e tests.
     spies in `test/support/ctx.ts`.
   - **(i) Rides redirect unchanged**: `/me?page=2` still redirects to
     `/me/rides?page=2`.
-- [ ] T014 [P] [US1] Extend `test/unit/design-tokens.test.ts`:
+- [X] T014 [P] [US1] Extend `test/unit/design-tokens.test.ts`:
   - `--rp-line-training`, `--rp-line-team` and `--rp-line-outside` are defined in
     both schemes, with the values of research R12 (light `#8a6e00`, `#1f6fb2`,
     `#7b4fa0`; dark `#a88e00`, `#4a94d2`, `#a77fd0`);
@@ -282,19 +282,19 @@ mouse and keyboard in the e2e tests.
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Add the 18 US1 keys of
+- [X] T015 [P] [US1] Add the 18 US1 keys of
   [contracts/messages.md](contracts/messages.md) to
   `src/i18n/messages/de.ts` and `src/i18n/messages/en.ts`. Make the
   `progress.chart.*` and `progress.day` placeholders work with `i18n.tHtml` slot
   spans. `test/unit/catalogs.test.ts` and `no-hardcoded-copy` stay green.
-- [ ] T016 [US1] Implement `buildProgressView` in `src/http/progress-view.ts`
+- [X] T016 [US1] Implement `buildProgressView` in `src/http/progress-view.ts`
   (pure, no I/O):
   - use `riderCurve`, `lastDay` and `weekEnds` from `src/rynke/weeks.ts`;
   - implement the presets of research R8, `yMax` of research R5 and the week rows
     of research R11,
 
   so that T011 passes.
-- [ ] T017 [US1] Add to `src/http/style.ts`:
+- [X] T017 [US1] Add to `src/http/style.ts`:
   - the `--rp-line-*` tokens in the light and dark token blocks;
   - the `.progress` styles: the card spans both grid columns via
     `.overview-grid>.progress{grid-column:1/-1}`;
@@ -311,7 +311,7 @@ mouse and keyboard in the e2e tests.
     `--rp-coin-team`.
 
   T014 must pass.
-- [ ] T018 [US1] Implement `renderProgress(i18n, view)` in
+- [X] T018 [US1] Implement `renderProgress(i18n, view)` in
   `src/http/progress-section.ts` following
   [contracts/overview-section.md](contracts/overview-section.md):
   - the canvases with the whole season's `aria-label`;
@@ -322,7 +322,7 @@ mouse and keyboard in the e2e tests.
   - the JSON escaped with `<` → `<`.
 
   T012 must pass.
-- [ ] T019 [US1] Wire the section into `src/http/sections/overview.ts`:
+- [X] T019 [US1] Wire the section into `src/http/sections/overview.ts`:
   - read with `readRiderView(db, id, 1, { progress: true })`;
   - call `buildProgressView` with `berlinDate(ctx.now())` and
     `countingWindow(ctx.env)`;
@@ -331,12 +331,12 @@ mouse and keyboard in the e2e tests.
     rendered.
 
   T013 (a)–(f), (h), (i) must pass.
-- [ ] T020 [US1] Extend `exampleRiderView` in `src/http/tour-example.ts` to fill
+- [X] T020 [US1] Extend `exampleRiderView` in `src/http/tour-example.ts` to fill
   `progress` from its synthetic rides (summed per day and virtual flag, counting
   rides only), its attendance and no corrections (data-model.md "The tour's
   example rider"). Nothing is stored and `dev/` is not imported. T013 (g) must
   pass, as must the existing tour tests.
-- [ ] T021 [US1] Add `progressCharts()` to `public/app.js` following
+- [X] T021 [US1] Add `progressCharts()` to `public/app.js` following
   [contracts/client.md](contracts/client.md) and research R5, R7, R9, R10 and
   R12, and call it with the others at the end of the file. It covers:
   - **Start**: the `window.Chart` check, `Chart.register(window.ChartZoom)`, the
@@ -372,7 +372,7 @@ mouse and keyboard in the e2e tests.
     (`MutationObserver`), then `chart.update("none")`.
   - **Not allowed**: no `fetch`, storage, cookie, URL change or literal
     rider-facing text.
-- [ ] T022 [US1] Write `e2e/progress.e2e.ts` for Chromium, Firefox and WebKit,
+- [X] T022 [US1] Write `e2e/progress.e2e.ts` for Chromium, Firefox and WebKit,
   using the fake mode's sample rider "Paula Paging" (45 rides over several weeks;
   `signIn` and `skipTours` from `e2e/sign-in.ts`) and the `errors` fixture
   pattern of `e2e/smoke.e2e.ts`. Read chart state with
@@ -408,7 +408,7 @@ mouse and keyboard in the e2e tests.
   If no sample rider has rides in at least three different weeks, add rides to a
   sample in `dev/fake-strava/samples.ts` (synthetic only) rather than changing
   the test.
-- [ ] T023 [US1] Run `pnpm format`, `pnpm lint` (including `vendor --check`),
+- [X] T023 [US1] Run `pnpm format`, `pnpm lint` (including `vendor --check`),
   `pnpm typecheck`, `pnpm test` and `pnpm test:e2e` (WebKit via
   `pnpm test:e2e:webkit` where it doesn't run natively), and fix every failure.
   T002–T022 are all green.
@@ -437,7 +437,7 @@ hand-worked figures and with `riderStatus` from `src/rynke/pace.ts`.
 
 ### Tests for User Story 2 (write first, confirm they fail)
 
-- [ ] T025 [P] [US2] Extend `test/unit/progress-view.test.ts`:
+- [X] T025 [P] [US2] Extend `test/unit/progress-view.test.ts`:
   - **(a) Pace for the example rider**: `training.pace` and `team.pace` are
     true. The pace formula `⌊threshold × i ÷ axisDays⌋` gives 27 and 2 at index
     33 (4 October), so the rider is 85 and 15 ahead.
@@ -451,7 +451,7 @@ hand-worked figures and with `riderStatus` from `src/rynke/pace.ts`.
     a value below the pace on any drawn line happens exactly when `riderStatus`
     is `"push"` (and not `"in"`) for that reason (US2 scenario 2).
   - **(e) Week rows** gain `outside` only when `outside` is set.
-- [ ] T026 [P] [US2] Extend `test/unit/progress-section.test.ts`:
+- [X] T026 [P] [US2] Extend `test/unit/progress-section.test.ts`:
   - **Legend**: a pace entry in both charts; for riders with virtual rides,
     entries for the outdoor curve and the 167 line.
   - **Chart data**: `pace` is `true`, and `outside` has `values`, `threshold`
@@ -461,7 +461,7 @@ hand-worked figures and with `riderStatus` from `src/rynke/pace.ts`.
   - **Table**: the outdoor columns appear only with virtual rides.
   - **Wording**: no German or English text containing "Regel", "verstoßen",
     "rule" or "broken" in the behind template (FR-038).
-- [ ] T027 [P] [US2] Extend `e2e/progress.e2e.ts` with the sample rider "Vera
+- [X] T027 [P] [US2] Extend `e2e/progress.e2e.ts` with the sample rider "Vera
   Virtual":
   - the Training chart has the outdoor and pace datasets (through
     `Chart.getChart`);
@@ -470,23 +470,23 @@ hand-worked figures and with `riderStatus` from `src/rynke/pace.ts`.
 
 ### Implementation for User Story 2
 
-- [ ] T028 [P] [US2] Add the 6 US2 keys of
+- [X] T028 [P] [US2] Add the 6 US2 keys of
   [contracts/messages.md](contracts/messages.md) to both catalogs.
-- [ ] T029 [US2] Extend `buildProgressView` in `src/http/progress-view.ts`:
+- [X] T029 [US2] Extend `buildProgressView` in `src/http/progress-view.ts`:
   - `pace: true` for both series;
   - `outside` with `needed` = `virtualShareRequired(rules)` when `virtualCount >
     0`;
   - the outdoor week columns,
 
   so that T025 passes.
-- [ ] T030 [US2] Extend `renderProgress` in `src/http/progress-section.ts` and
+- [X] T030 [US2] Extend `renderProgress` in `src/http/progress-section.ts` and
   the styles in `src/http/style.ts`:
   - the legend keys: pace 1 px dotted, outdoor 2 px dashed in
     `--rp-line-outside`, the 167 line like the threshold;
   - the templates and the table columns,
 
   so that T026 passes.
-- [ ] T031 [US2] Extend `progressCharts()` in `public/app.js`:
+- [X] T031 [US2] Extend `progressCharts()` in `public/app.js`:
   - datasets for the pace lines (from (0, 0) to (`axisDays`, threshold), 1 px,
     `borderDash: [1, 3]`), the outdoor curve (2 px, `borderDash: [6, 3]`,
     `--rp-line-outside`) and the 167 line;
@@ -497,7 +497,7 @@ hand-worked figures and with `riderStatus` from `src/rynke/pace.ts`.
     `0…threshold`, so no new data is needed.
 
   T027 must pass.
-- [ ] T032 [US2] Run `pnpm format`, `pnpm lint`, `pnpm typecheck`, `pnpm test`
+- [X] T032 [US2] Run `pnpm format`, `pnpm lint`, `pnpm typecheck`, `pnpm test`
   and `pnpm test:e2e`, and fix every failure.
 
 **Checkpoint**: PR 2 (US2) is complete. Nothing US1 shows is taken away (FR-004).

@@ -811,4 +811,34 @@ export const en: Catalog = {
 		"Reports: {yes} will be added, {no} declined, {open} open",
 	"organiser.overview.group.requests": "Riders with an open report ⏳",
 	"organiser.overview.column.requests": "Report",
+	// The Overview's progress charts (feature 009 contracts/messages.md).
+	"progress.heading": "Your season so far",
+	"progress.rules":
+		"Worked out with rules version {version}, for the whole season.",
+	"progress.nothingYet": "You haven't earned any Rynke this season yet.",
+	"progress.periods.label": "Period",
+	"progress.period.season": "Whole season",
+	"progress.period.3m": "Last 3 months",
+	"progress.period.4w": "Last 4 weeks",
+	"progress.earlier": "Earlier",
+	"progress.later": "Later",
+	"progress.reset": "Show whole season",
+	"progress.chart.training":
+		"Training Rynke from {from} to {to}: {value} at the end, target {threshold}",
+	"progress.chart.team":
+		"Team Rynke from {from} to {to}: {value} at the end, target {threshold}",
+	"progress.legend.threshold": "Target ({value})",
+	"progress.help":
+		"Arrow keys pick a day, + and − zoom, Page Up/Down move, 0 shows the whole season.",
+	"progress.day": "{date} · {training} Training Rynke · {team} Team Rynke",
+	"progress.table.summary": "Figures as a table",
+	"progress.table.week": "Week from",
+	"progress.table.total": "Total",
+	"progress.legend.pace": "Even pace to the deadline",
+	"progress.legend.needed": "Needed outdoors ({value})",
+	"progress.day.ahead": "{n} ahead of pace ({pace})",
+	"progress.day.behind": "{n} behind pace ({pace})",
+	"progress.day.onPace": "right on pace ({pace})",
+	"progress.day.series": "{series}: {text}",
+	"progress.day.outside": "of them outdoors: {value}",
 };

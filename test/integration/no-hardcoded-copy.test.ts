@@ -65,6 +65,8 @@ function unmarkedText(page: string): string[] {
 		.replace(/<style>[\s\S]*?<\/style>/g, "")
 		// The scheme script holds code, not copy (011 contracts/client.md).
 		.replace(/<script>[\s\S]*?<\/script>/g, "")
+		// The progress charts' data holds dates and numbers (feature 009 R6).
+		.replace(/<script type="application\/json"[^>]*>[\s\S]*?<\/script>/g, "")
 		// Ride names are rider data, not copy (008 research R8).
 		.replace(/<span class="ride-name">[\s\S]*?<\/span>/g, "")
 		// So are riders' first names (feature 014 Story 2).
