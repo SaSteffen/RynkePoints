@@ -1,6 +1,6 @@
-// The site's whole stylesheet, inlined into every page by `layout()` (feature
-// 011 research R4), in Team Rynkeby's yellow, black and green (issue #51). The
-// tokens of contracts/design-tokens.md come first; every
+// The site's whole stylesheet, linked from every page by `layout()` (feature
+// 011 research R4, issue #183), in Team Rynkeby's yellow, black and green
+// (issue #51). The tokens of contracts/design-tokens.md come first; every
 // other rule takes its colours from them through `var(--…)` (FR-031). No
 // `url(` to another origin and no `@import` (FR-037).
 

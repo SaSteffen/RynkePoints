@@ -1,6 +1,7 @@
 import type { I18n } from "../i18n/i18n";
 import { COIN_SPRITE, coin } from "./coin";
 import { STYLE } from "./style";
+import { STYLESHEET_PATH } from "./stylesheet";
 
 // Server-rendered HTML (research R13). Templates hold markup only; every piece
 // of rider-facing text comes from the catalogs through `I18n`.
@@ -81,6 +82,11 @@ export interface LayoutOptions {
 	 * Overview (feature 009 research R6), deferred and run in this order.
 	 */
 	scripts?: readonly string[];
+	/**
+	 * Carries the rules in the page instead of linking the stylesheet: the
+	 * offline notice, which the service worker shows without a network.
+	 */
+	inlineStyle?: boolean;
 }
 
 /** The language switcher, returning to `path` (FR-046). */
@@ -95,7 +101,14 @@ export function languageForm(i18n: I18n, path: string): SafeHtml {
 
 export function layout(
 	i18n: I18n,
-	{ title, path, body, shell, scripts = [] }: LayoutOptions,
+	{
+		title,
+		path,
+		body,
+		shell,
+		scripts = [],
+		inlineStyle = false,
+	}: LayoutOptions,
 ): SafeHtml {
 	const header = shell
 		? html`<body class="shell">
@@ -104,6 +117,9 @@ export function layout(
 <header class="top-bar">${WORDMARK}${languageForm(i18n, path)}</header>`;
 	// Once per page, for every coin's `<use>` (feature 012).
 	const sprite = new SafeHtml(COIN_SPRITE);
+	const style = inlineStyle
+		? html`<style>${new SafeHtml(STYLE)}</style>`
+		: html`<link rel="stylesheet" href="${STYLESHEET_PATH}">`;
 	return html`<!doctype html>
 <html lang="${i18n.locale}">
 <head>
@@ -120,7 +136,7 @@ ${scripts.map(
 `,
 )}<script src="/app.js" defer></script>
 <title>${title}</title>
-<style>${new SafeHtml(STYLE)}</style>
+${style}
 </head>
 ${header}
 <div class="page-loading" role="progressbar" aria-label="${i18n.t("layout.loading")}" hidden></div>
