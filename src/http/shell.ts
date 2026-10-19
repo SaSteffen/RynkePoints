@@ -14,7 +14,7 @@ import {
 	html,
 	htmlResponse,
 	layout,
-	type SafeHtml,
+	SafeHtml,
 	type ShellParts,
 	WORDMARK,
 } from "./html";
@@ -101,6 +101,15 @@ export interface ShellViewer {
 	example: boolean;
 }
 
+/**
+ * A section's content with the scripts it needs before `app.js` (feature 009
+ * research R6), where a plain `SafeHtml` needs none.
+ */
+export interface SectionBody {
+	body: SafeHtml;
+	scripts: readonly string[];
+}
+
 /** The team's calendar day of an acceptance, passed as UTC midnight like the season start. */
 export function acceptedOn(i18n: I18n, consent: Consent): string {
 	return i18n.formatDate(`${berlinDate(consent.acceptedAt)}T00:00:00Z`);
@@ -176,7 +185,11 @@ export async function shellPage(
 	path: string,
 	render: (
 		viewer: ShellViewer,
-	) => Promise<SafeHtml | Response> | SafeHtml | Response,
+	) =>
+		| Promise<SafeHtml | SectionBody | Response>
+		| SafeHtml
+		| SectionBody
+		| Response,
 ): Promise<Response> {
 	const viewer = await readViewer(request, ctx);
 	if (viewer.kind === "visitor") return redirect("/", 302);
@@ -217,12 +230,14 @@ export async function shellPage(
 	if (hint && !(await hasBalance(ctx.env.DB, viewer.rider.athleteId))) {
 		hint = null;
 	}
-	const body = await render({
+	const rendered = await render({
 		rider: viewer.rider,
 		consent: accepted,
 		example: hint?.example === true,
 	});
-	if (body instanceof Response) return body;
+	if (rendered instanceof Response) return rendered;
+	const { body, scripts } =
+		rendered instanceof SafeHtml ? { body: rendered, scripts: [] } : rendered;
 	// Organisers see how many reports wait for them on every page (019 FR-030).
 	const openRequests = viewer.rider.organiser
 		? await countOpenRequests(ctx)
@@ -238,6 +253,7 @@ export async function shellPage(
 					: i18n.t("shell.title", { section: i18n.t(label) }),
 			path,
 			body,
+			scripts,
 			shell: shellParts(
 				i18n,
 				section,

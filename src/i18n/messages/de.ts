@@ -852,4 +852,31 @@ export const de = {
 		"Meldungen: {yes} werden eingetragen, {no} abgelehnt, {open} offen",
 	"organiser.overview.group.requests": "Rider mit offener Meldung ⏳",
 	"organiser.overview.column.requests": "Meldung",
+	// The Overview's progress charts (feature 009 contracts/messages.md).
+	"progress.heading": "Dein Saisonverlauf",
+	"progress.rules":
+		"Berechnet mit den Regeln Version {version}, für die ganze Saison.",
+	"progress.nothingYet": "Du hast in dieser Saison noch keine Rynke gesammelt.",
+	"progress.periods.label": "Zeitraum",
+	"progress.period.season": "Ganze Saison",
+	"progress.period.3m": "Letzte 3 Monate",
+	"progress.period.4w": "Letzte 4 Wochen",
+	"progress.chart.training":
+		"Trainingsrynke vom {from} bis {to}: {value} am Ende, Ziel {threshold}",
+	"progress.chart.team":
+		"Teamrynke vom {from} bis {to}: {value} am Ende, Ziel {threshold}",
+	"progress.legend.threshold": "Ziel ({value})",
+	"progress.help":
+		"Pfeiltasten wählen einen Tag, + und − zoomen, Bild auf/ab verschiebt, 0 zeigt die ganze Saison.",
+	"progress.day": "{date} · {training} Trainingsrynke · {team} Teamrynke",
+	"progress.table.summary": "Zahlen als Tabelle",
+	"progress.table.week": "Woche ab",
+	"progress.table.total": "Summe",
+	"progress.legend.pace": "Gleichmäßiges Tempo bis zum Stichtag",
+	"progress.legend.needed": "Nötig draußen ({value})",
+	"progress.day.ahead": "{n} vor dem Tempo ({pace})",
+	"progress.day.behind": "{n} hinter dem Tempo ({pace})",
+	"progress.day.onPace": "genau im Tempo ({pace})",
+	"progress.day.series": "{series}: {text}",
+	"progress.day.outside": "davon draußen: {value}",
 } satisfies Record<string, string>;

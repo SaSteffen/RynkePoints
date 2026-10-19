@@ -11,6 +11,8 @@ import {
 } from "../../rynke/rules";
 import { amount, heroCoin, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
+import { CHART_SCRIPTS, renderProgress } from "../progress-section";
+import { buildProgressView } from "../progress-view";
 import {
 	renderBreakdown,
 	renderExampleNote,
@@ -85,7 +87,9 @@ export function handleOverview(
 			// FR-005); it is never marked as seen and never celebrated (FR-007).
 			const read = example
 				? exampleRiderView(window, berlinDate(ctx.now()))
-				: await readRiderView(ctx.env.DB, rider.athleteId, 1);
+				: await readRiderView(ctx.env.DB, rider.athleteId, 1, {
+						progress: true,
+					});
 			const view = buildRiderView(
 				read,
 				read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
@@ -115,8 +119,19 @@ export function handleOverview(
 			) {
 				await writeSeen(ctx.env.DB, rider.athleteId, totals);
 			}
+			// How the Rynke grew over the season (feature 009), under the rules of
+			// the balance's version, with the chart library only when it shows.
+			const progress = renderProgress(
+				i18n,
+				buildProgressView(
+					read,
+					read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
+					window,
+					berlinDate(ctx.now()),
+				),
+			);
 			// One grid holds it all: two columns on wider screens (contracts/pages.md).
-			return html`<div class="overview-grid">
+			const body = html`<div class="overview-grid">
 <section class="hero">
 ${heroCoin()}
 <div>
@@ -134,7 +149,8 @@ ${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds
 ${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary, status) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}
 ${ready ? renderBreakdown(i18n, ready.breakdown) : null}
-</div>`;
+${ready ? progress : null}</div>`;
+			return progress && ready ? { body, scripts: CHART_SCRIPTS } : body;
 		},
 	);
 }

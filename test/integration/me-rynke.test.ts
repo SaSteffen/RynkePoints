@@ -192,7 +192,8 @@ async function gauges(athleteId = ATHLETE_A) {
 	const { html } = await riderPage(ctx, athleteId);
 	return [
 		// A gauge a tour step points at carries its `id` (feature 020).
-		...html.matchAll(/<figure class="([^"]*)"[^>]*>([\s\S]*?)<\/figure>/g),
+		// The progress charts' figures (feature 009) are no gauges.
+		...html.matchAll(/<figure class="(gauge[^"]*)"[^>]*>([\s\S]*?)<\/figure>/g),
 	].map(([, classes, inner = ""]) => ({
 		classes,
 		caption: text(
