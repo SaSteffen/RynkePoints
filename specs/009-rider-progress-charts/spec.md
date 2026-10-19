@@ -6,6 +6,8 @@
 
 **Status**: Draft
 
+**Updated**: 2026-10-19 (see [Revision 2026-10-19](#revision-2026-10-19))
+
 **Input**: User description: "Interactive, zoomable charts on the rider page that show
 the relevant statistics of a rider's own Training Rynke and Team Rynke over the
 season. No charts for elevation, distance, speed or other ride performance figures:
@@ -36,12 +38,43 @@ is shown; only the signed-in rider's own data; German and English. Context: feat
 - Q: Should the charts be a section of the rider page (`/me`) or a separate page
   linked from it? → A: A section of the rider page, below the gauges.
 
+### Revision 2026-10-19
+
+The spec was written before features 011–020 were built and nothing of it was
+built yet. It is brought up to date with them; what a rider sees and the limits
+(FR-005–FR-007) are unchanged:
+
+- **Place**: the rider page is now the Overview, the "Du"/"You" section of the app
+  (feature 011; greeting first, feature 015). The rules moved to Settings, the rides
+  to their own section, so the charts follow the gauges and the breakdown and end
+  the Overview (FR-001, D3).
+- **Deadline**: the qualification deadline is a team setting that is always set,
+  30 June 2027 (feature 016 FR-005). The cases without a deadline are gone, the
+  example uses the real date, and the pace line is the even pace feature 016
+  already uses for the rider status, so the charts and the status never disagree
+  (FR-013, FR-038). For the same reason the curve without virtual rides gets its
+  pace line too: a rider can need a push because of it alone (FR-039).
+- **Look**: no longer "plain until Material Design": the section uses the app's
+  Material 3 look with the Rynkeby colours, coins and emoji (features 011, 012),
+  in light and dark mode (FR-072).
+- **Team section**: feature 016 already shows each rider a small line of their own
+  Rynke per week, next to everyone else's. This section stays the rider's own,
+  detailed view (days, thresholds, pace, zoom); its weekly totals MUST equal the
+  points of that line, so the two never tell different stories (FR-012, FR-051).
+- **Corrections** are stored now (feature 014), so the curves include them.
+- **Waiting and importing**: the Overview's waiting state replaces the "still being
+  worked out" notice, and the app no longer talks about importing (feature 015).
+- **Onboarding tour**: the tour shows an example rider on the Overview (feature
+  020); the section shows that rider's curves too (FR-043).
+- The rules version in the examples and diagrams is now 3, the current one.
+
 ## User Scenarios & Testing *(mandatory)*
 
 Terms as in features 003 and 005: **Training Rynke** ("Trainingsrynke"), **Team
 Rynke** ("Teamrynke"), the **balance** (feature 003 FR-014a), the **ride result**
-(feature 003 FR-014), the **rider page** (`/me`, feature 005) and its **gauges**
-(feature 005 FR-020). New terms:
+(feature 003 FR-014), the **rider page**, which is now the **Overview** (the
+"Du"/"You" section at `/me`, features 005, 011 and 015), and its **gauges** (feature
+005 FR-020). New terms:
 
 - The **progress section** is the part of the rider page this feature adds.
 - The **season curve** of a kind of Rynke gives, for each day of the counting window
@@ -54,13 +87,15 @@ Rynke** ("Teamrynke"), the **balance** (feature 003 FR-014a), the **ride result*
   the whole season unless they zoomed in.
 - The **pace line** is a straight line from 0 at the season start to a threshold at
   the qualification deadline: where a rider would be if they earned their Rynke
-  evenly.
+  evenly. Its value on a day is the **even pace** of feature 016 (FR-030), the one
+  that decides whether the app tells a rider they need a push.
 
 The examples use synthetic figures and the current rule values of feature 003 (250
 Training Rynke, 25 Team Rynke, 167 without virtual rides, 1 per full 10 km of a ride,
-5 per full 1000 m of season elevation). The season starts on Tuesday 1 September
-2026; where a deadline is needed, it is Monday 31 May 2027 (273 days). The
-**example rider** earns, week by week:
+5 per full 1000 m of season elevation), rules version 3. The season starts on
+Tuesday 1 September 2026; the qualification deadline is Wednesday 30 June 2027, 302
+days later (the team settings, feature 016 FR-005). The **example rider** earns,
+week by week:
 
 | Week | Distance | Elevation | Team events | Corrections | Training Rynke | Training total | Team Rynke | Team total |
 |---|---|---|---|---|---|---|---|---|
@@ -85,11 +120,11 @@ delivered with this spec.
 
 ### User Story 1 - Rider sees how their Rynke grew over the season and zooms in (Priority: P1, first delivery)
 
-Below the gauges on their rider page, a rider sees two charts: their Training Rynke
-over the season with the Training threshold as a line, and their Team Rynke over the
-season with the Team threshold as a line. The time axis runs from the season start to
-the deadline, or to today when no deadline is set, so they can see both how far they
-have come and how much season is left. Buttons switch the period between the whole
+Below the gauges and the breakdown on their Overview, a rider sees two charts: their
+Training Rynke over the season with the Training threshold as a line, and their Team
+Rynke over the season with the Team threshold as a line. The time axis runs from the
+season start to the deadline, so they can see both how far they have come and how
+much season is left. Buttons switch the period between the whole
 season, the last 3 months and the last 4 weeks. The rider can also zoom into any
 stretch: with a pinch or by dragging across a chart on a phone, with the mouse wheel
 or by dragging across a chart on a computer, or with the keyboard. Zoomed in, they
@@ -116,9 +151,8 @@ September with touch, mouse and keyboard and compare the totals shown for each d
    September, 80 on 27 September and 112 on 4 October, stays at 112 until today, and
    shows a line at 250; the Team chart reaches 1 on 6 September, 11 on 20 September,
    16 on 27 September and 17 on 4 October, and shows a line at 25.
-2. **Given** the example rider and no deadline set, **When** they open the charts,
-   **Then** the time axis ends today; **given** the deadline 31 May 2027, **Then**
-   it ends on 31 May 2027 and the curves stop today.
+2. **Given** the example rider, **When** they open the charts, **Then** the time
+   axis ends on 30 June 2027 and the curves stop today.
 3. **Given** the example rider, **When** they choose "last 4 weeks", **Then** both
    charts show 10 September to 7 October and the vertical axes still include the
    threshold lines.
@@ -132,9 +166,9 @@ September with touch, mouse and keyboard and compare the totals shown for each d
    earned any Rynke this season yet.
 7. **Given** a rider with 262 Training Rynke, **When** they look at the Training
    chart, **Then** the curve rises above the threshold line and is not cut off there.
-8. **Given** a rider for whom no balance is stored yet, **When** they open their rider
-   page, **Then** no charts are shown and the page says their Rynke are still being
-   worked out (feature 005 FR-015).
+8. **Given** a rider for whom no balance is stored yet, **When** they open their
+   Overview, **Then** no charts are shown and the Overview shows its waiting state
+   (feature 015 FR-001).
 9. **Given** two connected riders, **When** one opens their rider page, **Then** the
    charts and the table contain only their own Rynke.
 10. **Given** a phone with a screen 360 pixels wide, **When** the rider opens the
@@ -162,36 +196,48 @@ September with touch, mouse and keyboard and compare the totals shown for each d
 18. **Given** a browser where the interactive part does not run, **When** the rider
     opens the section, **Then** both charts show the whole season, and the period
     buttons and the table still work.
+19. **Given** the example rider, **When** they compare the table with their own line
+    in the Team section (feature 016 FR-015), **Then** the totals at the end of each
+    week are the same: Training 21, 30, 69, 80, 112 and Team 1, 1, 11, 16, 17.
+20. **Given** a new rider on the onboarding tour's Overview step (feature 020),
+    **When** the Overview shows the tour's example rider, **Then** the section shows
+    that example rider's curves, not the new rider's flat ones.
+21. **Given** the app in dark mode, **When** the rider opens the section, **Then**
+    the curves, lines, labels and table are as readable as in light mode.
 
 ---
 
 ### User Story 2 - Rider sees whether they are on pace and how much may come from virtual rides (Priority: P3)
 
-When a qualification deadline is set, both curve charts show the pace line from 0 at
-the season start to the threshold at the deadline, so a rider sees whether they are
-ahead of or behind an even pace. A rider with virtual rides also sees, in the
-Training chart, the curve of their Training Rynke without virtual rides with the
-amount needed from outside rides (feature 003 FR-013a, currently 167) as a line.
+Both curve charts show the pace line from 0 at the season start to the threshold
+at the deadline, so a rider sees whether they are ahead of or behind an even pace. A
+rider with virtual rides also sees, in the Training chart, the curve of their
+Training Rynke without virtual rides with the amount needed from outside rides
+(feature 003 FR-013a, currently 167) as a line, and its own pace line.
 
 **Why this priority**: Both turn the curve into a "will I make it?" for riders who
-plan ahead, and the second one explains the condition riders understand least. Both
-need deadline or virtual rides, which not every season or rider has.
+plan ahead, and the second one explains the condition riders understand least. They
+also show why the app tells a rider they need a push (feature 016 FR-030). The curve
+without virtual rides only matters to riders with virtual rides.
 
-**Independent Test**: Store synthetic riders with and without virtual rides, set and
-unset the deadline, and compare the pace lines and the curve without virtual rides
-with figures worked out by hand.
+**Independent Test**: Store synthetic riders with and without virtual rides, and
+compare the pace lines and the curve without virtual rides with figures worked out
+by hand and with the status feature 016 gives each rider.
 
 **Acceptance Scenarios**:
 
-1. **Given** the example rider and the deadline 31 May 2027, **When** they point at
-   Sunday 4 October, **Then** they see their 112 Training Rynke against a pace of 31
-   (250 × 34 ÷ 273, rounded down: day 34 of 273) and their 17 Team Rynke against a
-   pace of 3, and are told they are 81 and 14 ahead of an even pace.
-2. **Given** no deadline set, **When** a rider opens the charts, **Then** no pace
-   line is shown.
+1. **Given** the example rider, **When** they point at Sunday 4 October, **Then**
+   they see their 112 Training Rynke against a pace of 27 (250 × 33 ÷ 302, rounded
+   down: 33 of the season's 302 days have passed) and their 17 Team Rynke against a
+   pace of 2 (25 × 33 ÷ 302), and are told they are 85 and 15 ahead of an even pace.
+2. **Given** any rider, **When** they look at today in the charts, **Then** they are
+   below a pace line exactly when the app tells them they need a push for that
+   reason (feature 016 FR-030), and above or on every pace line when it says they
+   are on track.
 3. **Given** a rider whose Training Rynke include 100 from virtual rides, **When**
    they open the Training chart, **Then** it shows a second curve of the Training
-   Rynke without virtual rides, 100 below the first at the end, and a line at 167.
+   Rynke without virtual rides, 100 below the first at the end, a line at 167 and
+   the pace line towards 167.
 4. **Given** a rider without virtual rides, **When** they open the Training chart,
    **Then** neither the second curve nor the line at 167 is shown.
 5. **Given** a rider behind the pace on a day, **When** they point at that day,
@@ -229,18 +275,18 @@ on GitHub and agrees with the requirements.
 
 ### Edge Cases
 
-- **No balance stored yet**: no charts, the page's "still being worked out" notice
-  (feature 005 FR-015) applies.
-- **Past-season import still running**: the curves are real but incomplete; the
-  page's notice that the Rynke will grow as rides are imported (feature 005
-  FR-052) covers the section too (FR-042). Rides imported later fill in their own
-  days, so earlier parts of the curve can rise afterwards.
+- **No balance stored yet**: no charts; the Overview shows its waiting state
+  (feature 015 FR-001).
+- **Rides since the season start still being fetched after connecting**: the curves
+  show what has arrived, without a notice (feature 015 FR-003). Rides fetched later
+  fill in their own days, so earlier parts of the curve can rise afterwards.
 - **Rule change**: under feature 003 FR-021 new rules apply to the whole season as if
   they had always applied, so the whole curve changes, not only its end. The charts
   are labelled with the rules version they were computed with and say that they show
   the whole season under those rules. While the rider's results are being updated,
   the charts show the curves of the stored, older version, labelled with it, next to
-  the page's "being updated" notice (feature 005 FR-051); they never mix versions.
+  the Overview's "being updated" notice (feature 005 FR-051); they never mix
+  versions.
 - **Rules version of the stored balance unknown to the app** (feature 005 FR-013,
   e.g. after going back to an older release): the curves can't be rebuilt without
   that version's rules, so the section is left out, as the gauges are; the page's
@@ -257,17 +303,21 @@ on GitHub and agrees with the requirements.
   in the balance (feature 005 FR-033).
 - **Deadline passed**: the curves end on the deadline and stay flat after it; the time
   axis ends on the deadline.
-- **Season just started**: the axis spans the days so far, at least one week; the
-  period buttons that would start on or before the season start are not offered
-  (FR-020).
-- **Deadline less than 3 months away from the season start, or no deadline and fewer
-  than 3 months of season**: "last 3 months" never starts after the season start,
-  so it is not offered all season.
+- **Season just started**: the axis still runs to the deadline and the curves are
+  short; the period buttons that would start on or before the season start are not
+  offered (FR-020).
+- **Season less than 3 months old**: "last 3 months" would start before the season
+  start, so it is not offered yet.
 - **Language switch**: the section switches immediately and keeps its period; dates,
   numbers and month names follow the page language (feature 005 FR-061).
 - **A whole season of rides** (up to 500, feature 001 SC-008): the charts and the
   table still appear within the page's time limit (SC-005).
 - **Organiser opens the page**: they see their own charts like any rider.
+- **Onboarding tour**: while the tour shows its example rider on the Overview
+  (feature 020), the section shows that example rider's curves (FR-043).
+- **Section reloaded** (its refresh control or the reload after time in the
+  background, feature 011 FR-009): the figures are current; the period MAY go back
+  to the whole season (FR-026).
 
 ## Requirements *(mandatory)*
 
@@ -275,8 +325,10 @@ on GitHub and agrees with the requirements.
 
 **Where and for whom**
 
-- **FR-001**: The charts MUST be a section of the rider page (feature 005 FR-001),
-  after the gauges and the breakdown, not a second page.
+- **FR-001**: The charts MUST be part of the Overview (the "Du"/"You" section,
+  features 005, 011 and 015), after the gauges and the breakdown, across the
+  Overview's full width on wide screens; not a section of its own in the navigation
+  and not a second page.
 - **FR-002**: Only the signed-in rider MUST see their own charts, under the same
   conditions as the rest of the rider page (feature 005 FR-002). Nothing of this
   feature is shown to other riders, organisers or the team.
@@ -303,7 +355,8 @@ on GitHub and agrees with the requirements.
   "compete with or replicate Strava functionality").
 - **FR-006**: The charts MUST NOT offer the rider's data as a download or export.
 - **FR-007**: The section MUST contain line charts only: no bar, pie, area-by-source
-  or other kinds of chart.
+  or other kinds of chart. The Team section's charts (feature 016) are not part of
+  this section and are not affected.
 
 **Season curves (first delivery)**
 
@@ -321,12 +374,14 @@ on GitHub and agrees with the requirements.
   kept as past balances: no new store of past balances or curves is needed, a rule
   change rewrites the curve with the results (FR-040), and nothing about the rider is
   kept that the balance does not already derive from. The rebuild MUST follow the
-  same rules as the evaluation and MUST NOT become a second, diverging copy of them;
-  whether it runs with the evaluation and is stored with the balance, or when the
-  page is shown, is left to planning.
+  same rules as the evaluation and MUST NOT become a second, diverging copy of them
+  or of the Team section's weekly figures (feature 016 FR-015): the rider's totals at
+  the end of each week MUST equal the points of their own line there. Whether it
+  runs with the evaluation and is stored with the balance, or when the page is shown,
+  is left to planning.
 - **FR-013**: The time axis MUST run from the season start to the qualification
-  deadline when one is set, otherwise to today, and MUST span at least 7 days; the
-  curves MUST end today, or on the deadline once it has passed.
+  deadline (a team setting, always set, feature 016 FR-005); the curves MUST end
+  today, or on the deadline once it has passed.
 - **FR-014**: Each curve chart's vertical axis MUST start at 0 and reach at least its
   threshold, so the threshold line is always in view; a curve above the threshold
   MUST NOT be cut off.
@@ -340,9 +395,9 @@ on GitHub and agrees with the requirements.
 - **FR-020**: The section MUST offer the periods "whole season", "last 3 months" and
   "last 4 weeks", ending today (or on the deadline once passed); "whole season" is
   shown first. "Last 3 months" and "last 4 weeks" are offered only once they
-  start after the season start, so each always shows its full length; with a
-  deadline set, "last 3 months" is therefore not offered before the season is
-  3 months old, even though it would be shorter than the time axis.
+  start after the season start, so each always shows its full length: "last 3
+  months" is not offered before the season is 3 months old, even though the time
+  axis runs on to the deadline.
 - **FR-021**: All charts of the section MUST always show the same period.
 - **FR-022**: The rider MUST be able to zoom into any stretch of the shown season
   and out again, by pinching or dragging across a chart on a touch screen, by the
@@ -377,31 +432,37 @@ on GitHub and agrees with the requirements.
 
 **Pace and virtual rides**
 
-- **FR-038**: When a qualification deadline is set, each curve chart MUST show the
-  pace line of its threshold (from 0 on the season start to the threshold on the
-  deadline). The totals of a day (FR-030) MUST give the pace on that day, rounded
-  down, and how many Rynke the rider is ahead of or behind it. Being behind MUST NOT be
-  presented as breaking a rule.
+- **FR-038**: Each curve chart MUST show the pace line of its threshold (from 0 on
+  the season start to the threshold on the deadline). Its value on a day MUST be the
+  even pace of feature 016 (FR-030), so the charts never show a rider ahead where the
+  app says they need a push, or behind where it says they are on track. The totals
+  of a day (FR-030) MUST give the pace on that day and how many Rynke the rider is
+  ahead of or behind it. Being behind MUST NOT be presented as breaking a rule.
 - **FR-039**: When at least one of the rider's rides is a virtual ride (feature 005
   FR-012), the Training chart MUST also show the season curve of the Training Rynke
   without virtual rides (feature 003 FR-013a, built as in FR-011 without the virtual
-  rides) and the amount needed from outside rides as a horizontal line. Without
-  virtual rides neither is shown.
+  rides), the amount needed from outside rides as a horizontal line, and that
+  amount's pace line as in FR-038. Without virtual rides none of them is shown.
 
 **Rules and freshness**
 
 - **FR-040**: The curves MUST be computed with the same rules version as the stored
   balance, shown with it, and say that they show the whole season under those rules.
   Every rule value used for a curve or line (steps, team-event amounts, thresholds,
-  amount needed without virtual rides, deadline) MUST be that version's; when that
+  amount needed without virtual rides) MUST be that version's; the season start and
+  the deadline are the team settings. When that
   version's rules are unknown (feature 005 FR-013), the section MUST be left out, as
   the gauges are.
 - **FR-041**: The curves, table, totals and the stored balance shown on the page MUST
   come from one consistent reading, so the page never shows a curve of another
   moment or rules version than its summary and gauges (feature 005 FR-005).
 - **FR-042**: While the rider's results are being updated to new rules (feature 005
-  FR-051) or the past-season import runs (feature 005 FR-052), the section MUST show
-  the stored curves under the notice the page already gives.
+  FR-051), the section MUST show the stored curves under the notice the Overview
+  already gives. While a new rider's rides are still being fetched, it MUST show the
+  curves of what has arrived, without a notice of its own (feature 015 FR-003).
+- **FR-043**: While the onboarding tour shows its example rider on the Overview
+  (feature 020), the section MUST show that example rider's curves and table, built
+  by the same functions as a real rider's, and never the new rider's own.
 
 **Text, accessibility and language (first delivery)**
 
@@ -423,8 +484,8 @@ on GitHub and agrees with the requirements.
 
 - **FR-060**: All text of this feature, including chart titles, axis labels, legends,
   period buttons, the totals of a day and their text versions, MUST come from the
-  translation
-  strings in German and English (feature 005 FR-060).
+  message catalogs in German and English (feature 005 FR-060), in the app's wording
+  (feature 012).
 - **FR-061**: Numbers, dates and month names MUST be formatted for the page language
   (feature 005 FR-061).
 
@@ -436,9 +497,10 @@ on GitHub and agrees with the requirements.
 - **FR-071**: Period buttons, the reset and other controls MUST be easy to tap
   (about 44 × 44 pixels, feature 005 FR-072). A day MUST be selectable by touch on a
   360-pixel chart, if need be by zooming in first.
-- **FR-072**: The look MUST stay plain enough to take the site's planned Material
-  Design look later without changing what the charts show (feature 005,
-  Assumptions).
+- **FR-072**: The section MUST take the app's look: Material Design 3 (feature 011)
+  with the Rynkeby colours, the coins and the emoji of feature 012, Training and Team
+  Rynke in the same colours as their gauges, readable in light and dark mode. A
+  design draft MAY be made before planning; this spec stays authoritative over it.
 
 **Tests**
 
@@ -477,9 +539,12 @@ curve with the balance, as a derived value of the same rules version). It reads:
 - **Attendance and Team Event** (feature 003): date, kind, name.
 - **Correction** (feature 003): date, amounts, reason.
 - **Rynke Balance** (feature 003 FR-014a): the totals the curves end on, rules version.
-- **Rynke Rules** (feature 003): thresholds, amount needed without virtual rides,
-  steps, deadline of the balance's version.
-- **Team Settings** (feature 001): the season start.
+- **Rynke Rules** (feature 003): thresholds, amount needed without virtual rides
+  and steps of the balance's version.
+- **Team Settings** (features 001, 016): the season start and the qualification
+  deadline.
+- **Weekly figures** (feature 016): each rider's accumulated Rynke at the end of
+  each week, which the table's totals must equal (FR-012).
 - **Season curve** (derived, per rider and kind of Rynke): the total at the end of
   each day of the counting window. Never
   stored on its own; deleted with the rider if planning stores it with the balance.
@@ -495,7 +560,7 @@ curve with the balance, as a derived value of the same rules version). It reads:
 - **SC-002**: For feature 003's reference set of at least 20 hand-calculated
   synthetic riders, the last point of every curve equals the stored balance in 100%
   of cases. Every weekly figure in the example rider's table equals the
-  hand-calculated one.
+  hand-calculated one and the rider's own line in the Team section.
 - **SC-003**: The totals shown for 100% of tested days equal the figures worked out
   by hand, and none of them lists a ride, team event or correction.
 - **SC-004**: 0 charts, axes, lines, bars or day totals show a distance, elevation in
@@ -516,9 +581,10 @@ curve with the balance, as a derived value of the same rules version). It reads:
 
 ## Assumptions
 
-- Builds on features 001, 003, 004, 005 and 008; nothing in them changes. This feature
-  supersedes feature 005 FR-024 ("only the current state, no history") for its own
-  section; the gauges keep showing the current state.
+- Builds on features 001, 003, 004, 005 and 008, and since the revision on 011, 012,
+  014, 015, 016 and 020; nothing in them changes. This feature supersedes feature 005
+  FR-024 ("only the current state, no history") for its own section; the gauges keep
+  showing the current state.
 - **History rebuilt, not stored** (the prompt's open question): the stored ride
   results already carry each ride's distance Rynke and elevation metres, and
   attendance and corrections carry dates, so every past total under the current rules
@@ -537,24 +603,22 @@ curve with the balance, as a derived value of the same rules version). It reads:
   pace towards the deadline and the share without virtual rides, as line charts, and
   the amount per week in the table. Bar charts, a split by source, elevation on its
   own, ride counts, records and streaks are left out: they look like the training
-  statistics Strava already offers. Comparisons with other riders belong to the team
-  leaderboard ([backlog](../backlog/team-leaderboard.md)), which may reuse these
-  charts for its week-by-week graph.
-- The pace line is a guide for the rider, not a rule of feature 003; it only exists
-  when a deadline is set.
-- **Corrections** (feature 003 Story 6) are not built yet, so nothing stores one.
-  Until they are, the curves have no correction input and the requirements and
-  edge cases about corrections have nothing to show; they apply as soon as
-  corrections are stored, each on its date like a team event.
-- Interactivity (zoom, pointing at a day) probably needs scripts in the browser,
-  which the site does not use yet. Per constitution Principle IV, a charting library
-  is only added if the plan justifies it; the charts must stay usable without the
-  script (FR-052).
+  statistics Strava already offers. Comparisons with other riders belong to the Team
+  section (feature 016), which already shows each rider a small weekly line of their
+  own Rynke among everyone's. This section adds what only concerns the rider: one
+  point per day, the thresholds, the pace and zoom.
+- The pace line is a guide for the rider, not a rule of feature 003.
+- **Corrections** are recorded by organisers (feature 014) and count on their date
+  like a team event.
+- Interactivity (zoom, pointing at a day) needs scripts in the browser, as other
+  sections already use (features 011, 015, 018). Per constitution Principle IV, a
+  charting library is only added if the plan justifies it; the Team section draws
+  its charts as inline SVG without one (feature 016). The charts must stay usable
+  without the script (FR-052).
 - The charts show no single rides, names or Strava links; the ride table (features
   005, 008) stays the place for a ride's name, figures and reasons.
-- The look stays plain, as in feature 005; Material Design comes later for the whole
-  site. Mobile friendliness of the rest of the site is issue
-  [#20](https://github.com/SaSteffen/RynkePoints/issues/20).
+- The look is the app's (FR-072); the site is mobile friendly since feature 011
+  (issue [#20](https://github.com/SaSteffen/RynkePoints/issues/20)).
 - Showing the rider's own derived data to that rider only is covered by the consent
   they gave (feature 004, F-1, F-2); no new consent version is needed, since nothing
   new is read from Strava or shown to others.
@@ -579,7 +643,7 @@ flowchart LR
     end
 
     d1 --> us2
-    later -. "later, site-wide, separate" .-> md["Material Design look"]
+    look["App look: Material 3,<br/>Rynkeby colours, coins<br/>(features 011, 012)"] -.-> d1 & later
 ```
 
 ### D1. Where the curves come from
@@ -604,6 +668,10 @@ flowchart LR
         stored[("Ride results + balance<br/>one rules version")]
     end
 
+    subgraph f016["Feature 016"]
+        weekly["Team section<br/>rider's weekly line"]
+    end
+
     subgraph f009["Feature 009 (this spec)"]
         rebuild["Rebuild day by day<br/>same rules as the evaluation<br/>(FR-011, FR-012)"]
         charts["Progress section<br/>curves, table"]
@@ -613,6 +681,8 @@ flowchart LR
     org --> inputs
     acts & inputs --> eval --> stored
     stored & inputs & acts --> rebuild --> charts
+    stored --> weekly
+    charts -. "same weekly totals<br/>(FR-012)" .- weekly
     rider -->|opens rider page| charts
     charts ~~~ never["Never from the charts:<br/>start an evaluation,<br/>change data, call Strava,<br/>show km, metres, time, speed"]
 ```
@@ -638,22 +708,23 @@ flowchart TD
 
 ```mermaid
 flowchart TB
-    subgraph page["Rider page"]
+    subgraph page["Overview (Du / You)"]
         direction TB
-        before["Greeting, status, summary, gauges, breakdown,<br/>rules (features 001, 005)"]
-        subgraph section["Progress section (this spec)"]
+        before["Greeting with coin, notices, celebration,<br/>summary, gauges, breakdown<br/>(features 005, 012, 015)"]
+        subgraph section["Progress section (this spec), full width"]
             direction TB
-            label["Rules version 2 · whole season under these rules (FR-040)"]
+            label["Rules version 3 · whole season under these rules (FR-040)"]
             periods["[ Whole season ] [ Last 3 months ] [ Last 4 weeks ] · Reset"]
-            c1["US1 · Training Rynke chart, zoomable<br/>curve 0 → 112, line at 250<br/>US2 · pace line, curve without virtual rides + line at 167"]
+            c1["US1 · Training Rynke chart, zoomable<br/>curve 0 → 112, line at 250<br/>US2 · pace line, curve without virtual rides<br/>+ line at 167 + its pace line"]
             c2["US1 · Team Rynke chart, zoomable<br/>curve 0 → 17, line at 25<br/>US2 · pace line"]
             details["US1 · Day under the pointer<br/>date, Training and Team totals"]
             table["US1 · Table: one row per week (FR-051)"]
             label --> periods --> c1 --> c2 --> details --> table
         end
-        after["Rides, consent, disconnect (features 001, 004, 005, 008)"]
-        before --> section --> after
+        before --> section
     end
+    nav["Navigation (feature 011): Rides, Team, Badges,<br/>Settings with rules, consent, disconnect"]
+    page ~~~ nav
 ```
 
 ### D4. Section layout (phone, 360 pixels wide)
@@ -667,7 +738,8 @@ flowchart TB
         p3["Team chart, full width"]
         p4["Date and totals of the tapped day"]
         p5["Table: week · Training · total · Team · total"]
-        p1 --> p2 --> p3 --> p4 --> p5
+        p6["Bottom navigation (feature 011)"]
+        p1 --> p2 --> p3 --> p4 --> p5 --> p6
     end
 ```
 
@@ -710,17 +782,17 @@ sequenceDiagram
     participant P as Rider page
     actor R as Rider
 
-    O->>S: rules version 3 (e.g. 8 per 1000 m)
+    O->>S: rules version 4 (e.g. 8 per 1000 m)
     S->>E: recalculation of all riders
     R->>P: open page
     P->>S: balance, ride results, attendance, corrections
-    S-->>P: still version 2
-    P-->>R: version 2 curves, labelled, under the "being updated" notice
-    E->>S: rider's results, version 3
+    S-->>P: still version 3
+    P-->>R: version 3 curves, labelled, under the "being updated" notice
+    E->>S: rider's results, version 4
     R->>P: open page again
     P->>S: read again
-    S-->>P: version 3
-    P-->>R: whole curve redrawn under version 3,<br/>also its past days, no notice
+    S-->>P: version 4
+    P-->>R: whole curve redrawn under version 4,<br/>also its past days, no notice
 ```
 
 ### D7. Example rider: season curves
@@ -729,7 +801,7 @@ Training Rynke at the end of each week, with the Training threshold:
 
 ```mermaid
 xychart-beta
-    title "Training Rynke over the season (rules version 2)"
+    title "Training Rynke over the season (rules version 3)"
     x-axis ["6 Sep", "13 Sep", "20 Sep", "27 Sep", "4 Oct", "7 Oct"]
     y-axis "Training Rynke" 0 --> 260
     line [21, 30, 69, 80, 112, 112]
@@ -740,13 +812,13 @@ Team Rynke at the end of each week, with the Team threshold:
 
 ```mermaid
 xychart-beta
-    title "Team Rynke over the season (rules version 2)"
+    title "Team Rynke over the season (rules version 3)"
     x-axis ["6 Sep", "13 Sep", "20 Sep", "27 Sep", "4 Oct", "7 Oct"]
     y-axis "Team Rynke" 0 --> 26
     line [1, 1, 11, 16, 17, 17]
     line [25, 25, 25, 25, 25, 25]
 ```
 
-The drawn charts have one point per day; these show the end of each week. With the
-deadline 31 May 2027, the pace line on 4 October is at 31 Training Rynke and 3 Team
-Rynke (US2 scenario 1).
+The drawn charts have one point per day; these show the end of each week, the same
+figures as the rider's line in the Team section. With the deadline 30 June 2027, the
+pace line on 4 October is at 27 Training Rynke and 2 Team Rynke (US2 scenario 1).
