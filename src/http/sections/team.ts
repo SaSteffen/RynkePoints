@@ -388,12 +388,14 @@ export function handleTeam(
 			// Team Rynke have no place card and no peloton and put the
 			// leaderboard first (feature 019 FR-045, FR-046); Training keeps
 			// feature 016's page.
+			// On wide screens `.team-grid` moves the leaderboard into a column
+			// of its own beside the other cards.
 			if (kind === "team") {
-				return html`${head}${quote ? renderQuote(i18n, quote) : null}${leaderboard}${renderTeamChart(i18n, kind, totals)}`;
+				return html`${head}<div class="team-grid">${quote ? renderQuote(i18n, quote) : null}${leaderboard}${renderTeamChart(i18n, kind, totals)}</div>`;
 			}
-			return html`${head}${viewer ? renderPlace(i18n, viewer) : null}${
+			return html`${head}<div class="team-grid">${viewer ? renderPlace(i18n, viewer) : null}${
 				quote ? renderQuote(i18n, quote) : null
-			}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${leaderboard}`;
+			}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${leaderboard}</div>`;
 		},
 	);
 }
