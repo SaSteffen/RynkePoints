@@ -562,6 +562,9 @@ requirements.
   newest first, 20 per page, whose first page is the list of FR-040. It MUST show the
   position (e.g. "rides 21–40 of 45") and let the rider go to the next, previous,
   first and last page. With 20 rides or fewer, no paging controls are shown.
+  *(Superseded 2026-10-19: Rides is one continuous list (feature 018); the
+  position line and paging controls are gone, as the app requires JavaScript
+  (constitution v2.2.0). `?page=N` still opens that page, 018 FR-014, FR-016.)*
 - **FR-046**: Each table page is one consistent reading (FR-005). Paging MUST keep
   the rider on the rider page, and switching the language MUST keep the table page.
   Rides moving to another page because rides arrived or were deleted in between is

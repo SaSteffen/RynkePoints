@@ -112,7 +112,7 @@ function decideForm(
 	const riders = athleteIds.map(
 		(id) => html`<input type="hidden" name="athlete" value="${String(id)}">`,
 	);
-	return html`<form method="post" action="/organiser/requests" class="request-form"><input type="hidden" name="event" value="${String(eventId)}">${riders}<input type="hidden" name="decision" value="${decision}"><input type="hidden" name="back" value="${back}">${button}</form>`;
+	return html`<form method="post" action="/organiser/requests" class="request-form" data-swap><input type="hidden" name="event" value="${String(eventId)}">${riders}<input type="hidden" name="decision" value="${decision}"><input type="hidden" name="back" value="${back}">${button}</form>`;
 }
 
 /** Eintragen and ✕ for one rider's request. */
@@ -237,7 +237,7 @@ export async function decisionNotice(
 		.all<{ first_name: string }>();
 	const names = results.map((r) => r.first_name).join(", ");
 	const text = i18n.t(`organiser.done.${done}`, { names });
-	return html`<div class="notice notice-undo" role="status"><p>${text}</p><form method="post" action="/organiser/requests/undo"><input type="hidden" name="token" value="${token}"><input type="hidden" name="back" value="${back}"><button class="button-outlined">${i18n.t("organiser.undo")}</button></form></div>
+	return html`<div class="notice notice-undo" role="status"><p>${text}</p><form method="post" action="/organiser/requests/undo" data-swap><input type="hidden" name="token" value="${token}"><input type="hidden" name="back" value="${back}"><button class="button-outlined">${i18n.t("organiser.undo")}</button></form></div>
 `;
 }
 

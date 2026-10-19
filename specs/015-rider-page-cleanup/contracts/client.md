@@ -12,7 +12,8 @@ On a page with `[data-waiting]`:
 - every `data-poll-seconds` seconds (10 if the attribute is missing or not a
   positive number), while `document.visibilityState === "visible"`, it fetches
   `GET /me/ready` with `credentials: "same-origin"` and `cache: "no-store"`;
-- on `{"ready":true}` it stops and calls `location.reload()` once;
+- on `{"ready":true}` it stops and calls `location.reload()` once *(since
+  2026-10-19 it swaps the fresh page in place instead, as after a minute away)*;
 - on a 401, a network error or `{"ready":false}` it waits for the next tick;
 - on a page without `[data-waiting]` it does nothing (FR-006: it stops once the
   real content shows).

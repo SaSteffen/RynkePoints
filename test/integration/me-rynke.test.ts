@@ -192,7 +192,8 @@ async function gauges(athleteId = ATHLETE_A) {
 	const { html } = await riderPage(ctx, athleteId);
 	return [
 		// A gauge a tour step points at carries its `id` (feature 020).
-		...html.matchAll(/<figure class="([^"]*)"[^>]*>([\s\S]*?)<\/figure>/g),
+		// The progress charts' figures (feature 009) are no gauges.
+		...html.matchAll(/<figure class="(gauge[^"]*)"[^>]*>([\s\S]*?)<\/figure>/g),
 	].map(([, classes, inner = ""]) => ({
 		classes,
 		caption: text(
@@ -1010,30 +1011,19 @@ describe("GET /me/rides ride cards (US1, 011 US2)", () => {
 describe("GET /me/rides paging (US5)", () => {
 	beforeEach(() => seedBalance(ATHLETE_A));
 
-	/** The ride table's position line and pager links, `rel` → `href`. */
+	/** The ride list's rows, the season's total and the link to the newest. */
 	async function pager(path: string) {
 		const { html } = await riderPage(ctx, ATHLETE_A, path);
 		const rides = section(html, 'id="rides"') ?? "";
-		const nav = rides.match(/<nav class="pager"[^>]*>([\s\S]*?)<\/nav>/);
 		return {
 			html,
 			rows: mainRows(html),
-			position: text(
-				rides.match(/<p class="rides-position">([\s\S]*?)<\/p>/)?.[1] ?? "",
+			total: text(
+				rides.match(/<p class="rides-total">([\s\S]*?)<\/p>/)?.[1] ?? "",
 			),
-			nav: nav?.[0] ?? null,
-			links: Object.fromEntries(
-				[...(nav?.[1] ?? "").matchAll(/<a ([^>]*)>([\s\S]*?)<\/a>/g)].map(
-					([, attrs = "", label = ""]) => [
-						attrs.match(/rel="([^"]*)"/)?.[1],
-						{
-							href: attrs.match(/href="([^"]*)"/)?.[1],
-							cls: attrs.match(/class="([^"]*)"/)?.[1],
-							text: text(label),
-						},
-					],
-				),
-			),
+			newest:
+				rides.match(/<p class="rides-newest"><a [^>]*href="([^"]*)"/)?.[1] ??
+				null,
 		};
 	}
 
@@ -1044,17 +1034,14 @@ describe("GET /me/rides paging (US5)", () => {
 	const DAY_41 = "27.08.2026";
 	const DAY_45 = "23.08.2026";
 
-	it("S5-1: shows the 20 newest and links to the older ones", async () => {
+	it("S5-1: shows the 20 newest and the season's total", async () => {
 		await seedRides(ATHLETE_A, 45, "2026-10-06");
 		const page = await pager("/me/rides");
 		expect(page.rows).toHaveLength(20);
 		expect(page.rows[0]?.[0]).toBe(DAY_1);
-		expect(page.position).toBe("Fahrten 1–20 von 45");
-		expect(page.nav).toContain('aria-label="Seiten"');
-		expect(page.links).toEqual({
-			next: { href: "/me/rides?page=2", cls: "tap", text: "Ältere ›" },
-			last: { href: "/me/rides?page=3", cls: "tap", text: "Älteste »" },
-		});
+		expect(page.total).toBe("45 Fahrten in dieser Saison");
+		expect(page.newest).toBeNull();
+		expect(page.html).not.toContain("pager");
 	});
 
 	it("S5-2: pages through the older rides", async () => {
@@ -1063,13 +1050,7 @@ describe("GET /me/rides paging (US5)", () => {
 		const second = await pager("/me/rides?page=2");
 		expect(second.rows).toHaveLength(20);
 		expect(second.rows[0]?.[0]).toBe(DAY_21);
-		expect(second.position).toBe("Fahrten 21–40 von 45");
-		expect(second.links).toEqual({
-			first: { href: "/me/rides?page=1", cls: "tap", text: "« Neueste" },
-			prev: { href: "/me/rides?page=1", cls: "tap", text: "‹ Neuere" },
-			next: { href: "/me/rides?page=3", cls: "tap", text: "Ältere ›" },
-			last: { href: "/me/rides?page=3", cls: "tap", text: "Älteste »" },
-		});
+		expect(second.newest).toBe("/me/rides");
 
 		const third = await pager("/me/rides?page=3");
 		expect(third.rows.map((row) => row[0])).toEqual([
@@ -1079,19 +1060,15 @@ describe("GET /me/rides paging (US5)", () => {
 			"24.08.2026",
 			DAY_45,
 		]);
-		expect(third.position).toBe("Fahrten 41–45 von 45");
-		expect(third.links).toEqual({
-			first: { href: "/me/rides?page=1", cls: "tap", text: "« Neueste" },
-			prev: { href: "/me/rides?page=2", cls: "tap", text: "‹ Neuere" },
-		});
+		expect(third.newest).toBe("/me/rides");
 	});
 
-	it("S5-3: shows no pager and no position for 20 rides", async () => {
+	it("S5-3: shows no total and no continuous list for 20 rides", async () => {
 		await seedRides(ATHLETE_A, 20, "2026-10-06");
 		const page = await pager("/me/rides");
 		expect(page.rows).toHaveLength(20);
-		expect(page.nav).toBeNull();
-		expect(page.html).not.toContain("rides-position");
+		expect(page.html).not.toContain('class="rides-total"');
+		expect(page.html).not.toContain("data-lazy");
 	});
 
 	it("S5-5: names a ride on page 1 that a ride on page 3 overlaps", async () => {
@@ -1115,14 +1092,14 @@ describe("GET /me/rides paging (US5)", () => {
 		await seedRides(ATHLETE_A, 45, "2026-10-06");
 		const page = await pager("/me/rides?page=99");
 		expect(page.rows).toHaveLength(5);
-		expect(page.position).toBe("Fahrten 41–45 von 45");
-		expect(page.links.prev?.href).toBe("/me/rides?page=2");
+		expect(page.rows[0]?.[0]).toBe(DAY_41);
 	});
 
 	it("shows page 1 for a page that isn't a number", async () => {
 		await seedRides(ATHLETE_A, 45, "2026-10-06");
 		const page = await pager("/me/rides?page=abc");
-		expect(page.position).toBe("Fahrten 1–20 von 45");
+		expect(page.rows[0]?.[0]).toBe(DAY_1);
+		expect(page.newest).toBeNull();
 	});
 
 	it("SC-005: pages through 500 rides by the rider's index", async () => {
@@ -1131,8 +1108,8 @@ describe("GET /me/rides paging (US5)", () => {
 			const page = await pager(path);
 			expect(page.rows).toHaveLength(20);
 		}
-		expect((await pager("/me/rides?page=25")).position).toBe(
-			"Fahrten 481–500 von 500",
+		expect((await pager("/me/rides?page=25")).total).toBe(
+			"500 Fahrten in dieser Saison",
 		);
 
 		const { results } = await env.DB.prepare(

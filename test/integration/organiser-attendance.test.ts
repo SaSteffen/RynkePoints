@@ -274,7 +274,7 @@ describe("the attendance checklist", () => {
 	it("lists the riders by first name with one form (FR-020)", async () => {
 		const html = await eventPage();
 		expect(html).toContain(
-			`<form method="post" action="/organiser/events/${eventId}/attendance"`,
+			`<form method="post" action="/organiser/events/${eventId}/attendance" class="attendance-form" data-swap>`,
 		);
 		expect(html).toContain(escapeHtml(de["organiser.attendance.save"]));
 		const order = [ATHLETE_A, ATHLETE_B, ORGANISER, OTHER_ORGANISER].map((id) =>
@@ -347,7 +347,7 @@ describe("tri-state boxes", () => {
 		await reportRaw(eventId, EMIL);
 	});
 
-	it("lists requested riders first with three radios, the legend and the hint", async () => {
+	it("lists requested riders first with a grey box, the legend and the hint", async () => {
 		const html = await eventPage();
 		const list =
 			html.match(/<ul class="attendance-list">[\s\S]*?<\/ul>/)?.[0] ?? "";
@@ -359,13 +359,10 @@ describe("tri-state boxes", () => {
 			expect(at).toBeGreaterThan(0);
 			expect(at).toBeLessThan(firstChecklistRow);
 			expect(list).toContain(
-				`<input type="radio" name="decide-${id}" value="open" checked>`,
+				`<input type="hidden" name="decide-${id}" value="open">`,
 			);
 			expect(list).toContain(
-				`<input type="radio" name="decide-${id}" value="yes">`,
-			);
-			expect(list).toContain(
-				`<input type="radio" name="decide-${id}" value="no">`,
+				`<button type="button" class="tri-toggle" role="checkbox" aria-checked="mixed" data-state="open"><span class="tri-box" aria-hidden="true"></span>`,
 			);
 			expect(checkbox(html, id)).toBeNull();
 		}

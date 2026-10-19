@@ -235,6 +235,12 @@ describe("STYLE", () => {
 		expect(STYLE).toContain("@keyframes top-bar-lift");
 	});
 
+	it("keeps the top bar's colour while the page scrolls", () => {
+		const lift = STYLE.match(/@keyframes top-bar-lift\{(.*?\})\}/)?.[1];
+		expect(lift).toBeDefined();
+		expect(lift).not.toContain("background");
+	});
+
 	it("keeps the navigation in the top bar while the page scrolls from 600 px (#62)", () => {
 		expect(declsOf("nav.app-nav", WIDE).position).toBe("fixed");
 		expect(Number(declsOf("nav.app-nav")["z-index"])).toBeGreaterThan(
@@ -442,7 +448,7 @@ describe("STYLE", () => {
 			expect(declsOf(`${selector}:hover::before`)).toEqual({});
 			expect(
 				declsOf(`${selector}:hover::before`, "(hover:hover)").opacity,
-			).toBe(".08");
+			).toBe(selector === ".button" ? ".18" : ".08");
 		});
 
 		it("shows a stronger layer when pressed and no ripple runs", () => {
@@ -451,6 +457,23 @@ describe("STYLE", () => {
 					declsOf(`:root:not(.ripples) ${selector}:active::before`).opacity,
 				),
 			).toBeGreaterThan(0.08);
+		});
+	});
+
+	it("makes the filled button's hover show on black and on yellow", () => {
+		expect(
+			declsOf(".button:hover", "(hover:hover)")["box-shadow"],
+		).toBeDefined();
+		expect(
+			Number(declsOf(":root:not(.ripples) .button:active::before").opacity),
+		).toBeGreaterThan(0.18);
+	});
+
+	it("draws an icon button as the bare icon, without the browser's button", () => {
+		expect(declsOf(".icon-button")).toMatchObject({
+			padding: "0",
+			border: "0",
+			background: "none",
 		});
 	});
 
@@ -492,6 +515,34 @@ describe("STYLE", () => {
 					rule.media !== null && rule.selectors.includes("ol.ride-list"),
 			),
 		).toEqual([]);
+	});
+
+	it("widens Team, Settings and both event lists to the content width from 840 px", () => {
+		const MEDIUM = "(min-width:840px)";
+		for (const page of [
+			"main:has(>.team-grid)",
+			"main:has(>.settings-grid)",
+			"main:has(>.events)",
+			"main:has(>section.organiser>ul.organiser-events)",
+		]) {
+			expect(declsOf(page)["max-width"]).toBeUndefined();
+			expect(declsOf(page, MEDIUM)["max-width"]).toBe("var(--rp-content-max)");
+		}
+		// The leaderboard gets a column of its own beside the other team cards.
+		expect(declsOf(".team-grid>.leaderboard", MEDIUM)).toMatchObject({
+			"grid-column": "2",
+			"grid-row": "1/-1",
+		});
+		expect(declsOf(".settings-grid", MEDIUM).columns).toBe("2");
+		expect(declsOf(".settings-group")["break-inside"]).toBe("avoid");
+		// Both labels of an event button share one cell, so hovering never
+		// widens it and wraps it away from the pointer in a narrower card.
+		expect(declsOf(".event-button>.event-next")["grid-area"]).toBe("1/1");
+		expect(declsOf(".event-button .event-next").visibility).toBe("hidden");
+		// The new-event form keeps its width.
+		expect(declsOf(".organiser>.organiser-form", MEDIUM)["max-width"]).toBe(
+			"40rem",
+		);
 	});
 
 	it("spins while older rides load, only without reduced motion (018 R6)", () => {

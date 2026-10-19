@@ -76,6 +76,11 @@ export interface LayoutOptions {
 	 * is public.
 	 */
 	shell?: ShellParts;
+	/**
+	 * Scripts the page needs before `app.js`, such as the chart library on the
+	 * Overview (feature 009 research R6), deferred and run in this order.
+	 */
+	scripts?: readonly string[];
 }
 
 /** The language switcher, returning to `path` (FR-046). */
@@ -90,7 +95,7 @@ export function languageForm(i18n: I18n, path: string): SafeHtml {
 
 export function layout(
 	i18n: I18n,
-	{ title, path, body, shell }: LayoutOptions,
+	{ title, path, body, shell, scripts = [] }: LayoutOptions,
 ): SafeHtml {
 	const header = shell
 		? html`<body class="shell">
@@ -110,7 +115,10 @@ export function layout(
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-<script src="/app.js" defer></script>
+${scripts.map(
+	(src) => html`<script src="${src}" defer></script>
+`,
+)}<script src="/app.js" defer></script>
 <title>${title}</title>
 <style>${new SafeHtml(STYLE)}</style>
 </head>

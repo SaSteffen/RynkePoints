@@ -1,12 +1,13 @@
 // RynkePoints page script (feature 010 contracts/client.md, research R16). It
 // only wires up what a server-rendered page can't do itself: the service worker,
 // the install group and the app prompt, the notifications switch, the scheme
-// picker, reloading a section on return, waiting for the first data, the
+// picker, bringing a section up to date on return and once the first data is
+// there, other views and saves swapped in place (`data-swap`), the
 // buttons' press and busy feedback, opening a badge's large view on mouse
-// hover (feature 013 research R19) and the event page's tri-state boxes
-// (feature 019 research R5). It holds no text: every word shown comes
-// from the page's markup, rendered from the catalogs and hidden until this
-// shows it.
+// hover (feature 013 research R19), the event page's tri-state boxes
+// (feature 019 research R5) and the Overview's progress charts (feature 009).
+// It holds no text: every word shown comes from the page's markup, rendered
+// from the catalogs and hidden until this shows it.
 
 /**
  * Resolves to whether the service worker is registered. Firefox's private
@@ -73,7 +74,7 @@ function promptInstall() {
  * The App group in Settings (FR-004, 015 FR-011, research R11): it shows where
  * installing helps, has no dismiss, and ignores the app prompt's answers.
  */
-function installSettings() {
+function installSettings(signal) {
 	const hint = document.querySelector("#settings-app #install");
 	if (!hint || standalone()) return;
 	const group = hint.closest("section#settings-app");
@@ -86,7 +87,9 @@ function installSettings() {
 		prompt.hidden = false;
 		setShown(true);
 	};
-	installable.push(showPrompt);
+	installable.push(() => {
+		if (!signal.aborted) showPrompt();
+	});
 	if (installEvent) showPrompt();
 	prompt.querySelector("button").addEventListener("click", () => {
 		setShown(false);
@@ -99,9 +102,13 @@ function installSettings() {
 		setShown(true);
 	}
 
-	window.addEventListener("appinstalled", () => {
-		setShown(false);
-	});
+	window.addEventListener(
+		"appinstalled",
+		() => {
+			setShown(false);
+		},
+		{ signal },
+	);
 }
 
 function fromBase64Url(value) {
@@ -159,7 +166,7 @@ const PUSH_CHANGED = "rp-push-changed";
  * The section in Settings (FR-010, FR-011, research R8's state table; feature
  * 011 contracts/client.md "Notifications switch").
  */
-async function notifications() {
+async function notifications(signal) {
 	const section = document.getElementById("notifications");
 	if (!section) return;
 	const toggle = section.querySelector('[data-action="toggle"]');
@@ -258,11 +265,15 @@ async function notifications() {
 		}
 	};
 	// The app prompt may turn them on while Settings is open (research R10).
-	document.addEventListener(PUSH_CHANGED, async () => {
-		subscription = await pushManager.getSubscription();
-		if (subscription) setSignOutEndpoint(subscription.endpoint);
-		await sync();
-	});
+	document.addEventListener(
+		PUSH_CHANGED,
+		async () => {
+			subscription = await pushManager.getSubscription();
+			if (subscription) setSignOutEndpoint(subscription.endpoint);
+			await sync();
+		},
+		{ signal },
+	);
 	await sync();
 }
 
@@ -496,9 +507,10 @@ function pageLoading() {
 }
 
 /**
- * A section brought back after more than a minute in the background reloads,
- * so its figures are current (feature 011 FR-009, research R8). Public pages
- * have no `nav.app-nav` and keep what the rider typed.
+ * A section brought back after more than a minute in the background is
+ * brought up to date in place, so its figures are current without a reload
+ * (feature 011 FR-009, research R8). Public pages have no `nav.app-nav` and
+ * keep what the rider typed.
  */
 function refreshOnReturn() {
 	let hiddenAt = null;
@@ -510,19 +522,18 @@ function refreshOnReturn() {
 			Date.now() - hiddenAt > 60000 &&
 			document.querySelector("nav.app-nav")
 		) {
-			startLoading();
-			location.reload();
+			refreshPage();
 		}
 	});
 }
 
 /**
  * The waiting state before the first data (015 contracts/client.md): asks
- * /me/ready every data-poll-seconds while the page is visible, and reloads once
- * the first balance is there. A 401, a network error or "not yet" just waits
- * for the next tick.
+ * /me/ready every data-poll-seconds while the page is visible, and brings the
+ * page up to date once the first balance is there. A 401, a network error or
+ * "not yet" just waits for the next tick.
  */
-function waitForFirstData() {
+function waitForFirstData(signal) {
 	const waiting = document.querySelector("[data-waiting]");
 	if (!waiting) return;
 	const configured = Number(waiting.dataset.pollSeconds);
@@ -539,37 +550,229 @@ function waitForFirstData() {
 			const { ready } = await res.json();
 			if (ready === true) {
 				clearInterval(timer);
-				startLoading();
-				location.reload();
+				refreshPage();
 			}
 		} catch {
 			// Offline or a bad answer: try again on the next tick.
 		}
 	}, seconds * 1000);
+	signal.addEventListener("abort", () => clearInterval(timer));
 }
 
-/** Where a `data-keep-scroll` link left the page (issue #113). */
-const KEEP_SCROLL = "rp-keep-scroll";
+/** Ends the listeners of the content shown now, when other content replaces it. */
+let content = new AbortController();
+
+/** A page's view, without its fragment: a link to `#…` changes no view. */
+const viewOf = (url) => url.pathname + url.search;
+
+/** The view the content shows, for the back button (`swapViews`). */
+let shownView = viewOf(location);
 
 /**
- * Links that show the same page in another view, like the Team section's
- * switches, open the next page where this one was instead of at the top
- * (issue #113). The position goes to session storage on the tap and is used
- * once, only by the page the link went to.
+ * Puts `doc`, this page as the server sends it now, in place of the shown one:
+ * the content, the navigation with its counts, the refresh link and a tour's
+ * card. The scroll position stays. `false` without content to swap; the caller
+ * then loads the page instead.
  */
-function keepScroll() {
-	try {
-		const kept = sessionStorage.getItem(KEEP_SCROLL);
-		sessionStorage.removeItem(KEEP_SCROLL);
-		if (kept !== null) {
-			const { url, y } = JSON.parse(kept);
-			if (url === location.pathname + location.search && Number.isFinite(y)) {
-				scrollTo(0, y);
-			}
-		}
-	} catch {
-		// No storage, or a bad entry: the page opens at the top.
+function swapPage(doc) {
+	const main = document.querySelector("main");
+	const next = doc.querySelector("main");
+	const nav = document.querySelector("nav.app-nav");
+	if (!main || !next || !nav) return false;
+	content.abort();
+	content = new AbortController();
+	main.replaceChildren(...next.childNodes);
+	// The tour's card sits before the app prompt and the navigation.
+	const tour = doc.querySelector("aside.tour");
+	document.querySelector("aside.tour")?.remove();
+	if (tour) (document.getElementById("app-prompt") ?? nav).before(tour);
+	for (const selector of ["header.top-bar a.refresh", "nav.app-nav"]) {
+		const fresh = doc.querySelector(selector);
+		if (fresh) document.querySelector(selector)?.replaceWith(fresh);
 	}
+	document.title = doc.title;
+	const { signal } = content;
+	const scripts = missingScripts(doc);
+	if (scripts.length === 0) enhance(signal);
+	else {
+		loadScripts(scripts).then(() => {
+			if (!signal.aborted) enhance(signal);
+		});
+	}
+	return true;
+}
+
+/**
+ * The scripts `doc` loads before this one that this page hasn't, such as the
+ * chart library of an Overview that only now shows its charts (feature 009).
+ */
+function missingScripts(doc) {
+	const loaded = new Set(
+		[...document.scripts].map((script) => script.getAttribute("src")),
+	);
+	return [...doc.head.querySelectorAll("script[src]")]
+		.map((script) => script.getAttribute("src"))
+		.filter((src) => !loaded.has(src));
+}
+
+/** Loads `sources` one after the other; one that fails is passed over. */
+async function loadScripts(sources) {
+	for (const src of sources) {
+		await new Promise((resolve) => {
+			const script = document.createElement("script");
+			script.src = src;
+			script.addEventListener("load", resolve);
+			script.addEventListener("error", resolve);
+			document.head.append(script);
+		});
+	}
+}
+
+/** The page in `res`, when it is this page again and fine to swap in. */
+async function samePage(res) {
+	if (!res.ok || new URL(res.url).pathname !== location.pathname) return null;
+	return new DOMParser().parseFromString(await res.text(), "text/html");
+}
+
+/** The request swapping the page now; a newer one cancels it. */
+let swapping = null;
+
+/**
+ * Shows this page at `url` in place: `push` adds a history entry, as following
+ * a link does. Anything unexpected (signed out, another page, an error) loads
+ * it the usual way instead.
+ */
+async function showPage(url, push) {
+	swapping?.abort();
+	const controller = new AbortController();
+	swapping = controller;
+	startLoading();
+	try {
+		const res = await fetch(url, {
+			credentials: "same-origin",
+			cache: "no-store",
+			signal: controller.signal,
+		});
+		const doc = await samePage(res);
+		if (!doc) {
+			location.assign(res.ok ? res.url : url);
+			return;
+		}
+		const focused = document.activeElement?.closest("a[data-swap]");
+		const href = focused?.getAttribute("href");
+		if (!swapPage(doc)) {
+			location.assign(url);
+			return;
+		}
+		shownView = viewOf(new URL(url));
+		if (push) history.pushState(null, "", url);
+		// Keyboard users stay on the link of the view they picked.
+		if (href) {
+			document
+				.querySelector(`main a[data-swap][href="${href}"]`)
+				?.focus({ preventScroll: true });
+		}
+	} catch (error) {
+		if (error.name === "AbortError") return;
+		location.assign(url);
+		return;
+	} finally {
+		if (swapping === controller) swapping = null;
+	}
+	stopLoading();
+}
+
+/**
+ * The page again, in place. Rides, with more rides loaded than its first
+ * batch, reloads instead: its own restore finds the ride in view (feature 018).
+ */
+function refreshPage() {
+	if (document.querySelector("section#rides[data-lazy]")) {
+		startLoading();
+		location.reload();
+		return;
+	}
+	showPage(location.href, false);
+}
+
+/**
+ * Sends `form` and swaps the page it leads back to in place, at the same
+ * scroll position, in place of its history entry (POST, then redirect). A
+ * notice of the result that isn't in view floats above the navigation for a
+ * while. Where the answer is another page or an error, the browser takes over.
+ */
+async function sendForm(form, submitter) {
+	submitter?.setAttribute("aria-busy", "true");
+	startLoading();
+	let res;
+	try {
+		res = await fetch(form.action, {
+			method: "POST",
+			body: new FormData(form, submitter),
+			credentials: "same-origin",
+		});
+	} catch {
+		// Offline: the browser's own submit says so.
+		nativeSubmit(form, submitter);
+		return;
+	}
+	// Refused without a redirect: the browser shows that answer itself.
+	if (!res.ok && !res.redirected) {
+		nativeSubmit(form, submitter);
+		return;
+	}
+	const doc = await samePage(res);
+	if (!doc || !swapPage(doc)) {
+		location.assign(res.url);
+		return;
+	}
+	history.replaceState(null, "", res.url);
+	shownView = viewOf(new URL(res.url));
+	stopLoading();
+	floatNotice();
+}
+
+/** Submits `form` the usual way, past `sendForm`. */
+function nativeSubmit(form, submitter) {
+	form.dataset.native = "true";
+	delete form.dataset.submitting;
+	submitter?.removeAttribute("aria-busy");
+	stopLoading();
+	form.requestSubmit(submitter);
+}
+
+/** How long a floating notice stays, unless focus is in it (its undo, say). */
+const NOTICE_FLOAT_MS = 10000;
+
+/** Floats the content's first notice while it is out of view after a save. */
+function floatNotice() {
+	const notice = document.querySelector(
+		"main .notice[role=status], main .notice[role=alert]",
+	);
+	if (!notice) return;
+	const bar = document.querySelector("header.top-bar");
+	const top = bar ? bar.getBoundingClientRect().bottom : 0;
+	const { top: from, bottom: to } = notice.getBoundingClientRect();
+	if (from >= top && to <= innerHeight) return;
+	notice.classList.add("notice-floating");
+	const land = () => {
+		if (notice.contains(document.activeElement)) {
+			notice.addEventListener("focusout", land, { once: true });
+		} else {
+			notice.classList.remove("notice-floating");
+		}
+	};
+	setTimeout(land, NOTICE_FLOAT_MS);
+}
+
+/**
+ * Links that show this page in another view (`data-swap`: the Team section's
+ * switches, all past events) swap it in place, without a reload, and the
+ * address and the back button follow (issue #113). Forms with `data-swap`
+ * save in place (`sendForm`).
+ */
+function swapViews() {
+	const path = location.pathname;
 	document.addEventListener("click", (event) => {
 		if (
 			event.defaultPrevented ||
@@ -583,17 +786,34 @@ function keepScroll() {
 		}
 		const link =
 			event.target instanceof Element
-				? event.target.closest("a[href][data-keep-scroll]")
+				? event.target.closest("a[href][data-swap]")
 				: null;
 		if (!(link instanceof HTMLAnchorElement)) return;
 		const url = new URL(link.href);
-		if (url.origin !== location.origin) return;
-		try {
-			sessionStorage.setItem(
-				KEEP_SCROLL,
-				JSON.stringify({ url: url.pathname + url.search, y: scrollY }),
-			);
-		} catch {}
+		if (url.origin !== location.origin || url.pathname !== path) return;
+		event.preventDefault();
+		if (url.href !== location.href) showPage(url.href, true);
+	});
+	document.addEventListener("submit", (event) => {
+		const form = event.target;
+		if (
+			event.defaultPrevented ||
+			!(form instanceof HTMLFormElement) ||
+			!form.hasAttribute("data-swap")
+		) {
+			return;
+		}
+		if (form.dataset.native === "true") return;
+		event.preventDefault();
+		// One save at a time, as `pendingSubmit` does for the others.
+		if (form.dataset.submitting === "true") return;
+		form.dataset.submitting = "true";
+		sendForm(form, event.submitter);
+	});
+	addEventListener("popstate", () => {
+		if (location.pathname === path && viewOf(location) !== shownView) {
+			showPage(location.href, false);
+		}
 	});
 }
 
@@ -605,24 +825,16 @@ const MAX_RIDE_BATCH = 1000;
 
 /**
  * Rides as one continuous list (feature 018 contracts/client.md): the next
- * rides load as the end of the list comes within a screen, the season's total
- * replaces the pager and the page count, and a reload or the back button finds
- * the same ride in view. Without IntersectionObserver the pager stays.
+ * rides load as the end of the list comes within a screen, and a reload or the
+ * back button finds the same ride in view.
  */
-function lazyRides() {
+function lazyRides(signal) {
 	const section = document.querySelector("section#rides[data-lazy]");
 	const list = section?.querySelector("ol.ride-list");
 	const more = section?.querySelector(".rides-more");
 	const status = more?.querySelector(".rides-status");
 	const retry = more?.querySelector("[data-retry]");
 	if (!list || !status || !retry) return;
-	if (typeof IntersectionObserver !== "function") return;
-	for (const old of section.querySelectorAll("nav.pager, .rides-position")) {
-		old.hidden = true;
-	}
-	for (const line of section.querySelectorAll(".rides-total, .rides-newest")) {
-		line.hidden = false;
-	}
 	try {
 		history.scrollRestoration = "manual";
 	} catch {}
@@ -648,6 +860,7 @@ function lazyRides() {
 		},
 		{ rootMargin: "0px 0px 100% 0px" },
 	);
+	signal.addEventListener("abort", () => observer.disconnect());
 	/** Observing afresh reports whether the end is still in reach. */
 	const watch = () => {
 		observer.unobserve(more);
@@ -700,30 +913,38 @@ function lazyRides() {
 	}
 
 	retry.addEventListener("click", () => load());
-	addEventListener("online", () => {
-		if (more.dataset.state === "failed") load();
-	});
+	addEventListener(
+		"online",
+		() => {
+			if (more.dataset.state === "failed") load();
+		},
+		{ signal },
+	);
 
-	addEventListener("pagehide", () => {
-		const bar = document.querySelector("header.top-bar");
-		const top = bar ? bar.getBoundingClientRect().bottom : 0;
-		const all = cards();
-		const anchor = all.find(
-			(card) => card.getBoundingClientRect().bottom > top,
-		);
-		try {
-			sessionStorage.setItem(
-				RIDES_PLACE,
-				JSON.stringify({
-					url: location.pathname + location.search,
-					loaded: all.length,
-					anchor: anchor ? rideOf(anchor) : null,
-					offset: anchor ? anchor.getBoundingClientRect().top : 0,
-					y: scrollY,
-				}),
+	addEventListener(
+		"pagehide",
+		() => {
+			const bar = document.querySelector("header.top-bar");
+			const top = bar ? bar.getBoundingClientRect().bottom : 0;
+			const all = cards();
+			const anchor = all.find(
+				(card) => card.getBoundingClientRect().bottom > top,
 			);
-		} catch {}
-	});
+			try {
+				sessionStorage.setItem(
+					RIDES_PLACE,
+					JSON.stringify({
+						url: location.pathname + location.search,
+						loaded: all.length,
+						anchor: anchor ? rideOf(anchor) : null,
+						offset: anchor ? anchor.getBoundingClientRect().top : 0,
+						y: scrollY,
+					}),
+				);
+			} catch {}
+		},
+		{ signal },
+	);
 
 	/** After a reload or the back button: the rides and the ride in view. */
 	async function restore() {
@@ -761,7 +982,7 @@ function lazyRides() {
 
 /** The Material buttons that show press feedback (issue #107). */
 const PRESSABLE =
-	".button,.button-outlined,.danger,.segmented,.segmented-group label,.icon-button";
+	".button,.button-outlined,.button-text,.danger,.segmented,.segmented-group label,.icon-button";
 
 /**
  * A ripple from the point of the tap on a Material button (issue #107). Without
@@ -908,75 +1129,49 @@ function badgeHover() {
 }
 
 /**
- * The event page's open requests (feature 019 research R5): each rider's three
- * radios become one box that cycles grey, ticked, empty and grey again, and
- * the tag beside it says what saving will do. The radios stay the form's
- * fields, so saving works the same without this script.
+ * The event page's open requests (feature 019 research R5): each rider's box
+ * cycles grey, ticked, empty and grey again, its hidden `decide-{id}` field
+ * keeps the choice for saving, and the tag beside it says what saving will do.
  */
 function triState() {
 	const form = document.querySelector("form.attendance-form");
 	if (!form) return;
-	const sets = [...form.querySelectorAll("fieldset.tri-state")];
-	if (sets.length === 0) return;
+	const toggles = [...form.querySelectorAll(".tri-toggle")];
+	if (toggles.length === 0) return;
 	const order = ["open", "yes", "no"];
 	const checked = { open: "mixed", yes: "true", no: "false" };
-	const stateOf = (set) => set.querySelector("input:checked")?.value ?? "open";
+	const fieldOf = (toggle) =>
+		toggle.parentElement.querySelector("input[name^=decide-]");
 	const summary = form.querySelector(".tri-summary");
 	const update = () => {
 		if (!summary) return;
 		const counts = { open: 0, yes: 0, no: 0 };
-		for (const set of sets) counts[stateOf(set)] += 1;
+		for (const toggle of toggles) counts[fieldOf(toggle).value] += 1;
 		summary.textContent = summary.dataset.text
 			.replace("{yes}", counts.yes)
 			.replace("{no}", counts.no)
 			.replace("{open}", counts.open);
-		summary.hidden = false;
 	};
-	const show = (set) => {
-		const value = stateOf(set);
-		for (const tag of set.parentElement.querySelectorAll(".tri-tag")) {
-			tag.hidden = !tag.classList.contains(`tri-tag-${value}`);
-		}
-		const toggle = set.querySelector(".tri-toggle");
+	const choose = (toggle, value) => {
+		fieldOf(toggle).value = value;
 		toggle.setAttribute("aria-checked", checked[value]);
 		toggle.dataset.state = value;
-	};
-	const choose = (set, value) => {
-		const radio = set.querySelector(`input[value="${value}"]`);
-		if (radio) radio.checked = true;
-		show(set);
+		for (const tag of toggle.parentElement.querySelectorAll(".tri-tag")) {
+			tag.hidden = !tag.classList.contains(`tri-tag-${value}`);
+		}
 		update();
 	};
-	for (const set of sets) {
-		const toggle = document.createElement("button");
-		toggle.type = "button";
-		toggle.className = "tri-toggle";
-		toggle.setAttribute("role", "checkbox");
-		const box = document.createElement("span");
-		box.className = "tri-box";
-		box.setAttribute("aria-hidden", "true");
-		toggle.append(
-			box,
-			...set.querySelector("legend").cloneNode(true).childNodes,
-		);
+	for (const toggle of toggles) {
 		toggle.addEventListener("click", () => {
-			const next = order[(order.indexOf(stateOf(set)) + 1) % order.length];
-			choose(set, next);
-		});
-		set.classList.add("tri-enhanced");
-		set.prepend(toggle);
-		show(set);
-	}
-	const all = form.querySelector(".confirm-all");
-	if (all) {
-		all.hidden = false;
-		all.addEventListener("click", () => {
-			for (const set of sets) {
-				if (stateOf(set) === "open") choose(set, "yes");
-			}
+			const value = fieldOf(toggle).value;
+			choose(toggle, order[(order.indexOf(value) + 1) % order.length]);
 		});
 	}
-	update();
+	form.querySelector(".confirm-all")?.addEventListener("click", () => {
+		for (const toggle of toggles) {
+			if (fieldOf(toggle).value === "open") choose(toggle, "yes");
+		}
+	});
 }
 
 /**
@@ -986,7 +1181,7 @@ function triState() {
  * group, however short. Filtering changes the heights, so it is marked again
  * then.
  */
-function badgeSwitch() {
+function badgeSwitch(signal) {
 	const bar = document.querySelector(".badges-switch");
 	const links = bar
 		? [...bar.querySelectorAll('nav a.segmented[href^="#"]')]
@@ -1015,8 +1210,8 @@ function badgeSwitch() {
 	const soon = () => {
 		if (!frame) frame = requestAnimationFrame(mark);
 	};
-	addEventListener("scroll", soon, { passive: true });
-	addEventListener("resize", soon);
+	addEventListener("scroll", soon, { passive: true, signal });
+	addEventListener("resize", soon, { signal });
 	bar.addEventListener("change", soon);
 	mark();
 }
@@ -1035,19 +1230,660 @@ function scrollToNewBadge() {
 		?.scrollIntoView({ block: "center" });
 }
 
+/** The smallest stretch a chart zooms to, in days (feature 009 FR-023). */
+const PROGRESS_MIN_DAYS = 7;
+
+/** How far a finger or a shift-dragged mouse moves before the period follows. */
+const PROGRESS_PAN_SLOP = 8;
+
+/**
+ * The Overview's progress charts (feature 009 contracts/client.md): Chart.js
+ * draws the server's figures on the two canvases, both always on one period.
+ * The zoom plugin gives mouse drag, the focused wheel and the limits; pinch
+ * and a sideways drag come from Pointer Events here, so Hammer.js is never
+ * needed. Every word comes from the section's templates; this only fills in
+ * dates and numbers. Nothing is fetched or kept.
+ */
+function progressCharts(signal) {
+	const section = document.getElementById("progress");
+	const source = document.getElementById("progress-data");
+	if (!section || !source) return;
+	if (!window.Chart || !window.ChartZoom) {
+		console.error("The chart library is missing");
+		return;
+	}
+	let data;
+	try {
+		data = JSON.parse(source.textContent);
+	} catch (error) {
+		console.error("Unreadable progress data", error);
+		return;
+	}
+	const { Chart, ChartZoom } = window;
+	Chart.register(ChartZoom);
+	const { axisDays, lastIndex } = data;
+	const locale = section.dataset.locale;
+	const [year, month, day] = data.seasonStart.split("-").map(Number);
+	const dateOf = (index) => new Date(Date.UTC(year, month - 1, day + index));
+	const shortDate = new Intl.DateTimeFormat(locale, {
+		timeZone: "UTC",
+		day: "numeric",
+		month: "short",
+	});
+	const monthName = new Intl.DateTimeFormat(locale, {
+		timeZone: "UTC",
+		month: "short",
+	});
+	const fullDate = new Intl.DateTimeFormat(locale, {
+		timeZone: "UTC",
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
+	});
+	const longDate = new Intl.DateTimeFormat(locale, {
+		timeZone: "UTC",
+		weekday: "long",
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+	});
+	const number = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
+	const paceAt = (threshold, index) =>
+		Math.min(
+			threshold,
+			Math.max(0, Math.floor((threshold * index) / axisDays)),
+		);
+	const clampDay = (index) => Math.min(lastIndex, Math.max(0, index));
+
+	/** The colours and type of the scheme shown now (research R12). */
+	const look = () => {
+		const style = getComputedStyle(section);
+		const token = (name) => style.getPropertyValue(name).trim();
+		return {
+			font: style.fontFamily,
+			training: token("--rp-line-training"),
+			team: token("--rp-line-team"),
+			outside: token("--rp-line-outside"),
+			threshold: token("--rp-line-threshold"),
+			pace: token("--rp-line-pace"),
+			muted: token("--md-sys-color-on-surface-variant"),
+			grid: token("--md-sys-color-outline-variant"),
+			surface: token("--md-sys-color-surface"),
+		};
+	};
+
+	/** The labels on the time axis for the stretch shown (research R10). */
+	function dayTicks(scale) {
+		const from = Math.ceil(scale.min);
+		const to = Math.floor(scale.max);
+		const span = scale.max - scale.min;
+		const ticks = [];
+		for (let i = from; i <= to; i++) {
+			const date = dateOf(i);
+			if (
+				span > 62
+					? date.getUTCDate() === 1
+					: span >= 15
+						? date.getUTCDay() === 1
+						: (i - from) % 2 === 0
+			) {
+				ticks.push({ value: i });
+			}
+		}
+		scale.ticks = ticks;
+	}
+
+	/** The hairline at the selected day (dataviz: thin, behind nothing). */
+	const crosshair = {
+		id: "progressCrosshair",
+		afterDatasetsDraw(chart) {
+			const x = chart.scales.x.getPixelForValue(selected);
+			const { top, bottom, left, right } = chart.chartArea;
+			if (x < left || x > right) return;
+			const { ctx } = chart;
+			ctx.save();
+			ctx.strokeStyle = colours.muted;
+			ctx.lineWidth = 1;
+			ctx.beginPath();
+			ctx.moveTo(Math.round(x) + 0.5, top);
+			ctx.lineTo(Math.round(x) + 0.5, bottom);
+			ctx.stroke();
+			ctx.restore();
+		},
+	};
+
+	let colours = look();
+	let selected = lastIndex;
+	let syncing = false;
+	const charts = [];
+
+	/** The datasets of one chart; curves first, as the selection marks them. */
+	function datasets(kind) {
+		const series = data[kind];
+		const line = (to, colour, threshold) => ({
+			data: [
+				{ x: 0, y: to === "pace" ? 0 : threshold },
+				{ x: axisDays, y: threshold },
+			],
+			borderColor: colour,
+			borderWidth: 1.5,
+			pointRadius: 0,
+			pointHoverRadius: 0,
+		});
+		const curve = (values, colour) => ({
+			data: values.map((y, x) => ({ x, y })),
+			borderColor: colour,
+			borderWidth: 3,
+			pointRadius: 0,
+			pointHoverRadius: 4,
+			pointHoverBorderWidth: 2,
+			pointHoverBorderColor: colours.surface,
+			pointHoverBackgroundColor: colour,
+		});
+		const sets = [curve(series.values, colours[kind])];
+		const outside = kind === "training" ? data.outside : null;
+		if (outside) {
+			sets.push(curve(outside.values, colours.outside));
+		}
+		sets.push(line("threshold", colours.threshold, series.threshold));
+		if (series.pace) {
+			sets.push(line("pace", colours.pace, series.threshold));
+		}
+		if (outside) {
+			sets.push(line("threshold", colours.outside, outside.threshold));
+			if (outside.pace) {
+				sets.push(line("pace", colours.pace, outside.threshold));
+			}
+		}
+		return sets;
+	}
+
+	/** How many of a chart's first datasets are curves. */
+	const curves = (kind) => (kind === "training" && data.outside ? 2 : 1);
+
+	function makeChart(canvas) {
+		const kind = canvas.dataset.series;
+		const font = { family: colours.font, size: 12 };
+		return new Chart(canvas, {
+			type: "line",
+			data: { datasets: datasets(kind) },
+			plugins: [crosshair],
+			options: {
+				animation: false,
+				responsive: true,
+				maintainAspectRatio: false,
+				// The selection is ours (pointer and keys), not Chart.js's hover.
+				events: [],
+				interaction: { mode: "index", intersect: false, axis: "x" },
+				normalized: true,
+				elements: { line: { tension: 0 } },
+				scales: {
+					x: {
+						type: "linear",
+						min: 0,
+						max: axisDays,
+						afterBuildTicks: dayTicks,
+						grid: { color: colours.grid },
+						border: { color: colours.grid },
+						ticks: {
+							color: colours.muted,
+							font,
+							maxRotation: 0,
+							autoSkip: true,
+							callback(value) {
+								const span = this.max - this.min;
+								return (span > 62 ? monthName : shortDate).format(
+									dateOf(value),
+								);
+							},
+						},
+					},
+					y: {
+						min: 0,
+						max: data[kind].yMax,
+						grid: { color: colours.grid },
+						border: { color: colours.grid },
+						ticks: {
+							color: colours.muted,
+							font,
+							precision: 0,
+							callback: (value) => number.format(value),
+						},
+					},
+				},
+				plugins: {
+					legend: { display: false },
+					tooltip: { enabled: false },
+					zoom: {
+						limits: {
+							x: { min: 0, max: axisDays, minRange: PROGRESS_MIN_DAYS },
+						},
+						pan: {
+							// Only so a shift-drag isn't a drag-zoom; our handler pans.
+							enabled: true,
+							mode: "x",
+							modifierKey: "shift",
+							onPan: ({ chart }) => follow(chart),
+						},
+						zoom: {
+							mode: "x",
+							wheel: { enabled: true },
+							drag: { enabled: true, threshold: PROGRESS_PAN_SLOP },
+							pinch: { enabled: false },
+							// The wheel zooms a chart with focus; otherwise it scrolls.
+							onZoomStart: ({ chart, event }) =>
+								event.type !== "wheel" ||
+								document.activeElement === chart.canvas,
+							onZoom: ({ chart }) => follow(chart),
+						},
+					},
+				},
+			},
+		});
+	}
+
+	/** Puts the other charts on `chart`'s period. */
+	function follow(chart) {
+		if (syncing) return;
+		const { min, max } = chart.scales.x;
+		setPeriod(min, max, chart);
+	}
+
+	/** Shows `from` … `to` (day indexes) in every chart but `except`. */
+	function setPeriod(from, to, except) {
+		syncing = true;
+		try {
+			for (const chart of charts) {
+				if (chart !== except) {
+					chart.zoomScale("x", { min: from, max: to }, "none");
+				}
+			}
+		} finally {
+			syncing = false;
+		}
+		periodShown(from, to);
+	}
+
+	function resetPeriod() {
+		syncing = true;
+		try {
+			for (const chart of charts) chart.resetZoom("none");
+		} finally {
+			syncing = false;
+		}
+		periodShown(0, axisDays);
+	}
+
+	/** Buttons and labels after the period changed (contracts/client.md). */
+	function periodShown(from, to) {
+		const near = (a, b) => Math.abs(a - b) < 0.5;
+		for (const button of section.querySelectorAll("button[data-from]")) {
+			const pressed =
+				near(Number(button.dataset.from), from) &&
+				near(Number(button.dataset.to), to);
+			button.setAttribute("aria-pressed", String(pressed));
+		}
+		const first = Math.max(0, Math.round(from));
+		const last = Math.min(axisDays, Math.round(to));
+		for (const chart of charts) {
+			const kind = chart.canvas.dataset.series;
+			const template = section.querySelector(`template[data-label="${kind}"]`);
+			if (!template) continue;
+			const label = fill(template, {
+				from: fullDate.format(dateOf(first)),
+				to: fullDate.format(dateOf(last)),
+				value: number.format(data[kind].values[clampDay(last)] ?? 0),
+				threshold: number.format(data[kind].threshold),
+			});
+			chart.canvas.setAttribute("aria-label", label.textContent);
+		}
+	}
+
+	/** A copy of `template`'s content with its slots filled in. */
+	function fill(template, values) {
+		const content = template.content.cloneNode(true);
+		for (const slot of content.querySelectorAll("[data-slot]")) {
+			slot.textContent = values[slot.dataset.slot] ?? "";
+		}
+		return content;
+	}
+
+	const readout = section.querySelector(".progress-readout");
+
+	/** The selected day's figures, line by line (research R9). */
+	function readoutOf(index) {
+		const template = (readout, series) =>
+			section.querySelector(
+				series
+					? `template[data-readout="${readout}"][data-series="${series}"]`
+					: `template[data-readout="${readout}"]`,
+			);
+		const lines = [];
+		const day = template("day");
+		if (day) {
+			lines.push([
+				fill(day, {
+					date: longDate.format(dateOf(index)),
+					training: number.format(data.training.values[index]),
+					team: number.format(data.team.values[index]),
+				}),
+			]);
+		}
+		for (const series of ["training", "team", "outside"]) {
+			const line = data[series];
+			if (!line?.pace) continue;
+			const value = line.values[index];
+			const pace = paceAt(line.threshold, index);
+			const part = template(
+				value > pace ? "pace-ahead" : value < pace ? "pace-behind" : "pace-on",
+				series,
+			);
+			if (!part) continue;
+			const parts = [
+				fill(part, {
+					n: number.format(Math.abs(value - pace)),
+					pace: number.format(pace),
+				}),
+			];
+			const outside = template("outside");
+			if (series === "training" && data.outside && outside) {
+				parts.push(
+					fill(outside, { value: number.format(data.outside.values[index]) }),
+				);
+			}
+			lines.push(parts);
+		}
+		readout?.replaceChildren(
+			...lines.map((parts) => {
+				const line = document.createElement("span");
+				line.className = "progress-readout-line";
+				line.append(...parts);
+				return line;
+			}),
+		);
+	}
+
+	/** Selects `index` in every chart and says so in the readout. */
+	function select(index) {
+		selected = clampDay(index);
+		for (const chart of charts) {
+			const n = curves(chart.canvas.dataset.series);
+			chart.setActiveElements(
+				Array.from({ length: n }, (_, datasetIndex) => ({
+					datasetIndex,
+					index: selected,
+				})),
+			);
+			chart.update("none");
+		}
+		readoutOf(selected);
+	}
+
+	/** The day under `clientX` on `chart`. */
+	const dayAt = (chart, clientX) =>
+		Math.round(
+			chart.scales.x.getValueForPixel(
+				clientX - chart.canvas.getBoundingClientRect().left,
+			),
+		);
+
+	/** Moves the period by half its width: -1 earlier, 1 later. */
+	function move(direction) {
+		const [chart] = charts;
+		if (!chart) return;
+		const { left, right } = chart.chartArea;
+		chart.pan({ x: (-direction * (right - left)) / 2 }, undefined, "none");
+	}
+
+	/** Pinch and a sideways drag (contracts/client.md "Gestures"). */
+	function gestures(chart) {
+		const canvas = chart.canvas;
+		const pointers = new Map();
+		let moved = false;
+		let panning = false;
+		let spread = 0;
+		const local = (event) => {
+			const rect = canvas.getBoundingClientRect();
+			return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+		};
+		const distance = () => {
+			const [a, b] = [...pointers.values()];
+			return Math.hypot(a.x - b.x, a.y - b.y);
+		};
+		canvas.addEventListener(
+			"pointerdown",
+			(event) => {
+				const mouse = event.pointerType === "mouse";
+				if (mouse && !(event.button === 0 && event.shiftKey)) return;
+				pointers.set(event.pointerId, {
+					...local(event),
+					startX: event.clientX,
+				});
+				try {
+					canvas.setPointerCapture(event.pointerId);
+				} catch {
+					// A pointer the browser no longer tracks can't be captured.
+				}
+				if (pointers.size === 2) spread = distance();
+				moved = false;
+				panning = false;
+			},
+			{ signal },
+		);
+		canvas.addEventListener(
+			"pointermove",
+			(event) => {
+				const pointer = pointers.get(event.pointerId);
+				if (!pointer) {
+					// A mouse over the chart selects the day under it.
+					if (event.pointerType === "mouse" && event.buttons === 0) {
+						select(dayAt(chart, event.clientX));
+					}
+					return;
+				}
+				const at = local(event);
+				if (pointers.size === 2) {
+					pointer.x = at.x;
+					pointer.y = at.y;
+					const now = distance();
+					if (spread > 0 && now > 0) {
+						const [a, b] = [...pointers.values()];
+						chart.zoom(
+							{
+								x: now / spread,
+								focalPoint: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
+							},
+							"none",
+						);
+						moved = true;
+					}
+					spread = now;
+					return;
+				}
+				if (
+					!panning &&
+					Math.abs(event.clientX - pointer.startX) < PROGRESS_PAN_SLOP
+				) {
+					return;
+				}
+				const dx = at.x - pointer.x;
+				pointer.x = at.x;
+				pointer.y = at.y;
+				if (!panning) {
+					panning = true;
+					return;
+				}
+				if (dx !== 0) chart.pan({ x: dx }, undefined, "none");
+				moved = true;
+			},
+			{ signal },
+		);
+		const end = (event) => {
+			if (!pointers.has(event.pointerId)) return;
+			pointers.delete(event.pointerId);
+			// A tap selects the day, as a click does.
+			if (
+				event.type === "pointerup" &&
+				!moved &&
+				!panning &&
+				pointers.size === 0
+			) {
+				select(dayAt(chart, event.clientX));
+			}
+			if (pointers.size < 2) spread = 0;
+			if (pointers.size === 0) {
+				if (moved) follow(chart);
+				moved = false;
+				panning = false;
+			}
+		};
+		canvas.addEventListener("pointerup", end, { signal });
+		canvas.addEventListener("pointercancel", end, { signal });
+		// A mouse click without a drag selects the day.
+		canvas.addEventListener(
+			"click",
+			(event) => {
+				if (!event.shiftKey) select(dayAt(chart, event.clientX));
+			},
+			{ signal },
+		);
+	}
+
+	/** The keys of research R7 on a focused chart. */
+	function keys(chart) {
+		chart.canvas.addEventListener(
+			"keydown",
+			(event) => {
+				if (event.altKey || event.ctrlKey || event.metaKey) return;
+				const zoomBy = (factor) => {
+					const { top, bottom } = chart.chartArea;
+					chart.zoom(
+						{
+							x: factor,
+							focalPoint: {
+								x: chart.scales.x.getPixelForValue(selected),
+								y: (top + bottom) / 2,
+							},
+						},
+						"none",
+					);
+				};
+				switch (event.key) {
+					case "ArrowLeft":
+						select(selected - 1);
+						break;
+					case "ArrowRight":
+						select(selected + 1);
+						break;
+					case "Home":
+						select(0);
+						break;
+					case "End":
+						select(lastIndex);
+						break;
+					case "+":
+					case "=":
+						zoomBy(1.5);
+						break;
+					case "-":
+						zoomBy(1 / 1.5);
+						break;
+					case "PageUp":
+						move(-1);
+						break;
+					case "PageDown":
+						move(1);
+						break;
+					case "0":
+					case "Escape":
+						resetPeriod();
+						break;
+					default:
+						return;
+				}
+				event.preventDefault();
+			},
+			{ signal },
+		);
+	}
+
+	/** The scheme changed: the lines take its colours (research R12). */
+	function recolour() {
+		colours = look();
+		for (const chart of charts) {
+			const kind = chart.canvas.dataset.series;
+			const { min, max } = chart.scales.x;
+			chart.data.datasets = datasets(kind);
+			for (const axis of ["x", "y"]) {
+				const scale = chart.options.scales[axis];
+				scale.grid.color = colours.grid;
+				scale.border.color = colours.grid;
+				scale.ticks.color = colours.muted;
+			}
+			chart.options.scales.x.min = min;
+			chart.options.scales.x.max = max;
+			chart.update("none");
+		}
+		select(selected);
+	}
+
+	for (const canvas of section.querySelectorAll("canvas[data-series]")) {
+		const chart = makeChart(canvas);
+		charts.push(chart);
+		gestures(chart);
+		keys(chart);
+	}
+	section.addEventListener(
+		"click",
+		(event) => {
+			const button =
+				event.target instanceof Element ? event.target.closest("button") : null;
+			if (!button || !section.contains(button)) return;
+			if (button.dataset.from !== undefined) {
+				setPeriod(Number(button.dataset.from), Number(button.dataset.to));
+			}
+		},
+		{ signal },
+	);
+	matchMedia("(prefers-color-scheme: dark)").addEventListener(
+		"change",
+		recolour,
+		{ signal },
+	);
+	const scheme = new MutationObserver(recolour);
+	scheme.observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ["data-scheme"],
+	});
+	signal.addEventListener("abort", () => {
+		scheme.disconnect();
+		for (const chart of charts) chart.destroy();
+	});
+	select(lastIndex);
+}
+
+/**
+ * What the page's content needs: run on load and again on content swapped in
+ * place (`swapPage`), whose `signal` ends the listeners of the content before.
+ */
+function enhance(signal) {
+	lazyRides(signal);
+	installSettings(signal);
+	schemePicker();
+	waitForFirstData(signal);
+	badgeHover();
+	triState();
+	badgeSwitch(signal);
+	notifications(signal).catch(() => {});
+	progressCharts(signal);
+}
+
 const registered = registerWorker();
-keepScroll();
-lazyRides();
+swapViews();
 pressFeedback();
 pendingSubmit();
-installSettings();
 appPrompt();
-schemePicker();
 refreshOnReturn();
-waitForFirstData();
 pageLoading();
-badgeHover();
-triState();
+enhance(content.signal);
 scrollToNewBadge();
-badgeSwitch();
-notifications().catch(() => {});

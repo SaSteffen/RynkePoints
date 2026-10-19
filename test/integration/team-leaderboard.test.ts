@@ -275,13 +275,13 @@ describe("GET /team with a kind or Everyone", () => {
 		},
 	);
 
-	it("marks the switch and toggle links to keep the scroll position (#113)", async () => {
+	it("marks the switch and toggle links to swap the view in place (#113)", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team");
 		for (const name of ["kind-switch", "list-scope"]) {
 			const nav = sectionOf(html, `<nav class="${name}"`, "</nav>");
 			const links = [...nav.matchAll(/<a [^>]*>/g)].map((m) => m[0]);
 			expect(links.length).toBeGreaterThan(0);
-			for (const link of links) expect(link).toContain(" data-keep-scroll");
+			for (const link of links) expect(link).toContain(" data-swap");
 		}
 	});
 });

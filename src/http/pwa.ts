@@ -162,7 +162,7 @@ export async function handleRiderNotificationText(
 
 /**
  * Hidden; `public/app.js` shows it with one state and the switch
- * (FR-010, FR-011, research R8). Without JavaScript it stays hidden.
+ * (FR-010, FR-011, research R8).
  */
 export function renderNotifications(i18n: I18n, pushKey: string): SafeHtml {
 	const state = (
@@ -193,7 +193,7 @@ ${state("failed")}
  * browser has none (iPhone, Firefox on Android, Safari on the Mac).
  */
 function installWays(i18n: I18n): SafeHtml {
-	return html`<p data-install="prompt" hidden><button type="button" class="tap">${i18n.t("install.button")}</button></p>
+	return html`<p data-install="prompt" hidden><button type="button" class="button">${i18n.t("install.button")}</button></p>
 <p data-install="ios" hidden>${i18n.t("install.ios")}</p>
 <p data-install="firefox" hidden>${i18n.t("install.firefox")}</p>
 <p data-install="macSafari" hidden>${i18n.t("install.macSafari")}</p>`;
@@ -221,8 +221,10 @@ ${installWays(i18n)}
 </div>
 <div data-panel="notify" hidden>
 <p>${i18n.t("prompt.notify.text")}</p>
-<button type="button" class="tap" data-action="accept">${i18n.t("prompt.notify.accept")}</button>
-<button type="button" class="tap" data-action="decline">${i18n.t("prompt.notify.decline")}</button>
+<div class="app-prompt-actions">
+<button type="button" class="button-text" data-action="decline">${i18n.t("prompt.notify.decline")}</button>
+<button type="button" class="button" data-action="accept">${i18n.t("prompt.notify.accept")}</button>
+</div>
 </div>
 <button type="button" class="icon-button" data-action="close" aria-label="${i18n.t("prompt.close")}">${CLOSE}</button>
 </aside>`;

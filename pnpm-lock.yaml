@@ -23,6 +23,12 @@ importers:
       '@playwright/test':
         specifier: ^1.64.1
         version: 1.64.1
+      chart.js:
+        specifier: 4.5.1
+        version: 4.5.1
+      chartjs-plugin-zoom:
+        specifier: 2.2.0
+        version: 2.2.0(chart.js@4.5.1)
       lefthook:
         specifier: ^2.2.2
         version: 2.2.2
@@ -927,6 +933,9 @@ packages:
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
 
+  '@kurkle/color@0.3.4':
+    resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
+
   '@oxc-project/types@0.154.0':
     resolution: {integrity: sha512-KYOUGQFlLWR+s4QMV2Q9ko38TZm7EdO87Qm7rvZLqk/webse/cDjtyxKhg/47l0byCbs/k46LT8qc4PKjAikzA==}
 
@@ -1069,6 +1078,9 @@ packages:
 
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
+
+  '@types/hammerjs@2.0.46':
+    resolution: {integrity: sha512-ynRvcq6wvqexJ9brDMS4BnBLzmr0e14d6ZJTEShTBWKymQiHwlAyGu0ZPEFI2Fh1U53F7tN9ufClWM5KvqkKOw==}
 
   '@types/node@26.6.4':
     resolution: {integrity: sha512-ldVPDCzj7fsaGZrLB0NuHuTvJcsNasysBAqMolr/cgxrLd1xbqxIr3XJiPnHHJUCxj5sNF1vnRj9aWnrVh5Jcg==}
@@ -1255,6 +1267,15 @@ packages:
     resolution: {integrity: sha512-XWAtwJ6OHO+tj0EKCs0Y2UamnyOxseZWltU4x2U2wh8g4AigdjwvtUjvLP2tqkA/avxHEtzxNaqGq/YGNwckKg==}
     engines: {node: '>=18'}
 
+  chart.js@4.5.1:
+    resolution: {integrity: sha512-GIjfiT9dbmHRiYi6Nl2yFCq7kkwdkp1W/lp2J99rX0yo9tgJGn3lKQATztIjb5tVtevcBtIdICNWqlq5+E8/Pw==}
+    engines: {pnpm: '>=8'}
+
+  chartjs-plugin-zoom@2.2.0:
+    resolution: {integrity: sha512-in6kcdiTlP6npIVLMd4zXZ08PDUXC52gZ4FAy5oyjk1zX3gKarXMAof7B9eFiisf9WOC3bh2saHg+J5WtLXZeA==}
+    peerDependencies:
+      chart.js: '>=3.2.0'
+
   cjs-module-lexer@1.2.3:
     resolution: {integrity: sha512-0TNiGstbQmCFwt4akjjBg5pLRTSyj/PkWQ1ZoO2zntmg9yLqSRxwEa4iCfQLGjqhiqBfOJa7W/E8wfGrTDmlZQ==}
 
@@ -1374,6 +1395,10 @@ packages:
   global-directory@5.0.0:
     resolution: {integrity: sha512-1pgFdhK3J2LeM+dVf2Pd424yHx2ou338lC0ErNP2hPx4j8eW1Sp0XqSjNxtk6Tc4Kr5wlWtSvz8cn2yb7/SG/w==}
     engines: {node: '>=20'}
+
+  hammerjs@2.0.8:
+    resolution: {integrity: sha512-tSQXBXS/MWQOn/RKckawJ61vvsDpCom87JgxiYdGwHdOa0ht0vzUWDlfioofFCRU0L+6NGDt6XzbgoJvZkMeRQ==}
+    engines: {node: '>=0.8.0'}
 
   import-fresh@3.3.1:
     resolution: {integrity: sha512-TR3KfrTZTYLPB6jUjfx6MF9WcWrHL9su5TObK4ZkYgBdWKPOFoSoQIdEuTuR82pmtxH2spWG9h6etwfr1pLBqQ==}
@@ -2470,6 +2495,8 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
 
+  '@kurkle/color@0.3.4': {}
+
   '@oxc-project/types@0.154.0': {}
 
   '@playwright/test@1.64.1':
@@ -2555,6 +2582,8 @@ snapshots:
   '@types/deep-eql@4.0.2': {}
 
   '@types/estree@1.0.9': {}
+
+  '@types/hammerjs@2.0.46': {}
 
   '@types/node@26.6.4':
     dependencies:
@@ -2683,6 +2712,16 @@ snapshots:
   callsites@3.1.0: {}
 
   chai@6.3.0: {}
+
+  chart.js@4.5.1:
+    dependencies:
+      '@kurkle/color': 0.3.4
+
+  chartjs-plugin-zoom@2.2.0(chart.js@4.5.1):
+    dependencies:
+      '@types/hammerjs': 2.0.46
+      chart.js: 4.5.1
+      hammerjs: 2.0.8
 
   cjs-module-lexer@1.2.3: {}
 
@@ -2825,6 +2864,8 @@ snapshots:
   global-directory@5.0.0:
     dependencies:
       ini: 6.0.0
+
+  hammerjs@2.0.8: {}
 
   import-fresh@3.3.1:
     dependencies:

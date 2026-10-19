@@ -145,25 +145,15 @@ export interface EventLine {
 
 export interface RideTable {
 	rows: RideLine[];
-	/** 1-based positions in the whole table; `from` is 0 without rows. */
-	position: { from: number; to: number; total: number };
-	/** `null` with `RIDES_PER_PAGE` rides or fewer (FR-045). */
-	pager: Pager | null;
+	/** The season's rides, all pages. */
+	total: number;
+	/** The page the list starts at, 1 … last page (feature 018 FR-014). */
+	page: number;
 	/**
 	 * Where the next batch starts: the last row's key when older rides follow
 	 * it, else `null` (feature 018 data-model.md "RideTable").
 	 */
 	more: RideKey | null;
-}
-
-/** The pages a link leads to; `null` = the link isn't offered. */
-export interface Pager {
-	page: number;
-	lastPage: number;
-	first: number | null;
-	previous: number | null;
-	next: number | null;
-	last: number | null;
 }
 
 export interface RideLine {
@@ -466,31 +456,11 @@ function rideTable(read: RiderViewRead, context: ViewContext): RideTable {
 		last !== undefined && from + read.rides.length - 1 < read.rideCount;
 	return {
 		rows: rideLines(read.rides, context),
-		position: {
-			from,
-			to: from === 0 ? 0 : from + read.rides.length - 1,
-			total: read.rideCount,
-		},
-		pager: pager(read.page, read.rideCount),
+		total: read.rideCount,
+		page: read.page,
 		more: older
 			? { startDate: last.startDate, activityId: last.activityId }
 			: null,
-	};
-}
-
-/** Only the links that lead somewhere else (research R11). */
-function pager(page: number, rideCount: number): Pager | null {
-	if (rideCount <= RIDES_PER_PAGE) return null;
-	const lastPage = Math.ceil(rideCount / RIDES_PER_PAGE);
-	const newer = page > 1;
-	const older = page < lastPage;
-	return {
-		page,
-		lastPage,
-		first: newer ? 1 : null,
-		previous: newer ? page - 1 : null,
-		next: older ? page + 1 : null,
-		last: older ? lastPage : null,
 	};
 }
 

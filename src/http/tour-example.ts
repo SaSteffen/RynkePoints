@@ -16,6 +16,7 @@ import {
 	TEAM_EVENT_KINDS,
 	type TeamEventKind,
 } from "../rynke/team-events";
+import type { CurveRideSum } from "../rynke/weeks";
 import type { CyclingSportType } from "../strava/activity";
 
 // The example rider of the tour's Du and Fahrten steps (feature 020 FR-005 –
@@ -204,6 +205,24 @@ export function exampleRiderView(
 		(a, b) =>
 			b.startDate.localeCompare(a.startDate) || b.activityId - a.activityId,
 	);
+	// The progress curve's input, summed per day and kind as the Overview's
+	// read does (feature 009 FR-043).
+	const daily = new Map<string, CurveRideSum>();
+	for (const { ride, at } of rides) {
+		const result = evaluation.results.find((r) => r.activityId === ride.id);
+		if (!result?.counts) continue;
+		const date = at.slice(0, 10);
+		const key = `${date} ${result.isVirtual}`;
+		const sum = daily.get(key) ?? {
+			date,
+			virtual: result.isVirtual,
+			distanceRynke: 0,
+			elevationDm: 0,
+		};
+		sum.distanceRynke += result.distanceRynke;
+		sum.elevationDm += result.elevationDm;
+		daily.set(key, sum);
+	}
 	return {
 		balance: {
 			...tally(evaluation.riding, extras, rules),
@@ -214,6 +233,18 @@ export function exampleRiderView(
 		page: 1,
 		rides: rows,
 		attendance: [...attendance].sort((a, b) => b.date.localeCompare(a.date)),
+		progress: {
+			rides: [...daily.values()].sort(
+				(a, b) =>
+					a.date.localeCompare(b.date) || Number(a.virtual) - Number(b.virtual),
+			),
+			attendance: attendance.map(({ eventId, kind, date }) => ({
+				eventId,
+				kind,
+				date,
+			})),
+			corrections: [],
+		},
 	};
 }
 
