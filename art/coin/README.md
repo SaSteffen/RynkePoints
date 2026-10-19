@@ -43,10 +43,10 @@ yellow frame.
 The traced coin is the picture where the coin is shown large: the empty ride
 list (front), the team totals (front or back), the organiser overview's
 deadline card (back) and the waiting state before a rider's first data (both
-sides, turning over). The Du page's hero shows one of the hero portraits at
-random, the landing page's hero always portrait 2. The installed app's icons and launch
-screen show portrait 2 as well (`pnpm icons`, `scripts/icons.mjs`), so run
-that too after changing it. The simplified sprite in
+sides, turning over). The installed app's icons and launch screen show the
+front too (`pnpm icons`, `scripts/icons.mjs`): run that as well after changing
+it. The Du page's hero shows one of the hero portraits at
+random, the landing page's hero always portrait 2. The simplified sprite in
 `src/http/coin.ts` stays for the small marks (wordmark, mini coins, chart
 marks), where the artwork's detail doesn't read.
 

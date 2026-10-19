@@ -229,34 +229,23 @@ const mono = svg(
 	96,
 );
 
-// The installed app's icons and launch screen: the landing page's hero coin,
-// Rynke's portrait in the coin frame (public/coin/rynke-coin-hero-<n>.svg,
-// art/coin/hero/README.md). The full badge's lettering looks wrong that large
-// and centred on the launch screen (#120), and the simplified sprite looked
-// crude there.
-// The app's sources import without file extensions, so `.ts` is added here;
-// coin.ts gets a stand-in for html.ts, which Node can't strip the types of.
+// The installed app's icons and launch screen: the team's coin front as the
+// app shows it large, traced from the artwork (public/coin/rynke-coin-front.svg,
+// art/coin/README.md). The simplified sprite looked crude that large.
+// The app's sources import without file extensions, so `.ts` is added here.
 registerHooks({
 	resolve(specifier, context, next) {
-		if (specifier === "./html" && context.parentURL?.endsWith("/coin.ts")) {
-			const stub = "export class SafeHtml {} export function html() {}";
-			return { url: `data:text/javascript,${stub}`, shortCircuit: true };
-		}
 		return specifier.startsWith(".") && !extname(specifier)
 			? next(`${specifier}.ts`, context)
 			: next(specifier, context);
 	},
 });
-const { LANDING_PORTRAIT } = await import("../src/http/coin.ts");
 const { STYLE } = await import("../src/http/style.ts");
 // The launch screen's background (manifest background_color): the light
 // scheme's coin face, which comes first.
 const face = STYLE.match(/--rp-coin-face:(#[0-9a-f]+)/)[1];
-const hero = readFileSync(
-	new URL(
-		`../public/coin/rynke-coin-hero-${LANDING_PORTRAIT}.svg`,
-		import.meta.url,
-	),
+const front = readFileSync(
+	new URL("../public/coin/rynke-coin-front.svg", import.meta.url),
 	"utf8",
 )
 	.replace(/^<svg[^>]*>/, "")
@@ -266,7 +255,7 @@ const hero = readFileSync(
 // for the maskable icon.
 const launch = (scale, background) =>
 	svg(
-		`${background ? `<rect width="512" height="512" fill="${face}"/>` : ""}<g transform="translate(256 256) scale(${r1(scale * 5.12 * 1000) / 1000}) translate(-50 -50)">${hero}</g>`,
+		`${background ? `<rect width="512" height="512" fill="${face}"/>` : ""}<g transform="translate(256 256) scale(${r1(scale * 5.12 * 1000) / 1000}) translate(-50 -50)">${front}</g>`,
 	);
 
 function png(name, size, source) {
