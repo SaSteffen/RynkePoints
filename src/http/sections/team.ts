@@ -337,7 +337,12 @@ export function handleTeam(
 		teamHref(kind, all),
 		async ({ rider }) => {
 			const window = countingWindow(ctx.env);
-			const team = await readTeam(ctx.env.DB);
+			// The seen quotes alongside the team, not after it (issue #184); they
+			// only matter when the rider is on the leaderboard.
+			const [team, seenQuotes] = await Promise.all([
+				readTeam(ctx.env.DB),
+				readSeenQuotes(ctx.env.DB, rider.athleteId),
+			]);
 			const today = berlinDate(ctx.now());
 			const ends = weekEnds(
 				window.seasonStart,
@@ -360,13 +365,7 @@ export function handleTeam(
 				riders.map((listed) => listed.weeks),
 				kind,
 			);
-			const quote = viewer
-				? pickQuote(
-						status,
-						today,
-						await readSeenQuotes(ctx.env.DB, rider.athleteId),
-					)
-				: null;
+			const quote = viewer ? pickQuote(status, today, seenQuotes) : null;
 			// Only a GET marks the quote as seen, as with `rynke_seen`.
 			if (quote && request.method === "GET") {
 				await writeSeenQuote(

@@ -1,10 +1,15 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { readRiderView } from "../../src/db/rider-view";
+import {
+	readRiderView,
+	riderStandingStatements,
+	toRiderStanding,
+} from "../../src/db/rider-view";
+import { readSeen, writeSeen } from "../../src/db/rynke-seen";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
 import { EXAMPLE_INPUTS, seedExampleRider } from "../support/progress";
-import { seedRide } from "../support/rider-view";
+import { seedBalance, seedRide } from "../support/rider-view";
 
 // What the Overview reads for the progress section (feature 009 data-model.md
 // "What is read", research R3): the daily ride sums and the corrections, in
@@ -95,5 +100,52 @@ describe("readRiderView with progress (feature 009)", () => {
 		const batch = vi.spyOn(env.DB, "batch");
 		await readRiderView(env.DB, ATHLETE_A, 1, { progress: true });
 		expect(batch).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe("readRiderView with the seen Rynke (#184)", () => {
+	it("reads them in the same batch, null before the first visit", async () => {
+		const batch = vi.spyOn(env.DB, "batch");
+		const first = await readRiderView(env.DB, ATHLETE_A, 1, {
+			progress: true,
+			seen: true,
+		});
+		expect(first.seen).toBeNull();
+		await writeSeen(env.DB, ATHLETE_A, { training: 12, team: 3 });
+		const read = await readRiderView(env.DB, ATHLETE_A, 1, {
+			progress: true,
+			seen: true,
+		});
+		expect(read.seen).toEqual(await readSeen(env.DB, ATHLETE_A));
+		expect(read.seen).toEqual({ training: 12, team: 3 });
+		expect(read.progress).toBeDefined();
+		expect(batch).toHaveBeenCalledTimes(2);
+	});
+
+	it("reads nothing of them without the option", async () => {
+		await writeSeen(env.DB, ATHLETE_A, { training: 12, team: 3 });
+		const read = await readRiderView(env.DB, ATHLETE_A, 1, { seen: false });
+		expect(read).not.toHaveProperty("seen");
+	});
+});
+
+describe("riderStandingStatements (#185)", () => {
+	it("reads the balance and the virtual ride count as the rider view does", async () => {
+		for (const athleteId of [ATHLETE_A, ATHLETE_B]) {
+			const view = await readRiderView(env.DB, athleteId, 1);
+			const standing = toRiderStanding(
+				await env.DB.batch(riderStandingStatements(env.DB, athleteId)),
+			);
+			expect(standing).toEqual({
+				balance: view.balance,
+				virtualCount: view.virtualCount,
+			});
+		}
+		await seedBalance(ATHLETE_B);
+		const standing = toRiderStanding(
+			await env.DB.batch(riderStandingStatements(env.DB, ATHLETE_B)),
+		);
+		expect(standing.balance).not.toBeNull();
+		expect(standing.virtualCount).toBe(1);
 	});
 });

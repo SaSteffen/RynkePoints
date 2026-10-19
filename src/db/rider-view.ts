@@ -11,6 +11,12 @@ import {
 	toStoredRideResult,
 } from "./rynke";
 import {
+	readSeenStatement,
+	type SeenRow,
+	type SeenRynke,
+	toSeen,
+} from "./rynke-seen";
+import {
 	listRiderAttendanceStatement,
 	type RiderAttendanceRow,
 } from "./team-events";
@@ -70,6 +76,11 @@ export interface RiderViewRead {
 	 * is read"), only when asked for.
 	 */
 	progress?: CurveInputs;
+	/**
+	 * The Rynke the rider last saw on the Overview (feature 012 US2), only
+	 * when asked for; null before the first visit.
+	 */
+	seen?: SeenRynke | null;
 }
 
 export interface AttendedEvent {
@@ -132,44 +143,66 @@ JOIN activities a
 WHERE r.athlete_id = ?1 AND r.counts = 1
 GROUP BY 1, 2 ORDER BY 1, 2`;
 
+/** The rider's ride and virtual ride counts, as `rides` and `virtual`. */
+export function rideCountsStatement(db: D1Database, athleteId: number) {
+	return db
+		.prepare(
+			`SELECT (SELECT count(*) FROM activities WHERE athlete_id = ?1) AS rides,
+			(SELECT count(*) FROM ride_results
+				WHERE athlete_id = ?1 AND is_virtual = 1) AS virtual`,
+		)
+		.bind(athleteId);
+}
+
+/** The rider's team events as the rider page lists them, newest first. */
+export function toAttendedEvents(
+	rows: readonly RiderAttendanceRow[],
+): AttendedEvent[] {
+	return rows.map((row) => ({
+		eventId: row.event_id,
+		kind: row.kind,
+		date: row.event_date,
+		name: row.name,
+	}));
+}
+
 const CORRECTIONS_SQL = `SELECT correction_date, training, team FROM corrections
 WHERE athlete_id = ?1 ORDER BY correction_date, correction_id`;
 
 /**
  * The rider's page `page` (≥ 1) of the ride table, with what it needs; with
- * `progress`, also what the Overview's progress curve needs (feature 009).
+ * `progress`, also what the Overview's progress curve needs (feature 009);
+ * with `seen`, also the Rynke the rider last saw, so the Overview reads all
+ * it needs in one round trip (issue #184).
  */
 export async function readRiderView(
 	db: D1Database,
 	athleteId: number,
 	page: number,
-	options: { progress?: boolean } = {},
+	options: { progress?: boolean; seen?: boolean } = {},
 ): Promise<RiderViewRead> {
-	const [balance, counts, rides, attendance, dailyRides, corrections] =
-		await db.batch([
-			readBalanceStatement(db, athleteId),
-			db
-				.prepare(
-					`SELECT (SELECT count(*) FROM activities WHERE athlete_id = ?1) AS rides,
-					(SELECT count(*) FROM ride_results
-						WHERE athlete_id = ?1 AND is_virtual = 1) AS virtual`,
-				)
-				.bind(athleteId),
-			db.prepare(RIDE_PAGE_SQL).bind(athleteId, page),
-			listRiderAttendanceStatement(db, athleteId),
-			...(options.progress
-				? [
-						db.prepare(DAILY_RIDES_SQL).bind(athleteId),
-						db.prepare(CORRECTIONS_SQL).bind(athleteId),
-					]
-				: []),
-		]);
+	const [balance, counts, rides, attendance, ...rest] = await db.batch([
+		readBalanceStatement(db, athleteId),
+		rideCountsStatement(db, athleteId),
+		db.prepare(RIDE_PAGE_SQL).bind(athleteId, page),
+		listRiderAttendanceStatement(db, athleteId),
+		...(options.progress
+			? [
+					db.prepare(DAILY_RIDES_SQL).bind(athleteId),
+					db.prepare(CORRECTIONS_SQL).bind(athleteId),
+				]
+			: []),
+		...(options.seen ? [readSeenStatement(db, athleteId)] : []),
+	]);
+	const [dailyRides, corrections] = options.progress ? rest : [];
+	const seenRows = options.seen ? rest.at(-1) : undefined;
 	if (
 		!balance ||
 		!counts ||
 		!rides ||
 		!attendance ||
-		(options.progress && (!dailyRides || !corrections))
+		(options.progress && (!dailyRides || !corrections)) ||
+		(options.seen && !seenRows)
 	) {
 		throw new Error("D1 batch returned too few results");
 	}
@@ -177,12 +210,7 @@ export async function readRiderView(
 	const count = (counts.results as { rides: number; virtual: number }[])[0];
 	const rideCount = count?.rides ?? 0;
 	const lastPage = Math.max(1, Math.ceil(rideCount / RIDES_PER_PAGE));
-	const attended = (attendance.results as RiderAttendanceRow[]).map((row) => ({
-		eventId: row.event_id,
-		kind: row.kind,
-		date: row.event_date,
-		name: row.name,
-	}));
+	const attended = toAttendedEvents(attendance.results as RiderAttendanceRow[]);
 	return {
 		balance: balanceRow ? toStoredBalance(balanceRow) : null,
 		rideCount,
@@ -209,6 +237,44 @@ export async function readRiderView(
 					},
 				}
 			: {}),
+		...(seenRows ? { seen: toSeen((seenRows.results as SeenRow[])[0]) } : {}),
+	};
+}
+
+/** What the rider's summary needs and nothing more (issue #185). */
+export interface RiderStanding {
+	/** `null` before the rider's first evaluation. */
+	balance: StoredBalance | null;
+	virtualCount: number;
+}
+
+/**
+ * The statements of a `RiderStanding`, for a caller's batch: the balance and
+ * the ride counts, without the ride page and its joins.
+ */
+export function riderStandingStatements(
+	db: D1Database,
+	athleteId: number,
+): D1PreparedStatement[] {
+	return [
+		readBalanceStatement(db, athleteId),
+		rideCountsStatement(db, athleteId),
+	];
+}
+
+/** The results of `riderStandingStatements`, in their order. */
+export function toRiderStanding(
+	results: readonly (D1Result | undefined)[],
+): RiderStanding {
+	const [balance, counts] = results;
+	if (!balance || !counts) {
+		throw new Error("D1 batch returned too few results");
+	}
+	const balanceRow = (balance.results as BalanceRow[])[0];
+	const count = (counts.results as { virtual: number }[])[0];
+	return {
+		balance: balanceRow ? toStoredBalance(balanceRow) : null,
+		virtualCount: count?.virtual ?? 0,
 	};
 }
 

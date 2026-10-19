@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { CONSENT_VERSIONS } from "../../src/consent";
+import { consentVersionOf, getCurrentConsent } from "../../src/db/consents";
 import {
 	readViewer,
 	requireConsent,
@@ -15,6 +16,7 @@ import {
 	seedRider,
 	sessionCookie,
 } from "../support/ctx";
+import { countTrips } from "../support/d1-trips";
 import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
 
 // Who is asking, decided from the rider row on every request (004 US2,
@@ -96,6 +98,33 @@ describe("readViewer", () => {
 			.bind(ATHLETE_B, ctx.now())
 			.run();
 		expect(riderOf(await viewerOf(ATHLETE_B)).consentVersion).toBe(2);
+	});
+
+	it("carries the current consent record with it, in one round trip (#184)", async () => {
+		await seedRider(ctx, { consentVersion: null });
+		expect(riderOf(await viewerOf(ATHLETE_A)).consent).toBeNull();
+		for (const [version, acceptedAt] of [
+			[1, ctx.now() - 100],
+			[2, ctx.now()],
+		] as const) {
+			await env.DB.prepare(
+				"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, ?, ?)",
+			)
+				.bind(ATHLETE_A, version, acceptedAt)
+				.run();
+		}
+		const viewer = riderOf(await viewerOf(ATHLETE_A));
+		expect(viewer.consent).toEqual(await getCurrentConsent(env.DB, ATHLETE_A));
+		expect(viewer.consent).toEqual({ version: 2, acceptedAt: ctx.now() });
+		expect(viewer.consentVersion).toBe(
+			await consentVersionOf(env.DB, ATHLETE_A),
+		);
+		const counted = countTrips(ctx);
+		await readViewer(
+			request("/me", { cookies: await sessionCookie(ctx, ATHLETE_A) }),
+			counted.ctx,
+		);
+		expect(counted.counter.trips()).toBe(1);
 	});
 
 	it("serves /me when nobody is flagged (US2 scenario 5, FR-006)", async () => {

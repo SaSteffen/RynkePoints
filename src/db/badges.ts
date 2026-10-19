@@ -174,7 +174,21 @@ export async function readRiderBadges(
 	athleteId: number,
 	window: CountingWindow,
 ): Promise<RiderBadgesRead> {
-	const [badges, reveals, sums, runs, days, swims] = await db.batch([
+	return toRiderBadges(
+		await db.batch(riderBadgesStatements(db, athleteId, window)),
+	);
+}
+
+/**
+ * The statements of `readRiderBadges`, for a caller's batch that needs the
+ * rider's badges next to its own reads (issue #185).
+ */
+export function riderBadgesStatements(
+	db: D1Database,
+	athleteId: number,
+	window: CountingWindow,
+): D1PreparedStatement[] {
+	return [
 		listRiderBadgesStatement(db, athleteId),
 		listRevealsStatement(db, athleteId),
 		db
@@ -220,7 +234,14 @@ export async function readRiderBadges(
 					AND substr(start_date_local, 1, 10) BETWEEN ?2 AND ?3`,
 			)
 			.bind(athleteId, window.seasonStart, window.deadline),
-	]);
+	];
+}
+
+/** The results of `riderBadgesStatements`, in their order. */
+export function toRiderBadges(
+	results: readonly (D1Result | undefined)[],
+): RiderBadgesRead {
+	const [badges, reveals, sums, runs, days, swims] = results;
 	if (!badges || !reveals || !sums || !runs || !days || !swims) {
 		throw new Error("D1 batch returned too few results");
 	}
