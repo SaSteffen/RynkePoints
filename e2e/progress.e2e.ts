@@ -214,10 +214,10 @@ test.describe("the progress charts (009)", () => {
 		const zoomed = await period(page);
 		expect(zoomed.max - zoomed.min).toBeGreaterThanOrEqual(7);
 		expect(zoomed.max - zoomed.min).toBeLessThan(axisDays);
-		await expect(page.locator(".progress-move")).toBeVisible();
-		await page.getByRole("button", { name: "Ganze Saison zeigen" }).click();
+		await page
+			.getByRole("button", { name: "Ganze Saison", exact: true })
+			.click();
 		expect(await period(page)).toEqual({ min: 0, max: axisDays });
-		await expect(page.locator(".progress-move")).toBeHidden();
 	});
 
 	test("step the readout and zoom with the keys", async ({ page }) => {

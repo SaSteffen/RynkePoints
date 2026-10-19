@@ -27,9 +27,6 @@ each canvas's first `aria-label`.
 | `progress.period.season` | | Ganze Saison | Whole season |
 | `progress.period.3m` | | Letzte 3 Monate | Last 3 months |
 | `progress.period.4w` | | Letzte 4 Wochen | Last 4 weeks |
-| `progress.earlier` | | Früher | Earlier |
-| `progress.later` | | Später | Later |
-| `progress.reset` | | Ganze Saison zeigen | Show whole season |
 | `progress.chart.training` | `from`, `to`, `value`, `threshold` (slots) | Trainingsrynke vom {from} bis {to}: {value} am Ende, Ziel {threshold} | Training Rynke from {from} to {to}: {value} at the end, target {threshold} |
 | `progress.chart.team` | `from`, `to`, `value`, `threshold` (slots) | Teamrynke vom {from} bis {to}: {value} am Ende, Ziel {threshold} | Team Rynke from {from} to {to}: {value} at the end, target {threshold} |
 | `progress.legend.threshold` | `value` | Ziel ({value}) | Target ({value}) |

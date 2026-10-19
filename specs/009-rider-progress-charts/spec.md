@@ -416,9 +416,9 @@ on GitHub and agrees with the requirements.
   still scrolls under the pointer. The shortest period is 7 days, the longest the
   whole time axis (FR-013).
 - **FR-023**: When zoomed in, the rider MUST be able to move the period backwards and
-  forwards in time (by dragging sideways on a touch screen, by buttons and by the
+  forwards in time (by dragging sideways on a touch screen, with the mouse and by the
   keyboard), no further than the season start and the end of the time axis, and to
-  reset it to the whole season.
+  reset it to the whole season (the "whole season" period button).
 - **FR-024**: The time axis MUST label months for a long period and days for a short
   one, in the page language.
 - **FR-025**: On a touch screen, a vertical swipe across a chart MUST scroll the page
@@ -506,7 +506,7 @@ on GitHub and agrees with the requirements.
 - **FR-070**: Every part of this feature MUST work on a phone in portrait with a
   screen 360 pixels wide: charts full width and stacked, readable without zooming the
   page and without scrolling it sideways (feature 005 FR-070).
-- **FR-071**: Period buttons, the reset and other controls MUST be easy to tap
+- **FR-071**: Period buttons and other controls MUST be easy to tap
   (about 44 × 44 pixels, feature 005 FR-072). A day MUST be selectable by touch on a
   360-pixel chart, if need be by zooming in first.
 - **FR-072**: The section MUST take the app's look: Material Design 3 (feature 011)
@@ -723,7 +723,7 @@ flowchart TB
         subgraph section["Progress section (this spec), full width"]
             direction TB
             label["Rules version 3 · whole season under these rules (FR-040)"]
-            periods["[ Whole season ] [ Last 3 months ] [ Last 4 weeks ]<br/>while zoomed: Earlier · Later · Show whole season"]
+            periods["[ Whole season ] [ Last 3 months ] [ Last 4 weeks ]"]
             c1["US1 · Training Rynke chart, zoomable<br/>curve 0 → 112, line at 250<br/>US2 · pace line, curve without virtual rides<br/>+ line at 167 + its pace line"]
             c2["US1 · Team Rynke chart, zoomable<br/>curve 0 → 17, line at 25<br/>US2 · pace line"]
             details["US1 · Selected day (pointer, tap or keys)<br/>date, Training and Team totals<br/>US2 · ahead of or behind each pace, outdoor total"]
@@ -771,7 +771,7 @@ stateDiagram-v2
     Months --> Zoomed: pinch, wheel, drag, keys
     Weeks --> Zoomed: pinch, wheel, drag, keys
     Zoomed --> Zoomed: move back or forward<br/>(not past the axis ends)
-    Zoomed --> Season: reset
+    Zoomed --> Season: button, 0 or Escape
     Zoomed --> Weeks: button
     Zoomed --> Months: button
     Zoomed --> [*]: Overview loaded again<br/>(reload, other section,<br/>language in Settings)

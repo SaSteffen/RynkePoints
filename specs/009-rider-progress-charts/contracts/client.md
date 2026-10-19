@@ -74,10 +74,9 @@ stylesheet.
   2. Sets `aria-pressed` on the period buttons: `true` only on the one whose
      `data-from`/`data-to` equal the period.
   3. Refills each canvas's `aria-label` from its `template[data-label]`.
-  4. Shows `.progress-move` unless the period is the whole axis.
-- **Period buttons**: apply their `data-from`/`data-to`.
-- **Move buttons**: `pan` by half the period's width; **reset**: `resetZoom` on
-  both.
+- **Period buttons**: apply their `data-from`/`data-to`; "Ganze Saison" is the
+  reset. There are no move buttons: moving is a sideways drag, Shift-drag or
+  the keys.
 - **Keys** on a focused canvas: research R7.
 
 ## Selected day

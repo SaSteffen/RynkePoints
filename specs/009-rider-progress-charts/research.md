@@ -263,7 +263,6 @@ tokens.
 | Vertical swipe | scrolls the page | `touch-action: pan-y` on the canvas in the stylesheet: the browser scrolls and sends `pointercancel` (FR-025) |
 | Wheel over a chart that has focus (after a click or Tab) | zoom around the pointer; without focus the page scrolls | plugin `zoom.wheel` + `onZoomStart` returning `false` for a wheel on an unfocused canvas, so the plugin neither zooms nor calls `preventDefault` |
 | Keys on a focused chart | ←/→ previous/next day · `+`/`-` zoom around the selected day · PageUp/PageDown move by half the period · Home/End first/last day · `0` or Escape whole season | our `keydown` handler calling `zoom`, `pan`, `resetZoom` |
-| "Früher", "Später", "Ganze Saison zeigen" buttons | move by half the period; reset. Shown only while zoomed in. 44 × 44 px. | our handler |
 | Period buttons | `zoomScale("x", { min: from, max: to })` on both charts | our handler; `data-from`/`data-to` from the server (R8) |
 
 Rules that apply to every input:
@@ -282,7 +281,7 @@ Rules that apply to every input:
   in the plugin, so no input goes past the axis or below 7 days.
 - **After a change**: `aria-pressed` on the period button whose stretch is shown
   (none while zoomed freely); each canvas's `aria-label` from its label template
-  (R9); `.progress-move` shown unless the whole axis is shown.
+  (R9).
 - **Selecting**: days after `lastIndex` can't be selected; the selection snaps to
   the last day. The keys move the same active index the pointer sets.
 - **Focus**: each canvas has `tabindex="0"`, rendered by the server, with

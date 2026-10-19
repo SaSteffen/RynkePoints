@@ -861,9 +861,6 @@ export const de = {
 	"progress.period.season": "Ganze Saison",
 	"progress.period.3m": "Letzte 3 Monate",
 	"progress.period.4w": "Letzte 4 Wochen",
-	"progress.earlier": "Früher",
-	"progress.later": "Später",
-	"progress.reset": "Ganze Saison zeigen",
 	"progress.chart.training":
 		"Trainingsrynke vom {from} bis {to}: {value} am Ende, Ziel {threshold}",
 	"progress.chart.team":

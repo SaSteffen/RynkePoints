@@ -288,7 +288,7 @@ flowchart TB
         init --> plugin["zoom plugin: mouse drag,<br/>focused wheel, limits"]
         init --> own["our handlers: pinch and sideways drag<br/>(Pointer Events), keys, buttons"]
         plugin & own --> apply["applyPeriod(from, to):<br/>limits 7 days … whole axis"]
-        apply --> both["both charts zoomScale (FR-021),<br/>aria-label, aria-pressed, move buttons"]
+        apply --> both["both charts zoomScale (FR-021),<br/>aria-label, aria-pressed"]
         init --> sel["mouse over, click, tap, ←/→ → selected day<br/>in both charts, crosshair, readout<br/>(Chart.js's own hover is off)"]
     end
     cv & btn & tpl & json & table --> page
@@ -313,7 +313,7 @@ flowchart TB
     subgraph phone["360 px − 2 × 16 px page padding − card padding = about 312 px"]
         direction TB
         h["Heading · rules version line"]
-        nav["Period chips (wrap) · Früher · Später · Ganze Saison<br/>44 px tap height"]
+        nav["Period chips (wrap)<br/>44 px tap height"]
         c1["Training: canvas 11rem high, y and date labels<br/>drawn by Chart.js · HTML legend"]
         c2["Team: the same"]
         ro["Readout (aria-live)"]

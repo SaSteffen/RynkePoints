@@ -235,8 +235,8 @@ mouse and keyboard in the e2e tests.
   - **Structure**: `section#progress.progress.card-outlined` with `data-locale`.
   - **Period buttons**: `button[type=button]` in a `role="group"`, with
     `data-from`/`data-to`: the season (0/302, `aria-pressed="true"`) and 4w (9/36,
-    `aria-pressed="false"`), plus "3m" only when offered. `.progress-move` is
-    `hidden`.
+    `aria-pressed="false"`), plus "3m" only when offered. No move or reset
+    buttons.
   - **Each chart**: a `canvas[data-series]` with `role="img"`, `tabindex="0"`,
     `aria-describedby="progress-help"` and an `aria-label` with the whole
     season's period, the value at its end and the target; a
@@ -305,7 +305,7 @@ mouse and keyboard in the e2e tests.
   - the HTML legend keys of research R12: curve 2 px solid in its token;
     threshold 1 px dashed in `--md-sys-color-on-surface-variant`;
   - labels in `--md-type-label` and text tokens only;
-  - the period chips (`aria-pressed="true"` styled as selected) and move buttons
+  - the period chips (`aria-pressed="true"` styled as selected)
     at `--rp-tap` height;
   - focus-visible outline on the canvases as elsewhere;
   - the table inside `.progress-table-scroll{overflow-x:auto}`;
@@ -360,9 +360,8 @@ mouse and keyboard in the e2e tests.
     up or cancelled, `applyPeriod`.
   - **`applyPeriod(from, to)`**: sets the other chart with `zoomScale`, guarded
     against echo; updates `aria-pressed`, both `aria-label`s from
-    `template[data-label]`, and `.progress-move`.
-  - **Buttons**: period buttons apply `data-from`/`data-to`; Früher/Später `pan`
-    by half the period; reset `resetZoom` on both.
+    `template[data-label]`.
+  - **Buttons**: period buttons apply `data-from`/`data-to`.
   - **Keys** on a focused canvas: ←/→, +/−, PageUp/PageDown, Home/End, 0 and
     Escape (research R7), calling the plugin's `zoom`, `pan` and `resetZoom`.
   - **Selected day**: hover, tap or keys set the active index on both charts
@@ -386,7 +385,7 @@ mouse and keyboard in the e2e tests.
     its `aria-pressed` becomes `true`.
   - **(c) Drag to zoom**: dragging across the Training canvas with the mouse from
     25 % to 50 % of its width gives both charts the same `min`/`max`, at least 7
-    days apart, and shows the move buttons. "Ganze Saison zeigen" brings back
+    days apart. "Ganze Saison" brings back
     0 … `axisDays`.
   - **(d) Keyboard**: focus the Team canvas with Tab, press ← three times, and
     the readout names the date three days before the last day. `+` narrows the

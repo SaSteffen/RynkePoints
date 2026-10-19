@@ -820,9 +820,6 @@ export const en: Catalog = {
 	"progress.period.season": "Whole season",
 	"progress.period.3m": "Last 3 months",
 	"progress.period.4w": "Last 4 weeks",
-	"progress.earlier": "Earlier",
-	"progress.later": "Later",
-	"progress.reset": "Show whole season",
 	"progress.chart.training":
 		"Training Rynke from {from} to {to}: {value} at the end, target {threshold}",
 	"progress.chart.team":

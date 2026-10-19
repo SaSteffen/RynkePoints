@@ -119,14 +119,8 @@ describe("renderProgress (feature 009)", () => {
 			["9", "36", "false", c["progress.period.4w"]],
 		]);
 		expect(page).not.toContain(c["progress.period.3m"]);
-		expect(page).toMatch(/<span class="progress-move" hidden>/);
-		for (const id of [
-			"progress.earlier",
-			"progress.later",
-			"progress.reset",
-		] as const) {
-			expect(page).toContain(c[id]);
-		}
+		expect(page).not.toContain("data-move");
+		expect(page).not.toContain("data-reset");
 	});
 
 	it("gives each chart a focusable, labelled canvas and a label template (FR-050, FR-053)", () => {

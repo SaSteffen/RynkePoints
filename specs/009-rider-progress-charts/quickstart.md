@@ -44,7 +44,7 @@ pnpm dev     # http://localhost:8789, fake Strava with synthetic sample riders
 2. Tap **Letzte 4 Wochen**. Both charts show the last 28 days, and the page does
    not reload.
 3. Drag across a chart with the mouse: both zoom to the stretch. Shift-drag moves
-   it. Then use **Früher**, **Später** and **Ganze Saison zeigen**.
+   it. Then tap **Ganze Saison** to see the whole season again.
 4. Click a chart, then use ←/→, + and −, and the wheel. The readout follows. The
    wheel scrolls the page until the chart has focus.
 5. In the browser's device mode, drag sideways on a chart to move the period; a

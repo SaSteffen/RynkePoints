@@ -324,8 +324,6 @@ figure.gauge figcaption{display:flex;align-items:center;gap:var(--rp-space-2);ma
 .progress-periods{display:flex;flex-wrap:wrap;align-items:center;gap:var(--rp-space-2);margin:0 0 var(--rp-space-3)}
 .progress-periods .chip{min-height:var(--rp-tap);border:1px solid var(--md-sys-color-outline);background:none;color:var(--md-sys-color-on-surface)}
 .progress-periods .chip[aria-pressed=true]{border-color:var(--md-sys-color-secondary-container);background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
-.progress-move{display:inline-flex;flex-wrap:wrap;gap:var(--rp-space-1)}
-.progress-move[hidden]{display:none}
 .progress-chart{margin:0 0 var(--rp-space-3);padding:var(--rp-space-3);border-radius:var(--md-shape-md);background:var(--md-sys-color-surface)}
 .progress-training{border-left:6px solid var(--rp-coin-yellow)}
 .progress-team{border-left:6px solid var(--rp-coin-team)}

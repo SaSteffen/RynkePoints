@@ -31,11 +31,6 @@ example rider (FR-043).
     <button type="button" class="chip" data-from="0" data-to="302" aria-pressed="true">{progress.period.season}</button>
     <button type="button" class="chip" data-from="…" data-to="…" aria-pressed="false">{progress.period.3m}</button>  <!-- only if offered -->
     <button type="button" class="chip" data-from="9" data-to="36" aria-pressed="false">{progress.period.4w}</button>
-    <span class="progress-move" hidden>                           <!-- the script shows it while zoomed -->
-      <button type="button" class="button-text" data-move="-1">{progress.earlier}</button>
-      <button type="button" class="button-text" data-move="1">{progress.later}</button>
-      <button type="button" class="button-text" data-reset>{progress.reset}</button>
-    </span>
   </div>
   <figure class="progress-chart progress-training">
     <figcaption>{mini coin} {rynke.training}</figcaption>

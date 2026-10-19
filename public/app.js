@@ -1543,8 +1543,6 @@ function progressCharts(signal) {
 				near(Number(button.dataset.to), to);
 			button.setAttribute("aria-pressed", String(pressed));
 		}
-		const move = section.querySelector(".progress-move");
-		if (move) move.hidden = near(from, 0) && near(to, axisDays);
 		const first = Math.max(0, Math.round(from));
 		const last = Math.min(axisDays, Math.round(to));
 		for (const chart of charts) {
@@ -1863,10 +1861,6 @@ function progressCharts(signal) {
 			if (!button || !section.contains(button)) return;
 			if (button.dataset.from !== undefined) {
 				setPeriod(Number(button.dataset.from), Number(button.dataset.to));
-			} else if (button.dataset.move !== undefined) {
-				move(Number(button.dataset.move));
-			} else if (button.hasAttribute("data-reset")) {
-				resetPeriod();
 			}
 		},
 		{ signal },

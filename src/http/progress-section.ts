@@ -164,12 +164,7 @@ export function renderProgress(
 <h2 id="progress-heading">${i18n.t("progress.heading")}</h2>
 <p class="progress-rules">${i18n.t("progress.rules", { version: String(view.rulesVersion) })}</p>
 ${view.nothingYet ? html`<p class="progress-nothing">${i18n.t("progress.nothingYet")}</p>\n` : null}<div class="progress-periods" role="group" aria-label="${i18n.t("progress.periods.label")}">
-${shown}<span class="progress-move" hidden>
-<button type="button" class="button-text" data-move="-1">${i18n.t("progress.earlier")}</button>
-<button type="button" class="button-text" data-move="1">${i18n.t("progress.later")}</button>
-<button type="button" class="button-text" data-reset>${i18n.t("progress.reset")}</button>
-</span>
-</div>
+${shown}</div>
 ${renderChart(i18n, view, "training")}${renderChart(i18n, view, "team")}<p class="progress-readout" aria-live="polite"></p>
 <p id="progress-help" class="progress-help">${i18n.t("progress.help")}</p>
 <template data-readout="day">${i18n.tHtml("progress.day", {
