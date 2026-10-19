@@ -50,6 +50,10 @@ visibilitychange → hidden:  hiddenAt = Date.now()
 visibilitychange → visible: if nav.app-nav exists and Date.now() - hiddenAt > 60000 → location.reload()
 ```
 
+*(Changed 2026-10-19: instead of `location.reload()` the script fetches the page
+and swaps its content, navigation and refresh link in place, keeping the scroll
+position; `section#rides[data-lazy]` still reloads, for feature 018's restore.)*
+
 It does nothing on public pages, so a half-filled consent form is never lost.
 
 ### Notifications switch (changed from 010)

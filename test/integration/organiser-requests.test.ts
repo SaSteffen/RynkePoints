@@ -257,7 +257,12 @@ describe("POST /organiser/requests (FR-031, FR-035)", () => {
 		expect(notice.html).toContain(
 			escapeHtml(de["organiser.done.confirmed"].replace("{names}", "Katrin")),
 		);
-		expect(notice.html).toContain('action="/organiser/requests/undo"');
+		expect(notice.html).toContain(
+			'<form method="post" action="/organiser/requests/undo" data-swap>',
+		);
+		expect(notice.html).toContain(
+			'<form method="post" action="/organiser/requests" class="request-form" data-swap>',
+		);
 	});
 
 	it("confirms all of an event at once", async () => {

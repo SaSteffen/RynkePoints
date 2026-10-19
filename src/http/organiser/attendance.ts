@@ -172,7 +172,7 @@ ${items(false)}`;
 			: null;
 	return html`${heading}
 ${legend(i18n, false)}
-<form method="post" action="${eventPath(event.eventId)}/attendance" class="attendance-form">
+<form method="post" action="${eventPath(event.eventId)}/attendance" class="attendance-form" data-swap>
 ${all}${items(true)}
 <button class="button">${i18n.t("organiser.attendance.save")}</button>
 ${summary}</form>`;
