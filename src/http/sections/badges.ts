@@ -23,9 +23,10 @@ import {
 	BADGE_OUTLINE,
 	BADGE_OUTLINE_PLAIN,
 	BADGE_SHAPE_DEFS,
+	badgeRibbon,
 } from "../../badges/outline";
 import { BADGE_PICTURES } from "../../badges/pictures";
-import { evaluateTeamBadges } from "../../badges/team";
+import { evaluateTeamBadges, type TeamBadgeSums } from "../../badges/team";
 import {
 	type BadgeSection,
 	buildBadgeSection,
@@ -40,13 +41,25 @@ import type { Ctx } from "../../ctx";
 import {
 	listRevealsStatement,
 	listRiderBadgesStatement,
-	readRiderBadges,
+	type RiderBadgesRead,
 	revealedOf,
+	riderBadgesStatements,
+	toRiderBadges,
 	upsertRevealsStatement,
 } from "../../db/badges";
-import { type RiderViewRead, readRiderView } from "../../db/rider-view";
+import { type AttendedEvent, toAttendedEvents } from "../../db/rider-view";
 import type { Rider } from "../../db/riders";
-import { readTeamBadgeSums } from "../../db/team";
+import {
+	type BalanceRow,
+	readBalanceStatement,
+	type StoredBalance,
+	toStoredBalance,
+} from "../../db/rynke";
+import { teamBadgeSumsStatements, toTeamBadgeSums } from "../../db/team";
+import {
+	listRiderAttendanceStatement,
+	type RiderAttendanceRow,
+} from "../../db/team-events";
 import type { I18n } from "../../i18n/i18n";
 import { BADGE_NAMES } from "../../i18n/messages/badges.de";
 import {
@@ -54,6 +67,7 @@ import {
 	CURRENT_RULES,
 	countingWindow,
 } from "../../rynke/rules";
+import { artUrl } from "../art";
 import { html, SafeHtml } from "../html";
 import { CLOSE } from "../icons";
 import { renderWaiting } from "../rider-sections";
@@ -122,11 +136,19 @@ function milestone(i18n: I18n, badge: Badge): string {
 	);
 }
 
-function picture(badge: Badge, ribbon: boolean): string {
-	const suffix = ribbon ? "-ribbon" : "";
+function picture(badge: Badge): string {
 	return BADGE_PICTURES.has(badge.id)
-		? `/badges/${badge.id}${suffix}.svg`
-		: `/badges/placeholder-${badge.group}${suffix}.svg`;
+		? artUrl(`/badges/${badge.id}.svg`)
+		: artUrl(`/badges/placeholder-${badge.group}.svg`);
+}
+
+/**
+ * The badge's picture with its sticker edge, and the ribbon drawn over it
+ * when it has one: the same picture with and without (issue #180). The edge
+ * goes round both as one shape.
+ */
+function art(badge: Badge, size: number, ribbon: boolean): SafeHtml {
+	return html`<span class="badge-art"><img src="${picture(badge)}" alt="" loading="lazy" width="${size}" height="${size}">${ribbon ? new SafeHtml(badgeRibbon(badge.group)) : null}</span>`;
 }
 
 function badgeOf(earned: EarnedBadge): Badge {
@@ -172,8 +194,7 @@ function badgeButton(
 		value: milestone(i18n, badge),
 	});
 	const ribbon = size === 200;
-	const src = picture(badge, ribbon);
-	return html`<button class="${fresh ? "badge badge-fresh" : "badge"}" popovertarget="badge-${badge.id}" aria-label="${label}" style="--tilt:${tiltOf(badge.id)}deg;--badge-src:url(${src})"><img src="${src}" alt="" loading="lazy" width="${size}" height="${size}">${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}${fresh ? SPARKLES : null}</button>`;
+	return html`<button class="${fresh ? "badge badge-fresh" : "badge"}" popovertarget="badge-${badge.id}" aria-label="${label}" style="--tilt:${tiltOf(badge.id)}deg;--badge-src:url(${picture(badge)})">${art(badge, size, ribbon)}${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}${fresh ? SPARKLES : null}</button>`;
 }
 
 /**
@@ -312,7 +333,7 @@ function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
 	const team = badge.group === "team" ? " badge-large-team" : "";
 	return html`<div popover id="badge-${badge.id}" class="badge-large${team}">
 <button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
-<span class="badge" style="--badge-src:url(${picture(badge, true)})"><img src="${picture(badge, true)}" alt="" loading="lazy" width="280" height="280"><span class="badge-ribbon-text">${value}</span>${SPARKLES}</span>
+<span class="badge" style="--badge-src:url(${picture(badge)})">${art(badge, 280, true)}<span class="badge-ribbon-text">${value}</span>${SPARKLES}</span>
 <h4>${BADGE_NAMES[badge.id] ?? ""}</h4>
 <p>${forText(i18n, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
@@ -351,7 +372,7 @@ export function renderBadgeReveal(
 		.slice(0, REVEAL_PICTURES)
 		.map(
 			(b) =>
-				html`<img src="${picture(badgeOf(b), false)}" alt="" width="48" height="48">`,
+				html`<img src="${picture(badgeOf(b))}" alt="" loading="lazy" width="48" height="48">`,
 		)}</span>
 <p>${text}</p>
 </aside>
@@ -378,6 +399,45 @@ ${section.personal && section.team ? renderSwitch(i18n) : null}${new SafeHtml(BA
 ${group(i18n, "personal", section.personal, section.notYet, isFresh)}${group(i18n, "team", section.team, section.notYet, isFresh)}${earned.map((b) => popover(i18n, b))}</section>`;
 }
 
+/** What the badges page reads (issue #185). */
+interface BadgesRead {
+	/** `null` before the rider's first evaluation: the waiting state. */
+	balance: StoredBalance | null;
+	attendance: AttendedEvent[];
+	badges: RiderBadgesRead;
+	sums: TeamBadgeSums;
+}
+
+/**
+ * The rider's balance and team events, their stored badges and the team's
+ * sums in one batch, so they come from one snapshot in one round trip (issue
+ * #185); the rides and their counts aren't needed here.
+ */
+async function readBadgesPage(
+	db: D1Database,
+	athleteId: number,
+	window: CountingWindow,
+): Promise<BadgesRead> {
+	const riderBadges = riderBadgesStatements(db, athleteId, window);
+	const results = await db.batch([
+		readBalanceStatement(db, athleteId),
+		listRiderAttendanceStatement(db, athleteId),
+		...riderBadges,
+		...teamBadgeSumsStatements(db),
+	]);
+	const [balance, attendance] = results;
+	if (!balance || !attendance) {
+		throw new Error("D1 batch returned too few results");
+	}
+	const balanceRow = (balance.results as BalanceRow[])[0];
+	return {
+		balance: balanceRow ? toStoredBalance(balanceRow) : null,
+		attendance: toAttendedEvents(attendance.results as RiderAttendanceRow[]),
+		badges: toRiderBadges(results.slice(2, 2 + riderBadges.length)),
+		sums: toTeamBadgeSums(results.slice(2 + riderBadges.length)),
+	};
+}
+
 /**
  * The rider's stored badges and the team's, worked out from the listed
  * riders' sums on every request (research R15), with the ones new for the
@@ -388,53 +448,62 @@ async function badgesOf(
 	request: Request,
 	ctx: Ctx,
 	rider: Rider,
-	attendance: RiderViewRead["attendance"],
-	trainingRynke: number,
-	seasonWindow: CountingWindow,
+	read: BadgesRead & { balance: StoredBalance },
+	window: CountingWindow,
 ): Promise<BadgeSection | null> {
-	const db = ctx.env.DB;
-	// Nothing dated after today counts towards a badge or a bar.
-	const window = badgeWindow(seasonWindow, berlinDate(ctx.now()));
-	const [badges, sums] = await Promise.all([
-		readRiderBadges(db, rider.athleteId, window),
-		readTeamBadgeSums(db),
-	]);
+	const { badges, attendance } = read;
 	const section = buildBadgeSection({
 		waiting: false,
 		personal: {
 			earned: badges.earned,
 			progress: personalProgress(
-				{ ...badges, attendance, trainingRynke },
+				{ ...badges, attendance, trainingRynke: read.balance.trainingRynke },
 				window,
 			),
 		},
-		team: evaluateTeamBadges(sums, CURRENT_RULES, window),
+		team: evaluateTeamBadges(read.sums, CURRENT_RULES, window),
 		revealed: badges.revealed,
 		connectedOn: berlinDate(rider.connectedAt),
 		today: berlinDate(ctx.now()),
 		seasonStart: window.seasonStart,
 	});
 	if (section && section.reveal.length > 0 && request.method === "GET") {
-		await upsertRevealsStatement(db, rider.athleteId, section.reveal).run();
+		await upsertRevealsStatement(
+			ctx.env.DB,
+			rider.athleteId,
+			section.reveal,
+		).run();
 	}
 	return section;
 }
 
 /**
- * Whether the badges page has a badge to reveal to the rider, so the app opens
- * on it (issue #150): the same badges as `badgesOf`'s reveal. Only for a rider
- * with Rynke, since the waiting state reveals nothing; `connectedAt` is theirs.
+ * What `hasNewBadges` reads: the rider's badges and reveals and the team's
+ * sums, for the batch that also picks the landing page (issue #185).
  */
-export async function hasNewBadges(
-	ctx: Ctx,
+export function newBadgesStatements(
+	db: D1Database,
 	athleteId: number,
-	connectedAt: number,
-): Promise<boolean> {
-	const db = ctx.env.DB;
-	const [badges, reveals] = await db.batch([
+): D1PreparedStatement[] {
+	return [
 		listRiderBadgesStatement(db, athleteId),
 		listRevealsStatement(db, athleteId),
-	]);
+		...teamBadgeSumsStatements(db),
+	];
+}
+
+/**
+ * Whether the badges page has a badge to reveal to the rider, so the app opens
+ * on it (issue #150): the same badges as `badgesOf`'s reveal, from the results
+ * of `newBadgesStatements`. Only for a rider with Rynke, since the waiting
+ * state reveals nothing; `connectedAt` is theirs.
+ */
+export function hasNewBadges(
+	ctx: Ctx,
+	results: readonly (D1Result | undefined)[],
+	connectedAt: number,
+): boolean {
+	const [badges, reveals, ...sums] = results;
 	if (!badges || !reveals) {
 		throw new Error("D1 batch returned too few results");
 	}
@@ -446,13 +515,9 @@ export async function hasNewBadges(
 		badges.results as { badge_id: string; earned_on: string }[]
 	).map((row) => ({ badgeId: row.badge_id, earnedOn: row.earned_on }));
 	if (newBadges(personal, [], revealed, connectedOn).length > 0) return true;
-	// The team's are worked out on read (research R15); only when needed.
+	// The team's are worked out on read (research R15).
 	const window = badgeWindow(countingWindow(ctx.env), berlinDate(ctx.now()));
-	const team = evaluateTeamBadges(
-		await readTeamBadgeSums(db),
-		CURRENT_RULES,
-		window,
-	);
+	const team = evaluateTeamBadges(toTeamBadgeSums(sums), CURRENT_RULES, window);
 	return newBadges([], team.earned, revealed, connectedOn).length > 0;
 }
 
@@ -468,9 +533,14 @@ export function handleBadges(
 		"badges",
 		"/me/badges",
 		async ({ rider }) => {
-			const read = await readRiderView(ctx.env.DB, rider.athleteId, 1);
-			const window = countingWindow(ctx.env);
-			if (!read.balance) {
+			// Nothing dated after today counts towards a badge or a bar.
+			const window = badgeWindow(
+				countingWindow(ctx.env),
+				berlinDate(ctx.now()),
+			);
+			const read = await readBadgesPage(ctx.env.DB, rider.athleteId, window);
+			const { balance } = read;
+			if (!balance) {
 				return renderWaiting(
 					i18n,
 					ctx.env.SEASON_START_DATE,
@@ -481,8 +551,7 @@ export function handleBadges(
 				request,
 				ctx,
 				rider,
-				read.attendance,
-				read.balance.trainingRynke,
+				{ ...read, balance },
 				window,
 			);
 			return section

@@ -33,18 +33,30 @@ export async function recordConsent(
 }
 
 /** The rider's current consent: the record with the highest version. */
-export async function getCurrentConsent(
-	db: D1Database,
-	athleteId: number,
-): Promise<Consent | null> {
-	const row = await db
+export function currentConsentStatement(db: D1Database, athleteId: number) {
+	return db
 		.prepare(
 			`SELECT version, accepted_at FROM consent_records WHERE athlete_id = ?
 			ORDER BY version DESC LIMIT 1`,
 		)
-		.bind(athleteId)
-		.first<{ version: number; accepted_at: number }>();
-	return row ? { version: row.version, acceptedAt: row.accepted_at } : null;
+		.bind(athleteId);
+}
+
+export interface ConsentRow {
+	version: number;
+	accepted_at: number;
+}
+
+export function toConsent(row: ConsentRow): Consent {
+	return { version: row.version, acceptedAt: row.accepted_at };
+}
+
+export async function getCurrentConsent(
+	db: D1Database,
+	athleteId: number,
+): Promise<Consent | null> {
+	const row = await currentConsentStatement(db, athleteId).first<ConsentRow>();
+	return row ? toConsent(row) : null;
 }
 
 /** The rider's highest accepted version, null without a record (004 R13). */

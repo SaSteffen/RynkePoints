@@ -4,6 +4,7 @@ import type { Ctx } from "../../src/ctx";
 import { SCHEME_SCRIPT } from "../../src/http/html";
 import { CLOSE } from "../../src/http/icons";
 import { createSessionCookie } from "../../src/http/session";
+import { STYLE } from "../../src/http/style";
 import { handleFetch } from "../../src/index";
 import { vapidPublicKey } from "../../src/push/vapid";
 import { evaluateChange } from "../../src/rynke/apply";
@@ -83,7 +84,9 @@ describe("every page's head", () => {
 			expect(res.status).toBe(200);
 			const head = page.slice(page.indexOf("<head>"), page.indexOf("</head>"));
 			for (const line of HEAD) expect(head).toContain(line);
-			expect(head.indexOf("<script>")).toBeLessThan(head.indexOf("<style>"));
+			expect(head.indexOf("<script>")).toBeLessThan(
+				head.indexOf('<link rel="stylesheet"'),
+			);
 			expect(page.match(/<script[^>]*>/gi)).toEqual([
 				"<script>",
 				'<script src="/app.js" defer>',
@@ -209,6 +212,9 @@ describe("GET /offline", () => {
 		expect(page).toContain(body);
 		expect(page).toContain("powered-by-strava.svg");
 		expect(page).toContain("powered-by-strava-white.svg");
+		// Shown offline, so it can't rely on the linked file (issue #183).
+		expect(page).toContain(`<style>${STYLE}</style>`);
+		expect(page).not.toContain('rel="stylesheet"');
 	});
 
 	it.each([

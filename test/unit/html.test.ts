@@ -6,6 +6,8 @@ import {
 	layout,
 	SCHEME_SCRIPT,
 } from "../../src/http/html";
+import { STYLE } from "../../src/http/style";
+import { STYLESHEET_PATH } from "../../src/http/stylesheet";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 
@@ -99,10 +101,32 @@ describe("layout (de)", () => {
 			'<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fffdf5">',
 			'<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12110c">',
 		];
-		const at = [...metas, "<script>", "<style>"].map((m) => head.indexOf(m));
+		const at = [...metas, "<script>", '<link rel="stylesheet"'].map((m) =>
+			head.indexOf(m),
+		);
 		expect(at.every((i) => i >= 0)).toBe(true);
 		expect([...at].sort((x, y) => x - y)).toEqual(at);
 		expect(head.match(/<meta name="theme-color"/g)).toHaveLength(2);
+	});
+});
+
+describe("layout's stylesheet (issue #183)", () => {
+	const options = { title: "T", path: "/", body: html`<p>x</p>` };
+
+	it("links the hashed stylesheet instead of carrying the rules", () => {
+		const page = String(layout(de, options));
+		expect(STYLESHEET_PATH).toMatch(/^\/style-[0-9a-f]{16}\.css$/);
+		expect(page).toContain(
+			`<link rel="stylesheet" href="${STYLESHEET_PATH}">\n</head>`,
+		);
+		expect(page).not.toContain("<style>");
+		expect(page).not.toContain(STYLE);
+	});
+
+	it("carries the rules inline when asked, without the link", () => {
+		const page = String(layout(de, { ...options, inlineStyle: true }));
+		expect(page).toContain(`<style>${STYLE}</style>\n</head>`);
+		expect(page).not.toContain('rel="stylesheet"');
 	});
 });
 

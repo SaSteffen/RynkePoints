@@ -43,3 +43,6 @@ for (const f of files) {
 		`${f} -> public/illustrations/${name} (${statSync(OUT + name).size} bytes)`,
 	);
 }
+
+// The pictures' hashes for their addresses.
+await import("./art-versions.mjs");

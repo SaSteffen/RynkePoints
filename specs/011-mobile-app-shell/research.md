@@ -102,6 +102,8 @@ is rewritten around custom properties on `:root`:
 The values are in [contracts/design-tokens.md](contracts/design-tokens.md). Every
 other rule uses only `var(--…)`, so changing a token changes every page (FR-031).
 It is still inlined in each page's `<style>`, as today.
+(Since issue #183, at about 69 KB, it is served as `/style-{hash}.css`, cached
+immutable, and linked; only the offline notice still inlines it.)
 
 **Rationale**: inlining costs no extra request and no caching question. The style
 grows from about 2.7 KB to about 9 KB uncompressed, roughly 2.5 KB with gzip,

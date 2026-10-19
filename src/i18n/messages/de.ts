@@ -850,7 +850,7 @@ export const de = {
 	"organiser.attendance.tag.intent": "zugesagt",
 	"organiser.attendance.summary":
 		"Meldungen: {yes} werden eingetragen, {no} abgelehnt, {open} offen",
-	"organiser.overview.group.requests": "Rider mit offener Meldung ⏳",
+	"organiser.overview.group.requests": "Rider mit offener Meldung",
 	"organiser.overview.column.requests": "Meldung",
 	// The Overview's progress charts (feature 009 contracts/messages.md).
 	"progress.heading": "Dein Saisonverlauf",

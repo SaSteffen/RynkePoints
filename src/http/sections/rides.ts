@@ -1,7 +1,6 @@
 import { berlinDate, readyPollSeconds } from "../../config";
 import { hasAgreed } from "../../consent";
 import type { Ctx } from "../../ctx";
-import { getCurrentConsent } from "../../db/consents";
 import { hasBalance, readRideBatch, readRiderView } from "../../db/rider-view";
 import type { I18n } from "../../i18n/i18n";
 import {
@@ -98,10 +97,7 @@ export async function handleMoreRides(
 	const refuse = (status: number) => new Response(null, { status, headers });
 	const viewer = await readViewer(request, ctx);
 	if (viewer.kind === "visitor") return refuse(401);
-	const accepted =
-		viewer.consentVersion === null
-			? null
-			: await getCurrentConsent(ctx.env.DB, viewer.rider.athleteId);
+	const accepted = viewer.consent;
 	if (!hasAgreed(riderConsentState(viewer, ctx)) || !accepted) {
 		return refuse(403);
 	}

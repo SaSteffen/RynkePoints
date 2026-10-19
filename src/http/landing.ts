@@ -1,12 +1,11 @@
 import { clubId } from "../config";
 import { currentVersion } from "../consent";
 import type { Ctx } from "../ctx";
-import { getRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { LANDING_PORTRAIT, portraitCoin } from "./coin";
 import { consentForm, consentSummary } from "./consent-form";
 import { html, htmlResponse, layout } from "./html";
-import { home, redirect } from "./redirect";
+import { homeOf, redirect } from "./redirect";
 import { readSession } from "./session";
 
 // The public start page: what RynkePoints reads and why, who can join, how to
@@ -21,9 +20,8 @@ export async function handleLanding(
 ): Promise<Response> {
 	const athleteId = await readSession(request, ctx.env, ctx.now());
 	// A session for a deleted rider counts as signed out (research R9).
-	if (athleteId !== null && (await getRider(ctx.env.DB, athleteId))) {
-		return redirect(await home(ctx, athleteId), 302);
-	}
+	const to = athleteId === null ? null : await homeOf(ctx, athleteId);
+	if (to !== null) return redirect(to, 302);
 
 	const title = i18n.t("landing.title");
 	const clubLink = html`<a href="https://www.strava.com/clubs/${clubId(ctx.env)}">${i18n.t("club.linkText")}</a>`;

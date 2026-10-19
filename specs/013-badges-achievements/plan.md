@@ -171,7 +171,7 @@ specs/013-badges-achievements/
 # Part A (built)
 art/badges/                    # badges.json, prompt.txt, reference/, originals/
 scripts/badge-{art,build,frame,prompts}.mjs, scripts/trace.mjs
-public/badges/                 # <id>.svg, <id>-ribbon.svg, placeholders
+public/badges/                 # <id>.svg, placeholders (ribbon drawn by the page)
 src/badges/pictures.ts         # generated: badges with a picture
 
 # Part B

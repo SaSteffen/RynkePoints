@@ -41,6 +41,7 @@ import { handleMoreRides, handleRides } from "./sections/rides";
 import { handleSettings } from "./sections/settings";
 import { handleTeam } from "./sections/team";
 import { renewSession } from "./session";
+import { handleStylesheet, isStylesheet } from "./stylesheet";
 import { handleTour } from "./tour";
 import { handleWebhook } from "./webhook";
 
@@ -78,6 +79,10 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	const method = request.method;
 
 	if (path === "/health") return new Response("ok");
+	// The same for everyone: no language, no session (issue #183).
+	if ((method === "GET" || method === "HEAD") && isStylesheet(path)) {
+		return handleStylesheet(path);
+	}
 	if (path.startsWith(WEBHOOK_PREFIX)) {
 		return handleWebhook(request, path.slice(WEBHOOK_PREFIX.length), ctx);
 	}

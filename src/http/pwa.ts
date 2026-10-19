@@ -1,15 +1,15 @@
 import { BADGES } from "../badges/catalog";
 import type { Ctx } from "../ctx";
 import { readBadgeRiseStatement } from "../db/badges";
-import { readRiderView } from "../db/rider-view";
+import { riderStandingStatements, toRiderStanding } from "../db/rider-view";
 import { readRiseStatement } from "../db/rynke";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { BADGE_NAMES } from "../i18n/messages/badges.de";
 import { resolveLocale } from "../i18n/resolve";
-import { CURRENT_RULES, countingWindow, rulesForVersion } from "../rynke/rules";
+import { rulesForVersion } from "../rynke/rules";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
 import { CLOSE } from "./icons";
-import { buildRiderView } from "./rider-view";
+import { summary as riderSummary } from "./rider-view";
 import { readSession } from "./session";
 
 // The installable app's server side (feature 010 contracts/client.md and
@@ -41,6 +41,9 @@ export function handleOffline(request: Request, ctx: Ctx): Response {
 			path: "/me",
 			body: html`<h1>${title}</h1>
 <p>${i18n.t("offline.body")}</p>`,
+			// Offline the linked stylesheet may not be at hand; the notice
+			// brings its own (issue #183).
+			inlineStyle: true,
 		}),
 		200,
 		{ "Cache-Control": "no-cache" },
@@ -81,29 +84,26 @@ export async function handleRiderNotificationText(
 	const athleteId = await readSession(request, ctx.env, ctx.now());
 	if (athleteId === null) return none(401);
 
+	// The rises and only what the summary needs, in one batch (issue #185).
 	const db = ctx.env.DB;
-	const [rise, badgeRise, read] = await Promise.all([
-		readRiseStatement(db, athleteId).first<{
-			training_rynke: number;
-			team_rynke: number;
-			risen_at: number;
-		}>(),
-		readBadgeRiseStatement(db, athleteId).first<{
-			badge_ids: string;
-			risen_at: number;
-		}>(),
-		readRiderView(db, athleteId, 1),
+	const [riseRows, badgeRiseRows, ...standingRows] = await db.batch([
+		readRiseStatement(db, athleteId),
+		readBadgeRiseStatement(db, athleteId),
+		...riderStandingStatements(db, athleteId),
 	]);
-	const view = buildRiderView(
-		read,
-		read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
-		CURRENT_RULES,
-		{
-			...countingWindow(ctx.env),
-			rulesFor: rulesForVersion,
-		},
-	);
-	if (view.state !== "ready") return none(204);
+	const rise = (
+		riseRows?.results as
+			| { training_rynke: number; team_rynke: number; risen_at: number }[]
+			| undefined
+	)?.[0];
+	const badgeRise = (
+		badgeRiseRows?.results as
+			| { badge_ids: string; risen_at: number }[]
+			| undefined
+	)?.[0];
+	const { balance, virtualCount } = toRiderStanding(standingRows);
+	// No balance yet: the waiting state, which has nothing to tell.
+	if (!balance) return none(204);
 
 	const i18n = textI18n(request, ctx);
 	if (badgeRise && badgeRise.risen_at >= (rise?.risen_at ?? 0)) {
@@ -133,7 +133,11 @@ export async function handleRiderNotificationText(
 		{ n: rise.training_rynke, id: "push.rise.training" },
 		{ n: rise.team_rynke, id: "push.rise.team" },
 	] as const;
-	const { summary } = view;
+	const summary = riderSummary(
+		balance,
+		virtualCount,
+		rulesForVersion(balance.rulesVersion),
+	);
 	const unmet = [
 		{ condition: summary.training, id: "rynke.missing.training" },
 		{ condition: summary.team, id: "rynke.missing.team" },

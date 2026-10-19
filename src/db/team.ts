@@ -155,15 +155,15 @@ export async function readTeam(db: D1Database): Promise<TeamRider[]> {
 export async function readTeamBadgeSums(
 	db: D1Database,
 ): Promise<TeamBadgeSums> {
-	const [
-		rideRows,
-		attendanceRows,
-		correctionRows,
-		runRows,
-		eventRows,
-		activeRows,
-		connectedRows,
-	] = await db.batch([
+	return toTeamBadgeSums(await db.batch(teamBadgeSumsStatements(db)));
+}
+
+/**
+ * The statements of `readTeamBadgeSums`, for a caller's batch that needs the
+ * team badges next to its own reads (issue #185).
+ */
+export function teamBadgeSumsStatements(db: D1Database): D1PreparedStatement[] {
+	return [
 		db.prepare(
 			`SELECT r.athlete_id, substr(a.start_date_local, 1, 10) AS date,
 					SUM(a.distance_m) AS distance_m,
@@ -215,7 +215,22 @@ export async function readTeamBadgeSums(
 			`SELECT athlete_id, connected_at FROM riders
 				WHERE athlete_id IN (${LISTED_RIDER_IDS})`,
 		),
-	]);
+	];
+}
+
+/** The results of `teamBadgeSumsStatements`, in their order. */
+export function toTeamBadgeSums(
+	results: readonly (D1Result | undefined)[],
+): TeamBadgeSums {
+	const [
+		rideRows,
+		attendanceRows,
+		correctionRows,
+		runRows,
+		eventRows,
+		activeRows,
+		connectedRows,
+	] = results;
 	if (
 		!rideRows ||
 		!attendanceRows ||

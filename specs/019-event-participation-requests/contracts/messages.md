@@ -92,7 +92,7 @@ The `organiser.attendance.decide.*` labels of the no-script radios were removed
 
 | Key | English | German |
 |---|---|---|
-| `organiser.overview.group.requests` | Riders with an open report ⏳ | Rider mit offener Meldung ⏳ |
+| `organiser.overview.group.requests` | Riders with an open report | Rider mit offener Meldung |
 | `organiser.overview.column.requests` | Report | Meldung |
 | `organiser.overview.column.rynke` | Rynke | Rynke |
 
