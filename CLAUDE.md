@@ -48,8 +48,8 @@ and commit messages must follow
   (commits and PR title) as the local hooks.
 - The seven check jobs' names are the required-check contexts. Renaming one means
   updating both `.github/rulesets/*.json` files in the same change.
-  `already-checked`, `deploy-gate` and `deploy` are not contexts and must never be
-  added to them.
+  `already-checked`, `deploy-gate`, `deploy` and `release-pr` are not contexts and must
+  never be added to them.
 
 ## Non-negotiables
 
@@ -66,8 +66,9 @@ and commit messages must follow
 - Applying branch rulesets (`.github/rulesets/README.md`) and repository settings
   (`.github/repository-settings.md`) is a manual step too: the user runs it or
   explicitly asks for it.
-- Creating the deploy credential and the `production` environment
-  (`.github/repository-settings.md`) is a manual step too.
+- Creating the deploy credential and the `production` environment, and the release
+  PR token and the `release` environment (`.github/repository-settings.md`), are
+  manual steps too.
 - Webhook handlers ack fast and enqueue; processing is idempotent (Principle II).
 - Editing a Strava activity description only ever touches the app's own delimited
   block; rider text is never lost (Principle III).

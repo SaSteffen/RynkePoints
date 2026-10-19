@@ -1,0 +1,52 @@
+name: Release PR
+
+# The "Run workflow" button (Actions → Release PR) opens the pull request from
+# develop into main, or points at the one already open.
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  release-pr:
+    name: release-pr
+    # The release environment only releases its token to runs on develop.
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: release
+    steps:
+      # A pull request opened with github.token starts no workflows, so the required
+      # checks would never report. RELEASE_PR_TOKEN opens it as the maintainer.
+      - shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PR_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          open=$(gh pr list --repo "$REPO" --base main --head develop --state open --json url --jq '.[0].url // ""')
+          if [ -n "$open" ]; then
+            echo "::notice::A release pull request is already open: $open"
+            exit 0
+          fi
+
+          ahead=$(gh api "repos/$REPO/compare/main...develop" --jq .ahead_by)
+          if [ "$ahead" = 0 ]; then
+            echo "::notice::develop has nothing that main lacks."
+            exit 0
+          fi
+
+          # One line per squashed change; merge commits (releases, sync/* back-merges)
+          # are left out. Commit subjects reach the body through a file, never the shell.
+          gh api "repos/$REPO/compare/main...develop" \
+            --jq '.commits[] | select(.parents | length == 1) | "- " + (.commit.message | split("\n")[0])' \
+            > "$RUNNER_TEMP/body.md"
+
+          url=$(gh pr create --repo "$REPO" --base main --head develop \
+            --title "chore: release" --body-file "$RUNNER_TEMP/body.md")
+          echo "::notice::Opened $url"

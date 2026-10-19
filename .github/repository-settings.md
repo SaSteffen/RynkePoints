@@ -131,6 +131,41 @@ that references a missing environment creates it without any rules.
   `[{"name":"main","type":"branch"}]`; the secret and the variable listed for
   `production` only; the bypass box unchecked in the UI.
 
+## Environment `release`: `develop` only, with the release PR token
+
+The [Release PR](workflows/release-pr.yml) button opens the pull request from
+`develop` into `main`. A pull request opened with the workflow's own token starts
+no workflows, so the required checks would never report. The workflow opens it
+with a fine-grained token of the maintainer instead, which only a run on `develop`
+gets.
+
+- Token: **Settings (your account) → Developer settings → Fine-grained tokens →
+  Generate new token**. Resource owner `SaSteffen`, *Only select repositories*:
+  `RynkePoints`. Repository permissions: *Contents* read-only, *Pull requests*
+  read and write. Pick an expiry and note it; the button fails once it passes.
+- UI: **Environments → New environment → `release`**. *Deployment branches and
+  tags*: *Selected branches and tags*, branch rule `develop`, no tag rule. No
+  required reviewers, no wait timer.
+- Apply:
+
+  ```bash
+  gh api --method PUT repos/SaSteffen/RynkePoints/environments/release \
+    --input - <<<'{"deployment_branch_policy":{"protected_branches":false,"custom_branch_policies":true}}'
+  gh api --method POST repos/SaSteffen/RynkePoints/environments/release/deployment-branch-policies \
+    -f name=develop -f type=branch
+  gh secret set RELEASE_PR_TOKEN --env release             # paste at the prompt; never as an argument
+  ```
+
+- Show:
+
+  ```bash
+  gh api repos/SaSteffen/RynkePoints/environments/release/deployment-branch-policies --jq '[.branch_policies[] | {name, type}]'
+  gh secret list --env release
+  ```
+
+  Expected: `[{"name":"develop","type":"branch"}]`, and `RELEASE_PR_TOKEN` listed.
+- Use: **Actions → Release PR → Run workflow**, branch `develop`.
+
 ## Failure notifications: e-mail, failed workflows only
 
 A setting of the maintainer's account, not of the repository. It's how a failed
