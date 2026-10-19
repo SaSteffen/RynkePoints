@@ -1,26 +1,26 @@
 <!--
 Sync Impact Report
-- Version change: 2.0.0 → 2.1.0
-- Rationale: MINOR — Principle I's re-consent rule gains guidance on what
-  "grows" means: a new Strava scope, a new kind of Strava request, or anything
-  newly shown to someone other than the rider. A field the app already receives
-  with every read, kept and shown only to that rider, must be named in the
-  consent text but needs no new consent version (feature 008, FR-007).
-- Principles modified: I. Rider Data Privacy and Strava Consent (re-consent rule
-  clarified)
-- Sections added: none
+- Version change: 2.1.0 → 2.2.0
+- Rationale: MINOR — Technology Constraints gain a browser rule: the rider-facing
+  app requires JavaScript, and features need no no-script fallback. Pages stay
+  server-rendered HTML; text alternatives (tables, labels) serve screen readers,
+  not riders without scripts. Decided with feature 009 (progress charts).
+- Principles modified: none (Principle IV unchanged: a browser library still
+  needs a stated justification in the plan)
+- Sections added: none (one bullet in Technology Constraints)
 - Sections removed: none
 - Templates checked for alignment: .specify/templates/* — unchanged.
-- Follow-up TODOs: specs/008-strava-ride-names/plan.md no longer lists the
-  consent version as a deviation.
+- Follow-up TODOs: specs that require a no-script fallback drop that
+  requirement (009 FR-052; earlier features' specs reviewed separately).
 
-Previous: 1.2.1 → 2.0.0 (MAJOR) — Principle I no longer makes every capability
+Previous: 2.0.0 → 2.1.0 (MINOR) — Principle I's re-consent rule says what
+"grows" means; a field already received and shown only to the rider needs no
+new consent version (feature 008, FR-007).
+
+Before: 1.2.1 → 2.0.0 (MAJOR) — Principle I no longer makes every capability
 separately opt-in: one required consent at connect (read activities, show name
 and points to organisers and the team); private activities and `activity:write`
 stay optional.
-
-Before: 1.2.0 → 1.2.1 (PATCH) — Principle I's secrets bullet names where the
-CI deploy credential lives.
 -->
 
 # RynkePoints Constitution
@@ -157,6 +157,11 @@ only safety net a single-maintainer project has.
   2026-10-06: API Agreement effective 2026-06-01; default limits 200 req/15 min,
   2,000/day overall, 100/15 min and 1,000/day for reads; capacity 1 athlete
   (10 after self-serve upgrade, more only after review).
+- Browser: the rider-facing app requires JavaScript. Pages are server-rendered
+  HTML for first paint and accessibility, but features MUST NOT be designed,
+  built or tested for a browser with scripts turned off. Text alternatives (a
+  table next to a chart, labels) are for screen readers, not a no-script
+  fallback. Browser libraries follow Principle IV.
 - Tooling: pnpm, Biome (lint + format), TypeScript `tsc --noEmit`, Vitest,
   lefthook git hooks, Conventional Commits enforced by commitlint.
 
@@ -217,4 +222,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 2.1.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-07
+**Version**: 2.2.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-19
