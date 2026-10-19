@@ -13,5 +13,4 @@
 5. In the browser's dev tools, go offline and scroll to the end on a fresh
    page: "Ältere Fahrten konnten nicht geladen werden." and "Erneut versuchen";
    go online: the rides load.
-6. Turn JavaScript off: Rides shows the pager and the position line as before.
-7. `pnpm test` and `pnpm test:e2e`.
+6. `pnpm test` and `pnpm test:e2e`.
