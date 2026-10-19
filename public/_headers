@@ -4,3 +4,8 @@
 # link's `download` attribute works (feature 005 research R14).
 /rynke-punkte.pdf
   Content-Disposition: attachment; filename="rynke-punkte.pdf"
+
+# The chart library (feature 009 research R6). The file names carry the
+# version, so a new version is a new URL and the old one never changes.
+/vendor/*
+  Cache-Control: public, max-age=31536000, immutable

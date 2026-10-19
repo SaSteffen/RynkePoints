@@ -150,3 +150,30 @@ describe("htmlResponse", () => {
 		expect(res.headers.get("Set-Cookie")).toBe("a=b");
 	});
 });
+
+describe("layout scripts (feature 009 research R6)", () => {
+	const options = {
+		title: "Seitentitel",
+		path: "/me",
+		body: html`<p>Inhalt</p>`,
+	};
+
+	it("emits each script deferred, in order, before app.js", () => {
+		const page = String(
+			layout(de, { ...options, scripts: ["/vendor/a.js", "/vendor/b.js"] }),
+		);
+		const a = page.indexOf('<script src="/vendor/a.js" defer></script>');
+		const b = page.indexOf('<script src="/vendor/b.js" defer></script>');
+		const app = page.indexOf('<script src="/app.js" defer></script>');
+		expect(a).toBeGreaterThan(-1);
+		expect(b).toBeGreaterThan(a);
+		expect(app).toBeGreaterThan(b);
+	});
+
+	it("leaves a page without scripts as it was", () => {
+		expect(String(layout(de, { ...options, scripts: [] }))).toBe(
+			String(layout(de, options)),
+		);
+		expect(String(layout(de, options))).not.toContain("/vendor/");
+	});
+});

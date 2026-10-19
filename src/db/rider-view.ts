@@ -1,4 +1,5 @@
 import type { TeamEventKind } from "../rynke/team-events";
+import type { CurveInputs, CurveRideSum } from "../rynke/weeks";
 import type { CyclingSportType } from "../strava/activity";
 import {
 	type BalanceRow,
@@ -64,6 +65,11 @@ export interface RiderViewRead {
 	rides: RideRow[];
 	/** Every team event the rider was recorded for, newest first (FR-033). */
 	attendance: AttendedEvent[];
+	/**
+	 * What the progress curve is rebuilt from (feature 009 data-model.md "What
+	 * is read"), only when asked for.
+	 */
+	progress?: CurveInputs;
 }
 
 export interface AttendedEvent {
@@ -114,43 +120,117 @@ type RidePageRow = Omit<RideResultRow, "strava_activity_id"> & {
 	counted_distance_m: number | null;
 };
 
-/** The rider's page `page` (≥ 1) of the ride table, with what it needs. */
+/**
+ * The rider's counting rides summed per local start date and kind (feature 009
+ * research R3). The metres only place the elevation steps; they are never shown.
+ */
+const DAILY_RIDES_SQL = `SELECT substr(a.start_date_local, 1, 10) AS date, r.is_virtual,
+	SUM(r.distance_rynke) AS distance_rynke, SUM(r.elevation_dm) AS elevation_dm
+FROM ride_results r
+JOIN activities a
+	ON a.athlete_id = r.athlete_id AND a.strava_activity_id = r.strava_activity_id
+WHERE r.athlete_id = ?1 AND r.counts = 1
+GROUP BY 1, 2 ORDER BY 1, 2`;
+
+const CORRECTIONS_SQL = `SELECT correction_date, training, team FROM corrections
+WHERE athlete_id = ?1 ORDER BY correction_date, correction_id`;
+
+/**
+ * The rider's page `page` (≥ 1) of the ride table, with what it needs; with
+ * `progress`, also what the Overview's progress curve needs (feature 009).
+ */
 export async function readRiderView(
 	db: D1Database,
 	athleteId: number,
 	page: number,
+	options: { progress?: boolean } = {},
 ): Promise<RiderViewRead> {
-	const [balance, counts, rides, attendance] = await db.batch([
-		readBalanceStatement(db, athleteId),
-		db
-			.prepare(
-				`SELECT (SELECT count(*) FROM activities WHERE athlete_id = ?1) AS rides,
+	const [balance, counts, rides, attendance, dailyRides, corrections] =
+		await db.batch([
+			readBalanceStatement(db, athleteId),
+			db
+				.prepare(
+					`SELECT (SELECT count(*) FROM activities WHERE athlete_id = ?1) AS rides,
 					(SELECT count(*) FROM ride_results
 						WHERE athlete_id = ?1 AND is_virtual = 1) AS virtual`,
-			)
-			.bind(athleteId),
-		db.prepare(RIDE_PAGE_SQL).bind(athleteId, page),
-		listRiderAttendanceStatement(db, athleteId),
-	]);
-	if (!balance || !counts || !rides || !attendance) {
+				)
+				.bind(athleteId),
+			db.prepare(RIDE_PAGE_SQL).bind(athleteId, page),
+			listRiderAttendanceStatement(db, athleteId),
+			...(options.progress
+				? [
+						db.prepare(DAILY_RIDES_SQL).bind(athleteId),
+						db.prepare(CORRECTIONS_SQL).bind(athleteId),
+					]
+				: []),
+		]);
+	if (
+		!balance ||
+		!counts ||
+		!rides ||
+		!attendance ||
+		(options.progress && (!dailyRides || !corrections))
+	) {
 		throw new Error("D1 batch returned too few results");
 	}
 	const balanceRow = (balance.results as BalanceRow[])[0];
 	const count = (counts.results as { rides: number; virtual: number }[])[0];
 	const rideCount = count?.rides ?? 0;
 	const lastPage = Math.max(1, Math.ceil(rideCount / RIDES_PER_PAGE));
+	const attended = (attendance.results as RiderAttendanceRow[]).map((row) => ({
+		eventId: row.event_id,
+		kind: row.kind,
+		date: row.event_date,
+		name: row.name,
+	}));
 	return {
 		balance: balanceRow ? toStoredBalance(balanceRow) : null,
 		rideCount,
 		virtualCount: count?.virtual ?? 0,
 		page: Math.min(page, lastPage),
 		rides: (rides.results as RidePageRow[]).map(toRideRow),
-		attendance: (attendance.results as RiderAttendanceRow[]).map((row) => ({
-			eventId: row.event_id,
-			kind: row.kind,
-			date: row.event_date,
-			name: row.name,
-		})),
+		attendance: attended,
+		...(dailyRides && corrections
+			? {
+					progress: {
+						rides: (dailyRides.results as DailyRideRow[]).map(toCurveRide),
+						attendance: attended.map(({ eventId, kind, date }) => ({
+							eventId,
+							kind,
+							date,
+						})),
+						corrections: (corrections.results as CorrectionRow[]).map(
+							(row) => ({
+								date: row.correction_date,
+								training: row.training,
+								team: row.team,
+							}),
+						),
+					},
+				}
+			: {}),
+	};
+}
+
+interface DailyRideRow {
+	date: string;
+	is_virtual: number;
+	distance_rynke: number;
+	elevation_dm: number;
+}
+
+interface CorrectionRow {
+	correction_date: string;
+	training: number;
+	team: number;
+}
+
+function toCurveRide(row: DailyRideRow): CurveRideSum {
+	return {
+		date: row.date,
+		virtual: row.is_virtual === 1,
+		distanceRynke: row.distance_rynke,
+		elevationDm: row.elevation_dm,
 	};
 }
 

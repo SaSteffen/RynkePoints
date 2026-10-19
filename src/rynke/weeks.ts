@@ -103,16 +103,14 @@ export function riderWeeks(
 				team: balance?.teamRynke ?? 0,
 			};
 		}
-		return {
+		const { training, team } = tallyUpTo(
 			weekEnd,
-			...tallyUpTo(
-				weekEnd,
-				inputs.rides.filter((ride) => ride.weekEnd <= weekEnd),
-				inputs,
-				rules,
-				window,
-			),
-		};
+			inputs.rides.filter((ride) => ride.weekEnd <= weekEnd),
+			inputs,
+			rules,
+			window,
+		);
+		return { weekEnd, training, team };
 	});
 }
 
@@ -170,37 +168,25 @@ export function riderDays(
 			sum.distanceRynke += ride.distanceRynke;
 			sum.elevationDm += ride.elevationDm;
 		}
-		return {
-			date,
-			...tallyUpTo(date, [sum], inputs, rules, window),
-		};
+		const { training, team } = tallyUpTo(date, [sum], inputs, rules, window);
+		return { date, training, team };
 	});
 }
 
-/** Training and Team Rynke from these rides plus the extras dated up to `date`. */
+/**
+ * Training and Team Rynke from these rides plus the extras dated up to `date`,
+ * and the Training Rynke with only `outdoor` of the rides (003 FR-013a).
+ */
 function tallyUpTo(
 	date: string,
-	rides: readonly { distanceRynke: number; elevationDm: number }[],
+	rides: readonly RideTotal[],
 	extras: Pick<RiderInputs, "attendance" | "corrections">,
 	rules: RynkeRules,
 	window: CountingWindow,
-): { training: number; team: number } {
-	let distanceRynke = 0;
-	let elevationDm = 0;
-	for (const ride of rides) {
-		distanceRynke += ride.distanceRynke;
-		elevationDm += ride.elevationDm;
-	}
-	const riding: RidingSums = {
-		distanceRynke,
-		elevationDm,
-		elevationRynke:
-			Math.floor(elevationDm / (rules.elevationStepM * 10)) *
-			rules.elevationStepRynke,
-	};
-	// Only Training and Team are read, so the outdoor split doesn't matter.
+	outdoor: readonly RideTotal[] = rides,
+): { training: number; team: number; outside: number } {
 	const point = tally(
-		{ ...riding, withoutVirtual: riding },
+		{ ...riding(rides, rules), withoutVirtual: riding(outdoor, rules) },
 		extrasFrom(
 			evaluateAttendance(
 				extras.attendance.filter((a) => a.date <= date),
@@ -211,5 +197,112 @@ function tallyUpTo(
 		),
 		rules,
 	);
-	return { training: point.trainingRynke, team: point.teamRynke };
+	return {
+		training: point.trainingRynke,
+		team: point.teamRynke,
+		outside: point.trainingWithoutVirtual,
+	};
+}
+
+type RideTotal = { distanceRynke: number; elevationDm: number };
+
+/** The rides' sums, with the elevation floored once on the total (FR-004a). */
+function riding(rides: readonly RideTotal[], rules: RynkeRules): RidingSums {
+	let distanceRynke = 0;
+	let elevationDm = 0;
+	for (const ride of rides) {
+		distanceRynke += ride.distanceRynke;
+		elevationDm += ride.elevationDm;
+	}
+	return {
+		distanceRynke,
+		elevationDm,
+		elevationRynke:
+			Math.floor(elevationDm / (rules.elevationStepM * 10)) *
+			rules.elevationStepRynke,
+	};
+}
+
+/** A rider's counting rides of one local day and kind (feature 009 R3). */
+export interface CurveRideSum {
+	/** `YYYY-MM-DD`, the rides' local start date. */
+	date: string;
+	virtual: boolean;
+	distanceRynke: number;
+	/** Unfloored, so the total is floored once (003 FR-004a). */
+	elevationDm: number;
+}
+
+export interface CurveInputs {
+	rides: readonly CurveRideSum[];
+	attendance: readonly Attendance[];
+	corrections: readonly DatedCorrection[];
+}
+
+export interface CurvePoint {
+	/** `YYYY-MM-DD` */
+	date: string;
+	training: number;
+	team: number;
+	/** Training Rynke without virtual rides (003 FR-013a). */
+	outside: number;
+}
+
+/**
+ * The rider's totals at the end of every day from the season start to `last`
+ * (feature 009 research R1, R2). Anything dated after `last` counts on `last`,
+ * so the last point is the stored balance; should it still differ, the
+ * balance wins, as in `riderWeeks`, and the mismatch is logged.
+ */
+export function riderCurve(
+	inputs: CurveInputs,
+	window: CountingWindow,
+	last: string,
+	balance: Balance,
+	rules: RynkeRules,
+): CurvePoint[] {
+	const onOrBefore = <T extends { date: string }>(items: readonly T[]) =>
+		items.map((item) => (item.date > last ? { ...item, date: last } : item));
+	const extras = {
+		attendance: onOrBefore(inputs.attendance),
+		corrections: onOrBefore(inputs.corrections),
+	};
+	// The rides add up as the days go, as in `riderDays`.
+	const rides = onOrBefore(inputs.rides).sort((a, b) =>
+		a.date < b.date ? -1 : a.date > b.date ? 1 : 0,
+	);
+	const all = { distanceRynke: 0, elevationDm: 0 };
+	const outdoor = { distanceRynke: 0, elevationDm: 0 };
+	let next = 0;
+	const points: CurvePoint[] = [];
+	for (let day = dayNumber(window.seasonStart); day <= dayNumber(last); day++) {
+		const date = fromDayNumber(day);
+		for (
+			let ride = rides[next];
+			ride && ride.date <= date;
+			ride = rides[++next]
+		) {
+			for (const sum of ride.virtual ? [all] : [all, outdoor]) {
+				sum.distanceRynke += ride.distanceRynke;
+				sum.elevationDm += ride.elevationDm;
+			}
+		}
+		points.push({
+			date,
+			...tallyUpTo(date, [all], extras, rules, window, [outdoor]),
+		});
+	}
+	const end = points.at(-1);
+	if (
+		end &&
+		(end.training !== balance.trainingRynke ||
+			end.team !== balance.teamRynke ||
+			end.outside !== balance.trainingWithoutVirtual)
+	) {
+		console.error("Progress curve disagrees with the stored balance");
+		end.training = balance.trainingRynke;
+		end.team = balance.teamRynke;
+		end.outside = balance.trainingWithoutVirtual;
+	}
+	return points;
 }

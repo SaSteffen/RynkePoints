@@ -83,10 +83,10 @@ September.
 
 **Purpose**: a green baseline, shared test data and the vendored chart library.
 
-- [ ] T001 In the worktree, run `pnpm install`, `pnpm lint`, `pnpm typecheck`,
+- [X] T001 In the worktree, run `pnpm install`, `pnpm lint`, `pnpm typecheck`,
   `pnpm test` and `pnpm test:e2e`, and confirm all pass before any change. Note
   any test that already fails in the PR description rather than fixing it here.
-- [ ] T002 [P] Create `test/support/progress.ts` with the example rider above:
+- [X] T002 [P] Create `test/support/progress.ts` with the example rider above:
   - `EXAMPLE_INPUTS: CurveInputs`, using the data-model.md shape (rides per day
     with `virtual: false`, attendance, one correction);
   - `EXAMPLE_BALANCE: Balance`;
@@ -97,12 +97,12 @@ September.
     `corrections` row and the `rynke_balances` row) using the helpers in
     `test/support/rynke.ts`. Add a raw correction insert helper there if none
     exists.
-- [ ] T003 [P] Move the reference rider set out of
+- [X] T003 [P] Move the reference rider set out of
   `test/unit/reference-riders.test.ts` into `test/support/reference-riders.ts`
   (export the riders, their window and their expected balances), and import it
   back. `test/unit/reference-riders.test.ts` must still pass unchanged in what it
   asserts.
-- [ ] T004 [P] Vendor the chart library (research R4, R6):
+- [X] T004 [P] Vendor the chart library (research R4, R6):
   - add `chart.js` 4.5.1, `chartjs-plugin-zoom` 2.2.0 as
     exact-pinned `devDependencies` in `package.json`;
   - write `scripts/vendor.mjs`: it copies `chart.js/dist/chart.umd.min.js`,
@@ -119,12 +119,12 @@ September.
     `/vendor/*` → `Cache-Control: public, max-age=31536000, immutable`, with a
     comment that the file names carry the version;
   - run `pnpm vendor` and commit the copies. `pnpm lint` passes.
-- [ ] T005 [P] Write failing tests in `test/unit/html.test.ts` for a new
+- [X] T005 [P] Write failing tests in `test/unit/html.test.ts` for a new
   `LayoutOptions.scripts?: string[]`: each path is emitted as
   `<script src="…" defer></script>` in the given order, all before
   `<script src="/app.js" defer>`; a page without the option renders exactly as
   before.
-- [ ] T006 Implement `scripts` in `layout` in `src/http/html.ts` (and pass it
+- [X] T006 Implement `scripts` in `layout` in `src/http/html.ts` (and pass it
   through `shellPage` if that builds the layout options), so that T005 passes.
   Export the two vendor paths once, as `CHART_SCRIPTS` in
   `src/http/progress-section.ts` or a small constant beside it, matching
@@ -138,7 +138,7 @@ September.
 
 **Purpose**: the curve and the read, which both user stories need (research R1–R3).
 
-- [ ] T007 Write failing tests in `test/unit/curve.test.ts` for
+- [X] T007 Write failing tests in `test/unit/curve.test.ts` for
   `riderCurve(inputs, window, last, balance, rules)` (data-model.md "Pure
   values"):
   - **(a) The example rider**: 37 points from 2026-09-01 to 2026-10-07, and
@@ -161,7 +161,7 @@ September.
     point equals their expected balance (SC-002), and at every entry of
     `weekEnds(seasonStart, last)` the point equals `riderWeeks(...)`'s point for
     the same week (FR-012).
-- [ ] T008 Implement `CurveRideSum`, `CurveInputs`, `CurvePoint` and
+- [X] T008 Implement `CurveRideSum`, `CurveInputs`, `CurvePoint` and
   `riderCurve` in `src/rynke/weeks.ts`, so that T007 passes:
   - Extend `tallyUpTo` to take the rides without virtual ones and return
     `outside` (`trainingWithoutVirtual`). `riderWeeks` and `riderDays` pass the
@@ -171,7 +171,7 @@ September.
   - Place anything dated after `last` on `last`.
   - Override the last point with the balance on a mismatch and
     `console.error("Progress curve disagrees with the stored balance")`.
-- [ ] T009 Write failing tests in `test/integration/rider-view-progress.test.ts`
+- [X] T009 Write failing tests in `test/integration/rider-view-progress.test.ts`
   for `readRiderView(db, athleteId, 1, { progress: true })` on the seeded example
   rider and a second synthetic rider:
   - `progress.rides` lists the example rider's counting rides per day, with sums
@@ -182,7 +182,7 @@ September.
   - without the option, `progress` is `undefined`;
   - all statements run in the existing single `db.batch`. Spy on `db.batch` and
     assert one call.
-- [ ] T010 Implement the two statements of data-model.md "What is read" in
+- [X] T010 Implement the two statements of data-model.md "What is read" in
   `src/db/rider-view.ts`:
   - add the optional `{ progress?: boolean }` parameter and `progress?:
     CurveInputs` on `RiderViewRead`;
