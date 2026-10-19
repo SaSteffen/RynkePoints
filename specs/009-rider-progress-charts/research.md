@@ -140,7 +140,7 @@ then come from the browser cache (R6).
   buttons.
 - Chart.js covers the rest: a linear x axis of day indexes with our own tick list
   and labels (R10), hover and tap picking the nearest day (`interaction.mode:
-  "index"`, `intersect: false`), fixed y scales, dashed lines, high-density
+  "index"`, `intersect: false`), fixed y scales, high-density
   canvases and resizing.
 - Cost: 75 KB gzip once per device, nothing in the Worker bundle, no change to
   the free tier.
@@ -389,11 +389,12 @@ are gone.
 
 | Line | Light (`#fffdf5`) | Dark (`#12110c`) | Look |
 |---|---|---|---|
-| Training curve | `#8a6e00` (gold step of `#fbe122`) | `#a88e00` | 2 px solid |
-| Team curve | `#1f6fb2` (blue step of `#8cc4f0`) | `#4a94d2` | 2 px solid |
-| US2 outdoor Training curve | `#7b4fa0` | `#a77fd0` | 2 px, dashed `6 3` |
-| Threshold, 167 line | `on-surface-variant` | same token | 1 px, dashed `4 4`, value at its right end |
-| US2 pace lines | `on-surface-variant` | same token | 1 px, dotted `1 3` |
+| Training curve | `#8a6e00` (gold step of `#fbe122`) | `#a88e00` | 3 px solid |
+| Team curve | `#1f6fb2` (blue step of `#8cc4f0`) | `#4a94d2` | 3 px solid |
+| US2 outdoor Training curve | `#7b4fa0` | `#a77fd0` | 3 px solid |
+| Threshold | `#a6344f` | `#d64651` | 1.5 px solid, value at its right end |
+| US2 167 line | the outdoor curve's colour | same | 1.5 px solid |
+| US2 pace lines | `#2b9667` | `#24a684` | 1.5 px solid |
 | Grid | `outline-variant` | same token | 1 px |
 | Axis labels | `on-surface-variant` | same token | the app's label type |
 
@@ -404,7 +405,10 @@ are gone.
     colour-blind vision.
   - The blue is never in the same chart as either, so the two charts don't need
     to be told apart by colour.
-- **Tokens**: `--rp-line-training`, `--rp-line-team` and `--rp-line-outside`,
+- **No dashes or dots** (maintainer, 2026-10-19): they were hard to make out, so
+  every line is solid and told apart by colour and width.
+- **Tokens**: `--rp-line-training`, `--rp-line-team`, `--rp-line-outside`,
+  `--rp-line-threshold` and `--rp-line-pace`,
   defined in both schemes in `style.ts`. `design-tokens.test.ts` covers them.
 - **Canvas colours**: a canvas can't use CSS variables, so the script reads the
   tokens with `getComputedStyle` when it creates the charts, and again (then

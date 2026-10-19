@@ -381,16 +381,18 @@ test("a rider with virtual rides sees the outdoor curve and the pace (009 US2)",
 		const { Chart } = globalThis as unknown as {
 			Chart: {
 				getChart(c: Element): {
-					data: { datasets: { borderDash?: number[] }[] };
+					data: {
+						datasets: { borderDash?: number[]; borderWidth: number }[];
+					};
 				};
 			};
 		};
-		return Chart.getChart(element).data.datasets.map((d) =>
-			(d.borderDash ?? []).join(","),
+		return Chart.getChart(element).data.datasets.map(
+			(d) => `${d.borderWidth}${d.borderDash?.length ? " dashed" : ""}`,
 		);
 	});
 	// The curve, the outdoor curve, the target, its pace, the 167 line and its pace.
-	expect(labels).toEqual(["", "6,3", "4,4", "1,3", "4,4", "1,3"]);
+	expect(labels).toEqual(["3", "3", "1.5", "1.5", "1.5", "1.5"]);
 	await canvas(page, "training").focus();
 	await page.keyboard.press("ArrowLeft");
 	const readout = page.locator(".progress-readout");

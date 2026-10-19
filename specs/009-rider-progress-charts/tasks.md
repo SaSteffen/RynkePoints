@@ -276,9 +276,10 @@ mouse and keyboard in the e2e tests.
   - **(i) Rides redirect unchanged**: `/me?page=2` still redirects to
     `/me/rides?page=2`.
 - [X] T014 [P] [US1] Extend `test/unit/design-tokens.test.ts`:
-  - `--rp-line-training`, `--rp-line-team` and `--rp-line-outside` are defined in
-    both schemes, with the values of research R12 (light `#8a6e00`, `#1f6fb2`,
-    `#7b4fa0`; dark `#a88e00`, `#4a94d2`, `#a77fd0`);
+  - `--rp-line-training`, `--rp-line-team`, `--rp-line-outside`,
+    `--rp-line-threshold` and `--rp-line-pace` are defined in both schemes, with
+    the values of research R12 (light `#8a6e00`, `#1f6fb2`, `#7b4fa0`, `#a6344f`,
+    `#2b9667`; dark `#a88e00`, `#4a94d2`, `#a77fd0`, `#d64651`, `#24a684`);
   - each has at least 3:1 contrast against its scheme's
     `--md-sys-color-surface`.
 
@@ -302,8 +303,8 @@ mouse and keyboard in the e2e tests.
     `.overview-grid>.progress{grid-column:1/-1}`;
   - `.progress-plot{position:relative;height:11rem}`, `13rem` from 600 px, with
     the canvas filling it and `touch-action:pan-y` on the canvas (FR-025);
-  - the HTML legend keys of research R12: curve 2 px solid in its token;
-    threshold 1 px dashed in `--md-sys-color-on-surface-variant`;
+  - the HTML legend keys of research R12: curve 3 px solid in its token;
+    threshold 2 px solid in `--rp-line-threshold`;
   - labels in `--md-type-label` and text tokens only;
   - the period chips (`aria-pressed="true"` styled as selected)
     at `--rp-tap` height;
@@ -482,15 +483,15 @@ hand-worked figures and with `riderStatus` from `src/rynke/pace.ts`.
   so that T025 passes.
 - [X] T030 [US2] Extend `renderProgress` in `src/http/progress-section.ts` and
   the styles in `src/http/style.ts`:
-  - the legend keys: pace 1 px dotted, outdoor 2 px dashed in
-    `--rp-line-outside`, the 167 line like the threshold;
+  - the legend keys: pace 2 px solid in `--rp-line-pace`, outdoor 3 px solid
+    in `--rp-line-outside`, the 167 line 2 px in `--rp-line-outside`;
   - the templates and the table columns,
 
   so that T026 passes.
 - [X] T031 [US2] Extend `progressCharts()` in `public/app.js`:
-  - datasets for the pace lines (from (0, 0) to (`axisDays`, threshold), 1 px,
-    `borderDash: [1, 3]`), the outdoor curve (2 px, `borderDash: [6, 3]`,
-    `--rp-line-outside`) and the 167 line;
+  - datasets for the pace lines (from (0, 0) to (`axisDays`, threshold), 1.5 px,
+    `--rp-line-pace`), the outdoor curve (3 px, `--rp-line-outside`) and the
+    167 line (1.5 px, `--rp-line-outside`);
   - the readout appends, per line with a pace, the ahead, behind or on-pace
     template filled with `n = |value − pace|` and `pace`;
   - for riders with virtual rides, it adds the outdoor template;

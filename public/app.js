@@ -1304,6 +1304,8 @@ function progressCharts(signal) {
 			training: token("--rp-line-training"),
 			team: token("--rp-line-team"),
 			outside: token("--rp-line-outside"),
+			threshold: token("--rp-line-threshold"),
+			pace: token("--rp-line-pace"),
 			muted: token("--md-sys-color-on-surface-variant"),
 			grid: token("--md-sys-color-outline-variant"),
 			surface: token("--md-sys-color-surface"),
@@ -1358,22 +1360,20 @@ function progressCharts(signal) {
 	/** The datasets of one chart; curves first, as the selection marks them. */
 	function datasets(kind) {
 		const series = data[kind];
-		const line = (to, colour, dash, width = 1) => ({
+		const line = (to, colour, threshold) => ({
 			data: [
-				{ x: 0, y: to === "pace" ? 0 : dash.threshold },
-				{ x: axisDays, y: dash.threshold },
+				{ x: 0, y: to === "pace" ? 0 : threshold },
+				{ x: axisDays, y: threshold },
 			],
 			borderColor: colour,
-			borderWidth: width,
-			borderDash: dash.pattern,
+			borderWidth: 1.5,
 			pointRadius: 0,
 			pointHoverRadius: 0,
 		});
-		const curve = (values, colour, pattern = []) => ({
+		const curve = (values, colour) => ({
 			data: values.map((y, x) => ({ x, y })),
 			borderColor: colour,
-			borderWidth: 2,
-			borderDash: pattern,
+			borderWidth: 3,
 			pointRadius: 0,
 			pointHoverRadius: 4,
 			pointHoverBorderWidth: 2,
@@ -1383,36 +1383,16 @@ function progressCharts(signal) {
 		const sets = [curve(series.values, colours[kind])];
 		const outside = kind === "training" ? data.outside : null;
 		if (outside) {
-			sets.push(curve(outside.values, colours.outside, [6, 3]));
+			sets.push(curve(outside.values, colours.outside));
 		}
-		sets.push(
-			line("threshold", colours.muted, {
-				threshold: series.threshold,
-				pattern: [4, 4],
-			}),
-		);
+		sets.push(line("threshold", colours.threshold, series.threshold));
 		if (series.pace) {
-			sets.push(
-				line("pace", colours.muted, {
-					threshold: series.threshold,
-					pattern: [1, 3],
-				}),
-			);
+			sets.push(line("pace", colours.pace, series.threshold));
 		}
 		if (outside) {
-			sets.push(
-				line("threshold", colours.muted, {
-					threshold: outside.threshold,
-					pattern: [4, 4],
-				}),
-			);
+			sets.push(line("threshold", colours.outside, outside.threshold));
 			if (outside.pace) {
-				sets.push(
-					line("pace", colours.muted, {
-						threshold: outside.threshold,
-						pattern: [1, 3],
-					}),
-				);
+				sets.push(line("pace", colours.pace, outside.threshold));
 			}
 		}
 		return sets;

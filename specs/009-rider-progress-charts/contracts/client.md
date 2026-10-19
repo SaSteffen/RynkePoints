@@ -24,8 +24,8 @@ When `#progress` and `#progress-data` exist, the script:
    - x: `type: "linear"`, `min: 0`, `max: axisDays`, ticks from research R10;
    - y: `min: 0`, `max: yMax`;
    - datasets: the curve (`values` as `{x: i, y}`), the threshold, and from US2
-     the pace and outdoor lines; `pointRadius: 0`, `pointHoverRadius: 4`, 2 px
-     surface ring;
+     the pace and outdoor lines; all solid, curves 3 px and straight lines 1.5 px
+     (research R12); `pointRadius: 0`, `pointHoverRadius: 4`, 2 px surface ring;
    - `interaction: { mode: "index", intersect: false, axis: "x" }`, with
      `events: []`: Chart.js's own hover is off, as the selected day is set by
      the pointer handlers and keys below;

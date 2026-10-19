@@ -152,28 +152,37 @@ describe("design tokens", () => {
 			training: tokens["--rp-line-training"],
 			team: tokens["--rp-line-team"],
 			outside: tokens["--rp-line-outside"],
+			threshold: tokens["--rp-line-threshold"],
+			pace: tokens["--rp-line-pace"],
 		});
 		expect(lines(LIGHT)).toEqual({
 			training: "#8a6e00",
 			team: "#1f6fb2",
 			outside: "#7b4fa0",
+			threshold: "#a6344f",
+			pace: "#2b9667",
 		});
 		expect(lines(DARK_FIXED)).toEqual({
 			training: "#a88e00",
 			team: "#4a94d2",
 			outside: "#a77fd0",
+			threshold: "#d64651",
+			pace: "#24a684",
 		});
 	});
 
 	describe.each(SCHEMES)("progress lines, %s", (_scheme, tokens) => {
-		it.each(["--rp-line-training", "--rp-line-team", "--rp-line-outside"])(
-			"%s on the surface reaches 3 : 1 (FR-050)",
-			(line) => {
-				expect(
-					contrast(tokens[line] as string, tokens[md("surface")] as string),
-				).toBeGreaterThanOrEqual(3);
-			},
-		);
+		it.each([
+			"--rp-line-training",
+			"--rp-line-team",
+			"--rp-line-outside",
+			"--rp-line-threshold",
+			"--rp-line-pace",
+		])("%s on the surface reaches 3 : 1 (FR-050)", (line) => {
+			expect(
+				contrast(tokens[line] as string, tokens[md("surface")] as string),
+			).toBeGreaterThanOrEqual(3);
+		});
 	});
 
 	it("gives the head script the surface colours (research R6, R12)", () => {
