@@ -66,6 +66,9 @@ built yet. It is brought up to date with them; what a rider sees and the limits
   worked out" notice, and the app no longer talks about importing (feature 015).
 - **Onboarding tour**: the tour shows an example rider on the Overview (feature
   020); the section shows that rider's curves too (FR-043).
+- **Language switch**: it moved to Settings (feature 011 FR-016), so it can no
+  longer keep a period on the Overview; FR-026 now only asks that zooming and the
+  period buttons work without loading the page (US1 scenario 15, D5).
 - The rules version in the examples and diagrams is now 3, the current one.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -186,8 +189,8 @@ September with touch, mouse and keyboard and compare the totals shown for each d
 14. **Given** a rider zoomed in, **When** they move the period, **Then** it moves no
     further than the season start and the end of the time axis; **when** they reset,
     **Then** the whole season is shown again.
-15. **Given** a rider zoomed in, **When** they switch the language, **Then** the
-    period stays as it was.
+15. **Given** a rider zoomed in, **When** they choose "last 4 weeks", **Then** both
+    charts show 10 September to 7 October again.
 16. **Given** a phone, **When** the rider swipes up or down across a chart, **Then**
     the page scrolls as usual and the chart does not zoom or move.
 17. **Given** a rider who uses only the keyboard or a screen reader, **When** they
@@ -308,8 +311,9 @@ on GitHub and agrees with the requirements.
   offered (FR-020).
 - **Season less than 3 months old**: "last 3 months" would start before the season
   start, so it is not offered yet.
-- **Language switch**: the section switches immediately and keeps its period; dates,
-  numbers and month names follow the page language (feature 005 FR-061).
+- **Language switch**: it happens in Settings (feature 011 FR-016), so the Overview
+  is loaded again in the new language and shows the whole season; dates, numbers and
+  month names follow the page language (feature 005 FR-061).
 - **A whole season of rides** (up to 500, feature 001 SC-008): the charts and the
   table still appear within the page's time limit (SC-005).
 - **Organiser opens the page**: they see their own charts like any rider.
@@ -412,8 +416,10 @@ on GitHub and agrees with the requirements.
   one, in the page language.
 - **FR-025**: On a touch screen, a vertical swipe across a chart MUST scroll the page
   and MUST NOT zoom or move the chart.
-- **FR-026**: Switching the language MUST keep the period. Reloading the page MAY
-  reset it to the whole season.
+- **FR-026**: Zooming, moving and the period buttons MUST change the period without
+  loading the page again. Whenever the Overview is loaded again (a reload, coming
+  back from another section, a language switch in Settings), the period MAY go back
+  to the whole season.
 
 **Totals of a day**
 
@@ -763,7 +769,9 @@ stateDiagram-v2
     Weeks --> Zoomed: pinch, wheel, drag, keys
     Zoomed --> Zoomed: move back or forward<br/>(not past the axis ends)
     Zoomed --> Season: reset
-    Zoomed --> Zoomed: switch language<br/>(period kept)
+    Zoomed --> Weeks: button
+    Zoomed --> Months: button
+    Zoomed --> [*]: Overview loaded again<br/>(reload, other section,<br/>language in Settings)
 
     note right of Season
         Without the interactive part

@@ -1,150 +1,195 @@
 # Data Model: Rider Progress Charts
 
-**Feature**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md)
+**Feature**: [spec.md](spec.md) | **Plan**: [plan.md](plan.md) | **Date**: 2026-10-19
 
-## Stored data
+Nothing is stored and there is no migration (FR-012, research R1). This file
+describes:
+- what the Overview additionally reads;
+- the pure values built from it;
+- the data the page carries for the script.
 
-There is **no migration** and no new column. The feature reads only what features
-001 and 003 store (research R1):
+## What is read (research R3)
 
-| Table | Columns read | Why |
-|---|---|---|
-| `ride_results` | `distance_rynke`, `elevation_dm`, `is_virtual` where `counts = 1` | Training Rynke from rides, elevation steps, the curve without virtual rides |
-| `activities` | `start_date_local` (its date only) | the day a ride belongs to |
-| `attendances` ⟕ `team_events` | `kind`, `event_date` (already read by 005) | Team and Training Rynke from events |
-| `rynke_balances` | the stored balance (already read by 005) | the last point and the rules version |
-
-Code values that are read but not stored: `rulesForVersion(balance.rulesVersion)`
-and `SEASON_START_DATE`.
-
-Not read: distance in metres, elevation in metres per ride, times, sport type,
-names, private flag. The new statement selects no column that FR-005 forbids
-showing, so the forbidden figures cannot reach the chart data.
-
-### New statement, in `readRiderView`'s batch (FR-041)
+`readRiderView(db, athleteId, 1, { progress: true })` adds two statements to the
+batch it already runs. Results come from one snapshot together with the balance,
+the counts and the attendance (FR-041).
 
 ```sql
-SELECT substr(a.start_date_local, 1, 10) AS day,
-	r.distance_rynke, r.elevation_dm, r.is_virtual
+-- Daily ride sums: counting rides per local start date and virtual flag.
+SELECT substr(a.start_date_local, 1, 10) AS date, r.is_virtual,
+	SUM(r.distance_rynke) AS distance_rynke, SUM(r.elevation_dm) AS elevation_dm
 FROM ride_results r
-JOIN activities a
-	ON a.athlete_id = r.athlete_id AND a.strava_activity_id = r.strava_activity_id
+JOIN activities a ON a.strava_activity_id = r.strava_activity_id
 WHERE r.athlete_id = ?1 AND r.counts = 1
+GROUP BY 1, 2 ORDER BY 1, 2;
+
+-- The rider's corrections.
+SELECT correction_date, training, team FROM corrections
+WHERE athlete_id = ?1 ORDER BY correction_date, correction_id;
 ```
 
-It joins the four statements 005 already sends in one `db.batch`, so balance,
-results and attendance come from one snapshot. `RiderViewRead` gains
-`countingRides: CountingRide[]`.
-
-## In-memory types
-
-### `CountingRide` (`db/rider-view.ts`)
-
-| Field | Type | From |
-|---|---|---|
-| `date` | `YYYY-MM-DD` | `day` |
-| `distanceRynke` | integer ≥ 0 | `distance_rynke` |
-| `elevationDm` | integer ≥ 0 | `elevation_dm` |
-| `isVirtual` | boolean | `is_virtual` |
-
-### `ridingTotals(results, rules)` (`rynke/rides.ts`, exported)
-
-`evaluateRides`' existing summing, now exported and used by both. Its input is
-`Pick<RideResult, "distanceRynke" | "elevationDm" | "isVirtual">[]`, and all
-inputs count. It returns `RidingTotals` (with `withoutVirtual`) unchanged.
-
-### `DayTotals` and `seasonCurve` (`rynke/curve.ts`, new, pure)
+`RiderViewRead` gains an optional field, present only when asked for:
 
 ```ts
-interface DayTotals {
-	date: string;               // YYYY-MM-DD
-	training: number;           // tally(...).trainingRynke
-	team: number;               // tally(...).teamRynke
-	trainingWithoutVirtual: number;
+progress?: CurveInputs;
+```
+
+The team events come from the batch's existing `attendance` rows, as
+`Attendance` (`eventId`, `kind`, `date`).
+
+`elevation_dm` is used only to place the elevation steps (spec Key Entities). It
+never reaches the markup, the chart data or a log (FR-005).
+
+## Pure values (`src/rynke/weeks.ts`)
+
+```ts
+/** A rider's counting rides of one local day, split by the virtual flag. */
+interface CurveRideSum {
+	date: string;            // YYYY-MM-DD
+	virtual: boolean;
+	distanceRynke: number;
+	elevationDm: number;     // unfloored; floored once on the total (003 FR-004a)
 }
 
-seasonCurve(
-	rides: readonly CountingRide[],
-	attendance: readonly Attendance[],
-	rules: RynkeRules,
+interface CurveInputs {
+	rides: readonly CurveRideSum[];
+	attendance: readonly Attendance[];
+	corrections: readonly DatedCorrection[];
+}
+
+interface CurvePoint {
+	date: string;
+	training: number;
+	team: number;
+	/** Training Rynke without virtual rides (003 FR-013a); used from US2. */
+	outside: number;
+}
+
+function riderCurve(
+	inputs: CurveInputs,
 	window: CountingWindow,
-	lastDay: string,
-): DayTotals[]   // one per day, window.seasonStart … lastDay
+	last: string,              // lastDay(today, deadline)
+	balance: Balance,          // the stored balance; its version's rules
+	rules: RynkeRules,
+): CurvePoint[];
 ```
 
-Rules:
-- Day `d` = `tally(ridingTotals(rides dated ≤ d), extrasFromAttendance(
-  evaluateAttendance(attendance dated ≤ d, rules, window)), rules)`. Items dated
-  after `lastDay` count as dated `lastDay` (research R2).
-- There is no clock and no I/O. `lastDay ≥ seasonStart` is asserted.
-- Invariant: the last entry's three values equal the balance `tally` computes from
-  all inputs, which is the stored balance (SC-002). `buildProgressView` checks
-  this (research R3).
-- From feature 003 Story 6, corrections join the extras the same way, dated by
-  their date. This feature doesn't add them.
+**What `riderCurve` returns**:
+- One point per day from `window.seasonStart` to `last`, so `dayNumber(last) −
+  dayNumber(seasonStart) + 1` points.
+- Each point is the result of `tallyUpTo(date, …)` with the rides, attendance and
+  corrections dated up to that day. Anything dated after `last` counts on `last`
+  (research R2).
+- The last point's `training`, `team` and `outside` equal the balance's. If the
+  rebuild gives something else, the balance wins and an error without rider data
+  is logged.
 
-### `Period` (`http/progress-view.ts`)
+**Change to `tallyUpTo`**: it gains the rides without virtual ones, so `outside`
+comes from the same `tally` call. `riderWeeks` and `riderDays` pass all rides as
+"without virtual", as they do today, so their results don't change.
 
-| Field | Type | Rule |
-|---|---|---|
-| `from`, `to` | `YYYY-MM-DD` | `axisStart ≤ from`, `to ≤ axisEnd`, `to − from ≥ 6` days |
-| `preset` | `"season" \| "3m" \| "4w" \| null` | `null` for a free zoom |
-
-`parsePeriod(url, axis, lastDay)`:
-- `period=3m` and `period=4w` → research R8 bounds;
-- `from` and `to` → clamped;
-- anything else → `season`.
-
-### `ProgressView` (`http/progress-view.ts`, pure, built with `buildProgressView`)
+## View model (`src/http/progress-view.ts`, pure)
 
 ```ts
+type Preset = "season" | "3m" | "4w";
+
 type ProgressView =
-	| { state: "none" }   // no balance (FR-016), unknown rules version or mismatch (R3)
+	| { state: "none" }   // no balance (FR-016), or the rules version is unknown (FR-040)
 	| {
 			state: "ready";
 			rulesVersion: number;
-			axis: { start: string; end: string };  // FR-013; end ≥ start + 6
-			lastDay: string;                       // research R2
-			period: Period;
-			presets: ("season" | "3m" | "4w")[];   // 3m/4w only once they start after the season start (FR-020)
-			days: DayTotals[];                     // seasonStart … lastDay
-			thresholds: { training: number; team: number };
-			yMax: { training: number; team: number };    // research R5
-			nothingYet: boolean;                         // FR-015
-			weeks: WeekRow[];                            // FR-051
-			// User Story 2:
-			pace: { deadline: string; totalDays: number } | null;  // FR-038
-			withoutVirtual: { needed: number } | null;             // FR-039
+			nothingYet: boolean;              // both totals 0 (FR-015)
+			seasonStart: string;
+			deadline: string;
+			lastDay: string;
+			axisDays: number;                 // dayNumber(deadline) − dayNumber(seasonStart)
+			lastIndex: number;                // lastDay's index
+			period: { preset: Preset; from: number; to: number };   // day indexes
+			presets: { preset: Preset; from: number; to: number }[]; // only those offered (FR-020)
+			training: ChartSeries;
+			team: ChartSeries;
+			outside: (ChartSeries & { needed: number }) | null;   // US2, only with virtual rides (FR-039)
+			ticks: { index: number; date: string; level: "month" | "week" | "day" }[]; // research R10
+			weeks: WeekRow[];
 	  };
 
+interface ChartSeries {
+	values: number[];      // index 0 … lastIndex
+	threshold: number;
+	yMax: number;          // research R5
+	pace: boolean;         // US2: draw the even pace line towards `threshold`
+}
+
 interface WeekRow {
-	start: string;            // Monday, or the season start
-	end: string;              // Sunday, or lastDay
-	training: number;         // earned in the week
-	trainingTotal: number;
-	team: number;
-	teamTotal: number;
-	withoutVirtualTotal: number | null;   // User Story 2, when FR-039 applies
+	firstDay: string;
+	training: { earned: number; total: number };
+	team: { earned: number; total: number };
+	outside: { earned: number; total: number } | null;   // US2
 }
 ```
 
-| Derived value | How |
-|---|---|
-| `axis.end` | the deadline if one is set, else `lastDay`; at least `start + 6` days |
-| `lastDay` | `max(seasonStart, min(today, deadline ?? today))`, where today is `berlinDate(now)` |
-| Pace on day `i` | day `i` counted from 1, with `totalDays` days from the season start to the deadline inclusive: `floor(threshold × i ÷ totalDays)`. US2 scenario 1: `floor(250 × 34 ÷ 273) = 31`. |
-| `withoutVirtual` | not `null` when `readRiderView`'s `virtualCount > 0` (005 FR-012); `needed = virtualShareRequired(rules)` |
-| `nothingYet` | the stored balance is 0 for both Training and Team Rynke |
+**Inputs**:
+- the `RiderViewRead`;
+- `rulesForVersion(balance.rulesVersion)`;
+- the `CountingWindow`;
+- `berlinDate(ctx.now())`;
+- the `period` query parameter.
 
-### Chart data (JSON in the page)
+**Rules**:
+- **Pace (US2)**: the pace of a day `i` is `evenPace(threshold, seasonStart,
+  deadline, date(i))` from `src/rynke/pace.ts`, the function behind the rider
+  status (016 FR-030). The view model only says whether to draw the pace line. The
+  script and the table compute the pace with the same formula, from `axisDays`
+  and the threshold:
 
-The shape is in [contracts/rider-page.md](contracts/rider-page.md#chart-data). It
-holds the series as integer arrays indexed by day from the season start, the axis,
-the period, the lines, `intlLocale` and the translated texts. It contains nothing
-else.
+  ```text
+  ⌊threshold × i ÷ axisDays⌋, within 0 … threshold
+  ```
 
-## Lifecycle and deletion
+  A unit test checks it equals `evenPace` on every day.
+- **Outdoor curve (US2)**: `outside` is set only when the read's `virtualCount`
+  is above 0 (FR-039).
 
-Nothing is stored, so nothing new needs deleting. When a rider leaves, deleting
-their results, activities and attendance (features 001, 003) removes everything
-a curve is built from.
+## Chart data (`#progress-data`, research R6)
+
+JSON inside `<script type="application/json" id="progress-data">`, with `<`
+escaped as `<`. Here is the example rider on 7 October 2026 (US1):
+
+```json
+{
+	"axisDays": 302,
+	"lastIndex": 36,
+	"seasonStart": "2026-09-01",
+	"period": { "from": 0, "to": 302 },
+	"training": { "values": [0, 0, 0, 0, 0, 21, …, 112], "threshold": 250, "yMax": 250, "pace": false },
+	"team": { "values": [0, 0, 0, 0, 0, 1, …, 17], "threshold": 25, "yMax": 25, "pace": false },
+	"outside": null
+}
+```
+
+- **`values[i]`**: the total at the end of day `seasonStart + i`.
+- **US2 changes**:
+  - `pace` becomes `true` in both series;
+  - `outside` becomes `{ "values": […], "threshold": 167, "yMax": 250, "pace":
+    true, "needed": 167 }` for riders with virtual rides.
+- **Nothing else**: no names, no ride or event data and no units, only Rynke and
+  dates (FR-005, SC-004, SC-007).
+- **Text** lives in the markup's templates, not in the data (research R9).
+
+## The tour's example rider (FR-043)
+
+`exampleRiderView(window, today, rules)` (020) also fills `progress` from its
+synthetic rides, events and evaluation results:
+- its rides summed per day and virtual flag;
+- its attendance;
+- no corrections.
+
+The section is then built by the same functions as for a real rider. Nothing is
+stored.
+
+## State over time
+
+The section has no state on the server. In the browser, the period and the
+selected day live in `progressCharts()`'s closure:
+- a reload or any new page load starts again from the server's period (FR-026);
+- nothing goes to storage, cookies or the network (Principle I).
