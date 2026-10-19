@@ -562,6 +562,12 @@ function waitForFirstData(signal) {
 /** Ends the listeners of the content shown now, when other content replaces it. */
 let content = new AbortController();
 
+/** A page's view, without its fragment: a link to `#…` changes no view. */
+const viewOf = (url) => url.pathname + url.search;
+
+/** The view the content shows, for the back button (`swapViews`). */
+let shownView = viewOf(location);
+
 /**
  * Puts `doc`, this page as the server sends it now, in place of the shown one:
  * the content, the navigation with its counts, the refresh link and a tour's
@@ -625,6 +631,7 @@ async function showPage(url, push) {
 			location.assign(url);
 			return;
 		}
+		shownView = viewOf(new URL(url));
 		if (push) history.pushState(null, "", url);
 		// Keyboard users stay on the link of the view they picked.
 		if (href) {
@@ -687,6 +694,7 @@ async function sendForm(form, submitter) {
 		return;
 	}
 	history.replaceState(null, "", res.url);
+	shownView = viewOf(new URL(res.url));
 	stopLoading();
 	floatNotice();
 }
@@ -770,7 +778,9 @@ function swapViews() {
 		sendForm(form, event.submitter);
 	});
 	addEventListener("popstate", () => {
-		if (location.pathname === path) showPage(location.href, false);
+		if (location.pathname === path && viewOf(location) !== shownView) {
+			showPage(location.href, false);
+		}
 	});
 }
 
