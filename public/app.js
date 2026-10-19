@@ -1,7 +1,8 @@
 // RynkePoints page script (feature 010 contracts/client.md, research R16). It
 // only wires up what a server-rendered page can't do itself: the service worker,
 // the install group and the app prompt, the notifications switch, the scheme
-// picker, reloading a section on return, waiting for the first data, the
+// picker, bringing a section up to date on return and once the first data is
+// there, other views and saves swapped in place (`data-swap`), the
 // buttons' press and busy feedback, opening a badge's large view on mouse
 // hover (feature 013 research R19) and the event page's tri-state boxes
 // (feature 019 research R5). It holds no text: every word shown comes
@@ -73,7 +74,7 @@ function promptInstall() {
  * The App group in Settings (FR-004, 015 FR-011, research R11): it shows where
  * installing helps, has no dismiss, and ignores the app prompt's answers.
  */
-function installSettings() {
+function installSettings(signal) {
 	const hint = document.querySelector("#settings-app #install");
 	if (!hint || standalone()) return;
 	const group = hint.closest("section#settings-app");
@@ -86,7 +87,9 @@ function installSettings() {
 		prompt.hidden = false;
 		setShown(true);
 	};
-	installable.push(showPrompt);
+	installable.push(() => {
+		if (!signal.aborted) showPrompt();
+	});
 	if (installEvent) showPrompt();
 	prompt.querySelector("button").addEventListener("click", () => {
 		setShown(false);
@@ -99,9 +102,13 @@ function installSettings() {
 		setShown(true);
 	}
 
-	window.addEventListener("appinstalled", () => {
-		setShown(false);
-	});
+	window.addEventListener(
+		"appinstalled",
+		() => {
+			setShown(false);
+		},
+		{ signal },
+	);
 }
 
 function fromBase64Url(value) {
@@ -159,7 +166,7 @@ const PUSH_CHANGED = "rp-push-changed";
  * The section in Settings (FR-010, FR-011, research R8's state table; feature
  * 011 contracts/client.md "Notifications switch").
  */
-async function notifications() {
+async function notifications(signal) {
 	const section = document.getElementById("notifications");
 	if (!section) return;
 	const toggle = section.querySelector('[data-action="toggle"]');
@@ -258,11 +265,15 @@ async function notifications() {
 		}
 	};
 	// The app prompt may turn them on while Settings is open (research R10).
-	document.addEventListener(PUSH_CHANGED, async () => {
-		subscription = await pushManager.getSubscription();
-		if (subscription) setSignOutEndpoint(subscription.endpoint);
-		await sync();
-	});
+	document.addEventListener(
+		PUSH_CHANGED,
+		async () => {
+			subscription = await pushManager.getSubscription();
+			if (subscription) setSignOutEndpoint(subscription.endpoint);
+			await sync();
+		},
+		{ signal },
+	);
 	await sync();
 }
 
@@ -496,9 +507,10 @@ function pageLoading() {
 }
 
 /**
- * A section brought back after more than a minute in the background reloads,
- * so its figures are current (feature 011 FR-009, research R8). Public pages
- * have no `nav.app-nav` and keep what the rider typed.
+ * A section brought back after more than a minute in the background is
+ * brought up to date in place, so its figures are current without a reload
+ * (feature 011 FR-009, research R8). Public pages have no `nav.app-nav` and
+ * keep what the rider typed.
  */
 function refreshOnReturn() {
 	let hiddenAt = null;
@@ -510,19 +522,18 @@ function refreshOnReturn() {
 			Date.now() - hiddenAt > 60000 &&
 			document.querySelector("nav.app-nav")
 		) {
-			startLoading();
-			location.reload();
+			refreshPage();
 		}
 	});
 }
 
 /**
  * The waiting state before the first data (015 contracts/client.md): asks
- * /me/ready every data-poll-seconds while the page is visible, and reloads once
- * the first balance is there. A 401, a network error or "not yet" just waits
- * for the next tick.
+ * /me/ready every data-poll-seconds while the page is visible, and brings the
+ * page up to date once the first balance is there. A 401, a network error or
+ * "not yet" just waits for the next tick.
  */
-function waitForFirstData() {
+function waitForFirstData(signal) {
 	const waiting = document.querySelector("[data-waiting]");
 	if (!waiting) return;
 	const configured = Number(waiting.dataset.pollSeconds);
@@ -539,67 +550,196 @@ function waitForFirstData() {
 			const { ready } = await res.json();
 			if (ready === true) {
 				clearInterval(timer);
-				startLoading();
-				location.reload();
+				refreshPage();
 			}
 		} catch {
 			// Offline or a bad answer: try again on the next tick.
 		}
 	}, seconds * 1000);
+	signal.addEventListener("abort", () => clearInterval(timer));
+}
+
+/** Ends the listeners of the content shown now, when other content replaces it. */
+let content = new AbortController();
+
+/** A page's view, without its fragment: a link to `#…` changes no view. */
+const viewOf = (url) => url.pathname + url.search;
+
+/** The view the content shows, for the back button (`swapViews`). */
+let shownView = viewOf(location);
+
+/**
+ * Puts `doc`, this page as the server sends it now, in place of the shown one:
+ * the content, the navigation with its counts, the refresh link and a tour's
+ * card. The scroll position stays. `false` without content to swap; the caller
+ * then loads the page instead.
+ */
+function swapPage(doc) {
+	const main = document.querySelector("main");
+	const next = doc.querySelector("main");
+	const nav = document.querySelector("nav.app-nav");
+	if (!main || !next || !nav) return false;
+	content.abort();
+	content = new AbortController();
+	main.replaceChildren(...next.childNodes);
+	// The tour's card sits before the app prompt and the navigation.
+	const tour = doc.querySelector("aside.tour");
+	document.querySelector("aside.tour")?.remove();
+	if (tour) (document.getElementById("app-prompt") ?? nav).before(tour);
+	for (const selector of ["header.top-bar a.refresh", "nav.app-nav"]) {
+		const fresh = doc.querySelector(selector);
+		if (fresh) document.querySelector(selector)?.replaceWith(fresh);
+	}
+	document.title = doc.title;
+	enhance(content.signal);
+	return true;
+}
+
+/** The page in `res`, when it is this page again and fine to swap in. */
+async function samePage(res) {
+	if (!res.ok || new URL(res.url).pathname !== location.pathname) return null;
+	return new DOMParser().parseFromString(await res.text(), "text/html");
+}
+
+/** The request swapping the page now; a newer one cancels it. */
+let swapping = null;
+
+/**
+ * Shows this page at `url` in place: `push` adds a history entry, as following
+ * a link does. Anything unexpected (signed out, another page, an error) loads
+ * it the usual way instead.
+ */
+async function showPage(url, push) {
+	swapping?.abort();
+	const controller = new AbortController();
+	swapping = controller;
+	startLoading();
+	try {
+		const res = await fetch(url, {
+			credentials: "same-origin",
+			cache: "no-store",
+			signal: controller.signal,
+		});
+		const doc = await samePage(res);
+		if (!doc) {
+			location.assign(res.ok ? res.url : url);
+			return;
+		}
+		const focused = document.activeElement?.closest("a[data-swap]");
+		const href = focused?.getAttribute("href");
+		if (!swapPage(doc)) {
+			location.assign(url);
+			return;
+		}
+		shownView = viewOf(new URL(url));
+		if (push) history.pushState(null, "", url);
+		// Keyboard users stay on the link of the view they picked.
+		if (href) {
+			document
+				.querySelector(`main a[data-swap][href="${href}"]`)
+				?.focus({ preventScroll: true });
+		}
+	} catch (error) {
+		if (error.name === "AbortError") return;
+		location.assign(url);
+		return;
+	} finally {
+		if (swapping === controller) swapping = null;
+	}
+	stopLoading();
 }
 
 /**
- * Links that show the same page in another view, like the Team section's
- * switches (`data-swap`), replace the page's content in place: no reload, the
- * scroll position stays, and the address and the back button follow (issue
- * #113). Whatever goes wrong falls back to opening the page as usual.
+ * The page again, in place. Rides, with more rides loaded than its first
+ * batch, reloads instead: its own restore finds the ride in view (feature 018).
+ */
+function refreshPage() {
+	if (document.querySelector("section#rides[data-lazy]")) {
+		startLoading();
+		location.reload();
+		return;
+	}
+	showPage(location.href, false);
+}
+
+/**
+ * Sends `form` and swaps the page it leads back to in place, at the same
+ * scroll position, in place of its history entry (POST, then redirect). A
+ * notice of the result that isn't in view floats above the navigation for a
+ * while. Where the answer is another page or an error, the browser takes over.
+ */
+async function sendForm(form, submitter) {
+	submitter?.setAttribute("aria-busy", "true");
+	startLoading();
+	let res;
+	try {
+		res = await fetch(form.action, {
+			method: "POST",
+			body: new FormData(form, submitter),
+			credentials: "same-origin",
+		});
+	} catch {
+		// Offline: the browser's own submit says so.
+		nativeSubmit(form, submitter);
+		return;
+	}
+	// Refused without a redirect: the browser shows that answer itself.
+	if (!res.ok && !res.redirected) {
+		nativeSubmit(form, submitter);
+		return;
+	}
+	const doc = await samePage(res);
+	if (!doc || !swapPage(doc)) {
+		location.assign(res.url);
+		return;
+	}
+	history.replaceState(null, "", res.url);
+	shownView = viewOf(new URL(res.url));
+	stopLoading();
+	floatNotice();
+}
+
+/** Submits `form` the usual way, past `sendForm`. */
+function nativeSubmit(form, submitter) {
+	form.dataset.native = "true";
+	delete form.dataset.submitting;
+	submitter?.removeAttribute("aria-busy");
+	stopLoading();
+	form.requestSubmit(submitter);
+}
+
+/** How long a floating notice stays, unless focus is in it (its undo, say). */
+const NOTICE_FLOAT_MS = 10000;
+
+/** Floats the content's first notice while it is out of view after a save. */
+function floatNotice() {
+	const notice = document.querySelector(
+		"main .notice[role=status], main .notice[role=alert]",
+	);
+	if (!notice) return;
+	const bar = document.querySelector("header.top-bar");
+	const top = bar ? bar.getBoundingClientRect().bottom : 0;
+	const { top: from, bottom: to } = notice.getBoundingClientRect();
+	if (from >= top && to <= innerHeight) return;
+	notice.classList.add("notice-floating");
+	const land = () => {
+		if (notice.contains(document.activeElement)) {
+			notice.addEventListener("focusout", land, { once: true });
+		} else {
+			notice.classList.remove("notice-floating");
+		}
+	};
+	setTimeout(land, NOTICE_FLOAT_MS);
+}
+
+/**
+ * Links that show this page in another view (`data-swap`: the Team section's
+ * switches, all past events) swap it in place, without a reload, and the
+ * address and the back button follow (issue #113). Forms with `data-swap`
+ * save in place (`sendForm`).
  */
 function swapViews() {
 	const path = location.pathname;
-	/** The view shown, without its fragment: a link to `#…` changes no view. */
-	const viewOf = (url) => url.pathname + url.search;
-	let shown = viewOf(location);
-	let current = null;
-	async function show(url, push) {
-		current?.abort();
-		const controller = new AbortController();
-		current = controller;
-		startLoading();
-		try {
-			const res = await fetch(url, {
-				credentials: "same-origin",
-				signal: controller.signal,
-			});
-			// Signed out or sent elsewhere: let the browser follow.
-			if (!res.ok || res.redirected) throw new Error(`HTTP ${res.status}`);
-			const doc = new DOMParser().parseFromString(
-				await res.text(),
-				"text/html",
-			);
-			const next = doc.querySelector("main");
-			const main = document.querySelector("main");
-			if (!next || !main) throw new Error("no main");
-			const focused = document.activeElement?.closest("a[data-swap]");
-			main.replaceChildren(...next.childNodes);
-			shown = viewOf(new URL(url));
-			document.title = doc.title;
-			if (push) history.pushState(null, "", url);
-			// Keyboard users stay on the link of the view they picked.
-			if (focused) {
-				const { pathname, search } = new URL(url);
-				main
-					.querySelector(`a[data-swap][href="${pathname}${search}"]`)
-					?.focus({ preventScroll: true });
-			}
-		} catch (error) {
-			if (error.name === "AbortError") return;
-			location.assign(url);
-			return;
-		} finally {
-			if (current === controller) current = null;
-		}
-		stopLoading();
-	}
 	document.addEventListener("click", (event) => {
 		if (
 			event.defaultPrevented ||
@@ -619,11 +759,27 @@ function swapViews() {
 		const url = new URL(link.href);
 		if (url.origin !== location.origin || url.pathname !== path) return;
 		event.preventDefault();
-		if (url.href !== location.href) show(url.href, true);
+		if (url.href !== location.href) showPage(url.href, true);
+	});
+	document.addEventListener("submit", (event) => {
+		const form = event.target;
+		if (
+			event.defaultPrevented ||
+			!(form instanceof HTMLFormElement) ||
+			!form.hasAttribute("data-swap")
+		) {
+			return;
+		}
+		if (form.dataset.native === "true") return;
+		event.preventDefault();
+		// One save at a time, as `pendingSubmit` does for the others.
+		if (form.dataset.submitting === "true") return;
+		form.dataset.submitting = "true";
+		sendForm(form, event.submitter);
 	});
 	addEventListener("popstate", () => {
-		if (location.pathname === path && viewOf(location) !== shown) {
-			show(location.href, false);
+		if (location.pathname === path && viewOf(location) !== shownView) {
+			showPage(location.href, false);
 		}
 	});
 }
@@ -639,7 +795,7 @@ const MAX_RIDE_BATCH = 1000;
  * rides load as the end of the list comes within a screen, and a reload or the
  * back button finds the same ride in view.
  */
-function lazyRides() {
+function lazyRides(signal) {
 	const section = document.querySelector("section#rides[data-lazy]");
 	const list = section?.querySelector("ol.ride-list");
 	const more = section?.querySelector(".rides-more");
@@ -671,6 +827,7 @@ function lazyRides() {
 		},
 		{ rootMargin: "0px 0px 100% 0px" },
 	);
+	signal.addEventListener("abort", () => observer.disconnect());
 	/** Observing afresh reports whether the end is still in reach. */
 	const watch = () => {
 		observer.unobserve(more);
@@ -723,30 +880,38 @@ function lazyRides() {
 	}
 
 	retry.addEventListener("click", () => load());
-	addEventListener("online", () => {
-		if (more.dataset.state === "failed") load();
-	});
+	addEventListener(
+		"online",
+		() => {
+			if (more.dataset.state === "failed") load();
+		},
+		{ signal },
+	);
 
-	addEventListener("pagehide", () => {
-		const bar = document.querySelector("header.top-bar");
-		const top = bar ? bar.getBoundingClientRect().bottom : 0;
-		const all = cards();
-		const anchor = all.find(
-			(card) => card.getBoundingClientRect().bottom > top,
-		);
-		try {
-			sessionStorage.setItem(
-				RIDES_PLACE,
-				JSON.stringify({
-					url: location.pathname + location.search,
-					loaded: all.length,
-					anchor: anchor ? rideOf(anchor) : null,
-					offset: anchor ? anchor.getBoundingClientRect().top : 0,
-					y: scrollY,
-				}),
+	addEventListener(
+		"pagehide",
+		() => {
+			const bar = document.querySelector("header.top-bar");
+			const top = bar ? bar.getBoundingClientRect().bottom : 0;
+			const all = cards();
+			const anchor = all.find(
+				(card) => card.getBoundingClientRect().bottom > top,
 			);
-		} catch {}
-	});
+			try {
+				sessionStorage.setItem(
+					RIDES_PLACE,
+					JSON.stringify({
+						url: location.pathname + location.search,
+						loaded: all.length,
+						anchor: anchor ? rideOf(anchor) : null,
+						offset: anchor ? anchor.getBoundingClientRect().top : 0,
+						y: scrollY,
+					}),
+				);
+			} catch {}
+		},
+		{ signal },
+	);
 
 	/** After a reload or the back button: the rides and the ride in view. */
 	async function restore() {
@@ -983,7 +1148,7 @@ function triState() {
  * group, however short. Filtering changes the heights, so it is marked again
  * then.
  */
-function badgeSwitch() {
+function badgeSwitch(signal) {
 	const bar = document.querySelector(".badges-switch");
 	const links = bar
 		? [...bar.querySelectorAll('nav a.segmented[href^="#"]')]
@@ -1012,8 +1177,8 @@ function badgeSwitch() {
 	const soon = () => {
 		if (!frame) frame = requestAnimationFrame(mark);
 	};
-	addEventListener("scroll", soon, { passive: true });
-	addEventListener("resize", soon);
+	addEventListener("scroll", soon, { passive: true, signal });
+	addEventListener("resize", soon, { signal });
 	bar.addEventListener("change", soon);
 	mark();
 }
@@ -1032,19 +1197,27 @@ function scrollToNewBadge() {
 		?.scrollIntoView({ block: "center" });
 }
 
+/**
+ * What the page's content needs: run on load and again on content swapped in
+ * place (`swapPage`), whose `signal` ends the listeners of the content before.
+ */
+function enhance(signal) {
+	lazyRides(signal);
+	installSettings(signal);
+	schemePicker();
+	waitForFirstData(signal);
+	badgeHover();
+	triState();
+	badgeSwitch(signal);
+	notifications(signal).catch(() => {});
+}
+
 const registered = registerWorker();
 swapViews();
-lazyRides();
 pressFeedback();
 pendingSubmit();
-installSettings();
 appPrompt();
-schemePicker();
 refreshOnReturn();
-waitForFirstData();
 pageLoading();
-badgeHover();
-triState();
+enhance(content.signal);
 scrollToNewBadge();
-badgeSwitch();
-notifications().catch(() => {});

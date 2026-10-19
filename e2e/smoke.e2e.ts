@@ -50,6 +50,20 @@ async function expectNoSidewaysScroll(page: Page) {
 }
 
 /** Loads `path` at both sizes and checks the shell around the content. */
+/** Marks the loaded page; a reload or another page load loses the mark. */
+async function markPage(page: Page) {
+	await page.evaluate(() => {
+		(globalThis as { e2eMark?: boolean }).e2eMark = true;
+	});
+}
+
+/** Whether the page marked by `markPage` is still the one shown. */
+function samePage(page: Page) {
+	return page.evaluate(
+		() => (globalThis as { e2eMark?: boolean }).e2eMark === true,
+	);
+}
+
 async function checkPage(page: Page, path: string, shell = true) {
 	for (const size of [SMALL_PHONE, PHONE, DESKTOP]) {
 		await page.setViewportSize(size);
@@ -105,14 +119,7 @@ test.describe("a rider", () => {
 		const kind = page.locator("nav.kind-switch a[aria-current]");
 		const html = page.locator("html");
 		const scrollTop = () => html.evaluate((root) => root.scrollTop);
-		// A reload would lose this.
-		await page.evaluate(() => {
-			(globalThis as { samePage?: boolean }).samePage = true;
-		});
-		const samePage = () =>
-			page.evaluate(
-				() => (globalThis as { samePage?: boolean }).samePage === true,
-			);
+		await markPage(page);
 		// The switch is at the top: a real tap there would scroll back up
 		// first, so the page is scrolled down and the link clicked as is.
 		await html.evaluate((root) => {
@@ -126,12 +133,12 @@ test.describe("a rider", () => {
 		await page.waitForURL(/kind=team/);
 		await expect(kind).toHaveAttribute("href", "/team?kind=team");
 		expect(await scrollTop()).toBe(before);
-		expect(await samePage()).toBe(true);
+		expect(await samePage(page)).toBe(true);
 
 		// The back button brings the previous view back, still in place.
 		await page.goBack();
 		await expect(kind).toHaveAttribute("href", "/team");
-		expect(await samePage()).toBe(true);
+		expect(await samePage(page)).toBe(true);
 
 		// Another way to the page still starts at the top.
 		await page.goto("/team");
@@ -381,6 +388,36 @@ const EVENT_RIDER = {
 	webkit: "Rudi Runner",
 } as const;
 
+test("a section brought back after a minute is updated in place (011 FR-009)", async ({
+	page,
+}) => {
+	await page.clock.install();
+	await signIn(page, "Paula Paging");
+	await page.goto("/me");
+	await skipTours(page);
+	await page.waitForLoadState();
+	await markPage(page);
+	const first = page.locator("main > *").first();
+	await first.evaluate((el) => {
+		el.setAttribute("data-old", "");
+	});
+	const visibility = (state: "hidden" | "visible") =>
+		page.locator("html").evaluate((root, value) => {
+			const doc = root.ownerDocument;
+			Object.defineProperty(doc, "visibilityState", {
+				configurable: true,
+				get: () => value,
+			});
+			doc.dispatchEvent(new Event("visibilitychange"));
+		}, state);
+	await visibility("hidden");
+	await page.clock.fastForward("01:05");
+	await visibility("visible");
+	await expect(page.locator("main [data-old]")).toHaveCount(0);
+	await expect(page.locator("main > *").first()).toBeVisible();
+	expect(await samePage(page)).toBe(true);
+});
+
 test("a rider says Bin dabei and changes their mind (019 US2)", async ({
 	page,
 	browserName,
@@ -388,18 +425,23 @@ test("a rider says Bin dabei and changes their mind (019 US2)", async ({
 	await signIn(page, EVENT_RIDER[browserName]);
 	await checkPage(page, "/events");
 	await skipTours(page);
+	await page.waitForLoadState();
+	await markPage(page);
 	const card = page.locator("li.event-card").filter({
 		hasText: "Sample ride ahead",
 	});
 	await card.getByRole("button", { name: "Bin dabei" }).click();
-	await expect(page).toHaveURL(/\/events#event-\d+$/);
 	const joined = card.locator("button.event-joined");
 	await expect(joined).toHaveAttribute("aria-pressed", "true");
+	// Saved in place: no page load, the same address.
+	await expect(page).toHaveURL(/\/events$/);
+	expect(await samePage(page)).toBe(true);
 	await joined.hover();
 	await expect(joined.locator(".event-next")).toBeVisible();
 	await expect(joined.locator(".event-now")).toBeHidden();
 	await joined.click();
 	await expect(card.locator("button.event-join")).toBeVisible();
+	expect(await samePage(page)).toBe(true);
 });
 
 test("an organiser cycles a reported rider's box (019 US5)", async ({
@@ -428,6 +470,15 @@ test("an organiser cycles a reported rider's box (019 US5)", async ({
 	await box.click();
 	await expect(box).toHaveAttribute("aria-checked", "mixed");
 	await expectNoSidewaysScroll(page);
+
+	// Saving swaps the page in place and shows the result. The box stays open:
+	// each browser's run shares the event, and a decided rider has no box.
+	await markPage(page);
+	await page.getByRole("button", { name: "Teilnahme speichern" }).click();
+	await expect(page).toHaveURL(/done=attendance/);
+	await expect(page.locator("main .notice[role=status]")).toBeVisible();
+	await expect(box).toHaveAttribute("aria-checked", "mixed");
+	expect(await samePage(page)).toBe(true);
 });
 
 test("an organiser walks through the Orga tour on the example team (020)", async ({

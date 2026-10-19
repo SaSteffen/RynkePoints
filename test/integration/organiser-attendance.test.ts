@@ -274,7 +274,7 @@ describe("the attendance checklist", () => {
 	it("lists the riders by first name with one form (FR-020)", async () => {
 		const html = await eventPage();
 		expect(html).toContain(
-			`<form method="post" action="/organiser/events/${eventId}/attendance"`,
+			`<form method="post" action="/organiser/events/${eventId}/attendance" class="attendance-form" data-swap>`,
 		);
 		expect(html).toContain(escapeHtml(de["organiser.attendance.save"]));
 		const order = [ATHLETE_A, ATHLETE_B, ORGANISER, OTHER_ORGANISER].map((id) =>

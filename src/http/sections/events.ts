@@ -83,11 +83,11 @@ function action(i18n: I18n, event: ShownEvent): SafeHtml {
 	const report = `${PATH}/${event.row.event_id}/report`;
 	switch (event.state) {
 		case "join":
-			return html`<form method="post" action="${report}"><button class="event-button event-join"><span class="event-now">${PLUS}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.join")}</span></span></button></form>`;
+			return html`<form method="post" action="${report}" data-swap><button class="event-button event-join"><span class="event-now">${PLUS}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.join")}</span></span></button></form>`;
 		case "intent":
-			return html`<form method="post" action="${report}/delete"><button class="event-button event-joined" aria-pressed="true" aria-label="${i18n.t("events.joined.label")}"><span class="event-now">${CHECK}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CLOSE}<span>${i18n.t("events.leave")}</span></span></button></form>`;
+			return html`<form method="post" action="${report}/delete" data-swap><button class="event-button event-joined" aria-pressed="true" aria-label="${i18n.t("events.joined.label")}"><span class="event-now">${CHECK}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CLOSE}<span>${i18n.t("events.leave")}</span></span></button></form>`;
 		case "report":
-			return html`<form method="post" action="${report}"><button class="event-button event-report"><span class="event-now">${PLUS}<span>${i18n.t("events.report")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.report")}</span></span></button></form>`;
+			return html`<form method="post" action="${report}" data-swap><button class="event-button event-report"><span class="event-now">${PLUS}<span>${i18n.t("events.report")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.report")}</span></span></button></form>`;
 		case "request":
 			return html`<button type="button" class="event-button event-reported" aria-disabled="true" aria-label="${i18n.t("events.reported.label")}">${CHECK}<span>${i18n.t("events.report")}</span></button>`;
 		case "attended":
@@ -144,7 +144,7 @@ ${events.map((e) => card(i18n, e))}</ol>
 `;
 	const more =
 		pastShown.length < past.length
-			? html`<p><a class="more-link" href="${PATH}?past=all#past">${i18n.t("events.past.all")}</a></p>
+			? html`<p><a class="more-link" href="${PATH}?past=all#past" data-swap>${i18n.t("events.past.all")}</a></p>
 `
 			: null;
 	return html`<section class="events">

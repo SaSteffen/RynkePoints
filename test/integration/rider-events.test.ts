@@ -127,7 +127,7 @@ describe("GET /events (US1)", () => {
 		}
 		const { html } = await page();
 		expect(idsIn(html)).toEqual(past.slice(1).reverse());
-		expect(html).toContain('href="/events?past=all#past"');
+		expect(html).toContain('href="/events?past=all#past" data-swap>');
 		expect(html).toContain(escapeHtml(de["events.past.all"]));
 		const all = await page("/events?past=all");
 		expect(idsIn(all.html)).toEqual([...past].reverse());
@@ -165,7 +165,9 @@ describe("GET /events (US1)", () => {
 		await attendRaw(past, [ORGANISER]);
 		const { html } = await page();
 		expect(html).not.toContain("Emil");
-		expect(cardOf(html, event)).toContain(`action="/events/${event}/report"`);
+		expect(cardOf(html, event)).toContain(
+			`<form method="post" action="/events/${event}/report" data-swap>`,
+		);
 		expect(cardOf(html, past)).toContain(escapeHtml(de["events.report"]));
 		expect(cardOf(html, past)).not.toContain(escapeHtml(de["events.attended"]));
 	});

@@ -136,7 +136,7 @@ function listItem(
 	// "Ich war auch dabei": past events only, no intent (019 FR-036).
 	const self =
 		extras.past && !extras.you
-			? html`<form method="post" action="${eventPath(event.event_id)}/self" class="self-form"><button class="button-outlined">${PLUS}<span>${i18n.t("organiser.events.self")}</span></button></form>`
+			? html`<form method="post" action="${eventPath(event.event_id)}/self" class="self-form" data-swap><button class="button-outlined">${PLUS}<span>${i18n.t("organiser.events.self")}</span></button></form>`
 			: null;
 	return html`<li class="organiser-event" id="${target ?? `event-${event.event_id}`}"><a href="${eventPath(event.event_id)}">
 <span class="organiser-event-title">${i18n.formatDate(`${event.event_date}T00:00:00Z`)} · ${i18n.t(`rynke.source.${event.kind}`)}</span>

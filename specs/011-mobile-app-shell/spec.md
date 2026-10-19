@@ -303,7 +303,9 @@ and check that it shows the placeholder text and no data of any rider.
   The current section MUST also reload when the rider taps its entry in the
   navigation bar, and when the page comes back to the foreground after more than
   one minute in the background. A reload keeps the rider on the same section and
-  rides page.
+  rides page. *(2026-10-19: after a minute in the background the section is
+  brought up to date in place, without a page load and at the same scroll
+  position; Rides, with more than its first rides loaded, still reloads.)*
 
 **Section contents**
 
