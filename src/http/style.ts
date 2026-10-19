@@ -383,8 +383,9 @@ nav.group-tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:v
 .tile-count{font:700 26px/32px var(--md-ref-typeface)}
 .tile-label{font:600 12px/16px var(--md-ref-typeface);-webkit-hyphens:auto;hyphens:auto}
 .tile-count,.tile-label{grid-column:1}
-.status-art-tile,.tile-requests::after{position:absolute;z-index:-1;right:-14px;bottom:-22px;width:96px;height:96px;border-radius:0;background:none;opacity:.5;pointer-events:none}
+.status-art-tile,.tile-requests::after{position:absolute;z-index:-1;right:-14px;bottom:-22px;width:96px;height:96px;border-radius:0;background:none;opacity:.6;pointer-events:none}
 .tile-requests::after{content:"⏳";content:"⏳"/"";bottom:-34px;font-size:72px;line-height:96px;text-align:center}
+.group-tile:has(.status-art-tile),.tile-requests{padding-right:64px}
 .group-tile[aria-current]{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}
 ul.rider-cards{display:grid;gap:var(--rp-space-2);margin:0 0 var(--rp-space-3);padding:0;list-style:none}
 .rider-card{display:flex;flex-direction:column;gap:10px;padding:14px var(--rp-space-4) 6px;border-radius:var(--md-shape-lg);background:var(--md-sys-color-surface-container)}
