@@ -548,27 +548,57 @@ function waitForFirstData() {
 	}, seconds * 1000);
 }
 
-/** Where a `data-keep-scroll` link left the page (issue #113). */
-const KEEP_SCROLL = "rp-keep-scroll";
-
 /**
  * Links that show the same page in another view, like the Team section's
- * switches, open the next page where this one was instead of at the top
- * (issue #113). The position goes to session storage on the tap and is used
- * once, only by the page the link went to.
+ * switches (`data-swap`), replace the page's content in place: no reload, the
+ * scroll position stays, and the address and the back button follow (issue
+ * #113). Whatever goes wrong falls back to opening the page as usual.
  */
-function keepScroll() {
-	try {
-		const kept = sessionStorage.getItem(KEEP_SCROLL);
-		sessionStorage.removeItem(KEEP_SCROLL);
-		if (kept !== null) {
-			const { url, y } = JSON.parse(kept);
-			if (url === location.pathname + location.search && Number.isFinite(y)) {
-				scrollTo(0, y);
+function swapViews() {
+	const path = location.pathname;
+	/** The view shown, without its fragment: a link to `#…` changes no view. */
+	const viewOf = (url) => url.pathname + url.search;
+	let shown = viewOf(location);
+	let current = null;
+	async function show(url, push) {
+		current?.abort();
+		const controller = new AbortController();
+		current = controller;
+		startLoading();
+		try {
+			const res = await fetch(url, {
+				credentials: "same-origin",
+				signal: controller.signal,
+			});
+			// Signed out or sent elsewhere: let the browser follow.
+			if (!res.ok || res.redirected) throw new Error(`HTTP ${res.status}`);
+			const doc = new DOMParser().parseFromString(
+				await res.text(),
+				"text/html",
+			);
+			const next = doc.querySelector("main");
+			const main = document.querySelector("main");
+			if (!next || !main) throw new Error("no main");
+			const focused = document.activeElement?.closest("a[data-swap]");
+			main.replaceChildren(...next.childNodes);
+			shown = viewOf(new URL(url));
+			document.title = doc.title;
+			if (push) history.pushState(null, "", url);
+			// Keyboard users stay on the link of the view they picked.
+			if (focused) {
+				const { pathname, search } = new URL(url);
+				main
+					.querySelector(`a[data-swap][href="${pathname}${search}"]`)
+					?.focus({ preventScroll: true });
 			}
+		} catch (error) {
+			if (error.name === "AbortError") return;
+			location.assign(url);
+			return;
+		} finally {
+			if (current === controller) current = null;
 		}
-	} catch {
-		// No storage, or a bad entry: the page opens at the top.
+		stopLoading();
 	}
 	document.addEventListener("click", (event) => {
 		if (
@@ -583,17 +613,18 @@ function keepScroll() {
 		}
 		const link =
 			event.target instanceof Element
-				? event.target.closest("a[href][data-keep-scroll]")
+				? event.target.closest("a[href][data-swap]")
 				: null;
 		if (!(link instanceof HTMLAnchorElement)) return;
 		const url = new URL(link.href);
-		if (url.origin !== location.origin) return;
-		try {
-			sessionStorage.setItem(
-				KEEP_SCROLL,
-				JSON.stringify({ url: url.pathname + url.search, y: scrollY }),
-			);
-		} catch {}
+		if (url.origin !== location.origin || url.pathname !== path) return;
+		event.preventDefault();
+		if (url.href !== location.href) show(url.href, true);
+	});
+	addEventListener("popstate", () => {
+		if (location.pathname === path && viewOf(location) !== shown) {
+			show(location.href, false);
+		}
 	});
 }
 
@@ -1002,7 +1033,7 @@ function scrollToNewBadge() {
 }
 
 const registered = registerWorker();
-keepScroll();
+swapViews();
 lazyRides();
 pressFeedback();
 pendingSubmit();
