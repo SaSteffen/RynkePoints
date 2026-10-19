@@ -37,7 +37,7 @@ export interface Credentials {
 	expiresAt: number;
 }
 
-interface RiderRow {
+export interface RiderRow {
 	athlete_id: number;
 	first_name: string;
 	status: RiderStatus;
@@ -63,33 +63,39 @@ export interface RiderGrant {
 	now: number;
 }
 
+/** The rider's row, for `toRider`. */
+export function riderStatement(db: D1Database, athleteId: number) {
+	return db
+		.prepare("SELECT * FROM riders WHERE athlete_id = ?")
+		.bind(athleteId);
+}
+
+export function toRider(row: RiderRow): Rider {
+	return {
+		athleteId: row.athlete_id,
+		firstName: row.first_name,
+		status: row.status,
+		scopeReadAll: row.scope_read_all === 1,
+		scopeWrite: row.scope_write === 1,
+		scopes: row.scopes,
+		connectedAt: row.connected_at,
+		scopesUpdatedAt: row.scopes_updated_at,
+		membershipCheckedAt: row.membership_checked_at,
+		importStatus: row.import_status,
+		reconnectRequestedAt: row.reconnect_requested_at,
+		figuresVersion: row.figures_version,
+		organiser: row.organiser === 1,
+		onboardedAt: row.onboarded_at,
+		organiserOnboardedAt: row.organiser_onboarded_at,
+	};
+}
+
 export async function getRider(
 	db: D1Database,
 	athleteId: number,
 ): Promise<Rider | null> {
-	const row = await db
-		.prepare("SELECT * FROM riders WHERE athlete_id = ?")
-		.bind(athleteId)
-		.first<RiderRow>();
-	return row
-		? {
-				athleteId: row.athlete_id,
-				firstName: row.first_name,
-				status: row.status,
-				scopeReadAll: row.scope_read_all === 1,
-				scopeWrite: row.scope_write === 1,
-				scopes: row.scopes,
-				connectedAt: row.connected_at,
-				scopesUpdatedAt: row.scopes_updated_at,
-				membershipCheckedAt: row.membership_checked_at,
-				importStatus: row.import_status,
-				reconnectRequestedAt: row.reconnect_requested_at,
-				figuresVersion: row.figures_version,
-				organiser: row.organiser === 1,
-				onboardedAt: row.onboarded_at,
-				organiserOnboardedAt: row.organiser_onboarded_at,
-			}
-		: null;
+	const row = await riderStatement(db, athleteId).first<RiderRow>();
+	return row ? toRider(row) : null;
 }
 
 /**

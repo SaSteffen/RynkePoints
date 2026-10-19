@@ -1,7 +1,7 @@
 import { berlinDate, readyPollSeconds } from "../../config";
 import type { Ctx } from "../../ctx";
 import { readRiderView } from "../../db/rider-view";
-import { readSeen, type SeenRynke, writeSeen } from "../../db/rynke-seen";
+import { type SeenRynke, writeSeen } from "../../db/rynke-seen";
 import type { I18n } from "../../i18n/i18n";
 import { riderStatus } from "../../rynke/pace";
 import {
@@ -85,10 +85,12 @@ export function handleOverview(
 			const window = countingWindow(ctx.env);
 			// On the rider tour's steps, the example rider instead (feature 020
 			// FR-005); it is never marked as seen and never celebrated (FR-007).
+			// The seen Rynke come in the same batch (issue #184).
 			const read = example
 				? exampleRiderView(window, berlinDate(ctx.now()))
 				: await readRiderView(ctx.env.DB, rider.athleteId, 1, {
 						progress: true,
+						seen: true,
 					});
 			const view = buildRiderView(
 				read,
@@ -109,8 +111,7 @@ export function handleOverview(
 				team: ready.summary.team.value,
 			};
 			// Only a GET marks the Rynke as seen, so a HEAD can't eat the celebration.
-			const seen =
-				totals && !example ? await readSeen(ctx.env.DB, rider.athleteId) : null;
+			const seen = totals && !example ? (read.seen ?? null) : null;
 			if (
 				totals &&
 				!example &&

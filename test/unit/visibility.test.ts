@@ -66,6 +66,7 @@ function riderViewer(athleteId: number, organiser: boolean): Viewer {
 		kind: "rider",
 		rider: rider(athleteId, organiser),
 		consentVersion: 1,
+		consent: { version: 1, acceptedAt: 0 },
 	};
 }
 

@@ -286,7 +286,8 @@ function breakdown(
 	};
 }
 
-function summary(
+/** The summary of a rider's balance, as on the Overview; also the push text's. */
+export function summary(
 	balance: StoredBalance,
 	virtualCount: number,
 	rules: RynkeRules | null,

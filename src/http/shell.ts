@@ -1,7 +1,7 @@
 import { berlinDate } from "../config";
 import { currentVersion, hasAgreed } from "../consent";
 import type { Ctx } from "../ctx";
-import { type Consent, getCurrentConsent } from "../db/consents";
+import type { Consent } from "../db/consents";
 import { openRequestCountStatement } from "../db/participation";
 import { hasBalance } from "../db/rider-view";
 import type { Rider } from "../db/riders";
@@ -195,10 +195,7 @@ export async function shellPage(
 	if (viewer.kind === "visitor") return redirect("/", 302);
 	// Nothing of a section until the rider agrees (004 research R14).
 	const state = riderConsentState(viewer, ctx);
-	const accepted =
-		viewer.consentVersion === null
-			? null
-			: await getCurrentConsent(ctx.env.DB, viewer.rider.athleteId);
+	const accepted = viewer.consent;
 	if (!hasAgreed(state) || !accepted) {
 		const current = currentVersion(ctx.consentVersions).version;
 		return consentGate(
@@ -230,18 +227,19 @@ export async function shellPage(
 	if (hint && !(await hasBalance(ctx.env.DB, viewer.rider.athleteId))) {
 		hint = null;
 	}
-	const rendered = await render({
-		rider: viewer.rider,
-		consent: accepted,
-		example: hint?.example === true,
-	});
+	// Organisers see how many reports wait for them on every page (019
+	// FR-030), counted alongside the section, not after it (issue #184).
+	const [rendered, openRequests] = await Promise.all([
+		render({
+			rider: viewer.rider,
+			consent: accepted,
+			example: hint?.example === true,
+		}),
+		viewer.rider.organiser ? countOpenRequests(ctx) : 0,
+	]);
 	if (rendered instanceof Response) return rendered;
 	const { body, scripts } =
 		rendered instanceof SafeHtml ? { body: rendered, scripts: [] } : rendered;
-	// Organisers see how many reports wait for them on every page (019 FR-030).
-	const openRequests = viewer.rider.organiser
-		? await countOpenRequests(ctx)
-		: 0;
 	// Each section names itself, so tabs and screen readers tell them apart.
 	const label = SECTIONS.find(({ id }) => id === section)?.label;
 	return htmlResponse(
