@@ -605,9 +605,8 @@ const MAX_RIDE_BATCH = 1000;
 
 /**
  * Rides as one continuous list (feature 018 contracts/client.md): the next
- * rides load as the end of the list comes within a screen, the season's total
- * replaces the pager and the page count, and a reload or the back button finds
- * the same ride in view. Without IntersectionObserver the pager stays.
+ * rides load as the end of the list comes within a screen, and a reload or the
+ * back button finds the same ride in view.
  */
 function lazyRides() {
 	const section = document.querySelector("section#rides[data-lazy]");
@@ -616,13 +615,6 @@ function lazyRides() {
 	const status = more?.querySelector(".rides-status");
 	const retry = more?.querySelector("[data-retry]");
 	if (!list || !status || !retry) return;
-	if (typeof IntersectionObserver !== "function") return;
-	for (const old of section.querySelectorAll("nav.pager, .rides-position")) {
-		old.hidden = true;
-	}
-	for (const line of section.querySelectorAll(".rides-total, .rides-newest")) {
-		line.hidden = false;
-	}
 	try {
 		history.scrollRestoration = "manual";
 	} catch {}
@@ -908,75 +900,49 @@ function badgeHover() {
 }
 
 /**
- * The event page's open requests (feature 019 research R5): each rider's three
- * radios become one box that cycles grey, ticked, empty and grey again, and
- * the tag beside it says what saving will do. The radios stay the form's
- * fields, so saving works the same without this script.
+ * The event page's open requests (feature 019 research R5): each rider's box
+ * cycles grey, ticked, empty and grey again, its hidden `decide-{id}` field
+ * keeps the choice for saving, and the tag beside it says what saving will do.
  */
 function triState() {
 	const form = document.querySelector("form.attendance-form");
 	if (!form) return;
-	const sets = [...form.querySelectorAll("fieldset.tri-state")];
-	if (sets.length === 0) return;
+	const toggles = [...form.querySelectorAll(".tri-toggle")];
+	if (toggles.length === 0) return;
 	const order = ["open", "yes", "no"];
 	const checked = { open: "mixed", yes: "true", no: "false" };
-	const stateOf = (set) => set.querySelector("input:checked")?.value ?? "open";
+	const fieldOf = (toggle) =>
+		toggle.parentElement.querySelector("input[name^=decide-]");
 	const summary = form.querySelector(".tri-summary");
 	const update = () => {
 		if (!summary) return;
 		const counts = { open: 0, yes: 0, no: 0 };
-		for (const set of sets) counts[stateOf(set)] += 1;
+		for (const toggle of toggles) counts[fieldOf(toggle).value] += 1;
 		summary.textContent = summary.dataset.text
 			.replace("{yes}", counts.yes)
 			.replace("{no}", counts.no)
 			.replace("{open}", counts.open);
-		summary.hidden = false;
 	};
-	const show = (set) => {
-		const value = stateOf(set);
-		for (const tag of set.parentElement.querySelectorAll(".tri-tag")) {
-			tag.hidden = !tag.classList.contains(`tri-tag-${value}`);
-		}
-		const toggle = set.querySelector(".tri-toggle");
+	const choose = (toggle, value) => {
+		fieldOf(toggle).value = value;
 		toggle.setAttribute("aria-checked", checked[value]);
 		toggle.dataset.state = value;
-	};
-	const choose = (set, value) => {
-		const radio = set.querySelector(`input[value="${value}"]`);
-		if (radio) radio.checked = true;
-		show(set);
+		for (const tag of toggle.parentElement.querySelectorAll(".tri-tag")) {
+			tag.hidden = !tag.classList.contains(`tri-tag-${value}`);
+		}
 		update();
 	};
-	for (const set of sets) {
-		const toggle = document.createElement("button");
-		toggle.type = "button";
-		toggle.className = "tri-toggle";
-		toggle.setAttribute("role", "checkbox");
-		const box = document.createElement("span");
-		box.className = "tri-box";
-		box.setAttribute("aria-hidden", "true");
-		toggle.append(
-			box,
-			...set.querySelector("legend").cloneNode(true).childNodes,
-		);
+	for (const toggle of toggles) {
 		toggle.addEventListener("click", () => {
-			const next = order[(order.indexOf(stateOf(set)) + 1) % order.length];
-			choose(set, next);
-		});
-		set.classList.add("tri-enhanced");
-		set.prepend(toggle);
-		show(set);
-	}
-	const all = form.querySelector(".confirm-all");
-	if (all) {
-		all.hidden = false;
-		all.addEventListener("click", () => {
-			for (const set of sets) {
-				if (stateOf(set) === "open") choose(set, "yes");
-			}
+			const value = fieldOf(toggle).value;
+			choose(toggle, order[(order.indexOf(value) + 1) % order.length]);
 		});
 	}
-	update();
+	form.querySelector(".confirm-all")?.addEventListener("click", () => {
+		for (const toggle of toggles) {
+			if (fieldOf(toggle).value === "open") choose(toggle, "yes");
+		}
+	});
 }
 
 /**

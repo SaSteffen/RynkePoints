@@ -317,6 +317,8 @@ and check that it shows the placeholder text and no data of any rider.
   totals, what is missing and whether the rider is in without scrolling.
 - **FR-012**: Rides MUST show everything the ride table of feature 005 shows (US1,
   US4, US5), with the same paging and the same 20 rides per page.
+  *(Paging superseded 2026-10-19 by feature 018's continuous list; the pager
+  links are gone, constitution v2.2.0.)*
 - **FR-013**: Team MUST show only a short text that the team leaderboard is coming. It
   MUST NOT show any data of any rider until the team leaderboard feature replaces it.
 - **FR-014**: Settings MUST group, in this order: Language, Appearance (FR-032a),

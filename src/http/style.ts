@@ -298,7 +298,6 @@ dl.ride-figures dd .coin-mini{width:18px;height:18px;vertical-align:-3px}
 .landing-hero{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-2);margin:var(--rp-space-4) 0;text-align:center}
 .landing-hero h1{margin:0}
 .tagline{margin:0;font:var(--md-type-title-large)}
-nav.pager{display:flex;flex-wrap:wrap;gap:var(--rp-space-1) var(--rp-space-2);margin-top:var(--rp-space-2)}
 .rides-total,.rides-newest{margin:0 0 var(--rp-space-2)}
 .rides-more{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--rp-space-2);min-height:var(--rp-tap);margin-top:var(--rp-space-3)}
 .rides-status{margin:0;color:var(--md-sys-color-on-surface-variant)}
@@ -555,17 +554,12 @@ ul.requests{margin:0;padding:0;list-style:none}
 .tri-checked,.tri-toggle[data-state=yes] .tri-box{border-color:var(--md-sys-color-on-surface);background:var(--md-sys-color-on-surface);color:var(--md-sys-color-surface)}
 .tri-requested::after,.tri-checked::after,.tri-toggle[data-state=open] .tri-box::after,.tri-toggle[data-state=yes] .tri-box::after{content:"";width:10px;height:5px;margin-top:-3px;border:solid currentColor;border-width:0 0 3px 3px;transform:rotate(-45deg)}
 .attendance-requested{border-radius:var(--md-shape-md);background:var(--md-sys-color-surface-container-low)}
-.tri-state{display:flex;flex:1;flex-wrap:wrap;align-items:center;gap:var(--rp-space-2);min-width:0;margin:0;padding:0;border:0}
-.tri-state legend{float:left;padding:0;font:600 16px/22px var(--md-ref-typeface)}
-.tri-state label{display:inline-flex;flex:none;align-items:center;gap:4px;min-height:var(--rp-tap)}
-.tri-enhanced label,.tri-enhanced legend{display:none}
 .tri-toggle{display:flex;flex:1;align-items:center;gap:var(--rp-space-3);min-height:var(--rp-tap);padding:0;border:0;background:transparent;color:inherit;font:600 16px/22px var(--md-ref-typeface);text-align:left;cursor:pointer}
 .tri-tag{flex:none;padding:0 8px;border:1px solid var(--md-sys-color-outline);border-radius:var(--md-shape-full);font:700 11px/20px var(--md-ref-typeface);color:var(--md-sys-color-on-surface-variant)}
 .tri-tag-yes{border-color:var(--rp-yes);color:var(--rp-on-ok-container)}
 .tri-tag-no{border-color:var(--md-sys-color-error);color:var(--md-sys-color-error)}
 .tri-summary{margin:var(--rp-space-2) 0 0;text-align:center;font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 .confirm-all{margin:0 0 var(--rp-space-2)}
-.confirm-all[hidden],.tri-summary[hidden]{display:none}
 @media (max-width:1099.98px){.table-scroll{display:none}.rider-cards.default .rider-card:not(.status-push){display:none}.group-tiles.default .tile-push{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}.showing-wide{display:none}}
 @media (min-width:840px){nav.app-nav .nav-label-short{display:none}nav.app-nav .nav-label-full{display:block}main:has(>.team-overview){max-width:none}nav.group-tiles{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}ul.rider-cards{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}}
 @media (min-width:1100px){ul.rider-cards{display:none}.group-tiles.default .tile-all{border-color:var(--md-sys-color-primary);background:var(--rp-coin-yellow);color:var(--rp-coin-ink)}.showing-phone{display:none}}

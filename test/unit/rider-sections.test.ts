@@ -10,7 +10,6 @@ import {
 	renderWaiting,
 } from "../../src/http/rider-sections";
 import type {
-	Pager,
 	ReasonLine,
 	RideLine,
 	RiderView,
@@ -43,8 +42,8 @@ function line(overrides: Partial<RideLine> = {}): RideLine {
 function table(ride: RideLine, i18n = en): string {
 	return renderRides(i18n, {
 		rows: [ride],
-		position: { from: 1, to: 1, total: 1 },
-		pager: null,
+		total: 1,
+		page: 1,
 		more: null,
 	}).toString();
 }
@@ -189,8 +188,8 @@ describe("coins", () => {
 	it("shows the coin above an empty ride list", () => {
 		const html = renderRides(en, {
 			rows: [],
-			position: { from: 0, to: 0, total: 0 },
-			pager: null,
+			total: 0,
+			page: 1,
 			more: null,
 		}).toString();
 		expect(html).toMatch(
@@ -345,36 +344,24 @@ describe("renderRides lazy list (018 US1, US3)", () => {
 	const KEY = { startDate: "2026-09-16T08:00:00Z", activityId: 8_000_040 };
 	const MORE = "/me/rides/more?after=2026-09-16T08%3A00%3A00Z~8000040";
 
-	function pager(page: number): Pager {
-		return {
-			page,
-			lastPage: 3,
-			first: page > 1 ? 1 : null,
-			previous: page > 1 ? page - 1 : null,
-			next: page < 3 ? page + 1 : null,
-			last: page < 3 ? 3 : null,
-		};
-	}
-
 	function lazy(page: number, more = page < 3 ? KEY : null): string {
 		return renderRides(de, {
 			rows: [line({ activityId: 8_000_040 })],
-			position: { from: (page - 1) * 20 + 1, to: page * 20, total: 45 },
-			pager: pager(page),
+			total: 45,
+			page,
 			more,
 		}).toString();
 	}
 
-	it("marks the section and keeps the position line and the pager", () => {
+	it("marks the section and has no pager", () => {
 		const html = lazy(1);
 		expect(html).toMatch(/^<section id="rides" data-lazy>\n<h2>/);
-		expect(html).toContain('<p class="rides-position">Fahrten 1–20 von 45</p>');
-		expect(html).toContain('<nav class="pager" aria-label="Seiten">');
+		expect(html).not.toContain("pager");
 	});
 
-	it("renders the season's total, hidden", () => {
+	it("renders the season's total", () => {
 		expect(lazy(1)).toContain(
-			'<p class="rides-total" hidden>45 Fahrten in dieser Saison</p>',
+			'<p class="rides-total">45 Fahrten in dieser Saison</p>',
 		);
 	});
 
@@ -386,13 +373,13 @@ describe("renderRides lazy list (018 US1, US3)", () => {
 
 	it("renders the status block with its texts and the retry button, hidden", () => {
 		expect(lazy(1)).toContain(
-			'<div class="rides-more" hidden><p class="rides-status" role="status" data-loading="Ältere Fahrten werden geladen …" data-failed="Ältere Fahrten konnten nicht geladen werden." data-added="Weitere Fahrten geladen"></p><button type="button" class="button-outlined" data-retry hidden>Erneut versuchen</button></div>\n<nav class="pager"',
+			'<div class="rides-more" hidden><p class="rides-status" role="status" data-loading="Ältere Fahrten werden geladen …" data-failed="Ältere Fahrten konnten nicht geladen werden." data-added="Weitere Fahrten geladen"></p><button type="button" class="button-outlined" data-retry hidden>Erneut versuchen</button></div>\n</section>',
 		);
 	});
 
 	it("links to the newest rides only from page 2 on", () => {
 		const link =
-			'<p class="rides-newest" hidden><a class="tap" href="/me/rides">Zu den neuesten Fahrten</a></p>';
+			'<p class="rides-newest"><a class="tap" href="/me/rides">Zu den neuesten Fahrten</a></p>';
 		expect(lazy(1)).not.toContain("rides-newest");
 		expect(lazy(2)).toContain(link);
 		expect(lazy(3)).toContain(link);
@@ -407,8 +394,8 @@ describe("renderRides lazy list (018 US1, US3)", () => {
 	it("leaves a list of 20 rides or fewer as it was", () => {
 		const html = renderRides(de, {
 			rows: [line()],
-			position: { from: 1, to: 1, total: 1 },
-			pager: null,
+			total: 1,
+			page: 1,
 			more: null,
 		}).toString();
 		expect(html).toMatch(/^<section id="rides">\n/);
@@ -426,12 +413,12 @@ describe("renderRides lazy list (018 US1, US3)", () => {
 	it("speaks English in English", () => {
 		const html = renderRides(en, {
 			rows: [line()],
-			position: { from: 21, to: 40, total: 1234 },
-			pager: pager(2),
+			total: 1234,
+			page: 2,
 			more: KEY,
 		}).toString();
 		expect(html).toContain(
-			'<p class="rides-total" hidden>1,234 rides this season</p>',
+			'<p class="rides-total">1,234 rides this season</p>',
 		);
 		expect(html).toContain('href="/me/rides">To your newest rides</a>');
 		expect(html).toContain('data-failed="Couldn&#39;t load older rides."');
@@ -445,8 +432,8 @@ describe("renderRideBatch (018 contracts/http-routes.md)", () => {
 		const rows = [line({ activityId: 7 }), line({ activityId: 8 })];
 		const page = renderRides(de, {
 			rows,
-			position: { from: 21, to: 22, total: 45 },
-			pager: null,
+			total: 2,
+			page: 1,
 			more: null,
 		}).toString();
 		const cards = page.slice(page.indexOf("<li "), page.indexOf("</ol>"));

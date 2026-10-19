@@ -347,7 +347,7 @@ describe("tri-state boxes", () => {
 		await reportRaw(eventId, EMIL);
 	});
 
-	it("lists requested riders first with three radios, the legend and the hint", async () => {
+	it("lists requested riders first with a grey box, the legend and the hint", async () => {
 		const html = await eventPage();
 		const list =
 			html.match(/<ul class="attendance-list">[\s\S]*?<\/ul>/)?.[0] ?? "";
@@ -359,13 +359,10 @@ describe("tri-state boxes", () => {
 			expect(at).toBeGreaterThan(0);
 			expect(at).toBeLessThan(firstChecklistRow);
 			expect(list).toContain(
-				`<input type="radio" name="decide-${id}" value="open" checked>`,
+				`<input type="hidden" name="decide-${id}" value="open">`,
 			);
 			expect(list).toContain(
-				`<input type="radio" name="decide-${id}" value="yes">`,
-			);
-			expect(list).toContain(
-				`<input type="radio" name="decide-${id}" value="no">`,
+				`<button type="button" class="tri-toggle" role="checkbox" aria-checked="mixed" data-state="open"><span class="tri-box" aria-hidden="true"></span>`,
 			);
 			expect(checkbox(html, id)).toBeNull();
 		}

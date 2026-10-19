@@ -7,10 +7,8 @@ markup of [pages.md](pages.md).
 
 ## Start
 
-- Runs only for `section#rides[data-lazy]` and only with
-  `IntersectionObserver`; otherwise the pager stays (FR-015).
-- Hides `nav.pager` and `p.rides-position`, shows `p.rides-total` and
-  `p.rides-newest`, sets `history.scrollRestoration = "manual"`.
+- Runs only for `section#rides[data-lazy]`.
+- Sets `history.scrollRestoration = "manual"`.
 - Shows `div.rides-more` while the list has `data-more`.
 
 ## Loading (FR-002–FR-009)

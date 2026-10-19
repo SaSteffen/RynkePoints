@@ -6,6 +6,8 @@
 
 **Status**: Draft
 
+**Updated**: 2026-10-19 (see [Revision 2026-10-19](#revision-2026-10-19))
+
 **Input**: User description: "i want to make the rides list a lazy loading list".
 Agreed before specifying: the next rides load automatically as the rider scrolls
 (no "load more" button), and the existing pager stays as the fallback where the
@@ -35,6 +37,13 @@ season's first ride is shown.
 - Q: What should the line above the list say, now that it no longer counts a
   page? → A: The season's total only ("87 Fahrten in dieser Saison"); the pager
   page without the script keeps today's "Fahrten 21–40 von 87".
+
+### Revision 2026-10-19
+
+No-script fallback no longer required (constitution v2.2.0): the app requires
+JavaScript. User Story 3 now only keeps page addresses working; FR-015 and SC-005
+are removed and FR-012 no longer describes a page without the script. What a rider
+with the script sees is unchanged.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -107,23 +116,19 @@ minute and return. Both times ride 65 is in view.
 
 ---
 
-### User Story 3 - Works without the page script (Priority: P3)
+### User Story 3 - Page addresses keep working (Priority: P3)
 
-Where the page script doesn't run (blocked, failed, a very old browser), Rides
-works exactly as today: 20 rides a page with the pager links. Addresses with a
-page (`/me/rides?page=3`, and `/me?page=3` from feature 005) keep opening that
-page of rides.
+Addresses with a page (`/me/rides?page=3`, and `/me?page=3` from feature 005)
+keep opening that page of rides.
 
-**Why this priority**: It's what the site already does; the requirement is only
-not to lose it, and to keep old and shared addresses working.
+**Why this priority**: The requirement is only to keep old and shared addresses
+working.
 
-**Independent Test**: Open Rides with scripts turned off and page through all
-rides with the pager; open `/me/rides?page=3` with and without scripts.
+**Independent Test**: Open `/me/rides?page=3` and `/me?page=3`.
 
 **Acceptance Scenarios**:
 
-1. **Given** the page script doesn't run, **When** the rider opens Rides, **Then**
-   they see the first 20 rides, the position line and the pager, as today.
+1. *(Removed 2026-10-19: the app requires JavaScript, constitution v2.2.0.)*
 2. **Given** a rider opens `/me/rides?page=3`, **When** the page script runs,
    **Then** they see rides 41–60, a link to the newest rides above them, and
    older rides load as they scroll down.
@@ -190,8 +195,7 @@ rides with the pager; open `/me/rides?page=3` with and without scripts.
 - **FR-011**: Loading more rides MUST NOT cause any request to Strava.
 - **FR-012**: When the page script runs, the pager links MUST NOT be shown, and
   the line above the list MUST give only the season's total of rides ("87 Fahrten
-  in dieser Saison"). Without the script the line stays as today ("Fahrten
-  21–40 von 87").
+  in dieser Saison").
 - **FR-013**: Coming back to Rides with the back button, or Rides reloading after
   time in the background or by the rider's own reload, MUST show the rides loaded
   before and bring the same ride into view. Opening Rides from the navigation bar
@@ -200,9 +204,8 @@ rides with the pager; open `/me/rides?page=3` with and without scripts.
 - **FR-014**: Opening `/me/rides?page=N` with N > 1 MUST show that page's rides,
   a link to the newest rides above them, and add older rides on scrolling as in
   FR-002.
-- **FR-015**: Where the page script doesn't run, Rides MUST behave as before this
-  feature: 20 rides a page, position line and pager links (feature 005 US5,
-  feature 011 FR-012).
+- **FR-015**: *(Removed 2026-10-19: the app requires JavaScript, constitution
+  v2.2.0.)*
 - **FR-016**: `/me?page=N` and `/me/rides?page=N` MUST keep their current meaning
   (feature 005 contracts, feature 011 FR-006).
 - **FR-017**: Keyboard focus reaching the end of the list MUST load more like
@@ -235,14 +238,14 @@ rides with the pager; open `/me/rides?page=3` with and without scripts.
 - **SC-004**: After going to Strava and back, or returning after more than a
   minute in the background, the ride the rider last looked at is in view in 100%
   of the test runs.
-- **SC-005**: With the page script turned off, every acceptance scenario of
-  feature 005 US5 for Rides still passes unchanged.
+- **SC-005**: *(Removed 2026-10-19: the app requires JavaScript, constitution
+  v2.2.0.)*
 - **SC-006**: Scrolling stays smooth on a mid-range phone with 300 rides loaded.
 
 ## Assumptions
 
-- Batches stay at 20 rides, the same size as today's pages, so a no-script page
-  and a batch show the same rides.
+- Batches stay at 20 rides, the same size as today's pages, so a page address
+  (`?page=N`) and a batch show the same rides.
 - "Coming back to my place" only covers the same browser tab in the same visit;
   nothing about a rider's position is stored on the server or across devices.
 - A newly worked-out ride doesn't appear in an open list; it appears on the next

@@ -82,11 +82,11 @@ Wording may be polished in implementation; the meaning may not change.
 | `organiser.attendance.tag.yes` | will be added | wird eingetragen |
 | `organiser.attendance.tag.no` | will be declined | wird abgelehnt |
 | `organiser.attendance.tag.intent` | coming | zugesagt |
-| `organiser.attendance.decide.open` | Leave open | Offen lassen |
-| `organiser.attendance.decide.yes` | Was there | Dabei |
-| `organiser.attendance.decide.no` | Wasn't there | Nicht dabei |
 | `organiser.attendance.summary` | Reports: {yes} will be added, {no} declined, {open} open | Meldungen: {yes} werden eingetragen, {no} abgelehnt, {open} offen |
 | `organiser.done.attendance` *(changed)* | Saved: {yes} added, {no} declined, {open} open. | Gespeichert: {yes} eingetragen, {no} abgelehnt, {open} offen. |
+
+The `organiser.attendance.decide.*` labels of the no-script radios were removed
+2026-10-19 (constitution v2.2.0).
 
 ## Overview (`organiser.overview.*`)
 

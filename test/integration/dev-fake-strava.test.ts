@@ -473,7 +473,7 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 				PAULA,
 			),
 		).toBe(45);
-		// The table shows the newest 20; feature 005's pager links the rest.
+		// The list opens with the newest 20; the rest load on scrolling (018).
 		expect((await mePage(PAULA)).match(/<li class="ride-card /g)).toHaveLength(
 			20,
 		);

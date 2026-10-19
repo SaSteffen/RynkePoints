@@ -162,7 +162,7 @@ export async function handleRiderNotificationText(
 
 /**
  * Hidden; `public/app.js` shows it with one state and the switch
- * (FR-010, FR-011, research R8). Without JavaScript it stays hidden.
+ * (FR-010, FR-011, research R8).
  */
 export function renderNotifications(i18n: I18n, pushKey: string): SafeHtml {
 	const state = (

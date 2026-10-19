@@ -74,10 +74,12 @@ count, then:
 3. The riders, those with a report first; tags "Meldung offen", "wird
    eingetragen", "wird abgelehnt" (or "zugesagt", upcoming).
 4. Past: "Teilnahme speichern" and a live line "Meldungen: n werden eingetragen,
-   n abgelehnt, n offen" (script only).
+   n abgelehnt, n offen", kept current by the script.
 
-Without script each requested rider shows three labelled radios instead of the
-box (research R5).
+Each requested rider's box is a `role="checkbox"` button with
+`aria-checked="mixed"` and a hidden `decide-{id}` field that the script cycles.
+*(Changed 2026-10-19: the radios that stood in without script are gone; the app
+requires JavaScript, constitution v2.2.0.)*
 
 ## `/organiser/riders` — overview (board "Orga · Rider-Tabelle")
 
