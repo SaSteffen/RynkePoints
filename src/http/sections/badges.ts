@@ -67,6 +67,7 @@ import {
 	CURRENT_RULES,
 	countingWindow,
 } from "../../rynke/rules";
+import { artUrl } from "../art";
 import { html, SafeHtml } from "../html";
 import { CLOSE } from "../icons";
 import { renderWaiting } from "../rider-sections";
@@ -137,8 +138,8 @@ function milestone(i18n: I18n, badge: Badge): string {
 
 function picture(badge: Badge): string {
 	return BADGE_PICTURES.has(badge.id)
-		? `/badges/${badge.id}.svg`
-		: `/badges/placeholder-${badge.group}.svg`;
+		? artUrl(`/badges/${badge.id}.svg`)
+		: artUrl(`/badges/placeholder-${badge.group}.svg`);
 }
 
 /**

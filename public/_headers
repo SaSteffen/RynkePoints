@@ -10,17 +10,20 @@
 /vendor/*
   Cache-Control: public, max-age=31536000, immutable
 
-# The badge, coin, illustration and icon art keeps its URLs when the files
-# change, so it stays fresh for a day and is reused for a week while the
-# browser checks for a new version in the background (issue #182).
+# The badge, coin and illustration art: the app links each picture with a
+# hash of the file (`?v=<hash>`, scripts/art-versions.mjs), so a changed
+# picture gets a new address and the old one never changes.
 /badges/*
-  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  Cache-Control: public, max-age=31536000, immutable
 
 /coin/*
-  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  Cache-Control: public, max-age=31536000, immutable
 
 /illustrations/*
-  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+  Cache-Control: public, max-age=31536000, immutable
 
+# The icons keep their addresses (the manifest, the service worker, the
+# page's <head>), so they stay fresh for a day and are reused for a week while
+# the browser checks for a new version in the background (issue #182).
 /icons/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800

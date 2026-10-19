@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { CONSENT_VERSION, CONSENT_VERSIONS } from "../../src/consent";
 import { upsertActivity } from "../../src/db/activities";
+import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
@@ -14,6 +15,10 @@ import {
 	sessionCookie,
 } from "../support/ctx";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
+
+/** `text` matched literally inside a RegExp. */
+const escapeRegExp = (text: string) =>
+	text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const ctx = makeCtx();
 const { de, en } = CATALOGS;
@@ -68,7 +73,7 @@ describe("GET / (signed out)", () => {
 		const { page } = await get();
 		expect(page).toMatch(
 			new RegExp(
-				`<div class="landing-hero">\\n<img class="coin-art coin coin-hero" src="/coin/rynke-coin-hero-2\\.svg" alt=""[^>]*>\\n<h1>RynkePoints</h1>\\n<p class="tagline">${escapeHtml(de["landing.tagline"])}</p>\\n</div>`,
+				`<div class="landing-hero">\\n<img class="coin-art coin coin-hero" src="${escapeRegExp(artUrl("/coin/rynke-coin-hero-2.svg"))}" alt=""[^>]*>\\n<h1>RynkePoints</h1>\\n<p class="tagline">${escapeHtml(de["landing.tagline"])}</p>\\n</div>`,
 			),
 		);
 	});

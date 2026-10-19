@@ -5,6 +5,7 @@ import { badgeWindow } from "../../src/badges/evaluate";
 import { BADGE_OUTLINE } from "../../src/badges/outline";
 import { BADGE_PICTURES } from "../../src/badges/pictures";
 import { readRiderBadges } from "../../src/db/badges";
+import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import { renderBadgeReveal } from "../../src/http/sections/badges";
 import { CATALOGS } from "../../src/i18n/catalogs";
@@ -190,7 +191,7 @@ describe("the Abzeichen section", () => {
 		expect(button("distance-100")).not.toContain("badge-fresh");
 		// The picture shapes its shine; every badge has its own tilt.
 		expect(button("distance-1000")).toMatch(
-			/style="--tilt:-?\d(\.\d)?deg;--badge-src:url\(\/badges\/distance-1000\.svg\)"/,
+			/style="--tilt:-?\d(\.\d)?deg;--badge-src:url\(\/badges\/distance-1000\.svg\?v=[0-9a-f]{10}\)"/,
 		);
 	});
 
@@ -201,10 +202,12 @@ describe("the Abzeichen section", () => {
 		if (missing) await earn(ATHLETE_A, [[missing.id, "2026-05-02"]]);
 		const { section: badges } = await section();
 		if (BADGE_PICTURES.has("distance-500")) {
-			expect(badges).toContain('src="/badges/distance-500.svg"');
+			expect(badges).toContain(`src="${artUrl("/badges/distance-500.svg")}"`);
 		}
 		if (missing) {
-			expect(badges).toContain('src="/badges/placeholder-personal.svg"');
+			expect(badges).toContain(
+				`src="${artUrl("/badges/placeholder-personal.svg")}"`,
+			);
 			expect(badges).not.toContain(`/badges/${missing.id}`);
 		}
 	});
@@ -402,7 +405,7 @@ describe("the team's badges (US4)", () => {
 			`<span class="badges-title-all">${de["badges.personal.all"].replace("{n}", "3")}</span>`,
 		);
 		if (!BADGE_PICTURES.has("big-training-5")) {
-			expect(team).toContain('src="/badges/placeholder-team.svg"');
+			expect(team).toContain(`src="${artUrl("/badges/placeholder-team.svg")}"`);
 		}
 		expect(badges).toContain(
 			'<div popover id="badge-big-training-5" class="badge-large badge-large-team">',

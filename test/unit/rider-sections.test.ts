@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import {
 	renderGauges,
@@ -193,7 +194,7 @@ describe("coins", () => {
 			more: null,
 		}).toString();
 		expect(html).toMatch(
-			/<h2>Your rides<\/h2>\n<img class="coin-art coin coin-large" src="\/coin\/rynke-coin-front\.svg" alt=""[^>]*>\n<p>No rides this season yet\.<\/p>/,
+			/<h2>Your rides<\/h2>\n<img class="coin-art coin coin-large" src="\/coin\/rynke-coin-front\.svg\?v=[0-9a-f]{10}" alt=""[^>]*>\n<p>No rides this season yet\.<\/p>/,
 		);
 	});
 
@@ -240,7 +241,7 @@ describe("coins", () => {
 		for (const [summary, status, sentence] of cases) {
 			const html = renderSummary(en, summary, status).toString();
 			expect(html).toContain(
-				`<img class="status-art status-art-banner" src="/illustrations/status_${status}_fun.svg" alt="" width="128" height="128">`,
+				`<img class="status-art status-art-banner" src="${artUrl(`/illustrations/status_${status}_fun.svg`)}" alt="" width="128" height="128">`,
 			);
 			expect(html).toContain(
 				`<p class="rynke-status">${escapeHtml(sentence)}</p>`,
@@ -302,7 +303,7 @@ describe("renderWaiting", () => {
 	it("shows the turning coin, the heading and the one-time message", () => {
 		const html = renderWaiting(de, "2026-09-01", 7).toString();
 		expect(html).toMatch(
-			/^<section class="waiting" role="status" data-waiting data-poll-seconds="7">\n<span class="coin coin-large coin-flip" aria-hidden="true"><span class="coin-flip-turn"><img class="coin-art" src="\/coin\/rynke-coin-front\.svg" alt=""[^>]*><img class="coin-art coin-flip-back" src="\/coin\/rynke-coin-back\.svg" alt=""[^>]*><\/span><\/span>\n/,
+			/^<section class="waiting" role="status" data-waiting data-poll-seconds="7">\n<span class="coin coin-large coin-flip" aria-hidden="true"><span class="coin-flip-turn"><img class="coin-art" src="\/coin\/rynke-coin-front\.svg\?v=[0-9a-f]{10}" alt=""[^>]*><img class="coin-art coin-flip-back" src="\/coin\/rynke-coin-back\.svg\?v=[0-9a-f]{10}" alt=""[^>]*><\/span><\/span>\n/,
 		);
 		expect(html).toContain(`<h2>${de.t("waiting.heading")}</h2>`);
 		expect(html).toContain(

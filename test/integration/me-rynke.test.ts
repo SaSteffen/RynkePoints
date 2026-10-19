@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { RIDE_PAGE_SQL } from "../../src/db/rider-view";
+import { artUrl } from "../../src/http/art";
 import { RULES_HANDOUT_URL } from "../../src/http/rider-sections";
 import { handleFetch } from "../../src/index";
 import type { ReasonCode } from "../../src/rynke/rides";
@@ -109,7 +110,9 @@ describe("GET /me Rynke summary (US1)", () => {
 		expect(shown).toBe(
 			"Qualifiziert für Paris! 🗼 Plan übererfüllt: Trainingsziel erreicht.",
 		);
-		expect(html).toContain('src="/illustrations/status_in_fun.svg"');
+		expect(html).toContain(
+			`src="${artUrl("/illustrations/status_in_fun.svg")}"`,
+		);
 		expect(html).not.toContain('class="rynke-missing"');
 	});
 
