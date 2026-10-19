@@ -24,16 +24,16 @@ export const RIBBON: {
 	};
 };
 
-/** The finished badge SVG, with the milestone ribbon when `ribbon` is set. */
+/** The ribbon's shapes as they lie over a badge; the page draws them. */
+export function ribbonSvg(kind: BadgeGroup): string;
+
+/** The finished badge SVG, without the ribbon. */
 export function frameSvg(
 	kind: BadgeGroup,
 	picture: string,
 	title: string,
-	options?: { transform?: string; ribbon?: boolean },
+	options?: { transform?: string },
 ): string;
 
 /** The frame with the coin's Rynke, shown until a badge has a picture. */
-export function placeholderSvg(
-	kind: BadgeGroup,
-	options?: { ribbon?: boolean },
-): string;
+export function placeholderSvg(kind: BadgeGroup): string;
