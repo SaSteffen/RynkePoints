@@ -43,6 +43,15 @@ describe("sparkline", () => {
 		expect(xs).toEqual([...xs].sort((a, b) => a - b));
 	});
 
+	it("spaces the points by day, so a week under way is only as wide as its days", () => {
+		// Two full weeks, then the Monday of the third.
+		const points = pointsOf(sparkline([0, 4, 9], "x", [0, 7, 8]).value);
+		const xs = points.map(([x]) => x ?? Number.NaN);
+		expect(xs[0]).toBe(0);
+		expect(xs[2]).toBe(100);
+		expect(xs[1]).toBeCloseTo(87.5, 0);
+	});
+
 	it("draws a flat line, not NaN, when every value is 0", () => {
 		const svg = sparkline([0, 0, 0], "x").value;
 		expect(svg).not.toContain("NaN");

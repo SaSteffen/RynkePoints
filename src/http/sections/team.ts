@@ -23,7 +23,7 @@ import {
 } from "../../rynke/leaderboard";
 import { type RiderStatus, riderStatus } from "../../rynke/pace";
 import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
-import { lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
+import { dayNumber, lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
 import { peloton, sparkline, weekBars } from "../charts";
 import { amount, coinArt, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
@@ -270,7 +270,12 @@ function renderPlace(i18n: I18n, viewer: Viewer): SafeHtml {
 `;
 }
 
-function renderRow(i18n: I18n, kind: RynkeKind, row: LeaderboardRow): SafeHtml {
+function renderRow(
+	i18n: I18n,
+	kind: RynkeKind,
+	row: LeaderboardRow,
+	days: readonly number[],
+): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const other = OTHER_KIND[kind];
 	return html`<li class="row${row.you ? " you" : ""}"><span class="row-place">${MEDALS[row.place - 1] ?? whole(row.place)}</span><span class="row-line">${
@@ -280,6 +285,7 @@ function renderRow(i18n: I18n, kind: RynkeKind, row: LeaderboardRow): SafeHtml {
 	}${sparkline(
 		row.weeks,
 		i18n.t("team.list.weeks", { values: row.weeks.map(whole).join(", ") }),
+		days,
 	)}</span><span class="row-figures"><span class="row-total">${coinOf(i18n, kind)} ${whole(row.total)}</span><span class="row-other">${coinOf(i18n, other)} ${whole(row.other)}</span></span></li>
 `;
 }
@@ -290,6 +296,7 @@ function renderLeaderboard(
 	all: boolean,
 	shown: Neighbourhood,
 	count: number,
+	days: readonly number[],
 ): SafeHtml {
 	const hidden = (id: "team.list.ahead" | "team.list.behind", n: number) =>
 		n > 0
@@ -308,7 +315,7 @@ ${segment(teamHref(kind, true), all, i18n.t("team.list.everyone"))}
 `
 		: null
 }${hidden("team.list.ahead", shown.hiddenAhead)}<ol start="${shown.rows[0]?.place ?? 1}">
-${shown.rows.map((row) => renderRow(i18n, kind, row))}</ol>
+${shown.rows.map((row) => renderRow(i18n, kind, row, days))}</ol>
 ${hidden("team.list.behind", shown.hiddenBehind)}</section>
 `;
 }
@@ -376,6 +383,7 @@ export function handleTeam(
 				all,
 				neighbourhood(rows, all),
 				rows.length,
+				ends.map(dayNumber),
 			);
 			// Team Rynke have no place card and no peloton and put the
 			// leaderboard first (feature 019 FR-045, FR-046); Training keeps

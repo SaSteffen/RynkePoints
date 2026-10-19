@@ -15,13 +15,23 @@ const INSET = 2;
 /** One decimal is finer than any screen draws the box. */
 const coord = (value: number) => String(Math.round(value * 10) / 10);
 
-/** A rising line of `values`, lowest at the bottom; flat when all are 0. */
-export function sparkline(values: readonly number[], label: string): SafeHtml {
+/**
+ * A rising line of `values`, lowest at the bottom; flat when all are 0. With
+ * `days` (one day number per value) the points sit by date, so the week under
+ * way is only as wide as its days so far; without, they're evenly spaced.
+ */
+export function sparkline(
+	values: readonly number[],
+	label: string,
+	days?: readonly number[],
+): SafeHtml {
 	const max = Math.max(0, ...values);
-	const step = values.length > 1 ? WIDTH / (values.length - 1) : 0;
+	const at = days ?? values.map((_, i) => i);
+	const first = at[0] ?? 0;
+	const span = (at[at.length - 1] ?? 0) - first;
 	const points = values
 		.map((value, i) => {
-			const x = values.length > 1 ? i * step : WIDTH;
+			const x = span > 0 ? (((at[i] ?? 0) - first) / span) * WIDTH : WIDTH;
 			const share = max > 0 ? value / max : 0;
 			const y = HEIGHT - INSET - share * (HEIGHT - 2 * INSET);
 			return `${coord(x)},${coord(y)}`;
