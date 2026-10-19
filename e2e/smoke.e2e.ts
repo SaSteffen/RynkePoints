@@ -471,13 +471,13 @@ test("an organiser cycles a reported rider's box (019 US5)", async ({
 	await expect(box).toHaveAttribute("aria-checked", "mixed");
 	await expectNoSidewaysScroll(page);
 
-	// Saving swaps the page in place and shows the result.
+	// Saving swaps the page in place and shows the result. The box stays open:
+	// each browser's run shares the event, and a decided rider has no box.
 	await markPage(page);
-	await box.click();
-	await expect(box).toHaveAttribute("aria-checked", "true");
 	await page.getByRole("button", { name: "Teilnahme speichern" }).click();
 	await expect(page).toHaveURL(/done=attendance/);
 	await expect(page.locator("main .notice[role=status]")).toBeVisible();
+	await expect(box).toHaveAttribute("aria-checked", "mixed");
 	expect(await samePage(page)).toBe(true);
 });
 
