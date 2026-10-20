@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,12 +31,13 @@
 
 ## Notes
 
-- Three open questions remain (Clarifications): secret badges in empty album
-  slots, whether tour days count for other badges, and what happens to the past
-  season's data after the rollover. Resolve them with `/speckit-clarify` before
-  `/speckit-plan`.
+- Clarified 2026-10-20: ladder badges named in empty album slots, surprise badges
+  "?"; tour days count for team-event badges too; past-season data moved to its
+  own spec (backlog); Phase 3 is local build plus upload to R2.
 - The spec names a PDF, a local command and a git-ignored folder because the
   owner set them as constraints (local generation, GDPR handling), not as design
   choices. How the PDF is made is in research.md (R1, R6) and belongs to the plan.
 - The tour-day badge rule (FR-011) records Claude's reading of "badge for day 1 is
-  awarded the day before"; confirm it in clarify.
+  awarded the day before"; the owner did not object.
+- Q2 was answered "A" with a remark that matches option B; the spec follows the
+  remark (tour days count for team-event badges). Flip FR-005 if A was meant.

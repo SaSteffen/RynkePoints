@@ -43,9 +43,13 @@ The feasibility research for self-service delivery is in
   and for each day a name, a description and a picture that relate to that day's
   place, drawn like feature 013's badges. A catalog release under feature 013
   FR-012; nothing else in this spec changes.
-- **Phase 3 (later)**: riders get their own album from the app themselves. Not
-  part of this spec; [research.md](research.md) says which way is feasible within
-  the free tier.
+- **Phase 3 (later)**: the albums stay built on the maintainer's computer, and
+  the command uploads them to Cloudflare R2, from where each rider downloads
+  their own album in the app. Not part of this spec; [research.md](research.md)
+  R4 and R7 cover its feasibility. Phase 1 already keeps the albums ready for it
+  (one file per rider, built the same way).
+- **Out of scope**: what happens to the past season's data after the rollover
+  (a later spec, see [backlog](../backlog/season-data-cleanup.md)).
 
 ## Clarifications
 
@@ -65,21 +69,24 @@ The feasibility research for self-service delivery is in
 - Q: Who gets an album? → A: Every listed rider (feature 014) at the time the
   album is made, organisers included; each album holds only that rider's own data
   and figures of the whole team.
-- Q: [NEEDS CLARIFICATION: In the album, do empty slots keep badges secret (no
-  name, as in the app, feature 013 FR-002 and FR-015b), or does the album reveal
-  each missing badge's name now that the season is over, as a real sticker album
-  prints the name in every empty slot?]
-- Q: [NEEDS CLARIFICATION: Do tour days earn anything besides the Tour de Paris
-  badges? The default here: no Rynke (the tour comes after the qualification
-  deadline), and tour days count for no other badge category (Team events
-  attended, Big training, Attendances). Alternatively they also count for those
-  badges, so a tour day with 20 riders can earn "Big training".]
-- Q: [NEEDS CLARIFICATION: What happens to the past season's data once the albums
-  are made and the organisers set the new season start (1 September)? The default
-  here: nothing changes; the stored data stays as today and simply falls outside
-  the new counting window. Alternatively, rides, runs, swims, attendances and
-  reports from before the new season start are deleted after the albums are
-  made (data minimisation, constitution Principle I).]
+- Q: In the album, do empty slots keep badges secret, as in the app? → A: No
+  for ladder badges: an empty slot shows the badge's name, as a real sticker
+  album prints it, now that the season is over. Yes for surprise badges
+  ("Überraschungen", "Team-Überraschungen"): their empty slots show "?" only, as
+  in the app (feature 013 FR-015b).
+- Q: Do tour days count for other badge categories? → A: Yes, as every team event
+  does: Team events attended, Big training and Attendances (feature 013 FR-010,
+  FR-011), even though the tour lies after the qualification deadline. A badge not
+  earned during the season can still be earned on the tour ("more fun that way").
+  They still earn no Rynke. (Recorded from the owner's remark; the answer named
+  option A, whose wording said the opposite.)
+- Q: What happens to the past season's data after the albums are made? → A: Not
+  part of this spec; it gets a spec of its own (backlog prompt
+  `specs/backlog/season-data-cleanup.md`).
+- Q: Phase 3: how do riders get their album from the app? → A: The albums are
+  still built on the maintainer's computer; the command uploads them to
+  Cloudflare R2, and riders download their own from the app. Phase 1 builds
+  locally only, without upload (research.md R7).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -260,15 +267,19 @@ the others empty, and that no sticker leaves its slot or the page.
    the other or leaves its slot.
 4. **Given** a badge Anna did not earn, **When** her album is made, **Then** its
    slot shows the placeholder of its group (personal or team).
-5. **Given** a surprise badge not earned, **When** its slot is shown, **Then** it
-   follows the answer to the first open question (Clarifications).
-6. **Given** the album, **When** it is printed on A4, **Then** nothing is cut off
+5. **Given** a ladder badge Anna did not earn, **When** its slot is shown,
+   **Then** it shows the placeholder with the badge's name below it.
+6. **Given** a surprise badge Anna did not earn, **When** its slot is shown,
+   **Then** it shows the placeholder with "?" only.
+7. **Given** the album, **When** it is printed on A4, **Then** nothing is cut off
    at the page edge.
 
 ### Edge Cases
 
 - **Tour day before the qualification deadline** (e.g. a test ride named "Tour de
-  Paris"): it still earns no Rynke and counts only for the tour category.
+  Paris"): it still earns no Rynke and counts for badges like any tour day.
+- **"Big training" on the tour**: a tour day with 20 riders earns the Big training
+  badges the team has not reached yet, dated with that tour day.
 - **Tour days in two seasons**: each season counts its own; the album shows the
   tour days of its season.
 - **Tour day deleted**: its attendances go (feature 003 FR-006a); tour badges are
@@ -316,9 +327,10 @@ the others empty, and that no sticker leaves its slot or the page.
   (feature 019).
 - **FR-004**: Wherever events show what attendance earns (feature 019 FR-002), a
   tour day MUST show no Rynke amount.
-- **FR-005**: Tour days MUST count for the "Tour de Paris" badge category only:
-  not for Team events attended, Technique training, Big training or Attendances
-  (feature 013 FR-010, FR-011). [Subject to the second open question.]
+- **FR-005**: Tour days MUST count for the "Tour de Paris" badge category and,
+  like every team event, for Team events attended, Big training and Attendances
+  (feature 013 FR-010, FR-011), also after the qualification deadline; not for
+  Technique training. Tour days MUST still earn no Rynke (FR-002).
 
 **Tour de Paris team badges (amends feature 013)**
 
@@ -345,7 +357,7 @@ the others empty, and that no sticker leaves its slot or the page.
 
 - **FR-020**: The maintainer MUST be able to make the season albums with one
   command on their own computer. Making albums MUST NOT be possible from the app,
-  by anyone (Phase 3 decides about the app).
+  by anyone. Phase 1 MUST NOT upload albums anywhere (Phase 3 adds the upload).
 - **FR-021**: The command MUST read the production data read-only: it MUST NOT
   change any stored data, MUST NOT call Strava, and MUST NOT notify anyone.
 - **FR-022**: The command MUST write one album per listed rider at the time it
@@ -388,8 +400,9 @@ the others empty, and that no sticker leaves its slot or the page.
   centre, with a soft shadow, and its name and the date earned below. A sticker
   MUST NOT overlap another slot or leave the page.
 - **FR-037**: A badge not earned MUST leave its slot empty with the placeholder
-  of its group (personal or team) as the app has them. [Whether it shows the
-  badge's name: first open question.]
+  of its group (personal or team) as the app has them, with the badge's name
+  below; a surprise badge not earned MUST show "?" instead of its name and MUST
+  NOT reveal its rule (feature 013 FR-015b).
 - **FR-038**: Each group MUST say how many of its badges are stuck in, out of how
   many ("42 von 87").
 - **FR-039**: Text in the album MUST come from the i18n catalogs in the rider's app

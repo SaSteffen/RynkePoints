@@ -94,7 +94,7 @@ it directly. The badge pictures are the app's existing static assets.
 - The repo already prints a document to PDF from HTML (`docs/print.css`,
   `public/rynke-punkte.pdf`).
 
-**Decision (recommended for Phase 3)**: R5. It fits the free tier with room to
+**Recommendation**: R5. It fits the free tier with room to
 spare and removes the maintainer's manual step and the local copy of the data.
 **Alternatives**: R3 with R2 storage as a fallback if print layouts differ too much
 between browsers; Workers Paid if the team ever decides the $5/month is worth it.
@@ -106,6 +106,25 @@ layout of FR-036 computed deterministically per rider and badge, FR-026), and le
 the Phase 1 command render that page to PDF with headless Chromium against data
 read from production. Phase 3 then only needs a route that serves the same page to
 the signed-in rider, plus the button. Nothing of Phase 1 is thrown away.
+
+## R7 – Owner's decision (2026-10-20)
+
+Phase 3 builds the albums locally, as Phase 1 does, and the command then uploads
+them to R2; riders download their own album from the app. This keeps the PDF's
+look identical for every rider (one print engine, not three) and costs no browser
+time in Cloudflare. What Phase 3 needs, from R4:
+
+- R2 enabled on the account (check whether it asks for a payment method; the free
+  tier itself costs nothing at this size: about 1 GB for 60 albums).
+- An upload credential on the maintainer's computer only, never in the repo or in
+  the Worker's secrets beyond read access.
+- A download route that serves a rider only their own album, streamed from R2
+  (no egress fees, no Worker CPU spent on the PDF).
+- Deletion: an album goes when its rider leaves (feature 001 FR-022) and after a
+  retention period the Phase 3 spec sets; the privacy page names R2 as a store.
+- The local folder can then be emptied automatically after a successful upload.
+
+Phase 1 builds locally only and uploads nothing (spec FR-020).
 
 ## Sources
 
