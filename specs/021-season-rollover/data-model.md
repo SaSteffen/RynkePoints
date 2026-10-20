@@ -136,7 +136,7 @@ interface StickerPose {
   dxMm: number;                      // up to ±3.8 (a miss in one slot in three)
   dyMm: number;                      // clamped to ±2.5
   lift: { towardsDeg: number } | null;
-  // glitter specks, stars, foil and gloss angles: contracts/album-layout.md
+  // gloss angle: contracts/album-layout.md
 }
 ```
 
