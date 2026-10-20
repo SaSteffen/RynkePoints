@@ -18,20 +18,33 @@ rotated and moved as FR-036 asks.
 
 | Album | Pages | Render time (laptop-class VM) | PDF size |
 |-------|-------|-------------------------------|----------|
-| Every badge earned (worst case) | 13 | 13–14 s | 17.4 MB |
-| Half the badges earned (typical) | 13 | 6 s | 9.3 MB |
+| Every badge earned (worst case) | 13 | 6 s | 11.7 MB |
+| Half the badges earned (typical) | 13 | 3 s | 6.4 MB |
 
 The pictures stay vectors in the PDF, so the size grows with the earned badges'
 path complexity, not with resolution. The largest pictures (e.g.
 `big-training-30.svg`, 0.9 MB) dominate; simplifying the few heaviest traces would
-shrink every album. A drop shadow per sticker did not change the size.
+shrink every album.
+
+**Print check (2026-10-20)**: a first run used a CSS `drop-shadow` filter per
+sticker. Chromium then turned every sticker into a 638 × 638 px image (about
+320 dpi at 50 mm, 17.4 MB, twice as slow). Without the filter the PDF holds no
+image at all: every badge, placeholder and text stays vector (checked with
+pypdf). Rotation, offsets, opacity and CSS `box-shadow` all stay vector. Hence
+FR-054: no filters; shadows as vector shapes. With `@page { size: 210mm 297mm }`
+and `preferCSSPageSize`, Chromium writes pages of 594.96 × 841.92 pt, 0.1 mm
+from exact A4 (595.28 × 841.89 pt), well inside FR-050. The app has no font of
+its own (system fonts), so the album needs a font file of its own (FR-055).
 
 **Decision**: Phase 1 renders the album as an HTML page and prints it to PDF with
-headless Chromium on the maintainer's computer. 60 riders take about 10 minutes
+headless Chromium on the maintainer's computer. 60 riders take about 5 minutes
 (FR-027). **Rationale**: Playwright is already a dev dependency; the same HTML page
-can later serve Phase 3 (R5). **Alternatives**: a PDF library writing pages
+is the only place the layout lives, for Phase 1 and Phase 3 (R7). **Alternatives**: a PDF library writing pages
 directly (more code for the sticker layout, and the SVG pictures would need
 converting).
+
+Generation never runs in Cloudflare (owner, 2026-10-20); R2 to R5 below are kept
+as the record of the feasibility question.
 
 ## R2 – A PDF library inside a Worker
 
@@ -104,8 +117,9 @@ between browsers; Workers Paid if the team ever decides the $5/month is worth it
 Build the album as an HTML page with A4 print CSS (one page template, the sticker
 layout of FR-036 computed deterministically per rider and badge, FR-026), and let
 the Phase 1 command render that page to PDF with headless Chromium against data
-read from production. Phase 3 then only needs a route that serves the same page to
-the signed-in rider, plus the button. Nothing of Phase 1 is thrown away.
+read from production. Phase 3 keeps the same command and adds the upload to R2
+(R7). R5's in-browser printing is not pursued: one print engine gives every rider
+the same print-ready file (FR-050 to FR-057).
 
 ## R7 – Owner's decision (2026-10-20)
 

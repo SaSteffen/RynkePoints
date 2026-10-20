@@ -43,6 +43,7 @@ The feasibility research for self-service delivery is in
   a name, a description and a picture that relate to that day's place, drawn like
   feature 013's badges. It only swaps texts and pictures; it does not block Phase 1
   or Phase 3, and nothing else in this spec changes.
+- **Never**: the albums are never generated in Cloudflare (owner, 2026-10-20).
 - **Phase 3 (later)**: the albums stay built on the maintainer's computer, and
   the command uploads them to Cloudflare R2, from where each rider downloads
   their own album in the app. Not part of this spec; [research.md](research.md)
@@ -86,6 +87,11 @@ The feasibility research for self-service delivery is in
 - Q: How many tour days are there, and does Phase 2 block anything? → A: The
   tour always has 8 days. The badges get stand-in names and texts now; Phase 2
   only swaps in place-related names, texts and pictures and blocks nothing.
+- Q: How is the album made, and where? → A: As an HTML page printed to PDF by a
+  headless browser on the maintainer's computer (research.md R1, R8). Generation
+  never moves to Cloudflare.
+- Q: Must the PDF be print-ready? → A: Yes: A4, margins with a binding gutter,
+  vector wherever possible, at least 300 dpi otherwise (FR-050 to FR-057).
 - Q: Phase 3: how do riders get their album from the app? → A: The albums are
   still built on the maintainer's computer; the command uploads them to
   Cloudflare R2, and riders download their own from the app. Phase 1 builds
@@ -385,7 +391,8 @@ the others empty, and that no sticker leaves its slot or the page.
 **The season album: what it shows**
 
 - **FR-030**: Each album MUST be an A4 portrait PDF for printing: the summary
-  first, then the sticker pages, nothing cut off at the page edge.
+  first, then the sticker pages, nothing cut off at the page edge. It MUST meet
+  the print requirements FR-050 to FR-057.
 - **FR-031**: The first page MUST show the album's title (stand-in "Rynke-Album"),
   the season, the rider's first name, their Training and Team Rynke at the cut-off
   date with the coin (feature 012), and the number of team events they attended.
@@ -404,7 +411,7 @@ the others empty, and that no sticker leaves its slot or the page.
   its name, in the order of the app's gallery (feature 013 FR-002).
 - **FR-036**: An earned badge MUST be stuck into its slot: its picture as in the
   app (feature 013), rotated by up to ±6° and moved by up to 3 mm from the slot's
-  centre, with a soft shadow, and its name and the date earned below. A sticker
+  centre, with a soft shadow drawn as a vector shape (FR-054), and its name and the date earned below. A sticker
   MUST NOT overlap another slot or leave the page.
 - **FR-037**: A badge not earned MUST leave its slot empty with the placeholder
   of its group (personal or team) as the app has them, with the badge's name
@@ -415,6 +422,38 @@ the others empty, and that no sticker leaves its slot or the page.
 - **FR-039**: Text in the album MUST come from the i18n catalogs in the rider's app
   language (feature 001 FR-028), addressing the rider as "du"; badge names stay
   German (feature 013).
+
+**The season album: print-ready (2026-10-20)**
+
+The album must go to a printer as it is: a home printer or a print shop, printed
+double-sided, possibly bound or stapled.
+
+- **FR-050**: Every page MUST be exactly A4 portrait, 210 × 297 mm (within
+  0.5 mm), with the content at its final size, so it prints at 100 % ("actual
+  size") without scaling.
+- **FR-051**: Every page MUST keep a safe area: at least 12 mm from the top,
+  bottom and outer edge, and a binding gutter of at least 20 mm on the inner edge.
+  The margins MUST be mirrored for double-sided printing: odd pages (right-hand)
+  have the gutter on the left, even pages on the right. No text, slot, sticker or
+  shadow MUST reach outside the safe area.
+- **FR-052**: Nothing MUST be printed to the page edge (no bleed): the paper stays
+  white outside the safe area, so home printers, which cannot print to the edge,
+  and print shops both print the album without trimming.
+- **FR-053**: The album MUST have an even number of pages, ending with a blank
+  page if needed, so double-sided printing keeps pages in pairs; a sticker
+  category MUST NOT be split from its heading by a page break.
+- **FR-054**: Everything that is a vector in the app MUST stay a vector in the
+  PDF: text as real text, the badge pictures, the placeholders, the coin and the
+  album's own decorations. Effects that a PDF can only hold as an image (such as
+  blur filters on a picture) MUST NOT be used; shadows are drawn as vector shapes.
+- **FR-055**: Text MUST use one font kept in the repository with a licence that
+  allows embedding, embedded in the PDF, so the album looks the same on every
+  computer and printer. Text MUST be at least 7 pt, lines at least 0.25 pt.
+- **FR-056**: A picture that only exists as an image MUST be at least 300 dpi at
+  its printed size.
+- **FR-057**: The command MUST check every album it writes against FR-050,
+  FR-053, FR-054 and FR-056 (page size, even page count, no image below 300 dpi,
+  no image where a vector was expected) and MUST report any album that fails.
 
 **Privacy**
 
@@ -448,7 +487,10 @@ the others empty, and that no sticker leaves its slot or the page.
   ever reaches git.
 - **SC-005**: A typical album (half the badges earned) is at most 15 MB, so it can
   be sent as an email attachment or chat file (measured in
-  [research.md](research.md) R1: about 9 MB with today's pictures).
+  [research.md](research.md) R1: about 6 MB with today's pictures, all vector).
+- **SC-007**: A copy shop prints an album double-sided on A4 at 100 % with no
+  warning, nothing cut off and the binding gutter on the inner edge of every
+  page (one test print before the first season end).
 - **SC-006**: Riders who get their album say it looks like a sticker album, not a
   report (owner's judgement).
 
@@ -464,5 +506,7 @@ the others empty, and that no sticker leaves its slot or the page.
 - The tour always has 8 days (owner, 2026-10-20).
 - The album's look gets a Claude Design mock-up before implementation, as the
   app's other UI work does.
+- The PDF is in RGB colour, as browsers write it; print shops convert it to CMYK
+  themselves. A PDF/X or CMYK file for offset printing is out of scope.
 - History across seasons stays out of scope (feature 003): the album is the only
   record of a past season the rider keeps.
