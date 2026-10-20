@@ -39,14 +39,14 @@ app's yellow (#fbe122, personal) and team blue (#8cc4f0) for page bands, ink
 | Placeholder | printed on every slot: the gallery's 44 mm dashed circle |
 | Sticker | 44 mm white die-cut circle (2 mm edge) holding the 40 mm picture, on the placeholder |
 | Pose | rotation −7° … 7°; offset mostly 0 … 1.5 mm, in one slot in three 2.2 … 3.8 mm, in any direction; y clamped to ±2.5 mm |
-| Shadow | `box-shadow` on the circle, 0.8 mm down, 1.3 mm blur, plus a hairline edge; no CSS `filter` (the finish is reworked later) |
+| Shadow | sharp and tight, as a sticker lying flat on paper: `box-shadow` 0.16 mm down with 0.24 mm blur at 42 %, plus a 0.16 mm edge line at 22 %; no CSS `filter` |
 | Caption | 8 mm at the slot's foot: name (9 pt, bold) and date earned (9 pt) |
 | Page band | 12 mm at the top of the safe area: group name, count, page number on the outer side |
 | Category heading | 9 mm; never the last element on a page; repeated with "(Fortsetzung)" when a category continues |
 
-Bounding check: 22 mm radius + 3.8 mm offset + 1.6 mm shadow = 27.4 mm, inside
-the slot's half-width of 29.65 mm; vertically 22 + 2.5 + 1.6 = 26.1 mm, which
-may touch the caption's top edge by 0.1 mm but never the next slot. A page holds the band, two categories' headings and
+Bounding check: 22 mm radius + 3.8 mm offset + 0.4 mm shadow = 26.2 mm, inside
+the slot's half-width of 29.65 mm; vertically 22 + 2.5 + 0.4 = 24.9 mm, inside
+half the 52 mm sticker area. A page holds the band, two categories' headings and
 four rows (12 + 2 × 9 + 4 × 60 = 270 mm of 273).
 
 ## Slot states

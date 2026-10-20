@@ -273,7 +273,8 @@ first the rider's own categories ("Meine Abzeichen"), then the team's
 ("Team-Abzeichen"), each category under its name, its badges in catalog order. An
 slot has its placeholder printed on the page. An earned badge is stuck onto it
 as a sticker: turned a little and off-centre, sometimes far enough that
-the placeholder's edge shows on one side, with a soft shadow; its name and date earned are printed below. A
+the placeholder's edge shows on one side, with a sharp, tight shadow, as it lies
+flat on the page; its name and date earned are printed below. A
 badge not earned leaves the placeholder empty. Each
 group says how many of its badges are stuck in ("42 von 87").
 
@@ -431,7 +432,8 @@ the others empty, and that no sticker leaves its slot or the page.
   its name, in the order of the app's gallery (feature 013 FR-002).
 - **FR-036**: An earned badge MUST be stuck onto its slot's printed placeholder
   as a sticker: its picture as in the app (feature 013) on a white die-cut edge,
-  with a soft shadow drawn as a vector shape (FR-054), turned by up to ±7° and
+  with a sharp, tight shadow as of a sticker lying flat on the page, drawn as a
+  vector shape (FR-054), turned by up to ±7° and
   moved off the placeholder's centre, mostly by up to 1.5 mm, in about one slot
   in three by 2 to 4 mm so the placeholder's edge shows on one side. Placement MUST follow from the rider and the badge
   (FR-026). All of it MUST stay vector (FR-054). Its name and the date earned
