@@ -1,4 +1,4 @@
-# Album font
+# Album fonts
 
 The season album (feature 021, research R13, FR-055) is set in Nunito, under the
 SIL Open Font License 1.1 ([`OFL.txt`](OFL.txt)), so the printed PDF can embed
@@ -26,4 +26,20 @@ for weight, name in [(400, "Regular"), (700, "Bold"), (900, "Black")]:
     )
     font.flavor = "woff2"  # needs the brotli module
     font.save(f"Nunito-{name}.woff2")
+```
+
+## Schoolbell
+
+The owner's name on the cover is set in Schoolbell by Font Diner, under the
+Apache License 2.0 ([`Schoolbell-LICENSE.txt`](Schoolbell-LICENSE.txt)), which
+allows embedding it in the PDF. `Schoolbell-Regular.woff2` is
+`apache/schoolbell/Schoolbell-Regular.ttf` from the same google/fonts commit,
+saved as WOFF2 with fontTools, all glyphs kept:
+
+```python
+from fontTools.ttLib import TTFont
+
+font = TTFont("Schoolbell-Regular.ttf")
+font.flavor = "woff2"  # needs the brotli module
+font.save("Schoolbell-Regular.woff2")
 ```

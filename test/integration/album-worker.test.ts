@@ -81,7 +81,7 @@ describe("GET /album/:athleteId", () => {
 });
 
 describe("the album's files", () => {
-	it("serves the stylesheet and the font", async () => {
+	it("serves the stylesheet and the fonts", async () => {
 		const css = await get("/album.css");
 		expect(css.status).toBe(200);
 		expect(css.headers.get("Content-Type")).toMatch(/^text\/css/);

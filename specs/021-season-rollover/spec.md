@@ -474,8 +474,9 @@ double-sided, possibly bound or stapled.
   PDF: text as real text, the badge pictures, the placeholders, the coin and the
   album's own decorations. Effects that a PDF can only hold as an image (such as
   blur filters on a picture) MUST NOT be used; shadows are drawn as vector shapes.
-- **FR-055**: Text MUST use one font kept in the repository with a licence that
-  allows embedding, embedded in the PDF, so the album looks the same on every
+- **FR-055**: Text MUST use fonts kept in the repository with a licence that
+  allows embedding (one for all text, and a handwritten one for the owner's
+  name on the cover), embedded in the PDF, so the album looks the same on every
   computer and printer. Text MUST be at least 7 pt, lines at least 0.25 pt.
 - **FR-056**: A picture that only exists as an image MUST be at least 300 dpi at
   its printed size.

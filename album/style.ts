@@ -25,6 +25,13 @@ export const ALBUM_CSS = `@font-face {
 	src: url("/fonts/Nunito-Black.woff2") format("woff2");
 }
 
+/* Only the owner's name on the cover, as if written in by hand. */
+@font-face {
+	font-family: "Schoolbell";
+	font-weight: 400;
+	src: url("/fonts/Schoolbell-Regular.woff2") format("woff2");
+}
+
 @page {
 	size: 210mm 297mm;
 	margin: 0;
@@ -199,9 +206,10 @@ h2 {
 
 .owner-name {
 	flex: 1;
-	font-size: 36pt;
-	line-height: 42pt;
-	font-weight: 900;
+	font-family: "Schoolbell", "Nunito", cursive;
+	font-size: 40pt;
+	line-height: 46pt;
+	font-weight: 400;
 }
 
 .figures {
