@@ -273,7 +273,7 @@ deterministic and unit-testable.
   issue #180) and a shadow drawn as a CSS `box-shadow` on a circle, which
   Chromium keeps vector (R1); no `filter` anywhere in `album.css` (a test greps
   for it).
-- **Empty slot**: the gallery's dotted outline (`BADGE_OUTLINE`, feature 013),
+- **Empty slot**: the gallery's dashed circle (`BADGE_OUTLINE_PLAIN`, feature 013),
   name below for ladder badges, "?" for surprise badges (FR-037).
 - **Summary pages**: page 1 cover and the rider's figures; page 2 the team's
   season and the event table (5 mm rows, about 48 per page), continued on page 3
