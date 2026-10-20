@@ -16,6 +16,7 @@ request to the app's `handleFetch`. The pages are developer tooling in English
 | Method & path | Does | Answers |
 |---|---|---|
 | `GET /_dev/` | Lists the sample riders with their state, whether they are connected, and a **Connect as** button each. Also offers **Reset sample data**, the event forms (below) and links to `/me` and `/__scheduled`. | `200` HTML |
+| `GET /_dev` | Without the slash: sends the browser to `/_dev/`. | `308 /_dev/` |
 | `POST /_dev/connect` (`athleteId`) | Starts the real connect flow for that rider: internally `POST /connect` with consent, then redirects the browser to the stand-in screen with that rider preselected | `303` to `/_dev/strava/oauth/authorize?…` |
 | `GET /_dev/strava/oauth/authorize?client_id&redirect_uri&response_type&approval_prompt&scope&state[&athlete]` | The stand-in permission screen: a sample rider choice (preselected by `athlete`), one checkbox per requested scope (all ticked), **Authorize** and **Cancel**. Rejects a `client_id` other than fake mode's (`400`). | `200` HTML |
 | `POST /_dev/strava/oauth/authorize` | **Authorize**: redirects to `redirect_uri?state=…&code=fake-code.<id>.<scopes>&scope=<ticked>`. **Cancel**: `redirect_uri?state=…&error=access_denied`. | `302` |

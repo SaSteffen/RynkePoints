@@ -450,6 +450,12 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 		expect(await tourBadge(8)).toBe(true);
 	});
 
+	it("sends /_dev to /_dev/", async () => {
+		const res = await get("/_dev");
+		expect(res.status).toBe(308);
+		expect(res.headers.get("Location")).toBe("/_dev/");
+	});
+
 	it("refuses a clock day that isn't a date", async () => {
 		const res = await post("/_dev/clock", [["day", "July"]]);
 		expect(res.status).toBe(400);

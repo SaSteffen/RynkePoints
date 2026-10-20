@@ -326,6 +326,7 @@ export async function devFetch(
 	const url = new URL(request.url);
 	if (!isLocal(url)) return text("Fake mode answers localhost only", 403);
 	await seedIfNeeded(ctx, url.origin);
+	if (url.pathname === "/_dev") return redirect("/_dev/", 308);
 	if (url.pathname.startsWith("/_dev/")) return devRoute(request, ctx, url);
 	return rewriteActivityLinks(
 		rewriteAuthorize(await handleFetch(request, ctx)),
