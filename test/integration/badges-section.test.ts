@@ -7,7 +7,7 @@ import { BADGE_PICTURES } from "../../src/badges/pictures";
 import { readRiderBadges } from "../../src/db/badges";
 import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
-import { renderBadgeReveal } from "../../src/http/sections/badges";
+import { milestone, renderBadgeReveal } from "../../src/http/sections/badges";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
@@ -720,5 +720,14 @@ describe("the team surprise badges on the page", () => {
 		// No rider named (FR-016a).
 		expect(teamGroup(badges)).not.toContain("Testrider");
 		expect(html).not.toContain('badge-team-surprise-all-out"');
+	});
+});
+
+describe("a tour badge's ribbon (feature 021)", () => {
+	it("names the tour day, not a count of days", () => {
+		const badge = BADGES.find((b) => b.id === "tour-de-paris-3");
+		if (!badge) throw new Error("no tour-de-paris-3");
+		expect(milestone(createI18n("de", CATALOGS), badge)).toBe("Tag\u00a03");
+		expect(milestone(createI18n("en", CATALOGS), badge)).toBe("Day\u00a03");
 	});
 });

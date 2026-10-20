@@ -128,6 +128,10 @@ export function milestone(i18n: I18n, badge: Badge): string {
 	if (badge.id === "run-length-half") return i18n.t("badges.value.half");
 	if (badge.id === "run-length-marathon")
 		return i18n.t("badges.value.marathon");
+	// A tour badge names its day, "Tag 3", not a count (feature 021).
+	if (badge.category === "tour_de_paris") {
+		return i18n.t("badges.value.tourDay", { n: badge.threshold });
+	}
 	return valueText(
 		i18n,
 		categoryById(badge.category).unit,

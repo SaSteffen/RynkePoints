@@ -501,6 +501,7 @@ const CONTRACT_IDS = [
 	"badges.value.km",
 	"badges.value.m",
 	"badges.value.rynke",
+	"badges.value.tourDay",
 	"badges.value.events",
 	"badges.value.events.one",
 	"badges.value.trainings",

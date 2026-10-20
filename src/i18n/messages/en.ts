@@ -611,6 +611,7 @@ export const en: Catalog = {
 	"badges.value.attendances": "{n}\u00a0visits",
 	"badges.value.attendances.one": "{n}\u00a0visit",
 	"badges.value.days": "{n}\u00a0days",
+	"badges.value.tourDay": "Day\u00a0{n}",
 	"badges.value.days.one": "{n}\u00a0day",
 	"badges.surprise.new-year": "New Year",
 	"badges.surprise.new-year.for": "You were out on New Year's Day.",

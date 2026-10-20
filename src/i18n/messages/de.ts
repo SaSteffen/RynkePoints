@@ -645,6 +645,7 @@ export const de = {
 	"badges.value.attendances": "{n}\u00a0Teilnahmen",
 	"badges.value.attendances.one": "{n}\u00a0Teilnahme",
 	"badges.value.days": "{n}\u00a0Tage",
+	"badges.value.tourDay": "Tag\u00a0{n}",
 	"badges.value.days.one": "{n}\u00a0Tag",
 	"badges.surprise.new-year": "Neujahr",
 	"badges.surprise.new-year.for": "Du warst am Neujahrstag unterwegs.",

@@ -370,7 +370,8 @@ the others empty, and that no sticker leaves its slot or the page.
   days, so the ladder MUST be 1 to 8. Until Phase 2, the badges MUST carry
   stand-in names ("Tour-Tag 1" to "Tour-Tag 8"), stand-in descriptions ("Tag 1 der
   Tour de Paris – der Ort folgt") and the team placeholder picture, and MUST be
-  fully usable that way: earned, shown, told and stuck into the album.
+  fully usable that way: earned, shown, told and stuck into the album. A tour
+  badge's ribbon names its day, "Tag 1" to "Tag 8", not a count ("1 Tag").
 - **FR-011**: The badge for tour day n MUST be earned when at least one listed
   rider has an attendance at n tour days of the season, and MUST be dated with the
   date of the earliest tour day by which some rider reached n.
