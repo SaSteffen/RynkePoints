@@ -40,6 +40,7 @@
 		"chart.js": "4.5.1",
 		"chartjs-plugin-zoom": "2.2.0",
 		"lefthook": "^2.2.2",
+		"pdf-lib": "^1.17.1",
 		"typescript": "^7.0.2",
 		"vitest": "^4.1.12",
 		"wrangler": "^4.151.0"
