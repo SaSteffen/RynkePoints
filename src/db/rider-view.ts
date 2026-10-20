@@ -1,4 +1,4 @@
-import type { TeamEventKind } from "../rynke/team-events";
+import type { EventKind } from "../rynke/team-events";
 import type { CurveInputs, CurveRideSum } from "../rynke/weeks";
 import type { CyclingSportType } from "../strava/activity";
 import {
@@ -85,7 +85,7 @@ export interface RiderViewRead {
 
 export interface AttendedEvent {
 	eventId: number;
-	kind: TeamEventKind;
+	kind: EventKind;
 	/** `YYYY-MM-DD` */
 	date: string;
 	name: string | null;

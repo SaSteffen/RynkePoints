@@ -1,6 +1,6 @@
 import type { TeamBadgeSums, TeamRiderDays } from "../badges/team";
 import { berlinDate } from "../config";
-import type { Attendance, TeamEventKind } from "../rynke/team-events";
+import type { Attendance, EventKind } from "../rynke/team-events";
 import type {
 	DatedCorrection,
 	RiderInputs,
@@ -35,7 +35,7 @@ interface WeeklyRideSumRow {
 interface TeamAttendanceRow {
 	athlete_id: number;
 	event_id: number;
-	kind: TeamEventKind;
+	kind: EventKind;
 	event_date: string;
 }
 

@@ -1,4 +1,4 @@
-import type { Attendance, TeamEventKind } from "../rynke/team-events";
+import type { Attendance, EventKind } from "../rynke/team-events";
 import { SHARED_RIDER_IDS } from "./consents";
 
 // Team events and attendance (feature 003 data-model.md, research R17, R21).
@@ -9,7 +9,7 @@ import { SHARED_RIDER_IDS } from "./consents";
 
 export interface RiderAttendanceRow {
 	event_id: number;
-	kind: TeamEventKind;
+	kind: EventKind;
 	event_date: string;
 	name: string | null;
 }
@@ -20,7 +20,7 @@ export interface AttendanceOfRidersRow extends RiderAttendanceRow {
 
 export interface TeamEventRow {
 	event_id: number;
-	kind: TeamEventKind;
+	kind: EventKind;
 	event_date: string;
 	name: string | null;
 }
@@ -45,7 +45,7 @@ const CHANGED_BY = `LEFT JOIN riders o ON o.athlete_id = e.changed_by
 
 /** An event as the write functions take it; `kind` already checked. */
 export interface TeamEventFields {
-	kind: TeamEventKind;
+	kind: EventKind;
 	date: string;
 	name: string | null;
 }

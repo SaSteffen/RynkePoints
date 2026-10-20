@@ -1,5 +1,5 @@
 import type { CountingWindow } from "../rynke/rules";
-import type { TeamEventKind } from "../rynke/team-events";
+import type { EventKind } from "../rynke/team-events";
 import { LISTED_RIDER_IDS } from "./organiser";
 
 // Participation reports (feature 019 data-model.md, research R1, R7). A report
@@ -23,7 +23,7 @@ const OPEN_REQUEST = `e.event_date <= ?1 AND ${window("e.event_date")} AND ${COU
 
 export interface OpenRequestRow {
 	event_id: number;
-	kind: TeamEventKind;
+	kind: EventKind;
 	event_date: string;
 	name: string | null;
 	athlete_id: number;
@@ -38,7 +38,7 @@ export interface IntentCountRow {
 
 export interface RiderEventRow {
 	event_id: number;
-	kind: TeamEventKind;
+	kind: EventKind;
 	event_date: string;
 	name: string | null;
 	/** 0 or 1 */
