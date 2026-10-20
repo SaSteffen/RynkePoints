@@ -165,10 +165,16 @@ h2 {
 	font-weight: 900;
 }
 
-.cover-band img {
-	width: 87.3mm;
-	height: 87.3mm;
-	margin-top: 4.8mm;
+/* Both sides of the coin, next to each other. */
+.cover-coins {
+	display: flex;
+	gap: 8mm;
+	margin-top: 8mm;
+}
+
+.cover-coins img {
+	width: 72mm;
+	height: 72mm;
 	object-fit: contain;
 }
 

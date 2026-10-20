@@ -82,7 +82,7 @@ function cover(i18n: I18n, data: AlbumData, page: AlbumPage): SafeHtml {
 	return pageSection(
 		page,
 		html`<div class="cover">
-<section class="cover-band"><p class="cover-team">${i18n.t("album.team.name")}</p><h1>${i18n.t("album.title")}</h1><p class="cover-season">${i18n.t("album.season", { season: data.season.label })}</p><img src="/coin/rynke-coin-back.svg" alt="${i18n.t("album.coin")}"></section>
+<section class="cover-band"><p class="cover-team">${i18n.t("album.team.name")}</p><h1>${i18n.t("album.title")}</h1><p class="cover-season">${i18n.t("album.season", { season: data.season.label })}</p><div class="cover-coins" role="img" aria-label="${i18n.t("album.coin")}"><img src="/coin/rynke-coin-front.svg" alt=""><img src="/coin/rynke-coin-back.svg" alt=""></div></section>
 <section class="owner"><p class="owner-label">${i18n.t("album.owner")}</p><p class="owner-name">${rider.firstName}</p></section>
 <section class="figures">${[
 			[
