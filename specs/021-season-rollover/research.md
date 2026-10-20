@@ -126,6 +126,22 @@ time in Cloudflare. What Phase 3 needs, from R4:
 
 Phase 1 builds locally only and uploads nothing (spec FR-020).
 
+## R8 – Which tools build the PDF (owner open to Python or Node, 2026-10-20)
+
+| Option | For | Against |
+|--------|-----|---------|
+| **Node + TypeScript + Playwright** (HTML page, print to PDF) | Same language and repo tooling as the app (pnpm, Biome, tsc, Vitest); Playwright is already a dev dependency and its Chromium already installed for e2e; can import the app's own badge catalog (`src/badges/catalog.ts`), badge evaluation, i18n catalogs and coin/badge SVGs directly, so album and app can't disagree; the same HTML page serves Phase 3 later; CSS grid and transforms make the sticker layout a few lines; SVGs stay vectors (R1) | Needs a headless Chromium on the maintainer's computer (one `pnpm exec playwright install chromium`) |
+| Python + WeasyPrint | Good print CSS (`@page`), no browser | Second language and toolchain in the repo; would re-implement the catalog, badge rules and i18n in Python or read them through an export; weaker SVG and CSS transform support |
+| Python + ReportLab / Node + pdf-lib (draw pages directly) | No browser | Sticker layout, text wrapping and SVG embedding by hand; much more code |
+
+**Decision**: Node + TypeScript + Playwright, as in the R1 test. **Rationale**:
+the easiest libraries are the ones the repo already has, and reusing the app's
+own code for badges and figures is what keeps the album's numbers equal to the
+app's (SC-003). It stays a script under `scripts/`, outside `src/`, so nothing
+reaches the Worker bundle; reading production data goes through `wrangler d1
+execute --remote` (read-only SQL) or a `wrangler d1 export`, run by the maintainer
+(CLAUDE.md manual steps). Details belong to `/speckit-plan`.
+
 ## Sources
 
 - Cloudflare Browser Rendering limits: https://developers.cloudflare.com/browser-rendering/limits/
