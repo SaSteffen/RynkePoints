@@ -53,7 +53,7 @@ four rows (12 + 2 × 9 + 4 × 60 = 270 mm of 273).
 | State | Drawn as | Caption |
 |-------|----------|---------|
 | Earned (`earnedOn <= cutoff`) | picture (or the group's placeholder picture when it has none yet, e.g. stand-in tour badges), white edge, pose, shadow | name and date |
-| Not earned, ladder badge | the gallery's dotted outline (`BADGE_OUTLINE`), no pose | name |
+| Not earned, ladder badge | the gallery's dashed circle (`BADGE_OUTLINE_PLAIN`), no pose | name |
 | Not earned, surprise badge | the dotted outline | "?" |
 
 ## Pose
