@@ -110,9 +110,10 @@ The feasibility research for self-service delivery is in
   Cloudflare R2, and riders download their own from the app. Phase 1 builds
   locally only, without upload (research.md R7).
 - Q (raised by the project owner, on the mock-up): How should the stickers look?
-  → A: All-out: glittery, with a realistic shadow, and stuck onto the printed
+  → A: Realistic, with a realistic shadow, and stuck onto the printed
   placeholders imperfectly, so a sticker sometimes leaves the placeholder's edge
   showing on one side, at random (deterministic per rider and badge, FR-026).
+  No glitter (tried in the mock-up, dropped by the owner).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -270,7 +271,7 @@ After the summary, the sticker pages hold one slot for every badge of the catalo
 first the rider's own categories ("Meine Abzeichen"), then the team's
 ("Team-Abzeichen"), each category under its name, its badges in catalog order. An
 slot has its placeholder printed on the page. An earned badge is stuck onto it
-as a glittery sticker: turned a little and off-centre, sometimes far enough that
+as a sticker: turned a little and off-centre, sometimes far enough that
 the placeholder's edge shows on one side, with a realistic shadow and, now and
 then, an edge that lifts a little; its name and date earned are printed below. A
 badge not earned leaves the placeholder empty. Each
@@ -429,14 +430,13 @@ the others empty, and that no sticker leaves its slot or the page.
   catalog, personal categories first, then team categories, each category under
   its name, in the order of the app's gallery (feature 013 FR-002).
 - **FR-036**: An earned badge MUST be stuck onto its slot's printed placeholder
-  as a sticker: its picture as in the app (feature 013) on a white die-cut edge,
-  with a glitter finish (fine specks and small stars in white, gold and pastel, a
-  rainbow foil sheen and a gloss highlight), turned by up to ±7° and moved off the
+  as a sticker: its picture as in the app (feature 013) on a white die-cut edge
+  with a subtle gloss highlight and no glitter, turned by up to ±7° and moved off the
   placeholder's centre, mostly by up to 1.5 mm, in about one slot in three by
   2 to 4 mm so the placeholder's edge shows on one side; with a realistic shadow
   (a tight dark contact shadow and a soft ambient one) and in about one slot in
   four a slightly lifted edge (a longer shadow on that side and a light catch on
-  its rim). Placement, glitter and shine MUST follow from the rider and the badge
+  its rim). Placement and shine MUST follow from the rider and the badge
   (FR-026). All of it MUST stay vector (FR-054). Its name and the date earned
   MUST be printed below. A sticker MUST NOT overlap another slot or leave the
   page.

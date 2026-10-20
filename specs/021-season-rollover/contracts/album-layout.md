@@ -39,7 +39,7 @@ app's yellow (#fbe122, personal) and team blue (#8cc4f0) for page bands, ink
 | Placeholder | printed on every slot: 44 mm light disc (#f4f1e6) with the gallery's dashed edge |
 | Sticker | 44 mm white die-cut circle (2 mm edge) holding the 40 mm picture, on the placeholder |
 | Pose | rotation −7° … 7°; offset mostly 0 … 1.5 mm, in one slot in three 2.2 … 3.8 mm, in any direction; y clamped to ±2.5 mm |
-| Finish | glitter: about 46 specks (0.35–1.1 % of the sticker's width, white, gold, pastel, 45–95 % opacity) and 4 four-point stars; a rainbow foil gradient (≤ 34 % opacity), a gloss band, a faint darker rim; all SVG shapes and gradients |
+| Finish | a subtle gloss band and a faint darker rim, SVG gradients; no glitter or foil |
 | Shadow | `box-shadow`: contact 0.1 mm / 0.15 mm blur at 38 %, close 0.3 mm / 0.5 mm at 20 %, ambient 0.8 mm / 1.6 mm at 14 %; one slot in four a lifted edge: an extra 0.6 mm shadow towards that side and a white catch-light arc on the rim; no CSS `filter` |
 | Caption | 8 mm at the slot's foot: name (9 pt, bold) and date earned (9 pt) |
 | Page band | 12 mm at the top of the safe area: group name, count, page number on the outer side |
@@ -69,8 +69,8 @@ distMm    = miss ? 2.2 + rnd() · 1.6 : rnd() · 1.4
 dxMm      = cos(angle) · distMm
 dyMm      = clamp(sin(angle) · distMm, −2.5, 2.5)
 rotateDeg = rnd() · 14 − 7
-lift      = rnd() < 0.25, then its direction, the specks, the stars,
-            the foil and gloss angles, in that order
+lift      = rnd() < 0.25, then its direction and the gloss angle,
+            in that order
 ```
 
 Same inputs give the same sticker (FR-026). The mock-up's slot component
