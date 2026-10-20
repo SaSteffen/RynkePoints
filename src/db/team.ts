@@ -216,15 +216,6 @@ export function teamBadgeSumsStatements(db: D1Database): D1PreparedStatement[] {
 			`SELECT athlete_id, connected_at FROM riders
 				WHERE athlete_id IN (${LISTED_RIDER_IDS})`,
 		),
-		// For the Tour de Paris badges (feature 021, research R11): each listed
-		// rider's tour days; the id only tells riders apart, as for `active`.
-		db.prepare(
-			`SELECT a.athlete_id, e.event_date AS date
-				FROM attendances a JOIN team_events e ON e.event_id = a.event_id
-				WHERE e.kind = 'tour_de_paris'
-					AND a.athlete_id IN (${LISTED_RIDER_IDS})
-				ORDER BY 2, 1`,
-		),
 	];
 }
 
@@ -240,7 +231,6 @@ export function toTeamBadgeSums(
 		eventRows,
 		activeRows,
 		connectedRows,
-		tourRows,
 	] = results;
 	if (
 		!rideRows ||
@@ -249,8 +239,7 @@ export function toTeamBadgeSums(
 		!runRows ||
 		!eventRows ||
 		!activeRows ||
-		!connectedRows ||
-		!tourRows
+		!connectedRows
 	) {
 		throw new Error("D1 batch returned too few results");
 	}
@@ -327,9 +316,6 @@ export function toTeamBadgeSums(
 			(
 				connectedRows.results as { athlete_id: number; connected_at: number }[]
 			).map((row) => [row.athlete_id, berlinDate(row.connected_at)]),
-		),
-		tourDays: (tourRows.results as { athlete_id: number; date: string }[]).map(
-			(row) => ({ athleteId: row.athlete_id, date: row.date }),
 		),
 	};
 }

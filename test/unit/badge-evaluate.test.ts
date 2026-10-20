@@ -199,6 +199,7 @@ describe("evaluateBadges", () => {
 			["winter_december", 0, 1],
 			["winter_january", 0, 1],
 			["winter_february", 0, 1],
+			["tour_de_paris", 0, null],
 			["surprise", 0, null],
 		]);
 	});

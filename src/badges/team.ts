@@ -12,12 +12,7 @@ import {
 } from "../rynke/rules";
 import type { EventKind } from "../rynke/team-events";
 import { type DailyInputs, type DailyRideSum, riderDays } from "../rynke/weeks";
-import {
-	BADGES,
-	type BadgeCategoryId,
-	categoryById,
-	surpriseName,
-} from "./catalog";
+import { BADGES, type BadgeCategoryId, surpriseName } from "./catalog";
 import {
 	type CategoryProgress,
 	cumulative,
@@ -41,16 +36,6 @@ export interface TeamEventSum {
 	/** `YYYY-MM-DD` */
 	date: string;
 	attendees: number;
-}
-
-/**
- * A listed rider's attendance at a Tour de Paris day (feature 021, research
- * R11). The id only tells riders apart inside this pure function (FR-012).
- */
-export interface TourDay {
-	athleteId: number;
-	/** The tour day's date, `YYYY-MM-DD`. */
-	date: string;
 }
 
 /**
@@ -78,8 +63,6 @@ export interface TeamBadgeSums {
 	active?: readonly TeamActivity[];
 	/** Each listed rider's connection date, `YYYY-MM-DD`, by rider id. */
 	connectedOn?: ReadonlyMap<number, string>;
-	/** One per listed rider's tour day (feature 021); absent: none. */
-	tourDays?: readonly TourDay[];
 }
 
 type Series = { date: string; value: number }[];
@@ -130,7 +113,6 @@ export function evaluateTeamBadges(
 		attendances: cumulative(
 			events.map((e) => ({ date: e.date, amount: e.attendees })),
 		),
-		tour_de_paris: tourSeries(all.tourDays ?? [], window),
 	};
 	const { earned, progress } = fromSeries(series, "team");
 	const surprises = teamSurprises(sums, window);
@@ -278,30 +260,6 @@ function together(riders: readonly Series[]): Series {
 			0,
 		),
 	}));
-}
-
-/**
- * The most tour days any one listed rider has reached, after each tour day
- * that raised it (feature 021 FR-011, research R11), never above the
- * ladder's last day.
- */
-function tourSeries(days: readonly TourDay[], window: CountingWindow): Series {
-	const last = categoryById("tour_de_paris").ladder.at(-1) ?? 0;
-	const counts = new Map<number, number>();
-	const series: Series = [];
-	let best = 0;
-	const inWindow = days
-		.filter((d) => eventInWindow("tour_de_paris", d.date, window))
-		.sort((a, b) => a.date.localeCompare(b.date));
-	for (const day of inWindow) {
-		const count = (counts.get(day.athleteId) ?? 0) + 1;
-		counts.set(day.athleteId, count);
-		if (Math.min(count, last) <= best) continue;
-		best = Math.min(count, last);
-		if (series.at(-1)?.date === day.date) series.pop();
-		series.push({ date: day.date, value: best });
-	}
-	return series;
 }
 
 /** The most attendees at one event so far, after each event that raised it. */

@@ -166,7 +166,6 @@ describe("evaluateTeamBadges", () => {
 			"team_running",
 			"big_training",
 			"attendances",
-			"tour_de_paris",
 			"team_surprise",
 		]);
 		expect(evaluate(sums)).toEqual(result);

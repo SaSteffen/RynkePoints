@@ -36,6 +36,7 @@ describe("badge catalog", () => {
 			["winter_december", "personal", "days", [1, 5, 10]],
 			["winter_january", "personal", "days", [1, 5, 10]],
 			["winter_february", "personal", "days", [1, 5, 10]],
+			["tour_de_paris", "personal", "days", [1, 2, 3, 4, 5, 6, 7, 8]],
 			[
 				"surprise",
 				"personal",
@@ -58,11 +59,10 @@ describe("badge catalog", () => {
 			["team_running", "team", "km", [100, 500, 1000, 2500, 5000]],
 			["big_training", "team", "riders", [5, 10, 15, 20, 30]],
 			["attendances", "team", "attendances", [25, 50, 100, 200, 400]],
-			["tour_de_paris", "team", "days", [1, 2, 3, 4, 5, 6, 7, 8]],
 			["team_surprise", "team", "days", [1, 2, 3, 4, 5, 6, 7]],
 		]);
 		expect(BADGE_CATEGORIES.filter((c) => c.group === "personal")).toHaveLength(
-			16,
+			17,
 		);
 	});
 
@@ -159,14 +159,19 @@ describe("badge catalog", () => {
 		expect(new Set(BADGES.map((b) => b.id)).size).toBe(129);
 	});
 
-	it("is at version 6 since tour days count for the team-event badges (021)", () => {
-		expect(BADGE_CATALOG_VERSION).toBe(6);
+	it("is at version 7 since the tour badges are personal (021)", () => {
+		expect(BADGE_CATALOG_VERSION).toBe(7);
 	});
 
-	it("puts the Tour de Paris after Attendances and before the team surprises (021)", () => {
+	it("puts the Tour de Paris after the winter months and before the surprises (021)", () => {
 		const ids = BADGE_CATEGORIES.map((c) => c.id);
-		expect(ids.indexOf("tour_de_paris")).toBe(ids.indexOf("attendances") + 1);
-		expect(ids.indexOf("team_surprise")).toBe(ids.indexOf("tour_de_paris") + 1);
+		expect(ids.indexOf("tour_de_paris")).toBe(
+			ids.indexOf("winter_february") + 1,
+		);
+		expect(ids.indexOf("surprise")).toBe(ids.indexOf("tour_de_paris") + 1);
+		expect(BADGE_CATEGORIES.find((c) => c.id === "tour_de_paris")?.days).toBe(
+			true,
+		);
 		expect(
 			BADGE_CATEGORIES.find((c) => c.id === "tour_de_paris")?.surprise,
 		).toBeUndefined();

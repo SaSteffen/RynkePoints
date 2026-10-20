@@ -27,7 +27,7 @@ describe("badge names", () => {
 			expect(catalog["badges.tourDay.for"]).toContain("{day}");
 		}
 		expect(de["badges.about.tour_de_paris"]).toBe(
-			"Für jeden Tag, den jemand aus dem Team auf der Tour de Paris fährt.",
+			"Jeder Tag der Tour mit dir.",
 		);
 		expect(de["badges.tourDay.for"]).toBe(
 			"Tag {day} der Tour de Paris – der Ort folgt.",

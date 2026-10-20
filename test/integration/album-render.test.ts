@@ -82,6 +82,8 @@ beforeEach(async () => {
 	await earn(ANNA, "distance-100", "2026-09-14");
 	await earn(ANNA, "elevation-1000", "2026-10-05");
 	await earn(BEN, "distance-500", "2026-09-30");
+	// Anna's tour day, stored as a personal badge (021 US2).
+	await earn(ANNA, "tour-de-paris-1", "2026-10-01");
 });
 
 describe("the summary", () => {
@@ -193,12 +195,14 @@ describe("the sticker pages", () => {
 		expect(slot(earlier, "elevation-1000").earnedOn).toBeNull();
 	});
 
-	it("stick in the team's badges, the tour day's included", async () => {
+	it("stick in the rider's own tour days, not another rider's", async () => {
 		const data = await load(ANNA, "Anna");
 		expect(slot(data, "tour-de-paris-1").earnedOn).toBe("2026-10-01");
 		expect(slot(data, "tour-de-paris-2").earnedOn).toBeNull();
 		const before = await load(ANNA, "Anna", "2026-09-30");
 		expect(slot(before, "tour-de-paris-1").earnedOn).toBeNull();
+		const bens = await load(BEN, "Ben");
+		expect(slot(bens, "tour-de-paris-1").earnedOn).toBeNull();
 	});
 
 	it("draw a sticker with its picture, or its group's placeholder picture", async () => {
@@ -221,7 +225,7 @@ describe("the sticker pages", () => {
 			'<p class="caption-for">Du bist in dieser Saison 100\u00a0km Rad gefahren.</p>',
 		);
 		expect(sticker("tour-de-paris-1")).toContain(
-			'src="/badges/placeholder-team.svg"',
+			'src="/badges/placeholder-personal.svg"',
 		);
 		expect(sticker("tour-de-paris-1")).toContain("Tour-Tag 1");
 	});
@@ -255,7 +259,8 @@ describe("the sticker pages", () => {
 		const page = renderAlbum(await load(ANNA, "Anna"));
 		const personal = BADGES.filter((b) => b.group === "personal").length;
 		const team = BADGES.filter((b) => b.group === "team").length;
-		expect(page).toContain(`<span class="chip">2 von ${personal}</span>`);
+		// Two badges and her tour day.
+		expect(page).toContain(`<span class="chip">3 von ${personal}</span>`);
 		expect(page).toMatch(
 			new RegExp(`<span class="chip">\\d+ von ${team}</span>`),
 		);

@@ -22,9 +22,10 @@ Implemented as `rynke.source.tour_de_paris`, next to the other kinds' labels.
 | Id | de | en |
 |----|----|----|
 | `badges.category.tour_de_paris` | Tour de Paris | Tour de Paris |
-| `badges.category.tour_de_paris.sentence` | Für jeden Tag, den jemand aus dem Team auf der Tour de Paris fährt. | For every day someone from the team rides the Tour de Paris. |
+| `badges.category.tour_de_paris.sentence` | Jeder Tag der Tour mit dir. | Every day of the tour you rode. |
 | `badges.tourDay.for` | Tag {day} der Tour de Paris – der Ort folgt. | Day {day} of the Tour de Paris – the place follows. |
-| `badges.unit.days` | existing ("Noch 4 Tage") | existing |
+| `badges.value.tourDay` | Tag\u00a0{n} (the ribbon) | Day\u00a0{n} |
+| `badges.unit.days` | existing; no bar for the tour (FR-013) | existing |
 
 `badges.de.ts`: `tour-de-paris-1` → "Tour-Tag 1" … `tour-de-paris-8` →
 "Tour-Tag 8" (stand-ins until Phase 2).

@@ -40,44 +40,45 @@ Nothing about albums is stored: no table, no row, no file in Cloudflare.
 | Field | Value |
 |-------|-------|
 | Category id | `tour_de_paris` |
-| Group | `team` |
+| Group | `personal` |
 | Unit | `days` |
-| Ladder | `[1, 2, 3, 4, 5, 6, 7, 8]` |
+| Ladder | `[1, 2, 3, 4, 5, 6, 7, 8]`, with the flag `days: true` (no bar) |
 | Badge ids | `tour-de-paris-1` … `tour-de-paris-8` |
-| Position | after `attendances`, before `team_surprise` |
-| Picture | none in `BADGE_PICTURES`: the team placeholder until Phase 2 |
+| Position | after `winter_february`, before `surprise` |
+| Picture | none in `BADGE_PICTURES`: the personal placeholder until Phase 2 |
 | Names | `badges.de.ts`: "Tour-Tag 1" … "Tour-Tag 8" (stand-in, German only) |
 | Description | message `badges.tourDay.for` with `{day}` (stand-in, de and en) |
+| Ribbon | message `badges.value.tourDay`: "Tag 3" |
 
-`BADGE_CATALOG_VERSION` 5 → 6 (personal `team_events` counts tour days; riders'
-stored badges are worked out again silently, feature 013 FR-012, FR-031).
-`art/badges/badges.json` gets the 8 entries with a placeholder `scene` until
-Phase 2, kept equal to the catalog by `badge-catalog.test.ts`.
+`BADGE_CATALOG_VERSION` 5 → 6 (personal `team_events` counts tour days) → 7 (the
+tour badges are personal); riders' stored badges are worked out again silently,
+feature 013 FR-012, FR-031. `art/badges/badges.json` gets the 8 entries with a
+placeholder `scene` until Phase 2, kept equal to the catalog by
+`badge-catalog.test.ts`.
 
-## Tour badge inputs (`src/badges/team.ts`)
+## Tour badge inputs (`src/badges/evaluate.ts`)
 
 ```ts
-interface TourDay {
-  /** Only tells riders apart inside the pure function (FR-012). */
-  athleteId: number;
+interface TourEvent {
+  eventId: number;
   /** The tour day's date, YYYY-MM-DD. */
   date: string;
 }
 
-interface TeamBadgeSums {
+interface PersonalInputs {
   // … existing fields …
-  /** One per listed rider's attendance at a tour day. */
-  tourDays: readonly TourDay[];
+  /** Every tour day there is, not only the rider's: they number the days. */
+  tourEvents?: readonly TourEvent[];
 }
 ```
 
-`TeamEventSum` (team badges) gains `kind` so `big_training` and `attendances`
-filter with `eventInWindow`.
+Read once per evaluation batch by `listTourEventsStatement` (`src/db/team-events.ts`)
+into each rider's `RiderState.tourEvents`. `tourBadges`: the tour days in the
+badge window, sorted by date then event id; badge n for the n-th if the rider
+attended it, `earnedOn` its date; none after the eighth.
 
-Series for `tour_de_paris`: sort by date; per date, each rider's running count of
-tour days; the series value on that date is the largest running count so far.
-Badge n is earned on the first date the value reaches n; the value never exceeds
-8 in the progress ("Noch n Tage" = next threshold − value).
+`TeamEventSum` (team badges) gains `kind` so `big_training` and `attendances`
+filter with `eventInWindow`. The team badges no longer read tour attendance.
 
 ## Album model (`album/`)
 

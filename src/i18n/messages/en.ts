@@ -571,8 +571,7 @@ export const en: Catalog = {
 	"badges.about.team_running": "The whole team's run kilometres.",
 	"badges.about.big_training": "The most riders at one team event.",
 	"badges.about.attendances": "All attendances at team events.",
-	"badges.about.tour_de_paris":
-		"For every day someone from the team rides the Tour de Paris.",
+	"badges.about.tour_de_paris": "Every day of the tour you rode.",
 	"badges.about.team_surprise": "?",
 	"badges.for.distance": "You rode {value} by bike this season.",
 	"badges.for.elevation": "You climbed {value} by bike this season.",

@@ -200,27 +200,43 @@ nothing until its day (FR-030a). `evaluateAttendance` needs no change: tour
 attendance never reaches it (R9). Ride filters keep `inCountingWindow`.
 **Alternatives**: moving the deadline (would let rides after it earn Rynke).
 
-## R11 – Tour badges worked out on read
+## R11 – Tour badges: personal, numbered by the season's tour days
 
-**Decision**: the catalog gets the team category `tour_de_paris`, unit `days`,
-ladder `[1, 2, 3, 4, 5, 6, 7, 8]`, ids `tour-de-paris-1` … `-8`, placed after
-`attendances` and before `team_surprise` in catalog order;
-`BADGE_CATALOG_VERSION` goes to 6 because personal `team_events` now counts tour
-days (FR-005, feature 013 FR-012). `TeamBadgeSums` gets `tourDays: { athleteId,
-date }[]`, one per listed rider's tour attendance, from one more statement in
-`teamBadgeSumsStatements`. Its series: walking the dates in order, the value on a
-date is the largest number of tour days any one rider has reached by then, so
-the badge for n is dated with the earliest tour day on which some rider reached
-n (FR-011). The athlete id is used only inside the pure function, like
-`TeamActivity` (feature 013 FR-016a). Team events of every kind, tour included,
-keep feeding `big_training` and `attendances` through `eventInWindow`.
-Notifications and take-back come for free from feature 013's team-badge notices,
-which compare earned ids (FR-012). No picture is added to `BADGE_PICTURES`, so the
-app shows the team placeholder (feature 013 FR-040a) until Phase 2.
+**Decision** (owner's correction, 2026-10-20; first built as team badges): the
+catalog gets the personal category `tour_de_paris`, unit `days`, ladder `[1, 2,
+3, 4, 5, 6, 7, 8]`, ids `tour-de-paris-1` … `-8`, placed after the winter months
+and before `surprise`, with a new category flag `days` (a collection, no bar, the
+newest on the card, FR-013). `BADGE_CATALOG_VERSION` goes to 7, so every rider's
+stored badges are worked out again by the daily job (feature 013 FR-012, FR-031).
+
+`evaluateBadges` takes `tourEvents: { eventId, date }[]`, every tour day there is,
+not only the rider's. `tourBadges` keeps those in the badge window
+(`eventInWindow`: season start up to today), sorts them by date and then event id
+(the first created first on one date), and gives the rider badge n for the n-th
+day if they attended it, dated with that day; a day after the eighth earns
+nothing (FR-011). The rider's evaluation state reads the tour days with one more
+statement in `readRiders` (`listTourEventsStatement`).
+
+Because the numbering depends on other events, `applyTeamEventChange` works out
+again every rider recorded at a tour day of the season
+(`listTourRidersStatement`) when a tour day is created, deleted, moved, or turned
+into or out of a tour day: their attendance stays, the tour days change. One
+helper, `reevaluate`, does the before/after evaluation, writes and news for both
+those riders and the event's own attendees (FR-012). New badges are told like any
+personal badge (feature 013 R17); the team notices no longer see tour ids.
+
+Team events of every kind, tour included, keep feeding `big_training` and
+`attendances` through `eventInWindow`. No picture is added to `BADGE_PICTURES`,
+so the app shows the personal placeholder until Phase 2.
 **Stand-ins**: names "Tour-Tag 1" … "Tour-Tag 8" in `badges.de.ts`; the "what it
 was for" line from one message with the day number ("Tag {day} der Tour de Paris
-– der Ort folgt"), in de and en. Phase 2 replaces names, that line (with one per
-day) and adds pictures; nothing earned changes (FR-014).
+– der Ort folgt"), in de and en; the ribbon `badges.value.tourDay` ("Tag 3").
+Phase 2 replaces names, that line (with one per day) and adds pictures; nothing
+earned changes (FR-014).
+**Alternatives**: a team badge from the rider with the most tour days (built
+first, then dropped by the owner: the badge belongs to who rode the day);
+numbering by the rider's own count of tour days (a rider at days 1 and 3 would
+get "Tour-Tag 2" for day 3).
 
 ## R12 – The album Worker: local only, read-only, same code as the app
 

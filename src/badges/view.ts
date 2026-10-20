@@ -168,13 +168,14 @@ function groupView(
 			.filter((b) => badgeById(b.badgeId)?.category === category.id)
 			.sort(newestFirst);
 		const shown = over(category.id) ? null : progressView(own);
-		// Single surprise badges show their newest, ladders their highest
-		// (research R35).
-		const highest = category.surprise
-			? badges[0]
-			: [...badges].sort(
-					(a, b) => badgeOrder(b.badgeId) - badgeOrder(a.badgeId),
-				)[0];
+		// Single surprise badges and tour days show their newest, ladders their
+		// highest (research R35, feature 021 FR-013).
+		const highest =
+			category.surprise || category.days
+				? badges[0]
+				: [...badges].sort(
+						(a, b) => badgeOrder(b.badgeId) - badgeOrder(a.badgeId),
+					)[0];
 		// Every category, the ones without a badge as outlines only (issue #109).
 		gallery.push({
 			category: category.id,
@@ -300,7 +301,8 @@ export function personalProgress(
 		...BADGE_CATEGORIES.filter((c) => c.month !== undefined).map((c) =>
 			progressOf(c.id, figures.winterDays[c.month as number] ?? 0),
 		),
-		// Never a bar, whatever the value (FR-015).
+		// Never a bar, whatever the value (FR-015, feature 021 FR-013).
+		progressOf("tour_de_paris", 0),
 		progressOf("surprise", 0),
 	];
 }

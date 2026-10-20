@@ -54,6 +54,11 @@ export interface BadgeCategory {
 	 * orders them (part D, FR-015, research R32).
 	 */
 	surprise?: true;
+	/**
+	 * Single badges one per day, a collection rather than a ladder: no bar,
+	 * the newest on the card (feature 021 FR-013). The ladder numbers them.
+	 */
+	days?: true;
 }
 
 export interface Badge {
@@ -66,9 +71,9 @@ export interface Badge {
 /**
  * Raised with any ladder change; riders on an older one are re-evaluated
  * (FR-012). 6: tour days count for the personal Team events (feature 021
- * FR-005).
+ * FR-005). 7: the tour badges are personal (feature 021 FR-010).
  */
-export const BADGE_CATALOG_VERSION = 6;
+export const BADGE_CATALOG_VERSION = 7;
 
 /** In the spec's order: personal first, then team. */
 export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
@@ -162,6 +167,16 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		ladder: [1, 5, 10],
 		month: 2,
 	},
+	// Feature 021 (research R11): one badge per day of the tour, which always
+	// has eight, earned by the riders at that day. Stand-in names and the
+	// personal placeholder until Phase 2.
+	{
+		id: "tour_de_paris",
+		group: "personal",
+		unit: "days",
+		ladder: [1, 2, 3, 4, 5, 6, 7, 8],
+		days: true,
+	},
 	// Part D (2026-10-12, research R32): no unit is ever shown. Part F
 	// (2026-10-14, research R42) adds seven badges from cycling traditions.
 	{
@@ -206,14 +221,6 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		group: "team",
 		unit: "attendances",
 		ladder: [25, 50, 100, 200, 400],
-	},
-	// Feature 021 (research R11): one badge per day of the tour, which always
-	// has eight. Stand-in names and the team placeholder until Phase 2.
-	{
-		id: "tour_de_paris",
-		group: "team",
-		unit: "days",
-		ladder: [1, 2, 3, 4, 5, 6, 7, 8],
 	},
 	// Part E (2026-10-12, research R38); part F adds Festive Team (R42).
 	{

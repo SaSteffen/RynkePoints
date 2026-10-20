@@ -5,6 +5,7 @@ import { clearSessionCookie } from "../src/http/session";
 import { CATALOGS } from "../src/i18n/catalogs";
 import { handleFetch, handleQueue, handleScheduled } from "../src/index";
 import { STRAVA_ORIGIN } from "../src/strava/result";
+import { sendAll } from "../src/work/messages";
 import { isDay, onDevClock, pretendDay, pretendedDay } from "./clock";
 import { answerStrava } from "./fake-strava/api";
 import { simulateEvent } from "./fake-strava/events";
@@ -263,6 +264,15 @@ async function setClock(request: Request, ctx: Ctx): Promise<Response> {
 	const day = fields.has("real") ? "" : String(fields.get("day") ?? "");
 	if (day !== "" && !isDay(day)) return text("day must be YYYY-MM-DD", 400);
 	await pretendDay(ctx.env.DB, day === "" ? null : day);
+	// Stored personal badges only count up to the day they were worked out on,
+	// tour days among them: every rider again on the new day.
+	const { results } = await ctx.env.DB.prepare(
+		"SELECT athlete_id FROM riders WHERE status = 'connected' ORDER BY athlete_id",
+	).all<{ athlete_id: number }>();
+	await sendAll(
+		ctx,
+		results.map((r) => ({ kind: "evaluate-rider", athleteId: r.athlete_id })),
+	);
 	const flash =
 		day === ""
 			? "The clock is the real one again."

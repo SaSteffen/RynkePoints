@@ -237,7 +237,7 @@ describe("the Abzeichen section", () => {
 				/<li class="badge-slot" aria-hidden="true"><svg class="badge-outline badge-outline-plain"/g,
 			)?.length;
 		expect(lists.map(slots)).toEqual([
-			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3, 13,
+			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3, 8, 13,
 		]);
 		expect(lists.slice(2).join("")).not.toContain("popovertarget");
 		expect(lists[0]?.lastIndexOf('popovertarget="')).toBeLessThan(
@@ -268,6 +268,7 @@ describe("the Abzeichen section", () => {
 			"winter_december",
 			"winter_january",
 			"winter_february",
+			"tour_de_paris",
 			"surprise",
 		]);
 		expect(badges).toContain(
@@ -362,7 +363,7 @@ describe("the Abzeichen section without badges", () => {
 			...personalGroup(badges).matchAll(
 				/<li class="badge-card badge-card-empty"/g,
 			),
-		]).toHaveLength(16);
+		]).toHaveLength(17);
 	});
 
 	it("isn't there in the waiting state (US1 scenario 5)", async () => {
@@ -457,46 +458,50 @@ describe("the team's badges (US4)", () => {
 			"team_elevation",
 			"team_running",
 			"attendances",
-			"tour_de_paris",
 			"team_surprise",
 		]);
 	});
 
-	it("shows the Tour de Paris days the team rode, with the placeholder (021 US2)", async () => {
-		// One listed rider on two tour days, another on the first.
-		const first = await insertEvent("tour_de_paris", "2026-07-04");
-		const second = await insertEvent("tour_de_paris", "2026-07-05");
-		await attendRaw(first, [TEAM[0] as number, TEAM[1] as number]);
-		await attendRaw(second, [TEAM[0] as number]);
+	it("shows the Tour de Paris days among the rider's own, no bar (021 US2)", async () => {
+		await earn(ATHLETE_A, [
+			["tour-de-paris-1", "2026-07-04"],
+			["tour-de-paris-3", "2026-07-06"],
+		]);
 		const { section: badges } = await section();
-		const team = teamGroup(badges);
+		expect(teamGroup(badges)).not.toContain("tour_de_paris");
+		const personal = personalGroup(badges);
 		const card =
-			team.match(
+			personal.match(
 				/<li class="badge-card" data-category="tour_de_paris">[\s\S]*?<\/li>/,
 			)?.[0] ?? "";
-		expect(card).toContain('popovertarget="badge-tour-de-paris-2"');
-		expect(card).toContain(`src="${artUrl("/badges/placeholder-team.svg")}"`);
+		// The newest day on the card, no bar towards another (FR-013).
+		expect(card).toContain('popovertarget="badge-tour-de-paris-3"');
 		expect(card).toContain(
-			escapeHtml(de["badges.missing"].replace("{value}", "1\u00a0Tag")),
+			`src="${artUrl("/badges/placeholder-personal.svg")}"`,
 		);
+		expect(card).toContain(
+			`<span class="badge-ribbon-text">${escapeHtml(de["badges.value.tourDay"].replace("{n}", "3"))}</span>`,
+		);
+		expect(card).not.toContain('class="badge-progress"');
+		const gallery =
+			personal.match(
+				/<div class="badge-gallery-category">\s*<h4[^>]*>[^<]*Tour de Paris[\s\S]*?<\/ul>/,
+			)?.[0] ?? "";
+		expect(gallery).toContain('popovertarget="badge-tour-de-paris-1"');
+		expect(gallery.match(/class="badge-slot"/g)).toHaveLength(6);
 		const large =
 			badges?.match(
-				/<div popover id="badge-tour-de-paris-2" [^>]*>[\s\S]*?<\/div>/,
+				/<div popover id="badge-tour-de-paris-3" [^>]*>[\s\S]*?<\/div>/,
 			)?.[0] ?? "";
 		expect(large).toContain(
-			`<h4>${escapeHtml(nameOf("tour-de-paris-2"))}</h4>`,
+			`<h4>${escapeHtml(nameOf("tour-de-paris-3"))}</h4>`,
 		);
 		expect(large).toContain(
-			escapeHtml(de["badges.tourDay.for"].replace("{day}", "2")),
+			escapeHtml(de["badges.tourDay.for"].replace("{day}", "3")),
 		);
 		expect(large).toContain(
-			escapeHtml(de["badges.earnedOn"].replace("{date}", "05.07.2026")),
+			escapeHtml(de["badges.earnedOn"].replace("{date}", "06.07.2026")),
 		);
-		expect(team).toContain('popovertarget="badge-tour-de-paris-1"');
-		expect(team).not.toContain("badge-tour-de-paris-3");
-		for (const athleteId of TEAM) {
-			expect(badges).not.toContain(`Teamrider${athleteId}`);
-		}
 	});
 
 	it("counts a rider without a current consent towards nothing (US4 scenario 4)", async () => {

@@ -16,9 +16,10 @@ Two parts, shippable separately:
   kinds stay `TEAM_EVENT_KINDS`, a new `EVENT_KINDS` adds the tour (R9). Tour
   days are limited by the season start and the season's end, not by the
   qualification deadline, through one helper every event filter uses (R10).
-  The team badge catalog gets the category `tour_de_paris` with the ladder
-  1–8, stand-in names and the team placeholder picture, worked out on read like
-  every team badge from each listed rider's count of tour days (R11). Tour days
+  The personal badge catalog gets the category `tour_de_paris` with one badge
+  per tour day 1–8, stand-in names and the personal placeholder picture: each
+  rider recorded at the season's n-th tour day earns day n, and a change to the
+  tour days works out again every tour rider's badges (R11). Tour days
   also count for the team-event badges (FR-005).
 - **Season album (US3–US5)**: a separate, never-deployed Worker under `album/`
   renders each rider's album as one HTML page with A4 print CSS, reusing the
@@ -117,14 +118,17 @@ src/
 │   │                               # stays the Rynke-earning kinds; isEventKind
 │   └── rules.ts                    # seasonEnd(), eventInWindow(kind, date, window)
 ├── badges/
-│   ├── catalog.ts                  # category tour_de_paris, ladder 1..8, version 6
-│   ├── team.ts                     # tour series from per-rider tour-day counts;
-│   │                               # events filtered with eventInWindow
-│   ├── evaluate.ts                 # personal team_events count tour days (eventInWindow)
-│   └── view.ts                     # progress "Noch n Tage" for the tour category
+│   ├── catalog.ts                  # personal category tour_de_paris, days 1..8,
+│   │                               # flag `days` (no bar), version 7
+│   ├── team.ts                     # events filtered with eventInWindow
+│   ├── evaluate.ts                 # tourBadges from the numbered tour days;
+│   │                               # team_events count tour days (eventInWindow)
+│   └── view.ts                     # tour card shows the newest day, no bar
 ├── db/
-│   ├── team.ts                     # team badge sums: + tour attendance per listed rider
-│   └── team-events.ts              # kind typed as EventKind
+│   ├── team.ts                     # team badge sums: event kinds
+│   └── team-events.ts              # kind typed as EventKind; tour days and tour
+│                                   # riders statements
+├── rynke/apply.ts                  # tour day changes re-evaluate every tour rider
 ├── http/
 │   ├── organiser/events.ts         # kind select offers Tour de Paris; window by kind
 │   ├── sections/events.ts          # Termine: tour days listed after the deadline,

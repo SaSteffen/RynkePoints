@@ -463,7 +463,8 @@ export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
 	},
 	// Feature 021: the eight days of the Tour de Paris, after the qualification
 	// deadline. Fiona rides all of them, Vera the first five, Olga the first
-	// two; they earn no Rynke, and badges only once their day has come.
+	// two, so each has the tour badges of their own days; they earn no Rynke,
+	// and badges only once their day has come (the /_dev/ clock pretends it).
 	...[
 		"Hamburg – Bremen",
 		"Bremen – Osnabrück",

@@ -44,6 +44,13 @@ export interface DatedRun {
 /** A recorded swim, pool or open water, by its local start date (part C). */
 export type DatedSwim = DatedRun;
 
+/** A Tour de Paris day: one team event of that kind (feature 021). */
+export interface TourEvent {
+	eventId: number;
+	/** `YYYY-MM-DD` */
+	date: string;
+}
+
 export interface PersonalInputs {
 	rides: readonly CountingRide[];
 	runs: readonly DatedRun[];
@@ -51,6 +58,11 @@ export interface PersonalInputs {
 	swims?: readonly DatedSwim[];
 	attendance: readonly Attendance[];
 	corrections: readonly DatedCorrection[];
+	/**
+	 * Every tour day there is, not only the rider's: they number the days
+	 * (feature 021 FR-011). Absent: none.
+	 */
+	tourEvents?: readonly TourEvent[];
 }
 
 export interface EarnedBadge {
@@ -112,16 +124,45 @@ export function evaluateBadges(
 	};
 	const series = personalSeries(inputs, rules, window);
 	const { earned, progress } = fromSeries(series, "personal");
+	const tour = tourBadges(inputs.attendance, all.tourEvents ?? [], window);
 	const surprises = surpriseBadges(inputs, window);
 	return {
-		// Surprises are the last personal category, so catalog order holds.
-		earned: [...earned, ...surprises],
+		// The tour and then the surprises are the last personal categories, so
+		// catalog order holds.
+		earned: [...earned, ...tour, ...surprises],
 		progress: progress.map((p) =>
-			categoryById(p.category).surprise
-				? progressOf(p.category, surprises.length)
-				: p,
+			p.category === "tour_de_paris"
+				? progressOf(p.category, tour.length)
+				: categoryById(p.category).surprise
+					? progressOf(p.category, surprises.length)
+					: p,
 		),
 	};
+}
+
+/**
+ * The season's tour days numbered in date order, the first created first on
+ * one date, up to today: the rider earns the badge of each numbered day they
+ * attended, dated with it (feature 021 FR-011).
+ */
+export function tourBadges(
+	attendance: readonly Attendance[],
+	tourEvents: readonly TourEvent[],
+	window: CountingWindow,
+): EarnedBadge[] {
+	const days = tourEvents
+		.filter((e) => eventInWindow("tour_de_paris", e.date, window))
+		.sort((a, b) => a.date.localeCompare(b.date) || a.eventId - b.eventId);
+	const attended = new Set(attendance.map((a) => a.eventId));
+	const badges = BADGES.filter((b) => b.category === "tour_de_paris");
+	const earned: EarnedBadge[] = [];
+	days.forEach((day, i) => {
+		const badge = badges[i];
+		if (badge && attended.has(day.eventId)) {
+			earned.push({ badgeId: badge.id, earnedOn: day.date });
+		}
+	});
+	return earned;
 }
 
 /**
@@ -155,9 +196,11 @@ export function progressOf(
 	category: BadgeCategoryId,
 	value: number,
 ): CategoryProgress {
-	const { ladder, surprise } = categoryById(category);
-	// Surprise badges have no next step to show (FR-015).
-	const next = surprise ? null : (ladder.find((t) => t > value) ?? null);
+	const { ladder, surprise, days } = categoryById(category);
+	// Surprise badges have no next step to show (FR-015), nor tour days
+	// (feature 021 FR-013).
+	const next =
+		surprise || days ? null : (ladder.find((t) => t > value) ?? null);
 	return {
 		category,
 		value,

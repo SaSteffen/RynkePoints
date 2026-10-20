@@ -24,6 +24,7 @@ import {
 	type DatedSwim,
 	type EarnedBadge,
 	evaluateBadges,
+	type TourEvent,
 } from "../badges/evaluate";
 import { berlinDate } from "../config";
 import type { Ctx } from "../ctx";
@@ -90,11 +91,15 @@ import {
 	insertTeamEventStatement,
 	listAttendanceOfRidersStatement,
 	listEventAttendeesStatement,
+	listTourEventsStatement,
+	listTourRidersStatement,
 	readTeamEventStatement,
 	riderStatusesStatement,
 	type TeamEventFields,
 	type TeamEventRow,
+	type TourEventRow,
 	toAttendance,
+	toTourEvent,
 	updateTeamEventStatement,
 } from "../db/team-events";
 import type {
@@ -261,6 +266,8 @@ interface RiderState {
 	runs: Map<number, RunRecord>;
 	/** Swims by activity id (feature 013 part C). */
 	swims: Map<number, SwimRecord>;
+	/** Every tour day, which numbers the tour badges (feature 021 FR-011). */
+	tourEvents: TourEvent[];
 }
 
 export async function applyAndEvaluate(
@@ -444,7 +451,34 @@ export async function applyTeamEventChange(
 			change.by ?? null,
 			now,
 		).first<number>("event_id");
-		return { eventId, affected: [], rose: [], earned: [] };
+		if (event.kind !== "tour_de_paris" || eventId === null) {
+			return { eventId, affected: [], rose: [], earned: [] };
+		}
+		// A new tour day numbers the later ones anew (feature 021 FR-012).
+		const day = { eventId, date: event.date };
+		const others = await tourRiders(db, window);
+		const { riders } = await readRiders(db, others, []);
+		for (const state of riders.values()) {
+			state.tourEvents = state.tourEvents.filter((e) => e.eventId !== eventId);
+		}
+		const result = reevaluate(
+			db,
+			others,
+			riders,
+			rules,
+			window,
+			now,
+			(state) => {
+				state.tourEvents = [...state.tourEvents, day];
+			},
+		);
+		if (result.writes.length > 0) await db.batch(result.writes);
+		return {
+			eventId,
+			affected: others,
+			rose: result.risen,
+			earned: result.earned,
+		};
 	}
 	const event =
 		change.kind === "update-event" ? validEvent(change.event) : null;
@@ -453,12 +487,14 @@ export async function applyTeamEventChange(
 	const reads = [
 		readTeamEventStatement(db, eventId),
 		listEventAttendeesStatement(db, eventId),
+		listTourRidersStatement(db, window.seasonStart),
 	];
 	if (change.kind === "add-attendance") {
 		reads.push(riderStatusesStatement(db, change.athleteIds));
 	}
-	const [eventRows, attendeeRows, statusRows] = await db.batch(reads);
-	if (!eventRows || !attendeeRows) {
+	const [eventRows, attendeeRows, tourRiderRows, statusRows] =
+		await db.batch(reads);
+	if (!eventRows || !attendeeRows || !tourRiderRows) {
 		throw new Error("D1 batch returned too few results");
 	}
 	const stored = (eventRows.results as TeamEventRow[])[0];
@@ -471,14 +507,27 @@ export async function applyTeamEventChange(
 	let statement: D1PreparedStatement | null;
 	/** The rider's attendance with the change applied. */
 	let edit: (attendance: Attendance[]) => Attendance[];
+	/** The tour days with the change applied (feature 021 FR-012). */
+	let editTour: ((tour: TourEvent[]) => TourEvent[]) | null = null;
 	const without = (attendance: Attendance[]) =>
 		attendance.filter((a) => a.eventId !== eventId);
+	const withoutDay = (tour: TourEvent[]) =>
+		tour.filter((e) => e.eventId !== eventId);
 	switch (change.kind) {
 		case "update-event": {
 			const next = event as TeamEventFields;
 			const counted =
 				next.kind !== stored.kind || next.date !== stored.event_date;
 			affected = counted ? [...attendees] : [];
+			if (
+				counted &&
+				(stored.kind === "tour_de_paris" || next.kind === "tour_de_paris")
+			) {
+				editTour = (tour) =>
+					next.kind === "tour_de_paris"
+						? [...withoutDay(tour), { eventId, date: next.date }]
+						: withoutDay(tour);
+			}
 			statement =
 				counted || next.name !== stored.name
 					? updateTeamEventStatement(db, eventId, next, change.by ?? null, now)
@@ -493,6 +542,7 @@ export async function applyTeamEventChange(
 			affected = [...attendees];
 			statement = deleteTeamEventStatement(db, eventId);
 			edit = without;
+			if (stored.kind === "tour_de_paris") editTour = withoutDay;
 			break;
 		case "add-attendance": {
 			const statuses = new Map(
@@ -536,36 +586,90 @@ export async function applyTeamEventChange(
 			edit = without;
 			break;
 	}
-	affected.sort((a, b) => a - b);
-
 	const writes = statement ? [statement] : [];
 	if (change.kind === "add-attendance") {
 		// Recorded attendance replaces the riders' reports (019 research R3).
 		writes.push(deleteReportsStatement(db, eventId, change.athleteIds));
 	}
-	const risen: number[] = [];
-	const earned: number[] = [];
+	// A tour day added, moved or gone numbers the days anew for every rider
+	// at one (feature 021 FR-012).
+	const direct = new Set(affected);
+	if (editTour) {
+		const others = (tourRiderRows.results as { athlete_id: number }[]).map(
+			(r) => r.athlete_id,
+		);
+		affected = [...new Set([...affected, ...others])];
+	}
+	affected.sort((a, b) => a - b);
+	let risen: number[] = [];
+	let earned: number[] = [];
 	if (affected.length > 0) {
 		const { riders } = await readRiders(db, affected, []);
-		for (const athleteId of affected) {
-			const state = riders.get(athleteId) as RiderState;
-			const before = evaluateState(state, rules, window, now);
-			state.attendance = edit(state.attendance);
-			const after = evaluateState(state, rules, window, now);
-			writes.push(...riderWrites(db, athleteId, state, after, rules, now));
-			if (rose(before.balance, after.balance)) {
-				writes.push(
-					riseWrite(db, athleteId, before.balance, after.balance, now),
-				);
-				risen.push(athleteId);
-			}
-			const news = badgeNews(db, athleteId, state, before, after, rules, now);
-			writes.push(...news.writes);
-			if (news.badges.length > 0) earned.push(athleteId);
-		}
+		const result = reevaluate(
+			db,
+			affected,
+			riders,
+			rules,
+			window,
+			now,
+			(state, athleteId) => {
+				if (direct.has(athleteId)) state.attendance = edit(state.attendance);
+				if (editTour) state.tourEvents = editTour(state.tourEvents);
+			},
+		);
+		writes.push(...result.writes);
+		risen = result.risen;
+		earned = result.earned;
 	}
 	if (writes.length > 0) await db.batch(writes);
 	return { eventId: null, affected, rose: risen, earned };
+}
+
+/**
+ * Each rider's evaluation before and after `edit` changes their state: the
+ * writes, and who rose or earned a badge.
+ */
+function reevaluate(
+	db: D1Database,
+	athleteIds: readonly number[],
+	riders: Map<number, RiderState>,
+	rules: RynkeRules,
+	window: CountingWindow,
+	now: number,
+	edit: (state: RiderState, athleteId: number) => void,
+): { writes: D1PreparedStatement[]; risen: number[]; earned: number[] } {
+	const writes: D1PreparedStatement[] = [];
+	const risen: number[] = [];
+	const earned: number[] = [];
+	for (const athleteId of athleteIds) {
+		const state = riders.get(athleteId) as RiderState;
+		const before = evaluateState(state, rules, window, now);
+		edit(state, athleteId);
+		const after = evaluateState(state, rules, window, now);
+		writes.push(...riderWrites(db, athleteId, state, after, rules, now));
+		if (rose(before.balance, after.balance)) {
+			writes.push(riseWrite(db, athleteId, before.balance, after.balance, now));
+			risen.push(athleteId);
+		}
+		const news = badgeNews(db, athleteId, state, before, after, rules, now);
+		writes.push(...news.writes);
+		if (news.badges.length > 0) earned.push(athleteId);
+	}
+	return { writes, risen, earned };
+}
+
+/** The riders recorded at a tour day of the season (feature 021 FR-012). */
+async function tourRiders(
+	db: D1Database,
+	window: CountingWindow,
+): Promise<number[]> {
+	const { results } = await listTourRidersStatement(
+		db,
+		window.seasonStart,
+	).all<{
+		athlete_id: number;
+	}>();
+	return results.map((r) => r.athlete_id);
 }
 
 /**
@@ -765,6 +869,7 @@ async function readRiders(
 		versionRows,
 		runRows,
 		swimRows,
+		tourRows,
 		...extra
 	] = await db.batch([
 		listActivitiesOfRidersStatement(db, athleteIds),
@@ -776,6 +881,7 @@ async function readRiders(
 		readBadgesVersionsStatement(db, athleteIds),
 		listRunsOfRidersStatement(db, athleteIds),
 		listSwimsOfRidersStatement(db, athleteIds),
+		listTourEventsStatement(db),
 		...extraReads,
 	]);
 	if (
@@ -787,10 +893,12 @@ async function readRiders(
 		!badgeRows ||
 		!versionRows ||
 		!runRows ||
-		!swimRows
+		!swimRows ||
+		!tourRows
 	) {
 		throw new Error("D1 batch returned too few results");
 	}
+	const tourEvents = (tourRows.results as TourEventRow[]).map(toTourEvent);
 	const riders = new Map<number, RiderState>(
 		athleteIds.map((id) => [
 			id,
@@ -804,6 +912,7 @@ async function readRiders(
 				badgesVersion: 0,
 				runs: new Map(),
 				swims: new Map(),
+				tourEvents,
 			},
 		]),
 	);
@@ -899,6 +1008,7 @@ function evaluateState(
 				...figures,
 				attendance: state.attendance,
 				corrections: state.corrections,
+				tourEvents: state.tourEvents,
 			},
 			rules,
 			badgeWindow(window, berlinDate(now)),

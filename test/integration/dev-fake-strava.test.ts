@@ -427,27 +427,37 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 	// Feature 021: pretending a day before and in the tour, which is over by
 	// the tests' today (their season starts on 1 January); Fiona rides every
 	// tour day.
-	it("shows the Tour de Paris badges up to a pretended day", async () => {
+	it("gives each rider their own tour days, up to a pretended day (021)", async () => {
 		await seeded();
-		const tourBadge = async (day: number) =>
-			(await mePage(FIONA)).includes(
+		const tourBadge = async (athleteId: number, day: number) =>
+			(await mePage(athleteId)).includes(
 				`<div popover id="badge-tour-de-paris-${day}"`,
 			);
+		/** Sets the clock, then runs the evaluations it queued. */
+		const clock = async (field: [string, string]) => {
+			const res = await post("/_dev/clock", [field]);
+			expect(res.status).toBe(303);
+			await drain();
+		};
 
-		const set = await post("/_dev/clock", [["day", "2026-07-01"]]);
-		expect(set.status).toBe(303);
+		await clock(["day", "2026-07-01"]);
 		expect(await (await get("/_dev/")).text()).toContain(
 			"The app pretends today is 2026-07-01.",
 		);
-		expect(await tourBadge(1)).toBe(false);
+		expect(await tourBadge(FIONA, 1)).toBe(false);
 
-		await post("/_dev/clock", [["day", "2026-07-06"]]);
-		expect(await tourBadge(3)).toBe(true);
-		expect(await tourBadge(4)).toBe(false);
+		await clock(["day", "2026-07-06"]);
+		expect(await tourBadge(FIONA, 3)).toBe(true);
+		expect(await tourBadge(FIONA, 4)).toBe(false);
 
-		await post("/_dev/clock", [["real", "1"]]);
+		await clock(["real", "1"]);
 		expect(await (await get("/_dev/")).text()).toContain("the real day");
-		expect(await tourBadge(8)).toBe(true);
+		expect(await tourBadge(FIONA, 8)).toBe(true);
+		// Olga rode the first two days, Vera the first five: only those.
+		expect(await tourBadge(OLGA, 2)).toBe(true);
+		expect(await tourBadge(OLGA, 3)).toBe(false);
+		expect(await tourBadge(VERA, 5)).toBe(true);
+		expect(await tourBadge(VERA, 6)).toBe(false);
 	});
 
 	it("sends /_dev to /_dev/", async () => {
@@ -591,10 +601,11 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 				/<section id="badges-personal" class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
 			)?.[0] ?? "";
 		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(7);
-		// Running twice, virtual, swimming twice and the four winter months.
+		// Running twice, virtual, swimming twice, the four winter months and
+		// the tour, which Carla doesn't ride.
 		expect(
 			personal.match(/<li class="badge-card badge-card-empty"/g),
-		).toHaveLength(9);
+		).toHaveLength(10);
 	});
 
 	it("counts only Rudi Runner's outdoor runs (013 US3)", async () => {

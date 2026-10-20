@@ -29,28 +29,34 @@ pnpm dev         # http://localhost:8789, sample season, fake Strava
 1. Sign in as a sample organiser, open Orga → Termine, create three events of
    the kind "Tour de Paris" dated after the qualification deadline (one per day,
    names like "Hamburg – Bremen").
-2. Record Anna on the first two, Ben on the first.
+2. Record Anna on the first two, Ben on the third.
 3. Check:
    - Anna's and Ben's Training and Team Rynke did not change (FR-002).
    - As a rider, the Termine tab lists the tour days without a Rynke amount
      (FR-004) and offers "Ich war dabei" on a past one.
-   - Badges → Team-Abzeichen: "Tour de Paris" shows "Tour-Tag 1" and "Tour-Tag 2"
-     with the dates of the first and second tour day, the team placeholder
-     picture, and "Noch 1 Tag" (FR-010–FR-013). No rider is named.
+   - Anna's own badges: "Tour de Paris" shows "Tour-Tag 2" on the card, ribbon
+     "Tag 2", no bar, and in the full list "Tour-Tag 1" and "Tour-Tag 2" with the
+     days' dates, the personal placeholder picture and six outlines
+     (FR-010–FR-013). Ben has "Tour-Tag 3" only; a rider at no tour day has none.
+     Team-Abzeichen has no Tour de Paris.
    - If the tour day had the most riders of the season, "Big training" moved
      (FR-005).
-4. Remove Anna from the second tour day: "Tour-Tag 2" is gone, without notice.
+4. Remove Anna from the second tour day: her "Tour-Tag 2" is gone, without
+   notice.
+5. Create a tour day before the first: Anna now has "Tour-Tag 2" and "Tour-Tag 3",
+   Ben "Tour-Tag 4". Delete it again: back as before (FR-012).
 
 The sample season has its own tour (4–11 July: Fiona FarAway rides all eight
 days, Vera Virtual the first five, Olga Organiser the first two). Its badges show
 once their day has come, so on `/_dev/` under **Clock** pretend a day in the tour,
-for example 6 July:
+for example 6 July. Setting the clock works out every rider again (a moment for
+the queue):
 
-- Badges → Team-Abzeichen shows "Tour-Tag 3" with Tour-Tag 1 to 3 dated 4, 5
-  and 6 July, and "Noch 1 Tag" to the next.
-- Run the daily cron (`/__scheduled`): each listed rider gets the new tour
-  badges' notice once, and running it again tells no one twice (FR-012).
-- Pretend 12 July: all eight are earned. Then **Back to the real day**.
+- Fiona's badges show "Tour-Tag 3" on the card and Tour-Tag 1 to 3 dated 4, 5 and
+  6 July; Olga's only Tour-Tag 1 and 2; a rider who didn't ride has none.
+- Each rider gets one notice for their own new tour badges.
+- Pretend 12 July: Fiona has all eight, Vera 1 to 5, Olga 1 and 2. Then **Back to
+  the real day**.
 
 ## 3. Albums from the sample season (US3–US5)
 

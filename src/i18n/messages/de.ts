@@ -594,8 +594,7 @@ export const de = {
 	"badges.about.team_running": "Die Lauf-Kilometer des ganzen Teams.",
 	"badges.about.big_training": "Rekord: Rider an einem Termin.",
 	"badges.about.attendances": "Teilnahmen aller Rider zusammen.",
-	"badges.about.tour_de_paris":
-		"Für jeden Tag, den jemand aus dem Team auf der Tour de Paris fährt.",
+	"badges.about.tour_de_paris": "Jeder Tag der Tour mit dir.",
 	"badges.about.team_surprise": "?",
 	"badges.for.distance": "Du bist in dieser Saison {value} Rad gefahren.",
 	"badges.for.elevation":
