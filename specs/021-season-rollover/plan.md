@@ -4,6 +4,9 @@
 
 **Input**: Feature specification from `/specs/021-season-rollover/spec.md`
 
+**Mock-up**: Claude Design "RynkePoints Saisonalbum",
+https://claude.ai/artifact/Cre5jJh2RSpA3RJJe4PuNn
+
 ## Summary
 
 Two parts, shippable separately:

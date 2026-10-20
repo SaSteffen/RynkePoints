@@ -1,8 +1,11 @@
 # Contract: album page layout
 
 What `album/layout.ts` computes and `album/render.ts` draws (spec FR-030–FR-038,
-FR-050–FR-056; research R13). All measures in millimetres; the Claude Design
-mock-up decides colours and decorations, not these measures.
+FR-050–FR-056; research R13). All measures in millimetres. The Claude Design
+mock-up "RynkePoints Saisonalbum" (https://claude.ai/artifact/Cre5jJh2RSpA3RJJe4PuNn) shows them at 96 px per inch
+(1 mm ≈ 3.78 px) and decides colours, type and decorations: white paper, the
+app's yellow (#fbe122, personal) and team blue (#8cc4f0) for page bands, ink
+#1c1b13, Nunito.
 
 ## Page
 
@@ -32,15 +35,18 @@ mock-up decides colours and decorations, not these measures.
 | Measure | Value |
 |---------|-------|
 | Columns | 3, each 59.3 mm |
-| Slot height | 66 mm |
-| Sticker | 46 mm circle (picture plus the app's white sticker edge) |
-| Pose | rotation −6° … 6°, offset −3 … 3 mm in x and y |
+| Slot height | 60 mm |
+| Sticker | 44 mm white circle (the sticker edge, 2 mm) holding the 40 mm picture |
+| Pose | rotation −6° … 6°, offset −3 … 3 mm in x, −2 … 2 mm in y |
 | Shadow | `box-shadow` on the circle, at most 1.5 mm; no CSS `filter` |
-| Caption | 10 mm under the sticker area: name (8 pt, bold) and date earned (7 pt) |
+| Caption | 8 mm at the slot's foot: name (9 pt, bold) and date earned (9 pt) |
+| Page band | 12 mm at the top of the safe area: group name, count, page number on the outer side |
 | Category heading | 9 mm; never the last element on a page; repeated with "(Fortsetzung)" when a category continues |
 
-Bounding check: 23 mm radius + 3 mm offset + 1.5 mm shadow = 27.5 mm, inside the
-slot's half-width of 29.65 mm and half the sticker area's height.
+Bounding check: 22 mm radius + 3 mm offset + 1.5 mm shadow = 26.5 mm, inside the
+slot's half-width of 29.65 mm; vertically 22 + 2 + 1.5 = 25.5 mm, inside half
+the 52 mm sticker area. A page holds the band, two categories' headings and
+four rows (12 + 2 × 9 + 4 × 60 = 270 mm of 273).
 
 ## Slot states
 
@@ -56,7 +62,7 @@ slot's half-width of 29.65 mm and half the sticker area's height.
 h = hash32("<athleteId>:<badgeId>")       // FNV-1a, as tiltOf's hash family
 rotateDeg = ((h % 121) / 10) - 6          // −6.0 … 6.0
 dxMm      = (((h >>> 8)  % 61) / 10) - 3  // −3.0 … 3.0
-dyMm      = (((h >>> 16) % 61) / 10) - 3
+dyMm      = (((h >>> 16) % 41) / 10) - 2
 ```
 
 Same inputs give the same pose (FR-026). Fonts: one embedded OFL font, at least

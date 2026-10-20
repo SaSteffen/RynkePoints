@@ -134,7 +134,7 @@ interface AlbumPage {
 interface StickerPose {
   rotateDeg: number;                 // -6 … 6
   dxMm: number;                      // -3 … 3
-  dyMm: number;                      // -3 … 3
+  dyMm: number;                      // -2 … 2
 }
 ```
 

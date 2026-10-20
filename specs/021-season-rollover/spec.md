@@ -6,6 +6,9 @@
 
 **Status**: Draft
 
+**Mock-up**: Claude Design "RynkePoints Saisonalbum",
+https://claude.ai/artifact/Cre5jJh2RSpA3RJJe4PuNn
+
 **Input**: User description: "Let's plan the season rollover. At the end of the
 season I just want people to have fun with the app: we need a team badge for every
 day of the Tour de Paris (a separate delivery phase: once the route is known, I want
@@ -29,6 +32,16 @@ the confines of GDPR: the files are placed in a temporary folder inside the repo
 and then deleted by the admin manually. Self-service delivery via the app is a
 concern for a future delivery phase, but DO research its feasibility. The format of
 the Panini album is A4."
+
+The album's look is agreed in the Claude Design mock-up "RynkePoints Saisonalbum"
+(https://claude.ai/artifact/Cre5jJh2RSpA3RJJe4PuNn): four A4 pages of a synthetic rider "Anna" for the sample season 2026/27
+with cut-off 31.08.2027 – page 1 (cover and her season, a right-hand page with
+the gutter on the left), page 2 (the team's season and its event table, a
+left-hand page with the gutter on the right), page 3 (her sticker page with
+Distanz and Höhenmeter, earned and empty slots) and page 12 (team stickers:
+all eight stand-in tour days and the first row of Team-Überraschungen with "?"
+slots), plus the slot component in its three states. A "showSafe" switch on each
+page shows the safe area and the binding gutter; they are not printed.
 
 The feasibility research for self-service delivery is in
 [research.md](research.md) (R1–R6).
@@ -503,8 +516,8 @@ double-sided, possibly bound or stapled.
 - Handing out the albums (email, chat, in person) happens outside the app and is
   not part of this spec; each rider gets only their own album.
 - The tour always has 8 days (owner, 2026-10-20).
-- The album's look gets a Claude Design mock-up before implementation, as the
-  app's other UI work does.
+- The album's look follows the Claude Design mock-up linked above; its figures
+  are a synthetic sample season.
 - The PDF is in RGB colour, as browsers write it; print shops convert it to CMYK
   themselves. A PDF/X or CMYK file for offset printing is out of scope.
 - History across seasons stays out of scope (feature 003): the album is the only

@@ -259,16 +259,16 @@ deterministic and unit-testable.
 
 - **Page**: 210 × 297 mm. Safe area: top 12, bottom 12, outer 12, gutter 20 mm;
   odd pages gutter left, even pages right (FR-051). Content box 178 × 273 mm.
-- **Slots**: 3 per row, 59.3 mm wide; slot height 66 mm: sticker 46 mm
-  diameter, pose margin 3 mm each way, caption 10 mm (name, date or "?", 8 pt),
-  shadow 1.5 mm. A category heading takes 9 mm and is never the last thing on a
+- **Slots**: 3 per row, 59.3 mm wide; slot height 60 mm: sticker 44 mm
+  diameter, pose margin 3 mm sideways and 2 mm up and down, caption 8 mm (name,
+  date or "?", 9 pt), shadow 1.5 mm (contracts/album-layout.md, as in the
+  mock-up). A category heading takes 9 mm and is never the last thing on a
   page (FR-053); a category longer than the page continues with its heading
   repeated ("Distanz (Fortsetzung)").
 - **Sticker pose** (FR-026, FR-036): from a 32-bit hash of `athleteId` and
   `badgeId` (the same FNV-style hash as `tiltOf`, salted with the rider), a
-  rotation in [-6°, 6°] and an offset in [-3, 3] mm on each axis. The rotated
-  sticker's bounding circle (radius 23 mm + 3 mm offset + 1.5 mm shadow) stays
-  inside its slot, which the tests check for every badge and a sample of riders.
+  rotation in [-6°, 6°] and an offset in [-3, 3] mm sideways and [-2, 2] mm up
+  and down. The rotated sticker's bounding circle stays inside its slot, which the tests check for every badge and a sample of riders.
 - **Sticker look**: a white die-cut edge (the app's sticker edge, feature 013
   issue #180) and a shadow drawn as a CSS `box-shadow` on a circle, which
   Chromium keeps vector (R1); no `filter` anywhere in `album.css` (a test greps
