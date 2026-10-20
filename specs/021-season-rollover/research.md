@@ -1,4 +1,4 @@
-# Research: Season Album – Making It in Cloudflare and Self-Service (Phase 3)
+# Research: Season Rollover – Feasibility, Tooling and Design
 
 **Feature**: [spec.md](spec.md) · **Date**: 2026-10-20
 
@@ -156,8 +156,174 @@ reaches the Worker bundle; reading production data goes through `wrangler d1
 execute --remote` (read-only SQL) or a `wrangler d1 export`, run by the maintainer
 (CLAUDE.md manual steps). Details belong to `/speckit-plan`.
 
+## R9 – Tour de Paris as a kind that earns nothing
+
+**Decision**: `src/rynke/team-events.ts` gets `EVENT_KINDS = [...TEAM_EVENT_KINDS,
+"tour_de_paris"]` and `isEventKind`; `TEAM_EVENT_KINDS` keeps meaning "kinds that
+earn Rynke". `evaluateAttendance`, the tally's per-kind breakdown and
+`RynkeRules.teamEvents` stay over `TEAM_EVENT_KINDS`, so a tour attendance earns
+nothing (FR-002) and the rules have no amount to offer for it. Event rows,
+forms, lists and badge inputs are typed with `EventKind`. Migration `0018`
+inserts the kind row; the previous release never sees a tour event, since only
+the new code can create one (additive migration, CLAUDE.md).
+**Rationale**: no rules version change (no stored result changes: there are no
+tour events yet), and the type system finds every place that must handle the new
+kind. **Alternatives**: amounts `{ team: 0, training: 0 }` in the rules (a rule
+change, a breakdown entry with zeros on every balance, and an amount the config
+would offer, against FR-002).
+
+The code name is `tour_de_paris`, never plain `tour`: `src/http/tour.ts` is
+feature 020's onboarding tour.
+
+## R10 – Tour days are not cut off by the qualification deadline
+
+**Decision**: `rules.ts` gets `seasonEnd(window)` (the day before the season
+start's anniversary: season start 2026-09-01 → 2027-08-31) and
+`eventInWindow(kind, date, window)`: a tour day counts from the season start to
+the season end, every other kind as today (FR-003). Every event filter uses it:
+the organiser's event form and attendance (`organiser/events.ts`), the Termine
+tab and its reports (`sections/events.ts`), personal and team badge inputs
+(`badges/evaluate.ts`, `badges/team.ts`). For badges the end is also capped at
+"today" (feature 013 `badgeWindow`), so a tour day dated in the future counts for
+nothing until its day (FR-030a). `evaluateAttendance` needs no change: tour
+attendance never reaches it (R9). Ride filters keep `inCountingWindow`.
+**Alternatives**: moving the deadline (would let rides after it earn Rynke).
+
+## R11 – Tour badges worked out on read
+
+**Decision**: the catalog gets the team category `tour_de_paris`, unit `days`,
+ladder `[1, 2, 3, 4, 5, 6, 7, 8]`, ids `tour-de-paris-1` … `-8`, placed after
+`attendances` and before `team_surprise` in catalog order;
+`BADGE_CATALOG_VERSION` goes to 6 because personal `team_events` now counts tour
+days (FR-005, feature 013 FR-012). `TeamBadgeSums` gets `tourDays: { athleteId,
+date }[]`, one per listed rider's tour attendance, from one more statement in
+`teamBadgeSumsStatements`. Its series: walking the dates in order, the value on a
+date is the largest number of tour days any one rider has reached by then, so
+the badge for n is dated with the earliest tour day on which some rider reached
+n (FR-011). The athlete id is used only inside the pure function, like
+`TeamActivity` (feature 013 FR-016a). Team events of every kind, tour included,
+keep feeding `big_training` and `attendances` through `eventInWindow`.
+Notifications and take-back come for free from feature 013's team-badge notices,
+which compare earned ids (FR-012). No picture is added to `BADGE_PICTURES`, so the
+app shows the team placeholder (feature 013 FR-040a) until Phase 2.
+**Stand-ins**: names "Tour-Tag 1" … "Tour-Tag 8" in `badges.de.ts`; the "what it
+was for" line from one message with the day number ("Tag {day} der Tour de Paris
+– der Ort folgt"), in de and en. Phase 2 replaces names, that line (with one per
+day) and adds pictures; nothing earned changes (FR-014).
+
+## R12 – The album Worker: local only, read-only, same code as the app
+
+**Decision**: `album/worker.ts` is its own Worker with `album/wrangler.jsonc`
+(`name: "rynke-album"`, `workers_dev: false`, no routes, `assets` from
+`../public`, `d1_databases` `DB` with the production `database_id` and
+`remote: true`). It is only ever started by `scripts/season-album.mjs` with
+`wrangler dev -c album/wrangler.jsonc --ip 127.0.0.1`; with `--local` it uses
+`pnpm dev`'s persisted sample state instead of production. The command passes
+`SEASON_START_DATE` and `QUALIFICATION_DEADLINE` from the root `wrangler.jsonc`
+as `--var`, so there is one source for them. Under `wrangler dev` the Worker code
+runs on the maintainer's computer; only the D1 queries reach production, so no
+CPU limit applies and no copy of the database is made.
+
+- **Read-only guard** (`album/guard.ts`): `env.DB` is wrapped before any reader
+  sees it; `prepare` accepts only statements starting with `SELECT` or `WITH`
+  (after comments and whitespace) and containing no `;` outside the end,
+  `batch` only such statements, `exec` and `dump` always throw (FR-021).
+- **Local hosts only**: like `dev/worker.ts`, it answers only `127.0.0.1` and
+  `localhost`.
+- **Not in production**: `src/` never imports `album/`; `dev-guard.test.ts`'s
+  layer 1 extends to `album/`, and CI deploys only the root config.
+- **Readers**: `album/load.ts` uses the existing statements (listed riders,
+  stored balance, stored personal badges, rider attendance, team badge sums,
+  the organiser event list with attendee counts, the team total) and the pure
+  evaluations, with a context whose clock is the cut-off date (`ctx.now`), so
+  "today" everywhere is the cut-off (FR-023). Personal badges come from
+  `rider_badges` filtered to `earned_on <= cutoff`; team badges from
+  `evaluateTeamBadges` with `badgeWindow(window, cutoff)`. Rynke: the stored
+  balance when the cut-off is on or after the qualification deadline (nothing
+  counts after it, so it is the balance at the cut-off); otherwise the value of
+  feature 009's daily series on the cut-off date. Nothing that writes (reveals,
+  rises, notices) is called.
+- **Season-start check** (FR-024): the command reads `SEASON_START_DATE` and
+  stops when the cut-off lies before it.
+**Alternatives**: `wrangler d1 export --remote` into a local database (a full copy
+of all rider data, tokens included, on the laptop; rejected); a production
+route behind `ADMIN_TOKEN` (against FR-020); re-implementing the readers in the
+script (numbers could drift from the app, against SC-003).
+
+## R13 – Page layout computed in millimetres
+
+**Decision**: `album/layout.ts` computes every page and slot as absolute
+positions in mm, and `render.ts` writes them as `position: absolute` with mm
+units; the browser does no flowing or page breaking of its own, so pagination is
+deterministic and unit-testable.
+
+- **Page**: 210 × 297 mm. Safe area: top 12, bottom 12, outer 12, gutter 20 mm;
+  odd pages gutter left, even pages right (FR-051). Content box 178 × 273 mm.
+- **Slots**: 3 per row, 59.3 mm wide; slot height 66 mm: sticker 46 mm
+  diameter, pose margin 3 mm each way, caption 10 mm (name, date or "?", 8 pt),
+  shadow 1.5 mm. A category heading takes 9 mm and is never the last thing on a
+  page (FR-053); a category longer than the page continues with its heading
+  repeated ("Distanz (Fortsetzung)").
+- **Sticker pose** (FR-026, FR-036): from a 32-bit hash of `athleteId` and
+  `badgeId` (the same FNV-style hash as `tiltOf`, salted with the rider), a
+  rotation in [-6°, 6°] and an offset in [-3, 3] mm on each axis. The rotated
+  sticker's bounding circle (radius 23 mm + 3 mm offset + 1.5 mm shadow) stays
+  inside its slot, which the tests check for every badge and a sample of riders.
+- **Sticker look**: a white die-cut edge (the app's sticker edge, feature 013
+  issue #180) and a shadow drawn as a CSS `box-shadow` on a circle, which
+  Chromium keeps vector (R1); no `filter` anywhere in `album.css` (a test greps
+  for it).
+- **Empty slot**: the gallery's dotted outline (`BADGE_OUTLINE`, feature 013),
+  name below for ladder badges, "?" for surprise badges (FR-037).
+- **Summary pages**: page 1 cover and the rider's figures; page 2 the team's
+  season and the event table (5 mm rows, about 48 per page), continued on page 3
+  if needed; sticker pages start on the next page; a blank page is added at the
+  end if the total is odd (FR-053).
+- **Font**: one OFL-licensed font in `album/fonts/` (proposed: Nunito, regular
+  and bold, woff2), loaded with `@font-face` from the album Worker; the command
+  waits for `document.fonts.ready` before printing so it is embedded (FR-055).
+  Its licence file sits next to it.
+
+## R14 – Printing and checking the PDF
+
+**Decision**: per rider the command opens `/album/<id>?cutoff=…` in one
+Playwright Chromium page, waits for the network to be idle and the fonts ready,
+and calls `page.pdf({ preferCSSPageSize: true, printBackground: true })`
+(`@page { size: 210mm 297mm; margin: 0 }`). One browser, pages reused; files
+`season-albums/<season>/<first-name>-<n>.pdf` (n only tells same names apart).
+
+The print check reads each PDF with `pdf-lib` and fails the album when:
+a page's MediaBox is not 210 × 297 mm within 0.5 mm (FR-050); the page count is
+odd (FR-053); any page has an image XObject (FR-054, FR-056: every picture in
+the album is SVG, so any image means a vector was turned into one, research R1);
+a font is not embedded (FR-055). Failing albums are listed and the command exits
+non-zero (FR-057). `pdf-lib` is the new dev dependency: pure JavaScript, no
+native build, reads page boxes and resources without rendering; pypdf (Python)
+or pdf.js would do the same with a second language or a much larger package.
+
+## R15 – Where the album folder lives and how it stays out of git
+
+**Decision**: `season-albums/` at the repository root, in `.gitignore` next to
+`strava-review/` (the same pattern: maintainer output with real data), with
+`album-ignore.test.ts` reading `.gitignore` through `import.meta.glob(?raw)` as
+`dev-guard.test.ts` reads sources. The command refuses to write if `git
+check-ignore` says the folder is not ignored, prints the folder and the deletion
+reminder, and, when older albums are already there, their age (FR-034). It never
+deletes anything itself (the owner deletes manually).
+
+## R16 – Tests against synthetic data
+
+**Decision**: `album-render.test.ts` seeds a synthetic season (riders, events,
+tour days, attendances, balances, badges) with the existing test support, runs
+`album/load.ts` and `render.ts` inside the Workers pool, and compares the
+summary figures with what the rider page, the Team page and the badges page
+show for the same data (SC-003), and checks that no other rider's first name
+appears (FR-033). Printing to PDF is not part of `pnpm test` (it needs a
+browser); the quickstart covers it against `pnpm dev`'s sample season.
+
 ## Sources
 
+- Wrangler remote bindings: https://developers.cloudflare.com/workers/development-testing/
 - Cloudflare Browser Rendering limits: https://developers.cloudflare.com/browser-rendering/limits/
 - Cloudflare Browser Rendering pricing: https://developers.cloudflare.com/browser-rendering/platform/pricing
 - Browser Rendering `/pdf` quick action: https://developers.cloudflare.com/browser-rendering/quick-actions/pdf-endpoint/

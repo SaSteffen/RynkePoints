@@ -254,7 +254,7 @@ first the rider's own categories ("Meine Abzeichen"), then the team's
 ("Team-Abzeichen"), each category under its name, its badges in catalog order. An
 earned badge is stuck in: its picture fills the slot, a little rotated and
 off-centre, with a soft shadow, and its name and date earned below. A badge not
-earned leaves the slot empty, showing the app's placeholder for its group. Each
+earned leaves the slot empty, showing the app's empty dotted outline. Each
 group says how many of its badges are stuck in ("42 von 87").
 
 **Why this priority**: The empty slots between the stickers are what make it an
@@ -275,7 +275,7 @@ the others empty, and that no sticker leaves its slot or the page.
    they are rotated and moved differently from each other, and neither overlaps
    the other or leaves its slot.
 4. **Given** a badge Anna did not earn, **When** her album is made, **Then** its
-   slot shows the placeholder of its group (personal or team).
+   slot shows the app's empty dotted outline, not a picture.
 5. **Given** a ladder badge Anna did not earn, **When** its slot is shown,
    **Then** it shows the placeholder with the badge's name below it.
 6. **Given** a surprise badge Anna did not earn, **When** its slot is shown,
@@ -413,8 +413,10 @@ the others empty, and that no sticker leaves its slot or the page.
   app (feature 013), rotated by up to ±6° and moved by up to 3 mm from the slot's
   centre, with a soft shadow drawn as a vector shape (FR-054), and its name and the date earned below. A sticker
   MUST NOT overlap another slot or leave the page.
-- **FR-037**: A badge not earned MUST leave its slot empty with the placeholder
-  of its group (personal or team) as the app has them, with the badge's name
+- **FR-037**: A badge not earned MUST leave its slot empty with the empty dotted
+  outline the app's gallery shows for a badge still to earn (feature 013 FR-002),
+  so it never looks like an earned badge that still has the placeholder
+  picture (such as the stand-in tour badges), with the badge's name
   below; a surprise badge not earned MUST show "?" instead of its name and MUST
   NOT reveal its rule (feature 013 FR-015b).
 - **FR-038**: Each group MUST say how many of its badges are stuck in, out of how
@@ -488,9 +490,6 @@ double-sided, possibly bound or stapled.
 - **SC-005**: A typical album (half the badges earned) is at most 15 MB, so it can
   be sent as an email attachment or chat file (measured in
   [research.md](research.md) R1: about 6 MB with today's pictures, all vector).
-- **SC-007**: A copy shop prints an album double-sided on A4 at 100 % with no
-  warning, nothing cut off and the binding gutter on the inner edge of every
-  page (one test print before the first season end).
 - **SC-006**: Riders who get their album say it looks like a sticker album, not a
   report (owner's judgement).
 
