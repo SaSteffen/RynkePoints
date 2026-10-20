@@ -24,11 +24,8 @@
 	"assets": {
 		"directory": "../public"
 	},
-	// The stylesheet and the font, bundled into the Worker (worker.ts).
-	"rules": [
-		{ "type": "Text", "globs": ["**/*.css"], "fallthrough": true },
-		{ "type": "Data", "globs": ["**/*.woff2"], "fallthrough": true }
-	]
+	// The font, bundled into the Worker (worker.ts).
+	"rules": [{ "type": "Data", "globs": ["**/*.woff2"], "fallthrough": true }]
 	// No vars: the command passes SEASON_START_DATE and
 	// QUALIFICATION_DEADLINE from ../wrangler.jsonc with --var.
 }

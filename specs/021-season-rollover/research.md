@@ -46,6 +46,17 @@ converting).
 Generation never runs in Cloudflare (owner, 2026-10-20); R2 to R5 below are kept
 as the record of the feasibility question.
 
+
+**Measured with the real album (2026-10-20, T038)**: `pnpm season:album
+--local` on the sample season, 16 pages per album (2 summary pages, 14 sticker
+pages for 129 badges): 15 albums in 15 s, about 1 s and 2–3.5 MB per album;
+every badge stuck in (worst case) 11.7 MB, printed in 2.7 s. 60 albums take a
+few minutes (FR-027), and a typical album stays well under SC-005's size. A
+sticker shadow with a blur radius is *not* vector: Chromium printed each one
+as a 300 ppi grey JPEG soft mask (40 images in one album), which the first
+print check missed because they sat in soft masks, not in the pages'
+resources. The shadow is now drawn from unblurred `box-shadow` layers only,
+and the print check looks for images in every object of the file.
 ## R2 – A PDF library inside a Worker
 
 Workers Free gives **10 ms CPU time per HTTP request** and per cron trigger, and

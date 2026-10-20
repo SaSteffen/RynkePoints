@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { type AlbumFiles, handleAlbumRequest } from "../../album/routes";
+import { ALBUM_CSS } from "../../album/style";
 import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
 
@@ -10,7 +11,6 @@ import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
 const ctx = makeCtx();
 const NOT_LISTED = 900004;
 const FILES: AlbumFiles = {
-	css: "section.page { width: 210mm }",
 	fonts: { "Nunito-Regular.woff2": new Uint8Array([1, 2, 3]).buffer },
 };
 
@@ -85,7 +85,7 @@ describe("the album's files", () => {
 		const css = await get("/album.css");
 		expect(css.status).toBe(200);
 		expect(css.headers.get("Content-Type")).toMatch(/^text\/css/);
-		expect(await css.text()).toBe(FILES.css);
+		expect(await css.text()).toBe(ALBUM_CSS);
 		const font = await get("/fonts/Nunito-Regular.woff2");
 		expect(font.status).toBe(200);
 		expect(font.headers.get("Content-Type")).toBe("font/woff2");

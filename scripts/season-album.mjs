@@ -226,70 +226,35 @@ async function getJson(path) {
 	return res.json();
 }
 
-// The print check (research R14, FR-050, FR-053–FR-056).
+// The print check (research R14, FR-050, FR-053–FR-056). Images and fonts
+// are looked for in every object of the file, not only in the pages'
+// resources: Chromium also puts images into soft masks and patterns.
 function lookupDict(doc, value) {
 	const found = value ? doc.context.lookup(value) : undefined;
 	return found instanceof PDFDict ? found : null;
 }
 
-function streamDict(doc, value) {
-	const found = value ? doc.context.lookup(value) : undefined;
-	return found instanceof PDFRawStream ? found.dict : lookupDict(doc, value);
-}
+const nameOf = (dict, key) => dict?.get(PDFName.of(key))?.toString();
 
-/** Images and fonts without embedded data in `resources`, forms included. */
-function scanResources(doc, resources, problems, seen) {
-	if (!resources || seen.has(resources)) return;
-	seen.add(resources);
-	const xObjects = lookupDict(doc, resources.get(PDFName.of("XObject")));
-	for (const [, ref] of xObjects?.entries() ?? []) {
-		const dict = streamDict(doc, ref);
-		const subtype = dict?.get(PDFName.of("Subtype"))?.toString();
-		if (subtype === "/Image") problems.images++;
-		if (subtype === "/Form") {
-			scanResources(
-				doc,
-				lookupDict(doc, dict.get(PDFName.of("Resources"))),
-				problems,
-				seen,
-			);
-		}
-	}
-	const fonts = lookupDict(doc, resources.get(PDFName.of("Font")));
-	for (const [, ref] of fonts?.entries() ?? []) {
-		const font = lookupDict(doc, ref);
-		if (!font) continue;
-		const subtype = font.get(PDFName.of("Subtype"))?.toString();
-		// Type 3 glyphs are drawn by the PDF itself.
-		if (subtype === "/Type3") {
-			scanResources(
-				doc,
-				lookupDict(doc, font.get(PDFName.of("Resources"))),
-				problems,
-				seen,
-			);
-			continue;
-		}
-		let described = font;
-		if (subtype === "/Type0") {
-			const descendants = doc.context.lookup(
-				font.get(PDFName.of("DescendantFonts")),
-			);
-			described = lookupDict(doc, descendants?.get?.(0)) ?? font;
-		}
-		const descriptor = lookupDict(
-			doc,
-			described.get(PDFName.of("FontDescriptor")),
+/** Whether `font` (a font dictionary) carries its glyphs in the file. */
+function embedded(doc, font) {
+	const subtype = nameOf(font, "Subtype");
+	// Type 3 glyphs are drawn by the PDF itself.
+	if (subtype === "/Type3") return true;
+	let described = font;
+	if (subtype === "/Type0") {
+		const descendants = doc.context.lookup(
+			font.get(PDFName.of("DescendantFonts")),
 		);
-		const embedded = ["FontFile", "FontFile2", "FontFile3"].some((key) =>
-			descriptor?.has(PDFName.of(key)),
-		);
-		if (!embedded) {
-			problems.fonts.add(
-				font.get(PDFName.of("BaseFont"))?.toString() ?? "a font",
-			);
-		}
+		described = lookupDict(doc, descendants?.get?.(0)) ?? font;
 	}
+	const descriptor = lookupDict(
+		doc,
+		described.get(PDFName.of("FontDescriptor")),
+	);
+	return ["FontFile", "FontFile2", "FontFile3"].some((key) =>
+		descriptor?.has(PDFName.of(key)),
+	);
 }
 
 /** Why the album at `path` is not ready for print; empty when it is. */
@@ -311,13 +276,30 @@ async function printProblems(path) {
 				`page ${index + 1} is ${width.toFixed(1)} × ${height.toFixed(1)} mm, not A4`,
 			);
 		}
-		const problems = { images: 0, fonts: new Set() };
-		scanResources(doc, page.node.Resources(), problems, new Set());
-		if (problems.images > 0) reasons.push(`page ${index + 1} holds an image`);
-		for (const font of problems.fonts) {
-			reasons.push(`page ${index + 1} uses ${font} without embedding it`);
-		}
 	});
+	let images = 0;
+	const bareFonts = new Set();
+	for (const [, object] of doc.context.enumerateIndirectObjects()) {
+		const dict = object instanceof PDFRawStream ? object.dict : object;
+		if (!(dict instanceof PDFDict)) continue;
+		if (nameOf(dict, "Subtype") === "/Image") images++;
+		if (
+			nameOf(dict, "Type") === "/Font" &&
+			nameOf(dict, "Subtype") !== "/CIDFontType2" &&
+			nameOf(dict, "Subtype") !== "/CIDFontType0" &&
+			!embedded(doc, dict)
+		) {
+			bareFonts.add(nameOf(dict, "BaseFont") ?? "a font");
+		}
+	}
+	if (images > 0) {
+		reasons.push(
+			`it holds ${images} ${images === 1 ? "image" : "images"} where everything should be vector`,
+		);
+	}
+	for (const font of bareFonts) {
+		reasons.push(`it uses ${font} without embedding it`);
+	}
 	return reasons;
 }
 

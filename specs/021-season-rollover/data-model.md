@@ -87,7 +87,7 @@ Built per rider on each request to the local album Worker, never stored.
 interface AlbumData {
   season: { start: string; end: string; label: string };   // "2026/27"
   cutoff: string;                                          // YYYY-MM-DD
-  locale: "de" | "en";                                     // the rider's app language
+  locale: "de" | "en";                                     // "de": no rider language is stored
   rider: {
     athleteId: number;
     firstName: string;

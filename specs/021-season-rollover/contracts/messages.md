@@ -34,25 +34,36 @@ every category's sentence is.
 
 ## Album
 
+As the mock-up words it: the name field says "Dieses Album gehört", the
+figure tiles show the count apart from its label, and a line under the event
+table sums it up.
+
 | Id | de | en |
 |----|----|----|
 | `album.title` | Rynke-Album | Rynke album |
+| `album.team.name` | Team Rynkeby Hamburg | Team Rynkeby Hamburg |
 | `album.season` | Saison {season} | Season {season} |
-| `album.for` | Das Album von {name} | {name}'s album |
+| `album.owner` | Dieses Album gehört | This album belongs to |
+| `album.coin` | Die Rynke-Münze | The Rynke coin |
 | `album.rider.training` | Trainingsrynke | Training Rynke |
 | `album.rider.team` | Teamrynke | Team Rynke |
-| `album.rider.events` | {count} Teamtermine dabei | {count} team events attended |
+| `album.rider.events` | Teamtermine dabei | Team events attended |
 | `album.team.heading` | Die Saison des Teams | The team's season |
 | `album.team.training` | {count} Trainingsrynke zusammen | {count} Training Rynke together |
-| `album.events.date` / `.kind` / `.name` / `.riders` / `.you` | Datum / Art / Name / Fahrer / Du | Date / Kind / Name / Riders / You |
+| `album.events.date` / `.kind` / `.name` / `.riders` / `.you` | Datum / Art / Name / Rider / Du | Date / Kind / Name / Riders / You |
+| `album.events.attended` | dabei | attended |
 | `album.events.none` | Noch keine Teamtermine. | No team events yet. |
-| `album.events.noTour` | Noch keine Tour-Tage. | No tour days yet. |
+| `album.events.count` | {count} Teamtermine, davon {tour} Tage Tour de Paris | {count} team events, {tour} of them Tour de Paris days |
+| `album.events.noTour` | {count} Teamtermine, noch keine Tour-Tage | {count} team events, no tour days yet |
+| `album.events.yours` | du warst dabei ({count}) | you were there ({count}) |
+| `album.continued` | {title} (Fortsetzung) | {title} (continued) |
 | `album.stickers.mine` | Meine Abzeichen | My badges |
 | `album.stickers.team` | Team-Abzeichen | Team badges |
 | `album.stickers.count` | {earned} von {total} | {earned} of {total} |
-| `album.stickers.continued` | {category} (Fortsetzung) | {category} (continued) |
 | `album.stickers.secret` | ? | ? |
 | `album.cutoff` | Stand: {date} | As of {date} |
+
+Event kinds use `rynke.source.*`, category names `badges.category.*`.
 
 ## Privacy page (FR-040)
 

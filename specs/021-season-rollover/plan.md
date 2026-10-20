@@ -143,7 +143,8 @@ album/                              # never deployed; not imported by src/
 ├── load.ts                         # one rider's album data via src/db readers
 ├── layout.ts                       # pure: pages, safe areas, slots, sticker poses (mm)
 ├── render.ts                       # pure: album HTML from data + layout + i18n
-├── album.css                       # @page 210mm 297mm, print rules, no filters
+├── style.ts                        # the stylesheet as a string (like src/http/style.ts):
+│                                   # @page 210mm 297mm, print rules, no filters
 └── fonts/                          # one OFL font (woff2) + OFL.txt
 
 scripts/

@@ -39,7 +39,7 @@ app's yellow (#fbe122, personal) and team blue (#8cc4f0) for page bands, ink
 | Placeholder | printed on every slot: the gallery's 44 mm dashed circle |
 | Sticker | 44 mm white die-cut circle (2 mm edge) holding the 40 mm picture, on the placeholder |
 | Pose | rotation −7° … 7°; offset mostly 0 … 1.5 mm, in one slot in three 2.2 … 3.8 mm, in any direction; y clamped to ±2.5 mm |
-| Shadow | sharp and tight, as a sticker lying flat on paper: `box-shadow` 0.16 mm down with 0.24 mm blur at 42 %, plus a 0.16 mm edge line at 22 %; no CSS `filter` |
+| Shadow | sharp and tight, as a sticker lying flat on paper, from unblurred `box-shadow` layers only (0.08 mm down at 30 %, 0.2 mm down at 16 %, a 0.16 mm edge line at 22 %): Chromium prints any blur radius as an image (research R1); no CSS `filter` |
 | Caption | 8 mm at the slot's foot: name (9 pt, bold) and date earned (9 pt) |
 | Page band | 12 mm at the top of the safe area: group name, count, page number on the outer side |
 | Category heading | 9 mm; never the last element on a page; repeated with "(Fortsetzung)" when a category continues |

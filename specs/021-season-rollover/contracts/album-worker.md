@@ -9,7 +9,7 @@ Started only by `pnpm season:album` under `wrangler dev`; never deployed
 | Key | Value |
 |-----|-------|
 | `name` | `rynke-album` |
-| `main` | `worker.ts` |
+| `main` | `worker.ts` (the entry; the routes are in `routes.ts`, so tests run them without Wrangler) |
 | `workers_dev` | `false`; no `routes` |
 | `assets` | `{ "directory": "../public" }` (badges, coin, placeholders) |
 | `d1_databases` | `DB`: the production `database_id`, `"remote": true` |
@@ -20,8 +20,8 @@ Started only by `pnpm season:album` under `wrangler dev`; never deployed
 | Method, path | Answer |
 |--------------|--------|
 | `GET /riders?cutoff=YYYY-MM-DD` | `200` JSON `[{ "athleteId": 101, "file": "anna-1" }, …]`: every listed rider (feature 014) at the time of the request, in first-name order; `file` is the PDF's file stem. |
-| `GET /album/:athleteId?cutoff=YYYY-MM-DD` | `200` HTML: the rider's whole album as one document (`<section class="page">` per A4 page), language from the rider's stored app language. `404` for a rider who is not listed. |
-| `GET /album.css`, `GET /fonts/*` | The album's stylesheet and font. |
+| `GET /album/:athleteId?cutoff=YYYY-MM-DD` | `200` HTML: the rider's whole album as one document (`<section class="page">` per A4 page), in German, the default language: the app does not store a rider's language (migration `0001`; it lives in the rider's browser), so FR-039's "rider's app language" is open. `404` for a rider who is not listed. |
+| `GET /album.css`, `GET /fonts/*` | The album's stylesheet (`album/style.ts`) and font (`album/fonts/`, bundled by `wrangler.jsonc`'s `Data` rule). |
 | `GET /badges/*`, `/coin/*`, … | Static assets from `public/`. |
 | anything else | `404` |
 

@@ -4,9 +4,10 @@ description: "Task list for the season rollover: Tour de Paris badges and the se
 
 # Tasks: Season Rollover – Tour de Paris Badges and the Season Album
 
-**Status (2026-10-20)**: Phases 1–4 done (MVP 1, the Tour de Paris in the app),
-except T002: `pdf-lib` is still to be added with `pnpm add -D pdf-lib` where
-the npm registry can be reached; only T037 (US3) needs it. Phases 5–8 open.
+**Status (2026-10-20)**: Phases 1–7 done (the Tour de Paris in the app, and
+the album: Worker, command, summary and sticker pages). Phase 8 open. Albums
+are German only for now: the app stores no rider language (see
+contracts/album-worker.md).
 
 **Input**: Design documents from `/specs/021-season-rollover/`
 **Prerequisites**: [plan.md](plan.md), [spec.md](spec.md), [research.md](research.md),
@@ -220,7 +221,7 @@ fill it in).
 - [x] T037 [US3] The print check in `scripts/season-album.mjs` with `pdf-lib`
   (research R14): A4 MediaBox within 0.5 mm, even page count, no image XObject,
   every font embedded; failing albums listed, exit 1.
-- [ ] T038 [US3] Re-run research R1's measurement with the real page once US5 is
+- [x] T038 [US3] Re-run research R1's measurement with the real page once US5 is
   done (size and time per album, with the tight shadow); record the numbers in
   research.md R1 and adjust SC-005 if needed.
 
@@ -235,29 +236,29 @@ as in the mock-up.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T039 [P] [US4] `test/integration/album-render.test.ts` (research R16): for a
+- [x] T039 [P] [US4] `test/integration/album-render.test.ts` (research R16): for a
   seeded synthetic season and a cut-off, `album/load.ts` gives the rider's
   Training and Team Rynke equal to what the rider page shows, the team total
   equal to the Team page's, events attended counting tour days; the cut-off
   before the deadline uses the daily series' value; every team event of the
   season is listed with its attendee count and the rider's own ticks; the HTML
   contains no other rider's first name (FR-033); nothing is written to D1.
-- [ ] T040 [P] [US4] `test/unit/album-layout.test.ts`, summary part: page 1 is a
+- [x] T040 [P] [US4] `test/unit/album-layout.test.ts`, summary part: page 1 is a
   right-hand page with the 20 mm gutter on the left; page 2 a left-hand page
   with it on the right; 49 events continue on page 3 with the header row again.
 
 ### Implementation
 
-- [ ] T041 [US4] `album/load.ts`: `AlbumData` (data-model.md "Album model") from
+- [x] T041 [US4] `album/load.ts`: `AlbumData` (data-model.md "Album model") from
   the existing readers with the clock set to the cut-off (research R12);
   `locale` from the rider's stored language.
-- [ ] T042 [US4] `album/layout.ts` (summary pages) and `album/render.ts`: pages 1
+- [x] T042 [US4] `album/layout.ts` (summary pages) and `album/render.ts`: pages 1
   and 2 as in the mock-up (cover band, name field, three figure tiles, "Stand:";
   team band, team total, event table with tour rows marked), texts from the
   `album.*` messages.
-- [ ] T043 [P] [US4] `src/i18n/messages/de.ts` and `en.ts`: the `album.*`
+- [x] T043 [P] [US4] `src/i18n/messages/de.ts` and `en.ts`: the `album.*`
   messages of contracts/messages.md.
-- [ ] T044 [P] [US4] `album/album.css`: `@page { size: 210mm 297mm; margin: 0 }`,
+- [x] T044 [P] [US4] `album/style.ts` (was `album/album.css`; a string like `src/http/style.ts`, since Vitest empties `.css` files): `@page { size: 210mm 297mm; margin: 0 }`,
   one `section.page` per A4 page at 210 × 297 mm, white paper, Nunito via
   `@font-face`, no `filter` anywhere.
 
@@ -272,7 +273,7 @@ stickers stuck on imperfectly, as in the mock-up.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T045 [P] [US5] `test/unit/album-layout.test.ts`, sticker part
+- [x] T045 [P] [US5] `test/unit/album-layout.test.ts`, sticker part
   (contracts/album-layout.md): every catalog badge in exactly one slot, gallery
   order (FR-035); every slot, heading and sticker with its pose and shadow inside
   the page's safe area, gutter on the inner side (FR-051); no heading last on a
@@ -281,7 +282,7 @@ stickers stuck on imperfectly, as in the mock-up.
   xorshift32, miss in about a third, rotation ±7°, y clamped to ±2.5 mm), equals
   the mock-up's `Slot.dc.html` for three sample ids, and is the same on every
   call (FR-026).
-- [ ] T046 [P] [US5] Extend `test/integration/album-render.test.ts`: earned slots
+- [x] T046 [P] [US5] Extend `test/integration/album-render.test.ts`: earned slots
   (on or before the cut-off) carry the sticker with picture, or the group's
   placeholder picture for badges without one (stand-in tour badges); empty ladder
   slots show the name, empty surprise slots "?" and no rule (FR-037); each group
@@ -289,9 +290,9 @@ stickers stuck on imperfectly, as in the mock-up.
 
 ### Implementation
 
-- [ ] T047 [US5] `album/layout.ts` (sticker pages): slots, headings, pagination
+- [x] T047 [US5] `album/layout.ts` (sticker pages): slots, headings, pagination
   and `pose` per contracts/album-layout.md.
-- [ ] T048 [US5] `album/render.ts` (sticker pages): the band, headings, printed
+- [x] T048 [US5] `album/render.ts` (sticker pages): the band, headings, printed
   placeholder in every slot, the sticker (white edge, picture, the tight
   shadow), captions; badge pictures from `public/badges/` through the Worker's
   assets.

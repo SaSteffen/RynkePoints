@@ -1,7 +1,7 @@
 // The local album Worker's routes (feature 021 research R12,
 // contracts/album-worker.md). `worker.ts` is the entry `wrangler dev` runs and
-// hands in the stylesheet and fonts; this file holds everything else, so tests
-// run it without Wrangler's module rules. It answers only local hosts and
+// hands in the fonts; this file holds everything else, so tests run it
+// without Wrangler's module rules. It answers only local hosts and
 // reads D1 only through the read-only guard.
 
 import {
@@ -11,15 +11,15 @@ import {
 import { isCalendarDate } from "../src/rynke/rules";
 import { readOnly } from "./guard";
 import { albumHtml } from "./render";
+import { ALBUM_CSS } from "./style";
 
 export type AlbumEnv = Pick<
 	Env,
 	"DB" | "SEASON_START_DATE" | "QUALIFICATION_DEADLINE"
 >;
 
-/** What `worker.ts` bundles through Wrangler's module rules. */
+/** What `worker.ts` bundles through Wrangler's module rule. */
 export interface AlbumFiles {
-	css: string;
 	/** By file name, e.g. `Nunito-Regular.woff2`. */
 	fonts: Readonly<Record<string, ArrayBuffer>>;
 }
@@ -90,7 +90,7 @@ export async function handleAlbumRequest(
 		return notFound();
 	}
 	if (url.pathname === "/album.css") {
-		return new Response(files.css, {
+		return new Response(ALBUM_CSS, {
 			headers: { "Content-Type": "text/css; charset=utf-8" },
 		});
 	}
