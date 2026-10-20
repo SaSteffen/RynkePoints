@@ -28,6 +28,7 @@
 		"vendor": "node scripts/vendor.mjs",
 		"daily:run": "scripts/run-daily.sh",
 		"strava:review": "node scripts/strava-review.mjs",
+		"season:album": "node scripts/season-album.mjs",
 		"prepare": "lefthook install"
 	},
 	"devDependencies": {
