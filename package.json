@@ -32,7 +32,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.15",
-		"@cloudflare/vitest-pool-workers": "^0.23.0",
+		"@cloudflare/vitest-plugin": "^1.4.5",
 		"@commitlint/cli": "^21.2.3",
 		"@commitlint/config-conventional": "^21.2.3",
 		"@playwright/test": "^1.64.1",

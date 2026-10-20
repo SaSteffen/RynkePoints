@@ -137,7 +137,7 @@ New functionality MUST be developed test-first using the red-green cycle:
 Constraints on how this is done:
 
 - Tests run with Vitest inside the Workers runtime (`pnpm test`, via
-  `@cloudflare/vitest-pool-workers`), against local D1/Queue bindings — never
+  `@cloudflare/vitest-plugin`), against local D1/Queue bindings — never
   against production resources.
 - Strava API calls MUST be mocked in tests; tests MUST NOT contact Strava or use
   real rider data. Fixtures are synthetic records shaped like Strava responses.
