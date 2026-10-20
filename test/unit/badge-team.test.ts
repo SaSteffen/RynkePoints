@@ -4,7 +4,9 @@ import {
 	type TeamBadgeSums,
 	type TeamRiderDays,
 } from "../../src/badges/team";
+import { badgeWindow } from "../../src/badges/evaluate";
 import { CURRENT_RULES } from "../../src/rynke/rules";
+import type { EventKind } from "../../src/rynke/team-events";
 
 // The team's badges from sums over the listed riders (feature 013 US4,
 // FR-011, research R15). Synthetic sums only.
@@ -34,11 +36,12 @@ function rider(rides: [string, number, number?][]): TeamRiderDays {
 	};
 }
 
-const event = (eventId: number, date: string, attendees: number) => ({
-	eventId,
-	date,
-	attendees,
-});
+const event = (
+	eventId: number,
+	date: string,
+	attendees: number,
+	kind: EventKind = "team_training",
+) => ({ eventId, kind, date, attendees });
 
 describe("evaluateTeamBadges", () => {
 	it("dates a big training by the event with the most attendees (US4 scenario 1)", () => {
@@ -163,9 +166,53 @@ describe("evaluateTeamBadges", () => {
 			"team_running",
 			"big_training",
 			"attendances",
+			"tour_de_paris",
 			"team_surprise",
 		]);
 		expect(evaluate(sums)).toEqual(result);
+	});
+});
+
+// Feature 021 FR-005: a tour day counts for Big training and Attendances like
+// every team event, also after the qualification deadline, but only once its
+// day has come.
+describe("evaluateTeamBadges and the Tour de Paris", () => {
+	const SEASON = { seasonStart: "2026-09-01", deadline: "2027-06-30" };
+	const onDay = (events: ReturnType<typeof event>[], today: string) =>
+		evaluateTeamBadges(
+			{ ...NONE, events },
+			CURRENT_RULES,
+			badgeWindow(SEASON, today),
+		);
+
+	it("counts a tour day after the deadline for Big training and Attendances", () => {
+		const events = [
+			event(1, "2027-06-01", 20),
+			event(2, "2027-07-04", 30, "tour_de_paris"),
+		];
+		const result = onDay(events, "2027-07-31");
+		expect(result.earned).toContainEqual({
+			badgeId: "big-training-30",
+			earnedOn: "2027-07-04",
+		});
+		expect(result.earned).toContainEqual({
+			badgeId: "attendances-50",
+			earnedOn: "2027-07-04",
+		});
+	});
+
+	it("still counts no other kind after the deadline", () => {
+		const result = onDay([event(1, "2027-07-04", 30)], "2027-07-31");
+		expect(result.earned).toEqual([]);
+	});
+
+	it("counts a tour day only once its day has come", () => {
+		const events = [event(1, "2027-07-04", 30, "tour_de_paris")];
+		expect(onDay(events, "2027-07-03").earned).toEqual([]);
+		expect(onDay(events, "2027-07-04").earned).toContainEqual({
+			badgeId: "big-training-30",
+			earnedOn: "2027-07-04",
+		});
 	});
 });
 

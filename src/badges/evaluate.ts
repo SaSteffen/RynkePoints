@@ -5,6 +5,7 @@
 
 import {
 	type CountingWindow,
+	eventInWindow,
 	inCountingWindow,
 	type RynkeRules,
 } from "../rynke/rules";
@@ -74,13 +75,16 @@ type Series = { date: string; value: number }[];
  * The counting window for badges on `today` (`YYYY-MM-DD`, Berlin): it ends
  * today at the latest, so nothing dated in the future earns a badge, and a
  * day only counts as over (a rest day, a team day off) once a later activity
- * dated today or earlier shows it.
+ * dated today or earlier shows it. It carries `today`, so tour days after the
+ * deadline count up to today (feature 021 FR-005, `eventInWindow`).
  */
 export function badgeWindow(
 	window: CountingWindow,
 	today: string,
 ): CountingWindow {
-	return today < window.deadline ? { ...window, deadline: today } : window;
+	return today < window.deadline
+		? { ...window, deadline: today, today }
+		: { ...window, today };
 }
 
 /** Only what is dated on or before the window's last day. */
@@ -100,7 +104,10 @@ export function evaluateBadges(
 		rides: notAfter(all.rides, window),
 		runs: notAfter(all.runs, window),
 		swims: notAfter(all.swims ?? [], window),
-		attendance: notAfter(all.attendance, window),
+		// Tour days count after the deadline, up to today (feature 021 FR-005).
+		attendance: all.attendance.filter((a) =>
+			eventInWindow(a.kind, a.date, window),
+		),
 		corrections: notAfter(all.corrections, window),
 	};
 	const series = personalSeries(inputs, rules, window);
@@ -193,7 +200,7 @@ function personalSeries(
 	window: CountingWindow,
 ): Partial<Record<BadgeCategoryId, Series>> {
 	const attended = inputs.attendance.filter((a) =>
-		inCountingWindow(a.date, window),
+		eventInWindow(a.kind, a.date, window),
 	);
 	const events = (kind?: Attendance["kind"]) =>
 		cumulative(

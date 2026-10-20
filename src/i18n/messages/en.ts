@@ -547,6 +547,7 @@ export const en: Catalog = {
 	"badges.category.team_running": "Running together",
 	"badges.category.big_training": "Big training",
 	"badges.category.attendances": "Attendances",
+	"badges.category.tour_de_paris": "Tour de Paris",
 	"badges.category.team_surprise": "Team surprises",
 	"badges.about.distance": "Kilometres on Training Rynke rides.",
 	"badges.about.elevation": "Elevation on Training Rynke rides.",
@@ -570,6 +571,8 @@ export const en: Catalog = {
 	"badges.about.team_running": "The whole team's run kilometres.",
 	"badges.about.big_training": "The most riders at one team event.",
 	"badges.about.attendances": "All attendances at team events.",
+	"badges.about.tour_de_paris":
+		"For every day someone from the team rides the Tour de Paris.",
 	"badges.about.team_surprise": "?",
 	"badges.for.distance": "You rode {value} by bike this season.",
 	"badges.for.elevation": "You climbed {value} by bike this season.",
@@ -595,6 +598,7 @@ export const en: Catalog = {
 	"badges.for.big_training": "{value} came to a single team event together.",
 	"badges.for.attendances":
 		"All team events this season together had {value}: every rider at every event counts one.",
+	"badges.tourDay.for": "Day {day} of the Tour de Paris – the place follows.",
 	"badges.value.km": "{n}\u00a0km",
 	"badges.value.m": "{n}\u00a0m",
 	"badges.value.rynke": "{n}\u00a0Rynke",

@@ -157,7 +157,39 @@ describe("readTeamBadgeSums (feature 013 R15)", () => {
 	it("counts only listed attendees per event (US4 scenario 4)", async () => {
 		const { events } = await readTeamBadgeSums(env.DB);
 		expect(events).toEqual([
-			{ eventId: expect.any(Number), date: "2026-09-10", attendees: 1 },
+			{
+				eventId: expect.any(Number),
+				kind: "team_training",
+				date: "2026-09-10",
+				attendees: 1,
+			},
+		]);
+	});
+
+	it("reads each listed rider's tour days, and their kind with each event (021)", async () => {
+		const first = await insertEvent("tour_de_paris", "2027-07-04");
+		const second = await insertEvent("tour_de_paris", "2027-07-05");
+		await attendRaw(first, [LISTED, WITHOUT_BALANCE, NO_CONSENT]);
+		await attendRaw(second, [LISTED]);
+		const { tourDays, events } = await readTeamBadgeSums(env.DB);
+		expect(tourDays).toEqual([
+			{ athleteId: LISTED, date: "2027-07-04" },
+			{ athleteId: WITHOUT_BALANCE, date: "2027-07-04" },
+			{ athleteId: LISTED, date: "2027-07-05" },
+		]);
+		expect(events.filter((e) => e.kind === "tour_de_paris")).toEqual([
+			{
+				eventId: first,
+				kind: "tour_de_paris",
+				date: "2027-07-04",
+				attendees: 2,
+			},
+			{
+				eventId: second,
+				kind: "tour_de_paris",
+				date: "2027-07-05",
+				attendees: 1,
+			},
 		]);
 	});
 
@@ -228,6 +260,7 @@ describe("readTeamBadgeSums (feature 013 R15)", () => {
 			events: [],
 			active: [],
 			connectedOn: new Map(),
+			tourDays: [],
 		});
 	});
 });

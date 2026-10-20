@@ -23,8 +23,8 @@ import {
 import { extrasFrom, tally } from "../../src/rynke/tally";
 import {
 	type Attendance,
+	type EventKind,
 	evaluateAttendance,
-	type TeamEventKind,
 } from "../../src/rynke/team-events";
 import type { ActivityRecord } from "../../src/strava/activity";
 import { ATHLETE_A, NOW } from "./fixtures";
@@ -84,7 +84,7 @@ export async function snapshot(athleteId = ATHLETE_A) {
 
 /** A `team_events` row written with plain SQL, as the maintainer does (R22). */
 export async function insertEvent(
-	kind: TeamEventKind,
+	kind: EventKind,
 	date: string,
 	name: string | null = null,
 ): Promise<number> {

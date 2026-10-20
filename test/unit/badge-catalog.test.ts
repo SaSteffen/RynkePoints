@@ -12,7 +12,7 @@ import {
 // the art pipeline's list (research R9, R18; part A's T019).
 
 describe("badge catalog", () => {
-	it("has the spec's 23 categories with their groups, units and ladders", () => {
+	it("has the spec's 24 categories with their groups, units and ladders", () => {
 		expect(
 			BADGE_CATEGORIES.map((c) => [c.id, c.group, c.unit, c.ladder]),
 		).toEqual([
@@ -58,6 +58,7 @@ describe("badge catalog", () => {
 			["team_running", "team", "km", [100, 500, 1000, 2500, 5000]],
 			["big_training", "team", "riders", [5, 10, 15, 20, 30]],
 			["attendances", "team", "attendances", [25, 50, 100, 200, 400]],
+			["tour_de_paris", "team", "days", [1, 2, 3, 4, 5, 6, 7, 8]],
 			["team_surprise", "team", "days", [1, 2, 3, 4, 5, 6, 7]],
 		]);
 		expect(BADGE_CATEGORIES.filter((c) => c.group === "personal")).toHaveLength(
@@ -85,8 +86,8 @@ describe("badge catalog", () => {
 				expect(ladder[i]).toBeGreaterThan(ladder[i - 1] as number);
 	});
 
-	it("derives 121 badges in catalog order with ids from category and threshold", () => {
-		expect(BADGES).toHaveLength(121);
+	it("derives 129 badges in catalog order with ids from category and threshold", () => {
+		expect(BADGES).toHaveLength(129);
 		expect(BADGES.slice(0, 2)).toEqual([
 			{
 				id: "distance-100",
@@ -152,11 +153,23 @@ describe("badge catalog", () => {
 			"team-surprise-sunday-outing",
 			"team-surprise-festive-team",
 		]);
-		expect(new Set(BADGES.map((b) => b.id)).size).toBe(121);
+		expect(
+			BADGES.filter((b) => b.category === "tour_de_paris").map((b) => b.id),
+		).toEqual([1, 2, 3, 4, 5, 6, 7, 8].map((n) => `tour-de-paris-${n}`));
+		expect(new Set(BADGES.map((b) => b.id)).size).toBe(129);
 	});
 
-	it("is at version 5 since part F's surprise badges from cycling traditions", () => {
-		expect(BADGE_CATALOG_VERSION).toBe(5);
+	it("is at version 6 since tour days count for the team-event badges (021)", () => {
+		expect(BADGE_CATALOG_VERSION).toBe(6);
+	});
+
+	it("puts the Tour de Paris after Attendances and before the team surprises (021)", () => {
+		const ids = BADGE_CATEGORIES.map((c) => c.id);
+		expect(ids.indexOf("tour_de_paris")).toBe(ids.indexOf("attendances") + 1);
+		expect(ids.indexOf("team_surprise")).toBe(ids.indexOf("tour_de_paris") + 1);
+		expect(
+			BADGE_CATEGORIES.find((c) => c.id === "tour_de_paris")?.surprise,
+		).toBeUndefined();
 	});
 
 	it("lists the same badges as art/badges/badges.json", () => {

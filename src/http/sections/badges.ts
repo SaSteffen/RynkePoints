@@ -317,12 +317,19 @@ ${anchor("team", false, i18n.t("badges.switch.team"))}
  * date, and a close button for phones, where there's little outside to tap
  * (hidden while hover holds it open).
  */
-/** What the badge was for; a surprise badge says why it was earned. */
+/**
+ * What the badge was for; a surprise badge says why it was earned, a tour
+ * badge which day of the tour it stands for (feature 021, a stand-in until
+ * Phase 2 names the places).
+ */
 function forText(i18n: I18n, badge: Badge, value: string): string {
 	const surprise = surpriseName(badge) as SurpriseName | null;
 	if (surprise) return i18n.t(`badges.surprise.${surprise}.for`);
+	if (badge.category === "tour_de_paris") {
+		return i18n.t("badges.tourDay.for", { day: String(badge.threshold) });
+	}
 	return i18n.t(
-		`badges.for.${badge.category as Exclude<BadgeCategoryId, "surprise" | "team_surprise">}`,
+		`badges.for.${badge.category as Exclude<BadgeCategoryId, "surprise" | "team_surprise" | "tour_de_paris">}`,
 		{ value },
 	);
 }

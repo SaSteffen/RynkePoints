@@ -570,6 +570,7 @@ export const de = {
 	"badges.category.team_running": "Laufen gemeinsam",
 	"badges.category.big_training": "Große Ausfahrt",
 	"badges.category.attendances": "Teilnahmen",
+	"badges.category.tour_de_paris": "Tour de Paris",
 	"badges.category.team_surprise": "Team-Überraschungen",
 	"badges.about.distance": "Rad-Kilometer mit Trainings-Rynke.",
 	"badges.about.elevation": "Alle Höhenmeter mit Trainings-Rynke.",
@@ -593,6 +594,8 @@ export const de = {
 	"badges.about.team_running": "Die Lauf-Kilometer des ganzen Teams.",
 	"badges.about.big_training": "Rekord: Rider an einem Termin.",
 	"badges.about.attendances": "Teilnahmen aller Rider zusammen.",
+	"badges.about.tour_de_paris":
+		"Für jeden Tag, den jemand aus dem Team auf der Tour de Paris fährt.",
 	"badges.about.team_surprise": "?",
 	"badges.for.distance": "Du bist in dieser Saison {value} Rad gefahren.",
 	"badges.for.elevation":
@@ -629,6 +632,7 @@ export const de = {
 		"{value} waren bei einem einzigen Teamtermin zusammen dabei.",
 	"badges.for.attendances":
 		"Alle Teamtermine dieser Saison zusammen hatten {value}: Jeder Rider bei jedem Termin zählt eins.",
+	"badges.tourDay.for": "Tag {day} der Tour de Paris – der Ort folgt.",
 	"badges.value.km": "{n}\u00a0km",
 	"badges.value.m": "{n}\u00a0m",
 	"badges.value.rynke": "{n}\u00a0Rynke",

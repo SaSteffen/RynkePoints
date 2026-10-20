@@ -3,7 +3,7 @@
 // badge yet, from the earned badges and the progress per category. Pure; the
 // section renders it (`http/sections/badges.ts`).
 
-import { type CountingWindow, inCountingWindow } from "../rynke/rules";
+import { type CountingWindow, eventInWindow } from "../rynke/rules";
 import type { Attendance } from "../rynke/team-events";
 import {
 	BADGE_CATEGORIES,
@@ -277,7 +277,7 @@ export function personalProgress(
 	window: CountingWindow,
 ): CategoryProgress[] {
 	const attended = figures.attendance.filter((a) =>
-		inCountingWindow(a.date, window),
+		eventInWindow(a.kind, a.date, window),
 	);
 	const events = (kind?: Attendance["kind"]) =>
 		new Set(

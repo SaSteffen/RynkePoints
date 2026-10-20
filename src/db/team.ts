@@ -148,9 +148,10 @@ export async function readTeam(db: D1Database): Promise<TeamRider[]> {
  * What the team badges need (feature 013 research R15), in one batch over the
  * listed riders only: per rider and day their counting rides, with their
  * attendance and corrections for the Training Rynke; the runs summed per day;
- * and per team event its number of listed attendees. Riders leave the sums
- * once they're no longer listed (US4 scenario 4). Nothing leaves this
- * function with a rider's id on it.
+ * and per team event its number of listed attendees; and each listed
+ * rider's tour days (feature 021). Riders leave the sums once they're no
+ * longer listed (US4 scenario 4). Rider ids only tell riders apart for the
+ * team surprises and the tour days; `evaluateTeamBadges` never passes them on.
  */
 export async function readTeamBadgeSums(
 	db: D1Database,
@@ -185,7 +186,7 @@ export function teamBadgeSumsStatements(db: D1Database): D1PreparedStatement[] {
 				ORDER BY 1`,
 		),
 		db.prepare(
-			`SELECT e.event_id, e.event_date, count(*) AS attendees
+			`SELECT e.event_id, e.kind, e.event_date, count(*) AS attendees
 				FROM attendances a JOIN team_events e ON e.event_id = a.event_id
 				WHERE a.athlete_id IN (${LISTED_RIDER_IDS})
 				GROUP BY e.event_id
@@ -215,6 +216,15 @@ export function teamBadgeSumsStatements(db: D1Database): D1PreparedStatement[] {
 			`SELECT athlete_id, connected_at FROM riders
 				WHERE athlete_id IN (${LISTED_RIDER_IDS})`,
 		),
+		// For the Tour de Paris badges (feature 021, research R11): each listed
+		// rider's tour days; the id only tells riders apart, as for `active`.
+		db.prepare(
+			`SELECT a.athlete_id, e.event_date AS date
+				FROM attendances a JOIN team_events e ON e.event_id = a.event_id
+				WHERE e.kind = 'tour_de_paris'
+					AND a.athlete_id IN (${LISTED_RIDER_IDS})
+				ORDER BY 2, 1`,
+		),
 	];
 }
 
@@ -230,6 +240,7 @@ export function toTeamBadgeSums(
 		eventRows,
 		activeRows,
 		connectedRows,
+		tourRows,
 	] = results;
 	if (
 		!rideRows ||
@@ -238,7 +249,8 @@ export function toTeamBadgeSums(
 		!runRows ||
 		!eventRows ||
 		!activeRows ||
-		!connectedRows
+		!connectedRows ||
+		!tourRows
 	) {
 		throw new Error("D1 batch returned too few results");
 	}
@@ -288,11 +300,13 @@ export function toTeamBadgeSums(
 		events: (
 			eventRows.results as {
 				event_id: number;
+				kind: EventKind;
 				event_date: string;
 				attendees: number;
 			}[]
 		).map((row) => ({
 			eventId: row.event_id,
+			kind: row.kind,
 			date: row.event_date,
 			attendees: row.attendees,
 		})),
@@ -313,6 +327,9 @@ export function toTeamBadgeSums(
 			(
 				connectedRows.results as { athlete_id: number; connected_at: number }[]
 			).map((row) => [row.athlete_id, berlinDate(row.connected_at)]),
+		),
+		tourDays: (tourRows.results as { athlete_id: number; date: string }[]).map(
+			(row) => ({ athleteId: row.athlete_id, date: row.date }),
 		),
 	};
 }
