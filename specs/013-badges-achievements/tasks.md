@@ -1079,3 +1079,13 @@ Then the personal rules, which give the seven new badges to every rider
 through the silent re-evaluation (T132); then the team rule. The Festive 500
 and Festive Team matter from 24 December, so both slices should be released
 before then.
+
+## Phase 28: User Story 9, Winterschlaf beendet (part J, P3)
+
+- [x] T135 [US9] Catalog: `surprise` ladder 1–14 with `winter-sleep`,
+  `BADGE_CATALOG_VERSION` 8; the scene in `art/badges/badges.json`; the
+  German name and the rule texts in every language (research R49).
+- [x] T136 [US9] The rule in `src/badges/evaluate.ts` and its unit tests;
+  catalog, catalogs and badges-section tests updated.
+- [ ] T137 Project owner: the picture (quickstart §16), committed with
+  `public/badges/` and `src/badges/pictures.ts`.

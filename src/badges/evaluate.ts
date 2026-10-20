@@ -353,6 +353,7 @@ function surpriseBadges(
 		"early-bird": startingAt((time) => time < "06:00"),
 		"rest-day": restDay(sorted, days),
 		...traditions(rides, inputs, window, days),
+		"winter-sleep": winterSleep(rides, window),
 	};
 	return BADGES.flatMap((badge) => {
 		const name = surpriseName(badge);
@@ -470,6 +471,23 @@ function traditions(
 			(date) => date.slice(0, 7),
 		),
 	};
+}
+
+/**
+ * Winterschlaf beendet (part J, FR-018, research R49): the first outdoor (not
+ * virtual) counting ride dated in a later calendar year than the season
+ * start, so 1 January or after in a season from September. A season that
+ * starts on 1 January has no new year in it.
+ */
+function winterSleep(
+	rides: readonly DatedRide[],
+	window: CountingWindow,
+): string | undefined {
+	const newYear = `${Number(window.seasonStart.slice(0, 4)) + 1}-01-01`;
+	return rides
+		.filter((r) => !r.virtual && r.date >= newYear)
+		.map((r) => r.date)
+		.sort()[0];
 }
 
 /** `YYYY-MM-DD` shifted by `days`. */

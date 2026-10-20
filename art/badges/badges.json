@@ -570,6 +570,13 @@
 			"scene": "Everesting: the character on the very top of a steep black mountain peak, his road bike lifted high above his head, a gold summit flag reading \"8848\" stuck in the snow beside him, cream clouds far below, his tongue hanging out and his legs trembling, an endless zig-zag of hairpin bends winding down beneath him. {{bike}}"
 		},
 		{
+			"id": "surprise-winter-sleep",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 14,
+			"scene": "End of hibernation: the character bursting out of a snowed-in cave on the road bike, still wearing a fluffy cream sleeping cap over the helmet and dragging a black duvet from the saddle like a cape, mid-yawn and squinting into a dazzling low gold January sun, icicles snapping off the cave entrance, a sleepy bear in the cave behind peeking out in disbelief. {{bike}}"
+		},
+		{
 			"id": "team-training-rynke-500",
 			"group": "team",
 			"category": "team_training_rynke",

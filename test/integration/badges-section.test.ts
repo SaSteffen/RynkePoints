@@ -656,6 +656,8 @@ describe("the surprise badges on the page", () => {
 			"solstice",
 			"easter",
 			"everesting",
+			// Part J.
+			"winter-sleep",
 		] as const) {
 			// Whole ids: "surprise-christmas" is a prefix of "-christmas-eve".
 			expect(html).not.toContain(`badge-surprise-${name}"`);

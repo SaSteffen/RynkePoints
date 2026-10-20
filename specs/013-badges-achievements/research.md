@@ -730,3 +730,20 @@ D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
   without changing other samples' states.
 - **Alternatives**: Adding them to Wanda Winter: her state would no longer
   describe her.
+
+## R49 Winterschlaf beendet (part J)
+
+- **Decision**: A 14th personal surprise badge, id `surprise-winter-sleep`,
+  name "Winterschlaf beendet": the earliest outdoor counting ride dated on
+  or after 1 January of the year after `seasonStart`'s year, from the
+  counting rides the other surprise rules see. Catalog version 8. One more
+  scene in `art/badges/badges.json`; the placeholder shows until the
+  project owner has made the picture (FR-040a).
+- **Rationale**: "New year" means the calendar year after the season start,
+  which for the team's September season is exactly the January after it.
+  A season from 1 January (the test and sample season) would otherwise give
+  the badge for the first ride of the season, which is what the badge is
+  meant not to be. Outdoor only, like Sonnenwende and the winter months:
+  a Zwift ride ends no hibernation.
+- **Alternatives**: Rides from January to August by month: the same for a
+  September season, but wrong for a season starting at another month.
