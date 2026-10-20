@@ -132,9 +132,11 @@ interface AlbumPage {
 }
 
 interface StickerPose {
-  rotateDeg: number;                 // -6 … 6
-  dxMm: number;                      // -3 … 3
-  dyMm: number;                      // -2 … 2
+  rotateDeg: number;                 // -7 … 7
+  dxMm: number;                      // up to ±3.8 (a miss in one slot in three)
+  dyMm: number;                      // clamped to ±2.5
+  lift: { towardsDeg: number } | null;
+  // glitter specks, stars, foil and gloss angles: contracts/album-layout.md
 }
 ```
 

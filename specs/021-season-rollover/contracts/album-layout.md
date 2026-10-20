@@ -36,34 +36,43 @@ app's yellow (#fbe122, personal) and team blue (#8cc4f0) for page bands, ink
 |---------|-------|
 | Columns | 3, each 59.3 mm |
 | Slot height | 60 mm |
-| Sticker | 44 mm white circle (the sticker edge, 2 mm) holding the 40 mm picture |
-| Pose | rotation −6° … 6°, offset −3 … 3 mm in x, −2 … 2 mm in y |
-| Shadow | `box-shadow` on the circle, at most 1.5 mm; no CSS `filter` |
+| Placeholder | printed on every slot: 44 mm light disc (#f4f1e6) with the gallery's dashed edge |
+| Sticker | 44 mm white die-cut circle (2 mm edge) holding the 40 mm picture, on the placeholder |
+| Pose | rotation −7° … 7°; offset mostly 0 … 1.5 mm, in one slot in three 2.2 … 3.8 mm, in any direction; y clamped to ±2.5 mm |
+| Finish | glitter: about 46 specks (0.35–1.1 % of the sticker's width, white, gold, pastel, 45–95 % opacity) and 4 four-point stars; a rainbow foil gradient (≤ 34 % opacity), a gloss band, a faint darker rim; all SVG shapes and gradients |
+| Shadow | `box-shadow`: contact 0.1 mm / 0.15 mm blur at 38 %, close 0.3 mm / 0.5 mm at 20 %, ambient 0.8 mm / 1.6 mm at 14 %; one slot in four a lifted edge: an extra 0.6 mm shadow towards that side and a white catch-light arc on the rim; no CSS `filter` |
 | Caption | 8 mm at the slot's foot: name (9 pt, bold) and date earned (9 pt) |
 | Page band | 12 mm at the top of the safe area: group name, count, page number on the outer side |
 | Category heading | 9 mm; never the last element on a page; repeated with "(Fortsetzung)" when a category continues |
 
-Bounding check: 22 mm radius + 3 mm offset + 1.5 mm shadow = 26.5 mm, inside the
-slot's half-width of 29.65 mm; vertically 22 + 2 + 1.5 = 25.5 mm, inside half
-the 52 mm sticker area. A page holds the band, two categories' headings and
+Bounding check: 22 mm radius + 3.8 mm offset + 1.6 mm shadow = 27.4 mm, inside
+the slot's half-width of 29.65 mm; vertically 22 + 2.5 + 1.6 = 26.1 mm, which
+may touch the caption's top edge by 0.1 mm but never the next slot. A page holds the band, two categories' headings and
 four rows (12 + 2 × 9 + 4 × 60 = 270 mm of 273).
 
 ## Slot states
 
 | State | Drawn as | Caption |
 |-------|----------|---------|
-| Earned (`earnedOn <= cutoff`) | picture (or the group's placeholder picture when it has none yet, e.g. stand-in tour badges), white edge, pose, shadow | name and date |
-| Not earned, ladder badge | the gallery's dashed circle (`BADGE_OUTLINE_PLAIN`), no pose | name |
-| Not earned, surprise badge | the dotted outline | "?" |
+| Earned (`earnedOn <= cutoff`) | the printed placeholder, and over it the sticker: picture (or the group's placeholder picture when it has none yet, e.g. stand-in tour badges), white edge, finish, pose, shadow | name and date |
+| Not earned, ladder badge | the printed placeholder only (`BADGE_OUTLINE_PLAIN`'s dashed edge on a light disc) | name |
+| Not earned, surprise badge | the printed placeholder with a large "?" | "?" |
 
-## Pose
+## Pose and finish
 
 ```text
-h = hash32("<athleteId>:<badgeId>")       // FNV-1a, as tiltOf's hash family
-rotateDeg = ((h % 121) / 10) - 6          // −6.0 … 6.0
-dxMm      = (((h >>> 8)  % 61) / 10) - 3  // −3.0 … 3.0
-dyMm      = (((h >>> 16) % 41) / 10) - 2
+h   = fnv1a32("<athleteId>:<badgeId>")
+rnd = xorshift32 seeded with h            // one sequence per sticker
+miss      = rnd() < 0.35
+angle     = rnd() · 2π
+distMm    = miss ? 2.2 + rnd() · 1.6 : rnd() · 1.4
+dxMm      = cos(angle) · distMm
+dyMm      = clamp(sin(angle) · distMm, −2.5, 2.5)
+rotateDeg = rnd() · 14 − 7
+lift      = rnd() < 0.25, then its direction, the specks, the stars,
+            the foil and gloss angles, in that order
 ```
 
-Same inputs give the same pose (FR-026). Fonts: one embedded OFL font, at least
+Same inputs give the same sticker (FR-026). The mock-up's slot component
+(`Slot.dc.html`) is the reference implementation of this sequence. Fonts: one embedded OFL font, at least
 7 pt; lines at least 0.25 pt (FR-055).
