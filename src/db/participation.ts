@@ -1,17 +1,21 @@
-import type { CountingWindow } from "../rynke/rules";
+import { type CountingWindow, seasonEnd } from "../rynke/rules";
 import type { EventKind } from "../rynke/team-events";
 import { LISTED_RIDER_IDS } from "./organiser";
 
 // Participation reports (feature 019 data-model.md, research R1, R7). A report
 // is an intent before its event's date and a request from it on; nothing here
 // stores which. Every read is limited to 014's listed riders (004 FR-021) and
-// to events in the counting window, and ignores a report next to an
+// to events in the counting window (a tour day's runs to the season end,
+// feature 021), and ignores a report next to an
 // attendance, which `add-attendance` deletes anyway (research R3).
 
-/** `?1` today, `?2` season start, `?3` deadline. */
-function window(column: string): string {
-	return `${column} >= ?2 AND ${column} <= ?3`;
-}
+/**
+ * The event `e` lies in the window, `?2` season start, `?3` deadline, `?4`
+ * season end: a tour day counts to the season end (feature 021 FR-003), as
+ * `eventInWindow` says.
+ */
+const IN_WINDOW = `e.event_date >= ?2 AND e.event_date <=
+	CASE e.kind WHEN 'tour_de_paris' THEN ?4 ELSE ?3 END`;
 
 /** Reports of listed riders without attendance; `p` is the report. */
 const COUNTED = `p.athlete_id IN (${LISTED_RIDER_IDS})
@@ -19,7 +23,7 @@ const COUNTED = `p.athlete_id IN (${LISTED_RIDER_IDS})
 		WHERE a.event_id = p.event_id AND a.athlete_id = p.athlete_id)`;
 
 /** Open requests: events dated on or before today (research R7). */
-const OPEN_REQUEST = `e.event_date <= ?1 AND ${window("e.event_date")} AND ${COUNTED}`;
+const OPEN_REQUEST = `e.event_date <= ?1 AND ${IN_WINDOW} AND ${COUNTED}`;
 
 export interface OpenRequestRow {
 	event_id: number;
@@ -47,13 +51,13 @@ export interface RiderEventRow {
 	reported: number;
 }
 
+/** `?1` today, then the window's `?2` to `?4` (`IN_WINDOW`). */
 function bindWindow(
 	statement: D1PreparedStatement,
 	today: string,
 	w: CountingWindow,
-	...more: unknown[]
 ): D1PreparedStatement {
-	return statement.bind(today, w.seasonStart, w.deadline, ...more);
+	return statement.bind(today, w.seasonStart, w.deadline, seasonEnd(w));
 }
 
 /** The number of open requests, for the organisers' navigation (FR-030). */
@@ -108,7 +112,7 @@ export function countIntentsStatement(
 		db.prepare(
 			`SELECT p.event_id, COUNT(*) AS intents FROM participation_reports p
 			JOIN team_events e ON e.event_id = p.event_id
-			WHERE e.event_date > ?1 AND ${window("e.event_date")} AND ${COUNTED}
+			WHERE e.event_date > ?1 AND ${IN_WINDOW} AND ${COUNTED}
 			GROUP BY p.event_id`,
 		),
 		today,
@@ -128,7 +132,7 @@ export function listEventReportsStatement(db: D1Database, eventId: number) {
 }
 
 /**
- * The counting window's events, oldest first, with whether `athleteId`
+ * The counting window's events, tour days to the season end, oldest first, with whether `athleteId`
  * attended and reported each (FR-001–FR-006).
  */
 export function listRiderEventsStatement(
@@ -144,10 +148,10 @@ export function listRiderEventsStatement(
 				EXISTS (SELECT 1 FROM participation_reports p
 					WHERE p.event_id = e.event_id AND p.athlete_id = ?1) AS reported
 			FROM team_events e
-			WHERE e.event_date >= ?2 AND e.event_date <= ?3
+			WHERE ${IN_WINDOW}
 			ORDER BY e.event_date, e.event_id`,
 		)
-		.bind(athleteId, w.seasonStart, w.deadline);
+		.bind(athleteId, w.seasonStart, w.deadline, seasonEnd(w));
 }
 
 /** Whether `athleteId` is a listed rider (004 FR-021): one row with `n` 0 or 1. */

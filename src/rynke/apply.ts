@@ -118,7 +118,7 @@ import { type Balance, extrasFrom, tally } from "./tally";
 import {
 	type Attendance,
 	evaluateAttendance,
-	isTeamEventKind,
+	isEventKind,
 } from "./team-events";
 
 /**
@@ -736,7 +736,7 @@ function validCorrection(correction: CorrectionInput): CorrectionFields {
 }
 
 function validEvent(event: TeamEventInput): TeamEventFields {
-	if (!isTeamEventKind(event.kind)) throw new TeamEventRefused("unknown_kind");
+	if (!isEventKind(event.kind)) throw new TeamEventRefused("unknown_kind");
 	if (!isCalendarDate(event.date)) throw new TeamEventRefused("invalid_date");
 	// Characters as SQLite's length() counts them.
 	const length = event.name === null ? null : [...event.name].length;

@@ -179,6 +179,7 @@ export const en: Catalog = {
 	"rynke.source.team_training": "Team training",
 	"rynke.source.training_weekend_day": "Training-weekend day",
 	"rynke.source.technique_training": "Technique training",
+	"rynke.source.tour_de_paris": "Tour de Paris",
 	"rynke.breakdown.heading": "Where your Rynke come from",
 	"rynke.breakdown.attended": "attended {count}×",
 	"rynke.events.heading": "Your team events",

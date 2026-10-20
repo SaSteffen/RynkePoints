@@ -186,6 +186,7 @@ export const de = {
 	"rynke.source.team_training": "Teamtraining",
 	"rynke.source.training_weekend_day": "Tag Trainingswochenende",
 	"rynke.source.technique_training": "Techniktraining",
+	"rynke.source.tour_de_paris": "Tour de Paris",
 	"rynke.breakdown.heading": "Woher deine Rynke kommen",
 	"rynke.breakdown.attended": "{count}× dabei",
 	"rynke.events.heading": "Deine Teamtermine",

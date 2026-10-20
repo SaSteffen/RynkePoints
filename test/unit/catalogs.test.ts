@@ -7,7 +7,7 @@ import {
 import { de } from "../../src/i18n/messages/de";
 import { en } from "../../src/i18n/messages/en";
 import { REASON_CODES, UNKNOWN_FIGURE_CODES } from "../../src/rynke/rides";
-import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
+import { EVENT_KINDS } from "../../src/rynke/team-events";
 import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 
 // Every ID in specs/001-strava-connect-webhook/contracts/messages.md and
@@ -22,7 +22,8 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // specs/017-privacy-page/contracts/messages.md and
 // specs/018-lazy-rides-list/contracts/catalog.md and
 // specs/019-event-participation-requests/contracts/messages.md and
-// specs/020-onboarding-tour/contracts/messages.md.
+// specs/020-onboarding-tour/contracts/messages.md and
+// specs/021-season-rollover/contracts/messages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"rynke.rides.total",
@@ -156,6 +157,7 @@ const CONTRACT_IDS = [
 	"rynke.source.team_training",
 	"rynke.source.training_weekend_day",
 	"rynke.source.technique_training",
+	"rynke.source.tour_de_paris",
 	"rynke.events.heading",
 	"rynke.events.none",
 	"rynke.events.notCounting",
@@ -771,12 +773,14 @@ describe("catalog contents", () => {
 		}
 	});
 
-	it("names every team-event kind (FR-062)", () => {
+	it("names every team-event kind (FR-062), the Tour de Paris too (021)", () => {
 		for (const [locale, catalog] of catalogs) {
-			for (const kind of TEAM_EVENT_KINDS) {
+			for (const kind of EVENT_KINDS) {
 				expect(Object.keys(catalog), locale).toContain(`rynke.source.${kind}`);
 			}
 		}
+		expect(de["rynke.source.tour_de_paris"]).toBe("Tour de Paris");
+		expect(en["rynke.source.tour_de_paris"]).toBe("Tour de Paris");
 	});
 
 	it("carries the German source texts", () => {

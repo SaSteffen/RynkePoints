@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-	CURRENT_RULES,
 	type CountingWindow,
+	CURRENT_RULES,
 	eventInWindow,
 	seasonEnd,
 } from "../../src/rynke/rules";
