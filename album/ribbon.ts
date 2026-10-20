@@ -5,7 +5,11 @@
 // (FR-054). Units are the badge's (viewBox 0 0 100 100), over the picture.
 
 import type { BadgeGroup } from "../src/badges/catalog";
-import { BADGE_RIBBON_FILL, BADGE_RIBBON_SHAPES } from "../src/badges/outline";
+import {
+	BADGE_RIBBON_BAND,
+	BADGE_RIBBON_FILL,
+	BADGE_RIBBON_TAILS,
+} from "../src/badges/outline";
 import { BADGE_RIBBON } from "../src/badges/ribbon";
 import { html, SafeHtml } from "../src/http/html";
 import { seededRandom } from "./layout";
@@ -29,7 +33,8 @@ const GLITTER = {
 /** Once per document: the ribbon's outline to clip to, and the gloss. */
 export const RIBBON_DEFS = new SafeHtml(
 	`<svg class="ribbon-defs" width="0" height="0" aria-hidden="true"><defs>` +
-		`<clipPath id="ribbon-clip" clipPathUnits="userSpaceOnUse">${BADGE_RIBBON_SHAPES}</clipPath>` +
+		`<clipPath id="ribbon-clip-tails" clipPathUnits="userSpaceOnUse">${BADGE_RIBBON_TAILS}</clipPath>` +
+		`<clipPath id="ribbon-clip-band" clipPathUnits="userSpaceOnUse">${BADGE_RIBBON_BAND}</clipPath>` +
 		`<linearGradient id="ribbon-gloss" gradientUnits="userSpaceOnUse" x1="0" y1="${y}" x2="0" y2="${y + height}">` +
 		`<stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>` +
 		`<stop offset="0.4" stop-color="#ffffff" stop-opacity="0.16"/>` +
@@ -78,9 +83,20 @@ export function textSize(text: string): number {
 }
 
 /**
- * The ribbon over a sticker's picture, with its milestone on it: the band,
- * the glitter and gloss clipped to it, its ink edge again on top.
+ * One part of the ribbon, the tails or the band: filled and outlined, the
+ * glitter and gloss clipped to it, its ink edge again on top. The band comes
+ * second and covers the tails' inner ends, edges and all.
  */
+function part(
+	shapes: string,
+	clip: "tails" | "band",
+	fill: string,
+	shine: string,
+): string {
+	return `<g stroke="#1c1b13" fill="${fill}">${shapes}</g><g clip-path="url(#ribbon-clip-${clip})">${shine}</g><g stroke="#1c1b13" fill="none">${shapes}</g>`;
+}
+
+/** The ribbon over a sticker's picture, with its milestone on it. */
 export function ribbon(
 	badgeId: string,
 	group: BadgeGroup,
@@ -93,5 +109,11 @@ export function ribbon(
 		text.length * LETTER * size > TEXT_ROOM
 			? ` textLength="${TEXT_ROOM}" lengthAdjust="spacingAndGlyphs"`
 			: "";
-	return html`<svg class="ribbon" viewBox="0 0 100 100" aria-hidden="true"><g stroke="#1c1b13" fill="${fill}">${new SafeHtml(BADGE_RIBBON_SHAPES)}</g><g clip-path="url(#ribbon-clip)">${new SafeHtml(glitter(badgeId, group))}<rect x="${AREA.left}" y="${y}" width="${AREA.right - AREA.left}" height="${AREA.bottom - y}" fill="url(#ribbon-gloss)"/><rect x="${x + 2}" y="${y + 1}" width="${width - 4}" height="1.2" rx="0.6" fill="#ffffff" fill-opacity="0.45"/></g><g stroke="#1c1b13" fill="none">${new SafeHtml(BADGE_RIBBON_SHAPES)}</g><text x="50" y="${y + height / 2}" text-anchor="middle" dominant-baseline="central" font-size="${size}" fill="${BADGE_RIBBON.text[group]}" stroke="${fill}" stroke-width="1.3" stroke-linejoin="round" paint-order="stroke"${new SafeHtml(squeeze)}>${text}</text></svg>`;
+	const shine = `${glitter(badgeId, group)}<rect x="${AREA.left}" y="${y}" width="${AREA.right - AREA.left}" height="${AREA.bottom - y}" fill="url(#ribbon-gloss)"/>`;
+	const highlight = `<rect x="${x + 2}" y="${y + 1}" width="${width - 4}" height="1.2" rx="0.6" fill="#ffffff" fill-opacity="0.45"/>`;
+	const shapes = new SafeHtml(
+		part(BADGE_RIBBON_TAILS, "tails", fill, shine) +
+			part(BADGE_RIBBON_BAND, "band", fill, shine + highlight),
+	);
+	return html`<svg class="ribbon" viewBox="0 0 100 100" aria-hidden="true">${shapes}<text x="50" y="${y + height / 2}" text-anchor="middle" dominant-baseline="central" font-size="${size}" fill="${BADGE_RIBBON.text[group]}" stroke="${fill}" stroke-width="1.3" stroke-linejoin="round" paint-order="stroke"${new SafeHtml(squeeze)}>${text}</text></svg>`;
 }

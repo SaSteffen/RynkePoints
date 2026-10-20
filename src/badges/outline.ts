@@ -48,10 +48,12 @@ export const BADGE_RIBBON_FILL = {
  * the band, outlined in ink. No fill of its own: each `<use>` gives it the
  * group's.
  */
-export const BADGE_RIBBON_SHAPES =
+export const BADGE_RIBBON_TAILS =
 	tail(-1, ' stroke-width="0.9" stroke-linejoin="round"') +
-	tail(1, ' stroke-width="0.9" stroke-linejoin="round"') +
-	`<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="1.5" stroke-width="1"/>`;
+	tail(1, ' stroke-width="0.9" stroke-linejoin="round"');
+/** The band, which covers the tails' inner ends. */
+export const BADGE_RIBBON_BAND = `<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="1.5" stroke-width="1"/>`;
+export const BADGE_RIBBON_SHAPES = BADGE_RIBBON_TAILS + BADGE_RIBBON_BAND;
 
 /** The ribbon over an earned badge's picture, in its group's colour. */
 export function badgeRibbon(group: keyof typeof BADGE_RIBBON_FILL): string {

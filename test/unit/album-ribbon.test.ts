@@ -15,14 +15,27 @@ describe("the ribbon", () => {
 	});
 
 	it("keeps the glitter and gloss inside its outline", () => {
-		const svg = ribbon("distance-1000", "personal", "1.000 km").toString();
-		const clipped =
-			svg.match(/<g clip-path="url\(#ribbon-clip\)">([\s\S]*?)<\/g>/)?.[1] ??
-			"";
-		expect(clipped).toContain("<circle");
-		expect(clipped).toContain('fill="url(#ribbon-gloss)"');
-		expect(svg.replace(clipped, "")).not.toContain("<circle");
-		expect(RIBBON_DEFS.toString()).toContain('<clipPath id="ribbon-clip"');
+		const svg = ribbon("distance-1000", "personal", "1.000\u00a0km").toString();
+		const clips =
+			/<g clip-path="url\(#ribbon-clip-(tails|band)\)">[\s\S]*?<\/g>/g;
+		const clipped = [...svg.matchAll(clips)];
+		expect(clipped.map((m) => m[1])).toEqual(["tails", "band"]);
+		for (const [part] of clipped) {
+			expect(part).toContain("<circle");
+			expect(part).toContain('fill="url(#ribbon-gloss)"');
+		}
+		expect(svg.replace(clips, "")).not.toContain("<circle");
+		const defs = RIBBON_DEFS.toString();
+		expect(defs).toContain('<clipPath id="ribbon-clip-tails"');
+		expect(defs).toContain('<clipPath id="ribbon-clip-band"');
+	});
+
+	it("lays the band over the tails' inner ends, outline and all", () => {
+		const svg = ribbon("distance-1000", "personal", "1.000\u00a0km").toString();
+		const bandFill = svg.indexOf('<g stroke="#1c1b13" fill="#1c1b13"><rect');
+		const tailEdges = svg.lastIndexOf('<g stroke="#1c1b13" fill="none"><path');
+		expect(tailEdges).toBeGreaterThan(-1);
+		expect(bandFill).toBeGreaterThan(tailEdges);
 	});
 
 	it("draws no filter and no image, which Chromium would print as one", () => {
