@@ -135,8 +135,6 @@ interface StickerPose {
   rotateDeg: number;                 // -7 … 7
   dxMm: number;                      // up to ±3.8 (a miss in one slot in three)
   dyMm: number;                      // clamped to ±2.5
-  lift: { towardsDeg: number } | null;
-  // gloss angle: contracts/album-layout.md
 }
 ```
 

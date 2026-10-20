@@ -269,13 +269,11 @@ deterministic and unit-testable.
   `badgeId` (the same FNV-style hash as `tiltOf`, salted with the rider), a
   rotation in [-6°, 6°] and an offset in [-3, 3] mm sideways and [-2, 2] mm up
   and down. The rotated sticker's bounding circle stays inside its slot, which the tests check for every badge and a sample of riders.
-- **Sticker look (revised after the mock-up)**: a gloss band, a two-layer
-  shadow and an occasional lifted edge, SVG gradients and `box-shadow`
-  (contracts/album-layout.md); glitter and foil were tried and dropped. Gradients with opacity become PDF
-  shadings with soft masks, which stay vector; the print check (R14) proves it on
-  the first real run, and the first implementation task re-runs R1's test with
-  the shadow and gloss to measure size and time.
-- **Sticker look (first draft)**: a white die-cut edge (the app's sticker edge, feature 013
+- **Sticker placement (revised after the mock-up)**: stuck onto a printed
+  placeholder, sometimes missing it far enough that its edge shows
+  (contracts/album-layout.md). A richer finish (glitter, gloss, layered shadow)
+  was tried and dropped for now; the look is reworked later.
+- **Sticker look**: a white die-cut edge (the app's sticker edge, feature 013
   issue #180) and a shadow drawn as a CSS `box-shadow` on a circle, which
   Chromium keeps vector (R1); no `filter` anywhere in `album.css` (a test greps
   for it).

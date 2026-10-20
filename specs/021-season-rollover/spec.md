@@ -110,10 +110,11 @@ The feasibility research for self-service delivery is in
   Cloudflare R2, and riders download their own from the app. Phase 1 builds
   locally only, without upload (research.md R7).
 - Q (raised by the project owner, on the mock-up): How should the stickers look?
-  → A: Realistic, with a realistic shadow, and stuck onto the printed
-  placeholders imperfectly, so a sticker sometimes leaves the placeholder's edge
-  showing on one side, at random (deterministic per rider and badge, FR-026).
-  No glitter (tried in the mock-up, dropped by the owner).
+  → A: Stuck onto the printed placeholders imperfectly, so a sticker sometimes
+  leaves the placeholder's edge showing on one side, at random (deterministic per
+  rider and badge, FR-026). The sticker's finish (glitter, gloss, a more realistic
+  shadow) was tried in the mock-up and dropped for now; the look gets reworked in
+  a later step, keeping this placement.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -272,8 +273,7 @@ first the rider's own categories ("Meine Abzeichen"), then the team's
 ("Team-Abzeichen"), each category under its name, its badges in catalog order. An
 slot has its placeholder printed on the page. An earned badge is stuck onto it
 as a sticker: turned a little and off-centre, sometimes far enough that
-the placeholder's edge shows on one side, with a realistic shadow and, now and
-then, an edge that lifts a little; its name and date earned are printed below. A
+the placeholder's edge shows on one side, with a soft shadow; its name and date earned are printed below. A
 badge not earned leaves the placeholder empty. Each
 group says how many of its badges are stuck in ("42 von 87").
 
@@ -430,19 +430,16 @@ the others empty, and that no sticker leaves its slot or the page.
   catalog, personal categories first, then team categories, each category under
   its name, in the order of the app's gallery (feature 013 FR-002).
 - **FR-036**: An earned badge MUST be stuck onto its slot's printed placeholder
-  as a sticker: its picture as in the app (feature 013) on a white die-cut edge
-  with a subtle gloss highlight and no glitter, turned by up to ±7° and moved off the
-  placeholder's centre, mostly by up to 1.5 mm, in about one slot in three by
-  2 to 4 mm so the placeholder's edge shows on one side; with a realistic shadow
-  (a tight dark contact shadow and a soft ambient one) and in about one slot in
-  four a slightly lifted edge (a longer shadow on that side and a light catch on
-  its rim). Placement and shine MUST follow from the rider and the badge
+  as a sticker: its picture as in the app (feature 013) on a white die-cut edge,
+  with a soft shadow drawn as a vector shape (FR-054), turned by up to ±7° and
+  moved off the placeholder's centre, mostly by up to 1.5 mm, in about one slot
+  in three by 2 to 4 mm so the placeholder's edge shows on one side. Placement MUST follow from the rider and the badge
   (FR-026). All of it MUST stay vector (FR-054). Its name and the date earned
   MUST be printed below. A sticker MUST NOT overlap another slot or leave the
   page.
 - **FR-037**: Every slot MUST have its placeholder printed on the page: a light
-  disc with the dashed edge of the app's gallery outline for a badge still to
-  earn (feature 013 FR-002), the size of a sticker. A badge not earned MUST leave
+  the dashed outline of the app's gallery for a badge still to earn (feature 013
+  FR-002), the size of a sticker. A badge not earned MUST leave
   it empty, so it never looks like an earned badge that still has the placeholder
   picture (such as the stand-in tour badges), with the badge's name below; a surprise badge not earned MUST show "?" instead of its name and MUST
   NOT reveal its rule (feature 013 FR-015b).
