@@ -35,7 +35,7 @@ once they exist; US4 and US5 need US3's album Worker.
   `pnpm test` on the branch before any change (or confirm the branch's CI checks
   are green where the registry can't be reached). Later failures are then this
   feature's.
-- [ ] T002 [P] Add `pdf-lib` as a dev dependency (`pnpm add -D pdf-lib`), with the
+- [x] T002 [P] Add `pdf-lib` as a dev dependency (`pnpm add -D pdf-lib`), with the
   justification of research R14 in the commit message (constitution Principle IV).
 - [x] T003 [P] Add `season-albums/` to `.gitignore` next to `strava-review/`, with
   a comment that it holds real rider data and is deleted by hand (research R15).
@@ -185,18 +185,18 @@ fill it in).
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T030 [P] [US3] `test/unit/album-guard.test.ts` for `album/guard.ts`
+- [x] T030 [P] [US3] `test/unit/album-guard.test.ts` for `album/guard.ts`
   (contracts/album-worker.md "Read-only guard"): SELECT and WITH … SELECT pass,
   also with leading comments; INSERT, UPDATE, DELETE, REPLACE, CREATE, DROP,
   ALTER, PRAGMA, `WITH … DELETE` and `SELECT 1; DELETE …` throw
   `ReadOnlyError`; `exec` and `dump` always throw; `batch` of guarded statements
   runs.
-- [ ] T031 [P] [US3] `test/unit/album-ignore.test.ts`: `.gitignore` lists
+- [x] T031 [P] [US3] `test/unit/album-ignore.test.ts`: `.gitignore` lists
   `season-albums/` (read through `import.meta.glob(?raw)` as `dev-guard.test.ts`
   reads sources).
-- [ ] T032 [P] [US3] Extend `test/unit/dev-guard.test.ts` layer 1: nothing under
+- [x] T032 [P] [US3] Extend `test/unit/dev-guard.test.ts` layer 1: nothing under
   `src/` imports `album/`.
-- [ ] T033 [P] [US3] `test/integration/album-worker.test.ts`: with seeded
+- [x] T033 [P] [US3] `test/integration/album-worker.test.ts`: with seeded
   synthetic riders, `GET /riders?cutoff=…` lists exactly the listed riders with
   file stems (`anna-1`, two Bens as `ben-1`, `ben-2`); `GET /album/:id` answers
   200 HTML for a listed rider and 404 for another; a missing or invalid `cutoff`
@@ -205,19 +205,19 @@ fill it in).
 
 ### Implementation
 
-- [ ] T034 [US3] `album/guard.ts`: the read-only D1 wrapper.
-- [ ] T035 [US3] `album/wrangler.jsonc` (contracts/album-worker.md
+- [x] T034 [US3] `album/guard.ts`: the read-only D1 wrapper.
+- [x] T035 [US3] `album/wrangler.jsonc` (contracts/album-worker.md
   "Configuration") and `album/worker.ts`: the routes, local hosts only, `env.DB`
   wrapped by the guard first, `album.css` and fonts served; `/album/:id` renders
   a placeholder page for now.
-- [ ] T036 [US3] `scripts/season-album.mjs` (contracts/season-album-command.md):
+- [x] T036 [US3] `scripts/season-album.mjs` (contracts/season-album-command.md):
   options, the three preconditions (exit 2), starting and stopping `wrangler dev
   -c album/wrangler.jsonc` with the vars from the root config (`--local` with
   `.wrangler/fake-state`), printing each album with Playwright's Chromium
   (`preferCSSPageSize`, `printBackground`, after network idle and
   `document.fonts.ready`), the summary output, the old-albums notice and the exit
   codes.
-- [ ] T037 [US3] The print check in `scripts/season-album.mjs` with `pdf-lib`
+- [x] T037 [US3] The print check in `scripts/season-album.mjs` with `pdf-lib`
   (research R14): A4 MediaBox within 0.5 mm, even page count, no image XObject,
   every font embedded; failing albums listed, exit 1.
 - [ ] T038 [US3] Re-run research R1's measurement with the real page once US5 is
