@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { badgeWindow } from "../../src/badges/evaluate";
 import {
 	evaluateTeamBadges,
 	type TeamBadgeSums,
 	type TeamRiderDays,
 } from "../../src/badges/team";
-import { badgeWindow } from "../../src/badges/evaluate";
 import { CURRENT_RULES } from "../../src/rynke/rules";
 import type { EventKind } from "../../src/rynke/team-events";
 
