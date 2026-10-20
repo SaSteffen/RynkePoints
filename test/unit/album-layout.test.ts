@@ -13,7 +13,9 @@ import {
 	MARGIN,
 	PAGE_HEIGHT,
 	PAGE_WIDTH,
+	PICTURE,
 	pose,
+	RIBBON_REACH,
 	SHADOW,
 	SLOT_HEIGHT,
 	SLOT_WIDTH,
@@ -254,6 +256,13 @@ describe("the sticker pages", () => {
 		later.cutoff = "2027-01-14";
 		const all = stickerPagesOf(layoutAlbum(later)).flatMap((p) => p.slots);
 		expect(all.every((s) => s.pose === null)).toBe(true);
+	});
+});
+
+describe("the sticker", () => {
+	it("holds the picture and the ribbon's tails with a white edge round them", () => {
+		expect(RIBBON_REACH).toBeGreaterThan(PICTURE / 2);
+		expect(STICKER / 2 - RIBBON_REACH).toBeGreaterThanOrEqual(1.2);
 	});
 });
 

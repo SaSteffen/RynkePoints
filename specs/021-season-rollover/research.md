@@ -270,7 +270,7 @@ deterministic and unit-testable.
 
 - **Page**: 210 × 297 mm. Safe area: top 12, bottom 12, outer 12, gutter 20 mm;
   odd pages gutter left, even pages right (FR-051). Content box 178 × 273 mm.
-- **Slots**: 3 per row, 59.3 mm wide; slot height 66 mm: sticker 44 mm
+- **Slots**: 3 per row, 59.3 mm wide; slot height 72 mm: sticker 50 mm
   diameter with the app's milestone ribbon, pose margin 3 mm sideways and 2 mm
   up and down, caption 16 mm (name, what the badge was for and the date, or the
   milestone of one still to earn, or "?"), see contracts/album-layout.md. The
@@ -296,8 +296,9 @@ deterministic and unit-testable.
   season and the event table (5 mm rows, about 48 per page), continued on page 3
   if needed; sticker pages start on the next page; a blank page is added at the
   end if the total is odd (FR-053).
-- **Font**: one OFL-licensed font in `album/fonts/` (proposed: Nunito, regular
-  and bold, woff2), loaded with `@font-face` from the album Worker; the command
+- **Font**: Nunito (OFL) in `album/fonts/`, regular, bold and black, woff2,
+  and for the owner's name on the cover the handwritten Schoolbell (Apache
+  2.0, chosen by the owner from twelve handwritten fonts), loaded with `@font-face` from the album Worker; the command
   waits for `document.fonts.ready` before printing so it is embedded (FR-055).
   Its licence file sits next to it.
 

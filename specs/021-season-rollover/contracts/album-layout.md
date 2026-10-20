@@ -35,9 +35,9 @@ app's yellow (#fbe122, personal) and team blue (#8cc4f0) for page bands, ink
 | Measure | Value |
 |---------|-------|
 | Columns | 3, each 59.3 mm |
-| Slot height | 66 mm: the sticker, then its 16 mm caption |
-| Placeholder | printed on every slot: the gallery's 44 mm dashed circle |
-| Sticker | 44 mm white die-cut circle (2 mm edge) holding the 40 mm picture, on the placeholder; its centre 25 mm below the slot's top |
+| Slot height | 72 mm: the sticker, then its 16 mm caption |
+| Placeholder | printed on every slot: the gallery's dashed circle, 47 mm across in the sticker's 50 mm box |
+| Sticker | 50 mm white die-cut circle holding the 40 mm picture, on the placeholder; its centre 28 mm below the slot's top. The ribbon's tail tips reach 23.7 mm from the centre, past the picture's round edge, and stay 1.3 mm inside the sticker's |
 | Ribbon | on every sticker the app's milestone ribbon (`BADGE_RIBBON_SHAPES`) in the group's colour, with the milestone ("1.000 km", the app's `milestone`) in Nunito Black, 7.6 units, smaller for a long one and never under 7 pt; on the ribbon alone, clipped to its outline, a gloss (white to clear to a little ink, top to bottom, and a thin white highlight) and glitter (110 fine specks and 7 four-pointed sparkles in the group's colours, from the badge id alone, so every copy of a badge has the same); vector shapes and gradients only |
 | Pose | rotation −7° … 7°; offset mostly 0 … 1.5 mm, in one slot in three 2.2 … 3.8 mm, in any direction; y clamped to ±2.5 mm |
 | Shadow | sharp and tight, as a sticker lying flat on paper, from unblurred `box-shadow` layers only (0.08 mm down at 30 %, 0.2 mm down at 16 %, a 0.16 mm edge line at 22 %): Chromium prints any blur radius as an image (research R1); no CSS `filter` |
@@ -45,10 +45,10 @@ app's yellow (#fbe122, personal) and team blue (#8cc4f0) for page bands, ink
 | Page band | 12 mm at the top of the safe area: group name, count, page number on the outer side |
 | Category heading | 9 mm; never the last element on a page; repeated with "(Fortsetzung)" when a category continues |
 
-Bounding check: 22 mm radius + 3.8 mm offset + 0.4 mm shadow = 26.2 mm, inside
-the slot's half-width of 29.65 mm; vertically 25 + 22 + 2.5 + 0.4 = 49.9 mm, above
-the caption at 50 mm. A page holds the band, two categories' headings and three
-rows (12 + 2 × 9 + 3 × 66 = 228 mm of 273), or one heading and three rows.
+Bounding check: 25 mm radius + 3.8 mm offset + 0.4 mm shadow = 29.2 mm, inside
+the slot's half-width of 29.65 mm; vertically 28 + 25 + 2.5 + 0.4 = 55.9 mm, above
+the caption at 56 mm. A page holds the band, two categories' headings and three
+rows (12 + 2 × 9 + 3 × 72 = 246 mm of 273), or one heading and three rows.
 
 ## Slot states
 
@@ -72,5 +72,5 @@ rotateDeg = rnd() · 14 − 7
 ```
 
 Same inputs give the same sticker (FR-026). The mock-up's slot component
-(`Slot.dc.html`) is the reference implementation of this sequence. Fonts: one embedded OFL font, at least
+(`Slot.dc.html`) is the reference implementation of this sequence. Fonts: Nunito (OFL) for all text, Schoolbell (Apache 2.0) for the owner's name on the cover, both embedded, at least
 7 pt; lines at least 0.25 pt (FR-055).

@@ -5,6 +5,8 @@
 // FR-050–FR-053).
 
 import type { BadgeCategoryId, BadgeGroup } from "../src/badges/catalog";
+import { BADGE_RIBBON_TAIL } from "../src/badges/outline";
+import { BADGE_RIBBON } from "../src/badges/ribbon";
 import type { AlbumData, AlbumEvent, AlbumSlot } from "./load";
 
 export const PAGE_WIDTH = 210;
@@ -29,12 +31,27 @@ export const EVENT_FOOTER = 8;
 
 export const SLOT_WIDTH = CONTENT_WIDTH / 3;
 /** The sticker, then its caption below it. */
-export const SLOT_HEIGHT = 66;
+export const SLOT_HEIGHT = 72;
 export const HEADING = 9;
-/** The die-cut sticker and the printed placeholder under it. */
-export const STICKER = 44;
-/** The picture inside the sticker's 2 mm white edge. */
+/**
+ * The die-cut sticker and the printed placeholder under it: wide enough that
+ * the ribbon's tails, which reach past the picture's round edge, stay on the
+ * sticker (`RIBBON_REACH`).
+ */
+export const STICKER = 50;
+/** The picture inside the sticker's white edge. */
 export const PICTURE = 40;
+/**
+ * How far from the picture's centre the ribbon's tail tips reach: their
+ * lower outer corner, in badge units (viewBox 0 0 100 100) scaled to the
+ * picture.
+ */
+export const RIBBON_REACH =
+	Math.hypot(
+		BADGE_RIBBON_TAIL.outer,
+		BADGE_RIBBON.box.y + BADGE_RIBBON_TAIL.bottom - 50,
+	) *
+	(PICTURE / 100);
 /** From the slot's top to the placeholder's centre. */
 export const STICKER_CENTRE_Y = 3 + STICKER / 2;
 /** How far the sticker's shadow reaches past its edge. */
