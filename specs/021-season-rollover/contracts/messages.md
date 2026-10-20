@@ -15,6 +15,7 @@ structure (e.g. nested objects) where it differs.
 
 Wherever the existing kinds have a label (organiser event form, event lists,
 Termine tab), this one is used; no amount line is shown for it (FR-004).
+Implemented as `rynke.source.tour_de_paris`, next to the other kinds' labels.
 
 ## Tour badges
 
@@ -27,6 +28,9 @@ Termine tab), this one is used; no amount line is shown for it (FR-004).
 
 `badges.de.ts`: `tour-de-paris-1` → "Tour-Tag 1" … `tour-de-paris-8` →
 "Tour-Tag 8" (stand-ins until Phase 2).
+
+The category's sentence is implemented as `badges.about.tour_de_paris`, as
+every category's sentence is.
 
 ## Album
 

@@ -4,6 +4,10 @@ description: "Task list for the season rollover: Tour de Paris badges and the se
 
 # Tasks: Season Rollover – Tour de Paris Badges and the Season Album
 
+**Status (2026-10-20)**: Phases 1–4 done (MVP 1, the Tour de Paris in the app),
+except T002: `pdf-lib` is still to be added with `pnpm add -D pdf-lib` where
+the npm registry can be reached; only T037 (US3) needs it. Phases 5–8 open.
+
 **Input**: Design documents from `/specs/021-season-rollover/`
 **Prerequisites**: [plan.md](plan.md), [spec.md](spec.md), [research.md](research.md),
 [data-model.md](data-model.md), [contracts/](contracts/), [quickstart.md](quickstart.md)
@@ -27,17 +31,17 @@ once they exist; US4 and US5 need US3's album Worker.
 
 ## Phase 1: Setup
 
-- [ ] T001 Run `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck` and
+- [x] T001 Run `pnpm install --frozen-lockfile`, `pnpm lint`, `pnpm typecheck` and
   `pnpm test` on the branch before any change (or confirm the branch's CI checks
   are green where the registry can't be reached). Later failures are then this
   feature's.
 - [ ] T002 [P] Add `pdf-lib` as a dev dependency (`pnpm add -D pdf-lib`), with the
   justification of research R14 in the commit message (constitution Principle IV).
-- [ ] T003 [P] Add `season-albums/` to `.gitignore` next to `strava-review/`, with
+- [x] T003 [P] Add `season-albums/` to `.gitignore` next to `strava-review/`, with
   a comment that it holds real rider data and is deleted by hand (research R15).
-- [ ] T004 [P] Add `"album"` to `tsconfig.json`'s `include`, and
+- [x] T004 [P] Add `"album"` to `tsconfig.json`'s `include`, and
   `"season:album": "node scripts/season-album.mjs"` to `package.json`'s scripts.
-- [ ] T005 [P] Add the album font to `album/fonts/`: Nunito regular, bold and
+- [x] T005 [P] Add the album font to `album/fonts/`: Nunito regular, bold and
   black as woff2 with its `OFL.txt` (research R13, FR-055); a line in
   `art/README.md` or `album/fonts/README.md` saying where it came from.
 
@@ -49,7 +53,7 @@ once they exist; US4 and US5 need US3's album Worker.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T006 [P] `test/unit/event-kinds.test.ts` for `src/rynke/team-events.ts` and
+- [x] T006 [P] `test/unit/event-kinds.test.ts` for `src/rynke/team-events.ts` and
   `src/rynke/rules.ts` (data-model.md "Event kinds"): `EVENT_KINDS` is
   `TEAM_EVENT_KINDS` plus `tour_de_paris`; `isEventKind("tour_de_paris")` is true,
   `isTeamEventKind("tour_de_paris")` false; `CURRENT_RULES.teamEvents` has no
@@ -58,20 +62,20 @@ once they exist; US4 and US5 need US3's album Worker.
   start to the season end and every other kind from the season start to the
   deadline; `evaluateAttendance` given a tour attendance (typed through the
   widened row type) earns nothing.
-- [ ] T007 [P] Extend `test/integration/db.test.ts` (or the migration test it
+- [x] T007 [P] Extend `test/integration/db.test.ts` (or the migration test it
   uses): after migration `0018` `team_event_kinds` holds the four kinds and a
   `team_events` row with `kind = 'tour_de_paris'` can be inserted.
 
 ### Implementation
 
-- [ ] T008 `migrations/0018_tour_de_paris.sql`: `INSERT INTO team_event_kinds
+- [x] T008 `migrations/0018_tour_de_paris.sql`: `INSERT INTO team_event_kinds
   (kind) VALUES ('tour_de_paris');` only (additive, CLAUDE.md).
-- [ ] T009 `src/rynke/team-events.ts`: `EVENT_KINDS`, `EventKind`, `isEventKind`;
+- [x] T009 `src/rynke/team-events.ts`: `EVENT_KINDS`, `EventKind`, `isEventKind`;
   `TEAM_EVENT_KINDS` keeps meaning the Rynke-earning kinds (research R9). Never
   call it plain `tour` (`src/http/tour.ts` is feature 020's).
-- [ ] T010 `src/rynke/rules.ts`: `seasonEnd(window)` and `eventInWindow(kind,
+- [x] T010 `src/rynke/rules.ts`: `seasonEnd(window)` and `eventInWindow(kind,
   date, window)` (research R10); `inCountingWindow` unchanged for rides.
-- [ ] T011 `src/db/team-events.ts`: type event rows' `kind` as `EventKind`; where
+- [x] T011 `src/db/team-events.ts`: type event rows' `kind` as `EventKind`; where
   rows become `Attendance` for the tally, leave out `tour_de_paris` rows so the
   tally's types stay `TeamEventKind` (FR-002).
 
@@ -86,30 +90,30 @@ reports, show no Rynke and earn none.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T012 [P] [US1] `test/integration/tour-events.test.ts`: an organiser creates
+- [x] T012 [P] [US1] `test/integration/tour-events.test.ts`: an organiser creates
   a `tour_de_paris` event dated after `QUALIFICATION_DEADLINE` (the form accepts
   it; any other kind on that date is still refused); records attendance for two
   synthetic riders; their stored balances and qualification do not change
   (FR-002); the riders' Termine tab lists the tour day with no amount line
   (FR-004) and offers "Ich war dabei" on it once it has taken place, and the
   report is accepted (FR-003, feature 019).
-- [ ] T013 [P] [US1] Extend `test/unit/messages.test.ts` (or the catalog test):
+- [x] T013 [P] [US1] Extend `test/unit/messages.test.ts` (or the catalog test):
   `eventKind.tour_de_paris` exists in de and en (contracts/messages.md).
 
 ### Implementation
 
-- [ ] T014 [US1] `src/http/organiser/events.ts`: the kind select offers
+- [x] T014 [US1] `src/http/organiser/events.ts`: the kind select offers
   `EVENT_KINDS`; the date check and the attendance window use
   `eventInWindow(kind, …)` instead of `inCountingWindow`.
-- [ ] T015 [US1] `src/http/sections/events.ts`: list events with
+- [x] T015 [US1] `src/http/sections/events.ts`: list events with
   `eventInWindow`; no amount chips for `tour_de_paris` (FR-004); reports for tour
   days through the same window.
-- [ ] T016 [US1] Every other event filter found by `grep -n "inCountingWindow"
+- [x] T016 [US1] Every other event filter found by `grep -n "inCountingWindow"
   src/http src/rynke/participation.ts` that filters events (not rides) uses
   `eventInWindow`; list them in the commit message.
-- [ ] T017 [P] [US1] `src/i18n/messages/de.ts` and `en.ts`:
+- [x] T017 [P] [US1] `src/i18n/messages/de.ts` and `en.ts`:
   `eventKind.tour_de_paris` ("Tour de Paris" in both).
-- [ ] T018 [US1] `dev/fake-strava/seed.ts` (and `samples.ts`): the sample season gets 8 tour days after
+- [x] T018 [US1] `dev/fake-strava/seed.ts` (and `samples.ts`): the sample season gets 8 tour days after
   the deadline with attendances of some sample riders, so `pnpm dev` and the
   album's `--local` run show them (synthetic only).
 
@@ -124,46 +128,46 @@ tour days; tour days also count for the team-event badges.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T019 [P] [US2] `test/unit/badge-tour.test.ts` for `src/badges/team.ts`
+- [x] T019 [P] [US2] `test/unit/badge-tour.test.ts` for `src/badges/team.ts`
   (data-model.md "Tour badge inputs"): Anna on 20 and 21 June earns
   `tour-de-paris-1` dated 20 June and `-2` dated 21 June; Anna on one day and Ben
   on another earn only `-1`, dated the earlier day; ten tour days of one rider
   earn up to `-8` and no more; removing an attendance takes the badge back; a
   tour day dated after "today" counts for nothing; progress is "Noch n Tage" from
   the largest count; the result never names a rider.
-- [ ] T020 [P] [US2] Extend `test/unit/badge-catalog.test.ts`: category
+- [x] T020 [P] [US2] Extend `test/unit/badge-catalog.test.ts`: category
   `tour_de_paris`, group `team`, unit `days`, ladder `[1, 2, 3, 4, 5, 6, 7, 8]`,
   ids `tour-de-paris-1` … `-8`, after `attendances` and before `team_surprise`;
   `BADGE_CATALOG_VERSION` is 6; `art/badges/badges.json` matches.
-- [ ] T021 [P] [US2] Extend `test/unit/badge-names.test.ts`: "Tour-Tag 1" …
+- [x] T021 [P] [US2] Extend `test/unit/badge-names.test.ts`: "Tour-Tag 1" …
   "Tour-Tag 8"; `badges.category.tour_de_paris`, its sentence and
   `badges.tourDay.for` exist in de and en.
-- [ ] T022 [P] [US2] Extend `test/unit/badge-team.test.ts` and
+- [x] T022 [P] [US2] Extend `test/unit/badge-team.test.ts` and
   `test/unit/badge-evaluate.test.ts`: a tour day after the deadline counts for
   `big_training`, `attendances` and the personal `team_events` (FR-005), and not
   for `technique`.
-- [ ] T023 [P] [US2] Extend `test/integration/badges-section.test.ts` and
+- [x] T023 [P] [US2] Extend `test/integration/badges-section.test.ts` and
   `test/integration/team-badge-notification.test.ts`: the team group shows the
   "Tour de Paris" card with the team placeholder picture and "Noch n Tage"; a
   newly earned tour badge is told once to each listed rider (FR-012).
 
 ### Implementation
 
-- [ ] T024 [US2] `src/badges/catalog.ts`: the category (data-model.md "Badge
+- [x] T024 [US2] `src/badges/catalog.ts`: the category (data-model.md "Badge
   catalog"), `BADGE_CATALOG_VERSION = 6`; `art/badges/badges.json` gets the 8
   entries with a placeholder `scene`.
-- [ ] T025 [P] [US2] `src/i18n/messages/badges.de.ts`: "Tour-Tag 1" …
+- [x] T025 [P] [US2] `src/i18n/messages/badges.de.ts`: "Tour-Tag 1" …
   "Tour-Tag 8"; `de.ts`/`en.ts`: `badges.category.tour_de_paris`, its sentence,
   `badges.tourDay.for` with `{day}` (contracts/messages.md).
-- [ ] T026 [US2] `src/db/team.ts`: `teamBadgeSumsStatements` gets one statement
+- [x] T026 [US2] `src/db/team.ts`: `teamBadgeSumsStatements` gets one statement
   for listed riders' attendances at `tour_de_paris` events (athlete id, date),
   and `TeamEventSum` rows carry `kind`; `toTeamBadgeSums` fills `tourDays`.
-- [ ] T027 [US2] `src/badges/team.ts`: the `tour_de_paris` series (research R11);
+- [x] T027 [US2] `src/badges/team.ts`: the `tour_de_paris` series (research R11);
   `big_training` and `attendances` filter with `eventInWindow` capped at today.
-- [ ] T028 [US2] `src/badges/evaluate.ts`: personal `team_events` counts
+- [x] T028 [US2] `src/badges/evaluate.ts`: personal `team_events` counts
   attendance with `eventInWindow` (tour days after the deadline included);
   `technique` unchanged.
-- [ ] T029 [US2] `src/badges/view.ts` and `src/http/sections/badges.ts`: the
+- [x] T029 [US2] `src/badges/view.ts` and `src/http/sections/badges.ts`: the
   card's progress line for `days`, and the "what it was for" line from
   `badges.tourDay.for` for tour badges.
 
