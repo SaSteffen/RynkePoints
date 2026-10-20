@@ -22,10 +22,15 @@ import { TeamEventRefused, teamEventChange } from "../../rynke/apply";
 import { hasTakenPlace } from "../../rynke/participation";
 import {
 	countingWindow,
-	inCountingWindow,
+	eventInWindow,
 	isCalendarDate,
 } from "../../rynke/rules";
-import { TEAM_EVENT_KINDS, type TeamEventKind } from "../../rynke/team-events";
+import {
+	EVENT_KINDS,
+	type EventKind,
+	isEventKind,
+	TEAM_EVENT_KINDS,
+} from "../../rynke/team-events";
 import { notFound } from "../errors";
 import { html, type SafeHtml } from "../html";
 import { PLUS } from "../icons";
@@ -73,25 +78,31 @@ async function eventForm(request: Request) {
 	};
 	const name = field("name").trim();
 	return {
-		kind: field("kind") as TeamEventKind,
+		kind: field("kind") as EventKind,
 		date: field("date"),
 		name: name === "" ? null : name,
 	};
 }
 
-/** Whether a valid `date` falls outside the season (R5). */
-function outsideSeason(ctx: Ctx, date: string): boolean {
+/**
+ * Whether a valid `date` falls outside the season (R5) for an event of `kind`:
+ * a tour day may lie after the deadline (feature 021 FR-003). An unknown kind
+ * is 003's to refuse.
+ */
+function outsideSeason(ctx: Ctx, kind: string, date: string): boolean {
 	return (
-		isCalendarDate(date) && !inCountingWindow(date, countingWindow(ctx.env))
+		isCalendarDate(date) &&
+		isEventKind(kind) &&
+		!eventInWindow(kind, date, countingWindow(ctx.env))
 	);
 }
 
 /** The kind, date and name fields, filled with `event`. */
 function eventFields(
 	i18n: I18n,
-	event: { kind: TeamEventKind; event_date: string; name: string | null },
+	event: { kind: EventKind; event_date: string; name: string | null },
 ): SafeHtml {
-	const options = TEAM_EVENT_KINDS.map(
+	const options = EVENT_KINDS.map(
 		(kind) =>
 			html`<option value="${kind}"${kind === event.kind ? html` selected` : ""}>${i18n.t(`rynke.source.${kind}`)}</option>`,
 	);
@@ -306,7 +317,7 @@ export async function handleCreateEvent(
 	const rider = await requireOrganiserPost(request, ctx, i18n, LIST);
 	if (rider instanceof Response) return rider;
 	const event = await eventForm(request);
-	if (outsideSeason(ctx, event.date)) {
+	if (outsideSeason(ctx, event.kind, event.date)) {
 		return redirectWith(LIST, "error", "outside_season");
 	}
 	try {
@@ -340,7 +351,10 @@ export async function handleUpdateEvent(
 		eventId,
 	).first<TeamEventRecordRow>();
 	if (!stored) return redirectWith(LIST, "error", "event_missing");
-	if (event.date !== stored.event_date && outsideSeason(ctx, event.date)) {
+	if (
+		(event.date !== stored.event_date || event.kind !== stored.kind) &&
+		outsideSeason(ctx, event.kind, event.date)
+	) {
 		return redirectWith(path, "error", "outside_season");
 	}
 	try {

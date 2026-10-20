@@ -14,7 +14,11 @@
 // version 1 (research R18). Version 3 lets a ride pause as long as it moves,
 // half of its elapsed time, instead of half its moving time (FR-005a).
 
-import { TEAM_EVENT_KINDS, type TeamEventKind } from "./team-events";
+import {
+	type EventKind,
+	TEAM_EVENT_KINDS,
+	type TeamEventKind,
+} from "./team-events";
 
 /** What one attended event of a kind earns (FR-007). */
 export interface TeamEventAmounts {
@@ -98,6 +102,12 @@ export function rulesForVersion(version: number): RynkeRules | null {
 export interface CountingWindow {
 	seasonStart: string;
 	deadline: string;
+	/**
+	 * The team's calendar day, set by feature 013's `badgeWindow` only: the
+	 * last day a tour day counts for badges (feature 021 research R10).
+	 * Absent: tour days count to the season end.
+	 */
+	today?: string;
 }
 
 /** `SEASON_START_DATE` to `QUALIFICATION_DEADLINE`, team settings like the club. */
@@ -119,6 +129,42 @@ export function inCountingWindow(
 	window: CountingWindow,
 ): boolean {
 	return date >= window.seasonStart && date <= window.deadline;
+}
+
+/**
+ * The season's last day: the day before the season start's anniversary
+ * (2026-09-01 → 2027-08-31, feature 021 research R10).
+ */
+export function seasonEnd(window: Pick<CountingWindow, "seasonStart">): string {
+	const [y, m, d] = window.seasonStart.split("-").map(Number) as [
+		number,
+		number,
+		number,
+	];
+	// A 29 February start has its anniversary on 1 March.
+	const anniversary = new Date(Date.UTC(y + 1, m - 1, d));
+	return new Date(anniversary.getTime() - 86_400_000)
+		.toISOString()
+		.slice(0, 10);
+}
+
+/**
+ * Whether an event of `kind` dated `date` counts: a tour day from the season
+ * start to the season end (feature 021 FR-003), and to `window.today` when
+ * that is set; every other kind inside the counting window, as rides
+ * (feature 003 FR-011). Every filter of events uses this; rides keep
+ * `inCountingWindow`.
+ */
+export function eventInWindow(
+	kind: EventKind,
+	date: string,
+	window: CountingWindow,
+): boolean {
+	if (kind !== "tour_de_paris") return inCountingWindow(date, window);
+	const end = seasonEnd(window);
+	const last =
+		window.today !== undefined && window.today < end ? window.today : end;
+	return date >= window.seasonStart && date <= last;
 }
 
 /** Throws on rules no evaluation can use; that is a programming error. */

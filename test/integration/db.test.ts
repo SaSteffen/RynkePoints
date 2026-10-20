@@ -29,7 +29,7 @@ import {
 	setMembershipChecked,
 	updateRiderOnReconnect,
 } from "../../src/db/riders";
-import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
+import { EVENT_KINDS, TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
 import {
 	ACTIVITY_FIGURES_VERSION,
 	type ActivityRecord,
@@ -925,11 +925,28 @@ describe("team-event tables (migration 0006)", () => {
 		}
 	});
 
-	it("seeds exactly the kinds of TEAM_EVENT_KINDS", async () => {
+	it("seeds exactly the kinds of EVENT_KINDS (migrations 0006, 0018)", async () => {
 		const { results } = await db
 			.prepare("SELECT kind FROM team_event_kinds ORDER BY rowid")
 			.all<{ kind: string }>();
-		expect(results.map((r) => r.kind)).toEqual(TEAM_EVENT_KINDS);
+		expect(results.map((r) => r.kind)).toEqual(EVENT_KINDS);
+		expect(results.map((r) => r.kind)).toEqual([
+			...TEAM_EVENT_KINDS,
+			"tour_de_paris",
+		]);
+	});
+
+	it("stores a tour day (feature 021 FR-001)", async () => {
+		const eventId = await insertEvent(
+			"tour_de_paris",
+			"2026-06-20",
+			"Hamburg – Bremen",
+		);
+		expect(eventId).toBeTypeOf("number");
+		await attend(eventId as number, ATHLETE_A);
+		expect(await attendees(eventId as number)).toEqual([
+			{ event_id: eventId, athlete_id: ATHLETE_A },
+		]);
 	});
 
 	it("refuses an unknown kind", async () => {

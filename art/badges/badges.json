@@ -808,6 +808,62 @@
 			"scene": "A big group of characters all jumping in the air at the same moment for a photo, arms and legs flung out, gold confetti flying. {{team}}"
 		},
 		{
+			"id": "tour-de-paris-1",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 1,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 1 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-2",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 2,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 2 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-3",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 3,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 3 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-4",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 4,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 4 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-5",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 5,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 5 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-6",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 6,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 6 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-7",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 7,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 7 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-8",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 8,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 8 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
 			"id": "team-surprise-day-off",
 			"group": "team",
 			"category": "team_surprise",

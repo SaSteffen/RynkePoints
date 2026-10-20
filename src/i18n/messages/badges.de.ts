@@ -144,6 +144,15 @@ export const BADGE_NAMES: Record<BadgeId, string> = {
 	"attendances-100": "Hundertmal dabei",
 	"attendances-200": "Eingespielt",
 	"attendances-400": "Alle dabei",
+	// Tour de Paris (feature 021): stand-ins until Phase 2 names the places.
+	"tour-de-paris-1": "Tour-Tag 1",
+	"tour-de-paris-2": "Tour-Tag 2",
+	"tour-de-paris-3": "Tour-Tag 3",
+	"tour-de-paris-4": "Tour-Tag 4",
+	"tour-de-paris-5": "Tour-Tag 5",
+	"tour-de-paris-6": "Tour-Tag 6",
+	"tour-de-paris-7": "Tour-Tag 7",
+	"tour-de-paris-8": "Tour-Tag 8",
 	// Team-Überraschungen (part E)
 	"team-surprise-day-off": "Kollektiver Couchtag",
 	"team-surprise-all-out": "Alle Mann an Deck",

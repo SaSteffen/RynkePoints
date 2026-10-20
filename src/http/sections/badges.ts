@@ -122,12 +122,16 @@ type SurpriseName =
  * decimal only where the threshold has one (research R28); a surprise
  * badge's own word, "Nachteule" (research R34).
  */
-function milestone(i18n: I18n, badge: Badge): string {
+export function milestone(i18n: I18n, badge: Badge): string {
 	const surprise = surpriseName(badge) as SurpriseName | null;
 	if (surprise) return i18n.t(`badges.surprise.${surprise}`);
 	if (badge.id === "run-length-half") return i18n.t("badges.value.half");
 	if (badge.id === "run-length-marathon")
 		return i18n.t("badges.value.marathon");
+	// A tour badge names its day, "Tag 3", not a count (feature 021).
+	if (badge.category === "tour_de_paris") {
+		return i18n.t("badges.value.tourDay", { n: badge.threshold });
+	}
 	return valueText(
 		i18n,
 		categoryById(badge.category).unit,
@@ -317,12 +321,19 @@ ${anchor("team", false, i18n.t("badges.switch.team"))}
  * date, and a close button for phones, where there's little outside to tap
  * (hidden while hover holds it open).
  */
-/** What the badge was for; a surprise badge says why it was earned. */
-function forText(i18n: I18n, badge: Badge, value: string): string {
+/**
+ * What the badge was for; a surprise badge says why it was earned, a tour
+ * badge which day of the tour it stands for (feature 021, a stand-in until
+ * Phase 2 names the places).
+ */
+export function forText(i18n: I18n, badge: Badge, value: string): string {
 	const surprise = surpriseName(badge) as SurpriseName | null;
 	if (surprise) return i18n.t(`badges.surprise.${surprise}.for`);
+	if (badge.category === "tour_de_paris") {
+		return i18n.t("badges.tourDay.for", { day: String(badge.threshold) });
+	}
 	return i18n.t(
-		`badges.for.${badge.category as Exclude<BadgeCategoryId, "surprise" | "team_surprise">}`,
+		`badges.for.${badge.category as Exclude<BadgeCategoryId, "surprise" | "team_surprise" | "tour_de_paris">}`,
 		{ value },
 	);
 }

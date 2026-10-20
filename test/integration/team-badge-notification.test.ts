@@ -102,6 +102,24 @@ describe("teamBadgeNews", () => {
 		);
 	});
 
+	it("tells only the rider of their new Tour de Paris badge, no team notice (021 FR-012)", async () => {
+		await teamBadgeNews(ctx, []);
+		const eventId = await insertEvent(
+			"tour_de_paris",
+			TODAY,
+			"Hamburg – Bremen",
+		);
+		await teamEventChange(ctx, {
+			kind: "add-attendance",
+			eventId,
+			athleteIds: [ATHLETE_A],
+		});
+		expect(await announced()).not.toContain("tour-de-paris-1");
+		expect(notified()).toEqual([ATHLETE_A]);
+		expect(await badgeRise(ATHLETE_A)).toContain("tour-de-paris-1");
+		expect(await badgeRise(TEAM[1] as number)).toBeNull();
+	});
+
 	it("announces a team badge once, even when taken back and earned again", async () => {
 		await teamBadgeNews(ctx, []);
 		const eventId = await bigTraining(TODAY);

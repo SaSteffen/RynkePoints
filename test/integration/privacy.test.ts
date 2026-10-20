@@ -63,6 +63,20 @@ describe("GET /privacy", () => {
 		);
 	});
 
+	it.each(["de", "en"] as const)(
+		"says how the season album is made, handed out and deleted in %s (021 FR-040)",
+		async (lang) => {
+			const { page } = await get("/privacy", lang);
+			const text = CATALOGS[lang]["privacy.album"];
+			expect(page).toContain(escapeHtml(text));
+			const words =
+				lang === "de"
+					? ["Saisonalbum", "Rechner", "nur du", "gelöscht"]
+					: ["season album", "computer", "Only you", "deleted"];
+			for (const word of words) expect(text).toContain(word);
+		},
+	);
+
 	it("names the controller and links the contact address", async () => {
 		const { page } = await get("/privacy", "de");
 		expect(page).toContain(

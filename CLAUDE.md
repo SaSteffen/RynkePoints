@@ -27,6 +27,8 @@ pnpm typecheck        # tsc --noEmit
 pnpm types            # regenerate worker-configuration.d.ts after editing wrangler.jsonc
 pnpm wrangler d1 migrations apply rynke-points --local   # local D1 schema for pnpm dev:strava
                                                           # (pnpm dev applies its own)
+pnpm season:album --local  # season albums from pnpm dev's sample season into
+                           # season-albums/ (git-ignored); stop pnpm dev first
 ```
 
 `wrangler.jsonc` declares the D1 (`DB`), Queue (`WORK_QUEUE`) and daily cron
@@ -59,8 +61,9 @@ and commit messages must follow
 - Never call the real Strava API or production Cloudflare resources from tests or as
   a side effect. Production is deployed by CI after a merge into `main` (code plus
   pending D1 migrations, forward-only); a local `pnpm run deploy`,
-  `wrangler secret put`, `wrangler d1 ... --remote` and webhook-subscription changes
-  are manual steps the user runs or explicitly asks for.
+  `wrangler secret put`, `wrangler d1 ... --remote`, webhook-subscription changes
+  and `pnpm season:album` without `--local` (it reads production, read only) are
+  manual steps the user runs or explicitly asks for.
 - A migration must keep the previously deployed version working (add, don't rename
   or drop in the same release): CI applies it before publishing the new code.
 - Applying branch rulesets (`.github/rulesets/README.md`) and repository settings
@@ -74,7 +77,8 @@ and commit messages must follow
   block; rider text is never lost (Principle III).
 - Rider-facing text belongs in the catalogs under `src/i18n/messages/`, in every
   language, never inline in pages or logic (FR-028).
-- `src/` never imports `dev/`: the fake Strava and its sample data must not reach
-  the production bundle (feature 006 FR-009, `test/unit/dev-guard.test.ts`).
+- `src/` never imports `dev/` or `album/`: the fake Strava, its sample data and
+  the season album Worker must not reach the production bundle (feature 006
+  FR-009, feature 021 FR-020, `test/unit/dev-guard.test.ts`).
 - `.specify/scripts/` and `.specify/templates/` are vendored Spec Kit files, not
   project code — don't lint, refactor, or "clean up" them.

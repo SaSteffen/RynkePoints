@@ -135,6 +135,7 @@ beforeEach(async () => {
 	await env.DB.batch([
 		env.DB.prepare("DROP TABLE IF EXISTS fake_strava_activities"),
 		env.DB.prepare("DROP TABLE IF EXISTS fake_strava_seed"),
+		env.DB.prepare("DROP TABLE IF EXISTS fake_dev_clock"),
 	]);
 	logs = [];
 	logSpy = vi.spyOn(console, "log").mockImplementation((...args: unknown[]) => {
@@ -423,6 +424,53 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 		expect((await balance(FIONA))?.training_rynke).toBeLessThan(50);
 	});
 
+	// Feature 021: pretending a day before and in the tour, which is over by
+	// the tests' today (their season starts on 1 January); Fiona rides every
+	// tour day.
+	it("gives each rider their own tour days, up to a pretended day (021)", async () => {
+		await seeded();
+		const tourBadge = async (athleteId: number, day: number) =>
+			(await mePage(athleteId)).includes(
+				`<div popover id="badge-tour-de-paris-${day}"`,
+			);
+		/** Sets the clock, then runs the evaluations it queued. */
+		const clock = async (field: [string, string]) => {
+			const res = await post("/_dev/clock", [field]);
+			expect(res.status).toBe(303);
+			await drain();
+		};
+
+		await clock(["day", "2026-07-01"]);
+		expect(await (await get("/_dev/")).text()).toContain(
+			"The app pretends today is 2026-07-01.",
+		);
+		expect(await tourBadge(FIONA, 1)).toBe(false);
+
+		await clock(["day", "2026-07-06"]);
+		expect(await tourBadge(FIONA, 3)).toBe(true);
+		expect(await tourBadge(FIONA, 4)).toBe(false);
+
+		await clock(["real", "1"]);
+		expect(await (await get("/_dev/")).text()).toContain("the real day");
+		expect(await tourBadge(FIONA, 8)).toBe(true);
+		// Olga rode the first two days, Vera the first five: only those.
+		expect(await tourBadge(OLGA, 2)).toBe(true);
+		expect(await tourBadge(OLGA, 3)).toBe(false);
+		expect(await tourBadge(VERA, 5)).toBe(true);
+		expect(await tourBadge(VERA, 6)).toBe(false);
+	});
+
+	it("sends /_dev to /_dev/", async () => {
+		const res = await get("/_dev");
+		expect(res.status).toBe(308);
+		expect(res.headers.get("Location")).toBe("/_dev/");
+	});
+
+	it("refuses a clock day that isn't a date", async () => {
+		const res = await post("/_dev/clock", [["day", "July"]]);
+		expect(res.status).toBe(400);
+	});
+
 	it("gets Vera Virtual to the target only with virtual rides", async () => {
 		await seeded();
 		const row = await balance(VERA);
@@ -553,10 +601,11 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 				/<section id="badges-personal" class="badge-group badge-group-personal"[\s\S]*?<\/section>/,
 			)?.[0] ?? "";
 		expect(personal.match(/<li class="badge-card"/g)).toHaveLength(7);
-		// Running twice, virtual, swimming twice and the four winter months.
+		// Running twice, virtual, swimming twice, the four winter months and
+		// the tour, which Carla doesn't ride.
 		expect(
 			personal.match(/<li class="badge-card badge-card-empty"/g),
-		).toHaveLength(9);
+		).toHaveLength(10);
 	});
 
 	it("counts only Rudi Runner's outdoor runs (013 US3)", async () => {

@@ -117,6 +117,37 @@ describe("evaluateBadges", () => {
 		expect(progressOf(result, "team_events")?.value).toBe(5);
 	});
 
+	it("counts tour days as team events, also after the deadline, not as technique (021 FR-005)", () => {
+		const result = evaluateBadges(
+			{
+				...NONE,
+				attendance: [
+					{ eventId: 1, kind: "team_training", date: "2027-06-01" },
+					...[4, 5, 6, 7].map((day, i) => ({
+						eventId: 2 + i,
+						kind: "tour_de_paris" as const,
+						date: `2027-07-0${day}`,
+					})),
+					// After today: counts nothing yet.
+					{ eventId: 9, kind: "tour_de_paris", date: "2027-07-09" },
+				],
+			},
+			CURRENT_RULES,
+			badgeWindow(
+				{ seasonStart: "2026-09-01", deadline: "2027-06-30" },
+				"2027-07-08",
+			),
+		);
+		expect(result.earned).toContainEqual({
+			badgeId: "team-events-5",
+			earnedOn: "2027-07-07",
+		});
+		expect(progressOf(result, "team_events")?.value).toBe(5);
+		expect(progressOf(result, "technique")?.value).toBe(0);
+		// Tour days earn no Rynke, so no Training Rynke badge either.
+		expect(progressOf(result, "training_rynke")?.value).toBe(5);
+	});
+
 	it("dates a Training Rynke badge by the correction that reached it", () => {
 		const result = evaluate({
 			rides: [ride("2026-03-01", 20, 0, 20)],
@@ -168,6 +199,7 @@ describe("evaluateBadges", () => {
 			["winter_december", 0, 1],
 			["winter_january", 0, 1],
 			["winter_february", 0, 1],
+			["tour_de_paris", 0, null],
 			["surprise", 0, null],
 		]);
 	});
@@ -792,8 +824,13 @@ describe("badgeWindow and future dates", () => {
 		expect(badgeWindow(season, "2026-10-12")).toEqual({
 			seasonStart: "2026-09-01",
 			deadline: "2026-10-12",
+			today: "2026-10-12",
 		});
-		expect(badgeWindow(season, "2027-08-15")).toEqual(season);
+		// Tour days still count up to today after the deadline (021 FR-003).
+		expect(badgeWindow(season, "2027-08-15")).toEqual({
+			...season,
+			today: "2027-08-15",
+		});
 	});
 
 	it("counts no ride, run or swim after the window's last day", () => {

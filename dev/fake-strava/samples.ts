@@ -1,5 +1,5 @@
 import { easterSunday } from "../../src/badges/easter";
-import type { TeamEventKind } from "../../src/rynke/team-events";
+import type { EventKind } from "../../src/rynke/team-events";
 import type { FakeActivity } from "./store";
 
 // The sample riders of fake mode, one per state of the rider page
@@ -44,7 +44,9 @@ export interface RideRecipe {
 export interface EventRecipe {
 	/** Days before the seeding day; `null` is the day before the season start. */
 	daysAgo: number | null;
-	kind: TeamEventKind;
+	/** `MM-DD` in the season instead of `daysAgo`, as for rides. */
+	onDate?: string;
+	kind: EventKind;
 	name: string | null;
 }
 
@@ -459,6 +461,32 @@ export const SAMPLE_TEAM_EVENTS: readonly TeamEventRecipe[] = [
 		attendees: [],
 		reports: [990012],
 	},
+	// Feature 021: the eight days of the Tour de Paris, after the qualification
+	// deadline. Fiona rides all of them, Vera the first five, Olga the first
+	// two, so each has the tour badges of their own days; they earn no Rynke,
+	// and badges only once their day has come (the /_dev/ clock pretends it).
+	...[
+		"Hamburg – Bremen",
+		"Bremen – Osnabrück",
+		"Osnabrück – Arnheim",
+		"Arnheim – Antwerpen",
+		"Antwerpen – Lille",
+		"Lille – Arras",
+		"Arras – Compiègne",
+		"Compiègne – Paris",
+	].map(
+		(name, i): TeamEventRecipe => ({
+			daysAgo: null,
+			onDate: `07-${String(4 + i).padStart(2, "0")}`,
+			kind: "tour_de_paris",
+			name,
+			attendees: [
+				990003,
+				...(i < 5 ? [990005] : []),
+				...(i < 2 ? [990011] : []),
+			],
+		}),
+	),
 ];
 
 export function sampleRider(athleteId: number): SampleRider | undefined {
@@ -484,6 +512,7 @@ export function eventDay(
 	seedDay: string,
 	seasonStart: string,
 ): string {
+	if (recipe.onDate !== undefined) return seasonDay(recipe.onDate, seasonStart);
 	return recipe.daysAgo === null
 		? dayBefore(seasonStart, 1)
 		: dayBefore(seedDay, recipe.daysAgo);

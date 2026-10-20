@@ -10,12 +10,16 @@ import type { StoredBalance } from "../db/rynke";
 import type { UnknownFigureCode } from "../rynke/rides";
 import {
 	type CountingWindow,
-	inCountingWindow,
+	eventInWindow,
 	type RynkeRules,
 	type Share,
 } from "../rynke/rules";
 import { virtualShareRequired } from "../rynke/tally";
-import type { TeamEventKind, TeamEventSum } from "../rynke/team-events";
+import type {
+	EventKind,
+	TeamEventKind,
+	TeamEventSum,
+} from "../rynke/team-events";
 import type { CyclingSportType } from "../strava/activity";
 
 // The rider page's view model (feature 005 data-model.md, research R6): what
@@ -137,9 +141,12 @@ export interface Breakdown {
 export interface EventLine {
 	/** `YYYY-MM-DD` */
 	date: string;
-	kind: TeamEventKind;
+	kind: EventKind;
 	name: string | null;
-	/** `false` outside the counting window (FR-033). */
+	/**
+	 * `false` outside the counting window (FR-033); a tour day's runs to the
+	 * season end (feature 021 FR-003).
+	 */
 	counts: boolean;
 }
 
@@ -281,7 +288,7 @@ function breakdown(
 			date,
 			kind,
 			name,
-			counts: inCountingWindow(date, context),
+			counts: eventInWindow(kind, date, context),
 		})),
 	};
 }

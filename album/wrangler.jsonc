@@ -1,0 +1,31 @@
+{
+	"$schema": "../node_modules/wrangler/config-schema.json",
+	// The season album Worker (feature 021 research R12,
+	// contracts/album-worker.md). Never deployed: only `pnpm season:album`
+	// starts it, under `wrangler dev` on the maintainer's computer. Its only
+	// binding is the production D1, read through `guard.ts`; with `--local` it
+	// is `pnpm dev`'s sample season instead (the same database_id).
+	"name": "rynke-album",
+	"main": "worker.ts",
+	"compatibility_date": "2026-08-22",
+	"compatibility_flags": ["nodejs_compat"],
+	"workers_dev": false,
+	"preview_urls": false,
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "rynke-points",
+			// The same database as ../wrangler.jsonc; keep them equal.
+			"database_id": "f1493f0b-1930-48de-afc5-f6edda211092",
+			"remote": true
+		}
+	],
+	// Badge pictures, the coin and the placeholders, as the app serves them.
+	"assets": {
+		"directory": "../public"
+	},
+	// The font, bundled into the Worker (worker.ts).
+	"rules": [{ "type": "Data", "globs": ["**/*.woff2"], "fallthrough": true }]
+	// No vars: the command passes SEASON_START_DATE and
+	// QUALIFICATION_DEADLINE from ../wrangler.jsonc with --var.
+}

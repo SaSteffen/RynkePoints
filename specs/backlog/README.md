@@ -27,5 +27,9 @@ ignores it.
    [009-rider-progress-charts](../009-rider-progress-charts/spec.md); charts of a
    rider's own Rynke over the season.
 
+6. season data cleanup — [season-data-cleanup.md](season-data-cleanup.md);
+   what happens to the past season's data at the rollover, after feature 021's
+   season albums.
+
 2 and 3 are independent of each other; 4 needs 1 and is easier after 3; 5 needs
 3 and may share its chart with 4.
