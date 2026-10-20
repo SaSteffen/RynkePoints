@@ -4,10 +4,12 @@ description: "Task list for the season rollover: Tour de Paris badges and the se
 
 # Tasks: Season Rollover – Tour de Paris Badges and the Season Album
 
-**Status (2026-10-20)**: Phases 1–7 done (the Tour de Paris in the app, and
-the album: Worker, command, summary and sticker pages). Phase 8 open. Albums
-are German only for now: the app stores no rider language (see
-contracts/album-worker.md).
+**Status (2026-10-20)**: All phases done. T051 ran quickstart sections 1
+and 3 (`pnpm season:album --local`: 15 albums, print check 15 of 15); section
+2's checks in the app are manual on the live site after release. T052 ran
+lint, typecheck and `pnpm test`; `pnpm test:e2e` is left to CI (no app page
+changed beyond the privacy text). Open for the owner: albums are German only,
+since the app stores no rider language (FR-039, contracts/album-worker.md).
 
 **Input**: Design documents from `/specs/021-season-rollover/`
 **Prerequisites**: [plan.md](plan.md), [spec.md](spec.md), [research.md](research.md),
@@ -301,13 +303,13 @@ stickers stuck on imperfectly, as in the mock-up.
 
 ## Phase 8: Polish & cross-cutting
 
-- [ ] T049 [P] Privacy page (feature 017): `privacy.album` in de and en
+- [x] T049 [P] Privacy page (feature 017): `privacy.album` in de and en
   (contracts/messages.md, FR-040), shown in `src/http/privacy.ts`; extend
   `test/integration/privacy.test.ts`.
-- [ ] T050 [P] `CLAUDE.md`: `pnpm season:album` in the command list, and running
+- [x] T050 [P] `CLAUDE.md`: `pnpm season:album` in the command list, and running
   it without `--local` among the manual maintainer steps.
-- [ ] T051 Run quickstart.md sections 1–3 end to end; fix what differs.
-- [ ] T052 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` green;
+- [x] T051 Run quickstart.md sections 1–3 end to end; fix what differs.
+- [x] T052 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` green;
   update this file's checkboxes and a status line at the top.
 
 ## Dependencies

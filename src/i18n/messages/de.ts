@@ -765,6 +765,8 @@ export const de = {
 		"Alle Daten zu dir werden auf einmal gelöscht, und der Zugang bei Strava wird widerrufen, wo er noch gilt, wenn du dich in der App trennst, RynkePoints in deinen Strava-Einstellungen entfernst, den Strava-Club des Teams verlässt (innerhalb von 24 Stunden) oder eine unterbrochene Verbindung nicht innerhalb von 7 Tagen erneuerst.",
 	"privacy.retention.backups":
 		"Danach bleiben die Daten höchstens 7 Tage in den automatischen Sicherungen der Datenbank und verschwinden dann. Server-Protokolle löscht Cloudflare nach höchstens 7 Tagen.",
+	"privacy.album":
+		"Am Ende jeder Saison erstellen wir für alle im Team ein Saisonalbum als PDF – aus den Daten, die du in der App siehst, und Summen über das ganze Team. Das geschieht auf dem Rechner der verantwortlichen Person, nicht bei Cloudflare. Dein Album bekommst nur du, danach wird es gelöscht.",
 	"privacy.recipients.heading": "Wer die Daten verarbeitet",
 	"privacy.recipients.cloudflare":
 		"RynkePoints läuft bei Cloudflare, Inc. als Auftragsverarbeiter: Webserver, Warteschlange und Datenbank. Cloudflare verarbeitet dabei technisch bedingt deine IP-Adresse, um die Seiten auszuliefern und vor Angriffen zu schützen. Cloudflare hat Rechenzentren weltweit, auch in den USA; für Übermittlungen dorthin ist Cloudflare nach dem EU-US Data Privacy Framework zertifiziert, und es gelten die EU-Standardvertragsklauseln.",

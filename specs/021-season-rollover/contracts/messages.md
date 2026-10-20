@@ -69,7 +69,7 @@ Event kinds use `rynke.source.*`, category names `badges.category.*`.
 
 | Id | de | en |
 |----|----|----|
-| `privacy.album` | Am Ende jeder Saison erstellt der Betreiber der App für jede:n Fahrer:in ein Saisonalbum als PDF – aus den Daten, die du in der App siehst, und Summen des ganzen Teams. Das geschieht auf seinem eigenen Rechner; jedes Album bekommt nur die Person, der es gehört, und danach wird es gelöscht. | At the end of every season the app's operator makes a season album as a PDF for every rider – from the data you see in the app and sums over the whole team. This happens on their own computer; each album goes only to the person it belongs to and is deleted afterwards. |
+| `privacy.album` | Am Ende jeder Saison erstellen wir für alle im Team ein Saisonalbum als PDF – aus den Daten, die du in der App siehst, und Summen über das ganze Team. Das geschieht auf dem Rechner der verantwortlichen Person, nicht bei Cloudflare. Dein Album bekommst nur du, danach wird es gelöscht. | At the end of every season we make a season album as a PDF for everyone on the team – from the data you see in the app and sums over the whole team. This happens on the computer of the person responsible, not at Cloudflare. Only you get your album, and it is deleted afterwards. |
 
-Exact wording follows the existing privacy page's tone; the content above is
-binding (feature 017).
+Shown in the section "Wie lange gespeichert wird", after the backups; the
+page's date moves to 2026-10-20 (feature 017).

@@ -728,6 +728,8 @@ export const en: Catalog = {
 		"All data about you is deleted at once, and access on Strava is revoked where it still works, when you disconnect in the app, remove RynkePoints in your Strava settings, leave the team's Strava club (within 24 hours), or don't renew a broken connection within 7 days.",
 	"privacy.retention.backups":
 		"After that the data stays in the database's automatic backups for at most 7 days, then it is gone. Cloudflare deletes server logs after at most 7 days.",
+	"privacy.album":
+		"At the end of every season we make a season album as a PDF for everyone on the team – from the data you see in the app and sums over the whole team. This happens on the computer of the person responsible, not at Cloudflare. Only you get your album, and it is deleted afterwards.",
 	"privacy.recipients.heading": "Who processes the data",
 	"privacy.recipients.cloudflare":
 		"RynkePoints runs on Cloudflare, Inc. as a processor: web server, work queue and database. To deliver the pages and protect them from attacks, Cloudflare necessarily processes your IP address. Cloudflare has data centres worldwide, including in the USA; for transfers there, Cloudflare is certified under the EU-US Data Privacy Framework, and the EU Standard Contractual Clauses apply.",

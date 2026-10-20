@@ -591,6 +591,7 @@ const CONTRACT_IDS = [
 	"privacy.retention.body",
 	"privacy.retention.deletion",
 	"privacy.retention.backups",
+	"privacy.album",
 	"privacy.recipients.heading",
 	"privacy.recipients.cloudflare",
 	"privacy.recipients.push",
