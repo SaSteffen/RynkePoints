@@ -59,8 +59,8 @@ The feasibility research for self-service delivery is in
   day is one team event of that kind, as a training weekend is one event per day
   (feature 003 FR-006).
 - Q: When is the badge for tour day n earned? → A: When one listed rider has
-  attended n tour events of the season. A rider's first tour day earns "Tag 1",
-  their second, the next day, "Tag 2", and so on. It is a team badge (feature 013
+  attended n tour events of the season. A rider's first tour day earns "Tour-Tag 1",
+  their second, the next day, "Tour-Tag 2", and so on. It is a team badge (feature 013
   FR-014): it is earned by the team and never names or credits the rider whose
   attendance earned it. (Recorded as Claude read the request; to be confirmed.)
 - Q: Does this bring back the "Tour" category feature 013 dropped? → A: No. That
@@ -140,8 +140,8 @@ take attendance and change no rider's Rynke.
 ### User Story 2 - The team earns a badge for every tour day (Priority: P1)
 
 The team badges get a new category, "Tour de Paris", with one badge per tour day:
-"Tag 1", "Tag 2" and so on. When the first rider has their first tour day recorded,
-the team earns "Tag 1"; when someone has their second recorded, "Tag 2". Like every
+"Tour-Tag 1", "Tour-Tag 2" and so on. When the first rider has their first tour day recorded,
+the team earns "Tour-Tag 1"; when someone has their second recorded, "Tour-Tag 2". Like every
 team badge it shows under "Team-Abzeichen" for every rider, with the date of the
 tour day that earned it, and the progress line says how many tour days are still
 to go ("Noch 3 Tage").
@@ -150,7 +150,7 @@ to go ("Noch 3 Tage").
 makes it visible in the app for everyone, also for riders at home.
 
 **Independent Test**: With synthetic tour days, record one rider on two of them
-and another rider on one; check that "Tag 1" and "Tag 2" are earned with the right
+and another rider on one; check that "Tour-Tag 1" and "Tour-Tag 2" are earned with the right
 dates, that no badge names a rider, and that the progress shows the days to go.
 
 **Acceptance Scenarios**:
@@ -159,10 +159,10 @@ dates, that no badge names a rider, and that the progress shows the days to go.
    "Tour de Paris" shows as a team category with an empty outline and "Noch 8
    Tage" (the tour has 8 days).
 2. **Given** Anna attended the tour days of 20 and 21 June, **When** badges are
-   worked out, **Then** the team has "Tag 1" dated 20 June and "Tag 2" dated 21
+   worked out, **Then** the team has "Tour-Tag 1" dated 20 June and "Tour-Tag 2" dated 21
    June.
 3. **Given** Anna attended one tour day and Ben another one, **When** badges are
-   worked out, **Then** the team has "Tag 1" only, dated with the earlier day.
+   worked out, **Then** the team has "Tour-Tag 1" only, dated with the earlier day.
 4. **Given** an attendance at a tour day is removed, **When** badges are worked
    out again, **Then** a day badge no rider reaches any more is taken back
    silently (feature 013 FR-031).
