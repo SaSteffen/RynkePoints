@@ -41,6 +41,17 @@ pnpm dev         # http://localhost:8789, sample season, fake Strava
      (FR-005).
 4. Remove Anna from the second tour day: "Tour-Tag 2" is gone, without notice.
 
+The sample season has its own tour (4–11 July: Fiona FarAway rides all eight
+days, Vera Virtual the first five, Olga Organiser the first two). Its badges show
+once their day has come, so on `/_dev/` under **Clock** pretend a day in the tour,
+for example 6 July:
+
+- Badges → Team-Abzeichen shows "Tour-Tag 3" with Tour-Tag 1 to 3 dated 4, 5
+  and 6 July, and "Noch 1 Tag" to the next.
+- Run the daily cron (`/__scheduled`): each listed rider gets the new tour
+  badges' notice once, and running it again tells no one twice (FR-012).
+- Pretend 12 July: all eight are earned. Then **Back to the real day**.
+
 ## 3. Albums from the sample season (US3–US5)
 
 With `pnpm dev` stopped (both use `.wrangler/fake-state`):

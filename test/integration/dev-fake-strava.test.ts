@@ -135,6 +135,7 @@ beforeEach(async () => {
 	await env.DB.batch([
 		env.DB.prepare("DROP TABLE IF EXISTS fake_strava_activities"),
 		env.DB.prepare("DROP TABLE IF EXISTS fake_strava_seed"),
+		env.DB.prepare("DROP TABLE IF EXISTS fake_dev_clock"),
 	]);
 	logs = [];
 	logSpy = vi.spyOn(console, "log").mockImplementation((...args: unknown[]) => {
@@ -421,6 +422,37 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 	it("leaves Fiona FarAway far from both targets", async () => {
 		await seeded();
 		expect((await balance(FIONA))?.training_rynke).toBeLessThan(50);
+	});
+
+	// Feature 021: pretending a day before and in the tour, which is over by
+	// the tests' today (their season starts on 1 January); Fiona rides every
+	// tour day.
+	it("shows the Tour de Paris badges up to a pretended day", async () => {
+		await seeded();
+		const tourBadge = async (day: number) =>
+			(await mePage(FIONA)).includes(
+				`<div popover id="badge-tour-de-paris-${day}"`,
+			);
+
+		const set = await post("/_dev/clock", [["day", "2026-07-01"]]);
+		expect(set.status).toBe(303);
+		expect(await (await get("/_dev/")).text()).toContain(
+			"The app pretends today is 2026-07-01.",
+		);
+		expect(await tourBadge(1)).toBe(false);
+
+		await post("/_dev/clock", [["day", "2026-07-06"]]);
+		expect(await tourBadge(3)).toBe(true);
+		expect(await tourBadge(4)).toBe(false);
+
+		await post("/_dev/clock", [["real", "1"]]);
+		expect(await (await get("/_dev/")).text()).toContain("the real day");
+		expect(await tourBadge(8)).toBe(true);
+	});
+
+	it("refuses a clock day that isn't a date", async () => {
+		const res = await post("/_dev/clock", [["day", "July"]]);
+		expect(res.status).toBe(400);
 	});
 
 	it("gets Vera Virtual to the target only with virtual rides", async () => {

@@ -170,11 +170,28 @@ ${rideChoice(row.activities)} <button>Send delete</button></fieldset></form>`
 </details>`;
 }
 
-/** The `/_dev/` index. `today` (`YYYY-MM-DD`) fills the new-ride date. */
+/**
+ * The clock form: the app's today, and whether it is a pretended one (feature
+ * 021, dev/clock.ts).
+ */
+function clockForm(today: string, pretended: boolean): SafeHtml {
+	return html`<form method="post" action="/_dev/clock"><fieldset><legend>Clock</legend>
+<p>${pretended ? html`<strong>The app pretends today is ${today}.</strong>` : html`Today in the app: ${today}, the real day.`} Pretend another day to see the season's later days before they come: the Tour de Paris days are in July. Then run the daily cron for the day's notices.</p>
+<label>Pretend today is <input type="date" name="day" value="${today}"></label>
+<button>Set</button>
+${pretended ? html`<button name="real" value="1">Back to the real day</button>` : null}
+</fieldset></form>`;
+}
+
+/**
+ * The `/_dev/` index. `today` (`YYYY-MM-DD`, pretended if `pretended`) fills
+ * the new-ride date.
+ */
 export function indexPage(
 	rows: readonly IndexRow[],
 	flash: string | null,
 	today: string,
+	pretended = false,
 ): Response {
 	const lines = rows.map(
 		(row) => html`<tr>
@@ -195,6 +212,7 @@ ${
 		html`<h1>Fake mode</h1>
 ${flash ? html`<p role="status"><strong>${flash}</strong></p>` : null}
 <p><a href="/me">/me</a> · <a href="/__scheduled">run the daily cron (/__scheduled)</a> · <a href="/_dev/badges">every badge, team ones too (/_dev/badges)</a></p>
+${clockForm(today, pretended)}
 <table>
 <thead><tr><th>Sample rider</th><th>State</th><th>Stored</th><th></th></tr></thead>
 <tbody>

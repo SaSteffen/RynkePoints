@@ -5,6 +5,7 @@ import { clearSessionCookie } from "../src/http/session";
 import { CATALOGS } from "../src/i18n/catalogs";
 import { handleFetch, handleQueue, handleScheduled } from "../src/index";
 import { STRAVA_ORIGIN } from "../src/strava/result";
+import { isDay, onDevClock, pretendDay, pretendedDay } from "./clock";
 import { answerStrava } from "./fake-strava/api";
 import { simulateEvent } from "./fake-strava/events";
 import {
@@ -256,6 +257,19 @@ async function decide(request: Request, url: URL) {
 	return redirect(back.href, 302);
 }
 
+/** `POST /_dev/clock`: pretends today is the form's day, or goes back. */
+async function setClock(request: Request, ctx: Ctx): Promise<Response> {
+	const fields = await form(request);
+	const day = fields.has("real") ? "" : String(fields.get("day") ?? "");
+	if (day !== "" && !isDay(day)) return text("day must be YYYY-MM-DD", 400);
+	await pretendDay(ctx.env.DB, day === "" ? null : day);
+	const flash =
+		day === ""
+			? "The clock is the real one again."
+			: `The app now pretends today is ${day}. Run the daily cron for its notices.`;
+	return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);
+}
+
 async function devRoute(
 	request: Request,
 	ctx: Ctx,
@@ -275,6 +289,7 @@ async function devRoute(
 				await indexRows(ctx),
 				url.searchParams.get("flash"),
 				berlinDate(ctx.now()),
+				(await pretendedDay(ctx.env.DB)) !== null,
 			);
 		case "GET /_dev/badges":
 			return badgesPage(url.searchParams.get("lang"), berlinDate(ctx.now()));
@@ -284,6 +299,8 @@ async function devRoute(
 		}
 		case "POST /_dev/connect":
 			return connectAs(request, ctx, url);
+		case "POST /_dev/clock":
+			return setClock(request, ctx);
 		case `GET ${STAND_IN_PATH}`:
 			if (url.searchParams.get("client_id") !== ctx.env.STRAVA_CLIENT_ID) {
 				return text("Unknown client_id", 400);
@@ -299,8 +316,12 @@ async function devRoute(
 	return text("Not Found", 404);
 }
 
-export async function devFetch(request: Request, ctx: Ctx): Promise<Response> {
-	assertFakeMode(ctx.env);
+export async function devFetch(
+	request: Request,
+	realCtx: Ctx,
+): Promise<Response> {
+	assertFakeMode(realCtx.env);
+	const ctx = await onDevClock(realCtx);
 	installStravaInterceptor(ctx);
 	const url = new URL(request.url);
 	if (!isLocal(url)) return text("Fake mode answers localhost only", 403);
@@ -313,18 +334,20 @@ export async function devFetch(request: Request, ctx: Ctx): Promise<Response> {
 
 export async function devQueue(
 	batch: MessageBatch<unknown>,
-	ctx: Ctx,
+	realCtx: Ctx,
 ): Promise<void> {
-	assertFakeMode(ctx.env);
+	assertFakeMode(realCtx.env);
+	const ctx = await onDevClock(realCtx);
 	installStravaInterceptor(ctx);
 	return handleQueue(batch, ctx);
 }
 
 export async function devScheduled(
 	controller: ScheduledController,
-	ctx: Ctx,
+	realCtx: Ctx,
 ): Promise<void> {
-	assertFakeMode(ctx.env);
+	assertFakeMode(realCtx.env);
+	const ctx = await onDevClock(realCtx);
 	installStravaInterceptor(ctx);
 	return handleScheduled(controller, ctx);
 }

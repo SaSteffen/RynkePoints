@@ -21,6 +21,7 @@ request to the app's `handleFetch`. The pages are developer tooling in English
 | `POST /_dev/strava/oauth/authorize` | **Authorize**: redirects to `redirect_uri?state=…&code=fake-code.<id>.<scopes>&scope=<ticked>`. **Cancel**: `redirect_uri?state=…&error=access_denied`. | `302` |
 | `POST /_dev/reset` | Reset and seed (data-model.md). Then the browser goes back to `/_dev/`. Ends any session cookie. | `303 /_dev/` |
 | `POST /_dev/events` (`athleteId`, `action`, …) | Simulates a Strava event (below) | `303 /_dev/` with the result in a flash query parameter |
+| `POST /_dev/clock` (`day` as `YYYY-MM-DD`, or `real`) | The fake clock (feature 021): pages, the queue and the daily cron pretend today is `day`, at the real time of day, until `real` puts the real clock back. The day stays in fake mode's D1 (table `fake_dev_clock`, never a migration), so it survives a restart and **Reset sample data**; `/_dev/` shows it. Rejects anything but a date (`400`). | `303 /_dev/` with a flash |
 
 ### Simulated events (`POST /_dev/events`)
 
