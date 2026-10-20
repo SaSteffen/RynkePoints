@@ -35,26 +35,27 @@ app's yellow (#fbe122, personal) and team blue (#8cc4f0) for page bands, ink
 | Measure | Value |
 |---------|-------|
 | Columns | 3, each 59.3 mm |
-| Slot height | 60 mm |
+| Slot height | 66 mm: the sticker, then its 16 mm caption |
 | Placeholder | printed on every slot: the gallery's 44 mm dashed circle |
-| Sticker | 44 mm white die-cut circle (2 mm edge) holding the 40 mm picture, on the placeholder |
+| Sticker | 44 mm white die-cut circle (2 mm edge) holding the 40 mm picture, on the placeholder; its centre 25 mm below the slot's top |
+| Ribbon | on every sticker the app's milestone ribbon (`BADGE_RIBBON_SHAPES`) in the group's colour, with the milestone ("1.000 km", the app's `milestone`) in Nunito Black, 7.6 units, smaller for a long one and never under 7 pt; on the ribbon alone, clipped to its outline, a gloss (white to clear to a little ink, top to bottom, and a thin white highlight) and glitter (110 fine specks and 7 four-pointed sparkles in the group's colours, from the badge id alone, so every copy of a badge has the same); vector shapes and gradients only |
 | Pose | rotation −7° … 7°; offset mostly 0 … 1.5 mm, in one slot in three 2.2 … 3.8 mm, in any direction; y clamped to ±2.5 mm |
 | Shadow | sharp and tight, as a sticker lying flat on paper, from unblurred `box-shadow` layers only (0.08 mm down at 30 %, 0.2 mm down at 16 %, a 0.16 mm edge line at 22 %): Chromium prints any blur radius as an image (research R1); no CSS `filter` |
-| Caption | 8 mm at the slot's foot: name (9 pt, bold) and date earned (9 pt) |
+| Caption | 16 mm at the slot's foot: name (9 pt, bold), what the badge was for (the app's text, 7 pt, up to three lines) and the date earned (7 pt, bold) |
 | Page band | 12 mm at the top of the safe area: group name, count, page number on the outer side |
 | Category heading | 9 mm; never the last element on a page; repeated with "(Fortsetzung)" when a category continues |
 
 Bounding check: 22 mm radius + 3.8 mm offset + 0.4 mm shadow = 26.2 mm, inside
-the slot's half-width of 29.65 mm; vertically 22 + 2.5 + 0.4 = 24.9 mm, inside
-half the 52 mm sticker area. A page holds the band, two categories' headings and
-four rows (12 + 2 × 9 + 4 × 60 = 270 mm of 273).
+the slot's half-width of 29.65 mm; vertically 25 + 22 + 2.5 + 0.4 = 49.9 mm, above
+the caption at 50 mm. A page holds the band, two categories' headings and three
+rows (12 + 2 × 9 + 3 × 66 = 228 mm of 273), or one heading and three rows.
 
 ## Slot states
 
 | State | Drawn as | Caption |
 |-------|----------|---------|
-| Earned (`earnedOn <= cutoff`) | the printed placeholder, and over it the sticker: picture (or the group's placeholder picture when it has none yet, e.g. stand-in tour badges), white edge, pose, shadow | name and date |
-| Not earned, ladder badge | the printed placeholder only (`BADGE_OUTLINE_PLAIN`'s dashed circle) | name |
+| Earned (`earnedOn <= cutoff`) | the printed placeholder, and over it the sticker: picture (or the group's placeholder picture when it has none yet, e.g. stand-in tour badges), the milestone ribbon, white edge, pose, shadow | name, what it was for, date |
+| Not earned, ladder badge | the printed placeholder only (`BADGE_OUTLINE_PLAIN`'s dashed circle) | name and milestone |
 | Not earned, surprise badge | the printed placeholder with a large "?" | "?" |
 
 ## Pose

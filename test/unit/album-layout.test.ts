@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
 	type AlbumPage,
+	CAPTION,
 	CONTENT_HEIGHT,
 	CONTENT_WIDTH,
 	EVENT_ROW,
@@ -201,7 +202,7 @@ describe("the sticker pages", () => {
 				expect(cx - reach).toBeGreaterThan(x);
 				expect(cx + reach).toBeLessThan(x + SLOT_WIDTH);
 				expect(cy - reach).toBeGreaterThan(y);
-				expect(cy + reach).toBeLessThan(y + SLOT_HEIGHT - 8);
+				expect(cy + reach).toBeLessThan(y + SLOT_HEIGHT - CAPTION);
 			}
 		}
 		for (const page of stickers) {

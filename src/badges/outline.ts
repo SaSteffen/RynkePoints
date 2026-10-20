@@ -48,7 +48,7 @@ export const BADGE_RIBBON_FILL = {
  * the band, outlined in ink. No fill of its own: each `<use>` gives it the
  * group's.
  */
-const RIBBON_SHAPES =
+export const BADGE_RIBBON_SHAPES =
 	tail(-1, ' stroke-width="0.9" stroke-linejoin="round"') +
 	tail(1, ' stroke-width="0.9" stroke-linejoin="round"') +
 	`<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="1.5" stroke-width="1"/>`;
@@ -63,7 +63,7 @@ export function badgeRibbon(group: keyof typeof BADGE_RIBBON_FILL): string {
  * picture's, the shine sweeps over the ribbon too.
  */
 export const BADGE_RIBBON_MASK = `url("data:image/svg+xml,${encodeURIComponent(
-	`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g stroke="#000">${RIBBON_SHAPES}</g></svg>`,
+	`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g stroke="#000">${BADGE_RIBBON_SHAPES}</g></svg>`,
 )}")`;
 
 /**
@@ -76,7 +76,7 @@ export const BADGE_SHAPE_DEFS =
 	`<circle id="badge-circle" cx="50" cy="50" r="${BADGE_OUTLINE_RADIUS}"/>` +
 	`<g id="badge-shape"><circle cx="50" cy="50" r="${BADGE_SHAPE_RADIUS}"/>` +
 	`${tail(-1)}${tail(1)}<rect x="${x}" y="${y}" width="${width}" height="${height}" rx="1.5"/></g>` +
-	`<g id="badge-ribbon" stroke="#1c1b13">${RIBBON_SHAPES}</g>` +
+	`<g id="badge-ribbon" stroke="#1c1b13">${BADGE_RIBBON_SHAPES}</g>` +
 	`</defs></svg>`;
 
 /**

@@ -28,18 +28,22 @@ export const EVENT_ROW = 5;
 export const EVENT_FOOTER = 8;
 
 export const SLOT_WIDTH = CONTENT_WIDTH / 3;
-export const SLOT_HEIGHT = 60;
+/** The sticker, then its caption below it. */
+export const SLOT_HEIGHT = 66;
 export const HEADING = 9;
 /** The die-cut sticker and the printed placeholder under it. */
 export const STICKER = 44;
 /** The picture inside the sticker's 2 mm white edge. */
 export const PICTURE = 40;
 /** From the slot's top to the placeholder's centre. */
-export const STICKER_CENTRE_Y = 4 + STICKER / 2;
+export const STICKER_CENTRE_Y = 3 + STICKER / 2;
 /** How far the sticker's shadow reaches past its edge. */
 export const SHADOW = 0.4;
-/** The caption at the slot's foot: name, date. */
-export const CAPTION = 8;
+/**
+ * The caption at the slot's foot: name, what the badge was for (up to three
+ * lines), date.
+ */
+export const CAPTION = 16;
 
 export interface Box {
 	x: number;
@@ -83,20 +87,17 @@ export interface StickerPose {
 }
 
 /**
- * Where a sticker sits on its placeholder, as if stuck in by hand: always a
- * little turned and off, about one in three further, so the placeholder's
- * edge shows on one side. From the rider and the badge only (FR-026), by the
- * mock-up's sequence (`Slot.dc.html`): FNV-1a, then xorshift32.
+ * The mock-up's random sequence (`Slot.dc.html`): FNV-1a of the seed, then
+ * xorshift32, numbers in [0, 1).
  */
-export function pose(athleteId: number, badgeId: string): StickerPose {
-	const seed = `${athleteId}:${badgeId}`;
+export function seededRandom(seed: string): () => number {
 	let h = 0x811c9dc5;
 	for (let i = 0; i < seed.length; i++) {
 		h ^= seed.charCodeAt(i);
 		h = Math.imul(h, 0x01000193) >>> 0;
 	}
 	let s = h || 1;
-	const rnd = () => {
+	return () => {
 		s ^= s << 13;
 		s >>>= 0;
 		s ^= s >>> 17;
@@ -104,6 +105,16 @@ export function pose(athleteId: number, badgeId: string): StickerPose {
 		s >>>= 0;
 		return s / 4294967296;
 	};
+}
+
+/**
+ * Where a sticker sits on its placeholder, as if stuck in by hand: always a
+ * little turned and off, about one in three further, so the placeholder's
+ * edge shows on one side. From the rider and the badge only (FR-026), by the
+ * mock-up's sequence (`seededRandom`).
+ */
+export function pose(athleteId: number, badgeId: string): StickerPose {
+	const rnd = seededRandom(`${athleteId}:${badgeId}`);
 	const miss = rnd() < 0.35;
 	const angle = rnd() * Math.PI * 2;
 	const distMm = miss ? 2.2 + rnd() * 1.6 : rnd() * 1.4;

@@ -213,6 +213,13 @@ describe("the sticker pages", () => {
 		expect(sticker("distance-100")).toContain('src="/badges/distance-100.svg"');
 		expect(sticker("distance-100")).toContain("Die ersten Hundert");
 		expect(sticker("distance-100")).toContain("14.09.2026");
+		// The ribbon with its milestone, and what the badge was for.
+		expect(sticker("distance-100")).toMatch(
+			/<svg class="ribbon"[\s\S]*?<text [^>]*>100\u00a0km<\/text>/,
+		);
+		expect(sticker("distance-100")).toContain(
+			'<p class="caption-for">Du bist in dieser Saison 100\u00a0km Rad gefahren.</p>',
+		);
 		expect(sticker("tour-de-paris-1")).toContain(
 			'src="/badges/placeholder-team.svg"',
 		);
@@ -228,6 +235,9 @@ describe("the sticker pages", () => {
 		expect(empty).not.toContain('class="sticker"');
 		expect(empty).toContain('class="placeholder"');
 		expect(empty).toContain("Halber Tausender");
+		expect(empty).toContain('<p class="caption-value">500\u00a0km</p>');
+		expect(empty).not.toContain('class="ribbon"');
+		expect(empty).not.toContain("caption-for");
 		const surprise = BADGES.find((b) => b.category === "surprise");
 		const secret =
 			page.match(
@@ -238,6 +248,7 @@ describe("the sticker pages", () => {
 		expect(secret).toContain('<p class="secret">?</p>');
 		expect(secret).toContain('<p class="caption-name">?</p>');
 		expect(secret).not.toContain("badges.about");
+		expect(secret).not.toContain("caption-value");
 	});
 
 	it("say how many of each group are stuck in", async () => {

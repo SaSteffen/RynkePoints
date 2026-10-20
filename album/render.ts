@@ -5,28 +5,32 @@
 // names stay German (feature 013). Pictures are the app's own SVGs, so the
 // PDF keeps them as vectors (FR-054).
 
-import type { BadgeCategoryId } from "../src/badges/catalog";
+import { type BadgeCategoryId, badgeById } from "../src/badges/catalog";
 import { BADGE_OUTLINE_RADIUS } from "../src/badges/outline";
 import { BADGE_PICTURES } from "../src/badges/pictures";
 import { html, SafeHtml } from "../src/http/html";
+import { forText, milestone } from "../src/http/sections/badges";
 import { CATALOGS } from "../src/i18n/catalogs";
 import { createI18n, type I18n } from "../src/i18n/i18n";
 import { BADGE_NAMES } from "../src/i18n/messages/badges.de";
 import {
 	type AlbumPage,
 	BAND,
+	CAPTION,
 	EVENT_HEADER,
 	EVENT_ROW,
 	GAP,
 	layoutAlbum,
 	PICTURE,
 	type PlacedSlot,
+	SLOT_HEIGHT,
 	SLOT_WIDTH,
 	STICKER,
 	STICKER_CENTRE_Y,
 	TEAM_TOTAL,
 } from "./layout";
 import { type AlbumData, type AlbumSlot, loadAlbum } from "./load";
+import { RIBBON_DEFS, ribbon } from "./ribbon";
 import type { AlbumEnv } from "./routes";
 
 const mm = (value: number) => `${Math.round(value * 1000) / 1000}mm`;
@@ -148,19 +152,30 @@ function picture(slot: AlbumSlot): string {
 		: `/badges/placeholder-${slot.group}.svg`;
 }
 
+/**
+ * A slot: the printed placeholder, the sticker on it when earned, with its
+ * milestone ribbon, and the caption: name, what the badge was for and when;
+ * for one still to earn the milestone instead. A surprise stays a "?".
+ */
 function slotHtml(i18n: I18n, placed: PlacedSlot, page: AlbumPage): SafeHtml {
 	const { slot, pose } = placed;
+	const badge = badgeById(slot.badgeId);
+	if (!badge) throw new Error(`Unknown badge ${slot.badgeId}`);
 	const left = (SLOT_WIDTH - STICKER) / 2;
 	const top = STICKER_CENTRE_Y - STICKER / 2;
 	const secret = slot.surprise && pose === null;
-	const label = secret
-		? i18n.t("album.stickers.secret")
-		: (BADGE_NAMES[slot.badgeId] ?? "");
+	const value = milestone(i18n, badge);
+	const art = `left:${mm((STICKER - PICTURE) / 2)};top:${mm((STICKER - PICTURE) / 2)};width:${mm(PICTURE)};height:${mm(PICTURE)}`;
 	const sticker =
 		pose === null
 			? null
-			: html`<div class="sticker" style="left:${mm(left + pose.dxMm)};top:${mm(top + pose.dyMm)};width:${mm(STICKER)};height:${mm(STICKER)};transform:rotate(${Math.round(pose.rotateDeg * 10) / 10}deg)"><img src="${picture(slot)}" alt="" style="left:${mm((STICKER - PICTURE) / 2)};top:${mm((STICKER - PICTURE) / 2)};width:${mm(PICTURE)};height:${mm(PICTURE)}"></div>`;
-	return html`<div class="${pose === null ? "slot" : "slot slot-earned"}" data-badge="${slot.badgeId}" style="left:${mm(placed.x - page.safe.x)};top:${mm(placed.y - page.safe.y)};width:${mm(SLOT_WIDTH)}"><div class="placeholder-box" style="left:${mm(left)};top:${mm(top)};width:${mm(STICKER)};height:${mm(STICKER)}">${PLACEHOLDER}${secret ? html`<p class="secret">?</p>` : null}</div>${sticker}<div class="caption"><p class="caption-name">${label}</p>${pose !== null && slot.earnedOn ? html`<p class="caption-date">${i18n.formatDate(slot.earnedOn)}</p>` : null}</div></div>`;
+			: html`<div class="sticker" style="left:${mm(left + pose.dxMm)};top:${mm(top + pose.dyMm)};width:${mm(STICKER)};height:${mm(STICKER)};transform:rotate(${Math.round(pose.rotateDeg * 10) / 10}deg)"><img src="${picture(slot)}" alt="" style="${art}"><div class="ribbon-box" style="${art}">${ribbon(slot.badgeId, slot.group, value)}</div></div>`;
+	const caption = secret
+		? html`<p class="caption-name">${i18n.t("album.stickers.secret")}</p>`
+		: pose === null || !slot.earnedOn
+			? html`<p class="caption-name">${BADGE_NAMES[slot.badgeId] ?? ""}</p><p class="caption-value">${value}</p>`
+			: html`<p class="caption-name">${BADGE_NAMES[slot.badgeId] ?? ""}</p><p class="caption-for">${forText(i18n, badge, value)}</p><p class="caption-date">${i18n.formatDate(slot.earnedOn)}</p>`;
+	return html`<div class="${pose === null ? "slot" : "slot slot-earned"}" data-badge="${slot.badgeId}" style="left:${mm(placed.x - page.safe.x)};top:${mm(placed.y - page.safe.y)};width:${mm(SLOT_WIDTH)};height:${mm(SLOT_HEIGHT)}"><div class="placeholder-box" style="left:${mm(left)};top:${mm(top)};width:${mm(STICKER)};height:${mm(STICKER)}">${PLACEHOLDER}${secret ? html`<p class="secret">?</p>` : null}</div>${sticker}<div class="caption" style="top:${mm(SLOT_HEIGHT - CAPTION)};height:${mm(CAPTION)}">${caption}</div></div>`;
 }
 
 function earnedOf(slots: readonly AlbumSlot[], cutoff: string): number {
@@ -218,7 +233,7 @@ export function renderAlbum(data: AlbumData): string {
 		}
 	});
 	const title = `${i18n.t("album.title")} · ${data.rider.firstName}`;
-	return html`<!doctype html><html lang="${data.locale}"><head><meta charset="utf-8"><title>${title}</title><link rel="stylesheet" href="/album.css"></head><body>${pages}</body></html>`.toString();
+	return html`<!doctype html><html lang="${data.locale}"><head><meta charset="utf-8"><title>${title}</title><link rel="stylesheet" href="/album.css"></head><body>${RIBBON_DEFS}${pages}</body></html>`.toString();
 }
 
 /** One rider's album, read as of `cutoff`. */

@@ -373,7 +373,6 @@ h2 {
 
 .slot {
 	position: absolute;
-	height: 60mm;
 }
 
 .placeholder-box {
@@ -421,7 +420,25 @@ h2 {
 		0 0 0 0.16mm rgba(28, 27, 19, 0.22);
 }
 
-.sticker img {
+.sticker img,
+.ribbon-box {
+	position: absolute;
+}
+
+.ribbon {
+	display: block;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+.ribbon text {
+	font-family: "Nunito", sans-serif;
+	font-weight: 900;
+	letter-spacing: 0.04em;
+}
+
+.ribbon-defs {
 	position: absolute;
 }
 
@@ -429,8 +446,6 @@ h2 {
 	position: absolute;
 	left: 1mm;
 	right: 1mm;
-	top: 52mm;
-	height: 8mm;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -440,13 +455,13 @@ h2 {
 .caption p {
 	max-width: 100%;
 	overflow: hidden;
+}
+
+.caption-name {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-size: 9pt;
 	line-height: 11.25pt;
-}
-
-.caption-name {
 	font-weight: 700;
 	color: #4a4633;
 }
@@ -456,8 +471,23 @@ h2 {
 	color: #1c1b13;
 }
 
-.caption-date {
+/* What it was for: up to three lines. */
+.caption-for {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 3;
+	font-size: 7pt;
+	line-height: 8.25pt;
 	font-weight: 400;
+	color: #1c1b13;
+}
+
+.caption-value,
+.caption-date {
+	white-space: nowrap;
+	font-size: 7pt;
+	line-height: 8.25pt;
+	font-weight: 700;
 	color: #4a4633;
 }
 `;

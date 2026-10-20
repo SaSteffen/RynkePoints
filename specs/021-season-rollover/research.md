@@ -270,10 +270,12 @@ deterministic and unit-testable.
 
 - **Page**: 210 × 297 mm. Safe area: top 12, bottom 12, outer 12, gutter 20 mm;
   odd pages gutter left, even pages right (FR-051). Content box 178 × 273 mm.
-- **Slots**: 3 per row, 59.3 mm wide; slot height 60 mm: sticker 44 mm
-  diameter, pose margin 3 mm sideways and 2 mm up and down, caption 8 mm (name,
-  date or "?", 9 pt), shadow 1.5 mm (contracts/album-layout.md, as in the
-  mock-up). A category heading takes 9 mm and is never the last thing on a
+- **Slots**: 3 per row, 59.3 mm wide; slot height 66 mm: sticker 44 mm
+  diameter with the app's milestone ribbon, pose margin 3 mm sideways and 2 mm
+  up and down, caption 16 mm (name, what the badge was for and the date, or the
+  milestone of one still to earn, or "?"), see contracts/album-layout.md. The
+  mock-up's 60 mm slot had room for name and date only; without what a sticker
+  was for, an album shows names like "Neue Kette fällig" alone. A category heading takes 9 mm and is never the last thing on a
   page (FR-053); a category longer than the page continues with its heading
   repeated ("Distanz (Fortsetzung)").
 - **Sticker pose** (FR-026, FR-036): from a 32-bit hash of `athleteId` and
