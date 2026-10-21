@@ -242,26 +242,59 @@ function recolour(label, w, h, scale, colours, { box, ring, from, to }) {
 }
 
 /**
+ * Drops the region of one colour around each of `holes` ([x, y] in the
+ * original's pixels) as paper: background the drawing closes in, like the gap
+ * between the legs, which the flood from the edges can't reach.
+ */
+function cutHoles(label, w, h, scale, holes) {
+	for (const [hx, hy] of holes) {
+		const start = Math.round(hy * scale) * w + Math.round(hx * scale);
+		const source = label[start];
+		if (!source) continue;
+		const region = [start];
+		label[start] = 0;
+		for (let k = 0; k < region.length; k++) {
+			const i = region[k];
+			const ix = i % w;
+			const iy = (i - ix) / w;
+			for (const j of [
+				ix > 0 ? i - 1 : -1,
+				ix < w - 1 ? i + 1 : -1,
+				iy > 0 ? i - w : -1,
+				iy < h - 1 ? i + w : -1,
+			]) {
+				if (j >= 0 && label[j] === source) {
+					label[j] = 0;
+					region.push(j);
+				}
+			}
+		}
+	}
+}
+
+/**
  * Traces an original into one `<g>` of layered paths, 100 units wide over the
  * full canvas (so images made on the same canvas keep their relative scale).
  * `colours` replaces the coin palette (from `palette()`), `fixes` recolours
- * regions after snapping (see `recolour`), and colours named in `omit` are
- * snapped to but not drawn (a line drawing's paper); all are optional.
+ * regions after snapping (see `recolour`), `holes` drops enclosed regions as
+ * paper (see `cutHoles`), and colours named in `omit` are snapped to but not
+ * drawn (a line drawing's paper); all are optional.
  */
 export function traceImage(
 	file,
-	{ colours = PALETTE, fixes = [], omit = [] } = {},
+	{ colours = PALETTE, fixes = [], holes = [], omit = [] } = {},
 ) {
 	const image = readImage(file);
 	const { w, h } = image;
 	const label = smooth(labels(image, colours), w, h, colours.length);
-	if (fixes.length > 0) {
+	if (fixes.length > 0 || holes.length > 0) {
 		const original = Number(
 			execFileSync(magick, [file, "-auto-orient", "-format", "%w", "info:"])
 				.toString()
 				.trim(),
 		);
 		for (const fix of fixes) recolour(label, w, h, w / original, colours, fix);
+		cutHoles(label, w, h, w / original, holes);
 	}
 
 	const used = new Uint32Array(colours.length + 1);

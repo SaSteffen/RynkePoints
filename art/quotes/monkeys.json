@@ -9,12 +9,14 @@
 		{
 			"id": "point",
 			"name": "Ab geht's",
-			"scene": "Standing, body turned a little to the viewer's right, pointing ahead to the right with one arm stretched out, the other hand on the hip, as if saying \"that way, let's go!\". Mouth open mid-sentence. {{kit}}"
+			"scene": "Standing, body turned a little to the viewer's right, pointing ahead to the right with one arm stretched out, the other hand on the hip, as if saying \"that way, let's go!\". Mouth open mid-sentence. {{kit}}",
+			"holes": [[813, 1230]]
 		},
 		{
 			"id": "thumbs",
 			"name": "Daumen hoch",
-			"scene": "Standing, a big thumbs-up raised to the right at shoulder height, the other hand holding a light blue (#8CC4F0) water bottle with a gold (#C99A2E) cap, as if saying \"you've got this!\". Mouth open mid-sentence. {{kit}}"
+			"scene": "Standing, a big thumbs-up raised to the right at shoulder height, the other hand holding a light blue (#8CC4F0) water bottle with a gold (#C99A2E) cap, as if saying \"you've got this!\". Mouth open mid-sentence. {{kit}}",
+			"holes": [[751, 1206]]
 		},
 		{
 			"id": "banana",
@@ -29,7 +31,8 @@
 		{
 			"id": "wave",
 			"name": "Hallo du!",
-			"scene": "Standing, waving high with the hand on the viewer's right, two short black motion arcs beside the waving hand, the other arm relaxed at the side, as if calling a teammate over. Mouth open mid-sentence. {{kit}}"
+			"scene": "Standing, waving high with the hand on the viewer's right, two short black motion arcs beside the waving hand, the other arm relaxed at the side, as if calling a teammate over. Mouth open mid-sentence. {{kit}}",
+			"holes": [[1021, 1668], [819, 1333]]
 		},
 		{
 			"id": "swim",
@@ -44,7 +47,18 @@
 		{
 			"id": "bike",
 			"name": "Aufsitzen",
-			"scene": "Standing beside a road bike, one hand on the handlebar, the other pointing at the saddle as if saying \"hop on!\"; the bike stands to the left of the character, so the right side stays free. Mouth open mid-sentence. {{bike}}"
+			"scene": "Standing beside a road bike, one hand on the handlebar, the other pointing at the saddle as if saying \"hop on!\"; the bike stands to the left of the character, so the right side stays free. Mouth open mid-sentence. {{bike}}",
+			"holes": [
+				[1444, 1665],
+				[457, 1468],
+				[715, 1485],
+				[1252, 1071],
+				[1243, 1234],
+				[804, 1313],
+				[1053, 1397],
+				[1095, 1565],
+				[839, 1105]
+			]
 		},
 		{
 			"id": "cake",
@@ -54,12 +68,14 @@
 		{
 			"id": "rain",
 			"name": "Regenheld",
-			"scene": "Standing in the rain, cheerful anyway, holding a big yellow umbrella over the helmet, a few light blue (#8CC4F0) raindrops falling around it. Mouth open mid-sentence. {{kit}}"
+			"scene": "Standing in the rain, cheerful anyway, holding a big yellow umbrella over the helmet, a few light blue (#8CC4F0) raindrops falling around it. Mouth open mid-sentence. {{kit}}",
+			"holes": [[1078, 1774]]
 		},
 		{
 			"id": "paris",
 			"name": "Bonjour Paris",
-			"scene": "Standing, holding a long gold baguette up like a trophy pointing to the right, a small black beret on top of the helmet, a tiny black-outlined Eiffel Tower in cream and gold on the left behind the character. Mouth open mid-sentence. {{kit}}"
+			"scene": "Standing, holding a long gold baguette up like a trophy pointing to the right, a small black beret on top of the helmet, a tiny black-outlined Eiffel Tower in cream and gold on the left behind the character. Mouth open mid-sentence. {{kit}}",
+			"holes": [[874, 1207]]
 		}
 	]
 }

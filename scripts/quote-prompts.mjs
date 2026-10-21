@@ -28,6 +28,18 @@ export function validateMonkeys(data) {
 		if (typeof m?.name !== "string" || !m.name.trim())
 			problems.push(`${where}: no name`);
 
+		const holes = m?.holes ?? [];
+		if (
+			!Array.isArray(holes) ||
+			!holes.every(
+				(point) =>
+					Array.isArray(point) &&
+					point.length === 2 &&
+					point.every((v) => Number.isInteger(v) && v >= 0),
+			)
+		)
+			problems.push(`${where}: holes must be [x, y] pixel pairs`);
+
 		const scene = typeof m?.scene === "string" ? m.scene : "";
 		if (!scene.trim()) problems.push(`${where}: empty scene`);
 		for (const [, name] of scene.matchAll(PLACEHOLDER)) {
