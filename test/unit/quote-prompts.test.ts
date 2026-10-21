@@ -20,9 +20,9 @@ const valid = (monkeys: unknown[]) => ({
 });
 
 describe("validateMonkeys", () => {
-	it("accepts the real monkey list, five of them", () => {
+	it("accepts the real monkey list, eleven of them", () => {
 		expect(validateMonkeys(data)).toEqual([]);
-		expect(data.monkeys).toHaveLength(5);
+		expect(data.monkeys).toHaveLength(11);
 	});
 
 	it("rejects duplicate and malformed ids", () => {

@@ -2,8 +2,9 @@
 
 On the Team page Rynke says the rider's quote in a speech bubble, standing on
 the team total (Claude Design "RynkePoints Quote Monkey", option B). There are
-five pictures of him for that; the page gives each quote one of them, the same
-one every time (`quoteArt()` in `src/http/sections/team.ts`). Until a picture
+eleven pictures of him for that: five poses in cycling kit, one each in swim,
+running and bike gear, and three fun ones. The page gives each quote one of
+them, the same one every time (`quoteArt()` in `src/http/sections/team.ts`). Until a picture
 is built, the quote shows the rider state's illustration instead.
 
 They are made the same way as the badge pictures (`art/badges/README.md`), so
@@ -11,7 +12,7 @@ Rynke looks like the badges' character.
 
 ## Files
 
-- `monkeys.json`: the five monkeys (id, name, pose). `snippets` are shared
+- `monkeys.json`: the eleven monkeys (id, name, pose). `snippets` are shared
   descriptions that the poses pull in with `{{name}}`.
 - `prompt.txt`: the prompt every monkey uses; `{{scene}}` is the monkey's pose.
 - The reference attached to every prompt is the hero coin's sheet of four

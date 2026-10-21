@@ -1,6 +1,9 @@
 {
 	"snippets": {
-		"kit": "The character wears its yellow cycling helmet with three black vents and its yellow jersey with a small round black collar and a short black zip line, black cycling shorts and black cycling shoes with cream soles. No bike."
+		"kit": "The character wears its yellow cycling helmet with three black vents and its yellow jersey with a small round black collar and a short black zip line, black cycling shorts and black cycling shoes with cream soles. No bike.",
+		"swim": "Swim kit instead of the cycling kit: a yellow (#FBE122) swim cap with three small black stripes instead of the helmet, black swim goggles pushed up onto the cap, a yellow swimsuit, bare feet. A few light blue (#8CC4F0) water drops dripping off. No bike.",
+		"run": "Running kit instead of the cycling kit: no helmet, a yellow (#FBE122) sweatband around the head, the yellow jersey as a running shirt, black running shorts and black running shoes with cream soles. No bike.",
+		"bike": "The character wears its yellow cycling helmet with three black vents and its yellow jersey with a small round black collar and a short black zip line, black cycling shorts and black cycling shoes with cream soles. The bike: road bike with a yellow frame and fork (#FBE122), black handlebar tape, black saddle. Both wheels identical and WITHOUT spokes: a thick black tyre, a yellow rim ring inside it, a solid cream (#FFFDF5) inner disc and a small black hub dot in the center. No spokes, no spoke lines."
 	},
 	"monkeys": [
 		{
@@ -27,6 +30,36 @@
 			"id": "wave",
 			"name": "Hallo du!",
 			"scene": "Standing, waving high with the hand on the viewer's right, two short black motion arcs beside the waving hand, the other arm relaxed at the side, as if calling a teammate over. Mouth open mid-sentence. {{kit}}"
+		},
+		{
+			"id": "swim",
+			"name": "Ab ins Wasser",
+			"scene": "Standing fresh out of the pool, a cream towel slung over one shoulder, the other hand giving a thumbs-up to the right. Mouth open mid-sentence. {{swim}}"
+		},
+		{
+			"id": "run",
+			"name": "Laufschuhe an",
+			"scene": "Jogging on the spot, one knee up, arms bent in a running swing, turned toward the right as if inviting the viewer to run along. Mouth open mid-sentence. {{run}}"
+		},
+		{
+			"id": "bike",
+			"name": "Aufsitzen",
+			"scene": "Standing beside a road bike, one hand on the handlebar, the other pointing at the saddle as if saying \"hop on!\"; the bike stands to the left of the character, so the right side stays free. Mouth open mid-sentence. {{bike}}"
+		},
+		{
+			"id": "cake",
+			"name": "Kuchenstopp",
+			"scene": "Standing, holding up a big slice of cake on a small cream plate in one hand (gold sponge, cream filling, a yellow topping) and a cream coffee cup in the other, as if announcing the team's cake stop. Mouth open mid-sentence. {{kit}}"
+		},
+		{
+			"id": "rain",
+			"name": "Regenheld",
+			"scene": "Standing in the rain, cheerful anyway, holding a big yellow umbrella over the helmet, a few light blue (#8CC4F0) raindrops falling around it. Mouth open mid-sentence. {{kit}}"
+		},
+		{
+			"id": "paris",
+			"name": "Bonjour Paris",
+			"scene": "Standing, holding a long gold baguette up like a trophy pointing to the right, a small black beret on top of the helmet, a tiny black-outlined Eiffel Tower in cream and gold on the left behind the character. Mouth open mid-sentence. {{kit}}"
 		}
 	]
 }

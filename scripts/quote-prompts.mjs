@@ -1,4 +1,4 @@
-// The quote monkeys' art inputs: checks art/quotes/monkeys.json, the five
+// The quote monkeys' art inputs: checks art/quotes/monkeys.json, the
 // pictures of Rynke saying the Team page's quote in a speech bubble. Their
 // prompts are put together like the badges' (badge-prompts.mjs `buildPrompt`,
 // from art/quotes/prompt.txt). No `node:` imports, so the tests load it in the
