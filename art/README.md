@@ -1,6 +1,8 @@
 # Art: illustration originals
 
-(The team's coin designs and their tracing are in [`coin/`](coin/README.md).)
+(The team's coin designs and their tracing are in [`coin/`](coin/README.md),
+the badge pictures in [`badges/`](badges/README.md) and the Team page's quote
+monkeys in [`quotes/`](quotes/README.md).)
 
 `illustrations/` holds the raster originals of the app's illustrations, as they
 come out of the image generator. `pnpm illustrations` traces every file in it,

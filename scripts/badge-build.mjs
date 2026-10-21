@@ -20,7 +20,10 @@
 //    its window. Only a run without ids removes badge SVGs whose original is
 //    gone, so a filtered run never deletes another badge.
 // 5. Writes src/badges/pictures.ts: every badge with a finished SVG.
-// 6. Updates src/http/art-versions.ts, the pictures' hashes (pnpm art-versions).
+// 6. Builds the Team page's quote monkeys from art/quotes/ the same way
+//    (scripts/quote-monkeys.mjs, art/quotes/README.md): public/quotes/<id>.svg
+//    and src/http/quote-monkeys.ts. Their ids work like badge ids here.
+// 7. Updates src/http/art-versions.ts, the pictures' hashes (pnpm art-versions).
 //
 // Needs ImageMagick and potrace, like pnpm illustrations. Running it again
 // without changes changes no file.
@@ -39,6 +42,7 @@ import { basename, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { frameSvg, placeholderSvg } from "./badge-frame.mjs";
 import { validateBadges } from "./badge-prompts.mjs";
+import { buildQuoteMonkeys, loadMonkeys } from "./quote-monkeys.mjs";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const ART = join(ROOT, "art/badges");
@@ -57,13 +61,22 @@ const data = JSON.parse(readFileSync(join(ART, "badges.json"), "utf8"));
 const problems = validateBadges(data);
 if (!readFileSync(join(ART, "prompt.txt"), "utf8").includes("{{scene}}"))
 	problems.push("prompt.txt: no {{scene}}");
-if (problems.length > 0)
-	fail(["art/badges is not valid:", ...problems.map((p) => `  ${p}`)]);
+const monkeys = loadMonkeys();
+const allProblems = [
+	...problems.map((p) => `art/badges: ${p}`),
+	...monkeys.problems,
+];
+if (allProblems.length > 0)
+	fail(["The art is not valid:", ...allProblems.map((p) => `  ${p}`)]);
 const badges = new Map(data.badges.map((b) => [b.id, b]));
 
-const only = process.argv.slice(2);
-const unknown = only.filter((id) => !badges.has(id));
-if (unknown.length > 0) fail([`Unknown badge id(s): ${unknown.join(", ")}`]);
+const named = process.argv.slice(2);
+const unknown = named.filter((id) => !badges.has(id) && !monkeys.ids.has(id));
+if (unknown.length > 0)
+	fail([`Unknown badge or monkey id(s): ${unknown.join(", ")}`]);
+// The named badges; a run naming only monkeys builds no badge.
+const only = named.filter((id) => badges.has(id));
+const filtered = named.length > 0;
 
 const originals = new Map();
 for (const f of readdirSync(ORIGINALS)) {
@@ -94,19 +107,19 @@ for (const kind of ["personal", "team"]) {
 }
 
 /**
- * Badge ids whose public/badges/<id>.svg is committed and has no change in
- * git: tracked, and neither staged nor changed in the working tree. Empty
- * when git isn't there, so everything is built.
+ * Ids whose public/<folder>/<id>.svg is committed and has no change in git:
+ * tracked, and neither staged nor changed in the working tree. Empty when git
+ * isn't there, so everything is built.
  */
-function committedSvgs() {
+function committedSvgs(folder) {
 	const git = (...args) =>
 		execFileSync("git", args, { cwd: ROOT, encoding: "utf8" });
 	try {
-		const tracked = git("ls-files", "-z", "--", "public/badges")
+		const tracked = git("ls-files", "-z", "--", `public/${folder}`)
 			.split("\0")
 			.filter(Boolean);
 		const changed = new Set(
-			git("diff", "--name-only", "-z", "HEAD", "--", "public/badges")
+			git("diff", "--name-only", "-z", "HEAD", "--", `public/${folder}`)
 				.split("\0")
 				.filter(Boolean),
 		);
@@ -121,8 +134,8 @@ function committedSvgs() {
 }
 
 // 3. and 4. Snap, trace, compose. Named ids are built even when committed.
-const committed = only.length > 0 ? new Set() : committedSvgs();
-const chosen = only.length > 0 ? only : [...originals.keys()].sort();
+const committed = filtered ? new Set() : committedSvgs("badges");
+const chosen = filtered ? only : [...originals.keys()].sort();
 const todo = chosen.filter((id) => {
 	if (!originals.has(id)) {
 		console.log(`${id}: no original yet, skipped`);
@@ -180,7 +193,7 @@ const finished = () =>
 		.filter((f) => f.endsWith(".svg") && !f.startsWith("placeholder-"))
 		.map((f) => basename(f, ".svg"))
 		.filter((name) => !name.endsWith("-ribbon"));
-if (only.length === 0) {
+if (!filtered) {
 	for (const f of readdirSync(OUT))
 		if (f.endsWith("-ribbon.svg")) rmSync(join(OUT, f));
 	for (const id of finished()) {
@@ -207,5 +220,12 @@ console.log(
 	`${ids.length} of ${badges.size} badges have a picture (src/badges/pictures.ts).`,
 );
 
-// The pictures' hashes for their addresses.
+// 6. The quote monkeys.
+await buildQuoteMonkeys(monkeys, {
+	only: named.filter((id) => monkeys.ids.has(id)),
+	filtered,
+	committed: filtered ? new Set() : committedSvgs("quotes"),
+});
+
+// 7. The pictures' hashes for their addresses.
 await import("./art-versions.mjs");

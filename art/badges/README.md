@@ -31,6 +31,10 @@ A badge is two parts:
 
 ## Making the pictures
 
+The Team page's quote monkeys (`art/quotes/README.md`) come along in the same
+runs: `pnpm badge-art` makes them after the badges and `pnpm badge-build`
+traces them after the badges; their ids work like badge ids.
+
 ```bash
 pnpm badge-art                      # every badge without an original
 pnpm badge-art distance-100 running-10

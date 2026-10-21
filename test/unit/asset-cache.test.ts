@@ -16,7 +16,7 @@ const KEPT = "public, max-age=31536000, immutable";
 const DAY = "public, max-age=86400, stale-while-revalidate=604800";
 
 describe("static art caching", () => {
-	it.each(["/badges/*", "/coin/*", "/illustrations/*"])(
+	it.each(["/badges/*", "/coin/*", "/illustrations/*", "/quotes/*"])(
 		"keeps %s for good: its address holds the file's hash",
 		(path) => {
 			expect(HEADERS["../../public/_headers"]).toContain(

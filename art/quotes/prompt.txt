@@ -1,0 +1,17 @@
+Using the attached reference sheet as the exact reference for character and style (four pictures of the same character: same head shape, orange fur, light muzzle, round black eyes, two-dot nose, yellow cycling helmet with three black vents, yellow jersey), draw this character full-body, saying something to the viewer. In the app a speech bubble appears to the RIGHT of the character, so the character turns a little toward the right and speaks that way.
+
+Pose: {{scene}}
+
+Expression: talking enthusiastically to a teammate: a simple open mouth mid-sentence with one row of cream upper teeth, no tongue; bright, lively eyes, brows raised a little. The eyes are medium-sized solid black ovals like those of the reference, NOT enlarged, no catch-light dots, no sparkles, no blush.
+
+The figure is androgynous: nobody should read it as a boy or a girl, a man or a woman. No eyelashes, no lipstick or coloured lips, no beard or moustache, no hair showing under the helmet, no jewellery.
+
+Mood: always striving and always in a good mood: hasn't reached the goal yet, works hard for it and has a great time doing it, full of enthusiasm and fun, a teammate whose good mood carries everyone. Never triumphant, smug or self-satisfied, never cute or babyish, never exhausted, grim or suffering.
+
+Style: flat vector-style illustration, identical to the reference. Bold uniform black outlines (#1C1B13) about 44 px thick around every shape, including around the yellow helmet and jersey so they stay separate from each other; inner lines about 32 px. Solid flat fills only, no gradients, no shading, no texture, no highlights, no drop shadow, no ground shadow. Use only these colors: yellow #FBE122, orange fur #C8641E, muzzle #F0A868, black #1C1B13, cream #FFFDF5, gold #C99A2E, light blue #8CC4F0 (only for water and sweat drops).
+
+Proportions: chibi like the reference, the head about 40% of the figure height, a grown-up face. The picture is shown as small as 96 px, so keep few, large shapes: smallest details at least about 40 px across and no lines thinner than about 32 px.
+
+Canvas: square 1:1, 2048 x 2048 px, plain pure white background. The whole figure, raised arms and props included, fits inside the canvas with about 120 px of white margin on every side, centred horizontally, the feet about 120 px above the bottom edge. No ground line, no shadow, no background scenery, no speech bubble, no text, no letters, no numbers, no border, no circle.
+
+Check before you finish: one character on plain white, no speech bubble drawn; the figure is complete and not cropped; the eyes are not big and shiny, the open mouth is cheerful and symmetric; the figure looks enthusiastic rather than triumphant, and nothing makes it look male or female.

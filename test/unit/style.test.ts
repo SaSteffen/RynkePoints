@@ -122,14 +122,33 @@ describe("STYLE", () => {
 		);
 	});
 
-	it("colours the push quote orange and the on-track quote green (016, the draft)", () => {
+	it("draws the quote as a white comic bubble, its heading in the rider state's colour", () => {
 		expect(declsOf(".quote")).toMatchObject({
-			"border-left": "6px solid var(--rp-push-accent)",
-			background: "var(--rp-push-container)",
+			"--rp-quote-edge": "var(--rp-coin-ink)",
+			"--rp-quote-fill": "var(--rp-bubble)",
+			border: "2px solid var(--rp-quote-edge)",
+			background: "var(--rp-quote-fill)",
+			color: "var(--rp-coin-ink)",
 		});
-		expect(declsOf(".quote-on-track")).toMatchObject({
-			"border-left-color": "var(--rp-ok-accent)",
-			background: "var(--rp-ok-container)",
+		expect(declsOf(".quote-push .quote-heading").color).toBe(
+			"var(--rp-bubble-push)",
+		);
+		expect(declsOf(".quote-on-track .quote-heading").color).toBe(
+			"var(--rp-bubble-ok)",
+		);
+	});
+
+	it("draws the quote as Rynke's speech bubble on the team total (the Quote Monkey draft, option B)", () => {
+		// The bubble's tail curves towards the monkey on its left, in its
+		// colours: the outline under the fill, cut out by the same shape.
+		expect(declsOf(".quote::before").background).toBe("var(--rp-quote-edge)");
+		expect(declsOf(".quote::after").background).toBe("var(--rp-quote-fill)");
+		expect(declsOf(".quote::before").mask).toContain("var(--rp-quote-tail)");
+		// The monkey stands on the team total's edge, drawn over it.
+		expect(declsOf(".quote-monkey").margin).toBe("0 0 -18px");
+		expect(declsOf(".quote-monkey-art")).toMatchObject({
+			position: "relative",
+			"z-index": "1",
 		});
 	});
 

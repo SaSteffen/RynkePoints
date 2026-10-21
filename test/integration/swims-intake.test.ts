@@ -69,10 +69,13 @@ async function count(table: "activities" | "runs") {
 	);
 }
 
-/** A page without the Team page's random quote. */
+/** A page without the Team page's random quote and the monkey who says it. */
 async function page(path: string) {
 	const { html } = await riderPage(ctx, ATHLETE_A, path);
-	return html.replace(/<blockquote class="quote[\s\S]*?<\/blockquote>/, "");
+	return html.replace(
+		/<div class="quote-monkey">[\s\S]*?<\/blockquote>\n<\/div>/,
+		"",
+	);
 }
 
 async function setActivity(activity: ReturnType<typeof makeStravaActivity>) {
