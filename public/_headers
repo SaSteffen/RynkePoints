@@ -10,9 +10,9 @@
 /vendor/*
   Cache-Control: public, max-age=31536000, immutable
 
-# The badge, coin and illustration art: the app links each picture with a
-# hash of the file (`?v=<hash>`, scripts/art-versions.mjs), so a changed
-# picture gets a new address and the old one never changes.
+# The badge, coin, illustration and quote monkey art: the app links each
+# picture with a hash of the file (`?v=<hash>`, scripts/art-versions.mjs), so a
+# changed picture gets a new address and the old one never changes.
 /badges/*
   Cache-Control: public, max-age=31536000, immutable
 
@@ -20,6 +20,9 @@
   Cache-Control: public, max-age=31536000, immutable
 
 /illustrations/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/quotes/*
   Cache-Control: public, max-age=31536000, immutable
 
 # The icons keep their addresses (the manifest, the service worker, the

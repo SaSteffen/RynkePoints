@@ -117,6 +117,37 @@ describe("evaluateBadges", () => {
 		expect(progressOf(result, "team_events")?.value).toBe(5);
 	});
 
+	it("counts tour days as team events, also after the deadline, not as technique (021 FR-005)", () => {
+		const result = evaluateBadges(
+			{
+				...NONE,
+				attendance: [
+					{ eventId: 1, kind: "team_training", date: "2027-06-01" },
+					...[4, 5, 6, 7].map((day, i) => ({
+						eventId: 2 + i,
+						kind: "tour_de_paris" as const,
+						date: `2027-07-0${day}`,
+					})),
+					// After today: counts nothing yet.
+					{ eventId: 9, kind: "tour_de_paris", date: "2027-07-09" },
+				],
+			},
+			CURRENT_RULES,
+			badgeWindow(
+				{ seasonStart: "2026-09-01", deadline: "2027-06-30" },
+				"2027-07-08",
+			),
+		);
+		expect(result.earned).toContainEqual({
+			badgeId: "team-events-5",
+			earnedOn: "2027-07-07",
+		});
+		expect(progressOf(result, "team_events")?.value).toBe(5);
+		expect(progressOf(result, "technique")?.value).toBe(0);
+		// Tour days earn no Rynke, so no Training Rynke badge either.
+		expect(progressOf(result, "training_rynke")?.value).toBe(5);
+	});
+
 	it("dates a Training Rynke badge by the correction that reached it", () => {
 		const result = evaluate({
 			rides: [ride("2026-03-01", 20, 0, 20)],
@@ -168,6 +199,7 @@ describe("evaluateBadges", () => {
 			["winter_december", 0, 1],
 			["winter_january", 0, 1],
 			["winter_february", 0, 1],
+			["tour_de_paris", 0, null],
 			["surprise", 0, null],
 		]);
 	});
@@ -407,9 +439,12 @@ describe("evaluateBadges for the surprise badges", () => {
 		startTime: time,
 	});
 	const run = (date: string) => ({ date, distanceM: 5000 });
+	// Part J's badge has tests of its own.
 	const surprises = (inputs: Partial<PersonalInputs>) =>
 		evaluateBadges({ ...NONE, ...inputs }, CURRENT_RULES, SEASON).earned.filter(
-			(b) => b.badgeId.startsWith("surprise-"),
+			(b) =>
+				b.badgeId.startsWith("surprise-") &&
+				b.badgeId !== "surprise-winter-sleep",
 		);
 
 	it("gives the holiday badges for a ride, a run or a swim (US6 2, 3)", () => {
@@ -528,6 +563,8 @@ describe("evaluateBadges for the surprise badges of part F", () => {
 		"surprise-night-owl",
 		"surprise-early-bird",
 		"surprise-rest-day",
+		// Part J, tested on its own.
+		"surprise-winter-sleep",
 	]);
 	const surprises = (
 		inputs: Partial<PersonalInputs>,
@@ -771,7 +808,8 @@ describe("evaluateBadges for the surprise badges of part F", () => {
 
 	it("shows no next step and counts the new badges as earned", () => {
 		const result = evaluateBadges(
-			{ ...NONE, rides: [outdoor("2027-03-14", 32)] },
+			// Virtual, so part J's outdoor ride in the new year doesn't count.
+			{ ...NONE, rides: [virtual("2027-03-14", 32)] },
 			CURRENT_RULES,
 			SEASON,
 		);
@@ -784,6 +822,69 @@ describe("evaluateBadges for the surprise badges of part F", () => {
 	});
 });
 
+// Part J: Winterschlaf beendet (spec User Story 9, FR-018, research R49).
+describe("evaluateBadges for Winterschlaf beendet", () => {
+	const SEASON = { seasonStart: "2026-09-01", deadline: "2027-07-31" };
+	const outdoor = (date: string, km = 20) => ({
+		...ride(date, km),
+		startTime: "10:00",
+	});
+	const virtual = (date: string) => ({ ...outdoor(date), virtual: true });
+	const sleep = (
+		inputs: Partial<PersonalInputs>,
+		window: typeof SEASON = SEASON,
+	) =>
+		evaluateBadges({ ...NONE, ...inputs }, CURRENT_RULES, window).earned.filter(
+			(b) => b.badgeId === "surprise-winter-sleep",
+		);
+
+	it("dates it with the first outdoor ride of the new year, not of the season", () => {
+		expect(
+			sleep({
+				rides: [
+					outdoor("2026-09-05"),
+					outdoor("2026-12-31"),
+					outdoor("2027-02-14"),
+					outdoor("2027-01-17"),
+				],
+			}),
+		).toEqual([{ badgeId: "surprise-winter-sleep", earnedOn: "2027-01-17" }]);
+		expect(sleep({ rides: [outdoor("2027-01-01")] })).toEqual([
+			{ badgeId: "surprise-winter-sleep", earnedOn: "2027-01-01" },
+		]);
+	});
+
+	it("needs an outdoor ride: no virtual ride, run or swim", () => {
+		expect(
+			sleep({
+				rides: [virtual("2027-01-03")],
+				runs: [{ date: "2027-01-04", distanceM: 5000 }],
+				swims: [{ date: "2027-01-05", distanceM: 1000 }],
+			}),
+		).toEqual([]);
+		expect(
+			sleep({ rides: [virtual("2027-01-03"), outdoor("2027-03-01")] }),
+		).toEqual([{ badgeId: "surprise-winter-sleep", earnedOn: "2027-03-01" }]);
+	});
+
+	it("counts nothing before the new year or after the window", () => {
+		expect(sleep({ rides: [outdoor("2026-12-31")] })).toEqual([]);
+		expect(
+			sleep(
+				{ rides: [outdoor("2027-01-10")] },
+				badgeWindow(SEASON, "2027-01-09"),
+			),
+		).toEqual([]);
+		// A season from 1 January has no new year in it.
+		expect(
+			sleep(
+				{ rides: [outdoor("2026-01-02")] },
+				{ seasonStart: "2026-01-01", deadline: "2026-08-31" },
+			),
+		).toEqual([]);
+	});
+});
+
 // No badge for anything dated after the window's last day; callers end it
 // today in Berlin (badgeWindow).
 describe("badgeWindow and future dates", () => {
@@ -792,8 +893,13 @@ describe("badgeWindow and future dates", () => {
 		expect(badgeWindow(season, "2026-10-12")).toEqual({
 			seasonStart: "2026-09-01",
 			deadline: "2026-10-12",
+			today: "2026-10-12",
 		});
-		expect(badgeWindow(season, "2027-08-15")).toEqual(season);
+		// Tour days still count up to today after the deadline (021 FR-003).
+		expect(badgeWindow(season, "2027-08-15")).toEqual({
+			...season,
+			today: "2027-08-15",
+		});
 	});
 
 	it("counts no ride, run or swim after the window's last day", () => {

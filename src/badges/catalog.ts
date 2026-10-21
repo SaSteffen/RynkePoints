@@ -38,6 +38,7 @@ export type BadgeCategoryId =
 	| "team_running"
 	| "big_training"
 	| "attendances"
+	| "tour_de_paris"
 	| "team_surprise";
 
 export interface BadgeCategory {
@@ -53,6 +54,11 @@ export interface BadgeCategory {
 	 * orders them (part D, FR-015, research R32).
 	 */
 	surprise?: true;
+	/**
+	 * Single badges one per day, a collection rather than a ladder: no bar,
+	 * the newest on the card (feature 021 FR-013). The ladder numbers them.
+	 */
+	days?: true;
 }
 
 export interface Badge {
@@ -62,8 +68,13 @@ export interface Badge {
 	threshold: number;
 }
 
-/** Raised with any ladder change; riders on an older one are re-evaluated (FR-012). */
-export const BADGE_CATALOG_VERSION = 5;
+/**
+ * Raised with any ladder change; riders on an older one are re-evaluated
+ * (FR-012). 6: tour days count for the personal Team events (feature 021
+ * FR-005). 7: the tour badges are personal (feature 021 FR-010).
+ * 8: the Winterschlaf beendet surprise badge (feature 013 FR-018).
+ */
+export const BADGE_CATALOG_VERSION = 8;
 
 /** In the spec's order: personal first, then team. */
 export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
@@ -157,13 +168,24 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		ladder: [1, 5, 10],
 		month: 2,
 	},
+	// Feature 021 (research R11): one badge per day of the tour, which always
+	// has eight, earned by the riders at that day. Stand-in names and the
+	// personal placeholder until Phase 2.
+	{
+		id: "tour_de_paris",
+		group: "personal",
+		unit: "days",
+		ladder: [1, 2, 3, 4, 5, 6, 7, 8],
+		days: true,
+	},
 	// Part D (2026-10-12, research R32): no unit is ever shown. Part F
-	// (2026-10-14, research R42) adds seven badges from cycling traditions.
+	// (2026-10-14, research R42) adds seven badges from cycling traditions,
+	// part J (2026-10-20, research R49) the end of hibernation.
 	{
 		id: "surprise",
 		group: "personal",
 		unit: "days",
-		ladder: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+		ladder: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
 		surprise: true,
 	},
 	{
@@ -235,6 +257,7 @@ const NAMED_THRESHOLDS: Partial<
 		11: "solstice",
 		12: "easter",
 		13: "everesting",
+		14: "winter-sleep",
 	},
 	team_surprise: {
 		1: "day-off",
@@ -253,7 +276,7 @@ const badgeIdOf = (category: BadgeCategoryId, threshold: number): string =>
 /** Every badge's id; a string here, checked against the catalog at runtime. */
 export type BadgeId = string;
 
-/** All 121 badges in catalog order: by category, then by threshold. */
+/** All 130 badges in catalog order: by category, then by threshold. */
 export const BADGES: readonly Badge[] = BADGE_CATEGORIES.flatMap((c) =>
 	c.ladder.map((threshold) => ({
 		id: badgeIdOf(c.id, threshold),

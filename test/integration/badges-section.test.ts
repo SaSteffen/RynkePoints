@@ -7,7 +7,7 @@ import { BADGE_PICTURES } from "../../src/badges/pictures";
 import { readRiderBadges } from "../../src/db/badges";
 import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
-import { renderBadgeReveal } from "../../src/http/sections/badges";
+import { milestone, renderBadgeReveal } from "../../src/http/sections/badges";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
@@ -237,7 +237,7 @@ describe("the Abzeichen section", () => {
 				/<li class="badge-slot" aria-hidden="true"><svg class="badge-outline badge-outline-plain"/g,
 			)?.length;
 		expect(lists.map(slots)).toEqual([
-			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3, 13,
+			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3, 8, 14,
 		]);
 		expect(lists.slice(2).join("")).not.toContain("popovertarget");
 		expect(lists[0]?.lastIndexOf('popovertarget="')).toBeLessThan(
@@ -268,6 +268,7 @@ describe("the Abzeichen section", () => {
 			"winter_december",
 			"winter_january",
 			"winter_february",
+			"tour_de_paris",
 			"surprise",
 		]);
 		expect(badges).toContain(
@@ -362,7 +363,7 @@ describe("the Abzeichen section without badges", () => {
 			...personalGroup(badges).matchAll(
 				/<li class="badge-card badge-card-empty"/g,
 			),
-		]).toHaveLength(16);
+		]).toHaveLength(17);
 	});
 
 	it("isn't there in the waiting state (US1 scenario 5)", async () => {
@@ -459,6 +460,53 @@ describe("the team's badges (US4)", () => {
 			"attendances",
 			"team_surprise",
 		]);
+	});
+
+	it("shows the Tour de Paris days among the rider's own, no bar (021 US2)", async () => {
+		await earn(ATHLETE_A, [
+			["tour-de-paris-1", "2026-07-04"],
+			["tour-de-paris-3", "2026-07-06"],
+		]);
+		const { section: badges } = await section();
+		expect(teamGroup(badges)).not.toContain("tour_de_paris");
+		const personal = personalGroup(badges);
+		const card =
+			personal.match(
+				/<li class="badge-card" data-category="tour_de_paris">[\s\S]*?<\/li>/,
+			)?.[0] ?? "";
+		// The newest day on the card, no bar towards another (FR-013).
+		expect(card).toContain('popovertarget="badge-tour-de-paris-3"');
+		// The placeholder only while the day has no picture yet.
+		expect(card).toContain(
+			`src="${artUrl(
+				BADGE_PICTURES.has("tour-de-paris-3")
+					? "/badges/tour-de-paris-3.svg"
+					: "/badges/placeholder-personal.svg",
+			)}"`,
+		);
+		expect(card).toContain(
+			`<span class="badge-ribbon-text">${escapeHtml(de["badges.value.tourDay"].replace("{n}", "3"))}</span>`,
+		);
+		expect(card).not.toContain('class="badge-progress"');
+		const gallery =
+			personal.match(
+				/<div class="badge-gallery-category">\s*<h4[^>]*>[^<]*Tour de Paris[\s\S]*?<\/ul>/,
+			)?.[0] ?? "";
+		expect(gallery).toContain('popovertarget="badge-tour-de-paris-1"');
+		expect(gallery.match(/class="badge-slot"/g)).toHaveLength(6);
+		const large =
+			badges?.match(
+				/<div popover id="badge-tour-de-paris-3" [^>]*>[\s\S]*?<\/div>/,
+			)?.[0] ?? "";
+		expect(large).toContain(
+			`<h4>${escapeHtml(nameOf("tour-de-paris-3"))}</h4>`,
+		);
+		expect(large).toContain(
+			escapeHtml(de["badges.tourDay.for"].replace("{day}", "3")),
+		);
+		expect(large).toContain(
+			escapeHtml(de["badges.earnedOn"].replace("{date}", "06.07.2026")),
+		);
 	});
 
 	it("counts a rider without a current consent towards nothing (US4 scenario 4)", async () => {
@@ -613,6 +661,8 @@ describe("the surprise badges on the page", () => {
 			"solstice",
 			"easter",
 			"everesting",
+			// Part J.
+			"winter-sleep",
 		] as const) {
 			// Whole ids: "surprise-christmas" is a prefix of "-christmas-eve".
 			expect(html).not.toContain(`badge-surprise-${name}"`);
@@ -682,5 +732,14 @@ describe("the team surprise badges on the page", () => {
 		// No rider named (FR-016a).
 		expect(teamGroup(badges)).not.toContain("Testrider");
 		expect(html).not.toContain('badge-team-surprise-all-out"');
+	});
+});
+
+describe("a tour badge's ribbon (feature 021)", () => {
+	it("names the tour day, not a count of days", () => {
+		const badge = BADGES.find((b) => b.id === "tour-de-paris-3");
+		if (!badge) throw new Error("no tour-de-paris-3");
+		expect(milestone(createI18n("de", CATALOGS), badge)).toBe("Tag\u00a03");
+		expect(milestone(createI18n("en", CATALOGS), badge)).toBe("Day\u00a03");
 	});
 });

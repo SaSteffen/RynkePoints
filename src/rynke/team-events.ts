@@ -22,10 +22,26 @@ export function isTeamEventKind(value: string): value is TeamEventKind {
 	return (TEAM_EVENT_KINDS as readonly string[]).includes(value);
 }
 
-/** One attended event, from `attendances` joined with `team_events`. */
+/**
+ * Every kind a team event can have: the Rynke-earning kinds plus the Tour de
+ * Paris, whose days earn nothing (feature 021 FR-001, FR-002, research R9).
+ * Never call it plain `tour`: that is feature 020's onboarding tour.
+ */
+export const EVENT_KINDS = [...TEAM_EVENT_KINDS, "tour_de_paris"] as const;
+
+export type EventKind = (typeof EVENT_KINDS)[number];
+
+export function isEventKind(value: string): value is EventKind {
+	return (EVENT_KINDS as readonly string[]).includes(value);
+}
+
+/**
+ * One attended event, from `attendances` joined with `team_events`. A tour
+ * day earns nothing: `evaluateAttendance` only counts `TEAM_EVENT_KINDS`.
+ */
 export interface Attendance {
 	eventId: number;
-	kind: TeamEventKind;
+	kind: EventKind;
 	/** `YYYY-MM-DD` */
 	date: string;
 }
@@ -47,7 +63,7 @@ export interface AttendanceEvaluation {
 
 /**
  * Counts each event inside the window once and multiplies by the rules'
- * amounts (research R19). The clock is never read: an event dated in the
+ * amounts (research R19); tour days count for nothing. The clock is never read: an event dated in the
  * future counts like any other (FR-002).
  */
 export function evaluateAttendance(
@@ -59,6 +75,8 @@ export function evaluateAttendance(
 		TEAM_EVENT_KINDS.map((kind) => [kind, new Set()]),
 	);
 	for (const { eventId, kind, date } of attendance) {
+		// A tour day earns no Rynke (feature 021 FR-002).
+		if (!isTeamEventKind(kind)) continue;
 		if (inCountingWindow(date, window)) events.get(kind)?.add(eventId);
 	}
 	const byKind = TEAM_EVENT_KINDS.map((kind) => {

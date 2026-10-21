@@ -22,8 +22,9 @@ import {
 import {
 	CURRENT_RULES,
 	countingWindow,
-	inCountingWindow,
+	eventInWindow,
 } from "../../rynke/rules";
+import { isTeamEventKind } from "../../rynke/team-events";
 import { miniCoin } from "../coin";
 import { forbidden } from "../errors";
 import { html, type SafeHtml } from "../html";
@@ -98,7 +99,10 @@ function action(i18n: I18n, event: ShownEvent): SafeHtml {
 function card(i18n: I18n, event: ShownEvent): SafeHtml {
 	const { row } = event;
 	const parts = dateParts(i18n, row.event_date);
-	const amounts = CURRENT_RULES.teamEvents[row.kind];
+	// A tour day earns nothing, so it shows no amounts (feature 021 FR-004).
+	const amounts = isTeamEventKind(row.kind)
+		? CURRENT_RULES.teamEvents[row.kind]
+		: null;
 	const date = i18n.formatDate(`${row.event_date}T00:00:00Z`);
 	const name =
 		row.name === null
@@ -109,8 +113,12 @@ function card(i18n: I18n, event: ShownEvent): SafeHtml {
 <span class="event-date" aria-hidden="true"><span>${parts.weekday}</span><span class="event-day">${parts.day}</span><span>${parts.month}</span></span>
 <div class="event-body">
 <p class="event-kind"><span class="visually-hidden">${date} · </span>${i18n.t(`rynke.source.${row.kind}`)}</p>
-${name}<div class="event-foot"><p class="event-amounts"><span class="chip">${miniCoin("team")}${i18n.t("events.amount.team", { n: String(amounts.team) })}</span><span class="chip">${miniCoin("training")}${i18n.t("events.amount.training", { n: String(amounts.training) })}</span></p>
-${action(i18n, event)}</div>
+${name}<div class="event-foot">${
+		amounts === null
+			? null
+			: html`<p class="event-amounts"><span class="chip">${miniCoin("team")}${i18n.t("events.amount.team", { n: String(amounts.team) })}</span><span class="chip">${miniCoin("training")}${i18n.t("events.amount.training", { n: String(amounts.training) })}</span></p>
+`
+	}${action(i18n, event)}</div>
 </div>
 </li>
 `;
@@ -223,7 +231,10 @@ async function changeReport(
 		return forbidden(i18n, path);
 	}
 	const event = (eventRows?.results as TeamEventRecordRow[] | undefined)?.[0];
-	if (!event || !inCountingWindow(event.event_date, countingWindow(ctx.env))) {
+	if (
+		!event ||
+		!eventInWindow(event.kind, event.event_date, countingWindow(ctx.env))
+	) {
 		return redirect(`${PATH}?error=event_missing`, 303);
 	}
 	if (((attendedRows?.results ?? []) as { n: number }[])[0]?.n === 1) {

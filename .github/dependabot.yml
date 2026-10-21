@@ -17,7 +17,3 @@ updates:
       npm-packages:
         patterns: ["*"]
     ignore:
-      # @cloudflare/vitest-pool-workers needs vitest ^4 (peer dependency); drop
-      # this once a pool release accepts vitest 5.
-      - dependency-name: vitest
-        update-types: ["version-update:semver-major"]

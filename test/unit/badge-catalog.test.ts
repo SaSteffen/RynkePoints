@@ -12,7 +12,7 @@ import {
 // the art pipeline's list (research R9, R18; part A's T019).
 
 describe("badge catalog", () => {
-	it("has the spec's 23 categories with their groups, units and ladders", () => {
+	it("has the spec's 24 categories with their groups, units and ladders", () => {
 		expect(
 			BADGE_CATEGORIES.map((c) => [c.id, c.group, c.unit, c.ladder]),
 		).toEqual([
@@ -36,11 +36,12 @@ describe("badge catalog", () => {
 			["winter_december", "personal", "days", [1, 5, 10]],
 			["winter_january", "personal", "days", [1, 5, 10]],
 			["winter_february", "personal", "days", [1, 5, 10]],
+			["tour_de_paris", "personal", "days", [1, 2, 3, 4, 5, 6, 7, 8]],
 			[
 				"surprise",
 				"personal",
 				"days",
-				[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+				[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
 			],
 			[
 				"team_training_rynke",
@@ -61,7 +62,7 @@ describe("badge catalog", () => {
 			["team_surprise", "team", "days", [1, 2, 3, 4, 5, 6, 7]],
 		]);
 		expect(BADGE_CATEGORIES.filter((c) => c.group === "personal")).toHaveLength(
-			16,
+			17,
 		);
 	});
 
@@ -85,8 +86,8 @@ describe("badge catalog", () => {
 				expect(ladder[i]).toBeGreaterThan(ladder[i - 1] as number);
 	});
 
-	it("derives 121 badges in catalog order with ids from category and threshold", () => {
-		expect(BADGES).toHaveLength(121);
+	it("derives 130 badges in catalog order with ids from category and threshold", () => {
+		expect(BADGES).toHaveLength(130);
 		expect(BADGES.slice(0, 2)).toEqual([
 			{
 				id: "distance-100",
@@ -137,6 +138,7 @@ describe("badge catalog", () => {
 			"surprise-solstice",
 			"surprise-easter",
 			"surprise-everesting",
+			"surprise-winter-sleep",
 		]);
 		expect(BADGE_CATEGORIES.filter((c) => c.surprise).map((c) => c.id)).toEqual(
 			["surprise", "team_surprise"],
@@ -152,11 +154,28 @@ describe("badge catalog", () => {
 			"team-surprise-sunday-outing",
 			"team-surprise-festive-team",
 		]);
-		expect(new Set(BADGES.map((b) => b.id)).size).toBe(121);
+		expect(
+			BADGES.filter((b) => b.category === "tour_de_paris").map((b) => b.id),
+		).toEqual([1, 2, 3, 4, 5, 6, 7, 8].map((n) => `tour-de-paris-${n}`));
+		expect(new Set(BADGES.map((b) => b.id)).size).toBe(130);
 	});
 
-	it("is at version 5 since part F's surprise badges from cycling traditions", () => {
-		expect(BADGE_CATALOG_VERSION).toBe(5);
+	it("is at version 8 since Winterschlaf beendet (013 part J)", () => {
+		expect(BADGE_CATALOG_VERSION).toBe(8);
+	});
+
+	it("puts the Tour de Paris after the winter months and before the surprises (021)", () => {
+		const ids = BADGE_CATEGORIES.map((c) => c.id);
+		expect(ids.indexOf("tour_de_paris")).toBe(
+			ids.indexOf("winter_february") + 1,
+		);
+		expect(ids.indexOf("surprise")).toBe(ids.indexOf("tour_de_paris") + 1);
+		expect(BADGE_CATEGORIES.find((c) => c.id === "tour_de_paris")?.days).toBe(
+			true,
+		);
+		expect(
+			BADGE_CATEGORIES.find((c) => c.id === "tour_de_paris")?.surprise,
+		).toBeUndefined();
 	});
 
 	it("lists the same badges as art/badges/badges.json", () => {

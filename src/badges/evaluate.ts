@@ -5,6 +5,7 @@
 
 import {
 	type CountingWindow,
+	eventInWindow,
 	inCountingWindow,
 	type RynkeRules,
 } from "../rynke/rules";
@@ -43,6 +44,13 @@ export interface DatedRun {
 /** A recorded swim, pool or open water, by its local start date (part C). */
 export type DatedSwim = DatedRun;
 
+/** A Tour de Paris day: one team event of that kind (feature 021). */
+export interface TourEvent {
+	eventId: number;
+	/** `YYYY-MM-DD` */
+	date: string;
+}
+
 export interface PersonalInputs {
 	rides: readonly CountingRide[];
 	runs: readonly DatedRun[];
@@ -50,6 +58,11 @@ export interface PersonalInputs {
 	swims?: readonly DatedSwim[];
 	attendance: readonly Attendance[];
 	corrections: readonly DatedCorrection[];
+	/**
+	 * Every tour day there is, not only the rider's: they number the days
+	 * (feature 021 FR-011). Absent: none.
+	 */
+	tourEvents?: readonly TourEvent[];
 }
 
 export interface EarnedBadge {
@@ -74,13 +87,16 @@ type Series = { date: string; value: number }[];
  * The counting window for badges on `today` (`YYYY-MM-DD`, Berlin): it ends
  * today at the latest, so nothing dated in the future earns a badge, and a
  * day only counts as over (a rest day, a team day off) once a later activity
- * dated today or earlier shows it.
+ * dated today or earlier shows it. It carries `today`, so tour days after the
+ * deadline count up to today (feature 021 FR-005, `eventInWindow`).
  */
 export function badgeWindow(
 	window: CountingWindow,
 	today: string,
 ): CountingWindow {
-	return today < window.deadline ? { ...window, deadline: today } : window;
+	return today < window.deadline
+		? { ...window, deadline: today, today }
+		: { ...window, today };
 }
 
 /** Only what is dated on or before the window's last day. */
@@ -100,21 +116,53 @@ export function evaluateBadges(
 		rides: notAfter(all.rides, window),
 		runs: notAfter(all.runs, window),
 		swims: notAfter(all.swims ?? [], window),
-		attendance: notAfter(all.attendance, window),
+		// Tour days count after the deadline, up to today (feature 021 FR-005).
+		attendance: all.attendance.filter((a) =>
+			eventInWindow(a.kind, a.date, window),
+		),
 		corrections: notAfter(all.corrections, window),
 	};
 	const series = personalSeries(inputs, rules, window);
 	const { earned, progress } = fromSeries(series, "personal");
+	const tour = tourBadges(inputs.attendance, all.tourEvents ?? [], window);
 	const surprises = surpriseBadges(inputs, window);
 	return {
-		// Surprises are the last personal category, so catalog order holds.
-		earned: [...earned, ...surprises],
+		// The tour and then the surprises are the last personal categories, so
+		// catalog order holds.
+		earned: [...earned, ...tour, ...surprises],
 		progress: progress.map((p) =>
-			categoryById(p.category).surprise
-				? progressOf(p.category, surprises.length)
-				: p,
+			p.category === "tour_de_paris"
+				? progressOf(p.category, tour.length)
+				: categoryById(p.category).surprise
+					? progressOf(p.category, surprises.length)
+					: p,
 		),
 	};
+}
+
+/**
+ * The season's tour days numbered in date order, the first created first on
+ * one date, up to today: the rider earns the badge of each numbered day they
+ * attended, dated with it (feature 021 FR-011).
+ */
+export function tourBadges(
+	attendance: readonly Attendance[],
+	tourEvents: readonly TourEvent[],
+	window: CountingWindow,
+): EarnedBadge[] {
+	const days = tourEvents
+		.filter((e) => eventInWindow("tour_de_paris", e.date, window))
+		.sort((a, b) => a.date.localeCompare(b.date) || a.eventId - b.eventId);
+	const attended = new Set(attendance.map((a) => a.eventId));
+	const badges = BADGES.filter((b) => b.category === "tour_de_paris");
+	const earned: EarnedBadge[] = [];
+	days.forEach((day, i) => {
+		const badge = badges[i];
+		if (badge && attended.has(day.eventId)) {
+			earned.push({ badgeId: badge.id, earnedOn: day.date });
+		}
+	});
+	return earned;
 }
 
 /**
@@ -148,9 +196,11 @@ export function progressOf(
 	category: BadgeCategoryId,
 	value: number,
 ): CategoryProgress {
-	const { ladder, surprise } = categoryById(category);
-	// Surprise badges have no next step to show (FR-015).
-	const next = surprise ? null : (ladder.find((t) => t > value) ?? null);
+	const { ladder, surprise, days } = categoryById(category);
+	// Surprise badges have no next step to show (FR-015), nor tour days
+	// (feature 021 FR-013).
+	const next =
+		surprise || days ? null : (ladder.find((t) => t > value) ?? null);
 	return {
 		category,
 		value,
@@ -193,7 +243,7 @@ function personalSeries(
 	window: CountingWindow,
 ): Partial<Record<BadgeCategoryId, Series>> {
 	const attended = inputs.attendance.filter((a) =>
-		inCountingWindow(a.date, window),
+		eventInWindow(a.kind, a.date, window),
 	);
 	const events = (kind?: Attendance["kind"]) =>
 		cumulative(
@@ -303,6 +353,7 @@ function surpriseBadges(
 		"early-bird": startingAt((time) => time < "06:00"),
 		"rest-day": restDay(sorted, days),
 		...traditions(rides, inputs, window, days),
+		"winter-sleep": winterSleep(rides, window),
 	};
 	return BADGES.flatMap((badge) => {
 		const name = surpriseName(badge);
@@ -420,6 +471,23 @@ function traditions(
 			(date) => date.slice(0, 7),
 		),
 	};
+}
+
+/**
+ * Winterschlaf beendet (part J, FR-018, research R49): the first outdoor (not
+ * virtual) counting ride dated in a later calendar year than the season
+ * start, so 1 January or after in a season from September. A season that
+ * starts on 1 January has no new year in it.
+ */
+function winterSleep(
+	rides: readonly DatedRide[],
+	window: CountingWindow,
+): string | undefined {
+	const newYear = `${Number(window.seasonStart.slice(0, 4)) + 1}-01-01`;
+	return rides
+		.filter((r) => !r.virtual && r.date >= newYear)
+		.map((r) => r.date)
+		.sort()[0];
 }
 
 /** `YYYY-MM-DD` shifted by `days`. */

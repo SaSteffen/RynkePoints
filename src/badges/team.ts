@@ -6,9 +6,11 @@
 
 import {
 	type CountingWindow,
+	eventInWindow,
 	inCountingWindow,
 	type RynkeRules,
 } from "../rynke/rules";
+import type { EventKind } from "../rynke/team-events";
 import { type DailyInputs, type DailyRideSum, riderDays } from "../rynke/weeks";
 import { BADGES, type BadgeCategoryId, surpriseName } from "./catalog";
 import {
@@ -29,6 +31,8 @@ export interface TeamRiderDays extends DailyInputs {
 /** A team event with the number of listed riders who attended it. */
 export interface TeamEventSum {
 	eventId: number;
+	/** A tour day counts after the deadline too (feature 021 FR-005). */
+	kind: EventKind;
 	/** `YYYY-MM-DD` */
 	date: string;
 	attendees: number;
@@ -79,13 +83,12 @@ export function evaluateTeamBadges(
 			corrections: notAfter(rider.corrections, window),
 		})),
 		runs: notAfter(all.runs, window),
-		events: notAfter(all.events, window),
+		// A tour day counts after the deadline, up to today (feature 021).
+		events: all.events.filter((e) => eventInWindow(e.kind, e.date, window)),
 		active: notAfter(all.active ?? [], window),
 	};
 	const rides = sums.riders.flatMap((r) => r.rides);
-	const events = sums.events
-		.filter((e) => inCountingWindow(e.date, window))
-		.sort((a, b) => a.date.localeCompare(b.date));
+	const events = [...sums.events].sort((a, b) => a.date.localeCompare(b.date));
 	const series: Partial<Record<BadgeCategoryId, Series>> = {
 		team_training_rynke: together(
 			sums.riders.map((rider) =>

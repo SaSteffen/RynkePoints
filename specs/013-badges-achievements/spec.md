@@ -225,6 +225,17 @@ next one."
   new? → A: On the card of the new badge (the case where the app opens on the
   badges page, issue #150); the rider's own before the team's.
 
+### Session 2026-10-20 (part J: Winterschlaf beendet)
+
+- Q (raised by the project owner): Can there be a surprise badge for coming
+  out of hibernation? → A: Yes, "Winterschlaf beendet": the first outdoor
+  ride in the new year, not the first ride of the season (in September).
+- Q: Which rides count? → A: Outdoor (not virtual) counting rides only, like
+  Sonnenwende and the winter months; runs and swims don't.
+- Q: Which new year? → A: The calendar year after the season start's, so
+  1 January or later in a season from September; it is dated with that
+  ride. A season starting on 1 January has no new year in it.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - See my badges on my page (Priority: P1)
@@ -555,6 +566,28 @@ outlines.
    between 24 and 31 December, **Then** the Festive Team badge is earned,
    dated the day the last of them rides; if one of them doesn't ride, not.
 
+### User Story 9 - Winterschlaf beendet (Priority: P3)
+
+After the dark months, the first ride outside in the new year is a small
+event of its own: the rider's hibernation is over. A personal surprise
+badge marks it, "?" until earned like the others.
+
+**Why this priority**: A cheerful nudge to get back on the bike outdoors in
+January; it extends User Story 6 without a new category.
+
+**Independent Test**: In a season from September, give a rider outdoor rides
+in September and December and one on 17 January; check the badge is earned
+on 17 January, and that a rider with only Zwift rides in January sees "?".
+
+**Acceptance Scenarios**:
+
+1. **Given** a season from 1 September 2026 and outdoor rides on 5 September
+   2026, 31 December 2026 and 17 January 2027, **Then** Winterschlaf beendet
+   is earned, dated 17 January 2027.
+2. **Given** only a virtual ride, a run and a swim in January 2027, **Then**
+   nothing is earned; an outdoor ride on 1 March 2027 then earns it, dated
+   1 March.
+
 ### Edge Cases
 
 - Recalculations after a rule change (feature 003) award or take back badges
@@ -785,6 +818,14 @@ their badge names examples.
   once earned, extra fun pictures. The catalog version is raised so riders'
   badges are worked out again under FR-031's silent rules: badges earned in
   the past by the new rules appear without a celebration.
+
+**Winterschlaf beendet (2026-10-20, part J)**
+
+- **FR-018**: "Überraschungen" MUST hold one more single badge, fourteen in
+  all: Winterschlaf beendet, the first outdoor (not virtual) counting ride
+  dated in a later calendar year than the season start, dated with that
+  ride. It is shown, taken back and celebrated like FR-017b, and the catalog
+  version is raised the same way.
 
 - **FR-012**: Each category except the two surprise categories (FR-015,
   FR-016) MUST be a ladder

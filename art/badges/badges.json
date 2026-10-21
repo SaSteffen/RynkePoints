@@ -570,6 +570,13 @@
 			"scene": "Everesting: the character on the very top of a steep black mountain peak, his road bike lifted high above his head, a gold summit flag reading \"8848\" stuck in the snow beside him, cream clouds far below, his tongue hanging out and his legs trembling, an endless zig-zag of hairpin bends winding down beneath him. {{bike}}"
 		},
 		{
+			"id": "surprise-winter-sleep",
+			"group": "personal",
+			"category": "surprise",
+			"threshold": 14,
+			"scene": "End of hibernation: the character pedalling slowly out of a snug little snow-covered cave on the road bike, sleepy and content: eyes still half closed, a small happy yawn, rosy and cosy, a tiny cream nightcap with a gold pom-pom perched on top of the helmet. The character is wrapped snugly in a thick, puffy duvet like a cosy burrito: the duvet is CREAM (#FFFDF5), never black, with quilted squares stitched in thin black lines and small yellow stars on it, soft and rounded like a big marshmallow. It is wrapped all the way around the shoulders and body, only the face, the hands on the handlebar and the legs peeking out, its two lower corners resting on the saddle. It hugs the character close and does not flow, flutter or trail behind: it is a blanket, not a cape. A small round gold sun peeks over the snow ahead, and two tiny cream snowdrop flowers poke out of the snow by the cave. In the cave behind, a small round sleepy bear cub with gold fur, tucked in its own little cream blanket, waves goodbye with one paw. {{bike}}"
+		},
+		{
 			"id": "team-training-rynke-500",
 			"group": "team",
 			"category": "team_training_rynke",
@@ -806,6 +813,62 @@
 			"category": "attendances",
 			"threshold": 400,
 			"scene": "A big group of characters all jumping in the air at the same moment for a photo, arms and legs flung out, gold confetti flying. {{team}}"
+		},
+		{
+			"id": "tour-de-paris-1",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 1,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 1 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-2",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 2,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 2 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-3",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 3,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 3 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-4",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 4,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 4 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-5",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 5,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 5 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-6",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 6,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 6 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-7",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 7,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 7 of the Tour de Paris, the character riding a stage of it. {{bike}}"
+		},
+		{
+			"id": "tour-de-paris-8",
+			"group": "personal",
+			"category": "tour_de_paris",
+			"threshold": 8,
+			"scene": "Placeholder until the tour's places are known (feature 021 Phase 2): day 8 of the Tour de Paris, the character riding a stage of it. {{bike}}"
 		},
 		{
 			"id": "team-surprise-day-off",

@@ -1,4 +1,5 @@
-import type { Attendance, TeamEventKind } from "../rynke/team-events";
+import type { TourEvent } from "../badges/evaluate";
+import type { Attendance, EventKind } from "../rynke/team-events";
 import { SHARED_RIDER_IDS } from "./consents";
 
 // Team events and attendance (feature 003 data-model.md, research R17, R21).
@@ -9,7 +10,7 @@ import { SHARED_RIDER_IDS } from "./consents";
 
 export interface RiderAttendanceRow {
 	event_id: number;
-	kind: TeamEventKind;
+	kind: EventKind;
 	event_date: string;
 	name: string | null;
 }
@@ -20,7 +21,7 @@ export interface AttendanceOfRidersRow extends RiderAttendanceRow {
 
 export interface TeamEventRow {
 	event_id: number;
-	kind: TeamEventKind;
+	kind: EventKind;
 	event_date: string;
 	name: string | null;
 }
@@ -45,7 +46,7 @@ const CHANGED_BY = `LEFT JOIN riders o ON o.athlete_id = e.changed_by
 
 /** An event as the write functions take it; `kind` already checked. */
 export interface TeamEventFields {
-	kind: TeamEventKind;
+	kind: EventKind;
 	date: string;
 	name: string | null;
 }
@@ -81,6 +82,42 @@ export function listAttendanceOfRidersStatement(
 			ORDER BY a.athlete_id, e.event_date DESC, a.event_id DESC`,
 		)
 		.bind(JSON.stringify(athleteIds));
+}
+
+/**
+ * Every Tour de Paris day, as `TourEventRow`: what numbers the days for the
+ * tour badges (feature 021 FR-011).
+ */
+export function listTourEventsStatement(db: D1Database) {
+	return db.prepare(
+		`SELECT event_id, event_date FROM team_events
+		WHERE kind = 'tour_de_paris'
+		ORDER BY event_date, event_id`,
+	);
+}
+
+export interface TourEventRow {
+	event_id: number;
+	event_date: string;
+}
+
+export function toTourEvent(row: TourEventRow): TourEvent {
+	return { eventId: row.event_id, date: row.event_date };
+}
+
+/**
+ * The riders recorded at a tour day from `seasonStart` on: whose tour badges
+ * a change to the tour days can renumber (feature 021 FR-012).
+ */
+export function listTourRidersStatement(db: D1Database, seasonStart: string) {
+	return db
+		.prepare(
+			`SELECT DISTINCT a.athlete_id
+			FROM attendances a JOIN team_events e ON e.event_id = a.event_id
+			WHERE e.kind = 'tour_de_paris' AND e.event_date >= ?1
+			ORDER BY a.athlete_id`,
+		)
+		.bind(seasonStart);
 }
 
 /** A `TeamEventRecordRow`. */

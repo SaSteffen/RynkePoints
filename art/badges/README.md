@@ -31,6 +31,10 @@ A badge is two parts:
 
 ## Making the pictures
 
+The Team page's quote monkeys (`art/quotes/README.md`) come along in the same
+runs: `pnpm badge-art` makes them after the badges and `pnpm badge-build`
+traces them after the badges; their ids work like badge ids.
+
 ```bash
 pnpm badge-art                      # every badge without an original
 pnpm badge-art distance-100 running-10
@@ -83,8 +87,10 @@ each picture; to retry one, delete it or use `--force`.
 
 ## Tracing
 
-`pnpm badge-build` builds every badge; `pnpm badge-build distance-100` only
-rebuilds the named ones (quick for a retake). Both keep the picture list
+`pnpm badge-build` builds every badge whose `public/badges/<id>.svg` isn't
+committed yet (or has uncommitted changes); a committed, unchanged SVG is
+skipped, original and all. `pnpm badge-build distance-100` rebuilds the named
+ones whether committed or not (a retake). Both keep the picture list
 complete.
 
 It writes the two placeholders (`public/badges/placeholder-{personal,team}.svg`),

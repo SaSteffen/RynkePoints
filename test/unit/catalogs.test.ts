@@ -7,7 +7,7 @@ import {
 import { de } from "../../src/i18n/messages/de";
 import { en } from "../../src/i18n/messages/en";
 import { REASON_CODES, UNKNOWN_FIGURE_CODES } from "../../src/rynke/rides";
-import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
+import { EVENT_KINDS } from "../../src/rynke/team-events";
 import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 
 // Every ID in specs/001-strava-connect-webhook/contracts/messages.md and
@@ -22,7 +22,8 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // specs/017-privacy-page/contracts/messages.md and
 // specs/018-lazy-rides-list/contracts/catalog.md and
 // specs/019-event-participation-requests/contracts/messages.md and
-// specs/020-onboarding-tour/contracts/messages.md.
+// specs/020-onboarding-tour/contracts/messages.md and
+// specs/021-season-rollover/contracts/messages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"rynke.rides.total",
@@ -156,6 +157,7 @@ const CONTRACT_IDS = [
 	"rynke.source.team_training",
 	"rynke.source.training_weekend_day",
 	"rynke.source.technique_training",
+	"rynke.source.tour_de_paris",
 	"rynke.events.heading",
 	"rynke.events.none",
 	"rynke.events.notCounting",
@@ -448,6 +450,7 @@ const CONTRACT_IDS = [
 	"badges.category.team_running",
 	"badges.category.big_training",
 	"badges.category.attendances",
+	"badges.category.tour_de_paris",
 	"badges.category.team_surprise",
 	"badges.about.distance",
 	"badges.about.elevation",
@@ -471,6 +474,7 @@ const CONTRACT_IDS = [
 	"badges.about.team_running",
 	"badges.about.big_training",
 	"badges.about.attendances",
+	"badges.about.tour_de_paris",
 	"badges.about.team_surprise",
 	"badges.for.distance",
 	"badges.for.elevation",
@@ -493,9 +497,11 @@ const CONTRACT_IDS = [
 	"badges.for.team_running",
 	"badges.for.big_training",
 	"badges.for.attendances",
+	"badges.tourDay.for",
 	"badges.value.km",
 	"badges.value.m",
 	"badges.value.rynke",
+	"badges.value.tourDay",
 	"badges.value.events",
 	"badges.value.events.one",
 	"badges.value.trainings",
@@ -544,6 +550,8 @@ const CONTRACT_IDS = [
 	"badges.surprise.easter.for",
 	"badges.surprise.everesting",
 	"badges.surprise.everesting.for",
+	"badges.surprise.winter-sleep",
+	"badges.surprise.winter-sleep.for",
 	"badges.surprise.festive-team",
 	"badges.surprise.festive-team.for",
 	"badges.value.half",
@@ -586,6 +594,7 @@ const CONTRACT_IDS = [
 	"privacy.retention.body",
 	"privacy.retention.deletion",
 	"privacy.retention.backups",
+	"privacy.album",
 	"privacy.recipients.heading",
 	"privacy.recipients.cloudflare",
 	"privacy.recipients.push",
@@ -700,6 +709,32 @@ const CONTRACT_IDS = [
 	"progress.day.onPace",
 	"progress.day.series",
 	"progress.day.outside",
+	"album.title",
+	"album.team.name",
+	"album.season",
+	"album.owner",
+	"album.coin",
+	"album.rider.training",
+	"album.rider.team",
+	"album.rider.events",
+	"album.team.heading",
+	"album.team.training",
+	"album.events.date",
+	"album.events.kind",
+	"album.events.name",
+	"album.events.riders",
+	"album.events.you",
+	"album.events.attended",
+	"album.events.none",
+	"album.events.count",
+	"album.events.noTour",
+	"album.events.yours",
+	"album.continued",
+	"album.stickers.mine",
+	"album.stickers.team",
+	"album.stickers.count",
+	"album.stickers.secret",
+	"album.cutoff",
 ];
 
 const placeholders = (text: string) =>
@@ -771,12 +806,14 @@ describe("catalog contents", () => {
 		}
 	});
 
-	it("names every team-event kind (FR-062)", () => {
+	it("names every team-event kind (FR-062), the Tour de Paris too (021)", () => {
 		for (const [locale, catalog] of catalogs) {
-			for (const kind of TEAM_EVENT_KINDS) {
+			for (const kind of EVENT_KINDS) {
 				expect(Object.keys(catalog), locale).toContain(`rynke.source.${kind}`);
 			}
 		}
+		expect(de["rynke.source.tour_de_paris"]).toBe("Tour de Paris");
+		expect(en["rynke.source.tour_de_paris"]).toBe("Tour de Paris");
 	});
 
 	it("carries the German source texts", () => {
