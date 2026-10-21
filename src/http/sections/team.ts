@@ -241,15 +241,14 @@ export function quoteArt(
 
 /**
  * Rynke says the quote in a speech bubble, standing on the team total (the
- * mock-up "RynkePoints Quote Monkey", option B). German in every language
- * (FR-023); the heading follows the page's. The picture is decorative.
+ * mock-up "RynkePoints Quote Monkey", option B), without a heading. German in
+ * every language (FR-023). The picture is decorative.
  */
-function renderQuote(i18n: I18n, quote: QuotePick): SafeHtml {
+function renderQuote(quote: QuotePick): SafeHtml {
 	const { list, text } = quote;
 	return html`<div class="quote-monkey">
-<img class="quote-monkey-art" src="${artUrl(quoteArt(quote))}" alt="" width="96" height="96">
+<img class="quote-monkey-art" src="${artUrl(quoteArt(quote))}" alt="" width="120" height="120">
 <blockquote class="quote ${list === "push" ? "quote-push" : "quote-on-track"}" lang="de">
-<p class="quote-heading" lang="${i18n.locale}">${i18n.t(`team.quote.${list}`)}</p>
 <p>${text}</p>
 </blockquote>
 </div>
@@ -400,7 +399,7 @@ export function handleTeam(
 				);
 			}
 			// The quote's monkey stands on the team total, above everything else.
-			const head = html`${renderReconnect(i18n, rider)}${quote ? renderQuote(i18n, quote) : null}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}`;
+			const head = html`${renderReconnect(i18n, rider)}${quote ? renderQuote(quote) : null}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}`;
 			const leaderboard = renderLeaderboard(
 				i18n,
 				kind,
