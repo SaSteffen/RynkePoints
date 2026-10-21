@@ -196,6 +196,16 @@ export interface QuotePick {
 	restart: string[] | null;
 }
 
+/** A uniform random index below `length`: draws past the last whole multiple
+ * of `length` are thrown away, so no quote is favoured. */
+function randomIndex(length: number): number {
+	const limit = 2 ** 32 - (2 ** 32 % length);
+	const draw = new Uint32Array(1);
+	do crypto.getRandomValues(draw);
+	while ((draw[0] ?? 0) >= limit);
+	return (draw[0] ?? 0) % length;
+}
+
 /**
  * A random quote from the list for `status`, together with that list's quotes
  * for the season of `date` (FR-021, FR-022, FR-025), among those not in `seen`
@@ -215,8 +225,7 @@ export function pickQuote(
 	const ids = quotes.map(quoteId);
 	const unseen = quotes.filter((_, i) => !seen.has(ids[i] ?? ""));
 	const from = unseen.length > 0 ? unseen : quotes;
-	const [random = 0] = crypto.getRandomValues(new Uint32Array(1));
-	const text = from[random % from.length] ?? "";
+	const text = from[randomIndex(from.length)] ?? "";
 	return {
 		list,
 		text,

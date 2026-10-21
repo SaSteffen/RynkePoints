@@ -238,13 +238,19 @@ const { STYLE } = await import("../src/http/style.ts");
 // The launch screen's background (manifest background_color): the light
 // scheme's coin face, which comes first.
 const face = STYLE.match(/--rp-coin-face:(#[0-9a-f]+)/)[1];
-const front = readFileSync(
+let front = readFileSync(
 	new URL("../public/coin/rynke-coin-front.svg", import.meta.url),
 	"utf8",
 )
 	.replace(/^<svg[^>]*>/, "")
-	.replace(/<\/svg>\s*$/, "")
-	.replace(/<title>.*?<\/title>|<!--.*?-->/g, "");
+	.replace(/<\/svg>\s*$/, "");
+// Without its title and comments, removed until none are left so a removal
+// can't join two halves into a new one.
+let stripped = front;
+do {
+	front = stripped;
+	stripped = front.replace(/<title>[\s\S]*?<\/title>|<!--[\s\S]*?-->/g, "");
+} while (stripped !== front);
 // Transparent around the coin, or scaled on the launch screen's background
 // for the maskable icon.
 const launch = (scale, background) =>
