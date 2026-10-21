@@ -191,9 +191,11 @@ tokens.
   It is fixed for the season, so zooming never moves the threshold out of view or
   makes the scale jump (FR-014). Zoom and pan act on x only (`mode: "x"`).
 - **Lines** (datasets, `pointRadius: 0`, `tension: 0`):
-  - the curve, from day 0 to `lastIndex`, and it stops there (FR-013); it is
+  - the curve, from day 0 to `lastIndex`, and it stops there (FR-013). Team's is
     `stepped: "before"`, so a day's Rynke rise straight up on that day instead
-    of sloping in from the day before;
+    of sloping in from the day before; Training's (and the outside curve) use
+    `cubicInterpolationMode: "monotone"`, a smooth rise that never dips or
+    overshoots the total;
   - the threshold, two points across the axis; its value is in the HTML legend
     ("Ziel (250)"), not drawn on the canvas, so the canvas holds no text;
   - from US2, the pace line from (0, 0) to (`axisDays`, threshold).
