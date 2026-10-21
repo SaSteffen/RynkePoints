@@ -418,8 +418,6 @@ export const en: Catalog = {
 	"team.place": "Position {place} of {count} riders 🚴",
 	"team.place.next": "{n}\u00a0Rynke to pass the next place",
 	"team.place.lead": "You lead the peloton. Bring the others along!",
-	"team.quote.push": "For you 🍌",
-	"team.quote.onTrack": "For you 🤝",
 	"team.peloton.heading": "The peloton 🚴",
 	"team.peloton.hint": "Every coin is a rider. The front rides on the right.",
 	"team.peloton.back": "Back of the bunch",

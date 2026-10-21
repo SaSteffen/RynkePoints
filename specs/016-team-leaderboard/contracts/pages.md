@@ -126,6 +126,6 @@ With nobody listed, "No riders share their Rynke yet." stands in place of 3–6.
 > (`img.quote-monkey-art`, `alt=""`: one of the quote monkeys in
 > `public/quotes/`, the same one for the same quote, or the rider state's
 > illustration while there are none) who says the quote: the
-> `blockquote.quote` is his speech bubble, outlined in the push or on-track
-> accent, its tail pointing at him. He stands on the team total's top edge.
+> `blockquote.quote` is his white speech bubble, without the "Für dich"
+> heading, its tail pointing up at him. He stands on the team total's top edge.
 > The order is the quote, the team total, the switch, then the rest as above.

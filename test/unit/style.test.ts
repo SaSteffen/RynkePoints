@@ -122,7 +122,7 @@ describe("STYLE", () => {
 		);
 	});
 
-	it("draws the quote as a white comic bubble, its heading in the rider state's colour", () => {
+	it("draws the quote as a white comic bubble without a heading", () => {
 		expect(declsOf(".quote")).toMatchObject({
 			"--rp-quote-edge": "var(--rp-coin-ink)",
 			"--rp-quote-fill": "var(--rp-bubble)",
@@ -130,12 +130,7 @@ describe("STYLE", () => {
 			background: "var(--rp-quote-fill)",
 			color: "var(--rp-coin-ink)",
 		});
-		expect(declsOf(".quote-push .quote-heading").color).toBe(
-			"var(--rp-bubble-push)",
-		);
-		expect(declsOf(".quote-on-track .quote-heading").color).toBe(
-			"var(--rp-bubble-ok)",
-		);
+		expect(declsOf(".quote-heading")).toEqual({});
 	});
 
 	it("draws the quote as Rynke's speech bubble on the team total (the Quote Monkey draft, option B)", () => {
@@ -144,11 +139,14 @@ describe("STYLE", () => {
 		expect(declsOf(".quote::before").background).toBe("var(--rp-quote-edge)");
 		expect(declsOf(".quote::after").background).toBe("var(--rp-quote-fill)");
 		expect(declsOf(".quote::before").mask).toContain("var(--rp-quote-tail)");
-		// The monkey stands on the team total's edge, drawn over it.
-		expect(declsOf(".quote-monkey").margin).toBe("0 0 -18px");
+		// The monkey stands on the team total's edge, drawn over it, its
+		// traced edges softened by a slight outline blur and a shadow.
+		expect(declsOf(".quote-monkey").margin).toBe("0 0 -22px");
 		expect(declsOf(".quote-monkey-art")).toMatchObject({
 			position: "relative",
 			"z-index": "1",
+			width: "120px",
+			filter: "var(--rp-quote-art-shadow)",
 		});
 	});
 
