@@ -24,8 +24,6 @@ links the Orga tab and its switch replace.
 | `team.place` | Position {place} of {count} riders 🚴 | Position {place} von {count} 🚴 |
 | `team.place.next` | {n} Rynke to pass the next place | Noch {n} Rynke bis zum nächsten Platz |
 | `team.place.lead` | You lead the peloton. Bring the others along! | Du führst das Peloton an. Nimm die anderen mit! |
-| `team.quote.push` | For you 🍌 | Für dich 🍌 |
-| `team.quote.onTrack` | For you 🤝 | Für dich 🤝 |
 | `team.peloton.heading` | The peloton 🚴 | Das Peloton 🚴 |
 | `team.peloton.hint` | Every coin is a rider. The front rides on the right. | Jede Münze ist ein Rider. Rechts fährt die Spitze. |
 | `team.peloton.back` | Back of the bunch | Ende des Feldes |
@@ -126,3 +124,6 @@ Team-event kind names reuse the existing `rynke.source.<kind>` keys (005). Germa
 text says "du" and prefers neutral words ("Rider", "Orga", "alle", "das Team", "wer …").
 Where only a personal noun works, it uses the colon form, which screen readers read
 as a pause ("Fahrer:innen"); never the gender star or the slash form.
+
+> **Amended by the quote monkey**: `team.quote.push` and `team.quote.onTrack`
+> (the "Für dich" heading) are gone; Rynke's speech bubble needs no heading.

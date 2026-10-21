@@ -487,7 +487,6 @@ describe("GET /team, a quote for the viewer (US3)", () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team");
 		const quote = quoteOf(html);
 		expect(quote).toMatch(/^<blockquote class="quote quote-push" lang="de">/);
-		expect(quote).toContain(escapeHtml(de["team.quote.push"]));
 		expect(PUSH).toContain(quoteTextOf(html));
 	});
 
@@ -502,15 +501,16 @@ describe("GET /team, a quote for the viewer (US3)", () => {
 		expect(quote).toMatch(
 			/^<blockquote class="quote quote-on-track" lang="de">/,
 		);
-		expect(quote).toContain(escapeHtml(de["team.quote.onTrack"]));
 		expect(ON_TRACK).toContain(quoteTextOf(html));
 	});
 
-	it("keeps the quote German in English, under an English heading (US3 #4)", async () => {
+	it("keeps the quote German in English, without a heading (US3 #4)", async () => {
 		const { html } = await riderPage(ctx, VIEWER, "/team", "en");
 		const quote = quoteOf(html);
-		expect(quote).toMatch(/^<blockquote class="quote quote-push" lang="de">/);
-		expect(quote).toContain(escapeHtml(en["team.quote.push"]));
+		expect(quote).toMatch(
+			/^<blockquote class="quote quote-push" lang="de">\n<p>/,
+		);
+		expect(quote).not.toContain("quote-heading");
 		expect(PUSH).toContain(quoteTextOf(html));
 	});
 
@@ -522,7 +522,7 @@ describe("GET /team, a quote for the viewer (US3)", () => {
 			quoteArt({ list: "push", id: quoteId(quoteTextOf(html) ?? "") }),
 		);
 		expect(monkey).toMatch(
-			`<div class="quote-monkey">\n<img class="quote-monkey-art" src="${escapeHtml(art)}" alt="" width="96" height="96">\n<blockquote class="quote quote-push" lang="de">`,
+			`<div class="quote-monkey">\n<img class="quote-monkey-art" src="${escapeHtml(art)}" alt="" width="120" height="120">\n<blockquote class="quote quote-push" lang="de">`,
 		);
 	});
 

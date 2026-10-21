@@ -440,8 +440,6 @@ export const de = {
 	"team.place": "Position {place} von {count} 🚴",
 	"team.place.next": "Noch {n}\u00a0Rynke bis zum nächsten Platz",
 	"team.place.lead": "Du führst das Peloton an. Nimm die anderen mit!",
-	"team.quote.push": "Für dich 🍌",
-	"team.quote.onTrack": "Für dich 🤝",
 	"team.peloton.heading": "Das Peloton 🚴",
 	"team.peloton.hint": "Jede Münze ist ein Rider. Rechts fährt die Spitze.",
 	"team.peloton.back": "Ende des Feldes",
