@@ -2,9 +2,9 @@
 
 Strava integration for Team Rynkeby Hamburg. Riders connect their Strava account
 (opt-in), the app collects key data from their activities (distance, date, elevation
-gain, …), detects participation in team events, and awards gamified **Rynke Points**.
-With the rider's permission it can also write their points into the Strava activity
-description.
+gain, …), counts the team events they attended, and awards gamified **Rynke Points**.
+Writing their points into the Strava activity description, with the rider's
+permission, is planned for a later feature.
 
 Runs serverless on Cloudflare Workers, with D1 for storage and Queues for
 processing Strava webhook events.
@@ -15,18 +15,38 @@ Features are specified and built with
 
 ## What it does today
 
-The first feature, [Strava connection and webhook intake](specs/001-strava-connect-webhook/spec.md):
-
-- Members of the team's Strava club agree to what is read and shared, then
-  connect their account on the start page. Connecting is refused, and nothing
-  is kept, for anyone who doesn't agree or isn't a member.
-- The rider's cycling activities since the season start are imported, and new,
-  changed or deleted activities follow automatically through Strava's webhook.
-- On their own page riders see the connection status and granted permissions,
-  the import progress, their 20 most recent rides and the consent they gave,
-  and can disconnect.
-
-Points and events build on this in later features.
+- **Connecting** ([001](specs/001-strava-connect-webhook/spec.md),
+  [004](specs/004-roles-and-consent/spec.md)): members of the team's Strava club
+  agree to what is read and shared, then connect their account. Connecting is
+  refused, and nothing is kept, for anyone who doesn't agree or isn't a member.
+  Their rides since the season start are imported, and new, changed or deleted
+  activities follow through Strava's webhook.
+- **Rynke** ([003](specs/003-rynke-evaluation/spec.md)): kilometres and
+  elevation earn Training Rynke, team events Team Rynke and Training Rynke,
+  towards what the tour needs.
+- **Rider pages** ([005](specs/005-rider-view/spec.md),
+  [008](specs/008-strava-ride-names/spec.md),
+  [009](specs/009-rider-progress-charts/spec.md),
+  [015](specs/015-rider-page-cleanup/spec.md),
+  [018](specs/018-lazy-rides-list/spec.md)): riders see their Rynke, progress
+  charts and rides, with links to Strava.
+- **App and look** ([010](specs/010-pwa-notifications/spec.md),
+  [011](specs/011-mobile-app-shell/spec.md),
+  [012](specs/012-rynke-coin-fun/spec.md)): an installable app with sections,
+  optional notifications for new Rynke, and the Rynke coin.
+- **Badges** ([013](specs/013-badges-achievements/spec.md)): achievements for
+  rides, runs and swims, and team badges.
+- **Team and organisers** ([014](specs/014-organiser-admin/spec.md),
+  [016](specs/016-team-leaderboard/spec.md),
+  [019](specs/019-event-participation-requests/spec.md)): a team leaderboard
+  without names; organisers record team events and attendance, correct Rynke
+  and see riders' reports of the events they're coming to or were at.
+- **Onboarding** ([020](specs/020-onboarding-tour/spec.md)): a tour that
+  explains the rules.
+- **Season end** ([021](specs/021-season-rollover/spec.md)): Tour de Paris
+  badges and a season album PDF for every rider.
+- **Privacy page** ([017](specs/017-privacy-page/spec.md)): see
+  [Privacy](#privacy).
 
 ## Privacy
 
@@ -52,12 +72,15 @@ contact address, set as `PRIVACY_CONTROLLER` and `CONTACT_EMAIL` in
   power or other health data, and no other kinds of activity.
 - **Entered by the team**: which team events a rider attended (kind, date and
   an optional event name) and organisers' Rynke corrections, with who changed
-  them and when. **Worked out**: Rynke, badges and why each ride counts.
+  them and when; riders' own reports of events they're coming to or were at.
+  **Worked out**: Rynke, badges and why each ride counts.
 - **Consent**: the version and time of the text the rider agreed to. A new
   version asks every rider again before showing anything.
 - **Who sees what**: riders see their own rides and Rynke; the team sees
-  everyone's Rynke without names; organisers see first names, Rynke and their
-  breakdown, team events and corrections, but no single rides.
+  everyone's Rynke without names, and team sums and team badges that count
+  everyone's kilometres, elevation and riding times; organisers see first names,
+  Rynke and their breakdown, team events, reports and corrections, but no single
+  rides.
 - **Notifications**: for each device a rider turns them on for, only the
   address its push service gives it. Notifications are sent empty; the device
   fetches the text. The address is deleted when they turn notifications off,
@@ -76,7 +99,9 @@ contact address, set as `PRIVACY_CONTROLLER` and `CONTACT_EMAIL` in
   Strava sign-in, and `rp_lang` remembers a picked language for a year. The
   language is never stored in the database.
 - **Processing**: Cloudflare Workers, Queues and D1. No other service receives
-  Strava data, and none of it is used for AI or analytics.
+  Strava data, and none of it is used for AI or analytics. The season albums
+  are made on the maintainer's computer (`pnpm season:album`), handed to each
+  rider and then deleted.
 
 ## Languages
 
@@ -138,6 +163,15 @@ brand assets, which are English only and used for every language), are in the
 [feature quickstart](specs/001-strava-connect-webhook/quickstart.md). The D1
 database must be created with `--jurisdiction=eu` before the first deploy, so
 rider data stays in the EU.
+
+Occasional maintainer tasks, each described at the top of its script:
+
+| Command | Does |
+|---|---|
+| `pnpm daily:run` | starts the daily job now ([007](specs/007-manual-daily-run/spec.md)) |
+| `pnpm season:album` | season album PDFs into `season-albums/` (`--local`: from `pnpm dev`'s sample season) |
+| `pnpm strava:review` | material for Strava's Developer Program form |
+| `pnpm docs:pdf` | renders the rules handout `docs/rynke-punkte.md` to PDF |
 
 ## Contributing
 
@@ -248,7 +282,7 @@ the workflows onto `main`.
 
 ## Deploying
 
-Merging into `main` deploys. Once `lint`, `typecheck` and `test` pass on the
+Merging into `main` deploys. Once `lint`, `typecheck`, `test` and `e2e` pass on the
 merged commit, CI applies pending D1 migrations, then publishes the Worker.
 Nothing else deploys; merges into `develop` don't.
 
