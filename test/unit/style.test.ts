@@ -136,13 +136,11 @@ describe("STYLE", () => {
 	});
 
 	it("draws the quote as Rynke's speech bubble on the team total (the Quote Monkey draft, option B)", () => {
-		// The bubble's tail points at the monkey on its left, in its colours.
-		expect(declsOf(".quote::before")["border-right-color"]).toBe(
-			"var(--rp-quote-edge)",
-		);
-		expect(declsOf(".quote::after")["border-right-color"]).toBe(
-			"var(--rp-quote-fill)",
-		);
+		// The bubble's tail curves towards the monkey on its left, in its
+		// colours: the outline under the fill, cut out by the same shape.
+		expect(declsOf(".quote::before").background).toBe("var(--rp-quote-edge)");
+		expect(declsOf(".quote::after").background).toBe("var(--rp-quote-fill)");
+		expect(declsOf(".quote::before").mask).toContain("var(--rp-quote-tail)");
 		// The monkey stands on the team total's edge, drawn over it.
 		expect(declsOf(".quote-monkey").margin).toBe("0 0 -18px");
 		expect(declsOf(".quote-monkey-art")).toMatchObject({
