@@ -130,7 +130,7 @@ export function privacyController(
 /** The address riders write to about support and their data. */
 export function contactEmail(env: Pick<Settings, "CONTACT_EMAIL">): string {
 	const email = env.CONTACT_EMAIL.trim();
-	if (!/^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/.test(email)) {
+	if (!/^[^\s@<>"]+@[^\s@<>".]+(?:\.[^\s@<>".]+)+$/.test(email)) {
 		throw new Error("CONTACT_EMAIL must be an email address");
 	}
 	return email;

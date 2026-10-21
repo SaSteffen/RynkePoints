@@ -116,7 +116,7 @@ describe("the rider tour", () => {
 			const next = steps[i + 1];
 			if (next) {
 				expect(card).toContain(
-					`href="${stepHref("rider", { organiser: false }, i + 1).replace("&", "&amp;")}"`,
+					`href="${stepHref("rider", { organiser: false }, i + 1).replaceAll("&", "&amp;")}"`,
 				);
 			} else expect(card).toContain(t("tour.done"));
 		}
@@ -385,7 +385,7 @@ describe("the organiser tour", () => {
 			const next = steps[i + 1];
 			if (next) {
 				expect(card).toContain(
-					`href="${stepHref("organiser", { organiser: true }, i + 1).replace("&", "&amp;")}"`,
+					`href="${stepHref("organiser", { organiser: true }, i + 1).replaceAll("&", "&amp;")}"`,
 				);
 			} else expect(card).toContain(t("tour.done"));
 		}
