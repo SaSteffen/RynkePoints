@@ -139,6 +139,7 @@ function renderTeamChart(
 <figcaption>${i18n.t("team.chart.heading")}<span class="team-chart-kind">${coinOf(i18n, kind)}</span></figcaption>
 <p class="team-hint">${i18n.t("team.chart.hint")}</p>
 ${weekBars(
+	totals.weeks.map((week) => week.gain ?? week.total),
 	totals.weeks.map((week) => week.total),
 	label,
 )}
@@ -318,6 +319,7 @@ function renderRow(
 		row.weeks,
 		i18n.t("team.list.weeks", { values: row.weeks.map(whole).join(", ") }),
 		days,
+		kind === "training",
 	)}</span><span class="row-figures"><span class="row-total">${coinOf(i18n, kind)} ${whole(row.total)}</span><span class="row-other">${coinOf(i18n, other)} ${whole(row.other)}</span></span></li>
 `;
 }

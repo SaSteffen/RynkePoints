@@ -65,6 +65,27 @@ describe("sparkline", () => {
 		expect(svg).not.toContain("NaN");
 		expect(pointsOf(svg)).toHaveLength(1);
 	});
+
+	it("draws a smooth curve through the points when asked", () => {
+		const svg = sparkline([0, 4, 9, 9], "x", undefined, true).value;
+		expect(svg).not.toContain("<polyline");
+		expect(svg).not.toContain("NaN");
+		const d = svg.match(/<path d="([^"]*)"/)?.[1] ?? "";
+		expect(d.match(/C/g)).toHaveLength(3);
+		// It ends on the last point and never rises above the highest one.
+		expect(d).toMatch(/ 100 2$/);
+		const ys = [...d.matchAll(/[\d.]+ ([\d.]+)/g)].map((m) => Number(m[1]));
+		expect(Math.min(...ys)).toBeGreaterThanOrEqual(2);
+	});
+
+	it("keeps a smooth curve flat where the values are", () => {
+		const d =
+			sparkline([3, 3, 3], "x", undefined, true).value.match(
+				/<path d="([^"]*)"/,
+			)?.[1] ?? "";
+		const ys = [...d.matchAll(/[\d.]+ ([\d.]+)/g)].map((m) => Number(m[1]));
+		expect(new Set(ys).size).toBe(1);
+	});
 });
 
 describe("peloton", () => {
@@ -229,17 +250,22 @@ describe("weekBars", () => {
 	const heightOf = (rect: string) =>
 		Number(rect.match(/ height="([\d.]+)"/)?.[1]);
 
-	it("is one labelled image with one bar per week, stretched", () => {
-		const svg = weekBars([0, 10, 25], "Team Training, 3 weeks").value;
+	it("is one labelled image with one bar per week and one line, stretched", () => {
+		const svg = weekBars(
+			[0, 10, 15],
+			[0, 10, 25],
+			"Team Training, 3 weeks",
+		).value;
 		expect(svg.match(/<svg[\s>]/g)).toHaveLength(1);
 		expect(svg).toMatch(/^<svg [^>]*role="img"/);
 		expect(svg).toContain('aria-label="Team Training, 3 weeks"');
 		expect(svg).toContain('preserveAspectRatio="none"');
 		expect(rectsOf(svg)).toHaveLength(3);
+		expect(svg.match(/<path /g)).toHaveLength(1);
 	});
 
 	it("marks the last bar as the current week", () => {
-		const rects = rectsOf(weekBars([0, 10, 25], "x").value);
+		const rects = rectsOf(weekBars([0, 10, 15], [0, 10, 25], "x").value);
 		expect(rects.map((r) => r.includes('class="current"'))).toEqual([
 			false,
 			false,
@@ -247,14 +273,27 @@ describe("weekBars", () => {
 		]);
 	});
 
-	it("draws each bar as high as its total", () => {
-		const heights = rectsOf(weekBars([0, 10, 20], "x").value).map(heightOf);
+	it("draws each bar as high as the week's gain, not the total", () => {
+		const heights = rectsOf(weekBars([0, 20, 10], [0, 20, 30], "x").value).map(
+			heightOf,
+		);
 		expect(heights[0]).toBe(0);
-		expect(heights[2]).toBeCloseTo((heights[1] ?? 0) * 2, 0);
+		expect(heights[1]).toBe(120);
+		expect(heights[2]).toBeCloseTo(60, 0);
+	});
+
+	it("draws the running total as a smooth line through the bars' middles", () => {
+		const d =
+			weekBars([0, 20, 10], [0, 20, 30], "x").value.match(
+				/<path d="([^"]*)"/,
+			)?.[1] ?? "";
+		expect(d).toMatch(/^M16\.7 120C/);
+		expect(d.match(/C/g)).toHaveLength(2);
+		expect(d).toMatch(/ 83\.3 3$/);
 	});
 
 	it("draws no NaN when every total is 0", () => {
-		const svg = weekBars([0, 0], "x").value;
+		const svg = weekBars([0, 0], [0, 0], "x").value;
 		expect(svg).not.toContain("NaN");
 		expect(rectsOf(svg)).toHaveLength(2);
 	});

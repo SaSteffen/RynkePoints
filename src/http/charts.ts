@@ -16,28 +16,77 @@ const INSET = 2;
 const coord = (value: number) => String(Math.round(value * 10) / 10);
 
 /**
+ * A smooth path through `points` (ascending x) that never dips or overshoots
+ * between them: a monotone cubic curve (Fritsch–Carlson), as the Training
+ * curves on the progress charts draw it.
+ */
+function monotonePath(points: readonly (readonly [number, number])[]): string {
+	const n = points.length;
+	const [x0, y0] = points[0] ?? [0, 0];
+	if (n < 2) return `M${coord(x0)} ${coord(y0)}`;
+	const x = (i: number) => points[i]?.[0] ?? 0;
+	const y = (i: number) => points[i]?.[1] ?? 0;
+	const slopes = points.slice(1).map((_, i) => {
+		const dx = x(i + 1) - x(i);
+		return dx > 0 ? (y(i + 1) - y(i)) / dx : 0;
+	});
+	const slope = (i: number) => slopes[i] ?? 0;
+	const tangents = points.map((_, i) => {
+		if (i === 0) return slope(0);
+		if (i === n - 1) return slope(n - 2);
+		const before = slope(i - 1);
+		const after = slope(i);
+		return before * after <= 0 ? 0 : (before + after) / 2;
+	});
+	for (let i = 0; i < n - 1; i++) {
+		const d = slope(i);
+		if (d === 0) {
+			tangents[i] = 0;
+			tangents[i + 1] = 0;
+			continue;
+		}
+		const a = (tangents[i] ?? 0) / d;
+		const b = (tangents[i + 1] ?? 0) / d;
+		const squares = a * a + b * b;
+		if (squares > 9) {
+			const t = 3 / Math.sqrt(squares);
+			tangents[i] = t * a * d;
+			tangents[i + 1] = t * b * d;
+		}
+	}
+	let path = `M${coord(x0)} ${coord(y0)}`;
+	for (let i = 0; i < n - 1; i++) {
+		const third = (x(i + 1) - x(i)) / 3;
+		path += `C${coord(x(i) + third)} ${coord(y(i) + (tangents[i] ?? 0) * third)} ${coord(x(i + 1) - third)} ${coord(y(i + 1) - (tangents[i + 1] ?? 0) * third)} ${coord(x(i + 1))} ${coord(y(i + 1))}`;
+	}
+	return path;
+}
+
+/**
  * A rising line of `values`, lowest at the bottom; flat when all are 0. With
  * `days` (one day number per value) the points sit by date, so the week under
  * way is only as wide as its days so far; without, they're evenly spaced.
+ * `smooth` draws a monotone curve through the points instead of straight lines.
  */
 export function sparkline(
 	values: readonly number[],
 	label: string,
 	days?: readonly number[],
+	smooth = false,
 ): SafeHtml {
 	const max = Math.max(0, ...values);
 	const at = days ?? values.map((_, i) => i);
 	const first = at[0] ?? 0;
 	const span = (at[at.length - 1] ?? 0) - first;
-	const points = values
-		.map((value, i) => {
-			const x = span > 0 ? (((at[i] ?? 0) - first) / span) * WIDTH : WIDTH;
-			const share = max > 0 ? value / max : 0;
-			const y = HEIGHT - INSET - share * (HEIGHT - 2 * INSET);
-			return `${coord(x)},${coord(y)}`;
-		})
-		.join(" ");
-	return html`<svg class="sparkline" viewBox="0 0 ${WIDTH} ${HEIGHT}" preserveAspectRatio="none" role="img" aria-label="${label}"><polyline points="${points}" vector-effect="non-scaling-stroke"/></svg>`;
+	const points = values.map((value, i): [number, number] => {
+		const x = span > 0 ? (((at[i] ?? 0) - first) / span) * WIDTH : WIDTH;
+		const share = max > 0 ? value / max : 0;
+		return [x, HEIGHT - INSET - share * (HEIGHT - 2 * INSET)];
+	});
+	const line = smooth
+		? html`<path d="${monotonePath(points)}" vector-effect="non-scaling-stroke"/>`
+		: html`<polyline points="${points.map(([x, y]) => `${coord(x)},${coord(y)}`).join(" ")}" vector-effect="non-scaling-stroke"/>`;
+	return html`<svg class="sparkline" viewBox="0 0 ${WIDTH} ${HEIGHT}" preserveAspectRatio="none" role="img" aria-label="${label}">${line}</svg>`;
 }
 
 const ROAD_WIDTH = 320;
@@ -142,20 +191,36 @@ const BARS_WIDTH = 100;
 const BARS_HEIGHT = 120;
 /** The share of each week's slot the bar fills. */
 const BAR_SHARE = 0.8;
+/** Keeps the running total's stroke inside the box at the top. */
+const BARS_INSET = 3;
 
-/** One bar per week's team total, the last one the current week. */
-export function weekBars(totals: readonly number[], label: string): SafeHtml {
-	const max = Math.max(0, ...totals);
-	const slot = totals.length > 0 ? BARS_WIDTH / totals.length : 0;
-	const bars = totals.map((total, i) => {
-		const height = max > 0 ? (total / max) * BARS_HEIGHT : 0;
+/**
+ * One bar per week of what the team gained that week, the last one the
+ * current week, under a smooth line of the running total through the bars'
+ * middles.
+ * The bars and the line each have their own scale, highest at the top.
+ */
+export function weekBars(
+	gains: readonly number[],
+	totals: readonly number[],
+	label: string,
+): SafeHtml {
+	const maxGain = Math.max(0, ...gains);
+	const maxTotal = Math.max(0, ...totals);
+	const slot = gains.length > 0 ? BARS_WIDTH / gains.length : 0;
+	const bars = gains.map((gain, i) => {
+		const height = maxGain > 0 ? (gain / maxGain) * BARS_HEIGHT : 0;
 		const current =
-			i === totals.length - 1
+			i === gains.length - 1
 				? html` class="current" vector-effect="non-scaling-stroke"`
 				: null;
 		return html`<rect${current} x="${coord(i * slot + (slot * (1 - BAR_SHARE)) / 2)}" y="${coord(BARS_HEIGHT - height)}" width="${coord(slot * BAR_SHARE)}" height="${coord(height)}"/>`;
 	});
-	return html`<svg class="week-bars" viewBox="0 0 ${BARS_WIDTH} ${BARS_HEIGHT}" preserveAspectRatio="none" role="img" aria-label="${label}">${bars}</svg>`;
+	const points = totals.map((total, i): [number, number] => {
+		const share = maxTotal > 0 ? total / maxTotal : 0;
+		return [(i + 0.5) * slot, BARS_HEIGHT - share * (BARS_HEIGHT - BARS_INSET)];
+	});
+	return html`<svg class="week-bars" viewBox="0 0 ${BARS_WIDTH} ${BARS_HEIGHT}" preserveAspectRatio="none" role="img" aria-label="${label}">${bars}<path d="${monotonePath(points)}" vector-effect="non-scaling-stroke"/></svg>`;
 }
 
 const THRESHOLD_WIDTH = 100;
