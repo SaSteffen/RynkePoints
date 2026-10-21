@@ -40,6 +40,20 @@ export function validateMonkeys(data) {
 		)
 			problems.push(`${where}: holes must be [x, y] pixel pairs`);
 
+		const erase = m?.erase ?? [];
+		if (
+			!Array.isArray(erase) ||
+			!erase.every(
+				(box) =>
+					Array.isArray(box) &&
+					box.length === 4 &&
+					box.every((v) => Number.isInteger(v) && v >= 0) &&
+					box[0] < box[2] &&
+					box[1] < box[3],
+			)
+		)
+			problems.push(`${where}: erase must be [x0, y0, x1, y1] pixel boxes`);
+
 		const scene = typeof m?.scene === "string" ? m.scene : "";
 		if (!scene.trim()) problems.push(`${where}: empty scene`);
 		for (const [, name] of scene.matchAll(PLACEHOLDER)) {

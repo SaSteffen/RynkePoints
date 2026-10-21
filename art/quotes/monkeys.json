@@ -10,7 +10,8 @@
 			"id": "point",
 			"name": "Ab geht's",
 			"scene": "Standing, body turned a little to the viewer's right, pointing ahead to the right with one arm stretched out, the other hand on the hip, as if saying \"that way, let's go!\". Mouth open mid-sentence. {{kit}}",
-			"holes": [[813, 1230]]
+			"holes": [[813, 1230]],
+			"erase": [[0, 1150, 460, 1950], [1400, 1340, 1520, 1420]]
 		},
 		{
 			"id": "thumbs",
@@ -21,7 +22,8 @@
 		{
 			"id": "banana",
 			"name": "Bananen-Mikro",
-			"scene": "Standing, holding a yellow banana in one hand like a microphone in front of the mouth, the other arm open wide to the right as if speaking to a cheering crowd. Mouth open mid-sentence. {{kit}}"
+			"scene": "Standing, holding a yellow banana in one hand like a microphone in front of the mouth, the other arm open wide to the right as if speaking to a cheering crowd. Mouth open mid-sentence. {{kit}}",
+			"erase": [[0, 1150, 460, 1950]]
 		},
 		{
 			"id": "flex",
@@ -32,7 +34,8 @@
 			"id": "wave",
 			"name": "Hallo du!",
 			"scene": "Standing, waving high with the hand on the viewer's right, two short black motion arcs beside the waving hand, the other arm relaxed at the side, as if calling a teammate over. Mouth open mid-sentence. {{kit}}",
-			"holes": [[1021, 1668], [819, 1333]]
+			"holes": [[1021, 1668], [819, 1333]],
+			"erase": [[0, 1150, 460, 1950]]
 		},
 		{
 			"id": "swim",
@@ -42,7 +45,8 @@
 		{
 			"id": "run",
 			"name": "Laufschuhe an",
-			"scene": "Jogging on the spot, one knee up, arms bent in a running swing, turned toward the right as if inviting the viewer to run along. Mouth open mid-sentence. {{run}}"
+			"scene": "Jogging on the spot, one knee up, arms bent in a running swing, turned toward the right as if inviting the viewer to run along. Mouth open mid-sentence. {{run}}",
+			"erase": [[0, 1150, 460, 1950]]
 		},
 		{
 			"id": "bike",

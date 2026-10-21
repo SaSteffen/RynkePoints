@@ -6,7 +6,8 @@
 // - snaps each original in art/quotes/originals/ to the coin palette, in
 //   place, as <id>.png;
 // - traces it into public/quotes/<id>.svg, the full canvas, 100 units wide,
-//   dropping the enclosed background its `holes` point at,
+//   dropping the enclosed background its `holes` point at and the stray
+//   doodles inside its `erase` boxes,
 //   like pnpm illustrations; a full run skips monkeys whose SVG is committed
 //   and unchanged and removes SVGs whose original is gone;
 // - writes src/http/quote-monkeys.ts: every monkey with a finished SVG, which
@@ -51,6 +52,7 @@ export function loadMonkeys() {
 		problems.push("art/quotes/prompt.txt: no {{scene}}");
 	const ids = new Set((data.monkeys ?? []).map((m) => m.id));
 	const holes = new Map((data.monkeys ?? []).map((m) => [m.id, m.holes ?? []]));
+	const erase = new Map((data.monkeys ?? []).map((m) => [m.id, m.erase ?? []]));
 	const originals = new Map();
 	for (const f of readdirSync(ORIGINALS)) {
 		if (f.startsWith(".")) continue;
@@ -63,7 +65,7 @@ export function loadMonkeys() {
 			problems.push(`art/quotes/originals: two originals for ${id}, keep one`);
 		else originals.set(id, f);
 	}
-	return { order: [...ids], ids, originals, holes, problems };
+	return { order: [...ids], ids, originals, holes, erase, problems };
 }
 
 /**
@@ -73,7 +75,7 @@ export function loadMonkeys() {
  * and unchanged, skipped unless named.
  */
 export async function buildQuoteMonkeys(
-	{ order, originals, holes },
+	{ order, originals, holes, erase },
 	{ only, filtered, committed },
 ) {
 	mkdirSync(OUT, { recursive: true });
@@ -113,6 +115,7 @@ export async function buildQuoteMonkeys(
 
 			const { height, markup } = traceImage(png, {
 				holes: holes.get(id) ?? [],
+				erase: erase.get(id) ?? [],
 			});
 			const svg =
 				`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 ${height}">` +
