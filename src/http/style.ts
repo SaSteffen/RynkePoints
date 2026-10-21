@@ -133,8 +133,8 @@ nav.organiser-switch .segmented svg{width:20px;height:20px}
 .quote-monkey-art{position:relative;z-index:1;flex:none;width:120px;height:120px;filter:var(--rp-quote-art-shadow)}
 .quote{--rp-quote-edge:var(--rp-coin-ink);--rp-quote-fill:var(--rp-bubble);position:relative;flex:1;min-width:0;margin:0 0 30px;padding:12px 16px;border:2px solid var(--rp-quote-edge);border-radius:24px;background:var(--rp-quote-fill);color:var(--rp-coin-ink)}
 .quote::before,.quote::after{content:"";position:absolute;left:-24px;bottom:18px;width:26px;height:32px;-webkit-mask:var(--rp-quote-tail) center/100% 100% no-repeat;mask:var(--rp-quote-tail) center/100% 100% no-repeat}
-.quote::before{--rp-quote-tail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 32'%3E%3Cpath d='M36,32 C26,28 14,28 2,8 C16,16 26,10 36,8 Z' stroke='%23000' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E");background:var(--rp-quote-edge)}
-.quote::after{--rp-quote-tail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 32'%3E%3Cpath d='M36,32 C26,28 14,28 2,8 C16,16 26,10 36,8 Z'/%3E%3C/svg%3E");background:var(--rp-quote-fill)}
+.quote::before{--rp-quote-tail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 32'%3E%3Cpath d='M36,32 C25,26 14,22 2,8 C16,12 26,9 36,8 Z' stroke='%23000' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E");background:var(--rp-quote-edge)}
+.quote::after{--rp-quote-tail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 32'%3E%3Cpath d='M36,32 C25,26 14,22 2,8 C16,12 26,9 36,8 Z'/%3E%3C/svg%3E");background:var(--rp-quote-fill)}
 .quote p{margin:0}
 .quote p:last-child{font:600 16px/22px var(--md-ref-typeface)}
 .peloton,.team-chart{margin-inline:0}
