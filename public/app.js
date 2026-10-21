@@ -1372,6 +1372,12 @@ function progressCharts(signal) {
 		});
 		const curve = (values, colour) => ({
 			data: values.map((y, x) => ({ x, y })),
+			// Training's many small days read best as a smooth rise; a monotone
+			// curve never dips or overshoots the total. Team's few big days rise
+			// straight up on their day.
+			...(kind === "team"
+				? { stepped: "before" }
+				: { cubicInterpolationMode: "monotone" }),
 			borderColor: colour,
 			borderWidth: 3,
 			pointRadius: 0,

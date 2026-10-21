@@ -48,9 +48,9 @@ English in German on purpose (spec clarification).
 | `team.list.you` | You 🦧 | Du 🦧 |
 | `team.list.weeks` | Week by week: {values} | Woche für Woche: {values} |
 | `team.chart.heading` | The team, week by week | Das Team, Woche für Woche |
-| `team.chart.hint` | All the team's Rynke added up, as at the end of each week. | Alle Rynke des Teams zusammengezählt, Stand am Ende jeder Woche. |
+| `team.chart.hint` | The bars show what the team collected each week, the line all of it added up. | Die Balken zeigen, was das Team in jeder Woche gesammelt hat, die Linie alles zusammengezählt. |
 | `team.chart.now` | this week | diese Woche |
-| `team.chart.label` | The team's {kind} at the end of each week, {weeks} weeks, now {total} | {kind} des Teams am Ende jeder Woche, {weeks} Wochen, jetzt {total} |
+| `team.chart.label` | The team's {kind} per week and added up, {weeks} weeks, now {total} | {kind} des Teams pro Woche und zusammengezählt, {weeks} Wochen, jetzt {total} |
 | `team.chart.best` | Best team week so far: +{n} in the week ending {date} 🔥 | Beste Teamwoche bisher: +{n} in der Woche bis {date} 🔥 |
 | `team.chart.table` | All weeks | Alle Wochen |
 | `team.chart.week` | Week ending | Woche bis |

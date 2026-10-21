@@ -14,6 +14,12 @@ Rynke looks like the badges' character.
 
 - `monkeys.json`: the eleven monkeys (id, name, pose). `snippets` are shared
   descriptions that the poses pull in with `{{name}}`.
+  `holes` (optional) are [x, y] points in the original's pixels inside
+  background the drawing closes in, like the gap between the legs or a
+  wheel: the tracer only drops paper it reaches from the edges, so without a
+  point such a gap comes out cream instead of see-through.
+  `erase` (optional) are [x0, y0, x1, y1] boxes in the original's pixels:
+  every shape wholly inside one, like a stray doodle beside Rynke, is dropped.
 - `prompt.txt`: the prompt every monkey uses; `{{scene}}` is the monkey's pose.
 - The reference attached to every prompt is the hero coin's sheet of four
   badge pictures, `art/coin/reference/rynke-hero-reference.png`.
@@ -51,6 +57,9 @@ lists the finished ones in `src/http/quote-monkeys.ts` and updates
   muzzle, yellow jersey), full-body, talking, turned a little to the right,
   where the bubble is.
 - No speech bubble, ground or background drawn; nothing cropped.
+- No cream where the page should show through: a gap the drawing closes in
+  gets a point in `holes`.
+- No doodles beside Rynke: put a box around them in `erase`.
 - Still friendly at 80 px (the smallest, on small phones): clear eyes and
   mouth, few large shapes, no thin lines.
 - The feet are near the bottom: the picture's lower part overlaps the team

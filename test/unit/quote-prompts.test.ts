@@ -6,7 +6,13 @@ import { validateMonkeys } from "../../scripts/quote-prompts.mjs";
 // The quote monkeys' art inputs: the five pictures of Rynke who says the Team
 // page's quote, listed in art/quotes/monkeys.json and prompted like the badges.
 
-type Monkey = { id: string; name: string; scene: string };
+type Monkey = {
+	id: string;
+	name: string;
+	scene: string;
+	holes?: unknown;
+	erase?: unknown;
+};
 
 const monkey = (over: Partial<Record<keyof Monkey, unknown>> = {}) => ({
 	id: "wave",
@@ -45,6 +51,33 @@ describe("validateMonkeys", () => {
 		expect(problems).toMatch(/wave: no name/);
 		expect(problems).toMatch(/flex: empty scene/);
 		expect(problems).toMatch(/point: unknown snippet {{bike}}/);
+	});
+
+	it("accepts holes as [x, y] pixel pairs and rejects anything else", () => {
+		expect(validateMonkeys(valid([monkey({ holes: [[1021, 1668]] })]))).toEqual(
+			[],
+		);
+		for (const holes of [[[1, 2, 3]], [[-1, 2]], [[1.5, 2]], "1,2"]) {
+			expect(validateMonkeys(valid([monkey({ holes })])).join("\n")).toMatch(
+				/wave: holes must be/,
+			);
+		}
+	});
+
+	it("accepts erase as [x0, y0, x1, y1] pixel boxes and rejects anything else", () => {
+		expect(
+			validateMonkeys(valid([monkey({ erase: [[0, 1150, 460, 1950]] })])),
+		).toEqual([]);
+		for (const erase of [
+			[[0, 0, 10]],
+			[[10, 0, 5, 10]],
+			[[0, -1, 5, 10]],
+			{},
+		]) {
+			expect(validateMonkeys(valid([monkey({ erase })])).join("\n")).toMatch(
+				/wave: erase must be/,
+			);
+		}
 	});
 
 	it("rejects a list without monkeys", () => {

@@ -442,10 +442,10 @@ export const en: Catalog = {
 	"team.list.weeks": "Week by week: {values}",
 	"team.chart.heading": "The team, week by week",
 	"team.chart.hint":
-		"All the team's Rynke added up, as at the end of each week.",
+		"The bars show what the team collected each week, the line all of it added up.",
 	"team.chart.now": "this week",
 	"team.chart.label":
-		"The team's {kind} at the end of each week, {weeks} weeks, now {total}",
+		"The team's {kind} per week and added up, {weeks} weeks, now {total}",
 	"team.chart.best": "Best team week so far: +{n} in the week ending {date} 🔥",
 	"team.chart.table": "All weeks",
 	"team.chart.week": "Week ending",

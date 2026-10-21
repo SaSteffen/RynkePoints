@@ -42,8 +42,9 @@ The draft's look, section by section: colours come from the tokens in
      end ("Breakaway 🏁") change to their breakaway text.
 6. **Team chart** `figure.team-chart`: heading with the kind's mini coin on the
    right (its name for screen readers only), a
-   one-line hint; one bar per week of the team total, the current week in
-   yellow with an outline; the first week's date and "this week" below; "Best
+   one-line hint; one bar per week of what the team gained that week (the
+   first week its total), the current week in yellow with an outline, under a
+   smooth line of the team total at each week end, each on its own scale; the first week's date and "this week" below; "Best
    team week so far: +{n} in the week ending {date} 🔥" on the ok container; a
    `<details>` table of week end, team total and gain.
 7. **Leaderboard** `section.leaderboard`: an outlined card, heading with
@@ -56,6 +57,7 @@ The draft's look, section by section: colours come from the tokens in
      a card of its own, the viewer's (`li.row.you`) in yellow:
      - medal 🥇🥈🥉 for places 1–3, otherwise the place number;
      - "You 🦧" on the viewer's row above a small sparkline SVG (research R12),
+       a smooth monotone curve for Training and straight lines for Team,
        nothing else that identifies anyone;
      - on the right the total with the mini coin, the other kind's total with
        its mini coin in small print below. No kind names are printed: each

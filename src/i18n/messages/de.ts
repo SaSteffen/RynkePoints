@@ -464,10 +464,10 @@ export const de = {
 	"team.list.weeks": "Woche für Woche: {values}",
 	"team.chart.heading": "Das Team, Woche für Woche",
 	"team.chart.hint":
-		"Alle Rynke des Teams zusammengezählt, Stand am Ende jeder Woche.",
+		"Die Balken zeigen, was das Team in jeder Woche gesammelt hat, die Linie alles zusammengezählt.",
 	"team.chart.now": "diese Woche",
 	"team.chart.label":
-		"{kind} des Teams am Ende jeder Woche, {weeks} Wochen, jetzt {total}",
+		"{kind} des Teams pro Woche und zusammengezählt, {weeks} Wochen, jetzt {total}",
 	"team.chart.best": "Beste Teamwoche bisher: +{n} in der Woche bis {date} 🔥",
 	"team.chart.table": "Alle Wochen",
 	"team.chart.week": "Woche bis",
