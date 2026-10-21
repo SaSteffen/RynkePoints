@@ -98,11 +98,18 @@ describe("STYLE", () => {
 		});
 	});
 
-	it("puts the team total on the coin's ink with its gold rim (016, the draft)", () => {
-		expect(declsOf(".team-total")).toMatchObject({
-			background: "var(--rp-coin-ink)",
-			border: "2px solid var(--rp-coin-rim)",
-		});
+	it("puts the gold-rimmed hero cards on the hero's soft black (016, the draft)", () => {
+		for (const card of [
+			".team-total",
+			".hero",
+			".overview-deadline",
+			".qualified",
+		]) {
+			expect(declsOf(card)).toMatchObject({
+				background: "var(--rp-hero)",
+				border: "2px solid var(--rp-coin-rim)",
+			});
+		}
 	});
 
 	it("fits the peloton and the team chart to the page's width (016 FR-040)", () => {

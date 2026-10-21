@@ -93,9 +93,9 @@ out by hand, for both kinds and both list modes.
 Above the leaderboard, a rider sees the team's combined Rynke of the picked kind
 with "+N this week 🔥", a "peloton" where every rider is a coin on a road placed by
 their total (the viewer's coin bigger and marked "You"; riders far ahead of the
-bunch ride in a breakaway past a gap in the road), and a bar chart of the
-team's accumulated Rynke at the end of each week, the current week highlighted, with
-the team's best week so far.
+bunch ride in a breakaway past a gap in the road), and a bar chart of what
+the team gained each week under a line of its accumulated Rynke, the current week
+highlighted, with the team's best week so far.
 
 **Why this priority**: The team figures show that everyone's riding adds up, which
 motivates more than the ranking alone.
@@ -250,8 +250,9 @@ the overview is refused.
   how many Rynke of the picked kind they need to pass the next place.
 - **FR-017**: The page MUST show the team total of the picked kind, its gain in the
   current week, a peloton of every consenting rider placed by total (the viewer's
-  coin larger and marked), and a bar chart of the team's accumulated Rynke at the end
-  of each week with the current week highlighted and the best week named.
+  coin larger and marked), and a bar chart of the team's gain in each week, overlaid
+  with a line of its accumulated Rynke at the end of each week, with the current
+  week highlighted and the best week named.
 - **FR-018**: A consenting rider whose total of the picked kind is above the upper
   outlier fence (third quartile + 1.5 × the interquartile range of all consenting
   riders' totals) MUST ride in the peloton's **breakaway**, from five consenting
