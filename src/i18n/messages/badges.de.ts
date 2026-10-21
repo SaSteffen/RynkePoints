@@ -104,6 +104,7 @@ export const BADGE_NAMES: Record<BadgeId, string> = {
 	"surprise-solstice": "Licht und Schatten",
 	"surprise-easter": "Osterhase auf Rädern",
 	"surprise-everesting": "Gipfelstürmer",
+	"surprise-winter-sleep": "Winterschlaf beendet",
 	// Trainings-Rynke gemeinsam
 	"team-training-rynke-500": "Gemeinsam angerollt",
 	"team-training-rynke-1000": "Tausend zusammen",

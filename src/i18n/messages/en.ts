@@ -661,6 +661,9 @@ export const en: Catalog = {
 	"badges.surprise.everesting": "Everesting",
 	"badges.surprise.everesting.for":
 		"Climbed 8,848 metres in one month – once up Mount Everest.",
+	"badges.surprise.winter-sleep": "Hibernation",
+	"badges.surprise.winter-sleep.for":
+		"Your first outdoor ride of the new year.",
 	"badges.surprise.festive-team": "Festive Team",
 	"badges.surprise.festive-team.for":
 		"The whole team rode between Christmas Eve and New Year's Eve.",

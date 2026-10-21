@@ -698,6 +698,9 @@ export const de = {
 	"badges.surprise.everesting": "Everesting",
 	"badges.surprise.everesting.for":
 		"In einem Monat 8.848 Höhenmeter gesammelt – einmal Mount Everest.",
+	"badges.surprise.winter-sleep": "Winterschlaf",
+	"badges.surprise.winter-sleep.for":
+		"Deine erste Ausfahrt draußen im neuen Jahr.",
 	"badges.surprise.festive-team": "Festive Team",
 	"badges.surprise.festive-team.for":
 		"Zwischen Heiligabend und Silvester ist das ganze Team gefahren.",

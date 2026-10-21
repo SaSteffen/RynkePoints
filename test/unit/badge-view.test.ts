@@ -323,7 +323,7 @@ describe("buildBadgeSection for surprise badges", () => {
 					{ badgeId: "surprise-early-bird", earnedOn: "2026-11-02" },
 					{ badgeId: "surprise-night-owl", earnedOn: "2026-10-04" },
 				],
-				unearned: 10,
+				unearned: 11,
 			},
 		]);
 	});

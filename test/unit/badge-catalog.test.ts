@@ -41,7 +41,7 @@ describe("badge catalog", () => {
 				"surprise",
 				"personal",
 				"days",
-				[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+				[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
 			],
 			[
 				"team_training_rynke",
@@ -86,8 +86,8 @@ describe("badge catalog", () => {
 				expect(ladder[i]).toBeGreaterThan(ladder[i - 1] as number);
 	});
 
-	it("derives 129 badges in catalog order with ids from category and threshold", () => {
-		expect(BADGES).toHaveLength(129);
+	it("derives 130 badges in catalog order with ids from category and threshold", () => {
+		expect(BADGES).toHaveLength(130);
 		expect(BADGES.slice(0, 2)).toEqual([
 			{
 				id: "distance-100",
@@ -138,6 +138,7 @@ describe("badge catalog", () => {
 			"surprise-solstice",
 			"surprise-easter",
 			"surprise-everesting",
+			"surprise-winter-sleep",
 		]);
 		expect(BADGE_CATEGORIES.filter((c) => c.surprise).map((c) => c.id)).toEqual(
 			["surprise", "team_surprise"],
@@ -156,11 +157,11 @@ describe("badge catalog", () => {
 		expect(
 			BADGES.filter((b) => b.category === "tour_de_paris").map((b) => b.id),
 		).toEqual([1, 2, 3, 4, 5, 6, 7, 8].map((n) => `tour-de-paris-${n}`));
-		expect(new Set(BADGES.map((b) => b.id)).size).toBe(129);
+		expect(new Set(BADGES.map((b) => b.id)).size).toBe(130);
 	});
 
-	it("is at version 7 since the tour badges are personal (021)", () => {
-		expect(BADGE_CATALOG_VERSION).toBe(7);
+	it("is at version 8 since Winterschlaf beendet (013 part J)", () => {
+		expect(BADGE_CATALOG_VERSION).toBe(8);
 	});
 
 	it("puts the Tour de Paris after the winter months and before the surprises (021)", () => {

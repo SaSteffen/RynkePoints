@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Builds the badge files the app shows (feature 013, contracts/badge-assets.md):
 //
-//   pnpm badge-build                      every badge
-//   pnpm badge-build distance-100 ...     only these (quick for a retake)
+//   pnpm badge-build                      every badge whose SVG isn't committed
+//   pnpm badge-build distance-100 ...     only these, committed or not (a retake)
 //
 // 1. Checks art/badges/badges.json and prompt.txt; exits 2 on any problem, or
 //    on an unknown id, before writing anything.
@@ -14,6 +14,8 @@
 // 3. Snaps each original in art/badges/originals/ to the coin palette, in place,
 //    as <id>.png (research R7): a fraction of the generator's file size, and
 //    what tracing needs.
+//    A run without ids skips a badge whose public/badges/<id>.svg is
+//    committed and unchanged in git, so it never rebuilds the finished set.
 // 4. Traces it and writes public/badges/<id>.svg: the frame with the picture in
 //    its window. Only a run without ids removes badge SVGs whose original is
 //    gone, so a filtered run never deletes another badge.
@@ -22,6 +24,8 @@
 //
 // Needs ImageMagick and potrace, like pnpm illustrations. Running it again
 // without changes changes no file.
+
+import { execFileSync } from "node:child_process";
 import {
 	mkdirSync,
 	readdirSync,
@@ -89,12 +93,48 @@ for (const kind of ["personal", "team"]) {
 	rmSync(join(OUT, `placeholder-${kind}-ribbon.svg`), { force: true });
 }
 
-// 3. and 4. Snap, trace, compose.
+/**
+ * Badge ids whose public/badges/<id>.svg is committed and has no change in
+ * git: tracked, and neither staged nor changed in the working tree. Empty
+ * when git isn't there, so everything is built.
+ */
+function committedSvgs() {
+	const git = (...args) =>
+		execFileSync("git", args, { cwd: ROOT, encoding: "utf8" });
+	try {
+		const tracked = git("ls-files", "-z", "--", "public/badges")
+			.split("\0")
+			.filter(Boolean);
+		const changed = new Set(
+			git("diff", "--name-only", "-z", "HEAD", "--", "public/badges")
+				.split("\0")
+				.filter(Boolean),
+		);
+		return new Set(
+			tracked
+				.filter((f) => f.endsWith(".svg") && !changed.has(f))
+				.map((f) => basename(f, ".svg")),
+		);
+	} catch {
+		return new Set();
+	}
+}
+
+// 3. and 4. Snap, trace, compose. Named ids are built even when committed.
+const committed = only.length > 0 ? new Set() : committedSvgs();
 const chosen = only.length > 0 ? only : [...originals.keys()].sort();
 const todo = chosen.filter((id) => {
-	if (originals.has(id)) return true;
-	console.log(`${id}: no original yet, skipped`);
-	return false;
+	if (!originals.has(id)) {
+		console.log(`${id}: no original yet, skipped`);
+		return false;
+	}
+	if (committed.has(id)) {
+		console.log(
+			`${id}: committed, skipped (pnpm badge-build ${id} to rebuild)`,
+		);
+		return false;
+	}
+	return true;
 });
 if (todo.length > 0) {
 	// Loaded only when there is something to trace: it needs ImageMagick.

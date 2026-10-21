@@ -550,6 +550,8 @@ const CONTRACT_IDS = [
 	"badges.surprise.easter.for",
 	"badges.surprise.everesting",
 	"badges.surprise.everesting.for",
+	"badges.surprise.winter-sleep",
+	"badges.surprise.winter-sleep.for",
 	"badges.surprise.festive-team",
 	"badges.surprise.festive-team.for",
 	"badges.value.half",

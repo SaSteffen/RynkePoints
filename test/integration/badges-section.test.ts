@@ -237,7 +237,7 @@ describe("the Abzeichen section", () => {
 				/<li class="badge-slot" aria-hidden="true"><svg class="badge-outline badge-outline-plain"/g,
 			)?.length;
 		expect(lists.map(slots)).toEqual([
-			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3, 8, 13,
+			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3, 8, 14,
 		]);
 		expect(lists.slice(2).join("")).not.toContain("popovertarget");
 		expect(lists[0]?.lastIndexOf('popovertarget="')).toBeLessThan(
@@ -476,8 +476,13 @@ describe("the team's badges (US4)", () => {
 			)?.[0] ?? "";
 		// The newest day on the card, no bar towards another (FR-013).
 		expect(card).toContain('popovertarget="badge-tour-de-paris-3"');
+		// The placeholder only while the day has no picture yet.
 		expect(card).toContain(
-			`src="${artUrl("/badges/placeholder-personal.svg")}"`,
+			`src="${artUrl(
+				BADGE_PICTURES.has("tour-de-paris-3")
+					? "/badges/tour-de-paris-3.svg"
+					: "/badges/placeholder-personal.svg",
+			)}"`,
 		);
 		expect(card).toContain(
 			`<span class="badge-ribbon-text">${escapeHtml(de["badges.value.tourDay"].replace("{n}", "3"))}</span>`,
@@ -656,6 +661,8 @@ describe("the surprise badges on the page", () => {
 			"solstice",
 			"easter",
 			"everesting",
+			// Part J.
+			"winter-sleep",
 		] as const) {
 			// Whole ids: "surprise-christmas" is a prefix of "-christmas-eve".
 			expect(html).not.toContain(`badge-surprise-${name}"`);
