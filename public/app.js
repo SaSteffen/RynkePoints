@@ -1372,6 +1372,8 @@ function progressCharts(signal) {
 		});
 		const curve = (values, colour) => ({
 			data: values.map((y, x) => ({ x, y })),
+			// A day's Rynke arrive on that day, not spread over the one before.
+			stepped: "before",
 			borderColor: colour,
 			borderWidth: 3,
 			pointRadius: 0,
