@@ -130,11 +130,12 @@ nav.organiser-switch .segmented svg{width:20px;height:20px}
 .my-place .place-next{padding-top:2px;font:var(--md-type-body)}
 .quote-monkey{display:flex;align-items:flex-end;gap:10px;margin:0 0 -18px;padding-right:var(--rp-space-1)}
 .quote-monkey-art{position:relative;z-index:1;flex:none;width:96px;height:96px}
-.quote{--rp-quote-edge:var(--rp-push-accent);--rp-quote-fill:var(--rp-push-container);position:relative;flex:1;min-width:0;margin:0 0 30px;padding:12px 14px;border:2px solid var(--rp-quote-edge);border-radius:20px;background:var(--rp-quote-fill);color:var(--rp-on-push-container)}
-.quote-on-track{--rp-quote-edge:var(--rp-ok-accent);--rp-quote-fill:var(--rp-ok-container);color:var(--rp-on-ok-container)}
-.quote::before,.quote::after{content:"";position:absolute;left:-22px;bottom:10px;width:24px;height:36px;-webkit-mask:var(--rp-quote-tail) center/100% 100% no-repeat;mask:var(--rp-quote-tail) center/100% 100% no-repeat}
-.quote::before{--rp-quote-tail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 36'%3E%3Cpath d='M34,2 C24,8 12,18 3,32 C14,30 24,28 34,26 Z' stroke='%23000' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E");background:var(--rp-quote-edge)}
-.quote::after{--rp-quote-tail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 36'%3E%3Cpath d='M34,2 C24,8 12,18 3,32 C14,30 24,28 34,26 Z'/%3E%3C/svg%3E");background:var(--rp-quote-fill)}
+.quote{--rp-quote-edge:var(--rp-coin-ink);--rp-quote-fill:#ffffff;position:relative;flex:1;min-width:0;margin:0 0 30px;padding:12px 16px;border:2px solid var(--rp-quote-edge);border-radius:24px;background:var(--rp-quote-fill);color:var(--rp-coin-ink)}
+.quote-push .quote-heading{color:#9a4a10}
+.quote-on-track .quote-heading{color:#1d6b35}
+.quote::before,.quote::after{content:"";position:absolute;left:-24px;bottom:12px;width:26px;height:32px;-webkit-mask:var(--rp-quote-tail) center/100% 100% no-repeat;mask:var(--rp-quote-tail) center/100% 100% no-repeat}
+.quote::before{--rp-quote-tail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 32'%3E%3Cpath d='M36,0 C26,4 14,4 2,24 C16,16 26,22 36,24 Z' stroke='%23000' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E");background:var(--rp-quote-edge)}
+.quote::after{--rp-quote-tail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 32'%3E%3Cpath d='M36,0 C26,4 14,4 2,24 C16,16 26,22 36,24 Z'/%3E%3C/svg%3E");background:var(--rp-quote-fill)}
 .quote p{margin:0}
 .quote-heading{padding-bottom:4px;font:700 12px/16px var(--md-ref-typeface);letter-spacing:.04em;text-transform:uppercase}
 .quote p:last-child{font:600 16px/22px var(--md-ref-typeface)}

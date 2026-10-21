@@ -122,17 +122,16 @@ describe("STYLE", () => {
 		);
 	});
 
-	it("colours the push quote orange and the on-track quote green (016, the draft)", () => {
+	it("draws the quote as a white comic bubble, its heading in the rider state's colour", () => {
 		expect(declsOf(".quote")).toMatchObject({
-			"--rp-quote-edge": "var(--rp-push-accent)",
-			"--rp-quote-fill": "var(--rp-push-container)",
+			"--rp-quote-edge": "var(--rp-coin-ink)",
+			"--rp-quote-fill": "#ffffff",
 			border: "2px solid var(--rp-quote-edge)",
 			background: "var(--rp-quote-fill)",
+			color: "var(--rp-coin-ink)",
 		});
-		expect(declsOf(".quote-on-track")).toMatchObject({
-			"--rp-quote-edge": "var(--rp-ok-accent)",
-			"--rp-quote-fill": "var(--rp-ok-container)",
-		});
+		expect(declsOf(".quote-push .quote-heading").color).toBe("#9a4a10");
+		expect(declsOf(".quote-on-track .quote-heading").color).toBe("#1d6b35");
 	});
 
 	it("draws the quote as Rynke's speech bubble on the team total (the Quote Monkey draft, option B)", () => {
