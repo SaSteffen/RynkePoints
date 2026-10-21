@@ -160,8 +160,8 @@ describe("badge catalog", () => {
 		expect(new Set(BADGES.map((b) => b.id)).size).toBe(130);
 	});
 
-	it("is at version 7 since the tour badges are personal (021)", () => {
-		expect(BADGE_CATALOG_VERSION).toBe(7);
+	it("is at version 8 since Winterschlaf beendet (013 part J)", () => {
+		expect(BADGE_CATALOG_VERSION).toBe(8);
 	});
 
 	it("puts the Tour de Paris after the winter months and before the surprises (021)", () => {
