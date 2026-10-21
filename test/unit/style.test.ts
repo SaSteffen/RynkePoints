@@ -125,13 +125,17 @@ describe("STYLE", () => {
 	it("draws the quote as a white comic bubble, its heading in the rider state's colour", () => {
 		expect(declsOf(".quote")).toMatchObject({
 			"--rp-quote-edge": "var(--rp-coin-ink)",
-			"--rp-quote-fill": "#ffffff",
+			"--rp-quote-fill": "var(--rp-bubble)",
 			border: "2px solid var(--rp-quote-edge)",
 			background: "var(--rp-quote-fill)",
 			color: "var(--rp-coin-ink)",
 		});
-		expect(declsOf(".quote-push .quote-heading").color).toBe("#9a4a10");
-		expect(declsOf(".quote-on-track .quote-heading").color).toBe("#1d6b35");
+		expect(declsOf(".quote-push .quote-heading").color).toBe(
+			"var(--rp-bubble-push)",
+		);
+		expect(declsOf(".quote-on-track .quote-heading").color).toBe(
+			"var(--rp-bubble-ok)",
+		);
 	});
 
 	it("draws the quote as Rynke's speech bubble on the team total (the Quote Monkey draft, option B)", () => {

@@ -16,12 +16,13 @@ const COIN =
 
 /**
  * The Team page's fixed accents (feature 016, the Claude Design draft): the
- * team total sits on the coin's ink and the quote's edge keeps its colour in
- * both schemes. Feature 019's green "Bin dabei", its red "Doch nicht dabei"
- * and the count of open reports keep theirs too.
+ * team total sits on the coin's ink and the quote is a white speech bubble in
+ * both schemes, its heading in the rider state's colour. Feature 019's green
+ * "Bin dabei", its red "Doch nicht dabei" and the count of open reports keep
+ * theirs too.
  */
 const TEAM =
-	"--rp-hero-label:#e6d9a8;--rp-hero-week:#bfe3c6;--rp-push-accent:#e8833a;--rp-ok-accent:#2e8b57;--rp-yes:#1d6b35;--rp-no:#b3261e;--rp-on-yes-no:#ffffff;";
+	"--rp-hero-label:#e6d9a8;--rp-hero-week:#bfe3c6;--rp-push-accent:#e8833a;--rp-ok-accent:#2e8b57;--rp-bubble:#ffffff;--rp-bubble-push:#9a4a10;--rp-bubble-ok:#1d6b35;--rp-yes:#1d6b35;--rp-no:#b3261e;--rp-on-yes-no:#ffffff;";
 
 /** The colour roles of the dark scheme, for the system setting and a choice. */
 const DARK = `--rp-badge-edge:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 2px 2px rgba(0,0,0,.6));--rp-badge-lift:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 6px 6px rgba(0,0,0,.6));--md-sys-color-surface:#12110c;--md-sys-color-surface-container-low:#1a1913;--md-sys-color-surface-container:#201f18;--md-sys-color-surface-container-high:#2b2a21;--md-sys-color-on-surface:#eeebdd;--md-sys-color-on-surface-variant:#cec9b3;--md-sys-color-outline:#979279;--md-sys-color-outline-variant:#4a4633;--md-sys-color-primary:#fbe122;--md-sys-color-on-primary:#1c1b13;--md-sys-color-primary-container:#fbe122;--md-sys-color-on-primary-container:#1c1b13;--md-sys-color-secondary-container:#fbe122;--md-sys-color-on-secondary-container:#1c1b13;--md-sys-color-error:#ffb4ab;--md-sys-color-error-container:#93000a;--md-sys-color-on-error-container:#ffdad6;--rp-ok-container:#173a22;--rp-on-ok-container:#bfe3c6;--rp-neutral-container:#2e2c22;--rp-on-neutral-container:#cec9b3;--rp-brand:#fc5200;--rp-part-1:#fbe122;--rp-part-2:#8cc4f0;--rp-part-3:#ff9a4d;--rp-part-4:#6fd1c2;--rp-part-5:#d7a6ec;--rp-part-6:#a8a6a0;--rp-reached:#7fcb92;--rp-track:#3a382c;--rp-push-container:#3a2614;--rp-on-push-container:#f6d2b0;--rp-road:#0a0906;--rp-bar:#6b6650;--rp-line-training:#a88e00;--rp-line-team:#4a94d2;--rp-line-outside:#a77fd0;--rp-line-threshold:#d64651;--rp-line-pace:#24a684;${TEAM}${COIN}`;
@@ -130,9 +131,9 @@ nav.organiser-switch .segmented svg{width:20px;height:20px}
 .my-place .place-next{padding-top:2px;font:var(--md-type-body)}
 .quote-monkey{display:flex;align-items:flex-end;gap:10px;margin:0 0 -18px;padding-right:var(--rp-space-1)}
 .quote-monkey-art{position:relative;z-index:1;flex:none;width:96px;height:96px}
-.quote{--rp-quote-edge:var(--rp-coin-ink);--rp-quote-fill:#ffffff;position:relative;flex:1;min-width:0;margin:0 0 30px;padding:12px 16px;border:2px solid var(--rp-quote-edge);border-radius:24px;background:var(--rp-quote-fill);color:var(--rp-coin-ink)}
-.quote-push .quote-heading{color:#9a4a10}
-.quote-on-track .quote-heading{color:#1d6b35}
+.quote{--rp-quote-edge:var(--rp-coin-ink);--rp-quote-fill:var(--rp-bubble);position:relative;flex:1;min-width:0;margin:0 0 30px;padding:12px 16px;border:2px solid var(--rp-quote-edge);border-radius:24px;background:var(--rp-quote-fill);color:var(--rp-coin-ink)}
+.quote-push .quote-heading{color:var(--rp-bubble-push)}
+.quote-on-track .quote-heading{color:var(--rp-bubble-ok)}
 .quote::before,.quote::after{content:"";position:absolute;left:-24px;bottom:12px;width:26px;height:32px;-webkit-mask:var(--rp-quote-tail) center/100% 100% no-repeat;mask:var(--rp-quote-tail) center/100% 100% no-repeat}
 .quote::before{--rp-quote-tail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 32'%3E%3Cpath d='M36,0 C26,4 14,4 2,24 C16,16 26,22 36,24 Z' stroke='%23000' stroke-width='4' stroke-linejoin='round'/%3E%3C/svg%3E");background:var(--rp-quote-edge)}
 .quote::after{--rp-quote-tail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 32'%3E%3Cpath d='M36,0 C26,4 14,4 2,24 C16,16 26,22 36,24 Z'/%3E%3C/svg%3E");background:var(--rp-quote-fill)}
