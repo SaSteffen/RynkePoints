@@ -16,13 +16,14 @@ const COIN =
 
 /**
  * The Team page's fixed accents (feature 016, the Claude Design draft): the
- * team total sits on the coin's ink and the quote is a white speech bubble in
+ * team total and the other gold-rimmed hero cards sit on a warm dark a step
+ * softer than the coin's ink, so they don't read as a black hole, and the quote is a white speech bubble in
  * both schemes. Feature 019's green
  * "Bin dabei", its red "Doch nicht dabei" and the count of open reports keep
  * theirs too.
  */
 const TEAM =
-	"--rp-hero-label:#e6d9a8;--rp-hero-week:#bfe3c6;--rp-push-accent:#e8833a;--rp-ok-accent:#2e8b57;--rp-bubble:#ffffff;--rp-yes:#1d6b35;--rp-no:#b3261e;--rp-on-yes-no:#ffffff;";
+	"--rp-hero:#3a3729;--rp-hero-label:#e6d9a8;--rp-hero-week:#bfe3c6;--rp-push-accent:#e8833a;--rp-ok-accent:#2e8b57;--rp-bubble:#ffffff;--rp-yes:#1d6b35;--rp-no:#b3261e;--rp-on-yes-no:#ffffff;";
 
 /** The colour roles of the dark scheme, for the system setting and a choice. */
 const DARK = `--rp-badge-edge:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 2px 2px rgba(0,0,0,.6));--rp-badge-lift:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 6px 6px rgba(0,0,0,.6));--rp-quote-art-shadow:drop-shadow(0 0 .6px rgba(0,0,0,.8)) drop-shadow(0 3px 5px rgba(0,0,0,.55));--md-sys-color-surface:#12110c;--md-sys-color-surface-container-low:#1a1913;--md-sys-color-surface-container:#201f18;--md-sys-color-surface-container-high:#2b2a21;--md-sys-color-on-surface:#eeebdd;--md-sys-color-on-surface-variant:#cec9b3;--md-sys-color-outline:#979279;--md-sys-color-outline-variant:#4a4633;--md-sys-color-primary:#fbe122;--md-sys-color-on-primary:#1c1b13;--md-sys-color-primary-container:#fbe122;--md-sys-color-on-primary-container:#1c1b13;--md-sys-color-secondary-container:#fbe122;--md-sys-color-on-secondary-container:#1c1b13;--md-sys-color-error:#ffb4ab;--md-sys-color-error-container:#93000a;--md-sys-color-on-error-container:#ffdad6;--rp-ok-container:#173a22;--rp-on-ok-container:#bfe3c6;--rp-neutral-container:#2e2c22;--rp-on-neutral-container:#cec9b3;--rp-brand:#fc5200;--rp-part-1:#fbe122;--rp-part-2:#8cc4f0;--rp-part-3:#ff9a4d;--rp-part-4:#6fd1c2;--rp-part-5:#d7a6ec;--rp-part-6:#a8a6a0;--rp-reached:#7fcb92;--rp-track:#3a382c;--rp-push-container:#3a2614;--rp-on-push-container:#f6d2b0;--rp-road:#0a0906;--rp-bar:#6b6650;--rp-line-training:#a88e00;--rp-line-team:#4a94d2;--rp-line-outside:#a77fd0;--rp-line-threshold:#d64651;--rp-line-pace:#24a684;${TEAM}${COIN}`;
@@ -111,7 +112,7 @@ ul.rynke-missing{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);list-style:no
 .coin-flip-turn{position:absolute;inset:0;transform-style:preserve-3d;animation:coin-flip 3.2s cubic-bezier(.45,0,.55,1) infinite}
 .coin-flip .coin-art{position:absolute;inset:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .coin-flip .coin-flip-back{transform:rotateY(180deg)}
-.team-total{display:flex;align-items:center;gap:var(--rp-space-4);border:2px solid var(--rp-coin-rim);border-radius:24px;background:var(--rp-coin-ink);color:var(--rp-coin-face)}
+.team-total{display:flex;align-items:center;gap:var(--rp-space-4);border:2px solid var(--rp-coin-rim);border-radius:24px;background:var(--rp-hero);color:var(--rp-coin-face)}
 .team-total .coin-large{width:128px;height:128px}
 .team-total-text{display:flex;flex-direction:column;gap:2px;min-width:0}
 .team-total p{margin:0}
@@ -283,7 +284,7 @@ button:has(>img.cws){display:inline-block;min-height:0;padding:0;border:0;border
 .c-brick{fill:var(--rp-coin-brick);stroke:var(--rp-coin-ink)}
 .c-water{fill:var(--rp-coin-water)}
 .c-mini{fill:var(--rp-coin-mini-face,var(--rp-coin-yellow));stroke:var(--rp-coin-ink)}
-.hero{display:flex;align-items:center;gap:var(--rp-space-4);padding:var(--rp-space-4);border:2px solid var(--rp-coin-rim);border-radius:24px;background:var(--rp-coin-ink);color:var(--rp-coin-face)}
+.hero{display:flex;align-items:center;gap:var(--rp-space-4);padding:var(--rp-space-4);border:2px solid var(--rp-coin-rim);border-radius:24px;background:var(--rp-hero);color:var(--rp-coin-face)}
 .hero .coin-hero{width:128px;height:128px}
 .hero p{margin:0}
 .hero .greeting{font:var(--md-type-body)}
@@ -379,7 +380,7 @@ ${TOUR_TARGET_RULES}
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 main:has(>.team-overview){max-width:var(--rp-content-max)}
 .team-overview h3{margin:0;font:600 17px/24px var(--md-ref-typeface)}
-.overview-deadline{display:flex;align-items:center;gap:var(--rp-space-4);margin:0 0 var(--rp-space-3);padding:var(--rp-space-4);border:2px solid var(--rp-coin-rim);border-radius:24px;background:var(--rp-coin-ink);color:var(--rp-coin-face)}
+.overview-deadline{display:flex;align-items:center;gap:var(--rp-space-4);margin:0 0 var(--rp-space-3);padding:var(--rp-space-4);border:2px solid var(--rp-coin-rim);border-radius:24px;background:var(--rp-hero);color:var(--rp-coin-face)}
 .overview-deadline .coin-large{width:128px;height:128px}
 .overview-deadline p{margin:0;font:var(--md-type-body)}
 .overview-deadline .overview-deadline-date{color:var(--rp-hero-label)}
@@ -435,7 +436,7 @@ ul.rider-missing{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-sty
 .coin-pair>span{display:inline-flex;align-items:center;gap:4px}
 .coin-pair .coin-mini{width:16px;height:16px}
 @media (max-width:1279.98px){.rider-table th,.rider-table td{padding-left:6px;padding-right:6px}.rider-table .bar-cell{min-width:100px}}
-.qualified{margin:0 0 var(--rp-space-3);padding:var(--rp-space-4);border:2px solid var(--rp-coin-rim);border-radius:24px;background:var(--rp-coin-ink);color:var(--rp-coin-face)}
+.qualified{margin:0 0 var(--rp-space-3);padding:var(--rp-space-4);border:2px solid var(--rp-coin-rim);border-radius:24px;background:var(--rp-hero);color:var(--rp-coin-face)}
 .qualified h2{margin:0 0 var(--rp-space-1);font:700 18px/24px var(--md-ref-typeface);color:var(--rp-coin-yellow)}
 .qualified p{margin:0;font:var(--md-type-caption);color:var(--rp-hero-label)}
 .qualified ul{display:flex;flex-wrap:wrap;gap:var(--rp-space-2);margin:var(--rp-space-3) 0 0;padding:0;list-style:none}
