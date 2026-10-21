@@ -3,8 +3,7 @@
 // illustration and quote monkey SVG in public/, which the app puts into the picture's address
 // as `?v=<hash>` (a follow-up to issue #182). A changed picture gets a new
 // address, so public/_headers can let the browser keep each one for good.
-// pnpm badge-build, pnpm coin-art, pnpm illustrations and pnpm quote-build run
-// it at their end.
+// pnpm badge-build, pnpm coin-art and pnpm illustrations run it at their end.
 // With `--check` nothing is written, and the exit code is 1 when the list
 // differs from the files (`pnpm lint` runs it so).
 import { createHash } from "node:crypto";

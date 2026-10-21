@@ -4,7 +4,7 @@ import { QUOTE_MONKEYS } from "../../src/http/quote-monkeys";
 import { quoteArt, quoteId } from "../../src/http/sections/team";
 
 // Which picture of Rynke says the Team page's quote (Quote Monkey draft,
-// option B): one of the quote monkeys from `pnpm quote-build`, or the rider
+// option B): one of the quote monkeys from `pnpm badge-build`, or the rider
 // state's illustration while there are none.
 
 describe("quoteArt", () => {

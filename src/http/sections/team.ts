@@ -227,7 +227,7 @@ export function pickQuote(
 
 /**
  * The picture of Rynke who says the quote: one of the quote monkeys
- * (`pnpm quote-build`), the same one for the same quote, or the rider-state
+ * (`pnpm badge-build`), the same one for the same quote, or the rider-state
  * illustration while there are none yet.
  */
 export function quoteArt(

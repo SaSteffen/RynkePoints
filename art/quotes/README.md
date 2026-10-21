@@ -18,27 +18,31 @@ Rynke looks like the badges' character.
 - The reference attached to every prompt is the hero coin's sheet of four
   badge pictures, `art/coin/reference/rynke-hero-reference.png`.
 - `originals/`: one original per monkey, `<id>.png`, snapped to the palette by
-  `pnpm quote-build` (a fresh download may be `.png` or `.jpg` until then).
+  `pnpm badge-build` (a fresh download may be `.png` or `.jpg` until then).
 
 ## Making the pictures
 
+They come along with the badges, in the same two commands
+(`art/badges/README.md`); monkey ids work like badge ids there:
+
 ```bash
-pnpm quote-art                  # every monkey without an original
-pnpm quote-art wave flex
-pnpm quote-art --force wave     # a new take of one monkey
-pnpm quote-art --print wave     # just print the prompt to paste by hand
-pnpm quote-build                # trace them into public/quotes/
+pnpm badge-art                  # every badge and monkey without an original
+pnpm badge-art wave flex        # only these
+pnpm badge-art --force wave     # a new take of one monkey
+pnpm badge-art --print wave     # just print the prompt to paste by hand
+pnpm badge-build                # trace them into public/quotes/
 ```
 
-`pnpm quote-art` is `pnpm badge-art --set quotes`: the same Gemini run in
-Chrome, with the same sign-in, pacing and options (`art/badges/README.md`).
-The raw downloads stay in `~/.cache/rynkepoints/quote-art/raw/`.
+`pnpm badge-art` makes the badges first, then the monkeys, with the same
+sign-in, pacing and options; it attaches the hero coin's sheet to the
+monkeys' prompts.
 
-`pnpm quote-build` snaps every original to the coin palette in place, traces
-it into `public/quotes/<id>.svg` (the full canvas, like the illustrations),
-removes SVGs whose original is gone, lists the finished ones in
-`src/http/quote-monkeys.ts` and updates `src/http/art-versions.ts`. It needs
-ImageMagick and potrace. Commit the originals, `public/quotes/`,
+`pnpm badge-build` builds the monkeys after the badges: it snaps every
+original to the coin palette in place, traces it into `public/quotes/<id>.svg`
+(the full canvas, like the illustrations), skips monkeys whose SVG is
+committed and unchanged unless named, removes SVGs whose original is gone,
+lists the finished ones in `src/http/quote-monkeys.ts` and updates
+`src/http/art-versions.ts`. Commit the originals, `public/quotes/`,
 `src/http/quote-monkeys.ts` and `src/http/art-versions.ts` together.
 
 ## Checking a picture

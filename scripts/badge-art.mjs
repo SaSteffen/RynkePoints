@@ -24,9 +24,10 @@
 //   pnpm badge-art --force distance-100 make a new one even if one exists
 //   pnpm badge-art --cdp http://127.0.0.1:9222   use a Chrome you started
 //
-// `--set quotes` (`pnpm quote-art`) does the same for the Team page's quote
-// monkeys: art/quotes/monkeys.json and prompt.txt, with the hero coin's
-// reference sheet attached, into art/quotes/originals/ (art/quotes/README.md).
+// The Team page's quote monkeys come along the same way: every monkey in
+// art/quotes/monkeys.json with its art/quotes/prompt.txt and the hero coin's
+// reference sheet, into art/quotes/originals/ (art/quotes/README.md); their
+// ids work like badge ids here.
 //
 // Other options: --profile <dir> (default ~/.cache/rynkepoints/gemini-profile),
 // --browser chrome|chromium (default chrome), --timeout <seconds> per image
@@ -98,103 +99,92 @@ const { values: opts, positionals: only } = parseArgs({
 		retries: { type: "string", default: "3" },
 		max: { type: "string", default: "10" },
 		timeout: { type: "string", default: "300" },
-		set: { type: "string", default: "badges" },
 	},
 });
 
-const HERO_REFERENCE = fileURLToPath(
-	new URL("../art/coin/reference/rynke-hero-reference.png", import.meta.url),
-);
-
-// What to make: the badge pictures, or the Team page's quote monkeys.
-const SETS = {
-	badges: {
-		art: "../art/badges/",
-		list: "badges.json",
-		key: "badges",
-		validate: validateBadges,
-		reference: (item) => REFERENCE[item.group],
-		noun: "badge",
-		command: "pnpm badge-art",
-	},
-	quotes: {
-		art: "../art/quotes/",
-		list: "monkeys.json",
-		key: "monkeys",
-		validate: validateMonkeys,
-		reference: () => HERO_REFERENCE,
-		noun: "monkey",
-		command: "pnpm quote-art",
-	},
-};
-const SET = SETS[opts.set];
-if (!SET) {
-	console.error(`--set must be badges or quotes, not ${opts.set}`);
-	process.exit(2);
-}
-
-const ART = fileURLToPath(new URL(SET.art, import.meta.url));
-const OUT = join(ART, "originals");
-const DEBUG = join(tmpdir(), `rynkepoints-${opts.set}-art`);
+const root = (path) => fileURLToPath(new URL(`../${path}`, import.meta.url));
+const DEBUG = join(tmpdir(), "rynkepoints-badge-art");
 // pnpm badge-build snaps the originals to the palette in place (research R7);
 // the raw downloads are kept here, outside the repo, in case they're needed.
-const RAW = join(
-	homedir(),
-	`.cache/rynkepoints/${opts.set === "badges" ? "badge-art" : "quote-art"}/raw`,
-);
-const BADGE_REFERENCE = fileURLToPath(
-	new URL("../art/badges/reference/", import.meta.url),
-);
+const RAW = join(homedir(), ".cache/rynkepoints/badge-art/raw");
 const REFERENCE = {
-	personal: join(BADGE_REFERENCE, "badge-personal.png"),
-	team: join(BADGE_REFERENCE, "badge-team.png"),
+	personal: root("art/badges/reference/badge-personal.png"),
+	team: root("art/badges/reference/badge-team.png"),
+	// The quote monkeys go with the hero coin's sheet of badge pictures.
+	monkey: root("art/coin/reference/rynke-hero-reference.png"),
 };
 
-const data = JSON.parse(readFileSync(join(ART, SET.list), "utf8"));
-const template = readFileSync(join(ART, "prompt.txt"), "utf8").trim();
-const problems = SET.validate(data);
-if (!template.includes("{{scene}}")) problems.push("prompt.txt: no {{scene}}");
+// Two lists: the badges and the Team page's quote monkeys (art/quotes).
+const SETS = [
+	{
+		dir: "art/badges",
+		list: "badges.json",
+		key: "badges",
+		check: validateBadges,
+	},
+	{
+		dir: "art/quotes",
+		list: "monkeys.json",
+		key: "monkeys",
+		check: validateMonkeys,
+	},
+];
+const problems = [];
+const items = SETS.flatMap(({ dir, list, key, check }) => {
+	const data = JSON.parse(readFileSync(root(`${dir}/${list}`), "utf8"));
+	const template = readFileSync(root(`${dir}/prompt.txt`), "utf8").trim();
+	problems.push(...check(data).map((p) => `${dir}: ${p}`));
+	if (!template.includes("{{scene}}"))
+		problems.push(`${dir}/prompt.txt: no {{scene}}`);
+	if (!Array.isArray(data[key])) return [];
+	return data[key].map((item) => ({
+		...item,
+		out: root(`${dir}/originals`),
+		reference: REFERENCE[item.group ?? "monkey"],
+		prompt: () => buildPrompt(template, data.snippets ?? {}, item),
+	}));
+});
+const ids = new Set();
+for (const { id } of items) {
+	if (ids.has(id)) problems.push(`${id}: both a badge and a quote monkey`);
+	ids.add(id);
+}
 if (problems.length > 0) {
-	console.error(`art/${opts.set} is not valid:\n  ${problems.join("\n  ")}`);
+	console.error(`The art lists are not valid:\n  ${problems.join("\n  ")}`);
 	process.exit(2);
 }
-const { snippets } = data;
-const badges = data[SET.key];
-const prompt = (badge) => buildPrompt(template, snippets, badge);
 
-function existing(id) {
+function existing(item) {
 	try {
-		return readdirSync(OUT).find((f) => f.startsWith(`${id}.`));
+		return readdirSync(item.out).find((f) => f.startsWith(`${item.id}.`));
 	} catch {
 		return undefined;
 	}
 }
 
-const unknown = only.filter((id) => !badges.some((b) => b.id === id));
+const unknown = only.filter((id) => !ids.has(id));
 if (unknown.length > 0) {
-	console.error(`Unknown ${SET.noun} id(s): ${unknown.join(", ")}`);
+	console.error(`Unknown badge or monkey id(s): ${unknown.join(", ")}`);
 	process.exit(2);
 }
-const chosen = badges.filter((b) => only.length === 0 || only.includes(b.id));
+const chosen = items.filter((b) => only.length === 0 || only.includes(b.id));
 
 if (opts.print) {
-	for (const badge of chosen) {
-		console.log(`### ${badge.id} (attach ${SET.reference(badge)})\n`);
-		console.log(`${prompt(badge)}\n`);
+	for (const item of chosen) {
+		console.log(`### ${item.id} (attach ${item.reference})\n`);
+		console.log(`${item.prompt()}\n`);
 	}
 	process.exit(0);
 }
 
-const todo = chosen.filter((b) => opts.force || !existing(b.id));
+const todo = chosen.filter((b) => opts.force || !existing(b));
 if (todo.length === 0) {
-	console.log(
-		`Every chosen ${SET.noun} has an original already (use --force).`,
-	);
+	console.log("Every chosen picture has an original already (use --force).");
 	process.exit(0);
 }
 
 const { chromium } = await import("@playwright/test");
-mkdirSync(OUT, { recursive: true });
+for (const item of todo) mkdirSync(item.out, { recursive: true });
 mkdirSync(DEBUG, { recursive: true });
 
 const sleep = (s) => new Promise((r) => setTimeout(r, s * 1000));
@@ -350,9 +340,9 @@ async function waitForImage(page, seconds, before) {
  * comes back as JPEG must replace a PNG, or badge-build finds two originals.
  * The raw copies keep every earlier take.
  */
-function dropOthers(path, id) {
-	for (const f of readdirSync(OUT)) {
-		if (f.startsWith(`${id}.`) && join(OUT, f) !== path) rmSync(join(OUT, f));
+function dropOthers(path, { id, out }) {
+	for (const f of readdirSync(out)) {
+		if (f.startsWith(`${id}.`) && join(out, f) !== path) rmSync(join(out, f));
 	}
 }
 
@@ -363,7 +353,8 @@ function keepRaw(path, id) {
 	copyFileSync(path, join(RAW, `${id}-${stamp}${extname(path)}`));
 }
 
-async function download(page, index, id) {
+async function download(page, index, item) {
+	const { id, out } = item;
 	const answer = page.locator(SELECTORS.response).last();
 	const img = answer.locator("img").nth(index);
 	await img.scrollIntoViewIfNeeded();
@@ -376,10 +367,10 @@ async function download(page, index, id) {
 			.click({ timeout: 10_000 });
 		const file = await event;
 		const ext = extname(file.suggestedFilename()) || ".png";
-		const path = join(OUT, `${id}${ext}`);
+		const path = join(out, `${id}${ext}`);
 		await file.saveAs(path);
 		keepRaw(path, id);
-		dropOthers(path, id);
+		dropOthers(path, item);
 		return { path, full: true };
 	} catch {
 		// The preview in the page, smaller than the full-size download.
@@ -391,10 +382,10 @@ async function download(page, index, id) {
 			return { b64: btoa(s), type: blob.type };
 		});
 		const ext = type === "image/jpeg" ? ".jpg" : ".png";
-		const path = join(OUT, `${id}${ext}`);
+		const path = join(out, `${id}${ext}`);
 		writeFileSync(path, Buffer.from(b64, "base64"));
 		keepRaw(path, id);
-		dropOthers(path, id);
+		dropOthers(path, item);
 		return { path, full: false };
 	}
 }
@@ -424,7 +415,7 @@ const first = browser ? undefined : context.pages()[0];
 const batch = todo.slice(0, MAX);
 if (todo.length > batch.length)
 	console.log(
-		`${todo.length} ${SET.noun}s to make; this run does ${batch.length} (--max).`,
+		`${todo.length} pictures to make; this run does ${batch.length} (--max).`,
 	);
 const failed = [];
 // Strictly one badge after the other, never two chats at once.
@@ -435,10 +426,10 @@ for (const [n, badge] of batch.entries()) {
 	try {
 		const editor = await openChat(page);
 		await step();
-		await attach(page, editor, SET.reference(badge));
+		await attach(page, editor, badge.reference);
 		await step();
 		let before = await page.locator(SELECTORS.response).count();
-		await send(page, editor, prompt(badge));
+		await send(page, editor, badge.prompt());
 		console.log(`  sent; waiting up to ${opts.timeout} s for the image`);
 		let result = await waitForImage(page, Number(opts.timeout), before);
 		for (let retry = 1; result.busy && retry <= RETRIES; retry++) {
@@ -458,9 +449,9 @@ for (const [n, badge] of batch.entries()) {
 			break;
 		}
 		await step();
-		const old = existing(badge.id);
-		const saved = await download(page, result.index, badge.id);
-		if (old && join(OUT, old) !== saved.path)
+		const old = existing(badge);
+		const saved = await download(page, result.index, badge);
+		if (old && join(badge.out, old) !== saved.path)
 			console.log(`  note: ${old} is still there, remove it`);
 		console.log(
 			`  saved ${saved.path}${saved.full ? "" : " (preview size: the full-size download failed)"}`,
@@ -491,14 +482,13 @@ for (const [n, badge] of batch.entries()) {
 		// Twice the rest after a failure, in case Gemini was the trouble.
 		const seconds = pick(PAUSE) * (ok ? 1 : 2);
 		console.log(
-			`  resting ${Math.round(seconds)} s before the next ${SET.noun} (until ${new Date(Date.now() + seconds * 1000).toLocaleTimeString()})`,
+			`  resting ${Math.round(seconds)} s before the next picture (until ${new Date(Date.now() + seconds * 1000).toLocaleTimeString()})`,
 		);
 		await sleep(seconds);
 	}
 }
 const left = todo.length - batch.length;
-if (left > 0)
-	console.log(`${left} ${SET.noun}s left; run ${SET.command} again.`);
+if (left > 0) console.log(`${left} pictures left; run pnpm badge-art again.`);
 
 if (browser) await browser.close();
 else await context.close();
