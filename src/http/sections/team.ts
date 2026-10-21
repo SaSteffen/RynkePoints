@@ -24,9 +24,11 @@ import {
 import { type RiderStatus, riderStatus } from "../../rynke/pace";
 import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
 import { dayNumber, lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
+import { artUrl } from "../art";
 import { peloton, sparkline, weekBars } from "../charts";
 import { amount, coinArt, miniCoin } from "../coin";
 import { html, type SafeHtml } from "../html";
+import { QUOTE_MONKEYS } from "../quote-monkeys";
 import { renderReconnect } from "../rider-sections";
 import { shellPage } from "../shell";
 
@@ -223,12 +225,34 @@ export function pickQuote(
 	};
 }
 
-/** German in every language (FR-023); the heading follows the page's. */
-function renderQuote(i18n: I18n, { list, text }: QuotePick): SafeHtml {
-	return html`<blockquote class="quote ${list === "push" ? "quote-push" : "quote-on-track"}" lang="de">
+/**
+ * The picture of Rynke who says the quote: one of the quote monkeys
+ * (`pnpm quote-build`), the same one for the same quote, or the rider-state
+ * illustration while there are none yet.
+ */
+export function quoteArt(
+	{ list, id }: Pick<QuotePick, "list" | "id">,
+	monkeys: readonly string[] = QUOTE_MONKEYS,
+): string {
+	const monkey = monkeys[Number.parseInt(id, 16) % monkeys.length];
+	if (monkey) return `/quotes/${monkey}.svg`;
+	return `/illustrations/${list === "push" ? "status_push_fun" : "status_on_track_fun"}.svg`;
+}
+
+/**
+ * Rynke says the quote in a speech bubble, standing on the team total (the
+ * mock-up "RynkePoints Quote Monkey", option B). German in every language
+ * (FR-023); the heading follows the page's. The picture is decorative.
+ */
+function renderQuote(i18n: I18n, quote: QuotePick): SafeHtml {
+	const { list, text } = quote;
+	return html`<div class="quote-monkey">
+<img class="quote-monkey-art" src="${artUrl(quoteArt(quote))}" alt="" width="96" height="96">
+<blockquote class="quote ${list === "push" ? "quote-push" : "quote-on-track"}" lang="de">
 <p class="quote-heading" lang="${i18n.locale}">${i18n.t(`team.quote.${list}`)}</p>
 <p>${text}</p>
 </blockquote>
+</div>
 `;
 }
 
@@ -375,7 +399,8 @@ export function handleTeam(
 					quote.restart,
 				);
 			}
-			const head = html`${renderReconnect(i18n, rider)}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}`;
+			// The quote's monkey stands on the team total, above everything else.
+			const head = html`${renderReconnect(i18n, rider)}${quote ? renderQuote(i18n, quote) : null}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, kind, all)}`;
 			const leaderboard = renderLeaderboard(
 				i18n,
 				kind,
@@ -390,11 +415,9 @@ export function handleTeam(
 			// On wide screens `.team-grid` moves the leaderboard into a column
 			// of its own beside the other cards.
 			if (kind === "team") {
-				return html`${head}<div class="team-grid">${quote ? renderQuote(i18n, quote) : null}${leaderboard}${renderTeamChart(i18n, kind, totals)}</div>`;
+				return html`${head}<div class="team-grid">${leaderboard}${renderTeamChart(i18n, kind, totals)}</div>`;
 			}
-			return html`${head}<div class="team-grid">${viewer ? renderPlace(i18n, viewer) : null}${
-				quote ? renderQuote(i18n, quote) : null
-			}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${leaderboard}</div>`;
+			return html`${head}<div class="team-grid">${viewer ? renderPlace(i18n, viewer) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${leaderboard}</div>`;
 		},
 	);
 }

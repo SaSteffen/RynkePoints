@@ -2,7 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
-import { quoteId } from "../../src/http/sections/team";
+import { quoteArt, quoteId } from "../../src/http/sections/team";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import {
 	QUOTES_ON_TRACK,
@@ -422,13 +422,13 @@ describe("GET /team, the team's progress (US2)", () => {
 		expect(html).not.toContain('<figure class="peloton');
 	});
 
-	it("puts the leaderboard first for Team Rynke (019 FR-046)", async () => {
+	it("puts the leaderboard first for Team Rynke (019 FR-046), under the quote", async () => {
 		const { html } = await riderPage(ctx, ORGANISER, "/team?kind=team");
 		const at = (marker: string) => html.indexOf(marker, html.indexOf("<main"));
 		const order = [
+			'<blockquote class="quote',
 			'<section class="team-total',
 			'<nav class="kind-switch"',
-			'<blockquote class="quote',
 			'<section class="leaderboard',
 			'<figure class="team-chart',
 		].map(at);
@@ -440,10 +440,10 @@ describe("GET /team, the team's progress (US2)", () => {
 		const { html } = await riderPage(ctx, ORGANISER, "/team");
 		const at = (marker: string) => html.indexOf(marker, html.indexOf("<main"));
 		const order = [
+			'<blockquote class="quote',
 			'<section class="team-total',
 			'<nav class="kind-switch"',
 			'<section class="my-place',
-			'<blockquote class="quote',
 			'<figure class="peloton',
 			'<figure class="team-chart',
 			'<section class="leaderboard',
@@ -512,6 +512,18 @@ describe("GET /team, a quote for the viewer (US3)", () => {
 		expect(quote).toMatch(/^<blockquote class="quote quote-push" lang="de">/);
 		expect(quote).toContain(escapeHtml(en["team.quote.push"]));
 		expect(PUSH).toContain(quoteTextOf(html));
+	});
+
+	it("lets Rynke say the quote, standing on the team total (Quote Monkey draft, option B)", async () => {
+		const { html } = await riderPage(ctx, VIEWER, "/team");
+		const monkey = sectionOf(html, '<div class="quote-monkey">', "</div>");
+		// A decorative picture: the quote itself says it all.
+		const art = artUrl(
+			quoteArt({ list: "push", id: quoteId(quoteTextOf(html) ?? "") }),
+		);
+		expect(monkey).toMatch(
+			`<div class="quote-monkey">\n<img class="quote-monkey-art" src="${escapeHtml(art)}" alt="" width="96" height="96">\n<blockquote class="quote quote-push" lang="de">`,
+		);
 	});
 
 	it("picks the quote at random on each load (US3 #3)", async () => {

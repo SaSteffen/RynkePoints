@@ -1,6 +1,6 @@
 import { ART_VERSIONS } from "./art-versions";
 
-// The address of a badge, coin or illustration in public/ with its hash
+// The address of a badge, coin, illustration or quote monkey in public/ with its hash
 // (scripts/art-versions.mjs), so the browser keeps it until the picture
 // changes (public/_headers).
 

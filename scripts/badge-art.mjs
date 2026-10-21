@@ -24,6 +24,10 @@
 //   pnpm badge-art --force distance-100 make a new one even if one exists
 //   pnpm badge-art --cdp http://127.0.0.1:9222   use a Chrome you started
 //
+// `--set quotes` (`pnpm quote-art`) does the same for the Team page's quote
+// monkeys: art/quotes/monkeys.json and prompt.txt, with the hero coin's
+// reference sheet attached, into art/quotes/originals/ (art/quotes/README.md).
+//
 // Other options: --profile <dir> (default ~/.cache/rynkepoints/gemini-profile),
 // --browser chrome|chromium (default chrome), --timeout <seconds> per image
 // (default 300). Pacing, in seconds, as a fixed value or a random range:
@@ -44,17 +48,8 @@ import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { buildPrompt, validateBadges } from "./badge-prompts.mjs";
+import { validateMonkeys } from "./quote-prompts.mjs";
 
-const ART = fileURLToPath(new URL("../art/badges/", import.meta.url));
-const OUT = join(ART, "originals");
-const DEBUG = join(tmpdir(), "rynkepoints-badge-art");
-// pnpm badge-build snaps the originals to the palette in place (research R7);
-// the raw downloads are kept here, outside the repo, in case they're needed.
-const RAW = join(homedir(), ".cache/rynkepoints/badge-art/raw");
-const REFERENCE = {
-	personal: join(ART, "reference/badge-personal.png"),
-	team: join(ART, "reference/badge-team.png"),
-};
 const GEMINI = "https://gemini.google.com/app";
 
 // Gemini's page, in English and German. The first match wins.
@@ -103,18 +98,68 @@ const { values: opts, positionals: only } = parseArgs({
 		retries: { type: "string", default: "3" },
 		max: { type: "string", default: "10" },
 		timeout: { type: "string", default: "300" },
+		set: { type: "string", default: "badges" },
 	},
 });
 
-const data = JSON.parse(readFileSync(join(ART, "badges.json"), "utf8"));
-const template = readFileSync(join(ART, "prompt.txt"), "utf8").trim();
-const problems = validateBadges(data);
-if (!template.includes("{{scene}}")) problems.push("prompt.txt: no {{scene}}");
-if (problems.length > 0) {
-	console.error(`art/badges is not valid:\n  ${problems.join("\n  ")}`);
+const HERO_REFERENCE = fileURLToPath(
+	new URL("../art/coin/reference/rynke-hero-reference.png", import.meta.url),
+);
+
+// What to make: the badge pictures, or the Team page's quote monkeys.
+const SETS = {
+	badges: {
+		art: "../art/badges/",
+		list: "badges.json",
+		key: "badges",
+		validate: validateBadges,
+		reference: (item) => REFERENCE[item.group],
+		noun: "badge",
+		command: "pnpm badge-art",
+	},
+	quotes: {
+		art: "../art/quotes/",
+		list: "monkeys.json",
+		key: "monkeys",
+		validate: validateMonkeys,
+		reference: () => HERO_REFERENCE,
+		noun: "monkey",
+		command: "pnpm quote-art",
+	},
+};
+const SET = SETS[opts.set];
+if (!SET) {
+	console.error(`--set must be badges or quotes, not ${opts.set}`);
 	process.exit(2);
 }
-const { snippets, badges } = data;
+
+const ART = fileURLToPath(new URL(SET.art, import.meta.url));
+const OUT = join(ART, "originals");
+const DEBUG = join(tmpdir(), `rynkepoints-${opts.set}-art`);
+// pnpm badge-build snaps the originals to the palette in place (research R7);
+// the raw downloads are kept here, outside the repo, in case they're needed.
+const RAW = join(
+	homedir(),
+	`.cache/rynkepoints/${opts.set === "badges" ? "badge-art" : "quote-art"}/raw`,
+);
+const BADGE_REFERENCE = fileURLToPath(
+	new URL("../art/badges/reference/", import.meta.url),
+);
+const REFERENCE = {
+	personal: join(BADGE_REFERENCE, "badge-personal.png"),
+	team: join(BADGE_REFERENCE, "badge-team.png"),
+};
+
+const data = JSON.parse(readFileSync(join(ART, SET.list), "utf8"));
+const template = readFileSync(join(ART, "prompt.txt"), "utf8").trim();
+const problems = SET.validate(data);
+if (!template.includes("{{scene}}")) problems.push("prompt.txt: no {{scene}}");
+if (problems.length > 0) {
+	console.error(`art/${opts.set} is not valid:\n  ${problems.join("\n  ")}`);
+	process.exit(2);
+}
+const { snippets } = data;
+const badges = data[SET.key];
 const prompt = (badge) => buildPrompt(template, snippets, badge);
 
 function existing(id) {
@@ -127,14 +172,14 @@ function existing(id) {
 
 const unknown = only.filter((id) => !badges.some((b) => b.id === id));
 if (unknown.length > 0) {
-	console.error(`Unknown badge id(s): ${unknown.join(", ")}`);
+	console.error(`Unknown ${SET.noun} id(s): ${unknown.join(", ")}`);
 	process.exit(2);
 }
 const chosen = badges.filter((b) => only.length === 0 || only.includes(b.id));
 
 if (opts.print) {
 	for (const badge of chosen) {
-		console.log(`### ${badge.id} (attach ${REFERENCE[badge.group]})\n`);
+		console.log(`### ${badge.id} (attach ${SET.reference(badge)})\n`);
 		console.log(`${prompt(badge)}\n`);
 	}
 	process.exit(0);
@@ -142,7 +187,9 @@ if (opts.print) {
 
 const todo = chosen.filter((b) => opts.force || !existing(b.id));
 if (todo.length === 0) {
-	console.log("Every chosen badge has an original already (use --force).");
+	console.log(
+		`Every chosen ${SET.noun} has an original already (use --force).`,
+	);
 	process.exit(0);
 }
 
@@ -377,7 +424,7 @@ const first = browser ? undefined : context.pages()[0];
 const batch = todo.slice(0, MAX);
 if (todo.length > batch.length)
 	console.log(
-		`${todo.length} badges to make; this run does ${batch.length} (--max).`,
+		`${todo.length} ${SET.noun}s to make; this run does ${batch.length} (--max).`,
 	);
 const failed = [];
 // Strictly one badge after the other, never two chats at once.
@@ -388,7 +435,7 @@ for (const [n, badge] of batch.entries()) {
 	try {
 		const editor = await openChat(page);
 		await step();
-		await attach(page, editor, REFERENCE[badge.group]);
+		await attach(page, editor, SET.reference(badge));
 		await step();
 		let before = await page.locator(SELECTORS.response).count();
 		await send(page, editor, prompt(badge));
@@ -444,13 +491,14 @@ for (const [n, badge] of batch.entries()) {
 		// Twice the rest after a failure, in case Gemini was the trouble.
 		const seconds = pick(PAUSE) * (ok ? 1 : 2);
 		console.log(
-			`  resting ${Math.round(seconds)} s before the next badge (until ${new Date(Date.now() + seconds * 1000).toLocaleTimeString()})`,
+			`  resting ${Math.round(seconds)} s before the next ${SET.noun} (until ${new Date(Date.now() + seconds * 1000).toLocaleTimeString()})`,
 		);
 		await sleep(seconds);
 	}
 }
 const left = todo.length - batch.length;
-if (left > 0) console.log(`${left} badges left; run pnpm badge-art again.`);
+if (left > 0)
+	console.log(`${left} ${SET.noun}s left; run ${SET.command} again.`);
 
 if (browser) await browser.close();
 else await context.close();

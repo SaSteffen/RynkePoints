@@ -1,0 +1,32 @@
+{
+	"snippets": {
+		"kit": "The character wears its yellow cycling helmet with three black vents and its yellow jersey with a small round black collar and a short black zip line, black cycling shorts and black cycling shoes with cream soles. No bike."
+	},
+	"monkeys": [
+		{
+			"id": "point",
+			"name": "Ab geht's",
+			"scene": "Standing, body turned a little to the viewer's right, pointing ahead to the right with one arm stretched out, the other hand on the hip, as if saying \"that way, let's go!\". Mouth open mid-sentence. {{kit}}"
+		},
+		{
+			"id": "thumbs",
+			"name": "Daumen hoch",
+			"scene": "Standing, a big thumbs-up raised to the right at shoulder height, the other hand holding a light blue (#8CC4F0) water bottle with a gold (#C99A2E) cap, as if saying \"you've got this!\". Mouth open mid-sentence. {{kit}}"
+		},
+		{
+			"id": "banana",
+			"name": "Bananen-Mikro",
+			"scene": "Standing, holding a yellow banana in one hand like a microphone in front of the mouth, the other arm open wide to the right as if speaking to a cheering crowd. Mouth open mid-sentence. {{kit}}"
+		},
+		{
+			"id": "flex",
+			"name": "Muckis",
+			"scene": "Standing, both arms raised and flexed to show off the biceps, a few short black effort lines beside the arms, grinning while talking. Mouth open mid-sentence. {{kit}}"
+		},
+		{
+			"id": "wave",
+			"name": "Hallo du!",
+			"scene": "Standing, waving high with the hand on the viewer's right, two short black motion arcs beside the waving hand, the other arm relaxed at the side, as if calling a teammate over. Mouth open mid-sentence. {{kit}}"
+		}
+	]
+}

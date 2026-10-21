@@ -128,11 +128,16 @@ nav.organiser-switch .segmented svg{width:20px;height:20px}
 .my-place p{margin:0}
 .my-place .place{font:600 16px/22px var(--md-ref-typeface)}
 .my-place .place-next{padding-top:2px;font:var(--md-type-body)}
-.quote{margin:0 0 var(--rp-space-3);padding:14px var(--rp-space-4) var(--rp-space-3);border-left:6px solid var(--rp-push-accent);border-radius:var(--md-shape-lg);background:var(--rp-push-container);color:var(--rp-on-push-container)}
-.quote-on-track{border-left-color:var(--rp-ok-accent);background:var(--rp-ok-container);color:var(--rp-on-ok-container)}
+.quote-monkey{display:flex;align-items:flex-end;gap:10px;margin:0 0 -18px;padding-right:var(--rp-space-1)}
+.quote-monkey-art{position:relative;z-index:1;flex:none;width:96px;height:96px}
+.quote{--rp-quote-edge:var(--rp-push-accent);--rp-quote-fill:var(--rp-push-container);position:relative;flex:1;min-width:0;margin:0 0 30px;padding:12px 14px;border:2px solid var(--rp-quote-edge);border-radius:20px;background:var(--rp-quote-fill);color:var(--rp-on-push-container)}
+.quote-on-track{--rp-quote-edge:var(--rp-ok-accent);--rp-quote-fill:var(--rp-ok-container);color:var(--rp-on-ok-container)}
+.quote::before,.quote::after{content:"";position:absolute;border-style:solid;border-color:transparent}
+.quote::before{left:-14px;bottom:12px;border-width:10px 14px 10px 0;border-right-color:var(--rp-quote-edge)}
+.quote::after{left:-10px;bottom:15px;border-width:7px 10px 7px 0;border-right-color:var(--rp-quote-fill)}
 .quote p{margin:0}
-.quote-heading{padding-bottom:6px;font:700 12px/16px var(--md-ref-typeface);letter-spacing:.04em;text-transform:uppercase}
-.quote p:last-child{font:600 17px/24px var(--md-ref-typeface)}
+.quote-heading{padding-bottom:4px;font:700 12px/16px var(--md-ref-typeface);letter-spacing:.04em;text-transform:uppercase}
+.quote p:last-child{font:600 16px/22px var(--md-ref-typeface)}
 .peloton,.team-chart{margin-inline:0}
 .peloton figcaption,.team-chart figcaption{display:flex;align-items:baseline;justify-content:space-between;gap:var(--rp-space-2);font:var(--md-type-title)}
 .team-chart-kind{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
@@ -603,7 +608,7 @@ ul.requests{margin:0;padding:0;list-style:none}
 @media (min-width:600px){.overview-grid>.progress{grid-column:1/-1}.progress-plot{height:13rem}}
 @media (min-width:600px) and (max-width:839.98px){body.shell .wordmark-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
 @media (min-width:600px) and (max-width:1023.98px){nav.app-nav a:not([aria-current]) .nav-label{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0 0 0 0)}}
-@media (max-width:399.98px){:root{--rp-page-padding:12px}.hero,.team-total,.overview-deadline{gap:var(--rp-space-3);padding:var(--rp-space-3)}.hero .coin-hero,.team-total .coin-large{width:96px;height:96px}.overview-deadline .coin-large{width:96px;height:96px}.overview-deadline .overview-deadline-count{font:700 28px/34px var(--md-ref-typeface)}.rynke-verdict{font:600 20px/26px var(--md-ref-typeface)}.rynke-summary{gap:var(--rp-space-3)}.status-art-banner{width:96px;height:96px}.group-tile{padding:10px}dl.ride-figures{grid-template-columns:repeat(3,auto);justify-content:space-between}nav.app-nav .nav-icon{width:56px}}
+@media (max-width:399.98px){:root{--rp-page-padding:12px}.hero,.team-total,.overview-deadline{gap:var(--rp-space-3);padding:var(--rp-space-3)}.hero .coin-hero,.team-total .coin-large{width:96px;height:96px}.overview-deadline .coin-large{width:96px;height:96px}.overview-deadline .overview-deadline-count{font:700 28px/34px var(--md-ref-typeface)}.rynke-verdict{font:600 20px/26px var(--md-ref-typeface)}.rynke-summary{gap:var(--rp-space-3)}.status-art-banner{width:96px;height:96px}.quote-monkey-art{width:80px;height:80px}.group-tile{padding:10px}dl.ride-figures{grid-template-columns:repeat(3,auto);justify-content:space-between}nav.app-nav .nav-icon{width:56px}}
 @media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,.ride-why>summary::after,.more>summary::after{transition:none}.button,.button-outlined,.button-text,.danger,.icon-button{transition:none}.button[aria-busy=true]::after,.button-outlined[aria-busy=true]::after,.danger[aria-busy=true]::after,.segmented[aria-busy=true]::after{animation:none}.celebrate-coins .coin-mini{animation:none}.badges-reveal-pictures img{animation:none}button.badge{transition:none}.badge-sparkles>span{animation:none}.coin-flip-turn{animation:none}}
 @keyframes top-bar-lift{from{box-shadow:none}to{box-shadow:0 1px 0 var(--md-sys-color-outline-variant)}}
 @keyframes busy-spin{to{transform:rotate(360deg)}}
