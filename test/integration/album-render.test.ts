@@ -5,6 +5,7 @@ import { type AlbumData, loadAlbum } from "../../album/load";
 import { renderAlbum } from "../../album/render";
 import { ALBUM_CSS } from "../../album/style";
 import { BADGES } from "../../src/badges/catalog";
+import { BADGE_PICTURES } from "../../src/badges/pictures";
 import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
 import { seedBalance, seedRide } from "../support/rider-view";
@@ -224,8 +225,11 @@ describe("the sticker pages", () => {
 		expect(sticker("distance-100")).toContain(
 			'<p class="caption-for">Du bist in dieser Saison 100\u00a0km Rad gefahren.</p>',
 		);
+		// The placeholder only while the badge has no picture yet.
 		expect(sticker("tour-de-paris-1")).toContain(
-			'src="/badges/placeholder-personal.svg"',
+			BADGE_PICTURES.has("tour-de-paris-1")
+				? 'src="/badges/tour-de-paris-1.svg"'
+				: 'src="/badges/placeholder-personal.svg"',
 		);
 		expect(sticker("tour-de-paris-1")).toContain("Tour-Tag 1");
 	});
