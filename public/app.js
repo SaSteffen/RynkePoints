@@ -813,6 +813,103 @@ function pageSwitchShows() {
 	});
 }
 
+/** How far and how fast a finger moves sideways to swipe (feature 023). */
+const SWIPE_PX = 64;
+const SWIPE_MS = 800;
+/** The screen's edges belong to the system's own back and forward swipes. */
+const SWIPE_EDGE_PX = 24;
+
+/**
+ * The navigation's sections a swipe rotates through, in its order, and the
+ * index of the shown one: all but Settings (feature 023 FR-002). Null on a
+ * page outside them.
+ */
+function swipeRing() {
+	const links = [...document.querySelectorAll("nav.app-nav a[href]")].filter(
+		(link) => new URL(link.href).pathname !== "/me/settings",
+	);
+	const at = links.findIndex(
+		(link) => link.getAttribute("aria-current") === "page",
+	);
+	return at < 0 || links.length < 2 ? null : { links, at };
+}
+
+/**
+ * Whether a touch at `x` on `target` may start a swipe: not near the edges,
+ * zoomed in, on a field or chart, on something that scrolls sideways, or while
+ * a menu, a dialog, a show or a tour's step is up (FR-004).
+ */
+function swipeStarts(target, x) {
+	if (
+		x < SWIPE_EDGE_PX ||
+		x > innerWidth - SWIPE_EDGE_PX ||
+		(visualViewport?.scale ?? 1) > 1.01 ||
+		!(target instanceof Element) ||
+		target.closest("input, textarea, select, canvas, [contenteditable]") ||
+		document.getElementById("theme-menu")?.hidden === false ||
+		document.querySelector("dialog[open], .show, aside.tour .tour-progress")
+	) {
+		return false;
+	}
+	for (let el = target; el && el !== document.body; el = el.parentElement) {
+		const { overflowX } = getComputedStyle(el);
+		if (
+			(overflowX === "auto" || overflowX === "scroll") &&
+			el.scrollWidth > el.clientWidth
+		) {
+			return false;
+		}
+	}
+	return true;
+}
+
+/**
+ * Swiping sideways moves to the neighbouring section of the navigation, round
+ * in a circle: a swipe to the left to the next one, to the right to the one
+ * before (feature 023). It taps that section's item, so the switch is the
+ * same as a tap's, show included. Two fingers, a slow drag, a mostly
+ * vertical one or one that selected text move nothing.
+ */
+function swipeSections() {
+	let start = null;
+	document.addEventListener(
+		"touchstart",
+		(event) => {
+			const touch = event.touches[0];
+			start =
+				event.touches.length === 1 &&
+				swipeRing() &&
+				swipeStarts(event.target, touch.clientX)
+					? { x: touch.clientX, y: touch.clientY, at: event.timeStamp }
+					: null;
+		},
+		{ passive: true },
+	);
+	document.addEventListener("touchcancel", () => {
+		start = null;
+	});
+	document.addEventListener("touchend", (event) => {
+		const from = start;
+		start = null;
+		const touch = event.changedTouches[0];
+		const ring = swipeRing();
+		if (!from || !touch || !ring || event.touches.length > 0) return;
+		const dx = touch.clientX - from.x;
+		const dy = touch.clientY - from.y;
+		if (
+			event.timeStamp - from.at > SWIPE_MS ||
+			Math.abs(dx) < SWIPE_PX ||
+			Math.abs(dx) < 2 * Math.abs(dy) ||
+			getSelection()?.isCollapsed === false
+		) {
+			return;
+		}
+		const { links, at } = ring;
+		const step = dx < 0 ? 1 : -1;
+		links[(at + step + links.length) % links.length].click();
+	});
+}
+
 /**
  * A section brought back after more than a minute in the background is
  * brought up to date in place, so its figures are current without a reload
@@ -2199,5 +2296,6 @@ themeMenu();
 refreshOnReturn();
 pageLoading();
 pageSwitchShows();
+swipeSections();
 enhance(content.signal);
 scrollToNewBadge();
