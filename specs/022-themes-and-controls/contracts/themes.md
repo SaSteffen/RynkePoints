@@ -75,6 +75,7 @@ The other ten themes:
 | bg | #f5fafb | #fff8f7 | #fcf8ff | #fffcf7 | #0e131c | #0f1612 | #140e19 | #120a22 | #ffffff | #000000 |
 | low | #eef6f8 | #fcf0ef | #f7f1fd | #fff4fa | #141a25 | #151e19 | #1b1421 | #180f2c | #ffffff | #000000 |
 | card | #e3eff3 | #f8e6e6 | #f0e7fa | #f7efff | #19212e | #1a251f | #211928 | #1f1436 | #ffffff | #000000 |
+| high | #d8e4e9 | #eedcdc | #e6dcf0 | #ece4f5 | #232b38 | #242f29 | #2b2332 | #2a1f40 | #ffffff | #000000 |
 | text | #0e1d24 | #26181a | #1e1528 | #23163a | #e6ecf5 | #e3eee6 | #efe6f5 | #f4ecff | #000000 | #ffffff |
 | muted | #3b525c | #5a3f43 | #4d3f5c | #54467a | #b7c3d4 | #b7c9bd | #cdbfd8 | #cdbde8 | #1a1a1a | #f2f2f2 |
 | outline | #6b828c | #87696d | #7c6c8c | #7d6fa6 | #7f8ca0 | #82978a | #9a8aa8 | #9a88bf | #000000 | #ffffff |
@@ -91,8 +92,11 @@ The other ten themes:
 | track | #c3d5dc | #e0c4c7 | #d8cbe6 | #ece4fb | #2a3446 | #2c3a31 | #33283d | #2f2150 | #ffffff | #000000 |
 | fill | #0b8fb3 | #b0365c | #7d52b8 | rainbow | #8cc4f0 | #7fcb92 | #d7a6ec | rainbow | #000000 | #ffe600 |
 
-`surface-container-high` (the menu panel) is a step from `card` toward `text`
-as in the base schemes; the implementer sets it per theme and lists it here.
+`surface-container-high` (`high`, the menu panel) is a step from `card` toward
+`text` as in the base schemes: 5 % of the way, listed above; the contrast
+themes keep their background and get a 2 px `text` border instead. Until the
+rainbow arrives (fun-decorations.md), Konfetti's and Disco's `--rp-reached` is
+their `primary`.
 
 ## Contrast themes: the rest of the roles
 
