@@ -8,14 +8,18 @@ phone; here they are given relative to the viewport.
 
 | Constant | Value |
 |----------|-------|
-| `SHOW_MS` (show; the page changes at its end) | 3200 |
-| `FADE_MS` (reduced motion; the page changes at its end) | 250 |
+| `SHOW_MS` (show) | 3200 |
+| `SHOW_SWAP_MS` (the peak; the section swaps in) | 1600 |
+| `FADE_MS` (reduced motion: fade in, swap, fade out as long again) | 250 |
 
-Changed after release: the show first changed the page at its peak (1.6 s)
-and played the rest on the arriving page from a `sessionStorage` flag
-(research R7). That stuttered, so the whole show now plays on the leaving
-page and the page changes at its end; the flag, the head script's part and
-the `data-show` peak cover are gone.
+Changed after release: the show first loaded the next page at its peak
+(1.6 s) and played the rest on the arriving page from a `sessionStorage` flag
+(research R7). That stuttered; loading at the show's end showed the page
+change. Now nothing loads as a page: the click fetches the section, and at the
+peak it swaps in place (`swapPage`, the same swap as the Team section's views,
+plus the header's section title), with a history entry, at the top of the
+page, the navigation's item focused for a keyboard user. The flag, the head
+script's part and the `data-show` peak cover are gone.
 
 ## When it plays (FR-040, FR-040a, FR-044)
 
@@ -29,12 +33,18 @@ on this device (`localStorage["rp-shows"] = "off"`).
 
 ## Playing
 
-- Skip (FR-043): `pointerdown` or `keydown` anywhere during the show cancels
-  the timer and navigates at once; the overlay catches the tap so it doesn't
-  also hit a control.
-- The page progress bar (#108) starts at the change, not the click.
-- The turning coin has a rim: 13 one-pixel discs between the faces, every
-  other one darker, the faces 6.5 px in front and behind.
+- Skip (FR-043): `pointerdown` or `keydown` anywhere during the show ends it
+  and swaps the section in at once if it is there; the overlay catches the tap
+  so it doesn't also hit a control.
+- Not there by the peak: it swaps in when it arrives; past the show's end the
+  page progress bar (#108) shows. Not swappable (a redirect, an error, a page
+  without the shell): `location.assign` at the show's end.
+- Back and forward: `popstate` to an entry this document pushed swaps that
+  view or section in place, no show (FR-044).
+- The turning coin has a rim: 13 one-pixel discs between the faces, each a
+  `repeating-conic-gradient` of 3° stripes in the rim colour and a darker
+  one (reeding), the two outer discs lighter as a lip; the faces 6.5 px in
+  front and behind.
 - The overlay: `<div class="show show-confetti|show-disco" aria-hidden="true">`,
   `position: fixed; inset: 0; z-index` above everything (nav and header
   included), nothing focusable (FR-046).
@@ -63,8 +73,8 @@ on this device (`localStorage["rp-shows"] = "off"`).
 
 ## Reduced motion (FR-045)
 
-As built: one layer in the surface colour fading in over 250 ms, then the
-page changes. The text below is the first version.
+As built: the text below, one layer in the surface colour, 0 → 1 → 0 over
+500 ms, the section swapping in at 250 ms.
 
 One full-screen layer in the theme's `--md-sys-color-surface`, opacity
 0 → 1 → 0 over 500 ms, switch at 250 ms, the same two halves. No rain, ball,

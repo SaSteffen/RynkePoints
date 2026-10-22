@@ -317,10 +317,16 @@ tap the current tab and see no show.
 
 - **FR-040**: In Konfetti and Disco, tapping another section in the navigation
   bar (top or bottom) MUST play that theme's show over the page, as on the
-  canvas board "Seitenwechsel: Konfetti und Disco": about 3.2 s in total; the
-  page changes at its end, not under it (owner's call after trying the switch
-  at the peak: the show stuttered). Settings, links and buttons inside a page
-  (the Orga page's group tiles, say) and a running tour play nothing.
+  canvas board "Seitenwechsel: Konfetti und Disco": about 3.2 s in total. The
+  new section loads in the background while the show plays and takes the
+  page's place under the show's peak, without a page load, and the show ends
+  over it, so the switch itself is never seen (owner's call: a page load at
+  the peak stuttered, one at the end showed). A section not there by the peak
+  comes in as soon as it is; anything unexpected (signed out, an error) loads
+  the page the usual way at the show's end. Back and forward between sections
+  swapped in this way swap in place too, without a show. Settings, links and
+  buttons inside a page (the Orga page's group tiles, say) and a running tour
+  play nothing.
 - **FR-040a**: Settings MUST offer a switch "Animationen beim Seitenwechsel",
   on by default, that turns the page-switch shows off on this device; the
   themes' other animations stay.
@@ -353,7 +359,7 @@ tap the current tab and see no show.
 - **FR-044**: A reload, a tap on the current tab, and the browser's back and
   forward MUST NOT play a show. Non-fun themes MUST NOT play a show.
 - **FR-045**: With reduced motion the show MUST be replaced by a fade to the
-  surface of about 0.25 s, then the page changes.
+  surface and back of about 0.5 s, the new section swapping in at its middle.
 - **FR-046**: The show MUST be hidden from assistive technology, never take focus,
   and the new page MUST get focus and be announced as any page switch is today.
 - **FR-047**: The show MUST NOT make the switch slower than without it when the
