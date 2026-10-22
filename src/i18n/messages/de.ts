@@ -280,6 +280,8 @@ export const de = {
 		"Termine: die Teamtermine. Sag vorher Bescheid, ob du dabei bist, und melde danach, dass du da warst. Sobald die Orga dich eingetragen hat, gibt es Teamrynke.",
 	"tour.rider.settings":
 		"Einstellungen: Sprache, Benachrichtigungen, deine Strava-Verbindung, die Regeln und dieser Rundgang.",
+	"tour.rider.theme":
+		"Das Farbschema wählst du hier oben, für dieses Gerät. Konfetti und Disco feiern jeden Wechsel zwischen den Bereichen, das lässt sich in den Einstellungen abstellen.",
 	"tour.organiser.intro":
 		"Du bist jetzt in der Orga: Der Orga-Tab ist neu. Wir zeigen dir, was drin ist.",
 	"tour.organiser.riders":
@@ -366,6 +368,8 @@ export const de = {
 	"settings.app": "App",
 	"settings.strava": "Strava-Verbindung",
 	"settings.account": "Konto",
+	"settings.shows": "Animationen",
+	"settings.shows.on": "Animationen beim Seitenwechsel in Konfetti und Disco",
 	"settings.tour": "Rundgang",
 	"settings.tour.rider": "Rundgang noch mal zeigen",
 	"settings.tour.organiser": "Orga-Rundgang noch mal zeigen",

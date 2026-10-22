@@ -1,5 +1,6 @@
-import { test as base, expect, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { signIn, skipTours } from "./sign-in";
+import { test as base } from "./test";
 
 // Smoke tests in every browser (chromium, firefox, webkit): each page loads
 // without a script error, fits a small phone, a phone and a desktop without sideways
@@ -7,7 +8,7 @@ import { signIn, skipTours } from "./sign-in";
 // fake mode's synthetic samples (dev/fake-strava/samples.ts).
 
 /** Fails the test on any uncaught error or `console.error` in the page. */
-const test = base.extend<{ errors: string[]; noPushInWebKit: undefined }>({
+const test = base.extend<{ errors: string[] }>({
 	errors: [
 		async ({ page }, use) => {
 			const errors: string[] = [];
@@ -17,20 +18,6 @@ const test = base.extend<{ errors: string[]; noPushInWebKit: undefined }>({
 			});
 			await use(errors);
 			expect(errors).toEqual([]);
-		},
-		{ auto: true },
-	],
-	// Playwright's WebKit has no push service: getSubscription() never returns
-	// and blocks the page. Without PushManager, the app treats it as a browser
-	// without push and Settings shows notifications as unsupported.
-	noPushInWebKit: [
-		async ({ page, browserName }, use) => {
-			if (browserName === "webkit") {
-				await page.addInitScript(() => {
-					delete (globalThis as { PushManager?: unknown }).PushManager;
-				});
-			}
-			await use(undefined);
 		},
 		{ auto: true },
 	],
@@ -239,6 +226,8 @@ test.describe("the continuous ride list (018)", () => {
 test("a rider walks through the tour with the example rider (020)", async ({
 	page,
 }) => {
+	// Twelve pages after an import that may take up to 30 s itself.
+	test.setTimeout(90_000);
 	await signIn(page, "Vera Virtual");
 	// The tour waits for the first import (issue #119); the page polls itself.
 	await page.goto("/me");
@@ -251,16 +240,16 @@ test("a rider walks through the tour with the example rider (020)", async ({
 	// Each step points at its navigation item, or at an element of its page
 	// (feature 020 FR-003); Vera isn't an organiser, so Termine is in (FR-001).
 	for (const [path, step, target] of [
-		["/team", "1 von 11", null],
-		["/team", "2 von 11", "tour-peloton"],
-		["/me", "3 von 11", null],
-		["/me", "4 von 11", "tour-elevation"],
-		["/me", "5 von 11", "tour-team"],
-		["/me", "6 von 11", "tour-outdoor"],
-		["/me/rides", "7 von 11", "tour-rejected-ride"],
-		["/me/rides", "8 von 11", "tour-short-ride"],
-		["/me/badges", "9 von 11", null],
-		["/events", "10 von 11", null],
+		["/team", "1 von 12", null],
+		["/team", "2 von 12", "tour-peloton"],
+		["/me", "3 von 12", null],
+		["/me", "4 von 12", "tour-elevation"],
+		["/me", "5 von 12", "tour-team"],
+		["/me", "6 von 12", "tour-outdoor"],
+		["/me/rides", "7 von 12", "tour-rejected-ride"],
+		["/me/rides", "8 von 12", "tour-short-ride"],
+		["/me/badges", "9 von 12", null],
+		["/events", "10 von 12", null],
 	] as const) {
 		await expect(tour).toContainText(step);
 		if (target) {
@@ -278,7 +267,12 @@ test("a rider walks through the tour with the example rider (020)", async ({
 		await tour.getByRole("link", { name: "Weiter" }).click();
 	}
 	await expect(page).toHaveURL(/\/me\/settings\?tour=rider&step=11$/);
-	await expect(tour).toContainText("11 von 11");
+	await expect(tour).toContainText("11 von 12");
+	await tour.getByRole("link", { name: "Weiter" }).click();
+	// The last step points at the theme button in the header (feature 022).
+	await expect(tour).toContainText("12 von 12");
+	await expect(tour).toHaveAttribute("data-target", "tour-theme");
+	await expect(page.locator("#tour-theme")).toBeInViewport();
 	await tour.getByRole("button", { name: "Alles klar" }).click();
 	await expect(page).toHaveURL(/\/me\/settings$/);
 	await expect(tour).toHaveCount(0);

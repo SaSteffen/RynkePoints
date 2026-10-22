@@ -262,6 +262,8 @@ export const en: Catalog = {
 		"Events: the team events. Say beforehand whether you're coming, and report afterwards that you were there. Once the organisers have added you, you get Team Rynke.",
 	"tour.rider.settings":
 		"Settings: language, notifications, your Strava connection, the rules, and this tour again.",
+	"tour.rider.theme":
+		"Pick the colour scheme up here, for this device. Confetti and Disco celebrate every switch between sections; Settings can turn that off.",
 	"tour.organiser.intro":
 		"You're an organiser now: the Orga tab is new. Let us show you around.",
 	"tour.organiser.riders":
@@ -345,6 +347,9 @@ export const en: Catalog = {
 	"settings.app": "App",
 	"settings.strava": "Strava connection",
 	"settings.account": "Account",
+	"settings.shows": "Animations",
+	"settings.shows.on":
+		"Animations when switching sections in Confetti and Disco",
 	"settings.tour": "Tours",
 	"settings.tour.rider": "Show the tour again",
 	"settings.tour.organiser": "Show the Orga tour again",

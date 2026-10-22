@@ -191,8 +191,7 @@ ${disco} .theme-badge{background:var(--rp-fun-disco-badge);box-shadow:0 0 0 2px 
 /**
  * The page-switch shows of the fun themes (feature 022 US4,
  * contracts/page-switch-show.md, board Transitions): `public/app.js` mounts
- * the overlay, over everything, for 3.2 s; the arriving page first paints the
- * show's peak from `data-show` alone, and its celebrations wait for the show.
+ * the overlay, over everything, for 3.2 s, and the page changes at its end.
  */
 const SHOW_RULES = (() => {
 	const star =
@@ -202,16 +201,15 @@ const SHOW_RULES = (() => {
 	return `.show{position:fixed;inset:0;z-index:20;overflow:hidden;--show-rynke:max(170px,33vh)}
 .show>*{position:absolute;pointer-events:none}
 .show img{display:block;width:100%;height:auto}
-:root[data-show=confetti]::before,:root[data-show=disco]::before{content:"";position:fixed;inset:0;z-index:20;pointer-events:none;animation:show-cover 0s 2s forwards}
-:root[data-show=confetti]::before{background:radial-gradient(circle calc(${rainbow} * .7072) at 50% 100%,var(--rp-show-bands))}
-:root[data-show=disco]::before{background:var(--rp-show-room)}
-:root[data-show] .celebrate-coins .coin-mini,:root[data-show] .badges-reveal-pictures img,:root[data-show] .badge-sparkles>span{animation-play-state:paused}
 .show-rainbow{left:calc(50% - ${rainbow} / 2);top:calc(100% - ${rainbow} / 2);width:${rainbow};height:${rainbow};border-radius:50%;background:radial-gradient(circle,var(--rp-show-bands));transform:scale(0);animation:show-rainbow ${play} cubic-bezier(.5,0,.3,1) forwards}
 .show-pop{left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;opacity:0;animation:show-pop ${play} ease-in-out forwards}
 .show-pop{perspective:600px}
 .show-pop-turn{position:absolute;inset:0;transform-style:preserve-3d;animation:show-spin 1.1s linear infinite}
 .show-pop img{position:absolute;inset:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-.show-pop .show-pop-back{transform:rotateY(180deg)}
+.show-pop .show-pop-front{transform:translateZ(6.5px)}
+.show-pop .show-pop-back{transform:rotateY(180deg) translateZ(6.5px)}
+.show-pop-edge{position:absolute;inset:1px;border-radius:50%;background:repeating-conic-gradient(var(--rp-coin-rim) 0 3deg,color-mix(in srgb,var(--rp-coin-rim) 62%,var(--rp-coin-ink)) 3deg 6deg);transform:translateZ(var(--z))}
+.show-pop-edge:first-of-type,.show-pop-edge:nth-of-type(13){background:color-mix(in srgb,var(--rp-coin-rim) 70%,var(--rp-coin-face))}
 .show-piece{top:-24px;border-radius:2px;animation:show-fall linear both;animation-timing-function:cubic-bezier(.3,.1,.6,1)}
 .show-piece.round,.show-piece.coin{border-radius:50%}
 .show-piece.coin{width:20px;height:20px;animation-name:show-coin-fall}
@@ -235,8 +233,7 @@ const SHOW_RULES = (() => {
 .show-floor{left:calc(50% - var(--show-rynke) * .75);bottom:70px;width:calc(var(--show-rynke) * 1.5);height:calc(var(--show-rynke) * .33);border-radius:50%;opacity:0;background:var(--rp-show-floor);animation:show-dancer ${play} ease-in-out forwards}
 .show-dancer{left:calc(50% - var(--show-rynke) / 2);bottom:calc(70px + var(--show-rynke) * .15);width:var(--show-rynke);opacity:0;animation:show-dancer ${play} ease-in-out forwards}
 .show-dancer img{transform-origin:50% 95%;animation:show-groove .5s ease-in-out infinite alternate}
-.show-fade{inset:0;opacity:0;background:var(--md-sys-color-surface);animation:show-fade .5s ease-in-out forwards}
-@media (prefers-reduced-motion:reduce){:root[data-show=confetti]::before,:root[data-show=disco]::before{background:var(--md-sys-color-surface)}}`;
+.show-fade{inset:0;opacity:0;background:var(--md-sys-color-surface);animation:show-fade .5s ease-in-out forwards}`;
 })();
 
 /** The disclosure's chevron, a mask in the text's colour (022 contracts/controls.md). */
@@ -449,10 +446,10 @@ button:has(>img.cws){display:inline-block;min-height:0;padding:0;border:0;border
 .settings-group .notice{margin:0;padding:0}
 .settings-group form{margin:0 0 var(--rp-space-3)}
 .settings-group>:last-child,.settings-group .notice p{margin-bottom:0}
-#notifications{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:var(--rp-space-3)}
-#notifications>*{grid-column:1/-1}
-#notifications>[data-state]{grid-column:1;margin:0}
-#notifications>[role=switch]{grid-column:2}
+#notifications,#settings-shows{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:var(--rp-space-3)}
+#notifications>*,#settings-shows>*{grid-column:1/-1}
+#notifications>[data-state],#settings-shows>p{grid-column:1;margin:0}
+#notifications>[role=switch],#settings-shows>[role=switch]{grid-column:2}
 [hidden]{display:none!important}
 .page-loading{position:fixed;top:env(safe-area-inset-top);left:0;right:0;height:4px;overflow:hidden;background:var(--md-sys-color-outline-variant);pointer-events:none;z-index:12}
 .page-loading::before{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:var(--md-sys-color-primary);animation:page-loading 1.2s cubic-bezier(.4,0,.2,1) infinite}
@@ -815,7 +812,6 @@ ${SHOW_RULES}
 @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0}15%{opacity:1}100%{transform:translateY(150px) rotate(420deg);opacity:0}}
 @keyframes glow{from{box-shadow:var(--rp-fun-glow-a)}to{box-shadow:var(--rp-fun-glow-b)}}
 @keyframes discobadge{to{background-position:0 0,0 0,4px 0,0 0}}
-@keyframes show-cover{to{visibility:hidden}}
 @keyframes show-rainbow{0%{transform:scale(0)}42%,58%{transform:scale(1)}100%{transform:scale(0)}}
 @keyframes show-pop{0%,30%{opacity:0;transform:scale(.2) rotate(-30deg)}44%{opacity:1;transform:scale(1.15) rotate(8deg)}50%{transform:scale(1) rotate(0deg)}58%{opacity:1;transform:scale(1) rotate(0deg)}70%,100%{opacity:0;transform:scale(.3) rotate(25deg)}}
 @keyframes show-spin{to{transform:rotateY(360deg)}}
@@ -833,4 +829,4 @@ ${SHOW_RULES}
 @keyframes show-sweep{to{translate:var(--dx) var(--dy)}}
 @keyframes show-dancer{0%,22%{opacity:0;transform:translateY(40px)}40%,62%{opacity:1;transform:translateY(0)}86%,100%{opacity:0;transform:translateY(40px)}}
 @keyframes show-groove{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
-@keyframes show-fade{0%,100%{opacity:0}50%{opacity:1}}`;
+@keyframes show-fade{50%{opacity:1}to{opacity:0}}`;

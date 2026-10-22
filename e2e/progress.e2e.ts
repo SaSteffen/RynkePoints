@@ -1,5 +1,6 @@
-import { test as base, expect, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { signIn, skipTours } from "./sign-in";
+import { test as base } from "./test";
 
 // The Overview's progress charts in every browser (feature 009 research R13):
 // the period buttons, drag, keys, wheel and touch gestures keep both charts
@@ -9,7 +10,7 @@ import { signIn, skipTours } from "./sign-in";
 // synthetic samples (dev/fake-strava/samples.ts).
 
 /** Fails the test on any uncaught error or `console.error` in the page. */
-const test = base.extend<{ errors: string[]; noPushInWebKit: undefined }>({
+const test = base.extend<{ errors: string[] }>({
 	errors: [
 		async ({ page }, use) => {
 			const errors: string[] = [];
@@ -19,18 +20,6 @@ const test = base.extend<{ errors: string[]; noPushInWebKit: undefined }>({
 			});
 			await use(errors);
 			expect(errors).toEqual([]);
-		},
-		{ auto: true },
-	],
-	// Playwright's WebKit has no push service (see smoke.e2e.ts).
-	noPushInWebKit: [
-		async ({ page, browserName }, use) => {
-			if (browserName === "webkit") {
-				await page.addInitScript(() => {
-					delete (globalThis as { PushManager?: unknown }).PushManager;
-				});
-			}
-			await use(undefined);
 		},
 		{ auto: true },
 	],

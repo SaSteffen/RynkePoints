@@ -92,6 +92,12 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			riderOnly: true,
 		},
 		{ path: "/me/settings", section: "settings", text: "tour.rider.settings" },
+		{
+			path: "/me/settings",
+			section: "settings",
+			text: "tour.rider.theme",
+			target: "tour-theme",
+		},
 	],
 	organiser: [
 		{
