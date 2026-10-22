@@ -555,8 +555,13 @@ function pageLoading() {
 
 /** The page-switch show's length; the page changes at its end (022). */
 const SHOW_MS = 3200;
-/** The show's peak, where it covers the page and the next section swaps in. */
-const SHOW_SWAP_MS = 1600;
+/**
+ * Half a second before the show's end: the page fades out, the next section
+ * swaps in and fades in, so the swap's hitch falls where the show is nearly
+ * gone, not into its peak.
+ */
+const SHOW_SWAP_MS = 2450;
+const SECTION_FADE_MS = 250;
 /** Reduced motion: a fade to the surface instead. */
 const FADE_MS = 250;
 /** The Konfetti rain: as many coins as confetti pieces, in turn. */
@@ -713,9 +718,9 @@ function buildShow(theme, reduced) {
 
 /**
  * Plays the show over this page while the section at `href` loads in the
- * background, swaps it in at the show's peak, where the show covers the page,
- * and ends the show over it: no page load to see. A section not there by the
- * peak comes in once it is, past the show's end with the progress bar (#108).
+ * background, then shortly before the show's end fades the page into that
+ * section in place (`SHOW_SWAP_MS`): no page load to see. A section not there
+ * by then comes in once it is, past the show's end with the progress bar (#108).
  * Anything unexpected (signed out, an error) loads the page the usual way at
  * the show's end. A tap or a key skips the show, straight to the section; the
  * overlay takes the tap so it doesn't also hit a control.
@@ -728,13 +733,30 @@ function leaveWithShow(theme, href) {
 	let peaked = false;
 	let arrived = false;
 	let over = false;
-	const arrive = () => {
+	const arrive = async (fade) => {
 		if (arrived) return;
 		arrived = true;
+		const main = document.querySelector("main");
+		const out =
+			doc && fade && main
+				? main.animate(
+						{ opacity: [1, 0] },
+						{ duration: SECTION_FADE_MS, easing: "ease-in", fill: "forwards" },
+					)
+				: null;
+		await out?.finished.catch(() => {});
 		if (doc && swapSection(doc, href)) {
 			stopLoading();
+			out?.cancel();
+			if (out) {
+				main.animate(
+					{ opacity: [0, 1] },
+					{ duration: SECTION_FADE_MS, easing: "ease-out" },
+				);
+			}
 			return;
 		}
+		out?.cancel();
 		startLoading();
 		location.assign(href);
 	};
@@ -745,7 +767,7 @@ function leaveWithShow(theme, href) {
 		clearTimeout(timer);
 		document.removeEventListener("keydown", skip, true);
 		show.remove();
-		if (doc !== undefined) arrive();
+		if (doc !== undefined) arrive(false);
 		else startLoading();
 	};
 	const skip = (event) => {
@@ -754,12 +776,13 @@ function leaveWithShow(theme, href) {
 	};
 	fetchSection(href).then((page) => {
 		doc = page;
-		if (over || (doc && peaked)) arrive();
+		if (over) arrive(false);
+		else if (doc && peaked) arrive(!reduced);
 	});
 	const peak = setTimeout(
 		() => {
 			peaked = true;
-			if (doc) arrive();
+			if (doc) arrive(!reduced);
 		},
 		reduced ? FADE_MS : SHOW_SWAP_MS,
 	);
