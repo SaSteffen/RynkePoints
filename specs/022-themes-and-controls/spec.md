@@ -92,6 +92,10 @@ behaviour; the disagreement is noted and resolved with the owner.
   monkeys.
 - Q: How bright is the rainbow? → A: Bright and saturated, without dark bands
   (no deep purple, navy or dark red), and the same rainbow everywhere in Konfetti.
+- Q: Do Rynke Tag and Rynke Nacht stay exactly as today where the canvas
+  shows them differently? → A: No, the owner prefers the canvas colours: the
+  light gauge track becomes #e3dcc0, and the gauge fill becomes #1c1b13
+  (Rynke Tag) and #fbe122 (Rynke Nacht) instead of today's green.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -282,7 +286,8 @@ tap the current tab and see no show.
 - **FR-016**: The Settings page MUST no longer offer the colour scheme. This
   replaces feature 011 FR-032a's place for the choice.
 - **FR-017**: The themes MUST have the colours of the canvas board "Alle zwölf
-  Themes". Rynke Tag and Rynke Nacht MUST stay as today.
+  Themes", Rynke Tag and Rynke Nacht included: where the canvas differs
+  from today (the light gauge track, the gauge fill of both), the canvas wins.
 - **FR-018**: In every theme, text and controls MUST meet 4.5 : 1 for body text
   and 3 : 1 for large text, icons and outlines (feature 011 FR-033). In the two
   high-contrast themes all text MUST meet at least 7 : 1.

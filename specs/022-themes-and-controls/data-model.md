@@ -14,7 +14,8 @@ lives in code or in the browser of one device.
 | `tokens` | `Record<string, string>` | overrides of the base scheme's tokens; empty for `rynke-day` and `rynke-night` |
 | `preview` | `{ bg, hero, pc, primary, card, text }` | menu tile colours |
 
-Rules: exactly twelve; `rynke-day`/`rynke-night` have no overrides (FR-017);
+Rules: exactly twelve; `rynke-day`/`rynke-night` have no overrides (they are the base light and
+dark rules, with the canvas's track and fill, FR-017);
 the contrast themes set `--rp-outline-width: 2px`. The stylesheet, the head
 script's id → [scheme, bg] table, the menu and the contrast test all read this
 list.

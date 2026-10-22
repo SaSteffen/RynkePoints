@@ -36,6 +36,8 @@ Three phases, each shippable on its own:
   R2, R3), and the server-rendered menu behind a palette button next to the
   refresh link (radio group in a dialog panel, R6). Settings loses its scheme
   choice. Konfetti and Disco get their decorations as CSS (fun-decorations.md).
+  Rynke Tag and Rynke Nacht take the canvas's gauge track and fill (owner's
+  choice, research R4).
 - **Phase 3 – page-switch shows (US4)**: tabs are full page loads, so each
   show plays in two halves: the leaving page plays 0–1.6 s and navigates at
   the peak; a sessionStorage flag lets the arriving page's head script paint a

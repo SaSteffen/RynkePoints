@@ -49,7 +49,7 @@ own.
 | `fill` | `--rp-reached` (fun themes: the rainbow, see fun-decorations.md) |
 | `high` (menu panel, Main board) | `--md-sys-color-surface-container-high` |
 
-New tokens in Rynke Tag and Rynke Nacht, so nothing changes there:
+New tokens in Rynke Tag and Rynke Nacht, set to the values used today:
 `--rp-on-hero: var(--rp-coin-face)`, `--rp-hero-accent: var(--rp-coin-yellow)`,
 `--rp-primary-text: var(--md-sys-color-primary)`. Every rule that today colours
 hero text with `--rp-coin-face` / `--rp-coin-yellow`, and every link, outlined
@@ -58,8 +58,17 @@ text, uses the new tokens instead.
 
 ## Values
 
-Rynke Tag and Rynke Nacht are today's light and dark token sets, unchanged
-(FR-017); the gallery's lighter Rynke Tag track is not taken over (research R4).
+Rynke Tag and Rynke Nacht are today's light and dark token sets with the
+canvas's values where they differ (FR-017, research R4), changed in the base
+light and dark rules:
+
+| Token | Rynke Tag (today → canvas) | Rynke Nacht (today → canvas) |
+|-------|----------------------------|------------------------------|
+| `--rp-track` | #1c1b13 → #e3dcc0 | #3a382c (unchanged) |
+| `--rp-reached` (gauge fill) | #7fcb92 → #1c1b13 | #7fcb92 → #fbe122 |
+
+Every other Rynke Tag/Nacht role on the canvas equals today's value.
+The other ten themes:
 
 | Role | Ostsee | Paris | Flieder | Konfetti | Nachtfahrt | Wald | Pflaume | Disco | Kontrast hell | Kontrast dunkel |
 |------|--------|-------|---------|----------|------------|------|---------|-------|---------------|-----------------|

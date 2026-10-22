@@ -19,8 +19,9 @@ says so.
 - **Rationale**: Everything that already follows the scheme keeps working with
   no change: the Strava light/dark images (`SHOW_DARK`), `color-scheme`, and
   the charts' recolouring, which watches `data-scheme` (it also watches
-  `data-theme` from now on). Rynke Tag and Rynke Nacht are exactly today's
-  light and dark (FR-017), so they need no rule of their own.
+  `data-theme` from now on). Rynke Tag and Rynke Nacht are today's light
+  and dark with the canvas's track and fill (FR-017), changed in the base
+  rules, so they need no rule of their own.
 - **Alternatives considered**: Replacing `data-scheme` with `data-theme` only —
   every existing selector and test touching the scheme would change for no
   gain. One stylesheet per theme — twelve requests or a swap on choice, and a
@@ -70,9 +71,11 @@ says so.
   implementer picks a value in the theme's hue that passes and adds it to
   `contracts/themes.md`. The high-contrast themes set them all (values from the
   canvas board "Ein Satz Bedienelemente").
-- **Rynke Tag/Nacht vs. the gallery**: the gallery's Rynke Tag shows a lighter
-  track (`#e3dcc0`) than today's light `--rp-track`. FR-017 keeps both themes
-  as today, so today's values win; noted for the owner, not changed.
+- **Rynke Tag/Nacht vs. the gallery**: the gallery differs from today in two
+  roles: the light track (`#e3dcc0`, today `#1c1b13`) and the gauge fill
+  (`#1c1b13` light, `#fbe122` dark, today green `#7fcb92`). The owner prefers
+  the canvas (clarification 2026-10-22), so the base light and dark tokens
+  take the canvas values.
 - **Alternatives considered**: Deriving every theme from a seed colour with
   Material's algorithm — needs a library (Principle IV) and wouldn't reproduce
   the canvas.
