@@ -42,7 +42,8 @@ boards are part of this specification:
 | "Konfetti (hell) und Disco (dunkel)" | The two fun themes on a page: background, glitter, rainbow strips and bars, glow, the badge on the palette button |
 | "Ein Satz Bedienelemente" | Today's inconsistencies and the one set of controls, shown in four themes |
 | "Alle zwölf Themes" | The colours of all twelve themes |
-| "Seitenwechsel: Konfetti und Disco (klickbar)" | Both page-switch animations, their timing, the coin rain, tap to skip and the reduced-motion fade |
+| "Seitenwechsel: Konfetti und Disco (klickbar)" | Both page-switch animations, their timing, the coin rain, Rynke's place and movement, tap to skip and the reduced-motion fade |
+| "Rynke in den Seitenwechseln (Entwurf)" | Rynke on the unicorn (Konfetti) and in the disco outfit (Disco): the pose, the outfit and the draft scene text for the generated pictures. The drawings there are hand-made stand-ins; the app gets generated pictures (FR-048) |
 
 Planning MUST read the canvas with the Artifact tool and write its look (colour
 values, sizes, timings, the order of elements) into the design contracts.
@@ -85,6 +86,10 @@ behaviour; the disagreement is noted and resolved with the owner.
 - Q: Which page switches animate? → A: Following a link or tab to another page
   of the app. A reload, a tap on the current tab, and the browser's back and
   forward never animate. A tap during the animation skips it.
+- Q: Is Rynke in the shows? → A: Yes, at the base of each: riding a unicorn in
+  Konfetti, in a disco outfit with the Saturday-Night-Fever pose in Disco. The
+  canvas has hand-drawn drafts; the final pictures are generated like the quote
+  monkeys.
 - Q: How bright is the rainbow? → A: Bright and saturated, without dark bands
   (no deep purple, navy or dark red), and the same rainbow everywhere in Konfetti.
 
@@ -317,6 +322,22 @@ tap the current tab and see no show.
 - **FR-042**: Disco's show: the room darkens, a disco ball drops in on its wire
   with a bounce and turns, light beams rotate from it and coloured spots sweep the
   page.
+- **FR-042a**: Rynke, the app's monkey, MUST be part of both shows, at their base.
+  In Konfetti, Rynke rides a unicorn with a rainbow mane and tail, comes up from the
+  bottom with the rainbow, gallops at its foot while it covers the page, and goes
+  back down with it. In Disco, Rynke stands on the dance floor under the ball in a
+  disco outfit, in the classic disco pose (one arm pointing up diagonally, the other
+  down, hip out), appears as the room darkens, sways to the beat, and leaves with
+  the room. Placement and movement as on the canvas board "Seitenwechsel".
+- **FR-048**: The two Rynke pictures MUST be generated like the quote monkeys
+  (`art/quotes/`, `pnpm badge-art` and `pnpm badge-build`), from the same
+  reference and prompt rules, so Rynke looks as everywhere else in the app: the
+  yellow helmet stays on, the figure stays androgynous, no jewellery. The scenes
+  start from the draft texts on the canvas board "Rynke in den Seitenwechseln".
+  The unicorn's mane and tail MAY use the bright rainbow of FR-031, the only
+  colours beyond the art's usual palette.
+- **FR-049**: Until a picture is built, its show plays without Rynke; the hand-drawn
+  drafts from the canvas never ship.
 - **FR-043**: A tap or key press during the show MUST stop it and show the new
   page at once.
 - **FR-044**: A reload, a tap on the current tab, and the browser's back and
