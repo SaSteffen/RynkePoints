@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { THEMES } from "../../src/http/themes";
 import {
 	CATALOGS,
 	DEFAULT_LOCALE,
@@ -23,7 +24,8 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // specs/018-lazy-rides-list/contracts/catalog.md and
 // specs/019-event-participation-requests/contracts/messages.md and
 // specs/020-onboarding-tour/contracts/messages.md and
-// specs/021-season-rollover/contracts/messages.md.
+// specs/021-season-rollover/contracts/messages.md and
+// specs/022-themes-and-controls/contracts/messages.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
 	"rynke.rides.total",
@@ -254,11 +256,6 @@ const CONTRACT_IDS = [
 	"celebrate.both",
 	"landing.tagline",
 	"settings.language",
-	"settings.appearance",
-	"settings.scheme.system",
-	"settings.scheme.light",
-	"settings.scheme.dark",
-	"settings.appearance.hint",
 	"settings.app",
 	"settings.strava",
 	"settings.account",
@@ -733,6 +730,18 @@ const CONTRACT_IDS = [
 	"album.stickers.count",
 	"album.stickers.secret",
 	"album.cutoff",
+	// Feature 022
+	"theme.button",
+	"theme.menu.title",
+	"theme.menu.close",
+	"theme.menu.note",
+	"theme.auto",
+	"theme.auto.hint",
+	"theme.group.light",
+	"theme.group.dark",
+	"theme.group.contrast",
+	"theme.sparkle",
+	...THEMES.map((t) => `theme.name.${t.id}`),
 ];
 
 const placeholders = (text: string) =>
@@ -819,6 +828,47 @@ describe("catalog contents", () => {
 			"Gelöschte Daten bleiben noch bis zu 7\u00a0Tage in den Sicherungen unseres Hosting-Anbieters.",
 		);
 		expect(de["brand.connectWithStrava.alt"]).toBe("Mit Strava verbinden");
+	});
+
+	it("names the themes as the canvas does (022 contracts/themes.md)", () => {
+		expect(THEMES.map((t) => de[`theme.name.${t.id}`])).toEqual([
+			"Rynke Tag",
+			"Ostsee",
+			"Paris",
+			"Flieder",
+			"Konfetti",
+			"Rynke Nacht",
+			"Nachtfahrt",
+			"Wald",
+			"Pflaume",
+			"Disco",
+			"Kontrast hell",
+			"Kontrast dunkel",
+		]);
+		expect(THEMES.map((t) => en[`theme.name.${t.id}`])).toEqual([
+			"Rynke Day",
+			"Baltic",
+			"Paris",
+			"Lilac",
+			"Confetti",
+			"Rynke Night",
+			"Night Ride",
+			"Forest",
+			"Plum",
+			"Disco",
+			"High contrast light",
+			"High contrast dark",
+		]);
+		for (const id of [
+			"settings.appearance",
+			"settings.appearance.hint",
+			"settings.scheme.system",
+			"settings.scheme.light",
+			"settings.scheme.dark",
+		]) {
+			expect(Object.keys(de)).not.toContain(id);
+			expect(Object.keys(en)).not.toContain(id);
+		}
 	});
 
 	it("names the two kinds of Rynke as the team does (FR-060)", () => {

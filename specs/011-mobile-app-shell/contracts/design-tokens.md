@@ -74,6 +74,16 @@ uses rim, ink, face and yellow too.
   under `:root[data-scheme=dark]`.
 - `[data-scheme]` is set before paint by the head script
   ([client.md](client.md)).
+- Since feature 022 (FR-016) the choice is no longer made on Settings but in
+  the header's theme menu: twelve themes, each a base scheme (`data-scheme`)
+  plus its own overrides under `:root[data-theme=<id>]`
+  ([022 themes.md](../../022-themes-and-controls/contracts/themes.md)).
+  Feature 022 adds these tokens: `--rp-type-control`, `--rp-type-status`,
+  `--rp-outline-width`, `--rp-menu-shadow`, `--rp-rainbow`,
+  `--rp-rainbow-loop`, `--rp-on-hero`, `--rp-hero-accent`,
+  `--rp-primary-text`, `--rp-selected-edge`, `--rp-auto-light`,
+  `--rp-auto-dark`, and the fun themes' decoration and show colours
+  `--rp-fun-*` and `--rp-show-*`, the same in both schemes like the coin's.
 
 ## Type scale (system font stack, FR-037)
 

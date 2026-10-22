@@ -1,0 +1,17 @@
+{
+	"snippets": {
+		"kit": "The character wears its yellow cycling helmet with three black vents and its yellow jersey with a small round black collar and a short black zip line, black cycling shorts and black cycling shoes with cream soles. No bike."
+	},
+	"shows": [
+		{
+			"id": "unicorn",
+			"name": "Auf dem Einhorn",
+			"scene": "In its cycling kit ({{kit}}). Riding a cheerful unicorn, seen from the side, flying through the air, galloping upward to the viewer's right: cream (#FFFDF5) body, black hooves, a short gold (#C99A2E) and yellow (#FBE122) spiralled horn, a flowing mane and tail in rainbow stripes. The character sits on its back, one hand holding the mane, the other arm waving high. No saddle, no reins, no ground, no rainbow in the background."
+		},
+		{
+			"id": "disco",
+			"name": "Disco",
+			"scene": "Disco outfit instead of the cycling kit, but the yellow helmet with its three black vents stays on: a cream (#FFFDF5) three-piece suit with wide lapels and wide flared trousers, a yellow (#FBE122) shirt with a huge pointed collar laid over the lapels, black shoes. The classic disco pose: one arm stretched up diagonally to the upper right, index finger pointing at the sky, the other arm stretched down diagonally to the lower left, hip pushed out, one leg straight, the other knee bent outward. Dancing with a big grin. No disco ball, no floor, no lights."
+		}
+	]
+}

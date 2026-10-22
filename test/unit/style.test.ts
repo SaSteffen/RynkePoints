@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BADGE_RIBBON_MASK } from "../../src/badges/outline";
 import { STYLE } from "../../src/http/style";
+import { THEMES } from "../../src/http/themes";
 import { declsOf, RULES } from "../support/css";
 
 // The stylesheet's phone guarantees, read from its rules since workerd can't
@@ -36,7 +37,7 @@ describe("STYLE", () => {
 		".organiser-form input",
 		".organiser-form select",
 		".organiser-event>a",
-		".organiser-confirm>summary",
+		"summary",
 	])("gives %s the 44 px tap height", (selector) => {
 		expect(declsOf(selector)["min-height"]).toBe("var(--rp-tap)");
 	});
@@ -50,7 +51,12 @@ describe("STYLE", () => {
 	});
 
 	it(`sets no width above ${PHONE_PX} px below 600 px`, () => {
-		const wide = RULES.filter((rule) => rule.media !== WIDE).flatMap((rule) =>
+		// The page-switch show's pieces sit in a fixed overlay that clips them.
+		const inShow = (rule: (typeof RULES)[number]) =>
+			rule.selectors.every((s) => s.startsWith(".show-"));
+		const wide = RULES.filter(
+			(rule) => rule.media !== WIDE && !inShow(rule),
+		).flatMap((rule) =>
 			["width", "min-width"].flatMap((prop) => {
 				const value = rule.decls[prop];
 				const length = value === undefined ? null : px(value);
@@ -430,8 +436,14 @@ describe("STYLE", () => {
 	});
 
 	it("turns the transitions and animations off for reduced motion (FR-038)", () => {
+		// The page-switch show's peak turns into the plain surface instead
+		// (022 FR-045), tested with the shows.
 		const reduced = RULES.filter(
-			(rule) => rule.media === "(prefers-reduced-motion:reduce)",
+			(rule) =>
+				rule.media === "(prefers-reduced-motion:reduce)" &&
+				!rule.selectors.every((s) =>
+					/^:root\[data-show=\w+\]::before$/.test(s),
+				),
 		);
 		expect(reduced.length).toBeGreaterThan(0);
 		for (const rule of reduced) {
@@ -549,6 +561,284 @@ describe("STYLE", () => {
 		).toBe("none");
 	});
 
+	describe("the one set of controls (022 contracts/controls.md)", () => {
+		const CONTROL = "var(--rp-type-control)";
+		const OUTLINE = "var(--rp-outline-width)";
+
+		it.each([
+			".button",
+			".button-outlined",
+			".button-text",
+			".danger",
+			".segmented",
+			".segmented-group label",
+			".chip[aria-pressed]",
+			".segmented-group.badges-filter label",
+			".list-scope .segmented",
+			"summary",
+			".more>summary",
+			".ride-why>summary",
+			".event-button",
+		])("gives %s the control type and the 44 px height", (selector) => {
+			expect(declsOf(selector).font).toBe(CONTROL);
+			expect(declsOf(selector)["min-height"]).toBe("var(--rp-tap)");
+		});
+
+		it("gives icon buttons 44 × 44 px and the open state primary-container", () => {
+			expect(declsOf(".icon-button")).toMatchObject({
+				"min-width": "var(--rp-tap)",
+				"min-height": "var(--rp-tap)",
+				"border-radius": "var(--md-shape-full)",
+			});
+			expect(declsOf(".icon-button[aria-expanded=true]")).toMatchObject({
+				background: "var(--md-sys-color-primary-container)",
+				color: "var(--md-sys-color-on-primary-container)",
+			});
+		});
+
+		it("draws filled, outlined, text and danger buttons as the canvas does", () => {
+			const base = declsOf(".button");
+			expect(base).toMatchObject({
+				padding: "0 20px",
+				"border-radius": "var(--md-shape-full)",
+				border: "0",
+				background: "var(--md-sys-color-primary)",
+				color: "var(--md-sys-color-on-primary)",
+			});
+			expect(declsOf(".button-outlined")).toMatchObject({
+				border: `${OUTLINE} solid transparent`,
+				"border-color": "var(--md-sys-color-outline)",
+				color: "var(--rp-primary-text)",
+			});
+			expect(declsOf(".button-text")).toMatchObject({
+				padding: "0 var(--rp-space-3)",
+				border: "0",
+				color: "var(--rp-primary-text)",
+			});
+			expect(declsOf(".danger")).toMatchObject({
+				"border-color": "var(--md-sys-color-error)",
+				color: "var(--md-sys-color-error)",
+			});
+		});
+
+		it("joins segments into a pill with the outline width", () => {
+			expect(declsOf(".segmented").border).toBe(
+				`${OUTLINE} solid var(--md-sys-color-outline)`,
+			);
+			expect(declsOf(".segmented+.segmented")["margin-left"]).toBe(
+				`calc(-1 * ${OUTLINE})`,
+			);
+			expect(declsOf("nav.kind-switch")).toEqual({
+				display: "flex",
+				margin: "0 0 var(--rp-space-3)",
+			});
+		});
+
+		it("draws filter chips 36 px high inside a 44 px tap area with 8 px corners", () => {
+			const chip = declsOf(".chip[aria-pressed]");
+			expect(chip).toMatchObject({
+				"border-width": "4px 0",
+				"border-radius": "var(--md-shape-sm)/12px",
+				"box-shadow": `inset 0 0 0 ${OUTLINE} var(--md-sys-color-outline)`,
+				color: "var(--md-sys-color-on-surface)",
+			});
+			expect(declsOf(".segmented-group.badges-filter label")).toEqual(chip);
+			expect(declsOf(".list-scope .segmented")).toEqual(chip);
+		});
+
+		it.each([
+			".segmented[aria-current]",
+			".segmented[aria-pressed=true]",
+			".segmented-group label:has(:checked)",
+			".chip[aria-pressed=true]",
+			".segmented-group.badges-filter label:has(:checked)",
+			".list-scope .segmented[aria-current]",
+		])("marks %s as selected in primary-container", (selector) => {
+			const decls = declsOf(selector);
+			expect(decls.background).toMatch(
+				/^var\(--md-sys-color-primary-container\)( padding-box)?$/,
+			);
+			expect(decls.color).toBe("var(--md-sys-color-on-primary-container)");
+		});
+
+		it("draws status chips 28 px high with 8 px corners and the status type", () => {
+			expect(declsOf(".chip")).toMatchObject({
+				"min-height": "28px",
+				padding: "0 10px",
+				"border-radius": "var(--md-shape-sm)",
+				font: "var(--rp-type-status)",
+			});
+			expect(declsOf(".status-chip")).toMatchObject({
+				"min-height": "28px",
+				"border-radius": "var(--md-shape-sm)",
+				font: "var(--rp-type-status)",
+			});
+			for (const selector of [
+				".chip-alert",
+				".chip-team",
+				".event-amounts .chip",
+			]) {
+				expect(declsOf(selector)["min-height"]).toBeUndefined();
+				expect(declsOf(selector)["font-weight"]).toBeUndefined();
+			}
+		});
+
+		it("opens every disclosure the same way, chevron after the text", () => {
+			expect(declsOf("summary")).toMatchObject({
+				color: "var(--rp-primary-text)",
+				"list-style": "none",
+			});
+			expect(declsOf("summary::after")).toMatchObject({
+				width: "14px",
+				height: "14px",
+				background: "currentColor",
+			});
+			expect(declsOf("details[open]>summary::after").transform).toBe(
+				"rotate(180deg)",
+			);
+			for (const selector of [
+				".progress-table summary",
+				".rider-breakdown summary",
+			]) {
+				expect(declsOf(selector)).toEqual({});
+			}
+		});
+
+		it("leaves no control with its own type, outline or 40 px height", () => {
+			const control =
+				/(^|[\s>+~,])(\.button|\.button-outlined|\.button-text|\.danger|\.segmented|\.icon-button|\.chip|\.status-chip|summary|\.event-button)\b/;
+			const offending = RULES.filter((rule) =>
+				rule.selectors.some(
+					(sel) => control.test(sel) && !/svg|::(before|after)/.test(sel),
+				),
+			).flatMap((rule) =>
+				Object.entries(rule.decls)
+					.filter(
+						([prop, value]) =>
+							(prop === "font" &&
+								!/^var\(--rp-type-(control|status)\)$/.test(value)) ||
+							prop === "font-weight" ||
+							(/^border(-width)?$/.test(prop) && /\b[12]px\b/.test(value)) ||
+							(prop === "min-height" && value === "40px"),
+					)
+					.map(
+						([prop, value]) => `${rule.selectors.join(",")} ${prop}:${value}`,
+					),
+			);
+			expect(offending).toEqual([]);
+		});
+	});
+
+	describe("the themes (022 contracts/themes.md, theme-menu.md)", () => {
+		it.each(
+			THEMES.filter((t) => Object.keys(t.tokens).length > 0).map((t) => t.id),
+		)("overrides the base scheme for %s after the base rules", (id) => {
+			const theme = THEMES.find((t) => t.id === id);
+			expect(declsOf(`:root[data-theme=${id}]`)).toEqual(theme?.tokens);
+			expect(STYLE.indexOf(`:root[data-theme=${id}]{`)).toBeGreaterThan(
+				STYLE.indexOf(":root[data-scheme=light]{"),
+			);
+		});
+
+		it("has no rule for Rynke Tag and Nacht, the base schemes", () => {
+			expect(STYLE).not.toContain(":root[data-theme=rynke-day]{");
+			expect(STYLE).not.toContain(":root[data-theme=rynke-night]{");
+		});
+
+		it.each(THEMES.map((t) => t.id))(
+			"gives the %s tile its own colours",
+			(id) => {
+				const { bg, hero, pc, primary, card, text } =
+					THEMES.find((t) => t.id === id)?.preview ?? {};
+				expect(declsOf(`[data-theme-preview=${id}]`)).toEqual({
+					"--preview-bg": bg,
+					"--preview-hero": hero,
+					"--preview-pc": pc,
+					"--preview-primary": primary,
+					"--preview-card": card,
+					"--preview-text": text,
+				});
+			},
+		);
+
+		it("colours hero cards with the hero tokens", () => {
+			for (const card of [
+				".team-total",
+				".hero",
+				".overview-deadline",
+				".qualified",
+			]) {
+				expect(declsOf(card).color).toBe("var(--rp-on-hero)");
+			}
+			for (const accent of [
+				".team-total-value",
+				".hero-total",
+				".overview-deadline .overview-deadline-count",
+				".qualified h2",
+			]) {
+				expect(declsOf(accent).color).toBe("var(--rp-hero-accent)");
+			}
+		});
+
+		it("colours links, outlined and text buttons and summaries with the primary text", () => {
+			for (const selector of [
+				"a",
+				".button-outlined",
+				".button-text",
+				"summary",
+			]) {
+				expect(declsOf(selector).color).toBe("var(--rp-primary-text)");
+			}
+		});
+
+		it("underlines text buttons and edges status chips in the contrast themes", () => {
+			for (const id of ["contrast-light", "contrast-dark"]) {
+				expect(
+					declsOf(`:root[data-theme=${id}] .button-text`)["text-decoration"],
+				).toBe("underline");
+				expect(declsOf(`:root[data-theme=${id}] .chip`).border).toBe(
+					"var(--rp-outline-width) solid currentColor",
+				);
+			}
+		});
+
+		it("draws the palette button open in primary-container", () => {
+			expect(declsOf(".icon-button[aria-expanded=true]").background).toBe(
+				"var(--md-sys-color-primary-container)",
+			);
+		});
+
+		it("lays the menu out as the canvas does", () => {
+			expect(declsOf(".theme-menu")).toMatchObject({
+				position: "fixed",
+				right: "8px",
+				width: "330px",
+				"max-width": "calc(100vw - 16px)",
+				"overflow-y": "auto",
+				padding: "16px",
+				"border-radius": "16px",
+				background: "var(--md-sys-color-surface-container-high)",
+				color: "var(--md-sys-color-on-surface)",
+			});
+			expect(declsOf(".theme-grid")).toMatchObject({
+				display: "grid",
+				"grid-template-columns": "repeat(2,minmax(0,1fr))",
+				gap: "8px",
+			});
+			expect(declsOf(".theme-tile:has(:checked)")["box-shadow"]).toBe(
+				"0 0 0 3px var(--rp-primary-text)",
+			);
+		});
+
+		it("truncates the section title rather than the header's buttons", () => {
+			expect(declsOf("h1.section-title")).toMatchObject({
+				overflow: "hidden",
+				"white-space": "nowrap",
+				"text-overflow": "ellipsis",
+			});
+		});
+	});
+
 	it("fills the page's width with ride cards, as many per row as fit", () => {
 		expect(declsOf("main:has(>#rides>.ride-list)")["max-width"]).toBe("none");
 		expect(declsOf("ol.ride-list")["grid-template-columns"]).toBe(
@@ -632,4 +922,197 @@ describe("STYLE", () => {
 			});
 		},
 	);
+
+	// Feature 022 US3, contracts/fun-decorations.md (FR-030–FR-033).
+	describe("the fun themes' decorations", () => {
+		const FUN = [":root[data-theme=confetti]", ":root[data-theme=disco]"];
+		const BANDS = [
+			"#ff4566",
+			"#ff7a2e",
+			"#ffb31a",
+			"#ffe61a",
+			"#a6f21f",
+			"#2bea7c",
+			"#14e6cf",
+			"#1fd0ff",
+			"#3fa9ff",
+			"#8a7dff",
+			"#c45cff",
+			"#ff4fb4",
+		];
+		const REDUCED = "(prefers-reduced-motion:reduce)";
+		const ANIMATIONS =
+			/(?<![\w-])(shimmer|twinkle|fall|glow|discobadge)(?![\w-])/;
+		const decorates = (rule: (typeof RULES)[number]) =>
+			rule.selectors.some((s) => /\.fun-|\.theme-badge/.test(s)) ||
+			Object.values(rule.decls).some(
+				(v) => /var\(--rp-rainbow/.test(v) || ANIMATIONS.test(v),
+			);
+
+		it("holds the twelve bands in the rainbow, and twice round in the loop", () => {
+			const root = declsOf(":root");
+			expect(root["--rp-rainbow"]).toBe(
+				`linear-gradient(90deg,${BANDS.join(",")})`,
+			);
+			expect(root["--rp-rainbow-loop"]).toBe(
+				`linear-gradient(90deg,${[...BANDS, ...BANDS, BANDS[0]].join(",")})`,
+			);
+		});
+
+		it("scopes every decoration to Konfetti or Disco", () => {
+			const loose = RULES.filter(decorates)
+				.filter((rule) => !rule.selectors.includes(".theme-sparkle"))
+				.filter(
+					(rule) =>
+						!(
+							rule.decls.display === "none" &&
+							Object.keys(rule.decls).length === 1
+						),
+				)
+				.flatMap((rule) => rule.selectors)
+				.filter((s) => !FUN.some((root) => s.startsWith(`${root} `)));
+			expect(loose).toEqual([]);
+		});
+
+		it("hides the decorations' elements outside the fun themes", () => {
+			for (const piece of [".fun-sparkles", ".fun-bursts", ".theme-badge"]) {
+				expect(declsOf(piece).display).toBe("none");
+			}
+		});
+
+		it.each(FUN)("never lets a decoration catch a tap in %s", (root) => {
+			for (const piece of [
+				"body::before",
+				"header.top-bar::after",
+				".hero::before",
+				".team-total::before",
+				".overview-deadline::before",
+				".qualified::before",
+				".fun-sparkles",
+				".fun-bursts",
+				".theme-badge",
+			]) {
+				expect(declsOf(`${root} ${piece}`)["pointer-events"]).toBe("none");
+			}
+		});
+
+		it.each(FUN)(
+			"stops every decoration under reduced motion in %s",
+			(root) => {
+				const moving = RULES.filter(
+					(rule) =>
+						rule.media === null &&
+						ANIMATIONS.test(rule.decls.animation ?? "") &&
+						rule.selectors.some((s) => s.startsWith(`${root} `)),
+				).flatMap((rule) =>
+					rule.selectors.filter((s) => s.startsWith(`${root} `)),
+				);
+				expect(moving.length).toBeGreaterThan(5);
+				for (const selector of moving) {
+					expect(declsOf(selector, REDUCED).animation, selector).toBe("none");
+				}
+				expect(declsOf(`${root} .fun-bursts`, REDUCED).display).toBe("none");
+			},
+		);
+
+		it.each(FUN)(
+			"gives only the single fill the rainbow in %s (FR-020)",
+			(root) => {
+				expect(declsOf(`${root} .gauge-fill`).background).toContain(
+					"var(--rp-rainbow-loop)",
+				);
+				const parts = RULES.filter((rule) =>
+					rule.selectors.some((s) => s.includes("gauge-part")),
+				).filter((rule) =>
+					Object.values(rule.decls).some((v) => v.includes("--rp-rainbow")),
+				);
+				expect(parts).toEqual([]);
+			},
+		);
+
+		it.each(FUN)("writes on the rainbow in the coin's ink in %s", (root) => {
+			for (const piece of [
+				"nav.app-nav a[aria-current=page] .nav-icon",
+				".badges-reveal",
+			]) {
+				const decls = declsOf(`${root} ${piece}`);
+				expect(decls.background).toContain("var(--rp-rainbow");
+				expect(decls.color).toBe("var(--rp-coin-ink)");
+			}
+		});
+	});
+
+	// Feature 022 US4, contracts/page-switch-show.md (FR-040–FR-047).
+	describe("the page-switch shows", () => {
+		it("lays the show over everything, header, nav and menu included", () => {
+			const show = declsOf(".show");
+			expect(show).toMatchObject({ position: "fixed", inset: "0" });
+			const above = Number(show["z-index"]);
+			for (const piece of [
+				"header.top-bar",
+				"nav.app-nav",
+				".page-loading",
+				".theme-menu",
+			]) {
+				expect(above).toBeGreaterThan(Number(declsOf(piece)["z-index"]));
+			}
+		});
+
+		it.each([
+			["confetti", "var(--rp-show-bands)"],
+			["disco", "var(--rp-show-room)"],
+		])(
+			"paints the %s show's peak on the arriving page's first paint",
+			(theme, look) => {
+				const cover = declsOf(`:root[data-show=${theme}]::before`);
+				expect(cover).toMatchObject({
+					content: '""',
+					position: "fixed",
+					inset: "0",
+					"z-index": declsOf(".show")["z-index"],
+					"pointer-events": "none",
+				});
+				expect(cover.background).toContain(look);
+				// Never left over the page should the overlay not come.
+				expect(cover.animation).toMatch(/^show-cover 0s \d/);
+			},
+		);
+
+		it("paints the peak as the surface under reduced motion (FR-045)", () => {
+			for (const theme of ["confetti", "disco"]) {
+				expect(
+					declsOf(
+						`:root[data-show=${theme}]::before`,
+						"(prefers-reduced-motion:reduce)",
+					).background,
+				).toBe("var(--md-sys-color-surface)");
+			}
+		});
+
+		it("holds the page's own celebrations while a show plays", () => {
+			for (const piece of [
+				".celebrate-coins .coin-mini",
+				".badges-reveal-pictures img",
+				".badge-sparkles>span",
+			]) {
+				expect(
+					declsOf(`:root[data-show] ${piece}`)["animation-play-state"],
+				).toBe("paused");
+			}
+		});
+
+		it("grows the rainbow past any viewport's corners", () => {
+			const rainbow = declsOf(".show-rainbow");
+			expect(rainbow.width).toBe("max(2000px,220vmax)");
+			expect(rainbow.height).toBe("max(2000px,220vmax)");
+			expect(rainbow.animation).toMatch(/^show-rainbow 3\.2s /);
+		});
+
+		it("fades the surface for reduced motion", () => {
+			expect(declsOf(".show-fade")).toMatchObject({
+				background: "var(--md-sys-color-surface)",
+				animation: "show-fade .5s ease-in-out forwards",
+			});
+		});
+	});
 });

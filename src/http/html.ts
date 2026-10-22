@@ -2,6 +2,7 @@ import type { I18n } from "../i18n/i18n";
 import { COIN_SPRITE, coin } from "./coin";
 import { STYLE } from "./style";
 import { STYLESHEET_PATH } from "./stylesheet";
+import { THEMES } from "./themes";
 
 // Server-rendered HTML (research R13). Templates hold markup only; every piece
 // of rider-facing text comes from the catalogs through `I18n`.
@@ -46,11 +47,23 @@ export function html(
 	return new SafeHtml(out);
 }
 
+/** How old the show's flag may be when the next page reads it. */
+const SHOW_FLAG_MAX_AGE_MS = 10000;
+
 /**
- * Applies the device's colour scheme choice before the page paints (feature
- * 011 contracts/client.md, research R6, R12). It holds no text.
+ * Applies the device's theme before the page paints (feature 022 research R2,
+ * R3, contracts/theme-menu.md "Head script"): a known `rp-theme` sets
+ * `data-theme`, its base `data-scheme` and the browser's colour; an old
+ * `rp-scheme` (011) becomes Rynke Tag or Nacht once. Anything else, or storage
+ * that refuses, is Automatisch. The id → [scheme, surface] table comes from
+ * the theme list; the script holds no text.
+ *
+ * Then it takes over a page-switch show the last page started (feature 022
+ * research R7, contracts/page-switch-show.md): a fresh `rp-show` flag for the
+ * theme just applied, on a plain navigation, sets `data-show`, so the first
+ * paint is the show's peak. The flag is removed whatever it says.
  */
-export const SCHEME_SCRIPT = `try{const s=localStorage.getItem("rp-scheme");if(s==="light"||s==="dark"){document.documentElement.dataset.scheme=s;for(const m of document.querySelectorAll('meta[name="theme-color"]')){m.removeAttribute("media");m.content=s==="dark" ? "#12110c" : "#fffdf5";}}}catch{}`;
+export const THEME_SCRIPT = `let t=null;try{const T=new Map(${JSON.stringify(THEMES.map((t) => [t.id, [t.scheme, t.preview.bg]]))}),S=localStorage;t=S.getItem("rp-theme");if(t===null){const s=S.getItem("rp-scheme");if(s==="light"||s==="dark"){t=s==="dark"?"rynke-night":"rynke-day";S.setItem("rp-theme",t);S.removeItem("rp-scheme")}}const e=T.get(t);if(e){const d=document.documentElement.dataset;d.theme=t;d.scheme=e[0];for(const m of document.querySelectorAll('meta[name="theme-color"]')){m.removeAttribute("media");m.content=e[1]}}else t=null}catch{t=null}try{const S=sessionStorage,v=S.getItem("rp-show");if(v!==null){S.removeItem("rp-show");const[f,a]=v.split(":"),P=performance,g=P.timeOrigin+P.now()-Number(a),n=P.getEntriesByType("navigation")[0];if((f==="confetti"||f==="disco")&&f===t&&g>=0&&g<${SHOW_FLAG_MAX_AGE_MS}&&n?.type==="navigate")document.documentElement.dataset.show=f}}catch{}`;
 
 /**
  * The brand name, the same in every language (011 contracts/pages.md), behind
@@ -63,6 +76,8 @@ export const WORDMARK = new SafeHtml(
 /** The top bar and navigation of a signed-in section, from `shell.ts`. */
 export interface ShellParts {
 	header: SafeHtml;
+	/** The theme menu, hidden until the header's palette button opens it. */
+	menu: SafeHtml;
 	nav: SafeHtml;
 }
 
@@ -112,7 +127,8 @@ export function layout(
 ): SafeHtml {
 	const header = shell
 		? html`<body class="shell">
-<header class="top-bar">${shell.header}</header>`
+<header class="top-bar">${shell.header}</header>
+${shell.menu}`
 		: html`<body class="public">
 <header class="top-bar">${WORDMARK}${languageForm(i18n, path)}</header>`;
 	// Once per page, for every coin's `<use>` (feature 012).
@@ -127,7 +143,7 @@ export function layout(
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fffdf5">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12110c">
-<script>${new SafeHtml(SCHEME_SCRIPT)}</script>
+<script>${new SafeHtml(THEME_SCRIPT)}</script>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">

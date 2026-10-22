@@ -4,10 +4,11 @@ import {
 	html,
 	htmlResponse,
 	layout,
-	SCHEME_SCRIPT,
+	THEME_SCRIPT,
 } from "../../src/http/html";
 import { STYLE } from "../../src/http/style";
 import { STYLESHEET_PATH } from "../../src/http/stylesheet";
+import { THEMES } from "../../src/http/themes";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 
@@ -86,13 +87,13 @@ describe("layout (de)", () => {
 		);
 	});
 
-	it("ships the scheme script and /app.js, no other script (011 R6)", () => {
+	it("ships the theme script and /app.js, no other script (011 R6, 022 R3)", () => {
 		expect(page.match(/<script[^>]*>/gi)).toEqual([
 			"<script>",
 			'<script src="/app.js" defer>',
 		]);
 		expect(page).toContain('<script src="/app.js" defer></script>');
-		expect(page).toContain(`<script>${SCHEME_SCRIPT}</script>`);
+		expect(page).toContain(`<script>${THEME_SCRIPT}</script>`);
 	});
 
 	it("colours the browser for both schemes before the scheme script (011 R12)", () => {
@@ -130,15 +131,182 @@ describe("layout's stylesheet (issue #183)", () => {
 	});
 });
 
-describe("SCHEME_SCRIPT (011 contracts/client.md)", () => {
-	it("reads the device's choice and holds no catalog text", () => {
-		expect(SCHEME_SCRIPT).toContain('localStorage.getItem("rp-scheme")');
-		expect(SCHEME_SCRIPT).toContain("dataset.scheme");
+/** A device's storage for the head script, optionally refusing every call. */
+function storage(items: Record<string, string>, throws = false) {
+	const data = new Map(Object.entries(items));
+	const guard = () => {
+		if (throws) throw new Error("SecurityError");
+	};
+	return {
+		data,
+		getItem(key: string) {
+			guard();
+			return data.get(key) ?? null;
+		},
+		setItem(key: string, value: string) {
+			guard();
+			data.set(key, value);
+		},
+		removeItem(key: string) {
+			guard();
+			data.delete(key);
+		},
+	};
+}
+
+/** A page load's session storage and navigation type, for the show's flag. */
+interface Load {
+	session?: Record<string, string>;
+	type?: string;
+}
+
+/** Runs THEME_SCRIPT on a stub page; returns `<html>`'s data and the metas. */
+function runThemeScript(
+	items: Record<string, string>,
+	throws = false,
+	load: Load = {},
+) {
+	const local = storage(items, throws);
+	const session = storage(load.session ?? {});
+	const performance = {
+		timeOrigin: NOW - 40,
+		now: () => 40,
+		getEntriesByType: (kind: string) =>
+			kind === "navigation" ? [{ type: load.type ?? "navigate" }] : [],
+	};
+	const dataset: Record<string, string> = {};
+	const metas = ["light", "dark"].map((s) => ({
+		media: `(prefers-color-scheme: ${s})`,
+		content: "",
+		removeAttribute(name: string) {
+			if (name === "media") this.media = "";
+		},
+	}));
+	const document = {
+		documentElement: { dataset },
+		querySelectorAll: (selector: string) =>
+			selector === 'meta[name="theme-color"]' ? metas : [],
+	};
+	new Function(
+		"localStorage",
+		"sessionStorage",
+		"performance",
+		"document",
+		THEME_SCRIPT,
+	)(local, session, performance, document);
+	return {
+		dataset,
+		metas,
+		stored: Object.fromEntries(local.data),
+		session: Object.fromEntries(session.data),
+	};
+}
+
+const NOW = 1_800_000_000_000;
+
+describe('THEME_SCRIPT (022 contracts/theme-menu.md "Head script")', () => {
+	it.each(THEMES.map((t) => [t.id, t] as const))(
+		"applies %s with its base scheme and surface colour",
+		(id, theme) => {
+			const { dataset, metas } = runThemeScript({ "rp-theme": id });
+			expect(dataset).toEqual({ theme: id, scheme: theme.scheme });
+			for (const m of metas) {
+				expect(m.media).toBe("");
+				expect(m.content).toBe(theme.preview.bg);
+			}
+		},
+	);
+
+	it.each([
+		["light", "rynke-day"],
+		["dark", "rynke-night"],
+	])("carries an old rp-scheme=%s over as %s (FR-015)", (scheme, theme) => {
+		const { dataset, stored } = runThemeScript({ "rp-scheme": scheme });
+		expect(dataset.theme).toBe(theme);
+		expect(stored).toEqual({ "rp-theme": theme });
+	});
+
+	it("prefers a stored theme to an old scheme", () => {
+		const { dataset } = runThemeScript({
+			"rp-theme": "forest",
+			"rp-scheme": "light",
+		});
+		expect(dataset.theme).toBe("forest");
+	});
+
+	it.each([
+		["nothing stored", {}],
+		["an unknown id", { "rp-theme": "neon" }],
+		["a prototype key", { "rp-theme": "constructor" }],
+		["an old scheme of system", { "rp-scheme": "system" }],
+	])("leaves the page on Automatisch with %s", (_name, items) => {
+		const { dataset, metas } = runThemeScript(items);
+		expect(dataset).toEqual({});
+		expect(metas.map((m) => m.media)).toEqual([
+			"(prefers-color-scheme: light)",
+			"(prefers-color-scheme: dark)",
+		]);
+	});
+
+	it("leaves the page on Automatisch when storage refuses", () => {
+		expect(runThemeScript({ "rp-theme": "forest" }, true).dataset).toEqual({});
+	});
+
+	it("holds no catalog text", () => {
 		for (const catalog of Object.values(CATALOGS)) {
 			for (const text of Object.values(catalog)) {
-				if (text.length >= 4) expect(SCHEME_SCRIPT).not.toContain(text);
+				if (text.length >= 4) expect(THEME_SCRIPT).not.toContain(text);
 			}
 		}
+	});
+
+	// Step 3, the page-switch show's hand-over (022 research R7,
+	// contracts/page-switch-show.md).
+	it.each(["confetti", "disco"])(
+		"takes over a fresh %s show on a plain navigation",
+		(theme) => {
+			const { dataset, session } = runThemeScript(
+				{ "rp-theme": theme },
+				false,
+				{
+					session: { "rp-show": `${theme}:${NOW - 1600}` },
+				},
+			);
+			expect(dataset).toMatchObject({ theme, show: theme });
+			expect(session).toEqual({});
+		},
+	);
+
+	it.each([
+		["a stale flag", "confetti", `confetti:${NOW - 10_000}`, "navigate"],
+		["a flag from the future", "confetti", `confetti:${NOW + 5}`, "navigate"],
+		["another theme's flag", "disco", `confetti:${NOW - 100}`, "navigate"],
+		["a flag in a calm theme", "forest", `forest:${NOW - 100}`, "navigate"],
+		["a garbled flag", "confetti", "confetti", "navigate"],
+		["a reload", "confetti", `confetti:${NOW - 100}`, "reload"],
+		["back or forward", "confetti", `confetti:${NOW - 100}`, "back_forward"],
+	])(
+		"plays nothing for %s, and removes the flag",
+		(_name, theme, flag, type) => {
+			const { dataset, session } = runThemeScript(
+				{ "rp-theme": theme },
+				false,
+				{
+					session: { "rp-show": flag },
+					type,
+				},
+			);
+			expect(dataset.show).toBeUndefined();
+			expect(dataset.theme).toBe(theme);
+			expect(session).toEqual({});
+		},
+	);
+
+	it("plays nothing when the device's theme can't be read", () => {
+		const { dataset } = runThemeScript({ "rp-theme": "confetti" }, true, {
+			session: { "rp-show": `confetti:${NOW - 100}` },
+		});
+		expect(dataset).toEqual({});
 	});
 });
 

@@ -10,6 +10,7 @@ import {
 	rulesForVersion,
 } from "../../rynke/rules";
 import { amount, heroCoin, miniCoin } from "../coin";
+import { FUN_SPARKLES } from "../fun";
 import { html, type SafeHtml } from "../html";
 import { CHART_SCRIPTS, renderProgress } from "../progress-section";
 import { buildProgressView } from "../progress-view";
@@ -143,7 +144,7 @@ ${
 <p class="hero-total hero-team">${i18n.tHtml("hero.team", { n: amount(i18n, totals.team) })}</p>
 `
 		: null
-}</div>
+}</div>${FUN_SPARKLES}
 </section>
 ${example ? renderExampleNote(i18n) : null}${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}
 ${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env))}

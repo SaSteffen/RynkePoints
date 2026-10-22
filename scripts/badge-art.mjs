@@ -26,8 +26,9 @@
 //
 // The Team page's quote monkeys come along the same way: every monkey in
 // art/quotes/monkeys.json with its art/quotes/prompt.txt and the hero coin's
-// reference sheet, into art/quotes/originals/ (art/quotes/README.md); their
-// ids work like badge ids here.
+// reference sheet, into art/quotes/originals/ (art/quotes/README.md); so do
+// the two pictures of Rynke in the fun themes' page-switch shows, from
+// art/shows/ (art/shows/README.md). Their ids work like badge ids here.
 //
 // Other options: --profile <dir> (default ~/.cache/rynkepoints/gemini-profile),
 // --browser chrome|chromium (default chrome), --timeout <seconds> per image
@@ -49,7 +50,7 @@ import { extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 import { buildPrompt, validateBadges } from "./badge-prompts.mjs";
-import { validateMonkeys } from "./quote-prompts.mjs";
+import { validateMonkeys, validateShows } from "./quote-prompts.mjs";
 
 const GEMINI = "https://gemini.google.com/app";
 
@@ -110,11 +111,13 @@ const RAW = join(homedir(), ".cache/rynkepoints/badge-art/raw");
 const REFERENCE = {
 	personal: root("art/badges/reference/badge-personal.png"),
 	team: root("art/badges/reference/badge-team.png"),
-	// The quote monkeys go with the hero coin's sheet of badge pictures.
+	// The quote monkeys and the shows go with the hero coin's sheet of badge
+	// pictures.
 	monkey: root("art/coin/reference/rynke-hero-reference.png"),
 };
 
-// Two lists: the badges and the Team page's quote monkeys (art/quotes).
+// Three lists: the badges, the Team page's quote monkeys (art/quotes) and
+// Rynke in the page-switch shows (art/shows).
 const SETS = [
 	{
 		dir: "art/badges",
@@ -127,6 +130,12 @@ const SETS = [
 		list: "monkeys.json",
 		key: "monkeys",
 		check: validateMonkeys,
+	},
+	{
+		dir: "art/shows",
+		list: "shows.json",
+		key: "shows",
+		check: validateShows,
 	},
 ];
 const problems = [];
@@ -146,7 +155,7 @@ const items = SETS.flatMap(({ dir, list, key, check }) => {
 });
 const ids = new Set();
 for (const { id } of items) {
-	if (ids.has(id)) problems.push(`${id}: both a badge and a quote monkey`);
+	if (ids.has(id)) problems.push(`${id}: in two of the art lists`);
 	ids.add(id);
 }
 if (problems.length > 0) {
@@ -164,7 +173,7 @@ function existing(item) {
 
 const unknown = only.filter((id) => !ids.has(id));
 if (unknown.length > 0) {
-	console.error(`Unknown badge or monkey id(s): ${unknown.join(", ")}`);
+	console.error(`Unknown badge, monkey or show id(s): ${unknown.join(", ")}`);
 	process.exit(2);
 }
 const chosen = items.filter((b) => only.length === 0 || only.includes(b.id));

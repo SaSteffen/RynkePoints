@@ -362,16 +362,16 @@ export function traceImage(
 /**
  * Writes the original snapped to the palette (paper white) as an indexed PNG of
  * at most 2048 px: what tracing needs, a fraction of the original's size
- * (research R7).
+ * (research R7). `colours` replaces the coin palette, as for `traceImage`.
  */
-export function snapToPalette(file, out) {
+export function snapToPalette(file, out, colours = PALETTE) {
 	const image = readImage(file);
 	const { w, h } = image;
-	const label = labels(image);
+	const label = labels(image, colours);
 	const rgb = Buffer.alloc(w * h * 3, 255);
 	for (let i = 0; i < w * h; i++) {
 		const l = label[i];
-		if (l) rgb.set(PALETTE[l - 1].rgb, i * 3);
+		if (l) rgb.set(colours[l - 1].rgb, i * 3);
 	}
 	execFileSync(
 		magick,

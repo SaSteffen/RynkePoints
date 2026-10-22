@@ -27,6 +27,7 @@ import { dayNumber, lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
 import { artUrl } from "../art";
 import { peloton, sparkline, weekBars } from "../charts";
 import { amount, coinArt, miniCoin } from "../coin";
+import { FUN_SPARKLES } from "../fun";
 import { html, type SafeHtml } from "../html";
 import { QUOTE_MONKEYS } from "../quote-monkeys";
 import { renderReconnect } from "../rider-sections";
@@ -80,7 +81,7 @@ ${
 		? html`<p class="team-total-week">${i18n.t("team.total.thisWeek", { n: whole(totals.thisWeek) })}</p>
 `
 		: null
-}</div>
+}</div>${FUN_SPARKLES}
 </section>
 `;
 }

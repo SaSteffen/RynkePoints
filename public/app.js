@@ -1,7 +1,7 @@
 // RynkePoints page script (feature 010 contracts/client.md, research R16). It
 // only wires up what a server-rendered page can't do itself: the service worker,
-// the install group and the app prompt, the notifications switch, the scheme
-// picker, bringing a section up to date on return and once the first data is
+// the install group and the app prompt, the notifications switch, the theme
+// menu, bringing a section up to date on return and once the first data is
 // there, other views and saves swapped in place (`data-swap`), the
 // buttons' press and busy feedback, opening a badge's large view on mouse
 // hover (feature 013 research R19), the event page's tri-state boxes
@@ -389,44 +389,82 @@ function appPrompt() {
 	if (standalone()) offerNotifications().catch(() => {});
 }
 
-/** The `surface` colour of each scheme, as in the head script (research R12). */
-const THEME_COLOR = { light: "#fffdf5", dark: "#12110c" };
-
 /**
- * The Appearance group in Settings (FR-032a): System, Light or Dark for this
- * device only. It applies the choice the way the head script does on load.
+ * The header's theme menu (feature 022 contracts/theme-menu.md): the palette
+ * button opens it with the theme shown now checked; a choice applies at once,
+ * as the head script does on load, is kept for this device only and leaves the
+ * menu open. Escape, a tap outside or the close button close it and put focus
+ * back on the palette button. Run once per page load: content swapped in place
+ * leaves the header and the menu alone.
  */
-function schemePicker() {
-	const radios = document.querySelectorAll("input[name=scheme]");
-	if (radios.length === 0) return;
-	const KEY = "rp-scheme";
-	let stored = null;
-	try {
-		stored = localStorage.getItem(KEY);
-	} catch {}
-	const current = stored === "light" || stored === "dark" ? stored : "system";
+function themeMenu() {
+	const button = document.querySelector("button.theme-button");
+	const panel = document.getElementById("theme-menu");
+	if (!button || !panel) return;
+	const KEY = "rp-theme";
+	const root = document.documentElement;
+	const radios = [...panel.querySelectorAll("input[name=theme]")];
+	const byValue = (value) => radios.find((radio) => radio.value === value);
+	const shown = byValue(root.dataset.theme) ?? byValue("auto");
+	if (shown) shown.checked = true;
+	// Automatisch's two colours, one per system setting, as the page is served.
+	const autoColour = {
+		light: byValue("rynke-day")?.dataset.color,
+		dark: byValue("rynke-night")?.dataset.color,
+	};
+
+	const open = () => {
+		panel.hidden = false;
+		button.setAttribute("aria-expanded", "true");
+		(panel.querySelector("input:checked") ?? radios[0])?.focus();
+	};
+	const close = () => {
+		if (panel.hidden) return;
+		panel.hidden = true;
+		button.setAttribute("aria-expanded", "false");
+		button.focus();
+	};
+	button.addEventListener("click", () => (panel.hidden ? open() : close()));
+	panel
+		.querySelector('[data-action="close"]')
+		?.addEventListener("click", close);
+	document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape") close();
+	});
+	document.addEventListener("click", (event) => {
+		const target = event.target;
+		if (
+			target instanceof Node &&
+			!panel.contains(target) &&
+			!button.contains(target)
+		) {
+			close();
+		}
+	});
+
 	for (const radio of radios) {
-		radio.checked = radio.value === current;
 		radio.addEventListener("change", () => {
-			const scheme = radio.value;
+			const theme = radio.value;
+			preloadShow(theme);
 			try {
-				if (scheme === "system") localStorage.removeItem(KEY);
-				else localStorage.setItem(KEY, scheme);
+				if (theme === "auto") localStorage.removeItem(KEY);
+				else localStorage.setItem(KEY, theme);
 			} catch {}
 			const metas = document.querySelectorAll('meta[name="theme-color"]');
-			if (scheme === "system") {
-				delete document.documentElement.dataset.scheme;
-				// Back to one colour per system setting, as the page is served.
+			if (theme === "auto") {
+				delete root.dataset.theme;
+				delete root.dataset.scheme;
 				for (const [i, m] of [...metas].entries()) {
-					const s = i === 0 ? "light" : "dark";
-					m.media = `(prefers-color-scheme: ${s})`;
-					m.content = THEME_COLOR[s];
+					const scheme = i === 0 ? "light" : "dark";
+					m.media = `(prefers-color-scheme: ${scheme})`;
+					m.content = autoColour[scheme];
 				}
 			} else {
-				document.documentElement.dataset.scheme = scheme;
+				root.dataset.theme = theme;
+				root.dataset.scheme = radio.dataset.scheme;
 				for (const m of metas) {
 					m.removeAttribute("media");
-					m.content = THEME_COLOR[scheme];
+					m.content = radio.dataset.color;
 				}
 			}
 		});
@@ -458,6 +496,44 @@ function stopLoading() {
 }
 
 /**
+ * The link a plain left click follows to another page of ours, with its
+ * address; null for a click with a modifier, a link to another site, a new
+ * tab, a download, a file or a spot on this page.
+ */
+function linkToOurPage(event) {
+	if (
+		event.defaultPrevented ||
+		event.button !== 0 ||
+		event.metaKey ||
+		event.ctrlKey ||
+		event.shiftKey ||
+		event.altKey
+	) {
+		return null;
+	}
+	const link =
+		event.target instanceof Element ? event.target.closest("a[href]") : null;
+	if (
+		!(link instanceof HTMLAnchorElement) ||
+		link.hasAttribute("download") ||
+		(link.target !== "" && link.target !== "_self")
+	) {
+		return null;
+	}
+	const url = new URL(link.href);
+	const samePage =
+		url.pathname === location.pathname && url.search === location.search;
+	if (
+		url.origin !== location.origin ||
+		(samePage && url.hash !== "") ||
+		/\.[a-z0-9]+$/i.test(url.pathname)
+	) {
+		return null;
+	}
+	return { link, url, samePage };
+}
+
+/**
  * Starts the progress bar for whatever leaves this page for another of ours: a
  * link, the top bar's refresh, a form. Links to another site, a new tab, a
  * download or a file don't count: this page stays. A page restored from the
@@ -466,36 +542,7 @@ function stopLoading() {
  */
 function pageLoading() {
 	document.addEventListener("click", (event) => {
-		if (
-			event.defaultPrevented ||
-			event.button !== 0 ||
-			event.metaKey ||
-			event.ctrlKey ||
-			event.shiftKey ||
-			event.altKey
-		) {
-			return;
-		}
-		const link =
-			event.target instanceof Element ? event.target.closest("a[href]") : null;
-		if (
-			!(link instanceof HTMLAnchorElement) ||
-			link.hasAttribute("download") ||
-			(link.target !== "" && link.target !== "_self")
-		) {
-			return;
-		}
-		const url = new URL(link.href);
-		const samePage =
-			url.pathname === location.pathname && url.search === location.search;
-		if (
-			url.origin !== location.origin ||
-			(samePage && url.hash !== "") ||
-			/\.[a-z0-9]+$/i.test(url.pathname)
-		) {
-			return;
-		}
-		startLoading();
+		if (linkToOurPage(event)) startLoading();
 	});
 	document.addEventListener("submit", (event) => {
 		if (!event.defaultPrevented) startLoading();
@@ -503,6 +550,266 @@ function pageLoading() {
 	window.addEventListener("pageshow", stopLoading);
 	document.addEventListener("visibilitychange", () => {
 		if (document.visibilityState === "hidden") stopLoading();
+	});
+}
+
+/** The page-switch show's length, and when the page changes under it (022). */
+const SHOW_MS = 3200;
+const SWITCH_MS = 1600;
+/** Reduced motion: a fade of the surface instead, switching halfway. */
+const FADE_MS = 500;
+const FADE_SWITCH_MS = FADE_MS / 2;
+/** The Konfetti rain: as many coins as confetti pieces, in turn. */
+const SHOW_CONFETTI = 110;
+const SHOW_COINS = SHOW_CONFETTI;
+const SHOW_SPOTS = 34;
+const SHOW_FLAG = "rp-show";
+const FUN_THEMES = new Set(["confetti", "disco"]);
+
+/** The canvas's fixed sequence, so every show rains the same way. */
+function seeded(n) {
+	const x = Math.sin(n * 9301 + 49297) * 233280;
+	return x - Math.floor(x);
+}
+
+/** The show's pictures, as the page's theme menu names them (FR-049). */
+function showPictures() {
+	const data = document.getElementById("theme-menu")?.dataset ?? {};
+	return {
+		coin: data.showCoin,
+		coinBack: data.showCoinBack,
+		unicorn: data.showUnicorn,
+		disco: data.showDisco,
+	};
+}
+
+/** Loads the theme's show pictures ahead, so the first show doesn't wait. */
+function preloadShow(theme) {
+	const pictures = showPictures();
+	const urls =
+		theme === "confetti"
+			? [pictures.coin, pictures.coinBack, pictures.unicorn]
+			: theme === "disco"
+				? [pictures.disco]
+				: [];
+	for (const url of urls) {
+		if (url) new Image().src = url;
+	}
+}
+
+function showPart(parent, className, style = {}) {
+	const part = document.createElement("div");
+	part.className = className;
+	for (const [name, value] of Object.entries(style)) {
+		part.style.setProperty(name, value);
+	}
+	parent.append(part);
+	return part;
+}
+
+function showPicture(parent, src) {
+	const img = document.createElement("img");
+	img.src = src;
+	img.alt = "";
+	parent.append(img);
+}
+
+/**
+ * The overlay of one show (contracts/page-switch-show.md): Konfetti's rainbow,
+ * coin and rain, or Disco's room, beams, ball and spots, with Rynke once the
+ * picture is built; under reduced motion a fade of the surface. Hidden from
+ * screen readers, nothing in it takes focus (FR-046).
+ */
+function buildShow(theme, reduced) {
+	const show = document.createElement("div");
+	show.className = `show show-${theme}`;
+	show.setAttribute("aria-hidden", "true");
+	if (reduced) {
+		showPart(show, "show-fade");
+		return show;
+	}
+	const pictures = showPictures();
+	if (theme === "confetti") {
+		showPart(show, "show-rainbow");
+		if (pictures.unicorn) {
+			showPicture(showPart(show, "show-unicorn"), pictures.unicorn);
+		}
+		if (pictures.coin) {
+			// Both sides, back to back, so the turning coin shows its back too.
+			const turn = showPart(showPart(show, "show-pop"), "show-pop-turn");
+			showPicture(turn, pictures.coin);
+			if (pictures.coinBack) {
+				showPicture(turn, pictures.coinBack);
+				turn.lastChild.className = "show-pop-back";
+			}
+		}
+		for (let i = 0; i < SHOW_CONFETTI + SHOW_COINS; i++) {
+			const coin = i % 2 === 1;
+			const long = seeded(i + 1) > 0.5;
+			const kind = coin
+				? `coin ${Math.floor(i / 2) % 2 === 0 ? "training" : "team"}`
+				: seeded(i + 3) > 0.7
+					? "round"
+					: "";
+			showPart(show, `show-piece ${kind}`.trim(), {
+				left: `${Math.round(seeded(i + 2) * 100)}%`,
+				width: coin ? "20px" : long ? "7px" : "9px",
+				height: coin ? "20px" : long ? "15px" : "9px",
+				background: coin ? "" : `var(--rp-show-confetti-${(i % 8) + 1})`,
+				"animation-delay": `${(seeded(i + 4) * 1.6).toFixed(2)}s`,
+				"animation-duration": `${(1.4 + seeded(i + 5)).toFixed(2)}s`,
+				"--sway": `${Math.round((seeded(i + 6) - 0.5) * 160)}px`,
+				"--spin": `${Math.round(360 + seeded(i + 7) * 720)}deg`,
+			});
+		}
+		return show;
+	}
+	showPart(show, "show-room");
+	showPart(show, "show-beams");
+	for (let j = 0; j < SHOW_SPOTS; j++) {
+		showPart(show, "show-spot", {
+			left: `${Math.round(seeded(j + 40) * 92)}%`,
+			top: `${Math.round(15 + seeded(j + 41) * 80)}%`,
+			"--size": `${Math.round(10 + seeded(j + 42) * 22)}px`,
+			background: `var(--rp-show-spot-${(j % 6) + 1})`,
+			"animation-delay": `0s,${(-seeded(j + 43) * 1.6).toFixed(2)}s`,
+			"--dx": `${Math.round((seeded(j + 44) - 0.5) * 220)}px`,
+			"--dy": `${Math.round((seeded(j + 45) - 0.5) * 120)}px`,
+		});
+	}
+	if (pictures.disco) {
+		showPart(show, "show-floor");
+		showPicture(showPart(show, "show-dancer"), pictures.disco);
+	}
+	showPart(show, "show-wire");
+	const ball = showPart(show, "show-ball");
+	for (const name of [
+		"show-ball-face",
+		"show-glint",
+		"show-glint",
+		"show-glint",
+	]) {
+		const part = document.createElement("span");
+		part.className = name;
+		ball.append(part);
+	}
+	const face = ball.firstElementChild;
+	for (const name of ["show-facets", "show-shade"]) {
+		const part = document.createElement("span");
+		part.className = name;
+		face.append(part);
+	}
+	return show;
+}
+
+/**
+ * The leaving half: the show plays over this page, which changes at its peak
+ * with a flag for the next page to play the rest (research R7). A tap or a
+ * key skips it: straight to the page, no flag; the overlay takes the tap so
+ * it doesn't also hit a control. The progress bar (#108) starts at the
+ * change.
+ */
+function leaveWithShow(theme, href) {
+	const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+	const show = buildShow(theme, reduced);
+	let gone = false;
+	const go = (handOver) => {
+		if (gone) return;
+		gone = true;
+		clearTimeout(timer);
+		document.removeEventListener("keydown", skip, true);
+		if (handOver) {
+			try {
+				sessionStorage.setItem(SHOW_FLAG, `${theme}:${Date.now()}`);
+			} catch {}
+		}
+		startLoading();
+		location.assign(href);
+	};
+	const skip = (event) => {
+		if (event.type === "pointerdown") event.preventDefault();
+		go(false);
+	};
+	const timer = setTimeout(
+		() => go(true),
+		reduced ? FADE_SWITCH_MS : SWITCH_MS,
+	);
+	show.addEventListener("pointerdown", skip);
+	document.addEventListener("keydown", skip, true);
+	document.body.append(show);
+}
+
+/**
+ * The arriving half: the head script found a fresh flag and painted the peak
+ * (`data-show`); the overlay picks up from there and leaves at the end, and
+ * the page's own celebrations wait for it. A tap or a key ends it early.
+ */
+function arriveWithShow() {
+	const root = document.documentElement;
+	const theme = root.dataset.show;
+	if (!FUN_THEMES.has(theme)) {
+		delete root.dataset.show;
+		return;
+	}
+	const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+	const at = reduced ? FADE_SWITCH_MS : SWITCH_MS;
+	const show = buildShow(theme, reduced);
+	document.body.append(show);
+	for (const animation of show.getAnimations?.({ subtree: true }) ?? []) {
+		animation.currentTime = (Number(animation.currentTime) || 0) + at;
+	}
+	root.dataset.show = "playing";
+	const end = () => {
+		clearTimeout(timer);
+		document.removeEventListener("keydown", end, true);
+		show.style.visibility = "hidden";
+		delete root.dataset.show;
+		// Gone once the skipping tap has landed on it, not on a control.
+		setTimeout(() => show.remove(), 300);
+	};
+	const timer = setTimeout(end, (reduced ? FADE_MS : SHOW_MS) - at);
+	show.addEventListener("pointerdown", (event) => {
+		event.preventDefault();
+		end();
+	});
+	document.addEventListener("keydown", end, true);
+}
+
+/**
+ * The fun themes' page-switch shows (feature 022 US4, FR-040–FR-049): a
+ * plain click on a link to another of our pages, not the current one, not a
+ * view swapped in place and not the refresh link, plays the show across the
+ * page load. Reloads, back and forward, forms and the other themes play
+ * nothing.
+ */
+function pageSwitchShows() {
+	arriveWithShow();
+	preloadShow(document.documentElement.dataset.theme);
+	document.addEventListener(
+		"click",
+		(event) => {
+			const theme = document.documentElement.dataset.theme;
+			if (!FUN_THEMES.has(theme) || document.querySelector(".show")) return;
+			const hit = linkToOurPage(event);
+			if (
+				!hit ||
+				hit.samePage ||
+				hit.link.hasAttribute("data-swap") ||
+				hit.link.classList.contains("refresh") ||
+				hit.link.getAttribute("aria-current") === "page"
+			) {
+				return;
+			}
+			event.preventDefault();
+			leaveWithShow(theme, hit.url.href);
+		},
+		true,
+	);
+	// A page brought back from the back-forward cache drops a leftover show.
+	window.addEventListener("pageshow", (event) => {
+		if (!event.persisted) return;
+		for (const show of document.querySelectorAll(".show")) show.remove();
+		delete document.documentElement.dataset.show;
 	});
 }
 
@@ -1859,7 +2166,7 @@ function progressCharts(signal) {
 	const scheme = new MutationObserver(recolour);
 	scheme.observe(document.documentElement, {
 		attributes: true,
-		attributeFilter: ["data-scheme"],
+		attributeFilter: ["data-scheme", "data-theme"],
 	});
 	signal.addEventListener("abort", () => {
 		scheme.disconnect();
@@ -1875,7 +2182,6 @@ function progressCharts(signal) {
 function enhance(signal) {
 	lazyRides(signal);
 	installSettings(signal);
-	schemePicker();
 	waitForFirstData(signal);
 	badgeHover();
 	triState();
@@ -1889,7 +2195,9 @@ swapViews();
 pressFeedback();
 pendingSubmit();
 appPrompt();
+themeMenu();
 refreshOnReturn();
 pageLoading();
+pageSwitchShows();
 enhance(content.signal);
 scrollToNewBadge();

@@ -13,7 +13,6 @@ const { de } = CATALOGS;
 
 const GROUPS = [
 	["settings-language", "settings.language"],
-	["settings-appearance", "settings.appearance"],
 	["notifications", "notifications.heading"],
 	["settings-app", "settings.app"],
 	["settings-strava", "settings.strava"],
@@ -68,23 +67,12 @@ describe("GET /me/settings (011 FR-014)", () => {
 		);
 	});
 
-	it("offers System, Light and Dark for this device (FR-032a)", async () => {
-		const { group } = await settings();
-		const appearance = group["settings-appearance"] ?? "";
-		expect(appearance).toContain('<fieldset class="segmented-group">');
-		const radios = [
-			...appearance.matchAll(
-				/<label><input type="radio" name="scheme" value="(\w+)">([^<]*)<\/label>/g,
-			),
-		].map((m) => [m[1], m[2]]);
-		expect(radios).toEqual([
-			["system", de["settings.scheme.system"]],
-			["light", de["settings.scheme.light"]],
-			["dark", de["settings.scheme.dark"]],
-		]);
-		expect(appearance).toContain(
-			`<p>${escapeHtml(de["settings.appearance.hint"])}</p>`,
-		);
+	it("leaves the colour scheme to the header's theme menu (022 FR-016)", async () => {
+		const { page } = await settings();
+		const main = page.slice(page.indexOf("<main>"), page.indexOf("</main>"));
+		expect(main).not.toContain('name="scheme"');
+		expect(main).not.toContain('name="theme"');
+		expect(main).not.toContain("settings-appearance");
 	});
 
 	it("has one notifications switch and starts hidden (contracts/client.md)", async () => {
