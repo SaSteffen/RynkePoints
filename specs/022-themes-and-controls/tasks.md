@@ -149,29 +149,29 @@ US3 (Phase 2), US4 (Phase 3).
 
 ### Tests for User Story 4
 
-- [ ] T048 [P] [US4] Add to `test/unit/html.test.ts`: `THEME_SCRIPT` with a `rp-show` flag `<theme>:<ms>` under 10 s old, the same theme stored and navigation type `navigate` sets `data-show=<theme>` and removes the flag; a stale flag, another theme, or type `reload`/`back_forward` sets nothing (the flag is still removed)
-- [ ] T049 [P] [US4] Add to `test/unit/style.test.ts`: `:root[data-show=confetti]::before` and `:root[data-show=disco]::before` paint the peak covers of contracts/page-switch-show.md; while `data-show` is set, `.celebrate-coins .coin-mini`, `.badges-reveal-pictures img` and `.badge-sparkles>span` have `animation-play-state: paused`; `.show` is `position: fixed; inset: 0` above header and nav
-- [ ] T050 [P] [US4] Add to `test/integration/sections.test.ts`: the page carries the URLs of the built show pictures (from `SHOW_PICTURES` and `art-versions.ts`) and nothing for ids not built (FR-049)
-- [ ] T051 [P] [US4] Add show tests to `e2e/themes.e2e.ts` per the independent test above, plus: the overlay is `aria-hidden` and never holds focus; with `reducedMotion: "reduce"` the overlay is the surface fade and the page changes after ~250 ms
-- [ ] T052 [P] [US4] Add `validateShows` tests to `test/unit/quote-prompts.test.ts`: `art/shows/shows.json` has exactly `unicorn` and `disco`, each with `id`, `name`, `scene`; snippets resolve
+- [X] T048 [P] [US4] Add to `test/unit/html.test.ts`: `THEME_SCRIPT` with a `rp-show` flag `<theme>:<ms>` under 10 s old, the same theme stored and navigation type `navigate` sets `data-show=<theme>` and removes the flag; a stale flag, another theme, or type `reload`/`back_forward` sets nothing (the flag is still removed)
+- [X] T049 [P] [US4] Add to `test/unit/style.test.ts`: `:root[data-show=confetti]::before` and `:root[data-show=disco]::before` paint the peak covers of contracts/page-switch-show.md; while `data-show` is set, `.celebrate-coins .coin-mini`, `.badges-reveal-pictures img` and `.badge-sparkles>span` have `animation-play-state: paused`; `.show` is `position: fixed; inset: 0` above header and nav
+- [X] T050 [P] [US4] Add to `test/integration/sections.test.ts`: the page carries the URLs of the built show pictures (from `SHOW_PICTURES` and `art-versions.ts`) and nothing for ids not built (FR-049)
+- [X] T051 [P] [US4] Add show tests to `e2e/themes.e2e.ts` per the independent test above, plus: the overlay is `aria-hidden` and never holds focus; with `reducedMotion: "reduce"` the overlay is the surface fade and the page changes after ~250 ms
+- [X] T052 [P] [US4] Add `validateShows` tests to `test/unit/quote-prompts.test.ts`: `art/shows/shows.json` has exactly `unicorn` and `disco`, each with `id`, `name`, `scene`; snippets resolve
 
 ### Implementation for User Story 4
 
-- [ ] T053 [US4] Create `src/http/show-pictures.ts` exporting `SHOW_PICTURES: readonly ("unicorn" | "disco")[] = []` (generated later by `pnpm badge-build`) and add `shows` to `FOLDERS` in `scripts/art-versions.mjs`
-- [ ] T054 [US4] Render the built show pictures' versioned URLs as data attributes (e.g. `data-show-unicorn`, `data-show-disco`) on the `#theme-menu` panel in `src/http/shell.ts`, only for ids in `SHOW_PICTURES`
-- [ ] T055 [US4] Extend `THEME_SCRIPT` in `src/http/html.ts` with step 3 (the `rp-show` hand-over)
-- [ ] T056 [US4] Add the `.show` overlay rules, the peak covers, the paused celebrations and every Konfetti keyframe (rainbow `max(2000px, 220vmax)` circle, coin pop and `rotateY` spin, rain fall/sway/spin and coin flip, unicorn path in viewport units and gallop) to `src/http/style.ts`; board **Transitions**
-- [ ] T057 [US4] Add the Disco rules (room, wire, ball drop with bounce, facets, shade, glints, beams with conic gradient and ring mask, spots, floor glow, Rynke rise and sway) to `src/http/style.ts`; board **Transitions**
-- [ ] T058 [US4] In `public/app.js` add `SHOW_MS`, `SWITCH_MS`, `FADE_MS`, `FLAG_MAX_AGE_MS`, the piece counts (110 + 110) and the spot count (34) as constants, and the seeded sequence; build the Konfetti overlay (rainbow, the coin front `/coin/rynke-coin-front.svg` via `art-versions`, 220 pieces alternating confetti and training/team coins, the unicorn `img` when its URL is present) and the Disco overlay (room, wire, ball, beams, 34 spots, the disco `img` when present); `aria-hidden`, nothing focusable
-- [ ] T059 [US4] In `public/app.js` decide qualifying clicks by reusing `pageLoading()`'s "another page of ours" plus: no modifier, not `data-swap`, not the refresh link, not `aria-current=page`, not the current path and query, theme `confetti`/`disco`
-- [ ] T060 [US4] In `public/app.js` play the leaving half (prevent default, mount at 0, at `SWITCH_MS` set the flag, start the #108 progress bar and `location.assign`) and the arriving half (on `data-show`, mount with every animation delayed by −`SWITCH_MS`, remove `data-show`, remove the overlay at `SHOW_MS`); `pointerdown`/`keydown` skips (leaving: navigate at once without the flag; arriving: remove the overlay), the overlay swallows the skipping tap
-- [ ] T061 [US4] In `public/app.js` replace the show with the 500 ms surface fade (switch at 250 ms, same two halves) under `prefers-reduced-motion: reduce`, and preload the theme's show picture on load in a fun theme and when the menu switches to one
-- [ ] T062 [P] [US4] Create `art/shows/README.md`, `art/shows/shows.json` (the `kit` snippet copied from `art/quotes/monkeys.json`, scenes from contracts/show-pictures.md) and `art/shows/prompt.txt` (the quote prompt without speech bubble and talking pose, joyful open grin, rainbow allowed for the unicorn's mane and tail); board **Rynke**
-- [ ] T063 [P] [US4] Add `validateShows` to `scripts/quote-prompts.mjs` and its type to `scripts/quote-prompts.d.mts`
-- [ ] T064 [US4] Add the third set `{ dir: "art/shows", list: "shows.json", key: "shows", check: validateShows }` with the hero coin's reference sheet to `SETS` in `scripts/badge-art.mjs`
-- [ ] T065 [US4] Generalise `scripts/quote-monkeys.mjs` to build a given set `{ art, out, list, key, palette(id) }` and call it from `scripts/badge-build.mjs` for the shows after the quote monkeys: coin palette, plus the twelve rainbow colours for `unicorn`; write `public/shows/<id>.svg`, `src/http/show-pictures.ts` in `shows.json` order and the `art-versions.ts` hashes; the quote monkeys' output stays byte-identical
+- [X] T053 [US4] Create `src/http/show-pictures.ts` exporting `SHOW_PICTURES: readonly ("unicorn" | "disco")[] = []` (generated later by `pnpm badge-build`) and add `shows` to `FOLDERS` in `scripts/art-versions.mjs`
+- [X] T054 [US4] Render the built show pictures' versioned URLs as data attributes (e.g. `data-show-unicorn`, `data-show-disco`) on the `#theme-menu` panel in `src/http/shell.ts`, only for ids in `SHOW_PICTURES`
+- [X] T055 [US4] Extend `THEME_SCRIPT` in `src/http/html.ts` with step 3 (the `rp-show` hand-over)
+- [X] T056 [US4] Add the `.show` overlay rules, the peak covers, the paused celebrations and every Konfetti keyframe (rainbow `max(2000px, 220vmax)` circle, coin pop and `rotateY` spin, rain fall/sway/spin and coin flip, unicorn path in viewport units and gallop) to `src/http/style.ts`; board **Transitions**
+- [X] T057 [US4] Add the Disco rules (room, wire, ball drop with bounce, facets, shade, glints, beams with conic gradient and ring mask, spots, floor glow, Rynke rise and sway) to `src/http/style.ts`; board **Transitions**
+- [X] T058 [US4] In `public/app.js` add `SHOW_MS`, `SWITCH_MS`, `FADE_MS`, `FLAG_MAX_AGE_MS`, the piece counts (110 + 110) and the spot count (34) as constants, and the seeded sequence; build the Konfetti overlay (rainbow, the coin front `/coin/rynke-coin-front.svg` via `art-versions`, 220 pieces alternating confetti and training/team coins, the unicorn `img` when its URL is present) and the Disco overlay (room, wire, ball, beams, 34 spots, the disco `img` when present); `aria-hidden`, nothing focusable
+- [X] T059 [US4] In `public/app.js` decide qualifying clicks by reusing `pageLoading()`'s "another page of ours" plus: no modifier, not `data-swap`, not the refresh link, not `aria-current=page`, not the current path and query, theme `confetti`/`disco`
+- [X] T060 [US4] In `public/app.js` play the leaving half (prevent default, mount at 0, at `SWITCH_MS` set the flag, start the #108 progress bar and `location.assign`) and the arriving half (on `data-show`, mount with every animation delayed by −`SWITCH_MS`, remove `data-show`, remove the overlay at `SHOW_MS`); `pointerdown`/`keydown` skips (leaving: navigate at once without the flag; arriving: remove the overlay), the overlay swallows the skipping tap
+- [X] T061 [US4] In `public/app.js` replace the show with the 500 ms surface fade (switch at 250 ms, same two halves) under `prefers-reduced-motion: reduce`, and preload the theme's show picture on load in a fun theme and when the menu switches to one
+- [X] T062 [P] [US4] Create `art/shows/README.md`, `art/shows/shows.json` (the `kit` snippet copied from `art/quotes/monkeys.json`, scenes from contracts/show-pictures.md) and `art/shows/prompt.txt` (the quote prompt without speech bubble and talking pose, joyful open grin, rainbow allowed for the unicorn's mane and tail); board **Rynke**
+- [X] T063 [P] [US4] Add `validateShows` to `scripts/quote-prompts.mjs` and its type to `scripts/quote-prompts.d.mts`
+- [X] T064 [US4] Add the third set `{ dir: "art/shows", list: "shows.json", key: "shows", check: validateShows }` with the hero coin's reference sheet to `SETS` in `scripts/badge-art.mjs`
+- [X] T065 [US4] Generalise `scripts/quote-monkeys.mjs` to build a given set `{ art, out, list, key, palette(id) }` and call it from `scripts/badge-build.mjs` for the shows after the quote monkeys: coin palette, plus the twelve rainbow colours for `unicorn`; write `public/shows/<id>.svg`, `src/http/show-pictures.ts` in `shows.json` order and the `art-versions.ts` hashes; the quote monkeys' output stays byte-identical
 - [ ] T066 [US4] Generate the pictures with `pnpm badge-art unicorn disco` (suppress Chrome popups, one run at a time, stop by PID), show them to the owner, then `pnpm badge-build`; commit `art/shows/originals/`, `public/shows/*.svg`, `src/http/show-pictures.ts` and `src/http/art-versions.ts`
-- [ ] T067 [US4] Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm exec playwright test e2e/themes.e2e.ts`; fix what fails
+- [X] T067 [US4] Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm exec playwright test e2e/themes.e2e.ts`; fix what fails
 
 **Checkpoint**: spec Phase 3 ships.
 
@@ -179,9 +179,9 @@ US3 (Phase 2), US4 (Phase 3).
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T068 [P] Document the third art set in `art/README.md` next to badges and quote monkeys
-- [ ] T069 [P] Note in `specs/011-mobile-app-shell/contracts/design-tokens.md` that the scheme choice moved to the header theme menu (022 FR-016) and list the new tokens
-- [ ] T070 Update `specs/022-themes-and-controls/quickstart.md` and the contracts where the implementation had to depart from them
+- [X] T068 [P] Document the third art set in `art/README.md` next to badges and quote monkeys
+- [X] T069 [P] Note in `specs/011-mobile-app-shell/contracts/design-tokens.md` that the scheme choice moved to the header theme menu (022 FR-016) and list the new tokens
+- [X] T070 Update `specs/022-themes-and-controls/quickstart.md` and the contracts where the implementation had to depart from them
 
 ---
 

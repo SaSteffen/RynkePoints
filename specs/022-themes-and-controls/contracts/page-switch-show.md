@@ -38,6 +38,10 @@ leaving page                     │ arriving page
 - Skip (FR-043): `pointerdown` or `keydown` anywhere during the show. Leaving
   half: cancel the timer, navigate at once, no flag. Arriving half: remove the
   overlay. The overlay catches the tap so it doesn't also hit a control.
+- As built, the arriving half sets `data-show=playing` instead of removing
+  it, so the celebrations below stay paused until the overlay goes; the
+  overlay is advanced to the switch with `getAnimations()`. The peak cover
+  hides itself after 2 s should `app.js` never run.
 - The page progress bar (#108) starts at the switch, not at the click.
 - While `data-show` is set: `.celebrate-coins .coin-mini`,
   `.badges-reveal-pictures img` and `.badge-sparkles>span` have
@@ -82,3 +86,4 @@ beams or Rynke.
 
 The piece counts (110 + 110), spot count (34) and timings are constants in
 `public/app.js`; reducing the rain keeps coins equal to confetti (edge case).
+`FLAG_MAX_AGE_MS` is the head script's (`src/http/html.ts`), its only reader.

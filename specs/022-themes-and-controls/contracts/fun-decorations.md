@@ -40,3 +40,9 @@ the canvas. Reduced motion: all `animation: none`; bursts hidden.
 
 The gauges keep their parts and colour key (FR-020): split gauges keep
 `--rp-part-*`; only the single "reached" fill becomes the rainbow.
+
+As built: the app has no "Neues Abzeichen" chip, so the pill look goes on the
+new-badge notice (`.badges-reveal`); the single fill has no key swatch. The
+sparkles and bursts are `aria-hidden` spans from `src/http/fun.ts`, the
+palette badge an empty `span.theme-badge`. Their colours are the tokens
+`--rp-fun-*`.
