@@ -17,41 +17,40 @@ async function start(page: Page) {
 	await page.goto("/team");
 }
 
-// TODO: disabled for noew, fix later
-// test("picks Wald from the header and keeps it on this device", async ({
-// 	page,
-// }) => {
-// 	await start(page);
-// 	await page.evaluate(() => {
-// 		(globalThis as { e2eMark?: boolean }).e2eMark = true;
-// 	});
-// 	await palette(page).click();
-// 	await expect(menu(page)).toBeVisible();
-// 	await expect(palette(page)).toHaveAttribute("aria-expanded", "true");
-// 	await menu(page)
-// 		.locator("label", { has: page.locator("[value=forest]") })
-// 		.click();
-// 	await expect(page.locator("html")).toHaveAttribute("data-theme", "forest");
-// 	await expect(page.locator("html")).toHaveAttribute("data-scheme", "dark");
-// 	await expect(page.locator("body")).toHaveCSS("background-color", FOREST);
-// 	// Applied without a reload, the menu still open with Wald checked.
-// 	expect(
-// 		await page.evaluate(() => (globalThis as { e2eMark?: boolean }).e2eMark),
-// 	).toBe(true);
-// 	await expect(menu(page)).toBeVisible();
-// 	await expect(menu(page).locator("[value=forest]")).toBeChecked();
+test("picks Wald from the header and keeps it on this device", async ({
+	page,
+}) => {
+	await start(page);
+	await page.evaluate(() => {
+		(globalThis as { e2eMark?: boolean }).e2eMark = true;
+	});
+	await palette(page).click();
+	await expect(menu(page)).toBeVisible();
+	await expect(palette(page)).toHaveAttribute("aria-expanded", "true");
+	await menu(page)
+		.locator("label", { has: page.locator("[value=forest]") })
+		.click();
+	await expect(page.locator("html")).toHaveAttribute("data-theme", "forest");
+	await expect(page.locator("html")).toHaveAttribute("data-scheme", "dark");
+	await expect(page.locator("body")).toHaveCSS("background-color", FOREST);
+	// Applied without a reload, the menu still open with Wald checked.
+	expect(
+		await page.evaluate(() => (globalThis as { e2eMark?: boolean }).e2eMark),
+	).toBe(true);
+	await expect(menu(page)).toBeVisible();
+	await expect(menu(page).locator("[value=forest]")).toBeChecked();
 
-// 	await page.reload();
-// 	await expect(page.locator("html")).toHaveAttribute("data-theme", "forest");
+	await page.reload();
+	await expect(page.locator("html")).toHaveAttribute("data-theme", "forest");
 
-// 	await page.goto("/me/settings");
-// 	await page.getByRole("button", { name: "Abmelden" }).click();
-// 	await page.waitForURL("/");
-// 	await expect(page.locator("html")).toHaveAttribute("data-theme", "forest");
-// 	await signIn(page, "Tina TrainingDone");
-// 	await expect(page.locator("html")).toHaveAttribute("data-theme", "forest");
-// 	await expect(page.locator("body")).toHaveCSS("background-color", FOREST);
-// });
+	await page.goto("/me/settings");
+	await page.getByRole("button", { name: "Abmelden" }).click();
+	await page.waitForURL("/");
+	await expect(page.locator("html")).toHaveAttribute("data-theme", "forest");
+	await signIn(page, "Tina TrainingDone");
+	await expect(page.locator("html")).toHaveAttribute("data-theme", "forest");
+	await expect(page.locator("body")).toHaveCSS("background-color", FOREST);
+});
 
 test("closes the menu with Escape and an outside tap, back on the palette button", async ({
 	page,
@@ -160,13 +159,11 @@ test("plays the Konfetti show across a tab switch", async ({ page }) => {
 	await expect(show(page).locator("a, button, input, [tabindex]")).toHaveCount(
 		0,
 	);
-	expect((await left) - started).toBeGreaterThanOrEqual(1500);
-	await page.waitForURL("**/me");
-	// The arriving page plays the rest, then lets go.
-	await expect(show(page)).toHaveCount(1);
 	await expect(page.locator(".show:focus, .show :focus")).toHaveCount(0);
-	await expect(show(page)).toHaveCount(0, { timeout: 3000 });
-	await expect(page.locator("html")).not.toHaveAttribute("data-show", /./);
+	// The page changes once the show is over, not under it.
+	expect((await left) - started).toBeGreaterThanOrEqual(3000);
+	await page.waitForURL("**/me");
+	await expect(show(page)).toHaveCount(0);
 });
 
 test("plays the Disco show too", async ({ page }) => {
@@ -184,8 +181,6 @@ test("skips the show on a tap, straight to the page", async ({ page }) => {
 	await expect(show(page)).toHaveCount(1);
 	await page.mouse.click(195, 400);
 	await page.waitForURL("**/me");
-	// Skipped, so no flag: the new page plays no rest of the show.
-	await expect(page.locator("html")).not.toHaveAttribute("data-show", /./);
 	await expect(show(page)).toHaveCount(0);
 });
 
@@ -204,7 +199,40 @@ test("plays nothing on a reload, the current tab or going back", async ({
 	await page.waitForURL("**/team");
 	await page.waitForTimeout(300);
 	await expect(show(page)).toHaveCount(0);
-	await expect(page.locator("html")).not.toHaveAttribute("data-show", /./);
+});
+
+test("plays nothing for Settings or a link in the page", async ({ page }) => {
+	await inTheme(page, "confetti");
+	await tab(page, "/me/settings").click();
+	await page.waitForURL("**/me/settings");
+	await expect(show(page)).toHaveCount(0);
+	// The Orga page's group tiles filter the riders.
+	await page.goto("/organiser/riders");
+	await page.locator("main a.group-tile").first().click();
+	await page.waitForURL("**/organiser/riders?group=*");
+	await expect(show(page)).toHaveCount(0);
+});
+
+test("plays nothing with the shows turned off in Settings", async ({
+	page,
+}) => {
+	await inTheme(page, "disco");
+	await page.goto("/me/settings");
+	const off = page.locator("#settings-shows [role=switch]");
+	await expect(off).toHaveAttribute("aria-checked", "false");
+	await off.click();
+	await expect(off).toHaveAttribute("aria-checked", "true");
+	await tab(page, "/me").click();
+	await page.waitForURL("**/me");
+	await expect(show(page)).toHaveCount(0);
+});
+
+test("plays nothing during a tour", async ({ page }) => {
+	await inTheme(page, "confetti");
+	await page.goto("/team?tour=rider&step=1");
+	await tab(page, "/me").click();
+	await page.waitForURL("**/me");
+	await expect(show(page)).toHaveCount(0);
 });
 
 test("plays nothing in a calm theme", async ({ page }) => {
@@ -231,9 +259,9 @@ test.describe("with reduced motion", () => {
 		);
 		const switched = (await left) - started;
 		expect(switched).toBeGreaterThanOrEqual(200);
-		// Well before the full show's switch at 1.6 s.
-		expect(switched).toBeLessThan(1400);
+		// Well before the full show's end at 3.2 s.
+		expect(switched).toBeLessThan(2000);
 		await page.waitForURL("**/me");
-		await expect(show(page)).toHaveCount(0, { timeout: 2000 });
+		await expect(show(page)).toHaveCount(0);
 	});
 });

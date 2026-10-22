@@ -553,17 +553,18 @@ function pageLoading() {
 	});
 }
 
-/** The page-switch show's length, and when the page changes under it (022). */
+/** The page-switch show's length; the page changes at its end (022). */
 const SHOW_MS = 3200;
-const SWITCH_MS = 1600;
-/** Reduced motion: a fade of the surface instead, switching halfway. */
-const FADE_MS = 500;
-const FADE_SWITCH_MS = FADE_MS / 2;
+/** Reduced motion: a fade to the surface instead. */
+const FADE_MS = 250;
 /** The Konfetti rain: as many coins as confetti pieces, in turn. */
 const SHOW_CONFETTI = 110;
 const SHOW_COINS = SHOW_CONFETTI;
 const SHOW_SPOTS = 34;
-const SHOW_FLAG = "rp-show";
+/** The turning coin's rim, one disc per pixel of its thickness. */
+const SHOW_COIN_LAYERS = 13;
+/** "off" turns the shows off on this device (Settings). */
+const SHOWS_KEY = "rp-shows";
 const FUN_THEMES = new Set(["confetti", "disco"]);
 
 /** The canvas's fixed sequence, so every show rains the same way. */
@@ -635,9 +636,15 @@ function buildShow(theme, reduced) {
 			showPicture(showPart(show, "show-unicorn"), pictures.unicorn);
 		}
 		if (pictures.coin) {
-			// Both sides, back to back, so the turning coin shows its back too.
+			// Both sides, back to back, with a stack of discs between them as
+			// the rim, so the turning coin has depth seen edge on.
 			const turn = showPart(showPart(show, "show-pop"), "show-pop-turn");
+			for (let i = 0; i < SHOW_COIN_LAYERS; i++) {
+				const z = i - (SHOW_COIN_LAYERS - 1) / 2;
+				showPart(turn, "show-pop-edge", { "--z": `${z}px` });
+			}
 			showPicture(turn, pictures.coin);
+			turn.lastChild.className = "show-pop-front";
 			if (pictures.coinBack) {
 				showPicture(turn, pictures.coinBack);
 				turn.lastChild.className = "show-pop-back";
@@ -703,87 +710,78 @@ function buildShow(theme, reduced) {
 }
 
 /**
- * The leaving half: the show plays over this page, which changes at its peak
- * with a flag for the next page to play the rest (research R7). A tap or a
- * key skips it: straight to the page, no flag; the overlay takes the tap so
- * it doesn't also hit a control. The progress bar (#108) starts at the
- * change.
+ * Plays the show over this page, then changes to `href` at its end, so
+ * nothing loads while it plays. A tap or a key skips it: straight to the
+ * page; the overlay takes the tap so it doesn't also hit a control. The
+ * progress bar (#108) starts at the change, and the show's last frame stays
+ * until the next page paints.
  */
 function leaveWithShow(theme, href) {
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 	const show = buildShow(theme, reduced);
 	let gone = false;
-	const go = (handOver) => {
+	const go = () => {
 		if (gone) return;
 		gone = true;
 		clearTimeout(timer);
 		document.removeEventListener("keydown", skip, true);
-		if (handOver) {
-			try {
-				sessionStorage.setItem(SHOW_FLAG, `${theme}:${Date.now()}`);
-			} catch {}
-		}
 		startLoading();
 		location.assign(href);
 	};
 	const skip = (event) => {
 		if (event.type === "pointerdown") event.preventDefault();
-		go(false);
+		go();
 	};
-	const timer = setTimeout(
-		() => go(true),
-		reduced ? FADE_SWITCH_MS : SWITCH_MS,
-	);
+	const timer = setTimeout(go, reduced ? FADE_MS : SHOW_MS);
 	show.addEventListener("pointerdown", skip);
 	document.addEventListener("keydown", skip, true);
 	document.body.append(show);
 }
 
 /**
- * The arriving half: the head script found a fresh flag and painted the peak
- * (`data-show`); the overlay picks up from there and leaves at the end, and
- * the page's own celebrations wait for it. A tap or a key ends it early.
+ * The Settings switch that turns the page-switch shows off on this device
+ * (feature 022); the other animations stay. Hidden where storage refuses.
  */
-function arriveWithShow() {
-	const root = document.documentElement;
-	const theme = root.dataset.show;
-	if (!FUN_THEMES.has(theme)) {
-		delete root.dataset.show;
+function showsSetting() {
+	const section = document.getElementById("settings-shows");
+	const toggle = section?.querySelector("[role=switch]");
+	if (!toggle) return;
+	try {
+		localStorage.getItem(SHOWS_KEY);
+	} catch {
 		return;
 	}
-	const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-	const at = reduced ? FADE_SWITCH_MS : SWITCH_MS;
-	const show = buildShow(theme, reduced);
-	document.body.append(show);
-	for (const animation of show.getAnimations?.({ subtree: true }) ?? []) {
-		animation.currentTime = (Number(animation.currentTime) || 0) + at;
-	}
-	root.dataset.show = "playing";
-	const end = () => {
-		clearTimeout(timer);
-		document.removeEventListener("keydown", end, true);
-		show.style.visibility = "hidden";
-		delete root.dataset.show;
-		// Gone once the skipping tap has landed on it, not on a control.
-		setTimeout(() => show.remove(), 300);
-	};
-	const timer = setTimeout(end, (reduced ? FADE_MS : SHOW_MS) - at);
-	show.addEventListener("pointerdown", (event) => {
-		event.preventDefault();
-		end();
+	toggle.setAttribute("aria-checked", String(showsOff()));
+	section.hidden = false;
+	toggle.addEventListener("click", () => {
+		const off = !showsOff();
+		try {
+			if (off) localStorage.setItem(SHOWS_KEY, "off");
+			else localStorage.removeItem(SHOWS_KEY);
+		} catch {
+			return;
+		}
+		toggle.setAttribute("aria-checked", String(off));
 	});
-	document.addEventListener("keydown", end, true);
+}
+
+/** Whether the rider turned the shows off on this device. */
+function showsOff() {
+	try {
+		return localStorage.getItem(SHOWS_KEY) === "off";
+	} catch {
+		return false;
+	}
 }
 
 /**
  * The fun themes' page-switch shows (feature 022 US4, FR-040–FR-049): a
- * plain click on a link to another of our pages, not the current one, not a
- * view swapped in place and not the refresh link, plays the show across the
- * page load. Reloads, back and forward, forms and the other themes play
- * nothing.
+ * plain click on another section's item in the navigation bar plays the show,
+ * then loads that page. Settings, links in the pages, reloads, back and
+ * forward, forms, a running tour, the other themes and a device with the
+ * shows turned off play nothing.
  */
 function pageSwitchShows() {
-	arriveWithShow();
 	preloadShow(document.documentElement.dataset.theme);
 	document.addEventListener(
 		"click",
@@ -794,9 +792,12 @@ function pageSwitchShows() {
 			if (
 				!hit ||
 				hit.samePage ||
-				hit.link.hasAttribute("data-swap") ||
-				hit.link.classList.contains("refresh") ||
-				hit.link.getAttribute("aria-current") === "page"
+				!hit.link.closest("nav.app-nav") ||
+				hit.link.getAttribute("aria-current") === "page" ||
+				hit.url.pathname === "/me/settings" ||
+				// A tour's step is showing: the tour moves on without shows.
+				document.querySelector("aside.tour .tour-progress") ||
+				showsOff()
 			) {
 				return;
 			}
@@ -809,7 +810,6 @@ function pageSwitchShows() {
 	window.addEventListener("pageshow", (event) => {
 		if (!event.persisted) return;
 		for (const show of document.querySelectorAll(".show")) show.remove();
-		delete document.documentElement.dataset.show;
 	});
 }
 
@@ -2279,6 +2279,7 @@ function progressCharts(signal) {
 function enhance(signal) {
 	lazyRides(signal);
 	installSettings(signal);
+	showsSetting();
 	waitForFirstData(signal);
 	badgeHover();
 	triState();

@@ -17,7 +17,8 @@ import { stepHref } from "../tour";
 // consent (feature 004 FR-014), and signing out or leaving; the rules moved
 // here from the Overview (issue #92), and the tours start again here (#90). For a signed-in rider the language
 // switcher is only here (FR-016). The colour scheme moved to the header's
-// theme menu (feature 022 FR-016).
+// theme menu (feature 022 FR-016); the switch that turns the fun themes'
+// page-switch shows off on this device stays here, shown by `public/app.js`.
 
 /** One group of the page, in contracts/pages.md "Settings" order. */
 function group(id: string, heading: string, body: SafeHtml): SafeHtml {
@@ -65,6 +66,11 @@ export function handleSettings(
 <p><a class="button" href="/connect?next=/me/settings">${i18n.t("me.reconnect")}</a></p>`;
 			return html`<div class="settings-grid">${group("settings-language", i18n.t("settings.language"), languageForm(i18n, "/me/settings"))}
 ${renderNotifications(i18n, vapidPublicKey(ctx.env))}
+<section id="settings-shows" class="settings-group" hidden>
+<h2>${i18n.t("settings.shows")}</h2>
+<p id="settings-shows-off">${i18n.t("settings.shows.off")}</p>
+<button type="button" role="switch" aria-checked="false" aria-labelledby="settings-shows-off"></button>
+</section>
 <section id="settings-app" class="settings-group" hidden>
 <h2>${i18n.t("settings.app")}</h2>
 ${renderInstallHint(i18n)}

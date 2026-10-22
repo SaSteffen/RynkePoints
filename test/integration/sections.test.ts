@@ -279,7 +279,7 @@ describe.each(["de", "en"] as const)("the theme menu (%s)", (locale) => {
 			const order = [
 				'<span class="wordmark">',
 				'<h1 class="section-title">',
-				`<button type="button" class="icon-button theme-button" aria-haspopup="dialog" aria-expanded="false" aria-controls="theme-menu" aria-label="${c["theme.button"]}">`,
+				`<button type="button" class="icon-button theme-button" id="tour-theme" aria-haspopup="dialog" aria-expanded="false" aria-controls="theme-menu" aria-label="${c["theme.button"]}">`,
 				'<a class="icon-button refresh"',
 			].map((part) => header.indexOf(part));
 			expect(order.every((at) => at >= 0)).toBe(true);

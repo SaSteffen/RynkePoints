@@ -14,6 +14,7 @@ const { de } = CATALOGS;
 const GROUPS = [
 	["settings-language", "settings.language"],
 	["notifications", "notifications.heading"],
+	["settings-shows", "settings.shows"],
 	["settings-app", "settings.app"],
 	["settings-strava", "settings.strava"],
 	["settings-consent", "me.consent.heading"],

@@ -18,7 +18,7 @@ const check = html`<span class="theme-check">${CHECK}</span>`;
  * fun themes (contracts/fun-decorations.md).
  */
 export function themeButton(i18n: I18n): SafeHtml {
-	return html`<button type="button" class="icon-button theme-button" aria-haspopup="dialog" aria-expanded="false" aria-controls="theme-menu" aria-label="${i18n.t("theme.button")}">${PALETTE}<span class="theme-badge" aria-hidden="true"></span></button>`;
+	return html`<button type="button" class="icon-button theme-button" id="tour-theme" aria-haspopup="dialog" aria-expanded="false" aria-controls="theme-menu" aria-label="${i18n.t("theme.button")}">${PALETTE}<span class="theme-badge" aria-hidden="true"></span></button>`;
 }
 
 /** The menu panel, hidden until the palette button opens it. */
