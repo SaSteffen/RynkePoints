@@ -290,7 +290,7 @@ describe.each(["de", "en"] as const)("the theme menu (%s)", (locale) => {
 					/<div id="theme-menu"[\s\S]*?<p class="theme-note">[^<]*<\/p>\s*<\/div>/,
 				)?.[0] ?? "";
 			expect(menu).toMatch(
-				/^<div id="theme-menu" class="theme-menu" role="dialog" aria-labelledby="theme-menu-title"( data-show-[a-z]+="[^"]*")* hidden>/,
+				/^<div id="theme-menu" class="theme-menu" role="dialog" aria-labelledby="theme-menu-title"( data-show-[a-z-]+="[^"]*")* hidden>/,
 			);
 			expect(menu).toContain(
 				`<h2 id="theme-menu-title">${c["theme.menu.title"]}</h2>`,
@@ -345,6 +345,9 @@ describe.each(["de", "en"] as const)("the theme menu (%s)", (locale) => {
 			const panel = html.match(/<div id="theme-menu"[^>]*>/)?.[0] ?? "";
 			expect(panel).toContain(
 				`data-show-coin="${artUrl("/coin/rynke-coin-front.svg")}"`,
+			);
+			expect(panel).toContain(
+				`data-show-coin-back="${artUrl("/coin/rynke-coin-back.svg")}"`,
 			);
 			for (const id of ["unicorn", "disco"] as const) {
 				if (SHOW_PICTURES.includes(id)) {

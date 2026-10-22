@@ -577,6 +577,7 @@ function showPictures() {
 	const data = document.getElementById("theme-menu")?.dataset ?? {};
 	return {
 		coin: data.showCoin,
+		coinBack: data.showCoinBack,
 		unicorn: data.showUnicorn,
 		disco: data.showDisco,
 	};
@@ -587,7 +588,7 @@ function preloadShow(theme) {
 	const pictures = showPictures();
 	const urls =
 		theme === "confetti"
-			? [pictures.coin, pictures.unicorn]
+			? [pictures.coin, pictures.coinBack, pictures.unicorn]
 			: theme === "disco"
 				? [pictures.disco]
 				: [];
@@ -633,7 +634,15 @@ function buildShow(theme, reduced) {
 		if (pictures.unicorn) {
 			showPicture(showPart(show, "show-unicorn"), pictures.unicorn);
 		}
-		if (pictures.coin) showPicture(showPart(show, "show-pop"), pictures.coin);
+		if (pictures.coin) {
+			// Both sides, back to back, so the turning coin shows its back too.
+			const turn = showPart(showPart(show, "show-pop"), "show-pop-turn");
+			showPicture(turn, pictures.coin);
+			if (pictures.coinBack) {
+				showPicture(turn, pictures.coinBack);
+				turn.lastChild.className = "show-pop-back";
+			}
+		}
 		for (let i = 0; i < SHOW_CONFETTI + SHOW_COINS; i++) {
 			const coin = i % 2 === 1;
 			const long = seeded(i + 1) > 0.5;

@@ -208,7 +208,10 @@ const SHOW_RULES = (() => {
 :root[data-show] .celebrate-coins .coin-mini,:root[data-show] .badges-reveal-pictures img,:root[data-show] .badge-sparkles>span{animation-play-state:paused}
 .show-rainbow{left:calc(50% - ${rainbow} / 2);top:calc(100% - ${rainbow} / 2);width:${rainbow};height:${rainbow};border-radius:50%;background:radial-gradient(circle,var(--rp-show-bands));transform:scale(0);animation:show-rainbow ${play} cubic-bezier(.5,0,.3,1) forwards}
 .show-pop{left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;opacity:0;animation:show-pop ${play} ease-in-out forwards}
-.show-pop img{animation:show-spin 1.1s linear infinite}
+.show-pop{perspective:600px}
+.show-pop-turn{position:absolute;inset:0;transform-style:preserve-3d;animation:show-spin 1.1s linear infinite}
+.show-pop img{position:absolute;inset:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.show-pop .show-pop-back{transform:rotateY(180deg)}
 .show-piece{top:-24px;border-radius:2px;animation:show-fall linear both;animation-timing-function:cubic-bezier(.3,.1,.6,1)}
 .show-piece.round,.show-piece.coin{border-radius:50%}
 .show-piece.coin{width:20px;height:20px;animation-name:show-coin-fall}

@@ -33,9 +33,11 @@ export function themeMenu(i18n: I18n): SafeHtml {
 `;
 	});
 	// The page-switch shows' pictures (contracts/page-switch-show.md,
-	// show-pictures.md): the coin always, Rynke only once built (FR-049).
+	// show-pictures.md): the coin's two sides always, Rynke only once built
+	// (FR-049).
 	const pictures = [
 		html` data-show-coin="${artUrl("/coin/rynke-coin-front.svg")}"`,
+		html` data-show-coin-back="${artUrl("/coin/rynke-coin-back.svg")}"`,
 		...SHOW_PICTURES.map(
 			(id) => html` data-show-${id}="${artUrl(`/shows/${id}.svg`)}"`,
 		),
