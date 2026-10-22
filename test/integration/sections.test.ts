@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import { createSessionCookie } from "../../src/http/session";
+import { SHOW_PICTURES } from "../../src/http/show-pictures";
 import { THEMES } from "../../src/http/themes";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
@@ -288,7 +290,7 @@ describe.each(["de", "en"] as const)("the theme menu (%s)", (locale) => {
 					/<div id="theme-menu"[\s\S]*?<p class="theme-note">[^<]*<\/p>\s*<\/div>/,
 				)?.[0] ?? "";
 			expect(menu).toMatch(
-				/^<div id="theme-menu" class="theme-menu" role="dialog" aria-labelledby="theme-menu-title" hidden>/,
+				/^<div id="theme-menu" class="theme-menu" role="dialog" aria-labelledby="theme-menu-title"( data-show-[a-z]+="[^"]*")* hidden>/,
 			);
 			expect(menu).toContain(
 				`<h2 id="theme-menu-title">${c["theme.menu.title"]}</h2>`,
@@ -328,6 +330,32 @@ describe.each(["de", "en"] as const)("the theme menu (%s)", (locale) => {
 			expect(menu).toContain(
 				`<p class="theme-note">${escapeHtml(c["theme.menu.note"])}</p>`,
 			);
+		},
+	);
+
+	it.each(SECTIONS.map(({ path }) => path))(
+		"names the page-switch shows' built pictures on %s, and only those (022 FR-049)",
+		async (path) => {
+			await seedRider(ctx);
+			const cookies = {
+				...(await sessionCookie(ctx, ATHLETE_A)),
+				rp_lang: locale,
+			};
+			const { html } = await get(path, cookies);
+			const panel = html.match(/<div id="theme-menu"[^>]*>/)?.[0] ?? "";
+			expect(panel).toContain(
+				`data-show-coin="${artUrl("/coin/rynke-coin-front.svg")}"`,
+			);
+			for (const id of ["unicorn", "disco"] as const) {
+				if (SHOW_PICTURES.includes(id)) {
+					expect(panel).toContain(
+						`data-show-${id}="${artUrl(`/shows/${id}.svg`)}"`,
+					);
+					expect(artUrl(`/shows/${id}.svg`)).toMatch(/\?v=[0-9a-f]{10}$/);
+				} else {
+					expect(panel).not.toContain(`data-show-${id}`);
+				}
+			}
 		},
 	);
 

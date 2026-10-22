@@ -32,7 +32,7 @@ const TEAM =
  * the same in both schemes like the coin's, so both define the same names.
  */
 const FUN =
-	"--rp-fun-spark-1:#ffe61a;--rp-fun-spark-2:#ffffff;--rp-fun-spark-3:#ff8fd1;--rp-fun-spark-4:#7bdff2;--rp-fun-burst-1:#ff4566;--rp-fun-burst-2:#3fa9ff;--rp-fun-burst-3:#2bea7c;--rp-fun-burst-4:#c45cff;--rp-fun-confetti:radial-gradient(circle at 8% 12%,#ff4566 0 3px,transparent 3.5px),radial-gradient(circle at 22% 31%,#ffb31a 0 2.5px,transparent 3px),radial-gradient(circle at 91% 18%,#3fa9ff 0 3px,transparent 3.5px),radial-gradient(circle at 77% 44%,#c45cff 0 2.5px,transparent 3px),radial-gradient(circle at 4% 58%,#2bea7c 0 3px,transparent 3.5px),radial-gradient(circle at 95% 63%,#ff4566 0 2.5px,transparent 3px),radial-gradient(circle at 15% 79%,#3fa9ff 0 2.5px,transparent 3px),radial-gradient(circle at 88% 86%,#ffb31a 0 3px,transparent 3.5px),radial-gradient(circle at 50% 97%,#c45cff 0 3px,transparent 3.5px),radial-gradient(circle at 60% 9%,#2bea7c 0 2px,transparent 2.5px),linear-gradient(35deg,transparent 46%,#ff8fab 46% 54%,transparent 54%) 8% 25%/14px 14px no-repeat,linear-gradient(-30deg,transparent 46%,#7bdff2 46% 54%,transparent 54%) 87% 39%/16px 16px no-repeat,linear-gradient(60deg,transparent 46%,#ffd166 46% 54%,transparent 54%) 92% 14%/14px 14px no-repeat,linear-gradient(-55deg,transparent 46%,#b8f2a1 46% 54%,transparent 54%) 3% 71%/16px 16px no-repeat;--rp-fun-disco:radial-gradient(circle at 7% 14%,#fff 0 1px,transparent 1.5px),radial-gradient(circle at 19% 36%,#ffe61a 0 1.2px,transparent 1.7px),radial-gradient(circle at 93% 22%,#fff 0 1.4px,transparent 2px),radial-gradient(circle at 84% 47%,#7bdff2 0 1px,transparent 1.5px),radial-gradient(circle at 3% 61%,#ff8fd1 0 1.3px,transparent 1.8px),radial-gradient(circle at 96% 70%,#fff 0 1px,transparent 1.5px),radial-gradient(circle at 12% 83%,#ffe61a 0 1.4px,transparent 2px),radial-gradient(circle at 90% 90%,#fff 0 1.2px,transparent 1.7px),radial-gradient(circle at 55% 98%,#b8f2a1 0 1px,transparent 1.5px),radial-gradient(ellipse at 50% -10%,rgba(255,92,184,.22),transparent 60%);--rp-fun-glow-a:0 0 18px rgba(255,92,184,.45),0 0 2px #fff inset;--rp-fun-glow-b:0 0 22px rgba(58,134,255,.5),0 0 2px #fff inset;--rp-fun-confetti-badge:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M1.4 13A7.6 7.6 0 0 1 16.6 13' stroke='%23ff4566'/%3E%3Cpath d='M2.65 13A6.35 6.35 0 0 1 15.35 13' stroke='%23ff7a2e'/%3E%3Cpath d='M3.9 13A5.1 5.1 0 0 1 14.1 13' stroke='%23ffe61a'/%3E%3Cpath d='M5.15 13A3.85 3.85 0 0 1 12.85 13' stroke='%232bea7c'/%3E%3Cpath d='M6.4 13A2.6 2.6 0 0 1 11.6 13' stroke='%233fa9ff'/%3E%3Cpath d='M7.65 13A1.35 1.35 0 0 1 10.35 13' stroke='%23c45cff'/%3E%3C/svg%3E\") center/100% no-repeat,#eaf6ff;--rp-fun-disco-badge:radial-gradient(circle at 35% 30%,#ffffff 0 10%,transparent 32%),repeating-linear-gradient(0deg,rgba(40,20,70,.55) 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,rgba(40,20,70,.55) 0 1px,transparent 1px 4px),linear-gradient(135deg,#f4f4fb,#8f8fa3);--rp-fun-badge-glow:0 0 8px rgba(255,92,184,.7)";
+	"--rp-fun-spark-1:#ffe61a;--rp-fun-spark-2:#ffffff;--rp-fun-spark-3:#ff8fd1;--rp-fun-spark-4:#7bdff2;--rp-fun-burst-1:#ff4566;--rp-fun-burst-2:#3fa9ff;--rp-fun-burst-3:#2bea7c;--rp-fun-burst-4:#c45cff;--rp-fun-confetti:radial-gradient(circle at 8% 12%,#ff4566 0 3px,transparent 3.5px),radial-gradient(circle at 22% 31%,#ffb31a 0 2.5px,transparent 3px),radial-gradient(circle at 91% 18%,#3fa9ff 0 3px,transparent 3.5px),radial-gradient(circle at 77% 44%,#c45cff 0 2.5px,transparent 3px),radial-gradient(circle at 4% 58%,#2bea7c 0 3px,transparent 3.5px),radial-gradient(circle at 95% 63%,#ff4566 0 2.5px,transparent 3px),radial-gradient(circle at 15% 79%,#3fa9ff 0 2.5px,transparent 3px),radial-gradient(circle at 88% 86%,#ffb31a 0 3px,transparent 3.5px),radial-gradient(circle at 50% 97%,#c45cff 0 3px,transparent 3.5px),radial-gradient(circle at 60% 9%,#2bea7c 0 2px,transparent 2.5px),linear-gradient(35deg,transparent 46%,#ff8fab 46% 54%,transparent 54%) 8% 25%/14px 14px no-repeat,linear-gradient(-30deg,transparent 46%,#7bdff2 46% 54%,transparent 54%) 87% 39%/16px 16px no-repeat,linear-gradient(60deg,transparent 46%,#ffd166 46% 54%,transparent 54%) 92% 14%/14px 14px no-repeat,linear-gradient(-55deg,transparent 46%,#b8f2a1 46% 54%,transparent 54%) 3% 71%/16px 16px no-repeat;--rp-fun-disco:radial-gradient(circle at 7% 14%,#fff 0 1px,transparent 1.5px),radial-gradient(circle at 19% 36%,#ffe61a 0 1.2px,transparent 1.7px),radial-gradient(circle at 93% 22%,#fff 0 1.4px,transparent 2px),radial-gradient(circle at 84% 47%,#7bdff2 0 1px,transparent 1.5px),radial-gradient(circle at 3% 61%,#ff8fd1 0 1.3px,transparent 1.8px),radial-gradient(circle at 96% 70%,#fff 0 1px,transparent 1.5px),radial-gradient(circle at 12% 83%,#ffe61a 0 1.4px,transparent 2px),radial-gradient(circle at 90% 90%,#fff 0 1.2px,transparent 1.7px),radial-gradient(circle at 55% 98%,#b8f2a1 0 1px,transparent 1.5px),radial-gradient(ellipse at 50% -10%,rgba(255,92,184,.22),transparent 60%);--rp-fun-glow-a:0 0 18px rgba(255,92,184,.45),0 0 2px #fff inset;--rp-fun-glow-b:0 0 22px rgba(58,134,255,.5),0 0 2px #fff inset;--rp-fun-confetti-badge:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M1.4 13A7.6 7.6 0 0 1 16.6 13' stroke='%23ff4566'/%3E%3Cpath d='M2.65 13A6.35 6.35 0 0 1 15.35 13' stroke='%23ff7a2e'/%3E%3Cpath d='M3.9 13A5.1 5.1 0 0 1 14.1 13' stroke='%23ffe61a'/%3E%3Cpath d='M5.15 13A3.85 3.85 0 0 1 12.85 13' stroke='%232bea7c'/%3E%3Cpath d='M6.4 13A2.6 2.6 0 0 1 11.6 13' stroke='%233fa9ff'/%3E%3Cpath d='M7.65 13A1.35 1.35 0 0 1 10.35 13' stroke='%23c45cff'/%3E%3C/svg%3E\") center/100% no-repeat,#eaf6ff;--rp-fun-disco-badge:radial-gradient(circle at 35% 30%,#ffffff 0 10%,transparent 32%),repeating-linear-gradient(0deg,rgba(40,20,70,.55) 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,rgba(40,20,70,.55) 0 1px,transparent 1px 4px),linear-gradient(135deg,#f4f4fb,#8f8fa3);--rp-fun-badge-glow:0 0 8px rgba(255,92,184,.7);--rp-show-bands:#fffcf7 0 12%,#c45cff 12% 19%,#8a7dff 19% 26%,#3fa9ff 26% 33%,#1fd0ff 33% 40%,#14e6cf 40% 47%,#2bea7c 47% 54%,#a6f21f 54% 61%,#ffe61a 61% 68%,#ffb31a 68% 75%,#ff7a2e 75% 82%,#ff4566 82% 89%,#ff4fb4 89% 95%,#ff85dc 95% 100%;--rp-show-room:radial-gradient(ellipse at 50% 12%,#3a1f6b 0,#120a22 55%,#07040f 100%);--rp-show-wire:linear-gradient(#cdbde8,#9a88bf);--rp-show-ball:#9a9aa8;--rp-show-ball-glow:0 0 30px rgba(255,255,255,.35),0 0 60px rgba(255,92,184,.35);--rp-show-facets:linear-gradient(rgba(20,10,40,.55) 1px,transparent 1px),linear-gradient(90deg,rgba(20,10,40,.55) 1px,transparent 1px),linear-gradient(90deg,#d9d9e3 0 25%,#8f8fa3 25% 50%,#f4f4fb 50% 75%,#b3b3c4 75% 100%);--rp-show-shade:radial-gradient(circle at 35% 30%,rgba(255,255,255,.7) 0 8%,transparent 30%),radial-gradient(circle at 50% 50%,transparent 45%,rgba(10,5,25,.75) 72%);--rp-show-beams:repeating-conic-gradient(from 0deg,rgba(255,92,184,.55) 0 3deg,transparent 3deg 18deg,rgba(123,223,242,.5) 18deg 21deg,transparent 21deg 36deg,rgba(255,226,74,.5) 36deg 39deg,transparent 39deg 54deg,rgba(184,242,161,.45) 54deg 57deg,transparent 57deg 72deg);--rp-show-beams-mask:radial-gradient(circle,transparent 0 60px,#000 90px 55%,transparent 72%);--rp-show-floor:radial-gradient(ellipse,rgba(255,92,184,.75) 0,rgba(123,223,242,.35) 45%,transparent 70%);--rp-show-coin-training:radial-gradient(circle at 38% 34%,rgba(255,255,255,.85) 0 14%,transparent 16%),radial-gradient(circle,#fbe122 0 50%,#e0b52a 51% 60%,#c99a2e 62% 100%);--rp-show-coin-team:radial-gradient(circle at 38% 34%,rgba(255,255,255,.85) 0 14%,transparent 16%),radial-gradient(circle,#8cc4f0 0 50%,#5aa2dc 51% 60%,#c99a2e 62% 100%);--rp-show-confetti-1:#ff4566;--rp-show-confetti-2:#ffb31a;--rp-show-confetti-3:#ffe61a;--rp-show-confetti-4:#2bea7c;--rp-show-confetti-5:#3fa9ff;--rp-show-confetti-6:#c45cff;--rp-show-confetti-7:#ff8fd1;--rp-show-confetti-8:#7bdff2;--rp-show-spot-1:#ff5cb8;--rp-show-spot-2:#7bdff2;--rp-show-spot-3:#ffe61a;--rp-show-spot-4:#b8f2a1;--rp-show-spot-5:#ffffff;--rp-show-spot-6:#d7a6ec";
 
 /** The colour roles of the dark scheme, for the system setting and a choice. */
 const DARK = `--rp-badge-edge:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 2px 2px rgba(0,0,0,.6));--rp-badge-lift:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 6px 6px rgba(0,0,0,.6));--rp-quote-art-shadow:drop-shadow(0 0 .6px rgba(0,0,0,.8)) drop-shadow(0 3px 5px rgba(0,0,0,.55));--md-sys-color-surface:#12110c;--md-sys-color-surface-container-low:#1a1913;--md-sys-color-surface-container:#201f18;--md-sys-color-surface-container-high:#2b2a21;--md-sys-color-on-surface:#eeebdd;--md-sys-color-on-surface-variant:#cec9b3;--md-sys-color-outline:#979279;--md-sys-color-outline-variant:#4a4633;--md-sys-color-primary:#fbe122;--md-sys-color-on-primary:#1c1b13;--md-sys-color-primary-container:#fbe122;--md-sys-color-on-primary-container:#1c1b13;--md-sys-color-secondary-container:#fbe122;--md-sys-color-on-secondary-container:#1c1b13;--md-sys-color-error:#ffb4ab;--md-sys-color-error-container:#93000a;--md-sys-color-on-error-container:#ffdad6;--rp-ok-container:#173a22;--rp-on-ok-container:#bfe3c6;--rp-neutral-container:#2e2c22;--rp-on-neutral-container:#cec9b3;--rp-brand:#fc5200;--rp-part-1:#fbe122;--rp-part-2:#8cc4f0;--rp-part-3:#ff9a4d;--rp-part-4:#6fd1c2;--rp-part-5:#d7a6ec;--rp-part-6:#a8a6a0;--rp-reached:#fbe122;--rp-track:#3a382c;--rp-push-container:#3a2614;--rp-on-push-container:#f6d2b0;--rp-road:#0a0906;--rp-bar:#6b6650;--rp-line-training:#a88e00;--rp-line-team:#4a94d2;--rp-line-outside:#a77fd0;--rp-line-threshold:#d64651;--rp-line-pace:#24a684;${TEAM}${COIN};${FUN}`;
@@ -186,6 +186,54 @@ ${disco} .theme-badge{background:var(--rp-fun-disco-badge);box-shadow:0 0 0 2px 
 @media (max-width:399.98px){${fun(".fun-sparkles")}{left:var(--rp-space-3);width:96px;height:96px;margin-top:-48px}}
 @media (min-width:600px){${fun("nav.app-nav a[aria-current=page]")}{background:var(--rp-rainbow);color:var(--rp-coin-ink)}${fun("nav.app-nav a[aria-current=page] .nav-icon")}{background:none}}
 @media (prefers-reduced-motion:reduce){${moving.join(",")}{animation:none}${fun(".fun-bursts")}{display:none;animation:none}}`;
+})();
+
+/**
+ * The page-switch shows of the fun themes (feature 022 US4,
+ * contracts/page-switch-show.md, board Transitions): `public/app.js` mounts
+ * the overlay, over everything, for 3.2 s; the arriving page first paints the
+ * show's peak from `data-show` alone, and its celebrations wait for the show.
+ */
+const SHOW_RULES = (() => {
+	const star =
+		"polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)";
+	const rainbow = "max(2000px,220vmax)";
+	const play = "3.2s";
+	return `.show{position:fixed;inset:0;z-index:20;overflow:hidden}
+.show>*{position:absolute;pointer-events:none}
+.show img{display:block;width:100%;height:auto}
+:root[data-show=confetti]::before,:root[data-show=disco]::before{content:"";position:fixed;inset:0;z-index:20;pointer-events:none;animation:show-cover 0s 2s forwards}
+:root[data-show=confetti]::before{background:radial-gradient(circle calc(${rainbow} * .7072) at 50% 100%,var(--rp-show-bands))}
+:root[data-show=disco]::before{background:var(--rp-show-room)}
+:root[data-show] .celebrate-coins .coin-mini,:root[data-show] .badges-reveal-pictures img,:root[data-show] .badge-sparkles>span{animation-play-state:paused}
+.show-rainbow{left:calc(50% - ${rainbow} / 2);top:calc(100% - ${rainbow} / 2);width:${rainbow};height:${rainbow};border-radius:50%;background:radial-gradient(circle,var(--rp-show-bands));transform:scale(0);animation:show-rainbow ${play} cubic-bezier(.5,0,.3,1) forwards}
+.show-pop{left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;opacity:0;animation:show-pop ${play} ease-in-out forwards}
+.show-pop img{animation:show-spin 1.1s linear infinite}
+.show-piece{top:-24px;border-radius:2px;animation:show-fall linear both;animation-timing-function:cubic-bezier(.3,.1,.6,1)}
+.show-piece.round,.show-piece.coin{border-radius:50%}
+.show-piece.coin{width:20px;height:20px;animation-name:show-coin-fall}
+.show-piece.training{background:var(--rp-show-coin-training)}
+.show-piece.team{background:var(--rp-show-coin-team)}
+.show-unicorn{left:0;top:0;width:200px;transform:translate(-230px,85vh) rotate(-14deg);animation:show-unicorn ${play} linear forwards}
+.show-unicorn img{transform-origin:50% 90%;animation:show-gallop .45s ease-in-out infinite alternate}
+.show-room{inset:0;opacity:0;background:var(--rp-show-room);animation:show-room ${play} ease-in-out forwards}
+.show-beams{left:calc(50% - 700px);top:-570px;width:1400px;height:1400px;border-radius:50%;opacity:0;background:var(--rp-show-beams);-webkit-mask:var(--rp-show-beams-mask);mask:var(--rp-show-beams-mask);animation:show-beams ${play} ease-in-out forwards,show-turn 4s linear infinite}
+.show-wire{left:calc(50% - 1px);top:0;width:2px;height:70px;background:var(--rp-show-wire);transform:translateY(-240px);animation:show-drop ${play} cubic-bezier(.5,0,.3,1.2) forwards}
+.show-ball{left:calc(50% - 60px);top:70px;width:120px;height:120px;transform:translateY(-240px);animation:show-drop ${play} cubic-bezier(.5,0,.3,1.2) forwards}
+.show-ball>span{position:absolute}
+.show-ball-face{inset:0;border-radius:50%;overflow:hidden;background:var(--rp-show-ball);box-shadow:var(--rp-show-ball-glow)}
+.show-facets{position:absolute;inset:0;background:var(--rp-show-facets);background-size:100% 12px,12px 100%,48px 100%;animation:show-facets .9s linear infinite}
+.show-shade{position:absolute;inset:0;border-radius:50%;background:var(--rp-show-shade)}
+.show-glint{width:18px;height:18px;background:var(--rp-fun-spark-2);clip-path:${star};animation:show-glint 1.2s ease-in-out infinite}
+.show-glint:nth-child(2){left:18px;top:20px}
+.show-glint:nth-child(3){left:76px;top:36px;animation-delay:.4s}
+.show-glint:nth-child(4){left:40px;top:80px;animation-delay:.8s}
+.show-spot{width:var(--size);height:var(--size);border-radius:50%;opacity:0;filter:blur(1.5px);animation:show-spot ${play} ease-in-out forwards,show-sweep 1.6s linear infinite}
+.show-floor{left:calc(50% - 130px);bottom:70px;width:260px;height:56px;border-radius:50%;opacity:0;background:var(--rp-show-floor);animation:show-dancer ${play} ease-in-out forwards}
+.show-dancer{left:calc(50% - 85px);bottom:96px;width:170px;opacity:0;animation:show-dancer ${play} ease-in-out forwards}
+.show-dancer img{transform-origin:50% 95%;animation:show-groove .5s ease-in-out infinite alternate}
+.show-fade{inset:0;opacity:0;background:var(--md-sys-color-surface);animation:show-fade .5s ease-in-out forwards}
+@media (prefers-reduced-motion:reduce){:root[data-show=confetti]::before,:root[data-show=disco]::before{background:var(--md-sys-color-surface)}}`;
 })();
 
 /** The disclosure's chevron, a mask in the text's colour (022 contracts/controls.md). */
@@ -748,6 +796,7 @@ ul.requests{margin:0;padding:0;list-style:none}
 @media (max-width:399.98px){:root{--rp-page-padding:12px}.hero,.team-total,.overview-deadline{gap:var(--rp-space-3);padding:var(--rp-space-3)}.hero .coin-hero,.team-total .coin-large{width:96px;height:96px}.overview-deadline .coin-large{width:96px;height:96px}.overview-deadline .overview-deadline-count{font:700 28px/34px var(--md-ref-typeface)}.rynke-verdict{font:600 20px/26px var(--md-ref-typeface)}.rynke-summary{gap:var(--rp-space-3)}.status-art-banner{width:96px;height:96px}.quote-monkey-art{width:100px;height:100px}.group-tile{padding:10px}dl.ride-figures{grid-template-columns:repeat(3,auto);justify-content:space-between}nav.app-nav .nav-icon{width:56px}}
 @media (prefers-reduced-motion:reduce){nav.app-nav .nav-icon,[role=switch]::after,summary::after{transition:none}.button,.button-outlined,.button-text,.danger,.icon-button{transition:none}.button[aria-busy=true]::after,.button-outlined[aria-busy=true]::after,.danger[aria-busy=true]::after,.segmented[aria-busy=true]::after{animation:none}.celebrate-coins .coin-mini{animation:none}.badges-reveal-pictures img{animation:none}button.badge{transition:none}.badge-sparkles>span{animation:none}.coin-flip-turn{animation:none}}
 ${FUN_RULES}
+${SHOW_RULES}
 @keyframes top-bar-lift{from{box-shadow:none}to{box-shadow:0 1px 0 var(--md-sys-color-outline-variant)}}
 @keyframes busy-spin{to{transform:rotate(360deg)}}
 @keyframes tour-point{50%{outline-offset:5px}}
@@ -762,4 +811,23 @@ ${FUN_RULES}
 @keyframes twinkle{0%,100%{opacity:.15;transform:scale(.6) rotate(0deg)}50%{opacity:1;transform:scale(1) rotate(20deg)}}
 @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0}15%{opacity:1}100%{transform:translateY(150px) rotate(420deg);opacity:0}}
 @keyframes glow{from{box-shadow:var(--rp-fun-glow-a)}to{box-shadow:var(--rp-fun-glow-b)}}
-@keyframes discobadge{to{background-position:0 0,0 0,4px 0,0 0}}`;
+@keyframes discobadge{to{background-position:0 0,0 0,4px 0,0 0}}
+@keyframes show-cover{to{visibility:hidden}}
+@keyframes show-rainbow{0%{transform:scale(0)}42%,58%{transform:scale(1)}100%{transform:scale(0)}}
+@keyframes show-pop{0%,30%{opacity:0;transform:scale(.2) rotate(-30deg)}44%{opacity:1;transform:scale(1.15) rotate(8deg)}50%{transform:scale(1) rotate(0deg)}58%{opacity:1;transform:scale(1) rotate(0deg)}70%,100%{opacity:0;transform:scale(.3) rotate(25deg)}}
+@keyframes show-spin{to{transform:rotateY(360deg)}}
+@keyframes show-fall{from{transform:translate3d(0,0,0) rotate(0deg)}to{transform:translate3d(var(--sway),calc(100vh + 60px),0) rotate(var(--spin))}}
+@keyframes show-coin-fall{from{transform:translate3d(0,0,0) rotateY(0deg)}to{transform:translate3d(var(--sway),calc(100vh + 60px),0) rotateY(var(--spin))}}
+@keyframes show-unicorn{0%{transform:translate(-230px,85vh) rotate(-14deg)}50%{transform:translate(24vw,64vh) rotate(-10deg)}100%{transform:translate(calc(100vw + 20px),39vh) rotate(-6deg)}}
+@keyframes show-gallop{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-8px) rotate(2deg)}}
+@keyframes show-room{0%{opacity:0}38%,60%{opacity:1}100%{opacity:0}}
+@keyframes show-beams{0%,18%{opacity:0}40%,60%{opacity:1}88%,100%{opacity:0}}
+@keyframes show-turn{to{rotate:360deg}}
+@keyframes show-drop{0%{transform:translateY(-240px)}28%{transform:translateY(0)}34%{transform:translateY(-6px)}40%,62%{transform:translateY(0)}100%{transform:translateY(-260px)}}
+@keyframes show-facets{to{background-position:0 0,12px 0,48px 0}}
+@keyframes show-glint{0%,100%{opacity:0;transform:scale(.4) rotate(0deg)}50%{opacity:1;transform:scale(1) rotate(45deg)}}
+@keyframes show-spot{0%,22%{opacity:0}40%,62%{opacity:.95}90%,100%{opacity:0}}
+@keyframes show-sweep{to{translate:var(--dx) var(--dy)}}
+@keyframes show-dancer{0%,22%{opacity:0;transform:translateY(40px)}40%,62%{opacity:1;transform:translateY(0)}86%,100%{opacity:0;transform:translateY(40px)}}
+@keyframes show-groove{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
+@keyframes show-fade{0%,100%{opacity:0}50%{opacity:1}}`;

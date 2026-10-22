@@ -2,3 +2,6 @@
 
 /** Problems with the quote monkey list, empty when it is valid. */
 export function validateMonkeys(data: unknown): string[];
+
+/** Problems with the page-switch shows' list, empty when it is valid. */
+export function validateShows(data: unknown): string[];

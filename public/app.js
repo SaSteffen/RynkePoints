@@ -445,6 +445,7 @@ function themeMenu() {
 	for (const radio of radios) {
 		radio.addEventListener("change", () => {
 			const theme = radio.value;
+			preloadShow(theme);
 			try {
 				if (theme === "auto") localStorage.removeItem(KEY);
 				else localStorage.setItem(KEY, theme);
@@ -495,6 +496,44 @@ function stopLoading() {
 }
 
 /**
+ * The link a plain left click follows to another page of ours, with its
+ * address; null for a click with a modifier, a link to another site, a new
+ * tab, a download, a file or a spot on this page.
+ */
+function linkToOurPage(event) {
+	if (
+		event.defaultPrevented ||
+		event.button !== 0 ||
+		event.metaKey ||
+		event.ctrlKey ||
+		event.shiftKey ||
+		event.altKey
+	) {
+		return null;
+	}
+	const link =
+		event.target instanceof Element ? event.target.closest("a[href]") : null;
+	if (
+		!(link instanceof HTMLAnchorElement) ||
+		link.hasAttribute("download") ||
+		(link.target !== "" && link.target !== "_self")
+	) {
+		return null;
+	}
+	const url = new URL(link.href);
+	const samePage =
+		url.pathname === location.pathname && url.search === location.search;
+	if (
+		url.origin !== location.origin ||
+		(samePage && url.hash !== "") ||
+		/\.[a-z0-9]+$/i.test(url.pathname)
+	) {
+		return null;
+	}
+	return { link, url, samePage };
+}
+
+/**
  * Starts the progress bar for whatever leaves this page for another of ours: a
  * link, the top bar's refresh, a form. Links to another site, a new tab, a
  * download or a file don't count: this page stays. A page restored from the
@@ -503,36 +542,7 @@ function stopLoading() {
  */
 function pageLoading() {
 	document.addEventListener("click", (event) => {
-		if (
-			event.defaultPrevented ||
-			event.button !== 0 ||
-			event.metaKey ||
-			event.ctrlKey ||
-			event.shiftKey ||
-			event.altKey
-		) {
-			return;
-		}
-		const link =
-			event.target instanceof Element ? event.target.closest("a[href]") : null;
-		if (
-			!(link instanceof HTMLAnchorElement) ||
-			link.hasAttribute("download") ||
-			(link.target !== "" && link.target !== "_self")
-		) {
-			return;
-		}
-		const url = new URL(link.href);
-		const samePage =
-			url.pathname === location.pathname && url.search === location.search;
-		if (
-			url.origin !== location.origin ||
-			(samePage && url.hash !== "") ||
-			/\.[a-z0-9]+$/i.test(url.pathname)
-		) {
-			return;
-		}
-		startLoading();
+		if (linkToOurPage(event)) startLoading();
 	});
 	document.addEventListener("submit", (event) => {
 		if (!event.defaultPrevented) startLoading();
@@ -540,6 +550,257 @@ function pageLoading() {
 	window.addEventListener("pageshow", stopLoading);
 	document.addEventListener("visibilitychange", () => {
 		if (document.visibilityState === "hidden") stopLoading();
+	});
+}
+
+/** The page-switch show's length, and when the page changes under it (022). */
+const SHOW_MS = 3200;
+const SWITCH_MS = 1600;
+/** Reduced motion: a fade of the surface instead, switching halfway. */
+const FADE_MS = 500;
+const FADE_SWITCH_MS = FADE_MS / 2;
+/** The Konfetti rain: as many coins as confetti pieces, in turn. */
+const SHOW_CONFETTI = 110;
+const SHOW_COINS = SHOW_CONFETTI;
+const SHOW_SPOTS = 34;
+const SHOW_FLAG = "rp-show";
+const FUN_THEMES = new Set(["confetti", "disco"]);
+
+/** The canvas's fixed sequence, so every show rains the same way. */
+function seeded(n) {
+	const x = Math.sin(n * 9301 + 49297) * 233280;
+	return x - Math.floor(x);
+}
+
+/** The show's pictures, as the page's theme menu names them (FR-049). */
+function showPictures() {
+	const data = document.getElementById("theme-menu")?.dataset ?? {};
+	return {
+		coin: data.showCoin,
+		unicorn: data.showUnicorn,
+		disco: data.showDisco,
+	};
+}
+
+/** Loads the theme's show pictures ahead, so the first show doesn't wait. */
+function preloadShow(theme) {
+	const pictures = showPictures();
+	const urls =
+		theme === "confetti"
+			? [pictures.coin, pictures.unicorn]
+			: theme === "disco"
+				? [pictures.disco]
+				: [];
+	for (const url of urls) {
+		if (url) new Image().src = url;
+	}
+}
+
+function showPart(parent, className, style = {}) {
+	const part = document.createElement("div");
+	part.className = className;
+	for (const [name, value] of Object.entries(style)) {
+		part.style.setProperty(name, value);
+	}
+	parent.append(part);
+	return part;
+}
+
+function showPicture(parent, src) {
+	const img = document.createElement("img");
+	img.src = src;
+	img.alt = "";
+	parent.append(img);
+}
+
+/**
+ * The overlay of one show (contracts/page-switch-show.md): Konfetti's rainbow,
+ * coin and rain, or Disco's room, beams, ball and spots, with Rynke once the
+ * picture is built; under reduced motion a fade of the surface. Hidden from
+ * screen readers, nothing in it takes focus (FR-046).
+ */
+function buildShow(theme, reduced) {
+	const show = document.createElement("div");
+	show.className = `show show-${theme}`;
+	show.setAttribute("aria-hidden", "true");
+	if (reduced) {
+		showPart(show, "show-fade");
+		return show;
+	}
+	const pictures = showPictures();
+	if (theme === "confetti") {
+		showPart(show, "show-rainbow");
+		if (pictures.unicorn) {
+			showPicture(showPart(show, "show-unicorn"), pictures.unicorn);
+		}
+		if (pictures.coin) showPicture(showPart(show, "show-pop"), pictures.coin);
+		for (let i = 0; i < SHOW_CONFETTI + SHOW_COINS; i++) {
+			const coin = i % 2 === 1;
+			const long = seeded(i + 1) > 0.5;
+			const kind = coin
+				? `coin ${Math.floor(i / 2) % 2 === 0 ? "training" : "team"}`
+				: seeded(i + 3) > 0.7
+					? "round"
+					: "";
+			showPart(show, `show-piece ${kind}`.trim(), {
+				left: `${Math.round(seeded(i + 2) * 100)}%`,
+				width: coin ? "20px" : long ? "7px" : "9px",
+				height: coin ? "20px" : long ? "15px" : "9px",
+				background: coin ? "" : `var(--rp-show-confetti-${(i % 8) + 1})`,
+				"animation-delay": `${(seeded(i + 4) * 1.6).toFixed(2)}s`,
+				"animation-duration": `${(1.4 + seeded(i + 5)).toFixed(2)}s`,
+				"--sway": `${Math.round((seeded(i + 6) - 0.5) * 160)}px`,
+				"--spin": `${Math.round(360 + seeded(i + 7) * 720)}deg`,
+			});
+		}
+		return show;
+	}
+	showPart(show, "show-room");
+	showPart(show, "show-beams");
+	for (let j = 0; j < SHOW_SPOTS; j++) {
+		showPart(show, "show-spot", {
+			left: `${Math.round(seeded(j + 40) * 92)}%`,
+			top: `${Math.round(15 + seeded(j + 41) * 80)}%`,
+			"--size": `${Math.round(10 + seeded(j + 42) * 22)}px`,
+			background: `var(--rp-show-spot-${(j % 6) + 1})`,
+			"animation-delay": `0s,${(-seeded(j + 43) * 1.6).toFixed(2)}s`,
+			"--dx": `${Math.round((seeded(j + 44) - 0.5) * 220)}px`,
+			"--dy": `${Math.round((seeded(j + 45) - 0.5) * 120)}px`,
+		});
+	}
+	if (pictures.disco) {
+		showPart(show, "show-floor");
+		showPicture(showPart(show, "show-dancer"), pictures.disco);
+	}
+	showPart(show, "show-wire");
+	const ball = showPart(show, "show-ball");
+	for (const name of [
+		"show-ball-face",
+		"show-glint",
+		"show-glint",
+		"show-glint",
+	]) {
+		const part = document.createElement("span");
+		part.className = name;
+		ball.append(part);
+	}
+	const face = ball.firstElementChild;
+	for (const name of ["show-facets", "show-shade"]) {
+		const part = document.createElement("span");
+		part.className = name;
+		face.append(part);
+	}
+	return show;
+}
+
+/**
+ * The leaving half: the show plays over this page, which changes at its peak
+ * with a flag for the next page to play the rest (research R7). A tap or a
+ * key skips it: straight to the page, no flag; the overlay takes the tap so
+ * it doesn't also hit a control. The progress bar (#108) starts at the
+ * change.
+ */
+function leaveWithShow(theme, href) {
+	const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+	const show = buildShow(theme, reduced);
+	let gone = false;
+	const go = (handOver) => {
+		if (gone) return;
+		gone = true;
+		clearTimeout(timer);
+		document.removeEventListener("keydown", skip, true);
+		if (handOver) {
+			try {
+				sessionStorage.setItem(SHOW_FLAG, `${theme}:${Date.now()}`);
+			} catch {}
+		}
+		startLoading();
+		location.assign(href);
+	};
+	const skip = (event) => {
+		if (event.type === "pointerdown") event.preventDefault();
+		go(false);
+	};
+	const timer = setTimeout(
+		() => go(true),
+		reduced ? FADE_SWITCH_MS : SWITCH_MS,
+	);
+	show.addEventListener("pointerdown", skip);
+	document.addEventListener("keydown", skip, true);
+	document.body.append(show);
+}
+
+/**
+ * The arriving half: the head script found a fresh flag and painted the peak
+ * (`data-show`); the overlay picks up from there and leaves at the end, and
+ * the page's own celebrations wait for it. A tap or a key ends it early.
+ */
+function arriveWithShow() {
+	const root = document.documentElement;
+	const theme = root.dataset.show;
+	if (!FUN_THEMES.has(theme)) {
+		delete root.dataset.show;
+		return;
+	}
+	const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+	const at = reduced ? FADE_SWITCH_MS : SWITCH_MS;
+	const show = buildShow(theme, reduced);
+	document.body.append(show);
+	for (const animation of show.getAnimations?.({ subtree: true }) ?? []) {
+		animation.currentTime = (Number(animation.currentTime) || 0) + at;
+	}
+	root.dataset.show = "playing";
+	const end = () => {
+		clearTimeout(timer);
+		document.removeEventListener("keydown", end, true);
+		show.style.visibility = "hidden";
+		delete root.dataset.show;
+		// Gone once the skipping tap has landed on it, not on a control.
+		setTimeout(() => show.remove(), 300);
+	};
+	const timer = setTimeout(end, (reduced ? FADE_MS : SHOW_MS) - at);
+	show.addEventListener("pointerdown", (event) => {
+		event.preventDefault();
+		end();
+	});
+	document.addEventListener("keydown", end, true);
+}
+
+/**
+ * The fun themes' page-switch shows (feature 022 US4, FR-040–FR-049): a
+ * plain click on a link to another of our pages, not the current one, not a
+ * view swapped in place and not the refresh link, plays the show across the
+ * page load. Reloads, back and forward, forms and the other themes play
+ * nothing.
+ */
+function pageSwitchShows() {
+	arriveWithShow();
+	preloadShow(document.documentElement.dataset.theme);
+	document.addEventListener(
+		"click",
+		(event) => {
+			const theme = document.documentElement.dataset.theme;
+			if (!FUN_THEMES.has(theme) || document.querySelector(".show")) return;
+			const hit = linkToOurPage(event);
+			if (
+				!hit ||
+				hit.samePage ||
+				hit.link.hasAttribute("data-swap") ||
+				hit.link.classList.contains("refresh") ||
+				hit.link.getAttribute("aria-current") === "page"
+			) {
+				return;
+			}
+			event.preventDefault();
+			leaveWithShow(theme, hit.url.href);
+		},
+		true,
+	);
+	// A page brought back from the back-forward cache drops a leftover show.
+	window.addEventListener("pageshow", (event) => {
+		if (!event.persisted) return;
+		for (const show of document.querySelectorAll(".show")) show.remove();
+		delete document.documentElement.dataset.show;
 	});
 }
 
@@ -1928,5 +2189,6 @@ appPrompt();
 themeMenu();
 refreshOnReturn();
 pageLoading();
+pageSwitchShows();
 enhance(content.signal);
 scrollToNewBadge();

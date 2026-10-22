@@ -1,6 +1,8 @@
 import type { I18n } from "../i18n/i18n";
+import { artUrl } from "./art";
 import { html, type SafeHtml } from "./html";
 import { CHECK, CLOSE, PALETTE } from "./icons";
+import { SHOW_PICTURES } from "./show-pictures";
 import { THEME_GROUPS, THEMES } from "./themes";
 
 // The header's palette button and its menu (feature 022 contracts/theme-menu.md,
@@ -30,7 +32,15 @@ export function themeMenu(i18n: I18n): SafeHtml {
 <div class="theme-grid">${tiles}</div>
 `;
 	});
-	return html`<div id="theme-menu" class="theme-menu" role="dialog" aria-labelledby="theme-menu-title" hidden>
+	// The page-switch shows' pictures (contracts/page-switch-show.md,
+	// show-pictures.md): the coin always, Rynke only once built (FR-049).
+	const pictures = [
+		html` data-show-coin="${artUrl("/coin/rynke-coin-front.svg")}"`,
+		...SHOW_PICTURES.map(
+			(id) => html` data-show-${id}="${artUrl(`/shows/${id}.svg`)}"`,
+		),
+	];
+	return html`<div id="theme-menu" class="theme-menu" role="dialog" aria-labelledby="theme-menu-title"${pictures} hidden>
 <div class="theme-menu-head"><h2 id="theme-menu-title">${i18n.t("theme.menu.title")}</h2><button type="button" class="icon-button" data-action="close" aria-label="${i18n.t("theme.menu.close")}">${CLOSE}</button></div>
 <fieldset class="theme-choices"><legend class="visually-hidden">${i18n.t("theme.menu.title")}</legend>
 <label class="theme-auto"><input type="radio" name="theme" value="auto"><span class="theme-auto-swatch" aria-hidden="true"></span><span class="theme-auto-text"><span class="theme-auto-name">${i18n.t("theme.auto")}</span><span class="theme-auto-hint">${i18n.t("theme.auto.hint")}</span></span>${check}</label>

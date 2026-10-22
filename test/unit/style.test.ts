@@ -51,7 +51,12 @@ describe("STYLE", () => {
 	});
 
 	it(`sets no width above ${PHONE_PX} px below 600 px`, () => {
-		const wide = RULES.filter((rule) => rule.media !== WIDE).flatMap((rule) =>
+		// The page-switch show's pieces sit in a fixed overlay that clips them.
+		const inShow = (rule: (typeof RULES)[number]) =>
+			rule.selectors.every((s) => s.startsWith(".show-"));
+		const wide = RULES.filter(
+			(rule) => rule.media !== WIDE && !inShow(rule),
+		).flatMap((rule) =>
 			["width", "min-width"].flatMap((prop) => {
 				const value = rule.decls[prop];
 				const length = value === undefined ? null : px(value);
@@ -431,8 +436,14 @@ describe("STYLE", () => {
 	});
 
 	it("turns the transitions and animations off for reduced motion (FR-038)", () => {
+		// The page-switch show's peak turns into the plain surface instead
+		// (022 FR-045), tested with the shows.
 		const reduced = RULES.filter(
-			(rule) => rule.media === "(prefers-reduced-motion:reduce)",
+			(rule) =>
+				rule.media === "(prefers-reduced-motion:reduce)" &&
+				!rule.selectors.every((s) =>
+					/^:root\[data-show=\w+\]::before$/.test(s),
+				),
 		);
 		expect(reduced.length).toBeGreaterThan(0);
 		for (const rule of reduced) {
@@ -1028,6 +1039,80 @@ describe("STYLE", () => {
 				expect(decls.background).toContain("var(--rp-rainbow");
 				expect(decls.color).toBe("var(--rp-coin-ink)");
 			}
+		});
+	});
+
+	// Feature 022 US4, contracts/page-switch-show.md (FR-040–FR-047).
+	describe("the page-switch shows", () => {
+		it("lays the show over everything, header, nav and menu included", () => {
+			const show = declsOf(".show");
+			expect(show).toMatchObject({ position: "fixed", inset: "0" });
+			const above = Number(show["z-index"]);
+			for (const piece of [
+				"header.top-bar",
+				"nav.app-nav",
+				".page-loading",
+				".theme-menu",
+			]) {
+				expect(above).toBeGreaterThan(Number(declsOf(piece)["z-index"]));
+			}
+		});
+
+		it.each([
+			["confetti", "var(--rp-show-bands)"],
+			["disco", "var(--rp-show-room)"],
+		])(
+			"paints the %s show's peak on the arriving page's first paint",
+			(theme, look) => {
+				const cover = declsOf(`:root[data-show=${theme}]::before`);
+				expect(cover).toMatchObject({
+					content: '""',
+					position: "fixed",
+					inset: "0",
+					"z-index": declsOf(".show")["z-index"],
+					"pointer-events": "none",
+				});
+				expect(cover.background).toContain(look);
+				// Never left over the page should the overlay not come.
+				expect(cover.animation).toMatch(/^show-cover 0s \d/);
+			},
+		);
+
+		it("paints the peak as the surface under reduced motion (FR-045)", () => {
+			for (const theme of ["confetti", "disco"]) {
+				expect(
+					declsOf(
+						`:root[data-show=${theme}]::before`,
+						"(prefers-reduced-motion:reduce)",
+					).background,
+				).toBe("var(--md-sys-color-surface)");
+			}
+		});
+
+		it("holds the page's own celebrations while a show plays", () => {
+			for (const piece of [
+				".celebrate-coins .coin-mini",
+				".badges-reveal-pictures img",
+				".badge-sparkles>span",
+			]) {
+				expect(
+					declsOf(`:root[data-show] ${piece}`)["animation-play-state"],
+				).toBe("paused");
+			}
+		});
+
+		it("grows the rainbow past any viewport's corners", () => {
+			const rainbow = declsOf(".show-rainbow");
+			expect(rainbow.width).toBe("max(2000px,220vmax)");
+			expect(rainbow.height).toBe("max(2000px,220vmax)");
+			expect(rainbow.animation).toMatch(/^show-rainbow 3\.2s /);
+		});
+
+		it("fades the surface for reduced motion", () => {
+			expect(declsOf(".show-fade")).toMatchObject({
+				background: "var(--md-sys-color-surface)",
+				animation: "show-fade .5s ease-in-out forwards",
+			});
 		});
 	});
 });

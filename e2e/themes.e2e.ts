@@ -124,3 +124,115 @@ test.describe("on the smallest phone", () => {
 		expect((r?.x ?? 0) + (r?.width ?? 0)).toBeLessThanOrEqual(320);
 	});
 });
+
+// The page-switch shows (feature 022 US4, contracts/page-switch-show.md).
+
+/** Picks a theme as the menu does, and comes back to the Team page. */
+async function inTheme(page: Page, theme: string) {
+	await start(page);
+	await page.evaluate((t) => localStorage.setItem("rp-theme", t), theme);
+	await page.reload();
+}
+
+const tab = (page: Page, path: string) =>
+	page.locator(`nav.app-nav a[href="${path}"]`);
+const show = (page: Page) => page.locator(".show");
+
+/**
+ * When the page asks for `path`: the moment the show switches, apart from
+ * how long the server then takes.
+ */
+const leaving = (page: Page, path: string) =>
+	page
+		.waitForRequest(
+			(r) => r.isNavigationRequest() && new URL(r.url()).pathname === path,
+		)
+		.then(() => Date.now());
+
+test("plays the Konfetti show across a tab switch", async ({ page }) => {
+	await inTheme(page, "confetti");
+	const left = leaving(page, "/me");
+	const started = Date.now();
+	await tab(page, "/me").click();
+	await expect(show(page)).toHaveClass(/\bshow-confetti\b/);
+	await expect(show(page)).toHaveAttribute("aria-hidden", "true");
+	await expect(show(page).locator("a, button, input, [tabindex]")).toHaveCount(
+		0,
+	);
+	expect((await left) - started).toBeGreaterThanOrEqual(1500);
+	await page.waitForURL("**/me");
+	// The arriving page plays the rest, then lets go.
+	await expect(show(page)).toHaveCount(1);
+	await expect(page.locator(".show:focus, .show :focus")).toHaveCount(0);
+	await expect(show(page)).toHaveCount(0, { timeout: 3000 });
+	await expect(page.locator("html")).not.toHaveAttribute("data-show", /./);
+});
+
+test("plays the Disco show too", async ({ page }) => {
+	await inTheme(page, "disco");
+	await tab(page, "/me").click();
+	await expect(show(page)).toHaveClass(/\bshow-disco\b/);
+	await expect(show(page).locator(".show-ball")).toHaveCount(1);
+	await page.waitForURL("**/me");
+	await expect(show(page)).toHaveCount(0, { timeout: 3000 });
+});
+
+test("skips the show on a tap, straight to the page", async ({ page }) => {
+	await inTheme(page, "confetti");
+	await tab(page, "/me").click();
+	await expect(show(page)).toHaveCount(1);
+	await page.mouse.click(195, 400);
+	await page.waitForURL("**/me");
+	// Skipped, so no flag: the new page plays no rest of the show.
+	await expect(page.locator("html")).not.toHaveAttribute("data-show", /./);
+	await expect(show(page)).toHaveCount(0);
+});
+
+test("plays nothing on a reload, the current tab or going back", async ({
+	page,
+}) => {
+	await inTheme(page, "confetti");
+	await expect(show(page)).toHaveCount(0);
+	await tab(page, "/team").click();
+	await page.waitForTimeout(300);
+	await expect(show(page)).toHaveCount(0);
+	await tab(page, "/me").click();
+	await page.waitForURL("**/me");
+	await expect(show(page)).toHaveCount(0, { timeout: 3000 });
+	await page.goBack();
+	await page.waitForURL("**/team");
+	await page.waitForTimeout(300);
+	await expect(show(page)).toHaveCount(0);
+	await expect(page.locator("html")).not.toHaveAttribute("data-show", /./);
+});
+
+test("plays nothing in a calm theme", async ({ page }) => {
+	await inTheme(page, "forest");
+	await tab(page, "/me").click();
+	await expect(show(page)).toHaveCount(0);
+	await page.waitForURL("**/me");
+	await expect(show(page)).toHaveCount(0);
+});
+
+test.describe("with reduced motion", () => {
+	test.use({ reducedMotion: "reduce" });
+
+	test("fades the surface instead and switches after a quarter second", async ({
+		page,
+	}) => {
+		await inTheme(page, "confetti");
+		const left = leaving(page, "/me");
+		const started = Date.now();
+		await tab(page, "/me").click();
+		await expect(show(page).locator(".show-fade")).toHaveCount(1);
+		await expect(show(page).locator(".show-piece, .show-rainbow")).toHaveCount(
+			0,
+		);
+		const switched = (await left) - started;
+		expect(switched).toBeGreaterThanOrEqual(200);
+		// Well before the full show's switch at 1.6 s.
+		expect(switched).toBeLessThan(1400);
+		await page.waitForURL("**/me");
+		await expect(show(page)).toHaveCount(0, { timeout: 2000 });
+	});
+});

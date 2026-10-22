@@ -23,7 +23,10 @@
 // 6. Builds the Team page's quote monkeys from art/quotes/ the same way
 //    (scripts/quote-monkeys.mjs, art/quotes/README.md): public/quotes/<id>.svg
 //    and src/http/quote-monkeys.ts. Their ids work like badge ids here.
-// 7. Updates src/http/art-versions.ts, the pictures' hashes (pnpm art-versions).
+// 7. Builds Rynke in the page-switch shows from art/shows/ the same way
+//    (art/shows/README.md): public/shows/<id>.svg and
+//    src/http/show-pictures.ts.
+// 8. Updates src/http/art-versions.ts, the pictures' hashes (pnpm art-versions).
 //
 // Needs ImageMagick and potrace, like pnpm illustrations. Running it again
 // without changes changes no file.
@@ -42,7 +45,7 @@ import { basename, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { frameSvg, placeholderSvg } from "./badge-frame.mjs";
 import { validateBadges } from "./badge-prompts.mjs";
-import { buildQuoteMonkeys, loadMonkeys } from "./quote-monkeys.mjs";
+import { buildPictures, loadMonkeys, loadShows } from "./quote-monkeys.mjs";
 
 const ROOT = fileURLToPath(new URL("../", import.meta.url));
 const ART = join(ROOT, "art/badges");
@@ -62,19 +65,23 @@ const problems = validateBadges(data);
 if (!readFileSync(join(ART, "prompt.txt"), "utf8").includes("{{scene}}"))
 	problems.push("prompt.txt: no {{scene}}");
 const monkeys = loadMonkeys();
+const shows = loadShows();
 const allProblems = [
 	...problems.map((p) => `art/badges: ${p}`),
 	...monkeys.problems,
+	...shows.problems,
 ];
 if (allProblems.length > 0)
 	fail(["The art is not valid:", ...allProblems.map((p) => `  ${p}`)]);
 const badges = new Map(data.badges.map((b) => [b.id, b]));
 
 const named = process.argv.slice(2);
-const unknown = named.filter((id) => !badges.has(id) && !monkeys.ids.has(id));
+const unknown = named.filter(
+	(id) => !badges.has(id) && !monkeys.ids.has(id) && !shows.ids.has(id),
+);
 if (unknown.length > 0)
-	fail([`Unknown badge or monkey id(s): ${unknown.join(", ")}`]);
-// The named badges; a run naming only monkeys builds no badge.
+	fail([`Unknown badge, monkey or show id(s): ${unknown.join(", ")}`]);
+// The named badges; a run naming only monkeys or shows builds no badge.
 const only = named.filter((id) => badges.has(id));
 const filtered = named.length > 0;
 
@@ -220,12 +227,17 @@ console.log(
 	`${ids.length} of ${badges.size} badges have a picture (src/badges/pictures.ts).`,
 );
 
-// 6. The quote monkeys.
-await buildQuoteMonkeys(monkeys, {
-	only: named.filter((id) => monkeys.ids.has(id)),
-	filtered,
-	committed: filtered ? new Set() : committedSvgs("quotes"),
-});
+// 6. The quote monkeys, and 7. the shows' pictures.
+for (const [set, folder] of [
+	[monkeys, "quotes"],
+	[shows, "shows"],
+]) {
+	await buildPictures(set, {
+		only: named.filter((id) => set.ids.has(id)),
+		filtered,
+		committed: filtered ? new Set() : committedSvgs(folder),
+	});
+}
 
-// 7. The pictures' hashes for their addresses.
+// 8. The pictures' hashes for their addresses.
 await import("./art-versions.mjs");

@@ -47,6 +47,9 @@ export function html(
 	return new SafeHtml(out);
 }
 
+/** How old the show's flag may be when the next page reads it. */
+const SHOW_FLAG_MAX_AGE_MS = 10000;
+
 /**
  * Applies the device's theme before the page paints (feature 022 research R2,
  * R3, contracts/theme-menu.md "Head script"): a known `rp-theme` sets
@@ -54,8 +57,13 @@ export function html(
  * `rp-scheme` (011) becomes Rynke Tag or Nacht once. Anything else, or storage
  * that refuses, is Automatisch. The id → [scheme, surface] table comes from
  * the theme list; the script holds no text.
+ *
+ * Then it takes over a page-switch show the last page started (feature 022
+ * research R7, contracts/page-switch-show.md): a fresh `rp-show` flag for the
+ * theme just applied, on a plain navigation, sets `data-show`, so the first
+ * paint is the show's peak. The flag is removed whatever it says.
  */
-export const THEME_SCRIPT = `try{const T=new Map(${JSON.stringify(THEMES.map((t) => [t.id, [t.scheme, t.preview.bg]]))}),S=localStorage;let t=S.getItem("rp-theme");if(t===null){const s=S.getItem("rp-scheme");if(s==="light"||s==="dark"){t=s==="dark"?"rynke-night":"rynke-day";S.setItem("rp-theme",t);S.removeItem("rp-scheme")}}const e=T.get(t);if(e){const d=document.documentElement.dataset;d.theme=t;d.scheme=e[0];for(const m of document.querySelectorAll('meta[name="theme-color"]')){m.removeAttribute("media");m.content=e[1]}}}catch{}`;
+export const THEME_SCRIPT = `let t=null;try{const T=new Map(${JSON.stringify(THEMES.map((t) => [t.id, [t.scheme, t.preview.bg]]))}),S=localStorage;t=S.getItem("rp-theme");if(t===null){const s=S.getItem("rp-scheme");if(s==="light"||s==="dark"){t=s==="dark"?"rynke-night":"rynke-day";S.setItem("rp-theme",t);S.removeItem("rp-scheme")}}const e=T.get(t);if(e){const d=document.documentElement.dataset;d.theme=t;d.scheme=e[0];for(const m of document.querySelectorAll('meta[name="theme-color"]')){m.removeAttribute("media");m.content=e[1]}}else t=null}catch{t=null}try{const S=sessionStorage,v=S.getItem("rp-show");if(v!==null){S.removeItem("rp-show");const[f,a]=v.split(":"),P=performance,g=P.timeOrigin+P.now()-Number(a),n=P.getEntriesByType("navigation")[0];if((f==="confetti"||f==="disco")&&f===t&&g>=0&&g<${SHOW_FLAG_MAX_AGE_MS}&&n?.type==="navigate")document.documentElement.dataset.show=f}}catch{}`;
 
 /**
  * The brand name, the same in every language (011 contracts/pages.md), behind
