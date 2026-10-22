@@ -330,4 +330,24 @@ describe.each(["de", "en"] as const)("the theme menu (%s)", (locale) => {
 			);
 		},
 	);
+
+	it.each(SECTIONS.map(({ path }) => path))(
+		"hides the fun themes' badge, sparkles and bursts from screen readers on %s (022 US3)",
+		async (path) => {
+			await seedRider(ctx);
+			const cookies = {
+				...(await sessionCookie(ctx, ATHLETE_A)),
+				rp_lang: locale,
+			};
+			const { html } = await get(path, cookies);
+			expect(html).toMatch(
+				/<button type="button" class="icon-button theme-button"[^>]*><svg[\s\S]*?<\/svg><span class="theme-badge" aria-hidden="true"><\/span><\/button>/,
+			);
+			const pieces = [
+				...html.matchAll(/<[a-z]+ class="(fun-[\w-]+|theme-badge)"[^>]*>/g),
+			];
+			expect(pieces.length).toBeGreaterThan(0);
+			for (const [tag] of pieces) expect(tag).toContain('aria-hidden="true"');
+		},
+	);
 });

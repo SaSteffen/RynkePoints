@@ -911,4 +911,123 @@ describe("STYLE", () => {
 			});
 		},
 	);
+
+	// Feature 022 US3, contracts/fun-decorations.md (FR-030–FR-033).
+	describe("the fun themes' decorations", () => {
+		const FUN = [":root[data-theme=confetti]", ":root[data-theme=disco]"];
+		const BANDS = [
+			"#ff4566",
+			"#ff7a2e",
+			"#ffb31a",
+			"#ffe61a",
+			"#a6f21f",
+			"#2bea7c",
+			"#14e6cf",
+			"#1fd0ff",
+			"#3fa9ff",
+			"#8a7dff",
+			"#c45cff",
+			"#ff4fb4",
+		];
+		const REDUCED = "(prefers-reduced-motion:reduce)";
+		const ANIMATIONS =
+			/(?<![\w-])(shimmer|twinkle|fall|glow|discobadge)(?![\w-])/;
+		const decorates = (rule: (typeof RULES)[number]) =>
+			rule.selectors.some((s) => /\.fun-|\.theme-badge/.test(s)) ||
+			Object.values(rule.decls).some(
+				(v) => /var\(--rp-rainbow/.test(v) || ANIMATIONS.test(v),
+			);
+
+		it("holds the twelve bands in the rainbow, and twice round in the loop", () => {
+			const root = declsOf(":root");
+			expect(root["--rp-rainbow"]).toBe(
+				`linear-gradient(90deg,${BANDS.join(",")})`,
+			);
+			expect(root["--rp-rainbow-loop"]).toBe(
+				`linear-gradient(90deg,${[...BANDS, ...BANDS, BANDS[0]].join(",")})`,
+			);
+		});
+
+		it("scopes every decoration to Konfetti or Disco", () => {
+			const loose = RULES.filter(decorates)
+				.filter((rule) => !rule.selectors.includes(".theme-sparkle"))
+				.filter(
+					(rule) =>
+						!(
+							rule.decls.display === "none" &&
+							Object.keys(rule.decls).length === 1
+						),
+				)
+				.flatMap((rule) => rule.selectors)
+				.filter((s) => !FUN.some((root) => s.startsWith(`${root} `)));
+			expect(loose).toEqual([]);
+		});
+
+		it("hides the decorations' elements outside the fun themes", () => {
+			for (const piece of [".fun-sparkles", ".fun-bursts", ".theme-badge"]) {
+				expect(declsOf(piece).display).toBe("none");
+			}
+		});
+
+		it.each(FUN)("never lets a decoration catch a tap in %s", (root) => {
+			for (const piece of [
+				"body::before",
+				"header.top-bar::after",
+				".hero::before",
+				".team-total::before",
+				".overview-deadline::before",
+				".qualified::before",
+				".fun-sparkles",
+				".fun-bursts",
+				".theme-badge",
+			]) {
+				expect(declsOf(`${root} ${piece}`)["pointer-events"]).toBe("none");
+			}
+		});
+
+		it.each(FUN)(
+			"stops every decoration under reduced motion in %s",
+			(root) => {
+				const moving = RULES.filter(
+					(rule) =>
+						rule.media === null &&
+						ANIMATIONS.test(rule.decls.animation ?? "") &&
+						rule.selectors.some((s) => s.startsWith(`${root} `)),
+				).flatMap((rule) =>
+					rule.selectors.filter((s) => s.startsWith(`${root} `)),
+				);
+				expect(moving.length).toBeGreaterThan(5);
+				for (const selector of moving) {
+					expect(declsOf(selector, REDUCED).animation, selector).toBe("none");
+				}
+				expect(declsOf(`${root} .fun-bursts`, REDUCED).display).toBe("none");
+			},
+		);
+
+		it.each(FUN)(
+			"gives only the single fill the rainbow in %s (FR-020)",
+			(root) => {
+				expect(declsOf(`${root} .gauge-fill`).background).toContain(
+					"var(--rp-rainbow-loop)",
+				);
+				const parts = RULES.filter((rule) =>
+					rule.selectors.some((s) => s.includes("gauge-part")),
+				).filter((rule) =>
+					Object.values(rule.decls).some((v) => v.includes("--rp-rainbow")),
+				);
+				expect(parts).toEqual([]);
+			},
+		);
+
+		it.each(FUN)("writes on the rainbow in the coin's ink in %s", (root) => {
+			for (const piece of [
+				"nav.app-nav a[aria-current=page] .nav-icon",
+				".badges-reveal",
+			]) {
+				const decls = declsOf(`${root} ${piece}`);
+				expect(decls.background).toContain("var(--rp-rainbow");
+				expect(decls.color).toBe("var(--rp-coin-ink)");
+			}
+		});
+	});
 });

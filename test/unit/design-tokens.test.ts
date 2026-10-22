@@ -229,6 +229,14 @@ describe("design tokens", () => {
 		expect(offending).toEqual([]);
 	});
 
+	it("writes the coin's ink readably on every band of the rainbow (022 FR-031, R10)", () => {
+		const bands = declsOf(":root")["--rp-rainbow"]?.match(/#[0-9a-f]{6}/g);
+		expect(bands).toHaveLength(12);
+		for (const band of bands ?? []) {
+			expect(contrast("#1c1b13", band), band).toBeGreaterThanOrEqual(4.5);
+		}
+	});
+
 	// Feature 022 research R10: every theme, its base scheme plus its own
 	// rule, resolved through var(--…), checked pair by pair (FR-018, SC-003).
 	describe.each(THEMES.map((t) => [t.id, t] as const))(

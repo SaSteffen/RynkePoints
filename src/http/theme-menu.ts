@@ -11,9 +11,12 @@ import { THEME_GROUPS, THEMES } from "./themes";
 
 const check = html`<span class="theme-check">${CHECK}</span>`;
 
-/** The palette button, before the refresh link. */
+/**
+ * The palette button, before the refresh link; its badge shows only in the
+ * fun themes (contracts/fun-decorations.md).
+ */
 export function themeButton(i18n: I18n): SafeHtml {
-	return html`<button type="button" class="icon-button theme-button" aria-haspopup="dialog" aria-expanded="false" aria-controls="theme-menu" aria-label="${i18n.t("theme.button")}">${PALETTE}</button>`;
+	return html`<button type="button" class="icon-button theme-button" aria-haspopup="dialog" aria-expanded="false" aria-controls="theme-menu" aria-label="${i18n.t("theme.button")}">${PALETTE}<span class="theme-badge" aria-hidden="true"></span></button>`;
 }
 
 /** The menu panel, hidden until the palette button opens it. */
