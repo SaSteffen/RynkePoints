@@ -1,5 +1,6 @@
-import { test as base, expect, type Page } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { signIn, skipTours } from "./sign-in";
+import { test as base } from "./test";
 
 // Smoke tests in every browser (chromium, firefox, webkit): each page loads
 // without a script error, fits a small phone, a phone and a desktop without sideways
@@ -7,7 +8,7 @@ import { signIn, skipTours } from "./sign-in";
 // fake mode's synthetic samples (dev/fake-strava/samples.ts).
 
 /** Fails the test on any uncaught error or `console.error` in the page. */
-const test = base.extend<{ errors: string[]; noPushInWebKit: undefined }>({
+const test = base.extend<{ errors: string[] }>({
 	errors: [
 		async ({ page }, use) => {
 			const errors: string[] = [];
@@ -17,20 +18,6 @@ const test = base.extend<{ errors: string[]; noPushInWebKit: undefined }>({
 			});
 			await use(errors);
 			expect(errors).toEqual([]);
-		},
-		{ auto: true },
-	],
-	// Playwright's WebKit has no push service: getSubscription() never returns
-	// and blocks the page. Without PushManager, the app treats it as a browser
-	// without push and Settings shows notifications as unsupported.
-	noPushInWebKit: [
-		async ({ page, browserName }, use) => {
-			if (browserName === "webkit") {
-				await page.addInitScript(() => {
-					delete (globalThis as { PushManager?: unknown }).PushManager;
-				});
-			}
-			await use(undefined);
 		},
 		{ auto: true },
 	],

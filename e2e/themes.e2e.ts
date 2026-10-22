@@ -1,5 +1,6 @@
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Page } from "@playwright/test";
 import { signIn, skipTours } from "./sign-in";
+import { test } from "./test";
 
 // The header's theme menu (feature 022 US2, contracts/theme-menu.md) in every
 // browser, with the fake mode's synthetic sample rider.
