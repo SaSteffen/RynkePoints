@@ -10,9 +10,9 @@ phone; here they are given relative to the viewport.
 |----------|-------|
 | `SHOW_MS` (show) | 3200 |
 | `SHOW_HIDE_MS` (peak: `main` goes, under the full cover) | 1600 |
-| `SHOW_SWAP_MS` (the section swaps in, still hidden) | 2450 |
-| `SHOW_IN_MS` (Konfetti: `main` fades in) | 2700 |
-| `SECTION_FADE_MS` (Konfetti's fade in) | 250 |
+| `SHOW_SWAP_MS` (the section swaps in, still hidden) | Konfetti 1950 (the rainbow still covers), Disco 2450 |
+| `SHOW_IN_MS` (Konfetti: `main` fades in as the rainbow starts clearing the view) | 2150 |
+| `SECTION_FADE_MS` (Konfetti's fade in) | 300 |
 | `SHOW_ROOM_OUT` (Disco: `main` fades in with the room's fade out, opacity the reverse of the room's) | 0.6 of `SHOW_MS` |
 | `FADE_MS` (reduced motion: fade in, swap, fade out as long again) | 250 |
 
@@ -20,8 +20,10 @@ Changed after release: the show first loaded the next page at its peak
 (1.6 s) and played the rest on the arriving page from a `sessionStorage` flag
 (research R7). That stuttered; loading at the show's end showed the page
 change. Now nothing loads as a page: the click fetches the section, at the
-peak `main` goes (unseen), half a second before the end the section swaps in
-place (a swap at the peak hitched visibly; here the show is nearly gone) and
+peak `main` goes (unseen), the section swaps in place (Disco half a second
+before the end, where the show is nearly gone, as a swap at the peak hitched
+visibly; Konfetti just before the retracting rainbow clears the view, as the
+owner found its later fade in too late) and
 `main` fades in on the show's clock (its `startTime` is the show's first
 part's), so a slow swap can't put Disco's fade out of step with the room. The swap is `swapPage` (the same as the Team section's views,
 plus the header's section title), with a history entry, at the top of the
