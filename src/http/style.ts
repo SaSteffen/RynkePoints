@@ -208,8 +208,8 @@ const SHOW_RULES = (() => {
 .show-pop img{position:absolute;inset:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden}
 .show-pop .show-pop-front{transform:translateZ(6.5px)}
 .show-pop .show-pop-back{transform:rotateY(180deg) translateZ(6.5px)}
-.show-pop-edge{position:absolute;inset:1px;border-radius:50%;background:var(--rp-coin-rim);transform:translateZ(var(--z))}
-.show-pop-edge:nth-child(even){background:color-mix(in srgb,var(--rp-coin-rim) 78%,var(--rp-coin-ink))}
+.show-pop-edge{position:absolute;inset:1px;border-radius:50%;background:repeating-conic-gradient(var(--rp-coin-rim) 0 3deg,color-mix(in srgb,var(--rp-coin-rim) 62%,var(--rp-coin-ink)) 3deg 6deg);transform:translateZ(var(--z))}
+.show-pop-edge:first-of-type,.show-pop-edge:nth-of-type(13){background:color-mix(in srgb,var(--rp-coin-rim) 70%,var(--rp-coin-face))}
 .show-piece{top:-24px;border-radius:2px;animation:show-fall linear both;animation-timing-function:cubic-bezier(.3,.1,.6,1)}
 .show-piece.round,.show-piece.coin{border-radius:50%}
 .show-piece.coin{width:20px;height:20px;animation-name:show-coin-fall}

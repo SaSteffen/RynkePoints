@@ -348,8 +348,8 @@ export const en: Catalog = {
 	"settings.strava": "Strava connection",
 	"settings.account": "Account",
 	"settings.shows": "Animations",
-	"settings.shows.off":
-		"No animations when switching sections in Confetti and Disco. The others stay.",
+	"settings.shows.on":
+		"Animations when switching sections in Confetti and Disco",
 	"settings.tour": "Tours",
 	"settings.tour.rider": "Show the tour again",
 	"settings.tour.organiser": "Show the Orga tour again",

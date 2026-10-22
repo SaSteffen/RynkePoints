@@ -321,8 +321,9 @@ tap the current tab and see no show.
   page changes at its end, not under it (owner's call after trying the switch
   at the peak: the show stuttered). Settings, links and buttons inside a page
   (the Orga page's group tiles, say) and a running tour play nothing.
-- **FR-040a**: Settings MUST offer a switch that turns the page-switch shows
-  off on this device; the themes' other animations stay.
+- **FR-040a**: Settings MUST offer a switch "Animationen beim Seitenwechsel",
+  on by default, that turns the page-switch shows off on this device; the
+  themes' other animations stay.
 - **FR-041**: Konfetti's show: a bright rainbow (FR-031) grows from the bottom until
   it covers the page and then shrinks away; the Rynke coin spins in the middle at
   the peak; confetti and Rynke coins rain through it all, as many coins as confetti

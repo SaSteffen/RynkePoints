@@ -68,8 +68,8 @@ export function handleSettings(
 ${renderNotifications(i18n, vapidPublicKey(ctx.env))}
 <section id="settings-shows" class="settings-group" hidden>
 <h2>${i18n.t("settings.shows")}</h2>
-<p id="settings-shows-off">${i18n.t("settings.shows.off")}</p>
-<button type="button" role="switch" aria-checked="false" aria-labelledby="settings-shows-off"></button>
+<p id="settings-shows-on">${i18n.t("settings.shows.on")}</p>
+<button type="button" role="switch" aria-checked="true" aria-labelledby="settings-shows-on"></button>
 </section>
 <section id="settings-app" class="settings-group" hidden>
 <h2>${i18n.t("settings.app")}</h2>

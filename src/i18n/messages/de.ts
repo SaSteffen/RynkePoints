@@ -369,8 +369,7 @@ export const de = {
 	"settings.strava": "Strava-Verbindung",
 	"settings.account": "Konto",
 	"settings.shows": "Animationen",
-	"settings.shows.off":
-		"Keine Animationen beim Seitenwechsel in Konfetti und Disco. Die anderen bleiben.",
+	"settings.shows.on": "Animationen beim Seitenwechsel in Konfetti und Disco",
 	"settings.tour": "Rundgang",
 	"settings.tour.rider": "Rundgang noch mal zeigen",
 	"settings.tour.organiser": "Orga-Rundgang noch mal zeigen",

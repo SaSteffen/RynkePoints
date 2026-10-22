@@ -219,10 +219,10 @@ test("plays nothing with the shows turned off in Settings", async ({
 }) => {
 	await inTheme(page, "disco");
 	await page.goto("/me/settings");
-	const off = page.locator("#settings-shows [role=switch]");
-	await expect(off).toHaveAttribute("aria-checked", "false");
-	await off.click();
-	await expect(off).toHaveAttribute("aria-checked", "true");
+	const on = page.locator("#settings-shows [role=switch]");
+	await expect(on).toHaveAttribute("aria-checked", "true");
+	await on.click();
+	await expect(on).toHaveAttribute("aria-checked", "false");
 	await tab(page, "/me").click();
 	await page.waitForURL("**/me");
 	await expect(show(page)).toHaveCount(0);

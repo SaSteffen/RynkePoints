@@ -261,7 +261,7 @@ const CONTRACT_IDS = [
 	"settings.strava",
 	"settings.account",
 	"settings.shows",
-	"settings.shows.off",
+	"settings.shows.on",
 	"settings.tour",
 	"settings.tour.rider",
 	"settings.tour.organiser",

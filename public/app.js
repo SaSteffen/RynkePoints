@@ -739,8 +739,9 @@ function leaveWithShow(theme, href) {
 }
 
 /**
- * The Settings switch that turns the page-switch shows off on this device
- * (feature 022); the other animations stay. Hidden where storage refuses.
+ * The Settings switch for the page-switch shows on this device (feature 022),
+ * on unless turned off; the other animations stay. Hidden where storage
+ * refuses.
  */
 function showsSetting() {
 	const section = document.getElementById("settings-shows");
@@ -751,7 +752,7 @@ function showsSetting() {
 	} catch {
 		return;
 	}
-	toggle.setAttribute("aria-checked", String(showsOff()));
+	toggle.setAttribute("aria-checked", String(!showsOff()));
 	section.hidden = false;
 	toggle.addEventListener("click", () => {
 		const off = !showsOff();
@@ -761,7 +762,7 @@ function showsSetting() {
 		} catch {
 			return;
 		}
-		toggle.setAttribute("aria-checked", String(off));
+		toggle.setAttribute("aria-checked", String(!off));
 	});
 }
 
