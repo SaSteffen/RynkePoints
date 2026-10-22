@@ -199,7 +199,7 @@ const SHOW_RULES = (() => {
 		"polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)";
 	const rainbow = "max(2000px,220vmax)";
 	const play = "3.2s";
-	return `.show{position:fixed;inset:0;z-index:20;overflow:hidden}
+	return `.show{position:fixed;inset:0;z-index:20;overflow:hidden;--show-rynke:max(170px,33vh)}
 .show>*{position:absolute;pointer-events:none}
 .show img{display:block;width:100%;height:auto}
 :root[data-show=confetti]::before,:root[data-show=disco]::before{content:"";position:fixed;inset:0;z-index:20;pointer-events:none;animation:show-cover 0s 2s forwards}
@@ -214,7 +214,7 @@ const SHOW_RULES = (() => {
 .show-piece.coin{width:20px;height:20px;animation-name:show-coin-fall}
 .show-piece.training{background:var(--rp-show-coin-training)}
 .show-piece.team{background:var(--rp-show-coin-team)}
-.show-unicorn{left:0;top:0;width:200px;transform:translate(-230px,85vh) rotate(-14deg);animation:show-unicorn ${play} linear forwards}
+.show-unicorn{left:0;top:0;width:var(--show-rynke);transform:translate(calc(-30px - var(--show-rynke)),85vh) rotate(-14deg);animation:show-unicorn ${play} linear forwards}
 .show-unicorn img{transform-origin:50% 90%;animation:show-gallop .45s ease-in-out infinite alternate}
 .show-room{inset:0;opacity:0;background:var(--rp-show-room);animation:show-room ${play} ease-in-out forwards}
 .show-beams{left:calc(50% - 700px);top:-570px;width:1400px;height:1400px;border-radius:50%;opacity:0;background:var(--rp-show-beams);-webkit-mask:var(--rp-show-beams-mask);mask:var(--rp-show-beams-mask);animation:show-beams ${play} ease-in-out forwards,show-turn 4s linear infinite}
@@ -229,8 +229,8 @@ const SHOW_RULES = (() => {
 .show-glint:nth-child(3){left:76px;top:36px;animation-delay:.4s}
 .show-glint:nth-child(4){left:40px;top:80px;animation-delay:.8s}
 .show-spot{width:var(--size);height:var(--size);border-radius:50%;opacity:0;filter:blur(1.5px);animation:show-spot ${play} ease-in-out forwards,show-sweep 1.6s linear infinite}
-.show-floor{left:calc(50% - 130px);bottom:70px;width:260px;height:56px;border-radius:50%;opacity:0;background:var(--rp-show-floor);animation:show-dancer ${play} ease-in-out forwards}
-.show-dancer{left:calc(50% - 85px);bottom:96px;width:170px;opacity:0;animation:show-dancer ${play} ease-in-out forwards}
+.show-floor{left:calc(50% - var(--show-rynke) * .75);bottom:70px;width:calc(var(--show-rynke) * 1.5);height:calc(var(--show-rynke) * .33);border-radius:50%;opacity:0;background:var(--rp-show-floor);animation:show-dancer ${play} ease-in-out forwards}
+.show-dancer{left:calc(50% - var(--show-rynke) / 2);bottom:calc(70px + var(--show-rynke) * .15);width:var(--show-rynke);opacity:0;animation:show-dancer ${play} ease-in-out forwards}
 .show-dancer img{transform-origin:50% 95%;animation:show-groove .5s ease-in-out infinite alternate}
 .show-fade{inset:0;opacity:0;background:var(--md-sys-color-surface);animation:show-fade .5s ease-in-out forwards}
 @media (prefers-reduced-motion:reduce){:root[data-show=confetti]::before,:root[data-show=disco]::before{background:var(--md-sys-color-surface)}}`;
@@ -818,7 +818,7 @@ ${SHOW_RULES}
 @keyframes show-spin{to{transform:rotateY(360deg)}}
 @keyframes show-fall{from{transform:translate3d(0,0,0) rotate(0deg)}to{transform:translate3d(var(--sway),calc(100vh + 60px),0) rotate(var(--spin))}}
 @keyframes show-coin-fall{from{transform:translate3d(0,0,0) rotateY(0deg)}to{transform:translate3d(var(--sway),calc(100vh + 60px),0) rotateY(var(--spin))}}
-@keyframes show-unicorn{0%{transform:translate(-230px,85vh) rotate(-14deg)}50%{transform:translate(24vw,64vh) rotate(-10deg)}100%{transform:translate(calc(100vw + 20px),39vh) rotate(-6deg)}}
+@keyframes show-unicorn{0%{transform:translate(calc(-30px - var(--show-rynke)),85vh) rotate(-14deg)}50%{transform:translate(24vw,64vh) rotate(-10deg)}100%{transform:translate(calc(100vw + 20px),39vh) rotate(-6deg)}}
 @keyframes show-gallop{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-8px) rotate(2deg)}}
 @keyframes show-room{0%{opacity:0}38%,60%{opacity:1}100%{opacity:0}}
 @keyframes show-beams{0%,18%{opacity:0}40%,60%{opacity:1}88%,100%{opacity:0}}
