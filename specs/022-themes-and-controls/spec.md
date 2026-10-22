@@ -323,9 +323,9 @@ tap the current tab and see no show.
   with a bounce and turns, light beams rotate from it and coloured spots sweep the
   page.
 - **FR-042a**: Rynke, the app's monkey, MUST be part of both shows, at their base.
-  In Konfetti, Rynke rides a unicorn with a rainbow mane and tail, comes up from the
-  bottom with the rainbow, gallops at its foot while it covers the page, and goes
-  back down with it. In Disco, Rynke stands on the dance floor under the ball in a
+  In Konfetti, Rynke rides a unicorn with a rainbow mane and tail that flies,
+  galloping, through the rainbow from the lower left to the middle of the right
+  edge over the length of the show. In Disco, Rynke stands on the dance floor under the ball in a
   disco outfit, in the classic disco pose (one arm pointing up diagonally, the other
   down, hip out), appears as the room darkens, sways to the beat, and leaves with
   the room. Placement and movement as on the canvas board "Seitenwechsel".
