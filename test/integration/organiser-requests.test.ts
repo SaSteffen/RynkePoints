@@ -206,6 +206,26 @@ describe("GET /organiser with open requests (FR-031, FR-033)", () => {
 		expect(block.match(/name="decision" value="confirm"/g)?.length).toBe(5);
 	});
 
+	it("decides with the one set of controls (022 contracts/controls.md)", async () => {
+		const { html } = await page("/organiser");
+		const block =
+			html.match(/<section class="open-requests"[\s\S]*?<\/section>/)?.[0] ??
+			"";
+		const buttons = [...block.matchAll(/<button ([^>]*)>/g)].map((m) => m[1]);
+		expect(buttons.length).toBeGreaterThan(0);
+		for (const attrs of buttons) {
+			expect(attrs).toMatch(/^class="(button|button-outlined|icon-button)"/);
+		}
+		const yes = buttons.filter((a) => a?.startsWith('class="button"'));
+		const no = buttons.filter((a) => a?.startsWith('class="icon-button"'));
+		expect(yes).toHaveLength(4);
+		expect(no).toHaveLength(4);
+		for (const attrs of no) expect(attrs).toMatch(/aria-label="[^"]+"/);
+		expect(
+			buttons.filter((a) => a?.startsWith('class="button-outlined"')),
+		).toHaveLength(1);
+	});
+
 	it("marks past events with open requests and upcoming ones with intents", async () => {
 		const { html } = await page("/organiser");
 		const item = (id: number) =>

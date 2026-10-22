@@ -1,5 +1,9 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { artUrl } from "../../src/http/art";
+import { escapeHtml } from "../../src/http/html";
 import { createSessionCookie } from "../../src/http/session";
+import { SHOW_PICTURES } from "../../src/http/show-pictures";
+import { THEMES } from "../../src/http/themes";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import {
@@ -186,6 +190,195 @@ describe("the navigation of an organiser", () => {
 			expect(nav).toContain(
 				`<span class="nav-label">${de["nav.organiser"]}</span>`,
 			);
+		},
+	);
+});
+
+/** Each element whose class list holds one of `classes`, with its content. */
+function elements(html: string, classes: readonly string[]): string[] {
+	const out: string[] = [];
+	const open = /<(\w+)\b[^>]*\bclass="([^"]*)"[^>]*>/g;
+	for (const m of html.matchAll(open)) {
+		const [tag, name, list = ""] = m;
+		if (!name || !list.split(" ").some((c) => classes.includes(c))) continue;
+		const pair = new RegExp(`<${name}\\b|</${name}>`, "g");
+		pair.lastIndex = (m.index ?? 0) + tag.length;
+		let depth = 1;
+		let end = html.length;
+		for (const t of html.matchAll(pair)) {
+			if ((t.index ?? 0) < pair.lastIndex) continue;
+			depth += t[0].startsWith("</") ? -1 : 1;
+			if (depth === 0) {
+				end = (t.index ?? 0) + t[0].length;
+				break;
+			}
+		}
+		out.push(html.slice(m.index, end));
+	}
+	return out;
+}
+
+// Feature 022: one set of controls on every page (FR-005, FR-007,
+// contracts/controls.md).
+describe("the one set of controls", () => {
+	const CARDS = [
+		"card",
+		"settings-group",
+		"ride-card",
+		"event-card",
+		"badge-card",
+		"rider-card",
+		"organiser-event",
+		"request-event",
+	];
+	const ORGA = ["/organiser", "/organiser/riders", "/organiser/events"];
+
+	it.each([...SECTIONS.map(({ path }) => path), ...ORGA])(
+		"has at most one filled button per card on %s",
+		async (path) => {
+			await seedRider(ctx, { organiser: ORGA.includes(path) });
+			const { html } = await get(path);
+			for (const card of elements(html, CARDS)) {
+				expect(card.match(/class="button"/g)?.length ?? 0).toBeLessThan(2);
+			}
+		},
+	);
+
+	it.each([...SECTIONS.map(({ path }) => path), ...ORGA])(
+		"draws chips that filter as filter chips and the rest as status chips on %s",
+		async (path) => {
+			await seedRider(ctx, { organiser: ORGA.includes(path) });
+			const { html } = await get(path);
+			for (const [, attrs] of html.matchAll(
+				/<button ([^>]*class="chip[^>]*)>/g,
+			)) {
+				expect(attrs).toMatch(/aria-pressed="(true|false)"/);
+			}
+			expect(html).not.toMatch(
+				/class="[^"]*\b(request-yes|request-no|request-all)\b/,
+			);
+		},
+	);
+});
+
+// Feature 022: the palette button next to the refresh link and the theme menu
+// on every section (FR-010–FR-013, FR-021, contracts/theme-menu.md).
+describe.each(["de", "en"] as const)("the theme menu (%s)", (locale) => {
+	const c = CATALOGS[locale];
+
+	it.each(SECTIONS.map(({ path }) => path))(
+		"sits in the header of %s with every theme",
+		async (path) => {
+			await seedRider(ctx);
+			const cookies = {
+				...(await sessionCookie(ctx, ATHLETE_A)),
+				rp_lang: locale,
+			};
+			const { html } = await get(path, cookies);
+			const header = html.match(/<header[\s\S]*?<\/header>/)?.[0] ?? "";
+			const order = [
+				'<span class="wordmark">',
+				'<h1 class="section-title">',
+				`<button type="button" class="icon-button theme-button" aria-haspopup="dialog" aria-expanded="false" aria-controls="theme-menu" aria-label="${c["theme.button"]}">`,
+				'<a class="icon-button refresh"',
+			].map((part) => header.indexOf(part));
+			expect(order.every((at) => at >= 0)).toBe(true);
+			expect([...order].sort((a, b) => a - b)).toEqual(order);
+
+			const menu =
+				html.match(
+					/<div id="theme-menu"[\s\S]*?<p class="theme-note">[^<]*<\/p>\s*<\/div>/,
+				)?.[0] ?? "";
+			expect(menu).toMatch(
+				/^<div id="theme-menu" class="theme-menu" role="dialog" aria-labelledby="theme-menu-title"( data-show-[a-z-]+="[^"]*")* hidden>/,
+			);
+			expect(menu).toContain(
+				`<h2 id="theme-menu-title">${c["theme.menu.title"]}</h2>`,
+			);
+			expect(menu).toContain(
+				`<button type="button" class="icon-button" data-action="close" aria-label="${c["theme.menu.close"]}">`,
+			);
+			expect(menu.match(/<fieldset /g)).toHaveLength(1);
+			const values = [
+				...menu.matchAll(/<input type="radio" name="theme" value="([\w-]+)"/g),
+			].map((m) => m[1]);
+			expect(values).toEqual(["auto", ...THEMES.map((t) => t.id)]);
+			expect(
+				[...menu.matchAll(/<h3 class="theme-group">([^<]*)<\/h3>/g)].map(
+					(m) => m[1],
+				),
+			).toEqual([
+				c["theme.group.light"],
+				c["theme.group.dark"],
+				c["theme.group.contrast"],
+			]);
+			for (const t of THEMES) {
+				const tile =
+					menu.match(
+						new RegExp(
+							`<label class="theme-tile" data-theme-preview="${t.id}">[\\s\\S]*?</label>`,
+						),
+					)?.[0] ?? "";
+				expect(tile).toContain(c[`theme.name.${t.id}`]);
+				expect(tile).toContain(
+					`value="${t.id}" data-scheme="${t.scheme}" data-color="${t.preview.bg}"`,
+				);
+				expect(tile.includes('class="theme-sparkle"')).toBe(t.fun !== null);
+			}
+			expect(menu).toContain(c["theme.auto"]);
+			expect(menu).toContain(escapeHtml(c["theme.auto.hint"]));
+			expect(menu).toContain(
+				`<p class="theme-note">${escapeHtml(c["theme.menu.note"])}</p>`,
+			);
+		},
+	);
+
+	it.each(SECTIONS.map(({ path }) => path))(
+		"names the page-switch shows' built pictures on %s, and only those (022 FR-049)",
+		async (path) => {
+			await seedRider(ctx);
+			const cookies = {
+				...(await sessionCookie(ctx, ATHLETE_A)),
+				rp_lang: locale,
+			};
+			const { html } = await get(path, cookies);
+			const panel = html.match(/<div id="theme-menu"[^>]*>/)?.[0] ?? "";
+			expect(panel).toContain(
+				`data-show-coin="${artUrl("/coin/rynke-coin-front.svg")}"`,
+			);
+			expect(panel).toContain(
+				`data-show-coin-back="${artUrl("/coin/rynke-coin-back.svg")}"`,
+			);
+			for (const id of ["unicorn", "disco"] as const) {
+				if (SHOW_PICTURES.includes(id)) {
+					expect(panel).toContain(
+						`data-show-${id}="${artUrl(`/shows/${id}.svg`)}"`,
+					);
+					expect(artUrl(`/shows/${id}.svg`)).toMatch(/\?v=[0-9a-f]{10}$/);
+				} else {
+					expect(panel).not.toContain(`data-show-${id}`);
+				}
+			}
+		},
+	);
+
+	it.each(SECTIONS.map(({ path }) => path))(
+		"hides the fun themes' badge, sparkles and bursts from screen readers on %s (022 US3)",
+		async (path) => {
+			await seedRider(ctx);
+			const cookies = {
+				...(await sessionCookie(ctx, ATHLETE_A)),
+				rp_lang: locale,
+			};
+			const { html } = await get(path, cookies);
+			expect(html).toMatch(
+				/<button type="button" class="icon-button theme-button"[^>]*><svg[\s\S]*?<\/svg><span class="theme-badge" aria-hidden="true"><\/span><\/button>/,
+			);
+			const pieces = [
+				...html.matchAll(/<[a-z]+ class="(fun-[\w-]+|theme-badge)"[^>]*>/g),
+			];
+			expect(pieces.length).toBeGreaterThan(0);
+			for (const [tag] of pieces) expect(tag).toContain('aria-hidden="true"');
 		},
 	);
 });

@@ -19,6 +19,7 @@ import type { TeamEventSum } from "../../rynke/team-events";
 import { dayNumber } from "../../rynke/weeks";
 import { thresholdBars } from "../charts";
 import { coinArt, miniCoin } from "../coin";
+import { FUN_BURSTS, FUN_SPARKLES } from "../fun";
 import { html, type SafeHtml } from "../html";
 import { renderExampleNote } from "../rider-sections";
 import { statusArt } from "../status-art";
@@ -219,7 +220,7 @@ ${coinArt("back", "large")}<div>
 		n: whole(riders.filter((r) => r.status === "in").length),
 		count: whole(riders.length),
 	})}</p>
-</div>
+</div>${FUN_SPARKLES}
 </section>
 `;
 }
@@ -457,7 +458,7 @@ ${
 		? html`<p>${i18n.t("organiser.overview.nobodyYet")}</p>`
 		: html`<p class="qualified-hint">${i18n.t("organiser.overview.qualifiedHint")}</p>
 <ul>${qualified.map((r) => html`<li>${miniCoin("team")}<span class="rider-name">${r.firstName}</span></li>`)}</ul>`
-}
+}${FUN_BURSTS}
 </section>
 `;
 }

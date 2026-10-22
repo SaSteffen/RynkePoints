@@ -1,28 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { SCHEME_SCRIPT } from "../../src/http/html";
+import { THEMES } from "../../src/http/themes";
 import { declsOf, RULES } from "../support/css";
 
 // The colour tokens of both schemes (feature 011 contracts/design-tokens.md;
 // FR-031–FR-033, FR-035, SC-006): the same names in light and dark, readable
 // contrast for the pairs the pages use, and colours only through tokens.
-
-declare global {
-	interface ImportMeta {
-		glob(
-			pattern: string,
-			options: { query: "?raw"; import: "default"; eager: true },
-		): Record<string, string>;
-	}
-}
-
-const APP_JS =
-	Object.values(
-		import.meta.glob("../../public/app.js", {
-			query: "?raw",
-			import: "default",
-			eager: true,
-		}),
-	)[0] ?? "";
 
 type Tokens = Record<string, string>;
 
@@ -106,6 +88,32 @@ describe("design tokens", () => {
 		expect(coin(DARK_FIXED)).toEqual(coin(LIGHT));
 	});
 
+	it("gives controls one type, one status type and one outline width (022 contracts/controls.md)", () => {
+		expect(declsOf(":root")).toMatchObject({
+			"--rp-type-control": "600 14px/20px var(--md-ref-typeface)",
+			"--rp-type-status": "600 12px/16px var(--md-ref-typeface)",
+			"--rp-outline-width": "1px",
+		});
+	});
+
+	it.each([
+		["light", declsOf(":root")],
+		[
+			"system dark",
+			declsOf(":root:not([data-scheme=light])", "(prefers-color-scheme:dark)"),
+		],
+		["fixed dark", declsOf(":root[data-scheme=dark]")],
+	])(
+		"names the hero text, hero accent and primary text in %s (022 contracts/themes.md)",
+		(_scheme, decls) => {
+			expect(decls).toMatchObject({
+				"--rp-primary-text": "var(--md-sys-color-primary)",
+				"--rp-on-hero": "var(--rp-coin-face)",
+				"--rp-hero-accent": "var(--rp-coin-yellow)",
+			});
+		},
+	);
+
 	it("uses the same dark values for the system and a fixed choice", () => {
 		expect(DARK_SYSTEM).toEqual(DARK_FIXED);
 	});
@@ -185,21 +193,23 @@ describe("design tokens", () => {
 		});
 	});
 
-	it("gives the head script the surface colours (research R6, R12)", () => {
-		const [, dark, light] =
-			SCHEME_SCRIPT.match(/"dark" \? "(#[0-9a-f]{6})" : "(#[0-9a-f]{6})"/) ??
-			[];
-		expect(light).toBe(LIGHT[md("surface")]);
-		expect(dark).toBe(DARK_FIXED[md("surface")]);
+	it("takes the canvas's gauge track and fill in Rynke Tag and Nacht (022 FR-017)", () => {
+		expect(LIGHT["--rp-track"]).toBe("#e3dcc0");
+		expect(LIGHT["--rp-reached"]).toBe("#1c1b13");
+		expect(DARK_FIXED["--rp-track"]).toBe("#3a382c");
+		expect(DARK_FIXED["--rp-reached"]).toBe("#fbe122");
+		expect(DARK_SYSTEM["--rp-reached"]).toBe("#fbe122");
 	});
 
-	it("gives the scheme picker in app.js the surface colours (FR-032a)", () => {
-		const [, light, dark] =
-			APP_JS.match(
-				/THEME_COLOR = \{ light: "(#[0-9a-f]{6})", dark: "(#[0-9a-f]{6})" \}/,
-			) ?? [];
-		expect(light).toBe(LIGHT[md("surface")]);
-		expect(dark).toBe(DARK_FIXED[md("surface")]);
+	it("previews Rynke Tag and Nacht in the base schemes' colours", () => {
+		const day = THEMES.find((t) => t.id === "rynke-day")?.preview;
+		const night = THEMES.find((t) => t.id === "rynke-night")?.preview;
+		expect(day?.bg).toBe(LIGHT[md("surface")]);
+		expect(day?.primary).toBe(LIGHT[md("primary")]);
+		expect(day?.card).toBe(LIGHT[md("surface-container")]);
+		expect(night?.bg).toBe(DARK_FIXED[md("surface")]);
+		expect(night?.primary).toBe(DARK_FIXED[md("primary")]);
+		expect(night?.card).toBe(DARK_FIXED[md("surface-container")]);
 	});
 
 	it("uses colours only through var(--…) outside the token blocks (FR-031)", () => {
@@ -207,7 +217,9 @@ describe("design tokens", () => {
 		const offending = RULES.filter(
 			(rule) =>
 				!rule.selectors.every((s) =>
-					/^:root(\[data-scheme=\w+\]|:not\(\[data-scheme=light\]\))?$/.test(s),
+					/^:root(\[data-scheme=\w+\]|:not\(\[data-scheme=light\]\)|\[data-theme=[\w-]+\])?$|^\[data-theme-preview=[\w-]+\]$/.test(
+						s,
+					),
 				),
 		).flatMap((rule) =>
 			Object.entries(rule.decls)
@@ -216,4 +228,67 @@ describe("design tokens", () => {
 		);
 		expect(offending).toEqual([]);
 	});
+
+	it("writes the coin's ink readably on every band of the rainbow (022 FR-031, R10)", () => {
+		const bands = declsOf(":root")["--rp-rainbow"]?.match(/#[0-9a-f]{6}/g);
+		expect(bands).toHaveLength(12);
+		for (const band of bands ?? []) {
+			expect(contrast("#1c1b13", band), band).toBeGreaterThanOrEqual(4.5);
+		}
+	});
+
+	// Feature 022 research R10: every theme, its base scheme plus its own
+	// rule, resolved through var(--…), checked pair by pair (FR-018, SC-003).
+	describe.each(THEMES.map((t) => [t.id, t] as const))(
+		"theme %s",
+		(id, theme) => {
+			const base = declsOf(
+				theme.scheme === "light" ? ":root" : ":root[data-scheme=dark]",
+			);
+			const own = declsOf(`:root[data-theme=${id}]`);
+			const decls: Record<string, string> = { ...base, ...own };
+			const value = (name: string, depth = 0): string => {
+				const v = decls[name] ?? "";
+				const ref = v.match(/^var\((--[\w-]+)\)$/);
+				return ref && depth < 5 ? value(ref[1] as string, depth + 1) : v;
+			};
+			const text = theme.group === "contrast" ? 7 : 4.5;
+
+			it("has its own rule with exactly its tokens", () => {
+				expect(own).toEqual(theme.tokens);
+			});
+
+			it.each([
+				...TEXT_PAIRS,
+				["--rp-primary-text", md("surface")],
+				["--rp-primary-text", md("surface-container")],
+				["--rp-primary-text", md("surface-container-high")],
+				[md("on-surface"), md("surface-container")],
+				[md("on-surface"), md("surface-container-high")],
+				["--rp-on-hero", "--rp-hero"],
+				["--rp-hero-label", "--rp-hero"],
+				["--rp-hero-accent", "--rp-hero"],
+			])(`%s on %s reaches ${text} : 1`, (fg, bg) => {
+				expect(value(fg)).toMatch(HEX);
+				expect(value(bg)).toMatch(HEX);
+				expect(contrast(value(fg), value(bg))).toBeGreaterThanOrEqual(text);
+			});
+
+			it.each([
+				[md("outline"), md("surface")],
+				[md("outline"), md("surface-container")],
+				["--rp-line-training", md("surface")],
+				["--rp-line-team", md("surface")],
+				["--rp-line-outside", md("surface")],
+				["--rp-line-threshold", md("surface")],
+				["--rp-line-pace", md("surface")],
+			])("%s on %s reaches 3 : 1", (fg, bg) => {
+				expect(contrast(value(fg), value(bg))).toBeGreaterThanOrEqual(3);
+			});
+
+			it("keeps the gauge's fill apart from its track", () => {
+				expect(value("--rp-reached")).not.toBe(value("--rp-track"));
+			});
+		},
+	);
 });

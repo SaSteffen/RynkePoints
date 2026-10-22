@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import data from "../../art/quotes/monkeys.json";
+import shows from "../../art/shows/shows.json";
 import { buildPrompt } from "../../scripts/badge-prompts.mjs";
-import { validateMonkeys } from "../../scripts/quote-prompts.mjs";
+import {
+	validateMonkeys,
+	validateShows,
+} from "../../scripts/quote-prompts.mjs";
 
 // The quote monkeys' art inputs: the five pictures of Rynke who says the Team
 // page's quote, listed in art/quotes/monkeys.json and prompted like the badges.
@@ -101,5 +105,72 @@ describe("a monkey's prompt", () => {
 			{ ...wave, group: "", category: "", threshold: 1 },
 		);
 		expect(prompt).toBe("Pose: Waving. Helmet and jersey.");
+	});
+});
+
+// Feature 022 contracts/show-pictures.md: Rynke on the unicorn and at the disco.
+describe("validateShows", () => {
+	const show = (id: string, over: Record<string, unknown> = {}) => ({
+		id,
+		name: "Show",
+		scene: "Dancing. {{kit}}",
+		...over,
+	});
+	const list = (items: unknown[]) => ({
+		snippets: { kit: "Helmet and jersey." },
+		shows: items,
+	});
+
+	it("accepts the real list: the unicorn, then the disco", () => {
+		expect(validateShows(shows)).toEqual([]);
+		expect(shows.shows.map((s) => s.id)).toEqual(["unicorn", "disco"]);
+		for (const s of shows.shows) {
+			expect(s.name.trim()).not.toBe("");
+			expect(s.scene.trim()).not.toBe("");
+		}
+	});
+
+	it("takes the quote monkeys' kit as it is", () => {
+		expect(shows.snippets.kit).toBe(data.snippets.kit);
+	});
+
+	it("rejects a missing, an extra or a reordered show", () => {
+		for (const items of [
+			[show("unicorn")],
+			[show("unicorn"), show("disco"), show("moon")],
+			[show("disco"), show("unicorn")],
+		]) {
+			expect(validateShows(list(items)).join("\n")).toMatch(
+				/the shows must be unicorn and disco/,
+			);
+		}
+	});
+
+	it("checks each show as a quote monkey is checked", () => {
+		const problems = validateShows(
+			list([
+				show("unicorn", { name: "" }),
+				show("disco", { scene: "Dancing. {{bike}}" }),
+			]),
+		).join("\n");
+		expect(problems).toMatch(/unicorn: no name/);
+		expect(problems).toMatch(/disco: unknown snippet {{bike}}/);
+		expect(validateShows({})).toEqual(["shows.json: no shows list"]);
+	});
+
+	it("fills a show's scene and its snippets into the template", () => {
+		const unicorn = shows.shows[0] as {
+			id: string;
+			name: string;
+			scene: string;
+		};
+		const prompt = buildPrompt("Pose: {{scene}}", shows.snippets, {
+			...unicorn,
+			group: "",
+			category: "",
+			threshold: 1,
+		});
+		expect(prompt).toContain(shows.snippets.kit);
+		expect(prompt).not.toMatch(/{{\w+}}/);
 	});
 });

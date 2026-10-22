@@ -1,8 +1,11 @@
 # Art: illustration originals
 
 (The team's coin designs and their tracing are in [`coin/`](coin/README.md),
-the badge pictures in [`badges/`](badges/README.md) and the Team page's quote
-monkeys in [`quotes/`](quotes/README.md).)
+the badge pictures in [`badges/`](badges/README.md), the Team page's quote
+monkeys in [`quotes/`](quotes/README.md) and Rynke in the fun themes'
+page-switch shows in [`shows/`](shows/README.md). Badges, quote monkeys and
+shows are the three sets `pnpm badge-art` and `pnpm badge-build` make and
+trace.)
 
 `illustrations/` holds the raster originals of the app's illustrations, as they
 come out of the image generator. `pnpm illustrations` traces every file in it,

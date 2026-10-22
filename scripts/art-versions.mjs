@@ -12,7 +12,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = new URL("../", import.meta.url);
 const OUT = fileURLToPath(new URL("src/http/art-versions.ts", ROOT));
-const FOLDERS = ["badges", "coin", "illustrations", "quotes"];
+const FOLDERS = ["badges", "coin", "illustrations", "quotes", "shows"];
 
 /** A folder's file names; none for a folder that isn't there (yet). */
 function names(folder) {
