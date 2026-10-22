@@ -123,8 +123,8 @@ function decideButtons(
 ): SafeHtml {
 	const event = eventLabel(i18n, row);
 	const names = { name: row.first_name, event };
-	const yes = html`<button class="request-yes" aria-label="${i18n.t("organiser.requests.confirm.label", names)}">${CHECK}<span>${i18n.t("organiser.requests.confirm")}</span></button>`;
-	const no = html`<button class="request-no" aria-label="${i18n.t("organiser.requests.deny.label", names)}">${CLOSE}</button>`;
+	const yes = html`<button class="button" aria-label="${i18n.t("organiser.requests.confirm.label", names)}">${CHECK}<span>${i18n.t("organiser.requests.confirm")}</span></button>`;
+	const no = html`<button class="icon-button" aria-label="${i18n.t("organiser.requests.deny.label", names)}">${CLOSE}</button>`;
 	return html`${decideForm(row.event_id, [row.athlete_id], "confirm", back, yes)}${decideForm(row.event_id, [row.athlete_id], "deny", back, no)}`;
 }
 
@@ -176,7 +176,7 @@ export function openRequestsBlock(
 						group.map((r) => r.athlete_id),
 						"confirm",
 						back,
-						html`<button class="button-outlined request-all">${i18n.t("organiser.requests.confirmAll", { n: String(group.length) })}</button>`,
+						html`<button class="button-outlined">${i18n.t("organiser.requests.confirmAll", { n: String(group.length) })}</button>`,
 					)
 				: null;
 		return html`<div class="request-event">

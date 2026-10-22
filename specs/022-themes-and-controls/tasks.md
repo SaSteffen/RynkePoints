@@ -34,7 +34,7 @@ US3 (Phase 2), US4 (Phase 3).
 
 ## Phase 1: Setup
 
-- [ ] T001 Open all six canvas boards with the Artifact tool and compare them with `specs/022-themes-and-controls/contracts/*.md`; note any drift since 2026-10-22 in the affected contract and ask the owner before implementing a changed look
+- [X] T001 Open all six canvas boards with the Artifact tool and compare them with `specs/022-themes-and-controls/contracts/*.md`; note any drift since 2026-10-22 in the affected contract and ask the owner before implementing a changed look
 
 ---
 
@@ -42,8 +42,8 @@ US3 (Phase 2), US4 (Phase 3).
 
 **Purpose**: the new tokens every control rule and theme reads (research R4, R5).
 
-- [ ] T002 Write failing tests in `test/unit/design-tokens.test.ts`: in the light root, `DARK`, `SYSTEM_DARK` and `FIXED_DARK` token sets of `src/http/style.ts`, `--rp-type-control` is `600 14px/20px var(--md-ref-typeface)`, `--rp-type-status` is `600 12px/16px var(--md-ref-typeface)`, `--rp-outline-width` is `1px`, `--rp-primary-text` equals `--md-sys-color-primary`, `--rp-on-hero` equals today's `--rp-coin-face` and `--rp-hero-accent` equals today's `--rp-coin-yellow` (contracts/controls.md "New tokens", contracts/themes.md)
-- [ ] T003 Add the six tokens to every token block in `src/http/style.ts` so T002 passes; no rule uses them yet, nothing changes on screen
+- [X] T002 Write failing tests in `test/unit/design-tokens.test.ts`: in the light root, `DARK`, `SYSTEM_DARK` and `FIXED_DARK` token sets of `src/http/style.ts`, `--rp-type-control` is `600 14px/20px var(--md-ref-typeface)`, `--rp-type-status` is `600 12px/16px var(--md-ref-typeface)`, `--rp-outline-width` is `1px`, `--rp-primary-text` equals `--md-sys-color-primary`, `--rp-on-hero` equals today's `--rp-coin-face` and `--rp-hero-accent` equals today's `--rp-coin-yellow` (contracts/controls.md "New tokens", contracts/themes.md)
+- [X] T003 Add the six tokens to every token block in `src/http/style.ts` so T002 passes; no rule uses them yet, nothing changes on screen
 
 **Checkpoint**: `pnpm test` green; no visible change.
 
@@ -57,21 +57,21 @@ US3 (Phase 2), US4 (Phase 3).
 
 ### Tests for User Story 1
 
-- [ ] T004 [P] [US1] Write failing tests in `test/unit/style.test.ts`: the rules for `.button`, `.button-outlined`, bare `button`, `.button-text`, `.danger`, `.icon-button`, `.segmented`, `.segmented-group label`, `.chip[aria-pressed]`, `.badges-filter label`, `.chip`/`.chip-team`/`.chip-alert`/`.status-chip`, `summary`, `.more>summary` and `.ride-why>summary` use `--rp-type-control` (status chips `--rp-type-status`) and `--rp-outline-width`, contain no hex or `rgb(` literal, have `min-height: 44px` (filter chips 36 px inside a 44 px tap area, status chips 28 px), and every selected state (`aria-current`, `:checked`, `aria-pressed=true`, `.badges-filter label:has(:checked)`) uses `--md-sys-color-primary-container` / `--md-sys-color-on-primary-container` (contracts/controls.md "The set")
-- [ ] T005 [P] [US1] Write failing markup tests in `test/integration/organiser-requests.test.ts` and `test/integration/organiser-events.test.ts`: the request yes/no buttons are `.button` (yes) and `.button-outlined` (no) with no request-specific button class, the round × is an `.icon-button` with an `aria-label`, and the "Ich war auch dabei" form button keeps `.button-outlined`
-- [ ] T006 [P] [US1] Write failing markup tests in `test/integration/sections.test.ts`: no card in Team, Du, Badges, Rides, Settings or Orga renders more than one `.button` (FR-005); the Badges filter and the two chips that act as filters (Termine, Fahrten) render as filter chips (`.chip[aria-pressed]` or `.badges-filter label`), display-only chips as status chips
+- [X] T004 [P] [US1] Write failing tests in `test/unit/style.test.ts`: the rules for `.button`, `.button-outlined`, bare `button`, `.button-text`, `.danger`, `.icon-button`, `.segmented`, `.segmented-group label`, `.chip[aria-pressed]`, `.badges-filter label`, `.chip`/`.chip-team`/`.chip-alert`/`.status-chip`, `summary`, `.more>summary` and `.ride-why>summary` use `--rp-type-control` (status chips `--rp-type-status`) and `--rp-outline-width`, contain no hex or `rgb(` literal, have `min-height: 44px` (filter chips 36 px inside a 44 px tap area, status chips 28 px), and every selected state (`aria-current`, `:checked`, `aria-pressed=true`, `.badges-filter label:has(:checked)`) uses `--md-sys-color-primary-container` / `--md-sys-color-on-primary-container` (contracts/controls.md "The set")
+- [X] T005 [P] [US1] Write failing markup tests in `test/integration/organiser-requests.test.ts` and `test/integration/organiser-events.test.ts`: the request yes/no buttons are `.button` (yes) and `.button-outlined` (no) with no request-specific button class, the round × is an `.icon-button` with an `aria-label`, and the "Ich war auch dabei" form button keeps `.button-outlined`
+- [X] T006 [P] [US1] Write failing markup tests in `test/integration/sections.test.ts`: no card in Team, Du, Badges, Rides, Settings or Orga renders more than one `.button` (FR-005); the Badges filter and the two chips that act as filters (Termine, Fahrten) render as filter chips (`.chip[aria-pressed]` or `.badges-filter label`), display-only chips as status chips
 
 ### Implementation for User Story 1
 
-- [ ] T007 [US1] Rewrite the control rules in `src/http/style.ts` to the set in contracts/controls.md (filled, outlined, text, danger, icon, segmented, filter chip, status chip, disclosure with the 14 px chevron after the text, switch outline width), keeping hover, press `scale(.96)` and busy states; board **Controls**
-- [ ] T008 [US1] Fix the selected state of the Team switch (`.segmented[aria-current]`) and the Badges filter (`.badges-filter label:has(:checked)`) in `src/http/style.ts` to `primary-container` / `on-primary-container`, border `primary-container`; board **Controls** ("Heute" vs. proposal)
-- [ ] T009 [US1] Change the request yes/no buttons in `src/http/organiser/requests.ts` (and wherever 019's request buttons render, `src/http/organiser/events.ts`) to `.button` / `.button-outlined` at 44 px and the round × to an `.icon-button`; delete the 40 px / 2 px / 700 rules from `src/http/style.ts`
-- [ ] T010 [US1] Make "Anlegen" and "Eintragen" both `.button` (find both in `src/http/organiser/*.ts`) and remove the beige filled variant from `src/http/style.ts`
-- [ ] T011 [US1] Remove the per-page summary sizes and colours (Orga "Woher die Rynke kommen", Du "Alle Details", Team "Zahlen als Tabelle", Fahrten "Warum?") from `src/http/style.ts` so all use the Disclosure rule; adjust the summary markup in `src/http/organiser/overview.ts`, `src/http/rider-sections.ts`, `src/http/sections/team.ts` and `src/http/sections/rides.ts` only where a class forced the old size
-- [ ] T012 [US1] Bring the chips in `src/http/sections/events.ts`, `src/http/sections/rides.ts` and `src/http/rider-sections.ts` to status chips (28 px, `--rp-type-status`); turn the two chips that act as filters into filter chips; board **Controls**
-- [ ] T013 [US1] Give the Settings language choice, the Team switch and the Du range the joined-pill segmented look, and the Badges filter the 8 px filter-chip look, in `src/http/style.ts` (markup in `src/http/sections/settings.ts`, `src/http/sections/team.ts`, `src/http/rider-sections.ts`, `src/http/sections/badges.ts` only where needed); board **Controls**
-- [ ] T014 [US1] Fix every card that T006 finds with two filled buttons by turning the secondary action into `.button-outlined` or `.button-text` in its section file under `src/http/`
-- [ ] T015 [US1] Run `pnpm lint`, `pnpm typecheck`, `pnpm test`; fix what fails
+- [X] T007 [US1] Rewrite the control rules in `src/http/style.ts` to the set in contracts/controls.md (filled, outlined, text, danger, icon, segmented, filter chip, status chip, disclosure with the 14 px chevron after the text, switch outline width), keeping hover, press `scale(.96)` and busy states; board **Controls**
+- [X] T008 [US1] Fix the selected state of the Team switch (`.segmented[aria-current]`) and the Badges filter (`.badges-filter label:has(:checked)`) in `src/http/style.ts` to `primary-container` / `on-primary-container`, border `primary-container`; board **Controls** ("Heute" vs. proposal)
+- [X] T009 [US1] Change the request yes/no buttons in `src/http/organiser/requests.ts` (and wherever 019's request buttons render, `src/http/organiser/events.ts`) to `.button` / `.button-outlined` at 44 px and the round × to an `.icon-button`; delete the 40 px / 2 px / 700 rules from `src/http/style.ts`
+- [X] T010 [US1] Make "Anlegen" and "Eintragen" both `.button` (find both in `src/http/organiser/*.ts`) and remove the beige filled variant from `src/http/style.ts`
+- [X] T011 [US1] Remove the per-page summary sizes and colours (Orga "Woher die Rynke kommen", Du "Alle Details", Team "Zahlen als Tabelle", Fahrten "Warum?") from `src/http/style.ts` so all use the Disclosure rule; adjust the summary markup in `src/http/organiser/overview.ts`, `src/http/rider-sections.ts`, `src/http/sections/team.ts` and `src/http/sections/rides.ts` only where a class forced the old size
+- [X] T012 [US1] Bring the chips in `src/http/sections/events.ts`, `src/http/sections/rides.ts` and `src/http/rider-sections.ts` to status chips (28 px, `--rp-type-status`); turn the two chips that act as filters into filter chips; board **Controls**
+- [X] T013 [US1] Give the Settings language choice, the Team switch and the Du range the joined-pill segmented look, and the Badges filter the 8 px filter-chip look, in `src/http/style.ts` (markup in `src/http/sections/settings.ts`, `src/http/sections/team.ts`, `src/http/rider-sections.ts`, `src/http/sections/badges.ts` only where needed); board **Controls**
+- [X] T014 [US1] Fix every card that T006 finds with two filled buttons by turning the secondary action into `.button-outlined` or `.button-text` in its section file under `src/http/`
+- [X] T015 [US1] Run `pnpm lint`, `pnpm typecheck`, `pnpm test`; fix what fails
 
 **Checkpoint**: US1 ships on its own (spec Phase 1).
 

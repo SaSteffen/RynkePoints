@@ -36,7 +36,7 @@ describe("STYLE", () => {
 		".organiser-form input",
 		".organiser-form select",
 		".organiser-event>a",
-		".organiser-confirm>summary",
+		"summary",
 	])("gives %s the 44 px tap height", (selector) => {
 		expect(declsOf(selector)["min-height"]).toBe("var(--rp-tap)");
 	});
@@ -547,6 +547,174 @@ describe("STYLE", () => {
 				"(prefers-reduced-motion:reduce)",
 			).animation,
 		).toBe("none");
+	});
+
+	describe("the one set of controls (022 contracts/controls.md)", () => {
+		const CONTROL = "var(--rp-type-control)";
+		const OUTLINE = "var(--rp-outline-width)";
+
+		it.each([
+			".button",
+			".button-outlined",
+			".button-text",
+			".danger",
+			".segmented",
+			".segmented-group label",
+			".chip[aria-pressed]",
+			".segmented-group.badges-filter label",
+			".list-scope .segmented",
+			"summary",
+			".more>summary",
+			".ride-why>summary",
+			".event-button",
+		])("gives %s the control type and the 44 px height", (selector) => {
+			expect(declsOf(selector).font).toBe(CONTROL);
+			expect(declsOf(selector)["min-height"]).toBe("var(--rp-tap)");
+		});
+
+		it("gives icon buttons 44 × 44 px and the open state primary-container", () => {
+			expect(declsOf(".icon-button")).toMatchObject({
+				"min-width": "var(--rp-tap)",
+				"min-height": "var(--rp-tap)",
+				"border-radius": "var(--md-shape-full)",
+			});
+			expect(declsOf(".icon-button[aria-expanded=true]")).toMatchObject({
+				background: "var(--md-sys-color-primary-container)",
+				color: "var(--md-sys-color-on-primary-container)",
+			});
+		});
+
+		it("draws filled, outlined, text and danger buttons as the canvas does", () => {
+			const base = declsOf(".button");
+			expect(base).toMatchObject({
+				padding: "0 20px",
+				"border-radius": "var(--md-shape-full)",
+				border: "0",
+				background: "var(--md-sys-color-primary)",
+				color: "var(--md-sys-color-on-primary)",
+			});
+			expect(declsOf(".button-outlined")).toMatchObject({
+				border: `${OUTLINE} solid transparent`,
+				"border-color": "var(--md-sys-color-outline)",
+				color: "var(--rp-primary-text)",
+			});
+			expect(declsOf(".button-text")).toMatchObject({
+				padding: "0 var(--rp-space-3)",
+				border: "0",
+				color: "var(--rp-primary-text)",
+			});
+			expect(declsOf(".danger")).toMatchObject({
+				"border-color": "var(--md-sys-color-error)",
+				color: "var(--md-sys-color-error)",
+			});
+		});
+
+		it("joins segments into a pill with the outline width", () => {
+			expect(declsOf(".segmented").border).toBe(
+				`${OUTLINE} solid var(--md-sys-color-outline)`,
+			);
+			expect(declsOf(".segmented+.segmented")["margin-left"]).toBe(
+				`calc(-1 * ${OUTLINE})`,
+			);
+			expect(declsOf("nav.kind-switch")).toEqual({
+				display: "flex",
+				margin: "0 0 var(--rp-space-3)",
+			});
+		});
+
+		it("draws filter chips 36 px high inside a 44 px tap area with 8 px corners", () => {
+			const chip = declsOf(".chip[aria-pressed]");
+			expect(chip).toMatchObject({
+				"border-width": "4px 0",
+				"border-radius": "var(--md-shape-sm)/12px",
+				"box-shadow": `inset 0 0 0 ${OUTLINE} var(--md-sys-color-outline)`,
+				color: "var(--md-sys-color-on-surface)",
+			});
+			expect(declsOf(".segmented-group.badges-filter label")).toEqual(chip);
+			expect(declsOf(".list-scope .segmented")).toEqual(chip);
+		});
+
+		it.each([
+			".segmented[aria-current]",
+			".segmented[aria-pressed=true]",
+			".segmented-group label:has(:checked)",
+			".chip[aria-pressed=true]",
+			".segmented-group.badges-filter label:has(:checked)",
+			".list-scope .segmented[aria-current]",
+		])("marks %s as selected in primary-container", (selector) => {
+			const decls = declsOf(selector);
+			expect(decls.background).toMatch(
+				/^var\(--md-sys-color-primary-container\)( padding-box)?$/,
+			);
+			expect(decls.color).toBe("var(--md-sys-color-on-primary-container)");
+		});
+
+		it("draws status chips 28 px high with 8 px corners and the status type", () => {
+			expect(declsOf(".chip")).toMatchObject({
+				"min-height": "28px",
+				padding: "0 10px",
+				"border-radius": "var(--md-shape-sm)",
+				font: "var(--rp-type-status)",
+			});
+			expect(declsOf(".status-chip")).toMatchObject({
+				"min-height": "28px",
+				"border-radius": "var(--md-shape-sm)",
+				font: "var(--rp-type-status)",
+			});
+			for (const selector of [
+				".chip-alert",
+				".chip-team",
+				".event-amounts .chip",
+			]) {
+				expect(declsOf(selector)["min-height"]).toBeUndefined();
+				expect(declsOf(selector)["font-weight"]).toBeUndefined();
+			}
+		});
+
+		it("opens every disclosure the same way, chevron after the text", () => {
+			expect(declsOf("summary")).toMatchObject({
+				color: "var(--rp-primary-text)",
+				"list-style": "none",
+			});
+			expect(declsOf("summary::after")).toMatchObject({
+				width: "14px",
+				height: "14px",
+				background: "currentColor",
+			});
+			expect(declsOf("details[open]>summary::after").transform).toBe(
+				"rotate(180deg)",
+			);
+			for (const selector of [
+				".progress-table summary",
+				".rider-breakdown summary",
+			]) {
+				expect(declsOf(selector)).toEqual({});
+			}
+		});
+
+		it("leaves no control with its own type, outline or 40 px height", () => {
+			const control =
+				/(^|[\s>+~,])(\.button|\.button-outlined|\.button-text|\.danger|\.segmented|\.icon-button|\.chip|\.status-chip|summary|\.event-button)\b/;
+			const offending = RULES.filter((rule) =>
+				rule.selectors.some(
+					(sel) => control.test(sel) && !/svg|::(before|after)/.test(sel),
+				),
+			).flatMap((rule) =>
+				Object.entries(rule.decls)
+					.filter(
+						([prop, value]) =>
+							(prop === "font" &&
+								!/^var\(--rp-type-(control|status)\)$/.test(value)) ||
+							prop === "font-weight" ||
+							(/^border(-width)?$/.test(prop) && /\b[12]px\b/.test(value)) ||
+							(prop === "min-height" && value === "40px"),
+					)
+					.map(
+						([prop, value]) => `${rule.selectors.join(",")} ${prop}:${value}`,
+					),
+			);
+			expect(offending).toEqual([]);
+		});
 	});
 
 	it("fills the page's width with ride cards, as many per row as fit", () => {

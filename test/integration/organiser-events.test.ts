@@ -364,6 +364,10 @@ describe("Ich war auch dabei", () => {
 		expect(html).not.toContain(self(upcoming));
 		expect(html).toContain(escapeHtml(de["organiser.events.self"]));
 		expect(html).toContain(people("organiser.events.attendees", 1));
+		// The set's outlined button (022 contracts/controls.md).
+		expect(html).toContain(
+			`${self(past)} class="self-form" data-swap><button class="button-outlined">`,
+		);
 	});
 
 	it("records the organiser, drops the button and says 'inklusive dir'", async () => {

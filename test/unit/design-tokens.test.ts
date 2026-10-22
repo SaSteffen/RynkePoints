@@ -106,6 +106,32 @@ describe("design tokens", () => {
 		expect(coin(DARK_FIXED)).toEqual(coin(LIGHT));
 	});
 
+	it("gives controls one type, one status type and one outline width (022 contracts/controls.md)", () => {
+		expect(declsOf(":root")).toMatchObject({
+			"--rp-type-control": "600 14px/20px var(--md-ref-typeface)",
+			"--rp-type-status": "600 12px/16px var(--md-ref-typeface)",
+			"--rp-outline-width": "1px",
+		});
+	});
+
+	it.each([
+		["light", declsOf(":root")],
+		[
+			"system dark",
+			declsOf(":root:not([data-scheme=light])", "(prefers-color-scheme:dark)"),
+		],
+		["fixed dark", declsOf(":root[data-scheme=dark]")],
+	])(
+		"names the hero text, hero accent and primary text in %s (022 contracts/themes.md)",
+		(_scheme, decls) => {
+			expect(decls).toMatchObject({
+				"--rp-primary-text": "var(--md-sys-color-primary)",
+				"--rp-on-hero": "var(--rp-coin-face)",
+				"--rp-hero-accent": "var(--rp-coin-yellow)",
+			});
+		},
+	);
+
 	it("uses the same dark values for the system and a fixed choice", () => {
 		expect(DARK_SYSTEM).toEqual(DARK_FIXED);
 	});

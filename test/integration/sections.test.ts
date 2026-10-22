@@ -189,3 +189,70 @@ describe("the navigation of an organiser", () => {
 		},
 	);
 });
+
+/** Each element whose class list holds one of `classes`, with its content. */
+function elements(html: string, classes: readonly string[]): string[] {
+	const out: string[] = [];
+	const open = /<(\w+)\b[^>]*\bclass="([^"]*)"[^>]*>/g;
+	for (const m of html.matchAll(open)) {
+		const [tag, name, list = ""] = m;
+		if (!name || !list.split(" ").some((c) => classes.includes(c))) continue;
+		const pair = new RegExp(`<${name}\\b|</${name}>`, "g");
+		pair.lastIndex = (m.index ?? 0) + tag.length;
+		let depth = 1;
+		let end = html.length;
+		for (const t of html.matchAll(pair)) {
+			if ((t.index ?? 0) < pair.lastIndex) continue;
+			depth += t[0].startsWith("</") ? -1 : 1;
+			if (depth === 0) {
+				end = (t.index ?? 0) + t[0].length;
+				break;
+			}
+		}
+		out.push(html.slice(m.index, end));
+	}
+	return out;
+}
+
+// Feature 022: one set of controls on every page (FR-005, FR-007,
+// contracts/controls.md).
+describe("the one set of controls", () => {
+	const CARDS = [
+		"card",
+		"settings-group",
+		"ride-card",
+		"event-card",
+		"badge-card",
+		"rider-card",
+		"organiser-event",
+		"request-event",
+	];
+	const ORGA = ["/organiser", "/organiser/riders", "/organiser/events"];
+
+	it.each([...SECTIONS.map(({ path }) => path), ...ORGA])(
+		"has at most one filled button per card on %s",
+		async (path) => {
+			await seedRider(ctx, { organiser: ORGA.includes(path) });
+			const { html } = await get(path);
+			for (const card of elements(html, CARDS)) {
+				expect(card.match(/class="button"/g)?.length ?? 0).toBeLessThan(2);
+			}
+		},
+	);
+
+	it.each([...SECTIONS.map(({ path }) => path), ...ORGA])(
+		"draws chips that filter as filter chips and the rest as status chips on %s",
+		async (path) => {
+			await seedRider(ctx, { organiser: ORGA.includes(path) });
+			const { html } = await get(path);
+			for (const [, attrs] of html.matchAll(
+				/<button ([^>]*class="chip[^>]*)>/g,
+			)) {
+				expect(attrs).toMatch(/aria-pressed="(true|false)"/);
+			}
+			expect(html).not.toMatch(
+				/class="[^"]*\b(request-yes|request-no|request-all)\b/,
+			);
+		},
+	);
+});
