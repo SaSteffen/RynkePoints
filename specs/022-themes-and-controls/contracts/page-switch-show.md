@@ -9,17 +9,21 @@ phone; here they are given relative to the viewport.
 | Constant | Value |
 |----------|-------|
 | `SHOW_MS` (show) | 3200 |
-| `SHOW_SWAP_MS` (the page starts fading out; the section swaps in after it) | 2450 |
-| `SECTION_FADE_MS` (`main` fades out, then the new one in) | 250 |
+| `SHOW_HIDE_MS` (peak: `main` goes, under the full cover) | 1600 |
+| `SHOW_SWAP_MS` (the section swaps in, still hidden) | 2450 |
+| `SHOW_IN_MS` (Konfetti: `main` fades in) | 2700 |
+| `SECTION_FADE_MS` (Konfetti's fade in) | 250 |
+| `SHOW_ROOM_OUT` (Disco: `main` fades in with the room's fade out, opacity the reverse of the room's) | 0.6 of `SHOW_MS` |
 | `FADE_MS` (reduced motion: fade in, swap, fade out as long again) | 250 |
 
 Changed after release: the show first loaded the next page at its peak
 (1.6 s) and played the rest on the arriving page from a `sessionStorage` flag
 (research R7). That stuttered; loading at the show's end showed the page
-change. Now nothing loads as a page: the click fetches the section, and half
-a second before the end `main` fades out, the section swaps in place and
-`main` fades in again (a swap at the peak hitched visibly; here the show is
-nearly gone). The swap is `swapPage` (the same as the Team section's views,
+change. Now nothing loads as a page: the click fetches the section, at the
+peak `main` goes (unseen), half a second before the end the section swaps in
+place (a swap at the peak hitched visibly; here the show is nearly gone) and
+`main` fades in on the show's clock (its `startTime` is the show's first
+part's), so a slow swap can't put Disco's fade out of step with the room. The swap is `swapPage` (the same as the Team section's views,
 plus the header's section title), with a history entry, at the top of the
 page, the navigation's item focused for a keyboard user. The flag, the head
 script's part and the `data-show` peak cover are gone.
@@ -39,8 +43,8 @@ on this device (`localStorage["rp-shows"] = "off"`).
 - Skip (FR-043): `pointerdown` or `keydown` anywhere during the show ends it
   and swaps the section in at once if it is there; the overlay catches the tap
   so it doesn't also hit a control.
-- Not there by `SHOW_SWAP_MS`: it fades in when it arrives; a skip swaps
-  at once without the fade; past the show's end the
+- Not there by `SHOW_SWAP_MS`: it swaps in when it arrives, where the
+  show's clock has the fade by then; a skip swaps at once without the fade; past the show's end the
   page progress bar (#108) shows. Not swappable (a redirect, an error, a page
   without the shell): `location.assign` at the show's end.
 - Back and forward: `popstate` to an entry this document pushed swaps that

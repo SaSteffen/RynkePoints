@@ -318,11 +318,13 @@ tap the current tab and see no show.
 - **FR-040**: In Konfetti and Disco, tapping another section in the navigation
   bar (top or bottom) MUST play that theme's show over the page, as on the
   canvas board "Seitenwechsel: Konfetti und Disco": about 3.2 s in total. The
-  new section loads in the background while the show plays and, about half a
-  second before the show's end, the page fades into it in place, without a
-  page load (owner's calls: a page load at the peak stuttered, one at the end
-  showed, and a swap in place still hitches briefly, best where the show is
-  nearly gone). A section not there by then comes in as soon as it is; anything unexpected (signed out, an error) loads
+  new section loads in the background while the show plays. Under the show's
+  peak, unseen, the old section goes; about half a second before the show's
+  end the new one swaps in place, without a page load, and fades in: in Disco
+  exactly as the room fades out, in Konfetti as the rainbow leaves (owner's
+  calls: a page load at the peak stuttered, one at the end showed, a swap in
+  place still hitches briefly, best where the show is nearly gone, and Disco's
+  fade must not run apart from the room's). A section not there by then comes in as soon as it is; anything unexpected (signed out, an error) loads
   the page the usual way at the show's end. Back and forward between sections
   swapped in this way swap in place too, without a show. Settings, links and
   buttons inside a page (the Orga page's group tiles, say) and a running tour
