@@ -51,3 +51,8 @@ export const CHECK = icon('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
 
 /** A plus, for "Bin dabei" and "Ich war auch dabei" (feature 019). */
 export const PLUS = icon('<path d="M12 5v14M5 12h14"/>');
+
+/** A painter's palette, for the theme menu (feature 022, the canvas's path). */
+export const PALETTE = icon(
+	'<path d="M12 3a9 9 0 1 0 0 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.5-1.1-.3-.3-.5-.7-.5-1.1 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4.1-4-7.6-9-7.6z"/><circle cx="7.5" cy="11" r="1.2" fill="currentColor"/><circle cx="10.5" cy="7" r="1.2" fill="currentColor"/><circle cx="15" cy="7.2" r="1.2" fill="currentColor"/>',
+);

@@ -443,7 +443,8 @@ describe("tri-state boxes", () => {
 			escapeHtml(de["organiser.attendance.legend.greyFuture"]),
 		);
 		expect(html).toContain(escapeHtml(de["organiser.attendance.tag.intent"]));
-		expect(html).not.toContain('type="radio"');
+		const main = html.slice(html.indexOf("<main>"), html.indexOf("</main>"));
+		expect(main).not.toContain('type="radio"');
 		expect(html).not.toContain(
 			`action="/organiser/events/${later}/attendance"`,
 		);

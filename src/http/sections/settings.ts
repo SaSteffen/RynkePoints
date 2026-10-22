@@ -11,12 +11,13 @@ import { renderRules } from "../rider-sections";
 import { acceptedOn, shellPage } from "../shell";
 import { stepHref } from "../tour";
 
-// Settings at `/me/settings` in the seven groups of feature 011 FR-014: the
-// language, this device's scheme, the notifications on this device, installing
+// Settings at `/me/settings` in the groups of feature 011 FR-014: the
+// language, the notifications on this device, installing
 // the app, the connection to Strava with the granted permissions, the stored
 // consent (feature 004 FR-014), and signing out or leaving; the rules moved
 // here from the Overview (issue #92), and the tours start again here (#90). For a signed-in rider the language
-// switcher is only here (FR-016).
+// switcher is only here (FR-016). The colour scheme moved to the header's
+// theme menu (feature 022 FR-016).
 
 /** One group of the page, in contracts/pages.md "Settings" order. */
 function group(id: string, heading: string, body: SafeHtml): SafeHtml {
@@ -24,14 +25,6 @@ function group(id: string, heading: string, body: SafeHtml): SafeHtml {
 <h2>${heading}</h2>
 ${body}
 </section>`;
-}
-
-/** System, Light or Dark for this device; `public/app.js` stores it (FR-032a). */
-function appearance(i18n: I18n): SafeHtml {
-	const option = (value: "system" | "light" | "dark") =>
-		html`<label><input type="radio" name="scheme" value="${value}">${i18n.t(`settings.scheme.${value}`)}</label>`;
-	return html`<fieldset class="segmented-group">${option("system")}${option("light")}${option("dark")}</fieldset>
-<p>${i18n.t("settings.appearance.hint")}</p>`;
 }
 
 /** The rider's current consent, what is read and who sees what. */
@@ -71,7 +64,6 @@ export function handleSettings(
 					: html`<p>${i18n.t("me.status.needsReconnect")}</p>
 <p><a class="button" href="/connect?next=/me/settings">${i18n.t("me.reconnect")}</a></p>`;
 			return html`<div class="settings-grid">${group("settings-language", i18n.t("settings.language"), languageForm(i18n, "/me/settings"))}
-${group("settings-appearance", i18n.t("settings.appearance"), appearance(i18n))}
 ${renderNotifications(i18n, vapidPublicKey(ctx.env))}
 <section id="settings-app" class="settings-group" hidden>
 <h2>${i18n.t("settings.app")}</h2>

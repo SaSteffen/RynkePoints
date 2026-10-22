@@ -30,6 +30,7 @@ import {
 } from "./icons";
 import { renderAppPrompt } from "./pwa";
 import { redirect } from "./redirect";
+import { themeButton, themeMenu } from "./theme-menu";
 import { type TourHint, tourHint } from "./tour";
 import { readViewer, riderConsentState } from "./viewer";
 
@@ -160,7 +161,11 @@ function shellParts(
 		// Tapping it is a fresh GET of the same page, rides page included (R8).
 		header: html`${WORDMARK}
 <h1 class="section-title">${current ? i18n.t(current.label) : null}</h1>
+${themeButton(i18n)}
 <a class="icon-button refresh" href="${path}" aria-label="${i18n.t("shell.refresh")}">${REFRESH}</a>`,
+		// Right after the header, above everything else on the page when open
+		// (022 contracts/theme-menu.md).
+		menu: themeMenu(i18n),
 		// After the footer, so screen readers reach the content first. The app
 		// prompt floats above it on phones (015 FR-012, research R8); a tour's
 		// hint takes its place while it shows (issue #90).

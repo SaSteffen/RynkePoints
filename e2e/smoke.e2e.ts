@@ -144,19 +144,6 @@ test.describe("a rider", () => {
 		await page.goto("/team");
 		expect(await scrollTop()).toBe(0);
 	});
-
-	test("picks the dark scheme for this device", async ({ page }) => {
-		await page.goto("/me/settings");
-		await skipTours(page);
-		await page.locator("label", { has: page.locator("[value=dark]") }).click();
-		await expect(page.locator("html")).toHaveAttribute("data-scheme", "dark");
-		await expect(page.locator("body")).toHaveCSS(
-			"background-color",
-			"rgb(18, 17, 12)",
-		);
-		await page.reload();
-		await expect(page.locator("html")).toHaveAttribute("data-scheme", "dark");
-	});
 });
 
 /**

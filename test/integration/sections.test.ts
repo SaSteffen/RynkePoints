@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { escapeHtml } from "../../src/http/html";
 import { createSessionCookie } from "../../src/http/session";
+import { THEMES } from "../../src/http/themes";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import {
@@ -252,6 +254,79 @@ describe("the one set of controls", () => {
 			}
 			expect(html).not.toMatch(
 				/class="[^"]*\b(request-yes|request-no|request-all)\b/,
+			);
+		},
+	);
+});
+
+// Feature 022: the palette button next to the refresh link and the theme menu
+// on every section (FR-010–FR-013, FR-021, contracts/theme-menu.md).
+describe.each(["de", "en"] as const)("the theme menu (%s)", (locale) => {
+	const c = CATALOGS[locale];
+
+	it.each(SECTIONS.map(({ path }) => path))(
+		"sits in the header of %s with every theme",
+		async (path) => {
+			await seedRider(ctx);
+			const cookies = {
+				...(await sessionCookie(ctx, ATHLETE_A)),
+				rp_lang: locale,
+			};
+			const { html } = await get(path, cookies);
+			const header = html.match(/<header[\s\S]*?<\/header>/)?.[0] ?? "";
+			const order = [
+				'<span class="wordmark">',
+				'<h1 class="section-title">',
+				`<button type="button" class="icon-button theme-button" aria-haspopup="dialog" aria-expanded="false" aria-controls="theme-menu" aria-label="${c["theme.button"]}">`,
+				'<a class="icon-button refresh"',
+			].map((part) => header.indexOf(part));
+			expect(order.every((at) => at >= 0)).toBe(true);
+			expect([...order].sort((a, b) => a - b)).toEqual(order);
+
+			const menu =
+				html.match(
+					/<div id="theme-menu"[\s\S]*?<p class="theme-note">[^<]*<\/p>\s*<\/div>/,
+				)?.[0] ?? "";
+			expect(menu).toMatch(
+				/^<div id="theme-menu" class="theme-menu" role="dialog" aria-labelledby="theme-menu-title" hidden>/,
+			);
+			expect(menu).toContain(
+				`<h2 id="theme-menu-title">${c["theme.menu.title"]}</h2>`,
+			);
+			expect(menu).toContain(
+				`<button type="button" class="icon-button" data-action="close" aria-label="${c["theme.menu.close"]}">`,
+			);
+			expect(menu.match(/<fieldset /g)).toHaveLength(1);
+			const values = [
+				...menu.matchAll(/<input type="radio" name="theme" value="([\w-]+)"/g),
+			].map((m) => m[1]);
+			expect(values).toEqual(["auto", ...THEMES.map((t) => t.id)]);
+			expect(
+				[...menu.matchAll(/<h3 class="theme-group">([^<]*)<\/h3>/g)].map(
+					(m) => m[1],
+				),
+			).toEqual([
+				c["theme.group.light"],
+				c["theme.group.dark"],
+				c["theme.group.contrast"],
+			]);
+			for (const t of THEMES) {
+				const tile =
+					menu.match(
+						new RegExp(
+							`<label class="theme-tile" data-theme-preview="${t.id}">[\\s\\S]*?</label>`,
+						),
+					)?.[0] ?? "";
+				expect(tile).toContain(c[`theme.name.${t.id}`]);
+				expect(tile).toContain(
+					`value="${t.id}" data-scheme="${t.scheme}" data-color="${t.preview.bg}"`,
+				);
+				expect(tile.includes('class="theme-sparkle"')).toBe(t.fun !== null);
+			}
+			expect(menu).toContain(c["theme.auto"]);
+			expect(menu).toContain(escapeHtml(c["theme.auto.hint"]));
+			expect(menu).toContain(
+				`<p class="theme-note">${escapeHtml(c["theme.menu.note"])}</p>`,
 			);
 		},
 	);

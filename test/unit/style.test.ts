@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BADGE_RIBBON_MASK } from "../../src/badges/outline";
 import { STYLE } from "../../src/http/style";
+import { THEMES } from "../../src/http/themes";
 import { declsOf, RULES } from "../support/css";
 
 // The stylesheet's phone guarantees, read from its rules since workerd can't
@@ -714,6 +715,116 @@ describe("STYLE", () => {
 					),
 			);
 			expect(offending).toEqual([]);
+		});
+	});
+
+	describe("the themes (022 contracts/themes.md, theme-menu.md)", () => {
+		it.each(
+			THEMES.filter((t) => Object.keys(t.tokens).length > 0).map((t) => t.id),
+		)("overrides the base scheme for %s after the base rules", (id) => {
+			const theme = THEMES.find((t) => t.id === id);
+			expect(declsOf(`:root[data-theme=${id}]`)).toEqual(theme?.tokens);
+			expect(STYLE.indexOf(`:root[data-theme=${id}]{`)).toBeGreaterThan(
+				STYLE.indexOf(":root[data-scheme=light]{"),
+			);
+		});
+
+		it("has no rule for Rynke Tag and Nacht, the base schemes", () => {
+			expect(STYLE).not.toContain(":root[data-theme=rynke-day]{");
+			expect(STYLE).not.toContain(":root[data-theme=rynke-night]{");
+		});
+
+		it.each(THEMES.map((t) => t.id))(
+			"gives the %s tile its own colours",
+			(id) => {
+				const { bg, hero, pc, primary, card, text } =
+					THEMES.find((t) => t.id === id)?.preview ?? {};
+				expect(declsOf(`[data-theme-preview=${id}]`)).toEqual({
+					"--preview-bg": bg,
+					"--preview-hero": hero,
+					"--preview-pc": pc,
+					"--preview-primary": primary,
+					"--preview-card": card,
+					"--preview-text": text,
+				});
+			},
+		);
+
+		it("colours hero cards with the hero tokens", () => {
+			for (const card of [
+				".team-total",
+				".hero",
+				".overview-deadline",
+				".qualified",
+			]) {
+				expect(declsOf(card).color).toBe("var(--rp-on-hero)");
+			}
+			for (const accent of [
+				".team-total-value",
+				".hero-total",
+				".overview-deadline .overview-deadline-count",
+				".qualified h2",
+			]) {
+				expect(declsOf(accent).color).toBe("var(--rp-hero-accent)");
+			}
+		});
+
+		it("colours links, outlined and text buttons and summaries with the primary text", () => {
+			for (const selector of [
+				"a",
+				".button-outlined",
+				".button-text",
+				"summary",
+			]) {
+				expect(declsOf(selector).color).toBe("var(--rp-primary-text)");
+			}
+		});
+
+		it("underlines text buttons and edges status chips in the contrast themes", () => {
+			for (const id of ["contrast-light", "contrast-dark"]) {
+				expect(
+					declsOf(`:root[data-theme=${id}] .button-text`)["text-decoration"],
+				).toBe("underline");
+				expect(declsOf(`:root[data-theme=${id}] .chip`).border).toBe(
+					"var(--rp-outline-width) solid currentColor",
+				);
+			}
+		});
+
+		it("draws the palette button open in primary-container", () => {
+			expect(declsOf(".icon-button[aria-expanded=true]").background).toBe(
+				"var(--md-sys-color-primary-container)",
+			);
+		});
+
+		it("lays the menu out as the canvas does", () => {
+			expect(declsOf(".theme-menu")).toMatchObject({
+				position: "fixed",
+				right: "8px",
+				width: "330px",
+				"max-width": "calc(100vw - 16px)",
+				"overflow-y": "auto",
+				padding: "16px",
+				"border-radius": "16px",
+				background: "var(--md-sys-color-surface-container-high)",
+				color: "var(--md-sys-color-on-surface)",
+			});
+			expect(declsOf(".theme-grid")).toMatchObject({
+				display: "grid",
+				"grid-template-columns": "repeat(2,minmax(0,1fr))",
+				gap: "8px",
+			});
+			expect(declsOf(".theme-tile:has(:checked)")["box-shadow"]).toBe(
+				"0 0 0 3px var(--rp-primary-text)",
+			);
+		});
+
+		it("truncates the section title rather than the header's buttons", () => {
+			expect(declsOf("h1.section-title")).toMatchObject({
+				overflow: "hidden",
+				"white-space": "nowrap",
+				"text-overflow": "ellipsis",
+			});
 		});
 	});
 

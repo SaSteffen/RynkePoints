@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { Ctx } from "../../src/ctx";
-import { SCHEME_SCRIPT } from "../../src/http/html";
+import { THEME_SCRIPT } from "../../src/http/html";
 import { CLOSE } from "../../src/http/icons";
 import { createSessionCookie } from "../../src/http/session";
 import { STYLE } from "../../src/http/style";
@@ -31,7 +31,7 @@ const HEAD = [
 	'<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">',
 	'<meta name="theme-color" media="(prefers-color-scheme: light)" content="#fffdf5">',
 	'<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12110c">',
-	`<script>${SCHEME_SCRIPT}</script>`,
+	`<script>${THEME_SCRIPT}</script>`,
 	'<script src="/app.js" defer></script>',
 ];
 
@@ -75,7 +75,7 @@ describe("every page's head", () => {
 		["/me/disconnect", true],
 		["/notice/deleted", false],
 	])(
-		"%s links the manifest, icons, app.js and the scheme script",
+		"%s links the manifest, icons, app.js and the theme script",
 		async (path, signedIn) => {
 			const cookies = signedIn
 				? await sessionCookie(ctx, ATHLETE_A)

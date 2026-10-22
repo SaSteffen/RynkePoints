@@ -1,7 +1,7 @@
 // RynkePoints page script (feature 010 contracts/client.md, research R16). It
 // only wires up what a server-rendered page can't do itself: the service worker,
-// the install group and the app prompt, the notifications switch, the scheme
-// picker, bringing a section up to date on return and once the first data is
+// the install group and the app prompt, the notifications switch, the theme
+// menu, bringing a section up to date on return and once the first data is
 // there, other views and saves swapped in place (`data-swap`), the
 // buttons' press and busy feedback, opening a badge's large view on mouse
 // hover (feature 013 research R19), the event page's tri-state boxes
@@ -389,44 +389,81 @@ function appPrompt() {
 	if (standalone()) offerNotifications().catch(() => {});
 }
 
-/** The `surface` colour of each scheme, as in the head script (research R12). */
-const THEME_COLOR = { light: "#fffdf5", dark: "#12110c" };
-
 /**
- * The Appearance group in Settings (FR-032a): System, Light or Dark for this
- * device only. It applies the choice the way the head script does on load.
+ * The header's theme menu (feature 022 contracts/theme-menu.md): the palette
+ * button opens it with the theme shown now checked; a choice applies at once,
+ * as the head script does on load, is kept for this device only and leaves the
+ * menu open. Escape, a tap outside or the close button close it and put focus
+ * back on the palette button. Run once per page load: content swapped in place
+ * leaves the header and the menu alone.
  */
-function schemePicker() {
-	const radios = document.querySelectorAll("input[name=scheme]");
-	if (radios.length === 0) return;
-	const KEY = "rp-scheme";
-	let stored = null;
-	try {
-		stored = localStorage.getItem(KEY);
-	} catch {}
-	const current = stored === "light" || stored === "dark" ? stored : "system";
+function themeMenu() {
+	const button = document.querySelector("button.theme-button");
+	const panel = document.getElementById("theme-menu");
+	if (!button || !panel) return;
+	const KEY = "rp-theme";
+	const root = document.documentElement;
+	const radios = [...panel.querySelectorAll("input[name=theme]")];
+	const byValue = (value) => radios.find((radio) => radio.value === value);
+	const shown = byValue(root.dataset.theme) ?? byValue("auto");
+	if (shown) shown.checked = true;
+	// Automatisch's two colours, one per system setting, as the page is served.
+	const autoColour = {
+		light: byValue("rynke-day")?.dataset.color,
+		dark: byValue("rynke-night")?.dataset.color,
+	};
+
+	const open = () => {
+		panel.hidden = false;
+		button.setAttribute("aria-expanded", "true");
+		(panel.querySelector("input:checked") ?? radios[0])?.focus();
+	};
+	const close = () => {
+		if (panel.hidden) return;
+		panel.hidden = true;
+		button.setAttribute("aria-expanded", "false");
+		button.focus();
+	};
+	button.addEventListener("click", () => (panel.hidden ? open() : close()));
+	panel
+		.querySelector('[data-action="close"]')
+		?.addEventListener("click", close);
+	document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape") close();
+	});
+	document.addEventListener("click", (event) => {
+		const target = event.target;
+		if (
+			target instanceof Node &&
+			!panel.contains(target) &&
+			!button.contains(target)
+		) {
+			close();
+		}
+	});
+
 	for (const radio of radios) {
-		radio.checked = radio.value === current;
 		radio.addEventListener("change", () => {
-			const scheme = radio.value;
+			const theme = radio.value;
 			try {
-				if (scheme === "system") localStorage.removeItem(KEY);
-				else localStorage.setItem(KEY, scheme);
+				if (theme === "auto") localStorage.removeItem(KEY);
+				else localStorage.setItem(KEY, theme);
 			} catch {}
 			const metas = document.querySelectorAll('meta[name="theme-color"]');
-			if (scheme === "system") {
-				delete document.documentElement.dataset.scheme;
-				// Back to one colour per system setting, as the page is served.
+			if (theme === "auto") {
+				delete root.dataset.theme;
+				delete root.dataset.scheme;
 				for (const [i, m] of [...metas].entries()) {
-					const s = i === 0 ? "light" : "dark";
-					m.media = `(prefers-color-scheme: ${s})`;
-					m.content = THEME_COLOR[s];
+					const scheme = i === 0 ? "light" : "dark";
+					m.media = `(prefers-color-scheme: ${scheme})`;
+					m.content = autoColour[scheme];
 				}
 			} else {
-				document.documentElement.dataset.scheme = scheme;
+				root.dataset.theme = theme;
+				root.dataset.scheme = radio.dataset.scheme;
 				for (const m of metas) {
 					m.removeAttribute("media");
-					m.content = THEME_COLOR[scheme];
+					m.content = radio.dataset.color;
 				}
 			}
 		});
@@ -1859,7 +1896,7 @@ function progressCharts(signal) {
 	const scheme = new MutationObserver(recolour);
 	scheme.observe(document.documentElement, {
 		attributes: true,
-		attributeFilter: ["data-scheme"],
+		attributeFilter: ["data-scheme", "data-theme"],
 	});
 	signal.addEventListener("abort", () => {
 		scheme.disconnect();
@@ -1875,7 +1912,6 @@ function progressCharts(signal) {
 function enhance(signal) {
 	lazyRides(signal);
 	installSettings(signal);
-	schemePicker();
 	waitForFirstData(signal);
 	badgeHover();
 	triState();
@@ -1889,6 +1925,7 @@ swapViews();
 pressFeedback();
 pendingSubmit();
 appPrompt();
+themeMenu();
 refreshOnReturn();
 pageLoading();
 enhance(content.signal);
