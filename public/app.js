@@ -558,13 +558,14 @@ const SHOW_MS = 3200;
 /** The show's peak: the old section goes, unseen under the full cover. */
 const SHOW_HIDE_MS = 1600;
 /**
- * Half a second before the show's end the next section swaps in, still
- * hidden, so the swap's hitch falls where the show is nearly gone.
+ * The next section swaps in, still hidden: Disco half a second before the
+ * show's end, where the show is nearly gone; Konfetti while the rainbow still
+ * covers, just before it clears the view.
  */
-const SHOW_SWAP_MS = 2450;
-/** Konfetti: the section fades in as the rainbow leaves. */
-const SHOW_IN_MS = 2700;
-const SECTION_FADE_MS = 250;
+const SHOW_SWAP_MS = { confetti: 1950, disco: 2450 };
+/** Konfetti: the section fades in as the rainbow starts clearing the view. */
+const SHOW_IN_MS = 2150;
+const SECTION_FADE_MS = 300;
 /** Disco: the section fades in as the room fades out, its last 40 %. */
 const SHOW_ROOM_OUT = 0.6;
 /** Reduced motion: a fade to the surface instead. */
@@ -745,8 +746,9 @@ function sectionFadeIn(theme) {
 /**
  * Plays the show over this page while the section at `href` loads in the
  * background. Under the show's peak the page's section goes (`SHOW_HIDE_MS`),
- * half a second before its end the new one swaps in (`SHOW_SWAP_MS`) and
- * fades in on the show's clock (`sectionFadeIn`): no page load to see. A
+ * shortly before the show clears the view the new one swaps in
+ * (`SHOW_SWAP_MS`) and fades in on the show's clock (`sectionFadeIn`): no
+ * page load to see. A
  * section not there by then comes in once it is, past the show's end with the
  * progress bar (#108). Anything unexpected (signed out, an error) loads the
  * page the usual way at the show's end. A tap or a key skips the show,
@@ -812,7 +814,7 @@ function leaveWithShow(theme, href) {
 			due = true;
 			if (doc !== undefined) arrive();
 		},
-		reduced ? FADE_MS : SHOW_SWAP_MS,
+		reduced ? FADE_MS : SHOW_SWAP_MS[theme],
 	);
 	const timer = setTimeout(end, reduced ? 2 * FADE_MS : SHOW_MS);
 	show.addEventListener("pointerdown", skip);

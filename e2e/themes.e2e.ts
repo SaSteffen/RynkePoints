@@ -163,8 +163,8 @@ test("plays the Konfetti show across a tab switch", async ({ page }) => {
 		0,
 	);
 	await expect(page.locator(".show:focus, .show :focus")).toHaveCount(0);
-	// The section fades in shortly before the show's end, without a page load.
-	expect((await arrived) - started).toBeGreaterThanOrEqual(2400);
+	// The section swaps in as the rainbow retracts, without a page load.
+	expect((await arrived) - started).toBeGreaterThanOrEqual(1900);
 	await expect(page.locator("header .section-title")).toHaveText("Du");
 	await expect(tab(page, "/me")).toHaveAttribute("aria-current", "page");
 	await expect(show(page)).toHaveCount(0, { timeout: 3000 });
