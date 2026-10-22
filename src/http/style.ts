@@ -233,7 +233,7 @@ const SHOW_RULES = (() => {
 .show-floor{left:calc(50% - var(--show-rynke) * .75);bottom:70px;width:calc(var(--show-rynke) * 1.5);height:calc(var(--show-rynke) * .33);border-radius:50%;opacity:0;background:var(--rp-show-floor);animation:show-dancer ${play} ease-in-out forwards}
 .show-dancer{left:calc(50% - var(--show-rynke) / 2);bottom:calc(70px + var(--show-rynke) * .15);width:var(--show-rynke);opacity:0;animation:show-dancer ${play} ease-in-out forwards}
 .show-dancer img{transform-origin:50% 95%;animation:show-groove .5s ease-in-out infinite alternate}
-.show-fade{inset:0;opacity:0;background:var(--md-sys-color-surface);animation:show-fade .25s ease-in forwards}`;
+.show-fade{inset:0;opacity:0;background:var(--md-sys-color-surface);animation:show-fade .5s ease-in-out forwards}`;
 })();
 
 /** The disclosure's chevron, a mask in the text's colour (022 contracts/controls.md). */
@@ -829,4 +829,4 @@ ${SHOW_RULES}
 @keyframes show-sweep{to{translate:var(--dx) var(--dy)}}
 @keyframes show-dancer{0%,22%{opacity:0;transform:translateY(40px)}40%,62%{opacity:1;transform:translateY(0)}86%,100%{opacity:0;transform:translateY(40px)}}
 @keyframes show-groove{from{transform:rotate(-5deg)}to{transform:rotate(5deg)}}
-@keyframes show-fade{to{opacity:1}}`;
+@keyframes show-fade{50%{opacity:1}to{opacity:0}}`;

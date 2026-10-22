@@ -1062,7 +1062,7 @@ describe("STYLE", () => {
 		it("fades the surface for reduced motion", () => {
 			expect(declsOf(".show-fade")).toMatchObject({
 				background: "var(--md-sys-color-surface)",
-				animation: "show-fade .25s ease-in forwards",
+				animation: "show-fade .5s ease-in-out forwards",
 			});
 		});
 	});

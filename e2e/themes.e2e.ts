@@ -139,20 +139,22 @@ const tab = (page: Page, path: string) =>
 	page.locator(`nav.app-nav a[href="${path}"]`);
 const show = (page: Page) => page.locator(".show");
 
-/**
- * When the page asks for `path`: the moment the show switches, apart from
- * how long the server then takes.
- */
-const leaving = (page: Page, path: string) =>
-	page
-		.waitForRequest(
-			(r) => r.isNavigationRequest() && new URL(r.url()).pathname === path,
-		)
-		.then(() => Date.now());
+/** When the address turns to `path`: the moment the section swaps in. */
+const arriving = (page: Page, path: string) =>
+	page.waitForURL(`**${path}`).then(() => Date.now());
+
+/** Marks this document, to tell a swap in place from a page load. */
+const mark = (page: Page) =>
+	page.evaluate(() => {
+		(globalThis as { e2eMark?: boolean }).e2eMark = true;
+	});
+const marked = (page: Page) =>
+	page.evaluate(() => (globalThis as { e2eMark?: boolean }).e2eMark === true);
 
 test("plays the Konfetti show across a tab switch", async ({ page }) => {
 	await inTheme(page, "confetti");
-	const left = leaving(page, "/me");
+	await mark(page);
+	const arrived = arriving(page, "/me");
 	const started = Date.now();
 	await tab(page, "/me").click();
 	await expect(show(page)).toHaveClass(/\bshow-confetti\b/);
@@ -161,10 +163,30 @@ test("plays the Konfetti show across a tab switch", async ({ page }) => {
 		0,
 	);
 	await expect(page.locator(".show:focus, .show :focus")).toHaveCount(0);
-	// The page changes once the show is over, not under it.
-	expect((await left) - started).toBeGreaterThanOrEqual(3000);
+	// The section swaps in under the show's peak, without a page load, and
+	// the show ends over it.
+	expect((await arrived) - started).toBeGreaterThanOrEqual(1500);
+	await expect(show(page)).toHaveCount(1);
+	await expect(page.locator("header .section-title")).toHaveText("Du");
+	await expect(tab(page, "/me")).toHaveAttribute("aria-current", "page");
+	await expect(show(page)).toHaveCount(0, { timeout: 3000 });
+	expect(await marked(page)).toBe(true);
+});
+
+test("goes back to the section before in place, without a show", async ({
+	page,
+}) => {
+	await inTheme(page, "disco");
+	await mark(page);
+	await tab(page, "/me").click();
 	await page.waitForURL("**/me");
+	await expect(show(page)).toHaveCount(0, { timeout: 3000 });
+	await page.goBack();
+	await page.waitForURL("**/team");
+	await expect(page.locator("header .section-title")).toHaveText("Team");
+	await expect(tab(page, "/team")).toHaveAttribute("aria-current", "page");
 	await expect(show(page)).toHaveCount(0);
+	expect(await marked(page)).toBe(true);
 });
 
 test("plays the Disco show too", async ({ page }) => {
@@ -247,18 +269,18 @@ test("plays nothing in a calm theme", async ({ page }) => {
 test.describe("with reduced motion", () => {
 	test.use({ reducedMotion: "reduce" });
 
-	test("fades the surface instead and switches after a quarter second", async ({
+	test("fades the surface in and out instead, switching after a quarter second", async ({
 		page,
 	}) => {
 		await inTheme(page, "confetti");
-		const left = leaving(page, "/me");
+		const arrived = arriving(page, "/me");
 		const started = Date.now();
 		await tab(page, "/me").click();
 		await expect(show(page).locator(".show-fade")).toHaveCount(1);
 		await expect(show(page).locator(".show-piece, .show-rainbow")).toHaveCount(
 			0,
 		);
-		const switched = (await left) - started;
+		const switched = (await arrived) - started;
 		expect(switched).toBeGreaterThanOrEqual(200);
 		// Well before the full show's end at 3.2 s.
 		expect(switched).toBeLessThan(2000);
