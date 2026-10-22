@@ -170,7 +170,7 @@ US3 (Phase 2), US4 (Phase 3).
 - [X] T063 [P] [US4] Add `validateShows` to `scripts/quote-prompts.mjs` and its type to `scripts/quote-prompts.d.mts`
 - [X] T064 [US4] Add the third set `{ dir: "art/shows", list: "shows.json", key: "shows", check: validateShows }` with the hero coin's reference sheet to `SETS` in `scripts/badge-art.mjs`
 - [X] T065 [US4] Generalise `scripts/quote-monkeys.mjs` to build a given set `{ art, out, list, key, palette(id) }` and call it from `scripts/badge-build.mjs` for the shows after the quote monkeys: coin palette, plus the twelve rainbow colours for `unicorn`; write `public/shows/<id>.svg`, `src/http/show-pictures.ts` in `shows.json` order and the `art-versions.ts` hashes; the quote monkeys' output stays byte-identical
-- [ ] T066 [US4] Generate the pictures with `pnpm badge-art unicorn disco` (suppress Chrome popups, one run at a time, stop by PID), show them to the owner, then `pnpm badge-build`; commit `art/shows/originals/`, `public/shows/*.svg`, `src/http/show-pictures.ts` and `src/http/art-versions.ts`
+- [X] T066 [US4] Generate the pictures with `pnpm badge-art unicorn disco` (suppress Chrome popups, one run at a time, stop by PID), show them to the owner, then `pnpm badge-build`; commit `art/shows/originals/`, `public/shows/*.svg`, `src/http/show-pictures.ts` and `src/http/art-versions.ts`
 - [X] T067 [US4] Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm exec playwright test e2e/themes.e2e.ts`; fix what fails
 
 **Checkpoint**: spec Phase 3 ships.
