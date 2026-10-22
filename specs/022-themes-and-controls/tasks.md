@@ -123,19 +123,19 @@ US3 (Phase 2), US4 (Phase 3).
 
 ### Tests for User Story 3
 
-- [ ] T038 [P] [US3] Write failing tests in `test/unit/style.test.ts`: `--rp-rainbow` and `--rp-rainbow-loop` hold the twelve bands of contracts/fun-decorations.md; every decoration rule is scoped to `:root[data-theme=confetti]` or `:root[data-theme=disco]` and has `pointer-events: none`; inside `prefers-reduced-motion: reduce` they get `animation: none` and the bursts are hidden; only `.gauge-fill` (not the `--rp-part-*` parts) takes the rainbow
-- [ ] T039 [P] [US3] Add to `test/unit/design-tokens.test.ts`: `#1c1b13` against each of the twelve rainbow bands ≥ 4.5 : 1
-- [ ] T040 [P] [US3] Add to `test/integration/sections.test.ts`: the palette button holds `span.theme-badge[aria-hidden=true]`; any element added for the sparkles or bursts is `aria-hidden`
+- [X] T038 [P] [US3] Write failing tests in `test/unit/style.test.ts`: `--rp-rainbow` and `--rp-rainbow-loop` hold the twelve bands of contracts/fun-decorations.md; every decoration rule is scoped to `:root[data-theme=confetti]` or `:root[data-theme=disco]` and has `pointer-events: none`; inside `prefers-reduced-motion: reduce` they get `animation: none` and the bursts are hidden; only `.gauge-fill` (not the `--rp-part-*` parts) takes the rainbow
+- [X] T039 [P] [US3] Add to `test/unit/design-tokens.test.ts`: `#1c1b13` against each of the twelve rainbow bands ≥ 4.5 : 1
+- [X] T040 [P] [US3] Add to `test/integration/sections.test.ts`: the palette button holds `span.theme-badge[aria-hidden=true]`; any element added for the sparkles or bursts is `aria-hidden`
 
 ### Implementation for User Story 3
 
-- [ ] T041 [US3] Add `--rp-rainbow`, `--rp-rainbow-loop` and the keyframes `shimmer`, `twinkle`, `fall`, `glow`, `discobadge` to `src/http/style.ts`; board **Fun**
-- [ ] T042 [US3] Add the background layer (Konfetti dots and strips; Disco star glitter and pink glow) and the 4 px shimmering strip under the header in `src/http/style.ts`; board **Fun**
-- [ ] T043 [US3] Hero cards (`.team-total`, `.hero`, `.overview-deadline`, `.qualified`): 6 px rainbow-loop strip, no gold rim, Disco glow; four sparkles round the hero coin; four confetti bursts on the qualified card, in `src/http/style.ts` (pseudo-elements where they suffice, otherwise `aria-hidden` spans in the hero markup in `src/http/rider-sections.ts` / `src/http/sections/team.ts`); board **Fun**
-- [ ] T044 [US3] Rainbow on `.gauge-fill` and its key swatch, the "Neues Abzeichen" and new-badge chips, the current tab's nav pill (icon `#1c1b13`), and the Disco filled-button glow, in `src/http/style.ts`; board **Fun**
-- [ ] T045 [US3] Add `span.theme-badge` to the palette button in `src/http/shell.ts` and style the Konfetti rainbow badge and the Disco ball badge with moving facets in `src/http/style.ts`; boards **Main** and **Fun**
-- [ ] T046 [US3] Add the reduced-motion block for all decorations in `src/http/style.ts`
-- [ ] T047 [US3] Run `pnpm lint`, `pnpm typecheck`, `pnpm test`; fix what fails
+- [X] T041 [US3] Add `--rp-rainbow`, `--rp-rainbow-loop` and the keyframes `shimmer`, `twinkle`, `fall`, `glow`, `discobadge` to `src/http/style.ts`; board **Fun**
+- [X] T042 [US3] Add the background layer (Konfetti dots and strips; Disco star glitter and pink glow) and the 4 px shimmering strip under the header in `src/http/style.ts`; board **Fun**
+- [X] T043 [US3] Hero cards (`.team-total`, `.hero`, `.overview-deadline`, `.qualified`): 6 px rainbow-loop strip, no gold rim, Disco glow; four sparkles round the hero coin; four confetti bursts on the qualified card, in `src/http/style.ts` (pseudo-elements where they suffice, otherwise `aria-hidden` spans in the hero markup in `src/http/rider-sections.ts` / `src/http/sections/team.ts`); board **Fun**
+- [X] T044 [US3] Rainbow on `.gauge-fill` and its key swatch, the "Neues Abzeichen" and new-badge chips, the current tab's nav pill (icon `#1c1b13`), and the Disco filled-button glow, in `src/http/style.ts`; board **Fun**
+- [X] T045 [US3] Add `span.theme-badge` to the palette button in `src/http/shell.ts` and style the Konfetti rainbow badge and the Disco ball badge with moving facets in `src/http/style.ts`; boards **Main** and **Fun**
+- [X] T046 [US3] Add the reduced-motion block for all decorations in `src/http/style.ts`
+- [X] T047 [US3] Run `pnpm lint`, `pnpm typecheck`, `pnpm test`; fix what fails
 
 **Checkpoint**: spec Phase 2 (US2 + US3) ships.
 
