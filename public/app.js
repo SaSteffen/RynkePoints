@@ -553,15 +553,20 @@ function pageLoading() {
 	});
 }
 
-/** The page-switch show's length; the page changes at its end (022). */
+/** The page-switch show's length (022). */
 const SHOW_MS = 3200;
+/** The show's peak: the old section goes, unseen under the full cover. */
+const SHOW_HIDE_MS = 1600;
 /**
- * Half a second before the show's end: the page fades out, the next section
- * swaps in and fades in, so the swap's hitch falls where the show is nearly
- * gone, not into its peak.
+ * Half a second before the show's end the next section swaps in, still
+ * hidden, so the swap's hitch falls where the show is nearly gone.
  */
 const SHOW_SWAP_MS = 2450;
+/** Konfetti: the section fades in as the rainbow leaves. */
+const SHOW_IN_MS = 2700;
 const SECTION_FADE_MS = 250;
+/** Disco: the section fades in as the room fades out, its last 40 %. */
+const SHOW_ROOM_OUT = 0.6;
 /** Reduced motion: a fade to the surface instead. */
 const FADE_MS = 250;
 /** The Konfetti rain: as many coins as confetti pieces, in turn. */
@@ -717,57 +722,76 @@ function buildShow(theme, reduced) {
 }
 
 /**
+ * The section's fade in, on the show's clock: with the room under Disco
+ * (opacity the reverse of the room's, `show-room` in style.ts), after the
+ * rainbow under Konfetti.
+ */
+function sectionFadeIn(theme) {
+	if (theme === "disco") {
+		return [
+			{ opacity: 0 },
+			{ opacity: 0, offset: SHOW_ROOM_OUT, easing: "ease-in-out" },
+			{ opacity: 1 },
+		];
+	}
+	return [
+		{ opacity: 0 },
+		{ opacity: 0, offset: SHOW_IN_MS / SHOW_MS, easing: "ease-out" },
+		{ opacity: 1, offset: (SHOW_IN_MS + SECTION_FADE_MS) / SHOW_MS },
+		{ opacity: 1 },
+	];
+}
+
+/**
  * Plays the show over this page while the section at `href` loads in the
- * background, then shortly before the show's end fades the page into that
- * section in place (`SHOW_SWAP_MS`): no page load to see. A section not there
- * by then comes in once it is, past the show's end with the progress bar (#108).
- * Anything unexpected (signed out, an error) loads the page the usual way at
- * the show's end. A tap or a key skips the show, straight to the section; the
- * overlay takes the tap so it doesn't also hit a control.
+ * background. Under the show's peak the page's section goes (`SHOW_HIDE_MS`),
+ * half a second before its end the new one swaps in (`SHOW_SWAP_MS`) and
+ * fades in on the show's clock (`sectionFadeIn`): no page load to see. A
+ * section not there by then comes in once it is, past the show's end with the
+ * progress bar (#108). Anything unexpected (signed out, an error) loads the
+ * page the usual way at the show's end. A tap or a key skips the show,
+ * straight to the section; the overlay takes the tap so it doesn't also hit a
+ * control.
  */
 function leaveWithShow(theme, href) {
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 	const show = buildShow(theme, reduced);
+	const main = document.querySelector("main");
 	// The section's page, null where it can't swap in; undefined while loading.
 	let doc;
-	let peaked = false;
+	let hidden = null;
+	let due = false;
 	let arrived = false;
 	let over = false;
-	const arrive = async (fade) => {
+	const arrive = () => {
 		if (arrived) return;
 		arrived = true;
-		const main = document.querySelector("main");
-		const out =
-			doc && fade && main
-				? main.animate(
-						{ opacity: [1, 0] },
-						{ duration: SECTION_FADE_MS, easing: "ease-in", fill: "forwards" },
-					)
-				: null;
-		await out?.finished.catch(() => {});
 		if (doc && swapSection(doc, href)) {
 			stopLoading();
-			out?.cancel();
-			if (out) {
-				main.animate(
-					{ opacity: [0, 1] },
-					{ duration: SECTION_FADE_MS, easing: "ease-out" },
-				);
+			if (hidden && !over) {
+				// On the show's clock, so a slow swap doesn't put it out of step.
+				const clock = show.firstElementChild?.getAnimations()[0]?.startTime;
+				const fade = main.animate(sectionFadeIn(theme), {
+					duration: SHOW_MS,
+					fill: "both",
+				});
+				fade.startTime = clock ?? begun;
 			}
+			hidden?.cancel();
 			return;
 		}
-		out?.cancel();
 		startLoading();
 		location.assign(href);
 	};
 	const end = () => {
 		if (over) return;
 		over = true;
-		clearTimeout(peak);
+		clearTimeout(hide);
+		clearTimeout(swap);
 		clearTimeout(timer);
 		document.removeEventListener("keydown", skip, true);
 		show.remove();
-		if (doc !== undefined) arrive(false);
+		if (doc !== undefined) arrive();
 		else startLoading();
 	};
 	const skip = (event) => {
@@ -776,19 +800,24 @@ function leaveWithShow(theme, href) {
 	};
 	fetchSection(href).then((page) => {
 		doc = page;
-		if (over) arrive(false);
-		else if (doc && peaked) arrive(!reduced);
+		if (over || due) arrive();
 	});
-	const peak = setTimeout(
+	const hide = setTimeout(() => {
+		if (!reduced && main) {
+			hidden = main.animate({ opacity: [0, 0] }, { fill: "forwards" });
+		}
+	}, SHOW_HIDE_MS);
+	const swap = setTimeout(
 		() => {
-			peaked = true;
-			if (doc) arrive(!reduced);
+			due = true;
+			if (doc !== undefined) arrive();
 		},
 		reduced ? FADE_MS : SHOW_SWAP_MS,
 	);
 	const timer = setTimeout(end, reduced ? 2 * FADE_MS : SHOW_MS);
 	show.addEventListener("pointerdown", skip);
 	document.addEventListener("keydown", skip, true);
+	const begun = document.timeline.currentTime;
 	document.body.append(show);
 }
 
