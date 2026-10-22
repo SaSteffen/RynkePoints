@@ -436,14 +436,8 @@ describe("STYLE", () => {
 	});
 
 	it("turns the transitions and animations off for reduced motion (FR-038)", () => {
-		// The page-switch show's peak turns into the plain surface instead
-		// (022 FR-045), tested with the shows.
 		const reduced = RULES.filter(
-			(rule) =>
-				rule.media === "(prefers-reduced-motion:reduce)" &&
-				!rule.selectors.every((s) =>
-					/^:root\[data-show=\w+\]::before$/.test(s),
-				),
+			(rule) => rule.media === "(prefers-reduced-motion:reduce)",
 		);
 		expect(reduced.length).toBeGreaterThan(0);
 		for (const rule of reduced) {
@@ -1055,49 +1049,6 @@ describe("STYLE", () => {
 				".theme-menu",
 			]) {
 				expect(above).toBeGreaterThan(Number(declsOf(piece)["z-index"]));
-			}
-		});
-
-		it.each([
-			["confetti", "var(--rp-show-bands)"],
-			["disco", "var(--rp-show-room)"],
-		])(
-			"paints the %s show's peak on the arriving page's first paint",
-			(theme, look) => {
-				const cover = declsOf(`:root[data-show=${theme}]::before`);
-				expect(cover).toMatchObject({
-					content: '""',
-					position: "fixed",
-					inset: "0",
-					"z-index": declsOf(".show")["z-index"],
-					"pointer-events": "none",
-				});
-				expect(cover.background).toContain(look);
-				// Never left over the page should the overlay not come.
-				expect(cover.animation).toMatch(/^show-cover 0s \d/);
-			},
-		);
-
-		it("paints the peak as the surface under reduced motion (FR-045)", () => {
-			for (const theme of ["confetti", "disco"]) {
-				expect(
-					declsOf(
-						`:root[data-show=${theme}]::before`,
-						"(prefers-reduced-motion:reduce)",
-					).background,
-				).toBe("var(--md-sys-color-surface)");
-			}
-		});
-
-		it("holds the page's own celebrations while a show plays", () => {
-			for (const piece of [
-				".celebrate-coins .coin-mini",
-				".badges-reveal-pictures img",
-				".badge-sparkles>span",
-			]) {
-				expect(
-					declsOf(`:root[data-show] ${piece}`)["animation-play-state"],
-				).toBe("paused");
 			}
 		});
 

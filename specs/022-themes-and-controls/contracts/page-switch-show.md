@@ -8,44 +8,53 @@ phone; here they are given relative to the viewport.
 
 | Constant | Value |
 |----------|-------|
-| `SHOW_MS` | 3200 |
-| `SWITCH_MS` (peak, page changes) | 1600 |
-| `FADE_MS` (reduced motion) | 500, switch at 250 |
-| `FLAG_MAX_AGE_MS` | 10000 |
+| `SHOW_MS` (show) | 3200 |
+| `SHOW_HIDE_MS` (peak: `main` goes, under the full cover) | 1600 |
+| `SHOW_SWAP_MS` (the section swaps in, still hidden) | Konfetti 1950 (the rainbow still covers), Disco 2450 |
+| `SHOW_IN_MS` (Konfetti: `main` fades in as the rainbow starts clearing the view) | 2150 |
+| `SECTION_FADE_MS` (Konfetti's fade in) | 300 |
+| `SHOW_ROOM_OUT` (Disco: `main` fades in with the room's fade out, opacity the reverse of the room's) | 0.6 of `SHOW_MS` |
+| `FADE_MS` (reduced motion: fade in, swap, fade out as long again) | 250 |
 
-## When it plays (FR-040, FR-044)
+Changed after release: the show first loaded the next page at its peak
+(1.6 s) and played the rest on the arriving page from a `sessionStorage` flag
+(research R7). That stuttered; loading at the show's end showed the page
+change. Now nothing loads as a page: the click fetches the section, at the
+peak `main` goes (unseen), the section swaps in place (Disco half a second
+before the end, where the show is nearly gone, as a swap at the peak hitched
+visibly; Konfetti just before the retracting rainbow clears the view, as the
+owner found its later fade in too late) and
+`main` fades in on the show's clock (its `startTime` is the show's first
+part's), so a slow swap can't put Disco's fade out of step with the room. The swap is `swapPage` (the same as the Team section's views,
+plus the header's section title), with a history entry, at the top of the
+page, the navigation's item focused for a keyboard user. The flag, the head
+script's part and the `data-show` peak cover are gone.
 
-Theme is `confetti` or `disco`, and a plain left click (no modifier) on an
-`a[href]` to another of the app's pages: same origin, not a file, not
-`download`, no other `target`, not `data-swap`, not the refresh link, not
-`aria-current=page`, not the current path and query. Never on form submits,
-reloads, back/forward, or in other themes.
+## When it plays (FR-040, FR-040a, FR-044)
 
-## Two halves across the page load (research R7)
+Theme is `confetti` or `disco`, and a plain left click (no modifier) on a link
+in `nav.app-nav` (the top or bottom bar) to another section: not
+`aria-current=page`, not Settings (`/me/settings`). Never for links or buttons
+inside a page (the Orga group tiles, say), form submits, reloads,
+back/forward, other themes, while a tour step shows
+(`aside.tour .tour-progress`), or when Settings' switch turned the shows off
+on this device (`localStorage["rp-shows"] = "off"`).
 
-```text
-leaving page                     │ arriving page
-0 ms   click → overlay mounted   │
-1600   flag set, location.assign │ head script: flag fresh → <html data-show=confetti>
-       (old page held at peak)   │ first paint: static peak cover (:root[data-show]::before)
-                                 │ app.js: overlay mounted at −1600 ms, data-show removed
-                                 │ 3200 total: overlay removed, celebrations resume
-```
+## Playing
 
-- Flag: `sessionStorage["rp-show"] = "<theme>:<Date.now()>"`, read and removed
-  by the head script; ignored when stale, for another theme, or when
-  `performance.getEntriesByType("navigation")[0].type` isn't `navigate`.
-- Skip (FR-043): `pointerdown` or `keydown` anywhere during the show. Leaving
-  half: cancel the timer, navigate at once, no flag. Arriving half: remove the
-  overlay. The overlay catches the tap so it doesn't also hit a control.
-- As built, the arriving half sets `data-show=playing` instead of removing
-  it, so the celebrations below stay paused until the overlay goes; the
-  overlay is advanced to the switch with `getAnimations()`. The peak cover
-  hides itself after 2 s should `app.js` never run.
-- The page progress bar (#108) starts at the switch, not at the click.
-- While `data-show` is set: `.celebrate-coins .coin-mini`,
-  `.badges-reveal-pictures img` and `.badge-sparkles>span` have
-  `animation-play-state: paused`.
+- Skip (FR-043): `pointerdown` or `keydown` anywhere during the show ends it
+  and swaps the section in at once if it is there; the overlay catches the tap
+  so it doesn't also hit a control.
+- Not there by `SHOW_SWAP_MS`: it swaps in when it arrives, where the
+  show's clock has the fade by then; a skip swaps at once without the fade; past the show's end the
+  page progress bar (#108) shows. Not swappable (a redirect, an error, a page
+  without the shell): `location.assign` at the show's end.
+- Back and forward: `popstate` to an entry this document pushed swaps that
+  view or section in place, no show (FR-044).
+- The turning coin has a rim: 13 one-pixel discs between the faces, each a
+  `repeating-conic-gradient` of 3° stripes in the rim colour and a darker
+  one (reeding), the two outer discs lighter as a lip; the faces 6.5 px in
+  front and behind.
 - The overlay: `<div class="show show-confetti|show-disco" aria-hidden="true">`,
   `position: fixed; inset: 0; z-index` above everything (nav and header
   included), nothing focusable (FR-046).
@@ -59,9 +68,6 @@ leaving page                     │ arriving page
 | Rain | 220 pieces from 24 px above the top edge, falling 900 px (`100vh + 60px`) with sideways sway ±80 px and spin 360–1080°; each piece's start (0–1.6 s) and duration (1.4–2.4 s) from a fixed seeded sequence (`seeded(n) = frac(sin(n·9301+49297)·233280)`, canvas). Odd pieces are coins: 20 × 20 px, `rotateY` spin, faces alternating training (`#fbe122` face, `#e0b52a`, `#c99a2e` rim) and team (`#8cc4f0`, `#5aa2dc`, `#c99a2e`) with a white glint, as the canvas's `COIN_FACES`. Even pieces are confetti: 7 × 15 or 9 × 9 px, 30 % round, colours #ff4566 #ffb31a #ffe61a #2bea7c #3fa9ff #c45cff #ff8fd1 #7bdff2 in turn |
 | Rynke (FR-042a) | the unicorn picture, a third of the screen's height and at least 170 px (`max(170px, 33vh)`, the owner's call after the pictures came in; the board drew 200 px), linear over the whole show from off-screen lower left `translate(calc(-30px - <size>), 85vh) rotate(-14deg)` through `translate(24vw, 64vh) rotate(-10deg)` at 50 % to the middle of the right edge `translate(calc(100vw + 20px), 39vh) rotate(-6deg)`; gallop: `translateY(0) rotate(-3deg)` ↔ `translateY(-8px) rotate(2deg)`, .45 s alternate. Above the rainbow, below the rain. Only when `unicorn` is in `SHOW_PICTURES` (FR-049) |
 
-Peak cover (arriving page, first paint): `#fffcf7` with the rainbow's outer
-bands as a radial gradient from the bottom centre, as the rainbow looks at
-scale 1.
 
 ## Disco (FR-042)
 
@@ -74,9 +80,11 @@ scale 1.
 | Spots | 34 light spots 10–32 px, colours #ff5cb8 #7bdff2 #ffe61a #b8f2a1 #ffffff #d7a6ec, blur 1.5 px, spread over the page (seeded); visible 40–62 %; sweeping ±110 × ±60 px, 1.6 s linear |
 | Rynke (FR-042a) | the disco picture, the same size as the unicorn (the board drew 170 px), centred, 70 px + .15 × its size above the bottom; on a floor glow 1.5 × .33 its size, 70 px above the bottom, `radial-gradient(ellipse, rgba(255,92,184,.75) 0, rgba(123,223,242,.35) 45%, transparent 70%)`; both: hidden to 22 %, rise 40 px into view by 40 %, stay to 62 %, gone by 86 %; sways ±5° about the feet, .5 s alternate. Only when `disco` is in `SHOW_PICTURES` |
 
-Peak cover (arriving page, first paint): the room's gradient.
 
 ## Reduced motion (FR-045)
+
+As built: the text below, one layer in the surface colour, 0 → 1 → 0 over
+500 ms, the section swapping in at 250 ms.
 
 One full-screen layer in the theme's `--md-sys-color-surface`, opacity
 0 → 1 → 0 over 500 ms, switch at 250 ms, the same two halves. No rain, ball,
@@ -86,4 +94,3 @@ beams or Rynke.
 
 The piece counts (110 + 110), spot count (34) and timings are constants in
 `public/app.js`; reducing the rain keeps coins equal to confetti (edge case).
-`FLAG_MAX_AGE_MS` is the head script's (`src/http/html.ts`), its only reader.

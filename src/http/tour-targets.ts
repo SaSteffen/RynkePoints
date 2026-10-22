@@ -15,6 +15,7 @@ export const TOUR_TARGETS = [
 	"tour-new-event",
 	"tour-later-event",
 	"tour-past-event",
+	"tour-theme",
 ] as const;
 
 export type TourTarget = (typeof TOUR_TARGETS)[number];

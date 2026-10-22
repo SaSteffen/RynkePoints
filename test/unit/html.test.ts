@@ -154,26 +154,9 @@ function storage(items: Record<string, string>, throws = false) {
 	};
 }
 
-/** A page load's session storage and navigation type, for the show's flag. */
-interface Load {
-	session?: Record<string, string>;
-	type?: string;
-}
-
 /** Runs THEME_SCRIPT on a stub page; returns `<html>`'s data and the metas. */
-function runThemeScript(
-	items: Record<string, string>,
-	throws = false,
-	load: Load = {},
-) {
+function runThemeScript(items: Record<string, string>, throws = false) {
 	const local = storage(items, throws);
-	const session = storage(load.session ?? {});
-	const performance = {
-		timeOrigin: NOW - 40,
-		now: () => 40,
-		getEntriesByType: (kind: string) =>
-			kind === "navigation" ? [{ type: load.type ?? "navigate" }] : [],
-	};
 	const dataset: Record<string, string> = {};
 	const metas = ["light", "dark"].map((s) => ({
 		media: `(prefers-color-scheme: ${s})`,
@@ -187,22 +170,9 @@ function runThemeScript(
 		querySelectorAll: (selector: string) =>
 			selector === 'meta[name="theme-color"]' ? metas : [],
 	};
-	new Function(
-		"localStorage",
-		"sessionStorage",
-		"performance",
-		"document",
-		THEME_SCRIPT,
-	)(local, session, performance, document);
-	return {
-		dataset,
-		metas,
-		stored: Object.fromEntries(local.data),
-		session: Object.fromEntries(session.data),
-	};
+	new Function("localStorage", "document", THEME_SCRIPT)(local, document);
+	return { dataset, metas, stored: Object.fromEntries(local.data) };
 }
-
-const NOW = 1_800_000_000_000;
 
 describe('THEME_SCRIPT (022 contracts/theme-menu.md "Head script")', () => {
 	it.each(THEMES.map((t) => [t.id, t] as const))(
@@ -258,55 +228,6 @@ describe('THEME_SCRIPT (022 contracts/theme-menu.md "Head script")', () => {
 				if (text.length >= 4) expect(THEME_SCRIPT).not.toContain(text);
 			}
 		}
-	});
-
-	// Step 3, the page-switch show's hand-over (022 research R7,
-	// contracts/page-switch-show.md).
-	it.each(["confetti", "disco"])(
-		"takes over a fresh %s show on a plain navigation",
-		(theme) => {
-			const { dataset, session } = runThemeScript(
-				{ "rp-theme": theme },
-				false,
-				{
-					session: { "rp-show": `${theme}:${NOW - 1600}` },
-				},
-			);
-			expect(dataset).toMatchObject({ theme, show: theme });
-			expect(session).toEqual({});
-		},
-	);
-
-	it.each([
-		["a stale flag", "confetti", `confetti:${NOW - 10_000}`, "navigate"],
-		["a flag from the future", "confetti", `confetti:${NOW + 5}`, "navigate"],
-		["another theme's flag", "disco", `confetti:${NOW - 100}`, "navigate"],
-		["a flag in a calm theme", "forest", `forest:${NOW - 100}`, "navigate"],
-		["a garbled flag", "confetti", "confetti", "navigate"],
-		["a reload", "confetti", `confetti:${NOW - 100}`, "reload"],
-		["back or forward", "confetti", `confetti:${NOW - 100}`, "back_forward"],
-	])(
-		"plays nothing for %s, and removes the flag",
-		(_name, theme, flag, type) => {
-			const { dataset, session } = runThemeScript(
-				{ "rp-theme": theme },
-				false,
-				{
-					session: { "rp-show": flag },
-					type,
-				},
-			);
-			expect(dataset.show).toBeUndefined();
-			expect(dataset.theme).toBe(theme);
-			expect(session).toEqual({});
-		},
-	);
-
-	it("plays nothing when the device's theme can't be read", () => {
-		const { dataset } = runThemeScript({ "rp-theme": "confetti" }, true, {
-			session: { "rp-show": `confetti:${NOW - 100}` },
-		});
-		expect(dataset).toEqual({});
 	});
 });
 

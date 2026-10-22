@@ -553,17 +553,31 @@ function pageLoading() {
 	});
 }
 
-/** The page-switch show's length, and when the page changes under it (022). */
+/** The page-switch show's length (022). */
 const SHOW_MS = 3200;
-const SWITCH_MS = 1600;
-/** Reduced motion: a fade of the surface instead, switching halfway. */
-const FADE_MS = 500;
-const FADE_SWITCH_MS = FADE_MS / 2;
+/** The show's peak: the old section goes, unseen under the full cover. */
+const SHOW_HIDE_MS = 1600;
+/**
+ * The next section swaps in, still hidden: Disco half a second before the
+ * show's end, where the show is nearly gone; Konfetti while the rainbow still
+ * covers, just before it clears the view.
+ */
+const SHOW_SWAP_MS = { confetti: 1950, disco: 2450 };
+/** Konfetti: the section fades in as the rainbow starts clearing the view. */
+const SHOW_IN_MS = 2150;
+const SECTION_FADE_MS = 300;
+/** Disco: the section fades in as the room fades out, its last 40 %. */
+const SHOW_ROOM_OUT = 0.6;
+/** Reduced motion: a fade to the surface instead. */
+const FADE_MS = 250;
 /** The Konfetti rain: as many coins as confetti pieces, in turn. */
 const SHOW_CONFETTI = 110;
 const SHOW_COINS = SHOW_CONFETTI;
 const SHOW_SPOTS = 34;
-const SHOW_FLAG = "rp-show";
+/** The turning coin's rim, one disc per pixel of its thickness. */
+const SHOW_COIN_LAYERS = 13;
+/** "off" turns the shows off on this device (Settings). */
+const SHOWS_KEY = "rp-shows";
 const FUN_THEMES = new Set(["confetti", "disco"]);
 
 /** The canvas's fixed sequence, so every show rains the same way. */
@@ -635,9 +649,15 @@ function buildShow(theme, reduced) {
 			showPicture(showPart(show, "show-unicorn"), pictures.unicorn);
 		}
 		if (pictures.coin) {
-			// Both sides, back to back, so the turning coin shows its back too.
+			// Both sides, back to back, with a stack of discs between them as
+			// the rim, so the turning coin has depth seen edge on.
 			const turn = showPart(showPart(show, "show-pop"), "show-pop-turn");
+			for (let i = 0; i < SHOW_COIN_LAYERS; i++) {
+				const z = i - (SHOW_COIN_LAYERS - 1) / 2;
+				showPart(turn, "show-pop-edge", { "--z": `${z}px` });
+			}
 			showPicture(turn, pictures.coin);
+			turn.lastChild.className = "show-pop-front";
 			if (pictures.coinBack) {
 				showPicture(turn, pictures.coinBack);
 				turn.lastChild.className = "show-pop-back";
@@ -703,87 +723,184 @@ function buildShow(theme, reduced) {
 }
 
 /**
- * The leaving half: the show plays over this page, which changes at its peak
- * with a flag for the next page to play the rest (research R7). A tap or a
- * key skips it: straight to the page, no flag; the overlay takes the tap so
- * it doesn't also hit a control. The progress bar (#108) starts at the
- * change.
+ * The section's fade in, on the show's clock: with the room under Disco
+ * (opacity the reverse of the room's, `show-room` in style.ts), after the
+ * rainbow under Konfetti.
+ */
+function sectionFadeIn(theme) {
+	if (theme === "disco") {
+		return [
+			{ opacity: 0 },
+			{ opacity: 0, offset: SHOW_ROOM_OUT, easing: "ease-in-out" },
+			{ opacity: 1 },
+		];
+	}
+	return [
+		{ opacity: 0 },
+		{ opacity: 0, offset: SHOW_IN_MS / SHOW_MS, easing: "ease-out" },
+		{ opacity: 1, offset: (SHOW_IN_MS + SECTION_FADE_MS) / SHOW_MS },
+		{ opacity: 1 },
+	];
+}
+
+/**
+ * Plays the show over this page while the section at `href` loads in the
+ * background. Under the show's peak the page's section goes (`SHOW_HIDE_MS`),
+ * shortly before the show clears the view the new one swaps in
+ * (`SHOW_SWAP_MS`) and fades in on the show's clock (`sectionFadeIn`): no
+ * page load to see. A
+ * section not there by then comes in once it is, past the show's end with the
+ * progress bar (#108). Anything unexpected (signed out, an error) loads the
+ * page the usual way at the show's end. A tap or a key skips the show,
+ * straight to the section; the overlay takes the tap so it doesn't also hit a
+ * control.
  */
 function leaveWithShow(theme, href) {
 	const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 	const show = buildShow(theme, reduced);
-	let gone = false;
-	const go = (handOver) => {
-		if (gone) return;
-		gone = true;
-		clearTimeout(timer);
-		document.removeEventListener("keydown", skip, true);
-		if (handOver) {
-			try {
-				sessionStorage.setItem(SHOW_FLAG, `${theme}:${Date.now()}`);
-			} catch {}
+	const main = document.querySelector("main");
+	// The section's page, null where it can't swap in; undefined while loading.
+	let doc;
+	let hidden = null;
+	let due = false;
+	let arrived = false;
+	let over = false;
+	const arrive = () => {
+		if (arrived) return;
+		arrived = true;
+		if (doc && swapSection(doc, href)) {
+			stopLoading();
+			if (hidden && !over) {
+				// On the show's clock, so a slow swap doesn't put it out of step.
+				const clock = show.firstElementChild?.getAnimations()[0]?.startTime;
+				const fade = main.animate(sectionFadeIn(theme), {
+					duration: SHOW_MS,
+					fill: "both",
+				});
+				fade.startTime = clock ?? begun;
+			}
+			hidden?.cancel();
+			return;
 		}
 		startLoading();
 		location.assign(href);
 	};
+	const end = () => {
+		if (over) return;
+		over = true;
+		clearTimeout(hide);
+		clearTimeout(swap);
+		clearTimeout(timer);
+		document.removeEventListener("keydown", skip, true);
+		show.remove();
+		if (doc !== undefined) arrive();
+		else startLoading();
+	};
 	const skip = (event) => {
 		if (event.type === "pointerdown") event.preventDefault();
-		go(false);
+		end();
 	};
-	const timer = setTimeout(
-		() => go(true),
-		reduced ? FADE_SWITCH_MS : SWITCH_MS,
+	fetchSection(href).then((page) => {
+		doc = page;
+		if (over || due) arrive();
+	});
+	const hide = setTimeout(() => {
+		if (!reduced && main) {
+			hidden = main.animate({ opacity: [0, 0] }, { fill: "forwards" });
+		}
+	}, SHOW_HIDE_MS);
+	const swap = setTimeout(
+		() => {
+			due = true;
+			if (doc !== undefined) arrive();
+		},
+		reduced ? FADE_MS : SHOW_SWAP_MS[theme],
 	);
+	const timer = setTimeout(end, reduced ? 2 * FADE_MS : SHOW_MS);
 	show.addEventListener("pointerdown", skip);
 	document.addEventListener("keydown", skip, true);
+	const begun = document.timeline.currentTime;
 	document.body.append(show);
 }
 
+/** The page of the section at `href`, or null where it can't swap in. */
+async function fetchSection(href) {
+	try {
+		const res = await fetch(href, {
+			credentials: "same-origin",
+			cache: "no-store",
+		});
+		return await samePage(res, new URL(href).pathname);
+	} catch {
+		return null;
+	}
+}
+
 /**
- * The arriving half: the head script found a fresh flag and painted the peak
- * (`data-show`); the overlay picks up from there and leaves at the end, and
- * the page's own celebrations wait for it. A tap or a key ends it early.
+ * Puts the section `doc` in place of this one, as following the link at
+ * `href` would: a history entry, the top of the page, and a keyboard user on
+ * the section's item in the navigation. `false` where it can't.
  */
-function arriveWithShow() {
-	const root = document.documentElement;
-	const theme = root.dataset.show;
-	if (!FUN_THEMES.has(theme)) {
-		delete root.dataset.show;
+function swapSection(doc, href) {
+	const inNav = document.activeElement?.closest("nav.app-nav");
+	if (!swapPage(doc)) return false;
+	history.pushState(null, "", href);
+	shownView = viewOf(new URL(href));
+	scrollTo(0, 0);
+	if (inNav) {
+		document
+			.querySelector('nav.app-nav a[aria-current="page"]')
+			?.focus({ preventScroll: true });
+	}
+	scrollToNewBadge();
+	return true;
+}
+
+/**
+ * The Settings switch for the page-switch shows on this device (feature 022),
+ * on unless turned off; the other animations stay. Hidden where storage
+ * refuses.
+ */
+function showsSetting() {
+	const section = document.getElementById("settings-shows");
+	const toggle = section?.querySelector("[role=switch]");
+	if (!toggle) return;
+	try {
+		localStorage.getItem(SHOWS_KEY);
+	} catch {
 		return;
 	}
-	const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-	const at = reduced ? FADE_SWITCH_MS : SWITCH_MS;
-	const show = buildShow(theme, reduced);
-	document.body.append(show);
-	for (const animation of show.getAnimations?.({ subtree: true }) ?? []) {
-		animation.currentTime = (Number(animation.currentTime) || 0) + at;
-	}
-	root.dataset.show = "playing";
-	const end = () => {
-		clearTimeout(timer);
-		document.removeEventListener("keydown", end, true);
-		show.style.visibility = "hidden";
-		delete root.dataset.show;
-		// Gone once the skipping tap has landed on it, not on a control.
-		setTimeout(() => show.remove(), 300);
-	};
-	const timer = setTimeout(end, (reduced ? FADE_MS : SHOW_MS) - at);
-	show.addEventListener("pointerdown", (event) => {
-		event.preventDefault();
-		end();
+	toggle.setAttribute("aria-checked", String(!showsOff()));
+	section.hidden = false;
+	toggle.addEventListener("click", () => {
+		const off = !showsOff();
+		try {
+			if (off) localStorage.setItem(SHOWS_KEY, "off");
+			else localStorage.removeItem(SHOWS_KEY);
+		} catch {
+			return;
+		}
+		toggle.setAttribute("aria-checked", String(!off));
 	});
-	document.addEventListener("keydown", end, true);
+}
+
+/** Whether the rider turned the shows off on this device. */
+function showsOff() {
+	try {
+		return localStorage.getItem(SHOWS_KEY) === "off";
+	} catch {
+		return false;
+	}
 }
 
 /**
  * The fun themes' page-switch shows (feature 022 US4, FR-040–FR-049): a
- * plain click on a link to another of our pages, not the current one, not a
- * view swapped in place and not the refresh link, plays the show across the
- * page load. Reloads, back and forward, forms and the other themes play
- * nothing.
+ * plain click on another section's item in the navigation bar plays the show
+ * and swaps that section in under it. Settings, links in the pages, reloads, back and
+ * forward, forms, a running tour, the other themes and a device with the
+ * shows turned off play nothing.
  */
 function pageSwitchShows() {
-	arriveWithShow();
 	preloadShow(document.documentElement.dataset.theme);
 	document.addEventListener(
 		"click",
@@ -794,9 +911,12 @@ function pageSwitchShows() {
 			if (
 				!hit ||
 				hit.samePage ||
-				hit.link.hasAttribute("data-swap") ||
-				hit.link.classList.contains("refresh") ||
-				hit.link.getAttribute("aria-current") === "page"
+				!hit.link.closest("nav.app-nav") ||
+				hit.link.getAttribute("aria-current") === "page" ||
+				hit.url.pathname === "/me/settings" ||
+				// A tour's step is showing: the tour moves on without shows.
+				document.querySelector("aside.tour .tour-progress") ||
+				showsOff()
 			) {
 				return;
 			}
@@ -809,7 +929,6 @@ function pageSwitchShows() {
 	window.addEventListener("pageshow", (event) => {
 		if (!event.persisted) return;
 		for (const show of document.querySelectorAll(".show")) show.remove();
-		delete document.documentElement.dataset.show;
 	});
 }
 
@@ -973,9 +1092,9 @@ const viewOf = (url) => url.pathname + url.search;
 let shownView = viewOf(location);
 
 /**
- * Puts `doc`, this page as the server sends it now, in place of the shown one:
- * the content, the navigation with its counts, the refresh link and a tour's
- * card. The scroll position stays. `false` without content to swap; the caller
+ * Puts `doc`, this page as the server sends it now or another section
+ * (`swapSection`), in place of the shown one: the content, the navigation with
+ * its counts, the section's title, the refresh link and a tour's card. The scroll position stays. `false` without content to swap; the caller
  * then loads the page instead.
  */
 function swapPage(doc) {
@@ -990,7 +1109,11 @@ function swapPage(doc) {
 	const tour = doc.querySelector("aside.tour");
 	document.querySelector("aside.tour")?.remove();
 	if (tour) (document.getElementById("app-prompt") ?? nav).before(tour);
-	for (const selector of ["header.top-bar a.refresh", "nav.app-nav"]) {
+	for (const selector of [
+		"header.top-bar .section-title",
+		"header.top-bar a.refresh",
+		"nav.app-nav",
+	]) {
 		const fresh = doc.querySelector(selector);
 		if (fresh) document.querySelector(selector)?.replaceWith(fresh);
 	}
@@ -1032,9 +1155,9 @@ async function loadScripts(sources) {
 	}
 }
 
-/** The page in `res`, when it is this page again and fine to swap in. */
-async function samePage(res) {
-	if (!res.ok || new URL(res.url).pathname !== location.pathname) return null;
+/** The page in `res`, when it is the page at `path` and fine to swap in. */
+async function samePage(res, path = location.pathname) {
+	if (!res.ok || new URL(res.url).pathname !== path) return null;
 	return new DOMParser().parseFromString(await res.text(), "text/html");
 }
 
@@ -1064,11 +1187,15 @@ async function showPage(url, push) {
 		}
 		const focused = document.activeElement?.closest("a[data-swap]");
 		const href = focused?.getAttribute("href");
+		const moved =
+			new URL(url).pathname !== new URL(shownView, location.origin).pathname;
 		if (!swapPage(doc)) {
 			location.assign(url);
 			return;
 		}
 		shownView = viewOf(new URL(url));
+		// Another section, back or forward: from its top.
+		if (moved) scrollTo(0, 0);
 		if (push) history.pushState(null, "", url);
 		// Keyboard users stay on the link of the view they picked.
 		if (href) {
@@ -1173,10 +1300,10 @@ function floatNotice() {
  * Links that show this page in another view (`data-swap`: the Team section's
  * switches, all past events) swap it in place, without a reload, and the
  * address and the back button follow (issue #113). Forms with `data-swap`
- * save in place (`sendForm`).
+ * save in place (`sendForm`). Back and forward between those views, and
+ * between the sections a show swapped in (`swapSection`), swap in place too.
  */
 function swapViews() {
-	const path = location.pathname;
 	document.addEventListener("click", (event) => {
 		if (
 			event.defaultPrevented ||
@@ -1194,7 +1321,9 @@ function swapViews() {
 				: null;
 		if (!(link instanceof HTMLAnchorElement)) return;
 		const url = new URL(link.href);
-		if (url.origin !== location.origin || url.pathname !== path) return;
+		if (url.origin !== location.origin || url.pathname !== location.pathname) {
+			return;
+		}
 		event.preventDefault();
 		if (url.href !== location.href) showPage(url.href, true);
 	});
@@ -1214,10 +1343,10 @@ function swapViews() {
 		form.dataset.submitting = "true";
 		sendForm(form, event.submitter);
 	});
+	// Only entries this document pushed come back here: the views and sections
+	// swapped in place.
 	addEventListener("popstate", () => {
-		if (location.pathname === path && viewOf(location) !== shownView) {
-			showPage(location.href, false);
-		}
+		if (viewOf(location) !== shownView) showPage(location.href, false);
 	});
 }
 
@@ -2279,6 +2408,7 @@ function progressCharts(signal) {
 function enhance(signal) {
 	lazyRides(signal);
 	installSettings(signal);
+	showsSetting();
 	waitForFirstData(signal);
 	badgeHover();
 	triState();

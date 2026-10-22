@@ -69,7 +69,7 @@ describe("the rider tour", () => {
 		await seedReadyRider();
 		const { card, target: at } = await hintOn("/team");
 		expect(card).toContain(t("tour.rider.team"));
-		expect(card).toContain("1 von 11");
+		expect(card).toContain("1 von 12");
 		expect(card).toContain('href="/team?tour=rider&amp;step=2#tour-peloton"');
 		expect(at).toBe("/team");
 	});
@@ -97,6 +97,7 @@ describe("the rider tour", () => {
 			["/me/badges", null],
 			["/events", null],
 			["/me/settings", null],
+			["/me/settings", "tour-theme"],
 		]);
 		for (const [i, step] of steps.entries()) {
 			const {
@@ -143,11 +144,11 @@ describe("the rider tour", () => {
 
 	it("shows a page's first step for an old link or a step of another page", async () => {
 		await seedReadyRider();
-		expect((await hintOn("/me?tour=rider")).card).toContain("3 von 11");
+		expect((await hintOn("/me?tour=rider")).card).toContain("3 von 12");
 		expect((await hintOn("/team?tour=rider&step=5")).card).toContain(
-			"1 von 11",
+			"1 von 12",
 		);
-		expect((await hintOn("/me?tour=rider&step=x")).card).toContain("3 von 11");
+		expect((await hintOn("/me?tour=rider&step=x")).card).toContain("3 von 12");
 	});
 
 	it("has a Termine step for riders who aren't organisers (019 T040)", async () => {
