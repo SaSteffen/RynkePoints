@@ -863,7 +863,7 @@ ${SHOW_RULES}
 @keyframes glow{from{box-shadow:var(--rp-fun-glow-a)}to{box-shadow:var(--rp-fun-glow-b)}}
 @keyframes discobadge{to{background-position:0 0,0 0,4px 0,0 0}}
 @keyframes show-rainbow{0%{transform:scale(0)}42%,58%{transform:scale(1)}100%{transform:scale(0)}}
-@keyframes show-pop{0%,30%{opacity:0;transform:scale(.2) rotate(-30deg)}44%{opacity:1;transform:scale(1.15) rotate(8deg)}50%{transform:scale(1) rotate(0deg)}58%{opacity:1;transform:scale(1) rotate(0deg)}70%,100%{opacity:0;transform:scale(.3) rotate(25deg)}}
+@keyframes show-pop{0%{opacity:0;transform:scale(.2) rotate(-30deg)}10%{opacity:1;transform:scale(1.15) rotate(8deg)}16%{transform:scale(1) rotate(0deg)}58%{opacity:1;transform:scale(1) rotate(0deg)}70%,100%{opacity:0;transform:scale(.3) rotate(25deg)}}
 @keyframes show-spin{to{transform:rotateY(360deg)}}
 @keyframes show-fall{from{transform:translate3d(0,0,0) rotate(0deg)}to{transform:translate3d(var(--sway),calc(100vh + 60px),0) rotate(var(--spin))}}
 @keyframes show-coin-fall{from{transform:translate3d(0,0,0) rotateY(0deg)}to{transform:translate3d(var(--sway),calc(100vh + 60px),0) rotateY(var(--spin))}}
