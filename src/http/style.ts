@@ -247,11 +247,11 @@ const SHOW_RULES = (() => {
 		"polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)";
 	const rainbow = "max(2000px,220vmax)";
 	const play = "2.7s";
-	return `.show{position:fixed;inset:0;z-index:20;overflow:hidden;--show-rynke:max(170px,33vh)}
+	return `.show{position:fixed;inset:0;z-index:20;overflow:hidden;--show-rynke:max(170px,33vh);--show-coin:min(300px,72vw,40vh)}
 .show>*{position:absolute;pointer-events:none}
 .show img{display:block;width:100%;height:auto}
 .show-rainbow{left:calc(50% - ${rainbow} / 2);top:calc(100% - ${rainbow} / 2);width:${rainbow};height:${rainbow};border-radius:50%;background:radial-gradient(circle,var(--rp-show-bands));transform:scale(0);animation:show-rainbow ${play} cubic-bezier(.5,0,.3,1) forwards}
-.show-pop{left:50%;top:50%;width:300px;height:300px;margin:-150px 0 0 -150px;opacity:0;animation:show-pop ${play} ease-in-out forwards}
+.show-pop{left:50%;top:50%;width:var(--show-coin);height:var(--show-coin);margin:calc(var(--show-coin) / -2) 0 0 calc(var(--show-coin) / -2);opacity:0;animation:show-pop ${play} ease-in-out forwards}
 .show-pop{perspective:1200px}
 .show-pop-turn{position:absolute;inset:0;transform-style:preserve-3d;animation:show-spin 1.1s linear infinite}
 .show-pop img{position:absolute;inset:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden}
