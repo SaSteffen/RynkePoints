@@ -203,7 +203,7 @@ tap the current tab and see no show.
 **Acceptance Scenarios**:
 
 1. **Given** Konfetti or Disco, **When** the rider taps another tab, **Then** the
-   show plays for about 3.2 s, covers the whole page at about 1.6 s, and the new
+   show plays for about 2.7 s, covers the whole page at about 1.35 s, and the new
    page is underneath when it clears.
 2. **Given** a show is playing, **When** the rider taps, **Then** the show stops
    and the new page is shown at once.
@@ -317,9 +317,9 @@ tap the current tab and see no show.
 
 - **FR-040**: In Konfetti and Disco, tapping another section in the navigation
   bar (top or bottom) MUST play that theme's show over the page, as on the
-  canvas board "Seitenwechsel: Konfetti und Disco": about 3.2 s in total. The
-  new section loads in the background while the show plays. Under the show's
-  peak, unseen, the old section goes; the new one swaps in place, without a
+  canvas board "Seitenwechsel: Konfetti und Disco", but half a second
+  shorter: about 2.7 s in total. The new section loads in the background
+  while the show plays. Under the show's peak, unseen, the old section goes; the new one swaps in place, without a
   page load, and fades in: in Disco half a second before the show's end,
   exactly as the room fades out; in Konfetti as the retracting rainbow starts
   clearing the view (owner's

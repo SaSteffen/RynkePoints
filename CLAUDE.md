@@ -50,8 +50,8 @@ and commit messages must follow
   (commits and PR title) as the local hooks.
 - The seven check jobs' names are the required-check contexts. Renaming one means
   updating both `.github/rulesets/*.json` files in the same change.
-  `already-checked`, `deploy-gate`, `deploy` and `release-pr` are not contexts and must
-  never be added to them.
+  `already-checked`, `playwright-image`, `deploy-gate`, `deploy` and `release-pr` are
+  not contexts and must never be added to them.
 
 ## Non-negotiables
 
