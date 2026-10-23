@@ -164,7 +164,7 @@ test("plays the Konfetti show across a tab switch", async ({ page }) => {
 	);
 	await expect(page.locator(".show:focus, .show :focus")).toHaveCount(0);
 	// The section swaps in as the rainbow retracts, without a page load.
-	expect((await arrived) - started).toBeGreaterThanOrEqual(1900);
+	expect((await arrived) - started).toBeGreaterThanOrEqual(1600);
 	await expect(page.locator("header .section-title")).toHaveText("Du");
 	await expect(tab(page, "/me")).toHaveAttribute("aria-current", "page");
 	await expect(show(page)).toHaveCount(0, { timeout: 3000 });
@@ -280,7 +280,7 @@ test.describe("with reduced motion", () => {
 		);
 		const switched = (await arrived) - started;
 		expect(switched).toBeGreaterThanOrEqual(200);
-		// Well before the full show's end at 3.2 s.
+		// Well before the full show's end at 2.7 s.
 		expect(switched).toBeLessThan(2000);
 		await page.waitForURL("**/me");
 		await expect(show(page)).toHaveCount(0);

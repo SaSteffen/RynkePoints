@@ -554,17 +554,17 @@ function pageLoading() {
 }
 
 /** The page-switch show's length (022). */
-const SHOW_MS = 3200;
+const SHOW_MS = 2700;
 /** The show's peak: the old section goes, unseen under the full cover. */
-const SHOW_HIDE_MS = 1600;
+const SHOW_HIDE_MS = 1350;
 /**
  * The next section swaps in, still hidden: Disco half a second before the
  * show's end, where the show is nearly gone; Konfetti while the rainbow still
  * covers, just before it clears the view.
  */
-const SHOW_SWAP_MS = { confetti: 1950, disco: 2450 };
+const SHOW_SWAP_MS = { confetti: 1650, disco: 2200 };
 /** Konfetti: the section fades in as the rainbow starts clearing the view. */
-const SHOW_IN_MS = 2150;
+const SHOW_IN_MS = 1815;
 const SECTION_FADE_MS = 300;
 /** Disco: the section fades in as the room fades out, its last 40 %. */
 const SHOW_ROOM_OUT = 0.6;
@@ -575,7 +575,7 @@ const SHOW_CONFETTI = 110;
 const SHOW_COINS = SHOW_CONFETTI;
 const SHOW_SPOTS = 34;
 /** The turning coin's rim, one disc per pixel of its thickness. */
-const SHOW_COIN_LAYERS = 13;
+const SHOW_COIN_LAYERS = 26;
 /** "off" turns the shows off on this device (Settings). */
 const SHOWS_KEY = "rp-shows";
 const FUN_THEMES = new Set(["confetti", "disco"]);
@@ -676,7 +676,7 @@ function buildShow(theme, reduced) {
 				width: coin ? "20px" : long ? "7px" : "9px",
 				height: coin ? "20px" : long ? "15px" : "9px",
 				background: coin ? "" : `var(--rp-show-confetti-${(i % 8) + 1})`,
-				"animation-delay": `${(seeded(i + 4) * 1.6).toFixed(2)}s`,
+				"animation-delay": `${(seeded(i + 4) * 1.35).toFixed(2)}s`,
 				"animation-duration": `${(1.4 + seeded(i + 5)).toFixed(2)}s`,
 				"--sway": `${Math.round((seeded(i + 6) - 0.5) * 160)}px`,
 				"--spin": `${Math.round(360 + seeded(i + 7) * 720)}deg`,

@@ -22,8 +22,8 @@ concurrency:
 
 # The seven check jobs (here and in pr-policy.yml) are the required-check contexts in
 # .github/rulesets/*.json. Renaming one means updating both ruleset files in the same
-# change. already-checked, deploy-gate and deploy are not contexts and must never be
-# added to them.
+# change. already-checked, playwright-image, deploy-gate and deploy are not contexts
+# and must never be added to them.
 jobs:
   # On a push to main: checked=true when the merge commit has exactly the content of
   # the merged branch's head and the latest lint, typecheck, test and e2e on that head
@@ -112,20 +112,46 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm test
 
+  # The Playwright image matching the locked @playwright/test, for e2e's container.
+  playwright-image:
+    name: playwright-image
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      image: ${{ steps.version.outputs.image }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: pnpm-lock.yaml
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(grep -m1 -oP "^  '@playwright/test@\K[0-9][^']*(?=':)" pnpm-lock.yaml)
+          echo "image=mcr.microsoft.com/playwright:v$version-noble" >> "$GITHUB_OUTPUT"
+
   # Smoke tests in Chromium, Firefox and WebKit against the app in fake mode
-  # (synthetic riders, no request leaves the runner).
+  # (synthetic riders, no request leaves the runner). In Playwright's image, which
+  # has the browsers and their system libraries: `playwright install --with-deps`
+  # spent up to 20 minutes on timeouts from the runner's Ubuntu mirror.
   e2e:
     name: e2e
-    needs: already-checked
-    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' }}
+    needs: [already-checked, playwright-image]
+    if: ${{ !cancelled() && needs.already-checked.outputs.checked != 'true' && needs.playwright-image.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    container:
+      image: ${{ needs.playwright-image.outputs.image }}
+      # The runner's user, which owns the workspace; --ipc=host keeps Chromium
+      # from running out of shared memory.
+      options: --user 1001 --ipc=host
     env:
       WRANGLER_SEND_METRICS: "false"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: ./.github/actions/setup
-      - run: pnpm exec playwright install --with-deps chromium firefox webkit
       - run: pnpm test:e2e
       - if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

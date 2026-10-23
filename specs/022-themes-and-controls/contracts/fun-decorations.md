@@ -23,7 +23,7 @@ Disco uses the same rainbow for its bars, strip and nav pill (canvas).
 
 | Piece | Konfetti | Disco |
 |-------|----------|-------|
-| Background layer (fixed, behind `main`) | confetti dots and four tilted strips at opacity .75 (canvas `.fx-confetti`, colours #ff4566 #ffb31a #3fa9ff #c45cff #2bea7c, strips #ff8fab #7bdff2 #ffd166 #b8f2a1) | star glitter 1–2 px (#fff, #ffe61a, #7bdff2, #ff8fd1, #b8f2a1) and a pink glow from the top `radial-gradient(ellipse at 50% -10%, rgba(255,92,184,.22), transparent 60%)` (canvas `.fx-disco`) |
+| Background layer (fixed, behind `main`) | per screen 50 confetti dots (2.5–3.5 px) and 20 tilted strips (14 × 2.4 px), seeded, at opacity .75, drifting down one screen height in 60 s, looping (canvas `.fx-confetti`, colours #ff4566 #ffb31a #3fa9ff #c45cff #2bea7c, strips #ff8fab #7bdff2 #ffd166 #b8f2a1) | 45 specks of star glitter 1–2 px per screen, drifting like Konfetti's (#fff, #ffe61a, #7bdff2, #ff8fd1, #b8f2a1) and a pink glow from the top `radial-gradient(ellipse at 50% -10%, rgba(255,92,184,.22), transparent 60%)` (canvas `.fx-disco`) |
 | Under the header | 4 px `--rp-rainbow-loop` strip, shimmer | same |
 | Hero cards (`.team-total`, `.hero`, `.overview-deadline`, `.qualified`) | 6 px rainbow-loop strip across the top inside; no gold rim (canvas: transparent border) | same strip; glow `0 0 18px rgba(255,92,184,.45)` ↔ `0 0 22px rgba(58,134,255,.5)`, 3 s alternate |
 | Coin in the hero | four sparkles (4-point stars 10–16 px: #ffe61a, #fff, #ff8fd1, #7bdff2) around it, twinkle 2.4 s, staggered .6 s | same |
