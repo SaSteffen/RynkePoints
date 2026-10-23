@@ -264,7 +264,7 @@ const SHOW_RULES = (() => {
 .show-piece.coin{width:20px;height:20px;animation-name:show-coin-fall}
 .show-piece.training{background:var(--rp-show-coin-training)}
 .show-piece.team{background:var(--rp-show-coin-team)}
-.show-unicorn{left:0;top:0;width:var(--show-rynke);transform:translate(calc(-30px - var(--show-rynke)),85vh) rotate(-14deg);animation:show-unicorn ${play} linear forwards}
+.show-unicorn{z-index:1;left:0;top:0;width:var(--show-rynke);transform:translate(calc(-30px - var(--show-rynke)),85vh) rotate(-14deg);animation:show-unicorn ${play} linear forwards}
 .show-unicorn img{transform-origin:50% 90%;animation:show-gallop .45s ease-in-out infinite alternate}
 .show-room{inset:0;opacity:0;background:var(--rp-show-room);animation:show-room ${play} ease-in-out forwards}
 .show-beams{left:calc(50% - 700px);top:-570px;width:1400px;height:1400px;border-radius:50%;opacity:0;background:var(--rp-show-beams);-webkit-mask:var(--rp-show-beams-mask);mask:var(--rp-show-beams-mask);animation:show-beams ${play} ease-in-out forwards,show-turn 4s linear infinite}
