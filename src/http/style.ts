@@ -27,12 +27,59 @@ const COIN =
 const TEAM =
 	"--rp-hero:#24221a;--rp-hero-label:#e6d9a8;--rp-hero-week:#bfe3c6;--rp-push-accent:#e8833a;--rp-ok-accent:#2e8b57;--rp-bubble:#ffffff;--rp-yes:#1d6b35;--rp-no:#b3261e;--rp-on-yes-no:#ffffff;--rp-on-hero:var(--rp-coin-face);--rp-hero-accent:var(--rp-coin-yellow);--rp-primary-text:var(--md-sys-color-primary);--rp-selected-edge:var(--md-sys-color-primary-container);--rp-auto-light:#fffdf5;--rp-auto-dark:#12110c;";
 
+/** A fixed sequence, so the background is the same on every page. */
+const seeded = (n: number) => {
+	const x = Math.sin(n * 9301 + 49297) * 233280;
+	return x - Math.floor(x);
+};
+
+/** An SVG as a CSS url, its pieces placed in % of a tile one screen high. */
+const svgLayer = (pieces: string[]) =>
+	`url("data:image/svg+xml,${`<svg xmlns='http://www.w3.org/2000/svg'>${pieces.join("")}</svg>`
+		.replaceAll("%", "%25")
+		.replaceAll("<", "%3C")
+		.replaceAll(">", "%3E")
+		.replaceAll("#", "%23")}")`;
+
+/** Where piece `n` sits, kept off the tile's edges so none is cut. */
+const spot = (n: number) => ({
+	x: `${(2 + seeded(n) * 96).toFixed(1)}%`,
+	y: `${(3 + seeded(n + 1) * 94).toFixed(1)}%`,
+});
+
+/** Konfetti's background: 50 dots and 20 tilted strips per screen (contracts/fun-decorations.md). */
+const FUN_CONFETTI = svgLayer([
+	...Array.from({ length: 50 }, (_, i) => {
+		const { x, y } = spot(i * 3 + 1);
+		const colour = ["#ff4566", "#ffb31a", "#3fa9ff", "#c45cff", "#2bea7c"][
+			i % 5
+		];
+		const r = [2.5, 3, 3.5][Math.floor(seeded(i * 3 + 3) * 3)];
+		return `<circle cx='${x}' cy='${y}' r='${r}' fill='${colour}'/>`;
+	}),
+	...Array.from({ length: 20 }, (_, i) => {
+		const colour = ["#ff8fab", "#7bdff2", "#ffd166", "#b8f2a1"][i % 4];
+		const turn = Math.round(seeded(i * 3 + 202) * 180 - 90);
+		const { x, y } = spot(i * 3 + 200);
+		return `<svg x='${x}' y='${y}' overflow='visible'><rect x='-7' y='-1.2' width='14' height='2.4' transform='rotate(${turn})' fill='${colour}'/></svg>`;
+	}),
+]);
+
+/** Disco's background: 45 specks of star glitter per screen. */
+const FUN_DISCO = svgLayer(
+	Array.from({ length: 45 }, (_, i) => {
+		const { x, y } = spot(i * 3 + 400);
+		const colour = ["#fff", "#ffe61a", "#7bdff2", "#ff8fd1", "#b8f2a1"][i % 5];
+		const r = (1 + seeded(i * 3 + 402)).toFixed(1);
+		return `<circle cx='${x}' cy='${y}' r='${r}' fill='${colour}'/>`;
+	}),
+);
+
 /**
  * The fun themes' decoration colours (feature 022 contracts/fun-decorations.md),
  * the same in both schemes like the coin's, so both define the same names.
  */
-const FUN =
-	"--rp-fun-spark-1:#ffe61a;--rp-fun-spark-2:#ffffff;--rp-fun-spark-3:#ff8fd1;--rp-fun-spark-4:#7bdff2;--rp-fun-burst-1:#ff4566;--rp-fun-burst-2:#3fa9ff;--rp-fun-burst-3:#2bea7c;--rp-fun-burst-4:#c45cff;--rp-fun-confetti:radial-gradient(circle at 8% 12%,#ff4566 0 3px,transparent 3.5px),radial-gradient(circle at 22% 31%,#ffb31a 0 2.5px,transparent 3px),radial-gradient(circle at 91% 18%,#3fa9ff 0 3px,transparent 3.5px),radial-gradient(circle at 77% 44%,#c45cff 0 2.5px,transparent 3px),radial-gradient(circle at 4% 58%,#2bea7c 0 3px,transparent 3.5px),radial-gradient(circle at 95% 63%,#ff4566 0 2.5px,transparent 3px),radial-gradient(circle at 15% 79%,#3fa9ff 0 2.5px,transparent 3px),radial-gradient(circle at 88% 86%,#ffb31a 0 3px,transparent 3.5px),radial-gradient(circle at 50% 97%,#c45cff 0 3px,transparent 3.5px),radial-gradient(circle at 60% 9%,#2bea7c 0 2px,transparent 2.5px),linear-gradient(35deg,transparent 46%,#ff8fab 46% 54%,transparent 54%) 8% 25%/14px 14px no-repeat,linear-gradient(-30deg,transparent 46%,#7bdff2 46% 54%,transparent 54%) 87% 39%/16px 16px no-repeat,linear-gradient(60deg,transparent 46%,#ffd166 46% 54%,transparent 54%) 92% 14%/14px 14px no-repeat,linear-gradient(-55deg,transparent 46%,#b8f2a1 46% 54%,transparent 54%) 3% 71%/16px 16px no-repeat;--rp-fun-disco:radial-gradient(circle at 7% 14%,#fff 0 1px,transparent 1.5px),radial-gradient(circle at 19% 36%,#ffe61a 0 1.2px,transparent 1.7px),radial-gradient(circle at 93% 22%,#fff 0 1.4px,transparent 2px),radial-gradient(circle at 84% 47%,#7bdff2 0 1px,transparent 1.5px),radial-gradient(circle at 3% 61%,#ff8fd1 0 1.3px,transparent 1.8px),radial-gradient(circle at 96% 70%,#fff 0 1px,transparent 1.5px),radial-gradient(circle at 12% 83%,#ffe61a 0 1.4px,transparent 2px),radial-gradient(circle at 90% 90%,#fff 0 1.2px,transparent 1.7px),radial-gradient(circle at 55% 98%,#b8f2a1 0 1px,transparent 1.5px),radial-gradient(ellipse at 50% -10%,rgba(255,92,184,.22),transparent 60%);--rp-fun-glow-a:0 0 18px rgba(255,92,184,.45),0 0 2px #fff inset;--rp-fun-glow-b:0 0 22px rgba(58,134,255,.5),0 0 2px #fff inset;--rp-fun-confetti-badge:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M1.4 13A7.6 7.6 0 0 1 16.6 13' stroke='%23ff4566'/%3E%3Cpath d='M2.65 13A6.35 6.35 0 0 1 15.35 13' stroke='%23ff7a2e'/%3E%3Cpath d='M3.9 13A5.1 5.1 0 0 1 14.1 13' stroke='%23ffe61a'/%3E%3Cpath d='M5.15 13A3.85 3.85 0 0 1 12.85 13' stroke='%232bea7c'/%3E%3Cpath d='M6.4 13A2.6 2.6 0 0 1 11.6 13' stroke='%233fa9ff'/%3E%3Cpath d='M7.65 13A1.35 1.35 0 0 1 10.35 13' stroke='%23c45cff'/%3E%3C/svg%3E\") center/100% no-repeat,#eaf6ff;--rp-fun-disco-badge:radial-gradient(circle at 35% 30%,#ffffff 0 10%,transparent 32%),repeating-linear-gradient(0deg,rgba(40,20,70,.55) 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,rgba(40,20,70,.55) 0 1px,transparent 1px 4px),linear-gradient(135deg,#f4f4fb,#8f8fa3);--rp-fun-badge-glow:0 0 8px rgba(255,92,184,.7);--rp-show-bands:#fffcf7 0 12%,#c45cff 12% 19%,#8a7dff 19% 26%,#3fa9ff 26% 33%,#1fd0ff 33% 40%,#14e6cf 40% 47%,#2bea7c 47% 54%,#a6f21f 54% 61%,#ffe61a 61% 68%,#ffb31a 68% 75%,#ff7a2e 75% 82%,#ff4566 82% 89%,#ff4fb4 89% 95%,#ff85dc 95% 100%;--rp-show-room:radial-gradient(ellipse at 50% 12%,#3a1f6b 0,#120a22 55%,#07040f 100%);--rp-show-wire:linear-gradient(#cdbde8,#9a88bf);--rp-show-ball:#9a9aa8;--rp-show-ball-glow:0 0 30px rgba(255,255,255,.35),0 0 60px rgba(255,92,184,.35);--rp-show-facets:linear-gradient(rgba(20,10,40,.55) 1px,transparent 1px),linear-gradient(90deg,rgba(20,10,40,.55) 1px,transparent 1px),linear-gradient(90deg,#d9d9e3 0 25%,#8f8fa3 25% 50%,#f4f4fb 50% 75%,#b3b3c4 75% 100%);--rp-show-shade:radial-gradient(circle at 35% 30%,rgba(255,255,255,.7) 0 8%,transparent 30%),radial-gradient(circle at 50% 50%,transparent 45%,rgba(10,5,25,.75) 72%);--rp-show-beams:repeating-conic-gradient(from 0deg,rgba(255,92,184,.55) 0 3deg,transparent 3deg 18deg,rgba(123,223,242,.5) 18deg 21deg,transparent 21deg 36deg,rgba(255,226,74,.5) 36deg 39deg,transparent 39deg 54deg,rgba(184,242,161,.45) 54deg 57deg,transparent 57deg 72deg);--rp-show-beams-mask:radial-gradient(circle,transparent 0 60px,#000 90px 55%,transparent 72%);--rp-show-floor:radial-gradient(ellipse,rgba(255,92,184,.75) 0,rgba(123,223,242,.35) 45%,transparent 70%);--rp-show-coin-training:radial-gradient(circle at 38% 34%,rgba(255,255,255,.85) 0 14%,transparent 16%),radial-gradient(circle,#fbe122 0 50%,#e0b52a 51% 60%,#c99a2e 62% 100%);--rp-show-coin-team:radial-gradient(circle at 38% 34%,rgba(255,255,255,.85) 0 14%,transparent 16%),radial-gradient(circle,#8cc4f0 0 50%,#5aa2dc 51% 60%,#c99a2e 62% 100%);--rp-show-confetti-1:#ff4566;--rp-show-confetti-2:#ffb31a;--rp-show-confetti-3:#ffe61a;--rp-show-confetti-4:#2bea7c;--rp-show-confetti-5:#3fa9ff;--rp-show-confetti-6:#c45cff;--rp-show-confetti-7:#ff8fd1;--rp-show-confetti-8:#7bdff2;--rp-show-spot-1:#ff5cb8;--rp-show-spot-2:#7bdff2;--rp-show-spot-3:#ffe61a;--rp-show-spot-4:#b8f2a1;--rp-show-spot-5:#ffffff;--rp-show-spot-6:#d7a6ec";
+const FUN = `--rp-fun-spark-1:#ffe61a;--rp-fun-spark-2:#ffffff;--rp-fun-spark-3:#ff8fd1;--rp-fun-spark-4:#7bdff2;--rp-fun-burst-1:#ff4566;--rp-fun-burst-2:#3fa9ff;--rp-fun-burst-3:#2bea7c;--rp-fun-burst-4:#c45cff;--rp-fun-glow-a:0 0 18px rgba(255,92,184,.45),0 0 2px #fff inset;--rp-fun-glow-b:0 0 22px rgba(58,134,255,.5),0 0 2px #fff inset;--rp-fun-confetti-badge:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 18' fill='none' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M1.4 13A7.6 7.6 0 0 1 16.6 13' stroke='%23ff4566'/%3E%3Cpath d='M2.65 13A6.35 6.35 0 0 1 15.35 13' stroke='%23ff7a2e'/%3E%3Cpath d='M3.9 13A5.1 5.1 0 0 1 14.1 13' stroke='%23ffe61a'/%3E%3Cpath d='M5.15 13A3.85 3.85 0 0 1 12.85 13' stroke='%232bea7c'/%3E%3Cpath d='M6.4 13A2.6 2.6 0 0 1 11.6 13' stroke='%233fa9ff'/%3E%3Cpath d='M7.65 13A1.35 1.35 0 0 1 10.35 13' stroke='%23c45cff'/%3E%3C/svg%3E") center/100% no-repeat,#eaf6ff;--rp-fun-disco-badge:radial-gradient(circle at 35% 30%,#ffffff 0 10%,transparent 32%),repeating-linear-gradient(0deg,rgba(40,20,70,.55) 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,rgba(40,20,70,.55) 0 1px,transparent 1px 4px),linear-gradient(135deg,#f4f4fb,#8f8fa3);--rp-fun-badge-glow:0 0 8px rgba(255,92,184,.7);--rp-show-bands:#fffcf7 0 12%,#c45cff 12% 19%,#8a7dff 19% 26%,#3fa9ff 26% 33%,#1fd0ff 33% 40%,#14e6cf 40% 47%,#2bea7c 47% 54%,#a6f21f 54% 61%,#ffe61a 61% 68%,#ffb31a 68% 75%,#ff7a2e 75% 82%,#ff4566 82% 89%,#ff4fb4 89% 95%,#ff85dc 95% 100%;--rp-show-room:radial-gradient(ellipse at 50% 12%,#3a1f6b 0,#120a22 55%,#07040f 100%);--rp-show-wire:linear-gradient(#cdbde8,#9a88bf);--rp-show-ball:#9a9aa8;--rp-show-ball-glow:0 0 30px rgba(255,255,255,.35),0 0 60px rgba(255,92,184,.35);--rp-show-facets:linear-gradient(rgba(20,10,40,.55) 1px,transparent 1px),linear-gradient(90deg,rgba(20,10,40,.55) 1px,transparent 1px),linear-gradient(90deg,#d9d9e3 0 25%,#8f8fa3 25% 50%,#f4f4fb 50% 75%,#b3b3c4 75% 100%);--rp-show-shade:radial-gradient(circle at 35% 30%,rgba(255,255,255,.7) 0 8%,transparent 30%),radial-gradient(circle at 50% 50%,transparent 45%,rgba(10,5,25,.75) 72%);--rp-show-beams:repeating-conic-gradient(from 0deg,rgba(255,92,184,.55) 0 3deg,transparent 3deg 18deg,rgba(123,223,242,.5) 18deg 21deg,transparent 21deg 36deg,rgba(255,226,74,.5) 36deg 39deg,transparent 39deg 54deg,rgba(184,242,161,.45) 54deg 57deg,transparent 57deg 72deg);--rp-show-beams-mask:radial-gradient(circle,transparent 0 60px,#000 90px 55%,transparent 72%);--rp-show-floor:radial-gradient(ellipse,rgba(255,92,184,.75) 0,rgba(123,223,242,.35) 45%,transparent 70%);--rp-show-coin-training:radial-gradient(circle at 38% 34%,rgba(255,255,255,.85) 0 14%,transparent 16%),radial-gradient(circle,#fbe122 0 50%,#e0b52a 51% 60%,#c99a2e 62% 100%);--rp-show-coin-team:radial-gradient(circle at 38% 34%,rgba(255,255,255,.85) 0 14%,transparent 16%),radial-gradient(circle,#8cc4f0 0 50%,#5aa2dc 51% 60%,#c99a2e 62% 100%);--rp-show-confetti-1:#ff4566;--rp-show-confetti-2:#ffb31a;--rp-show-confetti-3:#ffe61a;--rp-show-confetti-4:#2bea7c;--rp-show-confetti-5:#3fa9ff;--rp-show-confetti-6:#c45cff;--rp-show-confetti-7:#ff8fd1;--rp-show-confetti-8:#7bdff2;--rp-show-spot-1:#ff5cb8;--rp-show-spot-2:#7bdff2;--rp-show-spot-3:#ffe61a;--rp-show-spot-4:#b8f2a1;--rp-show-spot-5:#ffffff;--rp-show-spot-6:#d7a6ec;--rp-fun-disco-glow:radial-gradient(ellipse at 50% -10%,rgba(255,92,184,.22),transparent 60%);--rp-fun-confetti:${FUN_CONFETTI};--rp-fun-disco:${FUN_DISCO}`;
 
 /** The colour roles of the dark scheme, for the system setting and a choice. */
 const DARK = `--rp-badge-edge:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 2px 2px rgba(0,0,0,.6));--rp-badge-lift:drop-shadow(2px 0 0 #fffdf5) drop-shadow(-2px 0 0 #fffdf5) drop-shadow(0 2px 0 #fffdf5) drop-shadow(0 -2px 0 #fffdf5) drop-shadow(0 6px 6px rgba(0,0,0,.6));--rp-quote-art-shadow:drop-shadow(0 0 .6px rgba(0,0,0,.8)) drop-shadow(0 3px 5px rgba(0,0,0,.55));--md-sys-color-surface:#12110c;--md-sys-color-surface-container-low:#1a1913;--md-sys-color-surface-container:#201f18;--md-sys-color-surface-container-high:#2b2a21;--md-sys-color-on-surface:#eeebdd;--md-sys-color-on-surface-variant:#cec9b3;--md-sys-color-outline:#979279;--md-sys-color-outline-variant:#4a4633;--md-sys-color-primary:#fbe122;--md-sys-color-on-primary:#1c1b13;--md-sys-color-primary-container:#fbe122;--md-sys-color-on-primary-container:#1c1b13;--md-sys-color-secondary-container:#fbe122;--md-sys-color-on-secondary-container:#1c1b13;--md-sys-color-error:#ffb4ab;--md-sys-color-error-container:#93000a;--md-sys-color-on-error-container:#ffdad6;--rp-ok-container:#173a22;--rp-on-ok-container:#bfe3c6;--rp-neutral-container:#2e2c22;--rp-on-neutral-container:#cec9b3;--rp-brand:#fc5200;--rp-part-1:#fbe122;--rp-part-2:#8cc4f0;--rp-part-3:#ff9a4d;--rp-part-4:#6fd1c2;--rp-part-5:#d7a6ec;--rp-part-6:#a8a6a0;--rp-reached:#fbe122;--rp-track:#3a382c;--rp-push-container:#3a2614;--rp-on-push-container:#f6d2b0;--rp-road:#0a0906;--rp-bar:#6b6650;--rp-line-training:#a88e00;--rp-line-team:#4a94d2;--rp-line-outside:#a77fd0;--rp-line-threshold:#d64651;--rp-line-pace:#24a684;${TEAM}${COIN};${FUN}`;
@@ -145,6 +192,7 @@ const FUN_RULES = (() => {
 		"polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)";
 	/** Everything that moves, stopped again under reduced motion. */
 	const moving = [
+		fun("body::before"),
 		fun("header.top-bar::after"),
 		fun(...heroes.map((s) => `${s}::before`)),
 		fun(".fun-sparkles>span"),
@@ -157,9 +205,10 @@ const FUN_RULES = (() => {
 	];
 	return `.fun-sparkles,.fun-bursts,.theme-badge{display:none}
 .theme-button{position:relative}
-${fun("body::before")}{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none}
-${confetti} body::before{opacity:.75;background:var(--rp-fun-confetti)}
-${disco} body::before{background:var(--rp-fun-disco)}
+${fun("body::before")}{content:"";position:fixed;left:0;right:0;top:-100vh;height:200vh;z-index:-1;pointer-events:none;animation:drift 60s linear infinite}
+${confetti} body::before{opacity:.75;background:var(--rp-fun-confetti) 0 0/100% 100vh repeat-y}
+${disco} body::before{background:var(--rp-fun-disco) 0 0/100% 100vh repeat-y}
+${disco} body::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--rp-fun-disco-glow)}
 ${fun("header.top-bar::after")}{content:"";position:absolute;left:0;right:0;top:100%;height:4px;pointer-events:none;${shimmer}}
 ${fun(...heroes)}{position:relative;overflow:hidden;isolation:isolate;border-color:transparent;background-clip:padding-box}
 ${fun(...heroes.map((s) => `${s}::before`))}{content:"";position:absolute;inset:0 0 auto;height:6px;pointer-events:none;${shimmer}}
@@ -191,25 +240,25 @@ ${disco} .theme-badge{background:var(--rp-fun-disco-badge);box-shadow:0 0 0 2px 
 /**
  * The page-switch shows of the fun themes (feature 022 US4,
  * contracts/page-switch-show.md, board Transitions): `public/app.js` mounts
- * the overlay, over everything, for 3.2 s, and the page changes at its end.
+ * the overlay, over everything, for 2.7 s, and the page changes at its end.
  */
 const SHOW_RULES = (() => {
 	const star =
 		"polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)";
 	const rainbow = "max(2000px,220vmax)";
-	const play = "3.2s";
+	const play = "2.7s";
 	return `.show{position:fixed;inset:0;z-index:20;overflow:hidden;--show-rynke:max(170px,33vh)}
 .show>*{position:absolute;pointer-events:none}
 .show img{display:block;width:100%;height:auto}
 .show-rainbow{left:calc(50% - ${rainbow} / 2);top:calc(100% - ${rainbow} / 2);width:${rainbow};height:${rainbow};border-radius:50%;background:radial-gradient(circle,var(--rp-show-bands));transform:scale(0);animation:show-rainbow ${play} cubic-bezier(.5,0,.3,1) forwards}
-.show-pop{left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;opacity:0;animation:show-pop ${play} ease-in-out forwards}
-.show-pop{perspective:600px}
+.show-pop{left:50%;top:50%;width:300px;height:300px;margin:-150px 0 0 -150px;opacity:0;animation:show-pop ${play} ease-in-out forwards}
+.show-pop{perspective:1200px}
 .show-pop-turn{position:absolute;inset:0;transform-style:preserve-3d;animation:show-spin 1.1s linear infinite}
 .show-pop img{position:absolute;inset:0;width:100%;height:100%;-webkit-backface-visibility:hidden;backface-visibility:hidden}
-.show-pop .show-pop-front{transform:translateZ(6.5px)}
-.show-pop .show-pop-back{transform:rotateY(180deg) translateZ(6.5px)}
+.show-pop .show-pop-front{transform:translateZ(13px)}
+.show-pop .show-pop-back{transform:rotateY(180deg) translateZ(13px)}
 .show-pop-edge{position:absolute;inset:1px;border-radius:50%;background:repeating-conic-gradient(var(--rp-coin-rim) 0 3deg,color-mix(in srgb,var(--rp-coin-rim) 62%,var(--rp-coin-ink)) 3deg 6deg);transform:translateZ(var(--z))}
-.show-pop-edge:first-of-type,.show-pop-edge:nth-of-type(13){background:color-mix(in srgb,var(--rp-coin-rim) 70%,var(--rp-coin-face))}
+.show-pop-edge:first-of-type,.show-pop-edge:nth-of-type(26){background:color-mix(in srgb,var(--rp-coin-rim) 70%,var(--rp-coin-face))}
 .show-piece{top:-24px;border-radius:2px;animation:show-fall linear both;animation-timing-function:cubic-bezier(.3,.1,.6,1)}
 .show-piece.round,.show-piece.coin{border-radius:50%}
 .show-piece.coin{width:20px;height:20px;animation-name:show-coin-fall}
@@ -810,6 +859,7 @@ ${SHOW_RULES}
 @keyframes shimmer{to{background-position:200% 0}}
 @keyframes twinkle{0%,100%{opacity:.15;transform:scale(.6) rotate(0deg)}50%{opacity:1;transform:scale(1) rotate(20deg)}}
 @keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:0}15%{opacity:1}100%{transform:translateY(150px) rotate(420deg);opacity:0}}
+@keyframes drift{to{transform:translateY(100vh)}}
 @keyframes glow{from{box-shadow:var(--rp-fun-glow-a)}to{box-shadow:var(--rp-fun-glow-b)}}
 @keyframes discobadge{to{background-position:0 0,0 0,4px 0,0 0}}
 @keyframes show-rainbow{0%{transform:scale(0)}42%,58%{transform:scale(1)}100%{transform:scale(0)}}

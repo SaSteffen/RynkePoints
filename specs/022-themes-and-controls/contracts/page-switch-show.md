@@ -8,10 +8,10 @@ phone; here they are given relative to the viewport.
 
 | Constant | Value |
 |----------|-------|
-| `SHOW_MS` (show) | 3200 |
-| `SHOW_HIDE_MS` (peak: `main` goes, under the full cover) | 1600 |
-| `SHOW_SWAP_MS` (the section swaps in, still hidden) | Konfetti 1950 (the rainbow still covers), Disco 2450 |
-| `SHOW_IN_MS` (Konfetti: `main` fades in as the rainbow starts clearing the view) | 2150 |
+| `SHOW_MS` (show) | 2700 |
+| `SHOW_HIDE_MS` (peak: `main` goes, under the full cover) | 1350 |
+| `SHOW_SWAP_MS` (the section swaps in, still hidden) | Konfetti 1650 (the rainbow still covers), Disco 2200 |
+| `SHOW_IN_MS` (Konfetti: `main` fades in as the rainbow starts clearing the view) | 1815 |
 | `SECTION_FADE_MS` (Konfetti's fade in) | 300 |
 | `SHOW_ROOM_OUT` (Disco: `main` fades in with the room's fade out, opacity the reverse of the room's) | 0.6 of `SHOW_MS` |
 | `FADE_MS` (reduced motion: fade in, swap, fade out as long again) | 250 |
@@ -64,8 +64,8 @@ on this device (`localStorage["rp-shows"] = "off"`).
 | Piece | Look and motion |
 |-------|-----------------|
 | Rainbow | circle 2000 × 2000 px centred on the bottom edge's middle (`left: calc(50% - 1000px); top: calc(100% - 1000px)`), `radial-gradient(circle, #fffcf7 0 12%, #c45cff 12% 19%, #8a7dff 19% 26%, #3fa9ff 26% 33%, #1fd0ff 33% 40%, #14e6cf 40% 47%, #2bea7c 47% 54%, #a6f21f 54% 61%, #ffe61a 61% 68%, #ffb31a 68% 75%, #ff7a2e 75% 82%, #ff4566 82% 89%, #ff4fb4 89% 95%, #ff85dc 95% 100%)`; scale 0 → 1 at 42 %, hold to 58 %, → 0 at 100 %, `cubic-bezier(.5,0,.3,1)`. Viewports taller than ~1000 px: the circle grows to `max(2000px, 220vmax)` so it still covers. |
-| Coin pop | the Rynke coin, both sides back to back (the app's front and back SVGs, so the turn shows the back too; the board drew the front only), 150 px, centred; `pop`: hidden to 30 %, scale 1.15 rot 8° at 44 %, 1 at 50–58 %, gone by 70 %; spins `rotateY` 1.1 s linear |
-| Rain | 220 pieces from 24 px above the top edge, falling 900 px (`100vh + 60px`) with sideways sway ±80 px and spin 360–1080°; each piece's start (0–1.6 s) and duration (1.4–2.4 s) from a fixed seeded sequence (`seeded(n) = frac(sin(n·9301+49297)·233280)`, canvas). Odd pieces are coins: 20 × 20 px, `rotateY` spin, faces alternating training (`#fbe122` face, `#e0b52a`, `#c99a2e` rim) and team (`#8cc4f0`, `#5aa2dc`, `#c99a2e`) with a white glint, as the canvas's `COIN_FACES`. Even pieces are confetti: 7 × 15 or 9 × 9 px, 30 % round, colours #ff4566 #ffb31a #ffe61a #2bea7c #3fa9ff #c45cff #ff8fd1 #7bdff2 in turn |
+| Coin pop | the Rynke coin, both sides back to back (the app's front and back SVGs, so the turn shows the back too; the board drew the front only), 300 px, centred; `pop`: hidden to 30 %, scale 1.15 rot 8° at 44 %, 1 at 50–58 %, gone by 70 %; spins `rotateY` 1.1 s linear |
+| Rain | 220 pieces from 24 px above the top edge, falling 900 px (`100vh + 60px`) with sideways sway ±80 px and spin 360–1080°; each piece's start (0–1.35 s) and duration (1.4–2.4 s) from a fixed seeded sequence (`seeded(n) = frac(sin(n·9301+49297)·233280)`, canvas). Odd pieces are coins: 20 × 20 px, `rotateY` spin, faces alternating training (`#fbe122` face, `#e0b52a`, `#c99a2e` rim) and team (`#8cc4f0`, `#5aa2dc`, `#c99a2e`) with a white glint, as the canvas's `COIN_FACES`. Even pieces are confetti: 7 × 15 or 9 × 9 px, 30 % round, colours #ff4566 #ffb31a #ffe61a #2bea7c #3fa9ff #c45cff #ff8fd1 #7bdff2 in turn |
 | Rynke (FR-042a) | the unicorn picture, a third of the screen's height and at least 170 px (`max(170px, 33vh)`, the owner's call after the pictures came in; the board drew 200 px), linear over the whole show from off-screen lower left `translate(calc(-30px - <size>), 85vh) rotate(-14deg)` through `translate(24vw, 64vh) rotate(-10deg)` at 50 % to the middle of the right edge `translate(calc(100vw + 20px), 39vh) rotate(-6deg)`; gallop: `translateY(0) rotate(-3deg)` ↔ `translateY(-8px) rotate(2deg)`, .45 s alternate. Above the rainbow, below the rain. Only when `unicorn` is in `SHOW_PICTURES` (FR-049) |
 
 

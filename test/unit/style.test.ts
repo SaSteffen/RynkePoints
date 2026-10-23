@@ -936,7 +936,7 @@ describe("STYLE", () => {
 		];
 		const REDUCED = "(prefers-reduced-motion:reduce)";
 		const ANIMATIONS =
-			/(?<![\w-])(shimmer|twinkle|fall|glow|discobadge)(?![\w-])/;
+			/(?<![\w-])(shimmer|twinkle|fall|drift|glow|discobadge)(?![\w-])/;
 		const decorates = (rule: (typeof RULES)[number]) =>
 			rule.selectors.some((s) => /\.fun-|\.theme-badge/.test(s)) ||
 			Object.values(rule.decls).some(
@@ -1056,7 +1056,7 @@ describe("STYLE", () => {
 			const rainbow = declsOf(".show-rainbow");
 			expect(rainbow.width).toBe("max(2000px,220vmax)");
 			expect(rainbow.height).toBe("max(2000px,220vmax)");
-			expect(rainbow.animation).toMatch(/^show-rainbow 3\.2s /);
+			expect(rainbow.animation).toMatch(/^show-rainbow 2\.7s /);
 		});
 
 		it("fades the surface for reduced motion", () => {
