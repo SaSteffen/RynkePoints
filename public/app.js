@@ -654,7 +654,7 @@ function buildShow(theme, reduced) {
 			const turn = showPart(showPart(show, "show-pop"), "show-pop-turn");
 			for (let i = 0; i < SHOW_COIN_LAYERS; i++) {
 				const z = i - (SHOW_COIN_LAYERS - 1) / 2;
-				showPart(turn, "show-pop-edge", { "--z": `${z}px` });
+				showPart(turn, "show-pop-edge", { "--z": z });
 			}
 			showPicture(turn, pictures.coin);
 			turn.lastChild.className = "show-pop-front";
