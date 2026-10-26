@@ -553,6 +553,7 @@ const CONTRACT_IDS = [
 	"badges.surprise.festive-team",
 	"badges.surprise.festive-team.for",
 	"badges.value.half",
+	"badges.value.piRun",
 	"badges.value.marathon",
 	"notification.badge",
 	"notification.badges",

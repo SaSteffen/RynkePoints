@@ -747,3 +747,21 @@ D, the surprise badges; R38 to R41 to part E, the team surprise badges (see
   a Zwift ride ends no hibernation.
 - **Alternatives**: Rides from January to August by month: the same for a
   September season, but wrong for a season starting at another month.
+
+## R50 15 km and Pi-Run (part K)
+
+- **Decision**: Run length's ladder becomes 5, 10, 15, 21.0975, 31.4,
+  42.195. 31.4 km is a named step, id `run-length-pi-run`, ribbon and name
+  "Pi-Run" in German and English (`badges.value.piRun`); 15 km is a numbered
+  one, `run-length-15`, name "Fünfzehner" (a draft, like the other names).
+  Catalog version 9, so the daily cron gives riders who already ran that far
+  the new badges, dated with the run. Two more scenes in
+  `art/badges/badges.json`; the placeholder shows until the project owner has
+  made the pictures (FR-040a).
+- **Rationale**: 31.4 km is π × 10, the distance Kreiszahl already uses, so
+  the two pi badges agree. It is a distance step, not a surprise: a run of
+  that length on any date earns it. Ids have no dot, hence the name.
+- **Alternatives**: A 30 km step as well: almost the same badge as the
+  Pi-Run, one long run would earn both. A surprise badge for the Pi-Run:
+  keeps the ladder plain, but the project owner wanted it on the ladder.
+  Counting runs for Kreiszahl: a different badge, on one date only.

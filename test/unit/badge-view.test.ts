@@ -157,7 +157,7 @@ describe("buildBadgeSection", () => {
 		]);
 		// The badges still to earn, as empty outlines (issue #109).
 		expect(section?.personal?.gallery.map((g) => g.unearned)).toEqual([
-			3, 4, 4, 1, 10, 4, 6,
+			3, 4, 4, 1, 10, 6, 6,
 		]);
 	});
 

@@ -688,6 +688,7 @@ export const en: Catalog = {
 	"badges.surprise.festive-team.for":
 		"The whole team rode between Christmas Eve and New Year's Eve.",
 	"badges.value.half": "Half marathon",
+	"badges.value.piRun": "Pi-Run",
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "New badge: {name} 🏅",
 	"notification.badges": "{n} new badges 🏅",

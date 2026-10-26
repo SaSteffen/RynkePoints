@@ -199,11 +199,25 @@
 			"scene": "The character running in a race with a blank cream race bib pinned to his shirt (no number on it), side view, focused face, steady stride, three short black motion lines behind him. {{runner}}"
 		},
 		{
+			"id": "run-length-15",
+			"group": "personal",
+			"category": "run_length",
+			"threshold": 15,
+			"scene": "The character running along a country lane past a cream kilometre stone with no number on it, side view, a steady relaxed stride, a small black water bottle in one hand, a content determined smile. {{runner}}"
+		},
+		{
 			"id": "run-length-half",
 			"group": "personal",
 			"category": "run_length",
 			"threshold": 21.0975,
 			"scene": "The character running past a cheering spot, grabbing a cream paper cup from a small table while running, water splashing out in light blue, cheeky grin, a blank cream race bib on his shirt. {{runner}}"
+		},
+		{
+			"id": "run-length-pi-run",
+			"group": "personal",
+			"category": "run_length",
+			"threshold": 31.4,
+			"scene": "The character running round a perfectly circular cream running track, seen at a slight angle, a big black π sign painted in the middle of the track's lawn, a blank cream race bib on the shirt, a delighted grin, small gold sparkles along the circle. {{runner}}"
 		},
 		{
 			"id": "run-length-marathon",

@@ -724,6 +724,7 @@ export const de = {
 	"badges.surprise.festive-team.for":
 		"Zwischen Heiligabend und Silvester ist das ganze Team gefahren.",
 	"badges.value.half": "Halbmarathon",
+	"badges.value.piRun": "Pi-Run",
 	"badges.value.marathon": "Marathon",
 	"notification.badge": "Neues Abzeichen: {name} 🏅",
 	"notification.badges": "{n} neue Abzeichen 🏅",

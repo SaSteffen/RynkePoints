@@ -126,6 +126,7 @@ export function milestone(i18n: I18n, badge: Badge): string {
 	const surprise = surpriseName(badge) as SurpriseName | null;
 	if (surprise) return i18n.t(`badges.surprise.${surprise}`);
 	if (badge.id === "run-length-half") return i18n.t("badges.value.half");
+	if (badge.id === "run-length-pi-run") return i18n.t("badges.value.piRun");
 	if (badge.id === "run-length-marathon")
 		return i18n.t("badges.value.marathon");
 	// A tour badge names its day, "Tag 3", not a count (feature 021).
