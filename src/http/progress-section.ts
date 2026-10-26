@@ -17,7 +17,7 @@ import type {
 
 /** The chart library, as `pnpm vendor` names it (research R6). */
 export const CHART_SCRIPTS: readonly string[] = [
-	"/vendor/chart-4.5.1.umd.min.js",
+	"/vendor/chart-4.6.1.umd.min.js",
 	"/vendor/chartjs-plugin-zoom-2.2.0.min.js",
 ];
 

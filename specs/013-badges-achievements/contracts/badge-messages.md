@@ -39,7 +39,7 @@ the implementation together with the project owner.
 | `badges.for.<category>` | how the badge was earned, a sentence with `{value}`: "Du bist in dieser Saison {value} Rad gefahren.", "Dein längster Lauf dieser Saison: {value} am Stück.", "Alle Rider zusammen haben in dieser Saison {value} im Training gesammelt.", … |
 | `badges.value.<unit>` | the milestone in its unit: "{n} km", "{n} m", "{n} Rynke", "{n} Termine", "{n} Trainings", "{n} Rider", "{n} Teilnahmen" |
 | `badges.value.<unit>.one` | the singular for "Noch 1 …": events, trainings, riders, attendances ("{n} Termin", "{n} Training", "{n} Rider", "{n} Teilnahme") |
-| `badges.value.half`, `badges.value.marathon` | Halbmarathon, Marathon (run length's top badges) |
+| `badges.value.half`, `badges.value.piRun`, `badges.value.marathon` | Halbmarathon, Pi-Run, Marathon (run length's named badges; "Pi-Run" in every language) |
 | `notification.badge` | Neues Abzeichen: {name} 🏅 |
 | `notification.badges` | {n} neue Abzeichen 🏅 |
 

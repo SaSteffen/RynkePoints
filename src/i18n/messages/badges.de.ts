@@ -40,7 +40,9 @@ export const BADGE_NAMES: Record<BadgeId, string> = {
 	// Längster Lauf
 	"run-length-5": "Fünf am Stück",
 	"run-length-10": "Zehner",
+	"run-length-15": "Fünfzehner",
 	"run-length-half": "Halbmarathon",
+	"run-length-pi-run": "Pi-Run",
 	"run-length-marathon": "Marathon",
 	// Laufen gesamt
 	"running-10": "Laufschuhe gefunden",

@@ -85,6 +85,7 @@ export function seasonLabel(seasonStart: string): string {
 /** The last day the app's figures run to on `today`, as the rider page has it. */
 function shownUntil(window: CountingWindow, today: string): string {
 	const last = lastDay(today, window.deadline);
+	// biome-ignore lint/complexity/useMathMinMax: ISO date strings, not numbers
 	return last < window.seasonStart ? window.seasonStart : last;
 }
 

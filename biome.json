@@ -8,10 +8,22 @@
 			"!.claude",
 			"!worker-configuration.d.ts",
 			"!public/strava",
-			"!public/vendor"
+			"!public/vendor",
+			"!pnpm-lock.yaml"
 		]
 	},
 	"formatter": { "enabled": true },
 	"linter": { "enabled": true, "rules": { "preset": "recommended" } },
+	"markdown": { "formatter": { "enabled": false } },
+	"overrides": [
+		{
+			"includes": ["test/**"],
+			"linter": {
+				"rules": {
+					"correctness": { "usePlaywrightValidDescribeCallback": "off" }
+				}
+			}
+		}
+	],
 	"assist": { "actions": { "source": { "organizeImports": "on" } } }
 }

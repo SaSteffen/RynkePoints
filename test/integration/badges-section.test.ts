@@ -237,7 +237,7 @@ describe("the Abzeichen section", () => {
 				/<li class="badge-slot" aria-hidden="true"><svg class="badge-outline badge-outline-plain"/g,
 			)?.length;
 		expect(lists.map(slots)).toEqual([
-			3, 3, 4, 2, 10, 4, 6, 6, 5, 4, 5, 3, 3, 3, 3, 8, 14,
+			3, 3, 4, 2, 10, 6, 6, 6, 5, 4, 5, 3, 3, 3, 3, 8, 14,
 		]);
 		expect(lists.slice(2).join("")).not.toContain("popovertarget");
 		expect(lists[0]?.lastIndexOf('popovertarget="')).toBeLessThan(

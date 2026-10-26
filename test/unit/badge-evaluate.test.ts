@@ -239,9 +239,28 @@ describe("evaluateBadges for runs", () => {
 		expect(evaluate({ runs: [run("2026-04-01", 22)] }).earned).toEqual([
 			{ badgeId: "run-length-5", earnedOn: "2026-04-01" },
 			{ badgeId: "run-length-10", earnedOn: "2026-04-01" },
+			{ badgeId: "run-length-15", earnedOn: "2026-04-01" },
 			{ badgeId: "run-length-half", earnedOn: "2026-04-01" },
 			{ badgeId: "running-10", earnedOn: "2026-04-01" },
 		]);
+	});
+
+	it("gives the Pi-Run for one run of 31.4 km, on any date", () => {
+		const result = evaluate({
+			runs: [run("2026-04-01", 31.3), run("2026-06-10", 31.4)],
+		});
+		expect(result.earned).toContainEqual({
+			badgeId: "run-length-half",
+			earnedOn: "2026-04-01",
+		});
+		expect(result.earned).toContainEqual({
+			badgeId: "run-length-pi-run",
+			earnedOn: "2026-06-10",
+		});
+		expect(progressOf(result, "run_length")).toMatchObject({
+			value: 31.4,
+			next: 42.195,
+		});
 	});
 
 	it("measures run length by the longest run (US3 scenario 1c)", () => {
@@ -250,7 +269,7 @@ describe("evaluateBadges for runs", () => {
 		});
 		expect(progressOf(result, "run_length")).toMatchObject({
 			value: 21.3,
-			next: 42.195,
+			next: 31.4,
 		});
 	});
 });

@@ -143,7 +143,8 @@ silent evaluation by the daily cron.
   `attendances`), `value` (which figure, R14/R15), `ladder` (thresholds,
   strictly increasing). 13 categories, ladders as in the spec's Assumptions.
 - **Badge**: `id` = `<category with dashes>-<threshold>`, except run length's
-  `run-length-half` (21.0975 km) and `run-length-marathon` (42.195 km); `group`
+  `run-length-half` (21.0975 km), `run-length-pi-run` (31.4 km, part K) and
+  `run-length-marathon` (42.195 km); `group`
   and `category` from its category; `threshold`. 69 badges, the same ids as
   `art/badges/badges.json` (T019 test).
 - `BADGE_CATALOG_VERSION`: integer, raised with any ladder change.

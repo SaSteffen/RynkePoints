@@ -236,6 +236,16 @@ next one."
   1 January or later in a season from September; it is dated with that
   ride. A season starting on 1 January has no new year in it.
 
+### Session 2026-10-26 (part K: 15 km and Pi-Run)
+
+- Q (raised by the project owner): More run-length steps, 15 km and a Pi run?
+  → A: Two more steps on the run-length ladder: 15 km, and "Pi-Run" at
+  31.4 km (π × 10, the same distance as Kreiszahl), named in German and
+  English alike. 30 km was considered and dropped: it would sit right next to
+  the Pi-Run.
+- Q: Does the Pi-Run clash with Kreiszahl (Pi Day)? → A: No. Kreiszahl stays
+  a surprise badge for a ride on 14 March; the Pi-Run is a run on any date.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - See my badges on my page (Priority: P1)
@@ -707,8 +717,9 @@ their badge names examples.
   - Technique training: the number of technique trainings (feature 003 FR-006)
     the rider attended; one badge for the first, one for both planned trainings.
   - Training Rynke: the rider's Training Rynke total.
-  - Run length: the longest single run of the season (FR-020). Its highest badge
-    is marathon distance (42.195 km).
+  - Run length: the longest single run of the season (FR-020). Its steps
+    include 15 km and the Pi-Run (31.4 km, part K); its highest badge is
+    marathon distance (42.195 km).
   - Running: the season total of kilometres of runs (FR-020).
   - Ride length: the longest single counting ride of the season, virtual rides
     included. Its highest badge is 300 km.
@@ -961,7 +972,7 @@ their badge names examples.
   | Team events attended           | events      | 1, 5, 10, 20                                            |
   | Technique training             | trainings   | 1, 2 (both planned)                                     |
   | Training Rynke                 | Rynke       | 1, 25, 50, 100, 150, 200, 250, 300, 400, 500            |
-  | Run length                     | km          | 5, 10, half marathon (21.0975), marathon (42.195)       |
+  | Run length                     | km          | 5, 10, 15, half marathon (21.0975), Pi-Run (31.4), marathon (42.195) |
   | Running                        | km          | 10, 25, 50, 100, 250, 500                               |
   | Ride length                    | km          | 50, 100, 150, 200, 250, 300                             |
   | Virtual rides                  | km          | 50, 100, 250, 500, 1,000                                |

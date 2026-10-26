@@ -356,7 +356,7 @@ test.describe("the progress charts (009)", () => {
 	});
 
 	test("load the library from this site, cached for good", async ({ page }) => {
-		const response = await page.request.get("/vendor/chart-4.5.1.umd.min.js");
+		const response = await page.request.get("/vendor/chart-4.6.1.umd.min.js");
 		expect(response.status()).toBe(200);
 		expect(response.headers()["cache-control"]).toContain("immutable");
 	});
