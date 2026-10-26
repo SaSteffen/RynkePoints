@@ -147,6 +147,7 @@ function dateFor(daysAgo: number, today: string, window: CountingWindow) {
 				? window.deadline
 				: today;
 	const date = daysBefore(anchor, daysAgo);
+	// biome-ignore lint/complexity/useMathMinMax: ISO date strings, not numbers
 	return date < window.seasonStart ? window.seasonStart : date;
 }
 
