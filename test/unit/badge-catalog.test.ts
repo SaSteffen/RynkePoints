@@ -26,7 +26,7 @@ describe("badge catalog", () => {
 				"rynke",
 				[1, 25, 50, 100, 150, 200, 250, 300, 400, 500],
 			],
-			["run_length", "personal", "km", [5, 10, 21.0975, 42.195]],
+			["run_length", "personal", "km", [5, 10, 15, 21.0975, 31.4, 42.195]],
 			["running", "personal", "km", [10, 25, 50, 100, 250, 500]],
 			["ride_length", "personal", "km", [50, 100, 150, 200, 250, 300]],
 			["virtual_rides", "personal", "km", [50, 100, 250, 500, 1000]],
@@ -86,8 +86,8 @@ describe("badge catalog", () => {
 				expect(ladder[i]).toBeGreaterThan(ladder[i - 1] as number);
 	});
 
-	it("derives 130 badges in catalog order with ids from category and threshold", () => {
-		expect(BADGES).toHaveLength(130);
+	it("derives 132 badges in catalog order with ids from category and threshold", () => {
+		expect(BADGES).toHaveLength(132);
 		expect(BADGES.slice(0, 2)).toEqual([
 			{
 				id: "distance-100",
@@ -107,7 +107,9 @@ describe("badge catalog", () => {
 		).toEqual([
 			"run-length-5",
 			"run-length-10",
+			"run-length-15",
 			"run-length-half",
+			"run-length-pi-run",
 			"run-length-marathon",
 		]);
 		expect(
@@ -157,11 +159,11 @@ describe("badge catalog", () => {
 		expect(
 			BADGES.filter((b) => b.category === "tour_de_paris").map((b) => b.id),
 		).toEqual([1, 2, 3, 4, 5, 6, 7, 8].map((n) => `tour-de-paris-${n}`));
-		expect(new Set(BADGES.map((b) => b.id)).size).toBe(130);
+		expect(new Set(BADGES.map((b) => b.id)).size).toBe(132);
 	});
 
-	it("is at version 8 since Winterschlaf beendet (013 part J)", () => {
-		expect(BADGE_CATALOG_VERSION).toBe(8);
+	it("is at version 9 since run length's 15 km and Pi-Run steps", () => {
+		expect(BADGE_CATALOG_VERSION).toBe(9);
 	});
 
 	it("puts the Tour de Paris after the winter months and before the surprises (021)", () => {

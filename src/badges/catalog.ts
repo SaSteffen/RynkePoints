@@ -73,8 +73,9 @@ export interface Badge {
  * (FR-012). 6: tour days count for the personal Team events (feature 021
  * FR-005). 7: the tour badges are personal (feature 021 FR-010).
  * 8: the Winterschlaf beendet surprise badge (feature 013 FR-018).
+ * 9: run length's 15 km and Pi-Run (31.4 km) steps.
  */
-export const BADGE_CATALOG_VERSION = 8;
+export const BADGE_CATALOG_VERSION = 9;
 
 /** In the spec's order: personal first, then team. */
 export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
@@ -107,7 +108,7 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		id: "run_length",
 		group: "personal",
 		unit: "km",
-		ladder: [5, 10, 21.0975, 42.195],
+		ladder: [5, 10, 15, 21.0975, 31.4, 42.195],
 	},
 	{
 		id: "running",
@@ -235,13 +236,14 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 ];
 
 /**
- * Run length's top two steps are named, not numbered; swim length's ids are in
- * metres, since ids have no dot (research R28).
+ * Run length's half marathon, Pi-Run (31.4 km, π × 10, research R50) and
+ * marathon steps are named, not numbered; swim length's ids are in metres,
+ * since ids have no dot (research R28).
  */
 const NAMED_THRESHOLDS: Partial<
 	Record<BadgeCategoryId, Record<number, string>>
 > = {
-	run_length: { 21.0975: "half", 42.195: "marathon" },
+	run_length: { 21.0975: "half", 31.4: "pi-run", 42.195: "marathon" },
 	swim_length: { 0.5: "500", 1: "1000", 1.9: "1900", 3.8: "3800" },
 	surprise: {
 		1: "new-year",
@@ -276,7 +278,7 @@ const badgeIdOf = (category: BadgeCategoryId, threshold: number): string =>
 /** Every badge's id; a string here, checked against the catalog at runtime. */
 export type BadgeId = string;
 
-/** All 130 badges in catalog order: by category, then by threshold. */
+/** All 132 badges in catalog order: by category, then by threshold. */
 export const BADGES: readonly Badge[] = BADGE_CATEGORIES.flatMap((c) =>
 	c.ladder.map((threshold) => ({
 		id: badgeIdOf(c.id, threshold),
