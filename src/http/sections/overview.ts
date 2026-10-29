@@ -89,12 +89,17 @@ export function handleOverview(
 			// On the rider tour's steps, the example rider instead (feature 020
 			// FR-005); it is never marked as seen and never celebrated (FR-007).
 			// The seen Rynke come in the same batch (issue #184).
-			const read = example
-				? exampleRiderView(window, berlinDate(ctx.now()))
-				: await readRiderView(ctx.env.DB, rider.athleteId, 1, {
-						progress: true,
-						seen: true,
-					});
+			// The line of feature 024 US4 is read alongside, in the same round
+			// trip (issue #184); not on the tour.
+			const [read, fetchingText] = await Promise.all([
+				example
+					? exampleRiderView(window, berlinDate(ctx.now()))
+					: readRiderView(ctx.env.DB, rider.athleteId, 1, {
+							progress: true,
+							seen: true,
+						}),
+				example ? null : riderFetchingText(ctx, i18n, rider.athleteId),
+			]);
 			const view = buildRiderView(
 				read,
 				read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
@@ -134,14 +139,10 @@ export function handleOverview(
 					berlinDate(ctx.now()),
 				),
 			);
-			// How far the rider's activities are (feature 024 US4); not on the tour.
-			const fetching =
-				ready && !example
-					? renderFetching(
-							await riderFetchingText(ctx, i18n, rider.athleteId),
-							readyPollSeconds(ctx.env),
-						)
-					: null;
+			// How far the rider's activities are (feature 024 US4).
+			const fetching = ready
+				? renderFetching(fetchingText, readyPollSeconds(ctx.env))
+				: null;
 			// One grid holds it all: two columns on wider screens (contracts/pages.md).
 			const body = html`<div class="overview-grid">
 <section class="hero">

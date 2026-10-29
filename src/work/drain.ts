@@ -264,9 +264,10 @@ async function settle(
 		try {
 			await sendAll(ctx, captured);
 		} catch (err) {
-			// A notification never fails the change that caused it (010 FR-018).
+			// A notification never fails the change that caused it (010 FR-018);
+			// logged as `notifyRiders` logs it.
 			console.error(
-				`Queueing notifications for athlete ${owner} failed: ${errorName(err)}`,
+				`Queueing notifications for ${recipients.length} riders failed: ${errorName(err)}`,
 			);
 		}
 		return;

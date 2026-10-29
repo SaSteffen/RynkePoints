@@ -57,9 +57,14 @@ export function handleRides(
 			const window = countingWindow(ctx.env);
 			// On the rider tour's steps, the example rider's rides instead
 			// (feature 020 FR-005); none of them links to Strava (FR-007).
-			const read = example
-				? exampleRiderView(window, berlinDate(ctx.now()))
-				: await readRiderView(ctx.env.DB, rider.athleteId, page);
+			// The line of feature 024 US4 is read alongside, in the same round
+			// trip (issue #184).
+			const [read, fetchingText] = await Promise.all([
+				example
+					? exampleRiderView(window, berlinDate(ctx.now()))
+					: readRiderView(ctx.env.DB, rider.athleteId, page),
+				example ? null : riderFetchingText(ctx, i18n, rider.athleteId),
+			]);
 			const view = buildRiderView(
 				read,
 				read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
@@ -80,10 +85,7 @@ export function handleRides(
 				})}`;
 			}
 			// How far the rider's activities are (feature 024 US4).
-			const fetching = renderFetching(
-				await riderFetchingText(ctx, i18n, rider.athleteId),
-				readyPollSeconds(ctx.env),
-			);
+			const fetching = renderFetching(fetchingText, readyPollSeconds(ctx.env));
 			return html`${renderNotice(i18n, view)}${fetching}
 ${renderRides(i18n, view.rides)}`;
 		},
