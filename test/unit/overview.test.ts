@@ -364,10 +364,10 @@ describe("overviewBody with ORGANISER_FIGURES percent", () => {
 			false,
 			"percent",
 		).value;
-	/** The card of the rider called `name`, up to the end of the cards. */
+	/** The card of the rider called `name`; the cards end at the table. */
 	function cardOf(html: string, name: string): string {
 		const start = html.indexOf('<ul class="rider-cards');
-		const cards = html.slice(start, html.indexOf("</ul>", start));
+		const cards = html.slice(start, html.indexOf('<div class="table-scroll"'));
 		const all = cards.split('<li class="rider-card');
 		return all.find((card) => card.includes(`>${name}</span>`)) ?? "";
 	}
