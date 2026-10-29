@@ -1,5 +1,5 @@
 import { type SampleRider, sampleRider } from "./samples";
-import { getActivity, listActivities } from "./store";
+import { getActivity, listActivities, takeSlow } from "./store";
 import {
 	ACCESS_LIFETIME,
 	type AccessGrant,
@@ -217,6 +217,11 @@ async function activity(
 		(stored.body.private && !readsAll(grant))
 	) {
 		return answer(NOT_FOUND, 404, rider.athleteId);
+	}
+	// A synced backlog's ride fails its first fetch: the app backs it off for a
+	// minute, so the backlog drains about one a minute (feature 024 US4).
+	if (await takeSlow(db, id)) {
+		return answer({ message: "Service Unavailable" }, 503, rider.athleteId);
 	}
 	return answer(stored.body, 200, rider.athleteId);
 }

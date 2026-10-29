@@ -31,6 +31,7 @@ request to the app's `handleFetch`. The pages are developer tooling in English
 | `create` | `date`, `time`, `sportType`, `distanceKm`, `elevationM`, `movingMin`, `elapsedMin`, `private`, `manual` | Inserts the activity | `object_type: "activity"`, `aspect_type: "create"` |
 | `update` | `activityId` and any of the `create` fields | Updates the activity | `aspect_type: "update"`, `updates` naming the changed fields (`private` → `{"private": "true"/"false"}`) |
 | `delete` | `activityId` | Deletes the activity | `aspect_type: "delete"` |
+| `backlog` | `count` (1–200, default 30) | Inserts `count` rides, one a day at 12:00 back from yesterday, each failing its first fetch once (feature 024 US4) | One `aspect_type: "create"` per ride |
 | `deauthorize` | — | none | `object_type: "athlete"`, `updates: {"authorized": "false"}` |
 | `repeat` | — | none | The last event sent, again (idempotency check) |
 

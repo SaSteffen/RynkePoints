@@ -35,8 +35,9 @@
 fetching text; integration tests through `handleQueue`/`processBatch` and
 `handleFetch` with the fake Strava for the drain order, reserve, held
 notifications and the line. The page script's poll follows feature 015's
-`waitForFirstData`; no Playwright test drives it, since the fake mode has no
-backlog to show.
+`waitForFirstData`; no Playwright test drives it. Fake mode shows it: `/_dev/`
+"Sync a backlog" adds rides whose first fetch fails once, so they come in about
+one a minute (feature 006 contracts/dev-routes.md).
 
 **Target Platform**: Cloudflare Workers.
 

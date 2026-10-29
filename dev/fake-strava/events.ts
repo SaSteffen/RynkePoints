@@ -6,7 +6,9 @@ import {
 	deleteActivity,
 	type FakeActivity,
 	getActivity,
+	insertActivities,
 	insertActivity,
+	markSlow,
 	updateActivity,
 } from "./store";
 
@@ -14,6 +16,9 @@ import {
 // contracts/dev-routes.md "Simulated events"). Each action changes the fake's
 // store first, then posts Strava's webhook body to the app's real webhook
 // route, so the app acks, enqueues and processes it like any other event.
+
+/** The most rides one synced backlog adds. */
+const MAX_BACKLOG = 200;
 
 /** The last body sent, for "send again" (module memory, lost on reload). */
 let lastEvent: string | null = null;
@@ -193,6 +198,49 @@ export async function simulateEvent(
 			activity({ objectType: "activity", aspect: "create", objectId: id }),
 		);
 		return `New ride ${id} for ${who}: webhook answered ${status}`;
+	}
+
+	if (action === "backlog") {
+		// A bike computer syncing many rides at once (feature 024 US4): one ride
+		// a day back from yesterday, each one's first fetch failing once.
+		const count = Math.min(
+			Math.max(Math.trunc(numberField(form, "count") ?? 30), 1),
+			MAX_BACKLOG,
+		);
+		const today = berlinDate(ctx.now());
+		const ids = await insertActivities(
+			db,
+			Array.from({ length: count }, (_, i) => ({
+				athleteId: rider.athleteId,
+				body: recipeToActivity(
+					{
+						daysAgo: 1 + i,
+						// Midday, clear of the sample rides at 07:00 and 17:00.
+						startTime: "12:00",
+						sportType: "Ride",
+						distanceKm: 30,
+						elevationM: 150,
+						movingMin: 70,
+						elapsedMin: 80,
+					},
+					today,
+					ctx.env.SEASON_START_DATE,
+					0,
+				),
+			})),
+		);
+		await markSlow(db, ids);
+		const statuses = new Set<number>();
+		for (const id of ids) {
+			statuses.add(
+				await send(
+					ctx,
+					origin,
+					activity({ objectType: "activity", aspect: "create", objectId: id }),
+				),
+			);
+		}
+		return `Synced ${ids.length} rides for ${who}: webhook answered ${[...statuses].join(", ")}`;
 	}
 
 	if (action === "deauthorize") {

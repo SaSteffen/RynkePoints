@@ -929,6 +929,39 @@ describe("simulated Strava events (US3)", () => {
 		expect(await stored(id)).toBe(0);
 	});
 
+	it("syncs a backlog that comes in about one a minute, with the line (024 US4)", async () => {
+		const before = await training(FIONA);
+		await event([
+			["athleteId", String(FIONA)],
+			["action", "backlog"],
+			["count", "12"],
+		]);
+		const cookies = await sessionCookie(ctx, FIONA);
+		const line = async () => {
+			const res = await get("/me/fetching", cookies);
+			return ((await res.json()) as { text: string | null }).text;
+		};
+		// Every ride's first fetch failed: all twelve wait, backing off.
+		expect(await line()).toBe("0 von 12 Aktivitäten geholt");
+
+		// Each wake a little later brings the next one in.
+		for (let turn = 1; turn <= 12; turn++) {
+			const later = makeCtx({ now: NOW + 120 * turn });
+			const batch = createMessageBatch("rynke-points-work", [
+				{
+					id: `turn-${turn}`,
+					timestamp: new Date(later.now() * 1000),
+					attempts: 1,
+					body: { kind: "strava-turn" },
+				},
+			]);
+			await devQueue(batch, later);
+			if (turn === 1) expect(await line()).toBe("1 von 12 Aktivitäten geholt");
+		}
+		expect(await line()).toBeNull();
+		expect(await training(FIONA)).toBeGreaterThan(before);
+	});
+
 	it("deletes everything of a rider who revokes access", async () => {
 		await event([
 			["athleteId", String(FIONA)],
