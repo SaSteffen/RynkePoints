@@ -55,6 +55,9 @@ a sign-in is never refused because of someone's backlog.
 - Q: What does "fair" mean? → A: Round robin across riders, first in, first out
   within each rider. A rider whose work has just arrived gets the next turn
   rather than waiting for a full round.
+- Q: Does any new work get a rider the next turn? → A: Only if that rider had
+  nothing waiting before. New work for a rider who already has work waiting
+  joins the end of their own queue and doesn't change their turn.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -80,10 +83,13 @@ recorded Strava usage never exceeds the stopping points.
 2. **Given** riders A and C both have large backlogs and rider B a single ride,
    **When** the budget allows only some requests in a window, **Then** B's ride
    comes first, and A and C get roughly equal shares of the rest.
-3. **Given** only rider A has work waiting, **When** the budget allows, **Then**
+3. **Given** rider A has 300 activities waiting, **When** A's device syncs one
+   more, **Then** it goes to the end of A's queue and A's turn doesn't come any
+   sooner; other riders waiting are not pushed back.
+4. **Given** only rider A has work waiting, **When** the budget allows, **Then**
    A's activities use the whole budget, as fast as today; fairness never leaves
    budget unused.
-4. **Given** rider A's backlog, **When** it is worked through, **Then** each of
+5. **Given** rider A's backlog, **When** it is worked through, **Then** each of
    A's activities is evaluated once, the result is the same as if the events had
    come one by one, and none is lost or moved to the failed work (feature 001
    R7) because it had to wait.
@@ -154,9 +160,11 @@ who is a club member. The sign-in succeeds.
 - **FR-002**: When several riders have work waiting for Strava, riders MUST take
   turns, one Strava request each (round robin), so that no rider waits behind
   more than one request of each other waiting rider.
-- **FR-002a**: A rider who had no work waiting and now has some MUST get the next
-  turn, ahead of riders who have been served in the current round; among
+- **FR-002a**: A rider whose queue was empty and who now has work MUST get the
+  next turn, ahead of riders who have been served in the current round; among
   riders who have waited equally, the one served least recently goes first.
+- **FR-002b**: New work for a rider who already has work waiting MUST join the
+  end of that rider's queue and MUST NOT move the rider's turn forward.
 - **FR-003**: Within one rider, work MUST be done first in, first out; FR-017 of
   feature 001 (converge to Strava's current state) keeps holding.
 - **FR-004**: When only one rider has work waiting, they MUST be able to use the
