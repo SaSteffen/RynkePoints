@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-29
 
-**Status**: Draft
+**Status**: Implemented
 
 **Updated**: 2026-10-29 (see [Clarifications](#clarifications))
 
