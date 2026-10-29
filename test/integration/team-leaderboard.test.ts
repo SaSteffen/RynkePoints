@@ -704,3 +704,34 @@ describe("GET /team only reads (FR-003, SC-003, research R11)", () => {
 		},
 	);
 });
+
+describe("GET /team with TRAINING_LEADERBOARD off", () => {
+	// The same riders and viewer; only the setting differs.
+	const off = { ...ctx, env: { ...ctx.env, TRAINING_LEADERBOARD: "off" } };
+
+	it("keeps the team total, the peloton and the team chart, without place or list", async () => {
+		const { status, html } = await riderPage(off, VIEWER, "/team");
+		expect(status).toBe(200);
+		expect(teamTotalOf(html)).not.toBe("");
+		expect(pelotonOf(html)).not.toBe("");
+		expect(teamChartOf(html)).not.toBe("");
+		expect(myPlaceOf(html)).toBe("");
+		expect(leaderboardOf(html)).toBe("");
+		expect(html).toContain('<nav class="kind-switch"');
+	});
+
+	it("ignores Everyone for Training", async () => {
+		const { html } = await riderPage(off, VIEWER, "/team?all=1");
+		expect(leaderboardOf(html)).toBe("");
+		expect(myPlaceOf(html)).toBe("");
+	});
+
+	it("lists Team Rynke without anyone's Training figure", async () => {
+		const { html } = await riderPage(off, VIEWER, "/team?kind=team&all=1");
+		const rows = rowItemsOf(html);
+		expect(rows).toHaveLength(14);
+		expect(rows[0]).toContain('<li class="row you">');
+		expect(leaderboardOf(html)).not.toContain('class="row-other"');
+		expect(rows.map(totalOf)).toContain("25");
+	});
+});

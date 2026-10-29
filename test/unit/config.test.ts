@@ -7,6 +7,7 @@ import {
 	contactEmail,
 	privacyController,
 	readyPollSeconds,
+	trainingLeaderboard,
 	seasonStartEpoch,
 	subscriptionId,
 	verifyToken,
@@ -65,6 +66,19 @@ describe("readyPollSeconds", () => {
 
 	it.each(["0", "61", "x", "", "1.5"])("rejects %j", (value) => {
 		expect(() => readyPollSeconds({ READY_POLL_SECONDS: value })).toThrow();
+	});
+});
+
+describe("trainingLeaderboard", () => {
+	it("reads on and off", () => {
+		expect(trainingLeaderboard({ TRAINING_LEADERBOARD: "on" })).toBe(true);
+		expect(trainingLeaderboard({ TRAINING_LEADERBOARD: "off" })).toBe(false);
+	});
+
+	it.each(["", "true", "Off", "0"])("rejects %j", (value) => {
+		expect(() =>
+			trainingLeaderboard({ TRAINING_LEADERBOARD: value }),
+		).toThrow();
 	});
 });
 

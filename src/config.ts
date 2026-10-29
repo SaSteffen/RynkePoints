@@ -10,6 +10,7 @@ type Settings = Pick<
 	| "STRAVA_CLIENT_SECRET"
 	| "STRAVA_WEBHOOK_VERIFY_TOKEN"
 	| "READY_POLL_SECONDS"
+	| "TRAINING_LEADERBOARD"
 	| "PRIVACY_CONTROLLER"
 	| "CONTACT_EMAIL"
 >;
@@ -40,6 +41,20 @@ export function readyPollSeconds(
 		throw new Error("READY_POLL_SECONDS must be between 1 and 60");
 	}
 	return seconds;
+}
+
+/**
+ * Whether other riders' Training Rynke may be ranked on `/team`: the place
+ * card, the Training leaderboard and the Training figure beside each Team
+ * row. "off" keeps the team total, the peloton and the team chart, and the
+ * Team leaderboard without its Training figures.
+ */
+export function trainingLeaderboard(
+	env: Pick<Settings, "TRAINING_LEADERBOARD">,
+): boolean {
+	if (env.TRAINING_LEADERBOARD === "on") return true;
+	if (env.TRAINING_LEADERBOARD === "off") return false;
+	throw new Error('TRAINING_LEADERBOARD must be "on" or "off"');
 }
 
 export function clientId(env: Pick<Settings, "STRAVA_CLIENT_ID">): string {

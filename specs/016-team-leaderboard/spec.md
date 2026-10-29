@@ -50,6 +50,16 @@ mock-up's team leaderboard, with a `breakaway` tweak for its three sample states
   "Breakaway" past a gap in the road, in order but not to scale; the bunch stays to
   scale. The label is "Breakaway" in German too, because it is more fun.
 
+### Session 2026-10-29
+
+- Q (raised by the project owner, lowering the risk in Strava's review): Can the
+  ranking by Training Rynke be switched off? → A: Yes, with the setting
+  `TRAINING_LEADERBOARD` ("on" or "off"; production "off"). Off, the Training view
+  of `/team` keeps the team total, the peloton and the team chart, and drops the
+  place card (FR-016) and the leaderboard; the Team view keeps its leaderboard
+  without the Training figure beside each row. Training Rynke are derived from
+  Strava data, Team Rynke from attendance the organisers record.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Rider sees where they stand in the team (Priority: P1)
