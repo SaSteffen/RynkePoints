@@ -44,4 +44,6 @@ The limit reached with work ready: wake at once.
 
 ## Scheduled
 
-The daily cron drains once after its fan-outs.
+No change: the daily cron's fan-outs (`check-membership` for every connected
+rider, re-reads, failed work) arrive as queue messages, so its batches drain
+like any other, and a lost wake is made up the next day at the latest.

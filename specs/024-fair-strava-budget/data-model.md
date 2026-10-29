@@ -11,7 +11,7 @@ version ignores the new tables and column.
 | `athlete_id` | INTEGER NOT NULL | → `riders` ON DELETE CASCADE |
 | `message` | TEXT NOT NULL | `serializeWorkMessage` of the message; identifiers only |
 | `kind` | TEXT NOT NULL | the message kind, for counting |
-| `attempts` | INTEGER NOT NULL | deliveries used so far |
+| `attempts` | INTEGER NOT NULL | the attempt the next run is, like a queue message's `attempts` |
 | `not_before` | INTEGER NOT NULL DEFAULT 0 | epoch seconds; backoff after `transient` |
 | `stored_at` | INTEGER NOT NULL | epoch seconds |
 

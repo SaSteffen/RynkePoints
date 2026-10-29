@@ -78,8 +78,8 @@
   time of the last wake asked for; a new wake is only sent if none is pending at
   or before the time needed, so a burst of webhook events costs one wake.
 - **Rationale**: Webhook bursts trigger drains anyway; the wake only covers the
-  quiet case (nothing arrives while the budget recovers). The daily cron also
-  drains, as a safety net if a wake was ever lost.
+  quiet case (nothing arrives while the budget recovers). The daily cron's
+  fan-out messages drain too, a safety net if a wake was ever lost.
 - **Alternatives considered**: Cron only; rejected, it runs once a day.
 
 ## R5. Reserve for sign-ins and token calls
@@ -92,16 +92,18 @@
   Strava client's calls are `background` unless the caller says otherwise; the
   sign-in callback's club check, the token exchange and every revocation are
   `interactive`; a token refresh takes the priority of the call it serves.
-  The OAuth token and revoke endpoints are now budget-checked too (FR-007).
-  When their response carries no usage header, the call is counted as one
-  request against the overall (`all`) counts of the current window and day.
+  The OAuth token and revoke endpoints are now budget-checked too (FR-007), and
+  their usage headers are recorded like every other response's.
 - **Rationale**: Sign-in, reconnect and deletion are what a person waits for on
   a page. A sign-in takes 2–4 requests; 10 per window covers a team evening.
   The overall stopping points (FR-001, SC-003) don't move. A revoke refused for
   budget is reported as `transient`, so a deletion retries rather than skipping
   the revoke (delete-rider still deletes on its last attempt, as today).
 - **Alternatives considered**: Exempting interactive calls from the budget;
-  rejected by FR-007 and Principle II.
+  rejected by FR-007 and Principle II. Counting a token call Strava doesn't
+  report as one request; rejected: it would be a guess written into the shared
+  budget (the fake Strava sends no headers either), and the margins already
+  cover a few unreported calls.
 
 ## R6. One notification after a backlog
 

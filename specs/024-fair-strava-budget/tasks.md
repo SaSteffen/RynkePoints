@@ -28,8 +28,8 @@ Format: `[ID] [P?] [Story] Description`.
   `DRAIN_LIMIT` wakes at once, a 300-event backlog with one other rider's ride
   (SC-001 order).
 - [ ] T005 [US1] `src/db/strava-work.ts`, `src/work/drain.ts`, routing in
-  `src/work/consumer.ts`, `strava-turn` in `src/work/messages.ts`, drain in
-  `src/work/scheduled.ts` (T004 green).
+  `src/work/consumer.ts`, `strava-turn` in `src/work/messages.ts`; handler
+  types move to `src/work/handler.ts` (T004 green).
 - [ ] T006 [US1] Update queue-level tests of the moved kinds to the table's
   rules (R3 consequence): `consumer.test.ts`, `activity-event.test.ts`,
   `membership-check.test.ts`, `no-secret-logging.test.ts`.
@@ -39,11 +39,10 @@ Format: `[ID] [P?] [Story] Description`.
 - [ ] T007 [US2] Tests in `test/integration/strava-client.test.ts` and
   `test/integration/callback.test.ts`: the sign-in's club check and token
   exchange go through at background-exhausted usage; at fully used budget
-  the token exchange isn't sent and the callback shows `strava-busy`; a token
-  call without usage headers counts one request; a revoke refused for budget
-  is `transient`.
+  the token exchange isn't sent and the callback shows `strava-busy`; a revoke
+  refused for budget is `transient`.
 - [ ] T008 [US2] Priority through `src/strava/client.ts` and
-  `src/strava/tokens.ts`, counting in `src/strava/result.ts`, `interactive` in
+  `src/strava/tokens.ts`, `interactive` in
   `src/http/auth.ts` (T007 green).
 
 ## Phase 4: User Story 3 — one notification (P2)

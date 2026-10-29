@@ -356,8 +356,9 @@ import is done.
   requests, and the team has at most a few sign-ins at once, e.g. at a team
   evening). The plan settles the exact number; it comes out of the background
   share, so the overall stopping points don't move.
-- The OAuth token endpoint may not report usage headers; then its requests are
-  counted as one each against the kept part.
+- Token requests are counted from Strava's usage headers when it sends them,
+  like every other request; any it doesn't report are covered by the margins
+  that stay below the limits.
 - Fairness is per rider, not per kind of work: one rider's own new ride and
   their import compete within that rider's turn, in arrival order.
 - The line's threshold is 10 waiting activity events, so a ride or two waiting

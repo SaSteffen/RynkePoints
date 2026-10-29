@@ -34,8 +34,9 @@
 **Testing**: Vitest in workerd: unit tests for the budget priorities and the
 fetching text; integration tests through `handleQueue`/`processBatch` and
 `handleFetch` with the fake Strava for the drain order, reserve, held
-notifications and the line. Playwright smoke test for the line on the sample
-rider.
+notifications and the line. The page script's poll follows feature 015's
+`waitForFirstData`; no Playwright test drives it, since the fake mode has no
+backlog to show.
 
 **Target Platform**: Cloudflare Workers.
 
@@ -73,9 +74,9 @@ src/work/drain.ts                    # the drain loop, holding and releasing
 src/work/consumer.ts                 # routing; generic path unchanged
 src/work/messages.ts                 # strava-turn, which kinds go to the table
 src/work/import-page.ts              # import_fetched
-src/work/scheduled.ts                # drain after the cron fan-outs
+src/work/handler.ts                  # handler types, shared with the drain
 src/strava/rate-limit.ts             # priorities
-src/strava/client.ts, tokens.ts, result.ts  # priority, token budget, counting
+src/strava/client.ts, tokens.ts     # priority, token budget
 src/http/auth.ts, me.ts              # interactive priority; strava-busy on budget
 src/http/fetching.ts                 # GET /me/fetching, the line's text
 src/http/router.ts                   # route
