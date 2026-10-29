@@ -104,6 +104,9 @@ export const de = {
 	"waiting.heading": "Deine Fahrten werden geholt",
 	"waiting.body":
 		"Wir holen einmalig deine Fahrten seit dem {date} von Strava. Das dauert etwa 5\u00a0Minuten; die Seite aktualisiert sich von selbst.",
+	// Feature 024: how far the rider's activities are (FR-018, FR-019).
+	"fetching.events": "{done} von {total} Aktivitäten geholt",
+	"fetching.import": "Bisher {n} Aktivitäten geholt, weitere folgen",
 	"rynke.verdict.in": "Qualifiziert für Paris! 🗼",
 	"rynke.verdict.notYet": "Noch nicht qualifiziert",
 	"rynke.verdict.missing": "Dir fehlen noch:",

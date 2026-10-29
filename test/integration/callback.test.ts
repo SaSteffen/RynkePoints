@@ -180,6 +180,31 @@ describe("GET /auth/callback club check", () => {
 		await expectNoRows();
 	});
 
+	// Feature 024 US2: a backlog's background work never turns a sign-in away.
+	it("lets a new member in when background work used its share", async () => {
+		await env.DB.prepare(
+			"UPDATE strava_rate_limit SET observed_at = ?, read_15m = 85, all_15m = 85 WHERE id = 1",
+		)
+			.bind(NOW)
+			.run();
+		const res = await approve(ctx, fake, ATHLETE_A);
+		expect(res.status).toBe(302);
+		expect(res.headers.get("Location")).not.toMatch(/\/notice\//);
+		expect(await getRider(env.DB, ATHLETE_A)).not.toBeNull();
+	});
+
+	it("shows strava-busy without a token call once the reserve is used up", async () => {
+		await env.DB.prepare(
+			"UPDATE strava_rate_limit SET observed_at = ?, read_15m = 90, all_15m = 90 WHERE id = 1",
+		)
+			.bind(NOW)
+			.run();
+		const res = await approve(ctx, fake, ATHLETE_A);
+		expectNotice(res, "strava-busy");
+		expect(fake.callsTo("token")).toHaveLength(0);
+		await expectNoRows();
+	});
+
 	it("deletes an existing rider who left the club", async () => {
 		await seedExistingRider();
 		const athlete = fake.athletes.get(ATHLETE_A);

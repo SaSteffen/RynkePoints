@@ -10,6 +10,7 @@ import {
 	rulesForVersion,
 } from "../../rynke/rules";
 import { amount, heroCoin, miniCoin } from "../coin";
+import { riderFetchingText } from "../fetching";
 import { FUN_SPARKLES } from "../fun";
 import { html, type SafeHtml } from "../html";
 import { CHART_SCRIPTS, renderProgress } from "../progress-section";
@@ -17,6 +18,7 @@ import { buildProgressView } from "../progress-view";
 import {
 	renderBreakdown,
 	renderExampleNote,
+	renderFetching,
 	renderGauges,
 	renderNotice,
 	renderReconnect,
@@ -132,6 +134,14 @@ export function handleOverview(
 					berlinDate(ctx.now()),
 				),
 			);
+			// How far the rider's activities are (feature 024 US4); not on the tour.
+			const fetching =
+				ready && !example
+					? renderFetching(
+							await riderFetchingText(ctx, i18n, rider.athleteId),
+							readyPollSeconds(ctx.env),
+						)
+					: null;
 			// One grid holds it all: two columns on wider screens (contracts/pages.md).
 			const body = html`<div class="overview-grid">
 <section class="hero">
@@ -146,7 +156,7 @@ ${
 		: null
 }</div>${FUN_SPARKLES}
 </section>
-${example ? renderExampleNote(i18n) : null}${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}
+${example ? renderExampleNote(i18n) : null}${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}${fetching}
 ${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env))}
 ${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary, status) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}

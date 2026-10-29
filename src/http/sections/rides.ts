@@ -8,9 +8,11 @@ import {
 	countingWindow,
 	rulesForVersion,
 } from "../../rynke/rules";
+import { riderFetchingText } from "../fetching";
 import { html, htmlResponse } from "../html";
 import {
 	renderExampleNote,
+	renderFetching,
 	renderNotice,
 	renderRideBatch,
 	renderRides,
@@ -77,7 +79,12 @@ export function handleRides(
 					shortRideId: EXAMPLE_SHORT_RIDE_ID,
 				})}`;
 			}
-			return html`${renderNotice(i18n, view)}
+			// How far the rider's activities are (feature 024 US4).
+			const fetching = renderFetching(
+				await riderFetchingText(ctx, i18n, rider.athleteId),
+				readyPollSeconds(ctx.env),
+			);
+			return html`${renderNotice(i18n, view)}${fetching}
 ${renderRides(i18n, view.rides)}`;
 		},
 	);

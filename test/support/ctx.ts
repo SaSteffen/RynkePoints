@@ -196,6 +196,10 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM attendances"),
 		env.DB.prepare("DELETE FROM team_events"),
 		env.DB.prepare("DELETE FROM corrections"),
+		env.DB.prepare("DELETE FROM strava_held"),
+		env.DB.prepare("DELETE FROM strava_work"),
+		env.DB.prepare("DELETE FROM strava_queues"),
+		env.DB.prepare("UPDATE strava_turn SET wake_at = 0 WHERE id = 1"),
 		env.DB.prepare("DELETE FROM strava_credentials"),
 		env.DB.prepare("DELETE FROM riders"),
 		env.DB.prepare(

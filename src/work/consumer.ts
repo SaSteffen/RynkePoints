@@ -1,50 +1,41 @@
 import type { Ctx } from "../ctx";
 import { deleteFailedWorkByMessage, upsertFailedWork } from "../db/failed-work";
-import {
-	deleteRider,
-	getRider,
-	markNeedsReconnect,
-	type Rider,
-} from "../db/riders";
+import { deleteRider, getRider, markNeedsReconnect } from "../db/riders";
+import { storeWork } from "../db/strava-work";
 import { backoffSeconds, MAX_DELAY_SECONDS } from "../strava/rate-limit";
+import { drain } from "./drain";
 import {
+	type Attempt,
+	type Handler,
+	type HandlerResult,
+	type Handlers,
+	MAX_ATTEMPTS,
+} from "./handler";
+import {
+	isStravaTurn,
 	parseWorkMessage,
 	serializeWorkMessage,
 	type WorkMessage,
+	waitsForStrava,
 } from "./messages";
 
 // The common consumer rules from contracts/queue-messages.md. Message-specific
-// work lives in the handlers; this decides what happens to the message.
+// work lives in the handlers; this decides what happens to the message. Work
+// that needs Strava waits in the Strava work table and is done round robin by
+// the drain (feature 024 contracts/queue-messages.md).
+
+export {
+	type Attempt,
+	type Handler,
+	type HandlerResult,
+	type Handlers,
+	MAX_ATTEMPTS,
+} from "./handler";
 
 /**
- * Deliveries per message: `max_retries` (10 in wrangler.jsonc) plus the first
- * one. `message.attempts` reaches this on the last delivery.
+ * Processes messages one at a time: the shared rate budget needs it (R6).
+ * Then drains the Strava work table, which the batch may have added to.
  */
-export const MAX_ATTEMPTS = 11;
-
-export type HandlerResult =
-	| { kind: "ok" }
-	| { kind: "budget"; delaySeconds: number }
-	| { kind: "transient"; reason: string }
-	| { kind: "refresh-refused" };
-
-export interface Attempt {
-	attempts: number;
-	isLastAttempt: boolean;
-}
-
-export type Handler<M extends WorkMessage> = (
-	message: M,
-	rider: Rider,
-	ctx: Ctx,
-	attempt: Attempt,
-) => Promise<HandlerResult>;
-
-export type Handlers = {
-	[K in WorkMessage["kind"]]?: Handler<Extract<WorkMessage, { kind: K }>>;
-};
-
-/** Processes messages one at a time: the shared rate budget needs it (R6). */
 export async function processBatch(
 	batch: MessageBatch<unknown>,
 	ctx: Ctx,
@@ -60,6 +51,12 @@ export async function processBatch(
 			message.retry({ delaySeconds: backoffSeconds(message.attempts) });
 		}
 	}
+	try {
+		await drain(ctx, handlers);
+	} catch (err) {
+		// The rows stay; the next batch or wake drains again.
+		console.error(`Draining Strava work failed: ${errorName(err)}`);
+	}
 }
 
 function errorName(err: unknown): string {
@@ -71,6 +68,11 @@ async function processMessage(
 	ctx: Ctx,
 	handlers: Handlers,
 ): Promise<void> {
+	if (isStravaTurn(message.body)) {
+		// Only wakes the drain after the batch (feature 024 R4).
+		message.ack();
+		return;
+	}
 	const body = parseWorkMessage(message.body);
 	if (!body) {
 		console.warn("Dropping invalid queue message");
@@ -83,6 +85,13 @@ async function processMessage(
 		!rider ||
 		(rider.status === "needs_reconnect" && body.kind !== "delete-rider")
 	) {
+		message.ack();
+		return;
+	}
+
+	if (waitsForStrava(body)) {
+		// Waits its rider's turn; the delivery so far is its first attempt count.
+		await storeWork(ctx.env.DB, body, message.attempts, ctx.now());
 		message.ack();
 		return;
 	}

@@ -135,6 +135,8 @@ export async function handleCallback(
 
 	const exchange = await exchangeCode(ctx, code);
 	if (exchange.kind === "forbidden") return notice("team-full");
+	// Even the reserve for sign-ins is used up (feature 024 FR-008).
+	if (exchange.kind === "budget") return notice("strava-busy");
 	if (exchange.kind !== "ok") return notice("failed");
 	const token = exchange.value;
 	const auth = { accessToken: token.accessToken };
@@ -161,7 +163,13 @@ export async function handleCallback(
 		return notice("consent-required");
 	}
 
-	const membership = await isClubMember(ctx, auth, clubId(ctx.env));
+	// A person waits for this page: it may use the reserve (feature 024 R5).
+	const membership = await isClubMember(
+		ctx,
+		auth,
+		clubId(ctx.env),
+		"interactive",
+	);
 	if (membership.kind === "ok" && !membership.value) {
 		return refuse("not-member", "not-member-deleted");
 	}
