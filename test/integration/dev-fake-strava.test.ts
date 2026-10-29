@@ -946,7 +946,7 @@ describe("simulated Strava events (US3)", () => {
 
 		// Each wake a little later brings the next one in.
 		for (let turn = 1; turn <= 12; turn++) {
-			const later = makeCtx({ now: NOW + 120 * turn });
+			const later = { ...devCtx(), now: () => NOW + 120 * turn };
 			const batch = createMessageBatch("rynke-points-work", [
 				{
 					id: `turn-${turn}`,
