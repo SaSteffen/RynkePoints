@@ -7,9 +7,9 @@ import {
 	contactEmail,
 	privacyController,
 	readyPollSeconds,
-	trainingLeaderboard,
 	seasonStartEpoch,
 	subscriptionId,
+	trainingLeaderboard,
 	verifyToken,
 } from "../../src/config";
 
