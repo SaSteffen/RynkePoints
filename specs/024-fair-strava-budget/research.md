@@ -66,6 +66,10 @@
 - **Consequence for tests**: queue-level tests of those kinds that expect
   `message.retry()` or a re-send on `budget` now expect an ack, a row with its
   backoff, or a `strava-turn` wake.
+- **Consequence for fake mode** (feature 006): Ida Importing's stuck import was
+  a fake `429` on her activity list. A `429` stops the whole drain, as Strava's
+  limits are per app, so it held back every sample rider behind her. Her fake
+  now answers `503`: her import backs off alone and stays `pending`.
 
 ## R4. Waking the drain
 
