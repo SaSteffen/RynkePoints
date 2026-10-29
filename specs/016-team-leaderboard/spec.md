@@ -306,6 +306,16 @@ the overview is refused.
   Team, outdoor Training), marked when behind the even pace, and the breakdown of
   feature 003 FR-014a: distance, elevation, each team-event kind with attendance,
   corrections and the virtual-ride share.
+- **FR-033a** (2026-10-29, raised by the project owner to lower the risk in
+  Strava's review): the setting `ORGANISER_FIGURES` ("full" or "percent";
+  production "percent") chooses what FR-033 shows. "full" is FR-033 as written.
+  "percent" shows Training and Team Rynke only as a whole percent of their
+  threshold, rounded down and stopping at 100 %, with their bars and the even
+  pace marked; instead of amounts still missing, it names the reasons: Training or
+  Team behind the even pace, and too little outdoor Training (no percentage of its
+  own). Of the breakdown only the corrections stay, as amounts, since organisers
+  enter them; the even-pace hint is in percent too. The rider's corrections page
+  is unchanged.
 - **FR-034**: The overview MUST list who qualified.
 - **FR-035**: On wide screens the overview MUST be a table with one row per rider;
   on a phone, one card per rider with the breakdown folded away.

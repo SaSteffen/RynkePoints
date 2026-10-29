@@ -7,6 +7,7 @@ interface __BaseEnv_Env {
 	STRAVA_CLUB_ID: string;
 	SEASON_START_DATE: string;
 	QUALIFICATION_DEADLINE: string;
+	ORGANISER_FIGURES: string;
 	STRAVA_SUBSCRIPTION_ID: string;
 	PUSH_SUBJECT: string;
 	READY_POLL_SECONDS: string;

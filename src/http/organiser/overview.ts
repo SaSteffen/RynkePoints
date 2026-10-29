@@ -1,4 +1,8 @@
-import { berlinDate } from "../../config";
+import {
+	berlinDate,
+	type OrganiserFigures,
+	organiserFigures,
+} from "../../config";
 import type { Ctx } from "../../ctx";
 import { withProfileLinks } from "../../db/organiser";
 import {
@@ -45,6 +49,15 @@ export type RiderRequests = ReadonlyMap<number, readonly OpenRequestRow[]>;
 export interface Missing {
 	amount: number;
 	behind: boolean;
+}
+
+/**
+ * `value` as a whole percent of `threshold`, from 0 to 100, rounded down, so
+ * 100 % means the threshold is reached (`ORGANISER_FIGURES` "percent").
+ */
+export function percentOf(value: number, threshold: number): number {
+	if (threshold <= 0) return 100;
+	return Math.min(100, Math.max(0, Math.floor((100 * value) / threshold)));
 }
 
 /** The even pace of each amount today; none once the deadline has passed. */
@@ -307,6 +320,87 @@ function statusChip(
 	return html`<span class="status-chip">${statusArt(rider.status, "chip")}${groupLabel(i18n, rider.status, passed)}</span>`;
 }
 
+/** The figure of `kind` in percent, with its bar and the even pace. */
+function percentLine(
+	i18n: I18n,
+	kind: "training" | "team",
+	rider: OverviewRider,
+	rules: RynkeRules,
+): SafeHtml {
+	const threshold =
+		kind === "training" ? rules.trainingThreshold : rules.teamThreshold;
+	const n = i18n.t("organiser.overview.percent", {
+		n: i18n.formatNumber(percentOf(rider[kind], threshold), {
+			fractionDigits: 0,
+		}),
+	});
+	return html`<div class="amount amount-${kind}"><p>${miniCoin(kind)}${i18n.t(`organiser.overview.${kind}.percent`, { n })}</p>${thresholdBars(rider[kind], threshold, rider.pace?.[kind] ?? null)}</div>`;
+}
+
+/**
+ * Why a rider isn't there yet, without amounts: Training or Team behind the
+ * even pace, and too little outdoor Training.
+ */
+function percentReasons(
+	i18n: I18n,
+	rider: OverviewRider,
+): { text: string; behind: boolean }[] {
+	const reasons: { text: string; behind: boolean }[] = [];
+	for (const kind of ["training", "team"] as const) {
+		if (rider.missing[kind].behind) {
+			reasons.push({
+				text: i18n.t(`organiser.overview.behind.${kind}`),
+				behind: true,
+			});
+		}
+	}
+	if (rider.missing.outdoor.amount > 0) {
+		reasons.push({
+			text: i18n.t("organiser.overview.reason.outdoor"),
+			behind: rider.missing.outdoor.behind,
+		});
+	}
+	return reasons;
+}
+
+/** The corrections as amounts; organisers enter them, Strava has no part. */
+function correctionsLine(i18n: I18n, rider: OverviewRider): string {
+	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
+	return i18n.t("organiser.overview.corrections", {
+		training: whole(rider.breakdown.corrections.training),
+		team: whole(rider.breakdown.corrections.team),
+	});
+}
+
+function renderPercentCard(
+	i18n: I18n,
+	rules: RynkeRules,
+	rider: OverviewRider,
+	passed: boolean,
+	lines: SafeHtml | null,
+): SafeHtml {
+	const reasons = percentReasons(i18n, rider);
+	const { corrections } = rider.breakdown;
+	return html`<li class="rider-card status-${rider.status}">
+<div class="rider-head"><h3>${nameLinks(i18n, rider)}</h3>${statusChip(i18n, rider, passed)}</div>
+<div class="rider-bars">
+${percentLine(i18n, "training", rider, rules)}
+${percentLine(i18n, "team", rider, rules)}
+</div>
+${
+	reasons.length > 0
+		? html`<ul class="rider-missing">${reasons.map((m) => html`<li${m.behind ? html` class="behind"` : null}>${m.text}</li>`)}</ul>
+`
+		: null
+}${
+	corrections.training !== 0 || corrections.team !== 0
+		? html`<p class="rider-corrections">${correctionsLine(i18n, rider)}</p>
+`
+		: null
+}${lines}</li>
+`;
+}
+
 function renderCard(
 	i18n: I18n,
 	rules: RynkeRules,
@@ -444,6 +538,75 @@ ${rows}</tbody>
 `;
 }
 
+/** A percent figure with its bar, and "behind pace" when the rider is. */
+function percentBlock(
+	i18n: I18n,
+	kind: "training" | "team",
+	value: number,
+	threshold: number,
+	pace: number | null,
+	missing: Missing,
+): SafeHtml {
+	const n = i18n.formatNumber(percentOf(value, threshold), {
+		fractionDigits: 0,
+	});
+	const behind = missing.behind
+		? html`<span class="to-go behind">${i18n.t("organiser.overview.behind")}</span>`
+		: null;
+	return html`<div class="bar-block bar-${kind}"><span class="bar-figures"><span class="figure"><span class="visually-hidden">${i18n.t(`organiser.overview.column.${kind}`)} </span>${i18n.t("organiser.overview.percent", { n })}</span>${behind}</span>${thresholdBars(value, threshold, pace)}</div>`;
+}
+
+function renderPercentTable(
+	i18n: I18n,
+	rules: RynkeRules,
+	riders: readonly OverviewRider[],
+	passed: boolean,
+	lines: (rider: OverviewRider) => SafeHtml | null,
+): SafeHtml {
+	const column = (
+		key: "name" | "group" | "rynke" | "corrections" | "requests",
+		number = false,
+	) =>
+		html`<th scope="col"${number ? html` class="number"` : null}>${i18n.t(`organiser.overview.column.${key}`)}</th>`;
+	const rows = riders.map((rider) => {
+		const training = percentBlock(
+			i18n,
+			"training",
+			rider.training,
+			rules.trainingThreshold,
+			rider.pace?.training ?? null,
+			rider.missing.training,
+		);
+		const team = percentBlock(
+			i18n,
+			"team",
+			rider.team,
+			rules.teamThreshold,
+			rider.pace?.team ?? null,
+			rider.missing.team,
+		);
+		// Outdoor Training is no column of its own, only a reason (2026-10-29).
+		const outdoor =
+			rider.missing.outdoor.amount > 0
+				? html`<p class="to-go${rider.missing.outdoor.behind ? " behind" : ""}">${i18n.t("organiser.overview.reason.outdoor")}</p>`
+				: null;
+		return html`<tr class="status-${rider.status}">
+<th scope="row">${nameLinks(i18n, rider)}</th>
+<td>${statusChip(i18n, rider, passed)}${outdoor}</td>
+<td class="bar-cell">${training}${team}</td>
+${coinPair(i18n, rider.breakdown.corrections.training, rider.breakdown.corrections.team)}
+<td class="requests-cell">${lines(rider)}</td>
+</tr>
+`;
+	});
+	return html`<div class="table-scroll"><table class="rider-table">
+<thead><tr>${column("name")}${column("group")}${column("rynke")}${column("corrections", true)}${column("requests")}</tr></thead>
+<tbody>
+${rows}</tbody>
+</table></div>
+`;
+}
+
 function renderQualified(
 	i18n: I18n,
 	riders: readonly OverviewRider[],
@@ -476,6 +639,7 @@ export function overviewBody(
 	i18n: I18n,
 	requests: RiderRequests = new Map(),
 	inert = false,
+	figures: OrganiserFigures = "full",
 ): SafeHtml {
 	const passed = today > window.deadline;
 	const riders = overviewRiders(read, rules, window, today);
@@ -493,21 +657,45 @@ export function overviewBody(
 		riderRequestLines(i18n, requests.get(rider.athleteId) ?? [], back);
 	const pace = overviewPace(rules, window, today);
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
+	const percent = figures === "percent";
 	const list =
 		riders.length === 0
 			? html`<p>${i18n.t("organiser.overview.none")}</p>
 `
 			: html`${
-					pace
-						? html`<p class="team-hint" id="tour-pace">${i18n.t("organiser.overview.hint", { training: whole(pace.training), team: whole(pace.team) })}</p>
-`
-						: null
+					pace ? renderHint(i18n, rules, pace, figures, whole) : null
 				}<ul class="rider-cards${group === null ? " default" : ""}">
-${shown.map((r) => renderCard(i18n, rules, r, passed, lines(r)))}</ul>
-${renderTable(i18n, rules, shown, passed, lines)}${renderQualified(i18n, riders)}`;
+${shown.map((r) => (percent ? renderPercentCard : renderCard)(i18n, rules, r, passed, lines(r)))}</ul>
+${(percent ? renderPercentTable : renderTable)(i18n, rules, shown, passed, lines)}${renderQualified(i18n, riders)}`;
 	return html`<div class="team-overview"${inert ? html` inert` : null}>
 <h2>${i18n.t("organiser.overview.heading")}</h2>
 ${renderDeadline(i18n, window, today, riders)}${renderTiles(i18n, riders, group, passed, requests)}${list}</div>`;
+}
+
+/** What the even pace asks for today, as amounts or in percent. */
+function renderHint(
+	i18n: I18n,
+	rules: RynkeRules,
+	pace: Pace,
+	figures: OrganiserFigures,
+	whole: (n: number) => string,
+): SafeHtml {
+	const text =
+		figures === "percent"
+			? i18n.t("organiser.overview.hint.percent", {
+					training: i18n.t("organiser.overview.percent", {
+						n: whole(percentOf(pace.training, rules.trainingThreshold)),
+					}),
+					team: i18n.t("organiser.overview.percent", {
+						n: whole(percentOf(pace.team, rules.teamThreshold)),
+					}),
+				})
+			: i18n.t("organiser.overview.hint", {
+					training: whole(pace.training),
+					team: whole(pace.team),
+				});
+	return html`<p class="team-hint" id="tour-pace">${text}</p>
+`;
 }
 
 /** The open requests by rider, in their order. */
@@ -530,6 +718,7 @@ export function handleOrganiserOverview(
 ): Promise<Response> {
 	const url = new URL(request.url);
 	const window = countingWindow(ctx.env);
+	const figures = organiserFigures(ctx.env);
 	const today = berlinDate(ctx.now());
 	const group = parseGroup(
 		url.searchParams.get("group"),
@@ -542,7 +731,7 @@ export function handleOrganiserOverview(
 		// be looked at but not used (feature 020 FR-013, FR-014).
 		if (example) {
 			const team = exampleTeam(window, today);
-			return html`${organiserSwitch(i18n, "riders", team.requests.length)}${renderExampleNote(i18n, "tour.organiser.example")}${overviewBody(team.riders, CURRENT_RULES, window, today, null, i18n, byRider(team.requests), true)}`;
+			return html`${organiserSwitch(i18n, "riders", team.requests.length)}${renderExampleNote(i18n, "tour.organiser.example")}${overviewBody(team.riders, CURRENT_RULES, window, today, null, i18n, byRider(team.requests), true, figures)}`;
 		}
 		const [read, { results }] = await Promise.all([
 			readTeam(ctx.env.DB),
@@ -553,6 +742,6 @@ export function handleOrganiserOverview(
 			).all<OpenRequestRow>(),
 		]);
 		const notice = await decisionNotice(url, ctx, i18n, path);
-		return html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, byRider(results))}`;
+		return html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, byRider(results), false, figures)}`;
 	});
 }

@@ -6,6 +6,7 @@ type Settings = Pick<
 	| "STRAVA_CLUB_ID"
 	| "STRAVA_SUBSCRIPTION_ID"
 	| "SEASON_START_DATE"
+	| "ORGANISER_FIGURES"
 	| "STRAVA_CLIENT_ID"
 	| "STRAVA_CLIENT_SECRET"
 	| "STRAVA_WEBHOOK_VERIFY_TOKEN"
@@ -114,6 +115,22 @@ function berlinOffsetMs(epochMs: number): number {
 		get("second"),
 	);
 	return wallClockAsUtc - epochMs;
+}
+
+/**
+ * What the organiser overview shows of each rider's Rynke: "full" the
+ * amounts, what is missing and where the Rynke come from; "percent" only
+ * Training and Team as a share of their threshold, up to 100 %, with the
+ * corrections as amounts.
+ */
+export type OrganiserFigures = "full" | "percent";
+
+export function organiserFigures(
+	env: Pick<Settings, "ORGANISER_FIGURES">,
+): OrganiserFigures {
+	const value = env.ORGANISER_FIGURES;
+	if (value === "full" || value === "percent") return value;
+	throw new Error('ORGANISER_FIGURES must be "full" or "percent"');
 }
 
 /** Who is responsible for the riders' data, one line each (a name at least). */

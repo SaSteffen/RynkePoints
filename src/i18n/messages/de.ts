@@ -511,6 +511,13 @@ export const de = {
 	"organiser.overview.showing": "Angezeigt: {group}",
 	"organiser.overview.hint":
 		"Der Strich auf jedem Balken zeigt das gleichmäßige Tempo bis zum Stichtag: heute {training} Training und {team} Team.",
+	"organiser.overview.hint.percent":
+		"Der Strich auf jedem Balken zeigt das gleichmäßige Tempo bis zum Stichtag: heute {training} vom Training und {team} vom Team.",
+	"organiser.overview.training.percent": "Training {n}",
+	"organiser.overview.team.percent": "Team {n}",
+	"organiser.overview.behind.training": "Training hinter dem Tempo",
+	"organiser.overview.behind.team": "Team hinter dem Tempo",
+	"organiser.overview.reason.outdoor": "Noch zu wenig Training draußen",
 	"organiser.overview.training": "Training {n} von {threshold}",
 	"organiser.overview.team": "Team {n} von {threshold}",
 	"organiser.overview.outdoor": "Training draußen {n} von {required}",
