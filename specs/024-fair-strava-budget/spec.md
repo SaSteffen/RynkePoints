@@ -247,8 +247,8 @@ import is done.
   turns, one Strava request each (round robin), so that no rider waits behind
   more than one request of each other waiting rider.
 - **FR-002a**: A rider whose queue was empty and who now has work MUST get the
-  next turn, ahead of riders who have been served in the current round; among
-  riders who have waited equally, the one served least recently goes first.
+  next turn; several such riders take their turns in the order their work
+  arrived. Otherwise the rider served least recently goes first.
 - **FR-002b**: New work for a rider who already has work waiting MUST join the
   end of that rider's queue and MUST NOT move the rider's turn forward.
 - **FR-003**: Within one rider, work MUST be done first in, first out; FR-017 of
@@ -316,10 +316,10 @@ import is done.
 - **Waiting Strava work**: per rider, the work that needs Strava and has not
   been done yet, in arrival order, with when the rider was last served (to give
   them their turn), how many events have arrived since the queue was last empty
-  and how many of them are done (for the line), and the rider's Rynke when the
-  backlog started (for the one notification).
-- **Held notifications**: per rider, what a backlog has earned so far (badges,
-  team badges for others) and not yet told. It never holds activity contents, only identifiers, like
+  and how many of them are done (for the line), the rider's Rynke when the
+  backlog started and the badges earned during it (for the one notification).
+- **Held notifications**: per rider with a backlog, the riders (themselves or
+  others, for team badges) who are owed a notification once it is done. It never holds activity contents, only identifiers, like
   queue messages today.
 
 ## Success Criteria *(mandatory)*
@@ -362,8 +362,10 @@ import is done.
   their import compete within that rider's turn, in arrival order.
 - The line's threshold is 10 waiting activity events, so a ride or two waiting
   for a moment don't flash a line; the plan may tune it.
-- "Aktivitäten" counts activity events (create, update, delete), not rides:
-  most are new activities, and riders know the word from Strava.
+- "Aktivitäten" counts activity events that need Strava (new and changed
+  activities), not rides: most are new activities, and riders know the word
+  from Strava. A deleted activity needs no Strava call (FR-011), so it is
+  handled at once and not counted.
 - Staying within Cloudflare's free tier (Principle IV) is not affected: the
   number of Strava requests doesn't change, only their order.
 
