@@ -58,6 +58,12 @@ a sign-in is never refused because of someone's backlog.
 - Q: Does any new work get a rider the next turn? → A: Only if that rider had
   nothing waiting before. New work for a rider who already has work waiting
   joins the end of their own queue and doesn't change their turn.
+- Q: Should a rider be told their rides are being fetched, and what about the
+  notifications a backlog would set off? → A: Yes, both. No new push
+  notification until the rider's queue is empty, then one for the whole
+  backlog; and a line "x von n Aktivitäten geholt" while it is worked through,
+  also for an import that runs past its first part. Added as User Stories 3
+  and 4 (new stories; the first draft's User Story 3 stays removed).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -123,6 +129,79 @@ who is a club member. The sign-in succeeds.
 
 ---
 
+### User Story 3 - One notification after a backlog, not dozens (Priority: P2)
+
+Rider A's 300 synced activities raise A's Rynke and earn two badges along the
+way. A gets one notification once all 300 are worked out, not one for every
+step on the way.
+
+**Why this priority**: Without it, the fair order of User Story 1 turns a
+backlog into a slow trickle of pushes over an hour, which riders switch off.
+
+**Independent Test**: With the fake Strava, send 300 activity events for rider A
+whose Rynke rises and who earns two badges during them. A's devices get no
+notification while A has work waiting and exactly one when A's queue is empty,
+naming the rise and both badges.
+
+**Acceptance Scenarios**:
+
+1. **Given** rider A has activities waiting, **When** one of them raises A's
+   Rynke or earns A a badge, **Then** no notification is sent yet.
+2. **Given** A's queue becomes empty, **When** A's Rynke is higher than when the
+   backlog started or badges were earned meanwhile, **Then** A gets one
+   notification for the whole backlog (feature 010 FR-015, feature 013 R17);
+   if nothing rose and no badge is new, none.
+3. **Given** A's backlog earns the team a team badge, **When** it is earned,
+   **Then** the other riders it is new to are notified only once A's queue is
+   empty, together with anything else A's backlog earned the team (#125).
+4. **Given** rider B has no backlog, **When** B's single ride raises B's Rynke,
+   **Then** B is notified as today, whatever A's backlog does.
+5. **Given** a rider with a single ride waiting, **When** it is worked out,
+   **Then** they are notified exactly as today; a queue of one is a backlog that
+   empties at once.
+
+---
+
+### User Story 4 - See how far my rides are (Priority: P2)
+
+While rider A's 300 activities are worked through, A's own pages say so, with
+how many are done: "120 von 300 Aktivitäten geholt". A new rider whose import
+continues after their first points appear sees how many have been fetched so
+far.
+
+**Why this priority**: Riders otherwise wonder why yesterday's rides are
+missing and ask the organisers; with User Story 3 there is not even a
+notification to tell them.
+
+**Independent Test**: Send 300 activity events for rider A and open A's pages
+while they are worked through: the line shows the count done and the total,
+the count rises without a reload, and the line goes when the queue is empty.
+For a synthetic rider with 450 activities since the season start, the line
+appears once the waiting page ends and counts the fetched activities until the
+import is done.
+
+**Acceptance Scenarios**:
+
+1. **Given** rider A has activity events waiting, **When** A opens their own
+   pages, **Then** a line says how many of them are done and how many there are
+   ("120 von 300 Aktivitäten geholt").
+2. **Given** more of A's activities arrive meanwhile, **When** A looks again,
+   **Then** the total includes them.
+3. **Given** the line is shown, **When** activities are worked out, **Then** the
+   count rises without A reloading the page.
+4. **Given** A's queue becomes empty, **When** A looks, **Then** the line is gone.
+5. **Given** a new rider's import continues after its first part (their first
+   points are shown, the waiting page of feature 015 has ended), **When** they
+   look at their pages, **Then** the line says how many activities have been
+   fetched so far and that more follow ("Bisher 200 Aktivitäten geholt, weitere
+   folgen"), without a total, since it isn't known until the import is done.
+6. **Given** another rider, an organiser or the team page, **When** they look,
+   **Then** they never see A's line; it is A's alone.
+7. **Given** a rider with only a few activities waiting, **When** they open
+   their pages, **Then** no line is shown.
+
+---
+
 ### Edge Cases
 
 - **Daily limit reached**: work that has to wait for the next day waits in the
@@ -146,6 +225,13 @@ who is a club member. The sign-in succeeds.
   started; the backlog is dropped activity by activity after fetching, as today.
 - **Webhook bursts**: Strava's deliveries are still acknowledged at once and
   never call Strava inline (Principle II), however long the backlog.
+- **A rider's queue empties while they are disconnected or deleted**: no held
+  notification is sent.
+- **Held notifications and the 7-day give-up** (feature 001 R7): if some of a
+  rider's work ends up in the failed work, their queue counts as empty for
+  notifications and the count; the line doesn't stay up for days.
+- **The line and the waiting page**: the waiting page (feature 015) stays as it
+  is until a rider's first points exist; the line only appears after it.
 - **Notifications and evaluation** that need no Strava call (`send-notification`,
   `evaluate-rider`) are not held back by the Strava backlog.
 
@@ -187,13 +273,40 @@ who is a club member. The sign-in succeeds.
   or move it to the failed work, however long the backlog (as today).
 - **FR-010**: Work for a rider who is deleted, deauthorised or needs to reconnect
   MUST NOT use any budget; a deletion MUST NOT wait behind any backlog.
-- **FR-011**: Work that needs no Strava call MUST NOT wait for the Strava budget.
+- **FR-011**: Work that needs no Strava call MUST NOT wait for the Strava budget
+  (notifications are held by FR-015, not by the budget).
 - **FR-012**: *(Removed 2026-10-29: the backlog view needs an administrator
   role; see Clarifications.)*
 - **FR-013**: Logs MAY say that a rider's work is waiting for the budget, but
   MUST NOT log tokens or activity contents (as today).
 - **FR-014**: The behaviour MUST be testable with the fake Strava and in Vitest
   with mocked Strava responses only; no test contacts Strava (Principle V).
+
+- **FR-015**: While a rider has Strava work waiting, the app MUST NOT send that
+  rider any new Rynke or badge notification. When their queue becomes empty, it
+  MUST send at most one notification covering the whole backlog: the rise of
+  their Rynke since the backlog started and every badge earned meanwhile; none
+  if there is nothing to tell.
+- **FR-016**: Team badge news set off by a rider's backlog MUST be held the same
+  way and sent once that rider's queue is empty, at most one notification per
+  receiving rider for that backlog. Team badge news set off by other riders'
+  work is not held.
+- **FR-017**: A rider without a backlog (nothing waiting before their work
+  arrived) MUST be notified as today, at once (feature 010 FR-015).
+- **FR-018**: While a rider has at least 10 activity events waiting, their own
+  pages MUST show how many of the events since the backlog began are done and
+  how many there are in all ("120 von 300 Aktivitäten geholt"); once shown, the
+  line stays until their queue is empty.
+- **FR-019**: While a rider's import (feature 001 FR-014, R8) continues after
+  their first points exist, their own pages MUST show how many activities have
+  been fetched so far and that more follow, without a total.
+- **FR-020**: The line MUST update without a reload, at the waiting page's
+  cadence (`READY_POLL_SECONDS`, feature 015), MUST NOT cause any Strava request,
+  and MUST disappear once the queue is empty.
+- **FR-021**: The line MUST only be shown to the rider it is about; organisers,
+  the team page and other riders never see it.
+- **FR-022**: The line's texts MUST be in the catalogs, in every language
+  (FR-028).
 
 ### Key Entities
 
@@ -202,7 +315,11 @@ who is a club member. The sign-in succeeds.
   the part kept for sign-ins.
 - **Waiting Strava work**: per rider, the work that needs Strava and has not
   been done yet, in arrival order, with when the rider was last served (to give
-  them their turn). It never holds activity contents, only identifiers, like
+  them their turn), how many events have arrived since the queue was last empty
+  and how many of them are done (for the line), and the rider's Rynke when the
+  backlog started (for the one notification).
+- **Held notifications**: per rider, what a backlog has earned so far (badges,
+  team badges for others) and not yet told. It never holds activity contents, only identifiers, like
   queue messages today.
 
 ## Success Criteria *(mandatory)*
@@ -224,6 +341,12 @@ who is a club member. The sign-in succeeds.
 - **SC-005**: Every activity of a backlog is evaluated exactly once in the end;
   none ends up in the failed work for having waited.
 
+- **SC-006**: A rider whose backlog of 300 activities raises their Rynke and
+  earns badges gets exactly one notification, after the last one is worked out.
+- **SC-007**: During a backlog of 300 activities, a rider can see on their own
+  pages, at any moment, how many are done, accurate to within one activity and
+  one poll interval.
+
 ## Assumptions
 
 - The default limits (100 reads per 15 minutes, 1,000 a day) stay until Strava's
@@ -237,6 +360,10 @@ who is a club member. The sign-in succeeds.
   counted as one each against the kept part.
 - Fairness is per rider, not per kind of work: one rider's own new ride and
   their import compete within that rider's turn, in arrival order.
+- The line's threshold is 10 waiting activity events, so a ride or two waiting
+  for a moment don't flash a line; the plan may tune it.
+- "Aktivitäten" counts activity events (create, update, delete), not rides:
+  most are new activities, and riders know the word from Strava.
 - Staying within Cloudflare's free tier (Principle IV) is not affected: the
   number of Strava requests doesn't change, only their order.
 
@@ -247,7 +374,5 @@ who is a club member. The sign-in succeeds.
   date; feature 001 R5 still applies).
 - Showing the backlog to anyone (an administrator page, [backlog
   idea](../backlog/strava-backlog-view.md)).
-- Telling the rider with the backlog that their rides are delayed. The rides
-  appear as they are worked out, as today.
 - Any change to what is fetched or stored, to the points rules, or to the
   webhook's handling.
