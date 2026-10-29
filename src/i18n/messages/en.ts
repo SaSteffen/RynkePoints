@@ -492,6 +492,13 @@ export const en: Catalog = {
 	"organiser.overview.showing": "Showing: {group}",
 	"organiser.overview.hint":
 		"The tick on each bar marks the even pace to the deadline: today {training} Training and {team} Team.",
+	"organiser.overview.hint.percent":
+		"The tick on each bar marks the even pace to the deadline: today {training} of Training and {team} of Team.",
+	"organiser.overview.training.percent": "Training {n}",
+	"organiser.overview.team.percent": "Team {n}",
+	"organiser.overview.behind.training": "Training behind pace",
+	"organiser.overview.behind.team": "Team behind pace",
+	"organiser.overview.reason.outdoor": "Not enough outdoor Training yet",
 	"organiser.overview.training": "Training {n} of {threshold}",
 	"organiser.overview.team": "Team {n} of {threshold}",
 	"organiser.overview.outdoor": "Outdoor Training {n} of {required}",

@@ -5,6 +5,7 @@ import {
 	overviewBody,
 	overviewRiders,
 	parseGroup,
+	percentOf,
 } from "../../src/http/organiser/overview";
 
 import { CATALOGS } from "../../src/i18n/catalogs";
@@ -334,5 +335,80 @@ describe("overviewBody", () => {
 		).value;
 		expect(none).toContain("No riders share their Rynke yet.");
 		expect(none).not.toContain("rider-cards");
+	});
+});
+
+describe("percentOf", () => {
+	it.each([
+		[0, 250, 0],
+		[100, 250, 40],
+		[249, 250, 99],
+		[250, 250, 100],
+		[300, 250, 100],
+		[-5, 25, 0],
+	])("gives %j of %j as %j %%", (value, threshold, percent) => {
+		expect(percentOf(value, threshold)).toBe(percent);
+	});
+});
+
+describe("overviewBody with ORGANISER_FIGURES percent", () => {
+	const page = (i18n = en) =>
+		overviewBody(
+			READ,
+			CURRENT_RULES,
+			RUNNING,
+			TODAY,
+			"all",
+			i18n,
+			new Map(),
+			false,
+			"percent",
+		).value;
+	/** The card of the rider called `name`, up to the end of the cards. */
+	function cardOf(html: string, name: string): string {
+		const start = html.indexOf('<ul class="rider-cards');
+		const cards = html.slice(start, html.indexOf("</ul>", start));
+		const all = cards.split('<li class="rider-card');
+		return all.find((card) => card.includes(`>${name}</span>`)) ?? "";
+	}
+
+	it("gives Training and Team in percent, up to 100 %, without amounts", () => {
+		const html = page();
+		expect(cardOf(html, "Paula")).toContain("Training 100%");
+		expect(cardOf(html, "Paula")).toContain("Team 100%");
+		expect(cardOf(html, "Mira")).toContain("Team 0%");
+		expect(html).toContain("Training 80%");
+		expect(html).toContain("Training 40%");
+		expect(html).not.toContain("of 250");
+		expect(html).not.toContain("Training to go");
+		expect(html).not.toContain("Team to go");
+		expect(page(de)).toContain("Training 40 %");
+	});
+
+	it("names the reasons without amounts, outdoor Training among them", () => {
+		const html = page();
+		expect(cardOf(html, "Mira")).toContain("Training behind pace");
+		expect(cardOf(html, "Mira")).toContain("Not enough outdoor Training yet");
+		expect(cardOf(html, "Paula")).not.toContain("rider-missing");
+	});
+
+	it("keeps only the corrections, as amounts, of where the Rynke come from", () => {
+		const html = page();
+		expect(html).not.toContain("rider-breakdown");
+		expect(html).not.toContain("Virtual rides");
+		expect(html).toContain("Corrections 6 Training, 2 Team");
+	});
+
+	it("gives the even pace in percent", () => {
+		// 138 of 250 and 13 of 25 (PACE), rounded down.
+		expect(page()).toContain("today 55% of Training and 52% of Team.");
+	});
+
+	it("drops the table's virtual, distance and elevation columns", () => {
+		const head = page().match(/<thead>[\s\S]*?<\/thead>/)?.[0] ?? "";
+		expect(head).toContain("Corrections");
+		expect(head).not.toContain("Virtual");
+		expect(head).not.toContain("Distance");
+		expect(head).not.toContain("Elevation");
 	});
 });

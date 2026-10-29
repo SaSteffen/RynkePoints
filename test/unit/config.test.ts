@@ -5,6 +5,7 @@ import {
 	clientSecret,
 	clubId,
 	contactEmail,
+	organiserFigures,
 	privacyController,
 	readyPollSeconds,
 	seasonStartEpoch,
@@ -107,4 +108,14 @@ describe("contactEmail", () => {
 			expect(() => contactEmail({ CONTACT_EMAIL: value })).toThrow();
 		},
 	);
+});
+
+describe("organiserFigures", () => {
+	it.each(["full", "percent"])("reads %j", (value) => {
+		expect(organiserFigures({ ORGANISER_FIGURES: value })).toBe(value);
+	});
+
+	it.each(["", "Percent", "amounts"])("rejects %j", (value) => {
+		expect(() => organiserFigures({ ORGANISER_FIGURES: value })).toThrow();
+	});
 });

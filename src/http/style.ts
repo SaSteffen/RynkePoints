@@ -672,6 +672,8 @@ ul.rider-missing{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-sty
 .bar-figures .figure{font-weight:700}
 .bar-figures .to-go{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 .bar-figures .to-go.behind{color:var(--rp-on-push-container);font-weight:600}
+.rider-table td>.to-go{margin:4px 0 0;font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
+.rider-table td>.to-go.behind{color:var(--rp-on-push-container);font-weight:600}
 .coin-pair{display:inline-flex;gap:var(--rp-space-3)}
 .coin-pair>span{display:inline-flex;align-items:center;gap:4px}
 .coin-pair .coin-mini{width:16px;height:16px}

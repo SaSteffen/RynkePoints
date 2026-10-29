@@ -30,6 +30,8 @@ export default defineConfig(async () => {
 						// Pinned so tests don't follow the production season start.
 						SEASON_START_DATE: "2026-01-01",
 						QUALIFICATION_DEADLINE: "2027-06-30",
+						// Pinned; the "percent" tests pass it to the page body.
+						ORGANISER_FIGURES: "full",
 						READY_POLL_SECONDS: "10",
 						// Pinned; the "off" tests override it per request.
 						TRAINING_LEADERBOARD: "on",
