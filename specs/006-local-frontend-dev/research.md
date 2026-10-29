@@ -149,7 +149,7 @@ to import.
 
 | State | How |
 |---|---|
-| Import still running | The fake answers this rider's activity list with `429` (no rate headers), so the app keeps deferring the import page and the import stays `pending` |
+| Import still running | The fake answers this rider's activity list with `503` (a `429` before feature 024), so the app keeps backing the import page off and the import stays `pending` |
 | No rides | Empty recipe |
 | Far from the thresholds | A few short rides |
 | Training target reached | Enough rides for ≥ 250 Training Rynke, none virtual. Still not in: Team Rynke come only from team events |

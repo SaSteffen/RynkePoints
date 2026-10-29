@@ -2,6 +2,10 @@
 
 One queue, `rynke-points-work` (binding `WORK_QUEUE`), consumed by the same Worker:
 
+Amended by feature 024: messages that need Strava wait their rider's turn in a
+D1 table, with the retry rules below moved onto the table's rows
+([024 contracts/queue-messages.md](../../024-fair-strava-budget/contracts/queue-messages.md)).
+
 - `max_batch_size: 10`, `max_batch_timeout: 5`
 - `max_retries: 10`
 - `max_concurrency: 1` (research R6)

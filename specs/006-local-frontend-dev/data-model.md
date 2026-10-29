@@ -12,7 +12,7 @@ unchanged. All values are synthetic (constitution Principle I).
 | `firstName` | Names the state, e.g. `Tina TrainingDone`, `Ida Importing`. The pages show it as the rider's name. |
 | `scopes` | The scopes it connects with when seeded. The stand-in screen preselects them, and the developer can change them there. |
 | `clubMember` | Whether `GET /athlete/clubs` lists `STRAVA_CLUB_ID` |
-| `behaviour` | `normal`, `import-stuck` (activity list answers `429`) or `refused` (activity endpoints answer `401`, refresh `400`; sign-in still works) |
+| `behaviour` | `normal`, `import-stuck` (activity list answers `503`; `429` until feature 024, whose app-wide budget would hold back every rider for one rider's `429`) or `refused` (activity endpoints answer `401`, refresh `400`; sign-in still works) |
 | `rides` | A ride recipe: a list of synthetic rides relative to seeding day (below) |
 
 The list (research R6): Ida Importing, Nora NoRides, Fiona FarAway, Tina

@@ -1,4 +1,4 @@
-import { setImportStatus } from "../db/riders";
+import { addImportFetched, setImportStatus } from "../db/riders";
 import { PER_PAGE, storeActivityPage } from "./activity-page";
 import type { Handler } from "./consumer";
 import type { ImportPageMessage } from "./messages";
@@ -14,6 +14,8 @@ export const importPage: Handler<ImportPageMessage> = async (
 ) => {
 	const stored = await storeActivityPage(message, rider, ctx);
 	if (stored.kind !== "stored") return stored;
+	// For the rider's line while the import continues (feature 024 FR-019).
+	await addImportFetched(ctx.env.DB, rider.athleteId, stored.listed);
 
 	if (stored.listed === PER_PAGE) {
 		await setImportStatus(ctx.env.DB, rider.athleteId, "running");

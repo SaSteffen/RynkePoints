@@ -115,6 +115,81 @@ describe("rate-limit headers", () => {
 	});
 });
 
+// Feature 024 research R5: background work leaves a reserve for what a person
+// waits for on a page.
+describe("reserve for sign-ins", () => {
+	const usage = (read15m: number) =>
+		env.DB.prepare(
+			"UPDATE strava_rate_limit SET observed_at = ?, read_15m = ?, all_15m = ? WHERE id = 1",
+		)
+			.bind(NOW, read15m, read15m)
+			.run();
+
+	it("stops background calls at 80 reads in the window", async () => {
+		await usage(80);
+		expect(await getActivity(ctx, asRider, 1)).toEqual({
+			kind: "budget",
+			delaySeconds: 900,
+		});
+		expect(
+			await isClubMember(ctx, asRider, TEAM_CLUB.id, "background"),
+		).toEqual({ kind: "budget", delaySeconds: 900 });
+		expect(fake.calls).toHaveLength(0);
+	});
+
+	it("lets the sign-in's club check and token exchange use the reserve", async () => {
+		await usage(85);
+		expect(
+			await isClubMember(
+				ctx,
+				{ accessToken: "access-900001-0" },
+				TEAM_CLUB.id,
+				"interactive",
+			),
+		).toEqual({ kind: "ok", value: true });
+		fake.codes.set("code-1", ATHLETE_A);
+		expect(await exchangeCode(ctx, "code-1")).toMatchObject({ kind: "ok" });
+	});
+
+	it("refuses a token exchange once the reserve is used up too", async () => {
+		await usage(90);
+		expect(await exchangeCode(ctx, "code-1")).toEqual({
+			kind: "budget",
+			delaySeconds: 900,
+		});
+		expect(fake.callsTo("token")).toHaveLength(0);
+	});
+
+	it("refreshes for background work only within the background share", async () => {
+		await resetDb();
+		await seedRider(ctx, { expiresAt: NOW - 3600 });
+		await usage(80);
+		expect(await getAccessToken(ctx, ATHLETE_A)).toEqual({
+			kind: "budget",
+			delaySeconds: 900,
+		});
+		expect(
+			await getAccessToken(ctx, ATHLETE_A, { priority: "interactive" }),
+		).toMatchObject({ kind: "ok" });
+	});
+
+	it("reports a revoke refused for budget as transient, without calling", async () => {
+		await usage(90);
+		expect(await revokeToken(ctx, "access-900001-0")).toMatchObject({
+			kind: "transient",
+		});
+		expect(fake.callsTo("revoke")).toHaveLength(0);
+	});
+
+	it("lets a revoke use the reserve", async () => {
+		await usage(85);
+		expect(await revokeToken(ctx, "access-900001-0")).toEqual({
+			kind: "ok",
+			value: null,
+		});
+	});
+});
+
 describe("response mapping", () => {
 	it("returns the activity on success", async () => {
 		const activity = makeStravaActivity({ id: 7001 });

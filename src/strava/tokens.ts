@@ -1,9 +1,15 @@
 import { clientId, clientSecret } from "../config";
+import { readRateLimitState } from "../db/rate-limit";
 import { getCredentials, saveCredentials } from "../db/riders";
-import { deferUntilNextWindow } from "./rate-limit";
+import {
+	budgetDecision,
+	deferUntilNextWindow,
+	type Priority,
+} from "./rate-limit";
 import {
 	STRAVA_ORIGIN,
 	type StravaCtx,
+	type StravaFailure,
 	type StravaResult,
 	stravaFetch,
 	transient,
@@ -34,7 +40,31 @@ interface TokenBody {
 	athlete?: { id?: unknown; firstname?: unknown };
 }
 
-function postToken(ctx: StravaCtx, form: Record<string, string>) {
+/**
+ * Whether the budget allows a token call of this priority (feature 024 FR-007,
+ * research R5); the deferral if not.
+ */
+async function tokenBudget(
+	ctx: StravaCtx,
+	priority: Priority,
+): Promise<StravaFailure | null> {
+	const budget = budgetDecision(
+		await readRateLimitState(ctx.env.DB),
+		ctx.now(),
+		priority,
+	);
+	return budget.ok
+		? null
+		: { kind: "budget", delaySeconds: budget.delaySeconds };
+}
+
+async function postToken(
+	ctx: StravaCtx,
+	form: Record<string, string>,
+	priority: Priority,
+): Promise<Response | StravaFailure> {
+	const refused = await tokenBudget(ctx, priority);
+	if (refused) return refused;
 	return stravaFetch(ctx, TOKEN_ENDPOINT, `${STRAVA_ORIGIN}/oauth/token`, {
 		method: "POST",
 		body: new URLSearchParams({
@@ -66,7 +96,12 @@ export async function exchangeCode(
 	ctx: StravaCtx,
 	code: string,
 ): Promise<StravaResult<TokenExchange>> {
-	const res = await postToken(ctx, { grant_type: "authorization_code", code });
+	// A person waits on the callback page (feature 024 R5).
+	const res = await postToken(
+		ctx,
+		{ grant_type: "authorization_code", code },
+		"interactive",
+	);
 	if (!(res instanceof Response)) return res;
 	if (res.ok) {
 		const body = (await res.json()) as TokenBody;
@@ -97,11 +132,13 @@ async function refresh(
 	ctx: StravaCtx,
 	athleteId: number,
 	refreshToken: string,
+	priority: Priority,
 ): Promise<StravaResult<string>> {
-	const res = await postToken(ctx, {
-		grant_type: "refresh_token",
-		refresh_token: refreshToken,
-	});
+	const res = await postToken(
+		ctx,
+		{ grant_type: "refresh_token", refresh_token: refreshToken },
+		priority,
+	);
 	if (!(res instanceof Response)) return res;
 	if (res.ok) {
 		const tokens = tokensOf((await res.json()) as TokenBody);
@@ -121,29 +158,41 @@ async function refresh(
 
 /**
  * The rider's access token, refreshed first if it expires within 5 minutes
- * (or always, with `force`, after a 401).
+ * (or always, with `force`, after a 401). A refresh has the priority of the
+ * call it serves (feature 024 R5).
  */
 export async function getAccessToken(
 	ctx: StravaCtx,
 	athleteId: number,
-	options: { force?: boolean } = {},
+	options: { force?: boolean; priority?: Priority } = {},
 ): Promise<StravaResult<string>> {
 	const creds = await getCredentials(ctx.env, athleteId);
 	if (!creds) return { kind: "refresh-refused" };
 	if (!options.force && creds.expiresAt >= ctx.now() + REFRESH_MARGIN_SECONDS) {
 		return { kind: "ok", value: creds.accessToken };
 	}
-	return refresh(ctx, athleteId, creds.refreshToken);
+	return refresh(
+		ctx,
+		athleteId,
+		creds.refreshToken,
+		options.priority ?? "background",
+	);
 }
 
 /**
  * Revokes a token. Network errors, 5xx and 429 are transient; any other
- * answer means there is nothing left to revoke.
+ * answer means there is nothing left to revoke. A revocation may use the
+ * reserve (a deletion never waits behind a backlog), and a budget used up
+ * even so is transient too, so a deletion retries rather than skip it
+ * (feature 024 R5).
  */
 export async function revokeToken(
 	ctx: StravaCtx,
 	token: string,
 ): Promise<StravaResult<null>> {
+	if (await tokenBudget(ctx, "interactive")) {
+		return transient(REVOKE_ENDPOINT, "budget");
+	}
 	const credentials = btoa(`${clientId(ctx.env)}:${clientSecret(ctx.env)}`);
 	const res = await stravaFetch(
 		ctx,

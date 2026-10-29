@@ -10,6 +10,7 @@ import {
 	rulesForVersion,
 } from "../../rynke/rules";
 import { amount, heroCoin, miniCoin } from "../coin";
+import { riderFetchingText } from "../fetching";
 import { FUN_SPARKLES } from "../fun";
 import { html, type SafeHtml } from "../html";
 import { CHART_SCRIPTS, renderProgress } from "../progress-section";
@@ -17,6 +18,7 @@ import { buildProgressView } from "../progress-view";
 import {
 	renderBreakdown,
 	renderExampleNote,
+	renderFetching,
 	renderGauges,
 	renderNotice,
 	renderReconnect,
@@ -87,12 +89,17 @@ export function handleOverview(
 			// On the rider tour's steps, the example rider instead (feature 020
 			// FR-005); it is never marked as seen and never celebrated (FR-007).
 			// The seen Rynke come in the same batch (issue #184).
-			const read = example
-				? exampleRiderView(window, berlinDate(ctx.now()))
-				: await readRiderView(ctx.env.DB, rider.athleteId, 1, {
-						progress: true,
-						seen: true,
-					});
+			// The line of feature 024 US4 is read alongside, in the same round
+			// trip (issue #184); not on the tour.
+			const [read, fetchingText] = await Promise.all([
+				example
+					? exampleRiderView(window, berlinDate(ctx.now()))
+					: readRiderView(ctx.env.DB, rider.athleteId, 1, {
+							progress: true,
+							seen: true,
+						}),
+				example ? null : riderFetchingText(ctx, i18n, rider.athleteId),
+			]);
 			const view = buildRiderView(
 				read,
 				read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
@@ -132,6 +139,10 @@ export function handleOverview(
 					berlinDate(ctx.now()),
 				),
 			);
+			// How far the rider's activities are (feature 024 US4).
+			const fetching = ready
+				? renderFetching(fetchingText, readyPollSeconds(ctx.env))
+				: null;
 			// One grid holds it all: two columns on wider screens (contracts/pages.md).
 			const body = html`<div class="overview-grid">
 <section class="hero">
@@ -146,7 +157,7 @@ ${
 		: null
 }</div>${FUN_SPARKLES}
 </section>
-${example ? renderExampleNote(i18n) : null}${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}
+${example ? renderExampleNote(i18n) : null}${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}${fetching}
 ${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env))}
 ${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary, status) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}

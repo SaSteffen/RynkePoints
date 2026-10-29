@@ -26,6 +26,8 @@ const COLUMNS: Record<string, string[]> = {
 		"organiser_onboarded_at",
 		// Feature 013: the badge catalog version the rider's badges follow (R18).
 		"badges_version",
+		// Feature 024: activities listed by the current import (research R7).
+		"import_fetched",
 	],
 	activities: [
 		"strava_activity_id",
@@ -128,6 +130,31 @@ const COLUMNS: Record<string, string[]> = {
 	rider_badges: ["athlete_id", "badge_id", "earned_on"],
 	badge_reveals: ["athlete_id", "badge_id", "earned_on"],
 	badge_rises: ["athlete_id", "badge_ids", "risen_at"],
+	// Feature 024: waiting Strava work, identifiers and counts only
+	// (data-model.md).
+	strava_work: [
+		"id",
+		"athlete_id",
+		"message",
+		"kind",
+		"attempts",
+		"not_before",
+		"stored_at",
+	],
+	strava_queues: [
+		"athlete_id",
+		"fresh",
+		"turn",
+		"events_total",
+		"events_done",
+		"show_progress",
+		"start_training",
+		"start_team",
+		"held_badges",
+		"created_at",
+	],
+	strava_held: ["owner_id", "recipient_id"],
+	strava_turn: ["id", "wake_at"],
 	// Feature 010: a device's push endpoint, nothing else (research R7).
 	push_subscriptions: [
 		"subscription_id",

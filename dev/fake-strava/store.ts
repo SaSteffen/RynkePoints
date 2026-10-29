@@ -29,6 +29,11 @@ export async function ensureTable(db: D1Database): Promise<void> {
 		db.prepare(
 			"CREATE TABLE IF NOT EXISTS fake_strava_seed (fingerprint TEXT NOT NULL)",
 		),
+		// Activities whose next fetch fails once, for a synced backlog that
+		// drains slowly enough to watch (feature 024 US4).
+		db.prepare(
+			"CREATE TABLE IF NOT EXISTS fake_strava_slow (id INTEGER PRIMARY KEY)",
+		),
 	]);
 }
 
@@ -67,7 +72,36 @@ export async function markSeeded(
 }
 
 export async function clearActivities(db: D1Database): Promise<void> {
-	await db.prepare("DELETE FROM fake_strava_activities").run();
+	await db.batch([
+		db.prepare("DELETE FROM fake_strava_activities"),
+		db.prepare("DELETE FROM fake_strava_slow"),
+	]);
+}
+
+/** The next fetch of each of these activities fails once (feature 024 US4). */
+export async function markSlow(
+	db: D1Database,
+	ids: readonly number[],
+): Promise<void> {
+	if (ids.length === 0) return;
+	await db.batch(
+		ids.map((id) =>
+			db
+				.prepare(
+					"INSERT INTO fake_strava_slow (id) VALUES (?) ON CONFLICT DO NOTHING",
+				)
+				.bind(id),
+		),
+	);
+}
+
+/** Whether this fetch of the activity is the one that fails; uses it up. */
+export async function takeSlow(db: D1Database, id: number): Promise<boolean> {
+	const row = await db
+		.prepare("DELETE FROM fake_strava_slow WHERE id = ? RETURNING id")
+		.bind(id)
+		.first();
+	return row !== null;
 }
 
 /**

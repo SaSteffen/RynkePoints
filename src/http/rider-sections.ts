@@ -99,6 +99,22 @@ export function renderReconnect(i18n: I18n, rider: Rider): SafeHtml | null {
 `;
 }
 
+/**
+ * How far the rider's activities are, or nothing (feature 024 FR-018 to
+ * FR-021); the page script asks `/me/fetching` every `pollSeconds` and updates
+ * the text (contracts/http-routes.md).
+ */
+export function renderFetching(
+	text: string | null,
+	pollSeconds: number,
+): SafeHtml | null {
+	if (text === null) return null;
+	return html`<section class="notice fetching" role="status" data-fetching data-poll-seconds="${pollSeconds}">
+<p>${text}</p>
+</section>
+`;
+}
+
 /** The rule-change notice, or nothing when the rules are current (015 R2). */
 export function renderNotice(i18n: I18n, view: RiderView): SafeHtml | null {
 	if (view.state !== "ready" || !view.updating) return null;

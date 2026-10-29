@@ -165,6 +165,9 @@ ${flag("private")} ${flag("manual")}
 ${rideChoice(row.activities)} <button>Send delete</button></fieldset></form>`
 		: null
 }
+<form method="post" action="/_dev/events"><fieldset><legend>Sync a backlog</legend>${hidden}<input type="hidden" name="action" value="backlog">
+<label>rides <input name="count" value="30" size="4"></label>
+<button>Send creates</button> Each ride's first fetch fails, so they come in about one a minute and the rider's pages show how far they are.</fieldset></form>
 <form method="post" action="/_dev/events">${hidden}<button name="action" value="deauthorize">Revoke access</button></form>
 <form method="post" action="/_dev/events">${hidden}<button name="action" value="repeat">Send the last event again</button></form>
 </details>`;

@@ -100,6 +100,8 @@ export const en: Catalog = {
 	"waiting.heading": "Fetching your rides",
 	"waiting.body":
 		"We're fetching your rides since {date} from Strava, once. That takes about 5\u00a0minutes; this page updates by itself.",
+	"fetching.events": "{done} of {total} activities fetched",
+	"fetching.import": "{n} activities fetched so far, more to come",
 	"rynke.verdict.in": "Qualified for Paris! 🗼",
 	"rynke.verdict.notYet": "Not qualified yet",
 	"rynke.verdict.missing": "You still need:",

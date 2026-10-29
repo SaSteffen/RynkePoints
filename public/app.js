@@ -1082,6 +1082,42 @@ function waitForFirstData(signal) {
 	signal.addEventListener("abort", () => clearInterval(timer));
 }
 
+/**
+ * The line saying how far the rider's activities are (feature 024
+ * contracts/http-routes.md): asks /me/fetching every data-poll-seconds while
+ * the page is visible and puts the server's text in; once it answers null,
+ * brings the page up to date so the new rides show. A 401, a network error or
+ * a bad answer just waits for the next tick.
+ */
+function followFetching(signal) {
+	const line = document.querySelector("[data-fetching]");
+	const text = line?.querySelector("p");
+	if (!line || !text) return;
+	const configured = Number(line.dataset.pollSeconds);
+	const seconds =
+		Number.isInteger(configured) && configured > 0 ? configured : 10;
+	const timer = setInterval(async () => {
+		if (document.visibilityState !== "visible") return;
+		try {
+			const res = await fetch("/me/fetching", {
+				credentials: "same-origin",
+				cache: "no-store",
+			});
+			if (!res.ok) return;
+			const answer = await res.json();
+			if (answer.text === null) {
+				clearInterval(timer);
+				refreshPage();
+			} else if (typeof answer.text === "string") {
+				text.textContent = answer.text;
+			}
+		} catch {
+			// Offline or a bad answer: try again on the next tick.
+		}
+	}, seconds * 1000);
+	signal.addEventListener("abort", () => clearInterval(timer));
+}
+
 /** Ends the listeners of the content shown now, when other content replaces it. */
 let content = new AbortController();
 
@@ -2410,6 +2446,7 @@ function enhance(signal) {
 	installSettings(signal);
 	showsSetting();
 	waitForFirstData(signal);
+	followFetching(signal);
 	badgeHover();
 	triState();
 	badgeSwitch(signal);
