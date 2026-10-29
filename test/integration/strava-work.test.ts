@@ -98,8 +98,9 @@ async function waiting(athleteId?: number): Promise<number> {
 			: "SELECT COUNT(*) AS n FROM strava_work WHERE athlete_id = ?";
 	const stmt = env.DB.prepare(sql);
 	return (
-		(await (
-			athleteId === undefined ? stmt : stmt.bind(athleteId)
+		(await (athleteId === undefined
+			? stmt
+			: stmt.bind(athleteId)
 		).first<number>("n")) ?? 0
 	);
 }

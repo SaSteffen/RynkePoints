@@ -189,7 +189,9 @@ async function activities(
 	if ("response" in auth) return auth;
 	const { rider, grant } = auth;
 	if (rider.behaviour === "import-stuck") {
-		return answer({ message: "Rate Limit Exceeded" }, 429, rider.athleteId);
+		// A server error, not a 429: Strava's limits are app-wide, so a 429
+		// would hold back every rider's work, not only hers (feature 024 R3).
+		return answer({ message: "Service Unavailable" }, 503, rider.athleteId);
 	}
 	const list = await listActivities(db, rider.athleteId, {
 		after: Number(url.searchParams.get("after") ?? "0") || 0,

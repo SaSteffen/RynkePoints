@@ -394,10 +394,14 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 	it("keeps Ida Importing's import waiting", async () => {
 		await seeded();
 		expect((await riderRow(IDA))?.import_status).toBe("pending");
-		expect(ctx.queue.sent).toContainEqual({
-			body: expect.objectContaining({ kind: "import-page", athleteId: IDA }),
-			delaySeconds: expect.any(Number),
-		});
+		// Her first page backs off in the Strava work table (feature 024 R3).
+		const row = await env.DB.prepare(
+			"SELECT kind, not_before FROM strava_work WHERE athlete_id = ?",
+		)
+			.bind(IDA)
+			.first<{ kind: string; not_before: number }>();
+		expect(row?.kind).toBe("import-page");
+		expect(row?.not_before).toBeGreaterThan(ctx.now());
 	});
 
 	it("makes Remy Reconnect reconnect", async () => {
