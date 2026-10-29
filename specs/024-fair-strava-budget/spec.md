@@ -6,6 +6,8 @@
 
 **Status**: Draft
 
+**Updated**: 2026-10-29 (see [Clarifications](#clarifications))
+
 **Input**: User description: "could one athlete uploading hundreds of activities
 at once make us violate api limits? do we use queues everywhere to mitigate
 this?" Answered before specifying: the limits are kept (every background call
@@ -41,6 +43,18 @@ membership checks and re-reads (feature 001 FR-004a, R20).
 This feature keeps the limits exactly as they are and changes who gets the
 budget: a rider's backlog only uses what the other riders' work leaves over, and
 a sign-in is never refused because of someone's backlog.
+
+## Clarifications
+
+### Session 2026-10-29
+
+- Q: Is the backlog view on the organiser page (first draft's User Story 3) part
+  of this feature? → A: No. It needs a separate administrator role; it is kept
+  as an idea in [the backlog](../backlog/strava-backlog-view.md). User Story 3,
+  its requirement and its key-entity mention are removed.
+- Q: What does "fair" mean? → A: Round robin across riders, first in, first out
+  within each rider. A rider whose work has just arrived gets the next turn
+  rather than waiting for a full round.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -103,29 +117,6 @@ who is a club member. The sign-in succeeds.
 
 ---
 
-### User Story 3 - The organiser can see a backlog (Priority: P3)
-
-The organiser (feature 014) sees on the organiser page that Strava work is
-waiting and roughly how long it will take, so a late ride can be explained
-without asking the maintainer to read logs.
-
-**Why this priority**: Nice to have. The first two stories remove most of the
-reasons to ask.
-
-**Independent Test**: With rider A's backlog of 300 waiting, open the organiser
-page: it shows the number of activities waiting and an estimate of when they are
-done; with nothing waiting, nothing is shown.
-
-**Acceptance Scenarios**:
-
-1. **Given** activities are waiting for the Strava budget, **When** the organiser
-   opens the organiser page, **Then** it shows how many and an estimate of when
-   they are done, without saying whose they are.
-2. **Given** nothing is waiting, **When** the organiser opens the page, **Then**
-   no backlog line is shown.
-
----
-
 ### Edge Cases
 
 - **Daily limit reached**: work that has to wait for the next day waits in the
@@ -160,12 +151,14 @@ done; with nothing waiting, nothing is shown.
   work stops at the same distance from the 15-minute and daily limits (research
   R6), honours `429` and Strava's usage headers, and a backlog is a throttled
   job, never a burst (constitution Principle II).
-- **FR-002**: When several riders have work waiting for Strava, the next Strava
-  request MUST go to the rider who has been served least recently, so that no
-  rider waits behind more than one request of each other waiting rider.
-- **FR-003**: Within one rider, work MUST keep its order as far as it matters
-  for the result; FR-017 of feature 001 (converge to Strava's current state)
-  keeps holding.
+- **FR-002**: When several riders have work waiting for Strava, riders MUST take
+  turns, one Strava request each (round robin), so that no rider waits behind
+  more than one request of each other waiting rider.
+- **FR-002a**: A rider who had no work waiting and now has some MUST get the next
+  turn, ahead of riders who have been served in the current round; among
+  riders who have waited equally, the one served least recently goes first.
+- **FR-003**: Within one rider, work MUST be done first in, first out; FR-017 of
+  feature 001 (converge to Strava's current state) keeps holding.
 - **FR-004**: When only one rider has work waiting, they MUST be able to use the
   whole background budget; fairness MUST NOT leave budget unused.
 - **FR-005**: The app's own bulk work (a rider's import and re-reads, the daily
@@ -187,10 +180,8 @@ done; with nothing waiting, nothing is shown.
 - **FR-010**: Work for a rider who is deleted, deauthorised or needs to reconnect
   MUST NOT use any budget; a deletion MUST NOT wait behind any backlog.
 - **FR-011**: Work that needs no Strava call MUST NOT wait for the Strava budget.
-- **FR-012**: The organiser page MUST show, while activities are waiting for the
-  Strava budget, how many are waiting and an estimate of when they will be done,
-  without naming riders; nothing when none are waiting. Texts in every language
-  of the catalogs (FR-028).
+- **FR-012**: *(Removed 2026-10-29: the backlog view needs an administrator
+  role; see Clarifications.)*
 - **FR-013**: Logs MAY say that a rider's work is waiting for the budget, but
   MUST NOT log tokens or activity contents (as today).
 - **FR-014**: The behaviour MUST be testable with the fake Strava and in Vitest
@@ -202,8 +193,8 @@ done; with nothing waiting, nothing is shown.
   as Strava reports them (exists today), now split into the background share and
   the part kept for sign-ins.
 - **Waiting Strava work**: per rider, the work that needs Strava and has not
-  been done yet, with what is needed to give the rider their turn (when they
-  were last served). It never holds activity contents, only identifiers, like
+  been done yet, in arrival order, with when the rider was last served (to give
+  them their turn). It never holds activity contents, only identifiers, like
   queue messages today.
 
 ## Success Criteria *(mandatory)*
@@ -246,6 +237,8 @@ done; with nothing waiting, nothing is shown.
 - Raising the limits or spreading requests over several Strava apps.
 - Skipping activities before fetching them (an event doesn't carry the start
   date; feature 001 R5 still applies).
+- Showing the backlog to anyone (an administrator page, [backlog
+  idea](../backlog/strava-backlog-view.md)).
 - Telling the rider with the backlog that their rides are delayed. The rides
   appear as they are worked out, as today.
 - Any change to what is fetched or stored, to the points rules, or to the

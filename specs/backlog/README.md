@@ -30,6 +30,9 @@ ignores it.
 6. season data cleanup — [season-data-cleanup.md](season-data-cleanup.md);
    what happens to the past season's data at the rollover, after feature 021's
    season albums.
+7. Strava backlog view — [strava-backlog-view.md](strava-backlog-view.md);
+   an administrator role and a page showing work waiting for the Strava budget,
+   after feature 024.
 
 2 and 3 are independent of each other; 4 needs 1 and is easier after 3; 5 needs
 3 and may share its chart with 4.
