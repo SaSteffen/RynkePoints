@@ -136,6 +136,68 @@ describe("budgetDecision", () => {
 		).toEqual({ ok: false, delaySeconds: 43200 });
 	});
 
+	it("keeps today's margins for interactive calls, the default", () => {
+		expect(budgetDecision(state({ read15m: 85 }), now)).toEqual({ ok: true });
+		expect(budgetDecision(state({ read15m: 89 }), now, "interactive")).toEqual({
+			ok: true,
+		});
+		expect(budgetDecision(state({ read15m: 90 }), now, "interactive")).toEqual({
+			ok: false,
+			delaySeconds: 600,
+		});
+	});
+
+	// Feature 024 research R5: background work leaves 10 a window and 50 a day
+	// for sign-ins, reconnects and revocations.
+	it("stops background work 10 earlier per window", () => {
+		expect(budgetDecision(state({ read15m: 79 }), now, "background")).toEqual({
+			ok: true,
+		});
+		expect(budgetDecision(state({ read15m: 80 }), now, "background")).toEqual({
+			ok: false,
+			delaySeconds: 600,
+		});
+		expect(budgetDecision(state({ all15m: 180 }), now, "background")).toEqual({
+			ok: false,
+			delaySeconds: 600,
+		});
+	});
+
+	it("stops background work 50 earlier per day", () => {
+		const late = at("2026-10-06T20:00:00Z");
+		expect(
+			budgetDecision(
+				state({ observedAt: late, readDaily: 899 }),
+				late,
+				"background",
+			),
+		).toEqual({ ok: true });
+		expect(
+			budgetDecision(
+				state({ observedAt: late, readDaily: 900 }),
+				late,
+				"background",
+			),
+		).toEqual({ ok: false, delaySeconds: 4 * 3600 });
+		expect(
+			budgetDecision(
+				state({ observedAt: late, allDaily: 1900 }),
+				late,
+				"background",
+			),
+		).toEqual({ ok: false, delaySeconds: 4 * 3600 });
+	});
+
+	it("scales the background share with the limits Strava reports", () => {
+		const raised = { limitRead15m: 300, limitReadDaily: 3000 };
+		expect(
+			budgetDecision(state({ ...raised, read15m: 279 }), now, "background"),
+		).toEqual({ ok: true });
+		expect(
+			budgetDecision(state({ ...raised, read15m: 280 }), now, "background"),
+		).toEqual({ ok: false, delaySeconds: 600 });
+	});
+
 	it("ignores usage observed in an earlier window", () => {
 		expect(
 			budgetDecision(

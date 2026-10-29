@@ -1,6 +1,10 @@
 import { readRateLimitState } from "../db/rate-limit";
 import type { StravaActivity } from "./activity";
-import { budgetDecision, deferUntilNextWindow } from "./rate-limit";
+import {
+	budgetDecision,
+	deferUntilNextWindow,
+	type Priority,
+} from "./rate-limit";
 import {
 	STRAVA_ORIGIN,
 	type StravaCtx,
@@ -21,15 +25,21 @@ export type StravaAuth = { athleteId: number } | { accessToken: string };
 const PER_PAGE = 200;
 const MAX_CLUB_PAGES = 20;
 
+/**
+ * Calls are `background` (the queue's work) unless a person waits for them on
+ * a page; background work leaves a reserve for those (feature 024 R5).
+ */
 async function apiGet<T>(
 	ctx: StravaCtx,
 	auth: StravaAuth,
 	endpoint: string,
 	path: string,
+	priority: Priority = "background",
 ): Promise<StravaResult<T>> {
 	const budget = budgetDecision(
 		await readRateLimitState(ctx.env.DB),
 		ctx.now(),
+		priority,
 	);
 	if (!budget.ok) return { kind: "budget", delaySeconds: budget.delaySeconds };
 
@@ -42,12 +52,15 @@ async function apiGet<T>(
 	if ("accessToken" in auth) {
 		res = await call(auth.accessToken);
 	} else {
-		const token = await getAccessToken(ctx, auth.athleteId);
+		const token = await getAccessToken(ctx, auth.athleteId, { priority });
 		if (token.kind !== "ok") return token;
 		res = await call(token.value);
 		if (res instanceof Response && res.status === 401) {
 			// One refresh and retry; a second 401 is final.
-			const fresh = await getAccessToken(ctx, auth.athleteId, { force: true });
+			const fresh = await getAccessToken(ctx, auth.athleteId, {
+				force: true,
+				priority,
+			});
 			if (fresh.kind !== "ok") return fresh;
 			res = await call(fresh.value);
 		}
@@ -76,12 +89,14 @@ export function getAthleteClubs(
 	ctx: StravaCtx,
 	auth: StravaAuth,
 	page: number,
+	priority: Priority = "background",
 ): Promise<StravaResult<{ id: number }[]>> {
 	return apiGet(
 		ctx,
 		auth,
 		"GET /athlete/clubs",
 		`/api/v3/athlete/clubs?page=${page}&per_page=${PER_PAGE}`,
+		priority,
 	);
 }
 
@@ -93,9 +108,10 @@ export async function isClubMember(
 	ctx: StravaCtx,
 	auth: StravaAuth,
 	clubId: number,
+	priority: Priority = "background",
 ): Promise<StravaResult<boolean>> {
 	for (let page = 1; page <= MAX_CLUB_PAGES; page++) {
-		const result = await getAthleteClubs(ctx, auth, page);
+		const result = await getAthleteClubs(ctx, auth, page, priority);
 		if (result.kind !== "ok") return result;
 		if (result.value.some((club) => club.id === clubId)) {
 			return { kind: "ok", value: true };

@@ -69,6 +69,43 @@ export type WorkMessage =
 	| EvaluateRiderMessage
 	| SendNotificationMessage;
 
+/**
+ * Wakes the drain of the Strava work table (feature 024 research R4). Not a
+ * `WorkMessage`: it names no rider and is never stored.
+ */
+export interface StravaTurnMessage {
+	kind: "strava-turn";
+}
+
+export const STRAVA_TURN: StravaTurnMessage = { kind: "strava-turn" };
+
+export function isStravaTurn(body: unknown): boolean {
+	return (
+		typeof body === "object" &&
+		body !== null &&
+		(body as Record<string, unknown>).kind === "strava-turn"
+	);
+}
+
+/**
+ * Whether a message waits its rider's turn in the Strava work table
+ * (feature 024 contracts/queue-messages.md). Deletions of riders and of
+ * activities, evaluations and notifications need no Strava read and run at
+ * once (FR-010, FR-011).
+ */
+export function waitsForStrava(m: WorkMessage): boolean {
+	switch (m.kind) {
+		case "activity-event":
+			return m.aspect !== "delete";
+		case "import-page":
+		case "reread-page":
+		case "check-membership":
+			return true;
+		default:
+			return false;
+	}
+}
+
 export const isId = (v: unknown): v is number =>
 	typeof v === "number" && Number.isSafeInteger(v) && v > 0;
 

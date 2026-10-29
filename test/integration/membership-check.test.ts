@@ -11,7 +11,7 @@ import { getRider } from "../../src/db/riders";
 import { handleQueue, handleScheduled } from "../../src/index";
 import { toActivityRecord } from "../../src/strava/activity";
 import { backoffSeconds } from "../../src/strava/rate-limit";
-import type { WorkMessage } from "../../src/work/messages";
+import { STRAVA_TURN, type WorkMessage } from "../../src/work/messages";
 import {
 	makeCtx,
 	resetDb,
@@ -144,9 +144,12 @@ describe("check-membership", () => {
 		await seedWithActivity();
 		fake.failNext("clubs", { status: 503 });
 		const { result, retry } = await deliver(CHECK, 2);
-		expect(result.retryMessages).toEqual([{ msgId: "m1" }]);
-		expect(retry).toHaveBeenCalledWith({ delaySeconds: backoffSeconds(2) });
-		expect(ctx.queue.sent).toEqual([]);
+		// It backs off in the Strava work table (feature 024 research R3).
+		expect(result.explicitAcks).toEqual(["m1"]);
+		expect(retry).not.toHaveBeenCalled();
+		expect(ctx.queue.sent).toEqual([
+			{ body: STRAVA_TURN, delaySeconds: backoffSeconds(2) },
+		]);
 		expect(await tableCounts()).toMatchObject({ riders: 1, activities: 1 });
 	});
 
@@ -160,7 +163,8 @@ describe("check-membership", () => {
 			.run();
 		const { result } = await deliver(CHECK);
 		expect(result.explicitAcks).toEqual(["m1"]);
-		expect(ctx.queue.sent).toEqual([{ body: CHECK, delaySeconds: 900 }]);
+		// It waits in the Strava work table for the next window (feature 024).
+		expect(ctx.queue.sent).toEqual([{ body: STRAVA_TURN, delaySeconds: 900 }]);
 		expect(fake.calls).toEqual([]);
 		expect(await tableCounts()).toMatchObject({ riders: 1, activities: 1 });
 	});

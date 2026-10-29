@@ -6,6 +6,15 @@ const WINDOW_SECONDS = 15 * 60;
 const DAY_SECONDS = 24 * 3600;
 const SHORT_MARGIN = 10;
 const DAILY_MARGIN = 50;
+/**
+ * Kept for what a person waits for on a page: sign-in, reconnect, revocation
+ * (feature 024 research R5). Background work stops this much earlier.
+ */
+export const SHORT_RESERVE = 10;
+export const DAILY_RESERVE = 50;
+
+/** Who waits for a call: a person on a page, or the queue (feature 024 R5). */
+export type Priority = "interactive" | "background";
 
 export interface RateLimitState {
 	observedAt: number;
@@ -57,11 +66,15 @@ export function effectiveUsage(
 export function budgetDecision(
 	state: RateLimitState,
 	now: number,
+	priority: Priority = "interactive",
 ): BudgetDecision {
 	const u = effectiveUsage(state, now);
+	const background = priority === "background";
+	const daily = DAILY_MARGIN + (background ? DAILY_RESERVE : 0);
+	const short = SHORT_MARGIN + (background ? SHORT_RESERVE : 0);
 	if (
-		u.readDaily >= u.limitReadDaily - DAILY_MARGIN ||
-		u.allDaily >= u.limitAllDaily - DAILY_MARGIN
+		u.readDaily >= u.limitReadDaily - daily ||
+		u.allDaily >= u.limitAllDaily - daily
 	) {
 		return {
 			ok: false,
@@ -69,8 +82,8 @@ export function budgetDecision(
 		};
 	}
 	if (
-		u.read15m >= u.limitRead15m - SHORT_MARGIN ||
-		u.all15m >= u.limitAll15m - SHORT_MARGIN
+		u.read15m >= u.limitRead15m - short ||
+		u.all15m >= u.limitAll15m - short
 	) {
 		return { ok: false, delaySeconds: deferUntilNextWindow(now) };
 	}

@@ -25,9 +25,12 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 // specs/019-event-participation-requests/contracts/messages.md and
 // specs/020-onboarding-tour/contracts/messages.md and
 // specs/021-season-rollover/contracts/messages.md and
-// specs/022-themes-and-controls/contracts/messages.md.
+// specs/022-themes-and-controls/contracts/messages.md and
+// specs/024-fair-strava-budget/contracts/catalog.md.
 const CONTRACT_IDS = [
 	"meta.languageName",
+	"fetching.events",
+	"fetching.import",
 	"rynke.rides.total",
 	"rynke.rides.newest",
 	"rynke.rides.loading",

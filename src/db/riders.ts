@@ -190,14 +190,33 @@ export async function setOnboarded(
 		.run();
 }
 
+/** A `pending` import starts its count of fetched activities again (024 R7). */
 export async function setImportStatus(
 	db: D1Database,
 	athleteId: number,
 	status: ImportStatus,
 ): Promise<void> {
 	await db
-		.prepare("UPDATE riders SET import_status = ? WHERE athlete_id = ?")
+		.prepare(
+			`UPDATE riders SET import_status = ?1,
+				import_fetched = CASE WHEN ?1 = 'pending' THEN 0 ELSE import_fetched END
+			WHERE athlete_id = ?2`,
+		)
 		.bind(status, athleteId)
+		.run();
+}
+
+/** Counts a page of the import's listed activities (feature 024 R7). */
+export async function addImportFetched(
+	db: D1Database,
+	athleteId: number,
+	listed: number,
+): Promise<void> {
+	await db
+		.prepare(
+			"UPDATE riders SET import_fetched = import_fetched + ? WHERE athlete_id = ?",
+		)
+		.bind(listed, athleteId)
 		.run();
 }
 

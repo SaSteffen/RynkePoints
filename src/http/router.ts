@@ -4,6 +4,7 @@ import { resolveLocale } from "../i18n/resolve";
 import { handleCallback, handleConnectForm, handleReconnect } from "./auth";
 import { handleConsent } from "./consent-gate";
 import { notFound } from "./errors";
+import { handleFetching } from "./fetching";
 import { handleLanding } from "./landing";
 import { handleLang } from "./lang";
 import { handleDisconnect, handleDisconnectPage, handleLogout } from "./me";
@@ -106,6 +107,7 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 			return handleRiderNotificationText(request, ctx);
 		}
 		if (path === "/me/ready") return handleReady(request, ctx);
+		if (path === "/me/fetching") return handleFetching(request, ctx);
 		const response = await page(request, path, ctx, i18n);
 		if (response) return renewSession(request, response, ctx);
 	}

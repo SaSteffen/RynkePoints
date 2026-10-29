@@ -10,6 +10,7 @@ import { backoffSeconds } from "../../src/strava/rate-limit";
 import { MAX_ATTEMPTS } from "../../src/work/consumer";
 import {
 	type ActivityEventMessage,
+	STRAVA_TURN,
 	serializeWorkMessage,
 } from "../../src/work/messages";
 import {
@@ -365,8 +366,12 @@ describe("activity-event: retries", () => {
 		addRide(A);
 		fake.failNext("activity", { status: 503 });
 		const { result, retry } = await deliver(msg(A, "create"), 3);
-		expect(result.retryMessages).toEqual([{ msgId: "m1" }]);
-		expect(retry).toHaveBeenCalledWith({ delaySeconds: backoffSeconds(3) });
+		// It backs off in the Strava work table (feature 024 research R3).
+		expect(result.explicitAcks).toEqual(["m1"]);
+		expect(retry).not.toHaveBeenCalled();
+		expect(ctx.queue.sent).toEqual([
+			{ body: STRAVA_TURN, delaySeconds: backoffSeconds(3) },
+		]);
 		expect(await rows()).toEqual([]);
 	});
 
@@ -374,10 +379,10 @@ describe("activity-event: retries", () => {
 		await connectedRider();
 		addRide(A);
 		fake.failNext("activity", { status: 429 });
-		const body = msg(A, "create");
-		const { result } = await deliver(body);
-		// NOW is 10:00:00Z, so the next window starts in 900 s.
-		expect(ctx.queue.sent).toEqual([{ body, delaySeconds: 900 }]);
+		const { result } = await deliver(msg(A, "create"));
+		// NOW is 10:00:00Z, so the next window starts in 900 s. The event waits
+		// in the Strava work table until then (feature 024).
+		expect(ctx.queue.sent).toEqual([{ body: STRAVA_TURN, delaySeconds: 900 }]);
 		expect(result.explicitAcks).toEqual(["m1"]);
 		expect(result.retryMessages).toEqual([]);
 		expect(fake.callsTo("activity")).toHaveLength(1);

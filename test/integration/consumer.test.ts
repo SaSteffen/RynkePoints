@@ -15,6 +15,7 @@ import {
 	processBatch,
 } from "../../src/work/consumer";
 import {
+	STRAVA_TURN,
 	serializeWorkMessage,
 	type WorkMessage,
 } from "../../src/work/messages";
@@ -27,7 +28,10 @@ import {
 } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
 
+// Needs Strava, so it waits in the Strava work table (feature 024).
 const CHECK: WorkMessage = { kind: "check-membership", athleteId: ATHLETE_A };
+// Needs no Strava, so the queue's own rules apply to it.
+const EVALUATE: WorkMessage = { kind: "evaluate-rider", athleteId: ATHLETE_A };
 const DELETE: WorkMessage = {
 	kind: "delete-rider",
 	athleteId: ATHLETE_A,
@@ -47,6 +51,7 @@ async function run(
 	const handlers: Handlers = {
 		"check-membership": handler,
 		"delete-rider": handler,
+		"evaluate-rider": handler,
 	};
 	const batch = createMessageBatch("rynke-points-work", [
 		{ id: "m1", timestamp: new Date(NOW * 1000), attempts, body },
@@ -105,21 +110,66 @@ describe("processBatch", () => {
 		async (attempts) => {
 			await seedRider(makeCtx());
 			const { ctx, queueResult } = await run(
-				CHECK,
+				EVALUATE,
 				{ kind: "budget", delaySeconds: 50_000 },
 				attempts,
 			);
-			expect(ctx.queue.sent).toEqual([{ body: CHECK, delaySeconds: 43200 }]);
+			expect(ctx.queue.sent).toEqual([{ body: EVALUATE, delaySeconds: 43200 }]);
 			expect(queueResult.explicitAcks).toEqual(["m1"]);
 			expect(queueResult.retryMessages).toEqual([]);
 			expect((await tableCounts()).failed_work).toBe(0);
 		},
 	);
 
+	it.each([1, MAX_ATTEMPTS])(
+		"keeps Strava work in the table on budget and wakes when it's due (attempt %i)",
+		async (attempts) => {
+			await seedRider(makeCtx());
+			const { ctx, queueResult } = await run(
+				CHECK,
+				{ kind: "budget", delaySeconds: 50_000 },
+				attempts,
+			);
+			expect(ctx.queue.sent).toEqual([
+				{ body: STRAVA_TURN, delaySeconds: 43200 },
+			]);
+			expect(queueResult.explicitAcks).toEqual(["m1"]);
+			expect(queueResult.retryMessages).toEqual([]);
+			expect((await tableCounts()).failed_work).toBe(0);
+			// Waiting for the budget uses up no attempt (feature 024 FR-009).
+			expect(
+				await env.DB.prepare(
+					"SELECT attempts, not_before FROM strava_work",
+				).all(),
+			).toMatchObject({ results: [{ attempts, not_before: 0 }] });
+		},
+	);
+
+	it("backs Strava work off in the table on a transient error", async () => {
+		await seedRider(makeCtx());
+		const { ctx, queueResult, retry } = await run(
+			CHECK,
+			{ kind: "transient", reason: "HTTP 503" },
+			3,
+		);
+		expect(queueResult.explicitAcks).toEqual(["m1"]);
+		expect(retry).not.toHaveBeenCalled();
+		expect(
+			await env.DB.prepare(
+				"SELECT attempts, not_before FROM strava_work",
+			).all(),
+		).toMatchObject({
+			results: [{ attempts: 4, not_before: NOW + backoffSeconds(3) }],
+		});
+		expect(ctx.queue.sent).toEqual([
+			{ body: STRAVA_TURN, delaySeconds: backoffSeconds(3) },
+		]);
+	});
+
 	it("retries transient errors with backoff", async () => {
 		await seedRider(makeCtx());
 		const { queueResult, retry } = await run(
-			CHECK,
+			EVALUATE,
 			{ kind: "transient", reason: "HTTP 503" },
 			3,
 		);
@@ -131,7 +181,7 @@ describe("processBatch", () => {
 	it("treats a thrown error as transient", async () => {
 		await seedRider(makeCtx());
 		const { queueResult, retry } = await run(
-			CHECK,
+			EVALUATE,
 			async () => {
 				throw new Error("D1 hiccup");
 			},
@@ -148,7 +198,7 @@ describe("processBatch", () => {
 	it("still retries on the attempt before the last", async () => {
 		await seedRider(makeCtx());
 		const { queueResult } = await run(
-			CHECK,
+			EVALUATE,
 			{ kind: "transient", reason: "HTTP 503" },
 			MAX_ATTEMPTS - 1,
 		);
@@ -235,7 +285,7 @@ describe("processBatch", () => {
 			throw new Error("queue unavailable");
 		};
 		const { queueResult } = await run(
-			CHECK,
+			EVALUATE,
 			{ kind: "budget", delaySeconds: 600 },
 			MAX_ATTEMPTS,
 			ctx,
@@ -253,7 +303,7 @@ describe("processBatch", () => {
 			throw new Error("queue unavailable");
 		};
 		const { queueResult, retry } = await run(
-			CHECK,
+			EVALUATE,
 			{ kind: "budget", delaySeconds: 600 },
 			3,
 			ctx,
@@ -279,15 +329,20 @@ describe("processBatch", () => {
 		};
 		const handler = vi.fn(async (): Promise<HandlerResult> => ({ kind: "ok" }));
 		const batch = createMessageBatch("rynke-points-work", [
-			{ id: "m1", timestamp: new Date(NOW * 1000), attempts: 2, body: CHECK },
+			{
+				id: "m1",
+				timestamp: new Date(NOW * 1000),
+				attempts: 2,
+				body: EVALUATE,
+			},
 			{
 				id: "m2",
 				timestamp: new Date(NOW * 1000),
 				attempts: 1,
-				body: { kind: "check-membership", athleteId: ATHLETE_B },
+				body: { kind: "evaluate-rider", athleteId: ATHLETE_B },
 			},
 		]);
-		await processBatch(batch, ctx, { "check-membership": handler });
+		await processBatch(batch, ctx, { "evaluate-rider": handler });
 		const result = await getQueueResult(batch, createExecutionContext());
 		expect(result.retryMessages).toEqual([{ msgId: "m1" }]);
 		expect(result.explicitAcks).toEqual(["m2"]);

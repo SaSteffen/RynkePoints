@@ -103,7 +103,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	{
 		athleteId: 990001,
 		firstName: "Ida Importing",
-		state: "Import still running: the fake answers her activity list with 429",
+		state: "Import still running: the fake answers her activity list with 503",
 		scopes: ALL_SCOPES,
 		clubMember: true,
 		behaviour: "import-stuck",
