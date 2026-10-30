@@ -6,10 +6,12 @@ type Settings = Pick<
 	| "STRAVA_CLUB_ID"
 	| "STRAVA_SUBSCRIPTION_ID"
 	| "SEASON_START_DATE"
+	| "ORGANISER_FIGURES"
 	| "STRAVA_CLIENT_ID"
 	| "STRAVA_CLIENT_SECRET"
 	| "STRAVA_WEBHOOK_VERIFY_TOKEN"
 	| "READY_POLL_SECONDS"
+	| "TRAINING_LEADERBOARD"
 	| "PRIVACY_CONTROLLER"
 	| "CONTACT_EMAIL"
 >;
@@ -40,6 +42,20 @@ export function readyPollSeconds(
 		throw new Error("READY_POLL_SECONDS must be between 1 and 60");
 	}
 	return seconds;
+}
+
+/**
+ * Whether other riders' Training Rynke may be ranked on `/team`: the place
+ * card, the Training leaderboard and the Training figure beside each Team
+ * row. "off" keeps the team total, the peloton and the team chart, and the
+ * Team leaderboard without its Training figures.
+ */
+export function trainingLeaderboard(
+	env: Pick<Settings, "TRAINING_LEADERBOARD">,
+): boolean {
+	if (env.TRAINING_LEADERBOARD === "on") return true;
+	if (env.TRAINING_LEADERBOARD === "off") return false;
+	throw new Error('TRAINING_LEADERBOARD must be "on" or "off"');
 }
 
 export function clientId(env: Pick<Settings, "STRAVA_CLIENT_ID">): string {
@@ -114,6 +130,22 @@ function berlinOffsetMs(epochMs: number): number {
 		get("second"),
 	);
 	return wallClockAsUtc - epochMs;
+}
+
+/**
+ * What the organiser overview shows of each rider's Rynke: "full" the
+ * amounts, what is missing and where the Rynke come from; "percent" only
+ * Training and Team as a share of their threshold, up to 100 %, with the
+ * corrections as amounts.
+ */
+export type OrganiserFigures = "full" | "percent";
+
+export function organiserFigures(
+	env: Pick<Settings, "ORGANISER_FIGURES">,
+): OrganiserFigures {
+	const value = env.ORGANISER_FIGURES;
+	if (value === "full" || value === "percent") return value;
+	throw new Error('ORGANISER_FIGURES must be "full" or "percent"');
 }
 
 /** Who is responsible for the riders' data, one line each (a name at least). */
