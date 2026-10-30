@@ -53,6 +53,11 @@
 		"SEASON_START_DATE": "2026-09-01",
 		// Last day rides and team events count; the even pace runs to it (016).
 		"QUALIFICATION_DEADLINE": "2027-06-30",
+		// What organisers see of each rider's Rynke on /organiser/riders:
+		// "full" (amounts, what is missing, where they come from) or "percent"
+		// (Training and Team as a share of their threshold, up to 100 %; the
+		// corrections as amounts).
+		"ORGANISER_FIGURES": "full",
 		// "0" until the webhook subscription is created (quickstart §3 step 12).
 		"STRAVA_SUBSCRIPTION_ID": "375559",
 		// VAPID contact for the push services (010 research R4).
@@ -60,6 +65,10 @@
 		// Seconds between the waiting page's checks for the first data, 1–60
 		// (015 research R5).
 		"READY_POLL_SECONDS": "10",
+		// "off" ranks no rider by Training Rynke on /team: no place card, no
+		// Training leaderboard, no Training figure in the Team rows. The team
+		// total, the peloton and the team chart stay. "on" or "off".
+		"TRAINING_LEADERBOARD": "on",
 		// Who is responsible for the riders' data, and how to reach them, for
 		// the privacy page (/privacy). One line each; the contact is the email.
 		"PRIVACY_CONTROLLER": "Sascha Steffen",

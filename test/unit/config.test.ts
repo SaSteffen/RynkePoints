@@ -5,10 +5,12 @@ import {
 	clientSecret,
 	clubId,
 	contactEmail,
+	organiserFigures,
 	privacyController,
 	readyPollSeconds,
 	seasonStartEpoch,
 	subscriptionId,
+	trainingLeaderboard,
 	verifyToken,
 } from "../../src/config";
 
@@ -68,6 +70,19 @@ describe("readyPollSeconds", () => {
 	});
 });
 
+describe("trainingLeaderboard", () => {
+	it("reads on and off", () => {
+		expect(trainingLeaderboard({ TRAINING_LEADERBOARD: "on" })).toBe(true);
+		expect(trainingLeaderboard({ TRAINING_LEADERBOARD: "off" })).toBe(false);
+	});
+
+	it.each(["", "true", "Off", "0"])("rejects %j", (value) => {
+		expect(() =>
+			trainingLeaderboard({ TRAINING_LEADERBOARD: value }),
+		).toThrow();
+	});
+});
+
 describe("privacyController", () => {
 	it("is the non-empty lines, trimmed", () => {
 		expect(
@@ -93,4 +108,14 @@ describe("contactEmail", () => {
 			expect(() => contactEmail({ CONTACT_EMAIL: value })).toThrow();
 		},
 	);
+});
+
+describe("organiserFigures", () => {
+	it.each(["full", "percent"])("reads %j", (value) => {
+		expect(organiserFigures({ ORGANISER_FIGURES: value })).toBe(value);
+	});
+
+	it.each(["", "Percent", "amounts"])("rejects %j", (value) => {
+		expect(() => organiserFigures({ ORGANISER_FIGURES: value })).toThrow();
+	});
 });

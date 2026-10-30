@@ -50,6 +50,16 @@ mock-up's team leaderboard, with a `breakaway` tweak for its three sample states
   "Breakaway" past a gap in the road, in order but not to scale; the bunch stays to
   scale. The label is "Breakaway" in German too, because it is more fun.
 
+### Session 2026-10-29
+
+- Q (raised by the project owner, lowering the risk in Strava's review): Can the
+  ranking by Training Rynke be switched off? → A: Yes, with the setting
+  `TRAINING_LEADERBOARD` ("on" or "off"; production "off"). Off, the Training view
+  of `/team` keeps the team total, the peloton and the team chart, and drops the
+  place card (FR-016) and the leaderboard; the Team view keeps its leaderboard
+  without the Training figure beside each row. Training Rynke are derived from
+  Strava data, Team Rynke from attendance the organisers record.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Rider sees where they stand in the team (Priority: P1)
@@ -306,6 +316,16 @@ the overview is refused.
   Team, outdoor Training), marked when behind the even pace, and the breakdown of
   feature 003 FR-014a: distance, elevation, each team-event kind with attendance,
   corrections and the virtual-ride share.
+- **FR-033a** (2026-10-29, raised by the project owner to lower the risk in
+  Strava's review): the setting `ORGANISER_FIGURES` ("full" or "percent";
+  production "percent") chooses what FR-033 shows. "full" is FR-033 as written.
+  "percent" shows Training and Team Rynke only as a whole percent of their
+  threshold, rounded down and stopping at 100 %, with their bars and the even
+  pace marked; instead of amounts still missing, it names the reasons: Training or
+  Team behind the even pace, and too little outdoor Training (no percentage of its
+  own). Of the breakdown only the corrections stay, as amounts, since organisers
+  enter them; the even-pace hint is in percent too. The rider's corrections page
+  is unchanged.
 - **FR-034**: The overview MUST list who qualified.
 - **FR-035**: On wide screens the overview MUST be a table with one row per rider;
   on a phone, one card per rider with the breakdown folded away.

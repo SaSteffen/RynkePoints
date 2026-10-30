@@ -1,4 +1,4 @@
-import { berlinDate } from "../../config";
+import { berlinDate, trainingLeaderboard } from "../../config";
 import type { Ctx } from "../../ctx";
 import { readSeenQuotes, writeSeenQuote } from "../../db/quote-seen";
 import { readTeam } from "../../db/team";
@@ -309,6 +309,7 @@ function renderRow(
 	kind: RynkeKind,
 	row: LeaderboardRow,
 	days: readonly number[],
+	withOther: boolean,
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const other = OTHER_KIND[kind];
@@ -321,7 +322,11 @@ function renderRow(
 		i18n.t("team.list.weeks", { values: row.weeks.map(whole).join(", ") }),
 		days,
 		kind === "training",
-	)}</span><span class="row-figures"><span class="row-total">${coinOf(i18n, kind)} ${whole(row.total)}</span><span class="row-other">${coinOf(i18n, other)} ${whole(row.other)}</span></span></li>
+	)}</span><span class="row-figures"><span class="row-total">${coinOf(i18n, kind)} ${whole(row.total)}</span>${
+		withOther
+			? html`<span class="row-other">${coinOf(i18n, other)} ${whole(row.other)}</span>`
+			: null
+	}</span></li>
 `;
 }
 
@@ -332,6 +337,7 @@ function renderLeaderboard(
 	shown: Neighbourhood,
 	count: number,
 	days: readonly number[],
+	withOther: boolean,
 ): SafeHtml {
 	const hidden = (id: "team.list.ahead" | "team.list.behind", n: number) =>
 		n > 0
@@ -350,7 +356,7 @@ ${segment(teamHref(kind, true), all, i18n.t("team.list.everyone"))}
 `
 		: null
 }${hidden("team.list.ahead", shown.hiddenAhead)}<ol start="${shown.rows[0]?.place ?? 1}">
-${shown.rows.map((row) => renderRow(i18n, kind, row, days))}</ol>
+${shown.rows.map((row) => renderRow(i18n, kind, row, days, withOther))}</ol>
 ${hidden("team.list.behind", shown.hiddenBehind)}</section>
 `;
 }
@@ -372,6 +378,7 @@ export function handleTeam(
 		teamHref(kind, all),
 		async ({ rider }) => {
 			const window = countingWindow(ctx.env);
+			const ranksTraining = trainingLeaderboard(ctx.env);
 			// The seen quotes alongside the team, not after it (issue #184); they
 			// only matter when the rider is on the leaderboard.
 			const [team, seenQuotes] = await Promise.all([
@@ -419,6 +426,8 @@ export function handleTeam(
 				neighbourhood(rows, all),
 				rows.length,
 				ends.map(dayNumber),
+				// Team rows carry Training as their other figure.
+				ranksTraining,
 			);
 			// Team Rynke have no place card and no peloton and put the
 			// leaderboard first (feature 019 FR-045, FR-046); Training keeps
@@ -427,6 +436,11 @@ export function handleTeam(
 			// of its own beside the other cards.
 			if (kind === "team") {
 				return html`${head}<div class="team-grid">${leaderboard}${renderTeamChart(i18n, kind, totals)}</div>`;
+			}
+			// Without the Training ranking (TRAINING_LEADERBOARD "off") only the
+			// peloton and the team chart stay: no place, no list.
+			if (!ranksTraining) {
+				return html`${head}<div class="team-grid">${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}</div>`;
 			}
 			return html`${head}<div class="team-grid">${viewer ? renderPlace(i18n, viewer) : null}${viewer ? renderPeloton(i18n, kind, rows) : null}${renderTeamChart(i18n, kind, totals)}${leaderboard}</div>`;
 		},
