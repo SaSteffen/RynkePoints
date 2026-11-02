@@ -72,7 +72,7 @@ production numbers are left out. The run fails when a page route in
    - `/` (landing, "Connect with Strava"), `/privacy` (privacy notice) and
      `/notice/team-full`
    - `/me`, `/me/rides`, `/me/settings`, `/me/disconnect`
-   - `/team` (team leaderboard)
+   - `/team` (team leaderboard) and `/events` (team events)
    - `/organiser` and one event, `/organiser/riders` and one rider
    - a push notification with new Rynke (feature 010; derived data), as a
      mock-up of the phone's notification with the app's real text
