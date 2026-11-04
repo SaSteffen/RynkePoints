@@ -198,9 +198,11 @@ describe("overviewBody", () => {
 			),
 		].map((m) => [m[1], m[2], m[3]]);
 	const cards = (html: string) =>
-		[...html.matchAll(/<li class="rider-card status-(\w+)">/g)].map(
-			(m) => m[1],
-		);
+		[
+			...html.matchAll(
+				/<li class="rider-row status-(\w+)" data-name="[^"]*">/g,
+			),
+		].map((m) => m[1]);
 
 	it("shows the deadline with the days to go and who qualifies (FR-031)", () => {
 		const html = page(null);
@@ -241,7 +243,7 @@ describe("overviewBody", () => {
 	it("renders every rider without a group, phone first on Need a push (research R9)", () => {
 		const html = page(null);
 		expect(cards(html)).toEqual(["push", "push", "on_track", "in"]);
-		expect(html).toContain('<ul class="rider-cards default">');
+		expect(html).toContain('<ul class="rider-rows default">');
 		expect(html).toContain('<nav class="group-tiles default"');
 		expect(html).not.toContain('aria-current="true"');
 		expect(html).toContain(
@@ -257,7 +259,7 @@ describe("overviewBody", () => {
 		expect(cards(html)).toEqual(["on_track"]);
 		expect(html.match(/<tr class="status-/g)).toHaveLength(1);
 		expect(html).toMatch(
-			/<a class="group-tile tile-on_track" href="\/organiser\/riders\?group=on_track" aria-current="true">/,
+			/<a class="group-tile tile-on_track" href="\/organiser\/riders\?group=on_track" data-swap aria-current="true">/,
 		);
 		expect(html).not.toContain("showing-phone");
 	});
@@ -266,8 +268,8 @@ describe("overviewBody", () => {
 		const html = page(null);
 		expect(html).toContain("today 138 Training and 13 Team.");
 		expect(html.match(/<line class="pace-mark"/g)).toHaveLength(
-			// Training and Team in a card and in the table row, for four riders.
-			(2 + 2) * 4,
+			// Training and Team in a row's line, its body and the table, for four.
+			(2 + 2 + 2) * 4,
 		);
 		expect(html).toMatch(/<svg class="threshold-bar"[^>]*aria-hidden="true"/);
 	});
@@ -334,7 +336,7 @@ describe("overviewBody", () => {
 			en,
 		).value;
 		expect(none).toContain("No riders share their Rynke yet.");
-		expect(none).not.toContain("rider-cards");
+		expect(none).not.toContain("rider-rows");
 	});
 });
 
@@ -366,9 +368,9 @@ describe("overviewBody with ORGANISER_FIGURES percent", () => {
 		).value;
 	/** The card of the rider called `name`; the cards end at the table. */
 	function cardOf(html: string, name: string): string {
-		const start = html.indexOf('<ul class="rider-cards');
+		const start = html.indexOf('<ul class="rider-rows');
 		const cards = html.slice(start, html.indexOf('<div class="table-scroll"'));
-		const all = cards.split('<li class="rider-card');
+		const all = cards.split('<li class="rider-row');
 		return all.find((card) => card.includes(`>${name}</span>`)) ?? "";
 	}
 

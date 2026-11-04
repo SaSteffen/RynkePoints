@@ -227,7 +227,7 @@ describe("the one set of controls", () => {
 		"ride-card",
 		"event-card",
 		"badge-card",
-		"rider-card",
+		"rider-row",
 		"organiser-event",
 		"request-event",
 	];

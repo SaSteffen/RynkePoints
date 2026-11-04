@@ -45,15 +45,17 @@ export const de = {
 	"consent.short.read":
 		"Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.",
 	"consent.short.shown":
-		"Das Team sieht deine Rynke ohne Namen, die Orga mit deinem Vornamen. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.",
+		"Das Team sieht deine Rynke ohne Namen, die Orga mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.",
 	"consent.details": "Alle Details",
 	"consent.organisers":
 		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen und bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst.",
+	"consent.dailyFigures":
+		"Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.",
 	"consent.team":
 		"Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter zählen ohne Namen zu den Team-Summen der Team-Abzeichen. An welchen Tagen und zu welcher Stunde du fährst, läufst oder schwimmst, zählt ohne Namen für die Team-Überraschungen.",
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
 	"consent.agree":
-		"Einverstanden: RynkePoints liest deine Fahrten und teilt deine Rynke wie beschrieben.",
+		"Einverstanden: RynkePoints liest deine Fahrten und teilt deine Rynke und Tagessummen wie beschrieben.",
 
 	"me.title": "Deine RynkePoints",
 	"me.greeting": "Hallo {firstName}!",
@@ -785,7 +787,7 @@ export const de = {
 	"privacy.visibility.team":
 		"Das übrige Team sieht deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter und an welchen Tagen und zu welcher Stunde du aktiv bist zählen ohne Namen zu den Teamsummen und Team-Abzeichen.",
 	"privacy.visibility.organisers":
-		"Die Organisatoren sehen deinen Vornamen, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen und bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst, aber keine einzelnen Aktivitäten.",
+		"Die Organisatoren sehen deinen Vornamen, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst, und deine Kilometer draußen und virtuell und deine Höhenmeter als Summen pro Tag, aber keine einzelnen Aktivitäten.",
 	"privacy.visibility.public":
 		"Nichts davon ist öffentlich: Jede Seite mit diesen Daten verlangt eine Anmeldung mit Strava.",
 	"privacy.legal.heading": "Rechtsgrundlagen",
@@ -1045,6 +1047,59 @@ export const de = {
 	"notice.blocked.title": "Du kannst bei diesem Team nicht mitmachen",
 	"notice.blocked.body":
 		"Ein Admin hat dich aus diesem Team entfernt. Wir behalten nur deine Strava-ID, damit du dich nicht wieder verbinden kannst, und haben den gerade erteilten Zugang widerrufen.",
+	"organiser.graphs.heading": "Fortschritt",
+	"organiser.graphs.title.outdoor": "Kilometer draußen (km)",
+	"organiser.graphs.title.virtual": "Kilometer virtuell (km)",
+	"organiser.graphs.title.elevation": "Höhenmeter (m)",
+	"organiser.graphs.tabs.label": "Diagramm",
+	"organiser.graphs.tab.outdoor": "Draußen",
+	"organiser.graphs.tab.virtual": "Virtuell",
+	"organiser.graphs.tab.elevation": "Höhenmeter",
+	"organiser.graphs.picker.label": "In den Diagrammen",
+	"organiser.graphs.picker.find": "Rider finden",
+	"organiser.graphs.picker.clear": "Alle abwählen",
+	"organiser.graphs.picker.done": "Fertig",
+	"organiser.graphs.picker.notAgreed":
+		"Noch keine Linie, nicht zugestimmt: {names}",
+	"organiser.graphs.picker.noMatch": "Kein Rider passt zu „{query}“.",
+	"organiser.graphs.summary.riders": "{n} Rider sichtbar",
+	"organiser.graphs.summary.average": "Teamschnitt",
+	"organiser.graphs.summary.total": "Teamsumme",
+	"organiser.graphs.summary.none": "Nichts ausgewählt",
+	"organiser.graphs.average": "Teamschnitt",
+	"organiser.graphs.total": "Teamsumme",
+	"organiser.graphs.from": "Von",
+	"organiser.graphs.to": "Bis",
+	"organiser.graphs.range.label": "Schnellauswahl",
+	"organiser.graphs.range.season": "Saison",
+	"organiser.graphs.range.3m": "3 Monate",
+	"organiser.graphs.range.4w": "4 Wochen",
+	"organiser.graphs.range.custom": "Eigene Daten",
+	"organiser.graphs.mode.label": "Was jeder Punkt zeigt",
+	"organiser.graphs.mode.running": "Laufende Summe",
+	"organiser.graphs.mode.daily": "Pro Tag",
+	"organiser.graphs.hint.mouse":
+		"Zieh über ein Diagramm, um Daten zu wählen. „Saison“ zeigt wieder alles.",
+	"organiser.graphs.hint.touch":
+		"Zum Zoomen zwei Finger, seitlich ziehen verschiebt, Tippen wählt einen Tag. „Saison“ zeigt wieder alles.",
+	"organiser.graphs.note.one":
+		"1 Rider hat keine Linie und den Tageswerten noch nicht zugestimmt.",
+	"organiser.graphs.note.other":
+		"{n} Rider haben keine Linie und den Tageswerten noch nicht zugestimmt.",
+	"organiser.graphs.note.nobody":
+		"Die Rider werden noch um Zustimmung gebeten. Noch keine Linien.",
+	"organiser.graphs.value.km": "{n} km",
+	"organiser.graphs.value.m": "{n} m",
+	"organiser.graphs.readout.range": "{from} – {to}, gesamt",
+	"organiser.graphs.aria": "{title} vom {from} bis {to}: {lines}",
+	"organiser.graphs.view.label": "Was angezeigt wird",
+	"organiser.graphs.view.graphs": "Diagramme",
+	"organiser.graphs.view.riders": "Rider ({n})",
+	"organiser.graphs.reports.one": "1 offene Meldung",
+	"organiser.graphs.reports.other": "{n} offene Meldungen",
+	"organiser.graphs.reports.showAll": "Alle {n} zeigen",
+	"organiser.graphs.rows.noMatch": "Kein Rider passt zu „{query}“.",
+	"organiser.graphs.rows.report": "Meldung",
 	"consent.admins":
 		"Die Admins betreiben die App für das Team. Sie sehen deinen Vornamen, ob und seit wann du verbunden bist, wann deine Club-Mitgliedschaft zuletzt geprüft wurde und ob dein Import noch läuft, aber keine Fahrten und keine Rynke. Sie können dich aus dem Team entfernen: Dann werden deine Daten gelöscht, und nur deine Strava-ID bleibt auf einer Sperrliste, damit du dich nicht wieder mit diesem Team verbinden kannst.",
 	"privacy.visibility.admins":

@@ -2,9 +2,14 @@ import {
 	berlinDate,
 	type OrganiserFigures,
 	organiserFigures,
+	organiserProgressGraph,
 } from "../../config";
 import type { Ctx } from "../../ctx";
 import { withProfileLinks } from "../../db/organiser";
+import {
+	organiserGraphsStatement,
+	toGraphRows,
+} from "../../db/organiser-graphs";
 import {
 	listOpenRequestsStatement,
 	type OpenRequestRow,
@@ -25,17 +30,19 @@ import { thresholdBars } from "../charts";
 import { coinArt, miniCoin } from "../coin";
 import { FUN_BURSTS, FUN_SPARKLES } from "../fun";
 import { html, type SafeHtml } from "../html";
+import { CHART_SCRIPTS } from "../progress-section";
 import { renderExampleNote } from "../rider-sections";
 import { statusArt } from "../status-art";
 import { exampleTeam } from "../tour-example";
 import { noticeFromQuery, organiserPage, organiserSwitch } from "./access";
+import { organiserGraphsView, renderProgressGraphs } from "./progress-graphs";
 import { decisionNotice, riderRequestLines } from "./requests";
 
 // The organiser overview at `/organiser/riders` (feature 016 US4, FR-030–FR-035,
 // contracts/pages.md): the deadline, who qualifies, and every listed rider by
-// first name in the groups of `riderStatus`, as cards below 1100 px (two
-// columns from 840 px) and a table from 1100 px, where all its columns fit. It
-// only reads (FR-003). The body is pure, so the tests can set the day.
+// first name in the groups of `riderStatus`, as one-line rows below 1100 px
+// (feature 029) and a table from 1100 px, where all its columns fit. It only
+// reads (FR-003). The body is pure, so the tests can set the day.
 
 /** `requests`: riders with open requests (feature 019 FR-034). */
 export type Group = RiderStatus | "all" | "requests";
@@ -249,7 +256,7 @@ function renderTiles(
 		const count = riders.filter((r) => inGroup(r, g, requests)).length;
 		const alert = g === "requests" && count > 0 ? " tile-alert" : "";
 		const art = g === "all" || g === "requests" ? null : statusArt(g, "tile");
-		return html`<a class="group-tile tile-${g}${alert}" href="/organiser/riders?group=${g}"${group === g ? html` aria-current="true"` : null}><span class="tile-count">${i18n.formatNumber(count, { fractionDigits: 0 })}</span><span class="tile-label">${groupLabel(i18n, g, passed)}</span>${art}</a>
+		return html`<a class="group-tile tile-${g}${alert}" href="/organiser/riders?group=${g}" data-swap${group === g ? html` aria-current="true"` : null}><span class="tile-count">${i18n.formatNumber(count, { fractionDigits: 0 })}</span><span class="tile-label">${groupLabel(i18n, g, passed)}</span>${art}</a>
 `;
 	});
 	const showing = (g: Group, when: string) =>
@@ -372,7 +379,7 @@ function correctionsLine(i18n: I18n, rider: OverviewRider): string {
 	});
 }
 
-function renderPercentCard(
+function percentBody(
 	i18n: I18n,
 	rules: RynkeRules,
 	rider: OverviewRider,
@@ -381,8 +388,7 @@ function renderPercentCard(
 ): SafeHtml {
 	const reasons = percentReasons(i18n, rider);
 	const { corrections } = rider.breakdown;
-	return html`<li class="rider-card status-${rider.status}">
-<div class="rider-head"><h3>${nameLinks(i18n, rider)}</h3>${statusChip(i18n, rider, passed)}</div>
+	return html`<div class="rider-head"><h3>${nameLinks(i18n, rider)}</h3>${statusChip(i18n, rider, passed)}</div>
 <div class="rider-bars">
 ${percentLine(i18n, "training", rider, rules)}
 ${percentLine(i18n, "team", rider, rules)}
@@ -397,11 +403,10 @@ ${
 		? html`<p class="rider-corrections">${correctionsLine(i18n, rider)}</p>
 `
 		: null
-}${lines}</li>
-`;
+}${lines}`;
 }
 
-function renderCard(
+function fullBody(
 	i18n: I18n,
 	rules: RynkeRules,
 	rider: OverviewRider,
@@ -436,8 +441,7 @@ function renderCard(
 		i18n.t("organiser.overview.virtual", { n: whole(breakdown.virtualShare) }),
 	];
 	const missing = missingItems(i18n, rider);
-	return html`<li class="rider-card status-${rider.status}">
-<div class="rider-head"><h3>${nameLinks(i18n, rider)}</h3>${statusChip(i18n, rider, passed)}</div>
+	return html`<div class="rider-head"><h3>${nameLinks(i18n, rider)}</h3>${statusChip(i18n, rider, passed)}</div>
 <div class="rider-bars">
 <div class="amount amount-training"><p>${miniCoin("training")}${i18n.t("organiser.overview.training", { n: whole(rider.training), threshold: whole(rules.trainingThreshold) })}</p>${thresholdBars(rider.training, rules.trainingThreshold, rider.pace?.training ?? null)}</div>
 <div class="amount amount-team"><p>${miniCoin("team")}${i18n.t("organiser.overview.team", { n: whole(rider.team), threshold: whole(rules.teamThreshold) })}</p>${thresholdBars(rider.team, rules.teamThreshold, rider.pace?.team ?? null)}</div>
@@ -450,7 +454,104 @@ ${
 }${lines}<details class="rider-breakdown"><summary class="tap">${i18n.t("organiser.overview.breakdown")}</summary>
 <ul>${parts.map((part) => html`<li>${part}</li>`)}</ul>
 </details>
+`;
+}
+
+/** Training or Team as a small bar in a row's one line, with its figure. */
+function miniBar(
+	i18n: I18n,
+	kind: "training" | "team",
+	rider: OverviewRider,
+	rules: RynkeRules,
+	percent: boolean,
+): SafeHtml {
+	const threshold =
+		kind === "training" ? rules.trainingThreshold : rules.teamThreshold;
+	const figure = percent
+		? i18n.t("organiser.overview.percent", {
+				n: i18n.formatNumber(percentOf(rider[kind], threshold), {
+					fractionDigits: 0,
+				}),
+			})
+		: i18n.formatNumber(rider[kind], { fractionDigits: 0 });
+	return html`<span class="rider-mini bar-${kind}"><span class="rider-mini-figure"><span class="visually-hidden">${i18n.t(`organiser.overview.column.${kind}`)} </span>${figure}</span>${thresholdBars(rider[kind], threshold, rider.pace?.[kind] ?? null)}</span>`;
+}
+
+/** One rider below 1100 px: one line that opens on today's card content. */
+function renderRow(
+	i18n: I18n,
+	rules: RynkeRules,
+	rider: OverviewRider,
+	passed: boolean,
+	lines: SafeHtml | null,
+	percent: boolean,
+	hidden: boolean,
+	open: boolean,
+): SafeHtml {
+	return html`<li class="rider-row status-${rider.status}" data-name="${rider.firstName.toLowerCase()}"${hidden ? html` hidden` : null}>
+<details${open ? html` open` : null}><summary class="rider-row-line"><span class="rider-dot" aria-hidden="true"></span><span class="rider-row-name"><span class="rider-name">${rider.firstName}</span><span class="visually-hidden">, ${groupLabel(i18n, rider.status, passed)}</span></span>${lines ? html`<span class="rider-row-report">${i18n.t("organiser.graphs.rows.report")}</span>` : null}${miniBar(i18n, "training", rider, rules, percent)}${miniBar(i18n, "team", rider, rules, percent)}</summary>
+<div class="rider-row-body">${(percent ? percentBody : fullBody)(i18n, rules, rider, passed, lines)}</div>
+</details>
 </li>
+`;
+}
+
+/**
+ * Everyone as one-line rows, those outside the group `hidden`, so a search can
+ * reach the whole team without a request (feature 029 research R10).
+ */
+function renderRows(
+	i18n: I18n,
+	rules: RynkeRules,
+	riders: readonly OverviewRider[],
+	group: Group | null,
+	passed: boolean,
+	requests: RiderRequests,
+	lines: (rider: OverviewRider) => SafeHtml | null,
+	percent: boolean,
+): SafeHtml {
+	const ordered = [
+		...riders.filter((r) => hasRequests(r, requests)),
+		...riders.filter((r) => !hasRequests(r, requests)),
+	];
+	const inView = (r: OverviewRider) =>
+		group === null || inGroup(r, group, requests);
+	const open = group !== null && ordered.filter(inView).length <= 5;
+	const find = i18n.t("organiser.graphs.picker.find");
+	return html`<input type="search" class="rider-search" data-rider-search aria-label="${find}" placeholder="${find}" autocomplete="off">
+<p class="rider-search-none" data-rider-none hidden></p>
+<template data-rider-none-text>${i18n.tHtml("organiser.graphs.rows.noMatch", { query: html`<span data-slot="query"></span>` })}</template>
+<ul class="rider-rows${group === null ? " default" : ""}">
+${ordered.map((r) => renderRow(i18n, rules, r, passed, lines(r), percent, !inView(r), open))}</ul>
+`;
+}
+
+/** Open reports on a narrow screen, where the table's column isn't there. */
+function renderReports(
+	i18n: I18n,
+	riders: readonly OverviewRider[],
+	requests: RiderRequests,
+	back: string,
+): SafeHtml | null {
+	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
+	const open = riders.flatMap((rider) =>
+		(requests.get(rider.athleteId) ?? []).map((row) => ({ rider, row })),
+	);
+	if (open.length === 0) return null;
+	return html`<section class="requests-box" aria-labelledby="requests-box-heading">
+<h2 id="requests-box-heading">${open.length === 1 ? i18n.t("organiser.graphs.reports.one") : i18n.t("organiser.graphs.reports.other", { n: whole(open.length) })}</h2>
+<ul class="requests-box-lines">
+${open.slice(0, 3).map(
+	({ rider, row }) =>
+		html`<li><span class="rider-name">${rider.firstName}</span>${riderRequestLines(i18n, [row], back)}</li>
+`,
+)}</ul>
+${
+	open.length > 3
+		? html`<a class="button-outlined requests-box-all" href="/organiser/riders?group=requests&amp;view=riders">${i18n.t("organiser.graphs.reports.showAll", { n: whole(open.length) })}</a>
+`
+		: null
+}</section>
 `;
 }
 
@@ -530,7 +631,7 @@ ${coinPair(i18n, rider.breakdown.corrections.training, rider.breakdown.correctio
 </tr>
 `;
 	});
-	return html`<div class="table-scroll"><table class="rider-table">
+	return html`<div class="table-scroll" tabindex="0" role="region" aria-label="${i18n.t("organiser.overview.column.name")}"><table class="rider-table">
 <thead><tr>${column("name")}${column("group")}${column("rynke")}${column("virtual", true)}${column("distance", true)}${column("elevation", true)}${column("corrections", true)}${column("requests")}</tr></thead>
 <tbody>
 ${rows}</tbody>
@@ -599,7 +700,7 @@ ${coinPair(i18n, rider.breakdown.corrections.training, rider.breakdown.correctio
 </tr>
 `;
 	});
-	return html`<div class="table-scroll"><table class="rider-table">
+	return html`<div class="table-scroll" tabindex="0" role="region" aria-label="${i18n.t("organiser.overview.column.name")}"><table class="rider-table">
 <thead><tr>${column("name")}${column("group")}${column("rynke")}${column("corrections", true)}${column("requests")}</tr></thead>
 <tbody>
 ${rows}</tbody>
@@ -640,6 +741,8 @@ export function overviewBody(
 	requests: RiderRequests = new Map(),
 	inert = false,
 	figures: OrganiserFigures = "full",
+	graphs: SafeHtml | null = null,
+	view: "graphs" | "riders" = "graphs",
 ): SafeHtml {
 	const passed = today > window.deadline;
 	const riders = overviewRiders(read, rules, window, today);
@@ -658,18 +761,29 @@ export function overviewBody(
 	const pace = overviewPace(rules, window, today);
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const percent = figures === "percent";
-	const list =
+	const hasGraphs = graphs !== null && riders.length > 0;
+	const body =
 		riders.length === 0
 			? html`<p>${i18n.t("organiser.overview.none")}</p>
 `
-			: html`${
-					pace ? renderHint(i18n, rules, pace, figures, whole) : null
-				}<ul class="rider-cards${group === null ? " default" : ""}">
-${shown.map((r) => (percent ? renderPercentCard : renderCard)(i18n, rules, r, passed, lines(r)))}</ul>
-${(percent ? renderPercentTable : renderTable)(i18n, rules, shown, passed, lines)}${renderQualified(i18n, riders)}`;
-	return html`<div class="team-overview"${inert ? html` inert` : null}>
+			: html`${renderReports(i18n, riders, requests, back)}${hasGraphs ? renderViewSwitch(i18n, shown.length, view) : null}<div class="overview-list">
+${pace ? renderHint(i18n, rules, pace, figures, whole) : null}${renderRows(i18n, rules, riders, group, passed, requests, lines, percent)}${(percent ? renderPercentTable : renderTable)(i18n, rules, shown, passed, lines)}</div>
+${hasGraphs ? graphs : null}<div class="overview-qualified">${renderQualified(i18n, riders)}</div>
+`;
+	return html`<div class="team-overview"${hasGraphs ? html` data-view="${view}"` : null}${inert ? html` inert` : null}>
 <h2>${i18n.t("organiser.overview.heading")}</h2>
-${renderDeadline(i18n, window, today, riders)}${renderTiles(i18n, riders, group, passed, requests)}${list}</div>`;
+${renderDeadline(i18n, window, today, riders)}${renderTiles(i18n, riders, group, passed, requests)}${body}</div>`;
+}
+
+/** Graphs or riders below 1100 px, instead of scrolling past one to the other. */
+function renderViewSwitch(
+	i18n: I18n,
+	count: number,
+	view: "graphs" | "riders",
+): SafeHtml {
+	const whole = i18n.formatNumber(count, { fractionDigits: 0 });
+	return html`<div class="overview-views" role="group" aria-label="${i18n.t("organiser.graphs.view.label")}"><button type="button" data-view-pick="graphs" aria-pressed="${view === "graphs" ? "true" : "false"}">${i18n.t("organiser.graphs.view.graphs")}</button><button type="button" data-view-pick="riders" aria-pressed="${view === "riders" ? "true" : "false"}">${i18n.tHtml("organiser.graphs.view.riders", { n: html`<span data-riders-count>${whole}</span>` })}</button></div>
+`;
 }
 
 /** What the even pace asks for today, as amounts or in percent. */
@@ -733,15 +847,35 @@ export function handleOrganiserOverview(
 			const team = exampleTeam(window, today);
 			return html`${organiserSwitch(i18n, "riders", team.requests.length)}${renderExampleNote(i18n, "tour.organiser.example")}${overviewBody(team.riders, CURRENT_RULES, window, today, null, i18n, byRider(team.requests), true, figures)}`;
 		}
-		const [read, { results }] = await Promise.all([
+		const graphsOn = figures === "full" && organiserProgressGraph(ctx.env);
+		const statements: D1PreparedStatement[] = [
+			listOpenRequestsStatement(ctx.env.DB, today, window),
+		];
+		if (graphsOn) statements.push(organiserGraphsStatement(ctx.env.DB));
+		const [read, [openRows, graphRows]] = await Promise.all([
 			readTeam(ctx.env.DB),
-			listOpenRequestsStatement(
-				ctx.env.DB,
-				today,
-				window,
-			).all<OpenRequestRow>(),
+			ctx.env.DB.batch(statements),
 		]);
+		const results = (openRows?.results ?? []) as OpenRequestRow[];
+		const requests = byRider(results);
+		const graphs =
+			graphRows && read.length > 0
+				? renderProgressGraphs(
+						i18n,
+						organiserGraphsView({
+							rows: await toGraphRows(ctx.env.DB, graphRows),
+							riders: overviewRiders(read, CURRENT_RULES, window, today),
+							requests,
+							window,
+							today,
+							group,
+						}),
+					)
+				: null;
 		const notice = await decisionNotice(url, ctx, i18n, path);
-		return html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, byRider(results), false, figures)}`;
+		const view =
+			url.searchParams.get("view") === "riders" ? "riders" : "graphs";
+		const body = html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, requests, false, figures, graphs, view)}`;
+		return graphs ? { body, scripts: CHART_SCRIPTS } : body;
 	});
 }

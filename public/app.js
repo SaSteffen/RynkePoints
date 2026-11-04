@@ -1805,6 +1805,134 @@ const PROGRESS_MIN_DAYS = 7;
 /** How far a finger or a shift-dragged mouse moves before the period follows. */
 const PROGRESS_PAN_SLOP = 8;
 
+/** The day under `clientX` on `chart`. */
+function chartDayAt(chart, clientX) {
+	return Math.round(
+		chart.scales.x.getValueForPixel(
+			clientX - chart.canvas.getBoundingClientRect().left,
+		),
+	);
+}
+
+/**
+ * Pinch and a sideways drag on a chart, a mouse over it and a tap, for the
+ * rider's charts and the organiser's (feature 009 contracts/client.md
+ * "Gestures", feature 029 research R4). `select` takes the day under the
+ * pointer, `settled` the chart once a gesture has ended.
+ */
+function chartGestures(chart, signal, { select, settled }) {
+	const canvas = chart.canvas;
+	const pointers = new Map();
+	let moved = false;
+	let panning = false;
+	let spread = 0;
+	const local = (event) => {
+		const rect = canvas.getBoundingClientRect();
+		return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+	};
+	const distance = () => {
+		const [a, b] = [...pointers.values()];
+		return Math.hypot(a.x - b.x, a.y - b.y);
+	};
+	canvas.addEventListener(
+		"pointerdown",
+		(event) => {
+			const mouse = event.pointerType === "mouse";
+			if (mouse && !(event.button === 0 && event.shiftKey)) return;
+			pointers.set(event.pointerId, {
+				...local(event),
+				startX: event.clientX,
+			});
+			try {
+				canvas.setPointerCapture(event.pointerId);
+			} catch {
+				// A pointer the browser no longer tracks can't be captured.
+			}
+			if (pointers.size === 2) spread = distance();
+			moved = false;
+			panning = false;
+		},
+		{ signal },
+	);
+	canvas.addEventListener(
+		"pointermove",
+		(event) => {
+			const pointer = pointers.get(event.pointerId);
+			if (!pointer) {
+				// A mouse over the chart selects the day under it.
+				if (event.pointerType === "mouse" && event.buttons === 0) {
+					select(chartDayAt(chart, event.clientX));
+				}
+				return;
+			}
+			const at = local(event);
+			if (pointers.size === 2) {
+				pointer.x = at.x;
+				pointer.y = at.y;
+				const now = distance();
+				if (spread > 0 && now > 0) {
+					const [a, b] = [...pointers.values()];
+					chart.zoom(
+						{
+							x: now / spread,
+							focalPoint: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
+						},
+						"none",
+					);
+					moved = true;
+				}
+				spread = now;
+				return;
+			}
+			if (
+				!panning &&
+				Math.abs(event.clientX - pointer.startX) < PROGRESS_PAN_SLOP
+			) {
+				return;
+			}
+			const dx = at.x - pointer.x;
+			pointer.x = at.x;
+			pointer.y = at.y;
+			if (!panning) {
+				panning = true;
+				return;
+			}
+			if (dx !== 0) chart.pan({ x: dx }, undefined, "none");
+			moved = true;
+		},
+		{ signal },
+	);
+	const end = (event) => {
+		if (!pointers.has(event.pointerId)) return;
+		pointers.delete(event.pointerId);
+		// A tap selects the day, as a click does.
+		if (
+			event.type === "pointerup" &&
+			!moved &&
+			!panning &&
+			pointers.size === 0
+		) {
+			select(chartDayAt(chart, event.clientX));
+		}
+		if (pointers.size < 2) spread = 0;
+		if (pointers.size === 0) {
+			if (moved) settled(chart);
+			moved = false;
+			panning = false;
+		}
+	};
+	canvas.addEventListener("pointerup", end, { signal });
+	canvas.addEventListener("pointercancel", end, { signal });
+	// A mouse click without a drag selects the day.
+	canvas.addEventListener(
+		"click",
+		(event) => {
+			if (!event.shiftKey) select(chartDayAt(chart, event.clientX));
+		},
+		{ signal },
+	);
+}
+
 /**
  * The Overview's progress charts (feature 009 contracts/client.md): Chart.js
  * draws the server's figures on the two canvases, both always on one period.
@@ -2194,134 +2322,12 @@ function progressCharts(signal) {
 		readoutOf(selected);
 	}
 
-	/** The day under `clientX` on `chart`. */
-	const dayAt = (chart, clientX) =>
-		Math.round(
-			chart.scales.x.getValueForPixel(
-				clientX - chart.canvas.getBoundingClientRect().left,
-			),
-		);
-
 	/** Moves the period by half its width: -1 earlier, 1 later. */
 	function move(direction) {
 		const [chart] = charts;
 		if (!chart) return;
 		const { left, right } = chart.chartArea;
 		chart.pan({ x: (-direction * (right - left)) / 2 }, undefined, "none");
-	}
-
-	/** Pinch and a sideways drag (contracts/client.md "Gestures"). */
-	function gestures(chart) {
-		const canvas = chart.canvas;
-		const pointers = new Map();
-		let moved = false;
-		let panning = false;
-		let spread = 0;
-		const local = (event) => {
-			const rect = canvas.getBoundingClientRect();
-			return { x: event.clientX - rect.left, y: event.clientY - rect.top };
-		};
-		const distance = () => {
-			const [a, b] = [...pointers.values()];
-			return Math.hypot(a.x - b.x, a.y - b.y);
-		};
-		canvas.addEventListener(
-			"pointerdown",
-			(event) => {
-				const mouse = event.pointerType === "mouse";
-				if (mouse && !(event.button === 0 && event.shiftKey)) return;
-				pointers.set(event.pointerId, {
-					...local(event),
-					startX: event.clientX,
-				});
-				try {
-					canvas.setPointerCapture(event.pointerId);
-				} catch {
-					// A pointer the browser no longer tracks can't be captured.
-				}
-				if (pointers.size === 2) spread = distance();
-				moved = false;
-				panning = false;
-			},
-			{ signal },
-		);
-		canvas.addEventListener(
-			"pointermove",
-			(event) => {
-				const pointer = pointers.get(event.pointerId);
-				if (!pointer) {
-					// A mouse over the chart selects the day under it.
-					if (event.pointerType === "mouse" && event.buttons === 0) {
-						select(dayAt(chart, event.clientX));
-					}
-					return;
-				}
-				const at = local(event);
-				if (pointers.size === 2) {
-					pointer.x = at.x;
-					pointer.y = at.y;
-					const now = distance();
-					if (spread > 0 && now > 0) {
-						const [a, b] = [...pointers.values()];
-						chart.zoom(
-							{
-								x: now / spread,
-								focalPoint: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 },
-							},
-							"none",
-						);
-						moved = true;
-					}
-					spread = now;
-					return;
-				}
-				if (
-					!panning &&
-					Math.abs(event.clientX - pointer.startX) < PROGRESS_PAN_SLOP
-				) {
-					return;
-				}
-				const dx = at.x - pointer.x;
-				pointer.x = at.x;
-				pointer.y = at.y;
-				if (!panning) {
-					panning = true;
-					return;
-				}
-				if (dx !== 0) chart.pan({ x: dx }, undefined, "none");
-				moved = true;
-			},
-			{ signal },
-		);
-		const end = (event) => {
-			if (!pointers.has(event.pointerId)) return;
-			pointers.delete(event.pointerId);
-			// A tap selects the day, as a click does.
-			if (
-				event.type === "pointerup" &&
-				!moved &&
-				!panning &&
-				pointers.size === 0
-			) {
-				select(dayAt(chart, event.clientX));
-			}
-			if (pointers.size < 2) spread = 0;
-			if (pointers.size === 0) {
-				if (moved) follow(chart);
-				moved = false;
-				panning = false;
-			}
-		};
-		canvas.addEventListener("pointerup", end, { signal });
-		canvas.addEventListener("pointercancel", end, { signal });
-		// A mouse click without a drag selects the day.
-		canvas.addEventListener(
-			"click",
-			(event) => {
-				if (!event.shiftKey) select(dayAt(chart, event.clientX));
-			},
-			{ signal },
-		);
 	}
 
 	/** The keys of research R7 on a focused chart. */
@@ -2405,7 +2411,7 @@ function progressCharts(signal) {
 	for (const canvas of section.querySelectorAll("canvas[data-series]")) {
 		const chart = makeChart(canvas);
 		charts.push(chart);
-		gestures(chart);
+		chartGestures(chart, signal, { select, settled: follow });
 		keys(chart);
 	}
 	section.addEventListener(
@@ -2437,6 +2443,1111 @@ function progressCharts(signal) {
 	select(lastIndex);
 }
 
+/** What survives a tile click, until a full reload (feature 029 research R5). */
+const graphsKept = {
+	from: null,
+	to: null,
+	mode: "running",
+	average: true,
+	total: false,
+	metric: "outdoor",
+	custom: false,
+	view: null,
+};
+
+const GRAPH_WIDE = "(min-width: 1100px)";
+const GRAPH_METRICS = ["outdoor", "virtual", "elevation"];
+/** More selected riders than this go thin and grey (FR-016). */
+const GRAPH_CROWDED = 8;
+
+/** A round top for the y axis. */
+function graphNiceMax(value) {
+	if (value <= 0) return 10;
+	const power = 10 ** Math.floor(Math.log10(value));
+	const fraction = value / power;
+	return (
+		(fraction <= 1 ? 1 : fraction <= 2 ? 2 : fraction <= 5 ? 5 : 10) * power
+	);
+}
+
+/**
+ * The organiser's graphs (feature 029 contracts/client.md): one chart per
+ * measure over one range, with rider and team lines from the page's data. A
+ * running total starts from zero on the range's first day, so moving the range
+ * works every line out again.
+ */
+function organiserGraphs(signal) {
+	const section = document.getElementById("organiser-graphs");
+	const source = document.getElementById("organiser-graphs-data");
+	if (!section || !source) return;
+	if (!window.Chart || !window.ChartZoom) {
+		console.error("The chart library is missing");
+		return;
+	}
+	let data;
+	try {
+		data = JSON.parse(source.textContent);
+	} catch (error) {
+		console.error("Unreadable graph data", error);
+		return;
+	}
+	const { Chart, ChartZoom } = window;
+	Chart.register(ChartZoom);
+	const kept = graphsKept;
+	const locale = section.dataset.locale;
+	const last = data.presets.season.to;
+	const [year, month, date] = data.firstDay.split("-").map(Number);
+	const dateOf = (index) => new Date(Date.UTC(year, month - 1, date + index));
+	const isoOf = (index) => dateOf(index).toISOString().slice(0, 10);
+	const indexOf = (value) => {
+		const time = Date.parse(`${value}T00:00:00Z`);
+		if (Number.isNaN(time)) return null;
+		const index = Math.round((time - dateOf(0).getTime()) / 86400000);
+		return Math.max(0, Math.min(last, index));
+	};
+	const shortDate = new Intl.DateTimeFormat(locale, {
+		timeZone: "UTC",
+		day: "numeric",
+		month: "short",
+	});
+	const monthName = new Intl.DateTimeFormat(locale, {
+		timeZone: "UTC",
+		month: "short",
+	});
+	const whole = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
+	const oneDecimal = new Intl.NumberFormat(locale, {
+		minimumFractionDigits: 1,
+		maximumFractionDigits: 1,
+	});
+
+	/** A catalog text from a `data-text` template, with its slots filled. */
+	const text = (name, values = {}) => {
+		const template = section.querySelector(`template[data-text="${name}"]`);
+		if (!template) return "";
+		const content = template.content.cloneNode(true);
+		for (const slot of content.querySelectorAll("[data-slot]")) {
+			slot.textContent = values[slot.dataset.slot] ?? "";
+		}
+		return content.textContent ?? "";
+	};
+	const valueText = (metric, value) =>
+		metric === "elevation"
+			? text("m", { n: whole.format(value) })
+			: text("km", {
+					n: value < 100 ? oneDecimal.format(value) : whole.format(value),
+				});
+
+	// Every line as one dense list per measure, in km or m.
+	const riders = data.riders.map((rider) => {
+		const series = {
+			outdoor: new Float64Array(last + 1),
+			virtual: new Float64Array(last + 1),
+			elevation: new Float64Array(last + 1),
+		};
+		for (const [index, outdoor, virtual, elevation] of rider.days) {
+			series.outdoor[index] = outdoor / 1000;
+			series.virtual[index] = virtual / 1000;
+			series.elevation[index] = elevation / 10;
+		}
+		return { ...rider, series };
+	});
+	const team = {
+		outdoor: Float64Array.from(data.teamSum.outdoorM, (m) => m / 1000),
+		virtual: Float64Array.from(data.teamSum.virtualM, (m) => m / 1000),
+		elevation: Float64Array.from(data.teamSum.elevationDm, (dm) => dm / 10),
+	};
+	const averageOf = {};
+	for (const metric of GRAPH_METRICS) {
+		averageOf[metric] = team[metric].map((v) => v / (data.agreedCount || 1));
+	}
+
+	const wide = matchMedia(GRAPH_WIDE);
+	/** The riders of the current tile, as today's default group (FR-014). */
+	const inGroup = (rider) => {
+		const group = data.group ?? (wide.matches ? "all" : "push");
+		if (group === "all") return true;
+		if (group === "requests") return rider.requests;
+		return rider.status === group;
+	};
+	const selected = new Set(riders.filter(inGroup).map((rider) => rider.id));
+	let highlight = null;
+	let picked = null;
+	if (kept.from === null || kept.to === null) {
+		kept.from = 0;
+		kept.to = last;
+	}
+	kept.from = Math.min(kept.from, last);
+	kept.to = Math.min(kept.to, last);
+
+	const look = () => {
+		const style = getComputedStyle(section);
+		const token = (name) => style.getPropertyValue(name).trim();
+		return {
+			font: style.fontFamily,
+			lines: [1, 2, 3, 4, 5, 6, 7, 8].map((n) => token(`--rp-graph-${n}`)),
+			grey: token("--rp-graph-grey"),
+			average: token("--rp-graph-average"),
+			total: token("--rp-graph-total"),
+			halo: token("--rp-graph-halo"),
+			band: token("--rp-graph-band"),
+			muted: token("--md-sys-color-on-surface-variant"),
+			grid: token("--md-sys-color-outline-variant"),
+			ink: token("--md-sys-color-on-surface"),
+		};
+	};
+	let colours = look();
+
+	const chosen = () => riders.filter((rider) => selected.has(rider.id));
+	const crowded = () => selected.size > GRAPH_CROWDED;
+	const colourOf = (rider) => {
+		const index = chosen().indexOf(rider);
+		return colours.lines[index % colours.lines.length];
+	};
+
+	/** The lines of one measure: `key`, `name`, per-day values and looks. */
+	function linesOf(metric) {
+		const lines = chosen().map((rider) => ({
+			key: rider.id,
+			name: rider.name,
+			daily: rider.series[metric],
+			colour: colourOf(rider),
+		}));
+		if (data.agreedCount > 0) {
+			if (kept.average) {
+				lines.push({
+					key: "average",
+					name: text("average"),
+					daily: averageOf[metric],
+					colour: colours.average,
+					team: true,
+				});
+			}
+			if (kept.total) {
+				lines.push({
+					key: "total",
+					name: text("total"),
+					daily: team[metric],
+					colour: colours.total,
+					team: true,
+				});
+			}
+		}
+		return lines;
+	}
+
+	/** A line's points over the range, and their top. */
+	function pointsOf(daily) {
+		const points = [];
+		let sum = 0;
+		let top = 0;
+		for (let index = kept.from; index <= kept.to; index++) {
+			sum += daily[index];
+			const y = kept.mode === "running" ? sum : daily[index];
+			if (y > top) top = y;
+			points.push({ x: index, y });
+		}
+		return { points, top };
+	}
+
+	const rangeSum = (daily) => {
+		let sum = 0;
+		for (let index = kept.from; index <= kept.to; index++) sum += daily[index];
+		return sum;
+	};
+
+	/** What a line shows at `index`, in the current view. */
+	function valueAt(daily, index) {
+		if (kept.mode === "daily") return daily[index];
+		let sum = 0;
+		for (let i = kept.from; i <= index; i++) sum += daily[i];
+		return sum;
+	}
+
+	function datasetsOf(metric) {
+		const many = crowded();
+		const single = kept.from === kept.to;
+		const sets = [];
+		let top = 0;
+		for (const line of linesOf(metric)) {
+			const { points, top: lineTop } = pointsOf(line.daily);
+			top = Math.max(top, lineTop);
+			const lit = highlight === line.key;
+			const faded = highlight !== null && !lit;
+			const greyed = many && !line.team && !lit;
+			const base = {
+				data: points,
+				pointRadius: single ? 3 : 0,
+				pointHoverRadius: 0,
+				borderDash: line.key === "total" ? [6, 4] : [],
+			};
+			const colour = greyed ? colours.grey : line.colour;
+			sets.push({
+				...base,
+				lineKey: line.key,
+				borderColor: colour,
+				backgroundColor: colour,
+				borderWidth: line.team || lit ? 3 : greyed ? 1 : 2,
+				order: line.key === "average" ? 0 : line.team ? 2 : lit ? 3 : 10,
+				// The grey crowd stays behind; a fade makes room for the highlight.
+				opacity: faded ? 0.2 : greyed ? 0.55 : 1,
+			});
+			if (line.key === "average" && !faded) {
+				sets.push({
+					...base,
+					lineKey: "halo",
+					borderColor: colours.halo,
+					backgroundColor: colours.halo,
+					borderWidth: 7,
+					order: 1,
+				});
+			}
+		}
+		for (const set of sets) {
+			if (set.opacity !== undefined && set.opacity < 1) {
+				set.borderColor = withAlpha(set.borderColor, set.opacity);
+			}
+		}
+		return { sets, top };
+	}
+
+	/** `colour` (`#rrggbb`) at `alpha`; anything else as it is. */
+	function withAlpha(colour, alpha) {
+		if (!/^#[0-9a-f]{6}$/i.test(colour)) return colour;
+		const part = Math.round(alpha * 255)
+			.toString(16)
+			.padStart(2, "0");
+		return `${colour}${part}`;
+	}
+
+	const dayTicks = (scale) => {
+		const from = Math.ceil(scale.min);
+		const to = Math.floor(scale.max);
+		const span = scale.max - scale.min;
+		const ticks = [];
+		for (let i = from; i <= to; i++) {
+			const at = dateOf(i);
+			if (
+				span > 62
+					? at.getUTCDate() === 1
+					: span >= 15
+						? at.getUTCDay() === 1
+						: (i - from) % 2 === 0
+			) {
+				ticks.push({ value: i });
+			}
+		}
+		scale.ticks = ticks;
+	};
+
+	const crosshair = {
+		id: "organiserCrosshair",
+		afterDatasetsDraw(chart) {
+			if (picked === null) return;
+			const x = chart.scales.x.getPixelForValue(picked);
+			const { top, bottom, left, right } = chart.chartArea;
+			if (x < left || x > right) return;
+			const { ctx } = chart;
+			ctx.save();
+			ctx.strokeStyle = colours.ink;
+			ctx.lineWidth = 1;
+			ctx.beginPath();
+			ctx.moveTo(Math.round(x) + 0.5, top);
+			ctx.lineTo(Math.round(x) + 0.5, bottom);
+			ctx.stroke();
+			ctx.restore();
+		},
+	};
+
+	const xBounds = () =>
+		kept.from === kept.to
+			? { min: kept.from - 0.5, max: kept.to + 0.5 }
+			: { min: kept.from, max: kept.to };
+
+	function makeChart(canvas) {
+		const font = { family: colours.font, size: 12 };
+		const { min, max } = xBounds();
+		return new Chart(canvas, {
+			type: "line",
+			data: { datasets: [] },
+			plugins: [crosshair],
+			options: {
+				animation: false,
+				responsive: true,
+				maintainAspectRatio: false,
+				events: [],
+				parsing: false,
+				normalized: true,
+				elements: { line: { tension: 0 } },
+				scales: {
+					x: {
+						type: "linear",
+						min,
+						max,
+						afterBuildTicks: dayTicks,
+						grid: { color: colours.grid },
+						border: { color: colours.grid },
+						ticks: {
+							color: colours.muted,
+							font,
+							maxRotation: 0,
+							autoSkip: true,
+							callback(value) {
+								const span = this.max - this.min;
+								return (span > 62 ? monthName : shortDate).format(
+									dateOf(value),
+								);
+							},
+						},
+					},
+					y: {
+						min: 0,
+						max: 10,
+						grid: { color: colours.grid },
+						border: { color: colours.grid },
+						ticks: {
+							color: colours.muted,
+							font,
+							maxTicksLimit: 6,
+							callback: (value) => whole.format(value),
+						},
+					},
+				},
+				plugins: {
+					legend: { display: false },
+					tooltip: { enabled: false },
+					zoom: {
+						limits: {
+							x: { min: 0, max: last, minRange: PROGRESS_MIN_DAYS },
+						},
+						pan: {
+							// Only so a shift-drag isn't a drag-zoom; the gestures pan.
+							enabled: true,
+							mode: "x",
+							modifierKey: "shift",
+							onPan: ({ chart }) => follow(chart, false),
+						},
+						zoom: {
+							mode: "x",
+							wheel: { enabled: true },
+							drag: {
+								enabled: true,
+								threshold: PROGRESS_PAN_SLOP,
+								backgroundColor: colours.band,
+								borderColor: colours.ink,
+								borderWidth: 2,
+							},
+							pinch: { enabled: false },
+							onZoomStart: ({ chart, event }) =>
+								event.type !== "wheel" ||
+								document.activeElement === chart.canvas,
+							onZoom: ({ chart, trigger }) =>
+								follow(chart, trigger === "drag" || trigger === "wheel"),
+						},
+					},
+				},
+			},
+		});
+	}
+
+	const figures = new Map(
+		[...section.querySelectorAll("figure[data-metric]")].map((figure) => [
+			figure.dataset.metric,
+			figure,
+		]),
+	);
+	const charts = new Map();
+
+	/** A chart for each measure on screen, none for the others (research R4). */
+	function syncCharts() {
+		const overview = section.closest(".team-overview");
+		const shown = wide.matches || overview?.dataset.view !== "riders";
+		for (const metric of GRAPH_METRICS) {
+			const figure = figures.get(metric);
+			const on = shown && (wide.matches || kept.metric === metric);
+			if (figure) figure.hidden = !wide.matches && kept.metric !== metric;
+			const chart = charts.get(metric);
+			if (on && !chart && figure) {
+				const canvas = figure.querySelector("canvas");
+				const made = makeChart(canvas);
+				charts.set(metric, made);
+				chartGestures(made, signal, {
+					select: selectDay,
+					settled: (c) => follow(c, true),
+				});
+				keys(made, metric, canvas);
+			} else if (!on && chart) {
+				chart.destroy();
+				charts.delete(metric);
+			}
+		}
+	}
+
+	/** The chart's range becomes everyone's; `snap` once a gesture is over. */
+	function follow(chart, snap) {
+		const { min, max } = chart.scales.x;
+		const from = Math.max(0, Math.round(min));
+		const to = Math.min(last, Math.round(max));
+		kept.from = Math.min(from, to);
+		kept.to = Math.max(from, to);
+		kept.custom = true;
+		picked = null;
+		redraw(snap ? null : { chart, min, max });
+	}
+
+	function setRange(from, to) {
+		kept.from = Math.max(0, Math.min(last, from));
+		kept.to = Math.max(kept.from, Math.min(last, to));
+		picked = null;
+		redraw(null);
+	}
+
+	let drawing = 0;
+	let pending = null;
+
+	/**
+	 * Works every line out for the range. A gesture sends many of these: one per
+	 * frame is enough, with its chart kept on the unrounded period it has reached.
+	 */
+	function redraw(live) {
+		pending = live;
+		if (live === null) {
+			if (drawing) cancelAnimationFrame(drawing);
+			drawing = 0;
+			drawNow();
+			return;
+		}
+		if (drawing) return;
+		drawing = requestAnimationFrame(() => {
+			drawing = 0;
+			if (!signal.aborted) drawNow();
+		});
+	}
+
+	function drawNow() {
+		const live = pending;
+		pending = null;
+		const bounds = live ? { min: live.min, max: live.max } : xBounds();
+		for (const [metric, chart] of charts) {
+			const { sets, top } = datasetsOf(metric);
+			chart.data.datasets = sets;
+			chart.options.scales.x.min = bounds.min;
+			chart.options.scales.x.max = bounds.max;
+			chart.options.scales.y.max = graphNiceMax(top);
+			chart.update("none");
+			updateAria(metric, chart);
+		}
+		updateControls();
+		renderLegends();
+	}
+
+	/** Only colours and widths changed: no need to work the sums out again. */
+	function restyle() {
+		for (const [metric, chart] of charts) {
+			const { sets } = datasetsOf(metric);
+			chart.data.datasets = sets;
+			chart.update("none");
+		}
+		for (const button of section.querySelectorAll(".org-legend-entry")) {
+			const on = button.dataset.line === String(highlight);
+			button.setAttribute("aria-pressed", String(on));
+		}
+	}
+
+	const rangeLabel = () =>
+		text("range", {
+			from: shortDate.format(dateOf(kept.from)),
+			to: shortDate.format(dateOf(kept.to)),
+		});
+
+	function updateAria(metric, chart) {
+		const lines = linesOf(metric)
+			.map((line) => `${line.name} ${valueText(metric, rangeSum(line.daily))}`)
+			.join(", ");
+		chart.canvas.setAttribute(
+			"aria-label",
+			text("aria", {
+				title: text(`title.${metric}`),
+				from: shortDate.format(dateOf(kept.from)),
+				to: shortDate.format(dateOf(kept.to)),
+				lines,
+			}),
+		);
+	}
+
+	const entryTemplate = section.querySelector("template[data-legend-entry]");
+
+	/** Each graph's legend: range sums, or the selected day's values (FR-008). */
+	function renderLegends() {
+		const many = crowded();
+		for (const [metric, figure] of figures) {
+			const legend = figure.querySelector("[data-legend]");
+			if (!legend || !entryTemplate) continue;
+			let lines = linesOf(metric);
+			if (many) {
+				lines = lines
+					.map((line) => ({ line, sum: rangeSum(line.daily) }))
+					.sort(
+						(a, b) =>
+							Number(Boolean(b.line.team)) - Number(Boolean(a.line.team)) ||
+							b.sum - a.sum,
+					)
+					.map(({ line }) => line);
+			}
+			legend.classList.toggle("org-legend-many", many);
+			legend.replaceChildren(
+				...lines.map((line) => {
+					const entry = entryTemplate.content.cloneNode(true);
+					const button = entry.querySelector("button");
+					button.dataset.line = String(line.key);
+					button.setAttribute("aria-pressed", String(highlight === line.key));
+					const key = entry.querySelector(".org-legend-key");
+					key.style.background = line.colour;
+					if (line.key === "average") key.classList.add("org-legend-halo");
+					entry.querySelector("[data-slot=name]").textContent = line.name;
+					entry.querySelector("[data-slot=value]").textContent = legendValue(
+						metric,
+						line,
+					);
+					return entry;
+				}),
+			);
+			const readout = figure.querySelector("[data-readout]");
+			if (readout) {
+				readout.textContent =
+					picked === null ? rangeLabel() : shortDate.format(dateOf(picked));
+			}
+		}
+	}
+
+	const legendValue = (metric, line) =>
+		valueText(
+			metric,
+			picked === null ? rangeSum(line.daily) : valueAt(line.daily, picked),
+		);
+
+	/** The selected day in the legends, without rebuilding them. */
+	function updateDay() {
+		for (const [metric, figure] of figures) {
+			const lines = new Map(
+				linesOf(metric).map((line) => [String(line.key), line]),
+			);
+			for (const button of figure.querySelectorAll(".org-legend-entry")) {
+				const line = lines.get(button.dataset.line);
+				const value = button.querySelector("[data-slot=value]");
+				if (line && value) value.textContent = legendValue(metric, line);
+			}
+			const readout = figure.querySelector("[data-readout]");
+			if (readout) {
+				readout.textContent =
+					picked === null ? rangeLabel() : shortDate.format(dateOf(picked));
+			}
+		}
+		for (const chart of charts.values()) chart.render();
+	}
+
+	function selectDay(index) {
+		picked = Math.max(kept.from, Math.min(kept.to, index));
+		updateDay();
+	}
+
+	function updateControls() {
+		const from = section.querySelector("input[data-from]");
+		const to = section.querySelector("input[data-to]");
+		if (from) from.value = isoOf(kept.from);
+		if (to) to.value = isoOf(kept.to);
+		for (const button of section.querySelectorAll("button[data-preset]")) {
+			const range = data.presets[button.dataset.preset];
+			const on = range && range.from === kept.from && range.to === kept.to;
+			button.setAttribute("aria-pressed", String(Boolean(on)));
+		}
+		section
+			.querySelector("button[data-custom]")
+			?.setAttribute("aria-pressed", String(kept.custom));
+		section.dataset.custom = String(kept.custom);
+		for (const button of section.querySelectorAll("button[data-mode]")) {
+			button.setAttribute(
+				"aria-pressed",
+				String(button.dataset.mode === kept.mode),
+			);
+		}
+		for (const button of section.querySelectorAll("button[data-tab]")) {
+			button.setAttribute(
+				"aria-pressed",
+				String(button.dataset.tab === kept.metric),
+			);
+		}
+		updatePicker();
+		updateNote();
+	}
+
+	function updatePicker() {
+		const riderCount = selected.size;
+		const parts = [];
+		if (riderCount === 1) {
+			parts.push(chosen()[0]?.name ?? "");
+		} else if (riderCount > 1) {
+			parts.push(text("summary.riders", { n: whole.format(riderCount) }));
+		}
+		if (kept.average) parts.push(text("summary.average"));
+		if (kept.total) parts.push(text("summary.total"));
+		const summary = section.querySelector("[data-summary]");
+		if (summary) {
+			const line = parts.join(", ");
+			summary.textContent =
+				line === ""
+					? text("summary.none")
+					: line.charAt(0).toLocaleUpperCase(locale) + line.slice(1);
+		}
+		for (const label of section.querySelectorAll(".org-graphs-option")) {
+			const input = label.querySelector("input");
+			if (!input) continue;
+			if (label.dataset.team === "average") input.checked = kept.average;
+			else if (label.dataset.team === "total") input.checked = kept.total;
+			else input.checked = selected.has(Number(label.dataset.rider));
+		}
+	}
+
+	function updateNote() {
+		const note = section.querySelector("[data-note]");
+		if (!note) return;
+		const missing = data.notAgreed.filter(inGroup).length;
+		const line =
+			data.agreedCount === 0
+				? text("note.nobody")
+				: missing === 1
+					? text("note.one")
+					: missing > 1
+						? text("note.other", { n: whole.format(missing) })
+						: "";
+		note.textContent = line;
+		note.hidden = line === "";
+	}
+
+	/** The keys of the rider's charts (feature 009 research R7). */
+	function keys(chart, metric, canvas) {
+		canvas.addEventListener(
+			"keydown",
+			(event) => {
+				if (event.altKey || event.ctrlKey || event.metaKey) return;
+				const zoomBy = (factor) => {
+					const { top, bottom } = chart.chartArea;
+					chart.zoom(
+						{
+							x: factor,
+							focalPoint: {
+								x: chart.scales.x.getPixelForValue(picked ?? kept.to),
+								y: (top + bottom) / 2,
+							},
+						},
+						"none",
+					);
+					follow(chart, true);
+				};
+				const moveDays = (direction) => {
+					const span = kept.to - kept.from;
+					const by = Math.max(1, Math.round(span / 2)) * direction;
+					const from = Math.max(0, Math.min(last - span, kept.from + by));
+					kept.custom = true;
+					setRange(from, from + span);
+				};
+				switch (event.key) {
+					case "ArrowLeft":
+						selectDay((picked ?? kept.to) - 1);
+						announce(metric);
+						break;
+					case "ArrowRight":
+						selectDay((picked ?? kept.from) + 1);
+						announce(metric);
+						break;
+					case "Home":
+						selectDay(kept.from);
+						announce(metric);
+						break;
+					case "End":
+						selectDay(kept.to);
+						announce(metric);
+						break;
+					case "+":
+					case "=":
+						zoomBy(1.5);
+						break;
+					case "-":
+						zoomBy(1 / 1.5);
+						break;
+					case "PageUp":
+						moveDays(-1);
+						break;
+					case "PageDown":
+						moveDays(1);
+						break;
+					case "0":
+					case "Escape":
+						kept.custom = false;
+						setRange(0, last);
+						break;
+					default:
+						return;
+				}
+				event.preventDefault();
+			},
+			{ signal },
+		);
+	}
+
+	/** Says the selected day's values, for the focused graph only (FR-009). */
+	function announce(metric) {
+		const live = section.querySelector("[data-live]");
+		if (!live || picked === null) return;
+		const lines = linesOf(metric)
+			.map((line) => `${line.name} ${legendValue(metric, line)}`)
+			.join(", ");
+		live.textContent = `${text(`title.${metric}`)}, ${shortDate.format(dateOf(picked))}: ${lines}`;
+	}
+
+	// The panel of "Shown in the graphs".
+	const toggle = section.querySelector("[data-picker-toggle]");
+	const panel = section.querySelector("[data-picker-panel]");
+	const query = section.querySelector("[data-picker-query]");
+	const none = section.querySelector("[data-picker-none]");
+	const closePanel = (focus) => {
+		if (!panel || panel.hidden) return;
+		panel.hidden = true;
+		toggle?.setAttribute("aria-expanded", "false");
+		if (query) query.value = "";
+		filterOptions();
+		if (highlight !== null) {
+			highlight = null;
+			restyle();
+		}
+		if (focus) toggle?.focus();
+	};
+	function filterOptions() {
+		const needle = (query?.value ?? "").trim().toLowerCase();
+		let shown = 0;
+		for (const label of section.querySelectorAll(".org-graphs-option")) {
+			const match = label.dataset.name.includes(needle);
+			label.hidden = !match;
+			if (match) shown += 1;
+		}
+		if (none) {
+			none.hidden = shown > 0 || needle === "";
+			none.textContent = none.hidden
+				? ""
+				: text("noMatch", { query: (query?.value ?? "").trim() });
+		}
+	}
+	toggle?.addEventListener(
+		"click",
+		() => {
+			if (!panel) return;
+			if (panel.hidden) {
+				panel.hidden = false;
+				toggle.setAttribute("aria-expanded", "true");
+				query?.focus();
+			} else {
+				closePanel(true);
+			}
+		},
+		{ signal },
+	);
+	query?.addEventListener("input", filterOptions, { signal });
+	document.addEventListener(
+		"click",
+		(event) => {
+			const picker = section.querySelector("[data-picker]");
+			if (panel?.hidden || !(event.target instanceof Node)) return;
+			if (!picker?.contains(event.target)) closePanel(false);
+		},
+		{ signal },
+	);
+	section.addEventListener(
+		"keydown",
+		(event) => {
+			if (event.key === "Escape" && panel && !panel.hidden) {
+				closePanel(true);
+				event.stopPropagation();
+			}
+		},
+		{ signal },
+	);
+	panel?.addEventListener(
+		"change",
+		(event) => {
+			const label =
+				event.target instanceof Element
+					? event.target.closest(".org-graphs-option")
+					: null;
+			if (!label) return;
+			const on = label.querySelector("input")?.checked ?? false;
+			if (label.dataset.team === "average") kept.average = on;
+			else if (label.dataset.team === "total") kept.total = on;
+			else if (on) selected.add(Number(label.dataset.rider));
+			else selected.delete(Number(label.dataset.rider));
+			highlight = null;
+			redraw(null);
+		},
+		{ signal },
+	);
+
+	// A fine pointer highlights a line from its legend entry or panel row.
+	const fine = matchMedia("(hover: hover)");
+	const hoverLine = (key) => {
+		if (!fine.matches || highlight === key) return;
+		highlight = key;
+		restyle();
+	};
+	const lineKeyOf = (value) =>
+		value === "average" || value === "total" ? value : Number(value);
+	section.addEventListener(
+		"mouseover",
+		(event) => {
+			if (!(event.target instanceof Element)) return;
+			const entry = event.target.closest(".org-legend-entry");
+			if (entry) {
+				hoverLine(lineKeyOf(entry.dataset.line));
+				return;
+			}
+			const option = event.target.closest(".org-graphs-option");
+			if (!option) return;
+			const key = option.dataset.team ?? Number(option.dataset.rider);
+			const on = option.querySelector("input")?.checked;
+			hoverLine(on ? key : null);
+		},
+		{ signal },
+	);
+	section.addEventListener(
+		"mouseout",
+		(event) => {
+			if (!(event.target instanceof Element)) return;
+			if (
+				event.target.closest(".org-legend-entry, .org-graphs-option") &&
+				!(
+					event.relatedTarget instanceof Element &&
+					event.relatedTarget.closest(".org-legend-entry, .org-graphs-option")
+				)
+			) {
+				hoverLine(null);
+			}
+		},
+		{ signal },
+	);
+	for (const canvas of section.querySelectorAll("canvas[data-metric]")) {
+		canvas.addEventListener(
+			"pointerleave",
+			(event) => {
+				if (
+					event.pointerType === "mouse" &&
+					event.buttons === 0 &&
+					picked !== null
+				) {
+					picked = null;
+					updateDay();
+				}
+			},
+			{ signal },
+		);
+	}
+
+	section.addEventListener(
+		"click",
+		(event) => {
+			const button =
+				event.target instanceof Element ? event.target.closest("button") : null;
+			if (!button || !section.contains(button)) return;
+			if (button.dataset.preset) {
+				const range = data.presets[button.dataset.preset];
+				if (!range) return;
+				kept.custom = false;
+				setRange(range.from, range.to);
+			} else if (button.dataset.custom !== undefined) {
+				kept.custom = !kept.custom;
+				updateControls();
+			} else if (button.dataset.mode) {
+				kept.mode = button.dataset.mode;
+				redraw(null);
+			} else if (button.dataset.tab) {
+				kept.metric = button.dataset.tab;
+				picked = null;
+				syncCharts();
+				redraw(null);
+			} else if (button.classList.contains("org-legend-entry")) {
+				const key = lineKeyOf(button.dataset.line);
+				highlight = highlight === key ? null : key;
+				restyle();
+			} else if (button.hasAttribute("data-picker-clear")) {
+				selected.clear();
+				kept.average = false;
+				kept.total = false;
+				highlight = null;
+				redraw(null);
+			} else if (button.hasAttribute("data-picker-done")) {
+				closePanel(true);
+			}
+		},
+		{ signal },
+	);
+	section.addEventListener(
+		"change",
+		(event) => {
+			const input = event.target;
+			if (!(input instanceof HTMLInputElement)) return;
+			if (input.dataset.from === undefined && input.dataset.to === undefined) {
+				return;
+			}
+			const index = indexOf(input.value);
+			if (index === null) return;
+			kept.custom = true;
+			if (input.dataset.from !== undefined) {
+				setRange(index, Math.max(index, kept.to));
+			} else {
+				setRange(Math.min(index, kept.from), index);
+			}
+		},
+		{ signal },
+	);
+
+	wide.addEventListener(
+		"change",
+		() => {
+			syncCharts();
+			redraw(null);
+		},
+		{ signal },
+	);
+	const onViewChange = () => {
+		syncCharts();
+		redraw(null);
+	};
+	section
+		.closest(".team-overview")
+		?.addEventListener("rp-view-change", onViewChange, { signal });
+
+	/** The scheme changed: the lines take its colours (research R13). */
+	function recolour() {
+		colours = look();
+		for (const chart of charts.values()) {
+			for (const axis of ["x", "y"]) {
+				const scale = chart.options.scales[axis];
+				scale.grid.color = colours.grid;
+				scale.border.color = colours.grid;
+				scale.ticks.color = colours.muted;
+			}
+			const { drag } = chart.options.plugins.zoom.zoom;
+			drag.backgroundColor = colours.band;
+			drag.borderColor = colours.ink;
+		}
+		redraw(null);
+	}
+	matchMedia("(prefers-color-scheme: dark)").addEventListener(
+		"change",
+		recolour,
+		{ signal },
+	);
+	const scheme = new MutationObserver(recolour);
+	scheme.observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ["data-scheme", "data-theme"],
+	});
+	signal.addEventListener("abort", () => {
+		scheme.disconnect();
+		if (drawing) cancelAnimationFrame(drawing);
+		for (const chart of charts.values()) chart.destroy();
+		charts.clear();
+	});
+	syncCharts();
+	redraw(null);
+}
+
+/**
+ * Below 1100 px: the Graphs / Riders switch, the rider search across the whole
+ * team, and rows that open by themselves when few show (feature 029 contracts/
+ * client.md "Narrow Riders view"). A view kept across a tile click stays.
+ */
+function organiserRiders(signal) {
+	const overview = document.querySelector(".team-overview");
+	if (!overview) return;
+	const rows = [...overview.querySelectorAll(".rider-row")];
+	const list = overview.querySelector(".rider-rows");
+	const search = overview.querySelector("[data-rider-search]");
+	const none = overview.querySelector("[data-rider-none]");
+	const noneText = overview.querySelector("template[data-rider-none-text]");
+	const wasHidden = new Set(rows.filter((row) => row.hidden));
+	const isDefault = list?.classList.contains("default") ?? false;
+	const count = overview.querySelector("[data-riders-count]");
+	const whole = new Intl.NumberFormat(document.documentElement.lang || "en");
+
+	const needle = () => (search?.value ?? "").trim().toLowerCase();
+	/** Whether a row shows without a search, as `.default` does in the CSS. */
+	const inGroup = (row) =>
+		!wasHidden.has(row) &&
+		(!isDefault ||
+			matchMedia(GRAPH_WIDE).matches ||
+			row.classList.contains("status-push"));
+	const shows = (row) =>
+		needle() === "" ? inGroup(row) : row.dataset.name.includes(needle());
+
+	function expandFew() {
+		const showing = rows.filter(shows);
+		const open = showing.length <= 5;
+		for (const row of rows) {
+			const details = row.querySelector("details");
+			if (details) details.open = open && showing.includes(row);
+		}
+	}
+
+	function applySearch() {
+		const query = needle();
+		list?.classList.toggle("default", isDefault && query === "");
+		let shown = 0;
+		for (const row of rows) {
+			const on = shows(row);
+			row.hidden = query === "" ? wasHidden.has(row) : !on;
+			if (on) shown += 1;
+		}
+		if (none && noneText) {
+			none.hidden = query === "" || shown > 0;
+			const content = noneText.content.cloneNode(true);
+			const slot = content.querySelector("[data-slot=query]");
+			if (slot) slot.textContent = (search?.value ?? "").trim();
+			none.textContent = none.hidden ? "" : (content.textContent ?? "");
+		}
+		expandFew();
+	}
+	search?.addEventListener("input", applySearch, { signal });
+	if (count && isDefault) {
+		count.textContent = whole.format(rows.filter(inGroup).length);
+	}
+	if (rows.length > 0) expandFew();
+
+	// The view: from the address when it asks for one, else as it was.
+	const asked = new URL(location.href).searchParams.get("view");
+	if (asked === "riders") graphsKept.view = "riders";
+	const setView = (view) => {
+		if (overview.dataset.view === undefined) return;
+		graphsKept.view = view;
+		overview.dataset.view = view;
+		for (const button of overview.querySelectorAll("[data-view-pick]")) {
+			button.setAttribute(
+				"aria-pressed",
+				String(button.dataset.viewPick === view),
+			);
+		}
+		overview.dispatchEvent(new Event("rp-view-change"));
+	};
+	if (graphsKept.view) setView(graphsKept.view);
+	overview.addEventListener(
+		"click",
+		(event) => {
+			const button =
+				event.target instanceof Element
+					? event.target.closest("[data-view-pick]")
+					: null;
+			if (button) setView(button.dataset.viewPick);
+		},
+		{ signal },
+	);
+}
+
 /**
  * What the page's content needs: run on load and again on content swapped in
  * place (`swapPage`), whose `signal` ends the listeners of the content before.
@@ -2452,6 +3563,8 @@ function enhance(signal) {
 	badgeSwitch(signal);
 	notifications(signal).catch(() => {});
 	progressCharts(signal);
+	organiserRiders(signal);
+	organiserGraphs(signal);
 }
 
 const registered = registerWorker();

@@ -51,10 +51,13 @@ function expectLanguage(
 	expect(res.headers.get("Vary")).toBe("Accept-Language, Cookie");
 	// The Team page's quote is German in every language (016 FR-023) and is
 	// picked at random, so its words can match either catalog.
-	const page = html.replace(
-		/<blockquote [^>]*lang="de">[\s\S]*?<\/blockquote>/g,
-		"",
-	);
+	const page = html
+		.replace(/<blockquote [^>]*lang="de">[\s\S]*?<\/blockquote>/g, "")
+		// Chart data holds numbers and names under keys no rider reads.
+		.replace(
+			/<script type="application\/json"[^>]*>[\s\S]*?<\/script\s*>/g,
+			"",
+		);
 	for (const text of locale === "de" ? ENGLISH_ONLY : GERMAN_ONLY) {
 		expect(page).not.toContain(text);
 	}

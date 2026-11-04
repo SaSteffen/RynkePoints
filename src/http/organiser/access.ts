@@ -8,7 +8,12 @@ import { html, type SafeHtml } from "../html";
 import { CALENDAR, PEOPLE } from "../icons";
 import { redirect } from "../redirect";
 import { isSameOrigin } from "../session";
-import { countBadge, type ShellViewer, shellPage } from "../shell";
+import {
+	countBadge,
+	type SectionBody,
+	type ShellViewer,
+	shellPage,
+} from "../shell";
 import { readViewer, riderConsentState } from "../viewer";
 
 // Who may use the organiser pages, and what they share (feature 014 research
@@ -59,7 +64,11 @@ export function organiserPage(
 	path: string,
 	render: (
 		viewer: ShellViewer,
-	) => Promise<SafeHtml | Response> | SafeHtml | Response,
+	) =>
+		| Promise<SafeHtml | SectionBody | Response>
+		| SafeHtml
+		| SectionBody
+		| Response,
 ): Promise<Response> {
 	return shellPage(request, ctx, i18n, "organiser", path, (viewer) =>
 		viewer.rider.organiser ? render(viewer) : forbidden(i18n, path),

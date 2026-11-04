@@ -115,7 +115,7 @@ describe("POST /connect without agreement", () => {
 	it.each([
 		["no consent field", {}],
 		["consent=0", { consent: "0" }],
-		["consent=3", { consent: "3" }],
+		["consent=9", { consent: "9" }],
 	])("sends %s to /notice/consent-required", async (_name, form) => {
 		const res = await connectForm(form);
 		expect(res.status).toBe(303);

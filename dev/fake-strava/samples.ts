@@ -65,6 +65,8 @@ export interface SampleRider {
 	organiser?: true;
 	/** The same for the administrator flag (feature 025 research R12). */
 	administrator?: true;
+	/** Held back on this consent version, as a rider not asked yet (feature 029). */
+	consentVersion?: number;
 }
 
 /** `count` rides from `recipe(i)`, i = 0 … count − 1. */
@@ -100,6 +102,73 @@ function slot(i: number): [daysAgo: number, startTime: string] {
 }
 
 const ALL_SCOPES = "read,activity:read,activity:read_all";
+
+const ORDINARY_NAMES = [
+	"Alma",
+	"Bruno",
+	"Carla",
+	"Dirk",
+	"Elif",
+	"Fabian",
+	"Greta",
+	"Hannes",
+	"Ida",
+	"Jonas",
+	"Kira",
+	"Lars",
+	"Mia",
+	"Nils",
+	"Ole",
+	"Paul",
+	"Quirin",
+	"Rosa",
+	"Sven",
+	"Tessa",
+	"Uwe",
+	"Vera",
+	"Wim",
+	"Xenia",
+	"Yann",
+];
+
+/**
+ * About 25 riders with ordinary seasons, so crowded graphs and long lists can be
+ * judged locally (feature 029 research R11): their rhythm, virtual share and
+ * climbing differ, some start late or have stopped, every fifth is held back on
+ * consent version 2. Nothing random, so the fingerprint stays the same.
+ */
+function ordinaryRiders(): SampleRider[] {
+	return ORDINARY_NAMES.map((firstName, n) => {
+		const gap = 2 + (n % 6);
+		const stoppedDaysAgo = n % 7 === 3 ? 40 : 1;
+		const virtualEvery = 2 + (n % 5);
+		const held = n % 5 === 2;
+		return {
+			athleteId: 990_020 + n,
+			firstName,
+			state: held
+				? "Ordinary season, hasn't agreed to daily figures yet"
+				: "Ordinary season",
+			scopes: ALL_SCOPES,
+			clubMember: true,
+			behaviour: "normal",
+			...(held ? { consentVersion: 2 } : {}),
+			rides: rides(24 + (n % 12), (i) => {
+				const km = 18 + ((n * 7 + i * 13) % 60);
+				const daysAgo = stoppedDaysAgo + i * gap;
+				const virtual = i % virtualEvery === 1;
+				return ride(
+					daysAgo,
+					i % 2 === 0 ? "07:30" : "17:45",
+					km,
+					Math.round(km * (4 + (n % 9)) * (virtual ? 0.5 : 1)),
+					24 + (n % 5),
+					virtual ? { sportType: "VirtualRide", trainer: true } : {},
+				);
+			}),
+		};
+	});
+}
 
 export const SAMPLE_RIDERS: readonly SampleRider[] = [
 	{
@@ -411,6 +480,7 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		administrator: true,
 		rides: rides(4, (i) => ride(...slot(i), 40, 200, 25)),
 	},
+	...ordinaryRiders(),
 ];
 
 /** A team event several sample riders attended, entered by an organiser. */

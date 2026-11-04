@@ -42,15 +42,17 @@ export const en: Catalog = {
 	"consent.short.read":
 		"We only read the key figures of your rides, runs and swims, such as distance, time and elevation, and turn them into Rynke and badges.",
 	"consent.short.shown":
-		"The team sees your Rynke without your name, the organisers with your first name. Administrators see your first name and connection state, and if they remove you, we keep your Strava ID so you can't return.",
+		"The team sees your Rynke without your name, the organisers with your first name, plus your kilometres and elevation per day. Administrators see your first name and connection state, and if they remove you, we keep your Strava ID so you can't return.",
 	"consent.details": "All the details",
 	"consent.organisers":
 		"The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, and which team events you reported you're coming to or were at.",
+	"consent.dailyFigures":
+		"The organisers also see, with your first name, how many kilometres you rode outdoors and virtually and how many metres of elevation you climbed, as a total per day, across the whole season. This includes private rides that count. They don't see your individual rides, their names, times or routes.",
 	"consent.team":
 		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation count towards the team sums of the team badges, without your name. On which days and at what hour you ride, run or swim counts towards the team surprises, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
 	"consent.agree":
-		"Agreed: RynkePoints reads your rides and shares your Rynke as described.",
+		"Agreed: RynkePoints reads your rides and shares your Rynke and daily totals as described.",
 
 	"me.title": "Your RynkePoints",
 	"me.greeting": "Hi {firstName}!",
@@ -748,7 +750,7 @@ export const en: Catalog = {
 	"privacy.visibility.team":
 		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation, and on which days and at what hour you are active, count towards the team sums and team badges, without your name.",
 	"privacy.visibility.organisers":
-		"The organisers see your first name, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, and which team events you reported you're coming to or were at, but no individual activities.",
+		"The organisers see your first name, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, which team events you reported you're coming to or were at, and your kilometres outdoors and virtually and your elevation as totals per day, but no individual activities.",
 	"privacy.visibility.public":
 		"None of it is public: every page with this data needs you to sign in with Strava.",
 	"privacy.legal.heading": "Legal basis",
@@ -1002,6 +1004,58 @@ export const en: Catalog = {
 	"notice.blocked.title": "You can't take part in this team",
 	"notice.blocked.body":
 		"An administrator removed you from this team. We only keep your Strava ID, so you can't connect again, and we've revoked the access you just granted.",
+	"organiser.graphs.heading": "Progress",
+	"organiser.graphs.title.outdoor": "Outdoor kilometres (km)",
+	"organiser.graphs.title.virtual": "Virtual kilometres (km)",
+	"organiser.graphs.title.elevation": "Elevation (m)",
+	"organiser.graphs.tabs.label": "Graph",
+	"organiser.graphs.tab.outdoor": "Outdoor",
+	"organiser.graphs.tab.virtual": "Virtual",
+	"organiser.graphs.tab.elevation": "Elevation",
+	"organiser.graphs.picker.label": "Shown in the graphs",
+	"organiser.graphs.picker.find": "Find a rider",
+	"organiser.graphs.picker.clear": "Clear all",
+	"organiser.graphs.picker.done": "Done",
+	"organiser.graphs.picker.notAgreed": "No line yet, not agreed: {names}",
+	"organiser.graphs.picker.noMatch": "No rider matches “{query}”.",
+	"organiser.graphs.summary.riders": "{n} riders shown",
+	"organiser.graphs.summary.average": "team average",
+	"organiser.graphs.summary.total": "team total",
+	"organiser.graphs.summary.none": "Nothing selected",
+	"organiser.graphs.average": "Team average",
+	"organiser.graphs.total": "Team total",
+	"organiser.graphs.from": "From",
+	"organiser.graphs.to": "To",
+	"organiser.graphs.range.label": "Quick ranges",
+	"organiser.graphs.range.season": "Season",
+	"organiser.graphs.range.3m": "3 months",
+	"organiser.graphs.range.4w": "4 weeks",
+	"organiser.graphs.range.custom": "Custom",
+	"organiser.graphs.mode.label": "What each point shows",
+	"organiser.graphs.mode.running": "Running total",
+	"organiser.graphs.mode.daily": "Per day",
+	"organiser.graphs.hint.mouse":
+		"Drag across a graph to choose dates. “Season” shows everything again.",
+	"organiser.graphs.hint.touch":
+		"Pinch to zoom, drag sideways to move, tap for a day. “Season” shows everything again.",
+	"organiser.graphs.note.one":
+		"1 rider has no line, not agreed to showing daily figures yet.",
+	"organiser.graphs.note.other":
+		"{n} riders have no line, not agreed to showing daily figures yet.",
+	"organiser.graphs.note.nobody":
+		"Riders are still being asked to agree. No lines yet.",
+	"organiser.graphs.value.km": "{n} km",
+	"organiser.graphs.value.m": "{n} m",
+	"organiser.graphs.readout.range": "{from} – {to}, total",
+	"organiser.graphs.aria": "{title} from {from} to {to}: {lines}",
+	"organiser.graphs.view.label": "What to show",
+	"organiser.graphs.view.graphs": "Graphs",
+	"organiser.graphs.view.riders": "Riders ({n})",
+	"organiser.graphs.reports.one": "1 open report",
+	"organiser.graphs.reports.other": "{n} open reports",
+	"organiser.graphs.reports.showAll": "Show all {n}",
+	"organiser.graphs.rows.noMatch": "No rider matches “{query}”.",
+	"organiser.graphs.rows.report": "Report",
 	"consent.admins":
 		"Administrators run the app for the team. They see your first name, whether you're connected and since when, when your club membership was last checked and whether your import is still running, but no rides or Rynke. They can remove you from the team: your data is then deleted, and only your Strava ID stays on a block list, so you can't connect to this team again.",
 	"privacy.visibility.admins":

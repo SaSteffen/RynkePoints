@@ -163,24 +163,25 @@ describe("STYLE", () => {
 		});
 	});
 
-	it("shows the overview as cards below 1100 px and as a table from 1100 px (016 FR-035, research R9)", () => {
+	it("shows the overview as rows below 1100 px and as a table from 1100 px (029 FR-018, FR-019)", () => {
 		const PHONE = "(max-width:1099.98px)";
 		const DESKTOP = "(min-width:1100px)";
 		const MEDIUM = "(min-width:840px)";
-		// From 840 px the cards sit in two columns and the page spans the window.
-		expect(declsOf("ul.rider-cards", MEDIUM)["grid-template-columns"]).toBe(
-			"repeat(2,minmax(0,1fr))",
-		);
 		expect(declsOf("main:has(>.team-overview)", MEDIUM)["max-width"]).toBe(
 			"none",
 		);
 		expect(declsOf(".table-scroll", PHONE).display).toBe("none");
 		expect(
-			declsOf(".rider-cards.default .rider-card:not(.status-push)", PHONE)
+			declsOf(".rider-rows.default .rider-row:not(.status-push)", PHONE)
 				.display,
 		).toBe("none");
-		expect(declsOf("ul.rider-cards", DESKTOP).display).toBe("none");
-		expect(declsOf(".table-scroll")["overflow-x"]).toBe("auto");
+		expect(declsOf("ul.rider-rows", DESKTOP).display).toBe("none");
+		expect(declsOf(".requests-box", DESKTOP).display).toBe("none");
+		expect(declsOf(".rider-search", DESKTOP).display).toBe("none");
+		// The table scrolls in its own box, under a header that stays (FR-018).
+		expect(declsOf(".table-scroll").overflow).toBe("auto");
+		expect(declsOf(".table-scroll")["max-height"]).toBe("560px");
+		expect(declsOf(".rider-table thead th").position).toBe("sticky");
 		// The tile shown by default looks like a picked one.
 		expect(declsOf(".group-tiles.default .tile-push", PHONE)).toEqual(
 			declsOf(".group-tile[aria-current]"),

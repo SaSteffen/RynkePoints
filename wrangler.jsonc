@@ -63,6 +63,10 @@
 		// (Training and Team as a share of their threshold, up to 100 %; the
 		// corrections as amounts).
 		"ORGANISER_FIGURES": "full",
+		// "on" adds the Progress section with daily figures to /organiser/riders,
+		// for riders on consent version 3 or higher, while ORGANISER_FIGURES is
+		// "full". It never changes the consent versions. "on" or "off".
+		"ORGANISER_PROGRESS_GRAPH": "on",
 		// "0" until the webhook subscription is created (quickstart §3 step 12).
 		"STRAVA_SUBSCRIPTION_ID": "375559",
 		// VAPID contact for the push services (010 research R4).

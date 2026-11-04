@@ -442,11 +442,20 @@ async function readBadgesPage(
 		throw new Error("D1 batch returned too few results");
 	}
 	const balanceRow = (balance.results as BalanceRow[])[0];
+	const [badges, sums] = await Promise.all([
+		toRiderBadges(
+			db,
+			athleteId,
+			window,
+			results.slice(2, 2 + riderBadges.length),
+		),
+		toTeamBadgeSums(db, results.slice(2 + riderBadges.length)),
+	]);
 	return {
 		balance: balanceRow ? toStoredBalance(balanceRow) : null,
 		attendance: toAttendedEvents(attendance.results as RiderAttendanceRow[]),
-		badges: toRiderBadges(results.slice(2, 2 + riderBadges.length)),
-		sums: await toTeamBadgeSums(db, results.slice(2 + riderBadges.length)),
+		badges,
+		sums,
 	};
 }
 

@@ -39,7 +39,7 @@ describe("listSharedRiderIds", () => {
 
 	it("lists a rider with several records once", async () => {
 		await env.DB.prepare(
-			"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, 3, ?)",
+			"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, 9, ?)",
 		)
 			.bind(ATHLETE_A, ctx.now())
 			.run();
@@ -62,25 +62,25 @@ describe("SHARED_RIDER_IDS", () => {
 
 	it("leaves out riders below a later version (FR-013)", async () => {
 		await env.DB.prepare(
-			"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, 3, ?)",
+			"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, 9, ?)",
 		)
 			.bind(ATHLETE_C, ctx.now())
 			.run();
 		const { results } = await env.DB.prepare(
-			`SELECT athlete_id FROM riders WHERE athlete_id IN (${sharedRiderIdsSince(3)})`,
+			`SELECT athlete_id FROM riders WHERE athlete_id IN (${sharedRiderIdsSince(9)})`,
 		).all<{ athlete_id: number }>();
 		expect(results.map((r) => r.athlete_id)).toEqual([ATHLETE_C]);
 	});
 
 	it("keeps a rider on an older version out of a later sum (US4 scenario 3)", async () => {
 		await env.DB.prepare(
-			"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, 3, ?)",
+			"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, 9, ?)",
 		)
 			.bind(ATHLETE_C, ctx.now())
 			.run();
 		const row = await env.DB.prepare(
 			`SELECT SUM(training_rynke) AS training FROM rynke_balances
-			WHERE athlete_id IN (${sharedRiderIdsSince(3)})`,
+			WHERE athlete_id IN (${sharedRiderIdsSince(9)})`,
 		).first<{ training: number }>();
 		expect(row?.training).toBe(1);
 	});
@@ -113,7 +113,7 @@ describe("listedRiderFilter (feature 030 research R5)", () => {
 		});
 		// Several records stay one row.
 		await env.DB.prepare(
-			"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, 3, ?)",
+			"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, 9, ?)",
 		)
 			.bind(ATHLETE_A, ctx.now())
 			.run();

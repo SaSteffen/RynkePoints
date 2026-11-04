@@ -1,6 +1,10 @@
 import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { CONSENT_VERSIONS, type ConsentVersion } from "../../src/consent";
+import {
+	CONSENT_VERSION,
+	CONSENT_VERSIONS,
+	type ConsentVersion,
+} from "../../src/consent";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
@@ -307,7 +311,7 @@ describe("consent version 2 (feature 025 FR-032)", () => {
 		);
 		expect(page).toContain(`<li>${escapeHtml(de["consent.admins"])}</li>`);
 		expect(page).toContain(`<li>${escapeHtml(de["landing.leave"])}</li>`);
-		expect(page).toContain('value="2"');
+		expect(page).toContain(`value="${CONSENT_VERSION}"`);
 		// No trip through Strava: no new scope.
 		expect(page).toContain('action="/me/consent"');
 	});
@@ -319,12 +323,53 @@ describe("consent version 2 (feature 025 FR-032)", () => {
 		const cookies = await sessionCookie(ctx, ATHLETE_A);
 		await handleFetch(
 			request("/me/consent", {
-				form: { consent: "2", next: "/team" },
+				form: { consent: String(CONSENT_VERSION), next: "/team" },
 				cookies,
 			}),
 			ctx,
 		);
 		const res = await handleFetch(request("/team", { cookies }), ctx);
 		expect(await res.text()).not.toContain('action="/me/consent"');
+	});
+});
+
+describe("consent version 3 (organiser graphs FR-022, FR-023, FR-028)", () => {
+	const askedPage = async (ctx: TestCtx) => {
+		await resetDb();
+		await seedRider(ctx, { consentVersion: 2 });
+		const res = await handleFetch(
+			request("/team", { cookies: await sessionCookie(ctx, ATHLETE_A) }),
+			ctx,
+		);
+		return res.text();
+	};
+
+	it("asks a version 2 rider again, naming only what's new, without Strava", async () => {
+		const page = await askedPage(makeCtx());
+		expect(page).toContain(
+			`<li>${escapeHtml(de["consent.dailyFigures"])}</li>`,
+		);
+		expect(page).not.toContain(`<li>${escapeHtml(de["consent.admins"])}</li>`);
+		expect(page).toContain('value="3"');
+		expect(page).toContain('action="/me/consent"');
+	});
+
+	it("asks the same with the graphs off", async () => {
+		const on = await askedPage(makeCtx());
+		const off = makeCtx();
+		off.env = {
+			...off.env,
+			ORGANISER_PROGRESS_GRAPH: "off",
+			ORGANISER_FIGURES: "percent",
+		};
+		expect(await askedPage(off)).toEqual(on);
+	});
+
+	it("lets a new rider accept version 3 directly", async () => {
+		const ctx = makeCtx();
+		await resetDb();
+		const page = await (await handleFetch(request("/"), ctx)).text();
+		expect(page).toContain(`name="consent" value="3"`);
+		expect(page).toContain(escapeHtml(de["consent.dailyFigures"]));
 	});
 });

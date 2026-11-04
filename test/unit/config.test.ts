@@ -7,6 +7,7 @@ import {
 	contactEmail,
 	memberClubIds,
 	organiserFigures,
+	organiserProgressGraph,
 	privacyController,
 	readyPollSeconds,
 	seasonStartEpoch,
@@ -87,6 +88,23 @@ describe("readyPollSeconds", () => {
 
 	it.each(["0", "61", "x", "", "1.5"])("rejects %j", (value) => {
 		expect(() => readyPollSeconds({ READY_POLL_SECONDS: value })).toThrow();
+	});
+});
+
+describe("organiserProgressGraph", () => {
+	it("reads on and off", () => {
+		expect(organiserProgressGraph({ ORGANISER_PROGRESS_GRAPH: "on" })).toBe(
+			true,
+		);
+		expect(organiserProgressGraph({ ORGANISER_PROGRESS_GRAPH: "off" })).toBe(
+			false,
+		);
+	});
+
+	it.each(["", "true", "Off", "0"])("rejects %j", (value) => {
+		expect(() =>
+			organiserProgressGraph({ ORGANISER_PROGRESS_GRAPH: value }),
+		).toThrow();
 	});
 });
 
