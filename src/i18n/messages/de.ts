@@ -981,19 +981,20 @@ export const de = {
 		"Für das ganze Konto und ungefähr: Cloudflares Statistik läuft nach und ist kein Abrechnungsmaß.",
 	"admin.cloudflare.unavailable":
 		"Cloudflares Werte sind gerade nicht verfügbar. Das hier sind die letzten bekannten.",
+	"admin.refresh": "Jetzt aktualisieren",
 	"admin.waiting.heading": "Warten auf das Strava-Budget",
 	"admin.waiting.body": "{n} Einträge warten, fertig in etwa {time}.",
 	"admin.waiting.one": "1 Eintrag wartet, fertig in etwa {time}.",
 	"admin.waiting.minutes": "{n} Minuten",
 	"admin.waiting.hours": "{n} Stunden",
 	"admin.waiting.days": "{n} Tagen",
-	"admin.alerts.heading": "Cloudflare-Hinweise",
+	"admin.alerts.heading": "Nutzungshinweise",
 	"admin.alerts.on":
-		"Du bekommst eine Benachrichtigung, wenn ein Cloudflare-Kontingent 80\u00a0% oder 95\u00a0% erreicht. Hinweise zu Strava und zu verbundenen Ridern bleiben in jedem Fall an.",
+		"Du bekommst eine Benachrichtigung, wenn ein Kontingent von Strava oder Cloudflare oder die verbundenen Rider 80\u00a0% oder 95\u00a0% erreichen.",
 	"admin.alerts.off":
-		"Du bekommst keine Benachrichtigungen zu Cloudflares Kontingenten. Diese Seite markiert sie weiter, und Hinweise zu Strava und zu verbundenen Ridern bleiben an.",
-	"admin.alerts.turnOff": "Cloudflare-Hinweise ausschalten",
-	"admin.alerts.turnOn": "Cloudflare-Hinweise einschalten",
+		"Du bekommst keine Benachrichtigungen zur Nutzung. Diese Seite markiert die Zahlen weiter.",
+	"admin.alerts.turnOff": "Nutzungshinweise ausschalten",
+	"admin.alerts.turnOn": "Nutzungshinweise einschalten",
 	"admin.alerts.noDevice":
 		"Du bekommst keine Hinweise: Auf keinem deiner Geräte sind Benachrichtigungen an. Du kannst sie unter {settings} einschalten.",
 	"admin.history.choose": "Kontingent",

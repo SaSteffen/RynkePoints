@@ -791,6 +791,7 @@ const CONTRACT_IDS = [
 	"admin.waiting.minutes",
 	"admin.waiting.hours",
 	"admin.waiting.days",
+	"admin.refresh",
 	"admin.alerts.heading",
 	"admin.alerts.on",
 	"admin.alerts.off",

@@ -32,7 +32,7 @@ export interface Rider {
 	/** Set by the maintainer only, like `organiser` (feature 025 FR-002). */
 	administrator: boolean;
 	/** The administrator's own switch for Cloudflare's alerts (025 FR-039). */
-	cloudflareAlerts: boolean;
+	adminAlerts: boolean;
 	/** When the rider finished or skipped the rider tour; null: still to show (#90). */
 	onboardedAt: number | null;
 	/** The same for the organiser tour; cleared with the organiser flag (#90). */
@@ -60,7 +60,7 @@ export interface RiderRow {
 	figures_version: number;
 	organiser: number;
 	administrator: number;
-	cloudflare_alerts: number;
+	admin_alerts: number;
 	onboarded_at: number | null;
 	organiser_onboarded_at: number | null;
 }
@@ -96,7 +96,7 @@ export function toRider(row: RiderRow): Rider {
 		figuresVersion: row.figures_version,
 		organiser: row.organiser === 1,
 		administrator: row.administrator === 1,
-		cloudflareAlerts: row.cloudflare_alerts === 1,
+		adminAlerts: row.admin_alerts === 1,
 		onboardedAt: row.onboarded_at,
 		organiserOnboardedAt: row.organiser_onboarded_at,
 	};
@@ -306,19 +306,14 @@ export async function listExpiredReconnectRiderIds(
 }
 
 /** Who gets usage alerts: every administrator, with their own switch (025). */
-export async function listAlertRecipients(
-	db: D1Database,
-): Promise<{ athleteId: number; cloudflareAlerts: boolean }[]> {
+export async function listAlertRecipients(db: D1Database): Promise<number[]> {
 	const { results } = await db
 		.prepare(
-			`SELECT athlete_id, cloudflare_alerts FROM riders
-			WHERE administrator = 1 ORDER BY athlete_id`,
+			`SELECT athlete_id FROM riders
+			WHERE administrator = 1 AND admin_alerts = 1 ORDER BY athlete_id`,
 		)
-		.all<{ athlete_id: number; cloudflare_alerts: number }>();
-	return results.map((r) => ({
-		athleteId: r.athlete_id,
-		cloudflareAlerts: r.cloudflare_alerts === 1,
-	}));
+		.all<{ athlete_id: number }>();
+	return results.map((r) => r.athlete_id);
 }
 
 /** The team's connected riders, against Strava's capacity (025 FR-005). */
@@ -328,14 +323,14 @@ export function connectedCountStatement(db: D1Database): D1PreparedStatement {
 	);
 }
 
-/** Sets the administrator's own switch for Cloudflare's alerts (025 FR-039). */
-export async function setCloudflareAlerts(
+/** Sets the administrator's own switch for their usage alerts (025 FR-039). */
+export async function setAdminAlerts(
 	db: D1Database,
 	athleteId: number,
 	on: boolean,
 ): Promise<void> {
 	await db
-		.prepare("UPDATE riders SET cloudflare_alerts = ? WHERE athlete_id = ?")
+		.prepare("UPDATE riders SET admin_alerts = ? WHERE athlete_id = ?")
 		.bind(on ? 1 : 0, athleteId)
 		.run();
 }

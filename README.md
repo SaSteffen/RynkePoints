@@ -325,7 +325,15 @@ Nothing else deploys; merges into `develop` don't.
 - **Admin view** ([025](specs/025-admin-usage-view/spec.md)): Cloudflare's figures
   need a token that has only *Account Analytics Read*, and the account ID. Without
   them the view says they're unavailable, and everything else works. These are set
-  by hand, as are the flag and lifting a block:
+  by hand, as are the flag and lifting a block.
+
+  To get the token, go to *My Profile → API Tokens → Create Token → Create Custom
+  Token* in the Cloudflare dashboard. Give it the permission *Account → Account
+  Analytics → Read* and include only this account. The account ID is in the output
+  of `pnpm wrangler whoami`. Each `secret put` asks for the value. To see the figures
+  at once, use *Update now* on `/admin`; otherwise they come with the next hourly run.
+  If the view still says they're unavailable, `pnpm wrangler tail` during an update
+  shows the reason.
 
   ```bash
   pnpm wrangler secret put CLOUDFLARE_ANALYTICS_TOKEN

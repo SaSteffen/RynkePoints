@@ -536,17 +536,11 @@ test("an administrator uses the admin pages", async ({ page, browserName }) => {
 	await expect(page.locator(".usage-mark-warning").first()).toBeVisible();
 	await expect(page.locator(".usage-mark-critical").first()).toBeVisible();
 	const alerts = page.locator('form[action="/admin/alerts"]');
-	await expect(alerts.locator("input[name=cloudflare_alerts]")).toHaveValue(
-		"off",
-	);
+	await expect(alerts.locator("input[name=admin_alerts]")).toHaveValue("off");
 	await alerts.locator("button").click();
-	await expect(alerts.locator("input[name=cloudflare_alerts]")).toHaveValue(
-		"on",
-	);
+	await expect(alerts.locator("input[name=admin_alerts]")).toHaveValue("on");
 	await alerts.locator("button").click();
-	await expect(alerts.locator("input[name=cloudflare_alerts]")).toHaveValue(
-		"off",
-	);
+	await expect(alerts.locator("input[name=admin_alerts]")).toHaveValue("off");
 
 	await page.goto("/admin/history");
 	await expect(page.locator(".usage-gap")).toHaveCount(1);

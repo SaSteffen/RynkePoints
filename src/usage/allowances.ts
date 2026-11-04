@@ -53,10 +53,6 @@ export function isRecordedAllowance(id: string): id is RecordedAllowance {
 	return (RECORDED_ALLOWANCES as readonly string[]).includes(id);
 }
 
-export function isCloudflareAllowance(id: string): id is CloudflareAllowance {
-	return (CLOUDFLARE_ALLOWANCES as readonly string[]).includes(id);
-}
-
 /** Storage and connected riders don't reset, so they have no daily period. */
 export function isOpenEnded(id: RecordedAllowance): boolean {
 	return id === "riders_connected" || id === "cf_d1_storage_bytes";

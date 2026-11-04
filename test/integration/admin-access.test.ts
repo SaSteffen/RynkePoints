@@ -30,7 +30,8 @@ const PAGES = [
 ];
 
 const POSTS: { path: string; form: Record<string, string> }[] = [
-	{ path: "/admin/alerts", form: { cloudflare_alerts: "off" } },
+	{ path: "/admin/alerts", form: { admin_alerts: "off" } },
+	{ path: "/admin/refresh", form: {} },
 	{ path: `/admin/riders/${TARGET}/remove`, form: {} },
 ];
 
@@ -61,7 +62,7 @@ async function post(
 
 async function stored() {
 	const riders = await env.DB.prepare(
-		"SELECT athlete_id, cloudflare_alerts FROM riders ORDER BY athlete_id",
+		"SELECT athlete_id, admin_alerts FROM riders ORDER BY athlete_id",
 	).all();
 	const blocked = await env.DB.prepare("SELECT * FROM blocked_athletes").all();
 	const log = await env.DB.prepare("SELECT * FROM removal_log").all();
