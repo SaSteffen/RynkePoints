@@ -381,6 +381,27 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 		);
 	});
 
+	it("has a team of about 40, some not agreed to daily figures (029 FR-032)", async () => {
+		await seeded();
+		const listed = await count(
+			"SELECT COUNT(*) AS n FROM riders WHERE status = 'connected'",
+		);
+		expect(listed).toBeGreaterThanOrEqual(35);
+		expect(SAMPLE_RIDERS.length).toBeGreaterThanOrEqual(40);
+		const held = await count(
+			"SELECT COUNT(*) AS n FROM riders r WHERE NOT EXISTS (SELECT 1 FROM consent_records c WHERE c.athlete_id = r.athlete_id AND c.version >= 3) AND EXISTS (SELECT 1 FROM consent_records c WHERE c.athlete_id = r.athlete_id AND c.version = 2)",
+		);
+		expect(held).toBeGreaterThanOrEqual(3);
+		// The edge cases are still there.
+		expect(
+			await count("SELECT COUNT(*) AS n FROM riders WHERE athlete_id = 990001"),
+		).toBe(1);
+		const virtual = await count(
+			"SELECT COUNT(*) AS n FROM ride_results WHERE is_virtual = 1 AND athlete_id >= 990020",
+		);
+		expect(virtual).toBeGreaterThan(50);
+	});
+
 	it("flags only Alex Admin as an administrator, and seeds synthetic usage (025 R12)", async () => {
 		await seeded();
 		const { results } = await env.DB.prepare(

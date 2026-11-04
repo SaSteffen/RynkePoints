@@ -162,6 +162,19 @@ export async function seed(
 	const members = SAMPLE_RIDERS.filter((r) => r.clubMember);
 	for (const rider of members) {
 		await connectThroughApp(ctx, origin, rider);
+		// `/connect` only takes the current version (feature 029 research R11).
+		if (rider.consentVersion !== undefined) {
+			await db.batch([
+				db
+					.prepare("DELETE FROM consent_records WHERE athlete_id = ?")
+					.bind(rider.athleteId),
+				db
+					.prepare(
+						"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, ?, 1)",
+					)
+					.bind(rider.athleteId, rider.consentVersion),
+			]);
+		}
 	}
 	// Entered as an organiser would, with the change record (feature 014), once
 	// the organiser's rider row exists.

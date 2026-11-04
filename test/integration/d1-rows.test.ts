@@ -212,7 +212,11 @@ describe("rows read with a full-season team (feature 030)", () => {
 		const badges = await pageRows("/me/badges", RIDER);
 		const start = await pageRows("/", RIDER);
 		const team = await pageRows("/team", RIDER);
+		// Without the graphs, which "before" didn't have.
+		const env0 = ctx.env;
+		ctx.env = { ...env0, ORGANISER_PROGRESS_GRAPH: "off" };
 		const organiserRiders = await pageRows("/organiser/riders", ORGANISER);
+		ctx.env = env0;
 		// The spec's "Today" column, measured before this feature.
 		expect(start).toBeLessThanOrEqual(45_396);
 		expect(team).toBeLessThanOrEqual(20_793);
@@ -222,22 +226,48 @@ describe("rows read with a full-season team (feature 030)", () => {
 
 	it("keeps team reads as cheap until the daily job has run (organiser graphs SC-010)", async () => {
 		await seedTeam(150);
-		const uses = async () => ({
-			start: await pageRows("/", RIDER),
-			team: await pageRows("/team", RIDER),
-			organiserRiders: await pageRows("/organiser/riders", ORGANISER),
-		});
+		const uses = async () => {
+			const start = await pageRows("/", RIDER);
+			const team = await pageRows("/team", RIDER);
+			const env0 = ctx.env;
+			ctx.env = { ...env0, ORGANISER_PROGRESS_GRAPH: "off" };
+			const organiserTable = await pageRows("/organiser/riders", ORGANISER);
+			ctx.env = env0;
+			return { start, team, organiserTable };
+		};
 		await pageRows("/me/badges", RIDER);
 		const current = await uses();
-		// As right after the migration.
+		const withGraphs = await pageRows("/organiser/riders", ORGANISER);
+		// As right after the migration: rows of version 1, with these two the
+		// only ones who have agreed to daily figures so far.
 		await env.DB.prepare(
 			"UPDATE rider_summaries SET version = 1, virtual_days = '[]', own_days = '[]'",
 		).run();
+		await env.DB.prepare(
+			"UPDATE consent_records SET version = 2 WHERE athlete_id NOT IN (?, ?)",
+		)
+			.bind(ORGANISER, RIDER)
+			.run();
 		const atVersionOne = await uses();
 		expect(atVersionOne.start).toBeLessThan(current.start * 1.1);
 		expect(atVersionOne.team).toBeLessThan(current.team * 1.1);
-		expect(atVersionOne.organiserRiders).toBeLessThan(
-			current.organiserRiders * 1.1,
+		expect(atVersionOne.organiserTable).toBeLessThan(
+			current.organiserTable * 1.1,
 		);
+		// The graphs add those two up until the job has run, and nobody else.
+		expect(await pageRows("/organiser/riders", ORGANISER)).toBeLessThanOrEqual(
+			withGraphs + 2 * 500,
+		);
+	}, 300_000);
+
+	it("adds fewer than 1,000 rows for the graphs, and no round trip (SC-008)", async () => {
+		await seedTeam(150);
+		const withGraphs = await pageRows("/organiser/riders", ORGANISER);
+		const env0 = ctx.env;
+		ctx.env = { ...env0, ORGANISER_PROGRESS_GRAPH: "off" };
+		const without = await pageRows("/organiser/riders", ORGANISER);
+		ctx.env = env0;
+		expect(withGraphs - without).toBeLessThan(1000);
+		expect(withGraphs - without).toBeGreaterThan(0);
 	}, 300_000);
 });

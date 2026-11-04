@@ -442,6 +442,8 @@ describe("the example team (feature 020)", () => {
 				`<p class="notice tour-example" role="note">${t("tour.organiser.example")}</p>`,
 			);
 			expect(page).toContain('<div class="team-overview" inert>');
+			// No graphs of the example team (feature 029 contracts/pages.md).
+			expect(page).not.toContain("organiser-graphs");
 			expect(page).toContain('id="tour-groups"');
 			expect(page).toContain('id="tour-pace"');
 			for (const name of ["Anna", "Ben", "Clara", "Deniz", "Emma", "Finn"]) {
@@ -461,7 +463,7 @@ describe("the example team (feature 020)", () => {
 		await seedOrganiser();
 		const { page } = await hintOn("/organiser/riders?tour=organiser&step=2");
 		for (const group of ["push", "on_track", "in"]) {
-			expect(page).toContain(`<li class="rider-card status-${group}">`);
+			expect(page).toContain(`<li class="rider-row status-${group}"`);
 		}
 		expect(page).toContain('class="group-tile tile-requests tile-alert"');
 	});
