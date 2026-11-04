@@ -371,7 +371,7 @@ Some details apply at stage 1:
 - The rule covers hotfixes, release pull requests and Dependabot's.
 - A new push needs a new approval.
 - GitHub doesn't let authors approve their own pull requests, so the founding maintainer gets an
-  exemption, which goes away at stage 2. ❓ How exactly is still to be tried.
+  exemption, which goes away at stage 2. ❓ The plan's approach still has to be tried.
 
 ### Who may do what
 
@@ -512,23 +512,16 @@ flowchart LR
 
 ### To confirm in planning
 
-**GitHub**
+**GitHub**: spec 028's plan settles these with [trials on a scratch organization](../specs/028-multiple-maintainers/quickstart.md#before-the-transfer-trials).
 
-- [ ] What the transfer does to rulesets, environments and the required checks' GitHub Actions pin.
-- [ ] Whether a free organization covers everything used today, including the merge queue.
-- [ ] How the founding maintainer's own pull requests get exempted: a separate ruleset with a bypass, or a
-  required check. It has to work with auto-merge.
-- [ ] Whether GitHub's Write role can change environment secrets. If it can, the stage 1 role needs
-  narrowing.
-- [ ] Which credential replaces the personal `RELEASE_PR_TOKEN`, most likely a GitHub App owned by the
-  organization.
-- [ ] How the merge queue handles `commit-messages`, `pr-title` and `pr-source`, which run on pull requests
-  only today.
+- [ ] The exemption working with auto-merge. The plan uses a ruleset exemption, and a required check if that fails.
+- [ ] What a transfer does to rulesets and environments, and whether the Write role can change environment secrets.
+- [ ] The merge queue with this repository's checks. The replacement for `RELEASE_PR_TOKEN` is an organization-owned GitHub App, to be confirmed by the same trials.
 
 **Cloudflare**
 
-- [ ] Whether the Free plan allows a second member, and which roles.
-- [ ] Whether account-owned tokens are available on the Free plan.
+- [ ] Whether the Free plan allows a second Super Administrator. If it doesn't, the second maintainer is an Administrator, and only the founding maintainer manages members and billing.
+- [ ] Whether sending email from a Worker works on the Free plan, for usage alerts to maintainers.
 - [ ] Whether per-Worker credentials work on the Free plan for a deployment with a queue consumer and assets.
   A narrow credential could probably still bind production's database, so the plan has to state what it
   can reach.
