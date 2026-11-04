@@ -971,8 +971,8 @@ export const en: Catalog = {
 	"admin.history.ridersNote":
 		"Connected riders are this team's own, so the whole figure is its count.",
 	"admin.riders.counts":
-		"Listed: {listed}. Not listed, because they haven't agreed to the new consent yet: {unlisted}. Blocked: {blocked}.",
-	"admin.riders.none": "No rider has agreed to the new consent yet.",
+		"Listed: {listed}. Not listed, because they haven't agreed yet: {unlisted}. Blocked: {blocked}.",
+	"admin.riders.none": "No rider has agreed yet.",
 	"admin.riders.status": "Connection",
 	"admin.riders.status.connected": "Connected",
 	"admin.riders.status.needs_reconnect": "Needs to reconnect",

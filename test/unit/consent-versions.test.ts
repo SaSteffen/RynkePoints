@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-	ADMIN_OVERVIEW_SINCE_VERSION,
 	CONSENT_VERSION,
 	CONSENT_VERSIONS,
 	type ConsentVersions,
@@ -80,7 +79,6 @@ describe("CONSENT_VERSIONS", () => {
 			changes: ["consent.admins", "landing.leave"],
 		});
 		expect(SHARING_SINCE_VERSION).toBe(1);
-		expect(ADMIN_OVERVIEW_SINCE_VERSION).toBe(2);
 		expect(CATALOGS.de["consent.admins"]).toContain("Sperrliste");
 		expect(CATALOGS.en["consent.admins"]).toContain("block list");
 		expect(CATALOGS.de["landing.leave"]).toContain("Strava-ID");

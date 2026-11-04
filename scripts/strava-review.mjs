@@ -191,7 +191,7 @@ WHO SEES WHAT
 - Each rider sees their own activities, including the names, and their own Rynke and badges. Activity names are shown to nobody else.
 - The rest of the team sees, without names: each rider's Team Rynke and place (Team Rynke come from team events the organisers record, not from Strava), each rider's Training Rynke only as an unnamed dot in one team chart, and team totals that include them. Riders are not ranked by Training Rynke. No activities, distances, names or profile links of other riders are shown.
 - The team's organisers see each rider's first name, how far they are towards the Training and the Team threshold in percent (stopping at 100 %), whether they are behind the even pace or lack outdoor rides, and the corrections organisers entered. They see no amounts derived from rides, no activity names and no individual activities' details.
-- The team's administrators, who run the app, see each rider's first name, connection status and date, last membership check and whether an import is running, and no activities or points. They can remove a rider. Riders who agreed to an older version of the consent text aren't listed.
+- The team's administrators, who run the app, see each rider's first name, connection status and date, last membership check and whether an import is running, and no activities or points. They can remove a rider.
 - Usage figures for the allowances (Strava requests, Cloudflare quotas) hold no rider data.
 - Nothing is public. Every page with rider data needs the rider to be signed in with Strava.
 - No Strava data is shared with third parties or used for AI or machine learning.

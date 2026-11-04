@@ -135,7 +135,7 @@ check that no ride or Rynke figure appears.
   and sees the new text; the text says that administrators exist, what they see, and that a
   removed rider's ID is kept (FR-032). Fix tests elsewhere that assume version 1 is current.
 - [X] T022 [P] [US3] Tests in `test/integration/admin-riders.test.ts`: the row's fields (FR-018);
-  no row for a version 1 rider, and the count of unlisted riders (FR-038); no rides, Rynke, tokens
+  a row for a version 1 rider, none for a rider without a record, and the count of unlisted riders (FR-038); no rides, Rynke, tokens
   or displayed athlete IDs (FR-019); leaderboards and organiser pages unchanged for a version 1
   rider; blocked count only (FR-031); only this database's riders (FR-004).
 - [X] T023 [P] [US3] Tests in `test/integration/admin-usage.test.ts` and
@@ -147,7 +147,7 @@ check that no ride or Rynke figure appears.
   `src/i18n/messages/{de,en}.ts`, shown by `src/http/consent-form.ts`, `src/http/landing.ts` and
   `src/http/privacy.ts` (R8) (T021 green).
 - [X] T025 [US3] `GET /admin/riders` in `src/http/admin/riders.ts`, filtered with
-  `sharedRiderIdsSince(2)`, queries in `src/db/riders.ts` and `src/db/blocked.ts`, text in
+  `SHARED_RIDER_IDS`, queries in `src/db/riders.ts` and `src/db/blocked.ts`, text in
   `src/i18n/messages/{de,en}.ts` (T022 green).
 - [X] T026 [US3] Waiting work on `/admin`: estimate in `src/usage/figures.ts`, count from
   `waitingCount` in `src/db/strava-work.ts`, shown in `src/http/admin/usage.ts` (T023 green).

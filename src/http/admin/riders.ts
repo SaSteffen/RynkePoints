@@ -7,8 +7,8 @@ import { html, type SafeHtml } from "../html";
 import { adminPage, adminSwitch, whole } from "./access";
 
 // The rider overview at `/admin/riders` (feature 025 US3, FR-018, FR-019, FR-031,
-// FR-038): the first name, connection and import state of riders who agreed to the
-// version that covers it, and only counts of everyone else. No rides, Rynke or
+// FR-038): the first name, connection and import state of riders with a recorded
+// consent, and only counts of everyone else. No rides, Rynke or
 // tokens, and the athlete ID only in the remove link's address (research R6).
 
 const DONE_CODES = ["removed", "removed-revoke-failed"] as const;

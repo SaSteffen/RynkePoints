@@ -1,10 +1,9 @@
-import { ADMIN_OVERVIEW_SINCE_VERSION } from "../consent";
 import { decryptToken, encryptToken } from "../crypto/encrypt";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
 import {
 	type Consent,
 	recordConsentStatement,
-	sharedRiderIdsSince,
+	SHARED_RIDER_IDS,
 } from "./consents";
 
 // Riders and their Strava credentials (data-model.md). Deleting a rider is a
@@ -351,14 +350,14 @@ export interface OverviewRider {
 }
 
 /**
- * The rider overview (025 FR-018, FR-038): riders who agreed to the version that
- * covers it, and how many others there are, filtered inside SQL. Selects only
+ * The rider overview (025 FR-018, FR-038): riders with a recorded consent of any
+ * version, and how many others there are, filtered inside SQL. Selects only
  * what the rows show, so nothing else can reach the page (FR-019).
  */
 export async function readRiderOverview(
 	db: D1Database,
 ): Promise<{ riders: OverviewRider[]; unlisted: number }> {
-	const listed = sharedRiderIdsSince(ADMIN_OVERVIEW_SINCE_VERSION);
+	const listed = SHARED_RIDER_IDS;
 	const [rows, unlisted] = await db.batch([
 		db.prepare(
 			`SELECT athlete_id, first_name, status, connected_at,
@@ -398,7 +397,7 @@ export async function listedRiderName(
 	db: D1Database,
 	athleteId: number,
 ): Promise<string | null> {
-	const listed = sharedRiderIdsSince(ADMIN_OVERVIEW_SINCE_VERSION);
+	const listed = SHARED_RIDER_IDS;
 	return db
 		.prepare(
 			`SELECT first_name FROM riders WHERE athlete_id = ?

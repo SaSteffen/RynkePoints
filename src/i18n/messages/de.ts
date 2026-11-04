@@ -1014,8 +1014,8 @@ export const de = {
 	"admin.history.ridersNote":
 		"Verbundene Rider sind die eigenen des Teams, also zählt der ganze Wert für dieses Team.",
 	"admin.riders.counts":
-		"Aufgeführt: {listed}. Nicht aufgeführt, weil ihre neue Zustimmung noch aussteht: {unlisted}. Gesperrt: {blocked}.",
-	"admin.riders.none": "Noch niemand hat der neuen Fassung zugestimmt.",
+		"Aufgeführt: {listed}. Nicht aufgeführt, weil ihre Zustimmung noch aussteht: {unlisted}. Gesperrt: {blocked}.",
+	"admin.riders.none": "Noch niemand hat zugestimmt.",
 	"admin.riders.status": "Verbindung",
 	"admin.riders.status.connected": "Verbunden",
 	"admin.riders.status.needs_reconnect": "Muss sich neu verbinden",

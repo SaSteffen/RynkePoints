@@ -106,10 +106,3 @@ export function grantedScopes(scopes: string): string[] {
  * organisers and the team (004 research R6, R13).
  */
 export const SHARING_SINCE_VERSION = 1;
-
-/**
- * The lowest consent version whose text covers the administrators' rider
- * overview (feature 025 FR-032, FR-038, research R8). Sharing with organisers and
- * the team keeps `SHARING_SINCE_VERSION`, so leaderboards don't change.
- */
-export const ADMIN_OVERVIEW_SINCE_VERSION = 2;

@@ -138,7 +138,7 @@ describe("the confirmation (scenario 1, FR-021)", () => {
 	});
 
 	it("refuses a rider the overview doesn't list", async () => {
-		await seedRider(ctx, { athleteId: TARGET, consentVersion: 1 });
+		await seedRider(ctx, { athleteId: TARGET, consentVersion: null });
 		const res = await confirmPage(TARGET);
 		expect(res.headers.get("Location")).toBe("/admin/riders?error=unknown");
 	});
@@ -236,7 +236,7 @@ describe("the removal (scenario 2, FR-022 to FR-024, SC-005)", () => {
 
 	it("refuses an unlisted rider, with nothing changed", async () => {
 		fake.addAthlete({ id: TARGET });
-		await seedRider(ctx, { athleteId: TARGET, consentVersion: 1 });
+		await seedRider(ctx, { athleteId: TARGET, consentVersion: null });
 		const res = await remove(TARGET);
 		expect(res.headers.get("Location")).toBe("/admin/riders?error=unknown");
 		expect(await rowsNaming(TARGET)).toHaveProperty(["riders.athlete_id"]);
@@ -248,6 +248,14 @@ describe("the removal (scenario 2, FR-022 to FR-024, SC-005)", () => {
 		expect(res.headers.get("Location")).toBe("/admin/riders?error=self");
 		expect(await rowsNaming(ADMIN)).toHaveProperty(["riders.athlete_id"]);
 		expect(fake.revocations).toEqual([]);
+	});
+
+	it("removes a rider who hasn't agreed to the current version yet", async () => {
+		fake.addAthlete({ id: TARGET });
+		await seedRider(ctx, { athleteId: TARGET, consentVersion: 1 });
+		expect((await remove(TARGET)).headers.get("Location")).toBe(
+			"/admin/riders?done=removed",
+		);
 	});
 
 	it("lets one administrator remove another", async () => {

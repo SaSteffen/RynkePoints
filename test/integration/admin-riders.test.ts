@@ -93,15 +93,16 @@ describe("the consent filter (FR-038)", () => {
 		});
 	});
 
-	it("gives no row to a rider on an older version, and counts them (scenario 2)", async () => {
+	it("lists a rider on an older version, and only counts one without any (scenario 2)", async () => {
 		const text = await page();
-		expect(text).not.toContain("OnlyOlder");
+		expect(text).toContain("<h3>OnlyOlder</h3>");
+		expect(text).toContain(`href="/admin/riders/${ATHLETE_B}/remove"`);
 		expect(text).not.toContain("Nothing");
 		expect(text).toContain(
 			escapeHtml(
 				de["admin.riders.counts"]
-					.replace("{listed}", "1")
-					.replace("{unlisted}", "2")
+					.replace("{listed}", "2")
+					.replace("{unlisted}", "1")
 					.replace("{blocked}", "0"),
 			),
 		);
