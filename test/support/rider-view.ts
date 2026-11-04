@@ -1,5 +1,6 @@
 import { env } from "cloudflare:test";
 import { upsertActivities } from "../../src/db/activities";
+import { insertEmptySummaryStatement } from "../../src/db/rider-summaries";
 import {
 	upsertBalanceStatement,
 	upsertRideResultsStatement,
@@ -45,6 +46,11 @@ export async function seedBalance(
 		{ ...ZERO_BALANCE, ...overrides },
 		NOW,
 	).run();
+}
+
+/** A current empty summary, as `insertRider` writes (feature 030). */
+export async function seedEmptySummary(athleteId: number): Promise<void> {
+	await insertEmptySummaryStatement(env.DB, athleteId).run();
 }
 
 export interface SeedResult {

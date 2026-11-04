@@ -84,6 +84,17 @@ export function sharedRiderIdsSince(version: number): string {
 	return `SELECT athlete_id FROM consent_records WHERE version >= ${Math.trunc(version)}`;
 }
 
+/**
+ * The same check as `sharedRiderIdsSince` as an `EXISTS` on one rider, for a
+ * query that already goes through `riders` as `alias`: 80 rows instead of 200 at
+ * 40 riders (feature 030 research R5). `alias` and `version` come from code,
+ * never request input.
+ */
+export function sharedRiderExists(alias: string, version: number): string {
+	return `EXISTS (SELECT 1 FROM consent_records c
+		WHERE c.athlete_id = ${alias}.athlete_id AND c.version >= ${Math.trunc(version)})`;
+}
+
 /** SQL subquery: athlete IDs whose consent includes the FR-020 sharing. */
 export const SHARED_RIDER_IDS = sharedRiderIdsSince(SHARING_SINCE_VERSION);
 

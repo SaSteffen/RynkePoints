@@ -14,6 +14,7 @@ import {
 	listFailedWorkFirstFailedSince,
 	upsertFailedWork,
 } from "../../src/db/failed-work";
+import { insertEmptySummaryStatement } from "../../src/db/rider-summaries";
 import {
 	deleteRider,
 	getCredentials,
@@ -99,6 +100,7 @@ describe("riders", () => {
 			strava_rate_limit: 1,
 			ride_results: 0,
 			rynke_balances: 0,
+			rider_summaries: 0,
 			rynke_rises: 0,
 			rynke_seen: 0,
 			team_events: 0,
@@ -129,6 +131,7 @@ describe("riders", () => {
 						VALUES (?, ?, '2026-05-03T07:00:00Z', '2026-05-03T09:00:00Z', 1200, 0, ?)`,
 					)
 					.bind(9001 + i, athleteId, NOW),
+				insertEmptySummaryStatement(db, athleteId),
 				db
 					.prepare(
 						"INSERT INTO rider_badges (athlete_id, badge_id, earned_on) VALUES (?, 'distance-100', '2026-05-02')",
@@ -156,6 +159,7 @@ describe("riders", () => {
 			"rider_badges",
 			"badge_reveals",
 			"badge_rises",
+			"rider_summaries",
 		]) {
 			const { results } = await db
 				.prepare(`SELECT athlete_id FROM ${table}`)

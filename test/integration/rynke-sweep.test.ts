@@ -214,7 +214,7 @@ describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
 		expect(await needing()).toEqual([]);
 	});
 
-	it("ignores attendance moved to another team training in the window", async () => {
+	it("finds attendance moved to another team training until the rider is evaluated (feature 030 R7)", async () => {
 		const eventId = await attending();
 		const other = await insertEvent("team_training", "2026-05-09");
 		await sql(
@@ -223,12 +223,16 @@ describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
 			eventId,
 			RIDER,
 		);
+		expect(await needing()).toEqual([RIDER]);
+		await evaluate(RIDER);
 		expect(await needing()).toEqual([]);
 	});
 
-	it("ignores attendance outside the window of an evaluated rider", async () => {
+	it("finds attendance outside the window once, for the rider's summary (feature 030 R7)", async () => {
 		await evaluatedRider(RIDER, 1);
 		await attendRaw(await insertEvent("team_training", "2025-12-31"), [RIDER]);
+		expect(await needing()).toEqual([RIDER]);
+		await evaluate(RIDER);
 		expect(await needing()).toEqual([]);
 	});
 
@@ -245,6 +249,59 @@ describe("listRidersNeedingEvaluation with attendance (research R22)", () => {
 		expect(evaluations()).toEqual([
 			{ kind: "evaluate-rider", athleteId: RIDER },
 		]);
+	});
+});
+
+describe("listRidersNeedingEvaluation with summaries (feature 030 US5)", () => {
+	const RIDER = 900001;
+
+	function sql(query: string, ...values: unknown[]) {
+		return db
+			.prepare(query)
+			.bind(...values)
+			.run();
+	}
+
+	it("leaves out an evaluated rider", async () => {
+		await evaluatedRider(RIDER, 1);
+		expect(await needing()).toEqual([]);
+	});
+
+	it("finds a connected rider with no row", async () => {
+		await evaluatedRider(RIDER, 1);
+		await sql("DELETE FROM rider_summaries WHERE athlete_id = ?", RIDER);
+		expect(await needing()).toEqual([RIDER]);
+	});
+
+	it("finds a connected rider with a row of another version", async () => {
+		await evaluatedRider(RIDER, 1);
+		await sql(
+			"UPDATE rider_summaries SET version = version + 1 WHERE athlete_id = ?",
+			RIDER,
+		);
+		expect(await needing()).toEqual([RIDER]);
+	});
+
+	it("finds attendance the row doesn't name", async () => {
+		await evaluatedRider(RIDER, 1);
+		// Outside the window, so only the summary can notice it.
+		await attendRaw(await insertEvent("team_training", "2025-12-31"), [RIDER]);
+		expect(await needing()).toEqual([RIDER]);
+	});
+
+	it("finds a row naming attendance that's gone", async () => {
+		await evaluatedRider(RIDER, 1);
+		// An ID of an event that was never attended, and of no rise in Rynke.
+		await sql(
+			"UPDATE rider_summaries SET attended = '[424242]' WHERE athlete_id = ?",
+			RIDER,
+		);
+		expect(await needing()).toEqual([RIDER]);
+	});
+
+	it("leaves out a rider who isn't connected", async () => {
+		await seedRider(ctx, { athleteId: RIDER, status: "needs_reconnect" });
+		expect(await needing()).toEqual([]);
 	});
 });
 

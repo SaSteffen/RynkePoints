@@ -13,7 +13,7 @@ import {
 } from "../support/ctx";
 import { countTrips } from "../support/d1-trips";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
-import { seedBalance } from "../support/rider-view";
+import { seedBalance, seedEmptySummary } from "../support/rider-view";
 
 // How many D1 round trips a page waits on (issues #184, #185): the rider and
 // their consent in one batch, then the section's reads in one more, with the
@@ -44,6 +44,7 @@ async function seedReadyRider(options: { organiser?: boolean } = {}) {
 	if (!ride) throw new Error("fixture is not a cycling activity");
 	await upsertActivity(env.DB, ride);
 	await seedBalance(ATHLETE_A, { trainingRynke: 30 });
+	await seedEmptySummary(ATHLETE_A);
 }
 
 beforeEach(resetDb);
