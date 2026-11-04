@@ -85,9 +85,9 @@ leaderboards, rankings or clubs as such (F-1). Every rider gives that consent wh
 connecting (FR-010), and the leaderboard shows other riders' Rynke without names
 (FR-020).
 
-- **Capacity** (F-5): without Strava's review the app can connect at most 10
-  athletes, fewer than the team has. The review is discretionary and has no time
-  limit.
+- **Capacity** (F-5): without Strava's review the app could connect at most 10
+  athletes, fewer than the team has. Strava approved the review on 2026-11-04 with
+  a capacity of 999 athletes.
 - **Seven-day cache and analytics rules** (F-6): read literally, they would forbid
   what features 001 and 003 do. The project does not apply them (see
   Clarifications) and accepts that Strava could object.
@@ -536,6 +536,9 @@ revised 2025-09-29), [Getting Started](https://developers.strava.com/docs/gettin
   Policy §3.3 puts apps of up to 10 and up to 9,999 users in a Standard Tier with
   subscription requirements for the developer or for end users Strava names;
   Getting Started requires a Strava subscription to create an app.
+  **Outcome (2026-11-04): approved.** Strava granted an athlete capacity of 999
+  and raised the limits to 600 requests / 15 min and 6,000 / day overall, 300 /
+  15 min and 3,000 / day for reads.
 - **F-6 Seven-day cache and analytics rules: not applied, risk accepted.** Policy
   §6.2 forbids keeping Strava data in a cache "longer than seven (7) days", and
   apart from that limited caching Strava data may not be stored. Policy §5.5 forbids

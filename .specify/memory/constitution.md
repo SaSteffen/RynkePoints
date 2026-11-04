@@ -80,12 +80,12 @@ The app reacts to Strava, it does not poll it.
   actual work to a queue; it MUST NOT call the Strava API inline.
 - Webhook processing MUST be idempotent: Strava may deliver an event more than
   once, and replaying an event MUST NOT double-award points.
-- API calls MUST respect Strava's rate limits (read limits are as low as 100
-  requests / 15 min and 1,000 / day per app), back off on `429`, and honour the
+- API calls MUST respect Strava's rate limits (per app, not per rider; since
+  2026-11-04 the read limits are 300 requests / 15 min and 3,000 / day), back off on `429`, and honour the
   `X-RateLimit-*` / `X-ReadRateLimit-*` headers. Backfills of historical activities
   are throttled jobs, never bursts.
-- Beyond 10 connected riders the app needs Strava's Developer Program review;
-  features MUST NOT assume more athletes than the app's current capacity.
+- The app's athlete capacity is 999 since Strava's Developer Program review
+  (2026-11-04); features MUST NOT assume more athletes than that capacity.
 
 Rationale: Rate limits are per app, not per rider, so one careless loop starves the
 whole team. Webhooks plus a queue are also what Strava's review expects to see.
@@ -154,9 +154,10 @@ only safety net a single-maintainer project has.
   `migrations/`.
 - Async work and scheduling: Cloudflare Queues and cron triggers.
 - External API: Strava API v3 (OAuth 2.0, webhook events). Terms checked
-  2026-10-06: API Agreement effective 2026-06-01; default limits 200 req/15 min,
-  2,000/day overall, 100/15 min and 1,000/day for reads; capacity 1 athlete
-  (10 after self-serve upgrade, more only after review).
+  2026-10-06: API Agreement effective 2026-06-01. Developer Program review
+  approved 2026-11-04: 600 req/15 min and 6,000/day overall, 300/15 min and
+  3,000/day for reads; capacity 999 athletes (before: 200/2,000 overall, 100/1,000
+  reads, 10 athletes after the self-serve upgrade).
 - Browser: the rider-facing app requires JavaScript. Pages are server-rendered
   HTML for first paint and accessibility, but features MUST NOT be designed,
   built or tested for a browser with scripts turned off. Text alternatives (a
@@ -222,4 +223,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 2.2.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-10-19
+**Version**: 2.2.1 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-04
