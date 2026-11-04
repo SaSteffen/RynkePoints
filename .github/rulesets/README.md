@@ -8,7 +8,7 @@ commands below that the live rulesets still match them.
 | File | Ruleset | Merge methods | Up to date before merging |
 |---|---|---|---|
 | `main.json` | `protect-main` | merge commit | not required |
-| `develop.json` | `protect-develop` | squash, merge commit | required |
+| `develop.json` | `protect-develop` | merge commit | required |
 
 Both block deletion and force pushes, require a pull request whose seven checks
 (`lint`, `typecheck`, `test`, `e2e`, `commit-messages`, `pr-title`, `pr-source`)
@@ -84,8 +84,8 @@ was changed and not applied. Fix whichever side is wrong.
       pull request. Otherwise every pull request waits for a check that never
       reports.
 - [ ] `allowed_merge_methods` is a subset of the merge methods enabled in
-      [../repository-settings.md](../repository-settings.md) (squash and merge
-      commit). Otherwise GitHub blocks every merge.
+      [../repository-settings.md](../repository-settings.md) (merge commit
+      only). Otherwise GitHub blocks every merge.
 
 ## Why this is manual
 

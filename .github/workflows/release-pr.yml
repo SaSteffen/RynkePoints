@@ -41,11 +41,30 @@ jobs:
             exit 0
           fi
 
-          # One line per squashed change; merge commits (releases, sync/* back-merges)
-          # are left out. Commit subjects reach the body through a file, never the shell.
-          gh api "repos/$REPO/compare/main...develop" \
-            --jq '.commits[] | select(.parents | length == 1) | "- " + (.commit.message | split("\n")[0])' \
-            > "$RUNNER_TEMP/body.md"
+          # One line per pull request merged into develop and not yet on main, by title.
+          # Branch commits never appear on their own, and sync/* back-merges are left out.
+          # Squash commits from before merge commits became the only method still match.
+          # Titles reach the body through files, never the shell.
+          gh api --paginate "repos/$REPO/compare/main...develop?per_page=100" \
+            --jq '.commits[].sha' > "$RUNNER_TEMP/shas.txt"
+
+          limit=500
+          gh pr list --repo "$REPO" --base develop --state merged --limit "$limit" \
+            --json number,title,mergeCommit,headRefName > "$RUNNER_TEMP/prs.json"
+
+          oldest=$(jq -r '.[-1].mergeCommit.oid // ""' "$RUNNER_TEMP/prs.json")
+          if [ "$(jq length "$RUNNER_TEMP/prs.json")" -ge "$limit" ] \
+            && grep -qxF "$oldest" "$RUNNER_TEMP/shas.txt"; then
+            echo "::warning::This release may reach further back than the newest $limit pull requests, so the description may be missing some."
+          fi
+
+          jq -r --rawfile shas "$RUNNER_TEMP/shas.txt" '
+            ($shas | split("\n")) as $in
+            | .[]
+            | select(.mergeCommit.oid as $oid | any($in[]; . == $oid))
+            | select(.headRefName | startswith("sync/") | not)
+            | "- \(.title) (#\(.number))"
+          ' "$RUNNER_TEMP/prs.json" > "$RUNNER_TEMP/body.md"
 
           url=$(gh pr create --repo "$REPO" --base main --head develop \
             --title "chore: release" --body-file "$RUNNER_TEMP/body.md")
