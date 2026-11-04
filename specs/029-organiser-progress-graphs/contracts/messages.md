@@ -5,6 +5,10 @@ keys. The wording below is a proposal for review with the code. German follows t
 
 ## Consent and privacy
 
+**Always visible**: `consent.short.shown` and `consent.agree` name the daily figures too, so a new rider doesn't have
+to open the details to learn of them: "…die Orga mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag."
+and "…teilt deine Rynke und Tagessummen wie beschrieben."
+
 **New `consent.dailyFigures`**, after `consent.organisers` in the consent form:
 
 - EN: "The organisers also see, with your first name, how many kilometres you rode outdoors and virtually and

@@ -96,6 +96,17 @@ describe("CONSENT_VERSIONS", () => {
 		expect(CATALOGS.en["consent.short.shown"]).toContain("Administrators");
 	});
 
+	it("names the daily figures where a new rider always reads them", () => {
+		expect(CATALOGS.de["consent.short.shown"]).toContain(
+			"Kilometer und Höhenmeter pro Tag",
+		);
+		expect(CATALOGS.en["consent.short.shown"]).toContain(
+			"kilometres and elevation per day",
+		);
+		expect(CATALOGS.de["consent.agree"]).toContain("Tagessummen");
+		expect(CATALOGS.en["consent.agree"]).toContain("daily totals");
+	});
+
 	it("keeps CONSENT_VERSION at the last entry", () => {
 		expect(CONSENT_VERSION).toBe(CONSENT_VERSIONS.at(-1)?.version);
 		expect(currentVersion(CONSENT_VERSIONS).version).toBe(CONSENT_VERSION);

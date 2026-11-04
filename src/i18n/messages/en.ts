@@ -42,7 +42,7 @@ export const en: Catalog = {
 	"consent.short.read":
 		"We only read the key figures of your rides, runs and swims, such as distance, time and elevation, and turn them into Rynke and badges.",
 	"consent.short.shown":
-		"The team sees your Rynke without your name, the organisers with your first name. Administrators see your first name and connection state, and if they remove you, we keep your Strava ID so you can't return.",
+		"The team sees your Rynke without your name, the organisers with your first name, plus your kilometres and elevation per day. Administrators see your first name and connection state, and if they remove you, we keep your Strava ID so you can't return.",
 	"consent.details": "All the details",
 	"consent.organisers":
 		"The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, and which team events you reported you're coming to or were at.",
@@ -52,7 +52,7 @@ export const en: Catalog = {
 		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation count towards the team sums of the team badges, without your name. On which days and at what hour you ride, run or swim counts towards the team surprises, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
 	"consent.agree":
-		"Agreed: RynkePoints reads your rides and shares your Rynke as described.",
+		"Agreed: RynkePoints reads your rides and shares your Rynke and daily totals as described.",
 
 	"me.title": "Your RynkePoints",
 	"me.greeting": "Hi {firstName}!",
