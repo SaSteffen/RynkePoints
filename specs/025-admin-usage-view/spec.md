@@ -1,6 +1,6 @@
 # Feature Specification: Admin View with Usage Statistics
 
-**Feature Branch**: `025-admin-usage-view`
+**Feature Branch**: `spec/admin-view-and-second-team`
 
 **Created**: 2026-11-04
 
@@ -22,6 +22,9 @@ replaces.
   team keeps only their Strava athlete ID for this.
 - Q: How do administrators hear that a limit is near? → A: A push notification through
   the app.
+- Q: Per-team shares need a second team, so are they part of this feature? → A: Only the
+  counting. This feature counts each team's Strava requests from day one and labels its
+  records by team. Showing several teams' figures together is deferred to feature 026.
 
 ## Context
 
@@ -37,26 +40,27 @@ this view is how we will know.
 **Terms**: An **administrator** is a person who runs the app for a team. This is a
 new role, separate from organisers (feature 014). An **allowance** is a limit set by
 Strava or Cloudflare, and **usage** is how much of it has been used in its current
-period. A team's **share** is the part of the usage caused by that team. **Shared
-usage** is usage caused by the gateway rather than by a team.
+period. **Not attributed** usage is the part of an app-wide or
+account-wide figure this team didn't cause.
 
-This feature must work with one team, so it can ship before the second team joins.
-Each team sees its own riders only. Usage figures are the one thing shown across
-teams, and they never identify a rider.
+This feature ships before the second team joins and knows only its own team. It counts
+that team's usage and labels its records by team, so history is ready for the split.
+Bringing the teams' figures together in one view is feature 026 (FR-039 there). If a
+second team runs before that, its usage appears here as not attributed, which stays
+correct.
 
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - How close are we to our limits? (Priority: P1)
 
 An administrator opens the admin view and sees, for each allowance, the amount used,
-the limit, the percentage and each team's share. Anything close to its limit stands
+the limit, the percentage and this team's count. Anything close to its limit stands
 out, so they can tell in under a minute whether anything needs attention.
 
 **Why this priority**: It is the reason for this feature. Moving to separate
 accounts, or slowing work down, is decided from these numbers.
 
-**Independent Test**: With synthetic usage for two teams, sign in as an
-administrator and compare every displayed figure with the synthetic values. Then
+**Independent Test**: With synthetic usage, sign in as an administrator and compare every displayed figure with the synthetic values. Then
 sign in as a non-administrator and check the view is refused.
 
 **Acceptance Scenarios**:
@@ -64,17 +68,14 @@ sign in as a non-administrator and check the view is refused.
 1. **Given** Strava reports 1,200 of 3,000 daily reads, **When** an administrator
    opens the view, **Then** it shows 1,200, 3,000 and 40 %, with the time the figure
    was observed.
-2. **Given** two teams made 900 and 300 of those reads, **When** the view is open,
-   **Then** it shows each team's count and its share, 75 % and 25 %.
+2. **Given** this team made 900 of those 1,200 reads, **When** the view is open,
+   **Then** it shows 900 for the team and 300 as not attributed.
 3. **Given** a usage figure at or above 80 % of its limit, **When** the view is open,
    **Then** that figure is marked as a warning, in a way that doesn't rely on colour
    alone.
 4. **Given** a usage figure at or above 95 % of its limit, **When** the view is open,
    **Then** that figure is marked as critical.
-5. **Given** only one team exists, **When** the view is open, **Then** the figures
-   appear with that team's share at 100 %, or without shares, and nothing looks
-   broken.
-6. **Given** Cloudflare's figures can't be fetched, **When** the view is open,
+5. **Given** Cloudflare's figures can't be fetched, **When** the view is open,
    **Then** those figures say they are unavailable and show the last known values
    with their time, never zero, and the Strava figures still appear.
 
@@ -82,21 +83,21 @@ sign in as a non-administrator and check the view is refused.
 
 ### User Story 2 - How has usage developed? (Priority: P2)
 
-An administrator looks at the past weeks to see whether usage is growing, whether a
-peak was one bad day, and which team caused it.
+An administrator looks at the past weeks to see whether usage is growing, and whether a
+peak was one bad day.
 
 **Why this priority**: One day's figure can't show a trend. The history is what tells
 us when we will reach a limit, but it needs Story 1's figures first.
 
-**Independent Test**: With a synthetic history of 60 days for two teams, open the
-view and compare the daily values and team shares with the synthetic data. Then
+**Independent Test**: With a synthetic history of 60 days, open the view and compare the
+daily values with the synthetic data. Then
 remove a rider and check the history doesn't change.
 
 **Acceptance Scenarios**:
 
 1. **Given** 60 days of recorded usage, **When** an administrator views an
-   allowance's history, **Then** they see one value per day, with the limit and each
-   team's share.
+   allowance's history, **Then** they see one value per day, with the limit and, for
+   Strava, this team's count.
 2. **Given** a Strava daily history, **When** they view it, **Then** each day also
    shows that day's highest 15-minute usage as far as observed.
 3. **Given** a day on which nothing could be recorded, **When** they view the
@@ -109,25 +110,22 @@ remove a rider and check the history doesn't change.
 ### User Story 3 - Who is connected? (Priority: P2)
 
 An administrator sees the riders of their own team and each rider's state, for
-example to find out why someone's rides aren't arriving. They also see how many
-riders are connected across the app, against Strava's capacity of 999.
+example to find out why someone's rides aren't arriving. They also see how many of the
+team's riders are connected, against Strava's capacity of 999.
 
 **Why this priority**: It answers the most common support question without reaching
 for the database, and it needs no usage figures.
 
 **Independent Test**: With synthetic riders in every state, sign in as an
-administrator and compare the list with the data. Check that no rider of another
-team appears, and that no ride or Rynke figure appears.
+administrator and compare the list with the data. Check that no ride or Rynke figure
+appears.
 
 **Acceptance Scenarios**:
 
 1. **Given** riders in several states, **When** an administrator opens the rider
    overview, **Then** each row shows the first name, connection status, connection
    date, last membership check and whether an import is still running.
-2. **Given** riders of another team exist, **When** an administrator opens the rider
-   overview, **Then** none of them appears; of that team, only its number of connected
-   riders is shown.
-3. **Given** work is waiting for the Strava budget, **When** the view is open,
+2. **Given** work is waiting for the Strava budget, **When** the view is open,
    **Then** it shows how many items are waiting and an estimate of when they will be
    done, without naming riders. **Given** nothing is waiting, **Then** it shows
    nothing about waiting work.
@@ -159,8 +157,8 @@ connect as that rider and check it is refused and nothing else is stored.
    the club.
 3. **Given** a removal has happened, **When** the removed rider next opens the app,
    **Then** they see the same page as anyone who isn't connected.
-4. **Given** a rider of another team, **When** an administrator tries to remove them
-   by any means, **Then** it is refused and nothing changes.
+4. **Given** an ID that isn't a rider of this team, **When** an administrator tries to
+   remove it by any means, **Then** it is refused and nothing changes.
 5. **Given** an administrator, **When** they try to remove themselves, **Then** it is
    refused and they are pointed to the normal way of leaving.
 6. **Given** a blocked rider, **When** they try to connect, **Then** they are told they
@@ -187,7 +185,7 @@ check in the same period sends nothing.
 **Acceptance Scenarios**:
 
 1. **Given** a daily allowance reaches 80 %, **When** the next check runs, **Then** the
-   administrators of every team get a notification naming the allowance and its
+   team's administrators get a notification naming the allowance and its
    percentage, which opens the admin view.
 2. **Given** the notification for 80 % was sent, **When** the allowance reaches 95 % in
    the same period, **Then** one more is sent, marked as critical.
@@ -208,9 +206,9 @@ check in the same period sends nothing.
 - A Strava figure is old because no call was made in the current period: the figure
   counts as zero for the new period, as the budget logic already treats it, and the
   time of the last observation is shown.
-- Team counts don't add up to Strava's total, for example because a call failed
-  before it was counted or the counters started mid-period: the difference is shown
-  as "not attributed", not hidden or spread across the teams.
+- The team's count doesn't reach Strava's total, for example because a call failed before
+  it was counted, the counter started mid-period or another team made calls: the
+  difference is shown as "not attributed", not hidden.
 - Limits change: Strava's limits come from its latest response, so the percentages
   follow. A changed Cloudflare limit or plan is a setting, and old days keep the limit
   they were recorded with.
@@ -221,8 +219,6 @@ check in the same period sends nothing.
   double-count (Principle II).
 - Cloudflare's own history is shorter than ours: recorded days stay available after
   Cloudflare has dropped them.
-- A team is added later: the history shows its share from its first day, with earlier
-  days unchanged.
 - An administrator's flag is cleared: they lose access on their next request, and
   they remain a normal rider.
 - Accounts are split later: each account's allowances appear separately, and earlier
@@ -250,25 +246,25 @@ check in the same period sends nothing.
 - **FR-003**: Everything in this feature MUST be refused to anyone who isn't an
   administrator of that team, in the way other protected pages are, without
   revealing that the pages exist.
-- **FR-004**: An administrator MUST NOT be able to see or act on riders of another
-  team.
+- **FR-004**: An administrator MUST NOT be able to see or act on anyone who isn't a rider
+  of their team.
 
 **Current usage**
 
 - **FR-005**: The view MUST show these Strava allowances: reads and all requests, each
-  per 15 minutes and per day, and connected riders against the athlete capacity.
+  per 15 minutes and per day, and the team's connected riders against the athlete
+  capacity.
 - **FR-006**: The view MUST show these Cloudflare allowances for the account: Worker
   requests per day, queue operations per day, database rows read and written per day,
   and total database storage.
 - **FR-007**: Each figure MUST show the amount used, the limit, the percentage and the
   time it was observed.
-- **FR-008**: Each figure MUST show each team's absolute count and share, and shared
-  or not attributed usage separately, wherever the source allows. A figure that can't
-  be split says so.
+- **FR-008**: Each Strava figure MUST show this team's count and the rest as not
+  attributed. Cloudflare's figures MUST be for the whole account and say so.
 - **FR-009**: Figures at or above 80 % MUST be marked as a warning, and at or above
   95 % as critical. The marking MUST NOT rely on colour alone.
-- **FR-010**: The system MUST count its Strava requests per team, because Strava only
-  reports the app-wide total.
+- **FR-010**: The system MUST count its own Strava requests, because Strava only reports
+  the app-wide total.
 - **FR-011**: When a source is unavailable, the view MUST say so and show the last
   known values with their time. It MUST NOT show zero or fail as a whole.
 - **FR-012**: Cloudflare's figures MUST be labelled as approximate, since Cloudflare
@@ -276,11 +272,12 @@ check in the same period sends nothing.
 
 **History**
 
-- **FR-013**: The system MUST record one value per allowance, per team and per day,
-  once a day, with the limit in effect. Strava's records MUST include the day's
-  highest observed 15-minute usage.
+- **FR-013**: The system MUST record one value per allowance and day, once a day, with the
+  limit in effect, labelled with the team and with its own count where it has one, so
+  feature 026 can show shares from these records. Strava's records MUST include the
+  day's highest observed 15-minute usage.
 - **FR-014**: Each allowance's history MUST be viewable by day, in absolute numbers
-  and as a percentage of the limit, with each team's share.
+  and as a percentage of the limit.
 - **FR-015**: The history MUST cover at least the last 13 months and MAY drop older
   days. Days without a record MUST appear as gaps.
 - **FR-016**: Recording MUST be idempotent, and it MUST NOT use up a meaningful part
@@ -354,10 +351,10 @@ check in the same period sends nothing.
 - **Administrator**: A rider marked as running the app for their team.
 - **Allowance**: A named limit with its source (Strava or Cloudflare), its period and
   its current value. Cloudflare's belong to an account.
-- **Usage figure**: The latest value of an allowance, when it was observed, and the
-  split by team.
+- **Usage figure**: The latest value of an allowance, when it was observed, and this
+  team's count.
 - **Daily usage record**: One day's value for one allowance, with the limit then in
-  effect, the split by team and, for Strava, the highest 15-minute usage. It holds no
+  effect, the team label and count and, for Strava, the highest 15-minute usage. It holds no
   rider data.
 - **Removal record**: When a removal happened and who did it, without the rider.
 - **Block list entry**: One Strava athlete ID blocked from a team, and nothing else.
@@ -369,13 +366,12 @@ check in the same period sends nothing.
 ### Measurable Outcomes
 
 - **SC-001**: An administrator can tell in under a minute whether any allowance is at
-  or above 80 %, and which team contributes most.
-- **SC-002**: For a day of synthetic usage, every displayed figure, percentage and
-  share matches the input exactly, and shares plus "not attributed" add up to 100 %.
+  or above 80 %.
+- **SC-002**: For a day of synthetic usage, every displayed figure and percentage matches the input
+  exactly, and the team's count plus "not attributed" adds up to the total.
 - **SC-003**: An administrator can answer "how did usage develop over the last 60
   days?" for any allowance from one screen, without another tool.
-- **SC-004**: In tests, no request by a non-administrator and no request across teams
-  returns a rider's data or changes anything.
+- **SC-004**: In tests, no request by a non-administrator returns a rider's data or changes anything.
 - **SC-005**: After a removal, the block list entry is the only stored record that
   identifies the rider, and the usage history is unchanged.
 - **SC-006**: Recording and viewing together use less than 1 % of any daily allowance.
@@ -392,8 +388,8 @@ check in the same period sends nothing.
 - **Role**: An administrator is a connected rider of the team, so there is no separate
   sign-in. Their first holders are the maintainer and the responsible person at the
   second team.
-- **Across teams**: Both teams' administrators see both teams' usage figures and
-  shares, since these contain no rider data. Rider lists stay per team.
+- **Deferred to feature 026**: Each team's share, both teams' figures in one view, the
+  split of Cloudflare's figures by team, and the total of connected riders across teams.
 - **Consent**: Showing connection state and dates to administrators is new information
   shown to someone other than the rider, so Principle I requires a new consent version
   (FR-032). The block list alone wouldn't: it reads, writes and shows nothing new. But
@@ -416,11 +412,9 @@ check in the same period sends nothing.
   for a limited time (31 days for databases, about three months for Workers), which is
   why the app keeps its own daily record. A read-only credential is a manual setup
   step.
-- **Dependency**: The per-team features need feature 026 (issue #236) for a second team to exist, but
-  this feature ships and works without it.
+- **Dependency**: None. This feature ships and works without feature 026 (issue #236).
 - **Alerts**: Administrators receive alerts on devices where they turned notifications
-  on (feature 010); there is no separate switch. Both teams' administrators are told,
-  since the allowances are shared.
+  on (feature 010); there is no separate switch.
 - **Out of scope**: Email alerts, alerts when figures can't be fetched, automatic slowing
   of work, per-rider usage, rate limit changes, changing rules or settings from the view,
   CPU time and billing.

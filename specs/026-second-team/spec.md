@@ -1,6 +1,6 @@
 # Feature Specification: A Second Team
 
-**Feature Branch**: `025-admin-usage-view` (written alongside feature 025, on request)
+**Feature Branch**: `spec/admin-view-and-second-team` (written alongside feature 025, on request)
 
 **Created**: 2026-11-04
 
@@ -28,7 +28,8 @@ is the team using the app today. **Team data** is everything that differs betwee
 and is kept as data, not as branches in code. A **content set** is a body of generated
 text or art for one team, such as its motivational phrases.
 
-Usage statistics, administrators and blocking are feature 025.
+Usage statistics, administrators and blocking are feature 025, for one team. Bringing
+the teams' figures together is part of this feature (FR-039).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -277,6 +278,17 @@ Check the other team's step finishes and the failed one is reported.
   reports, without a central budget service.
 - **FR-014**: Strava's app name, icon and description MUST NOT be specific to one team.
 - **FR-015**: Strava's capacity MUST be treated as shared by all teams.
+
+**Usage across teams** (extends feature 025)
+
+- **FR-039**: Each team's admin view MUST show every team's absolute count and share of
+  each usage figure and its history, with shared and not attributed usage apart. It MUST
+  also show the total of connected riders against the capacity. No rider data crosses
+  teams for this, and a team that can't be reached MUST NOT break the view.
+- **FR-040**: Cloudflare's figures MUST be split by team wherever Cloudflare allows, and a
+  figure that can't be split says so. Gateway usage counts as shared.
+- **FR-041**: Since allowances are shared, every team's administrators MUST get the alerts
+  of feature 025, and days before a team joined stay unchanged in the history.
 
 **Team data**
 
