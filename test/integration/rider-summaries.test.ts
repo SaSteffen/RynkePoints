@@ -60,7 +60,8 @@ async function storedRow(athleteId = ATHLETE_A) {
 /** The row `summaryOf` gives from what is stored right now. */
 async function fromScratch(athleteId = ATHLETE_A) {
 	const rides = await env.DB.prepare(
-		`SELECT a.start_date_local, a.distance_m, r.distance_rynke, r.elevation_dm
+		`SELECT a.start_date_local, a.distance_m, r.distance_rynke, r.elevation_dm,
+			r.is_virtual
 		FROM ride_results r JOIN activities a
 			ON a.strava_activity_id = r.strava_activity_id
 		WHERE r.counts = 1 AND r.athlete_id = ?`,
@@ -71,6 +72,7 @@ async function fromScratch(athleteId = ATHLETE_A) {
 			distance_m: number;
 			distance_rynke: number;
 			elevation_dm: number;
+			is_virtual: 0 | 1;
 		}>();
 	const dated = async (table: string) =>
 		(
@@ -97,6 +99,7 @@ async function fromScratch(athleteId = ATHLETE_A) {
 				distanceRynke: row.distance_rynke,
 				elevationDm: row.elevation_dm,
 				startTime: row.start_date_local.slice(11, 16),
+				virtual: row.is_virtual === 1,
 			})),
 			runs: await dated("runs"),
 			swims: await dated("swims"),
@@ -111,6 +114,8 @@ async function fromScratch(athleteId = ATHLETE_A) {
 		run_days: summary.runDays,
 		active: summary.active,
 		attended: summary.attended,
+		virtual_days: summary.virtualDays,
+		own_days: summary.ownDays,
 	};
 }
 
@@ -143,6 +148,8 @@ describe("a rider's summary follows every change (US3)", () => {
 			run_days: "[]",
 			active: "[]",
 			attended: "[]",
+			virtual_days: "[]",
+			own_days: "[]",
 		});
 	});
 
@@ -545,6 +552,8 @@ describe("the release is invisible (US5)", () => {
 			run_days: "[]",
 			active: "[]",
 			attended: "[]",
+			virtual_days: "[]",
+			own_days: "[]",
 		});
 		await seedEmptySummary(ATHLETE_A);
 		await seedEmptySummary(ATHLETE_B);
@@ -601,5 +610,97 @@ describe("the release is invisible (US5)", () => {
 		ctx.queue.sent.length = 0;
 		await daily();
 		expect(evaluationsSent()).toEqual([]);
+	});
+});
+
+describe("a new format costs no costly day (organiser graphs, research R14)", () => {
+	/** As after the migration: rows of version 1, without the new columns. */
+	const toVersionOne = () =>
+		env.DB.prepare(
+			"UPDATE rider_summaries SET version = 1, virtual_days = '[]', own_days = '[]'",
+		).run();
+
+	beforeEach(async () => {
+		await evaluateChange(ctx, ATHLETE_A, {
+			kind: "upsert",
+			records: [activityRecord(40)],
+		});
+		await evaluateChange(ctx, ATHLETE_B, { kind: "none" });
+	});
+
+	it("lets team reads use a version 1 row without adding up", async () => {
+		const fromRows = await readTeam(env.DB);
+		const sumsFromRows = await readTeamBadgeSums(env.DB);
+		await toVersionOne();
+		const { ctx: counted, counter } = countTrips(ctx);
+		counter.reset();
+		expect(await readTeam(counted.env.DB)).toEqual(fromRows);
+		expect(await readTeamBadgeSums(counted.env.DB)).toEqual(sumsFromRows);
+		expect(counter.trips()).toBe(2);
+	});
+
+	it("adds up a rider whose row is below the lowest version", async () => {
+		const fromRows = await readTeam(env.DB);
+		await env.DB.prepare(
+			"UPDATE rider_summaries SET version = 0, weeks = '[]', attended = '[]' WHERE athlete_id = ?",
+		)
+			.bind(ATHLETE_A)
+			.run();
+		const { ctx: counted, counter } = countTrips(ctx);
+		counter.reset();
+		expect(await readTeam(counted.env.DB)).toEqual(fromRows);
+		expect(counter.trips()).toBe(2);
+	});
+
+	it("raises a version 1 row with one write, no rise and no notification", async () => {
+		await toVersionOne();
+		const sentBefore = ctx.queue.sent.length;
+		const balance = () =>
+			env.DB.prepare("SELECT * FROM rynke_balances WHERE athlete_id = ?")
+				.bind(ATHLETE_A)
+				.first();
+		const before = await balance();
+		const rows = countRows(ctx);
+		rows.counter.reset();
+		const result = await evaluateChange(rows.ctx, ATHLETE_A, { kind: "none" });
+		expect(rows.counter.written()).toBe(1);
+		expect(result).toEqual({
+			rose: false,
+			badges: [],
+			figuresChanged: false,
+		});
+		await expectRowMatches();
+		expect(await balance()).toEqual(before);
+		expect(ctx.queue.sent.length).toBe(sentBefore);
+		rows.counter.reset();
+		await evaluateChange(rows.ctx, ATHLETE_A, { kind: "none" });
+		expect(rows.counter.written()).toBe(0);
+	});
+
+	it("has the daily job find version 1 rows, and then none", async () => {
+		await toVersionOne();
+		const daily = () =>
+			handleScheduled(
+				createScheduledController({
+					scheduledTime: new Date(NOW * 1000),
+					cron: "17 3 * * *",
+				}),
+				ctx,
+			);
+		const sent = () =>
+			ctx.queue.sent
+				.map((m) => m.body)
+				.filter((b) => b.kind === "evaluate-rider");
+		ctx.queue.sent.length = 0;
+		await daily();
+		expect(sent()).toEqual([
+			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
+			{ kind: "evaluate-rider", athleteId: ATHLETE_B },
+		]);
+		await evaluateChange(ctx, ATHLETE_A, { kind: "none" });
+		await evaluateChange(ctx, ATHLETE_B, { kind: "none" });
+		ctx.queue.sent.length = 0;
+		await daily();
+		expect(sent()).toEqual([]);
 	});
 });

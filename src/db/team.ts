@@ -17,9 +17,9 @@ import { LISTED_RIDER_IDS, listedRiderFilter } from "./organiser";
 import {
 	type AddedUpDays,
 	type AddedUpWeeks,
-	CURRENT_SUMMARY_JOIN,
 	readDaysAddedUp,
 	readWeeksAddedUp,
+	TEAM_SUMMARY_JOIN,
 } from "./rider-summaries";
 import { type BalanceRow, type StoredBalance, toStoredBalance } from "./rynke";
 
@@ -98,7 +98,7 @@ export async function readTeam(db: D1Database): Promise<TeamRider[]> {
 				${CORRECTIONS_OF_RIDER} AS corrections
 			FROM riders r
 			LEFT JOIN rynke_balances b ON b.athlete_id = r.athlete_id
-			${CURRENT_SUMMARY_JOIN}
+			${TEAM_SUMMARY_JOIN}
 			WHERE ${listedRiderFilter("r")}
 			ORDER BY r.first_name COLLATE NOCASE, r.athlete_id`,
 		),
@@ -171,7 +171,7 @@ export function teamBadgeSumsStatements(db: D1Database): D1PreparedStatement[] {
 			`SELECT r.athlete_id, r.connected_at, s.days, s.run_days, s.active,
 				s.attended, ${CORRECTIONS_OF_RIDER} AS corrections
 			FROM riders r
-			${CURRENT_SUMMARY_JOIN}
+			${TEAM_SUMMARY_JOIN}
 			WHERE ${listedRiderFilter("r")}
 			ORDER BY r.athlete_id`,
 		),

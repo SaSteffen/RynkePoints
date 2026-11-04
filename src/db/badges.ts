@@ -4,6 +4,14 @@
 
 import type { EarnedBadge } from "../badges/evaluate";
 import type { CountingWindow } from "../rynke/rules";
+import {
+	OWN_SUMMARY_SINCE,
+	type OwnFigures,
+	ownFiguresOf,
+	parseDays,
+	parseOwnDays,
+	parseVirtualDays,
+} from "../rynke/summary";
 import { LISTED_RIDER_IDS } from "./organiser";
 
 export interface RiderBadgeRow {
@@ -175,6 +183,9 @@ export async function readRiderBadges(
 	window: CountingWindow,
 ): Promise<RiderBadgesRead> {
 	return toRiderBadges(
+		db,
+		athleteId,
+		window,
 		await db.batch(riderBadgesStatements(db, athleteId, window)),
 	);
 }
@@ -191,6 +202,41 @@ export function riderBadgesStatements(
 	return [
 		listRiderBadgesStatement(db, athleteId),
 		listRevealsStatement(db, athleteId),
+		// One row, by primary key, instead of the rider's rides (feature 029
+		// research R15). Without it, `ownFiguresFromRides` follows.
+		db
+			.prepare(
+				`SELECT days, virtual_days, own_days FROM rider_summaries
+				WHERE athlete_id = ? AND version >= ${OWN_SUMMARY_SINCE}`,
+			)
+			.bind(athleteId),
+		// By local start date, as the evaluation counts them.
+		db
+			.prepare(
+				`SELECT coalesce(max(distance_m), 0) AS longest_m,
+					coalesce(sum(distance_m), 0) AS distance_m
+				FROM runs WHERE athlete_id = ?1
+					AND substr(start_date_local, 1, 10) BETWEEN ?2 AND ?3`,
+			)
+			.bind(athleteId, window.seasonStart, window.deadline),
+		db
+			.prepare(
+				`SELECT coalesce(max(distance_m), 0) AS longest_m,
+					coalesce(sum(distance_m), 0) AS distance_m
+				FROM swims WHERE athlete_id = ?1
+					AND substr(start_date_local, 1, 10) BETWEEN ?2 AND ?3`,
+			)
+			.bind(athleteId, window.seasonStart, window.deadline),
+	];
+}
+
+/** The rider's ride figures from their rides, for a rider without a row. */
+async function ownFiguresFromRides(
+	db: D1Database,
+	athleteId: number,
+	window: CountingWindow,
+): Promise<OwnFigures> {
+	const [sums, days] = await db.batch([
 		db
 			.prepare(
 				`SELECT coalesce(sum(a.distance_m), 0) AS distance_m,
@@ -204,15 +250,6 @@ export function riderBadgesStatements(
 					AND substr(a.start_date_local, 1, 10) <= ?2`,
 			)
 			.bind(athleteId, window.deadline),
-		// By local start date, as the evaluation counts them.
-		db
-			.prepare(
-				`SELECT coalesce(max(distance_m), 0) AS longest_m,
-					coalesce(sum(distance_m), 0) AS distance_m
-				FROM runs WHERE athlete_id = ?1
-					AND substr(start_date_local, 1, 10) BETWEEN ?2 AND ?3`,
-			)
-			.bind(athleteId, window.seasonStart, window.deadline),
 		// Days with an outdoor counting ride, per calendar month, by the local
 		// start date as the evaluation counts them (research R24).
 		db
@@ -226,25 +263,8 @@ export function riderBadgesStatements(
 				GROUP BY month`,
 			)
 			.bind(athleteId, window.deadline),
-		db
-			.prepare(
-				`SELECT coalesce(max(distance_m), 0) AS longest_m,
-					coalesce(sum(distance_m), 0) AS distance_m
-				FROM swims WHERE athlete_id = ?1
-					AND substr(start_date_local, 1, 10) BETWEEN ?2 AND ?3`,
-			)
-			.bind(athleteId, window.seasonStart, window.deadline),
-	];
-}
-
-/** The results of `riderBadgesStatements`, in their order. */
-export function toRiderBadges(
-	results: readonly (D1Result | undefined)[],
-): RiderBadgesRead {
-	const [badges, reveals, sums, runs, days, swims] = results;
-	if (!badges || !reveals || !sums || !runs || !days || !swims) {
-		throw new Error("D1 batch returned too few results");
-	}
+	]);
+	if (!sums || !days) throw new Error("D1 batch returned too few results");
 	const sum = (
 		sums.results as {
 			distance_m: number;
@@ -253,29 +273,63 @@ export function toRiderBadges(
 			virtual_m: number;
 		}[]
 	)[0];
-	const run = (runs.results as { longest_m: number; distance_m: number }[])[0];
-	const swim = (
-		swims.results as { longest_m: number; distance_m: number }[]
-	)[0];
 	const winterDays: Partial<Record<number, number>> = {};
 	for (const row of days.results as { month: number; days: number }[]) {
 		winterDays[row.month] = row.days;
 	}
 	return {
-		earned: (badges.results as RiderBadgeRow[]).map((row) => ({
-			badgeId: row.badge_id,
-			earnedOn: row.earned_on,
+		distanceM: sum?.distance_m ?? 0,
+		elevationDm: sum?.elevation_dm ?? 0,
+		longestRideM: sum?.longest_m ?? 0,
+		virtualDistanceM: sum?.virtual_m ?? 0,
+		winterDays,
+	};
+}
+
+/**
+ * The results of `riderBadgesStatements`, in their order. A rider without a row
+ * at `OWN_SUMMARY_SINCE` takes a second round trip for their ride figures.
+ */
+export async function toRiderBadges(
+	db: D1Database,
+	athleteId: number,
+	window: CountingWindow,
+	results: readonly (D1Result | undefined)[],
+): Promise<RiderBadgesRead> {
+	const [badges, reveals, summary, runs, swims] = results;
+	if (!badges || !reveals || !summary || !runs || !swims) {
+		throw new Error("D1 batch returned too few results");
+	}
+	const row = (
+		summary.results as {
+			days: string;
+			virtual_days: string;
+			own_days: string;
+		}[]
+	)[0];
+	const own = row
+		? ownFiguresOf(
+				parseDays(row.days),
+				parseVirtualDays(row.virtual_days),
+				parseOwnDays(row.own_days),
+				window.deadline,
+			)
+		: await ownFiguresFromRides(db, athleteId, window);
+	const run = (runs.results as { longest_m: number; distance_m: number }[])[0];
+	const swim = (
+		swims.results as { longest_m: number; distance_m: number }[]
+	)[0];
+	return {
+		earned: (badges.results as RiderBadgeRow[]).map((badge) => ({
+			badgeId: badge.badge_id,
+			earnedOn: badge.earned_on,
 		})),
 		revealed: revealedOf(
 			reveals.results as { badge_id: string; earned_on: string }[],
 		),
-		distanceM: sum?.distance_m ?? 0,
-		elevationDm: sum?.elevation_dm ?? 0,
+		...own,
 		longestRunM: run?.longest_m ?? 0,
 		runDistanceM: run?.distance_m ?? 0,
-		longestRideM: sum?.longest_m ?? 0,
-		virtualDistanceM: sum?.virtual_m ?? 0,
-		winterDays,
 		longestSwimM: swim?.longest_m ?? 0,
 		swimDistanceM: swim?.distance_m ?? 0,
 	};

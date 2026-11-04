@@ -15,29 +15,29 @@ description: "Tasks for the organiser progress graphs"
 
 ## Phase 1: Setup
 
-- [ ] T001 Add `migrations/0025_summary_graph_columns.sql`: `ALTER TABLE rider_summaries ADD COLUMN virtual_days TEXT NOT NULL DEFAULT '[]'` and the same for `own_days`, with comments as in `0024`
-- [ ] T002 [P] Add `ORGANISER_PROGRESS_GRAPH: "on"` to `wrangler.jsonc` and `vitest.config.ts`, then run `pnpm types` for `worker-configuration.d.ts`
+- [X] T001 Add `migrations/0025_summary_graph_columns.sql`: `ALTER TABLE rider_summaries ADD COLUMN virtual_days TEXT NOT NULL DEFAULT '[]'` and the same for `own_days`, with comments as in `0024`
+- [X] T002 [P] Add `ORGANISER_PROGRESS_GRAPH: "on"` to `wrangler.jsonc` and `vitest.config.ts`, then run `pnpm types` for `worker-configuration.d.ts`
 
 ## Phase 2: Foundational (stored rows and cheap release)
 
 **Blocks every story.** Team reads must keep working on version 1 rows before anything else raises the version.
 
-- [ ] T003 [P] Write failing unit tests in `test/unit/rider-summary.test.ts`: `summaryOf` gives `virtualDays` as `[date, virtualM]` only for days with a counting virtual ride, `ownDays` as `[date, longestM, outdoor]` per counting day, and the same text whatever the input order
-- [ ] T004 Write failing tests in `test/integration/rider-summaries.test.ts`: with all rows at version 1, team reads use the rows without adding up; a row below the floor counts as missing; an evaluation raises a version 1 row to 2 with no balance write, rise or notification; the daily job finds version 1 rows; a second unchanged evaluation writes nothing. Change the existing "another version counts as missing" test to match
-- [ ] T005 Add to `test/integration/d1-rows.test.ts`: all rows at version 1 keep the app start, Team page and organiser's table within 10% of version 2 (SC-010)
-- [ ] T006 In `src/rynke/summary.ts`: `RIDER_SUMMARY_VERSION = 2`, `TEAM_SUMMARY_SINCE = 1`, `OWN_SUMMARY_SINCE = 2`, new columns on `RiderSummary` and `summaryOf`, parsers `parseVirtualDays` and `parseOwnDays`. `SummaryFigures.rides` takes `virtual`
-- [ ] T007 In `src/db/rider-summaries.ts`: `CURRENT_SUMMARY_JOIN` becomes `s.version >= TEAM_SUMMARY_SINCE` (rename `TEAM_SUMMARY_JOIN`, update `src/db/team.ts`), new columns in `RiderSummaryRow`, `readSummariesOfRidersStatement` and `upsertSummaryStatement`
-- [ ] T008 In `src/rynke/apply.ts` `riderWrites`: compare `virtual_days` and `own_days` too. Confirm `listRidersNeedingEvaluation` in `src/db/rynke.ts` still asks for exactly the current version
-- [ ] T009 Add the new columns to `test/integration/schema-minimisation.test.ts`, then get `rider-summaries`, `rider-summaries-parity`, `d1-rows` and `d1-round-trips` passing
+- [X] T003 [P] Write failing unit tests in `test/unit/rider-summary.test.ts`: `summaryOf` gives `virtualDays` as `[date, virtualM]` only for days with a counting virtual ride, `ownDays` as `[date, longestM, outdoor]` per counting day, and the same text whatever the input order
+- [X] T004 Write failing tests in `test/integration/rider-summaries.test.ts`: with all rows at version 1, team reads use the rows without adding up; a row below the floor counts as missing; an evaluation raises a version 1 row to 2 with no balance write, rise or notification; the daily job finds version 1 rows; a second unchanged evaluation writes nothing. Change the existing "another version counts as missing" test to match
+- [X] T005 Add to `test/integration/d1-rows.test.ts`: all rows at version 1 keep the app start, Team page and organiser's table within 10% of version 2 (SC-010)
+- [X] T006 In `src/rynke/summary.ts`: `RIDER_SUMMARY_VERSION = 2`, `TEAM_SUMMARY_SINCE = 1`, `OWN_SUMMARY_SINCE = 2`, new columns on `RiderSummary` and `summaryOf`, parsers `parseVirtualDays` and `parseOwnDays`. `SummaryFigures.rides` takes `virtual`
+- [X] T007 In `src/db/rider-summaries.ts`: `CURRENT_SUMMARY_JOIN` becomes `s.version >= TEAM_SUMMARY_SINCE` (rename `TEAM_SUMMARY_JOIN`, update `src/db/team.ts`), new columns in `RiderSummaryRow`, `readSummariesOfRidersStatement` and `upsertSummaryStatement`
+- [X] T008 In `src/rynke/apply.ts` `riderWrites`: compare `virtual_days` and `own_days` too. Confirm `listRidersNeedingEvaluation` in `src/db/rynke.ts` still asks for exactly the current version
+- [X] T009 Add the new columns to `test/integration/schema-minimisation.test.ts`, then get `rider-summaries`, `rider-summaries-parity`, `d1-rows` and `d1-round-trips` passing
 
 **Checkpoint**: pages look and cost as before, and the daily job raises rows to version 2.
 
 ## Phase 3: Badges page off the rider's rides (FR-034)
 
-- [ ] T010 Write failing tests in `test/integration/rider-summaries-parity.test.ts`: on decimal distances, figures from a row equal those from the two statements (exact for elevation, winter days; within 0.000001 m for distances), including rides after the deadline, which stay out
-- [ ] T011 Add to `test/integration/d1-rows.test.ts`: Badges page at most 500 rows, and twice the rides add at most the extra badges' rows (SC-009); tighten the 5-rows-per-ride bound for this page. Add to `test/integration/d1-round-trips.test.ts`: round trips unchanged with a row
-- [ ] T012 In `src/rynke/summary.ts`: pure `ownFiguresOf(days, virtualDays, ownDays, deadline)` giving distance, elevation, longest ride, virtual distance and outdoor days per month
-- [ ] T013 In `src/db/badges.ts` and `src/http/sections/badges.ts` `readBadgesPage`: the batch reads the rider's row by primary key at `OWN_SUMMARY_SINCE` in place of the two ride statements; without a row they run in a second round trip. Runs and swims stay in the batch
+- [X] T010 Write failing tests in `test/integration/rider-summaries-parity.test.ts`: on decimal distances, figures from a row equal those from the two statements (exact for elevation, winter days; within 0.000001 m for distances), including rides after the deadline, which stay out
+- [X] T011 Add to `test/integration/d1-rows.test.ts`: Badges page at most 500 rows, and twice the rides add at most the extra badges' rows (SC-009); tighten the 5-rows-per-ride bound for this page. Add to `test/integration/d1-round-trips.test.ts`: round trips unchanged with a row
+- [X] T012 In `src/rynke/summary.ts`: pure `ownFiguresOf(days, virtualDays, ownDays, deadline)` giving distance, elevation, longest ride, virtual distance and outdoor days per month
+- [X] T013 In `src/db/badges.ts` and `src/http/sections/badges.ts` `readBadgesPage`: the batch reads the rider's row by primary key at `OWN_SUMMARY_SINCE` in place of the two ride statements; without a row they run in a second round trip. Runs and swims stay in the batch
 
 **Checkpoint**: the Badges page shows the same and reads about 400 rows.
 

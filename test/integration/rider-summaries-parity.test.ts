@@ -1,6 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { evaluateTeamBadges, type TeamBadgeSums } from "../../src/badges/team";
+import { readRiderBadges } from "../../src/db/badges";
 import { insertCorrectionStatement } from "../../src/db/corrections";
 import { readTeam, readTeamBadgeSums } from "../../src/db/team";
 import { evaluateChange } from "../../src/rynke/apply";
@@ -213,10 +214,10 @@ describe("readTeam from summaries (US2, research R10)", () => {
 		expect(await readTeam(env.DB)).toEqual(all);
 	});
 
-	it("counts a rider under another version by adding up", async () => {
+	it("counts a rider below the lowest version by adding up", async () => {
 		const all = await readTeam(env.DB);
 		await env.DB.prepare(
-			"UPDATE rider_summaries SET version = version + 1, weeks = '[]', attended = '[]' WHERE athlete_id = ?",
+			"UPDATE rider_summaries SET version = 0, weeks = '[]', attended = '[]' WHERE athlete_id = ?",
 		)
 			.bind(ATHLETE_A)
 			.run();
@@ -351,5 +352,89 @@ describe("edge cases (US2)", () => {
 		const sums = await readTeamBadgeSums(env.DB);
 		expect(sums.riders.length).toBe(3);
 		expect(sums.connectedOn?.has(NOTHING_STORED)).toBe(true);
+	});
+});
+
+describe("the rider's own Badges figures from their row (organiser graphs)", () => {
+	const figures = async () => {
+		const read = await readRiderBadges(env.DB, ATHLETE_A, window);
+		return {
+			exact: {
+				earned: read.earned,
+				elevationDm: read.elevationDm,
+				winterDays: read.winterDays,
+				longestRunM: read.longestRunM,
+				runDistanceM: read.runDistanceM,
+				longestSwimM: read.longestSwimM,
+				swimDistanceM: read.swimDistanceM,
+			},
+			distances: [
+				read.distanceM,
+				read.longestRideM,
+				read.virtualDistanceM,
+			] as const,
+		};
+	};
+	/** At 25 km/h, so that it counts. */
+	const ride = (
+		date: string,
+		distance: number,
+		overrides: Record<string, unknown> = {},
+	) => {
+		const time = Math.round((distance / 25000) * 3600);
+		return activityRecord(++nextId, {
+			athlete_id: ATHLETE_A,
+			start_date: `${date}T06:00:00Z`,
+			start_date_local: `${date}T08:15:00Z`,
+			distance_m: distance,
+			moving_time_s: time,
+			elapsed_time_s: time,
+			elevation_gain_m: 90.3,
+			...overrides,
+		});
+	};
+
+	it("equal the statements on decimal distances, without rides after the deadline", async () => {
+		await evaluateChange(ctx, ATHLETE_A, {
+			kind: "upsert",
+			records: [
+				// Virtual only, in January: a virtual day, no outdoor day.
+				ride("2026-01-10", 25000.7, { sport_type: "VirtualRide" }),
+				// Virtual and outdoor on one day: one outdoor day, in February.
+				ride("2026-02-14", 31000.3, { sport_type: "VirtualRide" }),
+				ride("2026-02-14", 12000.9, {
+					start_date: "2026-02-14T13:00:00Z",
+					start_date_local: "2026-02-14T15:15:00Z",
+				}),
+				ride("2026-02-15", 80000.1),
+				// After the deadline, the longest of all: the figures leave it out.
+				ride("2027-07-02", 200000.5),
+			],
+		});
+		const fromRow = await figures();
+		expect(fromRow.distances[2]).toBeGreaterThan(0);
+		expect(fromRow.exact.winterDays[1]).toBeUndefined();
+		expect(fromRow.exact.winterDays[2]).toBe(2);
+		await deleteRows();
+		const fromStatements = await figures();
+		expect(fromRow.exact).toEqual(fromStatements.exact);
+		fromRow.distances.forEach((distance, i) => {
+			const other = fromStatements.distances[i] ?? Number.NaN;
+			expect(Math.abs(distance - other)).toBeLessThan(TOLERANCE_M);
+		});
+		expect(fromRow.distances[1]).toBe(80000.1);
+	});
+
+	it("read no ride with a current row, and add up without one or below it", async () => {
+		const rideReads = async () => {
+			const { ctx: counted, counter } = countRows(ctx);
+			await readRiderBadges(counted.env.DB, ATHLETE_A, window);
+			return counter.statements().filter((sql) => sql.includes("ride_results"));
+		};
+		expect(await rideReads()).toEqual([]);
+		await env.DB.prepare("UPDATE rider_summaries SET version = 1").run();
+		expect(await rideReads()).toHaveLength(2);
+		await deleteRows();
+		expect(await rideReads()).toHaveLength(2);
 	});
 });

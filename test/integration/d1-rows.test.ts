@@ -178,7 +178,8 @@ describe("rows read with a full-season team (feature 030)", () => {
 		const season = await measure();
 		expect(season.start).toBeLessThanOrEqual(400);
 		expect(season.team).toBeLessThanOrEqual(500);
-		expect(season.badges).toBeLessThanOrEqual(1500);
+		// Organiser graphs SC-009: from the rider's row, not their rides.
+		expect(season.badges).toBeLessThanOrEqual(500);
 		expect(season.organiserRiders).toBeLessThanOrEqual(1000);
 		expect(season.newRide).toBeLessThanOrEqual(1500);
 		// The usage estimate in the spec, against D1's 5 million a day (SC-002).
@@ -195,11 +196,11 @@ describe("rows read with a full-season team (feature 030)", () => {
 		expect(doubled.start).toBeLessThan(season.start * 1.1);
 		expect(doubled.team).toBeLessThan(season.team * 1.1);
 		expect(doubled.organiserRiders).toBeLessThan(season.organiserRiders * 1.1);
-		// These two read the one rider's own rides, and must (research R13).
-		// More rides also earn the rider more badges: three rows each.
+		// More rides earn the rider more badges: three rows each, and no more.
 		expect(doubled.badges - season.badges).toBeLessThanOrEqual(
-			5 * 150 + 3 * (doubled.ownBadges - season.ownBadges),
+			3 * (doubled.ownBadges - season.ownBadges) + 5,
 		);
+		// This one reads the one rider's own rides, and must (research R13).
 		expect(doubled.newRide - season.newRide).toBeLessThanOrEqual(5 * 150);
 	}, 300_000);
 
@@ -217,5 +218,26 @@ describe("rows read with a full-season team (feature 030)", () => {
 		expect(team).toBeLessThanOrEqual(20_793);
 		expect(badges).toBeLessThanOrEqual(46_280);
 		expect(organiserRiders).toBeLessThanOrEqual(21_152);
+	}, 300_000);
+
+	it("keeps team reads as cheap until the daily job has run (organiser graphs SC-010)", async () => {
+		await seedTeam(150);
+		const uses = async () => ({
+			start: await pageRows("/", RIDER),
+			team: await pageRows("/team", RIDER),
+			organiserRiders: await pageRows("/organiser/riders", ORGANISER),
+		});
+		await pageRows("/me/badges", RIDER);
+		const current = await uses();
+		// As right after the migration.
+		await env.DB.prepare(
+			"UPDATE rider_summaries SET version = 1, virtual_days = '[]', own_days = '[]'",
+		).run();
+		const atVersionOne = await uses();
+		expect(atVersionOne.start).toBeLessThan(current.start * 1.1);
+		expect(atVersionOne.team).toBeLessThan(current.team * 1.1);
+		expect(atVersionOne.organiserRiders).toBeLessThan(
+			current.organiserRiders * 1.1,
+		);
 	}, 300_000);
 });
