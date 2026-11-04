@@ -45,10 +45,9 @@ known value with its time (FR-011).
 Results are grouped by Worker, database and queue and then summed, so feature 026 can split
 by team with no new query.
 
-**To verify**: Dataset and field names come from Cloudflare's docs, which don't say whether
-`workersInvocationsAdaptive` needs a `scriptName` filter or which dataset holds each D1
-field. They must be confirmed by introspection during implementation, by the maintainer or
-with their explicit go-ahead, since this touches production resources.
+**Verified**: The maintainer ran each part of the query against Cloudflare's API on
+2026-11-04. All four datasets answer with no `scriptName` filter. The queue dimension is
+`queueId`: Cloudflare's docs list `queueID`, which the API rejects.
 
 ## R4. Cost
 
