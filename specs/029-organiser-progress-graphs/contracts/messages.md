@@ -33,7 +33,7 @@ All under `organiser.graphs.*` unless noted:
 | Graph titles | Outdoor kilometres (km), Virtual kilometres (km), Elevation (m) |
 | Tabs | Outdoor, Virtual, Elevation |
 | Picker label | Shown in the graphs |
-| Summary | {n} riders, team average, team total, in the combinations shown |
+| Summary | {n} riders shown, team average, team total, in the combinations shown. "shown" keeps it apart from the riders page's own count. |
 | Picker | Find a rider, Clear all, Done, Team average, Team total |
 | Picker foot | Not agreed yet: {names} |
 | No match | No rider matches “{query}”. |

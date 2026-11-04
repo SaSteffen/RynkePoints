@@ -58,51 +58,51 @@ Before the graphs, because no daily value may be read without it.
 
 ## Phase 6: User Story 1 - See how riders progress (P1, MVP)
 
-- [ ] T021 [P] [US1] Write failing unit tests in `test/unit/organiser-graphs.test.ts` for the pure `organiserGraphsView()`: two rides on one day make one point; outdoor and virtual split; elevation from both; team totals over all agreed riders whichever are selected; zero agreed riders; agreed rider with no rows; days outside the season left out and a day past today clamped; season sums equal the counting rides
-- [ ] T022 [US1] Write failing tests in `test/integration/organiser-overview.test.ts`: version 2 rider in the table, absent from the data and team totals (SC-004); agreeing adds them, leaving removes them; setting off or percent mode gives no section, no data and no read of the columns (SC-007); example team none; non-organiser 403; no ride name, ID or start time in the response; a rider who agrees with a version 1 row gets correct lines
-- [ ] T023 [US1] Add to `test/integration/d1-round-trips.test.ts` and `d1-rows.test.ts`: round trips unchanged, under 1,000 more rows (SC-008)
-- [ ] T024 [US1] Add `src/db/organiser-graphs.ts`: the read of `research.md` R2 as a batch statement, and added-up days with the virtual split for riders without a version 2 row, listed and consent filters inside SQL (`src/db/rider-summaries.ts` for shared helpers)
-- [ ] T025 [US1] Add `src/http/organiser/progress-graphs.ts`: `organiserGraphsView()` per `data-model.md`, and the section's markup per `contracts/pages.md`, with inline JSON escaped as in `progress-section.ts`
-- [ ] T026 [US1] In `src/http/organiser/overview.ts`: add the statement to the requests batch and the section after the table, only per the table in `contracts/pages.md`; load the chart scripts only then
-- [ ] T027 [P] [US1] Add the `organiser.graphs.*` texts to `src/i18n/messages/en.ts` and `de.ts`, per `contracts/messages.md`, with German gender wording
-- [ ] T028 [US1] In `public/app.js`: `organiserGraphs(signal)`, run from `enhance`: three Chart.js charts, Running total and Per day, legends with range sum and day value, per `contracts/client.md`; `animation: false`, `parsing: false`, `normalized: true`, no points
-- [ ] T029 [US1] Add screen-reader text: canvas `aria-label`, `aria-live` readout, arrow keys for the day (`research.md` R12)
-- [ ] T030 [P] [US1] Style the section and line colours in `src/http/style.ts` per the draft, checked per theme; update `test/unit/style.test.ts`
+- [X] T021 [P] [US1] Write failing unit tests in `test/unit/organiser-graphs.test.ts` for the pure `organiserGraphsView()`: two rides on one day make one point; outdoor and virtual split; elevation from both; team totals over all agreed riders whichever are selected; zero agreed riders; agreed rider with no rows; days outside the season left out and a day past today clamped; season sums equal the counting rides
+- [X] T022 [US1] Write failing tests in `test/integration/organiser-overview.test.ts`: version 2 rider in the table, absent from the data and team totals (SC-004); agreeing adds them, leaving removes them; setting off or percent mode gives no section, no data and no read of the columns (SC-007); example team none; non-organiser 403; no ride name, ID or start time in the response; a rider who agrees with a version 1 row gets correct lines
+- [X] T023 [US1] Add to `test/integration/d1-round-trips.test.ts` and `d1-rows.test.ts`: round trips unchanged, under 1,000 more rows (SC-008)
+- [X] T024 [US1] Add `src/db/organiser-graphs.ts`: the read of `research.md` R2 as a batch statement, and added-up days with the virtual split for riders without a version 2 row, listed and consent filters inside SQL (`src/db/rider-summaries.ts` for shared helpers)
+- [X] T025 [US1] Add `src/http/organiser/progress-graphs.ts`: `organiserGraphsView()` per `data-model.md`, and the section's markup per `contracts/pages.md`, with inline JSON escaped as in `progress-section.ts`
+- [X] T026 [US1] In `src/http/organiser/overview.ts`: add the statement to the requests batch and the section after the table, only per the table in `contracts/pages.md`; load the chart scripts only then
+- [X] T027 [P] [US1] Add the `organiser.graphs.*` texts to `src/i18n/messages/en.ts` and `de.ts`, per `contracts/messages.md`, with German gender wording
+- [X] T028 [US1] In `public/app.js`: `organiserGraphs(signal)`, run from `enhance`: three Chart.js charts, Running total and Per day, legends with range sum and day value, per `contracts/client.md`; `animation: false`, `parsing: false`, `normalized: true`, no points
+- [X] T029 [US1] Add screen-reader text: canvas `aria-label`, `aria-live` readout, arrow keys for the day (`research.md` R12)
+- [X] T030 [P] [US1] Style the section and line colours in `src/http/style.ts` per the draft, checked per theme; update `test/unit/style.test.ts`
 
 ## Phase 7: User Story 3 - Choose the time range (P1)
 
-- [ ] T031 [US3] Write failing `e2e/organiser-graphs.e2e.ts`: presets, date boxes, mouse drag and touch gestures keep boxes, presets and all graphs in sync; From past To moves To
-- [ ] T032 [US3] Move `progressCharts()`'s pointer handling in `public/app.js` into a shared helper used by both; `e2e/progress.e2e.ts` must stay green unchanged
-- [ ] T033 [US3] Range in `organiserGraphs()`: presets, date boxes, gestures, running totals and y axis recalculated per range, marked stretch while dragging
-- [ ] T034 [US3] Keep range, mode, team lines, tab and view across `swapPage` in a module-level object, and reset on full reload (`research.md` R5); cover it in the e2e test
+- [X] T031 [US3] Write failing `e2e/organiser-graphs.e2e.ts`: presets, date boxes, mouse drag and touch gestures keep boxes, presets and all graphs in sync; From past To moves To
+- [X] T032 [US3] Move `progressCharts()`'s pointer handling in `public/app.js` into a shared helper used by both; `e2e/progress.e2e.ts` must stay green unchanged
+- [X] T033 [US3] Range in `organiserGraphs()`: presets, date boxes, gestures, running totals and y axis recalculated per range, marked stretch while dragging
+- [X] T034 [US3] Keep range, mode, team lines, tab and view across `swapPage` in a module-level object, and reset on full reload (`research.md` R5); cover it in the e2e test
 
 ## Phase 8: User Story 4 - Choose the lines with 30+ riders (P2)
 
-- [ ] T035 [US4] Extend `e2e/organiser-graphs.e2e.ts`: tile preselects and leaves team lines; search and tick; "Done", outside click and Escape close; "Clear all"; over 8 riders grey with a ranked legend; highlight; not-agreed names without a checkbox
-- [ ] T036 [US4] Add the "Shown in the graphs" dropdown to `src/http/organiser/progress-graphs.ts`, with templates and the server-rendered not-agreed names
-- [ ] T037 [US4] In `public/app.js`: selection from the group, panel behaviour, summary label, over-8 styling, ranked legend, highlight, note, "still being asked" state, per `contracts/client.md`
+- [X] T035 [US4] Extend `e2e/organiser-graphs.e2e.ts`: tile preselects and leaves team lines; search and tick; "Done", outside click and Escape close; "Clear all"; over 8 riders grey with a ranked legend; highlight; not-agreed names without a checkbox
+- [X] T036 [US4] Add the "Shown in the graphs" dropdown to `src/http/organiser/progress-graphs.ts`, with templates and the server-rendered not-agreed names
+- [X] T037 [US4] In `public/app.js`: selection from the group, panel behaviour, summary label, over-8 styling, ranked legend, highlight, note, "still being asked" state, per `contracts/client.md`
 
 ## Phase 9: User Story 6 - Desktop page in order (P2)
 
-- [ ] T038 [US6] Write failing tests in `test/integration/organiser-overview.test.ts`, with or without graphs (FR-021): order per `contracts/pages.md`; no reports box or search from 1100 px through CSS (`test/unit/style.test.ts`)
-- [ ] T039 [US6] Table in a scrolling box with a sticky header in `src/http/organiser/overview.ts` and `src/http/style.ts`
+- [X] T038 [US6] Write failing tests in `test/integration/organiser-overview.test.ts`, with or without graphs (FR-021): order per `contracts/pages.md`; no reports box or search from 1100 px through CSS (`test/unit/style.test.ts`)
+- [X] T039 [US6] Table in a scrolling box with a sticky header in `src/http/organiser/overview.ts` and `src/http/style.ts`
 
 ## Phase 10: User Story 5 - Phone (P2)
 
-- [ ] T040 [US5] Write failing tests: `organiser-overview.test.ts` for rows with `data-name`, outside-group rows `hidden`, reports box capped at 3 with "Show all N", `view=riders`; update the tests pinning cards. Extend `e2e/organiser-graphs.e2e.ts` for switch, tabs, "Custom", search across groups, tile clearing the search, rows expanded at 5 or fewer
-- [ ] T041 [US5] In `src/http/organiser/overview.ts`: one-line `<details>` rows replacing the cards with today's content, search, reports box via `riderRequestLines`, Graphs / Riders switch, `view=riders`, order per `contracts/pages.md`
-- [ ] T042 [US5] In `public/app.js`: switch, rider search, expand rule, one chart at a time with tabs, "Custom" pill, default group from `matchMedia`
-- [ ] T043 [US5] Styles below 1100 px in `src/http/style.ts`, removing the card rules that go with the cards
+- [X] T040 [US5] Write failing tests: `organiser-overview.test.ts` for rows with `data-name`, outside-group rows `hidden`, reports box capped at 3 with "Show all N", `view=riders`; update the tests pinning cards. Extend `e2e/organiser-graphs.e2e.ts` for switch, tabs, "Custom", search across groups, tile clearing the search, rows expanded at 5 or fewer
+- [X] T041 [US5] In `src/http/organiser/overview.ts`: one-line `<details>` rows replacing the cards with today's content, search, reports box via `riderRequestLines`, Graphs / Riders switch, `view=riders`, order per `contracts/pages.md`
+- [X] T042 [US5] In `public/app.js`: switch, rider search, expand rule, one chart at a time with tabs, "Custom" pill, default group from `matchMedia`
+- [X] T043 [US5] Styles below 1100 px in `src/http/style.ts`, removing the card rules that go with the cards
 
 ## Phase 11: User Story 8 - Realistic fake team (P3)
 
-- [ ] T044 [US8] Write failing test in `test/integration/dev-fake-strava.test.ts`: about 40 riders, edge-case riders kept, some on consent version 2 and listed as not agreed
-- [ ] T045 [US8] In `dev/fake-strava/samples.ts` and `seed.ts`: generator for about 25 riders in unused IDs 990001–990099, about 30 rides each, varied, with optional `consentVersion: 2` applied after `connectThroughApp` (`research.md` R11)
+- [X] T044 [US8] Write failing test in `test/integration/dev-fake-strava.test.ts`: about 40 riders, edge-case riders kept, some on consent version 2 and listed as not agreed
+- [X] T045 [US8] In `dev/fake-strava/samples.ts` and `seed.ts`: generator for about 25 riders in unused IDs 990001–990099, about 30 rides each, varied, with optional `consentVersion: 2` applied after `connectThroughApp` (`research.md` R11)
 
 ## Phase 12: Polish
 
-- [ ] T046 Record the measured rows in `research.md`, and correct the stored rider summaries' figures only if they moved
-- [ ] T047 Run `pnpm test`, `pnpm lint`, `pnpm typecheck` and `pnpm exec playwright test e2e/organiser-graphs.e2e.ts` on an alternate port if another worktree holds 8797; check 40 lines × 300 points on a throttled phone profile (`research.md` R4)
+- [X] T046 Record the measured rows in `research.md`, and correct the stored rider summaries' figures only if they moved
+- [X] T047 Run `pnpm test`, `pnpm lint`, `pnpm typecheck` and `pnpm exec playwright test e2e/organiser-graphs.e2e.ts` on an alternate port if another worktree holds 8797; check 40 lines × 300 points on a throttled phone profile (`research.md` R4)
 
 ## Dependencies
 

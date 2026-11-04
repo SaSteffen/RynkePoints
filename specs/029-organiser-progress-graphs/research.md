@@ -207,3 +207,34 @@ differ from SQL's sum by floating-point noise, as stored-summary research found,
 compares them with the two statements on decimal distances.
 
 **Evaluating a new ride** keeps reading the rider's rides. It has to.
+
+## Measured on the finished code
+
+40 riders with 150 rides, 20 runs and 10 swims each, at `meta.rows_read`; `d1-rows.test.ts` guards the limits.
+
+| Use | Rows read | Limit |
+| --- | --- | --- |
+| Organiser's rider list with the graphs | 743 | under 1,000 more than without |
+| The same with the setting off | 623 | |
+| Badges page | 395 (1,146 before) | 500 |
+| Opening the app | 301 | 400 |
+| Team page | 264 | 500 |
+| New ride | 858 | 1,500 |
+| Daily estimate, as in the stored rider summaries | 123,585, about 2.5% of the free limit | 5% |
+
+The stored rider summaries' figures for team reads did not move, so they stay as recorded.
+
+**The day of the release**: team reads stay cheap (R14). One cost remains until the daily job has run: a rider who
+agrees to version 3 before their row reaches version 2 is added up per organiser page, about 440 rows per rider.
+If all 40 agree first, a page costs about 19,000 rows, less than the 21,152 this page cost before the stored rider
+summaries, and it ends with the next daily job.
+
+**Drawing**: 42 lines over 300 days, chromium with a phone viewport and CPU throttling, software rendering:
+
+| CPU | Page to first chart | A preset | One frame of a drag |
+| --- | --- | --- | --- |
+| Unthrottled | 676 ms | 9 ms | 17 ms |
+| 4x slower | 1,134 ms | about 45 ms | about 55 ms |
+| 6x slower | 1,407 ms | about 60 ms | about 85 ms |
+
+A phone shows one graph at a time, so this needs no thinning of the lines.
