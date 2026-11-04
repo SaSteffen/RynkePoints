@@ -285,7 +285,7 @@ lists can't be judged locally. It supports the other stories without adding anyt
 **Time range**
 
 - **FR-012**: Organisers MUST be able to choose any range within the season, from its first day to
-  today, through From and To date boxes, through the presets Season, 3 months and 4 weeks, and by
+  today, or to the qualification deadline once that has passed, through From and To date boxes, through the presets Season, 3 months and 4 weeks, and by
   dragging across any graph.
 - **FR-013**: The date boxes, presets, graphs and marked stretch MUST stay in sync, whichever way the
   range was chosen. The range applies to all graphs together. The default is Season.
@@ -385,10 +385,14 @@ lists can't be judged locally. It supports the other stories without adding anyt
 
 - **Counting rides only**: the graphs show what counts towards the rider's Rynke. Rides that don't
   count, such as flagged or manual ones, aren't shown.
+- **Private rides**: a private ride the rider lets the app read counts, so it enters the daily totals.
+  The consent text says so.
 - **Kilometres and Rynke differ**: the table shows distance and elevation in Rynke and the graphs in
   kilometres and metres, so dividing a graph's value by the Rynke rate may not exactly match the table.
-- **Season range**: the range starts on the season's first day and ends today. Later days have nothing
-  to show.
+- **Season range**: the range starts on the season's first day and ends today, or at the qualification
+  deadline once that has passed, because later rides don't count.
+- **Phone layout**: "phone" means below the width where the table takes over from the cards today
+  (1100 px), so tablets get the phone layout.
 - **Whole season once agreed**: agreeing to version 3 covers the rider's data for the season so far,
   and the consent text says "across the season".
 - **Percent mode**: the graphs need `ORGANISER_FIGURES` to be "full" (FR-029).
