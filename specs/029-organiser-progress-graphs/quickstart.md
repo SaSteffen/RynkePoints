@@ -42,7 +42,7 @@ pnpm exec playwright test e2e/organiser-graphs.e2e.ts
 2. "Everyone": about 40 riders, thin grey lines, ranked legend. Highlight one rider.
 3. Dropdown: find a name, tick it, close by clicking outside. Held-back riders are listed at the bottom.
 4. Sign in as a held-back rider: the consent gate names the new line. Agree, then as organiser they have a line.
-5. Phone width: Graphs opens by default. Compare with the Overview's charts: swipe up scrolls, pinch zooms, sideways drag moves, tap selects a day. The date boxes follow.
+5. Phone width: Riders opens by default; switch to Graphs. Compare with the Overview's charts: swipe up scrolls, pinch zooms, sideways drag moves, tap selects a day. The date boxes follow.
 6. Riders view: search a rider outside the group. Open reports appear above the switch.
 7. Set `ORGANISER_PROGRESS_GRAPH` to "off" in `wrangler.jsonc`, restart: no section, no switch, Riders directly.
 8. Check a dark theme: lines and legend stay readable.
