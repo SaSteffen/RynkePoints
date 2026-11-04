@@ -4,6 +4,7 @@
 type Settings = Pick<
 	Env,
 	| "STRAVA_CLUB_ID"
+	| "STRAVA_EXTRA_CLUB_IDS"
 	| "STRAVA_SUBSCRIPTION_ID"
 	| "SEASON_START_DATE"
 	| "ORGANISER_FIGURES"
@@ -23,8 +24,24 @@ function integer(name: string, value: string): number {
 	return Number(value);
 }
 
+/** The team's Strava club, the only one the app links to and names. */
 export function clubId(env: Pick<Settings, "STRAVA_CLUB_ID">): number {
 	return integer("STRAVA_CLUB_ID", env.STRAVA_CLUB_ID);
+}
+
+/**
+ * Every club whose members may take part: the team's club first, then
+ * `STRAVA_EXTRA_CLUB_IDS` (comma-separated, may be empty). Leaving one of
+ * them doesn't count as leaving while the rider is still in another.
+ */
+export function memberClubIds(
+	env: Pick<Settings, "STRAVA_CLUB_ID" | "STRAVA_EXTRA_CLUB_IDS">,
+): number[] {
+	const extra = env.STRAVA_EXTRA_CLUB_IDS.split(",")
+		.map((id) => id.trim())
+		.filter((id) => id !== "")
+		.map((id) => integer("STRAVA_EXTRA_CLUB_IDS", id));
+	return [...new Set([clubId(env), ...extra])];
 }
 
 export function subscriptionId(

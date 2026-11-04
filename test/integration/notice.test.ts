@@ -88,7 +88,7 @@ describe("GET /notice/:id", () => {
 			else expect(page).not.toContain(retry);
 			expect(page).not.toContain('href="/connect"');
 
-			const club = 'href="https://www.strava.com/clubs/2372209"';
+			const club = 'href="https://www.strava.com/clubs/1088689"';
 			if (CLUB.includes(id)) expect(page).toContain(club);
 			else expect(page).not.toContain(club);
 		},
@@ -131,7 +131,7 @@ describe("GET /notice/:id", () => {
 	it("links the club with the catalog's link text", async () => {
 		const { page } = await get("/notice/not-member");
 		expect(page).toContain(
-			'<a href="https://www.strava.com/clubs/2372209">unseres Team-Clubs auf Strava</a>',
+			'<a href="https://www.strava.com/clubs/1088689">unseres Team-Clubs auf Strava</a>',
 		);
 	});
 

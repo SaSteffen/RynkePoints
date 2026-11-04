@@ -101,19 +101,20 @@ export function getAthleteClubs(
 }
 
 /**
- * Pages through the athlete's clubs until `clubId` is found or a page comes
- * back short (research R4). Any failure is passed through as inconclusive.
+ * Pages through the athlete's clubs until one of `clubIds` is found or a page
+ * comes back short (research R4). Any failure is passed through as
+ * inconclusive.
  */
 export async function isClubMember(
 	ctx: StravaCtx,
 	auth: StravaAuth,
-	clubId: number,
+	clubIds: readonly number[],
 	priority: Priority = "background",
 ): Promise<StravaResult<boolean>> {
 	for (let page = 1; page <= MAX_CLUB_PAGES; page++) {
 		const result = await getAthleteClubs(ctx, auth, page, priority);
 		if (result.kind !== "ok") return result;
-		if (result.value.some((club) => club.id === clubId)) {
+		if (result.value.some((club) => clubIds.includes(club.id))) {
 			return { kind: "ok", value: true };
 		}
 		if (result.value.length < PER_PAGE) return { kind: "ok", value: false };
