@@ -49,6 +49,18 @@ or a branch protected against deletion, so `develop` is safe.
 - Apply: `gh repo edit SaSteffen/RynkePoints --delete-branch-on-merge`
 - Show: `gh api repos/SaSteffen/RynkePoints --jq .delete_branch_on_merge`
 
+## Auto-merge: on
+
+**Enable auto-merge** on a pull request merges it once its required checks pass.
+`develop` still requires an up-to-date branch, and auto-merge doesn't update one. A
+pull request that falls behind waits until **Update branch → Update with rebase** is
+used, and then finishes by itself. Pick the merge method on the button: squash for a
+working branch, merge commit for a release, hotfix or `sync/*`.
+
+- UI: **General → Pull Requests → Allow auto-merge**
+- Apply: `gh repo edit SaSteffen/RynkePoints --enable-auto-merge`
+- Show: `gh api repos/SaSteffen/RynkePoints --jq .allow_auto_merge`
+
 ## Actions workflow permissions: read-only, no pull request approval
 
 The workflows declare `contents: read` themselves. This setting is the fallback
@@ -178,13 +190,13 @@ deploy reaches the maintainer.
 ## Verify all repository fields
 
 ```bash
-gh api repos/SaSteffen/RynkePoints --jq '{default_branch, allow_squash_merge, allow_merge_commit, allow_rebase_merge, squash_merge_commit_title, squash_merge_commit_message, delete_branch_on_merge}'
+gh api repos/SaSteffen/RynkePoints --jq '{default_branch, allow_auto_merge, allow_squash_merge, allow_merge_commit, allow_rebase_merge, squash_merge_commit_title, squash_merge_commit_message, delete_branch_on_merge}'
 ```
 
 Expected:
 
 ```json
-{"allow_merge_commit":true,"allow_rebase_merge":false,"allow_squash_merge":true,"default_branch":"develop","delete_branch_on_merge":true,"squash_merge_commit_message":"BLANK","squash_merge_commit_title":"PR_TITLE"}
+{"allow_auto_merge":true,"allow_merge_commit":true,"allow_rebase_merge":false,"allow_squash_merge":true,"default_branch":"develop","delete_branch_on_merge":true,"squash_merge_commit_message":"BLANK","squash_merge_commit_title":"PR_TITLE"}
 ```
 
 The two Actions settings and the `production` environment have their own
