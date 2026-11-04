@@ -546,8 +546,8 @@ the other blocked by a git conflict.
 ## Assumptions
 
 - Ticking a box in a comment reaches a workflow, and the comment workflow runs from `develop`,
-  the default branch, so a fix there works at once. To be tried in planning, including ticks from
-  the phone app and clicks racing the comment's updates.
+  the default branch, so a fix there works at once. To be tried in planning, including clicks
+  racing the comment's updates.
 - Per-Worker credential roles are available on the Free plan and cover a deployment with a queue
   consumer and assets. Cloudflare's docs don't state this, and they say creating a Worker needs
   a wider role, so the maintainer creates each sandbox's resources by hand once. To be confirmed
@@ -573,6 +573,7 @@ the other blocked by a git conflict.
 - Deploying on every merge to `develop`, and redeploying by itself when `develop` moves.
 - Recommending or forcing a sandbox based on what changed.
 - Hotfixes going through a sandbox.
+- Making the pull request's one-click actions work from the GitHub phone app.
 - The real Strava in a sandbox, in any form.
 - Moving the account to the Paid plan.
 - A separate Cloudflare account for sandboxes.
