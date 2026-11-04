@@ -416,7 +416,7 @@ check in the same period sends nothing.
   for a limited time (31 days for databases, about three months for Workers), which is
   why the app keeps its own daily record. A read-only credential is a manual setup
   step.
-- **Dependency**: The per-team features need issue #236 for a second team to exist, but
+- **Dependency**: The per-team features need feature 026 (issue #236) for a second team to exist, but
   this feature ships and works without it.
 - **Alerts**: Administrators receive alerts on devices where they turned notifications
   on (feature 010); there is no separate switch. Both teams' administrators are told,
