@@ -26,10 +26,11 @@ pnpm exec playwright test e2e/organiser-graphs.e2e.ts
 | Unit | Setting throws on other values | Story 7 |
 | Integration | Rider on version 2: in the table, absent from the data and team totals | FR-024, FR-025, SC-004 |
 | Integration | Agreeing to version 3 adds the rider; leaving removes them | Story 2, FR-026 |
-| Integration | Setting off, or percent mode: no section, no data, no statements | FR-027, FR-029 |
+| Integration | Setting off, or percent mode: no section, no data, no read of the summary | FR-027, FR-029 |
 | Integration | Non-organiser gets 403; no ride name or start time in the response | FR-003, FR-030 |
-| Integration | D1 round trips unchanged | research R2 |
-| E2E | Preset, date boxes and drag stay in sync; tile keeps range and team lines | FR-013, Story 4 |
+| Integration | D1 round trips unchanged; rows read under 1,000 more with 40 riders | research R2, SC-008 |
+| Integration | A ride's edit, deletion or private withdrawal updates the summary; leaving deletes it; the daily job fills a missing one | FR-026, FR-031 |
+| E2E | Preset, date boxes, mouse drag and touch gestures stay in sync; tile keeps range and team lines | FR-013, Story 4 |
 | E2E | Narrow: switch, tabs, search across groups, rows open at 5 or fewer | Story 5 |
 
 ## By hand, on the local fake team
@@ -38,7 +39,7 @@ pnpm exec playwright test e2e/organiser-graphs.e2e.ts
 2. "Everyone": about 40 riders, thin grey lines, ranked legend. Highlight one rider.
 3. Dropdown: find a name, tick it, close by clicking outside. Held-back riders are listed at the bottom.
 4. Sign in as a held-back rider: the consent gate names the new line. Agree, then as organiser they have a line.
-5. Phone width: Graphs opens by default. Swipe up over a graph to scroll, drag sideways to choose a range.
+5. Phone width: Graphs opens by default. Compare with the Overview's charts: swipe up scrolls, pinch zooms, sideways drag moves, tap selects a day. The date boxes follow.
 6. Riders view: search a rider outside the group. Open reports appear above the switch.
 7. Set `ORGANISER_PROGRESS_GRAPH` to "off" in `wrangler.jsonc`, restart: no section, no switch, Riders directly.
 8. Check a dark theme: lines and legend stay readable.

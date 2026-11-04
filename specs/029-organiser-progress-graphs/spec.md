@@ -101,14 +101,15 @@ three graphs agree.
    the date boxes and all graphs show that range, ending today.
 2. **Given** the date boxes, **When** the organiser enters a From or To date, **Then** all graphs show
    that range and no preset is marked.
-3. **Given** any graph, **When** the organiser drags across it, **Then** the chosen stretch is marked
-   in all graphs while dragging, and on release the date boxes hold its dates and all graphs show it.
+3. **Given** any graph and a mouse, **When** the organiser drags across it, **Then** the chosen stretch
+   is marked while dragging, and on release the date boxes hold its dates and all graphs show it.
 4. **Given** a range chosen by dragging, **When** the organiser chooses Season, **Then** everything
    shows again.
 5. **Given** the From date is moved past the To date, or the reverse, **When** the change is applied,
    **Then** the other date follows, so the range is never empty.
-6. **Given** a phone, **When** the organiser swipes up or down over a graph, **Then** the page scrolls;
-   a sideways drag selects a range.
+6. **Given** a touch screen, **When** the organiser uses a graph, **Then** it works like the rider's
+   progress charts: a swipe up or down scrolls the page, a pinch zooms, a sideways drag moves the period
+   and a tap selects a day. The date boxes follow the zoom and the move.
 
 ---
 
@@ -285,8 +286,9 @@ lists can't be judged locally. It supports the other stories without adding anyt
 **Time range**
 
 - **FR-012**: Organisers MUST be able to choose any range within the season, from its first day to
-  today, or to the qualification deadline once that has passed, through From and To date boxes, through the presets Season, 3 months and 4 weeks, and by
-  dragging across any graph.
+  today, or to the qualification deadline once that has passed, through From and To date boxes, through the presets Season, 3 months and 4 weeks, and with
+  the gestures of the rider's progress charts on any graph: dragging with a mouse, pinching and moving
+  on a touch screen.
 - **FR-013**: The date boxes, presets, graphs and marked stretch MUST stay in sync, whichever way the
   range was chosen. The range applies to all graphs together. The default is Season.
 
@@ -330,7 +332,7 @@ lists can't be judged locally. It supports the other stories without adding anyt
 - **FR-025**: Riders who haven't agreed to version 3 MUST stay in the table with everything their
   earlier consent covers.
 - **FR-026**: When a rider leaves or is removed, their values MUST disappear from all lines with the
-  rest of their data. The feature MUST NOT store anything that outlives the rider's data.
+  rest of their data, including the stored summary in FR-031. Nothing may outlive the rider's data.
 
 **On and off**
 
@@ -345,7 +347,9 @@ lists can't be judged locally. It supports the other stories without adding anyt
 
 - **FR-030**: The Progress section and its data MUST be available only to those who can open the
   organiser overview today.
-- **FR-031**: The feature MUST NOT make any new request to Strava or store any new field.
+- **FR-031**: The feature MUST NOT make any new request to Strava or read any new field from it. It MAY
+  store one summary per rider, derived only from that rider's stored rides and results, and kept up to
+  date whenever they are evaluated, so that viewing doesn't add up rides on every page load.
 
 **Test data**
 
@@ -356,7 +360,7 @@ lists can't be judged locally. It supports the other stories without adding anyt
 ### Key Entities
 
 - **Daily rider figures**: one rider and one day, with outdoor kilometres, virtual kilometres and
-  elevation in metres. Derived from stored rides and their results, and never stored separately.
+  elevation in metres. Derived from stored rides and their results, and kept in one summary per rider.
 - **Team lines**: per day, the sum and the average over all riders who agreed. Derived the same way.
 - **Consent version 3**: the existing consent record, at a new version, marks who is agreed.
 - **Graph selection**: range, view, chosen rider lines and team lines. It belongs to the open page and
@@ -380,6 +384,8 @@ lists can't be judged locally. It supports the other stories without adding anyt
   switch to Riders, type a name.
 - **SC-007**: With the setting off, an organiser's page and data contain nothing of this feature's
   graphs, and riders see no difference from the setting being on.
+- **SC-008**: With 40 riders at the end of a season, the graphs add fewer than 1,000 database rows read
+  per page load.
 
 ## Assumptions
 

@@ -9,21 +9,19 @@ keys. The wording below is a proposal for review with the code. German follows t
 
 - EN: "The organisers also see, with your first name, how many kilometres you rode outdoors and virtually and
   how many metres of elevation you climbed, as a total per day, across the whole season. This includes private
-  rides that count. They don't see a list of your rides, their names, times or routes."
+  rides that count. They don't see your individual rides, their names, times or routes."
 - DE: "Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist
   und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten,
-  die gewertet werden, sind dabei. Eine Liste deiner Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht."
+  die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht."
 
-**Changed `landing.purpose`**:
+**Unchanged**: `landing.purpose`.
 
-- EN: "We use the data only for Rynke and team events. Only you see the list of your rides and their names."
-- DE: "Wir nutzen die Daten nur für Rynke und Teamtermine. Die Liste deiner Fahrten und ihre Namen siehst nur du."
+**Changed `privacy.visibility.organisers`**: insert the daily totals and keep the ending:
 
-**Changed `privacy.visibility.organisers`**: replace the ending "but no individual activities" with:
-
-- EN: "and your kilometres outdoors and virtually and your elevation as totals per day, but no list of your rides."
-- DE: "und deine Kilometer draußen und virtuell und deine Höhenmeter als Summen pro Tag, aber keine Liste deiner
-  Fahrten."
+- EN: "… which team events you reported you're coming to or were at, and your kilometres outdoors and virtually and
+  your elevation as totals per day, but no individual activities."
+- DE: "… bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst, und deine Kilometer draußen und
+  virtuell und deine Höhenmeter als Summen pro Tag, aber keine einzelnen Aktivitäten."
 
 ## New interface texts
 
@@ -41,7 +39,7 @@ All under `organiser.graphs.*` unless noted:
 | No match | No rider matches “{query}”. |
 | Range | From, To, Season, 3 months, 4 weeks, Custom |
 | Mode | Running total, Per day |
-| Hint | Drag across a graph to choose dates. "Season" shows everything again. |
+| Hint | Reuses the wording of `progress.help` for each input; "Season" shows everything again. |
 | Group note | 1 rider has no line, not agreed to showing daily figures yet. / {n} riders have… |
 | Nobody yet | Riders are still being asked to agree. No lines yet. |
 | Switch | Graphs, Riders ({n}) |

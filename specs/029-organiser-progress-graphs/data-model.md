@@ -1,29 +1,30 @@
 # Data Model: Organiser Progress Graphs
 
-No migration, table or column. Everything below is derived per request.
+## Table: `rider_daily_figures` (migration 0024)
 
-## Read: daily rider figures
-
-From `ride_results` joined to `activities`, one row per rider and local start date:
-
-| Field | Source | Notes |
+| Column | Type | Notes |
 | --- | --- | --- |
-| `athlete_id` | `ride_results` | listed and on version 3 or higher, inside SQL |
-| `day` | `substr(start_date_local, 1, 10)` | the rider's local date (FR-004) |
-| `outdoor_m` | `SUM(distance_m)` where `is_virtual = 0` | whole metres |
-| `virtual_m` | `SUM(distance_m)` where `is_virtual = 1` | whole metres |
-| `elevation_dm` | `SUM(elevation_dm)` | from both kinds (FR-006) |
+| `athlete_id` | INTEGER, primary key | references `riders`, `ON DELETE CASCADE` (FR-026) |
+| `days` | TEXT, `json_valid` | `[["YYYY-MM-DD", outdoorM, virtualM, elevationDm], ...]`, ascending |
 
-Filter: `counts = 1`. Single rides, names, times and speeds are never selected.
+`WITHOUT ROWID`. Forward-only and additive; the previous version never reads it.
 
-## Read: agreed riders
+**Pure function** `dailyFigures(rides, results)`: counting rides only, grouped by the rider's local start date
+(FR-004). Distances are whole metres. No ride name, ID, time or speed is kept. A rider with no counting rides
+gets `[]`.
 
-The IDs in `LISTED_RIDER_IDS` that are also in `sharedRiderIdsSince(3)`. Everyone else in `readTeam` is
-"not agreed yet" and contributes a first name and group only, which earlier consent covers.
+**Written** by `riderWrites`, in the batch of every evaluation. **Filled** for existing riders by the daily job,
+which treats a missing row as needing evaluation (research R1).
+
+## Read: figures for the page
+
+One statement, in the batch with the open requests: `riders` left-joined to `rider_daily_figures`, for IDs in
+`LISTED_RIDER_IDS` and in `sharedRiderIdsSince(3)`. Everyone else in `readTeam` is "not agreed yet" and contributes
+a first name and group only, which earlier consent covers.
 
 ## View: `organiserGraphsView()`
 
-A pure function of the rows, the riders with their groups, the window and today.
+A pure function of the rows read, the riders with their groups, the window and today.
 
 ```text
 OrganiserGraphs
@@ -66,4 +67,5 @@ Held in `public/app.js`, never saved.
 - `CONSENT_VERSIONS`: version 3 (research R6).
 - `RiderData`: `dailyFigures`, organisers only, since version 3 (research R7).
 - `Settings`: `ORGANISER_PROGRESS_GRAPH`, "on" or "off" (research R8).
+- `listRidersNeedingEvaluation`: also riders without a `rider_daily_figures` row.
 - `SampleRider`: optional `consentVersion` (research R11).

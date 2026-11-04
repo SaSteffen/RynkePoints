@@ -2,34 +2,52 @@
 
 ## R1. Where the daily figures come from
 
-**Decision**: Sum at read time from `ride_results` joined to `activities`, where `counts = 1`, grouped
-by rider and `substr(start_date_local, 1, 10)`. Distance is `activities.distance_m`, split by
-`ride_results.is_virtual`. Elevation is `ride_results.elevation_dm`.
+**Decision**: One row per rider in a new `rider_daily_figures`, holding that rider's counting days as
+compact JSON. `riderWrites` in `src/rynke/apply.ts` writes it with every evaluation, from a pure function
+of the rides and results it already holds. Distance is the recorded `distance_m`, split by whether the ride
+is virtual. Elevation is the result's `elevationDm`.
 
-**Rationale**: FR-005 wants recorded distance, not Rynke; `distance_rynke` is rounded per ride. The
-result follows edits, deletions and reprocessing, and vanishes with the rider through the cascade
-(FR-026). `counts = 1` already excludes rides outside the season, flagged, manual and overlapping ones.
+**Rationale**: FR-005 wants recorded distance, not Rynke. Every change to a rider's rides already goes
+through this one place: edits, deletions, private rides withdrawn, rule changes. It stays correct without
+new triggers, and it's recomputable from stored data as Principle IV asks. `ON DELETE CASCADE` removes it
+with the rider (FR-026).
 
-**Alternatives considered**: A stored daily table costs a migration and writes to keep in step, and
-would be data that can outlive its source. Reusing `listWeeklyRideSumsStatement` gives weeks in Rynke.
+**Filling existing riders**: `listRidersNeedingEvaluation` also returns riders without a row, so the existing
+daily job fills them. Nobody can have agreed to version 3 before the release, so nothing shows wrongly in
+that time. A migration backfill isn't used: rides arriving between migration and deploy would leave it stale.
 
-## R2. Enforcing consent, and the cost
+**Alternatives considered**: See R2.
 
-**Decision**: Both statements filter inside SQL with `LISTED_RIDER_IDS` and
-`sharedRiderIdsSince(SINCE_VERSION.dailyFigures)`. They run in one `db.batch` with the open requests,
-only when the section is on.
+## R2. Measured cost, and enforcing consent
 
-**Rationale**: This is the existing rule in `src/db/consents.ts`: a rider without the consent is in no
-row. A second statement lists the agreed riders, because a rider who agreed and has no rides still needs
-a flat line. Batching keeps the page's D1 round trips as they are, which `d1-round-trips.test.ts` guards.
+**Measurement**: Workers-runtime D1 with synthetic data, 40 riders with 150 counting rides each, at
+`meta.rows_read`:
 
-**Cost**: 40 riders × 150 rides, reading each `ride_results` and `activities` row, is about 12,000 rows
-per page load. `readTeam` already costs the same for its weekly sums, so a load costs about 24,000 in all.
-The Free plan's 5 million rows a day would take about 200 such loads, far above what organisers do. `ride_results_by_rider` already
-exists; no new index.
+| Read | Rows read |
+| --- | --- |
+| Summing per day at load, joined over `ride_results` and `activities` | 18,239 |
+| A table with one row per rider and day | 6,199 |
+| One row per rider (this plan; 40 rows plus about 200 for the consent and listing filters, estimated from the above) | about 250 |
+| Existing weekly sums in `readTeam`, for comparison | 18,199 |
 
-**Alternatives considered**: Filtering in TypeScript breaks the repository's rule and risks leaking on a
-mistake.
+Summing at load would cost about 37,000 rows per page load in all, or about 135 loads to use the Free plan's
+5 million rows a day. This is why the plan stores a summary.
+
+**Decision**: One statement in the requests batch: `riders LEFT JOIN rider_daily_figures`, filtered inside SQL
+with `LISTED_RIDER_IDS` and `sharedRiderIdsSince(SINCE_VERSION.dailyFigures)`. The left join gives riders who
+agreed without any rides. It runs only when the section is on.
+
+**Rationale**: This is the rule in `src/db/consents.ts`: a rider without the consent is in no row. Batching
+keeps the page's D1 round trips as they are, which `d1-round-trips.test.ts` guards. Writes grow by one row per
+evaluation, against a Free plan of 100,000 written rows a day.
+
+**Still open**: `readTeam`'s weekly sums remain 18,199 rows per load at full season, on `/team` and this page,
+which limits the whole app far more than the graphs do. They could come from the same summary. That is
+outside this spec unless decided otherwise.
+
+**Alternatives considered**: Summing at load, and one row per day, cost too much, as above. A cached team-wide
+blob reads less still, but a leaver's data would stay in it until the next write, against FR-026. A separate
+JSON route with an ETag only helps repeat views.
 
 ## R3. How the figures reach the page
 
@@ -37,28 +55,35 @@ mistake.
 `progress-section.ts`, with sparse per-rider rows and dense team totals (data-model.md).
 
 **Rationale**: It's the existing pattern, takes one request and has one place to test what is sent. About
-6,000 rows at 18 bytes is about 100 KB raw and about 25 KB compressed. Tiles reload it, which is fine at
-organiser traffic.
+6,000 days at 18 bytes is about 100 KB raw and about 25 KB compressed. With the summary, a tile click reloading
+it costs few rows.
 
-**Alternatives considered**: A separate JSON route would avoid resending on tile clicks, but adds a route
-to protect, a loading state and an error state for little gain.
+**Alternatives considered**: A separate JSON route adds a route to protect, a loading state and an error state
+for little gain now.
 
-## R4. Drawing and dragging
+## R4. Drawing and gestures
 
-**Decision**: Chart.js line charts with `animation: false`, `parsing: false`, `normalized: true` and no
-points. Pointer handling and the marked stretch are our own, as in `progressCharts()`. The zoom plugin
-isn't registered. The canvas has `touch-action: pan-y`.
+**Decision**: Chart.js line charts with the zoom plugin, using the rider charts' interaction. `progressCharts()`'s
+pointer handling moves into a shared helper in `public/app.js`, and both use it.
 
-**Rationale**: FR-013 makes a drag a date choice, not a zoom, and all graphs must follow together. The
-plugin would own the scales and fight the date boxes. `pan-y` gives story 3's rule: up and down scrolls,
-sideways selects. The library needs no change, and `organiserPage` returns `{ body, scripts }` as the
-Overview section does. Only `chart-4.6.1.umd.min.js` is listed.
+| Input | Action |
+| --- | --- |
+| Touch | Vertical swipe scrolls the page (`touch-action: pan-y`), pinch zooms, sideways drag moves the period, tap selects a day |
+| Mouse | Drag selects a stretch, wheel zooms when focused, shift-drag moves, hover selects a day |
+| Keyboard | As the rider charts, and the date boxes for a range |
 
-**Check while building**: 40 lines × 300 points × 3 charts on a mid-range phone. Below 1100 px only one
-chart draws at a time, so the cost is one chart.
+Each zoom or move sets `from` and `to`, updates the date boxes and the other graphs, and recalculates running
+totals and the y axis for the new range. Season resets the zoom.
 
-**Alternatives considered**: The draft's SVG polylines are a draft's convenience; a canvas is lighter at
-this count and already loaded elsewhere. No new library, so Principle IV needs no justification.
+**Rationale**: The user asked for phones to work as the existing charts do. This replaces the draft's sideways
+drag to select on touch; a sideways drag can't both move and select, and consistency wins. The date boxes still
+give any range, down to a single day, which gestures limit to `PROGRESS_MIN_DAYS`.
+
+**Performance**: `animation: false`, `parsing: false`, `normalized: true`, no points. Below 1100 px only one chart
+exists at a time. Check 40 lines × 300 points on a mid-range phone while building.
+
+**Alternatives considered**: The draft's SVG polylines are a draft's convenience; a canvas is lighter at this count
+and already loaded elsewhere.
 
 ## R5. State across a tile click
 
@@ -75,20 +100,16 @@ tests that pin it. `sessionStorage` would outlive a reload.
 
 ## R6. Consent version 3
 
-**Decision**: Add version 3 with `changes: ["consent.dailyFigures", "landing.purpose"]`. `requiredScopes` stay the same, so no trip through Strava. Its `published` date is
-the release day. `consent-form.ts` renders the new line after `consent.organisers`.
+**Decision**: Add version 3 with `changes: ["consent.dailyFigures"]`. `requiredScopes` stay the same, so no trip
+through Strava. Its `published` date is the release day. `consent-form.ts` renders the new line after
+`consent.organisers`.
 
-**Rationale**: Constitution Principle I: anything newly shown to someone else needs asking again. A
-separate message tells returning riders exactly what grew, as `consent.admins` did for version 2.
+**Rationale**: Constitution Principle I: anything newly shown to someone else needs asking again. A separate
+message tells returning riders exactly what grew, as `consent.admins` did for version 2.
 
-**Text that has to change** (contracts/messages.md):
-
-- `privacy.visibility.organisers` ends "but no individual activities".
-- `landing.purpose` says "Only you see your individual rides and their names". On a day with one ride, the
-  organiser's daily total equals that ride's distance and elevation, so the sentence is reworded to say what
-  stays private: the list of rides and their names.
-- Private rides that count enter the totals, and the new line says so (`landing.private` is about reading
-  them).
+**Text** (contracts/messages.md): `landing.purpose` stays as it is, and the privacy page keeps "but no individual
+activities": organisers see daily kilometres, not rides. The privacy line gains the daily totals. Private rides
+that count enter the totals, and the new line says so.
 
 ## R7. The visibility table
 

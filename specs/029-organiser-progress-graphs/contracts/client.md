@@ -11,11 +11,11 @@ Runs from `enhance` when `#organiser-graphs` exists. It stops with `signal`, as 
 
 ## Range
 
-- Presets, date boxes and drag all write `from` and `to`, then redraw all graphs and update the boxes.
+- Presets, date boxes and gestures all write `from` and `to`, then redraw all graphs and update the boxes.
 - `min` and `max` on the date boxes are `firstDay` and `lastDay`. A From past To moves To, and the reverse.
-- Drag: `pointerdown` on any canvas, sideways movement marks the stretch in all graphs, `pointerup` applies. A
-  press without movement selects a day rather than a range. `touch-action: pan-y` leaves vertical swipes to
-  the page.
+- Gestures are the rider charts', from one shared helper (research R4). Touch: pinch zooms, sideways drag moves
+  the period, tap selects a day, vertical swipes scroll the page. Mouse: drag selects a stretch, wheel zooms when
+  focused, shift-drag moves, hover selects a day. A preset resets the zoom to its range.
 - A preset is marked only when the range equals it. Below 1100 px the "Custom" pill shows the date boxes.
 
 ## Lines
