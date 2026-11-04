@@ -87,7 +87,7 @@ team doesn't know.
 
 ### User Story 3 - A team has its own rules and season (Priority: P1)
 
-The maintainer sets a team's Rynke values, season dates, clubs and switchable features as
+A maintainer sets a team's Rynke values, season dates, clubs and switchable features as
 team data, and the app follows them without any code naming a team.
 
 **Why this priority**: The second team's rules will differ in their values, and the
@@ -156,7 +156,7 @@ check every page, and that a language not offered by the team can't be picked.
 
 ### User Story 6 - Generate and rate content (Priority: P2)
 
-The maintainer writes a brief, generates about three times as many candidates as needed,
+A maintainer writes a brief, generates about three times as many candidates as needed,
 and a chosen person approves or rejects each on a rating page. The approved ones become
 the team's set.
 
@@ -183,7 +183,7 @@ restart halfway, and check no vote is lost.
 
 ### User Story 7 - One change, every team (Priority: P2)
 
-The maintainer merges a change once, and it reaches every team. If one team's deployment
+A maintainer merges a change once, once it's approved (028 FR-007), and it reaches every team. If one team's deployment
 fails, the other still gets the change, and it is clear what failed.
 
 **Why this priority**: One codebase only pays off if two deployments aren't two chores.
@@ -267,7 +267,7 @@ Check the other team's step finishes and the failed one is reported.
 - **FR-010**: A team MUST drop events about unknown riders without a Strava request, and
   without storing or logging their IDs.
 - **FR-011**: Moving the Strava subscription to the gateway MUST be a documented manual
-  step with a plan for rides uploaded during the gap.
+  step of the Strava owner (spec 028), with a plan for rides uploaded during the gap.
 
 **Strava sharing**
 
@@ -348,11 +348,23 @@ Check the other team's step finishes and the failed one is reported.
 - **FR-035**: A merge into `main` MUST deploy each team independently, with one team's
   failure neither stopping nor rolling back the other. Each team's deployment MUST be
   re-runnable alone.
-- **FR-036**: Each team's deployment MUST use its own credential scope, and production
-  remains deployable only from `main`.
+- **FR-036**: Each team's deployment MUST use its own credential scope, not tied to one person
+  (028 FR-009), and production remains deployable only from `main`.
 - **FR-037**: Gateway and team versions MUST work together in any deployment order.
 - **FR-038**: Local development and tests MUST run with synthetic data for every team, and
   MUST NOT contact Strava or Cloudflare.
+- **FR-042**: A new team MUST get its sandbox (027 FR-001) as part of being added: its resources
+  and one more checkbox on **Release PR**. A sandbox isn't a team for this feature's shares.
+
+**Maintainers** (see spec 028)
+
+- **FR-043**: Setting the Strava secret on a new team's Worker MUST be a step of the Strava owner
+  alone. Every other step of adding a team MUST be possible for any maintainer with the rights
+  to it, at the current stage of spec 028.
+- **FR-044**: Maintainer rights MUST NOT depend on a team, so every maintainer can technically reach
+  every team's rider data. Before anyone gets production access, or before a new team's data
+  joins an account they can already reach, each affected team's controller MUST record a decision
+  (028 FR-017). A team's administrators in the app (feature 025) aren't maintainers because of that.
 
 ### Key Entities
 
@@ -390,9 +402,9 @@ Check the other team's step finishes and the failed one is reported.
   gateway, then the second team. Feature 025 can ship at any point.
 - **Accepted limits**: A team's deployment briefly sees the other team's athlete and
   activity IDs in events before dropping them. Budget is first come, first served. A second
-  team's data sits in the maintainer's Cloudflare account.
+  team's data sits in the project's one Cloudflare account, which every maintainer can reach.
 - **Data responsibility**: The second team's responsible person is named as controller,
-  while the maintainer operates the system and can technically reach its data. Whether that
+  while the project's maintainers operate the system and can technically reach its data. Whether that
   needs a data processing agreement is to be settled before launch.
 - **Strava**: Serving a second team goes beyond the original application, and that is
   accepted. Whether to tell Strava, and whether new pages need another review, is to be

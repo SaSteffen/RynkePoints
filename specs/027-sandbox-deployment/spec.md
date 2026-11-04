@@ -14,13 +14,13 @@ everything in one Cloudflare account and avoids paying for as long as possible."
 
 ## Context
 
-The maintainer wants to try a release before it reaches production, and eventually to
+The maintainers want to try a release before it reaches production, and eventually to
 click **Enable auto-merge** on a pull request and be done. Auto-merge is already on for the
 repository, but `develop` requires a pull request to be up to date (002 FR-008), and GitHub
 doesn't update a branch for auto-merge. In the last 43 pull requests merged into `develop`,
 17 were opened while an earlier one was still open, so this happens often. GitHub's merge
-queue is only offered on organization-owned repositories, and this one belongs to a
-personal account.
+queue is only offered on organization-owned repositories. Spec 028 moves the repository to an
+organization and tries a queue, and that trial decides whether User Story 7 is still needed.
 
 **Terms**: A **sandbox** is an access-controlled deployment for one team, using the existing
 fake mode (feature 006). It runs a release candidate only when someone chooses that. The
@@ -30,13 +30,15 @@ current commit is settled. The **control comment** is the comment on the release
 that shows that decision and offers its actions. The **required sandboxes** are those
 chosen so far on this release pull request. The **free-plan budget** is the share of the
 account's daily free allowance that sandbox work may use. The **up-to-date rule** is 002
-FR-008's requirement for `develop`.
+FR-008's requirement for `develop`. **Maintainer**, **founding maintainer** and **stage** are
+as in spec 028: at stage 1 the founding maintainer approves pull requests and owns the
+organization, and at stage 2 those rights are shared.
 
 ### How the gate decides
 
 The decision always belongs to one commit: the current head of the release pull request.
 
-| Situation on the current commit | Gate | What the maintainer can do in the pull request |
+| Situation on the current commit | Gate | What can be done in the pull request |
 |---|---|---|
 | No sandbox chosen, and `develop` hasn't moved since the pull request opened | Passes | Tick a sandbox to deploy after all |
 | Deployment running or waiting for checks | Blocks | Accept without waiting |
@@ -46,6 +48,10 @@ The decision always belongs to one commit: the current head of the release pull 
 | `develop` moved, and no sandbox was chosen earlier | Blocks | Tick a sandbox to deploy, or accept |
 | Accepted for this commit | Passes | Nothing further |
 | Pull request into `main` that isn't from `develop` (a hotfix) | Passes at once | Nothing further |
+
+Any maintainer can deploy. **Accept** is the founding maintainer's at stage 1, like approving a pull
+request, and any maintainer's from stage 2. The gate is separate from spec 028's approval: a release
+pull request needs both, and a new commit resets both.
 
 ### Staying on the free plan
 
@@ -98,16 +104,19 @@ checks. Removing the rule is a separate decision. Stories 1–6 are worthwhile w
 - Q: Does a sandbox failure block the release? → A: Only if that sandbox was chosen, and
   accepting is a single click. A hotfix never waits for a sandbox.
 - Q: What happens when `develop` moves while the release pull request is open? → A: The
-  gate blocks until the maintainer deploys again or accepts, whether or not a sandbox was
+  gate blocks until someone deploys again or accepts, whether or not a sandbox was
   chosen earlier. Nothing redeploys by itself.
 - Q: Is the up-to-date rule removed now? → A: No. It stays until sandboxes have proven
-  themselves, and removing it is then a separate manual decision.
+  themselves, and removing it is then a separate manual decision. Spec 028's merge queue trial
+  may replace that step altogether.
+- Q: Who may clear the gate? → A: At stage 1, only the founding maintainer may **Accept**. Any
+  maintainer may deploy, since a deployment can only add to what's known about a release.
 
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Choose sandboxes when opening a release (Priority: P1)
 
-The maintainer runs **Release PR**, ticks the sandboxes this release should go to, and gets
+A maintainer runs **Release PR**, ticks the sandboxes this release should go to, and gets
 a message on the pull request for each one, with a link to try it.
 
 **Why this priority**: This is the feature's purpose. It moves UI and migration checks from
@@ -119,18 +128,18 @@ message appear with the link and commit, and the sample riders work there.
 
 **Acceptance Scenarios**:
 
-1. **Given** the **Run workflow** form, **When** the maintainer opens it, **Then** there is one
+1. **Given** the **Run workflow** form, **When** a maintainer opens it, **Then** there is one
    checkbox per sandbox, all off, each saying when it can be skipped.
 2. **Given** no box ticked, **When** the workflow runs, **Then** the pull request opens as it
    does today and nothing deploys.
 3. **Given** a box ticked, **When** the workflow runs, **Then** the pull request opens and that
    sandbox deploys its head commit once the commit's required checks pass.
-4. **Given** a finished deployment, **When** the maintainer opens the pull request, **Then** it
+4. **Given** a finished deployment, **When** a maintainer opens the pull request, **Then** it
    has a message for that sandbox with its link, the commit, and any migrations applied.
 5. **Given** a release pull request already open, **When** the workflow runs with a box ticked,
    **Then** that sandbox deploys the current head, rather than the run stopping at "already
    open".
-6. **Given** the sandbox, **When** the maintainer signs in, **Then** only the fake Strava answers,
+6. **Given** the sandbox, **When** a maintainer signs in, **Then** only the fake Strava answers,
    and each page shows the commit and that this isn't the real app.
 
 ---
@@ -152,20 +161,24 @@ accept in the pull request and see the merge allowed and the acceptance recorded
    merge, also with auto-merge on.
 2. **Given** all chosen sandboxes deployed the head commit, **When** the last one finishes,
    **Then** the gate passes.
-3. **Given** a failed deployment, **When** the maintainer looks at the pull request, **Then**
+3. **Given** a failed deployment, **When** a maintainer looks at the pull request, **Then**
    there is a message with the reason and a link to the run, plus one-click **Deploy again**
    and **Accept** actions.
 4. **Given** an acceptance, **When** it is made, **Then** the gate passes for that commit, and the
    pull request records who accepted and for which commit.
 5. **Given** a hotfix pull request into `main`, **When** its checks run, **Then** the gate passes
-   at once.
+   at once, and it still needs spec 028's approval.
+6. **Given** stage 1, **When** another maintainer clicks **Accept**, **Then** the gate doesn't change,
+   and the control comment says who can accept. Their **Deploy again** works.
+7. **Given** a passing gate on a release pull request without the approval spec 028 requires,
+   **When** someone tries to merge, **Then** it can't merge.
 
 ---
 
 ### User Story 3 - `develop` moves while the release pull request is open (Priority: P1)
 
 When new commits reach `develop`, what was tested is no longer what would be released. The
-gate blocks until the maintainer decides, in the pull request.
+gate blocks until that's decided, in the pull request.
 
 **Why this priority**: Without this, a release could merge untested commits while looking
 tested, and a release with no sandbox could pick up a risky change nobody weighed.
@@ -181,10 +194,10 @@ clicking in the pull request.
    sandboxes and **Accept**.
 2. **Given** no sandbox chosen earlier, **When** `develop` moves, **Then** the gate blocks, and the
    control comment offers one deploy action per sandbox and **Accept**.
-3. **Given** the maintainer deploys from the control comment, **When** it finishes, **Then** the
+3. **Given** a maintainer deploys from the control comment, **When** it finishes, **Then** the
    gate depends on that deployment succeeding.
 4. **Given** either case, **When** the control comment updates, **Then** it lists the commits new
-   since the last deployment or decision, so the maintainer can judge them on the spot.
+   since the last deployment or decision, so whoever decides can judge them on the spot.
 5. **Given** an acceptance for a commit, **When** `develop` moves again, **Then** the acceptance no
    longer counts and a new decision is needed.
 6. **Given** a click on a control comment that shows an older commit, **When** it arrives, **Then**
@@ -194,7 +207,7 @@ clicking in the pull request.
 
 ### User Story 4 - Nobody else gets in, and production stays apart (Priority: P1)
 
-A sandbox is reachable only by people the maintainer allows, holds no real rider data, and
+A sandbox is reachable only by people a maintainer allows, holds no real rider data, and
 its deployment can't happen from anywhere but a release candidate on `develop`.
 
 **Why this priority**: The fake sign-in has no real authentication, the fake Strava's pages
@@ -239,7 +252,7 @@ and a reset, and see both refused with a clear message before writing anything.
 2. **Given** Cloudflare's usage figures are unavailable, **When** seeding starts, **Then** it
    doesn't run.
 3. **Given** the account's cron limit, **When** the sandboxes are configured, **Then** they use no
-   cron triggers, and the maintainer can run scheduled work on demand from `/_dev/`.
+   cron triggers, and a maintainer can run scheduled work on demand from `/_dev/`.
 4. **Given** no sandbox chosen, **When** a release happens, **Then** sandboxes use no writes,
    cron runs or queue operations.
 
@@ -249,7 +262,7 @@ and a reset, and see both refused with a clear message before writing anything.
 
 A sandbox keeps its data between releases, so each release's migrations run against older
 rows as a batch, as in production. Synthetic data can grow to production's size in daily
-stages, and the maintainer can rebuild a stuck sandbox with one button.
+stages, and a maintainer can rebuild a stuck sandbox with one button.
 
 **Why this priority**: Migrations only go forward and are the failure hardest to undo in
 production. The small sample set also hides problems of scale.
@@ -270,17 +283,17 @@ release's data, then run **Reset sandbox** and see it rebuilt.
    within 10% and every generated rider is synthetic.
 5. **Given** the sample riders of feature 006, **When** a sandbox is seeded, **Then** they are still
    there, and offered first at the fake sign-in.
-6. **Given** a stuck or messy sandbox, **When** the maintainer runs **Reset sandbox**, **Then** its
+6. **Given** a stuck or messy sandbox, **When** a maintainer runs **Reset sandbox**, **Then** its
    database is rebuilt, migrated from the start and seeded, running the current `develop`.
 
 ---
 
 ### User Story 7 - Approve and forget (Priority: P3)
 
-If the maintainer decides so once sandboxes have proven themselves, the up-to-date rule is
-removed from `develop`. Enabling auto-merge is then the last thing the maintainer does for a
-pull request without a conflict. In the same step, migrations get their own protection and
-`develop` gets its own CI.
+If spec 028's merge queue trial fails, and the founding maintainer decides so once sandboxes have
+proven themselves, the up-to-date rule is removed from `develop`. Approval and enabling auto-merge
+are then the last steps for a pull request without a conflict. In the same step, migrations get
+their own protection and `develop` gets its own CI. If the queue works, this story is dropped.
 
 **Why this priority**: This is the original goal, but it gives up a guarantee (see Context) and
 is a separate decision. While the rule is on, it already prevents the clashes that the
@@ -295,9 +308,9 @@ the other blocked by a git conflict.
 1. **Given** the rule is still on, **When** a pull request with auto-merge falls behind, **Then** it
    waits for a rebase, as it does today.
 2. **Given** the rule is off, **When** a pull request with auto-merge is behind and has no conflict,
-   **Then** it merges as soon as its checks pass.
+   **Then** it merges as soon as its checks and any required approval pass.
 3. **Given** the rule is off and two merged pull requests break each other, **When** CI runs on
-   `develop`, **Then** it fails, the maintainer is told, and the next release pull request's
+   `develop`, **Then** it fails, every maintainer is told, and the next release pull request's
    checks fail.
 4. **Given** two open pull requests that each add a migration, **When** the first merges, **Then**
    GitHub blocks the second with a conflict, also if auto-merge is on for it.
@@ -319,11 +332,15 @@ the other blocked by a git conflict.
 - **A click by someone without write access**: GitHub doesn't let them edit the comment, and the
   workflow checks the sender's permission again. A look-alike comment by another author is
   ignored.
+- **`develop` moves on an approved release pull request**: the new commit resets the approval and the gate,
+  so the release needs both again.
+- **The founding maintainer is unreachable at stage 1**: the release waits for them anyway, because of the
+  approval, so reserving **Accept** adds no further wait. Deployments to a sandbox still work.
 - **A required sandbox nobody wants any more**: **Accept** settles it for that commit. If `develop`
   moves again, that sandbox is offered again.
 - **The workflow behind the gate is itself broken**: the fix merges to `develop`, which runs it on
-  the new head. If that isn't possible, the owner temporarily removes the check from the
-  ruleset, as documented, since `main`'s ruleset has no bypass list.
+  the new head. If that isn't possible, an organization owner temporarily removes the check from
+  the ruleset, as documented, since the ruleset holding `main`'s checks has no bypass list.
 - **Cloudflare or the sandbox is down**: **Accept** clears the gate. Production's own deployment
   doesn't depend on any sandbox.
 - **Release pull request closed and reopened**: the gate is worked out again for the head
@@ -382,7 +399,7 @@ the other blocked by a git conflict.
 
 **Access and isolation**
 
-- **FR-010**: A sandbox MUST be reachable only through Cloudflare Access, by people the maintainer
+- **FR-010**: A sandbox MUST be reachable only through Cloudflare Access, by people a maintainer
   allows, and MUST fail closed: a request that didn't pass the access gate gets no app page and
   no fake Strava page, even if the gate is misconfigured. Addresses may appear in the public pull
   request.
@@ -392,7 +409,8 @@ the other blocked by a git conflict.
   MUST state what the credential could still reach. Cloudflare's docs say deploying a Worker
   needs no permission on what it binds to, so a Worker-limited credential could probably still
   bind production's database, whose ID is public. The sandbox credential MUST therefore be
-  treated as sensitive. The production credential stays unlockable from `main` only.
+  treated as sensitive, and MUST NOT belong to one person (028 FR-009). The production credential
+  stays unlockable from `main` only.
 - **FR-012**: A check MUST fail if a sandbox's configuration names any production Worker,
   database, queue or host.
 - **FR-013**: 006 FR-009 MUST be amended: fake mode still can't activate in production and `src/`
@@ -411,7 +429,7 @@ the other blocked by a git conflict.
   with an older one. One sandbox's failure MUST NOT stop another's deployment.
 - **FR-018**: Nothing MUST deploy to a sandbox unless someone chose it. `develop` moving MUST
   NOT redeploy by itself.
-- **FR-019**: The maintainer MUST be able to run **Reset sandbox** by hand per sandbox, which
+- **FR-019**: A maintainer MUST be able to run **Reset sandbox** by hand per sandbox, which
   rebuilds its database, applies all migrations from the start, seeds it within the budget,
   and leaves it on the current `develop`.
 
@@ -427,9 +445,10 @@ the other blocked by a git conflict.
   the control comment. There MUST be one deploy action per sandbox and one **Accept**. If the plan
   finds a tick unreliable, the fallback is a short command as a comment, not a trip to another
   page.
-- **FR-023**: An action MUST take effect only if the sender has write access, the comment is the
-  workflow's own control comment, and the commit it shows is still the head. Otherwise it
-  changes nothing and the comment is refreshed.
+- **FR-023**: An action MUST take effect only if the sender may take it, the comment is the workflow's
+  own control comment, and the commit it shows is still the head. Otherwise it changes nothing and
+  the comment is refreshed. A deploy action needs write access. **Accept** needs the founding
+  maintainer at stage 1, and write access from stage 2. The control comment MUST say who can accept.
 
 **The gate**
 
@@ -443,6 +462,8 @@ the other blocked by a git conflict.
 - **FR-027**: `develop` moving MUST leave the gate blocking until a new decision, also when no
   sandbox was chosen earlier.
 - **FR-028**: **Accept** MUST record who accepted and for which commit, in the pull request.
+- **FR-047**: The gate MUST NOT replace or satisfy spec 028's approval (028 FR-007), and approval MUST
+  NOT settle the gate. A release pull request MUST need both, for the same commit.
 - **FR-029**: Enabling auto-merge MUST wait for the gate like any other required check.
 - **FR-030**: Production's deployment MUST NOT depend on any sandbox. The gate acts only on merging.
 - **FR-031**: The check MUST be added to the ruleset only after the workflow reporting it is on
@@ -478,28 +499,30 @@ the other blocked by a git conflict.
 - **FR-040**: The scale profile MUST hold only rounded totals: the number of riders, typical and
   largest activity counts per rider, and the number of events. Figures MUST be rounded coarsely
   enough that none is an individual's exact figure, and MUST NOT name any rider.
-- **FR-041**: Reading the totals from production is a manual, read-only step by the maintainer,
-  never part of CI or a deployment.
+- **FR-041**: Reading the totals from production is a manual, read-only step by a maintainer whose
+  access to production data the data controller has allowed (028 FR-017), never part of CI or a
+  deployment.
 
 **Merging**
 
 - **FR-042**: `.github/repository-settings.md` MUST record the sandbox environment and credential,
-  which are manual steps of the maintainer, along with the auto-merge setting already recorded
+  which are manual steps of an organization owner, along with the auto-merge setting already recorded
   there.
-- **FR-043**: The up-to-date rule MUST stay on until the maintainer decides otherwise. Removing it
-  MUST be a separate, manual step, done only after SC-007, in a change that also updates
+- **FR-043**: The up-to-date rule MUST stay on until the founding maintainer decides otherwise, or
+  a merge queue replaces it (028 FR-023). Removing it without a queue MUST be a separate, manual
+  step, done only after SC-007, in a change that also updates
   `.github/rulesets/develop.json`, its README, 002 FR-008, FR-012 and R7, and the comment in the
   CI workflow.
 - **FR-044**: That same step MUST add:
   - Checks on every push to `develop`, unless they already passed on exactly that content, with
-    failures reaching the maintainer by the existing failure e-mail.
+    failures reaching every maintainer (028 FR-025).
   - One tracked migration marker naming the latest migration on a single line, so any two pull
     requests adding a migration conflict in git.
   - A required check that fails when the marker doesn't name the highest-numbered migration, when
     two migrations share a number, or when a new migration isn't numbered above every migration
     on its target, and says how to fix it. Conflicts are resolved by rebasing, renumbering the
     later migration and updating the marker.
-- **FR-045**: Removing the rule MUST NOT change the merge methods of 002 FR-009b, the rule's absence
+- **FR-045**: Removing the rule MUST NOT change the merge method set by 028 FR-031, the rule's absence
   on `main`, or the checks of a release pull request.
 - **FR-046**: The contributor docs (`README.md`, `CLAUDE.md`) MUST describe the sandboxes, the
   checkboxes and their guidance, the gate and its override, reset, and the ruleset fallback.
@@ -522,10 +545,10 @@ the other blocked by a git conflict.
 ### Measurable Outcomes
 
 - **SC-001**: A release with no sandbox chosen and no move of `develop` needs no more steps than
-  today.
+  today, apart from spec 028's approval.
 - **SC-002**: Within 30 minutes of choosing a sandbox, it runs the head commit and the pull request
   has its message and link, provided the required checks pass.
-- **SC-003**: Every gate decision that needs the maintainer takes one click inside the pull
+- **SC-003**: Every gate decision that needs a maintainer takes one click inside the pull
   request, with no other page opened.
 - **SC-004**: No release merges with its head commit undecided: in a test of every row of the
   gate's table, the merge is allowed only on the rows that pass.
@@ -533,12 +556,12 @@ the other blocked by a git conflict.
   gate removed in a test. No production row, token or secret is ever in a sandbox or its
   deployment path, and sandboxes make zero requests to the real Strava.
 - **SC-006**: Sandbox work causes zero production failures from a used-up allowance, and costs $0
-  until the maintainer decides otherwise. Sandbox seeding never takes the account above the
+  until a decision to pay is made (028 FR-012). Sandbox seeding never takes the account above the
   threshold plus one stage.
 - **SC-007**: Before the up-to-date rule is removed, at least 3 releases over at least 2 weeks have
   gone through a sandbox, with every failure explained.
 - **SC-008**: After the rule is removed, a pull request with no conflict that isn't adding a
-  migration needs zero maintainer actions after enabling auto-merge, and two migration pull
+  migration needs zero maintainer actions after approval and enabling auto-merge, and two migration pull
   requests can never both merge unless the later one's checks re-ran after the earlier merged.
 - **SC-009**: A hotfix waits for no sandbox, and a sandbox failure delays a release by at most one
   click.
@@ -550,7 +573,7 @@ the other blocked by a git conflict.
   racing the comment's updates.
 - Per-Worker credential roles are available on the Free plan and cover a deployment with a queue
   consumer and assets. Cloudflare's docs don't state this, and they say creating a Worker needs
-  a wider role, so the maintainer creates each sandbox's resources by hand once. To be confirmed
+  a wider role, so a maintainer creates each sandbox's resources by hand once. To be confirmed
   in planning, including whether database access can be limited to one database (none found).
 - Cloudflare Access can protect a sandbox on a subdomain of the production domain on the Free
   plan, for at least the few people who need it, so no second domain is needed. To be confirmed
@@ -559,11 +582,11 @@ the other blocked by a git conflict.
   accepts. To be confirmed in planning.
 - Sandbox traffic is a handful of people, so requests and reads stay small. Production's real use
   of the allowances is visible in the admin view (025) and informs the budget's defaults.
-- The maintainer is the only sandbox user at first and can allow others by e-mail address.
+- The maintainers are the only sandbox users at first and can allow others by e-mail address.
 - Rounded totals describing the size of a team aren't rider data, so reading them for this purpose
   doesn't extend the riders' consent. The check against Principle I belongs in the plan.
 - Rider-facing text is unchanged, so no catalog entries are needed. Pull request messages are for
-  the maintainer and in English.
+  maintainers and in English.
 - The second team's sandbox arrives with feature 026, not with this feature.
 
 ## Out of Scope
@@ -577,7 +600,7 @@ the other blocked by a git conflict.
 - The real Strava in a sandbox, in any form.
 - Moving the account to the Paid plan.
 - A separate Cloudflare account for sandboxes.
-- Automatic rebasing of waiting pull requests, and moving the repository to an organization for a
-  merge queue.
+- Automatic rebasing of waiting pull requests. Moving the repository to an organization and trying a
+  merge queue belong to spec 028.
 - Automated browser tests against a deployed sandbox; the existing Playwright tests stay on CI's
   local fake mode.

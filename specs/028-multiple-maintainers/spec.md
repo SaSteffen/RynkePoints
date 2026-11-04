@@ -35,6 +35,7 @@ have no end date.
 | Open pull requests, run **Release PR**, merge once approved, re-deploy | ✓ | |
 | Approve pull requests | From stage 2 | Until stage 2 |
 | Merge their own pull requests with no approval | | Until stage 2 |
+| Accept on the sandbox gate (spec 027), rather than deploy | From stage 2 | Until stage 2 |
 | Change code, including code that handles the Strava secret | ✓ | |
 | Own the organization; administer the repository, rulesets and environments | From stage 2 | Until stage 2 |
 | Administer the Cloudflare account | ✓ | |
@@ -489,9 +490,13 @@ doesn't depend on the organization and can ship first.
 - Strava's API Agreement allows another person to help run the app with access to its data. The Strava owner confirms
   this as part of FR-017. If it doesn't, this feature stops at access that doesn't reach rider data.
 - GitHub's required approvals alone would block the founding maintainer's own pull requests, because authors can't approve
-  their own. The founding maintainer accepts an exemption for this. At stage 1 they're the only owner, so a ruleset bypass
-  for organization owners, limited to pull requests, should cover them alone. GitHub's docs list owners as eligible. To be
-  confirmed in planning, and removed at stage 2.
+  their own. The founding maintainer accepts an exemption for this. A ruleset bypass skips every rule in that ruleset, so the
+  approval rule goes in a ruleset of its own, with a bypass for organization owners, and the rulesets holding the required
+  checks keep having no bypass list. At stage 1 the only owner is the founding maintainer, so this covers them alone. If a
+  bypass doesn't work with auto-merge on their pull requests, a required check that looks at the author and the approvals
+  replaces it. To be tried in planning, and removed at stage 2.
+- GitHub's docs say the Write role can change GitHub Actions secrets. Whether it can also change the environment secrets that
+  production and `Release PR` use isn't stated. To be confirmed in planning. If it can, FR-004's role needs narrowing.
 - Whether the Strava app can be moved to someone else isn't known. It doesn't need answering until a move is planned.
 - Rider-facing text changes only if the review in FR-018 or FR-019 requires it, in which case it follows the usual
   catalog rules.

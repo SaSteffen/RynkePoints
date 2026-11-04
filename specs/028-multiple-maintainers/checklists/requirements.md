@@ -37,4 +37,4 @@
 - To confirm in planning: free organization coverage and transfer effects, Cloudflare members and
   account-owned tokens on the Free plan, a release credential not tied to one person, and whether Strava's
   API Agreement allows other people access, and how to exempt only the founding maintainer's own pull requests
-  from required approval.
+  from required approval, including with auto-merge, and what the Write role can do to environment secrets.
