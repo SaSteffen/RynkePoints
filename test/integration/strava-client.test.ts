@@ -352,7 +352,9 @@ describe("isClubMember", () => {
 
 	it("works with a fresh access token before the rider is stored", async () => {
 		expect(
-			await isClubMember(ctx, { accessToken: "access-900001-0" }, [TEAM_CLUB.id]),
+			await isClubMember(ctx, { accessToken: "access-900001-0" }, [
+				TEAM_CLUB.id,
+			]),
 		).toEqual({ kind: "ok", value: true });
 	});
 });
