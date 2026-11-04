@@ -407,6 +407,11 @@ Check the other team's step finishes and the failed one is reported.
 - **Inputs needed from the second team before launch**: domain, Strava clubs, Rynke values,
   dates, languages, switchable features, controller and contact, art direction, a phrase
   brief, a rater and native-speaker reviewers.
+- **Further teams**: More teams may follow, but that's only a thought for now and nothing
+  is built for it. The second team is the one to ship. Where it costs nothing extra, the
+  design doesn't assume exactly two teams: lists of teams rather than "the other team",
+  and no per-team steps that would be painful to repeat. The Strava cap of 999 athletes
+  and the Cloudflare limits are shared, so further teams use up the same room.
 - **Out of scope**: Separate Cloudflare accounts (kept possible, not built), per-team budget
   caps, monitoring the gateway beyond its errors, sharing anything between teams' riders,
   and team switching in the app.
