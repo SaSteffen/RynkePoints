@@ -15,7 +15,8 @@ riders. It is built for one team. Per-team shares across teams are feature 026 (
 - **Cloudflare usage**: a new hourly cron makes one analytics query and stores figures
   in `usage_daily`. The page only reads D1, never Strava or Cloudflare (R2, R3).
 - **Alerts**: the same hourly run checks levels, and new rows in `usage_alerts` send the
-  existing payload-free push to administrators (R5).
+  existing payload-free push to administrators. Each one can turn Cloudflare's alerts off
+  for themselves (R5).
 - **Removal**: revoke, then one atomic batch that adds the block entry and removal record
   and deletes the rider. The block is checked in the OAuth callback (R6, R7).
 - **Consent**: version 2 covers the overview and the block list. Only riders who agreed

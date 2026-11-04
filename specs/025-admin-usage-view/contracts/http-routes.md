@@ -6,7 +6,8 @@ origin. None of them make a Strava request, except the revoke during a removal.
 
 | Route | Purpose |
 |---|---|
-| `GET /admin` | Current usage, waiting work, and a hint if the viewer's devices have no notifications |
+| `GET /admin` | Current usage, waiting work, the Cloudflare alerts switch, and a hint if the viewer's devices have no notifications |
+| `POST /admin/alerts` | Sets the viewer's own `cloudflare_alerts` from the form, then `303` to `/admin` |
 | `GET /admin/history?allowance=<id>` | One value per day, with limit and gaps. Unknown ID: the first allowance |
 | `GET /admin/riders` | Rows (FR-018), blocked and unlisted counts |
 | `GET /admin/riders/{id}/remove` | Confirmation. Refuses self (pointing to `/me/disconnect`) and unlisted IDs |

@@ -7,7 +7,7 @@ pnpm test && pnpm lint && pnpm typecheck
 ```
 
 Tests cover: access refusals, figures against synthetic usage, not attributed, levels, gaps,
-repeat recording, alert once per level, removal leaving only the block entry, a blocked rider's
+repeat recording, alert once per level, the Cloudflare alerts switch, removal leaving only the block entry, a blocked rider's
 connection refused with a revoke, and the overview's consent filter.
 
 ## Locally, with no real services
@@ -19,6 +19,7 @@ connection refused with a revoke, and the overview's consent filter.
 2. `/admin/history` shows a gap on the seeded empty day.
 3. Remove a sample rider, then connect as that rider: refused at `/notice/blocked`.
 4. As a sample rider without the flag, `/admin` gives the generic 403.
+5. Turn Cloudflare alerts off on `/admin`: the switch stays off after a reload.
 
 ## Manual production steps, by the maintainer
 

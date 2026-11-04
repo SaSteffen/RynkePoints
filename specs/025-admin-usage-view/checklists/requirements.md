@@ -33,6 +33,7 @@
 
 - Strava and Cloudflare are named because their allowances are the subject of the
   feature, not as implementation choices.
-- Decided 2026-11-04: removed riders stay blocked, and administrators get push alerts.
+- Decided 2026-11-04: removed riders stay blocked, and administrators get push alerts,
+  with a switch of their own for Cloudflare's.
 - Principle I needs an explicit exception for the block list before implementation
   (Assumptions).
