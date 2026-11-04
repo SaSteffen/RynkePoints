@@ -1,0 +1,61 @@
+name: Mockup pages
+
+# Publishes every spec's standalone concept page (specs/*/drafts/concept.html) to
+# GitHub Pages, so that mockups can be opened without a checkout. The app itself
+# is never deployed from here.
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "specs/*/drafts/**"
+      - ".github/workflows/mockup-pages.yml"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: build
+    # The github-pages environment only accepts runs on develop.
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Collect the concept pages
+        shell: bash
+        run: |
+          mkdir _site
+          links=""
+          for page in specs/*/drafts/concept.html; do
+            feature="$(basename "$(dirname "$(dirname "$page")")")"
+            cp -R "specs/$feature/drafts" "_site/$feature"
+            links+="<li><a href=\"$feature/concept.html\">$feature</a></li>"
+          done
+          printf '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RynkePoints mockups</title><h1>RynkePoints mockups</h1><ul>%s</ul></html>\n' "$links" > _site/index.html
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    name: deploy
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

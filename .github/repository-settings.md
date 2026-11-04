@@ -178,6 +178,18 @@ gets.
   Expected: `[{"name":"develop","type":"branch"}]`, and `RELEASE_PR_TOKEN` listed.
 - Use: **Actions → Release PR → Run workflow**, branch `develop`.
 
+## GitHub Pages: built by the mockup workflow
+
+The `Mockup pages` workflow publishes each spec's concept page from `develop` to
+<https://sasteffen.github.io/RynkePoints/>. Everything on it is public and uses
+synthetic data. The app is never deployed this way. GitHub creates the
+`github-pages` environment on the first deployment and limits it to the default
+branch.
+
+- UI: **Pages → Build and deployment → Source**: *GitHub Actions*
+- Apply: `gh api --method POST repos/SaSteffen/RynkePoints/pages -f build_type=workflow`
+- Show: `gh api repos/SaSteffen/RynkePoints/pages --jq '{build_type, html_url}'`
+
 ## Failure notifications: e-mail, failed workflows only
 
 A setting of the maintainer's account, not of the repository. It's how a failed
