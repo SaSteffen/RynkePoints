@@ -15,7 +15,10 @@ and [Rate Limits](https://developers.strava.com/docs/rate-limits/) pages on
 |---|---|---|---|---|
 | Single-player mode | 1 (the developer) | 100 / 1,000 | 200 / 2,000 | Default for a new app |
 | Upgraded | 10 | 200 / 2,000 | 400 / 4,000 | Self-serve, in the [API settings](https://www.strava.com/settings/api) |
-| Reviewed | Granted by Strava | Set by Strava | Set by Strava | Developer Program review (below) |
+| Reviewed (RynkePoints, 2026-11-04) | 999 | 300 / 3,000 | 600 / 6,000 | Developer Program review (below) |
+
+**Status: approved on 2026-11-04** (capacity 999, limits as in the table). The
+procedure below is kept for reference.
 
 Until the review is approved, Strava refuses to authorise the 11th athlete. The app
 then shows feature 001's "team is full" notice (`/notice/team-full`, research R14).
@@ -69,7 +72,7 @@ production numbers are left out. The run fails when a page route in
    - `/` (landing, "Connect with Strava"), `/privacy` (privacy notice) and
      `/notice/team-full`
    - `/me`, `/me/rides`, `/me/settings`, `/me/disconnect`
-   - `/team` (team leaderboard)
+   - `/team` (team leaderboard) and `/events` (team events)
    - `/organiser` and one event, `/organiser/riders` and one rider
    - a push notification with new Rynke (feature 010; derived data), as a
      mock-up of the phone's notification with the app's real text

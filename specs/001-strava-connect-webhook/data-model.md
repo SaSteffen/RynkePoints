@@ -202,7 +202,8 @@ change.
 
 | Name | Example | Meaning |
 |---|---|---|
-| `STRAVA_CLUB_ID` | `"2372209"` | Team club ("TRHH Rynke Coins"). |
+| `STRAVA_CLUB_ID` | `"1088689"` | Team club ("Team Rynkeby Hamburg"), the only one the app links to and names. |
+| `STRAVA_EXTRA_CLUB_IDS` | `"2372209"` | Further clubs whose members may take part too ("TRHH Rynke Coins"), comma-separated, `""` for none; never named in the app. |
 | `SEASON_START_DATE` | `"2026-01-01"` | Import cutoff, interpreted as 00:00 Europe/Berlin. |
 | `STRAVA_SUBSCRIPTION_ID` | `"0"` until created | Events with another `subscription_id` are dropped. |
 

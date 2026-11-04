@@ -27,6 +27,7 @@ const manifest: Shot[] = [];
 const NOT_SHOWN = new Set([
 	"/connect", // redirects to Strava
 	"/auth/callback", // redirects to a page
+	"/me/rides/more", // the next rides of /me/rides, as it scrolls
 ]);
 
 /** Every route in src/http/router.ts's `page()`, by the path it answers. */
@@ -37,6 +38,7 @@ const COVERED = new Set([
 	"/me/rides",
 	"/me/badges",
 	"/team",
+	"/events",
 	"/me/settings",
 	"/me/disconnect",
 	"/organiser",
@@ -198,6 +200,20 @@ for (const lang of LANGS) {
 			}
 		});
 
+		// Tina is an organiser, and /events sends organisers to their own pages.
+		test("a rider's events", async ({ page }) => {
+			await signIn(page, "Rudi Runner");
+			await skipTours(page);
+			await visit(page, "/events");
+			expect(new URL(page.url()).pathname).toBe("/events");
+			await shoot(
+				page,
+				lang,
+				"06b-events",
+				"The team's events, with the rider's own plan to come and report of having been there. Only the rider sees this page; a report earns nothing until an organiser confirms it.",
+			);
+		});
+
 		test("an organiser's pages", async ({ page }) => {
 			await signIn(page, "Olga Organiser");
 			// The tour hints would cover the pages (issue #90).
@@ -228,7 +244,7 @@ for (const lang of LANGS) {
 				page,
 				lang,
 				"12-organiser-rider",
-				"Organisers: one rider's points and where they come from (first name)",
+				"Organisers: the corrections entered for one rider (first name)",
 			);
 		});
 	});

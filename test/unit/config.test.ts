@@ -5,6 +5,7 @@ import {
 	clientSecret,
 	clubId,
 	contactEmail,
+	memberClubIds,
 	organiserFigures,
 	privacyController,
 	readyPollSeconds,
@@ -37,7 +38,7 @@ describe("seasonStartEpoch", () => {
 
 describe("env accessors", () => {
 	it("parses numeric settings", () => {
-		expect(clubId(env)).toBe(2372209);
+		expect(clubId(env)).toBe(1088689);
 		expect(subscriptionId(env)).toBe(777);
 	});
 
@@ -52,6 +53,25 @@ describe("env accessors", () => {
 		expect(clientId(env)).toBe("10001");
 		expect(clientSecret(env)).toBe("test-client-secret");
 		expect(verifyToken(env)).toBe("test-verify-token");
+	});
+});
+
+describe("memberClubIds", () => {
+	const ids = (extra: string) =>
+		memberClubIds({ STRAVA_CLUB_ID: "1088689", STRAVA_EXTRA_CLUB_IDS: extra });
+
+	it("lists the team club first, then the further clubs", () => {
+		expect(memberClubIds(env)).toEqual([1088689, 2372209]);
+		expect(ids(" 2372209 , 42 ")).toEqual([1088689, 2372209, 42]);
+	});
+
+	it("is only the team club when there are no further clubs", () => {
+		expect(ids("")).toEqual([1088689]);
+		expect(ids("1088689")).toEqual([1088689]);
+	});
+
+	it("rejects a non-numeric club", () => {
+		expect(() => ids("2372209,abc")).toThrow();
 	});
 });
 

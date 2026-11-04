@@ -20,6 +20,7 @@ import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import {
 	ATHLETE_A,
+	EXTRA_CLUB,
 	makeStravaActivity,
 	NOW,
 	OTHER_CLUB,
@@ -132,7 +133,7 @@ describe("reserve for sign-ins", () => {
 			delaySeconds: 900,
 		});
 		expect(
-			await isClubMember(ctx, asRider, TEAM_CLUB.id, "background"),
+			await isClubMember(ctx, asRider, [TEAM_CLUB.id], "background"),
 		).toEqual({ kind: "budget", delaySeconds: 900 });
 		expect(fake.calls).toHaveLength(0);
 	});
@@ -143,7 +144,7 @@ describe("reserve for sign-ins", () => {
 			await isClubMember(
 				ctx,
 				{ accessToken: "access-900001-0" },
-				TEAM_CLUB.id,
+				[TEAM_CLUB.id],
 				"interactive",
 			),
 		).toEqual({ kind: "ok", value: true });
@@ -308,7 +309,7 @@ describe("isClubMember", () => {
 		const clubs = Array.from({ length: 200 }, (_, i) => 50_000 + i);
 		const athlete = fake.athletes.get(ATHLETE_A);
 		if (athlete) athlete.clubs = [...clubs, TEAM_CLUB.id];
-		expect(await isClubMember(ctx, asRider, TEAM_CLUB.id)).toEqual({
+		expect(await isClubMember(ctx, asRider, [TEAM_CLUB.id])).toEqual({
 			kind: "ok",
 			value: true,
 		});
@@ -318,10 +319,18 @@ describe("isClubMember", () => {
 		expect(fake.calls[0]?.url.searchParams.get("per_page")).toBe("200");
 	});
 
+	it("accepts any of the given clubs", async () => {
+		const athlete = fake.athletes.get(ATHLETE_A);
+		if (athlete) athlete.clubs = [OTHER_CLUB.id, EXTRA_CLUB.id];
+		expect(
+			await isClubMember(ctx, asRider, [TEAM_CLUB.id, EXTRA_CLUB.id]),
+		).toEqual({ kind: "ok", value: true });
+	});
+
 	it("answers false once a short page lacks the club", async () => {
 		const athlete = fake.athletes.get(ATHLETE_A);
 		if (athlete) athlete.clubs = [OTHER_CLUB.id];
-		expect(await isClubMember(ctx, asRider, TEAM_CLUB.id)).toEqual({
+		expect(await isClubMember(ctx, asRider, [TEAM_CLUB.id])).toEqual({
 			kind: "ok",
 			value: false,
 		});
@@ -329,21 +338,23 @@ describe("isClubMember", () => {
 
 	it("passes errors through as inconclusive", async () => {
 		fake.failNext("clubs", { status: 503 });
-		expect(await isClubMember(ctx, asRider, TEAM_CLUB.id)).toMatchObject({
+		expect(await isClubMember(ctx, asRider, [TEAM_CLUB.id])).toMatchObject({
 			kind: "transient",
 		});
 	});
 
 	it("reports unauthorized for a just-issued token, without refreshing", async () => {
 		expect(
-			await isClubMember(ctx, { accessToken: "not-a-token" }, TEAM_CLUB.id),
+			await isClubMember(ctx, { accessToken: "not-a-token" }, [TEAM_CLUB.id]),
 		).toEqual({ kind: "unauthorized" });
 		expect(fake.callsTo("token")).toHaveLength(0);
 	});
 
 	it("works with a fresh access token before the rider is stored", async () => {
 		expect(
-			await isClubMember(ctx, { accessToken: "access-900001-0" }, TEAM_CLUB.id),
+			await isClubMember(ctx, { accessToken: "access-900001-0" }, [
+				TEAM_CLUB.id,
+			]),
 		).toEqual({ kind: "ok", value: true });
 	});
 });

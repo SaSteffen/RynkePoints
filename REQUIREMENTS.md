@@ -19,12 +19,14 @@ Context: Team Rynkeby Hamburg (charity cycling team). Sibling project:
 
 - Strava apps start at an athlete capacity of 1 (the developer). A self-serve upgrade
   gives 10; more requires Strava's Developer Program review (brand guidelines,
-  screenshots of where Strava data is shown).
+  screenshots of where Strava data is shown). RynkePoints passed the review on
+  2026-11-04: capacity 999 athletes.
 - Strava's API Agreement (effective 2026-06-01): a rider's data may only be shown to
   that rider unless they explicitly consent to sharing → team leaderboards need an
   explicit opt-in.
-- Rate limits: 200 req / 15 min and 2,000 / day overall; 100 / 15 min and 1,000 / day
-  for reads. Use webhooks, not polling.
+- Rate limits (since the review, 2026-11-04): 600 req / 15 min and 6,000 / day
+  overall; 300 / 15 min and 3,000 / day for reads (before: 200 / 2,000 and
+  100 / 1,000). Use webhooks, not polling.
 - Strava has no "took part in event X" field — participation must be inferred (own
   event table matched by date/time window and start area, Strava club events, or a
   tag in the activity name).
