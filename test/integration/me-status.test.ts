@@ -101,7 +101,7 @@ describe("GET /me for a connected rider", () => {
 		const { page } = await getSettings();
 		expect(page).toContain("<h2>Deine Zustimmung</h2>");
 		expect(page).toMatch(
-			/<p>Zugestimmt am 07\.10\.2026 \(Version\u00a02\)\.<\/p>\n<p>Wir lesen keine GPS-Spuren, .*<br>Wir lesen nur .*<\/p>\n<p>Das Team sieht deine Rynke ohne Namen, .*<\/p>\n<details class="more">.*\n<p>Von jeder Radfahrt lesen wir nur Namen, /,
+			/<p>Zugestimmt am 07\.10\.2026 \(Version\u00a03\)\.<\/p>\n<p>Wir lesen keine GPS-Spuren, .*<br>Wir lesen nur .*<\/p>\n<p>Das Team sieht deine Rynke ohne Namen, .*<\/p>\n<details class="more">.*\n<p>Von jeder Radfahrt lesen wir nur Namen, /,
 		);
 		expect(page).not.toContain("noch keine Zustimmung");
 	});
@@ -170,7 +170,7 @@ describe("GET /me for a connected rider", () => {
 		await seedRider(ctx, { consentVersion: CONSENT_VERSION, scopeWrite: true });
 		const { page } = await getSettings();
 		for (const shown of [
-			"Zugestimmt am 06.10.2026 (Version\u00a02).",
+			"Zugestimmt am 06.10.2026 (Version\u00a03).",
 			escapeHtml(de["landing.dataRead"]),
 			escapeHtml(de["consent.organisers"]),
 			escapeHtml(de["consent.team"]),
@@ -285,7 +285,7 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 		expect(page).toContain("Hallo Testrider A!");
 		expect(page).not.toContain('action="/connect"');
 		expect(page).not.toContain(escapeHtml(de["me.consent.renew.heading"]));
-		expect((await getSettings()).page).toContain("(Version\u00a02).");
+		expect((await getSettings()).page).toContain("(Version\u00a03).");
 	});
 });
 

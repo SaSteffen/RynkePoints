@@ -64,6 +64,7 @@ const CONTRACT_IDS = [
 	"consent.short.shown",
 	"consent.details",
 	"consent.organisers",
+	"consent.dailyFigures",
 	"consent.team",
 	"consent.required",
 	"consent.agree",

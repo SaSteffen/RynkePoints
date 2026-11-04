@@ -49,6 +49,8 @@ export const de = {
 	"consent.details": "Alle Details",
 	"consent.organisers":
 		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen und bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst.",
+	"consent.dailyFigures":
+		"Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.",
 	"consent.team":
 		"Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter zählen ohne Namen zu den Team-Summen der Team-Abzeichen. An welchen Tagen und zu welcher Stunde du fährst, läufst oder schwimmst, zählt ohne Namen für die Team-Überraschungen.",
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
@@ -785,7 +787,7 @@ export const de = {
 	"privacy.visibility.team":
 		"Das übrige Team sieht deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter und an welchen Tagen und zu welcher Stunde du aktiv bist zählen ohne Namen zu den Teamsummen und Team-Abzeichen.",
 	"privacy.visibility.organisers":
-		"Die Organisatoren sehen deinen Vornamen, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen und bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst, aber keine einzelnen Aktivitäten.",
+		"Die Organisatoren sehen deinen Vornamen, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst, und deine Kilometer draußen und virtuell und deine Höhenmeter als Summen pro Tag, aber keine einzelnen Aktivitäten.",
 	"privacy.visibility.public":
 		"Nichts davon ist öffentlich: Jede Seite mit diesen Daten verlangt eine Anmeldung mit Strava.",
 	"privacy.legal.heading": "Rechtsgrundlagen",

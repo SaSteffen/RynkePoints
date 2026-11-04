@@ -45,16 +45,16 @@ description: "Tasks for the organiser progress graphs"
 
 Before the graphs, because no daily value may be read without it.
 
-- [ ] T014 [P] [US2] Write failing tests: `test/unit/consent-versions.test.ts` for version 3 with `changes: ["consent.dailyFigures"]` and the same scopes; `test/unit/visibility.test.ts` for `dailyFigures` organisers only, since 3, with `rides` still nobody; a test that versions don't depend on either setting (FR-028)
-- [ ] T015 [US2] Add version 3 to `CONSENT_VERSIONS` in `src/consent.ts` and `dailyFigures` to `src/visibility.ts` (`DAILY_FIGURES_SINCE_VERSION = 3`)
-- [ ] T016 [P] [US2] Add `consent.dailyFigures` and change `privacy.visibility.organisers` in `src/i18n/messages/en.ts` and `de.ts`, per `contracts/messages.md`; update `test/unit/catalogs.test.ts` where it lists keys
-- [ ] T017 [US2] Render the new line after `consent.organisers` in `src/http/consent-form.ts`; extend `test/integration/consent-gate.test.ts` for a version 2 rider being asked and told what changed, and a new rider accepting 3 directly
-- [ ] T018 [US2] Update tests pinning the current consent version, as the failures show
+- [X] T014 [P] [US2] Write failing tests: `test/unit/consent-versions.test.ts` for version 3 with `changes: ["consent.dailyFigures"]` and the same scopes; `test/unit/visibility.test.ts` for `dailyFigures` organisers only, since 3, with `rides` still nobody; a test that versions don't depend on either setting (FR-028)
+- [X] T015 [US2] Add version 3 to `CONSENT_VERSIONS` in `src/consent.ts` and `dailyFigures` to `src/visibility.ts` (`DAILY_FIGURES_SINCE_VERSION = 3`)
+- [X] T016 [P] [US2] Add `consent.dailyFigures` and change `privacy.visibility.organisers` in `src/i18n/messages/en.ts` and `de.ts`, per `contracts/messages.md`; update `test/unit/catalogs.test.ts` where it lists keys
+- [X] T017 [US2] Render the new line after `consent.organisers` in `src/http/consent-form.ts`; extend `test/integration/consent-gate.test.ts` for a version 2 rider being asked and told what changed, and a new rider accepting 3 directly
+- [X] T018 [US2] Update tests pinning the current consent version, as the failures show
 
 ## Phase 5: User Story 7 - Turn it on or off (P2, needed by the section)
 
-- [ ] T019 [P] [US7] Write failing tests in `test/unit/config.test.ts`: `organiserProgressGraph` is true for "on", false for "off", and throws otherwise
-- [ ] T020 [US7] Add `organiserProgressGraph(env)` to `src/config.ts` in the style of `trainingLeaderboard`
+- [X] T019 [P] [US7] Write failing tests in `test/unit/config.test.ts`: `organiserProgressGraph` is true for "on", false for "off", and throws otherwise
+- [X] T020 [US7] Add `organiserProgressGraph(env)` to `src/config.ts` in the style of `trainingLeaderboard`
 
 ## Phase 6: User Story 1 - See how riders progress (P1, MVP)
 

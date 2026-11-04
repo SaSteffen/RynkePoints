@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { SHARING_SINCE_VERSION } from "../../src/consent";
+import {
+	DAILY_FIGURES_SINCE_VERSION,
+	SHARING_SINCE_VERSION,
+} from "../../src/consent";
 import type { Rider } from "../../src/db/riders";
 import type { Viewer } from "../../src/http/viewer";
 import {
@@ -22,6 +25,7 @@ const ORGANISER_ROW: Record<RiderData, boolean> = {
 	attendance: true,
 	corrections: true,
 	participationReports: true,
+	dailyFigures: true,
 	rides: false,
 	consentRecords: false,
 };
@@ -35,6 +39,7 @@ const RIDER_ROW: Record<RiderData, boolean> = {
 	attendance: false,
 	corrections: false,
 	participationReports: false,
+	dailyFigures: false,
 	rides: false,
 	consentRecords: false,
 };
@@ -72,6 +77,22 @@ function riderViewer(athleteId: number, organiser: boolean): Viewer {
 	};
 }
 
+describe("daily figures (organiser graphs)", () => {
+	it("go to organisers only, from consent version 3", () => {
+		expect(SINCE_VERSION.dailyFigures).toBe(DAILY_FIGURES_SINCE_VERSION);
+		expect(DAILY_FIGURES_SINCE_VERSION).toBe(3);
+		expect(maySee("organiser", "dailyFigures", 2)).toBe(false);
+		expect(maySee("organiser", "dailyFigures", 3)).toBe(true);
+		expect(maySee("rider", "dailyFigures", 3)).toBe(false);
+		expect(maySee("visitor", "dailyFigures", 3)).toBe(false);
+		expect(maySee("self", "dailyFigures", 2)).toBe(true);
+	});
+
+	it("leave single rides shown to nobody", () => {
+		expect(maySee("organiser", "rides", 3)).toBe(false);
+	});
+});
+
 describe("VISIBILITY", () => {
 	it("matches the data-model table for organisers and riders", () => {
 		for (const data of ALL_DATA) {
@@ -93,7 +114,11 @@ describe("SINCE_VERSION", () => {
 		expect(SHARING_SINCE_VERSION).toBe(1);
 		expect(Object.keys(SINCE_VERSION).sort()).toEqual([...ALL_DATA].sort());
 		for (const data of ALL_DATA) {
-			expect(SINCE_VERSION[data], data).toBe(SHARING_SINCE_VERSION);
+			expect(SINCE_VERSION[data], data).toBe(
+				data === "dailyFigures"
+					? DAILY_FIGURES_SINCE_VERSION
+					: SHARING_SINCE_VERSION,
+			);
 		}
 	});
 });
@@ -121,8 +146,8 @@ describe("maySee", () => {
 
 	it("follows the table for a rider with consent", () => {
 		for (const data of ALL_DATA) {
-			expect(maySee("organiser", data, 1), data).toBe(ORGANISER_ROW[data]);
-			expect(maySee("rider", data, 1), data).toBe(RIDER_ROW[data]);
+			expect(maySee("organiser", data, 3), data).toBe(ORGANISER_ROW[data]);
+			expect(maySee("rider", data, 3), data).toBe(RIDER_ROW[data]);
 		}
 	});
 
@@ -163,10 +188,10 @@ describe("audienceOf", () => {
 describe("a synthetic team (SC-002)", () => {
 	// Two organisers, three riders, one of them (900005) without consent.
 	const team = [
-		{ athleteId: 900001, organiser: true, consentVersion: 1 },
-		{ athleteId: 900002, organiser: true, consentVersion: 1 },
-		{ athleteId: 900003, organiser: false, consentVersion: 1 },
-		{ athleteId: 900004, organiser: false, consentVersion: 1 },
+		{ athleteId: 900001, organiser: true, consentVersion: 3 },
+		{ athleteId: 900002, organiser: true, consentVersion: 3 },
+		{ athleteId: 900003, organiser: false, consentVersion: 3 },
+		{ athleteId: 900004, organiser: false, consentVersion: 3 },
 		{ athleteId: 900005, organiser: false, consentVersion: null },
 	];
 

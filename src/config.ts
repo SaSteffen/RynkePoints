@@ -8,6 +8,7 @@ type Settings = Pick<
 	| "STRAVA_SUBSCRIPTION_ID"
 	| "SEASON_START_DATE"
 	| "ORGANISER_FIGURES"
+	| "ORGANISER_PROGRESS_GRAPH"
 	| "STRAVA_CLIENT_ID"
 	| "STRAVA_CLIENT_SECRET"
 	| "STRAVA_WEBHOOK_VERIFY_TOKEN"
@@ -74,6 +75,19 @@ export function trainingLeaderboard(
 	if (env.TRAINING_LEADERBOARD === "on") return true;
 	if (env.TRAINING_LEADERBOARD === "off") return false;
 	throw new Error('TRAINING_LEADERBOARD must be "on" or "off"');
+}
+
+/**
+ * Whether organisers get the Progress section (feature 029). It only needs
+ * `ORGANISER_FIGURES` "full" as well, since it shows amounts, and it never
+ * changes the consent versions (FR-028, FR-029).
+ */
+export function organiserProgressGraph(
+	env: Pick<Settings, "ORGANISER_PROGRESS_GRAPH">,
+): boolean {
+	if (env.ORGANISER_PROGRESS_GRAPH === "on") return true;
+	if (env.ORGANISER_PROGRESS_GRAPH === "off") return false;
+	throw new Error('ORGANISER_PROGRESS_GRAPH must be "on" or "off"');
 }
 
 export function clientId(env: Pick<Settings, "STRAVA_CLIENT_ID">): string {

@@ -21,6 +21,8 @@ import type { MessageId } from "./i18n/catalogs";
 // Feature 025 is a new version: connection state and dates are newly shown to
 // administrators, someone other than the rider (constitution Principle I), and
 // `landing.leave` promised deleting everything, which a removal no longer does.
+// The organiser graphs are a new version: organisers newly see daily figures. It
+// needs no new scope, and no setting changes it (029 FR-022, FR-028).
 
 export interface ConsentVersion {
 	version: number;
@@ -47,6 +49,12 @@ export const CONSENT_VERSIONS: ConsentVersions = [
 		published: "2026-11-04",
 		requiredScopes: ["read", "activity:read"],
 		changes: ["consent.admins", "landing.leave"],
+	},
+	{
+		version: 3,
+		published: "2026-11-04",
+		requiredScopes: ["read", "activity:read"],
+		changes: ["consent.dailyFigures"],
 	},
 ];
 
@@ -106,3 +114,6 @@ export function grantedScopes(scopes: string): string[] {
  * organisers and the team (004 research R6, R13).
  */
 export const SHARING_SINCE_VERSION = 1;
+
+/** The first version that shows organisers a rider's daily figures (feature 029). */
+export const DAILY_FIGURES_SINCE_VERSION = 3;

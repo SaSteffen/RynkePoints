@@ -49,6 +49,15 @@ describe("CONSENT_VERSIONS", () => {
 		}
 	});
 
+	it("asks again for daily figures, with no new scope (organiser graphs)", () => {
+		const third = CONSENT_VERSIONS[2];
+		expect(third?.version).toBe(3);
+		expect(third?.changes).toEqual(["consent.dailyFigures"]);
+		expect(third?.requiredScopes).toEqual(CONSENT_VERSIONS[1]?.requiredScopes);
+		expect(CATALOGS.en["consent.dailyFigures"]).toContain("per day");
+		expect(CATALOGS.de["consent.dailyFigures"]).toContain("pro Tag");
+	});
+
 	it("names runs and team sums without a new version (013 FR-023, R22)", () => {
 		expect(CATALOGS.de["consent.short.read"]).toContain("Lauf");
 		expect(CATALOGS.de["consent.team"]).toContain("Team-Summen");

@@ -46,6 +46,8 @@ export const en: Catalog = {
 	"consent.details": "All the details",
 	"consent.organisers":
 		"The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, and which team events you reported you're coming to or were at.",
+	"consent.dailyFigures":
+		"The organisers also see, with your first name, how many kilometres you rode outdoors and virtually and how many metres of elevation you climbed, as a total per day, across the whole season. This includes private rides that count. They don't see your individual rides, their names, times or routes.",
 	"consent.team":
 		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation count towards the team sums of the team badges, without your name. On which days and at what hour you ride, run or swim counts towards the team surprises, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
@@ -748,7 +750,7 @@ export const en: Catalog = {
 	"privacy.visibility.team":
 		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation, and on which days and at what hour you are active, count towards the team sums and team badges, without your name.",
 	"privacy.visibility.organisers":
-		"The organisers see your first name, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, and which team events you reported you're coming to or were at, but no individual activities.",
+		"The organisers see your first name, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, which team events you reported you're coming to or were at, and your kilometres outdoors and virtually and your elevation as totals per day, but no individual activities.",
 	"privacy.visibility.public":
 		"None of it is public: every page with this data needs you to sign in with Strava.",
 	"privacy.legal.heading": "Legal basis",
