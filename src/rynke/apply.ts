@@ -15,6 +15,10 @@
 // The rider's personal badges are worked out from the same evaluation and
 // written as a diff in the same batch (feature 013 research R13). New ones are
 // reported and stored as a badge rise like a Rynke rise (R17).
+//
+// So is the rider's stored summary, what team reads add up (feature 030
+// research R2): every change passes through `riderWrites`, which rewrites it
+// only when it differs.
 
 import { BADGE_CATALOG_VERSION } from "../badges/catalog";
 import {
@@ -55,6 +59,11 @@ import {
 	readCorrectionStatement,
 } from "../db/corrections";
 import { deleteReportsStatement } from "../db/participation";
+import {
+	type RiderSummaryRow,
+	readSummariesOfRidersStatement,
+	upsertSummaryStatement,
+} from "../db/rider-summaries";
 import {
 	deletePrivateRunsStatement,
 	deleteRunStatement,
@@ -119,6 +128,7 @@ import {
 	isCalendarDate,
 	type RynkeRules,
 } from "./rules";
+import { RIDER_SUMMARY_VERSION, summaryOf } from "./summary";
 import { type Balance, extrasFrom, tally } from "./tally";
 import {
 	type Attendance,
@@ -268,6 +278,8 @@ interface RiderState {
 	swims: Map<number, SwimRecord>;
 	/** Every tour day, which numbers the tour badges (feature 021 FR-011). */
 	tourEvents: TourEvent[];
+	/** The stored summary of any version (feature 030), `null` without one. */
+	summary: RiderSummaryRow | null;
 }
 
 export async function applyAndEvaluate(
@@ -870,6 +882,7 @@ async function readRiders(
 		runRows,
 		swimRows,
 		tourRows,
+		summaryRows,
 		...extra
 	] = await db.batch([
 		listActivitiesOfRidersStatement(db, athleteIds),
@@ -882,6 +895,7 @@ async function readRiders(
 		listRunsOfRidersStatement(db, athleteIds),
 		listSwimsOfRidersStatement(db, athleteIds),
 		listTourEventsStatement(db),
+		readSummariesOfRidersStatement(db, athleteIds),
 		...extraReads,
 	]);
 	if (
@@ -894,7 +908,8 @@ async function readRiders(
 		!versionRows ||
 		!runRows ||
 		!swimRows ||
-		!tourRows
+		!tourRows ||
+		!summaryRows
 	) {
 		throw new Error("D1 batch returned too few results");
 	}
@@ -913,6 +928,7 @@ async function readRiders(
 				runs: new Map(),
 				swims: new Map(),
 				tourEvents,
+				summary: null,
 			},
 		]),
 	);
@@ -950,17 +966,21 @@ async function readRiders(
 	for (const row of swimRows.results as SwimRecord[]) {
 		riders.get(row.athlete_id)?.swims.set(row.strava_activity_id, row);
 	}
+	for (const row of summaryRows.results as RiderSummaryRow[]) {
+		const rider = riders.get(row.athlete_id);
+		if (rider) rider.summary = row;
+	}
 	return { riders, extra };
 }
 
 /**
  * The rider's counting rides, outdoor runs and swims, as the badges add them
- * up.
+ * up, and with when they started for the team surprises.
  */
 interface Figures {
-	rides: CountingRide[];
-	runs: DatedRun[];
-	swims: DatedSwim[];
+	rides: (CountingRide & { startTime: string })[];
+	runs: (DatedRun & { startTime: string })[];
+	swims: (DatedSwim & { startTime: string })[];
 }
 
 /**
@@ -1038,6 +1058,7 @@ function figuresOf(state: RiderState, evaluation: Evaluation): Figures {
 	const dated = (activity: RunRecord | SwimRecord) => ({
 		date: activity.start_date_local.slice(0, 10),
 		distanceM: activity.distance_m,
+		startTime: activity.start_date_local.slice(11, 16),
 	});
 	return {
 		rides,
@@ -1126,7 +1147,13 @@ function riderWrites(
 		evaluation,
 		balance,
 		badges,
-	}: { evaluation: Evaluation; balance: Balance; badges: EarnedBadge[] },
+		figures,
+	}: {
+		evaluation: Evaluation;
+		balance: Balance;
+		badges: EarnedBadge[];
+		figures: Figures;
+	},
 	rules: RynkeRules,
 	now: number,
 ): D1PreparedStatement[] {
@@ -1152,6 +1179,18 @@ function riderWrites(
 		writes.push(upsertBalanceStatement(db, athleteId, balance, now));
 	}
 	writes.push(...badgeWrites(db, athleteId, state, badges));
+	const summary = summaryOf(figures, state.attendance);
+	const stored = state.summary;
+	if (
+		stored?.version !== RIDER_SUMMARY_VERSION ||
+		stored.days !== summary.days ||
+		stored.weeks !== summary.weeks ||
+		stored.run_days !== summary.runDays ||
+		stored.active !== summary.active ||
+		stored.attended !== summary.attended
+	) {
+		writes.push(upsertSummaryStatement(db, athleteId, summary));
+	}
 	return writes;
 }
 

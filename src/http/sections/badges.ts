@@ -446,7 +446,7 @@ async function readBadgesPage(
 		balance: balanceRow ? toStoredBalance(balanceRow) : null,
 		attendance: toAttendedEvents(attendance.results as RiderAttendanceRow[]),
 		badges: toRiderBadges(results.slice(2, 2 + riderBadges.length)),
-		sums: toTeamBadgeSums(results.slice(2 + riderBadges.length)),
+		sums: await toTeamBadgeSums(db, results.slice(2 + riderBadges.length)),
 	};
 }
 
@@ -510,11 +510,11 @@ export function newBadgesStatements(
  * of `newBadgesStatements`. Only for a rider with Rynke, since the waiting
  * state reveals nothing; `connectedAt` is theirs.
  */
-export function hasNewBadges(
+export async function hasNewBadges(
 	ctx: Ctx,
 	results: readonly (D1Result | undefined)[],
 	connectedAt: number,
-): boolean {
+): Promise<boolean> {
 	const [badges, reveals, ...sums] = results;
 	if (!badges || !reveals) {
 		throw new Error("D1 batch returned too few results");
@@ -529,7 +529,11 @@ export function hasNewBadges(
 	if (newBadges(personal, [], revealed, connectedOn).length > 0) return true;
 	// The team's are worked out on read (research R15).
 	const window = badgeWindow(countingWindow(ctx.env), berlinDate(ctx.now()));
-	const team = evaluateTeamBadges(toTeamBadgeSums(sums), CURRENT_RULES, window);
+	const team = evaluateTeamBadges(
+		await toTeamBadgeSums(ctx.env.DB, sums),
+		CURRENT_RULES,
+		window,
+	);
 	return newBadges([], team.earned, revealed, connectedOn).length > 0;
 }
 

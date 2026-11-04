@@ -44,8 +44,10 @@ and commit messages must follow
 - Work on a branch cut from `develop` (or `hotfix/<name>` from `main` for an urgent
   fix). Never push to `main` or `develop`; the rulesets refuse it anyway.
 - Every change reaches them through a pull request whose title is a Conventional
-  Commit (it becomes the squash commit, plus ` (#N)`, within 100 characters).
+  Commit, within 100 characters. Every merge is a merge commit; squashing is forbidden.
 - Pushing and `gh pr create` are outward-facing: only do them when the user asks.
+- Merging belongs to the user. Never run `gh pr merge`, with or without `--auto`,
+  unless the user explicitly asks for that pull request to be merged.
 - CI runs the same `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` and commitlint
   (commits and PR title) as the local hooks.
 - The seven check jobs' names are the required-check contexts. Renaming one means

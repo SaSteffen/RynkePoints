@@ -37,7 +37,7 @@ export async function homeOf(
 			| undefined
 	)?.[0];
 	if (!row) return null;
-	if (row.ready === 1 && hasNewBadges(ctx, badges, row.connected_at)) {
+	if (row.ready === 1 && (await hasNewBadges(ctx, badges, row.connected_at))) {
 		return "/me/badges";
 	}
 	return row.rode === 1 ? "/team" : "/me";

@@ -6,6 +6,9 @@
 
 **Status**: Draft (amendment: deploy on merge to `main`)
 
+> **Superseded in part**: Squash merging is forbidden by spec 028 (FR-031 to FR-033). Everything here
+> about squash commits, and pull request titles becoming their messages, is history.
+
 **Input**: User description: "Proper CI for the repository: introduce a develop and a
 main branch. CI gates pull requests (merge requests). No one may push directly to
 main. Every change goes through a PR."

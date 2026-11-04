@@ -131,6 +131,16 @@ const COLUMNS: Record<string, string[]> = {
 		"refreshed_at",
 	],
 	rider_badges: ["athlete_id", "badge_id", "earned_on"],
+	// Feature 030: derived per-rider figures, no name, id, route or duration.
+	rider_summaries: [
+		"athlete_id",
+		"version",
+		"days",
+		"weeks",
+		"run_days",
+		"active",
+		"attended",
+	],
 	badge_reveals: ["athlete_id", "badge_id", "earned_on"],
 	badge_rises: ["athlete_id", "badge_ids", "risen_at"],
 	// Feature 024: waiting Strava work, identifiers and counts only

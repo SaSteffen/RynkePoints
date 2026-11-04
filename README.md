@@ -190,13 +190,15 @@ Occasional maintainer tasks, each described at the top of its script:
 
 ### Proposing a change
 
-Cut a branch from `develop` and open a pull request into `develop`. Features
-are squash-merged, so the PR title becomes the commit message on `develop`. It's
-the whole message: the body is left blank, so details belong in the PR
-description. The title must therefore be a
+Cut a branch from `develop` and open a pull request into `develop`. Every pull
+request is merged with a merge commit, never squashed, so the branch's commits stay
+in the history. Each of them, and the PR title, must be a
 [Conventional Commit](https://www.conventionalcommits.org/) (`feat: …`,
-`fix: …`, `docs: …`). GitHub appends ` (#<number>)`, and the whole header must
-stay within 100 characters, so keep titles to about 90.
+`fix: …`, `docs: …`) within 100 characters. The title is what the release pull
+request lists for the change.
+
+Opening a pull request doesn't merge it. It merges when someone merges it, or clicks
+**Enable auto-merge** on it.
 
 ### What has to pass
 
@@ -272,7 +274,7 @@ merge, check that:
    gh pr create --base develop --title "chore: merge main back into develop"
    ```
 
-   Merge it with **Create a merge commit**, not squash.
+   Merge it with **Create a merge commit**.
 
 There is no direct `main` → `develop` pull request, because **Update branch** on
 it would be a forbidden push to `main`. If a release PR is open, the back-merge
@@ -283,7 +285,7 @@ the workflows onto `main`.
 
 | Kind | Name | Cut from | PR into | Merge method |
 |---|---|---|---|---|
-| feature / fix | any, e.g. `003-points-rules`, `fix/…` | `develop` | `develop` | squash |
+| feature / fix | any, e.g. `003-points-rules`, `fix/…` | `develop` | `develop` | merge commit |
 | hotfix | `hotfix/<short-name>` | `main` | `main` | merge commit |
 | back-merge | `sync/<short-name>` | `main`, with `origin/develop` merged in | `develop` | merge commit |
 | release | `develop` itself | — | `main` | merge commit |
