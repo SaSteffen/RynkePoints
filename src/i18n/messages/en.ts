@@ -939,19 +939,20 @@ export const en: Catalog = {
 		"For the whole account, and approximate: Cloudflare's analytics lag behind and are no billing measure.",
 	"admin.cloudflare.unavailable":
 		"Cloudflare's figures are unavailable right now. These are the last known values.",
+	"admin.refresh": "Update now",
 	"admin.waiting.heading": "Waiting for the Strava budget",
 	"admin.waiting.body": "{n} items are waiting, done in about {time}.",
 	"admin.waiting.one": "1 item is waiting, done in about {time}.",
 	"admin.waiting.minutes": "{n} minutes",
 	"admin.waiting.hours": "{n} hours",
 	"admin.waiting.days": "{n} days",
-	"admin.alerts.heading": "Cloudflare alerts",
+	"admin.alerts.heading": "Usage alerts",
 	"admin.alerts.on":
-		"You get a notification when a Cloudflare allowance reaches 80\u00a0% or 95\u00a0%. Strava and connected-rider alerts stay on either way.",
+		"You get a notification when a Strava or Cloudflare allowance or connected riders reach 80\u00a0% or 95\u00a0%.",
 	"admin.alerts.off":
-		"You get no notifications about Cloudflare's allowances. This page still marks them, and Strava and connected-rider alerts stay on.",
-	"admin.alerts.turnOff": "Turn off Cloudflare alerts",
-	"admin.alerts.turnOn": "Turn on Cloudflare alerts",
+		"You get no notifications about usage. This page still marks the figures.",
+	"admin.alerts.turnOff": "Turn off usage alerts",
+	"admin.alerts.turnOn": "Turn on usage alerts",
 	"admin.alerts.noDevice":
 		"You won't get alerts: none of your devices has notifications on. Turn them on in {settings}.",
 	"admin.history.choose": "Allowance",

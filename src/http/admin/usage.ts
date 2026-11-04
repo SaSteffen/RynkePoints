@@ -4,7 +4,7 @@ import { readStravaUsage } from "../../db/rate-limit";
 import {
 	connectedCountStatement,
 	type Rider,
-	setCloudflareAlerts,
+	setAdminAlerts,
 } from "../../db/riders";
 import { totalWaitingStatement } from "../../db/strava-work";
 import { readCloudflareFigures } from "../../db/usage";
@@ -21,6 +21,7 @@ import {
 	makeFigure,
 	stravaFigures,
 } from "../../usage/figures";
+import { recordUsage } from "../../usage/record";
 import { thresholdBars } from "../charts";
 import { html, type SafeHtml } from "../html";
 import { redirect } from "../redirect";
@@ -106,11 +107,11 @@ function aboutDuration(i18n: I18n, seconds: number): string {
 }
 
 function alertsSwitch(i18n: I18n, rider: Rider): SafeHtml {
-	const on = rider.cloudflareAlerts;
+	const on = rider.adminAlerts;
 	return html`<section class="settings-group">
 <h2>${i18n.t("admin.alerts.heading")}</h2>
 <p>${i18n.t(on ? "admin.alerts.on" : "admin.alerts.off")}</p>
-<form method="post" action="/admin/alerts"><input type="hidden" name="cloudflare_alerts" value="${on ? "off" : "on"}"><button class="button-outlined">${i18n.t(on ? "admin.alerts.turnOff" : "admin.alerts.turnOn")}</button></form>
+<form method="post" action="/admin/alerts"><input type="hidden" name="admin_alerts" value="${on ? "off" : "on"}"><button class="button-outlined">${i18n.t(on ? "admin.alerts.turnOff" : "admin.alerts.turnOn")}</button></form>
 </section>
 `;
 }
@@ -170,6 +171,7 @@ ${
 }<section class="card usage-source">
 <h2>${i18n.t("admin.cloudflare.heading")}</h2>
 <p class="usage-detail">${i18n.t("admin.cloudflare.note")}</p>
+<form method="post" action="/admin/refresh"><button class="button-outlined">${i18n.t("admin.refresh")}</button></form>
 ${cloudflare.available ? null : html`<p class="notice notice-error" role="alert">${i18n.t("admin.cloudflare.unavailable")}</p>`}
 <ul class="usage-figures">
 ${account.map((figure) => figureItem(i18n, figure))}${missing.map(
@@ -182,6 +184,18 @@ ${alertsSwitch(i18n, rider)}`;
 	});
 }
 
+/** `POST /admin/refresh`: the hourly recording, right now (FR-040). */
+export async function handleAdminRefresh(
+	request: Request,
+	ctx: Ctx,
+	i18n: I18n,
+): Promise<Response> {
+	const rider = await requireAdminPost(request, ctx, i18n, "/admin/refresh");
+	if (rider instanceof Response) return rider;
+	await recordUsage(ctx);
+	return redirect("/admin", 303);
+}
+
 /** `POST /admin/alerts`: only the viewer's own switch (FR-039). */
 export async function handleAdminAlerts(
 	request: Request,
@@ -191,10 +205,10 @@ export async function handleAdminAlerts(
 	const rider = await requireAdminPost(request, ctx, i18n, "/admin/alerts");
 	if (rider instanceof Response) return rider;
 	const value = (await request.formData().catch(() => null))?.get(
-		"cloudflare_alerts",
+		"admin_alerts",
 	);
 	if (value === "on" || value === "off") {
-		await setCloudflareAlerts(ctx.env.DB, rider.athleteId, value === "on");
+		await setAdminAlerts(ctx.env.DB, rider.athleteId, value === "on");
 	}
 	return redirect("/admin", 303);
 }

@@ -13,3 +13,7 @@ SESSION_SIGNING_KEY=
 ADMIN_TOKEN=
 # EC P-256 private key as JWK JSON; see README (keep it: a new key ends every device's notifications)
 PUSH_VAPID_KEY=
+# Optional: Cloudflare's figures on /admin. Leave empty to show them as unavailable.
+# A token with only Account Analytics Read, and the account ID; see README.
+CLOUDFLARE_ANALYTICS_TOKEN=
+CLOUDFLARE_ANALYTICS_ACCOUNT_ID=

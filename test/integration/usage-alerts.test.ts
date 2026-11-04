@@ -153,25 +153,23 @@ describe("what doesn't alert", () => {
 	});
 });
 
-describe("the Cloudflare switch (scenarios 7 to 9, FR-039)", () => {
+describe("the usage alerts switch (scenarios 7 to 9, FR-039)", () => {
 	const switchOff = (athleteId: number) =>
-		env.DB.prepare(
-			"UPDATE riders SET cloudflare_alerts = 0 WHERE athlete_id = ?",
-		)
+		env.DB.prepare("UPDATE riders SET admin_alerts = 0 WHERE athlete_id = ?")
 			.bind(athleteId)
 			.run();
 
-	it("spares only that administrator, and only for Cloudflare", async () => {
+	it("spares only that administrator, for Cloudflare", async () => {
 		await switchOff(ADMIN);
 		await handleScheduled(hourly(), withCloudflare({ requests: 85_000 }));
 		expect(notified(ctx.queue.sent)).toEqual([OTHER_ADMIN]);
 	});
 
-	it("doesn't affect Strava's alerts", async () => {
+	it("spares only that administrator, for Strava", async () => {
 		await switchOff(ADMIN);
 		await readsAt(80);
 		await handleScheduled(hourly(), ctx);
-		expect(notified(ctx.queue.sent).sort()).toEqual([ADMIN, OTHER_ADMIN]);
+		expect(notified(ctx.queue.sent)).toEqual([OTHER_ADMIN]);
 	});
 
 	it("doesn't catch up on a level reached while it was off", async () => {
@@ -183,7 +181,7 @@ describe("the Cloudflare switch (scenarios 7 to 9, FR-039)", () => {
 		expect(await alerts()).toEqual([
 			{ allowance: "cf_worker_requests", period: TODAY, level: 80 },
 		]);
-		await env.DB.prepare("UPDATE riders SET cloudflare_alerts = 1").run();
+		await env.DB.prepare("UPDATE riders SET admin_alerts = 1").run();
 		await handleScheduled(hourly(), target);
 		expect(notified(ctx.queue.sent)).toEqual([]);
 	});

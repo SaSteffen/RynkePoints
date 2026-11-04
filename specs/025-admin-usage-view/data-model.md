@@ -7,7 +7,7 @@ Migration `0021_admin_usage.sql`. It only adds, so the previous version keeps wo
 | Column | Type | Notes |
 |---|---|---|
 | `administrator` | INTEGER, 0 or 1, default 0 | Set by hand; read on every request. Goes with the rider. |
-| `cloudflare_alerts` | INTEGER, 0 or 1, default 1 | The administrator's own switch (FR-039). Only read for administrators. Goes with the rider. |
+| `admin_alerts` | INTEGER, 0 or 1, default 1 | The administrator's own switch (FR-039). Only read for administrators. Goes with the rider. |
 
 ## `strava_rate_limit` (changed, still one row)
 
