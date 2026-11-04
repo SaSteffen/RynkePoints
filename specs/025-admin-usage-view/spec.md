@@ -159,15 +159,15 @@ connect as that rider and check it is refused and nothing else is stored.
    the club.
 3. **Given** a removal has happened, **When** the removed rider next opens the app,
    **Then** they see the same page as anyone who isn't connected.
+4. **Given** a rider of another team, **When** an administrator tries to remove them
+   by any means, **Then** it is refused and nothing changes.
+5. **Given** an administrator, **When** they try to remove themselves, **Then** it is
+   refused and they are pointed to the normal way of leaving.
 6. **Given** a blocked rider, **When** they try to connect, **Then** they are told they
    can't take part in this team, no data about them is kept beyond the block list entry,
    and any access Strava just granted is revoked at once.
 7. **Given** a blocked rider, **When** they leave and rejoin the Strava club, **Then**
    they stay blocked.
-4. **Given** a rider of another team, **When** an administrator tries to remove them
-   by any means, **Then** it is refused and nothing changes.
-5. **Given** an administrator, **When** they try to remove themselves, **Then** it is
-   refused and they are pointed to the normal way of leaving.
 
 ---
 
