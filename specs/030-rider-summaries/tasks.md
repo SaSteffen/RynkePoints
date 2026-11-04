@@ -68,16 +68,16 @@ description: "Tasks for stored rider summaries"
 
 **Independent Test**: for the same riders, compare figures from summaries with figures from adding up.
 
-- [ ] T017 [US2] Write failing tests in `test/integration/rider-summaries-parity.test.ts`, with synthetic riders having decimal distances, several activities per day, runs, swims, attendance, corrections and non-counting rides: `readTeam` with all rows equals `readTeam` with the rows deleted; `readTeamBadgeSums` likewise; `evaluateTeamBadges` from both gives exactly equal earned badges and dates, and progress within 0.000001 (research R10); same with no, some and all riders having a row, each counted once
-- [ ] T018 [US2] In the same file, failing tests: a deleted event named in `attended` counts for nothing; a moved event uses its current date and kind; no-consent and needs-reconnect riders with rows are in no result; riders with nothing stored are left out of `riders` but stay in `connectedOn` (R9); `readTeam` never selects `days`, `run_days` or `active` (FR-008, check on the SQL text through a statement spy)
-- [ ] T019 [US2] Add to `src/db/rider-summaries.ts` the add-up reads for riders without a row, today's SQL from `src/db/team.ts` plus `athlete_id IN (SELECT value FROM json_each(?))` and `IN (${LISTED_RIDER_IDS})`: `readWeeksAddedUp(db, ids)` (weekly sums, attendance IDs) and `readDaysAddedUp(db, ids)` (rides per day, runs per day, activity times, attendance IDs), each returning the parsed summary shape (R4)
-- [ ] T020 [US2] Add the pure merge to `src/rynke/summary.ts`: from rider rows, added-up riders and events to `TeamBadgeSums`, in the shape and order in research R9 (runs summed per day across riders, `active` sorted by date, rider, hour, ride, events sorted by date then ID with only listed attendees)
-- [ ] T021 [US2] Rewrite `readTeam` in `src/db/team.ts` per `contracts/summary-reads.md`: one batch of the wide statement plus events, corrections through an ordered inner select, second round trip only with missing riders; keep the `TeamRider` result and first-name order
-- [ ] T022 [US2] Rewrite `teamBadgeSumsStatements`, `toTeamBadgeSums` (now `async`, takes `db`) and `readTeamBadgeSums` in `src/db/team.ts` per the contract (T017, T018 green)
-- [ ] T023 [US2] Make `hasNewBadges` async in `src/http/sections/badges.ts`, keeping its early answer for a new personal badge; await in `readBadgesPage` and in `homeOf` in `src/http/redirect.ts`
-- [ ] T024 [P] [US2] Await the sums in `album/load.ts`
-- [ ] T025 [US2] Remove `listWeeklyRideSumsStatement`, `listTeamBalancesStatement`, `listTeamCorrectionsStatement` from `src/db/team.ts` if no other caller remains (`album/load.ts` uses `listTeamBalancesStatement`: keep that one)
-- [ ] T026 [US2] Run `pnpm test`: page, badge and notification tests must pass with their expectations unchanged (SC-006). Add `seedEmptySummary` to the setup in `test/integration/d1-round-trips.test.ts` so it describes normal use, with its expected trip counts unchanged (FR-010). Check `test/integration/viewer.test.ts` and `test/integration/usage-counting.test.ts`, which also count trips, and do the same if they read team data
+- [X] T017 [US2] Write failing tests in `test/integration/rider-summaries-parity.test.ts`, with synthetic riders having decimal distances, several activities per day, runs, swims, attendance, corrections and non-counting rides: `readTeam` with all rows equals `readTeam` with the rows deleted; `readTeamBadgeSums` likewise; `evaluateTeamBadges` from both gives exactly equal earned badges and dates, and progress within 0.000001 (research R10); same with no, some and all riders having a row, each counted once
+- [X] T018 [US2] In the same file, failing tests: a deleted event named in `attended` counts for nothing; a moved event uses its current date and kind; no-consent and needs-reconnect riders with rows are in no result; riders with nothing stored are left out of `riders` but stay in `connectedOn` (R9); `readTeam` never selects `days`, `run_days` or `active` (FR-008, check on the SQL text through a statement spy)
+- [X] T019 [US2] Add to `src/db/rider-summaries.ts` the add-up reads for riders without a row, today's SQL from `src/db/team.ts` plus `athlete_id IN (SELECT value FROM json_each(?))` and `IN (${LISTED_RIDER_IDS})`: `readWeeksAddedUp(db, ids)` (weekly sums, attendance IDs) and `readDaysAddedUp(db, ids)` (rides per day, runs per day, activity times, attendance IDs), each returning the parsed summary shape (R4)
+- [X] T020 [US2] Add the pure merge to `src/rynke/summary.ts`: from rider rows, added-up riders and events to `TeamBadgeSums`, in the shape and order in research R9 (runs summed per day across riders, `active` sorted by date, rider, hour, ride, events sorted by date then ID with only listed attendees)
+- [X] T021 [US2] Rewrite `readTeam` in `src/db/team.ts` per `contracts/summary-reads.md`: one batch of the wide statement plus events, corrections through an ordered inner select, second round trip only with missing riders; keep the `TeamRider` result and first-name order
+- [X] T022 [US2] Rewrite `teamBadgeSumsStatements`, `toTeamBadgeSums` (now `async`, takes `db`) and `readTeamBadgeSums` in `src/db/team.ts` per the contract (T017, T018 green)
+- [X] T023 [US2] Make `hasNewBadges` async in `src/http/sections/badges.ts`, keeping its early answer for a new personal badge; await in `readBadgesPage` and in `homeOf` in `src/http/redirect.ts`
+- [X] T024 [P] [US2] Await the sums in `album/load.ts`
+- [X] T025 [US2] Remove `listWeeklyRideSumsStatement`, `listTeamBalancesStatement`, `listTeamCorrectionsStatement` from `src/db/team.ts` if no other caller remains (`album/load.ts` uses `listTeamBalancesStatement`: keep that one)
+- [X] T026 [US2] Run `pnpm test`: page, badge and notification tests must pass with their expectations unchanged (SC-006). Add `seedEmptySummary` to the setup in `test/integration/d1-round-trips.test.ts` so it describes normal use, with its expected trip counts unchanged (FR-010). Check `test/integration/viewer.test.ts` and `test/integration/usage-counting.test.ts`, which also count trips, and do the same if they read team data
 
 **Checkpoint**: same numbers from summaries, and from adding up where no row exists.
 
@@ -89,9 +89,9 @@ description: "Tasks for stored rider summaries"
 
 **Independent Test**: load the synthetic team and measure rows per use.
 
-- [ ] T027 [US1] Write `test/integration/d1-rows.test.ts` using `test/support/d1-rows.ts`, seeding 40 riders with 150 rides, 20 runs and 10 swims each and 20 events: at most 400 rows for `/`, 500 for `/team`, 1,500 for `/me/badges`, 1,000 for `/organiser/riders`, and 1,500 for a new ride with its team badge check (SC-001)
-- [ ] T028 [US1] Add to the same file the doubling check: 300 rides per rider raise `/`, `/team` and `/organiser/riders` by under 10%, and `/me/badges` and a new ride by at most 5 rows per extra ride of that rider (SC-003)
-- [ ] T029 [US1] Run the test and add the measured rows of each use to `specs/030-rider-summaries/research.md` R12, with the whole-app daily estimate from the spec's usage estimate; it must stay under 5% (SC-002). If a limit is missed, find the statement with the most rows and fix that before touching the limit
+- [X] T027 [US1] Write `test/integration/d1-rows.test.ts` using `test/support/d1-rows.ts`, seeding 40 riders with 150 rides, 20 runs and 10 swims each and 20 events: at most 400 rows for `/`, 500 for `/team`, 1,500 for `/me/badges`, 1,000 for `/organiser/riders`, and 1,500 for a new ride with its team badge check (SC-001)
+- [X] T028 [US1] Add to the same file the doubling check: 300 rides per rider raise `/`, `/team` and `/organiser/riders` by under 10%, and `/me/badges` and a new ride by at most 5 rows per extra ride of that rider (SC-003)
+- [X] T029 [US1] Run the test and add the measured rows of each use to `specs/030-rider-summaries/research.md` R12, with the whole-app daily estimate from the spec's usage estimate; it must stay under 5% (SC-002). If a limit is missed, find the statement with the most rows and fix that before touching the limit
 
 **Checkpoint**: the row limits hold in an automated test.
 
@@ -103,9 +103,9 @@ description: "Tasks for stored rider summaries"
 
 **Independent Test**: remove a rider, and check their row is gone and team figures changed on the next load.
 
-- [ ] T030 [P] [US4] Add `rider_summaries` to the delete checks in `test/integration/db.test.ts` (the zero-count map and the table list keeping the other rider's rows) and confirm `test/integration/delete-rider.test.ts` covers the row
-- [ ] T031 [US4] In `test/integration/rider-summaries.test.ts`, tests with a rider who has a row: after deletion, status `needs_reconnect` or no consent, the next `/team`, `/organiser/riders` and `readTeamBadgeSums` no longer include them and team sums fall accordingly; the row stays for a rider who is only unlisted and is back in the figures when listed again; a page shows no figure of another rider it didn't show before, comparing the rendered `/team` and `/me/badges` with rows and without
-- [ ] T032 [US4] Fix anything these tests find in `src/db/team.ts` or `src/db/rider-summaries.ts`
+- [X] T030 [P] [US4] Add `rider_summaries` to the delete checks in `test/integration/db.test.ts` (the zero-count map and the table list keeping the other rider's rows) and confirm `test/integration/delete-rider.test.ts` covers the row
+- [X] T031 [US4] In `test/integration/rider-summaries.test.ts`, tests with a rider who has a row: after deletion, status `needs_reconnect` or no consent, the next `/team`, `/organiser/riders` and `readTeamBadgeSums` no longer include them and team sums fall accordingly; the row stays for a rider who is only unlisted and is back in the figures when listed again; a page shows no figure of another rider it didn't show before, comparing the rendered `/team` and `/me/badges` with rows and without
+- [X] T032 [US4] Fix anything these tests find in `src/db/team.ts` or `src/db/rider-summaries.ts`
 
 **Checkpoint**: a removed rider is out of every team figure on the next load (SC-005).
 
@@ -117,11 +117,11 @@ description: "Tasks for stored rider summaries"
 
 **Independent Test**: load pages with no, some and all riders summarised.
 
-- [ ] T033 [US5] Add failing tests to `test/integration/rynke-sweep.test.ts`: a connected rider with no row, with another version and with an `attended` differing from `attendances` in either direction is listed; an evaluated rider is not; a rider who isn't connected is not
-- [ ] T034 [US5] Extend `listRidersNeedingEvaluation` in `src/db/rynke.ts` with `NOT EXISTS` on the current version and the `EXCEPT` both ways on IDs with `json_each(s.attended)` (research R7), bind the version as `?5` (T033 green). Give existing tests that expect nobody to be listed a real evaluation in their setup, where they seeded a balance by hand
-- [ ] T035 [US5] Failing test, then add `insertEmptySummaryStatement` to `insertRider`'s batch in `src/db/riders.ts`: a rider new through `/auth` has a current empty row before their first ride, and the first page load makes no second round trip
-- [ ] T036 [US5] Tests in `test/integration/rider-summaries.test.ts` for the first fill: `handleScheduled` sends `evaluate-rider` for riders without a row; running it writes only the summary row, with no balance write, no rise, no badge reveal and no notification; afterwards a second sweep lists nobody
-- [ ] T037 [US5] Add to `test/integration/d1-rows.test.ts`: with all riders without a row, each use in SC-001 reads no more than the figure in the spec's "Today" column (research R11)
+- [X] T033 [US5] Add failing tests to `test/integration/rynke-sweep.test.ts`: a connected rider with no row, with another version and with an `attended` differing from `attendances` in either direction is listed; an evaluated rider is not; a rider who isn't connected is not
+- [X] T034 [US5] Extend `listRidersNeedingEvaluation` in `src/db/rynke.ts` with `NOT EXISTS` on the current version and the `EXCEPT` both ways on IDs with `json_each(s.attended)` (research R7), bind the version as `?5` (T033 green). Give existing tests that expect nobody to be listed a real evaluation in their setup, where they seeded a balance by hand
+- [X] T035 [US5] Failing test, then add `insertEmptySummaryStatement` to `insertRider`'s batch in `src/db/riders.ts`: a rider new through `/auth` has a current empty row before their first ride, and the first page load makes no second round trip
+- [X] T036 [US5] Tests in `test/integration/rider-summaries.test.ts` for the first fill: `handleScheduled` sends `evaluate-rider` for riders without a row; running it writes only the summary row, with no balance write, no rise, no badge reveal and no notification; afterwards a second sweep lists nobody
+- [X] T037 [US5] Add to `test/integration/d1-rows.test.ts`: with all riders without a row, each use in SC-001 reads no more than the figure in the spec's "Today" column (research R11)
 
 **Checkpoint**: release with an empty table is safe.
 
@@ -129,9 +129,9 @@ description: "Tasks for stored rider summaries"
 
 ## Phase 8: Polish
 
-- [ ] T038 [P] Update the top comments in `src/db/team.ts`, `src/rynke/apply.ts` and `src/badges/team.ts` that describe adding up rides and "five SELECTs", and comment the wide statements where the SQL is harder to follow
-- [ ] T039 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`, then the checks in `specs/030-rider-summaries/quickstart.md`
-- [ ] T040 Check that `src/` imports nothing from `dev/` or `album/` and that no rider-facing text changed in `src/i18n/messages/`
+- [X] T038 [P] Update the top comments in `src/db/team.ts`, `src/rynke/apply.ts` and `src/badges/team.ts` that describe adding up rides and "five SELECTs", and comment the wide statements where the SQL is harder to follow
+- [X] T039 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`, then the checks in `specs/030-rider-summaries/quickstart.md`
+- [X] T040 Check that `src/` imports nothing from `dev/` or `album/` and that no rider-facing text changed in `src/i18n/messages/`
 
 ---
 

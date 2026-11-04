@@ -84,11 +84,26 @@ Measurements are local, with synthetic data: 40 riders, 150 rides, 20 runs and 1
 
 **Limit**: local SQLite counts may differ a little from production. The Admin page shows real use after release.
 
+**Measured** on the finished code, rows read per use with 40 riders:
+
+| Use | 150 rides | 300 rides | Limit at 150 rides | Before |
+|---|---|---|---|---|
+| Opening the app | 301 | 310 | 400 | 45,396 |
+| Team page | 264 | 264 | 500 | 20,793 |
+| Badges page | 1,146 | 1,905 | 1,500 | 46,280 |
+| Organiser's rider list | 623 | 623 | 1,000 | 21,152 |
+| New ride with team badge check | 858 | 1,315 | 1,500 | 45,995 |
+| Daily job | 34,563 | 58,563 | none | 29,575 |
+
+**Daily estimate**: 152,425 rows, about 3% of the free limit, from 80 app opens each followed by the Team page, 40 Badges visits, 10 organiser visits, 24 new rides and the daily job. The test guards the 5% limit. The daily job rises by about 5,000 rows, from checking each rider's summary. With no rows at all, right after release, each use still costs less than before: 42,885 for opening the app, 19,892 for the Team page, 43,730 for the Badges page and 20,251 for the organiser's rider list.
+
 ## R13. Twice the rides: spec corrected
 
 **Finding**: measured with 300 rides per rider, the Badges page's own part goes from about 960 to about 1,620 rows, and evaluating a new ride from 674 to 1,131. Both read that one rider's rides, about 3 to 5 rows per ride, and need to: personal badges and the evaluation work from them. The spec's "under 10% for each use" couldn't hold for these two.
 
 **Decision**: SC-003 now sets under 10% for opening the app, the Team page and the organiser's rider list, and at most 5 rows per extra ride of that one rider for the other two.
+
+**Finding on the finished code**: the Badges page rose by 759 rows for 150 extra rides. The rider's rides account for exactly 750, in two statements (3 and 2 rows per ride). The other 9 come from the 3 badges those rides earned them, each read in `rider_badges` twice and `badge_reveals` once. Earned badges are bounded by the catalog, so SC-003 now allows 3 rows per badge earned on top.
 
 ## R14. Left out
 
