@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <defs><path id="ringT" d="M50,50 m-37.5,0 a37.5,37.5 0 1,1 75,0"/><path id="ringB" d="M50,50 m-40.5,0 a40.5,40.5 0 0,0 81,0"/></defs>
+    <circle cx="50" cy="50" r="49" fill="#c99a2e"/><circle cx="50" cy="50" r="45" fill="#1c1b13"/>
+    <circle cx="50" cy="50" r="33" fill="#5cc98a"/>
+    <text font-family="Noto Sans,sans-serif" font-size="8.2" font-weight="700" fill="#fbe122" letter-spacing="1"><textPath href="#ringT" startOffset="50%" text-anchor="middle">SPONSORING</textPath></text>
+    <text font-family="Noto Sans,sans-serif" font-size="5.6" font-weight="700" fill="#fbe122" letter-spacing=".5"><textPath href="#ringB" startOffset="50%" text-anchor="middle">TEAM RYNKEBY HAMBURG</textPath></text>
+    <path d="M38,32 L46,29 Q50,33 54,29 L62,32 L71,42 L64,48 L61,45 L61,70 L39,70 L39,45 L36,48 L29,42 Z" fill="#fbe122" stroke="#1c1b13" stroke-width="2" stroke-linejoin="round"/>
+    <text x="50" y="62" text-anchor="middle" font-family="Noto Sans,sans-serif" font-weight="700" font-size="18" fill="#1c1b13">€</text>
+  </svg>
