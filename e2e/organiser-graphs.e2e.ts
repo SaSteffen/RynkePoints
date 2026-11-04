@@ -329,12 +329,17 @@ test.describe("wide screen", () => {
 test.describe("phone", () => {
 	test.use({ viewport: PHONE, hasTouch: true });
 
-	test("switches between graphs and riders, one graph at a time", async ({
+	test("opens on the riders, and switches to one graph at a time", async ({
 		page,
 	}) => {
-		await openGraphs(page);
+		await openRiders(page, "/organiser/riders");
 		await expect(page.locator(".table-scroll")).toBeHidden();
 		await expect(page.locator(".overview-views")).toBeVisible();
+		await expect(page.locator(".rider-rows")).toBeVisible();
+		await expect(page.locator(SECTION)).toBeHidden();
+		expect(await charts(page)).toEqual([]);
+		await page.locator('[data-view-pick="graphs"]').click();
+		await waitForCharts(page);
 		await expect(page.locator(".rider-rows")).toBeHidden();
 		expect((await charts(page)).map((c) => c.metric)).toEqual(["outdoor"]);
 		await page.locator(`${SECTION} button[data-tab="elevation"]`).click();
@@ -350,12 +355,17 @@ test.describe("phone", () => {
 		expect(await charts(page)).toEqual([]);
 		await page.locator('[data-view-pick="graphs"]').click();
 		await waitForCharts(page);
+		// A tile keeps the graphs that were picked.
+		await page.locator(".group-tile.tile-all").click();
+		await page.waitForURL(/group=all/);
+		await waitForCharts(page);
+		await expect(page.locator(".rider-rows")).toBeHidden();
 	});
 
 	test("pinches and drags like the rider's charts, with the boxes following", async ({
 		page,
 	}) => {
-		await openGraphs(page);
+		await openGraphs(page, "/organiser/riders?view=graphs");
 		await page.locator(`${SECTION} button[data-custom]`).click();
 		const seasonFrom = await fromBox(page).inputValue();
 		const canvas = page.locator(`${SECTION} canvas[data-metric="outdoor"]`);
@@ -416,7 +426,7 @@ test.describe("phone", () => {
 	test("finds a rider across the groups, and a tile clears the search", async ({
 		page,
 	}) => {
-		await openRiders(page, "/organiser/riders?view=riders");
+		await openRiders(page, "/organiser/riders");
 		const search = page.locator("[data-rider-search]");
 		await expect(search).toBeVisible();
 		await search.fill("tina");
@@ -440,7 +450,7 @@ test.describe("phone", () => {
 	});
 
 	test("doesn't scroll sideways", async ({ page }) => {
-		await openGraphs(page);
+		await openGraphs(page, "/organiser/riders?view=graphs");
 		const overflow = () =>
 			page.evaluate(() => {
 				const { documentElement } = (

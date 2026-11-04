@@ -742,7 +742,7 @@ export function overviewBody(
 	inert = false,
 	figures: OrganiserFigures = "full",
 	graphs: SafeHtml | null = null,
-	view: "graphs" | "riders" = "graphs",
+	view: "graphs" | "riders" = "riders",
 ): SafeHtml {
 	const passed = today > window.deadline;
 	const riders = overviewRiders(read, rules, window, today);
@@ -874,7 +874,7 @@ export function handleOrganiserOverview(
 				: null;
 		const notice = await decisionNotice(url, ctx, i18n, path);
 		const view =
-			url.searchParams.get("view") === "riders" ? "riders" : "graphs";
+			url.searchParams.get("view") === "graphs" ? "graphs" : "riders";
 		const body = html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, requests, false, figures, graphs, view)}`;
 		return graphs ? { body, scripts: CHART_SCRIPTS } : body;
 	});

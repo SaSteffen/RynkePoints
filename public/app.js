@@ -3521,7 +3521,7 @@ function organiserRiders(signal) {
 
 	// The view: from the address when it asks for one, else as it was.
 	const asked = new URL(location.href).searchParams.get("view");
-	if (asked === "riders") graphsKept.view = "riders";
+	if (asked === "riders" || asked === "graphs") graphsKept.view = asked;
 	const setView = (view) => {
 		if (overview.dataset.view === undefined) return;
 		graphsKept.view = view;
