@@ -30,6 +30,7 @@ import {
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import {
 	ATHLETE_A,
+	EXTRA_CLUB,
 	makeStravaActivity,
 	NOW,
 	OTHER_CLUB,
@@ -170,6 +171,13 @@ describe("GET /auth/callback club check", () => {
 		expectNotice(res, "not-member");
 		expect(fake.revocations).toHaveLength(1);
 		await expectNoRows();
+	});
+
+	it("lets in a member of a further club", async () => {
+		fake.addAthlete({ id: ATHLETE_A, clubs: [EXTRA_CLUB.id] });
+		await approve(ctx, fake, ATHLETE_A);
+		expect(fake.revocations).toHaveLength(0);
+		expect(await getRider(env.DB, ATHLETE_A)).not.toBeNull();
 	});
 
 	it("revokes and turns a new rider away when Strava is busy", async () => {

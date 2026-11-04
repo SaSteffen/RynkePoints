@@ -27,6 +27,9 @@ export default defineConfig(async () => {
 						PUSH_VAPID_KEY:
 							'{"kty":"EC","crv":"P-256","x":"EKhvzchlkzvjgKve8BblQ_7XywqXsIq3hKyKpvFut0c","y":"Fz_GMdH6KwK6EvTbVTdW9tNi8HqQFE3L0auRPE20Iwk","d":"oRmpIBPH91mXDWou0dK96dIkgbL87_VWY0djN0waCCw"}',
 						STRAVA_SUBSCRIPTION_ID: "777",
+						// Pinned: the team's club and one further club.
+						STRAVA_CLUB_ID: "1088689",
+						STRAVA_EXTRA_CLUB_IDS: "2372209",
 						// Pinned so tests don't follow the production season start.
 						SEASON_START_DATE: "2026-01-01",
 						QUALIFICATION_DEADLINE: "2027-06-30",

@@ -1,4 +1,4 @@
-import { clientId, clubId, seasonStart } from "../config";
+import { clientId, memberClubIds, seasonStart } from "../config";
 import { currentVersion, grantedScopes } from "../consent";
 import type { Ctx } from "../ctx";
 import { recordConsent } from "../db/consents";
@@ -167,7 +167,7 @@ export async function handleCallback(
 	const membership = await isClubMember(
 		ctx,
 		auth,
-		clubId(ctx.env),
+		memberClubIds(ctx.env),
 		"interactive",
 	);
 	if (membership.kind === "ok" && !membership.value) {

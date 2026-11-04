@@ -64,7 +64,7 @@ describe("GET / (signed out)", () => {
 			"Gelöschte Daten bleiben noch bis zu 7\u00a0Tage in den Sicherungen unseres Hosting-Anbieters",
 		);
 		expect(page).toContain(
-			'<a href="https://www.strava.com/clubs/2372209">unseres Team-Clubs auf Strava</a>',
+			'<a href="https://www.strava.com/clubs/1088689">unseres Team-Clubs auf Strava</a>',
 		);
 		expect(page).toContain("Mitmachen können nur Mitglieder");
 	});

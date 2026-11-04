@@ -5,6 +5,7 @@ interface __BaseEnv_Env {
 	DB: D1Database;
 	WORK_QUEUE: Queue;
 	STRAVA_CLUB_ID: string;
+	STRAVA_EXTRA_CLUB_IDS: string;
 	SEASON_START_DATE: string;
 	QUALIFICATION_DEADLINE: string;
 	ORGANISER_FIGURES: string;
@@ -33,7 +34,7 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "STRAVA_CLUB_ID" | "SEASON_START_DATE" | "QUALIFICATION_DEADLINE" | "STRAVA_SUBSCRIPTION_ID" | "PUSH_SUBJECT" | "READY_POLL_SECONDS" | "TRAINING_LEADERBOARD" | "PRIVACY_CONTROLLER" | "CONTACT_EMAIL" | "STRAVA_CLIENT_ID" | "STRAVA_CLIENT_SECRET" | "STRAVA_WEBHOOK_VERIFY_TOKEN" | "TOKEN_ENCRYPTION_KEY" | "SESSION_SIGNING_KEY" | "ADMIN_TOKEN" | "PUSH_VAPID_KEY">> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "STRAVA_CLUB_ID" | "STRAVA_EXTRA_CLUB_IDS" | "SEASON_START_DATE" | "QUALIFICATION_DEADLINE" | "STRAVA_SUBSCRIPTION_ID" | "PUSH_SUBJECT" | "READY_POLL_SECONDS" | "TRAINING_LEADERBOARD" | "PRIVACY_CONTROLLER" | "CONTACT_EMAIL" | "STRAVA_CLIENT_ID" | "STRAVA_CLIENT_SECRET" | "STRAVA_WEBHOOK_VERIFY_TOKEN" | "TOKEN_ENCRYPTION_KEY" | "SESSION_SIGNING_KEY" | "ADMIN_TOKEN" | "PUSH_VAPID_KEY">> {}
 }
 
 // Begin runtime types

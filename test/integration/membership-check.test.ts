@@ -24,6 +24,7 @@ import {
 	ATHLETE_A,
 	ATHLETE_B,
 	ATHLETE_C,
+	EXTRA_CLUB,
 	makeStravaActivity,
 	NOW,
 	OTHER_CLUB,
@@ -107,6 +108,17 @@ describe("check-membership", () => {
 		ctx = makeCtx({ now: NOW + DAY });
 		const { result } = await deliver(CHECK);
 		expect(result.explicitAcks).toEqual(["m1"]);
+		expect((await getRider(env.DB, ATHLETE_A))?.membershipCheckedAt).toBe(
+			NOW + DAY,
+		);
+		expect(ctx.queue.sent).toEqual([]);
+	});
+
+	it("keeps a rider who is only in a further club", async () => {
+		fake.addAthlete({ id: ATHLETE_A, clubs: [OTHER_CLUB.id, EXTRA_CLUB.id] });
+		await seedRider(ctx);
+		ctx = makeCtx({ now: NOW + DAY });
+		await deliver(CHECK);
 		expect((await getRider(env.DB, ATHLETE_A))?.membershipCheckedAt).toBe(
 			NOW + DAY,
 		);

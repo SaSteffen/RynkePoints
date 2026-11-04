@@ -12,7 +12,9 @@ export function firstNameFor(athleteId: number): string {
 	return `Testrider ${String.fromCharCode(65 + ((athleteId - 900001) % 26))}`;
 }
 
-export const TEAM_CLUB = { id: 2372209, name: "TRHH Rynke Coins" };
+export const TEAM_CLUB = { id: 1088689, name: "Team Rynkeby Hamburg" };
+/** A further club (`STRAVA_EXTRA_CLUB_IDS`) whose members may take part too. */
+export const EXTRA_CLUB = { id: 2372209, name: "TRHH Rynke Coins" };
 export const OTHER_CLUB = { id: 1111, name: "Synthetic Other Club" };
 
 /** The full Strava `DetailedActivity` shape, including fields we must drop. */

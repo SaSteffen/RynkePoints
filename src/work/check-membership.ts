@@ -1,4 +1,4 @@
-import { clubId } from "../config";
+import { memberClubIds } from "../config";
 import { setMembershipChecked } from "../db/riders";
 import { isClubMember } from "../strava/client";
 import type { Handler } from "./consumer";
@@ -15,7 +15,7 @@ export const checkMembership: Handler<CheckMembershipMessage> = async (
 	const result = await isClubMember(
 		ctx,
 		{ athleteId: rider.athleteId },
-		clubId(ctx.env),
+		memberClubIds(ctx.env),
 	);
 	switch (result.kind) {
 		case "ok":
