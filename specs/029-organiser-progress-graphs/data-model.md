@@ -1,11 +1,12 @@
 # Data Model: Organiser Progress Graphs
 
-## Table: `rider_daily_figures` (migration 0024)
+## Table: `rider_ride_summaries` (migration 0024)
 
 | Column | Type | Notes |
 | --- | --- | --- |
 | `athlete_id` | INTEGER, primary key | references `riders`, `ON DELETE CASCADE` (FR-026) |
 | `days` | TEXT, `json_valid` | `[["YYYY-MM-DD", outdoorM, virtualM, elevationDm], ...]`, ascending |
+| `weeks` | TEXT, `json_valid` | `[["YYYY-MM-DD", distanceRynke, elevationDm], ...]`, by the Sunday ending the week, ascending |
 
 `WITHOUT ROWID`. Forward-only and additive; the previous version never reads it.
 
@@ -13,14 +14,27 @@
 (FR-004). Distances are whole metres. No ride name, ID, time or speed is kept. A rider with no counting rides
 gets `[]`.
 
+**Pure function** `weeklyRideSums(rides, results)`: the same counting rides, by Monday-to-Sunday week, equal to
+what `listWeeklyRideSumsStatement` adds up today (FR-032, SC-009). A rider with no counting rides gets `[]`.
+
 **Written** by `riderWrites`, in the batch of every evaluation. **Filled** for existing riders by the daily job,
 which treats a missing row as needing evaluation (research R1).
 
 ## Read: figures for the page
 
-One statement, in the batch with the open requests: `riders` left-joined to `rider_daily_figures`, for IDs in
+One statement, in the batch with the open requests: `riders` left-joined to `rider_ride_summaries`, for IDs in
 `LISTED_RIDER_IDS` and in `sharedRiderIdsSince(3)`. Everyone else in `readTeam` is "not agreed yet" and contributes
 a first name and group only, which earlier consent covers.
+
+## Read: weekly sums in `readTeam`
+
+Two statements replace `listWeeklyRideSumsStatement` in its batch, so round trips stay the same:
+
+- `weeks` from `rider_ride_summaries`, for IDs in `LISTED_RIDER_IDS`. Never `days`.
+- The existing sum over `ride_results` and `activities`, only for
+  `LISTED_RIDER_IDS EXCEPT SELECT athlete_id FROM rider_ride_summaries`.
+
+`TeamRider.rides` keeps its shape, so nothing above `readTeam` changes.
 
 ## View: `organiserGraphsView()`
 
@@ -67,5 +81,5 @@ Held in `public/app.js`, never saved.
 - `CONSENT_VERSIONS`: version 3 (research R6).
 - `RiderData`: `dailyFigures`, organisers only, since version 3 (research R7).
 - `Settings`: `ORGANISER_PROGRESS_GRAPH`, "on" or "off" (research R8).
-- `listRidersNeedingEvaluation`: also riders without a `rider_daily_figures` row.
+- `listRidersNeedingEvaluation`: also riders without a `rider_ride_summaries` row.
 - `SampleRider`: optional `consentVersion` (research R11).
