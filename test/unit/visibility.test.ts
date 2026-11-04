@@ -57,7 +57,7 @@ function rider(athleteId: number, organiser: boolean): Rider {
 		figuresVersion: 1,
 		organiser,
 		administrator: false,
-		cloudflareAlerts: true,
+		adminAlerts: true,
 		onboardedAt: null,
 		organiserOnboardedAt: null,
 	};

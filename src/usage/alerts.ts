@@ -9,7 +9,6 @@ import { notifyRiders } from "../work/send-notification";
 import {
 	ALERT_LEVELS,
 	type AlertLevel,
-	isCloudflareAllowance,
 	isOpenEnded,
 	type RecordedAllowance,
 } from "./allowances";
@@ -71,12 +70,7 @@ export async function checkAlerts(
 	);
 	if (newly.size === 0) return;
 	const recipients = await listAlertRecipients(db);
-	for (const allowance of newly) {
-		await notifyRiders(
-			ctx,
-			recipients
-				.filter((r) => !isCloudflareAllowance(allowance) || r.cloudflareAlerts)
-				.map((r) => r.athleteId),
-		);
+	for (const _ of newly) {
+		await notifyRiders(ctx, recipients);
 	}
 }

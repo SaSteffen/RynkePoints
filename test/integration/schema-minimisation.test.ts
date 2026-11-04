@@ -30,7 +30,8 @@ const COLUMNS: Record<string, string[]> = {
 		"import_fetched",
 		// Feature 025: the administrator flag and their own alert switch.
 		"administrator",
-		"cloudflare_alerts",
+		"cloudflare_alerts", // Unused since 0022; a later release drops it.
+		"admin_alerts",
 	],
 	activities: [
 		"strava_activity_id",

@@ -213,23 +213,23 @@ describe("GET /me/notification-text for an alert (feature 025 FR-036)", () => {
 		expect((await text()).status).toBe(204);
 	});
 
-	it("skips a Cloudflare alert with the switch off", async () => {
+	it("skips every alert with the switch off", async () => {
 		await makeAdmin();
 		await env.DB.prepare(
-			"UPDATE riders SET cloudflare_alerts = 0 WHERE athlete_id = ?",
+			"UPDATE riders SET admin_alerts = 0 WHERE athlete_id = ?",
 		)
 			.bind(ATHLETE_A)
 			.run();
 		await fired("cf_worker_requests", 80);
 		expect((await text()).status).toBe(204);
 		await fired("strava_all_daily", 80);
-		expect((await text()).body?.url).toBe("/admin");
+		expect((await text()).status).toBe(204);
 	});
 
 	it("gives the Rynke text back to an administrator with the switch off", async () => {
 		await makeAdmin();
 		await env.DB.prepare(
-			"UPDATE riders SET cloudflare_alerts = 0 WHERE athlete_id = ?",
+			"UPDATE riders SET admin_alerts = 0 WHERE athlete_id = ?",
 		)
 			.bind(ATHLETE_A)
 			.run();

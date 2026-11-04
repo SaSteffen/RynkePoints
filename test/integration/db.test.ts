@@ -236,7 +236,7 @@ describe("riders", () => {
 			figuresVersion: ACTIVITY_FIGURES_VERSION,
 			organiser: false,
 			administrator: false,
-			cloudflareAlerts: true,
+			adminAlerts: true,
 			onboardedAt: null,
 			organiserOnboardedAt: null,
 		});

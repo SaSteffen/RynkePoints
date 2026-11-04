@@ -239,8 +239,8 @@ export interface CurrentAlert {
 
 /**
  * The newest alert `athleteId` would receive, fired since `since`: nothing for a
- * rider who isn't an administrator, or for a Cloudflare alert with their switch
- * off (contracts/alerts.md). The rows come with today's value for its percentage.
+ * rider who isn't an administrator, or with their switch off
+ * (contracts/alerts.md). The rows come with today's value for its percentage.
  */
 export function currentAlertStatement(
 	db: D1Database,
@@ -253,9 +253,8 @@ export function currentAlertStatement(
 			`SELECT a.allowance, a.level, d.used, d.limit_value
 			FROM riders r
 			JOIN usage_alerts a ON a.fired_at >= ?2
-				AND (r.cloudflare_alerts = 1 OR a.allowance NOT LIKE 'cf%')
 			LEFT JOIN usage_daily d ON d.allowance = a.allowance AND d.day = ?3
-			WHERE r.athlete_id = ?1 AND r.administrator = 1
+			WHERE r.athlete_id = ?1 AND r.administrator = 1 AND r.admin_alerts = 1
 			ORDER BY a.fired_at DESC, a.level DESC
 			LIMIT 1`,
 		)

@@ -4,7 +4,11 @@ import { resolveLocale } from "../i18n/resolve";
 import { handleAdminHistory } from "./admin/history";
 import { handleRemoveConfirm, handleRemoveRider } from "./admin/remove";
 import { handleAdminRiders } from "./admin/riders";
-import { handleAdminAlerts, handleAdminUsage } from "./admin/usage";
+import {
+	handleAdminAlerts,
+	handleAdminRefresh,
+	handleAdminUsage,
+} from "./admin/usage";
 import { handleCallback, handleConnectForm, handleReconnect } from "./auth";
 import { handleConsent } from "./consent-gate";
 import { notFound } from "./errors";
@@ -136,6 +140,8 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleLogout(request, ctx, i18n);
 			case "/admin/alerts":
 				return handleAdminAlerts(request, ctx, i18n);
+			case "/admin/refresh":
+				return handleAdminRefresh(request, ctx, i18n);
 			case "/organiser/events":
 				return handleCreateEvent(request, ctx, i18n);
 			case "/organiser/requests":

@@ -12,9 +12,12 @@ import {
 import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
 import { pushEndpoint, seedSubscription } from "../support/push";
 import {
+	cloudflareBody,
+	installCloudflare,
 	seedUsageDay,
 	setCloudflareState,
 	setStravaUsage,
+	WITH_ANALYTICS,
 } from "../support/usage";
 
 // `/admin` (feature 025 US1, US3's waiting work and US5's switch and hint). Only
@@ -224,19 +227,54 @@ describe("waiting work (US3 scenario 3, FR-020)", () => {
 	});
 });
 
-describe("Cloudflare alerts switch (FR-039)", () => {
+describe("updating now (FR-040)", () => {
+	const refresh = async (target = ctx) =>
+		handleFetch(
+			request("/admin/refresh", {
+				form: {},
+				cookies: await sessionCookie(target, ADMIN),
+			}),
+			target,
+		);
+
+	it("records Cloudflare's figures, and a repeat doesn't count twice", async () => {
+		installCloudflare(() =>
+			Response.json(cloudflareBody({ [TODAY]: { requests: 1234 } })),
+		);
+		const target = { ...ctx, env: { ...ctx.env, ...WITH_ANALYTICS } };
+		for (const _ of [1, 2]) {
+			const res = await refresh(target);
+			expect(res.status).toBe(303);
+			expect(res.headers.get("Location")).toBe("/admin");
+		}
+		const { results } = await env.DB.prepare(
+			"SELECT used FROM usage_daily WHERE allowance = 'cf_worker_requests'",
+		).all();
+		expect(results).toEqual([{ used: 1234 }]);
+		vi.mocked(globalThis.fetch).mockRestore();
+	});
+
+	it("still answers without the secrets", async () => {
+		const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+		expect((await refresh()).status).toBe(303);
+		expect(await page()).toContain(de["admin.cloudflare.unavailable"]);
+		warn.mockRestore();
+	});
+});
+
+describe("usage alerts switch (FR-039)", () => {
 	const set = async (athleteId: number, value: string) =>
 		handleFetch(
 			request("/admin/alerts", {
-				form: { cloudflare_alerts: value },
+				form: { admin_alerts: value },
 				cookies: await sessionCookie(ctx, athleteId),
 			}),
 			ctx,
 		);
 	const stored = (athleteId: number) =>
-		env.DB.prepare("SELECT cloudflare_alerts FROM riders WHERE athlete_id = ?")
+		env.DB.prepare("SELECT admin_alerts FROM riders WHERE athlete_id = ?")
 			.bind(athleteId)
-			.first("cloudflare_alerts");
+			.first("admin_alerts");
 
 	it("is on by default", async () => {
 		expect(await stored(ADMIN)).toBe(1);

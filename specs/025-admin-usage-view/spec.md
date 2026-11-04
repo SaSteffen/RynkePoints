@@ -25,8 +25,8 @@ replaces.
 - Q: Per-team shares need a second team, so are they part of this feature? → A: Only the
   counting. This feature counts each team's Strava requests from day one and labels its
   records by team. Showing several teams' figures together is deferred to feature 026.
-- Q: Can administrators turn alerts off? → A: Yes, Cloudflare's alerts have their own
-  switch, which each administrator sets for themselves.
+- Q: Can administrators turn alerts off? → A: Yes, one switch covers all usage alerts:
+  Strava, Cloudflare and connected riders. Each administrator sets it for themselves.
 
 ## Context
 
@@ -207,12 +207,11 @@ check in the same period sends nothing.
    open the admin view, **Then** it says they won't get alerts and where to turn them on.
 6. **Given** the push service can't be reached, **When** a notification fails, **Then**
    nothing else fails, and the view still marks the figure.
-7. **Given** an administrator turned Cloudflare alerts off, **When** a Cloudflare
-   allowance reaches a level, **Then** they get no notification, other administrators
-   with the switch on do, and the view still marks the figure.
-8. **Given** an administrator turned Cloudflare alerts off, **When** a Strava allowance
-   or connected riders reach a level, or their Rynke rise, **Then** they get those
-   notifications as usual.
+7. **Given** an administrator turned usage alerts off, **When** a Strava or Cloudflare
+   allowance or connected riders reach a level, **Then** they get no notification, other
+   administrators with the switch on do, and the view still marks the figure.
+8. **Given** an administrator turned usage alerts off, **When** their Rynke rise,
+   **Then** they get that notification as usual.
 9. **Given** a level was reached while an administrator had the switch off, **When** they
    turn it on in the same period, **Then** they get no notification for that level.
 
@@ -356,10 +355,13 @@ check in the same period sends nothing.
   data, and MUST open the admin view. Like other notifications, it never holds up or fails
   other work (feature 010).
 - **FR-037**: Riders who aren't administrators MUST never get these notifications.
-- **FR-039**: Each administrator MUST be able to turn alerts for Cloudflare's allowances
-  (the daily ones and database storage) on and off for themselves in the admin view. They
-  are on by default. The switch MUST NOT affect Strava or connected-rider alerts, other
-  notifications or other administrators.
+- **FR-039**: Each administrator MUST be able to turn all usage alerts (Strava,
+  Cloudflare and connected riders) on and off for themselves in the admin view, with one
+  switch. They are on by default. The switch MUST NOT affect other notifications or other
+  administrators.
+- **FR-040**: An administrator MUST be able to run the hourly recording from the view, so
+  they don't have to wait for the next run. It records and alerts exactly as the hourly
+  run does, within FR-016 and FR-035.
 
 **General**
 
@@ -375,7 +377,7 @@ check in the same period sends nothing.
 ### Key Entities
 
 - **Administrator**: A rider marked as running the app for their team, with their own
-  switch for Cloudflare alerts.
+  switch for usage alerts.
 - **Allowance**: A named limit with its source (Strava or Cloudflare), its period and
   its current value. Cloudflare's belong to an account.
 - **Usage figure**: The latest value of an allowance, when it was observed, and this
@@ -441,7 +443,7 @@ check in the same period sends nothing.
   step.
 - **Dependency**: None. This feature ships and works without feature 026 (issue #236).
 - **Alerts**: Administrators receive alerts on devices where they turned notifications
-  on (feature 010). Only Cloudflare's alerts have a switch of their own (FR-039).
+  on (feature 010). Usage alerts have one switch of their own (FR-039).
 - **Out of scope**: Email alerts, alerts when figures can't be fetched, automatic slowing
   of work, per-rider usage, rate limit changes, changing rules or settings from the view,
   CPU time and billing.

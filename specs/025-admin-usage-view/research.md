@@ -78,8 +78,8 @@ a run repeats. A lost push isn't retried: the view still marks the figure.
 **Accepted**: A rider's "new Rynke" notification arriving within the same 15 minutes shows
 the alert instead. The Rynke aren't lost, and only administrators are affected.
 
-**Switch**: Each administrator can turn Cloudflare's alerts off (FR-039), stored as
-`riders.cloudflare_alerts`. It only narrows the recipients, so recording and the view don't
+**Switch**: Each administrator can turn all usage alerts off with one switch (FR-039), stored
+as `riders.admin_alerts`. It only narrows the recipients, so recording and the view don't
 change. A per-rider column is enough: one more row per team, or a table of settings, would
 add a read or a join for a value that is only needed for administrators.
 
