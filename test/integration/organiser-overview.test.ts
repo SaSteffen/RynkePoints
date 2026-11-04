@@ -626,11 +626,13 @@ describe("GET /organiser/riders, the graphs (feature 029)", () => {
 		expect(few).toMatch(/data-name="paula">\n<details open>/);
 	});
 
-	it("honours view=riders, and ignores any other view", async () => {
-		const asked = (await overview("/organiser/riders?view=riders")).html;
-		expect(asked).toContain('class="team-overview" data-view="riders"');
+	it("opens on the riders, honours view=graphs and ignores any other view", async () => {
+		const plain = (await overview("/organiser/riders")).html;
+		expect(plain).toContain('class="team-overview" data-view="riders"');
+		const asked = (await overview("/organiser/riders?view=graphs")).html;
+		expect(asked).toContain('class="team-overview" data-view="graphs"');
 		const other = (await overview("/organiser/riders?view=x")).html;
-		expect(other).toContain('class="team-overview" data-view="graphs"');
+		expect(other).toContain('class="team-overview" data-view="riders"');
 	});
 
 	it("shows open reports in a box of at most three, with the way to all", async () => {

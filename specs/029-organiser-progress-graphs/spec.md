@@ -160,7 +160,7 @@ rider by name, and handle an open report.
 **Acceptance Scenarios**:
 
 1. **Given** a phone, **When** the organiser opens the Riders view, **Then** the order is: switch,
-   heading, deadline hero, tiles, open reports box, then a Graphs / Riders (N) switch with Graphs
+   heading, deadline hero, tiles, open reports box, then a Graphs / Riders (N) switch with Riders
    selected.
 2. **Given** more than 3 open reports, **When** the box shows, **Then** it lists 3 and offers "Show all
    N", which opens the requests group in the Riders view.
@@ -385,7 +385,7 @@ lists can't be judged locally. It supports the other stories without adding anyt
 - **SC-005**: In 100% of checks, each rider's sums over the whole season match the sum of their counting
   rides, for outdoor kilometres, virtual kilometres and elevation.
 - **SC-006**: On a phone with 40 riders, an organiser reaches any one rider in at most two actions:
-  switch to Riders, type a name.
+  type a name in the Riders view it opens on, choose the rider.
 - **SC-007**: With the setting off, an organiser's page and data contain nothing of this feature's
   graphs, and riders see no difference from the setting being on.
 - **SC-008**: With 40 riders at the end of a season, the graphs add fewer than 1,000 database rows read
