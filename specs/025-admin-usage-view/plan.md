@@ -19,8 +19,8 @@ riders. It is built for one team. Per-team shares across teams are feature 026 (
   for themselves (R5).
 - **Removal**: revoke, then one atomic batch that adds the block entry and removal record
   and deletes the rider. The block is checked in the OAuth callback (R6, R7).
-- **Consent**: version 2 covers the overview and the block list. Only riders who agreed
-  to it get a row, using the existing `sharedRiderIdsSince` filter (R8).
+- **Consent**: version 2 covers the overview and the block list. Riders with a recorded
+  consent of any version get a row, using the existing `SHARED_RIDER_IDS` filter (R8).
 
 ## Technical Context
 

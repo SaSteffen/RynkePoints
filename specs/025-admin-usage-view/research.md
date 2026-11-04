@@ -115,15 +115,17 @@ link an entry to the removal log (FR-023), and it needs no timestamp.
 ## R8. Consent
 
 **Decision**: `CONSENT_VERSIONS` gets version 2, with `changes` naming the new text. The
-overview filters with `sharedRiderIdsSince(2)` (FR-038), and existing sharing keeps
-`SHARING_SINCE_VERSION`, so leaderboards don't change.
+overview filters with `SHARED_RIDER_IDS`, any recorded consent (FR-038), and existing
+sharing keeps `SHARING_SINCE_VERSION`, so leaderboards don't change.
 
 **Rationale**: Connection state and dates are newly shown to someone other than the rider,
 which Principle I counts as growth. The block list alone isn't growth, but `landing.leave`
 promises deletion of all data, and that text is versioned.
 
-**Accepted**: The riders who most need support may be the ones who don't visit, and so have
-no row until they agree. The overview counts them. The maintainer can still look them up.
+**Decided by the maintainer (2026-11-04)**: The change is minor, so a rider on version 1 is
+listed before agreeing to version 2. Filtering them out would have hidden the riders who most
+need support, the ones who don't visit. A rider with no recorded consent stays unlisted and
+only counted (Principle I).
 
 Text to change, in German and English: `landing.leave`, a new `consent.admins`, the privacy
 page, and a sentence in `consent.short.shown`.

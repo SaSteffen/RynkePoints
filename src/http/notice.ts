@@ -21,6 +21,7 @@ export const NOTICE_IDS = [
 	"strava-busy",
 	"deleted",
 	"deleted-revoke-failed",
+	"blocked",
 ] as const;
 
 export type NoticeId = (typeof NOTICE_IDS)[number];
@@ -81,6 +82,11 @@ const NOTICES: Record<NoticeId, Notice> = {
 	"deleted-revoke-failed": {
 		title: "notice.deleted.title",
 		body: ["notice.deleted.body", "notice.revokeFailed.body"],
+	},
+	// Feature 025 FR-030: nothing beyond the block list entry is kept.
+	blocked: {
+		title: "notice.blocked.title",
+		body: ["notice.blocked.body"],
 	},
 };
 

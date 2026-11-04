@@ -22,6 +22,7 @@ import {
 	BIKE,
 	CALENDAR,
 	CLIPBOARD,
+	GAUGE,
 	MEDAL,
 	PEOPLE,
 	PERSON,
@@ -37,7 +38,7 @@ import { readViewer, riderConsentState } from "./viewer";
 // The signed-in area's sections (feature 011 data-model.md "Section",
 // research R1, R3, R8), with the badges in their own after Rides, and Orga for
 // organisers before Settings (feature 016), where everyone else has Termine
-// (feature 019 research R8).
+// (feature 019 research R8). Administrators also have Admin (feature 025).
 // Team comes first: it's where the app sends a signed-in rider (issue #73).
 // Each is its own page; `shellPage()` applies the access rules of `/me` to all
 // of them and wraps the section in the top bar and the navigation. The current
@@ -50,6 +51,7 @@ export type SectionId =
 	| "badges"
 	| "organiser"
 	| "events"
+	| "admin"
 	| "settings";
 
 /** In navigation order (FR-002). */
@@ -63,6 +65,8 @@ export const SECTIONS: readonly {
 	organiserOnly?: true;
 	/** Only for riders who aren't organisers (feature 019). */
 	riderOnly?: true;
+	/** Only for administrators, whatever else they are (feature 025). */
+	adminOnly?: true;
 }[] = [
 	{ id: "team", path: "/team", label: "nav.team", icon: PEOPLE },
 	{ id: "you", path: "/me", label: "nav.you", icon: PERSON },
@@ -81,6 +85,13 @@ export const SECTIONS: readonly {
 		label: "nav.events",
 		icon: CALENDAR,
 		riderOnly: true,
+	},
+	{
+		id: "admin",
+		path: "/admin",
+		label: "nav.admin",
+		icon: GAUGE,
+		adminOnly: true,
 	},
 	{
 		id: "settings",
@@ -141,12 +152,15 @@ function shellParts(
 	path: string,
 	pushKey: string,
 	organiser: boolean,
+	administrator: boolean,
 	hint: TourHint | null,
 	openRequests: number,
 ): ShellParts {
 	const current = SECTIONS.find(({ id }) => id === section);
-	const shown = SECTIONS.filter((s) =>
-		organiser ? !s.riderOnly : !s.organiserOnly,
+	const shown = SECTIONS.filter(
+		(s) =>
+			(organiser ? !s.riderOnly : !s.organiserOnly) &&
+			(administrator || !s.adminOnly),
 	);
 	const links = shown.map(
 		({ id, path: href, label, short, icon }) =>
@@ -263,6 +277,7 @@ export async function shellPage(
 				path,
 				vapidPublicKey(ctx.env),
 				viewer.rider.organiser,
+				viewer.rider.administrator,
 				hint,
 				openRequests,
 			),

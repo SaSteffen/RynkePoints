@@ -1,6 +1,10 @@
 import type { Ctx } from "../ctx";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
+import { handleAdminHistory } from "./admin/history";
+import { handleRemoveConfirm, handleRemoveRider } from "./admin/remove";
+import { handleAdminRiders } from "./admin/riders";
+import { handleAdminAlerts, handleAdminUsage } from "./admin/usage";
 import { handleCallback, handleConnectForm, handleReconnect } from "./auth";
 import { handleConsent } from "./consent-gate";
 import { notFound } from "./errors";
@@ -54,7 +58,7 @@ import { handleWebhook } from "./webhook";
 // own address: `/team`, `/me`, `/me/rides`, `/me/badges` and `/me/settings`
 // (011 FR-001).
 // Organisers manage the team under `/organiser` (feature 014), their Orga tab
-// (feature 016).
+// (feature 016). Administrators watch the allowances under `/admin` (feature 025).
 
 const WEBHOOK_PREFIX = "/strava/webhook/";
 
@@ -73,6 +77,9 @@ const ORGANISER_RIDER = /^\/organiser\/riders\/(\d{1,15})(\/corrections)?$/;
 
 /** `/organiser/corrections/{id}/delete`. */
 const ORGANISER_CORRECTION = /^\/organiser\/corrections\/(\d{1,15})\/delete$/;
+
+/** `/admin/riders/{athleteId}/remove` (feature 025). */
+const ADMIN_REMOVE = /^\/admin\/riders\/(\d{1,15})\/remove$/;
 
 export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	const url = new URL(request.url);
@@ -127,12 +134,18 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 				return handleTour(request, ctx, i18n);
 			case "/logout":
 				return handleLogout(request, ctx, i18n);
+			case "/admin/alerts":
+				return handleAdminAlerts(request, ctx, i18n);
 			case "/organiser/events":
 				return handleCreateEvent(request, ctx, i18n);
 			case "/organiser/requests":
 				return handleDecideRequests(request, ctx, i18n);
 			case "/organiser/requests/undo":
 				return handleUndoRequests(request, ctx, i18n);
+		}
+		const removal = path.match(ADMIN_REMOVE);
+		if (removal) {
+			return handleRemoveRider(request, ctx, i18n, Number(removal[1]));
 		}
 		const event = path.match(ORGANISER_EVENT);
 		if (event) {
@@ -202,6 +215,16 @@ async function page(
 			return handleOrganiserEvents(request, ctx, i18n);
 		case "/organiser/riders":
 			return handleOrganiserOverview(request, ctx, i18n);
+		case "/admin":
+			return handleAdminUsage(request, ctx, i18n);
+		case "/admin/history":
+			return handleAdminHistory(request, ctx, i18n);
+		case "/admin/riders":
+			return handleAdminRiders(request, ctx, i18n);
+	}
+	const removal = path.match(ADMIN_REMOVE);
+	if (removal) {
+		return handleRemoveConfirm(request, ctx, i18n, Number(removal[1]));
 	}
 	const event = path.match(ORGANISER_EVENT);
 	if (event && !event[2]) {

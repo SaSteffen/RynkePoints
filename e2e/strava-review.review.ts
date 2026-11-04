@@ -43,6 +43,9 @@ const COVERED = new Set([
 	"/me/disconnect",
 	"/organiser",
 	"/organiser/riders",
+	"/admin",
+	"/admin/history",
+	"/admin/riders",
 ]);
 
 async function shoot(page: Page, lang: string, slug: string, what: string) {
@@ -245,6 +248,52 @@ for (const lang of LANGS) {
 				lang,
 				"12-organiser-rider",
 				"Organisers: the corrections entered for one rider (first name)",
+			);
+		});
+
+		test("an administrator's pages", async ({ page }) => {
+			await signIn(page, "Alex Admin");
+			// The tour hints would cover the pages (issue #90).
+			await skipTours(page);
+			await visit(page, "/admin");
+			await shoot(
+				page,
+				lang,
+				"13-admin-usage",
+				"Administrators: how much of the Strava and Cloudflare allowances is used. No rider data",
+			);
+			await visit(page, "/admin/history");
+			await shoot(
+				page,
+				lang,
+				"14-admin-history",
+				"Administrators: the daily usage history. No rider data",
+			);
+			await visit(page, "/admin/riders");
+			await shoot(
+				page,
+				lang,
+				"15-admin-riders",
+				"Administrators: riders by first name with their connection state, and no activity data or points",
+			);
+			await page
+				.locator(".admin-rider")
+				.filter({ hasText: "Tina" })
+				.locator("a.danger")
+				.click();
+			await page.waitForLoadState();
+			await shoot(
+				page,
+				lang,
+				"16-admin-remove",
+				"Administrators: the confirmation before removing a rider",
+			);
+			await page.goto("/notice/blocked");
+			await shoot(
+				page,
+				lang,
+				"17-blocked",
+				"What a removed rider sees on trying to connect again: the new access is revoked at once and nothing is stored",
 			);
 		});
 	});

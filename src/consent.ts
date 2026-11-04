@@ -18,6 +18,9 @@ import type { MessageId } from "./i18n/catalogs";
 // (013 part C, research R30). The days and hours of rides, runs and swims
 // counting for the team surprises, without names, were named the same way
 // (013 part E, FR-016).
+// Feature 025 is a new version: connection state and dates are newly shown to
+// administrators, someone other than the rider (constitution Principle I), and
+// `landing.leave` promised deleting everything, which a removal no longer does.
 
 export interface ConsentVersion {
 	version: number;
@@ -38,6 +41,12 @@ export const CONSENT_VERSIONS: ConsentVersions = [
 		published: "2026-10-06",
 		requiredScopes: ["read", "activity:read"],
 		changes: [],
+	},
+	{
+		version: 2,
+		published: "2026-11-04",
+		requiredScopes: ["read", "activity:read"],
+		changes: ["consent.admins", "landing.leave"],
 	},
 ];
 

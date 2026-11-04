@@ -45,6 +45,9 @@ Features are specified and built with
   explains the rules.
 - **Season end** ([021](specs/021-season-rollover/spec.md)): Tour de Paris
   badges and a season album PDF for every rider.
+- **Admin view** ([025](specs/025-admin-usage-view/spec.md)): administrators see
+  how much of the Strava and Cloudflare allowances is used, with a daily history
+  and alerts near a limit, see who is connected, and can remove and block a rider.
 - **Privacy page** ([017](specs/017-privacy-page/spec.md)): see
   [Privacy](#privacy).
 
@@ -76,11 +79,16 @@ contact address, set as `PRIVACY_CONTROLLER` and `CONTACT_EMAIL` in
   **Worked out**: Rynke, badges and why each ride counts.
 - **Consent**: the version and time of the text the rider agreed to. A new
   version asks every rider again before showing anything.
+- **Block list and usage records**: when an administrator removes a rider, only
+  their Strava athlete ID stays on the team's block list, with no name, date or
+  reason, and a record says when and by which administrator, not whom. Daily usage
+  records hold no rider data.
 - **Who sees what**: riders see their own rides and Rynke; the team sees
   everyone's Rynke without names, and team sums and team badges that count
   everyone's kilometres, elevation and riding times; organisers see first names,
   Rynke and their breakdown, team events, reports and corrections, but no single
-  rides.
+  rides; administrators see first names, connection state and dates, and whether
+  an import is running, and no rides or Rynke.
 - **Notifications**: for each device a rider turns them on for, only the
   address its push service gives it. Notifications are sent empty; the device
   fetches the text. The address is deleted when they turn notifications off,
@@ -313,6 +321,22 @@ Nothing else deploys; merges into `develop` don't.
 
   Keep it: a new key ends the notifications of every rider's devices until
   they turn them on again.
+
+- **Admin view** ([025](specs/025-admin-usage-view/spec.md)): Cloudflare's figures
+  need a token that has only *Account Analytics Read*, and the account ID. Without
+  them the view says they're unavailable, and everything else works. These are set
+  by hand, as are the flag and lifting a block:
+
+  ```bash
+  pnpm wrangler secret put CLOUDFLARE_ANALYTICS_TOKEN
+  pnpm wrangler secret put CLOUDFLARE_ANALYTICS_ACCOUNT_ID
+  # Mark an administrator; `= 0` clears it, from the next request on.
+  pnpm wrangler d1 execute rynke-points --remote \
+    --command "UPDATE riders SET administrator = 1 WHERE athlete_id = <id>"
+  # Lift a block. The list holds no names, so this needs the rider's Strava ID.
+  pnpm wrangler d1 execute rynke-points --remote \
+    --command "DELETE FROM blocked_athletes WHERE athlete_id = <id>"
+  ```
 
 The one-time setup, the validation scenarios and rotating the deploy credential
 are in the [CI and branch protection quickstart](specs/002-ci-branch-protection/quickstart.md),

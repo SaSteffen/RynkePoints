@@ -13,15 +13,21 @@ import {
 	setFiguresVersion,
 } from "../db/riders";
 import { listRidersNeedingEvaluation } from "../db/rynke";
+import { pruneUsageAlerts, pruneUsageHistory } from "../db/usage";
 import { evaluateChange } from "../rynke/apply";
 import { CURRENT_RULES, countingWindow } from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
+import { daysBefore, historyStart, utcDay } from "../usage/allowances";
+import { recordUsage } from "../usage/record";
 import { parseWorkMessage, sendAll, type WorkMessage } from "./messages";
 
 // Daily cron work (contracts/queue-messages.md, "Scheduled").
 
 const GIVE_UP_AFTER_SECONDS = 7 * 24 * 3600;
 const RECONNECT_GRACE_SECONDS = 7 * 24 * 3600;
+
+/** The hourly cron in `wrangler.jsonc`: usage only (feature 025 research R2). */
+export const USAGE_CRON = "58 * * * *";
 
 /** One `check-membership` per connected rider (FR-004a). */
 export async function fanOutMembershipChecks(ctx: Ctx): Promise<void> {
@@ -124,6 +130,13 @@ export async function fanOutEvaluations(ctx: Ctx): Promise<void> {
 	);
 }
 
+/** Usage days past 13 months, and alert rows past 2 days (025 data-model.md). */
+export async function pruneUsage(ctx: Ctx): Promise<void> {
+	const today = utcDay(ctx.now());
+	await pruneUsageHistory(ctx.env.DB, historyStart(today));
+	await pruneUsageAlerts(ctx.env.DB, daysBefore(today, 2));
+}
+
 function safeParse(json: string): unknown {
 	try {
 		return JSON.parse(json);
@@ -133,9 +146,13 @@ function safeParse(json: string): unknown {
 }
 
 export async function handleScheduled(
-	_controller: ScheduledController,
+	controller: ScheduledController,
 	ctx: Ctx,
 ): Promise<void> {
+	if (controller.cron === USAGE_CRON) {
+		await recordUsage(ctx);
+		return;
+	}
 	// Independent steps, in contract order: one failing (D1, Queues) must not
 	// skip the others, but the run still fails so it shows up in logs.
 	let failure: unknown;
@@ -147,6 +164,7 @@ export async function handleScheduled(
 		fanOutFiguresReread,
 		purgePreSeasonActivities,
 		fanOutEvaluations,
+		pruneUsage,
 	]) {
 		try {
 			await step(ctx);

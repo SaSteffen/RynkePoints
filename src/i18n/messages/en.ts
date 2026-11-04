@@ -28,7 +28,7 @@ export const en: Catalog = {
 	"landing.purpose":
 		"We use the data only for Rynke and team events. Only you see your individual rides and their names.",
 	"landing.leave":
-		"You can leave at any time: in Settings, or by removing RynkePoints on Strava. We then delete all data about you, including your Rynke. If you leave the club, we delete it within 24 hours.",
+		"You can leave at any time: in Settings, or by removing RynkePoints on Strava. We then delete all data about you, including your Rynke. If you leave the club, we delete it within 24 hours. Only if an administrator removes you do we keep your Strava ID, so you can't connect again.",
 	"landing.backups":
 		"Deleted data stays in our hosting provider's backups for up to 7\u00a0days.",
 	"landing.cookies":
@@ -42,7 +42,7 @@ export const en: Catalog = {
 	"consent.short.read":
 		"We only read the key figures of your rides, runs and swims, such as distance, time and elevation, and turn them into Rynke and badges.",
 	"consent.short.shown":
-		"The team sees your Rynke without your name, the organisers with your first name.",
+		"The team sees your Rynke without your name, the organisers with your first name. Administrators see your first name and connection state, and if they remove you, we keep your Strava ID so you can't return.",
 	"consent.details": "All the details",
 	"consent.organisers":
 		"The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, and which team events you reported you're coming to or were at.",
@@ -906,4 +906,107 @@ export const en: Catalog = {
 	"album.stickers.count": "{earned} of {total}",
 	"album.stickers.secret": "?",
 	"album.cutoff": "As of {date}",
+
+	// Feature 025: the admin view.
+	"nav.admin": "Admin",
+	"admin.switch.label": "Admin views",
+	"admin.switch.usage": "Usage",
+	"admin.switch.history": "History",
+	"admin.switch.riders": "Riders",
+	"admin.allowance.strava_read_15m": "Strava reads per 15 minutes",
+	"admin.allowance.strava_all_15m": "Strava requests per 15 minutes",
+	"admin.allowance.strava_read_daily": "Strava reads per day",
+	"admin.allowance.strava_all_daily": "Strava requests per day",
+	"admin.allowance.riders_connected": "Connected riders",
+	"admin.allowance.cf_worker_requests": "Worker requests per day",
+	"admin.allowance.cf_queue_operations": "Queue operations per day",
+	"admin.allowance.cf_d1_rows_read": "Database rows read per day",
+	"admin.allowance.cf_d1_rows_written": "Database rows written per day",
+	"admin.allowance.cf_d1_storage_bytes": "Database storage",
+	"admin.gigabytes": "{n}\u00a0GB",
+	"admin.level.warning": "Warning",
+	"admin.level.critical": "Critical",
+	"admin.summary.ok": "All figures are below 80\u00a0%.",
+	"admin.summary.attention": "Figures at 80\u00a0% or above: {n}",
+	"admin.figure.numbers": "{used} of {limit} · {percent}\u00a0%",
+	"admin.figure.split": "This team: {team} · Not attributed: {rest}",
+	"admin.figure.seen": "As of {time} UTC",
+	"admin.figure.notSeen": "Not observed yet",
+	"admin.figure.noValue": "No value yet. Limit: {limit}",
+	"admin.strava.heading": "Strava",
+	"admin.cloudflare.heading": "Cloudflare",
+	"admin.cloudflare.note":
+		"For the whole account, and approximate: Cloudflare's analytics lag behind and are no billing measure.",
+	"admin.cloudflare.unavailable":
+		"Cloudflare's figures are unavailable right now. These are the last known values.",
+	"admin.waiting.heading": "Waiting for the Strava budget",
+	"admin.waiting.body": "{n} items are waiting, done in about {time}.",
+	"admin.waiting.one": "1 item is waiting, done in about {time}.",
+	"admin.waiting.minutes": "{n} minutes",
+	"admin.waiting.hours": "{n} hours",
+	"admin.waiting.days": "{n} days",
+	"admin.alerts.heading": "Cloudflare alerts",
+	"admin.alerts.on":
+		"You get a notification when a Cloudflare allowance reaches 80\u00a0% or 95\u00a0%. Strava and connected-rider alerts stay on either way.",
+	"admin.alerts.off":
+		"You get no notifications about Cloudflare's allowances. This page still marks them, and Strava and connected-rider alerts stay on.",
+	"admin.alerts.turnOff": "Turn off Cloudflare alerts",
+	"admin.alerts.turnOn": "Turn on Cloudflare alerts",
+	"admin.alerts.noDevice":
+		"You won't get alerts: none of your devices has notifications on. Turn them on in {settings}.",
+	"admin.history.choose": "Allowance",
+	"admin.history.show": "Show",
+	"admin.history.none": "Nothing recorded yet. Recording runs once an hour.",
+	"admin.history.since": "Recording began on {date}.",
+	"admin.history.chart":
+		"{name} per day as a share of the limit, from {first} to {last}. The table has the figures.",
+	"admin.history.day": "Day",
+	"admin.history.used": "Used",
+	"admin.history.limit": "Limit",
+	"admin.history.share": "Share",
+	"admin.history.team": "This team",
+	"admin.history.peak": "Highest 15\u00a0min",
+	"admin.history.percent": "{n}\u00a0%",
+	"admin.history.gap": "Nothing recorded",
+	"admin.history.ridersNote":
+		"Connected riders are this team's own, so the whole figure is its count.",
+	"admin.riders.counts":
+		"Listed: {listed}. Not listed, because they haven't agreed yet: {unlisted}. Blocked: {blocked}.",
+	"admin.riders.none": "No rider has agreed yet.",
+	"admin.riders.status": "Connection",
+	"admin.riders.status.connected": "Connected",
+	"admin.riders.status.needs_reconnect": "Needs to reconnect",
+	"admin.riders.connected": "Connected on",
+	"admin.riders.checked": "Membership last checked",
+	"admin.riders.import": "Import",
+	"admin.riders.import.pending": "Still running",
+	"admin.riders.import.running": "Still running",
+	"admin.riders.import.done": "Done",
+	"admin.riders.remove": "Remove",
+	"admin.remove.title": "Remove {name}?",
+	"admin.remove.explain":
+		"This can't be undone. All their data is deleted and their Strava access revoked. They can't connect to this team again, even while in the club: their Strava ID stays on the block list.",
+	"admin.remove.confirm": "Remove and block",
+	"admin.remove.cancel": "Cancel",
+	"admin.remove.done.removed": "The rider was removed and blocked.",
+	"admin.remove.done.removed-revoke-failed":
+		"The rider was removed and blocked, but Strava couldn't be reached to revoke their access. Their token is deleted here anyway.",
+	"admin.remove.error.self":
+		"You can't remove yourself. To leave, use {leave}.",
+	"admin.remove.error.unknown":
+		"That isn't a rider listed here. Nothing changed.",
+	"admin.remove.leaveLink": "Delete my data",
+	"notification.usage.warning": "{allowance}: {percent}\u00a0%",
+	"notification.usage.critical": "Critical: {allowance} at {percent}\u00a0%",
+	"notice.blocked.title": "You can't take part in this team",
+	"notice.blocked.body":
+		"An administrator removed you from this team. We only keep your Strava ID, so you can't connect again, and we've revoked the access you just granted.",
+	"consent.admins":
+		"Administrators run the app for the team. They see your first name, whether you're connected and since when, when your club membership was last checked and whether your import is still running, but no rides or Rynke. They can remove you from the team: your data is then deleted, and only your Strava ID stays on a block list, so you can't connect to this team again.",
+	"privacy.visibility.admins":
+		"The administrators, who run the app for the team, see your first name, whether you're connected and since when, when your club membership was last checked and whether your import is still running, but no activities or Rynke.",
+	"privacy.legal.blocklist":
+		"The block list rests on the team's legitimate interest in keeping out someone it has removed (Art. 6(1)(f) GDPR), not on consent. To ask for its erasure, write to the person responsible named above.",
+	"privacy.retention.blocklist":
+		"The one exception: if an administrator removes you, your Strava ID stays on the team's block list while the team runs the app, with no name, date or reason, so you can't connect again. Everything else is deleted.",
 };

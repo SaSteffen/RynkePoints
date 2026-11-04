@@ -1,6 +1,18 @@
 <!--
 Sync Impact Report
-- Version change: 2.1.0 → 2.2.0
+- Version change: 2.2.1 → 2.3.0
+- Rationale: MINOR — Principle I's deletion rule gains one exception: a rider
+  removed by an administrator stays on a block list by Strava athlete ID, and
+  nothing else, so they can't connect again. Decided with feature 025 (research
+  R9).
+- Principles modified: I (one exception to the deletion rule)
+- Sections added: none
+- Sections removed: none
+- Templates checked for alignment: .specify/templates/* — unchanged.
+- Follow-up TODOs: the data controller confirms the legal basis of the block
+  list before launch (025 spec Assumptions).
+
+Previous: 2.1.0 → 2.2.0
 - Rationale: MINOR — Technology Constraints gain a browser rule: the rider-facing
   app requires JavaScript, and features need no no-script fallback. Pages stay
   server-rendered HTML; text alternatives (tables, labels) serve screen readers,
@@ -56,6 +68,9 @@ consent and Strava's API Agreement.
 - When a rider deauthorizes the app (Strava webhook `athlete` update with
   `authorized: false`) or asks to leave, all their data and tokens MUST be deleted
   promptly — not soft-deleted, not kept "for stats".
+  The one exception: when an administrator removes a rider, the team keeps that rider's
+  Strava athlete ID on a block list, and nothing else, so they can't connect again. The
+  consent text and privacy notice MUST say so.
 - Secrets (Strava client secret, rider access/refresh tokens, encryption keys,
   Cloudflare API tokens) MUST NOT be committed. Rider refresh tokens MUST be
   encrypted at rest in the database. Production secrets live in Cloudflare secrets;
@@ -223,4 +238,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 2.2.1 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-04
+**Version**: 2.3.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-04
