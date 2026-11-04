@@ -50,7 +50,7 @@ a sign-in is never refused because of someone's backlog.
 
 - Q: Is the backlog view on the organiser page (first draft's User Story 3) part
   of this feature? → A: No. It needs a separate administrator role; it is kept
-  as an idea in [the backlog](../backlog/strava-backlog-view.md). User Story 3,
+  as an idea in [the backlog](../025-admin-usage-view/spec.md). User Story 3,
   its requirement and its key-entity mention are removed.
 - Q: What does "fair" mean? → A: Round robin across riders, first in, first out
   within each rider. A rider whose work has just arrived gets the next turn
@@ -376,6 +376,6 @@ import is done.
 - Skipping activities before fetching them (an event doesn't carry the start
   date; feature 001 R5 still applies).
 - Showing the backlog to anyone (an administrator page, [backlog
-  idea](../backlog/strava-backlog-view.md)).
+  idea](../025-admin-usage-view/spec.md)).
 - Any change to what is fetched or stored, to the points rules, or to the
   webhook's handling.
