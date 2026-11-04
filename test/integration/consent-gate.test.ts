@@ -24,7 +24,7 @@ const { de } = CATALOGS;
 function withVersion2(extra: Partial<ConsentVersion> = {}): TestCtx {
 	return makeCtx({
 		consentVersions: [
-			...CONSENT_VERSIONS,
+			CONSENT_VERSIONS[0],
 			{
 				version: 2,
 				published: "2026-11-01",
@@ -289,5 +289,42 @@ describe("POST /me/consent", () => {
 			{ version: 1, accepted_at: NOW },
 			{ version: 2, accepted_at: NOW },
 		]);
+	});
+});
+
+describe("consent version 2 (feature 025 FR-032)", () => {
+	it("meets a version 1 rider on their next visit, naming what's new", async () => {
+		const ctx = makeCtx();
+		await resetDb();
+		await seedRider(ctx, { consentVersion: 1 });
+		const res = await handleFetch(
+			request("/team", { cookies: await sessionCookie(ctx, ATHLETE_A) }),
+			ctx,
+		);
+		const page = await res.text();
+		expect(page).toContain(
+			`<h1>${escapeHtml(de["me.consent.renew.heading"])}</h1>`,
+		);
+		expect(page).toContain(`<li>${escapeHtml(de["consent.admins"])}</li>`);
+		expect(page).toContain(`<li>${escapeHtml(de["landing.leave"])}</li>`);
+		expect(page).toContain('value="2"');
+		// No trip through Strava: no new scope.
+		expect(page).toContain('action="/me/consent"');
+	});
+
+	it("lets them agree, keeping the rest of their data", async () => {
+		const ctx = makeCtx();
+		await resetDb();
+		await seedRider(ctx, { consentVersion: 1 });
+		const cookies = await sessionCookie(ctx, ATHLETE_A);
+		await handleFetch(
+			request("/me/consent", {
+				form: { consent: "2", next: "/team" },
+				cookies,
+			}),
+			ctx,
+		);
+		const res = await handleFetch(request("/team", { cookies }), ctx);
+		expect(await res.text()).not.toContain('action="/me/consent"');
 	});
 });

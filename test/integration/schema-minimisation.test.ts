@@ -28,6 +28,9 @@ const COLUMNS: Record<string, string[]> = {
 		"badges_version",
 		// Feature 024: activities listed by the current import (research R7).
 		"import_fetched",
+		// Feature 025: the administrator flag and their own alert switch.
+		"administrator",
+		"cloudflare_alerts",
 	],
 	activities: [
 		"strava_activity_id",
@@ -162,6 +165,22 @@ const COLUMNS: Record<string, string[]> = {
 		"athlete_id",
 		"created_at",
 	],
+	// Feature 025: no rider data in the usage tables, and only the ID on the block
+	// list (FR-017, FR-023, FR-024).
+	usage_daily: [
+		"day",
+		"allowance",
+		"team",
+		"used",
+		"limit_value",
+		"team_used",
+		"peak_15m",
+		"recorded_at",
+	],
+	usage_source_state: ["source", "last_success_at", "last_failure_at"],
+	usage_alerts: ["allowance", "period", "level", "fired_at"],
+	blocked_athletes: ["athlete_id"],
+	removal_log: ["id", "removed_at", "administrator_id"],
 };
 
 const FORBIDDEN = [

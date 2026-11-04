@@ -30,6 +30,7 @@ import {
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import {
 	ATHLETE_A,
+	ATHLETE_B,
 	EXTRA_CLUB,
 	makeStravaActivity,
 	NOW,
@@ -421,7 +422,7 @@ describe("GET /auth/callback consent and write access", () => {
 		await approve(ctx, fake, ATHLETE_A, SCOPES_ALL);
 		expect((await getRider(env.DB, ATHLETE_A))?.scopeWrite).toBe(true);
 		expect(await consentRows()).toEqual([
-			{ athlete_id: ATHLETE_A, version: 1, accepted_at: NOW },
+			{ athlete_id: ATHLETE_A, version: CONSENT_VERSION, accepted_at: NOW },
 		]);
 	});
 
@@ -430,12 +431,12 @@ describe("GET /auth/callback consent and write access", () => {
 		expect(res.headers.get("Location")).toBe("/me");
 		expect((await getRider(env.DB, ATHLETE_A))?.scopeWrite).toBe(false);
 		expect(await getCurrentConsent(env.DB, ATHLETE_A)).toEqual({
-			version: 1,
+			version: CONSENT_VERSION,
 			acceptedAt: NOW,
 		});
 	});
 
-	it.each([0, 2])(
+	it.each([0, 99])(
 		"revokes and refuses a new athlete with consent version %i",
 		async (consentVersion) => {
 			const res = await approve(
@@ -510,16 +511,16 @@ describe("GET /auth/callback consent and write access", () => {
 		await seedExistingRider({ consentVersion: null });
 		await approve(ctx, fake, ATHLETE_A);
 		expect(await consentRows()).toEqual([
-			{ athlete_id: ATHLETE_A, version: 1, accepted_at: NOW },
+			{ athlete_id: ATHLETE_A, version: CONSENT_VERSION, accepted_at: NOW },
 		]);
 	});
 
 	it("keeps an existing rider's first acceptance", async () => {
-		await seedExistingRider({ consentVersion: 1 });
+		await seedExistingRider({ consentVersion: CONSENT_VERSION });
 		ctx = makeCtx({ now: NOW + 3600 });
 		await approve(ctx, fake, ATHLETE_A);
 		expect(await consentRows()).toEqual([
-			{ athlete_id: ATHLETE_A, version: 1, accepted_at: NOW },
+			{ athlete_id: ATHLETE_A, version: CONSENT_VERSION, accepted_at: NOW },
 		]);
 	});
 });
@@ -528,7 +529,7 @@ describe("GET /auth/callback for a new version that needs a scope (004 US4 scena
 	beforeEach(() => {
 		ctx = makeCtx({
 			consentVersions: [
-				...CONSENT_VERSIONS,
+				CONSENT_VERSIONS[0],
 				{
 					version: 2,
 					published: "2026-11-01",
@@ -606,5 +607,42 @@ describe("GET /auth/callback responses", () => {
 			expect(res.headers.get("Content-Type")).toBeNull();
 			expect(await res.text()).toBe("");
 		}
+	});
+});
+
+describe("GET /auth/callback for a blocked rider (025 FR-030, R7)", () => {
+	const block = (athleteId: number) =>
+		env.DB.prepare("INSERT INTO blocked_athletes (athlete_id) VALUES (?)")
+			.bind(athleteId)
+			.run();
+
+	it("revokes the new token and refuses, with no club request and nothing stored", async () => {
+		await block(ATHLETE_A);
+		const res = await approve(ctx, fake, ATHLETE_A);
+		expectNotice(res, "blocked");
+		expect(fake.revocations).toEqual([
+			expect.objectContaining({ kind: "access" }),
+		]);
+		expect(fake.callsTo("clubs")).toEqual([]);
+		await expectNoRows();
+		const { results } = await env.DB.prepare(
+			"SELECT athlete_id FROM blocked_athletes",
+		).all();
+		expect(results).toEqual([{ athlete_id: ATHLETE_A }]);
+	});
+
+	it("stays blocked after rejoining the club", async () => {
+		await block(ATHLETE_A);
+		expectNotice(await approve(ctx, fake, ATHLETE_A), "blocked");
+		expectNotice(await approve(ctx, fake, ATHLETE_A), "blocked");
+		await expectNoRows();
+	});
+
+	it("leaves everyone else's flow unchanged", async () => {
+		await block(ATHLETE_B);
+		const res = await approve(ctx, fake, ATHLETE_A);
+		expect(res.status).toBe(302);
+		expect(res.headers.get("Location")).toBe("/me");
+		expect(fake.revocations).toEqual([]);
 	});
 });

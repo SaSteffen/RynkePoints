@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Traces the team's Rynke coin artwork (art/coin/) into the SVGs the app and
-// print use (issue: coin artwork):
+// Traces each team's Rynke coin artwork into the SVGs the app and print use
+// (issue: coin artwork). The founding team's, in art/coin/:
 //
 //   art/coin/originals/rynke-coin-front.jpeg  -> public/coin/rynke-coin-front.svg
 //   art/coin/originals/rynke-coin-back.jpeg   -> public/coin/rynke-coin-back.svg
@@ -10,6 +10,10 @@
 //   art/coin/originals/rynke-coin-hero-<n>.png -> public/coin/rynke-coin-hero-<n>.svg
 //                                                (art/coin/hero/README.md)
 //
+// Team Europe's, in art/coin/europe/, stay beside their originals until the app
+// can serve art per team (feature 026): under public/ they'd ship to Hamburg
+// too. It shares the portraits, which show only the character.
+//
 // The full-colour originals are snapped to their own palettes (the back needs
 // the Elbe, sky, glass and brick the shared coin palette doesn't have), and a
 // few regions are recoloured after snapping where the generator got the coin
@@ -17,7 +21,8 @@
 // out and traced as ink only, with transparent paper.
 //
 // Needs ImageMagick and potrace, like pnpm illustrations. Running it again
-// without changes changes no file.
+// without changes changes no file, as long as those tools' versions stay the
+// same: a newer ImageMagick redraws the line drawings and the portraits slightly.
 import { execFileSync } from "node:child_process";
 import {
 	mkdtempSync,
@@ -55,6 +60,24 @@ const BACK_COLOURS = palette([
 	{ name: "ink", hex: "#1c1b13" },
 ]);
 
+// Team Europe's back: Alpine greys, a yellow road, green grass and firs, and
+// the flags' blue and red.
+const EUROPE_BACK_COLOURS = palette([
+	{ name: "cream", hex: "#fffdf5" },
+	{ name: "snow-shade", hex: "#d2dbdf" },
+	{ name: "sky", hex: "#9dd0eb" },
+	{ name: "rock-light", hex: "#97a3b4" },
+	{ name: "rock", hex: "#657686" },
+	{ name: "grass", hex: "#a6c778" },
+	{ name: "fir", hex: "#4a713e" },
+	{ name: "trunk", hex: "#6f5036" },
+	{ name: "flag-blue", hex: "#184190" },
+	{ name: "flag-red", hex: "#ce223a" },
+	{ name: "road", hex: "#fbc63f" },
+	{ name: "gold", hex: "#b8923e" },
+	{ name: "ink", hex: "#000000" },
+]);
+
 const LINE_COLOURS = palette([
 	{ name: "paper", hex: "#ffffff" },
 	{ name: "ink", hex: "#1c1b13" },
@@ -63,8 +86,9 @@ const LINE_COLOURS = palette([
 // Recolourings after snapping, in the original's 2048 px: every region of
 // one colour wholly inside the box changes colour (see trace.mjs).
 const FIXES = {
+	// Team Europe's front has the same layout, so the same fixes.
 	front: [
-		// "TEAM RYNKEBY HAMBURG" in gold like "RYNKE-COIN" on top: the
+		// The team's name in gold like "RYNKE-COIN" on top: the
 		// letters in the black ring's lower half, not its two yellow stars.
 		{
 			box: [0, 1120, 2048, 2048],
@@ -86,12 +110,50 @@ const FIXES = {
 	back: [],
 };
 
-// Each side's circle in the 2576 × 1438 line drawing: [centre x, centre y,
-// radius]. Everything outside it (the dimension lines) is dropped.
-const LINE_CIRCLES = {
-	front: [688, 672, 576],
-	back: [1921, 657, 584],
-};
+const STAR =
+	"M0,-4 L0.94,-1.29 L3.8,-1.24 L1.52,0.49 L2.35,3.24 L0,1.6 L-2.35,3.24 L-1.52,0.49 L-3.8,-1.24 L-0.94,-1.29 Z";
+
+// The European flag's twelve stars on Team Europe's back, in the original's
+// 2048 px: at about 10 px each the tracer's smoothing loses them, so they're
+// drawn on top.
+const EU_STARS = [
+	[1108, 443],
+	[1086, 445],
+	[1130, 450],
+	[1070, 460],
+	[1146, 467],
+	[1065, 481],
+	[1152, 489],
+	[1070, 503],
+	[1146, 510],
+	[1086, 520],
+	[1130, 524],
+	[1108, 529],
+]
+	.map(([x, y]) => {
+		const at = `${((x / 2048) * 100).toFixed(2)} ${((y / 2048) * 100).toFixed(2)}`;
+		return `<path fill="#fbc63f" transform="translate(${at}) scale(0.08)" d="${STAR}"/>`;
+	})
+	.join("");
+
+// One entry per team. `backOverlay` is drawn over the traced back. `lineCoins` has each side's coin in the line drawing:
+// [centre x, centre y, radius across, radius down], in its pixels. Everything
+// outside it (the dimension lines) is dropped, and an oval coin ends up round.
+const TEAMS = [
+	{
+		art: "art/coin",
+		appOut: "public/coin",
+		backColours: BACK_COLOURS,
+		lineCoins: { front: [688, 672, 576, 576], back: [1921, 657, 584, 584] },
+	},
+	{
+		art: "art/coin/europe",
+		appOut: "art/coin/europe",
+		backColours: EUROPE_BACK_COLOURS,
+		backOverlay: EU_STARS,
+		lineCoins: { front: [736, 703, 615, 626], back: [2053, 703, 622, 626] },
+	},
+];
 
 function svg(title, source, { height, markup }) {
 	return (
@@ -107,16 +169,19 @@ function write(out, content) {
 	console.log(`${out} (${statSync(join(ROOT, out)).size} bytes)`);
 }
 
-for (const side of ["front", "back"]) {
-	const source = `art/coin/originals/rynke-coin-${side}.jpeg`;
-	const traced = traceImage(join(ROOT, source), {
-		colours: side === "front" ? FRONT_COLOURS : BACK_COLOURS,
-		fixes: FIXES[side],
-	});
-	write(
-		`public/coin/rynke-coin-${side}.svg`,
-		svg(`Rynke coin, ${side}`, source, traced),
-	);
+for (const { art, appOut, backColours, backOverlay = "" } of TEAMS) {
+	for (const side of ["front", "back"]) {
+		const source = `${art}/originals/rynke-coin-${side}.jpeg`;
+		const traced = traceImage(join(ROOT, source), {
+			colours: side === "front" ? FRONT_COLOURS : backColours,
+			fixes: FIXES[side],
+		});
+		if (side === "back") traced.markup += backOverlay;
+		write(
+			`${appOut}/rynke-coin-${side}.svg`,
+			svg(`Rynke coin, ${side}`, source, traced),
+		);
+	}
 }
 
 const magick = (() => {
@@ -131,41 +196,46 @@ const magick = (() => {
 
 const tmp = mkdtempSync(join(tmpdir(), "coin-art-"));
 try {
-	const source = "art/coin/reference/rynke-coin-line-drawing.jpeg";
-	for (const [side, [cx, cy, r]] of Object.entries(LINE_CIRCLES)) {
-		const crop = join(tmp, `${side}.png`);
-		const size = 2 * r + 8;
-		const c = size / 2;
-		execFileSync(magick, [
-			join(ROOT, source),
-			"-crop",
-			`${size}x${size}+${cx - c}+${cy - c}`,
-			"+repage",
-			"-alpha",
-			"set",
-			"(",
-			"+clone",
-			"-alpha",
-			"transparent",
-			"-fill",
-			"white",
-			"-draw",
-			`circle ${c},${c} ${c},${c - r - 2}`,
-			")",
-			"-compose",
-			"DstIn",
-			"-composite",
-			// Up to the colour originals' canvas, so the thin lines (the
-			// Elbphilharmonie's glass) outlast the tracer's smoothing.
-			"-resize",
-			"2048x2048",
-			crop,
-		]);
-		const traced = traceImage(crop, { colours: LINE_COLOURS, omit: ["paper"] });
-		write(
-			`art/coin/rynke-coin-line-${side}.svg`,
-			svg(`Rynke coin, ${side}, line drawing`, source, traced),
-		);
+	for (const { art, lineCoins } of TEAMS) {
+		const source = `${art}/reference/rynke-coin-line-drawing.jpeg`;
+		for (const [side, [cx, cy, rx, ry]] of Object.entries(lineCoins)) {
+			const crop = join(tmp, `${side}.png`);
+			const width = 2 * rx + 8;
+			const height = 2 * ry + 8;
+			execFileSync(magick, [
+				join(ROOT, source),
+				"-crop",
+				`${width}x${height}+${cx - width / 2}+${cy - height / 2}`,
+				"+repage",
+				"-alpha",
+				"set",
+				"(",
+				"+clone",
+				"-alpha",
+				"transparent",
+				"-fill",
+				"white",
+				"-draw",
+				`ellipse ${width / 2},${height / 2} ${rx + 2},${ry + 2} 0,360`,
+				")",
+				"-compose",
+				"DstIn",
+				"-composite",
+				// Up to the colour originals' canvas, so the thin lines (the
+				// Elbphilharmonie's glass) outlast the tracer's smoothing.
+				"-resize",
+				"2048x2048!",
+				crop,
+			]);
+			const traced = traceImage(crop, {
+				colours: LINE_COLOURS,
+				omit: ["paper"],
+			});
+			write(
+				`${art}/rynke-coin-line-${side}.svg`,
+				svg(`Rynke coin, ${side}, line drawing`, source, traced),
+			);
+		}
 	}
 } finally {
 	rmSync(tmp, { recursive: true, force: true });
@@ -186,8 +256,6 @@ const HERO_COLOURS = palette([
 	FRONT_COLOURS[FRONT_COLOURS.length - 1],
 ]);
 const GENERATED_R = (1800 / 2048) * 50;
-const STAR =
-	"M0,-4 L0.94,-1.29 L3.8,-1.24 L1.52,0.49 L2.35,3.24 L0,1.6 L-2.35,3.24 L-1.52,0.49 L-3.8,-1.24 L-0.94,-1.29 Z";
 
 function heroSvg(source, { markup }, n) {
 	const k = Number((FACE / GENERATED_R).toFixed(5));

@@ -6,11 +6,15 @@ import {
 	consentState,
 	currentVersion,
 	hasAgreed,
+	SHARING_SINCE_VERSION,
 } from "../../src/consent";
 import { CATALOGS } from "../../src/i18n/catalogs";
 
 // The consent-version registry (feature 004 research R11, data-model.md
 // "Consent Version").
+
+/** What later versions added: text named without a new version isn't in it. */
+const NEW_TEXT_SINCE_FIRST_VERSION = CONSENT_VERSIONS.flatMap((v) => v.changes);
 
 describe("CONSENT_VERSIONS", () => {
 	it("starts at 1 and is ordered and consecutive", () => {
@@ -49,20 +53,38 @@ describe("CONSENT_VERSIONS", () => {
 		expect(CATALOGS.de["consent.short.read"]).toContain("Lauf");
 		expect(CATALOGS.de["consent.team"]).toContain("Team-Summen");
 		expect(CATALOGS.en["consent.short.read"]).toContain("runs");
-		expect(CONSENT_VERSION).toBe(1);
+		expect(NEW_TEXT_SINCE_FIRST_VERSION).not.toContain("consent.short.read");
+		expect(NEW_TEXT_SINCE_FIRST_VERSION).not.toContain("consent.team");
 	});
 
 	it("names the team surprises' days and hours without a new version (013 part E)", () => {
 		expect(CATALOGS.de["consent.team"]).toContain("Team-Überraschungen");
 		expect(CATALOGS.de["consent.team"]).toContain("schwimmst");
 		expect(CATALOGS.en["consent.team"]).toContain("team surprises");
-		expect(CONSENT_VERSION).toBe(1);
+		expect(NEW_TEXT_SINCE_FIRST_VERSION).not.toContain("consent.short.read");
+		expect(NEW_TEXT_SINCE_FIRST_VERSION).not.toContain("consent.team");
 	});
 
 	it("names swims without a new version (013 part C, R30)", () => {
 		expect(CATALOGS.de["consent.short.read"]).toContain("Schwimm");
 		expect(CATALOGS.en["consent.short.read"]).toContain("swims");
-		expect(CONSENT_VERSION).toBe(1);
+		expect(NEW_TEXT_SINCE_FIRST_VERSION).not.toContain("consent.short.read");
+		expect(NEW_TEXT_SINCE_FIRST_VERSION).not.toContain("consent.team");
+	});
+
+	it("asks again for the administrators and the block list (025 FR-032)", () => {
+		expect(CONSENT_VERSIONS[1]).toMatchObject({
+			version: 2,
+			requiredScopes: ["read", "activity:read"],
+			changes: ["consent.admins", "landing.leave"],
+		});
+		expect(SHARING_SINCE_VERSION).toBe(1);
+		expect(CATALOGS.de["consent.admins"]).toContain("Sperrliste");
+		expect(CATALOGS.en["consent.admins"]).toContain("block list");
+		expect(CATALOGS.de["landing.leave"]).toContain("Strava-ID");
+		expect(CATALOGS.en["landing.leave"]).toContain("Strava ID");
+		expect(CATALOGS.de["consent.short.shown"]).toContain("Admins");
+		expect(CATALOGS.en["consent.short.shown"]).toContain("Administrators");
 	});
 
 	it("keeps CONSENT_VERSION at the last entry", () => {
@@ -73,7 +95,7 @@ describe("CONSENT_VERSIONS", () => {
 
 describe("consentState (research R14)", () => {
 	const VERSIONS: ConsentVersions = [
-		...CONSENT_VERSIONS,
+		CONSENT_VERSIONS[0],
 		{
 			version: 2,
 			published: "2026-11-01",

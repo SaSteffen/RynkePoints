@@ -1,9 +1,18 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
+import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
-import { makeCtx, resetDb, seedRider, sessionCookie } from "../support/ctx";
+import {
+	makeCtx,
+	request,
+	resetDb,
+	seedRider,
+	sessionCookie,
+} from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, firstNameFor, NOW } from "../support/fixtures";
 import { pushEndpoint, seedSubscription } from "../support/push";
+import { seedBalance } from "../support/rider-view";
+import { seedUsageDay } from "../support/usage";
 
 // POST /me/notifications (feature 010 contracts/http-routes.md, FR-010–FR-012,
 // SC-005).
@@ -131,5 +140,109 @@ describe("POST /me/notifications", () => {
 	])("answers 400 for %s and writes nothing", async (_, form) => {
 		expect(await post(form)).toEqual({ status: 400, body: null });
 		expect(await rows()).toEqual([]);
+	});
+});
+
+describe("GET /me/notification-text for an alert (feature 025 FR-036)", () => {
+	const fired = (allowance: string, level: number, at = NOW - 60) =>
+		env.DB.prepare(
+			`INSERT INTO usage_alerts (allowance, period, level, fired_at)
+			VALUES (?, '2026-10-06', ?, ?)`,
+		)
+			.bind(allowance, level, at)
+			.run();
+	const usage = (allowance: string, used: number, limit: number) =>
+		seedUsageDay("2026-10-06", allowance, used, limit);
+	const makeAdmin = (athleteId = ATHLETE_A) =>
+		env.DB.prepare("UPDATE riders SET administrator = 1 WHERE athlete_id = ?")
+			.bind(athleteId)
+			.run();
+
+	async function text(athleteId = ATHLETE_A) {
+		const res = await handleFetch(
+			request("/me/notification-text", {
+				cookies: await sessionCookie(ctx, athleteId),
+			}),
+			ctx,
+		);
+		return {
+			status: res.status,
+			body:
+				res.status === 200
+					? ((await res.json()) as { body: string; url?: string })
+					: null,
+		};
+	}
+
+	it("gives an administrator the allowance, its percentage and /admin", async () => {
+		await makeAdmin();
+		await usage("strava_read_daily", 2500, 3000);
+		await fired("strava_read_daily", 80);
+		const { body } = await text();
+		expect(body?.url).toBe("/admin");
+		expect(body?.body).toBe(
+			`${CATALOGS.de["admin.allowance.strava_read_daily"]}: 83\u00a0%`,
+		);
+		expect(body?.body).not.toContain(firstNameFor(ATHLETE_A));
+	});
+
+	it("has its own wording when critical", async () => {
+		await makeAdmin();
+		await usage("strava_read_daily", 2900, 3000);
+		await fired("strava_read_daily", 80);
+		await fired("strava_read_daily", 95);
+		expect((await text()).body?.body).toBe(
+			`Kritisch: ${CATALOGS.de["admin.allowance.strava_read_daily"]} bei 96\u00a0%`,
+		);
+	});
+
+	it("falls back on the level without today's record", async () => {
+		await makeAdmin();
+		await fired("riders_connected", 80);
+		expect((await text()).body?.body).toContain("80\u00a0%");
+	});
+
+	it("is over after 15 minutes", async () => {
+		await makeAdmin();
+		await fired("strava_read_daily", 80, NOW - 15 * 60 - 1);
+		expect((await text()).status).toBe(204);
+	});
+
+	it("isn't for a rider who isn't an administrator", async () => {
+		await fired("strava_read_daily", 80);
+		expect((await text()).status).toBe(204);
+	});
+
+	it("skips a Cloudflare alert with the switch off", async () => {
+		await makeAdmin();
+		await env.DB.prepare(
+			"UPDATE riders SET cloudflare_alerts = 0 WHERE athlete_id = ?",
+		)
+			.bind(ATHLETE_A)
+			.run();
+		await fired("cf_worker_requests", 80);
+		expect((await text()).status).toBe(204);
+		await fired("strava_all_daily", 80);
+		expect((await text()).body?.url).toBe("/admin");
+	});
+
+	it("gives the Rynke text back to an administrator with the switch off", async () => {
+		await makeAdmin();
+		await env.DB.prepare(
+			"UPDATE riders SET cloudflare_alerts = 0 WHERE athlete_id = ?",
+		)
+			.bind(ATHLETE_A)
+			.run();
+		await fired("cf_worker_requests", 80);
+		await seedBalance(ATHLETE_A, { trainingRynke: 10 });
+		await env.DB.prepare(
+			`INSERT INTO rynke_rises (athlete_id, training_rynke, team_rynke, risen_at)
+			VALUES (?, 3, 0, ?)`,
+		)
+			.bind(ATHLETE_A, NOW)
+			.run();
+		const { body } = await text();
+		expect(body?.url).toBeUndefined();
+		expect(body?.body).toContain("3");
 	});
 });

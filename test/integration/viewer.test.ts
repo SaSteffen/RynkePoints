@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
-import { CONSENT_VERSIONS } from "../../src/consent";
+import { CONSENT_VERSION, CONSENT_VERSIONS } from "../../src/consent";
 import { consentVersionOf, getCurrentConsent } from "../../src/db/consents";
 import {
 	readViewer,
@@ -154,7 +154,7 @@ describe("requireRider", () => {
 describe("requireConsent (004 US4, contracts/re-consent.md)", () => {
 	const v2Ctx = makeCtx({
 		consentVersions: [
-			...CONSENT_VERSIONS,
+			CONSENT_VERSIONS[0],
 			{
 				version: 2,
 				published: "2026-11-01",
@@ -182,7 +182,7 @@ describe("requireConsent (004 US4, contracts/re-consent.md)", () => {
 	it("sends a rider on the current version without a scope it requires to /me", async () => {
 		const scopeCtx = makeCtx({
 			consentVersions: [
-				...CONSENT_VERSIONS,
+				CONSENT_VERSIONS[0],
 				{
 					version: 2,
 					published: "2026-11-01",
@@ -196,7 +196,7 @@ describe("requireConsent (004 US4, contracts/re-consent.md)", () => {
 	});
 
 	it("lets a current rider through", async () => {
-		await seedRider(ctx, { consentVersion: 1 });
+		await seedRider(ctx, { consentVersion: CONSENT_VERSION });
 		expect(requireConsent(await viewerOf(ATHLETE_A), ctx)).toBeNull();
 	});
 

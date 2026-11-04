@@ -243,3 +243,28 @@ export function thresholdBars(
 			: html`<line class="pace-mark" x1="${coord(share(pace) * THRESHOLD_WIDTH)}" x2="${coord(share(pace) * THRESHOLD_WIDTH)}" y1="0" y2="${THRESHOLD_HEIGHT}" vector-effect="non-scaling-stroke"/>`;
 	return html`<svg class="threshold-bar" viewBox="0 0 ${THRESHOLD_WIDTH} ${THRESHOLD_HEIGHT}" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect class="threshold-track" y="2" width="${THRESHOLD_WIDTH}" height="6" rx="3"/><rect class="threshold-fill" y="2" width="${coord(share(value) * THRESHOLD_WIDTH)}" height="6" rx="3"/>${tick}</svg>`;
 }
+
+const DAILY_WIDTH = 100;
+const DAILY_HEIGHT = 60;
+
+/**
+ * One bar per day, oldest first, of `shares` as a percentage of the limit that
+ * day, with the limit as a line (feature 025 FR-014). A null is a day without a
+ * record: no bar, so a gap never reads as zero (FR-015). Taller than the limit
+ * when a day went above it. The table beside it carries the figures.
+ */
+export function dailyBars(
+	shares: readonly (number | null)[],
+	label: string,
+): SafeHtml {
+	const top = Math.max(100, ...shares.map((share) => share ?? 0));
+	const slot = shares.length > 0 ? DAILY_WIDTH / shares.length : 0;
+	const y = (share: number) =>
+		DAILY_HEIGHT - (Math.max(0, share) / top) * DAILY_HEIGHT;
+	const bars = shares.map((share, i) =>
+		share === null
+			? null
+			: html`<rect x="${coord(i * slot)}" y="${coord(y(share))}" width="${coord(slot * BAR_SHARE)}" height="${coord(DAILY_HEIGHT - y(share))}"/>`,
+	);
+	return html`<svg class="usage-chart" viewBox="0 0 ${DAILY_WIDTH} ${DAILY_HEIGHT}" preserveAspectRatio="none" role="img" aria-label="${label}">${bars}<line x1="0" x2="${DAILY_WIDTH}" y1="${coord(y(100))}" y2="${coord(y(100))}" vector-effect="non-scaling-stroke"/></svg>`;
+}

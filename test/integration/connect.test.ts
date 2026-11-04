@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { CONSENT_VERSIONS } from "../../src/consent";
+import { CONSENT_VERSION, CONSENT_VERSIONS } from "../../src/consent";
 import { readOAuthState } from "../../src/http/session";
 import { handleFetch } from "../../src/index";
 import {
@@ -49,7 +49,9 @@ async function stateCookie(res: Response) {
 
 describe("POST /connect with the box ticked", () => {
 	it("redirects to Strava's authorize page with all four scopes", async () => {
-		const params = expectAuthorize(await connectForm({ consent: "1" }));
+		const params = expectAuthorize(
+			await connectForm({ consent: String(CONSENT_VERSION) }),
+		);
 		expect(params.get("client_id")).toBe("10001");
 		expect(params.get("redirect_uri")).toBe(`${ORIGIN}/auth/callback`);
 		expect(params.get("response_type")).toBe("code");
@@ -58,12 +60,12 @@ describe("POST /connect with the box ticked", () => {
 		expect(params.get("state")).toMatch(/^[A-Za-z0-9_-]{16,}$/);
 	});
 
-	it("stores the same state and consent version 1 in rp_oauth_state", async () => {
-		const res = await connectForm({ consent: "1" });
+	it("stores the same state and the consent version in rp_oauth_state", async () => {
+		const res = await connectForm({ consent: String(CONSENT_VERSION) });
 		const state = expectAuthorize(res).get("state");
 		expect(await stateCookie(res)).toEqual({
 			state,
-			consentVersion: 1,
+			consentVersion: CONSENT_VERSION,
 			next: "/",
 		});
 	});
@@ -76,21 +78,25 @@ describe("POST /connect with the box ticked", () => {
 		["https://evil.example/", "/"],
 		["/me:evil", "/"],
 	])("stores next=%s as %s (011 R9)", async (next, stored) => {
-		const res = await connectForm({ consent: "1", next });
+		const res = await connectForm({ consent: String(CONSENT_VERSION), next });
 		const state = expectAuthorize(res).get("state");
 		expect(await stateCookie(res)).toEqual({
 			state,
-			consentVersion: 1,
+			consentVersion: CONSENT_VERSION,
 			next: stored,
 		});
 		const raw = res.headers.get("Set-Cookie") ?? "";
-		expect(raw).toContain(`rp_oauth_state=${state}:1:${stored}.`);
+		expect(raw).toContain(
+			`rp_oauth_state=${state}:${CONSENT_VERSION}:${stored}.`,
+		);
 	});
 
 	it("uses a fresh state every time", async () => {
 		const states = await Promise.all(
 			[1, 2].map(async () =>
-				expectAuthorize(await connectForm({ consent: "1" })).get("state"),
+				expectAuthorize(
+					await connectForm({ consent: String(CONSENT_VERSION) }),
+				).get("state"),
 			),
 		);
 		expect(states[0]).not.toBe(states[1]);
@@ -109,7 +115,7 @@ describe("POST /connect without agreement", () => {
 	it.each([
 		["no consent field", {}],
 		["consent=0", { consent: "0" }],
-		["consent=2", { consent: "2" }],
+		["consent=3", { consent: "3" }],
 	])("sends %s to /notice/consent-required", async (_name, form) => {
 		const res = await connectForm(form);
 		expect(res.status).toBe(303);
@@ -124,7 +130,10 @@ describe("POST /connect without agreement", () => {
 	])(
 		"refuses %s Origin with the German forbidden page",
 		async (_name, origin) => {
-			const res = await connectForm({ consent: "1" }, origin);
+			const res = await connectForm(
+				{ consent: String(CONSENT_VERSION) },
+				origin,
+			);
 			expect(res.status).toBe(403);
 			expect(await res.text()).toContain("Anfrage abgelehnt");
 			expect(res.headers.get("Set-Cookie")).toBeNull();
@@ -135,7 +144,7 @@ describe("POST /connect without agreement", () => {
 describe("POST /connect after a new consent version (004 research R11)", () => {
 	const v2Ctx = makeCtx({
 		consentVersions: [
-			...CONSENT_VERSIONS,
+			CONSENT_VERSIONS[0],
 			{
 				version: 2,
 				published: "2026-11-01",

@@ -63,6 +63,8 @@ export interface SampleRider {
 	events?: readonly EventRecipe[];
 	/** Set as the maintainer would, after connecting (feature 004 research R10). */
 	organiser?: true;
+	/** The same for the administrator flag (feature 025 research R12). */
+	administrator?: true;
 }
 
 /** `count` rides from `recipe(i)`, i = 0 … count − 1. */
@@ -398,6 +400,16 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 				ride(0, "09:00", 50, 1000, 20, { onDate: `05-0${1 + i}` }),
 			),
 		],
+	},
+	{
+		athleteId: 990018,
+		firstName: "Alex Admin",
+		state: "Administrator: watches usage and riders at /admin",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		administrator: true,
+		rides: rides(4, (i) => ride(...slot(i), 40, 200, 25)),
 	},
 ];
 

@@ -35,6 +35,14 @@ export const CLIPBOARD = icon(
 	'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1"/><path d="M9 10h6M9 14h6M9 18h3"/>',
 );
 
+/** A dial near its end, for the usage figures (feature 025). */
+export const GAUGE = icon(
+	'<path d="M4 18a9 9 0 1 1 16 0"/><path d="m12 14 4-5"/><circle cx="12" cy="14" r="1.5"/>',
+);
+
+/** A rising line, for the usage history (feature 025). */
+export const TREND = icon('<path d="M4 19h16"/><path d="m5 15 5-5 3 3 6-7"/>');
+
 export const CALENDAR = icon(
 	'<rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/>',
 );

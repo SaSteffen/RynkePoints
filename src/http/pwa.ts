@@ -3,10 +3,13 @@ import type { Ctx } from "../ctx";
 import { readBadgeRiseStatement } from "../db/badges";
 import { riderStandingStatements, toRiderStanding } from "../db/rider-view";
 import { readRiseStatement } from "../db/rynke";
+import { type CurrentAlert, currentAlertStatement } from "../db/usage";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { BADGE_NAMES } from "../i18n/messages/badges.de";
 import { resolveLocale } from "../i18n/resolve";
 import { rulesForVersion } from "../rynke/rules";
+import { CRITICAL_LEVEL, utcDay } from "../usage/allowances";
+import { percentOf } from "../usage/figures";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
 import { CLOSE } from "./icons";
 import { summary as riderSummary } from "./rider-view";
@@ -20,6 +23,9 @@ import { readSession } from "./session";
 const TEAM_BADGE_IDS = new Set(
 	BADGES.filter((b) => b.group === "team").map((b) => b.id),
 );
+
+/** How long a device still shows a fired alert (025 contracts/alerts.md). */
+const ALERT_TEXT_SECONDS = 15 * 60;
 
 /** The `lang` the service worker asks for, else the usual resolution. */
 function textI18n(request: Request, ctx: Ctx): I18n {
@@ -73,7 +79,8 @@ export function handleNotificationText(request: Request, ctx: Ctx): Response {
  * latest rise brought badges, it names them instead (feature 013 research
  * R17); a badge rise at the same time as a Rynke rise wins, since it came from
  * the same change. Team badges (#125) say so. Both open the badges page,
- * where they are revealed.
+ * where they are revealed. An administrator's alert just fired comes first and
+ * opens the admin view; it holds no rider data (feature 025 FR-036).
  */
 export async function handleRiderNotificationText(
 	request: Request,
@@ -86,11 +93,38 @@ export async function handleRiderNotificationText(
 
 	// The rises and only what the summary needs, in one batch (issue #185).
 	const db = ctx.env.DB;
-	const [riseRows, badgeRiseRows, ...standingRows] = await db.batch([
+	const now = ctx.now();
+	const [alertRows, riseRows, badgeRiseRows, ...standingRows] = await db.batch([
+		currentAlertStatement(db, athleteId, now - ALERT_TEXT_SECONDS, utcDay(now)),
 		readRiseStatement(db, athleteId),
 		readBadgeRiseStatement(db, athleteId),
 		...riderStandingStatements(db, athleteId),
 	]);
+	const alert = (alertRows?.results as CurrentAlert[] | undefined)?.[0];
+	if (alert) {
+		const i18n = textI18n(request, ctx);
+		// Without today's record yet, the level is what's known to be reached.
+		const percent =
+			alert.used !== null && alert.limit_value !== null
+				? percentOf(alert.used, alert.limit_value)
+				: alert.level;
+		return Response.json(
+			{
+				title: i18n.t("app.name"),
+				body: i18n.t(
+					alert.level >= CRITICAL_LEVEL
+						? "notification.usage.critical"
+						: "notification.usage.warning",
+					{
+						allowance: i18n.t(`admin.allowance.${alert.allowance}`),
+						percent: i18n.formatNumber(percent, { fractionDigits: 0 }),
+					},
+				),
+				url: "/admin",
+			},
+			{ headers: { ...headers, "Content-Language": i18n.locale } },
+		);
+	}
 	const rise = (
 		riseRows?.results as
 			| { training_rynke: number; team_rynke: number; risen_at: number }[]

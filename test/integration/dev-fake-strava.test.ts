@@ -381,6 +381,22 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 		);
 	});
 
+	it("flags only Alex Admin as an administrator, and seeds synthetic usage (025 R12)", async () => {
+		await seeded();
+		const { results } = await env.DB.prepare(
+			"SELECT first_name, organiser FROM riders WHERE administrator = 1",
+		).all();
+		expect(results).toEqual([{ first_name: "Alex Admin", organiser: 0 }]);
+		const { results: levels } = await env.DB.prepare(
+			`SELECT allowance, used * 100 / limit_value AS percent FROM usage_daily
+			WHERE allowance LIKE 'cf%' ORDER BY day DESC, allowance LIMIT 5`,
+		).all<{ allowance: string; percent: number }>();
+		const percents = levels.map((row) => row.percent);
+		expect(percents.some((p) => p >= 95)).toBe(true);
+		expect(percents.some((p) => p >= 80 && p < 95)).toBe(true);
+		expect(percents.some((p) => p < 80)).toBe(true);
+	});
+
 	it("flags Tina TrainingDone and Olga Organiser as the organisers (004 research R10)", async () => {
 		await seeded();
 		const { results } = await env.DB.prepare(

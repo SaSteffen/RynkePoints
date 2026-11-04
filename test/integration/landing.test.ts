@@ -124,7 +124,6 @@ describe("GET / (signed out)", () => {
 		expect(english).toContain("only read its name, sport type");
 		expect(english).toContain("your individual rides and their names");
 		// Named, not a new consent: no new scope or request (clarification Q1).
-		expect(CONSENT_VERSION).toBe(1);
 	});
 
 	it("explains notifications after the cookies (010 FR-030, research R14)", async () => {
@@ -142,7 +141,6 @@ describe("GET / (signed out)", () => {
 		}
 		expect(de["landing.notifications"]).toContain("Google, Apple, Mozilla");
 		// Named, not a new consent: no Strava scope or request (R14).
-		expect(CONSENT_VERSION).toBe(1);
 	});
 
 	it("names who sees what and asks for no write access", async () => {
@@ -159,7 +157,7 @@ describe("GET / (signed out)", () => {
 		const { page } = await get();
 		expect(page).toContain('<form method="post" action="/connect">');
 		expect(page).toContain(
-			'<input type="checkbox" name="consent" value="1" required>',
+			`<input type="checkbox" name="consent" value="${CONSENT_VERSION}" required>`,
 		);
 		expect(page).toContain(connectButton(de));
 		expect(page).toContain('alt="Mit Strava verbinden"');
@@ -172,13 +170,13 @@ describe("GET / (signed out)", () => {
 <p><label><input type="checkbox" name="consent" value="${version}" required> ${escapeHtml(de["consent.agree"])}</label></p>
 ${connectButton(de)}
 </form>`;
-		expect((await get()).page).toContain(form(1));
+		expect((await get()).page).toContain(form(CONSENT_VERSION));
 
 		const v2Ctx = makeCtx({
 			consentVersions: [
 				...CONSENT_VERSIONS,
 				{
-					version: 2,
+					version: 3,
 					published: "2026-11-01",
 					requiredScopes: ["read", "activity:read"],
 					changes: ["consent.team"],
@@ -186,7 +184,7 @@ ${connectButton(de)}
 			],
 		});
 		const res = await handleFetch(request("/"), v2Ctx);
-		expect(await res.text()).toContain(form(2));
+		expect(await res.text()).toContain(form(3));
 	});
 
 	it("offers the language switcher before connecting", async () => {

@@ -39,9 +39,10 @@
 			}
 		]
 	},
-	// Daily membership check and failed_work re-enqueue.
+	// Daily membership check and failed_work re-enqueue; hourly usage recording
+	// and alerts (025 research R2). `handleScheduled` tells them apart.
 	"triggers": {
-		"crons": ["17 3 * * *"]
+		"crons": ["17 3 * * *", "58 * * * *"]
 	},
 	// Unmodified Strava brand assets (see public/strava/README.md).
 	"assets": {
@@ -76,10 +77,15 @@
 		// Who is responsible for the riders' data, and how to reach them, for
 		// the privacy page (/privacy). One line each; the contact is the email.
 		"PRIVACY_CONTROLLER": "Sascha Steffen",
-		"CONTACT_EMAIL": "support@trhh-rynke-coins.link"
+		"CONTACT_EMAIL": "support@trhh-rynke-coins.link",
+		// Labels this team's usage records, for feature 026's shares (025 R13).
+		"TEAM_ID": "hamburg"
 	},
 	// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing
 	// them here makes `pnpm types` independent of what's in your `.dev.vars`.
+	// CLOUDFLARE_ANALYTICS_TOKEN and CLOUDFLARE_ANALYTICS_ACCOUNT_ID are optional,
+	// so they aren't listed and a deploy works without them: Cloudflare's figures
+	// then count as unavailable (025 contracts/cloudflare-analytics.md).
 	"secrets": {
 		"required": [
 			"STRAVA_CLIENT_ID",

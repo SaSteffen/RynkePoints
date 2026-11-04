@@ -2,6 +2,7 @@ import { createMessageBatch, env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { handleQueue } from "../../src/index";
 import { getAccessToken, revokeToken } from "../../src/strava/tokens";
+import { recordUsage } from "../../src/usage/record";
 import {
 	type Handlers,
 	MAX_ATTEMPTS,
@@ -17,6 +18,7 @@ import {
 	pushEndpoint,
 	seedSubscription,
 } from "../support/push";
+import { installCloudflare, WITH_ANALYTICS } from "../support/usage";
 
 // No log line may carry a credential (constitution Principle I, FR-027):
 // tokens, authorization codes, the client secret or the encryption key. The
@@ -29,6 +31,7 @@ const SECRETS = [
 	env.TOKEN_ENCRYPTION_KEY,
 	env.SESSION_SIGNING_KEY,
 	JSON.parse(env.PUSH_VAPID_KEY).d,
+	WITH_ANALYTICS.CLOUDFLARE_ANALYTICS_TOKEN,
 ];
 // Every token and code the fake Strava issues (fake-strava.ts, callback.ts).
 const SECRET_PATTERNS = [/(access|refresh)-\d+-\d+/, /synthetic-code-\d+/];
@@ -181,6 +184,19 @@ describe("logging never includes credentials", () => {
 		]);
 		await processBatch(batch, ctx, handlers);
 		expectLogged("moved to failed_work: exception: Error");
+	});
+
+	it.each<[string, () => Response | "throw"]>([
+		["a network error", () => "throw"],
+		["a refusal", () => new Response("no", { status: 403 })],
+		[
+			"errors in the body",
+			() => Response.json({ errors: [{ message: "denied" }], data: null }),
+		],
+	])("usage recording: Cloudflare fails with %s", async (_, answer) => {
+		installCloudflare(answer);
+		await recordUsage({ ...ctx, env: { ...ctx.env, ...WITH_ANALYTICS } });
+		expectLogged("Cloudflare usage unavailable");
 	});
 
 	it.each<[number | "throw", number, string]>([
