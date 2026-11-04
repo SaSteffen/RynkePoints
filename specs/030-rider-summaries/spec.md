@@ -37,7 +37,7 @@ A team of 40 uses the app every day until the qualification deadline. The app ne
 1. **Given** a team of 40 at the end of a season, **When** a rider opens the app, **Then** the check for new badges reads about 225 rows instead of about 45,000.
 2. **Given** the same team, **When** anyone opens the Team page, the Badges page or the organiser's rider list, **Then** the rows read meet SC-001.
 3. **Given** the same team, **When** a new ride arrives, **Then** evaluating it and checking the team badges reads about 1,000 rows.
-4. **Given** two teams with equal riders, **When** one has twice the rides, **Then** a page's rows read stay about the same.
+4. **Given** two teams with equal riders, **When** one has twice the rides, **Then** opening the app, the Team page and the organiser's rider list read about the same rows, and the Badges page and a new ride read more only for that one rider's own rides.
 
 ---
 
@@ -170,7 +170,7 @@ Between the release and the moment every rider has a summary, pages show the rig
   | Each new ride, with the team badge check | 45,995 | 1,500 |
 
 - **SC-002**: With the usage estimate under Why, the whole app reads under 5% of the free daily limit, down from about 170%.
-- **SC-003**: Doubling every rider's rides raises each use in SC-001 by less than 10%.
+- **SC-003**: Doubling every rider's rides raises opening the app, the Team page and the organiser's rider list by less than 10%. The Badges page and each new ride still read the one rider's own rides, as they must, so they rise by at most 5 rows per extra ride of that rider and by nothing for other riders' rides.
 - **SC-004**: In 100% of comparisons, weekly numbers and team badges from summaries equal those from adding up the rides.
 - **SC-005**: In 100% of checks, a rider removed from the list is in no team figure on the next page load.
 - **SC-006**: After release, no rider sees a changed number, and the existing page tests pass without a change to what they expect a page to show.
