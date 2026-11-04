@@ -86,6 +86,16 @@ describe("D1 round trips per page (#184, #185)", () => {
 		expect(counter.trips()).toBe(2);
 	});
 
+	it("serves /organiser/riders with graphs in as many as without", async () => {
+		await seedReadyRider({ organiser: true });
+		const withGraphs = await tripsOf("/organiser/riders");
+		const env0 = ctx.env;
+		ctx.env = { ...env0, ORGANISER_PROGRESS_GRAPH: "off" };
+		const without = await tripsOf("/organiser/riders");
+		ctx.env = env0;
+		expect(withGraphs).toBe(without);
+	});
+
 	it("decides where the app opens in one", async () => {
 		await seedReadyRider();
 		expect(await tripsOf("/", 302)).toBe(1);

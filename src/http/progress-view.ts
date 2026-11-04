@@ -176,7 +176,7 @@ function presets(
 }
 
 /** `date` the same day `months` calendar months back, or that month's last day. */
-function monthsBefore(date: string, months: number): string {
+export function monthsBefore(date: string, months: number): string {
 	const [year = 0, month = 1, day = 1] = date.split("-").map(Number);
 	const first = new Date(Date.UTC(year, month - 1 - months, 1));
 	const daysInMonth = new Date(

@@ -4,6 +4,7 @@ import {
 	RIDER_SUMMARY_VERSION,
 	type RiderSummary,
 	type RunDayEntry,
+	TEAM_SUMMARY_SINCE,
 	type WeekEntry,
 } from "../rynke/summary";
 import { LISTED_RIDER_IDS } from "./organiser";
@@ -20,15 +21,17 @@ export interface RiderSummaryRow {
 	run_days: string;
 	active: string;
 	attended: string;
+	virtual_days: string;
+	own_days: string;
 }
 
 /**
- * For a query from `riders r`: the rider's row under the current version as
- * `s`, nothing otherwise, so a missing or outdated row costs no extra read and
- * shows up as `s.athlete_id IS NULL` (research R4, R6).
+ * For a query from `riders r`: the rider's row as `s` when its team columns can
+ * be used, nothing otherwise, so a missing or outdated row costs no extra read
+ * and shows up as `s.athlete_id IS NULL` (research R4; feature 029 research R14).
  */
-export const CURRENT_SUMMARY_JOIN = `LEFT JOIN rider_summaries s
-	ON s.athlete_id = r.athlete_id AND s.version = ${RIDER_SUMMARY_VERSION}`;
+export const TEAM_SUMMARY_JOIN = `LEFT JOIN rider_summaries s
+	ON s.athlete_id = r.athlete_id AND s.version >= ${TEAM_SUMMARY_SINCE}`;
 
 /** The rows of every rider in `athleteIds`, for one batch (research R2). */
 export function readSummariesOfRidersStatement(
@@ -37,7 +40,8 @@ export function readSummariesOfRidersStatement(
 ) {
 	return db
 		.prepare(
-			`SELECT athlete_id, version, days, weeks, run_days, active, attended
+			`SELECT athlete_id, version, days, weeks, run_days, active, attended,
+				virtual_days, own_days
 			FROM rider_summaries
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))`,
 		)
@@ -52,11 +56,11 @@ export function upsertSummaryStatement(
 	return db
 		.prepare(
 			`INSERT INTO rider_summaries (athlete_id, version, days, weeks, run_days,
-				active, attended)
-			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+				active, attended, virtual_days, own_days)
+			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)
 			ON CONFLICT (athlete_id) DO UPDATE SET
 				version = ?2, days = ?3, weeks = ?4, run_days = ?5, active = ?6,
-				attended = ?7`,
+				attended = ?7, virtual_days = ?8, own_days = ?9`,
 		)
 		.bind(
 			athleteId,
@@ -66,6 +70,8 @@ export function upsertSummaryStatement(
 			summary.runDays,
 			summary.active,
 			summary.attended,
+			summary.virtualDays,
+			summary.ownDays,
 		);
 }
 

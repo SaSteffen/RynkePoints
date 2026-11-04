@@ -140,6 +140,9 @@ const COLUMNS: Record<string, string[]> = {
 		"run_days",
 		"active",
 		"attended",
+		// Feature 029.
+		"virtual_days",
+		"own_days",
 	],
 	badge_reveals: ["athlete_id", "badge_id", "earned_on"],
 	badge_rises: ["athlete_id", "badge_ids", "risen_at"],

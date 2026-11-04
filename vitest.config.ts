@@ -35,6 +35,8 @@ export default defineConfig(async () => {
 						QUALIFICATION_DEADLINE: "2027-06-30",
 						// Pinned; the "percent" tests pass it to the page body.
 						ORGANISER_FIGURES: "full",
+						// Pinned; the "off" tests override it per request.
+						ORGANISER_PROGRESS_GRAPH: "on",
 						READY_POLL_SECONDS: "10",
 						// Pinned; the "off" tests override it per request.
 						TRAINING_LEADERBOARD: "on",

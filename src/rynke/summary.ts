@@ -7,10 +7,16 @@ import type { Attendance, EventKind } from "./team-events";
 import { type DatedCorrection, weekEndOf } from "./weeks";
 
 /**
- * Raising it makes every stored row count as missing, so readers add those
- * riders up and the daily job works them out again (research R6).
+ * What evaluations write. Raising it makes the daily job work every rider out
+ * again. Readers don't follow it: each states the lowest version whose columns
+ * it can use, so a new column sends nobody back to adding up rides (feature 029
+ * research R14).
  */
-export const RIDER_SUMMARY_VERSION = 1;
+export const RIDER_SUMMARY_VERSION = 2;
+/** The lowest version whose `days`, `weeks`, `run_days`, `active`, `attended` hold. */
+export const TEAM_SUMMARY_SINCE = 1;
+/** The lowest version with `virtual_days` and `own_days`. */
+export const OWN_SUMMARY_SINCE = 2;
 
 /** `[date, distanceM, distanceRynke, elevationDm]`, one per day of rides. */
 export type DayEntry = [string, number, number, number];
@@ -20,6 +26,10 @@ export type WeekEntry = [string, number, number];
 export type RunDayEntry = [string, number];
 /** `[date, hour, ride]`, a distinct start; `ride` is 1 for a counting ride. */
 export type ActiveEntry = [string, number, 0 | 1];
+/** `[date, virtualM]`, one per day with a counting virtual ride. */
+export type VirtualDayEntry = [string, number];
+/** `[date, longestM, outdoor]`, one per day of rides; `outdoor` is 1 when any wasn't virtual. */
+export type OwnDayEntry = [string, number, 0 | 1];
 
 /** The columns of a rider's stored row, as JSON text. */
 export interface RiderSummary {
@@ -28,6 +38,8 @@ export interface RiderSummary {
 	runDays: string;
 	active: string;
 	attended: string;
+	virtualDays: string;
+	ownDays: string;
 }
 
 interface StartedFigure {
@@ -43,6 +55,7 @@ export interface SummaryFigures {
 	rides: readonly (StartedFigure & {
 		distanceRynke: number;
 		elevationDm: number;
+		virtual?: boolean;
 	})[];
 	runs: readonly StartedFigure[];
 	swims: readonly StartedFigure[];
@@ -70,11 +83,27 @@ export function summaryOf(
 		(a, b) =>
 			byDateThenValue(a, b) ||
 			a.distanceRynke - b.distanceRynke ||
-			a.elevationDm - b.elevationDm,
+			a.elevationDm - b.elevationDm ||
+			Number(a.virtual === true) - Number(b.virtual === true),
 	);
 	const days: DayEntry[] = [];
 	const weeks: WeekEntry[] = [];
+	const virtualDays: VirtualDayEntry[] = [];
+	const ownDays: OwnDayEntry[] = [];
 	for (const ride of rides) {
+		const outdoor = ride.virtual === true ? 0 : 1;
+		const own = ownDays.at(-1);
+		if (own?.[0] === ride.date) {
+			own[1] = Math.max(own[1], ride.distanceM);
+			if (outdoor === 1) own[2] = 1;
+		} else {
+			ownDays.push([ride.date, ride.distanceM, outdoor]);
+		}
+		if (outdoor === 0) {
+			const virtualDay = virtualDays.at(-1);
+			if (virtualDay?.[0] === ride.date) virtualDay[1] += ride.distanceM;
+			else virtualDays.push([ride.date, ride.distanceM]);
+		}
 		const day = days.at(-1);
 		if (day?.[0] === ride.date) {
 			day[1] += ride.distanceM;
@@ -111,6 +140,8 @@ export function summaryOf(
 		attended: JSON.stringify(
 			attendance.map((a) => a.eventId).sort((a, b) => a - b),
 		),
+		virtualDays: JSON.stringify(virtualDays),
+		ownDays: JSON.stringify(ownDays),
 	};
 }
 
@@ -149,6 +180,61 @@ export function parseActive(text: string): ActiveEntry[] {
 
 export function parseAttended(text: string): number[] {
 	return JSON.parse(text) as number[];
+}
+
+export function parseVirtualDays(text: string): VirtualDayEntry[] {
+	return JSON.parse(text) as VirtualDayEntry[];
+}
+
+export function parseOwnDays(text: string): OwnDayEntry[] {
+	return JSON.parse(text) as OwnDayEntry[];
+}
+
+/** The rider's ride figures on the Badges page, from their row. */
+export interface OwnFigures {
+	distanceM: number;
+	elevationDm: number;
+	longestRideM: number;
+	virtualDistanceM: number;
+	/** Calendar month → days with a counting ride that isn't virtual. */
+	winterDays: Partial<Record<number, number>>;
+}
+
+/**
+ * What the Badges page shows of the rider's rides, up to the deadline, as adding
+ * up their rides gives it (feature 029 research R15). Only these bars: the
+ * evaluation still decides earned badges from the rides.
+ */
+export function ownFiguresOf(
+	days: readonly DayEntry[],
+	virtualDays: readonly VirtualDayEntry[],
+	ownDays: readonly OwnDayEntry[],
+	deadline: string,
+): OwnFigures {
+	const figures: OwnFigures = {
+		distanceM: 0,
+		elevationDm: 0,
+		longestRideM: 0,
+		virtualDistanceM: 0,
+		winterDays: {},
+	};
+	for (const [date, distanceM, , elevationDm] of days) {
+		if (date > deadline) continue;
+		figures.distanceM += distanceM;
+		figures.elevationDm += elevationDm;
+	}
+	for (const [date, virtualM] of virtualDays) {
+		if (date <= deadline) figures.virtualDistanceM += virtualM;
+	}
+	for (const [date, longestM, outdoor] of ownDays) {
+		if (date > deadline) continue;
+		figures.longestRideM = Math.max(figures.longestRideM, longestM);
+		if (outdoor === 1) {
+			const month = Number(date.slice(5, 7));
+			figures.winterDays[month] = (figures.winterDays[month] ?? 0) + 1;
+		}
+	}
+	return figures;
 }
 
 /** A team event as read live: its kind and date never sit in a summary. */

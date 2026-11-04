@@ -49,6 +49,15 @@ describe("CONSENT_VERSIONS", () => {
 		}
 	});
 
+	it("asks again for daily figures, with no new scope (organiser graphs)", () => {
+		const third = CONSENT_VERSIONS[2];
+		expect(third?.version).toBe(3);
+		expect(third?.changes).toEqual(["consent.dailyFigures"]);
+		expect(third?.requiredScopes).toEqual(CONSENT_VERSIONS[1]?.requiredScopes);
+		expect(CATALOGS.en["consent.dailyFigures"]).toContain("per day");
+		expect(CATALOGS.de["consent.dailyFigures"]).toContain("pro Tag");
+	});
+
 	it("names runs and team sums without a new version (013 FR-023, R22)", () => {
 		expect(CATALOGS.de["consent.short.read"]).toContain("Lauf");
 		expect(CATALOGS.de["consent.team"]).toContain("Team-Summen");
@@ -85,6 +94,17 @@ describe("CONSENT_VERSIONS", () => {
 		expect(CATALOGS.en["landing.leave"]).toContain("Strava ID");
 		expect(CATALOGS.de["consent.short.shown"]).toContain("Admins");
 		expect(CATALOGS.en["consent.short.shown"]).toContain("Administrators");
+	});
+
+	it("names the daily figures where a new rider always reads them", () => {
+		expect(CATALOGS.de["consent.short.shown"]).toContain(
+			"Kilometer und Höhenmeter pro Tag",
+		);
+		expect(CATALOGS.en["consent.short.shown"]).toContain(
+			"kilometres and elevation per day",
+		);
+		expect(CATALOGS.de["consent.agree"]).toContain("Tagessummen");
+		expect(CATALOGS.en["consent.agree"]).toContain("daily totals");
 	});
 
 	it("keeps CONSENT_VERSION at the last entry", () => {

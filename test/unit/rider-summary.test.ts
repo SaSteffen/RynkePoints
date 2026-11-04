@@ -3,7 +3,9 @@ import {
 	parseActive,
 	parseAttended,
 	parseDays,
+	parseOwnDays,
 	parseRunDays,
+	parseVirtualDays,
 	parseWeeks,
 	RIDER_SUMMARY_VERSION,
 	type SummaryFigures,
@@ -21,7 +23,8 @@ const ride = (
 	distanceRynke: number,
 	elevationDm: number,
 	startTime = "09:00",
-) => ({ date, distanceM, distanceRynke, elevationDm, startTime });
+	virtual = false,
+) => ({ date, distanceM, distanceRynke, elevationDm, startTime, virtual });
 
 const none: SummaryFigures = { rides: [], runs: [], swims: [] };
 
@@ -45,7 +48,48 @@ describe("summaryOf", () => {
 			runDays: "[]",
 			active: "[]",
 			attended: "[]",
+			virtualDays: "[]",
+			ownDays: "[]",
 		});
+	});
+
+	it("holds virtual distance only for days with a counting virtual ride", () => {
+		const summary = summaryOf(
+			{
+				...none,
+				rides: [
+					ride("2026-03-02", 1000.5, 1, 10, "09:00", true),
+					ride("2026-03-02", 2000, 2, 20),
+					ride("2026-03-02", 500.25, 1, 10, "18:00", true),
+					ride("2026-03-03", 700, 1, 10),
+				],
+			},
+			[],
+		);
+		expect(parseVirtualDays(summary.virtualDays)).toEqual([
+			["2026-03-02", 1500.75],
+		]);
+	});
+
+	it("holds each counting day's longest ride, and whether any was outdoors", () => {
+		const summary = summaryOf(
+			{
+				...none,
+				rides: [
+					ride("2026-03-02", 1000, 1, 10, "09:00", true),
+					ride("2026-03-02", 3000, 2, 20, "12:00", true),
+					ride("2026-03-03", 700, 1, 10, "09:00", true),
+					ride("2026-03-03", 400, 1, 10),
+					ride("2026-03-04", 900, 1, 10),
+				],
+			},
+			[],
+		);
+		expect(parseOwnDays(summary.ownDays)).toEqual([
+			["2026-03-02", 3000, 0],
+			["2026-03-03", 700, 1],
+			["2026-03-04", 900, 1],
+		]);
 	});
 
 	it("sums rides per date", () => {
@@ -135,6 +179,9 @@ describe("summaryOf", () => {
 			ride("2026-03-02", 0.2, 2, 20),
 			ride("2026-03-02", 0.3, 3, 30, "17:00"),
 			ride("2026-03-09", 1234.56, 4, 40),
+			ride("2026-03-09", 0.1, 1, 10, "07:00", true),
+			ride("2026-03-09", 0.2, 1, 10, "08:00", true),
+			ride("2026-03-09", 0.7, 1, 10, "09:00", true),
 		];
 		const runs = [
 			{ date: "2026-03-02", distanceM: 0.1, startTime: "07:00" },

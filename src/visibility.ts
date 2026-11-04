@@ -1,4 +1,4 @@
-import { SHARING_SINCE_VERSION } from "./consent";
+import { DAILY_FIGURES_SINCE_VERSION, SHARING_SINCE_VERSION } from "./consent";
 import type { Viewer } from "./http/viewer";
 
 // What one rider may see of another (feature 004 US3, FR-020, FR-021, FR-022,
@@ -14,6 +14,7 @@ export type RiderData =
 	| "attendance"
 	| "corrections"
 	| "participationReports"
+	| "dailyFigures"
 	| "rides"
 	| "consentRecords";
 
@@ -34,6 +35,8 @@ export const VISIBILITY: Readonly<Record<RiderData, ReadonlySet<Audience>>> = {
 	corrections: ORGANISER_ONLY,
 	// Feature 019: what the rider reported at team events (research R11).
 	participationReports: ORGANISER_ONLY,
+	// Feature 029: per day and rider; single rides stay with nobody.
+	dailyFigures: ORGANISER_ONLY,
 	rides: NOBODY,
 	consentRecords: NOBODY,
 };
@@ -48,6 +51,7 @@ export const SINCE_VERSION: Readonly<Record<RiderData, number>> = {
 	attendance: SHARING_SINCE_VERSION,
 	corrections: SHARING_SINCE_VERSION,
 	participationReports: SHARING_SINCE_VERSION,
+	dailyFigures: DAILY_FIGURES_SINCE_VERSION,
 	rides: SHARING_SINCE_VERSION,
 	consentRecords: SHARING_SINCE_VERSION,
 };

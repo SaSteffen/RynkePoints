@@ -1,12 +1,21 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { deleteRider } from "../../src/db/riders";
 import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
-import { makeCtx, request, resetDb, seedRider } from "../support/ctx";
+import { evaluateChange } from "../../src/rynke/apply";
+import {
+	makeCtx,
+	request,
+	resetDb,
+	seedRider,
+	sessionCookie,
+} from "../support/ctx";
+import { countRows } from "../support/d1-rows";
 import { riderPage, seedBalance } from "../support/rider-view";
-import { insertEvent, reportRaw } from "../support/rynke";
+import { activityRecord, insertEvent, reportRaw } from "../support/rynke";
 
 // The organiser overview at `/organiser/riders` (016 US4, FR-031–FR-035,
 // contracts/pages.md, contracts/http-routes.md). The test clock is 6 October
@@ -35,9 +44,13 @@ function sectionOf(page: string, open: string, close: string): string {
 	return page.slice(start, page.indexOf(close, start) + close.length);
 }
 
+/** The rows a group shows; the others are there for the search, `hidden`. */
 const cardsOf = (page: string) =>
-	page.match(/<li class="rider-card [^"]*">[\s\S]*?<\/details>\s*<\/li>/g) ??
-	[];
+	(
+		page.match(
+			/<li class="rider-row [^"]*"[^>]*>[\s\S]*?<\/details>\s*<\/li>/g,
+		) ?? []
+	).filter((row) => !row.slice(0, row.indexOf(">")).endsWith(" hidden"));
 const tableOf = (page: string) =>
 	sectionOf(page, '<table class="rider-table">', "</table>");
 const cardOf = (page: string, id: number) =>
@@ -113,7 +126,7 @@ describe("GET /organiser/riders, who may see it (US4 #4)", () => {
 			"/organiser/riders",
 		);
 		expect(status).toBe(403);
-		expect(html).not.toContain('<li class="rider-card');
+		expect(html).not.toContain('<li class="rider-row');
 	});
 
 	it("shows it to an organiser under Orga, with the switch to the events", async () => {
@@ -191,7 +204,7 @@ describe("GET /organiser/riders, the overview", () => {
 		expect(cardsOf(qualified)).toHaveLength(1);
 		expect(cardOf(qualified, QUALIFIED.id)).not.toBe("");
 		expect(qualified).toContain(
-			'href="/organiser/riders?group=in" aria-current="true"',
+			'href="/organiser/riders?group=in" data-swap aria-current="true"',
 		);
 		const onTrack = (await overview("/organiser/riders?group=on_track")).html;
 		expect(cardsOf(onTrack)).toHaveLength(1);
@@ -210,8 +223,8 @@ describe("GET /organiser/riders, the overview", () => {
 			expect(cardOf(html, id)).not.toContain("strava.com/athletes");
 		}
 		expect(html.match(/strava\.com\/athletes\//g)).toHaveLength(
-			// Card and table row, for both.
-			4,
+			// Row, table row and the graphs' list, for both.
+			6,
 		);
 	});
 
@@ -320,7 +333,7 @@ describe("GET /organiser/riders with open requests", () => {
 	it("counts riders with open requests in an alert tile", async () => {
 		const { html } = await overview();
 		expect(html).toMatch(
-			/<a class="group-tile tile-requests tile-alert" href="\/organiser\/riders\?group=requests"><span class="tile-count">2<\/span>/,
+			/<a class="group-tile tile-requests tile-alert" href="\/organiser\/riders\?group=requests" data-swap><span class="tile-count">2<\/span>/,
 		);
 	});
 
@@ -384,4 +397,264 @@ describe("GET /organiser/riders only reads (FR-003)", () => {
 			fetchSpy.mockRestore();
 		},
 	);
+});
+
+describe("GET /organiser/riders, the graphs (feature 029)", () => {
+	const dataOf = (page: string) => {
+		const opening =
+			'<script type="application/json" id="organiser-graphs-data">';
+		const json = sectionOf(page, opening, "</script>")
+			.slice(opening.length)
+			.replace("</script>", "");
+		return JSON.parse(json) as {
+			agreedCount: number;
+			riders: { id: number; name: string; days: number[][] }[];
+			notAgreed: { name: string }[];
+			teamSum: { outdoorM: number[] };
+		};
+	};
+	const ride = (id: number, athleteId: number, overrides = {}) =>
+		activityRecord(id, {
+			athlete_id: athleteId,
+			name: "Morning loop Synthetic",
+			start_date: "2026-05-02T07:30:00Z",
+			start_date_local: "2026-05-02T09:30:00Z",
+			...overrides,
+		});
+	const agree = (id: number, version: number) =>
+		env.DB.prepare(
+			"INSERT OR REPLACE INTO consent_records (athlete_id, version, accepted_at) VALUES (?, ?, 1)",
+		)
+			.bind(id, version)
+			.run();
+	/** A rider who hasn't been asked about daily figures yet. */
+	const onlyVersion2 = async (id: number) => {
+		await env.DB.prepare("DELETE FROM consent_records WHERE athlete_id = ?")
+			.bind(id)
+			.run();
+		await agree(id, 2);
+	};
+	const withEnv = async <T>(
+		settings: Partial<typeof ctx.env>,
+		use: () => Promise<T>,
+	): Promise<T> => {
+		const before = ctx.env;
+		ctx.env = { ...before, ...settings };
+		try {
+			return await use();
+		} finally {
+			ctx.env = before;
+		}
+	};
+
+	it("gives the section an organiser, with who agreed and who hasn't", async () => {
+		await evaluateChange(ctx, QUALIFIED.id, {
+			kind: "upsert",
+			records: [ride(7_000_001, QUALIFIED.id)],
+		});
+		await onlyVersion2(JONAS_BEHIND.id);
+		const { html } = await overview();
+		expect(html).toContain('<section id="organiser-graphs"');
+		expect(html).toContain("/vendor/chart-4.6.1.umd.min.js");
+		const data = dataOf(html);
+		const paula = data.riders.find((r) => r.id === QUALIFIED.id);
+		expect(paula?.days).toHaveLength(1);
+		expect(paula?.days[0]?.[1]).toBe(40000);
+		// In the table, in no line and no team value (SC-004).
+		expect(rowOf(html, JONAS_BEHIND.id)).not.toBe("");
+		expect(data.riders.map((r) => r.id)).not.toContain(JONAS_BEHIND.id);
+		expect(data.notAgreed.map((r) => r.name)).toContain(JONAS_BEHIND.name);
+		expect(data.agreedCount).toBe(data.riders.length);
+	});
+
+	it("keeps a not yet agreed rider's rides out of the team's sums, until they agree", async () => {
+		await evaluateChange(ctx, JONAS_BEHIND.id, {
+			kind: "upsert",
+			records: [ride(7_000_002, JONAS_BEHIND.id)],
+		});
+		await onlyVersion2(JONAS_BEHIND.id);
+		const sum = (page: string) =>
+			dataOf(page).teamSum.outdoorM.reduce((a, b) => a + b, 0);
+		expect(sum((await overview()).html)).toBe(0);
+		await agree(JONAS_BEHIND.id, 3);
+		const { html } = await overview();
+		expect(sum(html)).toBe(40000);
+		expect(dataOf(html).riders.map((r) => r.id)).toContain(JONAS_BEHIND.id);
+	});
+
+	it("removes a rider who leaves from every line", async () => {
+		await evaluateChange(ctx, QUALIFIED.id, {
+			kind: "upsert",
+			records: [ride(7_000_003, QUALIFIED.id)],
+		});
+		await deleteRider(env.DB, QUALIFIED.id);
+		const data = dataOf((await overview()).html);
+		expect(data.riders.map((r) => r.id)).not.toContain(QUALIFIED.id);
+		expect(data.teamSum.outdoorM.every((v) => v === 0)).toBe(true);
+	});
+
+	it("gives correct lines to a rider who agreed before their row was raised", async () => {
+		await evaluateChange(ctx, QUALIFIED.id, {
+			kind: "upsert",
+			records: [
+				ride(7_000_004, QUALIFIED.id),
+				ride(7_000_005, QUALIFIED.id, {
+					sport_type: "VirtualRide",
+					start_date: "2026-05-02T15:00:00Z",
+					start_date_local: "2026-05-02T17:00:00Z",
+				}),
+			],
+		});
+		const fromRow = dataOf((await overview()).html).riders.find(
+			(r) => r.id === QUALIFIED.id,
+		);
+		await env.DB.prepare(
+			"UPDATE rider_summaries SET version = 1, days = '[]', virtual_days = '[]', own_days = '[]'",
+		).run();
+		const addedUp = dataOf((await overview()).html).riders.find(
+			(r) => r.id === QUALIFIED.id,
+		);
+		expect(addedUp?.days).toEqual(fromRow?.days);
+		expect(addedUp?.days[0]?.[2]).toBe(40000);
+	});
+
+	it("names no ride, ride ID or start time anywhere (FR-003)", async () => {
+		await evaluateChange(ctx, QUALIFIED.id, {
+			kind: "upsert",
+			records: [ride(7_000_006, QUALIFIED.id)],
+		});
+		const { html } = await overview();
+		const section = sectionOf(
+			html,
+			'<section id="organiser-graphs"',
+			"</section>",
+		);
+		expect(section).not.toBe("");
+		expect(html).not.toContain("Morning loop Synthetic");
+		expect(section).not.toContain("7000006");
+		expect(section).not.toContain("09:30");
+	});
+
+	it.each([
+		["the setting off", { ORGANISER_PROGRESS_GRAPH: "off" }],
+		["percent figures", { ORGANISER_FIGURES: "percent" }],
+	])(
+		"has no section, data, script or read with %s (SC-007)",
+		async (_, settings) => {
+			await withEnv(settings, async () => {
+				const { ctx: counted, counter } = countRows(ctx);
+				const cookies = await sessionCookie(ctx, ORGANISER.id);
+				counter.reset();
+				const res = await handleFetch(
+					request("/organiser/riders", { cookies }),
+					counted,
+				);
+				const html = await res.text();
+				expect(html).not.toContain("organiser-graphs");
+				expect(html).not.toContain("chart-4.6.1");
+				expect(html).not.toContain("data-view-pick");
+				expect(counter.statements().join("\n")).not.toContain("virtual_days");
+			});
+		},
+	);
+
+	it("shows the section with nobody agreed, without an average", async () => {
+		await env.DB.prepare(
+			"UPDATE consent_records SET version = 2 WHERE athlete_id <> ?",
+		)
+			.bind(ORGANISER.id)
+			.run();
+		await env.DB.prepare(
+			"UPDATE consent_records SET version = 3 WHERE athlete_id = ?",
+		)
+			.bind(ORGANISER.id)
+			.run();
+		const { html } = await overview();
+		expect(dataOf(html).agreedCount).toBe(1);
+		expect(html).toContain(escapeHtml(de["organiser.graphs.note.nobody"]));
+	});
+
+	it("doesn't give the section to a rider who isn't an organiser", async () => {
+		const { status, html } = await riderPage(
+			ctx,
+			NOT_ORGANISER.id,
+			"/organiser/riders",
+		);
+		expect(status).toBe(403);
+		expect(html).not.toContain("organiser-graphs-data");
+	});
+
+	it("puts the table above the section and the qualified list below it (FR-018)", async () => {
+		const { html } = await overview();
+		const order = [
+			'class="overview-deadline"',
+			'class="group-tiles',
+			'class="team-hint"',
+			'class="rider-table"',
+			'id="organiser-graphs"',
+			'class="qualified"',
+		].map((part) => html.indexOf(part));
+		expect(order.every((at) => at >= 0)).toBe(true);
+		expect(order).toEqual([...order].sort((a, b) => a - b));
+	});
+
+	it("keeps that order without the graphs, and the phone's rows (FR-021)", async () => {
+		await withEnv({ ORGANISER_PROGRESS_GRAPH: "off" }, async () => {
+			const { html } = await overview();
+			expect(html).toContain('class="rider-search"');
+			expect(html).toContain('<ul class="rider-rows');
+			expect(html).toContain('class="table-scroll"');
+			expect(html).not.toContain("data-view=");
+			expect(html.indexOf('class="rider-table"')).toBeLessThan(
+				html.indexOf('class="qualified"'),
+			);
+		});
+	});
+
+	it("renders everyone's row, those outside the group hidden, by name", async () => {
+		const { html } = await overview("/organiser/riders?group=in");
+		expect(html).toContain(
+			`<li class="rider-row status-in" data-name="${QUALIFIED.name.toLowerCase()}">`,
+		);
+		expect(html).toContain(
+			`data-name="${ORGANISER.name.toLowerCase()}" hidden>`,
+		);
+	});
+
+	it("opens rows from the start when at most five show", async () => {
+		const few = (await overview("/organiser/riders?group=in")).html;
+		expect(few).toMatch(/data-name="paula">\n<details open>/);
+	});
+
+	it("honours view=riders, and ignores any other view", async () => {
+		const asked = (await overview("/organiser/riders?view=riders")).html;
+		expect(asked).toContain('class="team-overview" data-view="riders"');
+		const other = (await overview("/organiser/riders?view=x")).html;
+		expect(other).toContain('class="team-overview" data-view="graphs"');
+	});
+
+	it("shows open reports in a box of at most three, with the way to all", async () => {
+		const eventIds = [];
+		for (const date of [
+			"2026-09-01",
+			"2026-09-02",
+			"2026-09-03",
+			"2026-09-04",
+		]) {
+			const id = await insertEvent("team_training", date);
+			eventIds.push(id);
+			await reportRaw(id, QUALIFIED.id);
+		}
+		const { html } = await overview();
+		const box = sectionOf(html, '<section class="requests-box"', "</section>");
+		expect(box.match(/<li class="request">/g)).toHaveLength(3);
+		expect(box).toContain(fill(de["organiser.graphs.reports.other"], { n: 4 }));
+		expect(box).toContain(
+			'href="/organiser/riders?group=requests&amp;view=riders"',
+		);
+		expect(box).toContain(
+			fill(de["organiser.graphs.reports.showAll"], { n: 4 }),
+		);
+		expect(eventIds).toHaveLength(4);
+	});
 });
