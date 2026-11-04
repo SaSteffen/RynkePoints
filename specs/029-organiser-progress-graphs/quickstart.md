@@ -29,7 +29,10 @@ pnpm exec playwright test e2e/organiser-graphs.e2e.ts
 | Integration | Setting off, or percent mode: no section, no data, no read of the summary | FR-027, FR-029 |
 | Integration | Non-organiser gets 403; no ride name or start time in the response | FR-003, FR-030 |
 | Integration | D1 round trips unchanged; rows read under 1,000 more with 40 riders | research R2, SC-008 |
-| Integration | A ride's edit, deletion or private withdrawal updates the summary; leaving deletes it; the daily job fills a missing one | FR-026, FR-031 |
+| Integration | All rows at version 1: Team page, app start and organiser's table cost as with version 2 | research R14, SC-010 |
+| Integration | Badges page reads no rides with a version 2 row, and shows the same figures without one | research R15, SC-009 |
+| Integration | A rider who agrees before the refill has correct lines | research R1 |
+| Integration | A ride's edit, deletion or private withdrawal updates the row; leaving deletes it; the daily job raises a version 1 row | FR-026, FR-031 |
 | E2E | Preset, date boxes, mouse drag and touch gestures stay in sync; tile keeps range and team lines | FR-013, Story 4 |
 | E2E | Narrow: switch, tabs, search across groups, rows open at 5 or fewer | Story 5 |
 

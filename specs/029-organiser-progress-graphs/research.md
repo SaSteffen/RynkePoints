@@ -2,52 +2,41 @@
 
 ## R1. Where the daily figures come from
 
-**Decision**: One row per rider in a new `rider_daily_figures`, holding that rider's counting days as
-compact JSON. `riderWrites` in `src/rynke/apply.ts` writes it with every evaluation, from a pure function
-of the rides and results it already holds. Distance is the recorded `distance_m`, split by whether the ride
-is virtual. Elevation is the result's `elevationDm`.
+**Decision**: from `rider_summaries`. `days` already holds each counting day's distance and elevation. A new
+`virtual_days` adds `[date, virtualM]`, only for days with a virtual ride, and outdoor is the day's distance
+minus that. `summaryOf` works it out from the `virtual` flag `figuresOf` already gives.
 
-**Rationale**: FR-005 wants recorded distance, not Rynke. Every change to a rider's rides already goes
-through this one place: edits, deletions, private rides withdrawn, rule changes. It stays correct without
-new triggers, and it's recomputable from stored data as Principle IV asks. `ON DELETE CASCADE` removes it
-with the rider (FR-026).
+**Rationale**: every change to a rider's rides already reaches this row through `riderWrites`: edits, deletions,
+private rides withdrawn, rule changes. `ON DELETE CASCADE` removes it with the rider (FR-026). A separate column
+keeps it out of the team reads, which don't need it.
 
-**Filling existing riders**: `listRidersNeedingEvaluation` also returns riders without a row, so the existing
-daily job fills them. Nobody can have agreed to version 3 before the release, so nothing shows wrongly in
-that time. A migration backfill isn't used: rides arriving between migration and deploy would leave it stale.
+**Filling existing riders**: the version goes to 2, so the daily job evaluates every rider once, about 27,000
+rows. A migration backfill isn't used: rides arriving between migration and deploy would leave it stale.
 
-**Alternatives considered**: See R2.
+**Rider without a version 2 row**: nobody can have agreed to consent version 3 before the release, but one may
+agree before the next daily job. Their days are added up in a second round trip, for those riders only, as the
+team reads do. So they get correct lines, never a false zero.
 
 ## R2. Measured cost, and enforcing consent
 
-**Measurement**: Workers-runtime D1 with synthetic data, 40 riders with 150 counting rides each, at
-`meta.rows_read`:
+**Measurement**: 40 riders with 150 counting rides each, at `meta.rows_read`:
 
 | Read | Rows read |
 | --- | --- |
 | Summing per day at load, joined over `ride_results` and `activities` | 18,239 |
 | A table with one row per rider and day | 6,199 |
-| One row per rider (this plan; 40 rows plus about 200 for the consent and listing filters, estimated from the above) | about 250 |
-| Existing weekly sums in `readTeam`, for comparison | 18,199 |
+| One row per rider, as the Team page now reads | about 160 |
 
-Summing at load would cost about 37,000 rows per page load in all, or about 135 loads to use the Free plan's
-5 million rows a day. This is why the plan stores a summary.
+**Decision**: one statement in the requests batch, from `riders r`: `listedRiderFilter("r")`, an `EXISTS` on
+`consent_records` with `SINCE_VERSION.dailyFigures`, and a `LEFT JOIN` on `rider_summaries` at version 2 or
+higher. It selects `days` and `virtual_days` only. The left join gives agreed riders without rides. It runs only
+when the section is on.
 
-**Decision**: One statement in the requests batch: `riders LEFT JOIN rider_daily_figures`, filtered inside SQL
-with `LISTED_RIDER_IDS` and `sharedRiderIdsSince(SINCE_VERSION.dailyFigures)`. The left join gives riders who
-agreed without any rides. It runs only when the section is on.
+**Rationale**: this is the rule in `src/db/consents.ts`: a rider without the consent is in no row. Batching keeps
+the page's D1 round trips as they are, which `d1-round-trips.test.ts` guards. `d1-rows.test.ts` gets SC-008.
 
-**Rationale**: This is the rule in `src/db/consents.ts`: a rider without the consent is in no row. Batching
-keeps the page's D1 round trips as they are, which `d1-round-trips.test.ts` guards. Writes grow by one row per
-evaluation, against a Free plan of 100,000 written rows a day.
-
-**Still open**: `readTeam`'s weekly sums remain 18,199 rows per load at full season, on `/team` and this page,
-which limits the whole app far more than the graphs do. They could come from the same summary. That is
-outside this spec unless decided otherwise.
-
-**Alternatives considered**: Summing at load, and one row per day, cost too much, as above. A cached team-wide
-blob reads less still, but a leaver's data would stay in it until the next write, against FR-026. A separate
-JSON route with an ETag only helps repeat views.
+**Alternatives considered**: a cached team-wide blob reads less still, but a leaver's data would stay in it until
+the next write, against FR-026. A separate JSON route with an ETag only helps repeat views.
 
 ## R3. How the figures reach the page
 
@@ -178,3 +167,43 @@ contrast against the graph background, and adjusted where a theme fails. Team av
 halo in light themes and uses the theme's accent elsewhere.
 
 **Rationale**: The draft shows one theme; the app has several.
+
+## R14. Changing the row's format without a costly day
+
+**Finding**: reads today only accept `version = RIDER_SUMMARY_VERSION`. Raising it would send the whole team
+back to adding up rides until the daily job has run: about 8 million rows on a full-season day, over the free
+limit of 5 million, which would make the app fail until D1's daily reset.
+
+**Decision**: each read states the lowest version whose columns it can use. Team reads keep accepting 1, since
+`days`, `weeks`, `run_days`, `active` and `attended` are unchanged. The graphs and the rider's own figures need 2.
+`riderWrites` and the daily job still aim for the current version, so all rows reach 2 by the next daily job.
+
+**Rationale**: no new moving part, and it removes the risk at its cause. Until the refill, only the Badges page's
+own part and the graphs of riders who agreed in that time add up, each at today's cost or less. A test with all
+rows at version 1 guards this.
+
+**Alternatives considered**: refilling on deploy needs a route or a CI step reaching production, and a more
+frequent job still leaves a costly period. A later change to what an existing column means would need its floor
+raised and so a full refill. Then, and only then, a refill run from the hourly job (`USAGE_CRON`) is worth building.
+
+**During deploy**: CI applies the migration before publishing. Old code keeps writing version 1 and reading only
+version 1, so a rider evaluated by the new code counts as added up for the seconds until the old code is gone.
+
+## R15. The Badges page's own part
+
+**Measured**, one view with 150 rides: 996 rows, of which 752 are the rider's rides, read by the two statements
+for totals and for outdoor days per month. Teams: 161. Badges and reveals: 79.
+
+**Decision**: a new `own_days` holds `[date, longestM, outdoor]` per counting day. With `days` and `virtual_days`
+it gives every figure of those two statements, keeping their `date <= deadline` filter. The batch reads the
+rider's row by primary key, one row. A rider without a version 2 row gets the two statements in a second round
+trip, as today's figures. Runs and swims stay as they are: few rows.
+
+**Rationale**: about 30,000 rows a day at 150 rides per rider, and the page stops growing with rides. `own_days` is
+separate from `virtual_days` so that the graphs' read never touches a rider's longest ride.
+
+**Exactness**: `evaluate` still decides earned badges from rides; these figures only show progress. Distances may
+differ from SQL's sum by floating-point noise, as stored-summary research found, and are shown rounded. A test
+compares them with the two statements on decimal distances.
+
+**Evaluating a new ride** keeps reading the rider's rides. It has to.

@@ -1,26 +1,31 @@
 # Data Model: Organiser Progress Graphs
 
-## Table: `rider_daily_figures` (migration 0024)
+## Table: `rider_summaries` (migration 0025 adds columns)
 
-| Column | Type | Notes |
+| New column | Type | Content |
 | --- | --- | --- |
-| `athlete_id` | INTEGER, primary key | references `riders`, `ON DELETE CASCADE` (FR-026) |
-| `days` | TEXT, `json_valid` | `[["YYYY-MM-DD", outdoorM, virtualM, elevationDm], ...]`, ascending |
+| `virtual_days` | TEXT NOT NULL DEFAULT `'[]'` | `[date, virtualM]`, by date, only days with a counting virtual ride |
+| `own_days` | TEXT NOT NULL DEFAULT `'[]'` | `[date, longestM, outdoor]`, by date, one per counting day; `outdoor` is 1 when any counting ride that day isn't virtual |
 
-`WITHOUT ROWID`. Forward-only and additive; the previous version never reads it.
+`RIDER_SUMMARY_VERSION` becomes 2. No ride name, ID, time or speed is kept. The empty row and a rider with no
+counting rides hold `[]`. Sorted as the other columns, so an unchanged evaluation writes nothing.
 
-**Pure function** `dailyFigures(rides, results)`: counting rides only, grouped by the rider's local start date
-(FR-004). Distances are whole metres. No ride name, ID, time or speed is kept. A rider with no counting rides
-gets `[]`.
+**Written** by `riderWrites`, which also compares the new columns. **Filled** by the daily job, since a row below the
+current version needs evaluation.
 
-**Written** by `riderWrites`, in the batch of every evaluation. **Filled** for existing riders by the daily job,
-which treats a missing row as needing evaluation (research R1).
+## Which read accepts which version (research R14)
+
+| Read | Lowest version | Without such a row |
+| --- | --- | --- |
+| Team page, app start, organiser's table, team badges | 1 | Added up, as today |
+| Graphs | 2 | Added up for those riders, consent filter inside SQL |
+| The rider's own Badges figures | 2 | Today's two statements |
 
 ## Read: figures for the page
 
-One statement, in the batch with the open requests: `riders` left-joined to `rider_daily_figures`, for IDs in
-`LISTED_RIDER_IDS` and in `sharedRiderIdsSince(3)`. Everyone else in `readTeam` is "not agreed yet" and contributes
-a first name and group only, which earlier consent covers.
+One statement, in the batch with the open requests, from `riders r`: listed, agreed since version 3, `LEFT JOIN`
+on a row at version 2 or higher. Selects `athlete_id`, `days`, `virtual_days`. Everyone else in `readTeam` is "not
+agreed yet" and contributes a first name and group only, which earlier consent covers.
 
 ## View: `organiserGraphsView()`
 
@@ -44,8 +49,9 @@ Rules:
 - A rider who agreed is in `riders` even with no rows.
 - `teamTotal` sums all of `riders`, whichever are selected (FR-011). The average is `teamTotal / agreedCount`
   in the client, and isn't drawn when `agreedCount` is 0.
-- A day after `lastDay`, possible when a rider's time zone is ahead of Berlin, is clamped to `lastDay`, so
-  sums stay complete (SC-005).
+- A day before the season or after the deadline is left out (FR-005). A day after today, possible when a rider's
+  time zone is ahead of Berlin, is clamped to `lastDay`, so sums stay complete (SC-005).
+- Outdoor is the day's distance minus its virtual distance, rounded to whole metres, as virtual is.
 - Absent days are 0 (Per day) or level (Running total).
 
 ## Client state
@@ -67,5 +73,4 @@ Held in `public/app.js`, never saved.
 - `CONSENT_VERSIONS`: version 3 (research R6).
 - `RiderData`: `dailyFigures`, organisers only, since version 3 (research R7).
 - `Settings`: `ORGANISER_PROGRESS_GRAPH`, "on" or "off" (research R8).
-- `listRidersNeedingEvaluation`: also riders without a `rider_daily_figures` row.
 - `SampleRider`: optional `consentVersion` (research R11).

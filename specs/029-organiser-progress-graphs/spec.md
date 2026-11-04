@@ -350,6 +350,10 @@ lists can't be judged locally. It supports the other stories without adding anyt
 - **FR-031**: The feature MUST NOT make any new request to Strava or read any new field from it. It MAY
   store one summary per rider, derived only from that rider's stored rides and results, and kept up to
   date whenever they are evaluated, so that viewing doesn't add up rides on every page load.
+- **FR-033**: Adding what the graphs need to the stored summaries MUST NOT make other pages add up the team's
+  rides again, including on the day of the release.
+- **FR-034**: The Badges page MUST show the rider's own progress from their stored summary rather than reading
+  their rides, with the same figures. Earned badges are still worked out from the rides.
 
 **Test data**
 
@@ -386,6 +390,10 @@ lists can't be judged locally. It supports the other stories without adding anyt
   graphs, and riders see no difference from the setting being on.
 - **SC-008**: With 40 riders at the end of a season, the graphs add fewer than 1,000 database rows read
   per page load.
+- **SC-009**: With 40 riders and a stored summary, a Badges page view reads at most 500 rows, and twice the rides
+  add no more than a few rows.
+- **SC-010**: From the release until the daily job has run, the Team page, the app's start and the organiser's
+  table read as many rows as with fully updated summaries, within 10%.
 
 ## Assumptions
 
