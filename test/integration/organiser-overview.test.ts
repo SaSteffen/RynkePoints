@@ -401,12 +401,10 @@ describe("GET /organiser/riders only reads (FR-003)", () => {
 
 describe("GET /organiser/riders, the graphs (feature 029)", () => {
 	const dataOf = (page: string) => {
-		const json = sectionOf(
-			page,
-			'<script type="application/json" id="organiser-graphs-data">',
-			"</script>",
-		)
-			.replace(/^<script[^>]*>/, "")
+		const opening =
+			'<script type="application/json" id="organiser-graphs-data">';
+		const json = sectionOf(page, opening, "</script>")
+			.slice(opening.length)
 			.replace("</script>", "");
 		return JSON.parse(json) as {
 			agreedCount: number;
