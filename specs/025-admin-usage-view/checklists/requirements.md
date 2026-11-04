@@ -33,4 +33,6 @@
 
 - Strava and Cloudflare are named because their allowances are the subject of the
   feature, not as implementation choices.
-- Consent impact of the rider overview is left for planning (Assumptions).
+- Decided 2026-11-04: removed riders stay blocked, and administrators get push alerts.
+- Principle I needs an explicit exception for the block list before implementation
+  (Assumptions).

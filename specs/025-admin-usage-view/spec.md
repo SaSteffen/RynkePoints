@@ -14,6 +14,15 @@ overview of the club's riders, and removing a rider), issue #40 (monitoring Stra
 request limits) and the backlog prompt for a Strava backlog view, which this spec
 replaces.
 
+## Clarifications
+
+### Session 2026-11-04
+
+- Q: Can a removed rider connect again? → A: No. A removed rider stays blocked. The
+  team keeps only their Strava athlete ID for this.
+- Q: How do administrators hear that a limit is near? → A: A push notification through
+  the app.
+
 ## Context
 
 The app may soon serve a second team (issue #236): one Strava app, one Cloudflare
@@ -125,33 +134,72 @@ team appears, and that no ride or Rynke figure appears.
 
 ---
 
-### User Story 4 - Remove a rider (Priority: P3)
+### User Story 4 - Remove and block a rider (Priority: P3)
 
-An administrator removes a rider who should no longer take part. It has the same
-effect as the rider leaving, and the rider's data is really gone.
+An administrator removes a rider who should no longer take part. The rider's data is
+deleted as when a rider leaves, and they can't connect to this team again. Only their
+Strava athlete ID stays, on the team's block list.
 
 **Why this priority**: Rare, and leaving the Strava club already removes a rider
 within a day. It matters for cases that can't wait, or where the club can't be
 changed.
 
 **Independent Test**: With synthetic riders, remove one and check that all their data
-is deleted, their Strava access revoked, the action recorded without their name, and
-the team's other riders unchanged.
+is deleted except the athlete ID on the block list, their Strava access revoked, the
+action recorded without identifying them, and the team's other riders unchanged. Then
+connect as that rider and check it is refused and nothing else is stored.
 
 **Acceptance Scenarios**:
 
 1. **Given** a rider in the overview, **When** an administrator chooses to remove
    them, **Then** they must first confirm, and are told this can't be undone and that
-   the rider can connect again while still in the club.
+   the rider can't connect to this team again, even while in the club.
 2. **Given** the administrator confirms, **When** the removal runs, **Then** the
    rider's data is deleted and their Strava access revoked, as when a rider leaves
    the club.
 3. **Given** a removal has happened, **When** the removed rider next opens the app,
    **Then** they see the same page as anyone who isn't connected.
+6. **Given** a blocked rider, **When** they try to connect, **Then** they are told they
+   can't take part in this team, no data about them is kept beyond the block list entry,
+   and any access Strava just granted is revoked at once.
+7. **Given** a blocked rider, **When** they leave and rejoin the Strava club, **Then**
+   they stay blocked.
 4. **Given** a rider of another team, **When** an administrator tries to remove them
    by any means, **Then** it is refused and nothing changes.
 5. **Given** an administrator, **When** they try to remove themselves, **Then** it is
    refused and they are pointed to the normal way of leaving.
+
+---
+
+### User Story 5 - Be told when a limit is near (Priority: P2)
+
+An administrator gets a push notification from the app when an allowance reaches a
+warning level, so they don't have to keep checking the view.
+
+**Why this priority**: The view only helps if someone looks at it. It needs Story 1's
+figures first.
+
+**Independent Test**: With synthetic usage and a synthetic push service, take a daily
+allowance across 80 % and then 95 %. Check that each administrator's devices get one
+notification per level, that the notification holds no rider data, and that a second
+check in the same period sends nothing.
+
+**Acceptance Scenarios**:
+
+1. **Given** a daily allowance reaches 80 %, **When** the next check runs, **Then** the
+   administrators of every team get a notification naming the allowance and its
+   percentage, which opens the admin view.
+2. **Given** the notification for 80 % was sent, **When** the allowance reaches 95 % in
+   the same period, **Then** one more is sent, marked as critical.
+3. **Given** a notification was sent for a level, **When** further checks run in the
+   same period, **Then** none is sent for that level.
+4. **Given** a Strava 15-minute figure is at 95 %, **When** the check runs, **Then** no
+   notification is sent, because the budget logic works close to these limits by design
+   during imports.
+5. **Given** an administrator has notifications off on all their devices, **When** they
+   open the admin view, **Then** it says they won't get alerts and where to turn them on.
+6. **Given** the push service can't be reached, **When** a notification fails, **Then**
+   nothing else fails, and the view still marks the figure.
 
 ---
 
@@ -179,6 +227,15 @@ the team's other riders unchanged.
   they remain a normal rider.
 - Accounts are split later: each account's allowances appear separately, and earlier
   days stay under the account they were recorded for.
+- A rider is blocked by mistake: only the maintainer can lift it, by deleting the entry
+  by hand, since the list holds no names to choose from.
+- A blocked rider is in another team's club: the block applies per team, so they can
+  join that team. If they were connected to both, the removal also ends their connection
+  there, because Strava's grant covers the whole app (feature 026).
+- A rider who leaves by themselves, or whose club membership ends, isn't blocked: all
+  their data goes, and they can come back.
+- An allowance drops below a level and rises again in the same period, as storage or
+  connected riders can: it notifies once more only after falling below the level.
 
 ## Requirements *(mandatory)*
 
@@ -244,13 +301,42 @@ the team's other riders unchanged.
 **Removing a rider**
 
 - **FR-021**: An administrator MUST be able to remove another rider of their team after
-  a confirmation that says it can't be undone and the rider can connect again while
-  still in the club.
-- **FR-022**: Removal MUST delete all the rider's data and revoke their Strava access
-  promptly, with no soft deletion and nothing kept for statistics (Principle I).
+  a confirmation that says it can't be undone and the rider can't connect to this team
+  again.
+- **FR-022**: Removal MUST delete all the rider's data except the block list entry and
+  revoke their Strava access promptly, with no soft deletion and nothing kept for
+  statistics.
 - **FR-023**: Each removal MUST be recorded with its time and the administrator, but
-  not the name or ID of the rider removed.
-- **FR-024**: The system MUST NOT keep a list of removed riders.
+  not the name or ID of the rider removed, and it MUST NOT be possible to link the record
+  to a block list entry.
+- **FR-024**: Each team MUST keep a block list holding only Strava athlete IDs: no name,
+  time, reason or administrator. Riders who leave by themselves or whose membership ends
+  MUST NOT be added.
+- **FR-030**: A blocked rider trying to connect MUST be refused with a message saying
+  they can't take part in this team. Anything Strava returned MUST be discarded and the
+  access just granted revoked at once. The list is only checked when connecting, so a
+  blocked rider costs no Strava request otherwise.
+- **FR-031**: The view MUST show how many riders are blocked and nothing else about them.
+  Only the maintainer can lift a block, by hand.
+- **FR-032**: The consent text and privacy page MUST say that administrators exist, what
+  they see (FR-018), and that a removed rider's Strava ID is kept so they can't return.
+  This MUST be a new consent version, which existing riders accept on their next visit
+  (Principle I).
+
+**Alerts**
+
+- **FR-033**: The system MUST send a push notification through the app's existing
+  notifications to every administrator's devices when one of these reaches 80 % or 95 %:
+  a daily Strava or Cloudflare allowance, total database storage, or connected riders
+  against the athlete capacity. Strava's 15-minute figures MUST NOT notify.
+- **FR-034**: Allowances MUST be checked at least hourly, using figures the system
+  already has or fetches for the view, without any Strava request.
+- **FR-035**: Each team MUST send at most one notification per allowance, level and
+  period. A repeated check or redelivered message MUST NOT send another (Principle II).
+- **FR-036**: A notification MUST name the allowance and percentage, MUST hold no rider
+  data, and MUST open the admin view. Like other notifications, it never holds up or fails
+  other work (feature 010).
+- **FR-037**: Riders who aren't administrators MUST never get these notifications.
 
 **General**
 
@@ -274,6 +360,9 @@ the team's other riders unchanged.
   effect, the split by team and, for Strava, the highest 15-minute usage. It holds no
   rider data.
 - **Removal record**: When a removal happened and who did it, without the rider.
+- **Block list entry**: One Strava athlete ID blocked from a team, and nothing else.
+- **Alert state**: For each allowance and period, the highest level already notified. It
+  holds no rider data.
 
 ## Success Criteria *(mandatory)*
 
@@ -287,11 +376,16 @@ the team's other riders unchanged.
   days?" for any allowance from one screen, without another tool.
 - **SC-004**: In tests, no request by a non-administrator and no request across teams
   returns a rider's data or changes anything.
-- **SC-005**: After a removal, no stored record identifies the rider, and the usage
-  history is unchanged.
+- **SC-005**: After a removal, the block list entry is the only stored record that
+  identifies the rider, and the usage history is unchanged.
 - **SC-006**: Recording and viewing together use less than 1 % of any daily allowance.
 - **SC-007**: If a source fails, the rest of the view still appears and the failed
   figures are never shown as zero.
+- **SC-008**: In tests, a blocked rider never ends up connected, and each connection
+  attempt leaves no stored data beyond the existing block list entry.
+- **SC-009**: An administrator with notifications on learns within about an hour that a
+  daily allowance crossed 80 % or 95 %, and gets exactly one notification per level and
+  period.
 
 ## Assumptions
 
@@ -300,12 +394,18 @@ the team's other riders unchanged.
   second team.
 - **Across teams**: Both teams' administrators see both teams' usage figures and
   shares, since these contain no rider data. Rider lists stay per team.
-- **Consent**: Showing a rider's first name and connection state to administrators
-  needs checking against Principle I during planning. It adds a viewer and a few
-  fields, so a new consent version may be needed.
-- **Removal doesn't block**: A removed rider can connect again while in the club.
-  Blocking them for good means removing them from the Strava club, because a block
-  list would keep data about someone who has left.
+- **Consent**: Showing connection state and dates to administrators is new information
+  shown to someone other than the rider, so Principle I requires a new consent version
+  (FR-032). The block list alone wouldn't: it reads, writes and shows nothing new. But
+  `landing.leave` promises "we then delete all data about you", which isn't true for a
+  removed rider, so that text changes too, in the same version.
+- **Constitution**: Principle I says all data of a rider who leaves is deleted. Removal
+  by an administrator isn't covered by its wording, but keeping an ID after removal needs
+  an explicit exception there before implementation.
+- **Legal basis**: The entry is kept for the team's interest in keeping someone out, not
+  on the rider's consent, and is kept as long as the team runs the app. A blocked rider's
+  request for erasure goes to the data controller named on the privacy page. To be
+  confirmed by the controller before launch.
 - **Defaults**: The warning levels are 80 % and 95 %. The history is kept per day for
   13 months. Both can change during planning.
 - **Limits**: Cloudflare's current free limits are 100,000 Worker requests,
@@ -318,8 +418,11 @@ the team's other riders unchanged.
   step.
 - **Dependency**: The per-team features need issue #236 for a second team to exist, but
   this feature ships and works without it.
-- **Out of scope**: Push or email alerts when a limit is near, automatic slowing of
-  work, per-rider usage, rate limit changes, changing rules or settings from the view,
+- **Alerts**: Administrators receive alerts on devices where they turned notifications
+  on (feature 010); there is no separate switch. Both teams' administrators are told,
+  since the allowances are shared.
+- **Out of scope**: Email alerts, alerts when figures can't be fetched, automatic slowing
+  of work, per-rider usage, rate limit changes, changing rules or settings from the view,
   CPU time and billing.
 - **Strava review**: New pages get screenshots in the review script (feature 004)
   since it fails on an unlisted page; they use synthetic riders only.
