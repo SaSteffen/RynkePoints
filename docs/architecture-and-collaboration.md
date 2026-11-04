@@ -26,7 +26,7 @@ Throughout this page:
 | GitHub | Repository on a personal account | Repository in an organization |
 | Maintainers | One | At least two, with rights that widen in two stages |
 | Approval | None required | The founding maintainer approves, for now |
-| Merging into `develop` | Squash or merge commit | Merge commit only |
+| Merging into `develop` | Merge commit only | Merge commit only |
 | Trying a release first | On the live site, after the release | Optional sandbox per team, before the release |
 
 ## Terms

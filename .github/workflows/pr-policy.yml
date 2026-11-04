@@ -17,8 +17,7 @@ concurrency:
 # Renaming a job means updating both ruleset files in the same change.
 # Untrusted values (title, branch and repo names) reach the shell only through env:.
 jobs:
-  # Lints the header GitHub gives the squash commit: "<title> (#<number>)".
-  # Linting the bare title would let a 95–100 character title through.
+  # The title is the merge commit's body and the release pull request's line.
   pr-title:
     name: pr-title
     runs-on: ubuntu-latest
@@ -28,8 +27,7 @@ jobs:
       - uses: ./.github/actions/setup
       - env:
           PR_TITLE: ${{ github.event.pull_request.title }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: printf '%s (#%s)\n' "$PR_TITLE" "$PR_NUMBER" | pnpm commitlint --verbose
+        run: printf '%s\n' "$PR_TITLE" | pnpm commitlint --verbose
 
   # Only develop or hotfix/* of this repository may target main. The job always
   # runs (no job-level if:), so its result is never "skipped".

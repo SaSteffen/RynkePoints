@@ -18,27 +18,26 @@ New pull requests target `develop` unless the author picks another base.
 - Apply: `gh repo edit SaSteffen/RynkePoints --default-branch develop`
 - Show: `gh api repos/SaSteffen/RynkePoints --jq .default_branch`
 
-## Merge buttons: squash on, merge commits on, rebase off
+## Merge buttons: merge commits only
 
-Features are squashed into `develop`. Releases, hotfixes and `sync/*`
-back-merges use merge commits. Each ruleset narrows this further per branch.
+Every pull request is merged with a merge commit. Squash and rebase merging
+stay off. When changing this, apply the rulesets first: a ruleset's methods must
+stay a subset of what's enabled here.
 
-- UI: **General → Pull Requests**: *Allow merge commits* and *Allow squash
-  merging* checked, *Allow rebase merging* unchecked
-- Apply: `gh repo edit SaSteffen/RynkePoints --enable-squash-merge --enable-merge-commit --enable-rebase-merge=false`
+- UI: **General → Pull Requests**: *Allow merge commits* checked, *Allow squash
+  merging* and *Allow rebase merging* unchecked
+- Apply: `gh repo edit SaSteffen/RynkePoints --enable-squash-merge=false --enable-merge-commit --enable-rebase-merge=false`
 - Show: `gh api repos/SaSteffen/RynkePoints --jq '{allow_squash_merge, allow_merge_commit, allow_rebase_merge}'`
 
-## Squash commit: title = PR title, message = blank
+## Merge commit: GitHub's default subject, PR title as the body
 
-A squash commit is then exactly `<PR title> (#<number>)`, which is what the
-`pr-title` check lints. The message is blank because the "commit messages"
-option prefixes each subject with `* `, which can push a valid subject past
-commitlint's 100-character body-line limit on `develop`.
+The subject stays `Merge pull request #<number> from <branch>`, which commitlint
+ignores by default. The body is the pull request's title.
 
-- UI: **General → Pull Requests → Allow squash merging → Default commit
-  message**: *Pull request title*
-- Apply: `gh api --method PATCH repos/SaSteffen/RynkePoints -f squash_merge_commit_title=PR_TITLE -f squash_merge_commit_message=BLANK`
-- Show: `gh api repos/SaSteffen/RynkePoints --jq '{squash_merge_commit_title, squash_merge_commit_message}'`
+- UI: **General → Pull Requests → Allow merge commits → Default commit message**:
+  *Pull request title*
+- Apply: `gh api --method PATCH repos/SaSteffen/RynkePoints -f merge_commit_title=MERGE_MESSAGE -f merge_commit_message=PR_TITLE`
+- Show: `gh api repos/SaSteffen/RynkePoints --jq '{merge_commit_title, merge_commit_message}'`
 
 ## Automatically delete head branches: on
 
@@ -49,13 +48,14 @@ or a branch protected against deletion, so `develop` is safe.
 - Apply: `gh repo edit SaSteffen/RynkePoints --delete-branch-on-merge`
 - Show: `gh api repos/SaSteffen/RynkePoints --jq .delete_branch_on_merge`
 
-## Auto-merge: on
+## Auto-merge: available, never automatic
 
-**Enable auto-merge** on a pull request merges it once its required checks pass.
+This setting only makes the **Enable auto-merge** button available. Opening a pull
+request doesn't merge it: someone has to click the button on that pull request, and
+no workflow does. After the click, it merges once its required checks pass.
 `develop` still requires an up-to-date branch, and auto-merge doesn't update one. A
 pull request that falls behind waits until **Update branch → Update with rebase** is
-used, and then finishes by itself. Pick the merge method on the button: squash for a
-working branch, merge commit for a release, hotfix or `sync/*`.
+used, and then finishes by itself.
 
 - UI: **General → Pull Requests → Allow auto-merge**
 - Apply: `gh repo edit SaSteffen/RynkePoints --enable-auto-merge`
@@ -190,13 +190,13 @@ deploy reaches the maintainer.
 ## Verify all repository fields
 
 ```bash
-gh api repos/SaSteffen/RynkePoints --jq '{default_branch, allow_auto_merge, allow_squash_merge, allow_merge_commit, allow_rebase_merge, squash_merge_commit_title, squash_merge_commit_message, delete_branch_on_merge}'
+gh api repos/SaSteffen/RynkePoints --jq '{default_branch, allow_auto_merge, allow_squash_merge, allow_merge_commit, allow_rebase_merge, merge_commit_title, merge_commit_message, delete_branch_on_merge}'
 ```
 
 Expected:
 
 ```json
-{"allow_auto_merge":true,"allow_merge_commit":true,"allow_rebase_merge":false,"allow_squash_merge":true,"default_branch":"develop","delete_branch_on_merge":true,"squash_merge_commit_message":"BLANK","squash_merge_commit_title":"PR_TITLE"}
+{"allow_auto_merge":true,"allow_merge_commit":true,"allow_rebase_merge":false,"allow_squash_merge":false,"default_branch":"develop","delete_branch_on_merge":true,"merge_commit_message":"PR_TITLE","merge_commit_title":"MERGE_MESSAGE"}
 ```
 
 The two Actions settings and the `production` environment have their own
