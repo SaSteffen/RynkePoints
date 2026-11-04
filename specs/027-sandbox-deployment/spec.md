@@ -249,8 +249,9 @@ and a reset, and see both refused with a clear message before writing anything.
 1. **Given** the account has used more than the threshold of a daily allowance, **When** a
    sandbox deployment or seeding stage starts, **Then** it stops before writing and says why,
    and the gate treats that as a failed deployment.
-2. **Given** Cloudflare's usage figures are unavailable, **When** seeding starts, **Then** it
-   doesn't run.
+2. **Given** Cloudflare's usage figures are unavailable, **When** a deployment or seeding stage
+   starts, **Then** it doesn't run and says why, and the gate treats that as a failed deployment,
+   which **Accept** can still clear.
 3. **Given** the account's cron limit, **When** the sandboxes are configured, **Then** they use no
    cron triggers, and a maintainer can run scheduled work on demand from `/_dev/`.
 4. **Given** no sandbox chosen, **When** a release happens, **Then** sandboxes use no writes,
@@ -477,7 +478,8 @@ the other blocked by a git conflict.
   production. `/_dev/` MUST offer the scheduled work on demand.
 - **FR-033**: A deployment or seeding stage MUST first check the account's use of today's
   allowances and MUST stop before writing if rows written, rows read or queue operations are
-  above a threshold, set by default to 50 %.
+  above a threshold, set by default to 50 %. If the figures are unavailable, it MUST also stop,
+  because it can't rule out harming production.
 - **FR-034**: One day's seeding across all sandboxes MUST write at most a set budget of rows,
   set by default to 20,000, counting index writes, and MUST NOT use the queue for bulk data.
   Unseeded remainder continues on the next run.

@@ -24,7 +24,8 @@ handles what can exist only once per Strava app, and it holds no rider data. The
 one Cloudflare account for now, and the design must not rule out separate accounts later.
 
 **Terms**: A **team** is one group of riders with its own space. The **founding team**
-is the team using the app today. **Team data** is everything that differs between teams
+is the team using the app today, Team Rynkeby Hamburg. The **second team** is Team Rynkeby
+Europe. **Team data** is everything that differs between teams
 and is kept as data, not as branches in code. A **content set** is a body of generated
 text or art for one team, such as its motivational phrases.
 
@@ -288,7 +289,7 @@ Check the other team's step finishes and the failed one is reported.
 - **FR-040**: Cloudflare's figures MUST be split by team wherever Cloudflare allows, and a
   figure that can't be split says so. Gateway usage counts as shared.
 - **FR-041**: Since allowances are shared, every team's administrators MUST get the alerts
-  of feature 025, and days before a team joined stay unchanged in the history.
+  of feature 025, every maintainer MUST get them too (028 FR-025), and days before a team joined stay unchanged in the history.
 
 **Team data**
 
@@ -424,6 +425,9 @@ Check the other team's step finishes and the failed one is reported.
   design doesn't assume exactly two teams: lists of teams rather than "the other team",
   and no per-team steps that would be painful to repeat. The Strava cap of 999 athletes
   and the Cloudflare limits are shared, so further teams use up the same room.
+- **Cron triggers**: Each team uses 2 today, and the Free plan allows 5 per account. Two teams
+  fit, and sandboxes use none (027 FR-032). A third team wouldn't fit without fewer triggers per
+  team or the Paid plan. That's a known limit, not something to solve for the second team.
 - **Out of scope**: Separate Cloudflare accounts (kept possible, not built), per-team budget
   caps, monitoring the gateway beyond its errors, sharing anything between teams' riders,
   and team switching in the app.

@@ -61,10 +61,10 @@ way to change it is written down now:
 
 | Stage | Who must approve | Organization owners | When one maintainer is away |
 |---|---|---|---|
-| 1 (now) | The founding maintainer, on every pull request they didn't write | The founding maintainer | If it's the founding maintainer, merges wait; production can be rolled back or taken down |
+| 1 (first) | The founding maintainer, on every pull request they didn't write | The founding maintainer | If it's the founding maintainer, merges wait; production can be rolled back or taken down |
 | 2 | Another maintainer, on every pull request | Every maintainer | With only two maintainers, merges wait unless an owner changes the rule |
 
-There's no date or automatic trigger for stage 2: the founding maintainer decides when. Moving to it is a
+Stage 1 starts when the repository is in the organization. There's no date or automatic trigger for stage 2: the founding maintainer decides when. Moving to it is a
 ruleset change, making the second maintainer an owner, and a docs update.
 
 ### Why this reaches the original merge problem
@@ -364,7 +364,8 @@ doesn't depend on the organization and can ship first.
 - **FR-007**: Every pull request into `develop` or `main` that the founding maintainer didn't write MUST have
   their approval before it merges, including hotfixes, release pull requests and Dependabot's. Approval from
   anyone else MUST NOT count, and a new push MUST need a new approval. The founding maintainer's own pull
-  requests MUST merge without any approval.
+  requests MUST merge without any approval. A pull request opened by automation, such as a release pull request
+  from a GitHub App, doesn't count as theirs, even if they started the run, so it needs their approval.
 - **FR-030**: The docs MUST hold the plan for moving to stage 2, following the table in Context: what changes, and
   that the founding maintainer alone decides when. Until they do, FR-007 stands. At stage 2, every pull request MUST
   need approval from a maintainer other than its author.
@@ -432,7 +433,8 @@ doesn't depend on the organization and can ship first.
 
 **Continuity**
 
-- **FR-025**: Failures of deployments and usage alerts MUST reach every maintainer.
+- **FR-025**: Failures of deployments and usage alerts MUST reach every maintainer, in a way that doesn't need the
+  app's admin role. Usage alerts also still reach administrators in the app (026 FR-041).
 - **FR-026**: The docs MUST have a continuity section covering the founding maintainer being unavailable: what keeps
   working, what waits, and what other maintainers may do, per Edge Cases. It MUST record their intention to support
   the Strava app for a prolonged period, and that a controlled move gets planned if needed.

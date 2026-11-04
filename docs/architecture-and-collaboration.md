@@ -316,13 +316,16 @@ Before writing, every deployment and seeding stage checks the account's use:
 ```mermaid
 flowchart LR
     start["Deployment or<br/>seeding stage"] --> figures{"Usage figures<br/>available?"}
-    figures -- "no, seeding" --> stop1["Don't run"]
+    figures -- "no" --> stop1["Don't run, say why"]
     figures -- "yes" --> used{"Above 50 % of a<br/>daily allowance?"}
     used -- "yes" --> stop2["Stop before writing,<br/>say why"]
     used -- "no" --> go["Go ahead"]
 ```
 
-❓ The spec says seeding doesn't run without usage figures, but not what a deployment does then.
+For the gate, a deployment stopped by this check counts as failed, and **Accept** can still clear it.
+
+Each team uses 2 of the 5 cron triggers, so two teams fit, and a third wouldn't without fewer triggers per
+team or the Paid plan. That's a known limit, not something to solve for the second team.
 
 Moving to the Paid plan, from $5 per month, is a separate decision for later. It should need only
 settings changed, not a new design.
@@ -335,7 +338,10 @@ settings changed, not a new design.
 
 ### The stages
 
-The founding maintainer approves everything at first, and this is how trust gets built. There's no
+The founding maintainer approves everything at first, and this is how trust gets built. Stage 1 starts
+when the repository is in the organization. Release pull requests opened by a GitHub App count as nobody's
+own, so at stage 1 the founding maintainer approves those too. Failed deployments and usage alerts reach
+every maintainer at every stage. There's no
 date or automatic trigger for stage 2: the founding maintainer decides when.
 
 ```mermaid
@@ -527,12 +533,9 @@ flowchart LR
   A narrow credential could probably still bind production's database, so the plan has to state what it
   can reach.
 - [ ] Whether Cloudflare Access can protect a sandbox on a subdomain of the production domain on the Free plan.
-- [ ] How many cron triggers each team needs. The account allows 5 on the Free plan and one team uses 2
-  today, so two teams fit, but a third wouldn't at the current count.
 
 **Sandboxes**
 
-- [ ] What a deployment does when Cloudflare's usage figures are unavailable.
 - [ ] Whether ticking a box in a comment reliably reaches a workflow. The fallback is a short command as a
   comment.
 - [ ] How to report the gate so the ruleset's GitHub Actions pin accepts it.
