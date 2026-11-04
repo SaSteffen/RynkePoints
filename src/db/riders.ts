@@ -5,6 +5,7 @@ import {
 	recordConsentStatement,
 	SHARED_RIDER_IDS,
 } from "./consents";
+import { insertEmptySummaryStatement } from "./rider-summaries";
 
 // Riders and their Strava credentials (data-model.md). Deleting a rider is a
 // single DELETE; the schema cascades to everything they own (FR-022).
@@ -144,6 +145,7 @@ export async function insertRider(
 			consent.version,
 			consent.acceptedAt,
 		),
+		insertEmptySummaryStatement(db, rider.athleteId),
 	]);
 }
 

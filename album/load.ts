@@ -157,7 +157,7 @@ export async function loadAlbum(
 	if (!badgeRows || !balanceRows || !eventRows) {
 		throw new Error("D1 batch returned too few results");
 	}
-	const sums = toTeamBadgeSums(sumRows);
+	const sums = await toTeamBadgeSums(db, sumRows);
 	const { training, team } = riderRynkeOn(read, window, today, cutoff);
 
 	const attended = new Set(

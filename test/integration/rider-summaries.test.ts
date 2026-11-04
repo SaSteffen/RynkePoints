@@ -1,6 +1,13 @@
-import { env } from "cloudflare:test";
+import { createScheduledController, env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import type { RiderSummaryRow } from "../../src/db/rider-summaries";
+import {
+	deleteRider,
+	insertRider,
+	markNeedsReconnect,
+} from "../../src/db/riders";
+import { readTeam, readTeamBadgeSums } from "../../src/db/team";
+import { handleScheduled } from "../../src/index";
 import {
 	applyAndEvaluate,
 	applyCorrectionChange,
@@ -11,15 +18,17 @@ import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
 import { RIDER_SUMMARY_VERSION, summaryOf } from "../../src/rynke/summary";
 import type { RunRecord, SwimRecord } from "../../src/strava/activity";
 import { purgePreSeasonActivities } from "../../src/work/scheduled";
-import { makeCtx, resetDb, seedRider } from "../support/ctx";
+import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";
 import { countRows } from "../support/d1-rows";
+import { countTrips } from "../support/d1-trips";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
+import { riderPage, seedEmptySummary } from "../support/rider-view";
 import { activityRecord, attendRaw, insertEvent } from "../support/rynke";
 
 // Feature 030 US3: every change leaves a rider's row matching their stored data,
 // in the same batch. Synthetic riders only.
 
-const ctx = makeCtx();
+let ctx = makeCtx();
 const window = countingWindow(env);
 
 function runRecord(id: number, overrides: Partial<RunRecord> = {}): RunRecord {
@@ -118,6 +127,7 @@ const eveningRide = (id: number, distance = 40123.45) =>
 
 beforeEach(async () => {
 	await resetDb();
+	ctx = makeCtx();
 	await seedRider(ctx, { athleteId: ATHLETE_A });
 	await seedRider(ctx, { athleteId: ATHLETE_B });
 });
@@ -406,5 +416,190 @@ describe("an evaluation that changes nothing (FR-004)", () => {
 		rows.counter.reset();
 		await evaluateChange(rows.ctx, ATHLETE_A, { kind: "none" });
 		expect(rows.counter.written()).toBe(0);
+	});
+});
+
+describe("leaving and withdrawing take effect at once (US4)", () => {
+	const seedBoth = async () => {
+		const eventId = await insertEvent("team_training", "2026-05-10");
+		await attendRaw(eventId, [ATHLETE_A, ATHLETE_B]);
+		for (const athleteId of [ATHLETE_A, ATHLETE_B]) {
+			await evaluateChange(ctx, athleteId, {
+				kind: "upsert",
+				records: [
+					activityRecord(athleteId, {
+						athlete_id: athleteId,
+						distance_m: 40000.5,
+					}),
+				],
+				runs: [
+					runRecord(athleteId + 1, {
+						athlete_id: athleteId,
+						distance_m: 5000,
+					}),
+				],
+			});
+		}
+	};
+	const expectOnlyA = async () => {
+		expect((await readTeam(env.DB)).map((r) => r.athleteId)).toEqual([
+			ATHLETE_A,
+		]);
+		const sums = await readTeamBadgeSums(env.DB);
+		expect(sums.riders).toHaveLength(1);
+		expect(sums.riders[0]?.rides[0]?.distanceM).toBe(40000.5);
+		expect(sums.runs).toEqual([{ date: "2026-05-02", distanceM: 5000 }]);
+		expect(sums.events[0]?.attendees).toBe(1);
+		expect([...(sums.connectedOn?.keys() ?? [])]).toEqual([ATHLETE_A]);
+		expect(new Set((sums.active ?? []).map((a) => a.athleteId))).toEqual(
+			new Set([ATHLETE_A]),
+		);
+		const page = await riderPage(ctx, ATHLETE_A, "/team");
+		expect(page.status).toBe(200);
+		expect(page.html).not.toContain("Testrider B");
+	};
+
+	it("deletes the row with the rider, and the figures fall", async () => {
+		await seedBoth();
+		expect((await tableCounts()).rider_summaries).toBe(2);
+		await deleteRider(env.DB, ATHLETE_B);
+		expect((await tableCounts()).rider_summaries).toBe(1);
+		await expectOnlyA();
+	});
+
+	it("keeps a rider who needs to reconnect out of the figures, then lets them back", async () => {
+		await seedBoth();
+		const all = await readTeamBadgeSums(env.DB);
+		expect(all.riders).toHaveLength(2);
+		await markNeedsReconnect(env.DB, ATHLETE_B, NOW);
+		await expectOnlyA();
+		expect(await storedRow(ATHLETE_B)).not.toBeNull();
+		await env.DB.prepare(
+			"UPDATE riders SET status = 'connected', reconnect_requested_at = NULL WHERE athlete_id = ?",
+		)
+			.bind(ATHLETE_B)
+			.run();
+		expect(await readTeamBadgeSums(env.DB)).toEqual(all);
+	});
+
+	it("keeps a rider without consent out of the figures, though their row stays", async () => {
+		await seedBoth();
+		await env.DB.prepare("DELETE FROM consent_records WHERE athlete_id = ?")
+			.bind(ATHLETE_B)
+			.run();
+		await expectOnlyA();
+		expect(await storedRow(ATHLETE_B)).not.toBeNull();
+	});
+
+	it("shows the same pages from rows as from adding up", async () => {
+		await seedBoth();
+		const pages = async () => ({
+			// Without the quote, which changes with each view.
+			team: (await riderPage(ctx, ATHLETE_A, "/team")).html.replace(
+				/<div class="quote-monkey">[\s\S]*?<\/blockquote>/,
+				"",
+			),
+			badges: (await riderPage(ctx, ATHLETE_A, "/me/badges")).html,
+		});
+		// A first view marks what it marks; compare the views after it.
+		await pages();
+		const fromRows = await pages();
+		await env.DB.prepare("DELETE FROM rider_summaries").run();
+		expect(await pages()).toEqual(fromRows);
+	});
+});
+
+describe("the release is invisible (US5)", () => {
+	const daily = () =>
+		handleScheduled(
+			createScheduledController({
+				scheduledTime: new Date(NOW * 1000),
+				cron: "17 3 * * *",
+			}),
+			ctx,
+		);
+	const evaluationsSent = () =>
+		ctx.queue.sent
+			.map((m) => m.body)
+			.filter((b) => b.kind === "evaluate-rider");
+
+	it("gives a rider through insertRider a current empty row, and no second round trip", async () => {
+		const NEW = 900_010;
+		await insertRider(
+			env.DB,
+			{
+				athleteId: NEW,
+				firstName: "Neu",
+				scopes: "read,activity:read",
+				scopeReadAll: false,
+				scopeWrite: false,
+				now: NOW,
+			},
+			{ version: 1, acceptedAt: NOW },
+		);
+		expect(await storedRow(NEW)).toEqual({
+			athlete_id: NEW,
+			version: RIDER_SUMMARY_VERSION,
+			days: "[]",
+			weeks: "[]",
+			run_days: "[]",
+			active: "[]",
+			attended: "[]",
+		});
+		await seedEmptySummary(ATHLETE_A);
+		await seedEmptySummary(ATHLETE_B);
+		const { ctx: counted, counter } = countTrips(ctx);
+		counter.reset();
+		await readTeam(counted.env.DB);
+		await readTeamBadgeSums(counted.env.DB);
+		expect(counter.trips()).toBe(2);
+	});
+
+	it("fills rows through the daily job, with nothing else written and nothing sent", async () => {
+		await evaluateChange(ctx, ATHLETE_A, {
+			kind: "upsert",
+			records: [activityRecord(30)],
+		});
+		await evaluateChange(ctx, ATHLETE_B, { kind: "none" });
+		// As after the release: everything stored except the rows.
+		await env.DB.prepare("DELETE FROM rider_summaries").run();
+		const before = await tableCounts();
+		const rises = () =>
+			env.DB.prepare("SELECT count(*) AS n FROM badge_rises").first<number>(
+				"n",
+			);
+		const risesBefore = await rises();
+		const balance = await env.DB.prepare(
+			"SELECT * FROM rynke_balances WHERE athlete_id = ?",
+		)
+			.bind(ATHLETE_A)
+			.first();
+		await daily();
+		expect(evaluationsSent()).toEqual([
+			{ kind: "evaluate-rider", athleteId: ATHLETE_A },
+			{ kind: "evaluate-rider", athleteId: ATHLETE_B },
+		]);
+		const rows = countRows(ctx);
+		rows.counter.reset();
+		const result = await evaluateChange(rows.ctx, ATHLETE_A, { kind: "none" });
+		expect(rows.counter.written()).toBe(1);
+		expect(result).toEqual({
+			rose: false,
+			badges: [],
+			figuresChanged: false,
+		});
+		await evaluateChange(ctx, ATHLETE_B, { kind: "none" });
+		await expectRowMatches(ATHLETE_A);
+		expect(
+			await env.DB.prepare("SELECT * FROM rynke_balances WHERE athlete_id = ?")
+				.bind(ATHLETE_A)
+				.first(),
+		).toEqual(balance);
+		expect(await tableCounts()).toEqual({ ...before, rider_summaries: 2 });
+		expect(await rises()).toBe(risesBefore);
+		// A second run lists nobody.
+		ctx.queue.sent.length = 0;
+		await daily();
+		expect(evaluationsSent()).toEqual([]);
 	});
 });

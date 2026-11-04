@@ -2,8 +2,9 @@
 // from the same evaluation as the balance and held as JSON text per column of
 // `rider_summaries`. Pure like `tally.ts`; the SQL is in `db/rider-summaries.ts`.
 
-import type { Attendance } from "./team-events";
-import { weekEndOf } from "./weeks";
+import type { TeamActivity, TeamBadgeSums } from "../badges/team";
+import type { Attendance, EventKind } from "./team-events";
+import { type DatedCorrection, weekEndOf } from "./weeks";
 
 /**
  * Raising it makes every stored row count as missing, so readers add those
@@ -148,4 +149,119 @@ export function parseActive(text: string): ActiveEntry[] {
 
 export function parseAttended(text: string): number[] {
 	return JSON.parse(text) as number[];
+}
+
+/** A team event as read live: its kind and date never sit in a summary. */
+export type StoredEvents = ReadonlyMap<
+	number,
+	{ kind: EventKind; date: string }
+>;
+
+/**
+ * The rider's attendance from attended IDs and the events as they are now, by
+ * date and then ID. An ID without an event counts for nothing: it was deleted
+ * and the rider hasn't been evaluated since (research R7).
+ */
+export function attendedEvents(
+	attended: readonly number[],
+	events: StoredEvents,
+): Attendance[] {
+	const attendance: Attendance[] = [];
+	for (const eventId of attended) {
+		const event = events.get(eventId);
+		if (event) attendance.push({ eventId, kind: event.kind, date: event.date });
+	}
+	return attendance.sort(byDateThenEvent);
+}
+
+function byDateThenEvent(
+	a: { date: string; eventId: number },
+	b: { date: string; eventId: number },
+): number {
+	return compareText(a.date, b.date) || a.eventId - b.eventId;
+}
+
+/** What the team badges read of one listed rider. */
+export interface BadgeRider {
+	athleteId: number;
+	/** `YYYY-MM-DD` */
+	connectedOn: string;
+	days: readonly DayEntry[];
+	runDays: readonly RunDayEntry[];
+	active: readonly ActiveEntry[];
+	attended: readonly number[];
+	corrections: readonly DatedCorrection[];
+}
+
+/**
+ * The team's sums from every listed rider, worked out on each read and never
+ * stored (FR-009), in the shape `evaluateTeamBadges` takes (research R9): no ID
+ * on riders, and riders with nothing to add left out, though they stay in
+ * `connectedOn`.
+ */
+export function teamBadgeSumsOf(
+	riders: readonly BadgeRider[],
+	events: StoredEvents,
+): TeamBadgeSums {
+	const runs = new Map<string, number>();
+	const attendees = new Map<number, number>();
+	const active: TeamActivity[] = [];
+	const connectedOn = new Map<number, string>();
+	const days = [];
+	for (const rider of riders) {
+		connectedOn.set(rider.athleteId, rider.connectedOn);
+		for (const [date, distanceM] of rider.runDays) {
+			runs.set(date, (runs.get(date) ?? 0) + distanceM);
+		}
+		for (const [date, hour, ride] of rider.active) {
+			active.push({
+				athleteId: rider.athleteId,
+				date,
+				hour,
+				ride: ride === 1,
+			});
+		}
+		const attendance = attendedEvents(rider.attended, events);
+		for (const { eventId } of attendance) {
+			attendees.set(eventId, (attendees.get(eventId) ?? 0) + 1);
+		}
+		if (
+			rider.days.length > 0 ||
+			attendance.length > 0 ||
+			rider.corrections.length > 0
+		) {
+			days.push({
+				rides: rider.days.map(
+					([date, distanceM, distanceRynke, elevationDm]) => ({
+						date,
+						distanceM,
+						distanceRynke,
+						elevationDm,
+					}),
+				),
+				attendance,
+				corrections: rider.corrections,
+			});
+		}
+	}
+	return {
+		riders: days,
+		runs: [...runs]
+			.sort(([a], [b]) => compareText(a, b))
+			.map(([date, distanceM]) => ({ date, distanceM })),
+		events: [...attendees]
+			.flatMap(([eventId, count]) => {
+				const event = events.get(eventId);
+				return event ? [{ eventId, ...event, attendees: count }] : [];
+			})
+			.sort(byDateThenEvent),
+		active: active.sort(
+			(a, b) =>
+				compareText(a.date, b.date) ||
+				a.athleteId - b.athleteId ||
+				a.hour - b.hour ||
+				Number(a.ride) - Number(b.ride),
+		),
+		connectedOn,
+	};
 }

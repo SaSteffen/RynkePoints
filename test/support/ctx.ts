@@ -239,6 +239,7 @@ export async function tableCounts(): Promise<Record<string, number>> {
 		"strava_rate_limit",
 		"ride_results",
 		"rynke_balances",
+		"rider_summaries",
 		"rynke_rises",
 		"rynke_seen",
 		"team_events",
