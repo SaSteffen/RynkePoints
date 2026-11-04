@@ -199,6 +199,14 @@ describe("logging never includes credentials", () => {
 		expectLogged("Cloudflare usage unavailable");
 	});
 
+	it("usage recording: logs why Cloudflare refused the query", async () => {
+		installCloudflare(() =>
+			Response.json({ errors: [{ message: 'unknown field "x"' }], data: null }),
+		);
+		await recordUsage({ ...ctx, env: { ...ctx.env, ...WITH_ANALYTICS } });
+		expectLogged('errors in the response: unknown field "x"');
+	});
+
 	it.each<[number | "throw", number, string]>([
 		[403, 1, "refused"],
 		[503, 4, "given up"],
