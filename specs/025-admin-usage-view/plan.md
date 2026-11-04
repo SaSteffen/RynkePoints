@@ -37,7 +37,7 @@ riders. It is built for one team. Per-team shares across teams are feature 026 (
 **Project Type**: Server-rendered web app
 
 **Performance Goals**: Recording and viewing use under 1 % of any daily allowance (SC-006).
-Estimate at full use: 192 rows written and about 24,000 rows read a day (R4).
+Estimate at full use: 312 rows written and about 24,000 rows read a day (R4).
 
 **Constraints**: Viewing makes no Strava request (FR-027). No rider identifiers in usage
 data (FR-017). Cloudflare's token is read-only (FR-029). Tests call neither service.
@@ -99,7 +99,7 @@ src/http/notice.ts                    # `blocked` notice
 src/consent.ts                        # version 2
 src/i18n/messages/{de,en}.ts          # text, including `landing.leave` and `consent.*`
 src/work/scheduled.ts                 # dispatch by cron
-wrangler.jsonc                        # hourly cron, account ID
+wrangler.jsonc                        # hourly cron, TEAM_ID
 scripts/, e2e/strava-review.review.ts # review screenshots of the new pages
 test/                                 # unit and integration tests
 ```

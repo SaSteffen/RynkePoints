@@ -36,7 +36,8 @@ Allowances: `strava_read_daily`, `strava_all_daily`, `riders_connected`,
 `cf_worker_requests`, `cf_queue_operations`, `cf_d1_rows_read`, `cf_d1_rows_written`,
 `cf_d1_storage_bytes`.
 
-Holds no rider data, and has no relation to `riders` (FR-017). Rows older than 13 months are
+`WITHOUT ROWID`, so each upsert counts as one row written (R4). Holds no rider data, and has no
+relation to `riders` (FR-017). Rows older than 13 months are
 removed by the daily cron. A missing day is a gap.
 
 ## `usage_source_state`

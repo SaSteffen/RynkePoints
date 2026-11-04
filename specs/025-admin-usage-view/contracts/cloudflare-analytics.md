@@ -12,9 +12,10 @@
 
 Each is filtered by `accountTag` and yesterday and today (UTC), and summed per day.
 
-**Settings**: `CLOUDFLARE_ACCOUNT_ID` in `wrangler.jsonc`, and the token as a secret with only
-Account Analytics Read, created by hand. It's optional in `secrets.required` terms: without
-it, Cloudflare counts as unavailable.
+**Settings**: `CLOUDFLARE_ANALYTICS_ACCOUNT_ID` and the token, both as secrets. The repository
+keeps the account ID out of its files today (CI has it as a variable), and the name differs from
+Wrangler's own `CLOUDFLARE_ACCOUNT_ID`. The token has only Account Analytics Read and is created
+by hand. Neither is in `secrets.required`: without them, Cloudflare counts as unavailable.
 
 **Failure** (network, non-2xx, `errors` in the body, or an unexpected shape): nothing is
 overwritten, `last_failure_at` is set, and the Strava part of the run continues. Responses

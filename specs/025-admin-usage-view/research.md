@@ -55,11 +55,13 @@ with their explicit go-ahead, since this touches production resources.
 | Per day | Amount | Share |
 |---|---|---|
 | Worker runs | 24 | 0.02 % of 100,000 |
-| Rows written (8 allowances × 24) | 192 | 0.2 % of 100,000 |
+| Rows written (13 rows × 24: 8 for today, 5 Cloudflare rows for yesterday) | 312 | 0.3 % of 100,000 |
 | Rows read (counting riders at capacity × 24, small lookups) | about 24,000 | 0.5 % of 5 million |
 | Queue operations, alerts only | a few on alert days | well under 1 % |
 
 The count of riders is the largest item only at full capacity. Viewing adds little.
+`usage_daily` is `WITHOUT ROWID`, because D1 also counts writes to a separate key index, which
+would double the rows written.
 
 ## R5. Alerts
 
