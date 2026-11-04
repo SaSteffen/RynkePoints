@@ -113,6 +113,9 @@ An administrator sees the riders of their own team and each rider's state, for
 example to find out why someone's rides aren't arriving. They also see how many of the
 team's riders are connected, against Strava's capacity of 999.
 
+A rider who hasn't yet agreed to the new consent version isn't listed; the overview only
+says how many such riders there are.
+
 **Why this priority**: It answers the most common support question without reaching
 for the database, and it needs no usage figures.
 
@@ -125,7 +128,10 @@ appears.
 1. **Given** riders in several states, **When** an administrator opens the rider
    overview, **Then** each row shows the first name, connection status, connection
    date, last membership check and whether an import is still running.
-2. **Given** work is waiting for the Strava budget, **When** the view is open,
+2. **Given** a rider who agreed only to an older consent version, **When** an
+   administrator opens the overview, **Then** that rider has no row, and the overview
+   shows how many riders aren't listed for this reason.
+3. **Given** work is waiting for the Strava budget, **When** the view is open,
    **Then** it shows how many items are waiting and an estimate of when they will be
    done, without naming riders. **Given** nothing is waiting, **Then** it shows
    nothing about waiting work.
@@ -290,6 +296,10 @@ check in the same period sends nothing.
 - **FR-018**: The rider overview MUST show the administrator's own team, one row per
   rider: first name, connection status, connection date, last membership check and
   import state.
+- **FR-038**: The overview MUST list only riders who agreed to the consent version that
+  covers it (FR-032) and MUST show how many others there are. Their Rynke, team figures
+  and organiser pages MUST NOT change because of this. Removing an unlisted rider is a
+  manual step for the maintainer.
 - **FR-019**: The overview MUST NOT show rides, Rynke, tokens, athlete IDs or anything
   else read from a rider's activities.
 - **FR-020**: The view MUST show how many Strava items are waiting and an estimate of
