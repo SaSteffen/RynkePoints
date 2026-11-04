@@ -235,6 +235,8 @@ describe("riders", () => {
 			reconnectRequestedAt: null,
 			figuresVersion: ACTIVITY_FIGURES_VERSION,
 			organiser: false,
+			administrator: false,
+			cloudflareAlerts: true,
 			onboardedAt: null,
 			organiserOnboardedAt: null,
 		});

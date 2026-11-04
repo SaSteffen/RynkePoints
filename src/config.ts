@@ -15,6 +15,7 @@ type Settings = Pick<
 	| "TRAINING_LEADERBOARD"
 	| "PRIVACY_CONTROLLER"
 	| "CONTACT_EMAIL"
+	| "TEAM_ID"
 >;
 
 const SEASON_TIME_ZONE = "Europe/Berlin";
@@ -183,4 +184,26 @@ export function contactEmail(env: Pick<Settings, "CONTACT_EMAIL">): string {
 		throw new Error("CONTACT_EMAIL must be an email address");
 	}
 	return email;
+}
+
+/** Labels this team's usage records (feature 025 research R13). */
+export function teamId(env: Pick<Settings, "TEAM_ID">): string {
+	if (env.TEAM_ID.trim() === "") throw new Error("TEAM_ID is empty");
+	return env.TEAM_ID;
+}
+
+/** Optional secrets, set by hand, so not in `secrets.required` (feature 025). */
+export interface AnalyticsSecrets {
+	CLOUDFLARE_ANALYTICS_TOKEN?: string;
+	CLOUDFLARE_ANALYTICS_ACCOUNT_ID?: string;
+}
+
+/** Reading Cloudflare's figures; null while either secret is missing. */
+export function cloudflareAnalytics(
+	env: object,
+): { token: string; accountId: string } | null {
+	const secrets = env as AnalyticsSecrets;
+	const token = secrets.CLOUDFLARE_ANALYTICS_TOKEN;
+	const accountId = secrets.CLOUDFLARE_ANALYTICS_ACCOUNT_ID;
+	return token && accountId ? { token, accountId } : null;
 }

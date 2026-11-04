@@ -1,6 +1,7 @@
 import { clientId, memberClubIds, seasonStart } from "../config";
 import { currentVersion, grantedScopes } from "../consent";
 import type { Ctx } from "../ctx";
+import { isBlocked } from "../db/blocked";
 import { recordConsent } from "../db/consents";
 import {
 	deleteRider,
@@ -139,6 +140,12 @@ export async function handleCallback(
 	if (exchange.kind === "budget") return notice("strava-busy");
 	if (exchange.kind !== "ok") return notice("failed");
 	const token = exchange.value;
+	// Strava only reveals who is connecting here. A blocked rider gets no club
+	// request, and nothing they returned is kept (feature 025 FR-030, R7).
+	if (await isBlocked(ctx.env.DB, token.athleteId)) {
+		await revokeToken(ctx, token.accessToken);
+		return notice("blocked");
+	}
 	const auth = { accessToken: token.accessToken };
 	const existing = await getRider(ctx.env.DB, token.athleteId);
 

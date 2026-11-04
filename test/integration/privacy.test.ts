@@ -77,6 +77,23 @@ describe("GET /privacy", () => {
 		},
 	);
 
+	it.each(["de", "en"] as const)(
+		"says administrators exist and a removed rider's ID stays in %s (025 FR-032)",
+		async (lang) => {
+			const { page } = await get("/privacy", lang);
+			for (const id of [
+				"privacy.visibility.admins",
+				"privacy.legal.blocklist",
+				"privacy.retention.blocklist",
+			] as const) {
+				expect(page, id).toContain(escapeHtml(CATALOGS[lang][id]));
+			}
+			expect(CATALOGS[lang]["privacy.retention.blocklist"]).toContain(
+				lang === "de" ? "Strava-ID" : "Strava ID",
+			);
+		},
+	);
+
 	it("names the controller and links the contact address", async () => {
 		const { page } = await get("/privacy", "de");
 		expect(page).toContain(

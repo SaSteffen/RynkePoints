@@ -41,7 +41,12 @@ export async function stravaFetch(
 		return transient(endpoint, "network error");
 	}
 	try {
-		await recordRateLimitHeaders(ctx.env.DB, res.headers, ctx.now());
+		await recordRateLimitHeaders(
+			ctx.env.DB,
+			res.headers,
+			ctx.now(),
+			(init.method ?? "GET").toUpperCase() === "GET" ? "read" : "write",
+		);
 	} catch {
 		// Best-effort: losing one usage sample must not lose the response, e.g.
 		// a rotated refresh token that still has to be saved.

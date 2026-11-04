@@ -31,7 +31,7 @@ export const de = {
 	"landing.purpose":
 		"Wir nutzen die Daten nur für Rynke und Teamtermine. Deine einzelnen Fahrten und ihre Namen siehst nur du.",
 	"landing.leave":
-		"Aussteigen geht jederzeit: in den Einstellungen oder indem du RynkePoints auf Strava entfernst. Dann löschen wir alle Daten über dich, auch deine Rynke. Verlässt du den Club, löschen wir sie innerhalb von 24\u00a0Stunden.",
+		"Aussteigen geht jederzeit: in den Einstellungen oder indem du RynkePoints auf Strava entfernst. Dann löschen wir alle Daten über dich, auch deine Rynke. Verlässt du den Club, löschen wir sie innerhalb von 24\u00a0Stunden. Nur wenn dich ein Admin entfernt, behalten wir deine Strava-ID, damit du dich nicht wieder verbinden kannst.",
 	"landing.backups":
 		"Gelöschte Daten bleiben noch bis zu 7\u00a0Tage in den Sicherungen unseres Hosting-Anbieters.",
 	"landing.cookies":
@@ -45,7 +45,7 @@ export const de = {
 	"consent.short.read":
 		"Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.",
 	"consent.short.shown":
-		"Das Team sieht deine Rynke ohne Namen, die Orga mit deinem Vornamen.",
+		"Das Team sieht deine Rynke ohne Namen, die Orga mit deinem Vornamen. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.",
 	"consent.details": "Alle Details",
 	"consent.organisers":
 		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen und bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst.",
@@ -948,4 +948,108 @@ export const de = {
 	"album.stickers.count": "{earned} von {total}",
 	"album.stickers.secret": "?",
 	"album.cutoff": "Stand: {date}",
+
+	// Feature 025: die Admin-Ansicht.
+	"nav.admin": "Admin",
+	"admin.switch.label": "Admin-Ansichten",
+	"admin.switch.usage": "Nutzung",
+	"admin.switch.history": "Verlauf",
+	"admin.switch.riders": "Rider",
+	"admin.allowance.strava_read_15m": "Strava-Lesezugriffe pro 15 Minuten",
+	"admin.allowance.strava_all_15m": "Strava-Anfragen pro 15 Minuten",
+	"admin.allowance.strava_read_daily": "Strava-Lesezugriffe pro Tag",
+	"admin.allowance.strava_all_daily": "Strava-Anfragen pro Tag",
+	"admin.allowance.riders_connected": "Verbundene Rider",
+	"admin.allowance.cf_worker_requests": "Worker-Anfragen pro Tag",
+	"admin.allowance.cf_queue_operations": "Queue-Operationen pro Tag",
+	"admin.allowance.cf_d1_rows_read": "Gelesene Datenbankzeilen pro Tag",
+	"admin.allowance.cf_d1_rows_written": "Geschriebene Datenbankzeilen pro Tag",
+	"admin.allowance.cf_d1_storage_bytes": "Datenbank-Speicher",
+	"admin.gigabytes": "{n}\u00a0GB",
+	"admin.level.warning": "Warnung",
+	"admin.level.critical": "Kritisch",
+	"admin.summary.ok": "Alle Werte liegen unter 80\u00a0%.",
+	"admin.summary.attention": "Werte bei 80\u00a0% oder mehr: {n}",
+	"admin.figure.numbers": "{used} von {limit} · {percent}\u00a0%",
+	"admin.figure.split": "Dieses Team: {team} · Nicht zugeordnet: {rest}",
+	"admin.figure.seen": "Stand: {time} UTC",
+	"admin.figure.notSeen": "Noch nicht beobachtet",
+	"admin.figure.noValue": "Noch kein Wert. Limit: {limit}",
+	"admin.strava.heading": "Strava",
+	"admin.cloudflare.heading": "Cloudflare",
+	"admin.cloudflare.note":
+		"Für das ganze Konto und ungefähr: Cloudflares Statistik läuft nach und ist kein Abrechnungsmaß.",
+	"admin.cloudflare.unavailable":
+		"Cloudflares Werte sind gerade nicht verfügbar. Das hier sind die letzten bekannten.",
+	"admin.waiting.heading": "Warten auf das Strava-Budget",
+	"admin.waiting.body": "{n} Einträge warten, fertig in etwa {time}.",
+	"admin.waiting.one": "1 Eintrag wartet, fertig in etwa {time}.",
+	"admin.waiting.minutes": "{n} Minuten",
+	"admin.waiting.hours": "{n} Stunden",
+	"admin.waiting.days": "{n} Tagen",
+	"admin.alerts.heading": "Cloudflare-Hinweise",
+	"admin.alerts.on":
+		"Du bekommst eine Benachrichtigung, wenn ein Cloudflare-Kontingent 80\u00a0% oder 95\u00a0% erreicht. Hinweise zu Strava und zu verbundenen Ridern bleiben in jedem Fall an.",
+	"admin.alerts.off":
+		"Du bekommst keine Benachrichtigungen zu Cloudflares Kontingenten. Diese Seite markiert sie weiter, und Hinweise zu Strava und zu verbundenen Ridern bleiben an.",
+	"admin.alerts.turnOff": "Cloudflare-Hinweise ausschalten",
+	"admin.alerts.turnOn": "Cloudflare-Hinweise einschalten",
+	"admin.alerts.noDevice":
+		"Du bekommst keine Hinweise: Auf keinem deiner Geräte sind Benachrichtigungen an. Du kannst sie unter {settings} einschalten.",
+	"admin.history.choose": "Kontingent",
+	"admin.history.show": "Anzeigen",
+	"admin.history.none":
+		"Noch nichts aufgezeichnet. Die Aufzeichnung läuft einmal pro Stunde.",
+	"admin.history.since": "Die Aufzeichnung begann am {date}.",
+	"admin.history.chart":
+		"{name} pro Tag als Anteil am Limit, vom {first} bis zum {last}. Die Tabelle enthält die Werte.",
+	"admin.history.day": "Tag",
+	"admin.history.used": "Genutzt",
+	"admin.history.limit": "Limit",
+	"admin.history.share": "Anteil",
+	"admin.history.team": "Dieses Team",
+	"admin.history.peak": "Höchstwert 15\u00a0Min.",
+	"admin.history.percent": "{n}\u00a0%",
+	"admin.history.gap": "Nichts aufgezeichnet",
+	"admin.history.ridersNote":
+		"Verbundene Rider sind die eigenen des Teams, also zählt der ganze Wert für dieses Team.",
+	"admin.riders.counts":
+		"Aufgeführt: {listed}. Nicht aufgeführt, weil ihre neue Zustimmung noch aussteht: {unlisted}. Gesperrt: {blocked}.",
+	"admin.riders.none": "Noch niemand hat der neuen Fassung zugestimmt.",
+	"admin.riders.status": "Verbindung",
+	"admin.riders.status.connected": "Verbunden",
+	"admin.riders.status.needs_reconnect": "Muss sich neu verbinden",
+	"admin.riders.connected": "Verbunden am",
+	"admin.riders.checked": "Mitgliedschaft zuletzt geprüft",
+	"admin.riders.import": "Import",
+	"admin.riders.import.pending": "Läuft noch",
+	"admin.riders.import.running": "Läuft noch",
+	"admin.riders.import.done": "Fertig",
+	"admin.riders.remove": "Entfernen",
+	"admin.remove.title": "{name} entfernen?",
+	"admin.remove.explain":
+		"Das lässt sich nicht rückgängig machen. Alle Daten werden gelöscht und der Strava-Zugang widerrufen. Eine erneute Verbindung mit diesem Team ist nicht mehr möglich, auch nicht bei Mitgliedschaft im Club: Die Strava-ID bleibt auf der Sperrliste.",
+	"admin.remove.confirm": "Entfernen und sperren",
+	"admin.remove.cancel": "Abbrechen",
+	"admin.remove.done.removed": "Entfernt und gesperrt.",
+	"admin.remove.done.removed-revoke-failed":
+		"Entfernt und gesperrt, aber Strava war nicht erreichbar, um den Zugang zu widerrufen. Das Token ist hier trotzdem gelöscht.",
+	"admin.remove.error.self":
+		"Dich selbst kannst du nicht entfernen. Zum Aussteigen: {leave}.",
+	"admin.remove.error.unknown":
+		"Das ist niemand aus dieser Liste. Nichts wurde geändert.",
+	"admin.remove.leaveLink": "Meine Daten löschen",
+	"notification.usage.warning": "{allowance}: {percent}\u00a0%",
+	"notification.usage.critical": "Kritisch: {allowance} bei {percent}\u00a0%",
+	"notice.blocked.title": "Du kannst bei diesem Team nicht mitmachen",
+	"notice.blocked.body":
+		"Ein Admin hat dich aus diesem Team entfernt. Wir behalten nur deine Strava-ID, damit du dich nicht wieder verbinden kannst, und haben den gerade erteilten Zugang widerrufen.",
+	"consent.admins":
+		"Die Admins betreiben die App für das Team. Sie sehen deinen Vornamen, ob und seit wann du verbunden bist, wann deine Club-Mitgliedschaft zuletzt geprüft wurde und ob dein Import noch läuft, aber keine Fahrten und keine Rynke. Sie können dich aus dem Team entfernen: Dann werden deine Daten gelöscht, und nur deine Strava-ID bleibt auf einer Sperrliste, damit du dich nicht wieder mit diesem Team verbinden kannst.",
+	"privacy.visibility.admins":
+		"Die Admins, die die App für das Team betreiben, sehen deinen Vornamen, ob und seit wann du verbunden bist, wann deine Club-Mitgliedschaft zuletzt geprüft wurde und ob dein Import noch läuft, aber keine Aktivitäten und keine Rynke.",
+	"privacy.legal.blocklist":
+		"Die Sperrliste beruht auf dem berechtigten Interesse des Teams, jemanden fernzuhalten, den es entfernt hat (Art. 6 Abs. 1 lit. f DSGVO), nicht auf einer Einwilligung. Wenn du ihre Löschung verlangen willst, schreib an die oben genannte verantwortliche Person.",
+	"privacy.retention.blocklist":
+		"Die einzige Ausnahme: Entfernt dich ein Admin, bleibt deine Strava-ID auf der Sperrliste des Teams, solange das Team die App betreibt, ohne Namen, Datum oder Grund, damit du dich nicht wieder verbinden kannst. Alles andere wird gelöscht.",
 } satisfies Record<string, string>;

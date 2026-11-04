@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { CONSENT_VERSIONS } from "../../src/consent";
+import { CONSENT_VERSION, CONSENT_VERSIONS } from "../../src/consent";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
@@ -97,11 +97,11 @@ describe("GET /me for a connected rider", () => {
 
 	it("shows the stored consent on its Berlin date, what is read and who sees what", async () => {
 		const late = makeCtx({ now: Date.parse("2026-10-06T23:30:00Z") / 1000 });
-		await seedRider(late, { consentVersion: 1 });
+		await seedRider(late, { consentVersion: CONSENT_VERSION });
 		const { page } = await getSettings();
 		expect(page).toContain("<h2>Deine Zustimmung</h2>");
 		expect(page).toMatch(
-			/<p>Zugestimmt am 07\.10\.2026 \(Version\u00a01\)\.<\/p>\n<p>Wir lesen keine GPS-Spuren, .*<br>Wir lesen nur .*<\/p>\n<p>Das Team sieht deine Rynke ohne Namen, .*<\/p>\n<details class="more">.*\n<p>Von jeder Radfahrt lesen wir nur Namen, /,
+			/<p>Zugestimmt am 07\.10\.2026 \(Version\u00a02\)\.<\/p>\n<p>Wir lesen keine GPS-Spuren, .*<br>Wir lesen nur .*<\/p>\n<p>Das Team sieht deine Rynke ohne Namen, .*<\/p>\n<details class="more">.*\n<p>Von jeder Radfahrt lesen wir nur Namen, /,
 		);
 		expect(page).not.toContain("noch keine Zustimmung");
 	});
@@ -167,10 +167,10 @@ describe("GET /me for a connected rider", () => {
 	});
 
 	it("shows what was agreed, the permissions, who sees what and how to leave (004 US4 scenario 1, R12)", async () => {
-		await seedRider(ctx, { consentVersion: 1, scopeWrite: true });
+		await seedRider(ctx, { consentVersion: CONSENT_VERSION, scopeWrite: true });
 		const { page } = await getSettings();
 		for (const shown of [
-			"Zugestimmt am 06.10.2026 (Version\u00a01).",
+			"Zugestimmt am 06.10.2026 (Version\u00a02).",
 			escapeHtml(de["landing.dataRead"]),
 			escapeHtml(de["consent.organisers"]),
 			escapeHtml(de["consent.team"]),
@@ -215,7 +215,7 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 			"</details>",
 			`<p>${escapeHtml(de["consent.required"])}</p>`,
 			'<form method="post" action="/connect">',
-			'<input type="checkbox" name="consent" value="1" required>',
+			`<input type="checkbox" name="consent" value="${CONSENT_VERSION}" required>`,
 			`<p>${escapeHtml(de["me.consent.renew.leave"])}</p>`,
 			`<a class="danger" href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
 			'<form method="post" action="/logout">',
@@ -250,7 +250,7 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 	it("offers the current version from ctx.consentVersions", async () => {
 		const v2Ctx = makeCtx({
 			consentVersions: [
-				...CONSENT_VERSIONS,
+				CONSENT_VERSIONS[0],
 				{
 					version: 2,
 					published: "2026-11-01",
@@ -280,12 +280,12 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 	});
 
 	it("shows a rider with a record the page and no consent form", async () => {
-		await seedRider(ctx, { consentVersion: 1 });
+		await seedRider(ctx, { consentVersion: CONSENT_VERSION });
 		const { page } = await getMe();
 		expect(page).toContain("Hallo Testrider A!");
 		expect(page).not.toContain('action="/connect"');
 		expect(page).not.toContain(escapeHtml(de["me.consent.renew.heading"]));
-		expect((await getSettings()).page).toContain("(Version\u00a01).");
+		expect((await getSettings()).page).toContain("(Version\u00a02).");
 	});
 });
 

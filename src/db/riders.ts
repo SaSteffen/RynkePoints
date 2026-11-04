@@ -1,6 +1,11 @@
+import { ADMIN_OVERVIEW_SINCE_VERSION } from "../consent";
 import { decryptToken, encryptToken } from "../crypto/encrypt";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
-import { type Consent, recordConsentStatement } from "./consents";
+import {
+	type Consent,
+	recordConsentStatement,
+	sharedRiderIdsSince,
+} from "./consents";
 
 // Riders and their Strava credentials (data-model.md). Deleting a rider is a
 // single DELETE; the schema cascades to everything they own (FR-022).
@@ -25,6 +30,10 @@ export interface Rider {
 	figuresVersion: number;
 	/** Set by the maintainer only; the app never writes it (004 FR-002, R2). */
 	organiser: boolean;
+	/** Set by the maintainer only, like `organiser` (feature 025 FR-002). */
+	administrator: boolean;
+	/** The administrator's own switch for Cloudflare's alerts (025 FR-039). */
+	cloudflareAlerts: boolean;
 	/** When the rider finished or skipped the rider tour; null: still to show (#90). */
 	onboardedAt: number | null;
 	/** The same for the organiser tour; cleared with the organiser flag (#90). */
@@ -51,6 +60,8 @@ export interface RiderRow {
 	reconnect_requested_at: number | null;
 	figures_version: number;
 	organiser: number;
+	administrator: number;
+	cloudflare_alerts: number;
 	onboarded_at: number | null;
 	organiser_onboarded_at: number | null;
 }
@@ -85,6 +96,8 @@ export function toRider(row: RiderRow): Rider {
 		reconnectRequestedAt: row.reconnect_requested_at,
 		figuresVersion: row.figures_version,
 		organiser: row.organiser === 1,
+		administrator: row.administrator === 1,
+		cloudflareAlerts: row.cloudflare_alerts === 1,
 		onboardedAt: row.onboarded_at,
 		organiserOnboardedAt: row.organiser_onboarded_at,
 	};
@@ -291,6 +304,108 @@ export async function listExpiredReconnectRiderIds(
 		.bind(before)
 		.all<{ athlete_id: number }>();
 	return results.map((r) => r.athlete_id);
+}
+
+/** Who gets usage alerts: every administrator, with their own switch (025). */
+export async function listAlertRecipients(
+	db: D1Database,
+): Promise<{ athleteId: number; cloudflareAlerts: boolean }[]> {
+	const { results } = await db
+		.prepare(
+			`SELECT athlete_id, cloudflare_alerts FROM riders
+			WHERE administrator = 1 ORDER BY athlete_id`,
+		)
+		.all<{ athlete_id: number; cloudflare_alerts: number }>();
+	return results.map((r) => ({
+		athleteId: r.athlete_id,
+		cloudflareAlerts: r.cloudflare_alerts === 1,
+	}));
+}
+
+/** The team's connected riders, against Strava's capacity (025 FR-005). */
+export function connectedCountStatement(db: D1Database): D1PreparedStatement {
+	return db.prepare(
+		"SELECT COUNT(*) AS n FROM riders WHERE status = 'connected'",
+	);
+}
+
+/** Sets the administrator's own switch for Cloudflare's alerts (025 FR-039). */
+export async function setCloudflareAlerts(
+	db: D1Database,
+	athleteId: number,
+	on: boolean,
+): Promise<void> {
+	await db
+		.prepare("UPDATE riders SET cloudflare_alerts = ? WHERE athlete_id = ?")
+		.bind(on ? 1 : 0, athleteId)
+		.run();
+}
+
+export interface OverviewRider {
+	athleteId: number;
+	firstName: string;
+	status: RiderStatus;
+	connectedAt: number;
+	membershipCheckedAt: number;
+	importStatus: ImportStatus;
+}
+
+/**
+ * The rider overview (025 FR-018, FR-038): riders who agreed to the version that
+ * covers it, and how many others there are, filtered inside SQL. Selects only
+ * what the rows show, so nothing else can reach the page (FR-019).
+ */
+export async function readRiderOverview(
+	db: D1Database,
+): Promise<{ riders: OverviewRider[]; unlisted: number }> {
+	const listed = sharedRiderIdsSince(ADMIN_OVERVIEW_SINCE_VERSION);
+	const [rows, unlisted] = await db.batch([
+		db.prepare(
+			`SELECT athlete_id, first_name, status, connected_at,
+				membership_checked_at, import_status
+			FROM riders WHERE athlete_id IN (${listed})
+			ORDER BY first_name COLLATE NOCASE, athlete_id`,
+		),
+		db.prepare(
+			`SELECT COUNT(*) AS n FROM riders WHERE athlete_id NOT IN (${listed})`,
+		),
+	]);
+	return {
+		riders: (
+			(rows?.results ?? []) as Pick<
+				RiderRow,
+				| "athlete_id"
+				| "first_name"
+				| "status"
+				| "connected_at"
+				| "membership_checked_at"
+				| "import_status"
+			>[]
+		).map((r) => ({
+			athleteId: r.athlete_id,
+			firstName: r.first_name,
+			status: r.status,
+			connectedAt: r.connected_at,
+			membershipCheckedAt: r.membership_checked_at,
+			importStatus: r.import_status,
+		})),
+		unlisted: (unlisted?.results[0] as { n: number } | undefined)?.n ?? 0,
+	};
+}
+
+/** One listed rider's first name; null when the ID is no rider the view lists. */
+export async function listedRiderName(
+	db: D1Database,
+	athleteId: number,
+): Promise<string | null> {
+	const listed = sharedRiderIdsSince(ADMIN_OVERVIEW_SINCE_VERSION);
+	return db
+		.prepare(
+			`SELECT first_name FROM riders WHERE athlete_id = ?
+			AND athlete_id IN (${listed})`,
+		)
+		.bind(athleteId)
+		.first<string>("first_name");
 }
 
 type CredentialEnv = Pick<Env, "DB" | "TOKEN_ENCRYPTION_KEY">;

@@ -517,6 +517,61 @@ test("an organiser sees the Orga pages", async ({ page }) => {
 	}
 });
 
+// Each browser removes its own sample rider, as they share one database.
+const REMOVED_RIDER = {
+	chromium: "Fiona FarAway",
+	firefox: "Olli OptionalDenied",
+	webkit: "Nick NearlyThere",
+} as const;
+
+test("an administrator uses the admin pages", async ({ page, browserName }) => {
+	await signIn(page, "Alex Admin");
+	for (const path of ["/admin", "/admin/history", "/admin/riders"]) {
+		await checkPage(page, path);
+	}
+	await skipTours(page);
+	await page.setViewportSize(PHONE);
+
+	await page.goto("/admin");
+	await expect(page.locator(".usage-mark-warning").first()).toBeVisible();
+	await expect(page.locator(".usage-mark-critical").first()).toBeVisible();
+	const alerts = page.locator('form[action="/admin/alerts"]');
+	await expect(alerts.locator("input[name=cloudflare_alerts]")).toHaveValue(
+		"off",
+	);
+	await alerts.locator("button").click();
+	await expect(alerts.locator("input[name=cloudflare_alerts]")).toHaveValue(
+		"on",
+	);
+	await alerts.locator("button").click();
+	await expect(alerts.locator("input[name=cloudflare_alerts]")).toHaveValue(
+		"off",
+	);
+
+	await page.goto("/admin/history");
+	await expect(page.locator(".usage-gap")).toHaveCount(1);
+
+	const rider = REMOVED_RIDER[browserName];
+	await page.goto("/admin/riders");
+	const card = page.locator(".admin-rider").filter({ hasText: rider });
+	// Already gone when CI retries this test.
+	if ((await card.count()) > 0) {
+		await card.locator("a.danger").click();
+		await page.locator("form button.danger").click();
+		await expect(page).toHaveURL(/\/admin\/riders\?done=removed$/);
+	}
+	await expect(card).toHaveCount(0);
+
+	await signIn(page, rider);
+	await expect(page).toHaveURL(/\/notice\/blocked$/);
+});
+
+test("a sample rider has no Admin tab", async ({ page }) => {
+	await signIn(page, "Tina TrainingDone");
+	await page.goto("/team");
+	await expect(page.locator('nav.app-nav a[href="/admin"]')).toHaveCount(0);
+});
+
 // Browsers without an install prompt of their own get their menu steps.
 const MANUAL_INSTALL = {
 	firefox:

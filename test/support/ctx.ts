@@ -97,6 +97,8 @@ export interface SeedRiderOptions {
 	consentVersion?: number | null;
 	/** Defaults to false; true sets `riders.organiser` as the maintainer would. */
 	organiser?: boolean;
+	/** Defaults to false; true sets `riders.administrator` likewise (feature 025). */
+	administrator?: boolean;
 }
 
 /** Inserts a rider and encrypted credentials straight into D1. */
@@ -170,6 +172,13 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 					).bind(athleteId),
 				]
 			: []),
+		...(options.administrator
+			? [
+					ctx.env.DB.prepare(
+						"UPDATE riders SET administrator = 1 WHERE athlete_id = ?",
+					).bind(athleteId),
+				]
+			: []),
 	]);
 	return rider;
 }
@@ -177,6 +186,11 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 /** Empties every table and resets the rate-limit row to zero usage. */
 export async function resetDb(): Promise<void> {
 	await env.DB.batch([
+		env.DB.prepare("DELETE FROM usage_daily"),
+		env.DB.prepare("DELETE FROM usage_source_state"),
+		env.DB.prepare("DELETE FROM usage_alerts"),
+		env.DB.prepare("DELETE FROM blocked_athletes"),
+		env.DB.prepare("DELETE FROM removal_log"),
 		env.DB.prepare("DELETE FROM consent_records"),
 		env.DB.prepare("DELETE FROM push_subscriptions"),
 		env.DB.prepare("DELETE FROM failed_work"),
@@ -205,7 +219,9 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare(
 			`UPDATE strava_rate_limit SET observed_at = 0, read_15m = 0,
 				read_daily = 0, all_15m = 0, all_daily = 0, limit_read_15m = 100,
-				limit_read_daily = 1000, limit_all_15m = 200, limit_all_daily = 2000
+				limit_read_daily = 1000, limit_all_15m = 200, limit_all_daily = 2000,
+				own_read_15m = 0, own_all_15m = 0, own_read_daily = 0,
+				own_all_daily = 0, peak_read_15m = 0, peak_all_15m = 0
 			WHERE id = 1`,
 		),
 	]);

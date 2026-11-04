@@ -211,6 +211,11 @@ export async function waitingCount(
 	);
 }
 
+/** All the team's waiting items, naming nobody (feature 025 FR-020). */
+export function totalWaitingStatement(db: D1Database): D1PreparedStatement {
+	return db.prepare("SELECT COUNT(*) AS n FROM strava_work");
+}
+
 /**
  * Everything a rider had waiting goes, held notifications included: they need
  * to reconnect, or are gone (FR-010).

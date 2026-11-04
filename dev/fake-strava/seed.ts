@@ -1,8 +1,21 @@
 import { CONSENT_VERSION } from "../../src/consent";
 import type { Ctx } from "../../src/ctx";
 import { insertReportStatement } from "../../src/db/participation";
+import {
+	sourceSuccessStatement,
+	type UsageRecord,
+	upsertUsageStatement,
+} from "../../src/db/usage";
 import { handleFetch } from "../../src/index";
 import { teamEventChange } from "../../src/rynke/apply";
+import {
+	CLOUDFLARE_ALLOWANCES,
+	CLOUDFLARE_LIMITS,
+	type CloudflareAllowance,
+	daysBefore,
+	type RecordedAllowance,
+	utcDay,
+} from "../../src/usage/allowances";
 import {
 	EVENT_ORGANISER,
 	eventDay,
@@ -121,9 +134,16 @@ export async function seed(
 		db.prepare(
 			`UPDATE strava_rate_limit SET observed_at = 0, read_15m = 0,
 				read_daily = 0, all_15m = 0, all_daily = 0, limit_read_15m = 100,
-				limit_read_daily = 1000, limit_all_15m = 200, limit_all_daily = 2000
+				limit_read_daily = 1000, limit_all_15m = 200, limit_all_daily = 2000,
+				own_read_15m = 0, own_all_15m = 0, own_read_daily = 0,
+				own_all_daily = 0, peak_read_15m = 0, peak_all_15m = 0
 			WHERE id = 1`,
 		),
+		db.prepare("DELETE FROM usage_daily"),
+		db.prepare("DELETE FROM usage_source_state"),
+		db.prepare("DELETE FROM usage_alerts"),
+		db.prepare("DELETE FROM blocked_athletes"),
+		db.prepare("DELETE FROM removal_log"),
 	]);
 	await clearActivities(db);
 
@@ -201,5 +221,81 @@ export async function seed(
 			.bind(rider.athleteId)
 			.run();
 	}
+	for (const rider of SAMPLE_RIDERS.filter((r) => r.administrator)) {
+		await db
+			.prepare("UPDATE riders SET administrator = 1 WHERE athlete_id = ?")
+			.bind(rider.athleteId)
+			.run();
+	}
+	await seedUsage(ctx);
 	await markSeeded(db, await sampleFingerprint());
+}
+
+/** Today's share of Cloudflare's limits: one figure at each level (025 T016). */
+const SAMPLE_SHARES: Record<CloudflareAllowance, number> = {
+	cf_worker_requests: 0.4,
+	cf_queue_operations: 0.85,
+	cf_d1_rows_read: 0.97,
+	cf_d1_rows_written: 0.12,
+	cf_d1_storage_bytes: 0.03,
+};
+
+/** The one day of the sample history without a record, shown as a gap. */
+const SAMPLE_GAP_DAYS_AGO = 12;
+const SAMPLE_HISTORY_DAYS = 60;
+
+/**
+ * 60 days of synthetic usage with one empty day, and Cloudflare as answering
+ * (research R12). The rate-limit row stays what the sample imports really caused,
+ * so the budget works as ever and the live Strava figures are real ones.
+ */
+async function seedUsage(ctx: Ctx): Promise<void> {
+	const db = ctx.env.DB;
+	const now = ctx.now();
+	const today = utcDay(now);
+	const statements: D1PreparedStatement[] = [sourceSuccessStatement(db, now)];
+	for (let ago = 0; ago < SAMPLE_HISTORY_DAYS; ago++) {
+		if (ago === SAMPLE_GAP_DAYS_AGO) continue;
+		const day = daysBefore(today, ago);
+		// A gentle, repeatable wave, never a figure from real use.
+		const wave = 0.75 + 0.25 * Math.sin(ago / 3);
+		const record = (
+			allowance: RecordedAllowance,
+			used: number,
+			limit: number,
+			team: boolean,
+		): UsageRecord => ({
+			day,
+			allowance,
+			used: Math.round(used),
+			limit,
+			teamUsed: team ? Math.round(used * 0.9) : null,
+			peak15m: team ? Math.round(used / 12) : null,
+			recordedAt: now,
+		});
+		statements.push(
+			upsertUsageStatement(
+				db,
+				ctx.env,
+				record("strava_read_daily", 400 * wave, 1000, true),
+			),
+			upsertUsageStatement(
+				db,
+				ctx.env,
+				record("strava_all_daily", 450 * wave, 2000, true),
+			),
+		);
+		for (const allowance of CLOUDFLARE_ALLOWANCES) {
+			const limit = CLOUDFLARE_LIMITS[allowance];
+			const share = SAMPLE_SHARES[allowance] * (ago === 0 ? 1 : wave * 0.7);
+			statements.push(
+				upsertUsageStatement(
+					db,
+					ctx.env,
+					record(allowance, limit * share, limit, false),
+				),
+			);
+		}
+	}
+	await db.batch(statements);
 }
