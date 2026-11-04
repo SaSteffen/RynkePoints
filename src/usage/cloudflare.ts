@@ -4,11 +4,12 @@ import { type CloudflareAllowance, daysBefore, utcDay } from "./allowances";
 // Cloudflare's figures for the account, once per hourly run (feature 025
 // contracts/cloudflare-analytics.md, research R3). Results come per Worker,
 // database and queue and are summed here, so feature 026 can split them with no
-// new query. The token is never logged; neither are responses.
+// new query. The token is never logged, and of a response only Cloudflare's own
+// error message is, which holds no rider data.
 
 const GRAPHQL_URL = "https://api.cloudflare.com/client/v4/graphql";
 
-/** The fields are to be confirmed by introspection (research R3). */
+/** Each part was run against Cloudflare's API on 2026-11-04 (research R3). */
 export const USAGE_QUERY = `query Usage($accountTag: string!, $from: Date!, $to: Date!) {
 	viewer {
 		accounts(filter: { accountTag: $accountTag }) {
@@ -18,7 +19,7 @@ export const USAGE_QUERY = `query Usage($accountTag: string!, $from: Date!, $to:
 			}
 			queues: queueMessageOperationsAdaptiveGroups(limit: 10000, filter: { date_geq: $from, date_leq: $to }) {
 				sum { billableOperations }
-				dimensions { date queueID }
+				dimensions { date queueId }
 			}
 			databases: d1AnalyticsAdaptiveGroups(limit: 10000, filter: { date_geq: $from, date_leq: $to }) {
 				sum { rowsRead rowsWritten }
@@ -48,6 +49,15 @@ function unavailable(reason: string): CloudflareResult {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
+}
+
+/** Why Cloudflare refused the query, in a line short enough for a log. */
+function errorReason(errors: unknown[]): string {
+	const first = errors[0];
+	const message = isRecord(first) ? first.message : undefined;
+	return typeof message === "string"
+		? `errors in the response: ${message.slice(0, 200)}`
+		: "errors in the response";
 }
 
 /** Adds each group's field to its day; false on an unexpected shape. */
@@ -140,7 +150,7 @@ export async function fetchCloudflareUsage(
 		return unavailable("unreadable response");
 	}
 	if (isRecord(body) && Array.isArray(body.errors) && body.errors.length > 0) {
-		return unavailable("errors in the response");
+		return unavailable(errorReason(body.errors));
 	}
 	const days = parseUsage(body);
 	if (!days) return unavailable("unexpected response");

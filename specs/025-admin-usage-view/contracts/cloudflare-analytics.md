@@ -6,7 +6,7 @@
 | Allowance | Dataset | Field | Grouped by |
 |---|---|---|---|
 | `cf_worker_requests` | `workersInvocationsAdaptive` | `sum.requests` | `scriptName` |
-| `cf_queue_operations` | `queueMessageOperationsAdaptiveGroups` | `sum.billableOperations` | `queueID` |
+| `cf_queue_operations` | `queueMessageOperationsAdaptiveGroups` | `sum.billableOperations` | `queueId` |
 | `cf_d1_rows_read`, `cf_d1_rows_written` | `d1AnalyticsAdaptiveGroups` | `sum.rowsRead`, `sum.rowsWritten` | `databaseId` |
 | `cf_d1_storage_bytes` | `d1StorageAdaptiveGroups` | `max.databaseSizeBytes`, latest day | `databaseId` |
 
@@ -19,6 +19,7 @@ by hand. Neither is in `secrets.required`: without them, Cloudflare counts as un
 
 **Failure** (network, non-2xx, `errors` in the body, or an unexpected shape): nothing is
 overwritten, `last_failure_at` is set, and the Strava part of the run continues. Responses
-hold no rider data, and the token is never logged.
+hold no rider data, and the token is never logged. The log line gives the reason, with
+Cloudflare's own message when the body has `errors`.
 
-**To confirm by introspection before use**: see research R3.
+**Confirmed**: each dataset was queried with these fields on 2026-11-04, see research R3.

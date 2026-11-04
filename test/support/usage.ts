@@ -115,7 +115,7 @@ export function cloudflareBody(
 						queues: entries.flatMap(([date, f]) =>
 							half(f.operations ?? 0).map((billableOperations, i) => ({
 								sum: { billableOperations },
-								dimensions: { date, queueID: `queue-${i}` },
+								dimensions: { date, queueId: `queue-${i}` },
 							})),
 						),
 						databases: entries.flatMap(([date, f]) => [
