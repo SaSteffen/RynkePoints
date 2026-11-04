@@ -36,4 +36,5 @@
   and 027 do. How things are built is left to the plan.
 - To confirm in planning: free organization coverage and transfer effects, Cloudflare members and
   account-owned tokens on the Free plan, a release credential not tied to one person, and whether Strava's
-  API Agreement allows other people access.
+  API Agreement allows other people access, and how to exempt only the founding maintainer's own pull requests
+  from required approval.
