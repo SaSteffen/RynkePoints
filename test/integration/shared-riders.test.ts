@@ -7,6 +7,7 @@ import {
 	SHARED_RIDER_IDS,
 	sharedRiderIdsSince,
 } from "../../src/db/consents";
+import { LISTED_RIDER_IDS, listedRiderFilter } from "../../src/db/organiser";
 import { deleteRider } from "../../src/db/riders";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C } from "../support/fixtures";
@@ -17,6 +18,7 @@ import { seedBalance } from "../support/rider-view";
 // row and no figure (FR-021).
 
 const ctx = makeCtx();
+const ATHLETE_D = 900_004;
 
 beforeEach(async () => {
 	await resetDb();
@@ -94,5 +96,32 @@ describe("a rider who leaves", () => {
 			WHERE athlete_id IN (${SHARED_RIDER_IDS})`,
 		).first<{ riders: number }>();
 		expect(row?.riders).toBe(1);
+	});
+});
+
+describe("listedRiderFilter (feature 030 research R5)", () => {
+	const ids = async (sql: string) =>
+		(await env.DB.prepare(sql).all<{ athlete_id: number }>()).results.map(
+			(r) => r.athlete_id,
+		);
+
+	it("picks exactly the riders of LISTED_RIDER_IDS", async () => {
+		// Connected with consent: ATHLETE_A and ATHLETE_C. No consent: ATHLETE_B.
+		await seedRider(ctx, {
+			athleteId: ATHLETE_D,
+			status: "needs_reconnect",
+		});
+		// Several records stay one row.
+		await env.DB.prepare(
+			"INSERT INTO consent_records (athlete_id, version, accepted_at) VALUES (?, 3, ?)",
+		)
+			.bind(ATHLETE_A, ctx.now())
+			.run();
+		const listed = await ids(
+			`SELECT r.athlete_id FROM riders r WHERE ${listedRiderFilter("r")}
+			ORDER BY 1`,
+		);
+		expect(listed).toEqual([ATHLETE_A, ATHLETE_C]);
+		expect(listed).toEqual(await ids(`${LISTED_RIDER_IDS} ORDER BY 1`));
 	});
 });

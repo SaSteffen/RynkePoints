@@ -59,6 +59,11 @@ function sundayOf(date: string): number {
 	return day + ((7 - ((day + 4) % 7)) % 7);
 }
 
+/** `sundayOf` as a `YYYY-MM-DD` date, for a rider's stored weekly sums. */
+export function weekEndOf(date: string): string {
+	return fromDayNumber(sundayOf(date));
+}
+
 /**
  * The Sundays from the season start up to the week holding `last`, ending on
  * `last` itself; one entry before the season starts (research R3).

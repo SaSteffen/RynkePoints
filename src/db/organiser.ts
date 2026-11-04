@@ -1,4 +1,5 @@
-import { SHARED_RIDER_IDS } from "./consents";
+import { SHARING_SINCE_VERSION } from "../consent";
+import { SHARED_RIDER_IDS, sharedRiderExists } from "./consents";
 
 // The riders an organiser sees (feature 014 research R10): connected riders who
 // share their data with the team, filtered inside SQL (004 FR-021). That
@@ -20,6 +21,16 @@ export interface ListedRider extends ListedRiderRow {
  */
 export const LISTED_RIDER_IDS = `SELECT athlete_id FROM riders
 	WHERE status = 'connected' AND athlete_id IN (${SHARED_RIDER_IDS})`;
+
+/**
+ * `LISTED_RIDER_IDS` as a condition, for a query that starts from `riders` as
+ * `alias`, so its rows are checked once (feature 030 research R5). `alias` comes
+ * from code, never request input.
+ */
+export function listedRiderFilter(alias: string): string {
+	return `${alias}.status = 'connected'
+		AND ${sharedRiderExists(alias, SHARING_SINCE_VERSION)}`;
+}
 
 /** `ListedRiderRow`s ordered by first name. */
 export function listListedRidersStatement(db: D1Database) {

@@ -21,11 +21,11 @@ description: "Tasks for stored rider summaries"
 
 **Purpose**: the table and the test tools.
 
-- [ ] T001 Add `rider_summaries` to the `COLUMNS` list in `test/integration/schema-minimisation.test.ts` with `athlete_id`, `version`, `days`, `weeks`, `run_days`, `active`, `attended` (red)
-- [ ] T002 Create `migrations/0024_rider_summaries.sql` per `data-model.md`: `athlete_id INTEGER PRIMARY KEY REFERENCES riders (athlete_id) ON DELETE CASCADE`, `version INTEGER NOT NULL`, and `days`, `weeks`, `run_days`, `active`, `attended` each `TEXT NOT NULL DEFAULT '[]'`, `WITHOUT ROWID`; comment why it exists and that it's derived data
-- [ ] T003 Add `DELETE FROM rider_summaries` to `resetDb` in `test/support/ctx.ts`
-- [ ] T004 [P] Create `test/support/d1-rows.ts`: wraps a `TestCtx`'s `DB`, adds up `meta.rows_read` and `meta.rows_written` per use, for `first`, `all`, `run`, `raw` and `batch` (research R12). It keeps each batch's statements usable by unwrapping them before calling the real `batch`, as `test/support/d1-trips.ts` does
-- [ ] T005 [P] Add to `test/support/rider-view.ts` a `seedEmptySummary(athleteId)` helper that writes a current empty row
+- [X] T001 Add `rider_summaries` to the `COLUMNS` list in `test/integration/schema-minimisation.test.ts` with `athlete_id`, `version`, `days`, `weeks`, `run_days`, `active`, `attended` (red)
+- [X] T002 Create `migrations/0024_rider_summaries.sql` per `data-model.md`: `athlete_id INTEGER PRIMARY KEY REFERENCES riders (athlete_id) ON DELETE CASCADE`, `version INTEGER NOT NULL`, and `days`, `weeks`, `run_days`, `active`, `attended` each `TEXT NOT NULL DEFAULT '[]'`, `WITHOUT ROWID`; comment why it exists and that it's derived data
+- [X] T003 Add `DELETE FROM rider_summaries` to `resetDb` in `test/support/ctx.ts`
+- [X] T004 [P] Create `test/support/d1-rows.ts`: wraps a `TestCtx`'s `DB`, adds up `meta.rows_read` and `meta.rows_written` per use, for `first`, `all`, `run`, `raw` and `batch` (research R12). It keeps each batch's statements usable by unwrapping them before calling the real `batch`, as `test/support/d1-trips.ts` does
+- [X] T005 [P] Add to `test/support/rider-view.ts` a `seedEmptySummary(athleteId)` helper that writes a current empty row
 
 **Checkpoint**: `pnpm test` passes, with the new table empty and unused.
 
@@ -35,12 +35,12 @@ description: "Tasks for stored rider summaries"
 
 **Purpose**: the pure summary logic and the shared SQL pieces.
 
-- [ ] T006 [P] Write failing tests in `test/unit/rider-summary.test.ts` for `summaryOf`: rides on one date are summed; weeks end on the Sunday (Monday-to-Sunday, including a Sunday and a Monday, a year change and a leap day); runs sum per date; `active` is distinct by date, hour and ride, with a ride and a run in one hour kept as two; swims appear only in `active`; attendance gives sorted IDs; the same figures in any order give identical text (R3); a 365-day season stays under 100 KB per column
-- [ ] T007 Export the Sunday calculation from `src/rynke/weeks.ts` as `weekEndOf(date): string`, keeping `sundayOf` behaviour for `weekEnds`
-- [ ] T008 Create `src/rynke/summary.ts`: `RIDER_SUMMARY_VERSION = 1`, the `RiderSummary` type, the pure `summaryOf(figures, attendance)` returning JSON text per column, sorted by value before adding up (R3), plus parsers for each column (T006 green)
-- [ ] T009 [P] Write failing test in `test/integration/shared-riders.test.ts`: `listedRiderFilter` picks exactly the riders of `LISTED_RIDER_IDS` for connected, needs-reconnect, no-consent and older-consent riders
-- [ ] T010 Add `sharedRiderExists(alias, version)` to `src/db/consents.ts` next to `sharedRiderIdsSince`, and `listedRiderFilter(alias)` to `src/db/organiser.ts`, built as in research R5; both versions are numbers from code, never request input (T009 green)
-- [ ] T011 Create `src/db/rider-summaries.ts`: `readSummariesOfRidersStatement(db, athleteIds)` with `json_each`, `upsertSummaryStatement(db, athleteId, summary)`, `insertEmptySummaryStatement(db, athleteId)`, and `CURRENT_SUMMARY_JOIN` for `LEFT JOIN rider_summaries s ON s.athlete_id = r.athlete_id AND s.version = RIDER_SUMMARY_VERSION`
+- [X] T006 [P] Write failing tests in `test/unit/rider-summary.test.ts` for `summaryOf`: rides on one date are summed; weeks end on the Sunday (Monday-to-Sunday, including a Sunday and a Monday, a year change and a leap day); runs sum per date; `active` is distinct by date, hour and ride, with a ride and a run in one hour kept as two; swims appear only in `active`; attendance gives sorted IDs; the same figures in any order give identical text (R3); a 365-day season stays under 100 KB per column
+- [X] T007 Export the Sunday calculation from `src/rynke/weeks.ts` as `weekEndOf(date): string`, keeping `sundayOf` behaviour for `weekEnds`
+- [X] T008 Create `src/rynke/summary.ts`: `RIDER_SUMMARY_VERSION = 1`, the `RiderSummary` type, the pure `summaryOf(figures, attendance)` returning JSON text per column, sorted by value before adding up (R3), plus parsers for each column (T006 green)
+- [X] T009 [P] Write failing test in `test/integration/shared-riders.test.ts`: `listedRiderFilter` picks exactly the riders of `LISTED_RIDER_IDS` for connected, needs-reconnect, no-consent and older-consent riders
+- [X] T010 Add `sharedRiderExists(alias, version)` to `src/db/consents.ts` next to `sharedRiderIdsSince`, and `listedRiderFilter(alias)` to `src/db/organiser.ts`, built as in research R5; both versions are numbers from code, never request input (T009 green)
+- [X] T011 Create `src/db/rider-summaries.ts`: `readSummariesOfRidersStatement(db, athleteIds)` with `json_each`, `upsertSummaryStatement(db, athleteId, summary)`, `insertEmptySummaryStatement(db, athleteId)`, and `CURRENT_SUMMARY_JOIN` for `LEFT JOIN rider_summaries s ON s.athlete_id = r.athlete_id AND s.version = RIDER_SUMMARY_VERSION`
 
 **Checkpoint**: unit tests pass; no page or evaluation has changed.
 
@@ -52,11 +52,11 @@ description: "Tasks for stored rider summaries"
 
 **Independent Test**: apply each kind of change to a seeded rider, then compare the row with one worked out from scratch.
 
-- [ ] T012 [US3] Write failing tests in `test/integration/rider-summaries.test.ts`: after an evaluation the row matches `summaryOf`; ride, run and swim added, edited, deleted; an activity moved between ride, run and swim; private rides withdrawn; attendance added and removed; event deleted; event moved (row unchanged, read stays right later); a correction (row unchanged); a change of rules through `applyAndEvaluate` with other rules; older rides purged by `purgePreSeasonActivities`
-- [ ] T013 [US3] In the same file, failing tests: a second evaluation writes no row at all, measured with `test/support/d1-rows.ts`, including after an activity change made in a different order (FR-004)
-- [ ] T014 [US3] In `src/rynke/apply.ts`, add `summary` to `RiderState`, read it in `readRiders` via `readSummariesOfRidersStatement`, and keep the order of existing results (`extra` stays last)
-- [ ] T015 [US3] In `riderWrites` in `src/rynke/apply.ts`, work out `summaryOf(figures, state.attendance)` from the evaluation's `figures` (pass them in, the call sites at `applyAndEvaluate`, `reevaluate` and `applyCorrectionChange` already have them in `after`) and push `upsertSummaryStatement` only when no row, another version or a differing column (T012, T013 green)
-- [ ] T016 [US3] Fix any existing test in `test/integration/` that counts statements or rows written by an evaluation only where the new row is the cause, without changing what a page shows
+- [X] T012 [US3] Write failing tests in `test/integration/rider-summaries.test.ts`: after an evaluation the row matches `summaryOf`; ride, run and swim added, edited, deleted; an activity moved between ride, run and swim; private rides withdrawn; attendance added and removed; event deleted; event moved (row unchanged, read stays right later); a correction (row unchanged); a change of rules through `applyAndEvaluate` with other rules; older rides purged by `purgePreSeasonActivities`
+- [X] T013 [US3] In the same file, failing tests: a second evaluation writes no row at all, measured with `test/support/d1-rows.ts`, including after an activity change made in a different order (FR-004)
+- [X] T014 [US3] In `src/rynke/apply.ts`, add `summary` to `RiderState`, read it in `readRiders` via `readSummariesOfRidersStatement`, and keep the order of existing results (`extra` stays last)
+- [X] T015 [US3] In `riderWrites` in `src/rynke/apply.ts`, work out `summaryOf(figures, state.attendance)` from the evaluation's `figures` (pass them in, the call sites at `applyAndEvaluate`, `reevaluate` and `applyCorrectionChange` already have them in `after`) and push `upsertSummaryStatement` only when no row, another version or a differing column (T012, T013 green)
+- [X] T016 [US3] Fix any existing test in `test/integration/` that counts statements or rows written by an evaluation only where the new row is the cause, without changing what a page shows
 
 **Checkpoint**: rows stay right through every change. Reads still add up the rides.
 
