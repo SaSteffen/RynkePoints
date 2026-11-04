@@ -30,7 +30,6 @@ pnpm exec playwright test e2e/organiser-graphs.e2e.ts
 | Integration | Non-organiser gets 403; no ride name or start time in the response | FR-003, FR-030 |
 | Integration | D1 round trips unchanged; rows read under 1,000 more with 40 riders | research R2, SC-008 |
 | Integration | A ride's edit, deletion or private withdrawal updates the summary; leaving deletes it; the daily job fills a missing one | FR-026, FR-031 |
-| Integration | `readTeam` gives the same weekly sums from summaries as from adding up rides, with none, some or all riders filled; reads under 2,000 rows with 40 riders; its statements never select `days` | FR-032, SC-009 |
 | E2E | Preset, date boxes, mouse drag and touch gestures stay in sync; tile keeps range and team lines | FR-013, Story 4 |
 | E2E | Narrow: switch, tabs, search across groups, rows open at 5 or fewer | Story 5 |
 

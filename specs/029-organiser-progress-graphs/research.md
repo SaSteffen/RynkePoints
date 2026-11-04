@@ -2,7 +2,7 @@
 
 ## R1. Where the daily figures come from
 
-**Decision**: One row per rider in a new `rider_ride_summaries`, holding that rider's counting days as
+**Decision**: One row per rider in a new `rider_daily_figures`, holding that rider's counting days as
 compact JSON. `riderWrites` in `src/rynke/apply.ts` writes it with every evaluation, from a pure function
 of the rides and results it already holds. Distance is the recorded `distance_m`, split by whether the ride
 is virtual. Elevation is the result's `elevationDm`.
@@ -33,7 +33,7 @@ that time. A migration backfill isn't used: rides arriving between migration and
 Summing at load would cost about 37,000 rows per page load in all, or about 135 loads to use the Free plan's
 5 million rows a day. This is why the plan stores a summary.
 
-**Decision**: One statement in the requests batch: `riders LEFT JOIN rider_ride_summaries`, filtered inside SQL
+**Decision**: One statement in the requests batch: `riders LEFT JOIN rider_daily_figures`, filtered inside SQL
 with `LISTED_RIDER_IDS` and `sharedRiderIdsSince(SINCE_VERSION.dailyFigures)`. The left join gives riders who
 agreed without any rides. It runs only when the section is on.
 
@@ -41,38 +41,9 @@ agreed without any rides. It runs only when the section is on.
 keeps the page's D1 round trips as they are, which `d1-round-trips.test.ts` guards. Writes grow by one row per
 evaluation, against a Free plan of 100,000 written rows a day.
 
-## R2a. The Team page's weekly sums
-
-**Decision**: Decided with the maintainer: `readTeam` takes its weekly sums from a second column of the same
-summary, `weeks`. `riderWrites` writes it next to `days`, from the same results. A second statement adds up
-rides only for listed riders who have no summary yet, so the pages stay right between the release and the
-daily job.
-
-**Measurement**, same synthetic data, statements measured singly (no attendance or corrections seeded, so those
-two grow with real use):
-
-| `readTeam` statement | Today | With the summary |
-| --- | --- | --- |
-| Listed riders | 240 | 240 |
-| Balances | 200 | 200 |
-| Attendance | 161 | 161 |
-| Corrections | 161 | 161 |
-| Weekly sums | 18,199 | 200 |
-| Riders still without a summary, once all are filled | none | 162 |
-| **Total** | **18,961** | **1,124** |
-
-With no summaries yet the second statement costs 18,200, as today. So 40 riders opening the Team page 5 times a
-day go from about 3.8 million to about 225,000 rows a day. The Riders view pays the same read, plus the graphs.
-
-**Rationale**: `weeks` has its own column so that this read never selects `days`. The Team page shows weekly
-sums under earlier consent, and riders who haven't agreed to the daily figures must stay out of every read of
-`days` (FR-024, FR-032). `EXCEPT` in the second statement is needed: filtering with `NOT IN` afterwards still
-read 6,200 rows with every summary filled.
-
-**Alternatives considered**: Working the weeks out of `days` at load would read daily values of riders who
-haven't agreed. Filling summaries in the migration would miss rides arriving before the new code is live.
-No fallback would blank riders' weekly sums for up to a day. `teamBadgeSumsStatements`, used by the badge pages,
-stays as it is: it needs more than these sums, and the decision was about the Team page.
+**Still open**: `readTeam`'s weekly sums remain 18,199 rows per load at full season, on `/team` and this page,
+which limits the whole app far more than the graphs do. They could come from the same summary. That is
+outside this spec unless decided otherwise.
 
 **Alternatives considered**: Summing at load, and one row per day, cost too much, as above. A cached team-wide
 blob reads less still, but a leaver's data would stay in it until the next write, against FR-026. A separate

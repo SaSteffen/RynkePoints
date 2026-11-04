@@ -350,10 +350,6 @@ lists can't be judged locally. It supports the other stories without adding anyt
 - **FR-031**: The feature MUST NOT make any new request to Strava or read any new field from it. It MAY
   store one summary per rider, derived only from that rider's stored rides and results, and kept up to
   date whenever they are evaluated, so that viewing doesn't add up rides on every page load.
-- **FR-032**: The Team page and the organiser's rider list MUST take their weekly sums from that summary
-  instead of adding up rides on every page load. What they show MUST stay exactly the same, including right
-  after the release, before every rider's summary exists. They MUST NOT read a rider's daily values for this,
-  so the weekly sums keep working for riders who haven't agreed to the daily figures.
 
 **Test data**
 
@@ -390,9 +386,6 @@ lists can't be judged locally. It supports the other stories without adding anyt
   graphs, and riders see no difference from the setting being on.
 - **SC-008**: With 40 riders at the end of a season, the graphs add fewer than 1,000 database rows read
   per page load.
-- **SC-009**: With 40 riders at the end of a season, the read behind the Team page costs fewer than 2,000
-  database rows per page load, down from about 19,000, and every rider's weekly sums equal those from
-  adding up their rides.
 
 ## Assumptions
 

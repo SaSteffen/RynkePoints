@@ -23,8 +23,6 @@ page load measured too expensive (research R1, R2).
   its reads exist. Neither touches the consent versions (R8).
 - **Layout**: below 1100 px, one-line rows with search replace the cards, with a reports box and a
   Graphs / Riders switch. From 1100 px the table scrolls in its own box (R9, R10).
-- **Team page cost**: `readTeam` reads its weekly sums from the same summary, about 18,961 down to about 1,124
-  rows per load (R2a, FR-032).
 - **Fake mode**: about 25 ordinary riders, some held back on consent version 2 (R11).
 
 ## Technical Context
@@ -33,7 +31,7 @@ page load measured too expensive (research R1, R2).
 
 **Primary Dependencies**: None new. Chart.js 4.6.1 and chartjs-plugin-zoom 2.2.0 are already vendored.
 
-**Storage**: D1. Forward-only migration `0024` adds `rider_ride_summaries`, one row per rider, deleted
+**Storage**: D1. Forward-only migration `0024` adds `rider_daily_figures`, one row per rider, deleted
 with the rider. The previous version never reads it.
 
 **Testing**: Vitest in the Workers runtime; Playwright smoke tests in fake mode
@@ -98,7 +96,7 @@ src/
 ├── http/style.ts                  # table box, rows, section, line colours
 ├── http/consent-form.ts           # the new consent line
 └── i18n/messages/{en,de}.ts       # contracts/messages.md
-migrations/0024_rider_ride_summaries.sql
+migrations/0024_rider_daily_figures.sql
 public/app.js                      # organiserGraphs(), shared chart gestures, rider search, switch
 dev/fake-strava/{samples,seed}.ts  # more riders, consent held back
 wrangler.jsonc, vitest.config.ts, worker-configuration.d.ts  # the setting
@@ -113,9 +111,8 @@ e2e/                               # graphs, drag, phone switch and search
 
 ## Risks
 
-- **Weekly sums move**: the Team page's numbers now come from a stored summary, so a summary that differs from
-  the rides would show wrong figures to everyone. An integration test compares both ways on the same rides
-  (R2a, SC-009).
+- **Team page cost, already there**: `readTeam`'s weekly sums measured 18,199 rows per load at full season,
+  on both `/team` and this page. This feature doesn't add to it; see R2.
 - **Fake-mode seeding time**: more riders means more seeded rides, also in
   `dev-fake-strava.test.ts`. Rides per new rider stay modest (R11).
 - **Existing tests** pin the cards' markup, the group filter and the current consent version. They
