@@ -109,6 +109,12 @@ e2e/                               # graphs, drag, phone switch and search
 **Structure Decision**: The existing single Worker. The section gets its own files because
 `overview.ts` is already long, as `progress-section.ts` does for the rider's charts.
 
+## Depends on
+
+Stored rider summaries (`specs/030-rider-summaries/`, on its own branch) ships first and takes over the Team page's
+weekly sums. Once it has merged, this plan is rebased onto it: the graphs use that per-rider row instead of creating
+`rider_daily_figures`, adding only the outdoor and virtual split if it's missing, and keep their own consent-filtered read.
+
 ## Risks
 
 - **Team page cost, already there**: `readTeam`'s weekly sums measured 18,199 rows per load at full season,
