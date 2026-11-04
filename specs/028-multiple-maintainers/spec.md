@@ -38,7 +38,7 @@ have no end date.
 | Accept on the sandbox gate (spec 027), rather than deploy | From stage 2 | Until stage 2 |
 | Change code, including code that handles the Strava secret | ✓ | |
 | Own the organization; administer the repository, rulesets and environments | From stage 2 | Until stage 2 |
-| Administer the Cloudflare account | ✓ | |
+| Administer the Cloudflare account, with the plan's limits on managing members and billing (see Assumptions) | ✓ | |
 | Set or rotate other production secrets | ✓ | |
 | Know the Strava secret's value | | ✓ |
 | Set or rotate the Strava secret | | ✓ |
@@ -304,8 +304,8 @@ doesn't depend on the organization and can ship first.
 ### Edge Cases
 
 - **Two maintainers disagree, or one acts against the project**: until stage 2, the founding maintainer
-  can remove the other from GitHub. From stage 2 either can remove the other, and on Cloudflare they can
-  from the start. This rests on trust, like the accepted limit, and the history of settings and merges is
+  can remove the other from GitHub. From stage 2 either can remove the other on GitHub. On Cloudflare, either
+  can if the Free plan allows two Super Administrators; if not, only the founding maintainer can manage members there, at every stage. This rests on trust, like the accepted limit, and the history of settings and merges is
   what's left to go on.
 - **The future of the Strava app**: it's associated with the founding maintainer's personal Strava account.
   They intend to support it for a prolonged period. If needed, a controlled move to someone else controlling
@@ -484,21 +484,23 @@ doesn't depend on the organization and can ship first.
 - A free GitHub organization covers a public repository with what this project uses today: rulesets, environments,
   required checks and auto-merge. GitHub's docs indicate this, including merge queues. To be confirmed in planning,
   along with what a transfer does to rulesets, environments and the checks' GitHub Actions pin.
-- Cloudflare allows a second member on the Free plan, and account-owned tokens are available on it. The docs read so far
-  don't state either. To be confirmed in planning. If only a broad role is available, that's acceptable given the
-  accepted limit.
+- Cloudflare allows a second member on the Free plan, and its docs say account-owned tokens are available on all accounts. Whether
+  the Free plan allows a second Super Administrator isn't clear, so a trial checks. If it doesn't, the second maintainer is an Administrator, who can't
+  manage members or billing. Only the founding maintainer then does those, and possibly rotates account-owned tokens, at every stage, which is an accepted exception to
+  equal rights on the Free plan (research R7, R8).
 - A credential not tied to one person can open pull requests that start checks, most likely a GitHub App owned by the
   organization. To be confirmed in planning.
 - Strava's API Agreement allows another person to help run the app with access to its data. The Strava owner confirms
   this as part of FR-017. If it doesn't, this feature stops at access that doesn't reach rider data.
 - GitHub's required approvals alone would block the founding maintainer's own pull requests, because authors can't approve
-  their own. The founding maintainer accepts an exemption for this. A ruleset bypass skips every rule in that ruleset, so the
-  approval rule goes in a ruleset of its own, with a bypass for organization owners, and the rulesets holding the required
-  checks keep having no bypass list. At stage 1 the only owner is the founding maintainer, so this covers them alone. If a
-  bypass doesn't work with auto-merge on their pull requests, a required check that looks at the author and the approvals
-  replaces it. To be tried in planning, and removed at stage 2.
-- GitHub's docs say the Write role can change GitHub Actions secrets. Whether it can also change the environment secrets that
-  production and `Release PR` use isn't stated. To be confirmed in planning. If it can, FR-004's role needs narrowing.
+  their own. The founding maintainer accepts an exemption for this. A ruleset exemption skips every rule in that ruleset, so the
+  approval rule goes in a ruleset of its own, with organization owners exempted, and the rulesets holding the required
+  checks keep having no bypass list. At stage 1 the only owner is the founding maintainer, so this covers them alone. If the
+  exemption doesn't work with auto-merge on their pull requests, a required check that looks at the author and the approvals
+  replaces it. A trial decides this before the move (research R1, R2), and the exemption is removed at stage 2.
+- GitHub's docs say the Write role can change GitHub Actions secrets. GitHub's docs conflict on whether it can also change the environment secrets that
+  production and `Release PR` use, so a trial checks. If it can, that's accepted and recorded: no narrower role can merge, and secrets can't be read back
+  (research R4).
 - Whether the Strava app can be moved to someone else isn't known. It doesn't need answering until a move is planned.
 - Rider-facing text changes only if the review in FR-018 or FR-019 requires it, in which case it follows the usual
   catalog rules.

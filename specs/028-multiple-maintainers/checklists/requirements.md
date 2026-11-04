@@ -34,7 +34,4 @@
 - This feature is about the project's own accounts and rules, so the spec names GitHub, Cloudflare,
   Strava and existing repository files where they are the subject of a requirement, as specs 002, 026
   and 027 do. How things are built is left to the plan.
-- To confirm in planning: free organization coverage and transfer effects, Cloudflare members and
-  account-owned tokens on the Free plan, a release credential not tied to one person, and whether Strava's
-  API Agreement allows other people access, and how to exempt only the founding maintainer's own pull requests
-  from required approval, including with auto-merge, and what the Write role can do to environment secrets.
+- Planning settled or assigned a trial to each open item: see [research.md](../research.md) and [quickstart.md](../quickstart.md).
