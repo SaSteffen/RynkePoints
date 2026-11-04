@@ -182,7 +182,7 @@ gets.
 
 The `Mockup pages` workflow publishes each spec's concept page from `develop` to
 <https://sasteffen.github.io/RynkePoints/>. Everything on it is public and uses
-synthetic data. The app is never deployed this way. GitHub creates the
+synthetic data, and its pages ask search engines not to index them. The app is never deployed this way. GitHub creates the
 `github-pages` environment on the first deployment and limits it to the default
 branch.
 
