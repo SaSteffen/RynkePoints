@@ -1,4 +1,4 @@
-# Specification Quality Checklist: Sandbox Deployment and Safer Merging
+# Specification Quality Checklist: Release Sandboxes and Safer Merging
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-11-04
@@ -34,4 +34,6 @@
 - This feature is about infrastructure and the project's own merge rules, so the spec names
   GitHub, Cloudflare and existing repository files where they are the subject of a
   requirement, as specs 002 and 026 do. How things are built is left to the plan.
-- Two assumptions need confirming in planning: token scoping and the free plan's coverage.
+- Four assumptions need confirming in planning: ticks in a comment reaching a workflow,
+  credential scope on the Free plan, Cloudflare Access on a production subdomain, and how the
+  gate's check is reported under the ruleset's GitHub Actions pin.
