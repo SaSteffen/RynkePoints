@@ -526,7 +526,7 @@ const REMOVED_RIDER = {
 
 test("an administrator uses the admin pages", async ({ page, browserName }) => {
 	await signIn(page, "Alex Admin");
-	for (const path of ["/admin", "/admin/history", "/admin/riders"]) {
+	for (const path of ["/admin", "/admin/riders"]) {
 		await checkPage(page, path);
 	}
 	await skipTours(page);
@@ -542,7 +542,13 @@ test("an administrator uses the admin pages", async ({ page, browserName }) => {
 	await alerts.locator("button").click();
 	await expect(alerts.locator("input[name=admin_alerts]")).toHaveValue("off");
 
-	await page.goto("/admin/history");
+	await page.goto("/admin");
+	await expect(page.locator(".usage-chart")).toHaveCount(8);
+	const graph = page.locator(".usage-graph").first();
+	await graph.hover();
+	await expect(graph.locator(".usage-tip")).toContainText(/1[.,]000/);
+	await page.locator(".usage-table-link").first().click();
+	await expect(page).toHaveURL(/\/admin\?days=strava_read_daily#/);
 	await expect(page.locator(".usage-gap")).toHaveCount(1);
 
 	const rider = REMOVED_RIDER[browserName];

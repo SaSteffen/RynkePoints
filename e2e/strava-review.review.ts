@@ -44,7 +44,6 @@ const COVERED = new Set([
 	"/organiser",
 	"/organiser/riders",
 	"/admin",
-	"/admin/history",
 	"/admin/riders",
 ]);
 
@@ -260,14 +259,7 @@ for (const lang of LANGS) {
 				page,
 				lang,
 				"13-admin-usage",
-				"Administrators: how much of the Strava and Cloudflare allowances is used. No rider data",
-			);
-			await visit(page, "/admin/history");
-			await shoot(
-				page,
-				lang,
-				"14-admin-history",
-				"Administrators: the daily usage history. No rider data",
+				"Administrators: how much of the Strava and Cloudflare allowances is used, now and per day. No rider data",
 			);
 			await visit(page, "/admin/riders");
 			await shoot(

@@ -3552,6 +3552,96 @@ function organiserRiders(signal) {
  * What the page's content needs: run on load and again on content swapped in
  * place (`swapPage`), whose `signal` ends the listeners of the content before.
  */
+/**
+ * Says a day's figures on the admin page's graphs, on hovering or tapping
+ * (feature 025). The values and words come from the graph's data attributes, and
+ * the same figures are in its table of days.
+ */
+function usageGraphs(signal) {
+	const graphs = document.querySelectorAll(".usage-graph");
+	if (graphs.length === 0) return;
+	const { locale } = graphs[0].dataset;
+	const date = new Intl.DateTimeFormat(locale, {
+		day: "2-digit",
+		month: "2-digit",
+		year: "numeric",
+		timeZone: "UTC",
+	});
+	const whole = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
+	const gigabytes = new Intl.NumberFormat(locale, {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2,
+	});
+	const hide = [];
+	for (const graph of graphs) {
+		const { first, numbers, gap, gb } = graph.dataset;
+		const days = graph.dataset.days.split(",");
+		const start = Date.parse(`${first}T00:00:00Z`);
+		const amount = (value) =>
+			gb
+				? gb.replace("{n}", gigabytes.format(value / 1e9))
+				: whole.format(value);
+		const text = (day) => {
+			if (!day) return gap;
+			const [used, limit] = day.split("/").map(Number);
+			return numbers
+				.replace("{used}", amount(used))
+				.replace("{limit}", amount(limit))
+				.replace(
+					"{percent}",
+					whole.format(limit > 0 ? Math.floor((used * 100) / limit) : 0),
+				);
+		};
+		const cursor = document.createElement("div");
+		cursor.className = "usage-cursor";
+		cursor.hidden = true;
+		const tip = document.createElement("p");
+		tip.className = "usage-tip";
+		tip.hidden = true;
+		graph.append(cursor, tip);
+		const off = () => {
+			cursor.hidden = true;
+			tip.hidden = true;
+		};
+		hide.push(off);
+		const show = (event) => {
+			const box = graph.getBoundingClientRect();
+			const share = (event.clientX - box.left) / box.width;
+			const i = Math.min(
+				days.length - 1,
+				Math.max(0, Math.floor(share * days.length)),
+			);
+			const slot = box.width / days.length;
+			cursor.style.left = `${i * slot}px`;
+			cursor.style.width = `${slot}px`;
+			cursor.hidden = false;
+			tip.textContent = `${date.format(start + i * 86_400_000)}: ${text(days[i])}`;
+			tip.hidden = false;
+			const middle = (i + 0.5) * slot - tip.offsetWidth / 2;
+			tip.style.left = `${Math.max(0, Math.min(box.width - tip.offsetWidth, middle))}px`;
+		};
+		graph.addEventListener("pointermove", show, { signal });
+		graph.addEventListener("pointerdown", show, { signal });
+		graph.addEventListener("pointercancel", off, { signal });
+		// A finger lifts off without meaning to leave: tapping elsewhere does that.
+		graph.addEventListener(
+			"pointerleave",
+			(event) => {
+				if (event.pointerType !== "touch") off();
+			},
+			{ signal },
+		);
+	}
+	document.addEventListener(
+		"pointerdown",
+		(event) => {
+			if (!event.target.closest?.(".usage-graph"))
+				for (const off of hide) off();
+		},
+		{ signal },
+	);
+}
+
 function enhance(signal) {
 	lazyRides(signal);
 	installSettings(signal);
@@ -3565,6 +3655,7 @@ function enhance(signal) {
 	progressCharts(signal);
 	organiserRiders(signal);
 	organiserGraphs(signal);
+	usageGraphs(signal);
 }
 
 const registered = registerWorker();

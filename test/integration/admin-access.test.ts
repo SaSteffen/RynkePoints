@@ -21,13 +21,7 @@ const ADMIN = ATHLETE_C;
 const RIDER = ATHLETE_A;
 const TARGET = ATHLETE_B;
 
-const PAGES = [
-	"/admin",
-	"/admin/history",
-	"/admin/history?allowance=cf_d1_rows_read",
-	"/admin/riders",
-	`/admin/riders/${TARGET}/remove`,
-];
+const PAGES = ["/admin", "/admin/riders", `/admin/riders/${TARGET}/remove`];
 
 const POSTS: { path: string; form: Record<string, string> }[] = [
 	{ path: "/admin/alerts", form: { admin_alerts: "off" } },
@@ -155,7 +149,7 @@ describe("an organiser without the flag (FR-001)", () => {
 
 describe("an administrator", () => {
 	it("gets each page", async () => {
-		for (const path of ["/admin", "/admin/history", "/admin/riders"]) {
+		for (const path of ["/admin", "/admin/riders"]) {
 			expect((await get(path, ADMIN)).status).toBe(200);
 		}
 		expect((await get(`/admin/riders/${TARGET}/remove`, ADMIN)).status).toBe(

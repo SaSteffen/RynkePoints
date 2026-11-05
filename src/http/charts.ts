@@ -244,27 +244,35 @@ export function thresholdBars(
 	return html`<svg class="threshold-bar" viewBox="0 0 ${THRESHOLD_WIDTH} ${THRESHOLD_HEIGHT}" preserveAspectRatio="none" aria-hidden="true" focusable="false"><rect class="threshold-track" y="2" width="${THRESHOLD_WIDTH}" height="6" rx="3"/><rect class="threshold-fill" y="2" width="${coord(share(value) * THRESHOLD_WIDTH)}" height="6" rx="3"/>${tick}</svg>`;
 }
 
-const DAILY_WIDTH = 100;
+const DAILY_WIDTH = 1000;
 const DAILY_HEIGHT = 60;
+/** From here on the bars touch: a gap between them would be under a pixel wide. */
+const DAILY_TOUCHING = 90;
+
+export interface DailyBar {
+	/** Percentage of that day's limit; null: no record that day. */
+	share: number | null;
+	level: "ok" | "warning" | "critical";
+}
 
 /**
- * One bar per day, oldest first, of `shares` as a percentage of the limit that
- * day, with the limit as a line (feature 025 FR-014). A null is a day without a
- * record: no bar, so a gap never reads as zero (FR-015). Taller than the limit
- * when a day went above it. The table beside it carries the figures.
+ * One bar per day, oldest first, with the limit as a line (feature 025 FR-014). A
+ * null share is a day without a record: no bar, so a gap never reads as zero
+ * (FR-015). Taller than the limit when a day went above it. One path per level,
+ * not an element per day: a page draws thousands of days, within the Worker's CPU
+ * limit. The table of days carries the figures.
  */
-export function dailyBars(
-	shares: readonly (number | null)[],
-	label: string,
-): SafeHtml {
-	const top = Math.max(100, ...shares.map((share) => share ?? 0));
-	const slot = shares.length > 0 ? DAILY_WIDTH / shares.length : 0;
+export function dailyBars(days: readonly DailyBar[], label: string): SafeHtml {
+	const top = Math.max(100, ...days.map((day) => day.share ?? 0));
+	const slot = days.length > 0 ? DAILY_WIDTH / days.length : 0;
+	const width = coord(slot * (days.length < DAILY_TOUCHING ? BAR_SHARE : 1));
 	const y = (share: number) =>
 		DAILY_HEIGHT - (Math.max(0, share) / top) * DAILY_HEIGHT;
-	const bars = shares.map((share, i) =>
-		share === null
-			? null
-			: html`<rect x="${coord(i * slot)}" y="${coord(y(share))}" width="${coord(slot * BAR_SHARE)}" height="${coord(DAILY_HEIGHT - y(share))}"/>`,
-	);
-	return html`<svg class="usage-chart" viewBox="0 0 ${DAILY_WIDTH} ${DAILY_HEIGHT}" preserveAspectRatio="none" role="img" aria-label="${label}">${bars}<line x1="0" x2="${DAILY_WIDTH}" y1="${coord(y(100))}" y2="${coord(y(100))}" vector-effect="non-scaling-stroke"/></svg>`;
+	const paths = { ok: "", warning: "", critical: "" };
+	days.forEach(({ share, level }, i) => {
+		if (share === null) return;
+		paths[level] +=
+			`M${coord(i * slot)} ${coord(y(share))}h${width}V${DAILY_HEIGHT}h-${width}z`;
+	});
+	return html`<svg class="usage-chart" viewBox="0 0 ${DAILY_WIDTH} ${DAILY_HEIGHT}" preserveAspectRatio="none" role="img" aria-label="${label}"><path class="usage-bars" d="${paths.ok}"/><path class="usage-bars usage-bars-warning" d="${paths.warning}"/><path class="usage-bars usage-bars-critical" d="${paths.critical}"/><line x1="0" x2="${DAILY_WIDTH}" y1="${coord(y(100))}" y2="${coord(y(100))}" vector-effect="non-scaling-stroke"/></svg>`;
 }
