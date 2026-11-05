@@ -7,12 +7,18 @@ import {
 	setAdminAlerts,
 } from "../../db/riders";
 import { totalWaitingStatement } from "../../db/strava-work";
-import { readCloudflareFigures } from "../../db/usage";
+import {
+	readCloudflareFigures,
+	usageHistoryStatement,
+	usageRecords,
+} from "../../db/usage";
 import type { I18n } from "../../i18n/i18n";
 import {
-	type AllowanceId,
 	CLOUDFLARE_ALLOWANCES,
 	CLOUDFLARE_LIMITS,
+	historyStart,
+	isRecordedAllowance,
+	utcDay,
 } from "../../usage/allowances";
 import {
 	connectedFigure,
@@ -28,25 +34,17 @@ import { redirect } from "../redirect";
 import {
 	adminPage,
 	adminSwitch,
+	amount,
 	moment,
 	requireAdminPost,
 	whole,
 } from "./access";
+import { type DailyHistory, dailyHistory } from "./history";
 
-// Current usage at `/admin` (feature 025 US1, FR-005 to FR-012, FR-020, FR-027,
-// FR-039). The page only reads D1: never Strava or Cloudflare, so neither can slow
-// it down or fail it, and viewing costs no request.
-
-const BYTES_PER_GB = 1_000_000_000;
-
-/** An amount in the allowance's unit: storage in GB, the rest as counted. */
-export function amount(i18n: I18n, id: AllowanceId, value: number): string {
-	return id === "cf_d1_storage_bytes"
-		? i18n.t("admin.gigabytes", {
-				n: i18n.formatNumber(value / BYTES_PER_GB, { fractionDigits: 2 }),
-			})
-		: whole(i18n, value);
-}
+// Usage at `/admin` (feature 025 US1, US2, FR-005 to FR-015, FR-020, FR-027,
+// FR-039): each allowance's current figure above its history, all at once. The
+// page only reads D1: never Strava or Cloudflare, so neither can slow it down or
+// fail it, and viewing costs no request.
 
 /** The mark holds text, so it doesn't rely on colour alone (FR-009). */
 function mark(i18n: I18n, figure: Figure): SafeHtml | null {
@@ -55,7 +53,11 @@ function mark(i18n: I18n, figure: Figure): SafeHtml | null {
 		: html`<span class="usage-mark usage-mark-${figure.level}">${i18n.t(`admin.level.${figure.level}`)}</span>`;
 }
 
-function figureItem(i18n: I18n, figure: Figure): SafeHtml {
+function figureItem(
+	i18n: I18n,
+	figure: Figure,
+	history: DailyHistory,
+): SafeHtml {
 	const numbers = i18n.t("admin.figure.numbers", {
 		used: amount(i18n, figure.id, figure.used),
 		limit: amount(i18n, figure.id, figure.limit),
@@ -74,11 +76,11 @@ function figureItem(i18n: I18n, figure: Figure): SafeHtml {
 			: i18n.t("admin.figure.seen", {
 					time: moment(i18n, figure.observedAt),
 				});
-	return html`<li class="usage-figure usage-${figure.level}">
+	return html`<li class="usage-figure usage-${figure.level}" id="${figure.id}">
 <p class="usage-head"><span class="usage-name">${i18n.t(`admin.allowance.${figure.id}`)}</span>${mark(i18n, figure)}</p>
 <p class="usage-numbers">${numbers}</p>
 ${thresholdBars(figure.used, figure.limit, null)}${split}<p class="usage-detail">${seen}</p>
-</li>
+${isRecordedAllowance(figure.id) ? history(figure.id) : null}</li>
 `;
 }
 
@@ -127,14 +129,21 @@ export function handleAdminUsage(
 		const [usage, cloudflare, counts, devices] = await Promise.all([
 			readStravaUsage(db),
 			readCloudflareFigures(db),
-			db.batch([connectedCountStatement(db), totalWaitingStatement(db)]),
+			db.batch([
+				connectedCountStatement(db),
+				totalWaitingStatement(db),
+				usageHistoryStatement(db, historyStart(utcDay(now))),
+			]),
 			subscriptionIdsOfRiders(db, [rider.athleteId]),
 		]);
 		const count = (i: number) =>
 			(counts[i]?.results[0] as { n: number } | undefined)?.n ?? 0;
+		// The ones with a history first, so the graphs line up.
+		const windows = stravaFigures(usage, now);
 		const strava = [
-			...stravaFigures(usage, now),
+			...windows.filter((figure) => isRecordedAllowance(figure.id)),
 			connectedFigure(count(0), now),
+			...windows.filter((figure) => !isRecordedAllowance(figure.id)),
 		];
 		// Each keeps the limit it was recorded with, and its own time (FR-011).
 		const account = CLOUDFLARE_ALLOWANCES.flatMap((id) => {
@@ -148,6 +157,16 @@ export function handleAdminUsage(
 		);
 		const waiting = count(1);
 		const estimate = drainEstimateSeconds(waiting, usage, now);
+		const records = usageRecords(counts[2]?.results ?? []);
+		const asked = new URL(request.url).searchParams.get("days") ?? "";
+		const history = dailyHistory(
+			i18n,
+			records,
+			utcDay(now),
+			isRecordedAllowance(asked) ? asked : null,
+		);
+		const firstDay = records[0]?.day;
+		const item = (figure: Figure) => figureItem(i18n, figure, history);
 		return html`${adminSwitch(i18n, "usage")}${summary(i18n, [...strava, ...account])}${
 			devices.length === 0
 				? html`<p class="notice">${i18n.tHtml("admin.alerts.noDevice", {
@@ -155,10 +174,17 @@ export function handleAdminUsage(
 					})}</p>
 `
 				: null
-		}<section class="card usage-source">
+		}<p class="usage-detail">${
+			firstDay === undefined
+				? i18n.t("admin.history.none")
+				: i18n.t("admin.history.since", {
+						date: i18n.formatDate(`${firstDay}T00:00:00Z`),
+					})
+		}</p>
+<section class="card usage-source">
 <h2>${i18n.t("admin.strava.heading")}</h2>
 <ul class="usage-figures">
-${strava.map((figure) => figureItem(i18n, figure))}</ul>
+${strava.map(item)}</ul>
 </section>
 ${
 	estimate === null
@@ -174,7 +200,7 @@ ${
 <form method="post" action="/admin/refresh"><button class="button-outlined">${i18n.t("admin.refresh")}</button></form>
 ${cloudflare.available ? null : html`<p class="notice notice-error" role="alert">${i18n.t("admin.cloudflare.unavailable")}</p>`}
 <ul class="usage-figures">
-${account.map((figure) => figureItem(i18n, figure))}${missing.map(
+${account.map(item)}${missing.map(
 	(id) =>
 		html`<li class="usage-figure"><p class="usage-head"><span class="usage-name">${i18n.t(`admin.allowance.${id}`)}</span></p><p class="usage-detail">${i18n.t("admin.figure.noValue", { limit: amount(i18n, id, CLOUDFLARE_LIMITS[id]) })}</p></li>
 `,

@@ -955,7 +955,6 @@ export const de = {
 	"nav.admin": "Admin",
 	"admin.switch.label": "Admin-Ansichten",
 	"admin.switch.usage": "Nutzung",
-	"admin.switch.history": "Verlauf",
 	"admin.switch.riders": "Rider",
 	"admin.allowance.strava_read_15m": "Strava-Lesezugriffe pro 15 Minuten",
 	"admin.allowance.strava_all_15m": "Strava-Anfragen pro 15 Minuten",
@@ -999,13 +998,13 @@ export const de = {
 	"admin.alerts.turnOn": "Nutzungshinweise einschalten",
 	"admin.alerts.noDevice":
 		"Du bekommst keine Hinweise: Auf keinem deiner Geräte sind Benachrichtigungen an. Du kannst sie unter {settings} einschalten.",
-	"admin.history.choose": "Kontingent",
-	"admin.history.show": "Anzeigen",
+	"admin.history.days": "Alle Tage",
+	"admin.history.hideDays": "Tage ausblenden",
 	"admin.history.none":
 		"Noch nichts aufgezeichnet. Die Aufzeichnung läuft einmal pro Stunde.",
 	"admin.history.since": "Die Aufzeichnung begann am {date}.",
 	"admin.history.chart":
-		"{name} pro Tag als Anteil am Limit, vom {first} bis zum {last}. Die Tabelle enthält die Werte.",
+		"{name}: jeder Tag als Anteil am Limit, vom {first} bis zum {last}. Die Tabelle enthält die Werte.",
 	"admin.history.day": "Tag",
 	"admin.history.used": "Genutzt",
 	"admin.history.limit": "Limit",

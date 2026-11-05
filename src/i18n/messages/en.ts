@@ -913,7 +913,6 @@ export const en: Catalog = {
 	"nav.admin": "Admin",
 	"admin.switch.label": "Admin views",
 	"admin.switch.usage": "Usage",
-	"admin.switch.history": "History",
 	"admin.switch.riders": "Riders",
 	"admin.allowance.strava_read_15m": "Strava reads per 15 minutes",
 	"admin.allowance.strava_all_15m": "Strava requests per 15 minutes",
@@ -957,12 +956,12 @@ export const en: Catalog = {
 	"admin.alerts.turnOn": "Turn on usage alerts",
 	"admin.alerts.noDevice":
 		"You won't get alerts: none of your devices has notifications on. Turn them on in {settings}.",
-	"admin.history.choose": "Allowance",
-	"admin.history.show": "Show",
+	"admin.history.days": "Every day",
+	"admin.history.hideDays": "Hide days",
 	"admin.history.none": "Nothing recorded yet. Recording runs once an hour.",
 	"admin.history.since": "Recording began on {date}.",
 	"admin.history.chart":
-		"{name} per day as a share of the limit, from {first} to {last}. The table has the figures.",
+		"{name}: each day as a share of the limit, from {first} to {last}. The table has the figures.",
 	"admin.history.day": "Day",
 	"admin.history.used": "Used",
 	"admin.history.limit": "Limit",

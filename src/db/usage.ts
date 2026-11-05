@@ -157,25 +157,19 @@ export async function readCloudflareFigures(db: D1Database): Promise<{
 	};
 }
 
-/** One allowance's records from `since` on, oldest first, and when recording began. */
-export async function readHistory(
+/** Every allowance's records from `since` on, oldest first, for the page's batch. */
+export function usageHistoryStatement(
 	db: D1Database,
-	allowance: RecordedAllowance,
 	since: string,
-): Promise<{ records: UsageRecord[]; firstDay: string | null }> {
-	const [records, first] = await db.batch([
-		db
-			.prepare(
-				"SELECT * FROM usage_daily WHERE allowance = ? AND day >= ? ORDER BY day",
-			)
-			.bind(allowance, since),
-		db.prepare("SELECT MIN(day) AS day FROM usage_daily"),
-	]);
-	return {
-		records: ((records?.results ?? []) as UsageRow[]).map(toRecord),
-		firstDay:
-			(first?.results[0] as { day: string | null } | undefined)?.day ?? null,
-	};
+): D1PreparedStatement {
+	return db
+		.prepare("SELECT * FROM usage_daily WHERE day >= ? ORDER BY day")
+		.bind(since);
+}
+
+/** The rows of `usageHistoryStatement`. */
+export function usageRecords(rows: readonly unknown[]): UsageRecord[] {
+	return (rows as UsageRow[]).map(toRecord);
 }
 
 /** Days before `firstKept` go; newer ones stay (FR-015). */

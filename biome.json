@@ -9,7 +9,8 @@
 			"!worker-configuration.d.ts",
 			"!public/strava",
 			"!public/vendor",
-			"!pnpm-lock.yaml"
+			"!pnpm-lock.yaml",
+			"!specs/*/drafts"
 		]
 	},
 	"formatter": { "enabled": true },

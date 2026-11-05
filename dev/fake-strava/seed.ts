@@ -9,6 +9,7 @@ import {
 import { handleFetch } from "../../src/index";
 import { teamEventChange } from "../../src/rynke/apply";
 import {
+	ATHLETE_CAPACITY,
 	CLOUDFLARE_ALLOWANCES,
 	CLOUDFLARE_LIMITS,
 	type CloudflareAllowance,
@@ -296,6 +297,11 @@ async function seedUsage(ctx: Ctx): Promise<void> {
 				db,
 				ctx.env,
 				record("strava_all_daily", 450 * wave, 2000, true),
+			),
+			upsertUsageStatement(
+				db,
+				ctx.env,
+				record("riders_connected", 30 + 10 * wave, ATHLETE_CAPACITY, true),
 			),
 		);
 		for (const allowance of CLOUDFLARE_ALLOWANCES) {
