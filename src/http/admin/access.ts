@@ -2,9 +2,10 @@ import { hasAgreed } from "../../consent";
 import type { Ctx } from "../../ctx";
 import type { Rider } from "../../db/riders";
 import type { I18n } from "../../i18n/i18n";
+import type { AllowanceId } from "../../usage/allowances";
 import { forbidden } from "../errors";
 import { html, type SafeHtml } from "../html";
-import { GAUGE, PEOPLE, TREND } from "../icons";
+import { GAUGE, PEOPLE } from "../icons";
 import { isSameOrigin } from "../session";
 import { type ShellViewer, shellPage } from "../shell";
 import { readViewer, riderConsentState } from "../viewer";
@@ -55,15 +56,14 @@ export async function requireAdminPost(
 	return viewer.rider;
 }
 
-export type AdminView = "usage" | "history" | "riders";
+export type AdminView = "usage" | "riders";
 
-/** The switch between the three views, like Orga's. */
+/** The switch between the views, like Orga's. */
 export function adminSwitch(i18n: I18n, current: AdminView): SafeHtml {
 	const segment = (view: AdminView, href: string, icon: SafeHtml) =>
 		html`<a class="segmented" href="${href}"${view === current ? html` aria-current="true"` : null}>${icon}${i18n.t(`admin.switch.${view}`)}</a>`;
 	return html`<nav class="organiser-switch" aria-label="${i18n.t("admin.switch.label")}">
 ${segment("usage", "/admin", GAUGE)}
-${segment("history", "/admin/history", TREND)}
 ${segment("riders", "/admin/riders", PEOPLE)}
 </nav>
 `;
@@ -77,4 +77,15 @@ export function moment(i18n: I18n, epochSeconds: number): string {
 
 export function whole(i18n: I18n, n: number): string {
 	return i18n.formatNumber(n, { fractionDigits: 0 });
+}
+
+const BYTES_PER_GB = 1_000_000_000;
+
+/** An amount in the allowance's unit: storage in GB, the rest as counted. */
+export function amount(i18n: I18n, id: AllowanceId, value: number): string {
+	return id === "cf_d1_storage_bytes"
+		? i18n.t("admin.gigabytes", {
+				n: i18n.formatNumber(value / BYTES_PER_GB, { fractionDigits: 2 }),
+			})
+		: whole(i18n, value);
 }

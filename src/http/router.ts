@@ -1,7 +1,6 @@
 import type { Ctx } from "../ctx";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
-import { handleAdminHistory } from "./admin/history";
 import { handleRemoveConfirm, handleRemoveRider } from "./admin/remove";
 import { handleAdminRiders } from "./admin/riders";
 import {
@@ -224,7 +223,8 @@ async function page(
 		case "/admin":
 			return handleAdminUsage(request, ctx, i18n);
 		case "/admin/history":
-			return handleAdminHistory(request, ctx, i18n);
+			// The history moved onto `/admin`; old bookmarks still arrive.
+			return redirect("/admin", 301);
 		case "/admin/riders":
 			return handleAdminRiders(request, ctx, i18n);
 	}

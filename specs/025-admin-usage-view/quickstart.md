@@ -16,7 +16,7 @@ connection refused with a revoke, and the overview's consent filter.
 
 1. Figures, percentages and marks match the seeded usage, and Cloudflare says "unavailable"
    only where the seed says so.
-2. `/admin/history` shows a gap on the seeded empty day.
+2. `/admin` shows every allowance's graph at once, with a gap on the seeded empty day.
 3. Remove a sample rider, then connect as that rider: refused at `/notice/blocked`.
 4. As a sample rider without the flag, `/admin` gives the generic 403.
 5. Turn usage alerts off on `/admin`: the switch stays off after a reload.

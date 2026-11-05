@@ -293,7 +293,8 @@ check in the same period sends nothing.
   feature 026 can show shares from these records. Strava's records MUST include the
   day's highest observed 15-minute usage.
 - **FR-014**: Each allowance's history MUST be viewable by day, in absolute numbers
-  and as a percentage of the limit.
+  and as a percentage of the limit, with every allowance's graph visible at once beside
+  its current figure and no choosing between them.
 - **FR-015**: The history MUST cover at least the last 13 months and MAY drop older
   days. Days without a record MUST appear as gaps.
 - **FR-016**: Recording MUST be idempotent, and it MUST NOT use up a meaningful part

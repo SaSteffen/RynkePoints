@@ -46,6 +46,8 @@ export function createI18n(locale: string, catalogs: Catalogs): I18n {
 	}
 
 	const intlLocale = message("meta.intlLocale");
+	// Building a format is the slow part, and a page can use thousands of numbers.
+	const numberFormats = new Map<number, Intl.NumberFormat>();
 	const dateFormat = new Intl.DateTimeFormat(intlLocale, {
 		timeZone: "UTC",
 		day: "2-digit",
@@ -80,10 +82,15 @@ export function createI18n(locale: string, catalogs: Catalogs): I18n {
 			return new SafeHtml(out + escapeHtml(text.slice(last)));
 		},
 		formatNumber(value, { fractionDigits }) {
-			return new Intl.NumberFormat(intlLocale, {
-				minimumFractionDigits: fractionDigits,
-				maximumFractionDigits: fractionDigits,
-			}).format(value);
+			let format = numberFormats.get(fractionDigits);
+			if (!format) {
+				format = new Intl.NumberFormat(intlLocale, {
+					minimumFractionDigits: fractionDigits,
+					maximumFractionDigits: fractionDigits,
+				});
+				numberFormats.set(fractionDigits, format);
+			}
+			return format.format(value);
 		},
 		formatDate(iso) {
 			return dateFormat.format(new Date(iso));
