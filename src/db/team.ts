@@ -10,6 +10,7 @@ import {
 	parseRides,
 	parseRunDays,
 	parseWeeks,
+	type RideEntry,
 	type StoredEvents,
 	teamBadgeSumsOf,
 } from "../rynke/summary";
@@ -116,37 +117,43 @@ export async function readTeamAndRides(
 
 /**
  * The riders of the ride figures (feature 032 research R4): the listed riders
- * whose consent reaches `SINCE_VERSION.rideFigures`, checked inside SQL, so a
- * rider below it is in no row, total, median or bar (FR-020). Their stored
- * rides, or null without a row that holds them.
+ * whose consent reaches `since`, checked inside SQL, so a rider below it is in
+ * no row, total, median or bar (FR-020). Their stored rides, or null without a
+ * row that holds them. `since` comes from `SINCE_VERSION`, never request input.
  */
-function teamRidesStatement(db: D1Database) {
+export function rideRidersStatement(db: D1Database, since: number) {
 	return db.prepare(
 		`SELECT r.athlete_id, rs.rides
 		FROM riders r
 		${RIDE_SUMMARY_JOIN}
 		WHERE ${listedRiderFilter("r")}
-			AND ${sharedRiderExists("r", SINCE_VERSION.rideFigures)}
+			AND ${sharedRiderExists("r", since)}
 		ORDER BY r.athlete_id`,
 	);
 }
 
-/** The rows of `teamRidesStatement`, adding up riders without stored rides. */
-async function toTeamRides(
+/** The rows of `rideRidersStatement`, adding up riders without stored rides. */
+export async function toRideRiders(
 	db: D1Database,
 	result: D1Result,
+	since: number,
 ): Promise<RideRider[]> {
 	const rows = result.results as { athlete_id: number; rides: string | null }[];
 	const missing = rows.filter((r) => r.rides === null).map((r) => r.athlete_id);
 	const addedUp =
 		missing.length > 0
-			? await readRidesAddedUp(db, missing, SINCE_VERSION.rideFigures)
-			: new Map();
+			? await readRidesAddedUp(db, missing, since)
+			: new Map<number, RideEntry[]>();
 	return rows.map((row) => ({
 		athleteId: row.athlete_id,
 		rides: addedUp.get(row.athlete_id) ?? parseRides(row.rides ?? "[]"),
 	}));
 }
+
+const teamRidesStatement = (db: D1Database) =>
+	rideRidersStatement(db, SINCE_VERSION.rideFigures);
+const toTeamRides = (db: D1Database, result: D1Result) =>
+	toRideRiders(db, result, SINCE_VERSION.rideFigures);
 
 /** The ride figures' riders alone, for a team without Rynke views. */
 export async function readTeamRides(db: D1Database): Promise<RideRider[]> {

@@ -404,6 +404,16 @@ const CONTRACT_IDS = [
 	"team.ride.chart.label",
 
 	"organiser.overview.heading",
+	"organiser.overview.column.sessions",
+	"organiser.overview.column.typical",
+	"organiser.overview.column.typical.hint",
+	"organiser.overview.typical",
+	"organiser.overview.sessions",
+	"organiser.overview.sessions.typical",
+	"organiser.graphs.title.sessions",
+	"organiser.graphs.tab.sessions",
+	"organiser.graphs.value.sessions",
+
 	"organiser.overview.deadline",
 	"organiser.overview.daysLeft",
 	"organiser.overview.deadlinePassed",

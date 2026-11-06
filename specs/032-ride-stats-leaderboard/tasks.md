@@ -93,13 +93,13 @@ description: "Tasks for the ride stats leaderboard"
 
 **Independent Test**: as the sample organiser, check the column and graph against hand counts.
 
-- [ ] T029 [US2] Extend `test/integration/organiser-overview.test.ts` with failing tests: with `ORGANISER_FIGURES` "full" a `th` Sessions before Distance; a rider with 12 counting rides shows `<span>12</span><small class="typical">typical … km</small>`; a rider with no ride shows 0 and no typical ride; a rider below version 3 shows "–"; the percent table has no column; the graph data's `GraphDay` has five values with sessions per day and `teamSum.sessions`; a rider below version 3 adds nothing to `teamSum.sessions`
-- [ ] T030 [US2] In `src/db/organiser-graphs.ts` select `s.rides` from version 3 rows in `organiserGraphsStatement` (or add up for riders without one), filtered with `SINCE_VERSION.rideFiguresByName`, and add `rides: RideEntry[]` to `GraphRow` in `toGraphRows`
-- [ ] T031 [US2] In `src/http/organiser/progress-graphs.ts` make `GraphDay` `[dayIndex, outdoorM, virtualM, elevationDm, sessions]` and add `sessions: number[]` to `teamSum`
-- [ ] T032 [US2] Add the Sessions column to the full table in `src/http/organiser/overview.ts` (season count and season typical ride, "–" below version 3, the count after the distance in the phone's one-line rows), and the fourth tab and graph after Elevation
-- [ ] T033 [P] [US2] Add `"sessions"` to `GRAPH_METRICS` in `public/app.js` with whole-number y ticks; range presets, Running total, Per day, rider picker, team lines, legend and screen-reader table come from the shared code
-- [ ] T034 [P] [US2] Add `organiser.overview.column.sessions`, `organiser.overview.typical`, `organiser.graphs.title.sessions` and `organiser.graphs.tab.sessions` in en and de to `src/i18n/messages/en.ts` and `src/i18n/messages/de.ts`; style `small.typical` in `src/http/style.ts` (T029 green)
-- [ ] T035 [US2] Fix existing tests that pin `GraphDay`'s length, `GRAPH_METRICS` or the organiser table's columns, only where the new value or column is the cause
+- [X] T029 [US2] Extend `test/integration/organiser-overview.test.ts` with failing tests: with `ORGANISER_FIGURES` "full" a `th` Sessions before Distance; a rider with 12 counting rides shows `<span>12</span><small class="typical">typical … km</small>`; a rider with no ride shows 0 and no typical ride; a rider below version 3 shows "–"; the percent table has no column; the graph data's `GraphDay` has five values with sessions per day and `teamSum.sessions`; a rider below version 3 adds nothing to `teamSum.sessions`
+- [X] T030 [US2] In `src/db/organiser-graphs.ts` select `s.rides` from version 3 rows in `organiserGraphsStatement` (or add up for riders without one), filtered with `SINCE_VERSION.rideFiguresByName`, and add `rides: RideEntry[]` to `GraphRow` in `toGraphRows`
+- [X] T031 [US2] In `src/http/organiser/progress-graphs.ts` make `GraphDay` `[dayIndex, outdoorM, virtualM, elevationDm, sessions]` and add `sessions: number[]` to `teamSum`
+- [X] T032 [US2] Add the Sessions column to the full table in `src/http/organiser/overview.ts` (season count and season typical ride, "–" below version 3, the count after the distance in the phone's one-line rows), and the fourth tab and graph after Elevation
+- [X] T033 [P] [US2] Add `"sessions"` to `GRAPH_METRICS` in `public/app.js` with whole-number y ticks; range presets, Running total, Per day, rider picker, team lines, legend and screen-reader table come from the shared code
+- [X] T034 [P] [US2] Add `organiser.overview.column.sessions`, `organiser.overview.typical`, `organiser.graphs.title.sessions` and `organiser.graphs.tab.sessions` in en and de to `src/i18n/messages/en.ts` and `src/i18n/messages/de.ts`; style `small.typical` in `src/http/style.ts` (T029 green)
+- [X] T035 [US2] Fix existing tests that pin `GraphDay`'s length, `GRAPH_METRICS` or the organiser table's columns, only where the new value or column is the cause
 
 **Checkpoint**: organisers see sessions by name in the organiser area only.
 

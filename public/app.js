@@ -2456,7 +2456,8 @@ const graphsKept = {
 };
 
 const GRAPH_WIDE = "(min-width: 1100px)";
-const GRAPH_METRICS = ["outdoor", "virtual", "elevation"];
+// "sessions" only while the page draws its figure (feature 032).
+const GRAPH_METRICS = ["outdoor", "virtual", "elevation", "sessions"];
 /** More selected riders than this go thin and grey (FR-016). */
 const GRAPH_CROWDED = 8;
 
@@ -2531,11 +2532,13 @@ function organiserGraphs(signal) {
 		return content.textContent ?? "";
 	};
 	const valueText = (metric, value) =>
-		metric === "elevation"
-			? text("m", { n: whole.format(value) })
-			: text("km", {
-					n: value < 100 ? oneDecimal.format(value) : whole.format(value),
-				});
+		metric === "sessions"
+			? text("sessions", { n: whole.format(value) })
+			: metric === "elevation"
+				? text("m", { n: whole.format(value) })
+				: text("km", {
+						n: value < 100 ? oneDecimal.format(value) : whole.format(value),
+					});
 
 	// Every line as one dense list per measure, in km or m.
 	const riders = data.riders.map((rider) => {
@@ -2543,11 +2546,13 @@ function organiserGraphs(signal) {
 			outdoor: new Float64Array(last + 1),
 			virtual: new Float64Array(last + 1),
 			elevation: new Float64Array(last + 1),
+			sessions: new Float64Array(last + 1),
 		};
-		for (const [index, outdoor, virtual, elevation] of rider.days) {
+		for (const [index, outdoor, virtual, elevation, sessions] of rider.days) {
 			series.outdoor[index] = outdoor / 1000;
 			series.virtual[index] = virtual / 1000;
 			series.elevation[index] = elevation / 10;
+			series.sessions[index] = sessions ?? 0;
 		}
 		return { ...rider, series };
 	});
@@ -2555,6 +2560,7 @@ function organiserGraphs(signal) {
 		outdoor: Float64Array.from(data.teamSum.outdoorM, (m) => m / 1000),
 		virtual: Float64Array.from(data.teamSum.virtualM, (m) => m / 1000),
 		elevation: Float64Array.from(data.teamSum.elevationDm, (dm) => dm / 10),
+		sessions: Float64Array.from(data.teamSum.sessions ?? [], (n) => n),
 	};
 	const averageOf = {};
 	for (const metric of GRAPH_METRICS) {
@@ -2765,6 +2771,9 @@ function organiserGraphs(signal) {
 
 	function makeChart(canvas) {
 		const font = { family: colours.font, size: 12 };
+		// Sessions come in whole numbers, so the axis does too.
+		const wholeTicks =
+			canvas.dataset.metric === "sessions" ? { precision: 0 } : {};
 		const { min, max } = xBounds();
 		return new Chart(canvas, {
 			type: "line",
@@ -2808,6 +2817,7 @@ function organiserGraphs(signal) {
 							color: colours.muted,
 							font,
 							maxTicksLimit: 6,
+							...wholeTicks,
 							callback: (value) => whole.format(value),
 						},
 					},

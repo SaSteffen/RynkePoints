@@ -596,6 +596,14 @@ export const de = {
 	"organiser.overview.column.corrections": "Korrekturen",
 	"organiser.overview.column.rynke": "Rynke",
 	"organiser.overview.column.virtual": "Virtuell",
+	"organiser.overview.column.sessions": "Fahrten",
+	"organiser.overview.column.typical": "typisch",
+	"organiser.overview.column.typical.hint":
+		"Typische Fahrt: die Hälfte der Fahrten ist länger, die Hälfte kürzer",
+	"organiser.overview.typical": "typisch {n}\u00a0km",
+	"organiser.overview.sessions": "Fahrten {n}",
+	"organiser.overview.sessions.typical":
+		"Fahrten {n}, typisch {typical}\u00a0km",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
 	// names aren't here: they are German in every language (badges.de.ts).
@@ -1090,10 +1098,12 @@ export const de = {
 	"organiser.graphs.title.outdoor": "Kilometer draußen (km)",
 	"organiser.graphs.title.virtual": "Kilometer virtuell (km)",
 	"organiser.graphs.title.elevation": "Höhenmeter (m)",
+	"organiser.graphs.title.sessions": "Fahrten",
 	"organiser.graphs.tabs.label": "Diagramm",
 	"organiser.graphs.tab.outdoor": "Draußen",
 	"organiser.graphs.tab.virtual": "Virtuell",
 	"organiser.graphs.tab.elevation": "Höhenmeter",
+	"organiser.graphs.tab.sessions": "Fahrten",
 	"organiser.graphs.picker.label": "In den Diagrammen",
 	"organiser.graphs.picker.find": "Rider finden",
 	"organiser.graphs.picker.clear": "Alle abwählen",
@@ -1129,6 +1139,7 @@ export const de = {
 		"Die Rider werden noch um Zustimmung gebeten. Noch keine Linien.",
 	"organiser.graphs.value.km": "{n} km",
 	"organiser.graphs.value.m": "{n} m",
+	"organiser.graphs.value.sessions": "{n} Fahrten",
 	"organiser.graphs.readout.range": "{from} – {to}, gesamt",
 	"organiser.graphs.aria": "{title} vom {from} bis {to}: {lines}",
 	"organiser.graphs.view.label": "Was angezeigt wird",

@@ -220,9 +220,9 @@ describe("rows read with a full-season team (feature 030)", () => {
 		const badges = await pageRows("/me/badges", RIDER);
 		const start = await pageRows("/", RIDER);
 		const team = await pageRows("/team", RIDER);
-		// Without the graphs, which "before" didn't have.
+		// Without the graphs and the sessions, which "before" didn't have.
 		const env0 = ctx.env;
-		ctx.env = { ...env0, ORGANISER_PROGRESS_GRAPH: "off" };
+		ctx.env = { ...env0, ORGANISER_PROGRESS_GRAPH: "off", RIDE_FIGURES: "off" };
 		const organiserRiders = await pageRows("/organiser/riders", ORGANISER);
 		ctx.env = env0;
 		// The spec's "Today" column, measured before this feature.
@@ -238,7 +238,11 @@ describe("rows read with a full-season team (feature 030)", () => {
 			const start = await pageRows("/", RIDER);
 			const team = await pageRows("/team", RIDER);
 			const env0 = ctx.env;
-			ctx.env = { ...env0, ORGANISER_PROGRESS_GRAPH: "off" };
+			ctx.env = {
+				...env0,
+				ORGANISER_PROGRESS_GRAPH: "off",
+				RIDE_FIGURES: "off",
+			};
 			const organiserTable = await pageRows("/organiser/riders", ORGANISER);
 			ctx.env = env0;
 			return { start, team, organiserTable };
@@ -262,9 +266,10 @@ describe("rows read with a full-season team (feature 030)", () => {
 		expect(atVersionOne.organiserTable).toBeLessThan(
 			current.organiserTable * 1.1,
 		);
-		// The graphs add those two up until the job has run, and nobody else.
+		// The graphs and the sessions add those two up until the job has run,
+		// and nobody else (ride stats research R1).
 		expect(await pageRows("/organiser/riders", ORGANISER)).toBeLessThanOrEqual(
-			withGraphs + 2 * 500,
+			withGraphs + 2 * 2 * 500,
 		);
 	}, 300_000);
 

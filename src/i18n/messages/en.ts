@@ -572,6 +572,14 @@ export const en: Catalog = {
 	"organiser.overview.column.corrections": "Corrections",
 	"organiser.overview.column.rynke": "Rynke",
 	"organiser.overview.column.virtual": "Virtual",
+	"organiser.overview.column.sessions": "Sessions",
+	"organiser.overview.column.typical": "typical",
+	"organiser.overview.column.typical.hint":
+		"Typical ride: half of the rides are longer, half are shorter",
+	"organiser.overview.typical": "typical {n}\u00a0km",
+	"organiser.overview.sessions": "Sessions {n}",
+	"organiser.overview.sessions.typical":
+		"Sessions {n}, typical {typical}\u00a0km",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
 	// names aren't here: they are German in every language (badges.de.ts).
@@ -1046,10 +1054,12 @@ export const en: Catalog = {
 	"organiser.graphs.title.outdoor": "Outdoor kilometres (km)",
 	"organiser.graphs.title.virtual": "Virtual kilometres (km)",
 	"organiser.graphs.title.elevation": "Elevation (m)",
+	"organiser.graphs.title.sessions": "Sessions",
 	"organiser.graphs.tabs.label": "Graph",
 	"organiser.graphs.tab.outdoor": "Outdoor",
 	"organiser.graphs.tab.virtual": "Virtual",
 	"organiser.graphs.tab.elevation": "Elevation",
+	"organiser.graphs.tab.sessions": "Sessions",
 	"organiser.graphs.picker.label": "Shown in the graphs",
 	"organiser.graphs.picker.find": "Find a rider",
 	"organiser.graphs.picker.clear": "Clear all",
@@ -1084,6 +1094,7 @@ export const en: Catalog = {
 		"Riders are still being asked to agree. No lines yet.",
 	"organiser.graphs.value.km": "{n} km",
 	"organiser.graphs.value.m": "{n} m",
+	"organiser.graphs.value.sessions": "{n} sessions",
 	"organiser.graphs.readout.range": "{from} – {to}, total",
 	"organiser.graphs.aria": "{title} from {from} to {to}: {lines}",
 	"organiser.graphs.view.label": "What to show",

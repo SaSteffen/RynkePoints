@@ -772,6 +772,9 @@ ul.rider-missing{display:flex;flex-wrap:wrap;gap:6px;margin:0;padding:0;list-sty
 .rider-table thead tr{background:var(--md-sys-color-surface-container)}
 .rider-table thead th{position:sticky;top:0;z-index:1;background:var(--md-sys-color-surface-container)}
 .rider-table th,.rider-table td{padding:10px var(--rp-space-3);border-top:1px solid var(--md-sys-color-outline-variant);text-align:left;vertical-align:middle}
+.rider-table .th-sub{display:block;font-weight:400;font-size:.85em}
+.sessions-cell span,.sessions-cell small.typical{display:block}
+small.typical{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant);white-space:nowrap}
 .rider-table thead th{font:var(--md-type-label);white-space:nowrap;vertical-align:bottom}
 .rider-table th:first-child{padding-left:var(--rp-space-4);white-space:nowrap}
 .rider-table th:last-child,.rider-table td:last-child{padding-right:var(--rp-space-4)}
