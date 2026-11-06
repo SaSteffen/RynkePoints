@@ -199,6 +199,18 @@ describe("GET /team by a ride figure (US1)", () => {
 		expect(own).not.toContain(de["team.ride.typical"].split(":")[0] ?? "");
 	});
 
+	it("shows the typical ride instead of km and elevation by sessions", async () => {
+		const html = await page("/team?by=sessions");
+		const own =
+			leaderboardOf(html).match(/<li class="row you">[\s\S]*?<\/li>/)?.[0] ??
+			"";
+		expect(own).toContain(
+			`<span class="row-other">${de["team.ride.row.typical"].replace("{n}", "20,0 km")}</span>`,
+		);
+		// Riders without a ride in the period show no typical ride.
+		expect(leaderboardOf(html)).toContain('<span class="row-other"></span>');
+	});
+
 	it("keeps the period links and the other parameters, leaving defaults out", async () => {
 		const html = await page("/team?by=km&period=week&all=1");
 		expect(linksOf(html, "rank-by")).toEqual([

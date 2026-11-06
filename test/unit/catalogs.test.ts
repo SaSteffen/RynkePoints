@@ -393,6 +393,7 @@ const CONTRACT_IDS = [
 	"team.ride.yours",
 	"team.ride.typical",
 	"team.ride.typical.hint",
+	"team.ride.row.typical",
 	"team.ride.teamLine",
 	"team.ride.nobodyYet",
 	"team.ride.bar",

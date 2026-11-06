@@ -250,7 +250,15 @@ describe("rideRows", () => {
 			season,
 		);
 		expect(Object.keys(rows[0] ?? {}).sort()).toEqual(
-			["elevationM", "joint", "km", "place", "sessions", "you"].sort(),
+			[
+				"elevationM",
+				"joint",
+				"km",
+				"place",
+				"sessions",
+				"typicalM",
+				"you",
+			].sort(),
 		);
 		expect(JSON.stringify(rows)).not.toContain("123456");
 	});

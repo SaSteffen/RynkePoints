@@ -527,6 +527,7 @@ export const de = {
 	"team.ride.typical": "Typische Fahrt: {n}",
 	"team.ride.typical.hint":
 		"Die Hälfte der Fahrten ist länger, die Hälfte kürzer.",
+	"team.ride.row.typical": "typisch {n}",
 	"team.ride.teamLine":
 		"Das Team, {period}: {km} · {sessions} · {elevation} · typische Fahrt {typical}",
 	"team.ride.nobodyYet": "In diesem Zeitraum ist noch niemand gefahren.",

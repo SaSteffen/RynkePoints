@@ -49,6 +49,8 @@ export interface RideRow {
 	km: number;
 	/** Shown: whole metres. */
 	elevationM: number;
+	/** The median ride length in metres; null without a ride (FR-009). */
+	typicalM: number | null;
 }
 
 export interface RideViewer {
@@ -198,6 +200,7 @@ export function rideRows(
 			sessions: rider.sessions,
 			km: rider.kmTenths / 10,
 			elevationM: rider.elevationM,
+			typicalM: rider.figures.typicalM,
 		}),
 	);
 	const index = ranked.findIndex((rider) => rider.id === viewerId);

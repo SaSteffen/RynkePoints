@@ -504,6 +504,7 @@ export const en: Catalog = {
 	"team.ride.yours": "Your figures, {period}: {sessions} · {km} · {elevation}",
 	"team.ride.typical": "Typical ride: {n}",
 	"team.ride.typical.hint": "Half of the rides are longer, half are shorter.",
+	"team.ride.row.typical": "typically {n}",
 	"team.ride.teamLine":
 		"The team, {period}: {km} · {sessions} · {elevation} · typical ride {typical}",
 	"team.ride.nobodyYet": "Nobody has ridden yet in this period.",

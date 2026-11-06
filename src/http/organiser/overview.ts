@@ -447,20 +447,6 @@ function fullBody(
 		i18n.t("organiser.overview.distance", {
 			n: whole(breakdown.distanceRynke),
 		}),
-		...(sessions === null
-			? []
-			: [
-					sessions.typicalM === null
-						? i18n.t("organiser.overview.sessions", {
-								n: whole(sessions.sessions),
-							})
-						: i18n.t("organiser.overview.sessions.typical", {
-								n: whole(sessions.sessions),
-								typical: i18n.formatNumber(shownKm(sessions.typicalM), {
-									fractionDigits: 1,
-								}),
-							}),
-				]),
 		i18n.t("organiser.overview.elevation", {
 			n: whole(breakdown.elevationRynke),
 		}),
@@ -482,6 +468,19 @@ function fullBody(
 		}),
 		i18n.t("organiser.overview.virtual", { n: whole(breakdown.virtualShare) }),
 	];
+	const rides =
+		sessions === null
+			? null
+			: sessions.typicalM === null
+				? i18n.t("organiser.overview.sessions", {
+						n: whole(sessions.sessions),
+					})
+				: i18n.t("organiser.overview.sessions.typical", {
+						n: whole(sessions.sessions),
+						typical: i18n.formatNumber(shownKm(sessions.typicalM), {
+							fractionDigits: 1,
+						}),
+					});
 	const missing = missingItems(i18n, rider);
 	return html`<div class="rider-head"><h3>${nameLinks(i18n, rider)}</h3>${statusChip(i18n, rider, passed)}</div>
 <div class="rider-bars">
@@ -489,6 +488,11 @@ function fullBody(
 <div class="amount amount-team"><p>${miniCoin("team")}${i18n.t("organiser.overview.team", { n: whole(rider.team), threshold: whole(rules.teamThreshold) })}</p>${thresholdBars(rider.team, rules.teamThreshold, rider.pace?.team ?? null)}</div>
 </div>
 ${
+	rides === null
+		? null
+		: html`<p class="rider-sessions">${rides}</p>
+`
+}${
 	missing.length > 0
 		? html`<ul class="rider-missing">${missing.map((m) => html`<li${m.behind ? html` class="behind"` : null}>${m.text}</li>`)}</ul>
 `

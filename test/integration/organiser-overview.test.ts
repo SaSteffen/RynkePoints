@@ -735,14 +735,15 @@ describe("GET /organiser/riders, sessions (ride stats ranking US2)", () => {
 		expect(rowOf(html, JONAS_BEHIND.id)).toContain('<td class="number">–</td>');
 	});
 
-	it("adds the count to the one-line rows' figures", async () => {
+	it("shows the count and typical ride on the one-line rows' cards, not folded away", async () => {
 		const { html } = await overview("/organiser/riders?group=all");
-		expect(cardOf(html, QUALIFIED.id)).toContain(
-			fill(de["organiser.overview.sessions.typical"], {
-				n: 3,
-				typical: "40,0",
-			}),
+		const card = cardOf(html, QUALIFIED.id);
+		expect(card).toContain(
+			`<p class="rider-sessions">${fill(de["organiser.overview.sessions.typical"], { n: 3, typical: "40,0" })}</p>`,
 		);
+		expect(
+			sectionOf(card, '<details class="rider-breakdown">', "</details>"),
+		).not.toContain("rider-sessions");
 	});
 
 	it("gives the graphs sessions per day, and the team's without a rider below version 3", async () => {

@@ -585,9 +585,19 @@ function renderRideRow(
 	const values = rowValues(row);
 	const value = values[figure];
 	const width = lead > 0 ? (value / lead) * 100 : 0;
-	const others = RIDE_FIGURES.filter((other) => other !== figure).map((other) =>
-		rideValue(i18n, other, values[other]),
-	);
+	// Sessions show the typical ride instead of the other figures.
+	const others =
+		figure === "sessions"
+			? row.typicalM === null
+				? []
+				: [
+						i18n.t("team.ride.row.typical", {
+							n: rideValue(i18n, "km", shownKm(row.typicalM)),
+						}),
+					]
+			: RIDE_FIGURES.filter((other) => other !== figure).map((other) =>
+					rideValue(i18n, other, values[other]),
+				);
 	const bar = i18n.t("team.ride.bar", {
 		value: rideValue(i18n, figure, value),
 		lead: rideValue(i18n, figure, lead),
