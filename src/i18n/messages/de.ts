@@ -822,6 +822,8 @@ export const de = {
 		"Die Organisatoren tragen ein, an welchen Teamterminen du teilgenommen hast, und können deine Rynke mit Grund und Datum korrigieren. Du kannst selbst melden, bei welchen Teamterminen du dabei bist oder warst; die Organisatoren sehen das und entscheiden, ob sie dich eintragen. Gespeichert wird auch, wer das wann geändert hat.",
 	"privacy.team.derived":
 		"Aus all dem berechnet RynkePoints deine Rynke, deine Abzeichen und welche Fahrten warum zählen.",
+	"privacy.team.rideFigures":
+		"Aus deinen gewerteten Fahrten zählt RynkePoints Fahrten, Kilometer und Höhenmeter pro Saison, Monat und Woche für das Ranking ohne Namen, und deine typische Fahrt, die nur du und die Orga sehen. Die Orga sieht deine Fahrten pro Saison und Tag mit deinem Vornamen.",
 	"privacy.technical.heading": "Technisch nötige Daten",
 	"privacy.technical.cookies":
 		"Cookies: „rp_session“ hält dich angemeldet, bis 180 Tage nach deinem letzten Besuch; „rp_oauth_state“ schützt die Anmeldung bei Strava für 10 Minuten; „rp_lang“ merkt sich eine gewählte Sprache für ein Jahr. Andere Cookies und Tracker gibt es nicht.",

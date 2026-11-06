@@ -633,6 +633,7 @@ const CONTRACT_IDS = [
 	"privacy.team.heading",
 	"privacy.team.body",
 	"privacy.team.derived",
+	"privacy.team.rideFigures",
 	"privacy.technical.heading",
 	"privacy.technical.cookies",
 	"privacy.technical.push",

@@ -339,3 +339,58 @@ describe("GET /team with RIDE_FIGURES off (US4 scenario 1)", () => {
 		expect(myPlaceOf(asked)).toBe(myPlaceOf(plain));
 	});
 });
+
+describe("GET /team with RYNKE_VIEWS off (US4 scenario 3, FR-012)", () => {
+	const noRynke = { ...ctx, env: { ...ctx.env, RYNKE_VIEWS: "off" } };
+	const teamTotalOf = (html: string) =>
+		sectionOf(html, '<section class="team-total', "</section>");
+
+	it("is one view: no kind switch, Rynke card, peloton, quote or coin", async () => {
+		const html = await page("/team", VIEWER.id, noRynke);
+		const main = mainOf(html);
+		expect(main).not.toContain("kind-switch");
+		expect(main).not.toContain('class="peloton');
+		expect(main).not.toContain('class="quote');
+		expect(main).not.toContain("coin-art");
+		expect(main).not.toContain("coin-mini");
+		expect(main).not.toContain(escapeHtml(de["team.total.kind"]));
+	});
+
+	it("gives the team card the season's km, sessions, elevation and this week", async () => {
+		const card = teamTotalOf(await page("/team", VIEWER.id, noRynke));
+		// Season: 248.8 km in 7 rides, 2,620 m; this week 68.8 km.
+		expect(card).toContain("248,8 km");
+		expect(card).toContain("7 Fahrten · 2.620 Hm");
+		expect(card).toContain(
+			escapeHtml(de["team.ride.total.thisWeek"].replace("{n}", "68,8")),
+		);
+	});
+
+	it("draws the team's km week by week", async () => {
+		const html = await page("/team", VIEWER.id, noRynke);
+		const chart = sectionOf(html, '<figure class="team-chart', "</figure>");
+		expect(chart).toContain(escapeHtml(de["team.ride.chart.heading"]));
+		expect(chart).toContain('class="week-bars"');
+		expect(chart).toMatch(/<td>248,8<\/td>/);
+	});
+
+	it("ranks by km without by, and offers no Rynke", async () => {
+		const html = await page("/team", VIEWER.id, noRynke);
+		expect(linksOf(html, "rank-by")).toEqual([
+			{ href: "/team?by=sessions", current: false },
+			{ href: "/team", current: true },
+			{ href: "/team?by=elevation", current: false },
+		]);
+		expect(rowsOf(html).find((r) => r.you)?.place).toBe("🥉");
+		expect(myPlaceOf(html)).toContain(
+			escapeHtml(de["team.ride.typical"].replace("{n}", "20,0 km")),
+		);
+	});
+
+	it("gives kind=team the same single view", async () => {
+		const plain = await page("/team?by=sessions", VIEWER.id, noRynke);
+		const team = await page("/team?kind=team&by=sessions", VIEWER.id, noRynke);
+		expect(leaderboardOf(team)).toBe(leaderboardOf(plain));
+		expect(team).not.toContain("kind-switch");
+	});
+});

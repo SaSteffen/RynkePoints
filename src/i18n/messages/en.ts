@@ -784,6 +784,8 @@ export const en: Catalog = {
 		"The organisers record which team events you attended, and can correct your Rynke with a reason and a date. You can report yourself which team events you're coming to or were at; the organisers see that and decide whether to record it. Who changed what, and when, is stored too.",
 	"privacy.team.derived":
 		"From all this RynkePoints works out your Rynke, your badges and which rides count, and why.",
+	"privacy.team.rideFigures":
+		"From your counting rides RynkePoints counts sessions, kilometres and elevation per season, month and week for the ranking without names, and your typical ride, which only you and the organisers see. The organisers see your sessions per season and per day with your first name.",
 	"privacy.technical.heading": "Data needed to run the app",
 	"privacy.technical.cookies":
 		"Cookies: “rp_session” keeps you signed in, until 180 days after your last visit; “rp_oauth_state” protects the sign-in with Strava for 10 minutes; “rp_lang” remembers a picked language for a year. There are no other cookies and no trackers.",
