@@ -4,9 +4,11 @@ import {
 	parseAttended,
 	parseDays,
 	parseOwnDays,
+	parseRides,
 	parseRunDays,
 	parseVirtualDays,
 	parseWeeks,
+	RIDE_SUMMARY_SINCE,
 	RIDER_SUMMARY_VERSION,
 	type SummaryFigures,
 	summaryOf,
@@ -50,6 +52,7 @@ describe("summaryOf", () => {
 			attended: "[]",
 			virtualDays: "[]",
 			ownDays: "[]",
+			rides: "[]",
 		});
 	});
 
@@ -232,5 +235,57 @@ describe("summaryOf", () => {
 
 	it("has a version", () => {
 		expect(RIDER_SUMMARY_VERSION).toBeGreaterThan(0);
+	});
+
+	// Feature 032: one entry per counting ride, for sessions, km, elevation and
+	// the typical ride (research R1).
+	it("holds every counting ride with its full distance and elevation", () => {
+		const summary = summaryOf(
+			{
+				...none,
+				rides: [
+					ride("2026-03-02", 79000, 70, 412),
+					ride("2026-03-02", 6100, 0, 0),
+					ride("2026-03-01", 42700, 40, 3800, "07:00", true),
+				],
+			},
+			[],
+		);
+		expect(parseRides(summary.rides)).toEqual([
+			["2026-03-01", 42700, 3800],
+			["2026-03-02", 6100, 0],
+			["2026-03-02", 79000, 412],
+		]);
+	});
+
+	it("sorts rides by date, distance and elevation, so any order gives the same text", () => {
+		const rides = [
+			ride("2026-03-02", 5000, 0, 20),
+			ride("2026-03-02", 5000, 0, 10, "18:00"),
+			ride("2026-03-01", 9000, 0, 0),
+		];
+		const forward = summaryOf({ ...none, rides }, []).rides;
+		const backward = summaryOf(
+			{ ...none, rides: [...rides].reverse() },
+			[],
+		).rides;
+		expect(backward).toBe(forward);
+		expect(forward).toBe(
+			'[["2026-03-01",9000,0],["2026-03-02",5000,10],["2026-03-02",5000,20]]',
+		);
+	});
+
+	it("keeps no time, name or ID of a ride", () => {
+		const text = summaryOf(
+			{ ...none, rides: [ride("2026-03-02", 5000, 0, 20, "17:45")] },
+			[],
+		).rides;
+		expect(text).not.toContain("17");
+		expect(parseRides(text)[0]).toHaveLength(3);
+	});
+
+	it("is version 3, the first with rides", () => {
+		expect(RIDER_SUMMARY_VERSION).toBe(3);
+		expect(RIDE_SUMMARY_SINCE).toBe(3);
 	});
 });

@@ -40,8 +40,8 @@ export interface Viewer {
 	lead: boolean;
 }
 
-export interface Neighbourhood {
-	rows: LeaderboardRow[];
+export interface Neighbourhood<Row = LeaderboardRow> {
+	rows: Row[];
 	hiddenAhead: number;
 	hiddenBehind: number;
 	/** The "Around you / Everyone" toggle is shown. */
@@ -119,10 +119,10 @@ export function leaderboardRows(
  * The viewer's row and three either side, cut at the ends; every row for
  * `all`, a short list, or a viewer who isn't listed (research R6).
  */
-export function neighbourhood(
-	rows: readonly LeaderboardRow[],
+export function neighbourhood<Row extends { you: boolean }>(
+	rows: readonly Row[],
 	all: boolean,
-): Neighbourhood {
+): Neighbourhood<Row> {
 	const own = rows.findIndex((row) => row.you);
 	const toggle = own >= 0 && rows.length > SHORT_LIST;
 	if (all || !toggle) {

@@ -150,6 +150,7 @@ describe("POST /connect after a new consent version (004 research R11)", () => {
 				published: "2026-11-01",
 				requiredScopes: ["read", "activity:read"],
 				changes: ["consent.team"],
+				revisions: [],
 			},
 		],
 	});

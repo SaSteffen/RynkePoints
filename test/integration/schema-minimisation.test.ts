@@ -50,7 +50,7 @@ const COLUMNS: Record<string, string[]> = {
 		"refreshed_at",
 		"name",
 	],
-	consent_records: ["athlete_id", "version", "accepted_at"],
+	consent_records: ["athlete_id", "version", "accepted_at", "revision"],
 	ride_results: [
 		"strava_activity_id",
 		"athlete_id",
@@ -143,6 +143,8 @@ const COLUMNS: Record<string, string[]> = {
 		// Feature 029.
 		"virtual_days",
 		"own_days",
+		// Feature 032.
+		"rides",
 	],
 	badge_reveals: ["athlete_id", "badge_id", "earned_on"],
 	badge_rises: ["athlete_id", "badge_ids", "risen_at"],

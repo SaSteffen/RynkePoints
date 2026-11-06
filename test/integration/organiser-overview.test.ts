@@ -660,3 +660,144 @@ describe("GET /organiser/riders, the graphs (feature 029)", () => {
 		expect(eventIds).toHaveLength(4);
 	});
 });
+
+describe("GET /organiser/riders, sessions (ride stats ranking US2)", () => {
+	const dataOf = (page: string) => {
+		const opening =
+			'<script type="application/json" id="organiser-graphs-data">';
+		const json = sectionOf(page, opening, "</script>")
+			.slice(opening.length)
+			.replace("</script>", "");
+		return JSON.parse(json) as {
+			riders: { id: number; days: number[][] }[];
+			teamSum: { sessions: number[] };
+			sessions: boolean;
+		};
+	};
+	const ride = (
+		id: number,
+		athleteId: number,
+		day: string,
+		km: number,
+		hour = 7,
+	) =>
+		activityRecord(id, {
+			athlete_id: athleteId,
+			start_date: `${day}T${String(hour).padStart(2, "0")}:30:00Z`,
+			start_date_local: `${day}T${String(hour + 2).padStart(2, "0")}:30:00Z`,
+			distance_m: km * 1000,
+			moving_time_s: Math.round(km * 150),
+			elapsed_time_s: Math.round(km * 150),
+		});
+	const toVersion2 = (id: number) =>
+		env.DB.prepare(
+			"UPDATE consent_records SET version = 2 WHERE athlete_id = ?",
+		)
+			.bind(id)
+			.run();
+
+	beforeEach(async () => {
+		// Paula: three rides, two on one day; the typical ride is 40 km.
+		await evaluateChange(ctx, QUALIFIED.id, {
+			kind: "upsert",
+			records: [
+				ride(7_100_001, QUALIFIED.id, "2026-05-02", 40),
+				ride(7_100_002, QUALIFIED.id, "2026-05-02", 20, 15),
+				ride(7_100_003, QUALIFIED.id, "2026-05-09", 60),
+			],
+		});
+		// Jonas, behind, on version 2: in the table, in no figure.
+		await evaluateChange(ctx, JONAS_BEHIND.id, {
+			kind: "upsert",
+			records: [ride(7_100_004, JONAS_BEHIND.id, "2026-05-02", 30)],
+		});
+		await toVersion2(JONAS_BEHIND.id);
+	});
+
+	it("has a Sessions column before Distance with the count and the typical ride", async () => {
+		const { html } = await overview();
+		const head = sectionOf(tableOf(html), "<thead>", "</thead>");
+		expect(
+			head.indexOf(escapeHtml(de["organiser.overview.column.sessions"])),
+		).toBeLessThan(
+			head.indexOf(escapeHtml(de["organiser.overview.column.distance"])),
+		);
+		expect(rowOf(html, QUALIFIED.id)).toContain(
+			`<td class="number sessions-cell"><span>3</span><small class="typical">${fill(de["organiser.overview.typical"], { n: "40,0" })}</small></td>`,
+		);
+	});
+
+	it("shows 0 and no typical ride without a ride, and – below version 3", async () => {
+		const { html } = await overview();
+		expect(rowOf(html, JONAS_ON_TRACK.id)).toContain(
+			'<td class="number sessions-cell"><span>0</span></td>',
+		);
+		expect(rowOf(html, JONAS_BEHIND.id)).toContain('<td class="number">–</td>');
+	});
+
+	it("shows the count and typical ride on the one-line rows' cards, not folded away", async () => {
+		const { html } = await overview("/organiser/riders?group=all");
+		const card = cardOf(html, QUALIFIED.id);
+		expect(card).toContain(
+			`<p class="rider-sessions">${fill(de["organiser.overview.sessions.typical"], { n: 3, typical: "40,0" })}</p>`,
+		);
+		expect(
+			sectionOf(card, '<details class="rider-breakdown">', "</details>"),
+		).not.toContain("rider-sessions");
+	});
+
+	it("gives the graphs sessions per day, and the team's without a rider below version 3", async () => {
+		const { html } = await overview();
+		const data = dataOf(html);
+		expect(data.sessions).toBe(true);
+		const paula = data.riders.find((r) => r.id === QUALIFIED.id);
+		expect(paula?.days.map((day) => day.length)).toEqual([5, 5]);
+		expect(paula?.days.map((day) => day[4])).toEqual([2, 1]);
+		expect(data.teamSum.sessions.reduce((a, b) => a + b, 0)).toBe(3);
+		expect(html).toContain('data-tab="sessions"');
+		expect(html).toContain('<figure class="org-graph" data-metric="sessions">');
+	});
+
+	it("has no column in the percent table", async () => {
+		const before = ctx.env;
+		ctx.env = { ...before, ORGANISER_FIGURES: "percent" };
+		try {
+			const { html } = await overview();
+			expect(tableOf(html)).not.toContain(
+				escapeHtml(de["organiser.overview.column.sessions"]),
+			);
+			expect(html).not.toContain("sessions-cell");
+		} finally {
+			ctx.env = before;
+		}
+	});
+
+	it("shows and reads nothing of it with RIDE_FIGURES off (US4 scenario 1)", async () => {
+		const before = ctx.env;
+		ctx.env = { ...before, RIDE_FIGURES: "off" };
+		try {
+			const { html } = await overview();
+			expect(html).not.toContain("sessions-cell");
+			expect(html).not.toContain('data-tab="sessions"');
+			expect(html).not.toContain('data-metric="sessions"');
+			expect(dataOf(html).sessions).toBe(false);
+			expect(tableOf(html)).not.toContain(
+				escapeHtml(de["organiser.overview.column.sessions"]),
+			);
+			const cookies = await sessionCookie(ctx, ORGANISER.id);
+			const rowsRead = async () => {
+				const { ctx: counted, counter } = countRows(ctx);
+				counter.reset();
+				await (
+					await handleFetch(request("/organiser/riders", { cookies }), counted)
+				).text();
+				return counter.read();
+			};
+			const off = await rowsRead();
+			ctx.env = before;
+			expect(off).toBeLessThan(await rowsRead());
+		} finally {
+			ctx.env = before;
+		}
+	});
+});

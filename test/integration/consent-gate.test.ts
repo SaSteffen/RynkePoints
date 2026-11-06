@@ -34,6 +34,7 @@ function withVersion2(extra: Partial<ConsentVersion> = {}): TestCtx {
 				published: "2026-11-01",
 				requiredScopes: ["read", "activity:read"],
 				changes: ["consent.team", "consent.organisers"],
+				revisions: [],
 				...extra,
 			},
 		],
@@ -108,6 +109,7 @@ const CONSENT_TEXTS = [
 	"landing.private",
 	"landing.purpose",
 	"consent.organisers",
+	"consent.rideFigures",
 	"consent.team",
 	"landing.leave",
 	"landing.backups",
@@ -371,5 +373,60 @@ describe("consent version 3 (organiser graphs FR-022, FR-023, FR-028)", () => {
 		const page = await (await handleFetch(request("/"), ctx)).text();
 		expect(page).toContain(`name="consent" value="3"`);
 		expect(page).toContain(escapeHtml(de["consent.dailyFigures"]));
+	});
+});
+
+describe("consent revision 3.1 (ride stats ranking FR-021)", () => {
+	const consentRecords = async () =>
+		(
+			await env.DB.prepare(
+				"SELECT version, revision FROM consent_records ORDER BY version",
+			).all()
+		).results;
+
+	it("doesn't ask a rider on version 3 again, though their record is revision 0", async () => {
+		const ctx = makeCtx();
+		await resetDb();
+		await seedRider(ctx, { consentVersion: 3 });
+		expect(await consentRecords()).toEqual([{ version: 3, revision: 0 }]);
+		const res = await handleFetch(
+			request("/team", { cookies: await sessionCookie(ctx, ATHLETE_A) }),
+			ctx,
+		);
+		const page = await res.text();
+		expect(page).not.toContain('action="/me/consent"');
+		expect(page).not.toContain(escapeHtml(de["me.consent.renew.heading"]));
+	});
+
+	it("names the ride figures to a version 2 rider, and records 3.1", async () => {
+		const ctx = makeCtx();
+		await resetDb();
+		await seedRider(ctx, { consentVersion: 2 });
+		const cookies = await sessionCookie(ctx, ATHLETE_A);
+		const page = await (
+			await handleFetch(request("/team", { cookies }), ctx)
+		).text();
+		expect(page).toContain(`<li>${escapeHtml(de["consent.rideFigures"])}</li>`);
+		// The form still posts the major version.
+		expect(page).toContain('value="3"');
+		await handleFetch(
+			request("/me/consent", {
+				form: { consent: "3", next: "/team" },
+				cookies,
+			}),
+			ctx,
+		);
+		expect(await consentRecords()).toEqual([
+			{ version: 2, revision: 0 },
+			{ version: 3, revision: 1 },
+		]);
+	});
+
+	it("shows a new rider the ride figures in the consent text", async () => {
+		const ctx = makeCtx();
+		await resetDb();
+		const page = await (await handleFetch(request("/"), ctx)).text();
+		expect(page).toContain(escapeHtml(de["consent.rideFigures"]));
+		expect(page).toContain(escapeHtml(de["consent.short.shown"]));
 	});
 });

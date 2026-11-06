@@ -10,6 +10,8 @@ import {
 	organiserProgressGraph,
 	privacyController,
 	readyPollSeconds,
+	rideFigures,
+	rynkeViews,
 	seasonStartEpoch,
 	subscriptionId,
 	trainingLeaderboard,
@@ -118,6 +120,28 @@ describe("trainingLeaderboard", () => {
 		expect(() =>
 			trainingLeaderboard({ TRAINING_LEADERBOARD: value }),
 		).toThrow();
+	});
+});
+
+describe("rideFigures", () => {
+	it("reads on and off", () => {
+		expect(rideFigures({ RIDE_FIGURES: "on" })).toBe(true);
+		expect(rideFigures({ RIDE_FIGURES: "off" })).toBe(false);
+	});
+
+	it.each(["", "true", "Off", "0"])("rejects %j", (value) => {
+		expect(() => rideFigures({ RIDE_FIGURES: value })).toThrow();
+	});
+});
+
+describe("rynkeViews", () => {
+	it("reads on and off", () => {
+		expect(rynkeViews({ RYNKE_VIEWS: "on" })).toBe(true);
+		expect(rynkeViews({ RYNKE_VIEWS: "off" })).toBe(false);
+	});
+
+	it.each(["", "true", "Off", "0"])("rejects %j", (value) => {
+		expect(() => rynkeViews({ RYNKE_VIEWS: value })).toThrow();
 	});
 });
 

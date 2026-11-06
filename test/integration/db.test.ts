@@ -445,6 +445,7 @@ describe("consent records", () => {
 		expect((await getRider(db, ATHLETE_A))?.scopeWrite).toBe(true);
 		expect(await getCurrentConsent(db, ATHLETE_A)).toEqual({
 			version: 1,
+			revision: 0,
 			acceptedAt: NOW,
 		});
 	});
@@ -454,6 +455,7 @@ describe("consent records", () => {
 		await recordConsent(db, ATHLETE_A, 1, NOW + 3600);
 		expect(await getCurrentConsent(db, ATHLETE_A)).toEqual({
 			version: 1,
+			revision: 0,
 			acceptedAt: NOW,
 		});
 	});
@@ -463,6 +465,7 @@ describe("consent records", () => {
 		await recordConsent(db, ATHLETE_A, 2, NOW + 3600);
 		expect(await getCurrentConsent(db, ATHLETE_A)).toEqual({
 			version: 2,
+			revision: 0,
 			acceptedAt: NOW + 3600,
 		});
 	});

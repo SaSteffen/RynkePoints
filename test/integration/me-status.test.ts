@@ -101,7 +101,7 @@ describe("GET /me for a connected rider", () => {
 		const { page } = await getSettings();
 		expect(page).toContain("<h2>Deine Zustimmung</h2>");
 		expect(page).toMatch(
-			/<p>Zugestimmt am 07\.10\.2026 \(Version\u00a03\)\.<\/p>\n<p>Wir lesen keine GPS-Spuren, .*<br>Wir lesen nur .*<\/p>\n<p>Das Team sieht deine Rynke ohne Namen, .*<\/p>\n<details class="more">.*\n<p>Von jeder Radfahrt lesen wir nur Namen, /,
+			/<p>Zugestimmt am 07\.10\.2026 \(Version\u00a03\)\.<\/p>\n<p>Wir lesen keine GPS-Spuren, .*<br>Wir lesen nur .*<\/p>\n<p>Das Team sieht deine Rynke und im Ranking .*<\/p>\n<details class="more">.*\n<p>Von jeder Radfahrt lesen wir nur Namen, /,
 		);
 		expect(page).not.toContain("noch keine Zustimmung");
 	});
@@ -256,6 +256,7 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 					published: "2026-11-01",
 					requiredScopes: ["read", "activity:read"],
 					changes: ["consent.team"],
+					revisions: [],
 				},
 			],
 		});

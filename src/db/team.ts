@@ -1,23 +1,30 @@
 import type { TeamBadgeSums } from "../badges/team";
 import { berlinDate } from "../config";
+import type { RideRider } from "../rynke/ride-figures";
 import {
 	attendedEvents,
 	type BadgeRider,
 	parseActive,
 	parseAttended,
 	parseDays,
+	parseRides,
 	parseRunDays,
 	parseWeeks,
+	type RideEntry,
 	type StoredEvents,
 	teamBadgeSumsOf,
 } from "../rynke/summary";
 import type { EventKind } from "../rynke/team-events";
 import type { DatedCorrection, RiderInputs } from "../rynke/weeks";
+import { SINCE_VERSION } from "../visibility";
+import { sharedRiderExists } from "./consents";
 import { LISTED_RIDER_IDS, listedRiderFilter } from "./organiser";
 import {
 	type AddedUpDays,
 	type AddedUpWeeks,
+	RIDE_SUMMARY_JOIN,
 	readDaysAddedUp,
+	readRidesAddedUp,
 	readWeeksAddedUp,
 	TEAM_SUMMARY_JOIN,
 } from "./rider-summaries";
@@ -92,7 +99,72 @@ type TeamRiderRow = BalanceRow & {
  * null without a balance, so the rider's own comes as `rider_id`.
  */
 export async function readTeam(db: D1Database): Promise<TeamRider[]> {
-	const [riderRows, eventRows] = await db.batch([
+	return (await readTeamWith(db, false)).team;
+}
+
+/**
+ * `readTeam` and the ride figures' riders in the same batch (feature 032):
+ * no round trip more, unless a rider has no row with rides yet.
+ */
+export async function readTeamAndRides(
+	db: D1Database,
+): Promise<{ team: TeamRider[]; rides: RideRider[] }> {
+	return readTeamWith(db, true) as Promise<{
+		team: TeamRider[];
+		rides: RideRider[];
+	}>;
+}
+
+/**
+ * The riders of the ride figures (feature 032 research R4): the listed riders
+ * whose consent reaches `since`, checked inside SQL, so a rider below it is in
+ * no row, total, median or bar (FR-020). Their stored rides, or null without a
+ * row that holds them. `since` comes from `SINCE_VERSION`, never request input.
+ */
+export function rideRidersStatement(db: D1Database, since: number) {
+	return db.prepare(
+		`SELECT r.athlete_id, rs.rides
+		FROM riders r
+		${RIDE_SUMMARY_JOIN}
+		WHERE ${listedRiderFilter("r")}
+			AND ${sharedRiderExists("r", since)}
+		ORDER BY r.athlete_id`,
+	);
+}
+
+/** The rows of `rideRidersStatement`, adding up riders without stored rides. */
+export async function toRideRiders(
+	db: D1Database,
+	result: D1Result,
+	since: number,
+): Promise<RideRider[]> {
+	const rows = result.results as { athlete_id: number; rides: string | null }[];
+	const missing = rows.filter((r) => r.rides === null).map((r) => r.athlete_id);
+	const addedUp =
+		missing.length > 0
+			? await readRidesAddedUp(db, missing, since)
+			: new Map<number, RideEntry[]>();
+	return rows.map((row) => ({
+		athleteId: row.athlete_id,
+		rides: addedUp.get(row.athlete_id) ?? parseRides(row.rides ?? "[]"),
+	}));
+}
+
+const teamRidesStatement = (db: D1Database) =>
+	rideRidersStatement(db, SINCE_VERSION.rideFigures);
+const toTeamRides = (db: D1Database, result: D1Result) =>
+	toRideRiders(db, result, SINCE_VERSION.rideFigures);
+
+/** The ride figures' riders alone, for a team without Rynke views. */
+export async function readTeamRides(db: D1Database): Promise<RideRider[]> {
+	return toTeamRides(db, await teamRidesStatement(db).all());
+}
+
+async function readTeamWith(
+	db: D1Database,
+	withRides: boolean,
+): Promise<{ team: TeamRider[]; rides: RideRider[] | null }> {
+	const [riderRows, eventRows, rideRows] = await db.batch([
 		db.prepare(
 			`SELECT b.*, r.athlete_id AS rider_id, r.first_name, s.weeks, s.attended,
 				${CORRECTIONS_OF_RIDER} AS corrections
@@ -103,18 +175,21 @@ export async function readTeam(db: D1Database): Promise<TeamRider[]> {
 			ORDER BY r.first_name COLLATE NOCASE, r.athlete_id`,
 		),
 		teamEventsStatement(db),
+		...(withRides ? [teamRidesStatement(db)] : []),
 	]);
-	if (!riderRows || !eventRows) {
+	if (!riderRows || !eventRows || (withRides && !rideRows)) {
 		throw new Error("D1 batch returned too few results");
 	}
 	const rows = riderRows.results as TeamRiderRow[];
 	const events = toEvents(eventRows);
 	const missing = rows.filter((r) => r.weeks === null).map((r) => r.rider_id);
-	const addedUp =
+	const [addedUp, rides] = await Promise.all([
 		missing.length > 0
-			? await readWeeksAddedUp(db, missing)
-			: new Map<number, AddedUpWeeks>();
-	return rows.map((row) => {
+			? readWeeksAddedUp(db, missing)
+			: new Map<number, AddedUpWeeks>(),
+		rideRows ? toTeamRides(db, rideRows) : null,
+	]);
+	const team = rows.map((row) => {
 		const own = addedUp.get(row.rider_id);
 		return {
 			athleteId: row.rider_id,
@@ -134,6 +209,7 @@ export async function readTeam(db: D1Database): Promise<TeamRider[]> {
 			corrections: parseCorrections(row.corrections),
 		};
 	});
+	return { team, rides };
 }
 
 /** One row per listed rider; the summary's columns are null without one. */

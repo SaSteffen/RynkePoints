@@ -86,6 +86,13 @@ describe("D1 round trips per page (#184, #185)", () => {
 		expect(counter.trips()).toBe(2);
 	});
 
+	it("serves /team by a ride figure in as many as by Rynke (ride stats SC-006)", async () => {
+		await seedReadyRider();
+		await tripsOf("/team");
+		const rynke = await tripsOf("/team");
+		expect(await tripsOf("/team?by=km&period=week")).toBe(rynke);
+	});
+
 	it("serves /organiser/riders with graphs in as many as without", async () => {
 		await seedReadyRider({ organiser: true });
 		const withGraphs = await tripsOf("/organiser/riders");

@@ -14,6 +14,8 @@ type Settings = Pick<
 	| "STRAVA_WEBHOOK_VERIFY_TOKEN"
 	| "READY_POLL_SECONDS"
 	| "TRAINING_LEADERBOARD"
+	| "RIDE_FIGURES"
+	| "RYNKE_VIEWS"
 	| "PRIVACY_CONTROLLER"
 	| "CONTACT_EMAIL"
 	| "TEAM_ID"
@@ -75,6 +77,28 @@ export function trainingLeaderboard(
 	if (env.TRAINING_LEADERBOARD === "on") return true;
 	if (env.TRAINING_LEADERBOARD === "off") return false;
 	throw new Error('TRAINING_LEADERBOARD must be "on" or "off"');
+}
+
+/**
+ * Whether the team ranks riders by ride figures (feature 032): "Rank by" on
+ * `/team`, and the Sessions column and graph for organisers. "off" reads and
+ * shows nothing of it.
+ */
+export function rideFigures(env: Pick<Settings, "RIDE_FIGURES">): boolean {
+	if (env.RIDE_FIGURES === "on") return true;
+	if (env.RIDE_FIGURES === "off") return false;
+	throw new Error('RIDE_FIGURES must be "on" or "off"');
+}
+
+/**
+ * Whether `/team` shows Rynke (feature 032 FR-012). "off" gives the single
+ * view: the team's ride figures, the km chart and the ride ranking, with no
+ * kind switch, Rynke cards, peloton or quote.
+ */
+export function rynkeViews(env: Pick<Settings, "RYNKE_VIEWS">): boolean {
+	if (env.RYNKE_VIEWS === "on") return true;
+	if (env.RYNKE_VIEWS === "off") return false;
+	throw new Error('RYNKE_VIEWS must be "on" or "off"');
 }
 
 /**

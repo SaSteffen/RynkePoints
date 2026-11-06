@@ -1189,7 +1189,8 @@ function riderWrites(
 		stored.active !== summary.active ||
 		stored.attended !== summary.attended ||
 		stored.virtual_days !== summary.virtualDays ||
-		stored.own_days !== summary.ownDays
+		stored.own_days !== summary.ownDays ||
+		stored.rides !== summary.rides
 	) {
 		writes.push(upsertSummaryStatement(db, athleteId, summary));
 	}

@@ -1,7 +1,7 @@
 import { decryptToken, encryptToken } from "../crypto/encrypt";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
 import {
-	type Consent,
+	type GivenConsent,
 	recordConsentStatement,
 	SHARED_RIDER_IDS,
 } from "./consents";
@@ -119,7 +119,7 @@ export async function getRider(
 export async function insertRider(
 	db: D1Database,
 	rider: RiderGrant & { athleteId: number },
-	consent: Consent,
+	consent: GivenConsent,
 ): Promise<void> {
 	await db.batch([
 		db
@@ -144,6 +144,7 @@ export async function insertRider(
 			rider.athleteId,
 			consent.version,
 			consent.acceptedAt,
+			consent.revision,
 		),
 		insertEmptySummaryStatement(db, rider.athleteId),
 	]);

@@ -426,12 +426,26 @@ describe("GET /auth/callback consent and write access", () => {
 		]);
 	});
 
+	it("records revision 3.1 for a returning rider renewing through Strava", async () => {
+		await seedExistingRider({ consentVersion: 2 });
+		await approve(ctx, fake, ATHLETE_A, SCOPES_ALL, {}, { consentVersion: 3 });
+		const { results } = await env.DB.prepare(
+			"SELECT version, revision FROM consent_records ORDER BY version",
+		).all();
+		expect(results).toEqual([
+			{ version: 2, revision: 0 },
+			{ version: 3, revision: 1 },
+		]);
+	});
+
 	it("connects a new member who unticked write access", async () => {
 		const res = await approve(ctx, fake, ATHLETE_A, SCOPES_NO_WRITE);
 		expect(res.headers.get("Location")).toBe("/me");
 		expect((await getRider(env.DB, ATHLETE_A))?.scopeWrite).toBe(false);
 		expect(await getCurrentConsent(env.DB, ATHLETE_A)).toEqual({
 			version: CONSENT_VERSION,
+			// Ride stats ranking: new acceptances record revision 3.1.
+			revision: 1,
 			acceptedAt: NOW,
 		});
 	});
@@ -535,6 +549,7 @@ describe("GET /auth/callback for a new version that needs a scope (004 US4 scena
 					published: "2026-11-01",
 					requiredScopes: ["read", "activity:read", "activity:write"],
 					changes: ["consent.short.read"],
+					revisions: [],
 				},
 			],
 		});

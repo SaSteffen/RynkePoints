@@ -131,6 +131,12 @@ const ORDINARY_NAMES = [
 	"Yann",
 ];
 
+/** How many short trips an ordinary rider has (feature 032). */
+function shortTrips(firstName: string, n: number): number {
+	if (firstName === "Kira") return 30;
+	return n % 4 === 1 ? 3 : 0;
+}
+
 /**
  * About 25 riders with ordinary seasons, so crowded graphs and long lists can be
  * judged locally (feature 029 research R11): their rhythm, virtual share and
@@ -153,19 +159,27 @@ function ordinaryRiders(): SampleRider[] {
 			clubMember: true,
 			behaviour: "normal",
 			...(held ? { consentVersion: 2 } : {}),
-			rides: rides(24 + (n % 12), (i) => {
-				const km = 18 + ((n * 7 + i * 13) % 60);
-				const daysAgo = stoppedDaysAgo + i * gap;
-				const virtual = i % virtualEvery === 1;
-				return ride(
-					daysAgo,
-					i % 2 === 0 ? "07:30" : "17:45",
-					km,
-					Math.round(km * (4 + (n % 9)) * (virtual ? 0.5 : 1)),
-					24 + (n % 5),
-					virtual ? { sportType: "VirtualRide", trainer: true } : {},
-				);
-			}),
+			rides: [
+				...rides(24 + (n % 12), (i) => {
+					const km = 18 + ((n * 7 + i * 13) % 60);
+					const daysAgo = stoppedDaysAgo + i * gap;
+					const virtual = i % virtualEvery === 1;
+					return ride(
+						daysAgo,
+						i % 2 === 0 ? "07:30" : "17:45",
+						km,
+						Math.round(km * (4 + (n % 9)) * (virtual ? 0.5 : 1)),
+						24 + (n % 5),
+						virtual ? { sportType: "VirtualRide", trainer: true } : {},
+					);
+				}),
+				// Short trips of 5 to 8 km at midday, so the typical ride shows a
+				// difference (feature 032 research R9): a few for every fourth
+				// rider, and many for Kira, who collects them.
+				...rides(shortTrips(firstName, n), (i) =>
+					ride(stoppedDaysAgo + i * 3, "12:15", 5 + ((n + i) % 4), 20, 18),
+				),
+			],
 		};
 	});
 }

@@ -45,12 +45,14 @@ export const de = {
 	"consent.short.read":
 		"Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.",
 	"consent.short.shown":
-		"Das Team sieht deine Rynke ohne Namen, die Orga mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.",
+		"Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.",
 	"consent.details": "Alle Details",
 	"consent.organisers":
 		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen und bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst.",
 	"consent.dailyFigures":
 		"Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.",
+	"consent.rideFigures":
+		"Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.",
 	"consent.team":
 		"Alle anderen im Team sehen deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter zählen ohne Namen zu den Team-Summen der Team-Abzeichen. An welchen Tagen und zu welcher Stunde du fährst, läufst oder schwimmst, zählt ohne Namen für die Team-Überraschungen.",
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
@@ -500,6 +502,45 @@ export const de = {
 	"team.chart.total": "Gesamt",
 	"team.chart.gain": "Plus",
 
+	// Feature 032: the ride figures on /team (contracts/messages.md).
+	"team.rankBy.label": "Rangliste nach",
+	"team.rankBy.rynke": "Rynke",
+	"team.rankBy.sessions": "Fahrten",
+	"team.rankBy.km": "km",
+	"team.rankBy.elevation": "Höhenmeter",
+	"team.period.label": "Zeitraum",
+	"team.period.season": "Saison",
+	"team.period.month": "Monat",
+	"team.period.week": "Woche",
+	"team.ride.hint": "Ohne Namen. Es zählen dieselben Fahrten wie für Rynke.",
+	"team.ride.session": "{n}\u00a0Fahrt",
+	"team.ride.sessions": "{n}\u00a0Fahrten",
+	"team.ride.km": "{n}\u00a0km",
+	"team.ride.elevation": "{n}\u00a0Hm",
+	"team.ride.by.sessions": "nach Fahrten",
+	"team.ride.by.km": "nach Kilometern",
+	"team.ride.by.elevation": "nach Höhenmetern",
+	"team.ride.place.by": "{figure}, {period}",
+	"team.ride.place.next": "Noch {n} bis zum nächsten Platz",
+	"team.ride.place.lead": "Du liegst vorn.",
+	"team.ride.yours": "Deine Zahlen, {period}: {sessions} · {km} · {elevation}",
+	"team.ride.typical": "Typische Fahrt: {n}",
+	"team.ride.typical.hint":
+		"Die Hälfte der Fahrten ist länger, die Hälfte kürzer.",
+	"team.ride.row.typical": "typisch {n}",
+	"team.ride.teamLine":
+		"Das Team, {period}: {km} · {sessions} · {elevation} · typische Fahrt {typical}",
+	"team.ride.nobodyYet": "In diesem Zeitraum ist noch niemand gefahren.",
+	"team.ride.bar": "{value} von {lead} an der Spitze",
+	"team.ride.total.heading": "Die Kilometer des Teams",
+	"team.ride.total.kind": "gemeinsam gefahren",
+	"team.ride.total.thisWeek": "+{n}\u00a0km diese Woche 🔥",
+	"team.ride.chart.heading": "Kilometer Woche für Woche",
+	"team.ride.chart.hint":
+		"Die Balken zeigen die Kilometer des Teams in jeder Woche, die Linie alles zusammengezählt.",
+	"team.ride.chart.label":
+		"Kilometer des Teams pro Woche und zusammengezählt, {weeks} Wochen, jetzt {total}",
+
 	// Feature 016: the organiser overview (contracts/messages.md "Organiser overview").
 	"organiser.overview.heading": "Teamübersicht",
 	"organiser.overview.deadline": "Stichtag · {date}",
@@ -556,6 +597,14 @@ export const de = {
 	"organiser.overview.column.corrections": "Korrekturen",
 	"organiser.overview.column.rynke": "Rynke",
 	"organiser.overview.column.virtual": "Virtuell",
+	"organiser.overview.column.sessions": "Fahrten",
+	"organiser.overview.column.typical": "typisch",
+	"organiser.overview.column.typical.hint":
+		"Typische Fahrt: die Hälfte der Fahrten ist länger, die Hälfte kürzer",
+	"organiser.overview.typical": "typisch {n}\u00a0km",
+	"organiser.overview.sessions": "Fahrten {n}",
+	"organiser.overview.sessions.typical":
+		"Fahrten {n}, typisch {typical}\u00a0km",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
 	// names aren't here: they are German in every language (badges.de.ts).
@@ -774,6 +823,8 @@ export const de = {
 		"Die Organisatoren tragen ein, an welchen Teamterminen du teilgenommen hast, und können deine Rynke mit Grund und Datum korrigieren. Du kannst selbst melden, bei welchen Teamterminen du dabei bist oder warst; die Organisatoren sehen das und entscheiden, ob sie dich eintragen. Gespeichert wird auch, wer das wann geändert hat.",
 	"privacy.team.derived":
 		"Aus all dem berechnet RynkePoints deine Rynke, deine Abzeichen und welche Fahrten warum zählen.",
+	"privacy.team.rideFigures":
+		"Aus deinen gewerteten Fahrten zählt RynkePoints Fahrten, Kilometer und Höhenmeter pro Saison, Monat und Woche für das Ranking ohne Namen, und deine typische Fahrt, die nur du und die Orga sehen. Die Orga sieht deine Fahrten pro Saison und Tag mit deinem Vornamen.",
 	"privacy.technical.heading": "Technisch nötige Daten",
 	"privacy.technical.cookies":
 		"Cookies: „rp_session“ hält dich angemeldet, bis 180 Tage nach deinem letzten Besuch; „rp_oauth_state“ schützt die Anmeldung bei Strava für 10 Minuten; „rp_lang“ merkt sich eine gewählte Sprache für ein Jahr. Andere Cookies und Tracker gibt es nicht.",
@@ -1050,10 +1101,12 @@ export const de = {
 	"organiser.graphs.title.outdoor": "Kilometer draußen (km)",
 	"organiser.graphs.title.virtual": "Kilometer virtuell (km)",
 	"organiser.graphs.title.elevation": "Höhenmeter (m)",
+	"organiser.graphs.title.sessions": "Fahrten",
 	"organiser.graphs.tabs.label": "Diagramm",
 	"organiser.graphs.tab.outdoor": "Draußen",
 	"organiser.graphs.tab.virtual": "Virtuell",
 	"organiser.graphs.tab.elevation": "Höhenmeter",
+	"organiser.graphs.tab.sessions": "Fahrten",
 	"organiser.graphs.picker.label": "In den Diagrammen",
 	"organiser.graphs.picker.find": "Rider finden",
 	"organiser.graphs.picker.clear": "Alle abwählen",
@@ -1089,6 +1142,7 @@ export const de = {
 		"Die Rider werden noch um Zustimmung gebeten. Noch keine Linien.",
 	"organiser.graphs.value.km": "{n} km",
 	"organiser.graphs.value.m": "{n} m",
+	"organiser.graphs.value.sessions": "{n} Fahrten",
 	"organiser.graphs.readout.range": "{from} – {to}, gesamt",
 	"organiser.graphs.aria": "{title} vom {from} bis {to}: {lines}",
 	"organiser.graphs.view.label": "Was angezeigt wird",

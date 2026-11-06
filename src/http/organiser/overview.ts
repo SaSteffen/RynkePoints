@@ -3,6 +3,7 @@ import {
 	type OrganiserFigures,
 	organiserFigures,
 	organiserProgressGraph,
+	rideFigures,
 } from "../../config";
 import type { Ctx } from "../../ctx";
 import { withProfileLinks } from "../../db/organiser";
@@ -14,18 +15,26 @@ import {
 	listOpenRequestsStatement,
 	type OpenRequestRow,
 } from "../../db/participation";
-import { readTeam, type TeamRider } from "../../db/team";
+import {
+	readTeam,
+	rideRidersStatement,
+	type TeamRider,
+	toRideRiders,
+} from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
 import { evenPace, type RiderStatus, riderStatus } from "../../rynke/pace";
+import { figuresOf, shownKm } from "../../rynke/ride-figures";
 import {
 	type CountingWindow,
 	CURRENT_RULES,
 	countingWindow,
 	type RynkeRules,
 } from "../../rynke/rules";
+import type { RideEntry } from "../../rynke/summary";
 import { virtualShareRequired } from "../../rynke/tally";
 import type { TeamEventSum } from "../../rynke/team-events";
 import { dayNumber } from "../../rynke/weeks";
+import { SINCE_VERSION } from "../../visibility";
 import { thresholdBars } from "../charts";
 import { coinArt, miniCoin } from "../coin";
 import { FUN_BURSTS, FUN_SPARKLES } from "../fun";
@@ -48,6 +57,24 @@ import { decisionNotice, riderRequestLines } from "./requests";
 export type Group = RiderStatus | "all" | "requests";
 
 const GROUPS: readonly Group[] = ["requests", "push", "on_track", "in", "all"];
+
+/**
+ * Each rider's counting rides where their consent shares sessions by name
+ * (feature 032); a rider missing from it shows "–". Null with the ride
+ * figures off.
+ */
+export type RiderRides = ReadonlyMap<number, readonly RideEntry[]> | null;
+
+/** A rider's season sessions and typical ride, or null below version 3. */
+function seasonSessions(
+	rides: RiderRides,
+	athleteId: number,
+	window: CountingWindow,
+): { sessions: number; typicalM: number | null } | null {
+	const own = rides?.get(athleteId);
+	if (!own) return null;
+	return figuresOf(own, { from: window.seasonStart, to: window.deadline });
+}
 
 /** Each listed rider's open requests, newest event first (019 FR-034). */
 export type RiderRequests = ReadonlyMap<number, readonly OpenRequestRow[]>;
@@ -412,6 +439,7 @@ function fullBody(
 	rider: OverviewRider,
 	passed: boolean,
 	lines: SafeHtml | null,
+	sessions: ReturnType<typeof seasonSessions> = null,
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const { breakdown } = rider;
@@ -440,6 +468,19 @@ function fullBody(
 		}),
 		i18n.t("organiser.overview.virtual", { n: whole(breakdown.virtualShare) }),
 	];
+	const rides =
+		sessions === null
+			? null
+			: sessions.typicalM === null
+				? i18n.t("organiser.overview.sessions", {
+						n: whole(sessions.sessions),
+					})
+				: i18n.t("organiser.overview.sessions.typical", {
+						n: whole(sessions.sessions),
+						typical: i18n.formatNumber(shownKm(sessions.typicalM), {
+							fractionDigits: 1,
+						}),
+					});
 	const missing = missingItems(i18n, rider);
 	return html`<div class="rider-head"><h3>${nameLinks(i18n, rider)}</h3>${statusChip(i18n, rider, passed)}</div>
 <div class="rider-bars">
@@ -447,6 +488,11 @@ function fullBody(
 <div class="amount amount-team"><p>${miniCoin("team")}${i18n.t("organiser.overview.team", { n: whole(rider.team), threshold: whole(rules.teamThreshold) })}</p>${thresholdBars(rider.team, rules.teamThreshold, rider.pace?.team ?? null)}</div>
 </div>
 ${
+	rides === null
+		? null
+		: html`<p class="rider-sessions">${rides}</p>
+`
+}${
 	missing.length > 0
 		? html`<ul class="rider-missing">${missing.map((m) => html`<li${m.behind ? html` class="behind"` : null}>${m.text}</li>`)}</ul>
 `
@@ -487,10 +533,11 @@ function renderRow(
 	percent: boolean,
 	hidden: boolean,
 	open: boolean,
+	sessions: ReturnType<typeof seasonSessions> = null,
 ): SafeHtml {
 	return html`<li class="rider-row status-${rider.status}" data-name="${rider.firstName.toLowerCase()}"${hidden ? html` hidden` : null}>
 <details${open ? html` open` : null}><summary class="rider-row-line"><span class="rider-dot" aria-hidden="true"></span><span class="rider-row-name"><span class="rider-name">${rider.firstName}</span><span class="visually-hidden">, ${groupLabel(i18n, rider.status, passed)}</span></span>${lines ? html`<span class="rider-row-report">${i18n.t("organiser.graphs.rows.report")}</span>` : null}${miniBar(i18n, "training", rider, rules, percent)}${miniBar(i18n, "team", rider, rules, percent)}</summary>
-<div class="rider-row-body">${(percent ? percentBody : fullBody)(i18n, rules, rider, passed, lines)}</div>
+<div class="rider-row-body">${percent ? percentBody(i18n, rules, rider, passed, lines) : fullBody(i18n, rules, rider, passed, lines, sessions)}</div>
 </details>
 </li>
 `;
@@ -509,6 +556,7 @@ function renderRows(
 	requests: RiderRequests,
 	lines: (rider: OverviewRider) => SafeHtml | null,
 	percent: boolean,
+	sessionsOf: (rider: OverviewRider) => ReturnType<typeof seasonSessions>,
 ): SafeHtml {
 	const ordered = [
 		...riders.filter((r) => hasRequests(r, requests)),
@@ -522,7 +570,7 @@ function renderRows(
 <p class="rider-search-none" data-rider-none hidden></p>
 <template data-rider-none-text>${i18n.tHtml("organiser.graphs.rows.noMatch", { query: html`<span data-slot="query"></span>` })}</template>
 <ul class="rider-rows${group === null ? " default" : ""}">
-${ordered.map((r) => renderRow(i18n, rules, r, passed, lines(r), percent, !inView(r), open))}</ul>
+${ordered.map((r) => renderRow(i18n, rules, r, passed, lines(r), percent, !inView(r), open, sessionsOf(r)))}</ul>
 `;
 }
 
@@ -580,12 +628,28 @@ function coinPair(i18n: I18n, training: number, team: number): SafeHtml {
 	return html`<td class="number"><span class="coin-pair" aria-hidden="true"><span>${miniCoin("training")}${whole(training)}</span><span>${miniCoin("team")}${whole(team)}</span></span><span class="visually-hidden">${amounts(i18n, training, team)}</span></td>`;
 }
 
+/** The Sessions cell: the season count and typical ride, "–" below 3. */
+function sessionsCell(
+	i18n: I18n,
+	sessions: ReturnType<typeof seasonSessions>,
+): SafeHtml {
+	if (sessions === null) return html`<td class="number">–</td>`;
+	const typical =
+		sessions.typicalM === null
+			? null
+			: html`<small class="typical">${i18n.t("organiser.overview.typical", { n: i18n.formatNumber(shownKm(sessions.typicalM), { fractionDigits: 1 }) })}</small>`;
+	return html`<td class="number sessions-cell"><span>${i18n.formatNumber(sessions.sessions, { fractionDigits: 0 })}</span>${typical}</td>`;
+}
+
 function renderTable(
 	i18n: I18n,
 	rules: RynkeRules,
 	riders: readonly OverviewRider[],
 	passed: boolean,
 	lines: (rider: OverviewRider) => SafeHtml | null,
+	sessionsOf:
+		| ((rider: OverviewRider) => ReturnType<typeof seasonSessions>)
+		| null,
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const column = (
@@ -624,7 +688,7 @@ function renderTable(
 <td>${statusChip(i18n, rider, passed)}</td>
 <td class="bar-cell">${training}${team}</td>
 <td class="number">${i18n.t("organiser.overview.percent", { n: whole(rider.breakdown.virtualShare) })}</td>
-<td class="number">${whole(rider.breakdown.distanceRynke)}</td>
+${sessionsOf ? sessionsCell(i18n, sessionsOf(rider)) : null}<td class="number">${whole(rider.breakdown.distanceRynke)}</td>
 <td class="number">${whole(rider.breakdown.elevationRynke)}</td>
 ${coinPair(i18n, rider.breakdown.corrections.training, rider.breakdown.corrections.team)}
 <td class="requests-cell">${lines(rider)}</td>
@@ -632,7 +696,11 @@ ${coinPair(i18n, rider.breakdown.corrections.training, rider.breakdown.correctio
 `;
 	});
 	return html`<div class="table-scroll" tabindex="0" role="region" aria-label="${i18n.t("organiser.overview.column.name")}"><table class="rider-table">
-<thead><tr>${column("name")}${column("group")}${column("rynke")}${column("virtual", true)}${column("distance", true)}${column("elevation", true)}${column("corrections", true)}${column("requests")}</tr></thead>
+<thead><tr>${column("name")}${column("group")}${column("rynke")}${column("virtual", true)}${
+		sessionsOf
+			? html`<th scope="col" class="number" title="${i18n.t("organiser.overview.column.typical.hint")}">${i18n.t("organiser.overview.column.sessions")}<span class="th-sub">${i18n.t("organiser.overview.column.typical")}</span></th>`
+			: null
+	}${column("distance", true)}${column("elevation", true)}${column("corrections", true)}${column("requests")}</tr></thead>
 <tbody>
 ${rows}</tbody>
 </table></div>
@@ -743,8 +811,14 @@ export function overviewBody(
 	figures: OrganiserFigures = "full",
 	graphs: SafeHtml | null = null,
 	view: "graphs" | "riders" = "riders",
+	rides: RiderRides = null,
 ): SafeHtml {
 	const passed = today > window.deadline;
+	const sessionsOf =
+		rides === null || figures === "percent"
+			? null
+			: (rider: OverviewRider) =>
+					seasonSessions(rides, rider.athleteId, window);
 	const riders = overviewRiders(read, rules, window, today);
 	// Riders with open requests first (019 FR-034), the order otherwise kept.
 	const shown =
@@ -767,7 +841,7 @@ export function overviewBody(
 			? html`<p>${i18n.t("organiser.overview.none")}</p>
 `
 			: html`${renderReports(i18n, riders, requests, back)}${hasGraphs ? renderViewSwitch(i18n, shown.length, view) : null}<div class="overview-list">
-${pace ? renderHint(i18n, rules, pace, figures, whole) : null}${renderRows(i18n, rules, riders, group, passed, requests, lines, percent)}${(percent ? renderPercentTable : renderTable)(i18n, rules, shown, passed, lines)}</div>
+${pace ? renderHint(i18n, rules, pace, figures, whole) : null}${renderRows(i18n, rules, riders, group, passed, requests, lines, percent, sessionsOf ?? (() => null))}${percent ? renderPercentTable(i18n, rules, shown, passed, lines) : renderTable(i18n, rules, shown, passed, lines, sessionsOf)}</div>
 ${hasGraphs ? graphs : null}<div class="overview-qualified">${renderQualified(i18n, riders)}</div>
 `;
 	return html`<div class="team-overview"${hasGraphs ? html` data-view="${view}"` : null}${inert ? html` inert` : null}>
@@ -854,14 +928,34 @@ export function handleOrganiserOverview(
 			return html`${organiserSwitch(i18n, "riders", team.requests.length)}${renderExampleNote(i18n, "tour.organiser.example")}${overviewBody(team.riders, CURRENT_RULES, window, today, null, i18n, byRider(team.requests), true, figures)}`;
 		}
 		const graphsOn = figures === "full" && organiserProgressGraph(ctx.env);
+		// Sessions by name only with amounts shown (032 research R8).
+		const ridesOn = figures === "full" && rideFigures(ctx.env);
 		const statements: D1PreparedStatement[] = [
 			listOpenRequestsStatement(ctx.env.DB, today, window),
 		];
+		if (ridesOn) {
+			statements.push(
+				rideRidersStatement(ctx.env.DB, SINCE_VERSION.rideFiguresByName),
+			);
+		}
 		if (graphsOn) statements.push(organiserGraphsStatement(ctx.env.DB));
-		const [read, [openRows, graphRows]] = await Promise.all([
+		const [read, [openRows, ...rest]] = await Promise.all([
 			readTeam(ctx.env.DB),
 			ctx.env.DB.batch(statements),
 		]);
+		const rideRows = ridesOn ? rest[0] : undefined;
+		const graphRows = graphsOn ? rest[ridesOn ? 1 : 0] : undefined;
+		const rides: RiderRides = rideRows
+			? new Map(
+					(
+						await toRideRiders(
+							ctx.env.DB,
+							rideRows,
+							SINCE_VERSION.rideFiguresByName,
+						)
+					).map((r) => [r.athleteId, r.rides]),
+				)
+			: null;
 		const results = (openRows?.results ?? []) as OpenRequestRow[];
 		const requests = byRider(results);
 		const graphs =
@@ -875,13 +969,14 @@ export function handleOrganiserOverview(
 							window,
 							today,
 							group,
+							rides,
 						}),
 					)
 				: null;
 		const notice = await decisionNotice(url, ctx, i18n, path);
 		const view =
 			url.searchParams.get("view") === "graphs" ? "graphs" : "riders";
-		const body = html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, requests, false, figures, graphs, view)}`;
+		const body = html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, requests, false, figures, graphs, view, rides)}`;
 		return graphs ? { body, scripts: CHART_SCRIPTS } : body;
 	});
 }
