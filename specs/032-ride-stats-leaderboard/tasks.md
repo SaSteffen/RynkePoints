@@ -136,10 +136,10 @@ description: "Tasks for the ride stats leaderboard"
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T043 [P] Give the synthetic samples in `dev/fake-strava/samples.ts` a few short trips of about 5 to 8 km and one rider with many of them, keeping the riders held back below version 3 (research R9); no real rider data
-- [ ] T044 Write `e2e/ride-stats.e2e.ts`: on a phone and a wide screen, sign in as a sample rider, pick km, then Week, then Sessions, and check places and the place card follow in place without a reload; as the sample organiser, open Orga › Riders and check the Sessions tab draws; run it targeted with `pnpm exec playwright test e2e/ride-stats.e2e.ts`
-- [ ] T045 Fix existing tests that pin `RIDER_SUMMARY_VERSION`, the `consent_records` columns or the `/team` markup, only where this feature is the cause (plan.md Risks)
-- [ ] T046 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; leave the full `pnpm test:e2e` to CI
+- [X] T043 [P] Give the synthetic samples in `dev/fake-strava/samples.ts` a few short trips of about 5 to 8 km and one rider with many of them, keeping the riders held back below version 3 (research R9); no real rider data
+- [X] T044 Write `e2e/ride-stats.e2e.ts`: on a phone and a wide screen, sign in as a sample rider, pick km, then Week, then Sessions, and check places and the place card follow in place without a reload; as the sample organiser, open Orga › Riders and check the Sessions tab draws; run it targeted with `pnpm exec playwright test e2e/ride-stats.e2e.ts`
+- [X] T045 Fix existing tests that pin `RIDER_SUMMARY_VERSION`, the `consent_records` columns or the `/team` markup, only where this feature is the cause (plan.md Risks)
+- [X] T046 Run `pnpm lint`, `pnpm typecheck` and `pnpm test`; leave the full `pnpm test:e2e` to CI
 
 ---
 
