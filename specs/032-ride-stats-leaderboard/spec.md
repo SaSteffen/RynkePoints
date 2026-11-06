@@ -48,17 +48,14 @@ ones side by side for riders, organisers and a team without Rynke.
 - Q: Typical ride? → A: The median length of a rider's counting rides in the period:
   half of the rides are longer, half are shorter. A few short trips barely move it;
   many short trips pull it down. It is a figure to read, never a figure to rank by.
-
-## Open points
-
-- **Consent version.** Principle I requires a new consent version when something is
-  newly shown to someone other than the rider. This feature shows ride figures to
-  other riders without names (FR-019) and sessions per rider and day to organisers
-  (FR-016). The project owner prefers not to ask riders again for small changes and
-  may decide otherwise; that decision would amend Principle I, not just this spec.
-  FR-021 drafts what the constitution requires today. A team that switches the
-  feature on before its first rider connects (expected for Team Rynkeby Europe)
-  needs no second ask: its first consent version already covers the feature.
+- Q: When a team switches the feature on after riders have already consented, are
+  they asked again? → A: No. The data read from Strava doesn't change; only figures
+  made from it are newly shown. That is a minor consent revision (for example 3 →
+  3.1): the consent text names the feature, but riders who accepted the version
+  before are not asked again. Riders are asked again only on a major change. This
+  needs an amendment of Principle I (FR-021).
+- Q: Which teams get the feature? → A: Both, the founding team as well as Team
+  Rynkeby Europe (FR-018). It stays team data.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -148,8 +145,12 @@ riders' counting rides.
 1. **Given** consenting riders, **When** anyone looks, **Then** each team total is
    the sum of the rows, and the team's typical ride is the median of all their
    counting rides in the period.
-2. **Given** a rider without a consent covering the feature (FR-021), **When** anyone
-   else looks, **Then** their rides are in no total, typical ride, bar, row or count.
+2. **Given** a rider with no current consent (for example one who still has to
+   renew after a major change, FR-020), **When** anyone else looks, **Then** their
+   rides are in no total, typical ride, bar, row or count.
+3. **Given** a team switches the feature on while its riders have accepted the
+   previous consent version, **When** they next sign in, **Then** nobody is asked
+   again and every one of them is in the ranking at once.
 
 ---
 
@@ -157,8 +158,8 @@ riders' counting rides.
 
 A maintainer turns the ride figures on or off for a team as team data.
 
-**Why this priority**: The second team wants it; the founding team must see nothing
-change until it decides to have it (feature 026 FR-020).
+**Why this priority**: Both teams get the feature, but it stays team data, so a
+further team can decide for itself and pages stay unchanged where it is off.
 
 **Independent Test**: Run the app with the feature on and off, and with the Rynke
 views on and off, and check pages, menus and texts.
@@ -227,7 +228,7 @@ views on and off, and check pages, menus and texts.
   month and current week, season by default. No period shorter than a week is
   offered per rider. The choices MAY be remembered on the device.
 - **FR-008**: With a ride figure picked, the list MUST rank every rider of the team
-  with a consent covering the feature (FR-021), including riders with zeros, highest
+  with a current consent (FR-020), including riders with zeros, highest
   first, with standard competition places (equal figures share a place, the next is
   skipped) and a stable order among equals that names no one. It keeps today's
   layout: the viewer's neighbourhood by default with a toggle for everyone, the top
@@ -269,8 +270,11 @@ views on and off, and check pages, menus and texts.
 
 - **FR-017**: Whether the feature is on MUST be team data (feature 026 FR-016 to
   FR-018). Code MUST NOT branch on a team's name.
-- **FR-018**: For the founding team the feature MUST be off until its organisers ask
-  for it, so its pages stay as they are (feature 026 FR-020).
+- **FR-018**: The feature MUST be on for both teams, the founding team and Team
+  Rynkeby Europe. For the founding team, whose riders have already consented,
+  switching it on is a minor consent revision (FR-021): nobody is asked again. A
+  further team defaults to off. Switching it on is the one change to the founding
+  team's pages that feature 026 FR-020 allows here.
 
 **Who sees what**
 
@@ -286,17 +290,21 @@ views on and off, and check pages, menus and texts.
   picture or anything else that names the rider, and no team setting may change
   that. Rides and ride dates stay visible to that rider only. Visitors who are not
   signed in MUST see nothing.
-- **FR-020**: A rider without a consent covering the feature MUST be left out of every
-  figure shown to anyone else (feature 004 FR-021); they MUST still see their own
-  figures and typical ride, without a place.
+- **FR-020**: A rider without a current consent (one who still has to renew after a
+  major change, feature 004 FR-021) MUST be left out of every figure shown to anyone
+  else; they MUST still see their own figures and typical ride, without a place.
 
-**Consent** (see Open points)
+**Consent**
 
 - **FR-021**: The consent text MUST name the ride figures in the ranking and in the
   organiser area and who sees them. A team that switches the feature on after riders
-  connected MUST raise its consent version and ask riders again at their next
-  sign-in (feature 004 FR-013); until a rider accepts, FR-020 applies to them. A team
-  whose first consent version names the feature asks nobody again.
+  connected MUST publish this as a **minor** consent revision (for example 3 → 3.1):
+  new riders accept the revised text, riders who accepted the version before are
+  not asked again and count as having a current consent. Only a major change asks
+  riders again (feature 004 FR-013), and this feature is none. This depends on an
+  amendment of Principle I, which today asks again for anything newly shown to
+  someone other than the rider; the amendment makes "asks again" depend on a major
+  change, such as a new Strava scope, a new kind of Strava request or new data read.
 - **FR-022**: The privacy notice (feature 017) MUST describe the ride figures for
   every team with the feature on.
 
@@ -325,11 +333,12 @@ views on and off, and check pages, menus and texts.
   the Team section and in the organiser area.
 - **SC-002**: A rider finds their place for any figure and period in at most two taps
   from the Training view.
-- **SC-003**: With the feature off, the founding team's pages are unchanged; with it
+- **SC-003**: With the feature off, a team's pages are unchanged; with it
   on, the Training view is unchanged until a ride figure is picked (screenshots and
   tests before and after match).
-- **SC-004**: No figure of a rider without a covering consent appears in any view for
-  anyone else, checked with a synthetic rider who hasn't accepted.
+- **SC-004**: No figure of a rider without a current consent appears in any view for
+  anyone else, checked with a synthetic rider who hasn't accepted; switching the
+  feature on asks no consented rider again.
 - **SC-005**: No page outside the organiser area shows another rider's name next to a
   ride figure, checked as a rider and as an organiser.
 - **SC-006**: The ranking for 200 riders loads as fast as today's Rynke leaderboard.
@@ -345,3 +354,5 @@ views on and off, and check pages, menus and texts.
 - The data the figures need (distance, elevation, start date, eligibility) is already
   stored for Rynke and for the organiser graphs; nothing new is read from Strava.
 - Talking to Strava about showing these figures is handled outside this feature.
+- Principle I is amended (minor consent revisions without asking again) before or
+  with this feature; the amendment is a change of its own, not part of this spec.
