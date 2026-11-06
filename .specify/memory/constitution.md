@@ -1,6 +1,20 @@
 <!--
 Sync Impact Report
-- Version change: 2.2.1 → 2.3.0
+- Version change: 2.3.0 → 2.4.0
+- Rationale: MINOR — Principle I's re-consent rule splits consent changes into
+  major and minor. Only a major change (new Strava scope, new kind of Strava
+  request, new data read) asks riders again. Newly showing figures made from data
+  already read is a minor revision: named in the consent text and privacy notice,
+  accepted by new riders, no new ask for riders who accepted the same major
+  version. Decided with feature 032 (ride stats, FR-021).
+- Principles modified: I (re-consent rule)
+- Sections added: none
+- Sections removed: none
+- Templates checked for alignment: .specify/templates/* — unchanged.
+- Follow-up TODOs: consent versions carry a major and a minor part (feature 004
+  FR-013 stores a whole number today); planned with feature 032.
+
+Previous: 2.2.1 → 2.3.0
 - Rationale: MINOR — Principle I's deletion rule gains one exception: a rider
   removed by an administrator stays on a block list by Strava athlete ID, and
   nothing else, so they can't connect again. Decided with feature 025 (research
@@ -53,11 +67,16 @@ consent and Strava's API Agreement.
   optional and MUST NOT affect taking part. A rider who withholds a required part is
   not connected; withdrawing consent means leaving (deletion below). Before sending
   a rider to Strava the app MUST say what it reads, writes and shows, MUST record
-  which version of that consent the rider accepted, and MUST ask again when what it
-  reads, writes or shows grows. It grows with a new Strava scope, a new kind of
-  Strava request, or anything newly shown to someone other than the rider. Keeping
-  a field the app already receives with every read, and showing it only to that
-  rider, is not growth; the consent text MUST still name it.
+  which version of that consent the rider accepted. A **major** change MUST raise the
+  major version and ask every rider again: a new Strava scope, a new kind of Strava
+  request, or new data read from Strava. Showing figures made from data the app
+  already reads to someone other than the rider (other riders, organisers) is a
+  **minor** revision (for example 3 → 3.1): the consent text and the privacy notice
+  MUST name it before it is shown, new riders accept the revised text, and riders
+  who accepted an earlier revision of the same major version keep a current consent
+  and are not asked again. Keeping a field the app already receives with every read,
+  and showing it only to that rider, needs no new revision; the consent text MUST
+  still name it.
 - Strava's API Agreement only allows displaying a rider's data to *that rider*
   unless they gave explicit consent to share it, so team-visible features (e.g.
   leaderboards) MUST show only riders with a recorded consent.
@@ -238,4 +257,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 2.3.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-04
+**Version**: 2.4.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-06
