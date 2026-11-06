@@ -3,7 +3,9 @@ import {
 	CONSENT_VERSION,
 	CONSENT_VERSIONS,
 	type ConsentVersions,
+	consentLabel,
 	consentState,
+	currentRevision,
 	currentVersion,
 	hasAgreed,
 	SHARING_SINCE_VERSION,
@@ -30,6 +32,7 @@ describe("CONSENT_VERSIONS", () => {
 			published: "2026-10-06",
 			requiredScopes: ["read", "activity:read"],
 			changes: [],
+			revisions: [],
 		});
 	});
 
@@ -41,7 +44,10 @@ describe("CONSENT_VERSIONS", () => {
 
 	it("names only changes every catalog has", () => {
 		for (const entry of CONSENT_VERSIONS) {
-			for (const id of entry.changes) {
+			for (const id of [
+				...entry.changes,
+				...entry.revisions.flatMap((r) => r.changes),
+			]) {
 				for (const catalog of Object.values(CATALOGS)) {
 					expect(catalog[id]).toBeTruthy();
 				}
@@ -107,6 +113,59 @@ describe("CONSENT_VERSIONS", () => {
 		expect(CATALOGS.en["consent.agree"]).toContain("daily totals");
 	});
 
+	// Constitution 2.4.0: figures from data already read, newly shown to others,
+	// are a minor revision; riders who accepted the version aren't asked again.
+	it("revises version 3 for the ride figures, with no new scope (ride stats)", () => {
+		expect(CONSENT_VERSIONS[0]?.revisions).toEqual([]);
+		expect(CONSENT_VERSIONS[1]?.revisions).toEqual([]);
+		expect(CONSENT_VERSIONS[2]?.revisions).toEqual([
+			{
+				revision: 1,
+				published: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+				changes: ["consent.rideFigures"],
+			},
+		]);
+	});
+
+	it("numbers revisions from 1, dated no earlier than their version", () => {
+		for (const entry of CONSENT_VERSIONS) {
+			entry.revisions.forEach((revision, i) => {
+				expect(revision.revision).toBe(i + 1);
+				expect(revision.published >= entry.published).toBe(true);
+			});
+		}
+	});
+
+	it("never adds a scope in a revision, which would be a new version", () => {
+		for (const entry of CONSENT_VERSIONS) {
+			for (const revision of entry.revisions) {
+				expect(Object.keys(revision).sort()).toEqual(
+					["changes", "published", "revision"].sort(),
+				);
+			}
+		}
+	});
+
+	it("names the ride figures where a new rider always reads them", () => {
+		expect(CATALOGS.de["consent.short.shown"]).toContain(
+			"Fahrten, Kilometer und Höhenmeter ohne Namen",
+		);
+		expect(CATALOGS.en["consent.short.shown"]).toContain(
+			"sessions, kilometres and elevation, without your name",
+		);
+		expect(CATALOGS.en["consent.rideFigures"]).toContain("typical ride");
+		expect(CATALOGS.de["consent.rideFigures"]).toContain("typische Fahrt");
+	});
+
+	it("is at revision 3.1", () => {
+		expect(currentRevision(CONSENT_VERSIONS)).toEqual({
+			version: 3,
+			revision: 1,
+		});
+		expect(consentLabel({ version: 3, revision: 1 })).toBe("3.1");
+		expect(consentLabel({ version: 3, revision: 0 })).toBe("3");
+	});
+
 	it("keeps CONSENT_VERSION at the last entry", () => {
 		expect(CONSENT_VERSION).toBe(CONSENT_VERSIONS.at(-1)?.version);
 		expect(currentVersion(CONSENT_VERSIONS).version).toBe(CONSENT_VERSION);
@@ -121,12 +180,16 @@ describe("consentState (research R14)", () => {
 			published: "2026-11-01",
 			requiredScopes: ["read", "activity:read"],
 			changes: ["consent.team"],
+			revisions: [],
 		},
 		{
 			version: 3,
 			published: "2026-12-01",
 			requiredScopes: ["read", "activity:read", "activity:write"],
 			changes: ["consent.organisers", "consent.short.read"],
+			revisions: [
+				{ revision: 1, published: "2026-12-05", changes: ["consent.admins"] },
+			],
 		},
 	];
 	const ALL = ["read", "activity:read", "activity:read_all", "activity:write"];
@@ -142,14 +205,36 @@ describe("consentState (research R14)", () => {
 		expect(consentState(VERSIONS, 1, ALL)).toEqual({
 			kind: "older",
 			accepted: 1,
-			changes: ["consent.team", "consent.organisers", "consent.short.read"],
+			changes: [
+				"consent.team",
+				"consent.organisers",
+				"consent.short.read",
+				"consent.admins",
+			],
 			viaStrava: false,
 		});
 		expect(consentState(VERSIONS, 2, ALL)).toMatchObject({
 			kind: "older",
 			accepted: 2,
-			changes: ["consent.organisers", "consent.short.read"],
+			changes: ["consent.organisers", "consent.short.read", "consent.admins"],
 		});
+	});
+
+	it("keeps a rider on the version without its revision current (no re-ask)", () => {
+		expect(consentState(VERSIONS, 3, ALL)).toEqual({
+			kind: "current",
+			viaStrava: false,
+		});
+		expect(consentState(CONSENT_VERSIONS, 3, ALL).kind).toBe("current");
+	});
+
+	it("lists the ride figures for a rider renewing from version 2", () => {
+		const state = consentState(CONSENT_VERSIONS, 2, ALL);
+		expect(state).toMatchObject({ kind: "older" });
+		expect(state.kind === "older" && state.changes).toEqual([
+			"consent.dailyFigures",
+			"consent.rideFigures",
+		]);
 	});
 
 	it("is current at or above the current version", () => {

@@ -23,6 +23,11 @@ import type { MessageId } from "./i18n/catalogs";
 // `landing.leave` promised deleting everything, which a removal no longer does.
 // The organiser graphs are a new version: organisers newly see daily figures. It
 // needs no new scope, and no setting changes it (029 FR-022, FR-028).
+// The ride figures (feature 032) are a minor revision, 3.1 (constitution
+// 2.4.0): figures from data already read, newly shown to the team and the
+// organisers. The text and the privacy notice name them; new acceptances record
+// the revision, and riders who accepted 3 aren't asked again. Only a new scope,
+// a new kind of Strava request or new data read from Strava is a new version.
 
 export interface ConsentVersion {
 	version: number;
@@ -31,6 +36,16 @@ export interface ConsentVersion {
 	/** Strava scopes the rider must have granted to take part (FR-012). */
 	requiredScopes: readonly string[];
 	/** What grew compared with the version before; empty for version 1. */
+	changes: readonly MessageId[];
+	/** Minor revisions, consecutive from 1; they never add a scope. */
+	revisions: readonly ConsentRevision[];
+}
+
+/** A minor change of a version's text (constitution 2.4.0). */
+export interface ConsentRevision {
+	revision: number;
+	/** `"YYYY-MM-DD"`, the team's calendar day it was published. */
+	published: string;
 	changes: readonly MessageId[];
 }
 
@@ -43,18 +58,27 @@ export const CONSENT_VERSIONS: ConsentVersions = [
 		published: "2026-10-06",
 		requiredScopes: ["read", "activity:read"],
 		changes: [],
+		revisions: [],
 	},
 	{
 		version: 2,
 		published: "2026-11-04",
 		requiredScopes: ["read", "activity:read"],
 		changes: ["consent.admins", "landing.leave"],
+		revisions: [],
 	},
 	{
 		version: 3,
 		published: "2026-11-04",
 		requiredScopes: ["read", "activity:read"],
 		changes: ["consent.dailyFigures"],
+		revisions: [
+			{
+				revision: 1,
+				published: "2026-11-06",
+				changes: ["consent.rideFigures"],
+			},
+		],
 	},
 ];
 
@@ -64,6 +88,26 @@ export function currentVersion(versions: ConsentVersions): ConsentVersion {
 
 /** The current version, for code that has no `Ctx`. */
 export const CONSENT_VERSION = currentVersion(CONSENT_VERSIONS).version;
+
+/** A version and the revision of it a rider accepted; 0 for none. */
+export interface ConsentRevisionOf {
+	version: number;
+	revision: number;
+}
+
+/** The current version and its latest revision, which new acceptances record. */
+export function currentRevision(versions: ConsentVersions): ConsentRevisionOf {
+	const current = currentVersion(versions);
+	return {
+		version: current.version,
+		revision: current.revisions.at(-1)?.revision ?? 0,
+	};
+}
+
+/** `"3.1"`, or `"3"` without a revision. */
+export function consentLabel({ version, revision }: ConsentRevisionOf): string {
+	return revision > 0 ? `${version}.${revision}` : String(version);
+}
 
 /**
  * Where a rider stands against the current version (004 data-model.md
@@ -88,9 +132,14 @@ export function consentState(
 		(scope) => !grantedScopes.includes(scope),
 	);
 	if (accepted >= current.version) return { kind: "current", viaStrava };
+	// Only major versions ask again; a rider renewing also reads what every
+	// revision of a newer version added.
 	const changes = versions
 		.filter((entry) => entry.version > accepted)
-		.flatMap((entry) => entry.changes);
+		.flatMap((entry) => [
+			...entry.changes,
+			...entry.revisions.flatMap((revision) => revision.changes),
+		]);
 	return { kind: "older", accepted, changes, viaStrava };
 }
 
@@ -117,3 +166,9 @@ export const SHARING_SINCE_VERSION = 1;
 
 /** The first version that shows organisers a rider's daily figures (feature 029). */
 export const DAILY_FIGURES_SINCE_VERSION = 3;
+
+/**
+ * The first version whose text, from revision 3.1, shows the ride figures to
+ * the team and the organisers (feature 032 research R4).
+ */
+export const RIDE_FIGURES_SINCE_VERSION = 3;

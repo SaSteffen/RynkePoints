@@ -1,3 +1,4 @@
+import { consentLabel } from "../../consent";
 import type { Ctx } from "../../ctx";
 import type { Consent } from "../../db/consents";
 import { type BalanceRow, readBalanceStatement } from "../../db/rynke";
@@ -31,7 +32,7 @@ ${body}
 /** The rider's current consent, what is read and who sees what. */
 function consent(i18n: I18n, current: Consent): SafeHtml {
 	const date = acceptedOn(i18n, current);
-	return html`<p>${i18n.t("me.consent.accepted", { version: String(current.version), date })}</p>
+	return html`<p>${i18n.t("me.consent.accepted", { version: consentLabel(current), date })}</p>
 ${consentSummary(i18n)}`;
 }
 

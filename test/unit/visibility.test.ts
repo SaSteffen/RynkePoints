@@ -26,6 +26,8 @@ const ORGANISER_ROW: Record<RiderData, boolean> = {
 	corrections: true,
 	participationReports: true,
 	dailyFigures: true,
+	rideFigures: true,
+	rideFiguresByName: true,
 	rides: false,
 	consentRecords: false,
 };
@@ -40,6 +42,8 @@ const RIDER_ROW: Record<RiderData, boolean> = {
 	corrections: false,
 	participationReports: false,
 	dailyFigures: false,
+	rideFigures: true,
+	rideFiguresByName: false,
 	rides: false,
 	consentRecords: false,
 };
@@ -73,7 +77,7 @@ function riderViewer(athleteId: number, organiser: boolean): Viewer {
 		kind: "rider",
 		rider: rider(athleteId, organiser),
 		consentVersion: 1,
-		consent: { version: 1, acceptedAt: 0 },
+		consent: { version: 1, revision: 0, acceptedAt: 0 },
 	};
 }
 
@@ -90,6 +94,24 @@ describe("daily figures (organiser graphs)", () => {
 
 	it("leave single rides shown to nobody", () => {
 		expect(maySee("organiser", "rides", 3)).toBe(false);
+	});
+});
+
+describe("ride figures (ride stats ranking)", () => {
+	it("go to the team without names, from consent version 3", () => {
+		expect(SINCE_VERSION.rideFigures).toBe(3);
+		expect(maySee("rider", "rideFigures", 2)).toBe(false);
+		expect(maySee("rider", "rideFigures", 3)).toBe(true);
+		expect(maySee("organiser", "rideFigures", 3)).toBe(true);
+		expect(maySee("visitor", "rideFigures", 3)).toBe(false);
+	});
+
+	it("go to organisers by name, from consent version 3", () => {
+		expect(SINCE_VERSION.rideFiguresByName).toBe(3);
+		expect(maySee("organiser", "rideFiguresByName", 2)).toBe(false);
+		expect(maySee("organiser", "rideFiguresByName", 3)).toBe(true);
+		expect(maySee("rider", "rideFiguresByName", 3)).toBe(false);
+		expect(maySee("self", "rideFiguresByName", 2)).toBe(true);
 	});
 });
 
@@ -115,7 +137,9 @@ describe("SINCE_VERSION", () => {
 		expect(Object.keys(SINCE_VERSION).sort()).toEqual([...ALL_DATA].sort());
 		for (const data of ALL_DATA) {
 			expect(SINCE_VERSION[data], data).toBe(
-				data === "dailyFigures"
+				data === "dailyFigures" ||
+					data === "rideFigures" ||
+					data === "rideFiguresByName"
 					? DAILY_FIGURES_SINCE_VERSION
 					: SHARING_SINCE_VERSION,
 			);

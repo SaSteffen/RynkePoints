@@ -1,3 +1,4 @@
+import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
@@ -136,5 +137,26 @@ describe("GET /me/settings (011 FR-014)", () => {
 		expect(account).toContain(
 			`<a class="danger" href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
 		);
+	});
+});
+
+describe("the accepted consent's label (ride stats ranking)", () => {
+	const label = async (revision: number) => {
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		await env.DB.prepare("UPDATE consent_records SET revision = ?")
+			.bind(revision)
+			.run();
+		const { html } = await riderPage(ctx, ATHLETE_A, "/me/settings");
+		return html;
+	};
+
+	it("shows 3.1 for a record of revision 1", async () => {
+		expect(await label(1)).toMatch(/\(Version\s3\.1\)/);
+	});
+
+	it("shows 3 for a record of revision 0", async () => {
+		const page = await label(0);
+		expect(page).toMatch(/\(Version\s3\)/);
+		expect(page).not.toMatch(/Version\s3\.1/);
 	});
 });

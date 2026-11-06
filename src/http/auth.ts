@@ -1,5 +1,5 @@
 import { clientId, memberClubIds, seasonStart } from "../config";
-import { currentVersion, grantedScopes } from "../consent";
+import { currentRevision, currentVersion, grantedScopes } from "../consent";
 import type { Ctx } from "../ctx";
 import { isBlocked } from "../db/blocked";
 import { recordConsent } from "../db/consents";
@@ -205,7 +205,11 @@ export async function handleCallback(
 		await insertRider(
 			ctx.env.DB,
 			{ athleteId: token.athleteId, ...grant },
-			{ version, acceptedAt: now },
+			{
+				version,
+				revision: currentRevision(ctx.consentVersions).revision,
+				acceptedAt: now,
+			},
 		);
 		await saveCredentials(ctx.env, token.athleteId, credentials);
 		startImport = true;
@@ -214,7 +218,13 @@ export async function handleCallback(
 		// no import and deletes nothing.
 		await updateRiderOnReconnect(ctx.env.DB, token.athleteId, grant);
 		if (expected.consentVersion === version) {
-			await recordConsent(ctx.env.DB, token.athleteId, version, now);
+			await recordConsent(
+				ctx.env.DB,
+				token.athleteId,
+				version,
+				now,
+				currentRevision(ctx.consentVersions).revision,
+			);
 		}
 		await saveCredentials(ctx.env, token.athleteId, credentials);
 		if (membership.kind === "ok") {

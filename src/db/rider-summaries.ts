@@ -1,12 +1,16 @@
 import {
 	type ActiveEntry,
 	type DayEntry,
+	parseRides,
+	RIDE_SUMMARY_SINCE,
 	RIDER_SUMMARY_VERSION,
+	type RideEntry,
 	type RiderSummary,
 	type RunDayEntry,
 	TEAM_SUMMARY_SINCE,
 	type WeekEntry,
 } from "../rynke/summary";
+import { sharedRiderIdsSince } from "./consents";
 import { LISTED_RIDER_IDS } from "./organiser";
 
 // The stored rider summaries (feature 030 data-model.md). Writes are statements
@@ -23,6 +27,7 @@ export interface RiderSummaryRow {
 	attended: string;
 	virtual_days: string;
 	own_days: string;
+	rides: string;
 }
 
 /**
@@ -33,6 +38,35 @@ export interface RiderSummaryRow {
 export const TEAM_SUMMARY_JOIN = `LEFT JOIN rider_summaries s
 	ON s.athlete_id = r.athlete_id AND s.version >= ${TEAM_SUMMARY_SINCE}`;
 
+/**
+ * `TEAM_SUMMARY_JOIN` for the ride figures (feature 032): the row as `rs` when
+ * it holds `rides`, so a rider without one shows up as `rs.athlete_id IS NULL`.
+ */
+export const RIDE_SUMMARY_JOIN = `LEFT JOIN rider_summaries rs
+	ON rs.athlete_id = r.athlete_id AND rs.version >= ${RIDE_SUMMARY_SINCE}`;
+
+/**
+ * The stored rides of the riders in `athleteIds` whose consent is at least
+ * `consentSince` and whose row holds rides. A rider missing from the map has
+ * no such row, or no such consent.
+ */
+export async function readRidesOfRiders(
+	db: D1Database,
+	athleteIds: readonly number[],
+	consentSince: number,
+): Promise<Map<number, RideEntry[]>> {
+	const { results } = await db
+		.prepare(
+			`SELECT athlete_id, rides FROM rider_summaries
+			WHERE athlete_id IN (SELECT value FROM json_each(?1))
+				AND version >= ${RIDE_SUMMARY_SINCE}
+				AND athlete_id IN (${sharedRiderIdsSince(consentSince)})`,
+		)
+		.bind(JSON.stringify(athleteIds))
+		.all<{ athlete_id: number; rides: string }>();
+	return new Map(results.map((row) => [row.athlete_id, parseRides(row.rides)]));
+}
+
 /** The rows of every rider in `athleteIds`, for one batch (research R2). */
 export function readSummariesOfRidersStatement(
 	db: D1Database,
@@ -41,7 +75,7 @@ export function readSummariesOfRidersStatement(
 	return db
 		.prepare(
 			`SELECT athlete_id, version, days, weeks, run_days, active, attended,
-				virtual_days, own_days
+				virtual_days, own_days, rides
 			FROM rider_summaries
 			WHERE athlete_id IN (SELECT value FROM json_each(?1))`,
 		)
@@ -56,11 +90,11 @@ export function upsertSummaryStatement(
 	return db
 		.prepare(
 			`INSERT INTO rider_summaries (athlete_id, version, days, weeks, run_days,
-				active, attended, virtual_days, own_days)
-			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)
+				active, attended, virtual_days, own_days, rides)
+			VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)
 			ON CONFLICT (athlete_id) DO UPDATE SET
 				version = ?2, days = ?3, weeks = ?4, run_days = ?5, active = ?6,
-				attended = ?7, virtual_days = ?8, own_days = ?9`,
+				attended = ?7, virtual_days = ?8, own_days = ?9, rides = ?10`,
 		)
 		.bind(
 			athleteId,
@@ -72,6 +106,7 @@ export function upsertSummaryStatement(
 			summary.attended,
 			summary.virtualDays,
 			summary.ownDays,
+			summary.rides,
 		);
 }
 
@@ -126,6 +161,42 @@ function entriesByRider<Row extends { athlete_id: number }, Entry>(
 		else map.set(row.athlete_id, [entry(row)]);
 	}
 	return map;
+}
+
+/**
+ * Every counting ride of the listed riders in `athleteIds` whose consent is at
+ * least `consentSince`, as `summaryOf` stores them (feature 032 research R1):
+ * for riders without a version 3 row, so they get correct figures, never a
+ * false zero. The consent is checked again here, since this isn't the first
+ * batch's snapshot.
+ */
+export async function readRidesAddedUp(
+	db: D1Database,
+	athleteIds: readonly number[],
+	consentSince: number,
+): Promise<Map<number, RideEntry[]>> {
+	const { results } = await db
+		.prepare(
+			`SELECT r.athlete_id, substr(a.start_date_local, 1, 10) AS date,
+				a.distance_m, r.elevation_dm
+			FROM ride_results r
+			JOIN activities a ON a.strava_activity_id = r.strava_activity_id
+			WHERE r.counts = 1 AND ${OF_THESE_LISTED("r.athlete_id")}
+				AND r.athlete_id IN (${sharedRiderIdsSince(consentSince)})
+			ORDER BY 1, 2, 3, 4`,
+		)
+		.bind(JSON.stringify(athleteIds))
+		.all<{
+			athlete_id: number;
+			date: string;
+			distance_m: number;
+			elevation_dm: number;
+		}>();
+	const rides = entriesByRider(
+		results,
+		(row): RideEntry => [row.date, row.distance_m, row.elevation_dm],
+	);
+	return new Map(athleteIds.map((id) => [id, rides.get(id) ?? []]));
 }
 
 /** Counting rides per Monday-to-Sunday week, and attended events. */

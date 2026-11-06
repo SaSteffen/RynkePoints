@@ -115,7 +115,11 @@ describe("readViewer", () => {
 		}
 		const viewer = riderOf(await viewerOf(ATHLETE_A));
 		expect(viewer.consent).toEqual(await getCurrentConsent(env.DB, ATHLETE_A));
-		expect(viewer.consent).toEqual({ version: 2, acceptedAt: ctx.now() });
+		expect(viewer.consent).toEqual({
+			version: 2,
+			revision: 0,
+			acceptedAt: ctx.now(),
+		});
 		expect(viewer.consentVersion).toBe(
 			await consentVersionOf(env.DB, ATHLETE_A),
 		);
@@ -160,6 +164,7 @@ describe("requireConsent (004 US4, contracts/re-consent.md)", () => {
 				published: "2026-11-01",
 				requiredScopes: ["read", "activity:read"],
 				changes: ["consent.team"],
+				revisions: [],
 			},
 		],
 	});
@@ -188,6 +193,7 @@ describe("requireConsent (004 US4, contracts/re-consent.md)", () => {
 					published: "2026-11-01",
 					requiredScopes: ["read", "activity:read", "activity:write"],
 					changes: ["consent.short.read"],
+					revisions: [],
 				},
 			],
 		});

@@ -1,4 +1,4 @@
-import { currentVersion } from "../consent";
+import { currentRevision, currentVersion } from "../consent";
 import type { Ctx } from "../ctx";
 import { recordConsent } from "../db/consents";
 import type { MessageId } from "../i18n/catalogs";
@@ -124,6 +124,12 @@ export async function handleConsent(
 	const state = riderConsentState(viewer, ctx);
 	// The gate shows the Strava form instead; a current rider has nothing to do.
 	if (state.viaStrava || state.kind === "current") return redirect(next, 303);
-	await recordConsent(ctx.env.DB, viewer.rider.athleteId, current, ctx.now());
+	await recordConsent(
+		ctx.env.DB,
+		viewer.rider.athleteId,
+		current,
+		ctx.now(),
+		currentRevision(ctx.consentVersions).revision,
+	);
 	return redirect(next, 303);
 }

@@ -42,12 +42,14 @@ export const en: Catalog = {
 	"consent.short.read":
 		"We only read the key figures of your rides, runs and swims, such as distance, time and elevation, and turn them into Rynke and badges.",
 	"consent.short.shown":
-		"The team sees your Rynke without your name, the organisers with your first name, plus your kilometres and elevation per day. Administrators see your first name and connection state, and if they remove you, we keep your Strava ID so you can't return.",
+		"The team sees your Rynke and, in the ranking, your sessions, kilometres and elevation, without your name. The organisers see them with your first name, plus your kilometres and elevation per day. Administrators see your first name and connection state, and if they remove you, we keep your Strava ID so you can't return.",
 	"consent.details": "All the details",
 	"consent.organisers":
 		"The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, and which team events you reported you're coming to or were at.",
 	"consent.dailyFigures":
 		"The organisers also see, with your first name, how many kilometres you rode outdoors and virtually and how many metres of elevation you climbed, as a total per day, across the whole season. This includes private rides that count. They don't see your individual rides, their names, times or routes.",
+	"consent.rideFigures":
+		"In the team's ranking everyone sees your number of counting rides, your kilometres and elevation per season, month and week, without your name. The organisers see, with your first name, your sessions per season and per day and your typical ride: the length half of your rides are above and half below. What we read from Strava doesn't change.",
 	"consent.team":
 		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation count towards the team sums of the team badges, without your name. On which days and at what hour you ride, run or swim counts towards the team surprises, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
