@@ -52,8 +52,8 @@ ones side by side for riders, organisers and a team without Rynke.
   they asked again? → A: No. The data read from Strava doesn't change; only figures
   made from it are newly shown. That is a minor consent revision (for example 3 →
   3.1): the consent text names the feature, but riders who accepted the version
-  before are not asked again. Riders are asked again only on a major change. This
-  needs an amendment of Principle I (FR-021).
+  before are not asked again. Riders are asked again only on a major change
+  (Principle I, constitution 2.4.0; FR-021).
 - Q: Which teams get the feature? → A: Both, the founding team as well as Team
   Rynkeby Europe (FR-018). It stays team data.
 
@@ -301,10 +301,8 @@ views on and off, and check pages, menus and texts.
   connected MUST publish this as a **minor** consent revision (for example 3 → 3.1):
   new riders accept the revised text, riders who accepted the version before are
   not asked again and count as having a current consent. Only a major change asks
-  riders again (feature 004 FR-013), and this feature is none. This depends on an
-  amendment of Principle I, which today asks again for anything newly shown to
-  someone other than the rider; the amendment makes "asks again" depend on a major
-  change, such as a new Strava scope, a new kind of Strava request or new data read.
+  riders again (feature 004 FR-013), and this feature is none (Principle I,
+  constitution 2.4.0).
 - **FR-022**: The privacy notice (feature 017) MUST describe the ride figures for
   every team with the feature on.
 
@@ -354,5 +352,5 @@ views on and off, and check pages, menus and texts.
 - The data the figures need (distance, elevation, start date, eligibility) is already
   stored for Rynke and for the organiser graphs; nothing new is read from Strava.
 - Talking to Strava about showing these figures is handled outside this feature.
-- Principle I is amended (minor consent revisions without asking again) before or
-  with this feature; the amendment is a change of its own, not part of this spec.
+- Consent versions today are whole numbers (feature 004 FR-013); telling major from
+  minor revisions is part of this feature's plan.
