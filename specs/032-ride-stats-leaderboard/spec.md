@@ -26,6 +26,10 @@ be drafted. Talking to Strava about the feature happens outside this spec.
   adds its full distance.
 - Q: Over which periods? → A: The whole season, the current month and the current
   week, each a ranking of its own; days only as team totals (FR-009, FR-010).
+- Q: Do other riders see names in the ranking? → A: No, for every team, with no
+  setting to change it. The app is a motivational tool for reaching goals together;
+  a public comparison by name is not. Only organisers see first names, as for the
+  Rynke leaderboard (feature 004 FR-020, FR-022).
 
 ## Open points
 
@@ -86,7 +90,7 @@ their riders' training.
 
 **Independent Test**: Sign in as a synthetic organiser and check every row carries the
 rider's first name and the same figures riders see; sign in as a rider and check no
-other row carries a name (unless FR-015 allows it).
+other row carries a name.
 
 **Acceptance Scenarios**:
 
@@ -215,9 +219,11 @@ and texts.
 
   | Data about a rider | The rider | Organisers | Other riders |
   |---|---|---|---|
-  | Sessions, kilometres and elevation gain per season, month and week, in a ranking row | yes | yes, with first name | yes, without a name [NEEDS CLARIFICATION: Team Rynkeby Europe asked for "a simple ranking list"; should other riders see first names, as a per-team setting named in that team's consent text, or no names as for the Rynke leaderboard?] |
+  | Sessions, kilometres and elevation gain per season, month and week, in a ranking row | yes | yes, with first name | yes, without a name |
 
-  Rides, ride dates and any figure per day of a single rider stay visible to that rider
+  A row shown to other riders MUST NOT carry a name, athlete ID, profile link, picture
+  or anything else that names the rider, and no team setting may change that. Rides,
+  ride dates and any figure per day of a single rider stay visible to that rider
   only. Visitors who are not signed in MUST see nothing.
 - **FR-016**: A rider without a consent covering the feature MUST be left out of every
   figure shown to anyone else (feature 004 FR-021); they MUST still see their own
@@ -243,8 +249,7 @@ and texts.
 - **Ride stats figures**: per rider and period (season, month, week, and per day for
   team totals), the number of counting rides, their summed distance and elevation
   gain. Derived from ride results, never edited by hand.
-- **Team settings for ride stats**: on or off, minimum distance, and (if FR-015
-  allows it) whether other riders see names.
+- **Team settings for ride stats**: on or off, and the minimum distance.
 
 ## Success Criteria *(mandatory)*
 

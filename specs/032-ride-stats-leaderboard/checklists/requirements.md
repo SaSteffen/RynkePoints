@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,6 +31,6 @@
 
 ## Notes
 
-- One marker open: whether other riders see names (FR-015).
+- Names resolved 2026-11-06: other riders never see names (FR-015).
 - The consent version (FR-017) is an open point for the project owner, not a marker.
 - Items marked incomplete require spec updates before `/speckit-clarify` or `/speckit-plan`
