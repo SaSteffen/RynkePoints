@@ -40,6 +40,10 @@ export default defineConfig(async () => {
 						READY_POLL_SECONDS: "10",
 						// Pinned; the "off" tests override it per request.
 						TRAINING_LEADERBOARD: "on",
+						// Pinned; the "off" tests override it per request.
+						RIDE_FIGURES: "on",
+						// Pinned; the "off" tests override it per request.
+						RYNKE_VIEWS: "on",
 						// Synthetic, so tests don't follow the real controller's details.
 						PRIVACY_CONTROLLER:
 							"Synthetic Controller\nTeststraße 1\n20095 Hamburg",

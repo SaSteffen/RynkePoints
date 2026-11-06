@@ -120,3 +120,23 @@ describe("GET /privacy", () => {
 		}
 	});
 });
+
+describe("GET /privacy and the ride figures (ride stats FR-022)", () => {
+	it("names them while RIDE_FIGURES is on", async () => {
+		for (const [lang, catalog] of [
+			["de", CATALOGS.de],
+			["en", CATALOGS.en],
+		] as const) {
+			const { page } = await get("/privacy", lang);
+			expect(page).toContain(escapeHtml(catalog["privacy.team.rideFigures"]));
+		}
+	});
+
+	it("doesn't with RIDE_FIGURES off (US4 scenario 1)", async () => {
+		const off = { ...ctx, env: { ...ctx.env, RIDE_FIGURES: "off" } };
+		const res = await handleFetch(request("/privacy"), off);
+		expect(await res.text()).not.toContain(
+			escapeHtml(CATALOGS.de["privacy.team.rideFigures"]),
+		);
+	});
+});

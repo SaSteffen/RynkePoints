@@ -78,6 +78,13 @@
 		// Training leaderboard, no Training figure in the Team rows. The team
 		// total, the peloton and the team chart stay. "on" or "off".
 		"TRAINING_LEADERBOARD": "on",
+		// "on" lets /team rank riders by sessions, km and elevation without names,
+		// and gives organisers the Sessions column and graph, for riders on
+		// consent version 3 or higher (feature 032). "on" or "off".
+		"RIDE_FIGURES": "on",
+		// "off" gives /team one view without Rynke: the team's ride figures, a km
+		// chart and the ride ranking (feature 032 FR-012). "on" or "off".
+		"RYNKE_VIEWS": "on",
 		// Who is responsible for the riders' data, and how to reach them, for
 		// the privacy page (/privacy). One line each; the contact is the email.
 		"PRIVACY_CONTROLLER": "Sascha Steffen",

@@ -42,12 +42,14 @@ export const en: Catalog = {
 	"consent.short.read":
 		"We only read the key figures of your rides, runs and swims, such as distance, time and elevation, and turn them into Rynke and badges.",
 	"consent.short.shown":
-		"The team sees your Rynke without your name, the organisers with your first name, plus your kilometres and elevation per day. Administrators see your first name and connection state, and if they remove you, we keep your Strava ID so you can't return.",
+		"The team sees your Rynke and, in the ranking, your sessions, kilometres and elevation, without your name. The organisers see them with your first name, plus your kilometres and elevation per day. Administrators see your first name and connection state, and if they remove you, we keep your Strava ID so you can't return.",
 	"consent.details": "All the details",
 	"consent.organisers":
 		"The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, and which team events you reported you're coming to or were at.",
 	"consent.dailyFigures":
 		"The organisers also see, with your first name, how many kilometres you rode outdoors and virtually and how many metres of elevation you climbed, as a total per day, across the whole season. This includes private rides that count. They don't see your individual rides, their names, times or routes.",
+	"consent.rideFigures":
+		"In the team's ranking everyone sees your number of counting rides, your kilometres and elevation per season, month and week, without your name. The organisers see, with your first name, your sessions per season and per day and your typical ride: the length half of your rides are above and half below. What we read from Strava doesn't change.",
 	"consent.team":
 		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation count towards the team sums of the team badges, without your name. On which days and at what hour you ride, run or swim counts towards the team surprises, without your name.",
 	"consent.required": "Reading and sharing are required to take part.",
@@ -478,6 +480,44 @@ export const en: Catalog = {
 	"team.chart.total": "Total",
 	"team.chart.gain": "Gain",
 
+	// Feature 032: the ride figures on /team (contracts/messages.md).
+	"team.rankBy.label": "Rank by",
+	"team.rankBy.rynke": "Rynke",
+	"team.rankBy.sessions": "Sessions",
+	"team.rankBy.km": "km",
+	"team.rankBy.elevation": "Elevation",
+	"team.period.label": "Period",
+	"team.period.season": "Season",
+	"team.period.month": "Month",
+	"team.period.week": "Week",
+	"team.ride.hint": "No names. The same rides count as for Rynke.",
+	"team.ride.session": "{n}\u00a0session",
+	"team.ride.sessions": "{n}\u00a0sessions",
+	"team.ride.km": "{n}\u00a0km",
+	"team.ride.elevation": "{n}\u00a0m",
+	"team.ride.by.sessions": "by sessions",
+	"team.ride.by.km": "by kilometres",
+	"team.ride.by.elevation": "by elevation",
+	"team.ride.place.by": "{figure}, {period}",
+	"team.ride.place.next": "{n} more to the next place",
+	"team.ride.place.lead": "You're in front.",
+	"team.ride.yours": "Your figures, {period}: {sessions} · {km} · {elevation}",
+	"team.ride.typical": "Typical ride: {n}",
+	"team.ride.typical.hint": "Half of the rides are longer, half are shorter.",
+	"team.ride.row.typical": "typically {n}",
+	"team.ride.teamLine":
+		"The team, {period}: {km} · {sessions} · {elevation} · typical ride {typical}",
+	"team.ride.nobodyYet": "Nobody has ridden yet in this period.",
+	"team.ride.bar": "{value} of the leader's {lead}",
+	"team.ride.total.heading": "The team's kilometres",
+	"team.ride.total.kind": "ridden together",
+	"team.ride.total.thisWeek": "+{n}\u00a0km this week 🔥",
+	"team.ride.chart.heading": "Kilometres, week by week",
+	"team.ride.chart.hint":
+		"The bars show the team's kilometres each week, the line everything added up.",
+	"team.ride.chart.label":
+		"The team's kilometres per week and added up, {weeks} weeks, now {total}",
+
 	// Feature 016: the organiser overview (contracts/messages.md "Organiser overview").
 	"organiser.overview.heading": "Team overview",
 	"organiser.overview.deadline": "Qualification deadline · {date}",
@@ -533,6 +573,14 @@ export const en: Catalog = {
 	"organiser.overview.column.corrections": "Corrections",
 	"organiser.overview.column.rynke": "Rynke",
 	"organiser.overview.column.virtual": "Virtual",
+	"organiser.overview.column.sessions": "Sessions",
+	"organiser.overview.column.typical": "typical",
+	"organiser.overview.column.typical.hint":
+		"Typical ride: half of the rides are longer, half are shorter",
+	"organiser.overview.typical": "typical {n}\u00a0km",
+	"organiser.overview.sessions": "Sessions {n}",
+	"organiser.overview.sessions.typical":
+		"Sessions {n}, typical {typical}\u00a0km",
 
 	// Feature 013: the Abzeichen section (contracts/badge-messages.md). Badge
 	// names aren't here: they are German in every language (badges.de.ts).
@@ -737,6 +785,8 @@ export const en: Catalog = {
 		"The organisers record which team events you attended, and can correct your Rynke with a reason and a date. You can report yourself which team events you're coming to or were at; the organisers see that and decide whether to record it. Who changed what, and when, is stored too.",
 	"privacy.team.derived":
 		"From all this RynkePoints works out your Rynke, your badges and which rides count, and why.",
+	"privacy.team.rideFigures":
+		"From your counting rides RynkePoints counts sessions, kilometres and elevation per season, month and week for the ranking without names, and your typical ride, which only you and the organisers see. The organisers see your sessions per season and per day with your first name.",
 	"privacy.technical.heading": "Data needed to run the app",
 	"privacy.technical.cookies":
 		"Cookies: “rp_session” keeps you signed in, until 180 days after your last visit; “rp_oauth_state” protects the sign-in with Strava for 10 minutes; “rp_lang” remembers a picked language for a year. There are no other cookies and no trackers.",
@@ -1007,10 +1057,12 @@ export const en: Catalog = {
 	"organiser.graphs.title.outdoor": "Outdoor kilometres (km)",
 	"organiser.graphs.title.virtual": "Virtual kilometres (km)",
 	"organiser.graphs.title.elevation": "Elevation (m)",
+	"organiser.graphs.title.sessions": "Sessions",
 	"organiser.graphs.tabs.label": "Graph",
 	"organiser.graphs.tab.outdoor": "Outdoor",
 	"organiser.graphs.tab.virtual": "Virtual",
 	"organiser.graphs.tab.elevation": "Elevation",
+	"organiser.graphs.tab.sessions": "Sessions",
 	"organiser.graphs.picker.label": "Shown in the graphs",
 	"organiser.graphs.picker.find": "Find a rider",
 	"organiser.graphs.picker.clear": "Clear all",
@@ -1045,6 +1097,7 @@ export const en: Catalog = {
 		"Riders are still being asked to agree. No lines yet.",
 	"organiser.graphs.value.km": "{n} km",
 	"organiser.graphs.value.m": "{n} m",
+	"organiser.graphs.value.sessions": "{n} sessions",
 	"organiser.graphs.readout.range": "{from} – {to}, total",
 	"organiser.graphs.aria": "{title} from {from} to {to}: {lines}",
 	"organiser.graphs.view.label": "What to show",

@@ -1,4 +1,4 @@
-import { contactEmail, privacyController } from "../config";
+import { contactEmail, privacyController, rideFigures } from "../config";
 import type { Ctx } from "../ctx";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
@@ -10,7 +10,7 @@ import { html, htmlResponse, layout, type SafeHtml } from "./html";
 // no rider data. Linked from every page's footer.
 
 /** The day the notice last changed in substance; shown on the page. */
-export const PRIVACY_UPDATED = "2026-11-04";
+export const PRIVACY_UPDATED = "2026-11-06";
 
 const STRAVA_PRIVACY_URL = "https://www.strava.com/legal/privacy";
 
@@ -28,7 +28,10 @@ const SECTIONS: [MessageId, MessageId[]][] = [
 			"privacy.strava.how",
 		],
 	],
-	["privacy.team.heading", ["privacy.team.body", "privacy.team.derived"]],
+	[
+		"privacy.team.heading",
+		["privacy.team.body", "privacy.team.derived", "privacy.team.rideFigures"],
+	],
 	[
 		"privacy.technical.heading",
 		[
@@ -82,9 +85,12 @@ export function handlePrivacy(ctx: Ctx, i18n: I18n): Response {
 	const controller = privacyController(ctx.env).map(
 		(line, i) => html`${i > 0 ? html`<br>` : ""}${line}`,
 	);
+	// The ride figures' paragraph only while the team ranks by them (FR-022).
+	const shown = (id: MessageId) =>
+		id !== "privacy.team.rideFigures" || rideFigures(ctx.env);
 	const sections = SECTIONS.map(
 		([heading, paragraphs]) =>
-			html`<h2>${i18n.t(heading)}</h2>\n${paragraphs.map(paragraph)}`,
+			html`<h2>${i18n.t(heading)}</h2>\n${paragraphs.filter(shown).map(paragraph)}`,
 	);
 	const updated = i18n.formatDate(PRIVACY_UPDATED);
 	const title = i18n.t("privacy.title");

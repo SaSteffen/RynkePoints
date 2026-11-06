@@ -180,6 +180,7 @@ ${connectButton(de)}
 					published: "2026-11-01",
 					requiredScopes: ["read", "activity:read"],
 					changes: ["consent.team"],
+					revisions: [],
 				},
 			],
 		});

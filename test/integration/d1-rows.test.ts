@@ -178,6 +178,11 @@ describe("rows read with a full-season team (feature 030)", () => {
 		const season = await measure();
 		expect(season.start).toBeLessThanOrEqual(400);
 		expect(season.team).toBeLessThanOrEqual(500);
+		// Ride stats SC-006: a ride figure adds one row per rider and its
+		// consent checks, never their rides.
+		const byKm = await pageRows("/team?by=km&period=week", RIDER);
+		// Per rider: the rider, the two consent checks and the summary row.
+		expect(byKm - season.team).toBeLessThanOrEqual(4 * RIDERS + 5);
 		// Organiser graphs SC-009: from the rider's row, not their rides.
 		expect(season.badges).toBeLessThanOrEqual(500);
 		expect(season.organiserRiders).toBeLessThanOrEqual(1000);
@@ -195,6 +200,9 @@ describe("rows read with a full-season team (feature 030)", () => {
 		const doubled = await measure();
 		expect(doubled.start).toBeLessThan(season.start * 1.1);
 		expect(doubled.team).toBeLessThan(season.team * 1.1);
+		expect(await pageRows("/team?by=km", RIDER)).toBeLessThan(
+			(season.team + 4 * RIDERS + 5) * 1.1,
+		);
 		expect(doubled.organiserRiders).toBeLessThan(season.organiserRiders * 1.1);
 		// More rides earn the rider more badges: three rows each, and no more.
 		expect(doubled.badges - season.badges).toBeLessThanOrEqual(
@@ -212,9 +220,9 @@ describe("rows read with a full-season team (feature 030)", () => {
 		const badges = await pageRows("/me/badges", RIDER);
 		const start = await pageRows("/", RIDER);
 		const team = await pageRows("/team", RIDER);
-		// Without the graphs, which "before" didn't have.
+		// Without the graphs and the sessions, which "before" didn't have.
 		const env0 = ctx.env;
-		ctx.env = { ...env0, ORGANISER_PROGRESS_GRAPH: "off" };
+		ctx.env = { ...env0, ORGANISER_PROGRESS_GRAPH: "off", RIDE_FIGURES: "off" };
 		const organiserRiders = await pageRows("/organiser/riders", ORGANISER);
 		ctx.env = env0;
 		// The spec's "Today" column, measured before this feature.
@@ -230,7 +238,11 @@ describe("rows read with a full-season team (feature 030)", () => {
 			const start = await pageRows("/", RIDER);
 			const team = await pageRows("/team", RIDER);
 			const env0 = ctx.env;
-			ctx.env = { ...env0, ORGANISER_PROGRESS_GRAPH: "off" };
+			ctx.env = {
+				...env0,
+				ORGANISER_PROGRESS_GRAPH: "off",
+				RIDE_FIGURES: "off",
+			};
 			const organiserTable = await pageRows("/organiser/riders", ORGANISER);
 			ctx.env = env0;
 			return { start, team, organiserTable };
@@ -254,9 +266,10 @@ describe("rows read with a full-season team (feature 030)", () => {
 		expect(atVersionOne.organiserTable).toBeLessThan(
 			current.organiserTable * 1.1,
 		);
-		// The graphs add those two up until the job has run, and nobody else.
+		// The graphs and the sessions add those two up until the job has run,
+		// and nobody else (ride stats research R1).
 		expect(await pageRows("/organiser/riders", ORGANISER)).toBeLessThanOrEqual(
-			withGraphs + 2 * 500,
+			withGraphs + 2 * 2 * 500,
 		);
 	}, 300_000);
 

@@ -12,11 +12,13 @@ import { type DatedCorrection, weekEndOf } from "./weeks";
  * it can use, so a new column sends nobody back to adding up rides (feature 029
  * research R14).
  */
-export const RIDER_SUMMARY_VERSION = 2;
+export const RIDER_SUMMARY_VERSION = 3;
 /** The lowest version whose `days`, `weeks`, `run_days`, `active`, `attended` hold. */
 export const TEAM_SUMMARY_SINCE = 1;
 /** The lowest version with `virtual_days` and `own_days`. */
 export const OWN_SUMMARY_SINCE = 2;
+/** The lowest version with `rides` (feature 032). */
+export const RIDE_SUMMARY_SINCE = 3;
 
 /** `[date, distanceM, distanceRynke, elevationDm]`, one per day of rides. */
 export type DayEntry = [string, number, number, number];
@@ -30,6 +32,11 @@ export type ActiveEntry = [string, number, 0 | 1];
 export type VirtualDayEntry = [string, number];
 /** `[date, longestM, outdoor]`, one per day of rides; `outdoor` is 1 when any wasn't virtual. */
 export type OwnDayEntry = [string, number, 0 | 1];
+/**
+ * `[date, distanceM, elevationDm]`, one per counting ride, with the full
+ * distance and elevation (feature 032). No time, name or ID.
+ */
+export type RideEntry = [date: string, distanceM: number, elevationDm: number];
 
 /** The columns of a rider's stored row, as JSON text. */
 export interface RiderSummary {
@@ -40,6 +47,7 @@ export interface RiderSummary {
 	attended: string;
 	virtualDays: string;
 	ownDays: string;
+	rides: string;
 }
 
 interface StartedFigure {
@@ -142,6 +150,11 @@ export function summaryOf(
 		),
 		virtualDays: JSON.stringify(virtualDays),
 		ownDays: JSON.stringify(ownDays),
+		rides: JSON.stringify(
+			rides
+				.map((r): RideEntry => [r.date, r.distanceM, r.elevationDm])
+				.sort((a, b) => compareText(a[0], b[0]) || a[1] - b[1] || a[2] - b[2]),
+		),
 	};
 }
 
@@ -188,6 +201,10 @@ export function parseVirtualDays(text: string): VirtualDayEntry[] {
 
 export function parseOwnDays(text: string): OwnDayEntry[] {
 	return JSON.parse(text) as OwnDayEntry[];
+}
+
+export function parseRides(text: string): RideEntry[] {
+	return JSON.parse(text) as RideEntry[];
 }
 
 /** The rider's ride figures on the Badges page, from their row. */

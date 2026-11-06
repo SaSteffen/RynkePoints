@@ -3,6 +3,7 @@ import type { MessageId } from "../../i18n/catalogs";
 import type { I18n } from "../../i18n/i18n";
 import type { RiderStatus } from "../../rynke/pace";
 import type { CountingWindow } from "../../rynke/rules";
+import type { RideEntry } from "../../rynke/summary";
 import { dayNumber, lastDay as lastDayOf } from "../../rynke/weeks";
 import { html, SafeHtml } from "../html";
 import { monthsBefore } from "../progress-view";
@@ -26,8 +27,8 @@ export interface GraphRange {
 	to: number;
 }
 
-/** `[dayIndex, outdoorM, virtualM, elevationDm]`, sparse. */
-export type GraphDay = [number, number, number, number];
+/** `[dayIndex, outdoorM, virtualM, elevationDm, sessions]`, sparse. */
+export type GraphDay = [number, number, number, number, number];
 
 export interface OrganiserGraphs {
 	firstDay: string;
@@ -47,7 +48,10 @@ export interface OrganiserGraphs {
 		outdoorM: number[];
 		virtualM: number[];
 		elevationDm: number[];
+		sessions: number[];
 	};
+	/** The Sessions graph is shown (feature 032, `RIDE_FIGURES` on). */
+	sessions: boolean;
 	notAgreed: { name: string; status: RiderStatus; requests: boolean }[];
 }
 
@@ -63,8 +67,14 @@ export function organiserGraphsView(input: {
 	window: Pick<CountingWindow, "seasonStart" | "deadline">;
 	today: string;
 	group: string | null;
+	/**
+	 * The counting rides of riders whose consent shares sessions by name
+	 * (feature 032); null with `RIDE_FIGURES` off.
+	 */
+	rides?: ReadonlyMap<number, readonly RideEntry[]> | null;
 }): OrganiserGraphs {
 	const { rows, riders, requests, window, today, group } = input;
+	const rides = input.rides ?? null;
 	const firstDay = window.seasonStart;
 	const lastDay =
 		today < firstDay ? firstDay : lastDayOf(today, window.deadline);
@@ -75,6 +85,7 @@ export function organiserGraphsView(input: {
 		outdoorM: zeros(),
 		virtualM: zeros(),
 		elevationDm: zeros(),
+		sessions: zeros(),
 	};
 	const byRider = new Map(rows.map((row) => [row.athleteId, row]));
 	const hasRequests = (id: number) => (requests.get(id)?.length ?? 0) > 0;
@@ -106,27 +117,36 @@ export function organiserGraphsView(input: {
 				const index = indexOf(date);
 				if (index === null) continue;
 				const virtualM = virtual.get(date) ?? 0;
-				const day = days.get(index) ?? [index, 0, 0, 0];
+				const day = days.get(index) ?? [index, 0, 0, 0, 0];
 				day[1] += distanceM - virtualM;
 				day[2] += virtualM;
 				day[3] += elevationDm;
 				days.set(index, day);
 			}
+			for (const [date] of rides?.get(rider.athleteId) ?? []) {
+				const index = indexOf(date);
+				if (index === null) continue;
+				const day = days.get(index) ?? [index, 0, 0, 0, 0];
+				day[4] += 1;
+				days.set(index, day);
+			}
 			const rounded = [...days.values()]
 				.sort((a, b) => a[0] - b[0])
 				.map(
-					([index, outdoor, virtualM, elevation]): GraphDay => [
+					([index, outdoor, virtualM, elevation, sessions]): GraphDay => [
 						index,
 						Math.round(outdoor),
 						Math.round(virtualM),
 						elevation,
+						sessions,
 					],
 				);
-			for (const [index, outdoor, virtualM, elevation] of rounded) {
+			for (const [index, outdoor, virtualM, elevation, sessions] of rounded) {
 				teamSum.outdoorM[index] = (teamSum.outdoorM[index] ?? 0) + outdoor;
 				teamSum.virtualM[index] = (teamSum.virtualM[index] ?? 0) + virtualM;
 				teamSum.elevationDm[index] =
 					(teamSum.elevationDm[index] ?? 0) + elevation;
+				teamSum.sessions[index] = (teamSum.sessions[index] ?? 0) + sessions;
 			}
 			return {
 				id: rider.athleteId,
@@ -138,6 +158,7 @@ export function organiserGraphsView(input: {
 			};
 		}),
 		teamSum,
+		sessions: rides !== null,
 		notAgreed: riders
 			.filter((rider) => !byRider.has(rider.athleteId))
 			.sort(byName)
@@ -157,7 +178,12 @@ function byName(a: GraphRider, b: GraphRider): number {
 const slot = (name: string) =>
 	new SafeHtml(`<span data-slot="${name}"></span>`);
 
-const METRICS = ["outdoor", "virtual", "elevation"] as const;
+const METRICS = ["outdoor", "virtual", "elevation", "sessions"] as const;
+
+/** The graphs shown: Sessions only with the ride figures on. */
+function metricsOf(view: OrganiserGraphs): (typeof METRICS)[number][] {
+	return METRICS.filter((metric) => metric !== "sessions" || view.sessions);
+}
 
 function template(name: string, content: SafeHtml | string): SafeHtml {
 	return html`<template data-text="${name}">${content}</template>
@@ -251,9 +277,9 @@ ${chip(html` data-mode="running"`, "organiser.graphs.mode.running")}${chip(html`
 <p id="organiser-graphs-help" class="visually-hidden">${i18n.t("progress.help")}</p>
 <p class="org-graphs-note" data-note hidden></p>
 <div class="org-graphs-tabs" role="group" aria-label="${i18n.t("organiser.graphs.tabs.label")}">
-${METRICS.map((metric) => chip(html` data-tab="${metric}"`, `organiser.graphs.tab.${metric}`))}</div>
-${METRICS.map((metric) => renderFigure(i18n, metric))}<p class="visually-hidden" aria-live="polite" data-live></p>
-${template("title.outdoor", i18n.t("organiser.graphs.title.outdoor"))}${template("title.virtual", i18n.t("organiser.graphs.title.virtual"))}${template("title.elevation", i18n.t("organiser.graphs.title.elevation"))}${template("average", i18n.t("organiser.graphs.average"))}${template("total", i18n.t("organiser.graphs.total"))}${template("km", value("organiser.graphs.value.km"))}${template("m", value("organiser.graphs.value.m"))}${template("summary.riders", value("organiser.graphs.summary.riders"))}${template("summary.average", i18n.t("organiser.graphs.summary.average"))}${template("summary.total", i18n.t("organiser.graphs.summary.total"))}${template("summary.none", i18n.t("organiser.graphs.summary.none"))}${template("note.one", i18n.t("organiser.graphs.note.one"))}${template("note.other", value("organiser.graphs.note.other"))}${template("note.nobody", i18n.t("organiser.graphs.note.nobody"))}${template("noMatch", i18n.tHtml("organiser.graphs.picker.noMatch", { query: slot("query") }))}${template("range", i18n.tHtml("organiser.graphs.readout.range", { from: slot("from"), to: slot("to") }))}${template("aria", i18n.tHtml("organiser.graphs.aria", { title: slot("title"), from: slot("from"), to: slot("to"), lines: slot("lines") }))}<template data-legend-entry><button type="button" class="org-legend-entry" aria-pressed="false"><span class="org-legend-key" aria-hidden="true"></span><span class="org-legend-name" data-slot="name"></span> <span data-slot="value"></span></button></template>
+${metricsOf(view).map((metric) => chip(html` data-tab="${metric}"`, `organiser.graphs.tab.${metric}`))}</div>
+${metricsOf(view).map((metric) => renderFigure(i18n, metric))}<p class="visually-hidden" aria-live="polite" data-live></p>
+${template("title.outdoor", i18n.t("organiser.graphs.title.outdoor"))}${template("title.virtual", i18n.t("organiser.graphs.title.virtual"))}${template("title.elevation", i18n.t("organiser.graphs.title.elevation"))}${view.sessions ? html`${template("title.sessions", i18n.t("organiser.graphs.title.sessions"))}${template("sessions", value("organiser.graphs.value.sessions"))}` : null}${template("average", i18n.t("organiser.graphs.average"))}${template("total", i18n.t("organiser.graphs.total"))}${template("km", value("organiser.graphs.value.km"))}${template("m", value("organiser.graphs.value.m"))}${template("summary.riders", value("organiser.graphs.summary.riders"))}${template("summary.average", i18n.t("organiser.graphs.summary.average"))}${template("summary.total", i18n.t("organiser.graphs.summary.total"))}${template("summary.none", i18n.t("organiser.graphs.summary.none"))}${template("note.one", i18n.t("organiser.graphs.note.one"))}${template("note.other", value("organiser.graphs.note.other"))}${template("note.nobody", i18n.t("organiser.graphs.note.nobody"))}${template("noMatch", i18n.tHtml("organiser.graphs.picker.noMatch", { query: slot("query") }))}${template("range", i18n.tHtml("organiser.graphs.readout.range", { from: slot("from"), to: slot("to") }))}${template("aria", i18n.tHtml("organiser.graphs.aria", { title: slot("title"), from: slot("from"), to: slot("to"), lines: slot("lines") }))}<template data-legend-entry><button type="button" class="org-legend-entry" aria-pressed="false"><span class="org-legend-key" aria-hidden="true"></span><span class="org-legend-name" data-slot="name"></span> <span data-slot="value"></span></button></template>
 <script type="application/json" id="organiser-graphs-data">${graphData(view)}</script>
 </section>
 `;

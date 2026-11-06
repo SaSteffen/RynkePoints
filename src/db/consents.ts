@@ -5,22 +5,32 @@ import { SHARING_SINCE_VERSION } from "../consent";
 
 export interface Consent {
 	version: number;
+	/** The minor revision of `version` accepted, 0 for none (constitution 2.4.0). */
+	revision: number;
 	acceptedAt: number;
 }
 
-/** Ticking the same version again keeps the first acceptance. */
+/** A consent being recorded; without a revision it is revision 0. */
+export type GivenConsent = Omit<Consent, "revision"> & { revision?: number };
+
+/**
+ * Ticking the same version again keeps the first acceptance, so a rider on 3
+ * stays on revision 0 until they accept a newer major version.
+ */
 export function recordConsentStatement(
 	db: D1Database,
 	athleteId: number,
 	version: number,
 	acceptedAt: number,
+	revision = 0,
 ): D1PreparedStatement {
 	return db
 		.prepare(
-			`INSERT OR IGNORE INTO consent_records (athlete_id, version, accepted_at)
-			VALUES (?, ?, ?)`,
+			`INSERT OR IGNORE INTO consent_records (athlete_id, version, accepted_at,
+				revision)
+			VALUES (?, ?, ?, ?)`,
 		)
-		.bind(athleteId, version, acceptedAt);
+		.bind(athleteId, version, acceptedAt, revision);
 }
 
 export async function recordConsent(
@@ -28,15 +38,23 @@ export async function recordConsent(
 	athleteId: number,
 	version: number,
 	acceptedAt: number,
+	revision = 0,
 ): Promise<void> {
-	await recordConsentStatement(db, athleteId, version, acceptedAt).run();
+	await recordConsentStatement(
+		db,
+		athleteId,
+		version,
+		acceptedAt,
+		revision,
+	).run();
 }
 
 /** The rider's current consent: the record with the highest version. */
 export function currentConsentStatement(db: D1Database, athleteId: number) {
 	return db
 		.prepare(
-			`SELECT version, accepted_at FROM consent_records WHERE athlete_id = ?
+			`SELECT version, revision, accepted_at FROM consent_records
+			WHERE athlete_id = ?
 			ORDER BY version DESC LIMIT 1`,
 		)
 		.bind(athleteId);
@@ -44,11 +62,16 @@ export function currentConsentStatement(db: D1Database, athleteId: number) {
 
 export interface ConsentRow {
 	version: number;
+	revision: number;
 	accepted_at: number;
 }
 
 export function toConsent(row: ConsentRow): Consent {
-	return { version: row.version, acceptedAt: row.accepted_at };
+	return {
+		version: row.version,
+		revision: row.revision,
+		acceptedAt: row.accepted_at,
+	};
 }
 
 export async function getCurrentConsent(

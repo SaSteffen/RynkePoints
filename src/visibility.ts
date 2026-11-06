@@ -1,4 +1,8 @@
-import { DAILY_FIGURES_SINCE_VERSION, SHARING_SINCE_VERSION } from "./consent";
+import {
+	DAILY_FIGURES_SINCE_VERSION,
+	RIDE_FIGURES_SINCE_VERSION,
+	SHARING_SINCE_VERSION,
+} from "./consent";
 import type { Viewer } from "./http/viewer";
 
 // What one rider may see of another (feature 004 US3, FR-020, FR-021, FR-022,
@@ -15,6 +19,8 @@ export type RiderData =
 	| "corrections"
 	| "participationReports"
 	| "dailyFigures"
+	| "rideFigures"
+	| "rideFiguresByName"
 	| "rides"
 	| "consentRecords";
 
@@ -37,6 +43,11 @@ export const VISIBILITY: Readonly<Record<RiderData, ReadonlySet<Audience>>> = {
 	participationReports: ORGANISER_ONLY,
 	// Feature 029: per day and rider; single rides stay with nobody.
 	dailyFigures: ORGANISER_ONLY,
+	// Feature 032: sessions, km and elevation per period in anonymous ranking
+	// rows, the team line and the team chart.
+	rideFigures: TEAM,
+	// Feature 032: sessions and the typical ride by name, sessions per day.
+	rideFiguresByName: ORGANISER_ONLY,
 	rides: NOBODY,
 	consentRecords: NOBODY,
 };
@@ -52,6 +63,8 @@ export const SINCE_VERSION: Readonly<Record<RiderData, number>> = {
 	corrections: SHARING_SINCE_VERSION,
 	participationReports: SHARING_SINCE_VERSION,
 	dailyFigures: DAILY_FIGURES_SINCE_VERSION,
+	rideFigures: RIDE_FIGURES_SINCE_VERSION,
+	rideFiguresByName: RIDE_FIGURES_SINCE_VERSION,
 	rides: SHARING_SINCE_VERSION,
 	consentRecords: SHARING_SINCE_VERSION,
 };

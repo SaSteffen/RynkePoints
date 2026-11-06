@@ -1,6 +1,10 @@
 import { createScheduledController, env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
-import type { RiderSummaryRow } from "../../src/db/rider-summaries";
+import {
+	type RiderSummaryRow,
+	readRidesAddedUp,
+	readRidesOfRiders,
+} from "../../src/db/rider-summaries";
 import {
 	deleteRider,
 	insertRider,
@@ -116,6 +120,7 @@ async function fromScratch(athleteId = ATHLETE_A) {
 		attended: summary.attended,
 		virtual_days: summary.virtualDays,
 		own_days: summary.ownDays,
+		rides: summary.rides,
 	};
 }
 
@@ -150,6 +155,7 @@ describe("a rider's summary follows every change (US3)", () => {
 			attended: "[]",
 			virtual_days: "[]",
 			own_days: "[]",
+			rides: "[]",
 		});
 	});
 
@@ -390,6 +396,88 @@ describe("a rider's summary follows every change (US3)", () => {
 	});
 });
 
+describe("a rider's counting rides (feature 032 research R1)", () => {
+	const rides = async () => JSON.parse((await storedRow())?.rides ?? "");
+
+	it("holds each counting ride with its full distance, and no ride that doesn't count", async () => {
+		await evaluateChange(ctx, ATHLETE_A, {
+			kind: "upsert",
+			records: [
+				eveningRide(1, 79000),
+				activityRecord(2, { is_manual: 1 }),
+				activityRecord(3, { start_date: "2026-05-02T08:00:00Z" }),
+			],
+		});
+		await expectRowMatches();
+		expect(await rides()).toEqual([
+			["2026-05-02", 40000, expect.any(Number)],
+			["2026-05-04", 79000, expect.any(Number)],
+		]);
+	});
+
+	it("follows a ride edited, starting to count, stopping and deleted", async () => {
+		await evaluateChange(ctx, ATHLETE_A, {
+			kind: "upsert",
+			records: [eveningRide(1), activityRecord(2, { is_manual: 1 })],
+		});
+		expect(await rides()).toHaveLength(1);
+		await evaluateChange(ctx, ATHLETE_A, {
+			kind: "upsert",
+			records: [activityRecord(2)],
+		});
+		await expectRowMatches();
+		expect(await rides()).toHaveLength(2);
+		await evaluateChange(ctx, ATHLETE_A, {
+			kind: "upsert",
+			records: [eveningRide(1, 55555.5)],
+		});
+		await expectRowMatches();
+		expect((await storedRow())?.rides).toContain("55555.5");
+		await evaluateChange(ctx, ATHLETE_A, {
+			kind: "upsert",
+			records: [eveningRide(1, 55555.5), activityRecord(2, { is_flagged: 1 })],
+		});
+		await expectRowMatches();
+		expect(await rides()).toHaveLength(1);
+		await evaluateChange(ctx, ATHLETE_A, { kind: "delete", activityIds: [1] });
+		await expectRowMatches();
+		expect(await rides()).toEqual([]);
+	});
+
+	it("reads stored rides from version 3 rows, and adds up a rider without one", async () => {
+		await evaluateChange(ctx, ATHLETE_A, {
+			kind: "upsert",
+			records: [eveningRide(1), activityRecord(2)],
+		});
+		await evaluateChange(ctx, ATHLETE_B, { kind: "none" });
+		const stored = await readRidesOfRiders(env.DB, [ATHLETE_A, ATHLETE_B], 3);
+		expect(stored.get(ATHLETE_A)).toEqual(await rides());
+		expect(stored.get(ATHLETE_B)).toEqual([]);
+		await env.DB.prepare(
+			"UPDATE rider_summaries SET version = 2, rides = '[]' WHERE athlete_id = ?",
+		)
+			.bind(ATHLETE_A)
+			.run();
+		const fromRows = await readRidesOfRiders(env.DB, [ATHLETE_A, ATHLETE_B], 3);
+		expect(fromRows.has(ATHLETE_A)).toBe(false);
+		const addedUp = await readRidesAddedUp(env.DB, [ATHLETE_A], 3);
+		expect(addedUp.get(ATHLETE_A)).toEqual(stored.get(ATHLETE_A));
+		expect(addedUp.get(ATHLETE_A)).toHaveLength(2);
+	});
+
+	it("adds up only riders on the given consent version", async () => {
+		await seedRider(ctx, { athleteId: 9001, consentVersion: 2 });
+		await evaluateChange(ctx, 9001, {
+			kind: "upsert",
+			records: [activityRecord(5, { athlete_id: 9001 })],
+		});
+		expect((await readRidesAddedUp(env.DB, [9001], 3)).get(9001)).toEqual([]);
+		expect((await readRidesAddedUp(env.DB, [9001], 2)).get(9001)).toHaveLength(
+			1,
+		);
+	});
+});
+
 describe("an evaluation that changes nothing (FR-004)", () => {
 	const seed = () =>
 		evaluateChange(ctx, ATHLETE_A, {
@@ -554,6 +642,7 @@ describe("the release is invisible (US5)", () => {
 			attended: "[]",
 			virtual_days: "[]",
 			own_days: "[]",
+			rides: "[]",
 		});
 		await seedEmptySummary(ATHLETE_A);
 		await seedEmptySummary(ATHLETE_B);

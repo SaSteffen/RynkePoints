@@ -51,7 +51,7 @@ describe("organiserGraphsView", () => {
 				virtualDays: [["2026-01-03", 12400.2]],
 			},
 		]);
-		expect(riders[0]?.days).toEqual([[2, 17600, 12400, 2505]]);
+		expect(riders[0]?.days).toEqual([[2, 17600, 12400, 2505, 0]]);
 	});
 
 	it("puts elevation from virtual and outdoor rides in the same figure", () => {
@@ -66,8 +66,8 @@ describe("organiserGraphsView", () => {
 			},
 		]);
 		expect(riders[0]?.days).toEqual([
-			[2, 10000, 0, 100],
-			[3, 0, 10000, 50],
+			[2, 10000, 0, 100, 0],
+			[3, 0, 10000, 50, 0],
 		]);
 	});
 
@@ -126,7 +126,7 @@ describe("organiserGraphsView", () => {
 			undefined,
 			"2026-08-01",
 		);
-		expect(riders[0]?.days).toEqual([[180, 2000, 0, 10]]);
+		expect(riders[0]?.days).toEqual([[180, 2000, 0, 10, 0]]);
 	});
 
 	it("clamps a day past today to the last day, so the sums stay complete", () => {
@@ -139,7 +139,7 @@ describe("organiserGraphsView", () => {
 				],
 			},
 		]);
-		expect(riders[0]?.days).toEqual([[59, 1500, 0, 15]]);
+		expect(riders[0]?.days).toEqual([[59, 1500, 0, 15, 0]]);
 		expect(teamSum.outdoorM[59]).toBe(1500);
 	});
 
