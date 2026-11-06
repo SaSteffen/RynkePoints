@@ -775,14 +775,20 @@ ${hasGraphs ? graphs : null}<div class="overview-qualified">${renderQualified(i1
 ${renderDeadline(i18n, window, today, riders)}${renderTiles(i18n, riders, group, passed, requests)}${body}</div>`;
 }
 
-/** Graphs or riders below 1100 px, instead of scrolling past one to the other. */
+/**
+ * Riders or graphs below 1100 px, instead of scrolling past one to the other:
+ * the default, Riders, first. A joined segmented pill like the Riders/Events
+ * switch above, so it takes the theme's colours (feature 022 controls.md).
+ */
 function renderViewSwitch(
 	i18n: I18n,
 	count: number,
 	view: "graphs" | "riders",
 ): SafeHtml {
 	const whole = i18n.formatNumber(count, { fractionDigits: 0 });
-	return html`<div class="overview-views" role="group" aria-label="${i18n.t("organiser.graphs.view.label")}"><button type="button" data-view-pick="graphs" aria-pressed="${view === "graphs" ? "true" : "false"}">${i18n.t("organiser.graphs.view.graphs")}</button><button type="button" data-view-pick="riders" aria-pressed="${view === "riders" ? "true" : "false"}">${i18n.tHtml("organiser.graphs.view.riders", { n: html`<span data-riders-count>${whole}</span>` })}</button></div>
+	const pick = (pick: "graphs" | "riders", label: SafeHtml | string) =>
+		html`<button type="button" class="segmented" data-view-pick="${pick}" aria-pressed="${view === pick ? "true" : "false"}"><span>${label}</span></button>`;
+	return html`<div class="overview-views" role="group" aria-label="${i18n.t("organiser.graphs.view.label")}">${pick("riders", i18n.tHtml("organiser.graphs.view.riders", { n: html`<span data-riders-count>${whole}</span>` }))}${pick("graphs", i18n.t("organiser.graphs.view.graphs"))}</div>
 `;
 }
 

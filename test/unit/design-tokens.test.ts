@@ -289,6 +289,29 @@ describe("design tokens", () => {
 			it("keeps the gauge's fill apart from its track", () => {
 				expect(value("--rp-reached")).not.toBe(value("--rp-track"));
 			});
+
+			// The Training, Team and warning bars keep their colours across themes
+			// but stay readable: the fill itself, or else the edge drawn around it,
+			// reaches 3 : 1 on the surfaces bars sit on. The contrast themes need
+			// 4.5 : 1 from the fill alone.
+			it.each(["--rp-bar-training", "--rp-bar-team", "--rp-bar-warning"])(
+				"shows %s on the surface and in cards",
+				(bar) => {
+					const backgrounds = [md("surface"), md("surface-container")].map(
+						(bg) => value(bg),
+					);
+					const reaches = (fg: string, ratio: number) =>
+						HEX.test(fg) &&
+						backgrounds.every((bg) => contrast(fg, bg) >= ratio);
+					if (theme.group === "contrast") {
+						expect(reaches(value(bar), 4.5)).toBe(true);
+					} else {
+						expect(
+							reaches(value(bar), 3) || reaches(value("--rp-bar-edge"), 3),
+						).toBe(true);
+					}
+				},
+			);
 		},
 	);
 });

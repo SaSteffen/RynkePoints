@@ -160,8 +160,8 @@ rider by name, and handle an open report.
 **Acceptance Scenarios**:
 
 1. **Given** a phone, **When** the organiser opens the Riders view, **Then** the order is: switch,
-   heading, deadline hero, tiles, open reports box, then a Graphs / Riders (N) switch with Riders
-   selected.
+   heading, deadline hero, tiles, open reports box, then a Riders (N) / Graphs switch with Riders
+   on the left and selected.
 2. **Given** more than 3 open reports, **When** the box shows, **Then** it lists 3 and offers "Show all
    N", which opens the requests group in the Riders view.
 3. **Given** the Graphs view, **When** the organiser reads it, **Then** one graph shows at a time,

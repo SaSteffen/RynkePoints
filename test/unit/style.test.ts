@@ -735,6 +735,36 @@ describe("STYLE", () => {
 			);
 		});
 
+		it("uses no custom property the stylesheet doesn't define", () => {
+			// An undefined token falls back to the browser's default (black for an
+			// SVG fill) in every theme, as `--md-sys-color-tertiary` once did.
+			const defined = new Set(
+				RULES.flatMap((rule) =>
+					Object.keys(rule.decls).filter((p) => p.startsWith("--")),
+				),
+			);
+			// Page-set ones like `--badge-src` come from the markup, so only the
+			// theme tokens count.
+			const used = [...STYLE.matchAll(/var\((--(?:md|rp)-[\w-]+)\)/g)].map(
+				(m) => m[1] ?? "",
+			);
+			expect([...new Set(used)].filter((name) => !defined.has(name))).toEqual(
+				[],
+			);
+		});
+
+		it("draws every selected state in the theme's colours, not the coin's", () => {
+			// Picked tiles, pressed switches and checked choices follow
+			// primary-container (contracts/controls.md "Segmented", "Filter chip").
+			const SELECTED = /\[aria-current\]|\[aria-pressed=true\]|:checked/;
+			const offenders = RULES.filter(
+				(rule) =>
+					rule.selectors.some((s) => SELECTED.test(s)) &&
+					Object.values(rule.decls).some((v) => /--rp-coin-/.test(v)),
+			).map((rule) => rule.selectors.join(","));
+			expect(offenders).toEqual([]);
+		});
+
 		it("has no rule for Rynke Tag and Nacht, the base schemes", () => {
 			expect(STYLE).not.toContain(":root[data-theme=rynke-day]{");
 			expect(STYLE).not.toContain(":root[data-theme=rynke-night]{");
@@ -794,6 +824,16 @@ describe("STYLE", () => {
 				expect(declsOf(`:root[data-theme=${id}] .chip`).border).toBe(
 					"var(--rp-outline-width) solid currentColor",
 				);
+				expect(declsOf(`:root[data-theme=${id}] .usage-mark`).border).toBe(
+					"var(--rp-outline-width) solid currentColor",
+				);
+				// A bar's empty part shows, not only its filled one.
+				expect(declsOf(`:root[data-theme=${id}] .threshold-track`)).toEqual({
+					opacity: "1",
+					stroke: "var(--md-sys-color-on-surface)",
+					"stroke-width": "1",
+					"vector-effect": "non-scaling-stroke",
+				});
 			}
 		});
 

@@ -34,7 +34,7 @@ No reports box, no Graphs/Riders switch, no search above the table.
 
 1. Riders/Events switch, heading, deadline hero, tiles
 2. Open reports box, when any: heading with count, up to 3 lines with Add and Decline, "Show all N"
-3. Graphs / Riders (N) switch, only with the section, with Riders selected. N counts the group's riders.
+3. Riders (N) / Graphs switch, only with the section: Riders on the left and selected, Graphs on the right. N counts the group's riders.
 4. Graphs view: Progress section. Riders view: pace hint, search, rows, "Training goal reached".
 
 Without the section, item 4's Riders view shows directly.
