@@ -132,6 +132,15 @@ const contrast = (light: boolean): Record<string, string> => ({
 	[md("on-error-container")]: light ? "#b00000" : "#ff8a80",
 	"--rp-neutral-container": light ? "#ffffff" : "#000000",
 	"--rp-on-neutral-container": light ? "#000000" : "#ffffff",
+	// The Training, Team and warning bars reach 7 : 1 on their own here, not
+	// only through the edge the other light themes draw around them.
+	...(light
+		? {
+				"--rp-bar-training": "#6b5600",
+				"--rp-bar-team": "#0b5394",
+				"--rp-bar-warning": "#9a3a00",
+			}
+		: {}),
 });
 
 export const THEMES: readonly Theme[] = [
