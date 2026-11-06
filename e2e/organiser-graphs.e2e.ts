@@ -148,7 +148,7 @@ async function expectAllOnRange(page: Page, from: string, to: string) {
 test.describe("wide screen", () => {
 	test.use({ viewport: WIDE });
 
-	test("has three graphs, the table above and the switch out of the way", async ({
+	test("has four graphs, the table above and the switch out of the way", async ({
 		page,
 	}) => {
 		await openGraphs(page);
@@ -156,6 +156,7 @@ test.describe("wide screen", () => {
 			"outdoor",
 			"virtual",
 			"elevation",
+			"sessions",
 		]);
 		await expect(page.locator(".rider-table")).toBeVisible();
 		await expect(page.locator(".overview-views")).toBeHidden();

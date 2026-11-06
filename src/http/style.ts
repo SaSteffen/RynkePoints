@@ -417,7 +417,8 @@ li.row.you{background:var(--md-sys-color-secondary-container);color:var(--md-sys
 .sparkline polyline,.sparkline path{fill:none;stroke:var(--md-sys-color-on-surface-variant);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
 li.row.you .sparkline polyline,li.row.you .sparkline path{stroke:currentColor}
 .rank-label{margin:var(--rp-space-3) var(--rp-space-2) var(--rp-space-1);font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
-nav.rank-by,nav.rank-period{flex-wrap:wrap}
+nav.rank-by,nav.rank-period{flex-wrap:wrap;gap:var(--rp-space-2) 4px}
+nav.rank-by .segmented,nav.rank-period .segmented{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 6px}
 .ride-team-line{margin:var(--rp-space-3) var(--rp-space-2);font:600 13px/18px var(--md-ref-typeface);color:var(--md-sys-color-on-surface-variant)}
 .ride-bar{display:block;height:8px;margin-top:6px;border-radius:4px;background:color-mix(in srgb,currentColor 14%,transparent);overflow:hidden}
 .ride-bar>span{display:block;height:100%;border-radius:4px;background:currentColor}
