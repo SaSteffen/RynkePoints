@@ -178,6 +178,11 @@ describe("rows read with a full-season team (feature 030)", () => {
 		const season = await measure();
 		expect(season.start).toBeLessThanOrEqual(400);
 		expect(season.team).toBeLessThanOrEqual(500);
+		// Ride stats SC-006: a ride figure adds one row per rider and its
+		// consent checks, never their rides.
+		const byKm = await pageRows("/team?by=km&period=week", RIDER);
+		// Per rider: the rider, the two consent checks and the summary row.
+		expect(byKm - season.team).toBeLessThanOrEqual(4 * RIDERS + 5);
 		// Organiser graphs SC-009: from the rider's row, not their rides.
 		expect(season.badges).toBeLessThanOrEqual(500);
 		expect(season.organiserRiders).toBeLessThanOrEqual(1000);
@@ -195,6 +200,9 @@ describe("rows read with a full-season team (feature 030)", () => {
 		const doubled = await measure();
 		expect(doubled.start).toBeLessThan(season.start * 1.1);
 		expect(doubled.team).toBeLessThan(season.team * 1.1);
+		expect(await pageRows("/team?by=km", RIDER)).toBeLessThan(
+			(season.team + 4 * RIDERS + 5) * 1.1,
+		);
 		expect(doubled.organiserRiders).toBeLessThan(season.organiserRiders * 1.1);
 		// More rides earn the rider more badges: three rows each, and no more.
 		expect(doubled.badges - season.badges).toBeLessThanOrEqual(

@@ -502,6 +502,44 @@ export const de = {
 	"team.chart.total": "Gesamt",
 	"team.chart.gain": "Plus",
 
+	// Feature 032: the ride figures on /team (contracts/messages.md).
+	"team.rankBy.label": "Rangliste nach",
+	"team.rankBy.rynke": "Rynke",
+	"team.rankBy.sessions": "Fahrten",
+	"team.rankBy.km": "km",
+	"team.rankBy.elevation": "Höhenmeter",
+	"team.period.label": "Zeitraum",
+	"team.period.season": "Saison",
+	"team.period.month": "Monat",
+	"team.period.week": "Woche",
+	"team.ride.hint": "Ohne Namen. Es zählen dieselben Fahrten wie für Rynke.",
+	"team.ride.session": "{n}\u00a0Fahrt",
+	"team.ride.sessions": "{n}\u00a0Fahrten",
+	"team.ride.km": "{n}\u00a0km",
+	"team.ride.elevation": "{n}\u00a0Hm",
+	"team.ride.by.sessions": "nach Fahrten",
+	"team.ride.by.km": "nach Kilometern",
+	"team.ride.by.elevation": "nach Höhenmetern",
+	"team.ride.place.by": "{figure}, {period}",
+	"team.ride.place.next": "Noch {n} bis zum nächsten Platz",
+	"team.ride.place.lead": "Du liegst vorn.",
+	"team.ride.yours": "Deine Zahlen, {period}: {sessions} · {km} · {elevation}",
+	"team.ride.typical": "Typische Fahrt: {n}",
+	"team.ride.typical.hint":
+		"Die Hälfte der Fahrten ist länger, die Hälfte kürzer.",
+	"team.ride.teamLine":
+		"Das Team, {period}: {km} · {sessions} · {elevation} · typische Fahrt {typical}",
+	"team.ride.nobodyYet": "In diesem Zeitraum ist noch niemand gefahren.",
+	"team.ride.bar": "{value} von {lead} an der Spitze",
+	"team.ride.total.heading": "Die Kilometer des Teams",
+	"team.ride.total.kind": "gemeinsam gefahren",
+	"team.ride.total.thisWeek": "+{n}\u00a0km diese Woche 🔥",
+	"team.ride.chart.heading": "Kilometer Woche für Woche",
+	"team.ride.chart.hint":
+		"Die Balken zeigen die Kilometer des Teams in jeder Woche, die Linie alles zusammengezählt.",
+	"team.ride.chart.label":
+		"Kilometer des Teams pro Woche und zusammengezählt, {weeks} Wochen, jetzt {total}",
+
 	// Feature 016: the organiser overview (contracts/messages.md "Organiser overview").
 	"organiser.overview.heading": "Teamübersicht",
 	"organiser.overview.deadline": "Stichtag · {date}",

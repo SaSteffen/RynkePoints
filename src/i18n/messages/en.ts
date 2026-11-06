@@ -480,6 +480,43 @@ export const en: Catalog = {
 	"team.chart.total": "Total",
 	"team.chart.gain": "Gain",
 
+	// Feature 032: the ride figures on /team (contracts/messages.md).
+	"team.rankBy.label": "Rank by",
+	"team.rankBy.rynke": "Rynke",
+	"team.rankBy.sessions": "Sessions",
+	"team.rankBy.km": "km",
+	"team.rankBy.elevation": "Elevation",
+	"team.period.label": "Period",
+	"team.period.season": "Season",
+	"team.period.month": "Month",
+	"team.period.week": "Week",
+	"team.ride.hint": "No names. The same rides count as for Rynke.",
+	"team.ride.session": "{n}\u00a0session",
+	"team.ride.sessions": "{n}\u00a0sessions",
+	"team.ride.km": "{n}\u00a0km",
+	"team.ride.elevation": "{n}\u00a0m",
+	"team.ride.by.sessions": "by sessions",
+	"team.ride.by.km": "by kilometres",
+	"team.ride.by.elevation": "by elevation",
+	"team.ride.place.by": "{figure}, {period}",
+	"team.ride.place.next": "{n} more to the next place",
+	"team.ride.place.lead": "You're in front.",
+	"team.ride.yours": "Your figures, {period}: {sessions} · {km} · {elevation}",
+	"team.ride.typical": "Typical ride: {n}",
+	"team.ride.typical.hint": "Half of the rides are longer, half are shorter.",
+	"team.ride.teamLine":
+		"The team, {period}: {km} · {sessions} · {elevation} · typical ride {typical}",
+	"team.ride.nobodyYet": "Nobody has ridden yet in this period.",
+	"team.ride.bar": "{value} of the leader's {lead}",
+	"team.ride.total.heading": "The team's kilometres",
+	"team.ride.total.kind": "ridden together",
+	"team.ride.total.thisWeek": "+{n}\u00a0km this week 🔥",
+	"team.ride.chart.heading": "Kilometres, week by week",
+	"team.ride.chart.hint":
+		"The bars show the team's kilometres each week, the line everything added up.",
+	"team.ride.chart.label":
+		"The team's kilometres per week and added up, {weeks} weeks, now {total}",
+
 	// Feature 016: the organiser overview (contracts/messages.md "Organiser overview").
 	"organiser.overview.heading": "Team overview",
 	"organiser.overview.deadline": "Qualification deadline · {date}",
