@@ -23,10 +23,10 @@ description: "Tasks for the ride stats leaderboard"
 
 **Purpose**: the schema and the two settings.
 
-- [ ] T001 Add `rides` to `rider_summaries` and `revision` to `consent_records` in the `COLUMNS` list of `test/integration/schema-minimisation.test.ts` (red)
-- [ ] T002 Create `migrations/0026_ride_figures.sql`: `ALTER TABLE rider_summaries ADD COLUMN rides TEXT NOT NULL DEFAULT '[]'` and `ALTER TABLE consent_records ADD COLUMN revision INTEGER NOT NULL DEFAULT 0 CHECK (revision >= 0)`; comment that `rides` is derived data and that the previously deployed code never names either column (T001 green)
-- [ ] T003 [P] Write failing tests in `test/unit/config.test.ts` for `rideFigures(env)` and `rynkeViews(env)`: `"on"` → true, `"off"` → false, anything else throws, as for `trainingLeaderboard`
-- [ ] T004 Add `RIDE_FIGURES` and `RYNKE_VIEWS` to `Settings` and the two readers to `src/config.ts`; add both as `"on"` to `vars` in `wrangler.jsonc` and to the bindings in `vitest.config.ts` (commented "Pinned; the off tests override it per request"); run `pnpm types` to update `worker-configuration.d.ts` (T003 green)
+- [X] T001 Add `rides` to `rider_summaries` and `revision` to `consent_records` in the `COLUMNS` list of `test/integration/schema-minimisation.test.ts` (red)
+- [X] T002 Create `migrations/0026_ride_figures.sql`: `ALTER TABLE rider_summaries ADD COLUMN rides TEXT NOT NULL DEFAULT '[]'` and `ALTER TABLE consent_records ADD COLUMN revision INTEGER NOT NULL DEFAULT 0 CHECK (revision >= 0)`; comment that `rides` is derived data and that the previously deployed code never names either column (T001 green)
+- [X] T003 [P] Write failing tests in `test/unit/config.test.ts` for `rideFigures(env)` and `rynkeViews(env)`: `"on"` → true, `"off"` → false, anything else throws, as for `trainingLeaderboard`
+- [X] T004 Add `RIDE_FIGURES` and `RYNKE_VIEWS` to `Settings` and the two readers to `src/config.ts`; add both as `"on"` to `vars` in `wrangler.jsonc` and to the bindings in `vitest.config.ts` (commented "Pinned; the off tests override it per request"); run `pnpm types` to update `worker-configuration.d.ts` (T003 green)
 
 **Checkpoint**: `pnpm test` passes; nothing reads the new columns or settings yet.
 
