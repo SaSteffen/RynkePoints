@@ -15,13 +15,15 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 import { forms } from "../support/messages";
 
 /** The shipped locales in registry order (feature 026 contracts/locales.md). */
-const SHIPPED = ["de", "en", "da", "nb", "sv"];
+const SHIPPED = ["de", "en", "da", "nb", "sv", "fi", "is"];
 const LANGUAGE_NAMES = [
 	"Deutsch",
 	"English",
 	"Dansk",
 	"Norsk bokmål",
 	"Svenska",
+	"Suomi",
+	"Íslenska",
 ];
 
 // Every ID in specs/001-strava-connect-webhook/contracts/messages.md and

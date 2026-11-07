@@ -1,6 +1,8 @@
 import { da } from "./messages/da";
 import { de } from "./messages/de";
 import { en } from "./messages/en";
+import { fi } from "./messages/fi";
+import { is } from "./messages/is";
 import { nb } from "./messages/nb";
 import { sv } from "./messages/sv";
 
@@ -31,7 +33,15 @@ export type Catalog = Readonly<{
 }>;
 export type Catalogs = Readonly<Record<string, Catalog>>;
 
-export const CATALOGS = { de, en, da, nb, sv } as const satisfies Catalogs;
+export const CATALOGS = {
+	de,
+	en,
+	da,
+	nb,
+	sv,
+	fi,
+	is,
+} as const satisfies Catalogs;
 
 export type Locale = keyof typeof CATALOGS;
 
