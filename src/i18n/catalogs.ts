@@ -4,6 +4,7 @@ import { en } from "./messages/en";
 import { fi } from "./messages/fi";
 import { fr } from "./messages/fr";
 import { is } from "./messages/is";
+import { lt } from "./messages/lt";
 import { nb } from "./messages/nb";
 import { nl } from "./messages/nl";
 import { sv } from "./messages/sv";
@@ -45,6 +46,7 @@ export const CATALOGS = {
 	is,
 	fr,
 	nl,
+	lt,
 } as const satisfies Catalogs;
 
 export type Locale = keyof typeof CATALOGS;
