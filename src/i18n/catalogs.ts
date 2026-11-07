@@ -2,6 +2,7 @@ import { da } from "./messages/da";
 import { de } from "./messages/de";
 import { en } from "./messages/en";
 import { fi } from "./messages/fi";
+import { fr } from "./messages/fr";
 import { is } from "./messages/is";
 import { nb } from "./messages/nb";
 import { sv } from "./messages/sv";
@@ -41,6 +42,7 @@ export const CATALOGS = {
 	sv,
 	fi,
 	is,
+	fr,
 } as const satisfies Catalogs;
 
 export type Locale = keyof typeof CATALOGS;
