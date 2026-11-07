@@ -443,7 +443,7 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 - [ ] T082 Europe's Rynke explanation `docs/teams/europe/rynke-punkte.md` and its PDF from
   its values (FR-022); `scripts/docs-pdf.sh` builds per team.
 - [ ] T083 Add Europe to the gateway's `TEAMS` in `gateway/wrangler.jsonc`.
-- [ ] T084 Runbook `docs/add-a-team.md`: the manual steps from quickstart › Release 4
+- [X] T084 Runbook `docs/add-a-team.md`: the manual steps from quickstart › Release 4
   (resources in the EU jurisdiction, secrets with the Strava secret by the Strava owner
   only, environment, controllers' decision, gateway token), written for any later team
   (FR-004, FR-043, FR-044).
