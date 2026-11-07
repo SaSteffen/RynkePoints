@@ -44,21 +44,23 @@ const IMPORT_SPECIFIERS =
 	/(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+)["'`]([^"'`]+)["'`]/g;
 
 /**
- * A relative or absolute path with a `dev`, `album` or `tools` segment, e.g.
+ * A relative or absolute path with a `dev`, `album`, `tools` or `gateway`
+ * segment (the Strava gateway Worker, feature 026 release 3), e.g.
  * `../../dev/worker`.
  */
 function reachesDev(specifier: string): boolean {
 	return (
-		/^[./]/.test(specifier) && /(^|\/)(dev|album|tools)(\/|$)/.test(specifier)
+		/^[./]/.test(specifier) &&
+		/(^|\/)(dev|album|tools|gateway)(\/|$)/.test(specifier)
 	);
 }
 
-describe("layer 1: production never bundles dev/, album/ or tools/", () => {
+describe("layer 1: production never bundles dev/, album/, tools/ or gateway/", () => {
 	it("finds the app's source files", () => {
 		expect(Object.keys(SOURCES).length).toBeGreaterThanOrEqual(30);
 	});
 
-	it("has no src/ file importing from dev/, album/ or tools/", () => {
+	it("has no src/ file importing from dev/, album/, tools/ or gateway/", () => {
 		const offenders = Object.entries(SOURCES).flatMap(([file, text]) =>
 			[...text.matchAll(IMPORT_SPECIFIERS)]
 				.map((m) => m[1] ?? "")
@@ -76,6 +78,7 @@ describe("layer 1: production never bundles dev/, album/ or tools/", () => {
 			"../../album/load",
 			"../album",
 			"../../tools/content-rating/server.mjs",
+			"../../gateway/index",
 		]) {
 			expect(reachesDev(specifier)).toBe(true);
 		}
@@ -83,6 +86,7 @@ describe("layer 1: production never bundles dev/, album/ or tools/", () => {
 			"./devices",
 			"./albums",
 			"./toolsbar",
+			"./gateways",
 			"../strava/client",
 			"cloudflare:test",
 		]) {

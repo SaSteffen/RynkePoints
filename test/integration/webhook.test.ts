@@ -1,8 +1,15 @@
+import { createMessageBatch } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { handleFetch } from "../../src/index";
-import { makeCtx, ORIGIN, type TestCtx } from "../support/ctx";
+import { handleFetch, handleQueue } from "../../src/index";
+import {
+	makeCtx,
+	ORIGIN,
+	resetDb,
+	type TestCtx,
+	tableCounts,
+} from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
-import { ATHLETE_A, NOW } from "../support/fixtures";
+import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
 
 const PATH = "/strava/webhook/test-verify-token";
 const SUBSCRIPTION_ID = 777;
@@ -266,6 +273,50 @@ describe("the webhook's secret never reaches the logs", () => {
 			expect(logged.join("\n")).not.toContain("test-verify-token");
 		} finally {
 			spy.mockRestore();
+		}
+	});
+});
+
+// The gateway forwards every event to every team (feature 026 FR-010): most
+// are for another team's riders. The team drops them without a Strava request
+// and without storing or logging their IDs.
+describe("an event for a rider of another team", () => {
+	it("is acked without a Strava request, a row or a log line naming it", async () => {
+		await resetDb();
+		const before = await tableCounts();
+		const lines: string[] = [];
+		for (const level of ["log", "info", "warn", "error"] as const) {
+			vi.spyOn(console, level).mockImplementation((...args: unknown[]) => {
+				lines.push(args.map(String).join(" "));
+			});
+		}
+		try {
+			const res = await post(
+				event({ owner_id: ATHLETE_B, object_id: 7_100_099 }),
+			);
+			expect(res.status).toBe(200);
+			const batch = createMessageBatch(
+				"rynke-points-work",
+				ctx.queue.sent.map((m, i) => ({
+					id: `m${i}`,
+					timestamp: new Date(NOW * 1000),
+					attempts: 1,
+					body: m.body,
+				})),
+			);
+			const [message] = batch.messages;
+			if (!message) throw new Error("nothing queued");
+			const ack = vi.spyOn(message, "ack");
+			const retry = vi.spyOn(message, "retry");
+			await handleQueue(batch, ctx);
+			expect(ack).toHaveBeenCalledTimes(1);
+			expect(retry).not.toHaveBeenCalled();
+			expect(await tableCounts()).toEqual(before);
+			const logged = lines.join("\n");
+			expect(logged).not.toContain(String(ATHLETE_B));
+			expect(logged).not.toContain("7100099");
+		} finally {
+			vi.restoreAllMocks();
 		}
 	});
 });

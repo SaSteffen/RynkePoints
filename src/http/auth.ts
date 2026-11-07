@@ -1,4 +1,10 @@
-import { clientId, memberClubIds, seasonStart } from "../config";
+import {
+	clientId,
+	memberClubIds,
+	returnVia,
+	seasonStart,
+	teamId,
+} from "../config";
 import { currentRevision, currentVersion, grantedScopes } from "../consent";
 import type { Ctx } from "../ctx";
 import { isBlocked } from "../db/blocked";
@@ -48,6 +54,16 @@ function randomState(): string {
 	return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+/**
+ * The team's own callback, or the gateway's return address for this team,
+ * which forwards Strava's answer to that callback (feature 026 FR-007).
+ */
+function redirectUri(request: Request, ctx: Ctx): string {
+	const via = returnVia(ctx.env);
+	if (via === null) return `${new URL(request.url).origin}/auth/callback`;
+	return `${via}/auth/return/${encodeURIComponent(teamId(ctx.env))}`;
+}
+
 async function authorizeRedirect(
 	request: Request,
 	ctx: Ctx,
@@ -58,7 +74,7 @@ async function authorizeRedirect(
 	const authorize = new URL(`${STRAVA_ORIGIN}/oauth/authorize`);
 	authorize.search = new URLSearchParams({
 		client_id: clientId(ctx.env),
-		redirect_uri: `${new URL(request.url).origin}/auth/callback`,
+		redirect_uri: redirectUri(request, ctx),
 		response_type: "code",
 		approval_prompt: "force",
 		scope: REQUESTED_SCOPES,

@@ -23,6 +23,7 @@ type Settings = Pick<
 	| "PRIVACY_CONTROLLER"
 	| "CONTACT_EMAIL"
 	| "TEAM_ID"
+	| "STRAVA_RETURN_VIA"
 >;
 
 const SEASON_TIME_ZONE = "Europe/Berlin";
@@ -263,6 +264,35 @@ export function contactEmail(env: Pick<Settings, "CONTACT_EMAIL">): string {
 }
 
 /** Labels this team's usage records (feature 025 research R13). */
+/**
+ * Where Strava sends a rider back after the authorize page (feature 026
+ * contracts/gateway.md › Team-side settings): `null` for the team's own
+ * `/auth/callback` (empty setting), else the gateway's origin, which bounces
+ * the rider on to that callback.
+ */
+export function returnVia(
+	env: Pick<Settings, "STRAVA_RETURN_VIA">,
+): string | null {
+	const value = env.STRAVA_RETURN_VIA ?? "";
+	if (value === "") return null;
+	let url: URL;
+	try {
+		url = new URL(value);
+	} catch {
+		throw new Error("STRAVA_RETURN_VIA must be an origin");
+	}
+	const local = /^(localhost|[a-z0-9-]+\.localhost|127\.0\.0\.1)$/.test(
+		url.hostname,
+	);
+	if (
+		url.origin !== value ||
+		!(url.protocol === "https:" || (url.protocol === "http:" && local))
+	) {
+		throw new Error("STRAVA_RETURN_VIA must be an https origin");
+	}
+	return value;
+}
+
 export function teamId(env: Pick<Settings, "TEAM_ID">): string {
 	if (env.TEAM_ID.trim() === "") throw new Error("TEAM_ID is empty");
 	return env.TEAM_ID;
