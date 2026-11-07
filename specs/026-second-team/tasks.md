@@ -455,9 +455,9 @@ its domain.
 
 ## Phase 17: Polish
 
-- [ ] T085 Update `README.md` and `CLAUDE.md` for teams, the gateway, the dev commands and
+- [X] T085 Update `README.md` and `CLAUDE.md` for teams, the gateway, the dev commands and
   the ten languages; add `gateway/` to the non-negotiable import rule in `CLAUDE.md`.
-- [ ] T086 Remove the dead `DEFAULT_LOCALE` and `FOREIGN_LOCALE` exports once nothing uses
+- [X] T086 Remove the dead `DEFAULT_LOCALE` and `FOREIGN_LOCALE` exports once nothing uses
   them, in `src/i18n/catalogs.ts`.
 
 ---
