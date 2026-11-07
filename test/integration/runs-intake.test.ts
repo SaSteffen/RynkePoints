@@ -8,12 +8,13 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { seasonStartEpoch } from "../../src/config";
 import { handleQueue } from "../../src/index";
 import { applyAndEvaluate } from "../../src/rynke/apply";
-import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import { countingWindow } from "../../src/rynke/rules";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
 import { riderPage } from "../support/rider-view";
 import { snapshot } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // Outdoor runs are kept on their own for the running badges (feature 013
 // US3, FR-020 to FR-022, SC-004). Synthetic activities only.

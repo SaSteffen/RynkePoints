@@ -4,7 +4,7 @@ import type { Consent } from "../../db/consents";
 import { type BalanceRow, readBalanceStatement } from "../../db/rynke";
 import type { I18n } from "../../i18n/i18n";
 import { vapidPublicKey } from "../../push/vapid";
-import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
+import { countingWindow, currentRules } from "../../rynke/rules";
 import { consentSummary } from "../consent-form";
 import { html, languageForm, type SafeHtml } from "../html";
 import { renderInstallHint, renderNotifications } from "../pwa";
@@ -55,9 +55,10 @@ export function handleSettings(
 				rider.athleteId,
 			).first<BalanceRow>();
 			const rules = {
-				version: balance?.rules_version ?? CURRENT_RULES.version,
+				version: balance?.rules_version ?? currentRules(ctx.team.rules).version,
 				effectiveDate:
-					balance?.rules_effective_date ?? CURRENT_RULES.effectiveDate,
+					balance?.rules_effective_date ??
+					currentRules(ctx.team.rules).effectiveDate,
 				...countingWindow(ctx.env),
 			};
 			const status =

@@ -3,7 +3,7 @@ import type { Ctx } from "../ctx";
 import { type Rider, setOnboarded, type TourId } from "../db/riders";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
-import { CURRENT_RULES, type RynkeRules } from "../rynke/rules";
+import type { RynkeRules } from "../rynke/rules";
 import { virtualShareRequired } from "../rynke/tally";
 import { forbidden } from "./errors";
 import { html, type SafeHtml } from "./html";
@@ -215,12 +215,14 @@ export interface TourHint {
  * when the page is one of its steps (the one `&step=` names, else the page's
  * first), else, while a tour is still to show, its first step on its first
  * page or an invitation to start it anywhere else. Nothing otherwise.
+ * `rules` are the team's rules in effect, which the hints name.
  */
 export function tourHint(
 	i18n: I18n,
 	rider: Rider,
 	path: string,
 	query: URLSearchParams,
+	rules: RynkeRules,
 ): TourHint | null {
 	const page = path.split("?")[0] ?? path;
 	const requested = query.get("tour");
@@ -232,13 +234,14 @@ export function tourHint(
 			named?.path === page
 				? number - 1
 				: steps.findIndex((s) => s.path === page);
-		if (index >= 0) return stepCard(i18n, rider, requested, index, page);
+		if (index >= 0) return stepCard(i18n, rider, requested, index, page, rules);
 	}
 	const pending = pendingTour(rider);
 	if (pending === null) return null;
 	const first = tourSteps(pending, rider)[0];
 	if (!first) return null;
-	if (first.path === page) return stepCard(i18n, rider, pending, 0, page);
+	if (first.path === page)
+		return stepCard(i18n, rider, pending, 0, page, rules);
 	return {
 		section: first.section,
 		example: false,
@@ -281,6 +284,7 @@ function stepCard(
 	tour: TourId,
 	index: number,
 	page: string,
+	rules: RynkeRules,
 ): TourHint {
 	const steps = tourSteps(tour, rider);
 	const step = steps[index] as TourStep;
@@ -298,7 +302,7 @@ function stepCard(
 			page,
 			step.target ?? null,
 			html`<p class="tour-progress">${progress}</p>
-<p>${i18n.t(step.text, ruleParams(i18n, CURRENT_RULES))}</p>`,
+<p>${i18n.t(step.text, ruleParams(i18n, rules))}</p>`,
 			last
 				? html`<button class="button">${i18n.t("tour.done")}</button>`
 				: html`<a class="button" href="${stepHref(tour, rider, index + 1)}">${i18n.t("tour.next")}</a>`,

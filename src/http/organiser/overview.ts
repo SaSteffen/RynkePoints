@@ -26,8 +26,8 @@ import { evenPace, type RiderStatus, riderStatus } from "../../rynke/pace";
 import { figuresOf, shownKm } from "../../rynke/ride-figures";
 import {
 	type CountingWindow,
-	CURRENT_RULES,
 	countingWindow,
+	currentRules,
 	type RynkeRules,
 } from "../../rynke/rules";
 import type { RideEntry } from "../../rynke/summary";
@@ -924,8 +924,8 @@ export function handleOrganiserOverview(
 		// On the organiser tour's steps, the example team instead, which can
 		// be looked at but not used (feature 020 FR-013, FR-014).
 		if (example) {
-			const team = exampleTeam(window, today);
-			return html`${organiserSwitch(i18n, "riders", team.requests.length)}${renderExampleNote(i18n, "tour.organiser.example")}${overviewBody(team.riders, CURRENT_RULES, window, today, null, i18n, byRider(team.requests), true, figures)}`;
+			const team = exampleTeam(window, today, currentRules(ctx.team.rules));
+			return html`${organiserSwitch(i18n, "riders", team.requests.length)}${renderExampleNote(i18n, "tour.organiser.example")}${overviewBody(team.riders, currentRules(ctx.team.rules), window, today, null, i18n, byRider(team.requests), true, figures)}`;
 		}
 		const graphsOn = figures === "full" && organiserProgressGraph(ctx.env);
 		// Sessions by name only with amounts shown (032 research R8).
@@ -964,7 +964,12 @@ export function handleOrganiserOverview(
 						i18n,
 						organiserGraphsView({
 							rows: await toGraphRows(ctx.env.DB, graphRows),
-							riders: overviewRiders(read, CURRENT_RULES, window, today),
+							riders: overviewRiders(
+								read,
+								currentRules(ctx.team.rules),
+								window,
+								today,
+							),
 							requests,
 							window,
 							today,
@@ -976,7 +981,7 @@ export function handleOrganiserOverview(
 		const notice = await decisionNotice(url, ctx, i18n, path);
 		const view =
 			url.searchParams.get("view") === "graphs" ? "graphs" : "riders";
-		const body = html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, requests, false, figures, graphs, view, rides)}`;
+		const body = html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, currentRules(ctx.team.rules), window, today, group, i18n, requests, false, figures, graphs, view, rides)}`;
 		return graphs ? { body, scripts: CHART_SCRIPTS } : body;
 	});
 }

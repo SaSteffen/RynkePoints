@@ -4,7 +4,7 @@ import {
 	evaluateBadges,
 	type PersonalInputs,
 } from "../../src/badges/evaluate";
-import { CURRENT_RULES } from "../../src/rynke/rules";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // A rider's personal badges and progress from what they have stored (feature
 // 013 FR-001 to FR-004, FR-010, FR-013, data-model.md "Evaluation", research

@@ -170,7 +170,7 @@ export async function handleRiderNotificationText(
 	const summary = riderSummary(
 		balance,
 		virtualCount,
-		rulesForVersion(balance.rulesVersion),
+		rulesForVersion(ctx.team.rules, balance.rulesVersion),
 	);
 	const unmet = [
 		{ condition: summary.training, id: "rynke.missing.training" },

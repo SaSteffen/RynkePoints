@@ -5,12 +5,13 @@ import { readRiderBadges } from "../../src/db/badges";
 import { insertCorrectionStatement } from "../../src/db/corrections";
 import { readTeam, readTeamBadgeSums } from "../../src/db/team";
 import { evaluateChange } from "../../src/rynke/apply";
-import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import { countingWindow } from "../../src/rynke/rules";
 import type { RunRecord } from "../../src/strava/activity";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { countRows } from "../support/d1-rows";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
 import { activityRecord, attendRaw, insertEvent } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // Feature 030 US2: figures from summaries equal those from adding up the rides.
 // Earned badges, dates, Rynke, elevation and counts must be exactly equal;

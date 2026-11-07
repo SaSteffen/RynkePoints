@@ -123,8 +123,8 @@ import { teamBadgeNews } from "../work/team-badge-news";
 import { type Evaluation, evaluateRides, rideFromRow } from "./rides";
 import {
 	type CountingWindow,
-	CURRENT_RULES,
 	countingWindow,
+	currentRules,
 	isCalendarDate,
 	type RynkeRules,
 } from "./rules";
@@ -436,7 +436,7 @@ export function evaluateChange(
 		ctx.env.DB,
 		athleteId,
 		change,
-		CURRENT_RULES,
+		currentRules(ctx.team.rules),
 		countingWindow(ctx.env),
 		ctx.now(),
 	);
@@ -699,7 +699,7 @@ export async function teamEventChange(
 	const result = await applyTeamEventChange(
 		ctx.env.DB,
 		change,
-		CURRENT_RULES,
+		currentRules(ctx.team.rules),
 		countingWindow(ctx.env),
 		ctx.now(),
 	);
@@ -809,7 +809,7 @@ export async function correctionChange(
 	const result = await applyCorrectionChange(
 		ctx.env.DB,
 		change,
-		CURRENT_RULES,
+		currentRules(ctx.team.rules),
 		countingWindow(ctx.env),
 		ctx.now(),
 	);

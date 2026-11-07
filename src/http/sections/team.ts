@@ -40,7 +40,7 @@ import {
 	teamRideTotals,
 	teamWeeksKm,
 } from "../../rynke/ride-figures";
-import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
+import { countingWindow, currentRules } from "../../rynke/rules";
 import { dayNumber, lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
 import { artUrl } from "../art";
 import { peloton, sparkline, weekBars } from "../charts";
@@ -704,13 +704,13 @@ export function handleTeam(
 			const riders = team.map((listed) => ({
 				athleteId: listed.athleteId,
 				balance: listed.balance,
-				weeks: riderWeeks(listed, window, ends, listed.balance),
+				weeks: riderWeeks(listed, window, ends, listed.balance, ctx.team.rules),
 			}));
 			const { rows, viewer } = leaderboardRows(riders, rider.athleteId, kind);
 			const status = riderStatus(
 				team.find((listed) => listed.athleteId === rider.athleteId)?.balance ??
 					null,
-				CURRENT_RULES,
+				currentRules(ctx.team.rules),
 				window,
 				today,
 			);

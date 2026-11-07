@@ -64,8 +64,8 @@ import {
 import type { I18n } from "../../i18n/i18n";
 import {
 	type CountingWindow,
-	CURRENT_RULES,
 	countingWindow,
+	currentRules,
 } from "../../rynke/rules";
 import { artUrl } from "../art";
 import { html, SafeHtml } from "../html";
@@ -501,7 +501,7 @@ async function badgesOf(
 				window,
 			),
 		},
-		team: evaluateTeamBadges(read.sums, CURRENT_RULES, window),
+		team: evaluateTeamBadges(read.sums, currentRules(ctx.team.rules), window),
 		revealed: badges.revealed,
 		connectedOn: berlinDate(rider.connectedAt),
 		today: berlinDate(ctx.now()),
@@ -559,7 +559,7 @@ export async function hasNewBadges(
 	const window = badgeWindow(countingWindow(ctx.env), berlinDate(ctx.now()));
 	const team = evaluateTeamBadges(
 		await toTeamBadgeSums(ctx.env.DB, sums),
-		CURRENT_RULES,
+		currentRules(ctx.team.rules),
 		window,
 	);
 	return newBadges([], team.earned, revealed, connectedOn).length > 0;

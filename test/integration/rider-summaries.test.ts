@@ -18,7 +18,7 @@ import {
 	applyTeamEventChange,
 	evaluateChange,
 } from "../../src/rynke/apply";
-import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import { countingWindow } from "../../src/rynke/rules";
 import { RIDER_SUMMARY_VERSION, summaryOf } from "../../src/rynke/summary";
 import type { RunRecord, SwimRecord } from "../../src/strava/activity";
 import { purgePreSeasonActivities } from "../../src/work/scheduled";
@@ -28,6 +28,7 @@ import { countTrips } from "../support/d1-trips";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
 import { riderPage, seedEmptySummary } from "../support/rider-view";
 import { activityRecord, attendRaw, insertEvent } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // Feature 030 US3: every change leaves a rider's row matching their stored data,
 // in the same batch. Synthetic riders only.

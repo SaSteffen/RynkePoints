@@ -6,7 +6,7 @@ import {
 	exampleTeam,
 } from "../../src/http/tour-example";
 import { riderStatus } from "../../src/rynke/pace";
-import { CURRENT_RULES } from "../../src/rynke/rules";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The tour's examples (feature 020 FR-006, FR-013): worked out by the rules
 // functions, so what the hints say holds on any day of the season.
@@ -14,12 +14,12 @@ import { CURRENT_RULES } from "../../src/rynke/rules";
 const WINDOW = { seasonStart: "2026-09-01", deadline: "2027-06-30" };
 
 const statuses = (today: string) =>
-	exampleTeam(WINDOW, today).riders.map((r) =>
+	exampleTeam(WINDOW, today, CURRENT_RULES).riders.map((r) =>
 		riderStatus(r.balance, CURRENT_RULES, WINDOW, today),
 	);
 
 describe("the example rider", () => {
-	const rides = exampleRiderView(WINDOW, "2026-11-15").rides;
+	const rides = exampleRiderView(WINDOW, "2026-11-15", CURRENT_RULES).rides;
 	const result = (id: number) => rides.find((r) => r.activityId === id)?.result;
 
 	it("has a short ride that counts with no distance Rynke", () => {
@@ -49,12 +49,12 @@ describe("the example team", () => {
 	});
 
 	it("has exactly one qualified rider, even near the deadline", () => {
-		const { riders } = exampleTeam(WINDOW, "2027-06-29");
+		const { riders } = exampleTeam(WINDOW, "2027-06-29", CURRENT_RULES);
 		expect(riders.filter((r) => r.balance?.qualified)).toHaveLength(1);
 	});
 
 	it("has open requests only from its own riders at its past events", () => {
-		const team = exampleTeam(WINDOW, "2027-01-15");
+		const team = exampleTeam(WINDOW, "2027-01-15", CURRENT_RULES);
 		const ids = new Set(team.listed.map((r) => r.athlete_id));
 		for (const request of team.requests) {
 			expect(ids.has(request.athlete_id)).toBe(true);

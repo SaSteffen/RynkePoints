@@ -4,9 +4,8 @@ import type { RynkeRules } from "../rynke/rules";
 import type { TeamData } from "./types";
 
 // The founding team's data: today's values, moved here from the modules that
-// held them (feature 026 T038). Only `import type` from the rule and event
-// modules: `src/rynke/rules.ts` reads this file's rules while it loads, until
-// the rule functions take the history as an argument (T045).
+// held them (feature 026 T038). The rule functions take this history as an
+// argument (`ctx.team.rules`, T045).
 
 // The Rynke rules (research R8, FR-012, FR-023, moved from src/rynke/rules.ts).
 // Raise `version` and set `effectiveDate` in the same change as any change of a

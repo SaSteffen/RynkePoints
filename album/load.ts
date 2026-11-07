@@ -28,8 +28,9 @@ import {
 import type { Locale } from "../src/i18n/catalogs";
 import {
 	type CountingWindow,
-	CURRENT_RULES,
 	countingWindow,
+	currentRules,
+	type RynkeRules,
 	rulesForVersion,
 	seasonEnd,
 } from "../src/rynke/rules";
@@ -103,11 +104,12 @@ function riderRynkeOn(
 	window: CountingWindow,
 	today: string,
 	cutoff: string,
+	history: readonly RynkeRules[],
 ): { training: number; team: number } {
 	const { balance, progress } = read;
 	if (!balance) return { training: 0, team: 0 };
 	const last = shownUntil(window, today);
-	const rules = rulesForVersion(balance.rulesVersion);
+	const rules = rulesForVersion(history, balance.rulesVersion);
 	if (cutoff >= last || !progress || !rules) {
 		return { training: balance.trainingRynke, team: balance.teamRynke };
 	}
@@ -128,12 +130,13 @@ function teamTrainingOn(
 	window: CountingWindow,
 	today: string,
 	cutoff: string,
+	rules: RynkeRules,
 ): number {
 	if (cutoff >= shownUntil(window, today)) {
 		return balances.reduce((sum, b) => sum + b.trainingRynke, 0);
 	}
 	return sums.riders.reduce((sum, rider) => {
-		const days = riderDays(rider, window, CURRENT_RULES).filter(
+		const days = riderDays(rider, window, rules).filter(
 			(day) => day.date <= cutoff,
 		);
 		return sum + (days.at(-1)?.training ?? 0);
@@ -148,6 +151,7 @@ export async function loadAlbum(
 	now: number,
 ): Promise<AlbumData> {
 	const window = countingWindow(env);
+	const teamData = teamFor(env);
 	const end = seasonEnd(window);
 	const today = berlinDate(now);
 	const until = cutoff < end ? cutoff : end;
@@ -162,7 +166,13 @@ export async function loadAlbum(
 		throw new Error("D1 batch returned too few results");
 	}
 	const sums = await toTeamBadgeSums(db, sumRows);
-	const { training, team } = riderRynkeOn(read, window, today, cutoff);
+	const { training, team } = riderRynkeOn(
+		read,
+		window,
+		today,
+		cutoff,
+		teamData.rules,
+	);
 
 	const attended = new Set(
 		read.attendance
@@ -193,7 +203,7 @@ export async function loadAlbum(
 	const teamEarned = new Map(
 		evaluateTeamBadges(
 			sums,
-			CURRENT_RULES,
+			currentRules(teamData.rules),
 			badgeWindow(window, cutoff),
 		).earned.map((b) => [b.badgeId, b.earnedOn]),
 	);
@@ -216,8 +226,8 @@ export async function loadAlbum(
 		cutoff,
 		// The app does not store a rider's language (feature 001 FR-028:
 		// it lives in their browser), so every album is in the team's default.
-		locale: teamFor(env).defaultLocale,
-		badgeNames: teamFor(env).badgeNames,
+		locale: teamData.defaultLocale,
+		badgeNames: teamData.badgeNames,
 		rider: {
 			athleteId: rider.athleteId,
 			firstName: rider.firstName,
@@ -232,6 +242,7 @@ export async function loadAlbum(
 				window,
 				today,
 				cutoff,
+				currentRules(teamData.rules),
 			),
 			events,
 		},

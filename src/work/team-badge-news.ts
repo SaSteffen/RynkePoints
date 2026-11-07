@@ -11,7 +11,7 @@ import {
 	teamBadgeRiseStatement,
 } from "../db/badges";
 import { readTeamBadgeSums } from "../db/team";
-import { CURRENT_RULES, countingWindow } from "../rynke/rules";
+import { countingWindow, currentRules } from "../rynke/rules";
 
 // Team badges notify (issue #125, amending feature 013 FR-032). They are still
 // worked out on read (research R15); after a change that notifies (activity
@@ -59,7 +59,7 @@ async function announce(ctx: Ctx, keep: Set<number>): Promise<number[]> {
 	// Nothing dated after today counts (`badgeWindow`).
 	const { earned } = evaluateTeamBadges(
 		sums,
-		CURRENT_RULES,
+		currentRules(ctx.team.rules),
 		badgeWindow(window, berlinDate(now)),
 	);
 	let previous = stored?.badge_ids ?? null;

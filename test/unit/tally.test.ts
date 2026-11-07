@@ -4,7 +4,7 @@ import {
 	type RidingSums,
 	type RidingTotals,
 } from "../../src/rynke/rides";
-import { CURRENT_RULES, type RynkeRules } from "../../src/rynke/rules";
+import type { RynkeRules } from "../../src/rynke/rules";
 import {
 	type Extras,
 	extrasFrom,
@@ -20,6 +20,7 @@ import {
 	type TeamEventKind,
 } from "../../src/rynke/team-events";
 import { makeRide, WINDOW } from "../support/rides";
+import { CURRENT_RULES } from "../support/team-rules";
 
 /** Riding totals from whole Rynke and decimetres, elevation floored as R3 says. */
 function sums(distanceRynke: number, elevationDm = 0): RidingSums {

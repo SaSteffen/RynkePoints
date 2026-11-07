@@ -5,11 +5,7 @@ import type { TeamRider } from "../db/team";
 import type { TeamEventListRow } from "../db/team-events";
 import { evenPace } from "../rynke/pace";
 import { evaluateRides, type Ride } from "../rynke/rides";
-import {
-	type CountingWindow,
-	CURRENT_RULES,
-	type RynkeRules,
-} from "../rynke/rules";
+import type { CountingWindow, RynkeRules } from "../rynke/rules";
 import { type Extras, extrasFromAttendance, tally } from "../rynke/tally";
 import {
 	evaluateAttendance,
@@ -155,7 +151,7 @@ function dateFor(daysAgo: number, today: string, window: CountingWindow) {
 export function exampleRiderView(
 	window: CountingWindow,
 	today: string,
-	rules: RynkeRules = CURRENT_RULES,
+	rules: RynkeRules,
 ): RiderViewRead {
 	const rides = RIDES.map((ride) => {
 		const at = `${dateFor(ride.daysAgo, today, window)}T${String(ride.hour).padStart(2, "0")}:00:00Z`;
@@ -396,7 +392,7 @@ function teamExtras(team: number, rules: RynkeRules): Extras {
 export function exampleTeam(
 	window: CountingWindow,
 	today: string,
-	rules: RynkeRules = CURRENT_RULES,
+	rules: RynkeRules,
 ): ExampleTeam {
 	const pace = (amount: number) =>
 		evenPace(amount, window.seasonStart, window.deadline, today);

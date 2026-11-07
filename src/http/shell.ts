@@ -8,7 +8,7 @@ import type { Rider } from "../db/riders";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import { vapidPublicKey } from "../push/vapid";
-import { countingWindow } from "../rynke/rules";
+import { countingWindow, currentRules } from "../rynke/rules";
 import { consentGate } from "./consent-gate";
 import {
 	html,
@@ -242,6 +242,7 @@ export async function shellPage(
 		viewer.rider,
 		path,
 		new URL(request.url).searchParams,
+		currentRules(ctx.team.rules),
 	);
 	if (hint && !(await hasBalance(ctx.env.DB, viewer.rider.athleteId))) {
 		hint = null;

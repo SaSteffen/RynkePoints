@@ -3,11 +3,7 @@ import { hasAgreed } from "../../consent";
 import type { Ctx } from "../../ctx";
 import { hasBalance, readRideBatch, readRiderView } from "../../db/rider-view";
 import type { I18n } from "../../i18n/i18n";
-import {
-	CURRENT_RULES,
-	countingWindow,
-	rulesForVersion,
-} from "../../rynke/rules";
+import { countingWindow, currentRules, versionsOf } from "../../rynke/rules";
 import { riderFetchingText } from "../fetching";
 import { html, htmlResponse } from "../html";
 import {
@@ -55,21 +51,23 @@ export function handleRides(
 		path,
 		async ({ rider, example }) => {
 			const window = countingWindow(ctx.env);
+			const inEffect = currentRules(ctx.team.rules);
+			const rulesFor = versionsOf(ctx.team.rules);
 			// On the rider tour's steps, the example rider's rides instead
 			// (feature 020 FR-005); none of them links to Strava (FR-007).
 			// The line of feature 024 US4 is read alongside, in the same round
 			// trip (issue #184).
 			const [read, fetchingText] = await Promise.all([
 				example
-					? exampleRiderView(window, berlinDate(ctx.now()))
+					? exampleRiderView(window, berlinDate(ctx.now()), inEffect)
 					: readRiderView(ctx.env.DB, rider.athleteId, page),
 				example ? null : riderFetchingText(ctx, i18n, rider.athleteId),
 			]);
 			const view = buildRiderView(
 				read,
-				read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
-				CURRENT_RULES,
-				{ ...window, rulesFor: rulesForVersion },
+				read.balance ? rulesFor(read.balance.rulesVersion) : null,
+				inEffect,
+				{ ...window, rulesFor },
 			);
 			if (view.state === "waiting") {
 				return renderWaiting(
@@ -120,7 +118,7 @@ export async function handleMoreRides(
 	const batch = await readRideBatch(ctx.env.DB, athleteId, after, limit);
 	const rows = rideLines(batch.rides, {
 		...countingWindow(ctx.env),
-		rulesFor: rulesForVersion,
+		rulesFor: versionsOf(ctx.team.rules),
 	});
 	return htmlResponse(
 		i18n,

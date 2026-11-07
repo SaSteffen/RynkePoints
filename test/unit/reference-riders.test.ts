@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { evaluateRides } from "../../src/rynke/rides";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import { extrasFromAttendance, tally } from "../../src/rynke/tally";
 import {
 	type Attendance,
@@ -8,6 +7,7 @@ import {
 } from "../../src/rynke/team-events";
 import { RIDERS, WINDOW } from "../support/reference-riders";
 import { makeRide } from "../support/rides";
+import { CURRENT_RULES } from "../support/team-rules";
 
 describe("reference riders (SC-001)", () => {
 	it("has at least 20 riders", () => {

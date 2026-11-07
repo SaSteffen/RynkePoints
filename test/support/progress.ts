@@ -1,11 +1,11 @@
 import { env } from "cloudflare:test";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import type { Balance } from "../../src/rynke/tally";
 import type { TeamEventKind } from "../../src/rynke/team-events";
 import type { CurveInputs, CurveRideSum } from "../../src/rynke/weeks";
 import { NOW } from "./fixtures";
 import { seedBalance, seedRide } from "./rider-view";
 import { attendRaw, insertEvent } from "./rynke";
+import { CURRENT_RULES } from "./team-rules";
 
 // The example rider of feature 009 (tasks.md "The example rider as test
 // data"): its figures were worked out by hand from the rules of version 3,
