@@ -6,10 +6,13 @@ import {
 	latestTeamCounts,
 	sourceFailureStatement,
 	sourceSuccessStatement,
+	type TeamCountRecord,
 	type UsageRecord,
 	upsertTeamCountStatement,
 	upsertUsageStatement,
 } from "../db/usage";
+import { TEAMS } from "../teams";
+import type { TeamData } from "../teams/types";
 import { checkAlerts } from "./alerts";
 import {
 	ATHLETE_CAPACITY,
@@ -27,6 +30,7 @@ import {
 	pullSince,
 	usagePeers,
 } from "./peers";
+import { splitDay } from "./split";
 
 // The hourly recording (feature 025 research R2, R4): one value per allowance
 // and UTC day, as an upsert, so a repeat can't double-count and a missed day
@@ -34,45 +38,79 @@ import {
 // contracts/usage-exchange.md) it also pulls their own counts, and connected
 // riders are all teams' together, since Strava's capacity is shared (FR-041).
 
-/** Today's Cloudflare records, and yesterday's as corrections, from a response. */
+/**
+ * Today's Cloudflare records, and yesterday's as corrections, from a response.
+ * Each carries this team's share where it is known, and `teams` the other
+ * teams' and the shared one (feature 026 FR-040).
+ */
 function cloudflareRecords(
 	result: Extract<CloudflareResult, { kind: "ok" }>,
 	now: number,
-): { today: UsageRecord[]; yesterday: UsageRecord[] } {
+	self: TeamData,
+): {
+	today: UsageRecord[];
+	yesterday: UsageRecord[];
+	teams: TeamCountRecord[];
+} {
 	const figures = result.days.get(result.today) ?? {};
 	const before = result.days.get(result.yesterday) ?? {};
+	const all = TEAMS.map((team) => (team.id === self.id ? self : team));
+	const splits = new Map(
+		[result.today, result.yesterday].map((day) => [
+			day,
+			splitDay(result.parts, day, all, self),
+		]),
+	);
+	const teams: TeamCountRecord[] = [];
+	/** `from` is the day the value is Cloudflare's for; storage may be older. */
 	const record = (
 		allowance: (typeof CLOUDFLARE_ALLOWANCES)[number],
 		day: string,
 		used: number,
-	): UsageRecord => ({
-		day,
-		allowance,
-		used,
-		limit: CLOUDFLARE_LIMITS[allowance],
-		teamUsed: null,
-		peak15m: null,
-		recordedAt: now,
-	});
+		from: string,
+	): UsageRecord => {
+		const owners = splits.get(from)?.get(allowance);
+		for (const [team, value] of owners ?? []) {
+			if (team !== self.id) {
+				teams.push({ day, allowance, team, used: value, recordedAt: now });
+			}
+		}
+		return {
+			day,
+			allowance,
+			used,
+			limit: CLOUDFLARE_LIMITS[allowance],
+			teamUsed: owners?.get(self.id) ?? null,
+			peak15m: null,
+			recordedAt: now,
+		};
+	};
 	const today: UsageRecord[] = [];
 	const yesterday: UsageRecord[] = [];
 	for (const allowance of CLOUDFLARE_ALLOWANCES) {
 		// No group for today means nothing was used yet, except storage, which is
 		// the latest day's size whenever Cloudflare reports it.
+		const reported = figures[allowance];
 		const value =
 			allowance === "cf_d1_storage_bytes"
-				? (figures[allowance] ?? before[allowance])
-				: (figures[allowance] ?? 0);
+				? (reported ?? before[allowance])
+				: (reported ?? 0);
 		if (value !== undefined) {
-			today.push(record(allowance, result.today, value));
+			const from =
+				reported === undefined && allowance === "cf_d1_storage_bytes"
+					? result.yesterday
+					: result.today;
+			today.push(record(allowance, result.today, value, from));
 		}
 		// A day Cloudflare says nothing about keeps what we have, or stays a gap.
 		const corrected = before[allowance];
 		if (corrected !== undefined) {
-			yesterday.push(record(allowance, result.yesterday, corrected));
+			yesterday.push(
+				record(allowance, result.yesterday, corrected, result.yesterday),
+			);
 		}
 	}
-	return { today, yesterday };
+	return { today, yesterday, teams };
 }
 
 /**
@@ -190,9 +228,12 @@ export async function recordUsage(ctx: Ctx): Promise<void> {
 	];
 	const corrections: UsageRecord[] = [];
 	if (cloudflare.kind === "ok") {
-		const { today, yesterday } = cloudflareRecords(cloudflare, now);
-		records.push(...today);
-		corrections.push(...yesterday);
+		const split = cloudflareRecords(cloudflare, now, ctx.team);
+		records.push(...split.today);
+		corrections.push(...split.yesterday);
+		teamStatements.push(
+			...split.teams.map((record) => upsertTeamCountStatement(db, record)),
+		);
 	} else {
 		console.warn(`Cloudflare usage unavailable: ${cloudflare.reason}`);
 	}

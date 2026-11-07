@@ -117,5 +117,10 @@ export const hamburg: TeamData = {
 	// Filled with Europe's club once it has one (FR-012, release 4).
 	otherClubIds: [],
 	dev: { host: "localhost", port: 8789, inspectorPort: 9230 },
+	cloudflare: {
+		worker: "rynke-points",
+		databaseId: "f1493f0b-1930-48de-afc5-f6edda211092",
+		queueIds: [],
+	},
 	placeholders: [],
 };

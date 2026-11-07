@@ -1006,12 +1006,15 @@ export const is: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: engar tölur enn",
 	"admin.figure.rest": "Óúthlutað: {n}",
+	"admin.figure.notSplit":
+		"Ekki er enn hægt að skipta þessari tölu eftir liðum.",
 	"admin.figure.windowNote":
 		"Beiðnir annarra liða teljast hér óúthlutaðar: liðin skiptast ekki á 15 mínútna tölum sínum.",
 	"admin.teams.stale":
 		"{team}: ekkert svar við síðustu skráningu. Tölurnar eru frá {time} UTC.",
 	"admin.teams.other": "Annað lið",
 	"admin.teams.otherN": "Annað lið {n}",
+	"admin.teams.shared": "Sameiginlegt (gátt)",
 	"admin.teams.never": "{team}: ekkert svar enn, svo tölurnar vantar.",
 	"admin.figure.seen": "Staða {time} UTC",
 	"admin.figure.notSeen": "Ekki séð enn",

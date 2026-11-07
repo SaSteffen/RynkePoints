@@ -1039,12 +1039,15 @@ export const de = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: noch keine Zahlen",
 	"admin.figure.rest": "Nicht zugeordnet: {n}",
+	"admin.figure.notSplit":
+		"Diese Zahl lässt sich noch nicht nach Teams aufteilen.",
 	"admin.figure.windowNote":
 		"Anfragen anderer Teams zählen hier als nicht zugeordnet: Die Teams tauschen ihre 15-Minuten-Zahlen nicht aus.",
 	"admin.teams.stale":
 		"{team}: keine Antwort bei der letzten Erfassung. Die Zahlen sind vom {time} UTC.",
 	"admin.teams.other": "Anderes Team",
 	"admin.teams.otherN": "Anderes Team {n}",
+	"admin.teams.shared": "Gemeinsam (Gateway)",
 	"admin.teams.never": "{team}: noch keine Antwort, daher fehlen die Zahlen.",
 	"admin.figure.seen": "Stand: {time} UTC",
 	"admin.figure.notSeen": "Noch nicht beobachtet",

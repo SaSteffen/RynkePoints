@@ -44,7 +44,9 @@ Until a value arrives, team data may hold the founding team's value as a placeho
 
 1. `src/teams/<id>.ts`: copy `src/teams/europe.ts` and fill it in. Register it in
    `src/teams/index.ts`. Every field still copied from another team goes into
-   `placeholders`.
+   `placeholders`. Its `cloudflare` field names the team's Worker, database ID and,
+   once known (`wrangler queues list`), its queue IDs, so each team's admin view can
+   split Cloudflare's figures by team.
 2. `wrangler.jsonc`: an `env.<id>` block like `env.europe`. It holds the Worker name,
    the D1 and queue bindings, **every** var of the top level (Wrangler doesn't inherit
    them), `TEAM_ID: "<id>"`, `secrets.required`, and `"routes": []` until the domain is

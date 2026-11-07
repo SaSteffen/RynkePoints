@@ -431,7 +431,7 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 - [X] T080 Alerts of feature 025 go to every team's administrators: connected riders are
   recorded as all teams' together, Strava's and Cloudflare's figures are shared anyway
   (FR-041). Maintainers outside the app are feature 028's (FR-025).
-- [ ] T080a Cloudflare's figures split by team (FR-040): map Workers, databases and queues
+- [X] T080a Cloudflare's figures split by team (FR-040): map Workers, databases and queues
   to teams in team data, count the gateway's as shared, and say so for a figure that
   can't be split, in `src/usage/cloudflare.ts` and the view.
 

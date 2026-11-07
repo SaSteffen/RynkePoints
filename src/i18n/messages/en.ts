@@ -1002,12 +1002,14 @@ export const en: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: no figures yet",
 	"admin.figure.rest": "Not attributed: {n}",
+	"admin.figure.notSplit": "This figure can't be split by team yet.",
 	"admin.figure.windowNote":
 		"Other teams' requests count as not attributed here: teams don't exchange their 15-minute counts.",
 	"admin.teams.stale":
 		"{team}: no answer at the last recording. Its figures are from {time} UTC.",
 	"admin.teams.other": "Other team",
 	"admin.teams.otherN": "Other team {n}",
+	"admin.teams.shared": "Shared (gateway)",
 	"admin.teams.never": "{team}: no answer yet, so its figures are missing.",
 	"admin.figure.seen": "As of {time} UTC",
 	"admin.figure.notSeen": "Not observed yet",

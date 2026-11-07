@@ -47,14 +47,38 @@ describe(`${team.id}'s data checks (US3 scenario 4)`, () => {
 		expect(teamProblems(TEAMS, wrangler, options)).toEqual([]);
 	});
 
-	it.each(["name", "rules", "colours", "art", "phrases", "dev"] as const)(
-		"names a missing %s",
-		(field) => {
-			const { [field]: _, ...rest } = team;
-			const problems = teamProblems(withTeam(rest), wrangler, options);
-			expect(problems).toContain(`team ${team.id}: ${field}: missing`);
-		},
-	);
+	it.each([
+		"name",
+		"rules",
+		"colours",
+		"art",
+		"phrases",
+		"dev",
+		"cloudflare",
+	] as const)("names a missing %s", (field) => {
+		const { [field]: _, ...rest } = team;
+		const problems = teamProblems(withTeam(rest), wrangler, options);
+		expect(problems).toContain(`team ${team.id}: ${field}: missing`);
+	});
+
+	it("names Cloudflare resources that aren't the Wrangler block's (FR-040)", () => {
+		const problems = teamProblems(
+			withTeam({
+				...team,
+				cloudflare: {
+					worker: "another-worker",
+					databaseId: "another-id",
+					queueIds: [""],
+				},
+			}),
+			wrangler,
+			options,
+		);
+		const lines = problems.filter((line) =>
+			line.startsWith(`team ${team.id}: cloudflare.`),
+		);
+		expect(lines).toHaveLength(3);
+	});
 
 	it("names empty rules", () => {
 		const problems = teamProblems(

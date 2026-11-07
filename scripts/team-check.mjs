@@ -51,6 +51,7 @@ const FIELDS = [
 	"badgeNames",
 	"otherClubIds",
 	"dev",
+	"cloudflare",
 	"placeholders",
 ];
 
@@ -175,6 +176,32 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 			if (!required.includes(name)) {
 				say(team, `${where} secrets.required`, `${name} missing`);
 			}
+		}
+		// The split of Cloudflare's figures by team (FR-040) finds the team by these.
+		const cloudflare = team.cloudflare ?? {};
+		if (team.cloudflare && cloudflare.worker !== block.name) {
+			say(
+				team,
+				"cloudflare.worker",
+				`"${cloudflare.worker}", not ${where}'s name "${block.name}"`,
+			);
+		}
+		const databaseId = block.d1_databases?.[0]?.database_id;
+		if (team.cloudflare && cloudflare.databaseId !== databaseId) {
+			say(
+				team,
+				"cloudflare.databaseId",
+				`"${cloudflare.databaseId}", not ${where}'s "${databaseId}"`,
+			);
+		}
+		if (
+			team.cloudflare &&
+			!(
+				Array.isArray(cloudflare.queueIds) &&
+				cloudflare.queueIds.every((id) => typeof id === "string" && id !== "")
+			)
+		) {
+			say(team, "cloudflare.queueIds", "not a list of IDs");
 		}
 		for (const binding of ["d1_databases", "queues", "triggers"]) {
 			if (block[binding] === undefined)

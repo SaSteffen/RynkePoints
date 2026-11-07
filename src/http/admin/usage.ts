@@ -35,6 +35,7 @@ import {
 } from "../../usage/figures";
 import { type Peer, usagePeers } from "../../usage/peers";
 import { recordUsage } from "../../usage/record";
+import { SHARED } from "../../usage/split";
 import { thresholdBars } from "../charts";
 import { html, type SafeHtml } from "../html";
 import { redirect } from "../redirect";
@@ -60,11 +61,16 @@ function mark(i18n: I18n, figure: Figure): SafeHtml | null {
 		: html`<span class="usage-mark usage-mark-${figure.level}">${i18n.t(`admin.level.${figure.level}`)}</span>`;
 }
 
-/** The other teams' counts beside this team's (feature 026 FR-039). */
+/** The other teams' counts beside this team's (feature 026 FR-039, FR-040). */
 interface Teams {
 	own: string;
+	/** The label of what the gateway uses for every team. */
+	shared: string;
 	peers: readonly { id: string; name: string }[];
-	/** A team's count of an allowance today, or null when none came. */
+	/**
+	 * A team's (or `SHARED`'s) count of an allowance on the figure's day, or
+	 * null when none came: today, or a Cloudflare figure's latest recorded day.
+	 */
 	today: (team: string, id: Figure["id"]) => number | null;
 }
 
@@ -93,6 +99,12 @@ function teamsLine(i18n: I18n, figure: Figure, teams: Teams): SafeHtml {
 		piece(teams.own, own),
 		...teams.peers.map((peer, i) => piece(peer.name, counts[i] ?? null)),
 	];
+	// Cloudflare's figures also have the gateway's part, which serves everyone.
+	if (figure.id.startsWith("cf_")) {
+		const shared = teams.today(SHARED, figure.id) ?? 0;
+		counts.push(shared);
+		pieces.push(piece(teams.shared, shared));
+	}
 	if (figure.id !== "riders_connected") {
 		const counted = counts.reduce<number>((sum, n) => sum + (n ?? 0), own);
 		pieces.push(
@@ -142,10 +154,13 @@ function figureItem(
 		limit: amount(i18n, figure.id, figure.limit),
 		percent: whole(i18n, figure.percent),
 	});
+	const cloudflare = figure.id.startsWith("cf_");
 	const split =
 		figure.team === null
-			? null
-			: teams.peers.length > 0
+			? cloudflare
+				? html`<p class="usage-detail">${i18n.t("admin.figure.notSplit")}</p>`
+				: null
+			: teams.peers.length > 0 || cloudflare
 				? teamsLine(i18n, figure, teams)
 				: html`<p class="usage-detail">${i18n.t("admin.figure.split", {
 						team: whole(i18n, figure.team),
@@ -206,6 +221,8 @@ function teamsOf(
 	peers: readonly Peer[],
 	records: readonly TeamCountRecord[],
 	today: string,
+	/** The latest recorded day of each Cloudflare figure. */
+	cloudflareDays: ReadonlyMap<string, string>,
 ): Teams & {
 	latestConnected: (team: string) => number | null;
 	history: HistoryTeams;
@@ -216,6 +233,7 @@ function teamsOf(
 	const count = (team: string, id: string, day: string) =>
 		byKey.get(`${team}|${id}|${day}`) ?? null;
 	const own = i18n.t("admin.history.team");
+	const shared = i18n.t("admin.teams.shared");
 	const named = peers.map((peer, i) => ({
 		id: peer.id,
 		name:
@@ -225,8 +243,9 @@ function teamsOf(
 	}));
 	return {
 		own,
+		shared,
 		peers: named,
-		today: (team, id) => count(team, id, today),
+		today: (team, id) => count(team, id, cloudflareDays.get(id) ?? today),
 		latestConnected: (team) => {
 			let latest: TeamCountRecord | undefined;
 			for (const r of records) {
@@ -234,7 +253,7 @@ function teamsOf(
 			}
 			return latest?.used ?? null;
 		},
-		history: { own, peers: named, count },
+		history: { own, shared, peers: named, count },
 	};
 }
 
@@ -263,7 +282,13 @@ export function handleAdminUsage(
 		const count = (i: number) =>
 			(counts[i]?.results[0] as { n: number } | undefined)?.n ?? 0;
 		const teamRecords = teamCountRecords(counts[3]?.results ?? []);
-		const teams = teamsOf(i18n, peers, teamRecords, today);
+		const teams = teamsOf(
+			i18n,
+			peers,
+			teamRecords,
+			today,
+			new Map([...cloudflare.latest].map(([id, record]) => [id, record.day])),
+		);
 		// Other teams' riders count against the same capacity (FR-039).
 		const otherRiders = peers.reduce(
 			(sum, peer) => sum + (teams.latestConnected(peer.id) ?? 0),
@@ -280,7 +305,15 @@ export function handleAdminUsage(
 		const account = CLOUDFLARE_ALLOWANCES.flatMap((id) => {
 			const record = cloudflare.latest.get(id);
 			return record
-				? [makeFigure(id, record.used, record.limit, null, record.recordedAt)]
+				? [
+						makeFigure(
+							id,
+							record.used,
+							record.limit,
+							record.teamUsed,
+							record.recordedAt,
+						),
+					]
 				: [];
 		});
 		const missing = CLOUDFLARE_ALLOWANCES.filter(

@@ -112,11 +112,14 @@ describe("the hourly cron", () => {
 			team_used: 1,
 			peak_15m: null,
 		});
+		// The synthetic Workers aren't this team's, so its share is none (026 FR-040).
 		expect(today.get("cf_worker_requests")).toMatchObject({
 			used: 1000,
 			limit_value: 100_000,
-			team_used: null,
+			team_used: 0,
 		});
+		// No queue IDs in team data yet: not split.
+		expect(today.get("cf_queue_operations")).toMatchObject({ team_used: null });
 		expect(today.get("cf_d1_storage_bytes")).toMatchObject({
 			used: 5000,
 			limit_value: 5_000_000_000,

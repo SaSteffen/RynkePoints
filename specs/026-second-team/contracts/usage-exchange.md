@@ -1,6 +1,6 @@
 # Contract: Usage Exchange
 
-FR-039, FR-041. Each team's admin view shows every team's count of the shared Strava
+FR-039 to FR-041. Each team's admin view shows every team's count of the shared Strava
 allowances and connected riders. Teams have separate databases (R12), so each team
 serves its own counts, and each hourly recording pulls the other teams' counts into its
 own D1. The view still only reads D1 (025 FR-027): a team that doesn't answer can't slow
@@ -61,8 +61,27 @@ it down or break it.
 - No page names another team (FR-023): the view says "This team", and "Other team"
   (numbered in `USAGE_PEERS` order when there are several).
 
+## Cloudflare (FR-040)
+
+Every team's Workers, queues and database sit in one Cloudflare account, and the account's
+answer names each value's resource (025 R3). Each team's data names its own resources
+(`cloudflare` in [data-model.md](../data-model.md) › TeamData), so each team splits the
+whole account itself, without the exchange:
+
+- A value goes to the team whose Worker, database or queue it is. The gateway's Worker
+  (`rynke-points-gateway`) counts as **shared**: it serves every team. Anything else, such
+  as a sandbox, stays not attributed.
+- `usage_daily.team_used` holds this team's part. `usage_team_daily` holds every other
+  registered team's part and the shared one (team `shared`), zero where nothing was used.
+  Yesterday's corrections update both.
+- A figure is split only when this team's own resource for it is known. Workers and
+  databases always are; queue operations only once the team's queue IDs are in team data
+  (`wrangler queues list`). Until then `team_used` stays empty, and the view says the
+  figure can't be split yet.
+- The view shows this team, the other teams of `USAGE_PEERS`, the shared part and the
+  rest, each with its share. It does so even without other teams, since the gateway's part
+  is there anyway. The day table gets the same columns.
+
 ## Not here yet
 
-- Cloudflare's figures split by team (FR-040): they stay account-wide. The query already
-  returns them per Worker, database and queue (025 R3).
 - Alerts to maintainers outside the app (028 FR-025).
