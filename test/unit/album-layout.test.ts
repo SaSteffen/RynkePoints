@@ -66,6 +66,7 @@ function album(
 				front: "/coin/rynke-coin-front.svg",
 				back: "/coin/rynke-coin-back.svg",
 			},
+			badges: {},
 			trainingRynke: 9000,
 			events: Array.from({ length: options.events ?? 24 }, (_, i) => event(i)),
 		},

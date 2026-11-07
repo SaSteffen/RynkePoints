@@ -22,6 +22,7 @@ export const ART_VERSIONS: Readonly<Record<string, string>> = {
 	"/badges/elevation-5000.svg": "03d78143ee",
 	"/badges/placeholder-personal.svg": "31e0fad70d",
 	"/badges/placeholder-team.svg": "5283c1c71f",
+	"/badges/placeholder.svg": "eb636d5910",
 	"/badges/ride-length-100.svg": "b573b05115",
 	"/badges/ride-length-150.svg": "1052ab4a21",
 	"/badges/ride-length-200.svg": "37be6919a5",

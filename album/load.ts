@@ -37,7 +37,7 @@ import {
 import type { EventKind } from "../src/rynke/team-events";
 import { lastDay, riderCurve, riderDays } from "../src/rynke/weeks";
 import { teamFor } from "../src/teams";
-import type { CoinArt } from "../src/teams/types";
+import type { ArtMap, CoinArt } from "../src/teams/types";
 import type { AlbumEnv } from "./routes";
 
 export interface AlbumEvent {
@@ -77,6 +77,8 @@ export interface AlbumData {
 		name: string;
 		/** The team's coin, on the cover. */
 		coin: CoinArt;
+		/** The team's own badge pictures (feature 026 FR-024). */
+		badges: ArtMap["badges"];
 		/** The Team page's total (feature 016) on the cut-off date. */
 		trainingRynke: number;
 		/** The season's events up to the cut-off, oldest first. */
@@ -243,6 +245,7 @@ export async function loadAlbum(
 		team: {
 			name: teamData.name,
 			coin: teamData.art.coin,
+			badges: teamData.art.badges,
 			trainingRynke: teamTrainingOn(
 				(balanceRows.results as BalanceRow[]).map(toStoredBalance),
 				sums,
