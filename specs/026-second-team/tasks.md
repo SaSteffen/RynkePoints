@@ -21,14 +21,14 @@ Format: `[ID] [P?] [Story] Description`.
 - [X] T001 Amend `.specify/memory/constitution.md` to 2.5.0: per-team default languages,
   every locale on every site, English as reference wording, own content sets may stay in
   one language, Strava brand assets in the rider's language where Strava provides one.
-- [ ] T002 [US6] Recover the quote rating tool (local `server.mjs`, `index.html`,
+- [X] T002 [US6] Recover the quote rating tool (local `server.mjs`, `index.html`,
   `apply.mjs`, used for the German phrases in October 2026) from the maintainer's local
   session history by replaying its Write and Edit calls. Commit it
   as `tools/content-rating/`, with no rider data and votes stored only under a git-ignored
   `tools/content-rating/rounds/`, and add `tools/content-rating/README.md` with how to run
   a round (FR-029–FR-034). Not under `src/`; `test/unit/dev-guard.test.ts` gets
   `tools/` added to the folders `src/` must not import.
-- [ ] T003 [US6] Brief `content/briefs/common-phrases.md`: tone "light, mostly neutral",
+- [X] T003 [US6] Brief `content/briefs/common-phrases.md`: tone "light, mostly neutral",
   target "about 40, about 26 push, 6 on track, per season at least one push and one
   on-track", no team, place, charity, rider name, rank or comparison, the source "adapted
   from Hamburg's list in `src/i18n/messages/quotes.de.ts`, some new ones" (FR-029, FR-046,
@@ -44,34 +44,34 @@ Visible to Hamburg: ten languages in the picker. Nothing else changes.
 
 Blocks every release 1 story.
 
-- [ ] T004 Tests in `test/unit/i18n.test.ts` for plural messages (contracts/locales.md ›
+- [X] T004 Tests in `test/unit/i18n.test.ts` for plural messages (contracts/locales.md ›
   Message values): `t()` and `tHtml()` select by `Intl.PluralRules(meta.intlLocale)` from
   the `n` param, a plural message without a numeric `n` throws, string messages behave as
   today.
-- [ ] T005 Plural support in `src/i18n/i18n.ts` and the `MessageValue` type in
+- [X] T005 Plural support in `src/i18n/i18n.ts` and the `MessageValue` type in
   `src/i18n/catalogs.ts`: `string | PluralMessage`, where `PluralMessage = { other: string }
   & Partial<Record<"zero"|"one"|"two"|"few"|"many", string>>`, with `Intl.PluralRules`
   cached per locale (research R3). T004 green.
-- [ ] T006 Turn the existing one/many key pairs (e.g. `badges.reveal.one` /
+- [X] T006 Turn the existing one/many key pairs (e.g. `badges.reveal.one` /
   `badges.reveal.many`) and the count messages whose noun inflects (e.g.
   `fetching.import`) into plural messages in `src/i18n/messages/de.ts` and `en.ts`, and
   update their callers to pass `n`. Leave messages whose unit doesn't inflect (Rynke, km,
   ×) as strings. Existing tests stay green with unchanged German and English output.
-- [ ] T007 Tests in `test/unit/catalogs.test.ts` (contracts/locales.md › Checks 1–5):
+- [X] T007 Tests in `test/unit/catalogs.test.ts` (contracts/locales.md › Checks 1–5):
   every catalog has exactly the `de` keys, the same placeholders, the same SafeHtml
   placeholders, a message is plural in a locale iff it is plural in `de` with exactly that
   locale's `pluralCategories`, no value is empty or equals its key. Iterates over
   `CATALOGS`, so it covers each new locale as it's added.
-- [ ] T008 Minimal team seam in `src/teams/types.ts`, `src/teams/hamburg.ts` and
+- [X] T008 Minimal team seam in `src/teams/types.ts`, `src/teams/hamburg.ts` and
   `src/teams/index.ts`: `TeamData` with only `id`, `defaultLocale`, `foreignLocale`,
   `phrases` and `badgeNames` for now (data-model.md), `TEAMS = [hamburg]`, and
   `teamFor(env)` throwing `Unknown TEAM_ID "<x>"`. Put `team` on `Ctx` in `src/ctx.ts`,
   set it in `src/index.ts` and `dev/worker.ts`, and in `test/support/ctx.ts`.
-- [ ] T009 Tests in `test/unit/resolve.test.ts` (contracts/locales.md › Resolution): the
+- [X] T009 Tests in `test/unit/resolve.test.ts` (contracts/locales.md › Resolution): the
   cookie wins, then the best shipped range, `no` and `nn` count as `nb`, only unshipped
   ranges give `team.foreignLocale`, no ranges give `team.defaultLocale`; for Hamburg the
   results equal today's.
-- [ ] T010 `resolveLocale(request, catalogs, team)` in `src/i18n/resolve.ts`, with
+- [X] T010 `resolveLocale(request, catalogs, team)` in `src/i18n/resolve.ts`, with
   `DEFAULT_LOCALE`/`FOREIGN_LOCALE` replaced by the team's fields at the call sites
   `src/http/router.ts`, `src/http/fetching.ts`, `src/http/pwa.ts`. `de` stays the key
   source and fallback catalog in `src/i18n/i18n.ts`. T009 green.
@@ -85,42 +85,42 @@ Blocks every release 1 story.
 **Independent test**: switch a synthetic rider through all ten languages on every page
 (quickstart › Release 1 steps 1, 2, 4, 5).
 
-- [ ] T011 [US5] Tests in `test/integration/lang.test.ts`: `POST /lang` accepts each of
+- [X] T011 [US5] Tests in `test/integration/lang.test.ts`: `POST /lang` accepts each of
   the ten codes and refuses others; the picker lists ten native names, alphabetically,
   current one marked (contracts/locales.md › Picker).
 - [ ] T012 [US5] Mock-up of the ten-language picker inside the real fake-mode pages at phone
   and desktop width (research R5), following the theme menu in `src/http/theme-menu.ts`,
   for the maintainer to approve before T013.
-- [ ] T013 [US5] The picker in `src/http/lang.ts`, `src/http/shell.ts` and
+- [X] T013 [US5] The picker in `src/http/lang.ts`, `src/http/shell.ts` and
   `src/http/style.ts` as approved in T012. T011 green.
-- [ ] T014 [US5] `public/sw.js`: accept `lang` only from the shipped list (written into
+- [X] T014 [US5] `public/sw.js`: accept `lang` only from the shipped list (written into
   the worker's URL by the page), else the team default the page passes. Test in
   `test/integration/pwa.test.ts` for `nb` and an unknown code.
-- [ ] T015 [US5] Reference note: `consent.referenceNote` (with a link to the English page)
+- [X] T015 [US5] Reference note: `consent.referenceNote` (with a link to the English page)
   in `de.ts` and `en.ts`, shown on consent and privacy pages in every locale but `en`, in
   `src/http/landing.ts`, `src/http/consent-form.ts` and `src/http/privacy.ts`; `?lang=en`
   renders that one page in English without setting `rp_lang` (contracts/locales.md ›
   Reference note). Test in `test/integration/privacy.test.ts`.
-- [ ] T016 [US5] Glossary `src/i18n/GLOSSARY.md`: terms that stay as they are (Rynke,
+- [X] T016 [US5] Glossary `src/i18n/GLOSSARY.md`: terms that stay as they are (Rynke,
   Training Rynke, Team Rynke, Breakaway, Strava's own terms) and per-language notes (formal
   or informal address: informal in every language, as in German) (research R16).
-- [ ] T017 [P] [US5] Danish catalog `src/i18n/messages/da.ts` translated from `en.ts`
+- [X] T017 [P] [US5] Danish catalog `src/i18n/messages/da.ts` translated from `en.ts`
   (reference) per the glossary; `meta.languageName` "Dansk", `meta.intlLocale` "da-DK";
   registered in `src/i18n/catalogs.ts`. T007 green for `da`.
-- [ ] T018 [P] [US5] Norwegian Bokmål `src/i18n/messages/nb.ts`, "Norsk bokmål", "nb-NO".
-- [ ] T019 [P] [US5] Swedish `src/i18n/messages/sv.ts`, "Svenska", "sv-SE".
-- [ ] T020 [P] [US5] Finnish `src/i18n/messages/fi.ts`, "Suomi", "fi-FI".
-- [ ] T021 [P] [US5] Icelandic `src/i18n/messages/is.ts`, "Íslenska", "is-IS".
-- [ ] T022 [P] [US5] French `src/i18n/messages/fr.ts`, "Français", "fr-FR".
-- [ ] T023 [P] [US5] Dutch `src/i18n/messages/nl.ts`, "Nederlands", "nl-NL".
-- [ ] T024 [P] [US5] Lithuanian `src/i18n/messages/lt.ts`, "Lietuvių", "lt-LT", with
+- [X] T018 [P] [US5] Norwegian Bokmål `src/i18n/messages/nb.ts`, "Norsk bokmål", "nb-NO".
+- [X] T019 [P] [US5] Swedish `src/i18n/messages/sv.ts`, "Svenska", "sv-SE".
+- [X] T020 [P] [US5] Finnish `src/i18n/messages/fi.ts`, "Suomi", "fi-FI".
+- [X] T021 [P] [US5] Icelandic `src/i18n/messages/is.ts`, "Íslenska", "is-IS".
+- [X] T022 [P] [US5] French `src/i18n/messages/fr.ts`, "Français", "fr-FR".
+- [X] T023 [P] [US5] Dutch `src/i18n/messages/nl.ts`, "Nederlands", "nl-NL".
+- [X] T024 [P] [US5] Lithuanian `src/i18n/messages/lt.ts`, "Lietuvių", "lt-LT", with
   one/few/many/other plural forms.
-- [ ] T025 [US5] Strava brand assets: if Strava's brand download offers the "Connect with
+- [X] T025 [US5] Strava brand assets: if Strava's brand download offers the "Connect with
   Strava" button and "Powered by Strava" logo in any of the new languages, add them
   unmodified under `public/strava/<lang>/` and pick by locale with English as fallback in
   the code that references `public/strava/en/`; record the source in
   `public/strava/README.md`.
-- [ ] T026 [US5] Test in `test/integration/all-locales.test.ts`: every rider page and the
+- [X] T026 [US5] Test in `test/integration/all-locales.test.ts`: every rider page and the
   consent, privacy, offline and notification-text routes render with `rp_lang` set to each
   shipped locale, without throwing, and contain that catalog's `meta.languageName` in the
   picker. `test/integration/no-hardcoded-copy.test.ts` keeps passing.
@@ -134,7 +134,7 @@ unchanged in every language.
 phrases and badge names (quickstart › Release 1 step 3); a test team set to `common` gets
 the rider's language.
 
-- [ ] T027 [US4] Move `src/i18n/messages/quotes.de.ts` to
+- [X] T027 [US4] Move `src/i18n/messages/quotes.de.ts` to
   `src/content/phrases/hamburg.de.ts` and `src/i18n/messages/badges.de.ts` to
   `src/content/badge-names/hamburg.de.ts` without changing a phrase or name; reshape into
   `PhraseSet` (`push`, `onTrack`, `seasonPush`, `seasonOnTrack`) in
@@ -146,12 +146,12 @@ the rider's language.
   list; no phrase longer than Hamburg's longest; the existing quote rules from
   `test/unit/quotes.test.ts` run over every set; common sets contain none of `Hamburg`,
   `Rynkeby`, `Paris` or any registered team name.
-- [ ] T029 [US4] Tests in `test/integration/phrase-rule.test.ts`: for Hamburg
+- [X] T029 [US4] Tests in `test/integration/phrase-rule.test.ts`: for Hamburg
   (`phrases.kind: "own"`), the Team page in each locale shows only phrases from
   `hamburg.de.ts` and German badge names; for a test team with `kind: "common"` built in
   the test, locale X shows only phrases from `common.X.ts` and badge names from
   `badge.name.<id>` in X.
-- [ ] T030 [US4] `phraseSet(team, locale)` and `badgeName(team, i18n, id)` in
+- [X] T030 [US4] `phraseSet(team, locale)` and `badgeName(team, i18n, id)` in
   `src/content/index.ts` as the only entry points (contracts/phrases.md › Lookups); Hamburg's
   data sets `phrases: { kind: "own", locale: "de", set }` and
   `badgeNames: { kind: "own", locale: "de", names }` in `src/teams/hamburg.ts`; callers in
@@ -167,7 +167,7 @@ the rider's language.
   `common.fi.ts` in `src/content/phrases/`, adapted index by index, not word for word.
 - [ ] T034 [P] [US4] Common phrases `common.is.ts`, `common.fr.ts`, `common.nl.ts`,
   `common.lt.ts` in `src/content/phrases/`. T028 green.
-- [ ] T035 [US4] Common badge names `badge.name.<BadgeId>` for every badge in
+- [X] T035 [US4] Common badge names `badge.name.<BadgeId>` for every badge in
   `src/badges/catalog.ts`, in all ten catalogs (English first, then adapted; German may
   differ from Hamburg's own names). T007 green.
 
