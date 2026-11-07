@@ -1,6 +1,19 @@
 <!--
 Sync Impact Report
-- Version change: 2.3.0 → 2.4.0
+- Version change: 2.4.0 → 2.5.0
+- Rationale: MINOR — the Language section no longer assumes one German team. Each
+  team sets its default language in team data (the founding team, Team Rynkeby
+  Hamburg, stays German). Every shipped locale is offered on every team's site.
+  English is the reference wording where translations differ, since they get no
+  native-speaker review. A team's own content sets (phrases, badge names) may stay
+  in one language. Decided with feature 026 (FR-025–FR-028, FR-052).
+- Principles modified: none (Language section)
+- Sections added: none
+- Sections removed: none
+- Templates checked for alignment: .specify/templates/* — unchanged.
+- Follow-up TODOs: none.
+
+Previous: 2.3.0 → 2.4.0
 - Rationale: MINOR — Principle I's re-consent rule splits consent changes into
   major and minor. Only a major change (new Strava scope, new kind of Strava
   request, new data read) asks riders again. Newly showing figures made from data
@@ -219,31 +232,40 @@ only safety net a single-maintainer project has.
 
 ## Language
 
-The riders are a German team, so the app speaks German to them; the code is public
-and maintained in English.
+The app speaks each rider's language, and each team's own by default; the code is
+public and maintained in English.
 
-- All user-facing text MUST be in German by default: web pages, consent and OAuth
-  landing screens, error and status messages shown to riders, the Rynke Points block
-  written into Strava activity descriptions, notifications, and the privacy notice.
+- All user-facing text MUST be in the team's default language unless the rider picks
+  another: web pages, consent and OAuth landing screens, error and status messages
+  shown to riders, the Rynke Points block written into Strava activity descriptions,
+  notifications, and the privacy notice. Each team sets its default language in team
+  data; the founding team, Team Rynkeby Hamburg, stays German.
+- Every shipped locale MUST be offered on every team's site. A team chooses only its
+  default, which also applies when a visitor states no shipped language.
 - User-facing text MUST NOT be hard-coded in templates or logic; it MUST come from
-  translation strings keyed by message ID. German (`de`) is the source catalog that
-  every other locale MUST match, and the language used when the visitor states no
-  language preference; the language for visitors who state only unsupported
-  languages is set per feature spec. Adding another locale MUST only require adding
-  its translation strings, not changing code. Per Principle IV, plain typed message
-  catalogs are preferred over an i18n library unless a plan justifies one.
+  translation strings keyed by message ID. German (`de`) is the source catalog whose
+  keys every other locale MUST match. English (`en`) is the reference wording:
+  translations are made by the maintainers without native-speaker review, and where
+  one differs from English, the English text applies and the consent and privacy
+  pages say so. Adding another locale MUST only require adding its translation
+  strings, not changing code. Per Principle IV, plain typed message catalogs are
+  preferred over an i18n library unless a plan justifies one.
+- A team's own content sets, such as its motivational phrases or badge names, MAY
+  stay in one language whatever language the rider picks; content shared by all teams
+  MUST exist in every shipped locale.
 - Everything else MUST be in English: code, identifiers, comments, log messages,
   database schema, API/JSON field names, test names, commit messages, and project
   documentation (README, specs, plans, tasks, this constitution).
 - Strava brand assets ("Connect with Strava" button, "Powered by Strava"
   attribution) are used as Strava provides them, in the German variant where one
   exists.
-- Tests that assert on user-facing output assert the German text.
+- Tests that assert on user-facing output assert the text of the locale under test,
+  German unless they say otherwise.
 
-Rationale: Riders should not need English to understand what they consent to or
-what the app wrote on their activities, and translation strings keep the door open
-for other languages without a rewrite; contributors and reviewers of a public repo
-should not need German to read the code.
+Rationale: Riders should not need a foreign language to understand what they consent
+to or what the app wrote on their activities, and riders of one team come from many
+countries; contributors and reviewers of a public repo should not need German to read
+the code.
 
 ## Governance
 
@@ -257,4 +279,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 2.4.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-06
+**Version**: 2.5.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-07
