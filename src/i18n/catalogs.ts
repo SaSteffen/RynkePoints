@@ -1,5 +1,8 @@
+import { da } from "./messages/da";
 import { de } from "./messages/de";
 import { en } from "./messages/en";
+import { nb } from "./messages/nb";
+import { sv } from "./messages/sv";
 
 // The registry of shipped locales (research R16, feature 026 contracts/locales.md).
 // Adding a locale means adding `messages/<code>.ts` and listing it here; picker,
@@ -28,7 +31,7 @@ export type Catalog = Readonly<{
 }>;
 export type Catalogs = Readonly<Record<string, Catalog>>;
 
-export const CATALOGS = { de, en } as const satisfies Catalogs;
+export const CATALOGS = { de, en, da, nb, sv } as const satisfies Catalogs;
 
 export type Locale = keyof typeof CATALOGS;
 

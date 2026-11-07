@@ -15,8 +15,14 @@ import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
 import { forms } from "../support/messages";
 
 /** The shipped locales in registry order (feature 026 contracts/locales.md). */
-const SHIPPED = ["de", "en"];
-const LANGUAGE_NAMES = ["Deutsch", "English"];
+const SHIPPED = ["de", "en", "da", "nb", "sv"];
+const LANGUAGE_NAMES = [
+	"Deutsch",
+	"English",
+	"Dansk",
+	"Norsk bokmål",
+	"Svenska",
+];
 
 // Every ID in specs/001-strava-connect-webhook/contracts/messages.md and
 // specs/005-rider-view/contracts/messages.md and
@@ -956,9 +962,8 @@ describe("catalog registry", () => {
 });
 
 describe.each(catalogs)("catalog %s", (locale, catalog) => {
-	const categories = new Intl.PluralRules(
-		catalog["meta.intlLocale"],
-	).resolvedOptions().pluralCategories;
+	const categories = new Intl.PluralRules(locale).resolvedOptions()
+		.pluralCategories;
 
 	it("has exactly the keys of de (check 1)", () => {
 		expect(Object.keys(catalog).sort()).toEqual(Object.keys(de).sort());

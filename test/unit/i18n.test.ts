@@ -70,7 +70,6 @@ describe("plural messages (feature 026 research R3)", () => {
 	it("uses the locale's plural rules", () => {
 		const lt = {
 			...CATALOGS.en,
-			"meta.intlLocale": "lt-LT",
 			"fetching.import": {
 				one: "one {n}",
 				few: "few {n}",
@@ -134,7 +133,13 @@ describe("formatting", () => {
 
 describe("locales", () => {
 	it("lists every catalog in registry order", () => {
-		expect(de.locales).toEqual([
+		expect(de.locales).toEqual(
+			Object.entries(CATALOGS).map(([locale, catalog]) => ({
+				locale,
+				languageName: catalog["meta.languageName"],
+			})),
+		);
+		expect(de.locales.slice(0, 2)).toEqual([
 			{ locale: "de", languageName: "Deutsch" },
 			{ locale: "en", languageName: "English" },
 		]);

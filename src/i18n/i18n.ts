@@ -70,7 +70,9 @@ export function createI18n(locale: string, catalogs: Catalogs): I18n {
 	}
 
 	const intlLocale = value("meta.intlLocale") as string;
-	const pluralRules = new Intl.PluralRules(intlLocale);
+	// Plural rules by the catalog's language: the Workers runtime has them for
+	// Icelandic, whose numbers and dates it can't format (`meta.intlLocale`).
+	const pluralRules = new Intl.PluralRules(resolved);
 	// Building a format is the slow part, and a page can use thousands of numbers.
 	const numberFormats = new Map<number, Intl.NumberFormat>();
 	const dateFormat = new Intl.DateTimeFormat(intlLocale, {

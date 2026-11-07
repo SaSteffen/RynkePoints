@@ -7,13 +7,16 @@ Registry: `CATALOGS` in `src/i18n/catalogs.ts`. Adding a locale means adding
 `messages/<code>.ts`, `content/phrases/common.<code>.ts` and one registry line.
 
 Each catalog sets `meta.languageName` (native name, e.g. `Norsk bokmål`, `Lietuvių`) and
-`meta.intlLocale` (`da-DK`, `nb-NO`, `sv-SE`, `fi-FI`, `is-IS`, `fr-FR`, `nl-NL`, `lt-LT`).
+`meta.intlLocale`, the formatting locale: `da-DK`, `nb`, `sv-SE`, `fi-FI`, `fr-FR`, `nl-NL`,
+`lt-LT`. The Workers runtime has no `nb-NO` and no Icelandic formats, so Norwegian uses `nb`
+and Icelandic `da-DK` (the same number and date conventions). Plural rules come from the
+locale code, which the runtime has for Icelandic too.
 
 ## Message values
 
 - A string with `{param}` placeholders, as today.
 - Or a plural object (data-model › Catalog), counted by the `n` param. `t(id, { n: 3 })`
-  selects with `Intl.PluralRules(meta.intlLocale)`, then fills placeholders. A plural
+  selects with `Intl.PluralRules(<locale code>)`, then fills placeholders. A plural
   message called without a numeric `n` throws, as a missing param does today.
 
 ## Checks (unit tests)
