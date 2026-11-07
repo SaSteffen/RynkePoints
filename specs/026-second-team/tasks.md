@@ -392,16 +392,16 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 
 **Independent test**: dry run with one team's step failing (US7).
 
-- [ ] T073 [US7] Per-team deploy matrix in `.github/workflows/ci.yml` (research R13): the
-  `deploy` job over `team: [hamburg, europe]` with `fail-fast: false`, environment
+- [X] T073 [US7] Per-team deploy matrix in `.github/workflows/ci.yml` (research R13): the
+  `deploy` job over the teams `deploy-gate` selects, with `fail-fast: false`, environment
   `production` for Hamburg and `production-europe` for Europe, the deploy-gate per
   environment, then `node scripts/team-check.mjs --deployable <team>`, D1 migrations with
-  `--env`, `wrangler deploy --env` (none for Hamburg). Job names stay out of
-  `.github/rulesets/*.json`.
+  `--env`, `wrangler deploy --env` (none for Hamburg). Europe only while the repository
+  variable `EUROPE_DEPLOY` is `on`. Job names stay out of `.github/rulesets/*.json`.
 - [ ] T074 [US7] Europe's sandbox (spec 027) on a subdomain of the founding team's domain:
   its resources in `wrangler.jsonc` and one more checkbox on **Release PR** in
   `.github/workflows/release-pr.yml` (FR-042).
-- [ ] T075 [US7] Update `.github/repository-settings.md` with the `production-europe`
+- [X] T075 [US7] Update `.github/repository-settings.md` with the `production-europe`
   environment and its credential (manual, per spec 028).
 
 ## Phase 14: User Story 1 – Riders in both clubs (P1, release 4)
