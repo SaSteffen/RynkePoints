@@ -5,6 +5,7 @@ import { fi } from "./messages/fi";
 import { fr } from "./messages/fr";
 import { is } from "./messages/is";
 import { nb } from "./messages/nb";
+import { nl } from "./messages/nl";
 import { sv } from "./messages/sv";
 
 // The registry of shipped locales (research R16, feature 026 contracts/locales.md).
@@ -43,6 +44,7 @@ export const CATALOGS = {
 	fi,
 	is,
 	fr,
+	nl,
 } as const satisfies Catalogs;
 
 export type Locale = keyof typeof CATALOGS;
