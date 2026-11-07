@@ -37,6 +37,7 @@ import {
 	personalProgress,
 } from "../../badges/view";
 import { berlinDate, readyPollSeconds } from "../../config";
+import { badgeName } from "../../content";
 import type { Ctx } from "../../ctx";
 import {
 	listRevealsStatement,
@@ -61,7 +62,6 @@ import {
 	type RiderAttendanceRow,
 } from "../../db/team-events";
 import type { I18n } from "../../i18n/i18n";
-import { BADGE_NAMES } from "../../i18n/messages/badges.de";
 import {
 	type CountingWindow,
 	CURRENT_RULES,
@@ -78,11 +78,19 @@ const OUTLINE = new SafeHtml(BADGE_OUTLINE);
 /** In the gallery, whose badges have no ribbon: the circle alone. */
 const OUTLINE_PLAIN = new SafeHtml(BADGE_OUTLINE_PLAIN);
 
+/** A badge's name as the team shows it (feature 026 FR-052). */
+export type BadgeNames = (id: string) => string;
+
+/** The names for the page's team and language. */
+export function badgeNames(ctx: Pick<Ctx, "team">, i18n: I18n): BadgeNames {
+	return (id) => badgeName(ctx.team, i18n, id);
+}
+
 /** A badge sparkles for a day after it was earned: today and yesterday. */
 const DAY_SECONDS = 24 * 60 * 60;
 
-/** Units with a singular form, for "Noch 1 Termin". */
-const SINGULAR = new Set<BadgeUnit>([
+/** Units counted with plural forms, for "Noch 1 Termin" (feature 026 R3). */
+const COUNTED = new Set<BadgeUnit>([
 	"events",
 	"trainings",
 	"riders",
@@ -96,10 +104,12 @@ function valueText(
 	n: number,
 	fractionDigits = 0,
 ): string {
-	const value = i18n.formatNumber(n, { fractionDigits });
-	return n === 1 && SINGULAR.has(unit)
-		? i18n.t(`badges.value.${unit as "events"}.one`, { n: value })
-		: i18n.t(`badges.value.${unit}`, { n: value });
+	if (COUNTED.has(unit)) {
+		return i18n.t(`badges.value.${unit as "events"}`, { n });
+	}
+	return i18n.t(`badges.value.${unit}`, {
+		n: i18n.formatNumber(n, { fractionDigits }),
+	});
 }
 
 /** The surprise badges' rule names, as their catalog keys use them. */
@@ -189,13 +199,14 @@ const SPARKLES = new SafeHtml(
  */
 function badgeButton(
 	i18n: I18n,
+	names: BadgeNames,
 	earned: EarnedBadge,
 	size: 200 | 96,
 	fresh: boolean,
 ): SafeHtml {
 	const badge = badgeOf(earned);
 	const label = i18n.t("badges.label", {
-		name: BADGE_NAMES[badge.id] ?? "",
+		name: names(badge.id),
 		value: milestone(i18n, badge),
 	});
 	const ribbon = size === 200;
@@ -235,10 +246,15 @@ function categoryHeading(i18n: I18n, category: BadgeCategoryId): SafeHtml {
  * sentence on how the category counts: the picture fills the circle, and the
  * large view says what the badge was for.
  */
-function card(i18n: I18n, card: Card, isFresh: IsFresh): SafeHtml {
+function card(
+	i18n: I18n,
+	names: BadgeNames,
+	card: Card,
+	isFresh: IsFresh,
+): SafeHtml {
 	return html`<li class="badge-card" data-category="${card.category}">
 <h4>${i18n.t(`badges.category.${card.category}`)}</h4>
-${badgeButton(i18n, card.badge, 200, isFresh(card.badge))}
+${badgeButton(i18n, names, card.badge, 200, isFresh(card.badge))}
 ${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.category, card.progress, false)}</div>` : null}
 </li>`;
 }
@@ -257,6 +273,7 @@ ${row.progress ? html`<div class="badge-progress">${progressBar(i18n, row.catego
 
 function group(
 	i18n: I18n,
+	names: BadgeNames,
 	kind: BadgeGroup,
 	view: BadgeSection["personal"] | null,
 	notYet: readonly NotYetRow[],
@@ -269,7 +286,7 @@ function group(
 ${categoryHeading(i18n, g.category)}
 <ul>${g.badges.map(
 			(b) =>
-				html`<li>${badgeButton(i18n, b, 96, isFresh(b))}<span class="badge-value">${milestone(i18n, badgeOf(b))}</span></li>`,
+				html`<li>${badgeButton(i18n, names, b, 96, isFresh(b))}<span class="badge-value">${milestone(i18n, badgeOf(b))}</span></li>`,
 		)}${Array.from(
 			{ length: g.unearned },
 			() =>
@@ -285,7 +302,7 @@ ${categoryHeading(i18n, g.category)}
 <h3 id="badges-${kind}-heading"><span class="badges-title-newest">${i18n.t(`badges.${kind}.newest`)}</span><span class="badges-title-all">${all}</span></h3>
 ${kind === "personal" && view.count === 0 ? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>` : null}
 <ul class="badge-cards">
-${view.cards.map((c) => card(i18n, c, isFresh))}${empty.map((row) => emptyCard(i18n, row))}
+${view.cards.map((c) => card(i18n, names, c, isFresh))}${empty.map((row) => emptyCard(i18n, row))}
 </ul>
 <div class="badge-gallery">
 ${gallery}</div>
@@ -339,14 +356,14 @@ export function forText(i18n: I18n, badge: Badge, value: string): string {
 	);
 }
 
-function popover(i18n: I18n, earned: EarnedBadge): SafeHtml {
+function popover(i18n: I18n, names: BadgeNames, earned: EarnedBadge): SafeHtml {
 	const badge = badgeOf(earned);
 	const value = milestone(i18n, badge);
 	const team = badge.group === "team" ? " badge-large-team" : "";
 	return html`<div popover id="badge-${badge.id}" class="badge-large${team}">
 <button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
 <span class="badge" style="--badge-src:url(${picture(badge)})">${art(badge, 280, true)}<span class="badge-ribbon-text">${value}</span>${SPARKLES}</span>
-<h4>${BADGE_NAMES[badge.id] ?? ""}</h4>
+<h4>${names(badge.id)}</h4>
 <p>${forText(i18n, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
 </div>
@@ -364,6 +381,7 @@ const REVEAL_PICTURES = 5;
  */
 export function renderBadgeReveal(
 	i18n: I18n,
+	names: BadgeNames,
 	badges: readonly EarnedBadge[],
 ): SafeHtml | null {
 	const first = badges[0];
@@ -371,7 +389,7 @@ export function renderBadgeReveal(
 	const text =
 		badges.length === 1
 			? i18n.t("badges.reveal.one", {
-					name: BADGE_NAMES[first.badgeId] ?? "",
+					name: names(first.badgeId),
 				})
 			: i18n.t("badges.reveal.many", {
 					n: i18n.formatNumber(badges.length, { fractionDigits: 0 }),
@@ -397,6 +415,7 @@ export function renderBadgeReveal(
  */
 export function renderBadges(
 	i18n: I18n,
+	names: BadgeNames,
 	section: BadgeSection,
 	freshSince?: string,
 ): SafeHtml {
@@ -408,7 +427,7 @@ export function renderBadges(
 	return html`<section class="badges" aria-labelledby="badges-heading">
 <h2 id="badges-heading" class="visually-hidden">${i18n.t("badges.heading")}</h2>
 ${section.personal && section.team ? renderSwitch(i18n) : null}${new SafeHtml(BADGE_SHAPE_DEFS)}
-${group(i18n, "personal", section.personal, section.notYet, isFresh)}${group(i18n, "team", section.team, section.notYet, isFresh)}${earned.map((b) => popover(i18n, b))}</section>`;
+${group(i18n, names, "personal", section.personal, section.notYet, isFresh)}${group(i18n, names, "team", section.team, section.notYet, isFresh)}${earned.map((b) => popover(i18n, names, b))}</section>`;
 }
 
 /** What the badges page reads (issue #185). */
@@ -579,8 +598,9 @@ export function handleBadges(
 				{ ...read, balance },
 				window,
 			);
+			const names = badgeNames(ctx, i18n);
 			return section
-				? html`${renderBadgeReveal(i18n, section.reveal)}${renderBadges(i18n, section, berlinDate(ctx.now() - DAY_SECONDS))}`
+				? html`${renderBadgeReveal(i18n, names, section.reveal)}${renderBadges(i18n, names, section, berlinDate(ctx.now() - DAY_SECONDS))}`
 				: html``;
 		},
 	);

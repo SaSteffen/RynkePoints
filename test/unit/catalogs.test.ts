@@ -2,14 +2,20 @@ import { describe, expect, it } from "vitest";
 import { THEMES } from "../../src/http/themes";
 import {
 	CATALOGS,
+	type Catalog,
 	DEFAULT_LOCALE,
-	FOREIGN_LOCALE,
+	type MessageValue,
 } from "../../src/i18n/catalogs";
 import { de } from "../../src/i18n/messages/de";
 import { en } from "../../src/i18n/messages/en";
 import { REASON_CODES, UNKNOWN_FIGURE_CODES } from "../../src/rynke/rides";
 import { EVENT_KINDS } from "../../src/rynke/team-events";
 import { CYCLING_SPORT_TYPES } from "../../src/strava/activity";
+import { forms } from "../support/messages";
+
+/** The shipped locales in registry order (feature 026 contracts/locales.md). */
+const SHIPPED = ["de", "en"];
+const LANGUAGE_NAMES = ["Deutsch", "English"];
 
 // Every ID in specs/001-strava-connect-webhook/contracts/messages.md and
 // specs/005-rider-view/contracts/messages.md and
@@ -557,15 +563,10 @@ const CONTRACT_IDS = [
 	"badges.value.rynke",
 	"badges.value.tourDay",
 	"badges.value.events",
-	"badges.value.events.one",
 	"badges.value.trainings",
-	"badges.value.trainings.one",
 	"badges.value.riders",
-	"badges.value.riders.one",
 	"badges.value.attendances",
-	"badges.value.attendances.one",
 	"badges.value.days",
-	"badges.value.days.one",
 	"badges.surprise.new-year",
 	"badges.surprise.new-year.for",
 	"badges.surprise.christmas-eve",
@@ -689,9 +690,7 @@ const CONTRACT_IDS = [
 	"events.error.event_missing",
 	"organiser.switch.events.open",
 	"organiser.requests.heading",
-	"organiser.requests.heading.one",
 	"organiser.requests.intro",
-	"organiser.requests.intro.one",
 	"organiser.requests.open",
 	"organiser.requests.confirm",
 	"organiser.requests.confirm.label",
@@ -834,7 +833,6 @@ const CONTRACT_IDS = [
 	"admin.cloudflare.unavailable",
 	"admin.waiting.heading",
 	"admin.waiting.body",
-	"admin.waiting.one",
 	"admin.waiting.minutes",
 	"admin.waiting.hours",
 	"admin.waiting.days",
@@ -926,8 +924,7 @@ const CONTRACT_IDS = [
 	"organiser.graphs.view.label",
 	"organiser.graphs.view.graphs",
 	"organiser.graphs.view.riders",
-	"organiser.graphs.reports.one",
-	"organiser.graphs.reports.other",
+	"organiser.graphs.reports",
 	"organiser.graphs.reports.showAll",
 	"organiser.graphs.rows.noMatch",
 	"organiser.graphs.rows.report",
@@ -940,30 +937,60 @@ const CONTRACT_IDS = [
 const placeholders = (text: string) =>
 	[...text.matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort();
 
-const catalogs = Object.entries(CATALOGS) as [string, Record<string, string>][];
+/** Every placeholder any form of the message uses. */
+const allPlaceholders = (value: MessageValue) =>
+	[...new Set(forms(value).flatMap(placeholders))].sort();
+
+const catalogs = Object.entries(CATALOGS) as [string, Catalog][];
 
 describe("catalog registry", () => {
-	it("ships de and en, German first", () => {
+	it("ships the ten languages, German first as the key source", () => {
 		expect(DEFAULT_LOCALE).toBe("de");
-		expect(FOREIGN_LOCALE).toBe("en");
-		expect(Object.keys(CATALOGS)).toEqual(["de", "en"]);
+		expect(Object.keys(CATALOGS)).toEqual(SHIPPED);
 	});
 });
 
-describe.each(catalogs)("catalog %s", (_locale, catalog) => {
-	it("has exactly the keys of de", () => {
+describe.each(catalogs)("catalog %s", (locale, catalog) => {
+	const categories = new Intl.PluralRules(
+		catalog["meta.intlLocale"],
+	).resolvedOptions().pluralCategories;
+
+	it("has exactly the keys of de (check 1)", () => {
 		expect(Object.keys(catalog).sort()).toEqual(Object.keys(de).sort());
 	});
 
-	it("has no empty values", () => {
-		for (const [id, text] of Object.entries(catalog)) {
-			expect(text.trim(), id).not.toBe("");
+	// The same names also means the same SafeHtml slots for `tHtml` (check 3).
+	it("uses the same placeholders as de (checks 2, 3)", () => {
+		for (const [id, value] of Object.entries(de)) {
+			const own = catalog[id as keyof Catalog];
+			expect(allPlaceholders(own), id).toEqual(allPlaceholders(value));
+			if (typeof own !== "string") {
+				// The `other` form is the general one: it names every param.
+				expect(placeholders(own.other), id).toEqual(allPlaceholders(value));
+			}
 		}
 	});
 
-	it("uses the same placeholders as de", () => {
-		for (const [id, text] of Object.entries(de)) {
-			expect(placeholders(catalog[id] ?? ""), id).toEqual(placeholders(text));
+	it("is plural exactly where de is, with this locale's forms (check 4)", () => {
+		for (const [id, value] of Object.entries(de)) {
+			const own = catalog[id as keyof Catalog];
+			expect(typeof own, `${locale} ${id}`).toBe(
+				typeof value === "string" ? "string" : "object",
+			);
+			if (typeof own !== "string") {
+				expect(Object.keys(own).sort(), `${locale} ${id}`).toEqual(
+					[...categories].sort(),
+				);
+			}
+		}
+	});
+
+	it("has no empty value and none equal to its key (check 5)", () => {
+		for (const [id, value] of Object.entries(catalog)) {
+			for (const text of forms(value)) {
+				expect(text.trim(), id).not.toBe("");
+				expect(text, id).not.toBe(id);
+			}
 		}
 	});
 
@@ -973,15 +1000,15 @@ describe.each(catalogs)("catalog %s", (_locale, catalog) => {
 	});
 
 	it("names a formatting locale Intl supports", () => {
-		const tag = catalog["meta.intlLocale"] ?? "";
+		const tag = catalog["meta.intlLocale"];
 		expect(new Intl.NumberFormat(tag).resolvedOptions().locale).toBe(tag);
 	});
 });
 
 describe("catalog contents", () => {
-	it("labels the switcher with unique language names", () => {
+	it("labels the picker with unique native language names", () => {
 		const names = catalogs.map(([, c]) => c["meta.languageName"]);
-		expect(names).toEqual(["Deutsch", "English"]);
+		expect(names).toEqual(LANGUAGE_NAMES);
 		expect(new Set(names).size).toBe(names.length);
 	});
 

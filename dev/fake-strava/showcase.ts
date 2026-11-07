@@ -2,9 +2,10 @@ import { BADGE_CATEGORIES, BADGES } from "../../src/badges/catalog";
 import { progressOf } from "../../src/badges/evaluate";
 import { buildBadgeSection } from "../../src/badges/view";
 import { html, htmlResponse, layout } from "../../src/http/html";
-import { renderBadges } from "../../src/http/sections/badges";
+import { badgeNames, renderBadges } from "../../src/http/sections/badges";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
+import type { TeamData } from "../../src/teams/types";
 import { dayBefore } from "./samples";
 
 // `GET /_dev/badges` (feature 013): the app's Abzeichen section with every
@@ -12,8 +13,12 @@ import { dayBefore } from "./samples";
 // view at once. The team's badges are shared by everyone, so the sample riders
 // can't show them all; this page can. Earned a day apart, the last one newest.
 
-export function badgesPage(lang: string | null, today: string): Response {
-	const i18n = createI18n(lang ?? "de", CATALOGS);
+export function badgesPage(
+	team: TeamData,
+	lang: string | null,
+	today: string,
+): Response {
+	const i18n = createI18n(lang ?? team.defaultLocale, CATALOGS);
 	const evaluated = (group: "personal" | "team") => ({
 		earned: BADGES.filter((b) => b.group === group).map((b) => ({
 			badgeId: b.id,
@@ -28,7 +33,7 @@ export function badgesPage(lang: string | null, today: string): Response {
 		personal: evaluated("personal"),
 		team: evaluated("team"),
 	});
-	const body = html`<div class="overview-grid">${section ? renderBadges(i18n, section) : null}</div>`;
+	const body = html`<div class="overview-grid">${section ? renderBadges(i18n, badgeNames({ team }, i18n), section) : null}</div>`;
 	return htmlResponse(
 		i18n,
 		layout(i18n, { title: "Every badge", path: "/_dev/badges", body }),

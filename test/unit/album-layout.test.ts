@@ -52,6 +52,7 @@ function album(
 		season: { start: "2026-09-01", end: "2027-08-31", label: "2026/27" },
 		cutoff: "2027-08-31",
 		locale: "de",
+		badgeNames: { kind: "common" },
 		rider: {
 			athleteId: ATHLETE,
 			firstName: "Anna",

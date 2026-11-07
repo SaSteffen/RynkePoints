@@ -3,6 +3,7 @@ import { escapeHtml } from "../../src/http/html";
 import { CATALOGS, type Catalog } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import { cookiePair, makeCtx, request, resetDb } from "../support/ctx";
+import { forms } from "../support/messages";
 import { RIDER_PAGES, type RiderPage, seedPageRiders } from "../support/pages";
 
 // Every rider-facing page renders wholly in the resolved language and offers
@@ -16,11 +17,11 @@ const ctx = makeCtx();
  * (English "Sport" in German "Sportart") can't tell the languages apart.
  */
 function onlyIn(other: Catalog, own: Catalog): string[] {
-	const ownText = Object.values(own);
+	const ownText = Object.values(own).flatMap(forms);
 	const parts = new Set<string>();
 	for (const [id, value] of Object.entries(other)) {
 		if (id.startsWith("meta.") || value === own[id as keyof Catalog]) continue;
-		for (const part of value.split(/\{\w+\}/)) {
+		for (const part of forms(value).flatMap((text) => text.split(/\{\w+\}/))) {
 			const text = part.trim();
 			if (text.length > 3 && !ownText.some((v) => v.includes(text))) {
 				parts.add(escapeHtml(text));

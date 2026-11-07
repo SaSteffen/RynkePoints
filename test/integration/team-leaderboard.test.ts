@@ -1,15 +1,15 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { artUrl } from "../../src/http/art";
-import { escapeHtml } from "../../src/http/html";
-import { quoteArt, quoteId } from "../../src/http/sections/team";
-import { CATALOGS } from "../../src/i18n/catalogs";
 import {
 	QUOTES_ON_TRACK,
 	QUOTES_PUSH,
 	SEASON_QUOTES_ON_TRACK,
 	SEASON_QUOTES_PUSH,
-} from "../../src/i18n/messages/quotes.de";
+} from "../../src/content/phrases/hamburg.de";
+import { artUrl } from "../../src/http/art";
+import { escapeHtml } from "../../src/http/html";
+import { quoteArt, quoteId } from "../../src/http/sections/team";
+import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import {
 	makeCtx,

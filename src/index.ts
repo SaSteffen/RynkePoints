@@ -2,6 +2,7 @@ import { CONSENT_VERSIONS } from "./consent";
 import type { Ctx } from "./ctx";
 import { route } from "./http/router";
 import { CATALOGS } from "./i18n/catalogs";
+import { teamFor } from "./teams";
 import { activityEvent } from "./work/activity-event";
 import { checkMembership } from "./work/check-membership";
 import { type Handlers, processBatch } from "./work/consumer";
@@ -31,6 +32,7 @@ function makeCtx(env: Env, exec: ExecutionContext): Ctx {
 		queue: env.WORK_QUEUE,
 		now: () => Math.floor(Date.now() / 1000),
 		catalogs: CATALOGS,
+		team: teamFor(env),
 		consentVersions: CONSENT_VERSIONS,
 		waitUntil: (promise) => exec.waitUntil(promise),
 	};

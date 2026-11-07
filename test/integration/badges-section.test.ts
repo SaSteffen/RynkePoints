@@ -4,13 +4,17 @@ import { BADGES } from "../../src/badges/catalog";
 import { badgeWindow } from "../../src/badges/evaluate";
 import { BADGE_OUTLINE } from "../../src/badges/outline";
 import { BADGE_PICTURES } from "../../src/badges/pictures";
+import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
 import { readRiderBadges } from "../../src/db/badges";
 import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
-import { milestone, renderBadgeReveal } from "../../src/http/sections/badges";
+import {
+	badgeNames,
+	milestone,
+	renderBadgeReveal,
+} from "../../src/http/sections/badges";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
-import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
 import { countingWindow } from "../../src/rynke/rules";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
@@ -422,10 +426,11 @@ describe("the team's badges (US4)", () => {
 		const i18n = createI18n("de", CATALOGS);
 		const team = { badgeId: "big-training-5", earnedOn: "2026-04-11" };
 		const own = { badgeId: "elevation-1000", earnedOn: "2026-04-12" };
-		expect(String(renderBadgeReveal(i18n, [team, own]))).toContain(
+		const names = badgeNames(makeCtx(), i18n);
+		expect(String(renderBadgeReveal(i18n, names, [team, own]))).toContain(
 			'data-scroll-to="elevation"',
 		);
-		expect(String(renderBadgeReveal(i18n, [team]))).toContain(
+		expect(String(renderBadgeReveal(i18n, names, [team]))).toContain(
 			'data-scroll-to="big_training"',
 		);
 	});

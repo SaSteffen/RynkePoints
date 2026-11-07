@@ -1,20 +1,17 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { escapeHtml } from "../../src/http/html";
-import { MEDALS } from "../../src/http/sections/team";
-import {
-	CATALOGS,
-	type Catalog,
-	type MessageId,
-} from "../../src/i18n/catalogs";
-import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
-import { de } from "../../src/i18n/messages/de";
+import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
 import {
 	QUOTES_ON_TRACK,
 	QUOTES_PUSH,
 	SEASON_QUOTES_ON_TRACK,
 	SEASON_QUOTES_PUSH,
-} from "../../src/i18n/messages/quotes.de";
+} from "../../src/content/phrases/hamburg.de";
+import { escapeHtml } from "../../src/http/html";
+import { MEDALS } from "../../src/http/sections/team";
+import { CATALOGS, type Catalog } from "../../src/i18n/catalogs";
+import { de } from "../../src/i18n/messages/de";
 import { makeCtx, resetDb } from "../support/ctx";
+import { mapMessage } from "../support/messages";
 import { RIDER_PAGES, seedPageRiders } from "../support/pages";
 
 // Hard-coded copy guard (FR-028, FR-030, research R18). A pseudo-locale wraps
@@ -28,9 +25,9 @@ const qps = Object.fromEntries(
 			return [id, value];
 		}
 		if (id === "meta.languageName") return [id, "⟦Pseudo⟧"];
-		return [id, `⟦${value}⟧`];
+		return [id, mapMessage(value, (text) => `⟦${text}⟧`)];
 	}),
-) as Record<MessageId, string> satisfies Catalog;
+) as unknown as Catalog;
 
 const ctx = makeCtx({ catalogs: { ...CATALOGS, qps } });
 const LANGUAGE_NAMES = new Set(

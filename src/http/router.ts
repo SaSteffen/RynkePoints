@@ -98,7 +98,10 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		return handleWebhook(request, path.slice(WEBHOOK_PREFIX.length), ctx);
 	}
 
-	const i18n = createI18n(resolveLocale(request, ctx.catalogs), ctx.catalogs);
+	const i18n = createI18n(
+		resolveLocale(request, ctx.catalogs, ctx.team),
+		ctx.catalogs,
+	);
 
 	if (path === "/admin/run-daily") {
 		return handleRunDaily(request, ctx, i18n, path);

@@ -1,11 +1,11 @@
 import { BADGES } from "../badges/catalog";
+import { badgeName } from "../content";
 import type { Ctx } from "../ctx";
 import { readBadgeRiseStatement } from "../db/badges";
 import { riderStandingStatements, toRiderStanding } from "../db/rider-view";
 import { readRiseStatement } from "../db/rynke";
 import { type CurrentAlert, currentAlertStatement } from "../db/usage";
 import { createI18n, type I18n } from "../i18n/i18n";
-import { BADGE_NAMES } from "../i18n/messages/badges.de";
 import { resolveLocale } from "../i18n/resolve";
 import { rulesForVersion } from "../rynke/rules";
 import { CRITICAL_LEVEL, utcDay } from "../usage/allowances";
@@ -33,7 +33,7 @@ function textI18n(request: Request, ctx: Ctx): I18n {
 	const locale =
 		lang && Object.hasOwn(ctx.catalogs, lang)
 			? lang
-			: resolveLocale(request, ctx.catalogs);
+			: resolveLocale(request, ctx.catalogs, ctx.team);
 	return createI18n(locale, ctx.catalogs);
 }
 
@@ -146,7 +146,7 @@ export async function handleRiderNotificationText(
 		const body =
 			ids.length === 1
 				? i18n.t(team ? "notification.teamBadge" : "notification.badge", {
-						name: BADGE_NAMES[ids[0] ?? ""] ?? "",
+						name: badgeName(ctx.team, i18n, ids[0] ?? ""),
 					})
 				: i18n.t(team ? "notification.teamBadges" : "notification.badges", {
 						n: i18n.formatNumber(ids.length, { fractionDigits: 0 }),

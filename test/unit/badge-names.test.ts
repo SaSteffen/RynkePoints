@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BADGES } from "../../src/badges/catalog";
-import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
+import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
 import { de } from "../../src/i18n/messages/de";
 import { en } from "../../src/i18n/messages/en";
 

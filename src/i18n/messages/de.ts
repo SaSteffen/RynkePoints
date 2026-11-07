@@ -1,3 +1,5 @@
+import type { MessageValue } from "../catalogs";
+
 // German source catalog (research R16). Its keys define `MessageId`; every other
 // catalog must have exactly these keys. Inventory: contracts/messages.md.
 // `\u00a0` keeps a number on one line with its unit or its Rynke.
@@ -110,7 +112,10 @@ export const de = {
 		"Wir holen einmalig deine Fahrten seit dem {date} von Strava. Das dauert etwa 5\u00a0Minuten; die Seite aktualisiert sich von selbst.",
 	// Feature 024: how far the rider's activities are (FR-018, FR-019).
 	"fetching.events": "{done} von {total} Aktivitäten geholt",
-	"fetching.import": "Bisher {n} Aktivitäten geholt, weitere folgen",
+	"fetching.import": {
+		one: "Bisher {n} Aktivität geholt, weitere folgen",
+		other: "Bisher {n} Aktivitäten geholt, weitere folgen",
+	},
 	"rynke.verdict.in": "Qualifiziert für Paris! 🗼",
 	"rynke.verdict.notYet": "Noch nicht qualifiziert",
 	"rynke.verdict.missing": "Dir fehlen noch:",
@@ -715,17 +720,18 @@ export const de = {
 	"badges.value.km": "{n}\u00a0km",
 	"badges.value.m": "{n}\u00a0m",
 	"badges.value.rynke": "{n}\u00a0Rynke",
-	"badges.value.events": "{n}\u00a0Termine",
-	"badges.value.events.one": "{n}\u00a0Termin",
-	"badges.value.trainings": "{n}\u00a0Trainings",
-	"badges.value.trainings.one": "{n}\u00a0Training",
-	"badges.value.riders": "{n}\u00a0Rider",
-	"badges.value.riders.one": "{n}\u00a0Rider",
-	"badges.value.attendances": "{n}\u00a0Teilnahmen",
-	"badges.value.attendances.one": "{n}\u00a0Teilnahme",
-	"badges.value.days": "{n}\u00a0Tage",
+	"badges.value.events": { one: "{n}\u00a0Termin", other: "{n}\u00a0Termine" },
+	"badges.value.trainings": {
+		one: "{n}\u00a0Training",
+		other: "{n}\u00a0Trainings",
+	},
+	"badges.value.riders": { one: "{n}\u00a0Rider", other: "{n}\u00a0Rider" },
+	"badges.value.attendances": {
+		one: "{n}\u00a0Teilnahme",
+		other: "{n}\u00a0Teilnahmen",
+	},
+	"badges.value.days": { one: "{n}\u00a0Tag", other: "{n}\u00a0Tage" },
 	"badges.value.tourDay": "Tag\u00a0{n}",
-	"badges.value.days.one": "{n}\u00a0Tag",
 	"badges.surprise.new-year": "Neujahr",
 	"badges.surprise.new-year.for": "Du warst am Neujahrstag unterwegs.",
 	"badges.surprise.christmas-eve": "Heiligabend",
@@ -900,12 +906,14 @@ export const de = {
 		"Du bist bei diesem Termin schon eingetragen.",
 	"events.error.event_missing": "Diesen Termin gibt es nicht mehr.",
 	"organiser.switch.events.open": "Termine, {n} offene Meldungen",
-	"organiser.requests.heading": "{n} offene Meldungen ⏳",
-	"organiser.requests.heading.one": "1 offene Meldung ⏳",
-	"organiser.requests.intro":
-		"Rider sagen, sie waren dabei – bei {n} Terminen.",
-	"organiser.requests.intro.one":
-		"Rider sagen, sie waren dabei – bei einem Termin.",
+	"organiser.requests.heading": {
+		one: "{n} offene Meldung ⏳",
+		other: "{n} offene Meldungen ⏳",
+	},
+	"organiser.requests.intro": {
+		one: "Rider sagen, sie waren dabei – bei einem Termin.",
+		other: "Rider sagen, sie waren dabei – bei {n} Terminen.",
+	},
 	"organiser.requests.open": "Termin öffnen",
 	"organiser.requests.confirm": "Eintragen",
 	"organiser.requests.confirm.label": "{name} bei {event} eintragen",
@@ -1035,11 +1043,13 @@ export const de = {
 		"Cloudflares Werte sind gerade nicht verfügbar. Das hier sind die letzten bekannten.",
 	"admin.refresh": "Jetzt aktualisieren",
 	"admin.waiting.heading": "Warten auf das Strava-Budget",
-	"admin.waiting.body": "{n} Einträge warten, fertig in etwa {time}.",
-	"admin.waiting.one": "1 Eintrag wartet, fertig in etwa {time}.",
-	"admin.waiting.minutes": "{n} Minuten",
-	"admin.waiting.hours": "{n} Stunden",
-	"admin.waiting.days": "{n} Tagen",
+	"admin.waiting.body": {
+		one: "{n} Eintrag wartet, fertig in etwa {time}.",
+		other: "{n} Einträge warten, fertig in etwa {time}.",
+	},
+	"admin.waiting.minutes": { one: "{n} Minute", other: "{n} Minuten" },
+	"admin.waiting.hours": { one: "{n} Stunde", other: "{n} Stunden" },
+	"admin.waiting.days": { one: "{n} Tag", other: "{n} Tagen" },
 	"admin.alerts.heading": "Nutzungshinweise",
 	"admin.alerts.on":
 		"Du bekommst eine Benachrichtigung, wenn ein Kontingent von Strava oder Cloudflare oder die verbundenen Rider 80\u00a0% oder 95\u00a0% erreichen.",
@@ -1148,8 +1158,10 @@ export const de = {
 	"organiser.graphs.view.label": "Was angezeigt wird",
 	"organiser.graphs.view.graphs": "Diagramme",
 	"organiser.graphs.view.riders": "Rider ({n})",
-	"organiser.graphs.reports.one": "1 offene Meldung",
-	"organiser.graphs.reports.other": "{n} offene Meldungen",
+	"organiser.graphs.reports": {
+		one: "{n} offene Meldung",
+		other: "{n} offene Meldungen",
+	},
 	"organiser.graphs.reports.showAll": "Alle {n} zeigen",
 	"organiser.graphs.rows.noMatch": "Kein Rider passt zu „{query}“.",
 	"organiser.graphs.rows.report": "Meldung",
@@ -1161,4 +1173,4 @@ export const de = {
 		"Die Sperrliste beruht auf dem berechtigten Interesse des Teams, jemanden fernzuhalten, den es entfernt hat (Art. 6 Abs. 1 lit. f DSGVO), nicht auf einer Einwilligung. Wenn du ihre Löschung verlangen willst, schreib an die oben genannte verantwortliche Person.",
 	"privacy.retention.blocklist":
 		"Die einzige Ausnahme: Entfernt dich ein Admin, bleibt deine Strava-ID auf der Sperrliste des Teams, solange das Team die App betreibt, ohne Namen, Datum oder Grund, damit du dich nicht wieder verbinden kannst. Alles andere wird gelöscht.",
-} satisfies Record<string, string>;
+} satisfies Record<string, MessageValue>;

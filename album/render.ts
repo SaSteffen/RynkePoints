@@ -2,17 +2,17 @@
 // (feature 021 research R13, contracts/album-layout.md), drawn as the Claude
 // Design mock-up "RynkePoints Saisonalbum" shows it. Every position comes from
 // `layout.ts` in millimetres; every text from the catalogs (FR-039); badge
-// names stay German (feature 013). Pictures are the app's own SVGs, so the
+// names come from the team (feature 026 FR-052). Pictures are the app's own SVGs, so the
 // PDF keeps them as vectors (FR-054).
 
 import { type BadgeCategoryId, badgeById } from "../src/badges/catalog";
 import { BADGE_OUTLINE_RADIUS } from "../src/badges/outline";
 import { BADGE_PICTURES } from "../src/badges/pictures";
+import { badgeName } from "../src/content";
 import { html, SafeHtml } from "../src/http/html";
 import { forText, milestone } from "../src/http/sections/badges";
 import { CATALOGS } from "../src/i18n/catalogs";
 import { createI18n, type I18n } from "../src/i18n/i18n";
-import { BADGE_NAMES } from "../src/i18n/messages/badges.de";
 import {
 	type AlbumPage,
 	BAND,
@@ -157,7 +157,12 @@ function picture(slot: AlbumSlot): string {
  * milestone ribbon, and the caption: name, what the badge was for and when;
  * for one still to earn the milestone instead. A surprise stays a "?".
  */
-function slotHtml(i18n: I18n, placed: PlacedSlot, page: AlbumPage): SafeHtml {
+function slotHtml(
+	i18n: I18n,
+	data: Pick<AlbumData, "badgeNames">,
+	placed: PlacedSlot,
+	page: AlbumPage,
+): SafeHtml {
 	const { slot, pose } = placed;
 	const badge = badgeById(slot.badgeId);
 	if (!badge) throw new Error(`Unknown badge ${slot.badgeId}`);
@@ -173,8 +178,8 @@ function slotHtml(i18n: I18n, placed: PlacedSlot, page: AlbumPage): SafeHtml {
 	const caption = secret
 		? html`<p class="caption-name">${i18n.t("album.stickers.secret")}</p>`
 		: pose === null || !slot.earnedOn
-			? html`<p class="caption-name">${BADGE_NAMES[slot.badgeId] ?? ""}</p><p class="caption-value">${value}</p>`
-			: html`<p class="caption-name">${BADGE_NAMES[slot.badgeId] ?? ""}</p><p class="caption-for">${forText(i18n, badge, value)}</p><p class="caption-date">${i18n.formatDate(slot.earnedOn)}</p>`;
+			? html`<p class="caption-name">${badgeName(data, i18n, slot.badgeId)}</p><p class="caption-value">${value}</p>`
+			: html`<p class="caption-name">${badgeName(data, i18n, slot.badgeId)}</p><p class="caption-for">${forText(i18n, badge, value)}</p><p class="caption-date">${i18n.formatDate(slot.earnedOn)}</p>`;
 	return html`<div class="${pose === null ? "slot" : "slot slot-earned"}" data-badge="${slot.badgeId}" style="left:${mm(placed.x - page.safe.x)};top:${mm(placed.y - page.safe.y)};width:${mm(SLOT_WIDTH)};height:${mm(SLOT_HEIGHT)}"><div class="placeholder-box" style="left:${mm(left)};top:${mm(top)};width:${mm(STICKER)};height:${mm(STICKER)}">${PLACEHOLDER}${secret ? html`<p class="secret">?</p>` : null}</div>${sticker}<div class="caption" style="top:${mm(SLOT_HEIGHT - CAPTION)};height:${mm(CAPTION)}">${caption}</div></div>`;
 }
 
@@ -212,7 +217,7 @@ function stickerPage(
 			count,
 		),
 		...headings,
-		...page.slots.map((placed) => slotHtml(i18n, placed, page)),
+		...page.slots.map((placed) => slotHtml(i18n, data, placed, page)),
 	]);
 }
 

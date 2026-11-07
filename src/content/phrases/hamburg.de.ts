@@ -1,7 +1,10 @@
-// German-only quotes for the Team page (feature 016 FR-020–FR-025). They stay
-// German in every app language (FR-023), so they live beside the catalogs rather
-// than in them. A quote never names, ranks or compares riders (FR-024). The two
-// lists suit any time of year; the season lists at the end only fit their season.
+import type { PhraseSet, Season } from "../types";
+
+// Team Rynkeby Hamburg's own phrases for the Team page (feature 016 FR-020–FR-025,
+// feature 026 FR-025). They stay German in every app language, so they live
+// beside the catalogs rather than in them. A quote never names, ranks or compares
+// riders (FR-024). The two lists suit any time of year; the season lists at the
+// end only fit their season.
 
 /** For a rider who doesn't qualify yet and is behind the even pace (FR-021). */
 export const QUOTES_PUSH = [
@@ -528,9 +531,6 @@ export const QUOTES_ON_TRACK = [
 	"Die Nachbarschaft weiß, dass Wochenende ist, wenn du um sieben das Rad rausträgst.",
 ] as const;
 
-/** Meteorological seasons by month, on the Europe/Berlin date (FR-025). */
-export type Season = "spring" | "summer" | "autumn" | "winter";
-
 /** Push quotes for one season only, picked alongside QUOTES_PUSH in it (FR-025). */
 export const SEASON_QUOTES_PUSH: Record<Season, readonly string[]> = {
 	// Frühling (März bis Mai)
@@ -620,4 +620,12 @@ export const SEASON_QUOTES_ON_TRACK: Record<Season, readonly string[]> = {
 		"Du bekommst Überschuhe inzwischen ohne Fluchen an.",
 		"Du fährst bei drei Grad und nennst es „frisch“.",
 	],
+};
+
+/** Hamburg's own set, German in every language (feature 026 FR-025). */
+export const HAMBURG_PHRASES: PhraseSet = {
+	push: QUOTES_PUSH,
+	onTrack: QUOTES_ON_TRACK,
+	seasonPush: SEASON_QUOTES_PUSH,
+	seasonOnTrack: SEASON_QUOTES_ON_TRACK,
 };

@@ -181,10 +181,10 @@ describe("GET /organiser with open requests (FR-031, FR-033)", () => {
 			html.match(/<section class="open-requests"[\s\S]*?<\/section>/)?.[0] ??
 			"";
 		expect(block).toContain(
-			escapeHtml(de["organiser.requests.heading"].replace("{n}", "4")),
+			escapeHtml(de["organiser.requests.heading"].other.replace("{n}", "4")),
 		);
 		expect(block).toContain(
-			escapeHtml(de["organiser.requests.intro"].replace("{n}", "2")),
+			escapeHtml(de["organiser.requests.intro"].other.replace("{n}", "2")),
 		);
 		expect(block.indexOf(`/organiser/events/${technique}`)).toBeLessThan(
 			block.indexOf(`/organiser/events/${training}`),

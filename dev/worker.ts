@@ -5,6 +5,7 @@ import { clearSessionCookie } from "../src/http/session";
 import { CATALOGS } from "../src/i18n/catalogs";
 import { handleFetch, handleQueue, handleScheduled } from "../src/index";
 import { STRAVA_ORIGIN } from "../src/strava/result";
+import { teamFor } from "../src/teams";
 import { sendAll } from "../src/work/messages";
 import { isDay, onDevClock, pretendDay, pretendedDay } from "./clock";
 import { answerStrava } from "./fake-strava/api";
@@ -49,6 +50,7 @@ export function makeDevCtx(env: Env, exec: ExecutionContext): Ctx {
 		queue: env.WORK_QUEUE,
 		now: () => Math.floor(Date.now() / 1000),
 		catalogs: CATALOGS,
+		team: teamFor(env),
 		consentVersions: CONSENT_VERSIONS,
 		waitUntil: (promise) => exec.waitUntil(promise),
 	};
@@ -302,7 +304,11 @@ async function devRoute(
 				(await pretendedDay(ctx.env.DB)) !== null,
 			);
 		case "GET /_dev/badges":
-			return badgesPage(url.searchParams.get("lang"), berlinDate(ctx.now()));
+			return badgesPage(
+				ctx.team,
+				url.searchParams.get("lang"),
+				berlinDate(ctx.now()),
+			);
 		case "POST /_dev/events": {
 			const flash = await simulateEvent(ctx, url.origin, await form(request));
 			return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);

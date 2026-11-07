@@ -4,17 +4,12 @@ import {
 	rynkeViews,
 	trainingLeaderboard,
 } from "../../config";
+import { phraseSet } from "../../content";
+import type { Phrases, Season } from "../../content/types";
 import type { Ctx } from "../../ctx";
 import { readSeenQuotes, writeSeenQuote } from "../../db/quote-seen";
 import { readTeam, readTeamAndRides, readTeamRides } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
-import {
-	QUOTES_ON_TRACK,
-	QUOTES_PUSH,
-	SEASON_QUOTES_ON_TRACK,
-	SEASON_QUOTES_PUSH,
-	type Season,
-} from "../../i18n/messages/quotes.de";
 import { breakawayFence } from "../../rynke/breakaway";
 import {
 	type LeaderboardRow,
@@ -259,6 +254,8 @@ export interface QuotePick {
 	 * list's quotes, to mark them unseen again for a new round; otherwise null.
 	 */
 	restart: string[] | null;
+	/** The language the phrase is written in, for its `lang` attribute. */
+	locale: string;
 }
 
 /** A uniform random index below `length`: draws past the last whole multiple
@@ -277,16 +274,18 @@ function randomIndex(length: number): number {
  * while there are any (issue #96).
  */
 export function pickQuote(
+	phrases: Phrases,
 	status: RiderStatus,
 	date: string,
 	seen: ReadonlySet<string> = new Set(),
 ): QuotePick {
 	const list = status === "push" ? "push" : "onTrack";
 	const season = seasonOf(date);
+	const { set } = phrases;
 	const quotes =
 		list === "push"
-			? [...QUOTES_PUSH, ...SEASON_QUOTES_PUSH[season]]
-			: [...QUOTES_ON_TRACK, ...SEASON_QUOTES_ON_TRACK[season]];
+			? [...set.push, ...set.seasonPush[season]]
+			: [...set.onTrack, ...set.seasonOnTrack[season]];
 	const ids = quotes.map(quoteId);
 	const unseen = quotes.filter((_, i) => !seen.has(ids[i] ?? ""));
 	const from = unseen.length > 0 ? unseen : quotes;
@@ -296,6 +295,7 @@ export function pickQuote(
 		text,
 		id: quoteId(text),
 		restart: unseen.length <= 1 ? ids : null,
+		locale: phrases.locale,
 	};
 }
 
@@ -315,14 +315,14 @@ export function quoteArt(
 
 /**
  * Rynke says the quote in a speech bubble, standing on the team total (the
- * mock-up "RynkePoints Quote Monkey", option B), without a heading. German in
- * every language (FR-023). The picture is decorative.
+ * mock-up "RynkePoints Quote Monkey", option B), without a heading, in the
+ * phrase's own language (feature 026 FR-025). The picture is decorative.
  */
 function renderQuote(quote: QuotePick): SafeHtml {
-	const { list, text } = quote;
+	const { list, text, locale } = quote;
 	return html`<div class="quote-monkey">
 <img class="quote-monkey-art" src="${artUrl(quoteArt(quote))}" alt="" width="120" height="120">
-<blockquote class="quote ${list === "push" ? "quote-push" : "quote-on-track"}" lang="de">
+<blockquote class="quote ${list === "push" ? "quote-push" : "quote-on-track"}" lang="${locale}">
 <p>${text}</p>
 </blockquote>
 </div>
@@ -718,7 +718,11 @@ export function handleTeam(
 				riders.map((listed) => listed.weeks),
 				kind,
 			);
-			const quote = viewer ? pickQuote(status, today, seenQuotes) : null;
+			const phrases = phraseSet(ctx.team, i18n.locale);
+			const quote =
+				viewer && phrases
+					? pickQuote(phrases, status, today, seenQuotes)
+					: null;
 			// Only a GET marks the quote as seen, as with `rynke_seen`.
 			if (quote && request.method === "GET") {
 				await writeSeenQuote(
