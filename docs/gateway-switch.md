@@ -53,9 +53,12 @@ Nothing has changed for riders yet.
 
 ## 3. Move the subscription (Strava owner)
 
-While the subscription moves, Strava sends no events, and until the new subscription ID is
-live, Hamburg drops the events it gets. The catch-up at the end of this step re-reads the
-rides of that time.
+Strava can't change where a subscription sends its events: it is deleted and created again,
+with a new ID. While no subscription exists, Strava sends nothing, and a team that doesn't
+know the new ID yet drops its events. Hamburg reads the new ID from the secret
+`STRAVA_SUBSCRIPTION_ID_OVERRIDE`, which takes effect within seconds and needs no deploy,
+so the gap lasts about a minute. Do it in the evening, when few rides come in, and run the
+catch-up at the end for that minute.
 
 ```bash
 export CLIENT_ID=… CLIENT_SECRET=…        # the Strava application's, from its settings page
@@ -72,13 +75,14 @@ curl -s -X POST https://www.strava.com/api/v3/push_subscriptions \
   -F client_id="$CLIENT_ID" -F client_secret="$CLIENT_SECRET" \
   -F callback_url="https://gateway.trhh-rynke-coins.link/strava/webhook/<gateway token>" \
   -F verify_token="<gateway token>"
+
+# At once: Hamburg accepts the new ID (prompts for it).
+pnpm exec wrangler secret put STRAVA_SUBSCRIPTION_ID_OVERRIDE
 ```
 
 Then:
 
-1. Put the new ID in `STRAVA_SUBSCRIPTION_ID` for every team in `wrangler.jsonc`, and merge
-   that through a pull request. Do it quickly, since that deploy ends the gap.
-2. Once it is live, re-read the gap:
+1. Re-read the gap:
 
    ```bash
    ADMIN_TOKEN=… pnpm catch-up "$T0"
@@ -88,6 +92,10 @@ Then:
    changed rides with their Rynke. A ride *deleted* in the gap stays until its rider
    changes or deletes it again. A rider who revoked access in the gap is found by the
    daily run, whose Strava calls then fail.
+2. Put the new ID in `STRAVA_SUBSCRIPTION_ID` for every team in `wrangler.jsonc`, and merge
+   that through a pull request; there's no hurry. Once it is live, remove the secret:
+   `pnpm exec wrangler secret delete STRAVA_SUBSCRIPTION_ID_OVERRIDE`. Both hold the same
+   ID meanwhile, so nothing is dropped.
 
 ## 4. Watch
 
@@ -104,9 +112,10 @@ Do the same steps in reverse:
 
 1. Create the subscription on Hamburg's own URL again
    (`https://trhh-rynke-coins.link/strava/webhook/<Hamburg's token>`, with Hamburg's token
-   as `verify_token`).
-2. Set the new ID and `STRAVA_RETURN_VIA: ""`, and deploy.
-3. Run `pnpm catch-up` since the moment you started.
+   as `verify_token`), and put its ID in `STRAVA_SUBSCRIPTION_ID_OVERRIDE` at once.
+2. Run `pnpm catch-up` since the moment you started.
+3. Set the new ID and `STRAVA_RETURN_VIA: ""` in `wrangler.jsonc`, deploy, and remove the
+   secret.
 
 The gateway can stay deployed: without the subscription it gets nothing.
 

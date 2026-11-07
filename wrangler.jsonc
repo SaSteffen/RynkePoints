@@ -68,6 +68,8 @@
 		// "full". It never changes the consent versions. "on" or "off".
 		"ORGANISER_PROGRESS_GRAPH": "on",
 		// "0" until the webhook subscription is created (quickstart §3 step 12).
+		// The optional secret STRAVA_SUBSCRIPTION_ID_OVERRIDE wins while it is set
+		// (docs/gateway-switch.md step 3).
 		"STRAVA_SUBSCRIPTION_ID": "375559",
 		// VAPID contact for the push services (010 research R4).
 		"PUSH_SUBJECT": "https://trhh-rynke-coins.link",

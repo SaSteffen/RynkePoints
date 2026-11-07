@@ -53,9 +53,22 @@ export function memberClubIds(
 	return [...new Set([clubId(env), ...extra])];
 }
 
+/** Optional secret, set by hand during a subscription switch, so not in `secrets.required`. */
+export interface SubscriptionSecrets {
+	STRAVA_SUBSCRIPTION_ID_OVERRIDE?: string;
+}
+
+/**
+ * The webhook subscription whose events the team accepts. The secret
+ * `STRAVA_SUBSCRIPTION_ID_OVERRIDE` wins while it is set: `wrangler secret put`
+ * takes effect within seconds, so a new subscription's ID goes live without a
+ * deploy (docs/gateway-switch.md). An empty value counts as unset.
+ */
 export function subscriptionId(
-	env: Pick<Settings, "STRAVA_SUBSCRIPTION_ID">,
+	env: Pick<Settings, "STRAVA_SUBSCRIPTION_ID"> & SubscriptionSecrets,
 ): number {
+	const override = env.STRAVA_SUBSCRIPTION_ID_OVERRIDE?.trim();
+	if (override) return integer("STRAVA_SUBSCRIPTION_ID_OVERRIDE", override);
 	return integer("STRAVA_SUBSCRIPTION_ID", env.STRAVA_SUBSCRIPTION_ID);
 }
 

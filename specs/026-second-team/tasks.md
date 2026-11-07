@@ -377,6 +377,11 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
   `test/integration/catch-up.test.ts`) and `pnpm catch-up`: one `reread-page` per
   connected rider since the switch. The daily run doesn't re-read rides, so the plan's
   "daily run for the gap" wouldn't have caught them (FR-011).
+- [X] T072b Optional secret `STRAVA_SUBSCRIPTION_ID_OVERRIDE` (`src/config.ts`
+  `subscriptionId`, tests in `test/unit/config.test.ts` and
+  `test/integration/webhook.test.ts`): it wins over `STRAVA_SUBSCRIPTION_ID` while set, so
+  the new subscription's ID goes live with `wrangler secret put` instead of a deploy and
+  the switch drops events for about a minute instead of a deploy's length.
 
 **Checkpoint (release 3)**: merge and deploy; the maintainer runs the runbook.
 

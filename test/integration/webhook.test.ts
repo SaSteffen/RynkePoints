@@ -146,6 +146,18 @@ describe("POST /strava/webhook/:secret (events)", () => {
 		expect(ctx.queue.sent).toEqual([]);
 	});
 
+	it("follows the subscription ID secret while it is set", async () => {
+		// The switch to a new subscription: its ID goes live without a deploy.
+		ctx = {
+			...ctx,
+			env: { ...ctx.env, STRAVA_SUBSCRIPTION_ID_OVERRIDE: "888" } as Env,
+		};
+		await post(event());
+		expect(ctx.queue.sent).toEqual([]);
+		await post(event({ subscription_id: 888 }));
+		expect(ctx.queue.sent).toHaveLength(1);
+	});
+
 	it("queues an activity create", async () => {
 		const res = await post(event());
 		expect(res.status).toBe(200);
