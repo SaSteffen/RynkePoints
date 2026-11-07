@@ -182,22 +182,22 @@ Visible to Hamburg: nothing (SC-002).
 
 ## Phase 5: Foundation (release 2)
 
-- [ ] T036 Snapshot test `test/teams/season-snapshot.test.ts`: recalculate the synthetic
+- [X] T036 Snapshot test `test/teams/season-snapshot.test.ts`: recalculate the synthetic
   sample season (dev samples) with today's code and store Rynke, badges and the rider and
   Team page texts as a committed snapshot, before any move (SC-002). It must stay
   identical through release 2.
-- [ ] T037 Full `TeamData` in `src/teams/types.ts` per data-model.md: `id` "`[a-z]+`,
+- [X] T037 Full `TeamData` in `src/teams/types.ts` per data-model.md: `id` "`[a-z]+`,
   equals `TEAM_ID`, unique in `TEAMS`", `name`, `shortName`, `defaultLocale`,
   `foreignLocale`, `rules` "non-empty, ordered by `from` date", `eventKinds`, `colours`,
   `art` (ArtMap), `phrases`, `badgeNames`, `otherClubIds`, `dev` `{ host, port,
   inspectorPort }` "ports distinct across teams, never 8797/9237; host `localhost` for the
   founding team, `<id>.localhost` otherwise", `placeholders`.
-- [ ] T038 Fill `src/teams/hamburg.ts` with today's values, moved: `RULES_HISTORY` from
+- [X] T038 Fill `src/teams/hamburg.ts` with today's values, moved: `RULES_HISTORY` from
   `src/rynke/rules.ts` (R15), event kinds, colours and themes from `src/http/themes.ts`,
   coin and icons from `src/http/coin.ts` and `src/http/pwa.ts`, `teamSpecificBadges`
   listing the badges with Hamburg motifs (check each picture in `art/badges/`), dev
   `{ host: "localhost", port: 8789, inspectorPort: 9230 }`, `placeholders: []`.
-- [ ] T039 `src/teams/europe.ts`: name "Team Rynkeby Europe", `defaultLocale` and
+- [X] T039 `src/teams/europe.ts`: name "Team Rynkeby Europe", `defaultLocale` and
   `foreignLocale` `en`, `phrases` and `badgeNames` `{ kind: "common" }`, coin from
   `art/coin/europe/` copied to `public/teams/europe/`, badge map with `"placeholder"` for
   every Hamburg `teamSpecificBadges` entry, everything else copied from Hamburg; dev
@@ -206,20 +206,20 @@ Visible to Hamburg: nothing (SC-002).
 - [ ] T039a Fill Hamburg's `teamSpecificBadges` after the user reviews `art/badges/`, then
   add placeholder entries to Europe's badge map. (T038 left the list empty, pending that
   review.)
-- [ ] T040 `env.europe` block in `wrangler.jsonc`: Worker name `rynke-points-europe`,
+- [X] T040 `env.europe` block in `wrangler.jsonc`: Worker name `rynke-points-europe`,
   its own D1 `rynke-points-europe` and queue `rynke-points-europe-work` with placeholder
   IDs, the same crons, every var from the top-level block with Europe's values
   (`TEAM_ID` "europe"; placeholder club IDs, dates, controller and contact), no routes yet.
   Run `pnpm types`.
-- [ ] T041 `scripts/team-check.mjs` (contracts/team-data.md): load every team's TS data and
+- [X] T041 `scripts/team-check.mjs` (contracts/team-data.md): load every team's TS data and
   Wrangler block, fail with one line per problem (missing field or var, duplicate ID or
   port, unsorted rules, missing art path, a Hamburg-specific badge without an entry in
   another team's map, an own set referenced by another team); `--deployable <id>` also
   fails while `placeholders` is non-empty, naming them. Add it to `pnpm lint` in
   `package.json`.
-- [ ] T042 Test in `test/unit/no-team-names.test.ts`: no file under `src/` outside
+- [X] T042 Test in `test/unit/no-team-names.test.ts`: no file under `src/` outside
   `src/teams/` contains a registered team ID or name as a string literal (FR-016).
-- [ ] T043 Vitest project per registered team for `test/teams/**` in `vitest.config.ts`
+- [X] T043 Vitest project per registered team for `test/teams/**` in `vitest.config.ts`
   (bindings from that team's Wrangler block, research R11); existing suites stay Hamburg.
 
 ## Phase 6: User Story 3 – Own rules and season (P1, release 2)
