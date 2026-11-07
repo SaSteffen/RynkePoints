@@ -6,7 +6,8 @@ Sync Impact Report
   Hamburg, stays German). Every shipped locale is offered on every team's site.
   English is the reference wording where translations differ, since they get no
   native-speaker review. A team's own content sets (phrases, badge names) may stay
-  in one language. Decided with feature 026 (FR-025–FR-028, FR-052).
+  in one language. Strava's brand assets follow the rider's language where Strava
+  provides one, else English. Decided with feature 026 (FR-025–FR-028, FR-052).
 - Principles modified: none (Language section)
 - Sections added: none
 - Sections removed: none
@@ -257,8 +258,8 @@ public and maintained in English.
   database schema, API/JSON field names, test names, commit messages, and project
   documentation (README, specs, plans, tasks, this constitution).
 - Strava brand assets ("Connect with Strava" button, "Powered by Strava"
-  attribution) are used as Strava provides them, in the German variant where one
-  exists.
+  attribution) are used as Strava provides them, in the rider's language where Strava
+  provides one, otherwise in English.
 - Tests that assert on user-facing output assert the text of the locale under test,
   German unless they say otherwise.
 
