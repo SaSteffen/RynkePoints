@@ -128,10 +128,14 @@ describe("layer 2: the dev entry runs only in local fake mode", () => {
 			return { ...makeCtx(), env: devEnv };
 		}
 
-		it("answers 403 to any other host and writes nothing", async () => {
+		it.each([
+			"https://rynke.example/",
+			"https://localhost.example/",
+			"https://europe.localhost.example/",
+		])("answers 403 to %s and writes nothing", async (url) => {
 			const ctx = devCtx();
 			const before = await tableCounts();
-			const res = await devFetch(new Request("https://rynke.example/"), ctx);
+			const res = await devFetch(new Request(url), ctx);
 			expect(res.status).toBe(403);
 			expect(res.headers.get("Content-Type")).toMatch(/^text\/plain/);
 			expect(await tableCounts()).toEqual(before);
@@ -141,6 +145,7 @@ describe("layer 2: the dev entry runs only in local fake mode", () => {
 			"http://localhost:8789/",
 			"http://127.0.0.1:8789/",
 			"http://[::1]:8789/",
+			"http://europe.localhost:8790/",
 		])("serves %s", async (url) => {
 			const res = await devFetch(new Request(url), devCtx());
 			expect(res.status).not.toBe(403);

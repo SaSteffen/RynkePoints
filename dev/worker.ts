@@ -96,8 +96,15 @@ export function removeStravaInterceptor(): void {
 	installed = null;
 }
 
+/**
+ * Loopback only. `*.localhost` too: every team but the founding one runs on
+ * `<id>.localhost` (feature 026 contracts/dev-commands.md), which browsers
+ * resolve to the loopback address.
+ */
 function isLocal(url: URL): boolean {
-	return LOCAL_HOSTS.includes(url.hostname);
+	return (
+		LOCAL_HOSTS.includes(url.hostname) || url.hostname.endsWith(".localhost")
+	);
 }
 
 function text(body: string, status: number): Response {
