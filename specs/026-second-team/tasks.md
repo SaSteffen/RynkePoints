@@ -418,15 +418,22 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 
 ## Phase 15: Usage across teams (release 4, FR-039–FR-041)
 
-- [ ] T078 Tests in `test/integration/admin-usage-teams.test.ts`: each team's admin view
-  shows every team's count and share per figure, shared and unattributed usage apart, the
-  total of connected riders against 999; a team that can't be reached shows as unavailable
-  without breaking the view.
-- [ ] T079 Usage figures exchange: a read-only, token-protected
-  `GET /admin/usage/export` per team (no rider data) and the merge in
-  `src/http/admin/usage.ts` and `src/usage/`. T078 green.
-- [ ] T080 Alerts of feature 025 go to every team's administrators and every maintainer,
-  in `src/usage/` (FR-041).
+- [X] T078 Tests in `test/integration/admin-usage-teams.test.ts`: each team's admin view
+  shows every team's count and share per figure, unattributed usage apart, the total of
+  connected riders against 999; a team that can't be reached shows as unavailable
+  without breaking the view; no other team's name on the page (FR-023).
+- [X] T079 Usage figures exchange ([contracts/usage-exchange.md](contracts/usage-exchange.md)):
+  a read-only, token-protected `GET /admin/usage/export` per team (no rider data), the
+  hourly pull into `usage_team_daily` (migration `0027_usage_teams.sql`), `USAGE_PEERS`
+  and the optional secret `USAGE_EXCHANGE_TOKEN`, and the merge in
+  `src/http/admin/usage.ts`, `src/http/admin/history.ts` and `src/usage/peers.ts`.
+  T078 green.
+- [X] T080 Alerts of feature 025 go to every team's administrators: connected riders are
+  recorded as all teams' together, Strava's and Cloudflare's figures are shared anyway
+  (FR-041). Maintainers outside the app are feature 028's (FR-025).
+- [ ] T080a Cloudflare's figures split by team (FR-040): map Workers, databases and queues
+  to teams in team data, count the gateway's as shared, and say so for a figure that
+  can't be split, in `src/usage/cloudflare.ts` and the view.
 
 ## Phase 16: Go live (release 4)
 

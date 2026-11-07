@@ -997,6 +997,16 @@ export const sv: Catalog = {
 	"admin.summary.attention": "Siffror på 80 % eller mer: {n}",
 	"admin.figure.numbers": "{used} av {limit} · {percent} %",
 	"admin.figure.split": "Det här laget: {team} · Inte tilldelat: {rest}",
+	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
+	"admin.figure.teamNone": "{team}: inga siffror än",
+	"admin.figure.rest": "Inte tilldelat: {n}",
+	"admin.figure.windowNote":
+		"Andra lags förfrågningar räknas här som inte tilldelade: lagen utbyter inte sina 15-minuterssiffror.",
+	"admin.teams.stale":
+		"{team}: inget svar vid senaste registreringen. Siffrorna är från {time} UTC.",
+	"admin.teams.other": "Annat lag",
+	"admin.teams.otherN": "Annat lag {n}",
+	"admin.teams.never": "{team}: inget svar än, så siffrorna saknas.",
 	"admin.figure.seen": "Per {time} UTC",
 	"admin.figure.notSeen": "Inte observerat än",
 	"admin.figure.noValue": "Inget värde än. Gräns: {limit}",

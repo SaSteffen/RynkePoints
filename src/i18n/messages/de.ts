@@ -1036,6 +1036,16 @@ export const de = {
 	"admin.summary.attention": "Werte bei 80\u00a0% oder mehr: {n}",
 	"admin.figure.numbers": "{used} von {limit} · {percent}\u00a0%",
 	"admin.figure.split": "Dieses Team: {team} · Nicht zugeordnet: {rest}",
+	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
+	"admin.figure.teamNone": "{team}: noch keine Zahlen",
+	"admin.figure.rest": "Nicht zugeordnet: {n}",
+	"admin.figure.windowNote":
+		"Anfragen anderer Teams zählen hier als nicht zugeordnet: Die Teams tauschen ihre 15-Minuten-Zahlen nicht aus.",
+	"admin.teams.stale":
+		"{team}: keine Antwort bei der letzten Erfassung. Die Zahlen sind vom {time} UTC.",
+	"admin.teams.other": "Anderes Team",
+	"admin.teams.otherN": "Anderes Team {n}",
+	"admin.teams.never": "{team}: noch keine Antwort, daher fehlen die Zahlen.",
 	"admin.figure.seen": "Stand: {time} UTC",
 	"admin.figure.notSeen": "Noch nicht beobachtet",
 	"admin.figure.noValue": "Noch kein Wert. Limit: {limit}",

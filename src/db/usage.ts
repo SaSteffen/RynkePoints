@@ -95,30 +95,171 @@ export function correctPastUsageStatement(
 		);
 }
 
+/** `cloudflare`, or `team:<id>` for another team's export (feature 026). */
+export type UsageSource = "cloudflare" | `team:${string}`;
+
 export function sourceSuccessStatement(
 	db: D1Database,
 	now: number,
+	source: UsageSource = "cloudflare",
 ): D1PreparedStatement {
 	return db
 		.prepare(
 			`INSERT INTO usage_source_state (source, last_success_at)
-			VALUES ('cloudflare', ?1)
+			VALUES (?2, ?1)
 			ON CONFLICT (source) DO UPDATE SET last_success_at = ?1`,
 		)
-		.bind(now);
+		.bind(now, source);
 }
 
 export function sourceFailureStatement(
 	db: D1Database,
 	now: number,
+	source: UsageSource = "cloudflare",
 ): D1PreparedStatement {
 	return db
 		.prepare(
 			`INSERT INTO usage_source_state (source, last_failure_at)
-			VALUES ('cloudflare', ?1)
+			VALUES (?2, ?1)
 			ON CONFLICT (source) DO UPDATE SET last_failure_at = ?1`,
 		)
-		.bind(now);
+		.bind(now, source);
+}
+
+export interface SourceState {
+	lastSuccessAt: number | null;
+	lastFailureAt: number | null;
+}
+
+/** Every source's state, by source. */
+export async function readSourceStates(
+	db: D1Database,
+): Promise<Map<string, SourceState>> {
+	const { results } = await db.prepare("SELECT * FROM usage_source_state").all<{
+		source: string;
+		last_success_at: number | null;
+		last_failure_at: number | null;
+	}>();
+	return new Map(
+		results.map((row) => [
+			row.source,
+			{
+				lastSuccessAt: row.last_success_at,
+				lastFailureAt: row.last_failure_at,
+			},
+		]),
+	);
+}
+
+// Other teams' own counts (feature 026 contracts/usage-exchange.md).
+
+/** This team's recorded own counts of the exchanged allowances, before today. */
+export function ownCountsStatement(
+	db: D1Database,
+	since: string,
+	today: string,
+): D1PreparedStatement {
+	return db
+		.prepare(
+			`SELECT day, allowance, team_used FROM usage_daily
+			WHERE day >= ? AND day < ? AND team_used IS NOT NULL
+				AND allowance IN ('strava_read_daily', 'strava_all_daily', 'riders_connected')
+			ORDER BY day, allowance`,
+		)
+		.bind(since, today);
+}
+
+export interface TeamCountRecord {
+	day: string;
+	allowance: RecordedAllowance;
+	team: string;
+	used: number;
+	recordedAt: number;
+}
+
+/** A team's count as its export gave it; a later pull replaces it. */
+export function upsertTeamCountStatement(
+	db: D1Database,
+	record: TeamCountRecord,
+): D1PreparedStatement {
+	return db
+		.prepare(
+			`INSERT INTO usage_team_daily (day, allowance, team, used, recorded_at)
+			VALUES (?, ?, ?, ?, ?)
+			ON CONFLICT (day, allowance, team) DO UPDATE SET used = excluded.used,
+				recorded_at = excluded.recorded_at`,
+		)
+		.bind(
+			record.day,
+			record.allowance,
+			record.team,
+			record.used,
+			record.recordedAt,
+		);
+}
+
+/** Every team's counts from `since` on, oldest first. */
+export function teamCountsStatement(
+	db: D1Database,
+	since: string,
+): D1PreparedStatement {
+	return db
+		.prepare("SELECT * FROM usage_team_daily WHERE day >= ? ORDER BY day")
+		.bind(since);
+}
+
+/** The rows of `teamCountsStatement`. */
+export function teamCountRecords(rows: readonly unknown[]): TeamCountRecord[] {
+	return (
+		rows as {
+			day: string;
+			allowance: RecordedAllowance;
+			team: string;
+			used: number;
+			recorded_at: number;
+		}[]
+	).map((row) => ({
+		day: row.day,
+		allowance: row.allowance,
+		team: row.team,
+		used: row.used,
+		recordedAt: row.recorded_at,
+	}));
+}
+
+/** Each team's newest day stored, and its newest count of connected riders. */
+export async function latestTeamCounts(
+	db: D1Database,
+): Promise<Map<string, { lastDay: string; connected: number | null }>> {
+	const results = await db.batch([
+		db.prepare(
+			"SELECT team, MAX(day) AS day FROM usage_team_daily GROUP BY team",
+		),
+		db.prepare(
+			`SELECT t.team, t.used FROM usage_team_daily t
+			WHERE t.allowance = 'riders_connected' AND t.day = (
+				SELECT MAX(day) FROM usage_team_daily
+				WHERE team = t.team AND allowance = 'riders_connected')`,
+		),
+	]);
+	const latest = new Map<
+		string,
+		{ lastDay: string; connected: number | null }
+	>();
+	for (const row of (results[0]?.results ?? []) as {
+		team: string;
+		day: string;
+	}[]) {
+		latest.set(row.team, { lastDay: row.day, connected: null });
+	}
+	for (const row of (results[1]?.results ?? []) as {
+		team: string;
+		used: number;
+	}[]) {
+		const entry = latest.get(row.team);
+		if (entry) entry.connected = row.used;
+	}
+	return latest;
 }
 
 /**
@@ -177,10 +318,10 @@ export async function pruneUsageHistory(
 	db: D1Database,
 	firstKept: string,
 ): Promise<void> {
-	await db
-		.prepare("DELETE FROM usage_daily WHERE day < ?")
-		.bind(firstKept)
-		.run();
+	await db.batch([
+		db.prepare("DELETE FROM usage_daily WHERE day < ?").bind(firstKept),
+		db.prepare("DELETE FROM usage_team_daily WHERE day < ?").bind(firstKept),
+	]);
 }
 
 // Alert state (research R5, contracts/alerts.md).
