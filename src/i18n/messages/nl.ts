@@ -1087,6 +1087,10 @@ export const nl: Catalog = {
 	"notice.blocked.title": "Je kunt niet meedoen in dit team",
 	"notice.blocked.body":
 		"Een beheerder heeft je uit dit team verwijderd. We bewaren alleen je Strava-ID, zodat je niet opnieuw kunt verbinden, en we hebben de toegang die je net gaf ingetrokken.",
+	"notice.oneTeam.title": "Je zit ook in de club van een ander team",
+	"notice.oneTeam.body":
+		"Op RynkePoints doe je mee met één team tegelijk. Strava geeft de app één koppeling per persoon, dus als je koppelt met een tweede team, stopt de koppeling met het eerste. Je bent nu hier gekoppeld.",
+	"notice.carryOn": "Verder",
 	"organiser.graphs.heading": "Voortgang",
 	"organiser.graphs.title.outdoor": "Kilometers buiten (km)",
 	"organiser.graphs.title.virtual": "Virtuele kilometers (km)",

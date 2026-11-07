@@ -1119,6 +1119,10 @@ export const lt: Catalog = {
 	"notice.blocked.title": "Negali dalyvauti šioje komandoje",
 	"notice.blocked.body":
 		"Administratorius tave pašalino iš šios komandos. Pasiliekame tik tavo Strava ID, kad negalėtum vėl prisijungti, ir atšaukėme ką tik suteiktą prieigą.",
+	"notice.oneTeam.title": "Tu taip pat esi kitos komandos klube",
+	"notice.oneTeam.body":
+		"RynkePoints gali dalyvauti tik vienoje komandoje vienu metu. Strava suteikia programėlei vieną ryšį vienam asmeniui, todėl prisijungus prie antros komandos ryšys su pirmąja nutrūksta. Dabar ryšys veikia čia.",
+	"notice.carryOn": "Tęsti",
 	"organiser.graphs.heading": "Pažanga",
 	"organiser.graphs.title.outdoor": "Kilometrai lauke (km)",
 	"organiser.graphs.title.virtual": "Virtualūs kilometrai (km)",

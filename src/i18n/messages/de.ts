@@ -1111,6 +1111,10 @@ export const de = {
 	"notice.blocked.title": "Du kannst bei diesem Team nicht mitmachen",
 	"notice.blocked.body":
 		"Ein Admin hat dich aus diesem Team entfernt. Wir behalten nur deine Strava-ID, damit du dich nicht wieder verbinden kannst, und haben den gerade erteilten Zugang widerrufen.",
+	"notice.oneTeam.title": "Du bist auch im Club eines anderen Teams",
+	"notice.oneTeam.body":
+		"Bei RynkePoints kannst du immer nur in einem Team mitmachen. Strava gibt der App eine Verbindung pro Person: Verbindest du dich bei einem zweiten Team, endet die Verbindung beim ersten. Hier bist du jetzt verbunden.",
+	"notice.carryOn": "Weiter",
 	"organiser.graphs.heading": "Fortschritt",
 	"organiser.graphs.title.outdoor": "Kilometer draußen (km)",
 	"organiser.graphs.title.virtual": "Kilometer virtuell (km)",

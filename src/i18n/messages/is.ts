@@ -1079,6 +1079,10 @@ export const is: Catalog = {
 	"notice.blocked.title": "Þú getur ekki tekið þátt í þessu liði",
 	"notice.blocked.body":
 		"Stjórnandi fjarlægði þig úr þessu liði. Við geymum aðeins Strava-auðkennið þitt svo þú getir ekki tengst aftur, og við höfum afturkallað aðganginn sem þú veittir rétt í þessu.",
+	"notice.oneTeam.title": "Þú ert líka í klúbbi annars liðs",
+	"notice.oneTeam.body":
+		"Á RynkePoints geturðu verið með í einu liði í einu. Strava gefur appinu eina tengingu á hverja manneskju, svo ef þú tengist öðru liði rofnar tengingin við það fyrra. Þú ert nú tengd/ur hér.",
+	"notice.carryOn": "Halda áfram",
 	"organiser.graphs.heading": "Framvinda",
 	"organiser.graphs.title.outdoor": "Kílómetrar úti (km)",
 	"organiser.graphs.title.virtual": "Sýndarkílómetrar (km)",

@@ -1073,6 +1073,10 @@ export const en: Catalog = {
 	"notice.blocked.title": "You can't take part in this team",
 	"notice.blocked.body":
 		"An administrator removed you from this team. We only keep your Strava ID, so you can't connect again, and we've revoked the access you just granted.",
+	"notice.oneTeam.title": "You're in another team's club too",
+	"notice.oneTeam.body":
+		"On RynkePoints you can take part in one team at a time. Strava gives the app one connection per person, so connecting to a second team ends the connection to the first. You're connected here now.",
+	"notice.carryOn": "Continue",
 	"organiser.graphs.heading": "Progress",
 	"organiser.graphs.title.outdoor": "Outdoor kilometres (km)",
 	"organiser.graphs.title.virtual": "Virtual kilometres (km)",

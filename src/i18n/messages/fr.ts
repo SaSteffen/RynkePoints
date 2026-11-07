@@ -1138,6 +1138,10 @@ export const fr: Catalog = {
 	"notice.blocked.title": "Tu ne peux pas participer à cette équipe",
 	"notice.blocked.body":
 		"Un administrateur t'a retiré·e de cette équipe. Nous gardons seulement ton identifiant Strava, pour que tu ne puisses pas te reconnecter, et avons révoqué l'accès que tu viens d'accorder.",
+	"notice.oneTeam.title": "Tu fais aussi partie du club d'une autre équipe",
+	"notice.oneTeam.body":
+		"Sur RynkePoints, tu ne peux participer qu'à une équipe à la fois. Strava donne à l'application une seule connexion par personne : si tu te connectes à une deuxième équipe, la connexion à la première prend fin. Tu es maintenant connecté·e ici.",
+	"notice.carryOn": "Continuer",
 	"organiser.graphs.heading": "Progression",
 	"organiser.graphs.title.outdoor": "Kilomètres en extérieur (km)",
 	"organiser.graphs.title.virtual": "Kilomètres virtuels (km)",
