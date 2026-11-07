@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Writes src/http/art-versions.ts: a short hash of every badge, coin,
-// illustration and quote monkey SVG in public/, which the app puts into the picture's address
+// illustration and quote monkey SVG in public/, and of every team's own art under
+// public/teams/<id>/ (feature 026 research R14), which the app puts into the picture's address
 // as `?v=<hash>` (a follow-up to issue #182). A changed picture gets a new
 // address, so public/_headers can let the browser keep each one for good.
 // pnpm badge-build, pnpm coin-art and pnpm illustrations run it at their end.
@@ -12,7 +13,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = new URL("../", import.meta.url);
 const OUT = fileURLToPath(new URL("src/http/art-versions.ts", ROOT));
-const FOLDERS = ["badges", "coin", "illustrations", "quotes", "shows"];
+const SHARED = ["badges", "coin", "illustrations", "quotes", "shows"];
 
 /** A folder's file names; none for a folder that isn't there (yet). */
 function names(folder) {
@@ -22,6 +23,19 @@ function names(folder) {
 		return [];
 	}
 }
+
+/** Each team's art folders: `teams/<id>/<folder>`. */
+function teamFolders() {
+	return names("teams")
+		.sort()
+		.flatMap((id) =>
+			names(`teams/${id}`)
+				.sort()
+				.map((folder) => `teams/${id}/${folder}`),
+		);
+}
+
+const FOLDERS = [...SHARED, ...teamFolders()];
 
 const entries = FOLDERS.flatMap((folder) =>
 	names(folder)

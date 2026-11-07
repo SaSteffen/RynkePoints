@@ -10,9 +10,10 @@
 //   art/coin/originals/rynke-coin-hero-<n>.png -> public/coin/rynke-coin-hero-<n>.svg
 //                                                (art/coin/hero/README.md)
 //
-// Team Europe's, in art/coin/europe/, stay beside their originals until the app
-// can serve art per team (feature 026): under public/ they'd ship to Hamburg
-// too. It shares the portraits, which show only the character.
+// Team Europe's, in art/coin/europe/, stay beside their originals and are
+// copied to public/teams/europe/coin/, where only Europe's team data points
+// (feature 026 research R14). It shares the portraits, which show only the
+// character.
 //
 // The full-colour originals are snapped to their own palettes (the back needs
 // the Elbe, sky, glass and brick the shared coin palette doesn't have), and a
@@ -149,6 +150,7 @@ const TEAMS = [
 	{
 		art: "art/coin/europe",
 		appOut: "art/coin/europe",
+		publicOut: "public/teams/europe/coin",
 		backColours: EUROPE_BACK_COLOURS,
 		backOverlay: EU_STARS,
 		lineCoins: { front: [736, 703, 615, 626], back: [2053, 703, 622, 626] },
@@ -169,7 +171,7 @@ function write(out, content) {
 	console.log(`${out} (${statSync(join(ROOT, out)).size} bytes)`);
 }
 
-for (const { art, appOut, backColours, backOverlay = "" } of TEAMS) {
+for (const { art, appOut, publicOut, backColours, backOverlay = "" } of TEAMS) {
 	for (const side of ["front", "back"]) {
 		const source = `${art}/originals/rynke-coin-${side}.jpeg`;
 		const traced = traceImage(join(ROOT, source), {
@@ -177,10 +179,9 @@ for (const { art, appOut, backColours, backOverlay = "" } of TEAMS) {
 			fixes: FIXES[side],
 		});
 		if (side === "back") traced.markup += backOverlay;
-		write(
-			`${appOut}/rynke-coin-${side}.svg`,
-			svg(`Rynke coin, ${side}`, source, traced),
-		);
+		const content = svg(`Rynke coin, ${side}`, source, traced);
+		write(`${appOut}/rynke-coin-${side}.svg`, content);
+		if (publicOut) write(`${publicOut}/rynke-coin-${side}.svg`, content);
 	}
 }
 

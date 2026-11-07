@@ -203,6 +203,9 @@ Visible to Hamburg: nothing (SC-002).
   every Hamburg `teamSpecificBadges` entry, everything else copied from Hamburg; dev
   `{ host: "europe.localhost", port: 8790, inspectorPort: 9231 }`; `placeholders` listing
   every copied field (FR-053). Register in `src/teams/index.ts`.
+- [ ] T039a Fill Hamburg's `teamSpecificBadges` after the user reviews `art/badges/`, then
+  add placeholder entries to Europe's badge map. (T038 left the list empty, pending that
+  review.)
 - [ ] T040 `env.europe` block in `wrangler.jsonc`: Worker name `rynke-points-europe`,
   its own D1 `rynke-points-europe` and queue `rynke-points-europe-work` with placeholder
   IDs, the same crons, every var from the top-level block with Europe's values
