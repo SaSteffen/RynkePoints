@@ -70,14 +70,14 @@ beforeEach(async () => {
 });
 
 describe.each(RIDER_PAGES)("$name", (page) => {
-	it.each([undefined, "de-DE,en;q=0.5", "da,de;q=0.5"])(
+	it.each([undefined, "de-DE,en;q=0.5", "pl,de;q=0.5"])(
 		"is German for Accept-Language %j",
 		async (acceptLanguage) => {
 			expectLanguage(await render(page, { acceptLanguage }), "de");
 		},
 	);
 
-	it.each(["en-US,en;q=0.9,de;q=0.8", "da", "fr-CH, fr;q=0.9"])(
+	it.each(["en-US,en;q=0.9,de;q=0.8", "pl", "es-CL, es;q=0.9"])(
 		"is English for Accept-Language %j",
 		async (acceptLanguage) => {
 			expectLanguage(await render(page, { acceptLanguage }), "en");
