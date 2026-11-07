@@ -66,7 +66,13 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 	const say = (team, field, what) =>
 		problems.push(`team ${team?.id ?? "?"}: ${field}: ${what}`);
 	const founding = teams[0];
-	const reference = wrangler.vars ?? {};
+	// Every var some team's block sets, so a var missing from the founding
+	// team's top-level block is caught too.
+	const reference = Object.assign(
+		{},
+		...Object.values(wrangler.env ?? {}).map((block) => block.vars ?? {}),
+		wrangler.vars ?? {},
+	);
 	const secrets = wrangler.secrets?.required ?? [];
 
 	const seenIds = new Set();
