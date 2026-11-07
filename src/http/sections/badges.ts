@@ -589,6 +589,7 @@ export function handleBadges(
 					i18n,
 					ctx.env.SEASON_START_DATE,
 					readyPollSeconds(ctx.env),
+					ctx.team.art.coin,
 				);
 			}
 			const section = await badgesOf(

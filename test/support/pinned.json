@@ -10,6 +10,10 @@
 	"TRAINING_LEADERBOARD": "on",
 	"RIDE_FIGURES": "on",
 	"RYNKE_VIEWS": "on",
+	"BADGES": "on",
+	"PHRASES": "on",
+	"SEASON_ALBUM": "on",
+	"FUN_THEMES": "on",
 	"PRIVACY_CONTROLLER": "Synthetic Controller\nTeststraße 1\n20095 Hamburg",
 	"CONTACT_EMAIL": "privacy@example.org"
 }

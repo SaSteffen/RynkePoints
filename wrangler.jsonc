@@ -85,6 +85,15 @@
 		// "off" gives /team one view without Rynke: the team's ride figures, a km
 		// chart and the ride ranking (feature 032 FR-012). "on" or "off".
 		"RYNKE_VIEWS": "on",
+		// Feature switches per team (feature 026 FR-018), each "on" or "off":
+		// "off" leaves out every page, menu entry, text, notification and
+		// scheduled work of the feature. The badges; the Team page's
+		// motivational phrases; the season album; the fun themes Konfetti and
+		// Disco in the theme menu.
+		"BADGES": "on",
+		"PHRASES": "on",
+		"SEASON_ALBUM": "on",
+		"FUN_THEMES": "on",
 		// Who is responsible for the riders' data, and how to reach them, for
 		// the privacy page (/privacy). One line each; the contact is the email.
 		"PRIVACY_CONTROLLER": "Sascha Steffen",
@@ -178,6 +187,10 @@
 				"TRAINING_LEADERBOARD": "on",
 				"RIDE_FIGURES": "on",
 				"RYNKE_VIEWS": "on",
+				"BADGES": "on",
+				"PHRASES": "on",
+				"SEASON_ALBUM": "on",
+				"FUN_THEMES": "on",
 				// Placeholders until Europe names its controller and contact.
 				"PRIVACY_CONTROLLER": "Placeholder Controller",
 				"CONTACT_EMAIL": "privacy@example.org",

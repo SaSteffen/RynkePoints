@@ -3,7 +3,7 @@ import type { Ctx } from "../ctx";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import { notFound } from "./errors";
-import { html, htmlResponse, layout } from "./html";
+import { html, htmlResponse, layout, pageLook } from "./html";
 
 // Public outcome pages with stable GET URLs (contracts/http-routes.md,
 // research R18). They show no rider data and need no session. Retry links go to
@@ -106,6 +106,7 @@ export function handleNotice(id: string, ctx: Ctx, i18n: I18n): Response {
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
+			look: pageLook(ctx),
 			title,
 			path,
 			body: html`<h1>${title}</h1>

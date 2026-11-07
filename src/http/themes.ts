@@ -404,3 +404,16 @@ export const THEME_GROUPS: readonly ThemeGroup[] = [
 	"dark",
 	"contrast",
 ];
+
+/**
+ * The themes a team's menu and head script offer, in menu order: the team's
+ * own list (`colours.themes`), without the fun themes while its `FUN_THEMES`
+ * is "off" (feature 026 FR-018). A stored theme that isn't offered is
+ * Automatisch.
+ */
+export function teamThemes(
+	themes: readonly ThemeId[],
+	fun: boolean,
+): readonly Theme[] {
+	return THEMES.filter((t) => themes.includes(t.id) && (fun || t.fun === null));
+}

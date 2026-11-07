@@ -1,6 +1,6 @@
 import { badgeWindow } from "../badges/evaluate";
 import { evaluateTeamBadges } from "../badges/team";
-import { berlinDate } from "../config";
+import { badges, berlinDate } from "../config";
 import type { Ctx } from "../ctx";
 import {
 	advanceTeamBadgeNoticesStatement,
@@ -29,12 +29,14 @@ import { countingWindow, currentRules } from "../rynke/rules";
 /**
  * Announces the team badges new since the last check and returns the riders to
  * notify, sorted. `keep` are the riders whose badge rise the same change just
- * wrote; their team badges join it. Never throws.
+ * wrote; their team badges join it. Never throws. Nothing to check while the
+ * team has switched badges off (feature 026 FR-018).
  */
 export async function teamBadgeNews(
 	ctx: Ctx,
 	keep: readonly number[],
 ): Promise<number[]> {
+	if (!badges(ctx.env)) return [];
 	try {
 		return await announce(ctx, new Set(keep));
 	} catch (err) {

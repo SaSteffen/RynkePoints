@@ -1,8 +1,11 @@
+import { funThemes } from "../config";
+import type { Ctx } from "../ctx";
 import type { I18n } from "../i18n/i18n";
-import { COIN_SPRITE, coin } from "./coin";
+import type { CoinArt, InstallIcons } from "../teams/types";
+import { COIN_SPRITE, coin, SHARED_COIN } from "./coin";
 import { STYLE } from "./style";
 import { STYLESHEET_PATH } from "./stylesheet";
-import { THEMES } from "./themes";
+import { THEMES, type Theme, teamThemes } from "./themes";
 
 // Server-rendered HTML (research R13). Templates hold markup only; every piece
 // of rider-facing text comes from the catalogs through `I18n`.
@@ -53,9 +56,46 @@ export function html(
  * `data-theme`, its base `data-scheme` and the browser's colour; an old
  * `rp-scheme` (011) becomes Rynke Tag or Nacht once. Anything else, or storage
  * that refuses, is Automatisch. The id → [scheme, surface] table comes from
- * the theme list; the script holds no text.
+ * the theme list, `themes`; the script holds no text.
  */
-export const THEME_SCRIPT = `let t=null;try{const T=new Map(${JSON.stringify(THEMES.map((t) => [t.id, [t.scheme, t.preview.bg]]))}),S=localStorage;t=S.getItem("rp-theme");if(t===null){const s=S.getItem("rp-scheme");if(s==="light"||s==="dark"){t=s==="dark"?"rynke-night":"rynke-day";S.setItem("rp-theme",t);S.removeItem("rp-scheme")}}const e=T.get(t);if(e){const d=document.documentElement.dataset;d.theme=t;d.scheme=e[0];for(const m of document.querySelectorAll('meta[name="theme-color"]')){m.removeAttribute("media");m.content=e[1]}}else t=null}catch{t=null}`;
+export function themeScript(themes: readonly Theme[]): string {
+	return `let t=null;try{const T=new Map(${JSON.stringify(themes.map((t) => [t.id, [t.scheme, t.preview.bg]]))}),S=localStorage;t=S.getItem("rp-theme");if(t===null){const s=S.getItem("rp-scheme");if(s==="light"||s==="dark"){t=s==="dark"?"rynke-night":"rynke-day";S.setItem("rp-theme",t);S.removeItem("rp-scheme")}}const e=T.get(t);if(e){const d=document.documentElement.dataset;d.theme=t;d.scheme=e[0];for(const m of document.querySelectorAll('meta[name="theme-color"]')){m.removeAttribute("media");m.content=e[1]}}else t=null}catch{t=null}`;
+}
+
+/** The head script with every theme. */
+export const THEME_SCRIPT = themeScript(THEMES);
+
+/**
+ * What of a page is the team's own (feature 026 T050): the themes it offers,
+ * its install icons in the head and its coin.
+ */
+export interface PageLook {
+	themes: readonly Theme[];
+	icons: Pick<InstallIcons, "favicon" | "appleTouch">;
+	coin: CoinArt;
+}
+
+/** The look of `ctx`'s team, its fun themes only while `FUN_THEMES` is "on". */
+export function pageLook(ctx: Pick<Ctx, "env" | "team">): PageLook {
+	return {
+		themes: teamThemes(ctx.team.colours.themes, funThemes(ctx.env)),
+		icons: ctx.team.art.icons,
+		coin: ctx.team.art.coin,
+	};
+}
+
+/**
+ * A page that has no team at hand (the 404 and 403 pages): every theme and
+ * the shared icons and coin.
+ */
+export const SHARED_LOOK: PageLook = {
+	themes: THEMES,
+	icons: {
+		favicon: "/icons/favicon.svg",
+		appleTouch: "/icons/apple-touch-icon.png",
+	},
+	coin: SHARED_COIN,
+};
 
 /**
  * The brand name, the same in every language (011 contracts/pages.md), behind
@@ -94,6 +134,8 @@ export interface LayoutOptions {
 	 * offline notice, which the service worker shows without a network.
 	 */
 	inlineStyle?: boolean;
+	/** The team's themes and icons (`pageLook(ctx)`); `SHARED_LOOK` without. */
+	look?: PageLook;
 }
 
 // The picker's icons, here rather than in icons.ts, which imports this module.
@@ -142,6 +184,7 @@ export function layout(
 		shell,
 		scripts = [],
 		inlineStyle = false,
+		look = SHARED_LOOK,
 	}: LayoutOptions,
 ): SafeHtml {
 	const header = shell
@@ -162,10 +205,10 @@ ${shell.menu}`
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fffdf5">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12110c">
-<script>${new SafeHtml(THEME_SCRIPT)}</script>
+<script>${new SafeHtml(themeScript(look.themes))}</script>
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="icon" href="${look.icons.favicon}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="${look.icons.appleTouch}">
 ${scripts.map(
 	(src) => html`<script src="${src}" defer></script>
 `,

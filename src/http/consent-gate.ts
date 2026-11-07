@@ -5,7 +5,13 @@ import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import { consentForm, consentSummary, nextInput } from "./consent-form";
 import { forbidden } from "./errors";
-import { html, htmlResponse, layout, type SafeHtml } from "./html";
+import {
+	html,
+	htmlResponse,
+	layout,
+	type PageLook,
+	type SafeHtml,
+} from "./html";
 import { arrival, sectionNext } from "./lang";
 import { redirect } from "./redirect";
 import { isSameOrigin } from "./session";
@@ -81,10 +87,12 @@ export function consentGate(
 	current: number,
 	gate: GateState,
 	path: string,
+	look: PageLook,
 ): Response {
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
+			look,
 			title: i18n.t("me.title"),
 			path,
 			body: html`<h1>${i18n.t("me.consent.renew.heading")}</h1>

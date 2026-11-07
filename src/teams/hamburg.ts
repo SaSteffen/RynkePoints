@@ -88,7 +88,7 @@ export const hamburg: TeamData = {
 			"contrast-light",
 			"contrast-dark",
 		],
-		// public/manifest.webmanifest's.
+		// The manifest's (src/http/pwa.ts).
 		manifest: { themeColor: "#fffdf5", backgroundColor: "#fffdf5" },
 	},
 	art: {

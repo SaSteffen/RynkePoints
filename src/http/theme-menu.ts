@@ -1,9 +1,9 @@
 import type { I18n } from "../i18n/i18n";
 import { artUrl } from "./art";
-import { html, type SafeHtml } from "./html";
+import { html, type PageLook, type SafeHtml } from "./html";
 import { CHECK, CLOSE, PALETTE } from "./icons";
 import { SHOW_PICTURES } from "./show-pictures";
-import { THEME_GROUPS, THEMES } from "./themes";
+import { THEME_GROUPS } from "./themes";
 
 // The header's palette button and its menu (feature 022 contracts/theme-menu.md,
 // research R6): Automatisch and the twelve themes as one radio group. The
@@ -21,13 +21,18 @@ export function themeButton(i18n: I18n): SafeHtml {
 	return html`<button type="button" class="icon-button theme-button" id="tour-theme" aria-haspopup="dialog" aria-expanded="false" aria-controls="theme-menu" aria-label="${i18n.t("theme.button")}">${PALETTE}<span class="theme-badge" aria-hidden="true"></span></button>`;
 }
 
-/** The menu panel, hidden until the palette button opens it. */
-export function themeMenu(i18n: I18n): SafeHtml {
+/**
+ * The menu panel, hidden until the palette button opens it: the team's
+ * themes (`look.themes`), and its coin for the page-switch show.
+ */
+export function themeMenu(i18n: I18n, look: PageLook): SafeHtml {
 	const groups = THEME_GROUPS.map((group) => {
-		const tiles = THEMES.filter((t) => t.group === group).map(
-			(t) =>
-				html`<label class="theme-tile" data-theme-preview="${t.id}"><input type="radio" name="theme" value="${t.id}" data-scheme="${t.scheme}" data-color="${t.preview.bg}"><span class="theme-preview" aria-hidden="true"><span></span><span></span><span><span></span><span></span></span></span><span class="theme-name">${i18n.t(`theme.name.${t.id}`)}${check}</span>${t.fun ? html`<span class="theme-sparkle" aria-hidden="true">${i18n.t("theme.sparkle")}</span>` : null}</label>`,
-		);
+		const tiles = look.themes
+			.filter((t) => t.group === group)
+			.map(
+				(t) =>
+					html`<label class="theme-tile" data-theme-preview="${t.id}"><input type="radio" name="theme" value="${t.id}" data-scheme="${t.scheme}" data-color="${t.preview.bg}"><span class="theme-preview" aria-hidden="true"><span></span><span></span><span><span></span><span></span></span></span><span class="theme-name">${i18n.t(`theme.name.${t.id}`)}${check}</span>${t.fun ? html`<span class="theme-sparkle" aria-hidden="true">${i18n.t("theme.sparkle")}</span>` : null}</label>`,
+			);
 		return html`<h3 class="theme-group">${i18n.t(`theme.group.${group}`)}</h3>
 <div class="theme-grid">${tiles}</div>
 `;
@@ -36,8 +41,8 @@ export function themeMenu(i18n: I18n): SafeHtml {
 	// show-pictures.md): the coin's two sides always, Rynke only once built
 	// (FR-049).
 	const pictures = [
-		html` data-show-coin="${artUrl("/coin/rynke-coin-front.svg")}"`,
-		html` data-show-coin-back="${artUrl("/coin/rynke-coin-back.svg")}"`,
+		html` data-show-coin="${artUrl(look.coin.front)}"`,
+		html` data-show-coin-back="${artUrl(look.coin.back)}"`,
 		...SHOW_PICTURES.map(
 			(id) => html` data-show-${id}="${artUrl(`/shows/${id}.svg`)}"`,
 		),

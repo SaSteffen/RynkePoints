@@ -74,18 +74,24 @@ export function handleRides(
 					i18n,
 					ctx.env.SEASON_START_DATE,
 					readyPollSeconds(ctx.env),
+					ctx.team.art.coin,
 				);
 			}
 			if (example) {
-				return html`${renderExampleNote(i18n)}${renderRides(i18n, view.rides, {
-					rejectedRideId: EXAMPLE_REJECTED_RIDE_ID,
-					shortRideId: EXAMPLE_SHORT_RIDE_ID,
-				})}`;
+				return html`${renderExampleNote(i18n)}${renderRides(
+					i18n,
+					view.rides,
+					{
+						rejectedRideId: EXAMPLE_REJECTED_RIDE_ID,
+						shortRideId: EXAMPLE_SHORT_RIDE_ID,
+					},
+					ctx.team.art.coin,
+				)}`;
 			}
 			// How far the rider's activities are (feature 024 US4).
 			const fetching = renderFetching(fetchingText, readyPollSeconds(ctx.env));
 			return html`${renderNotice(i18n, view)}${fetching}
-${renderRides(i18n, view.rides)}`;
+${renderRides(i18n, view.rides, null, ctx.team.art.coin)}`;
 		},
 	);
 }

@@ -1,4 +1,5 @@
 import { BADGES } from "../badges/catalog";
+import { badges } from "../config";
 import { badgeName } from "../content";
 import type { Ctx } from "../ctx";
 import { readBadgeRiseStatement } from "../db/badges";
@@ -10,7 +11,7 @@ import { resolveLocale } from "../i18n/resolve";
 import { rulesForVersion } from "../rynke/rules";
 import { CRITICAL_LEVEL, utcDay } from "../usage/allowances";
 import { percentOf } from "../usage/figures";
-import { html, htmlResponse, layout, type SafeHtml } from "./html";
+import { html, htmlResponse, layout, pageLook, type SafeHtml } from "./html";
 import { CLOSE } from "./icons";
 import { summary as riderSummary } from "./rider-view";
 import { readSession } from "./session";
@@ -26,6 +27,46 @@ const TEAM_BADGE_IDS = new Set(
 
 /** How long a device still shows a fired alert (025 contracts/alerts.md). */
 const ALERT_TEXT_SECONDS = 15 * 60;
+
+/** Where `layout()` links the web app manifest. */
+export const MANIFEST_PATH = "/manifest.webmanifest";
+
+/**
+ * The web app manifest (feature 010 contracts/client.md, research R1; FR-001,
+ * FR-002, FR-032), the team's (feature 026 T050): its install name in every
+ * name field, its colours and icons. The same for everyone, like the
+ * stylesheet: no language, no session.
+ */
+export function handleManifest(ctx: Pick<Ctx, "team">): Response {
+	const { shortName, colours, art } = ctx.team;
+	const manifest = {
+		id: "/",
+		name: shortName,
+		short_name: shortName,
+		description: shortName,
+		start_url: "/",
+		scope: "/",
+		display: "standalone",
+		theme_color: colours.manifest.themeColor,
+		background_color: colours.manifest.backgroundColor,
+		icons: [
+			{ src: art.icons.icon192, sizes: "192x192", type: "image/png" },
+			{ src: art.icons.icon512, sizes: "512x512", type: "image/png" },
+			{
+				src: art.icons.maskable512,
+				sizes: "512x512",
+				type: "image/png",
+				purpose: "maskable",
+			},
+		],
+	};
+	return new Response(`${JSON.stringify(manifest, null, "\t")}\n`, {
+		headers: {
+			"Content-Type": "application/manifest+json",
+			"Cache-Control": "public, max-age=0, must-revalidate",
+		},
+	});
+}
 
 /** The `lang` the service worker asks for, else the usual resolution. */
 function textI18n(request: Request, ctx: Ctx): I18n {
@@ -43,6 +84,7 @@ export function handleOffline(request: Request, ctx: Ctx): Response {
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
+			look: pageLook(ctx),
 			title,
 			path: "/me",
 			body: html`<h1>${title}</h1>
@@ -140,7 +182,11 @@ export async function handleRiderNotificationText(
 	if (!balance) return none(204);
 
 	const i18n = textI18n(request, ctx);
-	if (badgeRise && badgeRise.risen_at >= (rise?.risen_at ?? 0)) {
+	if (
+		badgeRise &&
+		badges(ctx.env) &&
+		badgeRise.risen_at >= (rise?.risen_at ?? 0)
+	) {
 		const ids = JSON.parse(badgeRise.badge_ids) as string[];
 		const team = ids.every((id) => TEAM_BADGE_IDS.has(id));
 		const body =

@@ -30,7 +30,7 @@ import {
 	evaluateBadges,
 	type TourEvent,
 } from "../badges/evaluate";
-import { berlinDate } from "../config";
+import { badges as badgesOn, berlinDate } from "../config";
 import type { Ctx } from "../ctx";
 import {
 	activityOwnersStatement,
@@ -289,6 +289,7 @@ export async function applyAndEvaluate(
 	rules: RynkeRules,
 	window: CountingWindow,
 	now: number,
+	news: BadgeNewsSwitch = BADGE_NEWS_ON,
 ): Promise<ActivityResult> {
 	const ids =
 		change.kind === "upsert"
@@ -416,12 +417,21 @@ export async function applyAndEvaluate(
 	if (risen) {
 		writes.push(riseWrite(db, athleteId, before.balance, after.balance, now));
 	}
-	const news = badgeNews(db, athleteId, state, before, after, rules, now);
-	writes.push(...news.writes);
+	const announced = badgeNews(
+		db,
+		athleteId,
+		state,
+		before,
+		after,
+		rules,
+		now,
+		news,
+	);
+	writes.push(...announced.writes);
 	if (writes.length > 0) await db.batch(writes);
 	return {
 		rose: risen,
-		badges: news.badges,
+		badges: announced.badges,
 		figuresChanged: teamFiguresChanged(before.figures, after.figures),
 	};
 }
@@ -439,6 +449,7 @@ export function evaluateChange(
 		currentRules(ctx.team.rules),
 		countingWindow(ctx.env),
 		ctx.now(),
+		{ badges: badgesOn(ctx.env) },
 	);
 }
 
@@ -454,6 +465,7 @@ export async function applyTeamEventChange(
 	rules: RynkeRules,
 	window: CountingWindow,
 	now: number,
+	news: BadgeNewsSwitch = BADGE_NEWS_ON,
 ): Promise<TeamEventResult> {
 	if (change.kind === "create-event") {
 		const event = validEvent(change.event);
@@ -480,6 +492,7 @@ export async function applyTeamEventChange(
 			rules,
 			window,
 			now,
+			news,
 			(state) => {
 				state.tourEvents = [...state.tourEvents, day];
 			},
@@ -624,6 +637,7 @@ export async function applyTeamEventChange(
 			rules,
 			window,
 			now,
+			news,
 			(state, athleteId) => {
 				if (direct.has(athleteId)) state.attendance = edit(state.attendance);
 				if (editTour) state.tourEvents = editTour(state.tourEvents);
@@ -648,6 +662,7 @@ function reevaluate(
 	rules: RynkeRules,
 	window: CountingWindow,
 	now: number,
+	news: BadgeNewsSwitch,
 	edit: (state: RiderState, athleteId: number) => void,
 ): { writes: D1PreparedStatement[]; risen: number[]; earned: number[] } {
 	const writes: D1PreparedStatement[] = [];
@@ -663,9 +678,18 @@ function reevaluate(
 			writes.push(riseWrite(db, athleteId, before.balance, after.balance, now));
 			risen.push(athleteId);
 		}
-		const news = badgeNews(db, athleteId, state, before, after, rules, now);
-		writes.push(...news.writes);
-		if (news.badges.length > 0) earned.push(athleteId);
+		const announced = badgeNews(
+			db,
+			athleteId,
+			state,
+			before,
+			after,
+			rules,
+			now,
+			news,
+		);
+		writes.push(...announced.writes);
+		if (announced.badges.length > 0) earned.push(athleteId);
 	}
 	return { writes, risen, earned };
 }
@@ -702,6 +726,7 @@ export async function teamEventChange(
 		currentRules(ctx.team.rules),
 		countingWindow(ctx.env),
 		ctx.now(),
+		{ badges: badgesOn(ctx.env) },
 	);
 	await sendAll(
 		ctx,
@@ -729,6 +754,7 @@ export async function applyCorrectionChange(
 	rules: RynkeRules,
 	window: CountingWindow,
 	now: number,
+	news: BadgeNewsSwitch = BADGE_NEWS_ON,
 ): Promise<CorrectionResult> {
 	let athleteId: number;
 	let statement: D1PreparedStatement;
@@ -790,10 +816,19 @@ export async function applyCorrectionChange(
 	if (risen) {
 		writes.push(riseWrite(db, athleteId, before.balance, after.balance, now));
 	}
-	const news = badgeNews(db, athleteId, state, before, after, rules, now);
-	writes.push(...news.writes);
+	const announced = badgeNews(
+		db,
+		athleteId,
+		state,
+		before,
+		after,
+		rules,
+		now,
+		news,
+	);
+	writes.push(...announced.writes);
 	await db.batch(writes);
-	return { athleteId, rose: risen, badges: news.badges };
+	return { athleteId, rose: risen, badges: announced.badges };
 }
 
 /**
@@ -812,6 +847,7 @@ export async function correctionChange(
 		currentRules(ctx.team.rules),
 		countingWindow(ctx.env),
 		ctx.now(),
+		{ badges: badgesOn(ctx.env) },
 	);
 	await sendAll(ctx, [{ kind: "evaluate-rider", athleteId: result.athleteId }]);
 	const team = await teamBadgeNews(
@@ -1068,6 +1104,18 @@ function figuresOf(state: RiderState, evaluation: Evaluation): Figures {
 }
 
 /**
+ * Whether a change announces new badges: the rider's badge rise, the reveals,
+ * and so the notifications. Off while the team has switched badges off
+ * (feature 026 FR-018); the badges themselves are still worked out, so turning
+ * them on again finds them in place.
+ */
+export interface BadgeNewsSwitch {
+	badges: boolean;
+}
+
+const BADGE_NEWS_ON: BadgeNewsSwitch = { badges: true };
+
+/**
  * The badges new with this change, compared with the state before it evaluated
  * now (as `rose` does), written as the rider's badge rise (feature 013
  * research R17). Under new rules or a new badge catalog the awards are silent:
@@ -1084,7 +1132,9 @@ function badgeNews(
 	after: { badges: EarnedBadge[] },
 	rules: RynkeRules,
 	now: number,
+	news: BadgeNewsSwitch,
 ): { writes: D1PreparedStatement[]; badges: string[] } {
+	if (!news.badges) return { writes: [], badges: [] };
 	const silent =
 		state.balance !== null &&
 		(state.balance.rulesVersion !== rules.version ||
