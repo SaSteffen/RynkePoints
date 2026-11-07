@@ -276,22 +276,22 @@ name or art paths.
   from Denmark, Norway, Sweden, Finland, Iceland, Germany, France, the Netherlands,
   Lithuania, the UK and Canada, all invented (FR-050); Hamburg's samples move to
   `dev/fake-strava/samples.hamburg.ts`; `dev/fake-strava/seed.ts` picks by `ctx.team.id`.
-- [ ] T054 [US8] `dev/worker.ts`: the local-host guard accepts `*.localhost`; seeding and
+- [X] T054 [US8] `dev/worker.ts`: the local-host guard accepts `*.localhost`; seeding and
   sample choice follow `ctx.team`.
-- [ ] T055 [US8] `scripts/dev.mjs` (contracts/dev-commands.md): per team apply migrations
+- [X] T055 [US8] `scripts/dev.mjs` (contracts/dev-commands.md): per team apply migrations
   into `.wrangler/fake-state-<id>`, spawn `wrangler dev` with `[--env <id>]`, the team's
   host, port and inspector port and today's fake-mode flags and unset secrets; prefix lines
   `[<id>]`; print `<id> → http://<host>:<port>` once started; stop every child on Ctrl+C,
   SIGTERM or one child's non-zero exit, and exit with its code; refuse to start when a
   port is taken, naming port and team.
-- [ ] T056 [US8] `package.json`: `"dev": "node scripts/dev.mjs"`,
+- [X] T056 [US8] `package.json`: `"dev": "node scripts/dev.mjs"`,
   `"dev:hamburg": "node scripts/dev.mjs hamburg"`,
   `"dev:europe": "node scripts/dev.mjs europe"`; `dev:strava` unchanged. Update
   `CLAUDE.md` › Commands and the local-dev quickstart in `specs/006-local-frontend-dev/`.
-- [ ] T057 [US8] Playwright project `europe-smoke` in `playwright.config.ts` with its own
+- [X] T057 [US8] Playwright project `europe-smoke` in `playwright.config.ts` with its own
   server on port 8798 (inspector 9238) via a `test:e2e:server:europe` script, and
   `e2e/europe-smoke.e2e.ts`: Europe's name, English by default, a common phrase on the Team
-  page, the placeholder badge picture, no Hamburg text.
+  page, the placeholder badge picture, no Hamburg text. The phrase and placeholder-badge checks stay `fixme` until the common phrases (T031–T034) and T039a are done.
 
 **Checkpoint (release 2)**: merge and deploy (Hamburg only). Snapshot T036 unchanged.
 

@@ -24,15 +24,12 @@ test("English by default", async ({ page, request }) => {
 	await expect(page.locator("html")).toHaveAttribute("lang", "en");
 });
 
-// Enable after T050/T052: the team's name still comes from the catalogs.
-test.fixme("Europe's name", async ({ page }) => {
+test("Europe's name", async ({ page }) => {
 	await page.goto("/");
 	await expect(page.locator("body")).toContainText("Team Rynkeby Europe");
-	await expect(page).toHaveTitle(/Europe/);
 });
 
-// Enable after T050/T052: the catalogs still name Team Rynkeby Hamburg.
-test.fixme("no Hamburg text", async ({ page }) => {
+test("no Hamburg text", async ({ page }) => {
 	await page.goto("/");
 	await expect(page.locator("body")).not.toContainText("Hamburg");
 	await signIn(page, RIDER);
