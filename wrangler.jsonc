@@ -123,5 +123,79 @@
 	"dev": {
 		"port": 8789,
 		"host": "localhost:8789"
+	},
+	"env": {
+		// Team Rynkeby Europe (feature 026), `--env europe`. Everything above is
+		// Hamburg's; Wrangler doesn't inherit vars, bindings or secrets into an
+		// environment, so each is listed again here. Placeholders until release 4
+		// (src/teams/europe.ts `placeholders`): the resource IDs, club IDs, dates,
+		// subscription, push subject, controller and contact.
+		"europe": {
+			"name": "rynke-points-europe",
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "rynke-points-europe",
+					// Placeholder, until `wrangler d1 create rynke-points-europe`.
+					"database_id": "00000000-0000-0000-0000-000000000000",
+					"migrations_dir": "migrations"
+				}
+			],
+			"queues": {
+				"producers": [
+					{
+						"binding": "WORK_QUEUE",
+						"queue": "rynke-points-europe-work"
+					}
+				],
+				"consumers": [
+					{
+						"queue": "rynke-points-europe-work",
+						"max_batch_size": 10,
+						"max_batch_timeout": 5,
+						"max_retries": 10,
+						"max_concurrency": 1
+					}
+				]
+			},
+			"triggers": {
+				"crons": ["17 3 * * *", "58 * * * *"]
+			},
+			"vars": {
+				// Placeholder: Europe's club once it has one.
+				"STRAVA_CLUB_ID": "0",
+				"STRAVA_EXTRA_CLUB_IDS": "",
+				// Placeholders: Hamburg's dates.
+				"SEASON_START_DATE": "2026-09-01",
+				"QUALIFICATION_DEADLINE": "2027-06-30",
+				"ORGANISER_FIGURES": "full",
+				"ORGANISER_PROGRESS_GRAPH": "on",
+				// Placeholder: the gateway holds the subscription (release 3).
+				"STRAVA_SUBSCRIPTION_ID": "0",
+				// Placeholder until Europe has its domain.
+				"PUSH_SUBJECT": "https://example.org",
+				"READY_POLL_SECONDS": "10",
+				"TRAINING_LEADERBOARD": "on",
+				"RIDE_FIGURES": "on",
+				"RYNKE_VIEWS": "on",
+				// Placeholders until Europe names its controller and contact.
+				"PRIVACY_CONTROLLER": "Placeholder Controller",
+				"CONTACT_EMAIL": "privacy@example.org",
+				"TEAM_ID": "europe"
+			},
+			"secrets": {
+				"required": [
+					"STRAVA_CLIENT_ID",
+					"STRAVA_CLIENT_SECRET",
+					"STRAVA_WEBHOOK_VERIFY_TOKEN",
+					"TOKEN_ENCRYPTION_KEY",
+					"SESSION_SIGNING_KEY",
+					"ADMIN_TOKEN",
+					"PUSH_VAPID_KEY"
+				]
+			},
+			// No domain yet: an environment would otherwise inherit Hamburg's.
+			"routes": []
+		}
 	}
 }
