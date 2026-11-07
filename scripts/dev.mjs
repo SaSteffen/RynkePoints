@@ -3,14 +3,22 @@
 // app on its own host and port, with the in-process fake Strava and its
 // synthetic sample riders. Never reads .dev.vars.
 //
-//   node scripts/dev.mjs          # every registered team, in parallel
-//   node scripts/dev.mjs europe   # one team
+//   node scripts/dev.mjs          # every registered team behind the gateway
+//   node scripts/dev.mjs europe   # one team, without the gateway
 //
 // Per team: local D1 migrations into `.wrangler/fake-state-<id>`, then
-// `wrangler dev dev/worker.ts`. Every line is prefixed `[<id>]`. Ctrl+C or
-// SIGTERM stops every team; a team that exits stops the others, and the script
-// exits with its code.
+// `wrangler dev dev/worker.ts`. Without a team argument the local Strava
+// gateway (gateway/, release 3) runs too, and every team goes through it as in
+// production: riders come back from the fake's authorize screen through
+// `/auth/return/<id>`, and simulated events reach every team through the
+// gateway's queue. The fake Strava stays in each team's Worker: its sample
+// riders and their rides belong to that team's local database.
+//
+// Every line is prefixed `[<id>]` or `[gateway]`. Ctrl+C or SIGTERM stops
+// everything; a process that exits stops the others, and the script exits
+// with its code.
 import { spawn } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { join } from "node:path";
 import { createInterface } from "node:readline";
@@ -34,6 +42,30 @@ const SECRETS = [
 	"ADMIN_TOKEN",
 	"PUSH_VAPID_KEY",
 ];
+
+/** The local gateway (contracts/dev-commands.md › Ports). */
+export const GATEWAY = {
+	id: "gateway",
+	host: "localhost",
+	port: 8791,
+	inspectorPort: 9232,
+	stateDir: ".wrangler/fake-state-gateway",
+};
+/** Synthetic, like everything in dev/fake.env: it protects nothing. */
+const GATEWAY_VERIFY_TOKEN = "fake-gateway-verify-token";
+/** The one subscription every team checks, as after the switch in production. */
+const GATEWAY_SUBSCRIPTION_ID = "1";
+
+const origin = (target) => `http://${target.host}:${target.port}`;
+
+/** dev/fake.env's webhook token, every team's in fake mode. */
+function fakeVerifyToken() {
+	const line = readFileSync(join(ROOT, "dev", "fake.env"), "utf8")
+		.split("\n")
+		.find((l) => l.startsWith("STRAVA_WEBHOOK_VERIFY_TOKEN="));
+	if (!line) throw new Error("dev/fake.env has no STRAVA_WEBHOOK_VERIFY_TOKEN");
+	return line.slice(line.indexOf("=") + 1).trim();
+}
 
 /**
  * What to start for each team (data-model.md DevTarget). The founding team,
@@ -71,7 +103,47 @@ export function migrateArgs(target) {
 	];
 }
 
-export function devArgs(target) {
+/** A team's settings behind the local gateway. */
+export function behindGatewayArgs() {
+	const gateway = origin(GATEWAY);
+	return [
+		"--var",
+		`STRAVA_RETURN_VIA:${gateway}`,
+		"--var",
+		`RYNKE_FAKE_GATEWAY:${gateway}/strava/webhook/${GATEWAY_VERIFY_TOKEN}`,
+		"--var",
+		`STRAVA_SUBSCRIPTION_ID:${GATEWAY_SUBSCRIPTION_ID}`,
+	];
+}
+
+/** `wrangler dev` for the gateway, forwarding to `targets`. */
+export function gatewayArgs(targets, teamToken) {
+	const teams = targets.map((t) => ({ id: t.id, origin: origin(t) }));
+	return [
+		"dev",
+		"--config",
+		"gateway/wrangler.jsonc",
+		"--persist-to",
+		GATEWAY.stateDir,
+		"--port",
+		String(GATEWAY.port),
+		"--host",
+		`${GATEWAY.host}:${GATEWAY.port}`,
+		"--inspector-port",
+		String(GATEWAY.inspectorPort),
+		"--var",
+		`TEAMS:${JSON.stringify(teams)}`,
+		"--var",
+		`STRAVA_WEBHOOK_VERIFY_TOKEN:${GATEWAY_VERIFY_TOKEN}`,
+		...targets.flatMap((t) => [
+			"--var",
+			`TEAM_WEBHOOK_TOKEN_${t.id.toUpperCase().replaceAll("-", "_")}:${teamToken}`,
+		]),
+		"--show-interactive-dev-session=false",
+	];
+}
+
+export function devArgs(target, { behindGateway = false } = {}) {
 	return [
 		"dev",
 		"dev/worker.ts",
@@ -92,6 +164,7 @@ export function devArgs(target) {
 		"--test-scheduled",
 		// Its keys need the terminal, which the prefixed output doesn't give it.
 		"--show-interactive-dev-session=false",
+		...(behindGateway ? behindGatewayArgs() : []),
 	];
 }
 
@@ -180,37 +253,46 @@ function run(target, args, { env = {}, onLine } = {}) {
 	});
 }
 
-async function startTeam(target) {
+/** Runs `args` until it exits, announcing `target`'s address once ready. */
+async function serve(target, args) {
+	let announced = false;
+	const code = await run(target, args, {
+		onLine(line) {
+			if (!announced && line.includes("Ready on")) {
+				announced = true;
+				process.stdout.write(`${target.id} → ${origin(target)}\n`);
+			}
+		},
+	});
+	// A process that stops on its own stops the others.
+	if (!stopping) stopAll(code);
+}
+
+async function startTeam(target, behindGateway) {
 	// CI=1: applies without asking for confirmation.
 	const migrated = await run(target, migrateArgs(target), {
 		env: { CI: "1" },
 	});
 	if (stopping) return;
 	if (migrated !== 0) return stopAll(migrated);
-	let announced = false;
-	const code = await run(target, devArgs(target), {
-		onLine(line) {
-			if (!announced && line.includes("Ready on")) {
-				announced = true;
-				process.stdout.write(
-					`${target.id} → http://${target.host}:${target.port}\n`,
-				);
-			}
-		},
-	});
-	// A team that stops on its own stops the others.
-	if (!stopping) stopAll(code);
+	await serve(target, devArgs(target, { behindGateway }));
 }
 
 async function main() {
+	const ids = process.argv.slice(2);
+	const behindGateway = ids.length === 0;
 	let targets;
+	let teamToken;
 	try {
-		targets = devTargets(await loadTeams(), process.argv.slice(2));
+		targets = devTargets(await loadTeams(), ids);
+		if (behindGateway) teamToken = fakeVerifyToken();
 	} catch (error) {
 		console.error(error.message);
 		process.exit(1);
 	}
-	const taken = await takenPorts(targets);
+	const taken = await takenPorts(
+		behindGateway ? [...targets, GATEWAY] : targets,
+	);
 	if (taken.length > 0) {
 		for (const { id, what, port } of taken) {
 			console.error(`[${id}] ${what} ${port} is taken; nothing started`);
@@ -220,7 +302,10 @@ async function main() {
 	process.on("SIGINT", () => stopAll(0, "SIGINT"));
 	process.on("SIGTERM", () => stopAll(0, "SIGTERM"));
 	process.on("SIGHUP", () => stopAll(0, "SIGTERM"));
-	await Promise.all(targets.map(startTeam));
+	await Promise.all([
+		...targets.map((target) => startTeam(target, behindGateway)),
+		...(behindGateway ? [serve(GATEWAY, gatewayArgs(targets, teamToken))] : []),
+	]);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) await main();
