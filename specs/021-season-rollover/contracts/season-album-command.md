@@ -12,7 +12,7 @@ pnpm season:album [--cutoff YYYY-MM-DD] [--local] [--rider <athleteId>]
 | Option | Default | Meaning |
 |--------|---------|---------|
 | `--cutoff` | today in Europe/Berlin | Every figure, badge and event as of this date (FR-023). |
-| `--local` | off | Read `pnpm dev`'s synthetic sample season (`.wrangler/fake-state`) instead of production. For trying it out and for the quickstart. |
+| `--local` | off | Read `pnpm dev`'s synthetic sample season (`.wrangler/fake-state-hamburg`) instead of production. For trying it out and for the quickstart. |
 | `--rider` | all listed riders | Make only this rider's album (to check one before making all). |
 
 Without `--local` the command reads production through Wrangler's login (the
@@ -31,7 +31,7 @@ maintainer's `wrangler login`); it is a manual maintainer step, like
 
 1. Start the album Worker: `wrangler dev -c album/wrangler.jsonc --ip 127.0.0.1
    --port 8798` plus `--var SEASON_START_DATE:… --var QUALIFICATION_DEADLINE:…`
-   from the root `wrangler.jsonc` (and `--local --persist-to .wrangler/fake-state`
+   from the root `wrangler.jsonc` (and `--local --persist-to .wrangler/fake-state-hamburg`
    with `--local`). Wait until it answers.
 2. `GET /riders?cutoff=…` → the listed riders (FR-022).
 3. For each rider: open `/album/<athleteId>?cutoff=…` in one Chromium page, wait

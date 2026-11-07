@@ -10,8 +10,11 @@ the original feature background.
 
 ```bash
 pnpm install          # install deps + git hooks (lefthook, via "prepare")
-pnpm dev              # the app on http://localhost:8789 with a fake Strava and
-                      # synthetic sample riders; doesn't read .dev.vars
+pnpm dev              # every team's app with a fake Strava and synthetic sample
+                      # riders, output prefixed [hamburg] / [europe]; doesn't
+                      # read .dev.vars
+pnpm dev:hamburg      # Hamburg alone on http://localhost:8789
+pnpm dev:europe       # Europe alone on http://europe.localhost:8790
 pnpm dev:strava       # the app on port 8789 against the real Strava (.dev.vars);
                       # uses the app's Strava request budget
 pnpm test             # Vitest inside the Workers runtime
@@ -27,7 +30,7 @@ pnpm typecheck        # tsc --noEmit
 pnpm types            # regenerate worker-configuration.d.ts after editing wrangler.jsonc
 pnpm wrangler d1 migrations apply rynke-points --local   # local D1 schema for pnpm dev:strava
                                                           # (pnpm dev applies its own)
-pnpm season:album --local  # season albums from pnpm dev's sample season into
+pnpm season:album --local  # season albums from Hamburg's fake-mode season into
                            # season-albums/ (git-ignored); stop pnpm dev first
 ```
 
