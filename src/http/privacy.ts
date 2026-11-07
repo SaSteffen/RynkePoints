@@ -2,6 +2,7 @@ import { contactEmail, privacyController, rideFigures } from "../config";
 import type { Ctx } from "../ctx";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
+import { referenceNote } from "./consent-form";
 import { html, htmlResponse, layout, type SafeHtml } from "./html";
 
 // The privacy notice (feature 017): what is processed, why, who sees it, how
@@ -102,7 +103,7 @@ export function handlePrivacy(ctx: Ctx, i18n: I18n): Response {
 			body: html`<article class="privacy">
 <h1>${title}</h1>
 <p>${i18n.t("privacy.updated", { date: updated })}</p>
-<p>${i18n.t("privacy.intro")}</p>
+${referenceNote(i18n, "/privacy")}<p>${i18n.t("privacy.intro")}</p>
 <h2>${i18n.t("privacy.controller.heading")}</h2>
 <p>${i18n.t("privacy.controller.body")}</p>
 <p class="privacy-controller">${controller}</p>

@@ -129,7 +129,7 @@ describe.each(RIDER_PAGES)("$name in the pseudo-locale", (page) => {
 		async () => {
 			const res = await page.fetch(ctx, { cookies: { rp_lang: "qps" } });
 			expect(await res.text()).toContain(
-				'<button class="segmented" name="lang" value="qps" lang="qps" aria-current="true">⟦Pseudo⟧</button>',
+				'<button class="lang-option" name="lang" value="qps" lang="qps" aria-current="true">⟦Pseudo⟧<svg',
 			);
 		},
 	);

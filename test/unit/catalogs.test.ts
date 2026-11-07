@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { BADGES } from "../../src/badges/catalog";
 import { THEMES } from "../../src/http/themes";
 import {
 	CATALOGS,
@@ -932,6 +933,10 @@ const CONTRACT_IDS = [
 	"privacy.visibility.admins",
 	"privacy.legal.blocklist",
 	"privacy.retention.blocklist",
+	"consent.referenceNote",
+	"consent.referenceNote.link",
+	// specs/026-second-team/contracts/phrases.md: one common name per badge.
+	...BADGES.map((badge) => `badge.name.${badge.id}`),
 ];
 
 const placeholders = (text: string) =>

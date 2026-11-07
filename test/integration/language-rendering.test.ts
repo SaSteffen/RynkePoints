@@ -102,7 +102,7 @@ describe.each(RIDER_PAGES)("$name", (page) => {
 			);
 			for (const [locale, catalog] of Object.entries(CATALOGS)) {
 				expect(html).toContain(
-					`value="${locale}" lang="${locale}"${locale === "de" ? ' aria-current="true"' : ""}>${catalog["meta.languageName"]}</button>`,
+					`value="${locale}" lang="${locale}"${locale === "de" ? ' aria-current="true"' : ""}>${catalog["meta.languageName"]}${locale === "de" ? "<svg" : "</button>"}`,
 				);
 			}
 		},

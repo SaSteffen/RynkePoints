@@ -33,7 +33,7 @@ ${body}
 function consent(i18n: I18n, current: Consent): SafeHtml {
 	const date = acceptedOn(i18n, current);
 	return html`<p>${i18n.t("me.consent.accepted", { version: consentLabel(current), date })}</p>
-${consentSummary(i18n)}`;
+${consentSummary(i18n, "/me/settings")}`;
 }
 
 export function handleSettings(

@@ -15,12 +15,26 @@ export function nextInput(next?: string): SafeHtml | null {
 `;
 }
 
+/** The language whose consent and privacy text counts (constitution 2.5.0). */
+export const REFERENCE_LOCALE = "en";
+
+/**
+ * In every other language: the English text counts, with a link to this page
+ * in English (feature 026 contracts/locales.md › Reference note).
+ */
+export function referenceNote(i18n: I18n, path: string): SafeHtml | null {
+	if (i18n.locale === REFERENCE_LOCALE) return null;
+	const englishLink = html`<a href="${path}?lang=${REFERENCE_LOCALE}" hreflang="${REFERENCE_LOCALE}">${i18n.t("consent.referenceNote.link")}</a>`;
+	return html`<p class="reference-note">${i18n.tHtml("consent.referenceNote", { englishLink })}</p>
+`;
+}
+
 /**
  * What the rider allows, in three sentences, with every field read and who
  * sees what one tap away (constitution Principle I names them all).
  */
-export function consentSummary(i18n: I18n): SafeHtml {
-	return html`<p>${i18n.t("consent.short.notRead")}<br>${i18n.t("consent.short.read")}</p>
+export function consentSummary(i18n: I18n, path: string): SafeHtml {
+	return html`${referenceNote(i18n, path)}<p>${i18n.t("consent.short.notRead")}<br>${i18n.t("consent.short.read")}</p>
 <p>${i18n.t("consent.short.shown")}</p>
 <details class="more"><summary class="tap">${i18n.t("consent.details")}</summary>
 <p>${i18n.t("landing.dataRead")}</p>

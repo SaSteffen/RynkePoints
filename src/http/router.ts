@@ -98,8 +98,13 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 		return handleWebhook(request, path.slice(WEBHOOK_PREFIX.length), ctx);
 	}
 
+	// `?lang=` shows this one page in that language without picking it, for
+	// the reference note's link (feature 026 contracts/locales.md).
+	const once = url.searchParams.get("lang");
 	const i18n = createI18n(
-		resolveLocale(request, ctx.catalogs, ctx.team),
+		once !== null && Object.hasOwn(ctx.catalogs, once)
+			? once
+			: resolveLocale(request, ctx.catalogs, ctx.team),
 		ctx.catalogs,
 	);
 

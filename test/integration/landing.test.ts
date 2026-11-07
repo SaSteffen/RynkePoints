@@ -113,7 +113,7 @@ describe("GET / (signed out)", () => {
 		expect(short).toBeGreaterThan(0);
 		expect(details).toBeGreaterThan(short);
 		expect(dataRead).toBeGreaterThan(details);
-		expect(page.indexOf("</details>")).toBeGreaterThan(dataRead);
+		expect(page.indexOf("</details>", details)).toBeGreaterThan(dataRead);
 	});
 
 	it("names the ride name among the data read (008 FR-007)", async () => {

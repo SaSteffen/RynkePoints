@@ -96,14 +96,41 @@ export interface LayoutOptions {
 	inlineStyle?: boolean;
 }
 
-/** The language switcher, returning to `path` (FR-046). */
-export function languageForm(i18n: I18n, path: string): SafeHtml {
-	const buttons = i18n.locales.map(({ locale, languageName }) =>
-		locale === i18n.locale
-			? html`<button class="segmented" name="lang" value="${locale}" lang="${locale}" aria-current="true">${languageName}</button>`
-			: html`<button class="segmented" name="lang" value="${locale}" lang="${locale}">${languageName}</button>`,
+// The picker's icons, here rather than in icons.ts, which imports this module.
+const svg = (paths: string) =>
+	new SafeHtml(
+		`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${paths}</svg>`,
 	);
-	return html`<form method="post" action="/lang" aria-label="${i18n.t("layout.switcher.label")}"><input type="hidden" name="next" value="${path}">${buttons}</form>`;
+const GLOBE = svg(
+	'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.8 5.5 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.5-3.8-9S9.5 5.5 12 3z"/>',
+);
+const CHECK = svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
+
+/**
+ * The language picker, returning to `path` (FR-046): every shipped language
+ * by its native name, alphabetically, the current one marked (feature 026
+ * contracts/locales.md › Picker). A plain form, so it works without scripts.
+ */
+export function languageForm(i18n: I18n, path: string): SafeHtml {
+	const collator = new Intl.Collator("en");
+	const buttons = [...i18n.locales]
+		.sort((a, b) => collator.compare(a.languageName, b.languageName))
+		.map(({ locale, languageName }) =>
+			locale === i18n.locale
+				? html`<button class="lang-option" name="lang" value="${locale}" lang="${locale}" aria-current="true">${languageName}${CHECK}</button>`
+				: html`<button class="lang-option" name="lang" value="${locale}" lang="${locale}">${languageName}</button>`,
+		);
+	return html`<form method="post" action="/lang" class="lang-list" aria-label="${i18n.t("layout.switcher.label")}"><input type="hidden" name="next" value="${path}">${buttons}</form>`;
+}
+
+/**
+ * The public pages' header menu: a globe button with the current language that
+ * opens the picker (feature 026 research R5).
+ */
+export function languageMenu(i18n: I18n, path: string): SafeHtml {
+	const current =
+		i18n.locales.find((l) => l.locale === i18n.locale)?.languageName ?? "";
+	return html`<details class="lang-menu"><summary class="lang-button" aria-label="${i18n.t("layout.switcher.label")}: ${current}">${GLOBE}<span class="lang-current">${current}</span></summary>${languageForm(i18n, path)}</details>`;
 }
 
 export function layout(
@@ -122,7 +149,7 @@ export function layout(
 <header class="top-bar">${shell.header}</header>
 ${shell.menu}`
 		: html`<body class="public">
-<header class="top-bar">${WORDMARK}${languageForm(i18n, path)}</header>`;
+<header class="top-bar">${WORDMARK}${languageMenu(i18n, path)}</header>`;
 	// Once per page, for every coin's `<use>` (feature 012).
 	const sprite = new SafeHtml(COIN_SPRITE);
 	const style = inlineStyle

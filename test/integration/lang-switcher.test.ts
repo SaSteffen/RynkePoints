@@ -54,7 +54,7 @@ describe("POST /lang", () => {
 		expect(res.headers.get("Content-Language")).toBe("en");
 		expect(page).toContain("Sign-in expired");
 		expect(page).toContain(
-			'<button class="segmented" name="lang" value="en" lang="en" aria-current="true">English</button>',
+			'<button class="lang-option" name="lang" value="en" lang="en" aria-current="true">English<svg',
 		);
 	});
 
