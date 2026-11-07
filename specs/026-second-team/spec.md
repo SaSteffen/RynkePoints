@@ -177,8 +177,8 @@ every language and check every page, and that the monkey follows the rules of FR
 
 1. **Given** any team, **When** a rider picks Danish, **Then** all rider-facing text is
    Danish, including consent, privacy, notifications and the Strava block.
-2. **Given** a visitor stating no language the app ships, **When** they arrive, **Then**
-   they see the team's default language.
+2. **Given** a visitor stating no language, or only languages the app doesn't ship,
+   **When** they arrive, **Then** they see the team's language for that case (FR-027).
 3. **Given** a missing translation key or a missing common phrase list in any language,
    **When** the checks run, **Then** they fail.
 4. **Given** a founding-team rider who picks Finnish, **When** the monkey speaks, **Then**
@@ -409,8 +409,9 @@ machine.
   rider's language. The founding team's German badge names of today are its own, so its
   badges carry German names whatever language the rider picked.
 - **FR-027**: Every shipped language MUST be offered on every team's site. Each team MUST
-  set only its default language, which applies when a visitor states no language the app
-  ships. The founding team stays German by default.
+  set its default language, which applies when a visitor states no language, and the
+  language for visitors who state only languages the app doesn't ship. The founding team
+  stays German and English as today; the second team uses English for both.
 - **FR-028**: Consent and privacy text MUST exist per team and per language, and name that
   team's controller. The maintainers translate it like all other text, with no
   native-speaker review. Where a translation and the English text differ, the English text
@@ -522,8 +523,8 @@ machine.
 - **Scoring start**: If the second team starts scoring later than the season start, this
   is a later season start setting, with earlier rides not stored. A separate concept is
   only needed if they want earlier rides kept.
-- **Constitution**: Its Language section makes German the default for all riders and calls
-  them a German team. It needs amending to per-team default languages before implementation.
+- **Constitution**: Amended to v2.5.0 on 2026-11-07: per-team default languages, every
+  language on every site, English as the reference wording.
 - **Translations without review**: The project has no native speakers for most of the
   languages. Translations, consent and privacy text included, are made by the maintainers
   with AI help and fixed when riders report mistakes. The second team's default language is
