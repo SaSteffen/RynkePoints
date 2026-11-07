@@ -14,16 +14,6 @@ import { fileURLToPath } from "node:url";
 const ROOT = new URL("../", import.meta.url);
 const path = (relative) => fileURLToPath(new URL(relative, ROOT));
 
-// The app's sources import without file extensions (some names have a dot,
-// like `hamburg.de`), so `.ts` is added here; Node strips the types.
-registerHooks({
-	resolve(specifier, context, next) {
-		return specifier.startsWith(".") && !/\.(ts|mjs|js|json)$/.test(specifier)
-			? next(`${specifier}.ts`, context)
-			: next(specifier, context);
-	},
-});
-
 /** JSONC to JSON: comments and trailing commas out, strings untouched. */
 export function parseJsonc(text) {
 	let out = "";
@@ -232,6 +222,15 @@ export function placeholderProblems(teams, id) {
 }
 
 async function main() {
+	// The app's sources import without file extensions (some names have a dot,
+	// like `hamburg.de`), so `.ts` is added here; Node strips the types.
+	registerHooks({
+		resolve(specifier, context, next) {
+			return specifier.startsWith(".") && !/\.(ts|mjs|js|json)$/.test(specifier)
+				? next(`${specifier}.ts`, context)
+				: next(specifier, context);
+		},
+	});
 	const { TEAMS } = await import("../src/teams/index.ts");
 	const wrangler = parseJsonc(readFileSync(path("wrangler.jsonc"), "utf8"));
 	const locales = readdirSync(path("src/i18n/messages/"))
