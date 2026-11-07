@@ -25,6 +25,10 @@
 /quotes/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Each team's own art (feature 026 research R14), hashed the same way.
+/teams/*
+  Cache-Control: public, max-age=31536000, immutable
+
 # The icons keep their addresses (the manifest, the service worker, the
 # page's <head>), so they stay fresh for a day and are reused for a week while
 # the browser checks for a new version in the background (issue #182).
