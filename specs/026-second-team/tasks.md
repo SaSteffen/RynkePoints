@@ -228,19 +228,19 @@ Visible to Hamburg: nothing (SC-002).
 
 **Independent test**: team suite green for both teams; the snapshot T036 unchanged.
 
-- [ ] T044 [US3] Tests in `test/teams/rules.test.ts`: the same synthetic ride scored with
+- [X] T044 [US3] Tests in `test/teams/rules.test.ts`: the same synthetic ride scored with
   two teams' different rules gives each team's own result; changing one team's rules leaves
   the other's results unchanged (US3 scenarios 1, 2).
-- [ ] T045 [US3] Rule functions in `src/rynke/` take the rule history as an argument;
+- [X] T045 [US3] Rule functions in `src/rynke/` take the rule history as an argument;
   callers pass `ctx.team.rules`. T044 and T036 green.
-- [ ] T046 [US3] Tests in `test/teams/switches.test.ts` for `BADGES`, `PHRASES`,
+- [X] T046 [US3] Tests in `test/teams/switches.test.ts` for `BADGES`, `PHRASES`,
   `SEASON_ALBUM`, `FUN_THEMES` set to `"off"`: no page, menu entry, text, notification or
   scheduled work for the feature (US3 scenario 3, FR-018).
-- [ ] T047 [US3] The four switches as vars (`"on"` or `"off"`, default `"on"`) in
+- [X] T047 [US3] The four switches as vars (`"on"` or `"off"`, default `"on"`) in
   `wrangler.jsonc` for both teams, readers in `src/config.ts`, and the checks in the
   badges section, Team section phrases, scheduled badge work, the album, and theme menu.
   T046 green.
-- [ ] T048 [US3] Test in `test/teams/completeness.test.ts`: `team-check` fails and names
+- [X] T048 [US3] Test in `test/teams/completeness.test.ts`: `team-check` fails and names
   the field for a team with a missing field (US3 scenario 4).
 
 ## Phase 7: User Story 4 – A team looks like itself (P2, release 2)
@@ -251,19 +251,19 @@ Europe's site.
 **Independent test**: quickstart › Release 2 step 1; no page of Europe contains Hamburg's
 name or art paths.
 
-- [ ] T049 [US4] Test in `test/teams/no-other-team.test.ts` (SC-001): render every rider,
+- [X] T049 [US4] Test in `test/teams/no-other-team.test.ts` (SC-001): render every rider,
   organiser and admin page, the manifest, notification texts and the offline page for each
   team; none contains another team's name, a path under another team's
   `public/teams/<id>/`, or another team's `teamSpecificBadges` art.
-- [ ] T050 [US4] Name, short name, icons and colours in the manifest and shell from
+- [X] T050 [US4] Name, short name, icons and colours in the manifest and shell from
   `ctx.team` in `src/http/pwa.ts`, `src/http/shell.ts`, `src/http/themes.ts`; coin sprite
   from `ctx.team.art.coin` in `src/http/coin.ts`. The four catalog messages naming the
   team take its name as a param, and `PENDING` in `test/unit/no-team-names.test.ts`
   becomes empty.
-- [ ] T051 [US4] Badge pictures through `ctx.team.art.badges`, with `"placeholder"`
+- [X] T051 [US4] Badge pictures through `ctx.team.art.badges`, with `"placeholder"`
   rendering a new neutral `public/badges/placeholder.svg`, in `src/badges/pictures.ts`;
   add the placeholder to `scripts/art-versions.mjs`. T049 green.
-- [ ] T052 [US4] Any catalog message naming Hamburg or the team takes the name from
+- [X] T052 [US4] Any catalog message naming Hamburg or the team takes the name from
   `ctx.team.name` as a param instead, in all ten catalogs and their callers.
 
 ## Phase 8: User Story 8 – Develop with every team locally (P2, release 2)
