@@ -18,7 +18,7 @@ export const en: Catalog = {
 
 	"landing.title": "Connect with Strava",
 	"landing.intro":
-		"Your rides on Strava turn into Rynke, the points of Team Rynkeby Hamburg.",
+		"Your rides on Strava turn into Rynke, the points of {team}.",
 	"landing.who": "Only members of {clubLink} can take part.",
 	"club.linkText": "our team club on Strava",
 	"landing.dataRead":
@@ -441,7 +441,7 @@ export const en: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
-	"team.total.label": "Team Rynkeby Hamburg",
+	"team.total.label": "{team}",
 	"team.total.training": "{n} Training Rynke",
 	"team.total.team": "{n} Team Rynke",
 	"team.total.kind": "collected together",
@@ -780,7 +780,7 @@ export const en: Catalog = {
 		"For questions, help, a copy of your data or its deletion, write to {email}.",
 	"privacy.purpose.heading": "What RynkePoints processes data for",
 	"privacy.purpose.body":
-		"RynkePoints is the training app of Team Rynkeby Hamburg. It reads the key figures of your activities from Strava, turns them into Rynke (training points) and badges, and shows them to you, the team and the organisers. There are no ads, no payments, no tracking and no analytics tools. Data is never sold or passed on, and never used for AI or machine learning.",
+		"RynkePoints is the training app of {team}. It reads the key figures of your activities from Strava, turns them into Rynke (training points) and badges, and shows them to you, the team and the organisers. There are no ads, no payments, no tracking and no analytics tools. Data is never sold or passed on, and never used for AI or machine learning.",
 	"privacy.strava.heading": "Data from Strava",
 	"privacy.strava.rider":
 		"About you: your Strava athlete ID, your first name, the permissions you granted, and the access keys (tokens), stored encrypted.",
@@ -950,7 +950,7 @@ export const en: Catalog = {
 	"progress.day.outside": "of them outdoors: {value}",
 
 	"album.title": "Rynke album",
-	"album.team.name": "Team Rynkeby Hamburg",
+	"album.team.name": "{team}",
 	"album.season": "Season {season}",
 	"album.owner": "This album belongs to",
 	"album.coin": "The Rynke coin",

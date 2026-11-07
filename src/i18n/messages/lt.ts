@@ -18,8 +18,7 @@ export const lt: Catalog = {
 	"layout.loading": "Puslapis įkeliamas",
 
 	"landing.title": "Prisijungti per Strava",
-	"landing.intro":
-		"Tavo važiavimai Strava virsta Rynke – Team Rynkeby Hamburg taškais.",
+	"landing.intro": "Tavo važiavimai Strava virsta Rynke – {team} taškais.",
 	"landing.who": "Dalyvauti gali tik {clubLink} nariai.",
 	"club.linkText": "mūsų komandos Strava klubo",
 	"landing.dataRead":
@@ -443,7 +442,7 @@ export const lt: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Komanda",
-	"team.total.label": "Team Rynkeby Hamburg",
+	"team.total.label": "{team}",
 	"team.total.training": "{n} Treniruočių Rynke",
 	"team.total.team": "{n} Komandos Rynke",
 	"team.total.kind": "surinkta kartu",
@@ -804,7 +803,7 @@ export const lt: Catalog = {
 		"Dėl klausimų, pagalbos, savo duomenų kopijos ar jų ištrynimo rašyk {email}.",
 	"privacy.purpose.heading": "Kam RynkePoints tvarko duomenis",
 	"privacy.purpose.body":
-		"RynkePoints yra Team Rynkeby Hamburg treniruočių programėlė. Ji skaito pagrindinius tavo veiklų skaičius iš Strava, paverčia juos Rynke (treniruočių taškais) ir ženkleliais ir rodo juos tau, komandai ir organizatoriams. Nėra reklamų, mokėjimų, sekimo ir analitikos įrankių. Duomenys niekada neparduodami ir neperduodami, ir niekada nenaudojami dirbtiniam intelektui ar mašininiam mokymuisi.",
+		"RynkePoints yra {team} treniruočių programėlė. Ji skaito pagrindinius tavo veiklų skaičius iš Strava, paverčia juos Rynke (treniruočių taškais) ir ženkleliais ir rodo juos tau, komandai ir organizatoriams. Nėra reklamų, mokėjimų, sekimo ir analitikos įrankių. Duomenys niekada neparduodami ir neperduodami, ir niekada nenaudojami dirbtiniam intelektui ar mašininiam mokymuisi.",
 	"privacy.strava.heading": "Duomenys iš Strava",
 	"privacy.strava.rider":
 		"Apie tave: tavo Strava sportininko ID, tavo vardas, suteikti leidimai ir prieigos raktai (žetonai), saugomi užšifruoti.",
@@ -978,7 +977,7 @@ export const lt: Catalog = {
 	"progress.day.outside": "iš jų lauke: {value}",
 
 	"album.title": "Rynke albumas",
-	"album.team.name": "Team Rynkeby Hamburg",
+	"album.team.name": "{team}",
 	"album.season": "Sezonas {season}",
 	"album.owner": "Šis albumas priklauso",
 	"album.coin": "Rynke moneta",

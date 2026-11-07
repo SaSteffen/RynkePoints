@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CATALOGS, type MessageId } from "../../src/i18n/catalogs";
+import { CATALOGS } from "../../src/i18n/catalogs";
 import { TEAMS } from "../../src/teams";
 
 // FR-016 (feature 026 contracts/team-data.md › No team names in code): outside
@@ -27,17 +27,6 @@ const SOURCES = import.meta.glob("../../src/**/*.ts", {
 
 const IDS = TEAMS.map((team) => team.id);
 const NAMES = TEAMS.map((team) => team.name);
-
-/**
- * Catalog messages that still name the founding team, until pages pass the
- * team's name in (feature 026 T050). Empty it there.
- */
-const PENDING: readonly MessageId[] = [
-	"landing.intro",
-	"team.total.label",
-	"privacy.purpose.body",
-	"album.team.name",
-];
 
 function isOwnContent(file: string): boolean {
 	return IDS.some((id) =>
@@ -89,7 +78,6 @@ describe("no team names in code (FR-016)", () => {
 		const found: string[] = [];
 		for (const [locale, catalog] of Object.entries(CATALOGS)) {
 			for (const [key, value] of Object.entries(catalog)) {
-				if (PENDING.includes(key as MessageId)) continue;
 				const team = namedTeam(JSON.stringify(value));
 				if (team) found.push(`${locale} ${key}: ${team}`);
 			}

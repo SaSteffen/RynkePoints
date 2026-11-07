@@ -18,8 +18,7 @@ export const fi: Catalog = {
 	"layout.loading": "Sivu latautuu",
 
 	"landing.title": "Yhdistä Stravaan",
-	"landing.intro":
-		"Stravan ajosi muuttuvat Rynke:ksi, Team Rynkeby Hamburgin pisteiksi.",
+	"landing.intro": "Stravan ajosi muuttuvat Rynke:ksi, {team}in pisteiksi.",
 	"landing.who": "Mukaan pääsevät vain {clubLink} jäsenet.",
 	"club.linkText": "Stravan tiimiklubimme",
 	"landing.dataRead":
@@ -436,7 +435,7 @@ export const fi: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Tiimi",
-	"team.total.label": "Team Rynkeby Hamburg",
+	"team.total.label": "{team}",
 	"team.total.training": "Harjoitus-Rynke: {n}",
 	"team.total.team": "Tiimi-Rynke: {n}",
 	"team.total.kind": "kerätty yhdessä",
@@ -779,7 +778,7 @@ export const fi: Catalog = {
 		"Kysymykset, apu, kopio tiedoistasi tai niiden poistaminen: kirjoita osoitteeseen {email}.",
 	"privacy.purpose.heading": "Mihin RynkePoints käsittelee tietoja",
 	"privacy.purpose.body":
-		"RynkePoints on Team Rynkeby Hamburgin harjoitussovellus. Se lukee suoritustesi tunnusluvut Stravasta, muuttaa ne Rynkeiksi (harjoituspisteiksi) ja merkeiksi ja näyttää ne sinulle, tiimille ja järjestäjille. Ei mainoksia, ei maksuja, ei seurantaa eikä analytiikkatyökaluja. Tietoja ei koskaan myydä tai luovuteta eikä käytetä tekoälyyn tai koneoppimiseen.",
+		"RynkePoints on {team}in harjoitussovellus. Se lukee suoritustesi tunnusluvut Stravasta, muuttaa ne Rynkeiksi (harjoituspisteiksi) ja merkeiksi ja näyttää ne sinulle, tiimille ja järjestäjille. Ei mainoksia, ei maksuja, ei seurantaa eikä analytiikkatyökaluja. Tietoja ei koskaan myydä tai luovuteta eikä käytetä tekoälyyn tai koneoppimiseen.",
 	"privacy.strava.heading": "Tiedot Stravasta",
 	"privacy.strava.rider":
 		"Sinusta: Strava-urheilijatunnuksesi, etunimesi, antamasi oikeudet ja pääsyavaimet (tokenit) salattuina.",
@@ -948,7 +947,7 @@ export const fi: Catalog = {
 	"progress.day.outside": "niistä ulkona: {value}",
 
 	"album.title": "Rynke-albumi",
-	"album.team.name": "Team Rynkeby Hamburg",
+	"album.team.name": "{team}",
 	"album.season": "Kausi {season}",
 	"album.owner": "Tämä albumi kuuluu",
 	"album.coin": "Rynke-kolikko",

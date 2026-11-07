@@ -20,8 +20,7 @@ export const is: Catalog = {
 	"layout.loading": "Síðan hleðst",
 
 	"landing.title": "Tengjast Strava",
-	"landing.intro":
-		"Ferðirnar þínar á Strava verða að Rynke, stigum Team Rynkeby Hamburg.",
+	"landing.intro": "Ferðirnar þínar á Strava verða að Rynke, stigum {team}.",
 	"landing.who": "Aðeins félagar í {clubLink} geta tekið þátt.",
 	"club.linkText": "liðsklúbbnum okkar á Strava",
 	"landing.dataRead":
@@ -439,7 +438,7 @@ export const is: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lið",
-	"team.total.label": "Team Rynkeby Hamburg",
+	"team.total.label": "{team}",
 	"team.total.training": "{n} Æfinga-Rynke",
 	"team.total.team": "{n} Liðs-Rynke",
 	"team.total.kind": "safnað saman",
@@ -781,7 +780,7 @@ export const is: Catalog = {
 		"Fyrir spurningar, aðstoð, afrit af gögnunum þínum eða eyðingu þeirra, skrifaðu á {email}.",
 	"privacy.purpose.heading": "Til hvers RynkePoints vinnur gögn",
 	"privacy.purpose.body":
-		"RynkePoints er æfingaapp Team Rynkeby Hamburg. Það les lykiltölur virkni þinnar af Strava, breytir þeim í Rynke (æfingastig) og merki og sýnir þér, liðinu og skipuleggjendum. Engar auglýsingar, engar greiðslur, engin rakning og engin greiningartól. Gögn eru aldrei seld eða afhent og aldrei notuð fyrir gervigreind eða vélnám.",
+		"RynkePoints er æfingaapp {team}. Það les lykiltölur virkni þinnar af Strava, breytir þeim í Rynke (æfingastig) og merki og sýnir þér, liðinu og skipuleggjendum. Engar auglýsingar, engar greiðslur, engin rakning og engin greiningartól. Gögn eru aldrei seld eða afhent og aldrei notuð fyrir gervigreind eða vélnám.",
 	"privacy.strava.heading": "Gögn frá Strava",
 	"privacy.strava.rider":
 		"Um þig: Strava-íþróttaauðkenni þitt, fornafn, heimildirnar sem þú veittir og aðgangslyklarnir (tokens), geymdir dulkóðaðir.",
@@ -955,7 +954,7 @@ export const is: Catalog = {
 	"progress.day.outside": "þar af úti: {value}",
 
 	"album.title": "Rynke-albúm",
-	"album.team.name": "Team Rynkeby Hamburg",
+	"album.team.name": "{team}",
 	"album.season": "Tímabil {season}",
 	"album.owner": "Þetta albúm á",
 	"album.coin": "Rynke-peningurinn",

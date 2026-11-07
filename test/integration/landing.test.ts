@@ -7,6 +7,7 @@ import { escapeHtml } from "../../src/http/html";
 import { CATALOGS, type Catalog } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import { toActivityRecord } from "../../src/strava/activity";
+import { teamFor } from "../../src/teams";
 import {
 	makeCtx,
 	request,
@@ -40,8 +41,10 @@ describe("GET / (signed out)", () => {
 		expect(res.status).toBe(200);
 		expect(res.headers.get("Content-Language")).toBe("de");
 		expect(page).toContain('<html lang="de">');
+		expect(page).toContain(
+			escapeHtml(de["landing.intro"].replace("{team}", teamFor(env).name)),
+		);
 		for (const id of [
-			"landing.intro",
 			"landing.dataRead",
 			"landing.private",
 			"landing.purpose",
