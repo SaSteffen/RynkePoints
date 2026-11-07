@@ -272,7 +272,7 @@ name or art paths.
 
 **Independent test**: quickstart › Release 2 steps 3, 4.
 
-- [ ] T053 [P] [US8] Synthetic Europe riders `dev/fake-strava/samples.europe.ts`: names
+- [X] T053 [P] [US8] Synthetic Europe riders `dev/fake-strava/samples.europe.ts`: names
   from Denmark, Norway, Sweden, Finland, Iceland, Germany, France, the Netherlands,
   Lithuania, the UK and Canada, all invented (FR-050); Hamburg's samples move to
   `dev/fake-strava/samples.hamburg.ts`; `dev/fake-strava/seed.ts` picks by `ctx.team.id`.
