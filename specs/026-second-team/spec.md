@@ -42,6 +42,22 @@ text or art for one team, such as its motivational phrases.
 Usage statistics, administrators and blocking are feature 025, for one team. Bringing
 the teams' figures together is part of this feature (FR-039).
 
+## Clarifications
+
+### Session 2026-11-07
+
+- Q: How is the work split into releases? → A: Languages first: the ten languages and the
+  phrase rule ship on their own, then team data with the per-team dev commands, then the
+  gateway, then the second team goes live.
+- Q: What does the second team's team data hold until the team sends its values? → A:
+  Placeholders copied from the founding team, marked as such. The second team runs only
+  locally and as a sandbox on a subdomain of the founding team's domain until then.
+- Q: What does the second team see for badges with Hamburg motifs? → A: Those badges are
+  flagged in team data and show a placeholder picture until the team has its own art.
+  The founding team's badge names stay German in every language, like its phrases.
+- Q: Does `pnpm dev` mirror the shared Strava app? → A: Yes. Once the gateway exists,
+  `pnpm dev` runs one fake Strava and a local gateway in front of all teams.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - A rider joins their own team (Priority: P1)
@@ -135,7 +151,8 @@ file of the second team's synthetic deployment for the founding team's names and
 1. **Given** the second team's deployment, **When** any page is opened or the app is
    installed, **Then** name, icon and start screen are that team's.
 2. **Given** art that shows a Hamburg motif, such as the coin and at least one badge,
-   **When** the second team's rider sees it, **Then** they see their team's version.
+   **When** the second team's rider sees it, **Then** they see their team's version, or a
+   placeholder picture where the team has none yet (FR-024).
 3. **Given** motivational phrases, **When** a second-team rider sees one, **Then** it is
    from the common phrases in the language the rider picked, never one of the founding
    team's phrases (FR-025).
@@ -362,7 +379,8 @@ machine.
 
 - **FR-023**: No page, image or text of a team MUST show another team's name, place or art.
 - **FR-024**: Art specific to the founding team, at least the coin and badges with Hamburg
-  motifs, MUST have a replacement or be left out for other teams.
+  motifs, MUST be flagged as such in team data. Another team MUST see its own version, or a
+  neutral placeholder picture until it has one; the badge itself still counts.
 - **FR-025**: Which phrases the monkey speaks MUST follow one rule, set per team in team
   data: a team either has **its own phrases** or uses the **common phrases**.
   - A team with its own phrases MUST always get those, in their language, whatever
@@ -385,8 +403,11 @@ machine.
 
 - **FR-026**: The app MUST ship Danish, Norwegian (Bokmål), Swedish, Finnish, Icelandic,
   French, Dutch and Lithuanian catalogs besides German and English, complete like every
-  other catalog, with badge names translated or set per team. Canada's riders are covered
-  by English and French.
+  other catalog. Canada's riders are covered by English and French.
+- **FR-052**: Badge names MUST follow the rule of FR-025: a team with its own badge names
+  gets them in every language, and a team without gets the common badge names in the
+  rider's language. The founding team's German badge names of today are its own, so its
+  badges carry German names whatever language the rider picked.
 - **FR-027**: Every shipped language MUST be offered on every team's site. Each team MUST
   set only its default language, which applies when a visitor states no language the app
   ships. The founding team stays German by default.
@@ -424,13 +445,22 @@ machine.
   mode with its own synthetic riders, local data and fixed port, in one step.
 - **FR-049**: `pnpm dev` MUST start every team at the same time, on distinct ports, name
   each team's address in its output, and stop all of them when stopped. The founding team
-  keeps port 8789. The ports MUST NOT clash with the test server's port.
+  keeps port 8789. The ports MUST NOT clash with the test server's port. Once the gateway
+  exists, `pnpm dev` MUST mirror production: one fake Strava and a local gateway in front
+  of all teams, so sign-ins and ride events pass through it. `pnpm dev:<team>` still works
+  for one team alone.
 - **FR-050**: Each team's synthetic riders MUST suit that team, such as names from its
   riders' countries, and stay synthetic (Principle I).
 - **FR-051**: A team's local command MUST come from its team data and one line of
   settings, like its deployment (FR-004).
+- **FR-053**: Values a team hasn't supplied yet MAY be placeholders copied from the
+  founding team, marked as placeholders in team data. A team with any placeholder MUST run
+  only locally and in its sandbox, and its production deployment MUST be refused, naming
+  the placeholders.
 - **FR-042**: A new team MUST get its sandbox (027 FR-001) as part of being added: its resources
   and one more checkbox on **Release PR**. A sandbox isn't a team for this feature's shares.
+  Until a team has its own domain, its sandbox lives on a subdomain of the founding team's
+  domain.
 
 **Maintainers** (see spec 028)
 
@@ -476,7 +506,9 @@ machine.
 
 ## Assumptions
 
-- **Order**: Team data ships first with no visible change for the founding team, then the
+- **Order**: Four releases. First the ten languages and the phrase rule (FR-025–FR-028,
+  FR-045–FR-047, FR-052), whose only visible change for the founding team is the new
+  languages. Then team data with the per-team dev commands, with no visible change. Then the
   gateway, then the second team. Feature 025 can ship at any point.
 - **Accepted limits**: A team's deployment briefly sees the other team's athlete and
   activity IDs in events before dropping them. Budget is first come, first served. A second
