@@ -257,7 +257,9 @@ name or art paths.
   `public/teams/<id>/`, or another team's `teamSpecificBadges` art.
 - [ ] T050 [US4] Name, short name, icons and colours in the manifest and shell from
   `ctx.team` in `src/http/pwa.ts`, `src/http/shell.ts`, `src/http/themes.ts`; coin sprite
-  from `ctx.team.art.coin` in `src/http/coin.ts`.
+  from `ctx.team.art.coin` in `src/http/coin.ts`. The four catalog messages naming the
+  team take its name as a param, and `PENDING` in `test/unit/no-team-names.test.ts`
+  becomes empty.
 - [ ] T051 [US4] Badge pictures through `ctx.team.art.badges`, with `"placeholder"`
   rendering a new neutral `public/badges/placeholder.svg`, in `src/badges/pictures.ts`;
   add the placeholder to `scripts/art-versions.mjs`. T049 green.
