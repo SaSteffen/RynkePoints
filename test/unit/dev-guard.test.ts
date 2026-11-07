@@ -120,7 +120,7 @@ describe("layer 2: the dev entry runs only in local fake mode", () => {
 		beforeAll(async () => {
 			// Marked as seeded, so no request here seeds sample data.
 			await ensureTable(env.DB);
-			await markSeeded(env.DB, await sampleFingerprint());
+			await markSeeded(env.DB, await sampleFingerprint(env.TEAM_ID));
 		});
 
 		function devCtx(): TestCtx {

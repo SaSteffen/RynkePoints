@@ -1,6 +1,6 @@
 import { createMessageBatch, env } from "cloudflare:test";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples";
+import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples.hamburg";
 import {
 	type DevEnv,
 	devFetch,

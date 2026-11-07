@@ -1,4 +1,5 @@
-import { type SampleRider, sampleRider } from "./samples";
+import { sampleRider } from "./sample-sets";
+import type { SampleRider } from "./samples";
 import { getActivity, listActivities, takeSlow } from "./store";
 import {
 	ACCESS_LIFETIME,
@@ -71,10 +72,10 @@ async function dispatch(
 	if (pathname === "/api/v3/athlete/clubs")
 		return clubs(request, url, env, now);
 	if (pathname === "/api/v3/athlete/activities") {
-		return activities(request, url, db, now);
+		return activities(request, url, env, db, now);
 	}
 	const single = pathname.match(/^\/api\/v3\/activities\/(\d+)$/);
-	if (single) return activity(request, Number(single[1]), db, now);
+	if (single) return activity(request, Number(single[1]), env, db, now);
 	return null;
 }
 
@@ -101,13 +102,13 @@ async function token(request: Request, env: Env, now: number): Promise<Answer> {
 	const grantType = form.get("grant_type");
 	if (grantType === "authorization_code") {
 		const grant = decodeCode(form.get("code") ?? "");
-		const rider = grant && sampleRider(grant.athleteId);
+		const rider = grant && sampleRider(env.TEAM_ID, grant.athleteId);
 		if (!grant || !rider) return answer({ message: "Bad Request" }, 400);
 		return answer(tokenBody(grant, rider, now), 200, rider.athleteId);
 	}
 	if (grantType === "refresh_token") {
 		const grant = decodeRefresh(form.get("refresh_token") ?? "");
-		const rider = grant && sampleRider(grant.athleteId);
+		const rider = grant && sampleRider(env.TEAM_ID, grant.athleteId);
 		if (!grant || !rider || rider.behaviour === "refused") {
 			return answer({ message: "Bad Request" }, 400, grant?.athleteId);
 		}
@@ -127,10 +128,11 @@ function revoke(request: Request, env: Env): Answer {
 /** The sample rider behind a valid, unexpired bearer token, or null. */
 function authorised(
 	request: Request,
+	env: Env,
 	now: number,
 ): { grant: AccessGrant; rider: SampleRider } | null {
 	const grant = decodeAccess(bearer(request) ?? "");
-	const rider = grant && sampleRider(grant.athleteId);
+	const rider = grant && sampleRider(env.TEAM_ID, grant.athleteId);
 	if (!grant || !rider || grant.expiresAt <= now) return null;
 	return { grant, rider };
 }
@@ -148,7 +150,7 @@ function paging(url: URL): { page: number; perPage: number } {
 }
 
 function clubs(request: Request, url: URL, env: Env, now: number): Answer {
-	const auth = authorised(request, now);
+	const auth = authorised(request, env, now);
 	if (!auth) return answer(UNAUTHORISED, 401);
 	// A `refused` rider is answered too, so their sign-in still works.
 	const all = auth.rider.clubMember
@@ -165,9 +167,10 @@ function clubs(request: Request, url: URL, env: Env, now: number): Answer {
 /** The rider for an activity endpoint, or the refusal to answer with. */
 function activityAuth(
 	request: Request,
+	env: Env,
 	now: number,
 ): { grant: AccessGrant; rider: SampleRider } | Answer {
-	const auth = authorised(request, now);
+	const auth = authorised(request, env, now);
 	if (!auth) return answer(UNAUTHORISED, 401);
 	if (auth.rider.behaviour === "refused") {
 		return answer(UNAUTHORISED, 401, auth.rider.athleteId);
@@ -182,10 +185,11 @@ function readsAll(grant: Grant): boolean {
 async function activities(
 	request: Request,
 	url: URL,
+	env: Env,
 	db: D1Database,
 	now: number,
 ): Promise<Answer> {
-	const auth = activityAuth(request, now);
+	const auth = activityAuth(request, env, now);
 	if ("response" in auth) return auth;
 	const { rider, grant } = auth;
 	if (rider.behaviour === "import-stuck") {
@@ -204,10 +208,11 @@ async function activities(
 async function activity(
 	request: Request,
 	id: number,
+	env: Env,
 	db: D1Database,
 	now: number,
 ): Promise<Answer> {
-	const auth = activityAuth(request, now);
+	const auth = activityAuth(request, env, now);
 	if ("response" in auth) return auth;
 	const { rider, grant } = auth;
 	const stored = await getActivity(db, id);
