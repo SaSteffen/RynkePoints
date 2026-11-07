@@ -227,7 +227,8 @@ export function placeholderProblems(teams, id) {
 	);
 }
 
-async function main() {
+/** The team registry, `TEAMS` of src/teams/index.ts, imported from Node. */
+export async function loadTeams() {
 	// The app's sources import without file extensions (some names have a dot,
 	// like `hamburg.de`), so `.ts` is added here; Node strips the types.
 	registerHooks({
@@ -238,6 +239,11 @@ async function main() {
 		},
 	});
 	const { TEAMS } = await import("../src/teams/index.ts");
+	return TEAMS;
+}
+
+async function main() {
+	const TEAMS = await loadTeams();
 	const wrangler = parseJsonc(readFileSync(path("wrangler.jsonc"), "utf8"));
 	const locales = readdirSync(path("src/i18n/messages/"))
 		.map((name) => name.match(/^([a-z]{2,3})\.ts$/)?.[1])

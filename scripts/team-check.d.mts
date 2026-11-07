@@ -18,3 +18,6 @@ export function placeholderProblems(
 	teams: readonly unknown[],
 	id: string,
 ): string[];
+
+/** The team registry, `TEAMS` of src/teams/index.ts, imported from Node. */
+export function loadTeams(): Promise<readonly unknown[]>;

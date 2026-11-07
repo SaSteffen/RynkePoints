@@ -201,7 +201,7 @@ async function startWorker() {
 		`SEASON_ALBUM:${albumSwitch}`,
 		"--show-interactive-dev-session=false",
 		...(options.local
-			? ["--local", "--persist-to", ".wrangler/fake-state"]
+			? ["--local", "--persist-to", ".wrangler/fake-state-hamburg"]
 			: []),
 	];
 	worker = spawn(join(ROOT, "node_modules", ".bin", "wrangler"), wranglerArgs, {
