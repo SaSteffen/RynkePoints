@@ -54,8 +54,8 @@ const FIELDS = [
 	"placeholders",
 ];
 
-/** The test server's ports (`pnpm test:e2e:server`), never a team's. */
-const RESERVED_PORTS = [8797, 9237];
+/** The test servers' ports (`pnpm test:e2e:server`, `:europe`), never a team's. */
+const RESERVED_PORTS = [8797, 9237, 8798, 9238];
 
 /**
  * Every problem with `teams` against `wrangler`, one line each. `publicFile`
@@ -125,7 +125,7 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 					continue;
 				}
 				if (RESERVED_PORTS.includes(port)) {
-					say(team, `dev.${key}`, `${port} is the test server's`);
+					say(team, `dev.${key}`, `${port} is a test server's`);
 				}
 				const other = seenPorts.get(port);
 				if (other) say(team, `dev.${key}`, `${port} is also ${other}'s`);
