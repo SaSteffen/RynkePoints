@@ -53,9 +53,16 @@ async function drain(): Promise<void> {
 
 /** A page's visible text, one block per line: no markup, scripts or styles. */
 function pageText(markup: string): string {
-	return markup
-		.replace(/<(script|style|template)\b[\s\S]*?<\/\1>/gi, "")
-		.replace(/<svg\b[\s\S]*?<\/svg>/gi, "")
+	// Until nothing changes, so no element is left half removed.
+	let text = markup;
+	let before: string;
+	do {
+		before = text;
+		text = text
+			.replace(/<(script|style|template)\b[\s\S]*?<\/\1>/gi, "")
+			.replace(/<svg\b[\s\S]*?<\/svg>/gi, "");
+	} while (text !== before);
+	return text
 		.replace(/<img\b[^>]*\bsrc="([^"]*)"[^>]*>/gi, " [img $1] ")
 		.replace(
 			/<\/(p|li|h[1-6]|div|section|tr|dt|dd|figcaption|header|footer|button|a)>/gi,
