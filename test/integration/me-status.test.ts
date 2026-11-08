@@ -101,7 +101,7 @@ describe("GET /me for a connected rider", () => {
 		const { page } = await getSettings();
 		expect(page).toContain("<h2>Deine Zustimmung</h2>");
 		expect(page).toMatch(
-			/<p>Zugestimmt am 07\.10\.2026 \(Version\u00a03\)\.<\/p>\n<p>Wir lesen keine GPS-Spuren, .*<br>Wir lesen nur .*<\/p>\n<p>Das Team sieht deine Rynke und im Ranking .*<\/p>\n<details class="more">.*\n<p>Von jeder Radfahrt lesen wir nur Namen, /,
+			/<p>Zugestimmt am 07\.10\.2026 \(Version\u00a03\)\.<\/p>\n<p class="reference-note">Diese Seite gibt es auch auf Englisch\. .*<\/p>\n<p>Wir lesen keine GPS-Spuren, .*<br>Wir lesen nur .*<\/p>\n<p>Das Team sieht deine Rynke und im Ranking .*<\/p>\n<details class="more">.*\n<p>Von jeder Radfahrt lesen wir nur Namen, /,
 		);
 		expect(page).not.toContain("noch keine Zustimmung");
 	});
