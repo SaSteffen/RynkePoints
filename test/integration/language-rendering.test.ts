@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS, type Catalog } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
+import { TEAMS } from "../../src/teams";
 import { cookiePair, makeCtx, request, resetDb } from "../support/ctx";
 import { forms } from "../support/messages";
 import { RIDER_PAGES, type RiderPage, seedPageRiders } from "../support/pages";
@@ -52,7 +53,12 @@ function expectLanguage(
 	expect(res.headers.get("Vary")).toBe("Accept-Language, Cookie");
 	// The Team page's quote is German in every language (016 FR-023) and is
 	// picked at random, so its words can match either catalog.
-	const page = html
+	// Team names are names in every language, and "Team Rynkeby Hamburg" holds
+	// the English "Team Rynke".
+	const page = TEAMS.reduce(
+		(text, team) => text.split(escapeHtml(team.name)).join(""),
+		html,
+	)
 		.replace(/<blockquote [^>]*lang="de">[\s\S]*?<\/blockquote>/g, "")
 		// Chart data holds numbers and names under keys no rider reads.
 		.replace(
