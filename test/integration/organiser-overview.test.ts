@@ -650,7 +650,7 @@ describe("GET /organiser/riders, the graphs (feature 029)", () => {
 		const { html } = await overview();
 		const box = sectionOf(html, '<section class="requests-box"', "</section>");
 		expect(box.match(/<li class="request">/g)).toHaveLength(3);
-		expect(box).toContain(fill(de["organiser.graphs.reports.other"], { n: 4 }));
+		expect(box).toContain(fill(de["organiser.graphs.reports"].other, { n: 4 }));
 		expect(box).toContain(
 			'href="/organiser/riders?group=requests&amp;view=riders"',
 		);

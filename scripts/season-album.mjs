@@ -187,6 +187,8 @@ async function startWorker() {
 		`SEASON_START_DATE:${seasonStart}`,
 		"--var",
 		`QUALIFICATION_DEADLINE:${deadline}`,
+		"--var",
+		`TEAM_ID:${setting("TEAM_ID")}`,
 		"--show-interactive-dev-session=false",
 		...(options.local
 			? ["--local", "--persist-to", ".wrangler/fake-state"]

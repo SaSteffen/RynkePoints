@@ -12,6 +12,7 @@ import {
 import { badgeWindow } from "../src/badges/evaluate";
 import { evaluateTeamBadges, type TeamBadgeSums } from "../src/badges/team";
 import { berlinDate } from "../src/config";
+import type { BadgeNameMode } from "../src/content/types";
 import { listRiderBadgesStatement, type RiderBadgeRow } from "../src/db/badges";
 import { type RiderViewRead, readRiderView } from "../src/db/rider-view";
 import { type BalanceRow, toStoredBalance } from "../src/db/rynke";
@@ -24,7 +25,7 @@ import {
 	listTeamEventsStatement,
 	type TeamEventListRow,
 } from "../src/db/team-events";
-import { DEFAULT_LOCALE, type Locale } from "../src/i18n/catalogs";
+import type { Locale } from "../src/i18n/catalogs";
 import {
 	type CountingWindow,
 	CURRENT_RULES,
@@ -34,6 +35,7 @@ import {
 } from "../src/rynke/rules";
 import type { EventKind } from "../src/rynke/team-events";
 import { lastDay, riderCurve, riderDays } from "../src/rynke/weeks";
+import { teamFor } from "../src/teams";
 import type { AlbumEnv } from "./routes";
 
 export interface AlbumEvent {
@@ -59,6 +61,8 @@ export interface AlbumData {
 	season: { start: string; end: string; label: string };
 	cutoff: string;
 	locale: Locale;
+	/** How the team names its badges (feature 026 FR-052). */
+	badgeNames: BadgeNameMode;
 	rider: {
 		athleteId: number;
 		firstName: string;
@@ -211,8 +215,9 @@ export async function loadAlbum(
 		},
 		cutoff,
 		// The app does not store a rider's language (feature 001 FR-028:
-		// it lives in their browser), so every album is in the default one.
-		locale: DEFAULT_LOCALE,
+		// it lives in their browser), so every album is in the team's default.
+		locale: teamFor(env).defaultLocale,
+		badgeNames: teamFor(env).badgeNames,
 		rider: {
 			athleteId: rider.athleteId,
 			firstName: rider.firstName,

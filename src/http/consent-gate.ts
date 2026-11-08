@@ -91,7 +91,7 @@ export function consentGate(
 ${intro(i18n, current, gate)}
 <section class="card">
 <h2>${i18n.t("consent.heading")}</h2>
-${consentSummary(i18n)}<p>${i18n.t("consent.required")}</p>
+${consentSummary(i18n, path)}<p>${i18n.t("consent.required")}</p>
 ${form(i18n, current, gate, path)}
 </section>
 <p>${i18n.t("me.consent.renew.leave")}</p>

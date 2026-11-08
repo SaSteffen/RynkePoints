@@ -3,6 +3,7 @@ import { escapeHtml } from "../../src/http/html";
 import { CATALOGS, type Catalog } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import { cookiePair, makeCtx, request, resetDb } from "../support/ctx";
+import { forms } from "../support/messages";
 import { RIDER_PAGES, type RiderPage, seedPageRiders } from "../support/pages";
 
 // Every rider-facing page renders wholly in the resolved language and offers
@@ -16,11 +17,11 @@ const ctx = makeCtx();
  * (English "Sport" in German "Sportart") can't tell the languages apart.
  */
 function onlyIn(other: Catalog, own: Catalog): string[] {
-	const ownText = Object.values(own);
+	const ownText = Object.values(own).flatMap(forms);
 	const parts = new Set<string>();
 	for (const [id, value] of Object.entries(other)) {
 		if (id.startsWith("meta.") || value === own[id as keyof Catalog]) continue;
-		for (const part of value.split(/\{\w+\}/)) {
+		for (const part of forms(value).flatMap((text) => text.split(/\{\w+\}/))) {
 			const text = part.trim();
 			if (text.length > 3 && !ownText.some((v) => v.includes(text))) {
 				parts.add(escapeHtml(text));
@@ -69,14 +70,14 @@ beforeEach(async () => {
 });
 
 describe.each(RIDER_PAGES)("$name", (page) => {
-	it.each([undefined, "de-DE,en;q=0.5", "da,de;q=0.5"])(
+	it.each([undefined, "de-DE,en;q=0.5", "pl,de;q=0.5"])(
 		"is German for Accept-Language %j",
 		async (acceptLanguage) => {
 			expectLanguage(await render(page, { acceptLanguage }), "de");
 		},
 	);
 
-	it.each(["en-US,en;q=0.9,de;q=0.8", "da", "fr-CH, fr;q=0.9"])(
+	it.each(["en-US,en;q=0.9,de;q=0.8", "pl", "es-CL, es;q=0.9"])(
 		"is English for Accept-Language %j",
 		async (acceptLanguage) => {
 			expectLanguage(await render(page, { acceptLanguage }), "en");
@@ -101,7 +102,7 @@ describe.each(RIDER_PAGES)("$name", (page) => {
 			);
 			for (const [locale, catalog] of Object.entries(CATALOGS)) {
 				expect(html).toContain(
-					`value="${locale}" lang="${locale}"${locale === "de" ? ' aria-current="true"' : ""}>${catalog["meta.languageName"]}</button>`,
+					`value="${locale}" lang="${locale}"${locale === "de" ? ' aria-current="true"' : ""}>${catalog["meta.languageName"]}${locale === "de" ? "<svg" : "</button>"}`,
 				);
 			}
 		},

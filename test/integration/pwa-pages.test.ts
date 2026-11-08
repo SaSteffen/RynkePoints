@@ -202,6 +202,7 @@ describe("GET /offline", () => {
 	it.each([
 		["de", "Keine Verbindung", "RynkePoints braucht eine Internetverbindung."],
 		["en", "No connection", "RynkePoints needs an internet connection."],
+		["nb", "Ingen tilkobling", "RynkePoints trenger internettilkobling."],
 	])("renders the notice in %s", async (lang, title, body) => {
 		const { res, page } = await get(`/offline?lang=${lang}`);
 		expect(res.status).toBe(200);
@@ -220,6 +221,7 @@ describe("GET /offline", () => {
 	it.each([
 		[undefined, "en", "No connection"],
 		["xx", "en", "No connection"],
+		["xx", "nb-NO", "Ingen tilkobling"],
 		[undefined, "de-DE", "Keine Verbindung"],
 	])("with lang %s follows Accept-Language %s", async (lang, accept, title) => {
 		const path = lang ? `/offline?lang=${lang}` : "/offline";

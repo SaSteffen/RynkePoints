@@ -15,7 +15,7 @@ import { ALBUM_CSS } from "./style";
 
 export type AlbumEnv = Pick<
 	Env,
-	"DB" | "SEASON_START_DATE" | "QUALIFICATION_DEADLINE"
+	"DB" | "SEASON_START_DATE" | "QUALIFICATION_DEADLINE" | "TEAM_ID"
 >;
 
 /** What `worker.ts` bundles through Wrangler's module rule. */

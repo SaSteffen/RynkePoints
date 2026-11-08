@@ -39,7 +39,7 @@ ${portraitCoin(LANDING_PORTRAIT)}
 <p>${i18n.tHtml("landing.who", { clubLink })}</p>
 <section class="card">
 <h2>${i18n.t("consent.heading")}</h2>
-${consentSummary(i18n)}<p>${i18n.t("consent.required")}</p>
+${consentSummary(i18n, "/")}<p>${i18n.t("consent.required")}</p>
 ${consentForm(i18n, currentVersion(ctx.consentVersions).version)}
 </section>`,
 		}),

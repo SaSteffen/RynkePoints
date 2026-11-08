@@ -23,7 +23,7 @@ import { riderPage, seedBalance, seedRide } from "../support/rider-view";
 
 const ctx = makeCtx();
 const { de } = CATALOGS;
-const t = (id: keyof typeof de) => escapeHtml(de[id]);
+const t = (id: keyof typeof de) => escapeHtml(String(de[id]));
 
 /** The tour hint on a page, or null. */
 function hint(page: string): string | null {

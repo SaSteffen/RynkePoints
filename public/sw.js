@@ -5,7 +5,9 @@
 // switching the language installs it again with the new texts.
 
 const param = new URL(location.href).searchParams.get("lang") ?? "";
-const lang = /^[a-z]{2}$/.test(param) ? param : "de";
+// Any other value asks with no language, so the server gives the team's default
+// (feature 026 contracts/locales.md › Picker); it accepts only shipped ones.
+const lang = /^[a-z]{2}$/.test(param) ? param : "";
 const CACHE = `rp-${lang}`;
 const OFFLINE = `/offline?lang=${lang}`;
 const TEXT = `/notification-text?lang=${lang}`;

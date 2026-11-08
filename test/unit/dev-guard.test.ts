@@ -15,8 +15,8 @@ import worker, {
 import { makeCtx, type TestCtx, tableCounts } from "../support/ctx";
 
 // FR-009: the fake Strava can't reach production (specs/006-local-frontend-dev
-// research R9). Layer 1: nothing under src/ imports dev/ or album/ (the season
-// album Worker, feature 021 research R12), and production still deploys
+// research R9). Layer 1: nothing under src/ imports dev/, album/ (the season
+// album Worker, feature 021 research R12) or tools/ (local content tools), and production still deploys
 // src/index.ts. Layer 2: the dev entry refuses to run without the
 // fake-mode marker, and answers only local hosts.
 
@@ -44,19 +44,21 @@ const IMPORT_SPECIFIERS =
 	/(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+)["'`]([^"'`]+)["'`]/g;
 
 /**
- * A relative or absolute path with a `dev` or `album` segment, e.g.
+ * A relative or absolute path with a `dev`, `album` or `tools` segment, e.g.
  * `../../dev/worker`.
  */
 function reachesDev(specifier: string): boolean {
-	return /^[./]/.test(specifier) && /(^|\/)(dev|album)(\/|$)/.test(specifier);
+	return (
+		/^[./]/.test(specifier) && /(^|\/)(dev|album|tools)(\/|$)/.test(specifier)
+	);
 }
 
-describe("layer 1: production never bundles dev/ or album/", () => {
+describe("layer 1: production never bundles dev/, album/ or tools/", () => {
 	it("finds the app's source files", () => {
 		expect(Object.keys(SOURCES).length).toBeGreaterThanOrEqual(30);
 	});
 
-	it("has no src/ file importing from dev/ or album/", () => {
+	it("has no src/ file importing from dev/, album/ or tools/", () => {
 		const offenders = Object.entries(SOURCES).flatMap(([file, text]) =>
 			[...text.matchAll(IMPORT_SPECIFIERS)]
 				.map((m) => m[1] ?? "")
@@ -73,12 +75,14 @@ describe("layer 1: production never bundles dev/ or album/", () => {
 			"/dev/x",
 			"../../album/load",
 			"../album",
+			"../../tools/content-rating/server.mjs",
 		]) {
 			expect(reachesDev(specifier)).toBe(true);
 		}
 		for (const specifier of [
 			"./devices",
 			"./albums",
+			"./toolsbar",
 			"../strava/client",
 			"cloudflare:test",
 		]) {

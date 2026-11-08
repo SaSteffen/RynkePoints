@@ -98,14 +98,11 @@ function summary(i18n: I18n, figures: readonly Figure[]): SafeHtml {
 function aboutDuration(i18n: I18n, seconds: number): string {
 	const minutes = Math.max(1, Math.ceil(seconds / 60));
 	if (minutes < 90) {
-		return i18n.t("admin.waiting.minutes", { n: whole(i18n, minutes) });
+		return i18n.t("admin.waiting.minutes", { n: minutes });
 	}
 	const hours = Math.ceil(minutes / 60);
-	if (hours < 48)
-		return i18n.t("admin.waiting.hours", { n: whole(i18n, hours) });
-	return i18n.t("admin.waiting.days", {
-		n: whole(i18n, Math.ceil(hours / 24)),
-	});
+	if (hours < 48) return i18n.t("admin.waiting.hours", { n: hours });
+	return i18n.t("admin.waiting.days", { n: Math.ceil(hours / 24) });
 }
 
 function alertsSwitch(i18n: I18n, rider: Rider): SafeHtml {
@@ -191,7 +188,7 @@ ${
 		? null
 		: html`<section class="card">
 <h2>${i18n.t("admin.waiting.heading")}</h2>
-<p>${waiting === 1 ? i18n.t("admin.waiting.one", { time: aboutDuration(i18n, estimate) }) : i18n.t("admin.waiting.body", { n: whole(i18n, waiting), time: aboutDuration(i18n, estimate) })}</p>
+<p>${i18n.t("admin.waiting.body", { n: waiting, time: aboutDuration(i18n, estimate) })}</p>
 </section>
 `
 }<section class="card usage-source">

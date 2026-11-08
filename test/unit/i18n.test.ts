@@ -54,6 +54,61 @@ describe("tHtml", () => {
 	});
 });
 
+describe("plural messages (feature 026 research R3)", () => {
+	it("picks the form for n and formats n", () => {
+		expect(de.t("fetching.import", { n: 1 })).toBe(
+			"Bisher 1 Aktivität geholt, weitere folgen",
+		);
+		expect(de.t("fetching.import", { n: 1234 })).toBe(
+			"Bisher 1.234 Aktivitäten geholt, weitere folgen",
+		);
+		expect(en.t("fetching.import", { n: 2 })).toBe(
+			"2 activities fetched so far, more to come",
+		);
+	});
+
+	it("uses the locale's plural rules", () => {
+		const lt = {
+			...CATALOGS.en,
+			"fetching.import": {
+				one: "one {n}",
+				few: "few {n}",
+				many: "many {n}",
+				other: "other {n}",
+			},
+		} as Catalog;
+		const i18n = createI18n("lt", { ...CATALOGS, lt });
+		expect(i18n.t("fetching.import", { n: 1 })).toBe("one 1");
+		expect(i18n.t("fetching.import", { n: 21 })).toBe("one 21");
+		expect(i18n.t("fetching.import", { n: 2 })).toBe("few 2");
+		expect(i18n.t("fetching.import", { n: 10 })).toBe("other 10");
+		expect(i18n.t("fetching.import", { n: 1.5 })).toBe("many 1.5");
+	});
+
+	it("falls back to the other form for a form the message lacks", () => {
+		const catalogs: Catalogs = {
+			...CATALOGS,
+			en: { ...CATALOGS.en, "fetching.import": { other: "{n} so far" } },
+		};
+		expect(createI18n("en", catalogs).t("fetching.import", { n: 1 })).toBe(
+			"1 so far",
+		);
+	});
+
+	it("throws without a numeric n", () => {
+		expect(() => de.t("fetching.import")).toThrow(/numeric param n/);
+		expect(() => de.t("fetching.import", { n: "3" })).toThrow(
+			/numeric param n/,
+		);
+	});
+
+	it("selects in tHtml too", () => {
+		expect(String(en.tHtml("organiser.graphs.reports", { n: 1 }))).toBe(
+			"1 open report",
+		);
+	});
+});
+
 describe("formatting", () => {
 	it("formats numbers for the locale", () => {
 		expect(de.formatNumber(42.195, { fractionDigits: 1 })).toBe("42,2");
@@ -78,7 +133,13 @@ describe("formatting", () => {
 
 describe("locales", () => {
 	it("lists every catalog in registry order", () => {
-		expect(de.locales).toEqual([
+		expect(de.locales).toEqual(
+			Object.entries(CATALOGS).map(([locale, catalog]) => ({
+				locale,
+				languageName: catalog["meta.languageName"],
+			})),
+		);
+		expect(de.locales.slice(0, 2)).toEqual([
 			{ locale: "de", languageName: "Deutsch" },
 			{ locale: "en", languageName: "English" },
 		]);

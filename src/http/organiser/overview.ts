@@ -587,7 +587,7 @@ function renderReports(
 	);
 	if (open.length === 0) return null;
 	return html`<section class="requests-box" aria-labelledby="requests-box-heading">
-<h2 id="requests-box-heading">${open.length === 1 ? i18n.t("organiser.graphs.reports.one") : i18n.t("organiser.graphs.reports.other", { n: whole(open.length) })}</h2>
+<h2 id="requests-box-heading">${i18n.t("organiser.graphs.reports", { n: open.length })}</h2>
 <ul class="requests-box-lines">
 ${open.slice(0, 3).map(
 	({ rider, row }) =>
