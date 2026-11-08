@@ -52,16 +52,16 @@ async function drain(): Promise<void> {
 }
 
 /** A page's visible text, one block per line: no markup, scripts or styles. */
-function pageText(markup: string): string {
-	// Until nothing changes, so no element is left half removed.
-	let text = markup;
-	let before: string;
-	do {
-		before = text;
-		text = text
-			.replace(/<(script|style|template)\b[\s\S]*?<\/\1>/gi, "")
-			.replace(/<svg\b[\s\S]*?<\/svg>/gi, "");
-	} while (text !== before);
+async function pageText(markup: string): Promise<string> {
+	// The runtime's HTML parser drops the elements no rider reads as text.
+	const text = await new HTMLRewriter()
+		.on("script, style, template, svg", {
+			element(element) {
+				element.remove();
+			},
+		})
+		.transform(new Response(markup))
+		.text();
 	return text
 		.replace(/<img\b[^>]*\bsrc="([^"]*)"[^>]*>/gi, " [img $1] ")
 		.replace(
@@ -164,7 +164,7 @@ describe.skipIf(env.TEAM_ID !== TEAMS[0]?.id)(
 						ctx,
 					);
 					const body = await response.text();
-					parts.push(`--- ${path} ${response.status}`, pageText(body));
+					parts.push(`--- ${path} ${response.status}`, await pageText(body));
 				}
 			}
 			await expect(`${parts.join("\n")}\n`).toMatchFileSnapshot(
