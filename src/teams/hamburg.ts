@@ -108,9 +108,9 @@ export const hamburg: TeamData = {
 			notificationBadge: "/icons/badge-96.png",
 		},
 		badges: {},
-		// Pending review: the maintainer looks at the pictures in art/badges/
-		// before the badges with Hamburg motifs are listed here (tasks.md T039a).
-		teamSpecificBadges: [],
+		// The badges whose scenes in art/badges/badges.json show Hamburg: the
+		// Elbphilharmonie, and the harbour crane on the river.
+		teamSpecificBadges: ["distance-1000", "running-100", "team-running-1000"],
 	},
 	phrases: { kind: "own", locale: "de", set: HAMBURG_PHRASES },
 	badgeNames: { kind: "own", locale: "de", names: BADGE_NAMES },

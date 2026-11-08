@@ -1,4 +1,5 @@
 import { expect } from "@playwright/test";
+import { hamburg } from "../src/teams/hamburg";
 import { signIn, skipTours } from "./sign-in";
 import { test } from "./test";
 
@@ -48,9 +49,14 @@ test.fixme("a common phrase on the Team page", async ({ page }) => {
 	await expect(page.locator(".phrase").first()).toBeVisible();
 });
 
-// Enable once the placeholder badge picture exists: it waits for the review of
-// Hamburg's teamSpecificBadges list.
-test.fixme("the placeholder badge picture", async ({ page }) => {
+// Hamburg's badges with Hamburg motifs show the neutral picture (FR-024). Most
+// sit in the large views, which stay hidden until opened.
+test("the placeholder badge picture", async ({ page }) => {
 	await page.goto("/_dev/badges?lang=en");
-	await expect(page.locator('img[src*="placeholder"]').first()).toBeVisible();
+	await expect(
+		page.locator('img[src^="/badges/placeholder.svg"]').first(),
+	).toBeAttached();
+	for (const id of hamburg.art.teamSpecificBadges) {
+		await expect(page.locator(`img[src^="/badges/${id}.svg"]`)).toHaveCount(0);
+	}
 });

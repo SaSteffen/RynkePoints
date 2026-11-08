@@ -203,9 +203,10 @@ Visible to Hamburg: nothing (SC-002).
   every Hamburg `teamSpecificBadges` entry, everything else copied from Hamburg; dev
   `{ host: "europe.localhost", port: 8790, inspectorPort: 9231 }`; `placeholders` listing
   every copied field (FR-053). Register in `src/teams/index.ts`.
-- [ ] T039a Fill Hamburg's `teamSpecificBadges` after the user reviews `art/badges/`, then
+- [X] T039a Fill Hamburg's `teamSpecificBadges` after the user reviews `art/badges/`, then
   add placeholder entries to Europe's badge map. (T038 left the list empty, pending that
-  review.)
+  review.) From the scenes in `badges.json`: `distance-1000` (Elbphilharmonie),
+  `running-100` and `team-running-1000` (harbour crane); Europe's map follows the list.
 - [X] T040 `env.europe` block in `wrangler.jsonc`: Worker name `rynke-points-europe`,
   its own D1 `rynke-points-europe` and queue `rynke-points-europe-work` with placeholder
   IDs, the same crons, every var from the top-level block with Europe's values
@@ -291,7 +292,7 @@ name or art paths.
 - [X] T057 [US8] Playwright project `europe-smoke` in `playwright.config.ts` with its own
   server on port 8798 (inspector 9238) via a `test:e2e:server:europe` script, and
   `e2e/europe-smoke.e2e.ts`: Europe's name, English by default, a common phrase on the Team
-  page, the placeholder badge picture, no Hamburg text. The phrase and placeholder-badge checks stay `fixme` until the common phrases (T031–T034) and T039a are done.
+  page, the placeholder badge picture, no Hamburg text. The phrase check stays `fixme` until the common phrases (T031–T034) are done.
 
 **Checkpoint (release 2)**: merge and deploy (Hamburg only). Snapshot T036 unchanged.
 
