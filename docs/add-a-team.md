@@ -12,7 +12,7 @@ step.
 | Value | Example |
 |---|---|
 | Team ID | `<id>`: lower case letters, the same in team data, `TEAM_ID` and the gateway |
-| Domain | the team's own, e.g. `rynke.example.org` |
+| Domain | the team's own, e.g. `rynke.example.org`; until it has one, `<id>.trhh-rynke-coins.link` (Europe for now) |
 | Worker | `rynke-points-<id>` |
 | D1 database | `rynke-points-<id>` |
 | Queue | `rynke-points-<id>-work` |

@@ -220,7 +220,7 @@ jobs:
           # environment ("" for the founding team's top level).
           teams='[{"team":"hamburg","environment":"production","url":"https://trhh-rynke-coins.link","database":"rynke-points","wrangler_env":""}]'
           if [ "${EUROPE_DEPLOY:-}" = on ]; then
-            teams=$(jq -c '. + [{"team":"europe","environment":"production-europe","url":"","database":"DB","wrangler_env":"europe"}]' <<< "$teams")
+            teams=$(jq -c '. + [{"team":"europe","environment":"production-europe","url":"https://europe.trhh-rynke-coins.link","database":"DB","wrangler_env":"europe"}]' <<< "$teams")
           fi
 
           # Sets result to true if $GITHUB_SHA should go to environment $1. Not
