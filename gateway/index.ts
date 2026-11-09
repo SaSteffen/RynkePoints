@@ -23,9 +23,9 @@ export interface GatewayEnv {
 	[secret: `TEAM_WEBHOOK_TOKEN_${string}`]: string | undefined;
 	/**
 	 * TEAM_SERVICE_<ID>: the team's Worker, for a team on the gateway's own
-	 * Cloudflare zone. A Worker's fetch() to a hostname on its own zone skips
-	 * the Workers there and answers 404, so such a team is called through a
-	 * service binding. Without one, the gateway fetches the team's origin.
+	 * Cloudflare account. The forward then goes to the Worker directly,
+	 * without leaving Cloudflare. Without one, the gateway fetches the team's
+	 * origin.
 	 */
 	[service: `TEAM_SERVICE_${string}`]: Fetcher | undefined;
 }
@@ -217,8 +217,12 @@ async function forward(
 	let status: string;
 	try {
 		if (!token) throw new Error("no webhook token");
+		// The token goes into the path as it is, not percent-encoded: the team
+		// compares the raw path with its token, so `abc=` sent as `abc%3D`
+		// would be refused with a 404. Base64 tokens (`+`, `/`, `=`) are
+		// valid in a path unchanged.
 		const res = await (service ? service.fetch.bind(service) : fetch)(
-			new URL(`/strava/webhook/${encodeURIComponent(token)}`, team.origin),
+			new URL(`/strava/webhook/${token}`, team.origin),
 			{
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
