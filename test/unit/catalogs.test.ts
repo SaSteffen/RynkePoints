@@ -517,6 +517,7 @@ const CONTRACT_IDS = [
 	"badges.share.photoUnreadable",
 	"badges.share.hintTouch",
 	"badges.share.hintMouse",
+	"badges.share.turn",
 	"badges.share.recording",
 	"badges.share.send",
 	"badges.share.save",

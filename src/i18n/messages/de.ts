@@ -658,9 +658,10 @@ export const de = {
 	"badges.share.photoUnreadable":
 		"Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.",
 	"badges.share.hintTouch":
-		"Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.",
+		"Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.",
 	"badges.share.hintMouse":
-		"Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.",
+		"Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.",
+	"badges.share.turn": "Abzeichen drehen oder Größe ändern",
 	"badges.share.recording": "Wird gerendert …",
 	"badges.share.send": "Teilen …",
 	"badges.share.save": "Speichern",

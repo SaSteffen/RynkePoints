@@ -627,9 +627,10 @@ export const da: Catalog = {
 	"badges.share.photoUnreadable":
 		"Din browser kan ikke åbne dette foto. Vælg et andet.",
 	"badges.share.hintTouch":
-		"Flyt badget med én finger, knib med to for at ændre størrelsen.",
+		"Flyt badget med én finger, drej eller knib med to for at dreje det eller ændre størrelsen.",
 	"badges.share.hintMouse":
-		"Flyt badget med musen, rul for at ændre størrelsen.",
+		"Flyt badget med musen, træk i prikken i hjørnet for at dreje det eller ændre størrelsen.",
+	"badges.share.turn": "Drej badget eller ændr størrelsen",
 	"badges.share.recording": "Gengives …",
 	"badges.share.send": "Del …",
 	"badges.share.save": "Gem",

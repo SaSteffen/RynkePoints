@@ -3790,6 +3790,16 @@ function shareDrawBadge(ctx, assets, x, y, size) {
 	ctx.restore();
 }
 
+/** Turns what comes next by `box.r` around the badge's centre. */
+function shareTurn(ctx, box) {
+	if (!box.r) return;
+	const cx = box.x + box.size / 2;
+	const cy = box.y + box.size / 2;
+	ctx.translate(cx, cy);
+	ctx.rotate(box.r);
+	ctx.translate(-cx, -cy);
+}
+
 /** CSS's cubic-bezier(x1, y1, x2, y2) as a function of 0…1. */
 function shareBezier(x1, y1, x2, y2) {
 	const at = (a, b, u) =>
@@ -4012,7 +4022,10 @@ async function shareEncode(still, assets, box, signal) {
 			if (signal.aborted) return null;
 			if (failure) throw failure;
 			c.drawImage(still, 0, 0);
+			c.save();
+			shareTurn(c, box);
 			shareSparkle(c, assets, box.x, box.y, box.size, i / SHARE_FPS);
+			c.restore();
 			const picture = new VideoFrame(frame, {
 				timestamp: Math.round(i * step),
 				duration: Math.round(step),
@@ -4127,17 +4140,25 @@ function shareSlug(text) {
 	);
 }
 
-/** The badge's place on a photo: its centre and width as fractions (R2). */
-const SHARE_PLACE = { x: 0.78, y: 0.78, w: 0.38 };
+/**
+ * The badge's place on a photo: its centre and width as fractions (R2), and
+ * its turn in radians.
+ */
+const SHARE_PLACE = { x: 0.78, y: 0.78, w: 0.38, r: 0 };
+/** A turn this close to upright snaps upright (about 3°). */
+const SHARE_SNAP = 0.05;
 /** The long side of a shared photo, at most (research R2). */
 const SHARE_PHOTO_MAX = 1920;
 
 function sharePlace(place) {
 	const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+	// -π…π, so a few turns round still snap upright.
+	const r = Math.atan2(Math.sin(place.r ?? 0), Math.cos(place.r ?? 0));
 	return {
 		x: clamp(place.x, 0, 1),
 		y: clamp(place.y, 0, 1),
 		w: clamp(place.w, 0.15, 0.9),
+		r: Math.abs(r) < SHARE_SNAP ? 0 : r,
 	};
 }
 
@@ -4189,6 +4210,8 @@ function badgeShare(signal) {
 	const repick = sheet.querySelector(".share-repick");
 	const hintTouch = sheet.querySelector(".share-hint-touch");
 	const hintMouse = sheet.querySelector(".share-hint-mouse");
+	const frame = sheet.querySelector(".share-frame");
+	const turn = sheet.querySelector(".share-turn");
 	const mouse = window.matchMedia("(hover: hover) and (pointer: fine)");
 	const plain = sheet.querySelector(".share-plain [role=switch]");
 	const shinyOption = sheet.querySelector(".share-shiny");
@@ -4251,7 +4274,12 @@ function badgeShare(signal) {
 		if (state.format === "photo") {
 			const place = state.place ?? SHARE_PLACE;
 			const size = place.w * w;
-			return { x: place.x * w - size / 2, y: place.y * h - size / 2, size };
+			return {
+				x: place.x * w - size / 2,
+				y: place.y * h - size / 2,
+				size,
+				r: place.r,
+			};
 		}
 		if (state.format === "story")
 			return { x: (w - 820) / 2, y: 390, size: 820 };
@@ -4281,7 +4309,10 @@ function badgeShare(signal) {
 			shareCaption(c, source, font, w, 790, 56, 960);
 			shareMark(c, app, icon, font, w, 1010, 48);
 		}
+		c.save();
+		shareTurn(c, box);
 		shareDrawBadge(c, assets, box.x, box.y, box.size);
+		c.restore();
 		return true;
 	}
 
@@ -4292,6 +4323,38 @@ function badgeShare(signal) {
 			canvas.height = h;
 		}
 		paint(ctx, w, h);
+		placeFrame();
+	}
+
+	/**
+	 * The frame round the badge on a photo, with its handle: only on the
+	 * page, never in the file.
+	 */
+	function placeFrame() {
+		frame.hidden = !placing();
+		turn.hidden = frame.hidden;
+		if (frame.hidden) return;
+		const shown = video.hidden ? canvas : video;
+		const box = shown.getBoundingClientRect();
+		const around = preview.getBoundingClientRect();
+		const { x, y, w, r } = state.place;
+		const side = w * box.width;
+		frame.style.left = `${box.left - around.left + x * box.width - side / 2}px`;
+		frame.style.top = `${box.top - around.top + y * box.height - side / 2}px`;
+		frame.style.width = `${side}px`;
+		frame.style.height = `${side}px`;
+		frame.style.transform = `rotate(${r}rad)`;
+		// The handle at the frame's lower right corner, turned with it, but
+		// never outside the preview, where nothing could reach it.
+		const half = side / 2;
+		const cx = box.left - around.left + x * box.width;
+		const cy = box.top - around.top + y * box.height;
+		const edge = 22;
+		const clamp = (value, max) => Math.min(max - edge, Math.max(edge, value));
+		const cos = Math.cos(r);
+		const sin = Math.sin(r);
+		turn.style.left = `${clamp(cx + half * (cos - sin), around.width)}px`;
+		turn.style.top = `${clamp(cy + half * (sin + cos), around.height)}px`;
 	}
 
 	/** Stops a video being made and takes the made one out of the preview. */
@@ -4524,6 +4587,7 @@ function badgeShare(signal) {
 			place: { ...state.place },
 			a: { ...a },
 			span: b ? Math.hypot(b.x - a.x, b.y - a.y) : 0,
+			angle: b ? Math.atan2(b.y - a.y, b.x - a.x) : 0,
 		};
 	};
 	// The badge is dragged on the picture or, with "Glitzernd", on its video,
@@ -4550,7 +4614,12 @@ function badgeShare(signal) {
 			const [a, b] = [...pointers.values()];
 			if (b && gesture.span) {
 				const span = Math.hypot(b.x - a.x, b.y - a.y);
-				moved({ ...gesture.place, w: (gesture.place.w * span) / gesture.span });
+				const angle = Math.atan2(b.y - a.y, b.x - a.x);
+				moved({
+					...gesture.place,
+					w: (gesture.place.w * span) / gesture.span,
+					r: gesture.place.r + angle - gesture.angle,
+				});
 			} else if (!b) {
 				moved({
 					...gesture.place,
@@ -4572,8 +4641,15 @@ function badgeShare(signal) {
 	};
 	preview.addEventListener("pointerup", release, on);
 	preview.addEventListener("pointercancel", release, on);
-	// The mouse wheel scales the badge; the file follows once it rests.
-	let wheelRest = 0;
+	// The file follows once the wheel or the keys rest.
+	let rest = 0;
+	const settle = () => {
+		clearTimeout(rest);
+		rest = setTimeout(() => {
+			if (placing()) prepare();
+		}, 250);
+	};
+	// The mouse wheel scales the badge.
 	preview.addEventListener(
 		"wheel",
 		(event) => {
@@ -4585,13 +4661,88 @@ function badgeShare(signal) {
 				...place,
 				w: place.w * Math.exp(-event.deltaY * lines * 0.0015),
 			});
-			clearTimeout(wheelRest);
-			wheelRest = setTimeout(() => {
-				if (placing()) prepare();
-			}, 250);
+			settle();
 		},
 		{ signal, passive: false },
 	);
+
+	// The handle in the frame's corner turns and sizes the badge round its
+	// centre: the pointer's distance gives the size, its angle the turn.
+	let handle = null;
+	const centre = () => {
+		const box = canvas.getBoundingClientRect();
+		return {
+			x: box.left + state.place.x * box.width,
+			y: box.top + state.place.y * box.height,
+		};
+	};
+	turn.addEventListener(
+		"pointerdown",
+		(event) => {
+			if (!placing()) return;
+			event.preventDefault();
+			event.stopPropagation();
+			turn.setPointerCapture?.(event.pointerId);
+			const c = centre();
+			const dx = event.clientX - c.x;
+			const dy = event.clientY - c.y;
+			handle = {
+				id: event.pointerId,
+				place: { ...state.place },
+				span: Math.max(1, Math.hypot(dx, dy)),
+				angle: Math.atan2(dy, dx),
+			};
+		},
+		on,
+	);
+	turn.addEventListener(
+		"pointermove",
+		(event) => {
+			if (!handle || event.pointerId !== handle.id) return;
+			// The still picture, not the video, while the badge turns.
+			const c = centre();
+			const dx = event.clientX - c.x;
+			const dy = event.clientY - c.y;
+			moved({
+				...handle.place,
+				w: (handle.place.w * Math.hypot(dx, dy)) / handle.span,
+				r: handle.place.r + Math.atan2(dy, dx) - handle.angle,
+			});
+		},
+		on,
+	);
+	const letGo = (event) => {
+		if (!handle || event.pointerId !== handle.id) return;
+		handle = null;
+		if (placing() && !state.file && !state.encoding) prepare();
+	};
+	turn.addEventListener("pointerup", letGo, on);
+	turn.addEventListener("pointercancel", letGo, on);
+	// Keys: left and right turn by 5° (15° with Shift), up and down size.
+	turn.addEventListener(
+		"keydown",
+		(event) => {
+			if (!placing()) return;
+			const step = ((event.shiftKey ? 15 : 5) * Math.PI) / 180;
+			const place = state.place;
+			const next = {
+				ArrowLeft: { ...place, r: place.r - step },
+				ArrowRight: { ...place, r: place.r + step },
+				ArrowUp: { ...place, w: place.w * 1.05 },
+				ArrowDown: { ...place, w: place.w / 1.05 },
+			}[event.key];
+			if (!next) return;
+			event.preventDefault();
+			moved(next);
+			settle();
+		},
+		on,
+	);
+	const resized = new ResizeObserver(() => {
+		if (placing()) placeFrame();
+	});
+	resized.observe(preview);
+	signal.addEventListener("abort", () => resized.disconnect(), { once: true });
 
 	sheet
 		.querySelector(".share-sheet-close")
@@ -4626,7 +4777,7 @@ function badgeShare(signal) {
 			picker.value = "";
 			pointers.clear();
 			gesture = null;
-			clearTimeout(wheelRest);
+			clearTimeout(rest);
 			for (const url of state.urls) URL.revokeObjectURL(url);
 			state.urls.clear();
 		},

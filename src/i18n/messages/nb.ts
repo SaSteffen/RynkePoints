@@ -625,9 +625,10 @@ export const nb: Catalog = {
 	"badges.share.photoUnreadable":
 		"Nettleseren din kan ikke åpne dette fotoet. Velg et annet.",
 	"badges.share.hintTouch":
-		"Flytt merket med én finger, klyp med to for å endre størrelsen.",
+		"Flytt merket med én finger, vri eller klyp med to for å snu det eller endre størrelsen.",
 	"badges.share.hintMouse":
-		"Flytt merket med musen, rull for å endre størrelsen.",
+		"Flytt merket med musen, dra i prikken i hjørnet for å snu det eller endre størrelsen.",
+	"badges.share.turn": "Snu merket eller endre størrelsen",
 	"badges.share.recording": "Gjengis …",
 	"badges.share.send": "Del …",
 	"badges.share.save": "Lagre",

@@ -75,6 +75,11 @@ export const SHARE = new SafeHtml(
 /** Closes the app prompt (feature 015). */
 export const CLOSE = icon('<path d="M6 6l12 12M18 6 6 18"/>');
 
+/** A turning arrow, for the handle that turns and sizes a shared badge (feature 033). */
+export const TURN = icon(
+	'<path d="M19 12a7 7 0 1 1-2.05-4.95"/><path d="M19 4v3.5h-3.5"/>',
+);
+
 /** A tick, for "Bin dabei ✓" and confirmed attendance (feature 019). */
 export const CHECK = icon('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
 

@@ -624,9 +624,10 @@ export const sv: Catalog = {
 	"badges.share.photoUnreadable":
 		"Din webbläsare kan inte öppna det här fotot. Välj ett annat.",
 	"badges.share.hintTouch":
-		"Flytta märket med ett finger, nyp med två för att ändra storleken.",
+		"Flytta märket med ett finger, vrid eller nyp med två för att vrida det eller ändra storleken.",
 	"badges.share.hintMouse":
-		"Flytta märket med musen, scrolla för att ändra storleken.",
+		"Flytta märket med musen, dra i pricken i hörnet för att vrida det eller ändra storleken.",
+	"badges.share.turn": "Vrid märket eller ändra storleken",
 	"badges.share.recording": "Renderas …",
 	"badges.share.send": "Dela …",
 	"badges.share.save": "Spara",

@@ -636,8 +636,10 @@ export const lt: Catalog = {
 	"badges.share.photoUnreadable":
 		"Tavo naršyklė negali atidaryti šios nuotraukos. Pasirink kitą.",
 	"badges.share.hintTouch":
-		"Ženklelį stumk vienu pirštu, o dviem pirštais keisk dydį.",
-	"badges.share.hintMouse": "Ženklelį tempk pele, o pelės ratuku keisk dydį.",
+		"Ženklelį stumk vienu pirštu, o dviem pirštais jį pasuk arba keisk dydį.",
+	"badges.share.hintMouse":
+		"Ženklelį tempk pele, o tempdamas tašką kampe jį pasuk arba keisk dydį.",
+	"badges.share.turn": "Pasukti ženklelį arba keisti jo dydį",
 	"badges.share.recording": "Kuriama …",
 	"badges.share.send": "Dalintis …",
 	"badges.share.save": "Išsaugoti",

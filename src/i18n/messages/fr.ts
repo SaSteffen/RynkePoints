@@ -656,9 +656,10 @@ export const fr: Catalog = {
 	"badges.share.photoUnreadable":
 		"Ton navigateur ne peut pas ouvrir cette photo. Choisis-en une autre.",
 	"badges.share.hintTouch":
-		"Déplace le badge avec un doigt, pince avec deux pour changer sa taille.",
+		"Déplace le badge avec un doigt, tourne-le ou change sa taille avec deux.",
 	"badges.share.hintMouse":
-		"Déplace le badge avec la souris, fais défiler pour changer sa taille.",
+		"Déplace le badge avec la souris, tire le point dans son coin pour le tourner ou changer sa taille.",
+	"badges.share.turn": "Tourner le badge ou changer sa taille",
 	"badges.share.recording": "Rendu en cours…",
 	"badges.share.send": "Partager…",
 	"badges.share.save": "Enregistrer",

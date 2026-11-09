@@ -632,9 +632,10 @@ export const en: Catalog = {
 	"badges.share.photoUnreadable":
 		"Your browser can't open this photo. Choose another one.",
 	"badges.share.hintTouch":
-		"Drag the badge with one finger, pinch with two to resize it.",
+		"Drag the badge with one finger, turn or pinch it with two to rotate or resize it.",
 	"badges.share.hintMouse":
-		"Drag the badge with the mouse, scroll to resize it.",
+		"Drag the badge with the mouse, drag the dot in its corner to rotate or resize it.",
+	"badges.share.turn": "Rotate or resize the badge",
 	"badges.share.recording": "Rendering …",
 	"badges.share.send": "Share …",
 	"badges.share.save": "Save",

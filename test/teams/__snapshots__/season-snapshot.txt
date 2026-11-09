@@ -650,8 +650,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -1346,8 +1346,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -2239,8 +2239,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -3205,8 +3205,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -3924,8 +3924,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -4755,8 +4755,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -5417,8 +5417,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -6360,8 +6360,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -7136,8 +7136,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -7739,8 +7739,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -8726,8 +8726,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -9364,8 +9364,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -10253,8 +10253,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -11157,8 +11157,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -11787,8 +11787,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -12645,8 +12645,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -13494,8 +13494,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -14530,8 +14530,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -15393,8 +15393,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -16270,8 +16270,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -17147,8 +17147,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -18196,8 +18196,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -19059,8 +19059,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -19943,8 +19943,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -20827,8 +20827,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -21863,8 +21863,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -22726,8 +22726,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -23596,8 +23596,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -24466,8 +24466,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -25488,8 +25488,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -26344,8 +26344,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -27214,8 +27214,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -28084,8 +28084,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -29147,8 +29147,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …
@@ -30009,8 +30009,8 @@ Foto wählen
 Dein Foto bleibt auf deinem Gerät.
 Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.
 Wird gerendert …
-Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen.
-Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen.
+Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.
+Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.
 Glitzernd
 Ohne Hintergrund Anderes Foto
 Teilen …

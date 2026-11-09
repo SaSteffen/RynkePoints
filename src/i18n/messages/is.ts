@@ -627,9 +627,10 @@ export const is: Catalog = {
 	"badges.share.photoUnreadable":
 		"Vafrinn þinn getur ekki opnað þessa mynd. Veldu aðra.",
 	"badges.share.hintTouch":
-		"Færðu merkið með einum fingri, klíptu með tveimur til að breyta stærðinni.",
+		"Færðu merkið með einum fingri, snúðu því eða breyttu stærðinni með tveimur.",
 	"badges.share.hintMouse":
-		"Færðu merkið með músinni, skrunaðu til að breyta stærðinni.",
+		"Færðu merkið með músinni, dragðu punktinn í horninu til að snúa því eða breyta stærðinni.",
+	"badges.share.turn": "Snúa merkinu eða breyta stærðinni",
 	"badges.share.recording": "Í vinnslu …",
 	"badges.share.send": "Deila …",
 	"badges.share.save": "Vista",

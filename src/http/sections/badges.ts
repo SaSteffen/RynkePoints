@@ -69,7 +69,7 @@ import {
 } from "../../rynke/rules";
 import { artUrl } from "../art";
 import { html, SafeHtml } from "../html";
-import { CLOSE, SHARE } from "../icons";
+import { CLOSE, SHARE, TURN } from "../icons";
 import { renderWaiting } from "../rider-sections";
 import { shellPage } from "../shell";
 
@@ -421,6 +421,7 @@ function shareSheet(i18n: I18n, app: ShareApp): SafeHtml {
 <fieldset class="segmented-group share-formats"><legend class="visually-hidden">${i18n.t("badges.share.formatLegend")}</legend>${format("story", true)}${format("image")}${format("photo")}</fieldset>
 <div class="share-preview" data-format="story"><canvas></canvas><video muted playsinline loop hidden></video>
 <div class="share-photo-empty" hidden><button type="button" class="button share-pick">${i18n.t("badges.share.pickPhoto")}</button><p>${i18n.t("badges.share.photoPrivate")}</p><p class="share-photo-unreadable" role="status" hidden>${i18n.t("badges.share.photoUnreadable")}</p></div>
+<div class="share-frame" hidden></div><button type="button" class="share-turn" aria-label="${i18n.t("badges.share.turn")}" hidden>${TURN}</button>
 <span class="share-busy" role="status" hidden>${i18n.t("badges.share.recording")}</span></div>
 <p class="share-hint share-hint-touch" hidden>${i18n.t("badges.share.hintTouch")}</p>
 <p class="share-hint share-hint-mouse" hidden>${i18n.t("badges.share.hintMouse")}</p>

@@ -626,9 +626,10 @@ export const fi: Catalog = {
 	"badges.share.photoUnreadable":
 		"Selaimesi ei voi avata tätä kuvaa. Valitse toinen.",
 	"badges.share.hintTouch":
-		"Siirrä merkkiä yhdellä sormella, muuta kokoa nipistämällä kahdella.",
+		"Siirrä merkkiä yhdellä sormella, käännä sitä tai muuta kokoa kahdella sormella.",
 	"badges.share.hintMouse":
-		"Siirrä merkkiä hiirellä, muuta kokoa vierittämällä.",
+		"Siirrä merkkiä hiirellä, käännä sitä tai muuta kokoa vetämällä kulman pisteestä.",
+	"badges.share.turn": "Käännä merkkiä tai muuta sen kokoa",
 	"badges.share.recording": "Renderöidään …",
 	"badges.share.send": "Jaa …",
 	"badges.share.save": "Tallenna",

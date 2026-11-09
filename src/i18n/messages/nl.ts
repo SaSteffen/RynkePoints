@@ -636,9 +636,10 @@ export const nl: Catalog = {
 	"badges.share.photoUnreadable":
 		"Je browser kan deze foto niet openen. Kies een andere.",
 	"badges.share.hintTouch":
-		"Versleep de badge met één vinger, knijp met twee om het formaat te wijzigen.",
+		"Versleep de badge met één vinger, draai of knijp met twee om hem te draaien of het formaat te wijzigen.",
 	"badges.share.hintMouse":
-		"Versleep de badge met de muis, scroll om het formaat te wijzigen.",
+		"Versleep de badge met de muis, sleep het puntje in de hoek om hem te draaien of het formaat te wijzigen.",
+	"badges.share.turn": "De badge draaien of het formaat wijzigen",
 	"badges.share.recording": "Wordt gerenderd …",
 	"badges.share.send": "Delen …",
 	"badges.share.save": "Opslaan",

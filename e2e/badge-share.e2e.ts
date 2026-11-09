@@ -472,6 +472,66 @@ test.describe("on a photo", () => {
 		expect(requests).toEqual([]);
 	});
 
+	test("turns and sizes the badge by the handle in its corner and by keys", async ({
+		page,
+	}) => {
+		await openBadges(page);
+		await page.locator(".badge-card .badge-share-mini").first().click();
+		const sheet = sheetOf(page);
+		await ready(sheet);
+		await sheet
+			.locator("label")
+			.filter({ hasText: /Auf Foto/ })
+			.click();
+		await sheet
+			.locator(".share-file")
+			.setInputFiles(await syntheticPhoto(page, 1600, 1200));
+		await ready(sheet);
+
+		const frame = sheet.locator(".share-frame");
+		const handle = sheet.locator(".share-turn");
+		await expect(handle).toBeVisible();
+		await expect(handle).toHaveAccessibleName(
+			"Abzeichen drehen oder Größe ändern",
+		);
+		const turnOf = () =>
+			frame.evaluate((el: { style: { transform: string } }) =>
+				Number.parseFloat(el.style.transform.replace("rotate(", "")),
+			);
+		const start = await badgeOnPhoto(sheet);
+
+		// A quarter turn round the badge's centre, at the same distance.
+		const box = await sheet.locator(".share-preview canvas").boundingBox();
+		const corner = await handle.boundingBox();
+		if (!box || !corner) throw new Error("no preview");
+		const cx = box.x + 0.78 * box.width;
+		const cy = box.y + 0.78 * box.height;
+		const hx = corner.x + corner.width / 2;
+		const hy = corner.y + corner.height / 2;
+		await page.mouse.move(hx, hy);
+		await page.mouse.down();
+		await page.mouse.move(cx - (hy - cy), cy + (hx - cx), { steps: 8 });
+		await page.mouse.up();
+		await ready(sheet);
+		expect(await turnOf()).toBeCloseTo(Math.PI / 2, 1);
+		// The same badge in the same place, only turned.
+		const turned = await badgeOnPhoto(sheet);
+		expect(turned.count / start.count).toBeGreaterThan(0.85);
+		expect(turned.count / start.count).toBeLessThan(1.15);
+		expect(Math.abs(turned.x - start.x)).toBeLessThan(0.04);
+		expect(Math.abs(turned.y - start.y)).toBeLessThan(0.04);
+
+		// Up makes it bigger; Shift+Left turns it back by 15°.
+		await handle.focus();
+		for (let i = 0; i < 6; i++) await page.keyboard.press("ArrowUp");
+		await page.keyboard.press("Shift+ArrowLeft");
+		await ready(sheet);
+		expect((await badgeOnPhoto(sheet)).count).toBeGreaterThan(
+			turned.count * 1.3,
+		);
+		expect(await turnOf()).toBeCloseTo(Math.PI / 2 - Math.PI / 12, 1);
+	});
+
 	test("scales a large photo down and refuses one it can't read", async ({
 		page,
 	}) => {
