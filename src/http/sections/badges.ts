@@ -69,7 +69,7 @@ import {
 } from "../../rynke/rules";
 import { artUrl } from "../art";
 import { html, SafeHtml } from "../html";
-import { CLOSE } from "../icons";
+import { CLOSE, SHARE } from "../icons";
 import { renderWaiting } from "../rider-sections";
 import { shellPage } from "../shell";
 
@@ -380,6 +380,46 @@ function popover(i18n: I18n, names: BadgeNames, earned: EarnedBadge): SafeHtml {
 `;
 }
 
+/** The team's app mark on the shared pictures (feature 033 research R3). */
+export interface ShareApp {
+	/** The app's name, as installed (`TeamData.shortName`). */
+	name: string;
+	/** A square picture of the app's icon. */
+	icon: string;
+}
+
+/**
+ * The share sheet, once per page (feature 033 contracts/pages.md).
+ * `public/app.js` fills it for the badge it was opened for and draws the
+ * pictures in the browser: the rider's photo never leaves the device, and
+ * nothing in it names the rider or is ever submitted.
+ */
+function shareSheet(i18n: I18n, app: ShareApp): SafeHtml {
+	const format = (value: "story" | "image" | "photo", checked = false) =>
+		html`<label><input type="radio" name="share-format" value="${value}" autocomplete="off"${checked ? html` checked` : null}>${i18n.t(`badges.share.format.${value}`)}</label>`;
+	const option = (kind: "shiny" | "plain") =>
+		html`<span class="share-option share-${kind}" hidden><button type="button" role="switch" aria-checked="false" aria-labelledby="share-${kind}-label"></button><span id="share-${kind}-label">${i18n.t(`badges.share.${kind}`)}</span></span>`;
+	return html`<dialog class="share-sheet" aria-labelledby="share-sheet-title" data-app="${app.name}" data-icon="${app.icon}" data-saved="${i18n.t("badges.share.saved")}" data-copied="${i18n.t("badges.share.copied")}" data-failed="${i18n.t("badges.share.failed")}">
+<div class="share-sheet-head"><h2 id="share-sheet-title">${i18n.t("badges.share.title")}</h2>
+<button type="button" class="icon-button share-sheet-close" aria-label="${i18n.t("badges.close")}">${CLOSE}</button></div>
+<fieldset class="segmented-group share-formats"><legend class="visually-hidden">${i18n.t("badges.share.formatLegend")}</legend>${format("story", true)}${format("image")}${format("photo")}</fieldset>
+<div class="share-preview" data-format="story"><canvas></canvas><video muted playsinline loop hidden></video>
+<div class="share-photo-empty" hidden><button type="button" class="button share-pick">${i18n.t("badges.share.pickPhoto")}</button><p>${i18n.t("badges.share.photoPrivate")}</p><p class="share-photo-unreadable" hidden>${i18n.t("badges.share.photoUnreadable")}</p></div>
+<span class="share-busy" role="status" hidden>${i18n.t("badges.share.recording")}</span></div>
+<p class="share-hint share-hint-touch" hidden>${i18n.t("badges.share.hintTouch")}</p>
+<p class="share-hint share-hint-mouse" hidden>${i18n.t("badges.share.hintMouse")}</p>
+<div class="share-options">${option("shiny")}${option("plain")}<button type="button" class="button-text share-repick" hidden>${i18n.t("badges.share.otherPhoto")}</button></div>
+<input type="file" accept="image/*" class="share-file" hidden>
+<div class="share-actions">
+<button type="button" class="button share-send" hidden>${SHARE}${i18n.t("badges.share.send")}</button>
+<button type="button" class="button-outlined share-save">${i18n.t("badges.share.save")}</button>
+<button type="button" class="button-outlined share-copy" hidden>${i18n.t("badges.share.copy")}</button>
+</div>
+<p class="share-status" role="status"></p>
+</dialog>
+`;
+}
+
 /** At most this many pictures in the reveal; the text has the count. */
 const REVEAL_PICTURES = 5;
 
@@ -427,6 +467,7 @@ export function renderBadges(
 	i18n: I18n,
 	names: BadgeNames,
 	section: BadgeSection,
+	app: ShareApp,
 	freshSince?: string,
 ): SafeHtml {
 	const isFresh: IsFresh = (earned) =>
@@ -437,7 +478,7 @@ export function renderBadges(
 	return html`<section class="badges" aria-labelledby="badges-heading">
 <h2 id="badges-heading" class="visually-hidden">${i18n.t("badges.heading")}</h2>
 ${section.personal && section.team ? renderSwitch(i18n) : null}${new SafeHtml(BADGE_SHAPE_DEFS)}
-${group(i18n, names, "personal", section.personal, section.notYet, isFresh)}${group(i18n, names, "team", section.team, section.notYet, isFresh)}${earned.map((b) => popover(i18n, names, b))}</section>`;
+${group(i18n, names, "personal", section.personal, section.notYet, isFresh)}${group(i18n, names, "team", section.team, section.notYet, isFresh)}${earned.map((b) => popover(i18n, names, b))}${shareSheet(i18n, app)}</section>`;
 }
 
 /** What the badges page reads (issue #185). */
@@ -610,8 +651,12 @@ export function handleBadges(
 				window,
 			);
 			const names = badgeNames(ctx, i18n);
+			const app = {
+				name: ctx.team.shortName,
+				icon: ctx.team.art.icons.icon192,
+			};
 			return section
-				? html`${renderBadgeReveal(i18n, names, section.reveal)}${renderBadges(i18n, names, section, berlinDate(ctx.now() - DAY_SECONDS))}`
+				? html`${renderBadgeReveal(i18n, names, section.reveal)}${renderBadges(i18n, names, section, app, berlinDate(ctx.now() - DAY_SECONDS))}`
 				: html``;
 		},
 	);

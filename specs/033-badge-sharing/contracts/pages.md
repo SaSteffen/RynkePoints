@@ -36,8 +36,9 @@ Hidden while the large view is a hover preview, and shown once it's pinned.
 
 Once per badges page, after the large views: `dialog.share-sheet` holds the following.
 
-- Data attributes for the texts the script sets: `data-saved`, `data-copied`, `data-failed` and
-  `data-app` (the team's app name).
+- Data attributes for the texts the script sets: `data-saved`, `data-copied`, `data-failed`,
+  `data-app` (the team's app name, `TeamData.shortName`) and `data-icon` (the team's 192 px app
+  icon), so the app mark comes from the team's data (research R3).
 - A heading `#share-sheet-title` with a close button.
 - `fieldset.share-formats`, a segmented group with radio buttons `story` (checked), `image` and
   `photo`, and a visually hidden legend.

@@ -748,3 +748,123 @@ describe("a tour badge's ribbon (feature 021)", () => {
 		expect(milestone(createI18n("en", CATALOGS), badge)).toBe("Day\u00a03");
 	});
 });
+
+describe("sharing a badge (033)", () => {
+	beforeEach(async () => {
+		await seedBalance(ATHLETE_A);
+		await seedRides(ATHLETE_A, 13, "2026-05-10");
+		await earn(ATHLETE_A, EARNED);
+	});
+
+	const sheetsOf = (badges: string | null) => [
+		...(badges ?? "").matchAll(
+			/<dialog class="share-sheet"[\s\S]*?<\/dialog>/g,
+		),
+	];
+
+	it("has one share sheet with the formats, switches, file input and actions (contracts/pages.md)", async () => {
+		const { section: badges } = await section();
+		const sheets = sheetsOf(badges);
+		expect(sheets).toHaveLength(1);
+		const sheet = sheets[0]?.[0] ?? "";
+		expect(sheet).toContain('aria-labelledby="share-sheet-title"');
+		expect(sheet).toContain(
+			`<h2 id="share-sheet-title">${de["badges.share.title"]}</h2>`,
+		);
+		expect(sheet).toMatch(
+			new RegExp(
+				`<button type="button" class="icon-button share-sheet-close" aria-label="${de["badges.close"]}">`,
+			),
+		);
+		expect(sheet).toContain(
+			`<legend class="visually-hidden">${de["badges.share.formatLegend"]}</legend>`,
+		);
+		expect(sheet).toContain(
+			`<label><input type="radio" name="share-format" value="story" autocomplete="off" checked>${de["badges.share.format.story"]}</label>`,
+		);
+		expect(sheet).toContain(
+			`<label><input type="radio" name="share-format" value="image" autocomplete="off">${de["badges.share.format.image"]}</label>`,
+		);
+		expect(sheet).toContain(
+			`<label><input type="radio" name="share-format" value="photo" autocomplete="off">${de["badges.share.format.photo"]}</label>`,
+		);
+		// "Glitzernd" and "Ohne Hintergrund", off and hidden until the script
+		// knows they apply.
+		expect([
+			...sheet.matchAll(/role="switch" aria-checked="false"/g),
+		]).toHaveLength(2);
+		expect(sheet).toContain(
+			`<span id="share-shiny-label">${de["badges.share.shiny"]}</span>`,
+		);
+		expect(sheet).toContain(
+			`<span id="share-plain-label">${de["badges.share.plain"]}</span>`,
+		);
+		expect(sheet).toContain('<span class="share-option share-shiny" hidden>');
+		expect(sheet).toContain('<span class="share-option share-plain" hidden>');
+		expect(sheet).toContain(
+			'<input type="file" accept="image/*" class="share-file" hidden>',
+		);
+		expect(sheet).toContain(escapeHtml(de["badges.share.photoPrivate"]));
+		expect(sheet).toContain(
+			`<p class="share-photo-unreadable" hidden>${escapeHtml(de["badges.share.photoUnreadable"])}</p>`,
+		);
+		expect(sheet).toContain(
+			`<span class="share-busy" role="status" hidden>${de["badges.share.recording"]}</span>`,
+		);
+		expect(sheet).toMatch(
+			new RegExp(
+				`<button type="button" class="button share-send" hidden>.*${de["badges.share.send"]}</button>`,
+			),
+		);
+		expect(sheet).toContain(
+			`<button type="button" class="button-outlined share-save">${de["badges.share.save"]}</button>`,
+		);
+		expect(sheet).toContain(
+			`<button type="button" class="button-outlined share-copy" hidden>${de["badges.share.copy"]}</button>`,
+		);
+		expect(sheet).toContain('<p class="share-status" role="status"></p>');
+		// Nothing in it is ever submitted (contracts/pages.md).
+		expect(sheet).not.toContain("<form");
+	});
+
+	it("carries the team's app mark and the texts the script shows", async () => {
+		const { section: badges } = await section();
+		const sheet = sheetsOf(badges)[0]?.[0] ?? "";
+		expect(sheet).toContain(`data-app="${escapeHtml(ctx.team.shortName)}"`);
+		expect(sheet).toContain(`data-icon="${ctx.team.art.icons.icon192}"`);
+		expect(sheet).toContain(
+			`data-saved="${escapeHtml(de["badges.share.saved"])}"`,
+		);
+		expect(sheet).toContain(
+			`data-copied="${escapeHtml(de["badges.share.copied"])}"`,
+		);
+		expect(sheet).toContain(
+			`data-failed="${escapeHtml(de["badges.share.failed"])}"`,
+		);
+	});
+
+	it("comes in the rider's language", async () => {
+		const { section: badges } = await section(ATHLETE_A, "en");
+		const sheet = sheetsOf(badges)[0]?.[0] ?? "";
+		expect(sheet).toContain(
+			`<h2 id="share-sheet-title">${CATALOGS.en["badges.share.title"]}</h2>`,
+		);
+		expect(sheet).toContain(
+			`data-failed="${escapeHtml(CATALOGS.en["badges.share.failed"])}"`,
+		);
+	});
+
+	it("never names the rider (FR-018)", async () => {
+		const { section: badges } = await section();
+		const sheet = sheetsOf(badges)[0]?.[0] ?? "";
+		expect(sheet).not.toContain("Testrider");
+	});
+
+	it("is there once without badges too (contracts/pages.md)", async () => {
+		await resetDb();
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		await seedBalance(ATHLETE_A);
+		const { section: badges } = await section();
+		expect(sheetsOf(badges)).toHaveLength(1);
+	});
+});

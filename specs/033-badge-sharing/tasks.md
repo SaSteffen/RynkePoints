@@ -47,18 +47,18 @@ order and placement apply (`drafts/`); where it differs from this plan, follow t
 **Purpose**: the texts, the icon and the share sheet markup that every story uses.
 
 - [x] T003 Add the 23 `badges.share.*` keys from contracts/messages.md to `src/i18n/messages/de.ts` and `en.ts` with the given wording, and proper translations to `da.ts`, `fi.ts`, `fr.ts`, `is.ts`, `lt.ts`, `nb.ts`, `nl.ts` and `sv.ts` (Europe is a distributed team: write the English fresh, don't phrase it around group rides); check `pnpm test -- catalogs messages` is green
-- [ ] T004 [P] Add `SHARE` to `src/http/icons.ts`, as in the mock-up: Apple's box with an arrow (`class="share-icon-apple"`) and the three linked dots (`class="share-icon-dots"`), both `aria-hidden="true"`, in one `SafeHtml`
-- [ ] T005 Write failing tests in `test/integration/badges-section.test.ts`, in a new `describe("sharing a badge (033)")`:
+- [x] T004 [P] Add `SHARE` to `src/http/icons.ts`, as in the mock-up: Apple's box with an arrow (`class="share-icon-apple"`) and the three linked dots (`class="share-icon-dots"`), both `aria-hidden="true"`, in one `SafeHtml`
+- [x] T005 Write failing tests in `test/integration/badges-section.test.ts`, in a new `describe("sharing a badge (033)")`:
   - the page has exactly one `dialog.share-sheet`, with the format radios `story` (checked), `image` and `photo`, the two `role="switch"` buttons, the file input and the three actions (contracts/pages.md);
   - its `data-app` is the team's app name, and `data-saved`, `data-copied` and `data-failed` hold the catalog texts;
   - nothing in it contains the sample rider's name
-- [ ] T006 Add `shareSheet(i18n)` to `src/http/sections/badges.ts` and render it once after the large views. Follow contracts/pages.md and the mock-up, plus what the mock-up lacks:
+- [x] T006 Add `shareSheet(i18n)` to `src/http/sections/badges.ts` and render it once after the large views. Follow contracts/pages.md and the mock-up, plus what the mock-up lacks:
   - `data-failed`;
   - the hidden `.share-photo-unreadable` line;
   - a `role="status"` busy label and status line.
 
   Make T005 green.
-- [ ] T007 [P] Style the sheet in `src/http/style.ts` from the mock-up: a bottom sheet below 600 px and a centred dialog above, the app's dialog surface and theme, the preview area, the switches, and the actions in a row. The sheet follows dark mode; the picture inside doesn't
+- [x] T007 [P] Style the sheet in `src/http/style.ts` from the mock-up: a bottom sheet below 600 px and a centred dialog above, the app's dialog surface and theme, the preview area, the switches, and the actions in a row. The sheet follows dark mode; the picture inside doesn't
 
 **Checkpoint**: the badges page renders the hidden sheet; `pnpm test -- badges-section` is green.
 
