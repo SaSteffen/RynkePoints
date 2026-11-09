@@ -76,8 +76,9 @@ curl -s -X POST https://www.strava.com/api/v3/push_subscriptions \
   -F callback_url="https://gateway.trhh-rynke-coins.link/strava/webhook/<gateway token>" \
   -F verify_token="<gateway token>"
 
-# At once: Hamburg accepts the new ID (prompts for it).
-pnpm exec wrangler secret put STRAVA_SUBSCRIPTION_ID_OVERRIDE
+# At once: Hamburg accepts the new ID (prompts for it). Every live team, each with
+# its own --env.
+pnpm exec wrangler secret put STRAVA_SUBSCRIPTION_ID_OVERRIDE --env hamburg
 ```
 
 Then:
@@ -94,7 +95,8 @@ Then:
    daily run, whose Strava calls then fail.
 2. Put the new ID in `STRAVA_SUBSCRIPTION_ID` for every team in `wrangler.jsonc`, and merge
    that through a pull request; there's no hurry. Once it is live, remove the secret:
-   `pnpm exec wrangler secret delete STRAVA_SUBSCRIPTION_ID_OVERRIDE`. Both hold the same
+   `pnpm exec wrangler secret delete STRAVA_SUBSCRIPTION_ID_OVERRIDE --env hamburg` (and each
+   other live team's). Both hold the same
    ID meanwhile, so nothing is dropped.
 
 ## 4. Watch

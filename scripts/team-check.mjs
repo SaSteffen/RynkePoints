@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 // Checks every registered team's data (feature 026 contracts/team-data.md,
 // FR-021, FR-053): both halves, the typed module in src/teams/<id>.ts and the
-// team's block of wrangler.jsonc (the top level for the founding team,
-// `env.<id>` for every other). Prints one line per problem and exits 1 if
-// there is any. `pnpm lint` runs it.
+// team's block of wrangler.jsonc, `env.<id>`. Prints one line per problem and
+// exits 1 if there is any. `pnpm lint` runs it.
 //
 //   node scripts/team-check.mjs                    # every team
 //   node scripts/team-check.mjs --deployable <id>  # also: no placeholders left
@@ -62,6 +61,9 @@ const FIELDS = [
  */
 const RESERVED_PORTS = [8791, 9232, 8792, 9233, 8797, 9237, 8798, 9238];
 
+/** What only a team's Wrangler block may hold, never the top level. */
+const TEAM_KEYS = ["vars", "secrets", "d1_databases", "queues", "triggers"];
+
 /**
  * Every problem with `teams` against `wrangler`, one line each. `publicFile`
  * says whether `/x/y.svg` exists under public/, `locales` are the shipped ones.
@@ -71,14 +73,39 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 	const say = (team, field, what) =>
 		problems.push(`team ${team?.id ?? "?"}: ${field}: ${what}`);
 	const founding = teams[0];
-	// Every var some team's block sets, so a var missing from the founding
-	// team's top-level block is caught too.
+	const blocks = Object.values(wrangler.env ?? {});
+	// Every var and secret some team's block sets, so one missing from any
+	// block is caught.
 	const reference = Object.assign(
 		{},
-		...Object.values(wrangler.env ?? {}).map((block) => block.vars ?? {}),
-		wrangler.vars ?? {},
+		...blocks.map((block) => block.vars ?? {}),
 	);
-	const secrets = wrangler.secrets?.required ?? [];
+	const secrets = [
+		...new Set(blocks.flatMap((block) => block.secrets?.required ?? [])),
+	];
+
+	// The top level holds no team: a command without `--env` must not reach a
+	// team's Worker, database, queue or domain. Wrangler would inherit `main`,
+	// `name` and `routes` into a block that doesn't set them, so every block
+	// sets them itself.
+	for (const key of [...TEAM_KEYS, "routes", "route"]) {
+		if (wrangler[key] !== undefined) {
+			problems.push(
+				`wrangler.jsonc: top level: ${key} belongs in a team's block`,
+			);
+		}
+	}
+	const workers = blocks.map((block) => block.name);
+	if (workers.includes(wrangler.name)) {
+		problems.push(
+			`wrangler.jsonc: top level: name "${wrangler.name}" is a team's Worker`,
+		);
+	}
+	if (blocks.some((block) => block.main === wrangler.main)) {
+		problems.push(
+			`wrangler.jsonc: top level: main "${wrangler.main}" is a team's, so a deploy without --env would work`,
+		);
+	}
 
 	const seenIds = new Set();
 	const seenPorts = new Map();
@@ -157,8 +184,8 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 			}
 		}
 
-		const block = team === founding ? wrangler : wrangler.env?.[team.id];
-		const where = team === founding ? "wrangler.jsonc" : `env.${team.id}`;
+		const block = wrangler.env?.[team.id];
+		const where = `env.${team.id}`;
 		if (!block) {
 			say(team, where, "no Wrangler block");
 			continue;
@@ -203,16 +230,8 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 		) {
 			say(team, "cloudflare.queueIds", "not a list of IDs");
 		}
-		for (const binding of ["d1_databases", "queues", "triggers"]) {
-			if (block[binding] === undefined)
-				say(team, `${where} ${binding}`, "missing");
-		}
-		if (team !== founding && block.routes === undefined) {
-			say(
-				team,
-				`${where} routes`,
-				"missing (it would inherit the founding team's)",
-			);
+		for (const key of [...TEAM_KEYS, "name", "main", "routes"]) {
+			if (block[key] === undefined) say(team, `${where} ${key}`, "missing");
 		}
 	}
 

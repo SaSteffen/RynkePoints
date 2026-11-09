@@ -68,9 +68,8 @@ function fakeVerifyToken() {
 }
 
 /**
- * What to start for each team (data-model.md DevTarget). The founding team,
- * first in the registry, is wrangler.jsonc's top level; every other team is its
- * `env.<id>` block.
+ * What to start for each team (data-model.md DevTarget): its wrangler.jsonc
+ * block `env.<id>`.
  */
 export function devTargets(teams, ids = []) {
 	const unknown = ids.filter((id) => !teams.some((team) => team.id === id));
@@ -83,12 +82,12 @@ export function devTargets(teams, ids = []) {
 		.map((team) => ({
 			id: team.id,
 			...team.dev,
-			env: team === teams[0] ? null : team.id,
+			env: team.id,
 			stateDir: `.wrangler/fake-state-${team.id}`,
 		}));
 }
 
-const envArgs = (target) => (target.env ? ["--env", target.env] : []);
+const envArgs = (target) => ["--env", target.env];
 
 export function migrateArgs(target) {
 	return [

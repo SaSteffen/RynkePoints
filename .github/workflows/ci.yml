@@ -217,8 +217,8 @@ jobs:
           set -euo pipefail
 
           # One entry per team: its environment, address, database and Wrangler
-          # environment ("" for the founding team's top level).
-          teams='[{"team":"hamburg","environment":"production","url":"https://trhh-rynke-coins.link","database":"rynke-points","wrangler_env":""}]'
+          # environment (`--env`; the top level holds no team).
+          teams='[{"team":"hamburg","environment":"production","url":"https://trhh-rynke-coins.link","database":"rynke-points","wrangler_env":"hamburg"}]'
           if [ "${EUROPE_DEPLOY:-}" = on ]; then
             teams=$(jq -c '. + [{"team":"europe","environment":"production-europe","url":"https://europe.trhh-rynke-coins.link","database":"DB","wrangler_env":"europe"}]' <<< "$teams")
           fi
@@ -317,12 +317,12 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm exec wrangler d1 migrations apply "$DATABASE" --remote ${WRANGLER_ENV:+--env "$WRANGLER_ENV"}
+        run: pnpm exec wrangler d1 migrations apply "$DATABASE" --remote --env "$WRANGLER_ENV"
       - name: Deploy Worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm exec wrangler deploy ${WRANGLER_ENV:+--env "$WRANGLER_ENV"} --message "$GITHUB_SHA (run $GITHUB_RUN_ID)"
+        run: pnpm exec wrangler deploy --env "$WRANGLER_ENV" --message "$GITHUB_SHA (run $GITHUB_RUN_ID)"
 
   # The Strava gateway (feature 026 release 3, gateway/). Off until the maintainer
   # sets the repository variable GATEWAY_DEPLOY to "on" (docs/gateway-switch.md),

@@ -24,6 +24,7 @@ import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "@playwright/test";
 import { PDFDict, PDFDocument, PDFName, PDFRawStream } from "pdf-lib";
+import { parseJsonc } from "./team-check.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const OUT_ROOT = join(ROOT, "season-albums");
@@ -60,9 +61,12 @@ const berlinToday = new Intl.DateTimeFormat("en-CA", {
 }).format(new Date());
 const cutoff = options.cutoff ?? berlinToday;
 
-const config = readFileSync(join(ROOT, "wrangler.jsonc"), "utf8");
-const setting = (name) =>
-	config.match(new RegExp(`"${name}": "([^"]+)"`))?.[1] ?? null;
+// The founding team's block, the first in wrangler.jsonc: album/wrangler.jsonc
+// reads its database.
+const [vars] = Object.values(
+	parseJsonc(readFileSync(join(ROOT, "wrangler.jsonc"), "utf8")).env,
+).map((block) => block.vars);
+const setting = (name) => vars[name] || null;
 const seasonStart = setting("SEASON_START_DATE");
 const deadline = setting("QUALIFICATION_DEADLINE");
 if (!seasonStart || !deadline) {
