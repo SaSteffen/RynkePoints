@@ -121,6 +121,22 @@ describe("forwarding", () => {
 		expect(result.explicitAcks.sort()).toEqual(["m0", "m1"]);
 	});
 
+	it("sends a base64 token unchanged, as the team compares it", async () => {
+		// Hamburg's handler: the raw path after the prefix must equal its token.
+		const token = "a+b/c9Zx0Q==";
+		const calls = teams({ [HAMBURG]: 200 });
+		await run(batch(["hamburg"]), {
+			...gatewayEnv,
+			TEAM_SERVICE_HAMBURG: undefined,
+			TEAM_WEBHOOK_TOKEN_HAMBURG: token,
+		});
+		expect(
+			calls.map((c) =>
+				new URL(c.url).pathname.slice("/strava/webhook/".length),
+			),
+		).toEqual([token]);
+	});
+
 	it("retries a 5xx or a network error with a growing delay", async () => {
 		teams({ [HAMBURG]: 503, [EUROPE]: "down" });
 		const result = await run(batch(["hamburg", "europe"], 3));

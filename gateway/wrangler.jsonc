@@ -35,9 +35,9 @@
 			}
 		]
 	},
-	// A team on this zone (trhh-rynke-coins.link) is reached through its Worker
-	// directly: a fetch() to the zone's own hostnames never reaches a Worker
-	// there and answers 404. TEAM_SERVICE_<ID>, the team's Worker name.
+	// A team on this Cloudflare account is reached through its Worker directly,
+	// without a round trip through its public domain. TEAM_SERVICE_<ID>, the
+	// team's Worker name.
 	"services": [
 		{
 			"binding": "TEAM_SERVICE_HAMBURG",
