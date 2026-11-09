@@ -126,15 +126,16 @@ export function stravaFigures(usage: StravaUsage, now: number): Figure[] {
 	];
 }
 
-/** The team's connected riders against Strava's capacity; live, so `now`. */
-export function connectedFigure(connected: number, now: number): Figure {
-	return makeFigure(
-		"riders_connected",
-		connected,
-		ATHLETE_CAPACITY,
-		connected,
-		now,
-	);
+/**
+ * Connected riders against Strava's capacity; live, so `now`. With other teams
+ * (feature 026 FR-039) `connected` is all teams' and `own` this team's.
+ */
+export function connectedFigure(
+	connected: number,
+	now: number,
+	own = connected,
+): Figure {
+	return makeFigure("riders_connected", connected, ATHLETE_CAPACITY, own, now);
 }
 
 const WINDOW_SECONDS = 15 * 60;

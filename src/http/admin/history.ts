@@ -15,6 +15,16 @@ import { amount, whole } from "./access";
 // values for `public/app.js` to word on hovering, and only the table asked for
 // (`?days=<id>`) is built, a link away and with no script needed.
 
+/**
+ * The other teams' columns in the day table (feature 026 FR-039): this team's
+ * count, then each other team's, for Strava's figures and connected riders.
+ */
+export interface HistoryTeams {
+	own: string;
+	peers: readonly { id: string; name: string }[];
+	count: (team: string, id: RecordedAllowance, day: string) => number | null;
+}
+
 /** Every UTC day from `first` to `last`, oldest first. */
 function daysBetween(first: string, last: string): string[] {
 	const days: string[] = [];
@@ -37,14 +47,22 @@ function row(
 	day: string,
 	record: UsageRecord | undefined,
 	strava: boolean,
+	peers: readonly { id: string }[],
+	teams: HistoryTeams | null,
 ): SafeHtml {
 	const cell = (value: number | null) =>
 		html`<td>${value === null ? "" : whole(i18n, value)}</td>`;
+	const split = peers.length > 0;
 	if (!record) {
-		return html`<tr class="usage-gap"><th scope="row">${dayLabel(i18n, day)}</th><td colspan="${strava ? 5 : 3}">${i18n.t("admin.history.gap")}</td></tr>
+		const columns =
+			3 + (strava ? 2 : 0) + (split && !strava ? 1 : 0) + peers.length;
+		return html`<tr class="usage-gap"><th scope="row">${dayLabel(i18n, day)}</th><td colspan="${columns}">${i18n.t("admin.history.gap")}</td></tr>
 `;
 	}
-	return html`<tr><th scope="row">${dayLabel(i18n, day)}</th><td>${amount(i18n, id, record.used)}</td><td>${amount(i18n, id, record.limit)}</td><td>${i18n.t("admin.history.percent", { n: whole(i18n, percentOf(record.used, record.limit)) })}</td>${strava ? html`${cell(record.teamUsed)}${cell(record.peak15m)}` : null}</tr>
+	const others = peers.map((peer) =>
+		cell(teams?.count(peer.id, id, day) ?? null),
+	);
+	return html`<tr><th scope="row">${dayLabel(i18n, day)}</th><td>${amount(i18n, id, record.used)}</td><td>${amount(i18n, id, record.limit)}</td><td>${i18n.t("admin.history.percent", { n: whole(i18n, percentOf(record.used, record.limit)) })}</td>${strava || split ? cell(record.teamUsed) : null}${others}${strava ? cell(record.peak15m) : null}</tr>
 `;
 }
 
@@ -53,18 +71,29 @@ function dayTable(
 	id: RecordedAllowance,
 	days: readonly string[],
 	byDay: ReadonlyMap<string, UsageRecord>,
+	teams: HistoryTeams | null,
 ): SafeHtml {
 	// Only Strava's have the team's count and the peak; connected riders the count.
 	const strava = id.startsWith("strava");
 	const hasTeam = [...byDay.values()].some(
 		(record) => record.teamUsed !== null,
 	);
+	// Other teams' counts exist for Strava's figures and connected riders only.
+	const peers =
+		teams && (strava || id === "riders_connected") ? teams.peers : [];
+	const teamHead = (name: string) => html`<th scope="col">${name}</th>`;
+	const ownHead =
+		peers.length > 0
+			? teamHead(teams?.own ?? "")
+			: strava
+				? teamHead(i18n.t("admin.history.team"))
+				: null;
 	return html`<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
-<thead><tr><th scope="col">${i18n.t("admin.history.day")}</th><th scope="col">${i18n.t("admin.history.used")}</th><th scope="col">${i18n.t("admin.history.limit")}</th><th scope="col">${i18n.t("admin.history.share")}</th>${strava ? html`<th scope="col">${i18n.t("admin.history.team")}</th><th scope="col">${i18n.t("admin.history.peak")}</th>` : null}</tr></thead>
+<thead><tr><th scope="col">${i18n.t("admin.history.day")}</th><th scope="col">${i18n.t("admin.history.used")}</th><th scope="col">${i18n.t("admin.history.limit")}</th><th scope="col">${i18n.t("admin.history.share")}</th>${ownHead}${peers.map((peer) => teamHead(peer.name))}${strava ? html`<th scope="col">${i18n.t("admin.history.peak")}</th>` : null}</tr></thead>
 <tbody>
-${[...days].reverse().map((day) => row(i18n, id, day, byDay.get(day), strava))}</tbody>
+${[...days].reverse().map((day) => row(i18n, id, day, byDay.get(day), strava, peers, teams))}</tbody>
 </table></div>
-${!strava && hasTeam ? html`<p class="usage-detail">${i18n.t("admin.history.ridersNote")}</p>` : null}
+${!strava && hasTeam && peers.length === 0 ? html`<p class="usage-detail">${i18n.t("admin.history.ridersNote")}</p>` : null}
 </div>
 `;
 }
@@ -81,6 +110,7 @@ export function dailyHistory(
 	records: readonly UsageRecord[],
 	today: string,
 	openDays: RecordedAllowance | null,
+	teams: HistoryTeams | null = null,
 ): DailyHistory {
 	const first = records[0]?.day ?? today;
 	const days = daysBetween(first, today);
@@ -120,6 +150,6 @@ export function dailyHistory(
 			}),
 		)}</div><p class="usage-axis"><span>${firstLabel}</span><span class="usage-axis-limit">${i18n.t("admin.history.limit")}</span><span>${lastLabel}</span></p>
 <a class="usage-table-link" href="${open ? `/admin#${id}` : `/admin?days=${id}#${id}`}">${i18n.t(open ? "admin.history.hideDays" : "admin.history.days")}</a>
-${open ? dayTable(i18n, id, days, byDay) : null}`;
+${open ? dayTable(i18n, id, days, byDay, teams) : null}`;
 	};
 }

@@ -994,6 +994,16 @@ export const da: Catalog = {
 	"admin.summary.attention": "Tal på 80 % eller derover: {n}",
 	"admin.figure.numbers": "{used} af {limit} · {percent} %",
 	"admin.figure.split": "Dette hold: {team} · Ikke tilknyttet: {rest}",
+	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
+	"admin.figure.teamNone": "{team}: endnu ingen tal",
+	"admin.figure.rest": "Ikke tilknyttet: {n}",
+	"admin.figure.windowNote":
+		"Andre holds forespørgsler tæller her som ikke tilknyttet: holdene udveksler ikke deres 15-minutterstal.",
+	"admin.teams.stale":
+		"{team}: intet svar ved seneste registrering. Tallene er fra {time} UTC.",
+	"admin.teams.other": "Andet hold",
+	"admin.teams.otherN": "Andet hold {n}",
+	"admin.teams.never": "{team}: intet svar endnu, så tallene mangler.",
 	"admin.figure.seen": "Pr. {time} UTC",
 	"admin.figure.notSeen": "Ikke observeret endnu",
 	"admin.figure.noValue": "Ingen værdi endnu. Grænse: {limit}",

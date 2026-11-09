@@ -997,6 +997,16 @@ export const fi: Catalog = {
 	"admin.summary.attention": "Lukuja 80 % tai yli: {n}",
 	"admin.figure.numbers": "{used}/{limit} · {percent} %",
 	"admin.figure.split": "Tämä tiimi: {team} · Kohdistamaton: {rest}",
+	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
+	"admin.figure.teamNone": "{team}: ei vielä lukuja",
+	"admin.figure.rest": "Kohdistamaton: {n}",
+	"admin.figure.windowNote":
+		"Muiden tiimien pyynnöt lasketaan tässä kohdistamattomiksi: tiimit eivät vaihda 15 minuutin lukujaan.",
+	"admin.teams.stale":
+		"{team}: ei vastausta viimeisimmässä tallennuksessa. Luvut ovat ajalta {time} UTC.",
+	"admin.teams.other": "Toinen tiimi",
+	"admin.teams.otherN": "Toinen tiimi {n}",
+	"admin.teams.never": "{team}: ei vielä vastausta, joten luvut puuttuvat.",
 	"admin.figure.seen": "Tilanne {time} UTC",
 	"admin.figure.notSeen": "Ei vielä havaittu",
 	"admin.figure.noValue": "Ei vielä arvoa. Raja: {limit}",

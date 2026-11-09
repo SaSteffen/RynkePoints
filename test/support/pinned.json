@@ -16,5 +16,6 @@
 	"FUN_THEMES": "on",
 	"PRIVACY_CONTROLLER": "Synthetic Controller\nTeststraße 1\n20095 Hamburg",
 	"CONTACT_EMAIL": "privacy@example.org",
-	"STRAVA_RETURN_VIA": ""
+	"STRAVA_RETURN_VIA": "",
+	"USAGE_PEERS": "[]"
 }

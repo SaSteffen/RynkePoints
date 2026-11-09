@@ -1012,6 +1012,16 @@ export const nl: Catalog = {
 	"admin.summary.attention": "Cijfers op 80 % of hoger: {n}",
 	"admin.figure.numbers": "{used} van {limit} · {percent} %",
 	"admin.figure.split": "Dit team: {team} · Niet toegewezen: {rest}",
+	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
+	"admin.figure.teamNone": "{team}: nog geen cijfers",
+	"admin.figure.rest": "Niet toegewezen: {n}",
+	"admin.figure.windowNote":
+		"Verzoeken van andere teams tellen hier als niet toegewezen: de teams wisselen hun 15-minutencijfers niet uit.",
+	"admin.teams.stale":
+		"{team}: geen antwoord bij de laatste registratie. De cijfers zijn van {time} UTC.",
+	"admin.teams.other": "Ander team",
+	"admin.teams.otherN": "Ander team {n}",
+	"admin.teams.never": "{team}: nog geen antwoord, dus de cijfers ontbreken.",
 	"admin.figure.seen": "Stand van {time} UTC",
 	"admin.figure.notSeen": "Nog niet waargenomen",
 	"admin.figure.noValue": "Nog geen waarde. Limiet: {limit}",

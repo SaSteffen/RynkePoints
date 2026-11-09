@@ -997,6 +997,16 @@ export const nb: Catalog = {
 	"admin.summary.attention": "Tall på 80 % eller mer: {n}",
 	"admin.figure.numbers": "{used} av {limit} · {percent} %",
 	"admin.figure.split": "Dette laget: {team} · Ikke tilordnet: {rest}",
+	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
+	"admin.figure.teamNone": "{team}: ingen tall ennå",
+	"admin.figure.rest": "Ikke tilordnet: {n}",
+	"admin.figure.windowNote":
+		"Andre lags forespørsler telles her som ikke tilordnet: lagene utveksler ikke 15-minuttstallene sine.",
+	"admin.teams.stale":
+		"{team}: ikke svar ved siste registrering. Tallene er fra {time} UTC.",
+	"admin.teams.other": "Annet lag",
+	"admin.teams.otherN": "Annet lag {n}",
+	"admin.teams.never": "{team}: ikke svar ennå, så tallene mangler.",
 	"admin.figure.seen": "Per {time} UTC",
 	"admin.figure.notSeen": "Ikke observert ennå",
 	"admin.figure.noValue": "Ingen verdi ennå. Grense: {limit}",

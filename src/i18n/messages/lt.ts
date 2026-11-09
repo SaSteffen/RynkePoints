@@ -1028,6 +1028,16 @@ export const lt: Catalog = {
 	"admin.summary.attention": "Skaičiai, pasiekę 80 % ar daugiau: {n}",
 	"admin.figure.numbers": "{used} iš {limit} · {percent} %",
 	"admin.figure.split": "Ši komanda: {team} · Nepriskirta: {rest}",
+	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
+	"admin.figure.teamNone": "{team}: dar nėra skaičių",
+	"admin.figure.rest": "Nepriskirta: {n}",
+	"admin.figure.windowNote":
+		"Kitų komandų užklausos čia laikomos nepriskirtomis: komandos nesikeičia 15 minučių skaičiais.",
+	"admin.teams.stale":
+		"{team}: per paskutinį įrašymą atsakymo nebuvo. Skaičiai – {time} UTC.",
+	"admin.teams.other": "Kita komanda",
+	"admin.teams.otherN": "Kita komanda {n}",
+	"admin.teams.never": "{team}: atsakymo dar nėra, todėl skaičių trūksta.",
 	"admin.figure.seen": "Būsena {time} UTC",
 	"admin.figure.notSeen": "Dar nestebėta",
 	"admin.figure.noValue": "Reikšmės dar nėra. Riba: {limit}",

@@ -9,6 +9,7 @@ import {
 	handleAdminRefresh,
 	handleAdminUsage,
 } from "./admin/usage";
+import { handleUsageExport } from "./admin/usage-export";
 import { handleCallback, handleConnectForm, handleReconnect } from "./auth";
 import { handleCatchUp } from "./catch-up";
 import { handleConsent } from "./consent-gate";
@@ -120,6 +121,9 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	}
 	if (path === "/admin/catch-up") {
 		return handleCatchUp(request, ctx, i18n, path);
+	}
+	if (path === "/admin/usage/export") {
+		return handleUsageExport(request, ctx, i18n, path);
 	}
 
 	if (method === "GET" || method === "HEAD") {
