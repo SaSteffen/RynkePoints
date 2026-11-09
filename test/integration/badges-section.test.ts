@@ -818,7 +818,7 @@ describe("sharing a badge (033)", () => {
 		);
 		expect(sheet).toContain(escapeHtml(de["badges.share.photoPrivate"]));
 		expect(sheet).toContain(
-			`<p class="share-photo-unreadable" hidden>${escapeHtml(de["badges.share.photoUnreadable"])}</p>`,
+			`<p class="share-photo-unreadable" role="status" hidden>${escapeHtml(de["badges.share.photoUnreadable"])}</p>`,
 		);
 		expect(sheet).toContain(
 			`<span class="share-busy" role="status" hidden>${de["badges.share.recording"]}</span>`,
@@ -943,7 +943,7 @@ describe("sharing a badge (033)", () => {
 				.replace("{name}", nameOf(id))
 				.replace("{value}", milestone(i18n, badgeOf(id)));
 			expect(large).toContain(
-				`<button type="button" class="button-outlined badge-share" data-group="personal" data-share-text="${escapeHtml(text)}">`,
+				`<button type="button" class="button-outlined badge-share" data-group="personal" data-share-text="${escapeHtml(text)}" aria-label="${escapeHtml(de["badges.share.label"].replace("{name}", nameOf(id)))}">`,
 			);
 			expect(large).toMatch(
 				new RegExp(`${de["badges.share.button"]}</button>\n</div>`),

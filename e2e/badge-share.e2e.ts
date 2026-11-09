@@ -233,6 +233,76 @@ test.describe("on a desktop", () => {
 		await expect(mini).toHaveCSS("opacity", "1");
 	});
 
+	test("shows the three-dots share icon, not Apple's (US5)", async ({
+		page,
+	}) => {
+		await openBadges(page);
+		const mini = page.locator(".badge-share-mini").first();
+		await expect(mini.locator(".share-icon-apple")).toHaveCount(1);
+		await expect(mini.locator(".share-icon-dots")).toHaveCount(1);
+		await mini.hover();
+		await expect(mini.locator(".share-icon-dots")).toBeVisible();
+		await expect(mini.locator(".share-icon-apple")).toBeHidden();
+	});
+
+	test("keeps a long name above the date and inside the picture", async ({
+		page,
+	}) => {
+		await openBadges(page);
+		// A synthetic name far longer than any in the catalogs.
+		await page.evaluate((name) => {
+			const { document } = globalThis as unknown as {
+				document: {
+					querySelectorAll(s: string): Iterable<{ textContent: string }>;
+				};
+			};
+			for (const h4 of document.querySelectorAll(".badge-large h4"))
+				h4.textContent = name;
+		}, "Zweieinhalbmal um die Erde und danach noch quer durch ganz Europa bis ans Nordkap und wieder zurück");
+		const mini = page.locator(".badge-share-mini").first();
+		await mini.hover();
+		await mini.click();
+		const sheet = sheetOf(page);
+		await ready(sheet);
+		expect(await canvasSize(sheet)).toEqual([1080, 1920]);
+
+		// The caption band of the story, between the badge and the app mark.
+		const caption = await sheet
+			.locator(".share-preview canvas")
+			.evaluate((canvas: Canvas) => {
+				const top = 1290;
+				const bottom = 1590;
+				const w = canvas.width;
+				const data =
+					canvas.getContext("2d")?.getImageData(0, top, w, bottom - top).data ??
+					[];
+				let nameBottom = -1;
+				let dateTop = Number.POSITIVE_INFINITY;
+				let edge = 0;
+				for (let i = 0; i < data.length; i += 4) {
+					const r = data[i] ?? 0;
+					const g = data[i + 1] ?? 0;
+					const b = data[i + 2] ?? 0;
+					const x = (i / 4) % w;
+					const y = top + Math.floor(i / 4 / w);
+					// The name is near-black, the date #6b6650.
+					if (r < 60 && g < 60 && b < 50) nameBottom = Math.max(nameBottom, y);
+					if (
+						Math.abs(r - 0x6b) < 8 &&
+						Math.abs(g - 0x66) < 8 &&
+						Math.abs(b - 0x50) < 8
+					)
+						dateTop = Math.min(dateTop, y);
+					if ((x < 70 || x >= w - 70) && (r < 245 || g < 245)) edge++;
+				}
+				return { nameBottom, dateTop, edge };
+			});
+		expect(caption.nameBottom).toBeGreaterThan(0);
+		expect(caption.dateTop).toBeLessThan(1590);
+		expect(caption.nameBottom).toBeLessThan(caption.dateTop);
+		expect(caption.edge).toBe(0);
+	});
+
 	test("copies a still picture (US4)", async ({
 		page,
 		context,

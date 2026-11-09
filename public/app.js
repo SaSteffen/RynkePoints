@@ -4086,8 +4086,11 @@ function shareCaption(ctx, source, font, w, y, nameSize, maxWidth) {
 		if (fits || size <= nameSize * 0.5) break;
 		size *= 0.92;
 	}
+	// Still more than two lines at half size: the rest joins the second
+	// line, which fillText narrows to fit rather than losing words.
+	if (lines.length > 2) lines = [lines[0], lines.slice(1).join(" ")];
 	ctx.fillStyle = "#1c1b13";
-	for (const line of lines.slice(0, 2)) {
+	for (const line of lines) {
 		ctx.fillText(line, w / 2, y, maxWidth);
 		y += nameSize * 1.2;
 	}

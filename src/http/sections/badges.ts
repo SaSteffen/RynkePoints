@@ -391,7 +391,7 @@ function popover(i18n: I18n, names: BadgeNames, earned: EarnedBadge): SafeHtml {
 <h4>${names(badge.id)}</h4>
 <p>${forText(i18n, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
-<button type="button" class="button-outlined badge-share" data-group="${badge.group}" data-share-text="${i18n.t("badges.share.text", { name: names(badge.id), value })}">${SHARE}${i18n.t("badges.share.button")}</button>
+<button type="button" class="button-outlined badge-share" data-group="${badge.group}" data-share-text="${i18n.t("badges.share.text", { name: names(badge.id), value })}" aria-label="${i18n.t("badges.share.label", { name: names(badge.id) })}">${SHARE}${i18n.t("badges.share.button")}</button>
 </div>
 `;
 }
@@ -420,7 +420,7 @@ function shareSheet(i18n: I18n, app: ShareApp): SafeHtml {
 <button type="button" class="icon-button share-sheet-close" aria-label="${i18n.t("badges.close")}">${CLOSE}</button></div>
 <fieldset class="segmented-group share-formats"><legend class="visually-hidden">${i18n.t("badges.share.formatLegend")}</legend>${format("story", true)}${format("image")}${format("photo")}</fieldset>
 <div class="share-preview" data-format="story"><canvas></canvas><video muted playsinline loop hidden></video>
-<div class="share-photo-empty" hidden><button type="button" class="button share-pick">${i18n.t("badges.share.pickPhoto")}</button><p>${i18n.t("badges.share.photoPrivate")}</p><p class="share-photo-unreadable" hidden>${i18n.t("badges.share.photoUnreadable")}</p></div>
+<div class="share-photo-empty" hidden><button type="button" class="button share-pick">${i18n.t("badges.share.pickPhoto")}</button><p>${i18n.t("badges.share.photoPrivate")}</p><p class="share-photo-unreadable" role="status" hidden>${i18n.t("badges.share.photoUnreadable")}</p></div>
 <span class="share-busy" role="status" hidden>${i18n.t("badges.share.recording")}</span></div>
 <p class="share-hint share-hint-touch" hidden>${i18n.t("badges.share.hintTouch")}</p>
 <p class="share-hint share-hint-mouse" hidden>${i18n.t("badges.share.hintMouse")}</p>
