@@ -3749,13 +3749,14 @@ async function shareBadgeAssets(large) {
 		for (const dy of [-e, 0, e]) l.drawImage(silhouette, e + dx, e + dy);
 	}
 	l.drawImage(art, e, e);
-	// The milestone, as .badge-ribbon-text: 8.5 % of the badge, centred in
-	// the ribbon's box and clipped to it.
+	// The milestone, as .badge-ribbon-text: its share of the badge (8.5 %,
+	// less for a long one), centred in the ribbon's box and clipped to it.
 	const label = large.querySelector(".badge-ribbon-text");
 	if (ribbon && label) {
 		await document.fonts?.ready;
 		const style = getComputedStyle(label);
-		const size = 0.085 * B;
+		const share = Number.parseFloat(style.getPropertyValue("--rp-ribbon-size"));
+		const size = ((Number.isFinite(share) ? share : 8.5) / 100) * B;
 		l.save();
 		l.beginPath();
 		l.rect(e + 0.13 * B, e + 0.7 * B, 0.74 * B, 0.14 * B);

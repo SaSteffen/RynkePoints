@@ -857,7 +857,7 @@ button.badge:active .badge-art{filter:var(--rp-badge-lift)}
 .badge-card .badge-slot .badge-about{position:relative;font-size:15px;line-height:1.2;hyphens:auto;color:var(--md-sys-color-on-surface)}
 @media (max-width:359.98px){.badge-card .badge-slot .badge-about{font-size:13px}}
 .badge-card-empty[data-category$=surprise] .badge-slot .badge-about{font:700 clamp(24px,30cqi,64px)/1 var(--md-ref-typeface)}
-.badge-ribbon-text{position:absolute;left:13%;top:70%;width:74%;height:14%;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;color:var(--rp-ribbon-text);font:600 clamp(8px,8.5cqi,26px)/1 var(--md-ref-typeface);letter-spacing:.04em;text-shadow:var(--rp-ribbon-glow)}
+.badge-ribbon-text{position:absolute;left:13%;top:70%;width:74%;height:14%;display:flex;align-items:center;justify-content:center;overflow:hidden;white-space:nowrap;color:var(--rp-ribbon-text);font:600 clamp(6px,calc(var(--rp-ribbon-size,8.5)*1cqi),26px)/1 var(--md-ref-typeface);letter-spacing:.04em;text-shadow:var(--rp-ribbon-glow)}
 .badge-group-team .badge-ribbon-text,.badge-large-team .badge-ribbon-text{color:var(--rp-coin-ink);text-shadow:none}
 .badge-progress{display:flex;flex-direction:column;gap:var(--rp-space-1);width:100%;margin-top:var(--rp-space-3)}
 .badge-next{font:var(--md-type-label-small);font-weight:400;color:var(--md-sys-color-on-surface-variant)}
