@@ -2,6 +2,7 @@ import { createMessageBatch } from "cloudflare:test";
 import { describe, expect, it, vi } from "vitest";
 import {
 	type ForwardMessage,
+	type GatewayEnv,
 	gatewayQueue,
 	retryDelay,
 } from "../../gateway/index";
@@ -32,8 +33,14 @@ function batch(teams: string[], attempts = 1) {
 	);
 }
 
-/** Runs the consumer and records what it did with each message. */
-async function run(b: MessageBatch<ForwardMessage>) {
+/**
+ * Runs the consumer and records what it did with each message. By default no
+ * team has a service binding, so every team is fetched by its origin.
+ */
+async function run(
+	b: MessageBatch<ForwardMessage>,
+	env: GatewayEnv = { ...gatewayEnv, TEAM_SERVICE_HAMBURG: undefined },
+) {
 	const explicitAcks: string[] = [];
 	const retryMessages: { msgId: string; delaySeconds?: number }[] = [];
 	for (const m of b.messages) {
@@ -44,7 +51,7 @@ async function run(b: MessageBatch<ForwardMessage>) {
 			retryMessages.push({ msgId: m.id, delaySeconds: options?.delaySeconds });
 		});
 	}
-	await gatewayQueue(b, gatewayEnv);
+	await gatewayQueue(b, env);
 	return { explicitAcks, retryMessages };
 }
 
@@ -81,6 +88,37 @@ describe("forwarding", () => {
 		]);
 		expect(result.explicitAcks.sort()).toEqual(["m0", "m1"]);
 		expect(result.retryMessages).toEqual([]);
+	});
+
+	it("calls a team with a service binding through it, not by its origin", async () => {
+		const calls = teams({ [EUROPE]: 200 });
+		const viaService: { url: string; body: string; method: string }[] = [];
+		const service = {
+			fetch: async (input: RequestInfo | URL, init?: RequestInit) => {
+				const req = new Request(input, init);
+				viaService.push({
+					url: req.url,
+					body: await req.text(),
+					method: req.method,
+				});
+				return new Response("ok", { status: 200 });
+			},
+		} as unknown as Fetcher;
+		const result = await run(batch(["hamburg", "europe"]), {
+			...gatewayEnv,
+			TEAM_SERVICE_HAMBURG: service,
+		});
+		expect(viaService).toEqual([
+			{
+				url: `${HAMBURG}/strava/webhook/${HAMBURG_TOKEN}`,
+				body: BODY,
+				method: "POST",
+			},
+		]);
+		expect(calls.map((c) => c.url)).toEqual([
+			`${EUROPE}/strava/webhook/${EUROPE_TOKEN}`,
+		]);
+		expect(result.explicitAcks.sort()).toEqual(["m0", "m1"]);
 	});
 
 	it("retries a 5xx or a network error with a growing delay", async () => {

@@ -109,6 +109,10 @@ Strava sends every event to the gateway, and every sign-in comes back through it
    - add `{ "id": "<id>", "origin": "https://<domain>" }` to `TEAMS` in
      `gateway/wrangler.jsonc`
    - add `TEAM_WEBHOOK_TOKEN_<ID>` to the gateway's `secrets.required`
+   - if the team's domain is on the gateway's zone (`trhh-rynke-coins.link`, its
+     subdomains included), add `{ "binding": "TEAM_SERVICE_<ID>", "service": "<the
+     team's Worker name>" }` to the gateway's `services`: a Worker's `fetch()` to its
+     own zone never reaches another Worker there and gets a 404
    - in `env.<id>`, set `STRAVA_RETURN_VIA` to the gateway's origin and
      `STRAVA_SUBSCRIPTION_ID` to the gateway's subscription, like every other team
 

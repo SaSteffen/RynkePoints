@@ -1,5 +1,10 @@
 import { secretEquals } from "../src/crypto/secret";
-import { type GatewayTeam, parseTeams, webhookTokenName } from "./teams";
+import {
+	type GatewayTeam,
+	parseTeams,
+	serviceBindingName,
+	webhookTokenName,
+} from "./teams";
 
 // The Strava gateway (feature 026 release 3, contracts/gateway.md). Strava's
 // one webhook subscription and one OAuth callback domain serve every team:
@@ -16,6 +21,13 @@ export interface GatewayEnv {
 	FORWARD_QUEUE: Queue<ForwardMessage>;
 	/** TEAM_WEBHOOK_TOKEN_<ID> per team. */
 	[secret: `TEAM_WEBHOOK_TOKEN_${string}`]: string | undefined;
+	/**
+	 * TEAM_SERVICE_<ID>: the team's Worker, for a team on the gateway's own
+	 * Cloudflare zone. A Worker's fetch() to a hostname on its own zone skips
+	 * the Workers there and answers 404, so such a team is called through a
+	 * service binding. Without one, the gateway fetches the team's origin.
+	 */
+	[service: `TEAM_SERVICE_${string}`]: Fetcher | undefined;
 }
 
 /** One Strava event for one team, as Strava sent it. */
@@ -193,6 +205,7 @@ async function forward(
 	const { team: teamId, body } = message.body;
 	const team = teams.find((t) => t.id === teamId);
 	const token = env[webhookTokenName(teamId) as `TEAM_WEBHOOK_TOKEN_${string}`];
+	const service = env[serviceBindingName(teamId) as `TEAM_SERVICE_${string}`];
 	if (!team) {
 		// The team left TEAMS: nobody is left to deliver to.
 		console.log(
@@ -204,7 +217,7 @@ async function forward(
 	let status: string;
 	try {
 		if (!token) throw new Error("no webhook token");
-		const res = await fetch(
+		const res = await (service ? service.fetch.bind(service) : fetch)(
 			new URL(`/strava/webhook/${encodeURIComponent(token)}`, team.origin),
 			{
 				method: "POST",
