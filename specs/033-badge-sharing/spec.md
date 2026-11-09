@@ -39,6 +39,14 @@ branch `mock/badge-share` and is not merged.
 - **Glitzernd**: the animated version: a short video of the badge shining and twinkling the way a
   newly earned badge does.
 
+## Clarifications
+
+### Session 2026-11-09
+
+- Q: Share text with the picture? → A: Keep "Neues Abzeichen: {name} ({value}) 🐒".
+- Q: A first-person "why" sentence on the picture? → A: No, name and date only.
+- Q: Does a shared picture need a Strava mark? → A: No, the app's own mark is enough.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Share a badge as a story or a picture from a phone (Priority: P1)
@@ -241,9 +249,8 @@ compare the icon.
   "Speichern" always, and "Kopieren" for still pictures where the browser can copy pictures.
 - **FR-013**: The file MUST be ready before the rider taps "Teilen …", so the system share opens
   straight away; while it isn't ready, the actions MUST be disabled and the preview MUST say so.
-- **FR-014**: The system share MUST carry the picture and a short share text:
-  [NEEDS CLARIFICATION: keep the share text "Neues Abzeichen: {name} ({value}) 🐒", change it, or
-  send the picture without text?]
+- **FR-014**: The system share MUST carry the picture and the share text "Neues Abzeichen: {name}
+  ({value}) 🐒" (in the rider's language). Apps that ignore shared text get the picture alone.
 
 **The picture**
 
@@ -257,9 +264,9 @@ compare the icon.
 - **FR-018**: No picture or video MUST contain the rider's name, photo from Strava, or any other
   rider detail, and the sheet MUST NOT offer to add one. The badge's own milestone (for example "500
   km") is shown as on the page.
-- **FR-019**: The picture MUST NOT include the sentence on why the badge was earned:
-  [NEEDS CLARIFICATION: add a first-person version for sharing ("Ich habe in dieser Saison …"), or
-  leave it out as the mock-up does?]
+- **FR-019**: The picture MUST NOT include the sentence on why the badge was earned; the large
+  view's "Du hast …" reads wrongly to whoever sees the picture, and there is no first-person
+  version.
 - **FR-020**: Still pictures MUST NOT show the twinkling stars.
 - **FR-021**: Auf Foto MUST use the rider's photo at its own proportions, at most 1920 px on the long
   side, with the badge where the rider placed it. Its default place is the lower right corner at
@@ -287,9 +294,9 @@ compare the icon.
   language (German source, English reference, the others translated).
 - **FR-029**: File names MUST be made of the app's name and the badge's name or id, never the
   rider's name.
-- **FR-030**: The pictures' attribution:
-  [NEEDS CLARIFICATION: do shared pictures need "Powered by Strava" or similar, since the milestone
-  comes from Strava data, or is the app's own mark enough?]
+- **FR-030**: Shared pictures and videos MUST carry only the app's own mark (Story and Bild) or
+  none (sticker, Auf Foto); no Strava mark. The badge is the app's own achievement, not a display of
+  Strava activity data.
 
 ### Key Entities
 

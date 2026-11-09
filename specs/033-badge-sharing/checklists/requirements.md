@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,8 +31,8 @@
 
 ## Notes
 
-- Three questions are open: the share text (FR-014), a first-person "why" sentence on the picture
-  (FR-019), and Strava attribution on shared pictures (FR-030).
+- The three open questions (share text, "why" sentence, Strava mark) were answered on 2026-11-09 and
+  recorded under Clarifications.
 - File formats (PNG, MP4/H.264) and pixel sizes are named because the apps riders post to require
   them; they are outcomes, not implementation choices.
 - SC-004 names the target apps (Instagram, WhatsApp, Strava) because acceptance there is the outcome.
