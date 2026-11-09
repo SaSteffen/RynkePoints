@@ -174,7 +174,7 @@ save it, and check the file starts with an `ftyp` box and contains `avc1`.
 
 ### Tests for User Story 3
 
-- [ ] T022 [US3] Add failing tests to `e2e/badge-share.e2e.ts`:
+- [x] T022 [US3] Add failing tests to `e2e/badge-share.e2e.ts`:
   - **When the encoder can**: in the page, evaluate `VideoEncoder.isConfigSupported({ codec: "avc1.640028", width: 1080, height: 1920 })`. If it's supported:
     - switching on "Glitzernd" shows the `role="status"` "Wird gerendert …";
     - the actions are disabled until it's done;
@@ -186,15 +186,15 @@ save it, and check the file starts with an `ftyp` box and contains `avc1`.
 
 ### Implementation for User Story 3
 
-- [ ] T023 [US3] In `public/app.js`, when the sheet first opens, add `<script src="/vendor/mp4-muxer-5.2.2.js">` once. Offer "Glitzernd" only if the script loaded, `window.VideoEncoder` exists, and `isConfigSupported` is true for the current size (even width and height). Never offer it with "Ohne Hintergrund" (FR-011, FR-024; research R4, R5)
-- [ ] T024 [US3] In `public/app.js`, replace the mock-up's `MediaRecorder` code with encoding from a fixed clock:
+- [x] T023 [US3] In `public/app.js`, when the sheet first opens, add `<script src="/vendor/mp4-muxer-5.2.2.js">` once. Offer "Glitzernd" only if the script loaded, `window.VideoEncoder` exists, and `isConfigSupported` is true for the current size (even width and height). Never offer it with "Ohne Hintergrund" (FR-011, FR-024; research R4, R5)
+- [x] T024 [US3] In `public/app.js`, replace the mock-up's `MediaRecorder` code with encoding from a fixed clock:
   - 150 frames at 30 fps; frame `i` is drawn at `t = i / 30` with the shine sweeping twice and the four stars on a 5 s loop that ends where it starts (FR-023);
   - encoded by `VideoEncoder` with `{ codec: "avc1.640028", width, height, bitrate: 8_000_000, framerate: 30 }`, a key frame every 30 frames;
   - put into an `Mp4Muxer.Muxer` with an `ArrayBufferTarget`, `fastStart: "in-memory"`;
   - the result is a `File` of type `video/mp4`.
 
   Photo sizes are rounded down to even numbers. Keep all of it in the browser.
-- [ ] T025 [US3] In `public/app.js`:
+- [x] T025 [US3] In `public/app.js`:
   - show `.share-busy` ("Wird gerendert …") and disable the actions while encoding (FR-025);
   - abort with an `AbortController` on close, a format change or an option change, and close the encoder; start again for the new settings;
   - play the result in the looping `<video>`, without `autoplay` and with `controls` under `prefers-reduced-motion: reduce` (FR-026);
