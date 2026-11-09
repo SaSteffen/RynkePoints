@@ -148,6 +148,15 @@ export const fr: Catalog = {
 	"rynke.ride.virtual": "virtuelle",
 	"rynke.ride.fixHint":
 		"Tu peux corriger la sortie sur Strava ou demander à un organisateur.",
+	"rynke.ride.fix.summary": "Comment faire",
+	"rynke.ride.fix.crop":
+		"Corrige la sortie sur Strava : recadre ce qui n'en fait pas partie, par exemple la longue pause, un trajet en train ou en voiture, ou un enregistrement qui a continué après la sortie.",
+	"rynke.ride.fix.rename":
+		"Change ensuite le titre de la sortie et enregistre. C'est ainsi que l'appli l'apprend : Strava signale un nouveau titre, mais pas un recadrage. Tu pourras remettre l'ancien titre ensuite.",
+	"rynke.ride.fix.manual":
+		"Si tu as enregistré la sortie, importe l'enregistrement sur Strava et supprime la saisie manuelle.",
+	"rynke.ride.fix.wait":
+		"Au bout de quelques minutes, la sortie est réévaluée ici. Si rien ne change, demande à un organisateur.",
 	"rynke.reason.flagged":
 		"Strava a signalé cette sortie. Si tu n'es pas d'accord, règle-le avec Strava.",
 	"rynke.reason.pause":
@@ -632,6 +641,33 @@ export const fr: Catalog = {
 	"badges.first": "Premier badge",
 	"badges.earnedOn": "obtenu le {date}",
 	"badges.close": "Fermer",
+	"badges.share.button": "Partager",
+	"badges.share.title": "Partager le badge",
+	"badges.share.label": "Partager «\u00a0{name}\u00a0»",
+	"badges.share.formatLegend": "Format",
+	"badges.share.format.story": "Story",
+	"badges.share.format.image": "Image",
+	"badges.share.format.photo": "Sur photo",
+	"badges.share.shiny": "Scintillant",
+	"badges.share.plain": "Sans fond",
+	"badges.share.pickPhoto": "Choisir une photo",
+	"badges.share.otherPhoto": "Autre photo",
+	"badges.share.photoPrivate": "Ta photo reste sur ton appareil.",
+	"badges.share.photoUnreadable":
+		"Ton navigateur ne peut pas ouvrir cette photo. Choisis-en une autre.",
+	"badges.share.hintTouch":
+		"Déplace le badge avec un doigt, tourne-le ou change sa taille avec deux.",
+	"badges.share.hintMouse":
+		"Déplace le badge avec la souris, tire le point dans son coin pour le tourner ou changer sa taille.",
+	"badges.share.turn": "Tourner le badge ou changer sa taille",
+	"badges.share.recording": "Rendu en cours…",
+	"badges.share.send": "Partager…",
+	"badges.share.save": "Enregistrer",
+	"badges.share.copy": "Copier",
+	"badges.share.saved": "Enregistré.",
+	"badges.share.copied": "Copié\u00a0: prêt à coller.",
+	"badges.share.failed": "Ça n'a pas marché ici. Enregistrer marche toujours.",
+	"badges.share.text": "Nouveau badge\u00a0: {name} ({value}) 🐒",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "Nouveau badge\u00a0: {name}",
 	"badges.reveal.many": "Nouveaux badges\u00a0: {n}",
@@ -1053,12 +1089,15 @@ export const fr: Catalog = {
 	"admin.figure.teamCount": "{team}\u00a0: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}\u00a0: pas encore de chiffres",
 	"admin.figure.rest": "Non attribué\u00a0: {n}",
+	"admin.figure.notSplit":
+		"Ce chiffre ne peut pas encore être réparti par équipe.",
 	"admin.figure.windowNote":
 		"Les requêtes des autres équipes comptent ici comme non attribuées\u00a0: les équipes n'échangent pas leurs chiffres sur 15\u00a0minutes.",
 	"admin.teams.stale":
 		"{team}\u00a0: pas de réponse lors du dernier relevé. Les chiffres datent du {time} UTC.",
 	"admin.teams.other": "Autre équipe",
 	"admin.teams.otherN": "Autre équipe {n}",
+	"admin.teams.shared": "Partagé (passerelle)",
 	"admin.teams.never":
 		"{team}\u00a0: pas encore de réponse, les chiffres manquent donc.",
 	"admin.figure.seen": "Au {time} UTC",

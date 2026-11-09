@@ -3652,6 +3652,1208 @@ function usageGraphs(signal) {
 	);
 }
 
+/**
+ * Sharing a badge (feature 033). A share button on an earned badge, or
+ * "Teilen" in its large view, opens the page's one share sheet: a story
+ * (9:16), a square picture, or the badge alone as a sticker. Every picture is
+ * drawn here, on a canvas, from what the large view shows; nothing is
+ * uploaded, and no rider's name is ever drawn or in a file name (FR-018,
+ * FR-022, FR-029). The file is made as soon as the preview settles, so a tap
+ * on "Teilen …" shares it at once, as iOS requires (FR-013).
+ */
+const SHARE_BASE = 1024;
+/** The large view's badge, which the ribbon text and shadow are sized for. */
+const SHARE_LARGE = 280;
+
+function shareLoadImage(src) {
+	return new Promise((resolve, reject) => {
+		const image = new Image();
+		image.onload = () => resolve(image);
+		image.onerror = reject;
+		image.src = src;
+	});
+}
+
+/** An SVG drawn sharp at `size`: its text with a width and height set. */
+async function shareSvgImage(text, size) {
+	const sized = text.replace(/<svg\b/, `<svg width="${size}" height="${size}"`);
+	const url = URL.createObjectURL(new Blob([sized], { type: "image/svg+xml" }));
+	try {
+		return await shareLoadImage(url);
+	} finally {
+		URL.revokeObjectURL(url);
+	}
+}
+
+function shareCanvas(width, height) {
+	const canvas = document.createElement("canvas");
+	canvas.width = Math.round(width);
+	canvas.height = Math.round(height);
+	return canvas;
+}
+
+/** "rgba(…) 0px 0px 2px", a computed text-shadow, as canvas shadow values. */
+function shareTextShadow(value, scale) {
+	const match =
+		/^(rgba?\([^)]*\)|#\w+)\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px/.exec(
+			value ?? "",
+		);
+	if (!match) return null;
+	return {
+		color: match[1],
+		x: Number(match[2]) * scale,
+		y: Number(match[3]) * scale,
+		blur: Number(match[4]) * scale,
+	};
+}
+
+/**
+ * The badge as the large view shows it, at SHARE_BASE (research R2): the
+ * picture and the ribbon under one cream sticker edge (--rp-badge-edge's four
+ * 2 px steps at 280 px), and the milestone over the ribbon in the page's
+ * typeface and the ribbon's text colour. Those are the coin's own colours,
+ * the same in every theme and scheme, so the picture never follows dark mode.
+ */
+async function shareBadgeAssets(large) {
+	const B = SHARE_BASE;
+	const k = B / SHARE_LARGE;
+	const img = large.querySelector(".badge-art img");
+	const response = await fetch(img.currentSrc || img.src);
+	if (!response.ok) throw new Error(`badge picture ${response.status}`);
+	const picture = await shareSvgImage(await response.text(), B);
+	const fill =
+		large.querySelector(".badge-ribbon use")?.getAttribute("fill") ?? null;
+	const ribbonShape = document.getElementById("badge-ribbon");
+	const ribbon =
+		fill && ribbonShape
+			? await shareSvgImage(
+					`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g fill="${fill}">${ribbonShape.outerHTML}</g></svg>`,
+					B,
+				)
+			: null;
+	const art = shareCanvas(B, B);
+	const a = art.getContext("2d");
+	a.drawImage(picture, 0, 0, B, B);
+	if (ribbon) a.drawImage(ribbon, 0, 0, B, B);
+	// The edge: the art's outline in cream at every 2 px step around it.
+	const e = Math.round(2 * k);
+	const silhouette = shareCanvas(B, B);
+	const s = silhouette.getContext("2d");
+	s.drawImage(art, 0, 0);
+	s.globalCompositeOperation = "source-in";
+	s.fillStyle = "#fffdf5";
+	s.fillRect(0, 0, B, B);
+	const layer = shareCanvas(B + 2 * e, B + 2 * e);
+	const l = layer.getContext("2d");
+	for (const dx of [-e, 0, e]) {
+		for (const dy of [-e, 0, e]) l.drawImage(silhouette, e + dx, e + dy);
+	}
+	l.drawImage(art, e, e);
+	// The milestone, as .badge-ribbon-text: 8.5 % of the badge, centred in
+	// the ribbon's box and clipped to it.
+	const label = large.querySelector(".badge-ribbon-text");
+	if (ribbon && label) {
+		await document.fonts?.ready;
+		const style = getComputedStyle(label);
+		const size = 0.085 * B;
+		l.save();
+		l.beginPath();
+		l.rect(e + 0.13 * B, e + 0.7 * B, 0.74 * B, 0.14 * B);
+		l.clip();
+		l.font = `600 ${size}px ${style.fontFamily}`;
+		if ("letterSpacing" in l) l.letterSpacing = `${0.04 * size}px`;
+		l.textAlign = "center";
+		l.textBaseline = "middle";
+		l.fillStyle = style.color;
+		const glow = shareTextShadow(style.textShadow, k);
+		if (glow) {
+			l.shadowColor = glow.color;
+			l.shadowOffsetX = glow.x;
+			l.shadowOffsetY = glow.y;
+			l.shadowBlur = glow.blur;
+		}
+		l.fillText(label.textContent ?? "", e + 0.5 * B, e + 0.77 * B);
+		l.restore();
+	}
+	return { art, layer, edge: e, shine: shareCanvas(B, B) };
+}
+
+/** The whole badge at `size` px with its top left at x, y, and its shadow. */
+function shareDrawBadge(ctx, assets, x, y, size) {
+	const e = (assets.edge * size) / SHARE_BASE;
+	const unit = size / SHARE_LARGE;
+	ctx.save();
+	ctx.shadowColor = "rgba(28,27,19,.3)";
+	ctx.shadowBlur = 2 * unit;
+	ctx.shadowOffsetY = 2 * unit;
+	ctx.drawImage(assets.layer, x - e, y - e, size + 2 * e, size + 2 * e);
+	ctx.restore();
+}
+
+/** Turns what comes next by `box.r` around the badge's centre. */
+function shareTurn(ctx, box) {
+	if (!box.r) return;
+	const cx = box.x + box.size / 2;
+	const cy = box.y + box.size / 2;
+	ctx.translate(cx, cy);
+	ctx.rotate(box.r);
+	ctx.translate(-cx, -cy);
+}
+
+/** CSS's cubic-bezier(x1, y1, x2, y2) as a function of 0…1. */
+function shareBezier(x1, y1, x2, y2) {
+	const at = (a, b, u) =>
+		3 * a * u * (1 - u) ** 2 + 3 * b * u * u * (1 - u) + u ** 3;
+	return (x) => {
+		let lo = 0;
+		let hi = 1;
+		for (let i = 0; i < 20; i++) {
+			const mid = (lo + hi) / 2;
+			if (at(x1, x2, mid) < x) lo = mid;
+			else hi = mid;
+		}
+		return at(y1, y2, (lo + hi) / 2);
+	};
+}
+const SHARE_EASE_OUT = shareBezier(0, 0, 0.58, 1);
+const SHARE_EASE_IN_OUT = shareBezier(0.42, 0, 0.58, 1);
+
+/** The video: 5 s at 30 frames a second, looping (FR-023, research R4). */
+const SHARE_FPS = 30;
+const SHARE_FRAMES = 150;
+/** Two shine sweeps (badge-shine-new, 1.1 s), half the clip apart. */
+const SHARE_SHINES = [0.25, 2.75];
+const SHARE_SHINE_SECONDS = 1.1;
+/** badge-twinkle's 1.8 s, made 5 s / 3 so the stars loop with the clip. */
+const SHARE_TWINKLE = SHARE_FRAMES / SHARE_FPS / 3;
+/** The large view's four stars (.badge-sparkles, inset -3 %), as fractions. */
+const SHARE_STARS = [
+	{ left: 0.08, top: 0.02, size: 0.12, delay: 0 },
+	{ left: 1 - 0.02 - 0.09, top: 0.1, size: 0.09, delay: 0.5 },
+	{ left: 0, top: 1 - 0.16 - 0.08, size: 0.08, delay: 1 },
+	{ left: 1 - 0.12 - 0.11, top: 1 - 0.02 - 0.11, size: 0.11, delay: 1.3 },
+];
+const SHARE_STAR = [
+	[50, 0],
+	[61, 39],
+	[100, 50],
+	[61, 61],
+	[50, 100],
+	[39, 61],
+	[0, 50],
+	[39, 39],
+];
+
+/** The large view's shine at `progress` (0 to 1), masked to the badge. */
+function shareShine(assets, progress) {
+	const B = SHARE_BASE;
+	const c = assets.shine.getContext("2d");
+	c.globalCompositeOperation = "source-over";
+	c.clearRect(0, 0, B, B);
+	// linear-gradient(115deg, …) over a 250 % × 100 % box moving from 150 %
+	// to -50 %, as badge-shine-new.
+	const p = 1.5 - 2 * SHARE_EASE_OUT(progress);
+	const cx = -1.5 * B * p + 1.25 * B;
+	const cy = 0.5 * B;
+	const angle = (115 * Math.PI) / 180;
+	const dx = Math.sin(angle);
+	const dy = -Math.cos(angle);
+	const half = (2.5 * B * Math.abs(dx) + B * Math.abs(dy)) / 2;
+	const g = c.createLinearGradient(
+		cx - dx * half,
+		cy - dy * half,
+		cx + dx * half,
+		cy + dy * half,
+	);
+	g.addColorStop(0.38, "rgba(255,253,245,0)");
+	g.addColorStop(0.5, "rgba(255,253,245,.8)");
+	g.addColorStop(0.62, "rgba(255,253,245,0)");
+	c.fillStyle = g;
+	c.fillRect(0, 0, B, B);
+	c.globalCompositeOperation = "destination-in";
+	c.drawImage(assets.art, 0, 0);
+	return assets.shine;
+}
+
+/**
+ * The video's own frame `t` (seconds) over a badge drawn at x, y, `size`:
+ * the four stars twinkling as badge-twinkle, and the shine when it sweeps.
+ * Still pictures never get this (FR-020).
+ */
+function shareSparkle(ctx, assets, x, y, size, t) {
+	const box = size * 1.06;
+	const x0 = x - size * 0.03;
+	const y0 = y - size * 0.03;
+	for (const star of SHARE_STARS) {
+		const phase = ((((t - star.delay) / SHARE_TWINKLE) % 1) + 1) % 1;
+		const eased = SHARE_EASE_IN_OUT(phase < 0.5 ? phase * 2 : (1 - phase) * 2);
+		if (eased <= 0.01) continue;
+		const w = star.size * box;
+		const scale = 0.3 + 0.7 * eased;
+		ctx.save();
+		ctx.globalAlpha = eased;
+		ctx.translate(
+			x0 + (star.left + star.size / 2) * box,
+			y0 + (star.top + star.size / 2) * box,
+		);
+		ctx.rotate((45 * eased * Math.PI) / 180);
+		ctx.scale((scale * w) / 100, (scale * w) / 100);
+		ctx.translate(-50, -50);
+		ctx.beginPath();
+		for (const [px, py] of SHARE_STAR) ctx.lineTo(px, py);
+		ctx.closePath();
+		ctx.shadowColor = "#1c1b13";
+		ctx.shadowBlur = (size / SHARE_LARGE) * 1;
+		ctx.fillStyle = "#fbe122";
+		ctx.fill();
+		ctx.restore();
+	}
+	for (const start of SHARE_SHINES) {
+		if (t >= start && t < start + SHARE_SHINE_SECONDS) {
+			const progress = (t - start) / SHARE_SHINE_SECONDS;
+			ctx.drawImage(shareShine(assets, progress), x, y, size, size);
+		}
+	}
+}
+
+/** H.264 at level 4.0 up to 1080 × 1920, 5.0 above (larger photos). */
+function shareVideoConfig(width, height) {
+	const blocks = Math.ceil(width / 16) * Math.ceil(height / 16);
+	return {
+		// Constrained Baseline: no B-frames, which some encoders (Firefox's)
+		// put out of order and the muxer refuses.
+		codec: blocks <= 8192 ? "avc1.42E028" : "avc1.42E032",
+		width,
+		height,
+		bitrate: 8_000_000,
+		framerate: SHARE_FPS,
+		avc: { format: "avc" },
+	};
+}
+
+/** The vendored MP4 muxer, loaded once, when a share sheet first opens (R5). */
+let shareMuxer = null;
+function shareLoadMuxer() {
+	shareMuxer ??= loadScripts(["/vendor/mp4-muxer-5.2.2.js"]);
+	return shareMuxer;
+}
+
+/**
+ * Whether one frame of `config` really encodes: some browsers say yes to
+ * H.264 and only fail once they're given a frame.
+ */
+async function shareTryEncoder(config) {
+	const answer = await VideoEncoder.isConfigSupported(config);
+	if (!answer.supported) return false;
+	let made = false;
+	let failed = false;
+	const encoder = new VideoEncoder({
+		output: () => {
+			made = true;
+		},
+		error: () => {
+			failed = true;
+		},
+	});
+	const canvas = shareCanvas(config.width, config.height);
+	canvas.getContext("2d").fillRect(0, 0, 2, 2);
+	try {
+		encoder.configure(config);
+		const frame = new VideoFrame(canvas, { timestamp: 0, alpha: "discard" });
+		encoder.encode(frame, { keyFrame: true });
+		frame.close();
+		await encoder.flush();
+		return made && !failed;
+	} catch {
+		return false;
+	} finally {
+		if (encoder.state !== "closed") encoder.close();
+		canvas.width = 0;
+	}
+}
+
+/** Whether this browser can make the video at width × height (FR-024). */
+const shareVideoSizes = new Map();
+function shareCanVideo(width, height) {
+	if (!window.Mp4Muxer || !window.VideoEncoder || !window.VideoFrame) {
+		return Promise.resolve(false);
+	}
+	if (width < 2 || height < 2 || width % 2 || height % 2) {
+		return Promise.resolve(false);
+	}
+	const key = `${width}x${height}`;
+	if (!shareVideoSizes.has(key)) {
+		shareVideoSizes.set(
+			key,
+			shareTryEncoder(shareVideoConfig(width, height)).catch(() => false),
+		);
+	}
+	return shareVideoSizes.get(key);
+}
+
+/**
+ * The sparkling video of `still` with the badge at `box`, as MP4 bytes, all on
+ * the device (research R4): each frame is drawn from a fixed clock, encoded by
+ * the browser and packed by the muxer in memory. Null once `signal` aborts.
+ */
+async function shareEncode(still, assets, box, signal) {
+	const { width, height } = still;
+	const target = new window.Mp4Muxer.ArrayBufferTarget();
+	const muxer = new window.Mp4Muxer.Muxer({
+		target,
+		video: { codec: "avc", width, height },
+		fastStart: "in-memory",
+	});
+	let failure = null;
+	const encoder = new VideoEncoder({
+		output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+		error: (error) => {
+			failure = error;
+		},
+	});
+	const stop = () => {
+		if (encoder.state !== "closed") encoder.close();
+	};
+	signal.addEventListener("abort", stop, { once: true });
+	const frame = shareCanvas(width, height);
+	const c = frame.getContext("2d", { alpha: false });
+	const step = 1e6 / SHARE_FPS;
+	try {
+		encoder.configure(shareVideoConfig(width, height));
+		for (let i = 0; i < SHARE_FRAMES; i++) {
+			if (signal.aborted) return null;
+			if (failure) throw failure;
+			c.drawImage(still, 0, 0);
+			c.save();
+			shareTurn(c, box);
+			shareSparkle(c, assets, box.x, box.y, box.size, i / SHARE_FPS);
+			c.restore();
+			const picture = new VideoFrame(frame, {
+				timestamp: Math.round(i * step),
+				duration: Math.round(step),
+				alpha: "discard",
+			});
+			encoder.encode(picture, { keyFrame: i % SHARE_FPS === 0 });
+			picture.close();
+			// The page stays usable, and the encoder catches up.
+			do await new Promise((resolve) => setTimeout(resolve, 0));
+			while (encoder.encodeQueueSize > 3 && !signal.aborted && !failure);
+		}
+		await encoder.flush();
+		if (failure) throw failure;
+		if (signal.aborted) return null;
+		muxer.finalize();
+		return new Blob([target.buffer], { type: "video/mp4" });
+	} catch (error) {
+		if (signal.aborted) return null;
+		throw error;
+	} finally {
+		signal.removeEventListener("abort", stop);
+		stop();
+		frame.width = 0;
+	}
+}
+
+/** Words onto lines no wider than `maxWidth`. */
+function shareWrap(ctx, text, maxWidth) {
+	const lines = [];
+	let line = "";
+	for (const word of text.split(/\s+/)) {
+		const next = line ? `${line} ${word}` : word;
+		if (line && ctx.measureText(next).width > maxWidth) {
+			lines.push(line);
+			line = word;
+		} else line = next;
+	}
+	if (line) lines.push(line);
+	return lines;
+}
+
+/**
+ * The background of story and picture: white with a soft yellow glow behind
+ * the badge, the same for every team and theme.
+ */
+function shareBackdrop(ctx, w, h, glowY, glowR) {
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect(0, 0, w, h);
+	const glow = ctx.createRadialGradient(w / 2, glowY, 0, w / 2, glowY, glowR);
+	glow.addColorStop(0, "rgba(251,225,34,.22)");
+	glow.addColorStop(1, "rgba(251,225,34,0)");
+	ctx.fillStyle = glow;
+	ctx.fillRect(0, 0, w, h);
+}
+
+/**
+ * The badge's name on at most two lines, smaller if it needs to be, and
+ * "erreicht am …" below it; `y` is the first line's baseline.
+ */
+function shareCaption(ctx, source, font, w, y, nameSize, maxWidth) {
+	ctx.textAlign = "center";
+	ctx.textBaseline = "alphabetic";
+	let size = nameSize;
+	let lines;
+	for (;;) {
+		ctx.font = `600 ${size}px ${font}`;
+		lines = shareWrap(ctx, source.name, maxWidth);
+		const fits =
+			lines.length <= 2 &&
+			lines.every((line) => ctx.measureText(line).width <= maxWidth);
+		if (fits || size <= nameSize * 0.5) break;
+		size *= 0.92;
+	}
+	// Still more than two lines at half size: the rest joins the second
+	// line, which fillText narrows to fit rather than losing words.
+	if (lines.length > 2) lines = [lines[0], lines.slice(1).join(" ")];
+	ctx.fillStyle = "#1c1b13";
+	for (const line of lines) {
+		ctx.fillText(line, w / 2, y, maxWidth);
+		y += nameSize * 1.2;
+	}
+	ctx.fillStyle = "#6b6650";
+	ctx.font = `400 ${nameSize * 0.55}px ${font}`;
+	ctx.fillText(source.earned, w / 2, y, maxWidth);
+}
+
+/** The team's app icon and name, centred on `y` (research R3). */
+function shareMark(ctx, app, icon, font, w, y, size) {
+	ctx.font = `600 ${size * 0.55}px ${font}`;
+	const textWidth = ctx.measureText(app).width;
+	const total = (icon ? size * 1.3 : 0) + textWidth;
+	let x = (w - total) / 2;
+	if (icon) {
+		ctx.drawImage(icon, x, y - size / 2, size, size);
+		x += size * 1.3;
+	}
+	ctx.fillStyle = "#6b6650";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "middle";
+	ctx.fillText(app, x, y);
+}
+
+/** "RynkePoints" → "rynkepoints", for file names. */
+function shareSlug(text) {
+	return (
+		text
+			.normalize("NFKD")
+			.replace(/[̀-ͯ]/g, "")
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-+|-+$/g, "") || "badge"
+	);
+}
+
+/**
+ * The badge's place on a photo: its centre and width as fractions (R2), and
+ * its turn in radians.
+ */
+const SHARE_PLACE = { x: 0.78, y: 0.78, w: 0.38, r: 0 };
+/** A turn this close to upright snaps upright (about 3°). */
+const SHARE_SNAP = 0.05;
+/** The long side of a shared photo, at most (research R2). */
+const SHARE_PHOTO_MAX = 1920;
+
+function sharePlace(place) {
+	const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+	// -π…π, so a few turns round still snap upright.
+	const r = Math.atan2(Math.sin(place.r ?? 0), Math.cos(place.r ?? 0));
+	return {
+		x: clamp(place.x, 0, 1),
+		y: clamp(place.y, 0, 1),
+		w: clamp(place.w, 0.15, 0.9),
+		r: Math.abs(r) < SHARE_SNAP ? 0 : r,
+	};
+}
+
+/**
+ * The rider's photo, upright and at most SHARE_PHOTO_MAX on its long side,
+ * on a canvas; null if the browser can't read it (research R11). The decoded
+ * bitmap is closed at once; only the canvas is kept.
+ */
+async function shareReadPhoto(file) {
+	let bitmap;
+	try {
+		bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+	} catch {
+		// Older browsers know no "from-image"; they turn photos upright anyway.
+		try {
+			bitmap = await createImageBitmap(file);
+		} catch {
+			return null;
+		}
+	}
+	const scale = Math.min(
+		1,
+		SHARE_PHOTO_MAX / Math.max(bitmap.width, bitmap.height),
+	);
+	const photo = shareCanvas(bitmap.width * scale, bitmap.height * scale);
+	photo.getContext("2d").drawImage(bitmap, 0, 0, photo.width, photo.height);
+	bitmap.close();
+	return photo;
+}
+
+function shareCanFiles(file) {
+	try {
+		return Boolean(navigator.canShare?.({ files: [file] }));
+	} catch {
+		return false;
+	}
+}
+
+function badgeShare(signal) {
+	const sheet = document.querySelector("dialog.share-sheet");
+	if (!sheet || typeof sheet.showModal !== "function") return;
+	const on = { signal };
+	const canvas = sheet.querySelector(".share-preview canvas");
+	const ctx = canvas.getContext("2d");
+	const preview = sheet.querySelector(".share-preview");
+	const empty = sheet.querySelector(".share-photo-empty");
+	const unreadable = sheet.querySelector(".share-photo-unreadable");
+	const picker = sheet.querySelector(".share-file");
+	const repick = sheet.querySelector(".share-repick");
+	const hintTouch = sheet.querySelector(".share-hint-touch");
+	const hintMouse = sheet.querySelector(".share-hint-mouse");
+	const frame = sheet.querySelector(".share-frame");
+	const turn = sheet.querySelector(".share-turn");
+	const mouse = window.matchMedia("(hover: hover) and (pointer: fine)");
+	const plain = sheet.querySelector(".share-plain [role=switch]");
+	const shinyOption = sheet.querySelector(".share-shiny");
+	const shiny = shinyOption.querySelector("[role=switch]");
+	const video = sheet.querySelector(".share-preview video");
+	const busy = sheet.querySelector(".share-busy");
+	const still = window.matchMedia("(prefers-reduced-motion: reduce)");
+	const status = sheet.querySelector(".share-status");
+	const send = sheet.querySelector(".share-send");
+	const save = sheet.querySelector(".share-save");
+	const copy = sheet.querySelector(".share-copy");
+	const actions = [send, save, copy];
+	const font =
+		getComputedStyle(document.documentElement)
+			.getPropertyValue("--md-ref-typeface")
+			.trim() || "sans-serif";
+	const app = sheet.dataset.app ?? "";
+	let icon = null;
+	let iconLoad = null;
+	const loadIcon = () => {
+		iconLoad ??= shareLoadImage(sheet.dataset.icon)
+			.then((image) => {
+				icon = image;
+			})
+			.catch(() => {});
+		return iconLoad;
+	};
+
+	const state = {
+		source: null,
+		assets: null,
+		format: "story",
+		file: null,
+		/** The rider's photo on a canvas, and the badge's place on it. */
+		photo: null,
+		place: null,
+		unreadable: false,
+		/** Blob URLs handed to "Speichern", revoked at the latest on close. */
+		urls: new Set(),
+		/** Counts the files asked for, so a late one for old settings is dropped. */
+		run: 0,
+		/** The video being made, and the preview's URL of the one made. */
+		encoding: null,
+		videoUrl: null,
+	};
+	const checked = (toggle) => toggle.getAttribute("aria-checked") === "true";
+	const sticker = () => state.format === "image" && checked(plain);
+	const kind = () => (sticker() ? "sticker" : state.format);
+
+	/** The output's size for the current format (contracts/files.md). */
+	function size() {
+		const { photo } = state;
+		if (state.format === "story") return [1080, 1920];
+		if (state.format === "photo" && photo) return [photo.width, photo.height];
+		return [1080, 1080];
+	}
+
+	/** Where the badge goes on a w × h output: its top left and size. */
+	function badgeBox(w, h) {
+		if (state.format === "photo") {
+			const place = state.place ?? SHARE_PLACE;
+			const size = place.w * w;
+			return {
+				x: place.x * w - size / 2,
+				y: place.y * h - size / 2,
+				size,
+				r: place.r,
+			};
+		}
+		if (state.format === "story")
+			return { x: (w - 820) / 2, y: 390, size: 820 };
+		if (sticker())
+			return { x: (w * 0.14) / 2, y: (h - w * 0.86) / 2, size: w * 0.86 };
+		return { x: (w - 600) / 2, y: 80, size: 600 };
+	}
+
+	/** The still picture on a w × h canvas; the video adds its sparkle to it. */
+	function paint(c, w, h) {
+		c.clearRect(0, 0, w, h);
+		const { assets, source, photo } = state;
+		if (!assets || !source) return false;
+		const box = badgeBox(w, h);
+		if (state.format === "photo") {
+			// The photo with the badge, and nothing else (contracts/files.md).
+			if (!photo) return false;
+			c.drawImage(photo, 0, 0);
+		} else if (state.format === "story") {
+			// Nothing but the background outside 250…1670 px, where the
+			// story apps put their own bars (FR-017).
+			shareBackdrop(c, w, h, 800, 760);
+			shareCaption(c, source, font, w, 1380, 76, 920);
+			shareMark(c, app, icon, font, w, 1630, 64);
+		} else if (!sticker()) {
+			shareBackdrop(c, w, h, 380, 500);
+			shareCaption(c, source, font, w, 790, 56, 960);
+			shareMark(c, app, icon, font, w, 1010, 48);
+		}
+		c.save();
+		shareTurn(c, box);
+		shareDrawBadge(c, assets, box.x, box.y, box.size);
+		c.restore();
+		return true;
+	}
+
+	function draw() {
+		const [w, h] = size();
+		if (canvas.width !== w || canvas.height !== h) {
+			canvas.width = w;
+			canvas.height = h;
+		}
+		paint(ctx, w, h);
+		placeFrame();
+	}
+
+	/**
+	 * The frame round the badge on a photo, with its handle: only on the
+	 * page, never in the file.
+	 */
+	function placeFrame() {
+		frame.hidden = !placing();
+		turn.hidden = frame.hidden;
+		if (frame.hidden) return;
+		const shown = video.hidden ? canvas : video;
+		const box = shown.getBoundingClientRect();
+		const around = preview.getBoundingClientRect();
+		const { x, y, w, r } = state.place;
+		const side = w * box.width;
+		frame.style.left = `${box.left - around.left + x * box.width - side / 2}px`;
+		frame.style.top = `${box.top - around.top + y * box.height - side / 2}px`;
+		frame.style.width = `${side}px`;
+		frame.style.height = `${side}px`;
+		frame.style.transform = `rotate(${r}rad)`;
+		// The handle at the frame's lower right corner, turned with it, but
+		// never outside the preview, where nothing could reach it.
+		const half = side / 2;
+		const cx = box.left - around.left + x * box.width;
+		const cy = box.top - around.top + y * box.height;
+		const edge = 22;
+		const clamp = (value, max) => Math.min(max - edge, Math.max(edge, value));
+		const cos = Math.cos(r);
+		const sin = Math.sin(r);
+		turn.style.left = `${clamp(cx + half * (cos - sin), around.width)}px`;
+		turn.style.top = `${clamp(cy + half * (sin + cos), around.height)}px`;
+	}
+
+	/** Stops a video being made and takes the made one out of the preview. */
+	function stopVideo() {
+		state.encoding?.abort();
+		state.encoding = null;
+		busy.hidden = true;
+		if (state.videoUrl) {
+			video.pause();
+			video.removeAttribute("src");
+			video.load();
+			URL.revokeObjectURL(state.videoUrl);
+			state.videoUrl = null;
+		}
+		video.hidden = true;
+		canvas.hidden = false;
+	}
+
+	/** Makes the video for the current settings at w × h (FR-023 to FR-026). */
+	async function makeVideo(run, w, h) {
+		const controller = new AbortController();
+		state.encoding = controller;
+		busy.hidden = false;
+		const frame = shareCanvas(w, h);
+		try {
+			if (!paint(frame.getContext("2d"), w, h)) return;
+			const blob = await shareEncode(
+				frame,
+				state.assets,
+				badgeBox(w, h),
+				controller.signal,
+			);
+			if (run !== state.run || !blob || !state.source) return;
+			state.file = new File(
+				[blob],
+				`${shareSlug(app)}-${state.source.id}-${kind()}.mp4`,
+				{ type: "video/mp4" },
+			);
+			state.videoUrl = URL.createObjectURL(state.file);
+			video.src = state.videoUrl;
+			// Reduced motion: the rider starts it, if they want (FR-026).
+			video.controls = still.matches;
+			video.hidden = false;
+			canvas.hidden = true;
+			if (!still.matches) video.play().catch(() => {});
+			send.hidden = !shareCanFiles(state.file);
+			for (const button of [send, save]) button.disabled = false;
+		} catch {
+			// The browser said yes but can't after all: no "Glitzernd" at this
+			// size any more, and the still picture instead (FR-024).
+			shareVideoSizes.set(`${w}x${h}`, Promise.resolve(false));
+			if (run === state.run) {
+				prepare();
+				status.textContent = sheet.dataset.failed ?? "";
+			}
+		} finally {
+			frame.width = 0;
+			if (state.encoding === controller) {
+				state.encoding = null;
+				busy.hidden = true;
+			}
+		}
+	}
+
+	/** Draws the preview and makes its file; the actions wait for it. */
+	async function prepare() {
+		const run = ++state.run;
+		stopVideo();
+		state.file = null;
+		status.textContent = "";
+		for (const button of actions) button.disabled = true;
+		const onPhoto = state.format === "photo";
+		const placing = onPhoto && Boolean(state.photo);
+		sheet.querySelector(".share-plain").hidden = state.format !== "image";
+		empty.hidden = !onPhoto || placing;
+		unreadable.hidden = !state.unreadable;
+		repick.hidden = !placing;
+		hintTouch.hidden = !placing || mouse.matches;
+		hintMouse.hidden = !placing || !mouse.matches;
+		preview.dataset.format = state.format;
+		draw();
+		if (!state.assets || (onPhoto && !placing)) {
+			shinyOption.hidden = true;
+			return;
+		}
+		// H.264 needs even sides: an odd photo loses its last row or column.
+		const [w, h] = size().map((side) => side - (side % 2));
+		const sparkling = !sticker() && (await shareCanVideo(w, h));
+		if (run !== state.run) return;
+		shinyOption.hidden = !sparkling;
+		copy.hidden = true;
+		if (sparkling && checked(shiny)) return makeVideo(run, w, h);
+		const blob = await new Promise((resolve) =>
+			canvas.toBlob(resolve, "image/png"),
+		);
+		if (run !== state.run || !blob || !state.source) return;
+		state.file = new File(
+			[blob],
+			`${shareSlug(app)}-${state.source.id}-${kind()}.png`,
+			{ type: "image/png" },
+		);
+		send.hidden = !shareCanFiles(state.file);
+		copy.hidden = !(window.ClipboardItem && navigator.clipboard?.write);
+		for (const button of actions) button.disabled = false;
+	}
+
+	for (const radio of sheet.querySelectorAll("input[name=share-format]")) {
+		radio.addEventListener(
+			"change",
+			() => {
+				state.format = radio.value;
+				prepare();
+			},
+			on,
+		);
+	}
+	for (const toggle of [plain, shiny]) {
+		toggle.addEventListener(
+			"click",
+			() => {
+				toggle.setAttribute("aria-checked", String(!checked(toggle)));
+				prepare();
+			},
+			on,
+		);
+	}
+
+	send.addEventListener(
+		"click",
+		() => {
+			if (!state.file || !state.source) return;
+			navigator
+				.share({ files: [state.file], text: state.source.shareText })
+				.catch((error) => {
+					// The rider closed the share sheet: nothing to say.
+					if (error?.name === "AbortError") return;
+					status.textContent = sheet.dataset.failed ?? "";
+					save.focus();
+				});
+		},
+		on,
+	);
+	save.addEventListener(
+		"click",
+		() => {
+			if (!state.file) return;
+			const link = document.createElement("a");
+			const url = URL.createObjectURL(state.file);
+			state.urls.add(url);
+			link.href = url;
+			link.download = state.file.name;
+			link.click();
+			setTimeout(() => {
+				URL.revokeObjectURL(url);
+				state.urls.delete(url);
+			}, 10_000);
+			status.textContent = sheet.dataset.saved ?? "";
+		},
+		on,
+	);
+	copy.addEventListener(
+		"click",
+		() => {
+			if (!state.file) return;
+			navigator.clipboard
+				.write([new ClipboardItem({ "image/png": state.file })])
+				.then(() => {
+					status.textContent = sheet.dataset.copied ?? "";
+				})
+				.catch(() => {
+					status.textContent = sheet.dataset.failed ?? "";
+				});
+		},
+		on,
+	);
+
+	/** Lets the photo go: the canvas is emptied, so its memory is freed. */
+	function dropPhoto() {
+		if (state.photo) state.photo.width = 0;
+		state.photo = null;
+	}
+
+	async function pickPhoto(file) {
+		const source = state.source;
+		const photo = await shareReadPhoto(file);
+		if (state.source !== source || !source) {
+			if (photo) photo.width = 0;
+			return;
+		}
+		dropPhoto();
+		state.photo = photo;
+		state.unreadable = !photo;
+		// A new photo keeps the badge's place and size (US2 scenario 6).
+		if (photo) state.place ??= { ...SHARE_PLACE };
+		prepare();
+	}
+
+	for (const button of [sheet.querySelector(".share-pick"), repick]) {
+		button.addEventListener("click", () => picker.click(), on);
+	}
+	picker.addEventListener(
+		"change",
+		() => {
+			const file = picker.files?.[0];
+			picker.value = "";
+			if (file) pickPhoto(file);
+		},
+		on,
+	);
+
+	/** The badge moved: the old file no longer fits, the new one comes later. */
+	function moved(place) {
+		state.place = sharePlace(place);
+		state.run++;
+		stopVideo();
+		state.file = null;
+		for (const button of actions) button.disabled = true;
+		draw();
+	}
+	const placing = () =>
+		state.format === "photo" && state.photo && state.assets && state.place;
+
+	// One pointer drags the badge, two pinch it; it follows the pointer in
+	// the photo's own pixels, however small the preview shows it.
+	const pointers = new Map();
+	let gesture = null;
+	const startGesture = () => {
+		const [a, b] = [...pointers.values()];
+		gesture = {
+			place: { ...state.place },
+			a: { ...a },
+			span: b ? Math.hypot(b.x - a.x, b.y - a.y) : 0,
+			angle: b ? Math.atan2(b.y - a.y, b.x - a.x) : 0,
+		};
+	};
+	// The badge is dragged on the picture or, with "Glitzernd", on its video,
+	// which gives way to the still picture until the badge is let go.
+	const onPicture = (event) =>
+		event.target === canvas || event.target === video;
+	preview.addEventListener(
+		"pointerdown",
+		(event) => {
+			if (!placing() || !onPicture(event)) return;
+			event.preventDefault();
+			preview.setPointerCapture?.(event.pointerId);
+			pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+			startGesture();
+		},
+		on,
+	);
+	preview.addEventListener(
+		"pointermove",
+		(event) => {
+			if (!gesture || !pointers.has(event.pointerId)) return;
+			pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+			const box = canvas.getBoundingClientRect();
+			const [a, b] = [...pointers.values()];
+			if (b && gesture.span) {
+				const span = Math.hypot(b.x - a.x, b.y - a.y);
+				const angle = Math.atan2(b.y - a.y, b.x - a.x);
+				moved({
+					...gesture.place,
+					w: (gesture.place.w * span) / gesture.span,
+					r: gesture.place.r + angle - gesture.angle,
+				});
+			} else if (!b) {
+				moved({
+					...gesture.place,
+					x: gesture.place.x + (a.x - gesture.a.x) / box.width,
+					y: gesture.place.y + (a.y - gesture.a.y) / box.height,
+				});
+			}
+		},
+		on,
+	);
+	const release = (event) => {
+		if (!pointers.delete(event.pointerId)) return;
+		if (pointers.size) startGesture();
+		else {
+			gesture = null;
+			// A tap that moved nothing keeps the file, or the video being made.
+			if (placing() && !state.file && !state.encoding) prepare();
+		}
+	};
+	preview.addEventListener("pointerup", release, on);
+	preview.addEventListener("pointercancel", release, on);
+	// The file follows once the wheel or the keys rest.
+	let rest = 0;
+	const settle = () => {
+		clearTimeout(rest);
+		rest = setTimeout(() => {
+			if (placing()) prepare();
+		}, 250);
+	};
+	// The mouse wheel scales the badge.
+	preview.addEventListener(
+		"wheel",
+		(event) => {
+			if (!placing() || !onPicture(event)) return;
+			event.preventDefault();
+			const lines = event.deltaMode === 1 ? 16 : 1;
+			const place = state.place;
+			moved({
+				...place,
+				w: place.w * Math.exp(-event.deltaY * lines * 0.0015),
+			});
+			settle();
+		},
+		{ signal, passive: false },
+	);
+
+	// The handle in the frame's corner turns and sizes the badge round its
+	// centre: the pointer's distance gives the size, its angle the turn.
+	let handle = null;
+	const centre = () => {
+		const box = canvas.getBoundingClientRect();
+		return {
+			x: box.left + state.place.x * box.width,
+			y: box.top + state.place.y * box.height,
+		};
+	};
+	turn.addEventListener(
+		"pointerdown",
+		(event) => {
+			if (!placing()) return;
+			event.preventDefault();
+			event.stopPropagation();
+			turn.setPointerCapture?.(event.pointerId);
+			const c = centre();
+			const dx = event.clientX - c.x;
+			const dy = event.clientY - c.y;
+			handle = {
+				id: event.pointerId,
+				place: { ...state.place },
+				span: Math.max(1, Math.hypot(dx, dy)),
+				angle: Math.atan2(dy, dx),
+			};
+		},
+		on,
+	);
+	turn.addEventListener(
+		"pointermove",
+		(event) => {
+			if (!handle || event.pointerId !== handle.id) return;
+			// The still picture, not the video, while the badge turns.
+			const c = centre();
+			const dx = event.clientX - c.x;
+			const dy = event.clientY - c.y;
+			moved({
+				...handle.place,
+				w: (handle.place.w * Math.hypot(dx, dy)) / handle.span,
+				r: handle.place.r + Math.atan2(dy, dx) - handle.angle,
+			});
+		},
+		on,
+	);
+	const letGo = (event) => {
+		if (!handle || event.pointerId !== handle.id) return;
+		handle = null;
+		if (placing() && !state.file && !state.encoding) prepare();
+	};
+	turn.addEventListener("pointerup", letGo, on);
+	turn.addEventListener("pointercancel", letGo, on);
+	// Keys: left and right turn by 5° (15° with Shift), up and down size.
+	turn.addEventListener(
+		"keydown",
+		(event) => {
+			if (!placing()) return;
+			const step = ((event.shiftKey ? 15 : 5) * Math.PI) / 180;
+			const place = state.place;
+			const next = {
+				ArrowLeft: { ...place, r: place.r - step },
+				ArrowRight: { ...place, r: place.r + step },
+				ArrowUp: { ...place, w: place.w * 1.05 },
+				ArrowDown: { ...place, w: place.w / 1.05 },
+			}[event.key];
+			if (!next) return;
+			event.preventDefault();
+			moved(next);
+			settle();
+		},
+		on,
+	);
+	const resized = new ResizeObserver(() => {
+		if (placing()) placeFrame();
+	});
+	resized.observe(preview);
+	signal.addEventListener("abort", () => resized.disconnect(), { once: true });
+
+	sheet
+		.querySelector(".share-sheet-close")
+		.addEventListener("click", () => sheet.close(), on);
+	// A click on the backdrop lands on the dialog itself, outside its box.
+	sheet.addEventListener(
+		"click",
+		(event) => {
+			if (event.target !== sheet) return;
+			const box = sheet.getBoundingClientRect();
+			const inside =
+				event.clientX >= box.left &&
+				event.clientX <= box.right &&
+				event.clientY >= box.top &&
+				event.clientY <= box.bottom;
+			if (!inside) sheet.close();
+		},
+		on,
+	);
+	sheet.addEventListener(
+		"close",
+		() => {
+			state.run++;
+			stopVideo();
+			state.source = null;
+			state.assets = null;
+			state.file = null;
+			// Nothing of the rider's photo stays behind (FR-022).
+			dropPhoto();
+			state.place = null;
+			state.unreadable = false;
+			picker.value = "";
+			pointers.clear();
+			gesture = null;
+			clearTimeout(rest);
+			for (const url of state.urls) URL.revokeObjectURL(url);
+			state.urls.clear();
+		},
+		on,
+	);
+
+	/** Opens the sheet for the badge whose large view is `large`, as a story. */
+	async function open(large) {
+		const texts = large.querySelectorAll(":scope > p");
+		const source = {
+			id: large.id.replace(/^badge-/, ""),
+			name: large.querySelector("h4")?.textContent ?? "",
+			earned: texts[texts.length - 1]?.textContent ?? "",
+			shareText: large.querySelector(".badge-share")?.dataset.shareText ?? "",
+		};
+		state.source = source;
+		state.assets = null;
+		state.format = "story";
+		for (const radio of sheet.querySelectorAll("input[name=share-format]")) {
+			radio.checked = radio.value === "story";
+		}
+		plain.setAttribute("aria-checked", "false");
+		shiny.setAttribute("aria-checked", "false");
+		// "Glitzernd" is offered once the muxer is here (research R5).
+		const muxer = window.Mp4Muxer ? null : shareLoadMuxer();
+		if (large.matches(":popover-open")) large.hidePopover();
+		if (!sheet.open) sheet.showModal();
+		prepare();
+		try {
+			const [assets] = await Promise.all([shareBadgeAssets(large), loadIcon()]);
+			if (state.source !== source) return;
+			state.assets = assets;
+			prepare();
+			muxer?.then(() => {
+				if (state.source === source && state.assets) prepare();
+			});
+		} catch {
+			if (state.source === source) {
+				status.textContent = sheet.dataset.failed ?? "";
+			}
+		}
+	}
+
+	for (const button of document.querySelectorAll(".badge-large .badge-share")) {
+		button.addEventListener(
+			"click",
+			() => open(button.closest(".badge-large")),
+			on,
+		);
+	}
+	for (const button of document.querySelectorAll(".badge-share-mini")) {
+		// The share button never sits under a preview the hover opened (FR-005).
+		button.addEventListener(
+			"pointerenter",
+			() => {
+				for (const large of document.querySelectorAll(
+					".badge-large-hover:popover-open",
+				)) {
+					large.hidePopover();
+				}
+			},
+			on,
+		);
+		button.addEventListener(
+			"click",
+			() => {
+				const large = document.getElementById(`badge-${button.dataset.badge}`);
+				if (large) open(large);
+			},
+			on,
+		);
+	}
+}
+
 function enhance(signal) {
 	lazyRides(signal);
 	installSettings(signal);
@@ -3659,6 +4861,7 @@ function enhance(signal) {
 	waitForFirstData(signal);
 	followFetching(signal);
 	badgeHover();
+	badgeShare(signal);
 	triState();
 	badgeSwitch(signal);
 	notifications(signal).catch(() => {});

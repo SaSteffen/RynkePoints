@@ -2,6 +2,7 @@ import type { UsageRecord } from "../../db/usage";
 import type { I18n } from "../../i18n/i18n";
 import type { RecordedAllowance } from "../../usage/allowances";
 import { levelOf, percentOf } from "../../usage/figures";
+import { SHARED } from "../../usage/split";
 import { dailyBars } from "../charts";
 import { html, type SafeHtml } from "../html";
 import { amount, whole } from "./access";
@@ -21,6 +22,8 @@ import { amount, whole } from "./access";
  */
 export interface HistoryTeams {
 	own: string;
+	/** The label of the gateway's part of Cloudflare's figures. */
+	shared: string;
 	peers: readonly { id: string; name: string }[];
 	count: (team: string, id: RecordedAllowance, day: string) => number | null;
 }
@@ -78,9 +81,15 @@ function dayTable(
 	const hasTeam = [...byDay.values()].some(
 		(record) => record.teamUsed !== null,
 	);
-	// Other teams' counts exist for Strava's figures and connected riders only.
-	const peers =
-		teams && (strava || id === "riders_connected") ? teams.peers : [];
+	// Other teams' counts exist for Strava's figures and connected riders, and
+	// for Cloudflare's once split, with the gateway's part beside them (FR-040).
+	const peers = !teams
+		? []
+		: strava || id === "riders_connected"
+			? teams.peers
+			: hasTeam
+				? [...teams.peers, { id: SHARED, name: teams.shared }]
+				: [];
 	const teamHead = (name: string) => html`<th scope="col">${name}</th>`;
 	const ownHead =
 		peers.length > 0
@@ -93,7 +102,7 @@ function dayTable(
 <tbody>
 ${[...days].reverse().map((day) => row(i18n, id, day, byDay.get(day), strava, peers, teams))}</tbody>
 </table></div>
-${!strava && hasTeam && peers.length === 0 ? html`<p class="usage-detail">${i18n.t("admin.history.ridersNote")}</p>` : null}
+${id === "riders_connected" && hasTeam && peers.length === 0 ? html`<p class="usage-detail">${i18n.t("admin.history.ridersNote")}</p>` : null}
 </div>
 `;
 }

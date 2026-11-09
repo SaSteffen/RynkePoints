@@ -3,9 +3,9 @@ import { type CloudflareAllowance, daysBefore, utcDay } from "./allowances";
 
 // Cloudflare's figures for the account, once per hourly run (feature 025
 // contracts/cloudflare-analytics.md, research R3). Results come per Worker,
-// database and queue and are summed here, so feature 026 can split them with no
-// new query. The token is never logged, and of a response only Cloudflare's own
-// error message is, which holds no rider data.
+// database and queue and are summed here; feature 026 splits them by team from
+// the same answer (`src/usage/split.ts`). The token is never logged, and of a
+// response only Cloudflare's own error message is, which holds no rider data.
 
 const GRAPHQL_URL = "https://api.cloudflare.com/client/v4/graphql";
 
@@ -39,8 +39,27 @@ export type CloudflareDays = Map<
 	Partial<Record<CloudflareAllowance, number>>
 >;
 
+/** Which kind of resource a value belongs to, by Cloudflare's dimension. */
+export type ResourceKind = "worker" | "queue" | "database";
+
+/** One resource's value of one allowance on one day, for the split by team. */
+export interface CloudflarePart {
+	day: string;
+	allowance: CloudflareAllowance;
+	kind: ResourceKind;
+	/** `scriptName`, `queueId` or `databaseId`. */
+	id: string;
+	value: number;
+}
+
 export type CloudflareResult =
-	| { kind: "ok"; today: string; yesterday: string; days: CloudflareDays }
+	| {
+			kind: "ok";
+			today: string;
+			yesterday: string;
+			days: CloudflareDays;
+			parts: CloudflarePart[];
+	  }
 	| { kind: "unavailable"; reason: string };
 
 function unavailable(reason: string): CloudflareResult {
@@ -60,11 +79,22 @@ function errorReason(errors: unknown[]): string {
 		: "errors in the response";
 }
 
-/** Adds each group's field to its day; false on an unexpected shape. */
+const DIMENSION: Record<ResourceKind, string> = {
+	worker: "scriptName",
+	queue: "queueId",
+	database: "databaseId",
+};
+
+/**
+ * Adds each group's field to its day, and to `parts` by resource; false on an
+ * unexpected shape.
+ */
 function collect(
 	days: CloudflareDays,
+	parts: CloudflarePart[],
 	groups: unknown,
 	block: "sum" | "max",
+	kind: ResourceKind,
 	fields: readonly [string, CloudflareAllowance][],
 ): boolean {
 	if (!Array.isArray(groups)) return false;
@@ -72,20 +102,30 @@ function collect(
 		if (!isRecord(group) || !isRecord(group.dimensions)) return false;
 		const values = group[block];
 		const { date } = group.dimensions;
+		const id = group.dimensions[DIMENSION[kind]];
 		if (!isRecord(values) || typeof date !== "string") return false;
 		const day = days.get(date) ?? {};
 		for (const [field, allowance] of fields) {
 			const value = values[field];
 			if (typeof value !== "number") return false;
 			day[allowance] = (day[allowance] ?? 0) + value;
+			if (typeof id === "string") {
+				parts.push({ day: date, allowance, kind, id, value });
+			}
 		}
 		days.set(date, day);
 	}
 	return true;
 }
 
-/** The days in `body`, or null when it isn't what the query asks for. */
-export function parseUsage(body: unknown): CloudflareDays | null {
+/**
+ * The days in `body`, or null when it isn't what the query asks for. Each
+ * resource's values also go into `parts`, when given.
+ */
+export function parseUsage(
+	body: unknown,
+	parts: CloudflarePart[] = [],
+): CloudflareDays | null {
 	if (!isRecord(body) || !isRecord(body.data)) return null;
 	const { viewer } = body.data;
 	if (!isRecord(viewer) || !Array.isArray(viewer.accounts)) return null;
@@ -93,17 +133,17 @@ export function parseUsage(body: unknown): CloudflareDays | null {
 	if (!isRecord(account)) return null;
 	const days: CloudflareDays = new Map();
 	const parsed =
-		collect(days, account.workers, "sum", [
+		collect(days, parts, account.workers, "sum", "worker", [
 			["requests", "cf_worker_requests"],
 		]) &&
-		collect(days, account.queues, "sum", [
+		collect(days, parts, account.queues, "sum", "queue", [
 			["billableOperations", "cf_queue_operations"],
 		]) &&
-		collect(days, account.databases, "sum", [
+		collect(days, parts, account.databases, "sum", "database", [
 			["rowsRead", "cf_d1_rows_read"],
 			["rowsWritten", "cf_d1_rows_written"],
 		]) &&
-		collect(days, account.storage, "max", [
+		collect(days, parts, account.storage, "max", "database", [
 			["databaseSizeBytes", "cf_d1_storage_bytes"],
 		]);
 	return parsed ? days : null;
@@ -152,7 +192,8 @@ export async function fetchCloudflareUsage(
 	if (isRecord(body) && Array.isArray(body.errors) && body.errors.length > 0) {
 		return unavailable(errorReason(body.errors));
 	}
-	const days = parseUsage(body);
+	const parts: CloudflarePart[] = [];
+	const days = parseUsage(body, parts);
 	if (!days) return unavailable("unexpected response");
-	return { kind: "ok", today, yesterday, days };
+	return { kind: "ok", today, yesterday, days, parts };
 }

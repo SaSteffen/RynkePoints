@@ -141,6 +141,15 @@ export const nb: Catalog = {
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint":
 		"Du kan rette turen på Strava eller spørre en arrangør.",
+	"rynke.ride.fix.summary": "Slik gjør du",
+	"rynke.ride.fix.crop":
+		"Rett turen på Strava: beskjær det som ikke hører til, for eksempel den lange pausen, en strekning med tog eller bil eller et opptak som fortsatte etter turen.",
+	"rynke.ride.fix.rename":
+		"Endre deretter tittelen på turen og lagre. Bare slik får appen vite om endringen: Strava melder fra om ny tittel, men ikke om beskjæring. Du kan sette tilbake den gamle tittelen etterpå.",
+	"rynke.ride.fix.manual":
+		"Har du tatt opp turen, last opp opptaket til Strava og slett den manuelle registreringen.",
+	"rynke.ride.fix.wait":
+		"Etter noen minutter er turen vurdert på nytt her. Skjer det ingenting, spør en arrangør.",
 	"rynke.reason.flagged":
 		"Strava har flagget denne turen. Er du uenig, ta det opp med Strava.",
 	"rynke.reason.pause":
@@ -601,6 +610,33 @@ export const nb: Catalog = {
 	"badges.first": "Første merke",
 	"badges.earnedOn": "oppnådd {date}",
 	"badges.close": "Lukk",
+	"badges.share.button": "Del",
+	"badges.share.title": "Del merke",
+	"badges.share.label": "Del «{name}»",
+	"badges.share.formatLegend": "Som",
+	"badges.share.format.story": "Story",
+	"badges.share.format.image": "Bilde",
+	"badges.share.format.photo": "På foto",
+	"badges.share.shiny": "Glitrende",
+	"badges.share.plain": "Uten bakgrunn",
+	"badges.share.pickPhoto": "Velg foto",
+	"badges.share.otherPhoto": "Annet foto",
+	"badges.share.photoPrivate": "Fotoet ditt blir på enheten din.",
+	"badges.share.photoUnreadable":
+		"Nettleseren din kan ikke åpne dette fotoet. Velg et annet.",
+	"badges.share.hintTouch":
+		"Flytt merket med én finger, vri eller klyp med to for å snu det eller endre størrelsen.",
+	"badges.share.hintMouse":
+		"Flytt merket med musen, dra i prikken i hjørnet for å snu det eller endre størrelsen.",
+	"badges.share.turn": "Snu merket eller endre størrelsen",
+	"badges.share.recording": "Gjengis …",
+	"badges.share.send": "Del …",
+	"badges.share.save": "Lagre",
+	"badges.share.copy": "Kopier",
+	"badges.share.saved": "Lagret.",
+	"badges.share.copied": "Kopiert: klar til å lime inn.",
+	"badges.share.failed": "Det gikk ikke her. Lagre fungerer alltid.",
+	"badges.share.text": "Nytt merke: {name} ({value}) 🐒",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "Nytt merke: {name}",
 	"badges.reveal.many": "Nye merker: {n}",
@@ -1000,12 +1036,14 @@ export const nb: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: ingen tall ennå",
 	"admin.figure.rest": "Ikke tilordnet: {n}",
+	"admin.figure.notSplit": "Dette tallet kan ikke fordeles på lag ennå.",
 	"admin.figure.windowNote":
 		"Andre lags forespørsler telles her som ikke tilordnet: lagene utveksler ikke 15-minuttstallene sine.",
 	"admin.teams.stale":
 		"{team}: ikke svar ved siste registrering. Tallene er fra {time} UTC.",
 	"admin.teams.other": "Annet lag",
 	"admin.teams.otherN": "Annet lag {n}",
+	"admin.teams.shared": "Felles (gateway)",
 	"admin.teams.never": "{team}: ikke svar ennå, så tallene mangler.",
 	"admin.figure.seen": "Per {time} UTC",
 	"admin.figure.notSeen": "Ikke observert ennå",

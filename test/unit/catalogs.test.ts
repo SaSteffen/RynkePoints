@@ -4,7 +4,6 @@ import { THEMES } from "../../src/http/themes";
 import {
 	CATALOGS,
 	type Catalog,
-	DEFAULT_LOCALE,
 	type MessageValue,
 } from "../../src/i18n/catalogs";
 import { de } from "../../src/i18n/messages/de";
@@ -193,6 +192,11 @@ const CONTRACT_IDS = [
 	"units.duration",
 	"units.durationMin",
 	"rynke.ride.fixHint",
+	"rynke.ride.fix.summary",
+	"rynke.ride.fix.crop",
+	"rynke.ride.fix.rename",
+	"rynke.ride.fix.manual",
+	"rynke.ride.fix.wait",
 	"rynke.reason.flagged",
 	"rynke.reason.pause",
 	"rynke.reason.pause.moving",
@@ -497,6 +501,31 @@ const CONTRACT_IDS = [
 	"badges.first",
 	"badges.close",
 	"badges.earnedOn",
+	// Sharing a badge (feature 033 contracts/messages.md).
+	"badges.share.button",
+	"badges.share.title",
+	"badges.share.label",
+	"badges.share.formatLegend",
+	"badges.share.format.story",
+	"badges.share.format.image",
+	"badges.share.format.photo",
+	"badges.share.shiny",
+	"badges.share.plain",
+	"badges.share.pickPhoto",
+	"badges.share.otherPhoto",
+	"badges.share.photoPrivate",
+	"badges.share.photoUnreadable",
+	"badges.share.hintTouch",
+	"badges.share.hintMouse",
+	"badges.share.turn",
+	"badges.share.recording",
+	"badges.share.send",
+	"badges.share.save",
+	"badges.share.copy",
+	"badges.share.saved",
+	"badges.share.copied",
+	"badges.share.failed",
+	"badges.share.text",
 	"badges.label",
 	"badges.reveal.one",
 	"badges.reveal.many",
@@ -839,10 +868,12 @@ const CONTRACT_IDS = [
 	"admin.figure.teamCount",
 	"admin.figure.teamNone",
 	"admin.figure.rest",
+	"admin.figure.notSplit",
 	"admin.figure.windowNote",
 	"admin.teams.stale",
 	"admin.teams.other",
 	"admin.teams.otherN",
+	"admin.teams.shared",
 	"admin.teams.never",
 	"admin.figure.seen",
 	"admin.figure.notSeen",
@@ -972,7 +1003,6 @@ const catalogs = Object.entries(CATALOGS) as [string, Catalog][];
 
 describe("catalog registry", () => {
 	it("ships the ten languages, German first as the key source", () => {
-		expect(DEFAULT_LOCALE).toBe("de");
 		expect(Object.keys(CATALOGS)).toEqual(SHIPPED);
 	});
 });

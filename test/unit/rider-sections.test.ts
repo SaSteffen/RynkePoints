@@ -437,7 +437,7 @@ describe("renderRideBatch (018 contracts/http-routes.md)", () => {
 			page: 1,
 			more: null,
 		}).toString();
-		const cards = page.slice(page.indexOf("<li "), page.indexOf("</ol>"));
+		const cards = page.slice(page.indexOf("<li "), page.lastIndexOf("</ol>"));
 		expect(renderRideBatch(de, rows, KEY).toString()).toBe(
 			`<ol class="ride-list" data-more="/me/rides/more?after=2026-08-27T08%3A00%3A00Z~8000040">\n${cards}</ol>`,
 		);

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// Copies the browser builds of the chart library from node_modules into
-// public/vendor/ (feature 009 research R6): no build step for browser code,
+// Copies the browser builds of the chart library (feature 009 research R6)
+// and the MP4 muxer (feature 033 research R5) from node_modules into
+// public/vendor/: no build step for browser code,
 // and the version in each file name, so the files can be cached for good.
 // The copies are committed. With `--check` nothing is written, and the exit
 // code is 1 when a copy is missing, differs or is left over from an older
@@ -18,7 +19,10 @@ import { fileURLToPath } from "node:url";
 const ROOT = new URL("../", import.meta.url);
 const OUT = fileURLToPath(new URL("public/vendor/", ROOT));
 
-/** Each package's minified build, under the name it gets in public/vendor/. */
+/**
+ * Each package's browser build, under the name it gets in public/vendor/.
+ * The licence is read from `licenceFile`, or LICENSE.md when it's not given.
+ */
 const PACKAGES = [
 	{
 		name: "chart.js",
@@ -32,6 +36,13 @@ const PACKAGES = [
 		as: (version) => `chartjs-plugin-zoom-${version}.min.js`,
 		licence: (version) => `chartjs-plugin-zoom-${version}.LICENSE.txt`,
 	},
+	{
+		name: "mp4-muxer",
+		file: "build/mp4-muxer.js",
+		as: (version) => `mp4-muxer-${version}.js`,
+		licence: (version) => `mp4-muxer-${version}.LICENSE.txt`,
+		licenceFile: "LICENSE",
+	},
 ];
 
 const check = process.argv.includes("--check");
@@ -44,7 +55,10 @@ for (const pkg of PACKAGES) {
 		readFileSync(new URL("package.json", dir), "utf8"),
 	);
 	wanted.set(pkg.as(version), readFileSync(new URL(pkg.file, dir)));
-	wanted.set(pkg.licence(version), readFileSync(new URL("LICENSE.md", dir)));
+	wanted.set(
+		pkg.licence(version),
+		readFileSync(new URL(pkg.licenceFile ?? "LICENSE.md", dir)),
+	);
 }
 
 const present = existsSync(OUT) ? readdirSync(OUT) : [];

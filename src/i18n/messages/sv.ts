@@ -140,6 +140,15 @@ export const sv: Catalog = {
 	"rynke.ride.beingEvaluated": "Bedöms",
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint": "Du kan rätta turen på Strava eller fråga en arrangör.",
+	"rynke.ride.fix.summary": "Så gör du",
+	"rynke.ride.fix.crop":
+		"Rätta turen på Strava: beskär det som inte hör dit, till exempel den långa pausen, en sträcka med tåg eller bil eller en inspelning som fortsatte efter turen.",
+	"rynke.ride.fix.rename":
+		"Ändra sedan turens titel och spara. Bara så får appen veta om ändringen: Strava meddelar en ny titel, men inte en beskärning. Du kan sätta tillbaka den gamla titeln efteråt.",
+	"rynke.ride.fix.manual":
+		"Har du spelat in turen, ladda upp inspelningen till Strava och ta bort den manuella registreringen.",
+	"rynke.ride.fix.wait":
+		"Efter några minuter har turen bedömts på nytt här. Händer inget, fråga en arrangör.",
 	"rynke.reason.flagged":
 		"Strava har flaggat den här turen. Om du inte håller med, ta upp det med Strava.",
 	"rynke.reason.pause":
@@ -600,6 +609,33 @@ export const sv: Catalog = {
 	"badges.first": "Första märket",
 	"badges.earnedOn": "tagit {date}",
 	"badges.close": "Stäng",
+	"badges.share.button": "Dela",
+	"badges.share.title": "Dela märke",
+	"badges.share.label": "Dela ”{name}”",
+	"badges.share.formatLegend": "Som",
+	"badges.share.format.story": "Story",
+	"badges.share.format.image": "Bild",
+	"badges.share.format.photo": "På foto",
+	"badges.share.shiny": "Glittrande",
+	"badges.share.plain": "Utan bakgrund",
+	"badges.share.pickPhoto": "Välj foto",
+	"badges.share.otherPhoto": "Annat foto",
+	"badges.share.photoPrivate": "Ditt foto stannar på din enhet.",
+	"badges.share.photoUnreadable":
+		"Din webbläsare kan inte öppna det här fotot. Välj ett annat.",
+	"badges.share.hintTouch":
+		"Flytta märket med ett finger, vrid eller nyp med två för att vrida det eller ändra storleken.",
+	"badges.share.hintMouse":
+		"Flytta märket med musen, dra i pricken i hörnet för att vrida det eller ändra storleken.",
+	"badges.share.turn": "Vrid märket eller ändra storleken",
+	"badges.share.recording": "Renderas …",
+	"badges.share.send": "Dela …",
+	"badges.share.save": "Spara",
+	"badges.share.copy": "Kopiera",
+	"badges.share.saved": "Sparat.",
+	"badges.share.copied": "Kopierat: klart att klistra in.",
+	"badges.share.failed": "Det gick inte här. Spara fungerar alltid.",
+	"badges.share.text": "Nytt märke: {name} ({value}) 🐒",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "Nytt märke: {name}",
 	"badges.reveal.many": "Nya märken: {n}",
@@ -1000,12 +1036,14 @@ export const sv: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: inga siffror än",
 	"admin.figure.rest": "Inte tilldelat: {n}",
+	"admin.figure.notSplit": "Den här siffran kan inte delas upp per lag än.",
 	"admin.figure.windowNote":
 		"Andra lags förfrågningar räknas här som inte tilldelade: lagen utbyter inte sina 15-minuterssiffror.",
 	"admin.teams.stale":
 		"{team}: inget svar vid senaste registreringen. Siffrorna är från {time} UTC.",
 	"admin.teams.other": "Annat lag",
 	"admin.teams.otherN": "Annat lag {n}",
+	"admin.teams.shared": "Gemensamt (gateway)",
 	"admin.teams.never": "{team}: inget svar än, så siffrorna saknas.",
 	"admin.figure.seen": "Per {time} UTC",
 	"admin.figure.notSeen": "Inte observerat än",

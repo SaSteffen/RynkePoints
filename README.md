@@ -1,6 +1,7 @@
 # RynkePoints
 
-Strava integration for Team Rynkeby Hamburg. Riders connect their Strava account
+Strava integration for Team Rynkeby teams: Team Rynkeby Hamburg, the founding
+team, and Team Rynkeby Europe, which is being set up. Riders connect their Strava account
 (opt-in), the app collects key data from their activities (distance, date, elevation
 gain, …), counts the team events they attended, and awards gamified **Rynke Points**.
 Writing their points into the Strava activity description, with the rider's
@@ -111,15 +112,44 @@ contact address, set as `PRIVACY_CONTROLLER` and `CONTACT_EMAIL` in
   are made on the maintainer's computer (`pnpm season:album`), handed to each
   rider and then deleted.
 
+## Teams
+
+Each team has its own site on its own domain, with its own Worker, D1 database and
+queue, so no rider's data is readable from another team
+([026](specs/026-second-team/spec.md)). The same code serves every team:
+
+- **Team data**: everything that differs between teams is data, in
+  `src/teams/<id>.ts` (rules, colours, art, phrases, badge names, languages) and in
+  the team's block of `wrangler.jsonc` (club, dates, switches, contact).
+  `node scripts/team-check.mjs` checks both halves. A team still holding another
+  team's values is never deployed (`--deployable <id>`).
+- **Strava gateway** (`gateway/`): Strava allows one webhook subscription and one
+  sign-in return domain per application. The gateway forwards every event to every
+  team and sends a rider coming back from Strava on to their own team. Moving
+  Hamburg behind it is a manual step: [docs/gateway-switch.md](docs/gateway-switch.md).
+- **Shared allowances**: Strava's request limits and its 999 connected athletes
+  count for all teams together. Each team's admin view shows every team's share
+  ([contracts/usage-exchange.md](specs/026-second-team/contracts/usage-exchange.md)),
+  and calls the other teams "Other team": no page names another team.
+
+Adding a team takes team data, resources and one line of deployment settings, no
+code: [docs/add-a-team.md](docs/add-a-team.md).
+
 ## Languages
 
-Rider pages are German by default and English on request: the browser's
-preferred language decides, and a switcher on every page overrides it.
+Every team's site offers ten languages: Dansk, Deutsch, English, Français,
+Íslenska, Lietuvių, Nederlands, Norsk bokmål, Suomi and Svenska. The browser's
+preferred language decides, and a switcher on every page overrides it. With no
+preference stated, a team's own default applies: German for Hamburg, English for
+Europe ([contracts/locales.md](specs/026-second-team/contracts/locales.md)). The
+English text is the reference where translations differ.
 
 All rider-facing text lives in `src/i18n/messages/<locale>.ts`, never inline in
-pages or logic. Message IDs are listed in
+pages or logic. German is the key source: every catalog has exactly its keys,
+placeholders and plural forms, which a unit test checks. Message IDs are listed in
 [contracts/messages.md](specs/001-strava-connect-webhook/contracts/messages.md).
-To add a language, add a catalog file with the same keys and register it in
+To add a language, add its catalog file and its common phrases
+(`src/content/phrases/common.<code>.ts`) and register it in
 `src/i18n/catalogs.ts`; no other code changes.
 
 ## Getting started
@@ -299,15 +329,21 @@ the workflows onto `main`.
 ## Deploying
 
 Merging into `main` deploys. Once `lint`, `typecheck`, `test` and `e2e` pass on the
-merged commit, CI applies pending D1 migrations, then publishes the Worker.
-Nothing else deploys; merges into `develop` don't.
+merged commit, CI deploys each team from its own GitHub environment (`production`
+for Hamburg, `production-europe` for Europe): it applies the team's pending D1
+migrations, then publishes its Worker. One team's failure never stops another's.
+Europe is only deployed while the repository variable `EUROPE_DEPLOY` is `on`, and
+the gateway only while `GATEWAY_DEPLOY` is `on`
+([repository settings](.github/repository-settings.md)). Nothing else deploys;
+merges into `develop` don't.
 
 - **Migrations** run first. They're forward-only and never rolled back, so a
   migration must keep the previously deployed version working: add tables and
   columns, don't rename or drop them in the same release. Remove old parts in a
   later release.
-- **Which commit runs**: **Deployments → production** on GitHub. The Cloudflare
-  version message carries the commit SHA too.
+- **Which commit runs**: **Deployments → production** (Hamburg) or
+  **production-europe** on GitHub. The Cloudflare version message carries the
+  commit SHA too.
 - **When a deploy fails**, the run on the `main` commit is red, the deployment
   shows *failure*, the maintainer gets an e-mail, and the previous version keeps
   serving.

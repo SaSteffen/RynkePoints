@@ -51,8 +51,34 @@ export const REFRESH = icon(
 	'<path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/>',
 );
 
+/**
+ * Share, as each rider knows it (feature 033 research R8): Apple's box with an
+ * arrow on iPhone and iPad, three linked dots on Android and desktop. Both are
+ * in the markup; the style shows one, since only iOS and iPadOS support
+ * `-webkit-touch-callout`.
+ */
+const SHARE_PATHS = {
+	apple:
+		'<path d="M12 3v12"/><path d="m7.5 7.5 4.5-4.5 4.5 4.5"/><path d="M8 10H6a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1h-2"/>',
+	dots: '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
+};
+export const SHARE = new SafeHtml(
+	Object.entries(SHARE_PATHS)
+		.map(([kind, paths]) =>
+			icon(paths)
+				.toString()
+				.replace("<svg ", `<svg class="share-icon-${kind}" `),
+		)
+		.join(""),
+);
+
 /** Closes the app prompt (feature 015). */
 export const CLOSE = icon('<path d="M6 6l12 12M18 6 6 18"/>');
+
+/** A turning arrow, for the handle that turns and sizes a shared badge (feature 033). */
+export const TURN = icon(
+	'<path d="M19 12a7 7 0 1 1-2.05-4.95"/><path d="M19 4v3.5h-3.5"/>',
+);
 
 /** A tick, for "Bin dabei ✓" and confirmed attendance (feature 019). */
 export const CHECK = icon('<path d="M5 12.5l4.5 4.5L19 7.5"/>');

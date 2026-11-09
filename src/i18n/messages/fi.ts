@@ -140,6 +140,15 @@ export const fi: Catalog = {
 	"rynke.ride.beingEvaluated": "Arvioidaan",
 	"rynke.ride.virtual": "virtuaalinen",
 	"rynke.ride.fixHint": "Voit korjata ajon Stravassa tai kysyä järjestäjältä.",
+	"rynke.ride.fix.summary": "Näin korjaat",
+	"rynke.ride.fix.crop":
+		"Korjaa ajo Stravassa: rajaa pois se, mikä ei kuulu siihen, esimerkiksi pitkä tauko, juna- tai automatka tai tallennus, joka jatkui ajon jälkeen.",
+	"rynke.ride.fix.rename":
+		"Vaihda sen jälkeen ajon otsikko ja tallenna. Vain näin sovellus saa tiedon muutoksesta: Strava ilmoittaa uudesta otsikosta, mutta ei rajauksesta. Voit palauttaa vanhan otsikon jälkeenpäin.",
+	"rynke.ride.fix.manual":
+		"Jos tallensit ajon, lataa tallennus Stravaan ja poista käsin lisätty merkintä.",
+	"rynke.ride.fix.wait":
+		"Muutaman minuutin kuluttua ajo arvioidaan täällä uudelleen. Jos mikään ei muutu, kysy järjestäjältä.",
 	"rynke.reason.flagged":
 		"Strava on merkinnyt tämän ajon. Jos olet eri mieltä, selvitä asia Stravan kanssa.",
 	"rynke.reason.pause":
@@ -602,6 +611,34 @@ export const fi: Catalog = {
 	"badges.first": "Ensimmäinen merkki",
 	"badges.earnedOn": "ansaittu {date}",
 	"badges.close": "Sulje",
+	"badges.share.button": "Jaa",
+	"badges.share.title": "Jaa merkki",
+	"badges.share.label": "Jaa ”{name}”",
+	"badges.share.formatLegend": "Muoto",
+	"badges.share.format.story": "Tarina",
+	"badges.share.format.image": "Kuva",
+	"badges.share.format.photo": "Valokuvaan",
+	"badges.share.shiny": "Kimalteleva",
+	"badges.share.plain": "Ilman taustaa",
+	"badges.share.pickPhoto": "Valitse kuva",
+	"badges.share.otherPhoto": "Toinen kuva",
+	"badges.share.photoPrivate": "Kuvasi pysyy laitteellasi.",
+	"badges.share.photoUnreadable":
+		"Selaimesi ei voi avata tätä kuvaa. Valitse toinen.",
+	"badges.share.hintTouch":
+		"Siirrä merkkiä yhdellä sormella, käännä sitä tai muuta kokoa kahdella sormella.",
+	"badges.share.hintMouse":
+		"Siirrä merkkiä hiirellä, käännä sitä tai muuta kokoa vetämällä kulman pisteestä.",
+	"badges.share.turn": "Käännä merkkiä tai muuta sen kokoa",
+	"badges.share.recording": "Renderöidään …",
+	"badges.share.send": "Jaa …",
+	"badges.share.save": "Tallenna",
+	"badges.share.copy": "Kopioi",
+	"badges.share.saved": "Tallennettu.",
+	"badges.share.copied": "Kopioitu: valmis liitettäväksi.",
+	"badges.share.failed":
+		"Tämä ei onnistunut täällä. Tallentaminen onnistuu aina.",
+	"badges.share.text": "Uusi merkki: {name} ({value}) 🐒",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "Uusi merkki: {name}",
 	"badges.reveal.many": "Uusia merkkejä: {n}",
@@ -1000,12 +1037,14 @@ export const fi: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: ei vielä lukuja",
 	"admin.figure.rest": "Kohdistamaton: {n}",
+	"admin.figure.notSplit": "Tätä lukua ei voi vielä jakaa tiimeittäin.",
 	"admin.figure.windowNote":
 		"Muiden tiimien pyynnöt lasketaan tässä kohdistamattomiksi: tiimit eivät vaihda 15 minuutin lukujaan.",
 	"admin.teams.stale":
 		"{team}: ei vastausta viimeisimmässä tallennuksessa. Luvut ovat ajalta {time} UTC.",
 	"admin.teams.other": "Toinen tiimi",
 	"admin.teams.otherN": "Toinen tiimi {n}",
+	"admin.teams.shared": "Yhteinen (yhdyskäytävä)",
 	"admin.teams.never": "{team}: ei vielä vastausta, joten luvut puuttuvat.",
 	"admin.figure.seen": "Tilanne {time} UTC",
 	"admin.figure.notSeen": "Ei vielä havaittu",

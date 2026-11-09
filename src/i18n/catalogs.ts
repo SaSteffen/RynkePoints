@@ -50,6 +50,3 @@ export const CATALOGS = {
 } as const satisfies Catalogs;
 
 export type Locale = keyof typeof CATALOGS;
-
-/** The key source and the catalog a missing message falls back to. */
-export const DEFAULT_LOCALE: Locale = "de";

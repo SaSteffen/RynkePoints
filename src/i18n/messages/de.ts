@@ -150,6 +150,15 @@ export const de = {
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint":
 		"Du kannst die Fahrt auf Strava korrigieren oder dich an die Orga wenden.",
+	"rynke.ride.fix.summary": "So geht's",
+	"rynke.ride.fix.crop":
+		"Korrigiere die Fahrt auf Strava: Schneide ab, was nicht dazugehört, etwa die lange Pause, eine Strecke mit Bahn oder Auto oder eine Aufzeichnung, die nach der Fahrt weiterlief.",
+	"rynke.ride.fix.rename":
+		"Ändere danach den Titel der Fahrt und speichere. Nur so erfährt die App von der Änderung: Strava meldet einen neuen Titel, das Zuschneiden nicht. Den alten Titel kannst du danach wieder eintragen.",
+	"rynke.ride.fix.manual":
+		"Hast du die Fahrt aufgezeichnet, lade die Aufzeichnung auf Strava hoch und lösche den manuellen Eintrag.",
+	"rynke.ride.fix.wait":
+		"Nach ein paar Minuten ist die Fahrt hier neu bewertet. Ändert sich nichts, wende dich an die Orga.",
 	"rynke.reason.flagged":
 		"Strava hat die Fahrt markiert. Wenn du anderer Meinung bist, kläre das bitte mit Strava.",
 	"rynke.reason.pause":
@@ -634,6 +643,33 @@ export const de = {
 	"badges.first": "Erstes Abzeichen",
 	"badges.earnedOn": "erreicht am {date}",
 	"badges.close": "Schließen",
+	"badges.share.button": "Teilen",
+	"badges.share.title": "Abzeichen teilen",
+	"badges.share.label": "„{name}“ teilen",
+	"badges.share.formatLegend": "Als",
+	"badges.share.format.story": "Story",
+	"badges.share.format.image": "Bild",
+	"badges.share.format.photo": "Auf Foto",
+	"badges.share.shiny": "Glitzernd",
+	"badges.share.plain": "Ohne Hintergrund",
+	"badges.share.pickPhoto": "Foto wählen",
+	"badges.share.otherPhoto": "Anderes Foto",
+	"badges.share.photoPrivate": "Dein Foto bleibt auf deinem Gerät.",
+	"badges.share.photoUnreadable":
+		"Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.",
+	"badges.share.hintTouch":
+		"Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen.",
+	"badges.share.hintMouse":
+		"Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen.",
+	"badges.share.turn": "Abzeichen drehen oder Größe ändern",
+	"badges.share.recording": "Wird gerendert …",
+	"badges.share.send": "Teilen …",
+	"badges.share.save": "Speichern",
+	"badges.share.copy": "Kopieren",
+	"badges.share.saved": "Gespeichert.",
+	"badges.share.copied": "Kopiert: zum Einfügen bereit.",
+	"badges.share.failed": "Das ging hier nicht. Speichern geht immer.",
+	"badges.share.text": "Neues Abzeichen: {name} ({value}) 🐒",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "Neues Abzeichen: {name}",
 	"badges.reveal.many": "{n} neue Abzeichen",
@@ -1039,12 +1075,15 @@ export const de = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: noch keine Zahlen",
 	"admin.figure.rest": "Nicht zugeordnet: {n}",
+	"admin.figure.notSplit":
+		"Diese Zahl lässt sich noch nicht nach Teams aufteilen.",
 	"admin.figure.windowNote":
 		"Anfragen anderer Teams zählen hier als nicht zugeordnet: Die Teams tauschen ihre 15-Minuten-Zahlen nicht aus.",
 	"admin.teams.stale":
 		"{team}: keine Antwort bei der letzten Erfassung. Die Zahlen sind vom {time} UTC.",
 	"admin.teams.other": "Anderes Team",
 	"admin.teams.otherN": "Anderes Team {n}",
+	"admin.teams.shared": "Gemeinsam (Gateway)",
 	"admin.teams.never": "{team}: noch keine Antwort, daher fehlen die Zahlen.",
 	"admin.figure.seen": "Stand: {time} UTC",
 	"admin.figure.notSeen": "Noch nicht beobachtet",

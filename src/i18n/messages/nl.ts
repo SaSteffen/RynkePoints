@@ -141,6 +141,15 @@ export const nl: Catalog = {
 	"rynke.ride.virtual": "virtueel",
 	"rynke.ride.fixHint":
 		"Je kunt de rit op Strava corrigeren of een organisator vragen.",
+	"rynke.ride.fix.summary": "Zo doe je het",
+	"rynke.ride.fix.crop":
+		"Corrigeer de rit op Strava: knip weg wat er niet bij hoort, bijvoorbeeld de lange pauze, een stuk met trein of auto of een opname die na de rit doorliep.",
+	"rynke.ride.fix.rename":
+		"Wijzig daarna de titel van de rit en sla op. Alleen zo hoort de app van de wijziging: Strava meldt een nieuwe titel, maar geen ingekorte rit. Je kunt de oude titel daarna terugzetten.",
+	"rynke.ride.fix.manual":
+		"Heb je de rit opgenomen, upload de opname dan naar Strava en verwijder de handmatige invoer.",
+	"rynke.ride.fix.wait":
+		"Na een paar minuten is de rit hier opnieuw beoordeeld. Verandert er niets, vraag dan een organisator.",
 	"rynke.reason.flagged":
 		"Strava heeft deze rit gemarkeerd. Ben je het er niet mee eens, regel het dan met Strava.",
 	"rynke.reason.pause":
@@ -612,6 +621,33 @@ export const nl: Catalog = {
 	"badges.first": "Eerste badge",
 	"badges.earnedOn": "verdiend op {date}",
 	"badges.close": "Sluiten",
+	"badges.share.button": "Delen",
+	"badges.share.title": "Badge delen",
+	"badges.share.label": "“{name}” delen",
+	"badges.share.formatLegend": "Als",
+	"badges.share.format.story": "Story",
+	"badges.share.format.image": "Afbeelding",
+	"badges.share.format.photo": "Op foto",
+	"badges.share.shiny": "Glinsterend",
+	"badges.share.plain": "Zonder achtergrond",
+	"badges.share.pickPhoto": "Foto kiezen",
+	"badges.share.otherPhoto": "Andere foto",
+	"badges.share.photoPrivate": "Je foto blijft op je apparaat.",
+	"badges.share.photoUnreadable":
+		"Je browser kan deze foto niet openen. Kies een andere.",
+	"badges.share.hintTouch":
+		"Versleep de badge met één vinger, draai of knijp met twee om hem te draaien of het formaat te wijzigen.",
+	"badges.share.hintMouse":
+		"Versleep de badge met de muis, sleep het puntje in de hoek om hem te draaien of het formaat te wijzigen.",
+	"badges.share.turn": "De badge draaien of het formaat wijzigen",
+	"badges.share.recording": "Wordt gerenderd …",
+	"badges.share.send": "Delen …",
+	"badges.share.save": "Opslaan",
+	"badges.share.copy": "Kopiëren",
+	"badges.share.saved": "Opgeslagen.",
+	"badges.share.copied": "Gekopieerd: klaar om te plakken.",
+	"badges.share.failed": "Dat lukte hier niet. Opslaan lukt altijd.",
+	"badges.share.text": "Nieuwe badge: {name} ({value}) 🐒",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "Nieuwe badge: {name}",
 	"badges.reveal.many": "{n} nieuwe badges",
@@ -1015,12 +1051,14 @@ export const nl: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: nog geen cijfers",
 	"admin.figure.rest": "Niet toegewezen: {n}",
+	"admin.figure.notSplit": "Dit cijfer kan nog niet per team worden verdeeld.",
 	"admin.figure.windowNote":
 		"Verzoeken van andere teams tellen hier als niet toegewezen: de teams wisselen hun 15-minutencijfers niet uit.",
 	"admin.teams.stale":
 		"{team}: geen antwoord bij de laatste registratie. De cijfers zijn van {time} UTC.",
 	"admin.teams.other": "Ander team",
 	"admin.teams.otherN": "Ander team {n}",
+	"admin.teams.shared": "Gedeeld (gateway)",
 	"admin.teams.never": "{team}: nog geen antwoord, dus de cijfers ontbreken.",
 	"admin.figure.seen": "Stand van {time} UTC",
 	"admin.figure.notSeen": "Nog niet waargenomen",

@@ -1,5 +1,6 @@
 import { RIDES_PER_PAGE, type RideKey } from "../db/rider-view";
 import type { Rider } from "../db/riders";
+import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import type { RiderStatus } from "../rynke/pace";
 import { STRAVA_ORIGIN } from "../strava/result";
@@ -563,6 +564,30 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 	}
 }
 
+/** Reasons fixed by cutting the ride on Strava. */
+const CROPPABLE = new Set<string>([
+	"pause",
+	"too_slow",
+	"too_fast",
+	"climbing_rate",
+]);
+
+/**
+ * How to fix the ride, folded under the fix hint. Strava sends no event for a
+ * crop, only for a new title, so a cropped ride needs one (#274).
+ */
+function fixSteps(i18n: I18n, ride: RideLine): SafeHtml {
+	const codes = new Set(ride.reasons.map((reason) => reason.code));
+	const crop = [...codes].some((code) => CROPPABLE.has(code));
+	const steps: MessageId[] = [];
+	if (crop) steps.push("rynke.ride.fix.crop", "rynke.ride.fix.rename");
+	if (codes.has("manual")) steps.push("rynke.ride.fix.manual");
+	steps.push("rynke.ride.fix.wait");
+	return html`<details class="ride-fix"><summary class="tap">${i18n.t("rynke.ride.fix.summary")}</summary><ol>${steps.map(
+		(key) => html`<li>${i18n.t(key)}</li>`,
+	)}</ol></details>`;
+}
+
 /**
  * Reasons, unknown figures and the fix hint in the card's disclosure, open
  * only for a ride that doesn't count (011 clarification Q5); none when
@@ -583,7 +608,7 @@ function explanation(i18n: I18n, ride: RideLine): SafeHtml | null {
 					i18n.t("rynke.unknown.mayChange"),
 				].join(" ")}</p>`;
 	const fixHint = ride.fixHint
-		? html`<p>${i18n.t("rynke.ride.fixHint")}</p>`
+		? html`<p>${i18n.t("rynke.ride.fixHint")}</p>${fixSteps(i18n, ride)}`
 		: null;
 	if (!reasons && !unknown && !fixHint) return null;
 	const open = ride.status === "does-not-count" ? html` open` : null;

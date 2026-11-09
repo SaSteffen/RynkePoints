@@ -143,6 +143,15 @@ export const is: Catalog = {
 	"rynke.ride.virtual": "sýndar",
 	"rynke.ride.fixHint":
 		"Þú getur leiðrétt ferðina á Strava eða spurt skipuleggjanda.",
+	"rynke.ride.fix.summary": "Svona lagarðu þetta",
+	"rynke.ride.fix.crop":
+		"Leiðréttu ferðina á Strava: klipptu burt það sem á ekki heima þar, til dæmis langa hléið, kafla í lest eða bíl eða upptöku sem hélt áfram eftir ferðina.",
+	"rynke.ride.fix.rename":
+		"Breyttu síðan titli ferðarinnar og vistaðu. Aðeins þannig fréttir appið af breytingunni: Strava tilkynnir nýjan titil en ekki klippingu. Þú getur sett gamla titilinn aftur á eftir.",
+	"rynke.ride.fix.manual":
+		"Ef þú tókst ferðina upp skaltu hlaða upptökunni upp á Strava og eyða handvirku skráningunni.",
+	"rynke.ride.fix.wait":
+		"Eftir nokkrar mínútur er ferðin metin aftur hér. Ef ekkert breytist skaltu spyrja skipuleggjanda.",
 	"rynke.reason.flagged":
 		"Strava merkti þessa ferð. Ef þú ert ósammála skaltu leysa það við Strava.",
 	"rynke.reason.pause":
@@ -603,6 +612,33 @@ export const is: Catalog = {
 	"badges.first": "Fyrsta merkið",
 	"badges.earnedOn": "unnið {date}",
 	"badges.close": "Loka",
+	"badges.share.button": "Deila",
+	"badges.share.title": "Deila merki",
+	"badges.share.label": "Deila „{name}“",
+	"badges.share.formatLegend": "Sem",
+	"badges.share.format.story": "Saga",
+	"badges.share.format.image": "Mynd",
+	"badges.share.format.photo": "Á ljósmynd",
+	"badges.share.shiny": "Glitrandi",
+	"badges.share.plain": "Án bakgrunns",
+	"badges.share.pickPhoto": "Velja mynd",
+	"badges.share.otherPhoto": "Önnur mynd",
+	"badges.share.photoPrivate": "Myndin þín verður áfram á tækinu þínu.",
+	"badges.share.photoUnreadable":
+		"Vafrinn þinn getur ekki opnað þessa mynd. Veldu aðra.",
+	"badges.share.hintTouch":
+		"Færðu merkið með einum fingri, snúðu því eða breyttu stærðinni með tveimur.",
+	"badges.share.hintMouse":
+		"Færðu merkið með músinni, dragðu punktinn í horninu til að snúa því eða breyta stærðinni.",
+	"badges.share.turn": "Snúa merkinu eða breyta stærðinni",
+	"badges.share.recording": "Í vinnslu …",
+	"badges.share.send": "Deila …",
+	"badges.share.save": "Vista",
+	"badges.share.copy": "Afrita",
+	"badges.share.saved": "Vistað.",
+	"badges.share.copied": "Afritað: tilbúið til að líma.",
+	"badges.share.failed": "Þetta gekk ekki hér. Að vista virkar alltaf.",
+	"badges.share.text": "Nýtt merki: {name} ({value}) 🐒",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "Nýtt merki: {name}",
 	"badges.reveal.many": "Ný merki: {n}",
@@ -1006,12 +1042,15 @@ export const is: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: engar tölur enn",
 	"admin.figure.rest": "Óúthlutað: {n}",
+	"admin.figure.notSplit":
+		"Ekki er enn hægt að skipta þessari tölu eftir liðum.",
 	"admin.figure.windowNote":
 		"Beiðnir annarra liða teljast hér óúthlutaðar: liðin skiptast ekki á 15 mínútna tölum sínum.",
 	"admin.teams.stale":
 		"{team}: ekkert svar við síðustu skráningu. Tölurnar eru frá {time} UTC.",
 	"admin.teams.other": "Annað lið",
 	"admin.teams.otherN": "Annað lið {n}",
+	"admin.teams.shared": "Sameiginlegt (gátt)",
 	"admin.teams.never": "{team}: ekkert svar enn, svo tölurnar vantar.",
 	"admin.figure.seen": "Staða {time} UTC",
 	"admin.figure.notSeen": "Ekki séð enn",

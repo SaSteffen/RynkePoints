@@ -141,6 +141,15 @@ export const en: Catalog = {
 	"rynke.ride.virtual": "virtual",
 	"rynke.ride.fixHint":
 		"You can correct the ride on Strava or ask an organiser.",
+	"rynke.ride.fix.summary": "How to fix it",
+	"rynke.ride.fix.crop":
+		"Correct the ride on Strava: crop what doesn't belong to it, such as the long pause, a stretch by train or car, or recording that kept running after the ride.",
+	"rynke.ride.fix.rename":
+		"Then change the ride's title and save. That's how the app hears about it: Strava reports a new title, but not a crop. You can put the old title back afterwards.",
+	"rynke.ride.fix.manual":
+		"If you recorded the ride, upload the recording to Strava and delete the manual entry.",
+	"rynke.ride.fix.wait":
+		"After a few minutes the ride is checked again here. If nothing changes, ask an organiser.",
 	"rynke.reason.flagged":
 		"Strava flagged this ride. If you disagree, please settle it with Strava.",
 	"rynke.reason.pause":
@@ -608,6 +617,33 @@ export const en: Catalog = {
 	"badges.first": "First badge",
 	"badges.earnedOn": "earned on {date}",
 	"badges.close": "Close",
+	"badges.share.button": "Share",
+	"badges.share.title": "Share badge",
+	"badges.share.label": "Share “{name}”",
+	"badges.share.formatLegend": "As",
+	"badges.share.format.story": "Story",
+	"badges.share.format.image": "Image",
+	"badges.share.format.photo": "On photo",
+	"badges.share.shiny": "Sparkling",
+	"badges.share.plain": "No background",
+	"badges.share.pickPhoto": "Choose photo",
+	"badges.share.otherPhoto": "Other photo",
+	"badges.share.photoPrivate": "Your photo stays on your device.",
+	"badges.share.photoUnreadable":
+		"Your browser can't open this photo. Choose another one.",
+	"badges.share.hintTouch":
+		"Drag the badge with one finger, turn or pinch it with two to rotate or resize it.",
+	"badges.share.hintMouse":
+		"Drag the badge with the mouse, drag the dot in its corner to rotate or resize it.",
+	"badges.share.turn": "Rotate or resize the badge",
+	"badges.share.recording": "Rendering …",
+	"badges.share.send": "Share …",
+	"badges.share.save": "Save",
+	"badges.share.copy": "Copy",
+	"badges.share.saved": "Saved.",
+	"badges.share.copied": "Copied: ready to paste.",
+	"badges.share.failed": "That didn't work here. Saving always does.",
+	"badges.share.text": "New badge: {name} ({value}) 🐒",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "New badge: {name}",
 	"badges.reveal.many": "{n} new badges",
@@ -1002,12 +1038,14 @@ export const en: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: no figures yet",
 	"admin.figure.rest": "Not attributed: {n}",
+	"admin.figure.notSplit": "This figure can't be split by team yet.",
 	"admin.figure.windowNote":
 		"Other teams' requests count as not attributed here: teams don't exchange their 15-minute counts.",
 	"admin.teams.stale":
 		"{team}: no answer at the last recording. Its figures are from {time} UTC.",
 	"admin.teams.other": "Other team",
 	"admin.teams.otherN": "Other team {n}",
+	"admin.teams.shared": "Shared (gateway)",
 	"admin.teams.never": "{team}: no answer yet, so its figures are missing.",
 	"admin.figure.seen": "As of {time} UTC",
 	"admin.figure.notSeen": "Not observed yet",

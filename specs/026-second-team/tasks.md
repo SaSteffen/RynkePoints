@@ -88,7 +88,7 @@ Blocks every release 1 story.
 - [X] T011 [US5] Tests in `test/integration/lang.test.ts`: `POST /lang` accepts each of
   the ten codes and refuses others; the picker lists ten native names, alphabetically,
   current one marked (contracts/locales.md › Picker).
-- [ ] T012 [US5] Mock-up of the ten-language picker inside the real fake-mode pages at phone
+- [X] T012 [US5] Mock-up of the ten-language picker inside the real fake-mode pages at phone
   and desktop width (research R5), following the theme menu in `src/http/theme-menu.ts`,
   for the maintainer to approve before T013.
 - [X] T013 [US5] The picker in `src/http/lang.ts`, `src/http/shell.ts` and
@@ -431,7 +431,7 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 - [X] T080 Alerts of feature 025 go to every team's administrators: connected riders are
   recorded as all teams' together, Strava's and Cloudflare's figures are shared anyway
   (FR-041). Maintainers outside the app are feature 028's (FR-025).
-- [ ] T080a Cloudflare's figures split by team (FR-040): map Workers, databases and queues
+- [X] T080a Cloudflare's figures split by team (FR-040): map Workers, databases and queues
   to teams in team data, count the gateway's as shared, and say so for a figure that
   can't be split, in `src/usage/cloudflare.ts` and the view.
 
@@ -443,7 +443,7 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 - [ ] T082 Europe's Rynke explanation `docs/teams/europe/rynke-punkte.md` and its PDF from
   its values (FR-022); `scripts/docs-pdf.sh` builds per team.
 - [ ] T083 Add Europe to the gateway's `TEAMS` in `gateway/wrangler.jsonc`.
-- [ ] T084 Runbook `docs/add-a-team.md`: the manual steps from quickstart › Release 4
+- [X] T084 Runbook `docs/add-a-team.md`: the manual steps from quickstart › Release 4
   (resources in the EU jurisdiction, secrets with the Strava secret by the Strava owner
   only, environment, controllers' decision, gateway token), written for any later team
   (FR-004, FR-043, FR-044).
@@ -455,9 +455,9 @@ its domain.
 
 ## Phase 17: Polish
 
-- [ ] T085 Update `README.md` and `CLAUDE.md` for teams, the gateway, the dev commands and
+- [X] T085 Update `README.md` and `CLAUDE.md` for teams, the gateway, the dev commands and
   the ten languages; add `gateway/` to the non-negotiable import rule in `CLAUDE.md`.
-- [ ] T086 Remove the dead `DEFAULT_LOCALE` and `FOREIGN_LOCALE` exports once nothing uses
+- [X] T086 Remove the dead `DEFAULT_LOCALE` and `FOREIGN_LOCALE` exports once nothing uses
   them, in `src/i18n/catalogs.ts`.
 
 ---

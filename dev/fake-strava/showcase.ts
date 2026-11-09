@@ -33,7 +33,7 @@ export function badgesPage(
 		personal: evaluated("personal"),
 		team: evaluated("team"),
 	});
-	const body = html`<div class="overview-grid">${section ? renderBadges(i18n, badgeNames({ team }, i18n), section) : null}</div>`;
+	const body = html`<div class="overview-grid">${section ? renderBadges(i18n, badgeNames({ team }, i18n), section, { name: team.shortName, icon: team.art.icons.icon192 }) : null}</div>`;
 	return htmlResponse(
 		i18n,
 		layout(i18n, { title: "Every badge", path: "/_dev/badges", body }),

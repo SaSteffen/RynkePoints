@@ -141,6 +141,15 @@ export const da: Catalog = {
 	"rynke.ride.virtual": "virtuel",
 	"rynke.ride.fixHint":
 		"Du kan rette turen på Strava eller spørge en arrangør.",
+	"rynke.ride.fix.summary": "Sådan gør du",
+	"rynke.ride.fix.crop":
+		"Ret turen på Strava: beskær det, der ikke hører til, fx den lange pause, et stykke med tog eller bil eller en optagelse, der kørte videre efter turen.",
+	"rynke.ride.fix.rename":
+		"Skift derefter turens titel og gem. Kun sådan opdager appen ændringen: Strava melder en ny titel, men ikke en beskæring. Du kan sætte den gamle titel tilbage bagefter.",
+	"rynke.ride.fix.manual":
+		"Har du optaget turen, så upload optagelsen til Strava og slet den manuelle registrering.",
+	"rynke.ride.fix.wait":
+		"Efter et par minutter er turen vurderet igen her. Sker der ikke noget, så spørg en arrangør.",
 	"rynke.reason.flagged":
 		"Strava har markeret denne tur. Er du uenig, så tag det op med Strava.",
 	"rynke.reason.pause":
@@ -603,6 +612,33 @@ export const da: Catalog = {
 	"badges.first": "Første badge",
 	"badges.earnedOn": "opnået den {date}",
 	"badges.close": "Luk",
+	"badges.share.button": "Del",
+	"badges.share.title": "Del badge",
+	"badges.share.label": "Del »{name}«",
+	"badges.share.formatLegend": "Som",
+	"badges.share.format.story": "Story",
+	"badges.share.format.image": "Billede",
+	"badges.share.format.photo": "På foto",
+	"badges.share.shiny": "Glitrende",
+	"badges.share.plain": "Uden baggrund",
+	"badges.share.pickPhoto": "Vælg foto",
+	"badges.share.otherPhoto": "Andet foto",
+	"badges.share.photoPrivate": "Dit foto bliver på din enhed.",
+	"badges.share.photoUnreadable":
+		"Din browser kan ikke åbne dette foto. Vælg et andet.",
+	"badges.share.hintTouch":
+		"Flyt badget med én finger, drej eller knib med to for at dreje det eller ændre størrelsen.",
+	"badges.share.hintMouse":
+		"Flyt badget med musen, træk i prikken i hjørnet for at dreje det eller ændre størrelsen.",
+	"badges.share.turn": "Drej badget eller ændr størrelsen",
+	"badges.share.recording": "Gengives …",
+	"badges.share.send": "Del …",
+	"badges.share.save": "Gem",
+	"badges.share.copy": "Kopiér",
+	"badges.share.saved": "Gemt.",
+	"badges.share.copied": "Kopieret: klar til at indsætte.",
+	"badges.share.failed": "Det virkede ikke her. Gem virker altid.",
+	"badges.share.text": "Nyt badge: {name} ({value}) 🐒",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "Nyt badge: {name}",
 	"badges.reveal.many": "Nye badges: {n}",
@@ -997,12 +1033,14 @@ export const da: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: endnu ingen tal",
 	"admin.figure.rest": "Ikke tilknyttet: {n}",
+	"admin.figure.notSplit": "Dette tal kan endnu ikke fordeles på hold.",
 	"admin.figure.windowNote":
 		"Andre holds forespørgsler tæller her som ikke tilknyttet: holdene udveksler ikke deres 15-minutterstal.",
 	"admin.teams.stale":
 		"{team}: intet svar ved seneste registrering. Tallene er fra {time} UTC.",
 	"admin.teams.other": "Andet hold",
 	"admin.teams.otherN": "Andet hold {n}",
+	"admin.teams.shared": "Fælles (gateway)",
 	"admin.teams.never": "{team}: intet svar endnu, så tallene mangler.",
 	"admin.figure.seen": "Pr. {time} UTC",
 	"admin.figure.notSeen": "Ikke observeret endnu",

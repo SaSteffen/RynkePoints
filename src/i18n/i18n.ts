@@ -1,11 +1,10 @@
 import { escapeHtml, SafeHtml } from "../http/html";
-import {
-	type Catalog,
-	type Catalogs,
-	DEFAULT_LOCALE,
-	type MessageId,
-	type MessageValue,
-	type PluralCategory,
+import type {
+	Catalog,
+	Catalogs,
+	MessageId,
+	MessageValue,
+	PluralCategory,
 } from "./catalogs";
 import { de } from "./messages/de";
 
@@ -31,7 +30,9 @@ export interface I18n {
 const PLACEHOLDER = /\{(\w+)\}/g;
 
 export function createI18n(locale: string, catalogs: Catalogs): I18n {
-	const resolved = Object.hasOwn(catalogs, locale) ? locale : DEFAULT_LOCALE;
+	// A locale nobody ships falls back to German, the catalogs' key source. The
+	// router never asks for one: it resolves against the team (contracts/locales.md).
+	const resolved = Object.hasOwn(catalogs, locale) ? locale : "de";
 	const catalog: Partial<Catalog> = catalogs[resolved] ?? de;
 
 	function value(id: MessageId): MessageValue {

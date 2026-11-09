@@ -144,6 +144,15 @@ export const lt: Catalog = {
 	"rynke.ride.virtual": "virtualus",
 	"rynke.ride.fixHint":
 		"Važiavimą gali pataisyti Strava arba paprašyti organizatoriaus.",
+	"rynke.ride.fix.summary": "Kaip tai padaryti",
+	"rynke.ride.fix.crop":
+		"Pataisyk važiavimą Strava: apkirpk tai, kas nepriklauso, pavyzdžiui, ilgą pertrauką, atkarpą traukiniu ar automobiliu arba įrašą, kuris tęsėsi po važiavimo.",
+	"rynke.ride.fix.rename":
+		"Tada pakeisk važiavimo pavadinimą ir išsaugok. Tik taip programa sužino apie pakeitimą: Strava praneša apie naują pavadinimą, bet ne apie apkirpimą. Vėliau gali grąžinti seną pavadinimą.",
+	"rynke.ride.fix.manual":
+		"Jei važiavimą įrašei, įkelk įrašą į Strava ir ištrink rankinį įrašą.",
+	"rynke.ride.fix.wait":
+		"Po kelių minučių važiavimas čia bus įvertintas iš naujo. Jei niekas nepasikeičia, kreipkis į organizatorių.",
 	"rynke.reason.flagged":
 		"Strava pažymėjo šį važiavimą. Jei nesutinki, išsiaiškink tai su Strava.",
 	"rynke.reason.pause":
@@ -612,6 +621,33 @@ export const lt: Catalog = {
 	"badges.first": "Pirmas ženklelis",
 	"badges.earnedOn": "gautas {date}",
 	"badges.close": "Uždaryti",
+	"badges.share.button": "Dalintis",
+	"badges.share.title": "Dalintis ženkleliu",
+	"badges.share.label": "Dalintis „{name}“",
+	"badges.share.formatLegend": "Kaip",
+	"badges.share.format.story": "Istorija",
+	"badges.share.format.image": "Paveikslėlis",
+	"badges.share.format.photo": "Ant nuotraukos",
+	"badges.share.shiny": "Žvilgantis",
+	"badges.share.plain": "Be fono",
+	"badges.share.pickPhoto": "Pasirinkti nuotrauką",
+	"badges.share.otherPhoto": "Kita nuotrauka",
+	"badges.share.photoPrivate": "Tavo nuotrauka lieka tavo įrenginyje.",
+	"badges.share.photoUnreadable":
+		"Tavo naršyklė negali atidaryti šios nuotraukos. Pasirink kitą.",
+	"badges.share.hintTouch":
+		"Ženklelį stumk vienu pirštu, o dviem pirštais jį pasuk arba keisk dydį.",
+	"badges.share.hintMouse":
+		"Ženklelį tempk pele, o tempdamas tašką kampe jį pasuk arba keisk dydį.",
+	"badges.share.turn": "Pasukti ženklelį arba keisti jo dydį",
+	"badges.share.recording": "Kuriama …",
+	"badges.share.send": "Dalintis …",
+	"badges.share.save": "Išsaugoti",
+	"badges.share.copy": "Kopijuoti",
+	"badges.share.saved": "Išsaugota.",
+	"badges.share.copied": "Nukopijuota: galima įklijuoti.",
+	"badges.share.failed": "Čia nepavyko. Išsaugoti pavyksta visada.",
+	"badges.share.text": "Naujas ženklelis: {name} ({value}) 🐒",
 	"badges.label": "{name}, {value}",
 	"badges.reveal.one": "Naujas ženklelis: {name}",
 	"badges.reveal.many": "Nauji ženkleliai: {n}",
@@ -1031,12 +1067,15 @@ export const lt: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: dar nėra skaičių",
 	"admin.figure.rest": "Nepriskirta: {n}",
+	"admin.figure.notSplit":
+		"Šio skaičiaus kol kas negalima padalyti pagal komandas.",
 	"admin.figure.windowNote":
 		"Kitų komandų užklausos čia laikomos nepriskirtomis: komandos nesikeičia 15 minučių skaičiais.",
 	"admin.teams.stale":
 		"{team}: per paskutinį įrašymą atsakymo nebuvo. Skaičiai – {time} UTC.",
 	"admin.teams.other": "Kita komanda",
 	"admin.teams.otherN": "Kita komanda {n}",
+	"admin.teams.shared": "Bendra (šliuzas)",
 	"admin.teams.never": "{team}: atsakymo dar nėra, todėl skaičių trūksta.",
 	"admin.figure.seen": "Būsena {time} UTC",
 	"admin.figure.notSeen": "Dar nestebėta",
