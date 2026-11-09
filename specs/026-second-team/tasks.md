@@ -88,7 +88,7 @@ Blocks every release 1 story.
 - [X] T011 [US5] Tests in `test/integration/lang.test.ts`: `POST /lang` accepts each of
   the ten codes and refuses others; the picker lists ten native names, alphabetically,
   current one marked (contracts/locales.md › Picker).
-- [ ] T012 [US5] Mock-up of the ten-language picker inside the real fake-mode pages at phone
+- [X] T012 [US5] Mock-up of the ten-language picker inside the real fake-mode pages at phone
   and desktop width (research R5), following the theme menu in `src/http/theme-menu.ts`,
   for the maintainer to approve before T013.
 - [X] T013 [US5] The picker in `src/http/lang.ts`, `src/http/shell.ts` and
