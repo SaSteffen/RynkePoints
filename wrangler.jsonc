@@ -90,10 +90,10 @@
 				// for riders on consent version 3 or higher, while ORGANISER_FIGURES is
 				// "full". It never changes the consent versions. "on" or "off".
 				"ORGANISER_PROGRESS_GRAPH": "on",
-				// "0" until the webhook subscription is created (quickstart §3 step 12).
-				// The optional secret STRAVA_SUBSCRIPTION_ID_OVERRIDE wins while it is set
+				// The Strava gateway's webhook subscription, the same in every team. The
+				// optional secret STRAVA_SUBSCRIPTION_ID_OVERRIDE wins while it is set
 				// (docs/gateway-switch.md step 3).
-				"STRAVA_SUBSCRIPTION_ID": "375559",
+				"STRAVA_SUBSCRIPTION_ID": "385000",
 				// VAPID contact for the push services (010 research R4).
 				"PUSH_SUBJECT": "https://trhh-rynke-coins.link",
 				// Seconds between the waiting page's checks for the first data, 1–60
@@ -162,7 +162,7 @@
 		},
 		// Team Rynkeby Europe (feature 026), `--env europe`. Placeholders until release 4
 		// (src/teams/europe.ts `placeholders`): the resource IDs, club IDs, dates,
-		// subscription, controller and contact.
+		// controller and contact.
 		"europe": {
 			"name": "rynke-points-europe",
 			"main": "src/index.ts",
@@ -204,8 +204,8 @@
 				"QUALIFICATION_DEADLINE": "2027-06-30",
 				"ORGANISER_FIGURES": "full",
 				"ORGANISER_PROGRESS_GRAPH": "on",
-				// Placeholder: the gateway holds the subscription (release 3).
-				"STRAVA_SUBSCRIPTION_ID": "0",
+				// The gateway's subscription, like every team's.
+				"STRAVA_SUBSCRIPTION_ID": "385000",
 				"PUSH_SUBJECT": "https://europe.trhh-rynke-coins.link",
 				"READY_POLL_SECONDS": "10",
 				"TRAINING_LEADERBOARD": "on",
