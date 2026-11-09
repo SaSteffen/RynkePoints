@@ -639,6 +639,7 @@ export const de = {
 	"badges.switch.all": "Alle",
 	"badges.empty": "Noch kein Abzeichen – deine erste Fahrt bringt dich näher.",
 	"badges.missing": "Noch {value}",
+	"badges.at": "Ab {value}",
 	"badges.next": "Nächstes Abzeichen",
 	"badges.first": "Erstes Abzeichen",
 	"badges.earnedOn": "erreicht am {date}",

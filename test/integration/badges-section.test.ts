@@ -547,6 +547,8 @@ describe("the part C categories on the page", () => {
 		)?.[0] ?? "";
 	const missing = (value: string) =>
 		escapeHtml(de["badges.missing"].replace("{value}", value));
+	const at = (value: string) =>
+		escapeHtml(de["badges.at"].replace("{value}", value));
 
 	beforeEach(async () => {
 		await seedBalance(ATHLETE_A);
@@ -556,7 +558,10 @@ describe("the part C categories on the page", () => {
 		// 3 counting rides of 40 km, on 8 to 10 May.
 		await seedRides(ATHLETE_A, 3, "2026-05-10");
 		const { section: badges } = await section();
-		expect(card(badges, "ride_length")).toContain(missing("10\u00a0km"));
+		// One ride's length: the next badge's threshold, no bar (FR-003a).
+		const ride = card(badges, "ride_length");
+		expect(ride).toContain(at("50\u00a0km"));
+		expect(ride).not.toContain('class="bar"');
 		expect(card(badges, "virtual_rides")).toContain(missing("50\u00a0km"));
 		expect(card(badges, "winter_november")).toContain(missing("1\u00a0Tag"));
 	});
@@ -609,7 +614,8 @@ describe("the part C categories on the page", () => {
 		expect(length).toContain(
 			'<span class="badge-ribbon-text">1\u00a0km</span>',
 		);
-		expect(length).toContain(missing("0,7\u00a0km"));
+		expect(length).toContain(at("1,9\u00a0km"));
+		expect(length).not.toContain('class="bar"');
 		expect(card(badges, "swimming")).toContain(missing("3,0\u00a0km"));
 		const gallery = galleryOf(badges);
 		expect(gallery).toContain('<span class="badge-value">0,5\u00a0km</span>');

@@ -637,6 +637,7 @@ export const fr: Catalog = {
 	"badges.switch.all": "Tous",
 	"badges.empty": "Pas encore de badge – ta première sortie t'en rapproche.",
 	"badges.missing": "encore {value}",
+	"badges.at": "à partir de {value}",
 	"badges.next": "Prochain badge",
 	"badges.first": "Premier badge",
 	"badges.earnedOn": "obtenu le {date}",

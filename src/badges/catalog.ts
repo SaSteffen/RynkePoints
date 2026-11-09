@@ -59,6 +59,12 @@ export interface BadgeCategory {
 	 * the newest on the card (feature 021 FR-013). The ladder numbers them.
 	 */
 	days?: true;
+	/**
+	 * Earned by one activity or one event alone, a record rather than a sum
+	 * (run, ride and swim length, the biggest training): no bar, since the
+	 * next badge needs one at its threshold, not what is "missing" to it.
+	 */
+	single?: true;
 }
 
 export interface Badge {
@@ -109,6 +115,7 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		group: "personal",
 		unit: "km",
 		ladder: [5, 10, 15, 21.0975, 31.4, 42.195],
+		single: true,
 	},
 	{
 		id: "running",
@@ -122,6 +129,7 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		group: "personal",
 		unit: "km",
 		ladder: [50, 100, 150, 200, 250, 300],
+		single: true,
 	},
 	{
 		id: "virtual_rides",
@@ -134,6 +142,7 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		group: "personal",
 		unit: "km",
 		ladder: [0.5, 1, 1.9, 3.8],
+		single: true,
 	},
 	{
 		id: "swimming",
@@ -218,6 +227,7 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		group: "team",
 		unit: "riders",
 		ladder: [5, 10, 15, 20, 30],
+		single: true,
 	},
 	{
 		id: "attendances",

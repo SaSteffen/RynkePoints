@@ -613,6 +613,7 @@ export const en: Catalog = {
 	"badges.switch.all": "All",
 	"badges.empty": "No badge yet – your first ride brings you closer.",
 	"badges.missing": "{value} to go",
+	"badges.at": "At {value}",
 	"badges.next": "Next badge",
 	"badges.first": "First badge",
 	"badges.earnedOn": "earned on {date}",
