@@ -141,7 +141,7 @@ the rider's language.
   `src/content/types.ts`; update imports in `src/http/sections/team.ts`,
   `src/http/sections/badges.ts`, `src/http/pwa.ts`, `album/render.ts` and the tests.
   Seen-phrase IDs stay the same (they hash the text).
-- [ ] T028 [US4] Tests in `test/unit/phrases.test.ts` (contracts/phrases.md › Checks): every
+- [X] T028 [US4] Tests in `test/unit/phrases.test.ts` (contracts/phrases.md › Checks): every
   `common.<locale>.ts` has the same list lengths as `common.en.ts`; no duplicates within a
   list; no phrase longer than Hamburg's longest; the existing quote rules from
   `test/unit/quotes.test.ts` run over every set; common sets contain none of `Hamburg`,
@@ -157,7 +157,7 @@ the rider's language.
   `badgeNames: { kind: "own", locale: "de", names }` in `src/teams/hamburg.ts`; callers in
   `src/http/sections/team.ts`, `src/http/sections/badges.ts`, `src/http/pwa.ts` and
   `album/render.ts` use them. T029 green.
-- [ ] T031 [US6] Rating round for the English original: generate about three times the
+- [X] T031 [US6] Rating round for the English original: generate about three times the
   target from the brief T003 (adapting Hamburg's phrases plus new ones), remove
   near-duplicates and rule breakers, rate with the tool from T002, repeat for the
   shortfall. Write the approved set to `src/content/phrases/common.en.ts`.
