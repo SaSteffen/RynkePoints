@@ -123,6 +123,11 @@ tasks:
 | `rynke.ride.beingEvaluated` | | wird ausgewertet | being evaluated | US1 |
 | `rynke.ride.virtual` | | virtuell | virtual | US1 |
 | `rynke.ride.fixHint` | | Du kannst die Fahrt auf Strava korrigieren oder dich an die Orga wenden. | You can correct the ride on Strava or ask an organiser. | US4 |
+| `rynke.ride.fix.summary` | | So geht's | How to fix it | US4 |
+| `rynke.ride.fix.crop` | | Korrigiere die Fahrt auf Strava: Schneide ab, was nicht dazugehört, etwa die lange Pause, eine Strecke mit Bahn oder Auto oder eine Aufzeichnung, die nach der Fahrt weiterlief. | Correct the ride on Strava: crop what doesn't belong to it, such as the long pause, a stretch by train or car, or recording that kept running after the ride. | US4 |
+| `rynke.ride.fix.rename` | | Ändere danach den Titel der Fahrt und speichere. Nur so erfährt die App von der Änderung: Strava meldet einen neuen Titel, das Zuschneiden nicht. Den alten Titel kannst du danach wieder eintragen. | Then change the ride's title and save. That's how the app hears about it: Strava reports a new title, but not a crop. You can put the old title back afterwards. | US4 |
+| `rynke.ride.fix.manual` | | Hast du die Fahrt aufgezeichnet, lade die Aufzeichnung auf Strava hoch und lösche den manuellen Eintrag. | If you recorded the ride, upload the recording to Strava and delete the manual entry. | US4 |
+| `rynke.ride.fix.wait` | | Nach ein paar Minuten ist die Fahrt hier neu bewertet. Ändert sich nichts, wende dich an die Orga. | After a few minutes the ride is checked again here. If nothing changes, ask an organiser. | US4 |
 | `rynke.rides.position` | `from`, `to`, `total` | Fahrten {from}–{to} von {total} | Rides {from}–{to} of {total} | US5 |
 | `rynke.pager.label` | | Seiten | Pages | US5 |
 | `rynke.pager.first` | | « Neueste | « Newest |  US5 |

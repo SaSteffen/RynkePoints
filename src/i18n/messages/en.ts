@@ -141,6 +141,15 @@ export const en: Catalog = {
 	"rynke.ride.virtual": "virtual",
 	"rynke.ride.fixHint":
 		"You can correct the ride on Strava or ask an organiser.",
+	"rynke.ride.fix.summary": "How to fix it",
+	"rynke.ride.fix.crop":
+		"Correct the ride on Strava: crop what doesn't belong to it, such as the long pause, a stretch by train or car, or recording that kept running after the ride.",
+	"rynke.ride.fix.rename":
+		"Then change the ride's title and save. That's how the app hears about it: Strava reports a new title, but not a crop. You can put the old title back afterwards.",
+	"rynke.ride.fix.manual":
+		"If you recorded the ride, upload the recording to Strava and delete the manual entry.",
+	"rynke.ride.fix.wait":
+		"After a few minutes the ride is checked again here. If nothing changes, ask an organiser.",
 	"rynke.reason.flagged":
 		"Strava flagged this ride. If you disagree, please settle it with Strava.",
 	"rynke.reason.pause":

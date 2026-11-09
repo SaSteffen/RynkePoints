@@ -461,7 +461,9 @@ summary,.more>summary,.ride-why>summary{display:flex;align-items:center;gap:var(
 summary::-webkit-details-marker{display:none}
 summary::after{content:"";flex:none;width:14px;height:14px;background:currentColor;-webkit-mask:${CHEVRON} center/contain no-repeat;mask:${CHEVRON} center/contain no-repeat;transition:transform var(--rp-motion)}
 details[open]>summary::after{transform:rotate(180deg)}
-.ride-why ul,.ride-why p{margin:var(--rp-space-1) 0}
+.ride-why ul,.ride-why ol,.ride-why p{margin:var(--rp-space-1) 0}
+.ride-fix ol{padding-left:20px}
+.ride-fix li+li{margin-top:var(--rp-space-1)}
 a.strava-activity{font-weight:700;text-decoration:underline}
 .ride-name{overflow-wrap:anywhere;color:var(--md-sys-color-on-surface)}
 .ride-reasons{padding-left:20px}

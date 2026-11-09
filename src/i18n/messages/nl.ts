@@ -141,6 +141,15 @@ export const nl: Catalog = {
 	"rynke.ride.virtual": "virtueel",
 	"rynke.ride.fixHint":
 		"Je kunt de rit op Strava corrigeren of een organisator vragen.",
+	"rynke.ride.fix.summary": "Zo doe je het",
+	"rynke.ride.fix.crop":
+		"Corrigeer de rit op Strava: knip weg wat er niet bij hoort, bijvoorbeeld de lange pauze, een stuk met trein of auto of een opname die na de rit doorliep.",
+	"rynke.ride.fix.rename":
+		"Wijzig daarna de titel van de rit en sla op. Alleen zo hoort de app van de wijziging: Strava meldt een nieuwe titel, maar geen ingekorte rit. Je kunt de oude titel daarna terugzetten.",
+	"rynke.ride.fix.manual":
+		"Heb je de rit opgenomen, upload de opname dan naar Strava en verwijder de handmatige invoer.",
+	"rynke.ride.fix.wait":
+		"Na een paar minuten is de rit hier opnieuw beoordeeld. Verandert er niets, vraag dan een organisator.",
 	"rynke.reason.flagged":
 		"Strava heeft deze rit gemarkeerd. Ben je het er niet mee eens, regel het dan met Strava.",
 	"rynke.reason.pause":

@@ -143,6 +143,15 @@ export const is: Catalog = {
 	"rynke.ride.virtual": "sýndar",
 	"rynke.ride.fixHint":
 		"Þú getur leiðrétt ferðina á Strava eða spurt skipuleggjanda.",
+	"rynke.ride.fix.summary": "Svona lagarðu þetta",
+	"rynke.ride.fix.crop":
+		"Leiðréttu ferðina á Strava: klipptu burt það sem á ekki heima þar, til dæmis langa hléið, kafla í lest eða bíl eða upptöku sem hélt áfram eftir ferðina.",
+	"rynke.ride.fix.rename":
+		"Breyttu síðan titli ferðarinnar og vistaðu. Aðeins þannig fréttir appið af breytingunni: Strava tilkynnir nýjan titil en ekki klippingu. Þú getur sett gamla titilinn aftur á eftir.",
+	"rynke.ride.fix.manual":
+		"Ef þú tókst ferðina upp skaltu hlaða upptökunni upp á Strava og eyða handvirku skráningunni.",
+	"rynke.ride.fix.wait":
+		"Eftir nokkrar mínútur er ferðin metin aftur hér. Ef ekkert breytist skaltu spyrja skipuleggjanda.",
 	"rynke.reason.flagged":
 		"Strava merkti þessa ferð. Ef þú ert ósammála skaltu leysa það við Strava.",
 	"rynke.reason.pause":

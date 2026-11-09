@@ -150,6 +150,15 @@ export const de = {
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint":
 		"Du kannst die Fahrt auf Strava korrigieren oder dich an die Orga wenden.",
+	"rynke.ride.fix.summary": "So geht's",
+	"rynke.ride.fix.crop":
+		"Korrigiere die Fahrt auf Strava: Schneide ab, was nicht dazugehört, etwa die lange Pause, eine Strecke mit Bahn oder Auto oder eine Aufzeichnung, die nach der Fahrt weiterlief.",
+	"rynke.ride.fix.rename":
+		"Ändere danach den Titel der Fahrt und speichere. Nur so erfährt die App von der Änderung: Strava meldet einen neuen Titel, das Zuschneiden nicht. Den alten Titel kannst du danach wieder eintragen.",
+	"rynke.ride.fix.manual":
+		"Hast du die Fahrt aufgezeichnet, lade die Aufzeichnung auf Strava hoch und lösche den manuellen Eintrag.",
+	"rynke.ride.fix.wait":
+		"Nach ein paar Minuten ist die Fahrt hier neu bewertet. Ändert sich nichts, wende dich an die Orga.",
 	"rynke.reason.flagged":
 		"Strava hat die Fahrt markiert. Wenn du anderer Meinung bist, kläre das bitte mit Strava.",
 	"rynke.reason.pause":

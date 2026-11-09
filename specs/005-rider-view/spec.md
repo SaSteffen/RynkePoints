@@ -558,6 +558,10 @@ requirements.
 - **FR-044**: A ride that doesn't count because of the pause rule, speed, climbing
   rate or manual entry MUST tell the rider they can correct the ride on Strava or
   ask an organiser.
+  Below that, a folded "how to fix it" MUST give the steps for its reasons: crop
+  the ride on Strava, then change its title (Strava sends no event for a crop,
+  only for a new title, #274), or upload the recording instead of a manual
+  entry; then wait a few minutes, and ask an organiser if nothing changes.
 - **FR-045**: The ride list MUST become a table of all the rider's stored rides,
   newest first, 20 per page, whose first page is the list of FR-040. It MUST show the
   position (e.g. "rides 21–40 of 45") and let the rider go to the next, previous,
