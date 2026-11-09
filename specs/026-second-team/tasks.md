@@ -161,12 +161,9 @@ the rider's language.
   target from the brief T003 (adapting Hamburg's phrases plus new ones), remove
   near-duplicates and rule breakers, rate with the tool from T002, repeat for the
   shortfall. Write the approved set to `src/content/phrases/common.en.ts`.
-- [ ] T032 [US4] `src/content/phrases/common.de.ts` adapted from `common.en.ts`
-  index by index (contracts/phrases.md › Common phrase lists).
-- [ ] T033 [P] [US4] Common phrases `common.da.ts`, `common.nb.ts`, `common.sv.ts`,
-  `common.fi.ts` in `src/content/phrases/`, adapted index by index, not word for word.
-- [ ] T034 [P] [US4] Common phrases `common.is.ts`, `common.fr.ts`, `common.nl.ts`,
-  `common.lt.ts` in `src/content/phrases/`. T028 green.
+- ~~T032–T034~~ Shelved 2026-11-09 (FR-025): the common phrases stay English in every
+  language, the stand-in for a team without phrases of its own. They were `common.de.ts`,
+  then the other eight languages, each adapted from `common.en.ts` index by index.
 - [X] T035 [US4] Common badge names `badge.name.<BadgeId>` for every badge in
   `src/badges/catalog.ts`, in all ten catalogs (English first, then adapted; German may
   differ from Hamburg's own names). T007 green.
@@ -292,7 +289,7 @@ name or art paths.
 - [X] T057 [US8] Playwright project `europe-smoke` in `playwright.config.ts` with its own
   server on port 8798 (inspector 9238) via a `test:e2e:server:europe` script, and
   `e2e/europe-smoke.e2e.ts`: Europe's name, English by default, a common phrase on the Team
-  page, the placeholder badge picture, no Hamburg text. The phrase check stays `fixme` until the common phrases (T031–T034) are done.
+  page, the placeholder badge picture, no Hamburg text.
 
 **Checkpoint (release 2)**: merge and deploy (Hamburg only). Snapshot T036 unchanged.
 
@@ -461,7 +458,7 @@ its domain.
 ## Dependencies
 
 - Releases run in order: 1 → 2 → 3 → 4. Each checkpoint is a merge and deploy.
-- Release 1: T004–T010 before T011–T035. T002 → T003 → T031 → T032–T034. T027 before
+- Release 1: T004–T010 before T011–T035. T002 → T003 → T031. T027 before
   T029–T030. T017–T024 each need T007 and T016.
 - Release 2: T036 first (snapshot before any move). T037 → T038 → T039 → T040 → T041.
   T043 before the `test/teams/` tests. US3, US4 and US8 phases can then run side by side.
@@ -471,7 +468,7 @@ its domain.
 
 ## Parallel examples
 
-- Release 1: T017–T024 (one catalog each) in parallel; T033 with T034.
+- Release 1: T017–T024 (one catalog each) in parallel.
 - Release 2: T053 alongside T044–T052.
 - Release 3: T059 (webhook tests) and T065 (return tests) in parallel after T058.
 

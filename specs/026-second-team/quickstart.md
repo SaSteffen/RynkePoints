@@ -28,7 +28,7 @@ pnpm dev                                           # both, prefixed output
 ```
 
 1. Europe's site: Europe's name, icon, coin and colours; English by default; the monkey
-   speaks the English common phrases, and in French the French ones; Hamburg-motif badges
+   speaks the English common phrases in every language; Hamburg-motif badges
    show the placeholder picture.
 2. Hamburg's site: unchanged from before the release.
 3. Sign in on Hamburg's site, open Europe's: not signed in, no Hamburg rider visible.

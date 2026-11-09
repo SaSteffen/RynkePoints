@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
-import { COMMON_PHRASES } from "../../src/content/phrases/common";
+import { COMMON_EN } from "../../src/content/phrases/common.en";
 import { HAMBURG_PHRASES } from "../../src/content/phrases/hamburg.de";
 import type { PhraseSet } from "../../src/content/types";
 import { escapeHtml } from "../../src/http/html";
@@ -15,7 +15,8 @@ import { riderPage, seedBalance } from "../support/rider-view";
 
 // The phrase rule (feature 026 FR-025, FR-052, contracts/phrases.md): a team
 // with its own phrases and badge names shows them in every language; a team
-// set to `common` shows the common ones in the rider's language.
+// set to `common` shows the common English phrases in every language and the
+// badge names in the rider's language.
 
 const LOCALES = Object.keys(CATALOGS) as Locale[];
 const BADGE = "distance-100";
@@ -74,16 +75,11 @@ describe("a team with its own phrases and badge names", () => {
 describe("a team set to common", () => {
 	beforeEach(() => seed(common));
 
-	it.each(LOCALES)("speaks %s or says nothing", async (locale) => {
+	it.each(LOCALES)("shows the English common phrases in %s", async (locale) => {
 		const { html } = await riderPage(common, ATHLETE_A, "/team", locale);
 		const quote = quoteOf(html);
-		const set = COMMON_PHRASES[locale];
-		if (!set) {
-			expect(quote).toBeNull();
-			return;
-		}
-		expect(quote?.lang).toBe(locale);
-		expect(all(set)).toContain(quote?.text);
+		expect(quote?.lang).toBe("en");
+		expect(all(COMMON_EN)).toContain(quote?.text);
 		expect(all(HAMBURG_PHRASES)).not.toContain(quote?.text);
 	});
 

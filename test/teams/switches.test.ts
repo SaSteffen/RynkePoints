@@ -2,7 +2,6 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { type AlbumFiles, handleAlbumRequest } from "../../album/routes";
 import { BADGES } from "../../src/badges/catalog";
-import { phraseSet } from "../../src/content";
 import { upsertBadgeRiseStatement } from "../../src/db/badges";
 import { escapeHtml } from "../../src/http/html";
 import { homeOf } from "../../src/http/redirect";
@@ -134,8 +133,6 @@ describe("PHRASES", () => {
 		expect(off.html).not.toContain('class="quote');
 		expect(await count("quote_seen")).toBe(0);
 
-		// A team on the common phrases has none in a language without a set yet.
-		if (!phraseSet(ctx.team, ctx.team.defaultLocale)) return;
 		const on = await riderPage(switched("PHRASES", "on"), ATHLETE_A, "/team");
 		expect(on.html).toContain('class="quote');
 		expect(await count("quote_seen")).toBe(1);

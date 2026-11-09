@@ -726,7 +726,7 @@ export function handleTeam(
 				riders.map((listed) => listed.weeks),
 				kind,
 			);
-			const phrases = quoting ? phraseSet(ctx.team, i18n.locale) : null;
+			const phrases = quoting ? phraseSet(ctx.team) : null;
 			const quote =
 				viewer && phrases
 					? pickQuote(phrases, status, today, seenQuotes)

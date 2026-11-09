@@ -1,13 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { COMMON_PHRASES } from "../../src/content/phrases/common";
 import { COMMON_EN } from "../../src/content/phrases/common.en";
 import { HAMBURG_PHRASES } from "../../src/content/phrases/hamburg.de";
 import type { PhraseSet, Season } from "../../src/content/types";
 import { TEAMS } from "../../src/teams";
 
-// The common phrase sets (feature 026 contracts/phrases.md › Checks): every
-// locale keeps the English original's list lengths, so index i adapts index i,
-// and no set names a team or a place.
+// The common English phrases (feature 026 contracts/phrases.md › Checks): the
+// stand-in for every team without phrases of its own, so they name no team or
+// place.
 
 const SEASONS: Season[] = ["spring", "summer", "autumn", "winter"];
 
@@ -23,24 +22,10 @@ function everyPhrase(set: PhraseSet): string[] {
 	];
 }
 
-/** The lengths that keep the languages in step. */
-function shape(set: PhraseSet) {
-	return {
-		push: set.push.length,
-		onTrack: set.onTrack.length,
-		seasonPush: SEASONS.map((season) => set.seasonPush[season].length),
-		seasonOnTrack: SEASONS.map((season) => set.seasonOnTrack[season].length),
-	};
-}
-
 const LONGEST_HAMBURG = Math.max(
 	...everyPhrase(HAMBURG_PHRASES).map((phrase) => phrase.length),
 );
 const DENIED = ["Hamburg", "Rynkeby", "Paris", ...TEAMS.map((t) => t.name)];
-
-it("ships the English original", () => {
-	expect(COMMON_PHRASES.en).toBe(COMMON_EN);
-});
 
 it("has at least one push and one on-track phrase per season", () => {
 	for (const season of SEASONS) {
@@ -49,12 +34,9 @@ it("has at least one push and one on-track phrase per season", () => {
 	}
 });
 
-describe.each(Object.entries(COMMON_PHRASES))("common.%s", (_locale, set) => {
+describe("the common phrases", () => {
+	const set = COMMON_EN;
 	const all = everyPhrase(set);
-
-	it("has the English original's list lengths", () => {
-		expect(shape(set)).toEqual(shape(COMMON_EN));
-	});
 
 	it("has no duplicates, its season phrases included", () => {
 		expect(new Set(all).size).toBe(all.length);

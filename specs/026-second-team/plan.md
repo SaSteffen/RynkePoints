@@ -57,7 +57,7 @@ domain and one webhook subscription; `src/` never imports `dev/`, `album/` or `g
 Hamburg's figures and texts identical (FR-020)
 
 **Scale/Scope**: 2 teams (data model is a list); ~1,100 catalog keys × 8 new languages;
-~40 common phrases × 10 languages; ~50 badge names × 10 languages; under 999 riders in total
+~40 common phrases in English; ~50 badge names × 10 languages; under 999 riders in total
 
 ## Constitution Check
 

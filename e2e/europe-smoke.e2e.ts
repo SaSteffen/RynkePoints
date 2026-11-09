@@ -41,12 +41,11 @@ test("no Hamburg text", async ({ page }) => {
 	}
 });
 
-// Enable once the common phrase sets exist: they await a human rating round.
-test.fixme("a common phrase on the Team page", async ({ page }) => {
+test("a common phrase on the Team page", async ({ page }) => {
 	await signIn(page, RIDER);
 	await skipTours(page);
 	await page.goto("/team");
-	await expect(page.locator(".phrase").first()).toBeVisible();
+	await expect(page.locator(".quote").first()).toBeVisible();
 });
 
 // Hamburg's badges with Hamburg motifs show the neutral picture (FR-024). Most
