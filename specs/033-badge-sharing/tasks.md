@@ -74,12 +74,12 @@ that the file is 1080 × 1920, then as a sticker and check that a corner pixel i
 
 ### Tests for User Story 1
 
-- [ ] T008 [US1] Write failing tests in `test/integration/badges-section.test.ts`:
+- [x] T008 [US1] Write failing tests in `test/integration/badges-section.test.ts`:
   - every earned badge in "Neueste" (`li.badge-card`) and in "Alle" (`.badge-gallery li`) has one `button.badge-share-mini` with `data-badge="{id}"` and the accessible name `„{name}“ teilen`;
   - unearned spots and outlines have none, and the page without badges has none;
   - each large view has `button.badge-share` with `data-group` and `data-share-text` equal to `badges.share.text` filled with the badge's name and value;
   - a team badge has `data-group="team"`
-- [ ] T009 [P] [US1] Create `e2e/badge-share.e2e.ts` (sign in as in `e2e/sign-in.ts`), with failing tests in a phone context (`hasTouch`, 390 × 844):
+- [x] T009 [P] [US1] Create `e2e/badge-share.e2e.ts` (sign in as in `e2e/sign-in.ts`), with failing tests in a phone context (`hasTouch`, 390 × 844):
   - the share buttons are visible without hover;
   - tapping one opens `dialog.share-sheet[open]` with `story` checked and a canvas of 1080 × 1920;
   - Bild gives 1080 × 1080;
@@ -89,34 +89,34 @@ that the file is 1080 × 1920, then as a sticker and check that a corner pixel i
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] In `src/http/sections/badges.ts`, add `shareMini(i18n, names, earned)` after `badgeButton` in `card()` and in the gallery `li`, and the "Teilen" button below the date in `popover()`, as contracts/pages.md and the mock-up have them (T008 green)
-- [ ] T011 [P] [US1] Style the share buttons in `src/http/style.ts`:
+- [x] T010 [US1] In `src/http/sections/badges.ts`, add `shareMini(i18n, names, earned)` after `badgeButton` in `card()` and in the gallery `li`, and the "Teilen" button below the date in `popover()`, as contracts/pages.md and the mock-up have them (T008 green)
+- [x] T011 [P] [US1] Style the share buttons in `src/http/style.ts`:
   - a 36 px circle at the top right of the card or spot, clear of the ribbon, with the `h4` padded so it doesn't run under the button;
   - a `::before` that widens the touch target to 44 × 44 px (FR-003);
   - visible by default.
-- [ ] T012 [US1] In `public/app.js`, bring over the mock-up's share block as a `badgeShare()` setup:
+- [x] T012 [US1] In `public/app.js`, bring over the mock-up's share block as a `badgeShare()` setup:
   - opening from `.badge-share-mini` (via `#badge-{id}`) and from `.badge-large .badge-share`;
   - reading the share source from the large view (data-model.md "Share source");
   - `showModal()`;
   - closing on the close button, Escape and a backdrop click.
 
   Keep `hidePopover` only when the view `:popover-open`
-- [ ] T013 [US1] In `public/app.js`, draw the badge exactly as the light theme shows it (research R2):
+- [x] T013 [US1] In `public/app.js`, draw the badge exactly as the light theme shows it (research R2):
   - the art, cream edge, shadow, the ribbon SVG and the milestone in the page typeface after `document.fonts.ready`;
   - the ribbon text colour read from a light-theme probe (`--rp-ribbon-text`, or `--rp-coin-ink` for team), never the current theme;
   - drawn at the output size;
   - in still pictures, no stars (FR-020).
-- [ ] T014 [US1] In `public/app.js`, lay out Story (1080 × 1920) and Bild (1080 × 1080) as research R3 describes:
+- [x] T014 [US1] In `public/app.js`, lay out Story (1080 × 1920) and Bild (1080 × 1080) as research R3 describes:
   - a white background with a yellow radial glow at .22 behind the badge;
   - the name wrapped at word breaks onto at most two lines, then the localised date line;
   - the team's app icon and app name (`data-app`) at the bottom;
   - in Story, nothing but the background outside 250…1670 px (FR-017).
 
   The sticker is the badge alone on a transparent 1080 × 1080 with no text or mark. "Ohne Hintergrund" shows only with Bild.
-- [ ] T015 [US1] In `public/app.js`, prepare the file as soon as the preview settles (FR-013):
+- [x] T015 [US1] In `public/app.js`, prepare the file as soon as the preview settles (FR-013):
   - a `File` named `{slug(data-app)}-{id}-{story|image|sticker}.png` (FR-029);
   - the actions disabled until it's ready, and made again after any change of format or option.
-- [ ] T016 [US1] In `public/app.js`, add the actions (research R6):
+- [x] T016 [US1] In `public/app.js`, add the actions (research R6):
   - **"Teilen …"**: shown only if `navigator.canShare({ files: [file] })`; calls `navigator.share({ files: [file], text })`. An `AbortError` is ignored. Any other error shows `data-failed` in the status line and focuses "Speichern".
   - **"Speichern"**: a temporary `<a download>` with a blob URL, revoked afterwards, then `data-saved`.
   - **"Kopieren"**: shown for still pictures where `ClipboardItem` exists; writes `image/png` and shows `data-copied`, or `data-failed` on error.
@@ -240,7 +240,7 @@ paint.
 three-dots icon shows and the Apple icon doesn't.
 
 - [ ] T029 [US5] Add a failing test to `e2e/badge-share.e2e.ts`: on the desktop projects (Chromium, Firefox, WebKit), `.share-icon-dots` is visible in a share button and `.share-icon-apple` is not; both exist in the markup
-- [ ] T030 [US5] In `src/http/style.ts`, show `.share-icon-dots` and hide `.share-icon-apple` by default, and swap them under `@supports (-webkit-touch-callout: none)` (research R8), with no script (T029 green)
+- [x] T030 [US5] In `src/http/style.ts`, show `.share-icon-dots` and hide `.share-icon-apple` by default, and swap them under `@supports (-webkit-touch-callout: none)` (research R8), with no script (T029 green)
 
 **Checkpoint**: the right icon shows everywhere; the real iPhone and iPad check happens on the live site.
 
