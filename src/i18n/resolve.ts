@@ -1,9 +1,11 @@
 import { getCookie } from "../http/cookies";
-import { type Catalogs, DEFAULT_LOCALE, FOREIGN_LOCALE } from "./catalogs";
+import type { TeamData } from "../teams/types";
+import type { Catalogs } from "./catalogs";
 
-// Locale resolution (research R17): picked language cookie, then the best
-// supported Accept-Language range, then English for browsers naming only
-// unsupported languages, then German.
+// Locale resolution (research R17, feature 026 contracts/locales.md): picked
+// language cookie, then the best shipped Accept-Language range, then the team's
+// foreign locale for browsers naming only unshipped languages, then the team's
+// default locale.
 
 export const LANG_COOKIE = "rp_lang";
 
@@ -16,7 +18,9 @@ function parseAcceptLanguage(header: string): LanguageRange[] {
 	const ranges: LanguageRange[] = [];
 	for (const part of header.split(",")) {
 		const [range = "", ...params] = part.split(";").map((p) => p.trim());
-		const tag = range.split("-")[0]?.toLowerCase() ?? "";
+		const primary = range.split("-")[0]?.toLowerCase() ?? "";
+		// Norwegian, Bokmål and Nynorsk all read the Bokmål catalog.
+		const tag = primary === "no" || primary === "nn" ? "nb" : primary;
 		if (!tag || tag === "*") continue;
 		let q = 1;
 		for (const param of params) {
@@ -32,7 +36,11 @@ function parseAcceptLanguage(header: string): LanguageRange[] {
 	return ranges;
 }
 
-export function resolveLocale(request: Request, catalogs: Catalogs): string {
+export function resolveLocale(
+	request: Request,
+	catalogs: Catalogs,
+	team: Pick<TeamData, "defaultLocale" | "foreignLocale">,
+): string {
 	const picked = getCookie(request, LANG_COOKIE);
 	if (picked && Object.hasOwn(catalogs, picked)) return picked;
 
@@ -47,5 +55,5 @@ export function resolveLocale(request: Request, catalogs: Catalogs): string {
 		}
 	}
 	if (best) return best.tag;
-	return ranges.length > 0 ? FOREIGN_LOCALE : DEFAULT_LOCALE;
+	return ranges.length > 0 ? team.foreignLocale : team.defaultLocale;
 }

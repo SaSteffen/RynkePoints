@@ -16,9 +16,14 @@ type Settings = Pick<
 	| "TRAINING_LEADERBOARD"
 	| "RIDE_FIGURES"
 	| "RYNKE_VIEWS"
+	| "BADGES"
+	| "PHRASES"
+	| "SEASON_ALBUM"
+	| "FUN_THEMES"
 	| "PRIVACY_CONTROLLER"
 	| "CONTACT_EMAIL"
 	| "TEAM_ID"
+	| "STRAVA_RETURN_VIA"
 >;
 
 const SEASON_TIME_ZONE = "Europe/Berlin";
@@ -48,9 +53,22 @@ export function memberClubIds(
 	return [...new Set([clubId(env), ...extra])];
 }
 
+/** Optional secret, set by hand during a subscription switch, so not in `secrets.required`. */
+export interface SubscriptionSecrets {
+	STRAVA_SUBSCRIPTION_ID_OVERRIDE?: string;
+}
+
+/**
+ * The webhook subscription whose events the team accepts. The secret
+ * `STRAVA_SUBSCRIPTION_ID_OVERRIDE` wins while it is set: `wrangler secret put`
+ * takes effect within seconds, so a new subscription's ID goes live without a
+ * deploy (docs/gateway-switch.md). An empty value counts as unset.
+ */
 export function subscriptionId(
-	env: Pick<Settings, "STRAVA_SUBSCRIPTION_ID">,
+	env: Pick<Settings, "STRAVA_SUBSCRIPTION_ID"> & SubscriptionSecrets,
 ): number {
+	const override = env.STRAVA_SUBSCRIPTION_ID_OVERRIDE?.trim();
+	if (override) return integer("STRAVA_SUBSCRIPTION_ID_OVERRIDE", override);
 	return integer("STRAVA_SUBSCRIPTION_ID", env.STRAVA_SUBSCRIPTION_ID);
 }
 
@@ -99,6 +117,40 @@ export function rynkeViews(env: Pick<Settings, "RYNKE_VIEWS">): boolean {
 	if (env.RYNKE_VIEWS === "on") return true;
 	if (env.RYNKE_VIEWS === "off") return false;
 	throw new Error('RYNKE_VIEWS must be "on" or "off"');
+}
+
+/** A feature switch's value: "on" or "off", nothing else (feature 026 FR-018). */
+function onOff(name: string, value: string): boolean {
+	if (value === "on") return true;
+	if (value === "off") return false;
+	throw new Error(`${name} must be "on" or "off"`);
+}
+
+/**
+ * Whether the team has badges (feature 026 FR-018): the Abzeichen section,
+ * its menu entry and tour step, opening the app on new badges, and the badge
+ * notifications and the team badges' check. "off" shows and sends none of it.
+ */
+export function badges(env: Pick<Settings, "BADGES">): boolean {
+	return onOff("BADGES", env.BADGES);
+}
+
+/** Whether the Team page shows the motivational phrases (FR-018). */
+export function phrases(env: Pick<Settings, "PHRASES">): boolean {
+	return onOff("PHRASES", env.PHRASES);
+}
+
+/**
+ * Whether the team makes season albums (FR-018): the privacy text's album
+ * paragraph, and the album Worker serves none while "off".
+ */
+export function seasonAlbum(env: Pick<Settings, "SEASON_ALBUM">): boolean {
+	return onOff("SEASON_ALBUM", env.SEASON_ALBUM);
+}
+
+/** Whether the theme menu offers the fun themes, Konfetti and Disco (FR-018). */
+export function funThemes(env: Pick<Settings, "FUN_THEMES">): boolean {
+	return onOff("FUN_THEMES", env.FUN_THEMES);
 }
 
 /**
@@ -225,6 +277,35 @@ export function contactEmail(env: Pick<Settings, "CONTACT_EMAIL">): string {
 }
 
 /** Labels this team's usage records (feature 025 research R13). */
+/**
+ * Where Strava sends a rider back after the authorize page (feature 026
+ * contracts/gateway.md › Team-side settings): `null` for the team's own
+ * `/auth/callback` (empty setting), else the gateway's origin, which bounces
+ * the rider on to that callback.
+ */
+export function returnVia(
+	env: Pick<Settings, "STRAVA_RETURN_VIA">,
+): string | null {
+	const value = env.STRAVA_RETURN_VIA ?? "";
+	if (value === "") return null;
+	let url: URL;
+	try {
+		url = new URL(value);
+	} catch {
+		throw new Error("STRAVA_RETURN_VIA must be an origin");
+	}
+	const local = /^(localhost|[a-z0-9-]+\.localhost|127\.0\.0\.1)$/.test(
+		url.hostname,
+	);
+	if (
+		url.origin !== value ||
+		!(url.protocol === "https:" || (url.protocol === "http:" && local))
+	) {
+		throw new Error("STRAVA_RETURN_VIA must be an https origin");
+	}
+	return value;
+}
+
 export function teamId(env: Pick<Settings, "TEAM_ID">): string {
 	if (env.TEAM_ID.trim() === "") throw new Error("TEAM_ID is empty");
 	return env.TEAM_ID;

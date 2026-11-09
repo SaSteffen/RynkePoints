@@ -40,3 +40,11 @@ else catches a missing file, because tests don't use them:
 ```bash
 grep -ho '"/strava/[^"]*"' src/i18n/messages/*.ts | tr -d '"' | sort -u | sed 's|^|public|' | xargs ls
 ```
+
+## Languages
+
+Strava's brand download (checked November 2026, feature 026) offers the button and
+the logo in English only. Every catalog therefore points at `public/strava/en/`;
+only the alt text follows the rider's language. If Strava adds a language, put its
+files unmodified under `public/strava/<lang>/` and point that catalog's `.src` keys
+at them.

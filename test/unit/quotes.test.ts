@@ -1,17 +1,19 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { pickQuote, quoteId, seasonOf } from "../../src/http/sections/team";
 import {
+	HAMBURG_PHRASES,
 	QUOTES_ON_TRACK,
 	QUOTES_PUSH,
 	SEASON_QUOTES_ON_TRACK,
 	SEASON_QUOTES_PUSH,
-	type Season,
-} from "../../src/i18n/messages/quotes.de";
+} from "../../src/content/phrases/hamburg.de";
+import type { Phrases, Season } from "../../src/content/types";
+import { pickQuote, quoteId, seasonOf } from "../../src/http/sections/team";
 
 // The Team page's two German quote lists and their season lists (016
 // FR-020–FR-025, research R10): pins the committed lists and the season rule.
 
 const SEASONS: Season[] = ["spring", "summer", "autumn", "winter"];
+const HAMBURG: Phrases = { locale: "de", set: HAMBURG_PHRASES };
 
 /** A list's quotes for any time of year plus all its season quotes. */
 function everyQuote(
@@ -87,7 +89,7 @@ describe("pickQuote", () => {
 				if (array instanceof Uint32Array) array[0] = value;
 				return array;
 			});
-			picks.add(pickQuote(status, date).text);
+			picks.add(pickQuote(HAMBURG, status, date).text);
 		}
 		return [...picks];
 	}
@@ -146,7 +148,7 @@ describe("pickQuote with seen quotes (issue #96)", () => {
 		const unseen = [QUOTES_PUSH[4] ?? "", SEASON_QUOTES_PUSH.summer[0] ?? ""];
 		const seen = ids(POOL.filter((quote) => !unseen.includes(quote)));
 		for (let i = 0; i < 20; i++) {
-			const pick = pickQuote("push", "2026-07-15", seen);
+			const pick = pickQuote(HAMBURG, "push", "2026-07-15", seen);
 			expect(unseen).toContain(pick.text);
 			expect(pick.id).toBe(quoteId(pick.text));
 			expect(pick.restart).toBeNull();
@@ -156,6 +158,7 @@ describe("pickQuote with seen quotes (issue #96)", () => {
 	it("asks to start over with the last unseen quote", () => {
 		const last = QUOTES_PUSH[7] ?? "";
 		const pick = pickQuote(
+			HAMBURG,
 			"push",
 			"2026-07-15",
 			ids(POOL.filter((quote) => quote !== last)),
@@ -165,7 +168,7 @@ describe("pickQuote with seen quotes (issue #96)", () => {
 	});
 
 	it("picks from the whole list when every quote is seen", () => {
-		const pick = pickQuote("push", "2026-07-15", ids(POOL));
+		const pick = pickQuote(HAMBURG, "push", "2026-07-15", ids(POOL));
 		expect(POOL).toContain(pick.text);
 		expect(new Set(pick.restart)).toEqual(ids(POOL));
 	});
@@ -176,7 +179,7 @@ describe("pickQuote with seen quotes (issue #96)", () => {
 			...SEASON_QUOTES_PUSH.winter,
 			...QUOTES_PUSH.slice(1),
 		]);
-		const pick = pickQuote("push", "2026-07-15", seen);
+		const pick = pickQuote(HAMBURG, "push", "2026-07-15", seen);
 		expect([QUOTES_PUSH[0], ...SEASON_QUOTES_PUSH.summer]).toContain(pick.text);
 	});
 });

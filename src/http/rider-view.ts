@@ -228,13 +228,13 @@ const FIXABLE = new Set<string>([
 ]);
 
 export interface ViewContext extends CountingWindow {
-	/** `rulesForVersion`, passed in to keep this module pure. */
+	/** `rulesForVersion` over the team's rules, passed in to keep this module pure. */
 	rulesFor: (version: number) => RynkeRules | null;
 }
 
 /**
  * `rules` are those of the balance's version (`rulesForVersion`), `inEffect`
- * the version the evaluation uses now (`CURRENT_RULES`).
+ * the version the evaluation uses now (`currentRules`).
  */
 export function buildRiderView(
 	read: RiderViewRead,

@@ -1,8 +1,14 @@
-import { contactEmail, privacyController, rideFigures } from "../config";
+import {
+	contactEmail,
+	privacyController,
+	rideFigures,
+	seasonAlbum,
+} from "../config";
 import type { Ctx } from "../ctx";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
-import { html, htmlResponse, layout, type SafeHtml } from "./html";
+import { referenceNote } from "./consent-form";
+import { html, htmlResponse, layout, pageLook, type SafeHtml } from "./html";
 
 // The privacy notice (feature 017): what is processed, why, who sees it, how
 // long it is kept, who processes it, and the rider's rights, with the
@@ -79,15 +85,17 @@ export function handlePrivacy(ctx: Ctx, i18n: I18n): Response {
 	const email = contactEmail(ctx.env);
 	const emailLink = html`<a href="mailto:${email}">${email}</a>`;
 	const stravaPrivacy = html`<a href="${STRAVA_PRIVACY_URL}">${i18n.t("privacy.recipients.stravaPrivacy")}</a>`;
-	const params = { email: emailLink, stravaPrivacy };
+	const params = { email: emailLink, stravaPrivacy, team: ctx.team.name };
 	const paragraph = (id: MessageId): SafeHtml =>
 		html`<p>${i18n.tHtml(id, params)}</p>`;
 	const controller = privacyController(ctx.env).map(
 		(line, i) => html`${i > 0 ? html`<br>` : ""}${line}`,
 	);
-	// The ride figures' paragraph only while the team ranks by them (FR-022).
+	// The ride figures' paragraph only while the team ranks by them (FR-022),
+	// the album's only while the team makes albums (feature 026 FR-018).
 	const shown = (id: MessageId) =>
-		id !== "privacy.team.rideFigures" || rideFigures(ctx.env);
+		(id !== "privacy.team.rideFigures" || rideFigures(ctx.env)) &&
+		(id !== "privacy.album" || seasonAlbum(ctx.env));
 	const sections = SECTIONS.map(
 		([heading, paragraphs]) =>
 			html`<h2>${i18n.t(heading)}</h2>\n${paragraphs.filter(shown).map(paragraph)}`,
@@ -97,12 +105,13 @@ export function handlePrivacy(ctx: Ctx, i18n: I18n): Response {
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
+			look: pageLook(ctx),
 			title,
 			path: "/privacy",
 			body: html`<article class="privacy">
 <h1>${title}</h1>
 <p>${i18n.t("privacy.updated", { date: updated })}</p>
-<p>${i18n.t("privacy.intro")}</p>
+${referenceNote(i18n, "/privacy")}<p>${i18n.t("privacy.intro")}</p>
 <h2>${i18n.t("privacy.controller.heading")}</h2>
 <p>${i18n.t("privacy.controller.body")}</p>
 <p class="privacy-controller">${controller}</p>

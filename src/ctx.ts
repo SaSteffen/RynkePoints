@@ -1,5 +1,6 @@
 import type { ConsentVersions } from "./consent";
 import type { Catalogs } from "./i18n/catalogs";
+import type { TeamData } from "./teams/types";
 import type { WorkMessage } from "./work/messages";
 
 /**
@@ -12,6 +13,8 @@ export interface Ctx {
 	/** Current time in epoch seconds. */
 	now: () => number;
 	catalogs: Catalogs;
+	/** The team this deployment serves, from `TEAM_ID` (feature 026 R1). */
+	team: TeamData;
 	/** The published consent versions; the last is current (004 research R11). */
 	consentVersions: ConsentVersions;
 	/** Keeps the invocation alive for work that outlives the response. */

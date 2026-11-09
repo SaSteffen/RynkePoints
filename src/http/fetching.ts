@@ -17,7 +17,7 @@ export function fetchingText(
 	if (!progress) return null;
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	return progress.kind === "import"
-		? i18n.t("fetching.import", { n: whole(progress.fetched) })
+		? i18n.t("fetching.import", { n: progress.fetched })
 		: i18n.t("fetching.events", {
 				done: whole(progress.done),
 				total: whole(progress.total),
@@ -40,7 +40,10 @@ export async function handleFetching(
 	const headers = { "Cache-Control": "no-store" };
 	const athleteId = await readSession(request, ctx.env, ctx.now());
 	if (athleteId === null) return new Response(null, { status: 401, headers });
-	const i18n = createI18n(resolveLocale(request, ctx.catalogs), ctx.catalogs);
+	const i18n = createI18n(
+		resolveLocale(request, ctx.catalogs, ctx.team),
+		ctx.catalogs,
+	);
 	const text = await riderFetchingText(ctx, i18n, athleteId);
 	const body = request.method === "HEAD" ? null : JSON.stringify({ text });
 	return new Response(body, {

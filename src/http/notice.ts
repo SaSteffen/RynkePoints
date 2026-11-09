@@ -3,7 +3,7 @@ import type { Ctx } from "../ctx";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import { notFound } from "./errors";
-import { html, htmlResponse, layout } from "./html";
+import { html, htmlResponse, layout, pageLook } from "./html";
 
 // Public outcome pages with stable GET URLs (contracts/http-routes.md,
 // research R18). They show no rider data and need no session. Retry links go to
@@ -22,6 +22,7 @@ export const NOTICE_IDS = [
 	"deleted",
 	"deleted-revoke-failed",
 	"blocked",
+	"one-team",
 ] as const;
 
 export type NoticeId = (typeof NOTICE_IDS)[number];
@@ -30,6 +31,8 @@ interface Notice {
 	title: MessageId;
 	body: MessageId[];
 	retry?: boolean;
+	/** Signed in already: go on to the rider's home instead of the start page. */
+	carryOn?: boolean;
 }
 
 const NOTICES: Record<NoticeId, Notice> = {
@@ -88,6 +91,12 @@ const NOTICES: Record<NoticeId, Notice> = {
 		title: "notice.blocked.title",
 		body: ["notice.blocked.body"],
 	},
+	// FR-012: shown once, right after a new rider connected.
+	"one-team": {
+		title: "notice.oneTeam.title",
+		body: ["notice.oneTeam.body"],
+		carryOn: true,
+	},
 };
 
 export function isNoticeId(id: string): id is NoticeId {
@@ -106,12 +115,17 @@ export function handleNotice(id: string, ctx: Ctx, i18n: I18n): Response {
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
+			look: pageLook(ctx),
 			title,
 			path,
 			body: html`<h1>${title}</h1>
 ${paragraphs}
 ${notice.retry ? html`<p><a class="button" href="/">${i18n.t("notice.retry")}</a></p>` : ""}
-<p><a class="button-outlined" href="/">${i18n.t("notice.backToStart")}</a></p>`,
+${
+	notice.carryOn
+		? html`<p><a class="button" href="/">${i18n.t("notice.carryOn")}</a></p>`
+		: html`<p><a class="button-outlined" href="/">${i18n.t("notice.backToStart")}</a></p>`
+}`,
 		}),
 	);
 }

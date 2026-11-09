@@ -7,7 +7,6 @@ import {
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { upsertActivity } from "../../src/db/activities";
 import { handleQueue } from "../../src/index";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import type { EvaluateRiderMessage } from "../../src/work/messages";
 import {
 	makeCtx,
@@ -29,6 +28,7 @@ import {
 	resultRows,
 	snapshot,
 } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The evaluate-rider message (contracts/queue-messages.md): a full evaluation
 // of the stored activities, without any Strava request.

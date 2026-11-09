@@ -62,10 +62,10 @@ describe("GET /me/settings (011 FR-014)", () => {
 			'<input type="hidden" name="next" value="/me/settings">',
 		);
 		expect(language).toContain(
-			'<button class="segmented" name="lang" value="de" lang="de" aria-current="true">Deutsch</button>',
+			'<button class="lang-option" name="lang" value="de" lang="de" aria-current="true">Deutsch<svg',
 		);
 		expect(language).toContain(
-			'<button class="segmented" name="lang" value="en" lang="en">English</button>',
+			'<button class="lang-option" name="lang" value="en" lang="en">English</button>',
 		);
 	});
 

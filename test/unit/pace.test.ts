@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { evenPace, riderStatus } from "../../src/rynke/pace";
-import { type CountingWindow, CURRENT_RULES } from "../../src/rynke/rules";
+import type { CountingWindow } from "../../src/rynke/rules";
 import { type Balance, NO_EXTRAS } from "../../src/rynke/tally";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The even pace and the rider status behind the quote lists and the organiser
 // groups (016 FR-030, FR-021, FR-032, research R4). Synthetic figures only.

@@ -9,6 +9,11 @@ import {
 import { totalWaitingStatement } from "../../db/strava-work";
 import {
 	readCloudflareFigures,
+	readSourceStates,
+	type SourceState,
+	type TeamCountRecord,
+	teamCountRecords,
+	teamCountsStatement,
 	usageHistoryStatement,
 	usageRecords,
 } from "../../db/usage";
@@ -25,8 +30,10 @@ import {
 	drainEstimateSeconds,
 	type Figure,
 	makeFigure,
+	percentOf,
 	stravaFigures,
 } from "../../usage/figures";
+import { type Peer, usagePeers } from "../../usage/peers";
 import { recordUsage } from "../../usage/record";
 import { thresholdBars } from "../charts";
 import { html, type SafeHtml } from "../html";
@@ -39,7 +46,7 @@ import {
 	requireAdminPost,
 	whole,
 } from "./access";
-import { type DailyHistory, dailyHistory } from "./history";
+import { type DailyHistory, dailyHistory, type HistoryTeams } from "./history";
 
 // Usage at `/admin` (feature 025 US1, US2, FR-005 to FR-015, FR-020, FR-027,
 // FR-039): each allowance's current figure above its history, all at once. The
@@ -53,10 +60,82 @@ function mark(i18n: I18n, figure: Figure): SafeHtml | null {
 		: html`<span class="usage-mark usage-mark-${figure.level}">${i18n.t(`admin.level.${figure.level}`)}</span>`;
 }
 
+/** The other teams' counts beside this team's (feature 026 FR-039). */
+interface Teams {
+	own: string;
+	peers: readonly { id: string; name: string }[];
+	/** A team's count of an allowance today, or null when none came. */
+	today: (team: string, id: Figure["id"]) => number | null;
+}
+
+/**
+ * Each team's count and share of the figure, then what no team counts. Other
+ * teams' 15-minute counts aren't exchanged, so those figures say so.
+ */
+function teamsLine(i18n: I18n, figure: Figure, teams: Teams): SafeHtml {
+	const own = figure.team ?? 0;
+	if (figure.id === "strava_read_15m" || figure.id === "strava_all_15m") {
+		return html`<p class="usage-detail">${i18n.t("admin.figure.split", {
+			team: whole(i18n, own),
+			rest: whole(i18n, figure.notAttributed ?? 0),
+		})}</p><p class="usage-detail">${i18n.t("admin.figure.windowNote")}</p>`;
+	}
+	const piece = (team: string, n: number | null) =>
+		n === null
+			? i18n.t("admin.figure.teamNone", { team })
+			: i18n.t("admin.figure.teamCount", {
+					team,
+					n: whole(i18n, n),
+					percent: whole(i18n, percentOf(n, figure.used)),
+				});
+	const counts = teams.peers.map((peer) => teams.today(peer.id, figure.id));
+	const pieces = [
+		piece(teams.own, own),
+		...teams.peers.map((peer, i) => piece(peer.name, counts[i] ?? null)),
+	];
+	if (figure.id !== "riders_connected") {
+		const counted = counts.reduce<number>((sum, n) => sum + (n ?? 0), own);
+		pieces.push(
+			i18n.t("admin.figure.rest", {
+				n: whole(i18n, Math.max(0, figure.used - counted)),
+			}),
+		);
+	}
+	return html`<p class="usage-detail">${pieces.join(" · ")}</p>`;
+}
+
+/** Teams that didn't answer at the last recording, or never did. */
+function teamNotices(
+	i18n: I18n,
+	peers: Teams["peers"],
+	states: ReadonlyMap<string, SourceState>,
+): SafeHtml[] {
+	return peers.flatMap((peer) => {
+		const state = states.get(`team:${peer.id}`);
+		const team = peer.name;
+		const success = state?.lastSuccessAt ?? null;
+		const failure = state?.lastFailureAt ?? null;
+		if (success === null) {
+			return [
+				html`<p class="notice notice-error" role="status">${i18n.t("admin.teams.never", { team })}</p>
+`,
+			];
+		}
+		if (failure !== null && failure > success) {
+			return [
+				html`<p class="notice notice-error" role="status">${i18n.t("admin.teams.stale", { team, time: moment(i18n, success) })}</p>
+`,
+			];
+		}
+		return [];
+	});
+}
+
 function figureItem(
 	i18n: I18n,
 	figure: Figure,
 	history: DailyHistory,
+	teams: Teams,
 ): SafeHtml {
 	const numbers = i18n.t("admin.figure.numbers", {
 		used: amount(i18n, figure.id, figure.used),
@@ -66,10 +145,12 @@ function figureItem(
 	const split =
 		figure.team === null
 			? null
-			: html`<p class="usage-detail">${i18n.t("admin.figure.split", {
-					team: whole(i18n, figure.team),
-					rest: whole(i18n, figure.notAttributed ?? 0),
-				})}</p>`;
+			: teams.peers.length > 0
+				? teamsLine(i18n, figure, teams)
+				: html`<p class="usage-detail">${i18n.t("admin.figure.split", {
+						team: whole(i18n, figure.team),
+						rest: whole(i18n, figure.notAttributed ?? 0),
+					})}</p>`;
 	const seen =
 		figure.observedAt === null
 			? i18n.t("admin.figure.notSeen")
@@ -98,14 +179,11 @@ function summary(i18n: I18n, figures: readonly Figure[]): SafeHtml {
 function aboutDuration(i18n: I18n, seconds: number): string {
 	const minutes = Math.max(1, Math.ceil(seconds / 60));
 	if (minutes < 90) {
-		return i18n.t("admin.waiting.minutes", { n: whole(i18n, minutes) });
+		return i18n.t("admin.waiting.minutes", { n: minutes });
 	}
 	const hours = Math.ceil(minutes / 60);
-	if (hours < 48)
-		return i18n.t("admin.waiting.hours", { n: whole(i18n, hours) });
-	return i18n.t("admin.waiting.days", {
-		n: whole(i18n, Math.ceil(hours / 24)),
-	});
+	if (hours < 48) return i18n.t("admin.waiting.hours", { n: hours });
+	return i18n.t("admin.waiting.days", { n: Math.ceil(hours / 24) });
 }
 
 function alertsSwitch(i18n: I18n, rider: Rider): SafeHtml {
@@ -118,6 +196,48 @@ function alertsSwitch(i18n: I18n, rider: Rider): SafeHtml {
 `;
 }
 
+/**
+ * The other teams' stored counts, as the view and the history ask for them. No
+ * page names another team (FR-023), so they are "Other team", numbered when
+ * there are several, in the order of `USAGE_PEERS`.
+ */
+function teamsOf(
+	i18n: I18n,
+	peers: readonly Peer[],
+	records: readonly TeamCountRecord[],
+	today: string,
+): Teams & {
+	latestConnected: (team: string) => number | null;
+	history: HistoryTeams;
+} {
+	const byKey = new Map(
+		records.map((r) => [`${r.team}|${r.allowance}|${r.day}`, r.used]),
+	);
+	const count = (team: string, id: string, day: string) =>
+		byKey.get(`${team}|${id}|${day}`) ?? null;
+	const own = i18n.t("admin.history.team");
+	const named = peers.map((peer, i) => ({
+		id: peer.id,
+		name:
+			peers.length === 1
+				? i18n.t("admin.teams.other")
+				: i18n.t("admin.teams.otherN", { n: i + 1 }),
+	}));
+	return {
+		own,
+		peers: named,
+		today: (team, id) => count(team, id, today),
+		latestConnected: (team) => {
+			let latest: TeamCountRecord | undefined;
+			for (const r of records) {
+				if (r.team === team && r.allowance === "riders_connected") latest = r;
+			}
+			return latest?.used ?? null;
+		},
+		history: { own, peers: named, count },
+	};
+}
+
 export function handleAdminUsage(
 	request: Request,
 	ctx: Ctx,
@@ -126,23 +246,34 @@ export function handleAdminUsage(
 	return adminPage(request, ctx, i18n, "/admin", async ({ rider }) => {
 		const db = ctx.env.DB;
 		const now = ctx.now();
-		const [usage, cloudflare, counts, devices] = await Promise.all([
+		const today = utcDay(now);
+		const peers = usagePeers(ctx.env);
+		const [usage, cloudflare, counts, devices, states] = await Promise.all([
 			readStravaUsage(db),
 			readCloudflareFigures(db),
 			db.batch([
 				connectedCountStatement(db),
 				totalWaitingStatement(db),
-				usageHistoryStatement(db, historyStart(utcDay(now))),
+				usageHistoryStatement(db, historyStart(today)),
+				teamCountsStatement(db, historyStart(today)),
 			]),
 			subscriptionIdsOfRiders(db, [rider.athleteId]),
+			peers.length > 0 ? readSourceStates(db) : new Map(),
 		]);
 		const count = (i: number) =>
 			(counts[i]?.results[0] as { n: number } | undefined)?.n ?? 0;
+		const teamRecords = teamCountRecords(counts[3]?.results ?? []);
+		const teams = teamsOf(i18n, peers, teamRecords, today);
+		// Other teams' riders count against the same capacity (FR-039).
+		const otherRiders = peers.reduce(
+			(sum, peer) => sum + (teams.latestConnected(peer.id) ?? 0),
+			0,
+		);
 		// The ones with a history first, so the graphs line up.
 		const windows = stravaFigures(usage, now);
 		const strava = [
 			...windows.filter((figure) => isRecordedAllowance(figure.id)),
-			connectedFigure(count(0), now),
+			connectedFigure(count(0) + otherRiders, now, count(0)),
 			...windows.filter((figure) => !isRecordedAllowance(figure.id)),
 		];
 		// Each keeps the limit it was recorded with, and its own time (FR-011).
@@ -162,12 +293,13 @@ export function handleAdminUsage(
 		const history = dailyHistory(
 			i18n,
 			records,
-			utcDay(now),
+			today,
 			isRecordedAllowance(asked) ? asked : null,
+			teams.history,
 		);
 		const firstDay = records[0]?.day;
-		const item = (figure: Figure) => figureItem(i18n, figure, history);
-		return html`${adminSwitch(i18n, "usage")}${summary(i18n, [...strava, ...account])}${
+		const item = (figure: Figure) => figureItem(i18n, figure, history, teams);
+		return html`${adminSwitch(i18n, "usage")}${summary(i18n, [...strava, ...account])}${teamNotices(i18n, teams.peers, states)}${
 			devices.length === 0
 				? html`<p class="notice">${i18n.tHtml("admin.alerts.noDevice", {
 						settings: html`<a href="/me/settings">${i18n.t("nav.settings")}</a>`,
@@ -191,7 +323,7 @@ ${
 		? null
 		: html`<section class="card">
 <h2>${i18n.t("admin.waiting.heading")}</h2>
-<p>${waiting === 1 ? i18n.t("admin.waiting.one", { time: aboutDuration(i18n, estimate) }) : i18n.t("admin.waiting.body", { n: whole(i18n, waiting), time: aboutDuration(i18n, estimate) })}</p>
+<p>${i18n.t("admin.waiting.body", { n: waiting, time: aboutDuration(i18n, estimate) })}</p>
 </section>
 `
 }<section class="card usage-source">

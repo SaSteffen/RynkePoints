@@ -3,7 +3,7 @@ import type { Ctx } from "../ctx";
 import { type Rider, setOnboarded, type TourId } from "../db/riders";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
-import { CURRENT_RULES, type RynkeRules } from "../rynke/rules";
+import type { RynkeRules } from "../rynke/rules";
 import { virtualShareRequired } from "../rynke/tally";
 import { forbidden } from "./errors";
 import { html, type SafeHtml } from "./html";
@@ -36,6 +36,12 @@ export interface TourStep {
 	example?: true;
 	/** Only for riders who aren't organisers (feature 019's Termine). */
 	riderOnly?: true;
+}
+
+/** What of the team the tour needs: its rules in effect and hidden sections. */
+export interface TourTeam {
+	rules: RynkeRules;
+	hidden: ReadonlySet<SectionId>;
 }
 
 /** Every step of each tour; `tourSteps` picks the viewer's (FR-001). */
@@ -165,12 +171,22 @@ function allowed(rider: Rider, tour: TourId): boolean {
 	return tour === "rider" || rider.organiser;
 }
 
-/** The steps of `tour` for this viewer (FR-002). */
+/** No section switched off. */
+const ALL_SECTIONS: ReadonlySet<SectionId> = new Set();
+
+/**
+ * The steps of `tour` for this viewer (FR-002), without those on a section
+ * the team has switched off (`hiddenSections`, feature 026 FR-018).
+ */
 export function tourSteps(
 	tour: TourId,
 	viewer: Pick<Rider, "organiser">,
+	hidden: ReadonlySet<SectionId> = ALL_SECTIONS,
 ): TourStep[] {
-	return TOURS[tour].filter((step) => !(step.riderOnly && viewer.organiser));
+	return TOURS[tour].filter(
+		(step) =>
+			!(step.riderOnly && viewer.organiser) && !hidden.has(step.section),
+	);
 }
 
 /** The first tour still to show, the rider tour before the organiser tour. */
@@ -191,8 +207,9 @@ export function stepHref(
 	tour: TourId,
 	viewer: Pick<Rider, "organiser">,
 	index: number,
+	hidden: ReadonlySet<SectionId> = ALL_SECTIONS,
 ): string {
-	const step = tourSteps(tour, viewer)[index];
+	const step = tourSteps(tour, viewer, hidden)[index];
 	if (!step) return "/";
 	const fragment = step.target ? `#${step.target}` : "";
 	return `${step.path}?tour=${tour}&step=${index + 1}${fragment}`;
@@ -215,30 +232,34 @@ export interface TourHint {
  * when the page is one of its steps (the one `&step=` names, else the page's
  * first), else, while a tour is still to show, its first step on its first
  * page or an invitation to start it anywhere else. Nothing otherwise.
+ * `team` holds the team's rules in effect, which the hints name, and the
+ * sections it has switched off.
  */
 export function tourHint(
 	i18n: I18n,
 	rider: Rider,
 	path: string,
 	query: URLSearchParams,
+	team: TourTeam,
 ): TourHint | null {
+	const { hidden } = team;
 	const page = path.split("?")[0] ?? path;
 	const requested = query.get("tour");
 	if (isTourId(requested) && allowed(rider, requested)) {
-		const steps = tourSteps(requested, rider);
+		const steps = tourSteps(requested, rider, hidden);
 		const number = Number(query.get("step"));
 		const named = Number.isInteger(number) ? steps[number - 1] : undefined;
 		const index =
 			named?.path === page
 				? number - 1
 				: steps.findIndex((s) => s.path === page);
-		if (index >= 0) return stepCard(i18n, rider, requested, index, page);
+		if (index >= 0) return stepCard(i18n, rider, requested, index, page, team);
 	}
 	const pending = pendingTour(rider);
 	if (pending === null) return null;
-	const first = tourSteps(pending, rider)[0];
+	const first = tourSteps(pending, rider, hidden)[0];
 	if (!first) return null;
-	if (first.path === page) return stepCard(i18n, rider, pending, 0, page);
+	if (first.path === page) return stepCard(i18n, rider, pending, 0, page, team);
 	return {
 		section: first.section,
 		example: false,
@@ -248,7 +269,7 @@ export function tourHint(
 			page,
 			null,
 			html`<p>${i18n.t(INTRO[pending])}</p>`,
-			html`<a class="button" href="${stepHref(pending, rider, 0)}">${i18n.t("tour.start")}</a>`,
+			html`<a class="button" href="${stepHref(pending, rider, 0, hidden)}">${i18n.t("tour.start")}</a>`,
 		),
 	};
 }
@@ -281,8 +302,9 @@ function stepCard(
 	tour: TourId,
 	index: number,
 	page: string,
+	{ rules, hidden }: TourTeam,
 ): TourHint {
-	const steps = tourSteps(tour, rider);
+	const steps = tourSteps(tour, rider, hidden);
 	const step = steps[index] as TourStep;
 	const last = index === steps.length - 1;
 	const progress = i18n.t("tour.progress", {
@@ -298,10 +320,10 @@ function stepCard(
 			page,
 			step.target ?? null,
 			html`<p class="tour-progress">${progress}</p>
-<p>${i18n.t(step.text, ruleParams(i18n, CURRENT_RULES))}</p>`,
+<p>${i18n.t(step.text, ruleParams(i18n, rules))}</p>`,
 			last
 				? html`<button class="button">${i18n.t("tour.done")}</button>`
-				: html`<a class="button" href="${stepHref(tour, rider, index + 1)}">${i18n.t("tour.next")}</a>`,
+				: html`<a class="button" href="${stepHref(tour, rider, index + 1, hidden)}">${i18n.t("tour.next")}</a>`,
 		),
 	};
 }

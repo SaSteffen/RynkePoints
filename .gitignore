@@ -29,3 +29,6 @@ season-albums/
 # Logs and Python bytecode (from the vendored Spec Kit scripts)
 *.log
 __pycache__/
+
+# Content rating rounds (local votes, tools/content-rating)
+tools/content-rating/rounds/

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import {
 	makeCtx,
@@ -54,7 +55,7 @@ describe("POST /lang", () => {
 		expect(res.headers.get("Content-Language")).toBe("en");
 		expect(page).toContain("Sign-in expired");
 		expect(page).toContain(
-			'<button class="segmented" name="lang" value="en" lang="en" aria-current="true">English</button>',
+			'<button class="lang-option" name="lang" value="en" lang="en" aria-current="true">English<svg',
 		);
 	});
 
@@ -72,7 +73,7 @@ describe("POST /lang", () => {
 	});
 
 	it("ignores an unsupported language", async () => {
-		const res = await switchTo("fr", "/notice/expired");
+		const res = await switchTo("xx", "/notice/expired");
 		expect(res.status).toBe(303);
 		expect(res.headers.get("Location")).toBe("/notice/expired");
 		expect(res.headers.get("Set-Cookie")).toBeNull();
@@ -138,6 +139,50 @@ describe("POST /lang", () => {
 		await switchTo("fr", "/");
 		expect(await tableCounts()).toEqual(before);
 	});
+});
+
+const SHIPPED = ["de", "en", "da", "nb", "sv", "fi", "is", "fr", "nl", "lt"];
+
+describe("ten languages (026 US5, contracts/locales.md › Picker)", () => {
+	it("ships exactly the ten locales", () => {
+		expect(Object.keys(CATALOGS).sort()).toEqual([...SHIPPED].sort());
+	});
+
+	it.each(SHIPPED)("POST /lang accepts %s", async (lang) => {
+		const res = await switchTo(lang, "/");
+		expect(res.status).toBe(303);
+		expect(res.headers.get("Set-Cookie")).toMatch(
+			new RegExp(`^rp_lang=${lang};`),
+		);
+	});
+
+	it.each(["xx", "no", "de-DE", ""])("POST /lang refuses %j", async (lang) => {
+		const res = await switchTo(lang, "/");
+		expect(res.headers.get("Set-Cookie")).toBeNull();
+	});
+
+	it.each(SHIPPED)(
+		"lists the ten native names sorted, %s marked",
+		async (lang) => {
+			const page = await (
+				await handleFetch(request("/", { cookies: { rp_lang: lang } }), ctx)
+			).text();
+			const options = [
+				...page.matchAll(
+					/<button class="lang-option" name="lang" value="(\w+)"[^>]*?( aria-current="true")?>([^<]+)/g,
+				),
+			];
+			const names = options.map((m) => m[3] ?? "");
+			expect(names).toHaveLength(10);
+			expect(names).toEqual([...names].sort(new Intl.Collator("en").compare));
+			expect(names.sort()).toEqual(
+				SHIPPED.map(
+					(l) => CATALOGS[l as keyof typeof CATALOGS]["meta.languageName"],
+				).sort(),
+			);
+			expect(options.filter((m) => m[2]).map((m) => m[1])).toEqual([lang]);
+		},
+	);
 });
 
 describe("the switcher for a signed-in rider (US5, 011 FR-016)", () => {

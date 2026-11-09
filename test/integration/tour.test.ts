@@ -5,7 +5,6 @@ import { escapeHtml } from "../../src/http/html";
 import { stepHref, TOURS, tourSteps } from "../../src/http/tour";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import {
 	makeCtx,
 	request,
@@ -15,6 +14,7 @@ import {
 } from "../support/ctx";
 import { ATHLETE_A, NOW } from "../support/fixtures";
 import { riderPage, seedBalance, seedRide } from "../support/rider-view";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // Onboarding tours (issue #90, feature 020): hints on the rider tour's pages,
 // some pointing at an element and showing the example rider, then the
@@ -23,7 +23,7 @@ import { riderPage, seedBalance, seedRide } from "../support/rider-view";
 
 const ctx = makeCtx();
 const { de } = CATALOGS;
-const t = (id: keyof typeof de) => escapeHtml(de[id]);
+const t = (id: keyof typeof de) => escapeHtml(String(de[id]));
 
 /** The tour hint on a page, or null. */
 function hint(page: string): string | null {

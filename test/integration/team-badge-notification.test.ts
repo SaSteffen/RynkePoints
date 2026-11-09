@@ -1,11 +1,11 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
+import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
 import {
 	advanceTeamBadgeNoticesStatement,
 	seedTeamBadgeNoticesStatement,
 } from "../../src/db/badges";
 import { CATALOGS } from "../../src/i18n/catalogs";
-import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
 import { handleFetch } from "../../src/index";
 import { teamEventChange } from "../../src/rynke/apply";
 import { countingWindow } from "../../src/rynke/rules";

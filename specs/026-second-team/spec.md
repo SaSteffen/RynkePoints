@@ -12,6 +12,16 @@ shared. Each team has its own domain. Rules, season, art, phrases and features b
 per-team settings. Danish and Swedish translations. A repeatable process to generate
 content with AI and rate it." Also issue #236.
 
+**Update 2026-11-07**: "For development I want a command per team, like `pnpm dev:hamburg`
+or `pnpm dev:europe`, that initializes and starts a dev environment for that team, and
+`pnpm dev` starting both in parallel on different ports. A translation of the app for all
+nationalities taking part in Team Rynkeby Europe, available in all instances. The monkey
+gets a select few phrases in each language and speaks only the selected language, except
+for Team Rynkeby Hamburg, whose current phrases are its exclusive selection." The riders'
+countries are Denmark, Norway, Sweden, Finland, Iceland, Germany, France, the Netherlands,
+Lithuania, the United Kingdom and Canada. No native-speaker review: the maintainers
+translate everything.
+
 ## Context
 
 The app is built for one team. A second team wants to use it, and Strava's approval
@@ -31,6 +41,22 @@ text or art for one team, such as its motivational phrases.
 
 Usage statistics, administrators and blocking are feature 025, for one team. Bringing
 the teams' figures together is part of this feature (FR-039).
+
+## Clarifications
+
+### Session 2026-11-07
+
+- Q: How is the work split into releases? → A: Languages first: the ten languages and the
+  phrase rule ship on their own, then team data with the per-team dev commands, then the
+  gateway, then the second team goes live.
+- Q: What does the second team's team data hold until the team sends its values? → A:
+  Placeholders copied from the founding team, marked as such. The second team runs only
+  locally and as a sandbox on a subdomain of the founding team's domain until then.
+- Q: What does the second team see for badges with Hamburg motifs? → A: Those badges are
+  flagged in team data and show a placeholder picture until the team has its own art.
+  The founding team's badge names stay German in every language, like its phrases.
+- Q: Does `pnpm dev` mirror the shared Strava app? → A: Yes. Once the gateway exists,
+  `pnpm dev` runs one fake Strava and a local gateway in front of all teams.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -125,33 +151,38 @@ file of the second team's synthetic deployment for the founding team's names and
 1. **Given** the second team's deployment, **When** any page is opened or the app is
    installed, **Then** name, icon and start screen are that team's.
 2. **Given** art that shows a Hamburg motif, such as the coin and at least one badge,
-   **When** the second team's rider sees it, **Then** they see their team's version.
+   **When** the second team's rider sees it, **Then** they see their team's version, or a
+   placeholder picture where the team has none yet (FR-024).
 3. **Given** motivational phrases, **When** a second-team rider sees one, **Then** it is
-   from their team's English set, whatever language the rest of the app is in.
+   from the English common phrases, whatever language the rider picked, never one of the
+   founding team's phrases (FR-025).
 4. **Given** the founding team, **When** this feature is deployed, **Then** its name,
    art, phrases and colours are unchanged.
 
 ---
 
-### User Story 5 - Danish and Swedish (Priority: P2)
+### User Story 5 - Every rider's language (Priority: P2)
 
-A rider reads the app, including what they consent to, in Danish or Swedish.
+A rider reads the app, including what they consent to, in their own language: German,
+English, Danish, Norwegian, Swedish, Finnish, Icelandic, French, Dutch or Lithuanian. Every
+language is offered on every team's site, the founding team's included.
 
-**Why this priority**: The second team's riders need it, but the English fallback lets
-technical work go ahead without it.
+**Why this priority**: The second team's riders come from eleven countries, but the
+English fallback lets technical work go ahead without the translations.
 
-**Independent Test**: Switch a synthetic rider through each of a team's languages and
-check every page, and that a language not offered by the team can't be picked.
+**Independent Test**: On each team's synthetic deployment, switch a synthetic rider through
+every language and check every page, and that the monkey follows the rules of FR-025.
 
 **Acceptance Scenarios**:
 
-1. **Given** a team offering Danish, **When** a rider picks it, **Then** all rider-facing
-   text is Danish, including consent, privacy, notifications and the Strava block.
-2. **Given** a visitor stating no language the team offers, **When** they arrive, **Then**
-   they see the team's default language.
-3. **Given** a missing translation key, **When** the checks run, **Then** they fail.
-4. **Given** consent or privacy text in a new language, **When** it is released, **Then**
-   a native speaker has reviewed it.
+1. **Given** any team, **When** a rider picks Danish, **Then** all rider-facing text is
+   Danish, including consent, privacy, notifications and the Strava block.
+2. **Given** a visitor stating no language, or only languages the app doesn't ship,
+   **When** they arrive, **Then** they see the team's language for that case (FR-027).
+3. **Given** a missing translation key in any language, or a missing common phrase list,
+   **When** the checks run, **Then** they fail.
+4. **Given** a founding-team rider who picks Finnish, **When** the monkey speaks, **Then**
+   it speaks the founding team's German phrases, as today.
 
 ---
 
@@ -161,9 +192,9 @@ A maintainer writes a brief, generates about three times as many candidates as n
 and a chosen person approves or rejects each on a rating page. The approved ones become
 the team's set.
 
-**Why this priority**: The second team needs about 430 phrases, and the process will be
-needed again. It proved itself on the German phrases in October 2026, but the tool isn't
-in the repository.
+**Why this priority**: The common phrases (FR-025) need an English original set, and the
+process will be needed again. It proved itself on the German phrases in October 2026, but
+the tool isn't in the repository.
 
 **Independent Test**: Run a small synthetic set through every step: brief, candidates,
 rating, more candidates for the shortfall, and writing the set into team data. Stop and
@@ -203,6 +234,34 @@ Check the other team's step finishes and the failed one is reported.
 
 ---
 
+### User Story 8 - Develop with every team locally (Priority: P2)
+
+A maintainer starts one team, or all teams at once, on their own machine with one command
+each, and sees each team as its riders would, with a fake Strava and synthetic riders.
+
+**Why this priority**: Every change has to be seen working for both teams, and setting
+up each team by hand would make that a chore nobody does.
+
+**Independent Test**: On a fresh checkout, run `pnpm dev:europe`, then `pnpm dev`. Check
+each team's site opens on its own port with its own name, art, default language and
+synthetic riders, that nothing is shared between them, and that no request leaves the
+machine.
+
+**Acceptance Scenarios**:
+
+1. **Given** a fresh checkout, **When** a maintainer runs `pnpm dev:hamburg` or
+   `pnpm dev:europe`, **Then** that team's local database is set up and the team starts
+   in fake mode with its synthetic riders, without further steps.
+2. **Given** `pnpm dev`, **When** it runs, **Then** every team starts at the same time,
+   each on its own fixed port, and the output names each team's address.
+3. **Given** all teams running, **When** a maintainer stops `pnpm dev`, **Then** every
+   team stops.
+4. **Given** a rider signed in on one team's local site, **When** the maintainer opens
+   another team's port, **Then** they aren't signed in there and see none of the first
+   team's data.
+
+---
+
 ### Edge Cases
 
 - **A rider in both teams' clubs**: Strava's grant and refresh token cover the app, not a
@@ -229,6 +288,8 @@ Check the other team's step finishes and the failed one is reported.
   This is first come, first served until it causes trouble; feature 025 shows who used it.
 - **A team leaves**: Its deployment and database are deleted, its riders' grants revoked,
   and the other team isn't touched.
+- **A founding-team rider picks another language**: Everything follows that language
+  except the monkey, which keeps the founding team's German phrases (FR-025).
 - **Season data already scored**: Changing a team's season start later leaves stored Rynke
   stale (#19), so it is set correctly before that team launches.
 
@@ -315,20 +376,47 @@ Check the other team's step finishes and the failed one is reported.
 
 - **FR-023**: No page, image or text of a team MUST show another team's name, place or art.
 - **FR-024**: Art specific to the founding team, at least the coin and badges with Hamburg
-  motifs, MUST have a replacement or be left out for other teams.
-- **FR-025**: The second team's phrases MUST be a set of its own in English, following
-  the same rules as today: a phrase never names, ranks or compares riders.
+  motifs, MUST be flagged as such in team data. Another team MUST see its own version, or a
+  neutral placeholder picture until it has one; the badge itself still counts.
+- **FR-025**: Which phrases the monkey speaks MUST follow one rule, set per team in team
+  data: a team either has **its own phrases** or uses the **common phrases**.
+  - A team with its own phrases MUST always get those, in their language, whatever
+    language the rider picked. No other team's site MUST ever show them. The founding
+    team's phrases of today are its own phrases, unchanged.
+  - A team using the common phrases MUST get the English common phrases, whatever
+    language the rider picked. They are the stand-in for a team without phrases of its
+    own. The second team uses the common phrases.
+  - **Update 2026-11-09**: "Hamburg phrases stay like they are. German. We have a set of
+    English phrases that get used as a stand-in, should no team-specific phrases exist.
+    For now, we shelve phrase translation."
+- **FR-045**: The common phrases MUST exist in English, with every list filled: most of
+  them pushing a rider who is behind, and the rest for a rider on track and for each
+  season. A missing list MUST fail the checks. Translating them is shelved (FR-025).
+- **FR-046**: The common phrases MUST be light and mostly neutral, and follow the same
+  rules as today: a phrase never names, ranks or compares riders. They MUST name no team,
+  place or charity, so they fit every team.
+- **FR-047**: The common phrases MUST start as an English original set, adapted from the
+  founding team's phrases with some new ones added, and selected with the rating process
+  (User Story 6). Should translations come back, each language gets an adaptation of that
+  set, not a word-for-word translation.
 
 **Languages**
 
-- **FR-026**: The app MUST ship Danish and Swedish catalogs, complete like every other
-  catalog, with badge names translated or set per team.
-- **FR-027**: Each team MUST set which languages it offers and its default language,
-  which applies when a visitor states no language it offers. The founding team stays
-  German by default.
+- **FR-026**: The app MUST ship Danish, Norwegian (Bokmål), Swedish, Finnish, Icelandic,
+  French, Dutch and Lithuanian catalogs besides German and English, complete like every
+  other catalog. Canada's riders are covered by English and French.
+- **FR-052**: Badge names MUST follow the rule of FR-025: a team with its own badge names
+  gets them in every language, and a team without gets the common badge names in the
+  rider's language. The founding team's German badge names of today are its own, so its
+  badges carry German names whatever language the rider picked.
+- **FR-027**: Every shipped language MUST be offered on every team's site. Each team MUST
+  set its default language, which applies when a visitor states no language, and the
+  language for visitors who state only languages the app doesn't ship. The founding team
+  stays German and English as today; the second team uses English for both.
 - **FR-028**: Consent and privacy text MUST exist per team and per language, and name that
-  team's controller. A native speaker MUST review Danish and Swedish consent and privacy
-  text before release.
+  team's controller. The maintainers translate it like all other text, with no
+  native-speaker review. Where a translation and the English text differ, the English text
+  is the reference, and the pages MUST say so.
 
 **Generated content**
 
@@ -354,8 +442,27 @@ Check the other team's step finishes and the failed one is reported.
 - **FR-037**: Gateway and team versions MUST work together in any deployment order.
 - **FR-038**: Local development and tests MUST run with synthetic data for every team, and
   MUST NOT contact Strava or Cloudflare.
+- **FR-048**: Each team MUST have a local command, `pnpm dev:<team>` (`pnpm dev:hamburg`,
+  `pnpm dev:europe`), that sets up the team's local database and starts the team in fake
+  mode with its own synthetic riders, local data and fixed port, in one step.
+- **FR-049**: `pnpm dev` MUST start every team at the same time, on distinct ports, name
+  each team's address in its output, and stop all of them when stopped. The founding team
+  keeps port 8789. The ports MUST NOT clash with the test server's port. Once the gateway
+  exists, `pnpm dev` MUST mirror production: one fake Strava and a local gateway in front
+  of all teams, so sign-ins and ride events pass through it. `pnpm dev:<team>` still works
+  for one team alone.
+- **FR-050**: Each team's synthetic riders MUST suit that team, such as names from its
+  riders' countries, and stay synthetic (Principle I).
+- **FR-051**: A team's local command MUST come from its team data and one line of
+  settings, like its deployment (FR-004).
+- **FR-053**: Values a team hasn't supplied yet MAY be placeholders copied from the
+  founding team, marked as placeholders in team data. A team with any placeholder MUST run
+  only locally and in its sandbox, and its production deployment MUST be refused, naming
+  the placeholders.
 - **FR-042**: A new team MUST get its sandbox (027 FR-001) as part of being added: its resources
   and one more checkbox on **Release PR**. A sandbox isn't a team for this feature's shares.
+  Until a team has its own domain, its sandbox lives on a subdomain of the founding team's
+  domain.
 
 **Maintainers** (see spec 028)
 
@@ -390,16 +497,20 @@ Check the other team's step finishes and the failed one is reported.
 - **SC-005**: Adding a third test team needs no change to application code.
 - **SC-006**: A single merge reaches both teams without manual steps, and a failure at one
   team leaves the other on the new version.
-- **SC-007**: A content set of 430 approved phrases can be produced with one person rating,
-  with no votes lost between sessions.
-- **SC-008**: All rider-facing text exists in Danish and Swedish, and consent and privacy
-  text are reviewed by native speakers before launch.
+- **SC-007**: The English original of the common phrases can be produced with one person
+  rating, with no votes lost between sessions.
+- **SC-008**: All rider-facing text exists in all ten languages, except the monkey's
+  phrases (FR-025).
+- **SC-010**: From a fresh checkout, a maintainer sees both teams running locally with one
+  command and no other step.
 - **SC-009**: Both teams together stay within Cloudflare's free limits in normal use, as
   shown by feature 025. Going beyond them is the trigger to split accounts.
 
 ## Assumptions
 
-- **Order**: Team data ships first with no visible change for the founding team, then the
+- **Order**: Four releases. First the ten languages and the phrase rule (FR-025–FR-028,
+  FR-045–FR-047, FR-052), whose only visible change for the founding team is the new
+  languages. Then team data with the per-team dev commands, with no visible change. Then the
   gateway, then the second team. Feature 025 can ship at any point.
 - **Accepted limits**: A team's deployment briefly sees the other team's athlete and
   activity IDs in events before dropping them. Budget is first come, first served. A second
@@ -413,13 +524,20 @@ Check the other team's step finishes and the failed one is reported.
 - **Scoring start**: If the second team starts scoring later than the season start, this
   is a later season start setting, with earlier rides not stored. A separate concept is
   only needed if they want earlier rides kept.
-- **Constitution**: Its Language section makes German the default for all riders and calls
-  them a German team. It needs amending to per-team default languages before implementation.
+- **Constitution**: Amended to v2.5.0 on 2026-11-07: per-team default languages, every
+  language on every site, English as the reference wording.
+- **Translations without review**: The project has no native speakers for most of the
+  languages. Translations, consent and privacy text included, are made by the maintainers
+  with AI help and fixed when riders report mistakes. The second team's default language is
+  English unless it decides otherwise.
+- **Hamburg's phrases stay German**: The founding team's phrases are written for its
+  riders and stay its own; they aren't translated, even for a founding-team rider who picks
+  another language.
 - **Rating page**: It may be hosted outside the app, since it holds only candidates and
   votes. Who rates is the second team's decision, since they know their humour.
 - **Inputs needed from the second team before launch**: domain, Strava clubs, Rynke values,
-  dates, languages, switchable features, controller and contact, art direction, a phrase
-  brief, a rater and native-speaker reviewers.
+  dates, default language, switchable features, controller and contact, art direction and
+  a rater for the common phrases.
 - **Further teams**: More teams may follow, but that's only a thought for now and nothing
   is built for it. The second team is the one to ship. Where it costs nothing extra, the
   design doesn't assume exactly two teams: lists of teams rather than "the other team",

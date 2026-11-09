@@ -8,7 +8,8 @@ import {
 	type MockInstance,
 	vi,
 } from "vitest";
-import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples";
+import { EUROPE_SAMPLES } from "../../dev/fake-strava/samples.europe";
+import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples.hamburg";
 import {
 	type DevEnv,
 	devFetch,
@@ -217,6 +218,32 @@ describe("seeding again", { timeout: 20_000 }, () => {
 		]);
 		await get("/_dev/");
 		expect(await fakeRides()).toBe(allRides);
+	});
+});
+
+describe("another team's samples (026 FR-050)", { timeout: 20_000 }, () => {
+	it("seeds the riders of the context's team", async () => {
+		// Team Europe isn't in TEAMS yet; only its id matters here.
+		const base = devCtx();
+		ctx = {
+			...base,
+			env: { ...base.env, TEAM_ID: "europe" },
+			team: { ...base.team, id: "europe" },
+		};
+		const index = await get("/_dev/");
+		expect(index.status).toBe(200);
+		const page = await index.text();
+		expect(page).toContain(escapeHtml("Tuuli TrainingDone"));
+		expect(page).not.toContain("Tina TrainingDone");
+		const { results } = await env.DB.prepare(
+			"SELECT athlete_id FROM riders ORDER BY athlete_id",
+		).all<{ athlete_id: number }>();
+		expect(results.map((r) => r.athlete_id)).toEqual(
+			EUROPE_SAMPLES.riders.filter((r) => r.clubMember).map((r) => r.athleteId),
+		);
+		expect(
+			await count("SELECT COUNT(*) AS n FROM riders WHERE organiser = 1"),
+		).toBe(2);
 	});
 });
 
@@ -1059,5 +1086,89 @@ describe("links to Strava (008 research R9)", () => {
 		expect(res.status).toBe(200);
 		expect(await res.text()).toContain(name);
 		expect((await get("/_dev/strava/activities/1")).status).toBe(404);
+	});
+});
+
+// `pnpm dev` with every team runs them behind the local gateway (feature 026
+// release 3): the stand-in screen sends the rider back through the gateway's
+// return address, and simulated events go to the gateway's webhook.
+describe("behind the local gateway", () => {
+	const GATEWAY = "http://localhost:8791";
+	const GATEWAY_WEBHOOK = `${GATEWAY}/strava/webhook/fake-gateway-token`;
+
+	beforeEach(() => {
+		ctx = {
+			...ctx,
+			env: {
+				...ctx.env,
+				STRAVA_RETURN_VIA: GATEWAY,
+				RYNKE_FAKE_GATEWAY: GATEWAY_WEBHOOK,
+			} as DevEnv,
+		};
+	});
+
+	async function startConnect() {
+		const res = await post("/connect", [["consent", String(CONSENT_VERSION)]]);
+		const query = new URL(res.headers.get("Location") ?? "", LOCAL)
+			.searchParams;
+		return query;
+	}
+
+	it("sends the rider back through the gateway, for this team only", async () => {
+		const query = await startConnect();
+		expect(query.get("redirect_uri")).toBe(`${GATEWAY}/auth/return/hamburg`);
+		const authorized = await post("/_dev/strava/oauth/authorize", [
+			["redirect_uri", query.get("redirect_uri") ?? ""],
+			["state", query.get("state") ?? ""],
+			["athlete", String(TINA)],
+			["action", "authorize"],
+		]);
+		expect(authorized.status).toBe(302);
+		const back = new URL(authorized.headers.get("Location") ?? "");
+		expect(`${back.origin}${back.pathname}`).toBe(
+			`${GATEWAY}/auth/return/hamburg`,
+		);
+		const elsewhere = await post("/_dev/strava/oauth/authorize", [
+			["redirect_uri", `${GATEWAY}/auth/return/europe`],
+			["state", query.get("state") ?? ""],
+			["athlete", String(TINA)],
+			["action", "authorize"],
+		]);
+		expect(elsewhere.status).toBe(400);
+	});
+
+	it("posts simulated events to the gateway's webhook", async () => {
+		expect((await get("/_dev/")).status).toBe(200);
+		await drain();
+		// The dev entry wraps test/setup.ts's spy; answer the gateway there.
+		removeStravaInterceptor();
+		const posted: { url: string; body: string }[] = [];
+		vi.mocked(globalThis.fetch).mockImplementation(async (input, init) => {
+			const req = new Request(input, init);
+			if (req.url !== GATEWAY_WEBHOOK) throw new Error(`unexpected ${req.url}`);
+			posted.push({ url: req.url, body: await req.text() });
+			return new Response("ok");
+		});
+		const res = await post("/_dev/events", [
+			["action", "create"],
+			["athleteId", String(TINA)],
+		]);
+		const flash = new URL(
+			res.headers.get("Location") ?? "",
+			LOCAL,
+		).searchParams.get("flash");
+		expect(flash).toMatch(/answered 200/);
+		expect(posted).toHaveLength(1);
+		expect(JSON.parse(posted[0]?.body ?? "{}")).toMatchObject({
+			object_type: "activity",
+			aspect_type: "create",
+			owner_id: TINA,
+		});
+		// The gateway forwards it back later; the webhook wasn't called in-process.
+		expect(
+			ctx.queue.sent.filter(
+				(m) => (m.body as { kind?: string }).kind === "activity-event",
+			),
+		).toEqual([]);
 	});
 });

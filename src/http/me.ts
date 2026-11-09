@@ -7,7 +7,7 @@ import { deleteRider } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { revokeStoredToken } from "../strava/tokens";
 import { forbidden } from "./errors";
-import { html, htmlResponse, layout } from "./html";
+import { html, htmlResponse, layout, pageLook } from "./html";
 import { redirect } from "./redirect";
 import { clearSessionCookie, isSameOrigin, readSession } from "./session";
 import { readViewer, requireRider } from "./viewer";
@@ -27,6 +27,7 @@ export async function handleDisconnectPage(
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
+			look: pageLook(ctx),
 			title,
 			path: "/me/disconnect",
 			body: html`<h1>${title}</h1>

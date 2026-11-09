@@ -1,4 +1,4 @@
-import { berlinDate } from "../config";
+import { badges, berlinDate } from "../config";
 import { currentVersion, hasAgreed } from "../consent";
 import type { Ctx } from "../ctx";
 import type { Consent } from "../db/consents";
@@ -8,12 +8,14 @@ import type { Rider } from "../db/riders";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import { vapidPublicKey } from "../push/vapid";
-import { countingWindow } from "../rynke/rules";
+import { countingWindow, currentRules } from "../rynke/rules";
 import { consentGate } from "./consent-gate";
 import {
 	html,
 	htmlResponse,
 	layout,
+	type PageLook,
+	pageLook,
 	SafeHtml,
 	type ShellParts,
 	WORDMARK,
@@ -102,6 +104,16 @@ export const SECTIONS: readonly {
 	},
 ];
 
+/**
+ * The sections the team has switched off (feature 026 FR-018): no menu
+ * entry, no tour step, and the page answers 404.
+ */
+export function hiddenSections(
+	env: Pick<Env, "BADGES">,
+): ReadonlySet<SectionId> {
+	return new Set<SectionId>(badges(env) ? [] : ["badges"]);
+}
+
 /** The signed-in rider who agreed to the current version, and that record. */
 export interface ShellViewer {
 	rider: Rider;
@@ -155,10 +167,13 @@ function shellParts(
 	administrator: boolean,
 	hint: TourHint | null,
 	openRequests: number,
+	hidden: ReadonlySet<SectionId>,
+	look: PageLook,
 ): ShellParts {
 	const current = SECTIONS.find(({ id }) => id === section);
 	const shown = SECTIONS.filter(
 		(s) =>
+			!hidden.has(s.id) &&
 			(organiser ? !s.riderOnly : !s.organiserOnly) &&
 			(administrator || !s.adminOnly),
 	);
@@ -179,7 +194,7 @@ ${themeButton(i18n)}
 <a class="icon-button refresh" href="${path}" aria-label="${i18n.t("shell.refresh")}">${REFRESH}</a>`,
 		// Right after the header, above everything else on the page when open
 		// (022 contracts/theme-menu.md).
-		menu: themeMenu(i18n),
+		menu: themeMenu(i18n, look),
 		// After the footer, so screen readers reach the content first. The app
 		// prompt floats above it on phones (015 FR-012, research R8); a tour's
 		// hint takes its place while it shows (issue #90).
@@ -230,6 +245,7 @@ export async function shellPage(
 					}
 				: { state: accepted ? "scopes" : "missing" },
 			path,
+			pageLook(ctx),
 		);
 	}
 	// No tour while the first import still runs: the pages it points at only
@@ -237,11 +253,13 @@ export async function shellPage(
 	// a hint to hold back. Before the section, which shows the example rider
 	// or team on the tour's steps that call for it (feature 020 FR-005,
 	// FR-013).
+	const hidden = hiddenSections(ctx.env);
 	let hint = tourHint(
 		i18n,
 		viewer.rider,
 		path,
 		new URL(request.url).searchParams,
+		{ rules: currentRules(ctx.team.rules), hidden },
 	);
 	if (hint && !(await hasBalance(ctx.env.DB, viewer.rider.athleteId))) {
 		hint = null;
@@ -261,9 +279,11 @@ export async function shellPage(
 		rendered instanceof SafeHtml ? { body: rendered, scripts: [] } : rendered;
 	// Each section names itself, so tabs and screen readers tell them apart.
 	const label = SECTIONS.find(({ id }) => id === section)?.label;
+	const look = pageLook(ctx);
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
+			look,
 			title:
 				section === "you" || !label
 					? i18n.t("me.title")
@@ -280,6 +300,8 @@ export async function shellPage(
 				viewer.rider.administrator,
 				hint,
 				openRequests,
+				hidden,
+				look,
 			),
 		}),
 	);

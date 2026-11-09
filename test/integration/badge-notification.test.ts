@@ -1,7 +1,7 @@
 import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
+import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
 import { CATALOGS } from "../../src/i18n/catalogs";
-import { BADGE_NAMES } from "../../src/i18n/messages/badges.de";
 import { handleFetch } from "../../src/index";
 import {
 	makeCtx,

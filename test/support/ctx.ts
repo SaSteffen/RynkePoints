@@ -13,6 +13,8 @@ import {
 } from "../../src/http/session";
 import { CATALOGS, type Catalogs } from "../../src/i18n/catalogs";
 import { ACTIVITY_FIGURES_VERSION } from "../../src/strava/activity";
+import { teamFor } from "../../src/teams";
+import type { TeamData } from "../../src/teams/types";
 import type { WorkMessage } from "../../src/work/messages";
 import { initialTokens } from "./fake-strava";
 import { ATHLETE_A, firstNameFor, NOW } from "./fixtures";
@@ -37,6 +39,7 @@ export function makeCtx(
 	options: {
 		now?: number;
 		catalogs?: Catalogs;
+		team?: TeamData;
 		consentVersions?: ConsentVersions;
 	} = {},
 ): TestCtx {
@@ -64,6 +67,7 @@ export function makeCtx(
 		queue,
 		now: () => now,
 		catalogs: options.catalogs ?? CATALOGS,
+		team: options.team ?? teamFor(env),
 		consentVersions: options.consentVersions ?? CONSENT_VERSIONS,
 		pending,
 		waitUntil: (promise) => {
@@ -187,6 +191,7 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 export async function resetDb(): Promise<void> {
 	await env.DB.batch([
 		env.DB.prepare("DELETE FROM usage_daily"),
+		env.DB.prepare("DELETE FROM usage_team_daily"),
 		env.DB.prepare("DELETE FROM usage_source_state"),
 		env.DB.prepare("DELETE FROM usage_alerts"),
 		env.DB.prepare("DELETE FROM blocked_athletes"),

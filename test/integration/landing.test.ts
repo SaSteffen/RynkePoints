@@ -4,9 +4,10 @@ import { CONSENT_VERSION, CONSENT_VERSIONS } from "../../src/consent";
 import { upsertActivity } from "../../src/db/activities";
 import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
-import { CATALOGS } from "../../src/i18n/catalogs";
+import { CATALOGS, type Catalog } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import { toActivityRecord } from "../../src/strava/activity";
+import { teamFor } from "../../src/teams";
 import {
 	makeCtx,
 	request,
@@ -24,7 +25,7 @@ const ctx = makeCtx();
 const { de, en } = CATALOGS;
 
 /** Strava's button in both variants; the scheme CSS shows one (011 R13). */
-const connectButton = (c: typeof de) =>
+const connectButton = (c: Catalog) =>
 	`<button><img class="cws cws-light" src="${c["brand.connectWithStrava.src"]}" alt="${escapeHtml(c["brand.connectWithStrava.alt"])}"><img class="cws cws-dark" src="${c["brand.connectWithStrava.srcDark"]}" alt="${escapeHtml(c["brand.connectWithStrava.alt"])}"></button>`;
 
 async function get(options: Parameters<typeof request>[1] = {}) {
@@ -40,8 +41,10 @@ describe("GET / (signed out)", () => {
 		expect(res.status).toBe(200);
 		expect(res.headers.get("Content-Language")).toBe("de");
 		expect(page).toContain('<html lang="de">');
+		expect(page).toContain(
+			escapeHtml(de["landing.intro"].replace("{team}", teamFor(env).name)),
+		);
 		for (const id of [
-			"landing.intro",
 			"landing.dataRead",
 			"landing.private",
 			"landing.purpose",
@@ -113,7 +116,7 @@ describe("GET / (signed out)", () => {
 		expect(short).toBeGreaterThan(0);
 		expect(details).toBeGreaterThan(short);
 		expect(dataRead).toBeGreaterThan(details);
-		expect(page.indexOf("</details>")).toBeGreaterThan(dataRead);
+		expect(page.indexOf("</details>", details)).toBeGreaterThan(dataRead);
 	});
 
 	it("names the ride name among the data read (008 FR-007)", async () => {

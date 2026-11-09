@@ -1,0 +1,63 @@
+{
+	"$schema": "../node_modules/wrangler/config-schema.json",
+	// The Strava gateway (feature 026 release 3, contracts/gateway.md): one
+	// webhook receiver and OAuth return address for every team, because Strava
+	// allows one subscription and one callback domain per application. No D1,
+	// no rider data, no Strava client secret (FR-008).
+	"name": "rynke-points-gateway",
+	"main": "index.ts",
+	"compatibility_date": "2026-08-22",
+	"compatibility_flags": ["nodejs_compat"],
+	"observability": {
+		"enabled": true,
+		// The webhook URL carries the verify token: no invocation logs, only the
+		// gateway's own `forward team=… status=… attempt=…` lines.
+		"logs": {
+			"invocation_logs": false
+		}
+	},
+	"queues": {
+		"producers": [
+			{
+				"binding": "FORWARD_QUEUE",
+				"queue": "rynke-points-gateway-forward"
+			}
+		],
+		"consumers": [
+			{
+				"queue": "rynke-points-gateway-forward",
+				"max_batch_size": 10,
+				"max_batch_timeout": 5,
+				// Cloudflare's maximum. With the growing delay (up to 12 h) a team
+				// can be down for weeks without losing an event (FR-011).
+				"max_retries": 100,
+				"max_concurrency": 2
+			}
+		]
+	},
+	"vars": {
+		// JSON list of { "id", "origin" }: ids unique and the team's TEAM_ID,
+		// origins `https:` (local: `http://<host>:<port>`). The gateway only ever
+		// sends riders and events to these origins (FR-007).
+		"TEAMS": "[{\"id\":\"hamburg\",\"origin\":\"https://trhh-rynke-coins.link\"}]"
+	},
+	// STRAVA_WEBHOOK_VERIFY_TOKEN: the token in the subscription's callback URL.
+	// TEAM_WEBHOOK_TOKEN_<ID> (e.g. TEAM_WEBHOOK_TOKEN_HAMBURG): that team's own
+	// STRAVA_WEBHOOK_VERIFY_TOKEN, for forwarding. Set with `wrangler secret put`.
+	"secrets": {
+		"required": ["STRAVA_WEBHOOK_VERIFY_TOKEN", "TEAM_WEBHOOK_TOKEN_HAMBURG"]
+	},
+	"routes": [
+		{
+			"pattern": "gateway.trhh-rynke-coins.link",
+			"custom_domain": true
+		}
+	],
+	"workers_dev": false,
+	"preview_urls": false,
+	"dev": {
+		"port": 8791,
+		"inspector_port": 9232,
+		"host": "localhost:8791"
+	}
+}

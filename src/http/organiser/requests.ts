@@ -149,15 +149,8 @@ export function openRequestsBlock(
 	for (const row of rows) {
 		groups.set(row.event_id, [...(groups.get(row.event_id) ?? []), row]);
 	}
-	const count = i18n.formatNumber(rows.length, { fractionDigits: 0 });
-	const heading =
-		rows.length === 1
-			? i18n.t("organiser.requests.heading.one")
-			: i18n.t("organiser.requests.heading", { n: count });
-	const intro =
-		groups.size === 1
-			? i18n.t("organiser.requests.intro.one")
-			: i18n.t("organiser.requests.intro", { n: String(groups.size) });
+	const heading = i18n.t("organiser.requests.heading", { n: rows.length });
+	const intro = i18n.t("organiser.requests.intro", { n: groups.size });
 	const sections = [...groups.values()].map((group) => {
 		const first = group[0] as OpenRequestRow;
 		const items = group.map((row) => {

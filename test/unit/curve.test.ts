@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { evaluateRides } from "../../src/rynke/rides";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import { extrasFromAttendance, tally } from "../../src/rynke/tally";
 import type { Attendance } from "../../src/rynke/team-events";
 import { evaluateAttendance } from "../../src/rynke/team-events";
@@ -22,6 +21,7 @@ import {
 import { RIDERS, WINDOW } from "../support/reference-riders";
 import { ZERO_BALANCE } from "../support/rider-view";
 import { makeRide } from "../support/rides";
+import { CURRENT_RULES, RULES_HISTORY } from "../support/team-rules";
 
 // `riderCurve` (feature 009 research R1, R2): one point per day from the
 // season start to the last day. Expected figures are the example rider's,
@@ -260,6 +260,7 @@ describe("riderCurve (feature 009)", () => {
 					WINDOW,
 					ends,
 					balance,
+					RULES_HISTORY,
 				);
 				for (const week of weeks) {
 					expect(on(points, week.weekEnd)).toMatchObject({

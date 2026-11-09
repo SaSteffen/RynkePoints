@@ -16,7 +16,6 @@ import {
 } from "../../src/rynke/rides";
 import {
 	type CountingWindow,
-	CURRENT_RULES,
 	countingWindow,
 	type RynkeRules,
 } from "../../src/rynke/rules";
@@ -28,6 +27,7 @@ import {
 } from "../../src/rynke/team-events";
 import type { ActivityRecord } from "../../src/strava/activity";
 import { ATHLETE_A, NOW } from "./fixtures";
+import { CURRENT_RULES } from "./team-rules";
 
 // Stored Rynke rows for the storage tests. Synthetic values only
 // (constitution Principle I).

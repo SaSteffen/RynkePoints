@@ -26,17 +26,18 @@ import { evenPace, type RiderStatus, riderStatus } from "../../rynke/pace";
 import { figuresOf, shownKm } from "../../rynke/ride-figures";
 import {
 	type CountingWindow,
-	CURRENT_RULES,
 	countingWindow,
+	currentRules,
 	type RynkeRules,
 } from "../../rynke/rules";
 import type { RideEntry } from "../../rynke/summary";
 import { virtualShareRequired } from "../../rynke/tally";
 import type { TeamEventSum } from "../../rynke/team-events";
 import { dayNumber } from "../../rynke/weeks";
+import type { CoinArt } from "../../teams/types";
 import { SINCE_VERSION } from "../../visibility";
 import { thresholdBars } from "../charts";
-import { coinArt, miniCoin } from "../coin";
+import { coinArt, miniCoin, SHARED_COIN } from "../coin";
 import { FUN_BURSTS, FUN_SPARKLES } from "../fun";
 import { html, type SafeHtml } from "../html";
 import { CHART_SCRIPTS } from "../progress-section";
@@ -252,11 +253,12 @@ function renderDeadline(
 	window: CountingWindow,
 	today: string,
 	riders: readonly OverviewRider[],
+	coin: CoinArt,
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const days = dayNumber(window.deadline) - dayNumber(today);
 	return html`<section class="overview-deadline">
-${coinArt("back", "large")}<div>
+${coinArt(coin, "back", "large")}<div>
 <p class="overview-deadline-date">${i18n.t("organiser.overview.deadline", { date: i18n.formatDate(window.deadline) })}</p>
 <p class="overview-deadline-count">${
 		days < 0
@@ -587,7 +589,7 @@ function renderReports(
 	);
 	if (open.length === 0) return null;
 	return html`<section class="requests-box" aria-labelledby="requests-box-heading">
-<h2 id="requests-box-heading">${open.length === 1 ? i18n.t("organiser.graphs.reports.one") : i18n.t("organiser.graphs.reports.other", { n: whole(open.length) })}</h2>
+<h2 id="requests-box-heading">${i18n.t("organiser.graphs.reports", { n: open.length })}</h2>
 <ul class="requests-box-lines">
 ${open.slice(0, 3).map(
 	({ rider, row }) =>
@@ -812,6 +814,7 @@ export function overviewBody(
 	graphs: SafeHtml | null = null,
 	view: "graphs" | "riders" = "riders",
 	rides: RiderRides = null,
+	coin: CoinArt = SHARED_COIN,
 ): SafeHtml {
 	const passed = today > window.deadline;
 	const sessionsOf =
@@ -846,7 +849,7 @@ ${hasGraphs ? graphs : null}<div class="overview-qualified">${renderQualified(i1
 `;
 	return html`<div class="team-overview"${hasGraphs ? html` data-view="${view}"` : null}${inert ? html` inert` : null}>
 <h2>${i18n.t("organiser.overview.heading")}</h2>
-${renderDeadline(i18n, window, today, riders)}${renderTiles(i18n, riders, group, passed, requests)}${body}</div>`;
+${renderDeadline(i18n, window, today, riders, coin)}${renderTiles(i18n, riders, group, passed, requests)}${body}</div>`;
 }
 
 /**
@@ -924,8 +927,8 @@ export function handleOrganiserOverview(
 		// On the organiser tour's steps, the example team instead, which can
 		// be looked at but not used (feature 020 FR-013, FR-014).
 		if (example) {
-			const team = exampleTeam(window, today);
-			return html`${organiserSwitch(i18n, "riders", team.requests.length)}${renderExampleNote(i18n, "tour.organiser.example")}${overviewBody(team.riders, CURRENT_RULES, window, today, null, i18n, byRider(team.requests), true, figures)}`;
+			const team = exampleTeam(window, today, currentRules(ctx.team.rules));
+			return html`${organiserSwitch(i18n, "riders", team.requests.length)}${renderExampleNote(i18n, "tour.organiser.example")}${overviewBody(team.riders, currentRules(ctx.team.rules), window, today, null, i18n, byRider(team.requests), true, figures, null, "riders", null, ctx.team.art.coin)}`;
 		}
 		const graphsOn = figures === "full" && organiserProgressGraph(ctx.env);
 		// Sessions by name only with amounts shown (032 research R8).
@@ -964,7 +967,12 @@ export function handleOrganiserOverview(
 						i18n,
 						organiserGraphsView({
 							rows: await toGraphRows(ctx.env.DB, graphRows),
-							riders: overviewRiders(read, CURRENT_RULES, window, today),
+							riders: overviewRiders(
+								read,
+								currentRules(ctx.team.rules),
+								window,
+								today,
+							),
 							requests,
 							window,
 							today,
@@ -976,7 +984,7 @@ export function handleOrganiserOverview(
 		const notice = await decisionNotice(url, ctx, i18n, path);
 		const view =
 			url.searchParams.get("view") === "graphs" ? "graphs" : "riders";
-		const body = html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, CURRENT_RULES, window, today, group, i18n, requests, false, figures, graphs, view, rides)}`;
+		const body = html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, currentRules(ctx.team.rules), window, today, group, i18n, requests, false, figures, graphs, view, rides, ctx.team.art.coin)}`;
 		return graphs ? { body, scripts: CHART_SCRIPTS } : body;
 	});
 }

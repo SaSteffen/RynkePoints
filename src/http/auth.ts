@@ -1,4 +1,10 @@
-import { clientId, memberClubIds, seasonStart } from "../config";
+import {
+	clientId,
+	memberClubIds,
+	returnVia,
+	seasonStart,
+	teamId,
+} from "../config";
 import { currentRevision, currentVersion, grantedScopes } from "../consent";
 import type { Ctx } from "../ctx";
 import { isBlocked } from "../db/blocked";
@@ -15,7 +21,7 @@ import {
 } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { evaluateChange } from "../rynke/apply";
-import { isClubMember } from "../strava/client";
+import { clubMembership } from "../strava/client";
 import { STRAVA_ORIGIN } from "../strava/result";
 import { exchangeCode, revokeToken } from "../strava/tokens";
 import { forbidden } from "./errors";
@@ -48,6 +54,16 @@ function randomState(): string {
 	return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
+/**
+ * The team's own callback, or the gateway's return address for this team,
+ * which forwards Strava's answer to that callback (feature 026 FR-007).
+ */
+function redirectUri(request: Request, ctx: Ctx): string {
+	const via = returnVia(ctx.env);
+	if (via === null) return `${new URL(request.url).origin}/auth/callback`;
+	return `${via}/auth/return/${encodeURIComponent(teamId(ctx.env))}`;
+}
+
 async function authorizeRedirect(
 	request: Request,
 	ctx: Ctx,
@@ -58,7 +74,7 @@ async function authorizeRedirect(
 	const authorize = new URL(`${STRAVA_ORIGIN}/oauth/authorize`);
 	authorize.search = new URLSearchParams({
 		client_id: clientId(ctx.env),
-		redirect_uri: `${new URL(request.url).origin}/auth/callback`,
+		redirect_uri: redirectUri(request, ctx),
 		response_type: "code",
 		approval_prompt: "force",
 		scope: REQUESTED_SCOPES,
@@ -171,13 +187,14 @@ export async function handleCallback(
 	}
 
 	// A person waits for this page: it may use the reserve (feature 024 R5).
-	const membership = await isClubMember(
+	const membership = await clubMembership(
 		ctx,
 		auth,
 		memberClubIds(ctx.env),
+		ctx.team.otherClubIds,
 		"interactive",
 	);
-	if (membership.kind === "ok" && !membership.value) {
+	if (membership.kind === "ok" && !membership.value.member) {
 		return refuse("not-member", "not-member-deleted");
 	}
 	if (membership.kind !== "ok" && !existing) {
@@ -255,9 +272,12 @@ export async function handleCallback(
 		});
 	}
 
+	const session = await createSessionCookie(token.athleteId, now, ctx.env);
+	// A new rider in another team's club too learns that one team at a time
+	// works, before they connect to the other (FR-012).
+	if (!existing && membership.kind === "ok" && membership.value.other) {
+		return notice("one-team", [session]);
+	}
 	const next = await arrival(sectionNext(expected.next), ctx, token.athleteId);
-	return redirect(next, 302, [
-		clearOAuthStateCookie(),
-		await createSessionCookie(token.athleteId, now, ctx.env),
-	]);
+	return redirect(next, 302, [clearOAuthStateCookie(), session]);
 }

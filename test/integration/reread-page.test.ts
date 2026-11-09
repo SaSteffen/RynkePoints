@@ -10,7 +10,7 @@ import { listActivityIdsMissingFigures } from "../../src/db/activities";
 import { getRider } from "../../src/db/riders";
 import { handleQueue } from "../../src/index";
 import { applyAndEvaluate } from "../../src/rynke/apply";
-import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import { countingWindow } from "../../src/rynke/rules";
 import {
 	type ActivityRecord,
 	toActivityRecord,
@@ -33,6 +33,7 @@ import {
 	type StravaActivityFixture,
 } from "../support/fixtures";
 import { balanceRow, expectConsistent, resultRows } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The one-time re-read of stored activities (research R20).
 

@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import type { Balance } from "../../src/rynke/tally";
 import { NO_EXTRAS } from "../../src/rynke/tally";
 import {
@@ -10,6 +9,7 @@ import {
 	riderWeeks,
 	weekEnds,
 } from "../../src/rynke/weeks";
+import { CURRENT_RULES, RULES_HISTORY } from "../support/team-rules";
 
 // Each rider's Rynke at the end of every week (016 research R1, R3). Synthetic
 // figures only.
@@ -100,6 +100,7 @@ describe("riderWeeks", () => {
 			WINDOW,
 			ENDS,
 			balance({ trainingRynke: 14 }),
+			RULES_HISTORY,
 		);
 		expect(weeks).toEqual([
 			{ weekEnd: "2026-01-04", training: 3, team: 0 },
@@ -121,6 +122,7 @@ describe("riderWeeks", () => {
 			WINDOW,
 			ENDS,
 			balance({ trainingRynke: 17, teamRynke: 4 }),
+			RULES_HISTORY,
 		);
 		expect(weeks.map(({ training, team }) => [training, team])).toEqual([
 			[10, 0],
@@ -136,7 +138,7 @@ describe("riderWeeks", () => {
 			rides: [{ weekEnd: "2026-01-04", distanceRynke: 5, elevationDm: 0 }],
 			corrections: [{ date: "2026-01-06", training: -20, team: -1 }],
 		};
-		const weeks = riderWeeks(inputs, WINDOW, ENDS, balance());
+		const weeks = riderWeeks(inputs, WINDOW, ENDS, balance(), RULES_HISTORY);
 		expect(weeks[1]).toEqual({ weekEnd: "2026-01-11", training: 0, team: 0 });
 	});
 
@@ -152,6 +154,7 @@ describe("riderWeeks", () => {
 			WINDOW,
 			ENDS,
 			balance({ trainingRynke: 11, teamRynke: 1 }),
+			RULES_HISTORY,
 		);
 		expect(weeks[2]).toEqual({ weekEnd: "2026-01-18", training: 6, team: 0 });
 		expect(weeks[3]).toEqual({ weekEnd: "2026-01-21", training: 11, team: 1 });
@@ -162,12 +165,12 @@ describe("riderWeeks", () => {
 			...NO_INPUTS,
 			attendance: [{ eventId: 1, kind: "team_training", date: "2025-12-20" }],
 		};
-		const weeks = riderWeeks(inputs, WINDOW, ENDS, balance());
+		const weeks = riderWeeks(inputs, WINDOW, ENDS, balance(), RULES_HISTORY);
 		expect(weeks[0]).toEqual({ weekEnd: "2026-01-04", training: 0, team: 0 });
 	});
 
 	it("gives every point 0 to a rider without a balance or inputs", () => {
-		expect(riderWeeks(NO_INPUTS, WINDOW, ENDS, null)).toEqual(
+		expect(riderWeeks(NO_INPUTS, WINDOW, ENDS, null, RULES_HISTORY)).toEqual(
 			ENDS.map((weekEnd) => ({ weekEnd, training: 0, team: 0 })),
 		);
 	});

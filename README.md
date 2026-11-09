@@ -129,12 +129,17 @@ Requirements: Node 24 (see `.nvmrc`) and pnpm (`corepack enable`).
 ```bash
 pnpm install                # deps + git hooks
 pnpm test
-pnpm dev                    # local Worker on http://localhost:8789 with a fake Strava
+pnpm dev                    # every team with a fake Strava, behind a local gateway
+pnpm dev:hamburg            # one team, without the gateway (also dev:europe)
 ```
 
 `pnpm dev` needs no Strava account: a fake Strava with synthetic sample riders
-answers instead, and `http://localhost:8789/_dev/` signs you in as any of them
-([feature 006 quickstart](specs/006-local-frontend-dev/quickstart.md)).
+answers instead, and each team's `/_dev/` signs you in as any of them
+([feature 006 quickstart](specs/006-local-frontend-dev/quickstart.md)). Hamburg
+runs on `http://localhost:8789`, Europe on `http://europe.localhost:8790`, and the
+Strava gateway on `http://localhost:8791`: sign-ins come back and simulated events
+arrive through it, as in production
+([feature 026 contracts](specs/026-second-team/contracts/dev-commands.md)).
 
 The browser smoke tests run the same fake mode, on port 8797 with its own state,
 in Chromium, Firefox and WebKit:
@@ -177,6 +182,7 @@ Occasional maintainer tasks, each described at the top of its script:
 | Command | Does |
 |---|---|
 | `pnpm daily:run` | starts the daily job now ([007](specs/007-manual-daily-run/spec.md)) |
+| `pnpm catch-up <since>` | re-reads every rider's rides since a moment, e.g. after moving the webhook ([gateway switch](docs/gateway-switch.md)) |
 | `pnpm season:album` | season album PDFs into `season-albums/` (`--local`: from `pnpm dev`'s sample season) |
 | `pnpm strava:review` | material for Strava's Developer Program form |
 | `pnpm docs:pdf` | renders the rules handout `docs/rynke-punkte.md` to PDF |

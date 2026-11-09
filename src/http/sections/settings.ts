@@ -4,12 +4,12 @@ import type { Consent } from "../../db/consents";
 import { type BalanceRow, readBalanceStatement } from "../../db/rynke";
 import type { I18n } from "../../i18n/i18n";
 import { vapidPublicKey } from "../../push/vapid";
-import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
+import { countingWindow, currentRules } from "../../rynke/rules";
 import { consentSummary } from "../consent-form";
 import { html, languageForm, type SafeHtml } from "../html";
 import { renderInstallHint, renderNotifications } from "../pwa";
 import { renderRules } from "../rider-sections";
-import { acceptedOn, shellPage } from "../shell";
+import { acceptedOn, hiddenSections, shellPage } from "../shell";
 import { stepHref } from "../tour";
 
 // Settings at `/me/settings` in the groups of feature 011 FR-014: the
@@ -33,7 +33,7 @@ ${body}
 function consent(i18n: I18n, current: Consent): SafeHtml {
 	const date = acceptedOn(i18n, current);
 	return html`<p>${i18n.t("me.consent.accepted", { version: consentLabel(current), date })}</p>
-${consentSummary(i18n)}`;
+${consentSummary(i18n, "/me/settings")}`;
 }
 
 export function handleSettings(
@@ -55,11 +55,13 @@ export function handleSettings(
 				rider.athleteId,
 			).first<BalanceRow>();
 			const rules = {
-				version: balance?.rules_version ?? CURRENT_RULES.version,
+				version: balance?.rules_version ?? currentRules(ctx.team.rules).version,
 				effectiveDate:
-					balance?.rules_effective_date ?? CURRENT_RULES.effectiveDate,
+					balance?.rules_effective_date ??
+					currentRules(ctx.team.rules).effectiveDate,
 				...countingWindow(ctx.env),
 			};
+			const hidden = hiddenSections(ctx.env);
 			const status =
 				rider.status === "connected"
 					? html`<p>${i18n.t("me.status.connected")}</p>`
@@ -89,8 +91,8 @@ ${group("settings-rules", i18n.t("rynke.rules.heading"), renderRules(i18n, rules
 ${group(
 	"settings-tour",
 	i18n.t("settings.tour"),
-	html`<p><a class="button-outlined" href="${stepHref("rider", rider, 0)}">${i18n.t("settings.tour.rider")}</a></p>
-${rider.organiser ? html`<p><a class="button-outlined" href="${stepHref("organiser", rider, 0)}">${i18n.t("settings.tour.organiser")}</a></p>` : null}`,
+	html`<p><a class="button-outlined" href="${stepHref("rider", rider, 0, hidden)}">${i18n.t("settings.tour.rider")}</a></p>
+${rider.organiser ? html`<p><a class="button-outlined" href="${stepHref("organiser", rider, 0, hidden)}">${i18n.t("settings.tour.organiser")}</a></p>` : null}`,
 )}
 ${group(
 	"settings-account",

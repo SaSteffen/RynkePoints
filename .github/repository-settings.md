@@ -143,6 +143,34 @@ that references a missing environment creates it without any rules.
   `[{"name":"main","type":"branch"}]`; the secret and the variable listed for
   `production` only; the bypass box unchecked in the UI.
 
+## Environment `production-gateway`: like `production`, for the Strava gateway
+
+The `deploy-gateway` job (feature 026 release 3) deploys `gateway/` with this
+environment's credential. Set it up exactly like `production`, with the same branch
+rule, no bypass, and its own `CLOUDFLARE_API_TOKEN` secret and `CLOUDFLARE_ACCOUNT_ID`
+variable. Replace `production` with `production-gateway` in the commands above.
+
+The job only runs while the repository variable `GATEWAY_DEPLOY` is `on`
+(`gh variable set GATEWAY_DEPLOY --body on`). It has to be a repository variable, since
+the job's condition is checked before the environment applies. Until then a merge never
+creates the gateway. The steps around it are in [docs/gateway-switch.md](../docs/gateway-switch.md).
+
+## Environment `production-europe`: like `production`, for Team Rynkeby Europe
+
+Each team deploys from its own environment (feature 026 research R13): the `deploy`
+job runs once per team, and one team's failure never stops another's. Set this one
+up exactly like `production`, with the same branch rule, no bypass, and its own
+`CLOUDFLARE_API_TOKEN` secret and `CLOUDFLARE_ACCOUNT_ID` variable. Replace
+`production` with `production-europe` in the commands above. Create it **before**
+turning the switch on: a run that references a missing environment creates it
+without any rules.
+
+Europe is only deployed while the repository variable `EUROPE_DEPLOY` is `on`
+(`gh variable set EUROPE_DEPLOY --body on`). Until then a merge never creates
+Europe's Worker. Even with the switch on, Europe's job stops at
+`team-check --deployable europe` while its team data still holds placeholders
+(FR-053). The other manual steps for a new team are in the add-a-team runbook.
+
 ## Environment `release`: `develop` only, with the release PR token
 
 The [Release PR](workflows/release-pr.yml) button opens the pull request from

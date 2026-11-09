@@ -135,3 +135,23 @@ export const BADGE_PICTURES: ReadonlySet<string> = new Set([
 	"winter-november-10",
 	"winter-november-5",
 ]);
+
+/** The neutral picture for a badge with another team's motifs (feature 026). */
+export const PLACEHOLDER_PICTURE = "/badges/placeholder.svg";
+
+/**
+ * A badge's picture under public/ for a team whose own badge pictures are
+ * `own` (`ctx.team.art.badges`): its own picture, the neutral one for
+ * `"placeholder"`, else the shared one or the group's placeholder.
+ */
+export function badgePicture(
+	own: Readonly<Partial<Record<string, string>>>,
+	badge: { id: string; group: string },
+): string {
+	const picture = own[badge.id];
+	if (picture === "placeholder") return PLACEHOLDER_PICTURE;
+	if (picture !== undefined) return picture;
+	return BADGE_PICTURES.has(badge.id)
+		? `/badges/${badge.id}.svg`
+		: `/badges/placeholder-${badge.group}.svg`;
+}

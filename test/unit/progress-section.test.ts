@@ -3,7 +3,6 @@ import { renderProgress } from "../../src/http/progress-section";
 import { buildProgressView } from "../../src/http/progress-view";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import {
 	EXAMPLE_BALANCE,
 	EXAMPLE_INPUTS,
@@ -11,6 +10,7 @@ import {
 	EXAMPLE_WINDOW,
 } from "../support/progress";
 import { ZERO_BALANCE } from "../support/rider-view";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The section's markup (feature 009 contracts/overview-section.md): structure,
 // not styling. Texts are asserted from the German catalog.

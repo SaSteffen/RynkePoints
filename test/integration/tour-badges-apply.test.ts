@@ -4,9 +4,10 @@ import {
 	applyTeamEventChange,
 	type TeamEventChange,
 } from "../../src/rynke/apply";
-import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import { countingWindow } from "../../src/rynke/rules";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The tour badges are personal and follow the numbering of the season's tour
 // days (feature 021 US2, FR-011, FR-012): recording a rider stores the badge

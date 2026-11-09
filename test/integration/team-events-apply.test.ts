@@ -10,12 +10,7 @@ import {
 	TeamEventRefused,
 	teamEventChange,
 } from "../../src/rynke/apply";
-import {
-	CURRENT_RULES,
-	countingWindow,
-	type RynkeRules,
-	rulesForVersion,
-} from "../../src/rynke/rules";
+import { countingWindow, type RynkeRules } from "../../src/rynke/rules";
 import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
 import {
 	makeCtx,
@@ -35,6 +30,7 @@ import {
 	resultRows,
 	snapshot,
 } from "../support/rynke";
+import { CURRENT_RULES, rulesForVersion } from "../support/team-rules";
 
 // Team-event changes store the change and every affected rider's balance in
 // one batch (FR-014b, research R21, contracts/ride-evaluation.md "A team-event

@@ -1,3 +1,4 @@
+import { badges } from "../config";
 import type { Ctx } from "../ctx";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
@@ -8,7 +9,9 @@ import {
 	handleAdminRefresh,
 	handleAdminUsage,
 } from "./admin/usage";
+import { handleUsageExport } from "./admin/usage-export";
 import { handleCallback, handleConnectForm, handleReconnect } from "./auth";
+import { handleCatchUp } from "./catch-up";
 import { handleConsent } from "./consent-gate";
 import { notFound } from "./errors";
 import { handleFetching } from "./fetching";
@@ -35,9 +38,11 @@ import { handleOrganiserOverview } from "./organiser/overview";
 import { handleDecideRequests, handleUndoRequests } from "./organiser/requests";
 import { handlePrivacy } from "./privacy";
 import {
+	handleManifest,
 	handleNotificationText,
 	handleOffline,
 	handleRiderNotificationText,
+	MANIFEST_PATH,
 } from "./pwa";
 import { handleReady } from "./ready";
 import { redirect } from "./redirect";
@@ -94,14 +99,31 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	if ((method === "GET" || method === "HEAD") && isStylesheet(path)) {
 		return handleStylesheet(path);
 	}
+	if ((method === "GET" || method === "HEAD") && path === MANIFEST_PATH) {
+		return handleManifest(ctx);
+	}
 	if (path.startsWith(WEBHOOK_PREFIX)) {
 		return handleWebhook(request, path.slice(WEBHOOK_PREFIX.length), ctx);
 	}
 
-	const i18n = createI18n(resolveLocale(request, ctx.catalogs), ctx.catalogs);
+	// `?lang=` shows this one page in that language without picking it, for
+	// the reference note's link (feature 026 contracts/locales.md).
+	const once = url.searchParams.get("lang");
+	const i18n = createI18n(
+		once !== null && Object.hasOwn(ctx.catalogs, once)
+			? once
+			: resolveLocale(request, ctx.catalogs, ctx.team),
+		ctx.catalogs,
+	);
 
 	if (path === "/admin/run-daily") {
 		return handleRunDaily(request, ctx, i18n, path);
+	}
+	if (path === "/admin/catch-up") {
+		return handleCatchUp(request, ctx, i18n, path);
+	}
+	if (path === "/admin/usage/export") {
+		return handleUsageExport(request, ctx, i18n, path);
 	}
 
 	if (method === "GET" || method === "HEAD") {
@@ -207,7 +229,9 @@ async function page(
 		case "/me/rides/more":
 			return handleMoreRides(request, ctx, i18n);
 		case "/me/badges":
-			return handleBadges(request, ctx, i18n);
+			return badges(ctx.env)
+				? handleBadges(request, ctx, i18n)
+				: notFound(i18n, path);
 		case "/team":
 			return handleTeam(request, ctx, i18n);
 		case "/events":

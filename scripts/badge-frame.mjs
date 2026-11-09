@@ -177,6 +177,34 @@ export function frameSvg(
 	);
 }
 
+/** A bicycle wheel: tyre, rim, twelve spokes and the hub, nothing of a team. */
+function wheel() {
+	const { cx, cy } = WINDOW;
+	const spokes = Array.from({ length: 12 }, (_, i) => {
+		const a = (i * Math.PI) / 6;
+		const at = (r) =>
+			`${(cx + r * Math.cos(a)).toFixed(2)},${(cy + r * Math.sin(a)).toFixed(2)}`;
+		return `M${at(3.4)} L${at(18.6)}`;
+	}).join(" ");
+	return (
+		`<circle cx="${cx}" cy="${cy}" r="22" fill="none" stroke="${C.ink}" stroke-width="3.4"/>` +
+		`<circle cx="${cx}" cy="${cy}" r="19.2" fill="none" stroke="${C.gold}" stroke-width="1.3"/>` +
+		`<path d="${spokes}" fill="none" stroke="${C.ink}" stroke-width="0.8" stroke-linecap="round"/>` +
+		`<circle cx="${cx}" cy="${cy}" r="3.4" fill="${C.yellow}" stroke="${C.ink}" stroke-width="1"/>`
+	);
+}
+
+/**
+ * The neutral picture for a badge whose shared picture shows another team's
+ * motifs (feature 026 FR-024): the frame with a bicycle wheel, the ink ring.
+ * Any team's badge map points such a badge at it with `"placeholder"`.
+ */
+export function neutralPlaceholderSvg() {
+	return frameSvg("personal", wheel(), "placeholder", {
+		transform: "translate(0 0)",
+	});
+}
+
 /** The frame with the coin's Rynke: the badge until it has a picture (FR-040a). */
 export function placeholderSvg(kind) {
 	return frameSvg(kind, inline(RYNKE), `placeholder-${kind}`, {

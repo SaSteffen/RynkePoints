@@ -1,10 +1,11 @@
-import { berlinDate } from "../src/config";
+import { berlinDate, returnVia } from "../src/config";
 import { CONSENT_VERSIONS, currentVersion } from "../src/consent";
 import type { Ctx } from "../src/ctx";
 import { clearSessionCookie } from "../src/http/session";
 import { CATALOGS } from "../src/i18n/catalogs";
 import { handleFetch, handleQueue, handleScheduled } from "../src/index";
 import { STRAVA_ORIGIN } from "../src/strava/result";
+import { teamFor } from "../src/teams";
 import { sendAll } from "../src/work/messages";
 import { isDay, onDevClock, pretendDay, pretendedDay } from "./clock";
 import { answerStrava } from "./fake-strava/api";
@@ -15,7 +16,7 @@ import {
 	type IndexRow,
 	indexPage,
 } from "./fake-strava/pages";
-import { SAMPLE_RIDERS, sampleRider } from "./fake-strava/samples";
+import { sampleRider, samplesFor } from "./fake-strava/sample-sets";
 import { sampleFingerprint, seed } from "./fake-strava/seed";
 import { badgesPage } from "./fake-strava/showcase";
 import { getActivity, riderActivities, seededWith } from "./fake-strava/store";
@@ -27,8 +28,16 @@ import { encodeCode } from "./fake-strava/tokens";
 // the fake's own pages under `/_dev/`. Nothing under src/ imports it, and it
 // refuses to run outside local fake mode, so it can't reach production.
 
-/** The marker comes from `pnpm dev`'s `--var` only; it isn't a declared binding. */
-export type DevEnv = Env & { RYNKE_FAKE_STRAVA?: string };
+/**
+ * The marker comes from `pnpm dev`'s `--var` only; it isn't a declared binding.
+ * So does RYNKE_FAKE_GATEWAY, the local gateway's webhook URL, when `pnpm dev`
+ * runs every team behind it (feature 026 release 3): simulated events then go
+ * through the gateway to every team, as Strava's do in production.
+ */
+export type DevEnv = Env & {
+	RYNKE_FAKE_STRAVA?: string;
+	RYNKE_FAKE_GATEWAY?: string;
+};
 
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
 const AUTHORIZE_URL = `${STRAVA_ORIGIN}/oauth/authorize`;
@@ -49,6 +58,7 @@ export function makeDevCtx(env: Env, exec: ExecutionContext): Ctx {
 		queue: env.WORK_QUEUE,
 		now: () => Math.floor(Date.now() / 1000),
 		catalogs: CATALOGS,
+		team: teamFor(env),
 		consentVersions: CONSENT_VERSIONS,
 		waitUntil: (promise) => exec.waitUntil(promise),
 	};
@@ -94,8 +104,15 @@ export function removeStravaInterceptor(): void {
 	installed = null;
 }
 
+/**
+ * Loopback only. `*.localhost` too: every team but the founding one runs on
+ * `<id>.localhost` (feature 026 contracts/dev-commands.md), which browsers
+ * resolve to the loopback address.
+ */
 function isLocal(url: URL): boolean {
-	return LOCAL_HOSTS.includes(url.hostname);
+	return (
+		LOCAL_HOSTS.includes(url.hostname) || url.hostname.endsWith(".localhost")
+	);
 }
 
 function text(body: string, status: number): Response {
@@ -164,7 +181,10 @@ let seeding: Promise<void> | null = null;
  */
 async function seedIfNeeded(ctx: Ctx, origin: string): Promise<void> {
 	if (!seeding) {
-		if ((await seededWith(ctx.env.DB)) === (await sampleFingerprint())) return;
+		if (
+			(await seededWith(ctx.env.DB)) === (await sampleFingerprint(ctx.team.id))
+		)
+			return;
 		seeding = reseed(ctx, origin).finally(() => {
 			seeding = null;
 		});
@@ -192,7 +212,7 @@ async function indexRows(ctx: Ctx): Promise<IndexRow[]> {
 	).all<{ athlete_id: number; status: string; import_status: string }>();
 	const stored = new Map(results.map((r) => [r.athlete_id, r]));
 	return Promise.all(
-		SAMPLE_RIDERS.map(async (rider) => {
+		samplesFor(ctx.team.id).riders.map(async (rider) => {
 			const row = stored.get(rider.athleteId);
 			return {
 				rider,
@@ -208,7 +228,8 @@ async function indexRows(ctx: Ctx): Promise<IndexRow[]> {
 /** `POST /_dev/connect`: the app's connect flow, ending on the stand-in screen. */
 async function connectAs(request: Request, ctx: Ctx, url: URL) {
 	const athleteId = Number((await form(request)).get("athleteId"));
-	if (!sampleRider(athleteId)) return text("Unknown sample rider", 400);
+	if (!sampleRider(ctx.team.id, athleteId))
+		return text("Unknown sample rider", 400);
 	const connect = rewriteAuthorize(
 		await handleFetch(
 			new Request(`${url.origin}/connect`, {
@@ -233,15 +254,23 @@ async function connectAs(request: Request, ctx: Ctx, url: URL) {
 	);
 }
 
+function backToThisApp(redirectUri: string, ctx: Ctx, url: URL): boolean {
+	if (!URL.canParse(redirectUri)) return false;
+	if (new URL(redirectUri).origin === url.origin) return true;
+	const via = returnVia(ctx.env);
+	return (
+		via !== null &&
+		redirectUri === `${via}/auth/return/${encodeURIComponent(ctx.team.id)}`
+	);
+}
+
 /** `POST /_dev/strava/oauth/authorize`: back to the app, as Strava would. */
-async function decide(request: Request, url: URL) {
+async function decide(request: Request, ctx: Ctx, url: URL) {
 	const fields = await form(request);
 	const redirectUri = String(fields.get("redirect_uri") ?? "");
-	// Only back to this app, so the screen is no open redirect.
-	if (
-		!URL.canParse(redirectUri) ||
-		new URL(redirectUri).origin !== url.origin
-	) {
+	// Only back to this app, directly or through its gateway return address, so
+	// the screen is no open redirect.
+	if (!backToThisApp(redirectUri, ctx, url)) {
 		return text("redirect_uri must point to this app", 400);
 	}
 	const back = new URL(redirectUri);
@@ -251,7 +280,8 @@ async function decide(request: Request, url: URL) {
 		return redirect(back.href, 302);
 	}
 	const athleteId = Number(fields.get("athlete"));
-	if (!sampleRider(athleteId)) return text("Unknown sample rider", 400);
+	if (!sampleRider(ctx.team.id, athleteId))
+		return text("Unknown sample rider", 400);
 	const scopes = fields.getAll("scope").map(String);
 	back.searchParams.set("code", encodeCode({ athleteId, scopes }));
 	back.searchParams.set("scope", scopes.join(","));
@@ -302,7 +332,11 @@ async function devRoute(
 				(await pretendedDay(ctx.env.DB)) !== null,
 			);
 		case "GET /_dev/badges":
-			return badgesPage(url.searchParams.get("lang"), berlinDate(ctx.now()));
+			return badgesPage(
+				ctx.team,
+				url.searchParams.get("lang"),
+				berlinDate(ctx.now()),
+			);
 		case "POST /_dev/events": {
 			const flash = await simulateEvent(ctx, url.origin, await form(request));
 			return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);
@@ -315,9 +349,9 @@ async function devRoute(
 			if (url.searchParams.get("client_id") !== ctx.env.STRAVA_CLIENT_ID) {
 				return text("Unknown client_id", 400);
 			}
-			return authorizePage(url.searchParams, SAMPLE_RIDERS);
+			return authorizePage(url.searchParams, samplesFor(ctx.team.id).riders);
 		case `POST ${STAND_IN_PATH}`:
-			return decide(request, url);
+			return decide(request, ctx, url);
 		case "POST /_dev/reset":
 			await resetAll(ctx, url.origin);
 			// Any session belongs to a rider who was just deleted.

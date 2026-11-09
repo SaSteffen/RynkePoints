@@ -68,16 +68,16 @@ describe("layout (de)", () => {
 
 	it("renders the language switcher", () => {
 		expect(page).toMatch(
-			/<form method="post" action="\/lang" aria-label="Sprache">/,
+			/<form method="post" action="\/lang" class="lang-list" aria-label="Sprache">/,
 		);
 		expect(page).toContain(
 			'<input type="hidden" name="next" value="/notice/&quot;x&quot;">',
 		);
 		expect(page).toContain(
-			'<button class="segmented" name="lang" value="de" lang="de" aria-current="true">Deutsch</button>',
+			'<button class="lang-option" name="lang" value="de" lang="de" aria-current="true">Deutsch<svg',
 		);
 		expect(page).toContain(
-			'<button class="segmented" name="lang" value="en" lang="en">English</button>',
+			'<button class="lang-option" name="lang" value="en" lang="en">English</button>',
 		);
 	});
 
@@ -238,10 +238,10 @@ describe("layout (en)", () => {
 		expect(page).toContain('<html lang="en">');
 		expect(page).toContain('aria-label="Language"');
 		expect(page).toContain(
-			'<button class="segmented" name="lang" value="en" lang="en" aria-current="true">English</button>',
+			'<button class="lang-option" name="lang" value="en" lang="en" aria-current="true">English<svg',
 		);
 		expect(page).toContain(
-			'<button class="segmented" name="lang" value="de" lang="de">Deutsch</button>',
+			'<button class="lang-option" name="lang" value="de" lang="de">Deutsch</button>',
 		);
 	});
 });

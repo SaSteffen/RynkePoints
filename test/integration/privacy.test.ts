@@ -140,3 +140,42 @@ describe("GET /privacy and the ride figures (ride stats FR-022)", () => {
 		);
 	});
 });
+
+describe("the English reference note (feature 026 contracts/locales.md)", () => {
+	const NOTE = 'class="reference-note"';
+
+	it.each(Object.keys(CATALOGS).filter((locale) => locale !== "en"))(
+		"shows on the privacy and start pages in %s",
+		async (locale) => {
+			for (const path of ["/privacy", "/"]) {
+				const { page } = await get(path, locale);
+				expect(page, path).toContain(NOTE);
+				expect(page, path).toContain(
+					`<a href="${path}?lang=en" hreflang="en">`,
+				);
+			}
+		},
+	);
+
+	it("doesn't show in English", async () => {
+		for (const path of ["/privacy", "/"]) {
+			const { page } = await get(path, "en");
+			expect(page, path).not.toContain(NOTE);
+		}
+	});
+
+	it("shows one page in English with ?lang=en, picking nothing", async () => {
+		const { res, page } = await get("/privacy?lang=en", "de");
+		expect(res.headers.get("Content-Language")).toBe("en");
+		expect(page).toContain(escapeHtml(CATALOGS.en["privacy.title"]));
+		expect(page).not.toContain(NOTE);
+		expect(res.headers.get("Set-Cookie")).toBeNull();
+		const next = await get("/privacy", "de");
+		expect(next.res.headers.get("Content-Language")).toBe("de");
+	});
+
+	it("ignores ?lang= naming no shipped language", async () => {
+		const { res } = await get("/privacy?lang=xx", "de");
+		expect(res.headers.get("Content-Language")).toBe("de");
+	});
+});

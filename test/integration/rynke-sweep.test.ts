@@ -5,15 +5,12 @@ import { upsertActivity } from "../../src/db/activities";
 import { listRidersNeedingEvaluation } from "../../src/db/rynke";
 import { handleScheduled } from "../../src/index";
 import { applyAndEvaluate } from "../../src/rynke/apply";
-import {
-	CURRENT_RULES,
-	countingWindow,
-	type RynkeRules,
-} from "../../src/rynke/rules";
+import { countingWindow, type RynkeRules } from "../../src/rynke/rules";
 import { fanOutEvaluations } from "../../src/work/scheduled";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { NOW } from "../support/fixtures";
 import { activityRecord, attendRaw, insertEvent } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The daily catch-up sweep (research R14, contracts/queue-messages.md
 // "Scheduled: evaluation sweep").

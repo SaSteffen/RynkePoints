@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CURRENT_RULES, type RynkeRules } from "../../src/rynke/rules";
+import type { RynkeRules } from "../../src/rynke/rules";
 import {
 	type Attendance,
 	evaluateAttendance,
@@ -7,6 +7,7 @@ import {
 	type TeamEventKind,
 } from "../../src/rynke/team-events";
 import { WINDOW } from "../support/rides";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // Story 3: attendance at team events earns fixed Team and Training Rynke per
 // kind (FR-006–FR-009, research R19). Names start with the spec's scenario

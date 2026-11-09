@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
 	assertValidRules,
-	CURRENT_RULES,
 	countingWindow,
-	RULES_HISTORY,
 	type RynkeRules,
 	rulesFingerprint,
-	rulesForVersion,
 } from "../../src/rynke/rules";
 import { TEAM_EVENT_KINDS } from "../../src/rynke/team-events";
+import {
+	CURRENT_RULES,
+	RULES_HISTORY,
+	rulesForVersion,
+} from "../support/team-rules";
 
 const TEAM_EVENTS = {
 	team_training: { team: 1, training: 5 },

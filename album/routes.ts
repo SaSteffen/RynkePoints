@@ -4,6 +4,7 @@
 // without Wrangler's module rules. It answers only local hosts and
 // reads D1 only through the read-only guard.
 
+import { seasonAlbum } from "../src/config";
 import {
 	type ListedRiderRow,
 	listListedRidersStatement,
@@ -15,7 +16,11 @@ import { ALBUM_CSS } from "./style";
 
 export type AlbumEnv = Pick<
 	Env,
-	"DB" | "SEASON_START_DATE" | "QUALIFICATION_DEADLINE"
+	| "DB"
+	| "SEASON_START_DATE"
+	| "QUALIFICATION_DEADLINE"
+	| "TEAM_ID"
+	| "SEASON_ALBUM"
 >;
 
 /** What `worker.ts` bundles through Wrangler's module rule. */
@@ -103,6 +108,8 @@ export async function handleAlbumRequest(
 	}
 	const album = url.pathname.match(/^\/album\/(\d+)$/);
 	if (url.pathname !== "/riders" && !album) return notFound();
+	// None while the team has switched the album off (feature 026 FR-018).
+	if (!seasonAlbum(env)) return notFound();
 
 	const cutoff = url.searchParams.get("cutoff") ?? "";
 	if (!isCalendarDate(cutoff)) return badRequest();

@@ -20,9 +20,10 @@ import {
 	reportState,
 } from "../../rynke/participation";
 import {
-	CURRENT_RULES,
 	countingWindow,
+	currentRules,
 	eventInWindow,
+	type RynkeRules,
 } from "../../rynke/rules";
 import { isTeamEventKind } from "../../rynke/team-events";
 import { miniCoin } from "../coin";
@@ -96,13 +97,11 @@ function action(i18n: I18n, event: ShownEvent): SafeHtml {
 	}
 }
 
-function card(i18n: I18n, event: ShownEvent): SafeHtml {
+function card(i18n: I18n, event: ShownEvent, rules: RynkeRules): SafeHtml {
 	const { row } = event;
 	const parts = dateParts(i18n, row.event_date);
 	// A tour day earns nothing, so it shows no amounts (feature 021 FR-004).
-	const amounts = isTeamEventKind(row.kind)
-		? CURRENT_RULES.teamEvents[row.kind]
-		: null;
+	const amounts = isTeamEventKind(row.kind) ? rules.teamEvents[row.kind] : null;
 	const date = i18n.formatDate(`${row.event_date}T00:00:00Z`);
 	const name =
 		row.name === null
@@ -131,6 +130,7 @@ export function eventsBody(
 	today: string,
 	deadline: string,
 	allPast: boolean,
+	rules: RynkeRules,
 ): SafeHtml {
 	const shown = rows.map((row) => ({
 		row,
@@ -148,7 +148,7 @@ export function eventsBody(
 	const pastShown = allPast ? past : past.slice(0, PAST_SHOWN);
 	const list = (events: readonly ShownEvent[]) =>
 		html`<ol class="event-list">
-${events.map((e) => card(i18n, e))}</ol>
+${events.map((e) => card(i18n, e, rules))}</ol>
 `;
 	const more =
 		pastShown.length < past.length
@@ -188,7 +188,7 @@ export function handleEvents(
 				rider.athleteId,
 				window,
 			).all<RiderEventRow>();
-			return html`${notice(url, i18n)}${eventsBody(i18n, results, berlinDate(ctx.now()), window.deadline, allPast)}`;
+			return html`${notice(url, i18n)}${eventsBody(i18n, results, berlinDate(ctx.now()), window.deadline, allPast, currentRules(ctx.team.rules))}`;
 		},
 	);
 }

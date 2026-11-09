@@ -4,6 +4,8 @@ import {
 	type Catalogs,
 	DEFAULT_LOCALE,
 	type MessageId,
+	type MessageValue,
+	type PluralCategory,
 } from "./catalogs";
 import { de } from "./messages/de";
 
@@ -32,10 +34,32 @@ export function createI18n(locale: string, catalogs: Catalogs): I18n {
 	const resolved = Object.hasOwn(catalogs, locale) ? locale : DEFAULT_LOCALE;
 	const catalog: Partial<Catalog> = catalogs[resolved] ?? de;
 
-	function message(id: MessageId): string {
+	function value(id: MessageId): MessageValue {
 		const text = catalog[id] ?? de[id];
 		if (text === undefined) throw new Error(`Unknown message ${id}`);
 		return text;
+	}
+
+	/**
+	 * The message's text; a plural message picks its form by the `n` param
+	 * (feature 026 research R3) and gets `n` formatted for the locale.
+	 */
+	function message<T>(
+		id: MessageId,
+		params: Record<string, T>,
+	): { text: string; params: Record<string, T | string> } {
+		const found = value(id);
+		if (typeof found === "string") return { text: found, params };
+		const n = params.n;
+		if (typeof n !== "number" || !Number.isFinite(n)) {
+			throw new Error(`Plural message ${id} needs a numeric param n`);
+		}
+		const category = pluralRules.select(n) as PluralCategory;
+		const text = found[category] ?? found.other;
+		const shown = Number.isInteger(n)
+			? formatNumber(n, { fractionDigits: 0 })
+			: String(n);
+		return { text, params: { ...params, n: shown } };
 	}
 
 	function param<T>(id: MessageId, params: Record<string, T>, name: string): T {
@@ -45,7 +69,10 @@ export function createI18n(locale: string, catalogs: Catalogs): I18n {
 		return params[name] as T;
 	}
 
-	const intlLocale = message("meta.intlLocale");
+	const intlLocale = value("meta.intlLocale") as string;
+	// Plural rules by the catalog's language: the Workers runtime has them for
+	// Icelandic, whose numbers and dates it can't format (`meta.intlLocale`).
+	const pluralRules = new Intl.PluralRules(resolved);
 	// Building a format is the slow part, and a page can use thousands of numbers.
 	const numberFormats = new Map<number, Intl.NumberFormat>();
 	const dateFormat = new Intl.DateTimeFormat(intlLocale, {
@@ -61,15 +88,31 @@ export function createI18n(locale: string, catalogs: Catalogs): I18n {
 		hourCycle: "h23",
 	});
 
+	function formatNumber(
+		value: number,
+		{ fractionDigits }: { fractionDigits: number },
+	): string {
+		let format = numberFormats.get(fractionDigits);
+		if (!format) {
+			format = new Intl.NumberFormat(intlLocale, {
+				minimumFractionDigits: fractionDigits,
+				maximumFractionDigits: fractionDigits,
+			});
+			numberFormats.set(fractionDigits, format);
+		}
+		return format.format(value);
+	}
+
 	return {
 		locale: resolved,
-		t(id, params = {}) {
-			return message(id).replace(PLACEHOLDER, (_, name: string) =>
+		t(id, given = {}) {
+			const { text, params } = message(id, given);
+			return text.replace(PLACEHOLDER, (_, name: string) =>
 				String(param(id, params, name)),
 			);
 		},
-		tHtml(id, params = {}) {
-			const text = message(id);
+		tHtml(id, given = {}) {
+			const { text, params } = message(id, given);
 			let out = "";
 			let last = 0;
 			for (const match of text.matchAll(PLACEHOLDER)) {
@@ -81,17 +124,7 @@ export function createI18n(locale: string, catalogs: Catalogs): I18n {
 			}
 			return new SafeHtml(out + escapeHtml(text.slice(last)));
 		},
-		formatNumber(value, { fractionDigits }) {
-			let format = numberFormats.get(fractionDigits);
-			if (!format) {
-				format = new Intl.NumberFormat(intlLocale, {
-					minimumFractionDigits: fractionDigits,
-					maximumFractionDigits: fractionDigits,
-				});
-				numberFormats.set(fractionDigits, format);
-			}
-			return format.format(value);
-		},
+		formatNumber,
 		formatDate(iso) {
 			return dateFormat.format(new Date(iso));
 		},

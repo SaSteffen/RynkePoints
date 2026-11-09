@@ -60,7 +60,7 @@ the queue):
 
 ## 3. Albums from the sample season (US3–US5)
 
-With `pnpm dev` stopped (both use `.wrangler/fake-state`):
+With `pnpm dev` stopped (both use `.wrangler/fake-state-hamburg`):
 
 ```bash
 pnpm season:album --local          # cut-off today

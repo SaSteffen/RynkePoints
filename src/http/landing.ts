@@ -4,7 +4,7 @@ import type { Ctx } from "../ctx";
 import type { I18n } from "../i18n/i18n";
 import { LANDING_PORTRAIT, portraitCoin } from "./coin";
 import { consentForm, consentSummary } from "./consent-form";
-import { html, htmlResponse, layout } from "./html";
+import { html, htmlResponse, layout, pageLook } from "./html";
 import { homeOf, redirect } from "./redirect";
 import { readSession } from "./session";
 
@@ -28,6 +28,7 @@ export async function handleLanding(
 	return htmlResponse(
 		i18n,
 		layout(i18n, {
+			look: pageLook(ctx),
 			title,
 			path: "/",
 			body: html`<div class="landing-hero">
@@ -35,11 +36,11 @@ ${portraitCoin(LANDING_PORTRAIT)}
 <h1>${i18n.t("app.name")}</h1>
 <p class="tagline">${i18n.t("landing.tagline")}</p>
 </div>
-<p>${i18n.t("landing.intro")}</p>
+<p>${i18n.t("landing.intro", { team: ctx.team.name })}</p>
 <p>${i18n.tHtml("landing.who", { clubLink })}</p>
 <section class="card">
 <h2>${i18n.t("consent.heading")}</h2>
-${consentSummary(i18n)}<p>${i18n.t("consent.required")}</p>
+${consentSummary(i18n, "/")}<p>${i18n.t("consent.required")}</p>
 ${consentForm(i18n, currentVersion(ctx.consentVersions).version)}
 </section>`,
 		}),

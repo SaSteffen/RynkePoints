@@ -15,8 +15,8 @@ import worker, {
 import { makeCtx, type TestCtx, tableCounts } from "../support/ctx";
 
 // FR-009: the fake Strava can't reach production (specs/006-local-frontend-dev
-// research R9). Layer 1: nothing under src/ imports dev/ or album/ (the season
-// album Worker, feature 021 research R12), and production still deploys
+// research R9). Layer 1: nothing under src/ imports dev/, album/ (the season
+// album Worker, feature 021 research R12) or tools/ (local content tools), and production still deploys
 // src/index.ts. Layer 2: the dev entry refuses to run without the
 // fake-mode marker, and answers only local hosts.
 
@@ -44,19 +44,23 @@ const IMPORT_SPECIFIERS =
 	/(?:\bfrom\s*|\bimport\s*\(\s*|\bimport\s+)["'`]([^"'`]+)["'`]/g;
 
 /**
- * A relative or absolute path with a `dev` or `album` segment, e.g.
+ * A relative or absolute path with a `dev`, `album`, `tools` or `gateway`
+ * segment (the Strava gateway Worker, feature 026 release 3), e.g.
  * `../../dev/worker`.
  */
 function reachesDev(specifier: string): boolean {
-	return /^[./]/.test(specifier) && /(^|\/)(dev|album)(\/|$)/.test(specifier);
+	return (
+		/^[./]/.test(specifier) &&
+		/(^|\/)(dev|album|tools|gateway)(\/|$)/.test(specifier)
+	);
 }
 
-describe("layer 1: production never bundles dev/ or album/", () => {
+describe("layer 1: production never bundles dev/, album/, tools/ or gateway/", () => {
 	it("finds the app's source files", () => {
 		expect(Object.keys(SOURCES).length).toBeGreaterThanOrEqual(30);
 	});
 
-	it("has no src/ file importing from dev/ or album/", () => {
+	it("has no src/ file importing from dev/, album/, tools/ or gateway/", () => {
 		const offenders = Object.entries(SOURCES).flatMap(([file, text]) =>
 			[...text.matchAll(IMPORT_SPECIFIERS)]
 				.map((m) => m[1] ?? "")
@@ -73,12 +77,16 @@ describe("layer 1: production never bundles dev/ or album/", () => {
 			"/dev/x",
 			"../../album/load",
 			"../album",
+			"../../tools/content-rating/server.mjs",
+			"../../gateway/index",
 		]) {
 			expect(reachesDev(specifier)).toBe(true);
 		}
 		for (const specifier of [
 			"./devices",
 			"./albums",
+			"./toolsbar",
+			"./gateways",
 			"../strava/client",
 			"cloudflare:test",
 		]) {
@@ -116,7 +124,7 @@ describe("layer 2: the dev entry runs only in local fake mode", () => {
 		beforeAll(async () => {
 			// Marked as seeded, so no request here seeds sample data.
 			await ensureTable(env.DB);
-			await markSeeded(env.DB, await sampleFingerprint());
+			await markSeeded(env.DB, await sampleFingerprint(env.TEAM_ID));
 		});
 
 		function devCtx(): TestCtx {
@@ -124,10 +132,14 @@ describe("layer 2: the dev entry runs only in local fake mode", () => {
 			return { ...makeCtx(), env: devEnv };
 		}
 
-		it("answers 403 to any other host and writes nothing", async () => {
+		it.each([
+			"https://rynke.example/",
+			"https://localhost.example/",
+			"https://europe.localhost.example/",
+		])("answers 403 to %s and writes nothing", async (url) => {
 			const ctx = devCtx();
 			const before = await tableCounts();
-			const res = await devFetch(new Request("https://rynke.example/"), ctx);
+			const res = await devFetch(new Request(url), ctx);
 			expect(res.status).toBe(403);
 			expect(res.headers.get("Content-Type")).toMatch(/^text\/plain/);
 			expect(await tableCounts()).toEqual(before);
@@ -137,6 +149,7 @@ describe("layer 2: the dev entry runs only in local fake mode", () => {
 			"http://localhost:8789/",
 			"http://127.0.0.1:8789/",
 			"http://[::1]:8789/",
+			"http://europe.localhost:8790/",
 		])("serves %s", async (url) => {
 			const res = await devFetch(new Request(url), devCtx());
 			expect(res.status).not.toBe(403);

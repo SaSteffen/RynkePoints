@@ -16,9 +16,9 @@ Team Europe's coin designs. The files mirror Hamburg's in [`art/coin/`](../READM
 - `reference/rynke-coin-line-drawing.jpeg` → `rynke-coin-line-front.svg`,
   `rynke-coin-line-back.svg` (its circles are slightly oval; the script makes them round)
 
-The colour SVGs stay here instead of in `public/coin/` until the app can serve art per
-team (feature 026): in `public/` they'd ship to Hamburg's site too, and they'd add to
-the list of pictures in `src/http/art-versions.ts`.
+The colour SVGs stay here, and `pnpm coin-art` copies them to
+[`public/teams/europe/coin/`](../../../public/teams/europe/coin/), where only Europe's
+team data (`src/teams/europe.ts`) points (feature 026 research R14).
 
 The front has the same fixes as Hamburg's. The back has its own palette, and the
 European flag's stars are drawn in code because they're too small to trace.

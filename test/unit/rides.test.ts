@@ -6,14 +6,11 @@ import {
 	type RidingTotals,
 	rideFromRow,
 } from "../../src/rynke/rides";
-import {
-	type CountingWindow,
-	CURRENT_RULES,
-	type RynkeRules,
-} from "../../src/rynke/rules";
+import type { CountingWindow, RynkeRules } from "../../src/rynke/rules";
 import { toActivityRecord } from "../../src/strava/activity";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
 import { makeRide, WINDOW } from "../support/rides";
+import { CURRENT_RULES } from "../support/team-rules";
 
 function evaluate(
 	rides: Ride[],
