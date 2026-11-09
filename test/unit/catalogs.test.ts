@@ -4,7 +4,6 @@ import { THEMES } from "../../src/http/themes";
 import {
 	CATALOGS,
 	type Catalog,
-	DEFAULT_LOCALE,
 	type MessageValue,
 } from "../../src/i18n/catalogs";
 import { de } from "../../src/i18n/messages/de";
@@ -972,7 +971,6 @@ const catalogs = Object.entries(CATALOGS) as [string, Catalog][];
 
 describe("catalog registry", () => {
 	it("ships the ten languages, German first as the key source", () => {
-		expect(DEFAULT_LOCALE).toBe("de");
 		expect(Object.keys(CATALOGS)).toEqual(SHIPPED);
 	});
 });

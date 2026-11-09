@@ -37,7 +37,12 @@ pnpm season:album --local  # season albums from Hamburg's fake-mode season into
 ```
 
 `wrangler.jsonc` declares the D1 (`DB`), Queue (`WORK_QUEUE`) and daily cron
-bindings; tests get the same bindings locally through Miniflare.
+bindings; tests get the same bindings locally through Miniflare. Its top level is
+Hamburg, the founding team; each further team is an `env` block (`--env europe`).
+What differs between teams is team data, in `src/teams/<id>.ts` plus that block,
+never a branch in code (feature 026 contracts/team-data.md);
+`node scripts/team-check.mjs` checks both. The Strava gateway has its own
+`gateway/wrangler.jsonc`.
 
 Commits go through git hooks (`lefthook.yml`): Biome and `tsc` run on every commit,
 and commit messages must follow
@@ -76,14 +81,18 @@ and commit messages must follow
 - Applying branch rulesets (`.github/rulesets/README.md`) and repository settings
   (`.github/repository-settings.md`) is a manual step too: the user runs it or
   explicitly asks for it.
-- Creating the deploy credential and the `production` environment, and the release
-  PR token and the `release` environment (`.github/repository-settings.md`), are
-  manual steps too.
+- Creating the deploy credentials and the `production`, `production-gateway` and
+  `production-europe` environments, setting the `GATEWAY_DEPLOY` and `EUROPE_DEPLOY`
+  switches, and the release PR token and the `release` environment
+  (`.github/repository-settings.md`), are manual steps too.
 - Webhook handlers ack fast and enqueue; processing is idempotent (Principle II).
 - Editing a Strava activity description only ever touches the app's own delimited
   block; rider text is never lost (Principle III).
-- Rider-facing text belongs in the catalogs under `src/i18n/messages/`, in every
-  language, never inline in pages or logic (FR-028).
+- Rider-facing text belongs in the catalogs under `src/i18n/messages/`, in all ten
+  languages (German is the key source), never inline in pages or logic (FR-028).
+- No page, image or text of a team shows another team's name, place or art
+  (feature 026 FR-023, `test/teams/no-other-team.test.ts`), and no rider's data
+  crosses teams.
 - `src/` never imports `dev/`, `album/` or `gateway/`: the fake Strava, its sample
   data, the season album Worker and the Strava gateway Worker must not reach the
   production bundle (feature 006 FR-009, feature 021 FR-020, feature 026,
