@@ -81,9 +81,9 @@ export function correctPastUsageStatement(
 		.prepare(
 			`INSERT INTO usage_daily (day, allowance, team, used, limit_value,
 				team_used, peak_15m, recorded_at)
-			VALUES (?, ?, ?, ?, ?, NULL, NULL, ?)
+			VALUES (?, ?, ?, ?, ?, ?, NULL, ?)
 			ON CONFLICT (day, allowance) DO UPDATE SET used = excluded.used,
-				recorded_at = excluded.recorded_at`,
+				team_used = excluded.team_used, recorded_at = excluded.recorded_at`,
 		)
 		.bind(
 			record.day,
@@ -91,6 +91,7 @@ export function correctPastUsageStatement(
 			teamId(env),
 			record.used,
 			record.limit,
+			record.teamUsed,
 			record.recordedAt,
 		);
 }

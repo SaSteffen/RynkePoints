@@ -1000,12 +1000,14 @@ export const fi: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: ei vielä lukuja",
 	"admin.figure.rest": "Kohdistamaton: {n}",
+	"admin.figure.notSplit": "Tätä lukua ei voi vielä jakaa tiimeittäin.",
 	"admin.figure.windowNote":
 		"Muiden tiimien pyynnöt lasketaan tässä kohdistamattomiksi: tiimit eivät vaihda 15 minuutin lukujaan.",
 	"admin.teams.stale":
 		"{team}: ei vastausta viimeisimmässä tallennuksessa. Luvut ovat ajalta {time} UTC.",
 	"admin.teams.other": "Toinen tiimi",
 	"admin.teams.otherN": "Toinen tiimi {n}",
+	"admin.teams.shared": "Yhteinen (yhdyskäytävä)",
 	"admin.teams.never": "{team}: ei vielä vastausta, joten luvut puuttuvat.",
 	"admin.figure.seen": "Tilanne {time} UTC",
 	"admin.figure.notSeen": "Ei vielä havaittu",

@@ -1000,12 +1000,14 @@ export const sv: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: inga siffror än",
 	"admin.figure.rest": "Inte tilldelat: {n}",
+	"admin.figure.notSplit": "Den här siffran kan inte delas upp per lag än.",
 	"admin.figure.windowNote":
 		"Andra lags förfrågningar räknas här som inte tilldelade: lagen utbyter inte sina 15-minuterssiffror.",
 	"admin.teams.stale":
 		"{team}: inget svar vid senaste registreringen. Siffrorna är från {time} UTC.",
 	"admin.teams.other": "Annat lag",
 	"admin.teams.otherN": "Annat lag {n}",
+	"admin.teams.shared": "Gemensamt (gateway)",
 	"admin.teams.never": "{team}: inget svar än, så siffrorna saknas.",
 	"admin.figure.seen": "Per {time} UTC",
 	"admin.figure.notSeen": "Inte observerat än",

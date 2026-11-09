@@ -1031,12 +1031,15 @@ export const lt: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: dar nėra skaičių",
 	"admin.figure.rest": "Nepriskirta: {n}",
+	"admin.figure.notSplit":
+		"Šio skaičiaus kol kas negalima padalyti pagal komandas.",
 	"admin.figure.windowNote":
 		"Kitų komandų užklausos čia laikomos nepriskirtomis: komandos nesikeičia 15 minučių skaičiais.",
 	"admin.teams.stale":
 		"{team}: per paskutinį įrašymą atsakymo nebuvo. Skaičiai – {time} UTC.",
 	"admin.teams.other": "Kita komanda",
 	"admin.teams.otherN": "Kita komanda {n}",
+	"admin.teams.shared": "Bendra (šliuzas)",
 	"admin.teams.never": "{team}: atsakymo dar nėra, todėl skaičių trūksta.",
 	"admin.figure.seen": "Būsena {time} UTC",
 	"admin.figure.notSeen": "Dar nestebėta",

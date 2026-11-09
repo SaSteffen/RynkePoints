@@ -33,6 +33,12 @@ export const europe: TeamData = {
 	// The founding team's club (wrangler.jsonc `STRAVA_CLUB_ID`).
 	otherClubIds: [1088689],
 	dev: { host: "europe.localhost", port: 8790, inspectorPort: 9231 },
+	// The database ID is the Wrangler block's placeholder (`database_id`).
+	cloudflare: {
+		worker: "rynke-points-europe",
+		databaseId: "00000000-0000-0000-0000-000000000000",
+		queueIds: [],
+	},
 	placeholders: [
 		"shortName",
 		"rules",

@@ -1053,12 +1053,15 @@ export const fr: Catalog = {
 	"admin.figure.teamCount": "{team}\u00a0: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}\u00a0: pas encore de chiffres",
 	"admin.figure.rest": "Non attribué\u00a0: {n}",
+	"admin.figure.notSplit":
+		"Ce chiffre ne peut pas encore être réparti par équipe.",
 	"admin.figure.windowNote":
 		"Les requêtes des autres équipes comptent ici comme non attribuées\u00a0: les équipes n'échangent pas leurs chiffres sur 15\u00a0minutes.",
 	"admin.teams.stale":
 		"{team}\u00a0: pas de réponse lors du dernier relevé. Les chiffres datent du {time} UTC.",
 	"admin.teams.other": "Autre équipe",
 	"admin.teams.otherN": "Autre équipe {n}",
+	"admin.teams.shared": "Partagé (passerelle)",
 	"admin.teams.never":
 		"{team}\u00a0: pas encore de réponse, les chiffres manquent donc.",
 	"admin.figure.seen": "Au {time} UTC",

@@ -67,6 +67,23 @@ export interface DevTarget {
 	inspectorPort: number;
 }
 
+/**
+ * The team's Cloudflare resources, so the account's figures can be split by
+ * team (feature 026 FR-040). `team-check` holds the Worker and database
+ * against the team's Wrangler block.
+ */
+export interface CloudflareResources {
+	/** The Worker's name, Cloudflare's `scriptName`. */
+	worker: string;
+	/** The D1 database's ID. */
+	databaseId: string;
+	/**
+	 * Its queues' IDs (`wrangler queues list`); none known yet leaves queue
+	 * operations unsplit.
+	 */
+	queueIds: readonly string[];
+}
+
 export interface TeamData {
 	/** `[a-z]+`; equals the deployment's `TEAM_ID`, unique in `TEAMS`. */
 	id: string;
@@ -94,6 +111,7 @@ export interface TeamData {
 	/** Other teams' Strava clubs, for the one-team-at-a-time notice (FR-012). */
 	otherClubIds: readonly number[];
 	dev: DevTarget;
+	cloudflare: CloudflareResources;
 	/**
 	 * Fields of this file and vars of the team's Wrangler block still copied
 	 * from another team (FR-053); empty before a production deploy.

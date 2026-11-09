@@ -1015,12 +1015,14 @@ export const nl: Catalog = {
 	"admin.figure.teamCount": "{team}: {n} ({percent}\u00a0%)",
 	"admin.figure.teamNone": "{team}: nog geen cijfers",
 	"admin.figure.rest": "Niet toegewezen: {n}",
+	"admin.figure.notSplit": "Dit cijfer kan nog niet per team worden verdeeld.",
 	"admin.figure.windowNote":
 		"Verzoeken van andere teams tellen hier als niet toegewezen: de teams wisselen hun 15-minutencijfers niet uit.",
 	"admin.teams.stale":
 		"{team}: geen antwoord bij de laatste registratie. De cijfers zijn van {time} UTC.",
 	"admin.teams.other": "Ander team",
 	"admin.teams.otherN": "Ander team {n}",
+	"admin.teams.shared": "Gedeeld (gateway)",
 	"admin.teams.never": "{team}: nog geen antwoord, dus de cijfers ontbreken.",
 	"admin.figure.seen": "Stand van {time} UTC",
 	"admin.figure.notSeen": "Nog niet waargenomen",

@@ -19,6 +19,7 @@ No database change (research R12). The entities below are code and config data.
 | `badgeNames` | `BadgeNameMode` | See below |
 | `otherClubIds` | number[] | Other teams' clubs, for the one-team-at-a-time notice (FR-012) |
 | `dev` | `{ host: string; port: number; inspectorPort: number }` | Ports distinct across teams, never 8797/9237; host `localhost` for the founding team, `<id>.localhost` otherwise (fake mode's local-host guard accepts `*.localhost`) |
+| `cloudflare` | `{ worker: string; databaseId: string; queueIds: string[] }` | The team's Worker name, D1 database ID and queue IDs, for splitting Cloudflare's figures (FR-040). Worker and database must match the Wrangler block (`team-check`); no queue IDs leaves queue operations unsplit |
 | `placeholders` | string[] | Names of fields or vars still copied from another team (FR-053) |
 
 The team's Wrangler block (`wrangler.jsonc` top level for Hamburg, `env.<id>` otherwise)
