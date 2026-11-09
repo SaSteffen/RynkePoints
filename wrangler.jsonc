@@ -127,8 +127,8 @@
 				"TEAM_ID": "hamburg",
 				// "" sends riders back from Strava to this site's /auth/callback; the
 				// Strava gateway's origin sends them through it (feature 026 release 3,
-				// contracts/gateway.md). Empty until the gateway runs (docs/gateway-switch.md).
-				"STRAVA_RETURN_VIA": "",
+				// contracts/gateway.md). Back to "" to switch back (docs/gateway-switch.md).
+				"STRAVA_RETURN_VIA": "https://gateway.trhh-rynke-coins.link",
 				// The other teams whose usage counts the admin view shows beside this
 				// team's (feature 026 contracts/usage-exchange.md): JSON list of
 				// { "id", "origin" }, like the gateway's TEAMS. "[]" for none.
