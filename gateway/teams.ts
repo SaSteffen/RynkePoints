@@ -46,3 +46,8 @@ export function parseTeams(raw: string): GatewayTeam[] {
 export function webhookTokenName(teamId: string): string {
 	return `TEAM_WEBHOOK_TOKEN_${teamId.toUpperCase().replaceAll("-", "_")}`;
 }
+
+/** The service binding to a team's Worker, e.g. TEAM_SERVICE_HAMBURG. */
+export function serviceBindingName(teamId: string): string {
+	return `TEAM_SERVICE_${teamId.toUpperCase().replaceAll("-", "_")}`;
+}
