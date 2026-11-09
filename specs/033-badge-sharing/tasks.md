@@ -239,7 +239,7 @@ paint.
 **Independent test**: in WebKit with `-webkit-touch-callout` unsupported (desktop) and Chromium, the
 three-dots icon shows and the Apple icon doesn't.
 
-- [ ] T029 [US5] Add a failing test to `e2e/badge-share.e2e.ts`: on the desktop projects (Chromium, Firefox, WebKit), `.share-icon-dots` is visible in a share button and `.share-icon-apple` is not; both exist in the markup
+- [x] T029 [US5] Add a failing test to `e2e/badge-share.e2e.ts`: on the desktop projects (Chromium, Firefox, WebKit), `.share-icon-dots` is visible in a share button and `.share-icon-apple` is not; both exist in the markup
 - [x] T030 [US5] In `src/http/style.ts`, show `.share-icon-dots` and hide `.share-icon-apple` by default, and swap them under `@supports (-webkit-touch-callout: none)` (research R8), with no script (T029 green)
 
 **Checkpoint**: the right icon shows everywhere; the real iPhone and iPad check happens on the live site.
@@ -248,10 +248,10 @@ three-dots icon shows and the Apple icon doesn't.
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T031 [P] Check the screen-reader labels in `src/http/sections/badges.ts`: the format fieldset has its legend, the switches have `aria-checked` updated by `public/app.js`, and the status lines are `role="status"` (spec edge case "Screen readers")
-- [ ] T032 [P] Long names and milestones: in `e2e/badge-share.e2e.ts`, share the sample badge with the longest name and check, by sampling canvas pixels, that the name block ends above the date line and the text isn't cut at the edges
-- [ ] T033 Fix existing tests that pin the badges page markup (for example `test/integration/badges-section.test.ts` snapshots or counts of buttons in `e2e/smoke.e2e.ts`), only where this feature is the cause
-- [ ] T034 Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm exec playwright test e2e/badge-share.e2e.ts`; leave the full `pnpm test:e2e` to CI
+- [x] T031 [P] Check the screen-reader labels in `src/http/sections/badges.ts`: the format fieldset has its legend, the switches have `aria-checked` updated by `public/app.js`, and the status lines are `role="status"` (spec edge case "Screen readers")
+- [x] T032 [P] Long names and milestones: in `e2e/badge-share.e2e.ts`, share the sample badge with the longest name and check, by sampling canvas pixels, that the name block ends above the date line and the text isn't cut at the edges
+- [x] T033 Fix existing tests that pin the badges page markup (for example `test/integration/badges-section.test.ts` snapshots or counts of buttons in `e2e/smoke.e2e.ts`), only where this feature is the cause
+- [x] T034 Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm exec playwright test e2e/badge-share.e2e.ts`; leave the full `pnpm test:e2e` to CI
 
 ---
 
