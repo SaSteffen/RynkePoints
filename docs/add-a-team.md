@@ -109,6 +109,9 @@ Strava sends every event to the gateway, and every sign-in comes back through it
    - add `{ "id": "<id>", "origin": "https://<domain>" }` to `TEAMS` in
      `gateway/wrangler.jsonc`
    - add `TEAM_WEBHOOK_TOKEN_<ID>` to the gateway's `secrets.required`
+   - if the team's Worker is on the gateway's Cloudflare account, add
+     `{ "binding": "TEAM_SERVICE_<ID>", "service": "<the team's Worker name>" }` to the
+     gateway's `services`: the gateway then calls the Worker directly
    - in `env.<id>`, set `STRAVA_RETURN_VIA` to the gateway's origin and
      `STRAVA_SUBSCRIPTION_ID` to the gateway's subscription, like every other team
 

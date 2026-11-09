@@ -35,6 +35,15 @@
 			}
 		]
 	},
+	// A team on this Cloudflare account is reached through its Worker directly,
+	// without a round trip through its public domain. TEAM_SERVICE_<ID>, the
+	// team's Worker name.
+	"services": [
+		{
+			"binding": "TEAM_SERVICE_HAMBURG",
+			"service": "rynke-points"
+		}
+	],
 	"vars": {
 		// JSON list of { "id", "origin" }: ids unique and the team's TEAM_ID,
 		// origins `https:` (local: `http://<host>:<port>`). The gateway only ever

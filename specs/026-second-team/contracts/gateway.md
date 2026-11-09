@@ -22,6 +22,13 @@ For each message: `POST <team origin>/strava/webhook/<TEAM_WEBHOOK_TOKEN_<ID>>` 
 event as JSON, timeout 10 s. A 2xx acks the message; anything else calls
 `message.retry({ delaySeconds })` with growing delays. `max_concurrency` stays low.
 
+A team whose Worker is on the gateway's own Cloudflare account is called through the
+service binding `TEAM_SERVICE_<ID>` to its Worker instead, with the same request.
+
+The token goes into the path exactly as stored, never percent-encoded: the team
+compares the raw path with its token, so a base64 token ending in `=` sent as `%3D`
+was refused with 404 when Hamburg went behind the gateway (2026-11-09).
+
 Logs: `forward team=<id> status=<code> attempt=<n>`. Never the body, IDs or codes.
 
 ## Team-side settings

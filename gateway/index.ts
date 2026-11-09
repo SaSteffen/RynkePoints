@@ -1,5 +1,10 @@
 import { secretEquals } from "../src/crypto/secret";
-import { type GatewayTeam, parseTeams, webhookTokenName } from "./teams";
+import {
+	type GatewayTeam,
+	parseTeams,
+	serviceBindingName,
+	webhookTokenName,
+} from "./teams";
 
 // The Strava gateway (feature 026 release 3, contracts/gateway.md). Strava's
 // one webhook subscription and one OAuth callback domain serve every team:
@@ -16,6 +21,13 @@ export interface GatewayEnv {
 	FORWARD_QUEUE: Queue<ForwardMessage>;
 	/** TEAM_WEBHOOK_TOKEN_<ID> per team. */
 	[secret: `TEAM_WEBHOOK_TOKEN_${string}`]: string | undefined;
+	/**
+	 * TEAM_SERVICE_<ID>: the team's Worker, for a team on the gateway's own
+	 * Cloudflare account. The forward then goes to the Worker directly,
+	 * without leaving Cloudflare. Without one, the gateway fetches the team's
+	 * origin.
+	 */
+	[service: `TEAM_SERVICE_${string}`]: Fetcher | undefined;
 }
 
 /** One Strava event for one team, as Strava sent it. */
@@ -193,6 +205,7 @@ async function forward(
 	const { team: teamId, body } = message.body;
 	const team = teams.find((t) => t.id === teamId);
 	const token = env[webhookTokenName(teamId) as `TEAM_WEBHOOK_TOKEN_${string}`];
+	const service = env[serviceBindingName(teamId) as `TEAM_SERVICE_${string}`];
 	if (!team) {
 		// The team left TEAMS: nobody is left to deliver to.
 		console.log(
@@ -204,8 +217,12 @@ async function forward(
 	let status: string;
 	try {
 		if (!token) throw new Error("no webhook token");
-		const res = await fetch(
-			new URL(`/strava/webhook/${encodeURIComponent(token)}`, team.origin),
+		// The token goes into the path as it is, not percent-encoded: the team
+		// compares the raw path with its token, so `abc=` sent as `abc%3D`
+		// would be refused with a 404. Base64 tokens (`+`, `/`, `=`) are
+		// valid in a path unchanged.
+		const res = await (service ? service.fetch.bind(service) : fetch)(
+			new URL(`/strava/webhook/${token}`, team.origin),
 			{
 				method: "POST",
 				headers: { "Content-Type": "application/json" },

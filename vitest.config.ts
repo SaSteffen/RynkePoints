@@ -93,6 +93,11 @@ export default defineConfig(async () => {
 									TEAM_WEBHOOK_TOKEN_HAMBURG: "test-hamburg-webhook-token",
 									TEAM_WEBHOOK_TOKEN_EUROPE: "test-europe-webhook-token",
 								},
+								// Stands in for Hamburg's Worker; the forward tests replace it.
+								serviceBindings: {
+									TEAM_SERVICE_HAMBURG: () =>
+										new Response("stand-in", { status: 500 }),
+								},
 							},
 						}),
 					],
