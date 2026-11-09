@@ -608,6 +608,7 @@ export const is: Catalog = {
 	"badges.switch.all": "Öll",
 	"badges.empty": "Ekkert merki enn – fyrsta ferðin færir þig nær.",
 	"badges.missing": "{value} eftir",
+	"badges.at": "Við {value}",
 	"badges.next": "Næsta merki",
 	"badges.first": "Fyrsta merkið",
 	"badges.earnedOn": "unnið {date}",

@@ -697,6 +697,11 @@ their badge names examples.
   ("Noch 1.500 km", "Noch 5 Fahrer", "Noch 4 Tage"). It MUST NOT show the
   next badge's name or picture, nor any badge after it. Only the gallery's empty
   outlines (FR-002) tell how many badges a category has.
+- **FR-003a**: A category whose badges one activity or event earns alone (run
+  length, ride length, swim length, Big training) MUST NOT show a bar or what is
+  missing: a 9.5 km run is not "0.5 km" from a 10 km badge, the next run must be
+  10 km long. It MUST show the value the next badge needs instead ("Ab 10 km",
+  "Ab 10 Rider"), under the same "Nächstes Abzeichen" or "Erstes Abzeichen".
 - **FR-004**: A category whose last badge is earned MUST keep its card, without a
   progress bar and without a sign that it is complete.
 - **FR-004a**: A winter category (FR-010) whose month of the season is over,

@@ -608,6 +608,7 @@ export const da: Catalog = {
 	"badges.switch.all": "Alle",
 	"badges.empty": "Ingen badge endnu – din første tur bringer dig nærmere.",
 	"badges.missing": "{value} tilbage",
+	"badges.at": "Ved {value}",
 	"badges.next": "Næste badge",
 	"badges.first": "Første badge",
 	"badges.earnedOn": "opnået den {date}",

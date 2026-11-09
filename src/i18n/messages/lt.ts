@@ -617,6 +617,7 @@ export const lt: Catalog = {
 	"badges.switch.all": "Visi",
 	"badges.empty": "Ženklelių dar nėra – pirmas važiavimas tave priartins.",
 	"badges.missing": "Liko {value}",
+	"badges.at": "Riba: {value}",
 	"badges.next": "Kitas ženklelis",
 	"badges.first": "Pirmas ženklelis",
 	"badges.earnedOn": "gautas {date}",

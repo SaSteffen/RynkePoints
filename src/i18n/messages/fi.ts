@@ -607,6 +607,7 @@ export const fi: Catalog = {
 	"badges.switch.all": "Kaikki",
 	"badges.empty": "Ei vielä merkkejä – ensimmäinen ajosi vie lähemmäs.",
 	"badges.missing": "jäljellä {value}",
+	"badges.at": "vähintään {value}",
 	"badges.next": "Seuraava merkki",
 	"badges.first": "Ensimmäinen merkki",
 	"badges.earnedOn": "ansaittu {date}",

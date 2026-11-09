@@ -617,6 +617,7 @@ export const nl: Catalog = {
 	"badges.switch.all": "Alle",
 	"badges.empty": "Nog geen badge – je eerste rit brengt je dichterbij.",
 	"badges.missing": "nog {value}",
+	"badges.at": "vanaf {value}",
 	"badges.next": "Volgende badge",
 	"badges.first": "Eerste badge",
 	"badges.earnedOn": "verdiend op {date}",

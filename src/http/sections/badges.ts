@@ -238,7 +238,9 @@ function shareMini(
 
 /**
  * The way to the next badge: says it is the next (or, without a badge, the
- * first) one, the bar and what is missing. Never the badge's name or picture (FR-003).
+ * first) one, the bar and what is missing; for a record of one activity or
+ * event, the value it needs instead (FR-003a). Never the badge's name or
+ * picture (FR-003).
  */
 function progressBar(
 	i18n: I18n,
@@ -246,6 +248,19 @@ function progressBar(
 	progress: ProgressView,
 	first: boolean,
 ): SafeHtml {
+	const next = html`<span class="badge-next">${i18n.t(first ? "badges.first" : "badges.next")}</span>`;
+	// A record of one activity or event: the next badge's threshold, no bar.
+	// 9,5 km aren't "0,5 km to go" when the next run must be 10 km long.
+	if (categoryById(category).single) {
+		const at = valueText(
+			i18n,
+			progress.unit,
+			progress.next,
+			Number.isInteger(progress.next) ? 0 : 1,
+		);
+		return html`${next}
+<span class="badge-missing">${i18n.t("badges.at", { value: at })}</span>`;
+	}
 	// The width is a number the view model computed, never user input.
 	const missing = valueText(
 		i18n,
@@ -253,7 +268,7 @@ function progressBar(
 		progress.missing,
 		ONE_DECIMAL.has(category) ? 1 : 0,
 	);
-	return html`<span class="badge-next">${i18n.t(first ? "badges.first" : "badges.next")}</span>
+	return html`${next}
 <span class="bar" aria-hidden="true"><span style="width:${progress.percent}%"></span></span>
 <span class="badge-missing">${i18n.t("badges.missing", { value: missing })}</span>`;
 }

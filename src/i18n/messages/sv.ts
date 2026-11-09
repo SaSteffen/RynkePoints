@@ -605,6 +605,7 @@ export const sv: Catalog = {
 	"badges.switch.all": "Alla",
 	"badges.empty": "Inget märke än – din första tur tar dig närmare.",
 	"badges.missing": "{value} kvar",
+	"badges.at": "Vid {value}",
 	"badges.next": "Nästa märke",
 	"badges.first": "Första märket",
 	"badges.earnedOn": "tagit {date}",

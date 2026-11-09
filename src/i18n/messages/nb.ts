@@ -606,6 +606,7 @@ export const nb: Catalog = {
 	"badges.switch.all": "Alle",
 	"badges.empty": "Ingen merker ennå – den første turen bringer deg nærmere.",
 	"badges.missing": "{value} igjen",
+	"badges.at": "Ved {value}",
 	"badges.next": "Neste merke",
 	"badges.first": "Første merke",
 	"badges.earnedOn": "oppnådd {date}",
