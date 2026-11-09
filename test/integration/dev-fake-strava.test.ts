@@ -692,7 +692,7 @@ describe("sample riders in every state (US2)", { timeout: 20_000 }, () => {
 		).toBe(2);
 		const page = await mePage(990015);
 		expect(page).toContain('data-category="run_length"');
-		expect(page).toContain("Noch 2,2\u00a0km");
+		expect(page).toContain("Ab 10\u00a0km");
 	});
 
 	it("gives Wanda Winter the part C badges (013 US5)", async () => {
