@@ -252,6 +252,7 @@ three-dots icon shows and the Apple icon doesn't.
 - [x] T032 [P] Long names and milestones: in `e2e/badge-share.e2e.ts`, share the sample badge with the longest name and check, by sampling canvas pixels, that the name block ends above the date line and the text isn't cut at the edges
 - [x] T033 Fix existing tests that pin the badges page markup (for example `test/integration/badges-section.test.ts` snapshots or counts of buttons in `e2e/smoke.e2e.ts`), only where this feature is the cause
 - [x] T034 Run `pnpm lint`, `pnpm typecheck`, `pnpm test` and `pnpm exec playwright test e2e/badge-share.e2e.ts`; leave the full `pnpm test:e2e` to CI
+- [x] T035 Turn the badge on a photo: `r` in the place, drawn and sparkled round the badge's centre in `public/app.js`; a frame and a corner handle in `src/http/sections/badges.ts` (drag to turn and size, arrow keys), two-finger twist; texts `badges.share.hintTouch`, `badges.share.hintMouse`, `badges.share.turn` in all ten catalogs; test in `e2e/badge-share.e2e.ts`
 
 ---
 

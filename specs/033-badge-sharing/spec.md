@@ -99,9 +99,11 @@ result has the photo's proportions and the badge where it was placed.
 2. **Given** a picked photo, **When** it appears, **Then** the badge sits in the lower right corner
    at about 38 % of the photo's width.
 3. **Given** the photo on a phone, **When** the rider drags the badge with one finger, **Then** it
-   follows the finger; **When** they pinch with two, **Then** it grows or shrinks.
+   follows the finger; **When** they pinch or twist with two, **Then** it grows, shrinks or turns.
 4. **Given** the photo on desktop, **When** the rider drags the badge with the mouse, **Then** it
-   moves; **When** they scroll over the preview, **Then** it grows or shrinks.
+   moves; **When** they scroll over the preview, **Then** it grows or shrinks; **When** they drag
+   the handle at the frame's corner, **Then** it grows, shrinks and turns round its centre.
+   With the handle focused, the arrow keys turn it (left, right) and size it (up, down).
 5. **Given** a placed badge, **When** the rider shares, saves or copies, **Then** the result is the
    whole photo in its own proportions with the badge exactly where the preview showed it.
 6. **Given** a photo was picked, **When** the rider taps "Anderes Foto", **Then** they can pick a
@@ -269,8 +271,10 @@ compare the icon.
   version.
 - **FR-020**: Still pictures MUST NOT show the twinkling stars.
 - **FR-021**: Auf Foto MUST use the rider's photo at its own proportions, at most 1920 px on the long
-  side, with the badge where the rider placed it. Its default place is the lower right corner at
-  about 38 % of the photo's width.
+  side, with the badge where the rider placed it, at the size and turn they gave it. Its default
+  place is the lower right corner at about 38 % of the photo's width, upright. A turn within about
+  3° of upright snaps upright. The preview shows a frame round the badge with a handle to turn and
+  size it; neither is in the file.
 - **FR-022**: The rider's photo MUST be used only on the device: never uploaded, stored on the
   server, logged or kept after the sheet closes.
 

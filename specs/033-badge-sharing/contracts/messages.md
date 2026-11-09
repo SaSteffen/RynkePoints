@@ -20,8 +20,9 @@ existing badge names.
 | `badges.share.otherPhoto` | Anderes Foto | Other photo |
 | `badges.share.photoPrivate` | Dein Foto bleibt auf deinem Gerät. | Your photo stays on your device. |
 | `badges.share.photoUnreadable` | Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes. | Your browser can't open this photo. Choose another one. |
-| `badges.share.hintTouch` | Abzeichen mit einem Finger verschieben, mit zwei Fingern größer oder kleiner ziehen. | Drag the badge with one finger, pinch with two to resize it. |
-| `badges.share.hintMouse` | Abzeichen mit der Maus verschieben, mit dem Mausrad größer oder kleiner machen. | Drag the badge with the mouse, scroll to resize it. |
+| `badges.share.hintTouch` | Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen. | Drag the badge with one finger, turn or pinch it with two to rotate or resize it. |
+| `badges.share.hintMouse` | Abzeichen mit der Maus verschieben, am Punkt in der Ecke drehen oder größer und kleiner ziehen. | Drag the badge with the mouse, drag the dot in its corner to rotate or resize it. |
+| `badges.share.turn` | Abzeichen drehen oder Größe ändern | Rotate or resize the badge |
 | `badges.share.recording` | Wird gerendert … | Rendering … |
 | `badges.share.send` | Teilen … | Share … |
 | `badges.share.save` | Speichern | Save |
