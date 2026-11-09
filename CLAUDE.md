@@ -30,15 +30,17 @@ pnpm lint             # Biome lint + format check
 pnpm format           # Biome autofix
 pnpm typecheck        # tsc --noEmit
 pnpm types            # regenerate worker-configuration.d.ts after editing wrangler.jsonc
-pnpm wrangler d1 migrations apply rynke-points --local   # local D1 schema for pnpm dev:strava
+pnpm wrangler d1 migrations apply DB --local --env hamburg   # local D1 schema for pnpm dev:strava
                                                           # (pnpm dev applies its own)
 pnpm season:album --local  # season albums from Hamburg's fake-mode season into
                            # season-albums/ (git-ignored); stop pnpm dev first
 ```
 
 `wrangler.jsonc` declares the D1 (`DB`), Queue (`WORK_QUEUE`) and daily cron
-bindings; tests get the same bindings locally through Miniflare. Its top level is
-Hamburg, the founding team; each further team is an `env` block (`--env europe`).
+bindings; tests get the same bindings locally through Miniflare. Each team is an
+`env` block, Hamburg (the founding team) first: every Wrangler command names one with
+`--env hamburg` or `--env europe`, and one without fails on purpose (its top level
+holds no team).
 What differs between teams is team data, in `src/teams/<id>.ts` plus that block,
 never a branch in code (feature 026 contracts/team-data.md);
 `node scripts/team-check.mjs` checks both. The Strava gateway has its own

@@ -48,9 +48,10 @@ Until a value arrives, team data may hold the founding team's value as a placeho
    once known (`wrangler queues list`), its queue IDs, so each team's admin view can
    split Cloudflare's figures by team.
 2. `wrangler.jsonc`: an `env.<id>` block like `env.europe`. It holds the Worker name,
-   the D1 and queue bindings, **every** var of the top level (Wrangler doesn't inherit
-   them), `TEAM_ID: "<id>"`, `secrets.required`, and `"routes": []` until the domain is
-   ready. Then run `pnpm types`.
+   `main`, the D1 and queue bindings, the crons, **every** var of the other blocks
+   (Wrangler doesn't inherit them), `TEAM_ID: "<id>"`, `secrets.required`, and
+   `"routes": []` until the domain is ready. Nothing goes on the top level.
+   `node scripts/team-check.mjs` names anything missing. Then run `pnpm types`.
 3. Local development: `"dev:<id>": "node scripts/dev.mjs <id>"` in `package.json`, a
    `dev` target with its own ports in team data, and synthetic sample riders in
    `dev/fake-strava/samples.<id>.ts` ([contracts/dev-commands.md](../specs/026-second-team/contracts/dev-commands.md)).

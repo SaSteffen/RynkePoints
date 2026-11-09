@@ -18,6 +18,12 @@ registered team and fails on anything missing (FR-021).
 fit env strings. Keeping today's vars avoids touching every config reader in Hamburg's
 mid-season release.
 
+**Amended 2026-11-09**: Hamburg moved from the top level into its own block,
+`env.hamburg`, with its Worker, database, queue and domain unchanged, so every team's
+block looks alike. The top level holds no team: its `name` is no team's Worker and its
+`main` doesn't exist, so a Wrangler command without `--env` fails instead of deploying
+package.json's name (Hamburg's Worker) with no bindings. `team-check` enforces both.
+
 **Alternatives considered**: Everything in env vars (JSON strings): untyped and hard to
 review. Everything in TypeScript with a generated `wrangler.jsonc`: the generated file
 would be the source Wrangler and CI read, so mistakes move to a build step.

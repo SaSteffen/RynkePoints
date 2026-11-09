@@ -193,7 +193,7 @@ Against the real Strava you need your own
 
 ```bash
 cp .dev.vars.example .dev.vars   # fill in your Strava API app credentials
-pnpm wrangler d1 migrations apply rynke-points --local   # local database
+pnpm wrangler d1 migrations apply DB --local --env hamburg   # local database
 pnpm dev:strava             # local Worker on http://localhost:8789, real Strava
 ```
 
@@ -354,13 +354,14 @@ merges into `develop` don't.
   restores an earlier version at once, with limits: migrations stay applied,
   only the last 100 versions are available, GitHub doesn't see it, and the next
   merge or dispatch deploys `main` again.
-- **A local `pnpm run deploy`** is break-glass only.
+- **A local `pnpm run deploy <team>`** (e.g. `hamburg`) is break-glass only. Every
+  Wrangler command below names its team with `--env <team>`; without it, it fails.
 - **Push key**: the deploy fails without the secret `PUSH_VAPID_KEY`, an EC
   P-256 key that signs notifications. Set it once:
 
   ```bash
   node -e 'crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign"]).then(k=>crypto.subtle.exportKey("jwk",k.privateKey)).then(({kty,crv,x,y,d})=>console.log(JSON.stringify({kty,crv,x,y,d})))' \
-    | pnpm wrangler secret put PUSH_VAPID_KEY
+    | pnpm wrangler secret put PUSH_VAPID_KEY --env hamburg
   ```
 
   Keep it: a new key ends the notifications of every rider's devices until
@@ -376,17 +377,17 @@ merges into `develop` don't.
   Analytics → Read* and include only this account. The account ID is in the output
   of `pnpm wrangler whoami`. Each `secret put` asks for the value. To see the figures
   at once, use *Update now* on `/admin`; otherwise they come with the next hourly run.
-  If the view still says they're unavailable, `pnpm wrangler tail` during an update
+  If the view still says they're unavailable, `pnpm wrangler tail --env hamburg` during an update
   shows the reason.
 
   ```bash
-  pnpm wrangler secret put CLOUDFLARE_ANALYTICS_TOKEN
-  pnpm wrangler secret put CLOUDFLARE_ANALYTICS_ACCOUNT_ID
+  pnpm wrangler secret put CLOUDFLARE_ANALYTICS_TOKEN --env hamburg
+  pnpm wrangler secret put CLOUDFLARE_ANALYTICS_ACCOUNT_ID --env hamburg
   # Mark an administrator; `= 0` clears it, from the next request on.
-  pnpm wrangler d1 execute rynke-points --remote \
+  pnpm wrangler d1 execute DB --remote --env hamburg \
     --command "UPDATE riders SET administrator = 1 WHERE athlete_id = <id>"
   # Lift a block. The list holds no names, so this needs the rider's Strava ID.
-  pnpm wrangler d1 execute rynke-points --remote \
+  pnpm wrangler d1 execute DB --remote --env hamburg \
     --command "DELETE FROM blocked_athletes WHERE athlete_id = <id>"
   ```
 
