@@ -348,3 +348,193 @@ test.describe("on a photo", () => {
 		await expect(sheet.locator(".share-photo-unreadable")).toBeHidden();
 	});
 });
+
+/**
+ * Whether this browser can encode the story video (research R4): one real
+ * frame, since some browsers say yes to H.264 and then fail.
+ */
+const canEncode = (page: Page) =>
+	page.evaluate(async () => {
+		// The e2e files have no DOM types: just the bits used here.
+		interface Encoder {
+			state: string;
+			configure(config: object): void;
+			encode(frame: { close(): void }, options: object): void;
+			flush(): Promise<void>;
+			close(): void;
+		}
+		const g = globalThis as unknown as {
+			VideoEncoder?: (new (init: {
+				output(): void;
+				error(): void;
+			}) => Encoder) & {
+				isConfigSupported(config: object): Promise<{ supported?: boolean }>;
+			};
+			VideoFrame: new (source: unknown, init: object) => { close(): void };
+			document: {
+				createElement(tag: "canvas"): {
+					width: number;
+					height: number;
+					getContext(kind: "2d"): {
+						fillRect(x: number, y: number, w: number, h: number): void;
+					} | null;
+				};
+			};
+		};
+		const config = {
+			codec: "avc1.640028",
+			width: 1080,
+			height: 1920,
+			bitrate: 8_000_000,
+			framerate: 30,
+			avc: { format: "avc" },
+		};
+		if (!g.VideoEncoder) return false;
+		try {
+			if (!(await g.VideoEncoder.isConfigSupported(config)).supported) {
+				return false;
+			}
+			let made = false;
+			const encoder = new g.VideoEncoder({
+				output: () => {
+					made = true;
+				},
+				error: () => {},
+			});
+			const canvas = g.document.createElement("canvas");
+			canvas.width = config.width;
+			canvas.height = config.height;
+			canvas.getContext("2d")?.fillRect(0, 0, 2, 2);
+			encoder.configure(config);
+			const frame = new g.VideoFrame(canvas, { timestamp: 0 });
+			encoder.encode(frame, { keyFrame: true });
+			frame.close();
+			await encoder.flush();
+			encoder.close();
+			return made;
+		} catch {
+			return false;
+		}
+	});
+
+/** Opens the sheet on the first card, once the muxer has loaded or failed. */
+async function openSparkling(page: Page) {
+	await openBadges(page);
+	const mini = page.locator(".badge-card .badge-share-mini").first();
+	const id = await mini.getAttribute("data-badge");
+	await mini.click();
+	const sheet = sheetOf(page);
+	await ready(sheet);
+	await page.waitForLoadState("networkidle");
+	await ready(sheet);
+	return { sheet, id };
+}
+
+const RENDERING = { timeout: 60_000 };
+
+test.describe("sparkling", () => {
+	test.describe.configure({ timeout: 120_000 });
+	test("makes the sparkling story as an MP4 on the device, or isn't offered (US3)", async ({
+		page,
+	}) => {
+		const { sheet, id } = await openSparkling(page);
+		const shiny = sheet.locator(".share-shiny");
+		if (!(await canEncode(page))) {
+			await expect(shiny).toBeHidden();
+			return;
+		}
+		await expect(shiny).toBeVisible();
+		await shiny.locator("[role=switch]").click();
+		await expect(shiny.locator("[role=switch]")).toHaveAttribute(
+			"aria-checked",
+			"true",
+		);
+		await expect(sheet.locator(".share-busy")).toBeVisible();
+		await expect(sheet.locator(".share-busy")).toHaveText("Wird gerendert …");
+		await expect(sheet.locator(".share-save")).toBeDisabled();
+		await expect(sheet.locator(".share-copy")).toBeHidden();
+		await expect(sheet.locator(".share-busy")).toBeHidden(RENDERING);
+		await ready(sheet);
+		await expect(sheet.locator(".share-preview video")).toBeVisible();
+		await expect(sheet.locator(".share-copy")).toBeHidden();
+
+		const download = page.waitForEvent("download");
+		await sheet.locator(".share-save").click();
+		const saved = await download;
+		expect(saved.suggestedFilename()).toMatch(
+			new RegExp(`^[a-z0-9-]+-${id}-story\\.mp4$`),
+		);
+		const mp4 = await saved.createReadStream().then(async (stream) => {
+			const chunks: Buffer[] = [];
+			for await (const chunk of stream) chunks.push(chunk as Buffer);
+			return Buffer.concat(chunks);
+		});
+		expect(mp4.subarray(4, 8).toString("latin1")).toBe("ftyp");
+		expect(mp4.includes("avc1")).toBe(true);
+	});
+
+	test("starts again for new settings and stops when the sheet closes", async ({
+		page,
+	}) => {
+		const errors: string[] = [];
+		page.on("console", (message) => {
+			if (message.type() === "error") errors.push(message.text());
+		});
+		page.on("pageerror", (error) => errors.push(error.message));
+		const { sheet } = await openSparkling(page);
+		test.skip(!(await canEncode(page)), "this browser can't encode H.264");
+
+		await sheet.locator(".share-shiny [role=switch]").click();
+		await expect(sheet.locator(".share-busy")).toBeVisible();
+		// Bild while the story is rendering: the square one is made instead.
+		await sheet
+			.locator("label")
+			.filter({ hasText: /^Bild$/ })
+			.click();
+		await expect(sheet.locator(".share-busy")).toBeVisible();
+		await expect(sheet.locator(".share-busy")).toBeHidden(RENDERING);
+		await ready(sheet);
+		const download = page.waitForEvent("download");
+		await sheet.locator(".share-save").click();
+		expect((await download).suggestedFilename()).toMatch(/-image\.mp4$/);
+
+		// "Ohne Hintergrund" has no video, and the still picture comes back.
+		await sheet.locator(".share-plain [role=switch]").click();
+		await expect(sheet.locator(".share-shiny")).toBeHidden();
+		await ready(sheet);
+		await expect(sheet.locator(".share-preview canvas")).toBeVisible();
+		await expect(sheet.locator(".share-preview video")).toBeHidden();
+		await sheet.locator(".share-plain [role=switch]").click();
+
+		// Closed while rendering: it stops, quietly.
+		await expect(sheet.locator(".share-busy")).toBeVisible();
+		await sheet.locator(".share-sheet-close").click();
+		await expect(sheet).not.toHaveAttribute("open", "");
+		await expect(sheet.locator(".share-busy")).toBeHidden();
+		await page.waitForTimeout(500);
+		expect(errors).toEqual([]);
+	});
+});
+
+test.describe("sparkling, with reduced motion", () => {
+	test.describe.configure({ timeout: 120_000 });
+	test.use({ reducedMotion: "reduce" });
+
+	test("doesn't play the video by itself (FR-026)", async ({ page }) => {
+		const { sheet } = await openSparkling(page);
+		test.skip(!(await canEncode(page)), "this browser can't encode H.264");
+		await sheet.locator(".share-shiny [role=switch]").click();
+		await expect(sheet.locator(".share-busy")).toBeHidden(RENDERING);
+		await ready(sheet);
+		const video = sheet.locator(".share-preview video");
+		await expect(video).toBeVisible();
+		expect(
+			await video.evaluate(
+				(element: { paused: boolean; controls: boolean }) => [
+					element.paused,
+					element.controls,
+				],
+			),
+		).toEqual([true, true]);
+	});
+});

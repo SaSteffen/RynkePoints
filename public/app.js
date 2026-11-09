@@ -3775,7 +3775,7 @@ async function shareBadgeAssets(large) {
 		l.fillText(label.textContent ?? "", e + 0.5 * B, e + 0.77 * B);
 		l.restore();
 	}
-	return { layer, edge: e };
+	return { art, layer, edge: e, shine: shareCanvas(B, B) };
 }
 
 /** The whole badge at `size` px with its top left at x, y, and its shadow. */
@@ -3788,6 +3788,255 @@ function shareDrawBadge(ctx, assets, x, y, size) {
 	ctx.shadowOffsetY = 2 * unit;
 	ctx.drawImage(assets.layer, x - e, y - e, size + 2 * e, size + 2 * e);
 	ctx.restore();
+}
+
+/** CSS's cubic-bezier(x1, y1, x2, y2) as a function of 0…1. */
+function shareBezier(x1, y1, x2, y2) {
+	const at = (a, b, u) =>
+		3 * a * u * (1 - u) ** 2 + 3 * b * u * u * (1 - u) + u ** 3;
+	return (x) => {
+		let lo = 0;
+		let hi = 1;
+		for (let i = 0; i < 20; i++) {
+			const mid = (lo + hi) / 2;
+			if (at(x1, x2, mid) < x) lo = mid;
+			else hi = mid;
+		}
+		return at(y1, y2, (lo + hi) / 2);
+	};
+}
+const SHARE_EASE_OUT = shareBezier(0, 0, 0.58, 1);
+const SHARE_EASE_IN_OUT = shareBezier(0.42, 0, 0.58, 1);
+
+/** The video: 5 s at 30 frames a second, looping (FR-023, research R4). */
+const SHARE_FPS = 30;
+const SHARE_FRAMES = 150;
+/** Two shine sweeps (badge-shine-new, 1.1 s), half the clip apart. */
+const SHARE_SHINES = [0.25, 2.75];
+const SHARE_SHINE_SECONDS = 1.1;
+/** badge-twinkle's 1.8 s, made 5 s / 3 so the stars loop with the clip. */
+const SHARE_TWINKLE = SHARE_FRAMES / SHARE_FPS / 3;
+/** The large view's four stars (.badge-sparkles, inset -3 %), as fractions. */
+const SHARE_STARS = [
+	{ left: 0.08, top: 0.02, size: 0.12, delay: 0 },
+	{ left: 1 - 0.02 - 0.09, top: 0.1, size: 0.09, delay: 0.5 },
+	{ left: 0, top: 1 - 0.16 - 0.08, size: 0.08, delay: 1 },
+	{ left: 1 - 0.12 - 0.11, top: 1 - 0.02 - 0.11, size: 0.11, delay: 1.3 },
+];
+const SHARE_STAR = [
+	[50, 0],
+	[61, 39],
+	[100, 50],
+	[61, 61],
+	[50, 100],
+	[39, 61],
+	[0, 50],
+	[39, 39],
+];
+
+/** The large view's shine at `progress` (0 to 1), masked to the badge. */
+function shareShine(assets, progress) {
+	const B = SHARE_BASE;
+	const c = assets.shine.getContext("2d");
+	c.globalCompositeOperation = "source-over";
+	c.clearRect(0, 0, B, B);
+	// linear-gradient(115deg, …) over a 250 % × 100 % box moving from 150 %
+	// to -50 %, as badge-shine-new.
+	const p = 1.5 - 2 * SHARE_EASE_OUT(progress);
+	const cx = -1.5 * B * p + 1.25 * B;
+	const cy = 0.5 * B;
+	const angle = (115 * Math.PI) / 180;
+	const dx = Math.sin(angle);
+	const dy = -Math.cos(angle);
+	const half = (2.5 * B * Math.abs(dx) + B * Math.abs(dy)) / 2;
+	const g = c.createLinearGradient(
+		cx - dx * half,
+		cy - dy * half,
+		cx + dx * half,
+		cy + dy * half,
+	);
+	g.addColorStop(0.38, "rgba(255,253,245,0)");
+	g.addColorStop(0.5, "rgba(255,253,245,.8)");
+	g.addColorStop(0.62, "rgba(255,253,245,0)");
+	c.fillStyle = g;
+	c.fillRect(0, 0, B, B);
+	c.globalCompositeOperation = "destination-in";
+	c.drawImage(assets.art, 0, 0);
+	return assets.shine;
+}
+
+/**
+ * The video's own frame `t` (seconds) over a badge drawn at x, y, `size`:
+ * the four stars twinkling as badge-twinkle, and the shine when it sweeps.
+ * Still pictures never get this (FR-020).
+ */
+function shareSparkle(ctx, assets, x, y, size, t) {
+	const box = size * 1.06;
+	const x0 = x - size * 0.03;
+	const y0 = y - size * 0.03;
+	for (const star of SHARE_STARS) {
+		const phase = ((((t - star.delay) / SHARE_TWINKLE) % 1) + 1) % 1;
+		const eased = SHARE_EASE_IN_OUT(phase < 0.5 ? phase * 2 : (1 - phase) * 2);
+		if (eased <= 0.01) continue;
+		const w = star.size * box;
+		const scale = 0.3 + 0.7 * eased;
+		ctx.save();
+		ctx.globalAlpha = eased;
+		ctx.translate(
+			x0 + (star.left + star.size / 2) * box,
+			y0 + (star.top + star.size / 2) * box,
+		);
+		ctx.rotate((45 * eased * Math.PI) / 180);
+		ctx.scale((scale * w) / 100, (scale * w) / 100);
+		ctx.translate(-50, -50);
+		ctx.beginPath();
+		for (const [px, py] of SHARE_STAR) ctx.lineTo(px, py);
+		ctx.closePath();
+		ctx.shadowColor = "#1c1b13";
+		ctx.shadowBlur = (size / SHARE_LARGE) * 1;
+		ctx.fillStyle = "#fbe122";
+		ctx.fill();
+		ctx.restore();
+	}
+	for (const start of SHARE_SHINES) {
+		if (t >= start && t < start + SHARE_SHINE_SECONDS) {
+			const progress = (t - start) / SHARE_SHINE_SECONDS;
+			ctx.drawImage(shareShine(assets, progress), x, y, size, size);
+		}
+	}
+}
+
+/** H.264 at level 4.0 up to 1080 × 1920, 5.0 above (larger photos). */
+function shareVideoConfig(width, height) {
+	const blocks = Math.ceil(width / 16) * Math.ceil(height / 16);
+	return {
+		codec: blocks <= 8192 ? "avc1.640028" : "avc1.640032",
+		width,
+		height,
+		bitrate: 8_000_000,
+		framerate: SHARE_FPS,
+		avc: { format: "avc" },
+	};
+}
+
+/** The vendored MP4 muxer, loaded once, when a share sheet first opens (R5). */
+let shareMuxer = null;
+function shareLoadMuxer() {
+	shareMuxer ??= loadScripts(["/vendor/mp4-muxer-5.2.2.js"]);
+	return shareMuxer;
+}
+
+/**
+ * Whether one frame of `config` really encodes: some browsers say yes to
+ * H.264 and only fail once they're given a frame.
+ */
+async function shareTryEncoder(config) {
+	const answer = await VideoEncoder.isConfigSupported(config);
+	if (!answer.supported) return false;
+	let made = false;
+	let failed = false;
+	const encoder = new VideoEncoder({
+		output: () => {
+			made = true;
+		},
+		error: () => {
+			failed = true;
+		},
+	});
+	const canvas = shareCanvas(config.width, config.height);
+	canvas.getContext("2d").fillRect(0, 0, 2, 2);
+	try {
+		encoder.configure(config);
+		const frame = new VideoFrame(canvas, { timestamp: 0, alpha: "discard" });
+		encoder.encode(frame, { keyFrame: true });
+		frame.close();
+		await encoder.flush();
+		return made && !failed;
+	} catch {
+		return false;
+	} finally {
+		if (encoder.state !== "closed") encoder.close();
+		canvas.width = 0;
+	}
+}
+
+/** Whether this browser can make the video at width × height (FR-024). */
+const shareVideoSizes = new Map();
+function shareCanVideo(width, height) {
+	if (!window.Mp4Muxer || !window.VideoEncoder || !window.VideoFrame) {
+		return Promise.resolve(false);
+	}
+	if (width < 2 || height < 2 || width % 2 || height % 2) {
+		return Promise.resolve(false);
+	}
+	const key = `${width}x${height}`;
+	if (!shareVideoSizes.has(key)) {
+		shareVideoSizes.set(
+			key,
+			shareTryEncoder(shareVideoConfig(width, height)).catch(() => false),
+		);
+	}
+	return shareVideoSizes.get(key);
+}
+
+/**
+ * The sparkling video of `still` with the badge at `box`, as MP4 bytes, all on
+ * the device (research R4): each frame is drawn from a fixed clock, encoded by
+ * the browser and packed by the muxer in memory. Null once `signal` aborts.
+ */
+async function shareEncode(still, assets, box, signal) {
+	const { width, height } = still;
+	const target = new window.Mp4Muxer.ArrayBufferTarget();
+	const muxer = new window.Mp4Muxer.Muxer({
+		target,
+		video: { codec: "avc", width, height },
+		fastStart: "in-memory",
+	});
+	let failure = null;
+	const encoder = new VideoEncoder({
+		output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+		error: (error) => {
+			failure = error;
+		},
+	});
+	const stop = () => {
+		if (encoder.state !== "closed") encoder.close();
+	};
+	signal.addEventListener("abort", stop, { once: true });
+	const frame = shareCanvas(width, height);
+	const c = frame.getContext("2d", { alpha: false });
+	const step = 1e6 / SHARE_FPS;
+	try {
+		encoder.configure(shareVideoConfig(width, height));
+		for (let i = 0; i < SHARE_FRAMES; i++) {
+			if (signal.aborted) return null;
+			if (failure) throw failure;
+			c.drawImage(still, 0, 0);
+			shareSparkle(c, assets, box.x, box.y, box.size, i / SHARE_FPS);
+			const picture = new VideoFrame(frame, {
+				timestamp: Math.round(i * step),
+				duration: Math.round(step),
+				alpha: "discard",
+			});
+			encoder.encode(picture, { keyFrame: i % SHARE_FPS === 0 });
+			picture.close();
+			// The page stays usable, and the encoder catches up.
+			do await new Promise((resolve) => setTimeout(resolve, 0));
+			while (encoder.encodeQueueSize > 3 && !signal.aborted && !failure);
+		}
+		await encoder.flush();
+		if (failure) throw failure;
+		if (signal.aborted) return null;
+		muxer.finalize();
+		return new Blob([target.buffer], { type: "video/mp4" });
+	} catch (error) {
+		if (signal.aborted) return null;
+		throw error;
+	} finally {
+		signal.removeEventListener("abort", stop);
+		stop();
+		frame.width = 0;
+	}
 }
 
 /** Words onto lines no wider than `maxWidth`. */
@@ -3939,6 +4188,11 @@ function badgeShare(signal) {
 	const hintMouse = sheet.querySelector(".share-hint-mouse");
 	const mouse = window.matchMedia("(hover: hover) and (pointer: fine)");
 	const plain = sheet.querySelector(".share-plain [role=switch]");
+	const shinyOption = sheet.querySelector(".share-shiny");
+	const shiny = shinyOption.querySelector("[role=switch]");
+	const video = sheet.querySelector(".share-preview video");
+	const busy = sheet.querySelector(".share-busy");
+	const still = window.matchMedia("(prefers-reduced-motion: reduce)");
 	const status = sheet.querySelector(".share-status");
 	const send = sheet.querySelector(".share-send");
 	const save = sheet.querySelector(".share-save");
@@ -3973,54 +4227,136 @@ function badgeShare(signal) {
 		urls: new Set(),
 		/** Counts the files asked for, so a late one for old settings is dropped. */
 		run: 0,
+		/** The video being made, and the preview's URL of the one made. */
+		encoding: null,
+		videoUrl: null,
 	};
 	const checked = (toggle) => toggle.getAttribute("aria-checked") === "true";
 	const sticker = () => state.format === "image" && checked(plain);
 	const kind = () => (sticker() ? "sticker" : state.format);
 
-	function draw() {
+	/** The output's size for the current format (contracts/files.md). */
+	function size() {
 		const { photo } = state;
-		const [w, h] =
-			state.format === "story"
-				? [1080, 1920]
-				: state.format === "photo" && photo
-					? [photo.width, photo.height]
-					: [1080, 1080];
+		if (state.format === "story") return [1080, 1920];
+		if (state.format === "photo" && photo) return [photo.width, photo.height];
+		return [1080, 1080];
+	}
+
+	/** Where the badge goes on a w × h output: its top left and size. */
+	function badgeBox(w, h) {
+		if (state.format === "photo") {
+			const place = state.place ?? SHARE_PLACE;
+			const size = place.w * w;
+			return { x: place.x * w - size / 2, y: place.y * h - size / 2, size };
+		}
+		if (state.format === "story")
+			return { x: (w - 820) / 2, y: 390, size: 820 };
+		if (sticker())
+			return { x: (w * 0.14) / 2, y: (h - w * 0.86) / 2, size: w * 0.86 };
+		return { x: (w - 600) / 2, y: 80, size: 600 };
+	}
+
+	/** The still picture on a w × h canvas; the video adds its sparkle to it. */
+	function paint(c, w, h) {
+		c.clearRect(0, 0, w, h);
+		const { assets, source, photo } = state;
+		if (!assets || !source) return false;
+		const box = badgeBox(w, h);
+		if (state.format === "photo") {
+			// The photo with the badge, and nothing else (contracts/files.md).
+			if (!photo) return false;
+			c.drawImage(photo, 0, 0);
+		} else if (state.format === "story") {
+			// Nothing but the background outside 250…1670 px, where the
+			// story apps put their own bars (FR-017).
+			shareBackdrop(c, w, h, 800, 760);
+			shareCaption(c, source, font, w, 1380, 76, 920);
+			shareMark(c, app, icon, font, w, 1630, 64);
+		} else if (!sticker()) {
+			shareBackdrop(c, w, h, 380, 500);
+			shareCaption(c, source, font, w, 790, 56, 960);
+			shareMark(c, app, icon, font, w, 1010, 48);
+		}
+		shareDrawBadge(c, assets, box.x, box.y, box.size);
+		return true;
+	}
+
+	function draw() {
+		const [w, h] = size();
 		if (canvas.width !== w || canvas.height !== h) {
 			canvas.width = w;
 			canvas.height = h;
 		}
-		ctx.clearRect(0, 0, w, h);
-		const { assets, source } = state;
-		if (!assets || !source) return;
-		if (state.format === "photo") {
-			// The photo with the badge, and nothing else (contracts/files.md).
-			if (!photo) return;
-			const place = state.place ?? SHARE_PLACE;
-			const s = place.w * w;
-			ctx.drawImage(photo, 0, 0);
-			shareDrawBadge(ctx, assets, place.x * w - s / 2, place.y * h - s / 2, s);
-		} else if (state.format === "story") {
-			// Nothing but the background outside 250…1670 px, where the
-			// story apps put their own bars (FR-017).
-			shareBackdrop(ctx, w, h, 800, 760);
-			shareDrawBadge(ctx, assets, (w - 820) / 2, 390, 820);
-			shareCaption(ctx, source, font, w, 1380, 76, 920);
-			shareMark(ctx, app, icon, font, w, 1630, 64);
-		} else if (sticker()) {
-			const s = w * 0.86;
-			shareDrawBadge(ctx, assets, (w - s) / 2, (h - s) / 2, s);
-		} else {
-			shareBackdrop(ctx, w, h, 380, 500);
-			shareDrawBadge(ctx, assets, (w - 600) / 2, 80, 600);
-			shareCaption(ctx, source, font, w, 790, 56, 960);
-			shareMark(ctx, app, icon, font, w, 1010, 48);
+		paint(ctx, w, h);
+	}
+
+	/** Stops a video being made and takes the made one out of the preview. */
+	function stopVideo() {
+		state.encoding?.abort();
+		state.encoding = null;
+		busy.hidden = true;
+		if (state.videoUrl) {
+			video.pause();
+			video.removeAttribute("src");
+			video.load();
+			URL.revokeObjectURL(state.videoUrl);
+			state.videoUrl = null;
+		}
+		video.hidden = true;
+		canvas.hidden = false;
+	}
+
+	/** Makes the video for the current settings at w × h (FR-023 to FR-026). */
+	async function makeVideo(run, w, h) {
+		const controller = new AbortController();
+		state.encoding = controller;
+		busy.hidden = false;
+		const frame = shareCanvas(w, h);
+		try {
+			if (!paint(frame.getContext("2d"), w, h)) return;
+			const blob = await shareEncode(
+				frame,
+				state.assets,
+				badgeBox(w, h),
+				controller.signal,
+			);
+			if (run !== state.run || !blob || !state.source) return;
+			state.file = new File(
+				[blob],
+				`${shareSlug(app)}-${state.source.id}-${kind()}.mp4`,
+				{ type: "video/mp4" },
+			);
+			state.videoUrl = URL.createObjectURL(state.file);
+			video.src = state.videoUrl;
+			// Reduced motion: the rider starts it, if they want (FR-026).
+			video.controls = still.matches;
+			video.hidden = false;
+			canvas.hidden = true;
+			if (!still.matches) video.play().catch(() => {});
+			send.hidden = !shareCanFiles(state.file);
+			for (const button of [send, save]) button.disabled = false;
+		} catch {
+			// The browser said yes but can't after all: no "Glitzernd" at this
+			// size any more, and the still picture instead (FR-024).
+			shareVideoSizes.set(`${w}x${h}`, Promise.resolve(false));
+			if (run === state.run) {
+				prepare();
+				status.textContent = sheet.dataset.failed ?? "";
+			}
+		} finally {
+			frame.width = 0;
+			if (state.encoding === controller) {
+				state.encoding = null;
+				busy.hidden = true;
+			}
 		}
 	}
 
 	/** Draws the preview and makes its file; the actions wait for it. */
 	async function prepare() {
 		const run = ++state.run;
+		stopVideo();
 		state.file = null;
 		status.textContent = "";
 		for (const button of actions) button.disabled = true;
@@ -4034,7 +4370,17 @@ function badgeShare(signal) {
 		hintMouse.hidden = !placing || !mouse.matches;
 		preview.dataset.format = state.format;
 		draw();
-		if (!state.assets || (onPhoto && !placing)) return;
+		if (!state.assets || (onPhoto && !placing)) {
+			shinyOption.hidden = true;
+			return;
+		}
+		// H.264 needs even sides: an odd photo loses its last row or column.
+		const [w, h] = size().map((side) => side - (side % 2));
+		const sparkling = !sticker() && (await shareCanVideo(w, h));
+		if (run !== state.run) return;
+		shinyOption.hidden = !sparkling;
+		copy.hidden = true;
+		if (sparkling && checked(shiny)) return makeVideo(run, w, h);
 		const blob = await new Promise((resolve) =>
 			canvas.toBlob(resolve, "image/png"),
 		);
@@ -4059,14 +4405,16 @@ function badgeShare(signal) {
 			on,
 		);
 	}
-	plain.addEventListener(
-		"click",
-		() => {
-			plain.setAttribute("aria-checked", String(!checked(plain)));
-			prepare();
-		},
-		on,
-	);
+	for (const toggle of [plain, shiny]) {
+		toggle.addEventListener(
+			"click",
+			() => {
+				toggle.setAttribute("aria-checked", String(!checked(toggle)));
+				prepare();
+			},
+			on,
+		);
+	}
 
 	send.addEventListener(
 		"click",
@@ -4155,6 +4503,7 @@ function badgeShare(signal) {
 	function moved(place) {
 		state.place = sharePlace(place);
 		state.run++;
+		stopVideo();
 		state.file = null;
 		for (const button of actions) button.disabled = true;
 		draw();
@@ -4174,18 +4523,22 @@ function badgeShare(signal) {
 			span: b ? Math.hypot(b.x - a.x, b.y - a.y) : 0,
 		};
 	};
-	canvas.addEventListener(
+	// The badge is dragged on the picture or, with "Glitzernd", on its video,
+	// which gives way to the still picture until the badge is let go.
+	const onPicture = (event) =>
+		event.target === canvas || event.target === video;
+	preview.addEventListener(
 		"pointerdown",
 		(event) => {
-			if (!placing()) return;
+			if (!placing() || !onPicture(event)) return;
 			event.preventDefault();
-			canvas.setPointerCapture?.(event.pointerId);
+			preview.setPointerCapture?.(event.pointerId);
 			pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
 			startGesture();
 		},
 		on,
 	);
-	canvas.addEventListener(
+	preview.addEventListener(
 		"pointermove",
 		(event) => {
 			if (!gesture || !pointers.has(event.pointerId)) return;
@@ -4210,17 +4563,18 @@ function badgeShare(signal) {
 		if (pointers.size) startGesture();
 		else {
 			gesture = null;
-			if (placing()) prepare();
+			// A tap that moved nothing keeps the file, or the video being made.
+			if (placing() && !state.file && !state.encoding) prepare();
 		}
 	};
-	canvas.addEventListener("pointerup", release, on);
-	canvas.addEventListener("pointercancel", release, on);
+	preview.addEventListener("pointerup", release, on);
+	preview.addEventListener("pointercancel", release, on);
 	// The mouse wheel scales the badge; the file follows once it rests.
 	let wheelRest = 0;
-	canvas.addEventListener(
+	preview.addEventListener(
 		"wheel",
 		(event) => {
-			if (!placing()) return;
+			if (!placing() || !onPicture(event)) return;
 			event.preventDefault();
 			const lines = event.deltaMode === 1 ? 16 : 1;
 			const place = state.place;
@@ -4258,6 +4612,7 @@ function badgeShare(signal) {
 		"close",
 		() => {
 			state.run++;
+			stopVideo();
 			state.source = null;
 			state.assets = null;
 			state.file = null;
@@ -4291,6 +4646,9 @@ function badgeShare(signal) {
 			radio.checked = radio.value === "story";
 		}
 		plain.setAttribute("aria-checked", "false");
+		shiny.setAttribute("aria-checked", "false");
+		// "Glitzernd" is offered once the muxer is here (research R5).
+		const muxer = window.Mp4Muxer ? null : shareLoadMuxer();
 		if (large.matches(":popover-open")) large.hidePopover();
 		if (!sheet.open) sheet.showModal();
 		prepare();
@@ -4299,6 +4657,9 @@ function badgeShare(signal) {
 			if (state.source !== source) return;
 			state.assets = assets;
 			prepare();
+			muxer?.then(() => {
+				if (state.source === source && state.assets) prepare();
+			});
 		} catch {
 			if (state.source === source) {
 				status.textContent = sheet.dataset.failed ?? "";
