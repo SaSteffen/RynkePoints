@@ -4675,6 +4675,18 @@ function badgeShare(signal) {
 		);
 	}
 	for (const button of document.querySelectorAll(".badge-share-mini")) {
+		// The share button never sits under a preview the hover opened (FR-005).
+		button.addEventListener(
+			"pointerenter",
+			() => {
+				for (const large of document.querySelectorAll(
+					".badge-large-hover:popover-open",
+				)) {
+					large.hidePopover();
+				}
+			},
+			on,
+		);
 		button.addEventListener(
 			"click",
 			() => {

@@ -166,6 +166,100 @@ test.describe("on a phone", () => {
 	});
 });
 
+test.describe("on a desktop", () => {
+	// The projects' desktop default: 1280 px wide, a mouse, no touch.
+
+	test("shows the share button on hover or focus, never under a preview (US4)", async ({
+		page,
+		browserName,
+	}) => {
+		await openBadges(page);
+		await page.mouse.move(0, 0);
+		const card = page.locator(".badge-card").filter({
+			has: page.locator(".badge-share-mini"),
+		});
+		const badge = card.locator("button.badge").first();
+		const mini = card.locator(".badge-share-mini").first();
+		const large = page.locator(
+			`[id="${await badge.getAttribute("popovertarget")}"]`,
+		);
+
+		// Hidden until the mouse is on the card (FR-002).
+		await expect(mini).toHaveCSS("opacity", "0");
+		await card.first().hover({ position: { x: 4, y: 4 } });
+		await expect(mini).toHaveCSS("opacity", "1");
+
+		// The hover preview has no "Teilen" (FR-004) and makes way for the
+		// share button (FR-005).
+		await badge.hover();
+		await expect(large).toBeVisible();
+		await expect(large).toHaveClass(/badge-large-hover/);
+		await expect(large.locator(".badge-share")).toBeHidden();
+		await mini.hover();
+		await expect(large).toBeHidden();
+		await mini.click();
+		const sheet = sheetOf(page);
+		await expect(sheet).toHaveAttribute("open", "");
+
+		// A centred dialog, not a bottom sheet.
+		const box = await sheet.boundingBox();
+		const viewport = page.viewportSize();
+		expect(box && viewport).toBeTruthy();
+		if (box && viewport) {
+			expect(box.y).toBeGreaterThan(0);
+			expect(box.y + box.height).toBeLessThan(viewport.height - 1);
+			expect(Math.abs(box.x + box.width / 2 - viewport.width / 2)).toBeLessThan(
+				2,
+			);
+		}
+		await sheet.locator(".share-sheet-head button").click();
+		await expect(sheet).not.toHaveAttribute("open", "");
+
+		// Clicking the badge pins its large view, which then has "Teilen".
+		await badge.click();
+		await expect(large).toBeVisible();
+		await expect(large).not.toHaveClass(/badge-large-hover/);
+		await expect(large.locator(".badge-share")).toBeVisible();
+		await large.locator(".badge-large-close").click();
+		await expect(large).toBeHidden();
+
+		// The keyboard reaches the button and shows it. Safari's Tab skips
+		// buttons unless the rider turns that on.
+		if (browserName === "webkit") return;
+		await page.mouse.move(0, 0);
+		await badge.focus();
+		await page.keyboard.press("Tab");
+		await expect(mini).toBeFocused();
+		await expect(mini).toHaveCSS("opacity", "1");
+	});
+
+	test("copies a still picture (US4)", async ({
+		page,
+		context,
+		browserName,
+	}) => {
+		test.skip(
+			browserName !== "chromium",
+			"only Chromium grants the clipboard permission to tests",
+		);
+		await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+		await openBadges(page);
+		const card = page.locator(".badge-card").filter({
+			has: page.locator(".badge-share-mini"),
+		});
+		await card.first().hover({ position: { x: 4, y: 4 } });
+		await card.locator(".badge-share-mini").first().click();
+		const sheet = sheetOf(page);
+		await ready(sheet);
+		const copy = sheet.locator(".share-copy");
+		await expect(copy).toBeVisible();
+		await copy.click();
+		await expect(sheet.locator(".share-status")).toHaveText(
+			"Kopiert: zum Einfügen bereit.",
+		);
+	});
+});
+
 /** A synthetic photo of one colour, as PNG bytes, made in the page. */
 async function syntheticPhoto(page: Page, width: number, height: number) {
 	const base64 = await page.evaluate(
