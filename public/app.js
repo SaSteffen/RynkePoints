@@ -3652,6 +3652,473 @@ function usageGraphs(signal) {
 	);
 }
 
+/**
+ * Sharing a badge (feature 033). A share button on an earned badge, or
+ * "Teilen" in its large view, opens the page's one share sheet: a story
+ * (9:16), a square picture, or the badge alone as a sticker. Every picture is
+ * drawn here, on a canvas, from what the large view shows; nothing is
+ * uploaded, and no rider's name is ever drawn or in a file name (FR-018,
+ * FR-022, FR-029). The file is made as soon as the preview settles, so a tap
+ * on "Teilen …" shares it at once, as iOS requires (FR-013).
+ */
+const SHARE_BASE = 1024;
+/** The large view's badge, which the ribbon text and shadow are sized for. */
+const SHARE_LARGE = 280;
+
+function shareLoadImage(src) {
+	return new Promise((resolve, reject) => {
+		const image = new Image();
+		image.onload = () => resolve(image);
+		image.onerror = reject;
+		image.src = src;
+	});
+}
+
+/** An SVG drawn sharp at `size`: its text with a width and height set. */
+async function shareSvgImage(text, size) {
+	const sized = text.replace(/<svg\b/, `<svg width="${size}" height="${size}"`);
+	const url = URL.createObjectURL(new Blob([sized], { type: "image/svg+xml" }));
+	try {
+		return await shareLoadImage(url);
+	} finally {
+		URL.revokeObjectURL(url);
+	}
+}
+
+function shareCanvas(width, height) {
+	const canvas = document.createElement("canvas");
+	canvas.width = Math.round(width);
+	canvas.height = Math.round(height);
+	return canvas;
+}
+
+/** "rgba(…) 0px 0px 2px", a computed text-shadow, as canvas shadow values. */
+function shareTextShadow(value, scale) {
+	const match =
+		/^(rgba?\([^)]*\)|#\w+)\s+(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px/.exec(
+			value ?? "",
+		);
+	if (!match) return null;
+	return {
+		color: match[1],
+		x: Number(match[2]) * scale,
+		y: Number(match[3]) * scale,
+		blur: Number(match[4]) * scale,
+	};
+}
+
+/**
+ * The badge as the large view shows it, at SHARE_BASE (research R2): the
+ * picture and the ribbon under one cream sticker edge (--rp-badge-edge's four
+ * 2 px steps at 280 px), and the milestone over the ribbon in the page's
+ * typeface and the ribbon's text colour. Those are the coin's own colours,
+ * the same in every theme and scheme, so the picture never follows dark mode.
+ */
+async function shareBadgeAssets(large) {
+	const B = SHARE_BASE;
+	const k = B / SHARE_LARGE;
+	const img = large.querySelector(".badge-art img");
+	const response = await fetch(img.currentSrc || img.src);
+	if (!response.ok) throw new Error(`badge picture ${response.status}`);
+	const picture = await shareSvgImage(await response.text(), B);
+	const fill =
+		large.querySelector(".badge-ribbon use")?.getAttribute("fill") ?? null;
+	const ribbonShape = document.getElementById("badge-ribbon");
+	const ribbon =
+		fill && ribbonShape
+			? await shareSvgImage(
+					`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g fill="${fill}">${ribbonShape.outerHTML}</g></svg>`,
+					B,
+				)
+			: null;
+	const art = shareCanvas(B, B);
+	const a = art.getContext("2d");
+	a.drawImage(picture, 0, 0, B, B);
+	if (ribbon) a.drawImage(ribbon, 0, 0, B, B);
+	// The edge: the art's outline in cream at every 2 px step around it.
+	const e = Math.round(2 * k);
+	const silhouette = shareCanvas(B, B);
+	const s = silhouette.getContext("2d");
+	s.drawImage(art, 0, 0);
+	s.globalCompositeOperation = "source-in";
+	s.fillStyle = "#fffdf5";
+	s.fillRect(0, 0, B, B);
+	const layer = shareCanvas(B + 2 * e, B + 2 * e);
+	const l = layer.getContext("2d");
+	for (const dx of [-e, 0, e]) {
+		for (const dy of [-e, 0, e]) l.drawImage(silhouette, e + dx, e + dy);
+	}
+	l.drawImage(art, e, e);
+	// The milestone, as .badge-ribbon-text: 8.5 % of the badge, centred in
+	// the ribbon's box and clipped to it.
+	const label = large.querySelector(".badge-ribbon-text");
+	if (ribbon && label) {
+		await document.fonts?.ready;
+		const style = getComputedStyle(label);
+		const size = 0.085 * B;
+		l.save();
+		l.beginPath();
+		l.rect(e + 0.13 * B, e + 0.7 * B, 0.74 * B, 0.14 * B);
+		l.clip();
+		l.font = `600 ${size}px ${style.fontFamily}`;
+		if ("letterSpacing" in l) l.letterSpacing = `${0.04 * size}px`;
+		l.textAlign = "center";
+		l.textBaseline = "middle";
+		l.fillStyle = style.color;
+		const glow = shareTextShadow(style.textShadow, k);
+		if (glow) {
+			l.shadowColor = glow.color;
+			l.shadowOffsetX = glow.x;
+			l.shadowOffsetY = glow.y;
+			l.shadowBlur = glow.blur;
+		}
+		l.fillText(label.textContent ?? "", e + 0.5 * B, e + 0.77 * B);
+		l.restore();
+	}
+	return { layer, edge: e };
+}
+
+/** The whole badge at `size` px with its top left at x, y, and its shadow. */
+function shareDrawBadge(ctx, assets, x, y, size) {
+	const e = (assets.edge * size) / SHARE_BASE;
+	const unit = size / SHARE_LARGE;
+	ctx.save();
+	ctx.shadowColor = "rgba(28,27,19,.3)";
+	ctx.shadowBlur = 2 * unit;
+	ctx.shadowOffsetY = 2 * unit;
+	ctx.drawImage(assets.layer, x - e, y - e, size + 2 * e, size + 2 * e);
+	ctx.restore();
+}
+
+/** Words onto lines no wider than `maxWidth`. */
+function shareWrap(ctx, text, maxWidth) {
+	const lines = [];
+	let line = "";
+	for (const word of text.split(/\s+/)) {
+		const next = line ? `${line} ${word}` : word;
+		if (line && ctx.measureText(next).width > maxWidth) {
+			lines.push(line);
+			line = word;
+		} else line = next;
+	}
+	if (line) lines.push(line);
+	return lines;
+}
+
+/**
+ * The background of story and picture: white with a soft yellow glow behind
+ * the badge, the same for every team and theme.
+ */
+function shareBackdrop(ctx, w, h, glowY, glowR) {
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect(0, 0, w, h);
+	const glow = ctx.createRadialGradient(w / 2, glowY, 0, w / 2, glowY, glowR);
+	glow.addColorStop(0, "rgba(251,225,34,.22)");
+	glow.addColorStop(1, "rgba(251,225,34,0)");
+	ctx.fillStyle = glow;
+	ctx.fillRect(0, 0, w, h);
+}
+
+/**
+ * The badge's name on at most two lines, smaller if it needs to be, and
+ * "erreicht am …" below it; `y` is the first line's baseline.
+ */
+function shareCaption(ctx, source, font, w, y, nameSize, maxWidth) {
+	ctx.textAlign = "center";
+	ctx.textBaseline = "alphabetic";
+	let size = nameSize;
+	let lines;
+	for (;;) {
+		ctx.font = `600 ${size}px ${font}`;
+		lines = shareWrap(ctx, source.name, maxWidth);
+		const fits =
+			lines.length <= 2 &&
+			lines.every((line) => ctx.measureText(line).width <= maxWidth);
+		if (fits || size <= nameSize * 0.5) break;
+		size *= 0.92;
+	}
+	ctx.fillStyle = "#1c1b13";
+	for (const line of lines.slice(0, 2)) {
+		ctx.fillText(line, w / 2, y, maxWidth);
+		y += nameSize * 1.2;
+	}
+	ctx.fillStyle = "#6b6650";
+	ctx.font = `400 ${nameSize * 0.55}px ${font}`;
+	ctx.fillText(source.earned, w / 2, y, maxWidth);
+}
+
+/** The team's app icon and name, centred on `y` (research R3). */
+function shareMark(ctx, app, icon, font, w, y, size) {
+	ctx.font = `600 ${size * 0.55}px ${font}`;
+	const textWidth = ctx.measureText(app).width;
+	const total = (icon ? size * 1.3 : 0) + textWidth;
+	let x = (w - total) / 2;
+	if (icon) {
+		ctx.drawImage(icon, x, y - size / 2, size, size);
+		x += size * 1.3;
+	}
+	ctx.fillStyle = "#6b6650";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "middle";
+	ctx.fillText(app, x, y);
+}
+
+/** "RynkePoints" → "rynkepoints", for file names. */
+function shareSlug(text) {
+	return (
+		text
+			.normalize("NFKD")
+			.replace(/[̀-ͯ]/g, "")
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "-")
+			.replace(/^-+|-+$/g, "") || "badge"
+	);
+}
+
+function shareCanFiles(file) {
+	try {
+		return Boolean(navigator.canShare?.({ files: [file] }));
+	} catch {
+		return false;
+	}
+}
+
+function badgeShare(signal) {
+	const sheet = document.querySelector("dialog.share-sheet");
+	if (!sheet || typeof sheet.showModal !== "function") return;
+	const on = { signal };
+	const canvas = sheet.querySelector(".share-preview canvas");
+	const ctx = canvas.getContext("2d");
+	const preview = sheet.querySelector(".share-preview");
+	const empty = sheet.querySelector(".share-photo-empty");
+	const plain = sheet.querySelector(".share-plain [role=switch]");
+	const status = sheet.querySelector(".share-status");
+	const send = sheet.querySelector(".share-send");
+	const save = sheet.querySelector(".share-save");
+	const copy = sheet.querySelector(".share-copy");
+	const actions = [send, save, copy];
+	const font =
+		getComputedStyle(document.documentElement)
+			.getPropertyValue("--md-ref-typeface")
+			.trim() || "sans-serif";
+	const app = sheet.dataset.app ?? "";
+	let icon = null;
+	let iconLoad = null;
+	const loadIcon = () => {
+		iconLoad ??= shareLoadImage(sheet.dataset.icon)
+			.then((image) => {
+				icon = image;
+			})
+			.catch(() => {});
+		return iconLoad;
+	};
+
+	const state = {
+		source: null,
+		assets: null,
+		format: "story",
+		file: null,
+		/** Counts the files asked for, so a late one for old settings is dropped. */
+		run: 0,
+	};
+	const checked = (toggle) => toggle.getAttribute("aria-checked") === "true";
+	const sticker = () => state.format === "image" && checked(plain);
+	const kind = () => (sticker() ? "sticker" : state.format);
+
+	function draw() {
+		const [w, h] = state.format === "story" ? [1080, 1920] : [1080, 1080];
+		if (canvas.width !== w || canvas.height !== h) {
+			canvas.width = w;
+			canvas.height = h;
+		}
+		ctx.clearRect(0, 0, w, h);
+		const { assets, source } = state;
+		if (!assets || !source || state.format === "photo") return;
+		if (state.format === "story") {
+			// Nothing but the background outside 250…1670 px, where the
+			// story apps put their own bars (FR-017).
+			shareBackdrop(ctx, w, h, 800, 760);
+			shareDrawBadge(ctx, assets, (w - 820) / 2, 390, 820);
+			shareCaption(ctx, source, font, w, 1380, 76, 920);
+			shareMark(ctx, app, icon, font, w, 1630, 64);
+		} else if (sticker()) {
+			const s = w * 0.86;
+			shareDrawBadge(ctx, assets, (w - s) / 2, (h - s) / 2, s);
+		} else {
+			shareBackdrop(ctx, w, h, 380, 500);
+			shareDrawBadge(ctx, assets, (w - 600) / 2, 80, 600);
+			shareCaption(ctx, source, font, w, 790, 56, 960);
+			shareMark(ctx, app, icon, font, w, 1010, 48);
+		}
+	}
+
+	/** Draws the preview and makes its file; the actions wait for it. */
+	async function prepare() {
+		const run = ++state.run;
+		state.file = null;
+		status.textContent = "";
+		for (const button of actions) button.disabled = true;
+		sheet.querySelector(".share-plain").hidden = state.format !== "image";
+		empty.hidden = state.format !== "photo";
+		preview.dataset.format = state.format;
+		draw();
+		if (!state.assets || state.format === "photo") return;
+		const blob = await new Promise((resolve) =>
+			canvas.toBlob(resolve, "image/png"),
+		);
+		if (run !== state.run || !blob || !state.source) return;
+		state.file = new File(
+			[blob],
+			`${shareSlug(app)}-${state.source.id}-${kind()}.png`,
+			{ type: "image/png" },
+		);
+		send.hidden = !shareCanFiles(state.file);
+		copy.hidden = !(window.ClipboardItem && navigator.clipboard?.write);
+		for (const button of actions) button.disabled = false;
+	}
+
+	for (const radio of sheet.querySelectorAll("input[name=share-format]")) {
+		radio.addEventListener(
+			"change",
+			() => {
+				state.format = radio.value;
+				prepare();
+			},
+			on,
+		);
+	}
+	plain.addEventListener(
+		"click",
+		() => {
+			plain.setAttribute("aria-checked", String(!checked(plain)));
+			prepare();
+		},
+		on,
+	);
+
+	send.addEventListener(
+		"click",
+		() => {
+			if (!state.file || !state.source) return;
+			navigator
+				.share({ files: [state.file], text: state.source.shareText })
+				.catch((error) => {
+					// The rider closed the share sheet: nothing to say.
+					if (error?.name === "AbortError") return;
+					status.textContent = sheet.dataset.failed ?? "";
+					save.focus();
+				});
+		},
+		on,
+	);
+	save.addEventListener(
+		"click",
+		() => {
+			if (!state.file) return;
+			const link = document.createElement("a");
+			link.href = URL.createObjectURL(state.file);
+			link.download = state.file.name;
+			link.click();
+			setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
+			status.textContent = sheet.dataset.saved ?? "";
+		},
+		on,
+	);
+	copy.addEventListener(
+		"click",
+		() => {
+			if (!state.file) return;
+			navigator.clipboard
+				.write([new ClipboardItem({ "image/png": state.file })])
+				.then(() => {
+					status.textContent = sheet.dataset.copied ?? "";
+				})
+				.catch(() => {
+					status.textContent = sheet.dataset.failed ?? "";
+				});
+		},
+		on,
+	);
+
+	sheet
+		.querySelector(".share-sheet-close")
+		.addEventListener("click", () => sheet.close(), on);
+	// A click on the backdrop lands on the dialog itself, outside its box.
+	sheet.addEventListener(
+		"click",
+		(event) => {
+			if (event.target !== sheet) return;
+			const box = sheet.getBoundingClientRect();
+			const inside =
+				event.clientX >= box.left &&
+				event.clientX <= box.right &&
+				event.clientY >= box.top &&
+				event.clientY <= box.bottom;
+			if (!inside) sheet.close();
+		},
+		on,
+	);
+	sheet.addEventListener(
+		"close",
+		() => {
+			state.run++;
+			state.source = null;
+			state.assets = null;
+			state.file = null;
+		},
+		on,
+	);
+
+	/** Opens the sheet for the badge whose large view is `large`, as a story. */
+	async function open(large) {
+		const texts = large.querySelectorAll(":scope > p");
+		const source = {
+			id: large.id.replace(/^badge-/, ""),
+			name: large.querySelector("h4")?.textContent ?? "",
+			earned: texts[texts.length - 1]?.textContent ?? "",
+			shareText: large.querySelector(".badge-share")?.dataset.shareText ?? "",
+		};
+		state.source = source;
+		state.assets = null;
+		state.format = "story";
+		for (const radio of sheet.querySelectorAll("input[name=share-format]")) {
+			radio.checked = radio.value === "story";
+		}
+		plain.setAttribute("aria-checked", "false");
+		if (large.matches(":popover-open")) large.hidePopover();
+		if (!sheet.open) sheet.showModal();
+		prepare();
+		try {
+			const [assets] = await Promise.all([shareBadgeAssets(large), loadIcon()]);
+			if (state.source !== source) return;
+			state.assets = assets;
+			prepare();
+		} catch {
+			if (state.source === source) {
+				status.textContent = sheet.dataset.failed ?? "";
+			}
+		}
+	}
+
+	for (const button of document.querySelectorAll(".badge-large .badge-share")) {
+		button.addEventListener(
+			"click",
+			() => open(button.closest(".badge-large")),
+			on,
+		);
+	}
+	for (const button of document.querySelectorAll(".badge-share-mini")) {
+		button.addEventListener(
+			"click",
+			() => {
+				const large = document.getElementById(`badge-${button.dataset.badge}`);
+				if (large) open(large);
+			},
+			on,
+		);
+	}
+}
+
 function enhance(signal) {
 	lazyRides(signal);
 	installSettings(signal);
@@ -3659,6 +4126,7 @@ function enhance(signal) {
 	waitForFirstData(signal);
 	followFetching(signal);
 	badgeHover();
+	badgeShare(signal);
 	triState();
 	badgeSwitch(signal);
 	notifications(signal).catch(() => {});
