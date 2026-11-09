@@ -22,8 +22,8 @@ concurrency:
 
 # The seven check jobs (here and in pr-policy.yml) are the required-check contexts in
 # .github/rulesets/*.json. Renaming one means updating both ruleset files in the same
-# change. already-checked, playwright-image, deploy-gate and deploy are not contexts
-# and must never be added to them.
+# change. already-checked, playwright-image, deploy-gate, deploy and deploy-gateway
+# are not contexts and must never be added to them.
 jobs:
   # On a push to main: checked=true when the merge commit has exactly the content of
   # the merged branch's head and the latest lint, typecheck, test and e2e on that head
@@ -277,3 +277,51 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
         run: pnpm exec wrangler deploy --message "$GITHUB_SHA (run $GITHUB_RUN_ID)"
+
+  # The Strava gateway (feature 026 release 3, gateway/). Off until the maintainer
+  # sets the repository variable GATEWAY_DEPLOY to "on" (docs/gateway-switch.md),
+  # so a merge never creates Cloudflare resources on its own. Then on main after
+  # the same gate as the team deploy: on a push only when gateway/ or what it
+  # imports changed, on a dispatch always. Not a required-check context.
+  deploy-gateway:
+    name: deploy-gateway
+    needs: deploy-gate
+    if: ${{ !cancelled() && vars.GATEWAY_DEPLOY == 'on' && needs.deploy-gate.result == 'success' && needs.deploy-gate.outputs.deploy == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production-gateway
+    concurrency:
+      group: deploy-gateway
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    env:
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: changed
+        shell: bash
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" != push ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          elif git diff --quiet "$BEFORE" "$GITHUB_SHA" -- gateway src/crypto/secret.ts pnpm-lock.yaml; then
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::The gateway didn't change; not deploying it."
+          else
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.changed.outputs.deploy == 'true'
+        uses: ./.github/actions/setup
+      - name: Deploy the gateway
+        if: steps.changed.outputs.deploy == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler deploy --config gateway/wrangler.jsonc --message "$GITHUB_SHA (run $GITHUB_RUN_ID)"

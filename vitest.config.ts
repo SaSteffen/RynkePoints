@@ -8,8 +8,8 @@ import PINNED_VARS from "./test/support/pinned.json";
 // bindings declared in wrangler.jsonc — no Cloudflare account needed.
 //
 // Two kinds of project (feature 026 research R11): `app`, every suite but
-// test/teams/, as the founding team with its settings pinned; and one
-// `team:<id>` project per registered team for test/teams/, with the bindings of
+// test/teams/ and test/gateway/, as the founding team with its settings
+// pinned; one `team:<id>` project per registered team for test/teams/, with the bindings of
 // that team's Wrangler block (the top level for the founding team,
 // `env.<id>` for the others; `pnpm lint`'s team-check keeps those blocks and
 // the registry in src/teams/ the same teams).
@@ -75,11 +75,36 @@ export default defineConfig(async () => {
 					test: {
 						name: "app",
 						include: ["test/**/*.test.ts"],
-						exclude: ["test/teams/**"],
+						exclude: ["test/teams/**", "test/gateway/**"],
 						setupFiles: ["./test/setup.ts"],
 					},
 				},
 				...teamProjects,
+				// The Strava gateway (release 3), with its own config and synthetic
+				// settings: two teams, their webhook tokens, no D1.
+				{
+					plugins: [
+						cloudflareTest({
+							wrangler: { configPath: "./gateway/wrangler.jsonc" },
+							miniflare: {
+								bindings: {
+									TEAMS: JSON.stringify([
+										{ id: "hamburg", origin: "https://hamburg.example.test" },
+										{ id: "europe", origin: "https://europe.example.test" },
+									]),
+									STRAVA_WEBHOOK_VERIFY_TOKEN: "test-gateway-verify-token",
+									TEAM_WEBHOOK_TOKEN_HAMBURG: "test-hamburg-webhook-token",
+									TEAM_WEBHOOK_TOKEN_EUROPE: "test-europe-webhook-token",
+								},
+							},
+						}),
+					],
+					test: {
+						name: "gateway",
+						include: ["test/gateway/**/*.test.ts"],
+						setupFiles: ["./test/gateway/setup.ts"],
+					},
+				},
 			],
 		},
 	};

@@ -308,27 +308,27 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 
 **Independent test**: quickstart › Release 3 steps 2, 3.
 
-- [ ] T058 [US2] `gateway/wrangler.jsonc`: Worker `rynke-points-gateway`, queue
+- [X] T058 [US2] `gateway/wrangler.jsonc`: Worker `rynke-points-gateway`, queue
   `rynke-points-gateway-forward` (producer `FORWARD_QUEUE` and consumer, `max_retries`
   high, low `max_concurrency`), var `TEAMS` "JSON list of `{ id, origin }`; ids unique,
   origins `https:` (local: `http://<host>:<port>`)", secrets `STRAVA_WEBHOOK_VERIFY_TOKEN`
   and `TEAM_WEBHOOK_TOKEN_<ID>`, no D1, no `observability` invocation logs; its own
   `tsconfig` include; `test/unit/dev-guard.test.ts` also forbids `src/` importing
   `gateway/`.
-- [ ] T059 [US2] Tests in `test/gateway/webhook.test.ts` (contracts/gateway.md › Routes):
+- [X] T059 [US2] Tests in `test/gateway/webhook.test.ts` (contracts/gateway.md › Routes):
   the subscription check answers the challenge for the right token and 403 otherwise; a
   valid POST answers 200 after one `sendBatch` with one message per team; a non-event body
   gives 400; a wrong token 403; nothing is logged but the team ID, status and attempt.
-- [ ] T060 [US2] `gateway/index.ts` and `gateway/teams.ts`: fetch handler for
+- [X] T060 [US2] `gateway/index.ts` and `gateway/teams.ts`: fetch handler for
   `/strava/webhook/<token>` (GET and POST) and `/health`. T059 green.
-- [ ] T061 [US2] Tests in `test/gateway/forward.test.ts`: the consumer POSTs each message
+- [X] T061 [US2] Tests in `test/gateway/forward.test.ts`: the consumer POSTs each message
   to its team's `/strava/webhook/<token>`; a 2xx acks; a 5xx or a network error retries
   with a growing delay; one team failing doesn't hold another's message.
-- [ ] T062 [US2] Queue consumer in `gateway/index.ts`. T061 green.
-- [ ] T063 [US2] Test in `test/integration/webhook.test.ts`: an event forwarded for an
+- [X] T062 [US2] Queue consumer in `gateway/index.ts`. T061 green.
+- [X] T063 [US2] Test in `test/integration/webhook.test.ts`: an event forwarded for an
   unknown rider is acked without a Strava request and without storing or logging its IDs
   (FR-010). Adjust `src/http/webhook.ts` and `src/work/consumer.ts` only if it fails.
-- [ ] T064 [US2] Vitest project for `test/gateway/**` with the gateway's config in
+- [X] T064 [US2] Vitest project for `test/gateway/**` with the gateway's config in
   `vitest.config.ts`.
 
 ## Phase 10: User Story 1 – A rider joins their own team (P1, release 3)
@@ -337,37 +337,51 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 
 **Independent test**: quickstart › Release 3 step 1.
 
-- [ ] T065 [US1] Tests in `test/gateway/return.test.ts`: `/auth/return/<teamId>` 302s to
+- [X] T065 [US1] Tests in `test/gateway/return.test.ts`: `/auth/return/<teamId>` 302s to
   that team's origin `/auth/callback` with `code`, `state`, `scope` and `error` copied and
   nothing else; an unknown team ID gives 404; a forged `Host` or extra params never change
   the target (FR-007, US1 scenario 4).
-- [ ] T066 [US1] `/auth/return/<teamId>` in `gateway/index.ts`. T065 green.
-- [ ] T067 [US1] Tests in `test/integration/auth.test.ts`: with `STRAVA_RETURN_VIA` empty,
+- [X] T066 [US1] `/auth/return/<teamId>` in `gateway/index.ts`. T065 green.
+- [X] T067 [US1] Tests in `test/integration/connect.test.ts` (no `auth.test.ts` exists): with `STRAVA_RETURN_VIA` empty,
   `redirect_uri` is `<own origin>/auth/callback` as today; when set, it is
   `<via>/auth/return/<TEAM_ID>`; the callback's state check is unchanged.
-- [ ] T068 [US1] `STRAVA_RETURN_VIA` var (empty for every team for now) in
+- [X] T068 [US1] `STRAVA_RETURN_VIA` var (empty for every team for now) in
   `wrangler.jsonc`, read in `src/config.ts`, used in `src/http/auth.ts`. T067 green.
 
 ## Phase 11: User Story 8 – `pnpm dev` mirrors production (P2, release 3)
 
-- [ ] T069 [US8] `dev/fake-strava-worker.ts`: the fake Strava (API, authorize page,
+- [X] T069 [US8] `dev/fake-strava-worker.ts`: the fake Strava (API, authorize page,
   events, store) as its own local Worker on port 8792 (inspector 9233), sending webhook
   events to the local gateway; `dev/worker.ts` forwards `www.strava.com` requests to it
   when `RYNKE_FAKE_STRAVA_URL` is set, and keeps the in-process fake otherwise.
-- [ ] T070 [US8] `scripts/dev.mjs` with no team argument also starts the fake Strava
+- [X] T070 [US8] `scripts/dev.mjs` with no team argument also starts the fake Strava
   worker and the gateway (port 8791, inspector 9232, `TEAMS` pointing at the local team
   origins, `STRAVA_RETURN_VIA` set to the local gateway), prefixed `[strava]` and
   `[gateway]` (FR-049). `pnpm dev:<team>` unchanged.
+  *Done differently:* the fake Strava stays in each team's Worker (its sample riders and
+  rides live in that team's local database); `pnpm dev` runs the gateway, sends riders
+  back through it and posts simulated events to its webhook (`RYNKE_FAKE_GATEWAY`).
+  Port 8792 stays reserved. contracts/dev-commands.md › Behind the gateway.
 
 ## Phase 12: Gateway rollout (release 3)
 
-- [ ] T071 Gateway deploy job `deploy-gateway` in `.github/workflows/ci.yml`, run after the
+- [X] T071 Gateway deploy job `deploy-gateway` in `.github/workflows/ci.yml`, run after the
   checks on `main` when `gateway/**` changed, with its own environment; not a required-check
   context.
-- [ ] T072 Runbook `docs/gateway-switch.md` for the manual steps (contracts/gateway.md ›
+  Off until the repository variable `GATEWAY_DEPLOY` is `on`, so a merge creates nothing.
+- [X] T072 Runbook `docs/gateway-switch.md` for the manual steps (contracts/gateway.md ›
   Switching; quickstart › Release 3 manual steps): custom domain, queue, secrets, setting
   `STRAVA_RETURN_VIA` for Hamburg, checking a real sign-in, moving the subscription,
   setting `STRAVA_SUBSCRIPTION_ID`, the daily run for the gap, and switching back.
+- [X] T072a `POST /admin/catch-up?since=<epoch>` (`src/http/catch-up.ts`, tests in
+  `test/integration/catch-up.test.ts`) and `pnpm catch-up`: one `reread-page` per
+  connected rider since the switch. The daily run doesn't re-read rides, so the plan's
+  "daily run for the gap" wouldn't have caught them (FR-011).
+- [X] T072b Optional secret `STRAVA_SUBSCRIPTION_ID_OVERRIDE` (`src/config.ts`
+  `subscriptionId`, tests in `test/unit/config.test.ts` and
+  `test/integration/webhook.test.ts`): it wins over `STRAVA_SUBSCRIPTION_ID` while set, so
+  the new subscription's ID goes live with `wrangler secret put` instead of a deploy and
+  the switch drops events for about a minute instead of a deploy's length.
 
 **Checkpoint (release 3)**: merge and deploy; the maintainer runs the runbook.
 

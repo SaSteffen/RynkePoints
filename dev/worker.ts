@@ -1,4 +1,4 @@
-import { berlinDate } from "../src/config";
+import { berlinDate, returnVia } from "../src/config";
 import { CONSENT_VERSIONS, currentVersion } from "../src/consent";
 import type { Ctx } from "../src/ctx";
 import { clearSessionCookie } from "../src/http/session";
@@ -28,8 +28,16 @@ import { encodeCode } from "./fake-strava/tokens";
 // the fake's own pages under `/_dev/`. Nothing under src/ imports it, and it
 // refuses to run outside local fake mode, so it can't reach production.
 
-/** The marker comes from `pnpm dev`'s `--var` only; it isn't a declared binding. */
-export type DevEnv = Env & { RYNKE_FAKE_STRAVA?: string };
+/**
+ * The marker comes from `pnpm dev`'s `--var` only; it isn't a declared binding.
+ * So does RYNKE_FAKE_GATEWAY, the local gateway's webhook URL, when `pnpm dev`
+ * runs every team behind it (feature 026 release 3): simulated events then go
+ * through the gateway to every team, as Strava's do in production.
+ */
+export type DevEnv = Env & {
+	RYNKE_FAKE_STRAVA?: string;
+	RYNKE_FAKE_GATEWAY?: string;
+};
 
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
 const AUTHORIZE_URL = `${STRAVA_ORIGIN}/oauth/authorize`;
@@ -246,15 +254,23 @@ async function connectAs(request: Request, ctx: Ctx, url: URL) {
 	);
 }
 
+function backToThisApp(redirectUri: string, ctx: Ctx, url: URL): boolean {
+	if (!URL.canParse(redirectUri)) return false;
+	if (new URL(redirectUri).origin === url.origin) return true;
+	const via = returnVia(ctx.env);
+	return (
+		via !== null &&
+		redirectUri === `${via}/auth/return/${encodeURIComponent(ctx.team.id)}`
+	);
+}
+
 /** `POST /_dev/strava/oauth/authorize`: back to the app, as Strava would. */
 async function decide(request: Request, ctx: Ctx, url: URL) {
 	const fields = await form(request);
 	const redirectUri = String(fields.get("redirect_uri") ?? "");
-	// Only back to this app, so the screen is no open redirect.
-	if (
-		!URL.canParse(redirectUri) ||
-		new URL(redirectUri).origin !== url.origin
-	) {
+	// Only back to this app, directly or through its gateway return address, so
+	// the screen is no open redirect.
+	if (!backToThisApp(redirectUri, ctx, url)) {
 		return text("redirect_uri must point to this app", 400);
 	}
 	const back = new URL(redirectUri);

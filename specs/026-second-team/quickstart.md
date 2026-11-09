@@ -46,9 +46,13 @@ pnpm dev     # [strava] [gateway] [hamburg] [europe]
    `localhost:8791/auth/return/<team>` to the team's own site.
 2. Simulate a ride event for a Hamburg rider in the fake Strava: it reaches Hamburg; Europe
    drops it without a Strava call.
-3. Stop Europe, send events, start Europe: the missed events arrive (retries).
+3. Retries: `pnpm dev` stops every process when one stops, so this is covered by
+   `test/gateway/forward.test.ts` (a team down retries with a growing delay; the other
+   team's message is acked).
 
 Manual steps (Strava owner and maintainers):
+
+Runbook: [docs/gateway-switch.md](../../docs/gateway-switch.md).
 
 1. Create the gateway's custom domain, queue and secrets; deploy it.
 2. Set `STRAVA_RETURN_VIA` for Hamburg; deploy; check a real sign-in round trip.

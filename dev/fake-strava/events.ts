@@ -16,7 +16,8 @@ import {
 // Simulated Strava events (specs/006-local-frontend-dev research R8,
 // contracts/dev-routes.md "Simulated events"). Each action changes the fake's
 // store first, then posts Strava's webhook body to the app's real webhook
-// route, so the app acks, enqueues and processes it like any other event.
+// route, so the app acks, enqueues and processes it like any other event;
+// behind the local gateway, to the gateway's webhook instead.
 
 /** The most rides one synced backlog adds. */
 const MAX_BACKLOG = 200;
@@ -127,6 +128,19 @@ function updated(activity: FakeActivity, form: Form): FakeActivity {
 
 async function send(ctx: Ctx, origin: string, body: string): Promise<number> {
 	lastEvent = body;
+	// Behind the local gateway (`pnpm dev` with every team), the event goes
+	// there, and the gateway forwards it to every team.
+	const gateway = (ctx.env as { RYNKE_FAKE_GATEWAY?: string })
+		.RYNKE_FAKE_GATEWAY;
+	if (gateway) {
+		const res = await fetch(gateway, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body,
+		});
+		await res.body?.cancel();
+		return res.status;
+	}
 	const res = await handleFetch(
 		new Request(`${origin}/strava/webhook/${verifyToken(ctx.env)}`, {
 			method: "POST",

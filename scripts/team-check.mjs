@@ -54,8 +54,12 @@ const FIELDS = [
 	"placeholders",
 ];
 
-/** The test servers' ports (`pnpm test:e2e:server`, `:europe`), never a team's. */
-const RESERVED_PORTS = [8797, 9237, 8798, 9238];
+/**
+ * Never a team's: the local gateway's and the fake Strava's (`pnpm dev`, feature
+ * 026 contracts/dev-commands.md) and the test servers' (`pnpm test:e2e:server`,
+ * `:europe`).
+ */
+const RESERVED_PORTS = [8791, 9232, 8792, 9233, 8797, 9237, 8798, 9238];
 
 /**
  * Every problem with `teams` against `wrangler`, one line each. `publicFile`

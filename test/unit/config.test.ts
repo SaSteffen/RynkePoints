@@ -52,6 +52,18 @@ describe("env accessors", () => {
 		).toThrow();
 	});
 
+	it("prefers the subscription ID secret while it is set", () => {
+		expect(
+			subscriptionId({ ...env, STRAVA_SUBSCRIPTION_ID_OVERRIDE: "888" }),
+		).toBe(888);
+		expect(
+			subscriptionId({ ...env, STRAVA_SUBSCRIPTION_ID_OVERRIDE: " " }),
+		).toBe(777);
+		expect(() =>
+			subscriptionId({ ...env, STRAVA_SUBSCRIPTION_ID_OVERRIDE: "abc" }),
+		).toThrow("STRAVA_SUBSCRIPTION_ID_OVERRIDE");
+	});
+
 	it("exposes the Strava app credentials", () => {
 		expect(clientId(env)).toBe("10001");
 		expect(clientSecret(env)).toBe("test-client-secret");

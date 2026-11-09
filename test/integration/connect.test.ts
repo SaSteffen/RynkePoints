@@ -227,3 +227,56 @@ describe("GET /connect", () => {
 		expect((await stateCookie(res))?.next).toBe(stored);
 	});
 });
+
+// Returning through the Strava gateway (feature 026 release 3,
+// contracts/gateway.md › Team-side settings).
+describe("STRAVA_RETURN_VIA", () => {
+	function withVia(via: string) {
+		return { ...makeCtx(), env: { ...ctx.env, STRAVA_RETURN_VIA: via } };
+	}
+
+	async function connectVia(via: string): Promise<Response> {
+		return handleFetch(
+			request("/connect", {
+				method: "POST",
+				form: { consent: String(CONSENT_VERSION) },
+			}),
+			withVia(via),
+		);
+	}
+
+	it("returns to the team's own callback while empty", async () => {
+		const params = expectAuthorize(await connectVia(""));
+		expect(params.get("redirect_uri")).toBe(`${ORIGIN}/auth/callback`);
+	});
+
+	it("returns through the gateway for this team when set", async () => {
+		const via = "https://gateway.example.test";
+		const res = await connectVia(via);
+		const params = expectAuthorize(res);
+		expect(params.get("redirect_uri")).toBe(
+			`${via}/auth/return/${ctx.env.TEAM_ID}`,
+		);
+		// The state check at the callback is the same as without the gateway.
+		expect(await stateCookie(res)).toEqual({
+			state: params.get("state"),
+			consentVersion: CONSENT_VERSION,
+			next: "/",
+		});
+	});
+
+	it("accepts a local gateway in fake mode", async () => {
+		const params = expectAuthorize(await connectVia("http://localhost:8791"));
+		expect(params.get("redirect_uri")).toBe(
+			`http://localhost:8791/auth/return/${ctx.env.TEAM_ID}`,
+		);
+	});
+
+	it.each([
+		"http://gateway.example.test",
+		"https://gateway.example.test/",
+		"gateway.example.test",
+	])("refuses %s as a configuration error", async (via) => {
+		await expect(connectVia(via)).rejects.toThrow(/STRAVA_RETURN_VIA/);
+	});
+});

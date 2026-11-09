@@ -68,6 +68,8 @@
 		// "full". It never changes the consent versions. "on" or "off".
 		"ORGANISER_PROGRESS_GRAPH": "on",
 		// "0" until the webhook subscription is created (quickstart §3 step 12).
+		// The optional secret STRAVA_SUBSCRIPTION_ID_OVERRIDE wins while it is set
+		// (docs/gateway-switch.md step 3).
 		"STRAVA_SUBSCRIPTION_ID": "375559",
 		// VAPID contact for the push services (010 research R4).
 		"PUSH_SUBJECT": "https://trhh-rynke-coins.link",
@@ -99,7 +101,11 @@
 		"PRIVACY_CONTROLLER": "Sascha Steffen",
 		"CONTACT_EMAIL": "support@trhh-rynke-coins.link",
 		// Labels this team's usage records, for feature 026's shares (025 R13).
-		"TEAM_ID": "hamburg"
+		"TEAM_ID": "hamburg",
+		// "" sends riders back from Strava to this site's /auth/callback; the
+		// Strava gateway's origin sends them through it (feature 026 release 3,
+		// contracts/gateway.md). Empty until the gateway runs (docs/gateway-switch.md).
+		"STRAVA_RETURN_VIA": ""
 	},
 	// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing
 	// them here makes `pnpm types` independent of what's in your `.dev.vars`.
@@ -194,7 +200,8 @@
 				// Placeholders until Europe names its controller and contact.
 				"PRIVACY_CONTROLLER": "Placeholder Controller",
 				"CONTACT_EMAIL": "privacy@example.org",
-				"TEAM_ID": "europe"
+				"TEAM_ID": "europe",
+				"STRAVA_RETURN_VIA": ""
 			},
 			"secrets": {
 				"required": [

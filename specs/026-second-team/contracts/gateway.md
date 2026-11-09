@@ -49,6 +49,11 @@ Switching back is the same steps in reverse.
 1. Confirm a sign-in through `gateway.<domain>/auth/return/<team>` completes (callback
    domain match).
 2. Note the time T0. Delete the subscription on the team URL, create it on the gateway URL.
-3. Set `STRAVA_SUBSCRIPTION_ID` for every team.
-4. Run each team's daily run for riders' activities since T0 (existing manual daily run),
-   which picks up rides uploaded during the gap.
+3. Put the new ID in the secret `STRAVA_SUBSCRIPTION_ID_OVERRIDE` of every live team at
+   once: it wins over `STRAVA_SUBSCRIPTION_ID` while set and needs no deploy, so the gap
+   lasts about a minute. Later set `STRAVA_SUBSCRIPTION_ID` through a pull request and
+   remove the secret.
+4. Run `pnpm catch-up <T0>` for every team (`POST /admin/catch-up?since=<T0>`, admin
+   token): one `reread-page` per connected rider since T0, which stores the rides of the
+   gap with their Rynke. The daily run doesn't re-read rides. Runbook:
+   [docs/gateway-switch.md](../../../docs/gateway-switch.md).
