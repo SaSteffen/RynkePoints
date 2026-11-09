@@ -15,7 +15,7 @@ import {
 import { listRidersNeedingEvaluation } from "../db/rynke";
 import { pruneUsageAlerts, pruneUsageHistory } from "../db/usage";
 import { evaluateChange } from "../rynke/apply";
-import { CURRENT_RULES, countingWindow } from "../rynke/rules";
+import { countingWindow, currentRules } from "../rynke/rules";
 import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
 import { daysBefore, historyStart, utcDay } from "../usage/allowances";
 import { recordUsage } from "../usage/record";
@@ -120,7 +120,7 @@ export async function purgePreSeasonActivities(ctx: Ctx): Promise<void> {
 export async function fanOutEvaluations(ctx: Ctx): Promise<void> {
 	const ids = await listRidersNeedingEvaluation(
 		ctx.env.DB,
-		CURRENT_RULES.version,
+		currentRules(ctx.team.rules).version,
 		countingWindow(ctx.env),
 		BADGE_CATALOG_VERSION,
 	);

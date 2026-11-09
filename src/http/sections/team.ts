@@ -1,5 +1,6 @@
 import {
 	berlinDate,
+	phrases as phrasesOn,
 	rideFigures,
 	rynkeViews,
 	trainingLeaderboard,
@@ -40,8 +41,9 @@ import {
 	teamRideTotals,
 	teamWeeksKm,
 } from "../../rynke/ride-figures";
-import { CURRENT_RULES, countingWindow } from "../../rynke/rules";
+import { countingWindow, currentRules } from "../../rynke/rules";
 import { dayNumber, lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
+import type { TeamData } from "../../teams/types";
 import { artUrl } from "../art";
 import { peloton, sparkline, weekBars } from "../charts";
 import { amount, coinArt, miniCoin } from "../coin";
@@ -127,11 +129,12 @@ function renderTeamTotal(
 	i18n: I18n,
 	kind: RynkeKind,
 	totals: TeamTotals,
+	team: Pick<TeamData, "name" | "art">,
 ): SafeHtml {
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	return html`<section class="team-total card">
-${coinArt(kind === "training" ? "front" : "back", "large")}<div class="team-total-text">
-<p class="team-total-label">${i18n.t("team.total.label")}</p>
+${coinArt(team.art.coin, kind === "training" ? "front" : "back", "large")}<div class="team-total-text">
+<p class="team-total-label">${i18n.t("team.total.label", { team: team.name })}</p>
 <p class="team-total-value${kind === "team" ? " hero-team" : ""}">${i18n.tHtml(kind === "training" ? "team.total.training" : "team.total.team", { n: amount(i18n, totals.total) })}</p>
 <p class="team-total-kind">${i18n.t("team.total.kind")}</p>
 ${
@@ -684,6 +687,9 @@ export function handleTeam(
 			const ranksTraining = trainingLeaderboard(ctx.env);
 			const rides = rideFigures(ctx.env);
 			const figure = view.by === "rynke" ? null : view.by;
+			// No quote at all while the team has switched phrases off (feature
+			// 026 FR-018).
+			const quoting = phrasesOn(ctx.env);
 			// The seen quotes alongside the team, not after it (issue #184); they
 			// only matter when the rider is on the leaderboard. The ride figures
 			// are read only when one is picked (032 research R2).
@@ -694,7 +700,9 @@ export function handleTeam(
 							team: listed,
 							rides: [] as RideRider[],
 						})),
-				readSeenQuotes(ctx.env.DB, rider.athleteId),
+				quoting
+					? readSeenQuotes(ctx.env.DB, rider.athleteId)
+					: new Set<string>(),
 			]);
 			const today = berlinDate(ctx.now());
 			const ends = weekEnds(
@@ -704,13 +712,13 @@ export function handleTeam(
 			const riders = team.map((listed) => ({
 				athleteId: listed.athleteId,
 				balance: listed.balance,
-				weeks: riderWeeks(listed, window, ends, listed.balance),
+				weeks: riderWeeks(listed, window, ends, listed.balance, ctx.team.rules),
 			}));
 			const { rows, viewer } = leaderboardRows(riders, rider.athleteId, kind);
 			const status = riderStatus(
 				team.find((listed) => listed.athleteId === rider.athleteId)?.balance ??
 					null,
-				CURRENT_RULES,
+				currentRules(ctx.team.rules),
 				window,
 				today,
 			);
@@ -718,7 +726,7 @@ export function handleTeam(
 				riders.map((listed) => listed.weeks),
 				kind,
 			);
-			const phrases = phraseSet(ctx.team, i18n.locale);
+			const phrases = quoting ? phraseSet(ctx.team, i18n.locale) : null;
 			const quote =
 				viewer && phrases
 					? pickQuote(phrases, status, today, seenQuotes)
@@ -733,7 +741,7 @@ export function handleTeam(
 				);
 			}
 			// The quote's monkey stands on the team total, above everything else.
-			const head = html`${renderReconnect(i18n, rider)}${quote ? renderQuote(quote) : null}${renderTeamTotal(i18n, kind, totals)}${renderKindSwitch(i18n, view)}`;
+			const head = html`${renderReconnect(i18n, rider)}${quote ? renderQuote(quote) : null}${renderTeamTotal(i18n, kind, totals, ctx.team)}${renderKindSwitch(i18n, view)}`;
 			// Team Rynke have no place card and no peloton and put the
 			// leaderboard first (feature 019 FR-045, FR-046); Training keeps
 			// feature 016's page.
@@ -809,7 +817,7 @@ async function singleView(
 		riders.find((r) => r.athleteId === rider.athleteId),
 	);
 	const weeks = teamWeeksKm(riders, ends);
-	return html`${renderReconnect(i18n, rider)}${renderRideTeamTotal(i18n, teamRideTotals(riders, season), weeks)}<div class="team-grid">${renderRidePlaceCard(i18n, view, ranking)}${renderKmChart(i18n, weeks)}${renderRideLeaderboard(i18n, view, figure, ranking.rows, ranking.team)}</div>`;
+	return html`${renderReconnect(i18n, rider)}${renderRideTeamTotal(i18n, teamRideTotals(riders, season), weeks, ctx.team.name)}<div class="team-grid">${renderRidePlaceCard(i18n, view, ranking)}${renderKmChart(i18n, weeks)}${renderRideLeaderboard(i18n, view, figure, ranking.rows, ranking.team)}</div>`;
 }
 
 /** The team card without Rynke: season km, sessions, elevation, this week. */
@@ -817,10 +825,11 @@ function renderRideTeamTotal(
 	i18n: I18n,
 	season: Figures,
 	weeks: TeamTotals,
+	teamName: string,
 ): SafeHtml {
 	const values = shown(season);
 	return html`<section class="team-total card ride-team-total"><div class="team-total-text">
-<p class="team-total-label">${i18n.t("team.total.label")}</p>
+<p class="team-total-label">${i18n.t("team.total.label", { team: teamName })}</p>
 <p class="team-total-value">${rideValue(i18n, "km", values.km)}</p>
 <p class="team-total-kind">${i18n.t("team.ride.total.kind")}</p>
 <p class="team-total-kind">${rideValue(i18n, "sessions", values.sessions)} · ${rideValue(i18n, "elevation", values.elevation)}</p>

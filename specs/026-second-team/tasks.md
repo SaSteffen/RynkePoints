@@ -182,41 +182,45 @@ Visible to Hamburg: nothing (SC-002).
 
 ## Phase 5: Foundation (release 2)
 
-- [ ] T036 Snapshot test `test/teams/season-snapshot.test.ts`: recalculate the synthetic
+- [X] T036 Snapshot test `test/teams/season-snapshot.test.ts`: recalculate the synthetic
   sample season (dev samples) with today's code and store Rynke, badges and the rider and
   Team page texts as a committed snapshot, before any move (SC-002). It must stay
   identical through release 2.
-- [ ] T037 Full `TeamData` in `src/teams/types.ts` per data-model.md: `id` "`[a-z]+`,
+- [X] T037 Full `TeamData` in `src/teams/types.ts` per data-model.md: `id` "`[a-z]+`,
   equals `TEAM_ID`, unique in `TEAMS`", `name`, `shortName`, `defaultLocale`,
   `foreignLocale`, `rules` "non-empty, ordered by `from` date", `eventKinds`, `colours`,
   `art` (ArtMap), `phrases`, `badgeNames`, `otherClubIds`, `dev` `{ host, port,
   inspectorPort }` "ports distinct across teams, never 8797/9237; host `localhost` for the
   founding team, `<id>.localhost` otherwise", `placeholders`.
-- [ ] T038 Fill `src/teams/hamburg.ts` with today's values, moved: `RULES_HISTORY` from
+- [X] T038 Fill `src/teams/hamburg.ts` with today's values, moved: `RULES_HISTORY` from
   `src/rynke/rules.ts` (R15), event kinds, colours and themes from `src/http/themes.ts`,
   coin and icons from `src/http/coin.ts` and `src/http/pwa.ts`, `teamSpecificBadges`
   listing the badges with Hamburg motifs (check each picture in `art/badges/`), dev
   `{ host: "localhost", port: 8789, inspectorPort: 9230 }`, `placeholders: []`.
-- [ ] T039 `src/teams/europe.ts`: name "Team Rynkeby Europe", `defaultLocale` and
+- [X] T039 `src/teams/europe.ts`: name "Team Rynkeby Europe", `defaultLocale` and
   `foreignLocale` `en`, `phrases` and `badgeNames` `{ kind: "common" }`, coin from
   `art/coin/europe/` copied to `public/teams/europe/`, badge map with `"placeholder"` for
   every Hamburg `teamSpecificBadges` entry, everything else copied from Hamburg; dev
   `{ host: "europe.localhost", port: 8790, inspectorPort: 9231 }`; `placeholders` listing
   every copied field (FR-053). Register in `src/teams/index.ts`.
-- [ ] T040 `env.europe` block in `wrangler.jsonc`: Worker name `rynke-points-europe`,
+- [X] T039a Fill Hamburg's `teamSpecificBadges` after the user reviews `art/badges/`, then
+  add placeholder entries to Europe's badge map. (T038 left the list empty, pending that
+  review.) From the scenes in `badges.json`: `distance-1000` (Elbphilharmonie),
+  `running-100` and `team-running-1000` (harbour crane); Europe's map follows the list.
+- [X] T040 `env.europe` block in `wrangler.jsonc`: Worker name `rynke-points-europe`,
   its own D1 `rynke-points-europe` and queue `rynke-points-europe-work` with placeholder
   IDs, the same crons, every var from the top-level block with Europe's values
   (`TEAM_ID` "europe"; placeholder club IDs, dates, controller and contact), no routes yet.
   Run `pnpm types`.
-- [ ] T041 `scripts/team-check.mjs` (contracts/team-data.md): load every team's TS data and
+- [X] T041 `scripts/team-check.mjs` (contracts/team-data.md): load every team's TS data and
   Wrangler block, fail with one line per problem (missing field or var, duplicate ID or
   port, unsorted rules, missing art path, a Hamburg-specific badge without an entry in
   another team's map, an own set referenced by another team); `--deployable <id>` also
   fails while `placeholders` is non-empty, naming them. Add it to `pnpm lint` in
   `package.json`.
-- [ ] T042 Test in `test/unit/no-team-names.test.ts`: no file under `src/` outside
+- [X] T042 Test in `test/unit/no-team-names.test.ts`: no file under `src/` outside
   `src/teams/` contains a registered team ID or name as a string literal (FR-016).
-- [ ] T043 Vitest project per registered team for `test/teams/**` in `vitest.config.ts`
+- [X] T043 Vitest project per registered team for `test/teams/**` in `vitest.config.ts`
   (bindings from that team's Wrangler block, research R11); existing suites stay Hamburg.
 
 ## Phase 6: User Story 3 – Own rules and season (P1, release 2)
@@ -225,19 +229,19 @@ Visible to Hamburg: nothing (SC-002).
 
 **Independent test**: team suite green for both teams; the snapshot T036 unchanged.
 
-- [ ] T044 [US3] Tests in `test/teams/rules.test.ts`: the same synthetic ride scored with
+- [X] T044 [US3] Tests in `test/teams/rules.test.ts`: the same synthetic ride scored with
   two teams' different rules gives each team's own result; changing one team's rules leaves
   the other's results unchanged (US3 scenarios 1, 2).
-- [ ] T045 [US3] Rule functions in `src/rynke/` take the rule history as an argument;
+- [X] T045 [US3] Rule functions in `src/rynke/` take the rule history as an argument;
   callers pass `ctx.team.rules`. T044 and T036 green.
-- [ ] T046 [US3] Tests in `test/teams/switches.test.ts` for `BADGES`, `PHRASES`,
+- [X] T046 [US3] Tests in `test/teams/switches.test.ts` for `BADGES`, `PHRASES`,
   `SEASON_ALBUM`, `FUN_THEMES` set to `"off"`: no page, menu entry, text, notification or
   scheduled work for the feature (US3 scenario 3, FR-018).
-- [ ] T047 [US3] The four switches as vars (`"on"` or `"off"`, default `"on"`) in
+- [X] T047 [US3] The four switches as vars (`"on"` or `"off"`, default `"on"`) in
   `wrangler.jsonc` for both teams, readers in `src/config.ts`, and the checks in the
   badges section, Team section phrases, scheduled badge work, the album, and theme menu.
   T046 green.
-- [ ] T048 [US3] Test in `test/teams/completeness.test.ts`: `team-check` fails and names
+- [X] T048 [US3] Test in `test/teams/completeness.test.ts`: `team-check` fails and names
   the field for a team with a missing field (US3 scenario 4).
 
 ## Phase 7: User Story 4 – A team looks like itself (P2, release 2)
@@ -248,17 +252,19 @@ Europe's site.
 **Independent test**: quickstart › Release 2 step 1; no page of Europe contains Hamburg's
 name or art paths.
 
-- [ ] T049 [US4] Test in `test/teams/no-other-team.test.ts` (SC-001): render every rider,
+- [X] T049 [US4] Test in `test/teams/no-other-team.test.ts` (SC-001): render every rider,
   organiser and admin page, the manifest, notification texts and the offline page for each
   team; none contains another team's name, a path under another team's
   `public/teams/<id>/`, or another team's `teamSpecificBadges` art.
-- [ ] T050 [US4] Name, short name, icons and colours in the manifest and shell from
+- [X] T050 [US4] Name, short name, icons and colours in the manifest and shell from
   `ctx.team` in `src/http/pwa.ts`, `src/http/shell.ts`, `src/http/themes.ts`; coin sprite
-  from `ctx.team.art.coin` in `src/http/coin.ts`.
-- [ ] T051 [US4] Badge pictures through `ctx.team.art.badges`, with `"placeholder"`
+  from `ctx.team.art.coin` in `src/http/coin.ts`. The four catalog messages naming the
+  team take its name as a param, and `PENDING` in `test/unit/no-team-names.test.ts`
+  becomes empty.
+- [X] T051 [US4] Badge pictures through `ctx.team.art.badges`, with `"placeholder"`
   rendering a new neutral `public/badges/placeholder.svg`, in `src/badges/pictures.ts`;
   add the placeholder to `scripts/art-versions.mjs`. T049 green.
-- [ ] T052 [US4] Any catalog message naming Hamburg or the team takes the name from
+- [X] T052 [US4] Any catalog message naming Hamburg or the team takes the name from
   `ctx.team.name` as a param instead, in all ten catalogs and their callers.
 
 ## Phase 8: User Story 8 – Develop with every team locally (P2, release 2)
@@ -267,26 +273,26 @@ name or art paths.
 
 **Independent test**: quickstart › Release 2 steps 3, 4.
 
-- [ ] T053 [P] [US8] Synthetic Europe riders `dev/fake-strava/samples.europe.ts`: names
+- [X] T053 [P] [US8] Synthetic Europe riders `dev/fake-strava/samples.europe.ts`: names
   from Denmark, Norway, Sweden, Finland, Iceland, Germany, France, the Netherlands,
   Lithuania, the UK and Canada, all invented (FR-050); Hamburg's samples move to
   `dev/fake-strava/samples.hamburg.ts`; `dev/fake-strava/seed.ts` picks by `ctx.team.id`.
-- [ ] T054 [US8] `dev/worker.ts`: the local-host guard accepts `*.localhost`; seeding and
+- [X] T054 [US8] `dev/worker.ts`: the local-host guard accepts `*.localhost`; seeding and
   sample choice follow `ctx.team`.
-- [ ] T055 [US8] `scripts/dev.mjs` (contracts/dev-commands.md): per team apply migrations
+- [X] T055 [US8] `scripts/dev.mjs` (contracts/dev-commands.md): per team apply migrations
   into `.wrangler/fake-state-<id>`, spawn `wrangler dev` with `[--env <id>]`, the team's
   host, port and inspector port and today's fake-mode flags and unset secrets; prefix lines
   `[<id>]`; print `<id> → http://<host>:<port>` once started; stop every child on Ctrl+C,
   SIGTERM or one child's non-zero exit, and exit with its code; refuse to start when a
   port is taken, naming port and team.
-- [ ] T056 [US8] `package.json`: `"dev": "node scripts/dev.mjs"`,
+- [X] T056 [US8] `package.json`: `"dev": "node scripts/dev.mjs"`,
   `"dev:hamburg": "node scripts/dev.mjs hamburg"`,
   `"dev:europe": "node scripts/dev.mjs europe"`; `dev:strava` unchanged. Update
   `CLAUDE.md` › Commands and the local-dev quickstart in `specs/006-local-frontend-dev/`.
-- [ ] T057 [US8] Playwright project `europe-smoke` in `playwright.config.ts` with its own
+- [X] T057 [US8] Playwright project `europe-smoke` in `playwright.config.ts` with its own
   server on port 8798 (inspector 9238) via a `test:e2e:server:europe` script, and
   `e2e/europe-smoke.e2e.ts`: Europe's name, English by default, a common phrase on the Team
-  page, the placeholder badge picture, no Hamburg text.
+  page, the placeholder badge picture, no Hamburg text. The phrase check stays `fixme` until the common phrases (T031–T034) are done.
 
 **Checkpoint (release 2)**: merge and deploy (Hamburg only). Snapshot T036 unchanged.
 

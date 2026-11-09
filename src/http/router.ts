@@ -1,3 +1,4 @@
+import { badges } from "../config";
 import type { Ctx } from "../ctx";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
@@ -35,9 +36,11 @@ import { handleOrganiserOverview } from "./organiser/overview";
 import { handleDecideRequests, handleUndoRequests } from "./organiser/requests";
 import { handlePrivacy } from "./privacy";
 import {
+	handleManifest,
 	handleNotificationText,
 	handleOffline,
 	handleRiderNotificationText,
+	MANIFEST_PATH,
 } from "./pwa";
 import { handleReady } from "./ready";
 import { redirect } from "./redirect";
@@ -93,6 +96,9 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	// The same for everyone: no language, no session (issue #183).
 	if ((method === "GET" || method === "HEAD") && isStylesheet(path)) {
 		return handleStylesheet(path);
+	}
+	if ((method === "GET" || method === "HEAD") && path === MANIFEST_PATH) {
+		return handleManifest(ctx);
 	}
 	if (path.startsWith(WEBHOOK_PREFIX)) {
 		return handleWebhook(request, path.slice(WEBHOOK_PREFIX.length), ctx);
@@ -215,7 +221,9 @@ async function page(
 		case "/me/rides/more":
 			return handleMoreRides(request, ctx, i18n);
 		case "/me/badges":
-			return handleBadges(request, ctx, i18n);
+			return badges(ctx.env)
+				? handleBadges(request, ctx, i18n)
+				: notFound(i18n, path);
 		case "/team":
 			return handleTeam(request, ctx, i18n);
 		case "/events":

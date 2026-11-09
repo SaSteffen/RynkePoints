@@ -17,17 +17,14 @@ import {
 	type ViewContext,
 } from "../../src/http/rider-view";
 import type { ReasonCode } from "../../src/rynke/rides";
-import {
-	CURRENT_RULES,
-	type RynkeRules,
-	rulesForVersion,
-} from "../../src/rynke/rules";
+import type { RynkeRules } from "../../src/rynke/rules";
 import { NO_EXTRAS } from "../../src/rynke/tally";
 import {
 	TEAM_EVENT_KINDS,
 	type TeamEventKind,
 	type TeamEventSum,
 } from "../../src/rynke/team-events";
+import { CURRENT_RULES, rulesForVersion } from "../support/team-rules";
 
 // The rider page's view model (feature 005 data-model.md "Validation and
 // invariants"). Pure: built from a reading, never from D1.

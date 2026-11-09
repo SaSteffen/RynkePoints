@@ -1,3 +1,4 @@
+import { badges as badgesOn } from "../config";
 import type { Ctx } from "../ctx";
 import { hasNewBadges, newBadgesStatements } from "./sections/badges";
 
@@ -29,7 +30,7 @@ export async function homeOf(
 			FROM riders WHERE athlete_id = ?1`,
 			)
 			.bind(athleteId),
-		...newBadgesStatements(db, athleteId),
+		...(badgesOn(ctx.env) ? newBadgesStatements(db, athleteId) : []),
 	]);
 	const row = (
 		rows?.results as
@@ -37,7 +38,11 @@ export async function homeOf(
 			| undefined
 	)?.[0];
 	if (!row) return null;
-	if (row.ready === 1 && (await hasNewBadges(ctx, badges, row.connected_at))) {
+	if (
+		row.ready === 1 &&
+		badges.length > 0 &&
+		(await hasNewBadges(ctx, badges, row.connected_at))
+	) {
 		return "/me/badges";
 	}
 	return row.rode === 1 ? "/team" : "/me";

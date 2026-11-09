@@ -1,6 +1,6 @@
 import { badgeWindow } from "../badges/evaluate";
 import { evaluateTeamBadges } from "../badges/team";
-import { berlinDate } from "../config";
+import { badges, berlinDate } from "../config";
 import type { Ctx } from "../ctx";
 import {
 	advanceTeamBadgeNoticesStatement,
@@ -11,7 +11,7 @@ import {
 	teamBadgeRiseStatement,
 } from "../db/badges";
 import { readTeamBadgeSums } from "../db/team";
-import { CURRENT_RULES, countingWindow } from "../rynke/rules";
+import { countingWindow, currentRules } from "../rynke/rules";
 
 // Team badges notify (issue #125, amending feature 013 FR-032). They are still
 // worked out on read (research R15); after a change that notifies (activity
@@ -29,12 +29,14 @@ import { CURRENT_RULES, countingWindow } from "../rynke/rules";
 /**
  * Announces the team badges new since the last check and returns the riders to
  * notify, sorted. `keep` are the riders whose badge rise the same change just
- * wrote; their team badges join it. Never throws.
+ * wrote; their team badges join it. Never throws. Nothing to check while the
+ * team has switched badges off (feature 026 FR-018).
  */
 export async function teamBadgeNews(
 	ctx: Ctx,
 	keep: readonly number[],
 ): Promise<number[]> {
+	if (!badges(ctx.env)) return [];
 	try {
 		return await announce(ctx, new Set(keep));
 	} catch (err) {
@@ -59,7 +61,7 @@ async function announce(ctx: Ctx, keep: Set<number>): Promise<number[]> {
 	// Nothing dated after today counts (`badgeWindow`).
 	const { earned } = evaluateTeamBadges(
 		sums,
-		CURRENT_RULES,
+		currentRules(ctx.team.rules),
 		badgeWindow(window, berlinDate(now)),
 	);
 	let previous = stored?.badge_ids ?? null;

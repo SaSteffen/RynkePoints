@@ -16,6 +16,7 @@ import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
 import { EXAMPLE_WINDOW, seedExampleRider } from "../support/progress";
 import { riderPage, seedBalance, seedRide } from "../support/rider-view";
 import { snapshot } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The progress section on the Overview (feature 009 contracts/overview-section.md,
 // contracts/http-routes.md): only there, only the signed-in rider's own Rynke
@@ -138,7 +139,11 @@ describe("GET /me progress section (feature 009)", () => {
 
 	it("shows the tour's example rider on its Overview steps (FR-043)", async () => {
 		const { html } = await riderPage(ctx, ATHLETE_A, "/me?tour=rider&step=4");
-		const example = exampleRiderView(EXAMPLE_WINDOW, "2026-10-07");
+		const example = exampleRiderView(
+			EXAMPLE_WINDOW,
+			"2026-10-07",
+			CURRENT_RULES,
+		);
 		const data = chartData(html);
 		expect(data?.training.values.at(-1)).toBe(example.balance?.trainingRynke);
 		expect(data?.team.values.at(-1)).toBe(example.balance?.teamRynke);

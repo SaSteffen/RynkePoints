@@ -4,7 +4,7 @@ import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import { applyTeamEventChange } from "../../src/rynke/apply";
-import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import { countingWindow } from "../../src/rynke/rules";
 import {
 	makeCtx,
 	request,
@@ -14,6 +14,7 @@ import {
 } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, ATHLETE_C, NOW } from "../support/fixtures";
 import { insertEvent } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // Organisers manage the season's team events (feature 014 Story 1, FR-010–
 // FR-013, FR-040, contracts/http-routes.md). The test season starts on

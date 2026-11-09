@@ -8,7 +8,8 @@ import {
 	type MockInstance,
 	vi,
 } from "vitest";
-import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples";
+import { EUROPE_SAMPLES } from "../../dev/fake-strava/samples.europe";
+import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples.hamburg";
 import {
 	type DevEnv,
 	devFetch,
@@ -217,6 +218,32 @@ describe("seeding again", { timeout: 20_000 }, () => {
 		]);
 		await get("/_dev/");
 		expect(await fakeRides()).toBe(allRides);
+	});
+});
+
+describe("another team's samples (026 FR-050)", { timeout: 20_000 }, () => {
+	it("seeds the riders of the context's team", async () => {
+		// Team Europe isn't in TEAMS yet; only its id matters here.
+		const base = devCtx();
+		ctx = {
+			...base,
+			env: { ...base.env, TEAM_ID: "europe" },
+			team: { ...base.team, id: "europe" },
+		};
+		const index = await get("/_dev/");
+		expect(index.status).toBe(200);
+		const page = await index.text();
+		expect(page).toContain(escapeHtml("Tuuli TrainingDone"));
+		expect(page).not.toContain("Tina TrainingDone");
+		const { results } = await env.DB.prepare(
+			"SELECT athlete_id FROM riders ORDER BY athlete_id",
+		).all<{ athlete_id: number }>();
+		expect(results.map((r) => r.athlete_id)).toEqual(
+			EUROPE_SAMPLES.riders.filter((r) => r.clubMember).map((r) => r.athleteId),
+		);
+		expect(
+			await count("SELECT COUNT(*) AS n FROM riders WHERE organiser = 1"),
+		).toBe(2);
 	});
 });
 

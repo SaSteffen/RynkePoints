@@ -7,7 +7,7 @@
 
 import { type BadgeCategoryId, badgeById } from "../src/badges/catalog";
 import { BADGE_OUTLINE_RADIUS } from "../src/badges/outline";
-import { BADGE_PICTURES } from "../src/badges/pictures";
+import { badgePicture } from "../src/badges/pictures";
 import { badgeName } from "../src/content";
 import { html, SafeHtml } from "../src/http/html";
 import { forText, milestone } from "../src/http/sections/badges";
@@ -82,7 +82,7 @@ function cover(i18n: I18n, data: AlbumData, page: AlbumPage): SafeHtml {
 	return pageSection(
 		page,
 		html`<div class="cover">
-<section class="cover-band"><p class="cover-team">${i18n.t("album.team.name")}</p><h1>${i18n.t("album.title")}</h1><p class="cover-season">${i18n.t("album.season", { season: data.season.label })}</p><div class="cover-coins" role="img" aria-label="${i18n.t("album.coin")}"><img src="/coin/rynke-coin-front.svg" alt=""><img src="/coin/rynke-coin-back.svg" alt=""></div></section>
+<section class="cover-band"><p class="cover-team">${i18n.t("album.team.name", { team: data.team.name })}</p><h1>${i18n.t("album.title")}</h1><p class="cover-season">${i18n.t("album.season", { season: data.season.label })}</p><div class="cover-coins" role="img" aria-label="${i18n.t("album.coin")}"><img src="${data.team.coin.front}" alt=""><img src="${data.team.coin.back}" alt=""></div></section>
 <section class="owner"><p class="owner-label">${i18n.t("album.owner")}</p><p class="owner-name">${rider.firstName}</p></section>
 <section class="figures">${[
 			[
@@ -146,10 +146,8 @@ function teamPage(
 	]);
 }
 
-function picture(slot: AlbumSlot): string {
-	return BADGE_PICTURES.has(slot.badgeId)
-		? `/badges/${slot.badgeId}.svg`
-		: `/badges/placeholder-${slot.group}.svg`;
+function picture(slot: AlbumSlot, own: AlbumData["team"]["badges"]): string {
+	return badgePicture(own, { id: slot.badgeId, group: slot.group });
 }
 
 /**
@@ -159,7 +157,7 @@ function picture(slot: AlbumSlot): string {
  */
 function slotHtml(
 	i18n: I18n,
-	data: Pick<AlbumData, "badgeNames">,
+	data: Pick<AlbumData, "badgeNames" | "team">,
 	placed: PlacedSlot,
 	page: AlbumPage,
 ): SafeHtml {
@@ -174,7 +172,7 @@ function slotHtml(
 	const sticker =
 		pose === null
 			? null
-			: html`<div class="sticker" style="left:${mm(left + pose.dxMm)};top:${mm(top + pose.dyMm)};width:${mm(STICKER)};height:${mm(STICKER)};transform:rotate(${Math.round(pose.rotateDeg * 10) / 10}deg)"><img src="${picture(slot)}" alt="" style="${art}"><div class="ribbon-box" style="${art}">${ribbon(slot.badgeId, slot.group, value)}</div></div>`;
+			: html`<div class="sticker" style="left:${mm(left + pose.dxMm)};top:${mm(top + pose.dyMm)};width:${mm(STICKER)};height:${mm(STICKER)};transform:rotate(${Math.round(pose.rotateDeg * 10) / 10}deg)"><img src="${picture(slot, data.team.badges)}" alt="" style="${art}"><div class="ribbon-box" style="${art}">${ribbon(slot.badgeId, slot.group, value)}</div></div>`;
 	const caption = secret
 		? html`<p class="caption-name">${i18n.t("album.stickers.secret")}</p>`
 		: pose === null || !slot.earnedOn

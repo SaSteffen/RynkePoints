@@ -16,7 +16,7 @@ import {
 	type IndexRow,
 	indexPage,
 } from "./fake-strava/pages";
-import { SAMPLE_RIDERS, sampleRider } from "./fake-strava/samples";
+import { sampleRider, samplesFor } from "./fake-strava/sample-sets";
 import { sampleFingerprint, seed } from "./fake-strava/seed";
 import { badgesPage } from "./fake-strava/showcase";
 import { getActivity, riderActivities, seededWith } from "./fake-strava/store";
@@ -96,8 +96,15 @@ export function removeStravaInterceptor(): void {
 	installed = null;
 }
 
+/**
+ * Loopback only. `*.localhost` too: every team but the founding one runs on
+ * `<id>.localhost` (feature 026 contracts/dev-commands.md), which browsers
+ * resolve to the loopback address.
+ */
 function isLocal(url: URL): boolean {
-	return LOCAL_HOSTS.includes(url.hostname);
+	return (
+		LOCAL_HOSTS.includes(url.hostname) || url.hostname.endsWith(".localhost")
+	);
 }
 
 function text(body: string, status: number): Response {
@@ -166,7 +173,10 @@ let seeding: Promise<void> | null = null;
  */
 async function seedIfNeeded(ctx: Ctx, origin: string): Promise<void> {
 	if (!seeding) {
-		if ((await seededWith(ctx.env.DB)) === (await sampleFingerprint())) return;
+		if (
+			(await seededWith(ctx.env.DB)) === (await sampleFingerprint(ctx.team.id))
+		)
+			return;
 		seeding = reseed(ctx, origin).finally(() => {
 			seeding = null;
 		});
@@ -194,7 +204,7 @@ async function indexRows(ctx: Ctx): Promise<IndexRow[]> {
 	).all<{ athlete_id: number; status: string; import_status: string }>();
 	const stored = new Map(results.map((r) => [r.athlete_id, r]));
 	return Promise.all(
-		SAMPLE_RIDERS.map(async (rider) => {
+		samplesFor(ctx.team.id).riders.map(async (rider) => {
 			const row = stored.get(rider.athleteId);
 			return {
 				rider,
@@ -210,7 +220,8 @@ async function indexRows(ctx: Ctx): Promise<IndexRow[]> {
 /** `POST /_dev/connect`: the app's connect flow, ending on the stand-in screen. */
 async function connectAs(request: Request, ctx: Ctx, url: URL) {
 	const athleteId = Number((await form(request)).get("athleteId"));
-	if (!sampleRider(athleteId)) return text("Unknown sample rider", 400);
+	if (!sampleRider(ctx.team.id, athleteId))
+		return text("Unknown sample rider", 400);
 	const connect = rewriteAuthorize(
 		await handleFetch(
 			new Request(`${url.origin}/connect`, {
@@ -236,7 +247,7 @@ async function connectAs(request: Request, ctx: Ctx, url: URL) {
 }
 
 /** `POST /_dev/strava/oauth/authorize`: back to the app, as Strava would. */
-async function decide(request: Request, url: URL) {
+async function decide(request: Request, ctx: Ctx, url: URL) {
 	const fields = await form(request);
 	const redirectUri = String(fields.get("redirect_uri") ?? "");
 	// Only back to this app, so the screen is no open redirect.
@@ -253,7 +264,8 @@ async function decide(request: Request, url: URL) {
 		return redirect(back.href, 302);
 	}
 	const athleteId = Number(fields.get("athlete"));
-	if (!sampleRider(athleteId)) return text("Unknown sample rider", 400);
+	if (!sampleRider(ctx.team.id, athleteId))
+		return text("Unknown sample rider", 400);
 	const scopes = fields.getAll("scope").map(String);
 	back.searchParams.set("code", encodeCode({ athleteId, scopes }));
 	back.searchParams.set("scope", scopes.join(","));
@@ -321,9 +333,9 @@ async function devRoute(
 			if (url.searchParams.get("client_id") !== ctx.env.STRAVA_CLIENT_ID) {
 				return text("Unknown client_id", 400);
 			}
-			return authorizePage(url.searchParams, SAMPLE_RIDERS);
+			return authorizePage(url.searchParams, samplesFor(ctx.team.id).riders);
 		case `POST ${STAND_IN_PATH}`:
-			return decide(request, url);
+			return decide(request, ctx, url);
 		case "POST /_dev/reset":
 			await resetAll(ctx, url.origin);
 			// Any session belongs to a rider who was just deleted.

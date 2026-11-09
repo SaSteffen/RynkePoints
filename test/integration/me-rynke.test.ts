@@ -5,7 +5,6 @@ import { artUrl } from "../../src/http/art";
 import { RULES_HANDOUT_URL } from "../../src/http/rider-sections";
 import { handleFetch } from "../../src/index";
 import type { ReasonCode } from "../../src/rynke/rides";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import type { TeamEventSum } from "../../src/rynke/team-events";
 import {
 	makeCtx,
@@ -30,6 +29,7 @@ import {
 	insertEvent,
 	snapshot,
 } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The Rynke sections of /me (feature 005 contracts/rider-page.md), one test per
 // scenario of the spec's User Stories 1 to 6. German text, as messages.md quotes it.

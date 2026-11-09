@@ -8,12 +8,13 @@ import {
 	applyCorrectionChange,
 	applyTeamEventChange,
 } from "../../src/rynke/apply";
-import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import { countingWindow } from "../../src/rynke/rules";
 import type { ActivityRecord } from "../../src/strava/activity";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
 import { seedBalance } from "../support/rider-view";
 import { activityRecord, insertEvent } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // Personal badges stored in the evaluation batch (feature 013 research R13,
 // FR-030, SC-002). Synthetic rides only.

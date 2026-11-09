@@ -6,8 +6,8 @@ import {
 	type TourEvent,
 } from "../../src/badges/evaluate";
 import { evaluateTeamBadges } from "../../src/badges/team";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import type { Attendance } from "../../src/rynke/team-events";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The Tour de Paris personal badges (feature 021 US2, FR-010–FR-013, research
 // R11): the season's tour days numbered in date order, and badge n for each

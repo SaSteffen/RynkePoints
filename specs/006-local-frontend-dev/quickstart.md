@@ -7,7 +7,8 @@ answers are in [contracts/fake-strava.md](contracts/fake-strava.md).
 ## Prerequisites
 
 - `pnpm install` done.
-- Port 8789 free. Nothing else is needed: fake mode doesn't read `.dev.vars`.
+- Ports 8789 and 9230 free (Hamburg), and 8790 and 9231 for Europe when you run
+  every team. Nothing else is needed: fake mode doesn't read `.dev.vars`.
 
 ## 1. Automated checks
 
@@ -27,11 +28,17 @@ pnpm lint && pnpm typecheck && pnpm test
 ## 2. Run it
 
 ```bash
-pnpm dev
+pnpm dev           # every team (feature 026), output prefixed [hamburg] / [europe]
+pnpm dev:hamburg   # Hamburg alone
+pnpm dev:europe    # Europe alone, on http://europe.localhost:8790
 ```
 
-Expected: pending migrations are applied to `.wrangler/fake-state`, then Wrangler
-reports `Ready on http://localhost:8789` and loads `dev/fake.env` (not `.dev.vars`).
+Expected: per team, pending migrations are applied to `.wrangler/fake-state-<team>`,
+Wrangler loads `dev/fake.env` (not `.dev.vars`), and once it is ready the script prints
+`hamburg → http://localhost:8789` (and `europe → http://europe.localhost:8790`). Each
+team has its own hostname, so signing in on one doesn't sign you in on the other.
+Ctrl+C stops every team. The steps below use Hamburg's sample riders; Europe's are
+listed on its own `/_dev/`.
 
 1. Open `http://localhost:8789/_dev/`. The first request seeds; after a few
    seconds the list shows the sample riders as connected.
@@ -54,15 +61,16 @@ reports `Ready on http://localhost:8789` and loads `dev/fake.env` (not `.dev.var
 Throughout, the terminal shows `[fake-strava] …` lines for every answered request,
 and no request goes to Strava (SC-002).
 
-Port taken? `pnpm dev` fails with "Address already in use" (Wrangler doesn't name
-the port; it is 8789). Free the port; the app doesn't
+Port taken? `pnpm dev` starts nothing and names the team and the port, e.g.
+`[hamburg] port 8789 is taken; nothing started`. Free the port; the app doesn't
 move to another one.
 
 ## 3. Optional: debugging server code
 
-In the Wrangler dev session press `d` to open DevTools. Breakpoints in `src/` hold
-while you use the pages. This uses Wrangler's inspector port (default 9229), not
-8787.
+Attach Chrome DevTools to the team's inspector port: in `chrome://inspect`, add
+`localhost:9230` (Hamburg) or `localhost:9231` (Europe) under **Configure**, then
+**inspect** the Worker. Breakpoints in `src/` hold while you use the pages. (The
+prefixed output leaves Wrangler no terminal for its `d` key.)
 
 ## 4. Against the real Strava (maintainer only)
 

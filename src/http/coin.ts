@@ -1,4 +1,5 @@
 import type { I18n } from "../i18n/i18n";
+import type { CoinArt } from "../teams/types";
 import { artUrl } from "./art";
 import { html, SafeHtml } from "./html";
 
@@ -49,15 +50,22 @@ export function coin(side: "front" | "back", size: CoinSize): SafeHtml {
 	);
 }
 
-// The team's coin itself, traced from its artwork by `pnpm coin-art` into
-// `public/coin/` (art/coin/README.md), where the coin is shown large;
-// the simplified sprite above stays for the small marks, where that much
-// detail doesn't read. Decoration too, like every coin.
+// The team's coin itself (`ctx.team.art.coin`), traced from its artwork by
+// `pnpm coin-art` into `public/coin/` or the team's `public/teams/<id>/coin/`
+// (art/coin/README.md), where the coin is shown large; the simplified sprite
+// above stays for the small marks, where that much detail doesn't read.
+// Decoration too, like every coin.
 
 const ART_SIZE = 144;
 
-const art = (side: "front" | "back", extra = "") =>
-	`<img class="coin-art${extra}" src="${artUrl(`/coin/rynke-coin-${side}.svg`)}" alt="" width="${ART_SIZE}" height="${ART_SIZE}">`;
+/** The shared coin, for a page without a team at hand. */
+export const SHARED_COIN: CoinArt = {
+	front: "/coin/rynke-coin-front.svg",
+	back: "/coin/rynke-coin-back.svg",
+};
+
+const art = (coin: CoinArt, side: "front" | "back", extra = "") =>
+	`<img class="coin-art${extra}" src="${artUrl(coin[side])}" alt="" width="${ART_SIZE}" height="${ART_SIZE}">`;
 
 /**
  * How many portraits the Du page's hero coin has (`art/coin/hero/`,
@@ -87,8 +95,12 @@ export function portraitCoin(n: number): SafeHtml {
 }
 
 /** One side of the team's coin as its artwork; `style.ts` sizes it. */
-export function coinArt(side: "front" | "back", size: CoinSize): SafeHtml {
-	return new SafeHtml(art(side, ` coin coin-${size}`));
+export function coinArt(
+	coin: CoinArt,
+	side: "front" | "back",
+	size: CoinSize,
+): SafeHtml {
+	return new SafeHtml(art(coin, side, ` coin coin-${size}`));
 }
 
 /**
@@ -96,9 +108,9 @@ export function coinArt(side: "front" | "back", size: CoinSize): SafeHtml {
  * fetched (015 US1): two faces back to back, so the back never shows the
  * front mirrored.
  */
-export function flippingCoin(size: CoinSize): SafeHtml {
+export function flippingCoin(coin: CoinArt, size: CoinSize): SafeHtml {
 	return new SafeHtml(
-		`<span class="coin coin-${size} coin-flip" aria-hidden="true"><span class="coin-flip-turn">${art("front")}${art("back", " coin-flip-back")}</span></span>`,
+		`<span class="coin coin-${size} coin-flip" aria-hidden="true"><span class="coin-flip-turn">${art(coin, "front")}${art(coin, "back", " coin-flip-back")}</span></span>`,
 	);
 }
 

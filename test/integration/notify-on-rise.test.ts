@@ -15,7 +15,7 @@ import {
 	type TeamEventChange,
 	teamEventChange,
 } from "../../src/rynke/apply";
-import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import { countingWindow } from "../../src/rynke/rules";
 import type { ActivityRecord } from "../../src/strava/activity";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
@@ -27,6 +27,7 @@ import {
 } from "../support/fixtures";
 import { pushEndpoint, seedSubscription } from "../support/push";
 import { activityRecord, balanceRow, insertEvent } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // Which changes notify (feature 010 contracts/push-delivery.md, research R5,
 // FR-015, FR-016, FR-018).

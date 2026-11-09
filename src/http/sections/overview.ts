@@ -4,11 +4,7 @@ import { readRiderView } from "../../db/rider-view";
 import { type SeenRynke, writeSeen } from "../../db/rynke-seen";
 import type { I18n } from "../../i18n/i18n";
 import { riderStatus } from "../../rynke/pace";
-import {
-	CURRENT_RULES,
-	countingWindow,
-	rulesForVersion,
-} from "../../rynke/rules";
+import { countingWindow, currentRules, versionsOf } from "../../rynke/rules";
 import { amount, heroCoin, miniCoin } from "../coin";
 import { riderFetchingText } from "../fetching";
 import { FUN_SPARKLES } from "../fun";
@@ -86,6 +82,8 @@ export function handleOverview(
 		"/me",
 		async ({ rider, example }) => {
 			const window = countingWindow(ctx.env);
+			const inEffect = currentRules(ctx.team.rules);
+			const rulesFor = versionsOf(ctx.team.rules);
 			// On the rider tour's steps, the example rider instead (feature 020
 			// FR-005); it is never marked as seen and never celebrated (FR-007).
 			// The seen Rynke come in the same batch (issue #184).
@@ -93,7 +91,7 @@ export function handleOverview(
 			// trip (issue #184); not on the tour.
 			const [read, fetchingText] = await Promise.all([
 				example
-					? exampleRiderView(window, berlinDate(ctx.now()))
+					? exampleRiderView(window, berlinDate(ctx.now()), inEffect)
 					: readRiderView(ctx.env.DB, rider.athleteId, 1, {
 							progress: true,
 							seen: true,
@@ -102,14 +100,14 @@ export function handleOverview(
 			]);
 			const view = buildRiderView(
 				read,
-				read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
-				CURRENT_RULES,
-				{ ...window, rulesFor: rulesForVersion },
+				read.balance ? rulesFor(read.balance.rulesVersion) : null,
+				inEffect,
+				{ ...window, rulesFor },
 			);
 			// The same rule as the Team quote and the organiser groups (016 FR-030).
 			const status = riderStatus(
 				read.balance,
-				CURRENT_RULES,
+				inEffect,
 				window,
 				berlinDate(ctx.now()),
 			);
@@ -134,7 +132,7 @@ export function handleOverview(
 				i18n,
 				buildProgressView(
 					read,
-					read.balance ? rulesForVersion(read.balance.rulesVersion) : null,
+					read.balance ? rulesFor(read.balance.rulesVersion) : null,
 					window,
 					berlinDate(ctx.now()),
 				),
@@ -158,7 +156,7 @@ ${
 }</div>${FUN_SPARKLES}
 </section>
 ${example ? renderExampleNote(i18n) : null}${renderReconnect(i18n, rider)}${renderNotice(i18n, view)}${fetching}
-${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env))}
+${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env), ctx.team.art.coin)}
 ${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary, status) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}
 ${ready ? renderBreakdown(i18n, ready.breakdown) : null}

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import type { RiderViewRead } from "../../src/db/rider-view";
 import { buildProgressView, paceAt } from "../../src/http/progress-view";
 import { evenPace, riderStatus } from "../../src/rynke/pace";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import { tally } from "../../src/rynke/tally";
 import type { CurveInputs } from "../../src/rynke/weeks";
 import {
@@ -12,6 +11,7 @@ import {
 	EXAMPLE_WINDOW,
 } from "../support/progress";
 import { ZERO_BALANCE } from "../support/rider-view";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // `buildProgressView` (feature 009 data-model.md "View model"). Expected
 // figures are the example rider's, worked out by hand in tasks.md.

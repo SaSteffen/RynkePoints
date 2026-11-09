@@ -18,8 +18,7 @@ export const nl: Catalog = {
 	"layout.loading": "Pagina wordt geladen",
 
 	"landing.title": "Verbinden met Strava",
-	"landing.intro":
-		"Je ritten op Strava worden Rynke, de punten van Team Rynkeby Hamburg.",
+	"landing.intro": "Je ritten op Strava worden Rynke, de punten van {team}.",
 	"landing.who": "Alleen leden van {clubLink} kunnen meedoen.",
 	"club.linkText": "onze teamclub op Strava",
 	"landing.dataRead":
@@ -445,7 +444,7 @@ export const nl: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
-	"team.total.label": "Team Rynkeby Hamburg",
+	"team.total.label": "{team}",
 	"team.total.training": "{n} Trainings-Rynke",
 	"team.total.team": "{n} Team-Rynke",
 	"team.total.kind": "samen verzameld",
@@ -791,7 +790,7 @@ export const nl: Catalog = {
 		"Voor vragen, hulp, een kopie van je gegevens of het wissen ervan, schrijf naar {email}.",
 	"privacy.purpose.heading": "Waarvoor RynkePoints gegevens verwerkt",
 	"privacy.purpose.body":
-		"RynkePoints is de trainingsapp van Team Rynkeby Hamburg. Hij leest de kerncijfers van je activiteiten van Strava, maakt er Rynke (trainingspunten) en badges van, en toont ze aan jou, het team en de organisatoren. Er zijn geen advertenties, geen betalingen, geen tracking en geen analysetools. Gegevens worden nooit verkocht of doorgegeven, en nooit gebruikt voor AI of machine learning.",
+		"RynkePoints is de trainingsapp van {team}. Hij leest de kerncijfers van je activiteiten van Strava, maakt er Rynke (trainingspunten) en badges van, en toont ze aan jou, het team en de organisatoren. Er zijn geen advertenties, geen betalingen, geen tracking en geen analysetools. Gegevens worden nooit verkocht of doorgegeven, en nooit gebruikt voor AI of machine learning.",
 	"privacy.strava.heading": "Gegevens van Strava",
 	"privacy.strava.rider":
 		"Over jou: je Strava-atleet-ID, je voornaam, de rechten die je gaf, en de toegangssleutels (tokens), versleuteld opgeslagen.",
@@ -964,7 +963,7 @@ export const nl: Catalog = {
 	"progress.day.outside": "waarvan buiten: {value}",
 
 	"album.title": "Rynke-album",
-	"album.team.name": "Team Rynkeby Hamburg",
+	"album.team.name": "{team}",
 	"album.season": "Seizoen {season}",
 	"album.owner": "Dit album is van",
 	"album.coin": "De Rynke-munt",

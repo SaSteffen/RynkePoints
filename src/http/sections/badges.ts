@@ -25,7 +25,7 @@ import {
 	BADGE_SHAPE_DEFS,
 	badgeRibbon,
 } from "../../badges/outline";
-import { BADGE_PICTURES } from "../../badges/pictures";
+import { badgePicture } from "../../badges/pictures";
 import { evaluateTeamBadges, type TeamBadgeSums } from "../../badges/team";
 import {
 	type BadgeSection,
@@ -64,8 +64,8 @@ import {
 import type { I18n } from "../../i18n/i18n";
 import {
 	type CountingWindow,
-	CURRENT_RULES,
 	countingWindow,
+	currentRules,
 } from "../../rynke/rules";
 import { artUrl } from "../art";
 import { html, SafeHtml } from "../html";
@@ -78,12 +78,21 @@ const OUTLINE = new SafeHtml(BADGE_OUTLINE);
 /** In the gallery, whose badges have no ribbon: the circle alone. */
 const OUTLINE_PLAIN = new SafeHtml(BADGE_OUTLINE_PLAIN);
 
-/** A badge's name as the team shows it (feature 026 FR-052). */
-export type BadgeNames = (id: string) => string;
+/**
+ * A badge's name as the team shows it (feature 026 FR-052), and its
+ * `picture`: the team's own, the neutral one for another team's motifs, or
+ * the shared one (FR-024), as an address with its hash.
+ */
+export interface BadgeNames {
+	(id: string): string;
+	picture: (badge: Badge) => string;
+}
 
-/** The names for the page's team and language. */
+/** The names and pictures for the page's team and language. */
 export function badgeNames(ctx: Pick<Ctx, "team">, i18n: I18n): BadgeNames {
-	return (id) => badgeName(ctx.team, i18n, id);
+	return Object.assign((id: string) => badgeName(ctx.team, i18n, id), {
+		picture: (badge: Badge) => artUrl(badgePicture(ctx.team.art.badges, badge)),
+	});
 }
 
 /** A badge sparkles for a day after it was earned: today and yesterday. */
@@ -151,19 +160,18 @@ export function milestone(i18n: I18n, badge: Badge): string {
 	);
 }
 
-function picture(badge: Badge): string {
-	return BADGE_PICTURES.has(badge.id)
-		? artUrl(`/badges/${badge.id}.svg`)
-		: artUrl(`/badges/placeholder-${badge.group}.svg`);
-}
-
 /**
  * The badge's picture with its sticker edge, and the ribbon drawn over it
  * when it has one: the same picture with and without (issue #180). The edge
  * goes round both as one shape.
  */
-function art(badge: Badge, size: number, ribbon: boolean): SafeHtml {
-	return html`<span class="badge-art"><img src="${picture(badge)}" alt="" loading="lazy" width="${size}" height="${size}">${ribbon ? new SafeHtml(badgeRibbon(badge.group)) : null}</span>`;
+function art(
+	src: string,
+	badge: Badge,
+	size: number,
+	ribbon: boolean,
+): SafeHtml {
+	return html`<span class="badge-art"><img src="${src}" alt="" loading="lazy" width="${size}" height="${size}">${ribbon ? new SafeHtml(badgeRibbon(badge.group)) : null}</span>`;
 }
 
 function badgeOf(earned: EarnedBadge): Badge {
@@ -210,7 +218,8 @@ function badgeButton(
 		value: milestone(i18n, badge),
 	});
 	const ribbon = size === 200;
-	return html`<button class="${fresh ? "badge badge-fresh" : "badge"}" popovertarget="badge-${badge.id}" aria-label="${label}" style="--tilt:${tiltOf(badge.id)}deg;--badge-src:url(${picture(badge)})">${art(badge, size, ribbon)}${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}${fresh ? SPARKLES : null}</button>`;
+	const src = names.picture(badge);
+	return html`<button class="${fresh ? "badge badge-fresh" : "badge"}" popovertarget="badge-${badge.id}" aria-label="${label}" style="--tilt:${tiltOf(badge.id)}deg;--badge-src:url(${src})">${art(src, badge, size, ribbon)}${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}${fresh ? SPARKLES : null}</button>`;
 }
 
 /**
@@ -360,9 +369,10 @@ function popover(i18n: I18n, names: BadgeNames, earned: EarnedBadge): SafeHtml {
 	const badge = badgeOf(earned);
 	const value = milestone(i18n, badge);
 	const team = badge.group === "team" ? " badge-large-team" : "";
+	const src = names.picture(badge);
 	return html`<div popover id="badge-${badge.id}" class="badge-large${team}">
 <button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
-<span class="badge" style="--badge-src:url(${picture(badge)})">${art(badge, 280, true)}<span class="badge-ribbon-text">${value}</span>${SPARKLES}</span>
+<span class="badge" style="--badge-src:url(${src})">${art(src, badge, 280, true)}<span class="badge-ribbon-text">${value}</span>${SPARKLES}</span>
 <h4>${names(badge.id)}</h4>
 <p>${forText(i18n, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
@@ -402,7 +412,7 @@ export function renderBadgeReveal(
 		.slice(0, REVEAL_PICTURES)
 		.map(
 			(b) =>
-				html`<img src="${picture(badgeOf(b))}" alt="" loading="lazy" width="48" height="48">`,
+				html`<img src="${names.picture(badgeOf(b))}" alt="" loading="lazy" width="48" height="48">`,
 		)}</span>
 <p>${text}</p>
 </aside>
@@ -501,7 +511,7 @@ async function badgesOf(
 				window,
 			),
 		},
-		team: evaluateTeamBadges(read.sums, CURRENT_RULES, window),
+		team: evaluateTeamBadges(read.sums, currentRules(ctx.team.rules), window),
 		revealed: badges.revealed,
 		connectedOn: berlinDate(rider.connectedAt),
 		today: berlinDate(ctx.now()),
@@ -559,7 +569,7 @@ export async function hasNewBadges(
 	const window = badgeWindow(countingWindow(ctx.env), berlinDate(ctx.now()));
 	const team = evaluateTeamBadges(
 		await toTeamBadgeSums(ctx.env.DB, sums),
-		CURRENT_RULES,
+		currentRules(ctx.team.rules),
 		window,
 	);
 	return newBadges([], team.earned, revealed, connectedOn).length > 0;
@@ -589,6 +599,7 @@ export function handleBadges(
 					i18n,
 					ctx.env.SEASON_START_DATE,
 					readyPollSeconds(ctx.env),
+					ctx.team.art.coin,
 				);
 			}
 			const section = await badgesOf(

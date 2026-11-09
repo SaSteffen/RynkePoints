@@ -5,7 +5,7 @@
 import type { RidingSums } from "./rides";
 import {
 	type CountingWindow,
-	CURRENT_RULES,
+	currentRules,
 	type RynkeRules,
 	rulesForVersion,
 } from "./rules";
@@ -97,9 +97,11 @@ export function riderWeeks(
 	window: CountingWindow,
 	ends: readonly string[],
 	balance: Balance | null,
+	history: readonly RynkeRules[],
 ): WeekPoint[] {
 	const rules =
-		(balance && rulesForVersion(balance.rulesVersion)) ?? CURRENT_RULES;
+		(balance && rulesForVersion(history, balance.rulesVersion)) ??
+		currentRules(history);
 	return ends.map((weekEnd, i) => {
 		if (i === ends.length - 1) {
 			return {

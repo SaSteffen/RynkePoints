@@ -17,14 +17,8 @@ import {
 	type RecordedAllowance,
 	utcDay,
 } from "../../src/usage/allowances";
-import {
-	EVENT_ORGANISER,
-	eventDay,
-	recipeToActivity,
-	SAMPLE_RIDERS,
-	SAMPLE_TEAM_EVENTS,
-	type SampleRider,
-} from "./samples";
+import { samplesFor } from "./sample-sets";
+import { eventDay, recipeToActivity, type SampleRider } from "./samples";
 import {
 	clearActivities,
 	ensureTable,
@@ -97,15 +91,14 @@ export async function connectThroughApp(
 }
 
 /**
- * Names the sample data, so a database seeded from older samples is seeded
- * again (`seededWith`).
+ * Names team `teamId`'s sample data, so a database seeded from older samples
+ * is seeded again (`seededWith`).
  */
-export async function sampleFingerprint(): Promise<string> {
+export async function sampleFingerprint(teamId: string): Promise<string> {
+	const { riders, teamEvents } = samplesFor(teamId);
 	const digest = await crypto.subtle.digest(
 		"SHA-256",
-		new TextEncoder().encode(
-			JSON.stringify([SAMPLE_RIDERS, SAMPLE_TEAM_EVENTS]),
-		),
+		new TextEncoder().encode(JSON.stringify([riders, teamEvents])),
 	);
 	return [...new Uint8Array(digest)]
 		.map((b) => b.toString(16).padStart(2, "0"))
@@ -114,7 +107,8 @@ export async function sampleFingerprint(): Promise<string> {
 
 /**
  * Deletes every rider, team event and fake activity, resets the request
- * budget, then stores the recipes, connects every club member and enters
+ * budget, then stores the recipes of `ctx.team`'s sample riders, connects
+ * every club member and enters
  * their team events, then the shared ones. `seedDay` is the Europe/Berlin day
  * (`YYYY-MM-DD`) the recipes count back from. Only a seeding that finishes is
  * recorded, so one that fails is tried again.
@@ -125,6 +119,7 @@ export async function seed(
 	seedDay: string,
 ): Promise<void> {
 	const db = ctx.env.DB;
+	const { riders, teamEvents, organiser } = samplesFor(ctx.team.id);
 	await ensureTable(db);
 	await markSeeded(db, null);
 	await db.batch([
@@ -150,7 +145,7 @@ export async function seed(
 
 	await insertActivities(
 		db,
-		SAMPLE_RIDERS.flatMap((rider) =>
+		riders.flatMap((rider) =>
 			rider.rides.map((recipe) => ({
 				athleteId: rider.athleteId,
 				body: recipeToActivity(recipe, seedDay, ctx.env.SEASON_START_DATE, 0),
@@ -160,7 +155,7 @@ export async function seed(
 
 	// Non-members would only be turned away; their state is reached through
 	// "Connect as" (research R6).
-	const members = SAMPLE_RIDERS.filter((r) => r.clubMember);
+	const members = riders.filter((r) => r.clubMember);
 	for (const rider of members) {
 		await connectThroughApp(ctx, origin, rider);
 		// `/connect` only takes the current version (feature 029 research R11).
@@ -188,18 +183,18 @@ export async function seed(
 					date: eventDay(recipe, seedDay, ctx.env.SEASON_START_DATE),
 					name: recipe.name,
 				},
-				by: EVENT_ORGANISER,
+				by: organiser,
 			});
 			if (eventId === null) throw new Error("No event ID");
 			await teamEventChange(ctx, {
 				kind: "add-attendance",
 				eventId,
 				athleteIds: [rider.athleteId],
-				by: EVENT_ORGANISER,
+				by: organiser,
 			});
 		}
 	}
-	for (const recipe of SAMPLE_TEAM_EVENTS) {
+	for (const recipe of teamEvents) {
 		const { eventId } = await teamEventChange(ctx, {
 			kind: "create-event",
 			event: {
@@ -207,7 +202,7 @@ export async function seed(
 				date: eventDay(recipe, seedDay, ctx.env.SEASON_START_DATE),
 				name: recipe.name,
 			},
-			by: EVENT_ORGANISER,
+			by: organiser,
 		});
 		if (eventId === null) throw new Error("No event ID");
 		if (recipe.attendees.length > 0) {
@@ -215,7 +210,7 @@ export async function seed(
 				kind: "add-attendance",
 				eventId,
 				athleteIds: [...recipe.attendees],
-				by: EVENT_ORGANISER,
+				by: organiser,
 			});
 		}
 		// Reported by the riders themselves (feature 019), an hour apart.
@@ -229,20 +224,20 @@ export async function seed(
 		}
 	}
 	// The app never sets the flag; the maintainer does it in D1 (004 FR-004).
-	for (const rider of SAMPLE_RIDERS.filter((r) => r.organiser)) {
+	for (const rider of riders.filter((r) => r.organiser)) {
 		await db
 			.prepare("UPDATE riders SET organiser = 1 WHERE athlete_id = ?")
 			.bind(rider.athleteId)
 			.run();
 	}
-	for (const rider of SAMPLE_RIDERS.filter((r) => r.administrator)) {
+	for (const rider of riders.filter((r) => r.administrator)) {
 		await db
 			.prepare("UPDATE riders SET administrator = 1 WHERE athlete_id = ?")
 			.bind(rider.athleteId)
 			.run();
 	}
 	await seedUsage(ctx);
-	await markSeeded(db, await sampleFingerprint());
+	await markSeeded(db, await sampleFingerprint(ctx.team.id));
 }
 
 /** Today's share of Cloudflare's limits: one figure at each level (025 T016). */

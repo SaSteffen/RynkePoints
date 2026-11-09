@@ -1,18 +1,7 @@
-// The Rynke rules as a versioned code constant until organisers can change them
-// (research R8, FR-012, FR-023). Raise `version` and set `effectiveDate` in the
-// same change as any change of a value or of rule logic: every stored result
-// records the version, and the daily cron re-evaluates riders stored with
-// another one. Flagged rides never count (FR-005g); that is deliberately not a
-// rule value.
-//
-// When raising `version`, keep the previous object in `RULES_HISTORY`: the rider
-// page explains stored results with the rules of the version they record
-// (feature 005, research R3).
-//
-// The team-event amounts are rule values too (FR-012). Version 2 is Story 3's
-// logic change: every evaluation counts attendance, with the same values as
-// version 1 (research R18). Version 3 lets a ride pause as long as it moves,
-// half of its elapsed time, instead of half its moving time (FR-005a).
+// The Rynke rules' shape and the pure functions around them (research R8,
+// FR-012, FR-023). The values are team data: each team's rule history lives in
+// `src/teams/<id>.ts` (feature 026 research R15), with the note on raising
+// `version` beside it.
 
 import {
 	type EventKind,
@@ -51,51 +40,32 @@ export interface RynkeRules {
 	teamEvents: Readonly<Record<TeamEventKind, TeamEventAmounts>>;
 }
 
-const RULES_V1: RynkeRules = {
-	version: 1,
-	effectiveDate: "2026-10-07",
-	distanceStepKm: 10,
-	distanceStepRynke: 1,
-	elevationStepM: 1000,
-	elevationStepRynke: 5,
-	maxPausedShare: { num: 1, den: 2 },
-	minSpeedKmh: 10,
-	maxSpeedKmh: 45,
-	maxClimbMPerH: 1500,
-	excludedSportTypes: ["EBikeRide", "EMountainBikeRide"],
-	trainingThreshold: 250,
-	teamThreshold: 25,
-	maxVirtualShare: { num: 1, den: 3 },
-	teamEvents: {
-		team_training: { team: 1, training: 5 },
-		training_weekend_day: { team: 5, training: 10 },
-		technique_training: { team: 5, training: 5 },
-	},
-};
+/**
+ * The rules in effect: the last of a team's rule history (`ctx.team.rules`,
+ * every version ever in effect, ordered by `effectiveDate`).
+ */
+export function currentRules(history: readonly RynkeRules[]): RynkeRules {
+	const latest = history[history.length - 1];
+	if (!latest) throw new Error("A team's rule history is never empty");
+	return latest;
+}
 
-const RULES_V2: RynkeRules = {
-	...RULES_V1,
-	version: 2,
-	effectiveDate: "2026-10-07",
-};
+/**
+ * The rules of a stored version in a team's history; `null` for a version
+ * the history doesn't know.
+ */
+export function rulesForVersion(
+	history: readonly RynkeRules[],
+	version: number,
+): RynkeRules | null {
+	return history.find((rules) => rules.version === version) ?? null;
+}
 
-export const CURRENT_RULES: RynkeRules = {
-	...RULES_V2,
-	version: 3,
-	effectiveDate: "2026-10-09",
-	maxPausedShare: { num: 1, den: 1 },
-};
-
-/** Every version ever in effect, `CURRENT_RULES` being the highest. */
-export const RULES_HISTORY: readonly RynkeRules[] = [
-	RULES_V1,
-	RULES_V2,
-	CURRENT_RULES,
-];
-
-/** The rules of a stored version; `null` for a version this code doesn't know. */
-export function rulesForVersion(version: number): RynkeRules | null {
-	return RULES_HISTORY.find((rules) => rules.version === version) ?? null;
+/** `rulesForVersion` over one team's history, as the rider views take it. */
+export function versionsOf(
+	history: readonly RynkeRules[],
+): (version: number) => RynkeRules | null {
+	return (version) => rulesForVersion(history, version);
 }
 
 /** Inclusive `YYYY-MM-DD` bounds a ride's local start date must fall in (FR-011). */

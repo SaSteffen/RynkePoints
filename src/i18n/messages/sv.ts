@@ -18,8 +18,7 @@ export const sv: Catalog = {
 	"layout.loading": "Sidan laddas",
 
 	"landing.title": "Anslut till Strava",
-	"landing.intro":
-		"Dina turer på Strava blir Rynke, poängen i Team Rynkeby Hamburg.",
+	"landing.intro": "Dina turer på Strava blir Rynke, poängen i {team}.",
 	"landing.who": "Bara medlemmar i {clubLink} kan vara med.",
 	"club.linkText": "vår lagklubb på Strava",
 	"landing.dataRead":
@@ -437,7 +436,7 @@ export const sv: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Lag",
-	"team.total.label": "Team Rynkeby Hamburg",
+	"team.total.label": "{team}",
 	"team.total.training": "{n} Tränings-Rynke",
 	"team.total.team": "{n} Team-Rynke",
 	"team.total.kind": "insamlade tillsammans",
@@ -776,7 +775,7 @@ export const sv: Catalog = {
 		"För frågor, hjälp, en kopia av dina uppgifter eller radering av dem, skriv till {email}.",
 	"privacy.purpose.heading": "Vad RynkePoints behandlar uppgifter till",
 	"privacy.purpose.body":
-		"RynkePoints är träningsappen för Team Rynkeby Hamburg. Den läser nyckeltalen för dina aktiviteter från Strava, gör dem till Rynke (träningspoäng) och märken och visar dem för dig, laget och arrangörerna. Det finns ingen reklam, inga betalningar, ingen spårning och inga analysverktyg. Uppgifter säljs eller lämnas aldrig vidare och används aldrig för AI eller maskininlärning.",
+		"RynkePoints är träningsappen för {team}. Den läser nyckeltalen för dina aktiviteter från Strava, gör dem till Rynke (träningspoäng) och märken och visar dem för dig, laget och arrangörerna. Det finns ingen reklam, inga betalningar, ingen spårning och inga analysverktyg. Uppgifter säljs eller lämnas aldrig vidare och används aldrig för AI eller maskininlärning.",
 	"privacy.strava.heading": "Uppgifter från Strava",
 	"privacy.strava.rider":
 		"Om dig: ditt Strava-idrottar-ID, ditt förnamn, behörigheterna du har gett, och åtkomstnycklarna (tokens), sparade krypterat.",
@@ -949,7 +948,7 @@ export const sv: Catalog = {
 	"progress.day.outside": "varav utomhus: {value}",
 
 	"album.title": "Rynke-album",
-	"album.team.name": "Team Rynkeby Hamburg",
+	"album.team.name": "{team}",
 	"album.season": "Säsong {season}",
 	"album.owner": "Det här albumet tillhör",
 	"album.coin": "Rynke-myntet",

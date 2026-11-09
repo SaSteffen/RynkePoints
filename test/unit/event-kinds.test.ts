@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
 	type CountingWindow,
-	CURRENT_RULES,
 	eventInWindow,
 	seasonEnd,
 } from "../../src/rynke/rules";
@@ -13,6 +12,7 @@ import {
 	isTeamEventKind,
 	TEAM_EVENT_KINDS,
 } from "../../src/rynke/team-events";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // Feature 021: the Tour de Paris is a fourth event kind that earns no Rynke
 // (FR-001, FR-002, research R9) and is counted from the season start to the

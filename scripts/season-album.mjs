@@ -71,6 +71,14 @@ if (!seasonStart || !deadline) {
 		"wrangler.jsonc has no SEASON_START_DATE or QUALIFICATION_DEADLINE.",
 	);
 }
+// The team's switch (feature 026 FR-018): no albums while it is "off".
+const albumSwitch = setting("SEASON_ALBUM") ?? "on";
+if (albumSwitch !== "on") {
+	fail(
+		EXIT_PRECONDITION,
+		`SEASON_ALBUM is "${albumSwitch}" in wrangler.jsonc: the team makes no season albums.`,
+	);
+}
 const startYear = Number(seasonStart.slice(0, 4));
 const season = `${startYear}/${String(startYear + 1).slice(2)}`;
 const OUT = join(OUT_ROOT, season.replace("/", "-"));
@@ -189,9 +197,11 @@ async function startWorker() {
 		`QUALIFICATION_DEADLINE:${deadline}`,
 		"--var",
 		`TEAM_ID:${setting("TEAM_ID")}`,
+		"--var",
+		`SEASON_ALBUM:${albumSwitch}`,
 		"--show-interactive-dev-session=false",
 		...(options.local
-			? ["--local", "--persist-to", ".wrangler/fake-state"]
+			? ["--local", "--persist-to", ".wrangler/fake-state-hamburg"]
 			: []),
 	];
 	worker = spawn(join(ROOT, "node_modules", ".bin", "wrangler"), wranglerArgs, {

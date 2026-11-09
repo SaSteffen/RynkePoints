@@ -8,13 +8,14 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { seasonStartEpoch } from "../../src/config";
 import { handleQueue } from "../../src/index";
 import { applyAndEvaluate } from "../../src/rynke/apply";
-import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import { countingWindow } from "../../src/rynke/rules";
 import { toSwimRecord } from "../../src/strava/activity";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
 import { ATHLETE_A, makeStravaActivity, NOW } from "../support/fixtures";
 import { riderPage } from "../support/rider-view";
 import { snapshot } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // Swims are kept on their own for the swim badges (feature 013 part C,
 // FR-024, FR-025, SC-004, research R26). Synthetic activities only.

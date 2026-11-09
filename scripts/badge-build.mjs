@@ -43,7 +43,11 @@ import {
 } from "node:fs";
 import { basename, extname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { frameSvg, placeholderSvg } from "./badge-frame.mjs";
+import {
+	frameSvg,
+	neutralPlaceholderSvg,
+	placeholderSvg,
+} from "./badge-frame.mjs";
 import { validateBadges } from "./badge-prompts.mjs";
 import { buildPictures, loadMonkeys, loadShows } from "./quote-monkeys.mjs";
 
@@ -112,6 +116,8 @@ for (const kind of ["personal", "team"]) {
 	// No ribbon files any more (issue #180).
 	rmSync(join(OUT, `placeholder-${kind}-ribbon.svg`), { force: true });
 }
+// The neutral one for another team's motifs (feature 026 FR-024).
+write(join(OUT, "placeholder.svg"), neutralPlaceholderSvg());
 
 /**
  * Ids whose public/<folder>/<id>.svg is committed and has no change in git:
@@ -197,7 +203,7 @@ if (todo.length > 0) {
 // from before the page drew the ribbon (issue #180).
 const finished = () =>
 	readdirSync(OUT)
-		.filter((f) => f.endsWith(".svg") && !f.startsWith("placeholder-"))
+		.filter((f) => f.endsWith(".svg") && !f.startsWith("placeholder"))
 		.map((f) => basename(f, ".svg"))
 		.filter((name) => !name.endsWith("-ribbon"));
 if (!filtered) {
@@ -221,6 +227,26 @@ write(
 // Badges with a finished picture in public/badges/<id>.svg; every other badge
 // shows public/badges/placeholder-<group>.svg (feature 013, FR-040a).
 export const BADGE_PICTURES: ReadonlySet<string> = new Set([${ids.map((id) => `\n\t"${id}",`).join("")}${ids.length > 0 ? "\n" : ""}]);
+
+/** The neutral picture for a badge with another team's motifs (feature 026). */
+export const PLACEHOLDER_PICTURE = "/badges/placeholder.svg";
+
+/**
+ * A badge's picture under public/ for a team whose own badge pictures are
+ * \`own\` (\`ctx.team.art.badges\`): its own picture, the neutral one for
+ * \`"placeholder"\`, else the shared one or the group's placeholder.
+ */
+export function badgePicture(
+	own: Readonly<Partial<Record<string, string>>>,
+	badge: { id: string; group: string },
+): string {
+	const picture = own[badge.id];
+	if (picture === "placeholder") return PLACEHOLDER_PICTURE;
+	if (picture !== undefined) return picture;
+	return BADGE_PICTURES.has(badge.id)
+		? \`/badges/\${badge.id}.svg\`
+		: \`/badges/placeholder-\${badge.group}.svg\`;
+}
 `,
 );
 console.log(

@@ -7,12 +7,12 @@ import {
 } from "../../src/db/rynke";
 import { handleFetch } from "../../src/index";
 import type { ReasonCode, UnknownFigureCode } from "../../src/rynke/rides";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import { type Balance, NO_EXTRAS } from "../../src/rynke/tally";
 import type { ActivityRecord } from "../../src/strava/activity";
 import { request, sessionCookie, type TestCtx } from "./ctx";
 import { NOW } from "./fixtures";
 import { activityRecord } from "./rynke";
+import { CURRENT_RULES } from "./team-rules";
 
 // Stored Rynke rows for the rider page (feature 005), written straight to D1.
 // The page only reads them, so they needn't come from an evaluation. Synthetic

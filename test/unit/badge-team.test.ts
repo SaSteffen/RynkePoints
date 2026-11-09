@@ -5,8 +5,8 @@ import {
 	type TeamBadgeSums,
 	type TeamRiderDays,
 } from "../../src/badges/team";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import type { EventKind } from "../../src/rynke/team-events";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The team's badges from sums over the listed riders (feature 013 US4,
 // FR-011, research R15). Synthetic sums only.

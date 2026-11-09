@@ -22,6 +22,7 @@ import { TeamEventRefused, teamEventChange } from "../../rynke/apply";
 import { hasTakenPlace } from "../../rynke/participation";
 import {
 	countingWindow,
+	currentRules,
 	eventInWindow,
 	isCalendarDate,
 } from "../../rynke/rules";
@@ -220,7 +221,7 @@ export function handleOrganiserEvents(
 		// which can't be used, around the real new-event form (feature 020
 		// FR-013, FR-014).
 		const read: EventsRead = example
-			? exampleTeam(countingWindow(ctx.env), day)
+			? exampleTeam(countingWindow(ctx.env), day, currentRules(ctx.team.rules))
 			: await readEvents(ctx, rider.athleteId, day);
 		const { events, requests, intents, attended, listed } = read;
 		const inert = example ? html` inert` : null;

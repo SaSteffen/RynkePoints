@@ -23,7 +23,7 @@ export const de = {
 
 	"landing.title": "Mit Strava verbinden",
 	"landing.intro":
-		"Aus deinen Radfahrten auf Strava werden Rynke, die Punkte von Team Rynkeby Hamburg.",
+		"Aus deinen Radfahrten auf Strava werden Rynke, die Punkte von {team}.",
 	"landing.who": "Mitmachen können nur Mitglieder {clubLink}.",
 	"club.linkText": "unseres Team-Clubs auf Strava",
 	"landing.dataRead":
@@ -465,7 +465,7 @@ export const de = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Team",
-	"team.total.label": "Team Rynkeby Hamburg",
+	"team.total.label": "{team}",
 	"team.total.training": "{n} Trainingsrynke",
 	"team.total.team": "{n} Teamrynke",
 	"team.total.kind": "gemeinsam gesammelt",
@@ -814,7 +814,7 @@ export const de = {
 		"Für Fragen, Hilfe, Auskunft oder Löschung schreib an {email}.",
 	"privacy.purpose.heading": "Wozu RynkePoints Daten verarbeitet",
 	"privacy.purpose.body":
-		"RynkePoints ist die Trainings-App von Team Rynkeby Hamburg. Sie liest die Eckdaten deiner Aktivitäten aus Strava, macht daraus Rynke (Trainingspunkte) und Abzeichen und zeigt sie dir, dem Team und den Organisatoren. Es gibt keine Werbung, keine Zahlungen, kein Tracking und keine Analyse-Werkzeuge. Daten werden weder verkauft noch weitergegeben und nicht für KI oder maschinelles Lernen verwendet.",
+		"RynkePoints ist die Trainings-App von {team}. Sie liest die Eckdaten deiner Aktivitäten aus Strava, macht daraus Rynke (Trainingspunkte) und Abzeichen und zeigt sie dir, dem Team und den Organisatoren. Es gibt keine Werbung, keine Zahlungen, kein Tracking und keine Analyse-Werkzeuge. Daten werden weder verkauft noch weitergegeben und nicht für KI oder maschinelles Lernen verwendet.",
 	"privacy.strava.heading": "Daten aus Strava",
 	"privacy.strava.rider":
 		"Zu dir: deine Strava-Athleten-ID, dein Vorname, die Berechtigungen, die du erteilt hast, und die Zugangsschlüssel (Tokens), verschlüsselt gespeichert.",
@@ -988,7 +988,7 @@ export const de = {
 	// The season album (feature 021 US4, US5, contracts/messages.md). Printed,
 	// never shown in the app.
 	"album.title": "Rynke-Album",
-	"album.team.name": "Team Rynkeby Hamburg",
+	"album.team.name": "{team}",
 	"album.season": "Saison {season}",
 	"album.owner": "Dieses Album gehört",
 	"album.coin": "Die Rynke-Münze",

@@ -11,8 +11,9 @@ import {
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 import { riderStatus } from "../../src/rynke/pace";
-import { type CountingWindow, CURRENT_RULES } from "../../src/rynke/rules";
+import type { CountingWindow } from "../../src/rynke/rules";
 import type { Balance } from "../../src/rynke/tally";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The organiser overview's figures and groups (016 US4, FR-030–FR-035,
 // data-model.md `OverviewRider`), from a hand-made read. Synthetic riders only.

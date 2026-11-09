@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { escapeHtml } from "../../src/http/html";
 import { RULES_HANDOUT_URL } from "../../src/http/rider-sections";
 import { CATALOGS } from "../../src/i18n/catalogs";
-import { CURRENT_RULES } from "../../src/rynke/rules";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A } from "../support/fixtures";
 import { riderPage, seedBalance, seedRide } from "../support/rider-view";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // The Overview at `/me` (feature 011 FR-010, US1 scenario 1): notices, the
 // greeting, the summary, the gauges and the breakdown, in this order, and

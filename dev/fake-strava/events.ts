@@ -1,7 +1,8 @@
 import { berlinDate, subscriptionId, verifyToken } from "../../src/config";
 import type { Ctx } from "../../src/ctx";
 import { handleFetch } from "../../src/index";
-import { type RideRecipe, recipeToActivity, sampleRider } from "./samples";
+import { sampleRider } from "./sample-sets";
+import { type RideRecipe, recipeToActivity } from "./samples";
 import {
 	deleteActivity,
 	type FakeActivity,
@@ -173,7 +174,7 @@ export async function simulateEvent(
 		return `Sent the last event again: webhook answered ${await send(ctx, origin, lastEvent)}`;
 	}
 
-	const rider = sampleRider(Number(field(form, "athleteId")));
+	const rider = sampleRider(ctx.team.id, Number(field(form, "athleteId")));
 	if (!rider) return "Unknown sample rider";
 	const db = ctx.env.DB;
 	const who = `${rider.firstName} (${rider.athleteId})`;

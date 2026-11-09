@@ -37,3 +37,6 @@ export function frameSvg(
 
 /** The frame with the coin's Rynke, shown until a badge has a picture. */
 export function placeholderSvg(kind: BadgeGroup): string;
+
+/** The neutral picture for a badge with another team's motifs (feature 026). */
+export function neutralPlaceholderSvg(): string;

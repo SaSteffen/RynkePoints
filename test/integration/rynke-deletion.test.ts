@@ -9,7 +9,7 @@ import { upsertActivity } from "../../src/db/activities";
 import { readRynke } from "../../src/db/rynke";
 import { handleQueue } from "../../src/index";
 import { applyAndEvaluate, applyTeamEventChange } from "../../src/rynke/apply";
-import { CURRENT_RULES, countingWindow } from "../../src/rynke/rules";
+import { countingWindow } from "../../src/rynke/rules";
 import type { WorkMessage } from "../../src/work/messages";
 import { approve, SCOPES_ALL, SCOPES_SHARED } from "../support/callback";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
@@ -25,6 +25,7 @@ import {
 	resultRows,
 	snapshot,
 } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // Deleting activities or riders takes their ride results with them, and the
 // balance follows in the same batch (FR-015, research R11).

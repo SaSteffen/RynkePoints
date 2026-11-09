@@ -19,7 +19,7 @@ export const fr: Catalog = {
 
 	"landing.title": "Se connecter avec Strava",
 	"landing.intro":
-		"Tes sorties sur Strava deviennent des Rynke, les points de la Team Rynkeby Hamburg.",
+		"Tes sorties sur Strava deviennent des Rynke, les points de la {team}.",
 	"landing.who": "Seuls les membres de {clubLink} peuvent participer.",
 	"club.linkText": "notre club d'équipe sur Strava",
 	"landing.dataRead":
@@ -460,7 +460,7 @@ export const fr: Catalog = {
 
 	// Feature 016: the Team page (contracts/messages.md "Team page").
 	"team.heading": "Équipe",
-	"team.total.label": "Team Rynkeby Hamburg",
+	"team.total.label": "{team}",
 	"team.total.training": "{n} Rynke d'entraînement",
 	"team.total.team": "{n} Rynke d'équipe",
 	"team.total.kind": "collectés ensemble",
@@ -822,7 +822,7 @@ export const fr: Catalog = {
 		"Pour toute question, de l'aide, une copie de tes données ou leur suppression, écris à {email}.",
 	"privacy.purpose.heading": "Pourquoi RynkePoints traite des données",
 	"privacy.purpose.body":
-		"RynkePoints est l'application d'entraînement de la Team Rynkeby Hamburg. Elle lit les chiffres clés de tes activités sur Strava, les transforme en Rynke (points d'entraînement) et en badges, et les montre à toi, à l'équipe et aux organisateurs. Pas de publicité, pas de paiements, pas de pistage, pas d'outils d'analyse. Les données ne sont jamais vendues ni transmises, et jamais utilisées pour l'IA ou l'apprentissage automatique.",
+		"RynkePoints est l'application d'entraînement de la {team}. Elle lit les chiffres clés de tes activités sur Strava, les transforme en Rynke (points d'entraînement) et en badges, et les montre à toi, à l'équipe et aux organisateurs. Pas de publicité, pas de paiements, pas de pistage, pas d'outils d'analyse. Les données ne sont jamais vendues ni transmises, et jamais utilisées pour l'IA ou l'apprentissage automatique.",
 	"privacy.strava.heading": "Données issues de Strava",
 	"privacy.strava.rider":
 		"Sur toi\u00a0: ton identifiant d'athlète Strava, ton prénom, les autorisations que tu as accordées et les clés d'accès (jetons), stockées chiffrées.",
@@ -999,7 +999,7 @@ export const fr: Catalog = {
 	"progress.day.outside": "dont en extérieur\u00a0: {value}",
 
 	"album.title": "Album Rynke",
-	"album.team.name": "Team Rynkeby Hamburg",
+	"album.team.name": "{team}",
 	"album.season": "Saison {season}",
 	"album.owner": "Cet album appartient à",
 	"album.coin": "La pièce Rynke",

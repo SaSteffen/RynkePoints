@@ -3,11 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { upsertActivity } from "../../src/db/activities";
 import { readRynke } from "../../src/db/rynke";
 import { type ActivityChange, applyAndEvaluate } from "../../src/rynke/apply";
-import {
-	CURRENT_RULES,
-	countingWindow,
-	type RynkeRules,
-} from "../../src/rynke/rules";
+import { countingWindow, type RynkeRules } from "../../src/rynke/rules";
 import { makeCtx, resetDb, seedRider, tableCounts } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B, NOW } from "../support/fixtures";
 import {
@@ -20,6 +16,7 @@ import {
 	resultRows,
 	snapshot,
 } from "../support/rynke";
+import { CURRENT_RULES } from "../support/team-rules";
 
 // applyAndEvaluate and readRynke against local D1 (research R11, R13,
 // contracts/ride-evaluation.md).
