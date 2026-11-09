@@ -154,8 +154,8 @@ file of the second team's synthetic deployment for the founding team's names and
    **When** the second team's rider sees it, **Then** they see their team's version, or a
    placeholder picture where the team has none yet (FR-024).
 3. **Given** motivational phrases, **When** a second-team rider sees one, **Then** it is
-   from the common phrases in the language the rider picked, never one of the founding
-   team's phrases (FR-025).
+   from the English common phrases, whatever language the rider picked, never one of the
+   founding team's phrases (FR-025).
 4. **Given** the founding team, **When** this feature is deployed, **Then** its name,
    art, phrases and colours are unchanged.
 
@@ -179,7 +179,7 @@ every language and check every page, and that the monkey follows the rules of FR
    Danish, including consent, privacy, notifications and the Strava block.
 2. **Given** a visitor stating no language, or only languages the app doesn't ship,
    **When** they arrive, **Then** they see the team's language for that case (FR-027).
-3. **Given** a missing translation key or a missing common phrase list in any language,
+3. **Given** a missing translation key in any language, or a missing common phrase list,
    **When** the checks run, **Then** they fail.
 4. **Given** a founding-team rider who picks Finnish, **When** the monkey speaks, **Then**
    it speaks the founding team's German phrases, as today.
@@ -288,9 +288,6 @@ machine.
   This is first come, first served until it causes trouble; feature 025 shows who used it.
 - **A team leaves**: Its deployment and database are deleted, its riders' grants revoked,
   and the other team isn't touched.
-- **A language has no word for a phrase's joke**: The common phrases are adapted per
-  language, not translated word for word; the meaning may change, the rules of FR-025
-  may not.
 - **A founding-team rider picks another language**: Everything follows that language
   except the monkey, which keeps the founding team's German phrases (FR-025).
 - **Season data already scored**: Changing a team's season start later leaves stored Rynke
@@ -386,18 +383,22 @@ machine.
   - A team with its own phrases MUST always get those, in their language, whatever
     language the rider picked. No other team's site MUST ever show them. The founding
     team's phrases of today are its own phrases, unchanged.
-  - A team using the common phrases MUST get them in the language the rider picked.
-    The second team uses the common phrases.
-- **FR-045**: The common phrases MUST exist in every shipped language, with the same lists
-  in each: about 40 phrases, most of them pushing a rider who is behind, and the rest for
-  a rider on track and for each season. A language missing a list MUST fail the checks.
+  - A team using the common phrases MUST get the English common phrases, whatever
+    language the rider picked. They are the stand-in for a team without phrases of its
+    own. The second team uses the common phrases.
+  - **Update 2026-11-09**: "Hamburg phrases stay like they are. German. We have a set of
+    English phrases that get used as a stand-in, should no team-specific phrases exist.
+    For now, we shelve phrase translation."
+- **FR-045**: The common phrases MUST exist in English, with every list filled: most of
+  them pushing a rider who is behind, and the rest for a rider on track and for each
+  season. A missing list MUST fail the checks. Translating them is shelved (FR-025).
 - **FR-046**: The common phrases MUST be light and mostly neutral, and follow the same
   rules as today: a phrase never names, ranks or compares riders. They MUST name no team,
   place or charity, so they fit every team.
 - **FR-047**: The common phrases MUST start as an English original set, adapted from the
   founding team's phrases with some new ones added, and selected with the rating process
-  (User Story 6). Each other language MUST get an adaptation of that set, not a word-for-word
-  translation.
+  (User Story 6). Should translations come back, each language gets an adaptation of that
+  set, not a word-for-word translation.
 
 **Languages**
 
@@ -498,8 +499,8 @@ machine.
   team leaves the other on the new version.
 - **SC-007**: The English original of the common phrases can be produced with one person
   rating, with no votes lost between sessions.
-- **SC-008**: All rider-facing text exists in all ten languages, and the common phrases
-  exist in each of them.
+- **SC-008**: All rider-facing text exists in all ten languages, except the monkey's
+  phrases (FR-025).
 - **SC-010**: From a fresh checkout, a maintainer sees both teams running locally with one
   command and no other step.
 - **SC-009**: Both teams together stay within Cloudflare's free limits in normal use, as

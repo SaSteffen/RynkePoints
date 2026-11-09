@@ -18,7 +18,7 @@ export interface PhraseSet {
 	seasonOnTrack: Readonly<Record<Season, readonly string[]>>;
 }
 
-/** A team's own phrases, in one language, or the common ones in every language. */
+/** A team's own phrases, in one language, or the common English ones. */
 export type PhraseMode =
 	| { kind: "own"; locale: Locale; set: PhraseSet }
 	| { kind: "common" };
