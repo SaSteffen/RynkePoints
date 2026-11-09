@@ -95,6 +95,10 @@ says what the real build keeps from it and what changes.
   - It is a pinned devDependency.
   - `public/app.js` adds the script tag when the share sheet first opens, not on page load.
   - The existing `/vendor/*` immutable caching covers it.
+- **Where it runs**: all on the rider's device. The browser's own `VideoEncoder` encodes the frames,
+  and `mp4-muxer` only packs the encoded frames into an MP4 file in memory. Nothing goes to a server
+  or a third party. The user agreed on this condition (2026-11-09): if any part of the encoding
+  needed a server, the video variants would be dropped instead.
 - **Justification**: no platform API puts encoded frames into an MP4 file. The library only writes
   bytes we hand it and never parses outside input, so the attack surface is small. It's pinned, so
   its deprecation ("superseded by Mediabunny") doesn't affect us: MP4 doesn't change, and its
