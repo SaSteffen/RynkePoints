@@ -144,6 +144,15 @@ export const lt: Catalog = {
 	"rynke.ride.virtual": "virtualus",
 	"rynke.ride.fixHint":
 		"Važiavimą gali pataisyti Strava arba paprašyti organizatoriaus.",
+	"rynke.ride.fix.summary": "Kaip tai padaryti",
+	"rynke.ride.fix.crop":
+		"Pataisyk važiavimą Strava: apkirpk tai, kas nepriklauso, pavyzdžiui, ilgą pertrauką, atkarpą traukiniu ar automobiliu arba įrašą, kuris tęsėsi po važiavimo.",
+	"rynke.ride.fix.rename":
+		"Tada pakeisk važiavimo pavadinimą ir išsaugok. Tik taip programa sužino apie pakeitimą: Strava praneša apie naują pavadinimą, bet ne apie apkirpimą. Vėliau gali grąžinti seną pavadinimą.",
+	"rynke.ride.fix.manual":
+		"Jei važiavimą įrašei, įkelk įrašą į Strava ir ištrink rankinį įrašą.",
+	"rynke.ride.fix.wait":
+		"Po kelių minučių važiavimas čia bus įvertintas iš naujo. Jei niekas nepasikeičia, kreipkis į organizatorių.",
 	"rynke.reason.flagged":
 		"Strava pažymėjo šį važiavimą. Jei nesutinki, išsiaiškink tai su Strava.",
 	"rynke.reason.pause":

@@ -148,6 +148,15 @@ export const fr: Catalog = {
 	"rynke.ride.virtual": "virtuelle",
 	"rynke.ride.fixHint":
 		"Tu peux corriger la sortie sur Strava ou demander à un organisateur.",
+	"rynke.ride.fix.summary": "Comment faire",
+	"rynke.ride.fix.crop":
+		"Corrige la sortie sur Strava : recadre ce qui n'en fait pas partie, par exemple la longue pause, un trajet en train ou en voiture, ou un enregistrement qui a continué après la sortie.",
+	"rynke.ride.fix.rename":
+		"Change ensuite le titre de la sortie et enregistre. C'est ainsi que l'appli l'apprend : Strava signale un nouveau titre, mais pas un recadrage. Tu pourras remettre l'ancien titre ensuite.",
+	"rynke.ride.fix.manual":
+		"Si tu as enregistré la sortie, importe l'enregistrement sur Strava et supprime la saisie manuelle.",
+	"rynke.ride.fix.wait":
+		"Au bout de quelques minutes, la sortie est réévaluée ici. Si rien ne change, demande à un organisateur.",
 	"rynke.reason.flagged":
 		"Strava a signalé cette sortie. Si tu n'es pas d'accord, règle-le avec Strava.",
 	"rynke.reason.pause":

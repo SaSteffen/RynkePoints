@@ -683,6 +683,13 @@ async function details(athleteId = ATHLETE_A, acceptLanguage?: string) {
 				inner.match(/<ul class="ride-reasons">([\s\S]*?)<\/ul>/)?.[1] ?? ""
 			).matchAll(/<li>([\s\S]*?)<\/li>/g),
 		].map((m) => text(m[1] ?? "")),
+		steps: [
+			...(
+				inner.match(
+					/<details class="ride-fix">[\s\S]*?<ol>([\s\S]*?)<\/ol>/,
+				)?.[1] ?? ""
+			).matchAll(/<li>([\s\S]*?)<\/li>/g),
+		].map((m) => text(m[1] ?? "")),
 		all: text(inner.slice(inner.indexOf("</dl>"))),
 	}));
 }
@@ -854,6 +861,36 @@ describe("GET /me/rides ride reasons (US4)", () => {
 		);
 		// Newest first: overlap, counted ride, pause, manual + pause, flagged.
 		expect(hints).toEqual([0, 0, 1, 1, 0]);
+	});
+
+	it("folds the steps for its reasons under the fix hint (#274)", async () => {
+		await seedPause();
+		await seedRide(ATHLETE_A, {
+			id: 8_100_032,
+			start_date: "2026-04-01T08:00:00Z",
+			is_manual: 1,
+			result: { counts: false, reasons: ["manual"] },
+		});
+		await seedRide(ATHLETE_A, {
+			id: 8_100_033,
+			start_date: "2026-03-01T08:00:00Z",
+			is_flagged: 1,
+			result: { counts: false, reasons: ["flagged"] },
+		});
+		const crop =
+			"Korrigiere die Fahrt auf Strava: Schneide ab, was nicht dazugehört, etwa die lange Pause, eine Strecke mit Bahn oder Auto oder eine Aufzeichnung, die nach der Fahrt weiterlief.";
+		const rename =
+			"Ändere danach den Titel der Fahrt und speichere. Nur so erfährt die App von der Änderung: Strava meldet einen neuen Titel, das Zuschneiden nicht. Den alten Titel kannst du danach wieder eintragen.";
+		const manual =
+			"Hast du die Fahrt aufgezeichnet, lade die Aufzeichnung auf Strava hoch und lösche den manuellen Eintrag.";
+		const wait =
+			"Nach ein paar Minuten ist die Fahrt hier neu bewertet. Ändert sich nichts, wende dich an die Orga.";
+		// Newest first: pause, manual, flagged.
+		expect((await details()).map((d) => d.steps)).toEqual([
+			[crop, rename, wait],
+			[manual, wait],
+			[],
+		]);
 	});
 
 	it("explains an unknown code in general words", async () => {

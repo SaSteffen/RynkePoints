@@ -141,6 +141,15 @@ export const nb: Catalog = {
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint":
 		"Du kan rette turen på Strava eller spørre en arrangør.",
+	"rynke.ride.fix.summary": "Slik gjør du",
+	"rynke.ride.fix.crop":
+		"Rett turen på Strava: beskjær det som ikke hører til, for eksempel den lange pausen, en strekning med tog eller bil eller et opptak som fortsatte etter turen.",
+	"rynke.ride.fix.rename":
+		"Endre deretter tittelen på turen og lagre. Bare slik får appen vite om endringen: Strava melder fra om ny tittel, men ikke om beskjæring. Du kan sette tilbake den gamle tittelen etterpå.",
+	"rynke.ride.fix.manual":
+		"Har du tatt opp turen, last opp opptaket til Strava og slett den manuelle registreringen.",
+	"rynke.ride.fix.wait":
+		"Etter noen minutter er turen vurdert på nytt her. Skjer det ingenting, spør en arrangør.",
 	"rynke.reason.flagged":
 		"Strava har flagget denne turen. Er du uenig, ta det opp med Strava.",
 	"rynke.reason.pause":

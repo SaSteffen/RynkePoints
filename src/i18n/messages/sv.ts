@@ -140,6 +140,15 @@ export const sv: Catalog = {
 	"rynke.ride.beingEvaluated": "Bedöms",
 	"rynke.ride.virtual": "virtuell",
 	"rynke.ride.fixHint": "Du kan rätta turen på Strava eller fråga en arrangör.",
+	"rynke.ride.fix.summary": "Så gör du",
+	"rynke.ride.fix.crop":
+		"Rätta turen på Strava: beskär det som inte hör dit, till exempel den långa pausen, en sträcka med tåg eller bil eller en inspelning som fortsatte efter turen.",
+	"rynke.ride.fix.rename":
+		"Ändra sedan turens titel och spara. Bara så får appen veta om ändringen: Strava meddelar en ny titel, men inte en beskärning. Du kan sätta tillbaka den gamla titeln efteråt.",
+	"rynke.ride.fix.manual":
+		"Har du spelat in turen, ladda upp inspelningen till Strava och ta bort den manuella registreringen.",
+	"rynke.ride.fix.wait":
+		"Efter några minuter har turen bedömts på nytt här. Händer inget, fråga en arrangör.",
 	"rynke.reason.flagged":
 		"Strava har flaggat den här turen. Om du inte håller med, ta upp det med Strava.",
 	"rynke.reason.pause":

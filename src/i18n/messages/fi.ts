@@ -140,6 +140,15 @@ export const fi: Catalog = {
 	"rynke.ride.beingEvaluated": "Arvioidaan",
 	"rynke.ride.virtual": "virtuaalinen",
 	"rynke.ride.fixHint": "Voit korjata ajon Stravassa tai kysyä järjestäjältä.",
+	"rynke.ride.fix.summary": "Näin korjaat",
+	"rynke.ride.fix.crop":
+		"Korjaa ajo Stravassa: rajaa pois se, mikä ei kuulu siihen, esimerkiksi pitkä tauko, juna- tai automatka tai tallennus, joka jatkui ajon jälkeen.",
+	"rynke.ride.fix.rename":
+		"Vaihda sen jälkeen ajon otsikko ja tallenna. Vain näin sovellus saa tiedon muutoksesta: Strava ilmoittaa uudesta otsikosta, mutta ei rajauksesta. Voit palauttaa vanhan otsikon jälkeenpäin.",
+	"rynke.ride.fix.manual":
+		"Jos tallensit ajon, lataa tallennus Stravaan ja poista käsin lisätty merkintä.",
+	"rynke.ride.fix.wait":
+		"Muutaman minuutin kuluttua ajo arvioidaan täällä uudelleen. Jos mikään ei muutu, kysy järjestäjältä.",
 	"rynke.reason.flagged":
 		"Strava on merkinnyt tämän ajon. Jos olet eri mieltä, selvitä asia Stravan kanssa.",
 	"rynke.reason.pause":
