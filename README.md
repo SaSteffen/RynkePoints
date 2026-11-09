@@ -246,7 +246,7 @@ command you can run locally:
 | `lint` | `pnpm lint` |
 | `typecheck` | `pnpm typecheck` |
 | `test` | `pnpm test` |
-| `e2e` | `pnpm test:e2e` (Chromium, Firefox, WebKit) |
+| `e2e` | `pnpm test:e2e` (Chromium, Firefox, WebKit; see below) |
 | `commit-messages` | `pnpm commitlint --from origin/develop --to HEAD` |
 | `pr-title` | `printf '%s (#%s)\n' "<title>" <number> \| pnpm commitlint` |
 | `pr-source` | PRs into `main` must come from `develop` or `hotfix/*` |
@@ -257,6 +257,20 @@ After a merge into `main`, `already-checked` skips `lint`, `typecheck`, `test`
 and `e2e` when the merged commit has the same content as the pull request they
 passed on.
 Merges into `develop` don't re-run them at all.
+
+On a pull request into `develop`, `e2e` runs Chromium and Europe in full, but
+Firefox and WebKit only for the tests tagged `@cross-browser` and the e2e files the
+pull request adds or changes (`scripts/e2e-scope.mjs`). A change to
+`playwright.config.ts`, a shared e2e helper or Playwright itself runs everything.
+Pull requests into `main` always run everything, and `e2e-nightly.yml` runs the
+full suite on `develop` each night, one job per browser, when `develop` moved.
+Tag a test with `{ tag: "@cross-browser" }` when it guards something browsers
+differ on (cookies, layout, canvas, sharing). To run the pull request's set
+locally:
+
+```bash
+E2E_SCOPE=pr E2E_CHANGED=smoke.e2e.ts pnpm test:e2e
+```
 
 The lefthook git hooks run the same Biome, `tsc` and commitlint before each
 commit, so a branch that commits cleanly usually passes. A check that failed for

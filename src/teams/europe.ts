@@ -49,7 +49,6 @@ export const europe: TeamData = {
 		"STRAVA_EXTRA_CLUB_IDS",
 		"SEASON_START_DATE",
 		"QUALIFICATION_DEADLINE",
-		"STRAVA_SUBSCRIPTION_ID",
 		"PRIVACY_CONTROLLER",
 		"CONTACT_EMAIL",
 		"database_id",

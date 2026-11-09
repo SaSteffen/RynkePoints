@@ -136,6 +136,11 @@ jobs:
   # (synthetic riders, no request leaves the runner). In Playwright's image, which
   # has the browsers and their system libraries: `playwright install --with-deps`
   # spent up to 20 minutes on timeouts from the runner's Ubuntu mirror.
+  # On a pull request into develop, Firefox and WebKit run only the @cross-browser
+  # tests and the e2e files it adds or changes (scripts/e2e-scope.mjs); Chromium and
+  # Europe run in full. Pull requests into main, pushes and dispatches run
+  # everything, so main only takes fully checked commits; e2e-nightly.yml runs
+  # everything on develop each night.
   e2e:
     name: e2e
     needs: [already-checked, playwright-image]
@@ -151,7 +156,12 @@ jobs:
       WRANGLER_SEND_METRICS: "false"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The merge commit and the base's tip, for the pull request's changes.
+          fetch-depth: 2
       - uses: ./.github/actions/setup
+      - if: github.event_name == 'pull_request' && github.base_ref == 'develop'
+        run: node scripts/e2e-scope.mjs
       - run: pnpm test:e2e
       - if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

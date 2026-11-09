@@ -53,9 +53,9 @@ const canvasSize = (sheet: Locator) =>
 test.describe("on a phone", () => {
 	test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
-	test("shares a badge as a story, a picture and a sticker (US1)", async ({
-		page,
-	}) => {
+	test("shares a badge as a story, a picture and a sticker (US1)", {
+		tag: "@cross-browser",
+	}, async ({ page }) => {
 		await page.addInitScript(() => {
 			const shared: unknown[] = [];
 			Object.assign(globalThis, { shared });

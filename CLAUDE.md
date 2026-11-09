@@ -61,11 +61,15 @@ and commit messages must follow
 - Merging belongs to the user. Never run `gh pr merge`, with or without `--auto`,
   unless the user explicitly asks for that pull request to be merged.
 - CI runs the same `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e` and commitlint
-  (commits and PR title) as the local hooks.
+  (commits and PR title) as the local hooks. On PRs into `develop`, `e2e` runs Firefox
+  and WebKit only for `@cross-browser` tests and changed e2e files
+  (`scripts/e2e-scope.mjs`); PRs into `main` and the nightly `e2e-nightly.yml` run
+  everything.
 - The seven check jobs' names are the required-check contexts. Renaming one means
   updating both `.github/rulesets/*.json` files in the same change.
-  `already-checked`, `playwright-image`, `deploy-gate`, `deploy`, `deploy-gateway` and
-  `release-pr` are not contexts and must never be added to them.
+  `already-checked`, `playwright-image`, `deploy-gate`, `deploy`, `deploy-gateway`,
+  `release-pr` and the `e2e-nightly.yml` jobs (`changed`, `nightly (…)`) are not
+  contexts and must never be added to them.
 
 ## Non-negotiables
 

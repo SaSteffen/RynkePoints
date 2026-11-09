@@ -1,0 +1,106 @@
+name: e2e nightly
+
+# The full e2e suite in every browser on develop, each night. Pull requests into
+# develop run Firefox and WebKit only for the @cross-browser tests and the e2e files
+# they change (ci.yml, scripts/e2e-scope.mjs); this catches what that leaves out
+# before a release pull request into main, which runs everything again. Scheduled
+# runs use the default branch, develop. GitHub mails a failed scheduled run to
+# whoever last changed the cron line.
+#
+# None of these jobs is a required-check context (.github/rulesets/*.json), and
+# none may become one.
+on:
+  schedule:
+    - cron: "23 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  # Skips the night when develop hasn't moved since the last green nightly. A
+  # dispatch always runs.
+  changed:
+    name: changed
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - id: decide
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          last=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow e2e-nightly.yml \
+            --branch "$GITHUB_REF_NAME" --status success --limit 1 --json headSha \
+            --jq '.[0].headSha // ""') || last=""
+          if [ "$GITHUB_EVENT_NAME" = schedule ] && [ "$last" = "$GITHUB_SHA" ]; then
+            echo "::notice::$GITHUB_SHA already passed a nightly run; skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # The Playwright image matching the locked @playwright/test, as in ci.yml.
+  playwright-image:
+    name: playwright-image
+    needs: changed
+    if: needs.changed.outputs.run == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      image: ${{ steps.version.outputs.image }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: pnpm-lock.yaml
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(grep -m1 -oP "^  '@playwright/test@\K[0-9][^']*(?=':)" pnpm-lock.yaml)
+          echo "image=mcr.microsoft.com/playwright:v$version-noble" >> "$GITHUB_OUTPUT"
+
+  # One job per browser, side by side; Europe's smoke test rides with Chromium.
+  nightly:
+    name: nightly (${{ matrix.browser }})
+    needs: playwright-image
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - browser: chromium
+            projects: --project chromium --project europe-smoke
+          - browser: firefox
+            projects: --project firefox
+          - browser: webkit
+            projects: --project webkit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      image: ${{ needs.playwright-image.outputs.image }}
+      options: --user 1001 --ipc=host
+    env:
+      WRANGLER_SEND_METRICS: "false"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - run: pnpm test:e2e ${{ matrix.projects }}
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-nightly-${{ matrix.browser }}
+          path: test-results/
+          retention-days: 7
