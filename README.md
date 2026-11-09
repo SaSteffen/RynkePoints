@@ -132,6 +132,9 @@ queue, so no rider's data is readable from another team
   ([contracts/usage-exchange.md](specs/026-second-team/contracts/usage-exchange.md)),
   and calls the other teams "Other team": no page names another team.
 
+Adding a team takes team data, resources and one line of deployment settings, no
+code: [docs/add-a-team.md](docs/add-a-team.md).
+
 ## Languages
 
 Every team's site offers ten languages: Dansk, Deutsch, English, Français,
