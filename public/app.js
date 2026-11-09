@@ -3920,7 +3920,9 @@ function shareSparkle(ctx, assets, x, y, size, t) {
 function shareVideoConfig(width, height) {
 	const blocks = Math.ceil(width / 16) * Math.ceil(height / 16);
 	return {
-		codec: blocks <= 8192 ? "avc1.640028" : "avc1.640032",
+		// Constrained Baseline: no B-frames, which some encoders (Firefox's)
+		// put out of order and the muxer refuses.
+		codec: blocks <= 8192 ? "avc1.42E028" : "avc1.42E032",
 		width,
 		height,
 		bitrate: 8_000_000,

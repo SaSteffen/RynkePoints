@@ -606,7 +606,7 @@ const canEncode = (page: Page) =>
 			};
 		};
 		const config = {
-			codec: "avc1.640028",
+			codec: "avc1.42E028",
 			width: 1080,
 			height: 1920,
 			bitrate: 8_000_000,

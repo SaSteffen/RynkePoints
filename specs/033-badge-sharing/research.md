@@ -62,8 +62,9 @@ says what the real build keeps from it and what changes.
 ## R4. Making the Glitzernd video
 
 - **Decision**:
-  - **Encoding**: WebCodecs `VideoEncoder` with H.264 (`avc1.640028`, High profile at level 4.0,
-    which covers 1080 × 1920). Frames are drawn one by one from a fixed clock: 30 fps, 150 frames,
+  - **Encoding**: WebCodecs `VideoEncoder` with H.264 (`avc1.42E028`, Constrained Baseline at
+    level 4.0, which covers 1080 × 1920; level 5.0 for larger photos). Baseline has no B-frames:
+    Firefox's encoder hands High-profile frames out of decode order, which the muxer refuses. Frames are drawn one by one from a fixed clock: 30 fps, 150 frames,
     5 s, with two shine sweeps and the stars on a loop that ends where it began (FR-023).
   - **Muxing**: the frames go into an MP4 file through the vendored `mp4-muxer`.
   - **When it is offered**: "Glitzernd" appears only when
