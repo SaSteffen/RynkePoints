@@ -65,8 +65,9 @@ the teams' figures together is part of this feature (FR-039).
   later. Riders' data and consent stay in the database, but sessions, installed apps and
   push subscriptions are tied to the domain (FR-005): after that move, riders sign in
   again, reinstall the app and turn reminders on again.
-- Q: Which Rynke rules does the second team use? → A: The founding team's, as decided
-  values, not placeholders. Its own rules can follow later as a new rule version (FR-019).
+- Q: Which Rynke rules does the second team use? → A: The founding team's rules and event
+  kinds, as decided values, not placeholders. Its own rules can follow later as a new rule
+  version (FR-019).
 
 ## User Scenarios & Testing *(mandatory)*
 

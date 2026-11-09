@@ -12,7 +12,8 @@ export const europe: TeamData = {
 	shortName: hamburg.shortName,
 	defaultLocale: "en",
 	foreignLocale: "en",
-	// The founding team's rules, decided (spec 026 clarification 2026-11-09).
+	// The founding team's rules and event kinds, decided (spec 026
+	// clarification 2026-11-09).
 	rules: hamburg.rules,
 	eventKinds: hamburg.eventKinds,
 	colours: hamburg.colours,
@@ -42,7 +43,6 @@ export const europe: TeamData = {
 	},
 	placeholders: [
 		"shortName",
-		"eventKinds",
 		"colours",
 		"art.icons",
 		"STRAVA_CLUB_ID",
