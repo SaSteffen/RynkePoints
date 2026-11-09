@@ -35,11 +35,11 @@
 		"prepare": "lefthook install"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.6.4",
-		"@cloudflare/vitest-plugin": "^1.5.0",
+		"@biomejs/biome": "^2.6.5",
+		"@cloudflare/vitest-plugin": "^1.6.0",
 		"@commitlint/cli": "^21.2.4",
 		"@commitlint/config-conventional": "^21.2.4",
-		"@playwright/test": "^1.64.1",
+		"@playwright/test": "^1.65.0",
 		"@types/node": "^26.6.6",
 		"chart.js": "4.6.1",
 		"chartjs-plugin-zoom": "2.2.0",
@@ -47,7 +47,7 @@
 		"pdf-lib": "^1.17.1",
 		"typescript": "^7.0.2",
 		"vitest": "^4.1.12",
-		"wrangler": "^4.156.2"
+		"wrangler": "^4.158.0"
 	},
 	"packageManager": "pnpm@10.34.5",
 	"pnpm": {
