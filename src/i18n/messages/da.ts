@@ -1069,6 +1069,10 @@ export const da: Catalog = {
 	"notice.blocked.title": "Du kan ikke være med på dette hold",
 	"notice.blocked.body":
 		"En administrator har fjernet dig fra dette hold. Vi beholder kun dit Strava-ID, så du ikke kan forbinde igen, og vi har tilbagekaldt den adgang, du lige gav.",
+	"notice.oneTeam.title": "Du er også med i et andet holds klub",
+	"notice.oneTeam.body":
+		"På RynkePoints kan du være med på ét hold ad gangen. Strava giver appen én forbindelse pr. person, så forbinder du dig til et andet hold, ophører forbindelsen til det første. Du er nu forbundet her.",
+	"notice.carryOn": "Fortsæt",
 	"organiser.graphs.heading": "Fremskridt",
 	"organiser.graphs.title.outdoor": "Udendørs kilometer (km)",
 	"organiser.graphs.title.virtual": "Virtuelle kilometer (km)",

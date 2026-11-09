@@ -1072,6 +1072,10 @@ export const sv: Catalog = {
 	"notice.blocked.title": "Du kan inte vara med i det här laget",
 	"notice.blocked.body":
 		"En administratör har tagit bort dig från det här laget. Vi behåller bara ditt Strava-ID, så att du inte kan ansluta igen, och vi har återkallat åtkomsten du nyss gav.",
+	"notice.oneTeam.title": "Du är också med i ett annat lags klubb",
+	"notice.oneTeam.body":
+		"På RynkePoints kan du vara med i ett lag i taget. Strava ger appen en anslutning per person, så om du ansluter till ett andra lag upphör anslutningen till det första. Du är nu ansluten här.",
+	"notice.carryOn": "Fortsätt",
 	"organiser.graphs.heading": "Framsteg",
 	"organiser.graphs.title.outdoor": "Kilometer utomhus (km)",
 	"organiser.graphs.title.virtual": "Virtuella kilometer (km)",

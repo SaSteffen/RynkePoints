@@ -111,13 +111,35 @@ export async function isClubMember(
 	clubIds: readonly number[],
 	priority: Priority = "background",
 ): Promise<StravaResult<boolean>> {
+	const result = await clubMembership(ctx, auth, clubIds, [], priority);
+	return result.kind === "ok"
+		? { kind: "ok", value: result.value.member }
+		: result;
+}
+
+/**
+ * Whether the rider is in one of `clubIds`, and in one of `otherClubIds`
+ * (other teams' clubs, FR-012). Reads the rider's clubs page by page and
+ * stops as soon as both are settled.
+ */
+export async function clubMembership(
+	ctx: StravaCtx,
+	auth: StravaAuth,
+	clubIds: readonly number[],
+	otherClubIds: readonly number[],
+	priority: Priority = "background",
+): Promise<StravaResult<{ member: boolean; other: boolean }>> {
+	let member = false;
+	let other = false;
 	for (let page = 1; page <= MAX_CLUB_PAGES; page++) {
 		const result = await getAthleteClubs(ctx, auth, page, priority);
 		if (result.kind !== "ok") return result;
-		if (result.value.some((club) => clubIds.includes(club.id))) {
-			return { kind: "ok", value: true };
+		member ||= result.value.some((club) => clubIds.includes(club.id));
+		other ||= result.value.some((club) => otherClubIds.includes(club.id));
+		const settled = member && (other || otherClubIds.length === 0);
+		if (settled || result.value.length < PER_PAGE) {
+			return { kind: "ok", value: { member, other } };
 		}
-		if (result.value.length < PER_PAGE) return { kind: "ok", value: false };
 	}
 	return transient("GET /athlete/clubs", "too many pages");
 }

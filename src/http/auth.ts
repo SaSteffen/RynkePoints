@@ -21,7 +21,7 @@ import {
 } from "../db/riders";
 import type { I18n } from "../i18n/i18n";
 import { evaluateChange } from "../rynke/apply";
-import { isClubMember } from "../strava/client";
+import { clubMembership } from "../strava/client";
 import { STRAVA_ORIGIN } from "../strava/result";
 import { exchangeCode, revokeToken } from "../strava/tokens";
 import { forbidden } from "./errors";
@@ -187,13 +187,14 @@ export async function handleCallback(
 	}
 
 	// A person waits for this page: it may use the reserve (feature 024 R5).
-	const membership = await isClubMember(
+	const membership = await clubMembership(
 		ctx,
 		auth,
 		memberClubIds(ctx.env),
+		ctx.team.otherClubIds,
 		"interactive",
 	);
-	if (membership.kind === "ok" && !membership.value) {
+	if (membership.kind === "ok" && !membership.value.member) {
 		return refuse("not-member", "not-member-deleted");
 	}
 	if (membership.kind !== "ok" && !existing) {
@@ -271,9 +272,12 @@ export async function handleCallback(
 		});
 	}
 
+	const session = await createSessionCookie(token.athleteId, now, ctx.env);
+	// A new rider in another team's club too learns that one team at a time
+	// works, before they connect to the other (FR-012).
+	if (!existing && membership.kind === "ok" && membership.value.other) {
+		return notice("one-team", [session]);
+	}
 	const next = await arrival(sectionNext(expected.next), ctx, token.athleteId);
-	return redirect(next, 302, [
-		clearOAuthStateCookie(),
-		await createSessionCookie(token.athleteId, now, ctx.env),
-	]);
+	return redirect(next, 302, [clearOAuthStateCookie(), session]);
 }

@@ -1072,6 +1072,10 @@ export const fi: Catalog = {
 	"notice.blocked.title": "Et voi osallistua tässä tiimissä",
 	"notice.blocked.body":
 		"Ylläpitäjä on poistanut sinut tästä tiimistä. Säilytämme vain Strava-tunnuksesi, jotta et voi yhdistää uudelleen, ja olemme perineet juuri antamasi pääsyn.",
+	"notice.oneTeam.title": "Olet myös toisen tiimin klubissa",
+	"notice.oneTeam.body":
+		"RynkePointsissa voit olla mukana yhdessä tiimissä kerrallaan. Strava antaa sovellukselle yhden yhteyden henkilöä kohden, joten jos yhdistät toiseen tiimiin, yhteys ensimmäiseen päättyy. Olet nyt yhdistetty tänne.",
+	"notice.carryOn": "Jatka",
 	"organiser.graphs.heading": "Edistyminen",
 	"organiser.graphs.title.outdoor": "Ulkokilometrit (km)",
 	"organiser.graphs.title.virtual": "Virtuaalikilometrit (km)",

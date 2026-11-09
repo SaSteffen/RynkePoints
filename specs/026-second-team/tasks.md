@@ -409,11 +409,15 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 
 ## Phase 14: User Story 1 – Riders in both clubs (P1, release 4)
 
-- [ ] T076 [US1] Tests in `test/integration/connect.test.ts`: a rider whose clubs include
-  one of `ctx.team.otherClubIds` sees the one-team-at-a-time notice before connecting
-  (FR-012); others don't.
-- [ ] T077 [US1] The notice in `src/http/landing.ts` and `src/http/auth.ts` with
-  `connect.oneTeamNotice` in all ten catalogs. T076 green.
+- [X] T076 [US1] Tests in `test/integration/one-team.test.ts`: a new rider whose clubs
+  include one of `ctx.team.otherClubIds` is connected and sees the one-team-at-a-time
+  notice (FR-012); a rider only in this team's club, or reconnecting, doesn't. Strava
+  shows a rider's clubs only after the sign-in, so the notice comes right after the first
+  connection, before any second one.
+- [X] T077 [US1] `clubMembership` in `src/strava/client.ts` reads both answers from the
+  same club pages; `/notice/one-team` in `src/http/notice.ts`, reached from
+  `src/http/auth.ts`, with `notice.oneTeam.*` and `notice.carryOn` in all ten catalogs.
+  T076 green.
 
 ## Phase 15: Usage across teams (release 4, FR-039–FR-041)
 
