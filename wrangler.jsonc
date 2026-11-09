@@ -151,7 +151,7 @@
 		// Hamburg's; Wrangler doesn't inherit vars, bindings or secrets into an
 		// environment, so each is listed again here. Placeholders until release 4
 		// (src/teams/europe.ts `placeholders`): the resource IDs, club IDs, dates,
-		// subscription, push subject, controller and contact.
+		// subscription, controller and contact.
 		"europe": {
 			"name": "rynke-points-europe",
 			"d1_databases": [
@@ -194,8 +194,7 @@
 				"ORGANISER_PROGRESS_GRAPH": "on",
 				// Placeholder: the gateway holds the subscription (release 3).
 				"STRAVA_SUBSCRIPTION_ID": "0",
-				// Placeholder until Europe has its domain.
-				"PUSH_SUBJECT": "https://example.org",
+				"PUSH_SUBJECT": "https://europe.trhh-rynke-coins.link",
 				"READY_POLL_SECONDS": "10",
 				"TRAINING_LEADERBOARD": "on",
 				"RIDE_FIGURES": "on",
@@ -222,8 +221,14 @@
 					"PUSH_VAPID_KEY"
 				]
 			},
-			// No domain yet: an environment would otherwise inherit Hamburg's.
-			"routes": []
+			// For now a subdomain of Hamburg's domain; Europe's own domain comes
+			// later (spec 026 clarification 2026-11-09).
+			"routes": [
+				{
+					"pattern": "europe.trhh-rynke-coins.link",
+					"custom_domain": true
+				}
+			]
 		}
 	}
 }

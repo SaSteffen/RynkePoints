@@ -58,6 +58,17 @@ the teams' figures together is part of this feature (FR-039).
 - Q: Does `pnpm dev` mirror the shared Strava app? → A: Yes. Once the gateway exists,
   `pnpm dev` runs one fake Strava and a local gateway in front of all teams.
 
+### Session 2026-11-09
+
+- Q: Which domain does the second team launch on? → A: For now a subdomain of the founding
+  team's domain, `europe.trhh-rynke-coins.link`, like every sandbox. Its own domain comes
+  later. Riders' data and consent stay in the database, but sessions, installed apps and
+  push subscriptions are tied to the domain (FR-005): after that move, riders sign in
+  again, reinstall the app and turn reminders on again.
+- Q: Which Rynke rules does the second team use? → A: The founding team's rules and event
+  kinds, as decided values, not placeholders. Its own rules can follow later as a new rule
+  version (FR-019).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - A rider joins their own team (Priority: P1)
@@ -312,7 +323,10 @@ machine.
 **Own domain and signing in**
 
 - **FR-005**: The second team MUST be served only from its own domain, which is required
-  for launch. Sessions, consent and installed apps MUST be tied to that domain.
+  for launch. Sessions, consent and installed apps MUST be tied to that domain. Until it
+  has a domain of its own, a subdomain of the founding team's domain is its domain
+  (clarification 2026-11-09); its cookies stay host-only, so neither site sees the
+  other's.
 - **FR-006**: Since Strava accepts one callback domain, approval MUST return through the
   gateway on that domain, which passes it on to the team's own domain. The rider MUST end
   on the domain where they started.
@@ -375,6 +389,8 @@ machine.
 **Content and art**
 
 - **FR-023**: No page, image or text of a team MUST show another team's name, place or art.
+  A team on an interim subdomain of the founding team's domain (FR-005) shows that
+  domain in its address and links; that is accepted until it moves.
 - **FR-024**: Art specific to the founding team, at least the coin and badges with Hamburg
   motifs, MUST be flagged as such in team data. Another team MUST see its own version, or a
   neutral placeholder picture until it has one; the badge itself still counts.
