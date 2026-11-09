@@ -163,7 +163,9 @@ export function devArgs(target, { behindGateway = false } = {}) {
 		"--test-scheduled",
 		// Its keys need the terminal, which the prefixed output doesn't give it.
 		"--show-interactive-dev-session=false",
-		...(behindGateway ? behindGatewayArgs() : []),
+		// Alone, sign-ins come straight back: never through the production
+		// gateway the team's block may name.
+		...(behindGateway ? behindGatewayArgs() : ["--var", "STRAVA_RETURN_VIA:"]),
 	];
 }
 
