@@ -137,7 +137,7 @@ badge. The photo never leaves the device.
 
 ### Tests for User Story 2
 
-- [ ] T017 [US2] Add failing tests to `e2e/badge-share.e2e.ts`:
+- [x] T017 [US2] Add failing tests to `e2e/badge-share.e2e.ts`:
   - **Picking a photo**: "Auf Foto" shows "Foto wählen" and the privacy line. Make a 1600 × 1200 synthetic PNG in the page (`canvas.toDataURL`) and pass it to `setInputFiles` as a buffer. The canvas is then 1600 × 1200.
   - **No request**: record `page.on("request")` from picking to saving, and expect none.
   - **The result**: the saved PNG is 1600 × 1200.
@@ -147,18 +147,18 @@ badge. The photo never leaves the device.
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US2] In `public/app.js`, read the photo with `createImageBitmap(file, { imageOrientation: "from-image" })` and scale it once to at most 1920 px on the long side. On a decode error, show `.share-photo-unreadable` and keep the picker. "Anderes Foto" picks again (research R11)
-- [ ] T019 [US2] In `public/app.js`, place the badge by `place = { x, y, w }` as fractions of the photo:
+- [x] T018 [US2] In `public/app.js`, read the photo with `createImageBitmap(file, { imageOrientation: "from-image" })` and scale it once to at most 1920 px on the long side. On a decode error, show `.share-photo-unreadable` and keep the picker. "Anderes Foto" picks again (research R11)
+- [x] T019 [US2] In `public/app.js`, place the badge by `place = { x, y, w }` as fractions of the photo:
   - the default is `{ x: .78, y: .78, w: .38 }`;
   - clamp `x` and `y` to 0…1 and `w` to .15….90 (data-model.md);
   - one pointer drags, two pointers pinch, and the mouse wheel scales;
   - redraw on every move and make the file again on pointer up;
   - keep `place` when the photo changes (US2 scenario 6).
-- [ ] T020 [US2] In `public/app.js`, make the photo file:
+- [x] T020 [US2] In `public/app.js`, make the photo file:
   - the photo at its size with the badge, no text and no mark;
   - named `{slug}-{id}-photo.png`;
   - show the touch or mouse hint by `(hover: hover) and (pointer: fine)`.
-- [ ] T021 [US2] In `public/app.js`, on close, `close()` the photo `ImageBitmap`, drop it and `place`, clear the file input and revoke every blob URL (FR-022) (T017 green)
+- [x] T021 [US2] In `public/app.js`, on close, `close()` the photo `ImageBitmap`, drop it and `place`, clear the file input and revoke every blob URL (FR-022) (T017 green)
 
 **Checkpoint**: "Auf Foto" works on a phone and on desktop; nothing leaves the page.
 
