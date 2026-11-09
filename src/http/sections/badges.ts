@@ -26,6 +26,7 @@ import {
 	badgeRibbon,
 } from "../../badges/outline";
 import { badgePicture } from "../../badges/pictures";
+import { RIBBON_TEXT, ribbonTextSize } from "../../badges/ribbon";
 import { evaluateTeamBadges, type TeamBadgeSums } from "../../badges/team";
 import {
 	type BadgeSection,
@@ -160,6 +161,14 @@ export function milestone(i18n: I18n, badge: Badge): string {
 	);
 }
 
+/** The milestone on the ribbon, smaller where it is long. */
+function ribbonText(value: string): SafeHtml {
+	const size = ribbonTextSize(value);
+	const style =
+		size < RIBBON_TEXT.size ? ` style="--rp-ribbon-size:${size}"` : "";
+	return html`<span class="badge-ribbon-text"${new SafeHtml(style)}>${value}</span>`;
+}
+
 /**
  * The badge's picture with its sticker edge, and the ribbon drawn over it
  * when it has one: the same picture with and without (issue #180). The edge
@@ -219,7 +228,7 @@ function badgeButton(
 	});
 	const ribbon = size === 200;
 	const src = names.picture(badge);
-	return html`<button class="${fresh ? "badge badge-fresh" : "badge"}" popovertarget="badge-${badge.id}" aria-label="${label}" style="--tilt:${tiltOf(badge.id)}deg;--badge-src:url(${src})">${art(src, badge, size, ribbon)}${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}${fresh ? SPARKLES : null}</button>`;
+	return html`<button class="${fresh ? "badge badge-fresh" : "badge"}" popovertarget="badge-${badge.id}" aria-label="${label}" style="--tilt:${tiltOf(badge.id)}deg;--badge-src:url(${src})">${art(src, badge, size, ribbon)}${ribbon ? ribbonText(milestone(i18n, badge)) : null}${fresh ? SPARKLES : null}</button>`;
 }
 
 /**
@@ -238,7 +247,9 @@ function shareMini(
 
 /**
  * The way to the next badge: says it is the next (or, without a badge, the
- * first) one, the bar and what is missing. Never the badge's name or picture (FR-003).
+ * first) one, the bar and what is missing; for a record of one activity or
+ * event, the value it needs instead (FR-003a). Never the badge's name or
+ * picture (FR-003).
  */
 function progressBar(
 	i18n: I18n,
@@ -246,6 +257,19 @@ function progressBar(
 	progress: ProgressView,
 	first: boolean,
 ): SafeHtml {
+	const next = html`<span class="badge-next">${i18n.t(first ? "badges.first" : "badges.next")}</span>`;
+	// A record of one activity or event: the next badge's threshold, no bar.
+	// 9,5 km aren't "0,5 km to go" when the next run must be 10 km long.
+	if (categoryById(category).single) {
+		const at = valueText(
+			i18n,
+			progress.unit,
+			progress.next,
+			Number.isInteger(progress.next) ? 0 : 1,
+		);
+		return html`${next}
+<span class="badge-missing">${i18n.t("badges.at", { value: at })}</span>`;
+	}
 	// The width is a number the view model computed, never user input.
 	const missing = valueText(
 		i18n,
@@ -253,7 +277,7 @@ function progressBar(
 		progress.missing,
 		ONE_DECIMAL.has(category) ? 1 : 0,
 	);
-	return html`<span class="badge-next">${i18n.t(first ? "badges.first" : "badges.next")}</span>
+	return html`${next}
 <span class="bar" aria-hidden="true"><span style="width:${progress.percent}%"></span></span>
 <span class="badge-missing">${i18n.t("badges.missing", { value: missing })}</span>`;
 }
@@ -387,7 +411,7 @@ function popover(i18n: I18n, names: BadgeNames, earned: EarnedBadge): SafeHtml {
 	const src = names.picture(badge);
 	return html`<div popover id="badge-${badge.id}" class="badge-large${team}">
 <button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
-<span class="badge" style="--badge-src:url(${src})">${art(src, badge, 280, true)}<span class="badge-ribbon-text">${value}</span>${SPARKLES}</span>
+<span class="badge" style="--badge-src:url(${src})">${art(src, badge, 280, true)}${ribbonText(value)}${SPARKLES}</span>
 <h4>${names(badge.id)}</h4>
 <p>${forText(i18n, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>

@@ -1,7 +1,11 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "rynke-points",
-	"main": "src/index.ts",
+	// No team at the top level: every command names one, `--env hamburg` or
+	// `--env europe`. Without it Wrangler would take the name from package.json,
+	// which is Hamburg's Worker, and deploy it with no bindings; this name and
+	// the missing entry file make such a deploy fail instead.
+	"name": "no-team-use-env",
+	"main": "use-env-hamburg-or-env-europe.ts",
 	"compatibility_date": "2026-08-22",
 	"compatibility_flags": ["nodejs_compat"],
 	"observability": {
@@ -12,130 +16,10 @@
 			"invocation_logs": false
 		}
 	},
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "rynke-points",
-			// Placeholder. The maintainer replaces it with the real ID after
-			// `wrangler d1 create rynke-points --jurisdiction=eu` (quickstart §3).
-			"database_id": "f1493f0b-1930-48de-afc5-f6edda211092",
-			"migrations_dir": "migrations"
-		}
-	],
-	"queues": {
-		"producers": [
-			{
-				"binding": "WORK_QUEUE",
-				"queue": "rynke-points-work"
-			}
-		],
-		"consumers": [
-			{
-				"queue": "rynke-points-work",
-				"max_batch_size": 10,
-				"max_batch_timeout": 5,
-				"max_retries": 10,
-				"max_concurrency": 1
-			}
-		]
-	},
-	// Daily membership check and failed_work re-enqueue; hourly usage recording
-	// and alerts (025 research R2). `handleScheduled` tells them apart.
-	"triggers": {
-		"crons": ["17 3 * * *", "58 * * * *"]
-	},
 	// Unmodified Strava brand assets (see public/strava/README.md).
 	"assets": {
 		"directory": "./public"
 	},
-	// Team settings (data-model.md). Changing them is a deploy, not a code change.
-	"vars": {
-		// The team's Strava club: the one the app links to and names.
-		"STRAVA_CLUB_ID": "1088689",
-		// Further clubs whose members may take part too, comma-separated, never
-		// named in the app; "" for none.
-		"STRAVA_EXTRA_CLUB_IDS": "2372209",
-		"SEASON_START_DATE": "2026-09-01",
-		// Last day rides and team events count; the even pace runs to it (016).
-		"QUALIFICATION_DEADLINE": "2027-06-30",
-		// What organisers see of each rider's Rynke on /organiser/riders:
-		// "full" (amounts, what is missing, where they come from) or "percent"
-		// (Training and Team as a share of their threshold, up to 100 %; the
-		// corrections as amounts).
-		"ORGANISER_FIGURES": "full",
-		// "on" adds the Progress section with daily figures to /organiser/riders,
-		// for riders on consent version 3 or higher, while ORGANISER_FIGURES is
-		// "full". It never changes the consent versions. "on" or "off".
-		"ORGANISER_PROGRESS_GRAPH": "on",
-		// "0" until the webhook subscription is created (quickstart §3 step 12).
-		// The optional secret STRAVA_SUBSCRIPTION_ID_OVERRIDE wins while it is set
-		// (docs/gateway-switch.md step 3).
-		"STRAVA_SUBSCRIPTION_ID": "375559",
-		// VAPID contact for the push services (010 research R4).
-		"PUSH_SUBJECT": "https://trhh-rynke-coins.link",
-		// Seconds between the waiting page's checks for the first data, 1–60
-		// (015 research R5).
-		"READY_POLL_SECONDS": "10",
-		// "off" ranks no rider by Training Rynke on /team: no place card, no
-		// Training leaderboard, no Training figure in the Team rows. The team
-		// total, the peloton and the team chart stay. "on" or "off".
-		"TRAINING_LEADERBOARD": "on",
-		// "on" lets /team rank riders by sessions, km and elevation without names,
-		// and gives organisers the Sessions column and graph, for riders on
-		// consent version 3 or higher (feature 032). "on" or "off".
-		"RIDE_FIGURES": "on",
-		// "off" gives /team one view without Rynke: the team's ride figures, a km
-		// chart and the ride ranking (feature 032 FR-012). "on" or "off".
-		"RYNKE_VIEWS": "on",
-		// Feature switches per team (feature 026 FR-018), each "on" or "off":
-		// "off" leaves out every page, menu entry, text, notification and
-		// scheduled work of the feature. The badges; the Team page's
-		// motivational phrases; the season album; the fun themes Konfetti and
-		// Disco in the theme menu.
-		"BADGES": "on",
-		"PHRASES": "on",
-		"SEASON_ALBUM": "on",
-		"FUN_THEMES": "on",
-		// Who is responsible for the riders' data, and how to reach them, for
-		// the privacy page (/privacy). One line each; the contact is the email.
-		"PRIVACY_CONTROLLER": "Sascha Steffen",
-		"CONTACT_EMAIL": "support@trhh-rynke-coins.link",
-		// Labels this team's usage records, for feature 026's shares (025 R13).
-		"TEAM_ID": "hamburg",
-		// "" sends riders back from Strava to this site's /auth/callback; the
-		// Strava gateway's origin sends them through it (feature 026 release 3,
-		// contracts/gateway.md). Empty until the gateway runs (docs/gateway-switch.md).
-		"STRAVA_RETURN_VIA": "",
-		// The other teams whose usage counts the admin view shows beside this
-		// team's (feature 026 contracts/usage-exchange.md): JSON list of
-		// { "id", "origin" }, like the gateway's TEAMS. "[]" for none.
-		"USAGE_PEERS": "[]"
-	},
-	// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing
-	// them here makes `pnpm types` independent of what's in your `.dev.vars`.
-	// CLOUDFLARE_ANALYTICS_TOKEN and CLOUDFLARE_ANALYTICS_ACCOUNT_ID are optional,
-	// so they aren't listed and a deploy works without them: Cloudflare's figures
-	// then count as unavailable (025 contracts/cloudflare-analytics.md).
-	// USAGE_EXCHANGE_TOKEN is optional too: the same value in every team, for
-	// the usage export (026 contracts/usage-exchange.md); without it no team's
-	// counts are exchanged.
-	"secrets": {
-		"required": [
-			"STRAVA_CLIENT_ID",
-			"STRAVA_CLIENT_SECRET",
-			"STRAVA_WEBHOOK_VERIFY_TOKEN",
-			"TOKEN_ENCRYPTION_KEY",
-			"SESSION_SIGNING_KEY",
-			"ADMIN_TOKEN",
-			"PUSH_VAPID_KEY"
-		]
-	},
-	"routes": [
-		{
-			"pattern": "trhh-rynke-coins.link",
-			"custom_domain": true
-		}
-	],
 	"workers_dev": false,
 	"preview_urls": false,
 	// `wrangler dev` only (`pnpm dev` and `pnpm dev:strava`); deploys ignore it.
@@ -146,14 +30,142 @@
 		"port": 8789,
 		"host": "localhost:8789"
 	},
+	// One block per team, the founding team first (feature 026 research R1).
+	// Wrangler doesn't inherit vars, bindings or secrets into a block, so each
+	// block lists all of them; `node scripts/team-check.mjs` keeps them alike.
 	"env": {
-		// Team Rynkeby Europe (feature 026), `--env europe`. Everything above is
-		// Hamburg's; Wrangler doesn't inherit vars, bindings or secrets into an
-		// environment, so each is listed again here. Placeholders until release 4
+		// Team Rynkeby Hamburg, the founding team, `--env hamburg`. Its Worker,
+		// database, queue and domain kept their names when it moved here from
+		// the top level.
+		"hamburg": {
+			"name": "rynke-points",
+			"main": "src/index.ts",
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "rynke-points",
+					// From `wrangler d1 create rynke-points --jurisdiction=eu`.
+					"database_id": "f1493f0b-1930-48de-afc5-f6edda211092",
+					"migrations_dir": "migrations"
+				}
+			],
+			"queues": {
+				"producers": [
+					{
+						"binding": "WORK_QUEUE",
+						"queue": "rynke-points-work"
+					}
+				],
+				"consumers": [
+					{
+						"queue": "rynke-points-work",
+						"max_batch_size": 10,
+						"max_batch_timeout": 5,
+						"max_retries": 10,
+						"max_concurrency": 1
+					}
+				]
+			},
+			// Daily membership check and failed_work re-enqueue; hourly usage recording
+			// and alerts (025 research R2). `handleScheduled` tells them apart.
+			"triggers": {
+				"crons": ["17 3 * * *", "58 * * * *"]
+			},
+			// Team settings (data-model.md). Changing them is a deploy, not a code change.
+			"vars": {
+				// The team's Strava club: the one the app links to and names.
+				"STRAVA_CLUB_ID": "1088689",
+				// Further clubs whose members may take part too, comma-separated, never
+				// named in the app; "" for none.
+				"STRAVA_EXTRA_CLUB_IDS": "2372209",
+				"SEASON_START_DATE": "2026-09-01",
+				// Last day rides and team events count; the even pace runs to it (016).
+				"QUALIFICATION_DEADLINE": "2027-06-30",
+				// What organisers see of each rider's Rynke on /organiser/riders:
+				// "full" (amounts, what is missing, where they come from) or "percent"
+				// (Training and Team as a share of their threshold, up to 100 %; the
+				// corrections as amounts).
+				"ORGANISER_FIGURES": "full",
+				// "on" adds the Progress section with daily figures to /organiser/riders,
+				// for riders on consent version 3 or higher, while ORGANISER_FIGURES is
+				// "full". It never changes the consent versions. "on" or "off".
+				"ORGANISER_PROGRESS_GRAPH": "on",
+				// "0" until the webhook subscription is created (quickstart §3 step 12).
+				// The optional secret STRAVA_SUBSCRIPTION_ID_OVERRIDE wins while it is set
+				// (docs/gateway-switch.md step 3).
+				"STRAVA_SUBSCRIPTION_ID": "375559",
+				// VAPID contact for the push services (010 research R4).
+				"PUSH_SUBJECT": "https://trhh-rynke-coins.link",
+				// Seconds between the waiting page's checks for the first data, 1–60
+				// (015 research R5).
+				"READY_POLL_SECONDS": "10",
+				// "off" ranks no rider by Training Rynke on /team: no place card, no
+				// Training leaderboard, no Training figure in the Team rows. The team
+				// total, the peloton and the team chart stay. "on" or "off".
+				"TRAINING_LEADERBOARD": "on",
+				// "on" lets /team rank riders by sessions, km and elevation without names,
+				// and gives organisers the Sessions column and graph, for riders on
+				// consent version 3 or higher (feature 032). "on" or "off".
+				"RIDE_FIGURES": "on",
+				// "off" gives /team one view without Rynke: the team's ride figures, a km
+				// chart and the ride ranking (feature 032 FR-012). "on" or "off".
+				"RYNKE_VIEWS": "on",
+				// Feature switches per team (feature 026 FR-018), each "on" or "off":
+				// "off" leaves out every page, menu entry, text, notification and
+				// scheduled work of the feature. The badges; the Team page's
+				// motivational phrases; the season album; the fun themes Konfetti and
+				// Disco in the theme menu.
+				"BADGES": "on",
+				"PHRASES": "on",
+				"SEASON_ALBUM": "on",
+				"FUN_THEMES": "on",
+				// Who is responsible for the riders' data, and how to reach them, for
+				// the privacy page (/privacy). One line each; the contact is the email.
+				"PRIVACY_CONTROLLER": "Sascha Steffen",
+				"CONTACT_EMAIL": "support@trhh-rynke-coins.link",
+				// Labels this team's usage records, for feature 026's shares (025 R13).
+				"TEAM_ID": "hamburg",
+				// "" sends riders back from Strava to this site's /auth/callback; the
+				// Strava gateway's origin sends them through it (feature 026 release 3,
+				// contracts/gateway.md). Empty until the gateway runs (docs/gateway-switch.md).
+				"STRAVA_RETURN_VIA": "",
+				// The other teams whose usage counts the admin view shows beside this
+				// team's (feature 026 contracts/usage-exchange.md): JSON list of
+				// { "id", "origin" }, like the gateway's TEAMS. "[]" for none.
+				"USAGE_PEERS": "[]"
+			},
+			// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing
+			// them here makes `pnpm types` independent of what's in your `.dev.vars`.
+			// CLOUDFLARE_ANALYTICS_TOKEN and CLOUDFLARE_ANALYTICS_ACCOUNT_ID are optional,
+			// so they aren't listed and a deploy works without them: Cloudflare's figures
+			// then count as unavailable (025 contracts/cloudflare-analytics.md).
+			// USAGE_EXCHANGE_TOKEN is optional too: the same value in every team, for
+			// the usage export (026 contracts/usage-exchange.md); without it no team's
+			// counts are exchanged.
+			"secrets": {
+				"required": [
+					"STRAVA_CLIENT_ID",
+					"STRAVA_CLIENT_SECRET",
+					"STRAVA_WEBHOOK_VERIFY_TOKEN",
+					"TOKEN_ENCRYPTION_KEY",
+					"SESSION_SIGNING_KEY",
+					"ADMIN_TOKEN",
+					"PUSH_VAPID_KEY"
+				]
+			},
+			"routes": [
+				{
+					"pattern": "trhh-rynke-coins.link",
+					"custom_domain": true
+				}
+			]
+		},
+		// Team Rynkeby Europe (feature 026), `--env europe`. Placeholders until release 4
 		// (src/teams/europe.ts `placeholders`): the resource IDs, club IDs, dates,
-		// subscription, push subject, controller and contact.
+		// subscription, controller and contact.
 		"europe": {
 			"name": "rynke-points-europe",
+			"main": "src/index.ts",
 			"d1_databases": [
 				{
 					"binding": "DB",
@@ -194,8 +206,7 @@
 				"ORGANISER_PROGRESS_GRAPH": "on",
 				// Placeholder: the gateway holds the subscription (release 3).
 				"STRAVA_SUBSCRIPTION_ID": "0",
-				// Placeholder until Europe has its domain.
-				"PUSH_SUBJECT": "https://example.org",
+				"PUSH_SUBJECT": "https://europe.trhh-rynke-coins.link",
 				"READY_POLL_SECONDS": "10",
 				"TRAINING_LEADERBOARD": "on",
 				"RIDE_FIGURES": "on",
@@ -222,8 +233,14 @@
 					"PUSH_VAPID_KEY"
 				]
 			},
-			// No domain yet: an environment would otherwise inherit Hamburg's.
-			"routes": []
+			// For now a subdomain of Hamburg's domain; Europe's own domain comes
+			// later (spec 026 clarification 2026-11-09).
+			"routes": [
+				{
+					"pattern": "europe.trhh-rynke-coins.link",
+					"custom_domain": true
+				}
+			]
 		}
 	}
 }

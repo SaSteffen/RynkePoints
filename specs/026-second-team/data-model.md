@@ -22,7 +22,7 @@ No database change (research R12). The entities below are code and config data.
 | `cloudflare` | `{ worker: string; databaseId: string; queueIds: string[] }` | The team's Worker name, D1 database ID and queue IDs, for splitting Cloudflare's figures (FR-040). Worker and database must match the Wrangler block (`team-check`); no queue IDs leaves queue operations unsplit |
 | `placeholders` | string[] | Names of fields or vars still copied from another team (FR-053) |
 
-The team's Wrangler block (`wrangler.jsonc` top level for Hamburg, `env.<id>` otherwise)
+The team's Wrangler block (`wrangler.jsonc` `env.<id>`, every team; research R1)
 holds the vars already documented there (`TEAM_ID`, club IDs, dates, feature switches,
 controller, contact, push subject), plus `STRAVA_RETURN_VIA` (release 3) and the new
 switches `BADGES`, `PHRASES`, `SEASON_ALBUM`, `FUN_THEMES` (`"on"`/`"off"`, default
@@ -105,7 +105,7 @@ reconciliation is the safety net.
 |---|---|
 | team id | `TEAMS` registry |
 | host, port, inspector port | `team.dev` |
-| wrangler env | none for the founding team's top-level block, else `--env <id>` |
+| wrangler env | `--env <id>` |
 | state dir | `.wrangler/fake-state-<id>` |
 | fake samples | `dev/fake-strava/samples.<id>.ts` |
 

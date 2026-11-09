@@ -613,6 +613,7 @@ export const en: Catalog = {
 	"badges.switch.all": "All",
 	"badges.empty": "No badge yet – your first ride brings you closer.",
 	"badges.missing": "{value} to go",
+	"badges.at": "At {value}",
 	"badges.next": "Next badge",
 	"badges.first": "First badge",
 	"badges.earnedOn": "earned on {date}",
@@ -728,8 +729,8 @@ export const en: Catalog = {
 		other: "{n}\u00a0team events",
 	},
 	"badges.value.trainings": {
-		one: "{n}\u00a0technique training",
-		other: "{n}\u00a0technique trainings",
+		one: "{n}\u00a0training",
+		other: "{n}\u00a0trainings",
 	},
 	"badges.value.riders": {
 		one: "{n}\u00a0cyclist",

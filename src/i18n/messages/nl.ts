@@ -617,6 +617,7 @@ export const nl: Catalog = {
 	"badges.switch.all": "Alle",
 	"badges.empty": "Nog geen badge – je eerste rit brengt je dichterbij.",
 	"badges.missing": "nog {value}",
+	"badges.at": "vanaf {value}",
 	"badges.next": "Volgende badge",
 	"badges.first": "Eerste badge",
 	"badges.earnedOn": "verdiend op {date}",
@@ -733,12 +734,12 @@ export const nl: Catalog = {
 	"badges.value.m": "{n} m",
 	"badges.value.rynke": "{n} Rynke",
 	"badges.value.events": {
-		one: "{n} teamevenement",
-		other: "{n} teamevenementen",
+		one: "{n} evenement",
+		other: "{n} evenementen",
 	},
 	"badges.value.trainings": {
-		one: "{n} techniektraining",
-		other: "{n} techniektrainingen",
+		one: "{n} training",
+		other: "{n} trainingen",
 	},
 	"badges.value.riders": {
 		one: "{n} renner",
@@ -763,7 +764,7 @@ export const nl: Catalog = {
 	"badges.surprise.rest-day": "Rustdag",
 	"badges.surprise.rest-day.for":
 		"Een week lang elke dag actief – en dan een dag vrij. Dik verdiend!",
-	"badges.surprise.day-off": "Vrije dag voor het team",
+	"badges.surprise.day-off": "Teampauze",
 	"badges.surprise.day-off.for":
 		"Een dag waarop het hele team de benen omhoog legde.",
 	"badges.surprise.all-out": "Iedereen op pad",

@@ -10,9 +10,9 @@ import PINNED_VARS from "./test/support/pinned.json";
 // Two kinds of project (feature 026 research R11): `app`, every suite but
 // test/teams/ and test/gateway/, as the founding team with its settings
 // pinned; one `team:<id>` project per registered team for test/teams/, with the bindings of
-// that team's Wrangler block (the top level for the founding team,
-// `env.<id>` for the others; `pnpm lint`'s team-check keeps those blocks and
-// the registry in src/teams/ the same teams).
+// that team's Wrangler block `env.<id>` (`pnpm lint`'s team-check keeps those
+// blocks and the registry in src/teams/ the same teams). The founding team's
+// block comes first.
 //
 // `app` pins the founding team's settings (test/support/pinned.json), synthetic
 // values only: the club and one further club, a season start so tests don't
@@ -38,25 +38,19 @@ export default defineConfig(async () => {
 	};
 
 	const wrangler = parseJsonc(readFileSync("./wrangler.jsonc", "utf8")) as {
-		vars: { TEAM_ID: string };
-		env?: Record<string, unknown>;
+		env: Record<string, unknown>;
 	};
-	const teams = [
-		{ id: wrangler.vars.TEAM_ID, environment: undefined },
-		...Object.keys(wrangler.env ?? {}).map((id) => ({ id, environment: id })),
-	];
-	const teamProjects = teams.map((team) => ({
+	const teams = Object.keys(wrangler.env);
+	const [founding] = teams;
+	const teamProjects = teams.map((id) => ({
 		plugins: [
 			cloudflareTest({
-				wrangler: {
-					configPath: "./wrangler.jsonc",
-					...(team.environment ? { environment: team.environment } : {}),
-				},
+				wrangler: { configPath: "./wrangler.jsonc", environment: id },
 				miniflare: { bindings: secrets },
 			}),
 		],
 		test: {
-			name: `team:${team.id}`,
+			name: `team:${id}`,
 			include: ["test/teams/**/*.test.ts"],
 			setupFiles: ["./test/setup.ts"],
 		},
@@ -68,7 +62,10 @@ export default defineConfig(async () => {
 				{
 					plugins: [
 						cloudflareTest({
-							wrangler: { configPath: "./wrangler.jsonc" },
+							wrangler: {
+								configPath: "./wrangler.jsonc",
+								environment: founding,
+							},
 							miniflare: { bindings: { ...secrets, ...PINNED_VARS } },
 						}),
 					],

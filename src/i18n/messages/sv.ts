@@ -605,6 +605,7 @@ export const sv: Catalog = {
 	"badges.switch.all": "Alla",
 	"badges.empty": "Inget märke än – din första tur tar dig närmare.",
 	"badges.missing": "{value} kvar",
+	"badges.at": "Vid {value}",
 	"badges.next": "Nästa märke",
 	"badges.first": "Första märket",
 	"badges.earnedOn": "tagit {date}",
@@ -723,12 +724,12 @@ export const sv: Catalog = {
 	"badges.value.m": "{n} m",
 	"badges.value.rynke": "{n} Rynke",
 	"badges.value.events": {
-		one: "{n} lagaktivitet",
-		other: "{n} lagaktiviteter",
+		one: "{n} aktivitet",
+		other: "{n} aktiviteter",
 	},
 	"badges.value.trainings": {
-		one: "{n} teknikträning",
-		other: "{n} teknikträningar",
+		one: "{n} träning",
+		other: "{n} träningar",
 	},
 	"badges.value.riders": { one: "{n} cyklist", other: "{n} cyklister" },
 	"badges.value.attendances": {

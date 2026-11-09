@@ -608,6 +608,7 @@ export const da: Catalog = {
 	"badges.switch.all": "Alle",
 	"badges.empty": "Ingen badge endnu – din første tur bringer dig nærmere.",
 	"badges.missing": "{value} tilbage",
+	"badges.at": "Ved {value}",
 	"badges.next": "Næste badge",
 	"badges.first": "Første badge",
 	"badges.earnedOn": "opnået den {date}",
@@ -723,12 +724,12 @@ export const da: Catalog = {
 	"badges.value.m": "{n} m",
 	"badges.value.rynke": "{n} Rynke",
 	"badges.value.events": {
-		one: "{n} holdarrangement",
-		other: "{n} holdarrangementer",
+		one: "{n} arrangement",
+		other: "{n} arrangementer",
 	},
 	"badges.value.trainings": {
-		one: "{n} teknisk træning",
-		other: "{n} tekniske træninger",
+		one: "{n} træning",
+		other: "{n} træninger",
 	},
 	"badges.value.riders": { one: "{n} rytter", other: "{n} ryttere" },
 	"badges.value.attendances": {

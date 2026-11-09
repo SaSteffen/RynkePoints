@@ -497,6 +497,7 @@ const CONTRACT_IDS = [
 	"badges.switch.all",
 	"badges.empty",
 	"badges.missing",
+	"badges.at",
 	"badges.next",
 	"badges.first",
 	"badges.close",

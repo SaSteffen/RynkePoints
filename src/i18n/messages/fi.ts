@@ -607,6 +607,7 @@ export const fi: Catalog = {
 	"badges.switch.all": "Kaikki",
 	"badges.empty": "Ei vielä merkkejä – ensimmäinen ajosi vie lähemmäs.",
 	"badges.missing": "jäljellä {value}",
+	"badges.at": "vähintään {value}",
 	"badges.next": "Seuraava merkki",
 	"badges.first": "Ensimmäinen merkki",
 	"badges.earnedOn": "ansaittu {date}",
@@ -727,12 +728,12 @@ export const fi: Catalog = {
 	"badges.value.m": "{n} m",
 	"badges.value.rynke": "{n} Rynkeä",
 	"badges.value.events": {
-		one: "{n} tiimitapahtuma",
-		other: "{n} tiimitapahtumaa",
+		one: "{n} tapahtuma",
+		other: "{n} tapahtumaa",
 	},
 	"badges.value.trainings": {
-		one: "{n} tekniikkaharjoitus",
-		other: "{n} tekniikkaharjoitusta",
+		one: "{n} harjoitus",
+		other: "{n} harjoitusta",
 	},
 	"badges.value.riders": { one: "{n} ajaja", other: "{n} ajajaa" },
 	"badges.value.attendances": {

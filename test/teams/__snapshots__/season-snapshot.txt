@@ -406,7 +406,7 @@ Noch 1 Rynke
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -414,7 +414,7 @@ Noch 10 km
 Längste Fahrt
 Längste Fahrt mit Trainings-Rynke.
 Erstes Abzeichen
-Noch 50 km
+Ab 50 km
 Virtuell
 Kilometer auf der Rolle und virtuell.
 Erstes Abzeichen
@@ -422,7 +422,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -487,7 +487,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -1020,7 +1020,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -1028,7 +1028,7 @@ Noch 10 km
 Längste Fahrt
 Längste Fahrt mit Trainings-Rynke.
 Erstes Abzeichen
-Noch 15 km
+Ab 50 km
 Virtuell
 Kilometer auf der Rolle und virtuell.
 Erstes Abzeichen
@@ -1036,7 +1036,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -1123,7 +1123,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -1856,7 +1856,7 @@ Noch 6.988 m
 Längste Fahrt
 [img /badges/ride-length-100.svg?v=b573b05115] 100 km
 Nächstes Abzeichen
-Noch 40 km
+Ab 150 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -1868,7 +1868,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -1880,7 +1880,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -1981,7 +1981,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -2763,7 +2763,7 @@ Noch 1.000 m
 Längste Fahrt
 [img /badges/ride-length-100.svg?v=b573b05115] 100 km
 Nächstes Abzeichen
-Noch 50 km
+Ab 150 km
 Tour de Paris
 [img /badges/tour-de-paris-5.svg?v=d8d8ccc719] Tag 5
 Teamtermine
@@ -2777,7 +2777,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -2785,7 +2785,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -2902,7 +2902,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -3625,7 +3625,7 @@ Deine Abzeichen Alle deine Abzeichen (5)
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 50 km
+Ab 100 km
 Trainings-Rynke
 [img /badges/training-rynke-1.svg?v=ecc11c6191] 1 Rynke
 Nächstes Abzeichen
@@ -3637,7 +3637,7 @@ Noch 15 km
 Längster Lauf
 [img /badges/run-length-10.svg?v=f4a2022140] 10 km
 Nächstes Abzeichen
-Noch 5,0 km
+Ab 15 km
 Distanz
 Rad-Kilometer mit Trainings-Rynke.
 Erstes Abzeichen
@@ -3661,7 +3661,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -3736,7 +3736,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -4448,7 +4448,7 @@ Noch 500 m
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -4456,7 +4456,7 @@ Noch 10 km
 Längste Fahrt
 Längste Fahrt mit Trainings-Rynke.
 Erstes Abzeichen
-Noch 30 km
+Ab 50 km
 Virtuell
 Kilometer auf der Rolle und virtuell.
 Erstes Abzeichen
@@ -4464,7 +4464,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -4547,7 +4547,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -5138,7 +5138,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -5146,7 +5146,7 @@ Noch 10 km
 Längste Fahrt
 Längste Fahrt mit Trainings-Rynke.
 Erstes Abzeichen
-Noch 10 km
+Ab 50 km
 Virtuell
 Kilometer auf der Rolle und virtuell.
 Erstes Abzeichen
@@ -5154,7 +5154,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -5229,7 +5229,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -6038,7 +6038,7 @@ Noch 200 km
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 40 km
+Ab 100 km
 Teamtermine
 [img /badges/team-events-5.svg?v=a86128dc29] 5 Termine
 Nächstes Abzeichen
@@ -6052,7 +6052,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -6064,7 +6064,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -6147,7 +6147,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -6808,11 +6808,11 @@ Noch 1 Termin
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 40 km
+Ab 100 km
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -6824,7 +6824,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -6913,7 +6913,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -7488,7 +7488,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -7496,7 +7496,7 @@ Noch 10 km
 Längste Fahrt
 Längste Fahrt mit Trainings-Rynke.
 Erstes Abzeichen
-Noch 1 km
+Ab 50 km
 Virtuell
 Kilometer auf der Rolle und virtuell.
 Erstes Abzeichen
@@ -7504,7 +7504,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -7571,7 +7571,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -8267,11 +8267,11 @@ Trainings-Rynke
 Längste Fahrt
 [img /badges/ride-length-200.svg?v=37be6919a5] 200 km
 Nächstes Abzeichen
-Noch 50 km
+Ab 250 km
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -8283,7 +8283,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -8408,7 +8408,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -9073,7 +9073,7 @@ Noch 13 km
 Längster Lauf
 [img /badges/run-length-5.svg?v=ababfb7093] 5 km
 Nächstes Abzeichen
-Noch 2,2 km
+Ab 10 km
 Trainings-Rynke
 [img /badges/training-rynke-1.svg?v=ecc11c6191] 1 Rynke
 Nächstes Abzeichen
@@ -9093,7 +9093,7 @@ Noch 1 Training
 Längste Fahrt
 Längste Fahrt mit Trainings-Rynke.
 Erstes Abzeichen
-Noch 10 km
+Ab 50 km
 Virtuell
 Kilometer auf der Rolle und virtuell.
 Erstes Abzeichen
@@ -9101,7 +9101,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -9176,7 +9176,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -9865,11 +9865,11 @@ Deine Abzeichen Alle deine Abzeichen (18)
 Längstes Schwimmen
 [img /badges/swim-length-1000.svg?v=674dbcae26] 1 km
 Nächstes Abzeichen
-Noch 0,7 km
+Ab 1,9 km
 Längste Fahrt
 [img /badges/ride-length-100.svg?v=b573b05115] 100 km
 Nächstes Abzeichen
-Noch 46 km
+Ab 150 km
 Distanz
 [img /badges/distance-500.svg?v=2f4ed9450e] 500 km
 Nächstes Abzeichen
@@ -9901,7 +9901,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -10000,7 +10000,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -10755,7 +10755,7 @@ Deine Abzeichen Alle deine Abzeichen (20)
 Längste Fahrt
 [img /badges/ride-length-100.svg?v=b573b05115] 100 km
 Nächstes Abzeichen
-Noch 50 km
+Ab 150 km
 Höhenmeter
 [img /badges/elevation-10000.svg?v=47bfe40f89] 10.000 m
 Nächstes Abzeichen
@@ -10763,11 +10763,11 @@ Noch 13.950 m
 Längstes Schwimmen
 [img /badges/swim-length-1000.svg?v=674dbcae26] 1 km
 Nächstes Abzeichen
-Noch 0,4 km
+Ab 1,9 km
 Längster Lauf
 [img /badges/run-length-5.svg?v=ababfb7093] 5 km
 Nächstes Abzeichen
-Noch 4,0 km
+Ab 10 km
 Trainings-Rynke
 [img /badges/training-rynke-100.svg?v=7fb2ccb794] 100 Rynke
 Nächstes Abzeichen
@@ -10894,7 +10894,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -11529,7 +11529,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -11537,7 +11537,7 @@ Noch 10 km
 Längste Fahrt
 Längste Fahrt mit Trainings-Rynke.
 Erstes Abzeichen
-Noch 10 km
+Ab 50 km
 Virtuell
 Kilometer auf der Rolle und virtuell.
 Erstes Abzeichen
@@ -11545,7 +11545,7 @@ Noch 50 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -11614,7 +11614,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -12306,7 +12306,7 @@ Noch 1.616 m
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -12318,7 +12318,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -12326,7 +12326,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -12417,7 +12417,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -13162,7 +13162,7 @@ Noch 203 m
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -13174,7 +13174,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -13182,7 +13182,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -13271,7 +13271,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -14184,7 +14184,7 @@ Noch 113 km
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -14196,7 +14196,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -14204,7 +14204,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -14297,7 +14297,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -15047,7 +15047,7 @@ Noch 444 m
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -15059,7 +15059,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -15067,7 +15067,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -15160,7 +15160,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -15912,7 +15912,7 @@ Noch 670 m
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 24 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -15924,7 +15924,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -15932,7 +15932,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -16027,7 +16027,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -16787,7 +16787,7 @@ Noch 1.045 km
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -16799,7 +16799,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -16807,7 +16807,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -16904,7 +16904,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -17836,7 +17836,7 @@ Noch 8.812 m
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 24 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -17848,7 +17848,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -17856,7 +17856,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -17953,7 +17953,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -18713,7 +18713,7 @@ Noch 922 km
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -18725,7 +18725,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -18733,7 +18733,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -18826,7 +18826,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -19578,7 +19578,7 @@ Noch 718 km
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Winter: Februar
 [img /badges/winter-february-1.svg?v=15a3503308] 1 Tag
 Teamtermine
@@ -19592,7 +19592,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -19600,7 +19600,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -19695,7 +19695,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -20464,7 +20464,7 @@ Winter: Februar
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 24 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -20476,7 +20476,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -20484,7 +20484,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -20579,7 +20579,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -21517,7 +21517,7 @@ Noch 1.340 m
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -21529,7 +21529,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -21537,7 +21537,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -21630,7 +21630,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -22380,7 +22380,7 @@ Noch 25 km
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 24 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -22392,7 +22392,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -22400,7 +22400,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -22493,7 +22493,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -23243,7 +23243,7 @@ Noch 240 m
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 24 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -23255,7 +23255,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -23263,7 +23263,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -23358,7 +23358,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -24113,7 +24113,7 @@ Noch 89 km
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -24125,7 +24125,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -24133,7 +24133,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -24228,7 +24228,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -25156,7 +25156,7 @@ Noch 14 m
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 24 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -25168,7 +25168,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -25176,7 +25176,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -25265,7 +25265,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -26005,7 +26005,7 @@ Noch 30 km
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -26017,7 +26017,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -26025,7 +26025,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -26116,7 +26116,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -26861,7 +26861,7 @@ Noch 956 km
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -26873,7 +26873,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -26881,7 +26881,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -26976,7 +26976,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -27731,7 +27731,7 @@ Noch 925 m
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 24 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -27743,7 +27743,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -27751,7 +27751,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -27846,7 +27846,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -28775,7 +28775,7 @@ Noch 800 km
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 23 km
+Ab 100 km
 Winter: Februar
 [img /badges/winter-february-1.svg?v=15a3503308] 1 Tag
 Teamtermine
@@ -28789,7 +28789,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -28797,7 +28797,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -28894,7 +28894,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen
@@ -29663,7 +29663,7 @@ Noch 66 km
 Längste Fahrt
 [img /badges/ride-length-50.svg?v=2ccedcf2de] 50 km
 Nächstes Abzeichen
-Noch 24 km
+Ab 100 km
 Teamtermine
 Jeder Teamtermin mit dir.
 Erstes Abzeichen
@@ -29675,7 +29675,7 @@ Noch 1 Training
 Längster Lauf
 Längster Lauf am Stück, draußen.
 Erstes Abzeichen
-Noch 5,0 km
+Ab 5 km
 Laufen gesamt
 Deine Lauf-Kilometer draußen.
 Erstes Abzeichen
@@ -29683,7 +29683,7 @@ Noch 10 km
 Längstes Schwimmen
 Längstes Schwimmen am Stück.
 Erstes Abzeichen
-Noch 0,5 km
+Ab 0,5 km
 Schwimmen gesamt
 Alle Schwimm-Kilometer.
 Erstes Abzeichen
@@ -29776,7 +29776,7 @@ Noch 47 Teilnahmen
 Große Ausfahrt
 [img /badges/big-training-5.svg?v=4751abceba] 5 Rider
 Nächstes Abzeichen
-Noch 4 Rider
+Ab 10 Rider
 Trainings-Rynke gemeinsam
 [img /badges/team-training-rynke-5000.svg?v=699a2ca5db] 5.000 Rynke
 Nächstes Abzeichen

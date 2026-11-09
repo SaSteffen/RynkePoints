@@ -608,6 +608,7 @@ export const is: Catalog = {
 	"badges.switch.all": "Öll",
 	"badges.empty": "Ekkert merki enn – fyrsta ferðin færir þig nær.",
 	"badges.missing": "{value} eftir",
+	"badges.at": "Við {value}",
 	"badges.next": "Næsta merki",
 	"badges.first": "Fyrsta merkið",
 	"badges.earnedOn": "unnið {date}",
@@ -727,12 +728,12 @@ export const is: Catalog = {
 	"badges.value.m": "{n} m",
 	"badges.value.rynke": "{n} Rynke",
 	"badges.value.events": {
-		one: "{n} liðsviðburður",
-		other: "{n} liðsviðburðir",
+		one: "{n} viðburður",
+		other: "{n} viðburðir",
 	},
 	"badges.value.trainings": {
-		one: "{n} tækniæfing",
-		other: "{n} tækniæfingar",
+		one: "{n} æfing",
+		other: "{n} æfingar",
 	},
 	"badges.value.riders": {
 		one: "{n} hjólreiðamaður",

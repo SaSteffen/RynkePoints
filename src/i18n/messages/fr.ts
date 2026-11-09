@@ -637,6 +637,7 @@ export const fr: Catalog = {
 	"badges.switch.all": "Tous",
 	"badges.empty": "Pas encore de badge – ta première sortie t'en rapproche.",
 	"badges.missing": "encore {value}",
+	"badges.at": "à partir de {value}",
 	"badges.next": "Prochain badge",
 	"badges.first": "Premier badge",
 	"badges.earnedOn": "obtenu le {date}",
@@ -758,14 +759,14 @@ export const fr: Catalog = {
 	"badges.value.m": "{n} m",
 	"badges.value.rynke": "{n} Rynke",
 	"badges.value.events": {
-		one: "{n} événement d'équipe",
-		many: "{n} événements d'équipe",
-		other: "{n} événements d'équipe",
+		one: "{n} événement",
+		many: "{n} événements",
+		other: "{n} événements",
 	},
 	"badges.value.trainings": {
-		one: "{n} entraînement technique",
-		many: "{n} entraînements techniques",
-		other: "{n} entraînements techniques",
+		one: "{n} entraînement",
+		many: "{n} entraînements",
+		other: "{n} entraînements",
 	},
 	"badges.value.riders": {
 		one: "{n} cycliste",
@@ -796,7 +797,7 @@ export const fr: Catalog = {
 	"badges.surprise.rest-day": "Jour de repos",
 	"badges.surprise.rest-day.for":
 		"Actif ou active chaque jour pendant une semaine – puis un jour de repos. Bien mérité\u00a0!",
-	"badges.surprise.day-off": "Jour off de l'équipe",
+	"badges.surprise.day-off": "Pause d'équipe",
 	"badges.surprise.day-off.for": "Un jour où toute l'équipe a levé le pied.",
 	"badges.surprise.all-out": "Tous dehors",
 	"badges.surprise.all-out.for":
