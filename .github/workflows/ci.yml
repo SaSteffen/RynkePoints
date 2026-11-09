@@ -181,6 +181,11 @@ jobs:
   # run (research R14, contracts/deploy.md). No environment, so a skip records nothing.
   # Runs only after the four checks passed, or were skipped because they already
   # passed on this content (spec FR-024).
+  # Which teams this commit deploys to (feature 026 research R13). Each team has its
+  # own environment, so each is checked against its own live commit. Europe is
+  # only listed while the repository variable EUROPE_DEPLOY is "on", so a merge
+  # never creates its Cloudflare resources on its own. `deploy` stays Hamburg's
+  # decision, for deploy-gateway.
   deploy-gate:
     name: deploy-gate
     needs: [already-checked, lint, typecheck, test, e2e]
@@ -197,6 +202,7 @@ jobs:
       deployments: read
     outputs:
       deploy: ${{ steps.decide.outputs.deploy }}
+      teams: ${{ steps.decide.outputs.teams }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -206,77 +212,117 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          EUROPE_DEPLOY: ${{ vars.EUROPE_DEPLOY }}
         run: |
           set -euo pipefail
 
-          # Newest first. The first one whose newest status is success is live;
-          # older successes are inactive, failed ones failure.
-          deployments=$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=production&per_page=100" --jq '.[] | "\(.id) \(.sha)"')
-          live_sha=""
-          while read -r id sha; do
-            [ -n "$id" ] || continue
-            state=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=1" --jq '.[0].state // ""')
-            if [ "$state" = success ]; then
-              live_sha=$sha
-              break
-            fi
-          done <<< "$deployments"
-
-          if [ -z "$live_sha" ]; then
-            deploy=true
-            echo "First deployment to production."
-          elif [ "$live_sha" = "$GITHUB_SHA" ]; then
-            deploy=true
-            echo "Re-deploying the live commit $live_sha."
-          elif git merge-base --is-ancestor "$GITHUB_SHA" "$live_sha"; then
-            deploy=false
-            echo "::notice::A newer commit ($live_sha) is already deployed; skipping $GITHUB_SHA."
-          else
-            # 1 means newer; anything else (e.g. 128, unknown commit) is an error.
-            rc=$?
-            if [ "$rc" -ne 1 ]; then
-              exit "$rc"
-            fi
-            deploy=true
-            echo "Deploying $GITHUB_SHA; live is $live_sha."
+          # One entry per team: its environment, address, database and Wrangler
+          # environment ("" for the founding team's top level).
+          teams='[{"team":"hamburg","environment":"production","url":"https://trhh-rynke-coins.link","database":"rynke-points","wrangler_env":""}]'
+          if [ "${EUROPE_DEPLOY:-}" = on ]; then
+            teams=$(jq -c '. + [{"team":"europe","environment":"production-europe","url":"","database":"DB","wrangler_env":"europe"}]' <<< "$teams")
           fi
-          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
 
-  # Migrations first, then the code; wrangler deploy stays the last step (research
-  # R19–R21). The secret is only in the env of the two wrangler steps (R22).
-  # !cancelled() instead of the implicit success(), which also counts the checks
-  # behind deploy-gate and so skipped the deploy whenever already-checked skipped them.
+          # Sets result to true if $GITHUB_SHA should go to environment $1. Not
+          # run in a subshell, so its notices reach the log and an error ends the run.
+          decide() {
+            local environment=$1 deployments live_sha="" id sha state rc
+            # Newest first. The first one whose newest status is success is live;
+            # older successes are inactive, failed ones failure.
+            deployments=$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=$environment&per_page=100" --jq '.[] | "\(.id) \(.sha)"')
+            while read -r id sha; do
+              [ -n "$id" ] || continue
+              state=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=1" --jq '.[0].state // ""')
+              if [ "$state" = success ]; then
+                live_sha=$sha
+                break
+              fi
+            done <<< "$deployments"
+
+            if [ -z "$live_sha" ]; then
+              echo "First deployment to $environment."
+              result=true
+            elif [ "$live_sha" = "$GITHUB_SHA" ]; then
+              echo "Re-deploying the live commit $live_sha to $environment."
+              result=true
+            elif git merge-base --is-ancestor "$GITHUB_SHA" "$live_sha"; then
+              echo "::notice::A newer commit ($live_sha) is already deployed to $environment; skipping $GITHUB_SHA."
+              result=false
+            else
+              # 1 means newer; anything else (e.g. 128, unknown commit) is an error.
+              rc=$?
+              if [ "$rc" -ne 1 ]; then
+                exit "$rc"
+              fi
+              echo "Deploying $GITHUB_SHA to $environment; live is $live_sha."
+              result=true
+            fi
+          }
+
+          deploy=false
+          selected='[]'
+          result=false
+          while read -r entry; do
+            team=$(jq -r .team <<< "$entry")
+            environment=$(jq -r .environment <<< "$entry")
+            decide "$environment"
+            if [ "$result" = true ]; then
+              selected=$(jq -c --argjson entry "$entry" '. + [$entry]' <<< "$selected")
+              if [ "$team" = hamburg ]; then
+                deploy=true
+              fi
+            fi
+          done < <(jq -c '.[]' <<< "$teams")
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+          echo "teams=$selected" >> "$GITHUB_OUTPUT"
+
+  # One deploy per team, each on its own (fail-fast off): one team's failure never
+  # holds another's. Per team: its placeholders checked, migrations first, then the
+  # code; wrangler deploy stays the last step (research R19–R21). The secret is only
+  # in the env of the two wrangler steps (R22). !cancelled() instead of the implicit
+  # success(), which also counts the checks behind deploy-gate and so skipped the
+  # deploy whenever already-checked skipped them.
   deploy:
-    name: deploy
+    name: deploy (${{ matrix.team }})
     needs: deploy-gate
-    if: ${{ !cancelled() && needs.deploy-gate.result == 'success' && needs.deploy-gate.outputs.deploy == 'true' }}
+    if: ${{ !cancelled() && needs.deploy-gate.result == 'success' && needs.deploy-gate.outputs.teams != '[]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.deploy-gate.outputs.teams) }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment:
-      name: production
-      url: https://trhh-rynke-coins.link
+      name: ${{ matrix.environment }}
+      url: ${{ matrix.url }}
     concurrency:
-      group: deploy-production
+      group: deploy-${{ matrix.environment }}
       cancel-in-progress: false
     permissions:
       contents: read
     env:
       WRANGLER_SEND_METRICS: "false"
+      TEAM: ${{ matrix.team }}
+      DATABASE: ${{ matrix.database }}
+      WRANGLER_ENV: ${{ matrix.wrangler_env }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup
+      # A team still holding another team's values is never deployed (FR-053).
+      - name: Check the team data
+        run: node scripts/team-check.mjs --deployable "$TEAM"
       - name: Apply D1 migrations
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm exec wrangler d1 migrations apply rynke-points --remote
+        run: pnpm exec wrangler d1 migrations apply "$DATABASE" --remote ${WRANGLER_ENV:+--env "$WRANGLER_ENV"}
       - name: Deploy Worker
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
-        run: pnpm exec wrangler deploy --message "$GITHUB_SHA (run $GITHUB_RUN_ID)"
+        run: pnpm exec wrangler deploy ${WRANGLER_ENV:+--env "$WRANGLER_ENV"} --message "$GITHUB_SHA (run $GITHUB_RUN_ID)"
 
   # The Strava gateway (feature 026 release 3, gateway/). Off until the maintainer
   # sets the repository variable GATEWAY_DEPLOY to "on" (docs/gateway-switch.md),
