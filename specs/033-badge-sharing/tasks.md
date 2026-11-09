@@ -215,7 +215,7 @@ and the sheet is a centred dialog with Speichern and Kopieren.
 
 ### Tests for User Story 4
 
-- [ ] T026 [US4] Add failing tests to `e2e/badge-share.e2e.ts` at the desktop default (1280 px, no touch):
+- [x] T026 [US4] Add failing tests to `e2e/badge-share.e2e.ts` at the desktop default (1280 px, no touch):
   - **Showing the buttons**: the share button is hidden; it shows on `hover` of its card, and on keyboard focus (Tab).
   - **Hover preview**: hovering the badge opens its preview; moving to the share button closes the preview, and the button can be clicked.
   - **"Teilen" in the large view**: it's hidden in the hover preview and visible after clicking the badge.
@@ -224,8 +224,8 @@ and the sheet is a centred dialog with Speichern and Kopieren.
 
 ### Implementation for User Story 4
 
-- [ ] T027 [US4] In `src/http/style.ts`, under `@media (hover: hover) and (pointer: fine)`, hide `.badge-share-mini` until `:hover` of `.badge-card` or `.badge-gallery li`, or `:focus-visible` (research R9)
-- [ ] T028 [US4] In `public/app.js`, on `pointerenter` of `.badge-share-mini`, hide any large view the hover opened (FR-005). Hide `.badge-share` while the large view has `badge-large-hover`, and show it once the view is pinned (FR-004) (T026 green)
+- [x] T027 [US4] In `src/http/style.ts`, under `@media (hover: hover) and (pointer: fine)`, hide `.badge-share-mini` until `:hover` of `.badge-card` or `.badge-gallery li`, or `:focus-visible` (research R9)
+- [x] T028 [US4] In `public/app.js`, on `pointerenter` of `.badge-share-mini`, hide any large view the hover opened (FR-005). Hide `.badge-share` while the large view has `badge-large-hover`, and show it once the view is pinned (FR-004) (T026 green)
 
 **Checkpoint**: desktop works with mouse and keyboard.
 
