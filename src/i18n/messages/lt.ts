@@ -736,16 +736,16 @@ export const lt: Catalog = {
 	"badges.value.m": "{n} m",
 	"badges.value.rynke": "{n} Rynke",
 	"badges.value.events": {
-		one: "{n} komandos renginys",
-		few: "{n} komandos renginiai",
-		many: "{n} komandos renginio",
-		other: "{n} komandos renginių",
+		one: "{n} renginys",
+		few: "{n} renginiai",
+		many: "{n} renginio",
+		other: "{n} renginių",
 	},
 	"badges.value.trainings": {
-		one: "{n} technikos treniruotė",
-		few: "{n} technikos treniruotės",
-		many: "{n} technikos treniruotės",
-		other: "{n} technikos treniruočių",
+		one: "{n} treniruotė",
+		few: "{n} treniruotės",
+		many: "{n} treniruotės",
+		other: "{n} treniruočių",
 	},
 	"badges.value.riders": {
 		one: "{n} dviratininkas",
@@ -779,7 +779,7 @@ export const lt: Catalog = {
 	"badges.surprise.rest-day": "Poilsio diena",
 	"badges.surprise.rest-day.for":
 		"Savaitę aktyvus kiekvieną dieną – o tada laisva diena. Užsitarnauta!",
-	"badges.surprise.day-off": "Komandos poilsio diena",
+	"badges.surprise.day-off": "Komandos pauzė",
 	"badges.surprise.day-off.for": "Diena, kai visa komanda ilsėjosi.",
 	"badges.surprise.all-out": "Visi lauke",
 	"badges.surprise.all-out.for": "Diena, kai tikrai visi buvo lauke.",
@@ -789,7 +789,7 @@ export const lt: Catalog = {
 	"badges.surprise.relay": "Estafetė",
 	"badges.surprise.relay.for":
 		"30 dienų iš eilės kas nors iš komandos kasdien buvo aktyvus.",
-	"badges.surprise.new-years-eve": "Naujųjų metų išvakarės",
+	"badges.surprise.new-years-eve": "Senųjų metų palydos",
 	"badges.surprise.new-years-eve.for":
 		"Bent penki iš komandos Naujųjų metų išvakarėse buvo lauke.",
 	"badges.surprise.sunday-outing": "Sekmadienio išvyka",
@@ -798,7 +798,7 @@ export const lt: Catalog = {
 	"badges.surprise.festive-500": "Festive 500",
 	"badges.surprise.festive-500.for":
 		"Nuo Kūčių iki Naujųjų metų išvakarių nuvažiuota 500 kilometrų.",
-	"badges.surprise.stage-rider": "Etapų lenktynininkas",
+	"badges.surprise.stage-rider": "Etapų lenktynės",
 	"badges.surprise.stage-rider.for":
 		"Po 100 kilometrų tris dienas iš eilės – kaip ture.",
 	"badges.surprise.triathlon": "Triatlonas",
