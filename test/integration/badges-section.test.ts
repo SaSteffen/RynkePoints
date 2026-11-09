@@ -418,6 +418,18 @@ describe("the team's badges (US4)", () => {
 		expect(team).toContain('<use href="#badge-ribbon" fill="#8cc4f0"/>');
 	});
 
+	it("shares a team badge with the team's ribbon (033 FR-004)", async () => {
+		const { section: badges } = await section();
+		const large =
+			badges?.match(
+				/<div popover id="badge-big-training-5"[\s\S]*?<\/div>\n/,
+			)?.[0] ?? "";
+		expect(large).toContain(
+			'<button type="button" class="button-outlined badge-share" data-group="team"',
+		);
+		expect(teamGroup(badges)).toContain('data-badge="big-training-5"');
+	});
+
 	it("scrolls to the rider's own new badge before the team's (Part I)", async () => {
 		const { html } = await section();
 		expect(html).toContain(
@@ -858,6 +870,89 @@ describe("sharing a badge (033)", () => {
 		const { section: badges } = await section();
 		const sheet = sheetsOf(badges)[0]?.[0] ?? "";
 		expect(sheet).not.toContain("Testrider");
+	});
+
+	const i18n = createI18n("de", CATALOGS);
+	const badgeOf = (id: string) => {
+		const badge = BADGES.find((b) => b.id === id);
+		if (!badge) throw new Error(`no badge ${id}`);
+		return badge;
+	};
+	const miniFor = (id: string) =>
+		`<button type="button" class="icon-button badge-share-mini" data-badge="${id}" aria-label="${escapeHtml(de["badges.share.label"].replace("{name}", nameOf(id)))}">`;
+
+	it("puts a share button on every earned badge, in Neueste and in Alle (FR-001, FR-006)", async () => {
+		const { section: badges } = await section();
+		const cards = [
+			...(badges ?? "").matchAll(
+				/<li class="badge-card" data-category="\w+">[\s\S]*?<\/li>/g,
+			),
+		].map((m) => m[0]);
+		// The newest per category: 500 km and 1,000 m.
+		expect(
+			cards.filter((c) => c.includes(miniFor("distance-500"))),
+		).toHaveLength(1);
+		expect(
+			cards.filter((c) => c.includes(miniFor("elevation-1000"))),
+		).toHaveLength(1);
+		const gallery = galleryOf(personalGroup(badges));
+		for (const [id] of EARNED) {
+			// Right after the badge's own button, in its spot.
+			const spot =
+				gallery.match(
+					new RegExp(
+						`<li><button [^>]*popovertarget="badge-${id}"[\\s\\S]*?</li>`,
+					),
+				)?.[0] ?? "";
+			expect(spot).toContain(`</button>${miniFor(id)}`);
+		}
+		// One per card, one per earned spot.
+		expect([
+			...(badges ?? "").matchAll(/class="icon-button badge-share-mini"/g),
+		]).toHaveLength(2 + EARNED.length);
+	});
+
+	it("puts none on unearned spots, outlines or a page without badges (FR-001)", async () => {
+		const { section: badges } = await section();
+		for (const spot of (badges ?? "").matchAll(
+			/<li class="badge-slot"[\s\S]*?<\/li>/g,
+		)) {
+			expect(spot[0]).not.toContain("badge-share-mini");
+		}
+		for (const empty of (badges ?? "").matchAll(
+			/<li class="badge-card badge-card-empty"[\s\S]*?<\/li>/g,
+		)) {
+			expect(empty[0]).not.toContain("badge-share-mini");
+		}
+		await resetDb();
+		await seedRider(ctx, { athleteId: ATHLETE_A });
+		await seedBalance(ATHLETE_A);
+		const { section: none } = await section();
+		expect(none).not.toContain("badge-share-mini");
+		expect(none).not.toContain('class="button-outlined badge-share"');
+	});
+
+	it("has Teilen in each large view, with the share text (FR-004, FR-014)", async () => {
+		const { section: badges } = await section();
+		for (const [id] of EARNED) {
+			const large =
+				badges?.match(
+					new RegExp(`<div popover id="badge-${id}"[\\s\\S]*?</div>\n`),
+				)?.[0] ?? "";
+			const text = de["badges.share.text"]
+				.replace("{name}", nameOf(id))
+				.replace("{value}", milestone(i18n, badgeOf(id)));
+			expect(large).toContain(
+				`<button type="button" class="button-outlined badge-share" data-group="personal" data-share-text="${escapeHtml(text)}">`,
+			);
+			expect(large).toMatch(
+				new RegExp(`${de["badges.share.button"]}</button>\n</div>`),
+			);
+			// Below the date.
+			expect(large.indexOf("badge-share")).toBeGreaterThan(
+				large.indexOf(de["badges.earnedOn"].replace(" {date}", "")),
+			);
+		}
 	});
 
 	it("is there once without badges too (contracts/pages.md)", async () => {

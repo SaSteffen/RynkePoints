@@ -223,6 +223,20 @@ function badgeButton(
 }
 
 /**
+ * The small share button on an earned badge in the list (feature 033
+ * FR-001): always there on a phone, shown on hover or focus with a mouse. It
+ * opens the share sheet for that badge's large view.
+ */
+function shareMini(
+	i18n: I18n,
+	names: BadgeNames,
+	earned: EarnedBadge,
+): SafeHtml {
+	const badge = badgeOf(earned);
+	return html`<button type="button" class="icon-button badge-share-mini" data-badge="${badge.id}" aria-label="${i18n.t("badges.share.label", { name: names(badge.id) })}">${SHARE}</button>`;
+}
+
+/**
  * The way to the next badge: says it is the next (or, without a badge, the
  * first) one, the bar and what is missing. Never the badge's name or picture (FR-003).
  */
@@ -263,7 +277,7 @@ function card(
 ): SafeHtml {
 	return html`<li class="badge-card" data-category="${card.category}">
 <h4>${i18n.t(`badges.category.${card.category}`)}</h4>
-${badgeButton(i18n, names, card.badge, 200, isFresh(card.badge))}
+${badgeButton(i18n, names, card.badge, 200, isFresh(card.badge))}${shareMini(i18n, names, card.badge)}
 ${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.category, card.progress, false)}</div>` : null}
 </li>`;
 }
@@ -295,7 +309,7 @@ function group(
 ${categoryHeading(i18n, g.category)}
 <ul>${g.badges.map(
 			(b) =>
-				html`<li>${badgeButton(i18n, names, b, 96, isFresh(b))}<span class="badge-value">${milestone(i18n, badgeOf(b))}</span></li>`,
+				html`<li>${badgeButton(i18n, names, b, 96, isFresh(b))}${shareMini(i18n, names, b)}<span class="badge-value">${milestone(i18n, badgeOf(b))}</span></li>`,
 		)}${Array.from(
 			{ length: g.unearned },
 			() =>
@@ -346,7 +360,8 @@ ${anchor("team", false, i18n.t("badges.switch.team"))}
 /**
  * The large view: the badge at 280 px with its name, what it was for and the
  * date, and a close button for phones, where there's little outside to tap
- * (hidden while hover holds it open).
+ * (hidden while hover holds it open). "Teilen" below it carries the share
+ * text (feature 033 FR-004, FR-014).
  */
 /**
  * What the badge was for; a surprise badge says why it was earned, a tour
@@ -376,6 +391,7 @@ function popover(i18n: I18n, names: BadgeNames, earned: EarnedBadge): SafeHtml {
 <h4>${names(badge.id)}</h4>
 <p>${forText(i18n, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
+<button type="button" class="button-outlined badge-share" data-group="${badge.group}" data-share-text="${i18n.t("badges.share.text", { name: names(badge.id), value })}">${SHARE}${i18n.t("badges.share.button")}</button>
 </div>
 `;
 }
