@@ -16,6 +16,28 @@ const CI = Boolean(process.env.CI);
  * reaches the app through this machine's localhost.
  */
 const REMOTE = process.env.E2E_WEBKIT_SERVER;
+/**
+ * Pull requests into develop (scripts/e2e-scope.mjs sets E2E_SCOPE=pr): Firefox
+ * and WebKit run only the tests tagged @cross-browser and the e2e files the pull
+ * request adds or changes (E2E_CHANGED, comma-separated). Unset, everything runs:
+ * locally, nightly and on pull requests into main. Grep sees the file name in each
+ * test's title path, between spaces.
+ */
+const CROSS_BROWSER_GREP =
+	process.env.E2E_SCOPE === "pr"
+		? [
+				/@cross-browser/,
+				...(process.env.E2E_CHANGED ?? "")
+					.split(",")
+					.filter(Boolean)
+					.map(
+						(file) =>
+							new RegExp(
+								`(^| )${file.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}( |$)`,
+							),
+					),
+			]
+		: undefined;
 
 export default defineConfig({
 	testDir: "e2e",
@@ -44,11 +66,13 @@ export default defineConfig({
 		{
 			name: "firefox",
 			testIgnore: EUROPE_SMOKE,
+			grep: CROSS_BROWSER_GREP,
 			use: { ...devices["Desktop Firefox"] },
 		},
 		{
 			name: "webkit",
 			testIgnore: EUROPE_SMOKE,
+			grep: CROSS_BROWSER_GREP,
 			use: {
 				...devices["Desktop Safari"],
 				connectOptions: REMOTE

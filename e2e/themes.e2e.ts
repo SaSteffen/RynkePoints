@@ -18,9 +18,9 @@ async function start(page: Page) {
 	await page.goto("/team");
 }
 
-test("picks Wald from the header and keeps it on this device", async ({
-	page,
-}) => {
+test("picks Wald from the header and keeps it on this device", {
+	tag: "@cross-browser",
+}, async ({ page }) => {
 	await start(page);
 	await page.evaluate(() => {
 		(globalThis as { e2eMark?: boolean }).e2eMark = true;

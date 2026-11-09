@@ -145,7 +145,9 @@ test.describe("the progress charts (009)", () => {
 		await openOverview(page);
 	});
 
-	test("fit a phone without sideways scrolling", async ({ page }) => {
+	test("fit a phone without sideways scrolling", {
+		tag: "@cross-browser",
+	}, async ({ page }) => {
 		for (const size of [SMALL_PHONE, PHONE]) {
 			await page.setViewportSize(size);
 			await page.goto("/me");

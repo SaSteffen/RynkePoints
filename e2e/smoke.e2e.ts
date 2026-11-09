@@ -68,7 +68,7 @@ async function checkPage(page: Page, path: string, shell = true) {
 	}
 }
 
-test("landing page", async ({ page }) => {
+test("landing page", { tag: "@cross-browser" }, async ({ page }) => {
 	await checkPage(page, "/", false);
 	await expect(page.locator("h1")).toBeVisible();
 });
@@ -85,12 +85,14 @@ test.describe("a rider", () => {
 		"/me/badges",
 		"/me/settings",
 	]) {
-		test(`sees ${path}`, async ({ page }) => {
+		test(`sees ${path}`, { tag: "@cross-browser" }, async ({ page }) => {
 			await checkPage(page, path);
 		});
 	}
 
-	test("sees one notifications state in Settings", async ({ page }) => {
+	test("sees one notifications state in Settings", {
+		tag: "@cross-browser",
+	}, async ({ page }) => {
 		await page.goto("/me/settings");
 		const section = page.locator("#notifications");
 		await expect(section).toBeVisible();
