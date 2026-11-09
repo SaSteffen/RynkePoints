@@ -35,8 +35,8 @@ order and placement apply (`drafts/`); where it differs from this plan, follow t
 
 **Purpose**: the vendored muxer (research R5).
 
-- [ ] T001 Add `mp4-muxer` pinned at exactly `5.2.2` to `devDependencies` in `package.json` (next to `chart.js`) and run `pnpm install`
-- [ ] T002 Add an `mp4-muxer` entry to `PACKAGES` in `scripts/vendor.mjs`: `file: "build/mp4-muxer.js"`, `as: (v) => \`mp4-muxer-${v}.js\``, `licence: (v) => \`mp4-muxer-${v}.LICENSE.txt\``, reading `LICENSE` (not `LICENSE.md`) for this package; update the header comment, which today names only the chart library; run `pnpm vendor` and commit `public/vendor/mp4-muxer-5.2.2.js` and its licence; check that `node scripts/vendor.mjs --check` passes
+- [x] T001 Add `mp4-muxer` pinned at exactly `5.2.2` to `devDependencies` in `package.json` (next to `chart.js`) and run `pnpm install`
+- [x] T002 Add an `mp4-muxer` entry to `PACKAGES` in `scripts/vendor.mjs`: `file: "build/mp4-muxer.js"`, `as: (v) => \`mp4-muxer-${v}.js\``, `licence: (v) => \`mp4-muxer-${v}.LICENSE.txt\``, reading `LICENSE` (not `LICENSE.md`) for this package; update the header comment, which today names only the chart library; run `pnpm vendor` and commit `public/vendor/mp4-muxer-5.2.2.js` and its licence; check that `node scripts/vendor.mjs --check` passes
 
 **Checkpoint**: `pnpm lint` passes. Nothing loads the muxer yet.
 
