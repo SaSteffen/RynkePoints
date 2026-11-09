@@ -724,12 +724,12 @@ export const sv: Catalog = {
 	"badges.value.m": "{n} m",
 	"badges.value.rynke": "{n} Rynke",
 	"badges.value.events": {
-		one: "{n} lagaktivitet",
-		other: "{n} lagaktiviteter",
+		one: "{n} aktivitet",
+		other: "{n} aktiviteter",
 	},
 	"badges.value.trainings": {
-		one: "{n} teknikträning",
-		other: "{n} teknikträningar",
+		one: "{n} träning",
+		other: "{n} träningar",
 	},
 	"badges.value.riders": { one: "{n} cyklist", other: "{n} cyklister" },
 	"badges.value.attendances": {

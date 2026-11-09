@@ -725,12 +725,12 @@ export const nb: Catalog = {
 	"badges.value.m": "{n} m",
 	"badges.value.rynke": "{n} Rynke",
 	"badges.value.events": {
-		one: "{n} lagarrangement",
-		other: "{n} lagarrangementer",
+		one: "{n} arrangement",
+		other: "{n} arrangementer",
 	},
 	"badges.value.trainings": {
-		one: "{n} teknikktrening",
-		other: "{n} teknikktreninger",
+		one: "{n} trening",
+		other: "{n} treninger",
 	},
 	"badges.value.riders": { one: "{n} rytter", other: "{n} ryttere" },
 	"badges.value.attendances": {

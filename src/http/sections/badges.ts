@@ -26,6 +26,7 @@ import {
 	badgeRibbon,
 } from "../../badges/outline";
 import { badgePicture } from "../../badges/pictures";
+import { RIBBON_TEXT, ribbonTextSize } from "../../badges/ribbon";
 import { evaluateTeamBadges, type TeamBadgeSums } from "../../badges/team";
 import {
 	type BadgeSection,
@@ -160,6 +161,14 @@ export function milestone(i18n: I18n, badge: Badge): string {
 	);
 }
 
+/** The milestone on the ribbon, smaller where it is long. */
+function ribbonText(value: string): SafeHtml {
+	const size = ribbonTextSize(value);
+	const style =
+		size < RIBBON_TEXT.size ? ` style="--rp-ribbon-size:${size}"` : "";
+	return html`<span class="badge-ribbon-text"${new SafeHtml(style)}>${value}</span>`;
+}
+
 /**
  * The badge's picture with its sticker edge, and the ribbon drawn over it
  * when it has one: the same picture with and without (issue #180). The edge
@@ -219,7 +228,7 @@ function badgeButton(
 	});
 	const ribbon = size === 200;
 	const src = names.picture(badge);
-	return html`<button class="${fresh ? "badge badge-fresh" : "badge"}" popovertarget="badge-${badge.id}" aria-label="${label}" style="--tilt:${tiltOf(badge.id)}deg;--badge-src:url(${src})">${art(src, badge, size, ribbon)}${ribbon ? html`<span class="badge-ribbon-text">${milestone(i18n, badge)}</span>` : null}${fresh ? SPARKLES : null}</button>`;
+	return html`<button class="${fresh ? "badge badge-fresh" : "badge"}" popovertarget="badge-${badge.id}" aria-label="${label}" style="--tilt:${tiltOf(badge.id)}deg;--badge-src:url(${src})">${art(src, badge, size, ribbon)}${ribbon ? ribbonText(milestone(i18n, badge)) : null}${fresh ? SPARKLES : null}</button>`;
 }
 
 /**
@@ -402,7 +411,7 @@ function popover(i18n: I18n, names: BadgeNames, earned: EarnedBadge): SafeHtml {
 	const src = names.picture(badge);
 	return html`<div popover id="badge-${badge.id}" class="badge-large${team}">
 <button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
-<span class="badge" style="--badge-src:url(${src})">${art(src, badge, 280, true)}<span class="badge-ribbon-text">${value}</span>${SPARKLES}</span>
+<span class="badge" style="--badge-src:url(${src})">${art(src, badge, 280, true)}${ribbonText(value)}${SPARKLES}</span>
 <h4>${names(badge.id)}</h4>
 <p>${forText(i18n, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
