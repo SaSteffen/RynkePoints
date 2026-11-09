@@ -3875,6 +3875,47 @@ function shareSlug(text) {
 	);
 }
 
+/** The badge's place on a photo: its centre and width as fractions (R2). */
+const SHARE_PLACE = { x: 0.78, y: 0.78, w: 0.38 };
+/** The long side of a shared photo, at most (research R2). */
+const SHARE_PHOTO_MAX = 1920;
+
+function sharePlace(place) {
+	const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+	return {
+		x: clamp(place.x, 0, 1),
+		y: clamp(place.y, 0, 1),
+		w: clamp(place.w, 0.15, 0.9),
+	};
+}
+
+/**
+ * The rider's photo, upright and at most SHARE_PHOTO_MAX on its long side,
+ * on a canvas; null if the browser can't read it (research R11). The decoded
+ * bitmap is closed at once; only the canvas is kept.
+ */
+async function shareReadPhoto(file) {
+	let bitmap;
+	try {
+		bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+	} catch {
+		// Older browsers know no "from-image"; they turn photos upright anyway.
+		try {
+			bitmap = await createImageBitmap(file);
+		} catch {
+			return null;
+		}
+	}
+	const scale = Math.min(
+		1,
+		SHARE_PHOTO_MAX / Math.max(bitmap.width, bitmap.height),
+	);
+	const photo = shareCanvas(bitmap.width * scale, bitmap.height * scale);
+	photo.getContext("2d").drawImage(bitmap, 0, 0, photo.width, photo.height);
+	bitmap.close();
+	return photo;
+}
+
 function shareCanFiles(file) {
 	try {
 		return Boolean(navigator.canShare?.({ files: [file] }));
@@ -3891,6 +3932,12 @@ function badgeShare(signal) {
 	const ctx = canvas.getContext("2d");
 	const preview = sheet.querySelector(".share-preview");
 	const empty = sheet.querySelector(".share-photo-empty");
+	const unreadable = sheet.querySelector(".share-photo-unreadable");
+	const picker = sheet.querySelector(".share-file");
+	const repick = sheet.querySelector(".share-repick");
+	const hintTouch = sheet.querySelector(".share-hint-touch");
+	const hintMouse = sheet.querySelector(".share-hint-mouse");
+	const mouse = window.matchMedia("(hover: hover) and (pointer: fine)");
 	const plain = sheet.querySelector(".share-plain [role=switch]");
 	const status = sheet.querySelector(".share-status");
 	const send = sheet.querySelector(".share-send");
@@ -3918,6 +3965,12 @@ function badgeShare(signal) {
 		assets: null,
 		format: "story",
 		file: null,
+		/** The rider's photo on a canvas, and the badge's place on it. */
+		photo: null,
+		place: null,
+		unreadable: false,
+		/** Blob URLs handed to "Speichern", revoked at the latest on close. */
+		urls: new Set(),
 		/** Counts the files asked for, so a late one for old settings is dropped. */
 		run: 0,
 	};
@@ -3926,15 +3979,28 @@ function badgeShare(signal) {
 	const kind = () => (sticker() ? "sticker" : state.format);
 
 	function draw() {
-		const [w, h] = state.format === "story" ? [1080, 1920] : [1080, 1080];
+		const { photo } = state;
+		const [w, h] =
+			state.format === "story"
+				? [1080, 1920]
+				: state.format === "photo" && photo
+					? [photo.width, photo.height]
+					: [1080, 1080];
 		if (canvas.width !== w || canvas.height !== h) {
 			canvas.width = w;
 			canvas.height = h;
 		}
 		ctx.clearRect(0, 0, w, h);
 		const { assets, source } = state;
-		if (!assets || !source || state.format === "photo") return;
-		if (state.format === "story") {
+		if (!assets || !source) return;
+		if (state.format === "photo") {
+			// The photo with the badge, and nothing else (contracts/files.md).
+			if (!photo) return;
+			const place = state.place ?? SHARE_PLACE;
+			const s = place.w * w;
+			ctx.drawImage(photo, 0, 0);
+			shareDrawBadge(ctx, assets, place.x * w - s / 2, place.y * h - s / 2, s);
+		} else if (state.format === "story") {
 			// Nothing but the background outside 250…1670 px, where the
 			// story apps put their own bars (FR-017).
 			shareBackdrop(ctx, w, h, 800, 760);
@@ -3958,11 +4024,17 @@ function badgeShare(signal) {
 		state.file = null;
 		status.textContent = "";
 		for (const button of actions) button.disabled = true;
+		const onPhoto = state.format === "photo";
+		const placing = onPhoto && Boolean(state.photo);
 		sheet.querySelector(".share-plain").hidden = state.format !== "image";
-		empty.hidden = state.format !== "photo";
+		empty.hidden = !onPhoto || placing;
+		unreadable.hidden = !state.unreadable;
+		repick.hidden = !placing;
+		hintTouch.hidden = !placing || mouse.matches;
+		hintMouse.hidden = !placing || !mouse.matches;
 		preview.dataset.format = state.format;
 		draw();
-		if (!state.assets || state.format === "photo") return;
+		if (!state.assets || (onPhoto && !placing)) return;
 		const blob = await new Promise((resolve) =>
 			canvas.toBlob(resolve, "image/png"),
 		);
@@ -4016,10 +4088,15 @@ function badgeShare(signal) {
 		() => {
 			if (!state.file) return;
 			const link = document.createElement("a");
-			link.href = URL.createObjectURL(state.file);
+			const url = URL.createObjectURL(state.file);
+			state.urls.add(url);
+			link.href = url;
 			link.download = state.file.name;
 			link.click();
-			setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
+			setTimeout(() => {
+				URL.revokeObjectURL(url);
+				state.urls.delete(url);
+			}, 10_000);
 			status.textContent = sheet.dataset.saved ?? "";
 		},
 		on,
@@ -4038,6 +4115,125 @@ function badgeShare(signal) {
 				});
 		},
 		on,
+	);
+
+	/** Lets the photo go: the canvas is emptied, so its memory is freed. */
+	function dropPhoto() {
+		if (state.photo) state.photo.width = 0;
+		state.photo = null;
+	}
+
+	async function pickPhoto(file) {
+		const source = state.source;
+		const photo = await shareReadPhoto(file);
+		if (state.source !== source || !source) {
+			if (photo) photo.width = 0;
+			return;
+		}
+		dropPhoto();
+		state.photo = photo;
+		state.unreadable = !photo;
+		// A new photo keeps the badge's place and size (US2 scenario 6).
+		if (photo) state.place ??= { ...SHARE_PLACE };
+		prepare();
+	}
+
+	for (const button of [sheet.querySelector(".share-pick"), repick]) {
+		button.addEventListener("click", () => picker.click(), on);
+	}
+	picker.addEventListener(
+		"change",
+		() => {
+			const file = picker.files?.[0];
+			picker.value = "";
+			if (file) pickPhoto(file);
+		},
+		on,
+	);
+
+	/** The badge moved: the old file no longer fits, the new one comes later. */
+	function moved(place) {
+		state.place = sharePlace(place);
+		state.run++;
+		state.file = null;
+		for (const button of actions) button.disabled = true;
+		draw();
+	}
+	const placing = () =>
+		state.format === "photo" && state.photo && state.assets && state.place;
+
+	// One pointer drags the badge, two pinch it; it follows the pointer in
+	// the photo's own pixels, however small the preview shows it.
+	const pointers = new Map();
+	let gesture = null;
+	const startGesture = () => {
+		const [a, b] = [...pointers.values()];
+		gesture = {
+			place: { ...state.place },
+			a: { ...a },
+			span: b ? Math.hypot(b.x - a.x, b.y - a.y) : 0,
+		};
+	};
+	canvas.addEventListener(
+		"pointerdown",
+		(event) => {
+			if (!placing()) return;
+			event.preventDefault();
+			canvas.setPointerCapture?.(event.pointerId);
+			pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+			startGesture();
+		},
+		on,
+	);
+	canvas.addEventListener(
+		"pointermove",
+		(event) => {
+			if (!gesture || !pointers.has(event.pointerId)) return;
+			pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+			const box = canvas.getBoundingClientRect();
+			const [a, b] = [...pointers.values()];
+			if (b && gesture.span) {
+				const span = Math.hypot(b.x - a.x, b.y - a.y);
+				moved({ ...gesture.place, w: (gesture.place.w * span) / gesture.span });
+			} else if (!b) {
+				moved({
+					...gesture.place,
+					x: gesture.place.x + (a.x - gesture.a.x) / box.width,
+					y: gesture.place.y + (a.y - gesture.a.y) / box.height,
+				});
+			}
+		},
+		on,
+	);
+	const release = (event) => {
+		if (!pointers.delete(event.pointerId)) return;
+		if (pointers.size) startGesture();
+		else {
+			gesture = null;
+			if (placing()) prepare();
+		}
+	};
+	canvas.addEventListener("pointerup", release, on);
+	canvas.addEventListener("pointercancel", release, on);
+	// The mouse wheel scales the badge; the file follows once it rests.
+	let wheelRest = 0;
+	canvas.addEventListener(
+		"wheel",
+		(event) => {
+			if (!placing()) return;
+			event.preventDefault();
+			const lines = event.deltaMode === 1 ? 16 : 1;
+			const place = state.place;
+			moved({
+				...place,
+				w: place.w * Math.exp(-event.deltaY * lines * 0.0015),
+			});
+			clearTimeout(wheelRest);
+			wheelRest = setTimeout(() => {
+				if (placing()) prepare();
+			}, 250);
+		},
+		{ signal, passive: false },
 	);
 
 	sheet
@@ -4065,6 +4261,16 @@ function badgeShare(signal) {
 			state.source = null;
 			state.assets = null;
 			state.file = null;
+			// Nothing of the rider's photo stays behind (FR-022).
+			dropPhoto();
+			state.place = null;
+			state.unreadable = false;
+			picker.value = "";
+			pointers.clear();
+			gesture = null;
+			clearTimeout(wheelRest);
+			for (const url of state.urls) URL.revokeObjectURL(url);
+			state.urls.clear();
 		},
 		on,
 	);
