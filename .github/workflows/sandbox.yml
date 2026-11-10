@@ -2,10 +2,10 @@ name: Sandbox
 
 # Deploys a commit to Hamburg's or Europe's release sandbox (feature 027
 # contracts/sandbox-workflow.md "Sandbox", research R6, R7, R10, R11). Called by
-# Release PR, or by hand (Actions → Sandbox → Run workflow, on develop). Every
-# deployment rebuilds the sandbox's database from the sample riders, so deploying
-# again is the reset. No job here is a required-check context; never add one to
-# .github/rulesets/*.json.
+# Release PR and by Sandbox PR (a pull request's checkboxes), or by hand
+# (Actions → Sandbox → Run workflow, on develop). Every deployment rebuilds the
+# sandbox's database from the sample riders, so deploying again is the reset. No
+# job here is a required-check context; never add one to .github/rulesets/*.json.
 on:
   workflow_call:
     inputs:
