@@ -111,7 +111,7 @@ two layers of R3. CI never handles these secrets.
 ## R6. Seeding runs outside the Worker
 
 **Decision**: Every deployment rebuilds the sandbox's database (FR-016), and no request ever
-seeds. The script `scripts/sandbox-seed.sh <team> <sha>` does it in three phases, and only the
+seeds. The script `scripts/sandbox-seed.sh` does it in three phases, and only the
 last touches Cloudflare:
 
 1. **Seed at the base's version, locally.** The base is `main` for a release and `develop` for a
@@ -148,9 +148,28 @@ resets the sandbox.
 before writing (R7). Between the drop and the end of the import the sandbox is empty or
 half-built; a failure there leaves it so until the next deployment, and the message says so.
 
-**To verify during implementation**: `wrangler d1 export --local` honours `--persist-to`; the dump
-imports into an emptied remote database; and nothing in the dump names the local origin in a way
-the sandbox would follow. The quickstart checks them.
+**Verified during implementation** (`scripts/sandbox-seed.sh`, Wrangler 4.158, 2026-11-10,
+`develop` as the base, `rebuild` against a local stand-in only):
+- `wrangler d1 export --local` has no `--persist-to`: it reads `.wrangler/state` next to the
+  configuration it's given. The seed's database therefore lives in
+  `.wrangler/sandbox/<team>/base/.wrangler/state`, beside a copy of the base's `wrangler.jsonc`,
+  and the export names that copy with `--config`.
+- Rides arrive through the queue after the first page has answered, and two of Hamburg's sample
+  riders stay pending on purpose (a fake 503, a rider who must reconnect). The script waits until
+  the riders' states and the ride count stop changing, about 25 seconds per team.
+- The dump starts with `PRAGMA defer_foreign_keys=TRUE`, holds `d1_migrations` (so the migrations
+  apply step sees only the change's own) and `sqlite_sequence`, nothing of `_cf_*`, and names
+  neither `localhost` nor `127.0.0.1`.
+- It imports into an empty database, and over the stand-in after the drop, twice in a row;
+  a stray table and view left there are gone afterwards.
+- Dropping must go children first: a parent dropped before its children makes the child's drop
+  fail ("no such table: main.riders"), even with `defer_foreign_keys`. The order comes from each
+  table's `REFERENCES`.
+- A pending migration applies to the base's rows; a broken one stops `try-migrations` with its
+  file name before anything else runs.
+- A base without the team falls back to the change's own checkout.
+- Measured seed, as the usage check counts it (`INSERT`s doubled): Hamburg 8,706 rows, Europe
+  8,740, so one deployment of both is about 17,500 of the 40,000 daily sandbox budget (R7).
 
 **Alternatives considered**:
 - **Keeping the data between deployments**: the user chose a fresh state every time
