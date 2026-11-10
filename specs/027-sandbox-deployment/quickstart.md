@@ -33,7 +33,9 @@ manual and belong to the founding maintainer (FR-042, CLAUDE.md "Non-negotiables
 4. Cloudflare API tokens (research R11): the deploy token and the analytics token.
 5. GitHub: environment `sandbox-<team>`, deployment branches `develop` only, no admin bypass,
    with `CLOUDFLARE_SANDBOX_API_TOKEN`, `CLOUDFLARE_ANALYTICS_TOKEN` and the variable
-   `CLOUDFLARE_ACCOUNT_ID`. Recorded in `.github/repository-settings.md`.
+   `CLOUDFLARE_ACCOUNT_ID`. `scripts/sandbox-environments.sh` sets up both environments,
+   asking for the tokens, and checks the result; untick the admin bypass in **Settings →
+   Environments** yourself. Recorded in `.github/repository-settings.md`.
 
 ## Checks
 
