@@ -50,12 +50,13 @@ runs as it is on `develop`.
 | Event | Does |
 |---|---|
 | `opened`, description without the section | appends it |
-| `edited`, no box ticked | nothing |
-| `edited`, a box ticked, head from a fork | unticks it, message "Sandboxes take branches of this repository only" |
-| `edited`, a box ticked, sender without write access | unticks it, message saying so |
-| `edited`, a box ticked, otherwise | unticks it, calls `sandbox.yml` with `teams`, `pr`, `sha` = the head, `base: develop` |
+| `opened` with the section, or `edited`: no box ticked | nothing |
+| a box ticked, head from a fork | unticks it, message "Sandboxes take branches of this repository only" |
+| a box ticked, sender without write access | unticks it, message saying so |
+| a box ticked, otherwise | unticks it, calls `sandbox.yml` with `teams`, `pr`, `sha` = the head, `base: develop` |
 
-The untick uses `github.token`, so it starts no further run.
+A box ticked while opening the pull request counts like one ticked later. The untick uses
+`github.token`, so it starts no further run.
 
 ## Sandbox (`.github/workflows/sandbox.yml`)
 

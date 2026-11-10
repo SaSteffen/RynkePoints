@@ -170,9 +170,9 @@ at `develop`'s base, only for branches of this repository and senders with write
 
 **Independent Test**: Quickstart checks 15–20 after the slice is merged and set up.
 
-- [ ] T031 [P] [US8] Create `.github/pull_request_template.md` with the **Sandboxes** section of contracts/sandbox-workflow.md: `- [ ] Deploy to Hamburg's sandbox`, `- [ ] Deploy to Europe's sandbox`, and the FR-006 advice in a collapsed `<details><summary>When to skip</summary>`
-- [ ] T032 [US8] Write `.github/workflows/sandbox-pr.yml` per contracts/sandbox-workflow.md "Pull requests into `develop`": `pull_request_target`, types `opened` and `edited`, branches `develop`; never checks out or runs the pull request's code itself; on `opened` without the section, append it; on `edited`, for each ticked box: untick it with `github.token`, then refuse with a message for a fork head ("Sandboxes take branches of this repository only") or a sender without write access, else call `sandbox.yml` with `teams`, `pr`, `sha` = the head, `base: develop`
-- [ ] T033 [US8] Make `sandbox.yml` seed at `develop`'s head when `base` is `develop`, skip `newer-than-live.sh` for a commit not on `develop` (FR-017), and pass `SANDBOX_SOURCE` `PR #<n>` (FR-050)
+- [x] T031 [P] [US8] Create `.github/pull_request_template.md` with the **Sandboxes** section of contracts/sandbox-workflow.md: `- [ ] Deploy to Hamburg's sandbox`, `- [ ] Deploy to Europe's sandbox`, and the FR-006 advice in a collapsed `<details><summary>When to skip</summary>`
+- [x] T032 [US8] Write `.github/workflows/sandbox-pr.yml` per contracts/sandbox-workflow.md "Pull requests into `develop`": `pull_request_target`, types `opened` and `edited`, branches `develop`; never checks out or runs the pull request's code itself; on `opened` without the section, append it; on `edited`, for each ticked box: untick it with `github.token`, then refuse with a message for a fork head ("Sandboxes take branches of this repository only") or a sender without write access, else call `sandbox.yml` with `teams`, `pr`, `sha` = the head, `base: develop`
+- [x] T033 [US8] Make `sandbox.yml` seed at `develop`'s head when `base` is `develop`, skip `newer-than-live.sh` for a commit not on `develop` (FR-017), and pass `SANDBOX_SOURCE` `PR #<n>` (FR-050)
 
 **Checkpoint**: All slice 1 stories are built.
 
