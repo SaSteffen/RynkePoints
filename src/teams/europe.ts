@@ -32,6 +32,8 @@ export const europe: TeamData = {
 	},
 	phrases: { kind: "common" },
 	badgeNames: { kind: "common" },
+	// No seasonal quote monkeys yet (feature 035).
+	holidays: [],
 	// The founding team's club (wrangler.jsonc `STRAVA_CLUB_ID`).
 	otherClubIds: [1088689],
 	// For now an English translation of the founding team's handout (T082).

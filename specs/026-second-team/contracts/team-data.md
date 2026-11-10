@@ -9,6 +9,12 @@ Shape: [data-model.md](../data-model.md) › TeamData.
 set once per request, queue batch or cron run in `src/index.ts`, and in `dev/worker.ts`
 for fake mode.
 
+## Holidays
+
+`holidays: readonly Holiday[]` (required, may be empty) lists the team's holidays with a
+seasonal quote monkey; added by feature 035,
+[contracts/team-holidays.md](../../035-seasonal-monkeys/contracts/team-holidays.md).
+
 ## No team names in code
 
 Outside `src/teams/`, no file under `src/` may contain a registered team ID as a string

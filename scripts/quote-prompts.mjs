@@ -32,6 +32,9 @@ function validatePictures(data, key, file) {
 		if (typeof m?.name !== "string" || !m.name.trim())
 			problems.push(`${where}: no name`);
 
+		if (m?.seasonal !== undefined && typeof m.seasonal !== "boolean")
+			problems.push(`${where}: seasonal must be true or false`);
+
 		const holes = m?.holes ?? [];
 		if (
 			!Array.isArray(holes) ||

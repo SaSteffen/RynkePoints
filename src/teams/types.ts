@@ -1,5 +1,6 @@
 import type { BadgeId } from "../badges/catalog";
 import type { BadgeNameMode, PhraseMode } from "../content/types";
+import type { Holiday } from "../http/holidays";
 import type { ThemeId } from "../http/themes";
 import type { Locale } from "../i18n/catalogs";
 import type { RynkeRules } from "../rynke/rules";
@@ -117,6 +118,8 @@ export interface TeamData {
 	phrases: PhraseMode;
 	/** Own badge names in one language, or the common ones (FR-052). */
 	badgeNames: BadgeNameMode;
+	/** The team's holidays with a seasonal quote monkey (feature 035). */
+	holidays: readonly Holiday[];
 	/** Other teams' Strava clubs, for the one-team-at-a-time notice (FR-012). */
 	otherClubIds: readonly number[];
 	dev: DevTarget;
