@@ -128,16 +128,16 @@ after the release).
 **Purpose**: the four seasonal monkeys (FR-001, FR-002). Follow the badge-art run hygiene: one run
 at a time, Chrome popups suppressed in the script, stopped by PID.
 
-- [ ] T022 [US1] Make the originals: `pnpm badge-art nikolaus christmas new-year`; check each by eye against `art/quotes/README.md` › Checking a picture plus FR-002 and "no digits"; rerun a picture until it passes; originals land in `art/quotes/originals/`
-- [ ] T023 [US2] Make the Advent original: `pnpm badge-art advent`; same checks
-- [ ] T024 Trace them: `pnpm badge-build advent nikolaus christmas new-year`; commit `public/quotes/{advent,nikolaus,christmas,new-year}.svg`, the regenerated `src/http/quote-monkeys.ts` (now four `SEASONAL_MONKEYS`, `QUOTE_MONKEYS` unchanged) and `src/http/art-versions.ts`; check `QUOTE_MONKEYS` did not change
-- [ ] T025 Run `pnpm test test/teams test/unit/quote-art.test.ts test/unit/holidays.test.ts` once more with the built list
+- [X] T022 [US1] Make the originals: `pnpm badge-art nikolaus christmas new-year`; check each by eye against `art/quotes/README.md` › Checking a picture plus FR-002 and "no digits"; rerun a picture until it passes; originals land in `art/quotes/originals/`
+- [X] T023 [US2] Make the Advent original: `pnpm badge-art advent`; same checks
+- [X] T024 Trace them: `pnpm badge-build advent nikolaus christmas new-year`; commit `public/quotes/{advent,nikolaus,christmas,new-year}.svg`, the regenerated `src/http/quote-monkeys.ts` (now four `SEASONAL_MONKEYS`, `QUOTE_MONKEYS` unchanged) and `src/http/art-versions.ts`; check `QUOTE_MONKEYS` did not change
+- [X] T025 Run `pnpm test test/teams test/unit/quote-art.test.ts test/unit/holidays.test.ts` once more with the built list
 
 ## Phase 7: Polish
 
 - [X] T026 [P] Amend feature 016's quote monkey contract (`specs/016-*/contracts/pages.md`, quote monkey amendment) with a pointer to `specs/035-seasonal-monkeys/contracts/quote-art.md`
 - [X] T027 [P] Amend feature 026's `contracts/team-data.md` with the `holidays` field, pointing to `specs/035-seasonal-monkeys/contracts/team-holidays.md`
-- [ ] T028 Open the PR into `develop` when the user asks (Conventional Commit title, merge commit, the user merges); then the release PR into `main` by about 27 Nov 2026
+- [X] T028 Open the PR into `develop` when the user asks (Conventional Commit title, merge commit, the user merges); then the release PR into `main` by about 27 Nov 2026
 
 ## Dependencies
 
