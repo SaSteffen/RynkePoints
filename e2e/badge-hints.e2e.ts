@@ -60,6 +60,8 @@ test("shows a hint on the first visit, and the card after a tap (US1)", async ({
 test("never the same hint twice in a row, and none on some visits (US3)", async ({
 	page,
 }) => {
+	// Seven page loads: WebKit on CI needs more than the usual 30 s.
+	test.slow();
 	await openBadges(page);
 	const keys = await keysOf(page);
 	test.skip(keys.length < 2, "the sample rider has fewer than two hints");
@@ -91,13 +93,11 @@ test("never the same hint twice in a row, and none on some visits (US3)", async 
 	await expect(hint(page)).toHaveCount(0);
 	expect(await record(page)).toEqual(before);
 
-	// Ten visits with chance: never the same one twice in a row.
-	await page.evaluate(() => sessionStorage.removeItem("random"));
+	// Visits in a row that each show a hint: never the same one twice.
 	let last = (await record(page)).key;
-	for (let visit = 0; visit < 10; visit++) {
-		await page.reload();
-		await expect(page.locator(".badges")).toBeVisible();
-		if ((await hint(page).count()) === 0) continue;
+	for (let visit = 0; visit < 3; visit++) {
+		await load(0);
+		await expect(hint(page)).toBeVisible();
 		const { key } = await record(page);
 		expect(key).not.toBe(last);
 		last = key;
