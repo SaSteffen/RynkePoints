@@ -27,8 +27,8 @@ Covers: hint windows and feasibility (contracts/hint-candidates.md), lines and v
    picked first, the filter switches to "Neueste".
 4. Leave the tab in the background for over a minute and come back: the page refreshes in place,
    the hint stays the same.
-5. Switch the language to English and to French: English lines both times, numbers in French
-   format for French.
+5. Switch the language to English and to French: the hint stays German (Hamburg), as the badge
+   names do. On Europe, German as the rider's language: the hint stays English.
 6. Phone width (360 px), light and dark, two themes: no horizontal scroll, readable bubble.
 7. Europe (http://europe.localhost:8790): hints work, no Hamburg names or places.
 8. Reset the clock on `/_dev/`.

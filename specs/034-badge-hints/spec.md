@@ -42,8 +42,10 @@ badges page, and that monkey says a badge hint. The Team page stays as it is.
 ### Session 2026-11-10
 
 - Q (raised by the project owner): Which languages? → A: German and English only, like the
-  quotes; the other languages are not translated. German riders get German hints, everyone else
-  English (FR-014). The concrete lines are in [hint-phrases.md](hint-phrases.md) for review.
+  quotes; the other languages are not translated (FR-014).
+- Q (project owner, follow-up): Which riders get which language? → A: By team, not by the
+  rider's language, like the quotes and badge names: Team Hamburg's tips are always German, the
+  common (Europe) ones English. The concrete lines are in [hint-phrases.md](hint-phrases.md) for review.
 - Q (raised by the project owner): Where does the monkey say the hints? → A: On the badges page
   only, with its own monkey and speech bubble. The Team page's quotes stay unchanged. New monkey
   bubble pictures will be added for it.
@@ -77,8 +79,8 @@ the date to 30 November with 1 riding day; no November hint shows.
 **Acceptance Scenarios**:
 
 1. **Given** a rider with 462 km in the season and the next Distance step at 500 km, **When** the
-   page shows a Distance hint, **Then** it says 38 km are missing, in the rider's language and
-   number format.
+   page shows a Distance hint, **Then** it says 38 km are missing, in the team's hint language (German for Hamburg)
+   and its number format.
 2. **Given** a rider with 4 outdoor riding days in November and November not over, **When** a
    November hint shows, **Then** it says one more day riding outside is enough.
 3. **Given** 28 November and a rider with 1 outdoor riding day in November, **When** they open the
@@ -217,8 +219,9 @@ hints show on some visits, not all, and the same hint never shows twice in a row
 
 - **FR-014**: Hint text MUST exist in German and English only, like the monkey's quotes
   (feature 026 FR-025, update 2026-11-09: phrase translation is shelved), an exception to feature
-  001 FR-028. A rider who picked German MUST get German hints; every other rider MUST get English
-  ones. Numbers MUST follow the rider's number format. The lines are listed in
+  001 FR-028. The language follows the team, never the rider's pick, as
+  the quotes and badge names do: a team with its own German phrases (Hamburg) MUST get German
+  hints, every other team English ones. Numbers MUST be formatted in the hint's language. The lines are listed in
   [hint-phrases.md](hint-phrases.md). The text MUST follow the
   project's copy rules: dry and specific, no slogans or punchline tags, neutral German wording.
   The monkey is no character: hints MUST NOT speak as the monkey ("Ich …") or give it feelings.

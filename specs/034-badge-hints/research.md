@@ -81,11 +81,11 @@ picked on the server from the Berlin date and the key, so the same key gives the
 
 ## R6. Language and numbers (FR-014)
 
-**Decision**: German lines when the rider's language (`i18n.locale`) is `de`, English otherwise.
-Numbers go through `i18n.formatNumber` in the rider's language. Month names in a line come from
+**Decision**: The team decides, as for the quotes (`phraseSet(team).locale`) and badge names:
+Hamburg, with its own German phrases, always gets German lines; every other team English, whatever
+the rider picked. Numbers are formatted in the line's language (`Intl.NumberFormat`). Month names in a line come from
 `Intl.DateTimeFormat` in the line's language. The "Tipp"/"Tip" label and the "Zur Karte"/"To the
-card" line belong to the hint lines, not the ten-language catalogs, so a French rider reads one
-language in the bubble. The lines live in `src/content/hints/de.ts` and `en.ts`, beside the quote
+card" line belong to the hint lines, not the ten-language catalogs, so the bubble is one language. The lines live in `src/content/hints/de.ts` and `en.ts`, beside the quote
 phrases (same exception, feature 026 FR-025).
 
 ## R7. Link and outline after the tap (FR-003, design draft)

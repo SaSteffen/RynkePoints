@@ -4,8 +4,8 @@ The concrete hint lines for review, German and English (FR-014). German is the k
 English lines are written as natural English, not as word-for-word translations.
 
 Placeholders: `{n}` what is missing, `{month}` the month's name, `{left}` the days left in the
-month, `{best}` the rider's best so far, `{next}` the next step. Numbers use the rider's number
-format. Lines with `{n}` days have a one-day form and a several-days form.
+month, `{best}` the rider's best so far, `{next}` the next step. Numbers use the line's language
+(German for Hamburg, English for other teams, whatever the rider picked). Lines with `{n}` days have a one-day form and a several-days form.
 
 ## Next-step hints
 

@@ -22,7 +22,8 @@ Right after the badges switch, before the personal group, when research R8 allow
 
 - At most three `<template>`s; none, and no slot, when there are no candidates.
 - Every personal card, with or without a badge, carries `id="badge-card-<category>"`.
-- `lang` is the line's language (`de` or `en`, research R6); numbers in the rider's format.
+- `lang` is the team's hint language (`de` for Hamburg, `en` otherwise, research R6), numbers in
+  that language's format, also when the rider picked another language.
 - The link's accessible name is its text; the picture is decorative (FR-003).
 - Nothing about hints in push notifications, Strava descriptions, shared pictures or organiser
   pages (FR-002).
