@@ -26,20 +26,34 @@ import { encodeCode } from "./fake-strava/tokens";
 // R9): `pnpm dev` runs this instead of src/index.ts. It wraps the app's
 // handlers, answers every request for www.strava.com from the fake, and serves
 // the fake's own pages under `/_dev/`. Nothing under src/ imports it, and it
-// refuses to run outside local fake mode, so it can't reach production.
+// refuses to run outside local fake mode or a release sandbox (feature 027),
+// so it can't reach production.
 
 /**
- * The marker comes from `pnpm dev`'s `--var` only; it isn't a declared binding.
- * So does RYNKE_FAKE_GATEWAY, the local gateway's webhook URL, when `pnpm dev`
- * runs every team behind it (feature 026 release 3): simulated events then go
- * through the gateway to every team, as Strava's do in production.
+ * The marker comes from `pnpm dev`'s `--var` locally ("local-only") and from a
+ * sandbox's Wrangler block ("sandbox", feature 027); production's types don't
+ * declare it. So does RYNKE_FAKE_GATEWAY, the local gateway's webhook URL, when
+ * `pnpm dev` runs every team behind it (feature 026 release 3): simulated events
+ * then go through the gateway to every team, as Strava's do in production.
+ *
+ * A sandbox's block also sets its host and the Cloudflare Access application it
+ * sits behind (027 contracts/access-check.md); its workflow passes the deployed
+ * commit and where it came from with `--var`. src/ reads none of them.
  */
 export type DevEnv = Env & {
 	RYNKE_FAKE_STRAVA?: string;
 	RYNKE_FAKE_GATEWAY?: string;
 	/** The browser tests' fixed day, in days after the season start (dev/clock.ts). */
 	RYNKE_FAKE_SEASON_DAY?: string;
+	SANDBOX_HOST?: string;
+	ACCESS_TEAM_DOMAIN?: string;
+	ACCESS_AUD?: string;
+	SANDBOX_COMMIT?: string;
+	SANDBOX_SOURCE?: string;
 };
+
+/** A sandbox's host and Access application, all three non-empty. */
+export type SandboxMode = { host: string; teamDomain: string; aud: string };
 
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
 const AUTHORIZE_URL = `${STRAVA_ORIGIN}/oauth/authorize`;
@@ -47,10 +61,38 @@ const STAND_IN_PATH = "/_dev/strava/oauth/authorize";
 const ACTIVITY_URL = `${STRAVA_ORIGIN}/activities/`;
 const ACTIVITY_STAND_IN = "/_dev/strava/activities/";
 
+/**
+ * Runs only in local fake mode or a sandbox with its host and Access
+ * application set; anything else throws before a request is answered.
+ */
 export function assertFakeMode(env: DevEnv): void {
-	if (env.RYNKE_FAKE_STRAVA !== "local-only") {
-		throw new Error("fake Strava runs only in local fake mode");
+	if (env.RYNKE_FAKE_STRAVA === "local-only") return;
+	if (env.RYNKE_FAKE_STRAVA !== "sandbox") {
+		throw new Error("fake Strava runs only in local fake mode or a sandbox");
 	}
+	if (!sandboxMode(env)) {
+		throw new Error(
+			"sandbox mode needs SANDBOX_HOST, ACCESS_TEAM_DOMAIN and ACCESS_AUD",
+		);
+	}
+}
+
+/** The sandbox's settings, or null in local fake mode or when one is missing. */
+export function sandboxMode(env: DevEnv): SandboxMode | null {
+	const { SANDBOX_HOST, ACCESS_TEAM_DOMAIN, ACCESS_AUD } = env;
+	if (
+		env.RYNKE_FAKE_STRAVA !== "sandbox" ||
+		!SANDBOX_HOST ||
+		!ACCESS_TEAM_DOMAIN ||
+		!ACCESS_AUD
+	) {
+		return null;
+	}
+	return {
+		host: SANDBOX_HOST,
+		teamDomain: ACCESS_TEAM_DOMAIN,
+		aud: ACCESS_AUD,
+	};
 }
 
 /** The Ctx the app's own entry builds (src/index.ts). */
