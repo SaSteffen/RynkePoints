@@ -137,6 +137,7 @@ export const lt: Catalog = {
 	"rynke.rules.windowDeadline":
 		"Skaičiuojama viskas nuo {start} iki {deadline}.",
 	"rynke.rules.handout": "Taisyklės PDF formatu (vokiečių kalba)",
+	"rynke.rules.handoutEnglish": "Taisyklės PDF formatu (anglų kalba)",
 	"rynke.ride.counts": "skaičiuojama 🪙",
 	"rynke.ride.countsWithoutRynke": "skaičiuojama",
 	"rynke.ride.doesNotCount": "neskaičiuojama",

@@ -595,7 +595,11 @@ describe("leaving and withdrawing take effect at once (US4)", () => {
 				/<div class="quote-monkey">[\s\S]*?<\/blockquote>/,
 				"",
 			),
-			badges: (await riderPage(ctx, ATHLETE_A, "/me/badges")).html,
+			// Without the hints, which only a row gives (feature 034 research R2).
+			badges: (await riderPage(ctx, ATHLETE_A, "/me/badges")).html.replace(
+				/\n?<div class="badge-hints"[\s\S]*?<\/template><\/div>/,
+				"",
+			),
 		});
 		// A first view marks what it marks; compare the views after it.
 		await pages();

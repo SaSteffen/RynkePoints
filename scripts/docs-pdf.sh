@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
-# Renders the German rules handout (docs/rynke-punkte.md) to
-# public/rynke-punkte.pdf: pandoc turns it into a standalone HTML page, and a
-# headless Chrome/Chromium prints that page to PDF. The PDF is committed and the
-# app serves it as a static asset, so the rider page links to it. Neither tool is
-# a project dependency, since this is a seldom-run organiser task. Set CHROME to
-# the browser binary if it isn't found on the PATH.
+# Renders each team's rules handout to the PDF its team data links to
+# (feature 026 FR-022): the founding team's German docs/rynke-punkte.md to
+# public/rynke-punkte.pdf, Europe's English docs/teams/europe/rynke-points.md to
+# public/teams/europe/rynke-points.pdf. pandoc turns each into a standalone HTML
+# page, and a headless Chrome/Chromium prints that page to PDF. The PDFs are
+# committed and the app serves them as static assets, so the rider page links to
+# them. Neither tool is a project dependency, since this is a seldom-run
+# organiser task. Set CHROME to the browser binary if it isn't found on the PATH.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+
+# Source and PDF per team, matching `rulesHandout` in src/teams/<id>.ts.
+handouts=(
+	"docs/rynke-punkte.md:public/rynke-punkte.pdf"
+	"docs/teams/europe/rynke-points.md:public/teams/europe/rynke-points.pdf"
+)
 
 if ! command -v pandoc >/dev/null; then
 	echo "error: pandoc not found" >&2
@@ -31,13 +39,19 @@ fi
 html="$(mktemp --suffix=.html)"
 trap 'rm -f "$html"' EXIT
 
-pandoc docs/rynke-punkte.md \
-	--standalone \
-	--embed-resources \
-	--css docs/print.css \
-	--output "$html"
+for handout in "${handouts[@]}"; do
+	source="${handout%%:*}"
+	pdf="${handout#*:}"
 
-"$chrome" --headless --disable-gpu --no-pdf-header-footer \
-	--print-to-pdf="$PWD/public/rynke-punkte.pdf" "file://$html" 2>/dev/null
+	pandoc "$source" \
+		--standalone \
+		--embed-resources \
+		--css docs/print.css \
+		--output "$html"
 
-echo "wrote public/rynke-punkte.pdf"
+	mkdir -p "$(dirname "$pdf")"
+	"$chrome" --headless --disable-gpu --no-pdf-header-footer \
+		--print-to-pdf="$PWD/$pdf" "file://$html" 2>/dev/null
+
+	echo "wrote $pdf"
+done

@@ -48,6 +48,7 @@ const FIELDS = [
 	"art",
 	"phrases",
 	"badgeNames",
+	"holidays",
 	"otherClubIds",
 	"dev",
 	"cloudflare",

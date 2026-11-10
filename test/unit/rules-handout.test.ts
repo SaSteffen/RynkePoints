@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { RULES_HANDOUT_URL } from "../../src/http/rider-sections";
+import { TEAMS } from "../../src/teams";
 
-// The rider page links to the handout PDF (feature 005 FR-053), a static asset
-// from `pnpm docs:pdf`, so the test reads the file itself. Its content is
-// checked by hand (feature 003 FR-018). `import.meta.glob` is declared in
-// dev-guard.test.ts.
+// Every team's rider page links to its own handout PDF (feature 005 FR-053,
+// feature 026 FR-022), a static asset from `pnpm docs:pdf`, so the test reads
+// the files themselves. Their content is checked by hand (feature 003 FR-018).
+// `import.meta.glob` is declared in dev-guard.test.ts.
 
-const FILES = import.meta.glob("../../public/*.pdf", {
+const FILES = import.meta.glob("../../public/**/*.pdf", {
 	query: "?raw",
 	import: "default",
 	eager: true,
@@ -19,15 +19,18 @@ const HEADERS = import.meta.glob("../../public/_header[s]", {
 	eager: true,
 });
 
-describe("rules handout", () => {
+describe.each(TEAMS)("rules handout of $id", (team) => {
+	const { path } = team.rulesHandout;
+
 	it("links to a PDF the app serves", () => {
-		const pdf = FILES[`../../public${RULES_HANDOUT_URL}`];
+		const pdf = FILES[`../../public${path}`];
 		expect(pdf?.startsWith("%PDF-")).toBe(true);
 	});
 
 	it("serves it as a download (research R14)", () => {
+		const name = path.slice(path.lastIndexOf("/") + 1);
 		expect(HEADERS["../../public/_headers"]).toContain(
-			`${RULES_HANDOUT_URL}\n  Content-Disposition: attachment; filename="rynke-punkte.pdf"`,
+			`${path}\n  Content-Disposition: attachment; filename="${name}"`,
 		);
 	});
 });

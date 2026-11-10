@@ -20,3 +20,14 @@ export function easterSunday(year: number): string {
 	const day = ((h + l - 7 * m + 114) % 31) + 1;
 	return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
+
+/**
+ * The first Advent Sunday of `year` as `YYYY-MM-DD`, for the Advent quote
+ * monkey (feature 035 FR-005): the fourth Sunday before Christmas Day, 21 days
+ * before the last Sunday on or before 24 December (27 Nov to 3 Dec).
+ */
+export function firstAdventSunday(year: number): string {
+	const eve = Date.UTC(year, 11, 24);
+	const fourth = eve - new Date(eve).getUTCDay() * 86_400_000;
+	return new Date(fourth - 21 * 86_400_000).toISOString().slice(0, 10);
+}

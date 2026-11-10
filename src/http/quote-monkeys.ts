@@ -14,3 +14,23 @@ export const QUOTE_MONKEYS: readonly string[] = [
 	"rain",
 	"paris",
 ];
+
+// The seasonal ones (feature 035), shown only in a team holiday's window,
+// never in the regular rotation.
+export const SEASONAL_MONKEYS: readonly string[] = [
+	"advent",
+	"nikolaus",
+	"christmas",
+	"new-year",
+];
+
+// The badges page's hint monkeys (feature 034), one per kind of hint, never
+// on the Team page.
+export const HINT_MONKEYS: readonly string[] = [
+	"hint-down",
+	"hint-calendar",
+	"hint-tape",
+	"hint-psst",
+	"hint-binoculars",
+	"hint-magnifier",
+];

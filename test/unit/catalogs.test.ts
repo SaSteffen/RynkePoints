@@ -227,6 +227,7 @@ const CONTRACT_IDS = [
 	"rynke.rules.version",
 	"rynke.rules.windowDeadline",
 	"rynke.rules.handout",
+	"rynke.rules.handoutEnglish",
 	// Feature 010, US1
 	"install.button",
 	"install.ios",

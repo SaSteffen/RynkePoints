@@ -8,6 +8,10 @@ import { test } from "./test";
 
 const RIDER = "Bea Badges";
 
+// Every picture is drawn in the browser. Linux WebKit, with no GPU and another
+// test beside it, takes seconds per step there: past 30 s in the nightly run.
+test.describe.configure({ timeout: 90_000 });
+
 async function openBadges(page: Page) {
 	await signIn(page, RIDER);
 	await page.goto("/me/badges");
@@ -26,7 +30,7 @@ async function pick(sheet: Locator, format: "story" | "image" | "photo") {
 
 /** Waits until the file for the current settings is ready. */
 async function ready(sheet: Locator) {
-	await expect(sheet.locator(".share-save")).toBeEnabled();
+	await expect(sheet.locator(".share-save")).toBeEnabled({ timeout: 15_000 });
 }
 
 /** The bits of a canvas the tests read; the e2e files have no DOM types. */
@@ -200,6 +204,9 @@ test.describe("on a desktop", () => {
 		await mini.click();
 		const sheet = sheetOf(page);
 		await expect(sheet).toHaveAttribute("open", "");
+		// The picture comes in after the sheet opens and the centred dialog moves
+		// with it; measured or clicked before then, the close button is missed.
+		await ready(sheet);
 
 		// A centred dialog, not a bottom sheet.
 		const box = await sheet.boundingBox();

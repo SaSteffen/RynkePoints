@@ -114,8 +114,40 @@ export const hamburg: TeamData = {
 	},
 	phrases: { kind: "own", locale: "de", set: HAMBURG_PHRASES },
 	badgeNames: { kind: "own", locale: "de", names: BADGE_NAMES },
+	// The German December holidays' quote monkeys (feature 035 data-model.md).
+	holidays: [
+		{
+			id: "advent",
+			monkey: "advent",
+			from: { anchor: "first-advent", offset: 0 },
+			to: "12-23",
+			kind: "long",
+		},
+		{
+			id: "nikolaus",
+			monkey: "nikolaus",
+			from: "12-06",
+			to: "12-06",
+			kind: "short",
+		},
+		{
+			id: "christmas",
+			monkey: "christmas",
+			from: "12-24",
+			to: "12-26",
+			kind: "short",
+		},
+		{
+			id: "new-year",
+			monkey: "new-year",
+			from: "12-31",
+			to: "01-01",
+			kind: "short",
+		},
+	],
 	// Filled with Europe's club once it has one (FR-012, release 4).
 	otherClubIds: [],
+	rulesHandout: { path: "/rynke-punkte.pdf", locale: "de" },
 	dev: { host: "localhost", port: 8789, inspectorPort: 9230 },
 	cloudflare: {
 		worker: "rynke-points",

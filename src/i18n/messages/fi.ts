@@ -134,6 +134,7 @@ export const fi: Catalog = {
 	"rynke.rules.version": "Sääntöversio {version}, voimassa {date} alkaen.",
 	"rynke.rules.windowDeadline": "Kaikki {start}–{deadline} lasketaan.",
 	"rynke.rules.handout": "Säännöt PDF:nä (saksaksi)",
+	"rynke.rules.handoutEnglish": "Säännöt PDF:nä (englanniksi)",
 	"rynke.ride.counts": "lasketaan 🪙",
 	"rynke.ride.countsWithoutRynke": "lasketaan",
 	"rynke.ride.doesNotCount": "ei lasketa",

@@ -12,7 +12,9 @@ Rynke looks like the badges' character.
 
 ## Files
 
-- `monkeys.json`: the eleven monkeys (id, name, pose). `snippets` are shared
+- `monkeys.json`: the eleven monkeys (id, name, pose), the seasonal ones
+  (`"seasonal": true`) and the badges page's hint monkeys (`"hint": true`),
+  see below. `snippets` are shared
   descriptions that the poses pull in with `{{name}}`.
   `holes` (optional) are [x, y] points in the original's pixels inside
   background the drawing closes in, like the gap between the legs or a
@@ -64,3 +66,57 @@ lists the finished ones in `src/http/quote-monkeys.ts` and updates
   mouth, few large shapes, no thin lines.
 - The feet are near the bottom: the picture's lower part overlaps the team
   total's top edge, so he stands on it.
+
+## Seasonal monkeys
+
+Some monkeys dress Rynke up for a holiday (feature 035): `advent`, `nikolaus`,
+`christmas` and `new-year`. They are entries of `monkeys.json` like the others,
+made and built the same way, with `"seasonal": true`. `pnpm badge-build` lists
+them apart, in `SEASONAL_MONKEYS`, so they never join the regular rotation.
+
+Which team shows them, and when, is team data: `holidays` in
+`src/teams/<id>.ts`. Each holiday names its seasonal `monkey`, a window `from`
+and `to` (both days included, German time) and a `kind`:
+
+- A day is a fixed `"MM-DD"`, or `{ anchor: "first-advent" | "easter", offset }`,
+  `offset` days after that year's first Advent Sunday or Easter Sunday
+  (Rosenmontag is `{ anchor: "easter", offset: -48 }`).
+- A window whose `to` comes before its `from` runs over the year end
+  (`"12-31"` to `"01-01"`).
+- `short`: every quote shows the monkey. `long`: about half of them do, each
+  quote always the same one (bit 16 of the quote's id).
+- When windows overlap, the one with the fewest days wins (Nikolaus inside
+  Advent).
+
+Until a holiday's picture is built, its window shows the regular monkeys. A new
+holiday needs only its entry here, its picture and the team's `holidays`; a
+test checks that every holiday names a seasonal entry. A team never lists a
+monkey that shows another team's place.
+
+When checking a seasonal picture, also check:
+
+- No religious symbols: no crosses, angels, nativity scenes, churches, or
+  candles in a religious setting. Nikolaus brings gifts; he is no saint here.
+- No year, digits or letters (the New Year monkey shows every year).
+
+## Hint monkeys
+
+The badges page's monkey says a badge hint (feature 034). Its six pictures are
+entries of `monkeys.json` like the others, made and built the same way, with
+`"hint": true` and ids starting with `hint-`. `pnpm badge-build` lists them
+apart, in `HINT_MONKEYS`, so they never show on the Team page. Each kind of
+hint always gets the same one (specs/034-badge-hints/spec.md FR-016); the
+badges page shows it beside the hint's bubble (`src/badges/hints.ts`,
+`hintMonkey`), above the cards:
+
+| Monkey | Pose | Hints |
+| --- | --- | --- |
+| `hint-down` | points down at the cards | distance, elevation, Rynke, running, swimming, virtual |
+| `hint-calendar` | holds up a blank calendar page | winter months (days outside) |
+| `hint-tape` | stretches out a tape measure | longest ride, run, swim |
+| `hint-psst` | whispers behind a hand | holidays: 24th, Christmas, New Year, Easter, Pi Day |
+| `hint-binoculars` | looks through binoculars | early bird, night owl, solstice, Winterschlaf |
+| `hint-magnifier` | holds up a magnifying glass | stages, Dreikampf, rest day, Everesting, Festive 500 |
+
+A hint monkey is never seasonal too. When checking one, also check that the
+calendar page and the tape measure stay blank: no digits, ticks or letters.

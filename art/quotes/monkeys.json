@@ -80,6 +80,68 @@
 			"name": "Bonjour Paris",
 			"scene": "Standing, holding a long gold baguette up like a trophy pointing to the right, a small black beret on top of the helmet, a tiny black-outlined Eiffel Tower in cream and gold on the left behind the character. Mouth open mid-sentence. {{kit}}",
 			"holes": [[874, 1207]]
+		},
+		{
+			"id": "advent",
+			"name": "Adventszeit",
+			"seasonal": true,
+			"scene": "Standing, holding up a big cream Advent calendar card in one hand with one little door swung open, a gold-wrapped chocolate peeking out of it, a small sage (#B5D6A7) fir wreath with a gold bow hanging from the other wrist. Mouth open mid-sentence. No religious symbols: no candles, no stars of Bethlehem, no angels. {{kit}}"
+		},
+		{
+			"id": "nikolaus",
+			"name": "Nikolaus",
+			"seasonal": true,
+			"scene": "Standing, holding up a big black boot with a cream fur cuff, stuffed full of yellow bananas and gold-wrapped chocolates sticking out of the top. Mouth open mid-sentence. A gift-bringer's boot only: no bishop's hat, no staff, no religious symbols. {{kit}}"
+		},
+		{
+			"id": "christmas",
+			"name": "Frohe Weihnachten",
+			"seasonal": true,
+			"scene": "Standing, a rust (#C8641E) Santa hat with a cream fur brim and a cream pompom pulled over the yellow helmet, holding out a yellow banana wrapped like a present in gold paper with a rust (#C8641E) ribbon and bow. Mouth open mid-sentence. No religious symbols. {{kit}}"
+		},
+		{
+			"id": "new-year",
+			"name": "Guten Rutsch",
+			"seasonal": true,
+			"scene": "Standing, a gold cone party hat with a black stripe on top of the helmet, big funny star-shaped party glasses with thick gold frames and a few small gold glitter dots on them, sitting a bit crooked on the nose, holding up a lit sparkler in one hand with small gold sparks flying off it, a gold party horn in the corner of the mouth pushed aside while talking. Mouth open mid-sentence. No year, no digits, no letters anywhere. Nothing else in the picture: no bike, no flag, no second figure. {{kit}}"
+		},
+		{
+			"id": "hint-down",
+			"name": "Da unten",
+			"scene": "Leaning forward a little, one arm stretched out and angled steeply DOWN toward the lower right corner of the picture, the index finger pointing at the floor in front of and to the right of the feet, at about 45 degrees below horizontal (not straight ahead), the other hand on the knee, as if saying \"right down there, look!\". The spot it points at stays EMPTY plain white: nothing is drawn there, no bike, no coins, no scenery, no other characters anywhere in the picture; the only character is this one. Mouth open mid-sentence. {{kit}}",
+			"hint": true
+		},
+		{
+			"id": "hint-calendar",
+			"name": "Kalenderblatt",
+			"scene": "Standing, holding up a large blank tear-off calendar page in one hand at shoulder height, turned so the viewer sees it: a cream (#FFFDF5) sheet with a thick black outline and a yellow (#FBE122) band along its top, completely empty, no numbers, no letters, no lines on it. The index finger of the other hand taps the page. Mouth open mid-sentence. {{kit}}",
+			"hint": true
+		},
+		{
+			"id": "hint-tape",
+			"name": "Maßband",
+			"scene": "Standing, pulling a yellow (#FBE122) tape measure out wide between both hands, the round black case in the left hand, the tape stretched to the right; the tape is plain yellow with a black outline, WITHOUT numbers, ticks or markings. Mouth open mid-sentence. {{kit}}",
+			"hint": true
+		},
+		{
+			"id": "hint-psst",
+			"name": "Psst",
+			"scene": "Standing, turned to the right, one hand raised beside the mouth like telling a secret, the other hand beckoning with one finger, brows raised, as if whispering \"psst, I know something\". Mouth open mid-sentence, a little smaller than usual. {{kit}}",
+			"hint": true
+		},
+		{
+			"id": "hint-binoculars",
+			"name": "Fernglas",
+			"scene": "Standing, holding a pair of black binoculars with both hands up to the eyes, looking far to the viewer's right, slightly leaning toward the right; the two lenses are cream (#FFFDF5) circles with a thick black outline. Mouth open mid-sentence below the binoculars. {{kit}}",
+			"erase": [[0, 1200, 380, 1720]],
+			"hint": true
+		},
+		{
+			"id": "hint-magnifier",
+			"name": "Lupe",
+			"scene": "Standing, holding a large round magnifying glass with a gold (#C99A2E) handle and a thick black rim up in front of one eye, turned to the right; the eye behind the glass shows a little bigger than the other one, the lens itself a plain light blue (#8CC4F0) tint with no reflections. The other hand on the hip. Mouth open mid-sentence. {{kit}}",
+			"erase": [[1280, 1390, 1720, 1670]],
+			"hint": true
 		}
 	]
 }
