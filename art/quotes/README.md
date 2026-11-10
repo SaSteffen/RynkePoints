@@ -12,8 +12,9 @@ Rynke looks like the badges' character.
 
 ## Files
 
-- `monkeys.json`: the eleven monkeys (id, name, pose) and the seasonal ones
-  (`"seasonal": true`, see below). `snippets` are shared
+- `monkeys.json`: the eleven monkeys (id, name, pose), the seasonal ones
+  (`"seasonal": true`) and the badges page's hint monkeys (`"hint": true`),
+  see below. `snippets` are shared
   descriptions that the poses pull in with `{{name}}`.
   `holes` (optional) are [x, y] points in the original's pixels inside
   background the drawing closes in, like the gap between the legs or a
@@ -97,3 +98,23 @@ When checking a seasonal picture, also check:
 - No religious symbols: no crosses, angels, nativity scenes, churches, or
   candles in a religious setting. Nikolaus brings gifts; he is no saint here.
 - No year, digits or letters (the New Year monkey shows every year).
+
+## Hint monkeys
+
+The badges page's monkey says a badge hint (feature 034). Its six pictures are
+entries of `monkeys.json` like the others, made and built the same way, with
+`"hint": true` and ids starting with `hint-`. `pnpm badge-build` lists them
+apart, in `HINT_MONKEYS`, so they never show on the Team page. Each kind of
+hint always gets the same one (specs/034-badge-hints/spec.md FR-016):
+
+| Monkey | Pose | Hints |
+| --- | --- | --- |
+| `hint-down` | points down at the cards | distance, elevation, Rynke, running, swimming, virtual |
+| `hint-calendar` | holds up a blank calendar page | winter months (days outside) |
+| `hint-tape` | stretches out a tape measure | longest ride, run, swim |
+| `hint-psst` | whispers behind a hand | holidays: 24th, Christmas, New Year, Easter, Pi Day |
+| `hint-binoculars` | looks through binoculars | early bird, night owl, solstice, Winterschlaf |
+| `hint-magnifier` | holds up a magnifying glass | stages, Dreikampf, rest day, Everesting, Festive 500 |
+
+A hint monkey is never seasonal too. When checking one, also check that the
+calendar page and the tape measure stay blank: no digits, ticks or letters.

@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { ART_VERSIONS } from "../../src/http/art-versions";
 import type { Holiday } from "../../src/http/holidays";
-import { QUOTE_MONKEYS, SEASONAL_MONKEYS } from "../../src/http/quote-monkeys";
+import {
+	HINT_MONKEYS,
+	QUOTE_MONKEYS,
+	SEASONAL_MONKEYS,
+} from "../../src/http/quote-monkeys";
 import { quoteArt, quoteId } from "../../src/http/sections/team";
 
 // Which picture of Rynke says the Team page's quote (Quote Monkey draft,
@@ -124,6 +128,14 @@ describe("quoteArt on a holiday", () => {
 		for (const monkey of SEASONAL_MONKEYS) {
 			expect(ART_VERSIONS[`/quotes/${monkey}.svg`]).toBeDefined();
 			expect(QUOTE_MONKEYS).not.toContain(monkey);
+		}
+	});
+
+	it("keeps the badges page's hint monkeys out of the Team page's lists", () => {
+		for (const monkey of HINT_MONKEYS) {
+			expect(ART_VERSIONS[`/quotes/${monkey}.svg`]).toBeDefined();
+			expect(QUOTE_MONKEYS).not.toContain(monkey);
+			expect(SEASONAL_MONKEYS).not.toContain(monkey);
 		}
 	});
 });

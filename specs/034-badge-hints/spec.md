@@ -47,6 +47,16 @@ badges page, and that monkey says a badge hint. The Team page stays as it is.
 - Q (raised by the project owner): Where does the monkey say the hints? → A: On the badges page
   only, with its own monkey and speech bubble. The Team page's quotes stay unchanged. New monkey
   bubble pictures will be added for it.
+- Q: How often, and how openly? → A: The owner confirmed the defaults: a hint on about half of the
+  visits, always on the first visit of the day when one exists, never the same hint twice in a
+  row (FR-012); surprise hints are veiled nudges (FR-009). The lines in
+  [hint-phrases.md](hint-phrases.md) are approved.
+- Q: What does it look like? → A: The design draft's main layout: the monkey left of the quote's
+  bubble, with a small "Tipp"/"Tip" label above the line and a "to the card" line below; the
+  whole bubble is the link. After the tap the card gets a short outline. The compact variant is
+  dropped. On wide screens the bubble is at most 640 px wide.
+- Q: Which pictures? → A: Six hint monkeys, one per kind of hint (FR-016), made like the quote
+  monkeys (`art/quotes/`, `"hint": true`).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -217,7 +227,18 @@ hints show on some visits, not all, and the same hint never shows twice in a row
 - **FR-016**: The hint monkey MUST be a picture from a new set of monkey pictures made for the
   badges page, in the style of the quote monkeys, with the speech bubble in the quote's style
   (feature 016). Until that set exists, the quote monkeys' pictures MAY stand in. The same hint
-  MUST always get the same picture.
+  MUST always get the same picture, by kind of hint:
+
+  | Picture | Pose | Hints |
+  | --- | --- | --- |
+  | Da unten | points down at the cards | Distance, Elevation, Training Rynke, Running, Swimming, Virtual rides |
+  | Kalenderblatt | holds up a blank calendar page | November, December, January, February |
+  | Maßband | stretches out a tape measure | run, ride and swim length |
+  | Psst | whispers behind a hand | Christmas Eve, Christmas, New Year, Easter, Kreiszahl |
+  | Fernglas | looks through binoculars | Night owl, early bird, Sonnenwende, Winterschlaf beendet |
+  | Lupe | holds up a magnifying glass | Etappenfahrer, Dreikampf, Rest day, Everesting, Festive 500 |
+
+  The pictures MUST NOT show digits or letters, and MUST NOT appear on the Team page.
 - **FR-017**: The bubble MUST fit at phone width (360 px) without horizontal scrolling and in
   every theme (feature 022), light and dark.
 
@@ -288,18 +309,16 @@ rules' names, not the badges' shown names.
 
 ## Assumptions
 
-- **How often** (FR-012): about half of the visits, and always the first visit of the day when a
-  hint exists. The owner may change this in clarification.
-- **How openly** (FR-009): surprise hints are veiled nudges, not the rule. The owner may change
-  this in clarification.
+- **How often** (FR-012) and **how openly** (FR-009): confirmed by the owner (Clarifications).
 - **Feasibility** (FR-006): "the rider's best day of that kind in the season" stands in for what
   the rider can do; it avoids hints like "500 km in two days" for a rider whose longest day is
   60 km. The thresholds in "Hint windows" (70 km, 25 km, half the next step, 5 days) are starting
   values the plan may tune.
 - **Placement**: above the cards and below the switch (feature 013 part I), so it is the first
   thing on the page without moving the cards much.
-- **Art**: the new hint monkey pictures are made with the quote monkeys' process (`art/quotes/`)
-  and may land after the feature; the quote monkeys stand in.
+- **Art**: the six hint monkeys are made with the quote monkeys' process (`art/quotes/`,
+  `"hint": true`, built into `HINT_MONKEYS`) and may land after the feature; the quote monkeys
+  stand in.
 - **Team badges** are out of scope for now; a team-badge hint could follow later.
 - No new data, consent or migration is expected: badge evaluation already stores what the hints
   need (feature 013).

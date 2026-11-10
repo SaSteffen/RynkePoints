@@ -23,3 +23,14 @@ export const SEASONAL_MONKEYS: readonly string[] = [
 	"christmas",
 	"new-year",
 ];
+
+// The badges page's hint monkeys (feature 034), one per kind of hint, never
+// on the Team page.
+export const HINT_MONKEYS: readonly string[] = [
+	"hint-down",
+	"hint-calendar",
+	"hint-tape",
+	"hint-psst",
+	"hint-binoculars",
+	"hint-magnifier",
+];
