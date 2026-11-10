@@ -69,8 +69,15 @@ and commit messages must follow
 - The seven check jobs' names are the required-check contexts. Renaming one means
   updating both `.github/rulesets/*.json` files in the same change.
   `already-checked`, `playwright-image`, `deploy-gate`, `deploy`, `deploy-gateway`,
-  `release-pr` and the `e2e-nightly.yml` jobs (`changed`, `nightly (…)`) are not
-  contexts and must never be added to them.
+  `release-pr`, the `e2e-nightly.yml` jobs (`changed`, `nightly (…)`) and the sandbox
+  jobs (`resolve`, `sandbox (…)`, `sandbox-pr`) are not contexts and must never be
+  added to them.
+- Sandboxes (feature 027, `docs/sandboxes.md`): Hamburg's and Europe's app in fake mode
+  behind Cloudflare Access. A pull request into `develop` deploys to one when its
+  **Sandboxes** checkbox is ticked (`sandbox-pr.yml`, run as on `develop`); **Release PR**
+  has the same boxes. Every deployment rebuilds the sandbox's data. A `sandbox-<team>`
+  block in `wrangler.jsonc` must never name a production resource; `team-check` refuses
+  one.
 
 ## Non-negotiables
 
@@ -91,7 +98,10 @@ and commit messages must follow
 - Creating the deploy credentials and the `production`, `production-gateway` and
   `production-europe` environments, setting the `GATEWAY_DEPLOY` and `EUROPE_DEPLOY`
   switches, and the release PR token and the `release` environment
-  (`.github/repository-settings.md`), are manual steps too.
+  (`.github/repository-settings.md`), are manual steps too. So are the sandboxes'
+  resources, the Access application, their Worker secrets (`scripts/sandbox-secrets.sh`),
+  their tokens and the `sandbox-hamburg` / `sandbox-europe` environments
+  (`scripts/sandbox-environments.sh`); never run those scripts yourself.
 - Webhook handlers ack fast and enqueue; processing is idempotent (Principle II).
 - Editing a Strava activity description only ever touches the app's own delimited
   block; rider text is never lost (Principle III).

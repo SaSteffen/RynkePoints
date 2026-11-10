@@ -206,6 +206,63 @@ gets.
   Expected: `[{"name":"develop","type":"branch"}]`, and `RELEASE_PR_TOKEN` listed.
 - Use: **Actions → Release PR → Run workflow**, branch `develop`.
 
+## Environments `sandbox-hamburg` and `sandbox-europe`: `develop` only, no admin bypass
+
+The boundary that releases the sandbox credentials (feature 027, [docs/sandboxes.md](../docs/sandboxes.md)):
+only a job of the [Sandbox](workflows/sandbox.yml) workflow in a run on `develop` gets them,
+whether started by hand, by **Release PR** or by a pull request's checkbox
+([Sandbox PR](workflows/sandbox-pr.yml) runs as it is on `develop`). Like `production`, but
+with `develop` as the branch rule, and with two tokens.
+
+- Tokens, account API tokens created in Cloudflare by the founding maintainer
+  (**Manage Account → Account API Tokens**), so they aren't tied to one person:
+  - `CLOUDFLARE_SANDBOX_API_TOKEN` ("rynkepoints-sandbox-deploy"): account *Workers
+    Scripts: Edit*, account *D1: Edit*, zone *Workers Routes: Edit* on
+    `trhh-rynke-coins.link`.
+  - `CLOUDFLARE_ANALYTICS_TOKEN` ("rynkepoints-sandbox-analytics"): account *Account
+    Analytics: Read* only. It must be a different token from the deploy token.
+- Apply: `scripts/sandbox-environments.sh` (or `… hamburg` for one). It creates both
+  environments with the `develop` branch rule, asks for the account ID and the two tokens
+  (hidden input), stores them on the environments only, and checks the result. Run it again
+  to rotate the tokens. Then uncheck *Allow administrators to bypass configured protection
+  rules* for each in the UI; there's no API field for it.
+- Show: the script's last lines, or:
+
+  ```bash
+  for env in sandbox-hamburg sandbox-europe; do
+    gh api repos/SaSteffen/RynkePoints/environments/$env/deployment-branch-policies --jq '[.branch_policies[] | {name, type}]'
+    gh api repos/SaSteffen/RynkePoints/environments/$env --jq '.can_admins_bypass'
+    gh secret list --env $env
+    gh variable list --env $env
+  done
+  gh secret list                                           # repository level: no CLOUDFLARE_* here
+  ```
+
+  Expected for each: `[{"name":"develop","type":"branch"}]`, `false`, the two secrets and
+  `CLOUDFLARE_ACCOUNT_ID`.
+
+**What the deploy token can still reach**: Cloudflare offers no token limited to some Workers
+or some databases, so it could also deploy production's Workers, write to production's
+databases and change routes in the zone. It's released only to the sandbox workflows as they
+are on `develop`, used only in the steps that write to Cloudflare, always with
+`--env sandbox-<team>`, after `develop`'s `team-check` refused any production name in a sandbox
+block. A pull request's code is built in that job, so a branch could tamper with those steps;
+only branches of this repository and senders with write access qualify, which reaches nobody
+who couldn't already push here. Weigh this again when more people get write access; an
+environment approval would be the next step. The analytics token is read-only.
+
+**Outside GitHub**, also manual and in the
+[quickstart](../specs/027-sandbox-deployment/quickstart.md#one-time-setup-per-sandbox-team--hamburg-then-europe):
+
+- the D1 databases and queues `rynke-points-sandbox-<team>`, their IDs in `wrangler.jsonc`;
+- the Cloudflare Access application for both sandbox hosts (team domain
+  `rynkepoints.cloudflareaccess.com`): one *Allow* policy with the maintainers' e-mail
+  addresses, one-time PIN, session 24 h, no *Bypass* or *Service Auth* policy. Adding a
+  maintainer means adding their address there;
+- the sandbox Workers' secrets: `scripts/sandbox-secrets.sh` (needs `wrangler login`). The
+  Strava, encryption and notification values are fake mode's from `dev/fake.env`; the session
+  key and admin token are new random values, printed once. Running it again replaces them.
+
 ## GitHub Pages: built by the mockup workflow
 
 The `Mockup pages` workflow publishes each spec's concept page from `develop` to
