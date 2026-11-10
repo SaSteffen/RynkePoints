@@ -204,6 +204,9 @@ test.describe("on a desktop", () => {
 		await mini.click();
 		const sheet = sheetOf(page);
 		await expect(sheet).toHaveAttribute("open", "");
+		// The picture comes in after the sheet opens and the centred dialog moves
+		// with it; measured or clicked before then, the close button is missed.
+		await ready(sheet);
 
 		// A centred dialog, not a bottom sheet.
 		const box = await sheet.boundingBox();
