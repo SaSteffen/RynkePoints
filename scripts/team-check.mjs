@@ -6,6 +6,10 @@
 //
 //   node scripts/team-check.mjs                    # every team
 //   node scripts/team-check.mjs --deployable <id>  # also: no placeholders left
+//   node scripts/team-check.mjs --wrangler <file>  # another wrangler.jsonc
+//
+// The Sandbox workflow runs develop's copy with --wrangler on the deployed
+// commit's file, so a branch can't loosen the rules it's checked by (027 R11).
 //
 // It checks the release sandboxes' blocks, `sandbox-<team>`, too (feature 027
 // FR-012), and `--deployable` refuses them.
@@ -420,7 +424,13 @@ export async function loadTeams() {
 
 async function main() {
 	const TEAMS = await loadTeams();
-	const wrangler = parseJsonc(readFileSync(path("wrangler.jsonc"), "utf8"));
+	const other = process.argv.indexOf("--wrangler");
+	const file = other === -1 ? path("wrangler.jsonc") : process.argv[other + 1];
+	if (!file) {
+		console.error("--wrangler needs a file");
+		process.exit(2);
+	}
+	const wrangler = parseJsonc(readFileSync(file, "utf8"));
 	const locales = readdirSync(path("src/i18n/messages/"))
 		.map((name) => name.match(/^([a-z]{2,3})\.ts$/)?.[1])
 		.filter(Boolean);

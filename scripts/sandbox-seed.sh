@@ -11,11 +11,14 @@
 #       sandbox's database and imports base.sql (CI only)
 #
 # Only `rebuild` touches Cloudflare. SANDBOX_D1_LOCAL=<dir> points it at a local
-# stand-in instead, for trying it on a machine. Files go to
-# .wrangler/sandbox/<team>/ in this checkout, or $SANDBOX_WORK.
+# stand-in instead, for trying it on a machine. The change (its wrangler.jsonc,
+# migrations and Wrangler) is this checkout, or $SANDBOX_CHANGE: the Sandbox
+# workflow runs develop's copy of this script on the deployed commit's checkout.
+# Files go to .wrangler/sandbox/<team>/ in the change, or $SANDBOX_WORK.
 set -euo pipefail
 
-CHANGE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CHANGE="$(cd "${SANDBOX_CHANGE:-$SELF}" && pwd)"
 # Fake mode always runs on dev/fake.env's placeholders (scripts/dev.mjs).
 SECRETS=(STRAVA_CLIENT_ID STRAVA_CLIENT_SECRET STRAVA_WEBHOOK_VERIFY_TOKEN
 	TOKEN_ENCRYPTION_KEY SESSION_SIGNING_KEY ADMIN_TOKEN PUSH_VAPID_KEY)
@@ -46,7 +49,7 @@ wrangler_in() {
 knows_team() {
 	node --input-type=module -e '
 		import { readFileSync } from "node:fs";
-		import { parseJsonc } from "'"$CHANGE"'/scripts/team-check.mjs";
+		import { parseJsonc } from "'"$SELF"'/scripts/team-check.mjs";
 		const [file, team] = process.argv.slice(1);
 		let wrangler;
 		try {
@@ -205,6 +208,7 @@ rebuild() {
 		"SELECT type, name, sql FROM sqlite_master WHERE type IN ('table', 'view')
 			AND substr(name, 1, 7) <> 'sqlite_' AND substr(name, 1, 4) <> '_cf_'")" ||
 		die "Couldn't list sandbox-$team's tables"
+	# shellcheck disable=SC2016 # JavaScript, not shell
 	node -e '
 		let s = "";
 		process.stdin.on("data", (d) => (s += d)).on("end", () => {

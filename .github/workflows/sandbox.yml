@@ -1,0 +1,490 @@
+name: Sandbox
+
+# Deploys a commit to Hamburg's or Europe's release sandbox (feature 027
+# contracts/sandbox-workflow.md "Sandbox", research R6, R7, R10, R11). Called by
+# Release PR, or by hand (Actions → Sandbox → Run workflow, on develop). Every
+# deployment rebuilds the sandbox's database from the sample riders, so deploying
+# again is the reset. No job here is a required-check context; never add one to
+# .github/rulesets/*.json.
+on:
+  workflow_call:
+    inputs:
+      teams:
+        description: The sandboxes, as a JSON list of team IDs, e.g. ["hamburg"].
+        type: string
+        required: true
+      pr:
+        description: The pull request the deployment is for, or empty.
+        type: string
+        required: false
+        default: ""
+      sha:
+        description: The commit to deploy.
+        type: string
+        required: true
+      base:
+        description: The branch whose sample riders seed the database, main or develop.
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      sandbox-hamburg:
+        description: Deploy to Hamburg's sandbox.
+        type: boolean
+        default: false
+      sandbox-europe:
+        description: Deploy to Europe's sandbox.
+        type: boolean
+        default: false
+
+permissions: {}
+
+jobs:
+  # What to deploy where. A run on any ref but develop stops here, before any job
+  # with an environment (whose branch policy would refuse it anyway). By hand: the
+  # open release pull request's head, else develop's head, seeded at main.
+  resolve:
+    name: resolve
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      teams: ${{ steps.resolve.outputs.teams }}
+      pr: ${{ steps.resolve.outputs.pr }}
+      sha: ${{ steps.resolve.outputs.sha }}
+      base: ${{ steps.resolve.outputs.base }}
+    steps:
+      - id: resolve
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TEAMS: ${{ inputs.teams }}
+          PR: ${{ inputs.pr }}
+          SHA: ${{ inputs.sha }}
+          BASE: ${{ inputs.base }}
+          HAMBURG: ${{ inputs['sandbox-hamburg'] }}
+          EUROPE: ${{ inputs['sandbox-europe'] }}
+        run: |
+          set -euo pipefail
+
+          # A called run always has teams; a run by hand never does.
+          if [ -z "$TEAMS" ]; then
+            TEAMS='[]'
+            [ "$HAMBURG" = true ] && TEAMS=$(jq -c '. + ["hamburg"]' <<< "$TEAMS")
+            [ "$EUROPE" = true ] && TEAMS=$(jq -c '. + ["europe"]' <<< "$TEAMS")
+            PR=$(gh pr list --repo "$REPO" --base main --head develop --state open \
+              --json number --jq '.[0].number // ""')
+            if [ -n "$PR" ]; then
+              SHA=$(gh pr view "$PR" --repo "$REPO" --json headRefOid --jq .headRefOid)
+            else
+              SHA=$(gh api "repos/$REPO/commits/develop" --jq .sha)
+            fi
+            BASE=main
+          fi
+
+          # Only known values reach the job's commands.
+          jq -e 'type == "array" and all(.[]; . == "hamburg" or . == "europe")' <<< "$TEAMS" >/dev/null \
+            || { echo "::error::Unknown sandboxes: $TEAMS"; exit 1; }
+          [[ "$PR" =~ ^[0-9]*$ ]] || { echo "::error::Not a pull request number: $PR"; exit 1; }
+          [[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::Not a commit: $SHA"; exit 1; }
+          [[ "$BASE" =~ ^(main|develop)$ ]] || { echo "::error::Not a base: $BASE"; exit 1; }
+          if [ "$TEAMS" = '[]' ]; then
+            echo "::notice::No sandbox chosen; nothing to deploy."
+          fi
+
+          {
+            echo "teams=$(jq -c 'unique' <<< "$TEAMS")"
+            echo "pr=$PR"
+            echo "sha=$SHA"
+            echo "base=$BASE"
+          } >> "$GITHUB_OUTPUT"
+
+  # One deployment per sandbox, each on its own, one at a time per sandbox. The
+  # environment holds the Cloudflare credentials and allows develop only; it
+  # creates no deployment of its own (deployment: false), since that would name
+  # the workflow's commit: the job records the deployed commit itself.
+  sandbox:
+    name: sandbox (${{ matrix.team }})
+    needs: resolve
+    if: ${{ needs.resolve.outputs.teams != '' && needs.resolve.outputs.teams != '[]' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        team: ${{ fromJSON(needs.resolve.outputs.teams) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: sandbox-${{ matrix.team }}
+      url: https://sandbox-${{ matrix.team }}.trhh-rynke-coins.link
+      deployment: false
+    concurrency:
+      group: sandbox-${{ matrix.team }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      checks: read
+      actions: write
+      pull-requests: write
+      deployments: write
+    defaults:
+      run:
+        shell: bash
+    env:
+      WRANGLER_SEND_METRICS: "false"
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      TEAM: ${{ matrix.team }}
+      PR: ${{ needs.resolve.outputs.pr }}
+      SHA: ${{ needs.resolve.outputs.sha }}
+      BASE: ${{ needs.resolve.outputs.base }}
+      URL: https://sandbox-${{ matrix.team }}.trhh-rynke-coins.link
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      # Develop's scripts check and deploy the commit, which sits in change/ (R11):
+      # a branch can't loosen the checks it's deployed by. base/ seeds.
+      - name: Checkout develop's scripts
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Checkout the commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          path: change
+          persist-credentials: false
+      - name: Checkout the base
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.resolve.outputs.base }}
+          path: base
+          persist-credentials: false
+
+      # The live commit (newest deployment whose newest status is success), the
+      # base's commit and the source shown in the sandbox's bar.
+      - name: Note the live commit
+        run: |
+          set -euo pipefail
+          state="$RUNNER_TEMP/sandbox"
+          mkdir -p "$state"
+          live=""
+          while read -r id deployed; do
+            [ -n "$id" ] || continue
+            status=$(gh api "repos/$REPO/deployments/$id/statuses?per_page=1" --jq '.[0].state // ""')
+            if [ "$status" = success ]; then
+              live=$deployed
+              break
+            fi
+          done < <(gh api "repos/$REPO/deployments?environment=sandbox-$TEAM&per_page=100" --jq '.[] | "\(.id) \(.sha)"')
+          if [ -n "$PR" ] && [ "$BASE" = main ]; then
+            source="release #$PR"
+          elif [ -n "$PR" ]; then
+            source="PR #$PR"
+          else
+            source=develop
+          fi
+          {
+            echo "STATE=$state"
+            echo "LIVE=$live"
+            echo "BASE_SHA=$(git -C base rev-parse HEAD)"
+            echo "SOURCE=$source"
+          } >> "$GITHUB_ENV"
+
+      # Only develop's line has an order (FR-017): a commit of a pull request, or a
+      # live commit of one, is never "older".
+      - name: Newer than live
+        id: live
+        run: |
+          set -euo pipefail
+          on_develop() {
+            git cat-file -e "$1^{commit}" 2>/dev/null && git merge-base --is-ancestor "$1" origin/develop
+          }
+          if ! on_develop "$SHA"; then
+            echo "$SHA isn't on develop; no order to keep."
+          elif [ -n "$LIVE" ] && ! on_develop "$LIVE"; then
+            echo "The live commit $LIVE isn't on develop; no order to keep."
+          else
+            rc=0
+            .github/scripts/newer-than-live.sh "sandbox-$TEAM" "$SHA" 2>&1 | tee "$STATE/live.log" || rc=$?
+            if [ "$rc" = 3 ]; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+            elif [ "$rc" != 0 ]; then
+              exit "$rc"
+            fi
+          fi
+
+      # lint, typecheck and test on the commit, not e2e or commitlint (FR-015). A
+      # commit without a pull request and without checks is develop's head: its
+      # CI is started by hand (CI's dispatch deploys nothing off main).
+      - name: Wait for the checks
+        id: checks
+        if: steps.live.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          deadline=$((SECONDS + 1200))
+          started=false
+          while :; do
+            waiting=()
+            missing=()
+            for check in lint typecheck test; do
+              result=$(gh api "repos/$REPO/commits/$SHA/check-runs?check_name=$check&filter=latest" \
+                --jq '[.check_runs[] | select(.app.slug == "github-actions")][0] | if . == null then "missing" else (.conclusion // .status) end')
+              case "$result" in
+                success) ;;
+                missing) missing+=("$check") ;;
+                queued | in_progress | pending | waiting | requested | completed) waiting+=("$check") ;;
+                *)
+                  echo "$check ended $result on ${SHA:0:7}" | tee "$STATE/checks.log"
+                  exit 1
+                  ;;
+              esac
+            done
+            if [ ${#missing[@]} = 0 ] && [ ${#waiting[@]} = 0 ]; then
+              echo "lint, typecheck and test passed on ${SHA:0:7}."
+              break
+            fi
+            if [ ${#missing[@]} = 3 ] && [ -z "$PR" ] && [ "$started" = false ] \
+              && [ "$(gh api "repos/$REPO/commits/develop" --jq .sha)" = "$SHA" ]; then
+              echo "No checks on ${SHA:0:7}; starting CI on develop."
+              gh workflow run ci.yml --repo "$REPO" --ref develop
+              started=true
+            fi
+            if [ "$SECONDS" -ge "$deadline" ]; then
+              echo "the checks didn't pass within 20 minutes (missing: ${missing[*]:-none}; running: ${waiting[*]:-none})" \
+                | tee "$STATE/checks.log"
+              exit 1
+            fi
+            sleep 30
+          done
+
+      - name: Record the deployment
+        id: deployment
+        if: steps.live.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          id=$(jq -n --arg ref "$SHA" --arg environment "sandbox-$TEAM" --arg source "$SOURCE" \
+            '{ref: $ref, environment: $environment, auto_merge: false, required_contexts: [],
+              production_environment: false, transient_environment: false, description: $source}' \
+            | gh api "repos/$REPO/deployments" --input - --jq .id)
+          gh api "repos/$REPO/deployments/$id/statuses" -f state=in_progress -f log_url="$RUN_URL" >/dev/null
+          echo "id=$id" >> "$GITHUB_OUTPUT"
+
+      - name: Install
+        id: install
+        if: steps.live.outputs.skip != 'true'
+        uses: ./.github/actions/setup
+      - name: Install the commit's and the base's dependencies
+        id: install-more
+        if: steps.live.outputs.skip != 'true'
+        env:
+          LEFTHOOK: "0"
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile --dir change 2>&1 | tee "$STATE/install-more.log"
+          pnpm install --frozen-lockfile --dir base 2>&1 | tee -a "$STATE/install-more.log"
+
+      # Develop's rules on the commit's wrangler.jsonc: no production name in a
+      # sandbox block, before the credential is used (R8, R11).
+      - name: Check the team data
+        id: team-check
+        if: steps.live.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          node scripts/team-check.mjs --wrangler change/wrangler.jsonc 2>&1 | tee "$STATE/team-check.log"
+
+      # R6 phases 1 and 2, on local databases only.
+      - name: Seed at the base
+        id: seed
+        if: steps.live.outputs.skip != 'true'
+        env:
+          SANDBOX_CHANGE: change
+          SANDBOX_WORK: ${{ runner.temp }}/sandbox/work
+        run: |
+          set -euo pipefail
+          scripts/sandbox-seed.sh seed "$TEAM" base 2>&1 | tee "$STATE/seed.log"
+          # The commit's migrations the seed doesn't have yet, for the message.
+          grep -oE '[0-9]{4}_[A-Za-z0-9_-]+\.sql' "$SANDBOX_WORK/base.sql" | sort -u > "$STATE/applied"
+          find change/migrations -maxdepth 1 -name '*.sql' -printf '%f\n' | sort > "$STATE/all"
+          comm -13 "$STATE/applied" "$STATE/all" > "$STATE/migrations"
+      - name: Try the migrations
+        id: try
+        if: steps.live.outputs.skip != 'true'
+        env:
+          SANDBOX_CHANGE: change
+          SANDBOX_WORK: ${{ runner.temp }}/sandbox/work
+        run: |
+          set -euo pipefail
+          scripts/sandbox-seed.sh try-migrations "$TEAM" 2>&1 | tee "$STATE/try.log"
+
+      - name: Check the usage
+        id: usage
+        if: steps.live.outputs.skip != 'true'
+        env:
+          CLOUDFLARE_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_ANALYTICS_TOKEN }}
+          CLOUDFLARE_ANALYTICS_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          rows=$(scripts/sandbox-seed.sh count "$STATE/work/base.sql")
+          node scripts/sandbox-usage.mjs --seed-rows "$rows" 2>&1 | tee "$STATE/usage.log"
+
+      # From here on the sandbox changes. The credential is only in these steps,
+      # and every command names --env sandbox-<team>.
+      - name: Rebuild the database
+        id: rebuild
+        if: steps.live.outputs.skip != 'true'
+        env:
+          SANDBOX_CHANGE: change
+          SANDBOX_WORK: ${{ runner.temp }}/sandbox/work
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_SANDBOX_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          scripts/sandbox-seed.sh rebuild "$TEAM" 2>&1 | tee "$STATE/rebuild.log"
+      - name: Apply the migrations
+        id: migrate
+        if: steps.live.outputs.skip != 'true'
+        working-directory: change
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_SANDBOX_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          pnpm exec wrangler d1 migrations apply DB --remote --env "sandbox-$TEAM" 2>&1 | tee "$STATE/migrate.log"
+      - name: Deploy
+        id: deploy
+        if: steps.live.outputs.skip != 'true'
+        working-directory: change
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_SANDBOX_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          pnpm exec wrangler deploy --env "sandbox-$TEAM" \
+            --var "SANDBOX_COMMIT:$SHA" --var "SANDBOX_SOURCE:$SOURCE" \
+            --message "$SHA ($SOURCE, run $GITHUB_RUN_ID)" 2>&1 | tee "$STATE/deploy.log"
+
+      # The deployment's status and the message (FR-020), also when a step stopped
+      # the job. Posted on the pull request, else into the job summary. Nothing
+      # secret: the reason line is stripped of long hex strings and the account ID.
+      - name: Message
+        if: always()
+        env:
+          DEPLOYMENT: ${{ steps.deployment.outputs.id }}
+          SKIPPED: ${{ steps.live.outputs.skip }}
+          ACCOUNT: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          OUTCOMES: >-
+            live=${{ steps.live.outcome }}
+            checks=${{ steps.checks.outcome }}
+            deployment=${{ steps.deployment.outcome }}
+            install=${{ steps.install.outcome }}
+            install-more=${{ steps.install-more.outcome }}
+            team-check=${{ steps.team-check.outcome }}
+            seed=${{ steps.seed.outcome }}
+            try=${{ steps.try.outcome }}
+            usage=${{ steps.usage.outcome }}
+            rebuild=${{ steps.rebuild.outcome }}
+            migrate=${{ steps.migrate.outcome }}
+            deploy=${{ steps.deploy.outcome }}
+        run: |
+          set -uo pipefail
+          state="${STATE:-$RUNNER_TEMP/sandbox}"
+          mkdir -p "$state"
+          short=${SHA:0:7}
+          name="${TEAM^}"
+
+          declare -A label=(
+            [live]="the order check" [checks]="the checks" [deployment]="recording the deployment"
+            [install]="installing" [install-more]="installing" [team-check]="the team data check"
+            [seed]="seeding at $BASE" [try]="trying the migrations" [usage]="the usage check"
+            [rebuild]="rebuilding the database" [migrate]="applying the migrations" [deploy]="deploying"
+          )
+          failed=""
+          for pair in $OUTCOMES; do
+            step=${pair%%=*}
+            outcome=${pair#*=}
+            if [ "$outcome" = failure ] || [ "$outcome" = cancelled ]; then
+              failed=$step
+              break
+            fi
+          done
+
+          # One line from the failed step's output: its last error, else its last line.
+          reason() {
+            local log="$state/$1.log" line=""
+            if [ -s "$log" ]; then
+              line=$(sed -E 's/\x1b\[[0-9;]*m//g' "$log" | grep -E 'ERROR|[Ee]rror|fail|didn|Stopped|above|unavailable|ended|Unknown|\bNo ' | tail -1)
+              [ -n "$line" ] || line=$(grep -v '^[[:space:]]*$' "$log" | tail -1)
+            fi
+            [ -n "$line" ] || line="the job stopped (see the run)"
+            [ -n "$ACCOUNT" ] && line=${line//"$ACCOUNT"/…}
+            sed -E 's/[0-9a-fA-F]{32,}/…/g; s/^.*\[ERROR\][[:space:]]*//; s/^::[a-z]+::?//' <<< "$line" | cut -c1-200
+          }
+          previous() {
+            if [ -n "${LIVE:-}" ]; then
+              echo "The sandbox still runs \`${LIVE:0:7}\` with its data."
+            else
+              echo "The sandbox is unchanged."
+            fi
+          }
+
+          body="$state/message.md"
+          if [ "$SKIPPED" = true ]; then
+            {
+              echo "### Sandbox: $name ⏭️"
+              echo "\`$short\` was not deployed: a newer commit (\`${LIVE:0:7}\`) is already live."
+            } > "$body"
+            status=""
+          elif [ -z "$failed" ] && [ "${{ steps.deploy.outcome }}" = success ]; then
+            {
+              echo "### Sandbox: $name ✅"
+              echo "Deployed \`$short\` to $URL"
+              if [ -s "$state/migrations" ]; then
+                echo "Rebuilt with the sample riders as of \`$BASE\` (\`${BASE_SHA:0:7}\`), then migrations applied:"
+                sed 's/.*/`&`/' "$state/migrations" | paste -sd ',' | sed 's/,/, /g'
+              else
+                echo "Rebuilt with the sample riders as of \`$BASE\` (\`${BASE_SHA:0:7}\`), no new migrations."
+              fi
+            } > "$body"
+            status=success
+          else
+            [ -n "$failed" ] || failed=deploy
+            {
+              echo "### Sandbox: $name ❌"
+              echo "\`$short\` was not deployed: ${label[$failed]}, $(reason "$failed")."
+              case "$failed" in
+                rebuild) echo "The sandbox's database is empty or half-built; deploy again to repair it." ;;
+                migrate | deploy)
+                  if [ -n "${LIVE:-}" ]; then
+                    echo "The sandbox's database was rebuilt, but it still runs \`${LIVE:0:7}\`'s code; deploy again to repair it."
+                  else
+                    echo "The sandbox's database was rebuilt, but no code runs on it yet; deploy again to repair it."
+                  fi
+                  ;;
+                *) previous ;;
+              esac
+            } > "$body"
+            status=failure
+          fi
+          if [ -n "$PR" ]; then
+            head=$(gh pr view "$PR" --repo "$REPO" --json headRefOid --jq .headRefOid 2>/dev/null || echo "")
+            if [ -n "$head" ] && [ "$head" != "$SHA" ]; then
+              echo "\`$short\` is no longer the head of this pull request." >> "$body"
+            fi
+          fi
+          echo "[Run]($RUN_URL)" >> "$body"
+
+          cat "$body" >> "$GITHUB_STEP_SUMMARY"
+          if [ -n "$DEPLOYMENT" ] && [ -n "$status" ]; then
+            gh api "repos/$REPO/deployments/$DEPLOYMENT/statuses" -f state="$status" \
+              -f log_url="$RUN_URL" -f environment_url="$URL" >/dev/null \
+              || echo "::warning::Couldn't set the deployment's status."
+          fi
+          if [ -n "$PR" ]; then
+            gh pr comment "$PR" --repo "$REPO" --body-file "$body" \
+              || echo "::warning::Couldn't post the message on #$PR."
+          fi
