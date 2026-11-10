@@ -22,6 +22,7 @@ pnpm test             # Vitest inside the Workers runtime
 pnpm test:e2e         # Playwright smoke tests in Chromium, Firefox and WebKit,
                       # against fake mode on port 8797 (started for you), and
                       # Europe's in Chromium on 8798 (project europe-smoke);
+                      # both on a fixed day of the season (RYNKE_FAKE_SEASON_DAY);
                       # first `pnpm exec playwright install chromium firefox webkit`
 pnpm test:e2e:webkit  # WebKit in Docker where it doesn't run natively (Arch);
                       # then run the tests with

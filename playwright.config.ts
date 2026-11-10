@@ -4,7 +4,9 @@ import { defineConfig, devices } from "@playwright/test";
 // leaves the machine) in Chromium, Firefox and WebKit. Its own port and state
 // directory, so a running `pnpm dev` and its data stay untouched. HTTPS with
 // Wrangler's self-signed certificate, because Linux WebKit drops the app's
-// `Secure` cookies over plain http://localhost.
+// `Secure` cookies over plain http://localhost. Both servers pretend the same
+// day of the season (RYNKE_FAKE_SEASON_DAY in package.json, dev/clock.ts), so
+// the sample riders' figures don't change with the real date (issue #301).
 
 const PORT = 8797;
 /** Team Europe's smoke test server (feature 026 T057), Chromium only. */
