@@ -1259,6 +1259,8 @@ function refreshPage() {
 		location.reload();
 		return;
 	}
+	// The same page again: the badges page keeps its hint (feature 034 R5).
+	hintRefresh = true;
 	showPage(location.href, false);
 }
 
@@ -1797,6 +1799,92 @@ function scrollToNewBadge() {
 	document
 		.querySelector(`.badge-card[data-category="${CSS.escape(category)}"]`)
 		?.scrollIntoView({ block: "center" });
+}
+
+/** Where the badges page keeps the last hint's day and key (feature 034). */
+const HINT_KEY = "rp-badge-hint";
+
+/**
+ * The key of the hint on screen, and whether the next swap is the same page
+ * again in place (`refreshPage`): then the hint stays (research R5).
+ */
+let hintShown = null;
+let hintRefresh = false;
+
+/** The last visit's `{date, key}`; `{}` where the browser keeps none. */
+function hintRecord() {
+	try {
+		const record = JSON.parse(localStorage.getItem(HINT_KEY) ?? "{}");
+		return record && typeof record === "object" ? record : {};
+	} catch {
+		return {};
+	}
+}
+
+/**
+ * The monkey's hint on the badges page (feature 034 contracts/badges-page.md
+ * › Browser): on the first visit of the day, else on about every second
+ * visit, one of the server's first three, not the one shown last time when
+ * another is there; the same one while the page refreshes in place.
+ */
+function badgeHint(signal) {
+	const refresh = hintRefresh;
+	hintRefresh = false;
+	const slot = document.querySelector(".badge-hints");
+	if (!slot) {
+		hintShown = null;
+		return;
+	}
+	const templates = [...slot.querySelectorAll("template[data-hint]")];
+	const show = (template) => {
+		slot.append(template.content.cloneNode(true));
+		slot.hidden = false;
+		hintShown = template.dataset.hint;
+	};
+	if (refresh && hintShown !== null) {
+		const same = templates.find((t) => t.dataset.hint === hintShown);
+		if (same) show(same);
+		else hintShown = null;
+	} else {
+		hintShown = null;
+		const today = slot.dataset.today;
+		const record = hintRecord();
+		if (record.date !== today || Math.random() < 0.5) {
+			const others = templates.filter((t) => t.dataset.hint !== record.key);
+			const pool = others.length > 0 ? others : templates;
+			// The soonest first: ½, ¼, ¼; with two, ⅔ and ⅓ (research R4).
+			const weights = pool.length >= 3 ? [2, 1, 1] : [2, 1];
+			const total = weights.slice(0, pool.length).reduce((a, b) => a + b, 0);
+			let roll = Math.random() * total;
+			const picked =
+				pool.find((_, i) => {
+					roll -= weights[i] ?? 0;
+					return roll < 0;
+				}) ?? pool[0];
+			if (picked) show(picked);
+		}
+		try {
+			localStorage.setItem(
+				HINT_KEY,
+				JSON.stringify({ date: today, key: hintShown ?? record.key ?? null }),
+			);
+		} catch {}
+	}
+	// The cards are hidden under "Alle": back to "Neueste" before the jump.
+	slot.addEventListener(
+		"click",
+		(event) => {
+			if (!event.target.closest("a.badge-hint")) return;
+			const newest = document.querySelector(
+				'.badges-filter input[value="newest"]',
+			);
+			if (newest && !newest.checked) {
+				newest.checked = true;
+				newest.dispatchEvent(new Event("change", { bubbles: true }));
+			}
+		},
+		{ signal },
+	);
 }
 
 /** The smallest stretch a chart zooms to, in days (feature 009 FR-023). */
@@ -4865,6 +4953,7 @@ function enhance(signal) {
 	badgeShare(signal);
 	triState();
 	badgeSwitch(signal);
+	badgeHint(signal);
 	notifications(signal).catch(() => {});
 	progressCharts(signal);
 	organiserRiders(signal);

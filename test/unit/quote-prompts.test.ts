@@ -17,6 +17,7 @@ type Monkey = {
 	holes?: unknown;
 	erase?: unknown;
 	seasonal?: unknown;
+	hint?: unknown;
 };
 
 const monkey = (over: Partial<Record<keyof Monkey, unknown>> = {}) => ({
@@ -39,10 +40,34 @@ describe("validateMonkeys", () => {
 		).toMatch(/wave: seasonal must be true or false/);
 	});
 
-	it("accepts the real monkey list, eleven regular and four seasonal", () => {
+	it("accepts hint monkeys, flagged true or false, never also seasonal", () => {
+		expect(validateMonkeys(valid([monkey({ hint: true })]))).toEqual([]);
+		expect(validateMonkeys(valid([monkey({ hint: false })]))).toEqual([]);
+		expect(validateMonkeys(valid([monkey({ hint: 1 })])).join("\n")).toMatch(
+			/wave: hint must be true or false/,
+		);
+		expect(
+			validateMonkeys(valid([monkey({ hint: true, seasonal: true })])).join(
+				"\n",
+			),
+		).toMatch(/wave: a monkey is seasonal or a hint, not both/);
+	});
+
+	it("accepts the real monkey list: eleven regular, four seasonal, six hints", () => {
 		expect(validateMonkeys(data)).toEqual([]);
 		const seasonal = (m: { seasonal?: boolean }) => m.seasonal === true;
-		expect(data.monkeys.filter((m) => !seasonal(m))).toHaveLength(11);
+		const hint = (m: { hint?: boolean }) => m.hint === true;
+		expect(data.monkeys.filter((m) => !seasonal(m) && !hint(m))).toHaveLength(
+			11,
+		);
+		expect(data.monkeys.filter(hint).map((m) => m.id)).toEqual([
+			"hint-down",
+			"hint-calendar",
+			"hint-tape",
+			"hint-psst",
+			"hint-binoculars",
+			"hint-magnifier",
+		]);
 		expect(data.monkeys.filter(seasonal).map((m) => m.id)).toEqual([
 			"advent",
 			"nikolaus",

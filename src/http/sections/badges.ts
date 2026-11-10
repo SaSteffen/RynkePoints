@@ -18,7 +18,17 @@ import {
 	ONE_DECIMAL,
 	surpriseName,
 } from "../../badges/catalog";
-import { badgeWindow, type EarnedBadge } from "../../badges/evaluate";
+import {
+	badgeWindow,
+	type CategoryProgress,
+	type EarnedBadge,
+} from "../../badges/evaluate";
+import {
+	type HintCandidate,
+	hintCandidates,
+	hintMonkey,
+	hintVariant,
+} from "../../badges/hints";
 import {
 	BADGE_OUTLINE,
 	BADGE_OUTLINE_PLAIN,
@@ -39,6 +49,8 @@ import {
 } from "../../badges/view";
 import { berlinDate, readyPollSeconds } from "../../config";
 import { badgeName } from "../../content";
+import { hintLinesFor } from "../../content/hints";
+import type { FormattedValues } from "../../content/hints/types";
 import type { Ctx } from "../../ctx";
 import {
 	listRevealsStatement,
@@ -70,7 +82,7 @@ import {
 } from "../../rynke/rules";
 import { artUrl } from "../art";
 import { html, SafeHtml } from "../html";
-import { CLOSE, SHARE, TURN } from "../icons";
+import { CHEVRON_DOWN, CLOSE, SHARE, TURN } from "../icons";
 import { renderWaiting } from "../rider-sections";
 import { shellPage } from "../shell";
 
@@ -289,6 +301,14 @@ function categoryHeading(i18n: I18n, category: BadgeCategoryId): SafeHtml {
 }
 
 /**
+ * A personal card's id, which a hint links to (feature 034 research R7); the
+ * team's cards have none.
+ */
+function cardId(kind: BadgeGroup, category: BadgeCategoryId): SafeHtml | null {
+	return kind === "personal" ? html` id="badge-card-${category}"` : null;
+}
+
+/**
  * A card with a badge: its name, the badge and the way to the next one. No
  * sentence on how the category counts: the picture fills the circle, and the
  * large view says what the badge was for.
@@ -298,8 +318,9 @@ function card(
 	names: BadgeNames,
 	card: Card,
 	isFresh: IsFresh,
+	kind: BadgeGroup,
 ): SafeHtml {
-	return html`<li class="badge-card" data-category="${card.category}">
+	return html`<li class="badge-card" data-category="${card.category}"${cardId(kind, card.category)}>
 <h4>${i18n.t(`badges.category.${card.category}`)}</h4>
 ${badgeButton(i18n, names, card.badge, 200, isFresh(card.badge))}${shareMini(i18n, names, card.badge)}
 ${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.category, card.progress, false)}</div>` : null}
@@ -311,7 +332,7 @@ ${card.progress ? html`<div class="badge-progress">${progressBar(i18n, card.cate
  * counts inside; no bar once its winter month is over (FR-004a).
  */
 function emptyCard(i18n: I18n, row: NotYetRow): SafeHtml {
-	return html`<li class="badge-card badge-card-empty" data-category="${row.category}">
+	return html`<li class="badge-card badge-card-empty" data-category="${row.category}"${cardId(row.group, row.category)}>
 <h4>${i18n.t(`badges.category.${row.category}`)}</h4>
 <div class="badge-slot">${OUTLINE}<p class="badge-about">${i18n.t(`badges.about.${row.category}`)}</p></div>
 ${row.progress ? html`<div class="badge-progress">${progressBar(i18n, row.category, row.progress, true)}</div>` : null}
@@ -349,7 +370,7 @@ ${categoryHeading(i18n, g.category)}
 <h3 id="badges-${kind}-heading"><span class="badges-title-newest">${i18n.t(`badges.${kind}.newest`)}</span><span class="badges-title-all">${all}</span></h3>
 ${kind === "personal" && view.count === 0 ? html`<p class="badges-empty">${i18n.t("badges.empty")}</p>` : null}
 <ul class="badge-cards">
-${view.cards.map((c) => card(i18n, names, c, isFresh))}${empty.map((row) => emptyCard(i18n, row))}
+${view.cards.map((c) => card(i18n, names, c, isFresh, kind))}${empty.map((row) => emptyCard(i18n, row))}
 </ul>
 <div class="badge-gallery">
 ${gallery}</div>
@@ -500,6 +521,55 @@ export function renderBadgeReveal(
 `;
 }
 
+/** The page renders this many hints; the browser shows one of them (R1, R4). */
+const HINTS_RENDERED = 3;
+
+/**
+ * The monkey's hints above the cards (feature 034 contracts/badges-page.md):
+ * the first three candidates as templates in a hidden slot, for
+ * `public/app.js` to show one of them, or none. In the team's hint language,
+ * numbers too, whatever the rider picked (FR-014). Nothing without a
+ * candidate.
+ */
+export function renderHints(
+	team: Ctx["team"],
+	candidates: readonly HintCandidate[],
+	today: string,
+): SafeHtml | null {
+	const shown = candidates.slice(0, HINTS_RENDERED);
+	if (shown.length === 0) return null;
+	const lines = hintLinesFor(team);
+	const number = (n: number | undefined, digits: number) =>
+		n === undefined
+			? undefined
+			: new Intl.NumberFormat(lines.locale, {
+					minimumFractionDigits: digits,
+					maximumFractionDigits: digits,
+				}).format(n);
+	const templates = shown.map((candidate) => {
+		const { values, category } = candidate;
+		const digits = ONE_DECIMAL.has(category) ? 1 : 0;
+		const formatted: FormattedValues = {
+			n: number(values.n, digits),
+			best: number(values.best, digits),
+			next: number(
+				values.next,
+				values.next === undefined || Number.isInteger(values.next) ? 0 : 1,
+			),
+			left: number(values.left, 0),
+			month:
+				values.month === undefined ? undefined : lines.monthName(values.month),
+		};
+		const variants = lines.lines[candidate.line];
+		const say =
+			variants[hintVariant(candidate.key, today, variants.length)] ??
+			variants[0];
+		return html`<template data-hint="${candidate.key}"><a class="badge-hint" href="#badge-card-${category}"><img class="quote-monkey-art" src="${artUrl(hintMonkey(candidate))}" alt="" width="104" height="104"><span class="quote" lang="${lines.locale}"><span class="badge-hint-label">${lines.label}</span><span class="badge-hint-text">${say(formatted)}</span><span class="badge-hint-more">${lines.more}${CHEVRON_DOWN}</span></span></a></template>`;
+	});
+	return html`<div class="badge-hints" data-today="${today}" hidden>${templates}</div>
+`;
+}
+
 /**
  * The section; badges earned on or after `freshSince` (`YYYY-MM-DD`, the day
  * before today) sparkle. Without it, none do.
@@ -510,6 +580,7 @@ export function renderBadges(
 	section: BadgeSection,
 	app: ShareApp,
 	freshSince?: string,
+	hints: SafeHtml | null = null,
 ): SafeHtml {
 	const isFresh: IsFresh = (earned) =>
 		freshSince !== undefined && earned.earnedOn >= freshSince;
@@ -518,7 +589,7 @@ export function renderBadges(
 	);
 	return html`<section class="badges" aria-labelledby="badges-heading">
 <h2 id="badges-heading" class="visually-hidden">${i18n.t("badges.heading")}</h2>
-${section.personal && section.team ? renderSwitch(i18n) : null}${new SafeHtml(BADGE_SHAPE_DEFS)}
+${section.personal && section.team ? renderSwitch(i18n) : null}${hints}${new SafeHtml(BADGE_SHAPE_DEFS)}
 ${group(i18n, names, "personal", section.personal, section.notYet, isFresh)}${group(i18n, names, "team", section.team, section.notYet, isFresh)}${earned.map((b) => popover(i18n, names, b))}${shareSheet(i18n, app)}</section>`;
 }
 
@@ -582,17 +653,12 @@ async function badgesOf(
 	rider: Rider,
 	read: BadgesRead & { balance: StoredBalance },
 	window: CountingWindow,
+	progress: CategoryProgress[],
 ): Promise<BadgeSection | null> {
-	const { badges, attendance } = read;
+	const { badges } = read;
 	const section = buildBadgeSection({
 		waiting: false,
-		personal: {
-			earned: badges.earned,
-			progress: personalProgress(
-				{ ...badges, attendance, trainingRynke: read.balance.trainingRynke },
-				window,
-			),
-		},
+		personal: { earned: badges.earned, progress },
 		team: evaluateTeamBadges(read.sums, currentRules(ctx.team.rules), window),
 		revealed: badges.revealed,
 		connectedOn: berlinDate(rider.connectedAt),
@@ -670,10 +736,9 @@ export function handleBadges(
 		"/me/badges",
 		async ({ rider }) => {
 			// Nothing dated after today counts towards a badge or a bar.
-			const window = badgeWindow(
-				countingWindow(ctx.env),
-				berlinDate(ctx.now()),
-			);
+			const season = countingWindow(ctx.env);
+			const today = berlinDate(ctx.now());
+			const window = badgeWindow(season, today);
 			const read = await readBadgesPage(ctx.env.DB, rider.athleteId, window);
 			const { balance } = read;
 			if (!balance) {
@@ -684,20 +749,45 @@ export function handleBadges(
 					ctx.team.art.coin,
 				);
 			}
+			const { badges, attendance } = read;
+			const progress = personalProgress(
+				{ ...badges, attendance, trainingRynke: balance.trainingRynke },
+				window,
+			);
 			const section = await badgesOf(
 				request,
 				ctx,
 				rider,
 				{ ...read, balance },
 				window,
+				progress,
 			);
+			// The reveal comes first: no hint on a visit that celebrates (R8).
+			const hints =
+				section?.personal && section.reveal.length === 0
+					? renderHints(
+							ctx.team,
+							hintCandidates({
+								today,
+								seasonStart: season.seasonStart,
+								seasonEnd: season.deadline,
+								earned: new Set(badges.earned.map((b) => b.badgeId)),
+								progress,
+								daily: badges.daily,
+								longestSwimM: badges.longestSwimM,
+								ran: badges.runDistanceM > 0,
+								swam: badges.swimDistanceM > 0,
+							}),
+							today,
+						)
+					: null;
 			const names = badgeNames(ctx, i18n);
 			const app = {
 				name: ctx.team.shortName,
 				icon: ctx.team.art.icons.icon192,
 			};
 			return section
-				? html`${renderBadgeReveal(i18n, names, section.reveal)}${renderBadges(i18n, names, section, app, berlinDate(ctx.now() - DAY_SECONDS))}`
+				? html`${renderBadgeReveal(i18n, names, section.reveal)}${renderBadges(i18n, names, section, app, berlinDate(ctx.now() - DAY_SECONDS), hints)}`
 				: html``;
 		},
 	);

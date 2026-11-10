@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-10
 
-**Status**: Draft
+**Status**: Ready
 
 **Input**: User description: "I want to motivate people a little more. I want to give them hints
 for finding the hidden badges or for the next achievable badge. Make the monkey say from time to
@@ -42,11 +42,23 @@ badges page, and that monkey says a badge hint. The Team page stays as it is.
 ### Session 2026-11-10
 
 - Q (raised by the project owner): Which languages? → A: German and English only, like the
-  quotes; the other languages are not translated. German riders get German hints, everyone else
-  English (FR-014). The concrete lines are in [hint-phrases.md](hint-phrases.md) for review.
+  quotes; the other languages are not translated (FR-014).
+- Q (project owner, follow-up): Which riders get which language? → A: By team, not by the
+  rider's language, like the quotes and badge names: Team Hamburg's tips are always German, the
+  common (Europe) ones English. The concrete lines are in [hint-phrases.md](hint-phrases.md) for review.
 - Q (raised by the project owner): Where does the monkey say the hints? → A: On the badges page
   only, with its own monkey and speech bubble. The Team page's quotes stay unchanged. New monkey
   bubble pictures will be added for it.
+- Q: How often, and how openly? → A: The owner confirmed the defaults: a hint on about half of the
+  visits, always on the first visit of the day when one exists, never the same hint twice in a
+  row (FR-012); surprise hints are veiled nudges (FR-009). The lines in
+  [hint-phrases.md](hint-phrases.md) are approved.
+- Q: What does it look like? → A: The design draft's main layout: the monkey left of the quote's
+  bubble, with a small "Tipp"/"Tip" label above the line and a "to the card" line below; the
+  whole bubble is the link. After the tap the card gets a short outline. The compact variant is
+  dropped. On wide screens the bubble is at most 640 px wide.
+- Q: Which pictures? → A: Six hint monkeys, one per kind of hint (FR-016), made like the quote
+  monkeys (`art/quotes/`, `"hint": true`).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -67,8 +79,8 @@ the date to 30 November with 1 riding day; no November hint shows.
 **Acceptance Scenarios**:
 
 1. **Given** a rider with 462 km in the season and the next Distance step at 500 km, **When** the
-   page shows a Distance hint, **Then** it says 38 km are missing, in the rider's language and
-   number format.
+   page shows a Distance hint, **Then** it says 38 km are missing, in the team's hint language (German for Hamburg)
+   and its number format.
 2. **Given** a rider with 4 outdoor riding days in November and November not over, **When** a
    November hint shows, **Then** it says one more day riding outside is enough.
 3. **Given** 28 November and a rider with 1 outdoor riding day in November, **When** they open the
@@ -207,8 +219,9 @@ hints show on some visits, not all, and the same hint never shows twice in a row
 
 - **FR-014**: Hint text MUST exist in German and English only, like the monkey's quotes
   (feature 026 FR-025, update 2026-11-09: phrase translation is shelved), an exception to feature
-  001 FR-028. A rider who picked German MUST get German hints; every other rider MUST get English
-  ones. Numbers MUST follow the rider's number format. The lines are listed in
+  001 FR-028. The language follows the team, never the rider's pick, as
+  the quotes and badge names do: a team with its own German phrases (Hamburg) MUST get German
+  hints, every other team English ones. Numbers MUST be formatted in the hint's language. The lines are listed in
   [hint-phrases.md](hint-phrases.md). The text MUST follow the
   project's copy rules: dry and specific, no slogans or punchline tags, neutral German wording.
   The monkey is no character: hints MUST NOT speak as the monkey ("Ich …") or give it feelings.
@@ -217,7 +230,18 @@ hints show on some visits, not all, and the same hint never shows twice in a row
 - **FR-016**: The hint monkey MUST be a picture from a new set of monkey pictures made for the
   badges page, in the style of the quote monkeys, with the speech bubble in the quote's style
   (feature 016). Until that set exists, the quote monkeys' pictures MAY stand in. The same hint
-  MUST always get the same picture.
+  MUST always get the same picture, by kind of hint:
+
+  | Picture | Pose | Hints |
+  | --- | --- | --- |
+  | Da unten | points down at the cards | Distance, Elevation, Training Rynke, Running, Swimming, Virtual rides |
+  | Kalenderblatt | holds up a blank calendar page | November, December, January, February |
+  | Maßband | stretches out a tape measure | run, ride and swim length |
+  | Psst | whispers behind a hand | Christmas Eve, Christmas, New Year, Easter, Kreiszahl |
+  | Fernglas | looks through binoculars | Night owl, early bird, Sonnenwende, Winterschlaf beendet |
+  | Lupe | holds up a magnifying glass | Etappenfahrer, Dreikampf, Rest day, Everesting, Festive 500 |
+
+  The pictures MUST NOT show digits or letters, and MUST NOT appear on the Team page.
 - **FR-017**: The bubble MUST fit at phone width (360 px) without horizontal scrolling and in
   every theme (feature 022), light and dark.
 
@@ -288,18 +312,16 @@ rules' names, not the badges' shown names.
 
 ## Assumptions
 
-- **How often** (FR-012): about half of the visits, and always the first visit of the day when a
-  hint exists. The owner may change this in clarification.
-- **How openly** (FR-009): surprise hints are veiled nudges, not the rule. The owner may change
-  this in clarification.
+- **How often** (FR-012) and **how openly** (FR-009): confirmed by the owner (Clarifications).
 - **Feasibility** (FR-006): "the rider's best day of that kind in the season" stands in for what
   the rider can do; it avoids hints like "500 km in two days" for a rider whose longest day is
   60 km. The thresholds in "Hint windows" (70 km, 25 km, half the next step, 5 days) are starting
   values the plan may tune.
 - **Placement**: above the cards and below the switch (feature 013 part I), so it is the first
   thing on the page without moving the cards much.
-- **Art**: the new hint monkey pictures are made with the quote monkeys' process (`art/quotes/`)
-  and may land after the feature; the quote monkeys stand in.
+- **Art**: the six hint monkeys are made with the quote monkeys' process (`art/quotes/`,
+  `"hint": true`, built into `HINT_MONKEYS`) and may land after the feature; the quote monkeys
+  stand in.
 - **Team badges** are out of scope for now; a team-badge hint could follow later.
 - No new data, consent or migration is expected: badge evaluation already stores what the hints
   need (feature 013).

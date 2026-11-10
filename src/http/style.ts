@@ -380,6 +380,18 @@ nav.organiser-switch .segmented svg{flex:none;width:20px;height:20px}
 .quote::after{--rp-quote-tail:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 32'%3E%3Cpath d='M36,32 C25,26 14,22 2,8 C16,12 26,9 36,8 Z'/%3E%3C/svg%3E");background:var(--rp-quote-fill)}
 .quote p{margin:0}
 .quote p:last-child{font:600 16px/22px var(--md-ref-typeface)}
+.badge-hints{margin:var(--rp-space-4) 0 var(--rp-space-1)}
+.badge-hint{display:flex;align-items:flex-end;gap:10px;max-width:640px;padding-right:var(--rp-space-1);color:inherit;text-decoration:none}
+.badge-hint .quote-monkey-art{width:104px;height:104px}
+.badge-hint .quote{display:block;margin:0 0 26px}
+.badge-hint-label{display:block;margin:0 0 2px;font:700 12px/16px var(--md-ref-typeface);letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+.badge-hint-text{display:block;font:600 16px/22px var(--md-ref-typeface)}
+.badge-hint-more{display:inline-flex;align-items:center;gap:2px;margin-top:6px;font:600 14px/20px var(--md-ref-typeface);text-decoration:underline;text-underline-offset:3px}
+.badge-hint-more svg{width:18px;height:18px}
+.badge-card{scroll-margin-top:calc(var(--rp-topbar-height) + env(safe-area-inset-top) + 128px)}
+.badge-card:target{outline:4px solid var(--md-sys-color-primary-container);outline-offset:2px;box-shadow:0 0 0 7px var(--rp-coin-ink);animation:rp-hint-target 2.4s ease-in forwards}
+@keyframes rp-hint-target{0%,70%{outline-color:var(--md-sys-color-primary-container);box-shadow:0 0 0 7px var(--rp-coin-ink)}100%{outline-color:transparent;box-shadow:0 0 0 7px transparent}}
+@media (prefers-reduced-motion:reduce){.badge-card:target{animation-timing-function:steps(1,end)}}
 .peloton,.team-chart{margin-inline:0}
 .peloton figcaption,.team-chart figcaption{display:flex;align-items:baseline;justify-content:space-between;gap:var(--rp-space-2);font:var(--md-type-title)}
 .team-chart-kind{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}

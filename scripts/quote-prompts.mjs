@@ -34,6 +34,10 @@ function validatePictures(data, key, file) {
 
 		if (m?.seasonal !== undefined && typeof m.seasonal !== "boolean")
 			problems.push(`${where}: seasonal must be true or false`);
+		if (m?.hint !== undefined && typeof m.hint !== "boolean")
+			problems.push(`${where}: hint must be true or false`);
+		if (m?.seasonal === true && m?.hint === true)
+			problems.push(`${where}: a monkey is seasonal or a hint, not both`);
 
 		const holes = m?.holes ?? [];
 		if (
