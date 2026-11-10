@@ -3,11 +3,19 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { sampleFingerprint } from "../../dev/fake-strava/seed";
 import { ensureTable, markSeeded } from "../../dev/fake-strava/store";
 import { forgetAccessKeys } from "../../dev/sandbox-access";
+import { devFetch, removeStravaInterceptor } from "../../dev/worker";
 import {
-	type DevEnv,
-	devFetch,
-	removeStravaInterceptor,
-} from "../../dev/worker";
+	type AccessKeys,
+	AUD,
+	accessKeys,
+	accessToken,
+	goodClaims,
+	SANDBOX_HOST,
+	sandboxEnv,
+	sandboxRequest,
+	serveCerts as serveAccessCerts,
+	strangerKey,
+} from "../support/access";
 import { makeCtx, type TestCtx, tableCounts } from "../support/ctx";
 import { NOW } from "../support/fixtures";
 
@@ -15,105 +23,20 @@ import { NOW } from "../support/fixtures";
 // in a sandbox, a request that didn't come through Cloudflare Access gets a 403
 // before the app, the fake Strava or /_dev/ sees it, even with Access removed.
 
-const HOST = "sandbox-hamburg.trhh-rynke-coins.link";
-const TEAM_DOMAIN = "example.cloudflareaccess.com";
-const AUD = "test-aud";
-const ISSUER = `https://${TEAM_DOMAIN}`;
-const CERTS = `${ISSUER}/cdn-cgi/access/certs`;
 const REFUSAL = "Sandbox: access required";
 
-const sandboxEnv: DevEnv = {
-	...env,
-	RYNKE_FAKE_STRAVA: "sandbox",
-	SANDBOX_HOST: HOST,
-	ACCESS_TEAM_DOMAIN: TEAM_DOMAIN,
-	ACCESS_AUD: AUD,
-};
-
 function sandboxCtx(): TestCtx {
-	return { ...makeCtx(), env: sandboxEnv };
+	return { ...makeCtx(), env: sandboxEnv() };
 }
 
-let keys: CryptoKeyPair;
-let otherKeys: CryptoKeyPair;
-let jwk: JsonWebKey & { kid: string };
+let access: AccessKeys;
+let otherKey: CryptoKey;
 
-async function keyPair(): Promise<CryptoKeyPair> {
-	return (await crypto.subtle.generateKey(
-		{
-			name: "RSASSA-PKCS1-v1_5",
-			modulusLength: 2048,
-			publicExponent: new Uint8Array([1, 0, 1]),
-			hash: "SHA-256",
-		},
-		true,
-		["sign", "verify"],
-	)) as CryptoKeyPair;
-}
-
-function base64url(bytes: Uint8Array | string): string {
-	const raw =
-		typeof bytes === "string" ? new TextEncoder().encode(bytes) : bytes;
-	let binary = "";
-	for (const b of raw) binary += String.fromCharCode(b);
-	return btoa(binary)
-		.replace(/\+/g, "-")
-		.replace(/\//g, "_")
-		.replace(/=+$/, "");
-}
-
-const goodClaims = () => ({
-	iss: ISSUER,
-	aud: [AUD],
-	email: "rider@example.com",
-	iat: NOW - 10,
-	nbf: NOW - 10,
-	exp: NOW + 3600,
-});
-
-async function token(
-	options: {
-		header?: Record<string, unknown>;
-		claims?: Record<string, unknown>;
-		key?: CryptoKey;
-	} = {},
-): Promise<string> {
-	const header = options.header ?? { alg: "RS256", kid: "k1", typ: "JWT" };
-	const claims = options.claims ?? goodClaims();
-	const input = `${base64url(JSON.stringify(header))}.${base64url(JSON.stringify(claims))}`;
-	const signature = await crypto.subtle.sign(
-		"RSASSA-PKCS1-v1_5",
-		options.key ?? keys.privateKey,
-		new TextEncoder().encode(input),
-	);
-	return `${input}.${base64url(new Uint8Array(signature))}`;
-}
-
-/** Answers the certs URL with the test key; anything else stays blocked. */
-function serveCerts(answer?: () => Response): ReturnType<typeof vi.fn> {
-	const certs = vi.fn(
-		answer ?? (() => Response.json({ keys: [jwk], public_cert: {} })),
-	);
-	const blocked = vi.mocked(globalThis.fetch).getMockImplementation();
-	vi.mocked(globalThis.fetch).mockImplementation(async (input, init) => {
-		const url = new Request(input, init).url;
-		if (url === CERTS) return certs();
-		if (!blocked) throw new Error(`unexpected request ${url}`);
-		return blocked(input, init);
-	});
-	return certs;
-}
-
-function request(
-	jwt: string | null,
-	options: { host?: string; path?: string } = {},
-): Request {
-	const headers = new Headers();
-	if (jwt !== null) headers.set("Cf-Access-Jwt-Assertion", jwt);
-	return new Request(`https://${options.host ?? HOST}${options.path ?? "/"}`, {
-		headers,
-	});
-}
+const token = (options: Parameters<typeof accessToken>[1] = {}) =>
+	accessToken(access, options);
+const serveCerts = (answer?: () => Response) =>
+	serveAccessCerts(access, answer);
+const request = sandboxRequest;
 
 async function expectRefused(
 	res: Response,
@@ -130,13 +53,8 @@ async function expectRefused(
 }
 
 beforeAll(async () => {
-	keys = await keyPair();
-	otherKeys = await keyPair();
-	const exported = (await crypto.subtle.exportKey(
-		"jwk",
-		keys.publicKey,
-	)) as JsonWebKey;
-	jwk = { ...exported, kid: "k1", alg: "RS256", use: "sig" };
+	access = await accessKeys();
+	otherKey = await strangerKey();
 	// Marked as seeded, so no request here seeds sample data.
 	await ensureTable(env.DB);
 	await markSeeded(env.DB, await sampleFingerprint(env.TEAM_ID));
@@ -223,7 +141,7 @@ describe("a sandbox's access check", () => {
 		],
 		[
 			"a bad signature",
-			async () => request(await token({ key: otherKeys.privateKey })),
+			async () => request(await token({ key: otherKey })),
 			"signature",
 		],
 		[
@@ -328,7 +246,7 @@ describe("a sandbox's access check", () => {
 		serveCerts();
 		const logs = spyLogs();
 		const res = await devFetch(
-			new Request(`https://${HOST}/`, {
+			new Request(`https://${SANDBOX_HOST}/`, {
 				headers: { Cookie: `CF_Authorization=${await token()}` },
 			}),
 			sandboxCtx(),

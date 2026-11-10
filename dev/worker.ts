@@ -15,6 +15,8 @@ import {
 	authorizePage,
 	type IndexRow,
 	indexPage,
+	riderPage,
+	type StoredState,
 } from "./fake-strava/pages";
 import { sampleRider, samplesFor } from "./fake-strava/sample-sets";
 import { sampleFingerprint, seed } from "./fake-strava/seed";
@@ -22,6 +24,7 @@ import { badgesPage } from "./fake-strava/showcase";
 import { getActivity, riderActivities, seededWith } from "./fake-strava/store";
 import { encodeCode } from "./fake-strava/tokens";
 import { type AccessSettings, accessRefusal, refuse } from "./sandbox-access";
+import { withSandboxBar } from "./sandbox-bar";
 
 // The dev entry of fake mode (specs/006-local-frontend-dev research R1, R2,
 // R9): `pnpm dev` runs this instead of src/index.ts. It wraps the app's
@@ -61,6 +64,8 @@ const AUTHORIZE_URL = `${STRAVA_ORIGIN}/oauth/authorize`;
 const STAND_IN_PATH = "/_dev/strava/oauth/authorize";
 const ACTIVITY_URL = `${STRAVA_ORIGIN}/activities/`;
 const ACTIVITY_STAND_IN = "/_dev/strava/activities/";
+/** The daily cron's expression in `wrangler.jsonc`, not the hourly usage one. */
+const DAILY_CRON = "17 3 * * *";
 
 /**
  * Runs only in local fake mode or a sandbox with its host and Access
@@ -251,23 +256,58 @@ function reseed(ctx: Ctx, origin: string): Promise<void> {
 	return seed(ctx, origin, berlinDate(ctx.now()));
 }
 
-async function indexRows(ctx: Ctx): Promise<IndexRow[]> {
+/** The app's stored state of every sample rider, in one query. */
+async function storedStates(ctx: Ctx): Promise<Map<number, StoredState>> {
 	const { results } = await ctx.env.DB.prepare(
 		"SELECT athlete_id, status, import_status FROM riders",
 	).all<{ athlete_id: number; status: string; import_status: string }>();
-	const stored = new Map(results.map((r) => [r.athlete_id, r]));
-	return Promise.all(
-		samplesFor(ctx.team.id).riders.map(async (rider) => {
-			const row = stored.get(rider.athleteId);
-			return {
-				rider,
-				activities: await riderActivities(ctx.env.DB, rider.athleteId),
-				stored: row
-					? { status: row.status, importStatus: row.import_status }
-					: null,
-			};
-		}),
+	return new Map(
+		results.map((r) => [
+			r.athlete_id,
+			{ status: r.status, importStatus: r.import_status },
+		]),
 	);
+}
+
+/** The overview's rows: no rides read (feature 027 FR-051). */
+async function indexRows(ctx: Ctx): Promise<IndexRow[]> {
+	const stored = await storedStates(ctx);
+	return samplesFor(ctx.team.id).riders.map((rider) => ({
+		rider,
+		stored: stored.get(rider.athleteId) ?? null,
+	}));
+}
+
+/** `GET /_dev/riders/<athleteId>`: one sample rider's events and rides. */
+async function showRider(ctx: Ctx, url: URL, athleteId: number) {
+	const rider = sampleRider(ctx.team.id, athleteId);
+	if (!rider) return text("Not Found", 404);
+	const stored = (await storedStates(ctx)).get(athleteId) ?? null;
+	return riderPage(
+		rider,
+		stored,
+		stored ? await riderActivities(ctx.env.DB, athleteId) : [],
+		url.searchParams.get("flash"),
+		berlinDate(ctx.now()),
+	);
+}
+
+/**
+ * `POST /_dev/scheduled`: the daily cron's work, on demand (feature 027
+ * research R9). Sandboxes have no cron, and the hourly usage run isn't offered:
+ * a sandbox mustn't record usage or send usage alerts (FR-036).
+ */
+async function runDailyWork(ctx: Ctx): Promise<Response> {
+	await handleScheduled(
+		{
+			cron: DAILY_CRON,
+			scheduledTime: ctx.now() * 1000,
+			noRetry() {},
+		},
+		ctx,
+	);
+	const flash = "Ran the daily work. Its messages are queued.";
+	return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);
 }
 
 /** `POST /_dev/connect`: the app's connect flow, ending on the stand-in screen. */
@@ -351,7 +391,7 @@ async function setClock(request: Request, ctx: Ctx): Promise<Response> {
 	const flash =
 		day === ""
 			? "The clock is the real one again."
-			: `The app now pretends today is ${day}. Run the daily cron for its notices.`;
+			: `The app now pretends today is ${day}. Run the daily work for its notices.`;
 	return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);
 }
 
@@ -368,6 +408,10 @@ async function devRoute(
 		const stored = await getActivity(ctx.env.DB, Number(activityId));
 		return stored ? activityPage(stored.body) : text("Not Found", 404);
 	}
+	const riderId = url.pathname.match(/^\/_dev\/riders\/(\d+)$/)?.[1];
+	if (request.method === "GET" && riderId !== undefined) {
+		return showRider(ctx, url, Number(riderId));
+	}
 	switch (route) {
 		case "GET /_dev/":
 			return indexPage(
@@ -383,9 +427,17 @@ async function devRoute(
 				berlinDate(ctx.now()),
 			);
 		case "POST /_dev/events": {
-			const flash = await simulateEvent(ctx, url.origin, await form(request));
-			return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);
+			const fields = await form(request);
+			const flash = await simulateEvent(ctx, url.origin, fields);
+			// Back to the rider's page (feature 027 FR-051).
+			const athleteId = Number(fields.get("athleteId"));
+			const back = sampleRider(ctx.team.id, athleteId)
+				? `/_dev/riders/${athleteId}`
+				: "/_dev/";
+			return redirect(`${back}?${new URLSearchParams({ flash })}`, 303);
 		}
+		case "POST /_dev/scheduled":
+			return runDailyWork(ctx);
 		case "POST /_dev/connect":
 			return connectAs(request, ctx, url);
 		case "POST /_dev/clock":
@@ -398,6 +450,14 @@ async function devRoute(
 		case `POST ${STAND_IN_PATH}`:
 			return decide(request, ctx, url);
 		case "POST /_dev/reset":
+			// A sandbox's data comes from its deployment, never from the Worker
+			// (feature 027 research R6, FR-019).
+			if (sandboxMode(ctx.env)) {
+				return text(
+					"Deploy again to reset the sandbox (docs/sandboxes.md)",
+					409,
+				);
+			}
 			await resetAll(ctx, url.origin);
 			// Any session belongs to a rider who was just deleted.
 			return redirect("/_dev/", 303, [clearSessionCookie()]);
@@ -422,7 +482,13 @@ export async function devFetch(
 	}
 	const ctx = await onDevClock(realCtx);
 	installStravaInterceptor(ctx);
-	await seedIfNeeded(ctx, url.origin);
+	// A sandbox's database is seeded by its deployment (research R6).
+	if (!sandbox) await seedIfNeeded(ctx, url.origin);
+	const response = await answer(request, ctx, url);
+	return sandbox ? withSandboxBar(response, realCtx.env as DevEnv) : response;
+}
+
+async function answer(request: Request, ctx: Ctx, url: URL) {
 	if (url.pathname === "/_dev") return redirect("/_dev/", 308);
 	if (url.pathname.startsWith("/_dev/")) return devRoute(request, ctx, url);
 	return rewriteActivityLinks(
