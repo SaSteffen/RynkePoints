@@ -275,6 +275,22 @@ FR-006 below its list of changes.
 **Rationale**: A reusable workflow keeps the deploy in one place for both triggers. Polling
 check runs avoids a new trigger, and `gh workflow run` covers FR-009 without CI needing to change.
 
+**Settled during implementation**:
+- The job's environment has `deployment: false`. Otherwise GitHub records a deployment of the
+  workflow's own commit (`develop`'s), not the deployed one. The job records its own deployment of
+  the deployed commit instead, which `newer-than-live.sh` reads.
+- The job checks out `develop` at the root for the scripts, the deployed commit in `change/` and
+  the base in `base/`. `sandbox-seed.sh` takes the change's checkout from `SANDBOX_CHANGE`, and
+  `team-check.mjs --wrangler <file>` checks the deployed commit's `wrangler.jsonc` with
+  `develop`'s rules. So a branch can't loosen the steps that check it.
+- The order check runs only when both the deployed commit and the live one are on `develop`. A
+  pull request's commit, deployed or live, has no place in that order.
+- CI is started by hand only for a run without a pull request whose commit is `develop`'s head
+  and has no checks yet. A new release pull request's checks are still starting when the job
+  begins.
+- The message's reason is the failed step's last error line, with any 32+ character hex string
+  and the account ID removed.
+
 ## R11. The credential and what it can still reach
 
 **Decision**: Each `sandbox-<team>` environment holds:
