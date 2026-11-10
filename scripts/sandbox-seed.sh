@@ -112,7 +112,9 @@ seed() {
 	port="$(free_port)"
 	inspector="$(free_port)"
 
-	# As `pnpm test:e2e:server` starts it, alone on a free port.
+	# As `pnpm test:e2e:server` starts it, alone on a free port, but on
+	# today's date: the sandbox shows the season as it stands, not the
+	# browser tests' fixed day (RYNKE_FAKE_SEASON_DAY).
 	(cd "$src" && exec setsid env "${SECRETS[@]/#/-u}" \
 		"$src/node_modules/.bin/wrangler" dev dev/worker.ts --env "$team" \
 		--env-file dev/fake.env --var RYNKE_FAKE_STRAVA:local-only \
