@@ -134,6 +134,7 @@ export const da: Catalog = {
 	"rynke.rules.version": "Regelversion {version}, gældende siden {date}.",
 	"rynke.rules.windowDeadline": "Alt fra {start} til {deadline} tæller.",
 	"rynke.rules.handout": "Reglerne som PDF (på tysk)",
+	"rynke.rules.handoutEnglish": "Reglerne som PDF (på engelsk)",
 	"rynke.ride.counts": "tæller 🪙",
 	"rynke.ride.countsWithoutRynke": "tæller",
 	"rynke.ride.doesNotCount": "tæller ikke",

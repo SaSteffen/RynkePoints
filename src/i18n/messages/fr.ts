@@ -141,6 +141,7 @@ export const fr: Catalog = {
 	"rynke.rules.windowDeadline":
 		"Tout ce qui va du {start} au {deadline} compte.",
 	"rynke.rules.handout": "Les règles en PDF (en allemand)",
+	"rynke.rules.handoutEnglish": "Les règles en PDF (en anglais)",
 	"rynke.ride.counts": "compte 🪙",
 	"rynke.ride.countsWithoutRynke": "compte",
 	"rynke.ride.doesNotCount": "ne compte pas",

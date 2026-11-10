@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { escapeHtml } from "../../src/http/html";
-import { RULES_HANDOUT_URL } from "../../src/http/rider-sections";
 import { CATALOGS } from "../../src/i18n/catalogs";
+import { hamburg } from "../../src/teams/hamburg";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A } from "../support/fixtures";
 import { riderPage, seedBalance, seedRide } from "../support/rider-view";
@@ -177,7 +177,7 @@ describe("GET /me Overview", () => {
 			'action="/lang"',
 			'id="install"',
 			`<h2>${escapeHtml(de["rynke.rules.heading"])}</h2>`,
-			`href="${RULES_HANDOUT_URL}"`,
+			`href="${hamburg.rulesHandout.path}"`,
 		]) {
 			expect(page).not.toContain(absent);
 		}

@@ -84,6 +84,14 @@ export interface CloudflareResources {
 	queueIds: readonly string[];
 }
 
+/** The rules handout (FR-022): a PDF from `pnpm docs:pdf` and its language. */
+export interface RulesHandout {
+	/** Under `public/`, served as a download (`public/_headers`). */
+	path: ArtPath;
+	/** The language it's written in; picks the link's label. */
+	locale: "de" | "en";
+}
+
 export interface TeamData {
 	/** `[a-z]+`; equals the deployment's `TEAM_ID`, unique in `TEAMS`. */
 	id: string;
@@ -102,6 +110,7 @@ export interface TeamData {
 	rules: readonly RynkeRules[];
 	/** The event kinds the team's organisers can record. */
 	eventKinds: readonly EventKind[];
+	rulesHandout: RulesHandout;
 	colours: TeamColours;
 	art: ArtMap;
 	/** Own phrases in one language, or the common ones (FR-025). */

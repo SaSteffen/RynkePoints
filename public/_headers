@@ -5,6 +5,9 @@
 /rynke-punkte.pdf
   Content-Disposition: attachment; filename="rynke-punkte.pdf"
 
+/teams/europe/rynke-points.pdf
+  Content-Disposition: attachment; filename="rynke-points.pdf"
+
 # The chart library (feature 009 research R6). The file names carry the
 # version, so a new version is a new URL and the old one never changes.
 /vendor/*

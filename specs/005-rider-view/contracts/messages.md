@@ -110,6 +110,7 @@ tasks:
 | `rynke.rules.window` | `start` | Es zählt alles ab dem {start}. | Everything from {start} counts. |
 | `rynke.rules.windowDeadline` | `start`, `deadline` | Es zählt alles vom {start} bis zum {deadline}. | Everything from {start} to {deadline} counts. |
 | `rynke.rules.handout` | | Die Regeln als PDF | The rules as PDF (in German) |
+| `rynke.rules.handoutEnglish` | | Die Regeln als PDF (auf Englisch) | The rules as PDF |
 
 ## Rides (US1, US4, US5)
 

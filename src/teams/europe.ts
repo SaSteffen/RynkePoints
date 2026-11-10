@@ -34,6 +34,8 @@ export const europe: TeamData = {
 	badgeNames: { kind: "common" },
 	// The founding team's club (wrangler.jsonc `STRAVA_CLUB_ID`).
 	otherClubIds: [1088689],
+	// For now an English translation of the founding team's handout (T082).
+	rulesHandout: { path: "/teams/europe/rynke-points.pdf", locale: "en" },
 	dev: { host: "europe.localhost", port: 8790, inspectorPort: 9231 },
 	// The database ID is the Wrangler block's placeholder (`database_id`).
 	cloudflare: {

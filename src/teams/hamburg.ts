@@ -116,6 +116,7 @@ export const hamburg: TeamData = {
 	badgeNames: { kind: "own", locale: "de", names: BADGE_NAMES },
 	// Filled with Europe's club once it has one (FR-012, release 4).
 	otherClubIds: [],
+	rulesHandout: { path: "/rynke-punkte.pdf", locale: "de" },
 	dev: { host: "localhost", port: 8789, inspectorPort: 9230 },
 	cloudflare: {
 		worker: "rynke-points",
