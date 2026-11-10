@@ -17,4 +17,9 @@ export const QUOTE_MONKEYS: readonly string[] = [
 
 // The seasonal ones (feature 035), shown only in a team holiday's window,
 // never in the regular rotation.
-export const SEASONAL_MONKEYS: readonly string[] = [];
+export const SEASONAL_MONKEYS: readonly string[] = [
+	"advent",
+	"nikolaus",
+	"christmas",
+	"new-year",
+];
