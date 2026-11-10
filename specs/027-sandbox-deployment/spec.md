@@ -80,6 +80,25 @@ Sandboxes are off by default, so they catch a clash only in a release someone ch
 The automatic safety net with the rule off is CI on `develop` and the release pull request's
 checks. Removing the rule is a separate decision. Stories 1–6 are worthwhile without it.
 
+### Slices
+
+The feature is built in three slices. Each is released and used before the next starts.
+
+| Slice | What it brings | Stories | Requirements |
+|---|---|---|---|
+| 1. Sandboxes | Hamburg's and Europe's sandboxes, chosen on **Release PR** or by hand, a message per deployment, the usage check before writing, no cron | 1, 4, 5; 6 scenarios 1, 2 and 5 | FR-001–FR-018, FR-020, FR-032, FR-033, FR-036–FR-038, FR-042 |
+| 2. The gate | `sandbox-gate`, the control comment and its actions | 2, 3 | FR-021–FR-031, FR-047 |
+| 3. Scale and reset | Synthetic riders towards the scale profile in daily stages, **Reset sandbox** | 6 scenarios 3, 4 and 6 | FR-019, FR-034, FR-035, FR-039–FR-041 |
+
+User Story 7 stays a separate decision after all three (FR-043). Each slice updates the
+contributor docs for what it adds (FR-046), and SC-001 holds after every slice.
+
+**Until slice 2**, a deployment's result is only its message on the pull request: nothing
+holds the merge, and a failed or unfinished deployment is the maintainers' call, as a
+failed manual check after a release is today. **Until slice 3**, a sandbox's first
+deployment seeds the sample riders of feature 006 into its empty database (still behind
+the usage check), and a stuck sandbox is rebuilt by hand, as the contributor docs describe.
+
 ## Clarifications
 
 ### Session 2026-11-04
@@ -111,6 +130,22 @@ checks. Removing the rule is a separate decision. Stories 1–6 are worthwhile w
   may replace that step altogether.
 - Q: Who may clear the gate? → A: At stage 1, only the founding maintainer may **Accept**. Any
   maintainer may deploy, since a deployment can only add to what's known about a release.
+
+### Session 2026-11-10
+
+- Q: Can Cloudflare's Previews (or Version URLs) be the sandbox? → A: No. A preview can't
+  consume from a queue and never gets cron runs, but every ride and re-read goes through
+  the queue, so a preview wouldn't evaluate rides, or the deployed version would instead.
+  A preview runs its Worker's own code, so production's Worker can't preview fake mode.
+  Previews bound to one database share its data and migrations, so they can't rehearse a
+  release's migrations. The sandboxes stay deployed Workers. Previews of a sandbox Worker,
+  one per pull request behind Cloudflare Access for UI changes, may be a later feature.
+- Q: In what order is it built? → A: In three slices (see Slices): the sandboxes without
+  a gate, then the gate, then scale seeding and **Reset sandbox**.
+- Q: Which sandboxes come first? → A: Hamburg's and Europe's together, in slice 1.
+  Europe's is the one spec 026 needs (026 FR-042, T074) while Europe runs on placeholders.
+  This replaces "starting with Hamburg's" and the assumption that the second team's
+  sandbox arrives with feature 026.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -367,7 +402,7 @@ the other blocked by a git conflict.
 
 **The sandboxes**
 
-- **FR-001**: There MUST be one sandbox per team, starting with Hamburg's, each with its own
+- **FR-001**: There MUST be one sandbox per team, Hamburg's and Europe's from slice 1, each with its own
   Worker, database, queue, address and secrets, sharing none of them with production or with
   another sandbox. Adding a team's sandbox MUST need only its resources and one entry in the
   list of sandboxes, in line with 026 FR-004.
@@ -589,12 +624,14 @@ the other blocked by a git conflict.
   doesn't extend the riders' consent. The check against Principle I belongs in the plan.
 - Rider-facing text is unchanged, so no catalog entries are needed. Pull request messages are for
   maintainers and in English.
-- The second team's sandbox arrives with feature 026, not with this feature.
+- Europe's team data runs in its sandbox as it is, placeholders included: 026's
+  `team-check --deployable` guards production deployments only.
 
 ## Out of Scope
 
 - Deploying a pull request other than the release pull request to a sandbox, and one sandbox per
-  pull request.
+  pull request. Cloudflare Previews per pull request are a possible later feature (see
+  Clarifications, 2026-11-10).
 - Deploying on every merge to `develop`, and redeploying by itself when `develop` moves.
 - Recommending or forcing a sandbox based on what changed.
 - Hotfixes going through a sandbox.
