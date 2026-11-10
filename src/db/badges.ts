@@ -3,13 +3,16 @@
 // batch of `rynke/apply.ts`, so badges never disagree with the Rynke.
 
 import type { EarnedBadge } from "../badges/evaluate";
+import type { DailyFigures } from "../badges/hints";
 import type { CountingWindow } from "../rynke/rules";
 import {
 	OWN_SUMMARY_SINCE,
 	type OwnFigures,
 	ownFiguresOf,
+	parseActive,
 	parseDays,
 	parseOwnDays,
+	parseRunDays,
 	parseVirtualDays,
 } from "../rynke/summary";
 import { LISTED_RIDER_IDS } from "./organiser";
@@ -175,6 +178,11 @@ export interface RiderBadgesRead {
 	/** Over the rider's swims, for the swim progress bars. */
 	longestSwimM: number;
 	swimDistanceM: number;
+	/**
+	 * The rider's stored day lists, for the hints (feature 034 research R2);
+	 * null without a current row.
+	 */
+	daily: DailyFigures | null;
 }
 
 export async function readRiderBadges(
@@ -206,7 +214,7 @@ export function riderBadgesStatements(
 		// research R15). Without it, `ownFiguresFromRides` follows.
 		db
 			.prepare(
-				`SELECT days, virtual_days, own_days FROM rider_summaries
+				`SELECT days, run_days, active, virtual_days, own_days FROM rider_summaries
 				WHERE athlete_id = ? AND version >= ${OWN_SUMMARY_SINCE}`,
 			)
 			.bind(athleteId),
@@ -303,15 +311,26 @@ export async function toRiderBadges(
 	const row = (
 		summary.results as {
 			days: string;
+			run_days: string;
+			active: string;
 			virtual_days: string;
 			own_days: string;
 		}[]
 	)[0];
-	const own = row
+	const daily: DailyFigures | null = row
+		? {
+				days: parseDays(row.days),
+				runDays: parseRunDays(row.run_days),
+				virtualDays: parseVirtualDays(row.virtual_days),
+				ownDays: parseOwnDays(row.own_days),
+				active: parseActive(row.active),
+			}
+		: null;
+	const own = daily
 		? ownFiguresOf(
-				parseDays(row.days),
-				parseVirtualDays(row.virtual_days),
-				parseOwnDays(row.own_days),
+				daily.days,
+				daily.virtualDays,
+				daily.ownDays,
 				window.deadline,
 			)
 		: await ownFiguresFromRides(db, athleteId, window);
@@ -332,6 +351,7 @@ export async function toRiderBadges(
 		runDistanceM: run?.distance_m ?? 0,
 		longestSwimM: swim?.longest_m ?? 0,
 		swimDistanceM: swim?.distance_m ?? 0,
+		daily,
 	};
 }
 

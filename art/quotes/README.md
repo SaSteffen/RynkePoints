@@ -105,7 +105,9 @@ The badges page's monkey says a badge hint (feature 034). Its six pictures are
 entries of `monkeys.json` like the others, made and built the same way, with
 `"hint": true` and ids starting with `hint-`. `pnpm badge-build` lists them
 apart, in `HINT_MONKEYS`, so they never show on the Team page. Each kind of
-hint always gets the same one (specs/034-badge-hints/spec.md FR-016):
+hint always gets the same one (specs/034-badge-hints/spec.md FR-016); the
+badges page shows it beside the hint's bubble (`src/badges/hints.ts`,
+`hintMonkey`), above the cards:
 
 | Monkey | Pose | Hints |
 | --- | --- | --- |

@@ -5,7 +5,8 @@ import { badgeWindow } from "../../src/badges/evaluate";
 import { BADGE_OUTLINE } from "../../src/badges/outline";
 import { BADGE_PICTURES } from "../../src/badges/pictures";
 import { BADGE_NAMES } from "../../src/content/badge-names/hamburg.de";
-import { readRiderBadges } from "../../src/db/badges";
+import { readRiderBadges, riderBadgesStatements } from "../../src/db/badges";
+import { upsertSummaryStatement } from "../../src/db/rider-summaries";
 import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import {
@@ -16,6 +17,8 @@ import {
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
 import { countingWindow } from "../../src/rynke/rules";
+import { teamFor } from "../../src/teams";
+import { europe } from "../../src/teams/europe";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A, ATHLETE_B } from "../support/fixtures";
 import { riderPage, seedBalance, seedRides } from "../support/rider-view";
@@ -135,7 +138,7 @@ describe("the Abzeichen section", () => {
 		const { section: badges } = await section();
 		const cards = [
 			...(badges ?? "").matchAll(
-				/<li class="badge-card" data-category="(\w+)">([\s\S]*?)<\/li>/g,
+				/<li class="badge-card" data-category="(\w+)"[^>]*>([\s\S]*?)<\/li>/g,
 			),
 		];
 		expect(cards.map((m) => m[1])).toEqual(["distance", "elevation"]);
@@ -253,7 +256,7 @@ describe("the Abzeichen section", () => {
 		const { section: badges } = await section();
 		const cards = [
 			...personalGroup(badges).matchAll(
-				/<li class="badge-card( badge-card-empty)?" data-category="(\w+)">/g,
+				/<li class="badge-card( badge-card-empty)?" data-category="(\w+)"[^>]*>/g,
 			),
 		];
 		expect(cards.findIndex((m) => m[1])).toBe(2);
@@ -296,7 +299,7 @@ describe("the Abzeichen section", () => {
 		expect(badges).not.toContain("badge-large-about");
 		const distanceCard =
 			badges?.match(
-				/<li class="badge-card" data-category="distance">[\s\S]*?<\/li>/,
+				/<li class="badge-card" data-category="distance"[^>]*>[\s\S]*?<\/li>/,
 			)?.[0] ?? "";
 		expect(distanceCard).not.toContain("badge-about");
 		// Inside the outline of a category without a badge.
@@ -466,7 +469,7 @@ describe("the team's badges (US4)", () => {
 		const { section: badges } = await section();
 		const rows = [
 			...teamGroup(badges).matchAll(
-				/<li class="badge-card badge-card-empty" data-category="(\w+)">/g,
+				/<li class="badge-card badge-card-empty" data-category="(\w+)"[^>]*>/g,
 			),
 		].map((m) => m[1]);
 		expect(rows).toEqual([
@@ -489,7 +492,7 @@ describe("the team's badges (US4)", () => {
 		const personal = personalGroup(badges);
 		const card =
 			personal.match(
-				/<li class="badge-card" data-category="tour_de_paris">[\s\S]*?<\/li>/,
+				/<li class="badge-card" data-category="tour_de_paris"[^>]*>[\s\S]*?<\/li>/,
 			)?.[0] ?? "";
 		// The newest day on the card, no bar towards another (FR-013).
 		expect(card).toContain('popovertarget="badge-tour-de-paris-3"');
@@ -542,7 +545,7 @@ describe("the part C categories on the page", () => {
 	const card = (badges: string | null, category: string) =>
 		personalGroup(badges).match(
 			new RegExp(
-				`<li class="badge-card[^"]*" data-category="${category}">[\\s\\S]*?</li>`,
+				`<li class="badge-card[^"]*" data-category="${category}"[^>]*>[\\s\\S]*?</li>`,
 			),
 		)?.[0] ?? "";
 	const missing = (value: string) =>
@@ -634,7 +637,7 @@ describe("the part C categories on the page", () => {
 describe("the surprise badges on the page", () => {
 	const surpriseCard = (badges: string | null) =>
 		personalGroup(badges).match(
-			/<li class="badge-card[^"]*" data-category="surprise">[\s\S]*?<\/li>/,
+			/<li class="badge-card[^"]*" data-category="surprise"[^>]*>[\s\S]*?<\/li>/,
 		)?.[0] ?? "";
 	const about = `<h4>${escapeHtml(de["badges.category.surprise"])}</h4>\n<p class="badge-about">?</p>`;
 	const outline = `<h4>${escapeHtml(de["badges.category.surprise"])}</h4>\n<div class="badge-slot">${BADGE_OUTLINE}<p class="badge-about">?</p></div>`;
@@ -707,7 +710,7 @@ describe("the team surprise badges on the page", () => {
 		)?.[0] ?? "";
 	const card = (badges: string | null) =>
 		teamGroup(badges).match(
-			/<li class="badge-card[^"]*" data-category="team_surprise">[\s\S]*?<\/li>/,
+			/<li class="badge-card[^"]*" data-category="team_surprise"[^>]*>[\s\S]*?<\/li>/,
 		)?.[0] ?? "";
 
 	beforeEach(async () => {
@@ -891,7 +894,7 @@ describe("sharing a badge (033)", () => {
 		const { section: badges } = await section();
 		const cards = [
 			...(badges ?? "").matchAll(
-				/<li class="badge-card" data-category="\w+">[\s\S]*?<\/li>/g,
+				/<li class="badge-card" data-category="\w+"[^>]*>[\s\S]*?<\/li>/g,
 			),
 		].map((m) => m[0]);
 		// The newest per category: 500 km and 1,000 m.
@@ -967,5 +970,163 @@ describe("sharing a badge (033)", () => {
 		await seedBalance(ATHLETE_A);
 		const { section: badges } = await section();
 		expect(sheetsOf(badges)).toHaveLength(1);
+	});
+});
+
+// Feature 034: the monkey's hints, from the rider's stored day lists
+// (contracts/badges-page.md). Synthetic figures only.
+describe("the hints", () => {
+	const NOV_20 = Date.UTC(2026, 10, 20, 10, 0, 0) / 1000;
+	const at = (team = teamFor(env)) => makeCtx({ now: NOV_20, team });
+
+	/** Four November days of 300 km and 300 m, as the daily job stores them. */
+	async function seedSummary(athleteId = ATHLETE_A) {
+		const dates = ["2026-11-02", "2026-11-05", "2026-11-09", "2026-11-12"];
+		await upsertSummaryStatement(env.DB, athleteId, {
+			days: JSON.stringify(dates.map((d) => [d, 300_000, 4, 3000])),
+			weeks: "[]",
+			runDays: "[]",
+			active: JSON.stringify(dates.map((d) => [d, 9, 1])),
+			attended: "[]",
+			virtualDays: "[]",
+			ownDays: JSON.stringify(dates.map((d) => [d, 300_000, 1])),
+			rides: "[]",
+		}).run();
+	}
+
+	async function page(
+		hintCtx: ReturnType<typeof makeCtx>,
+		acceptLanguage?: string,
+	) {
+		const { status, html } = await riderPage(
+			hintCtx,
+			ATHLETE_A,
+			"/me/badges",
+			acceptLanguage,
+		);
+		expect(status).toBe(200);
+		return html;
+	}
+
+	const slotOf = (html: string) =>
+		html.match(/<div class="badge-hints"[\s\S]*?<\/div>\n/)?.[0] ?? null;
+	const templatesOf = (slot: string | null) => [
+		...(slot ?? "").matchAll(
+			/<template data-hint="([^"]+)">([\s\S]*?)<\/template>/g,
+		),
+	];
+
+	beforeEach(async () => {
+		await seedBalance(ATHLETE_A);
+		await seedSummary();
+		// The first visit celebrates the team's new badges (R8); then hints.
+		await page(at());
+	});
+
+	it("puts up to three hints, hidden, after the switch and before the cards", async () => {
+		const html = await page(at());
+		const slot = slotOf(html);
+		expect(slot).toContain(
+			'<div class="badge-hints" data-today="2026-11-20" hidden>',
+		);
+		const templates = templatesOf(slot);
+		expect(templates.map((t) => t[1])).toEqual([
+			"next:winter_november",
+			"next:distance",
+			"next:elevation",
+		]);
+		expect(html.indexOf("badge-hints")).toBeGreaterThan(
+			html.indexOf('<div class="badges-switch">'),
+		);
+		expect(html.indexOf("badge-hints")).toBeLessThan(
+			html.indexOf('id="badges-personal"'),
+		);
+		const first = templates[0]?.[2] ?? "";
+		expect(first).toContain(
+			'<a class="badge-hint" href="#badge-card-winter_november">',
+		);
+		expect(first).toContain(
+			`<img class="quote-monkey-art" src="${artUrl("/quotes/hint-calendar.svg")}" alt="" width="104" height="104">`,
+		);
+		expect(first).toContain('<span class="quote" lang="de">');
+		expect(first).toContain('<span class="badge-hint-label">Tipp</span>');
+		expect(first).toContain(
+			'<span class="badge-hint-text">Noch ein Tag draußen auf dem Rad, dann gibt&#39;s das nächste November-Abzeichen.</span>',
+		);
+		expect(first).toContain('<span class="badge-hint-more">Zur Karte<svg');
+		// 1,200 km of 2,500: 1,300 km missing, in German format.
+		expect(templates[1]?.[2]).toMatch(/1\.300 km/);
+		// 1.200 m of 5.000: 3.800 missing, in German format.
+		expect(templates[2]?.[2]).toMatch(/3\.800 Höhenmeter/);
+	});
+
+	it("speaks German on Hamburg whatever the rider picked (FR-014)", async () => {
+		for (const language of ["en", "fr"]) {
+			const templates = templatesOf(slotOf(await page(at(), language)));
+			expect(templates[0]?.[2]).toContain('lang="de"');
+			expect(templates[0]?.[2]).toContain("Tipp");
+			expect(templates[2]?.[2]).toMatch(/3\.800 Höhenmeter/);
+		}
+	});
+
+	it("speaks English on Europe whatever the rider picked", async () => {
+		const europeCtx = at(europe);
+		await resetDb();
+		await seedRider(europeCtx, { athleteId: ATHLETE_A });
+		await seedBalance(ATHLETE_A);
+		await seedSummary();
+		await page(europeCtx);
+		const templates = templatesOf(slotOf(await page(europeCtx, "de")));
+		expect(templates[0]?.[2]).toContain('lang="en"');
+		expect(templates[0]?.[2]).toContain(
+			'<span class="badge-hint-label">Tip</span>',
+		);
+		expect(templates[0]?.[2]).toContain(
+			"One more day riding outside and the next November badge is yours.",
+		);
+		expect(templates[0]?.[2]).toContain("To the card");
+		expect(templates[2]?.[2]).toMatch(/3,800 m of climbing/);
+	});
+
+	it("gives every personal card an id, the team's none", async () => {
+		const html = await page(at());
+		const personal = personalGroup(html);
+		const cards = [
+			...personal.matchAll(
+				/<li class="badge-card[^"]*" data-category="(\w+)"([^>]*)>/g,
+			),
+		];
+		expect(cards.length).toBeGreaterThan(10);
+		for (const [, category, rest] of cards) {
+			expect(rest).toBe(` id="badge-card-${category}"`);
+		}
+		const team =
+			html.match(/<section id="badges-team"[\s\S]*?<\/section>/)?.[0] ?? "";
+		expect(team).toContain('class="badge-card');
+		expect(team).not.toContain('id="badge-card-');
+	});
+
+	it("has none on a visit that reveals new badges (R8)", async () => {
+		await earn(ATHLETE_A, [["distance-100", "2026-11-12"]]);
+		const html = await page(at());
+		expect(html).toContain("badges-reveal");
+		expect(slotOf(html)).toBeNull();
+	});
+
+	it("has none without a candidate or a summary row", async () => {
+		await env.DB.prepare("DELETE FROM rider_summaries").run();
+		expect(slotOf(await page(at()))).toBeNull();
+	});
+
+	it("has none in the waiting state", async () => {
+		await env.DB.prepare("DELETE FROM rynke_balances").run();
+		const html = await page(at());
+		expect(html).not.toContain("badge-hints");
+	});
+
+	it("reads with the same five statements as before (SC-002)", () => {
+		expect(
+			riderBadgesStatements(env.DB, ATHLETE_A, countingWindow(env)),
+		).toHaveLength(5);
 	});
 });

@@ -83,6 +83,9 @@ export const TURN = icon(
 /** A tick, for "Bin dabei ✓" and confirmed attendance (feature 019). */
 export const CHECK = icon('<path d="M5 12.5l4.5 4.5L19 7.5"/>');
 
+/** A chevron pointing down, for the hint's "Zur Karte" (feature 034). */
+export const CHEVRON_DOWN = icon('<path d="M6 9l6 6 6-6"/>');
+
 /** A plus, for "Bin dabei" and "Ich war auch dabei" (feature 019). */
 export const PLUS = icon('<path d="M12 5v14M5 12h14"/>');
 
