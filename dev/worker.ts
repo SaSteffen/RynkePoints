@@ -21,6 +21,7 @@ import { sampleFingerprint, seed } from "./fake-strava/seed";
 import { badgesPage } from "./fake-strava/showcase";
 import { getActivity, riderActivities, seededWith } from "./fake-strava/store";
 import { encodeCode } from "./fake-strava/tokens";
+import { type AccessSettings, accessRefusal, refuse } from "./sandbox-access";
 
 // The dev entry of fake mode (specs/006-local-frontend-dev research R1, R2,
 // R9): `pnpm dev` runs this instead of src/index.ts. It wraps the app's
@@ -53,7 +54,7 @@ export type DevEnv = Env & {
 };
 
 /** A sandbox's host and Access application, all three non-empty. */
-export type SandboxMode = { host: string; teamDomain: string; aud: string };
+export type SandboxMode = AccessSettings;
 
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
 const AUTHORIZE_URL = `${STRAVA_ORIGIN}/oauth/authorize`;
@@ -409,10 +410,18 @@ export async function devFetch(
 	realCtx: Ctx,
 ): Promise<Response> {
 	assertFakeMode(realCtx.env);
+	const url = new URL(request.url);
+	// A sandbox checks its Access token before anything else runs (027
+	// contracts/access-check.md); local fake mode answers loopback only.
+	const sandbox = sandboxMode(realCtx.env);
+	if (sandbox) {
+		const reason = await accessRefusal(request, sandbox, realCtx.now());
+		if (reason) return refuse(reason);
+	} else if (!isLocal(url)) {
+		return text("Fake mode answers localhost only", 403);
+	}
 	const ctx = await onDevClock(realCtx);
 	installStravaInterceptor(ctx);
-	const url = new URL(request.url);
-	if (!isLocal(url)) return text("Fake mode answers localhost only", 403);
 	await seedIfNeeded(ctx, url.origin);
 	if (url.pathname === "/_dev") return redirect("/_dev/", 308);
 	if (url.pathname.startsWith("/_dev/")) return devRoute(request, ctx, url);

@@ -94,6 +94,15 @@ describe("layer 1: production never bundles dev/, album/, tools/ or gateway/", (
 		}
 	});
 
+	it("has no src/ file reading a sandbox's settings (027 FR-013)", () => {
+		const vars =
+			/\b(SANDBOX_HOST|ACCESS_TEAM_DOMAIN|ACCESS_AUD|SANDBOX_COMMIT|SANDBOX_SOURCE)\b/;
+		const offenders = Object.entries(SOURCES)
+			.filter(([, text]) => vars.test(text))
+			.map(([file]) => file);
+		expect(offenders).toEqual([]);
+	});
+
 	it("deploys src/index.ts", () => {
 		const config = Object.values(WRANGLER)[0] ?? "";
 		expect(config).toContain('"main": "src/index.ts"');
