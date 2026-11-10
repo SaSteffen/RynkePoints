@@ -4,7 +4,8 @@ import { test } from "./test";
 
 // The monkey's hint on the badges page (feature 034 contracts/badges-page.md
 // › Browser): picked in the browser, remembered there, kept while the page
-// refreshes in place. The rider is the fake mode's synthetic sample.
+// refreshes in place. The rider is the fake mode's synthetic sample, on the
+// e2e servers' fixed day (issue #301), so she has her hints on every run.
 
 const RIDER = "Bea Badges";
 const KEY = "rp-badge-hint";
@@ -41,7 +42,7 @@ test("shows a hint on the first visit, and the card after a tap (US1)", async ({
 	await page.evaluate((key) => localStorage.removeItem(key), KEY);
 	await page.reload();
 	const keys = await keysOf(page);
-	test.skip(keys.length === 0, "the sample rider has no hint today");
+	expect(keys.length).toBeGreaterThan(0);
 	await expect(hint(page)).toBeVisible();
 	const shown = await record(page);
 	expect(shown.date).toBe(
@@ -64,7 +65,7 @@ test("never the same hint twice in a row, and none on some visits (US3)", async 
 	test.slow();
 	await openBadges(page);
 	const keys = await keysOf(page);
-	test.skip(keys.length < 2, "the sample rider has fewer than two hints");
+	expect(keys.length).toBeGreaterThanOrEqual(2);
 	const today = await page.locator(".badge-hints").getAttribute("data-today");
 	// The page decides when it loads: Math.random fixed for the next load.
 	const load = async (random: number) => {
@@ -111,7 +112,7 @@ test("keeps the hint while the page refreshes in place (FR-013)", async ({
 	await openBadges(page);
 	await page.evaluate((key) => localStorage.removeItem(key), KEY);
 	await page.reload();
-	test.skip((await keysOf(page)).length === 0, "no hint today");
+	expect((await keysOf(page)).length).toBeGreaterThan(0);
 	await expect(hint(page)).toBeVisible();
 	const text = await hint(page).textContent();
 	await page.locator("main .badges").evaluate((el) => {

@@ -7,7 +7,7 @@ import { handleFetch, handleQueue, handleScheduled } from "../src/index";
 import { STRAVA_ORIGIN } from "../src/strava/result";
 import { teamFor } from "../src/teams";
 import { sendAll } from "../src/work/messages";
-import { isDay, onDevClock, pretendDay, pretendedDay } from "./clock";
+import { devDay, isDay, onDevClock, pretendDay } from "./clock";
 import { answerStrava } from "./fake-strava/api";
 import { simulateEvent } from "./fake-strava/events";
 import {
@@ -37,6 +37,8 @@ import { encodeCode } from "./fake-strava/tokens";
 export type DevEnv = Env & {
 	RYNKE_FAKE_STRAVA?: string;
 	RYNKE_FAKE_GATEWAY?: string;
+	/** The browser tests' fixed day, in days after the season start (dev/clock.ts). */
+	RYNKE_FAKE_SEASON_DAY?: string;
 };
 
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
@@ -329,7 +331,7 @@ async function devRoute(
 				await indexRows(ctx),
 				url.searchParams.get("flash"),
 				berlinDate(ctx.now()),
-				(await pretendedDay(ctx.env.DB)) !== null,
+				(await devDay(ctx.env)) !== null,
 			);
 		case "GET /_dev/badges":
 			return badgesPage(

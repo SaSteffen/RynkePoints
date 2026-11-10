@@ -53,9 +53,33 @@ export function shiftedNow(day: string, realNow: number): number {
 	return shifted;
 }
 
-/** `ctx` on the pretended day, if there is one. */
+/**
+ * The browser tests' fixed day (issue #301): `RYNKE_FAKE_SEASON_DAY` days after
+ * the team's season start, so every run sees the same season whatever the real
+ * date, and the day moves along when the season settings do. Null without it.
+ */
+export function fixedDay(
+	env: Pick<Env, "SEASON_START_DATE"> & { RYNKE_FAKE_SEASON_DAY?: string },
+): string | null {
+	const days = env.RYNKE_FAKE_SEASON_DAY;
+	if (days === undefined || days === "") return null;
+	if (!/^\d+$/.test(days)) {
+		throw new Error("RYNKE_FAKE_SEASON_DAY must be a number of days");
+	}
+	const start = Date.parse(`${env.SEASON_START_DATE}T00:00:00Z`);
+	return new Date(start + Number(days) * 86_400_000).toISOString().slice(0, 10);
+}
+
+/** The day `/_dev/` pretends, else the fixed day, else null: the real one. */
+export async function devDay(
+	env: Env & { RYNKE_FAKE_SEASON_DAY?: string },
+): Promise<string | null> {
+	return (await pretendedDay(env.DB)) ?? fixedDay(env);
+}
+
+/** `ctx` on the pretended or fixed day, if there is one. */
 export async function onDevClock(ctx: Ctx): Promise<Ctx> {
-	const day = await pretendedDay(ctx.env.DB);
+	const day = await devDay(ctx.env);
 	if (day === null) return ctx;
 	const real = ctx.now;
 	return { ...ctx, now: () => shiftedNow(day, real()) };
