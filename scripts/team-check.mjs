@@ -6,6 +6,9 @@
 //
 //   node scripts/team-check.mjs                    # every team
 //   node scripts/team-check.mjs --deployable <id>  # also: no placeholders left
+//
+// It checks the release sandboxes' blocks, `sandbox-<team>`, too (feature 027
+// FR-012), and `--deployable` refuses them.
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { registerHooks } from "node:module";
 import { fileURLToPath } from "node:url";
@@ -62,6 +65,12 @@ const FIELDS = [
  */
 const RESERVED_PORTS = [8791, 9232, 8792, 9233, 8797, 9237, 8798, 9238];
 
+/**
+ * A release sandbox's block, `sandbox-<team>` (feature 027): fake mode, not a
+ * team, checked by its own rules.
+ */
+export const isSandbox = (name) => name.startsWith("sandbox-");
+
 /** What only a team's Wrangler block may hold, never the top level. */
 const TEAM_KEYS = ["vars", "secrets", "d1_databases", "queues", "triggers"];
 
@@ -74,7 +83,9 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 	const say = (team, field, what) =>
 		problems.push(`team ${team?.id ?? "?"}: ${field}: ${what}`);
 	const founding = teams[0];
-	const blocks = Object.values(wrangler.env ?? {});
+	const blocks = Object.entries(wrangler.env ?? {})
+		.filter(([name]) => !isSandbox(name))
+		.map(([, block]) => block);
 	// Every var and secret some team's block sets, so one missing from any
 	// block is caught.
 	const reference = Object.assign(
@@ -237,7 +248,7 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 	}
 
 	for (const id of Object.keys(wrangler.env ?? {})) {
-		if (!seenIds.has(id)) {
+		if (!seenIds.has(id) && !isSandbox(id)) {
 			problems.push(`wrangler.jsonc: env.${id}: no registered team`);
 		}
 	}
@@ -266,11 +277,125 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 			}
 		}
 	}
+	problems.push(...sandboxProblems(wrangler, [...seenIds]));
 	return problems;
 }
 
-/** `--deployable <id>`: the team's placeholders, one line each. */
+/** The domain every sandbox's host is under: `sandbox-<team>.<domain>`. */
+const SANDBOX_DOMAIN = "trhh-rynke-coins.link";
+
+/** The vars a sandbox sets itself; every other is the team's (027 FR-012). */
+const SANDBOX_VARS = [
+	"RYNKE_FAKE_STRAVA",
+	"SANDBOX_HOST",
+	"ACCESS_TEAM_DOMAIN",
+	"ACCESS_AUD",
+	"PUSH_SUBJECT",
+	"STRAVA_RETURN_VIA",
+	"USAGE_PEERS",
+	"TEAM_ID",
+];
+
+/** What a block names on Cloudflare, each of which no other block may share. */
+function resources(block) {
+	const databases = block.d1_databases ?? [];
+	const queues = [
+		...(block.queues?.producers ?? []),
+		...(block.queues?.consumers ?? []),
+	];
+	return {
+		worker: [block.name],
+		database: databases.map((d) => d.database_name),
+		"database ID": databases.map((d) => d.database_id),
+		queue: queues.map((q) => q.queue),
+		host: (block.routes ?? []).map((r) => r.pattern),
+	};
+}
+
+/**
+ * Every problem with the sandbox blocks (feature 027 contracts/sandbox-config.md):
+ * fake mode's entry, no cron, no workers.dev or preview URLs, its own host and
+ * resources, and the team's settings apart from SANDBOX_VARS.
+ */
+function sandboxProblems(wrangler, teamIds) {
+	const problems = [];
+	const entries = Object.entries(wrangler.env ?? {});
+	for (const [name, block] of entries) {
+		if (!isSandbox(name)) continue;
+		const say = (key, what) =>
+			problems.push(`wrangler.jsonc: env.${name}: ${key}: ${what}`);
+		const team = name.slice("sandbox-".length);
+		const host = `${name}.${SANDBOX_DOMAIN}`;
+		const teamBlock = teamIds.includes(team) ? wrangler.env[team] : undefined;
+		if (!teamBlock) {
+			problems.push(
+				`wrangler.jsonc: env.${name}: no registered team "${team}"`,
+			);
+		}
+		if (block.main !== "dev/worker.ts") {
+			say("main", `"${block.main}", not "dev/worker.ts"`);
+		}
+		if (block.triggers !== undefined) say("triggers", "a sandbox has no cron");
+		for (const key of ["workers_dev", "preview_urls"]) {
+			if (block[key] !== false) say(key, `${block[key]}, not false`);
+		}
+		const vars = block.vars ?? {};
+		const expected = {
+			RYNKE_FAKE_STRAVA: "sandbox",
+			TEAM_ID: team,
+			SANDBOX_HOST: host,
+		};
+		for (const [key, value] of Object.entries(expected)) {
+			if (vars[key] !== undefined && vars[key] !== value) {
+				say(`vars.${key}`, `"${vars[key]}", not "${value}"`);
+			}
+		}
+		for (const key of SANDBOX_VARS) {
+			if (vars[key] === undefined) say(`vars.${key}`, "missing");
+		}
+		const patterns = (block.routes ?? []).map((r) => r.pattern);
+		if (patterns.length !== 1 || patterns[0] !== host) {
+			say("routes", `${JSON.stringify(patterns)}, not ["${host}"]`);
+		}
+		if (teamBlock) {
+			const teamVars = teamBlock.vars ?? {};
+			const keys = new Set([...Object.keys(teamVars), ...Object.keys(vars)]);
+			for (const key of keys) {
+				if (SANDBOX_VARS.includes(key) || vars[key] === teamVars[key]) continue;
+				say(
+					`vars.${key}`,
+					vars[key] === undefined
+						? "missing"
+						: teamVars[key] === undefined
+							? `not in env.${team}`
+							: `"${vars[key]}", not env.${team}'s "${teamVars[key]}"`,
+				);
+			}
+		}
+		const mine = resources(block);
+		for (const [other, otherBlock] of entries) {
+			if (other === name) continue;
+			const theirs = resources(otherBlock);
+			for (const [kind, values] of Object.entries(mine)) {
+				for (const value of new Set(values)) {
+					if (value !== undefined && theirs[kind].includes(value)) {
+						say(kind, `"${value}" is also env.${other}'s`);
+					}
+				}
+			}
+		}
+	}
+	return problems;
+}
+
+/**
+ * `--deployable <id>`: the team's placeholders, one line each. A sandbox is
+ * never deployable as a team: production's deploy job would take it.
+ */
 export function placeholderProblems(teams, id) {
+	if (isSandbox(id)) {
+		return [`env.${id}: a sandbox, deployed only by the Sandbox workflow`];
+	}
 	const team = teams.find((t) => t.id === id);
 	if (!team) return [`team ${id}: not registered`];
 	return (team.placeholders ?? []).map(

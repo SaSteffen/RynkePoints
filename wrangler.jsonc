@@ -241,6 +241,172 @@
 					"custom_domain": true
 				}
 			]
+		},
+		// Hamburg's release sandbox (feature 027), `--env sandbox-hamburg`: fake mode
+		// (dev/worker.ts) with sample riders only, for maintainers behind Access.
+		// Every var as Hamburg's except those team-check allows to differ.
+		"sandbox-hamburg": {
+			"name": "rynke-points-sandbox-hamburg",
+			"main": "dev/worker.ts",
+			"workers_dev": false,
+			"preview_urls": false,
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "rynke-points-sandbox-hamburg",
+					// Placeholder, until `wrangler d1 create rynke-points-sandbox-hamburg`.
+					"database_id": "00000000-0000-0000-0000-000000000001",
+					"migrations_dir": "migrations"
+				}
+			],
+			"queues": {
+				"producers": [
+					{
+						"binding": "WORK_QUEUE",
+						"queue": "rynke-points-sandbox-hamburg-work"
+					}
+				],
+				"consumers": [
+					{
+						"queue": "rynke-points-sandbox-hamburg-work",
+						"max_batch_size": 10,
+						"max_batch_timeout": 5,
+						"max_retries": 10,
+						"max_concurrency": 1
+					}
+				]
+			},
+			// No triggers: sandboxes use none of the account's five crons (FR-032);
+			// `POST /_dev/scheduled` runs the daily work instead.
+			"vars": {
+				"STRAVA_CLUB_ID": "1088689",
+				"STRAVA_EXTRA_CLUB_IDS": "2372209",
+				"SEASON_START_DATE": "2026-09-01",
+				"QUALIFICATION_DEADLINE": "2027-06-30",
+				"ORGANISER_FIGURES": "full",
+				"ORGANISER_PROGRESS_GRAPH": "on",
+				"STRAVA_SUBSCRIPTION_ID": "385000",
+				"PUSH_SUBJECT": "https://sandbox-hamburg.trhh-rynke-coins.link",
+				"READY_POLL_SECONDS": "10",
+				"TRAINING_LEADERBOARD": "on",
+				"RIDE_FIGURES": "on",
+				"RYNKE_VIEWS": "on",
+				"BADGES": "on",
+				"PHRASES": "on",
+				"SEASON_ALBUM": "on",
+				"FUN_THEMES": "on",
+				"PRIVACY_CONTROLLER": "Sascha Steffen",
+				"CONTACT_EMAIL": "support@trhh-rynke-coins.link",
+				"TEAM_ID": "hamburg",
+				"STRAVA_RETURN_VIA": "",
+				"USAGE_PEERS": "[]",
+				// Fake mode in a sandbox: closed by Cloudflare Access and checked again by
+				// the Worker (027 contracts/access-check.md).
+				"RYNKE_FAKE_STRAVA": "sandbox",
+				"SANDBOX_HOST": "sandbox-hamburg.trhh-rynke-coins.link",
+				// Placeholders until the Access application exists (027 quickstart).
+				"ACCESS_TEAM_DOMAIN": "placeholder.cloudflareaccess.com",
+				"ACCESS_AUD": "placeholder-access-aud"
+			},
+			"secrets": {
+				"required": [
+					"STRAVA_CLIENT_ID",
+					"STRAVA_CLIENT_SECRET",
+					"STRAVA_WEBHOOK_VERIFY_TOKEN",
+					"TOKEN_ENCRYPTION_KEY",
+					"SESSION_SIGNING_KEY",
+					"ADMIN_TOKEN",
+					"PUSH_VAPID_KEY"
+				]
+			},
+			"routes": [
+				{
+					"pattern": "sandbox-hamburg.trhh-rynke-coins.link",
+					"custom_domain": true
+				}
+			]
+		},
+		// Europe's release sandbox, `--env sandbox-europe`, like Hamburg's.
+		"sandbox-europe": {
+			"name": "rynke-points-sandbox-europe",
+			"main": "dev/worker.ts",
+			"workers_dev": false,
+			"preview_urls": false,
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "rynke-points-sandbox-europe",
+					// Placeholder, until `wrangler d1 create rynke-points-sandbox-europe`.
+					"database_id": "00000000-0000-0000-0000-000000000002",
+					"migrations_dir": "migrations"
+				}
+			],
+			"queues": {
+				"producers": [
+					{
+						"binding": "WORK_QUEUE",
+						"queue": "rynke-points-sandbox-europe-work"
+					}
+				],
+				"consumers": [
+					{
+						"queue": "rynke-points-sandbox-europe-work",
+						"max_batch_size": 10,
+						"max_batch_timeout": 5,
+						"max_retries": 10,
+						"max_concurrency": 1
+					}
+				]
+			},
+			// No triggers: sandboxes use none of the account's five crons (FR-032);
+			// `POST /_dev/scheduled` runs the daily work instead.
+			"vars": {
+				"STRAVA_CLUB_ID": "0",
+				"STRAVA_EXTRA_CLUB_IDS": "",
+				"SEASON_START_DATE": "2026-09-01",
+				"QUALIFICATION_DEADLINE": "2027-06-30",
+				"ORGANISER_FIGURES": "full",
+				"ORGANISER_PROGRESS_GRAPH": "on",
+				"STRAVA_SUBSCRIPTION_ID": "385000",
+				"PUSH_SUBJECT": "https://sandbox-europe.trhh-rynke-coins.link",
+				"READY_POLL_SECONDS": "10",
+				"TRAINING_LEADERBOARD": "on",
+				"RIDE_FIGURES": "on",
+				"RYNKE_VIEWS": "on",
+				"BADGES": "on",
+				"PHRASES": "on",
+				"SEASON_ALBUM": "on",
+				"FUN_THEMES": "on",
+				"PRIVACY_CONTROLLER": "Placeholder Controller",
+				"CONTACT_EMAIL": "privacy@example.org",
+				"TEAM_ID": "europe",
+				"STRAVA_RETURN_VIA": "",
+				"USAGE_PEERS": "[]",
+				// Fake mode in a sandbox: closed by Cloudflare Access and checked again by
+				// the Worker (027 contracts/access-check.md).
+				"RYNKE_FAKE_STRAVA": "sandbox",
+				"SANDBOX_HOST": "sandbox-europe.trhh-rynke-coins.link",
+				// Placeholders until the Access application exists (027 quickstart).
+				"ACCESS_TEAM_DOMAIN": "placeholder.cloudflareaccess.com",
+				"ACCESS_AUD": "placeholder-access-aud"
+			},
+			"secrets": {
+				"required": [
+					"STRAVA_CLIENT_ID",
+					"STRAVA_CLIENT_SECRET",
+					"STRAVA_WEBHOOK_VERIFY_TOKEN",
+					"TOKEN_ENCRYPTION_KEY",
+					"SESSION_SIGNING_KEY",
+					"ADMIN_TOKEN",
+					"PUSH_VAPID_KEY"
+				]
+			},
+			"routes": [
+				{
+					"pattern": "sandbox-europe.trhh-rynke-coins.link",
+					"custom_domain": true
+				}
+			]
 		}
 	}
 }
