@@ -4,7 +4,7 @@ import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import type { RiderStatus } from "../rynke/pace";
 import { STRAVA_ORIGIN } from "../strava/result";
-import type { CoinArt } from "../teams/types";
+import type { CoinArt, RulesHandout } from "../teams/types";
 import { coinArt, flippingCoin, miniCoin, SHARED_COIN } from "./coin";
 import { html, type SafeHtml } from "./html";
 import {
@@ -60,8 +60,11 @@ const PART_CLASS: Record<GaugeSource, string> = {
 	technique_training: "gauge-part-5",
 };
 
-/** The rules handout PDF, a static asset from `pnpm docs:pdf` (research R14). */
-export const RULES_HANDOUT_URL = "/rynke-punkte.pdf";
+/** The handout link's label, which names the handout's language. */
+const HANDOUT_LABEL: Record<RulesHandout["locale"], MessageId> = {
+	de: "rynke.rules.handout",
+	en: "rynke.rules.handoutEnglish",
+};
 
 function whole(i18n: I18n, n: number): string {
 	return i18n.formatNumber(n, { fractionDigits: 0 });
@@ -354,10 +357,14 @@ function eventItem(i18n: I18n, event: EventLine): SafeHtml {
 }
 
 /**
- * The rules version, the counting window and the handout (FR-050, FR-053),
- * for their group in Settings (issue #92).
+ * The rules version, the counting window and the team's handout (FR-050,
+ * FR-053; 026 FR-022), for their group in Settings (issue #92).
  */
-export function renderRules(i18n: I18n, rules: RulesInfo): SafeHtml {
+export function renderRules(
+	i18n: I18n,
+	rules: RulesInfo,
+	handout: RulesHandout,
+): SafeHtml {
 	const window = i18n.t("rynke.rules.windowDeadline", {
 		start: day(i18n, rules.seasonStart),
 		deadline: day(i18n, rules.deadline),
@@ -367,7 +374,7 @@ export function renderRules(i18n: I18n, rules: RulesInfo): SafeHtml {
 		date: day(i18n, rules.effectiveDate),
 	})}</p>
 <p>${window}</p>
-<p><a class="tap" href="${RULES_HANDOUT_URL}">${i18n.t("rynke.rules.handout")}</a></p>`;
+<p><a class="tap" href="${handout.path}">${i18n.t(HANDOUT_LABEL[handout.locale])}</a></p>`;
 }
 
 /**

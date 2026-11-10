@@ -2,10 +2,10 @@ import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { RIDE_PAGE_SQL } from "../../src/db/rider-view";
 import { artUrl } from "../../src/http/art";
-import { RULES_HANDOUT_URL } from "../../src/http/rider-sections";
 import { handleFetch } from "../../src/index";
 import type { ReasonCode } from "../../src/rynke/rides";
 import type { TeamEventSum } from "../../src/rynke/team-events";
+import { hamburg } from "../../src/teams/hamburg";
 import {
 	makeCtx,
 	request,
@@ -1257,7 +1257,7 @@ describe("GET /me rules and notices (US6)", () => {
 		const link = section(settings, 'id="settings-rules"')?.match(
 			/<a class="tap" href="([^"]*)">([^<]*)<\/a>/,
 		);
-		expect(link?.[1]).toBe(RULES_HANDOUT_URL);
+		expect(link?.[1]).toBe(hamburg.rulesHandout.path);
 		expect(link?.[2]).toBe("Die Regeln als PDF");
 		expect(notice).toBeNull();
 		expect(html).not.toContain("gelten neue Regeln");

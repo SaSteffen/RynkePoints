@@ -87,7 +87,7 @@ ${group(
 <p><a class="button-outlined" href="/connect?next=/me/settings">${i18n.t("me.changePermissions")}</a></p>`,
 )}
 ${group("settings-consent", i18n.t("me.consent.heading"), consent(i18n, accepted))}
-${group("settings-rules", i18n.t("rynke.rules.heading"), renderRules(i18n, rules))}
+${group("settings-rules", i18n.t("rynke.rules.heading"), renderRules(i18n, rules, ctx.team.rulesHandout))}
 ${group(
 	"settings-tour",
 	i18n.t("settings.tour"),

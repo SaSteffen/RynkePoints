@@ -17,6 +17,8 @@ import type {
 } from "../../src/http/rider-view";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { createI18n } from "../../src/i18n/i18n";
+import { europe } from "../../src/teams/europe";
+import { hamburg } from "../../src/teams/hamburg";
 
 const en = createI18n("en", CATALOGS);
 const de = createI18n("de", CATALOGS);
@@ -78,9 +80,57 @@ describe("renderRules window", () => {
 
 	it("names the start and the deadline", () => {
 		expect(
-			renderRules(en, { ...rules, deadline: "2027-03-31" }).toString(),
+			renderRules(
+				en,
+				{ ...rules, deadline: "2027-03-31" },
+				hamburg.rulesHandout,
+			).toString(),
 		).toContain("Everything from 01/01/2026 to 31/03/2027 counts.");
 	});
+});
+
+describe("renderRules handout (026 FR-022)", () => {
+	const rules = {
+		version: 2,
+		effectiveDate: "2026-11-01",
+		seasonStart: "2026-01-01",
+		deadline: "2027-03-31",
+	};
+	const link = (i18n: typeof en, team: typeof hamburg) =>
+		renderRules(i18n, rules, team.rulesHandout)
+			.toString()
+			.match(/<a class="tap" href="([^"]*)">([^<]*)<\/a>/)
+			?.slice(1);
+
+	it.each([
+		["hamburg", "de", hamburg, "/rynke-punkte.pdf", "Die Regeln als PDF"],
+		[
+			"hamburg",
+			"en",
+			hamburg,
+			"/rynke-punkte.pdf",
+			"The rules as PDF (in German)",
+		],
+		[
+			"europe",
+			"en",
+			europe,
+			"/teams/europe/rynke-points.pdf",
+			"The rules as PDF",
+		],
+		[
+			"europe",
+			"de",
+			europe,
+			"/teams/europe/rynke-points.pdf",
+			"Die Regeln als PDF (auf Englisch)",
+		],
+	] as const)(
+		"%s in %s links its own handout",
+		(_, locale, team, href, label) => {
+			expect(link(locale === "en" ? en : de, team)).toEqual([href, label]);
+		},
+	);
 });
 
 describe("renderRides card disclosure (011 FR-021, clarification Q5)", () => {

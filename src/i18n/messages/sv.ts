@@ -134,6 +134,7 @@ export const sv: Catalog = {
 	"rynke.rules.version": "Regelversion {version}, gäller sedan {date}.",
 	"rynke.rules.windowDeadline": "Allt från {start} till {deadline} räknas.",
 	"rynke.rules.handout": "Reglerna som PDF (på tyska)",
+	"rynke.rules.handoutEnglish": "Reglerna som PDF (på engelska)",
 	"rynke.ride.counts": "räknas 🪙",
 	"rynke.ride.countsWithoutRynke": "räknas",
 	"rynke.ride.doesNotCount": "räknas inte",

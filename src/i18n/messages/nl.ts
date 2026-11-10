@@ -134,6 +134,7 @@ export const nl: Catalog = {
 	"rynke.rules.version": "Regelversie {version}, geldig sinds {date}.",
 	"rynke.rules.windowDeadline": "Alles van {start} tot {deadline} telt mee.",
 	"rynke.rules.handout": "De regels als pdf (in het Duits)",
+	"rynke.rules.handoutEnglish": "De regels als pdf (in het Engels)",
 	"rynke.ride.counts": "telt 🪙",
 	"rynke.ride.countsWithoutRynke": "telt",
 	"rynke.ride.doesNotCount": "telt niet",
