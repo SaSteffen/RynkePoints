@@ -1,7 +1,8 @@
 # Data Model: Release Sandboxes, slice 1
 
 Slice 1 adds no table and no migration. A sandbox's database has production's schema, filled by
-the same migrations, holding only the sample riders of feature 006.
+the same migrations, holding only the sample riders of feature 006. Nothing in it outlives a
+deployment.
 
 ## Sandbox
 
@@ -38,8 +39,16 @@ in slice 1. The control comment that collects them comes in slice 2.
 
 ## Sandbox database lifecycle
 
-| State | How it's detected | Next deployment does |
+Every deployment, in order (research R6):
+
+| Step | Where | On failure |
 |---|---|---|
-| Empty (new or rebuilt by hand) | no `d1_migrations` table | seeds from the local dump, then migrations (none pending) |
-| Seeded | `d1_migrations` exists | applies pending migrations to the existing rows (FR-016) |
-| Stuck | a migration failed | message says so; rebuilt by hand until slice 3 |
+| Seed the sample riders with the base's code and migrations (`main` or `develop`) | CI, local database | stop; sandbox untouched |
+| Apply the release's migrations to a copy | CI, local database | stop; sandbox untouched |
+| Usage check | Cloudflare analytics | stop; sandbox untouched |
+| Drop all tables and views, import the seed | sandbox database | sandbox empty or half-built until the next deployment |
+| Apply the release's migrations | sandbox database | code not deployed; old code on the new schema |
+| Deploy the code | sandbox Worker | old code stays |
+
+So between deployments the database holds exactly the seed plus the release's migrations, plus
+whatever maintainers did in the sandbox since. Deploying again is the reset.

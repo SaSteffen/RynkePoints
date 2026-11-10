@@ -22,12 +22,21 @@ misconfigured or deleted Access application closes the sandbox instead of openin
 A new reusable workflow, **Sandbox**, deploys a chosen sandbox:
 1. It waits for the commit's checks.
 2. It checks the configuration against production's.
-3. It checks the account's usage today.
-4. On the first deployment only, it seeds the sample riders outside the Worker.
-5. It applies migrations, then deploys.
+3. On CI's machine, it seeds the sample riders at `main`'s version, as production holds them
+   when the release lands, and tries the release's migrations on that copy.
+4. It checks the account's usage today, including what the seed will write.
+5. It rebuilds the sandbox's database from the seed, applies the release's migrations to it,
+   then deploys. Every deployment starts fresh, so deploying again is the reset.
 6. It posts a message on the release pull request.
 
-**Release PR** gets one checkbox per sandbox and calls it.
+It is started in three ways:
+- a checkbox per sandbox in the description of every pull request into `develop`, which unticks
+  itself after the deployment starts (research R13);
+- a checkbox per sandbox on **Release PR**;
+- by hand on `develop`.
+
+The pull request workflow always runs as it is on `develop` (`pull_request_target`), only for
+branches of this repository and senders with write access.
 
 ## Technical Context
 
@@ -37,7 +46,8 @@ A new reusable workflow, **Sandbox**, deploys a chosen sandbox:
 **Primary Dependencies**: Wrangler 4.158 (already in the repo), Web Crypto for the JWT check. No
 new dependency.
 
-**Storage**: One more D1 database per sandbox, production's schema and migrations; no new table.
+**Storage**: One more D1 database per sandbox, production's schema and migrations, rebuilt on
+every deployment; no new table.
 
 **Testing**: Vitest in the Workers runtime:
 - the access check;
@@ -86,10 +96,12 @@ some Workers or some databases. So the deploy token could also do these things t
 - write to its databases;
 - change routes in the zone.
 
-It is released only to runs on `develop`, used only in the two Wrangler steps, always with
-`--env sandbox-<team>`, after `team-check` refused any production name in a sandbox block
-(R11). That's the trust `develop` already has, since its content reaches production at the next
-release. The analytics token is read-only.
+It is released only to the sandbox workflows as they are on `develop`, and used only in the
+steps that write to Cloudflare, always with `--env sandbox-<team>`, after `develop`'s copy of
+`team-check` refused any production name in a sandbox block (R11). For a pull request into
+`develop`, the branch's code is built in that job, so a branch could tamper with those steps.
+Only branches of this repository and senders with write access qualify, so this reaches nobody
+who couldn't already push to the repository (R13). The analytics token is read-only.
 
 ## Project Structure
 
@@ -99,7 +111,7 @@ release. The analytics token is read-only.
 specs/027-sandbox-deployment/
 ├── spec.md
 ├── plan.md              # this file (slice 1)
-├── research.md          # R1–R12
+├── research.md          # R1–R13
 ├── data-model.md
 ├── quickstart.md        # one-time setup and checks
 ├── contracts/
@@ -123,12 +135,14 @@ dev/
 scripts/
 ├── team-check.mjs                  # sandbox rules, --deployable refuses sandbox-*
 ├── sandbox-usage.mjs               # new: usage check before writing
-└── sandbox-seed.sh                 # new: local seed → export → remote import
+└── sandbox-seed.sh                 # new: seed at main locally, try migrations, rebuild remote
 .github/
 ├── scripts/newer-than-live.sh      # moved out of ci.yml's deploy-gate, used by both
 ├── workflows/ci.yml                # deploy-gate calls the shared script
 ├── workflows/release-pr.yml        # sandbox inputs, uses an open PR, guidance in the body
 ├── workflows/sandbox.yml           # new
+├── workflows/sandbox-pr.yml        # new: checkboxes in pull requests into develop
+├── pull_request_template.md        # new: the Sandboxes checkboxes
 └── repository-settings.md          # sandbox environments and tokens (FR-042)
 docs/sandboxes.md                   # new: what they are, the guidance, rebuilding by hand
 README.md, CLAUDE.md                # sandboxes, the checkboxes, non-context job names (FR-046)
@@ -147,8 +161,9 @@ test/unit/                          # sandbox-access, dev-sandbox, team-check-sa
 2. Fake mode's sandbox mode: hosts, no seeding in a request, reset refused, bar, `/_dev/scheduled`.
 3. The `wrangler.jsonc` blocks with placeholder IDs, `pnpm types`, `team-check`'s rules.
 4. The usage verdict and script.
-5. The seed script, tried locally against a local "remote" database (`--local` both ways).
-6. `newer-than-live.sh`, then `sandbox.yml`, then `release-pr.yml`.
+5. The seed script, tried locally against a local stand-in for the remote database.
+6. `newer-than-live.sh`, then `sandbox.yml`, then `sandbox-pr.yml` and the template, then
+   `release-pr.yml`.
 7. Docs: `docs/sandboxes.md`, `repository-settings.md`, README, CLAUDE.md, 006 FR-009.
 8. Once merged: the founding maintainer's setup (quickstart), then checks 2–14 on the live
    sandboxes. 026's T074 is done with Europe's.

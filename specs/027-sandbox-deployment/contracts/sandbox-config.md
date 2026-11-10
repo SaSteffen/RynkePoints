@@ -65,7 +65,7 @@ passes.
 |---|---|---|
 | Hosts, access | contracts/access-check.md | contracts/access-check.md |
 | Seeds on the first request | yes | no (research R6) |
-| `POST /_dev/reset` | reseeds | `409`, "Reset comes with Reset sandbox; rebuild by hand meanwhile (docs/sandboxes.md)" |
+| `POST /_dev/reset` | reseeds | `409`, "Deploy again to reset the sandbox (docs/sandboxes.md)" |
 | `POST /_dev/scheduled` (new) | runs the daily work | runs the daily work |
 | Sandbox bar on HTML pages | no | yes, with the commit (research R12) |
 | Everything else on `/_dev/` | unchanged | unchanged |

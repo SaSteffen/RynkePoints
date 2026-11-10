@@ -110,28 +110,55 @@ two layers of R3. CI never handles these secrets.
 
 ## R6. Seeding runs outside the Worker
 
-**Decision**: A sandbox's database is seeded once, on its first deployment, and never by a
-request. The workflow starts the e2e fake-mode server for the team (as
-`pnpm test:e2e:server` does, against a fresh local database), requests one page so the server
-seeds the sample riders, stops it, exports the local database with `wrangler d1 export --local`,
-and imports the dump into the empty sandbox database with `wrangler d1 execute --remote --file`.
-The dump includes `d1_migrations`, so the following `migrations apply --remote` finds nothing to
-do. In sandbox mode, `seedIfNeeded` doesn't run, and `POST /_dev/reset` answers that reset comes
-with **Reset sandbox** (slice 3). Until then, a stuck sandbox is rebuilt by hand: delete and
-recreate its database, and deploy again.
+**Decision**: Every deployment rebuilds the sandbox's database (FR-016), and no request ever
+seeds. The script `scripts/sandbox-seed.sh <team> <sha>` does it in three phases, and only the
+last touches Cloudflare:
 
-**Rationale**: The Free plan gives a Worker 10 ms of CPU per request. Seeding connects every
-sample rider through the app's own flow and imports their rides, far more than 10 ms, so a
-seeding request would be cut off halfway. Seeding locally uses CI's machine instead and writes
-the result in one import. Later deployments keep the data (FR-016), so each release's
-migrations meet the previous release's rows (US6 scenarios 1, 2).
+1. **Seed at the base's version, locally.** The base is `main` for a release and `develop` for a
+   pull request into it (FR-016); below, `main` stands for either. In a second checkout of
+   `main` (`git worktree`), start
+   the team's e2e fake-mode server against a fresh local database with `main`'s migrations (as
+   `pnpm test:e2e:server` does), request one page so it seeds the sample riders with `main`'s
+   code, stop it, and export the database with `wrangler d1 export --local` to `base.sql`. If
+   `main` doesn't know the team yet (a new team), seed with the release's own checkout instead;
+   then no migration is pending.
+2. **Try the release's migrations, locally.** Import `base.sql` into another fresh local database
+   and run `wrangler d1 migrations apply DB --local` from the release's checkout. A failing
+   migration stops the job here, before the sandbox is touched (US6 scenario 2).
+3. **Rebuild the sandbox.** After the usage check (R7): drop every table and view of the sandbox
+   database (names from `sqlite_master`, leaving `sqlite_*` and `_cf_*`, with
+   `PRAGMA defer_foreign_keys = on`), import `base.sql` with `wrangler d1 execute --remote
+   --file`, then `wrangler d1 migrations apply DB --remote` runs the release's pending
+   migrations against the seeded rows, then the code is deployed.
 
-**To verify during implementation**: `wrangler d1 export --local` honours `--persist-to`, and
-nothing in the dump names the local origin in a way the sandbox would follow. The quickstart
-checks both.
+In sandbox mode, `seedIfNeeded` doesn't run, and `POST /_dev/reset` answers that deploying again
+resets the sandbox.
 
-**Alternatives considered**: Seeding through the queue in small messages would fit the CPU limit
-but use the queue for bulk data (FR-034) and need the slice 3 machinery now.
+**Rationale**:
+- The Free plan gives a Worker 10 ms of CPU per request. Seeding connects every sample rider
+  through the app's own flow and imports their rides, far more than that, so seeding runs on
+  CI's machine and reaches the sandbox as one import.
+- Seeding at `main`'s version is what production holds when the release lands, so the release's
+  migrations meet existing rows written by the code before them (US6 scenario 1). Seeding at the
+  release's own version would run the migrations against an empty database and test nothing.
+- Rebuilding every time means each deployment starts from the same known state, nothing changed
+  by hand survives, and deploying again is the reset (FR-019).
+
+**What it costs**: every deployment writes the whole seed: its rows plus index writes, counted
+before writing (R7). Between the drop and the end of the import the sandbox is empty or
+half-built; a failure there leaves it so until the next deployment, and the message says so.
+
+**To verify during implementation**: `wrangler d1 export --local` honours `--persist-to`; the dump
+imports into an emptied remote database; and nothing in the dump names the local origin in a way
+the sandbox would follow. The quickstart checks them.
+
+**Alternatives considered**:
+- **Keeping the data between deployments**: the user chose a fresh state every time
+  (Clarifications, 2026-11-10).
+- **Deleting and recreating the database**: changes its ID, which lives in `wrangler.jsonc`, and
+  needs a wider token.
+- **Seeding through the queue in small messages**: fits the CPU limit but uses the queue for bulk
+  data (FR-034) and many queue operations per deployment.
 
 ## R7. The usage check before writing
 
@@ -139,7 +166,7 @@ but use the queue for bulk data (FR-034) and need the slice 3 machinery now.
 `fetchCloudflareUsage` from `src/usage/cloudflare.ts` (as `team-check` imports `src/` already),
 with a read-only analytics token, and compares today's account-wide rows written, rows read and
 queue operations with `CLOUDFLARE_LIMITS`. It fails, saying which figure and how far, if any is
-above 50 %, or if the figures are unavailable (FR-033). On a first deployment it adds the
+above 50 %, or if the figures are unavailable (FR-033). It adds the
 seed's estimated rows written (the dump's `INSERT` statements, doubled for index writes) to
 today's figure before comparing. The threshold is a constant beside the script, so the Paid plan
 needs only that and `CLOUDFLARE_LIMITS` changed (FR-037).
@@ -168,14 +195,15 @@ alerts, which a sandbox mustn't (FR-036). The button works in local fake mode to
 
 ## R10. The workflow
 
-**Decision**: A new reusable workflow `.github/workflows/sandbox.yml`, `workflow_call` and
-`workflow_dispatch` (FR-009). One job per chosen sandbox (`sandbox (<team>)`, matrix, fail-fast
+**Decision**: A new reusable workflow `.github/workflows/sandbox.yml`, `workflow_call` (from
+**Release PR** and from pull requests into `develop`, R13) and `workflow_dispatch` (FR-009). One job per chosen sandbox (`sandbox (<team>)`, matrix, fail-fast
 off), each in its GitHub environment `sandbox-<team>`, whose deployment branch policy allows
 `develop` only (FR-011). Concurrency `sandbox-<team>`, never cancelled, so one deployment at a
 time (FR-017). Steps:
 
-1. The commit: the release pull request's head when called from **Release PR**, else `develop`'s
-   head. Checkout of that commit.
+1. The commit: the pull request's head when called for a pull request (release or into
+   `develop`), else `develop`'s head. Checkout of that commit, and of the base branch (`main` or
+   `develop`) for seeding and for the checks' scripts.
 2. Not older than live: the `deploy-gate` logic from `ci.yml`, moved into
    `.github/scripts/newer-than-live.sh` and used by both (FR-017). A skip posts a message.
 3. Wait for the checks: `lint`, `typecheck`, `test` and `e2e` check runs on the commit, all
@@ -183,12 +211,13 @@ time (FR-017). Steps:
    without a release pull request), the job starts CI on `develop` with `gh workflow run` and
    waits for that. A failed or missing check stops the job (FR-015, Edge Cases).
 4. `node scripts/team-check.mjs` (R8).
-5. The usage check (R7).
-6. First deployment only: seed and import (R6).
-7. `wrangler d1 migrations apply DB --remote --env sandbox-<team>`, then
-   `wrangler deploy --env sandbox-<team> --var SANDBOX_COMMIT:<sha>`. The credential is only in
-   these steps' env, as in production's deploy.
-8. A message on the release pull request (contracts/sandbox-workflow.md), on success and on
+5. Seed at `main`'s version and try the release's migrations, both locally (R6 phases 1, 2).
+6. The usage check, including the seed's rows (R7).
+7. Rebuild the sandbox database: drop, import the seed (R6 phase 3).
+8. `wrangler d1 migrations apply DB --remote --env sandbox-<team>` (the release's pending ones),
+   then `wrangler deploy --env sandbox-<team> --var SANDBOX_COMMIT:<sha>`. The credential is only
+   in the steps that write to Cloudflare, as in production's deploy.
+9. A message on the release pull request (contracts/sandbox-workflow.md), on success and on
    failure, also when an earlier step stopped the job. Without a release pull request, the
    message goes into the run's summary only (FR-009).
 
@@ -215,13 +244,15 @@ Cloudflare allows (028 FR-009), and recorded in `.github/repository-settings.md`
 **What it could still reach**: Cloudflare doesn't let a token be limited to some Workers or
 some databases (spec Assumptions). So the deploy token could also deploy production's Workers,
 write to production's databases and change routes in the zone. Defences:
-- only runs on `develop` get it (environment branch policy);
-- only the workflow's two Wrangler steps see it;
+- only the sandbox workflows as they are on `develop` get it (environment branch policy;
+  `pull_request_target` for pull requests, R13), for branches of this repository and senders
+  with write access;
+- only the workflow's steps that write to Cloudflare see it;
 - every Wrangler command names `--env sandbox-<team>`;
 - R8's check fails before those steps when a sandbox block names a production resource.
 
-That is the same trust as `develop` itself, whose content reaches production at the next
-release anyway. Production's token stays in `production` and `production-europe`, `main` only.
+That is the same trust as write access to the repository, which every sender already has
+(R13). Production's token stays in `production` and `production-europe`, `main` only.
 
 ## R12. Showing it isn't the real app
 
@@ -229,3 +260,46 @@ release anyway. Production's token stays in `production` and `production-europe`
 `HTMLRewriter`: "Sandbox · not the real app · <first 7 characters of SANDBOX_COMMIT>", linking to
 the commit on GitHub. It is English and in `dev/`, like the `/_dev/` pages, so it needs no catalog
 entry (FR-003). Local fake mode is unchanged.
+
+## R13. Pull requests into `develop`
+
+**Decision**: A new workflow `.github/workflows/sandbox-pr.yml` on `pull_request_target`, types
+`opened` and `edited`, branches `develop`. Because of `pull_request_target`, GitHub runs it as it
+is on `develop` and in `develop`'s context, so the `sandbox-<team>` environments' branch policy
+(`develop` only) releases the credential to it, and a pull request that changes the workflow
+changes nothing until merged (FR-049).
+
+- **The checkboxes**: a new `.github/pull_request_template.md` holds a section **Sandboxes** with
+  `- [ ] Deploy to Hamburg's sandbox` and `- [ ] Deploy to Europe's sandbox` and the advice of
+  FR-006. On `opened`, if the description lacks the section (a pull request opened by a tool),
+  the workflow appends it.
+- **A tick**: on `edited`, the workflow reads the description's ticked boxes. For each, it:
+  - checks that the pull request's head is a branch of this repository and that the sender has
+    write access, and stops with a message otherwise;
+  - unticks the box (with `github.token`, whose edits start no workflow);
+  - calls `sandbox.yml` with the head commit, the pull request's number and the base `develop`.
+- **The base**: `sandbox.yml` gets an input `base` (`main` for **Release PR**, `develop` here)
+  and seeds at that branch's head (R6 phase 1, FR-016).
+- **No ordering check** for a pull request's commit (FR-017): it isn't on `develop`'s line. The
+  per-sandbox concurrency group still keeps one deployment at a time.
+- **The bar** names the source: `SANDBOX_SOURCE`, passed with `--var` like `SANDBOX_COMMIT`, is
+  `PR #<n>`, `release #<n>` or `develop` (FR-050, R12).
+
+**What runs with the credential**: the pull request's code is checked out and built
+(`pnpm install`, `wrangler deploy`'s bundling), in a job that later gets the credential in the
+steps that write to Cloudflare. A branch could add an install script that tampers with those
+steps. That's why forks are excluded and the sender must have write access: anyone who can do
+this can already push to the repository and open pull requests, so it adds no new group of
+people. The checks of R8 and the usage check run from `develop`'s copy of the scripts (a
+second checkout), not the branch's, so a branch can't switch them off. At stage 2 of spec
+028, when more people have write access, this is to be weighed again; an environment approval
+by the founding maintainer would be the next step.
+
+**Alternatives considered**:
+- **`pull_request` instead of `pull_request_target`**: runs the branch's own copy of the
+  workflow, so a branch could change what runs with the credential, and the environment's
+  `develop`-only policy would have to be loosened to every branch.
+- **A label per sandbox**: one click too, but labels are easy to leave on and say nothing about
+  when to skip; a tick that unticks itself works like a button.
+- **Redeploying on every push while ticked**: deploys more than anyone looks at and uses the
+  daily budget; ticking again is one click (spec US8 scenario 3).

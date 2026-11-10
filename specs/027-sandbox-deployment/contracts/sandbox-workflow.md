@@ -29,12 +29,41 @@ The guidance (FR-006), as a section **Sandboxes** in the body and in `docs/sandb
 > **What it can't show**: anything needing the real Strava: sign-in, real webhooks, rate limits.
 > To deploy later, run **Sandbox** (Actions) on `develop`.
 
+## Pull requests into `develop` (`.github/workflows/sandbox-pr.yml`)
+
+Research R13. `pull_request_target`, types `opened` and `edited`, branches `develop`, so it always
+runs as it is on `develop`.
+
+`.github/pull_request_template.md` gets:
+
+```markdown
+## Sandboxes
+
+- [ ] Deploy to Hamburg's sandbox
+- [ ] Deploy to Europe's sandbox
+
+<details><summary>When to skip</summary>
+(the advice of FR-006)
+</details>
+```
+
+| Event | Does |
+|---|---|
+| `opened`, description without the section | appends it |
+| `edited`, no box ticked | nothing |
+| `edited`, a box ticked, head from a fork | unticks it, message "Sandboxes take branches of this repository only" |
+| `edited`, a box ticked, sender without write access | unticks it, message saying so |
+| `edited`, a box ticked, otherwise | unticks it, calls `sandbox.yml` with `teams`, `pr`, `sha` = the head, `base: develop` |
+
+The untick uses `github.token`, so it starts no further run.
+
 ## Sandbox (`.github/workflows/sandbox.yml`)
 
 Triggers:
-- `workflow_call`, with the inputs `teams` (JSON list), `pr` (number) and `sha`;
+- `workflow_call`, with the inputs `teams` (JSON list), `pr` (number), `sha` and `base`
+  (`main` from **Release PR**, `develop` from a pull request into it);
 - `workflow_dispatch`, with one boolean per sandbox. Its `pr` is the open release pull request,
-  if any; its `sha` is that pull request's head, else `develop`'s head.
+  if any; its `sha` is that pull request's head, else `develop`'s head; its `base` is `main`.
 
 A run on any ref but `develop` stops before any job that has an environment (and GitHub withholds
 the environment's secrets anyway).
@@ -47,17 +76,19 @@ CI), `pull-requests: write`, `deployments: write`.
 | Step | Stops the job when |
 |---|---|
 | Checkout `sha` | — |
-| Newer than live (`.github/scripts/newer-than-live.sh sandbox-<team>`) | an older commit than the live one: skip, message "newer commit already live" |
+| Newer than live (`.github/scripts/newer-than-live.sh sandbox-<team>`), only when `sha` is on `develop` | an older commit than the live one: skip, message "newer commit already live" |
 | Wait for `lint`, `typecheck`, `test`, `e2e` on `sha` (starting CI on `develop` if none exist) | any not `success`, or 40 minutes passed |
-| `node scripts/team-check.mjs` | a rule fails |
-| `node scripts/sandbox-usage.mjs [--seed-rows <n>]` | above 50 %, or figures unavailable |
-| First deployment only: seed locally, export, import | any command fails |
+| `node scripts/team-check.mjs`, from a checkout of `develop` against the deployed commit's `wrangler.jsonc` | a rule fails |
+| Seed at `base`'s head locally, export `base.sql` (research R6 phase 1) | the seed fails |
+| Try the commit's migrations on a local copy of `base.sql` (phase 2) | a migration fails: the sandbox isn't touched |
+| `node scripts/sandbox-usage.mjs --seed-rows <n>` | above 50 %, or figures unavailable |
+| Rebuild: drop the sandbox database's tables and views, import `base.sql` (phase 3) | any command fails: the sandbox is empty or half-built until the next deployment |
 | `wrangler d1 migrations apply DB --remote --env sandbox-<team>` | a migration fails: code not deployed |
-| `wrangler deploy --env sandbox-<team> --var SANDBOX_COMMIT:<sha>` | deploy fails |
+| `wrangler deploy --env sandbox-<team> --var SANDBOX_COMMIT:<sha> --var SANDBOX_SOURCE:<PR #n, release #n or develop>` | deploy fails |
 | Message (always, `if: always()`) | — |
 
-Whether it is the first deployment: the sandbox database has no `d1_migrations` table
-(`wrangler d1 execute --remote --command`). That read happens after the usage check.
+Every deployment rebuilds; there's no "first deployment" case and no data kept between
+deployments (spec FR-016).
 
 ## The message (FR-020)
 
@@ -69,8 +100,8 @@ Success:
 ```markdown
 ### Sandbox: Hamburg ✅
 Deployed `abc1234` to https://sandbox-hamburg.trhh-rynke-coins.link
-Migrations applied: `0042_add_x.sql`, `0043_add_y.sql` (or: none)
-First deployment: seeded with the sample riders. (only then)
+Rebuilt with the sample riders as of `main` (`ghi9012`) (or `develop` for a pull request into it), then migrations applied:
+`0042_add_x.sql`, `0043_add_y.sql` (or: no new migrations)
 [Run](<run url>)
 ```
 
@@ -79,7 +110,8 @@ Failure:
 ```markdown
 ### Sandbox: Hamburg ❌
 `abc1234` was not deployed: <step>, <reason in one line>.
-The sandbox still runs `def5678`. (or: has no version yet)
+The sandbox still runs `def5678` with its data. (or, after the rebuild started: The sandbox's
+database is empty or half-built; deploy again to repair it.)
 [Run](<run url>)
 ```
 
@@ -102,6 +134,6 @@ beside the verdict. Tested with Vitest for each row.
 
 ## Not in slice 1
 
-No `sandbox-gate`, no control comment, no **Accept**, no **Deploy again** action, no
-**Reset sandbox** workflow. Job names `sandbox (…)` and the workflow's are not required-check
+No `sandbox-gate`, no control comment, no **Accept**, no **Deploy again** action. There is
+no **Reset sandbox** at all: deploying again resets. Job names `sandbox (…)` and the workflow's are not required-check
 contexts and must never be added to `.github/rulesets/*.json`.

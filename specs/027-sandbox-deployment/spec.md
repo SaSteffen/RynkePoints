@@ -23,7 +23,8 @@ queue is only offered on organization-owned repositories. Spec 028 moves the rep
 organization and tries a queue, and that trial decides whether User Story 7 is still needed.
 
 **Terms**: A **sandbox** is an access-controlled deployment for one team, using the existing
-fake mode (feature 006). It runs a release candidate only when someone chooses that. The
+fake mode (feature 006). It runs a pull request into `develop` or a release candidate, only
+when someone chooses that. The
 **release pull request** goes from `develop` into `main`. The **sandbox gate** is a new
 required check on `main` that shows whether the sandbox decision for the pull request's
 current commit is settled. The **control comment** is the comment on the release pull request
@@ -59,8 +60,8 @@ Sandboxes and production share one Cloudflare account, so they share its limits.
 plan allows 5 cron triggers and 10 databases per account, 100,000 rows written, 5 million
 rows read and 10,000 queue operations per day, and 10 ms of CPU per request. Running out
 stops production's database until 00:00 UTC. This feature is built to stay within those
-limits: deployments happen only on request, sandboxes use no cron triggers, large data sets
-are seeded in daily stages, and sandbox work stops well before it could affect production.
+limits: deployments happen only on request, sandboxes use no cron triggers, seeding stays
+within a daily budget, and sandbox work stops well before it could affect production.
 Moving the account to the Paid plan later (at least $5 per month) is a separate decision and
 needs only settings changed, not a new design (FR-037).
 
@@ -86,18 +87,17 @@ The feature is built in three slices. Each is released and used before the next 
 
 | Slice | What it brings | Stories | Requirements |
 |---|---|---|---|
-| 1. Sandboxes | Hamburg's and Europe's sandboxes, chosen on **Release PR** or by hand, a message per deployment, the usage check before writing, no cron | 1, 4, 5; 6 scenarios 1, 2 and 5 | FR-001–FR-018, FR-020, FR-032, FR-033, FR-036–FR-038, FR-042 |
+| 1. Sandboxes | Hamburg's and Europe's sandboxes, chosen in a pull request into `develop`, on **Release PR** or by hand, a message per deployment, the usage check before writing, no cron | 1, 4, 5, 8; 6 scenarios 1, 2, 5 and 6 | FR-001–FR-020, FR-032, FR-033, FR-036–FR-038, FR-042, FR-048–FR-050 |
 | 2. The gate | `sandbox-gate`, the control comment and its actions | 2, 3 | FR-021–FR-031, FR-047 |
-| 3. Scale and reset | Synthetic riders towards the scale profile in daily stages, **Reset sandbox** | 6 scenarios 3, 4 and 6 | FR-019, FR-034, FR-035, FR-039–FR-041 |
+| 3. Scale | Synthetic riders towards the scale profile, within one deployment's budget | 6 scenarios 3 and 4 | FR-034, FR-035, FR-039–FR-041 |
 
 User Story 7 stays a separate decision after all three (FR-043). Each slice updates the
 contributor docs for what it adds (FR-046), and SC-001 holds after every slice.
 
 **Until slice 2**, a deployment's result is only its message on the pull request: nothing
 holds the merge, and a failed or unfinished deployment is the maintainers' call, as a
-failed manual check after a release is today. **Until slice 3**, a sandbox's first
-deployment seeds the sample riders of feature 006 into its empty database (still behind
-the usage check), and a stuck sandbox is rebuilt by hand, as the contributor docs describe.
+failed manual check after a release is today. **Until slice 3**, a deployment seeds only the
+sample riders of feature 006.
 
 ## Clarifications
 
@@ -141,11 +141,24 @@ the usage check), and a stuck sandbox is rebuilt by hand, as the contributor doc
   release's migrations. The sandboxes stay deployed Workers. Previews of a sandbox Worker,
   one per pull request behind Cloudflare Access for UI changes, may be a later feature.
 - Q: In what order is it built? → A: In three slices (see Slices): the sandboxes without
-  a gate, then the gate, then scale seeding and **Reset sandbox**.
+  a gate, then the gate, then scale seeding.
 - Q: Which sandboxes come first? → A: Hamburg's and Europe's together, in slice 1.
   Europe's is the one spec 026 needs (026 FR-042, T074) while Europe runs on placeholders.
   This replaces "starting with Hamburg's" and the assumption that the second team's
   sandbox arrives with feature 026.
+- Q: Does a sandbox keep its data between deployments? → A: No. Every deployment rebuilds
+  its database: the data production would hold at `main`'s version is seeded, then the
+  release's new migrations run against it, then the new code goes live. So each deployment
+  starts from a known state, and each release's migrations still meet existing rows. This
+  replaces keeping the data (FR-016) and the separate **Reset sandbox** (FR-019): deploying
+  again is the reset. Scale data can no longer grow over several days, so slice 3 seeds only
+  what fits one deployment's budget.
+- Q: Can a pull request into `develop` go to a sandbox? → A: Yes, that's the main use: trying
+  what isn't merged yet. Each pull request into `develop` has one checkbox per sandbox in its
+  description, off by default (User Story 8). This replaces the earlier limit to the release
+  pull request (Out of Scope). Only branches of this repository qualify, never forks, and the
+  workflow that holds the credential always comes from `develop`, so a branch can't change what
+  runs with it.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -176,6 +189,36 @@ message appear with the link and commit, and the sample riders work there.
    open".
 6. **Given** the sandbox, **When** a maintainer signs in, **Then** only the fake Strava answers,
    and each page shows the commit and that this isn't the real app.
+
+---
+
+### User Story 8 - Try a pull request before it reaches `develop` (Priority: P1)
+
+A maintainer ticks a sandbox in a pull request into `develop` and gets that pull request's head
+deployed there, to try a change before merging it.
+
+**Why this priority**: Most changes are tried before they're merged, not when they're released.
+Without this, a change is first seen running outside a laptop once it's already on `develop`.
+
+**Independent Test**: Open a pull request into `develop`, tick Hamburg's box in its description,
+and see its head deployed with a message on the pull request; tick it again after a new push
+and see the new head deployed.
+
+**Acceptance Scenarios**:
+
+1. **Given** a new pull request into `develop`, **When** it opens, **Then** its description has
+   one unticked checkbox per sandbox, with the same skip advice as **Release PR**.
+2. **Given** a box ticked, **When** the description is saved, **Then** that sandbox deploys the
+   pull request's head once its required checks pass, the box is unticked again, and a message
+   on the pull request gives the link and the commit.
+3. **Given** a new push to the pull request, **When** nobody ticks a box, **Then** nothing
+   deploys. Ticking again deploys the new head.
+4. **Given** a pull request from a fork, **When** a box is ticked, **Then** nothing deploys and
+   no credential is used.
+5. **Given** a pull request that changes the sandbox workflow, **When** a box is ticked,
+   **Then** the workflow as it is on `develop` runs, not the changed one.
+6. **Given** another pull request's or the release's commit in the sandbox, **When** this one
+   deploys, **Then** it replaces it, and the sandbox's bar names this pull request.
 
 ---
 
@@ -243,7 +286,8 @@ clicking in the pull request.
 ### User Story 4 - Nobody else gets in, and production stays apart (Priority: P1)
 
 A sandbox is reachable only by people a maintainer allows, holds no real rider data, and
-its deployment can't happen from anywhere but a release candidate on `develop`.
+its deployment can't happen from anywhere but `develop` or a pull request into it from a
+branch of this repository, always through the workflow as it is on `develop`.
 
 **Why this priority**: The fake sign-in has no real authentication, the fake Strava's pages
 imitate a Strava sign-in, and sharing a Cloudflare account puts the sandbox near real rider
@@ -259,8 +303,8 @@ at a production resource and see the check fail.
    reach neither the app nor the fake Strava pages.
 2. **Given** the access gate is misconfigured or removed, **When** a request arrives, **Then** the
    sandbox refuses it.
-3. **Given** a run on any ref but `develop`, **When** it asks for the sandbox credential, **Then**
-   GitHub withholds it.
+3. **Given** a workflow run that isn't `develop`'s own sandbox workflow, **When** it asks for the
+   sandbox credential, **Then** GitHub withholds it.
 4. **Given** a sandbox configuration naming a production database, queue, Worker or host,
    **When** the checks run, **Then** they fail.
 5. **Given** the production build, **When** it is inspected, **Then** it contains no fake mode, and
@@ -273,18 +317,18 @@ at a production resource and see the check fail.
 Sandbox work stays within a budget and stops before it could affect production, so the
 account can stay on the Free plan.
 
-**Why this priority**: Without this, one reset could stop production's database for the rest
+**Why this priority**: Without this, one deployment's seeding could stop production's database for the rest
 of the day, and the only safe answer would be to start paying.
 
 **Independent Test**: With the account's usage above the budget's threshold, try a deployment
-and a reset, and see both refused with a clear message before writing anything.
+and see it refused with a clear message before writing anything.
 
 **Acceptance Scenarios**:
 
 1. **Given** the account has used more than the threshold of a daily allowance, **When** a
-   sandbox deployment or seeding stage starts, **Then** it stops before writing and says why,
+   sandbox deployment starts, **Then** it stops before writing and says why,
    and the gate treats that as a failed deployment.
-2. **Given** Cloudflare's usage figures are unavailable, **When** a deployment or seeding stage
+2. **Given** Cloudflare's usage figures are unavailable, **When** a deployment
    starts, **Then** it doesn't run and says why, and the gate treats that as a failed deployment,
    which **Accept** can still clear.
 3. **Given** the account's cron limit, **When** the sandboxes are configured, **Then** they use no
@@ -296,31 +340,33 @@ and a reset, and see both refused with a clear message before writing anything.
 
 ### User Story 6 - Migrations rehearsed, realistic data, and a way back (Priority: P2)
 
-A sandbox keeps its data between releases, so each release's migrations run against older
-rows as a batch, as in production. Synthetic data can grow to production's size in daily
-stages, and a maintainer can rebuild a stuck sandbox with one button.
+Every deployment rebuilds the sandbox's database as production would look at `main`'s version,
+so each release's migrations run against existing rows as a batch, as in production. Synthetic
+data can grow towards production's size within one deployment's budget, and deploying again
+rebuilds a stuck sandbox.
 
 **Why this priority**: Migrations only go forward and are the failure hardest to undo in
 production. The small sample set also hides problems of scale.
 
-**Independent Test**: Deploy a release with a migration onto a sandbox that holds an earlier
-release's data, then run **Reset sandbox** and see it rebuilt.
+**Independent Test**: Deploy a release with a migration and see it run against the seeded
+rows. Change data in the sandbox, deploy again, and see it rebuilt.
 
 **Acceptance Scenarios**:
 
-1. **Given** a sandbox holding data from an earlier release, **When** a release with migrations
-   deploys, **Then** the migrations are applied to that data before the new code goes live.
-2. **Given** a failing migration, **When** it runs, **Then** the code isn't deployed, the sandbox
-   keeps its previous version, and the message on the pull request says so.
-3. **Given** a scale profile larger than one day's budget, **When** seeding runs, **Then** it writes
-   up to the budget, leaves a usable sandbox, says how far it got, and continues from there
-   on the next run.
+1. **Given** a release with migrations, **When** it deploys, **Then** the sandbox's database is
+   rebuilt with the data seeded at `main`'s version, and the release's migrations are applied to
+   it before the new code goes live.
+2. **Given** a failing migration, **When** the deployment tries it, **Then** it fails before the
+   sandbox is touched, the sandbox keeps its previous version and data, and the message on the
+   pull request says so.
+3. **Given** a scale profile larger than one deployment's budget, **When** a deployment seeds,
+   **Then** it writes up to the budget, leaves a usable sandbox, and says how far it got.
 4. **Given** a completed seed, **When** the totals are compared to the profile, **Then** they match
    within 10% and every generated rider is synthetic.
 5. **Given** the sample riders of feature 006, **When** a sandbox is seeded, **Then** they are still
    there, and offered first at the fake sign-in.
-6. **Given** a stuck or messy sandbox, **When** a maintainer runs **Reset sandbox**, **Then** its
-   database is rebuilt, migrated from the start and seeded, running the current `develop`.
+6. **Given** a stuck or messy sandbox, **When** a maintainer deploys it again, **Then** its
+   database is rebuilt and seeded, and it runs the deployed commit.
 
 ---
 
@@ -387,11 +433,14 @@ the other blocked by a git conflict.
 - **Migration applied, then the code deployment fails**: the sandbox keeps the previous code on
   the newer database, the state production would be in. Migrations must stay compatible, so
   this also tests that rule.
-- **A migration edited after a sandbox applied it**: only possible while unreleased. The sandbox
-  no longer matches, and **Reset sandbox** recovers it.
-- **A reset during a deployment, or the other way round**: they wait for each other. A reset
-  doesn't count as a deployment for the gate, because it isn't seeded in full on one run.
-- **Time-dependent sandbox data going stale**: fake mode's clock and **Reset sandbox** cover it.
+- **A migration edited after a sandbox applied it**: only possible while unreleased. The next
+  deployment rebuilds the database, so nothing is left over.
+- **Data changed by hand in a sandbox**: gone at the next deployment, by design. Nothing in a
+  sandbox is kept.
+- **Time-dependent sandbox data going stale**: fake mode's clock, and each deployment seeds
+  relative to its day.
+- **The rebuild fails after the sandbox's old data was dropped**: the sandbox is empty or
+  half-built until the next deployment, and the message says so. Deploying again repairs it.
 - **Sandbox use in the admin view**: Cloudflare's figures are account-wide, so they include the
   sandboxes. That is correct for limits shared by the account. The budget keeps sandbox work
   below the point where the view's 80 % alert would fire because of it.
@@ -439,7 +488,9 @@ the other blocked by a git conflict.
   allows, and MUST fail closed: a request that didn't pass the access gate gets no app page and
   no fake Strava page, even if the gate is misconfigured. Addresses may appear in the public pull
   request.
-- **FR-011**: The sandbox credential MUST be released by GitHub only to runs on `develop`, and
+- **FR-011**: The sandbox credential MUST be released by GitHub only to runs of the sandbox
+  workflow as it is on `develop` (for `develop` itself, or for a pull request into it from a
+  branch of this repository, FR-048), and
   MUST be as narrow as Cloudflare allows: limited to the sandbox Workers if possible, with
   database access only if the plan shows it can't be avoided. The plan's Constitution Check
   MUST state what the credential could still reach. Cloudflare's docs say deploying a Worker
@@ -458,16 +509,33 @@ the other blocked by a git conflict.
 
 **Deployment**
 
-- **FR-015**: A sandbox MUST deploy only a commit of `develop` whose required checks passed,
-  applying pending migrations before the code, as production does.
-- **FR-016**: A deployment MUST keep existing sandbox data.
-- **FR-017**: Each sandbox MUST deploy one commit at a time and MUST NOT replace a newer commit
-  with an older one. One sandbox's failure MUST NOT stop another's deployment.
-- **FR-018**: Nothing MUST deploy to a sandbox unless someone chose it. `develop` moving MUST
-  NOT redeploy by itself.
-- **FR-019**: A maintainer MUST be able to run **Reset sandbox** by hand per sandbox, which
-  rebuilds its database, applies all migrations from the start, seeds it within the budget,
-  and leaves it on the current `develop`.
+- **FR-015**: A sandbox MUST deploy only a commit of `develop`, or the head of a pull request
+  into it, whose required checks passed, applying pending migrations before the code, as
+  production does.
+- **FR-016**: Every deployment MUST rebuild the sandbox's database: seed it at the version of the
+  branch the change goes into (`main` for a release, `develop` for a pull request into it; its
+  migrations, then the seed), then apply the change's pending migrations, then deploy the code.
+  The change's migrations MUST be tried on a copy first, so a failing one stops the deployment
+  before the sandbox is touched.
+- **FR-017**: Each sandbox MUST deploy one commit at a time, and a deployment of `develop` MUST
+  NOT replace a newer commit of `develop` with an older one. A pull request's deployment replaces
+  whatever runs. One sandbox's failure MUST NOT stop another's deployment.
+- **FR-018**: Nothing MUST deploy to a sandbox unless someone chose it. `develop` moving, or a
+  push to a pull request, MUST NOT redeploy by itself.
+- **FR-019**: There is no separate **Reset sandbox**: deploying again, from **Release PR** or by
+  hand (FR-009), rebuilds the database (FR-016).
+
+**Pull requests into `develop`**
+
+- **FR-048**: Every pull request into `develop` MUST get one checkbox per sandbox in its
+  description, off by default, with FR-006's advice. Ticking one deploys the pull request's head
+  to that sandbox (FR-015, FR-016), unticks the box, and posts the message of FR-020 on the pull
+  request. It MUST work only for branches of this repository: for a fork, nothing deploys and the
+  message says why.
+- **FR-049**: The workflow that reacts to the tick MUST run as defined on `develop`, whatever the
+  pull request changes, and MUST check again that the sender has write access.
+- **FR-050**: A sandbox MUST show which pull request or release it runs, besides the commit
+  (FR-003).
 
 **Messages on the release pull request**
 
@@ -511,15 +579,16 @@ the other blocked by a git conflict.
 
 - **FR-032**: Sandboxes MUST use no cron triggers on the Free plan, leaving the account's 5 for
   production. `/_dev/` MUST offer the scheduled work on demand.
-- **FR-033**: A deployment or seeding stage MUST first check the account's use of today's
+- **FR-033**: A deployment MUST first check the account's use of today's
   allowances and MUST stop before writing if rows written, rows read or queue operations are
   above a threshold, set by default to 50 %. If the figures are unavailable, it MUST also stop,
   because it can't rule out harming production.
 - **FR-034**: One day's seeding across all sandboxes MUST write at most a set budget of rows,
-  set by default to 20,000, counting index writes, and MUST NOT use the queue for bulk data.
-  Unseeded remainder continues on the next run.
-- **FR-035**: Seeding MUST leave a usable sandbox after every stage and MUST fit the Free plan's
-  limit of 10 ms of CPU per Worker request, by running in small steps or outside a request.
+  set by default to 20,000, counting index writes, and MUST NOT use the queue for bulk data. A
+  deployment whose seed doesn't fit what's left of the day's budget seeds the sample riders
+  and as much of the scale profile as fits, and says so.
+- **FR-035**: Seeding MUST fit the Free plan's limit of 10 ms of CPU per Worker request, by
+  running outside a request.
 - **FR-036**: The 026 per-team shares MUST NOT count a sandbox as a team, and a sandbox MUST NOT
   record usage or send usage alerts.
 - **FR-037**: Moving to the Paid plan MUST need only settings changed: the budget, the threshold,
@@ -562,7 +631,8 @@ the other blocked by a git conflict.
 - **FR-045**: Removing the rule MUST NOT change the merge method set by 028 FR-031, the rule's absence
   on `main`, or the checks of a release pull request.
 - **FR-046**: The contributor docs (`README.md`, `CLAUDE.md`) MUST describe the sandboxes, the
-  checkboxes and their guidance, the gate and its override, reset, and the ruleset fallback.
+  checkboxes and their guidance, the gate and its override, that each deployment rebuilds the
+  data, and the ruleset fallback.
 
 ### Key Entities
 
@@ -594,7 +664,7 @@ the other blocked by a git conflict.
   deployment path, and sandboxes make zero requests to the real Strava.
 - **SC-006**: Sandbox work causes zero production failures from a used-up allowance, and costs $0
   until a decision to pay is made (028 FR-012). Sandbox seeding never takes the account above the
-  threshold plus one stage.
+  threshold plus one deployment's seed.
 - **SC-007**: Before the up-to-date rule is removed, at least 3 releases over at least 2 weeks have
   gone through a sandbox, with every failure explained.
 - **SC-008**: After the rule is removed, a pull request with no conflict that isn't adding a
@@ -629,9 +699,9 @@ the other blocked by a git conflict.
 
 ## Out of Scope
 
-- Deploying a pull request other than the release pull request to a sandbox, and one sandbox per
-  pull request. Cloudflare Previews per pull request are a possible later feature (see
-  Clarifications, 2026-11-10).
+- Deploying a pull request into `main` other than the release pull request, a pull request from a
+  fork, and one sandbox per pull request. Cloudflare Previews per pull request are a possible
+  later feature (see Clarifications, 2026-11-10).
 - Deploying on every merge to `develop`, and redeploying by itself when `develop` moves.
 - Recommending or forcing a sandbox based on what changed.
 - Hotfixes going through a sandbox.
