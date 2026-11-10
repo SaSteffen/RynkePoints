@@ -18,18 +18,12 @@ manual and belong to the founding maintainer (FR-042, CLAUDE.md "Non-negotiables
    `sandbox-europe.trhh-rynke-coins.link`, one *Allow* policy listing the maintainers' e-mail
    addresses, login method one-time PIN, session 24 h. No *Bypass* or *Service Auth* policy. Copy
    its AUD tag and the team domain into both blocks' `ACCESS_AUD` and `ACCESS_TEAM_DOMAIN`.
-3. Secrets (research R5):
-
-   ```bash
-   for s in STRAVA_CLIENT_ID STRAVA_CLIENT_SECRET STRAVA_WEBHOOK_VERIFY_TOKEN TOKEN_ENCRYPTION_KEY PUSH_VAPID_KEY; do
-     pnpm exec wrangler secret put "$s" --env sandbox-<team>   # value from dev/fake.env
-   done
-   openssl rand -base64 32 | pnpm exec wrangler secret put SESSION_SIGNING_KEY --env sandbox-<team>
-   openssl rand -hex 32    | pnpm exec wrangler secret put ADMIN_TOKEN --env sandbox-<team>
-   ```
-
-   The Worker doesn't exist before its first deploy; if `secret put` refuses, deploy once, let
-   it fail at start-up, and set them then.
+3. Secrets (research R5): `scripts/sandbox-secrets.sh` sets each sandbox's Worker secrets,
+   asking per sandbox: `STRAVA_CLIENT_ID`, `STRAVA_CLIENT_SECRET`,
+   `STRAVA_WEBHOOK_VERIFY_TOKEN`, `TOKEN_ENCRYPTION_KEY` and `PUSH_VAPID_KEY` from
+   `dev/fake.env`, and a fresh random `SESSION_SIGNING_KEY` and `ADMIN_TOKEN` (shown once).
+   If Wrangler refuses because the Worker doesn't exist yet, run it again after the sandbox's
+   first deployment.
 4. Cloudflare API tokens (research R11): the deploy token and the analytics token.
 5. GitHub: environment `sandbox-<team>`, deployment branches `develop` only, no admin bypass,
    with `CLOUDFLARE_SANDBOX_API_TOKEN`, `CLOUDFLARE_ANALYTICS_TOKEN` and the variable
