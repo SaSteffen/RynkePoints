@@ -254,8 +254,7 @@
 				{
 					"binding": "DB",
 					"database_name": "rynke-points-sandbox-hamburg",
-					// Placeholder, until `wrangler d1 create rynke-points-sandbox-hamburg`.
-					"database_id": "00000000-0000-0000-0000-000000000001",
+					"database_id": "3fb37f03-c8b1-45f7-b60e-6b7596f1373a",
 					"migrations_dir": "migrations"
 				}
 			],
@@ -304,9 +303,9 @@
 				// the Worker (027 contracts/access-check.md).
 				"RYNKE_FAKE_STRAVA": "sandbox",
 				"SANDBOX_HOST": "sandbox-hamburg.trhh-rynke-coins.link",
-				// Placeholders until the Access application exists (027 quickstart).
-				"ACCESS_TEAM_DOMAIN": "placeholder.cloudflareaccess.com",
-				"ACCESS_AUD": "placeholder-access-aud"
+				// The Access application RynkePoints sandboxes (027 quickstart).
+				"ACCESS_TEAM_DOMAIN": "rynkepoints.cloudflareaccess.com",
+				"ACCESS_AUD": "d4254faf7cb5eabde2d9e43bcaafce66024581c32a62bdec30fe0935c0b0894b"
 			},
 			"secrets": {
 				"required": [
@@ -336,8 +335,7 @@
 				{
 					"binding": "DB",
 					"database_name": "rynke-points-sandbox-europe",
-					// Placeholder, until `wrangler d1 create rynke-points-sandbox-europe`.
-					"database_id": "00000000-0000-0000-0000-000000000002",
+					"database_id": "a01a944c-d6a4-45e6-affb-d9e989b125e5",
 					"migrations_dir": "migrations"
 				}
 			],
@@ -386,9 +384,9 @@
 				// the Worker (027 contracts/access-check.md).
 				"RYNKE_FAKE_STRAVA": "sandbox",
 				"SANDBOX_HOST": "sandbox-europe.trhh-rynke-coins.link",
-				// Placeholders until the Access application exists (027 quickstart).
-				"ACCESS_TEAM_DOMAIN": "placeholder.cloudflareaccess.com",
-				"ACCESS_AUD": "placeholder-access-aud"
+				// The Access application RynkePoints sandboxes (027 quickstart).
+				"ACCESS_TEAM_DOMAIN": "rynkepoints.cloudflareaccess.com",
+				"ACCESS_AUD": "d4254faf7cb5eabde2d9e43bcaafce66024581c32a62bdec30fe0935c0b0894b"
 			},
 			"secrets": {
 				"required": [
