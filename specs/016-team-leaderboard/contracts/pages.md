@@ -131,3 +131,8 @@ With nobody listed, "No riders share their Rynke yet." stands in place of 3–6.
 > `blockquote.quote` is his white speech bubble, without the "Für dich"
 > heading, its tail pointing up at him. He stands on the team total's top edge.
 > The order is the quote, the team total, the switch, then the rest as above.
+
+> **Amended by the seasonal quote monkeys** (feature 035,
+> [contracts/quote-art.md](../../035-seasonal-monkeys/contracts/quote-art.md)): on a team
+> holiday the picture is that holiday's seasonal monkey, on every quote of a short window and
+> on about half of a long one. The markup is unchanged.

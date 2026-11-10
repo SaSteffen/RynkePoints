@@ -16,6 +16,7 @@ type Monkey = {
 	scene: string;
 	holes?: unknown;
 	erase?: unknown;
+	seasonal?: unknown;
 };
 
 const monkey = (over: Partial<Record<keyof Monkey, unknown>> = {}) => ({
@@ -30,9 +31,24 @@ const valid = (monkeys: unknown[]) => ({
 });
 
 describe("validateMonkeys", () => {
-	it("accepts the real monkey list, eleven of them", () => {
+	it("accepts seasonal monkeys, flagged true or false", () => {
+		expect(validateMonkeys(valid([monkey({ seasonal: true })]))).toEqual([]);
+		expect(validateMonkeys(valid([monkey({ seasonal: false })]))).toEqual([]);
+		expect(
+			validateMonkeys(valid([monkey({ seasonal: "yes" })])).join("\n"),
+		).toMatch(/wave: seasonal must be true or false/);
+	});
+
+	it("accepts the real monkey list, eleven regular and four seasonal", () => {
 		expect(validateMonkeys(data)).toEqual([]);
-		expect(data.monkeys).toHaveLength(11);
+		const seasonal = (m: { seasonal?: boolean }) => m.seasonal === true;
+		expect(data.monkeys.filter((m) => !seasonal(m))).toHaveLength(11);
+		expect(data.monkeys.filter(seasonal).map((m) => m.id)).toEqual([
+			"advent",
+			"nikolaus",
+			"christmas",
+			"new-year",
+		]);
 	});
 
 	it("rejects duplicate and malformed ids", () => {

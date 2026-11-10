@@ -150,8 +150,10 @@ jobs:
     container:
       image: ${{ needs.playwright-image.outputs.image }}
       # The runner's user, which owns the workspace; --ipc=host keeps Chromium
-      # from running out of shared memory.
-      options: --user 1001 --ipc=host
+      # from running out of shared memory. --add-host: Europe's tests reach
+      # europe.localhost through Node too, whose lookup goes to the resolver,
+      # and the runner's resolver doesn't always answer *.localhost.
+      options: --user 1001 --ipc=host --add-host=europe.localhost:127.0.0.1
     env:
       WRANGLER_SEND_METRICS: "false"
     steps:
