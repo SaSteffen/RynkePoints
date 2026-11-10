@@ -1,6 +1,10 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
-import { parseJsonc, teamProblems } from "../../scripts/team-check.mjs";
+import {
+	parseJsonc,
+	placeholderProblems,
+	teamProblems,
+} from "../../scripts/team-check.mjs";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { TEAMS, teamFor } from "../../src/teams";
 import type { TeamData } from "../../src/teams/types";
@@ -139,4 +143,157 @@ describe(`${team.id}'s data checks (US3 scenario 4)`, () => {
 			);
 		},
 	);
+});
+
+// A sandbox block (feature 027 contracts/sandbox-config.md, FR-012) runs fake
+// mode on its own Worker, database, queue and host, with the team's settings.
+// Anything that could let it reach production, or a sandbox that isn't the
+// team's, fails the checks.
+describe(`sandbox-${team.id}'s block (027 FR-012)`, () => {
+	const name = `sandbox-${team.id}`;
+	const where = `wrangler.jsonc: env.${name}`;
+	type Sandbox = Record<string, unknown> & {
+		vars: Record<string, string>;
+		d1_databases: [{ database_name: string; database_id: string }];
+		queues: {
+			producers: [{ queue: string }];
+			consumers: [{ queue: string }];
+		};
+		routes: { pattern: string }[];
+	};
+
+	/** The problems after `change` edits a copy of the sandbox's block. */
+	function problemsWith(change: (block: Sandbox, copy: Wrangler) => void) {
+		const copy = structuredClone(wrangler);
+		change(copy.env[name] as unknown as Sandbox, copy);
+		return teamProblems(TEAMS, copy, options);
+	}
+
+	it("is there, and passes as it is", () => {
+		expect(wrangler.env[name]).toBeDefined();
+		expect(
+			teamProblems(TEAMS, wrangler, options).filter((l) => l.includes(name)),
+		).toEqual([]);
+	});
+
+	it("names a sandbox of no registered team", () => {
+		const problems = problemsWith((block, copy) => {
+			copy.env["sandbox-atlantis"] = block as unknown as Block;
+		});
+		expect(problems).toContain(
+			'wrangler.jsonc: env.sandbox-atlantis: no registered team "atlantis"',
+		);
+	});
+
+	it("names an entry other than fake mode's", () => {
+		const problems = problemsWith((block) => {
+			block.main = "src/index.ts";
+		});
+		expect(problems).toContain(
+			`${where}: main: "src/index.ts", not "dev/worker.ts"`,
+		);
+	});
+
+	it("names a cron", () => {
+		const problems = problemsWith((block) => {
+			block.triggers = { crons: ["17 3 * * *"] };
+		});
+		expect(problems).toContain(`${where}: triggers: a sandbox has no cron`);
+	});
+
+	it.each(["workers_dev", "preview_urls"])("names %s not false", (key) => {
+		const problems = problemsWith((block) => {
+			delete block[key];
+		});
+		expect(problems).toContain(`${where}: ${key}: undefined, not false`);
+	});
+
+	it.each([
+		["RYNKE_FAKE_STRAVA", "local-only", `"local-only", not "sandbox"`],
+		["TEAM_ID", "elsewhere", `"elsewhere", not "${team.id}"`],
+		[
+			"SANDBOX_HOST",
+			"trhh-rynke-coins.link",
+			`"trhh-rynke-coins.link", not "${name}.trhh-rynke-coins.link"`,
+		],
+	])("names vars.%s set wrong", (key, value, what) => {
+		const problems = problemsWith((block) => {
+			block.vars[key] = value;
+		});
+		expect(problems).toContain(`${where}: vars.${key}: ${what}`);
+	});
+
+	it("names a route other than its own host", () => {
+		const problems = problemsWith((block) => {
+			block.routes = [{ pattern: "trhh-rynke-coins.link" }];
+		});
+		expect(problems).toContain(
+			`${where}: routes: ["trhh-rynke-coins.link"], not ["${name}.trhh-rynke-coins.link"]`,
+		);
+	});
+
+	it.each([
+		["worker", (b: Sandbox, t: Record<string, unknown>) => (b.name = t.name)],
+		[
+			"database",
+			(b: Sandbox, t: Sandbox) =>
+				(b.d1_databases[0].database_name = t.d1_databases[0].database_name),
+		],
+		[
+			"database ID",
+			(b: Sandbox, t: Sandbox) =>
+				(b.d1_databases[0].database_id = t.d1_databases[0].database_id),
+		],
+		[
+			"queue",
+			(b: Sandbox, t: Sandbox) =>
+				(b.queues.producers[0].queue = t.queues.producers[0].queue),
+		],
+	] as const)("names a %s shared with the team's block", (kind, share) => {
+		const problems = problemsWith((block, copy) => {
+			share(block, copy.env[team.id] as unknown as Sandbox);
+		});
+		expect(
+			problems.some((l) =>
+				l.match(
+					new RegExp(`^${where}: ${kind}: ".*" is also env\\.${team.id}'s$`),
+				),
+			),
+		).toBe(true);
+	});
+
+	it("names a resource shared with another sandbox", () => {
+		const problems = problemsWith((block, copy) => {
+			const other = structuredClone(block);
+			copy.env["sandbox-twin"] = other as unknown as Block;
+		});
+		expect(problems).toContain(
+			`${where}: worker: "rynke-points-${name}" is also env.sandbox-twin's`,
+		);
+	});
+
+	it("names a var that differs from the team's", () => {
+		const problems = problemsWith((block) => {
+			block.vars.BADGES = block.vars.BADGES === "on" ? "off" : "on";
+		});
+		expect(problems.some((l) => l.startsWith(`${where}: vars.BADGES: `))).toBe(
+			true,
+		);
+	});
+
+	it.each(["SEASON_START_DATE", "ACCESS_AUD", "ACCESS_TEAM_DOMAIN"])(
+		"names a missing var %s",
+		(key) => {
+			const problems = problemsWith((block) => {
+				delete block.vars[key];
+			});
+			expect(problems).toContain(`${where}: vars.${key}: missing`);
+		},
+	);
+
+	it("refuses it as a deployable team", () => {
+		expect(placeholderProblems(TEAMS, name)).toEqual([
+			`env.${name}: a sandbox, deployed only by the Sandbox workflow`,
+		]);
+	});
 });

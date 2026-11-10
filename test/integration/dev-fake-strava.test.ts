@@ -10,6 +10,7 @@ import {
 } from "vitest";
 import { EUROPE_SAMPLES } from "../../dev/fake-strava/samples.europe";
 import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples.hamburg";
+import { forgetAccessKeys } from "../../dev/sandbox-access";
 import {
 	type DevEnv,
 	devFetch,
@@ -21,6 +22,14 @@ import { CONSENT_VERSION } from "../../src/consent";
 import { escapeHtml } from "../../src/http/html";
 import { clearSessionCookie } from "../../src/http/session";
 import { de } from "../../src/i18n/messages/de";
+import {
+	type AccessKeys,
+	accessKeys,
+	accessToken,
+	sandboxEnv,
+	sandboxRequest,
+	serveCerts,
+} from "../support/access";
 import {
 	cookiePair,
 	makeCtx,
@@ -868,7 +877,9 @@ describe("simulated Strava events (US3)", () => {
 		const res = await post("/_dev/events", fields);
 		expect(res.status).toBe(303);
 		const location = new URL(res.headers.get("Location") ?? "", LOCAL);
-		expect(location.pathname).toBe("/_dev/");
+		// Back to the rider's own page (027 FR-051).
+		const athleteId = fields.find(([name]) => name === "athleteId")?.[1];
+		expect(location.pathname).toBe(`/_dev/riders/${athleteId}`);
 		// The flash names the webhook's answer: the body passed its checks.
 		expect(location.searchParams.get("flash")).toMatch(/answered 200/);
 		await drain();
@@ -1047,6 +1058,155 @@ describe("simulated Strava events (US3)", () => {
 			).toBe(0);
 		}
 	});
+});
+
+// The daily cron's work on a button, locally and in a sandbox, which has no
+// cron (027 research R9, FR-032, FR-036): never the hourly usage run.
+describe("the daily work on demand (027)", () => {
+	let access: AccessKeys;
+
+	beforeEach(async () => {
+		expect((await get("/_dev/")).status).toBe(200);
+		await drain();
+		access = await accessKeys();
+	});
+	afterEach(() => {
+		forgetAccessKeys();
+	});
+
+	const usageRows = () =>
+		count(
+			"SELECT (SELECT COUNT(*) FROM usage_daily) + (SELECT COUNT(*) FROM usage_team_daily) + (SELECT COUNT(*) FROM usage_alerts) AS n",
+		);
+
+	async function expectDailyWork(res: Response) {
+		expect(res.status).toBe(303);
+		const location = new URL(res.headers.get("Location") ?? "", LOCAL);
+		expect(location.pathname).toBe("/_dev/");
+		expect(location.searchParams.get("flash")).toMatch(/daily work/);
+		const connected = await count(
+			"SELECT COUNT(*) AS n FROM riders WHERE status = 'connected'",
+		);
+		const checks = ctx.queue.sent.filter(
+			(m) => (m.body as { kind?: string }).kind === "check-membership",
+		);
+		expect(checks).toHaveLength(connected);
+		expect(await usageRows()).toBe(0);
+	}
+
+	it("runs the daily cron's work in local fake mode", async () => {
+		await env.DB.batch([
+			env.DB.prepare("DELETE FROM usage_daily"),
+			env.DB.prepare("DELETE FROM usage_team_daily"),
+			env.DB.prepare("DELETE FROM usage_alerts"),
+		]);
+		ctx.queue.sent.length = 0;
+		await expectDailyWork(await post("/_dev/scheduled", []));
+	});
+
+	it("runs it in a sandbox too", async () => {
+		await env.DB.batch([
+			env.DB.prepare("DELETE FROM usage_daily"),
+			env.DB.prepare("DELETE FROM usage_team_daily"),
+			env.DB.prepare("DELETE FROM usage_alerts"),
+		]);
+		// The dev entry wraps test/setup.ts's spy; answer the certs there.
+		removeStravaInterceptor();
+		serveCerts(access);
+		ctx = { ...ctx, env: sandboxEnv() };
+		ctx.queue.sent.length = 0;
+		const res = await devFetch(
+			sandboxRequest(await accessToken(access), {
+				path: "/_dev/scheduled",
+				init: { method: "POST" },
+			}),
+			ctx,
+		);
+		await expectDailyWork(res);
+	});
+
+	it("is a button on the overview", async () => {
+		const page = await (await get("/_dev/")).text();
+		expect(page).toContain('<form method="post" action="/_dev/scheduled">');
+		expect(page).toContain("Run the daily work");
+	});
+});
+
+// One page per sample rider holds the event forms; the overview reads no
+// rides (027 research R9a, FR-051).
+describe("the overview and a rider's page (027 FR-051)", () => {
+	let prepare: MockInstance<D1Database["prepare"]>;
+
+	beforeEach(async () => {
+		expect((await get("/_dev/")).status).toBe(200);
+		await drain();
+		prepare = vi.spyOn(env.DB, "prepare");
+	});
+	afterEach(() => {
+		prepare.mockRestore();
+	});
+
+	function ridesQueried() {
+		return prepare.mock.calls.filter(([sql]) =>
+			sql.includes("fake_strava_activities"),
+		);
+	}
+
+	it("lists the sample riders with a link to each, reading no rides", async () => {
+		const res = await get("/_dev/");
+		expect(res.status).toBe(200);
+		const page = await res.text();
+		expect(ridesQueried()).toEqual([]);
+		for (const r of SAMPLE_RIDERS) {
+			expect(page).toContain(`href="/_dev/riders/${r.athleteId}"`);
+		}
+		expect(page).toContain("Connect as");
+		expect(page).not.toContain("Send create");
+		expect(page).not.toContain('name="activityId"');
+	});
+
+	it("shows a rider's forms with only their rides", async () => {
+		const res = await get(`/_dev/riders/${TINA}`);
+		expect(res.status).toBe(200);
+		const page = await res.text();
+		expect(ridesQueried()).toHaveLength(1);
+		for (const button of [
+			"Send create",
+			"Send update",
+			"Send delete",
+			"Send creates",
+		]) {
+			expect(page).toContain(button);
+		}
+		const shown = new Set(
+			[...page.matchAll(/<option value="(\d+)">/g)].map(([, id]) => Number(id)),
+		);
+		const { results } = await env.DB.prepare(
+			"SELECT id FROM fake_strava_activities WHERE athlete_id = ?",
+		)
+			.bind(TINA)
+			.all<{ id: number }>();
+		expect(shown).toEqual(new Set(results.map((r) => r.id)));
+		expect(page).toContain(`value="${TINA}"`);
+		expect(page).toContain('href="/_dev/"');
+	});
+
+	it("says a sample rider who isn't stored has no events", async () => {
+		const noah = SAMPLE_RIDERS.find((r) => !r.clubMember);
+		if (!noah) throw new Error("no sample rider outside the club");
+		const res = await get(`/_dev/riders/${noah.athleteId}`);
+		expect(res.status).toBe(200);
+		const page = await res.text();
+		expect(page).toContain("not stored");
+		expect(page).not.toContain("Send create");
+	});
+
+	it.each(["123", "abc", ""])(
+		"answers 404 for the rider %j",
+		async (athleteId) => {
+			expect((await get(`/_dev/riders/${athleteId}`)).status).toBe(404);
+		},
+	);
 });
 
 describe("links to Strava (008 research R9)", () => {

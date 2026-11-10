@@ -235,39 +235,20 @@ jobs:
             teams=$(jq -c '. + [{"team":"europe","environment":"production-europe","url":"https://europe.trhh-rynke-coins.link","database":"DB","wrangler_env":"europe"}]' <<< "$teams")
           fi
 
-          # Sets result to true if $GITHUB_SHA should go to environment $1. Not
-          # run in a subshell, so its notices reach the log and an error ends the run.
+          # Sets result to true if $GITHUB_SHA should go to environment $1:
+          # .github/scripts/newer-than-live.sh, shared with the Sandbox workflow,
+          # exits 0 to deploy, 3 when a newer commit is live, else on an error.
+          # Not run in a subshell, so an error ends the run.
           decide() {
-            local environment=$1 deployments live_sha="" id sha state rc
-            # Newest first. The first one whose newest status is success is live;
-            # older successes are inactive, failed ones failure.
-            deployments=$(gh api "repos/$GITHUB_REPOSITORY/deployments?environment=$environment&per_page=100" --jq '.[] | "\(.id) \(.sha)"')
-            while read -r id sha; do
-              [ -n "$id" ] || continue
-              state=$(gh api "repos/$GITHUB_REPOSITORY/deployments/$id/statuses?per_page=1" --jq '.[0].state // ""')
-              if [ "$state" = success ]; then
-                live_sha=$sha
-                break
-              fi
-            done <<< "$deployments"
-
-            if [ -z "$live_sha" ]; then
-              echo "First deployment to $environment."
+            local rc
+            if .github/scripts/newer-than-live.sh "$1"; then
               result=true
-            elif [ "$live_sha" = "$GITHUB_SHA" ]; then
-              echo "Re-deploying the live commit $live_sha to $environment."
-              result=true
-            elif git merge-base --is-ancestor "$GITHUB_SHA" "$live_sha"; then
-              echo "::notice::A newer commit ($live_sha) is already deployed to $environment; skipping $GITHUB_SHA."
-              result=false
             else
-              # 1 means newer; anything else (e.g. 128, unknown commit) is an error.
               rc=$?
-              if [ "$rc" -ne 1 ]; then
+              if [ "$rc" -ne 3 ]; then
                 exit "$rc"
               fi
-              echo "Deploying $GITHUB_SHA to $environment; live is $live_sha."
-              result=true
+              result=false
             fi
           }
 

@@ -187,8 +187,11 @@ ride and the changed tally.
   support cancelling, so every sign-in outcome the app handles can be reached.
 - **FR-009**: The fake Strava MUST be impossible to activate in production: the
   production configuration MUST NOT contain the setting, and the app MUST refuse to
-  use the fake Strava when it isn't running locally. This guard MUST be covered by
-  an automated test.
+  use the fake Strava on any host but a local one or a configured sandbox host. This
+  guard MUST be covered by an automated test, including the production domain.
+  *Amended by feature 027 FR-013*: fake mode also answers exactly the hosts of the
+  configured sandboxes (`SANDBOX_HOST`), and refuses every other host; it still
+  can't activate in production, and `src/` still never imports `dev/`.
 - **FR-010**: The fake Strava MUST log each request it answers to the local console
   so the developer can see what the app asked for.
 

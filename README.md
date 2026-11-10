@@ -311,6 +311,18 @@ merge, check that:
 - changes to storage or to anything other riders see were self-reviewed against
   Principle I of the [constitution](.specify/memory/constitution.md).
 
+### Sandboxes
+
+Hamburg and Europe each have a sandbox: the team's app in fake mode on the internet, with the
+sample riders and the fake Strava, open to the maintainers only (Cloudflare Access). To try a
+pull request into `develop` there, tick *Deploy to Hamburg's sandbox* or *Deploy to Europe's
+sandbox* in its description; for a release, tick them on **Actions → Release PR**. The box
+unticks itself, the commit deploys once `lint`, `typecheck` and `test` passed, and a message on
+the pull request has the link. Every deployment rebuilds the sandbox's data, so deploying again
+resets it. Skip it for docs, specs, tests, CI or tooling only; deploy for migrations, anything
+riders see, or when unsure. Details, the daily budget and the setup:
+[docs/sandboxes.md](docs/sandboxes.md).
+
 ### Hotfixes
 
 1. Cut `hotfix/<short-name>` from `origin/main`, commit conventionally, and open
