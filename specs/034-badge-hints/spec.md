@@ -41,6 +41,9 @@ badges page, and that monkey says a badge hint. The Team page stays as it is.
 
 ### Session 2026-11-10
 
+- Q (raised by the project owner): Which languages? → A: German and English only, like the
+  quotes; the other languages are not translated. German riders get German hints, everyone else
+  English (FR-014). The concrete lines are in [hint-phrases.md](hint-phrases.md) for review.
 - Q (raised by the project owner): Where does the monkey say the hints? → A: On the badges page
   only, with its own monkey and speech bubble. The Team page's quotes stay unchanged. New monkey
   bubble pictures will be added for it.
@@ -202,8 +205,11 @@ hints show on some visits, not all, and the same hint never shows twice in a row
 
 **Text and art**
 
-- **FR-014**: Hint text MUST come from the i18n catalogs in all ten languages, German as the key
-  source (feature 001 FR-028), with numbers in the rider's number format. It MUST follow the
+- **FR-014**: Hint text MUST exist in German and English only, like the monkey's quotes
+  (feature 026 FR-025, update 2026-11-09: phrase translation is shelved), an exception to feature
+  001 FR-028. A rider who picked German MUST get German hints; every other rider MUST get English
+  ones. Numbers MUST follow the rider's number format. The lines are listed in
+  [hint-phrases.md](hint-phrases.md). The text MUST follow the
   project's copy rules: dry and specific, no slogans or punchline tags, neutral German wording.
   The monkey is no character: hints MUST NOT speak as the monkey ("Ich …") or give it feelings.
 - **FR-015**: Hint text MUST suit every team: no team's name or place, and no assumption of group
@@ -274,7 +280,7 @@ rules' names, not the badges' shown names.
   more than 50 ms slower at the median in local measurements).
 - **SC-004**: Over ten visits by a rider with several achievable hints, a hint shows on 3 to 7 of
   them and never the same one twice in a row.
-- **SC-005**: Every hint text exists in all ten languages, and no surprise hint contains the
+- **SC-005**: Every hint text exists in German and English, and no surprise hint contains the
   badge's name or the clock time, distance, height or exact date of its rule.
 - **SC-006**: Within the first season with hints, more riders earn at least one surprise badge
   than in the season before, at the same share of active riders (owner's judgement from the
