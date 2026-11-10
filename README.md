@@ -1,5 +1,7 @@
 # RynkePoints
 
+[![e2e nightly](https://github.com/SaSteffen/RynkePoints/actions/workflows/e2e-nightly.yml/badge.svg?branch=develop)](https://github.com/SaSteffen/RynkePoints/actions/workflows/e2e-nightly.yml?query=branch%3Adevelop)
+
 Strava integration for Team Rynkeby teams: Team Rynkeby Hamburg, the founding
 team, and Team Rynkeby Europe, which is being set up. Riders connect their Strava account
 (opt-in), the app collects key data from their activities (distance, date, elevation
