@@ -19,7 +19,7 @@ What `hintCandidates` reads; all of it comes from the badges page's existing bat
 | `ownDays` | `rider_summaries.own_days` | `[date, longestM, outdoor]` |
 | `active` | `rider_summaries.active` | `[date, hour, ride]`, rides, runs and swims |
 | `longestSwimM` | `swims` | season |
-| `ranBefore`, `swamBefore` | `runs`, `swims` | any in the previous season (FR-007) |
+| `ran`, `swam` | `runs`, `swims` | any in the season (FR-007; older ones are purged, research R2) |
 
 Day lists are filtered to `seasonStart`..`today`.
 
@@ -45,7 +45,7 @@ Rules (spec FR-004 to FR-010, table "Hint windows"):
 - Amounts: `missing ≤ daysLeft × bestDay`, and `bestDay > 0`.
 - Day counts: `missing ≤ daysLeft`, today left only if not yet counted.
 - Length categories: `longest ≥ next ÷ 2`.
-- Running, swimming, run and swim length, Dreikampf: `ranBefore`/`swamBefore` or any in the
+- Running, swimming, run and swim length, Dreikampf: a run or swim in the
   season.
 - Rest day: a streak of at least 5 days in `active` ending today or yesterday; `values.n` is its
   length.

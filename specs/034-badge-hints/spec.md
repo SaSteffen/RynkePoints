@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-10
 
-**Status**: Draft
+**Status**: Ready
 
 **Input**: User description: "I want to motivate people a little more. I want to give them hints
 for finding the hidden badges or for the next achievable badge. Make the monkey say from time to

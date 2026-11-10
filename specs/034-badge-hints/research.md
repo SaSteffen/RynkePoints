@@ -36,6 +36,11 @@ re-reading activities (far larger).
 A rider without a summary row at `OWN_SUMMARY_SINCE` (the page then adds up their rides) gets no
 hints until the daily job writes the row.
 
+**Update (implementation)**: no previous-season `EXISTS`. The daily job deletes every ride, run and
+swim dated before the season start (`purgePreSeasonActivities`), so a previous-season run or swim
+is never on record; FR-007 is checked against the season's runs and swims (`runDistanceM`,
+`swimDistanceM` > 0), from the sums the page already reads. The batch keeps its five statements.
+
 ## R3. Feasibility figures (FR-006)
 
 **Decision**: "Best day of that kind in the season", from the stored day lists:
