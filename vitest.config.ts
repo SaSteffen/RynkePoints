@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { cloudflareTest, readD1Migrations } from "@cloudflare/vitest-plugin";
 import { defineConfig } from "vitest/config";
-import { parseJsonc } from "./scripts/team-check.mjs";
+import { isSandbox, parseJsonc } from "./scripts/team-check.mjs";
 import PINNED_VARS from "./test/support/pinned.json";
 
 // Tests run inside the real Workers runtime (workerd via Miniflare), with the
@@ -40,7 +40,8 @@ export default defineConfig(async () => {
 	const wrangler = parseJsonc(readFileSync("./wrangler.jsonc", "utf8")) as {
 		env: Record<string, unknown>;
 	};
-	const teams = Object.keys(wrangler.env);
+	// Sandbox blocks (feature 027) are fake mode, not teams.
+	const teams = Object.keys(wrangler.env).filter((id) => !isSandbox(id));
 	const [founding] = teams;
 	const teamProjects = teams.map((id) => ({
 		plugins: [

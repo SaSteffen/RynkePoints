@@ -1,0 +1,109 @@
+name: Sandbox PR
+
+# The sandbox checkboxes of pull requests into develop (feature 027
+# contracts/sandbox-workflow.md "Pull requests into develop", research R13).
+# pull_request_target runs this file and sandbox.yml as they are on develop,
+# whatever the pull request changes (FR-049), and never checks out or runs the
+# pull request's code here; sandbox.yml builds it, for branches of this
+# repository and senders with write access only. No job here is a
+# required-check context; never add one to .github/rulesets/*.json.
+on:
+  pull_request_target:
+    types: [opened, edited]
+    branches: [develop]
+
+permissions: {}
+
+# One reaction at a time per pull request, so two quick edits don't race over
+# the description.
+concurrency:
+  group: sandbox-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  boxes:
+    name: sandbox-pr
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    outputs:
+      teams: ${{ steps.boxes.outputs.teams }}
+      sha: ${{ steps.boxes.outputs.sha }}
+    steps:
+      # The description is read from GitHub into a file and only ever handled as
+      # data. Edits with github.token start no further run.
+      - id: boxes
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number }}
+          ACTION: ${{ github.event.action }}
+          SENDER: ${{ github.event.sender.login }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          DEVELOP_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          body="$RUNNER_TEMP/body.md"
+          gh pr view "$PR" --repo "$REPO" --json body --jq .body > "$body"
+
+          # Opened by a tool without the template: add develop's Sandboxes section.
+          if [ "$ACTION" = opened ] && ! grep -qE '^## Sandboxes' "$body"; then
+            gh api "repos/$REPO/contents/.github/pull_request_template.md?ref=$DEVELOP_SHA" \
+              -H 'Accept: application/vnd.github.raw' > "$RUNNER_TEMP/template.md"
+            { echo; sed -n '/^## Sandboxes/,$p' "$RUNNER_TEMP/template.md"; } >> "$body"
+            gh pr edit "$PR" --repo "$REPO" --body-file "$body" >/dev/null
+            echo "Added the Sandboxes section."
+            exit 0
+          fi
+
+          teams='[]'
+          grep -qE "^- \[[xX]\] Deploy to Hamburg's sandbox" "$body" && teams=$(jq -c '. + ["hamburg"]' <<< "$teams")
+          grep -qE "^- \[[xX]\] Deploy to Europe's sandbox" "$body" && teams=$(jq -c '. + ["europe"]' <<< "$teams")
+          if [ "$teams" = '[]' ]; then
+            echo "No sandbox ticked."
+            exit 0
+          fi
+
+          # Untick first, so the boxes are free again whatever follows.
+          sed -i -E "s/^- \[[xX]\] (Deploy to (Hamburg|Europe)'s sandbox)/- [ ] \1/" "$body"
+          gh pr edit "$PR" --repo "$REPO" --body-file "$body" >/dev/null
+
+          if [ "$HEAD_REPO" != "$REPO" ]; then
+            gh pr comment "$PR" --repo "$REPO" \
+              --body "Sandboxes take branches of this repository only; nothing was deployed."
+            exit 0
+          fi
+          push=$(gh api "repos/$REPO/collaborators/$SENDER/permission" --jq '.user.permissions.push // false' 2>/dev/null || echo false)
+          if [ "$push" != true ]; then
+            gh pr comment "$PR" --repo "$REPO" \
+              --body "Only people with write access to this repository can deploy to a sandbox; nothing was deployed."
+            exit 0
+          fi
+
+          sha=$(gh pr view "$PR" --repo "$REPO" --json headRefOid --jq .headRefOid)
+          echo "Deploying ${sha:0:7} to: $teams"
+          {
+            echo "teams=$teams"
+            echo "sha=$sha"
+          } >> "$GITHUB_OUTPUT"
+
+  # The ticked sandboxes get the pull request's head, seeded at develop.
+  sandbox:
+    name: sandbox
+    needs: boxes
+    if: needs.boxes.outputs.teams != '' && needs.boxes.outputs.teams != '[]'
+    permissions:
+      contents: read
+      checks: read
+      actions: write
+      pull-requests: write
+      deployments: write
+    uses: ./.github/workflows/sandbox.yml
+    with:
+      teams: ${{ needs.boxes.outputs.teams }}
+      pr: ${{ format('{0}', github.event.pull_request.number) }}
+      sha: ${{ needs.boxes.outputs.sha }}
+      base: develop

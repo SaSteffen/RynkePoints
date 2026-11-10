@@ -99,12 +99,12 @@ ${fields.map(
 	);
 }
 
+/** The app's stored status of a sample rider, or null when not stored. */
+export type StoredState = { status: string; importStatus: string } | null;
+
 export interface IndexRow {
 	rider: SampleRider;
-	/** The app's stored status, or null when the rider isn't stored. */
-	stored: { status: string; importStatus: string } | null;
-	/** The rider's fake activities, newest first. */
-	activities: readonly FakeActivity[];
+	stored: StoredState;
 }
 
 const SPORT_TYPES = [
@@ -127,15 +127,15 @@ function rideChoice(activities: readonly FakeActivity[]): SafeHtml {
 /** Strava's events for one stored rider (contracts/dev-routes.md). */
 function eventForms(
 	rider: SampleRider,
-	row: IndexRow,
+	activities: readonly FakeActivity[],
 	today: string,
 ): SafeHtml {
 	const hidden = html`<input type="hidden" name="athleteId" value="${rider.athleteId}">`;
 	const sports = SPORT_TYPES.map((s) => html`<option>${s}</option>`);
 	const flag = (name: string) =>
 		html`<label>${name} <select name="${name}"><option value="">unchanged</option><option value="true">yes</option><option value="false">no</option></select></label>`;
-	const rides = row.activities.length > 0;
-	return html`<details><summary>Strava events for ${rider.firstName}</summary>
+	const rides = activities.length > 0;
+	return html`<h2>Strava events for ${rider.firstName}</h2>
 <form method="post" action="/_dev/events"><fieldset><legend>New ride</legend>${hidden}<input type="hidden" name="action" value="create">
 <label>Date <input type="date" name="date" value="${today}"></label>
 <label>Time <input type="time" name="time" value="09:00"></label>
@@ -150,7 +150,7 @@ function eventForms(
 ${
 	rides
 		? html`<form method="post" action="/_dev/events"><fieldset><legend>Change a ride (empty = unchanged)</legend>${hidden}<input type="hidden" name="action" value="update">
-${rideChoice(row.activities)}<br>
+${rideChoice(activities)}<br>
 <label>Name <input name="name" size="20"></label>
 <label>Date <input type="date" name="date"></label>
 <label>Time <input type="time" name="time"></label>
@@ -162,15 +162,14 @@ ${rideChoice(row.activities)}<br>
 ${flag("private")} ${flag("manual")}
 <button>Send update</button></fieldset></form>
 <form method="post" action="/_dev/events"><fieldset><legend>Delete a ride</legend>${hidden}<input type="hidden" name="action" value="delete">
-${rideChoice(row.activities)} <button>Send delete</button></fieldset></form>`
+${rideChoice(activities)} <button>Send delete</button></fieldset></form>`
 		: null
 }
 <form method="post" action="/_dev/events"><fieldset><legend>Sync a backlog</legend>${hidden}<input type="hidden" name="action" value="backlog">
 <label>rides <input name="count" value="30" size="4"></label>
 <button>Send creates</button> Each ride's first fetch fails, so they come in about one a minute and the rider's pages show how far they are.</fieldset></form>
 <form method="post" action="/_dev/events">${hidden}<button name="action" value="deauthorize">Revoke access</button></form>
-<form method="post" action="/_dev/events">${hidden}<button name="action" value="repeat">Send the last event again</button></form>
-</details>`;
+<form method="post" action="/_dev/events">${hidden}<button name="action" value="repeat">Send the last event again</button></form>`;
 }
 
 /**
@@ -179,16 +178,22 @@ ${rideChoice(row.activities)} <button>Send delete</button></fieldset></form>`
  */
 function clockForm(today: string, pretended: boolean): SafeHtml {
 	return html`<form method="post" action="/_dev/clock"><fieldset><legend>Clock</legend>
-<p>${pretended ? html`<strong>The app pretends today is ${today}.</strong>` : html`Today in the app: ${today}, the real day.`} Pretend another day to see the season's later days before they come: the Tour de Paris days are in July. Then run the daily cron for the day's notices.</p>
+<p>${pretended ? html`<strong>The app pretends today is ${today}.</strong>` : html`Today in the app: ${today}, the real day.`} Pretend another day to see the season's later days before they come: the Tour de Paris days are in July. Then run the daily work for the day's notices.</p>
 <label>Pretend today is <input type="date" name="day" value="${today}"></label>
 <button>Set</button>
 ${pretended ? html`<button name="real" value="1">Back to the real day</button>` : null}
 </fieldset></form>`;
 }
 
+function storedText(stored: StoredState): string {
+	return stored
+		? `${stored.status}, import ${stored.importStatus}`
+		: "not stored";
+}
+
 /**
- * The `/_dev/` index. `today` (`YYYY-MM-DD`, pretended if `pretended`) fills
- * the new-ride date.
+ * The `/_dev/` index: the sample riders, without their rides (feature 027
+ * FR-051), each linked to their own page.
  */
 export function indexPage(
 	rows: readonly IndexRow[],
@@ -198,29 +203,48 @@ export function indexPage(
 ): Response {
 	const lines = rows.map(
 		(row) => html`<tr>
-<td>${row.rider.firstName}<br><small>${row.rider.athleteId}</small></td>
+<td><a href="/_dev/riders/${row.rider.athleteId}">${row.rider.firstName}</a><br><small>${row.rider.athleteId}</small></td>
 <td>${row.rider.state}</td>
-<td>${row.stored ? `${row.stored.status}, import ${row.stored.importStatus}` : "not stored"}</td>
+<td>${storedText(row.stored)}</td>
 <td><form method="post" action="/_dev/connect"><input type="hidden" name="athleteId" value="${row.rider.athleteId}"><button>Connect as</button></form></td>
 </tr>
-${
-	row.stored
-		? html`<tr><td colspan="4">${eventForms(row.rider, row, today)}</td></tr>
-`
-		: null
-}`,
+`,
 	);
 	return page(
 		"Fake mode",
 		html`<h1>Fake mode</h1>
 ${flash ? html`<p role="status"><strong>${flash}</strong></p>` : null}
-<p><a href="/me">/me</a> · <a href="/__scheduled">run the daily cron (/__scheduled)</a> · <a href="/_dev/badges">every badge, team ones too (/_dev/badges)</a></p>
+<p><a href="/me">/me</a> · <a href="/_dev/badges">every badge, team ones too (/_dev/badges)</a></p>
+<form method="post" action="/_dev/scheduled"><p><button>Run the daily work</button> What the daily cron does at 03:17: membership checks, retries, evaluations. Never the hourly usage run.</p></form>
 ${clockForm(today, pretended)}
+<p>A rider's page has their Strava events: new, changed and deleted rides, a backlog, revoking access.</p>
 <table>
 <thead><tr><th>Sample rider</th><th>State</th><th>Stored</th><th></th></tr></thead>
 <tbody>
 ${lines}</tbody>
 </table>
 <form method="post" action="/_dev/reset"><p><button>Reset sample data</button> Deletes every rider and seeds the sample data again.</p></form>`,
+	);
+}
+
+/**
+ * `GET /_dev/riders/<athleteId>` (feature 027 research R9a): one sample
+ * rider's Strava events, with only their rides to choose from. `today`
+ * (`YYYY-MM-DD`) fills the new-ride date.
+ */
+export function riderPage(
+	rider: SampleRider,
+	stored: StoredState,
+	activities: readonly FakeActivity[],
+	flash: string | null,
+	today: string,
+): Response {
+	return page(
+		`${rider.firstName} (fake mode)`,
+		html`<h1>${rider.firstName}</h1>
+${flash ? html`<p role="status"><strong>${flash}</strong></p>` : null}
+<p><a href="/_dev/">Back to fake mode</a> · ${rider.athleteId} · ${rider.state} · ${storedText(stored)}</p>
+<form method="post" action="/_dev/connect"><input type="hidden" name="athleteId" value="${rider.athleteId}"><button>Connect as</button></form>
+${stored ? eventForms(rider, activities, today) : html`<p>The app hasn't stored this rider, so Strava sends no events for them.</p>`}`,
 	);
 }

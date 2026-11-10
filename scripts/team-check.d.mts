@@ -1,5 +1,8 @@
 // Types for scripts/team-check.mjs, for vitest.config.ts.
 
+/** Whether a Wrangler block is a release sandbox's, `sandbox-<team>` (027). */
+export function isSandbox(name: string): boolean;
+
 /** JSONC to a value: comments and trailing commas out, strings untouched. */
 export function parseJsonc(text: string): unknown;
 

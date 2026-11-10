@@ -15,42 +15,90 @@ import {
 	authorizePage,
 	type IndexRow,
 	indexPage,
+	riderPage,
+	type StoredState,
 } from "./fake-strava/pages";
 import { sampleRider, samplesFor } from "./fake-strava/sample-sets";
 import { sampleFingerprint, seed } from "./fake-strava/seed";
 import { badgesPage } from "./fake-strava/showcase";
 import { getActivity, riderActivities, seededWith } from "./fake-strava/store";
 import { encodeCode } from "./fake-strava/tokens";
+import { type AccessSettings, accessRefusal, refuse } from "./sandbox-access";
+import { withSandboxBar } from "./sandbox-bar";
 
 // The dev entry of fake mode (specs/006-local-frontend-dev research R1, R2,
 // R9): `pnpm dev` runs this instead of src/index.ts. It wraps the app's
 // handlers, answers every request for www.strava.com from the fake, and serves
 // the fake's own pages under `/_dev/`. Nothing under src/ imports it, and it
-// refuses to run outside local fake mode, so it can't reach production.
+// refuses to run outside local fake mode or a release sandbox (feature 027),
+// so it can't reach production.
 
 /**
- * The marker comes from `pnpm dev`'s `--var` only; it isn't a declared binding.
- * So does RYNKE_FAKE_GATEWAY, the local gateway's webhook URL, when `pnpm dev`
- * runs every team behind it (feature 026 release 3): simulated events then go
- * through the gateway to every team, as Strava's do in production.
+ * The marker comes from `pnpm dev`'s `--var` locally ("local-only") and from a
+ * sandbox's Wrangler block ("sandbox", feature 027); production's types don't
+ * declare it. So does RYNKE_FAKE_GATEWAY, the local gateway's webhook URL, when
+ * `pnpm dev` runs every team behind it (feature 026 release 3): simulated events
+ * then go through the gateway to every team, as Strava's do in production.
+ *
+ * A sandbox's block also sets its host and the Cloudflare Access application it
+ * sits behind (027 contracts/access-check.md); its workflow passes the deployed
+ * commit and where it came from with `--var`. src/ reads none of them.
  */
 export type DevEnv = Env & {
 	RYNKE_FAKE_STRAVA?: string;
 	RYNKE_FAKE_GATEWAY?: string;
 	/** The browser tests' fixed day, in days after the season start (dev/clock.ts). */
 	RYNKE_FAKE_SEASON_DAY?: string;
+	SANDBOX_HOST?: string;
+	ACCESS_TEAM_DOMAIN?: string;
+	ACCESS_AUD?: string;
+	SANDBOX_COMMIT?: string;
+	SANDBOX_SOURCE?: string;
 };
+
+/** A sandbox's host and Access application, all three non-empty. */
+export type SandboxMode = AccessSettings;
 
 const LOCAL_HOSTS = ["localhost", "127.0.0.1", "[::1]"];
 const AUTHORIZE_URL = `${STRAVA_ORIGIN}/oauth/authorize`;
 const STAND_IN_PATH = "/_dev/strava/oauth/authorize";
 const ACTIVITY_URL = `${STRAVA_ORIGIN}/activities/`;
 const ACTIVITY_STAND_IN = "/_dev/strava/activities/";
+/** The daily cron's expression in `wrangler.jsonc`, not the hourly usage one. */
+const DAILY_CRON = "17 3 * * *";
 
+/**
+ * Runs only in local fake mode or a sandbox with its host and Access
+ * application set; anything else throws before a request is answered.
+ */
 export function assertFakeMode(env: DevEnv): void {
-	if (env.RYNKE_FAKE_STRAVA !== "local-only") {
-		throw new Error("fake Strava runs only in local fake mode");
+	if (env.RYNKE_FAKE_STRAVA === "local-only") return;
+	if (env.RYNKE_FAKE_STRAVA !== "sandbox") {
+		throw new Error("fake Strava runs only in local fake mode or a sandbox");
 	}
+	if (!sandboxMode(env)) {
+		throw new Error(
+			"sandbox mode needs SANDBOX_HOST, ACCESS_TEAM_DOMAIN and ACCESS_AUD",
+		);
+	}
+}
+
+/** The sandbox's settings, or null in local fake mode or when one is missing. */
+export function sandboxMode(env: DevEnv): SandboxMode | null {
+	const { SANDBOX_HOST, ACCESS_TEAM_DOMAIN, ACCESS_AUD } = env;
+	if (
+		env.RYNKE_FAKE_STRAVA !== "sandbox" ||
+		!SANDBOX_HOST ||
+		!ACCESS_TEAM_DOMAIN ||
+		!ACCESS_AUD
+	) {
+		return null;
+	}
+	return {
+		host: SANDBOX_HOST,
+		teamDomain: ACCESS_TEAM_DOMAIN,
+		aud: ACCESS_AUD,
+	};
 }
 
 /** The Ctx the app's own entry builds (src/index.ts). */
@@ -208,23 +256,58 @@ function reseed(ctx: Ctx, origin: string): Promise<void> {
 	return seed(ctx, origin, berlinDate(ctx.now()));
 }
 
-async function indexRows(ctx: Ctx): Promise<IndexRow[]> {
+/** The app's stored state of every sample rider, in one query. */
+async function storedStates(ctx: Ctx): Promise<Map<number, StoredState>> {
 	const { results } = await ctx.env.DB.prepare(
 		"SELECT athlete_id, status, import_status FROM riders",
 	).all<{ athlete_id: number; status: string; import_status: string }>();
-	const stored = new Map(results.map((r) => [r.athlete_id, r]));
-	return Promise.all(
-		samplesFor(ctx.team.id).riders.map(async (rider) => {
-			const row = stored.get(rider.athleteId);
-			return {
-				rider,
-				activities: await riderActivities(ctx.env.DB, rider.athleteId),
-				stored: row
-					? { status: row.status, importStatus: row.import_status }
-					: null,
-			};
-		}),
+	return new Map(
+		results.map((r) => [
+			r.athlete_id,
+			{ status: r.status, importStatus: r.import_status },
+		]),
 	);
+}
+
+/** The overview's rows: no rides read (feature 027 FR-051). */
+async function indexRows(ctx: Ctx): Promise<IndexRow[]> {
+	const stored = await storedStates(ctx);
+	return samplesFor(ctx.team.id).riders.map((rider) => ({
+		rider,
+		stored: stored.get(rider.athleteId) ?? null,
+	}));
+}
+
+/** `GET /_dev/riders/<athleteId>`: one sample rider's events and rides. */
+async function showRider(ctx: Ctx, url: URL, athleteId: number) {
+	const rider = sampleRider(ctx.team.id, athleteId);
+	if (!rider) return text("Not Found", 404);
+	const stored = (await storedStates(ctx)).get(athleteId) ?? null;
+	return riderPage(
+		rider,
+		stored,
+		stored ? await riderActivities(ctx.env.DB, athleteId) : [],
+		url.searchParams.get("flash"),
+		berlinDate(ctx.now()),
+	);
+}
+
+/**
+ * `POST /_dev/scheduled`: the daily cron's work, on demand (feature 027
+ * research R9). Sandboxes have no cron, and the hourly usage run isn't offered:
+ * a sandbox mustn't record usage or send usage alerts (FR-036).
+ */
+async function runDailyWork(ctx: Ctx): Promise<Response> {
+	await handleScheduled(
+		{
+			cron: DAILY_CRON,
+			scheduledTime: ctx.now() * 1000,
+			noRetry() {},
+		},
+		ctx,
+	);
+	const flash = "Ran the daily work. Its messages are queued.";
+	return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);
 }
 
 /** `POST /_dev/connect`: the app's connect flow, ending on the stand-in screen. */
@@ -308,7 +391,7 @@ async function setClock(request: Request, ctx: Ctx): Promise<Response> {
 	const flash =
 		day === ""
 			? "The clock is the real one again."
-			: `The app now pretends today is ${day}. Run the daily cron for its notices.`;
+			: `The app now pretends today is ${day}. Run the daily work for its notices.`;
 	return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);
 }
 
@@ -325,6 +408,10 @@ async function devRoute(
 		const stored = await getActivity(ctx.env.DB, Number(activityId));
 		return stored ? activityPage(stored.body) : text("Not Found", 404);
 	}
+	const riderId = url.pathname.match(/^\/_dev\/riders\/(\d+)$/)?.[1];
+	if (request.method === "GET" && riderId !== undefined) {
+		return showRider(ctx, url, Number(riderId));
+	}
 	switch (route) {
 		case "GET /_dev/":
 			return indexPage(
@@ -340,9 +427,17 @@ async function devRoute(
 				berlinDate(ctx.now()),
 			);
 		case "POST /_dev/events": {
-			const flash = await simulateEvent(ctx, url.origin, await form(request));
-			return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);
+			const fields = await form(request);
+			const flash = await simulateEvent(ctx, url.origin, fields);
+			// Back to the rider's page (feature 027 FR-051).
+			const athleteId = Number(fields.get("athleteId"));
+			const back = sampleRider(ctx.team.id, athleteId)
+				? `/_dev/riders/${athleteId}`
+				: "/_dev/";
+			return redirect(`${back}?${new URLSearchParams({ flash })}`, 303);
 		}
+		case "POST /_dev/scheduled":
+			return runDailyWork(ctx);
 		case "POST /_dev/connect":
 			return connectAs(request, ctx, url);
 		case "POST /_dev/clock":
@@ -355,6 +450,14 @@ async function devRoute(
 		case `POST ${STAND_IN_PATH}`:
 			return decide(request, ctx, url);
 		case "POST /_dev/reset":
+			// A sandbox's data comes from its deployment, never from the Worker
+			// (feature 027 research R6, FR-019).
+			if (sandboxMode(ctx.env)) {
+				return text(
+					"Deploy again to reset the sandbox (docs/sandboxes.md)",
+					409,
+				);
+			}
 			await resetAll(ctx, url.origin);
 			// Any session belongs to a rider who was just deleted.
 			return redirect("/_dev/", 303, [clearSessionCookie()]);
@@ -367,11 +470,25 @@ export async function devFetch(
 	realCtx: Ctx,
 ): Promise<Response> {
 	assertFakeMode(realCtx.env);
+	const url = new URL(request.url);
+	// A sandbox checks its Access token before anything else runs (027
+	// contracts/access-check.md); local fake mode answers loopback only.
+	const sandbox = sandboxMode(realCtx.env);
+	if (sandbox) {
+		const reason = await accessRefusal(request, sandbox, realCtx.now());
+		if (reason) return refuse(reason);
+	} else if (!isLocal(url)) {
+		return text("Fake mode answers localhost only", 403);
+	}
 	const ctx = await onDevClock(realCtx);
 	installStravaInterceptor(ctx);
-	const url = new URL(request.url);
-	if (!isLocal(url)) return text("Fake mode answers localhost only", 403);
-	await seedIfNeeded(ctx, url.origin);
+	// A sandbox's database is seeded by its deployment (research R6).
+	if (!sandbox) await seedIfNeeded(ctx, url.origin);
+	const response = await answer(request, ctx, url);
+	return sandbox ? withSandboxBar(response, realCtx.env as DevEnv) : response;
+}
+
+async function answer(request: Request, ctx: Ctx, url: URL) {
 	if (url.pathname === "/_dev") return redirect("/_dev/", 308);
 	if (url.pathname.startsWith("/_dev/")) return devRoute(request, ctx, url);
 	return rewriteActivityLinks(

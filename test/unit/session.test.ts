@@ -28,6 +28,11 @@ describe("session cookie", () => {
 		);
 	});
 
+	it("is host-only, so no other subdomain reads it (027 FR-014)", async () => {
+		const cookie = await createSessionCookie(900001, NOW, env);
+		expect(cookie).not.toMatch(/;\s*Domain=/i);
+	});
+
 	it("reads back the athlete ID", async () => {
 		const cookie = await createSessionCookie(900001, NOW, env);
 		expect(await readSession(withCookie(cookie), env, NOW + 10)).toBe(900001);
