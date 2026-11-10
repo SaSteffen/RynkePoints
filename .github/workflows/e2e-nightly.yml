@@ -89,7 +89,8 @@ jobs:
     timeout-minutes: 30
     container:
       image: ${{ needs.playwright-image.outputs.image }}
-      options: --user 1001 --ipc=host
+      # --add-host: as in ci.yml, so Node finds europe.localhost too.
+      options: --user 1001 --ipc=host --add-host=europe.localhost:127.0.0.1
     env:
       WRANGLER_SEND_METRICS: "false"
     steps:
