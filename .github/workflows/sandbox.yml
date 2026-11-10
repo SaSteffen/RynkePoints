@@ -135,7 +135,6 @@ jobs:
         shell: bash
     env:
       WRANGLER_SEND_METRICS: "false"
-      GH_TOKEN: ${{ github.token }}
       REPO: ${{ github.repository }}
       TEAM: ${{ matrix.team }}
       PR: ${{ needs.resolve.outputs.pr }}
@@ -146,6 +145,8 @@ jobs:
     steps:
       # Develop's scripts check and deploy the commit, which sits in change/ (R11):
       # a branch can't loosen the checks it's deployed by. base/ seeds.
+      # The GitHub token goes only to the steps that call GitHub, never to those
+      # that install, build or run the commit's code.
       - name: Checkout develop's scripts
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -168,6 +169,8 @@ jobs:
       # The live commit (newest deployment whose newest status is success), the
       # base's commit and the source shown in the sandbox's bar.
       - name: Note the live commit
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           state="$RUNNER_TEMP/sandbox"
@@ -199,6 +202,8 @@ jobs:
       # live commit of one, is never "older".
       - name: Newer than live
         id: live
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           on_develop() {
@@ -224,6 +229,8 @@ jobs:
       - name: Wait for the checks
         id: checks
         if: steps.live.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           deadline=$((SECONDS + 1200))
@@ -265,6 +272,8 @@ jobs:
       - name: Record the deployment
         id: deployment
         if: steps.live.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           id=$(jq -n --arg ref "$SHA" --arg environment "sandbox-$TEAM" --arg source "$SOURCE" \
@@ -374,6 +383,7 @@ jobs:
       - name: Message
         if: always()
         env:
+          GH_TOKEN: ${{ github.token }}
           DEPLOYMENT: ${{ steps.deployment.outputs.id }}
           SKIPPED: ${{ steps.live.outputs.skip }}
           ACCOUNT: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}

@@ -246,7 +246,8 @@ or some databases, so it could also deploy production's Workers, write to produc
 databases and change routes in the zone. It's released only to the sandbox workflows as they
 are on `develop`, used only in the steps that write to Cloudflare, always with
 `--env sandbox-<team>`, after `develop`'s `team-check` refused any production name in a sandbox
-block. A pull request's code is built in that job, so a branch could tamper with those steps;
+block. A pull request's code is built in that job, so a branch could tamper with those steps (the
+GitHub token goes only to the steps that call GitHub, but they share the runner);
 only branches of this repository and senders with write access qualify, which reaches nobody
 who couldn't already push here. Weigh this again when more people get write access; an
 environment approval would be the next step. The analytics token is read-only.
