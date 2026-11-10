@@ -58,5 +58,8 @@ manual and belong to the founding maintainer (FR-042, CLAUDE.md "Non-negotiables
 | 17 | Push again without ticking; then tick again | nothing deploys; then the new head deploys | US8 scenario 3 |
 | 18 | In a branch, change `sandbox-pr.yml` to print something, open a pull request, tick a box | the output doesn't appear: `develop`'s copy ran | US8 scenario 5, FR-049 |
 | 19 | A pull request from a fork (or a test account's fork) with a box ticked | nothing deploys; message says why | US8 scenario 4 |
+| 20 | Tick a box on a pull request whose `e2e` is still running | deploys once `lint`, `typecheck` and `test` pass, without waiting for `e2e` | FR-015 |
+| 21 | In the sandbox, open `/_dev/`, then a sample rider's page; then Workers → the sandbox Worker → Logs | the overview lists riders without rides; the rider's page has the event forms; no request near 10 ms of CPU | FR-051, FR-035 |
+| 22 | After the first deployment, the admin view's or Cloudflare's rows written for the sandbox database | about 7,000 per deployment; note whether dropping the tables added writes, and adjust the estimate in R7 | FR-034, R7 |
 
 Checks 2–19 run on the live sandboxes after the slice's release (no tasks for them).

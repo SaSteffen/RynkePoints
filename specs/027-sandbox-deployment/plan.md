@@ -53,6 +53,7 @@ every deployment; no new table.
 - the access check;
 - the sandbox-only behaviour of fake mode (no seeding in a request, reset refused, the bar,
   `/_dev/scheduled`);
+- fake mode's overview reading no rides, and the page per sample rider (FR-051);
 - the host-only session cookie;
 - `team-check`'s sandbox rules;
 - the usage verdict.
@@ -64,11 +65,16 @@ GitHub Actions.
 
 **Project Type**: Web service plus CI.
 
-**Performance Goals**: SC-002: a chosen sandbox runs the head commit within 30 minutes of
-choosing, provided the checks pass. CI's checks take most of it; the deploy itself takes minutes.
+**Performance Goals**: SC-002: a chosen sandbox runs the head commit within 15 minutes of
+choosing, provided lint, the type check and the unit tests pass. It doesn't wait for the
+end-to-end tests (FR-015). Seeding on CI takes seconds and the import about a minute, so
+waiting for the checks takes most of it.
 
 **Constraints**:
-- 10 ms of CPU per request, which is why seeding runs outside the Worker (R6).
+- 10 ms of CPU per request, which is why seeding runs outside the Worker (R6), and why fake
+  mode's overview reads no rides (R9a).
+- Rows written: about 7,000 per deployment and team, within a daily sandbox budget of 40,000
+  and the 50 % check (R7).
 - 5 crons per account, of which sandboxes use none.
 - 10 databases per account: 2 production and 2 sandbox, so 4 in use.
 - The daily allowances, guarded by the 50 % check (R7).
@@ -128,10 +134,12 @@ wrangler.jsonc                      # + sandbox-hamburg, sandbox-europe blocks
 worker-configuration.d.ts           # pnpm types
 dev/
 ├── worker.ts                       # sandbox mode: assertFakeMode, host + access check first,
-│                                   #   no seeding in a request, reset refused, bar, /_dev/scheduled
+│                                   #   no seeding in a request, reset refused, bar, /_dev/scheduled,
+│                                   #   GET /_dev/riders/<id>; the overview reads no rides
 ├── sandbox-access.ts               # new: Access JWT verification (contracts/access-check.md)
 ├── sandbox-usage.ts                # new: pure verdict over fetchCloudflareUsage's result
-└── fake-strava/pages.ts            # "Run the daily work" button on /_dev/
+└── fake-strava/pages.ts            # "Run the daily work" button on /_dev/; overview without
+                                    #   ride forms; the page per sample rider
 scripts/
 ├── team-check.mjs                  # sandbox rules, --deployable refuses sandbox-*
 ├── sandbox-usage.mjs               # new: usage check before writing
@@ -158,7 +166,8 @@ test/unit/                          # sandbox-access, dev-sandbox, team-check-sa
 ## Order of work
 
 1. The access check, with its tests (contracts/access-check.md). Nothing is deployable before it.
-2. Fake mode's sandbox mode: hosts, no seeding in a request, reset refused, bar, `/_dev/scheduled`.
+2. Fake mode's sandbox mode: hosts, no seeding in a request, reset refused, bar, `/_dev/scheduled`,
+   and the page per sample rider (FR-051).
 3. The `wrangler.jsonc` blocks with placeholder IDs, `pnpm types`, `team-check`'s rules.
 4. The usage verdict and script.
 5. The seed script, tried locally against a local stand-in for the remote database.

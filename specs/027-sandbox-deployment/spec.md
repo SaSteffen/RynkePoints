@@ -87,9 +87,9 @@ The feature is built in three slices. Each is released and used before the next 
 
 | Slice | What it brings | Stories | Requirements |
 |---|---|---|---|
-| 1. Sandboxes | Hamburg's and Europe's sandboxes, chosen in a pull request into `develop`, on **Release PR** or by hand, a message per deployment, the usage check before writing, no cron | 1, 4, 5, 8; 6 scenarios 1, 2, 5 and 6 | FR-001–FR-020, FR-032, FR-033, FR-036–FR-038, FR-042, FR-048–FR-050 |
+| 1. Sandboxes | Hamburg's and Europe's sandboxes, chosen in a pull request into `develop`, on **Release PR** or by hand, a message per deployment, the usage check before writing, no cron | 1, 4, 5, 8; 6 scenarios 1, 2, 5 and 6 | FR-001–FR-020, FR-032–FR-033, FR-034's daily budget, FR-036–FR-038, FR-042, FR-048–FR-051 |
 | 2. The gate | `sandbox-gate`, the control comment and its actions | 2, 3 | FR-021–FR-031, FR-047 |
-| 3. Scale | Synthetic riders towards the scale profile, within one deployment's budget | 6 scenarios 3 and 4 | FR-034, FR-035, FR-039–FR-041 |
+| 3. Scale | Synthetic riders towards the scale profile, within one deployment's budget | 6 scenarios 3 and 4 | FR-034's partial seed, FR-035, FR-039–FR-041 |
 
 User Story 7 stays a separate decision after all three (FR-043). Each slice updates the
 contributor docs for what it adds (FR-046), and SC-001 holds after every slice.
@@ -159,6 +159,17 @@ sample riders of feature 006.
   pull request (Out of Scope). Only branches of this repository qualify, never forks, and the
   workflow that holds the credential always comes from `develop`, so a branch can't change what
   runs with it.
+- Q: How large is the daily seeding budget, now that every deployment reseeds? → A: 40,000 rows
+  written per day across all sandboxes. The sample riders are about 7,000 rows written per
+  deployment, index writes included, so the old 20,000 allowed only two or three deployments a
+  day. 40,000 allows about five; the 50 % check (FR-033) still protects production.
+- Q: Does the fake-mode overview need every sample rider's rides? → A: No. They are there only
+  for the forms that change or delete a ride. Those forms move to one page per sample rider,
+  so the overview reads no rides and stays well within the CPU limit (FR-051).
+- Q: Does a deployment wait for the end-to-end tests? → A: No. It starts once lint, the type
+  check and the unit and component tests have passed (FR-015). The end-to-end tests take the
+  longest, and a sandbox is for trying things by hand anyway. Their result stays visible on the
+  pull request as usual.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -181,7 +192,7 @@ message appear with the link and commit, and the sample riders work there.
 2. **Given** no box ticked, **When** the workflow runs, **Then** the pull request opens as it
    does today and nothing deploys.
 3. **Given** a box ticked, **When** the workflow runs, **Then** the pull request opens and that
-   sandbox deploys its head commit once the commit's required checks pass.
+   sandbox deploys its head commit once the commit's lint, type check and unit tests pass.
 4. **Given** a finished deployment, **When** a maintainer opens the pull request, **Then** it
    has a message for that sandbox with its link, the commit, and any migrations applied.
 5. **Given** a release pull request already open, **When** the workflow runs with a box ticked,
@@ -209,7 +220,7 @@ and see the new head deployed.
 1. **Given** a new pull request into `develop`, **When** it opens, **Then** its description has
    one unticked checkbox per sandbox, with the same skip advice as **Release PR**.
 2. **Given** a box ticked, **When** the description is saved, **Then** that sandbox deploys the
-   pull request's head once its required checks pass, the box is unticked again, and a message
+   pull request's head once its lint, type check and unit tests pass, the box is unticked again, and a message
    on the pull request gives the link and the commit.
 3. **Given** a new push to the pull request, **When** nobody ticks a box, **Then** nothing
    deploys. Ticking again deploys the new head.
@@ -405,7 +416,7 @@ the other blocked by a git conflict.
 - **`develop` moves during a deployment**: the deployment finishes for the commit it started
   with, and its message says that commit is no longer the head. The gate stays unsettled for
   the new commit.
-- **Ticking a box while required checks are still running**: the deployment waits for them,
+- **Ticking a box while the checks a deployment needs are still running**: the deployment waits for them,
   within a time limit. If a check fails or the wait runs out, it doesn't deploy, and that
   counts as a failed deployment with a message saying why.
 - **Several clicks at once, or a click while the comment is being updated**: each sandbox
@@ -510,8 +521,9 @@ the other blocked by a git conflict.
 **Deployment**
 
 - **FR-015**: A sandbox MUST deploy only a commit of `develop`, or the head of a pull request
-  into it, whose required checks passed, applying pending migrations before the code, as
-  production does.
+  into it, whose lint, type check and unit and component tests passed, applying pending
+  migrations before the code, as production does. It MUST NOT wait for the end-to-end tests,
+  and their result MUST NOT stop it.
 - **FR-016**: Every deployment MUST rebuild the sandbox's database: seed it at the version of the
   branch the change goes into (`main` for a release, `develop` for a pull request into it; its
   migrations, then the seed), then apply the change's pending migrations, then deploy the code.
@@ -536,6 +548,13 @@ the other blocked by a git conflict.
   pull request changes, and MUST check again that the sender has write access.
 - **FR-050**: A sandbox MUST show which pull request or release it runs, besides the commit
   (FR-003).
+
+**Fake mode's pages**
+
+- **FR-051**: Fake mode's overview MUST NOT read any sample rider's rides. The forms that create,
+  change or delete a ride, or sync a backlog, MUST be on one page per sample rider, linked from
+  the overview, which reads only that rider's rides. This holds locally and in a sandbox, so
+  every fake-mode page stays within the 10 ms of CPU per request.
 
 **Messages on the release pull request**
 
@@ -583,10 +602,11 @@ the other blocked by a git conflict.
   allowances and MUST stop before writing if rows written, rows read or queue operations are
   above a threshold, set by default to 50 %. If the figures are unavailable, it MUST also stop,
   because it can't rule out harming production.
-- **FR-034**: One day's seeding across all sandboxes MUST write at most a set budget of rows,
-  set by default to 20,000, counting index writes, and MUST NOT use the queue for bulk data. A
-  deployment whose seed doesn't fit what's left of the day's budget seeds the sample riders
-  and as much of the scale profile as fits, and says so.
+- **FR-034**: One day's writes to all sandbox databases MUST stay within a set budget of rows,
+  set by default to 40,000, counting index writes, and seeding MUST NOT use the queue for bulk
+  data. A deployment whose sample riders don't fit what's left of the day's budget MUST NOT
+  write anything and says so. From slice 3, a deployment seeds the sample riders and as much of
+  the scale profile as fits, and says so.
 - **FR-035**: Seeding MUST fit the Free plan's limit of 10 ms of CPU per Worker request, by
   running outside a request.
 - **FR-036**: The 026 per-team shares MUST NOT count a sandbox as a team, and a sandbox MUST NOT
@@ -653,8 +673,8 @@ the other blocked by a git conflict.
 
 - **SC-001**: A release with no sandbox chosen and no move of `develop` needs no more steps than
   today, apart from spec 028's approval.
-- **SC-002**: Within 30 minutes of choosing a sandbox, it runs the head commit and the pull request
-  has its message and link, provided the required checks pass.
+- **SC-002**: Within 15 minutes of choosing a sandbox, it runs the head commit and the pull request
+  has its message and link, provided lint, the type check and the unit tests pass.
 - **SC-003**: Every gate decision that needs a maintainer takes one click inside the pull
   request, with no other page opened.
 - **SC-004**: No release merges with its head commit undecided: in a test of every row of the

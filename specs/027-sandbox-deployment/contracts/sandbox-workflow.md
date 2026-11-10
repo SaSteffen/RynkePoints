@@ -77,11 +77,11 @@ CI), `pull-requests: write`, `deployments: write`.
 |---|---|
 | Checkout `sha` | — |
 | Newer than live (`.github/scripts/newer-than-live.sh sandbox-<team>`), only when `sha` is on `develop` | an older commit than the live one: skip, message "newer commit already live" |
-| Wait for `lint`, `typecheck`, `test`, `e2e` on `sha` (starting CI on `develop` if none exist) | any not `success`, or 40 minutes passed |
+| Wait for `lint`, `typecheck`, `test` on `sha`, not `e2e` (starting CI on `develop` if none exist) | any not `success`, or 20 minutes passed |
 | `node scripts/team-check.mjs`, from a checkout of `develop` against the deployed commit's `wrangler.jsonc` | a rule fails |
 | Seed at `base`'s head locally, export `base.sql` (research R6 phase 1) | the seed fails |
 | Try the commit's migrations on a local copy of `base.sql` (phase 2) | a migration fails: the sandbox isn't touched |
-| `node scripts/sandbox-usage.mjs --seed-rows <n>` | above 50 %, or figures unavailable |
+| `node scripts/sandbox-usage.mjs --seed-rows <n>` | above 50 %, figures unavailable, or the sandbox databases' rows written today plus `<n>` above 40,000 |
 | Rebuild: drop the sandbox database's tables and views, import `base.sql` (phase 3) | any command fails: the sandbox is empty or half-built until the next deployment |
 | `wrangler d1 migrations apply DB --remote --env sandbox-<team>` | a migration fails: code not deployed |
 | `wrangler deploy --env sandbox-<team> --var SANDBOX_COMMIT:<sha> --var SANDBOX_SOURCE:<PR #n, release #n or develop>` | deploy fails |

@@ -68,4 +68,6 @@ passes.
 | `POST /_dev/reset` | reseeds | `409`, "Deploy again to reset the sandbox (docs/sandboxes.md)" |
 | `POST /_dev/scheduled` (new) | runs the daily work | runs the daily work |
 | Sandbox bar on HTML pages | no | yes, with the commit (research R12) |
+| `GET /_dev/` | sample riders, state, **Connect as**, a link to each rider's page; no rides read | same |
+| `GET /_dev/riders/<athleteId>` (new, research R9a) | that rider's event forms, reading only their rides | same |
 | Everything else on `/_dev/` | unchanged | unchanged |

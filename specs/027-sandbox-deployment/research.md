@@ -168,7 +168,13 @@ with a read-only analytics token, and compares today's account-wide rows written
 queue operations with `CLOUDFLARE_LIMITS`. It fails, saying which figure and how far, if any is
 above 50 %, or if the figures are unavailable (FR-033). It adds the
 seed's estimated rows written (the dump's `INSERT` statements, doubled for index writes) to
-today's figure before comparing. The threshold is a constant beside the script, so the Paid plan
+today's figure before comparing. It also sums today's rows written to the sandbox databases
+alone (the same query, by `databaseId`) and fails if that plus the seed would pass the daily
+budget of 40,000 (FR-034). Counting what the databases wrote, not what deployments planned,
+needs no record of its own and includes what people did in the sandboxes. The sample seed is
+about 7,000 rows written per team (measured on the local fake-mode databases: about 4,400 rows,
+plus index writes), so the budget allows about five deployments a day. Whether dropping the
+tables counts as writes is not documented; the quickstart measures it on the first deployment. The threshold is a constant beside the script, so the Paid plan
 needs only that and `CLOUDFLARE_LIMITS` changed (FR-037).
 
 **Rationale**: Reuses 025's query and parsing, so the check and the admin view see the same
@@ -193,6 +199,25 @@ button (`POST /_dev/scheduled`), which calls `handleScheduled` with the daily cr
 (`17 3 * * *`). The hourly run isn't offered: in production it records usage and sends usage
 alerts, which a sandbox mustn't (FR-036). The button works in local fake mode too.
 
+## R9a. A page per sample rider (FR-051)
+
+**Decision**: `GET /_dev/` lists the sample riders with their state, **Connect as** and a link
+to `GET /_dev/riders/<athleteId>`. That page holds the forms that are now in each rider's
+collapsed **Strava events** section (new ride, change a ride, delete a ride, sync a backlog) and
+reads only that rider's rides for the ride choice. The forms post to `POST /_dev/events` as
+before and come back to the rider's page.
+
+**Rationale**: The overview read every sample rider's rides (one query per rider, 18 per team)
+on every visit, only to fill the change and delete forms' ride choice, which most visits never
+open. A rider's page reads one rider's rides, so both pages stay well within 10 ms of CPU, and
+rows read drop too. It is the same locally.
+
+**Alternatives considered**:
+- **Typing the ride's ID instead of choosing it**: no reads, but the ID has to be looked up
+  elsewhere first.
+- **Keeping the overview and measuring its CPU in a sandbox**: a page that only fails at the
+  limit is found late and fails there.
+
 ## R10. The workflow
 
 **Decision**: A new reusable workflow `.github/workflows/sandbox.yml`, `workflow_call` (from
@@ -206,8 +231,9 @@ time (FR-017). Steps:
    `develop`) for seeding and for the checks' scripts.
 2. Not older than live: the `deploy-gate` logic from `ci.yml`, moved into
    `.github/scripts/newer-than-live.sh` and used by both (FR-017). A skip posts a message.
-3. Wait for the checks: `lint`, `typecheck`, `test` and `e2e` check runs on the commit, all
-   `success`, polling every 30 s for at most 40 minutes. If the commit has none (manual run
+3. Wait for the checks: `lint`, `typecheck` and `test` (unit and component tests) check runs
+   on the commit, all `success`, polling every 30 s for at most 20 minutes. It doesn't wait
+   for `e2e` or `commitlint`, and their result doesn't stop it (FR-015). If the commit has none (manual run
    without a release pull request), the job starts CI on `develop` with `gh workflow run` and
    waits for that. A failed or missing check stops the job (FR-015, Edge Cases).
 4. `node scripts/team-check.mjs` (R8).
