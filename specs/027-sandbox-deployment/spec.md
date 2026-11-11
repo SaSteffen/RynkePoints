@@ -83,21 +83,23 @@ checks. Removing the rule is a separate decision. Stories 1–6 are worthwhile w
 
 ### Slices
 
-The feature is built in three slices. Each is released and used before the next starts.
+The feature is built in two slices. The first is released and used before the second starts.
 
 | Slice | What it brings | Stories | Requirements |
 |---|---|---|---|
-| 1. Sandboxes | Hamburg's and Europe's sandboxes, chosen in a pull request into `develop`, on **Release PR** or by hand, a message per deployment, the usage check before writing, no cron | 1, 4, 5, 8; 6 scenarios 1, 2, 5 and 6 | FR-001–FR-020, FR-032–FR-033, FR-034's daily budget, FR-036–FR-038, FR-042, FR-048–FR-051 |
+| 1. Sandboxes | Hamburg's and Europe's sandboxes, chosen in a pull request into `develop`, on **Release PR** or by hand, a message per deployment, the usage check before writing, no cron | 1, 4, 5, 8; 6 scenarios 1, 2, 5 and 6 | FR-001–FR-020, FR-032–FR-039, FR-042, FR-048–FR-051 |
 | 2. The gate | `sandbox-gate`, the control comment and its actions | 2, 3 | FR-021–FR-031, FR-047 |
-| 3. Scale | Synthetic riders towards the scale profile, within one deployment's budget | 6 scenarios 3 and 4 | FR-034's partial seed, FR-035, FR-039–FR-041 |
 
-User Story 7 stays a separate decision after all three (FR-043). Each slice updates the
-contributor docs for what it adds (FR-046), and SC-001 holds after every slice.
+A third slice, synthetic riders towards production's size, was dropped: the sample riders are
+enough (Clarifications, 2026-11-11). User Story 7 stays a separate decision after both
+(FR-043). Each slice updates the contributor docs for what it adds (FR-046), and SC-001 holds
+after every slice. The gate concerns pull requests into `main` only; the checkboxes on pull
+requests into `develop` never hold a merge.
 
 **Until slice 2**, a deployment's result is only its message on the pull request: nothing
 holds the merge, and a failed or unfinished deployment is the maintainers' call, as a
-failed manual check after a release is today. **Until slice 3**, a deployment seeds only the
-sample riders of feature 006.
+failed manual check after a release is today. A deployment seeds only the sample riders of
+feature 006.
 
 ## Clarifications
 
@@ -141,7 +143,7 @@ sample riders of feature 006.
   release's migrations. The sandboxes stay deployed Workers. Previews of a sandbox Worker,
   one per pull request behind Cloudflare Access for UI changes, may be a later feature.
 - Q: In what order is it built? → A: In three slices (see Slices): the sandboxes without
-  a gate, then the gate, then scale seeding.
+  a gate, then the gate, then scale seeding. (Scale seeding was dropped on 2026-11-11.)
 - Q: Which sandboxes come first? → A: Hamburg's and Europe's together, in slice 1.
   Europe's is the one spec 026 needs (026 FR-042, T074) while Europe runs on placeholders.
   This replaces "starting with Hamburg's" and the assumption that the second team's
@@ -170,6 +172,16 @@ sample riders of feature 006.
   check and the unit and component tests have passed (FR-015). The end-to-end tests take the
   longest, and a sandbox is for trying things by hand anyway. Their result stays visible on the
   pull request as usual.
+
+### Session 2026-11-11
+
+- Q: Do sandboxes grow towards production's size with synthetic riders? → A: No. The sample
+  riders of feature 006 are enough. Slice 3 is dropped, with the scale profile and reading
+  production's totals (User Story 6 scenarios 3 and 4, FR-040, FR-041); every deployment seeds
+  the sample riders only (FR-039).
+- Q: Does the gate also hold pull requests into `develop`? → A: No. It is for releases into
+  `main` only (FR-024). A checkbox on a pull request into `develop` deploys and reports, and
+  never holds the merge.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -349,15 +361,14 @@ and see it refused with a clear message before writing anything.
 
 ---
 
-### User Story 6 - Migrations rehearsed, realistic data, and a way back (Priority: P2)
+### User Story 6 - Migrations rehearsed, and a way back (Priority: P2)
 
 Every deployment rebuilds the sandbox's database as production would look at `main`'s version,
-so each release's migrations run against existing rows as a batch, as in production. Synthetic
-data can grow towards production's size within one deployment's budget, and deploying again
-rebuilds a stuck sandbox.
+so each release's migrations run against existing rows as a batch, as in production, and
+deploying again rebuilds a stuck sandbox.
 
 **Why this priority**: Migrations only go forward and are the failure hardest to undo in
-production. The small sample set also hides problems of scale.
+production.
 
 **Independent Test**: Deploy a release with a migration and see it run against the seeded
 rows. Change data in the sandbox, deploy again, and see it rebuilt.
@@ -370,10 +381,8 @@ rows. Change data in the sandbox, deploy again, and see it rebuilt.
 2. **Given** a failing migration, **When** the deployment tries it, **Then** it fails before the
    sandbox is touched, the sandbox keeps its previous version and data, and the message on the
    pull request says so.
-3. **Given** a scale profile larger than one deployment's budget, **When** a deployment seeds,
-   **Then** it writes up to the budget, leaves a usable sandbox, and says how far it got.
-4. **Given** a completed seed, **When** the totals are compared to the profile, **Then** they match
-   within 10% and every generated rider is synthetic.
+3. *(Dropped 2026-11-11: no seeding towards production's size.)*
+4. *(Dropped 2026-11-11.)*
 5. **Given** the sample riders of feature 006, **When** a sandbox is seeded, **Then** they are still
    there, and offered first at the fake sign-in.
 6. **Given** a stuck or messy sandbox, **When** a maintainer deploys it again, **Then** its
@@ -605,8 +614,7 @@ the other blocked by a git conflict.
 - **FR-034**: One day's writes to all sandbox databases MUST stay within a set budget of rows,
   set by default to 40,000, counting index writes, and seeding MUST NOT use the queue for bulk
   data. A deployment whose sample riders don't fit what's left of the day's budget MUST NOT
-  write anything and says so. From slice 3, a deployment seeds the sample riders and as much of
-  the scale profile as fits, and says so.
+  write anything and says so.
 - **FR-035**: Seeding MUST fit the Free plan's limit of 10 ms of CPU per Worker request, by
   running outside a request.
 - **FR-036**: The 026 per-team shares MUST NOT count a sandbox as a team, and a sandbox MUST NOT
@@ -619,15 +627,10 @@ the other blocked by a git conflict.
 
 - **FR-038**: Production data MUST NOT reach a sandbox: no copy, no subset, and no anonymised or
   pseudonymised version.
-- **FR-039**: A sandbox MUST be seeded with the existing sample riders plus synthetic riders
-  generated towards the scale profile. Generated data MUST be invented, with no real names or
-  IDs and no GPS data (006 FR-011).
-- **FR-040**: The scale profile MUST hold only rounded totals: the number of riders, typical and
-  largest activity counts per rider, and the number of events. Figures MUST be rounded coarsely
-  enough that none is an individual's exact figure, and MUST NOT name any rider.
-- **FR-041**: Reading the totals from production is a manual, read-only step by a maintainer whose
-  access to production data the data controller has allowed (028 FR-017), never part of CI or a
-  deployment.
+- **FR-039**: A sandbox MUST be seeded with the existing sample riders of feature 006 only,
+  invented, with no real names or IDs and no GPS data (006 FR-011).
+- **FR-040**: *(Dropped 2026-11-11: no scale profile.)*
+- **FR-041**: *(Dropped 2026-11-11: nothing is read from production for a sandbox.)*
 
 **Merging**
 
@@ -664,8 +667,6 @@ the other blocked by a git conflict.
   acceptance, with who made it.
 - **Free-plan budget**: The threshold and the daily seeding limit that keep sandbox work away from
   production's allowance.
-- **Scale profile**: Rounded totals describing production's size, with nothing about any
-  individual.
 
 ## Success Criteria *(mandatory)*
 
@@ -710,8 +711,6 @@ the other blocked by a git conflict.
 - Sandbox traffic is a handful of people, so requests and reads stay small. Production's real use
   of the allowances is visible in the admin view (025) and informs the budget's defaults.
 - The maintainers are the only sandbox users at first and can allow others by e-mail address.
-- Rounded totals describing the size of a team aren't rider data, so reading them for this purpose
-  doesn't extend the riders' consent. The check against Principle I belongs in the plan.
 - Rider-facing text is unchanged, so no catalog entries are needed. Pull request messages are for
   maintainers and in English.
 - Europe's team data runs in its sandbox as it is, placeholders included: 026's

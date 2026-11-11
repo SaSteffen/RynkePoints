@@ -6,7 +6,7 @@
 Slices): Hamburg's and Europe's sandboxes, chosen on **Release PR** or by hand, a message per
 deployment, the usage check before writing, no cron, no gate.
 
-Slices 2 (the gate) and 3 (scale and reset) are planned when slice 1 is in use; this plan is
+Slice 2 (the gate) is planned when slice 1 is in use; slice 3 (scale) was dropped. This plan is
 extended then, not replaced.
 
 ## Summary
@@ -87,7 +87,7 @@ waiting for the checks takes most of it.
 
 | Principle | Check | Status |
 |---|---|---|
-| I. Rider data privacy | No production data reaches a sandbox (FR-038). The data is synthetic sample riders from `dev/`, seeded on CI's machine. Two layers keep the fake sign-in from the public (R3). Sessions can't cross to production (R4). The scale profile, which reads production totals, is slice 3. | Pass |
+| I. Rider data privacy | No production data reaches a sandbox (FR-038). The data is synthetic sample riders from `dev/`, seeded on CI's machine. Two layers keep the fake sign-in from the public (R3). Sessions can't cross to production (R4). Nothing is read from production for a sandbox (slice 3 dropped). | Pass |
 | II. Strava API citizenship | A sandbox has no real Strava credential and every Strava request goes to the in-process fake (R5). No webhook subscription points at a sandbox, and the gateway doesn't list them. | Pass |
 | III. Rider-authored content | Unchanged; the fake Strava's descriptions only. | Pass |
 | IV. Serverless, minimal dependencies, free tier | Workers, D1, Queues; no cron (FR-032); JWT verified with Web Crypto, no library; work stops above 50 % of a daily allowance or when figures are unavailable (R7). The credential reaches more than the sandboxes, stated below. | Pass |

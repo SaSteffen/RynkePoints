@@ -1,8 +1,8 @@
 # Research: Release Sandboxes, slice 1
 
 Slice 1 only (spec, Slices): Hamburg's and Europe's sandboxes, chosen on **Release PR** or by
-hand, a message per deployment, the usage check before writing, no cron, no gate. Slices 2
-and 3 get their own research when they're planned.
+hand, a message per deployment, the usage check before writing, no cron, no gate. Slice 2
+gets its own research when it's planned; slice 3 was dropped.
 
 ## R1. A sandbox is a Wrangler environment running fake mode's entry
 
