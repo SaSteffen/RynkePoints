@@ -264,6 +264,33 @@ environment approval would be the next step. The analytics token is read-only.
   Strava, encryption and notification values are fake mode's from `dev/fake.env`; the session
   key and admin token are new random values, printed once. Running it again replaces them.
 
+## Actions policy `PRPolicy`: `pull_request_target` for Sandbox PR, maintainers only
+
+From 2 December 2026 GitHub blocks `pull_request_target` in public repositories unless a
+policy allows it. [Sandbox PR](workflows/sandbox-pr.yml) is the only workflow that uses it;
+without this policy the pull request checkboxes deploy nothing, while **Release PR** and a
+run by hand keep working. The policy also lets only the Maintain and Admin roles start it,
+before the workflow's own check for write access.
+
+- UI: **Actions → Policies → PRPolicy**: target the workflow
+  `.github/workflows/sandbox-pr.yml`, rule *Restrict events* allowing
+  `pull_request_target`, rule *Restrict actors* with the roles Maintain and Admin,
+  enforcement *Active*. **Policy insights** on the same page shows what it would block.
+- Show:
+
+  ```bash
+  gh api repos/SaSteffen/RynkePoints/actions/policies --jq '.policies[] | {name, enforcement}'
+  gh api repos/SaSteffen/RynkePoints/actions/policies/12811 \
+    --jq '{enforcement, conditions, rules}'
+  ```
+
+  Expected: `enforcement` `active`, `workflow_path.include`
+  `[".github/workflows/sandbox-pr.yml"]`, `allowed_events` `["pull_request_target"]`, and
+  `allowed_actors` the repository roles 2 and 5 (Maintain, Admin). A new maintainer with
+  only Write can't tick a box until they get Maintain or the rule includes Write.
+- Later `actions/checkout` versions may also need `allow-unsafe-pr-checkout: true` to check
+  out a pull request's code under `pull_request_target`; the pinned v7.0.1 doesn't.
+
 ## GitHub Pages: built by the mockup workflow
 
 The `Mockup pages` workflow publishes each spec's concept page from `develop` to

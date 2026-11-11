@@ -1,6 +1,6 @@
 ---
 
-description: "Task list for Release Sandboxes, slice 1"
+description: "Task list for Release Sandboxes, slices 1 and 2"
 ---
 
 # Tasks: Release Sandboxes, slice 1
@@ -220,3 +220,138 @@ at `develop`'s base, only for branches of this repository and senders with write
   then 7–9), each with its tests first.
 - After merge and release: the founding maintainer's one-time setup (quickstart), then
   quickstart checks 2–22 on the live sandboxes. 026's T074 is done with Europe's sandbox.
+
+---
+
+# Tasks: Release Sandboxes, slice 2 (the gate)
+
+**Input**: plan.md "Slice 2: the gate", spec.md (User Stories 2 and 3, FR-021–FR-031,
+FR-047), research.md R14–R20, data-model.md "Slice 2: the gate", contracts/sandbox-gate.md,
+quickstart.md checks 23–32.
+
+**Scope**: Pull requests into `main` only (spec Clarifications 2026-11-11). The checkboxes on
+pull requests into `develop` stay as slice 1 built them and never hold a merge. No scale seeding
+(dropped).
+
+**Tests**: Required (Principle V). `decideGate`, `parseClicks`, the acceptance rule and the
+rendering are pure functions in `scripts/sandbox-gate.mjs`, tested in
+`test/unit/sandbox-gate.test.ts` before they're written (SC-004). The workflows are checked by
+quickstart checks 24–32 on the live release, with no tasks for them (memory: manual tests after
+deploy).
+
+## Rules for every slice 2 task
+
+- Everything from slice 1's rules still holds; nothing here touches `src/`, `dev/` or Cloudflare.
+- The script follows `scripts/sandbox-usage.mjs`'s pattern: Node 24, built-ins and `fetch` only,
+  pure functions exported for the tests, a CLI at the bottom, types in a `.d.mts` next to it.
+- The script and workflows always run from `develop`'s copy, never from a pull request's
+  checkout.
+- `github.token` only; workflow `permissions: {}` at the top and per job only what the contract
+  lists.
+- No job is named `sandbox-gate` (R14). `click`, `deploy`, `gate`, `gate-start` and `gate-end`
+  are not required-check contexts.
+- Comments and check runs are maintainer-facing English with nothing secret (FR-020).
+- `main.json` gains `sandbox-gate` only in the second pull request (Phase 14), never in the first.
+
+---
+
+## Phase 10: Foundational for slice 2 (the decision)
+
+**Purpose**: The pure decision every story builds on.
+
+- [ ] T039 Write failing tests in a new `test/unit/sandbox-gate.test.ts` for `decideGate(input)` per contracts/sandbox-gate.md "The decision": one test per table row 1–8 (state, reason start, offer), rows tried in order with 2 winning over all but 1, a required sandbox `none` without `moved` counting as row 7, mixed results (one `failure`, one `in_progress` → `running`, reason naming both), and each result value `none`, `queued`, `in_progress`, `success`, `failure`, `error`, `inactive`, `stale`
+- [ ] T040 Write failing tests in `test/unit/sandbox-gate.test.ts` for `resultOf(deployment, statuses, now)`: the newest status's state, and `stale` when the newest is `queued` or `in_progress` and older than 90 minutes (data-model.md "Slice 2"); and for `validAcceptance(comments, head)`: counts only a comment by `github-actions[bot]` whose marker `<!-- sandbox-gate:accept <sha> -->` names `head` and whose `updated_at` equals `created_at`, returning the login from its text
+- [ ] T041 Create `scripts/sandbox-gate.mjs` and `scripts/sandbox-gate.d.mts` exporting `decideGate`, `resultOf` and `validAcceptance` until T039–T040 pass
+
+**Checkpoint**: The decision table is pinned by tests (quickstart check 23, first half).
+
+---
+
+## Phase 11: User Story 2 – A chosen sandbox gates the release, with an easy override (P1)
+
+**Goal**: A release pull request shows `sandbox-gate` and a control comment; a chosen sandbox
+holds the merge until its deployment of the head succeeded; **Accept** passes it, by an admin
+only; hotfixes pass at once (FR-021–FR-026, FR-028–FR-030, FR-047).
+
+**Independent Test**: Quickstart checks 24–26, 29–31 on the first release after the merge.
+
+### Tests (write first, see them fail)
+
+- [ ] T042 [P] [US2] Write failing tests in `test/unit/sandbox-gate.test.ts` for `parseClicks(before, after)`: returns `{ action: "deploy", team }` for `- [x] Deploy \`<sha7>\` to Hamburg's sandbox` / Europe's and `{ action: "accept" }` for `- [x] Accept \`<sha7>\` without (further) sandboxes` ticked in `after` but not in `before`; nothing for a box unticked, for text changed around the boxes, or for a ticked line that isn't one of the three forms; an unknown team name is ignored
+- [ ] T043 [P] [US2] Write failing tests in `test/unit/sandbox-gate.test.ts` for `renderComment(view)` and `renderCheck(decision, view)` per contracts/sandbox-gate.md "The control comment" and "The check run": the marker `<!-- sandbox-gate:control <head> -->` on the first line; headings `✅ passes`, `⏳ waiting for a deployment`, `⏸️ needs a decision`; the table per sandbox (deployed, running, failed with the run link, "not deployed (last: `<sha7>` ✅)", "not chosen"); only the boxes in `offer`, all unticked; the line "Deploy: anyone with write access. Accept: the founding maintainer."; the "When to skip" `<details>`; the check run's `status`/`conclusion` (`pass` → `completed`/`success`, `running` → `in_progress`, `blocked` → `completed`/`action_required`), title = the reason's first sentence, summary with each result's run link and the control comment's link; and `renderAcceptance(head, login)` per "The acceptance comment"
+
+### Implementation
+
+- [ ] T044 [US2] Implement `parseClicks`, `renderComment`, `renderCheck` and `renderAcceptance` in `scripts/sandbox-gate.mjs` (types in `.d.mts`) until T042–T043 pass
+- [ ] T045 [US2] Add the CLI's `evaluate --pr <n>` to `scripts/sandbox-gate.mjs` (env `GITHUB_TOKEN`, `GITHUB_REPOSITORY`): read the pull request; not a release (head isn't `develop` of this repository, or base isn't `main`) → write the check run `success` "Not a release: no sandbox needed." and stop, with no comment; else read the deployments of `sandbox-hamburg` and `sandbox-europe` described `release #<n>` and their statuses, the head's committer date against the pull request's `created_at`, and the issue comments; build the input, `decideGate`, then create a new `sandbox-gate` check run on the head and create or update the one control comment (found by the `<!-- sandbox-gate:control` marker and author `github-actions[bot]`); all calls with `fetch`, paginated where lists can grow, failing loudly on a non-2xx
+- [ ] T046 [US2] Add the CLI's `click` to `scripts/sandbox-gate.mjs`: read `GITHUB_EVENT_PATH`; stop silently unless the comment is by `github-actions[bot]` with the control marker on a pull request; if the marker's commit isn't the head, do nothing (the evaluation after it rewrites the comment); `parseClicks(changes.body.from, comment.body)`; check the sender's permission (`GET /collaborators/<login>/permission`): deploy needs `push` or more, else reply "Only people with write access can deploy."; accept needs `admin`, else reply "Only the founding maintainer can accept."; an allowed accept posts `renderAcceptance`; an allowed deploy writes `team` to `GITHUB_OUTPUT` (one team per run; several ticked at once → a JSON list)
+- [ ] T047 [US2] Change `.github/workflows/sandbox.yml` per contracts/sandbox-gate.md "`sandbox.yml` (changed)" and R16: `resolve` creates each chosen sandbox's deployment (environment `sandbox-<team>`, ref `sha`, description as today) with status `queued` and passes the IDs to the matrix via an output; the matrix job reuses its ID instead of creating one, sets `in_progress` after the checks, then `success` or `failure` as before; a skip as older than live sets `inactive` with that reason; `resolve` gains `deployments: write`
+- [ ] T048 [US2] Add jobs `gate-start` (needs `resolve`) and `gate-end` (needs the matrix, `if: always()`) to `.github/workflows/sandbox.yml`, both only when `pr` is set and `base` is `main`: check out `develop`, run `node scripts/sandbox-gate.mjs evaluate --pr <pr>`; `concurrency: sandbox-gate-<pr>`, `cancel-in-progress: false`; permissions `checks: write`, `pull-requests: write`, `deployments: read`, `contents: read`
+- [ ] T049 [US2] Write `.github/workflows/sandbox-gate.yml` per contracts/sandbox-gate.md "Workflows": `permissions: {}`; `on` `pull_request` (branches `main`; `opened`, `synchronize`, `reopened`), `issue_comment` (`edited`), `workflow_dispatch` (input `pr`); job `click` (only for `issue_comment` on a pull request whose comment is by `github-actions[bot]` and contains `<!-- sandbox-gate:control`, checked in the job's `if`), checking out `develop` and running `click`, output `teams`, permissions `pull-requests: write`, `contents: read`, no concurrency group; job `deploy` (needs `click`, if `teams` isn't empty) calling `./.github/workflows/sandbox.yml` with `teams`, `pr`, the head `sha`, `base: main` and `secrets: inherit`; job `gate` (needs `click` with `if: always()` so it runs without a click too) running `evaluate --pr <n>` from `develop`'s checkout, concurrency `sandbox-gate-<pr>`, `cancel-in-progress: false`, permissions `checks: write`, `pull-requests: write`, `deployments: read`, `contents: read`
+- [ ] T050 [US2] Change `.github/workflows/release-pr.yml`: the new pull request's **Sandboxes** section says the gate and its control comment follow, and that deploying later or accepting happens there
+
+**Checkpoint**: A release shows the gate and the control comment; chosen sandboxes hold it;
+**Accept** releases it; hotfixes pass.
+
+---
+
+## Phase 12: User Story 3 – `develop` moves while the release pull request is open (P1)
+
+**Goal**: New commits on the release head block the gate until someone deploys again or
+accepts; the control comment lists what's new; a click on an outdated comment changes nothing
+(FR-025–FR-027).
+
+**Independent Test**: Quickstart checks 27 and 28.
+
+- [ ] T051 [US3] Write failing tests in `test/unit/sandbox-gate.test.ts` for `newSince(commits, since)` and its rendering: the commits after the last deployed or accepted commit (or after the pull request's base when none), at most 20 subject lines then "and <n> more"; and that an acceptance for an older commit doesn't count once the head moved (US3 scenario 5)
+- [ ] T052 [US3] Implement `newSince` in `scripts/sandbox-gate.mjs`, and in `evaluate` read the pull request's commits (`GET /pulls/<n>/commits`, paginated) and pass the "New since `<sha7>`" list into `renderComment`, until T051 passes
+- [ ] T053 [US3] Make `click` reply nothing and change nothing when the marker's commit isn't the head, and make sure `sandbox-gate.yml`'s `gate` job still runs after it so the comment is rewritten for the current commit (US3 scenario 6); add a test in `test/unit/sandbox-gate.test.ts` for the helper that compares the marker's commit with the head
+
+**Checkpoint**: Slice 2's behaviour is complete for the first pull request.
+
+---
+
+## Phase 13: Polish for slice 2
+
+- [ ] T054 [P] Update `docs/sandboxes.md`: a section **The gate on a release** (what `sandbox-gate` means, the control comment, deploying again, **Accept** for admins, `develop` moving, hotfixes pass), and that the pull request checkboxes into `develop` never hold a merge
+- [ ] T055 [P] Update `README.md` and `CLAUDE.md`: the gate on releases; in `CLAUDE.md`, add `click`, `deploy`, `gate`, `gate-start` and `gate-end` to the job names that are not required-check contexts, and note that `sandbox-gate` is a check run, not a job
+- [ ] T056 Run the targeted tests (`test/unit/sandbox-gate.test.ts`, `test/unit/sandbox-verdict.test.ts`) and `pnpm lint` on the changed files; check `.github/rulesets/*.json` are unchanged; CI runs the full suites
+
+**Checkpoint**: First pull request ready. After it merges, the next release pull request runs
+quickstart checks 24–31.
+
+---
+
+## Phase 14: The ruleset (second pull request, after checks 24–31)
+
+**Purpose**: Make the gate required on `main` only once it has reported on a real release
+(FR-024, FR-031, R20).
+
+- [ ] T057 Add `{ "context": "sandbox-gate", "integration_id": 15368 }` to `required_status_checks` in `.github/rulesets/main.json` only (not `develop.json`), and in `.github/rulesets/README.md` note that it's a check run written by a workflow, not a job, and why it's on `main` only
+- [ ] T058 [P] Update `CLAUDE.md` ("The seven check jobs' names are the required-check contexts") and FR-012 in `specs/002-branching-and-ci/spec.md` for the eighth context on `main`
+- [ ] T059 Leave applying `main.json` to the founding maintainer (quickstart check 32); never apply it from a task
+
+---
+
+## Slice 2: dependencies and execution order
+
+- **T039–T041** first; everything else uses `decideGate`.
+- **US2 (T042–T050)**: T042 and T043 together, then T044; T045 and T046 after T044; T047 and T048
+  independent of the script's code (same file: one after the other); T049 after T045–T046;
+  T050 any time.
+- **US3 (T051–T053)** after T045–T046; it extends the same script.
+- **Polish (T054–T056)** last in the first pull request.
+- **Phase 14 (T057–T059)** is a separate pull request after the first release showed the check.
+
+## Slice 2: parallel examples
+
+- T042 and T043 (both in the test file: write them in one go, or one after the other).
+- T047–T048 (`sandbox.yml`) alongside T044–T046 (the script).
+- T050, T054 and T055 together.
+
+## Slice 2: implementation strategy
+
+- **MVP**: Phases 10–11. They already gate a release with a chosen sandbox, offer **Accept**,
+  and block when `develop` moved (rows 7 and 8 are in `decideGate` from T041). Phase 12 adds the
+  list of new commits and the outdated-click rule, and lands in the same pull request.
+- One pull request into `develop` for Phases 10–13, tests first; then the ruleset pull request.
