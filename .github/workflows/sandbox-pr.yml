@@ -102,6 +102,9 @@ jobs:
       pull-requests: write
       deployments: write
     uses: ./.github/workflows/sandbox.yml
+    # A called workflow sees its environments' secrets only when the caller
+    # passes secrets on; sandbox.yml reads them in its named steps only.
+    secrets: inherit
     with:
       teams: ${{ needs.boxes.outputs.teams }}
       pr: ${{ format('{0}', github.event.pull_request.number) }}
