@@ -59,3 +59,21 @@ manual and belong to the founding maintainer (FR-042, CLAUDE.md "Non-negotiables
 | 22 | After the first deployment, the admin view's or Cloudflare's rows written for the sandbox database | about 7,000 per deployment; note whether dropping the tables added writes, and adjust the estimate in R7 | FR-034, R7 |
 
 Checks 2–19 run on the live sandboxes after the slice's release (no tasks for them).
+
+## Checks for slice 2 (the gate)
+
+| # | Do | Expect | Covers |
+|---|---|---|---|
+| 23 | `pnpm test` | the gate's decision table, `parseClicks` and the acceptance rules pass | SC-004, FR-023, FR-025 |
+| 24 | **Release PR**, no box ticked | `sandbox-gate` ✅ "No sandbox chosen"; the control comment offers a deploy per sandbox | US2, table row 3, SC-001 |
+| 25 | Tick Hamburg's deploy box in the control comment | the box unticks; `sandbox-gate` turns ⏳ within a minute, then ✅ after the deployment | US2 scenarios 1, 2, US3 scenario 3 |
+| 26 | Make a deployment fail (an analytics token removed for a moment), then tick **Accept** | ❌ message and gate ⏸️ offering **Deploy again** and **Accept**; after accepting, gate ✅ and the acceptance comment names you and the commit | US2 scenarios 3, 4, US5 scenarios 1, 2 |
+| 27 | Merge any pull request into `develop` with the release open | gate ⏸️ "`develop` moved", nothing redeploys, the new commits are listed; the acceptance no longer counts | US3 scenarios 1, 2, 4, 5 |
+| 28 | Tick a box in a copy of the comment from before the move (edit an old revision, or tick quickly after a merge) | nothing deploys; the comment shows the new head | US3 scenario 6, FR-023 |
+| 29 | A second maintainer with write but not admin ticks **Accept** (or simulate with a test account) | nothing changes; a reply says who can accept; their deploy works | US2 scenario 6 |
+| 30 | Enable auto-merge on the release with the gate ⏸️ | it doesn't merge until the gate passes | FR-029 |
+| 31 | Open a `hotfix/*` pull request into `main` | `sandbox-gate` ✅ at once, no control comment | US2 scenario 5, SC-009 |
+| 32 | After 24–31 on one release: the second pull request adds `sandbox-gate` to `main.json`; apply it | merging the release waits for the gate | FR-024, FR-031 |
+
+Checks 24–32 run on the live release pull request after slice 2's first pull request is merged
+(no tasks for them).

@@ -135,6 +135,8 @@ beside the verdict. Tested with Vitest for each row.
 
 ## Not in slice 1
 
-No `sandbox-gate`, no control comment, no **Accept**, no **Deploy again** action. There is
-no **Reset sandbox** at all: deploying again resets. Job names `sandbox (…)` and the workflow's are not required-check
-contexts and must never be added to `.github/rulesets/*.json`.
+No `sandbox-gate`, no control comment, no **Accept**, no **Deploy again** action in slice 1;
+slice 2 adds them (contracts/sandbox-gate.md), including `resolve` recording deployments as
+`queued`. There is no **Reset sandbox** at all: deploying again resets. Job names `sandbox (…)`
+and the workflow's are not required-check contexts and must never be added to
+`.github/rulesets/*.json`.

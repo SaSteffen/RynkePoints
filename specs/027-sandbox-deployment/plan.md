@@ -6,8 +6,8 @@
 Slices): Hamburg's and Europe's sandboxes, chosen on **Release PR** or by hand, a message per
 deployment, the usage check before writing, no cron, no gate.
 
-Slice 2 (the gate) is planned when slice 1 is in use; slice 3 (scale) was dropped. This plan is
-extended then, not replaced.
+Slice 2 (the gate) is planned at the end, from 2026-11-11, with slice 1 in use; slice 3 (scale)
+was dropped.
 
 ## Summary
 
@@ -180,3 +180,103 @@ test/unit/                          # sandbox-access, dev-sandbox, team-check-sa
 ## Complexity Tracking
 
 No constitution violations to justify.
+
+# Slice 2: the gate
+
+**Date**: 2026-11-11 | **Branch**: `docs/027-pr-target-policy` | **Input**: spec, Slices row 2:
+`sandbox-gate`, the control comment and its actions (User Stories 2 and 3, FR-021–FR-031,
+FR-047). Pull requests into `main` only (Clarifications 2026-11-11).
+
+## Summary
+
+A new required check on `main`, `sandbox-gate`, says whether the sandbox question is settled
+for the release pull request's exact head. It is a check run the workflow writes (research R14),
+worked out each time from what GitHub already records: the `release #<pr>` deployments of each
+sandbox, the head's commit time against the pull request's, and acceptance comments (R15).
+
+A control comment on the release pull request shows the state, the new commits and the actions
+as boxes: deploy per sandbox, and **Accept**. Ticking one reaches `sandbox-gate.yml` as it is on
+`develop`, which checks the sender and the commit and then deploys through **Sandbox** or posts
+the acceptance (R17). **Accept** needs admin rights, which is the founding maintainer until spec
+028's stage 2 (R18). **Sandbox** records deployments before waiting for the checks, so a chosen
+sandbox holds the gate from the start (R16), and it re-evaluates the gate when it starts and
+ends (R19). Hotfixes pass at once.
+
+The check goes into `main`'s ruleset in a second, small pull request, once it has reported on a
+release (R20).
+
+## Technical Context
+
+**Language/Version**: Node 24 (`scripts/sandbox-gate.mjs`, built-ins and `fetch` only), Bash
+and YAML in GitHub Actions.
+
+**Primary Dependencies**: the GitHub REST API with `github.token`. No new dependency.
+
+**Storage**: none; GitHub's deployments, comments and check runs (R15).
+
+**Testing**: Vitest for the pure parts of `scripts/sandbox-gate.mjs`: `decideGate` for every row of
+the contract's table, `parseClicks`, the acceptance rules, the comment's rendering. The
+workflows are checked by quickstart checks 24–32 on a live release.
+
+**Target Platform**: GitHub Actions, rulesets.
+
+**Performance Goals**: The gate reflects a click or a finished deployment within about a minute
+plus GitHub's queue; an evaluation makes about ten API calls.
+
+**Constraints**: The ruleset pins required checks to the GitHub Actions app (R14). A required
+check must report on every pull request into `main` (FR-024), hotfixes included.
+
+**Scale/Scope**: One release pull request at a time, two sandboxes, one or two maintainers.
+
+## Constitution Check
+
+*Before research and again after the design: passes.*
+
+| Principle | Check | Status |
+|---|---|---|
+| I. Rider data privacy | No data moves; the gate reads GitHub only. Comments hold commits, team names and logins. | Pass |
+| II. Strava API citizenship | Not touched. | Pass |
+| III. Rider-authored content | Not touched. | Pass |
+| IV. Serverless, minimal dependencies, free tier | No new dependency or service; no Cloudflare calls beyond slice 1's deployments, which still need a click. | Pass |
+| V. Test-first | The decision, the clicks and the acceptance rules are pure functions with failing tests first. | Pass |
+| Development workflow | Production's deployment doesn't read the gate (FR-030); the gate holds merging only. The ruleset change is a separate pull request, applied by hand. | Pass |
+| Manual steps stay manual | Applying `main.json` stays the founding maintainer's. | Pass |
+| Language | Comments and check runs are maintainer-facing English. | Pass |
+
+**What the gate trusts**: Anyone with write access could create a `release #<pr>` deployment or a
+check run named `sandbox-gate` from a workflow of their own branch, or edit the control comment.
+The first two need write access, which already lets them push to `develop` through a pull
+request; an edited acceptance stops counting (R17); and the founding maintainer's approval
+(spec 028) stays a separate requirement. Same boundary as slice 1's pull request checkboxes.
+
+## Project Structure (slice 2)
+
+```text
+scripts/
+├── sandbox-gate.mjs                # new: decideGate, parseClicks, rendering; CLI evaluate | click
+└── sandbox-gate.d.mts              # new: types for the tests
+.github/
+├── workflows/sandbox-gate.yml      # new: pull_request into main, issue_comment, dispatch
+├── workflows/sandbox.yml           # queued deployments in resolve; gate-start, gate-end
+├── workflows/release-pr.yml        # body points to the control comment
+├── rulesets/main.json              # second pull request: sandbox-gate
+├── rulesets/README.md              # second pull request: the check-run exception
+└── repository-settings.md          # unchanged (no new setting)
+docs/sandboxes.md                   # the gate, the control comment, Accept, the fallback
+README.md, CLAUDE.md                # the gate; click, deploy, gate, gate-start, gate-end aren't contexts
+test/unit/sandbox-gate.test.ts      # new
+```
+
+## Order of work (slice 2)
+
+1. `decideGate`, `parseClicks` and the acceptance rule, tests first (contracts/sandbox-gate.md).
+2. The comment and check-run rendering, tests first; then the CLI: `evaluate --pr <n>` and
+   `click` (reads the event file).
+3. `sandbox.yml`: deployments recorded as `queued` in `resolve`, `inactive` on a skip,
+   `gate-start` and `gate-end`.
+4. `sandbox-gate.yml`.
+5. Docs: `docs/sandboxes.md`, README, CLAUDE.md, `release-pr.yml`'s body.
+6. Merge; the next release pull request shows the control comment and the check (quickstart
+   24–31).
+7. The second pull request: `main.json`, its README, CLAUDE.md, 002 FR-012. The founding maintainer
+   applies it (quickstart 32).

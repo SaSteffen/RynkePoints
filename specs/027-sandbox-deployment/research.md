@@ -364,3 +364,168 @@ by the founding maintainer would be the next step.
   when to skip; a tick that unticks itself works like a button.
 - **Redeploying on every push while ticked**: deploys more than anyone looks at and uses the
   daily budget; ticking again is one click (spec US8 scenario 3).
+
+# Slice 2: the gate
+
+Researched 2026-11-11, once slice 1 was in use. Pull requests into `main` only (spec,
+Clarifications 2026-11-11); the checkboxes on pull requests into `develop` stay as they are.
+
+## R14. The gate is a check run the workflow writes, not a job
+
+**Decision**: `sandbox-gate` is a check run created and updated through the Checks API with
+`github.token` (`POST /repos/{repo}/check-runs`, `name: sandbox-gate`, `head_sha` = the pull
+request's head). A check run made with `github.token` belongs to the GitHub Actions app, so the
+ruleset entry `{ "context": "sandbox-gate", "integration_id": 15368 }` accepts it like the other
+seven (spec Assumption 4). States:
+
+| Gate | Check run |
+|---|---|
+| Passes | `completed`, conclusion `success` |
+| Deployment running or waiting for checks | `in_progress` |
+| Blocks for a decision or a failed deployment | `completed`, conclusion `action_required` |
+
+The title and summary carry the reason and point to the control comment. The newest check run
+of that name on a commit is what the ruleset reads, so each evaluation creates a new one rather
+than finding the last.
+
+No job is named `sandbox-gate`: a job's own check run with that name would attach to the head
+on `pull_request` and pass the requirement whatever the decision.
+
+**Rationale**: A job's result can only be success or failure, and only for the commit of its
+event. A click arrives as `issue_comment` and a deployment finishes in another workflow's run,
+so both must set the result on the head from outside. `action_required` blocks merging and auto-
+merge like `failure`, but reads as "your move" rather than "broken". To confirm on the first
+pull request into `main` (FR-031) before the check goes into the ruleset; if GitHub ever treats
+`action_required` differently, `failure` with the same summary is the fallback.
+
+**Alternatives considered**:
+- **A commit status** (`POST /statuses`): has no app, so the ruleset's GitHub Actions pin would
+  refuse it, and dropping the pin lets anyone with a token set it.
+- **A job that polls until settled**: holds a runner for as long as a release stays open.
+
+## R15. Where the decision's facts live
+
+**Decision**: Nothing is stored that can be read from GitHub. Each evaluation reads:
+
+| Fact | Read from |
+|---|---|
+| Head commit, created time, head and base branch | the pull request |
+| Required sandboxes | every environment `sandbox-<team>` with a deployment whose description is `release #<pr>`, for any commit (FR-026) |
+| A sandbox's result for the head | the newest such deployment for the head commit, and its newest status |
+| `develop` moved since the pull request opened | the head commit's committer date is later than the pull request's creation |
+| Accepted for the head | an acceptance comment (R17) for the head commit |
+| Commits new since the last deployment or decision | `compare/<last decided commit>...<head>`, first-parent merge subjects |
+
+`develop` takes only merge commits made by GitHub's merge button (rulesets), and their committer
+date is the moment of merging, so a head committed after the pull request opened means `develop`
+moved. That needs no stored "opened at" commit.
+
+A deployment stuck at `queued` or `in_progress` for more than 90 minutes (the job's 60-minute
+limit plus the wait) counts as failed, so a cancelled run can't hold the gate forever.
+
+**Rationale**: The workflows already record every sandbox deployment as a GitHub deployment
+with its commit and source (slice 1). Reading state from there means a re-run, a lost run or a
+hand-made fix never leaves the gate disagreeing with what's recorded.
+
+**Alternatives considered**:
+- **State as hidden JSON in the control comment**: ticking a box edits the comment, so anyone
+  who can tick can also rewrite the state, and an edit race loses it.
+- **State in a check run's output**: unforgeable but not readable for a new head without
+  following the chain of older commits.
+
+## R16. Deployments are recorded before they wait
+
+**Decision**: **Sandbox**'s `resolve` job records one deployment per chosen sandbox, status
+`queued`, before any job waits for the checks; the deployment job sets `in_progress` once the
+checks pass and `success` or `failure` at the end (as in slice 1). A deployment skipped as older
+than live gets status `inactive` with that reason, so it doesn't look stuck. `resolve` then
+runs the gate's evaluation, and a final job does again once all sandboxes finished.
+
+**Rationale**: Slice 1 records the deployment only after the checks passed. With the gate, a
+sandbox chosen on **Release PR** would be invisible for the first 5–20 minutes and the gate would
+pass for "no sandbox chosen". Recording first closes that window to the seconds between the pull
+request opening and `resolve` running, while the other seven required checks are still far from
+done, so nothing can merge in it.
+
+## R17. The control comment and its clicks
+
+**Decision**: One comment by `github-actions[bot]` on the release pull request, starting with
+`<!-- sandbox-gate:control <head sha> -->`, written on every evaluation (created if missing,
+else edited). It holds the commit, the gate's state and reason, each sandbox's result, the new
+commits, the skip guidance (FR-006), who can accept, and the actions as task-list boxes:
+
+```markdown
+- [ ] Deploy `abc1234` to Hamburg's sandbox
+- [ ] Deploy `abc1234` to Europe's sandbox
+- [ ] Accept `abc1234` without (further) sandboxes
+```
+
+Ticking a box edits the comment, which sends `issue_comment` `edited` to the workflow as it is
+on `develop`, the default branch (spec Assumption 1). The click job acts only when:
+- the comment's author is `github-actions[bot]` and it starts with the marker;
+- the marker's commit is still the head (FR-023), else it only refreshes;
+- a box went from `[ ]` in `changes.body.from` to `[x]` in the new body;
+- the sender's permission allows it: `push` for a deploy, `admin` for **Accept** (R18).
+
+A deploy calls **Sandbox** with that team, the head and base `main`. **Accept** posts an
+acceptance comment, `<!-- sandbox-gate:accept <head sha> -->` plus "Accepted `abc1234` by @user",
+and that is the record FR-028 asks for. An acceptance counts only from `github-actions[bot]`,
+for the head commit, and never edited (`updated_at` equal to `created_at`), so an edited or
+look-alike one is ignored. Every click ends with an evaluation, which rewrites the comment with
+all boxes unticked.
+
+The workflow's own edits use `github.token` and start no further run, so the comment can't
+loop. A click on an old comment, two quick clicks, or a click during a rewrite each end in the
+same place: the evaluation reads GitHub afresh and the comment shows the actual state
+(spec Edge Cases).
+
+**Rationale**: A box in the pull request is the single click FR-022 asks for, and the same
+pattern already works in slice 1's pull request descriptions (R13). The fallback of a command
+comment wasn't needed.
+
+## R18. Who may accept
+
+**Decision**: **Accept** needs `admin` permission on the repository, checked through
+`collaborators/<sender>/permission`; deploying needs `push`. The control comment says
+"Accept: the founding maintainer" while only one person has admin, else "Accept: maintainers
+with admin rights".
+
+**Rationale**: Spec 028 gives administration of the repository to the founding maintainer
+alone until stage 2, and to every maintainer from stage 2. That is exactly the line FR-023
+draws, so no switch for the stage is needed, and before 028 the repository's only admin is
+the founding maintainer. Spec 028's approval is untouched: the gate neither reads nor gives one
+(FR-047).
+
+## R19. When the gate is evaluated
+
+**Decision**: One script, `scripts/sandbox-gate.mjs`, run from `develop`'s copy:
+
+| Event | Workflow |
+|---|---|
+| Pull request into `main` opened, pushed to (`develop` moved) or reopened | `sandbox-gate.yml`, `pull_request` |
+| A box ticked in the control comment | `sandbox-gate.yml`, `issue_comment` |
+| A release deployment recorded, and all finished | `sandbox.yml`, `resolve` and a final `gate` job |
+| By hand | `sandbox-gate.yml`, `workflow_dispatch` with the pull request number |
+
+A pull request into `main` whose head isn't `develop` of this repository (a hotfix) gets
+`success` at once and no control comment (spec table, US2 scenario 5). Evaluations of one pull
+request run one at a time (`concurrency: sandbox-gate-<pr>`). Losing a waiting evaluation to a
+newer one is harmless, since each reads everything afresh; clicks run in their own job outside
+that group, so none is lost.
+
+On `pull_request`, the workflow file comes from the pull request's head. For a release that's
+`develop`; for a hotfix it may be changed, but a hotfix passes at once anyway, and only people
+with write access can push such a branch (pr-source refuses forks into `main`).
+
+## R20. The ruleset change comes last
+
+**Decision**: Two pull requests. The first adds the gate's workflow, script, tests and docs and
+reports on the next release pull request without being required. Once it has reported there
+(FR-031, rulesets README), a second adds `sandbox-gate` to `.github/rulesets/main.json` only,
+with the README, `CLAUDE.md` and 002 FR-012's list in the same change; the founding maintainer
+applies the ruleset (manual step). The README's rule that contexts equal job names gets its one
+exception: `sandbox-gate` is a check run named by the script.
+
+**Rationale**: A required check that never reports holds every pull request into `main`, hotfixes
+included; adding it last avoids that. If the gate's workflow ever breaks, removing the check from
+the ruleset is the documented fallback (spec Edge Cases).
