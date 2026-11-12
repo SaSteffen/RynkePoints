@@ -285,6 +285,16 @@ describe("htmlResponse", () => {
 		expect(csp).toContain("script-src 'self';");
 	});
 
+	it("allows only the theme script beside another inline script, in any case", () => {
+		const layoutPage = layout(en, { title: "t", path: "/", body: html`` });
+		const hash = createHash("sha256").update(THEME_SCRIPT).digest("base64");
+		for (const tag of ["script", "SCRIPT", "Script"]) {
+			const page = html`${layoutPage}${new SafeHtml(`<${tag}>alert(1)</${tag}>`)}`;
+			const csp = htmlResponse(en, page).headers.get("Content-Security-Policy");
+			expect(csp).toContain(`script-src 'self' 'sha256-${hash}';`);
+		}
+	});
+
 	it("keeps a caller's own Cache-Control", () => {
 		const res = htmlResponse(en, html``, 200, { "Cache-Control": "no-store" });
 		expect(res.headers.get("Cache-Control")).toBe("no-store");
