@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-06
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "Specify roles and rider consent for RynkePoints, before
 the app has users." Prompt in full: `specs/backlog/roles-and-consent.md` (removed

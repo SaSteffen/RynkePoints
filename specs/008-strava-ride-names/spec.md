@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-07
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "GitHub issue #28: Show ride names linked to Strava in
 the ride lists" ([#28](https://github.com/SaSteffen/RynkePoints/issues/28))

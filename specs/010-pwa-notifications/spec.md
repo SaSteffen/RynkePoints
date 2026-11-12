@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-07
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "Supply the application as a PWA also, so it can be used
 on a smartphone better. Ideally show a notification whenever new RynkePoints are

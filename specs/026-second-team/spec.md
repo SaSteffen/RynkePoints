@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-04
 
-**Status**: Draft
+**Status**: Partly implemented (Europe goes live with tasks T081 and T083)
 
 **Input**: User description: "Run the app for a second team from one codebase, as
 separate spaces. Leaderboards and member data are never shared; only the Strava app is

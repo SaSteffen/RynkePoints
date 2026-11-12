@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-09
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "Riders can share an earned badge (personal or team) from the badges
 page: as a story picture with some text, as a plain picture (for Strava and the like), and as an

@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-17
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: Issue #157 "extend onboarding": "i dont want to force people into
 reading the rules document, which is way too technical. we have everything in

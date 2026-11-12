@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-04
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "As an organiser I want to see individual progress in graphs and freely
 select a time range over the season: ridden kilometres split into outdoor and virtual, and elevation

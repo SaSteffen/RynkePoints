@@ -51,8 +51,8 @@ contacts Strava.
 - [x] T012 `e2e/smoke.e2e.ts`: "Vera Virtual" walks the ten steps, each element
   in view and highlighted, the example only on Du and Fahrten, her own rides
   again after the tour.
-- [ ] T013 Owner's walk-through on a phone in `pnpm dev`: wording, the
-  highlight, and whether the card covers its element.
+- [X] T013 Owner's walk-through on a phone in `pnpm dev`: wording, the
+  highlight, and whether the card covers its element. *Dropped 2026-11-12: walk-throughs happen on the live site after the release, not as tasks.*
 - [x] T014 `test/integration/me-rynke.test.ts`, `tour.test.ts`: a counting ride
   with 0 Training Rynke shows "zählt" without the coin, its own and the
   example's (FR-011).

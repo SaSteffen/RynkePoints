@@ -41,7 +41,7 @@ const MINI = `<circle class="c-rim" cx="12" cy="12" r="11"/><circle class="c-min
 export const COIN_SPRITE = `<svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false"><symbol id="coin-front" viewBox="0 0 100 100">${FRONT}</symbol><symbol id="coin-back" viewBox="0 0 100 100">${BACK}</symbol><symbol id="coin-mini" viewBox="0 0 24 24">${MINI}</symbol></svg>`;
 
 /** Where the coin sits; `style.ts` sizes each. */
-export type CoinSize = "mark" | "head" | "hero" | "large";
+export type CoinSize = "mark" | "hero" | "large";
 
 /** One side of the coin, front for Training Rynke, back for Team Rynke. */
 export function coin(side: "front" | "back", size: CoinSize): SafeHtml {

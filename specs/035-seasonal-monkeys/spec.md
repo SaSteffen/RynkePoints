@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-10
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "Seasonal quote monkeys, December set, for the Hamburg team (German
 holidays only). During a date window the Team page's quote monkey shows a seasonal picture of

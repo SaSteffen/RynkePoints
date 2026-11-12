@@ -74,11 +74,3 @@ hooks:
       prompt: "Commit whatever this phase just wrote, using this repo's Conventional Commits convention. Local commit only — never push. This scope is real implementation code, not docs — use feat/fix/refactor/test/chore as appropriate, and let Biome + the Conventional Commit check run normally."
       optional: false
       enabled: true
-
-  after_taskstoissues:
-    - extension: git
-      command: speckit.git.commit
-      description: "Commit any local file changes (e.g. tasks.md updated with issue links) this phase made. Creating the GitHub issues themselves is this phase's own job, not this hook's."
-      prompt: "Commit whatever local file changes this phase just wrote, using this repo's Conventional Commits convention. Local commit only — never push."
-      optional: false
-      enabled: true

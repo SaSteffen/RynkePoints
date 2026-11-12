@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-06
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: Wish of Team Rynkeby Europe, the second team (feature
 [026-second-team](../026-second-team/spec.md)), in its contact's words: "number of

@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-06
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "Specify how Rynke coins work. There are 2 kinds,
 'Trainings-Rynke' and 'Team-Rynke'. People need 250 Trainings-Rynke and 25

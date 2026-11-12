@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-04
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "observability is key, we'll need a spec for the admin
 view since that one needs to give us stats about our usage of our allowances with

@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-20
 
-**Status**: Draft
+**Status**: Implemented
 
 **Mock-up**: Claude Design "RynkePoints Saisonalbum",
 https://claude.ai/artifact/Cre5jJh2RSpA3RJJe4PuNn

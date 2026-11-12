@@ -1,9 +1,11 @@
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
 	escapeHtml,
 	html,
 	htmlResponse,
 	layout,
+	SafeHtml,
 	THEME_SCRIPT,
 } from "../../src/http/html";
 import { STYLE } from "../../src/http/style";
@@ -254,6 +256,48 @@ describe("htmlResponse", () => {
 		expect(res.headers.get("Content-Language")).toBe("en");
 		expect(res.headers.get("Vary")).toBe("Accept-Language, Cookie");
 		expect(await res.text()).toBe("<p>x</p>");
+	});
+
+	it("forbids framing and sniffing, keeps the address and stays private", () => {
+		const res = htmlResponse(en, html``);
+		expect(res.headers.get("Content-Security-Policy")).toBe(
+			"script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'",
+		);
+		expect(res.headers.get("Strict-Transport-Security")).toBe(
+			"max-age=31536000",
+		);
+		expect(res.headers.get("X-Frame-Options")).toBe("DENY");
+		expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
+		expect(res.headers.get("Referrer-Policy")).toBe("same-origin");
+		expect(res.headers.get("Cache-Control")).toBe("private, no-cache");
+	});
+
+	it("lets the layout's theme script run by its hash", () => {
+		const page = layout(en, { title: "t", path: "/", body: html`` });
+		const hash = createHash("sha256").update(THEME_SCRIPT).digest("base64");
+		const csp = htmlResponse(en, page).headers.get("Content-Security-Policy");
+		expect(csp).toContain(`script-src 'self' 'sha256-${hash}';`);
+	});
+
+	it("gives no hash to an inline script the layout didn't write", () => {
+		const page = html`${new SafeHtml("<script>alert(1)</script>")}`;
+		const csp = htmlResponse(en, page).headers.get("Content-Security-Policy");
+		expect(csp).toContain("script-src 'self';");
+	});
+
+	it("allows only the theme script beside another inline script, in any case", () => {
+		const layoutPage = layout(en, { title: "t", path: "/", body: html`` });
+		const hash = createHash("sha256").update(THEME_SCRIPT).digest("base64");
+		for (const tag of ["script", "SCRIPT", "Script"]) {
+			const page = html`${layoutPage}${new SafeHtml(`<${tag}>alert(1)</${tag}>`)}`;
+			const csp = htmlResponse(en, page).headers.get("Content-Security-Policy");
+			expect(csp).toContain(`script-src 'self' 'sha256-${hash}';`);
+		}
+	});
+
+	it("keeps a caller's own Cache-Control", () => {
+		const res = htmlResponse(en, html``, 200, { "Cache-Control": "no-store" });
+		expect(res.headers.get("Cache-Control")).toBe("no-store");
 	});
 
 	it("defaults to 200 and merges extra headers", () => {

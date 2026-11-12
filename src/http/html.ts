@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { funThemes } from "../config";
 import type { Ctx } from "../ctx";
 import type { I18n } from "../i18n/i18n";
@@ -64,6 +65,28 @@ export function themeScript(themes: readonly Theme[]): string {
 
 /** The head script with every theme. */
 export const THEME_SCRIPT = themeScript(THEMES);
+
+// The page's own inline scripts and their CSP hashes. Only a script the layout
+// writes itself is listed here, so an inline script that reached a page any
+// other way never gets a hash and never runs. The page isn't parsed for
+// scripts: each listed tag is looked for as written.
+const INLINE_SCRIPTS = new Map<string, string>();
+
+function inlineScript(text: string): SafeHtml {
+	const tag = `<script>${text}</script>`;
+	if (!INLINE_SCRIPTS.has(tag)) {
+		const hash = createHash("sha256").update(text).digest("base64");
+		INLINE_SCRIPTS.set(tag, `'sha256-${hash}'`);
+	}
+	return new SafeHtml(tag);
+}
+
+/** The hashes of the layout's inline scripts in `page`. */
+function inlineHashes(page: string): string[] {
+	return [...INLINE_SCRIPTS]
+		.filter(([tag]) => page.includes(tag))
+		.map(([, hash]) => hash);
+}
 
 /**
  * What of a page is the team's own (feature 026 T050): the themes it offers,
@@ -205,7 +228,7 @@ ${shell.menu}`
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fffdf5">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#12110c">
-<script>${new SafeHtml(themeScript(look.themes))}</script>
+${inlineScript(themeScript(look.themes))}
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="${look.icons.favicon}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="${look.icons.appleTouch}">
@@ -238,5 +261,20 @@ export function htmlResponse(
 	h.set("Content-Type", "text/html; charset=utf-8");
 	h.set("Content-Language", i18n.locale);
 	h.set("Vary", "Accept-Language, Cookie");
+	// Scripts run only from this site, plus the layout's own inline script by
+	// its hash. No other site frames a page, not even another team's or a
+	// sandbox on the same domain; no address leaves with a link; a page shows a
+	// rider's own data, so no shared cache keeps it (a caller's own
+	// Cache-Control wins). The browser asks for https only, for a year.
+	const scripts = ["'self'", ...inlineHashes(body.value)].join(" ");
+	h.set(
+		"Content-Security-Policy",
+		`script-src ${scripts}; object-src 'none'; base-uri 'none'; frame-ancestors 'none'`,
+	);
+	h.set("Strict-Transport-Security", "max-age=31536000");
+	h.set("X-Frame-Options", "DENY");
+	h.set("X-Content-Type-Options", "nosniff");
+	h.set("Referrer-Policy", "same-origin");
+	if (!h.has("Cache-Control")) h.set("Cache-Control", "private, no-cache");
 	return new Response(body.value, { status, headers: h });
 }
