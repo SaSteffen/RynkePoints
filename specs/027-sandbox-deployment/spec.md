@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-04
 
-**Status**: Draft
+**Status**: Partly implemented (slice 1; the release gate, slice 2, is open)
 
 **Input**: User description: "I want to enable auto-merge on a pull request and have it
 merge without further work. I would only drop the requirement that a pull request is up

@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-09
 
-**Status**: Draft
+**Status**: Implemented
 
 **Amended by**: [019-event-participation-requests](../019-event-participation-requests/spec.md)
 (FR-045, FR-046): the Team page no longer shows the place card (FR-016) or the

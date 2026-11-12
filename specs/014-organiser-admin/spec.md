@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-08
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: Backlog prompt `specs/backlog/organiser-admin.md` (removed with this spec): the
 organiser pages for the inputs of feature 003 — team events, attendance and

@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-08
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: GitHub issue #51 "Make app more fun": "add badges/achievements (new tab)".
 Reworked by the project owner on 2026-10-11: "Badges are a section on the personal

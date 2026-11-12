@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-06
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "rider connects with Strava and activities arrive via webhook"
 

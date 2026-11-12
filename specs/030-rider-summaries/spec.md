@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-04
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: Stop adding up every ride of the whole team on page loads and after new rides, so a full-season team stays well inside the free database allowance. Nothing riders or organisers see changes.
 

@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-08
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: GitHub issue #51 "Make app more fun": "Find places to include fun graphics
 (see attachments, inspiration) revolving around the Rynke Coin. Generally: the Rynke

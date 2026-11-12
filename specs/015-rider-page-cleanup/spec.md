@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-09
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: GitHub issue #58 "Clean up the rider page after the UI rework": a new
 rider's Overview shows, top to bottom, a status box ("Deine Rynke werden gerade
