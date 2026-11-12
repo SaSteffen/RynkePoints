@@ -101,21 +101,28 @@ export function eventLabel(
 	return `${i18n.t(`rynke.source.${event.kind}`)} · ${i18n.formatDate(`${event.event_date}T00:00:00Z`)}`;
 }
 
-/** One form deciding the requests of `athleteIds` at `eventId`. */
+/**
+ * One form deciding the requests of `athleteIds` at `eventId`. `round` makes
+ * it a round button with a caption, like the riders' (amendment 2026-11-12).
+ */
 function decideForm(
 	eventId: number,
 	athleteIds: readonly number[],
 	decision: Decision,
 	back: string,
 	button: SafeHtml,
+	round = false,
 ): SafeHtml {
 	const riders = athleteIds.map(
 		(id) => html`<input type="hidden" name="athlete" value="${String(id)}">`,
 	);
-	return html`<form method="post" action="/organiser/requests" class="request-form" data-swap><input type="hidden" name="event" value="${String(eventId)}">${riders}<input type="hidden" name="decision" value="${decision}"><input type="hidden" name="back" value="${back}">${button}</form>`;
+	return html`<form method="post" action="/organiser/requests" class="request-form${round ? " event-toggle" : ""}" data-swap><input type="hidden" name="event" value="${String(eventId)}">${riders}<input type="hidden" name="decision" value="${decision}"><input type="hidden" name="back" value="${back}">${button}</form>`;
 }
 
-/** Eintragen and ✕ for one rider's request. */
+/**
+ * "Eintragen" and "Ablehnen" for one rider's request: round buttons showing
+ * only an icon, named in full, with a caption the screen readers skip (FR-031).
+ */
 function decideButtons(
 	i18n: I18n,
 	row: OpenRequestRow,
@@ -123,9 +130,13 @@ function decideButtons(
 ): SafeHtml {
 	const event = eventLabel(i18n, row);
 	const names = { name: row.first_name, event };
-	const yes = html`<button class="button" aria-label="${i18n.t("organiser.requests.confirm.label", names)}">${CHECK}<span>${i18n.t("organiser.requests.confirm")}</span></button>`;
-	const no = html`<button class="icon-button" aria-label="${i18n.t("organiser.requests.deny.label", names)}">${CLOSE}</button>`;
-	return html`${decideForm(row.event_id, [row.athlete_id], "confirm", back, yes)}${decideForm(row.event_id, [row.athlete_id], "deny", back, no)}`;
+	const caption = (
+		key: "organiser.requests.confirm" | "organiser.requests.deny",
+	) =>
+		html`<span class="event-caption" aria-hidden="true">${i18n.t(key)}</span>`;
+	const yes = html`<button class="event-button request-confirm" aria-label="${i18n.t("organiser.requests.confirm.label", names)}">${CHECK}</button>${caption("organiser.requests.confirm")}`;
+	const no = html`<button class="event-button request-deny" aria-label="${i18n.t("organiser.requests.deny.label", names)}">${CLOSE}</button>${caption("organiser.requests.deny")}`;
+	return html`${decideForm(row.event_id, [row.athlete_id], "confirm", back, yes, true)}${decideForm(row.event_id, [row.athlete_id], "deny", back, no, true)}`;
 }
 
 /**

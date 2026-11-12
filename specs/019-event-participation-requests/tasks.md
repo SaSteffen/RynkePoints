@@ -455,30 +455,30 @@ on a desktop.
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T058 [P] [US4] `test/integration/organiser-requests.test.ts`: each open
+- [x] T058 [P] [US4] `test/integration/organiser-requests.test.ts`: each open
   request has two `event-button` circles with the confirm and deny
   `aria-label`s and the captions "Eintragen" and "Ablehnen" in `aria-hidden`
   elements, on Termine and in the overview; "Alle n eintragen" stays a labelled
   button.
-- [ ] T059 [P] [US6] Same file: a past event without the viewer's attendance has
+- [x] T059 [P] [US6] `test/integration/organiser-events.test.ts`: a past event without the viewer's attendance has
   the "Ich war auch dabei" circle captioned "Dabei?"; one with it has the
   "Eingetragen" mark with "Du warst dabei" for screen readers and no button; an
   upcoming event has neither.
-- [ ] T060 [P] [US4] `test/unit/style.test.ts`: the confirm and deny hover
+- [x] T060 [P] [US4] `test/unit/style.test.ts`: the confirm and deny hover
   colours sit inside `@media (hover:hover)` and not outside it; `:focus-visible`
   keeps them.
 
 ### Implementation
 
-- [ ] T061 [US4] `src/http/organiser/requests.ts` and `src/http/organiser/events.ts`:
+- [x] T061 [US4] `src/http/organiser/requests.ts` and `src/http/organiser/events.ts`:
   render the circles and the mark (contracts/pages.md); `src/http/style.ts`: the
   request row and the event list's third column, the confirm and deny colours.
-- [ ] T062 [P] [US4] Catalogs in all ten languages: add `organiser.requests.deny`
+- [x] T062 [P] [US4] Catalogs in all ten languages: add `organiser.requests.deny`
   (German first); update `test/unit/catalogs.test.ts`.
 
 ### Polish
 
-- [ ] T063 `e2e/smoke.e2e.ts`: the organiser tests find the circles by their
+- [x] T063 `e2e/smoke.e2e.ts`: the organiser tests find the circles by their
   accessible names. Run the targeted tests; CI runs the rest.
 
 **Checkpoint**: T058–T060 pass; quickstart §2.4–§2.5 at 360 px.

@@ -962,6 +962,7 @@ export const de = {
 	"organiser.requests.open": "Termin öffnen",
 	"organiser.requests.confirm": "Eintragen",
 	"organiser.requests.confirm.label": "{name} bei {event} eintragen",
+	"organiser.requests.deny": "Ablehnen",
 	"organiser.requests.deny.label": "Meldung von {name} bei {event} ablehnen",
 	"organiser.requests.confirmAll": "Alle {n} eintragen",
 	"organiser.requests.wants": "⏳ Will eingetragen werden: {event}",
