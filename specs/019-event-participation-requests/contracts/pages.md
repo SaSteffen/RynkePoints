@@ -65,15 +65,30 @@ FR-046). Training keeps feature 016's page unchanged.
    dabei – bei n Terminen"; per event (newest first) a compact card: kind and
    date as the link to the event (accessible name ends "Termin öffnen"), "Alle
    n eintragen" beside it when there are several, then one row per rider (first
-   name, "Auf Strava ansehen" when names clash) with **Eintragen** and **✕**
-   (accessible name "Meldung von {name} ablehnen") (FR-031). The cards sit in
+   name, "Auf Strava ansehen" when names clash) with two round buttons (FR-031;
+   amended 2026-11-12, draft "Orga Round Buttons" variant A,
+   https://claude.ai/artifact/ERR2YgmYRqZu9xMo4Vvpp2; they were a black
+   "Eintragen" pill and a bare ✕). Like the riders' circles (`/events` item 4)
+   they are 48 px with a caption under each, hidden from screen readers, and the
+   rider's name takes the rest of the row:
+   - tick in a green-outlined circle, "Eintragen"; hover green; name
+     `organiser.requests.confirm.label`;
+   - cross in a neutral outlined circle, "Ablehnen"; hover red; name
+     `organiser.requests.deny.label`.
+   Hover colours only where the pointer can hover, and on keyboard focus. "Alle
+   n eintragen" stays a labelled outlined button. The cards sit in
    a grid: one column on a phone held upright, two from about 640 px (phone
    landscape, desktop).
 4. "Teamtermine dieser Saison", "Neuer Termin" (014).
 5. "Demnächst": each event with "n zugesagt" when there are intents (FR-033).
 6. "Vorbei": each event with "n Personen" or "n Personen, inklusive dir", the
-   chip "⏳ n offen" when it has open requests, and "Ich war auch dabei" when
-   the viewer isn't recorded (FR-033, FR-036).
+   chip "⏳ n offen" when it has open requests (FR-033). At the event's right,
+   vertically centred, the riders' circle (`/events` item 5; amended 2026-11-12,
+   it was an outlined pill on a row of its own) (FR-036):
+   - viewer not recorded: plus in a green-outlined circle, "Dabei?"; hover green
+     with a tick; name "Ich war auch dabei";
+   - viewer recorded: tick in a light green circle, "Eingetragen", no button;
+     screen readers hear "Du warst dabei".
 
 ## `/organiser/events/{id}` — event page (boards "Orga · Termin bearbeiten")
 
@@ -106,6 +121,6 @@ requires JavaScript, constitution v2.2.0.)*
   the other tiles' riders.
 - With all riders shown, riders with open requests come first.
 - Per rider with open requests, one line per request: "⏳ Will eingetragen
-  werden: {kind} · {date}" linking to the event, with ✓ and ✕ (the same forms as
-  on Termine, `back` this page). Desktop: a "Meldung" column; phone: a block in
+  werden: {kind} · {date}" linking to the event, with the two round buttons (the
+  same forms as on Termine, `back` this page). Desktop: a "Meldung" column; phone: a block in
   the rider's card above its breakdown.

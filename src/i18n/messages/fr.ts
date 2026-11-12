@@ -971,6 +971,7 @@ export const fr: Catalog = {
 	"organiser.requests.open": "Ouvrir l'événement",
 	"organiser.requests.confirm": "Ajouter",
 	"organiser.requests.confirm.label": "Ajouter {name} à {event}",
+	"organiser.requests.deny": "Refuser",
 	"organiser.requests.deny.label":
 		"Refuser le signalement de {name} pour {event}",
 	"organiser.requests.confirmAll": "Ajouter les {n}",

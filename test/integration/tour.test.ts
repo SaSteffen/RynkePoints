@@ -482,7 +482,7 @@ describe("the example team (feature 020)", () => {
 			/<li class="organiser-event" id="tour-later-event">[\s\S]*?class="chip chip-team"/,
 		);
 		expect(page).toMatch(
-			/<li class="organiser-event" id="tour-past-event">[\s\S]*?class="self-form"/,
+			/<li class="organiser-event" id="tour-past-event">[\s\S]*?class="event-toggle"/,
 		);
 		// The new-event form is the real one, outside the example.
 		expect(page).toContain(

@@ -34,7 +34,7 @@ import {
 } from "../../rynke/team-events";
 import { notFound } from "../errors";
 import { html, type SafeHtml } from "../html";
-import { PLUS } from "../icons";
+import { CHECK, PLUS } from "../icons";
 import { redirect } from "../redirect";
 import { renderExampleNote } from "../rider-sections";
 import {
@@ -145,11 +145,16 @@ function listItem(
 		open || intents
 			? html`<span class="event-chips">${open}${intents}</span>`
 			: null;
-	// "Ich war auch dabei": past events only, no intent (019 FR-036).
-	const self =
-		extras.past && !extras.you
-			? html`<form method="post" action="${eventPath(event.event_id)}/self" class="self-form" data-swap><button class="button-outlined">${PLUS}<span>${i18n.t("organiser.events.self")}</span></button></form>`
-			: null;
+	// "Ich war auch dabei" on past events, or the tick once the organiser is
+	// recorded: the riders' round button and mark (FR-036, amendment
+	// 2026-11-12). Upcoming events have neither.
+	const caption = (key: "events.caption.open" | "events.caption.attended") =>
+		html`<span class="event-caption" aria-hidden="true">${i18n.t(key)}</span>`;
+	const self = !extras.past
+		? null
+		: extras.you
+			? html`<p class="event-toggle event-attended"><span class="event-mark">${CHECK}</span><span class="visually-hidden">${i18n.t("events.attended")}</span>${caption("events.caption.attended")}</p>`
+			: html`<form method="post" action="${eventPath(event.event_id)}/self" class="event-toggle" data-swap><button class="event-button event-report" aria-label="${i18n.t("organiser.events.self")}"><span class="event-now">${PLUS}</span><span class="event-next">${CHECK}</span></button>${caption("events.caption.open")}</form>`;
 	return html`<li class="organiser-event" id="${target ?? `event-${event.event_id}`}"><a href="${eventPath(event.event_id)}">
 <span class="organiser-event-title">${i18n.formatDate(`${event.event_date}T00:00:00Z`)} · ${i18n.t(`rynke.source.${event.kind}`)}</span>
 ${event.name === null ? "" : html`<span class="organiser-event-name">${event.name}</span>`}

@@ -363,12 +363,35 @@ describe("Ich war auch dabei", () => {
 		expect(html).toContain(self(past));
 		expect(html).toContain(self(today));
 		expect(html).not.toContain(self(upcoming));
-		expect(html).toContain(escapeHtml(de["organiser.events.self"]));
 		expect(html).toContain(people("organiser.events.attendees", 1));
-		// The set's outlined button (022 contracts/controls.md).
+		// The riders' round button at the event's right (amendment 2026-11-12).
 		expect(html).toContain(
-			`${self(past)} class="self-form" data-swap><button class="button-outlined">`,
+			`${self(past)} class="event-toggle" data-swap><button class="event-button event-report" aria-label="${escapeHtml(de["organiser.events.self"])}">`,
 		);
+		expect(html).toContain(
+			`<span class="event-caption" aria-hidden="true">${escapeHtml(de["events.caption.open"])}</span></form>`,
+		);
+	});
+
+	it("shows the riders' tick on past events with the organiser, nothing on upcoming ones", async () => {
+		const past = await insertEvent("team_training", "2026-09-20");
+		const upcoming = await insertEvent("team_training", "2026-10-10");
+		await attend(past, [ORGANISER]);
+		const { html } = await page("/organiser");
+		const item = (id: number) =>
+			html.match(
+				new RegExp(
+					`<li class="organiser-event" id="event-${id}">[\\s\\S]*?</li>`,
+				),
+			)?.[0] ?? "";
+		expect(item(past)).toContain(
+			`<p class="event-toggle event-attended"><span class="event-mark">`,
+		);
+		expect(item(past)).toContain(
+			`<span class="visually-hidden">${escapeHtml(de["events.attended"])}</span><span class="event-caption" aria-hidden="true">${escapeHtml(de["events.caption.attended"])}</span></p>`,
+		);
+		expect(item(past)).not.toContain("<button");
+		expect(item(upcoming)).not.toContain("event-toggle");
 	});
 
 	it("records the organiser, drops the button and says 'inklusive dir'", async () => {
@@ -388,6 +411,7 @@ describe("Ich war auch dabei", () => {
 		expect(await teamRynke(ORGANISER)).toBe(1);
 		const { html } = await page("/organiser");
 		expect(html).not.toContain(self(past));
+		expect(html).toContain('class="event-toggle event-attended"');
 		expect(html).toContain(people("organiser.events.attendees.you", 2));
 	});
 

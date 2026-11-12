@@ -206,24 +206,63 @@ describe("GET /organiser with open requests (FR-031, FR-033)", () => {
 		expect(block.match(/name="decision" value="confirm"/g)?.length).toBe(5);
 	});
 
-	it("decides with the one set of controls (022 contracts/controls.md)", async () => {
+	it("decides with two round buttons and their captions (amendment 2026-11-12)", async () => {
 		const { html } = await page("/organiser");
 		const block =
 			html.match(/<section class="open-requests"[\s\S]*?<\/section>/)?.[0] ??
 			"";
 		const buttons = [...block.matchAll(/<button ([^>]*)>/g)].map((m) => m[1]);
-		expect(buttons.length).toBeGreaterThan(0);
-		for (const attrs of buttons) {
-			expect(attrs).toMatch(/^class="(button|button-outlined|icon-button)"/);
-		}
-		const yes = buttons.filter((a) => a?.startsWith('class="button"'));
-		const no = buttons.filter((a) => a?.startsWith('class="icon-button"'));
+		const yes = buttons.filter((a) =>
+			a?.startsWith('class="event-button request-confirm"'),
+		);
+		const no = buttons.filter((a) =>
+			a?.startsWith('class="event-button request-deny"'),
+		);
 		expect(yes).toHaveLength(4);
 		expect(no).toHaveLength(4);
-		for (const attrs of no) expect(attrs).toMatch(/aria-label="[^"]+"/);
+		// Each name says which rider and which event: "Emil bei Techniktraining
+		// · … eintragen".
+		const named = (
+			attrs: string | undefined,
+			key: "organiser.requests.confirm.label" | "organiser.requests.deny.label",
+		) => {
+			const [before, after] = escapeHtml(
+				de[key].replace("{name}", "Emil"),
+			).split("{event}");
+			expect(attrs).toContain(
+				`aria-label="${before}${escapeHtml(de["rynke.source.technique_training"])} · `,
+			);
+			expect(attrs).toContain(`${after}"`);
+		};
+		named(yes[0], "organiser.requests.confirm.label");
+		named(no[0], "organiser.requests.deny.label");
+		const caption = (
+			key: "organiser.requests.confirm" | "organiser.requests.deny",
+		) =>
+			`<span class="event-caption" aria-hidden="true">${escapeHtml(de[key])}</span>`;
+		expect(block.split(caption("organiser.requests.confirm"))).toHaveLength(5);
+		expect(block.split(caption("organiser.requests.deny"))).toHaveLength(5);
+		// "Alle n eintragen" stays a labelled button: a circle can't say how many.
 		expect(
 			buttons.filter((a) => a?.startsWith('class="button-outlined"')),
 		).toHaveLength(1);
+		expect(buttons).toHaveLength(9);
+	});
+
+	it("puts the same round buttons in the overview's lines", async () => {
+		const { html } = await page("/organiser/riders?group=requests");
+		const lines = [
+			...html.matchAll(/<ul class="requests rider-requests">[\s\S]*?<\/ul>/g),
+		].join("");
+		// Each request appears in the table, the cards and the tile's list.
+		const yes = lines.match(/class="event-button request-confirm"/g) ?? [];
+		const no = lines.match(/class="event-button request-deny"/g) ?? [];
+		expect(yes.length).toBeGreaterThanOrEqual(4);
+		expect(no).toHaveLength(yes.length);
+		expect(lines).not.toContain('class="icon-button"');
+		expect(lines).toContain(
+			`<span class="event-caption" aria-hidden="true">${escapeHtml(de["organiser.requests.deny"])}</span>`,
+		);
 	});
 
 	it("marks past events with open requests and upcoming ones with intents", async () => {

@@ -953,6 +953,7 @@ export const lt: Catalog = {
 	"organiser.requests.open": "Atverti renginį",
 	"organiser.requests.confirm": "Pridėti",
 	"organiser.requests.confirm.label": "Pridėti {name} prie {event}",
+	"organiser.requests.deny": "Atmesti",
 	"organiser.requests.deny.label": "Atmesti {name} pranešimą apie {event}",
 	"organiser.requests.confirmAll": "Pridėti visus ({n})",
 	"organiser.requests.wants": "⏳ Nori būti pridėtas: {event}",

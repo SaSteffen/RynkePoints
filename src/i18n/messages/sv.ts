@@ -923,6 +923,7 @@ export const sv: Catalog = {
 	"organiser.requests.open": "Öppna aktivitet",
 	"organiser.requests.confirm": "Lägg till",
 	"organiser.requests.confirm.label": "Lägg till {name} i {event}",
+	"organiser.requests.deny": "Avslå",
 	"organiser.requests.deny.label": "Avböj anmälan från {name} för {event}",
 	"organiser.requests.confirmAll": "Lägg till alla {n}",
 	"organiser.requests.wants": "⏳ Vill bli tillagd: {event}",
