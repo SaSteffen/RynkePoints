@@ -909,6 +909,24 @@ describe("STYLE", () => {
 		// widens it and wraps it away from the pointer in a narrower card.
 		expect(declsOf(".event-button>.event-next")["grid-area"]).toBe("1/1");
 		expect(declsOf(".event-button .event-next").visibility).toBe("hidden");
+		// The round event button keeps one size in every state (019, amendment
+		// 2026-11-12), and only a pointer that can hover turns it red: a touch
+		// screen keeps :hover on the button it just tapped.
+		expect(declsOf(".event-button")).toMatchObject({
+			width: "48px",
+			height: "48px",
+			"border-radius": "50%",
+		});
+		const HOVER = "(hover:hover)";
+		for (const state of [".event-joined", ".event-reported"]) {
+			expect(declsOf(`${state}:hover`, HOVER).background).toBe("var(--rp-no)");
+			expect(declsOf(`${state}:hover`)).toEqual({});
+			expect(declsOf(`${state}:focus-visible`).background).toBe("var(--rp-no)");
+		}
+		expect(declsOf(".event-button:hover .event-next", HOVER).visibility).toBe(
+			"visible",
+		);
+		expect(declsOf(".event-button:hover .event-next")).toEqual({});
 		// The new-event form keeps its width.
 		expect(declsOf(".organiser>.organiser-form", MEDIUM)["max-width"]).toBe(
 			"40rem",

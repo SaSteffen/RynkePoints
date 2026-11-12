@@ -47,6 +47,13 @@ async function post(path: string, athleteId = RIDER, origin?: string | null) {
 }
 
 /** The card of `eventId` on the page. */
+/** The circle's caption, hidden from screen readers (amendment 2026-11-12). */
+function caption(
+	key: `events.caption.${"open" | "joined" | "reported" | "attended"}`,
+): string {
+	return `<span class="event-caption" aria-hidden="true">${escapeHtml(de[key])}</span>`;
+}
+
 function cardOf(html: string, eventId: number): string {
 	return (
 		html.match(
@@ -166,10 +173,26 @@ describe("GET /events (US1)", () => {
 		const { html } = await page();
 		expect(html).not.toContain("Emil");
 		expect(cardOf(html, event)).toContain(
-			`<form method="post" action="/events/${event}/report" data-swap>`,
+			`<form class="event-toggle" method="post" action="/events/${event}/report" data-swap>`,
 		);
 		expect(cardOf(html, past)).toContain(escapeHtml(de["events.report"]));
 		expect(cardOf(html, past)).not.toContain(escapeHtml(de["events.attended"]));
+	});
+
+	it("names the round buttons in full and captions them (amendment 2026-11-12)", async () => {
+		const event = await insertEvent("team_training", "2026-10-10");
+		const past = await insertEvent("team_training", "2026-09-10");
+		const { html } = await page();
+		const upcoming = cardOf(html, event);
+		expect(upcoming).toContain(
+			`<button class="event-button event-join" aria-label="${escapeHtml(de["events.join"])}">`,
+		);
+		expect(upcoming).toContain(caption("events.caption.open"));
+		const over = cardOf(html, past);
+		expect(over).toContain(
+			`<button class="event-button event-report" aria-label="${escapeHtml(de["events.report"])}">`,
+		);
+		expect(over).toContain(caption("events.caption.open"));
 	});
 });
 
@@ -186,7 +209,8 @@ describe("Bin dabei and Doch nicht dabei (US2)", () => {
 		expect(card).toContain(`action="/events/${event}/report/delete"`);
 		expect(card).toContain('aria-pressed="true"');
 		expect(card).toContain(`<span class="event-next">`);
-		expect(card).toContain(escapeHtml(de["events.leave"]));
+		expect(card).toContain(caption("events.caption.joined"));
+		expect(card).not.toContain(escapeHtml("Doch nicht dabei"));
 		expect(card).toContain(
 			`aria-label="${escapeHtml(de["events.joined.label"])}"`,
 		);
@@ -259,7 +283,8 @@ describe("Ich war dabei (US3)", () => {
 			`aria-label="${escapeHtml(de["events.reported.label"])}"`,
 		);
 		expect(card).toContain(`<span class="event-next">`);
-		expect(card).toContain(escapeHtml(de["events.leave"]));
+		expect(card).toContain(caption("events.caption.reported"));
+		expect(card).not.toContain(escapeHtml("Doch nicht dabei"));
 		expect(card).not.toContain("aria-disabled");
 	});
 
@@ -337,7 +362,10 @@ describe("Ich war dabei (US3)", () => {
 		const event = await insertEvent("team_training", "2026-09-26");
 		await attendRaw(event, [RIDER]);
 		const card = cardOf((await page()).html, event);
-		expect(card).toContain(escapeHtml(de["events.attended"]));
+		expect(card).toContain(
+			`<span class="visually-hidden">${escapeHtml(de["events.attended"])}</span>`,
+		);
+		expect(card).toContain(caption("events.caption.attended"));
 		expect(card).not.toContain("<form");
 		expect(card).not.toContain("<button");
 		const res = await post(`/events/${event}/report`);

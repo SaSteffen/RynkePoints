@@ -413,9 +413,20 @@ test("a rider says Bin dabei and changes their mind (019 US2)", async ({
 	const card = page.locator("li.event-card").filter({
 		hasText: "Sample ride ahead",
 	});
-	await card.getByRole("button", { name: "Bin dabei" }).click();
-	const joined = card.locator("button.event-joined");
+	const circle = card.getByRole("button", { name: "Bin dabei", exact: true });
+	const before = await circle.boundingBox();
+	await circle.click();
+	const joined = card.getByRole("button", {
+		name: "Bin dabei. Antippen, um abzusagen.",
+	});
 	await expect(joined).toHaveAttribute("aria-pressed", "true");
+	// The round button keeps its size and place (amendment 2026-11-12).
+	expect(await joined.boundingBox()).toMatchObject({
+		x: before?.x,
+		width: before?.width,
+		height: before?.height,
+	});
+	await expect(card.locator(".event-caption")).toHaveText("Dabei");
 	// Saved in place: no page load, the same address.
 	await expect(page).toHaveURL(/\/events$/);
 	expect(await samePage(page)).toBe(true);
@@ -443,9 +454,21 @@ test("a rider takes back a stray Ich war dabei (019 US3, 2026-11-12)", async ({
 	const card = page.locator("li.event-card").filter({
 		hasText: "Sample training weekend",
 	});
-	await card.locator("button.event-report").click();
+	const circle = card.getByRole("button", {
+		name: "Ich war dabei",
+		exact: true,
+	});
+	const before = await circle.boundingBox();
+	await circle.click();
 	const reported = card.locator("button.event-reported");
 	await expect(reported).toHaveAttribute("aria-pressed", "true");
+	// Size and place across the card; the page may scroll back to the card.
+	expect(await reported.boundingBox()).toMatchObject({
+		x: before?.x,
+		width: before?.width,
+		height: before?.height,
+	});
+	await expect(card.locator(".event-caption")).toHaveText("Gemeldet");
 	expect(await samePage(page)).toBe(true);
 	await reported.hover();
 	await expect(reported.locator(".event-next")).toBeVisible();

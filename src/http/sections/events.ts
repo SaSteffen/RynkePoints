@@ -13,6 +13,7 @@ import {
 	readTeamEventStatement,
 	type TeamEventRecordRow,
 } from "../../db/team-events";
+import type { MessageId } from "../../i18n/catalogs";
 import type { I18n } from "../../i18n/i18n";
 import {
 	hasTakenPlace,
@@ -81,23 +82,28 @@ function dateParts(i18n: I18n, date: string) {
 }
 
 /**
- * The event's button, or what it says once attendance is recorded. With all
- * past events shown, the posts keep `past=all` so the card stays on the page.
+ * The event's round button with its caption, or the mark once attendance is
+ * recorded: the card's third column (amendment 2026-11-12). The circle shows
+ * only an icon, so every button names itself in full; the caption repeats it
+ * and is hidden from screen readers. With all past events shown, the posts
+ * keep `past=all` so the card stays on the page.
  */
 function action(i18n: I18n, event: ShownEvent, allPast: boolean): SafeHtml {
 	const report = `${PATH}/${event.row.event_id}/report`;
 	const query = allPast ? "?past=all" : "";
+	const caption = (key: MessageId) =>
+		html`<span class="event-caption" aria-hidden="true">${i18n.t(key)}</span>`;
 	switch (event.state) {
 		case "join":
-			return html`<form method="post" action="${report}${query}" data-swap><button class="event-button event-join"><span class="event-now">${PLUS}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.join")}</span></span></button></form>`;
+			return html`<form class="event-toggle" method="post" action="${report}${query}" data-swap><button class="event-button event-join" aria-label="${i18n.t("events.join")}"><span class="event-now">${PLUS}</span><span class="event-next">${CHECK}</span></button>${caption("events.caption.open")}</form>`;
 		case "intent":
-			return html`<form method="post" action="${report}/delete${query}" data-swap><button class="event-button event-joined" aria-pressed="true" aria-label="${i18n.t("events.joined.label")}"><span class="event-now">${CHECK}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CLOSE}<span>${i18n.t("events.leave")}</span></span></button></form>`;
+			return html`<form class="event-toggle" method="post" action="${report}/delete${query}" data-swap><button class="event-button event-joined" aria-pressed="true" aria-label="${i18n.t("events.joined.label")}"><span class="event-now">${CHECK}</span><span class="event-next">${CLOSE}</span></button>${caption("events.caption.joined")}</form>`;
 		case "report":
-			return html`<form method="post" action="${report}${query}" data-swap><button class="event-button event-report"><span class="event-now">${PLUS}<span>${i18n.t("events.report")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.report")}</span></span></button></form>`;
+			return html`<form class="event-toggle" method="post" action="${report}${query}" data-swap><button class="event-button event-report" aria-label="${i18n.t("events.report")}"><span class="event-now">${PLUS}</span><span class="event-next">${CHECK}</span></button>${caption("events.caption.open")}</form>`;
 		case "request":
-			return html`<form method="post" action="${report}/delete${query}" data-swap><button class="event-button event-reported" aria-pressed="true" aria-label="${i18n.t("events.reported.label")}"><span class="event-now">${CHECK}<span>${i18n.t("events.report")}</span></span><span class="event-next">${CLOSE}<span>${i18n.t("events.leave")}</span></span></button></form>`;
+			return html`<form class="event-toggle" method="post" action="${report}/delete${query}" data-swap><button class="event-button event-reported" aria-pressed="true" aria-label="${i18n.t("events.reported.label")}"><span class="event-now">${CHECK}</span><span class="event-next">${CLOSE}</span></button>${caption("events.caption.reported")}</form>`;
 		case "attended":
-			return html`<p class="event-attended">${CHECK}<span>${i18n.t("events.attended")}</span></p>`;
+			return html`<p class="event-toggle event-attended"><span class="event-mark">${CHECK}</span><span class="visually-hidden">${i18n.t("events.attended")}</span>${caption("events.caption.attended")}</p>`;
 	}
 }
 
@@ -121,13 +127,13 @@ function card(
 <span class="event-date" aria-hidden="true"><span>${parts.weekday}</span><span class="event-day">${parts.day}</span><span>${parts.month}</span></span>
 <div class="event-body">
 <p class="event-kind"><span class="visually-hidden">${date} · </span>${i18n.t(`rynke.source.${row.kind}`)}</p>
-${name}<div class="event-foot">${
-		amounts === null
-			? null
-			: html`<p class="event-amounts"><span class="chip">${miniCoin("team")}${i18n.t("events.amount.team", { n: String(amounts.team) })}</span><span class="chip">${miniCoin("training")}${i18n.t("events.amount.training", { n: String(amounts.training) })}</span></p>
+${name}${
+	amounts === null
+		? null
+		: html`<p class="event-amounts"><span class="chip">${miniCoin("team")}${i18n.t("events.amount.team", { n: String(amounts.team) })}</span><span class="chip">${miniCoin("training")}${i18n.t("events.amount.training", { n: String(amounts.training) })}</span></p>
 `
-	}${action(i18n, event, allPast)}</div>
-</div>
+}</div>
+${action(i18n, event, allPast)}
 </li>
 `;
 }
