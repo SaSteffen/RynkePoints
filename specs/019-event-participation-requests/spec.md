@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-17
 
-**Status**: Draft
+**Status**: Implemented
 
 **Mock-up**: Claude Design "RynkePoints Teamtermine melden",
 https://claude.ai/artifact/68rCYVhqbt4QyHFqAXQvMC

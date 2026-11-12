@@ -107,6 +107,11 @@ and commit messages must follow
   block; rider text is never lost (Principle III).
 - Rider-facing text belongs in the catalogs under `src/i18n/messages/`, in all ten
   languages (German is the key source), never inline in pages or logic (FR-028).
+  The exception is team content under `src/content/` (the monkey's quotes, badge
+  names, badge hints): it follows the team, not the rider's language, German for
+  Hamburg and the common English set for every other team, and isn't translated
+  (feature 026 FR-025, feature 034 FR-014). Seasonal quote monkeys are team data
+  (`holidays` in `src/teams/<id>.ts`).
 - No page, image or text of a team shows another team's name, place or art
   (feature 026 FR-023, `test/teams/no-other-team.test.ts`), and no rider's data
   crosses teams.

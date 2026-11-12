@@ -5,7 +5,7 @@ its own)
 
 **Created**: 2026-10-07
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "I need a spec to be able to debug the frontend locally.
 We currently see it on port 8787; use a different port since I run something else

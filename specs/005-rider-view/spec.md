@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-07
 
-**Status**: Draft
+**Status**: Partly implemented (corrections on the rider page open, tasks T084–T089)
 
 **Input**: User description: "Specify the page where a rider sees their own Rynke."
 Prompt in full: `specs/backlog/rider-view.md` (removed with this spec). Only the

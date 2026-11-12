@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-07
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "I want to trigger the daily worker right now, via a
 script. This is needed more often."

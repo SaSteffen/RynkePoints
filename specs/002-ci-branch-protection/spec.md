@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-06
 
-**Status**: Draft (amendment: deploy on merge to `main`)
+**Status**: Implemented (amendment: deploy on merge to `main`)
 
 > **Superseded in part**: Squash merging is forbidden by spec 028 (FR-031 to FR-033). Everything here
 > about squash commits, and pull request titles becoming their messages, is history.

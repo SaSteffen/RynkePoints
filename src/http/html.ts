@@ -238,5 +238,13 @@ export function htmlResponse(
 	h.set("Content-Type", "text/html; charset=utf-8");
 	h.set("Content-Language", i18n.locale);
 	h.set("Vary", "Accept-Language, Cookie");
+	// No other site frames a page, not even another team's or a sandbox on the
+	// same domain; no address leaves with a link; a page shows a rider's own
+	// data, so no shared cache keeps it (a caller's own Cache-Control wins).
+	h.set("Content-Security-Policy", "frame-ancestors 'none'");
+	h.set("X-Frame-Options", "DENY");
+	h.set("X-Content-Type-Options", "nosniff");
+	h.set("Referrer-Policy", "same-origin");
+	if (!h.has("Cache-Control")) h.set("Cache-Control", "private, no-cache");
 	return new Response(body.value, { status, headers: h });
 }

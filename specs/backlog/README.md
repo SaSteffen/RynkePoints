@@ -9,30 +9,11 @@ branch once its spec exists.
 This directory has no number prefix on purpose, so Spec Kit's feature numbering
 ignores it.
 
-## Order
+## Open
 
-1. roles and consent — specified in
-   [004-roles-and-consent](../004-roles-and-consent/spec.md); first, while there are no
-   users: which roles and which rider consents the app needs, and whether Strava
-   allows the leaderboard at all. Everything below depends on it.
-2. organiser admin — specified in
-   [014-organiser-admin](../014-organiser-admin/spec.md); organiser pages for the inputs of
-   feature 003 (team events, attendance, corrections, rules, recalculation).
-3. rider view — specified in [005-rider-view](../005-rider-view/spec.md); a
-   rider's own balance and ride results.
-4. team leaderboard — specified in
-   [016-team-leaderboard](../016-team-leaderboard/spec.md); the team leaderboard and
-   the organiser overview (who qualified). The main purpose of the app.
-5. rider progress charts — specified in
-   [009-rider-progress-charts](../009-rider-progress-charts/spec.md); charts of a
-   rider's own Rynke over the season.
+- season data cleanup — [season-data-cleanup.md](season-data-cleanup.md);
+  what happens to the past season's data at the rollover, after feature 021's
+  season albums. Decide before the next rollover (1 September), for every team,
+  Sponsoring-Rynke's season included.
 
-6. season data cleanup — [season-data-cleanup.md](season-data-cleanup.md);
-   what happens to the past season's data at the rollover, after feature 021's
-   season albums.
-7. Strava backlog view — specified in
-   [025-admin-usage-view](../025-admin-usage-view/spec.md); an administrator role
-   and a page showing work waiting for the Strava budget, after feature 024.
-
-2 and 3 are independent of each other; 4 needs 1 and is easier after 3; 5 needs
-3 and may share its chart with 4.
+Every earlier prompt here has its spec under `specs/` and was deleted with it.

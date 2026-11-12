@@ -256,6 +256,22 @@ describe("htmlResponse", () => {
 		expect(await res.text()).toBe("<p>x</p>");
 	});
 
+	it("forbids framing and sniffing, keeps the address and stays private", () => {
+		const res = htmlResponse(en, html``);
+		expect(res.headers.get("Content-Security-Policy")).toBe(
+			"frame-ancestors 'none'",
+		);
+		expect(res.headers.get("X-Frame-Options")).toBe("DENY");
+		expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
+		expect(res.headers.get("Referrer-Policy")).toBe("same-origin");
+		expect(res.headers.get("Cache-Control")).toBe("private, no-cache");
+	});
+
+	it("keeps a caller's own Cache-Control", () => {
+		const res = htmlResponse(en, html``, 200, { "Cache-Control": "no-store" });
+		expect(res.headers.get("Cache-Control")).toBe("no-store");
+	});
+
 	it("defaults to 200 and merges extra headers", () => {
 		const res = htmlResponse(de, html``, undefined, { "Set-Cookie": "a=b" });
 		expect(res.status).toBe(200);

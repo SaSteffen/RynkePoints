@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-08
 
-**Status**: Draft
+**Status**: Implemented
 
 **Input**: User description: "Mobile-first app shell with tabs and a Material Design
 look for RynkePoints. Replaces GitHub issue #20 ("Make the whole site mobile

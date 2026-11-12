@@ -398,7 +398,7 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
   environment, then `node scripts/team-check.mjs --deployable <team>`, D1 migrations with
   `--env`, `wrangler deploy --env` (none for Hamburg). Europe only while the repository
   variable `EUROPE_DEPLOY` is `on`. Job names stay out of `.github/rulesets/*.json`.
-- [ ] T074 [US7] Europe's sandbox (spec 027) on a subdomain of the founding team's domain:
+- [X] T074 [US7] Europe's sandbox (spec 027) on a subdomain of the founding team's domain:
   its resources in `wrangler.jsonc` and one more checkbox on **Release PR** in
   `.github/workflows/release-pr.yml` (FR-042).
 - [X] T075 [US7] Update `.github/repository-settings.md` with the `production-europe`
@@ -438,8 +438,8 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 ## Phase 16: Go live (release 4)
 
 - [ ] T081 Replace Europe's placeholders with its real values in `src/teams/europe.ts` and
-  `wrangler.jsonc` (domain route, club IDs, dates, rules, switches, controller, contact),
-  empty `placeholders`; `node scripts/team-check.mjs --deployable europe` passes.
+  `wrangler.jsonc` (domain route, club IDs, dates, rules, switches, controller, contact,
+  the seasonal monkeys' `holidays`), empty `placeholders`; `node scripts/team-check.mjs --deployable europe` passes.
 - [X] T082 Europe's Rynke explanation in English, `docs/teams/europe/rynke-points.md`, and its
   PDF `rynke-points.pdf` (not `rynke-punkte`), from its values (FR-022). For now it is an
   English translation of Hamburg's `docs/rynke-punkte.md`, adjusted only where Europe's
