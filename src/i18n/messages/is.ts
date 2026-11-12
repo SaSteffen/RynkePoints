@@ -927,6 +927,7 @@ export const is: Catalog = {
 	"organiser.requests.open": "Opna viðburð",
 	"organiser.requests.confirm": "Bæta við",
 	"organiser.requests.confirm.label": "Bæta {name} við {event}",
+	"organiser.requests.deny": "Hafna",
 	"organiser.requests.deny.label": "Hafna tilkynningu {name} fyrir {event}",
 	"organiser.requests.confirmAll": "Bæta við öllum {n}",
 	"organiser.requests.wants": "⏳ Vill láta bæta sér við: {event}",

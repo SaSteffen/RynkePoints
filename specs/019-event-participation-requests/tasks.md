@@ -13,7 +13,8 @@ session couldn't reach the package registry. T040 moved to feature 020 (research
 R8); T044 is the owner's walk-through. T045–T050 (Phase 11) amend US3 after
 release: riders can withdraw an open request (spec session 2026-11-12); all
 done, T051 added while building it. T052–T057 (Phase 12, done) make the button a round
-toggle (spec session 2026-11-12, second answer).
+toggle (spec session 2026-11-12, second answer). T058–T063 (Phase 13) give the
+organiser pages the same circles (third answer).
 
 **Tests**: REQUIRED (constitution Principle V). Write each test task first, run it
 and confirm it fails, then implement. Riders and events are synthetic; nothing
@@ -439,6 +440,48 @@ on a desktop.
   targeted tests; CI runs the rest.
 
 **Checkpoint**: T052 and T053 pass; quickstart §2.2–§2.3 at 360 px.
+
+---
+
+## Phase 13: Amendment 2026-11-12 - Round buttons for organisers (US4, US6)
+
+**Goal**: the organisers' quick decisions and "Ich war auch dabei" look like the
+riders' circles; names no longer get squeezed on a phone (spec Clarifications,
+session 2026-11-12, third answer; FR-031, FR-034, FR-036; contracts pages.md
+§`/organiser` and §`/organiser/riders`, draft variant A).
+
+**Independent Test**: [quickstart.md](quickstart.md) §2.4 and §2.5 at 360 px and
+on a desktop.
+
+### Tests (write first, confirm they fail)
+
+- [x] T058 [P] [US4] `test/integration/organiser-requests.test.ts`: each open
+  request has two `event-button` circles with the confirm and deny
+  `aria-label`s and the captions "Eintragen" and "Ablehnen" in `aria-hidden`
+  elements, on Termine and in the overview; "Alle n eintragen" stays a labelled
+  button.
+- [x] T059 [P] [US6] `test/integration/organiser-events.test.ts`: a past event without the viewer's attendance has
+  the "Ich war auch dabei" circle captioned "Dabei?"; one with it has the
+  "Eingetragen" mark with "Du warst dabei" for screen readers and no button; an
+  upcoming event has neither.
+- [x] T060 [P] [US4] `test/unit/style.test.ts`: the confirm and deny hover
+  colours sit inside `@media (hover:hover)` and not outside it; `:focus-visible`
+  keeps them.
+
+### Implementation
+
+- [x] T061 [US4] `src/http/organiser/requests.ts` and `src/http/organiser/events.ts`:
+  render the circles and the mark (contracts/pages.md); `src/http/style.ts`: the
+  request row and the event list's third column, the confirm and deny colours.
+- [x] T062 [P] [US4] Catalogs in all ten languages: add `organiser.requests.deny`
+  (German first); update `test/unit/catalogs.test.ts`.
+
+### Polish
+
+- [x] T063 `e2e/smoke.e2e.ts`: the organiser tests find the circles by their
+  accessible names. Run the targeted tests; CI runs the rest.
+
+**Checkpoint**: T058–T060 pass; quickstart §2.4–§2.5 at 360 px.
 
 ---
 

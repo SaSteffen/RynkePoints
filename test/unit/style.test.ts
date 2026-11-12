@@ -927,6 +927,16 @@ describe("STYLE", () => {
 			"visible",
 		);
 		expect(declsOf(".event-button:hover .event-next")).toEqual({});
+		// The organisers' "Eintragen" turns green and "Ablehnen" red the same
+		// way: on a hovering pointer and on keyboard focus only.
+		for (const [state, colour] of [
+			[".request-confirm", "var(--rp-yes)"],
+			[".request-deny", "var(--rp-no)"],
+		] as const) {
+			expect(declsOf(`${state}:hover`, HOVER).background).toBe(colour);
+			expect(declsOf(`${state}:hover`)).toEqual({});
+			expect(declsOf(`${state}:focus-visible`).background).toBe(colour);
+		}
 		// The new-event form keeps its width.
 		expect(declsOf(".organiser>.organiser-form", MEDIUM)["max-width"]).toBe(
 			"40rem",

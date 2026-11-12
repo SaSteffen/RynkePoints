@@ -925,6 +925,7 @@ export const fi: Catalog = {
 	"organiser.requests.open": "Avaa tapahtuma",
 	"organiser.requests.confirm": "Lisää",
 	"organiser.requests.confirm.label": "Lisää {name}: {event}",
+	"organiser.requests.deny": "Hylkää",
 	"organiser.requests.deny.label": "Hylkää ilmoitus ({name}, {event})",
 	"organiser.requests.confirmAll": "Lisää kaikki {n}",
 	"organiser.requests.wants": "⏳ Haluaa tulla lisätyksi: {event}",

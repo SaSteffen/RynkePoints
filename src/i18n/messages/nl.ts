@@ -938,6 +938,7 @@ export const nl: Catalog = {
 	"organiser.requests.open": "Evenement openen",
 	"organiser.requests.confirm": "Toevoegen",
 	"organiser.requests.confirm.label": "{name} toevoegen aan {event}",
+	"organiser.requests.deny": "Afwijzen",
 	"organiser.requests.deny.label": "Melding van {name} voor {event} afwijzen",
 	"organiser.requests.confirmAll": "Alle {n} toevoegen",
 	"organiser.requests.wants": "⏳ Wil worden toegevoegd: {event}",

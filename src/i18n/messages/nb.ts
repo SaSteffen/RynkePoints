@@ -923,6 +923,7 @@ export const nb: Catalog = {
 	"organiser.requests.open": "Åpne arrangement",
 	"organiser.requests.confirm": "Legg til",
 	"organiser.requests.confirm.label": "Legg til {name} på {event}",
+	"organiser.requests.deny": "Avslå",
 	"organiser.requests.deny.label": "Avslå meldingen fra {name} for {event}",
 	"organiser.requests.confirmAll": "Legg til alle {n}",
 	"organiser.requests.wants": "⏳ Vil legges til: {event}",

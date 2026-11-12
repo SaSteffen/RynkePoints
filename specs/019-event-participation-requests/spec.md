@@ -96,6 +96,17 @@ Thursday 25 March 2027.
   never shows that state, so a tap no longer leaves a red "Doch nicht dabei" behind.
   Screen readers keep the full text ("Bin dabei", "Ich war dabei, gemeldet.
   Antippen, um zurückzuziehen.", "Du warst dabei").
+- Q: Should the organiser pages use the same round buttons? → A: Yes. Each open
+  request gets two round buttons with captions, a green-outlined tick
+  "Eintragen" and a neutral cross "Ablehnen"; with a mouse, hovering turns the tick
+  green and the cross red, and so does keyboard focus. "Alle n eintragen" stays a
+  labelled button, since a circle can't show the count. "Ich war auch dabei"
+  becomes the riders' outlined plus captioned "Dabei?" at the right of the event,
+  and once the organiser is recorded the event shows the light green tick
+  captioned "Eingetragen" instead of no button. The black "Eintragen" pill squeezed
+  the riders' names on a phone, and every past event carried a pill on a row of
+  its own. Screen readers keep the full names ("{name} bei {event} eintragen",
+  "Meldung von {name} bei {event} ablehnen", "Ich war auch dabei").
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -295,8 +306,9 @@ upcoming event and check the boxes cannot be changed.
 ### User Story 6 - Organiser adds themselves to a past event (Priority: P2)
 
 On the Orga Termine page, each past event where the viewing organiser is not
-recorded carries "Ich war auch dabei". A tap records their attendance at once; the
-button disappears and the event reads "8 Personen, inklusive dir". Upcoming events
+recorded carries "Ich war auch dabei", a round button captioned "Dabei?". A tap
+records their attendance at once; the button turns into a tick captioned
+"Eingetragen" and the event reads "8 Personen, inklusive dir". Upcoming events
 have no such button.
 
 **Why this priority**: Organisers ride along too and today tick themselves on the
@@ -311,10 +323,11 @@ gone; check no button appears on upcoming events.
 
 1. **Given** a past event with 7 attendees, not including the organiser, **When**
    they tap "Ich war auch dabei", **Then** their attendance is recorded with their
-   change record, the button disappears and the event reads "8 Personen, inklusive
-   dir".
+   change record, the button turns into the "Eingetragen" tick and the event reads
+   "8 Personen, inklusive dir".
 2. **Given** a past event where the organiser is recorded, **When** the list is
-   shown, **Then** it reads "n Personen, inklusive dir" and has no button.
+   shown, **Then** it reads "n Personen, inklusive dir" and shows the
+   "Eingetragen" tick, no button.
 3. **Given** an upcoming event, **When** the list is shown, **Then** it has no
    button for the organiser.
 
@@ -452,7 +465,10 @@ switch back to Training and check that both are.
   (kind and date, newest event first), each rider by first name with a "View on
   Strava" link where first names clash (feature 004 FR-022), with "Eintragen" and
   "Ablehnen" actions, "Alle n eintragen" per event with more than one, and a link to
-  the event page.
+  the event page. "Eintragen" and "Ablehnen" MUST be round buttons of fixed size
+  with a caption under each, like FR-004, showing their hover colours only where a
+  pointer can hover, and on keyboard focus; their accessible names MUST name the rider
+  and the event (contracts/pages.md, messages.md).
 - **FR-032**: After each quick action the page MUST offer "Rückgängig", which
   restores the previous state (attendance removed and request restored, or request
   restored).
@@ -468,7 +484,9 @@ switch back to Training and check that both are.
   with its change record (FR-040), and take effect through feature 003 (FR-003).
 - **FR-036**: Each event on the Termine page that has taken place and where the
   viewing organiser has no attendance MUST offer "Ich war auch dabei", which records
-  their attendance as in FR-035 and then disappears. Events that have not taken
+  their attendance as in FR-035. It MUST look like the riders' "Ich war dabei"
+  (FR-005) at the right of the event, and where the viewing organiser is recorded
+  the event MUST show the tick of FR-006 instead. Events that have not taken
   place MUST NOT offer it. Each past event MUST read "n Personen", with ", inklusive
   dir" when the viewing organiser is recorded.
 

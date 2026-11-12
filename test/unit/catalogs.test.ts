@@ -739,6 +739,7 @@ const CONTRACT_IDS = [
 	"organiser.requests.open",
 	"organiser.requests.confirm",
 	"organiser.requests.confirm.label",
+	"organiser.requests.deny",
 	"organiser.requests.deny.label",
 	"organiser.requests.confirmAll",
 	"organiser.requests.wants",

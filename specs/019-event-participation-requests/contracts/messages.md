@@ -51,8 +51,9 @@ Wording may be polished in implementation; the meaning may not change.
 | `organiser.requests.intro` | Riders say they were there – at {n} events. | Rider sagen, sie waren dabei – bei {n} Terminen. |
 | `organiser.requests.intro.one` | Riders say they were there – at one event. | Rider sagen, sie waren dabei – bei einem Termin. |
 | `organiser.requests.open` | Open event | Termin öffnen |
-| `organiser.requests.confirm` | Add | Eintragen |
+| `organiser.requests.confirm` *(a caption since 2026-11-12)* | Add | Eintragen |
 | `organiser.requests.confirm.label` | Add {name} to {event} | {name} bei {event} eintragen |
+| `organiser.requests.deny` *(2026-11-12, caption)* | Decline | Ablehnen |
 | `organiser.requests.deny.label` | Decline {name}'s report for {event} | Meldung von {name} bei {event} ablehnen |
 | `organiser.requests.confirmAll` | Add all {n} | Alle {n} eintragen |
 | `organiser.requests.wants` | ⏳ Wants to be added: {event} | ⏳ Will eingetragen werden: {event} |
@@ -67,6 +68,11 @@ Wording may be polished in implementation; the meaning may not change.
 | `organiser.events.intents` | {count} coming | {count} zugesagt |
 | `organiser.events.open` | ⏳ {count} open | ⏳ {count} offen |
 | `organiser.events.self` | I was there too | Ich war auch dabei |
+
+Since 2026-11-12 the "Ich war auch dabei" circle is captioned with
+`events.caption.open` ("Dabei?"), and the organiser's recorded mark with
+`events.caption.attended` ("Eingetragen") and `events.attended` for screen
+readers, as on the riders' Termine.
 
 ## Event page (`organiser.attendance.*`)
 

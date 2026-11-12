@@ -516,6 +516,37 @@ test("an organiser cycles a reported rider's box (019 US5)", async ({
 	expect(await samePage(page)).toBe(true);
 });
 
+test("an organiser decides with round buttons (019, amendment 2026-11-12)", async ({
+	page,
+}) => {
+	await page.setViewportSize({ width: 360, height: 800 });
+	await signIn(page, "Olga Organiser");
+	await page.goto("/organiser");
+	await skipTours(page);
+	// Only looks: each browser's run shares the sample requests.
+	const requests = page.locator("section.open-requests");
+	const add = requests
+		.getByRole("button", { name: / bei .+ eintragen$/ })
+		.first();
+	const decline = requests
+		.getByRole("button", { name: /^Meldung von / })
+		.first();
+	for (const circle of [add, decline]) {
+		await expect(circle).toBeVisible();
+		expect((await circle.boundingBox())?.width).toBe(48);
+	}
+	await expect(
+		requests.getByRole("button", { name: /^Alle \d+ eintragen$/ }).first(),
+	).toBeVisible();
+	const self = page
+		.locator("li.organiser-event")
+		.getByRole("button", { name: "Ich war auch dabei" })
+		.first();
+	await expect(self).toBeVisible();
+	expect((await self.boundingBox())?.width).toBe(48);
+	await expectNoSidewaysScroll(page);
+});
+
 test("an organiser walks through the Orga tour on the example team (020)", async ({
 	page,
 }) => {

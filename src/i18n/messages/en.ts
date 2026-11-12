@@ -926,6 +926,7 @@ export const en: Catalog = {
 	"organiser.requests.open": "Open event",
 	"organiser.requests.confirm": "Add",
 	"organiser.requests.confirm.label": "Add {name} to {event}",
+	"organiser.requests.deny": "Decline",
 	"organiser.requests.deny.label": "Decline {name}'s report for {event}",
 	"organiser.requests.confirmAll": "Add all {n}",
 	"organiser.requests.wants": "⏳ Wants to be added: {event}",
