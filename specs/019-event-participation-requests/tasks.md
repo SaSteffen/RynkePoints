@@ -10,7 +10,8 @@ description: "Task list for riders reporting team-event participation"
 
 **Status**: T001–T039 and T041–T043 done; T001 and T043 ran in CI, since this
 session couldn't reach the package registry. T040 moved to feature 020 (research
-R8); T044 is the owner's walk-through.
+R8); T044 is the owner's walk-through. T045–T050 (Phase 11) amend US3 after
+release: riders can withdraw an open request (spec session 2026-11-12).
 
 **Tests**: REQUIRED (constitution Principle V). Write each test task first, run it
 and confirm it fails, then implement. Riders and events are synthetic; nothing
@@ -331,6 +332,64 @@ confirms, denies or leaves them open.
 
 ---
 
+## Phase 11: Amendment 2026-11-12 - Withdraw an open request (US3)
+
+**Goal**: a rider who taps "Ich war dabei" by mistake takes it back themselves
+until an organiser has settled it (spec Clarifications, session 2026-11-12;
+FR-005, US3 scenario 4, edge cases).
+
+**Independent Test**: [quickstart.md](quickstart.md) §2.3.
+
+### Tests (write first, confirm they fail)
+
+- [ ] T045 [P] [US3] `test/integration/rider-events.test.ts`:
+  - replace "refuses to withdraw once the event has taken place, on its day too"
+    with: an open request at a past event and one on the event's day are
+    withdrawn by `POST /events/{id}/report/delete` (`303 /events#event-{id}`, no
+    notice, no report left, balance unchanged), and the card shows the
+    outlined "Ich war dabei" form again;
+  - an intent from before the event is withdrawn the same way after the date;
+  - with attendance recorded, the withdrawal answers
+    `?error=already_attending`, keeps the attendance and creates nothing;
+  - drop "shows the refusal notice" for `event_over`;
+  - change T020's check of the request card: a form posting to
+    `/report/delete`, `aria-pressed="true"`, `aria-label` =
+    `events.reported.label`, an `event-next` span with `events.leave`, and no
+    `aria-disabled`.
+- [ ] T046 [P] [US4] `test/integration/organiser-requests.test.ts`: a request the rider withdrew before "Eintragen" is
+  refused with `organiser.error.request_settled`, and nothing is recorded. It
+  may pass at once, like "changes nothing for a request someone else settled";
+  it guards the race the spec's edge case names.
+
+### Implementation
+
+- [ ] T047 [US3] `src/http/sections/events.ts`:
+  - the `request` case becomes a form like `intent`: `POST {report}/delete`,
+    class `event-button event-reported`, `aria-pressed="true"`,
+    `aria-label="events.reported.label"`, spans `event-now` (tick, "Ich war
+    dabei") and `event-next` (cross, "Doch nicht dabei");
+  - `changeReport` drops the `hasTakenPlace` check for withdrawals (research
+    R13), and `ERRORS` drops `event_over`;
+  - update the comment on `handleWithdraw`.
+- [ ] T048 [P] [US3] `src/http/style.ts`: `.event-reported` gets the red hover
+  and focus of `.event-joined`; drop `.event-reported{cursor:default}` and the
+  `.event-foot>.event-reported` margin rule (the button now sits in a form).
+- [ ] T049 [P] [US3] Catalogs in all ten languages (`src/i18n/messages/*.ts`):
+  `events.reported.label` reads like `events.joined.label` with the tap hint
+  (contracts/messages.md); remove `events.error.event_over`, and remove it from
+  `test/unit/catalogs.test.ts`. German first, then fresh wording per language.
+
+### Polish
+
+- [ ] T050 `e2e/smoke.e2e.ts`: extend T042: a rider taps "Ich war dabei" on a
+  past event, the button turns green, a second tap withdraws it and the outlined
+  button is back. Run the targeted tests (`rider-events`, the confirm tests,
+  `catalogs`, `no-hardcoded-copy`); CI runs the rest.
+
+**Checkpoint**: T045 and T046 pass; quickstart §2.3 works at 360 px.
+
+---
+
 ## Dependencies & Execution Order
 
 - Phase 1 → Phase 2 → US1 → US2 → US3 (all build `/events`).
@@ -339,6 +398,8 @@ confirms, denies or leaves them open.
   parallel with US4's T027).
 - US7 depends on nothing and can run any time.
 - Polish last; T041 helps every manual check and may come early.
+- Phase 11 (amendment) follows the released feature: T045 and T046 first, then
+  T047 → T048 and T049 in parallel → T050.
 
 ## Parallel Examples
 

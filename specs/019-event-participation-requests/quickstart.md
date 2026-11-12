@@ -47,7 +47,8 @@ past events, Nora with three, Katrin with two.
 2. Termine: the Spond/Strava note on top, "Demnächst" with the "Bin dabei" line
    under it. Tap **Bin dabei**: green with a tick. Hover it: red "Doch nicht
    dabei". Click: back to yellow. Balance on Du unchanged.
-3. Tap **Ich war dabei** on a past event: green, no way back.
+3. Tap **Ich war dabei** on a past event: green with a tick. Hover it: red "Doch
+   nicht dabei". Tap: back to the outlined button. Tap again to keep the report.
 4. Sign in as an organiser. Orga shows a red count; Termine starts with the open
    requests. **Eintragen** one: the notice names the rider with **Rückgängig**;
    undo it; the request is back. **Alle n eintragen** on another event.

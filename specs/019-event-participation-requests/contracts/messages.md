@@ -33,9 +33,8 @@ Wording may be polished in implementation; the meaning may not change.
 | `events.leave` | Not coming after all | Doch nicht dabei |
 | `events.joined.label` | I'm in; tap to cancel | Bin dabei, antippen zum Absagen |
 | `events.report` | I was there | Ich war dabei |
-| `events.reported.label` | I was there, reported | Ich war dabei, gemeldet |
+| `events.reported.label` | I was there, reported. Tap to withdraw. | Ich war dabei, gemeldet. Antippen, um zurückzuziehen. |
 | `events.attended` | You were there | Du warst dabei |
-| `events.error.event_over` | The event is over; you can't cancel any more. | Der Termin ist vorbei, absagen geht nicht mehr. |
 | `events.error.already_attending` | You're already added to this event. | Du bist bei diesem Termin schon eingetragen. |
 
 ## Orga › Termine (`organiser.requests.*`, changed `organiser.events.*`)

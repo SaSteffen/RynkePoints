@@ -33,7 +33,8 @@ none, the button already says it.
 5. "Vorbei", newest first, five then "Alle zeigen": the same card, with
    - no attendance, no report: outlined "Ich war dabei"; hover green "Ich war
      dabei ✓";
-   - request: green "Ich war dabei ✓", `aria-disabled`, no form;
+   - request: green "Ich war dabei ✓"; hover red "Doch nicht dabei" (form, like the
+     intent; amended 2026-11-12, it had `aria-disabled` and no form);
    - attendance: "Du warst dabei" with a tick, no button.
 6. Each card has `id="event-{id}"` so a post returns to it.
 
