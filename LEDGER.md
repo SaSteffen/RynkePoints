@@ -40,6 +40,25 @@ before the next release or season · **P3** housekeeping.
 | G15 | P3 | Dev – gateway return address | The fix keeping local sign-ins off the production gateway (`scripts/dev.mjs`, `package.json`) has no test; a later change to the scripts could send local sign-ins to production's gateway again. | A small unit test that every local/e2e start sets the return address to `""`, or a `team-check` rule. | **Done**: `test/unit/local-return-via.test.ts`. |
 | G16 | P3 | Usage across teams | `src/usage/peers.ts` (hourly pull of other teams' figures) and `src/http/admin/usage-export.ts` are covered only through the admin usage integration tests (which do cover an unreachable team). | Add direct tests for a peer that returns malformed data or a wrong token, and for the export refusing a missing token. | **Done**: `test/unit/usage-peers.test.ts`. |
 
+## Code review (CSS and security)
+
+No critical, high or medium findings. Fixed on this branch: the organiser graphs panel
+painted over the top bar and the bottom nav, the request link was a 28px tap target,
+the badge hint's halo vanished in dark mode, unused CSS (`.coin-head`, `--rp-brand`),
+and pages now send `frame-ancestors 'none'`, `nosniff`, `Referrer-Policy: same-origin`
+and `Cache-Control: private, no-cache`. Measured and dropped: the panel's width (no
+sideways scroll at 360/600/1280) and the event captions ("Eingetragen" runs 7px into
+the card's padding, touching nothing).
+
+| ID | Pri | Area | Gap | Proposal | Decision |
+|---|---|---|---|---|---|
+| G18 | P2 | Sessions | Sessions are stateless and slide for 180 days; a stolen cookie or a rider who wants every device out can't be helped short of rotating the signing key for everyone. | A `session_epoch` per rider in the signed value; "sign out everywhere" and disconnecting raise it. | |
+| G19 | P3 | Signing across teams | `src/crypto/sign.ts` signs `context\npayload` without the team, and token encryption (`src/crypto/encrypt.ts`) has no associated data. Harmless while every team has its own keys, which nothing enforces. | Put `TEAM_ID` into the signed input and the rider ID as AES-GCM associated data; or a `team-check` rule that no two teams share a key name. | |
+| G20 | P3 | Organiser overview – colour | The rider dots tell "push" (orange) from "on track" (green) by colour alone; the label is only for screen readers. | Show the status icon (`statusArt(..., "chip")`) or a shape per status. | |
+| G21 | P3 | Headers – rest | No HSTS and no CSP for scripts: the layout's theme script and style are inline, so a script CSP needs a hash per team. | HSTS as a Cloudflare zone setting (manual); a script CSP with the theme script's hash later. | |
+| G22 | P3 | Organiser undo | An undo link can be replayed within its 10 minutes. | Accept (organisers only, same result twice), or mark it used. | |
+| G23 | P3 | CSS housekeeping | z-index values are loose numbers (1–20, two pairs share a value); `.status-chip`'s colours from the shared `.chip` rule are always overridden; `--md-type-title-medium` is undefined (its fallback always wins); reduced motion misses `.segmented` and `.badge-share-mini`; the organiser legend is 28px on touch screens from 1100px. | One cleanup PR: named z-index levels, the fixes as listed, the small legend only for `(pointer:fine)`. | |
+
 ## How to use
 
 Mark **Decision**, then turn the yes rows into issues or tasks in their spec; delete this
