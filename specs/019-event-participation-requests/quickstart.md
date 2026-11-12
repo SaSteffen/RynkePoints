@@ -52,10 +52,13 @@ past events, Nora with three, Katrin with two.
    it: red with a cross. Tap: back to the outlined circle. Tap again to keep the
    report. A recorded event shows a light green tick, "Eingetragen".
 4. Sign in as an organiser. Orga shows a red count; Termine starts with the open
-   requests. **Eintragen** one: the notice names the rider with **Rückgängig**;
-   undo it; the request is back. **Alle n eintragen** on another event.
-5. Tap **Ich war auch dabei** on a past event: the button disappears, "n
-   Personen, inklusive dir".
+   requests, each rider with a ticked circle "Eintragen" and a cross "Ablehnen";
+   the names fit on one line at 360 px. Tap **Eintragen** on one: the notice
+   names the rider with **Rückgängig**; undo it; the request is back. **Alle n
+   eintragen** on another event.
+5. Tap the outlined circle "Dabei?" (**Ich war auch dabei**) on a past event: it
+   turns into the light green tick, "Eingetragen", and the event reads "n
+   Personen, inklusive dir". Nothing else on the card moves.
 6. Open a past event with requests: legend, grey boxes first; cycle one through
    ticked, empty, grey; save with one ticked, one emptied, one grey; the notice
    says 1, 1, 1. With script disabled the same rows show three radios.

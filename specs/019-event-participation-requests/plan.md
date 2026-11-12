@@ -51,6 +51,15 @@ only an icon; `aria-label` carries the full text, and the caption
 `@media (hover:hover)`; keyboard focus keeps it. `events.leave` goes out of the
 catalogs: nothing shows "Doch nicht dabei" any more (R6; tasks T052–T057).
 
+**Third amendment 2026-11-12** (spec Clarifications, the organiser pages): the
+quick decisions on Orga › Termine and the overview get the same circles, a
+green-outlined tick and a neutral cross, captioned `organiser.requests.confirm`
+and the new `organiser.requests.deny`; `aria-label`s stay. "Ich war auch dabei"
+reuses the riders' outlined circle and, once recorded, their light green mark,
+so the list renders it for every past event: the button without the viewer's
+attendance, the mark with it. The circle styles from the second amendment are
+shared; the request colours are new rules beside them (R6; tasks T058–T063).
+
 ## Technical Context
 
 **Language/Version**: TypeScript (`tsc --noEmit`) on Cloudflare Workers, as in
