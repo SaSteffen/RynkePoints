@@ -143,7 +143,15 @@ forget. Rejected. `remove-attendance` recreates nothing (spec edge cases).
   intent, "Ich war dabei ✓" and "Doch nicht dabei" (FR-005; amended 2026-11-12,
   it was a disabled-looking label with `aria-disabled` and no form).
 
-On a touch screen the green button reads "Bin dabei ✓" (or "Ich war dabei ✓") and
+Amended again 2026-11-12: the button is a 48 px circle at the card's right with a
+caption under it in the same form. It holds two icons in one grid cell, `event-now`
+and `event-next` (plus/tick, tick/cross), and every button has an `aria-label`
+("Bin dabei", "Ich war dabei", `events.joined.label`, `events.reported.label`).
+The swap to `event-next` and the red happen on `:focus-visible` and, inside
+`@media (hover:hover)`, on `:hover`: a touch screen keeps `:hover` on the button
+it just tapped, which made a fresh "Bin dabei" show a red "Doch nicht dabei".
+
+On a touch screen the green button stays green with its tick and
 a tap withdraws, as the spec's edge cases say; a second tap is a new report. Each post redirects
 back to `/events#event-{id}` so the rider stays at the same event.
 

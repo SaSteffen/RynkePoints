@@ -42,6 +42,15 @@ becomes the same form as the green "Bin dabei", posting to
 and the attendance check still stops a withdrawal once an organiser has recorded
 the rider. No migration, no new route (R6, R13; tasks T045–T050).
 
+**Second amendment 2026-11-12** (spec Clarifications, the button's look): the
+wide labelled button becomes a round 48 px button with a caption under it, a
+third column of the card beside the date block and the body, so its size never
+changes between states and nothing beside it moves on a tap. The circle shows
+only an icon; `aria-label` carries the full text, and the caption
+(`events.caption.*`) is `aria-hidden`. The red hover swap moves under
+`@media (hover:hover)`; keyboard focus keeps it. `events.leave` goes out of the
+catalogs: nothing shows "Doch nicht dabei" any more (R6; tasks T052–T057).
+
 ## Technical Context
 
 **Language/Version**: TypeScript (`tsc --noEmit`) on Cloudflare Workers, as in

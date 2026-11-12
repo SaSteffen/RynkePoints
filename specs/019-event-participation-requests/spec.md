@@ -81,7 +81,21 @@ Thursday 25 March 2027.
   recorded the attendance ("Du warst dabei") there is nothing left to withdraw; a
   denied request is gone anyway. This replaces the earlier rule that a rider cannot
   withdraw once the event has taken place: a rider reported a stray tap and found
-  the green button did nothing, while the upcoming one could be undone.
+  the green button did nothing, while the upcoming one could be undone. (Look
+  changed the same day, see the next answer: the circle turns red with a cross.)
+- Q: How should the button look, given that the wide one jumped after a tap? →
+  A: As a round button of fixed size at the right of each card, like a checkbox,
+  with a short caption under it. The wide button grew after a tap (its hover text
+  "Doch nicht dabei" is longer than "Bin dabei") and could jump to the next line,
+  and on a phone it took a row of its own on every card. Without a report the circle
+  shows a plus, captioned "Dabei?": yellow for an upcoming event, outlined for a past
+  one. With a report it is green with a tick, captioned "Dabei" (intent) or
+  "Gemeldet" (request). With recorded attendance there is no button, only a tick in
+  a light green circle, captioned "Eingetragen". With a mouse, hovering a green
+  circle turns it red with a cross, and so does keyboard focus; a touch screen
+  never shows that state, so a tap no longer leaves a red "Doch nicht dabei" behind.
+  Screen readers keep the full text ("Bin dabei", "Ich war dabei, gemeldet.
+  Antippen, um zurückzuziehen.", "Du warst dabei").
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -122,7 +136,8 @@ check the Termine tab is there (and absent for an organiser), and compare the li
 2. **Given** past events of the season, **When** a rider opens Termine, **Then**
    "Vorbei" lists them, newest first, each with its amounts.
 3. **Given** a past event where the rider's attendance is recorded, **When** it is
-   shown, **Then** it says "Du warst dabei" and has no button.
+   shown, **Then** it shows a tick captioned "Eingetragen" (for screen readers "Du
+   warst dabei") and has no button.
 4. **Given** no upcoming events, **When** a rider opens Termine, **Then**
    "Demnächst" says no team events are planned yet.
 5. **Given** an organiser, **When** they look at the navigation, **Then** they see
@@ -132,9 +147,10 @@ check the Termine tab is there (and absent for an organiser), and compare the li
 
 ### User Story 2 - Rider says they will come, and can change their mind (Priority: P1)
 
-Under an upcoming event the rider taps "Bin dabei". The button turns green with a
-tick. Hovering it (or focusing it) turns it red and reads "Doch nicht dabei"; a click
-withdraws the intent and the button is back to its default. Nothing is credited.
+Under an upcoming event the rider taps the round "Bin dabei" button ("Dabei?"). It
+turns green with a tick, captioned "Dabei". Hovering it with a mouse (or focusing it
+with the keyboard) turns it red with a cross; a click or tap withdraws the intent and
+the button is back to its default. Nothing is credited.
 
 **Why this priority**: Organisers learn who plans to come; riders commit a little
 without anything being credited too early.
@@ -148,8 +164,9 @@ balance changed.
 1. **Given** an upcoming event without an intent, **When** the rider taps "Bin
    dabei", **Then** the intent is stored, the button is green with a tick, and the
    rider's balance does not change.
-2. **Given** the green button, **When** the pointer is over it or it has keyboard
-   focus, **Then** it is red and reads "Doch nicht dabei".
+2. **Given** the green button, **When** a mouse pointer is over it or it has
+   keyboard focus, **Then** it is red with a cross; **When** the rider has just
+   tapped it on a touch screen, **Then** it stays green.
 3. **Given** the green button, **When** the rider clicks or taps it, **Then** the
    intent is deleted and the button shows its default "Bin dabei".
 4. **Given** an intent at an event that has now taken place, **When** the rider
@@ -187,7 +204,7 @@ confirm or deny as an organiser and check the rider's page and balance in each c
    again and may tap it again.
 4. **Given** any decision, **When** it is made, **Then** the rider gets no message,
    notification or text about it.
-4. **Given** an open request, **When** the rider taps the green "Ich war dabei",
+5. **Given** an open request, **When** the rider taps the green "Ich war dabei",
    **Then** the request is deleted, the button shows its default "Ich war dabei"
    again, organisers no longer see the request, and nothing is credited.
 
@@ -356,8 +373,10 @@ switch back to Training and check that both are.
   until they are listed again. Reports of a rider who leaves are deleted with them.
 - **Event outside the counting window** (feature 003 FR-011): not shown on Termine and
   takes no reports.
-- **Touch screens without hover**: the green "Bin dabei" and "Ich war dabei" buttons
-  read their label with a tick; a tap withdraws, and a tap brings it back.
+- **Touch screens without hover**: the green circle stays green with its tick after
+  a tap, without a red state; a tap withdraws, and a tap brings it back.
+- **Long event names**: the circle keeps its place and size; the name wraps beside
+  it. No state changes the circle's size, so nothing on the card moves on a tap.
 - **The event day itself**: the event has taken place from its date on; "Bin dabei"
   becomes "Ich war dabei" that morning; it stays an open request the rider can
   withdraw until an organiser settles it.
@@ -383,17 +402,21 @@ switch back to Training and check that both are.
   It MUST NOT show sums of the Rynke the upcoming events hold.
 - **FR-004**: For an event that has not taken place the rider MUST get a "Bin dabei"
   button that stores their intent. With an intent the button MUST be green with a
-  tick; while hovered or focused it MUST be red and read "Doch nicht dabei"; a click
-  or tap MUST delete the intent and show the default button again.
+  tick; while hovered by a pointer that can hover, or focused by keyboard, it MUST
+  be red with a cross, and a touch screen MUST NOT show that state after a tap; a
+  click or tap MUST delete the intent and show the default button again. The
+  button MUST be a round button of fixed size at the right of the card, with a
+  short caption under it, and MUST NOT change its size between states; its
+  accessible name MUST carry the full text (contracts/pages.md, messages.md).
 - **FR-005**: For an event that has taken place and where the rider has no
   attendance, the rider MUST get an "Ich war dabei" button that stores a request.
   With a request (or an intent made before the event) the button MUST be green with
-  a tick and behave as in FR-004: while hovered or focused it MUST be red and read
-  "Doch nicht dabei", and a click or tap MUST delete the request and show the default
-  "Ich war dabei" again. Once attendance is recorded, FR-006 applies and nothing can
+  a tick and behave and look as in FR-004, and a click or tap MUST delete the
+  request and show the default "Ich war dabei" again. Once attendance is recorded, FR-006 applies and nothing can
   be withdrawn.
 - **FR-006**: For an event where the rider's attendance is recorded, the event MUST
-  read "Du warst dabei" and show no button.
+  show a tick captioned "Eingetragen", read "Du warst dabei" to screen readers, and
+  show no button.
 - **FR-007**: Directly under the "Demnächst" heading, and only when there are
   upcoming events, the tab MUST say that "Bin dabei" only tells the organisers,
   that Rynke come once the event has taken place and an organiser has recorded the

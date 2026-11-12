@@ -12,7 +12,8 @@ description: "Task list for riders reporting team-event participation"
 session couldn't reach the package registry. T040 moved to feature 020 (research
 R8); T044 is the owner's walk-through. T045–T050 (Phase 11) amend US3 after
 release: riders can withdraw an open request (spec session 2026-11-12); all
-done, T051 added while building it.
+done, T051 added while building it. T052–T057 (Phase 12) make the button a round
+toggle (spec session 2026-11-12, second answer).
 
 **Tests**: REQUIRED (constitution Principle V). Write each test task first, run it
 and confirm it fails, then implement. Riders and events are synthetic; nothing
@@ -392,6 +393,52 @@ FR-005, US3 scenario 4, edge cases).
   (contracts/http-routes.md); test in `rider-events.test.ts`.
 
 **Checkpoint**: T045 and T046 pass; quickstart §2.3 works at 360 px.
+
+---
+
+## Phase 12: Amendment 2026-11-12 - The round button (US1–US3)
+
+**Goal**: the event button keeps its size in every state and takes no row of its
+own on a phone; a tap on a touch screen leaves no red state behind (spec
+Clarifications, session 2026-11-12, second answer; FR-004–FR-006; contracts
+pages.md §`/events`, draft variant D).
+
+**Independent Test**: [quickstart.md](quickstart.md) §2.2 and §2.3 at 360 px and
+on a desktop.
+
+### Tests (write first, confirm they fail)
+
+- [ ] T052 [P] [US2] `test/integration/rider-events.test.ts`: every state's card
+  has its caption (`events.caption.open`, `.joined`, `.reported`, `.attended`)
+  in an `aria-hidden` element; the join and report buttons carry
+  `aria-label` "Bin dabei" / "Ich war dabei"; intent and request no longer
+  contain `events.leave`; the attended card keeps "Du warst dabei" for screen
+  readers and has no button.
+- [ ] T053 [P] [US2] `test/unit/style.test.ts`: the circle has a fixed 48 px
+  width and height; the hover swap and the red sit inside
+  `@media (hover:hover)` and not outside it; `:focus-visible` keeps them.
+
+### Implementation
+
+- [ ] T054 [US2] `src/http/sections/events.ts`: `action` renders the form (or the
+  attended mark) as the card's third column: the button with icon-only
+  `event-now` / `event-next` spans and an `aria-label`, then
+  `<span class="event-caption" aria-hidden="true">`; the attended mark has a
+  visually hidden "Du warst dabei". `.event-foot` keeps only the chips and is
+  left out when there are none.
+- [ ] T055 [P] [US2] `src/http/style.ts`: the circle, its caption and the card's
+  third column (contracts/pages.md); hover rules under `@media (hover:hover)`.
+- [ ] T056 [P] [US2] Catalogs in all ten languages: add `events.caption.open`,
+  `.joined`, `.reported`, `.attended` (German first, fresh short wording per
+  language); remove `events.leave`; update `test/unit/catalogs.test.ts`.
+
+### Polish
+
+- [ ] T057 `e2e/smoke.e2e.ts`: the US2 and US3 tests find the buttons by their
+  accessible name and check the circle's width doesn't change on a tap. Run the
+  targeted tests; CI runs the rest.
+
+**Checkpoint**: T052 and T053 pass; quickstart §2.2–§2.3 at 360 px.
 
 ---
 
