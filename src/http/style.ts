@@ -732,6 +732,7 @@ button.org-graphs-toggle{display:flex;align-items:center;justify-content:space-b
 .org-legend-many{max-height:120px;overflow-y:auto}
 button.org-legend-entry{display:flex;align-items:center;gap:6px;min-height:28px;padding:0 var(--rp-space-2);border:none;border-radius:var(--md-shape-sm);background:none;color:var(--md-sys-color-on-surface);font:var(--md-type-caption);cursor:pointer}
 button.org-legend-entry[aria-pressed=true]{background:var(--md-sys-color-surface-container)}
+@media (pointer:coarse){button.org-legend-entry{min-height:var(--rp-tap)}}
 .org-legend-key{flex:none;width:14px;height:4px;border-radius:2px}
 .org-legend-halo{outline:2px solid var(--rp-graph-halo)}
 .org-legend-name{font-weight:600}
