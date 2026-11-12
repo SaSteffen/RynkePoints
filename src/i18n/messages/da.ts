@@ -898,13 +898,15 @@ export const da: Catalog = {
 	"events.amount.team": "+{n} Team",
 	"events.amount.training": "+{n} Træning",
 	"events.join": "Jeg kommer",
-	"events.leave": "Kommer alligevel ikke",
 	"events.joined.label": "Jeg kommer. Tryk for at melde fra.",
 	"events.report": "Jeg var der",
-	"events.reported.label": "Jeg var der, meldt",
+	"events.reported.label":
+		"Jeg var der, meldt. Tryk for at trække det tilbage.",
 	"events.attended": "Du var der",
-	"events.error.event_over":
-		"Arrangementet er slut; du kan ikke melde fra længere.",
+	"events.caption.open": "Med?",
+	"events.caption.joined": "Med",
+	"events.caption.reported": "Meldt",
+	"events.caption.attended": "Tilføjet",
 	"events.error.already_attending":
 		"Du er allerede tilføjet til dette arrangement.",
 	"events.error.event_missing": "Dette arrangement findes ikke længere.",

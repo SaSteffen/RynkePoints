@@ -32,12 +32,16 @@ Creates the viewer's report (intent or request, by date). `303
 
 ### `POST /events/{id}/report/delete` (FR-004)
 
-Withdraws an intent. `303 /events#event-{id}`.
+Withdraws an intent or an open request (amended 2026-11-12). `303
+/events#event-{id}`. The other refusals are those of `POST /events/{id}/report`.
+
+Both posts keep `?past=all` from the page that sent them (the forms carry it), so
+the redirect returns to the full list of past events (tasks T051).
 
 | Case | Result |
 |---|---|
-| event not yet taken place | report deleted, no notice |
-| event taken place | nothing, `?error=event_over` |
+| allowed (research R13), before or after the event | report deleted, no notice |
+| attendance already recorded | nothing, `?error=already_attending` |
 | no report | nothing, same redirect |
 
 ## Organisers

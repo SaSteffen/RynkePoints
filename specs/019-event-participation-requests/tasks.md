@@ -10,7 +10,10 @@ description: "Task list for riders reporting team-event participation"
 
 **Status**: T001–T039 and T041–T043 done; T001 and T043 ran in CI, since this
 session couldn't reach the package registry. T040 moved to feature 020 (research
-R8); T044 is the owner's walk-through.
+R8); T044 is the owner's walk-through. T045–T050 (Phase 11) amend US3 after
+release: riders can withdraw an open request (spec session 2026-11-12); all
+done, T051 added while building it. T052–T057 (Phase 12, done) make the button a round
+toggle (spec session 2026-11-12, second answer).
 
 **Tests**: REQUIRED (constitution Principle V). Write each test task first, run it
 and confirm it fails, then implement. Riders and events are synthetic; nothing
@@ -331,6 +334,114 @@ confirms, denies or leaves them open.
 
 ---
 
+## Phase 11: Amendment 2026-11-12 - Withdraw an open request (US3)
+
+**Goal**: a rider who taps "Ich war dabei" by mistake takes it back themselves
+until an organiser has settled it (spec Clarifications, session 2026-11-12;
+FR-005, US3 scenario 4, edge cases).
+
+**Independent Test**: [quickstart.md](quickstart.md) §2.3.
+
+### Tests (write first, confirm they fail)
+
+- [x] T045 [P] [US3] `test/integration/rider-events.test.ts`:
+  - replace "refuses to withdraw once the event has taken place, on its day too"
+    with: an open request at a past event and one on the event's day are
+    withdrawn by `POST /events/{id}/report/delete` (`303 /events#event-{id}`, no
+    notice, no report left, balance unchanged), and the card shows the
+    outlined "Ich war dabei" form again;
+  - an intent from before the event is withdrawn the same way after the date;
+  - with attendance recorded, the withdrawal answers
+    `?error=already_attending`, keeps the attendance and creates nothing;
+  - drop "shows the refusal notice" for `event_over`;
+  - change T020's check of the request card: a form posting to
+    `/report/delete`, `aria-pressed="true"`, `aria-label` =
+    `events.reported.label`, an `event-next` span with `events.leave`, and no
+    `aria-disabled`.
+- [x] T046 [P] [US4] `test/integration/organiser-requests.test.ts`: a request the rider withdrew before "Eintragen" is
+  refused with `organiser.error.request_settled`, and nothing is recorded. It
+  may pass at once, like "changes nothing for a request someone else settled";
+  it guards the race the spec's edge case names.
+
+### Implementation
+
+- [x] T047 [US3] `src/http/sections/events.ts`:
+  - the `request` case becomes a form like `intent`: `POST {report}/delete`,
+    class `event-button event-reported`, `aria-pressed="true"`,
+    `aria-label="events.reported.label"`, spans `event-now` (tick, "Ich war
+    dabei") and `event-next` (cross, "Doch nicht dabei");
+  - `changeReport` drops the `hasTakenPlace` check for withdrawals (research
+    R13), and `ERRORS` drops `event_over`;
+  - update the comment on `handleWithdraw`.
+- [x] T048 [P] [US3] `src/http/style.ts`: `.event-reported` gets the red hover
+  and focus of `.event-joined`; drop `.event-reported{cursor:default}` and the
+  `.event-foot>.event-reported` margin rule (the button now sits in a form).
+- [x] T049 [P] [US3] Catalogs in all ten languages (`src/i18n/messages/*.ts`):
+  `events.reported.label` reads like `events.joined.label` with the tap hint
+  (contracts/messages.md); remove `events.error.event_over`, and remove it from
+  `test/unit/catalogs.test.ts`. German first, then fresh wording per language.
+
+### Polish
+
+- [x] T050 `e2e/smoke.e2e.ts`: extend T042: a rider taps "Ich war dabei" on a
+  past event, the button turns green, a second tap withdraws it and the outlined
+  button is back. Run the targeted tests (`rider-events`, the confirm tests,
+  `catalogs`, `no-hardcoded-copy`); CI runs the rest.
+- [x] T051 [US3] Found by T050: with "Alle zeigen" open, a report or withdrawal
+  reloaded `/events` with five past events, so an older event's card vanished.
+  The forms carry `?past=all` and the redirect keeps it
+  (contracts/http-routes.md); test in `rider-events.test.ts`.
+
+**Checkpoint**: T045 and T046 pass; quickstart §2.3 works at 360 px.
+
+---
+
+## Phase 12: Amendment 2026-11-12 - The round button (US1–US3)
+
+**Goal**: the event button keeps its size in every state and takes no row of its
+own on a phone; a tap on a touch screen leaves no red state behind (spec
+Clarifications, session 2026-11-12, second answer; FR-004–FR-006; contracts
+pages.md §`/events`, draft variant D).
+
+**Independent Test**: [quickstart.md](quickstart.md) §2.2 and §2.3 at 360 px and
+on a desktop.
+
+### Tests (write first, confirm they fail)
+
+- [x] T052 [P] [US2] `test/integration/rider-events.test.ts`: every state's card
+  has its caption (`events.caption.open`, `.joined`, `.reported`, `.attended`)
+  in an `aria-hidden` element; the join and report buttons carry
+  `aria-label` "Bin dabei" / "Ich war dabei"; intent and request no longer
+  contain `events.leave`; the attended card keeps "Du warst dabei" for screen
+  readers and has no button.
+- [x] T053 [P] [US2] `test/unit/style.test.ts`: the circle has a fixed 48 px
+  width and height; the hover swap and the red sit inside
+  `@media (hover:hover)` and not outside it; `:focus-visible` keeps them.
+
+### Implementation
+
+- [x] T054 [US2] `src/http/sections/events.ts`: `action` renders the form (or the
+  attended mark) as the card's third column: the button with icon-only
+  `event-now` / `event-next` spans and an `aria-label`, then
+  `<span class="event-caption" aria-hidden="true">`; the attended mark has a
+  visually hidden "Du warst dabei". `.event-foot` keeps only the chips and is
+  left out when there are none.
+- [x] T055 [P] [US2] `src/http/style.ts`: the circle, its caption and the card's
+  third column (contracts/pages.md); hover rules under `@media (hover:hover)`.
+- [x] T056 [P] [US2] Catalogs in all ten languages: add `events.caption.open`,
+  `.joined`, `.reported`, `.attended` (German first, fresh short wording per
+  language); remove `events.leave`; update `test/unit/catalogs.test.ts`.
+
+### Polish
+
+- [x] T057 `e2e/smoke.e2e.ts`: the US2 and US3 tests find the buttons by their
+  accessible name and check the circle's width doesn't change on a tap. Run the
+  targeted tests; CI runs the rest.
+
+**Checkpoint**: T052 and T053 pass; quickstart §2.2–§2.3 at 360 px.
+
+---
+
 ## Dependencies & Execution Order
 
 - Phase 1 → Phase 2 → US1 → US2 → US3 (all build `/events`).
@@ -339,6 +450,8 @@ confirms, denies or leaves them open.
   parallel with US4's T027).
 - US7 depends on nothing and can run any time.
 - Polish last; T041 helps every manual check and may come early.
+- Phase 11 (amendment) follows the released feature: T045 and T046 first, then
+  T047 → T048 and T049 in parallel → T050.
 
 ## Parallel Examples
 

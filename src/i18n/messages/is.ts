@@ -904,13 +904,14 @@ export const is: Catalog = {
 	"events.amount.team": "+{n} Liðs",
 	"events.amount.training": "+{n} Æfinga",
 	"events.join": "Ég mæti",
-	"events.leave": "Mæti samt ekki",
 	"events.joined.label": "Ég mæti. Ýttu til að afboða.",
 	"events.report": "Ég var þar",
-	"events.reported.label": "Ég var þar, tilkynnt",
+	"events.reported.label": "Ég var þar, tilkynnt. Ýttu til að draga til baka.",
 	"events.attended": "Þú varst þar",
-	"events.error.event_over":
-		"Viðburðinum er lokið; þú getur ekki afboðað lengur.",
+	"events.caption.open": "Með?",
+	"events.caption.joined": "Með",
+	"events.caption.reported": "Tilkynnt",
+	"events.caption.attended": "Skráð",
 	"events.error.already_attending":
 		"Þér hefur þegar verið bætt við þennan viðburð.",
 	"events.error.event_missing": "Þessi viðburður er ekki lengur til.",

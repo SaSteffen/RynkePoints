@@ -900,13 +900,14 @@ export const sv: Catalog = {
 	"events.amount.team": "+{n} Team",
 	"events.amount.training": "+{n} Träning",
 	"events.join": "Jag kommer",
-	"events.leave": "Kommer inte ändå",
 	"events.joined.label": "Jag kommer. Tryck för att avanmäla.",
 	"events.report": "Jag var där",
-	"events.reported.label": "Jag var där, anmält",
+	"events.reported.label": "Jag var där, anmält. Tryck för att dra tillbaka.",
 	"events.attended": "Du var där",
-	"events.error.event_over":
-		"Aktiviteten är över; du kan inte avanmäla dig längre.",
+	"events.caption.open": "Med?",
+	"events.caption.joined": "Med",
+	"events.caption.reported": "Anmäld",
+	"events.caption.attended": "Inskriven",
 	"events.error.already_attending":
 		"Du är redan tillagd i den här aktiviteten.",
 	"events.error.event_missing": "Den här aktiviteten finns inte längre.",

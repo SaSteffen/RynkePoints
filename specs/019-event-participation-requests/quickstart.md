@@ -45,9 +45,12 @@ past events, Nora with three, Katrin with two.
    instead of Orga; Team with Team Rynke shows no place card and no peloton, the
    Rangliste above the chart; Training still shows both.
 2. Termine: the Spond/Strava note on top, "Demnächst" with the "Bin dabei" line
-   under it. Tap **Bin dabei**: green with a tick. Hover it: red "Doch nicht
-   dabei". Click: back to yellow. Balance on Du unchanged.
-3. Tap **Ich war dabei** on a past event: green, no way back.
+   under it. Tap the yellow circle (**Dabei?**): green with a tick, "Dabei". Hover
+   it with a mouse: red with a cross; on a phone it stays green. Click: back to
+   yellow. Nothing on the card moves. Balance on Du unchanged.
+3. Tap the outlined circle on a past event: green with a tick, "Gemeldet". Hover
+   it: red with a cross. Tap: back to the outlined circle. Tap again to keep the
+   report. A recorded event shows a light green tick, "Eingetragen".
 4. Sign in as an organiser. Orga shows a red count; Termine starts with the open
    requests. **Eintragen** one: the notice names the rider with **Rückgängig**;
    undo it; the request is back. **Alle n eintragen** on another event.
