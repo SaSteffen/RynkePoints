@@ -25,16 +25,28 @@ none, the button already says it.
    dabei" only tells the organisers (FR-007); without upcoming events "Noch sind
    keine Teamtermine geplant."
 4. One card per upcoming event, soonest first: date block (weekday, day, month),
-   kind, name, then chips "+n Team" and "+n Training" with the coins and its
-   button on the same line (it wraps below on a narrow phone). Every card has
-   the same background. Hover or focus shows what a tap leads to:
-   - no report: yellow "Bin dabei"; hover green "Bin dabei ✓" (form, research R6);
-   - intent: green "Bin dabei ✓"; hover red "Doch nicht dabei".
+   kind, name, then chips "+n Team" and "+n Training" with the coins. Every card
+   has the same background. At the card's right, vertically centred, a round
+   button of 48 px with a caption under it (amended 2026-11-12, draft "Event
+   Button Draft" variant D, https://claude.ai/artifact/RzVXMGRLs184xmL6xC3t4J; it
+   was a wide labelled pill that grew after a tap). The circle and its caption
+   keep the same size in every state; the card keeps room for them, so names
+   and chips wrap beside them. The circle shows only an icon; its accessible
+   name is the full text. Hover (only where the pointer can hover) or keyboard
+   focus shows what a click leads to; a touch screen shows no hover state:
+   - no report: plus in a yellow circle, "Dabei?"; hover green with a tick (form,
+     research R6); name "Bin dabei";
+   - intent: tick in a green circle, "Dabei"; hover red with a cross; name
+     `events.joined.label`.
 5. "Vorbei", newest first, five then "Alle zeigen": the same card, with
-   - no attendance, no report: outlined "Ich war dabei"; hover green "Ich war
-     dabei ✓";
-   - request: green "Ich war dabei ✓", `aria-disabled`, no form;
-   - attendance: "Du warst dabei" with a tick, no button.
+   - no attendance, no report: plus in a green-outlined circle, "Dabei?"; hover
+     green with a tick; name "Ich war dabei";
+   - request: tick in a green circle, "Gemeldet"; hover red with a cross (form,
+     like the intent; amended 2026-11-12, it had `aria-disabled` and no form);
+     name `events.reported.label`;
+   - attendance: tick in a light green circle, "Eingetragen", no button; screen
+     readers hear "Du warst dabei".
+   The caption is hidden from screen readers; it repeats what the name says.
 6. Each card has `id="event-{id}"` so a post returns to it.
 
 No sums of Rynke, nothing about other riders (FR-003, FR-010).

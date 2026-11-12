@@ -900,13 +900,14 @@ export const nb: Catalog = {
 	"events.amount.team": "+{n} Team",
 	"events.amount.training": "+{n} Trening",
 	"events.join": "Jeg kommer",
-	"events.leave": "Kommer likevel ikke",
 	"events.joined.label": "Jeg kommer. Trykk for å melde av.",
 	"events.report": "Jeg var der",
-	"events.reported.label": "Jeg var der, meldt",
+	"events.reported.label": "Jeg var der, meldt. Trykk for å trekke tilbake.",
 	"events.attended": "Du var der",
-	"events.error.event_over":
-		"Arrangementet er over; du kan ikke melde av lenger.",
+	"events.caption.open": "Med?",
+	"events.caption.joined": "Med",
+	"events.caption.reported": "Meldt",
+	"events.caption.attended": "Registrert",
 	"events.error.already_attending":
 		"Du er allerede lagt til på dette arrangementet.",
 	"events.error.event_missing": "Dette arrangementet finnes ikke lenger.",

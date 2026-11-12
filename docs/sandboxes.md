@@ -20,7 +20,9 @@ The design is feature 027 ([spec](../specs/027-sandbox-deployment/spec.md),
   sandbox* in its description. The box unticks itself and the pull request's head deploys,
   with the sample riders as of `develop`. Tick it again to deploy again, for example after a
   new push. Only branches of this repository and people with write access can deploy; for a
-  fork, nothing deploys and a comment says why.
+  fork, nothing deploys and a comment says why. GitHub's Actions policy `PRPolicy` lets the
+  checkboxes run at all, for maintainers and admins
+  ([repository settings](../.github/repository-settings.md#actions-policy-prpolicy-pull_request_target-for-sandbox-pr-maintainers-only)).
 - **A release**: tick the sandboxes when running **Actions → Release PR**. The release pull
   request's head deploys, with the sample riders as of `main`, so its migrations run against
   the data production would have.

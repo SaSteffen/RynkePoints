@@ -139,10 +139,20 @@ forget. Rejected. `remove-attendance` recreates nothing (spec edge cases).
 - intent: `POST /events/{id}/report/delete`; the button holds two spans, "Bin
   dabei ✓" and "Doch nicht dabei", and CSS shows the second and turns the button
   red on `:hover` and `:focus-visible`;
-- request: no form, a disabled-looking green label with `aria-disabled` (FR-005).
+- request: `POST /events/{id}/report/delete`, the same two-span button as the
+  intent, "Ich war dabei ✓" and "Doch nicht dabei" (FR-005; amended 2026-11-12,
+  it was a disabled-looking label with `aria-disabled` and no form).
 
-On a touch screen the green button reads "Bin dabei ✓" and a tap withdraws, as
-the spec's edge cases say; a second tap is a new "Bin dabei". Each post redirects
+Amended again 2026-11-12: the button is a 48 px circle at the card's right with a
+caption under it in the same form. It holds two icons in one grid cell, `event-now`
+and `event-next` (plus/tick, tick/cross), and every button has an `aria-label`
+("Bin dabei", "Ich war dabei", `events.joined.label`, `events.reported.label`).
+The swap to `event-next` and the red happen on `:focus-visible` and, inside
+`@media (hover:hover)`, on `:hover`: a touch screen keeps `:hover` on the button
+it just tapped, which made a fresh "Bin dabei" show a red "Doch nicht dabei".
+
+On a touch screen the green button stays green with its tick and
+a tap withdraws, as the spec's edge cases say; a second tap is a new report. Each post redirects
 back to `/events#event-{id}` so the rider stays at the same event.
 
 **Rationale**: the swap is pure presentation; CSS does it in every browser, and a
@@ -263,8 +273,14 @@ fails on keys nobody uses.
 
 - Creating or withdrawing a report checks on the server: signed in, agreed to the
   current consent, listed (004 FR-021), **not** an organiser, event in the
-  counting window, no attendance there, and for a withdrawal that the event has
-  not taken place. Anything else redirects back with a notice, nothing changes.
+  counting window, and no attendance there. Anything else redirects back with a
+  notice, nothing changes. (Amended 2026-11-12: a withdrawal no longer needs the
+  event to lie ahead, so an open request can be withdrawn; the "no attendance"
+  check is what stops it once an organiser has settled the request, and
+  `events.error.event_over` goes.)
+- A rider withdrawing while an organiser confirms: the database settles the
+  order. Confirming finds no report and answers `request_settled`; withdrawing
+  finds the attendance and answers `already_attending`.
 - A rider who becomes an organiser keeps their open requests; organisers see
   them like any other and may confirm their own.
 - Events moved out of the counting window keep their reports but show and count

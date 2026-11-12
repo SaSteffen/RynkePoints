@@ -938,12 +938,15 @@ export const de = {
 	"events.amount.team": "+{n} Team",
 	"events.amount.training": "+{n} Training",
 	"events.join": "Bin dabei",
-	"events.leave": "Doch nicht dabei",
 	"events.joined.label": "Bin dabei. Antippen, um abzusagen.",
 	"events.report": "Ich war dabei",
-	"events.reported.label": "Ich war dabei, gemeldet",
+	"events.reported.label":
+		"Ich war dabei, gemeldet. Antippen, um zurückzuziehen.",
 	"events.attended": "Du warst dabei",
-	"events.error.event_over": "Der Termin ist vorbei, absagen geht nicht mehr.",
+	"events.caption.open": "Dabei?",
+	"events.caption.joined": "Dabei",
+	"events.caption.reported": "Gemeldet",
+	"events.caption.attended": "Eingetragen",
 	"events.error.already_attending":
 		"Du bist bei diesem Termin schon eingetragen.",
 	"events.error.event_missing": "Diesen Termin gibt es nicht mehr.",

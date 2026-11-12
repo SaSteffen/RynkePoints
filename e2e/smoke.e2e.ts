@@ -413,9 +413,20 @@ test("a rider says Bin dabei and changes their mind (019 US2)", async ({
 	const card = page.locator("li.event-card").filter({
 		hasText: "Sample ride ahead",
 	});
-	await card.getByRole("button", { name: "Bin dabei" }).click();
-	const joined = card.locator("button.event-joined");
+	const circle = card.getByRole("button", { name: "Bin dabei", exact: true });
+	const before = await circle.boundingBox();
+	await circle.click();
+	const joined = card.getByRole("button", {
+		name: "Bin dabei. Antippen, um abzusagen.",
+	});
 	await expect(joined).toHaveAttribute("aria-pressed", "true");
+	// The round button keeps its size and place (amendment 2026-11-12).
+	expect(await joined.boundingBox()).toMatchObject({
+		x: before?.x,
+		width: before?.width,
+		height: before?.height,
+	});
+	await expect(card.locator(".event-caption")).toHaveText("Dabei");
 	// Saved in place: no page load, the same address.
 	await expect(page).toHaveURL(/\/events$/);
 	expect(await samePage(page)).toBe(true);
@@ -424,6 +435,47 @@ test("a rider says Bin dabei and changes their mind (019 US2)", async ({
 	await expect(joined.locator(".event-now")).toBeHidden();
 	await joined.click();
 	await expect(card.locator("button.event-join")).toBeVisible();
+	expect(await samePage(page)).toBe(true);
+});
+
+test("a rider takes back a stray Ich war dabei (019 US3, 2026-11-12)", async ({
+	page,
+	browserName,
+}) => {
+	// Nora has nothing at this past event; the other browsers' riders have, and
+	// the runs share the server, so one browser is enough here.
+	test.skip(browserName !== "chromium", "one rider without a report");
+	await signIn(page, EVENT_RIDER.chromium);
+	// The weekend is older than the five past events shown first.
+	await page.goto("/events?past=all");
+	await skipTours(page);
+	await page.waitForLoadState();
+	await markPage(page);
+	const card = page.locator("li.event-card").filter({
+		hasText: "Sample training weekend",
+	});
+	const circle = card.getByRole("button", {
+		name: "Ich war dabei",
+		exact: true,
+	});
+	const before = await circle.boundingBox();
+	await circle.click();
+	const reported = card.locator("button.event-reported");
+	await expect(reported).toHaveAttribute("aria-pressed", "true");
+	// Size and place across the card; the page may scroll back to the card.
+	expect(await reported.boundingBox()).toMatchObject({
+		x: before?.x,
+		width: before?.width,
+		height: before?.height,
+	});
+	await expect(card.locator(".event-caption")).toHaveText("Gemeldet");
+	expect(await samePage(page)).toBe(true);
+	await reported.hover();
+	await expect(reported.locator(".event-next")).toBeVisible();
+	await expect(reported.locator(".event-now")).toBeHidden();
+	await reported.click();
+	await expect(card.locator("button.event-report")).toBeVisible();
+	await expect(page.locator("main .notice")).toHaveCount(0);
 	expect(await samePage(page)).toBe(true);
 });
 

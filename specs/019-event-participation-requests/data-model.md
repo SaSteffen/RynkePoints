@@ -69,7 +69,8 @@ request with it (spec edge cases).
 - Create: the viewer is signed in, agreed to the current consent, listed, not an
   organiser; the event exists and lies in the counting window; the viewer has no
   attendance there. An existing report is left as it is (insert or ignore).
-- Withdraw: the same, plus the event has not taken place.
+- Withdraw: the same (an intent or an open request; amended 2026-11-12, it
+  required the event not to have taken place).
 - Confirm/deny: the viewer is an organiser; the event has taken place; only riders
   who still have a report there are changed.
 
