@@ -438,8 +438,8 @@ Visible to Hamburg: nothing; sign-ins pass the gateway.
 ## Phase 16: Go live (release 4)
 
 - [ ] T081 Replace Europe's placeholders with its real values in `src/teams/europe.ts` and
-  `wrangler.jsonc` (domain route, club IDs, dates, rules, switches, controller, contact),
-  empty `placeholders`; `node scripts/team-check.mjs --deployable europe` passes.
+  `wrangler.jsonc` (domain route, club IDs, dates, rules, switches, controller, contact,
+  the seasonal monkeys' `holidays`), empty `placeholders`; `node scripts/team-check.mjs --deployable europe` passes.
 - [X] T082 Europe's Rynke explanation in English, `docs/teams/europe/rynke-points.md`, and its
   PDF `rynke-points.pdf` (not `rynke-punkte`), from its values (FR-022). For now it is an
   English translation of Hamburg's `docs/rynke-punkte.md`, adjusted only where Europe's

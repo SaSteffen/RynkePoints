@@ -32,7 +32,8 @@ export const europe: TeamData = {
 	},
 	phrases: { kind: "common" },
 	badgeNames: { kind: "common" },
-	// No seasonal quote monkeys yet (feature 035).
+	// No seasonal quote monkeys yet (feature 035); which holidays, if any, is
+	// Team Europe's decision, so `holidays` is in `placeholders` until then.
 	holidays: [],
 	// The founding team's club (wrangler.jsonc `STRAVA_CLUB_ID`).
 	otherClubIds: [1088689],
@@ -56,5 +57,6 @@ export const europe: TeamData = {
 		"PRIVACY_CONTROLLER",
 		"CONTACT_EMAIL",
 		"database_id",
+		"holidays",
 	],
 };
