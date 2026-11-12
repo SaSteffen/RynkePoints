@@ -68,25 +68,24 @@ export const THEME_SCRIPT = themeScript(THEMES);
 
 // The page's own inline scripts and their CSP hashes. Only a script the layout
 // writes itself is listed here, so an inline script that reached a page any
-// other way never gets a hash and never runs.
+// other way never gets a hash and never runs. The page isn't parsed for
+// scripts: each listed tag is looked for as written.
 const INLINE_SCRIPTS = new Map<string, string>();
 
 function inlineScript(text: string): SafeHtml {
-	if (!INLINE_SCRIPTS.has(text)) {
+	const tag = `<script>${text}</script>`;
+	if (!INLINE_SCRIPTS.has(tag)) {
 		const hash = createHash("sha256").update(text).digest("base64");
-		INLINE_SCRIPTS.set(text, `'sha256-${hash}'`);
+		INLINE_SCRIPTS.set(tag, `'sha256-${hash}'`);
 	}
-	return new SafeHtml(`<script>${text}</script>`);
+	return new SafeHtml(tag);
 }
 
-/** The hashes of the layout's inline scripts in `page`, each once. */
+/** The hashes of the layout's inline scripts in `page`. */
 function inlineHashes(page: string): string[] {
-	const hashes = new Set<string>();
-	for (const [, text] of page.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
-		const hash = INLINE_SCRIPTS.get(text ?? "");
-		if (hash) hashes.add(hash);
-	}
-	return [...hashes];
+	return [...INLINE_SCRIPTS]
+		.filter(([tag]) => page.includes(tag))
+		.map(([, hash]) => hash);
 }
 
 /**
