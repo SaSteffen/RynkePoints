@@ -1,6 +1,6 @@
 ---
 name: "speckit-git-commit"
-description: "Commit the artifacts a Spec Kit phase (specify/clarify/plan/tasks/checklist/analyze/constitution/converge/implement/taskstoissues) just wrote, using this repo's commit conventions."
+description: "Commit the artifacts a Spec Kit phase (specify/clarify/plan/tasks/checklist/analyze/constitution/converge/implement) just wrote, using this repo's commit conventions."
 argument-hint: "(no arguments — operates on whatever the triggering phase changed)"
 compatibility: "Requires spec-kit project structure with .specify/ directory"
 metadata:
@@ -13,7 +13,7 @@ Commit whatever a Spec Kit phase just wrote to disk. Callable directly, or as
 the `speckit.git.commit` hook — wired up as an `after_*` hook for every phase
 in `.specify/extensions.yml` (`after_specify`, `after_clarify`, `after_plan`,
 `after_tasks`, `after_checklist`, `after_analyze`, `after_constitution`,
-`after_converge`, `after_implement`, `after_taskstoissues`).
+`after_converge`, `after_implement`).
 
 Different phases touch different parts of the repo, so this splits the
 current diff into up to three independent scopes and commits each
@@ -22,8 +22,7 @@ blanket commit:
 
 1. **Feature directory** — `specs/<feature-dir>/` (spec.md, plan.md,
    research.md, data-model.md, contracts/, tasks.md, checklists/, quickstart.md).
-   Covers specify, clarify, plan, tasks, checklist, analyze, converge,
-   taskstoissues.
+   Covers specify, clarify, plan, tasks, checklist, analyze, converge.
 2. **Constitution** — `.specify/memory/constitution.md`. Covers constitution.
 3. **Everything else currently dirty** — e.g. `src/`, `test/`,
    `package.json`, `wrangler.jsonc`, `migrations/`. Covers implement.
