@@ -950,10 +950,8 @@ export const fr: Catalog = {
 	"events.leave": "Je ne viens finalement pas",
 	"events.joined.label": "Je viens. Touche pour annuler.",
 	"events.report": "J'y étais",
-	"events.reported.label": "J'y étais, signalé",
+	"events.reported.label": "J'y étais, signalé. Touche pour retirer.",
 	"events.attended": "Tu y étais",
-	"events.error.event_over":
-		"L'événement est terminé\u00a0; tu ne peux plus annuler.",
 	"events.error.already_attending": "Tu es déjà ajouté·e à cet événement.",
 	"events.error.event_missing": "Cet événement n'existe plus.",
 	"organiser.switch.events.open": "Événements, signalements ouverts\u00a0: {n}",

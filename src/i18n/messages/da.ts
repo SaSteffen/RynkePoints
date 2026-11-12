@@ -901,10 +901,9 @@ export const da: Catalog = {
 	"events.leave": "Kommer alligevel ikke",
 	"events.joined.label": "Jeg kommer. Tryk for at melde fra.",
 	"events.report": "Jeg var der",
-	"events.reported.label": "Jeg var der, meldt",
+	"events.reported.label":
+		"Jeg var der, meldt. Tryk for at trække det tilbage.",
 	"events.attended": "Du var der",
-	"events.error.event_over":
-		"Arrangementet er slut; du kan ikke melde fra længere.",
 	"events.error.already_attending":
 		"Du er allerede tilføjet til dette arrangement.",
 	"events.error.event_missing": "Dette arrangement findes ikke længere.",

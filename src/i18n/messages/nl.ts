@@ -919,10 +919,8 @@ export const nl: Catalog = {
 	"events.leave": "Toch niet",
 	"events.joined.label": "Ik doe mee. Tik om af te zeggen.",
 	"events.report": "Ik was erbij",
-	"events.reported.label": "Ik was erbij, gemeld",
+	"events.reported.label": "Ik was erbij, gemeld. Tik om in te trekken.",
 	"events.attended": "Je was erbij",
-	"events.error.event_over":
-		"Het evenement is voorbij; je kunt niet meer afzeggen.",
 	"events.error.already_attending": "Je bent al aan dit evenement toegevoegd.",
 	"events.error.event_missing": "Dit evenement bestaat niet meer.",
 	"organiser.switch.events.open": "Evenementen, open meldingen: {n}",

@@ -316,6 +316,21 @@ describe("POST /organiser/requests (FR-031, FR-035)", () => {
 		expect(await attendees(technique)).toEqual([]);
 	});
 
+	it("changes nothing for a request the rider withdrew meanwhile", async () => {
+		const withdrawn = await handleFetch(
+			request(`/events/${technique}/report/delete`, {
+				method: "POST",
+				form: {},
+				cookies: await sessionCookie(ctx, EMIL),
+			}),
+			ctx,
+		);
+		expect(withdrawn.status).toBe(303);
+		const res = await decide(technique, [EMIL], "confirm");
+		expect(locationOf(res).query.get("error")).toBe("request_settled");
+		expect(await attendees(technique)).toEqual([]);
+	});
+
 	it("refuses an upcoming event", async () => {
 		const res = await decide(upcoming, [EMIL], "confirm");
 		expect(locationOf(res).query.get("error")).toBe("future_event");

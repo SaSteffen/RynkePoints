@@ -903,10 +903,8 @@ export const nb: Catalog = {
 	"events.leave": "Kommer likevel ikke",
 	"events.joined.label": "Jeg kommer. Trykk for å melde av.",
 	"events.report": "Jeg var der",
-	"events.reported.label": "Jeg var der, meldt",
+	"events.reported.label": "Jeg var der, meldt. Trykk for å trekke tilbake.",
 	"events.attended": "Du var der",
-	"events.error.event_over":
-		"Arrangementet er over; du kan ikke melde av lenger.",
 	"events.error.already_attending":
 		"Du er allerede lagt til på dette arrangementet.",
 	"events.error.event_missing": "Dette arrangementet finnes ikke lenger.",

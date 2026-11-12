@@ -427,6 +427,35 @@ test("a rider says Bin dabei and changes their mind (019 US2)", async ({
 	expect(await samePage(page)).toBe(true);
 });
 
+test("a rider takes back a stray Ich war dabei (019 US3, 2026-11-12)", async ({
+	page,
+	browserName,
+}) => {
+	// Nora has nothing at this past event; the other browsers' riders have, and
+	// the runs share the server, so one browser is enough here.
+	test.skip(browserName !== "chromium", "one rider without a report");
+	await signIn(page, EVENT_RIDER.chromium);
+	// The weekend is older than the five past events shown first.
+	await page.goto("/events?past=all");
+	await skipTours(page);
+	await page.waitForLoadState();
+	await markPage(page);
+	const card = page.locator("li.event-card").filter({
+		hasText: "Sample training weekend",
+	});
+	await card.locator("button.event-report").click();
+	const reported = card.locator("button.event-reported");
+	await expect(reported).toHaveAttribute("aria-pressed", "true");
+	expect(await samePage(page)).toBe(true);
+	await reported.hover();
+	await expect(reported.locator(".event-next")).toBeVisible();
+	await expect(reported.locator(".event-now")).toBeHidden();
+	await reported.click();
+	await expect(card.locator("button.event-report")).toBeVisible();
+	await expect(page.locator("main .notice")).toHaveCount(0);
+	expect(await samePage(page)).toBe(true);
+});
+
 test("an organiser cycles a reported rider's box (019 US5)", async ({
 	page,
 }) => {

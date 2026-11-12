@@ -210,25 +210,6 @@ describe("Bin dabei and Doch nicht dabei (US2)", () => {
 		expect(card).not.toContain('aria-pressed="true"');
 	});
 
-	it("refuses to withdraw once the event has taken place, on its day too", async () => {
-		const today = await insertEvent("team_training", "2026-10-06");
-		await env.DB.prepare(
-			"INSERT INTO participation_reports (event_id, athlete_id, reported_at) VALUES (?, ?, ?)",
-		)
-			.bind(today, RIDER, NOW - 86400)
-			.run();
-		const res = await post(`/events/${today}/report/delete`);
-		expect(res.headers.get("Location")).toBe(
-			`/events?error=event_over#event-${today}`,
-		);
-		expect(await reportsOf()).toEqual([today]);
-	});
-
-	it("shows the refusal notice", async () => {
-		const error = await page("/events?error=event_over");
-		expect(error.html).toContain(escapeHtml(de["events.error.event_over"]));
-	});
-
 	it("refuses an organiser, another origin and a visitor", async () => {
 		const event = await insertEvent("team_training", "2026-10-10");
 		expect((await post(`/events/${event}/report`, ORGANISER)).status).toBe(403);
@@ -265,21 +246,66 @@ describe("Bin dabei and Doch nicht dabei (US2)", () => {
 });
 
 describe("Ich war dabei (US3)", () => {
-	it("stores a request and locks the button (FR-005)", async () => {
+	it("stores a request and shows the green button with both labels (FR-005)", async () => {
 		const event = await insertEvent("team_training", "2026-09-26");
 		const before = cardOf((await page()).html, event);
 		expect(before).toContain(`action="/events/${event}/report"`);
 		expect(before).toContain(escapeHtml(de["events.report"]));
 		await post(`/events/${event}/report`);
 		const card = cardOf((await page()).html, event);
-		expect(card).toContain('aria-disabled="true"');
+		expect(card).toContain(`action="/events/${event}/report/delete"`);
+		expect(card).toContain('aria-pressed="true"');
 		expect(card).toContain(
 			`aria-label="${escapeHtml(de["events.reported.label"])}"`,
 		);
-		expect(card).not.toContain("<form");
+		expect(card).toContain(`<span class="event-next">`);
+		expect(card).toContain(escapeHtml(de["events.leave"]));
+		expect(card).not.toContain("aria-disabled");
 	});
 
-	it("turns an intent into a locked request once the event has taken place", async () => {
+	it("withdraws an open request after the event, on its day too (amendment 2026-11-12)", async () => {
+		const past = await insertEvent("team_training", "2026-09-26");
+		const today = await insertEvent("team_training", "2026-10-06");
+		await post(`/events/${past}/report`);
+		await post(`/events/${today}/report`);
+		const before = await snapshot();
+		for (const event of [past, today]) {
+			const res = await post(`/events/${event}/report/delete`);
+			expect(res.status).toBe(303);
+			expect(res.headers.get("Location")).toBe(`/events#event-${event}`);
+		}
+		expect(await reportsOf()).toEqual([]);
+		expect(await snapshot()).toEqual(before);
+		const { html } = await page();
+		for (const event of [past, today]) {
+			const card = cardOf(html, event);
+			expect(card).toContain(`action="/events/${event}/report"`);
+			expect(card).not.toContain('aria-pressed="true"');
+		}
+	});
+
+	it("keeps all past events open after a report or a withdrawal", async () => {
+		const event = await insertEvent("team_training", "2026-09-26");
+		const all = cardOf((await page("/events?past=all")).html, event);
+		expect(all).toContain(`action="/events/${event}/report?past=all"`);
+		const reported = await post(`/events/${event}/report?past=all`);
+		expect(reported.headers.get("Location")).toBe(
+			`/events?past=all#event-${event}`,
+		);
+		const card = cardOf((await page("/events?past=all")).html, event);
+		expect(card).toContain(`action="/events/${event}/report/delete?past=all"`);
+		const withdrawn = await post(`/events/${event}/report/delete?past=all`);
+		expect(withdrawn.headers.get("Location")).toBe(
+			`/events?past=all#event-${event}`,
+		);
+		await attendRaw(event, [RIDER]);
+		const refused = await post(`/events/${event}/report?past=all`);
+		expect(refused.headers.get("Location")).toBe(
+			`/events?error=already_attending&past=all#event-${event}`,
+		);
+	});
+
+	it("turns an intent into a request once the event has taken place, still withdrawable", async () => {
 		const event = await insertEvent("team_training", "2026-10-06");
 		await env.DB.prepare(
 			"INSERT INTO participation_reports (event_id, athlete_id, reported_at) VALUES (?, ?, ?)",
@@ -287,8 +313,24 @@ describe("Ich war dabei (US3)", () => {
 			.bind(event, RIDER, NOW - 86400)
 			.run();
 		const card = cardOf((await page()).html, event);
-		expect(card).toContain('aria-disabled="true"');
-		expect(card).not.toContain("<form");
+		expect(card).toContain(`action="/events/${event}/report/delete"`);
+		expect(card).toContain(
+			`aria-label="${escapeHtml(de["events.reported.label"])}"`,
+		);
+		await post(`/events/${event}/report/delete`);
+		expect(await reportsOf()).toEqual([]);
+	});
+
+	it("refuses a withdrawal once attendance is recorded", async () => {
+		const event = await insertEvent("team_training", "2026-09-26");
+		await attendRaw(event, [RIDER]);
+		const before = await snapshot();
+		const res = await post(`/events/${event}/report/delete`);
+		expect(res.headers.get("Location")).toBe(
+			`/events?error=already_attending#event-${event}`,
+		);
+		expect(await snapshot()).toEqual(before);
+		expect(await reportsOf()).toEqual([]);
 	});
 
 	it("says 'Du warst dabei' once attendance is recorded, without a button", async () => {

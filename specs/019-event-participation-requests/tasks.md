@@ -11,7 +11,8 @@ description: "Task list for riders reporting team-event participation"
 **Status**: T001–T039 and T041–T043 done; T001 and T043 ran in CI, since this
 session couldn't reach the package registry. T040 moved to feature 020 (research
 R8); T044 is the owner's walk-through. T045–T050 (Phase 11) amend US3 after
-release: riders can withdraw an open request (spec session 2026-11-12).
+release: riders can withdraw an open request (spec session 2026-11-12); all
+done, T051 added while building it.
 
 **Tests**: REQUIRED (constitution Principle V). Write each test task first, run it
 and confirm it fails, then implement. Riders and events are synthetic; nothing
@@ -342,7 +343,7 @@ FR-005, US3 scenario 4, edge cases).
 
 ### Tests (write first, confirm they fail)
 
-- [ ] T045 [P] [US3] `test/integration/rider-events.test.ts`:
+- [x] T045 [P] [US3] `test/integration/rider-events.test.ts`:
   - replace "refuses to withdraw once the event has taken place, on its day too"
     with: an open request at a past event and one on the event's day are
     withdrawn by `POST /events/{id}/report/delete` (`303 /events#event-{id}`, no
@@ -356,14 +357,14 @@ FR-005, US3 scenario 4, edge cases).
     `/report/delete`, `aria-pressed="true"`, `aria-label` =
     `events.reported.label`, an `event-next` span with `events.leave`, and no
     `aria-disabled`.
-- [ ] T046 [P] [US4] `test/integration/organiser-requests.test.ts`: a request the rider withdrew before "Eintragen" is
+- [x] T046 [P] [US4] `test/integration/organiser-requests.test.ts`: a request the rider withdrew before "Eintragen" is
   refused with `organiser.error.request_settled`, and nothing is recorded. It
   may pass at once, like "changes nothing for a request someone else settled";
   it guards the race the spec's edge case names.
 
 ### Implementation
 
-- [ ] T047 [US3] `src/http/sections/events.ts`:
+- [x] T047 [US3] `src/http/sections/events.ts`:
   - the `request` case becomes a form like `intent`: `POST {report}/delete`,
     class `event-button event-reported`, `aria-pressed="true"`,
     `aria-label="events.reported.label"`, spans `event-now` (tick, "Ich war
@@ -371,20 +372,24 @@ FR-005, US3 scenario 4, edge cases).
   - `changeReport` drops the `hasTakenPlace` check for withdrawals (research
     R13), and `ERRORS` drops `event_over`;
   - update the comment on `handleWithdraw`.
-- [ ] T048 [P] [US3] `src/http/style.ts`: `.event-reported` gets the red hover
+- [x] T048 [P] [US3] `src/http/style.ts`: `.event-reported` gets the red hover
   and focus of `.event-joined`; drop `.event-reported{cursor:default}` and the
   `.event-foot>.event-reported` margin rule (the button now sits in a form).
-- [ ] T049 [P] [US3] Catalogs in all ten languages (`src/i18n/messages/*.ts`):
+- [x] T049 [P] [US3] Catalogs in all ten languages (`src/i18n/messages/*.ts`):
   `events.reported.label` reads like `events.joined.label` with the tap hint
   (contracts/messages.md); remove `events.error.event_over`, and remove it from
   `test/unit/catalogs.test.ts`. German first, then fresh wording per language.
 
 ### Polish
 
-- [ ] T050 `e2e/smoke.e2e.ts`: extend T042: a rider taps "Ich war dabei" on a
+- [x] T050 `e2e/smoke.e2e.ts`: extend T042: a rider taps "Ich war dabei" on a
   past event, the button turns green, a second tap withdraws it and the outlined
   button is back. Run the targeted tests (`rider-events`, the confirm tests,
   `catalogs`, `no-hardcoded-copy`); CI runs the rest.
+- [x] T051 [US3] Found by T050: with "Alle zeigen" open, a report or withdrawal
+  reloaded `/events` with five past events, so an older event's card vanished.
+  The forms carry `?past=all` and the redirect keeps it
+  (contracts/http-routes.md); test in `rider-events.test.ts`.
 
 **Checkpoint**: T045 and T046 pass; quickstart §2.3 works at 360 px.
 

@@ -46,7 +46,7 @@ const PATH = "/events";
 /** Past events shown before "Alle zeigen" (FR-001). */
 const PAST_SHOWN = 5;
 
-const ERRORS = ["event_over", "already_attending", "event_missing"] as const;
+const ERRORS = ["already_attending", "event_missing"] as const;
 
 type Refusal = (typeof ERRORS)[number];
 
@@ -80,24 +80,33 @@ function dateParts(i18n: I18n, date: string) {
 	};
 }
 
-/** The event's button, or what it says once attendance is recorded. */
-function action(i18n: I18n, event: ShownEvent): SafeHtml {
+/**
+ * The event's button, or what it says once attendance is recorded. With all
+ * past events shown, the posts keep `past=all` so the card stays on the page.
+ */
+function action(i18n: I18n, event: ShownEvent, allPast: boolean): SafeHtml {
 	const report = `${PATH}/${event.row.event_id}/report`;
+	const query = allPast ? "?past=all" : "";
 	switch (event.state) {
 		case "join":
-			return html`<form method="post" action="${report}" data-swap><button class="event-button event-join"><span class="event-now">${PLUS}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.join")}</span></span></button></form>`;
+			return html`<form method="post" action="${report}${query}" data-swap><button class="event-button event-join"><span class="event-now">${PLUS}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.join")}</span></span></button></form>`;
 		case "intent":
-			return html`<form method="post" action="${report}/delete" data-swap><button class="event-button event-joined" aria-pressed="true" aria-label="${i18n.t("events.joined.label")}"><span class="event-now">${CHECK}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CLOSE}<span>${i18n.t("events.leave")}</span></span></button></form>`;
+			return html`<form method="post" action="${report}/delete${query}" data-swap><button class="event-button event-joined" aria-pressed="true" aria-label="${i18n.t("events.joined.label")}"><span class="event-now">${CHECK}<span>${i18n.t("events.join")}</span></span><span class="event-next">${CLOSE}<span>${i18n.t("events.leave")}</span></span></button></form>`;
 		case "report":
-			return html`<form method="post" action="${report}" data-swap><button class="event-button event-report"><span class="event-now">${PLUS}<span>${i18n.t("events.report")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.report")}</span></span></button></form>`;
+			return html`<form method="post" action="${report}${query}" data-swap><button class="event-button event-report"><span class="event-now">${PLUS}<span>${i18n.t("events.report")}</span></span><span class="event-next">${CHECK}<span>${i18n.t("events.report")}</span></span></button></form>`;
 		case "request":
-			return html`<button type="button" class="event-button event-reported" aria-disabled="true" aria-label="${i18n.t("events.reported.label")}">${CHECK}<span>${i18n.t("events.report")}</span></button>`;
+			return html`<form method="post" action="${report}/delete${query}" data-swap><button class="event-button event-reported" aria-pressed="true" aria-label="${i18n.t("events.reported.label")}"><span class="event-now">${CHECK}<span>${i18n.t("events.report")}</span></span><span class="event-next">${CLOSE}<span>${i18n.t("events.leave")}</span></span></button></form>`;
 		case "attended":
 			return html`<p class="event-attended">${CHECK}<span>${i18n.t("events.attended")}</span></p>`;
 	}
 }
 
-function card(i18n: I18n, event: ShownEvent, rules: RynkeRules): SafeHtml {
+function card(
+	i18n: I18n,
+	event: ShownEvent,
+	rules: RynkeRules,
+	allPast: boolean,
+): SafeHtml {
 	const { row } = event;
 	const parts = dateParts(i18n, row.event_date);
 	// A tour day earns nothing, so it shows no amounts (feature 021 FR-004).
@@ -117,7 +126,7 @@ ${name}<div class="event-foot">${
 			? null
 			: html`<p class="event-amounts"><span class="chip">${miniCoin("team")}${i18n.t("events.amount.team", { n: String(amounts.team) })}</span><span class="chip">${miniCoin("training")}${i18n.t("events.amount.training", { n: String(amounts.training) })}</span></p>
 `
-	}${action(i18n, event)}</div>
+	}${action(i18n, event, allPast)}</div>
 </div>
 </li>
 `;
@@ -148,7 +157,7 @@ export function eventsBody(
 	const pastShown = allPast ? past : past.slice(0, PAST_SHOWN);
 	const list = (events: readonly ShownEvent[]) =>
 		html`<ol class="event-list">
-${events.map((e) => card(i18n, e, rules))}</ol>
+${events.map((e) => card(i18n, e, rules, allPast))}</ol>
 `;
 	const more =
 		pastShown.length < past.length
@@ -193,15 +202,23 @@ export function handleEvents(
 	);
 }
 
-/** `303` back to the event's card, with a notice only when refused. */
-function back(eventId: number, error?: Refusal) {
-	const query = error === undefined ? "" : `?error=${error}`;
-	return redirect(`${PATH}${query}#event-${eventId}`, 303);
+/**
+ * `303` back to the event's card, with a notice only when refused, keeping
+ * `past=all` when the rider had all past events open.
+ */
+function back(eventId: number, allPast: boolean, error?: Refusal) {
+	const query = new URLSearchParams();
+	if (error !== undefined) query.set("error", error);
+	if (allPast) query.set("past", "all");
+	const search = `${query}` === "" ? "" : `?${query}`;
+	return redirect(`${PATH}${search}#event-${eventId}`, 303);
 }
 
 /**
  * Creates (`withdraw` false) or withdraws the viewer's report, after the
- * checks of research R13. Organisers and anyone not allowed get 403.
+ * checks of research R13. Organisers and anyone not allowed get 403. A report
+ * can be withdrawn before and after the event, until an organiser records the
+ * attendance (amendment 2026-11-12).
  */
 async function changeReport(
 	request: Request,
@@ -211,6 +228,7 @@ async function changeReport(
 	withdraw: boolean,
 ): Promise<Response> {
 	const path = `${PATH}/${eventId}/report${withdraw ? "/delete" : ""}`;
+	const allPast = new URL(request.url).searchParams.get("past") === "all";
 	if (!isSameOrigin(request)) return forbidden(i18n, path);
 	const viewer = await readViewer(request, ctx);
 	if (
@@ -238,17 +256,14 @@ async function changeReport(
 		return redirect(`${PATH}?error=event_missing`, 303);
 	}
 	if (((attendedRows?.results ?? []) as { n: number }[])[0]?.n === 1) {
-		return back(eventId, "already_attending");
+		return back(eventId, allPast, "already_attending");
 	}
 	if (withdraw) {
-		if (hasTakenPlace(event.event_date, berlinDate(ctx.now()))) {
-			return back(eventId, "event_over");
-		}
 		await deleteReportsStatement(db, eventId, [athleteId]).run();
-		return back(eventId);
+		return back(eventId, allPast);
 	}
 	await insertReportStatement(db, eventId, athleteId, ctx.now()).run();
-	return back(eventId);
+	return back(eventId, allPast);
 }
 
 /** `POST /events/{id}/report`: "Bin dabei" or "Ich war dabei" (FR-004, FR-005). */
@@ -261,7 +276,7 @@ export function handleReport(
 	return changeReport(request, ctx, i18n, eventId, false);
 }
 
-/** `POST /events/{id}/report/delete`: "Doch nicht dabei" (FR-004). */
+/** `POST /events/{id}/report/delete`: "Doch nicht dabei" (FR-004, FR-005). */
 export function handleWithdraw(
 	request: Request,
 	ctx: Ctx,

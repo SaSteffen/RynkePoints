@@ -903,10 +903,8 @@ export const sv: Catalog = {
 	"events.leave": "Kommer inte ändå",
 	"events.joined.label": "Jag kommer. Tryck för att avanmäla.",
 	"events.report": "Jag var där",
-	"events.reported.label": "Jag var där, anmält",
+	"events.reported.label": "Jag var där, anmält. Tryck för att dra tillbaka.",
 	"events.attended": "Du var där",
-	"events.error.event_over":
-		"Aktiviteten är över; du kan inte avanmäla dig längre.",
 	"events.error.already_attending":
 		"Du är redan tillagd i den här aktiviteten.",
 	"events.error.event_missing": "Den här aktiviteten finns inte längre.",
