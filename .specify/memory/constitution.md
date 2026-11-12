@@ -1,6 +1,19 @@
 <!--
 Sync Impact Report
-- Version change: 2.4.0 → 2.5.0
+- Version change: 2.5.0 → 2.6.0
+- Rationale: MINOR — the Language section's team content rule matches what was
+  decided and built: the common phrases, badge names and badge hints that every
+  team without its own set gets are English only and aren't translated (phrase
+  translation shelved 2026-11-09, feature 034 FR-014). Before, content shared by
+  all teams had to exist in every shipped locale. Team content lives in
+  `src/content/`, as CLAUDE.md already says.
+- Principles modified: none (Language section)
+- Sections added: none
+- Sections removed: none
+- Templates checked for alignment: .specify/templates/* — unchanged.
+- Follow-up TODOs: none.
+
+Previous: 2.4.0 → 2.5.0
 - Rationale: MINOR — the Language section no longer assumes one German team. Each
   team sets its default language in team data (the founding team, Team Rynkeby
   Hamburg, stays German). Every shipped locale is offered on every team's site.
@@ -251,9 +264,11 @@ public and maintained in English.
   pages say so. Adding another locale MUST only require adding its translation
   strings, not changing code. Per Principle IV, plain typed message catalogs are
   preferred over an i18n library unless a plan justifies one.
-- A team's own content sets, such as its motivational phrases or badge names, MAY
-  stay in one language whatever language the rider picks; content shared by all teams
-  MUST exist in every shipped locale.
+- Team content (the motivational phrases, badge names and badge hints, kept in
+  `src/content/`) follows the team, not the rider's language, and MAY stay in one
+  language whatever language the rider picks. A team with its own set has it in its
+  default language; every other team gets the common set, which is in English and
+  isn't translated. All other user-facing text MUST exist in every shipped locale.
 - Everything else MUST be in English: code, identifiers, comments, log messages,
   database schema, API/JSON field names, test names, commit messages, and project
   documentation (README, specs, plans, tasks, this constitution).
@@ -280,4 +295,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 2.5.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-07
+**Version**: 2.6.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-12
