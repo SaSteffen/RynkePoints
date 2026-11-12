@@ -319,10 +319,10 @@ confirms, denies or leaves them open.
 - [x] T039 [P] Consent and privacy texts name reports (FR-052, research R11):
   `landing.purpose`, the privacy page's sentence, in de and en; extend
   `test/integration/privacy.test.ts`.
-- [ ] T040 [P] `src/http/tour.ts`: a rider step for Termine (`tour.rider.events`),
+- [X] T040 [P] `src/http/tour.ts`: a rider step for Termine (`tour.rider.events`),
   riders who aren't organisers only; extend `test/integration/tour.test.ts`.
   *Not done here*: organisers take the same rider tour, so this needs per-rider
-  steps (research R8). Moved to feature 020 (issue #157), which adds them.
+  steps (research R8). Moved to feature 020 (issue #157), which adds them. *Done in feature 020 (`tour.rider.events` in `src/http/tour.ts`).*
 - [x] T041 [P] `dev/` sample data: intents at upcoming events, open requests at
   three past events, one rider with three and one with two (research R14).
 - [x] T042 [P] `e2e/smoke.e2e.ts`: a rider taps "Bin dabei", hovers it for
@@ -330,8 +330,8 @@ confirms, denies or leaves them open.
 - [x] T043 Run `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`;
   `test/unit/catalogs.test.ts` and `test/integration/no-hardcoded-copy.test.ts`
   pass with the new and removed keys and pages.
-- [ ] T044 Walk through [quickstart.md](quickstart.md) §2 with `pnpm dev`, at
-  360 px in light and dark mode.
+- [X] T044 Walk through [quickstart.md](quickstart.md) §2 with `pnpm dev`, at
+  360 px in light and dark mode. *Dropped 2026-11-12: walk-throughs happen on the live site after the release, not as tasks.*
 
 ---
 

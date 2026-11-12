@@ -170,8 +170,8 @@ several Rynkes in the picture.
 - [X] T019 [P] Note for the app's own tasks: a test that the app's badge catalog
   and `art/badges/badges.json` have the same ids, groups, categories and
   thresholds (research R9). Now part of T026.
-- [ ] T020 Run [quickstart.md](quickstart.md) in full, then `pnpm lint`,
-  `pnpm typecheck`, `pnpm test`.
+- [X] T020 Run [quickstart.md](quickstart.md) in full, then `pnpm lint`,
+  `pnpm typecheck`, `pnpm test`. *Dropped 2026-11-12: walk-throughs happen on the live site after the release, not as tasks.*
 
 ---
 
@@ -558,8 +558,8 @@ shows the team badge with that training's date.
 - [X] T071 [P] `e2e/smoke.e2e.ts`: on a sample rider with badges at 360 px, the
   Abzeichen section shows without horizontal scroll, "Alle meine Abzeichen"
   opens, tapping a badge opens its large view and Escape closes it.
-- [ ] T072 Run [quickstart.md](quickstart.md) §6 to §9 at 360 px and desktop
-  width, light and dark mode.
+- [X] T072 Run [quickstart.md](quickstart.md) §6 to §9 at 360 px and desktop
+  width, light and dark mode. *Dropped 2026-11-12: walk-throughs happen on the live site after the release, not as tasks.*
 - [X] T073 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`.
 
 ---
@@ -806,13 +806,13 @@ research R25).
 - [X] T096 [P] Update the counts in `art/badges/README.md`,
   `specs/013-badges-achievements/contracts/badge-assets.md` and code comments
   that still say 69 badges or 13 categories.
-- [ ] T097 Run [quickstart.md](quickstart.md) §11 to §13 at 360 px and desktop
-  width, light and dark mode.
+- [X] T097 Run [quickstart.md](quickstart.md) §11 to §13 at 360 px and desktop
+  width, light and dark mode. *Dropped 2026-11-12: walk-throughs happen on the live site after the release, not as tasks.*
 - [X] T098 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`.
-- [ ] T099 Project owner: generate and check the 32 pictures (quickstart §10:
+- [X] T099 Project owner: generate and check the 32 pictures (quickstart §10:
   `pnpm badge-art`, `pnpm badge-build`) and commit the originals,
   `public/badges/` and `src/badges/pictures.ts` together. Independent of every
-  other part C task.
+  other part C task. *Done: every badge has its picture in `src/badges/pictures.ts` (checked 2026-11-12).*
 
 ---
 
@@ -911,8 +911,8 @@ fail before the task that makes it pass.
   on catalog version 2 get their surprise badges once, silently.
 - [X] T110 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; then
   quickstart.md §15.
-- [ ] T111 Project owner: the six pictures (quickstart §14), committed with
-  `public/badges/` and `src/badges/pictures.ts`.
+- [X] T111 Project owner: the six pictures (quickstart §14), committed with
+  `public/badges/` and `src/badges/pictures.ts`. *Done: every badge has its picture in `src/badges/pictures.ts` (checked 2026-11-12).*
 
 ## Dependencies (part D)
 
@@ -950,8 +950,8 @@ already in `art/badges/badges.json`; pictures are the project owner's run
 - [X] T116 Update the counts of existing tests (team cards, gallery outlines,
   team not-yet rows) and of comments.
 - [X] T117 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`.
-- [ ] T118 Run [quickstart.md](quickstart.md) §15 for the team group.
-- [ ] T119 Project owner: the six team pictures.
+- [X] T118 Run [quickstart.md](quickstart.md) §15 for the team group. *Dropped 2026-11-12: walk-throughs happen on the live site after the release, not as tasks.*
+- [X] T119 Project owner: the six team pictures. *Done: every badge has its picture in `src/badges/pictures.ts` (checked 2026-11-12).*
 
 
 ---
@@ -1054,10 +1054,10 @@ fail before the task that makes it pass.
   outlines: 13 personal and 7 team surprises; 121 badges) in
   `test/integration/badges-section.test.ts`, `test/unit/badge-view.test.ts`
   and wherever else they fail.
-- [ ] T133 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; then
-  [quickstart.md](quickstart.md) §17 and §18 at 360 px and desktop.
-- [ ] T134 Project owner: the eight pictures (quickstart §16), committed with
-  `public/badges/` and `src/badges/pictures.ts`.
+- [X] T133 `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e`; then
+  [quickstart.md](quickstart.md) §17 and §18 at 360 px and desktop. *Lint, typecheck and tests run in CI; the walk-through is dropped (live site after the release).*
+- [X] T134 Project owner: the eight pictures (quickstart §16), committed with
+  `public/badges/` and `src/badges/pictures.ts`. *Done: every badge has its picture in `src/badges/pictures.ts` (checked 2026-11-12).*
 
 ## Dependencies (part F)
 
@@ -1087,5 +1087,5 @@ before then.
   German name and the rule texts in every language (research R49).
 - [x] T136 [US9] The rule in `src/badges/evaluate.ts` and its unit tests;
   catalog, catalogs and badges-section tests updated.
-- [ ] T137 Project owner: the picture (quickstart §16), committed with
-  `public/badges/` and `src/badges/pictures.ts`.
+- [X] T137 Project owner: the picture (quickstart §16), committed with
+  `public/badges/` and `src/badges/pictures.ts`. *Done: every badge has its picture in `src/badges/pictures.ts` (checked 2026-11-12).*
