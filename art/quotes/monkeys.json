@@ -85,6 +85,7 @@
 			"id": "advent",
 			"name": "Adventszeit",
 			"seasonal": true,
+			"holes": [[625, 1544], [951, 1536]],
 			"scene": "Standing, holding up a big cream Advent calendar card in one hand with one little door swung open, a gold-wrapped chocolate peeking out of it, a small sage (#B5D6A7) fir wreath with a gold bow hanging from the other wrist. Mouth open mid-sentence. No religious symbols: no candles, no stars of Bethlehem, no angels. {{kit}}"
 		},
 		{
