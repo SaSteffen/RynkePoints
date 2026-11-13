@@ -37,6 +37,8 @@ export const europe: TeamData = {
 	holidays: [],
 	// The founding team's club (wrangler.jsonc `STRAVA_CLUB_ID`).
 	otherClubIds: [1088689],
+	// Half of the re-check's 300 reads a day (feature 036 FR-008).
+	recheckAllowance: 150,
 	// For now an English translation of the founding team's handout (T082).
 	rulesHandout: { path: "/teams/europe/rynke-points.pdf", locale: "en" },
 	dev: { host: "europe.localhost", port: 8790, inspectorPort: 9231 },

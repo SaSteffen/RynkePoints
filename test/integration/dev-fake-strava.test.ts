@@ -8,8 +8,10 @@ import {
 	type MockInstance,
 	vi,
 } from "vitest";
+import { answerStrava } from "../../dev/fake-strava/api";
 import { EUROPE_SAMPLES } from "../../dev/fake-strava/samples.europe";
 import { SAMPLE_RIDERS } from "../../dev/fake-strava/samples.hamburg";
+import { encodeAccess } from "../../dev/fake-strava/tokens";
 import { forgetAccessKeys } from "../../dev/sandbox-access";
 import {
 	type DevEnv,
@@ -988,6 +990,102 @@ describe("simulated Strava events (US3)", () => {
 		);
 	});
 
+	// Feature 036 research R11: a crop on Strava sends no event; the ride edit
+	// re-check, run by hand, takes it over.
+	it("changes a ride without an event, and the re-check takes it over", async () => {
+		const id = await count(
+			`SELECT a.strava_activity_id AS n FROM activities a
+			JOIN ride_results r USING (strava_activity_id)
+			WHERE a.athlete_id = ? AND r.counts = 1
+			ORDER BY a.start_date DESC LIMIT 1`,
+			FIONA,
+		);
+		const before = await training(FIONA);
+		ctx.queue.sent.length = 0;
+		const res = await post("/_dev/events", [
+			["athleteId", String(FIONA)],
+			["action", "update"],
+			["silent", "1"],
+			["activityId", String(id)],
+			["distanceKm", "300"],
+		]);
+		expect(res.status).toBe(303);
+		expect(
+			new URL(res.headers.get("Location") ?? "", LOCAL).searchParams.get(
+				"flash",
+			),
+		).toMatch(/without an event/);
+		expect(ctx.queue.sent).toEqual([]);
+		expect(await training(FIONA)).toBe(before);
+
+		const run = await post("/_dev/recheck", []);
+		expect(run.status).toBe(303);
+		expect(
+			new URL(run.headers.get("Location") ?? "", LOCAL).searchParams.get(
+				"flash",
+			),
+		).toMatch(/Sent \d+ ride re-checks/);
+		const checks = ctx.queue.sent.filter(
+			(m) => m.body.kind === "recheck-rider",
+		);
+		expect(checks.length).toBeGreaterThan(0);
+		expect(checks.every((m) => m.delaySeconds === undefined)).toBe(true);
+		await drain();
+		expect(
+			await count(
+				"SELECT distance_m AS n FROM activities WHERE strava_activity_id = ?",
+				id,
+			),
+		).toBe(300_000);
+		// Far too fast now: the verdict and the Rynke followed.
+		expect(await training(FIONA)).toBeLessThan(before);
+		// Pressed again, it checks again and nothing changes.
+		const after = await training(FIONA);
+		ctx.queue.sent.length = 0;
+		await post("/_dev/recheck", []);
+		await drain();
+		expect(await training(FIONA)).toBe(after);
+	});
+
+	it("lists newest first without `after`, oldest first with it (036 R3)", async () => {
+		const { results } = await ctx.env.DB.prepare(
+			`SELECT json_extract(body, '$.start_date') AS d FROM fake_strava_activities
+			WHERE athlete_id = ? ORDER BY d, id`,
+		)
+			.bind(FIONA)
+			.all<{ d: string }>();
+		const dates = results.map((r) => r.d);
+		const token = encodeAccess({
+			athleteId: FIONA,
+			scopes: ALL_SCOPES,
+			expiresAt: NOW + 3600,
+		});
+		const answer = async (query: string) => {
+			const res = await answerStrava(
+				new Request(
+					`https://www.strava.com/api/v3/athlete/activities?${query}`,
+					{
+						headers: { Authorization: `Bearer ${token}` },
+					},
+				),
+				ctx.env,
+				ctx.env.DB,
+				NOW,
+			);
+			return ((await res.json()) as { start_date: string }[]).map(
+				(a) => a.start_date,
+			);
+		};
+		expect(dates.length).toBeGreaterThan(2);
+		expect(await answer("page=1&per_page=200")).toEqual([...dates].reverse());
+		expect(await answer("page=1&per_page=2")).toEqual(
+			[...dates].reverse().slice(0, 2),
+		);
+		expect(await answer("after=0&page=1&per_page=2")).toEqual(
+			dates.slice(0, 2),
+		);
+	});
+
 	it("drops a ride turned private for a rider without activity:read_all", async () => {
 		const id = await count(
 			`SELECT MIN(a.strava_activity_id) AS n FROM activities a
@@ -1129,6 +1227,8 @@ describe("the daily work on demand (027)", () => {
 		const page = await (await get("/_dev/")).text();
 		expect(page).toContain('<form method="post" action="/_dev/scheduled">');
 		expect(page).toContain("Run the daily work");
+		// The ride edit re-check's hourly run, on demand too (036 FR-024).
+		expect(page).toContain('<form method="post" action="/_dev/recheck">');
 	});
 });
 

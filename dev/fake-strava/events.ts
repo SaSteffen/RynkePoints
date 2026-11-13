@@ -281,6 +281,11 @@ export async function simulateEvent(
 	if (action === "update") {
 		const next = updated(stored.body, form);
 		await updateActivity(db, next);
+		// Strava sends no event for a crop or another change of figures; the
+		// ride edit re-check takes it over (feature 036).
+		if (field(form, "silent")) {
+			return `Changed ride ${id} of ${who} without an event: the re-check takes it over`;
+		}
 		const status = await send(
 			ctx,
 			origin,

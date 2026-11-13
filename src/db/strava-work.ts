@@ -217,6 +217,23 @@ export function totalWaitingStatement(db: D1Database): D1PreparedStatement {
 }
 
 /**
+ * Whether Strava work is ready to run: the ride edit re-check stands back then
+ * (feature 036 research R8). Work backing off after a failure doesn't hold it.
+ */
+export async function anyWorkReady(
+	db: D1Database,
+	now: number,
+): Promise<boolean> {
+	const row = await db
+		.prepare(
+			"SELECT EXISTS (SELECT 1 FROM strava_work WHERE not_before <= ?) AS ready",
+		)
+		.bind(now)
+		.first<{ ready: number }>();
+	return row?.ready === 1;
+}
+
+/**
  * Everything a rider had waiting goes, held notifications included: they need
  * to reconnect, or are gone (FR-010).
  */

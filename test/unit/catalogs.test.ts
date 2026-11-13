@@ -194,7 +194,8 @@ const CONTRACT_IDS = [
 	"rynke.ride.fixHint",
 	"rynke.ride.fix.summary",
 	"rynke.ride.fix.crop",
-	"rynke.ride.fix.rename",
+	// specs/036-ride-edit-recheck/contracts/ride-card.md: wait, no new title.
+	"rynke.ride.fix.wait_recheck",
 	"rynke.ride.fix.manual",
 	"rynke.ride.fix.wait",
 	"rynke.reason.flagged",
@@ -887,6 +888,16 @@ const CONTRACT_IDS = [
 	"admin.cloudflare.heading",
 	"admin.cloudflare.note",
 	"admin.cloudflare.unavailable",
+	// specs/036-ride-edit-recheck/contracts/usage-view.md
+	"admin.recheck.heading",
+	"admin.recheck.allowance",
+	"admin.recheck.none",
+	"admin.recheck.made",
+	"admin.recheck.skipped",
+	"admin.recheck.failed",
+	"admin.recheck.over24h",
+	"admin.recheck.runsHeld",
+	"admin.recheck.listOrder",
 	"admin.waiting.heading",
 	"admin.waiting.body",
 	"admin.waiting.minutes",
@@ -1157,6 +1168,21 @@ describe("catalog contents", () => {
 		expect(de["rynke.team"]).toBe("Teamrynke");
 		expect(en["rynke.training"]).toBe("Training Rynke");
 		expect(en["rynke.team"]).toBe("Team Rynke");
+	});
+
+	// Feature 036 FR-020: the ride card says to wait, never to rename.
+	it("has the wait step of the ride re-check and no rename step", () => {
+		for (const [locale, catalog] of catalogs) {
+			expect(Object.keys(catalog), locale).toContain(
+				"rynke.ride.fix.wait_recheck",
+			);
+			expect(Object.keys(catalog), locale).not.toContain(
+				"rynke.ride.fix.rename",
+			);
+		}
+		expect(de["rynke.ride.fix.wait_recheck"]).toBe(
+			"Danach musst du nichts weiter tun. Die App schaut regelmäßig bei Strava nach und übernimmt die Änderung von selbst, meist nach ein paar Stunden, spätestens nach 24 Stunden. Tut sich dann nichts, wende dich an die Orga.",
+		);
 	});
 
 	it("heads the ride table with all the rider's rides (US5)", () => {

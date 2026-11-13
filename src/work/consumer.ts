@@ -115,6 +115,20 @@ async function processMessage(
 		result = { kind: "transient", reason: `exception: ${errorName(err)}` };
 	}
 
+	if (body.kind === "recheck-rider") {
+		// Droppable (feature 036 FR-017): never re-sent and never in failed_work.
+		// Only an exception outside Strava (D1) is retried; the check converges.
+		if (result.kind === "transient") {
+			await transientFailure(message, body, ctx, attempt, result.reason);
+			return;
+		}
+		if (result.kind === "refresh-refused") {
+			await markNeedsReconnect(ctx.env.DB, body.athleteId, ctx.now());
+		}
+		message.ack();
+		return;
+	}
+
 	if (body.kind === "delete-rider" && result.kind !== "ok") {
 		// Deletion is never deferred or stopped by a refused refresh (rule 4):
 		// keep retrying, and on the last attempt delete anyway.
@@ -164,11 +178,12 @@ async function transientFailure(
 		message.retry({ delaySeconds: backoffSeconds(message.attempts) });
 		return;
 	}
-	if (body.kind === "send-notification") {
+	if (body.kind === "send-notification" || body.kind === "recheck-rider") {
 		// A notification never fails anything (feature 010 FR-018). The handler
-		// already stops after 4 tries; this is defence in depth.
+		// already stops after 4 tries; this is defence in depth. A re-check is
+		// never kept for later: the rider's next turn checks again (036 FR-017).
 		console.error(
-			`send-notification for athlete ${body.athleteId} dropped: ${reason}`,
+			`${body.kind} for athlete ${body.athleteId} dropped: ${reason}`,
 		);
 	} else if (body.kind === "delete-rider") {
 		// The deletion must complete (Principle I), even if revoking never did.

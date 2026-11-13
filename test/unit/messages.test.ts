@@ -3,6 +3,7 @@ import {
 	parseWorkMessage,
 	serializeWorkMessage,
 	type WorkMessage,
+	waitsForStrava,
 } from "../../src/work/messages";
 
 const valid: WorkMessage[] = [
@@ -37,6 +38,18 @@ const valid: WorkMessage[] = [
 		revoke: true,
 	},
 	{ kind: "evaluate-rider", athleteId: 900001 },
+	{
+		kind: "recheck-rider",
+		athleteId: 900001,
+		stamp: 1794553080,
+		previous: 1794524280,
+	},
+	{
+		kind: "recheck-rider",
+		athleteId: 900001,
+		stamp: 1794553080,
+		previous: null,
+	},
 ];
 
 describe("parseWorkMessage", () => {
@@ -163,6 +176,20 @@ describe("parseWorkMessage", () => {
 			`send-notification with subscriptionId ${subscriptionId}`,
 			{ kind: "send-notification", athleteId: 1, subscriptionId },
 		]),
+		...[undefined, null, -1, 1.5, "1794553080"].map(
+			(stamp): [string, unknown] => [
+				`recheck-rider with stamp ${stamp}`,
+				{ kind: "recheck-rider", athleteId: 1, stamp, previous: null },
+			],
+		),
+		...[undefined, -1, 1.5, "0"].map((previous): [string, unknown] => [
+			`recheck-rider with previous ${previous}`,
+			{ kind: "recheck-rider", athleteId: 1, stamp: 5, previous },
+		]),
+		[
+			"recheck-rider without id",
+			{ kind: "recheck-rider", stamp: 5, previous: null },
+		],
 	])("rejects %s", (_label, body) => {
 		expect(parseWorkMessage(body)).toBeNull();
 	});
@@ -221,11 +248,34 @@ describe("serializeWorkMessage", () => {
 				kind: "evaluate-rider",
 			} as WorkMessage),
 		).toBe('{"kind":"evaluate-rider","athleteId":900001}');
+		expect(
+			serializeWorkMessage({
+				previous: null,
+				stamp: 7,
+				athleteId: 900001,
+				kind: "recheck-rider",
+			} as WorkMessage),
+		).toBe(
+			'{"kind":"recheck-rider","athleteId":900001,"stamp":7,"previous":null}',
+		);
 	});
 
 	it.each(valid)("round-trips $kind", (message) => {
 		expect(parseWorkMessage(JSON.parse(serializeWorkMessage(message)))).toEqual(
 			message,
 		);
+	});
+});
+
+describe("waitsForStrava", () => {
+	it("is false for recheck-rider: it never enters the Strava work table", () => {
+		expect(
+			waitsForStrava({
+				kind: "recheck-rider",
+				athleteId: 900001,
+				stamp: 7,
+				previous: null,
+			}),
+		).toBe(false);
 	});
 });

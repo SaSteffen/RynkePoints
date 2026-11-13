@@ -38,6 +38,8 @@ export interface Rider {
 	onboardedAt: number | null;
 	/** The same for the organiser tour; cleared with the organiser flag (#90). */
 	organiserOnboardedAt: number | null;
+	/** When the hourly run last chose the rider for a re-check; null: never (036). */
+	recheckedAt: number | null;
 }
 
 export interface Credentials {
@@ -64,6 +66,7 @@ export interface RiderRow {
 	admin_alerts: number;
 	onboarded_at: number | null;
 	organiser_onboarded_at: number | null;
+	rechecked_at: number | null;
 }
 
 export interface RiderGrant {
@@ -100,6 +103,7 @@ export function toRider(row: RiderRow): Rider {
 		adminAlerts: row.admin_alerts === 1,
 		onboardedAt: row.onboarded_at,
 		organiserOnboardedAt: row.organiser_onboarded_at,
+		recheckedAt: row.rechecked_at,
 	};
 }
 

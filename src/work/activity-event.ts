@@ -1,4 +1,5 @@
 import { seasonStart } from "../config";
+import type { Ctx } from "../ctx";
 import { type ActivityChange, evaluateChange } from "../rynke/apply";
 import {
 	startsInSeason,
@@ -20,25 +21,39 @@ import { teamBadgeNews } from "./team-badge-news";
 // 010 FR-015, feature 013 research R17). A new or changed ride or run may also
 // earn a team badge, which notifies every listed rider it is new to (#125).
 
+/**
+ * Applies a change to the rider's activities and tells whoever it concerns:
+ * the rider when their Rynke rose or a badge is new, and every rider a new team
+ * badge is new to. Shared by reported activities and the ride edit re-check
+ * (feature 036 FR-003).
+ */
+export async function evaluateAndNotify(
+	ctx: Ctx,
+	athleteId: number,
+	change: ActivityChange,
+): Promise<void> {
+	const { rose, badges, figuresChanged } = await evaluateChange(
+		ctx,
+		athleteId,
+		change,
+	);
+	// Removing a ride or run never raises the team's sums, and neither does
+	// an edit that leaves its figures alone, such as a new title.
+	const team =
+		change.kind === "upsert" && figuresChanged
+			? await teamBadgeNews(ctx, badges.length > 0 ? [athleteId] : [])
+			: [];
+	const own = rose || badges.length > 0 ? [athleteId] : [];
+	await notifyRiders(ctx, [...new Set([...own, ...team])]);
+}
+
 export const activityEvent: Handler<ActivityEventMessage> = async (
 	message,
 	rider,
 	ctx,
 ) => {
 	const evaluate = async (change: ActivityChange) => {
-		const { rose, badges, figuresChanged } = await evaluateChange(
-			ctx,
-			rider.athleteId,
-			change,
-		);
-		// Removing a ride or run never raises the team's sums, and neither does
-		// an edit that leaves its figures alone, such as a new title.
-		const team =
-			change.kind === "upsert" && figuresChanged
-				? await teamBadgeNews(ctx, badges.length > 0 ? [rider.athleteId] : [])
-				: [];
-		const own = rose || badges.length > 0 ? [rider.athleteId] : [];
-		await notifyRiders(ctx, [...new Set([...own, ...team])]);
+		await evaluateAndNotify(ctx, rider.athleteId, change);
 		return { kind: "ok" } as const;
 	};
 	const remove = () =>

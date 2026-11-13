@@ -57,6 +57,7 @@ const FIELDS = [
 	"badgeNames",
 	"holidays",
 	"otherClubIds",
+	"recheckAllowance",
 	"dev",
 	"cloudflare",
 	"placeholders",
@@ -74,6 +75,13 @@ const RESERVED_PORTS = [8791, 9232, 8792, 9233, 8797, 9237, 8798, 9238];
  * team, checked by its own rules.
  */
 export const isSandbox = (name) => name.startsWith("sandbox-");
+
+/**
+ * The ride re-check's reads a day for all teams together (feature 036 FR-008):
+ * `RECHECK_READS` of src/usage/allowances.ts, which
+ * test/teams/recheck-allowance.test.ts keeps equal to this.
+ */
+export const RECHECK_READS = 300;
 
 /** What only a team's Wrangler block may hold, never the top level. */
 const TEAM_KEYS = ["vars", "secrets", "d1_databases", "queues", "triggers"];
@@ -145,6 +153,13 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 			if (mode?.kind === "own" && !locales.includes(mode.locale)) {
 				say(team, field, `"${mode.locale}" isn't a shipped locale`);
 			}
+		}
+
+		if (
+			team.recheckAllowance !== undefined &&
+			!(Number.isInteger(team.recheckAllowance) && team.recheckAllowance > 0)
+		) {
+			say(team, "recheckAllowance", "not a positive whole number");
 		}
 
 		const rules = team.rules ?? [];
@@ -280,6 +295,15 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 				}
 			}
 		}
+	}
+	const recheck = teams.reduce(
+		(sum, team) => sum + (team.recheckAllowance ?? 0),
+		0,
+	);
+	if (recheck > RECHECK_READS) {
+		problems.push(
+			`teams ${teams.map((team) => team.id).join(", ")}: recheckAllowance: ${recheck} together, more than ${RECHECK_READS}`,
+		);
 	}
 	problems.push(...sandboxProblems(wrangler, [...seenIds]));
 	return problems;
