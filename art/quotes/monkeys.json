@@ -34,8 +34,8 @@
 			"id": "wave",
 			"name": "Hallo du!",
 			"scene": "Standing, waving high with the hand on the viewer's right, two short black motion arcs beside the waving hand, the other arm relaxed at the side, as if calling a teammate over. Mouth open mid-sentence. {{kit}}",
-			"holes": [[1021, 1668], [819, 1333]],
-			"erase": [[0, 1150, 460, 1950]]
+			"holes": [[892, 1578], [690, 1243]],
+			"erase": [[0, 1060, 331, 1860]]
 		},
 		{
 			"id": "swim",
@@ -158,12 +158,14 @@
 			"id": "hint-calendar",
 			"name": "Kalenderblatt",
 			"scene": "Standing, holding up a large blank tear-off calendar page in one hand at shoulder height, turned so the viewer sees it: a cream (#FFFDF5) sheet with a thick black outline and a yellow (#FBE122) band along its top, completely empty, no numbers, no letters, no lines on it. The index finger of the other hand taps the page. Mouth open mid-sentence. {{kit}}",
+			"holes": [[925, 1650]],
 			"hint": true
 		},
 		{
 			"id": "hint-tape",
 			"name": "Maßband",
 			"scene": "Standing, pulling a yellow (#FBE122) tape measure out wide between both hands, the round black case in the left hand, the tape stretched to the right; the tape is plain yellow with a black outline, WITHOUT numbers, ticks or markings. Mouth open mid-sentence. {{kit}}",
+			"holes": [[680, 1290], [600, 1430]],
 			"hint": true
 		},
 		{
@@ -183,6 +185,7 @@
 			"id": "hint-magnifier",
 			"name": "Lupe",
 			"scene": "Standing, holding a large round magnifying glass with a gold (#C99A2E) handle and a thick black rim up in front of one eye, turned to the right; the eye behind the glass shows a little bigger than the other one, the lens itself a plain light blue (#8CC4F0) tint with no reflections. The other hand on the hip. Mouth open mid-sentence. {{kit}}",
+			"holes": [[1280, 1060]],
 			"erase": [[1280, 1390, 1720, 1670]],
 			"hint": true
 		}
