@@ -59,12 +59,11 @@ Windows this implies:
 **Decision**: The scenes name their colours, as Advent's does with sage #B5D6A7; the shared prompt
 keeps light blue for water and sweat. Per picture:
 
-- **Karneval**: a round red (#C8102E) clown nose over Rynke's own nose, a jester's collar with
+- **Karneval**: a round red (#E32636) clown nose over Rynke's own nose, a jester's collar with
   points in yellow, cream and gold with small gold bells, confetti and streamers in yellow, gold,
   cream and sage. The red comes from the Nikolaus boot change (`feat/nikolaus-red-boot`), which
-  adds it to the tracer's palette but allows it in `prompt.txt` "only for the Nikolaus boot";
-  that line widens to "only where a scene names it", and the picture is made once that change
-  is in `develop`.
+  adds it to the tracer's palette but allows it in `prompt.txt` "only for the Nikolaus boot
+  and the Santa hat" (merged into `develop`); that line widens to "only where a scene names it".
 - **Easter**: cream bunny ears with muzzle-coloured (#F0A868) insides over the helmet; a gold
   wicker basket of eggs in yellow, cream, sage and light blue.
 - **Midsummer**: crown of sage leaves with yellow and cream flowers; a bunch of the same flowers.

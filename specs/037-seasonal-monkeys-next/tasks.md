@@ -34,10 +34,10 @@ pictures: an unbuilt picture falls back to the regular monkeys (035 FR-010).
 
 ## Phase 1: Setup
 
-- [ ] T001 Rebase `037-seasonal-monkeys-next` onto `origin/develop`, which now holds the Nikolaus
+- [x] T001 Rebase `037-seasonal-monkeys-next` onto `origin/develop`, which now holds the Nikolaus
   boot change (red `#E32636` in `scripts/trace.mjs`'s `PALETTE` and in `art/quotes/prompt.txt`
   "only for the Nikolaus boot and the Santa hat"); no merge commit, no push
-- [ ] T002 Correct the red in `specs/037-seasonal-monkeys-next/research.md` R5 (Karneval) from
+- [x] T002 Correct the red in `specs/037-seasonal-monkeys-next/research.md` R5 (Karneval) from
   `#C8102E` to develop's `#E32636`, and its prompt quote to "only for the Nikolaus boot and the
   Santa hat"
 

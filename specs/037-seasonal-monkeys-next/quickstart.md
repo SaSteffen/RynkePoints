@@ -8,7 +8,7 @@ node scripts/team-check.mjs
 ```
 
 Covers both teams' holiday tables and the dates of contracts/team-holidays.md, no overlaps
-2026–2035, and that every listed monkey is a seasonal entry.
+2026–2075, and that every listed monkey is a seasonal entry.
 
 ## Pictures
 

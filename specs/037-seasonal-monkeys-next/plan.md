@@ -85,7 +85,7 @@ art/quotes/
 
 public/quotes/                  # + karneval.svg, easter.svg, midsummer.svg, halloween.svg, europe-day.svg
 
-test/teams/holidays.test.ts     # both teams' tables, their dates 2026–2028, no overlap 2026–2035
+test/teams/holidays.test.ts     # both teams' tables, their dates 2026–2028, no overlap 2026–2075
 ```
 
 **Structure Decision**: Everything lands where feature 035 put it. `src/http/holidays.ts`,
