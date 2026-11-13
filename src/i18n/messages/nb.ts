@@ -474,6 +474,7 @@ export const nb: Catalog = {
 	"team.peloton.label":
 		"{count} ryttere mellom {min} og {max} Rynke; du har {own}",
 	"team.peloton.you": "Deg",
+	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
 	"team.peloton.hint.breakaway":
 		"Hver mynt er en rytter. Lengst til høyre, etter luken, sykler bruddet.",

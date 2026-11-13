@@ -50,6 +50,19 @@ mock-up's team leaderboard, with a `breakaway` tweak for its three sample states
   "Breakaway" past a gap in the road, in order but not to scale; the bunch stays to
   scale. The label is "Breakaway" in German too, because it is more fun.
 
+### Session 2026-11-13
+
+- Q: With real totals the outlier fence lets only one rider far ahead break away,
+  although others are clearly ahead of the bunch too. Which rule? → A: "Gap to the
+  bunch", the cycling meaning: everyone ahead of the first gap in front of the
+  median rider, a gap being more than 0.4 × the median total between two
+  neighbours. Compared with the outlier fence, a multiple of the median and a top
+  share on the play page `drafts/peloton-breakaway-trial.html`.
+- Q: A tight pack sits squashed at the front of the road. → A: The bunch spreads
+  from its last rider to its front rider, not from 0.
+- Q: Can riders see a coin's Rynke? → A: Yes: hovering or tapping a coin shows its
+  total above the road. The ranking already shows every total without names.
+
 ### Session 2026-10-29
 
 - Q (raised by the project owner, lowering the risk in Strava's review): Can the
@@ -123,11 +136,14 @@ gain, the weekly bars and the best week with sums worked out by hand.
    rider, whatever the list mode, with no names and no threshold line.
 4. **Given** 14 riders with 52 to 384 Training Rynke and two more with 760 and 912,
    **When** the peloton is shown, **Then** the two ride in the breakaway right of
-   the gap, 760 behind 912, and the bunch spreads to scale from the left up to its
+   the gap, 760 behind 912 with a little more room between them than within a
+   group, and the bunch spreads to scale from its last rider with 52 up to its
    front rider with 384.
 5. **Given** no rider far enough ahead (FR-018), **When** the peloton is shown,
-   **Then** it has no gap and every coin is placed to scale against the highest
-   total.
+   **Then** it has no gap and every coin is placed to scale from the lowest to
+   the highest total.
+6. **Given** the peloton, **When** a rider hovers over or taps a coin, **Then**
+   that coin's total shows above the road ("310 Rynke").
 
 ---
 
@@ -205,7 +221,11 @@ the overview is refused.
 - A viewer in the breakaway: their larger coin rides past the gap like the other
   breakaway riders.
 - A team of four or fewer consenting riders: the peloton has no breakaway; with so
-  few totals the outlier rule says nothing useful.
+  few totals the gaps say nothing useful.
+- A rider far ahead of a chase group: both ride in the breakaway, the rider far
+  ahead in front, a little more room between the groups; the far lead doesn't set
+  the scale.
+- A tight pack: no gap, no breakaway; it spreads over the whole road.
 - A rider without any stored balance yet (no evaluated rides): counted with 0 Rynke.
 - The deadline has passed: the days-to-go card says the deadline has passed; groups
   and quote lists follow qualification only.
@@ -263,15 +283,20 @@ the overview is refused.
   coin larger and marked), and a bar chart of the team's gain in each week, overlaid
   with a line of its accumulated Rynke at the end of each week, with the current
   week highlighted and the best week named.
-- **FR-018**: A consenting rider whose total of the picked kind is above the upper
-  outlier fence (third quartile + 1.5 × the interquartile range of all consenting
-  riders' totals) MUST ride in the peloton's **breakaway**, from five consenting
-  riders on. The road then shows a gap; the bunch sits left of it, placed to scale
-  against its own highest total, and the breakaway right of it, in order of total
-  but not to scale. The road's front end is labelled "Breakaway 🏁" instead of
+- **FR-018**: From five consenting riders on, the riders ahead of the bunch MUST
+  ride in the peloton's **breakaway**. Two neighbours in the sorted totals of the
+  picked kind have a gap when they are more than 0.4 × the median total apart (at
+  least 1); the bunch is the median rider (the upper one of the middle two) and
+  everyone up to the first gap ahead of them, and every rider ahead of that gap
+  rides in the breakaway, in groups split at the same gaps. The road then shows a
+  gap; the bunch sits left of it, placed to scale from its last rider to its front
+  rider, and the breakaway right of it, in order of total but not to scale, with a
+  little more room between its groups; its part of the road widens with more
+  riders. The road's front end is labelled "Breakaway 🏁" instead of
   "Front 🏁", in German too, and the text for assistive technology says how many
   riders are in the breakaway (FR-041). Without a breakaway the road has no gap and
-  is placed to scale against the highest total.
+  is placed to scale from the lowest to the highest total. Hovering over or tapping
+  any coin shows its total above the road, without a script.
 
 **Quotes**
 

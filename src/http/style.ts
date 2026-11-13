@@ -397,7 +397,12 @@ nav.organiser-switch .segmented svg{flex:none;width:20px;height:20px}
 .team-chart-kind{font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 .team-hint{margin:var(--rp-space-1) 0 var(--rp-space-3);font:var(--md-type-caption);color:var(--md-sys-color-on-surface-variant)}
 .chart-axis{display:flex;justify-content:space-between;gap:var(--rp-space-2);margin:6px 0 0;font:400 12px/16px var(--md-ref-typeface);color:var(--md-sys-color-on-surface-variant)}
-.peloton-road{display:block;width:100%;height:auto}
+.peloton-road{display:block;width:100%;height:auto;overflow:visible}
+.peloton-coin{cursor:pointer;outline:0;-webkit-tap-highlight-color:transparent}
+.peloton-bubble{display:none;pointer-events:none}
+.peloton-coin:hover .peloton-bubble,.peloton-coin:focus .peloton-bubble{display:inline}
+.peloton-bubble rect,.peloton-bubble path{fill:var(--md-sys-color-on-surface)}
+.peloton-bubble text{fill:var(--md-sys-color-surface);font:700 11px var(--md-ref-typeface)}
 .peloton-road .road{fill:var(--rp-road)}
 .peloton-road .road-middle{fill:none;stroke:var(--rp-coin-yellow);stroke-width:2;stroke-dasharray:6 4;opacity:.6}
 .peloton-road .road-gap{fill:var(--md-sys-color-surface-container)}

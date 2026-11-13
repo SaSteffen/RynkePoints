@@ -471,6 +471,7 @@ export const fi: Catalog = {
 	"team.peloton.label":
 		"Ajajia {count}, välillä {min}–{max} Rynkeä; sinulla {own}",
 	"team.peloton.you": "Sinä",
+	"team.peloton.total": "{n} Rynkeä",
 	"team.peloton.breakaway": "Breakaway 🏁",
 	"team.peloton.hint.breakaway":
 		"Jokainen kolikko on ajaja. Oikealla, välin jälkeen, ajaa karkujoukko.",

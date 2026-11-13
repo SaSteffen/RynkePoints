@@ -472,6 +472,7 @@ export const sv: Catalog = {
 	"team.peloton.label":
 		"{count} cyklister mellan {min} och {max} Rynke; du har {own}",
 	"team.peloton.you": "Du",
+	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
 	"team.peloton.hint.breakaway":
 		"Varje mynt är en cyklist. Längst till höger, efter luckan, cyklar utbrytningen.",

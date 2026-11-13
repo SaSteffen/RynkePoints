@@ -344,19 +344,24 @@ describe("GET /team, the team's progress (US2)", () => {
 		const figure = pelotonOf(html);
 		expect(figure.match(/href="#coin-mini"/g)).toHaveLength(13);
 		expect(figure.match(/href="#coin-front"/g)).toHaveLength(1);
+		// Median 95: 200 has a gap of 50 to 150, so the four ahead break away.
 		expect(figure).toContain(
-			`aria-label="${fill(de["team.peloton.label"], { count: 14, min: 0, max: 300, own: 120 })}"`,
+			`aria-label="${fill(de["team.peloton.label.breakaway"], { count: 14, min: 0, max: 300, away: 4, own: 120 })}"`,
 		);
 		expect(figure).toContain(escapeHtml(de["team.peloton.heading"]));
 		expect(figure).toContain(`>${escapeHtml(de["team.peloton.you"])}<`);
-		expect(figure).toContain(escapeHtml(de["team.peloton.hint"]));
 		expect(figure).toContain(escapeHtml(de["team.peloton.back"]));
-		expect(figure).toContain(escapeHtml(de["team.peloton.front"]));
-		expect(figure).not.toContain("road-gap");
-		expect(figure).not.toContain(escapeHtml(de["team.peloton.breakaway"]));
+		expect(figure).toContain('<path class="road-gap"');
+		// Every coin shows its total on hover or tap.
+		expect(figure).toContain(
+			`>${fill(de["team.peloton.total"], { n: 300 })}</text>`,
+		);
+		expect(figure).toContain(
+			`>${fill(de["team.peloton.total"], { n: 120 })}</text>`,
+		);
 	});
 
-	it("lets two riders far ahead ride in the breakaway (US2 #4, FR-018)", async () => {
+	it("lets two riders far ahead join the breakaway (US2 #4, FR-018)", async () => {
 		for (const { id, name, training } of BREAKAWAY) {
 			await seedRider(ctx, { athleteId: id, firstName: name });
 			await seedBalance(id, { trainingRynke: training, teamRynke: 0 });
@@ -365,9 +370,9 @@ describe("GET /team, the team's progress (US2)", () => {
 		const figure = pelotonOf(html);
 		expect(figure.match(/href="#coin-mini"/g)).toHaveLength(15);
 		expect(figure).toContain('<path class="road-gap"');
-		// Q1 67.5, Q3 257.5: the fence 542.5 leaves both far ahead.
+		// Median 110: both join the four who have a gap of 50 to 150.
 		expect(figure).toContain(
-			`aria-label="${fill(de["team.peloton.label.breakaway"], { count: 16, min: 0, max: "1.200", away: 2, own: 120 })}"`,
+			`aria-label="${fill(de["team.peloton.label.breakaway"], { count: 16, min: 0, max: "1.200", away: 6, own: 120 })}"`,
 		);
 		expect(figure).toContain(escapeHtml(de["team.peloton.hint.breakaway"]));
 		expect(figure).toContain(escapeHtml(de["team.peloton.breakaway"]));

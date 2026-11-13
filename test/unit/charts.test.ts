@@ -92,6 +92,7 @@ describe("peloton", () => {
 	const TEXT = {
 		label: "4 riders between 0 and 30 Rynke; you have 20",
 		you: "You",
+		total: (n: number) => `${n} Rynke`,
 	};
 	/** The riders' mini coins, then the viewer's front. */
 	const coinsOf = (svg: string) =>
@@ -158,11 +159,12 @@ describe("peloton", () => {
 			[1],
 			0,
 			null,
-			{ label: "<&>", you: "<b>" },
+			{ label: "<&>", you: "<b>", total: () => "<i>" },
 			"training",
 		).value;
 		expect(svg).toContain('aria-label="&lt;&amp;&gt;"');
 		expect(svg).toContain("&lt;b&gt;");
+		expect(svg).toContain(">&lt;i&gt;</text>");
 	});
 
 	it("puts every coin at the start when all totals are 0", () => {
@@ -170,6 +172,30 @@ describe("peloton", () => {
 		expect(coins.join("")).not.toContain("NaN");
 		const centres = coins.map((use) => xOf(use) + sizeOf(use) / 2);
 		expect(new Set(centres).size).toBe(1);
+	});
+
+	it("spreads a tight pack from its last rider to its front rider", () => {
+		const centres = coinsOf(
+			peloton([130, 120, 110, 100], 3, null, TEXT, "training").value,
+		).map(centreOf);
+		expect(centres).toEqual([298, 206, 114, 22]);
+	});
+
+	it("shows each coin's total in a bubble on hover or tap", () => {
+		const svg = peloton([30, 20, 10, 0], 1, null, TEXT, "training").value;
+		const coins = svg.match(/<g class="peloton-coin" tabindex="-1">/g);
+		expect(coins).toHaveLength(4);
+		expect(svg.match(/<g class="peloton-bubble">/g)).toHaveLength(4);
+		for (const total of [30, 20, 10, 0]) {
+			expect(svg).toContain(`>${total} Rynke</text>`);
+		}
+		for (const rect of svg.match(/<g class="peloton-bubble"><rect [^>]*>/g) ??
+			[]) {
+			const x = Number(rect.match(/ x="([\d.-]+)"/)?.[1]);
+			const width = Number(rect.match(/ width="([\d.]+)"/)?.[1]);
+			expect(x).toBeGreaterThanOrEqual(0);
+			expect(x + width).toBeLessThanOrEqual(320);
+		}
 	});
 
 	it("spreads the road from end to end without a breakaway (US2 #5)", () => {
@@ -180,8 +206,10 @@ describe("peloton", () => {
 	});
 
 	describe("with a breakaway (FR-018, research R13)", () => {
+		const ALONE = { fence: 4, groups: [[100]] };
+
 		it("cuts the road with a slanted gap at 237", () => {
-			const svg = peloton([1, 2, 3, 4, 100], 0, 7, TEXT, "training").value;
+			const svg = peloton([1, 2, 3, 4, 100], 0, ALONE, TEXT, "training").value;
 			const xs = gapOf(svg);
 			expect(xs).toHaveLength(4);
 			expect(new Set(xs).size).toBe(4);
@@ -189,7 +217,7 @@ describe("peloton", () => {
 		});
 
 		it("marks the gap's two slanted edges, so it shows in the dark scheme", () => {
-			const svg = peloton([1, 2, 3, 4, 100], 0, 7, TEXT, "training").value;
+			const svg = peloton([1, 2, 3, 4, 100], 0, ALONE, TEXT, "training").value;
 			const edges = svg.match(/<path class="road-gap-edge" d="([^"]*)"/)?.[1];
 			expect(edges?.match(/M/g)).toHaveLength(2);
 			const xs = [...(edges ?? "").matchAll(/[ML]([\d.]+) /g)].map((m) =>
@@ -200,38 +228,75 @@ describe("peloton", () => {
 			);
 		});
 
-		it("draws the bunch to scale up to 198 and the breakaway past the gap", () => {
+		it("draws the bunch to scale from 22 to 198 and the breakaway past the gap", () => {
 			const coins = coinsOf(
-				peloton([1, 2, 3, 4, 100], 0, 7, TEXT, "training").value,
+				peloton([1, 2, 3, 4, 100], 0, ALONE, TEXT, "training").value,
 			);
-			// The others in order, then the viewer with 1.
-			expect(coins.map(centreOf)).toEqual([110, 154, 198, 282, 66]);
+			// The others in order, then the viewer with 1 at the back.
+			expect(coins.map(centreOf)).toEqual([80.7, 139.3, 198, 282, 22]);
+		});
+
+		it("widens the breakaway for more riders and spaces its groups", () => {
+			const away = { fence: 100, groups: [[150, 160, 170], [300], [500]] };
+			const svg = peloton(
+				[0, 100, 150, 160, 170, 300, 500],
+				0,
+				away,
+				TEXT,
+				"training",
+			).value;
+			// Five distinct totals: 44 wide from 250, the gap 32 before it.
+			const xs = gapOf(svg);
+			expect(xs.reduce((sum, x) => sum + x, 0) / xs.length).toBe(218);
+			const centres = coinsOf(svg).map(centreOf);
+			// Slots 0, 1, 2, then 3.8 and 5.6 past the groups' extra room.
+			const expected = [179, 250, 257.9, 265.7, 279.9, 294, 22];
+			centres.forEach((x, i) => {
+				expect(x).toBeCloseTo(expected[i] ?? 0, 0);
+			});
 		});
 
 		it("orders the breakaway evenly from 269 to 294", () => {
 			const coins = coinsOf(
-				peloton([1, 2, 3, 4, 5, 6, 900, 400], 0, 20, TEXT, "training").value,
+				peloton(
+					[1, 2, 3, 4, 5, 6, 900, 400],
+					0,
+					{ fence: 6, groups: [[400, 900]] },
+					TEXT,
+					"training",
+				).value,
 			);
 			expect(coins.slice(5, 7).map(centreOf)).toEqual([294, 269]);
 		});
 
 		it("puts equal breakaway totals at one position", () => {
 			const coins = coinsOf(
-				peloton([1, 2, 3, 4, 5, 6, 400, 400, 900], 0, 20, TEXT, "training")
-					.value,
+				peloton(
+					[1, 2, 3, 4, 5, 6, 400, 400, 900],
+					0,
+					{ fence: 6, groups: [[400, 900]] },
+					TEXT,
+					"training",
+				).value,
 			);
 			expect(coins.slice(5, 8).map(centreOf)).toEqual([269, 269, 294]);
 		});
 
 		it("keeps a bunch without Rynke at the back", () => {
 			const coins = coinsOf(
-				peloton([0, 0, 0, 0, 0, 0, 50, 80], 0, 31.25, TEXT, "training").value,
+				peloton(
+					[0, 0, 0, 0, 0, 0, 50, 80],
+					0,
+					{ fence: 0, groups: [[50], [80]] },
+					TEXT,
+					"training",
+				).value,
 			);
 			expect(coins.map(centreOf)).toEqual([22, 22, 22, 22, 22, 269, 294, 22]);
 		});
 
 		it("draws a viewer in the breakaway past the gap, the tag on the road", () => {
-			const svg = peloton([1, 2, 3, 4, 100], 4, 7, TEXT, "training").value;
+			const svg = peloton([1, 2, 3, 4, 100], 4, ALONE, TEXT, "training").value;
 			const own = coinsOf(svg).at(-1) ?? "";
 			expect(own).toContain('href="#coin-front"');
 			expect(sizeOf(own)).toBe(40);
