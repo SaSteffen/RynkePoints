@@ -185,7 +185,7 @@
 			"id": "hint-magnifier",
 			"name": "Lupe",
 			"scene": "Standing, holding a large round magnifying glass with a gold (#C99A2E) handle and a thick black rim up in front of one eye, turned to the right; the eye behind the glass shows a little bigger than the other one, the lens itself a plain light blue (#8CC4F0) tint with no reflections. The other hand on the hip. Mouth open mid-sentence. {{kit}}",
-			"holes": [[1280, 1060]],
+			"holes": [[1280, 1060], [1580, 680]],
 			"erase": [[1280, 1390, 1720, 1670]],
 			"hint": true
 		}
