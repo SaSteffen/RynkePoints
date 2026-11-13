@@ -479,6 +479,7 @@ export const lt: Catalog = {
 	"team.peloton.label":
 		"Dviratininkai: {count}, nuo {min} iki {max} Rynke; tu turi {own}",
 	"team.peloton.you": "Tu",
+	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
 	"team.peloton.hint.breakaway":
 		"Kiekviena moneta – dviratininkas. Visai dešinėje, už tarpo, važiuoja breakaway.",

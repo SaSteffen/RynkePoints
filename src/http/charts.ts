@@ -1,11 +1,12 @@
+import type { Breakaway } from "../rynke/breakaway";
 import type { RynkeKind } from "../rynke/leaderboard";
 import { html, type SafeHtml } from "./html";
 
 // The Team page's charts as inline SVG (feature 016 research R5, R12): no
 // library and no client script. The sparkline and the bars stretch to their
 // box, so the strokes keep their width with `vector-effect`; the peloton
-// keeps its coins round and puts the riders far ahead past a gap (R13). The
-// label carries the figures.
+// keeps its coins round and puts the riders ahead of the bunch past a gap
+// (R13). The label carries the figures.
 
 const WIDTH = 100;
 const HEIGHT = 24;
@@ -101,90 +102,138 @@ const LANES = [18, 38, 58];
 const TAG_HEIGHT = 16;
 const tagWidth = (text: string) => 12 + 7 * [...text].length;
 
-/** One coin of the sprite, centred on `cx`, `cy`. */
+/** The bubble above the road with a coin's total, sized for a short text. */
+const BUBBLE_HEIGHT = 18;
+const bubbleWidth = (text: string) => 12 + 6.5 * [...text].length;
+
+/**
+ * One coin of the sprite, centred on `cx`, `cy`, with `bubble` above the road
+ * on hover or tap; `tabindex` lets a tap focus it, the stylesheet does the
+ * rest, so the chart stays without a script.
+ */
 const roadCoin = (
 	side: "mini" | "front",
 	cx: number,
 	cy: number,
 	size: number,
-) =>
-	html`<use href="#coin-${side}" x="${coord(cx - size / 2)}" y="${coord(cy - size / 2)}" width="${size}" height="${size}"/>`;
+	bubble: string,
+) => {
+	const width = bubbleWidth(bubble);
+	const x = Math.min(Math.max(cx, width / 2), ROAD_WIDTH - width / 2);
+	return html`<g class="peloton-coin" tabindex="-1"><use href="#coin-${side}" x="${coord(cx - size / 2)}" y="${coord(cy - size / 2)}" width="${size}" height="${size}"/><g class="peloton-bubble"><rect x="${coord(x - width / 2)}" y="${-6 - BUBBLE_HEIGHT}" width="${coord(width)}" height="${BUBBLE_HEIGHT}" rx="${BUBBLE_HEIGHT / 2}"/><path d="M${coord(cx - 4)} -6.5L${coord(cx)} -2L${coord(cx + 4)} -6.5Z"/><text x="${coord(x)}" y="-11" text-anchor="middle">${bubble}</text></g></g>`;
+};
 
-/** With a breakaway: where the bunch ends, the gap and the breakaway lie. */
-const BUNCH_END = 198;
-const GAP_AT = 237;
-const BREAKAWAY_FROM = 269;
+/** With a breakaway: its front end, and the room for the gap and around it. */
 const BREAKAWAY_TO = 294;
-/** A breakaway of one distinct total. */
-const BREAKAWAY_ALONE = 282;
+const GAP_BEFORE = 32;
+const BUNCH_BEFORE_GAP = 39;
+/** The breakaway's width: room per distinct total, within these bounds. */
+const BREAKAWAY_STEP = 11;
+const BREAKAWAY_MIN = 25;
+const BREAKAWAY_MAX = 96;
+/** The extra room between two groups of the breakaway, in steps. */
+const GROUP_SPACE = 0.8;
 /** Half the gap's width and how far it leans at the top and bottom. */
 const GAP_HALF = 3;
 const GAP_LEAN = 9;
 
 /**
- * Each total's position on the road. Without a fence, its share of the largest
- * from end to end. With one, the bunch (totals up to the fence) to scale up to
- * `BUNCH_END` and the breakaway's distinct totals in ascending order past the
- * gap, so the riders far ahead don't squash the bunch (FR-018, research R13).
+ * Each total's position on the road, and the gap's if there is one. The bunch
+ * spreads to scale from its last rider to its front rider, so a tight pack
+ * fills the road. With a breakaway, the bunch ends left of a gap and the
+ * breakaway's distinct totals follow past it in ascending order, evenly, with a
+ * little more room between its groups; it widens with more riders. The riders
+ * far ahead don't squash the bunch (FR-018, research R13).
  */
 function roadPositions(
 	totals: readonly number[],
-	fence: number | null,
-): (total: number) => number {
-	const scale = (max: number, end: number) => (total: number) =>
-		ROAD_INSET + (max > 0 ? total / max : 0) * (end - ROAD_INSET);
-	if (fence === null) {
-		return scale(Math.max(0, ...totals), ROAD_WIDTH - ROAD_INSET);
+	away: Breakaway | null,
+): { x: (total: number) => number; gapAt: number | null } {
+	const scale = (values: readonly number[], end: number) => {
+		const min = Math.min(...values);
+		const max = Math.max(0, ...values);
+		// Equal totals: all at the front, or all at the back without Rynke.
+		return (total: number) =>
+			max > min
+				? ROAD_INSET + ((total - min) / (max - min)) * (end - ROAD_INSET)
+				: max > 0
+					? end
+					: ROAD_INSET;
+	};
+	if (away === null) {
+		return { x: scale(totals, ROAD_WIDTH - ROAD_INSET), gapAt: null };
 	}
+	const slots = new Map<number, number>();
+	let slot = 0;
+	away.groups.forEach((group, g) => {
+		if (g > 0) slot += 1 + GROUP_SPACE;
+		for (const [i, total] of group.entries()) slots.set(total, slot + i);
+		slot += group.length - 1;
+	});
+	const width = Math.min(
+		BREAKAWAY_MAX,
+		Math.max(BREAKAWAY_MIN, slots.size * BREAKAWAY_STEP - BREAKAWAY_STEP),
+	);
+	const from = BREAKAWAY_TO - width;
+	const gapAt = from - GAP_BEFORE;
 	const bunch = scale(
-		Math.max(0, ...totals.filter((total) => total <= fence)),
-		BUNCH_END,
+		totals.filter((total) => total <= away.fence),
+		gapAt - BUNCH_BEFORE_GAP,
 	);
-	const away = [...new Set(totals.filter((total) => total > fence))].sort(
-		(a, b) => a - b,
-	);
-	const step =
-		away.length > 1 ? (BREAKAWAY_TO - BREAKAWAY_FROM) / (away.length - 1) : 0;
-	const first = away.length > 1 ? BREAKAWAY_FROM : BREAKAWAY_ALONE;
-	return (total) =>
-		total > fence ? first + away.indexOf(total) * step : bunch(total);
+	// One distinct total rides in the middle of the breakaway's room.
+	const at = (total: number) =>
+		slot > 0
+			? from + ((slots.get(total) ?? 0) / slot) * width
+			: BREAKAWAY_TO - 12;
+	return {
+		x: (total) => (total > away.fence ? at(total) : bunch(total)),
+		gapAt,
+	};
 }
 
 /**
- * A slanted band across the road at `GAP_AT`, in the card's colour, its two
- * cut edges marked: in the dark scheme the road and the card are too close
- * to tell apart without them.
+ * A slanted band across the road at `at`, in the card's colour, its two cut
+ * edges marked: in the dark scheme the road and the card are too close to
+ * tell apart without them.
  */
-const roadGap = () => {
-	const left = `M${GAP_AT - GAP_HALF + GAP_LEAN} 0L${GAP_AT - GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}`;
-	const right = `M${GAP_AT + GAP_HALF + GAP_LEAN} 0L${GAP_AT + GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}`;
-	return html`<path class="road-gap" d="M${GAP_AT - GAP_HALF + GAP_LEAN} 0L${GAP_AT + GAP_HALF + GAP_LEAN} 0L${GAP_AT + GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}L${GAP_AT - GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}Z"/><path class="road-gap-edge" d="${left}${right}"/>`;
+const roadGap = (at: number) => {
+	const left = `M${at - GAP_HALF + GAP_LEAN} 0L${at - GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}`;
+	const right = `M${at + GAP_HALF + GAP_LEAN} 0L${at + GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}`;
+	return html`<path class="road-gap" d="M${at - GAP_HALF + GAP_LEAN} 0L${at + GAP_HALF + GAP_LEAN} 0L${at + GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}L${at - GAP_HALF - GAP_LEAN} ${ROAD_HEIGHT}Z"/><path class="road-gap-edge" d="${left}${right}"/>`;
 };
 
 /**
  * The listed riders as mini coins on a dark road with a dashed middle line;
  * `own` is the viewer's index, drawn last as the coin's front with a `text.you`
- * tag below. With a `fence`, a gap cuts the road and the riders above it ride
- * in the breakaway past it. No threshold line (US2 scenario 3).
+ * tag below. With a `breakaway`, a gap cuts the road and the riders ahead of
+ * the bunch ride past it. Hovering or tapping a coin shows `text.total` of it.
+ * No threshold line (US2 scenario 3).
  */
 export function peloton(
 	totals: readonly number[],
 	own: number,
-	fence: number | null,
-	text: { label: string; you: string },
+	away: Breakaway | null,
+	text: { label: string; you: string; total: (total: number) => string },
 	kind: RynkeKind,
 ): SafeHtml {
-	const cx = roadPositions(totals, fence);
+	const { x, gapAt } = roadPositions(totals, away);
 	const others = totals
 		.filter((_, i) => i !== own)
 		.map((total, n) =>
-			roadCoin("mini", cx(total), LANES[n % LANES.length] ?? 0, COIN),
+			roadCoin(
+				"mini",
+				x(total),
+				LANES[n % LANES.length] ?? 0,
+				COIN,
+				text.total(total),
+			),
 		);
-	const ownX = cx(totals[own] ?? 0);
+	const ownTotal = totals[own] ?? 0;
+	const ownX = x(ownTotal);
 	const width = tagWidth(text.you);
 	const tagX = Math.min(Math.max(ownX, width / 2), ROAD_WIDTH - width / 2);
 	const tagY = 6 + OWN_COIN + 2;
-	return html`<svg class="peloton-road${kind === "team" ? " coin-team" : ""}" viewBox="0 0 ${ROAD_WIDTH} ${ROAD_HEIGHT}" role="img" aria-label="${text.label}"><rect class="road" width="${ROAD_WIDTH}" height="${ROAD_HEIGHT}" rx="12"/><path class="road-middle" d="M12 ${ROAD_HEIGHT / 2}H${ROAD_WIDTH - 12}"/>${fence === null ? null : roadGap()}${others}${roadCoin("front", ownX, 6 + OWN_COIN / 2, OWN_COIN)}<g class="peloton-you"><rect x="${coord(tagX - width / 2)}" y="${tagY}" width="${width}" height="${TAG_HEIGHT}" rx="8"/><text x="${coord(tagX)}" y="${tagY + 12}" text-anchor="middle">${text.you}</text></g></svg>`;
+	return html`<svg class="peloton-road${kind === "team" ? " coin-team" : ""}" viewBox="0 0 ${ROAD_WIDTH} ${ROAD_HEIGHT}" role="img" aria-label="${text.label}"><rect class="road" width="${ROAD_WIDTH}" height="${ROAD_HEIGHT}" rx="12"/><path class="road-middle" d="M12 ${ROAD_HEIGHT / 2}H${ROAD_WIDTH - 12}"/>${gapAt === null ? null : roadGap(gapAt)}${others}${roadCoin("front", ownX, 6 + OWN_COIN / 2, OWN_COIN, text.total(ownTotal))}<g class="peloton-you"><rect x="${coord(tagX - width / 2)}" y="${tagY}" width="${width}" height="${TAG_HEIGHT}" rx="8"/><text x="${coord(tagX)}" y="${tagY + 12}" text-anchor="middle">${text.you}</text></g></svg>`;
 }
 
 const BARS_WIDTH = 100;

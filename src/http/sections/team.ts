@@ -11,7 +11,7 @@ import type { Ctx } from "../../ctx";
 import { readSeenQuotes, writeSeenQuote } from "../../db/quote-seen";
 import { readTeam, readTeamAndRides, readTeamRides } from "../../db/team";
 import type { I18n } from "../../i18n/i18n";
-import { breakawayFence } from "../../rynke/breakaway";
+import { breakaway } from "../../rynke/breakaway";
 import {
 	type LeaderboardRow,
 	leaderboardRows,
@@ -157,7 +157,7 @@ function renderPeloton(
 	const whole = (n: number) => i18n.formatNumber(n, { fractionDigits: 0 });
 	const totals = rows.map((row) => row.total);
 	const own = rows.findIndex((row) => row.you);
-	const fence = breakawayFence(totals);
+	const away = breakaway(totals);
 	const figures = {
 		count: whole(rows.length),
 		min: whole(Math.min(...totals)),
@@ -165,17 +165,22 @@ function renderPeloton(
 		own: whole(rows[own]?.total ?? 0),
 	};
 	const label =
-		fence === null
+		away === null
 			? i18n.t("team.peloton.label", figures)
 			: i18n.t("team.peloton.label.breakaway", {
 					...figures,
-					away: whole(totals.filter((total) => total > fence).length),
+					away: whole(totals.filter((total) => total > away.fence).length),
 				});
+	const text = {
+		label,
+		you: i18n.t("team.peloton.you"),
+		total: (total: number) => i18n.t("team.peloton.total", { n: whole(total) }),
+	};
 	return html`<figure class="peloton card" id="tour-peloton">
 <figcaption>${i18n.t("team.peloton.heading")}</figcaption>
-<p class="team-hint">${i18n.t(fence === null ? "team.peloton.hint" : "team.peloton.hint.breakaway")}</p>
-${peloton(totals, own, fence, { label, you: i18n.t("team.peloton.you") }, kind)}
-<p class="chart-axis"><span>${i18n.t("team.peloton.back")}</span><span>${i18n.t(fence === null ? "team.peloton.front" : "team.peloton.breakaway")}</span></p>
+<p class="team-hint">${i18n.t(away === null ? "team.peloton.hint" : "team.peloton.hint.breakaway")}</p>
+${peloton(totals, own, away, text, kind)}
+<p class="chart-axis"><span>${i18n.t("team.peloton.back")}</span><span>${i18n.t(away === null ? "team.peloton.front" : "team.peloton.breakaway")}</span></p>
 </figure>
 `;
 }

@@ -476,6 +476,7 @@ export const da: Catalog = {
 	"team.peloton.label":
 		"{count} ryttere mellem {min} og {max} Rynke; du har {own}",
 	"team.peloton.you": "Dig",
+	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
 	"team.peloton.hint.breakaway":
 		"Hver mønt er en rytter. Yderst til højre, efter hullet, kører udbruddet.",

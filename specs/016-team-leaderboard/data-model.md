@@ -77,19 +77,20 @@ then carry only these fields (FR-010, SC-002).
 | `weeks` | team total per week end |
 | `bestWeek` | the week end with the largest weekly gain, earliest on ties; none before the second week |
 
-### Breakaway fence (`breakaway.ts`)
+### Breakaway (`breakaway.ts`)
 
-`breakawayFence(totals)` takes the picked kind's totals of all listed riders and
-returns a number or `null` (research R13):
+`breakaway(totals)` takes the picked kind's totals of all listed riders and
+returns a `Breakaway` or `null` (research R13):
 
-| Result | When |
+| Field | Meaning |
 |---|---|
-| `null` | fewer than five totals, or no total above the fence |
-| Q3 + 1.5 × (Q3 − Q1) | otherwise; quartiles interpolated linearly between the closest ranks |
+| `fence` | the bunch's highest total |
+| `groups` | the breakaway's groups from the back, each its distinct totals ascending |
 
-A rider rides in the breakaway when their total is strictly above the fence. The
-bunch is everyone else, drawn to scale against its own highest total, which may
-be 0. The function sees only totals, no rider.
+`null` below five totals, or when no gap lies ahead of the median rider. A rider
+rides in the breakaway when their total is strictly above `fence`. The bunch is
+everyone else, drawn to scale from its last rider to its front rider, which may
+both be 0. The function sees only totals, no rider.
 
 ### `RiderStatus` (`pace.ts`)
 

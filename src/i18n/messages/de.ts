@@ -500,6 +500,7 @@ export const de = {
 	"team.peloton.label":
 		"{count} Rider zwischen {min} und {max}\u00a0Rynke; du hast {own}",
 	"team.peloton.you": "Du",
+	"team.peloton.total": "{n}\u00a0Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
 	"team.peloton.hint.breakaway":
 		"Jede Münze ist ein Rider. Ganz rechts, hinter der Lücke, fährt der Breakaway.",

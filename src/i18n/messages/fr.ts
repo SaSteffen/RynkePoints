@@ -496,6 +496,7 @@ export const fr: Catalog = {
 	"team.peloton.label":
 		"Cyclistes\u00a0: {count}, entre {min} et {max} Rynke\u00a0; tu en as {own}",
 	"team.peloton.you": "Toi",
+	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
 	"team.peloton.hint.breakaway":
 		"Chaque pièce est un·e cycliste. Tout à droite, après l'écart, roule l'échappée.",
