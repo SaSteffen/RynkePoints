@@ -23,6 +23,7 @@ export const SEASONAL_MONKEYS: readonly string[] = [
 	"christmas",
 	"new-year",
 	"karneval",
+	"valentine",
 	"easter",
 	"midsummer",
 	"halloween",
