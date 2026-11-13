@@ -580,7 +580,25 @@ dl.ride-figures dd .coin-mini{width:18px;height:18px;vertical-align:-3px}
 #rides .coin-large{display:block;width:96px;height:96px;margin:var(--rp-space-4) auto}
 .landing-hero{display:flex;flex-direction:column;align-items:center;gap:var(--rp-space-2);margin:var(--rp-space-4) 0;text-align:center}
 .landing-hero h1{margin:0}
-.tagline{margin:0;font:var(--md-type-title-large)}
+.team-name{margin:0;font:var(--md-type-title-large);font-weight:700}
+.coin-pair{position:relative;width:250px;height:170px}
+.coin-pair .coin-art{position:absolute;width:160px;height:160px;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+.coin-pair-front{left:0;top:0}
+.coin-pair-back{right:0;top:10px}
+.step{display:grid;grid-template-columns:32px 1fr;column-gap:var(--rp-space-3);align-items:start}
+.step+.step{margin-top:var(--rp-space-4)}
+.step-no{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:var(--md-shape-full);background:var(--rp-coin-ink);color:var(--rp-coin-yellow);font:700 16px/1 var(--md-ref-typeface)}
+.step h2,.step h3{margin:4px 0 var(--rp-space-1);font:var(--md-type-title-medium);font-weight:700}
+.step p{margin:0}
+.step-action{grid-column:1/-1;margin-top:var(--rp-space-3)}
+.club-step{margin:0 0 var(--rp-space-3);padding:var(--rp-space-4);border:2px solid var(--rp-coin-rim);border-radius:var(--md-shape-lg)}
+.club-link{display:flex;align-items:center;justify-content:center;gap:var(--rp-space-2);box-sizing:border-box;width:100%;min-height:var(--rp-tap);padding:0 20px;border:2px solid var(--rp-coin-ink);border-radius:var(--md-shape-full);background:var(--rp-coin-yellow);color:var(--rp-coin-ink);font:700 15px/1.2 var(--md-ref-typeface);text-align:center;text-decoration:none}
+.club-link svg{flex:none}
+.reference-note{margin:var(--rp-space-2) 0;color:var(--md-sys-color-on-surface-variant);font-size:13px;line-height:18px}
+.consent-steps{margin-top:var(--rp-space-4);padding-top:var(--rp-space-4);border-top:1px solid var(--md-sys-color-outline-variant)}
+.consent-tick{display:flex;gap:var(--rp-space-3);align-items:flex-start;padding:var(--rp-space-3);border:2px solid var(--md-sys-color-outline-variant);border-radius:12px;background:var(--md-sys-color-surface);cursor:pointer}
+.consent-tick:has(input:checked){border-color:var(--rp-coin-ink);background:color-mix(in srgb,var(--rp-coin-yellow) 25%,var(--md-sys-color-surface))}
+.consent-tick input{flex:none;width:22px;height:22px;margin:0;accent-color:var(--rp-coin-ink)}
 .rides-total,.rides-newest{margin:0 0 var(--rp-space-2)}
 .rides-more{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:var(--rp-space-2);min-height:var(--rp-tap);margin-top:var(--rp-space-3)}
 .rides-status{margin:0;color:var(--md-sys-color-on-surface-variant)}

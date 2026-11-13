@@ -84,8 +84,15 @@ export function heroCoin(pick = Math.random()): SafeHtml {
 	);
 }
 
-/** The landing page's portrait: the calm smile with the straight brows. */
-export const LANDING_PORTRAIT = 2;
+/**
+ * The start page's coin: both sides of the team's coin, the back with the
+ * team's own place in front of the front, side by side and overlapping.
+ */
+export function coinPair(coin: CoinArt): SafeHtml {
+	return new SafeHtml(
+		`<div class="coin-pair">${art(coin, "front", " coin-pair-front")}${art(coin, "back", " coin-pair-back")}</div>`,
+	);
+}
 
 /** The hero coin with portrait `n` (1 to `HERO_PORTRAITS`). */
 export function portraitCoin(n: number): SafeHtml {

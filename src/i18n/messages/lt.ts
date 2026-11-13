@@ -18,8 +18,18 @@ export const lt: Catalog = {
 	"layout.loading": "Puslapis įkeliamas",
 
 	"landing.title": "Prisijungti per Strava",
-	"landing.intro": "Tavo važiavimai Strava virsta Rynke – {team} taškais.",
-	"landing.who": "Dalyvauti gali tik {clubLink} nariai.",
+	"landing.intro":
+		"Prijunk savo Strava paskyrą, ir kiekvienas važiavimas dviračiu tau atneš Rynke – mūsų komandos taškų. Taip pat rinksi ženklelius ir matysi, kiek nuveikei ir kaip sekasi komandai.",
+	"landing.club.heading": "Prisijunk prie mūsų komandos Strava klubo",
+	"landing.club.text":
+		"RynkePoints skirtas tik mūsų komandos klubo nariams. Dar nesi klube? Pateik prašymą prisijungti Strava ir prisijunk čia, kai komanda tave priims.",
+	"landing.club.button": "Atidaryti klubą Strava",
+	"landing.step.agree.heading": "Pažymėk langelį",
+	"landing.step.agree.text":
+		"Taip leidi RynkePoints skaityti tavo Strava veiklas ir dalytis tavo Rynke bei dienos sumomis, kaip aprašyta aukščiau. Be to dalyvauti negalima.",
+	"landing.step.connect.heading": "Paliesk „Connect with Strava“",
+	"landing.step.connect.text":
+		"Atsidarys Strava. Prisijunk ir leisk prieigą. Tada Strava grąžins tave čia, o RynkePoints įkels tavo važiavimus.",
 	"club.linkText": "mūsų komandos Strava klubo",
 	"landing.dataRead":
 		"Iš kiekvieno važiavimo skaitome tik pavadinimą, sporto rūšį, pradžios laiką, atstumą, judėjimo laiką, bendrą laiką su pertraukomis, aukščio prieaugį, ar jis įvestas ranka ar nuvažiuotas ant treniruoklio, ir ar Strava jį pažymėjo.",
@@ -36,13 +46,13 @@ export const lt: Catalog = {
 	"landing.notifications":
 		"Pranešimai neprivalomi, įjungiami kiekviename įrenginyje atskirai ir tik tau rodo, kiek Rynke yra naujų ir ko dar trūksta. Jie keliauja per tavo įrenginio ar naršyklės gamintojo „push“ paslaugą (pvz., Google, Apple, Mozilla, Microsoft). Tam saugome tik adresą, kurį ji suteikia tavo įrenginiui, ir jį ištriname, kai pranešimus išjungi, atsijungi ar išeini.",
 
-	"consent.heading": "Su kuo sutinki prisijungdamas",
+	"consent.heading": "Dalykis savo Strava duomenimis su RynkePoints",
 	"consent.short.notRead":
 		"Neskaitome GPS trasų, žemėlapių, nuotraukų ir sveikatos duomenų.",
 	"consent.short.read":
 		"Skaitome tik pagrindinius tavo važiavimų, bėgimų ir plaukimų skaičius, pvz., atstumą, laiką ir aukščio prieaugį, ir paverčiame juos Rynke bei ženkleliais.",
 	"consent.short.shown":
-		"Komanda mato tavo Rynke, o reitinge – tavo treniruotes, kilometrus ir aukščio prieaugį, be tavo vardo. Organizatoriai juos mato su tavo vardu, taip pat tavo kilometrus ir aukščio prieaugį per dieną. Administratoriai mato tavo vardą ir ryšio būseną, o jei tave pašalina, pasiliekame tavo Strava ID, kad negalėtum grįžti.",
+		"Komanda mato tavo Rynke, o reitinge – tavo treniruotes, kilometrus ir aukščio prieaugį, be tavo vardo. Organizatoriai juos mato su tavo vardu, taip pat tavo kilometrus ir aukščio prieaugį per dieną. Administratoriai mato tavo vardą ir ryšio būseną.",
 	"consent.details": "Visos smulkmenos",
 	"consent.organisers":
 		"Organizatoriai mato tavo vardą iš Strava, tavo Rynke ir iš kur jie gauti, ko tau dar trūksta, ar pasiekei treniruočių tikslą, tavo komandos renginius ir pataisymus, ir į kuriuos komandos renginius pranešei ateisiąs ar juose buvęs.",
@@ -55,8 +65,7 @@ export const lt: Catalog = {
 	"consent.required": "Norint dalyvauti, būtina leisti skaityti ir dalintis.",
 	"consent.agree":
 		"Sutinku: RynkePoints skaito mano važiavimus ir dalijasi mano Rynke bei dienos sumomis, kaip aprašyta.",
-	"consent.referenceNote":
-		"Jei kalbų versijos skiriasi, galioja {englishLink}.",
+	"consent.referenceNote": "Galioja šio teksto {englishLink}.",
 	"consent.referenceNote.link": "versija anglų kalba",
 
 	"me.title": "Tavo RynkePoints",
@@ -343,7 +352,6 @@ export const lt: Catalog = {
 	"celebrate.team": "+{n} Komandos Rynke nuo paskutinio apsilankymo 🎉",
 	"celebrate.both":
 		"+{training} Treniruočių Rynke ir +{team} Komandos Rynke nuo paskutinio apsilankymo 🎉",
-	"landing.tagline": "Rink savo Rynke",
 	"settings.language": "Kalba",
 	"theme.button": "Spalvų schema",
 	"theme.menu.title": "Spalvų schema",

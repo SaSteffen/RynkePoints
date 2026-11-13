@@ -13650,12 +13650,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -13692,12 +13692,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -13734,12 +13734,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -13776,12 +13776,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -17303,12 +17303,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -17345,12 +17345,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -17387,12 +17387,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -17429,12 +17429,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -20983,12 +20983,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -21025,12 +21025,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -21067,12 +21067,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -21109,12 +21109,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -24622,12 +24622,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -24664,12 +24664,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -24706,12 +24706,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -24748,12 +24748,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -28240,12 +28240,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -28282,12 +28282,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -28324,12 +28324,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.
@@ -28366,12 +28366,12 @@ Bitte stimme erneut zu
 Du hast am 01.01.1970 Version 2 zugestimmt. Version 3 ändert Folgendes:
 Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.
 Im Ranking des Teams sehen alle die Zahl deiner gewerteten Fahrten, deine Kilometer und Höhenmeter pro Saison, Monat und Woche, ohne deinen Namen. Die Orga sieht mit deinem Vornamen deine Fahrten pro Saison und Tag und deine typische Fahrt: die Länge, über und unter der je die Hälfte deiner Fahrten liegt. Die Daten, die wir von Strava lesen, ändern sich dadurch nicht.
-Was du mit dem Verbinden erlaubst
-Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die englische Fassung
-.
+Teile deine Strava-Daten mit RynkePoints
 Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.
 Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.
-Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.
+Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.
+Verbindlich ist die englische Fassung
+dieses Textes.
 Alle Details
 Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.
 Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.

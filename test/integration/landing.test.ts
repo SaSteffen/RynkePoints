@@ -41,9 +41,7 @@ describe("GET / (signed out)", () => {
 		expect(res.status).toBe(200);
 		expect(res.headers.get("Content-Language")).toBe("de");
 		expect(page).toContain('<html lang="de">');
-		expect(page).toContain(
-			escapeHtml(de["landing.intro"].replace("{team}", teamFor(env).name)),
-		);
+		expect(page).toContain(escapeHtml(de["landing.intro"]));
 		for (const id of [
 			"landing.dataRead",
 			"landing.private",
@@ -58,8 +56,13 @@ describe("GET / (signed out)", () => {
 			"consent.details",
 			"consent.organisers",
 			"consent.team",
-			"consent.required",
 			"consent.agree",
+			"landing.club.heading",
+			"landing.club.text",
+			"landing.step.agree.heading",
+			"landing.step.agree.text",
+			"landing.step.connect.heading",
+			"landing.step.connect.text",
 		] as const) {
 			expect(page).toContain(escapeHtml(de[id]));
 		}
@@ -67,18 +70,31 @@ describe("GET / (signed out)", () => {
 			"Gelöschte Daten bleiben noch bis zu 7\u00a0Tage in den Sicherungen unseres Hosting-Anbieters",
 		);
 		expect(page).toContain(
-			'<a href="https://www.strava.com/clubs/1088689">unseres Team-Clubs auf Strava</a>',
+			`<a class="club-link" href="https://www.strava.com/clubs/1088689" target="_blank" rel="noopener">${escapeHtml(de["landing.club.button"])}<svg`,
 		);
-		expect(page).toContain("Mitmachen können nur Mitglieder");
 	});
 
-	it("opens with the Rynke coin and the tagline (012 FR-003)", async () => {
+	it("opens with both sides of the team's coin and its name (012 FR-003)", async () => {
 		const { page } = await get();
+		const { coin } = teamFor(env).art;
 		expect(page).toMatch(
 			new RegExp(
-				`<div class="landing-hero">\\n<img class="coin-art coin coin-hero" src="${escapeRegExp(artUrl("/coin/rynke-coin-hero-2.svg"))}" alt=""[^>]*>\\n<h1>RynkePoints</h1>\\n<p class="tagline">${escapeHtml(de["landing.tagline"])}</p>\\n</div>`,
+				`<div class="landing-hero">\\n<div class="coin-pair"><img class="coin-art coin-pair-front" src="${escapeRegExp(artUrl(coin.front))}" alt=""[^>]*><img class="coin-art coin-pair-back" src="${escapeRegExp(artUrl(coin.back))}" alt=""[^>]*></div>\\n<h1>RynkePoints</h1>\\n<p class="team-name">${escapeHtml(teamFor(env).name)}</p>\\n</div>`,
 			),
 		);
+	});
+
+	it("leads to the club first, then the box, then the button", async () => {
+		const { page } = await get();
+		const club = page.indexOf('<a class="club-link"');
+		const box = page.indexOf(
+			'<label class="consent-tick"><input type="checkbox" name="consent"',
+		);
+		const button = page.indexOf(connectButton(de));
+		expect(club).toBeGreaterThan(0);
+		expect(box).toBeGreaterThan(club);
+		expect(button).toBeGreaterThan(box);
+		expect(page).not.toContain(escapeHtml(de["consent.required"]));
 	});
 
 	it("names every activity figure that is read (FR-002)", async () => {
@@ -148,7 +164,7 @@ describe("GET / (signed out)", () => {
 
 	it("names who sees what and asks for no write access", async () => {
 		const { page } = await get();
-		expect(page).toContain("<h2>Was du mit dem Verbinden erlaubst</h2>");
+		expect(page).toContain("<h2>Teile deine Strava-Daten mit RynkePoints</h2>");
 		expect(page).toContain(
 			"Deine einzelnen Fahrten und ihre Namen siehst nur du.",
 		);
@@ -158,7 +174,9 @@ describe("GET / (signed out)", () => {
 
 	it("shows the consent form with the Connect with Strava button", async () => {
 		const { page } = await get();
-		expect(page).toContain('<form method="post" action="/connect">');
+		expect(page).toContain(
+			'<form class="consent-steps" method="post" action="/connect">',
+		);
 		expect(page).toContain(
 			`<input type="checkbox" name="consent" value="${CONSENT_VERSION}" required>`,
 		);
@@ -167,12 +185,9 @@ describe("GET / (signed out)", () => {
 		expect(page).not.toContain('<a href="/connect">');
 	});
 
-	it("renders the shared consent form with the current version (004 R11)", async () => {
+	it("renders the consent box with the current version (004 R11)", async () => {
 		const form = (version: number) =>
-			`<form method="post" action="/connect">
-<p><label><input type="checkbox" name="consent" value="${version}" required> ${escapeHtml(de["consent.agree"])}</label></p>
-${connectButton(de)}
-</form>`;
+			`<label class="consent-tick"><input type="checkbox" name="consent" value="${version}" required> ${escapeHtml(de["consent.agree"])}</label>`;
 		expect((await get()).page).toContain(form(CONSENT_VERSION));
 
 		const v2Ctx = makeCtx({
