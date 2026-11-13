@@ -68,6 +68,11 @@ export interface FakeStrava {
 	unexpected: string[];
 	/** Rate headers on every /api/v3 response; `null` sends none. */
 	rateHeaders: RateHeaders | null;
+	/**
+	 * Whether the list without `after` comes newest first, as Strava's does;
+	 * false lists it oldest first, a change on Strava's side (feature 036 FR-026).
+	 */
+	newestFirst: boolean;
 	addAthlete(athlete: Partial<FakeAthlete> & { id: number }): FakeAthlete;
 	addActivity(ownerId: number, activity: StravaActivityFixture): void;
 	/** Answers the next call to `endpoint` with `status` (or a network error). */
@@ -118,6 +123,7 @@ export function installFakeStrava(): FakeStrava {
 			readUsage: "1,1",
 			readLimit: "100,1000",
 		},
+		newestFirst: true,
 		addAthlete(athlete) {
 			const full: FakeAthlete = {
 				firstname: firstNameFor(athlete.id),
@@ -289,15 +295,22 @@ export function installFakeStrava(): FakeStrava {
 			}
 			return json(strip(activity), 200, apiHeaders());
 		}
-		const after = Number(url.searchParams.get("after") ?? "0");
+		const after = url.searchParams.get("after");
+		// With `after` Strava lists oldest first, without it newest first
+		// (feature 036 research R3).
+		const newestFirst = after === null && fake.newestFirst;
 		const list = [...fake.activities.values()]
 			.filter(
 				(a) =>
 					a.ownerId === athlete.id &&
 					visible(a, athlete) &&
-					Date.parse(a.start_date) / 1000 > after,
+					Date.parse(a.start_date) / 1000 > Number(after ?? "0"),
 			)
-			.sort((a, b) => Date.parse(a.start_date) - Date.parse(b.start_date))
+			.sort(
+				(a, b) =>
+					(Date.parse(a.start_date) - Date.parse(b.start_date)) *
+					(newestFirst ? -1 : 1),
+			)
 			.map(strip);
 		return json(paginate(list, url), 200, apiHeaders());
 	}

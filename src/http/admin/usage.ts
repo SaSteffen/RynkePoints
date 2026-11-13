@@ -2,6 +2,11 @@ import type { Ctx } from "../../ctx";
 import { subscriptionIdsOfRiders } from "../../db/push-subscriptions";
 import { readStravaUsage } from "../../db/rate-limit";
 import {
+	countActiveRiders,
+	type RecheckDay,
+	readRecheckDays,
+} from "../../db/recheck";
+import {
 	connectedCountStatement,
 	type Rider,
 	setAdminAlerts,
@@ -180,6 +185,48 @@ ${isRecordedAllowance(figure.id) ? history(figure.id) : null}</li>
 `;
 }
 
+/**
+ * The ride edit re-check's last days (feature 036 contracts/usage-view.md): the
+ * team's allowance and active riders, then a table of counts. No rider is named.
+ * A day with riders waiting over 24 hours or a list in the wrong order is marked
+ * in words, like a warning figure.
+ */
+function recheckSection(
+	i18n: I18n,
+	allowance: number,
+	activeRiders: number,
+	days: readonly RecheckDay[],
+): SafeHtml {
+	const row = (d: RecheckDay) => {
+		const warn = d.over24h > 0 || d.unordered > 0;
+		const stoodBack = [
+			whole(i18n, d.skipped),
+			...(d.runsHeld > 0
+				? [i18n.t("admin.recheck.runsHeld", { n: d.runsHeld })]
+				: []),
+		].join(" · ");
+		const failed = [
+			whole(i18n, d.failed),
+			...(d.unordered > 0 ? [i18n.t("admin.recheck.listOrder")] : []),
+		].join(" · ");
+		return html`<tr><th scope="row">${i18n.formatDate(`${d.day}T00:00:00Z`)}${warn ? html` <span class="usage-mark usage-mark-warning">${i18n.t("admin.level.warning")}</span>` : null}</th><td>${whole(i18n, d.sent - d.skipped - d.failed)}</td><td>${stoodBack}</td><td>${failed}</td><td>${whole(i18n, d.over24h)}</td></tr>
+`;
+	};
+	return html`<section class="card usage-source" id="recheck">
+<h2>${i18n.t("admin.recheck.heading")}</h2>
+<p class="usage-detail">${i18n.t("admin.recheck.allowance", { allowance: whole(i18n, allowance), riders: whole(i18n, activeRiders) })}</p>
+${
+	days.length === 0
+		? html`<p class="usage-detail">${i18n.t("admin.recheck.none")}</p>`
+		: html`<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
+<thead><tr><th scope="col">${i18n.t("admin.history.day")}</th><th scope="col">${i18n.t("admin.recheck.made")}</th><th scope="col">${i18n.t("admin.recheck.skipped")}</th><th scope="col">${i18n.t("admin.recheck.failed")}</th><th scope="col">${i18n.t("admin.recheck.over24h")}</th></tr></thead>
+<tbody>
+${days.map(row)}</tbody>
+</table></div></div>`
+}</section>
+`;
+}
+
 /** How many figures need a look, so nobody has to read them all (SC-001). */
 function summary(i18n: I18n, figures: readonly Figure[]): SafeHtml {
 	const marked = figures.filter((f) => f.level !== "ok").length;
@@ -267,18 +314,21 @@ export function handleAdminUsage(
 		const now = ctx.now();
 		const today = utcDay(now);
 		const peers = usagePeers(ctx.env);
-		const [usage, cloudflare, counts, devices, states] = await Promise.all([
-			readStravaUsage(db),
-			readCloudflareFigures(db),
-			db.batch([
-				connectedCountStatement(db),
-				totalWaitingStatement(db),
-				usageHistoryStatement(db, historyStart(today)),
-				teamCountsStatement(db, historyStart(today)),
-			]),
-			subscriptionIdsOfRiders(db, [rider.athleteId]),
-			peers.length > 0 ? readSourceStates(db) : new Map(),
-		]);
+		const [usage, cloudflare, counts, devices, states, recheckDays, active] =
+			await Promise.all([
+				readStravaUsage(db),
+				readCloudflareFigures(db),
+				db.batch([
+					connectedCountStatement(db),
+					totalWaitingStatement(db),
+					usageHistoryStatement(db, historyStart(today)),
+					teamCountsStatement(db, historyStart(today)),
+				]),
+				subscriptionIdsOfRiders(db, [rider.athleteId]),
+				peers.length > 0 ? readSourceStates(db) : new Map(),
+				readRecheckDays(db),
+				countActiveRiders(db, now),
+			]);
 		const count = (i: number) =>
 			(counts[i]?.results[0] as { n: number } | undefined)?.n ?? 0;
 		const teamRecords = teamCountRecords(counts[3]?.results ?? []);
@@ -351,7 +401,7 @@ export function handleAdminUsage(
 <ul class="usage-figures">
 ${strava.map(item)}</ul>
 </section>
-${
+${recheckSection(i18n, ctx.team.recheckAllowance, active, recheckDays)}${
 	estimate === null
 		? null
 		: html`<section class="card">

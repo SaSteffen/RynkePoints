@@ -90,6 +90,20 @@ export function budgetDecision(
 	return { ok: true };
 }
 
+/**
+ * Whether more than half of the day's reads are used, by every team: the ride
+ * edit re-check stands back then (feature 036 FR-016). No state, or one from an
+ * earlier UTC day, is nothing used.
+ */
+export function halfDayUsed(
+	state: RateLimitState | null,
+	now: number,
+): boolean {
+	if (!state) return false;
+	const u = effectiveUsage(state, now);
+	return u.readDaily > u.limitReadDaily / 2;
+}
+
 /** Delay until the next 15-minute window, used for a `429`. */
 export function deferUntilNextWindow(now: number): number {
 	return capDelay(windowStart(now) + WINDOW_SECONDS - now);

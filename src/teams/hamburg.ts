@@ -147,6 +147,8 @@ export const hamburg: TeamData = {
 	],
 	// Filled with Europe's club once it has one (FR-012, release 4).
 	otherClubIds: [],
+	// Half of the re-check's 300 reads a day; Europe has the other half (036).
+	recheckAllowance: 150,
 	rulesHandout: { path: "/rynke-punkte.pdf", locale: "de" },
 	dev: { host: "localhost", port: 8789, inspectorPort: 9230 },
 	cloudflare: {

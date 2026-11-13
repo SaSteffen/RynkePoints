@@ -1,6 +1,21 @@
 <!--
 Sync Impact Report
-- Version change: 2.5.0 → 2.6.0
+- Version change: 2.6.0 → 2.7.0
+- Rationale: MINOR — Principle II gains its one exception to "does not poll":
+  the ride edit re-check (feature 036). Strava reports an activity update only
+  for a new title, type or privacy, so a crop or any other edit of distance or
+  times never reaches the app, and a ride the rider fixed stayed "doesn't
+  count" (issue #274). The re-check is bounded: one list request per rider per
+  check, at most 10% of the daily read limit for all teams together in normal
+  operation, at most one request per rider per 23 hours beyond that (a day,
+  less the hour between two runs), and none while the budget is short.
+- Principles modified: II. Good Strava API Citizenship
+- Sections added: none
+- Sections removed: none
+- Templates checked for alignment: .specify/templates/* — unchanged.
+- Follow-up TODOs: none.
+
+Previous: 2.5.0 → 2.6.0
 - Rationale: MINOR — the Language section's team content rule matches what was
   decided and built: the common phrases, badge names and badge hints that every
   team without its own set gets are English only and aren't translated (phrase
@@ -134,7 +149,7 @@ keep both.
 
 ### II. Good Strava API Citizenship
 
-The app reacts to Strava, it does not poll it.
+The app reacts to Strava; it polls it only for what Strava doesn't report.
 
 - New/updated/deleted activities and deauthorizations arrive via Strava's webhook
   subscription. The webhook handler MUST acknowledge within 2 seconds and hand the
@@ -145,6 +160,15 @@ The app reacts to Strava, it does not poll it.
   2026-11-04 the read limits are 300 requests / 15 min and 3,000 / day), back off on `429`, and honour the
   `X-RateLimit-*` / `X-ReadRateLimit-*` headers. Backfills of historical activities
   are throttled jobs, never bursts.
+- The app MUST NOT poll Strava, with one exception: the ride edit re-check
+  (feature 036). Strava sends no event for an edit that changes a ride's distance
+  or times, so the app re-reads each connected rider's newest activities on a
+  schedule. That check MUST stay bounded: one list request per rider per check,
+  no further pages and no single-activity requests; all teams together at most 10%
+  of the daily read limit in normal operation, and beyond that at most one request
+  per rider per 23 hours (a day, less the hour between two runs); never a burst; and no check while the budget is short, so
+  that it comes after everything a person waits for, the import and webhook
+  events. Any other scheduled read of rider data from Strava needs an amendment.
 - The app's athlete capacity is 999 since Strava's Developer Program review
   (2026-11-04); features MUST NOT assume more athletes than that capacity.
 
@@ -295,4 +319,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 2.6.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-12
+**Version**: 2.7.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-13

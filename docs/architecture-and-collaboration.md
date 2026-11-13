@@ -110,6 +110,19 @@ The missing arrows matter:
 Teams and the gateway all use the same Cloudflare allowances and the same Strava limits. Separate
 accounts stay possible later, but aren't built. See [Spec 026](../specs/026-second-team/spec.md).
 
+### A crop on Strava (ride edit re-check)
+
+Strava sends no event when a ride is cropped, only when its title, type or privacy changes. So the
+hourly cron also picks a few riders who had an activity in the past 30 days, and sends one
+`recheck-rider` message for each, spread over the hour. The queue consumer reads the rider's newest
+200 activities in a single Strava request, compares them with the stored ones and passes only the
+differences to the usual evaluation, so a fixed ride counts within 24 hours without the rider doing
+anything. All teams together use at most 300 Strava reads a day for this (10% of the limit); each
+team's share is team data. The check stands back when more than half of the day's reads are used,
+when the 15-minute budget is short or when imports or events are waiting, and is never retried. The
+administrators' usage view shows the checks per day. See
+[Spec 036](../specs/036-ride-edit-recheck/spec.md).
+
 ### A Strava event through the gateway (specced)
 
 The gateway answers Strava within 2 seconds and passes each event to every team, retrying each team

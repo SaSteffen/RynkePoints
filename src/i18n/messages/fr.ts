@@ -152,8 +152,8 @@ export const fr: Catalog = {
 	"rynke.ride.fix.summary": "Comment faire",
 	"rynke.ride.fix.crop":
 		"Corrige la sortie sur Strava : recadre ce qui n'en fait pas partie, par exemple la longue pause, un trajet en train ou en voiture, ou un enregistrement qui a continué après la sortie.",
-	"rynke.ride.fix.rename":
-		"Change ensuite le titre de la sortie et enregistre. C'est ainsi que l'appli l'apprend : Strava signale un nouveau titre, mais pas un recadrage. Tu pourras remettre l'ancien titre ensuite.",
+	"rynke.ride.fix.wait_recheck":
+		"Ensuite, tu n'as plus rien à faire. L'appli consulte régulièrement Strava et reprend la modification d'elle-même, en général au bout de quelques heures et au plus tard après 24 heures. Si rien ne change d'ici là, demande à un organisateur.",
 	"rynke.ride.fix.manual":
 		"Si tu as enregistré la sortie, importe l'enregistrement sur Strava et supprime la saisie manuelle.",
 	"rynke.ride.fix.wait":
@@ -1114,6 +1114,20 @@ export const fr: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Les chiffres de Cloudflare sont indisponibles pour le moment. Voici les dernières valeurs connues.",
 	"admin.refresh": "Mettre à jour",
+	"admin.recheck.heading": "Nouvelle vérification des sorties",
+	"admin.recheck.allowance":
+		"{allowance} vérifications par jour pour cette équipe · {riders} cyclistes actif·ve·s (une activité au cours des 30 derniers jours)",
+	"admin.recheck.none": "Aucune vérification n'a encore eu lieu.",
+	"admin.recheck.made": "Vérifiées",
+	"admin.recheck.skipped": "Reportées",
+	"admin.recheck.failed": "Échouées",
+	"admin.recheck.over24h": "Attente de plus de 24\u00a0h",
+	"admin.recheck.runsHeld": {
+		one: "{n} passage suspendu",
+		many: "{n} passages suspendus",
+		other: "{n} passages suspendus",
+	},
+	"admin.recheck.listOrder": "ordre de la liste",
 	"admin.waiting.heading": "En attente du budget Strava",
 	"admin.waiting.body": {
 		one: "{n} élément en attente, terminé dans environ {time}.",

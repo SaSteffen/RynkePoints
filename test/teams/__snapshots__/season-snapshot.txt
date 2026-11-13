@@ -3487,8 +3487,7 @@ Radfahrt · 50 m
 Warum? Zu langsam: 8,0 km/h im Schnitt, mindestens 10 km/h sind nötig.
 Du kannst die Fahrt auf Strava korrigieren oder dich an die Orga wenden.
 So geht&#39;s Korrigiere die Fahrt auf Strava: Schneide ab, was nicht dazugehört, etwa die lange Pause, eine Strecke mit Bahn oder Auto oder eine Aufzeichnung, die nach der Fahrt weiterlief.
-Ändere danach den Titel der Fahrt und speichere. Nur so erfährt die App von der Änderung: Strava meldet einen neuen Titel, das Zuschneiden nicht. Den alten Titel kannst du danach wieder eintragen.
-Nach ein paar Minuten ist die Fahrt hier neu bewertet. Ändert sich nichts, wende dich an die Orga.
+Danach musst du nichts weiter tun. Die App schaut regelmäßig bei Strava nach und übernimmt die Änderung von selbst, meist nach ein paar Stunden, spätestens nach 24 Stunden. Tut sich dann nichts, wende dich an die Orga.
 04.10.2026 zählt nicht
 Distanz
 60,0 km
@@ -3501,8 +3500,7 @@ Radfahrt · 100 m
 Warum? Zu schnell für eine Radfahrt: 60,0 km/h im Schnitt, höchstens 45 km/h sind erlaubt.
 Du kannst die Fahrt auf Strava korrigieren oder dich an die Orga wenden.
 So geht&#39;s Korrigiere die Fahrt auf Strava: Schneide ab, was nicht dazugehört, etwa die lange Pause, eine Strecke mit Bahn oder Auto oder eine Aufzeichnung, die nach der Fahrt weiterlief.
-Ändere danach den Titel der Fahrt und speichere. Nur so erfährt die App von der Änderung: Strava meldet einen neuen Titel, das Zuschneiden nicht. Den alten Titel kannst du danach wieder eintragen.
-Nach ein paar Minuten ist die Fahrt hier neu bewertet. Ändert sich nichts, wende dich an die Orga.
+Danach musst du nichts weiter tun. Die App schaut regelmäßig bei Strava nach und übernimmt die Änderung von selbst, meist nach ein paar Stunden, spätestens nach 24 Stunden. Tut sich dann nichts, wende dich an die Orga.
 03.10.2026 zählt nicht
 Distanz
 40,0 km
@@ -3515,8 +3513,7 @@ Radfahrt · 200 m
 Warum? Zu lange Pause: 1 h 50 min Pause bei 1 h 30 min Bewegungszeit; mehr Pause als Bewegung ist nicht erlaubt.
 Du kannst die Fahrt auf Strava korrigieren oder dich an die Orga wenden.
 So geht&#39;s Korrigiere die Fahrt auf Strava: Schneide ab, was nicht dazugehört, etwa die lange Pause, eine Strecke mit Bahn oder Auto oder eine Aufzeichnung, die nach der Fahrt weiterlief.
-Ändere danach den Titel der Fahrt und speichere. Nur so erfährt die App von der Änderung: Strava meldet einen neuen Titel, das Zuschneiden nicht. Den alten Titel kannst du danach wieder eintragen.
-Nach ein paar Minuten ist die Fahrt hier neu bewertet. Ändert sich nichts, wende dich an die Orga.
+Danach musst du nichts weiter tun. Die App schaut regelmäßig bei Strava nach und übernimmt die Änderung von selbst, meist nach ein paar Stunden, spätestens nach 24 Stunden. Tut sich dann nichts, wende dich an die Orga.
 02.10.2026 zählt nicht
 Distanz
 30,0 km
@@ -3529,8 +3526,7 @@ Radfahrt · 3.000 m
 Warum? Zu viele Höhenmeter für die Zeit: 2.000 m/h bergauf, höchstens 1.500 m/h sind erlaubt.
 Du kannst die Fahrt auf Strava korrigieren oder dich an die Orga wenden.
 So geht&#39;s Korrigiere die Fahrt auf Strava: Schneide ab, was nicht dazugehört, etwa die lange Pause, eine Strecke mit Bahn oder Auto oder eine Aufzeichnung, die nach der Fahrt weiterlief.
-Ändere danach den Titel der Fahrt und speichere. Nur so erfährt die App von der Änderung: Strava meldet einen neuen Titel, das Zuschneiden nicht. Den alten Titel kannst du danach wieder eintragen.
-Nach ein paar Minuten ist die Fahrt hier neu bewertet. Ändert sich nichts, wende dich an die Orga.
+Danach musst du nichts weiter tun. Die App schaut regelmäßig bei Strava nach und übernimmt die Änderung von selbst, meist nach ein paar Stunden, spätestens nach 24 Stunden. Tut sich dann nichts, wende dich an die Orga.
 01.10.2026 zählt nicht
 Distanz
 40,0 km

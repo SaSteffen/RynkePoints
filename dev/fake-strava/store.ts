@@ -168,8 +168,9 @@ export async function getActivity(
 }
 
 /**
- * The rider's activities that started after `after` (epoch seconds), oldest
- * first, one page of `perPage`.
+ * The rider's activities that started after `after` (epoch seconds), one page
+ * of `perPage`: oldest first, or newest first as Strava lists them when asked
+ * without `after` (feature 036 research R3).
  */
 export async function listActivities(
 	db: D1Database,
@@ -179,12 +180,14 @@ export async function listActivities(
 		page: number;
 		perPage: number;
 		includePrivate: boolean;
+		newestFirst?: boolean;
 	},
 ): Promise<FakeActivity[]> {
+	const order = options.newestFirst ? "DESC" : "ASC";
 	const { results } = await db
 		.prepare(
 			`SELECT body FROM fake_strava_activities WHERE athlete_id = ?
-			ORDER BY json_extract(body, '$.start_date'), id`,
+			ORDER BY json_extract(body, '$.start_date') ${order}, id ${order}`,
 		)
 		.bind(athleteId)
 		.all<{ body: string }>();

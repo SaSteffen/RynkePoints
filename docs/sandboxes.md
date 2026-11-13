@@ -71,7 +71,8 @@ read. The sandbox databases also have their own budget of 40,000 rows written a 
 includes what people do in the sandboxes. A deployment writes about 7,000 rows, so that allows
 about five a day.
 
-Sandboxes have no cron. The daily work runs only from `/_dev/` → **Run the daily work**.
+Sandboxes have no cron. The daily work runs only from `/_dev/` → **Run the daily work**, and the
+ride re-check (feature 036) from `/_dev/` → **Run the ride re-check**.
 
 ## Which commit is live
 

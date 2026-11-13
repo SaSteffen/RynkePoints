@@ -3,6 +3,7 @@ import type { Rider } from "../db/riders";
 import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import type { RiderStatus } from "../rynke/pace";
+import { FIXABLE_REASONS } from "../rynke/rides";
 import { STRAVA_ORIGIN } from "../strava/result";
 import type { CoinArt, RulesHandout } from "../teams/types";
 import { coinArt, flippingCoin, miniCoin, SHARED_COIN } from "./coin";
@@ -571,25 +572,19 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 	}
 }
 
-/** Reasons fixed by cutting the ride on Strava. */
-const CROPPABLE = new Set<string>([
-	"pause",
-	"too_slow",
-	"too_fast",
-	"climbing_rate",
-]);
-
 /**
  * How to fix the ride, folded under the fix hint. Strava sends no event for a
- * crop, only for a new title, so a cropped ride needs one (#274).
+ * crop: the ride edit re-check picks it up within 24 hours, so the rider only
+ * waits (feature 036 contracts/ride-card.md). A manual entry's upload and
+ * deletion are reported, so that alone is a matter of minutes.
  */
 function fixSteps(i18n: I18n, ride: RideLine): SafeHtml {
-	const codes = new Set(ride.reasons.map((reason) => reason.code));
-	const crop = [...codes].some((code) => CROPPABLE.has(code));
+	const codes = new Set<string>(ride.reasons.map((reason) => reason.code));
+	const crop = FIXABLE_REASONS.some((code) => codes.has(code));
 	const steps: MessageId[] = [];
-	if (crop) steps.push("rynke.ride.fix.crop", "rynke.ride.fix.rename");
+	if (crop) steps.push("rynke.ride.fix.crop");
 	if (codes.has("manual")) steps.push("rynke.ride.fix.manual");
-	steps.push("rynke.ride.fix.wait");
+	steps.push(crop ? "rynke.ride.fix.wait_recheck" : "rynke.ride.fix.wait");
 	return html`<details class="ride-fix"><summary class="tap">${i18n.t("rynke.ride.fix.summary")}</summary><ol>${steps.map(
 		(key) => html`<li>${i18n.t(key)}</li>`,
 	)}</ol></details>`;

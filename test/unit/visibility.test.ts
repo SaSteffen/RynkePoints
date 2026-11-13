@@ -69,6 +69,7 @@ function rider(athleteId: number, organiser: boolean): Rider {
 		adminAlerts: true,
 		onboardedAt: null,
 		organiserOnboardedAt: null,
+		recheckedAt: null,
 	};
 }
 

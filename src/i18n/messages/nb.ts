@@ -145,8 +145,8 @@ export const nb: Catalog = {
 	"rynke.ride.fix.summary": "Slik gjør du",
 	"rynke.ride.fix.crop":
 		"Rett turen på Strava: beskjær det som ikke hører til, for eksempel den lange pausen, en strekning med tog eller bil eller et opptak som fortsatte etter turen.",
-	"rynke.ride.fix.rename":
-		"Endre deretter tittelen på turen og lagre. Bare slik får appen vite om endringen: Strava melder fra om ny tittel, men ikke om beskjæring. Du kan sette tilbake den gamle tittelen etterpå.",
+	"rynke.ride.fix.wait_recheck":
+		"Deretter trenger du ikke gjøre noe mer. Appen sjekker Strava jevnlig og henter endringen selv, som regel etter noen timer og senest etter 24 timer. Skjer det da ingenting, spør en arrangør.",
 	"rynke.ride.fix.manual":
 		"Har du tatt opp turen, last opp opptaket til Strava og slett den manuelle registreringen.",
 	"rynke.ride.fix.wait":
@@ -1059,6 +1059,19 @@ export const nb: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflares tall er ikke tilgjengelige akkurat nå. Dette er de sist kjente verdiene.",
 	"admin.refresh": "Oppdater nå",
+	"admin.recheck.heading": "Ny kontroll av turer",
+	"admin.recheck.allowance":
+		"{allowance} kontroller om dagen for dette laget · {riders} aktive ryttere (med en aktivitet de siste 30 dagene)",
+	"admin.recheck.none": "Ingen kontroll har kjørt ennå.",
+	"admin.recheck.made": "Kontrollert",
+	"admin.recheck.skipped": "Utsatt",
+	"admin.recheck.failed": "Mislyktes",
+	"admin.recheck.over24h": "Ventet over 24\u00a0t",
+	"admin.recheck.runsHeld": {
+		one: "{n} kjøring holdt tilbake",
+		other: "{n} kjøringer holdt tilbake",
+	},
+	"admin.recheck.listOrder": "listens rekkefølge",
 	"admin.waiting.heading": "Venter på Strava-budsjettet",
 	"admin.waiting.body": {
 		one: "{n} oppføring venter, ferdig om omtrent {time}.",

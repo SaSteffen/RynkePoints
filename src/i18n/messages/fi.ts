@@ -144,8 +144,8 @@ export const fi: Catalog = {
 	"rynke.ride.fix.summary": "Näin korjaat",
 	"rynke.ride.fix.crop":
 		"Korjaa ajo Stravassa: rajaa pois se, mikä ei kuulu siihen, esimerkiksi pitkä tauko, juna- tai automatka tai tallennus, joka jatkui ajon jälkeen.",
-	"rynke.ride.fix.rename":
-		"Vaihda sen jälkeen ajon otsikko ja tallenna. Vain näin sovellus saa tiedon muutoksesta: Strava ilmoittaa uudesta otsikosta, mutta ei rajauksesta. Voit palauttaa vanhan otsikon jälkeenpäin.",
+	"rynke.ride.fix.wait_recheck":
+		"Sen jälkeen sinun ei tarvitse tehdä mitään. Sovellus tarkistaa Stravan säännöllisesti ja hakee muutoksen itse, yleensä muutaman tunnin kuluttua ja viimeistään 24 tunnin kuluttua. Jos mikään ei silloinkaan muutu, kysy järjestäjältä.",
 	"rynke.ride.fix.manual":
 		"Jos tallensit ajon, lataa tallennus Stravaan ja poista käsin lisätty merkintä.",
 	"rynke.ride.fix.wait":
@@ -1061,6 +1061,19 @@ export const fi: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflaren luvut eivät ole juuri nyt saatavilla. Nämä ovat viimeisimmät tunnetut arvot.",
 	"admin.refresh": "Päivitä nyt",
+	"admin.recheck.heading": "Ajojen uudelleentarkistus",
+	"admin.recheck.allowance":
+		"{allowance} tarkistusta päivässä tälle tiimille · {riders} aktiivista ajajaa (aktiviteetti viimeisten 30 päivän aikana)",
+	"admin.recheck.none": "Yhtään tarkistusta ei ole vielä tehty.",
+	"admin.recheck.made": "Tarkistettu",
+	"admin.recheck.skipped": "Siirretty",
+	"admin.recheck.failed": "Epäonnistui",
+	"admin.recheck.over24h": "Odottanut yli 24\u00a0h",
+	"admin.recheck.runsHeld": {
+		one: "{n} ajo pidätetty",
+		other: "{n} ajoa pidätetty",
+	},
+	"admin.recheck.listOrder": "listan järjestys",
 	"admin.waiting.heading": "Odotetaan Strava-budjettia",
 	"admin.waiting.body": {
 		one: "{n} kohde odottaa, valmis noin {time} kuluttua.",
