@@ -27,7 +27,7 @@ export const SEASONAL_MONKEYS: readonly string[] = [
 	"easter",
 	"midsummer",
 	"halloween",
-	"europe-day",
+	"eu-day",
 ];
 
 // The badges page's hint monkeys (feature 034), one per kind of hint, never

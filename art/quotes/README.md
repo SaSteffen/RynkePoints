@@ -71,7 +71,7 @@ lists the finished ones in `src/http/quote-monkeys.ts` and updates
 
 Some monkeys dress Rynke up for a holiday: `advent`, `nikolaus`, `christmas`
 and `new-year` (feature 035), `karneval`, `valentine`, `easter`, `midsummer`,
-`halloween` and `europe-day` (feature 037). They are entries of `monkeys.json` like the others,
+`halloween` and `eu-day` (feature 037). They are entries of `monkeys.json` like the others,
 made and built the same way, with `"seasonal": true`. `pnpm badge-build` lists
 them apart, in `SEASONAL_MONKEYS`, so they never join the regular rotation.
 

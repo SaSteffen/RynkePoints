@@ -13,8 +13,8 @@ Covers both teams' holiday tables and the dates of contracts/team-holidays.md, n
 ## Pictures
 
 ```bash
-pnpm badge-art karneval easter midsummer halloween europe-day
-pnpm badge-build karneval easter midsummer halloween europe-day
+pnpm badge-art karneval easter midsummer halloween eu-day
+pnpm badge-build karneval easter midsummer halloween eu-day
 ```
 
 Check each against contracts/seasonal-art.md.

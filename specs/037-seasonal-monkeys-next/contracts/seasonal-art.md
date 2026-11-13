@@ -11,7 +11,7 @@ into `public/quotes/<id>.svg`, which adds the id to `SEASONAL_MONKEYS` and its v
 | `easter` | bunny ears over the helmet, small basket of painted eggs |
 | `midsummer` | crown of leaves and flowers over the helmet, bunch of wild flowers |
 | `halloween` | carved pumpkin lantern with a friendly face, small cartoon bats and a spider |
-| `europe-day` | big European flag held up on a short pole |
+| `eu-day` | big European flag held up on a short pole |
 
 Each one, checked by eye on top of README › Checking a picture and the seasonal checks there:
 

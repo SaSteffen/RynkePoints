@@ -16,7 +16,7 @@ or fixed days, so a new anchor would only add code.
 
 ## R2: Ids
 
-**Decision**: Monkey ids `karneval`, `easter`, `midsummer`, `halloween`, `europe-day`. Holiday ids
+**Decision**: Monkey ids `karneval`, `easter`, `midsummer`, `halloween`, `eu-day`. Holiday ids
 equal the monkey id, except Team Europe's Carnival: holiday `carnival`, monkey `karneval`.
 
 **Rationale**: Holiday ids are unique only within a team and are a maintainer's label (spec

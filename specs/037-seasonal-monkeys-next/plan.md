@@ -78,12 +78,12 @@ src/http/quote-monkeys.ts       # generated: SEASONAL_MONKEYS + the five ids
 src/http/art-versions.ts        # generated: their versions
 
 art/quotes/
-├── monkeys.json                # + karneval, easter, midsummer, halloween, europe-day (seasonal)
+├── monkeys.json                # + karneval, easter, midsummer, halloween, eu-day (seasonal)
 ├── prompt.txt                  # red and dark blue "only where a scene names it" (nose, flag)
 ├── originals/                  # + their originals
 └── README.md                   # Seasonal monkeys: new ids, shared pictures, Europe Day check
 
-public/quotes/                  # + karneval.svg, easter.svg, midsummer.svg, halloween.svg, europe-day.svg
+public/quotes/                  # + karneval.svg, easter.svg, midsummer.svg, halloween.svg, eu-day.svg
 
 test/teams/holidays.test.ts     # both teams' tables, their dates 2026–2028, no overlap 2026–2075
 ```

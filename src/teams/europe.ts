@@ -57,8 +57,8 @@ export const europe: TeamData = {
 			kind: "short",
 		},
 		{
-			id: "europe-day",
-			monkey: "europe-day",
+			id: "eu-day",
+			monkey: "eu-day",
 			from: "05-09",
 			to: "05-09",
 			kind: "short",

@@ -136,17 +136,17 @@ pictures pass contracts/seasonal-art.md, Europe Day the flag check.
 - [x] T015 [US3] In `test/teams/holidays.test.ts`, make both table tests match data-model.md
   exactly: Hamburg `karneval`, `easter`, `midsummer` (`"06-20"`–`"06-24"`, short), `halloween`
   (`"10-29"`–`"10-31"`, short), `advent`, `nikolaus`, `christmas`, `new-year`; Europe `carnival`,
-  `easter`, `europe-day` (`"05-09"`–`"05-09"`, short), `midsummer`, `halloween`, `advent`,
+  `easter`, `eu-day` (`"05-09"`–`"05-09"`, short), `midsummer`, `halloween`, `advent`,
   `christmas`, `new-year`
 - [x] T016 [US3] In `test/teams/holidays.test.ts`, add "finds both teams' summer and autumn
   holidays": for both teams `null` on 2027-06-19, 2027-06-25, 2027-10-28, 2027-11-01; `midsummer`
   on 2027-06-20 and 2027-06-24; `halloween` on 2027-10-29 and 2027-10-31; on 2027-05-09
-  `europe-day` for Europe and `null` for Hamburg; `null` for Europe on 2027-05-08 and 2027-05-10.
+  `eu-day` for Europe and `null` for Hamburg; `null` for Europe on 2027-05-08 and 2027-05-10.
   Run T015–T016 and see them fail
 
 ### Implementation
 
-- [x] T017 [P] [US3] In `art/quotes/monkeys.json`, add `midsummer`, `halloween` and `europe-day`
+- [x] T017 [P] [US3] In `art/quotes/monkeys.json`, add `midsummer`, `halloween` and `eu-day`
   with `"seasonal": true`, scenes ending in `{{kit}}`, per research R5: Midsummer a crown of sage
   leaves with yellow and cream flowers over the helmet, holding a bunch of the same flowers, no
   maypole; Halloween holding a carved pumpkin in fur orange #C8641E with a sage stalk and a
@@ -161,12 +161,12 @@ pictures pass contracts/seasonal-art.md, Europe Day the flag check.
   before `ink`; in `art/quotes/prompt.txt`, add "dark blue #003399 (only where a scene names it)"
   to the colour list
 - [x] T019 [US3] In `src/teams/hamburg.ts` add `midsummer` and `halloween` between `easter` and
-  `advent`; in `src/teams/europe.ts` add `europe-day`, `midsummer` and `halloween` between
+  `advent`; in `src/teams/europe.ts` add `eu-day`, `midsummer` and `halloween` between
   `easter` and `advent`
 - [x] T020 [US3] Run `pnpm test test/teams/holidays.test.ts test/unit/holidays.test.ts
   test/unit/quote-art.test.ts` and `node scripts/team-check.mjs`; all pass
-- [x] T021 [US3] `pnpm badge-art midsummer halloween europe-day`, then `pnpm badge-build
-  midsummer halloween europe-day` (as T013)
+- [x] T021 [US3] `pnpm badge-art midsummer halloween eu-day`, then `pnpm badge-build
+  midsummer halloween eu-day` (as T013)
 - [x] T022 [US3] Check the three pictures by eye against contracts/seasonal-art.md; for Europe
   Day count the stars in the 120 px picture; redo T021 for one that fails
 

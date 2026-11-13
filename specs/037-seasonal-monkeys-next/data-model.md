@@ -26,7 +26,7 @@ The last four are feature 035's, unchanged.
 | `carnival` | `karneval` | `{ anchor: "easter", offset: -52 }` | `{ anchor: "easter", offset: -46 }` | short |
 | `valentine` | `valentine` | `"02-14"` | `"02-14"` | short |
 | `easter` | `easter` | `{ anchor: "easter", offset: -2 }` | `{ anchor: "easter", offset: 1 }` | short |
-| `europe-day` | `europe-day` | `"05-09"` | `"05-09"` | short |
+| `eu-day` | `eu-day` | `"05-09"` | `"05-09"` | short |
 | `midsummer` | `midsummer` | `"06-20"` | `"06-24"` | short |
 | `halloween` | `halloween` | `"10-29"` | `"10-31"` | short |
 | `advent` | `advent` | `{ anchor: "first-advent", offset: 0 }` | `"12-23"` | long |
@@ -38,5 +38,5 @@ The last four are feature 035's, unchanged.
 ## Seasonal monkeys (`art/quotes/monkeys.json`)
 
 Six new entries `{ id, name, scene, seasonal: true }`: `karneval`, `valentine`, `easter`, `midsummer`,
-`halloween`, `europe-day`. Scenes per contracts/seasonal-art.md; each ends in `{{kit}}` like the
+`halloween`, `eu-day`. Scenes per contracts/seasonal-art.md; each ends in `{{kit}}` like the
 December ones.

@@ -53,7 +53,7 @@ describe("validateMonkeys", () => {
 		).toMatch(/wave: a monkey is seasonal or a hint, not both/);
 	});
 
-	it("accepts the real monkey list: eleven regular, four seasonal, six hints", () => {
+	it("accepts the real monkey list: eleven regular, ten seasonal, six hints", () => {
 		expect(validateMonkeys(data)).toEqual([]);
 		const seasonal = (m: { seasonal?: boolean }) => m.seasonal === true;
 		const hint = (m: { hint?: boolean }) => m.hint === true;
@@ -73,6 +73,12 @@ describe("validateMonkeys", () => {
 			"nikolaus",
 			"christmas",
 			"new-year",
+			"karneval",
+			"valentine",
+			"easter",
+			"midsummer",
+			"halloween",
+			"eu-day",
 		]);
 	});
 

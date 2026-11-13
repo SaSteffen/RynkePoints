@@ -137,8 +137,8 @@ describe("team holidays", () => {
 				kind: "short",
 			},
 			{
-				id: "europe-day",
-				monkey: "europe-day",
+				id: "eu-day",
+				monkey: "eu-day",
 				from: "05-09",
 				to: "05-09",
 				kind: "short",
@@ -236,7 +236,7 @@ describe("team holidays", () => {
 	});
 
 	it("gives only Team Europe Europe Day", () => {
-		expect(on("2027-05-09", europe)).toBe("europe-day");
+		expect(on("2027-05-09", europe)).toBe("eu-day");
 		expect(on("2027-05-09")).toBeNull();
 		expect(on("2027-05-08", europe)).toBeNull();
 		expect(on("2027-05-10", europe)).toBeNull();
