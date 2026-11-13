@@ -6,8 +6,9 @@
 // Per image: scale down to at most 2048 px, flood the white paper in from the
 // edges and drop it, snap every other pixel to the nearest coin colour, smooth
 // away anti-aliasing fringes, then trace one layer per colour with potrace.
-// Each layer covers its own colour plus every colour stacked above it, so the
-// layers overlap instead of leaving hairline gaps between them.
+// The outline colour comes first as the whole silhouette; each fill layer then
+// covers its own colour plus every fill stacked above it, so the layers overlap
+// instead of leaving hairline gaps, and no fill reaches past the outline.
 import { execFileSync } from "node:child_process";
 
 // The coin's colours (`--rp-coin-*` in src/http/style.ts), bottom to top, plus
@@ -344,14 +345,25 @@ export function traceImage(
 	const used = new Uint32Array(colours.length + 1);
 	for (const l of label) used[l]++;
 
+	// The top colour (the outline) goes first, as one silhouette of everything
+	// drawn, and the fills stack on it without it. Traced on their own, a fill's
+	// outer edge and the outline's never quite match, so a fill covering the
+	// outline would peek out past it as a hairline of its colour.
+	const top = colours.length;
+	const drawn = (l) => l > 0 && !omit.includes(colours[l - 1].name);
 	let transform = "";
 	const paths = [];
-	for (let p = 0; p < colours.length; p++) {
-		if (!used[p + 1] || omit.includes(colours[p].name)) continue;
-		const layer = trace(pbm((i) => label[i] > p, w, h));
-		if (!layer) continue;
+	const add = (hex, inside) => {
+		const layer = trace(pbm(inside, w, h));
+		if (!layer) return;
 		transform = layer.transform;
-		paths.push(`<path fill="${colours[p].hex}" d="${layer.d}"/>`);
+		paths.push(`<path fill="${hex}" d="${layer.d}"/>`);
+	};
+	if (used[top] && drawn(top))
+		add(colours[top - 1].hex, (i) => drawn(label[i]));
+	for (let p = 0; p < top - 1; p++) {
+		if (!used[p + 1] || omit.includes(colours[p].name)) continue;
+		add(colours[p].hex, (i) => label[i] > p && label[i] !== top);
 	}
 
 	// 100 user units across, like the coin's symbols.
