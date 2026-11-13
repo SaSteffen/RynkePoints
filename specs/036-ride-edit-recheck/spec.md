@@ -147,9 +147,9 @@ and count how often each rider was checked.
 
 1. **Given** fewer riders than a run's checks, **When** a run happens, **Then** every rider is
    checked once, and none twice in that run.
-2. **Given** 100 riders, an allowance of 300 a day and nobody in the fast lane, **When** a day of
+2. **Given** 50 riders, an allowance of 150 a day and nobody in the fast lane, **When** a day of
    runs has passed, **Then** every rider was checked three times, about 8 hours apart, and the team
-   made no more than 300 checks.
+   made no more than 150 checks.
 3. **Given** more riders than the allowance, **When** a day of runs has passed, **Then** every
    rider was still checked once, and the team made about as many checks as it has riders.
 4. **Given** a rider who connects today, **When** the next runs happen, **Then** the rider takes
@@ -234,7 +234,8 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 
 - **FR-008**: Each team MUST have an allowance: the number of checks it may make per day in normal
   operation. The allowances of all teams together MUST NOT exceed 10% of the app's daily Strava
-  read limit (300 of 3,000 today). The allowance is team data.
+  read limit (300 of 3,000 today), and the 300 are split evenly between the teams (150 each for
+  two teams). The allowance is team data.
 - **FR-009**: A run's number of checks MUST follow from the allowance, spread evenly over the day's
   runs, so that the day's total stays within the allowance. No rider is checked more than once per
   run; places nobody is due for stay unused.
@@ -282,10 +283,14 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 
 **Rules of the project**
 
-- **FR-023**: The constitution's principle "Good Strava API Citizenship" says the app reacts to
-  Strava and does not poll it. It MUST be amended with this check as the one named exception: one
-  list request per rider per check, within a fixed allowance, standing back when the budget is
-  short. The amendment is part of this feature and is made before the check is built.
+- **FR-023**: The constitution's principle "Good Strava API Citizenship" said the app reacts to
+  Strava and does not poll it. It names this check as the one exception since version 2.7.0
+  (2026-11-13): one list request per rider per check, within a fixed allowance, standing back when
+  the budget is short. The check MUST stay within what the principle says.
+- **FR-026**: A check MUST only trust a list that is in the expected order, newest first (see
+  Assumptions). A list in another order MUST be treated as a failed check (FR-017) and MUST show
+  in the usage view, so that a change on Strava's side is noticed and no ride is wrongly taken as
+  unchanged.
 - **FR-024**: The check MUST work the same for every team, from team data only, and MUST NOT run in
   the sandboxes on a schedule (they have none); there it can be triggered by hand like the other
   scheduled work.
@@ -309,7 +314,7 @@ no request is made. Lower it: the next run checks the riders who waited longest.
   cases.
 - **SC-003**: With 100 riders across all teams, the checks use at most 300 Strava reads a day (10%
   of the limit) and at most 15 in any 15 minutes.
-- **SC-004**: With up to 300 riders the checks never use more than the allowance; above that, never
+- **SC-004**: A team with up to 150 riders never uses more than its allowance; above that, never
   more than one read per rider per day.
 - **SC-005**: On a day on which no rider edited anything, the checks write no more than one
   database row per check.
@@ -322,14 +327,17 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 
 ## Assumptions
 
-- Strava's activity list, asked without a start date, returns the newest activities first, 200 per
-  request. To be confirmed against Strava's documentation during planning; if it is not so, the
-  check asks for the activities since a date that keeps it to one request.
+- Strava's activity list, asked without a start date, returns the newest activities first, up to
+  200 per request. Strava's API reference (read 2026-11-13) says nothing about the order and names
+  no maximum per request; "newest first" is what client libraries describe (stravalib) and 200 is
+  what the import already uses. Because it is not documented, planning confirms it with one real
+  request made by the maintainer, and the check verifies the order of every list (FR-026).
 - The activity list carries every figure the verdict needs (distance, moving and elapsed time,
   elevation, manual, indoor, flagged, private, type, start). Where it lacks one, the stored value
   stays (FR-006).
-- The split of the 300 between the teams is decided in planning. Starting point: by the teams'
-  expected size, with every team getting enough for one check per rider per day.
+- The 300 are split evenly between the teams (the owner's decision): 150 each for Hamburg and
+  Europe. A team with up to 150 riders is checked within its allowance; a further team means a
+  smaller share for each.
 - 20 hours (FR-010) leaves four runs of slack for the 24-hour promise when runs are skipped.
 - "More than half of the day's reads" (FR-016) is a starting value. The day's reads have so far
   stayed far below it outside import days.
