@@ -171,8 +171,8 @@ until they fit.
 ## R11. Fake mode and the sandboxes
 
 **Decision**: The fake Strava answers the list without `after` newest first. `/_dev/` gets two
-actions: change a sample ride's figures without sending an event, and run the re-check now (the
-hourly run's selection, sent without delays). Sandboxes have no cron; the same action serves them.
+actions: change a sample ride's figures without sending an event, and run the re-check now (every
+eligible rider, sent without pace, guard or delays). Sandboxes have no cron; the same action serves them.
 
 **Rationale**: US1's independent test, FR-024. Without delays the by-hand check doesn't take an
 hour.

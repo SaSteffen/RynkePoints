@@ -42,12 +42,13 @@ of one doesn't stop the other; the run still fails so it shows in the logs.
 | 300 | 150 | about 13 | every 23 hours, 313 a day |
 | 999 | 150 | about 43, at most 50 | every 23 hours, about 1,040 a day |
 
-With 3 fast-lane riders among 100 active ones: the other 97 need about 4 places a run to stay within 24 hours
-and get them first, through the 20-hour group. The fast lane gets the 2 or 3 places left, so each
-of the three is checked about two runs out of three. With 50 riders or fewer, all three are
-checked every run.
+With 3 fast-lane riders among 100 active ones: riders past 20 hours go first, so the fast lane gets
+the places they leave, half a run at most. Simulated over days (test/unit/recheck-pace.test.ts),
+each of the three is checked in about 9 of a day's 24 runs, every 2 to 3 hours, against every 16
+hours for the rest. With 60 riders or fewer, all three are checked at every run.
 
 ## By hand
 
-`POST /_dev/recheck` (fake mode and sandboxes): steps 2 to 6 without the hold and with no delays.
-Not in the production bundle (`dev/`).
+`POST /_dev/recheck` (fake mode and sandboxes): checks every eligible rider at once, with no hold,
+no pace, no 30-minute guard and no delays, so the check can be watched and pressed again. Not in
+the production bundle (`dev/`).
