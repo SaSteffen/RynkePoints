@@ -127,13 +127,13 @@ and on the days around them.
   - **Midsummer**: a crown of flowers and leaves over the helmet, holding a bunch of wild flowers.
   - **Halloween**: holding a carved pumpkin lantern with a friendly face, a few cartoon bats and a
     spider around; fun, never scary.
-  - **Europe Day**: festive and friendly, e.g. waving a garland of plain pennants in the palette's
-    colours.
+  - **Europe Day**: holding up a big European flag, its stars clearly visible.
 - **FR-002**: The new monkeys MUST follow 035's rules for seasonal pictures: fun and non-religious (no
   crosses, angels, churches; Easter is bunnies and eggs; no maypole, which can read as a cross), and
   no year, digits or letters.
-- **FR-003**: The Europe Day monkey MUST stay non-political: no flag, no EU emblem or ring of stars,
-  no map or country shapes, no country colours.
+- **FR-003**: The Europe Day monkey MUST show the European flag correctly (twelve five-pointed
+  stars in a circle on dark blue), big enough that its stars show at the size the Team page shows
+  the monkey; no other flag, map or country shape.
 - **FR-004**: The new monkeys MUST NOT show a place, a team's name or a team's art, so that both teams can
   show it.
 
@@ -204,7 +204,7 @@ and on the days around them.
   Midsummer day, as both teams' riders celebrate on different days.
 - The pictures come from the same picture pipeline as the quote monkeys and are checked by eye, with
   the extra seasonal checks (no religious symbols, no digits or letters) and, for Europe Day, the
-  political check of FR-003.
+  flag check of FR-003.
 - Europe's site may not be in production by the December dates; SC-001 applies once it is.
 - The seasons set and St. Martin stay in issue #299 for later.
 - The quote texts don't change; only the picture does.

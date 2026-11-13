@@ -11,7 +11,7 @@ into `public/quotes/<id>.svg`, which adds the id to `SEASONAL_MONKEYS` and its v
 | `easter` | bunny ears over the helmet, small basket of painted eggs |
 | `midsummer` | crown of leaves and flowers over the helmet, bunch of wild flowers |
 | `halloween` | carved pumpkin lantern with a friendly face, small cartoon bats and a spider |
-| `europe-day` | garland of plain pennants in mixed palette colours |
+| `europe-day` | big European flag held up on a short pole |
 
 Each one, checked by eye on top of README › Checking a picture and the seasonal checks there:
 
@@ -20,7 +20,8 @@ Each one, checked by eye on top of README › Checking a picture and the seasona
 - No religious symbol (no cross, angel, church; no maypole), no year, digits or letters.
 - No place, landmark, team name or team art (FR-004): both teams show it.
 - Halloween: friendly; bats and spider cute cartoons, nothing scary (no fangs, skulls, blood).
-- Europe Day (FR-003): no flag, no EU emblem, no stars, no map or country shape, no country
-  colours, no yellow-and-blue pair on its own.
+- Europe Day (FR-003): exactly twelve five-pointed stars, upright, evenly in a circle, on dark
+  blue; the flag about as wide as Rynke, its stars still apart and countable in the 120 px
+  picture; the yellow kit unchanged; no other flag, map or country shape.
 
 The markup and the choice of picture are feature 035's contracts/quote-art.md, unchanged.

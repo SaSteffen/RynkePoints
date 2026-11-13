@@ -71,15 +71,24 @@ keeps light blue for water and sweat. Per picture:
   glowing yellow; one or two small cartoon bats in black fluttering around, a little black spider
   dangling on its thread from the pumpkin's stalk, both with friendly cream eyes. Cute, not scary:
   no fangs, skulls or blood.
-- **Europe Day**: a garland of plain triangle pennants alternating yellow, cream, sage, gold and
-  fur orange, held up in both hands, a few confetti dots.
+- **Europe Day**: Rynke holds up a big European flag on a short gold pole, the cloth waving out
+  to the right above the head, about as wide as Rynke's body: dark blue (#003399) with twelve
+  five-pointed yellow (#FBE122) stars in a circle, each star big enough to count, the stars upright
+  like clock hours. A few confetti dots in yellow and cream. The yellow kit stays.
 
-**Rationale**: FR-003. Pennants in yellow and blue alone would read as the EU flag, Sweden or
-Ukraine, so Europe Day leaves light blue out and never pairs two colours on their own; no star
-shapes anywhere on it, so nothing reads as the ring of stars.
+**Rationale**: FR-003. The team stands behind the EU, so the day shows its flag, and shows it
+right: twelve stars, a circle, dark blue. The dark blue is new: like the Nikolaus boot's red it
+joins the tracer's palette (`scripts/trace.mjs`) and is allowed in `prompt.txt` only where a scene
+names it. The palette's yellow stands in for the flag's gold (#FFCC00); next to each other they
+read as the same colour, and one yellow less keeps the tracer's colours apart. The flag's size
+carries the picture at 120 px; the stars outlined in black like every shape.
 
-**Alternatives considered**: Pennants in many bright colours: outside the palette, and a row of
-coloured triangles reads as country flags.
+**Alternatives considered**:
+
+- A flag jersey (dark blue with the stars instead of the yellow kit): the yellow kit is how
+  riders know Rynke (every monkey matches the reference sheet), the stars on the chest would be
+  small and bent by the body, and the helmet and jersey would no longer match.
+- A garland of pennants in palette colours: friendly, but nobody reads it as Europe.
 
 ## R6: Delivery and deadlines
 

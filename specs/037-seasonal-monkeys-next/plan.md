@@ -31,7 +31,7 @@ Europe holds none. No code path, database, dependency or rider-facing text chang
 
 **Constraints**: Europe's December data released before 29 Nov 2026 if Europe's site is live by
 then; the Karneval picture live before 4 Feb 2027; pictures lossless like every monkey; no picture
-shows a place, a flag or a religious symbol
+shows a place or a religious symbol; the only flag is Europe Day's European flag, drawn right
 
 **Scale/Scope**: 5 pictures, 2 teams, 4 + 8 new holiday entries
 
@@ -72,12 +72,14 @@ src/teams/
 ├── hamburg.ts                  # + karneval, easter, midsummer, halloween; calendar order
 └── europe.ts                   # holidays: the eight of data-model.md; "holidays" out of placeholders
 
+scripts/trace.mjs               # + dark blue #003399 in the palette (Europe Day's flag)
+
 src/http/quote-monkeys.ts       # generated: SEASONAL_MONKEYS + the five ids
 src/http/art-versions.ts        # generated: their versions
 
 art/quotes/
 ├── monkeys.json                # + karneval, easter, midsummer, halloween, europe-day (seasonal)
-├── prompt.txt                  # red "only where a scene names it" (Karneval's nose)
+├── prompt.txt                  # red and dark blue "only where a scene names it" (nose, flag)
 ├── originals/                  # + their originals
 └── README.md                   # Seasonal monkeys: new ids, shared pictures, Europe Day check
 
