@@ -191,7 +191,7 @@ and on the days around them.
   2027 and the Halloween monkey before 29 October 2027.
 - **SC-003**: On every day of a short window, 100% of that team's quotes show that window's monkey.
 - **SC-004**: On every day outside all of a team's windows, its quote pictures match today's.
-- **SC-005**: Both teams' windows are right for the years 2026 to 2035 without any change after
+- **SC-005**: Both teams' windows are right for the years 2026 to 2075 without any change after
   release.
 
 ## Assumptions
