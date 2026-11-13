@@ -5,6 +5,7 @@ import {
 	dayStart,
 	deferUntilNextWindow,
 	effectiveUsage,
+	halfDayUsed,
 	MAX_DELAY_SECONDS,
 	parseUsageHeader,
 	type RateLimitState,
@@ -228,5 +229,36 @@ describe("backoffSeconds", () => {
 		expect(backoffSeconds(6)).toBe(1920);
 		expect(backoffSeconds(7)).toBe(3600);
 		expect(backoffSeconds(10)).toBe(3600);
+	});
+});
+
+// Feature 036 FR-016: the ride edit re-check stands back above half of the
+// day's reads, which every team's requests count towards.
+describe("halfDayUsed", () => {
+	const now = at("2026-10-06T10:20:00Z");
+
+	it("is true only above half of the day's read limit", () => {
+		expect(halfDayUsed(state({ readDaily: 501 }), now)).toBe(true);
+		expect(halfDayUsed(state({ readDaily: 500 }), now)).toBe(false);
+		expect(halfDayUsed(state({ readDaily: 0 }), now)).toBe(false);
+	});
+
+	it("follows the limit the state carries", () => {
+		const big = { limitReadDaily: 3000 };
+		expect(halfDayUsed(state({ ...big, readDaily: 1500 }), now)).toBe(false);
+		expect(halfDayUsed(state({ ...big, readDaily: 1501 }), now)).toBe(true);
+	});
+
+	it("is false with no state", () => {
+		expect(halfDayUsed(null, now)).toBe(false);
+	});
+
+	it("is false for a state from an earlier UTC day", () => {
+		expect(
+			halfDayUsed(
+				state({ observedAt: at("2026-10-05T23:50:00Z"), readDaily: 900 }),
+				now,
+			),
+		).toBe(false);
 	});
 });

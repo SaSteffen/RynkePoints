@@ -160,7 +160,7 @@ ${rideChoice(activities)}<br>
 <label>moving min <input name="movingMin" size="4"></label>
 <label>elapsed min <input name="elapsedMin" size="4"></label>
 ${flag("private")} ${flag("manual")}
-<button>Send update</button></fieldset></form>
+<button>Send update</button> <button name="silent" value="1">Change without an event</button> as a crop on Strava: only the ride re-check takes it over.</fieldset></form>
 <form method="post" action="/_dev/events"><fieldset><legend>Delete a ride</legend>${hidden}<input type="hidden" name="action" value="delete">
 ${rideChoice(activities)} <button>Send delete</button></fieldset></form>`
 		: null
@@ -216,6 +216,7 @@ export function indexPage(
 ${flash ? html`<p role="status"><strong>${flash}</strong></p>` : null}
 <p><a href="/me">/me</a> · <a href="/_dev/badges">every badge, team ones too (/_dev/badges)</a></p>
 <form method="post" action="/_dev/scheduled"><p><button>Run the daily work</button> What the daily cron does at 03:17: membership checks, retries, evaluations. Never the hourly usage run.</p></form>
+<form method="post" action="/_dev/recheck"><p><button>Run the ride re-check</button> Every active rider, checked at once instead of over the day: picks up rides changed without an event.</p></form>
 ${clockForm(today, pretended)}
 <p>A rider's page has their Strava events: new, changed and deleted rides, a backlog, revoking access.</p>
 <table>

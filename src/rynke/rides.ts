@@ -26,6 +26,19 @@ export const REASON_CODES = [
 
 export type ReasonCode = (typeof REASON_CODES)[number];
 
+/**
+ * The reasons a crop on Strava can remove: a rider with a recent ride that
+ * doesn't count for one of them is in the re-check's fast lane (feature 036
+ * FR-012). test/unit/fixable-reasons.test.ts sorts every code.
+ */
+export const FIXABLE_REASONS: readonly ReasonCode[] = [
+	"pause",
+	"too_slow",
+	"too_fast",
+	"climbing_rate",
+	"overlap",
+];
+
 /** Figures Strava didn't send, in the order a result lists them (FR-005f). */
 export const UNKNOWN_FIGURE_CODES = [
 	"elapsed_time",

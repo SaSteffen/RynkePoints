@@ -1,10 +1,12 @@
 import { seasonStart } from "../config";
 import type { Ctx } from "../ctx";
 import type { Rider } from "../db/riders";
+import type { KeptActivities } from "../recheck/diff";
 import { evaluateChange } from "../rynke/apply";
 import {
 	type ActivityRecord,
 	type RunRecord,
+	type StravaActivity,
 	type SwimRecord,
 	startsInSeason,
 	toActivityRecord,
@@ -15,7 +17,8 @@ import { listAthleteActivities } from "../strava/client";
 import type { HandlerResult } from "./consumer";
 
 // One page of the rider's activity list, shared by the season import and the
-// one-time re-read (research R8, R20), so the scope rule exists once.
+// one-time re-read (research R8, R20), so the scope rule exists once. The ride
+// edit re-check uses the same rule (`keptActivities`, feature 036).
 
 export const PER_PAGE = 200;
 
@@ -53,12 +56,29 @@ export async function storeActivityPage(
 			};
 	}
 
+	await evaluateChange(ctx, rider.athleteId, {
+		kind: "upsert",
+		...keptActivities(result.value, rider, ctx),
+	});
+	return { kind: "stored", listed: result.value.length };
+}
+
+/**
+ * The cycling activities, outdoor runs and swims of a list that may be stored:
+ * the import's scope rule, shared with the ride edit re-check (feature 036
+ * research R7).
+ */
+export function keptActivities(
+	list: readonly StravaActivity[],
+	rider: Rider,
+	ctx: Ctx,
+): KeptActivities {
 	const now = ctx.now();
 	const season = seasonStart(ctx.env);
 	const records: ActivityRecord[] = [];
 	const runs: RunRecord[] = [];
 	const swims: SwimRecord[] = [];
-	for (const activity of result.value) {
+	for (const activity of list) {
 		const record = toActivityRecord(activity, rider.athleteId, now);
 		const run = record ? null : toRunRecord(activity, rider.athleteId, now);
 		const swim =
@@ -72,11 +92,5 @@ export async function storeActivityPage(
 		if (run && allowed(run)) runs.push(run);
 		if (swim && allowed(swim)) swims.push(swim);
 	}
-	await evaluateChange(ctx, rider.athleteId, {
-		kind: "upsert",
-		records,
-		runs,
-		swims,
-	});
-	return { kind: "stored", listed: result.value.length };
+	return { records, runs, swims };
 }

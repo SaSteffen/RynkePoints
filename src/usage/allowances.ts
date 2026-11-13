@@ -5,6 +5,19 @@
 /** Strava's capacity for connected athletes (FR-005). */
 export const ATHLETE_CAPACITY = 999;
 
+/** Strava's daily read limit for the app, shared by every team. */
+export const STRAVA_READ_DAILY_LIMIT = 3000;
+
+/**
+ * The share of the daily reads all teams' ride re-checks may use together
+ * (feature 036 FR-008); the teams' `recheckAllowance` add up to at most
+ * `RECHECK_READS`.
+ */
+export const RECHECK_SHARE = 0.1;
+export const RECHECK_READS = Math.floor(
+	STRAVA_READ_DAILY_LIMIT * RECHECK_SHARE,
+);
+
 export const WARNING_LEVEL = 80;
 export const CRITICAL_LEVEL = 95;
 

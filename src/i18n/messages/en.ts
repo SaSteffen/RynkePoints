@@ -145,8 +145,8 @@ export const en: Catalog = {
 	"rynke.ride.fix.summary": "How to fix it",
 	"rynke.ride.fix.crop":
 		"Correct the ride on Strava: crop what doesn't belong to it, such as the long pause, a stretch by train or car, or recording that kept running after the ride.",
-	"rynke.ride.fix.rename":
-		"Then change the ride's title and save. That's how the app hears about it: Strava reports a new title, but not a crop. You can put the old title back afterwards.",
+	"rynke.ride.fix.wait_recheck":
+		"That's all you need to do. The app checks Strava regularly and picks up the change by itself, usually within a few hours and at the latest after 24 hours. If nothing has changed by then, ask an organiser.",
 	"rynke.ride.fix.manual":
 		"If you recorded the ride, upload the recording to Strava and delete the manual entry.",
 	"rynke.ride.fix.wait":
@@ -1062,6 +1062,16 @@ export const en: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflare's figures are unavailable right now. These are the last known values.",
 	"admin.refresh": "Update now",
+	"admin.recheck.heading": "Ride re-check",
+	"admin.recheck.allowance":
+		"{allowance} checks a day for this team · {riders} active riders (with an activity in the last 30 days)",
+	"admin.recheck.none": "No check has run yet.",
+	"admin.recheck.made": "Checks made",
+	"admin.recheck.skipped": "Stood back",
+	"admin.recheck.failed": "Failed",
+	"admin.recheck.over24h": "Waited over 24\u00a0h",
+	"admin.recheck.runsHeld": { one: "{n} run held", other: "{n} runs held" },
+	"admin.recheck.listOrder": "list order",
 	"admin.waiting.heading": "Waiting for the Strava budget",
 	"admin.waiting.body": {
 		one: "{n} item is waiting, done in about {time}.",

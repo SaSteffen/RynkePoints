@@ -148,8 +148,8 @@ export const lt: Catalog = {
 	"rynke.ride.fix.summary": "Kaip tai padaryti",
 	"rynke.ride.fix.crop":
 		"Pataisyk važiavimą Strava: apkirpk tai, kas nepriklauso, pavyzdžiui, ilgą pertrauką, atkarpą traukiniu ar automobiliu arba įrašą, kuris tęsėsi po važiavimo.",
-	"rynke.ride.fix.rename":
-		"Tada pakeisk važiavimo pavadinimą ir išsaugok. Tik taip programa sužino apie pakeitimą: Strava praneša apie naują pavadinimą, bet ne apie apkirpimą. Vėliau gali grąžinti seną pavadinimą.",
+	"rynke.ride.fix.wait_recheck":
+		"Daugiau nieko daryti nereikia. Programa reguliariai tikrina Strava ir pakeitimą perima pati, dažniausiai po kelių valandų, vėliausiai po 24 valandų. Jei ir tada niekas nepasikeičia, kreipkis į organizatorių.",
 	"rynke.ride.fix.manual":
 		"Jei važiavimą įrašei, įkelk įrašą į Strava ir ištrink rankinį įrašą.",
 	"rynke.ride.fix.wait":
@@ -1092,6 +1092,21 @@ export const lt: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Cloudflare skaičiai šiuo metu nepasiekiami. Tai paskutinės žinomos reikšmės.",
 	"admin.refresh": "Atnaujinti dabar",
+	"admin.recheck.heading": "Važiavimų pakartotinis tikrinimas",
+	"admin.recheck.allowance":
+		"{allowance} patikrinimai per dieną šiai komandai · aktyvūs dviratininkai (su veikla per pastaruosius 30 dienų): {riders}",
+	"admin.recheck.none": "Dar nebuvo atlikta jokio patikrinimo.",
+	"admin.recheck.made": "Patikrinta",
+	"admin.recheck.skipped": "Atidėta",
+	"admin.recheck.failed": "Nepavyko",
+	"admin.recheck.over24h": "Laukė ilgiau nei 24\u00a0val.",
+	"admin.recheck.runsHeld": {
+		one: "{n} paleidimas sulaikytas",
+		few: "{n} paleidimai sulaikyti",
+		many: "{n} paleidimo sulaikyta",
+		other: "{n} paleidimų sulaikyta",
+	},
+	"admin.recheck.listOrder": "sąrašo tvarka",
 	"admin.waiting.heading": "Laukiama Strava biudžeto",
 	"admin.waiting.body": {
 		one: "Laukia {n} užduotis, liko maždaug {time}.",

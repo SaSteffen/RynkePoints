@@ -31,6 +31,8 @@ const COLUMNS: Record<string, string[]> = {
 		// Feature 025: the administrator flag and their own alert switch.
 		"administrator",
 		"admin_alerts",
+		// Feature 036: when the hourly run last chose the rider for a check.
+		"rechecked_at",
 	],
 	activities: [
 		"strava_activity_id",
@@ -194,6 +196,16 @@ const COLUMNS: Record<string, string[]> = {
 	],
 	usage_source_state: ["source", "last_success_at", "last_failure_at"],
 	usage_alerts: ["allowance", "period", "level", "fired_at"],
+	// Feature 036: the re-check's counts per day, no rider identifiers.
+	recheck_daily: [
+		"day",
+		"sent",
+		"skipped",
+		"failed",
+		"unordered",
+		"over_24h",
+		"runs_held",
+	],
 	blocked_athletes: ["athlete_id"],
 	removal_log: ["id", "removed_at", "administrator_id"],
 };

@@ -123,6 +123,12 @@ page.
 3. Never written to `failed_work`, and never stopped by a refused refresh or an
    exhausted budget: deletion must complete.
 
+### `recheck-rider`
+
+Added by feature 036: the ride edit re-check, one request for one rider, never
+retried and never in `failed_work`. See
+[036 contracts/queue-message.md](../../036-ride-edit-recheck/contracts/queue-message.md).
+
 ## Scheduled (`scheduled` handler)
 
 Cron: `17 3 * * *` (daily, 03:17 UTC).

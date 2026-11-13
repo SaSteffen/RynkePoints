@@ -147,8 +147,8 @@ export const is: Catalog = {
 	"rynke.ride.fix.summary": "Svona lagarðu þetta",
 	"rynke.ride.fix.crop":
 		"Leiðréttu ferðina á Strava: klipptu burt það sem á ekki heima þar, til dæmis langa hléið, kafla í lest eða bíl eða upptöku sem hélt áfram eftir ferðina.",
-	"rynke.ride.fix.rename":
-		"Breyttu síðan titli ferðarinnar og vistaðu. Aðeins þannig fréttir appið af breytingunni: Strava tilkynnir nýjan titil en ekki klippingu. Þú getur sett gamla titilinn aftur á eftir.",
+	"rynke.ride.fix.wait_recheck":
+		"Eftir það þarftu ekki að gera neitt meira. Appið athugar Strava reglulega og sækir breytinguna sjálft, oftast eftir nokkrar klukkustundir og í síðasta lagi eftir 24 klukkustundir. Ef ekkert breytist þá skaltu spyrja skipuleggjanda.",
 	"rynke.ride.fix.manual":
 		"Ef þú tókst ferðina upp skaltu hlaða upptökunni upp á Strava og eyða handvirku skráningunni.",
 	"rynke.ride.fix.wait":
@@ -1066,6 +1066,19 @@ export const is: Catalog = {
 	"admin.cloudflare.unavailable":
 		"Tölur Cloudflare eru ekki tiltækar í bili. Þetta eru síðustu þekktu gildin.",
 	"admin.refresh": "Uppfæra núna",
+	"admin.recheck.heading": "Endurskoðun ferða",
+	"admin.recheck.allowance":
+		"{allowance} athuganir á dag fyrir þetta lið · {riders} virkir hjólreiðamenn (með virkni síðustu 30 daga)",
+	"admin.recheck.none": "Engin athugun hefur keyrt enn.",
+	"admin.recheck.made": "Athugað",
+	"admin.recheck.skipped": "Frestað",
+	"admin.recheck.failed": "Mistókst",
+	"admin.recheck.over24h": "Beðið lengur en 24\u00a0klst.",
+	"admin.recheck.runsHeld": {
+		one: "{n} keyrslu haldið aftur",
+		other: "{n} keyrslum haldið aftur",
+	},
+	"admin.recheck.listOrder": "röð listans",
 	"admin.waiting.heading": "Beðið eftir Strava-kvótanum",
 	"admin.waiting.body": {
 		one: "{n} færsla bíður, lokið eftir um {time}.",

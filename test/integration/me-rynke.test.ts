@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { RIDE_PAGE_SQL } from "../../src/db/rider-view";
 import { artUrl } from "../../src/http/art";
+import { CATALOGS, type Locale } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
 import type { ReasonCode } from "../../src/rynke/rides";
 import type { TeamEventSum } from "../../src/rynke/team-events";
@@ -863,7 +864,9 @@ describe("GET /me/rides ride reasons (US4)", () => {
 		expect(hints).toEqual([0, 0, 1, 1, 0]);
 	});
 
-	it("folds the steps for its reasons under the fix hint (#274)", async () => {
+	// Feature 036 contracts/ride-card.md: crop, then wait for the re-check; no
+	// new title (#274). A manual entry alone keeps its few minutes.
+	it("folds the steps for its reasons under the fix hint", async () => {
 		await seedPause();
 		await seedRide(ATHLETE_A, {
 			id: 8_100_032,
@@ -877,20 +880,52 @@ describe("GET /me/rides ride reasons (US4)", () => {
 			is_flagged: 1,
 			result: { counts: false, reasons: ["flagged"] },
 		});
+		await seedRide(ATHLETE_A, {
+			id: 8_100_034,
+			start_date: "2026-02-01T08:00:00Z",
+			is_manual: 1,
+			result: { counts: false, reasons: ["manual", "too_slow"] },
+		});
 		const crop =
 			"Korrigiere die Fahrt auf Strava: Schneide ab, was nicht dazugehört, etwa die lange Pause, eine Strecke mit Bahn oder Auto oder eine Aufzeichnung, die nach der Fahrt weiterlief.";
-		const rename =
-			"Ändere danach den Titel der Fahrt und speichere. Nur so erfährt die App von der Änderung: Strava meldet einen neuen Titel, das Zuschneiden nicht. Den alten Titel kannst du danach wieder eintragen.";
+		const recheck =
+			"Danach musst du nichts weiter tun. Die App schaut regelmäßig bei Strava nach und übernimmt die Änderung von selbst, meist nach ein paar Stunden, spätestens nach 24 Stunden. Tut sich dann nichts, wende dich an die Orga.";
 		const manual =
 			"Hast du die Fahrt aufgezeichnet, lade die Aufzeichnung auf Strava hoch und lösche den manuellen Eintrag.";
 		const wait =
 			"Nach ein paar Minuten ist die Fahrt hier neu bewertet. Ändert sich nichts, wende dich an die Orga.";
-		// Newest first: pause, manual, flagged.
+		// Newest first: pause, manual, flagged, manual and too slow.
 		expect((await details()).map((d) => d.steps)).toEqual([
-			[crop, rename, wait],
+			[crop, recheck],
 			[manual, wait],
 			[],
+			[crop, manual, recheck],
 		]);
+	});
+
+	// SC-008: no step and no hint mentions the ride's title, in any language.
+	it.each<[Locale, RegExp]>([
+		["de", /titel/i],
+		["en", /title/i],
+		["da", /titel/i],
+		["nb", /tittel/i],
+		["sv", /titel/i],
+		["fi", /otsik/i],
+		["is", /titil|titli/i],
+		["fr", /titre/i],
+		["nl", /titel/i],
+		["lt", /pavadinim/i],
+	])("never asks for a new title in %s", async (lang, title) => {
+		await seedPause();
+		const [card] = await details(ATHLETE_A, lang);
+		expect(card?.steps).toHaveLength(2);
+		for (const step of card?.steps ?? []) expect(step).not.toMatch(title);
+		const catalog = CATALOGS[lang];
+		for (const [id, value] of Object.entries(catalog)) {
+			if (id.startsWith("rynke.ride.fix") && typeof value === "string") {
+				expect(value, id).not.toMatch(title);
+			}
+		}
 	});
 
 	it("explains an unknown code in general words", async () => {

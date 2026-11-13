@@ -1,7 +1,12 @@
 import { createScheduledController, env } from "cloudflare:test";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { getRider } from "../../src/db/riders";
 import { handleFetch, handleScheduled } from "../../src/index";
 import { evaluateChange } from "../../src/rynke/apply";
+import { toActivityRecord } from "../../src/strava/activity";
+import type { RecheckRiderMessage } from "../../src/work/messages";
+import { recheckRider } from "../../src/work/recheck-rider";
+import { recheckRun } from "../../src/work/recheck-run";
 import { teamBadgeNews } from "../../src/work/team-badge-news";
 import {
 	makeCtx,
@@ -11,7 +16,8 @@ import {
 	sessionCookie,
 } from "../support/ctx";
 import { countRows } from "../support/d1-rows";
-import { NOW } from "../support/fixtures";
+import { type FakeStrava, installFakeStrava } from "../support/fake-strava";
+import { makeStravaActivity, NOW } from "../support/fixtures";
 import { activityRecord } from "../support/rynke";
 
 // The database rows each use reads with a full-season team (feature 030 SC-001,
@@ -283,4 +289,70 @@ describe("rows read with a full-season team (feature 030)", () => {
 		expect(withGraphs - without).toBeLessThan(1000);
 		expect(withGraphs - without).toBeGreaterThan(0);
 	}, 300_000);
+});
+
+// The ride edit re-check stays within the free plan's rows written (feature
+// 036 FR-019, SC-005): a day in which nothing changed writes one row per check,
+// its rider's stamp, plus one per run, the day's count. The check's Strava
+// request updates the app's one rate-limit row, as every read does.
+describe("rows written by the ride edit re-check (feature 036)", () => {
+	const RUN_AT = Date.UTC(2026, 9, 6, 10, 58, 0) / 1000;
+	let fake: FakeStrava;
+
+	beforeEach(async () => {
+		await resetDb();
+		fake = installFakeStrava();
+	});
+	afterEach(() => fake.restore());
+
+	async function team(n: number): Promise<void> {
+		for (let i = 0; i < n; i++) {
+			const athleteId = FIRST + i;
+			const runCtx = makeCtx({ now: RUN_AT });
+			fake.addAthlete({ id: athleteId });
+			await seedRider(runCtx, { athleteId });
+			const ride = makeStravaActivity({
+				id: athleteId * 10,
+				athlete: { id: athleteId },
+				start_date: "2026-10-04T07:30:00Z",
+			});
+			fake.addActivity(athleteId, ride);
+			const record = toActivityRecord(ride, athleteId, RUN_AT);
+			if (record) {
+				await evaluateChange(runCtx, athleteId, {
+					kind: "upsert",
+					records: [record],
+				});
+			}
+		}
+	}
+
+	it("writes n + 1 rows for a run of n checks", async () => {
+		await team(10);
+		const { ctx: counted, counter } = countRows(makeCtx({ now: RUN_AT }));
+		const sent = await recheckRun(counted);
+		expect(sent).toBe(6);
+		expect(counter.written()).toBe(sent + 1);
+	});
+
+	it("writes no rider row for a check in which nothing changed", async () => {
+		await team(1);
+		const runCtx = makeCtx({ now: RUN_AT });
+		await recheckRun(runCtx);
+		const [message] = runCtx.queue.sent;
+		const rider = await getRider(env.DB, FIRST);
+		if (!message || !rider) throw new Error("no check sent");
+		const { ctx: counted, counter } = countRows(makeCtx({ now: RUN_AT + 60 }));
+		await recheckRider(message.body as RecheckRiderMessage, rider, counted, {
+			attempts: 1,
+			isLastAttempt: false,
+		});
+		expect(fake.callsTo("activities")).toHaveLength(1);
+		expect(
+			counter
+				.statements()
+				.filter((sql) => /^\s*(INSERT|UPDATE|DELETE)/i.test(sql)),
+		).toEqual([expect.stringMatching(/^UPDATE strava_rate_limit/)]);
+		expect(counter.written()).toBe(1);
+	});
 });

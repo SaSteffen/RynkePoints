@@ -6,6 +6,7 @@ import {
 	listFailedWorkFirstFailedSince,
 } from "../db/failed-work";
 import { listPreSeasonActivities } from "../db/pre-season";
+import { pruneRecheckDays } from "../db/recheck";
 import {
 	listConnectedRiderIds,
 	listExpiredReconnectRiderIds,
@@ -20,13 +21,17 @@ import { ACTIVITY_FIGURES_VERSION } from "../strava/activity";
 import { daysBefore, historyStart, utcDay } from "../usage/allowances";
 import { recordUsage } from "../usage/record";
 import { parseWorkMessage, sendAll, type WorkMessage } from "./messages";
+import { recheckRun } from "./recheck-run";
 
 // Daily cron work (contracts/queue-messages.md, "Scheduled").
 
 const GIVE_UP_AFTER_SECONDS = 7 * 24 * 3600;
 const RECONNECT_GRACE_SECONDS = 7 * 24 * 3600;
 
-/** The hourly cron in `wrangler.jsonc`: usage only (feature 025 research R2). */
+/**
+ * The hourly cron in `wrangler.jsonc`: usage (feature 025 research R2), then
+ * the ride edit re-check's run (feature 036).
+ */
 export const USAGE_CRON = "58 * * * *";
 
 /** One `check-membership` per connected rider (FR-004a). */
@@ -130,10 +135,14 @@ export async function fanOutEvaluations(ctx: Ctx): Promise<void> {
 	);
 }
 
-/** Usage days past 13 months, and alert rows past 2 days (025 data-model.md). */
+/**
+ * Usage days past 13 months, and alert rows past 2 days (025 data-model.md);
+ * the re-check's days with the usage history (feature 036).
+ */
 export async function pruneUsage(ctx: Ctx): Promise<void> {
 	const today = utcDay(ctx.now());
 	await pruneUsageHistory(ctx.env.DB, historyStart(today));
+	await pruneRecheckDays(ctx.env.DB, historyStart(today));
 	await pruneUsageAlerts(ctx.env.DB, daysBefore(today, 2));
 }
 
@@ -145,27 +154,17 @@ function safeParse(json: string): unknown {
 	}
 }
 
-export async function handleScheduled(
-	controller: ScheduledController,
+/**
+ * Independent steps, in contract order: one failing (D1, Queues) must not skip
+ * the others, but the run still fails so it shows up in logs.
+ */
+async function runSteps(
 	ctx: Ctx,
+	steps: readonly ((ctx: Ctx) => Promise<unknown>)[],
 ): Promise<void> {
-	if (controller.cron === USAGE_CRON) {
-		await recordUsage(ctx);
-		return;
-	}
-	// Independent steps, in contract order: one failing (D1, Queues) must not
-	// skip the others, but the run still fails so it shows up in logs.
 	let failure: unknown;
 	let failed = false;
-	for (const step of [
-		fanOutMembershipChecks,
-		expireReconnectRiders,
-		requeueFailedWork,
-		fanOutFiguresReread,
-		purgePreSeasonActivities,
-		fanOutEvaluations,
-		pruneUsage,
-	]) {
+	for (const step of steps) {
 		try {
 			await step(ctx);
 		} catch (err) {
@@ -174,4 +173,25 @@ export async function handleScheduled(
 		}
 	}
 	if (failed) throw failure;
+}
+
+export async function handleScheduled(
+	controller: ScheduledController,
+	ctx: Ctx,
+): Promise<void> {
+	if (controller.cron === USAGE_CRON) {
+		// The ride edit re-check's hourly run after the usage (feature 036
+		// contracts/hourly-run.md).
+		await runSteps(ctx, [recordUsage, recheckRun]);
+		return;
+	}
+	await runSteps(ctx, [
+		fanOutMembershipChecks,
+		expireReconnectRiders,
+		requeueFailedWork,
+		fanOutFiguresReread,
+		purgePreSeasonActivities,
+		fanOutEvaluations,
+		pruneUsage,
+	]);
 }

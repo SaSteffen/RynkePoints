@@ -154,8 +154,8 @@ export const de = {
 	"rynke.ride.fix.summary": "So geht's",
 	"rynke.ride.fix.crop":
 		"Korrigiere die Fahrt auf Strava: Schneide ab, was nicht dazugehört, etwa die lange Pause, eine Strecke mit Bahn oder Auto oder eine Aufzeichnung, die nach der Fahrt weiterlief.",
-	"rynke.ride.fix.rename":
-		"Ändere danach den Titel der Fahrt und speichere. Nur so erfährt die App von der Änderung: Strava meldet einen neuen Titel, das Zuschneiden nicht. Den alten Titel kannst du danach wieder eintragen.",
+	"rynke.ride.fix.wait_recheck":
+		"Danach musst du nichts weiter tun. Die App schaut regelmäßig bei Strava nach und übernimmt die Änderung von selbst, meist nach ein paar Stunden, spätestens nach 24 Stunden. Tut sich dann nichts, wende dich an die Orga.",
 	"rynke.ride.fix.manual":
 		"Hast du die Fahrt aufgezeichnet, lade die Aufzeichnung auf Strava hoch und lösche den manuellen Eintrag.",
 	"rynke.ride.fix.wait":
@@ -1101,6 +1101,19 @@ export const de = {
 	"admin.cloudflare.unavailable":
 		"Cloudflares Werte sind gerade nicht verfügbar. Das hier sind die letzten bekannten.",
 	"admin.refresh": "Jetzt aktualisieren",
+	"admin.recheck.heading": "Nachprüfung der Fahrten",
+	"admin.recheck.allowance":
+		"{allowance} Prüfungen am Tag für dieses Team · {riders} aktive Rider (mit einer Aktivität in den letzten 30 Tagen)",
+	"admin.recheck.none": "Bisher ist keine Nachprüfung gelaufen.",
+	"admin.recheck.made": "Geprüft",
+	"admin.recheck.skipped": "Zurückgestellt",
+	"admin.recheck.failed": "Fehlgeschlagen",
+	"admin.recheck.over24h": "Über 24\u00a0Std. gewartet",
+	"admin.recheck.runsHeld": {
+		one: "{n} Lauf angehalten",
+		other: "{n} Läufe angehalten",
+	},
+	"admin.recheck.listOrder": "Reihenfolge der Liste",
 	"admin.waiting.heading": "Warten auf das Strava-Budget",
 	"admin.waiting.body": {
 		one: "{n} Eintrag wartet, fertig in etwa {time}.",

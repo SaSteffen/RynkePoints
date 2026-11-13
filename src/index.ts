@@ -9,6 +9,7 @@ import { type Handlers, processBatch } from "./work/consumer";
 import { deleteRider } from "./work/delete-rider";
 import { evaluateRider } from "./work/evaluate-rider";
 import { importPage } from "./work/import-page";
+import { recheckRider } from "./work/recheck-rider";
 import { rereadPage } from "./work/reread-page";
 import { handleScheduled } from "./work/scheduled";
 import { sendNotification } from "./work/send-notification";
@@ -24,6 +25,7 @@ const handlers: Handlers = {
 	"delete-rider": deleteRider,
 	"evaluate-rider": evaluateRider,
 	"send-notification": sendNotification,
+	"recheck-rider": recheckRider,
 };
 
 function makeCtx(env: Env, exec: ExecutionContext): Ctx {

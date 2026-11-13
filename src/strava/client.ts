@@ -157,6 +157,23 @@ export function getActivity(
 	);
 }
 
+/**
+ * The rider's newest activities, one page of 200, newest first: without
+ * `after` Strava lists newest first (feature 036 research R3, verified
+ * 2026-11-13). The ride edit re-check's one request.
+ */
+export function listNewestActivities(
+	ctx: StravaCtx,
+	auth: StravaAuth,
+): Promise<StravaResult<StravaActivity[]>> {
+	return apiGet(
+		ctx,
+		auth,
+		"GET /athlete/activities",
+		`/api/v3/athlete/activities?page=1&per_page=${PER_PAGE}`,
+	);
+}
+
 export function listAthleteActivities(
 	ctx: StravaCtx,
 	auth: StravaAuth,

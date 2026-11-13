@@ -194,6 +194,7 @@ export async function resetDb(): Promise<void> {
 		env.DB.prepare("DELETE FROM usage_team_daily"),
 		env.DB.prepare("DELETE FROM usage_source_state"),
 		env.DB.prepare("DELETE FROM usage_alerts"),
+		env.DB.prepare("DELETE FROM recheck_daily"),
 		env.DB.prepare("DELETE FROM blocked_athletes"),
 		env.DB.prepare("DELETE FROM removal_log"),
 		env.DB.prepare("DELETE FROM consent_records"),

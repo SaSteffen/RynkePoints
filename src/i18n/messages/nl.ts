@@ -145,8 +145,8 @@ export const nl: Catalog = {
 	"rynke.ride.fix.summary": "Zo doe je het",
 	"rynke.ride.fix.crop":
 		"Corrigeer de rit op Strava: knip weg wat er niet bij hoort, bijvoorbeeld de lange pauze, een stuk met trein of auto of een opname die na de rit doorliep.",
-	"rynke.ride.fix.rename":
-		"Wijzig daarna de titel van de rit en sla op. Alleen zo hoort de app van de wijziging: Strava meldt een nieuwe titel, maar geen ingekorte rit. Je kunt de oude titel daarna terugzetten.",
+	"rynke.ride.fix.wait_recheck":
+		"Daarna hoef je niets meer te doen. De app kijkt regelmatig op Strava en neemt de wijziging vanzelf over, meestal na een paar uur en uiterlijk na 24 uur. Verandert er dan niets, vraag dan een organisator.",
 	"rynke.ride.fix.manual":
 		"Heb je de rit opgenomen, upload de opname dan naar Strava en verwijder de handmatige invoer.",
 	"rynke.ride.fix.wait":
@@ -1074,6 +1074,19 @@ export const nl: Catalog = {
 	"admin.cloudflare.unavailable":
 		"De cijfers van Cloudflare zijn nu niet beschikbaar. Dit zijn de laatst bekende waarden.",
 	"admin.refresh": "Nu bijwerken",
+	"admin.recheck.heading": "Hercontrole van ritten",
+	"admin.recheck.allowance":
+		"{allowance} controles per dag voor dit team · {riders} actieve renners (met een activiteit in de laatste 30 dagen)",
+	"admin.recheck.none": "Er is nog geen controle uitgevoerd.",
+	"admin.recheck.made": "Gecontroleerd",
+	"admin.recheck.skipped": "Uitgesteld",
+	"admin.recheck.failed": "Mislukt",
+	"admin.recheck.over24h": "Langer dan 24\u00a0uur gewacht",
+	"admin.recheck.runsHeld": {
+		one: "{n} ronde aangehouden",
+		other: "{n} rondes aangehouden",
+	},
+	"admin.recheck.listOrder": "volgorde van de lijst",
 	"admin.waiting.heading": "Wachten op het Strava-budget",
 	"admin.waiting.body": {
 		one: "{n} item wacht, klaar over ongeveer {time}.",

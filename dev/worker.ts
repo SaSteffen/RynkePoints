@@ -7,6 +7,7 @@ import { handleFetch, handleQueue, handleScheduled } from "../src/index";
 import { STRAVA_ORIGIN } from "../src/strava/result";
 import { teamFor } from "../src/teams";
 import { sendAll } from "../src/work/messages";
+import { recheckRun } from "../src/work/recheck-run";
 import { devDay, isDay, onDevClock, pretendDay } from "./clock";
 import { answerStrava } from "./fake-strava/api";
 import { simulateEvent } from "./fake-strava/events";
@@ -310,6 +311,20 @@ async function runDailyWork(ctx: Ctx): Promise<Response> {
 	return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);
 }
 
+/**
+ * `POST /_dev/recheck`: the ride edit re-check's hourly run, on demand (feature
+ * 036 FR-024): every eligible rider, without pace, hold or delays, so the checks
+ * follow at once. Sandboxes have no cron.
+ */
+async function runRecheck(ctx: Ctx): Promise<Response> {
+	const sent = await recheckRun(ctx, true);
+	const flash =
+		sent === 0
+			? "The re-check found no active rider: nobody has an activity in the last 30 days."
+			: `Sent ${sent} ride re-checks. They are queued.`;
+	return redirect(`/_dev/?${new URLSearchParams({ flash })}`, 303);
+}
+
 /** `POST /_dev/connect`: the app's connect flow, ending on the stand-in screen. */
 async function connectAs(request: Request, ctx: Ctx, url: URL) {
 	const athleteId = Number((await form(request)).get("athleteId"));
@@ -438,6 +453,8 @@ async function devRoute(
 		}
 		case "POST /_dev/scheduled":
 			return runDailyWork(ctx);
+		case "POST /_dev/recheck":
+			return runRecheck(ctx);
 		case "POST /_dev/connect":
 			return connectAs(request, ctx, url);
 		case "POST /_dev/clock":

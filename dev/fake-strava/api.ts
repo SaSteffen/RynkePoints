@@ -197,10 +197,13 @@ async function activities(
 		// would hold back every rider's work, not only hers (feature 024 R3).
 		return answer({ message: "Service Unavailable" }, 503, rider.athleteId);
 	}
+	const after = url.searchParams.get("after");
 	const list = await listActivities(db, rider.athleteId, {
-		after: Number(url.searchParams.get("after") ?? "0") || 0,
+		after: Number(after ?? "0") || 0,
 		...paging(url),
 		includePrivate: readsAll(grant),
+		// Without `after`, Strava lists newest first (feature 036 research R3).
+		newestFirst: after === null,
 	});
 	return answer(list, 200, rider.athleteId);
 }

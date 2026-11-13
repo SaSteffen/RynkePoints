@@ -60,6 +60,19 @@ export interface SendNotificationMessage {
 	subscriptionId: number;
 }
 
+/**
+ * One ride edit re-check (feature 036 contracts/queue-message.md). Droppable:
+ * never retried, never in the Strava work table or `failed_work`.
+ */
+export interface RecheckRiderMessage {
+	kind: "recheck-rider";
+	athleteId: number;
+	/** What the run wrote to `riders.rechecked_at` (epoch seconds). */
+	stamp: number;
+	/** The value before, put back when the check doesn't happen. */
+	previous: number | null;
+}
+
 export type WorkMessage =
 	| ActivityEventMessage
 	| ImportPageMessage
@@ -67,7 +80,8 @@ export type WorkMessage =
 	| CheckMembershipMessage
 	| DeleteRiderMessage
 	| EvaluateRiderMessage
-	| SendNotificationMessage;
+	| SendNotificationMessage
+	| RecheckRiderMessage;
 
 /**
  * Wakes the drain of the Strava work table (feature 024 research R4). Not a
@@ -109,6 +123,9 @@ export function waitsForStrava(m: WorkMessage): boolean {
 export const isId = (v: unknown): v is number =>
 	typeof v === "number" && Number.isSafeInteger(v) && v > 0;
 
+const isEpoch = (v: unknown): v is number =>
+	typeof v === "number" && Number.isSafeInteger(v) && v >= 0;
+
 export const isOneOf = <T extends string>(
 	values: readonly T[],
 	v: unknown,
@@ -139,15 +156,13 @@ export function parseWorkMessage(body: unknown): WorkMessage | null {
 			};
 		case "import-page":
 		case "reread-page":
-			if (
-				!isId(m.page) ||
-				typeof m.after !== "number" ||
-				!Number.isSafeInteger(m.after) ||
-				m.after < 0
-			) {
+			if (!isId(m.page) || !isEpoch(m.after)) return null;
+			return { kind: m.kind, athleteId, page: m.page, after: m.after };
+		case "recheck-rider":
+			if (!isEpoch(m.stamp) || !(m.previous === null || isEpoch(m.previous))) {
 				return null;
 			}
-			return { kind: m.kind, athleteId, page: m.page, after: m.after };
+			return { kind: m.kind, athleteId, stamp: m.stamp, previous: m.previous };
 		case "check-membership":
 		case "evaluate-rider":
 			return { kind: m.kind, athleteId };
@@ -198,6 +213,13 @@ export function serializeWorkMessage(m: WorkMessage): string {
 				kind: m.kind,
 				athleteId: m.athleteId,
 				subscriptionId: m.subscriptionId,
+			});
+		case "recheck-rider":
+			return JSON.stringify({
+				kind: m.kind,
+				athleteId: m.athleteId,
+				stamp: m.stamp,
+				previous: m.previous,
 			});
 	}
 }

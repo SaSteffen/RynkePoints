@@ -243,6 +243,7 @@ describe("riders", () => {
 			adminAlerts: true,
 			onboardedAt: null,
 			organiserOnboardedAt: null,
+			recheckedAt: null,
 		});
 	});
 

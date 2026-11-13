@@ -287,4 +287,19 @@ describe("the daily cron", () => {
 		).all<{ day: string }>();
 		expect(results.map((r) => r.day)).toEqual(["2025-10-04", TODAY]);
 	});
+
+	it("removes the ride re-check's days with them (feature 036)", async () => {
+		for (const day of ["2025-10-03", "2025-10-04", TODAY]) {
+			await env.DB.prepare(
+				"INSERT INTO recheck_daily (day, sent) VALUES (?, 1)",
+			)
+				.bind(day)
+				.run();
+		}
+		await handleScheduled(daily(), ctx);
+		const { results } = await env.DB.prepare(
+			"SELECT day FROM recheck_daily ORDER BY day",
+		).all<{ day: string }>();
+		expect(results.map((r) => r.day)).toEqual(["2025-10-04", TODAY]);
+	});
 });

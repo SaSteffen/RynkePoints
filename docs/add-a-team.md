@@ -58,9 +58,12 @@ Until a value arrives, team data may hold the founding team's value as a placeho
 4. Clubs (FR-012): add the new team's clubs to every other team's `otherClubIds`, and
    theirs to the new team's. A rider in both clubs then learns, right after connecting,
    that one team at a time works.
-5. The Rynke explanation for riders: `docs/teams/<id>/rynke-punkte.md`, from the team's
+5. Ride re-check (feature 036): `recheckAllowance` is the team's checks per day. All
+   teams together have 300; split them evenly, so a third team means lowering the
+   others' (`team-check` refuses a sum above 300).
+6. The Rynke explanation for riders: `docs/teams/<id>/rynke-punkte.md`, from the team's
    own values (FR-022).
-6. `node scripts/team-check.mjs` passes. `pnpm dev:<id>` shows the team with synthetic
+7. `node scripts/team-check.mjs` passes. `pnpm dev:<id>` shows the team with synthetic
    riders.
 
 ## 3. Cloudflare resources

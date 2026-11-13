@@ -9,6 +9,7 @@ import {
 	getActivity,
 	getAthleteClubs,
 	isClubMember,
+	listNewestActivities,
 } from "../../src/strava/client";
 import {
 	exchangeCode,
@@ -457,4 +458,58 @@ describe("revoking", () => {
 			});
 		},
 	);
+});
+
+// Feature 036 research R3: the re-check's one request, the rider's newest 200
+// activities, without `after`, as background work.
+describe("listNewestActivities", () => {
+	it("asks for the first 200 without `after`, newest first", async () => {
+		fake.addActivity(
+			ATHLETE_A,
+			makeStravaActivity({ id: 1, start_date: "2026-10-01T07:00:00Z" }),
+		);
+		fake.addActivity(
+			ATHLETE_A,
+			makeStravaActivity({ id: 2, start_date: "2026-10-03T07:00:00Z" }),
+		);
+		const result = await listNewestActivities(ctx, asRider);
+		expect(result.kind).toBe("ok");
+		expect(result.kind === "ok" && result.value.map((a) => a.id)).toEqual([
+			2, 1,
+		]);
+		const [call] = fake.callsTo("activities");
+		expect(call?.url.pathname).toBe("/api/v3/athlete/activities");
+		expect([...(call?.url.searchParams ?? [])]).toEqual([
+			["page", "1"],
+			["per_page", "200"],
+		]);
+	});
+
+	it("is background work: it leaves the reserve", async () => {
+		await env.DB.prepare(
+			"UPDATE strava_rate_limit SET observed_at = ?, read_15m = 80, all_15m = 80 WHERE id = 1",
+		)
+			.bind(NOW)
+			.run();
+		expect(await listNewestActivities(ctx, asRider)).toEqual({
+			kind: "budget",
+			delaySeconds: 900,
+		});
+		expect(fake.calls).toHaveLength(0);
+	});
+
+	it("records its usage headers as any read", async () => {
+		fake.rateHeaders = {
+			usage: "12,340",
+			limit: "300,3000",
+			readUsage: "7,120",
+			readLimit: "150,1500",
+		};
+		await listNewestActivities(ctx, asRider);
+		expect(await readRateLimitState(env.DB)).toMatchObject({
+			observedAt: NOW,
+			read15m: 7,
+			readDaily: 120,
+		});
+	});
 });
