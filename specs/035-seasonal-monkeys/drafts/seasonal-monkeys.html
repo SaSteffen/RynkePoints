@@ -14,12 +14,9 @@
   (every entry with "seasonal": true), public/quotes/<id>.svg,
   art/quotes/originals/<id>.png and the `holidays` of every src/teams/*.ts, so
   a new seasonal monkey or holiday shows up by itself. That needs the repo
-  served over HTTP, from its root:
-
-    python3 -m http.server 8000
-
-  then open http://localhost:8000/specs/035-seasonal-monkeys/drafts/seasonal-monkeys.html
-  (the team list comes from that server's directory listing).
+  served over HTTP, from its root: `pnpm monkeys:seasonal` does that and
+  prints the page's address (the team list comes from that server's
+  directory listing).
 -->
 <style>
 :root {
@@ -131,7 +128,7 @@ function exists(url) {
 
 async function render() {
   if (location.protocol === "file:") {
-    out.innerHTML = '<p class="error">Serve the repo over HTTP: run <code>python3 -m http.server 8000</code> in its root and open this page from there.</p>';
+    out.innerHTML = '<p class="error">Serve the repo over HTTP: run <code>pnpm monkeys:seasonal</code> and open the address it prints.</p>';
     return;
   }
   const data = await (await fetch(at("art/quotes/monkeys.json"))).json();

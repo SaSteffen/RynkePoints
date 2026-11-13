@@ -93,6 +93,9 @@ holiday needs only its entry here, its picture and the team's `holidays`; a
 test checks that every holiday names a seasonal entry. A team never lists a
 monkey that shows another team's place.
 
+`pnpm monkeys:seasonal` serves an overview of every seasonal monkey, with its
+pictures and each team's window, and prints its address.
+
 When checking a seasonal picture, also check:
 
 - No religious symbols: no crosses, angels, nativity scenes, churches, or
