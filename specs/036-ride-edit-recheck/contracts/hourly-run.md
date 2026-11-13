@@ -7,9 +7,10 @@ of one doesn't stop the other; the run still fails so it shows in the logs.
 
 1. **Hold**: more than half of the day's Strava reads used → add `runs_held + 1` and the day's
    `over_24h`, send nothing, stamp nobody.
-2. **Read** the eligible riders (connected, import done) with `rechecked_at` and the fast-lane
+2. **Read** the eligible riders (connected, import done, an activity in the last 30 days) with `rechecked_at` and the fast-lane
    flag (research R6): one query.
-3. **Size** (research R4): `runSize(hour, allowance, riders, overdue)`.
+3. **Size** (research R4): `runSize(hour, allowance, riders, overdue)`, `riders` being the
+   eligible ones.
 4. **Order** (FR-010), each group longest ago first, never checked before everyone:
    1. riders last checked 20 or more hours ago;
    2. fast-lane riders, at most `ceil(size / 2)` of the run;
@@ -31,7 +32,7 @@ of one doesn't stop the other; the run still fails so it shows in the logs.
 
 ## Worked examples
 
-| Riders | Allowance | Checks per run | Each rider |
+| Active riders | Allowance | Checks per run | Each rider |
 |---|---|---|---|
 | 5 | 150 | 5 | every hour |
 | 12 | 150 | 6 or 7 | about every 2 hours |
@@ -41,7 +42,7 @@ of one doesn't stop the other; the run still fails so it shows in the logs.
 | 300 | 150 | about 13 | every 23 hours, 313 a day |
 | 999 | 150 | about 43, at most 50 | every 23 hours, about 1,040 a day |
 
-With 3 fast-lane riders among 100: the other 97 need about 4 places a run to stay within 24 hours
+With 3 fast-lane riders among 100 active ones: the other 97 need about 4 places a run to stay within 24 hours
 and get them first, through the 20-hour group. The fast lane gets the 2 or 3 places left, so each
 of the three is checked about two runs out of three. With 50 riders or fewer, all three are
 checked every run.

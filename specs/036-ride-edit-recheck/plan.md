@@ -11,8 +11,8 @@ today only records usage, also chooses a few riders and sends one `recheck-rider
 each, spread over the hour. The consumer reads the rider's newest 200 activities in one request,
 compares them with the stored ones and passes only the differences to the existing
 evaluate-and-notify path. How many riders a run takes follows from the team's allowance (150 a day
-each for Hamburg and Europe) and the number of riders; riders with a recent ride that a crop could
-rescue go first. The check stands back when half of the day's Strava reads are used, when the
+each for Hamburg and Europe) and the number of active riders, those with an activity in the past
+30 days; nobody else is checked. Riders with a recent ride that a crop could rescue go first. The check stands back when half of the day's Strava reads are used, when the
 15-minute budget is short, or when imports or events are waiting, and is never retried. The ride
 card stops asking for a new title; the administrators' usage view shows the checks per day.
 
@@ -32,14 +32,14 @@ hourly cron and work queue
 
 **Project Type**: server-rendered web app with queue consumer
 
-**Performance Goals**: an edit arrives within 24 hours for everyone, within about 2 hours for the
+**Performance Goals**: an edit arrives within 24 hours for every active rider, within about 2 hours for the
 fast lane at today's team sizes
 
 **Constraints**: 50 subrequests per invocation (one check per invocation, research R1); 300 Strava
 reads a day for all teams' checks in normal operation; 10,000 queue operations a day for the
 account (3 per check); D1 rows written: one per check plus one per run when nothing changed
 
-**Scale/Scope**: about 100 riders across two teams today; correct up to 999
+**Scale/Scope**: about 100 riders across two teams today, fewer of them active; correct up to 999
 
 ## Constitution Check
 
@@ -100,7 +100,7 @@ src/
 │   ├── client.ts                # + listNewestActivities (no `after`)
 │   └── rate-limit.ts            # + halfDayUsed(state, now)
 ├── db/
-│   ├── recheck.ts               # new: candidates query with fast-lane flag, stamp, put back, daily counts
+│   ├── recheck.ts               # new: candidates query (active riders, fast-lane flag), stamp, put back, daily counts
 │   └── riders.ts                # Rider gains recheckedAt
 ├── rynke/rides.ts               # + FIXABLE_REASONS beside the reason codes
 ├── teams/types.ts, hamburg.ts, europe.ts   # recheckAllowance: 150
@@ -121,7 +121,7 @@ test/
 ├── unit/recheck-diff.test.ts    # changed, new, moved kind, missing figure, missing activity
 ├── unit/fixable-reasons.test.ts # every reason code is sorted
 ├── integration/recheck-rider.test.ts   # contracts/queue-message.md "Guarantees to test"
-├── integration/recheck-run.test.ts     # contracts/hourly-run.md, with D1 and the queue
+├── integration/recheck-run.test.ts     # contracts/hourly-run.md, with D1 and the queue; paused riders left out
 ├── integration/admin-usage-recheck.test.ts
 ├── integration/d1-rows.test.ts  # + an unchanged check writes no row; a run writes one per check plus one
 ├── teams/recheck-allowance.test.ts

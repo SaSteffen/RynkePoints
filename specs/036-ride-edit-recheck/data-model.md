@@ -25,11 +25,13 @@ One row per UTC day, `WITHOUT ROWID`. No rider identifiers, no relation to `ride
 | `skipped` | `INTEGER NOT NULL DEFAULT 0` | Checks that stood back (budget, waiting work) |
 | `failed` | `INTEGER NOT NULL DEFAULT 0` | Checks Strava refused or that hit an error |
 | `unordered` | `INTEGER NOT NULL DEFAULT 0` | Checks whose list was not newest first (also counted in `failed`) |
-| `over_24h` | `INTEGER NOT NULL DEFAULT 0` | Largest number of eligible riders a run that day found last checked more than 24 hours ago |
+| `over_24h` | `INTEGER NOT NULL DEFAULT 0` | Largest number of eligible riders, active for more than 24 hours, a run that day found last checked more than 24 hours ago |
 | `runs_held` | `INTEGER NOT NULL DEFAULT 0` | Runs that sent nothing because more than half of the day's reads were used |
 
 - Checks made = `sent − skipped − failed`.
 - Written by the run (one upsert that adds) and by a check only when skipped or failed.
+- "Active for more than 24 hours": one of the rider's activities started between 24 hours and 30
+  days ago (research R13), so a rider back from a pause doesn't count as having waited.
 - A rider never checked counts towards `over_24h` once they have been connected for more than 24
   hours. On the day the feature goes live that is everyone, which is true, and it is gone once
   each rider has had a first check (within a day).
@@ -50,7 +52,8 @@ See [contracts/queue-message.md](contracts/queue-message.md).
 
 ## Derived, not stored
 
-- **Eligible rider**: `status = 'connected'` and `import_status = 'done'`. Riders being deleted are
+- **Eligible rider**: `status = 'connected'`, `import_status = 'done'` and active: a stored ride,
+  run or swim that started within the last 30 days (FR-027, research R13). Riders being deleted are
   gone or handled by their own message; the check's handler finds no rider and stops.
 - **Fast lane**: research R6, read at each run.
 - **Run size**: research R4.

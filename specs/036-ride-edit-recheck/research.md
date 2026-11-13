@@ -53,7 +53,7 @@ something else, this plan is revisited before any code.
 
 ## R4. The size of a run
 
-**Decision**: A pure function of the hour, the team's allowance `A`, the connected riders `n` and
+**Decision**: A pure function of the hour, the team's allowance `A`, the active riders `n` (R13) and
 how many of them were last checked 23 or more hours ago (`overdue`):
 
 - `base(h) = floor((h+1) × A / 24) − floor(h × A / 24)` for the UTC hour `h`: 6 or 7 for 150, and
@@ -74,7 +74,8 @@ corrected.
 ## R5. The order, and the "last checked" stamp
 
 **Decision**: One nullable column `riders.rechecked_at`. The run reads the eligible riders
-(connected, import done) with the stamp and a fast-lane flag in one query, orders them in code
+(connected, import done, active: R13) with the stamp and a fast-lane flag in one query, orders
+them in code
 (FR-010: 20 hours or more first, then the fast lane up to half the run, then the rest; longest ago
 first, never checked first of all) and stamps the chosen riders in the same batch that precedes
 sending. The message carries the stamp it set and the value before. A check that is skipped or
@@ -181,3 +182,22 @@ reused if it already serves this place. `rynke.ride.fix.manual` is unchanged.
 
 **Rationale**: FR-020, SC-008. A new key rather than new text under the old name, so a stale
 translation can't survive unnoticed (`all-locales` test).
+
+## R13. Who is checked at all
+
+**Decision**: Part of the run's rider query: a rider is taken only when one of their stored
+activities (`activities`, `runs`, `swims`) started within the last 30 days (FR-027). The handler
+doesn't ask again. For "waited over 24 hours" a rider counts only when one of their activities
+started between 24 hours and 30 days ago, so a rider who starts again after a pause is not shown
+as having waited.
+
+**Rationale**: The three tables each have an index by rider and start, so the condition costs a
+few rows per rider. `n` in R4 becomes the active riders, which shortens everyone's interval and
+moves the 140-rider limit to active riders. A rider returning from a pause has an old stamp or
+none and is taken by the next run, first in the order.
+
+**Accepted**: An edit of a ride older than 30 days by a rider with nothing newer is not picked up
+until their next activity, and neither is a lost event for the first activity after a pause.
+
+**Alternatives**: A slow pace for paused riders (once a week): more rules for cases that heal with
+the next activity. Rides only: a rider who runs for a month would drop out and come back.
