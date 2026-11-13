@@ -7,8 +7,8 @@ Sync Impact Report
   times never reaches the app, and a ride the rider fixed stayed "doesn't
   count" (issue #274). The re-check is bounded: one list request per rider per
   check, at most 10% of the daily read limit for all teams together in normal
-  operation, at most one request per rider per day beyond that, and none while
-  the budget is short.
+  operation, at most one request per rider per 23 hours beyond that (a day,
+  less the hour between two runs), and none while the budget is short.
 - Principles modified: II. Good Strava API Citizenship
 - Sections added: none
 - Sections removed: none
@@ -166,7 +166,7 @@ The app reacts to Strava; it polls it only for what Strava doesn't report.
   schedule. That check MUST stay bounded: one list request per rider per check,
   no further pages and no single-activity requests; all teams together at most 10%
   of the daily read limit in normal operation, and beyond that at most one request
-  per rider per day; never a burst; and no check while the budget is short, so
+  per rider per 23 hours (a day, less the hour between two runs); never a burst; and no check while the budget is short, so
   that it comes after everything a person waits for, the import and webhook
   events. Any other scheduled read of rider data from Strava needs an amendment.
 - The app's athlete capacity is 999 since Strava's Developer Program review
