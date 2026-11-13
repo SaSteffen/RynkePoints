@@ -480,6 +480,7 @@ export const nl: Catalog = {
 	"team.peloton.label":
 		"{count} renners tussen {min} en {max} Rynke; jij hebt er {own}",
 	"team.peloton.you": "Jij",
+	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
 	"team.peloton.hint.breakaway":
 		"Elke munt is een renner. Helemaal rechts, voorbij het gat, rijdt de breakaway.",

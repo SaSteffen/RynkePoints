@@ -475,6 +475,7 @@ export const is: Catalog = {
 	"team.peloton.label":
 		"Hjólreiðamenn: {count}, á bilinu {min} til {max} Rynke; þú ert með {own}",
 	"team.peloton.you": "Þú",
+	"team.peloton.total": "{n} Rynke",
 	"team.peloton.breakaway": "Breakaway 🏁",
 	"team.peloton.hint.breakaway":
 		"Hver peningur er hjólreiðamaður. Lengst til hægri, eftir bilið, hjólar breakaway-hópurinn.",

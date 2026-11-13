@@ -377,6 +377,7 @@ const CONTRACT_IDS = [
 	"team.peloton.front",
 	"team.peloton.label",
 	"team.peloton.you",
+	"team.peloton.total",
 	"team.peloton.breakaway",
 	"team.peloton.hint.breakaway",
 	"team.peloton.label.breakaway",

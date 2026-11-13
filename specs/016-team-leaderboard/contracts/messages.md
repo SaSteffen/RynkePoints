@@ -30,6 +30,7 @@ links the Orga tab and its switch replace.
 | `team.peloton.front` | Front 🏁 | Spitze 🏁 |
 | `team.peloton.label` | {count} riders between {min} and {max} Rynke; you have {own} | {count} Rider zwischen {min} und {max} Rynke; du hast {own} |
 | `team.peloton.you` | You | Du |
+| `team.peloton.total` | {n} Rynke | {n} Rynke |
 | `team.peloton.breakaway` | Breakaway 🏁 | Breakaway 🏁 |
 | `team.peloton.hint.breakaway` | Every coin is a rider. Far right, past the gap, rides the breakaway. | Jede Münze ist ein Rider. Ganz rechts, hinter der Lücke, fährt der Breakaway. |
 | `team.peloton.label.breakaway` | {count} riders between {min} and {max} Rynke, {away} of them in the breakaway; you have {own} | {count} Rider zwischen {min} und {max} Rynke, davon {away} im Breakaway; du hast {own} |

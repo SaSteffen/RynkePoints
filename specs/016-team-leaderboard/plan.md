@@ -3,7 +3,9 @@
 **Branch**: `016-team-leaderboard` | **Date**: 2026-10-09 | **Spec**: [spec.md](spec.md)
 
 **Amended**: 2026-10-09 on `016-peloton-breakaway` for the peloton's breakaway
-(FR-018, research R13).
+(FR-018, research R13). Amended 2026-11-13: the breakaway is "gap to the bunch",
+the bunch spreads from its last rider, and every coin shows its total on hover or
+tap.
 
 **Input**: Feature specification from `/specs/016-team-leaderboard/spec.md`
 
@@ -24,9 +26,10 @@ nothing.
 - **Page mechanics (R5, R9)**: the kind switch, the list toggle and the group tiles
   are links with query parameters; no client script. The quote is picked on the
   server per request. Charts are inline SVG.
-- **Breakaway (R13)**: a pure `src/rynke/breakaway.ts` gives the upper
-  outlier fence of the totals. Riders above it ride past a gap in the
-  peloton's road, in order but not to scale; the bunch stays to scale.
+- **Breakaway (R13)**: a pure `src/rynke/breakaway.ts` finds the riders
+  ahead of the bunch's first gap and their groups. They ride past a gap in the
+  peloton's road, in order but not to scale; the bunch stays to scale from its
+  last rider.
 - **Quotes (R10)**: the German lists in `src/i18n/messages/quotes.de.ts` and the
   copy-guard exemption are already committed. Quotes for one season (FR-025) sit
   in one array per season beside each list; the picker adds the array for
@@ -116,7 +119,7 @@ src/
 ├── rynke/
 │   ├── weeks.ts                 # new: week ends, week-end totals per rider (R1, R3)
 │   ├── pace.ts                  # new: evenPace, riderStatus (R4)
-│   ├── breakaway.ts             # new: breakawayFence, the peloton's outlier fence (R13)
+│   ├── breakaway.ts             # new: breakaway, the riders ahead of the bunch's first gap (R13)
 │   └── leaderboard.ts           # new: rows, places, neighbourhood, team totals (R6)
 ├── http/
 │   ├── charts.ts                # new: peloton (with its breakaway gap), sparkline, weekly bars, threshold bars (SVG)

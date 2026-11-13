@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Peloton breakaway trial</title>
+<!--
+  A play page for the peloton's breakaway (016 FR-018, research R13): who rides
+  in it and how the road is scaled, for four rules side by side. Open it as a
+  file in a browser; it needs nothing else.
+
+  Every data set below is synthetic: this repo is public, so real totals never
+  go in here (constitution Principle I). To look at a team's current totals,
+  paste them into the "Own totals" field; they stay in the browser. A
+  maintainer can read them, anonymous and read only, with:
+
+    pnpm wrangler d1 execute DB --remote --env hamburg --command "SELECT
+      COALESCE(b.training_rynke, 0) AS training, COALESCE(b.team_rynke, 0) AS team
+      FROM riders r LEFT JOIN rynke_balances b ON b.athlete_id = r.athlete_id
+      WHERE r.status = 'connected' AND EXISTS (SELECT 1 FROM consent_records c
+      WHERE c.athlete_id = r.athlete_id AND c.version >= 1)
+      ORDER BY training DESC"
+
+  "Gap to the bunch" is what src/rynke/breakaway.ts does (g = 0.4), and the
+  road's layout follows src/http/charts.ts; keep them in step when either
+  changes.
+-->
+<style>
+:root {
+  --bg: #fffdf5; --card: #f6f2e0; --ink: #1c1b13; --muted: #5d5a48; --line: #d9d3b8;
+  --road: #1c1b13; --yellow: #fbe122; --coin-ink: #1c1b13; --rim: #c99a2e; --accent: #8a6d00;
+  --ok: #2f7d32; --bad: #b3261e;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #13120d; --card: #201f18; --ink: #ece7d2; --muted: #b3ad94; --line: #3a382c;
+    --road: #0a0906; --accent: #fbe122; --ok: #8fd18f; --bad: #f2b8b5;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #13120d; --card: #201f18; --ink: #ece7d2; --muted: #b3ad94; --line: #3a382c;
+  --road: #0a0906; --accent: #fbe122; --ok: #8fd18f; --bad: #f2b8b5;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, sans-serif; }
+main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 1.6rem; margin: 0 0 4px; }
+h2 { font-size: 1.15rem; margin: 0 0 4px; }
+p { margin: 0 0 8px; }
+.muted { color: var(--muted); }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: end; background: var(--card); border-radius: 16px; padding: 14px 16px; margin: 16px 0; }
+.controls label { display: grid; gap: 4px; font-size: .85rem; color: var(--muted); }
+select, textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+textarea { width: min(100%, 420px); min-height: 38px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 480px), 1fr)); gap: 16px; }
+.card { background: var(--card); border-radius: 16px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.card.chosen { outline: 2px solid var(--accent); }
+.tag { display: inline-block; font-size: .75rem; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: var(--yellow); color: var(--coin-ink); margin-left: 6px; vertical-align: 2px; }
+.rule { font-size: .9rem; }
+.param { display: flex; align-items: center; gap: 10px; font-size: .85rem; color: var(--muted); }
+.param input { flex: 1; accent-color: var(--accent); }
+.param output { min-width: 3.5em; text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+svg.road { display: block; width: 100%; height: auto; overflow: visible; }
+/* CSS only, like the app's script-free charts: hover, or tap (focus), shows the total. */
+.coin { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.coin:focus { outline: none; }
+.coin:hover circle, .coin:focus circle { stroke: var(--ink); }
+.coin .bubble { display: none; pointer-events: none; }
+.coin:hover .bubble, .coin:focus .bubble { display: inline; }
+.bubble rect, .bubble path { fill: var(--ink); }
+.bubble text { fill: var(--bg); font: 700 11px system-ui, sans-serif; }
+.axis { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); margin-top: -4px; }
+.stats { font-size: .85rem; font-variant-numeric: tabular-nums; }
+.stats b { color: var(--accent); }
+.hint { font-size: .85rem; font-style: italic; color: var(--muted); }
+ul.pc { margin: 0; padding-left: 18px; font-size: .85rem; }
+ul.pc li.pro::marker { content: "+  "; color: var(--ok); font-weight: 700; }
+ul.pc li.con::marker { content: "−  "; color: var(--bad); font-weight: 700; }
+.truth { background: var(--card); border-radius: 16px; padding: 14px 16px; margin-bottom: 16px; }
+.truth svg { display: block; width: 100%; height: auto; }
+.matrix { width: 100%; border-collapse: collapse; font-size: .85rem; font-variant-numeric: tabular-nums; margin-top: 8px; }
+.matrix th, .matrix td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.matrix-wrap { overflow-x: auto; background: var(--card); border-radius: 16px; padding: 8px 12px; margin-top: 16px; }
+.reco { background: var(--card); border-left: 4px solid var(--accent); border-radius: 12px; padding: 12px 16px; margin: 16px 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>Peloton breakaway trial</h1>
+<p class="muted">Who rides in the breakaway, and how the road is scaled. Everything recomputes in the page; nothing here touches the app. All data sets are synthetic.</p>
+
+<div class="reco">
+  <b>Chosen: “Gap to the bunch” (g = 0.4).</b> The cycling definition: the breakaway is whoever has opened a gap in front of the group the median rider rides in. A lone rider far ahead stays a solo leader in front of a chase group instead of setting the scale. The breakaway is always smaller than half the team, a tight pack gets none, and the gap follows the team's median, so early and late in the season behave alike. The bunch spreads from its last rider to its front rider.
+</div>
+
+<div class="controls">
+  <label>Data
+    <select id="dataset"></select>
+  </label>
+  <label>Your coin (rank · total)
+    <select id="viewer"></select>
+  </label>
+  <label>Bunch scale
+    <select id="bunchScale">
+      <option value="1">Linear (app)</option>
+      <option value="0.5">Square root</option>
+    </select>
+  </label>
+  <label>Bunch starts at
+    <select id="bunchFrom">
+      <option value="min">The last rider (app)</option>
+      <option value="zero">0 Rynke (before)</option>
+    </select>
+  </label>
+  <label>Breakaway spacing
+    <select id="awayScale">
+      <option value="even">Even, by rank (app)</option>
+      <option value="linear">By total, linear</option>
+      <option value="log">By total, log</option>
+    </select>
+  </label>
+  <label>Own totals (comma separated, replaces the data)
+    <textarea id="custom" placeholder="610, 232, 215, 180, …"></textarea>
+  </label>
+</div>
+
+<div class="truth">
+  <h2>True distances</h2>
+  <p class="muted" id="truthNote"></p>
+  <svg id="truth" viewBox="0 0 640 46" role="img" aria-label="Every total on one linear scale"></svg>
+</div>
+
+<div class="grid" id="cards"></div>
+
+<div class="matrix-wrap">
+  <table class="matrix" id="matrix"></table>
+</div>
+</main>
+
+<script>
+// Synthetic only: never real riders' totals (constitution Principle I).
+const DATASETS = {
+  "leader": { label: "A lone leader and a chase group", totals: [610, 232, 215, 180, 168, 150, 115, 104, 97, 94, 88, 86, 79, 72, 66, 58, 51, 40, 22, 12, 4, 0] },
+  "team": { label: "Small totals with ties (Team-like)", totals: [12, 11, 10, 10, 9, 9, 9, 8, 8, 7, 7, 6, 5, 3, 2, 1, 0, 0, 0] },
+  "us2-4": { label: "Spec US2 #4", totals: [912, 760, 384, 355, 330, 305, 280, 255, 230, 205, 180, 155, 130, 105, 80, 52] },
+  "early": { label: "Early season", totals: [12, 9, 8, 8, 7, 6, 6, 5, 5, 4, 3, 3, 2, 2, 1, 0, 0] },
+  "tight": { label: "Tight pack", totals: [130, 125, 122, 120, 118, 115, 110, 108, 105, 100, 98, 95, 90] },
+  "two": { label: "Two leaders", totals: [480, 455, 150, 140, 130, 128, 120, 110, 100, 95, 90, 80, 70, 60, 50, 40] },
+  "spread": { label: "Even spread", totals: [300, 280, 260, 240, 220, 200, 180, 160, 140, 120, 100, 80, 60, 40, 20] },
+};
+
+const MIN_TOTALS = 5;
+const quantile = (sorted, p) => {
+  const rank = (sorted.length - 1) * p, below = Math.floor(rank);
+  const low = sorted[below] ?? 0, high = sorted[below + 1] ?? low;
+  return low + (rank - below) * (high - low);
+};
+const asc = (v) => [...v].sort((a, b) => a - b);
+const desc = (v) => [...v].sort((a, b) => b - a);
+const median = (v) => quantile(asc(v), 0.5);
+const fmt = (n) => (Math.round(n * 10) / 10).toLocaleString("en");
+
+// Each rule: totals + its parameter → { away(total), groupOf?(total), note }.
+const STRATEGIES = [
+  {
+    id: "tukey",
+    name: "Before: outlier fence",
+    rule: "Above Q3 + k × IQR (Tukey). Only statistical outliers break away.",
+    param: { label: "k", min: 0.25, max: 3, step: 0.25, value: 1.5, show: (v) => v.toFixed(2) },
+    run(totals, k) {
+      if (totals.length < MIN_TOTALS) return none("fewer than 5 riders");
+      const s = asc(totals), q1 = quantile(s, 0.25), q3 = quantile(s, 0.75);
+      const fence = q3 + k * (q3 - q1);
+      return { away: (t) => t > fence, note: `fence ${fmt(fence)} (Q1 ${fmt(q1)}, Q3 ${fmt(q3)})` };
+    },
+    hint: "Ganz rechts, hinter der Lücke, fährt der Breakaway.",
+    pros: ["Standard statistics"],
+    cons: ["Built for symmetric data; Rynke are right-skewed, so the fence lands high and only an extreme rider breaks away", "Riders clearly ahead of the bunch stay in it and stretch it"],
+  },
+  {
+    id: "median",
+    name: "Multiple of the median",
+    rule: "At least f × the team's median total.",
+    param: { label: "f", min: 1.25, max: 3, step: 0.05, value: 2, show: (v) => v.toFixed(2) + "×" },
+    run(totals, f) {
+      if (totals.length < MIN_TOTALS) return none("fewer than 5 riders");
+      const m = median(totals);
+      if (m <= 0) return none("median is 0");
+      const at = f * m;
+      return { away: (t) => t >= at, note: `≥ ${fmt(at)} (median ${fmt(m)})` };
+    },
+    hint: "Im Breakaway fährt, wer mehr als doppelt so viele Rynke hat wie die Mitte des Feldes.",
+    pros: ["One sentence to explain; the hint can say it", "A rider far ahead doesn't move the bar: the median ignores them"],
+    cons: ["Cuts straight through a group: two riders 3 Rynke apart can land on either side", "Low medians early in the season make the bar jumpy"],
+  },
+  {
+    id: "gap",
+    name: "Gap to the bunch",
+    rule: "Split the sorted totals wherever two neighbours are more than g × median apart (at least 1). The bunch is the group holding the median rider (the upper one of two); every group ahead of it is the breakaway.",
+    param: { label: "g", min: 0.1, max: 1, step: 0.05, value: 0.4, show: (v) => v.toFixed(2) + "×" },
+    chosen: true,
+    run(totals, g) {
+      if (totals.length < MIN_TOTALS) return none("fewer than 5 riders");
+      const m = median(totals);
+      const gap = Math.max(1, g * m);
+      const s = desc(totals);
+      const group = new Map();
+      let n = 0;
+      s.forEach((t, i) => {
+        if (i > 0 && s[i - 1] - t > gap) n++;
+        if (!group.has(t)) group.set(t, n);
+      });
+      const bunch = group.get(s[Math.floor((s.length - 1) / 2)]);
+      if (bunch === 0) return none(`no gap > ${fmt(gap)} ahead of the median rider`);
+      return {
+        away: (t) => group.get(t) < bunch,
+        groupOf: (t) => group.get(t),
+        note: `gap > ${fmt(gap)} Rynke (median ${fmt(m)}); ${bunch} group${bunch === 1 ? "" : "s"} ahead`,
+      };
+    },
+    hint: "Ganz rechts, hinter der Lücke, fährt der Breakaway. (unchanged)",
+    pros: ["What a breakaway is on the road: a group with a gap, not a percentile", "A lone leader shows as a solo rider ahead of a chase group, in rank order", "Never more than half the team; a tight pack has no breakaway"],
+    cons: ["Harder to put in one sentence", "One rider closing a gap can pull a whole group back into the bunch"],
+  },
+  {
+    id: "top",
+    name: "Top share",
+    rule: "The top s of riders (ties included), but only when the leader has at least 1.5 × the median.",
+    param: { label: "s", min: 0.1, max: 0.4, step: 0.05, value: 0.2, show: (v) => Math.round(v * 100) + "%" },
+    run(totals, share) {
+      if (totals.length < MIN_TOTALS) return none("fewer than 5 riders");
+      const s = desc(totals), m = median(totals);
+      if (!(s[0] >= 1.5 * m) || s[0] === 0) return none(`leader below 1.5 × median ${fmt(m)}`);
+      const cut = s[Math.max(0, Math.ceil(s.length * share) - 1)];
+      if (cut <= m) return none("cut not above the median");
+      return { away: (t) => t >= cut, note: `≥ ${fmt(cut)} (top ${Math.round(share * 100)}%)` };
+    },
+    hint: "Im Breakaway fährt das vorderste Fünftel des Teams.",
+    pros: ["Predictable size: always about the same number of coins", "Easiest to explain"],
+    cons: ["Ignores the actual gaps: splits a tight group, and calls a big lead just ‘top 20%’", "Ties can blow it up with small totals"],
+  },
+];
+const none = (why) => ({ away: () => false, note: `no breakaway: ${why}` });
+
+// The road as in src/http/charts.ts: the breakaway widens for more riders.
+const W = 320, H = 76, COIN = 20, OWN = 40, INSET = OWN / 2 + 2, FRONT = W - INSET, LANES = [18, 38, 58];
+const GAP_HALF = 3, GAP_LEAN = 9, TAG_H = 16;
+
+function layout(totals, result, bunchPow, awayScale, bunchFrom) {
+  const awayVals = asc([...new Set(totals.filter(result.away))]);
+  const bunchVals = totals.filter((t) => !result.away(t));
+  // From 0 (before) or from the last rider, so a tight pack fills the road.
+  const scale = (vals, end) => {
+    const max = Math.max(0, ...vals), min = bunchFrom === "min" ? Math.min(...vals) : 0;
+    return (t) => (max > min ? INSET + Math.pow((t - min) / (max - min), bunchPow) * (end - INSET) : max > 0 ? end : INSET);
+  };
+  if (awayVals.length === 0) return { x: scale(totals, FRONT), gapAt: null };
+  // 25 units for one or two distinct totals (269–294), gap 32 before, bunch 39 before the gap.
+  const zone = Math.min(96, Math.max(25, (awayVals.length - 1) * 11));
+  const to = FRONT - 4, from = to - zone, gapAt = from - 32, bunchEnd = gapAt - 39;
+  const bunch = scale(bunchVals, bunchEnd);
+  let pos;
+  if (awayVals.length === 1) pos = () => to - 12;
+  else if (awayScale !== "even") {
+    const f = awayScale === "log" ? (t) => Math.log1p(t) : (t) => t;
+    const lo = f(awayVals[0]), hi = f(awayVals.at(-1));
+    pos = (t) => from + ((f(t) - lo) / (hi - lo || 1)) * zone;
+  } else {
+    // Even slots, with 0.8 of a slot more between groups when the rule has them.
+    const slots = [];
+    let slot = 0;
+    awayVals.forEach((t, i) => {
+      if (i > 0) slot += 1 + (result.groupOf && result.groupOf(t) !== result.groupOf(awayVals[i - 1]) ? 0.8 : 0);
+      slots.push(slot);
+    });
+    pos = (t) => from + (slots[awayVals.indexOf(t)] / slot) * zone;
+  }
+  return { x: (t) => (result.away(t) ? pos(t) : bunch(t)), gapAt };
+}
+
+const r1 = (v) => Math.round(v * 10) / 10;
+
+// A coin you can hover or tap (tabindex makes a tap focus it); its bubble sits
+// above the road, where no other coin can cover it.
+function coin(t, cx, cy, r, attrs, inner = "") {
+  const text = `${t} Rynke`, bw = 12 + 6.5 * text.length;
+  const bx = Math.min(Math.max(cx, bw / 2), W - bw / 2);
+  return `<g class="coin" tabindex="-1" aria-label="${text}"><circle cx="${r1(cx)}" cy="${cy}" r="${r}" ${attrs}/>${inner}` +
+    `<g class="bubble"><rect x="${r1(bx - bw / 2)}" y="-24" width="${r1(bw)}" height="18" rx="9"/>` +
+    `<path d="M${r1(cx - 4)} -6.5L${r1(cx)} -2L${r1(cx + 4)} -6.5Z"/>` +
+    `<text x="${r1(bx)}" y="-11" text-anchor="middle">${text}</text></g></g>`;
+}
+
+function roadSvg(totals, own, result, bunchPow, awayScale, bunchFrom, label) {
+  const sorted = desc(totals);
+  const { x, gapAt } = layout(sorted, result, bunchPow, awayScale, bunchFrom);
+  let out = `<svg class="road" viewBox="0 0 ${W} ${H}" role="img" aria-label="${label}">`;
+  out += `<rect width="${W}" height="${H}" rx="12" fill="var(--road)"/>`;
+  out += `<path d="M12 ${H / 2}H${W - 12}" fill="none" stroke="var(--yellow)" stroke-width="2" stroke-dasharray="6 4" opacity=".6"/>`;
+  if (gapAt !== null) {
+    const g = gapAt;
+    out += `<path d="M${g - GAP_HALF + GAP_LEAN} 0L${g + GAP_HALF + GAP_LEAN} 0L${g + GAP_HALF - GAP_LEAN} ${H}L${g - GAP_HALF - GAP_LEAN} ${H}Z" fill="var(--card)"/>`;
+    out += `<path d="M${g - GAP_HALF + GAP_LEAN} 0L${g - GAP_HALF - GAP_LEAN} ${H}M${g + GAP_HALF + GAP_LEAN} 0L${g + GAP_HALF - GAP_LEAN} ${H}" fill="none" stroke="var(--yellow)" stroke-width="1.5"/>`;
+  }
+  sorted.forEach((t, i) => {
+    if (i === own) return;
+    const n = i < own ? i : i - 1;
+    out += coin(t, x(t), LANES[n % 3], COIN / 2 - 1, `fill="${result.away(t) ? "var(--yellow)" : "#e9d77a"}" stroke="var(--rim)" stroke-width="2"`);
+  });
+  const ox = x(sorted[own] ?? 0);
+  out += coin(sorted[own], ox, 6 + OWN / 2, OWN / 2 - 1, `fill="var(--yellow)" stroke="var(--rim)" stroke-width="3"`,
+    `<text x="${r1(ox)}" y="${6 + OWN / 2 + 4}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--coin-ink)">${sorted[own]}</text>`);
+  const tw = 12 + 7 * 2, tx = Math.min(Math.max(ox, tw / 2), W - tw / 2), ty = 6 + OWN + 2;
+  out += `<rect x="${r1(tx - tw / 2)}" y="${ty}" width="${tw}" height="${TAG_H}" rx="8" fill="var(--yellow)"/>`;
+  out += `<text x="${r1(tx)}" y="${ty + 12}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--coin-ink)">Du</text>`;
+  return out + `</svg>`;
+}
+
+function truthSvg(totals) {
+  const max = Math.max(1, ...totals), x = (t) => 12 + (t / max) * 616;
+  let out = `<line x1="12" y1="30" x2="628" y2="30" stroke="var(--line)" stroke-width="2"/>`;
+  desc(totals).forEach((t) => {
+    out += `<circle cx="${r1(x(t))}" cy="30" r="5" fill="var(--yellow)" stroke="var(--rim)" stroke-width="1.5"><title>${t}</title></circle>`;
+  });
+  [0, max].forEach((t, i) => (out += `<text x="${x(t)}" y="12" font-size="11" fill="var(--muted)" text-anchor="${i ? "end" : "start"}">${t}</text>`));
+  return out;
+}
+
+const $ = (id) => document.getElementById(id);
+const params = Object.fromEntries(STRATEGIES.map((s) => [s.id, s.param.value]));
+
+function currentTotals() {
+  const custom = $("custom").value.split(/[\s,;]+/).filter(Boolean).map(Number).filter((n) => Number.isFinite(n) && n >= 0);
+  return custom.length ? custom : DATASETS[$("dataset").value].totals;
+}
+
+function fillViewer(keep) {
+  const s = desc(currentTotals());
+  const prev = keep ? $("viewer").value : null;
+  $("viewer").innerHTML = s.map((t, i) => `<option value="${i}">#${i + 1} · ${t}</option>`).join("");
+  $("viewer").value = prev !== null && +prev < s.length ? prev : String(Math.floor((s.length - 1) / 2));
+}
+
+function render() {
+  const totals = currentTotals();
+  const own = +$("viewer").value;
+  const bunchPow = +$("bunchScale").value;
+  const awayScale = $("awayScale").value;
+  const results = STRATEGIES.map((s) => s.run(totals, params[s.id]));
+  const s = desc(totals);
+  $("truthNote").textContent = `${totals.length} riders on one linear scale, 0 to ${Math.max(...totals)}. Median ${fmt(median(totals))}. Hover a coin for its total.`;
+  $("truth").innerHTML = truthSvg(totals);
+  $("cards").innerHTML = STRATEGIES.map((st, i) => {
+    const r = results[i];
+    const away = s.filter(r.away);
+    const p = st.param;
+    return `<section class="card${st.chosen ? " chosen" : ""}">
+      <h2>${st.name}${st.chosen ? '<span class="tag">in the app</span>' : ""}</h2>
+      <p class="rule">${st.rule}</p>
+      <label class="param">${p.label}<input type="range" data-id="${st.id}" min="${p.min}" max="${p.max}" step="${p.step}" value="${params[st.id]}"><output>${p.show(params[st.id])}</output></label>
+      ${roadSvg(totals, own, r, bunchPow, awayScale, $("bunchFrom").value, st.name)}
+      <div class="axis"><span>Ende des Feldes</span><span>${away.length ? "Breakaway 🏁" : "Spitze 🏁"}</span></div>
+      <p class="stats"><b>${away.length}</b> of ${totals.length} in the breakaway${away.length ? ": " + away.join(", ") : ""}<br><span class="muted">${r.note}</span></p>
+      <p class="hint">Hint: „${st.hint}“</p>
+      <ul class="pc">${st.pros.map((t) => `<li class="pro">${t}</li>`).join("")}${st.cons.map((t) => `<li class="con">${t}</li>`).join("")}</ul>
+    </section>`;
+  }).join("");
+  $("cards").querySelectorAll("input[type=range]").forEach((el) => {
+    el.addEventListener("input", () => {
+      params[el.dataset.id] = +el.value;
+      const keep = document.activeElement === el ? el.dataset.id : null;
+      render();
+      if (keep) $("cards").querySelector(`input[data-id="${keep}"]`).focus();
+    });
+  });
+  renderMatrix();
+}
+
+// Every data set against every rule at the current parameters.
+function renderMatrix() {
+  const head = `<tr><th>Data</th>${STRATEGIES.map((s) => `<th>${s.name}<br><span class="muted">${s.param.label} = ${s.param.show(params[s.id])}</span></th>`).join("")}</tr>`;
+  const rows = Object.values(DATASETS).map((d) => {
+    const cells = STRATEGIES.map((st) => {
+      const r = st.run(d.totals, params[st.id]);
+      const away = desc(d.totals).filter(r.away);
+      return `<td>${away.length ? `<b>${away.length}</b> · ${away.join(", ")}` : "—"}</td>`;
+    });
+    return `<tr><td>${d.label}<br><span class="muted">n = ${d.totals.length}, median ${fmt(median(d.totals))}</span></td>${cells.join("")}</tr>`;
+  });
+  $("matrix").innerHTML = head + rows.join("");
+}
+
+$("dataset").innerHTML = Object.entries(DATASETS).map(([k, d]) => `<option value="${k}">${d.label}</option>`).join("");
+fillViewer(false);
+$("dataset").addEventListener("change", () => { $("custom").value = ""; fillViewer(false); render(); });
+$("custom").addEventListener("input", () => { fillViewer(true); render(); });
+["viewer", "bunchScale", "bunchFrom", "awayScale"].forEach((id) => $(id).addEventListener("change", render));
+render();
+</script>
+</body>
+</html>
