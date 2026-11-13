@@ -33,8 +33,43 @@ export const europe: TeamData = {
 	phrases: { kind: "common" },
 	badgeNames: { kind: "common" },
 	// Team Europe's holidays (feature 037 data-model.md), sharing the founding
-	// team's December pictures, which show no place; no Nikolaus.
+	// team's pictures, which show no place; no Nikolaus.
 	holidays: [
+		{
+			id: "carnival",
+			monkey: "karneval",
+			from: { anchor: "easter", offset: -52 },
+			to: { anchor: "easter", offset: -46 },
+			kind: "short",
+		},
+		{
+			id: "easter",
+			monkey: "easter",
+			from: { anchor: "easter", offset: -2 },
+			to: { anchor: "easter", offset: 1 },
+			kind: "short",
+		},
+		{
+			id: "europe-day",
+			monkey: "europe-day",
+			from: "05-09",
+			to: "05-09",
+			kind: "short",
+		},
+		{
+			id: "midsummer",
+			monkey: "midsummer",
+			from: "06-20",
+			to: "06-24",
+			kind: "short",
+		},
+		{
+			id: "halloween",
+			monkey: "halloween",
+			from: "10-29",
+			to: "10-31",
+			kind: "short",
+		},
 		{
 			id: "advent",
 			monkey: "advent",

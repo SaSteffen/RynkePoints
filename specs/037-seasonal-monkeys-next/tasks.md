@@ -83,37 +83,37 @@ pictures pass contracts/seasonal-art.md.
 
 ### Tests first
 
-- [ ] T006 [US2] In `test/teams/holidays.test.ts`, rename "gives Hamburg the four December
+- [x] T006 [US2] In `test/teams/holidays.test.ts`, rename "gives Hamburg the four December
   holidays" to "gives Hamburg its holidays" and put `karneval` (monkey `karneval`,
   `{ anchor: "easter", offset: -52 }`–`{ anchor: "easter", offset: -46 }`, short) and `easter`
   (`{ anchor: "easter", offset: -2 }`–`{ anchor: "easter", offset: 1 }`, short) before `advent`;
   in "gives Team Europe its holidays" put `carnival` (monkey `karneval`, same window) and `easter`
   before `advent`
-- [ ] T007 [US2] In `test/teams/holidays.test.ts`, add "finds both teams' spring holidays": for
+- [x] T007 [US2] In `test/teams/holidays.test.ts`, add "finds both teams' spring holidays": for
   `hamburg` and `europe`, `null` on 2027-02-03, 2027-02-11, 2027-03-25, 2027-03-30; Karneval
   (`karneval` for Hamburg, `carnival` for Europe) on 2027-02-04, 2027-02-10, 2028-02-24,
   2028-02-29, 2028-03-01; `easter` on 2027-03-26, 2027-03-29, 2028-04-14, 2028-04-17
-- [ ] T008 [US2] In `test/teams/holidays.test.ts`, add "has no overlapping windows, 2026–2075":
+- [x] T008 [US2] In `test/teams/holidays.test.ts`, add "has no overlapping windows, 2026–2075":
   for each team and every day from 2026-01-01 to 2075-12-31, at most one of `team.holidays`
   holds the day (count with a window check per holiday, not `holidayOn`), except Hamburg on
   12-06 (`advent` and `nikolaus`). Run T006–T008 and see T006/T007 fail
 
 ### Implementation
 
-- [ ] T009 [P] [US2] In `art/quotes/monkeys.json`, add `karneval` and `easter` with
+- [x] T009 [P] [US2] In `art/quotes/monkeys.json`, add `karneval` and `easter` with
   `"seasonal": true` after the December entries, scenes ending in `{{kit}}` like theirs, per
   research R5: Karneval a round red (#E32636) clown nose over Rynke's own nose, a jester's collar
   with points in yellow, cream and gold with small gold bells, confetti and streamers in yellow,
   gold, cream and sage; Easter cream bunny ears with muzzle (#F0A868) insides over the helmet,
   holding a small gold wicker basket of eggs in yellow, cream, sage and light blue; no cross, no
   digits or letters
-- [ ] T010 [P] [US2] In `art/quotes/prompt.txt`, widen the red to "red #E32636 (only where a
+- [x] T010 [P] [US2] In `art/quotes/prompt.txt`, widen the red to "red #E32636 (only where a
   scene names it)", and light blue to "(only for water and sweat drops, or where a scene names
   it)"
-- [ ] T011 [US2] In `src/teams/hamburg.ts`, add `karneval` and `easter` (T006's rows) before
+- [x] T011 [US2] In `src/teams/hamburg.ts`, add `karneval` and `easter` (T006's rows) before
   `advent`, and update the comment above `holidays` to name feature 037's sets; in
   `src/teams/europe.ts` add `carnival` and `easter` before `advent`
-- [ ] T012 [US2] Run `pnpm test test/teams/holidays.test.ts`; it passes
+- [x] T012 [US2] Run `pnpm test test/teams/holidays.test.ts`; it passes
 - [ ] T013 [US2] `pnpm badge-art karneval easter` (Chrome popups suppressed, one run at a time,
   stopped by PID), then `pnpm badge-build karneval easter`: originals in
   `art/quotes/originals/`, `public/quotes/karneval.svg` and `public/quotes/easter.svg`, the ids
@@ -133,12 +133,12 @@ pictures pass contracts/seasonal-art.md, Europe Day the flag check.
 
 ### Tests first
 
-- [ ] T015 [US3] In `test/teams/holidays.test.ts`, make both table tests match data-model.md
+- [x] T015 [US3] In `test/teams/holidays.test.ts`, make both table tests match data-model.md
   exactly: Hamburg `karneval`, `easter`, `midsummer` (`"06-20"`–`"06-24"`, short), `halloween`
   (`"10-29"`–`"10-31"`, short), `advent`, `nikolaus`, `christmas`, `new-year`; Europe `carnival`,
   `easter`, `europe-day` (`"05-09"`–`"05-09"`, short), `midsummer`, `halloween`, `advent`,
   `christmas`, `new-year`
-- [ ] T016 [US3] In `test/teams/holidays.test.ts`, add "finds both teams' summer and autumn
+- [x] T016 [US3] In `test/teams/holidays.test.ts`, add "finds both teams' summer and autumn
   holidays": for both teams `null` on 2027-06-19, 2027-06-25, 2027-10-28, 2027-11-01; `midsummer`
   on 2027-06-20 and 2027-06-24; `halloween` on 2027-10-29 and 2027-10-31; on 2027-05-09
   `europe-day` for Europe and `null` for Hamburg; `null` for Europe on 2027-05-08 and 2027-05-10.
@@ -146,7 +146,7 @@ pictures pass contracts/seasonal-art.md, Europe Day the flag check.
 
 ### Implementation
 
-- [ ] T017 [P] [US3] In `art/quotes/monkeys.json`, add `midsummer`, `halloween` and `europe-day`
+- [x] T017 [P] [US3] In `art/quotes/monkeys.json`, add `midsummer`, `halloween` and `europe-day`
   with `"seasonal": true`, scenes ending in `{{kit}}`, per research R5: Midsummer a crown of sage
   leaves with yellow and cream flowers over the helmet, holding a bunch of the same flowers, no
   maypole; Halloween holding a carved pumpkin in fur orange #C8641E with a sage stalk and a
@@ -157,13 +157,13 @@ pictures pass contracts/seasonal-art.md, Europe Day the flag check.
   (#003399) with exactly twelve five-pointed yellow (#FBE122) stars evenly in a circle, upright
   like clock hours, each big enough to count, a few confetti dots in yellow and cream, the yellow
   kit unchanged, no other flag, map or country shape
-- [ ] T018 [P] [US3] In `scripts/trace.mjs`, add `{ name: "navy", hex: "#003399" }` to `PALETTE`
+- [x] T018 [P] [US3] In `scripts/trace.mjs`, add `{ name: "navy", hex: "#003399" }` to `PALETTE`
   before `ink`; in `art/quotes/prompt.txt`, add "dark blue #003399 (only where a scene names it)"
   to the colour list
-- [ ] T019 [US3] In `src/teams/hamburg.ts` add `midsummer` and `halloween` between `easter` and
+- [x] T019 [US3] In `src/teams/hamburg.ts` add `midsummer` and `halloween` between `easter` and
   `advent`; in `src/teams/europe.ts` add `europe-day`, `midsummer` and `halloween` between
   `easter` and `advent`
-- [ ] T020 [US3] Run `pnpm test test/teams/holidays.test.ts test/unit/holidays.test.ts
+- [x] T020 [US3] Run `pnpm test test/teams/holidays.test.ts test/unit/holidays.test.ts
   test/unit/quote-art.test.ts` and `node scripts/team-check.mjs`; all pass
 - [ ] T021 [US3] `pnpm badge-art midsummer halloween europe-day`, then `pnpm badge-build
   midsummer halloween europe-day` (as T013)
@@ -178,7 +178,7 @@ pictures pass contracts/seasonal-art.md, Europe Day the flag check.
   Karneval and Easter windows as the Easter-offset example, that two teams may share a monkey
   showing no place, team name or team art (FR-010), red and dark blue only where a scene names
   them, and the Europe Day flag check
-- [ ] T024 [P] Check `test/teams/no-other-team.test.ts` still passes with Europe listing the shared
+- [x] T024 [P] Check `test/teams/no-other-team.test.ts` still passes with Europe listing the shared
   pictures: `pnpm test test/teams/no-other-team.test.ts`
 - [ ] T025 `pnpm lint` on the changed files (`pnpm exec biome check <files>`) and fix what it
   reports; commit per story

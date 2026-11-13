@@ -109,6 +109,36 @@
 			"scene": "Standing, a gold cone party hat with a black stripe on top of the helmet, big funny star-shaped party glasses with thick gold frames and a few small gold glitter dots on them, sitting a bit crooked on the nose, holding up a lit sparkler in one hand with small gold sparks flying off it, a gold party horn in the corner of the mouth pushed aside while talking. Mouth open mid-sentence. No year, no digits, no letters anywhere. Nothing else in the picture: no bike, no flag, no second figure. {{kit}}"
 		},
 		{
+			"id": "karneval",
+			"name": "Karneval",
+			"seasonal": true,
+			"scene": "Standing, a round red (#E32636) clown nose over Rynke's own nose, a jester's collar around the neck with big soft points in yellow, cream and gold, a small gold bell at the tip of each point, one hand throwing a handful of confetti, a few curly streamers and confetti dots in yellow, gold, cream and sage (#B5D6A7) flying around. Mouth open mid-sentence. No mask over the eyes, no year, no digits, no letters. {{kit}}"
+		},
+		{
+			"id": "easter",
+			"name": "Frohe Ostern",
+			"seasonal": true,
+			"scene": "Standing, a pair of tall cream bunny ears with muzzle-coloured (#F0A868) insides on a band over the yellow helmet, holding a small gold wicker basket with a handle, full of painted eggs in yellow, cream, sage (#B5D6A7) and light blue (#8CC4F0), each egg with a simple stripe or dots. Mouth open mid-sentence. Bunnies and eggs only: no crosses, no lambs, no religious symbols, no letters. {{kit}}"
+		},
+		{
+			"id": "midsummer",
+			"name": "Mittsommer",
+			"seasonal": true,
+			"scene": "Standing, a crown of sage (#B5D6A7) leaves woven with small yellow and cream flowers over the yellow helmet, holding a bunch of the same wild flowers and leaves in one hand. Mouth open mid-sentence. No maypole, no pole, no bonfire, no flag, no letters. {{kit}}"
+		},
+		{
+			"id": "halloween",
+			"name": "Halloween",
+			"seasonal": true,
+			"scene": "Standing, holding a carved pumpkin lantern in orange fur colour (#C8641E) with a short sage (#B5D6A7) stalk and a friendly smiling carved face glowing yellow from inside, one or two small cute cartoon bats in black with round friendly cream eyes fluttering around the head, a little round black spider with friendly cream eyes dangling on a thin thread from the pumpkin's stalk. Mouth open mid-sentence. Cute and fun, never scary: no fangs, no skulls, no blood, no witches, no letters. {{kit}}"
+		},
+		{
+			"id": "europe-day",
+			"name": "Europatag",
+			"seasonal": true,
+			"scene": "Standing, holding up a big European flag on a short gold pole in one hand, the flag cloth waving out to the right above the head, about as wide as Rynke's body: a dark blue (#003399) rectangle with exactly twelve five-pointed yellow stars evenly spaced in a circle, upright like the hours on a clock, each star big enough to count. A few confetti dots in yellow and cream around. Mouth open mid-sentence. The yellow kit stays as it is. No other flag, no map, no country shape, no letters, no digits. {{kit}}"
+		},
+		{
 			"id": "hint-down",
 			"name": "Da unten",
 			"scene": "Leaning forward a little, one arm stretched out and angled steeply DOWN toward the lower right corner of the picture, the index finger pointing at the floor in front of and to the right of the feet, at about 45 degrees below horizontal (not straight ahead), the other hand on the knee, as if saying \"right down there, look!\". The spot it points at stays EMPTY plain white: nothing is drawn there, no bike, no coins, no scenery, no other characters anywhere in the picture; the only character is this one. Mouth open mid-sentence. {{kit}}",
