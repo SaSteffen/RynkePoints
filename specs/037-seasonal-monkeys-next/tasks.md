@@ -174,7 +174,7 @@ pictures pass contracts/seasonal-art.md, Europe Day the flag check.
 
 ## Phase 6: Polish
 
-- [ ] T023 [P] Update `art/quotes/README.md` › Seasonal monkeys: the nine seasonal ids, the
+- [x] T023 [P] Update `art/quotes/README.md` › Seasonal monkeys: the nine seasonal ids, the
   Karneval and Easter windows as the Easter-offset example, that two teams may share a monkey
   showing no place, team name or team art (FR-010), red and dark blue only where a scene names
   them, and the Europe Day flag check
