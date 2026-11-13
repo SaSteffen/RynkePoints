@@ -8,7 +8,7 @@ The figure is androgynous: nobody should read it as a boy or a girl, a man or a 
 
 Mood: always striving and always in a good mood: hasn't reached the goal yet, works hard for it and has a great time doing it, full of enthusiasm and fun, a teammate whose good mood carries everyone. Never triumphant, smug or self-satisfied, never cute or babyish, never exhausted, grim or suffering.
 
-Style: flat vector-style illustration, identical to the reference. Bold uniform black outlines (#1C1B13) about 44 px thick around every shape, including around the yellow helmet and jersey so they stay separate from each other; inner lines about 32 px. Solid flat fills only, no gradients, no shading, no texture, no highlights, no drop shadow, no ground shadow. Use only these colors: yellow #FBE122, orange fur #C8641E, muzzle #F0A868, black #1C1B13, cream #FFFDF5, gold #C99A2E, light blue #8CC4F0 (only for water and sweat drops).
+Style: flat vector-style illustration, identical to the reference. Bold uniform black outlines (#1C1B13) about 44 px thick around every shape, including around the yellow helmet and jersey so they stay separate from each other; inner lines about 32 px. Solid flat fills only, no gradients, no shading, no texture, no highlights, no drop shadow, no ground shadow. Use only these colors: yellow #FBE122, orange fur #C8641E, muzzle #F0A868, black #1C1B13, cream #FFFDF5, gold #C99A2E, light blue #8CC4F0 (only for water and sweat drops), red #E32636 (only for the Nikolaus boot and the Santa hat).
 
 Proportions: chibi like the reference, the head about 40% of the figure height, a grown-up face. The picture is shown as small as 96 px, so keep few, large shapes: smallest details at least about 40 px across and no lines thinner than about 32 px.
 

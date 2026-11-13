@@ -85,24 +85,27 @@
 			"id": "advent",
 			"name": "Adventszeit",
 			"seasonal": true,
+			"holes": [[625, 1544], [951, 1536]],
 			"scene": "Standing, holding up a big cream Advent calendar card in one hand with one little door swung open, a gold-wrapped chocolate peeking out of it, a small sage (#B5D6A7) fir wreath with a gold bow hanging from the other wrist. Mouth open mid-sentence. No religious symbols: no candles, no stars of Bethlehem, no angels. {{kit}}"
 		},
 		{
 			"id": "nikolaus",
 			"name": "Nikolaus",
 			"seasonal": true,
-			"scene": "Standing, holding up a big black boot with a cream fur cuff, stuffed full of yellow bananas and gold-wrapped chocolates sticking out of the top. Mouth open mid-sentence. A gift-bringer's boot only: no bishop's hat, no staff, no religious symbols. {{kit}}"
+			"scene": "Standing, holding up a big red (#E32636) boot with a cream fur cuff, stuffed full of yellow bananas and gold-wrapped chocolates sticking out of the top. Mouth open mid-sentence. A gift-bringer's boot only: no bishop's hat, no staff, no religious symbols. {{kit}}"
 		},
 		{
 			"id": "christmas",
 			"name": "Frohe Weihnachten",
 			"seasonal": true,
-			"scene": "Standing, a rust (#C8641E) Santa hat with a cream fur brim and a cream pompom pulled over the yellow helmet, holding out a yellow banana wrapped like a present in gold paper with a rust (#C8641E) ribbon and bow. Mouth open mid-sentence. No religious symbols. {{kit}}"
+			"holes": [[1006, 1632]],
+			"scene": "Standing, a red (#E32636) Santa hat with a cream fur brim and a cream pompom pulled over the yellow helmet, holding out a yellow banana wrapped like a present in gold paper with a rust (#C8641E) ribbon and bow. Mouth open mid-sentence. No religious symbols. {{kit}}"
 		},
 		{
 			"id": "new-year",
 			"name": "Guten Rutsch",
 			"seasonal": true,
+			"holes": [[812, 1333]],
 			"scene": "Standing, a gold cone party hat with a black stripe on top of the helmet, big funny star-shaped party glasses with thick gold frames and a few small gold glitter dots on them, sitting a bit crooked on the nose, holding up a lit sparkler in one hand with small gold sparks flying off it, a gold party horn in the corner of the mouth pushed aside while talking. Mouth open mid-sentence. No year, no digits, no letters anywhere. Nothing else in the picture: no bike, no flag, no second figure. {{kit}}"
 		},
 		{

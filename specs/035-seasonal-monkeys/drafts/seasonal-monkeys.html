@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seasonal monkeys</title>
+<!--
+  An overview of every seasonal quote monkey (feature 035), to check the
+  pictures side by side: the original, the traced SVG on the light and the
+  dark page, at the Team page's smallest size (80 px), and which team shows
+  it when.
+
+  Nothing is listed here by hand: the page reads art/quotes/monkeys.json
+  (every entry with "seasonal": true), public/quotes/<id>.svg,
+  art/quotes/originals/<id>.png and the `holidays` of every src/teams/*.ts, so
+  a new seasonal monkey or holiday shows up by itself. That needs the repo
+  served over HTTP, from its root: `pnpm monkeys:seasonal` does that and
+  prints the page's address (the team list comes from that server's
+  directory listing).
+-->
+<style>
+:root {
+  --bg: #fffdf5; --card: #f6f2e0; --ink: #1c1b13; --muted: #5d5a48; --line: #d9d3b8;
+  --dark: #12110c; --light: #fffdf5; --warn: #b3261e;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 16px; background: var(--bg); color: var(--ink);
+  font: 400 14px/20px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 1100px; margin: 0 auto; }
+h1 { font: 600 28px/34px inherit; margin: 8px 0 4px; }
+h2 { font: 600 20px/26px inherit; margin: 0; }
+p, ul { margin: 4px 0 12px; }
+.muted { color: var(--muted); }
+code { font-size: 12px; }
+details { margin-bottom: 16px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0 20px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
+.head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; }
+.chip { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--ink); color: #fbe122; font: 600 12px/18px inherit; }
+.chip.missing { background: var(--warn); color: #fff; }
+.scene { font-size: 13px; color: var(--muted); }
+.windows { margin: 8px 0; padding-left: 18px; }
+.pics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 12px; }
+figure { margin: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--light); }
+figure.dark { background: var(--dark); }
+figure.dark figcaption { color: #cec9b3; border-color: #4a4633; }
+figure.check { background-color: #fff;
+  background-image: conic-gradient(#e6e1cc 25% , transparent 0 50%, #e6e1cc 0 75%, transparent 0);
+  background-size: 16px 16px; }
+figure img { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; }
+figure .small { display: flex; gap: 12px; align-items: flex-end; justify-content: center; aspect-ratio: 1; padding: 12px; }
+figure .small img { width: 80px; height: 80px; }
+figcaption { padding: 6px 10px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); }
+.empty { display: flex; align-items: center; justify-content: center; aspect-ratio: 1; color: var(--muted); font-size: 12px; }
+.error { color: var(--warn); font-weight: 600; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Seasonal monkeys</h1>
+  <p class="muted">Every <code>"seasonal": true</code> entry of <code>art/quotes/monkeys.json</code>, with its built picture and the teams' holiday windows.</p>
+  <details>
+    <summary>What to check (art/quotes/README.md)</summary>
+    <ul>
+      <li>Rynke looks like the reference: helmet with three vents, orange fur, light muzzle, yellow jersey; full-body, talking, turned a little to the right.</li>
+      <li>No speech bubble, ground or background; nothing cropped; feet near the bottom.</li>
+      <li>No cream where the page should show through (checkerboard view); no doodles beside Rynke.</li>
+      <li>Still friendly at 80 px: clear eyes and mouth, few large shapes, no thin lines.</li>
+      <li>No religious symbols: no crosses, angels, nativity scenes, churches, candles in a religious setting.</li>
+      <li>No year, digits or letters.</li>
+    </ul>
+  </details>
+  <div class="toolbar">
+    <label><input type="checkbox" id="show-original" checked> Originals</label>
+    <label><input type="checkbox" id="show-check"> Checkerboard instead of the light page</label>
+  </div>
+  <div id="out"><p class="muted">Loading…</p></div>
+</main>
+<script>
+const ROOT = new URL("../../../", location.href);
+const at = (p) => new URL(p, ROOT).href;
+const out = document.getElementById("out");
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+// The `holidays` of every team file, by monkey id. A day is "MM-DD" or
+// { anchor, offset } (src/teams/<id>.ts, art/quotes/README.md).
+async function teamHolidays() {
+  const byMonkey = {};
+  let files = [];
+  try {
+    const listing = await (await fetch(at("src/teams/"))).text();
+    files = [...listing.matchAll(/href="([\w-]+)\.ts"/g)].map((m) => m[1]);
+  } catch {}
+  const teams = [];
+  for (const team of files) {
+    const src = await (await fetch(at(`src/teams/${team}.ts`))).text();
+    if (!/\bholidays:\s*\[/.test(src)) continue;
+    teams.push(team);
+    const block = src.match(/\bholidays:\s*\[([\s\S]*?)\n\t\],/);
+    if (!block) continue;
+    for (const entry of block[1].split(/\n\t\t\},?/)) {
+      const monkey = entry.match(/monkey:\s*"([\w-]+)"/);
+      if (!monkey) continue;
+      const day = (key) => {
+        const m = entry.match(new RegExp(`${key}:\\s*("[^"]+"|\\{[^}]*\\})`));
+        if (!m) return "?";
+        if (m[1].startsWith('"')) return m[1].slice(1, -1);
+        const anchor = m[1].match(/anchor:\s*"([\w-]+)"/)?.[1];
+        const offset = Number(m[1].match(/offset:\s*(-?\d+)/)?.[1] ?? 0);
+        return offset ? `${anchor} ${offset > 0 ? "+" : ""}${offset} d` : anchor;
+      };
+      const kind = entry.match(/kind:\s*"(\w+)"/)?.[1] ?? "?";
+      (byMonkey[monkey[1]] ??= []).push({ team, from: day("from"), to: day("to"), kind });
+    }
+  }
+  return { byMonkey, teams };
+}
+
+function exists(url) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.src = url;
+  });
+}
+
+async function render() {
+  if (location.protocol === "file:") {
+    out.innerHTML = '<p class="error">Serve the repo over HTTP: run <code>pnpm monkeys:seasonal</code> and open the address it prints.</p>';
+    return;
+  }
+  const data = await (await fetch(at("art/quotes/monkeys.json"))).json();
+  const seasonal = data.monkeys.filter((m) => m.seasonal);
+  const { byMonkey, teams } = await teamHolidays();
+  const cards = await Promise.all(seasonal.map(async (m) => {
+    const svg = at(`public/quotes/${m.id}.svg`);
+    const png = at(`art/quotes/originals/${m.id}.png`);
+    const [hasSvg, hasPng] = await Promise.all([exists(svg), exists(png)]);
+    const windows = byMonkey[m.id] ?? [];
+    const scene = m.scene.replace(/\{\{(\w+)\}\}/g, "[$1]");
+    const pic = (cls, caption) => `<figure class="${cls}">${hasSvg ? `<img src="${svg}" alt="">` : '<div class="empty">no SVG yet</div>'}<figcaption>${caption}</figcaption></figure>`;
+    return `<section class="card">
+      <div class="head"><h2>${esc(m.name)}</h2><code>${esc(m.id)}</code>
+        ${hasSvg ? "" : '<span class="chip missing">no picture: its windows show the regular monkeys</span>'}
+        ${windows.length ? "" : '<span class="chip missing">no team shows it</span>'}</div>
+      ${windows.length ? `<ul class="windows">${windows.map((w) => `<li><b>${esc(w.team)}</b>: ${esc(w.from)} – ${esc(w.to)}, ${esc(w.kind)}</li>`).join("")}</ul>` : ""}
+      <p class="scene">${esc(scene)}</p>
+      <div class="pics">
+        <figure class="original">${hasPng ? `<img src="${png}" alt="" loading="lazy">` : '<div class="empty">no original</div>'}<figcaption>Original (art/quotes/originals)</figcaption></figure>
+        ${pic("light", "SVG, light page")}
+        ${pic("dark", "SVG, dark page")}
+        <figure class="light small-fig"><div class="small">${hasSvg ? `<img src="${svg}" alt=""><img src="${svg}" alt="" style="width:120px;height:120px">` : '<div class="empty">no SVG yet</div>'}</div><figcaption>80 px and 120 px</figcaption></figure>
+      </div>
+    </section>`;
+  }));
+  out.innerHTML = `<p class="muted">${seasonal.length} seasonal monkeys; teams read: ${teams.map(esc).join(", ") || "none (no directory listing)"}.</p>${cards.join("")}`;
+  apply();
+}
+
+function apply() {
+  const original = document.getElementById("show-original").checked;
+  const check = document.getElementById("show-check").checked;
+  for (const f of document.querySelectorAll("figure.original")) f.hidden = !original;
+  for (const f of document.querySelectorAll("figure.light")) f.classList.toggle("check", check);
+}
+document.getElementById("show-original").addEventListener("change", apply);
+document.getElementById("show-check").addEventListener("change", apply);
+render().catch((e) => { out.innerHTML = `<p class="error">${esc(e.message)}</p>`; });
+</script>
+</body>
+</html>
