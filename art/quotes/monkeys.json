@@ -40,7 +40,8 @@
 		{
 			"id": "swim",
 			"name": "Ab ins Wasser",
-			"scene": "Standing fresh out of the pool, a cream towel slung over one shoulder, the other hand giving a thumbs-up to the right. Mouth open mid-sentence. {{swim}}"
+			"scene": "Standing fresh out of the pool, a cream towel slung over one shoulder, the other hand giving a thumbs-up to the right. Mouth open mid-sentence. {{swim}}",
+			"erase": [[0, 1150, 460, 1950]]
 		},
 		{
 			"id": "run",

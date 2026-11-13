@@ -170,7 +170,7 @@ export const ART_VERSIONS: Readonly<Record<string, string>> = {
 	"/quotes/point.svg": "f03fea381a",
 	"/quotes/rain.svg": "1ed351ac56",
 	"/quotes/run.svg": "ecd62ea929",
-	"/quotes/swim.svg": "d90fb8b3d1",
+	"/quotes/swim.svg": "200c2b28f6",
 	"/quotes/thumbs.svg": "28f36c614a",
 	"/quotes/valentine.svg": "58e816c9e8",
 	"/quotes/wave.svg": "2fabcdffb6",
