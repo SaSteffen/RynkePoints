@@ -78,9 +78,42 @@ describe("team holidays", () => {
 		expect(on("2027-01-02")).toBeNull();
 	});
 
-	it("gives Team Europe none", () => {
-		expect(europe.holidays).toEqual([]);
-		for (const day of ["2026-12-06", "2026-12-24", "2027-01-01"])
-			expect(on(day, europe)).toBeNull();
+	it("gives Team Europe its holidays", () => {
+		expect(europe.holidays).toEqual([
+			{
+				id: "advent",
+				monkey: "advent",
+				from: { anchor: "first-advent", offset: 0 },
+				to: "12-23",
+				kind: "long",
+			},
+			{
+				id: "christmas",
+				monkey: "christmas",
+				from: "12-24",
+				to: "12-26",
+				kind: "short",
+			},
+			{
+				id: "new-year",
+				monkey: "new-year",
+				from: "12-31",
+				to: "01-01",
+				kind: "short",
+			},
+		]);
+		expect(europe.holidays.map((h) => h.id)).not.toContain("nikolaus");
+		expect(europe.placeholders).not.toContain("holidays");
+	});
+
+	it("finds Team Europe's holiday of the day", () => {
+		expect(on("2026-11-28", europe)).toBeNull();
+		expect(on("2026-11-29", europe)).toBe("advent");
+		expect(on("2026-12-06", europe)).toBe("advent");
+		expect(on("2026-12-24", europe)).toBe("christmas");
+		expect(on("2026-12-26", europe)).toBe("christmas");
+		expect(on("2026-12-31", europe)).toBe("new-year");
+		expect(on("2027-01-01", europe)).toBe("new-year");
+		expect(on("2027-01-02", europe)).toBeNull();
 	});
 });

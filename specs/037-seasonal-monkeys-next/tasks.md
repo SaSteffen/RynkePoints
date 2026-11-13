@@ -54,7 +54,7 @@ No foundational work: the types, anchors and picture fallback are feature 035's.
 
 ### Tests first
 
-- [ ] T003 [US1] In `test/teams/holidays.test.ts`, replace "gives Team Europe none" with
+- [x] T003 [US1] In `test/teams/holidays.test.ts`, replace "gives Team Europe none" with
   "gives Team Europe its holidays": `europe.holidays` toEqual the December rows of data-model.md ›
   Team Europe's holidays (`advent` `{ anchor: "first-advent", offset: 0 }`–`"12-23"` long,
   `christmas` `"12-24"`–`"12-26"` short, `new-year` `"12-31"`–`"01-01"` short); no id `nikolaus`;
@@ -64,11 +64,11 @@ No foundational work: the types, anchors and picture fallback are feature 035's.
 
 ### Implementation
 
-- [ ] T004 [US1] In `src/teams/europe.ts`, set `holidays` to the three December entries of T003,
+- [x] T004 [US1] In `src/teams/europe.ts`, set `holidays` to the three December entries of T003,
   remove `"holidays"` from `placeholders`, and replace the comment above `holidays` with one
   naming the holidays as Team Europe's (feature 037 data-model.md), Hamburg's December pictures
   shared, no Nikolaus
-- [ ] T005 [US1] Run `pnpm test test/teams/holidays.test.ts` and `node scripts/team-check.mjs`;
+- [x] T005 [US1] Run `pnpm test test/teams/holidays.test.ts` and `node scripts/team-check.mjs`;
   both pass
 
 **Checkpoint**: Europe's December is live wherever this merges; no picture needed.
