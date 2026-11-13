@@ -124,18 +124,21 @@
 			"id": "easter",
 			"name": "Frohe Ostern",
 			"seasonal": true,
+			"holes": [[460, 830]],
 			"scene": "Standing, a pair of tall cream bunny ears with muzzle-coloured (#F0A868) insides on a band over the yellow helmet, holding a small gold wicker basket with a handle, full of painted eggs in yellow, cream, sage (#B5D6A7) and light blue (#8CC4F0), each egg with a simple stripe or dots. Mouth open mid-sentence. Bunnies and eggs only: no crosses, no lambs, no religious symbols, no letters. {{kit}}"
 		},
 		{
 			"id": "midsummer",
 			"name": "Mittsommer",
 			"seasonal": true,
+			"holes": [[390, 670]],
 			"scene": "Standing, a crown of sage (#B5D6A7) leaves woven with small yellow and cream flowers over the yellow helmet, holding a bunch of the same wild flowers and leaves in one hand. Mouth open mid-sentence. No maypole, no pole, no bonfire, no flag, no letters. {{kit}}"
 		},
 		{
 			"id": "halloween",
 			"name": "Halloween",
 			"seasonal": true,
+			"holes": [[515, 830]],
 			"scene": "Standing, holding a carved pumpkin lantern in orange fur colour (#C8641E) with a short sage (#B5D6A7) stalk and a friendly smiling carved face glowing yellow from inside, one or two small cute cartoon bats in black with round friendly cream eyes fluttering around the head, a little round black spider with friendly cream eyes dangling on a thin thread from the pumpkin's stalk. Mouth open mid-sentence. Cute and fun, never scary: no fangs, no skulls, no blood, no witches, no letters. {{kit}}"
 		},
 		{
