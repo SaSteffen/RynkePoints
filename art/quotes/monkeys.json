@@ -34,13 +34,14 @@
 			"id": "wave",
 			"name": "Hallo du!",
 			"scene": "Standing, waving high with the hand on the viewer's right, two short black motion arcs beside the waving hand, the other arm relaxed at the side, as if calling a teammate over. Mouth open mid-sentence. {{kit}}",
-			"holes": [[1021, 1668], [819, 1333]],
-			"erase": [[0, 1150, 460, 1950]]
+			"holes": [[892, 1578], [690, 1243]],
+			"erase": [[0, 1060, 331, 1860]]
 		},
 		{
 			"id": "swim",
 			"name": "Ab ins Wasser",
-			"scene": "Standing fresh out of the pool, a cream towel slung over one shoulder, the other hand giving a thumbs-up to the right. Mouth open mid-sentence. {{swim}}"
+			"scene": "Standing fresh out of the pool, a cream towel slung over one shoulder, the other hand giving a thumbs-up to the right. Mouth open mid-sentence. {{swim}}",
+			"erase": [[0, 1150, 460, 1950]]
 		},
 		{
 			"id": "run",
@@ -85,25 +86,67 @@
 			"id": "advent",
 			"name": "Adventszeit",
 			"seasonal": true,
+			"holes": [[625, 1544], [951, 1536]],
 			"scene": "Standing, holding up a big cream Advent calendar card in one hand with one little door swung open, a gold-wrapped chocolate peeking out of it, a small sage (#B5D6A7) fir wreath with a gold bow hanging from the other wrist. Mouth open mid-sentence. No religious symbols: no candles, no stars of Bethlehem, no angels. {{kit}}"
 		},
 		{
 			"id": "nikolaus",
 			"name": "Nikolaus",
 			"seasonal": true,
-			"scene": "Standing, holding up a big black boot with a cream fur cuff, stuffed full of yellow bananas and gold-wrapped chocolates sticking out of the top. Mouth open mid-sentence. A gift-bringer's boot only: no bishop's hat, no staff, no religious symbols. {{kit}}"
+			"scene": "Standing, holding up a big red (#E32636) boot with a cream fur cuff, stuffed full of yellow bananas and gold-wrapped chocolates sticking out of the top. Mouth open mid-sentence. A gift-bringer's boot only: no bishop's hat, no staff, no religious symbols. {{kit}}"
 		},
 		{
 			"id": "christmas",
 			"name": "Frohe Weihnachten",
 			"seasonal": true,
-			"scene": "Standing, a rust (#C8641E) Santa hat with a cream fur brim and a cream pompom pulled over the yellow helmet, holding out a yellow banana wrapped like a present in gold paper with a rust (#C8641E) ribbon and bow. Mouth open mid-sentence. No religious symbols. {{kit}}"
+			"holes": [[1006, 1632]],
+			"scene": "Standing, a red (#E32636) Santa hat with a cream fur brim and a cream pompom pulled over the yellow helmet, holding out a yellow banana wrapped like a present in gold paper with a rust (#C8641E) ribbon and bow. Mouth open mid-sentence. No religious symbols. {{kit}}"
 		},
 		{
 			"id": "new-year",
 			"name": "Guten Rutsch",
 			"seasonal": true,
+			"holes": [[812, 1333]],
 			"scene": "Standing, a gold cone party hat with a black stripe on top of the helmet, big funny star-shaped party glasses with thick gold frames and a few small gold glitter dots on them, sitting a bit crooked on the nose, holding up a lit sparkler in one hand with small gold sparks flying off it, a gold party horn in the corner of the mouth pushed aside while talking. Mouth open mid-sentence. No year, no digits, no letters anywhere. Nothing else in the picture: no bike, no flag, no second figure. {{kit}}"
+		},
+		{
+			"id": "karneval",
+			"name": "Karneval",
+			"seasonal": true,
+			"scene": "Standing, a round red (#E32636) clown nose over Rynke's own nose, a jester's collar around the neck with big soft points in yellow, cream and gold, a small gold bell at the tip of each point, one hand throwing a handful of confetti, a few curly streamers and confetti dots in yellow, gold, cream and sage (#B5D6A7) flying around. Mouth open mid-sentence. No mask over the eyes, no year, no digits, no letters. {{kit}}"
+		},
+		{
+			"id": "valentine",
+			"name": "Valentinstag",
+			"seasonal": true,
+			"scene": "Standing, holding up a big red (#E32636) heart with a thick black outline in both hands in front of the chest, a few small red and cream hearts floating around the head. Mouth open mid-sentence, a big friendly smile. Hearts only: no cupid, no bow and arrow, no kissing, no roses, no letters, no digits. {{kit}}"
+		},
+		{
+			"id": "easter",
+			"name": "Frohe Ostern",
+			"seasonal": true,
+			"holes": [[460, 830]],
+			"scene": "Standing, a pair of tall cream bunny ears with muzzle-coloured (#F0A868) insides on a band over the yellow helmet, holding a small gold wicker basket with a handle, full of painted eggs in yellow, cream, sage (#B5D6A7) and light blue (#8CC4F0), each egg with a simple stripe or dots. Mouth open mid-sentence. Bunnies and eggs only: no crosses, no lambs, no religious symbols, no letters. {{kit}}"
+		},
+		{
+			"id": "midsummer",
+			"name": "Mittsommer",
+			"seasonal": true,
+			"holes": [[390, 670]],
+			"scene": "Standing, a crown of sage (#B5D6A7) leaves woven with small yellow and cream flowers over the yellow helmet, holding a bunch of the same wild flowers and leaves in one hand. Mouth open mid-sentence. No maypole, no pole, no bonfire, no flag, no letters. {{kit}}"
+		},
+		{
+			"id": "halloween",
+			"name": "Halloween",
+			"seasonal": true,
+			"holes": [[515, 830]],
+			"scene": "Standing, holding a carved pumpkin lantern in orange fur colour (#C8641E) with a short sage (#B5D6A7) stalk and a friendly smiling carved face glowing yellow from inside, one or two small cute cartoon bats in black with round friendly cream eyes fluttering around the head, a little round black spider with friendly cream eyes dangling on a thin thread from the pumpkin's stalk. Mouth open mid-sentence. Cute and fun, never scary: no fangs, no skulls, no blood, no witches, no letters. {{kit}}"
+		},
+		{
+			"id": "eu-day",
+			"name": "Europatag",
+			"seasonal": true,
+			"scene": "Standing, holding up a big European flag on a short gold pole in one hand, the flag cloth waving out to the right above the head, about as wide as Rynke's body: a dark blue (#003399) rectangle with exactly twelve five-pointed yellow stars evenly spaced in a circle, upright like the hours on a clock, each star big enough to count. A few confetti dots in yellow and cream around. Mouth open mid-sentence. The yellow kit stays as it is. No other flag, no map, no country shape, no letters, no digits. {{kit}}"
 		},
 		{
 			"id": "hint-down",
@@ -115,12 +158,14 @@
 			"id": "hint-calendar",
 			"name": "Kalenderblatt",
 			"scene": "Standing, holding up a large blank tear-off calendar page in one hand at shoulder height, turned so the viewer sees it: a cream (#FFFDF5) sheet with a thick black outline and a yellow (#FBE122) band along its top, completely empty, no numbers, no letters, no lines on it. The index finger of the other hand taps the page. Mouth open mid-sentence. {{kit}}",
+			"holes": [[925, 1650]],
 			"hint": true
 		},
 		{
 			"id": "hint-tape",
 			"name": "Maßband",
 			"scene": "Standing, pulling a yellow (#FBE122) tape measure out wide between both hands, the round black case in the left hand, the tape stretched to the right; the tape is plain yellow with a black outline, WITHOUT numbers, ticks or markings. Mouth open mid-sentence. {{kit}}",
+			"holes": [[680, 1290], [600, 1430]],
 			"hint": true
 		},
 		{
@@ -140,6 +185,7 @@
 			"id": "hint-magnifier",
 			"name": "Lupe",
 			"scene": "Standing, holding a large round magnifying glass with a gold (#C99A2E) handle and a thick black rim up in front of one eye, turned to the right; the eye behind the glass shows a little bigger than the other one, the lens itself a plain light blue (#8CC4F0) tint with no reflections. The other hand on the hip. Mouth open mid-sentence. {{kit}}",
+			"holes": [[1280, 1060], [1580, 680]],
 			"erase": [[1280, 1390, 1720, 1670]],
 			"hint": true
 		}

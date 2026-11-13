@@ -7,12 +7,17 @@
 // edges and drop it, snap every other pixel to the nearest coin colour, smooth
 // away anti-aliasing fringes, then trace one layer per colour with potrace.
 // Each layer covers its own colour plus every colour stacked above it, so the
-// layers overlap instead of leaving hairline gaps between them.
+// layers overlap instead of leaving hairline gaps between them. A free-standing
+// picture (`cutout`) puts the outline first as the whole silhouette instead, so
+// no fill reaches past it.
 import { execFileSync } from "node:child_process";
+import { availableParallelism } from "node:os";
+import { Worker } from "node:worker_threads";
 
 // The coin's colours (`--rp-coin-*` in src/http/style.ts), bottom to top, plus
 // a light sage for sofas, which black made too heavy next to the badge's
-// ribbon (feature 013 part D/E). Ink comes last: the outlines sit on top of
+// ribbon (feature 013 part D/E), and a red and a dark blue for what a seasonal scene names (the Nikolaus boot,
+// the Europe Day flag). Ink comes last: the outlines sit on top of
 // every fill.
 export const PALETTE = palette([
 	{ name: "cream", hex: "#fffdf5" },
@@ -22,6 +27,8 @@ export const PALETTE = palette([
 	{ name: "muzzle", hex: "#f0a868" },
 	{ name: "blue", hex: "#8cc4f0" },
 	{ name: "sage", hex: "#b5d6a7" },
+	{ name: "red", hex: "#e32636" },
+	{ name: "navy", hex: "#003399" },
 	{ name: "ink", hex: "#1c1b13" },
 ]);
 
@@ -33,6 +40,10 @@ const PAPER_MIN = 170;
 const PAPER_CHROMA = 40;
 // Side of the majority filter's window; removes 1–2 px colour fringes.
 const SMOOTH = 5;
+// Radius of the blur each layer's mask gets before tracing (cut back to a
+// mask at half): rounds off the pixel steps and small dents that potrace would
+// otherwise follow as wobbles in the curves.
+const SOFTEN = 1;
 // potrace: drop specks up to this many pixels, smooth corners, simplify curves.
 const POTRACE = ["-t", "48", "-a", "1", "-O", "0.4", "-u", "4"];
 
@@ -146,6 +157,36 @@ function smooth(src, w, h, colours = PALETTE.length) {
 		}
 	}
 	return out;
+}
+
+/**
+ * The mask blurred (three box passes each way, close to a Gaussian) and cut
+ * at half. Blurring keeps containment, so a fill inside the silhouette stays
+ * inside it.
+ */
+function soften(inside, w, h) {
+	let a = new Float32Array(w * h);
+	for (let i = 0; i < w * h; i++) a[i] = inside(i) ? 1 : 0;
+	const n = 2 * SOFTEN + 1;
+	const pass = (src, across) => {
+		const out = new Float32Array(w * h);
+		const len = across ? w : h;
+		for (let o = 0; o < (across ? h : w); o++) {
+			const at = (k) =>
+				across
+					? o * w + Math.min(len - 1, Math.max(0, k))
+					: Math.min(len - 1, Math.max(0, k)) * w + o;
+			let sum = 0;
+			for (let k = -SOFTEN; k <= SOFTEN; k++) sum += src[at(k)];
+			for (let k = 0; k < len; k++) {
+				out[at(k)] = sum / n;
+				sum += src[at(k + SOFTEN + 1)] - src[at(k - SOFTEN)];
+			}
+		}
+		return out;
+	};
+	for (let t = 0; t < 3; t++) a = pass(pass(a, true), false);
+	return (i) => a[i] >= 0.5;
 }
 
 /** potrace's binary PBM: a set bit is a pixel to trace. */
@@ -318,11 +359,20 @@ function eraseShapes(label, w, h, scale, boxes) {
  * regions after snapping (see `recolour`), `holes` drops enclosed regions as
  * paper (see `cutHoles`), `erase` drops stray shapes (see `eraseShapes`), and
  * colours named in `omit` are snapped to but not drawn (a line drawing's
- * paper); all are optional.
+ * paper). `cutout` traces a picture that stands free on the page, like the
+ * quote monkeys, with smoothed layers inside its outline; the badges keep the
+ * plain stacked layers. All are optional.
  */
 export function traceImage(
 	file,
-	{ colours = PALETTE, fixes = [], holes = [], erase = [], omit = [] } = {},
+	{
+		colours = PALETTE,
+		fixes = [],
+		holes = [],
+		erase = [],
+		omit = [],
+		cutout = false,
+	} = {},
 ) {
 	const image = readImage(file);
 	const { w, h } = image;
@@ -341,14 +391,44 @@ export function traceImage(
 	const used = new Uint32Array(colours.length + 1);
 	for (const l of label) used[l]++;
 
+	const top = colours.length;
+	const drawn = (l) => l > 0 && !omit.includes(colours[l - 1].name);
 	let transform = "";
 	const paths = [];
-	for (let p = 0; p < colours.length; p++) {
-		if (!used[p + 1] || omit.includes(colours[p].name)) continue;
-		const layer = trace(pbm((i) => label[i] > p, w, h));
-		if (!layer) continue;
+	const add = (hex, inside) => {
+		const layer = trace(pbm(inside, w, h));
+		if (!layer) return;
 		transform = layer.transform;
-		paths.push(`<path fill="${colours[p].hex}" d="${layer.d}"/>`);
+		paths.push(`<path fill="${hex}" d="${layer.d}"/>`);
+	};
+	if (!cutout) {
+		// Each layer covers its own colour plus every colour stacked above it.
+		for (let p = 0; p < top; p++) {
+			if (!used[p + 1] || omit.includes(colours[p].name)) continue;
+			add(colours[p].hex, (i) => label[i] > p);
+		}
+	} else {
+		// The top colour (the outline) goes first, as one smoothed silhouette of
+		// everything drawn, and the smoothed fills stack on it without it.
+		// Traced on their own, a fill's outer edge and the outline's never quite
+		// match, so a fill covering the outline would peek out past it as a
+		// hairline of its colour: on a dark page, where the picture stands free.
+		const ink = used[top] && drawn(top);
+		if (ink)
+			add(
+				colours[top - 1].hex,
+				soften((i) => drawn(label[i]), w, h),
+			);
+		for (let p = 0; p < top - 1; p++) {
+			if (!used[p + 1] || omit.includes(colours[p].name)) continue;
+			add(
+				colours[p].hex,
+				soften((i) => label[i] > p && label[i] !== top, w, h),
+			);
+		}
+		// The outline's own pixels once more on top, unsmoothed: the fills' soft
+		// edges close thin lines between them, which would blur a busy picture.
+		if (ink) add(colours[top - 1].hex, (i) => label[i] === top);
 	}
 
 	// 100 user units across, like the coin's symbols.
@@ -388,4 +468,59 @@ export function snapToPalette(file, out, colours = PALETTE) {
 		],
 		{ input: rgb },
 	);
+}
+
+/**
+ * Snaps each job's `original` to its `colours` (the coin palette if left out)
+ * as `png`, in place and only if that changes the file, then traces it with
+ * `options` (see `traceImage`): on every core at once, one worker thread per
+ * core. Resolves to `traceImage`'s results in the jobs' order; `done(i)` runs
+ * as each job finishes.
+ */
+export function snapAndTrace(jobs, done = () => {}) {
+	const results = new Array(jobs.length);
+	let next = 0;
+	let left = jobs.length;
+	if (left === 0) return Promise.resolve(results);
+	return new Promise((resolve, reject) => {
+		const workers = [];
+		const stop = () => {
+			for (const w of workers) w.terminate();
+		};
+		const give = (worker) => {
+			if (next >= jobs.length) return;
+			const index = next++;
+			worker.postMessage({
+				index,
+				job: {
+					...jobs[index],
+					colours: jobs[index].colours ?? PALETTE,
+					options: jobs[index].options ?? {},
+				},
+			});
+		};
+		const count = Math.min(availableParallelism(), jobs.length);
+		for (let n = 0; n < count; n++) {
+			const worker = new Worker(new URL("./trace-worker.mjs", import.meta.url));
+			workers.push(worker);
+			worker.on("error", (error) => {
+				stop();
+				reject(error);
+			});
+			worker.on("message", ({ index, result, error }) => {
+				if (error) {
+					stop();
+					reject(new Error(`${jobs[index].png}: ${error}`));
+					return;
+				}
+				results[index] = result;
+				done(index);
+				if (--left === 0) {
+					stop();
+					resolve(results);
+				} else give(worker);
+			});
+			give(worker);
+		}
+	});
 }

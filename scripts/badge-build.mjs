@@ -36,7 +36,6 @@ import {
 	mkdirSync,
 	readdirSync,
 	readFileSync,
-	renameSync,
 	rmSync,
 	statSync,
 	writeFileSync,
@@ -164,25 +163,16 @@ const todo = chosen.filter((id) => {
 });
 if (todo.length > 0) {
 	// Loaded only when there is something to trace: it needs ImageMagick.
-	const { snapToPalette, traceImage } = await import("./trace.mjs");
-	for (const id of todo) {
-		const file = originals.get(id);
-		const png = join(ORIGINALS, `${id}.png`);
-		const tmp = join(ORIGINALS, `.${id}.snapping.png`);
-		snapToPalette(join(ORIGINALS, file), tmp);
-		const same = (() => {
-			try {
-				return readFileSync(tmp).equals(readFileSync(png));
-			} catch {
-				return false;
-			}
-		})();
-		if (same) rmSync(tmp);
-		else renameSync(tmp, png);
-		if (file !== `${id}.png`) rmSync(join(ORIGINALS, file));
+	const { snapAndTrace } = await import("./trace.mjs");
+	const traced = await snapAndTrace(
+		todo.map((id) => ({
+			original: join(ORIGINALS, originals.get(id)),
+			png: join(ORIGINALS, `${id}.png`),
+		})),
+	);
+	for (const [n, id] of todo.entries()) {
 		originals.set(id, `${id}.png`);
-
-		const { markup } = traceImage(png);
+		const { markup } = traced[n];
 		const group = badges.get(id).group;
 		const svg = frameSvg(group, markup, id).replace(
 			"</title>",

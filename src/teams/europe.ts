@@ -32,9 +32,73 @@ export const europe: TeamData = {
 	},
 	phrases: { kind: "common" },
 	badgeNames: { kind: "common" },
-	// No seasonal quote monkeys yet (feature 035); which holidays, if any, is
-	// Team Europe's decision, so `holidays` is in `placeholders` until then.
-	holidays: [],
+	// Team Europe's holidays (feature 037 data-model.md), sharing the founding
+	// team's pictures, which show no place; no Nikolaus.
+	holidays: [
+		{
+			id: "carnival",
+			monkey: "karneval",
+			from: { anchor: "easter", offset: -52 },
+			to: { anchor: "easter", offset: -46 },
+			kind: "short",
+		},
+		{
+			id: "valentine",
+			monkey: "valentine",
+			from: "02-14",
+			to: "02-14",
+			kind: "short",
+		},
+		{
+			id: "easter",
+			monkey: "easter",
+			from: { anchor: "easter", offset: -2 },
+			to: { anchor: "easter", offset: 1 },
+			kind: "short",
+		},
+		{
+			id: "eu-day",
+			monkey: "eu-day",
+			from: "05-09",
+			to: "05-09",
+			kind: "short",
+		},
+		{
+			id: "midsummer",
+			monkey: "midsummer",
+			from: "06-20",
+			to: "06-24",
+			kind: "short",
+		},
+		{
+			id: "halloween",
+			monkey: "halloween",
+			from: "10-29",
+			to: "10-31",
+			kind: "short",
+		},
+		{
+			id: "advent",
+			monkey: "advent",
+			from: { anchor: "first-advent", offset: 0 },
+			to: "12-23",
+			kind: "long",
+		},
+		{
+			id: "christmas",
+			monkey: "christmas",
+			from: "12-24",
+			to: "12-26",
+			kind: "short",
+		},
+		{
+			id: "new-year",
+			monkey: "new-year",
+			from: "12-31",
+			to: "01-01",
+			kind: "short",
+		},
+	],
 	// The founding team's club (wrangler.jsonc `STRAVA_CLUB_ID`).
 	otherClubIds: [1088689],
 	// Half of the re-check's 300 reads a day (feature 036 FR-008).
@@ -59,6 +123,5 @@ export const europe: TeamData = {
 		"PRIVACY_CONTROLLER",
 		"CONTACT_EMAIL",
 		"database_id",
-		"holidays",
 	],
 };

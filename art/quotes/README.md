@@ -69,8 +69,9 @@ lists the finished ones in `src/http/quote-monkeys.ts` and updates
 
 ## Seasonal monkeys
 
-Some monkeys dress Rynke up for a holiday (feature 035): `advent`, `nikolaus`,
-`christmas` and `new-year`. They are entries of `monkeys.json` like the others,
+Some monkeys dress Rynke up for a holiday: `advent`, `nikolaus`, `christmas`
+and `new-year` (feature 035), `karneval`, `valentine`, `easter`, `midsummer`,
+`halloween` and `eu-day` (feature 037). They are entries of `monkeys.json` like the others,
 made and built the same way, with `"seasonal": true`. `pnpm badge-build` lists
 them apart, in `SEASONAL_MONKEYS`, so they never join the regular rotation.
 
@@ -80,7 +81,9 @@ and `to` (both days included, German time) and a `kind`:
 
 - A day is a fixed `"MM-DD"`, or `{ anchor: "first-advent" | "easter", offset }`,
   `offset` days after that year's first Advent Sunday or Easter Sunday
-  (Rosenmontag is `{ anchor: "easter", offset: -48 }`).
+  (Karneval runs from Weiberfastnacht `{ anchor: "easter", offset: -52 }` to
+  Ash Wednesday `{ anchor: "easter", offset: -46 }`, Easter from Good Friday
+  `-2` to Easter Monday `1`).
 - A window whose `to` comes before its `from` runs over the year end
   (`"12-31"` to `"01-01"`).
 - `short`: every quote shows the monkey. `long`: about half of them do, each
@@ -90,14 +93,27 @@ and `to` (both days included, German time) and a `kind`:
 
 Until a holiday's picture is built, its window shows the regular monkeys. A new
 holiday needs only its entry here, its picture and the team's `holidays`; a
-test checks that every holiday names a seasonal entry. A team never lists a
-monkey that shows another team's place.
+test checks that every holiday names a seasonal entry, and that no two of a
+team's windows overlap through 2075 (but Nikolaus in Advent and
+Valentine's Day in Karneval). Two teams may list
+the same monkey when it shows no place, team name or team art (feature 037
+FR-010); a team never lists a monkey that shows another team's place.
+
+Red `#E32636` and dark blue `#003399` are only for what a scene names (the
+Nikolaus boot, the Santa hat, the Karneval nose, the Valentine heart, the
+Europe Day flag).
+
+`pnpm monkeys:seasonal` serves an overview of every seasonal monkey, with its
+pictures and each team's window, and prints its address.
 
 When checking a seasonal picture, also check:
 
 - No religious symbols: no crosses, angels, nativity scenes, churches, or
   candles in a religious setting. Nikolaus brings gifts; he is no saint here.
 - No year, digits or letters (the New Year monkey shows every year).
+- Europe Day: the European flag right, and no other flag, map or country shape:
+  dark blue, exactly twelve five-pointed yellow stars in a circle, upright;
+  count them in the Team page's 120 px picture.
 
 ## Hint monkeys
 
