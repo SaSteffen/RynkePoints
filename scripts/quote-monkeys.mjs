@@ -201,7 +201,11 @@ export async function buildPictures(
 				original: join(originalsDir, originals.get(id)),
 				png: join(originalsDir, `${id}.png`),
 				colours: await set.palette(id),
-				options: { holes: holes.get(id) ?? [], erase: erase.get(id) ?? [] },
+				options: {
+					holes: holes.get(id) ?? [],
+					erase: erase.get(id) ?? [],
+					cutout: true,
+				},
 			});
 		}
 		const traced = await snapAndTrace(jobs);

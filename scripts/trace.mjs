@@ -6,9 +6,10 @@
 // Per image: scale down to at most 2048 px, flood the white paper in from the
 // edges and drop it, snap every other pixel to the nearest coin colour, smooth
 // away anti-aliasing fringes, then trace one layer per colour with potrace.
-// The outline colour comes first as the whole silhouette; each fill layer then
-// covers its own colour plus every fill stacked above it, so the layers overlap
-// instead of leaving hairline gaps, and no fill reaches past the outline.
+// Each layer covers its own colour plus every colour stacked above it, so the
+// layers overlap instead of leaving hairline gaps between them. A free-standing
+// picture (`cutout`) puts the outline first as the whole silhouette instead, so
+// no fill reaches past it.
 import { execFileSync } from "node:child_process";
 import { availableParallelism } from "node:os";
 import { Worker } from "node:worker_threads";
@@ -358,11 +359,20 @@ function eraseShapes(label, w, h, scale, boxes) {
  * regions after snapping (see `recolour`), `holes` drops enclosed regions as
  * paper (see `cutHoles`), `erase` drops stray shapes (see `eraseShapes`), and
  * colours named in `omit` are snapped to but not drawn (a line drawing's
- * paper); all are optional.
+ * paper). `cutout` traces a picture that stands free on the page, like the
+ * quote monkeys, with smoothed layers inside its outline; the badges keep the
+ * plain stacked layers. All are optional.
  */
 export function traceImage(
 	file,
-	{ colours = PALETTE, fixes = [], holes = [], erase = [], omit = [] } = {},
+	{
+		colours = PALETTE,
+		fixes = [],
+		holes = [],
+		erase = [],
+		omit = [],
+		cutout = false,
+	} = {},
 ) {
 	const image = readImage(file);
 	const { w, h } = image;
@@ -381,10 +391,6 @@ export function traceImage(
 	const used = new Uint32Array(colours.length + 1);
 	for (const l of label) used[l]++;
 
-	// The top colour (the outline) goes first, as one silhouette of everything
-	// drawn, and the fills stack on it without it. Traced on their own, a fill's
-	// outer edge and the outline's never quite match, so a fill covering the
-	// outline would peek out past it as a hairline of its colour.
 	const top = colours.length;
 	const drawn = (l) => l > 0 && !omit.includes(colours[l - 1].name);
 	let transform = "";
@@ -395,22 +401,35 @@ export function traceImage(
 		transform = layer.transform;
 		paths.push(`<path fill="${hex}" d="${layer.d}"/>`);
 	};
-	const ink = used[top] && drawn(top);
-	if (ink)
-		add(
-			colours[top - 1].hex,
-			soften((i) => drawn(label[i]), w, h),
-		);
-	for (let p = 0; p < top - 1; p++) {
-		if (!used[p + 1] || omit.includes(colours[p].name)) continue;
-		add(
-			colours[p].hex,
-			soften((i) => label[i] > p && label[i] !== top, w, h),
-		);
+	if (!cutout) {
+		// Each layer covers its own colour plus every colour stacked above it.
+		for (let p = 0; p < top; p++) {
+			if (!used[p + 1] || omit.includes(colours[p].name)) continue;
+			add(colours[p].hex, (i) => label[i] > p);
+		}
+	} else {
+		// The top colour (the outline) goes first, as one smoothed silhouette of
+		// everything drawn, and the smoothed fills stack on it without it.
+		// Traced on their own, a fill's outer edge and the outline's never quite
+		// match, so a fill covering the outline would peek out past it as a
+		// hairline of its colour: on a dark page, where the picture stands free.
+		const ink = used[top] && drawn(top);
+		if (ink)
+			add(
+				colours[top - 1].hex,
+				soften((i) => drawn(label[i]), w, h),
+			);
+		for (let p = 0; p < top - 1; p++) {
+			if (!used[p + 1] || omit.includes(colours[p].name)) continue;
+			add(
+				colours[p].hex,
+				soften((i) => label[i] > p && label[i] !== top, w, h),
+			);
+		}
+		// The outline's own pixels once more on top, unsmoothed: the fills' soft
+		// edges close thin lines between them, which would blur a busy picture.
+		if (ink) add(colours[top - 1].hex, (i) => label[i] === top);
 	}
-	// The outline's own pixels once more on top, unsoftened: the fills' soft
-	// edges close thin lines between them, which would blur a busy picture.
-	if (ink) add(colours[top - 1].hex, (i) => label[i] === top);
 
 	// 100 user units across, like the coin's symbols.
 	const s = 100 / w;
