@@ -114,11 +114,11 @@ pictures pass contracts/seasonal-art.md.
   `advent`, and update the comment above `holidays` to name feature 037's sets; in
   `src/teams/europe.ts` add `carnival` and `easter` before `advent`
 - [x] T012 [US2] Run `pnpm test test/teams/holidays.test.ts`; it passes
-- [ ] T013 [US2] `pnpm badge-art karneval easter` (Chrome popups suppressed, one run at a time,
+- [x] T013 [US2] `pnpm badge-art karneval easter` (Chrome popups suppressed, one run at a time,
   stopped by PID), then `pnpm badge-build karneval easter`: originals in
   `art/quotes/originals/`, `public/quotes/karneval.svg` and `public/quotes/easter.svg`, the ids
   in `SEASONAL_MONKEYS` of `src/http/quote-monkeys.ts`, versions in `src/http/art-versions.ts`
-- [ ] T014 [US2] Check both pictures by eye against contracts/seasonal-art.md and
+- [x] T014 [US2] Check both pictures by eye against contracts/seasonal-art.md and
   `art/quotes/README.md` › Checking a picture; redo T013 for one that fails
 
 **Checkpoint**: Karneval and Easter show for both teams.
@@ -165,9 +165,9 @@ pictures pass contracts/seasonal-art.md, Europe Day the flag check.
   `easter` and `advent`
 - [x] T020 [US3] Run `pnpm test test/teams/holidays.test.ts test/unit/holidays.test.ts
   test/unit/quote-art.test.ts` and `node scripts/team-check.mjs`; all pass
-- [ ] T021 [US3] `pnpm badge-art midsummer halloween europe-day`, then `pnpm badge-build
+- [x] T021 [US3] `pnpm badge-art midsummer halloween europe-day`, then `pnpm badge-build
   midsummer halloween europe-day` (as T013)
-- [ ] T022 [US3] Check the three pictures by eye against contracts/seasonal-art.md; for Europe
+- [x] T022 [US3] Check the three pictures by eye against contracts/seasonal-art.md; for Europe
   Day count the stars in the 120 px picture; redo T021 for one that fails
 
 **Checkpoint**: every window of contracts/team-holidays.md › Dates shows its monkey.
@@ -180,7 +180,7 @@ pictures pass contracts/seasonal-art.md, Europe Day the flag check.
   them, and the Europe Day flag check
 - [x] T024 [P] Check `test/teams/no-other-team.test.ts` still passes with Europe listing the shared
   pictures: `pnpm test test/teams/no-other-team.test.ts`
-- [ ] T025 `pnpm lint` on the changed files (`pnpm exec biome check <files>`) and fix what it
+- [x] T025 `pnpm lint` on the changed files (`pnpm exec biome check <files>`) and fix what it
   reports; commit per story
 
 ## Dependencies
