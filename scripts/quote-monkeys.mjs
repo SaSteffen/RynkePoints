@@ -20,7 +20,6 @@ import {
 	mkdirSync,
 	readdirSync,
 	readFileSync,
-	renameSync,
 	rmSync,
 	statSync,
 	writeFileSync,
@@ -195,30 +194,20 @@ export async function buildPictures(
 	});
 	if (todo.length > 0) {
 		// Loaded only when there is something to trace: it needs ImageMagick.
-		const { snapToPalette, traceImage } = await import("./trace.mjs");
+		const { snapAndTrace } = await import("./trace.mjs");
+		const jobs = [];
 		for (const id of todo) {
-			const colours = await set.palette(id);
-			const file = originals.get(id);
-			const png = join(originalsDir, `${id}.png`);
-			const tmp = join(originalsDir, `.${id}.snapping.png`);
-			snapToPalette(join(originalsDir, file), tmp, colours);
-			const same = (() => {
-				try {
-					return readFileSync(tmp).equals(readFileSync(png));
-				} catch {
-					return false;
-				}
-			})();
-			if (same) rmSync(tmp);
-			else renameSync(tmp, png);
-			if (file !== `${id}.png`) rmSync(join(originalsDir, file));
-			originals.set(id, `${id}.png`);
-
-			const { height, markup } = traceImage(png, {
-				colours,
-				holes: holes.get(id) ?? [],
-				erase: erase.get(id) ?? [],
+			jobs.push({
+				original: join(originalsDir, originals.get(id)),
+				png: join(originalsDir, `${id}.png`),
+				colours: await set.palette(id),
+				options: { holes: holes.get(id) ?? [], erase: erase.get(id) ?? [] },
 			});
+		}
+		const traced = await snapAndTrace(jobs);
+		for (const [n, id] of todo.entries()) {
+			originals.set(id, `${id}.png`);
+			const { height, markup } = traced[n];
 			const svg =
 				`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 ${height}">` +
 				`<title>${id}</title>` +
