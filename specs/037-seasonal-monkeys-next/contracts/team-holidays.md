@@ -10,7 +10,7 @@ Guarantees, held by `test/teams/holidays.test.ts`:
   (replaces "Europe lists none"). Europe has no `nikolaus` and its `placeholders` no `holidays`.
 - Two teams may list the same monkey; every monkey a team lists shows no place, team name or
   team art (replaces "the December monkeys show no place or team name", clarifies 035 FR-012).
-- For every day 2026–2035, at most one of a team's windows holds it, except Hamburg's 6 December.
+- For every day 2026–2075, at most one of a team's windows holds it, except Hamburg's 6 December.
 
 ## Dates this contract implies
 

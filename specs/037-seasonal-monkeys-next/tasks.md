@@ -93,8 +93,8 @@ pictures pass contracts/seasonal-art.md.
   `hamburg` and `europe`, `null` on 2027-02-03, 2027-02-11, 2027-03-25, 2027-03-30; Karneval
   (`karneval` for Hamburg, `carnival` for Europe) on 2027-02-04, 2027-02-10, 2028-02-24,
   2028-02-29, 2028-03-01; `easter` on 2027-03-26, 2027-03-29, 2028-04-14, 2028-04-17
-- [ ] T008 [US2] In `test/teams/holidays.test.ts`, add "has no overlapping windows, 2026–2035":
-  for each team and every day from 2026-01-01 to 2035-12-31, at most one of `team.holidays`
+- [ ] T008 [US2] In `test/teams/holidays.test.ts`, add "has no overlapping windows, 2026–2075":
+  for each team and every day from 2026-01-01 to 2075-12-31, at most one of `team.holidays`
   holds the day (count with a window check per holiday, not `holidayOn`), except Hamburg on
   12-06 (`advent` and `nikolaus`). Run T006–T008 and see T006/T007 fail
 

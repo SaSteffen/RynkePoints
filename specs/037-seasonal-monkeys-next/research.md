@@ -34,13 +34,14 @@ four December entries move behind the new ones.
 **Rationale**: No windows overlap except Nikolaus inside Advent (R4), so order decides nothing;
 calendar order is easiest to read. Advent stays listed before Nikolaus as in feature 035.
 
-## R4: No overlaps, 2026–2035
+## R4: No overlaps, 2026–2075
 
-**Decision**: A test asserts that, for every day 2026–2035, at most one of a team's windows holds
+**Decision**: A test asserts that, for every day 2026–2075, at most one of a team's windows holds
 it, except Hamburg's 6 December (Nikolaus in Advent, decided in feature 035).
 
 **Rationale**: Karneval ends by 10 March at the latest and Easter Monday by 26 April, both before
-9 May; Midsummer and Halloween are fixed and far from the rest. The test keeps SC-005 true if a
+9 May (checked for 2026–2075 with the real Easter dates: Karneval starts 1 Feb 2035 at the
+earliest, ends 10 Mar 2038 at the latest; Easter Monday is 26 Apr 2038 at the latest); Midsummer and Halloween are fixed and far from the rest. The test keeps SC-005 true if a
 later set adds a window.
 
 Windows this implies:
