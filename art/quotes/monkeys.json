@@ -91,7 +91,7 @@
 			"id": "nikolaus",
 			"name": "Nikolaus",
 			"seasonal": true,
-			"scene": "Standing, holding up a big black boot with a cream fur cuff, stuffed full of yellow bananas and gold-wrapped chocolates sticking out of the top. Mouth open mid-sentence. A gift-bringer's boot only: no bishop's hat, no staff, no religious symbols. {{kit}}"
+			"scene": "Standing, holding up a big red (#C8102E) boot with a cream fur cuff, stuffed full of yellow bananas and gold-wrapped chocolates sticking out of the top. Mouth open mid-sentence. A gift-bringer's boot only: no bishop's hat, no staff, no religious symbols. {{kit}}"
 		},
 		{
 			"id": "christmas",
