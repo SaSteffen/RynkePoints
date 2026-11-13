@@ -43,6 +43,13 @@ export const europe: TeamData = {
 			kind: "short",
 		},
 		{
+			id: "valentine",
+			monkey: "valentine",
+			from: "02-14",
+			to: "02-14",
+			kind: "short",
+		},
+		{
 			id: "easter",
 			monkey: "easter",
 			from: { anchor: "easter", offset: -2 },

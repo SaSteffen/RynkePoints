@@ -70,8 +70,8 @@ lists the finished ones in `src/http/quote-monkeys.ts` and updates
 ## Seasonal monkeys
 
 Some monkeys dress Rynke up for a holiday: `advent`, `nikolaus`, `christmas`
-and `new-year` (feature 035), `karneval`, `easter`, `midsummer`, `halloween`
-and `europe-day` (feature 037). They are entries of `monkeys.json` like the others,
+and `new-year` (feature 035), `karneval`, `valentine`, `easter`, `midsummer`,
+`halloween` and `europe-day` (feature 037). They are entries of `monkeys.json` like the others,
 made and built the same way, with `"seasonal": true`. `pnpm badge-build` lists
 them apart, in `SEASONAL_MONKEYS`, so they never join the regular rotation.
 
@@ -94,12 +94,14 @@ and `to` (both days included, German time) and a `kind`:
 Until a holiday's picture is built, its window shows the regular monkeys. A new
 holiday needs only its entry here, its picture and the team's `holidays`; a
 test checks that every holiday names a seasonal entry, and that no two of a
-team's windows overlap through 2075 (but Nikolaus in Advent). Two teams may list
+team's windows overlap through 2075 (but Nikolaus in Advent and
+Valentine's Day in Karneval). Two teams may list
 the same monkey when it shows no place, team name or team art (feature 037
 FR-010); a team never lists a monkey that shows another team's place.
 
 Red `#E32636` and dark blue `#003399` are only for what a scene names (the
-Nikolaus boot, the Santa hat, the Karneval nose, the Europe Day flag).
+Nikolaus boot, the Santa hat, the Karneval nose, the Valentine heart, the
+Europe Day flag).
 
 `pnpm monkeys:seasonal` serves an overview of every seasonal monkey, with its
 pictures and each team's window, and prints its address.

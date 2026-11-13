@@ -115,6 +115,12 @@
 			"scene": "Standing, a round red (#E32636) clown nose over Rynke's own nose, a jester's collar around the neck with big soft points in yellow, cream and gold, a small gold bell at the tip of each point, one hand throwing a handful of confetti, a few curly streamers and confetti dots in yellow, gold, cream and sage (#B5D6A7) flying around. Mouth open mid-sentence. No mask over the eyes, no year, no digits, no letters. {{kit}}"
 		},
 		{
+			"id": "valentine",
+			"name": "Valentinstag",
+			"seasonal": true,
+			"scene": "Standing, holding up a big red (#E32636) heart with a thick black outline in both hands in front of the chest, a few small red and cream hearts floating around the head. Mouth open mid-sentence, a big friendly smile. Hearts only: no cupid, no bow and arrow, no kissing, no roses, no letters, no digits. {{kit}}"
+		},
+		{
 			"id": "easter",
 			"name": "Frohe Ostern",
 			"seasonal": true,

@@ -45,6 +45,13 @@ describe("team holidays", () => {
 				kind: "short",
 			},
 			{
+				id: "valentine",
+				monkey: "valentine",
+				from: "02-14",
+				to: "02-14",
+				kind: "short",
+			},
+			{
 				id: "easter",
 				monkey: "easter",
 				from: { anchor: "easter", offset: -2 },
@@ -113,6 +120,13 @@ describe("team holidays", () => {
 				monkey: "karneval",
 				from: { anchor: "easter", offset: -52 },
 				to: { anchor: "easter", offset: -46 },
+				kind: "short",
+			},
+			{
+				id: "valentine",
+				monkey: "valentine",
+				from: "02-14",
+				to: "02-14",
 				kind: "short",
 			},
 			{
@@ -209,6 +223,18 @@ describe("team holidays", () => {
 			expect(on(day, team), day).toBe("halloween");
 	});
 
+	it.each([
+		["hamburg", hamburg, "karneval"],
+		["europe", europe, "carnival"],
+	] as const)("finds %s's Valentine's Day", (_, team, karneval) => {
+		expect(on("2027-02-13", team)).toBeNull();
+		expect(on("2027-02-14", team)).toBe("valentine");
+		expect(on("2027-02-15", team)).toBeNull();
+		// Inside Karneval (8–14 Feb 2029) the one day wins.
+		expect(on("2029-02-13", team)).toBe(karneval);
+		expect(on("2029-02-14", team)).toBe("valentine");
+	});
+
 	it("gives only Team Europe Europe Day", () => {
 		expect(on("2027-05-09", europe)).toBe("europe-day");
 		expect(on("2027-05-09")).toBeNull();
@@ -216,7 +242,8 @@ describe("team holidays", () => {
 		expect(on("2027-05-10", europe)).toBeNull();
 	});
 
-	// SC-005: each day in at most one window, but Nikolaus inside Advent.
+	// SC-005: each day in at most one window, but Nikolaus inside Advent and
+	// Valentine's Day inside Karneval.
 	it.each(TEAMS.map((team) => [team.id, team] as const))(
 		"%s: has no overlapping windows, 2026–2075",
 		(_, team) => {
@@ -228,7 +255,12 @@ describe("team holidays", () => {
 			) {
 				const day = new Date(t).toISOString().slice(0, 10);
 				const holding = team.holidays.filter((h) => holidayOn(day, [h]));
-				const allowed = team.id === "hamburg" && day.endsWith("-12-06") ? 2 : 1;
+				// Valentine's Day can fall in Karneval; the one day wins.
+				const allowed =
+					day.endsWith("-02-14") ||
+					(team.id === "hamburg" && day.endsWith("-12-06"))
+						? 2
+						: 1;
 				expect(holding.length, day).toBeLessThanOrEqual(allowed);
 			}
 		},

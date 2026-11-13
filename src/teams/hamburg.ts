@@ -115,13 +115,21 @@ export const hamburg: TeamData = {
 	phrases: { kind: "own", locale: "de", set: HAMBURG_PHRASES },
 	badgeNames: { kind: "own", locale: "de", names: BADGE_NAMES },
 	// The quote monkeys' holidays: the German December ones (feature 035) and
-	// Karneval, Easter, Midsummer and Halloween (feature 037 data-model.md).
+	// Karneval, Valentine's Day, Easter, Midsummer and Halloween (feature 037
+	// data-model.md).
 	holidays: [
 		{
 			id: "karneval",
 			monkey: "karneval",
 			from: { anchor: "easter", offset: -52 },
 			to: { anchor: "easter", offset: -46 },
+			kind: "short",
+		},
+		{
+			id: "valentine",
+			monkey: "valentine",
+			from: "02-14",
+			to: "02-14",
 			kind: "short",
 		},
 		{

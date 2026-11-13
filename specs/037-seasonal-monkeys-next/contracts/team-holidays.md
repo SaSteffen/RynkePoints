@@ -6,11 +6,12 @@ Guarantees, held by `test/teams/holidays.test.ts`:
 
 - Every `monkey` is a `seasonal: true` entry of `art/quotes/monkeys.json`; holiday ids are unique
   within a team; fixed days are real calendar days (unchanged).
-- Hamburg lists exactly its eight holidays of data-model.md; Team Europe exactly its eight
+- Hamburg lists exactly its nine holidays of data-model.md; Team Europe exactly its nine
   (replaces "Europe lists none"). Europe has no `nikolaus` and its `placeholders` no `holidays`.
 - Two teams may list the same monkey; every monkey a team lists shows no place, team name or
   team art (replaces "the December monkeys show no place or team name", clarifies 035 FR-012).
-- For every day 2026–2075, at most one of a team's windows holds it, except Hamburg's 6 December.
+- For every day 2026–2075, at most one of a team's windows holds it, except Hamburg's 6 December
+  and 14 February (Valentine's Day inside Karneval, the one day wins).
 
 ## Dates this contract implies
 
@@ -21,6 +22,8 @@ German days, both included; `—` means the team has no such window.
 | 2027-02-03 | regular | regular |
 | 2027-02-04 – 02-10 | Karneval | Karneval |
 | 2027-02-11 | regular | regular |
+| 2027-02-14 | Valentine's Day | Valentine's Day |
+| 2029-02-14 | Valentine's Day (in Karneval) | Valentine's Day (in Karneval) |
 | 2027-03-25 | regular | regular |
 | 2027-03-26 – 03-29 | Easter | Easter |
 | 2027-03-30 | regular | regular |

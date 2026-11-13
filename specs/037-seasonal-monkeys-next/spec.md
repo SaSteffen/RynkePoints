@@ -105,7 +105,10 @@ and on the days around them.
   art, so this doesn't break the rule that no team shows another team's place (feature 026 FR-023).
 - **Europe in German time**: Team Europe's riders live in several time zones; the windows still change
   at midnight German time, one or two hours off at most for them.
-- **Overlaps**: none of the new windows overlap each other or the December ones in any year (Karneval
+- **Valentine's Day in Karneval**: 14 February falls inside Karneval in some years (12 of
+  2026–2075, next in 2029); that day shows the Valentine's Day monkey, the shorter window, as
+  Nikolaus inside Advent.
+- **Overlaps**: apart from that, none of the new windows overlap each other or the December ones in any year (Karneval
   ends by 10 March at the latest, Easter Monday by 26 April, both before Europe Day on 9 May).
 - **Early Karneval**: Weiberfastnacht can fall as early as 29 January (Easter on 22 March), so the
   Karneval picture must be live in January.
@@ -118,11 +121,13 @@ and on the days around them.
 
 **Pictures**
 
-- **FR-001**: There MUST be five new seasonal monkeys, made like the quote monkeys and following their
+- **FR-001**: There MUST be six new seasonal monkeys, made like the quote monkeys and following their
   rules (full-body Rynke as on the badges and coin, talking, turned a little to the right where the
   bubble is; no bubble, ground or background; nothing cropped; same palette):
   - **Karneval**: a carnival costume over the kit: a red clown nose, a jester's collar, confetti
     and streamers.
+  - **Valentine's Day**: holding up a big red heart, a few small hearts around; no cupid, no
+    kissing.
   - **Easter**: bunny ears over the helmet, holding a small basket of painted eggs.
   - **Midsummer**: a crown of flowers and leaves over the helmet, holding a bunch of wild flowers.
   - **Halloween**: holding a carved pumpkin lantern with a friendly face, a few cartoon bats and a
@@ -144,6 +149,7 @@ and on the days around them.
   | Holiday | Window | Kind |
   |---|---|---|
   | Karneval | Weiberfastnacht to Ash Wednesday (Easter Sunday −52 to −46) | short |
+  | Valentine's Day | 14 February | short |
   | Easter | Good Friday to Easter Monday (Easter Sunday −2 to +1) | short |
   | Midsummer | 20–24 June | short |
   | Halloween | 29–31 October | short |
@@ -151,6 +157,7 @@ and on the days around them.
   | Holiday | Window | Kind | Picture |
   |---|---|---|---|
   | Carnival | as Hamburg's Karneval | short | Karneval |
+  | Valentine's Day | 14 February | short | Valentine's Day |
   | Easter | as Hamburg's | short | Easter |
   | Europe Day | 9 May | short | Europe Day |
   | Midsummer | as Hamburg's | short | Midsummer |
@@ -186,7 +193,8 @@ and on the days around them.
 
 - **SC-001**: Team Europe's December monkeys are live wherever Europe's site runs before 29 November
   2026 (Advent), and at the latest before 24 December 2026.
-- **SC-002**: The Karneval monkey is live for both teams before 4 February 2027, the Easter monkey
+- **SC-002**: The Karneval monkey is live for both teams before 4 February 2027, the Valentine's
+  Day monkey before 14 February 2027, the Easter monkey
   before 26 March 2027, the Europe Day monkey before 9 May 2027, the Midsummer monkey before 20 June
   2027 and the Halloween monkey before 29 October 2027.
 - **SC-003**: On every day of a short window, 100% of that team's quotes show that window's monkey.
