@@ -32,7 +32,7 @@ contracts/queue-message.md, contracts/usage-view.md, contracts/ride-card.md, qui
 
 ## Phase 1: Setup
 
-- [ ] T001 Maintainer, by hand: make the one real request of
+- [x] T001 Maintainer, by hand: make the one real request of
   `specs/036-ride-edit-recheck/quickstart.md` ("Before building") against their own account and
   note the result in `specs/036-ride-edit-recheck/research.md` under R3 (date, `count`,
   `newest_first`). Expected `newest_first: true` and `count: 200` for an account with at least 200

@@ -51,6 +51,9 @@ to client libraries (stravalib); Strava's reference is silent on the order and o
 maintainer against their own account, confirming 200 per request and newest first. If it shows
 something else, this plan is revisited before any code.
 
+**Verified 2026-11-13**: the maintainer ran `node scripts/strava-list-order.mjs` against their own
+account; Strava answered as assumed, 200 per request and newest first.
+
 ## R4. The size of a run
 
 **Decision**: A pure function of the hour, the team's allowance `A`, the active riders `n` (R13) and

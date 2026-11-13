@@ -12,6 +12,9 @@ curl -s -H "Authorization: Bearer $TOKEN" \
   | jq '{count: length, newest_first: ([.[].start_date] | . == (sort | reverse))}'
 ```
 
+Or without a token at hand, `node scripts/strava-list-order.mjs`: it signs you in through the
+browser with the app's client ID and secret and makes the same request.
+
 Expected: `newest_first: true`, and `count: 200` for an account with at least 200 activities.
 Anything else: stop and revisit the plan.
 
