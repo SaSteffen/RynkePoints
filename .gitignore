@@ -32,3 +32,6 @@ __pycache__/
 
 # Content rating rounds (local votes, tools/content-rating)
 tools/content-rating/rounds/
+
+# Local art check (scripts/art-overview.mjs)
+art/overview.html

@@ -80,6 +80,9 @@ figcaption { padding: 6px 10px; font-size: 12px; color: var(--muted); border-top
 <script>
 const ROOT = new URL("../../../", location.href);
 const at = (p) => new URL(p, ROOT).href;
+// Ask the server every time: http.server sends no Cache-Control, so a browser
+// would keep an old monkeys.json or team file.
+const get = (url) => fetch(url, { cache: "no-cache" });
 const out = document.getElementById("out");
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
@@ -89,12 +92,12 @@ async function teamHolidays() {
   const byMonkey = {};
   let files = [];
   try {
-    const listing = await (await fetch(at("src/teams/"))).text();
+    const listing = await (await get(at("src/teams/"))).text();
     files = [...listing.matchAll(/href="([\w-]+)\.ts"/g)].map((m) => m[1]);
   } catch {}
   const teams = [];
   for (const team of files) {
-    const src = await (await fetch(at(`src/teams/${team}.ts`))).text();
+    const src = await (await get(at(`src/teams/${team}.ts`))).text();
     if (!/\bholidays:\s*\[/.test(src)) continue;
     teams.push(team);
     const block = src.match(/\bholidays:\s*\[([\s\S]*?)\n\t\],/);
@@ -131,7 +134,7 @@ async function render() {
     out.innerHTML = '<p class="error">Serve the repo over HTTP: run <code>pnpm monkeys:seasonal</code> and open the address it prints.</p>';
     return;
   }
-  const data = await (await fetch(at("art/quotes/monkeys.json"))).json();
+  const data = await (await get(at("art/quotes/monkeys.json"))).json();
   const seasonal = data.monkeys.filter((m) => m.seasonal);
   const { byMonkey, teams } = await teamHolidays();
   const cards = await Promise.all(seasonal.map(async (m) => {
