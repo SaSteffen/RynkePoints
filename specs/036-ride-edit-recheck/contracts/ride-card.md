@@ -12,7 +12,10 @@ German (key source):
 > nichts, wende dich an die Orga.
 
 - `rynke.ride.fix.rename` is removed from all ten catalogs and from the card.
-- `rynke.ride.fix.manual` and the manual-entry card are unchanged.
+- `rynke.ride.fix.manual` and the manual-entry card are unchanged: a manual entry alone keeps
+  its last step `rynke.ride.fix.wait` ("nach ein paar Minuten"), because Strava reports the upload
+  and the deletion. A ride with both a fixable reason and a manual entry gets crop, manual, then
+  `wait_recheck`.
 - No catalog entry of the ride card mentions the title in any language (test over all locales).
 - Europe's English is written fresh, not translated word for word; "die Orga" becomes that
   team's word for its organisers, as elsewhere in the catalog.
