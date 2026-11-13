@@ -23,8 +23,17 @@ export const de = {
 
 	"landing.title": "Mit Strava verbinden",
 	"landing.intro":
-		"Aus deinen Radfahrten auf Strava werden Rynke, die Punkte von {team}.",
-	"landing.who": "Mitmachen können nur Mitglieder {clubLink}.",
+		"Verbinde dein Strava-Konto, und jede Radfahrt bringt dir Rynke, die Punkte unseres Teams. Dazu sammelst du Abzeichen und siehst, wie weit du bist und wie es im Team läuft.",
+	"landing.club.heading": "Tritt unserem Team-Club auf Strava bei",
+	"landing.club.text":
+		"RynkePoints ist nur für Mitglieder unseres Team-Clubs. Noch nicht drin? Stell auf Strava deine Beitrittsanfrage und verbinde dich hier, sobald das Team dich aufgenommen hat.",
+	"landing.club.button": "Club auf Strava öffnen",
+	"landing.step.agree.heading": "Setz den Haken",
+	"landing.step.agree.text":
+		"Damit erlaubst du RynkePoints, deine Aktivitäten auf Strava zu lesen und deine Rynke und Tagessummen wie oben beschrieben zu teilen. Ohne geht Mitmachen nicht.",
+	"landing.step.connect.heading": "Tipp auf „Connect with Strava“",
+	"landing.step.connect.text":
+		"Strava öffnet sich. Melde dich dort an und erlaube den Zugriff. Danach schickt Strava dich hierher zurück, und RynkePoints lädt deine Fahrten.",
 	"club.linkText": "unseres Team-Clubs auf Strava",
 	"landing.dataRead":
 		"Von jeder Radfahrt lesen wir nur Namen, Sportart, Startzeit, Distanz, Bewegungszeit, Gesamtzeit mit Pausen, Höhenmeter, ob sie manuell eingetragen oder auf dem Rollentrainer gefahren wurde und ob Strava sie markiert hat.",
@@ -41,13 +50,13 @@ export const de = {
 	"landing.notifications":
 		"Benachrichtigungen sind freiwillig, gelten pro Gerät und zeigen nur dir, wie viele Rynke neu sind und was dir noch fehlt. Sie laufen über den Dienst des Geräte- oder Browserherstellers (z.\u00a0B. Google, Apple, Mozilla, Microsoft). Wir speichern dafür nur die Adresse, die er deinem Gerät gibt, und löschen sie, wenn du sie ausschaltest, dich abmeldest oder gehst.",
 
-	"consent.heading": "Was du mit dem Verbinden erlaubst",
+	"consent.heading": "Teile deine Strava-Daten mit RynkePoints",
 	"consent.short.notRead":
 		"Wir lesen keine GPS-Spuren, Karten, Fotos oder Gesundheitsdaten.",
 	"consent.short.read":
 		"Wir lesen nur die Eckdaten deiner Rad-, Lauf- und Schwimmaktivitäten wie Distanz, Zeit und Höhenmeter und machen daraus Rynke und Abzeichen.",
 	"consent.short.shown":
-		"Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand. Entfernen sie dich, behalten wir deine Strava-ID, damit du nicht zurückkommen kannst.",
+		"Das Team sieht deine Rynke und im Ranking deine Fahrten, Kilometer und Höhenmeter ohne Namen. Die Orga sieht sie mit deinem Vornamen, dazu deine Kilometer und Höhenmeter pro Tag. Die Admins sehen deinen Vornamen und Verbindungsstand.",
 	"consent.details": "Alle Details",
 	"consent.organisers":
 		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen und bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst.",
@@ -60,8 +69,7 @@ export const de = {
 	"consent.required": "Lesen und Teilen sind Voraussetzung fürs Mitmachen.",
 	"consent.agree":
 		"Einverstanden: RynkePoints liest deine Fahrten und teilt deine Rynke und Tagessummen wie beschrieben.",
-	"consent.referenceNote":
-		"Diese Seite gibt es auch auf Englisch. Wo sich die Fassungen unterscheiden, gilt die {englishLink}.",
+	"consent.referenceNote": "Verbindlich ist die {englishLink} dieses Textes.",
 	"consent.referenceNote.link": "englische Fassung",
 
 	"me.title": "Deine RynkePoints",
@@ -366,7 +374,6 @@ export const de = {
 	"celebrate.team": "+{n}\u00a0Teamrynke seit deinem letzten Besuch 🎉",
 	"celebrate.both":
 		"+{training}\u00a0Trainingsrynke und +{team}\u00a0Teamrynke seit deinem letzten Besuch 🎉",
-	"landing.tagline": "Sammle deine Rynke",
 	"settings.language": "Sprache",
 	"theme.button": "Farbschema",
 	"theme.menu.title": "Farbschema",

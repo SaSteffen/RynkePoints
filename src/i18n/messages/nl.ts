@@ -18,8 +18,18 @@ export const nl: Catalog = {
 	"layout.loading": "Pagina wordt geladen",
 
 	"landing.title": "Verbinden met Strava",
-	"landing.intro": "Je ritten op Strava worden Rynke, de punten van {team}.",
-	"landing.who": "Alleen leden van {clubLink} kunnen meedoen.",
+	"landing.intro":
+		"Verbind je Strava-account en elke fietsrit levert je Rynke op, de punten van ons team. Je verzamelt ook badges en ziet hoe ver je bent en hoe het team ervoor staat.",
+	"landing.club.heading": "Word lid van onze teamclub op Strava",
+	"landing.club.text":
+		"RynkePoints is alleen voor leden van onze teamclub. Nog geen lid? Vraag op Strava om lid te worden en verbind hier zodra het team je heeft toegelaten.",
+	"landing.club.button": "Open de club op Strava",
+	"landing.step.agree.heading": "Vink het vakje aan",
+	"landing.step.agree.text":
+		"Daarmee sta je RynkePoints toe je activiteiten op Strava te lezen en je Rynke en dagtotalen te delen zoals hierboven beschreven. Zonder dat kun je niet meedoen.",
+	"landing.step.connect.heading": "Tik op ‘Connect with Strava’",
+	"landing.step.connect.text":
+		"Strava gaat open. Log daar in en geef toegang. Daarna stuurt Strava je hierheen terug en laadt RynkePoints je ritten.",
 	"club.linkText": "onze teamclub op Strava",
 	"landing.dataRead":
 		"Van elke rit lezen we alleen de naam, het sporttype, de starttijd, de afstand, de bewegingstijd, de totale tijd inclusief pauzes, de hoogtemeters, of hij handmatig is ingevoerd of op een fietstrainer is gereden, en of Strava hem heeft gemarkeerd.",
@@ -36,13 +46,13 @@ export const nl: Catalog = {
 	"landing.notifications":
 		"Meldingen zijn optioneel, per apparaat, en laten alleen jou zien hoeveel Rynke er nieuw zijn en wat je nog nodig hebt. Ze lopen via de pushdienst van de maker van je apparaat of browser (bijv. Google, Apple, Mozilla, Microsoft). Daarvoor bewaren we alleen het adres dat die dienst je apparaat geeft, en wissen het als je ze uitzet, je afmeldt of stopt.",
 
-	"consent.heading": "Waarmee je akkoord gaat als je verbindt",
+	"consent.heading": "Deel je Strava-gegevens met RynkePoints",
 	"consent.short.notRead":
 		"We lezen geen GPS-tracks, kaarten, foto's of gezondheidsgegevens.",
 	"consent.short.read":
 		"We lezen alleen de kerncijfers van je ritten, hardlooprondes en zwemsessies, zoals afstand, tijd en hoogtemeters, en maken er Rynke en badges van.",
 	"consent.short.shown":
-		"Het team ziet je Rynke en, in het klassement, je sessies, kilometers en hoogtemeters, zonder je naam. De organisatoren zien ze met je voornaam, plus je kilometers en hoogtemeters per dag. Beheerders zien je voornaam en verbindingsstatus, en als ze je verwijderen, bewaren we je Strava-ID zodat je niet terug kunt komen.",
+		"Het team ziet je Rynke en, in het klassement, je sessies, kilometers en hoogtemeters, zonder je naam. De organisatoren zien ze met je voornaam, plus je kilometers en hoogtemeters per dag. Beheerders zien je voornaam en verbindingsstatus.",
 	"consent.details": "Alle details",
 	"consent.organisers":
 		"De organisatoren zien je voornaam van Strava, je Rynke en waar ze vandaan komen, wat je nog nodig hebt, of je je trainingsdoel hebt gehaald, je teamevenementen en correcties, en bij welke teamevenementen je hebt gemeld dat je komt of er was.",
@@ -55,8 +65,7 @@ export const nl: Catalog = {
 	"consent.required": "Lezen en delen zijn nodig om mee te doen.",
 	"consent.agree":
 		"Akkoord: RynkePoints leest je ritten en deelt je Rynke en dagtotalen zoals beschreven.",
-	"consent.referenceNote":
-		"Waar de taalversies verschillen, geldt de {englishLink}.",
+	"consent.referenceNote": "De {englishLink} van deze tekst is bindend.",
 	"consent.referenceNote.link": "Engelse versie",
 
 	"me.title": "Jouw RynkePoints",
@@ -346,7 +355,6 @@ export const nl: Catalog = {
 	"celebrate.team": "+{n} Team-Rynke sinds je laatste bezoek 🎉",
 	"celebrate.both":
 		"+{training} Trainings-Rynke en +{team} Team-Rynke sinds je laatste bezoek 🎉",
-	"landing.tagline": "Verzamel je Rynke",
 	"settings.language": "Taal",
 	"theme.button": "Kleurenschema",
 	"theme.menu.title": "Kleurenschema",

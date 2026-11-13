@@ -20,8 +20,18 @@ export const is: Catalog = {
 	"layout.loading": "Síðan hleðst",
 
 	"landing.title": "Tengjast Strava",
-	"landing.intro": "Ferðirnar þínar á Strava verða að Rynke, stigum {team}.",
-	"landing.who": "Aðeins félagar í {clubLink} geta tekið þátt.",
+	"landing.intro":
+		"Tengdu Strava-aðganginn þinn og hver hjólaferð gefur þér Rynke, stig liðsins. Þú safnar líka merkjum og sérð hvar þú stendur og hvernig liðinu gengur.",
+	"landing.club.heading": "Gakktu í liðsklúbbinn okkar á Strava",
+	"landing.club.text":
+		"RynkePoints er aðeins fyrir meðlimi liðsklúbbsins okkar. Ekki í klúbbnum enn? Sæktu um aðild á Strava og tengstu hér þegar liðið hefur samþykkt þig.",
+	"landing.club.button": "Opna klúbbinn á Strava",
+	"landing.step.agree.heading": "Hakaðu í reitinn",
+	"landing.step.agree.text":
+		"Þannig leyfir þú RynkePoints að lesa æfingarnar þínar á Strava og deila Rynke-stigunum og dagssamtölunum eins og lýst er hér að ofan. Án þess getur þú ekki verið með.",
+	"landing.step.connect.heading": "Ýttu á „Connect with Strava“",
+	"landing.step.connect.text":
+		"Strava opnast. Skráðu þig inn þar og veittu aðgang. Síðan sendir Strava þig hingað aftur og RynkePoints sækir ferðirnar þínar.",
 	"club.linkText": "liðsklúbbnum okkar á Strava",
 	"landing.dataRead":
 		"Úr hverri ferð lesum við aðeins heiti, íþróttagrein, upphafstíma, vegalengd, hreyfitíma, heildartíma með hléum, hækkun, hvort hún var skráð handvirkt eða hjóluð á þjálfara og hvort Strava hafi merkt hana.",
@@ -38,13 +48,13 @@ export const is: Catalog = {
 	"landing.notifications":
 		"Tilkynningar eru valfrjálsar, gilda fyrir hvert tæki og sýna aðeins þér hve mörg Rynke eru ný og hvað þig vantar enn. Þær fara í gegnum push-þjónustu framleiðanda tækisins eða vafrans (t.d. Google, Apple, Mozilla, Microsoft). Til þess geymum við aðeins vistfangið sem hún gefur tækinu þínu og eyðum því þegar þú slekkur á þeim, skráir þig út eða hættir.",
 
-	"consent.heading": "Þetta samþykkir þú með því að tengjast",
+	"consent.heading": "Deildu Strava-gögnunum þínum með RynkePoints",
 	"consent.short.notRead":
 		"Við lesum ekki GPS-ferla, kort, myndir eða heilsufarsgögn.",
 	"consent.short.read":
 		"Við lesum aðeins lykiltölur hjólaferða, hlaupa og sundæfinga, svo sem vegalengd, tíma og hækkun, og breytum þeim í Rynke og merki.",
 	"consent.short.shown":
-		"Liðið sér Rynke-stigin þín og, í röðuninni, æfingarnar, kílómetrana og hækkunina, án nafns. Skipuleggjendur sjá þau með fornafni þínu, auk kílómetra og hækkunar á dag. Stjórnendur sjá fornafn þitt og tengistöðu, og ef þeir fjarlægja þig geymum við Strava-auðkennið þitt svo þú getir ekki snúið aftur.",
+		"Liðið sér Rynke-stigin þín og, í röðuninni, æfingarnar, kílómetrana og hækkunina, án nafns. Skipuleggjendur sjá þau með fornafni þínu, auk kílómetra og hækkunar á dag. Stjórnendur sjá fornafn þitt og tengistöðu.",
 	"consent.details": "Öll smáatriðin",
 	"consent.organisers":
 		"Skipuleggjendur sjá fornafn þitt af Strava, Rynke-stigin þín og hvaðan þau koma, hvað þig vantar enn, hvort þú hafir náð æfingamarkmiðinu, liðsviðburði þína og leiðréttingar, og á hvaða liðsviðburði þú hefur sagst ætla að mæta eða mætt.",
@@ -57,9 +67,8 @@ export const is: Catalog = {
 	"consent.required": "Lestur og deiling eru skilyrði fyrir þátttöku.",
 	"consent.agree":
 		"Samþykkt: RynkePoints les ferðirnar mínar og deilir Rynke-stigunum og dagssamtölunum eins og lýst er.",
-	"consent.referenceNote":
-		"Þessi síða er þýðing. Ef útgáfurnar eru ólíkar gildir {englishLink}.",
-	"consent.referenceNote.link": "enska útgáfan",
+	"consent.referenceNote": "{englishLink} þessa texta gildir.",
+	"consent.referenceNote.link": "Enska útgáfan",
 
 	"me.title": "RynkePoints-stigin þín",
 	"me.greeting": "Hæ {firstName}!",
@@ -339,7 +348,6 @@ export const is: Catalog = {
 	"celebrate.team": "+{n} Liðs-Rynke frá síðustu heimsókn 🎉",
 	"celebrate.both":
 		"+{training} Æfinga-Rynke og +{team} Liðs-Rynke frá síðustu heimsókn 🎉",
-	"landing.tagline": "Safnaðu Rynke",
 	"settings.language": "Tungumál",
 	"theme.button": "Litaþema",
 	"theme.menu.title": "Litaþema",

@@ -18,8 +18,18 @@ export const fi: Catalog = {
 	"layout.loading": "Sivu latautuu",
 
 	"landing.title": "Yhdistä Stravaan",
-	"landing.intro": "Stravan ajosi muuttuvat Rynke:ksi, {team}in pisteiksi.",
-	"landing.who": "Mukaan pääsevät vain {clubLink} jäsenet.",
+	"landing.intro":
+		"Yhdistä Strava-tilisi, niin jokainen pyöräily tuo sinulle Rynkeä, tiimimme pisteitä. Keräät myös merkkejä ja näet, kuinka pitkällä olet ja miten tiimillä menee.",
+	"landing.club.heading": "Liity Stravan tiimiklubiimme",
+	"landing.club.text":
+		"RynkePoints on vain tiimiklubimme jäsenille. Etkö ole vielä mukana? Pyydä liittymistä Stravassa ja yhdistä täällä, kun tiimi on hyväksynyt sinut.",
+	"landing.club.button": "Avaa klubi Stravassa",
+	"landing.step.agree.heading": "Rastita ruutu",
+	"landing.step.agree.text":
+		"Näin annat RynkePointsille luvan lukea Strava-aktiviteettisi ja jakaa Rynkesi ja päiväsummasi yllä kuvatulla tavalla. Ilman sitä et voi osallistua.",
+	"landing.step.connect.heading": "Napauta ”Connect with Strava”",
+	"landing.step.connect.text":
+		"Strava avautuu. Kirjaudu sisään ja salli pääsy. Sen jälkeen Strava palauttaa sinut tänne, ja RynkePoints hakee ajosi.",
 	"club.linkText": "Stravan tiimiklubimme",
 	"landing.dataRead":
 		"Jokaisesta ajosta luemme vain nimen, lajin, aloitusajan, matkan, liikkumisajan, kokonaisajan taukoineen, nousumetrit, onko se syötetty käsin tai ajettu trainerilla, ja onko Strava merkinnyt sen.",
@@ -36,13 +46,13 @@ export const fi: Catalog = {
 	"landing.notifications":
 		"Ilmoitukset ovat vapaaehtoisia, laitekohtaisia ja näyttävät vain sinulle, montako Rynkeä on uusia ja mitä sinulta vielä puuttuu. Ne kulkevat laitteesi tai selaimesi valmistajan push-palvelun kautta (esim. Google, Apple, Mozilla, Microsoft). Tätä varten tallennamme vain osoitteen, jonka se antaa laitteellesi, ja poistamme sen, kun poistat ilmoitukset käytöstä, kirjaudut ulos tai lopetat.",
 
-	"consent.heading": "Tähän suostut yhdistäessäsi",
+	"consent.heading": "Jaa Strava-tietosi RynkePointsille",
 	"consent.short.notRead":
 		"Emme lue GPS-jälkiä, karttoja, kuvia emmekä terveystietoja.",
 	"consent.short.read":
 		"Luemme vain ajojesi, juoksujesi ja uintiesi tunnusluvut, kuten matkan, ajan ja nousun, ja muutamme ne Rynkeiksi ja merkeiksi.",
 	"consent.short.shown":
-		"Tiimi näkee Rynkesi ja rankingissa harjoituksesi, kilometrisi ja nousumetrisi ilman nimeäsi. Järjestäjät näkevät ne etunimelläsi sekä kilometrisi ja nousumetrisi päivittäin. Ylläpitäjät näkevät etunimesi ja yhteytesi tilan, ja jos he poistavat sinut, säilytämme Strava-tunnuksesi, jotta et voi palata.",
+		"Tiimi näkee Rynkesi ja rankingissa harjoituksesi, kilometrisi ja nousumetrisi ilman nimeäsi. Järjestäjät näkevät ne etunimelläsi sekä kilometrisi ja nousumetrisi päivittäin. Ylläpitäjät näkevät etunimesi ja yhteytesi tilan.",
 	"consent.details": "Kaikki tiedot",
 	"consent.organisers":
 		"Järjestäjät näkevät etunimesi Stravasta, Rynkesi ja mistä ne tulevat, mitä sinulta vielä puuttuu, oletko saavuttanut harjoitustavoitteesi, tiimitapahtumasi ja korjauksesi sekä mihin tiimitapahtumiin olet ilmoittanut tulevasi tai osallistuneesi.",
@@ -55,8 +65,7 @@ export const fi: Catalog = {
 	"consent.required": "Lukeminen ja jakaminen ovat osallistumisen edellytys.",
 	"consent.agree":
 		"Hyväksyn: RynkePoints lukee ajoni ja jakaa Rynkeni ja päiväsummani kuvatulla tavalla.",
-	"consent.referenceNote":
-		"Tämä sivu on käännös. Jos kieliversiot eroavat, pätee {englishLink}.",
+	"consent.referenceNote": "Tämän tekstin {englishLink} on sitova.",
 	"consent.referenceNote.link": "englanninkielinen versio",
 
 	"me.title": "Sinun RynkePointsisi",
@@ -338,7 +347,6 @@ export const fi: Catalog = {
 	"celebrate.team": "+{n} Tiimi-Rynke viime käynnin jälkeen 🎉",
 	"celebrate.both":
 		"+{training} Harjoitus-Rynke ja +{team} Tiimi-Rynke viime käynnin jälkeen 🎉",
-	"landing.tagline": "Kerää Rynkejä",
 	"settings.language": "Kieli",
 	"theme.button": "Värimaailma",
 	"theme.menu.title": "Värimaailma",

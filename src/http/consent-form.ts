@@ -34,9 +34,9 @@ export function referenceNote(i18n: I18n, path: string): SafeHtml | null {
  * sees what one tap away (constitution Principle I names them all).
  */
 export function consentSummary(i18n: I18n, path: string): SafeHtml {
-	return html`${referenceNote(i18n, path)}<p>${i18n.t("consent.short.notRead")}<br>${i18n.t("consent.short.read")}</p>
+	return html`<p>${i18n.t("consent.short.notRead")}<br>${i18n.t("consent.short.read")}</p>
 <p>${i18n.t("consent.short.shown")}</p>
-<details class="more"><summary class="tap">${i18n.t("consent.details")}</summary>
+${referenceNote(i18n, path)}<details class="more"><summary class="tap">${i18n.t("consent.details")}</summary>
 <p>${i18n.t("landing.dataRead")}</p>
 <p>${i18n.t("landing.private")}</p>
 <p>${i18n.t("landing.purpose")}</p>
@@ -53,13 +53,46 @@ export function consentSummary(i18n: I18n, path: string): SafeHtml {
 `;
 }
 
+/** The box agreeing to `version`; `className` styles the label. */
+function agreeBox(i18n: I18n, version: number, className?: string): SafeHtml {
+	return html`<label${className === undefined ? "" : html` class="${className}"`}><input type="checkbox" name="consent" value="${version}" required> ${i18n.t("consent.agree")}</label>`;
+}
+
+function connectButton(i18n: I18n): SafeHtml {
+	return html`<button><img class="cws cws-light" src="${i18n.t("brand.connectWithStrava.src")}" alt="${i18n.t("brand.connectWithStrava.alt")}"><img class="cws cws-dark" src="${i18n.t("brand.connectWithStrava.srcDark")}" alt="${i18n.t("brand.connectWithStrava.alt")}"></button>`;
+}
+
 export function consentForm(
 	i18n: I18n,
 	version: number,
 	next?: string,
 ): SafeHtml {
 	return html`<form method="post" action="/connect">
-${nextInput(next)}<p><label><input type="checkbox" name="consent" value="${version}" required> ${i18n.t("consent.agree")}</label></p>
-<button><img class="cws cws-light" src="${i18n.t("brand.connectWithStrava.src")}" alt="${i18n.t("brand.connectWithStrava.alt")}"><img class="cws cws-dark" src="${i18n.t("brand.connectWithStrava.srcDark")}" alt="${i18n.t("brand.connectWithStrava.alt")}"></button>
+${nextInput(next)}<p>${agreeBox(i18n, version)}</p>
+${connectButton(i18n)}
+</form>`;
+}
+
+/**
+ * One numbered step of the start page: the number, a heading and its text,
+ * then `action` across the full width.
+ */
+export function step(
+	n: number,
+	heading: SafeHtml,
+	text: string,
+	action: SafeHtml,
+): SafeHtml {
+	return html`<div class="step"><span class="step-no" aria-hidden="true">${n}</span><div>${heading}<p>${text}</p></div><div class="step-action">${action}</div></div>`;
+}
+
+/**
+ * The start page's consent form, as its steps 2 and 3: tick the box, then
+ * connect, each saying what it does.
+ */
+export function consentSteps(i18n: I18n, version: number): SafeHtml {
+	return html`<form class="consent-steps" method="post" action="/connect">
+${step(2, html`<h3>${i18n.t("landing.step.agree.heading")}</h3>`, i18n.t("landing.step.agree.text"), agreeBox(i18n, version, "consent-tick"))}
+${step(3, html`<h3>${i18n.t("landing.step.connect.heading")}</h3>`, i18n.t("landing.step.connect.text"), connectButton(i18n))}
 </form>`;
 }

@@ -30,11 +30,11 @@ describe("t", () => {
 
 describe("tHtml", () => {
 	it("keeps SafeHtml params as markup", () => {
-		const out = de.tHtml("landing.who", {
-			clubLink: html`<a href="x">Club</a>`,
+		const out = de.tHtml("consent.referenceNote", {
+			englishLink: html`<a href="x">englische Fassung</a>`,
 		});
 		expect(String(out)).toBe(
-			'Mitmachen können nur Mitglieder <a href="x">Club</a>.',
+			'Verbindlich ist die <a href="x">englische Fassung</a> dieses Textes.',
 		);
 	});
 

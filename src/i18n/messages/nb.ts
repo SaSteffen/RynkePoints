@@ -18,8 +18,18 @@ export const nb: Catalog = {
 	"layout.loading": "Siden lastes",
 
 	"landing.title": "Koble til Strava",
-	"landing.intro": "Turene dine på Strava blir til Rynke, poengene til {team}.",
-	"landing.who": "Bare medlemmer av {clubLink} kan være med.",
+	"landing.intro":
+		"Koble til Strava-kontoen din, så gir hver sykkeltur deg Rynke, lagets poeng. Du samler også merker og ser hvor langt du har kommet og hvordan det går med laget.",
+	"landing.club.heading": "Bli med i lagklubben vår på Strava",
+	"landing.club.text":
+		"RynkePoints er bare for medlemmer av lagklubben vår. Ikke med ennå? Be om å bli med på Strava, og koble til her når laget har tatt deg opp.",
+	"landing.club.button": "Åpne klubben på Strava",
+	"landing.step.agree.heading": "Kryss av i boksen",
+	"landing.step.agree.text":
+		"Da tillater du RynkePoints å lese aktivitetene dine på Strava og dele Rynke-ene og dagssummene dine som beskrevet over. Uten dette kan du ikke være med.",
+	"landing.step.connect.heading": "Trykk på «Connect with Strava»",
+	"landing.step.connect.text":
+		"Strava åpnes. Logg inn der og gi tilgang. Så sender Strava deg tilbake hit, og RynkePoints henter turene dine.",
 	"club.linkText": "lagklubben vår på Strava",
 	"landing.dataRead":
 		"Fra hver tur leser vi bare navn, sportstype, starttid, distanse, bevegelsestid, total tid med pauser, høydemeter, om den er lagt inn manuelt eller syklet på rulle, og om Strava har flagget den.",
@@ -36,13 +46,13 @@ export const nb: Catalog = {
 	"landing.notifications":
 		"Varsler er frivillige, gjelder per enhet og viser bare deg hvor mange Rynke som er nye, og hva du mangler. De går gjennom push-tjenesten til produsenten av enheten eller nettleseren din (f.eks. Google, Apple, Mozilla, Microsoft). Til det lagrer vi bare adressen den gir enheten din, og sletter den når du slår dem av, logger ut eller slutter.",
 
-	"consent.heading": "Dette sier du ja til når du kobler til",
+	"consent.heading": "Del Strava-dataene dine med RynkePoints",
 	"consent.short.notRead":
 		"Vi leser ikke GPS-spor, kart, bilder eller helsedata.",
 	"consent.short.read":
 		"Vi leser bare nøkkeltallene for sykkelturer, løpeturer og svømmeøkter, som distanse, tid og høydemeter, og gjør dem om til Rynke og merker.",
 	"consent.short.shown":
-		"Laget ser Rynke-ene dine og, på rangeringen, øktene, kilometerne og høydemeterne dine, uten navnet ditt. Arrangørene ser dem med fornavnet ditt, pluss kilometer og høydemeter per dag. Administratorer ser fornavnet ditt og tilkoblingsstatusen, og hvis de fjerner deg, beholder vi Strava-ID-en din så du ikke kan komme tilbake.",
+		"Laget ser Rynke-ene dine og, på rangeringen, øktene, kilometerne og høydemeterne dine, uten navnet ditt. Arrangørene ser dem med fornavnet ditt, pluss kilometer og høydemeter per dag. Administratorer ser fornavnet ditt og tilkoblingsstatusen.",
 	"consent.details": "Alle detaljene",
 	"consent.organisers":
 		"Arrangørene ser fornavnet ditt fra Strava, Rynke-ene dine og hvor de kommer fra, hva du mangler, om du har nådd treningsmålet, lagarrangementene og korrigeringene dine, og hvilke lagarrangementer du har meldt at du kommer på eller var på.",
@@ -55,8 +65,7 @@ export const nb: Catalog = {
 	"consent.required": "Lesing og deling er nødvendig for å være med.",
 	"consent.agree":
 		"Enig: RynkePoints leser turene dine og deler Rynke-ene og dagssummene dine som beskrevet.",
-	"consent.referenceNote":
-		"Denne siden er oversatt. Der språkversjonene er forskjellige, gjelder den {englishLink}.",
+	"consent.referenceNote": "Den {englishLink} av denne teksten gjelder.",
 	"consent.referenceNote.link": "engelske versjonen",
 
 	"me.title": "Dine RynkePoints",
@@ -339,7 +348,6 @@ export const nb: Catalog = {
 	"celebrate.team": "+{n} Team-Rynke siden sist 🎉",
 	"celebrate.both":
 		"+{training} Trenings-Rynke og +{team} Team-Rynke siden sist 🎉",
-	"landing.tagline": "Samle Rynke",
 	"settings.language": "Språk",
 	"theme.button": "Fargetema",
 	"theme.menu.title": "Fargetema",
