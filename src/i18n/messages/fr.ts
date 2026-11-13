@@ -19,8 +19,17 @@ export const fr: Catalog = {
 
 	"landing.title": "Se connecter avec Strava",
 	"landing.intro":
-		"Tes sorties sur Strava deviennent des Rynke, les points de la {team}.",
-	"landing.who": "Seuls les membres de {clubLink} peuvent participer.",
+		"Connecte ton compte Strava : chaque sortie à vélo te rapporte des Rynke, les points de l'équipe. Tu collectionnes aussi des badges et tu vois où tu en es et comment avance l'équipe.",
+	"landing.club.heading": "Rejoins notre club d'équipe sur Strava",
+	"landing.club.text":
+		"RynkePoints est réservé aux membres de notre club d'équipe. Pas encore membre ? Demande à rejoindre le club sur Strava, puis connecte-toi ici une fois ta demande acceptée par l'équipe.",
+	"landing.club.button": "Ouvrir le club sur Strava",
+	"landing.step.agree.heading": "Coche la case",
+	"landing.step.agree.text":
+		"Tu autorises ainsi RynkePoints à lire tes activités sur Strava et à partager tes Rynke et totaux journaliers comme décrit ci-dessus. Sans cela, tu ne peux pas participer.",
+	"landing.step.connect.heading": "Appuie sur « Connect with Strava »",
+	"landing.step.connect.text":
+		"Strava s'ouvre. Connecte-toi et autorise l'accès. Strava te renvoie ensuite ici et RynkePoints charge tes sorties.",
 	"club.linkText": "notre club d'équipe sur Strava",
 	"landing.dataRead":
 		"De chaque sortie, nous ne lisons que le nom, le type de sport, l'heure de départ, la distance, le temps en mouvement, le temps total pauses comprises, le dénivelé, si elle a été saisie à la main ou faite sur home trainer, et si Strava l'a signalée.",
@@ -37,13 +46,13 @@ export const fr: Catalog = {
 	"landing.notifications":
 		"Les notifications sont facultatives, propres à chaque appareil, et ne montrent qu'à toi combien de Rynke sont nouveaux et ce qu'il te manque. Elles passent par le service push du fabricant de ton appareil ou navigateur (p. ex. Google, Apple, Mozilla, Microsoft). Pour cela, nous ne gardons que l'adresse qu'il donne à ton appareil, et la supprimons quand tu les désactives, te déconnectes ou pars.",
 
-	"consent.heading": "Ce que tu acceptes en te connectant",
+	"consent.heading": "Partage tes données Strava avec RynkePoints",
 	"consent.short.notRead":
 		"Nous ne lisons ni traces GPS, ni cartes, ni photos, ni données de santé.",
 	"consent.short.read":
 		"Nous ne lisons que les chiffres clés de tes sorties vélo, courses et nages, comme la distance, le temps et le dénivelé, et les transformons en Rynke et en badges.",
 	"consent.short.shown":
-		"L'équipe voit tes Rynke et, dans le classement, tes séances, kilomètres et dénivelé, sans ton nom. Les organisateurs les voient avec ton prénom, ainsi que tes kilomètres et ton dénivelé par jour. Les administrateurs voient ton prénom et l'état de ta connexion, et s'ils te retirent, nous gardons ton identifiant Strava pour que tu ne puisses pas revenir.",
+		"L'équipe voit tes Rynke et, dans le classement, tes séances, kilomètres et dénivelé, sans ton nom. Les organisateurs les voient avec ton prénom, ainsi que tes kilomètres et ton dénivelé par jour. Les administrateurs voient ton prénom et l'état de ta connexion.",
 	"consent.details": "Tous les détails",
 	"consent.organisers":
 		"Les organisateurs voient ton prénom depuis Strava, tes Rynke et leur origine, ce qu'il te manque, si tu as atteint ton objectif d'entraînement, tes événements d'équipe et corrections, et à quels événements d'équipe tu as indiqué venir ou avoir participé.",
@@ -57,8 +66,7 @@ export const fr: Catalog = {
 		"La lecture et le partage sont nécessaires pour participer.",
 	"consent.agree":
 		"D'accord\u00a0: RynkePoints lit mes sorties et partage mes Rynke et totaux journaliers comme décrit.",
-	"consent.referenceNote":
-		"Cette page est une traduction. En cas de différence, c'est la {englishLink} qui fait foi.",
+	"consent.referenceNote": "Seule la {englishLink} de ce texte fait foi.",
 	"consent.referenceNote.link": "version anglaise",
 
 	"me.title": "Tes RynkePoints",
@@ -360,7 +368,6 @@ export const fr: Catalog = {
 	"celebrate.team": "+{n} Rynke d'équipe depuis ta dernière visite 🎉",
 	"celebrate.both":
 		"+{training} Rynke d'entraînement et +{team} Rynke d'équipe depuis ta dernière visite 🎉",
-	"landing.tagline": "Collectionne tes Rynke",
 	"settings.language": "Langue",
 	"theme.button": "Thème de couleurs",
 	"theme.menu.title": "Thème de couleurs",

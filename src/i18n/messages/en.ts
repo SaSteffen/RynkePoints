@@ -18,8 +18,17 @@ export const en: Catalog = {
 
 	"landing.title": "Connect with Strava",
 	"landing.intro":
-		"Your rides on Strava turn into Rynke, the points of {team}.",
-	"landing.who": "Only members of {clubLink} can take part.",
+		"Connect your Strava account and every bike ride earns you Rynke, our team's points. You also collect badges and see how far you've come and how the team is doing.",
+	"landing.club.heading": "Join our team club on Strava",
+	"landing.club.text":
+		"RynkePoints is only for members of our team club. Not in it yet? Ask to join on Strava and connect here once the team has accepted you.",
+	"landing.club.button": "Open the club on Strava",
+	"landing.step.agree.heading": "Tick the box",
+	"landing.step.agree.text":
+		"This allows RynkePoints to read your activities on Strava and to share your Rynke and daily totals as described above. You can't take part without it.",
+	"landing.step.connect.heading": "Tap “Connect with Strava”",
+	"landing.step.connect.text":
+		"Strava opens. Sign in there and allow access. Strava then sends you back here and RynkePoints loads your rides.",
 	"club.linkText": "our team club on Strava",
 	"landing.dataRead":
 		"From each ride we only read its name, sport type, start time, distance, moving time, elapsed time including pauses, elevation gain, whether it was entered manually or ridden on an indoor trainer, and whether Strava has flagged it.",
@@ -36,13 +45,13 @@ export const en: Catalog = {
 	"landing.notifications":
 		"Notifications are optional, per device, and show only you how many Rynke are new and what you still need. They pass through the push service of your device's or browser's maker (e.g. Google, Apple, Mozilla, Microsoft). For this we store only the address it gives your device, and delete it when you turn them off, sign out or leave.",
 
-	"consent.heading": "What you agree to by connecting",
+	"consent.heading": "Share your Strava data with RynkePoints",
 	"consent.short.notRead":
 		"We don't read GPS tracks, maps, photos or health data.",
 	"consent.short.read":
 		"We only read the key figures of your rides, runs and swims, such as distance, time and elevation, and turn them into Rynke and badges.",
 	"consent.short.shown":
-		"The team sees your Rynke and, in the ranking, your sessions, kilometres and elevation, without your name. The organisers see them with your first name, plus your kilometres and elevation per day. Administrators see your first name and connection state, and if they remove you, we keep your Strava ID so you can't return.",
+		"The team sees your Rynke and, in the ranking, your sessions, kilometres and elevation, without your name. The organisers see them with your first name, plus your kilometres and elevation per day. Administrators see your first name and connection state.",
 	"consent.details": "All the details",
 	"consent.organisers":
 		"The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, and which team events you reported you're coming to or were at.",
@@ -55,8 +64,7 @@ export const en: Catalog = {
 	"consent.required": "Reading and sharing are required to take part.",
 	"consent.agree":
 		"Agreed: RynkePoints reads your rides and shares your Rynke and daily totals as described.",
-	"consent.referenceNote":
-		"Where the language versions differ, the {englishLink} counts.",
+	"consent.referenceNote": "The {englishLink} of this text is binding.",
 	"consent.referenceNote.link": "English version",
 
 	"me.title": "Your RynkePoints",
@@ -342,7 +350,6 @@ export const en: Catalog = {
 	"celebrate.team": "+{n}\u00a0Team Rynke since your last visit 🎉",
 	"celebrate.both":
 		"+{training}\u00a0Training Rynke and +{team}\u00a0Team Rynke since your last visit 🎉",
-	"landing.tagline": "Collect your Rynke",
 	"settings.language": "Language",
 	"theme.button": "Colour scheme",
 	"theme.menu.title": "Colour scheme",
