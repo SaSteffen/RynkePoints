@@ -390,17 +390,27 @@ export function traceImage(
 	let transform = "";
 	const paths = [];
 	const add = (hex, inside) => {
-		const layer = trace(pbm(soften(inside, w, h), w, h));
+		const layer = trace(pbm(inside, w, h));
 		if (!layer) return;
 		transform = layer.transform;
 		paths.push(`<path fill="${hex}" d="${layer.d}"/>`);
 	};
-	if (used[top] && drawn(top))
-		add(colours[top - 1].hex, (i) => drawn(label[i]));
+	const ink = used[top] && drawn(top);
+	if (ink)
+		add(
+			colours[top - 1].hex,
+			soften((i) => drawn(label[i]), w, h),
+		);
 	for (let p = 0; p < top - 1; p++) {
 		if (!used[p + 1] || omit.includes(colours[p].name)) continue;
-		add(colours[p].hex, (i) => label[i] > p && label[i] !== top);
+		add(
+			colours[p].hex,
+			soften((i) => label[i] > p && label[i] !== top, w, h),
+		);
 	}
+	// The outline's own pixels once more on top, unsoftened: the fills' soft
+	// edges close thin lines between them, which would blur a busy picture.
+	if (ink) add(colours[top - 1].hex, (i) => label[i] === top);
 
 	// 100 user units across, like the coin's symbols.
 	const s = 100 / w;
