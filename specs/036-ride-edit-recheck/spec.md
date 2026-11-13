@@ -265,7 +265,7 @@ no request is made. Lower it: the next run checks the riders who waited longest.
 - **FR-018**: A refused check (access withdrawn, rider gone on Strava) MUST lead to the same
   handling of the rider as any other refused request.
 - **FR-019**: The feature MUST stay within the free hosting plan at 999 riders: a day of checks in
-  which nothing changed writes at most one row per check.
+  which nothing changed writes at most one row per check, plus one per run.
 
 **What people see**
 
@@ -314,10 +314,10 @@ no request is made. Lower it: the next run checks the riders who waited longest.
   cases.
 - **SC-003**: With 100 riders across all teams, the checks use at most 300 Strava reads a day (10%
   of the limit) and at most 15 in any 15 minutes.
-- **SC-004**: A team with up to 150 riders never uses more than its allowance; above that, never
-  more than one read per rider per day.
+- **SC-004**: A team with up to 140 riders never uses more than its allowance; above that, never
+  more than one read per rider per 23 hours.
 - **SC-005**: On a day on which no rider edited anything, the checks write no more than one
-  database row per check.
+  database row per check, plus one per run.
 - **SC-006**: Sign-in, reconnecting, the import and reported events are never delayed or refused
   because of checks: with the checks on, no request of these kinds is turned away for lack of
   budget that would have gone through without them.
@@ -336,7 +336,8 @@ no request is made. Lower it: the next run checks the riders who waited longest.
   elevation, manual, indoor, flagged, private, type, start). Where it lacks one, the stored value
   stays (FR-006).
 - The 300 are split evenly between the teams (the owner's decision): 150 each for Hamburg and
-  Europe. A team with up to 150 riders is checked within its allowance; a further team means a
+  Europe. A team with up to about 140 riders is checked within its allowance (a rider is taken one
+  run early, after 23 hours, so that the check still happens within 24); a further team means a
   smaller share for each.
 - 20 hours (FR-010) leaves four runs of slack for the 24-hour promise when runs are skipped.
 - "More than half of the day's reads" (FR-016) is a starting value. The day's reads have so far

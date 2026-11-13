@@ -33,5 +33,5 @@
 
 - Strava's limits and the "one request per check" rule are named on purpose: the request budget is
   the constraint the feature is designed around, not an implementation choice.
-- Two assumptions are to be confirmed in planning: the order of Strava's activity list without a
-  start date, and the split of the allowance between the teams.
+- The split of the allowance is decided (even). The order of Strava's activity list without a
+  start date is confirmed by one real request before implementation (quickstart.md).
