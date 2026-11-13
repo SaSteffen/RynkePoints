@@ -58,14 +58,19 @@ Windows this implies:
 **Decision**: The scenes name their colours, as Advent's does with sage #B5D6A7; the shared prompt
 keeps light blue for water and sweat. Per picture:
 
-- **Karneval**: jester's collar with points in yellow, cream and gold with small gold bells,
-  confetti and streamers in yellow, gold, cream and sage. No clown nose: the palette has no red,
-  and a fur-coloured nose disappears on the face.
+- **Karneval**: a round red (#C8102E) clown nose over Rynke's own nose, a jester's collar with
+  points in yellow, cream and gold with small gold bells, confetti and streamers in yellow, gold,
+  cream and sage. The red comes from the Nikolaus boot change (`feat/nikolaus-red-boot`), which
+  adds it to the tracer's palette but allows it in `prompt.txt` "only for the Nikolaus boot";
+  that line widens to "only where a scene names it", and the picture is made once that change
+  is in `develop`.
 - **Easter**: cream bunny ears with muzzle-coloured (#F0A868) insides over the helmet; a gold
   wicker basket of eggs in yellow, cream, sage and light blue.
 - **Midsummer**: crown of sage leaves with yellow and cream flowers; a bunch of the same flowers.
 - **Halloween**: pumpkin in fur orange #C8641E with a sage stalk, a friendly smiling carved face
-  glowing yellow; no bats, skulls, spiders or teeth.
+  glowing yellow; one or two small cartoon bats in black fluttering around, a little black spider
+  dangling on its thread from the pumpkin's stalk, both with friendly cream eyes. Cute, not scary:
+  no fangs, skulls or blood.
 - **Europe Day**: a garland of plain triangle pennants alternating yellow, cream, sage, gold and
   fur orange, held up in both hands, a few confetti dots.
 

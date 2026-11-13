@@ -77,6 +77,7 @@ src/http/art-versions.ts        # generated: their versions
 
 art/quotes/
 ├── monkeys.json                # + karneval, easter, midsummer, halloween, europe-day (seasonal)
+├── prompt.txt                  # red "only where a scene names it" (Karneval's nose)
 ├── originals/                  # + their originals
 └── README.md                   # Seasonal monkeys: new ids, shared pictures, Europe Day check
 

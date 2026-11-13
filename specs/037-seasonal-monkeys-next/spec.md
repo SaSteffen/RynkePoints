@@ -121,11 +121,12 @@ and on the days around them.
 - **FR-001**: There MUST be five new seasonal monkeys, made like the quote monkeys and following their
   rules (full-body Rynke as on the badges and coin, talking, turned a little to the right where the
   bubble is; no bubble, ground or background; nothing cropped; same palette):
-  - **Karneval**: a carnival costume over the kit, e.g. a jester's collar or a red clown nose,
-    confetti and streamers.
+  - **Karneval**: a carnival costume over the kit: a red clown nose, a jester's collar, confetti
+    and streamers.
   - **Easter**: bunny ears over the helmet, holding a small basket of painted eggs.
   - **Midsummer**: a crown of flowers and leaves over the helmet, holding a bunch of wild flowers.
-  - **Halloween**: holding a carved pumpkin lantern with a friendly face; fun, never scary.
+  - **Halloween**: holding a carved pumpkin lantern with a friendly face, a few cartoon bats and a
+    spider around; fun, never scary.
   - **Europe Day**: festive and friendly, e.g. waving a garland of plain pennants in the palette's
     colours.
 - **FR-002**: The new monkeys MUST follow 035's rules for seasonal pictures: fun and non-religious (no
