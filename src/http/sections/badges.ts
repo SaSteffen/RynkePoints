@@ -464,7 +464,7 @@ function shareSheet(i18n: I18n, app: ShareApp): SafeHtml {
 <div class="share-sheet-head"><h2 id="share-sheet-title">${i18n.t("badges.share.title")}</h2>
 <button type="button" class="icon-button share-sheet-close" aria-label="${i18n.t("badges.close")}">${CLOSE}</button></div>
 <fieldset class="segmented-group share-formats"><legend class="visually-hidden">${i18n.t("badges.share.formatLegend")}</legend>${format("story", true)}${format("image")}${format("photo")}</fieldset>
-<div class="share-preview" data-format="story"><canvas></canvas><video muted playsinline loop hidden></video>
+<div class="share-preview" data-format="story"><canvas></canvas><video muted playsinline loop hidden></video><img class="share-gif" alt="" hidden>
 <div class="share-photo-empty" hidden><button type="button" class="button share-pick">${i18n.t("badges.share.pickPhoto")}</button><p>${i18n.t("badges.share.photoPrivate")}</p><p class="share-photo-unreadable" role="status" hidden>${i18n.t("badges.share.photoUnreadable")}</p></div>
 <div class="share-frame" hidden></div><button type="button" class="share-turn" aria-label="${i18n.t("badges.share.turn")}" hidden>${TURN}</button>
 <span class="share-busy" role="status" hidden>${i18n.t("badges.share.recording")}</span></div>

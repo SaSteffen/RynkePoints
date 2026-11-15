@@ -947,7 +947,7 @@ button.badge:active .badge-art{filter:var(--rp-badge-lift)}
 .share-formats{width:100%;margin:0 0 var(--rp-space-3)}
 .share-formats label{flex:1}
 .share-preview{position:relative;display:flex;align-items:center;justify-content:center;height:min(52dvh,440px);border-radius:var(--md-shape-md);background:repeating-conic-gradient(var(--md-sys-color-surface-container-high) 0 25%,var(--md-sys-color-surface-container) 0 50%) 0 0/20px 20px;overflow:hidden;touch-action:none}
-.share-preview canvas,.share-preview video{max-width:100%;max-height:100%;box-shadow:var(--rp-share-shadow)}
+.share-preview canvas,.share-preview video,.share-preview img{max-width:100%;max-height:100%;box-shadow:var(--rp-share-shadow)}
 .share-preview[data-format=photo] canvas{cursor:grab}
 .share-frame{position:absolute;pointer-events:none;outline:2px dashed var(--md-sys-color-surface);box-shadow:0 0 0 1px var(--md-sys-color-on-surface),inset 0 0 0 1px var(--md-sys-color-on-surface)}
 .share-turn{position:absolute;translate:-50% -50%;display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;background:none;color:var(--md-sys-color-on-primary-container);pointer-events:auto;cursor:nwse-resize;touch-action:none}

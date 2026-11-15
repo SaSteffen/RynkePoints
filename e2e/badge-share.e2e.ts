@@ -1,4 +1,9 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import {
+	type Download,
+	expect,
+	type Locator,
+	type Page,
+} from "@playwright/test";
 import { signIn, skipTours } from "./sign-in";
 import { test } from "./test";
 
@@ -125,8 +130,8 @@ test.describe("on a phone", () => {
 			new RegExp(`^[a-z0-9-]+-${id}-image\\.png$`),
 		);
 
-		// "Ohne Hintergrund": the badge alone, transparent around it, and no
-		// sparkling video (FR-011).
+		// "Ohne Hintergrund": the badge alone, transparent around it; it can
+		// sparkle too, as a GIF.
 		await sheet.locator(".share-plain [role=switch]").tap();
 		await expect(sheet.locator(".share-plain [role=switch]")).toHaveAttribute(
 			"aria-checked",
@@ -140,7 +145,7 @@ test.describe("on a phone", () => {
 					canvas.getContext("2d")?.getImageData(4, 4, 1, 1).data[3],
 			);
 		expect(corner).toBe(0);
-		await expect(sheet.locator(".share-shiny")).toBeHidden();
+		await expect(sheet.locator(".share-shiny")).toBeVisible();
 		const sticker = page.waitForEvent("download");
 		await sheet.locator(".share-save").tap();
 		expect((await sticker).suggestedFilename()).toMatch(
@@ -727,15 +732,19 @@ test.describe("sparkling", () => {
 		await ready(sheet);
 		const download = page.waitForEvent("download");
 		await sheet.locator(".share-save").click();
-		expect((await download).suggestedFilename()).toMatch(/-image\.mp4$/);
+		expect((await download).suggestedFilename()).toMatch(/-image\.gif$/);
 
-		// "Ohne Hintergrund" has no video, and the still picture comes back.
-		await sheet.locator(".share-plain [role=switch]").click();
-		await expect(sheet.locator(".share-shiny")).toBeHidden();
-		await ready(sheet);
-		await expect(sheet.locator(".share-preview canvas")).toBeVisible();
-		await expect(sheet.locator(".share-preview video")).toBeHidden();
-		await sheet.locator(".share-plain [role=switch]").click();
+		// Auf Foto has no picture yet, and nothing is made.
+		await sheet
+			.locator("label")
+			.filter({ hasText: /^Auf Foto$/ })
+			.click();
+		await expect(sheet.locator(".share-busy")).toBeHidden();
+		await expect(sheet.locator(".share-preview .share-gif")).toBeHidden();
+		await sheet
+			.locator("label")
+			.filter({ hasText: /^Story$/ })
+			.click();
 
 		// Closed while rendering: it stops, quietly.
 		await expect(sheet.locator(".share-busy")).toBeVisible();
@@ -744,6 +753,99 @@ test.describe("sparkling", () => {
 		await expect(sheet.locator(".share-busy")).toBeHidden();
 		await page.waitForTimeout(500);
 		expect(errors).toEqual([]);
+	});
+});
+
+test.describe("sparkling as a GIF", () => {
+	test.describe.configure({ timeout: 120_000 });
+
+	/** The saved file's bytes. */
+	async function bytesOf(download: Download) {
+		const stream = await download.createReadStream();
+		const chunks: Buffer[] = [];
+		for await (const chunk of stream) chunks.push(chunk as Buffer);
+		return Buffer.concat(chunks);
+	}
+
+	/** The preview GIF's alpha at x, y, as the browser decodes it. */
+	const alphaAt = (sheet: Locator, x: number, y: number) =>
+		sheet.locator(".share-preview .share-gif").evaluate(
+			(img: { naturalWidth: number }, [px, py]: number[]) => {
+				interface Drawable {
+					width: number;
+					height: number;
+					getContext(kind: "2d"): {
+						drawImage(image: unknown, x: number, y: number): void;
+						getImageData(
+							x: number,
+							y: number,
+							w: number,
+							h: number,
+						): { data: ArrayLike<number> };
+					} | null;
+				}
+				const { document } = globalThis as unknown as {
+					document: { createElement(tag: "canvas"): Drawable };
+				};
+				const canvas = document.createElement("canvas");
+				canvas.width = img.naturalWidth;
+				canvas.height = img.naturalWidth;
+				const c = canvas.getContext("2d");
+				c?.drawImage(img, 0, 0);
+				return c?.getImageData(px ?? 0, py ?? 0, 1, 1).data[3];
+			},
+			[x, y],
+		);
+
+	test("makes the sparkling picture and sticker as GIFs in any browser", {
+		tag: "@cross-browser",
+	}, async ({ page }) => {
+		const { sheet, id } = await openSparkling(page);
+		await sheet
+			.locator("label")
+			.filter({ hasText: /^Bild$/ })
+			.click();
+		const shiny = sheet.locator(".share-shiny");
+		// No video codec needed: offered everywhere.
+		await expect(shiny).toBeVisible();
+		await shiny.locator("[role=switch]").click();
+		await expect(sheet.locator(".share-busy")).toBeVisible();
+		await expect(sheet.locator(".share-save")).toBeDisabled();
+		await expect(sheet.locator(".share-busy")).toBeHidden(RENDERING);
+		await ready(sheet);
+		const preview = sheet.locator(".share-preview .share-gif");
+		await expect(preview).toBeVisible();
+		await expect(sheet.locator(".share-copy")).toBeHidden();
+
+		let download = page.waitForEvent("download");
+		await sheet.locator(".share-save").click();
+		let saved = await download;
+		expect(saved.suggestedFilename()).toMatch(
+			new RegExp(`^[a-z0-9-]+-${id}-image\\.gif$`),
+		);
+		let gif = await bytesOf(saved);
+		expect(gif.subarray(0, 6).toString("latin1")).toBe("GIF89a");
+		expect([gif.readUInt16LE(6), gif.readUInt16LE(8)]).toEqual([1080, 1080]);
+		expect(gif.includes("NETSCAPE2.0")).toBe(true);
+		// The white background, all round.
+		expect(await alphaAt(sheet, 4, 4)).toBe(255);
+
+		// Ohne Hintergrund: transparent round the badge, still sparkling.
+		await sheet.locator(".share-plain [role=switch]").click();
+		await expect(shiny).toBeVisible();
+		await expect(sheet.locator(".share-busy")).toBeHidden(RENDERING);
+		await ready(sheet);
+		await expect(preview).toBeVisible();
+		download = page.waitForEvent("download");
+		await sheet.locator(".share-save").click();
+		saved = await download;
+		expect(saved.suggestedFilename()).toMatch(
+			new RegExp(`^[a-z0-9-]+-${id}-sticker\\.gif$`),
+		);
+		gif = await bytesOf(saved);
+		expect(gif.subarray(0, 6).toString("latin1")).toBe("GIF89a");
+		expect(await alphaAt(sheet, 4, 4)).toBe(0);
+		expect(await alphaAt(sheet, 540, 540)).toBe(255);
 	});
 });
 
