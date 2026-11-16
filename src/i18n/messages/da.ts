@@ -271,6 +271,8 @@ export const da: Catalog = {
 	"tour.rider.intro": "Ny her? Lad os vise dig, hvor alt er.",
 	"tour.rider.team":
 		"Hold: hvordan det går hele holdet, og hvor du ligger i ranglisten.",
+	"tour.rider.team.rides":
+		"Ranglisten findes også efter ture, km og højdemeter, for sæsonen, måneden eller ugen.",
 	"tour.rider.peloton":
 		"Feltet: alle på holdet efter deres Trænings-Rynke, uden navne; din mønt er markeret. Jo længere til højre, jo flere Rynke. Den, der er et godt stykke foran resten, er i udbruddet.",
 	"tour.rider.you":
@@ -297,16 +299,22 @@ export const da: Catalog = {
 		"Du er nu arrangør: fanen Orga er ny. Lad os vise dig rundt.",
 	"tour.organiser.riders":
 		"Ryttere: alle på holdet med deres Trænings- og Team-Rynke og hvad de mangler.",
+	"tour.organiser.riders.rides":
+		"Desuden hvor mange af deres ture der har talt i sæsonen, og hvor lang en typisk tur er.",
 	"tour.organiser.example":
 		"Eksempelhold: sådan ser Orga ud, når sæsonen er i gang. Intet her kan klikkes; du ser det rigtige hold efter rundvisningen.",
 	"tour.organiser.groups":
 		"Grupperne: »Har brug for et skub« er bagud i tempoet, »På sporet« følger planen, »Træningsmål nået« har det hele. Tryk på en flise for kun at se dens ryttere. Først: alle med en åben melding.",
 	"tour.organiser.pace":
 		"Mærket på hver bjælke er det jævne tempo frem til fristen. Ryttere til venstre for det har brug for et skub. Tryk på et navn for at åbne deres rettelser: Rynke lagt til eller trukket fra, med en begrundelse.",
+	"tour.organiser.graphs":
+		"Fremskridt: kilometer og højdemeter over sæsonen, for enkelte ryttere og hele holdet. Kun ryttere, der har sagt ja til de daglige tal, har en linje. På mobilen skifter du øverst mellem ryttere og grafer.",
 	"tour.organiser.requests":
 		"Meldinger: ryttere fortæller dig, at de var til et holdarrangement. »Tilføj« giver dem arrangementets Rynke, ✕ afviser. Du kan fortryde begge dele et lille stykke tid.",
 	"tour.organiser.newEvent":
 		"Tilføj holdarrangementer her: type, dato og et navn, hvis du vil. En holdtræning giver {teamTraining} Team-Rynke, en dag på træningsweekenden {weekendDay}, en teknisk træning {technique}.",
+	"tour.organiser.newEvent.tourDays":
+		"Dagene på Tour de Paris tilføjer du også her. De giver ingen Rynke, men alle, du sætter kryds ved, får dagens badge.",
 	"tour.organiser.upcoming":
 		"Et kommende arrangement: ryttere siger på forhånd, om de kommer. Tallet viser, hvor mange der har sagt ja.",
 	"tour.organiser.past":

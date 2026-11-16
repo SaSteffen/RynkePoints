@@ -2,12 +2,13 @@ import {
 	berlinDate,
 	type OrganiserFigures,
 	organiserFigures,
-	organiserProgressGraph,
-	rideFigures,
+	organiserGraphsShown,
+	organiserRideFigures,
 } from "../../config";
 import type { Ctx } from "../../ctx";
 import { withProfileLinks } from "../../db/organiser";
 import {
+	type GraphRow,
 	organiserGraphsStatement,
 	toGraphRows,
 } from "../../db/organiser-graphs";
@@ -924,31 +925,83 @@ export function handleOrganiserOverview(
 	const path =
 		group === null ? "/organiser/riders" : `/organiser/riders?group=${group}`;
 	return organiserPage(request, ctx, i18n, path, async ({ example }) => {
+		const rules = currentRules(ctx.team.rules);
+		const shown = {
+			rides: organiserRideFigures(ctx.env),
+			graphs: organiserGraphsShown(ctx.env),
+		};
 		// On the organiser tour's steps, the example team instead, which can
 		// be looked at but not used (feature 020 FR-013, FR-014).
-		if (example) {
-			const team = exampleTeam(window, today, currentRules(ctx.team.rules));
-			return html`${organiserSwitch(i18n, "riders", team.requests.length)}${renderExampleNote(i18n, "tour.organiser.example")}${overviewBody(team.riders, currentRules(ctx.team.rules), window, today, null, i18n, byRider(team.requests), true, figures, null, "riders", null, ctx.team.art.coin)}`;
-		}
-		const graphsOn = figures === "full" && organiserProgressGraph(ctx.env);
-		// Sessions by name only with amounts shown (032 research R8).
-		const ridesOn = figures === "full" && rideFigures(ctx.env);
-		const statements: D1PreparedStatement[] = [
-			listOpenRequestsStatement(ctx.env.DB, today, window),
-		];
-		if (ridesOn) {
-			statements.push(
-				rideRidersStatement(ctx.env.DB, SINCE_VERSION.rideFiguresByName),
-			);
-		}
-		if (graphsOn) statements.push(organiserGraphsStatement(ctx.env.DB));
-		const [read, [openRows, ...rest]] = await Promise.all([
-			readTeam(ctx.env.DB),
-			ctx.env.DB.batch(statements),
-		]);
-		const rideRows = ridesOn ? rest[0] : undefined;
-		const graphRows = graphsOn ? rest[ridesOn ? 1 : 0] : undefined;
-		const rides: RiderRides = rideRows
+		const team = example
+			? exampleOverview(window, today, rules, shown)
+			: await readOverview(ctx, window, today, shown);
+		const shownGroup = example ? null : group;
+		const requests = byRider(team.requests);
+		const graphs = team.graphRows
+			? renderProgressGraphs(
+					i18n,
+					organiserGraphsView({
+						rows: team.graphRows,
+						riders: overviewRiders(team.read, rules, window, today),
+						requests,
+						window,
+						today,
+						group: shownGroup,
+						rides: team.rides,
+					}),
+				)
+			: null;
+		const notices = example
+			? renderExampleNote(i18n, "tour.organiser.example")
+			: html`${await decisionNotice(url, ctx, i18n, path)}${noticeFromQuery(url, i18n)}`;
+		// The organiser tour's graphs step asks for them (020 FR-012).
+		const view =
+			url.searchParams.get("view") === "graphs" ? "graphs" : "riders";
+		const body = html`${organiserSwitch(i18n, "riders", team.requests.length)}${notices}${overviewBody(team.read, rules, window, today, shownGroup, i18n, requests, example, figures, graphs, view, team.rides, ctx.team.art.coin)}`;
+		return graphs ? { body, scripts: CHART_SCRIPTS } : body;
+	});
+}
+
+/** What the overview shows of a team; `graphRows` null without graphs. */
+interface OverviewRead {
+	read: readonly TeamRider[];
+	requests: OpenRequestRow[];
+	rides: RiderRides;
+	graphRows: GraphRow[] | null;
+}
+
+/** Which of the switched parts the overview shows (feature 029, 032). */
+interface OverviewShown {
+	rides: boolean;
+	graphs: boolean;
+}
+
+/** The team from D1, in one batch next to the listed riders. */
+async function readOverview(
+	ctx: Ctx,
+	window: CountingWindow,
+	today: string,
+	shown: OverviewShown,
+): Promise<OverviewRead> {
+	const statements: D1PreparedStatement[] = [
+		listOpenRequestsStatement(ctx.env.DB, today, window),
+	];
+	if (shown.rides) {
+		statements.push(
+			rideRidersStatement(ctx.env.DB, SINCE_VERSION.rideFiguresByName),
+		);
+	}
+	if (shown.graphs) statements.push(organiserGraphsStatement(ctx.env.DB));
+	const [read, [openRows, ...rest]] = await Promise.all([
+		readTeam(ctx.env.DB),
+		ctx.env.DB.batch(statements),
+	]);
+	const rideRows = shown.rides ? rest[0] : undefined;
+	const graphRows = shown.graphs ? rest[shown.rides ? 1 : 0] : undefined;
+	return {
+		read,
+		requests: (openRows?.results ?? []) as OpenRequestRow[],
+		rides: rideRows
 			? new Map(
 					(
 						await toRideRiders(
@@ -958,33 +1011,26 @@ export function handleOrganiserOverview(
 						)
 					).map((r) => [r.athleteId, r.rides]),
 				)
-			: null;
-		const results = (openRows?.results ?? []) as OpenRequestRow[];
-		const requests = byRider(results);
-		const graphs =
+			: null,
+		graphRows:
 			graphRows && read.length > 0
-				? renderProgressGraphs(
-						i18n,
-						organiserGraphsView({
-							rows: await toGraphRows(ctx.env.DB, graphRows),
-							riders: overviewRiders(
-								read,
-								currentRules(ctx.team.rules),
-								window,
-								today,
-							),
-							requests,
-							window,
-							today,
-							group,
-							rides,
-						}),
-					)
-				: null;
-		const notice = await decisionNotice(url, ctx, i18n, path);
-		const view =
-			url.searchParams.get("view") === "graphs" ? "graphs" : "riders";
-		const body = html`${organiserSwitch(i18n, "riders", results.length)}${notice}${noticeFromQuery(url, i18n)}${overviewBody(read, currentRules(ctx.team.rules), window, today, group, i18n, requests, false, figures, graphs, view, rides, ctx.team.art.coin)}`;
-		return graphs ? { body, scripts: CHART_SCRIPTS } : body;
-	});
+				? await toGraphRows(ctx.env.DB, graphRows)
+				: null,
+	};
+}
+
+/** The organiser tour's example team (feature 020 FR-013), never stored. */
+function exampleOverview(
+	window: CountingWindow,
+	today: string,
+	rules: RynkeRules,
+	shown: OverviewShown,
+): OverviewRead {
+	const team = exampleTeam(window, today, rules);
+	return {
+		read: team.riders,
+		requests: team.requests,
+		rides: shown.rides ? team.rides : null,
+		graphRows: shown.graphs ? team.graphRows : null,
+	};
 }

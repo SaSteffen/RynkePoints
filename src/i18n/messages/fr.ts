@@ -284,6 +284,8 @@ export const fr: Catalog = {
 		"Nouveau ou nouvelle ici\u00a0? On te montre où tout se trouve.",
 	"tour.rider.team":
 		"Équipe\u00a0: comment va toute l'équipe et où tu te situes dans le classement.",
+	"tour.rider.team.rides":
+		"Le classement existe aussi par séances, km et dénivelé, sur la saison, le mois ou la semaine.",
 	"tour.rider.peloton":
 		"Le peloton\u00a0: tout le monde dans l'équipe selon ses Rynke d'entraînement, sans noms\u00a0; ta pièce est marquée. Plus c'est à droite, plus il y a de Rynke. Qui est bien devant les autres est dans le breakaway.",
 	"tour.rider.you":
@@ -310,16 +312,22 @@ export const fr: Catalog = {
 		"Tu es maintenant organisateur ou organisatrice\u00a0: l'onglet Orga est nouveau. On te fait le tour.",
 	"tour.organiser.riders":
 		"Cyclistes\u00a0: tout le monde dans l'équipe avec ses Rynke d'entraînement et d'équipe et ce qu'il lui manque.",
+	"tour.organiser.riders.rides":
+		"Et aussi combien de leurs sorties ont compté cette saison et la longueur d'une sortie typique.",
 	"tour.organiser.example":
 		"Équipe d'exemple\u00a0: voilà à quoi ressemble Orga en pleine saison. Rien n'est cliquable ici\u00a0; tu verras la vraie équipe après la visite.",
 	"tour.organiser.groups":
 		"Les groupes\u00a0: «\u00a0Besoin d'un coup de pouce\u00a0» est en retard sur le rythme, «\u00a0Dans le rythme\u00a0» suit le plan, «\u00a0Objectif atteint\u00a0» a tout. Touche une tuile pour ne voir que ses cyclistes. D'abord\u00a0: tous ceux qui ont un signalement ouvert.",
 	"tour.organiser.pace":
 		"La marque sur chaque barre est le rythme régulier jusqu'à la date limite. Les cyclistes à sa gauche ont besoin d'un coup de pouce. Touche un nom pour ouvrir ses corrections\u00a0: Rynke ajoutés ou retirés, avec une raison.",
+	"tour.organiser.graphs":
+		"Progression\u00a0: kilomètres et dénivelé sur la saison, par cycliste et pour toute l'équipe. Seuls les cyclistes qui ont accepté les chiffres journaliers ont une ligne. Sur un téléphone, passe des cyclistes aux graphiques en haut.",
 	"tour.organiser.requests":
 		"Signalements\u00a0: des cyclistes te disent qu'ils étaient à un événement d'équipe. «\u00a0Ajouter\u00a0» leur donne les Rynke de l'événement, ✕ refuse. Tu peux annuler l'un ou l'autre pendant un court moment.",
 	"tour.organiser.newEvent":
 		"Ajoute ici les événements d'équipe\u00a0: type, date, et un nom si tu veux. Un entraînement d'équipe rapporte {teamTraining} Rynke d'équipe, une journée du week-end d'entraînement {weekendDay}, un entraînement technique {technique}.",
+	"tour.organiser.newEvent.tourDays":
+		"Les journées du Tour de Paris s'ajoutent ici aussi. Elles ne rapportent pas de Rynke, mais chaque personne que tu coches reçoit le badge du jour.",
 	"tour.organiser.upcoming":
 		"Un événement à venir\u00a0: les cyclistes disent à l'avance s'ils viennent. Le nombre indique combien ont dit oui.",
 	"tour.organiser.past":

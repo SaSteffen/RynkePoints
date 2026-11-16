@@ -26,6 +26,16 @@ parameters, filled from `CURRENT_RULES` (research R6): `distanceKm`,
 | `rynke.ride.countsWithoutRynke` | zählt |
 | `tour.rider.events` | Termine: die Teamtermine. Sag vorher Bescheid, ob du dabei bist, und melde danach, dass du da warst. Sobald die Orga dich eingetragen hat, gibt es Teamrynke. |
 
+Added 2026-11-16 (FR-012, FR-016); the three sentences follow their step's
+text while its switch is on:
+
+| Id | German |
+| --- | --- |
+| `tour.rider.team.rides` | Die Rangliste gibt es auch nach Fahrten, Kilometern und Höhenmetern, für die Saison, den Monat oder die Woche. |
+| `tour.organiser.riders.rides` | Dazu, wie viele ihrer Fahrten in der Saison gezählt haben und wie lang eine typische ist. |
+| `tour.organiser.graphs` | Fortschritt: Kilometer und Höhenmeter über die Saison, für einzelne Rider und fürs ganze Team. Eine Linie hat nur, wer den Tageswerten zugestimmt hat. Auf dem Handy schaltest du oben zwischen Ridern und Diagrammen um. |
+| `tour.organiser.newEvent.tourDays` | Die Tage der Tour de Paris trägst du auch hier ein. Sie bringen keine Rynke, aber allen, die du abhakst, das Abzeichen des Tages. |
+
 `tour.organiser.events` goes; the organiser tour now has its own steps. The
 other tour messages are unchanged. `rynke.ride.counts` ("zählt 🪙") is now
 only for a ride with Training Rynke (FR-011).

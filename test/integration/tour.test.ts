@@ -2,6 +2,7 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { getRider } from "../../src/db/riders";
 import { escapeHtml } from "../../src/http/html";
+import { tourSwitches } from "../../src/http/shell";
 import { stepHref, TOURS, tourSteps } from "../../src/http/tour";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
@@ -72,6 +73,16 @@ describe("the rider tour", () => {
 		expect(card).toContain("1 von 12");
 		expect(card).toContain('href="/team?tour=rider&amp;step=2#tour-peloton"');
 		expect(at).toBe("/team");
+	});
+
+	it("names the ranking by ride figures only while the team shows them (FR-016)", async () => {
+		await seedReadyRider();
+		const both = `${t("tour.rider.team")} ${t("tour.rider.team.rides")}`;
+		expect((await hintOn("/team")).card).toContain(both);
+		const off = { ...ctx, env: { ...ctx.env, RIDE_FIGURES: "off" } };
+		const card = hint((await riderPage(off, ATHLETE_A, "/team")).html);
+		expect(card).toContain(t("tour.rider.team"));
+		expect(card).not.toContain(t("tour.rider.team.rides"));
 	});
 
 	it("offers to start on any other page", async () => {
@@ -366,6 +377,7 @@ describe("the organiser tour", () => {
 			["/organiser/riders", null],
 			["/organiser/riders", "tour-groups"],
 			["/organiser/riders", "tour-pace"],
+			["/organiser/riders", "organiser-graphs"],
 			["/organiser", "tour-requests"],
 			["/organiser", "tour-new-event"],
 			["/organiser", "tour-later-event"],
@@ -376,7 +388,9 @@ describe("the organiser tour", () => {
 				card,
 				target: at,
 				page,
-			} = await hintOn(`${step.path}?tour=organiser&step=${i + 1}`);
+			} = await hintOn(
+				`${step.path}?${step.query ? `${step.query}&` : ""}tour=organiser&step=${i + 1}`,
+			);
 			expect(card).toContain(`${i + 1} von ${steps.length}`);
 			if (step.target) {
 				expect(card).toContain(`data-target="${step.target}"`);
@@ -390,9 +404,16 @@ describe("the organiser tour", () => {
 				);
 			} else expect(card).toContain(t("tour.done"));
 		}
-		const events = (await hintOn("/organiser?tour=organiser&step=5")).card;
+		const events = (await hintOn("/organiser?tour=organiser&step=6")).card;
 		expect(events).toContain(
 			`Ein Teamtraining bringt ${CURRENT_RULES.teamEvents.team_training.team}\u00a0Teamrynke`,
+		);
+		// Hamburg records the Tour de Paris days (020 FR-016).
+		expect(events).toContain(t("tour.organiser.newEvent.tourDays"));
+		expect(
+			(await hintOn("/organiser/riders?tour=organiser&step=1")).card,
+		).toContain(
+			`${t("tour.organiser.riders")} ${t("tour.organiser.riders.rides")}`,
 		);
 		await finish("organiser", "/organiser");
 		expect((await hintOn("/organiser/riders")).card).toBeNull();
@@ -441,9 +462,12 @@ describe("the example team (feature 020)", () => {
 			expect(page).toContain(
 				`<p class="notice tour-example" role="note">${t("tour.organiser.example")}</p>`,
 			);
-			expect(page).toContain('<div class="team-overview" inert>');
-			// No graphs of the example team (feature 029 contracts/pages.md).
-			expect(page).not.toContain("organiser-graphs");
+			expect(page).toContain(
+				'<div class="team-overview" data-view="riders" inert>',
+			);
+			// The example's graphs and rides, as the real page has them.
+			expect(page).toContain('<section id="organiser-graphs"');
+			expect(page).toContain('<p class="rider-sessions">');
 			expect(page).toContain('id="tour-groups"');
 			expect(page).toContain('id="tour-pace"');
 			for (const name of ["Anna", "Ben", "Clara", "Deniz", "Emma", "Finn"]) {
@@ -459,6 +483,74 @@ describe("the example team (feature 020)", () => {
 		expect(own).not.toContain('<span class="rider-name">Anna</span>');
 	});
 
+	it("opens on its graphs on the graphs step, with a line for each rider (020 FR-012)", async () => {
+		await seedOrganiser();
+		const pace = (await hintOn("/organiser/riders?tour=organiser&step=3")).card;
+		expect(pace).toContain(
+			'href="/organiser/riders?view=graphs&amp;tour=organiser&amp;step=4#organiser-graphs"',
+		);
+		const { card, page } = await hintOn(
+			"/organiser/riders?view=graphs&tour=organiser&step=4",
+		);
+		expect(card).toContain(t("tour.organiser.graphs"));
+		expect(page).toContain(
+			'<div class="team-overview" data-view="graphs" inert>',
+		);
+		const data = JSON.parse(
+			page.match(
+				/<script type="application\/json" id="organiser-graphs-data">([\s\S]*?)<\/script>/,
+			)?.[1] ?? "null",
+		) as { riders: { name: string; days: unknown[] }[] } | null;
+		expect(data?.riders.map((r) => r.name)).toEqual([
+			"Anna",
+			"Ben",
+			"Clara",
+			"Deniz",
+			"Emma",
+			"Finn",
+		]);
+		for (const rider of data?.riders ?? []) {
+			expect(rider.days.length).toBeGreaterThan(0);
+		}
+	});
+
+	it("leaves out the graphs step and the added sentences when the team doesn't show them (020 FR-012, FR-016)", async () => {
+		await seedOrganiser();
+		const off = {
+			...ctx,
+			env: {
+				...ctx.env,
+				ORGANISER_PROGRESS_GRAPH: "off",
+				RIDE_FIGURES: "off",
+				BADGES: "off",
+			},
+		};
+		const steps = tourSteps(
+			"organiser",
+			{ organiser: true },
+			tourSwitches(off),
+		);
+		expect(steps.map((s) => s.target ?? null)).not.toContain(
+			"organiser-graphs",
+		);
+		const riders = await riderPage(
+			off,
+			ATHLETE_A,
+			"/organiser/riders?tour=organiser&step=1",
+		);
+		expect(hint(riders.html)).not.toContain(t("tour.organiser.riders.rides"));
+		expect(riders.html).not.toContain("organiser-graphs");
+		const events = await riderPage(
+			off,
+			ATHLETE_A,
+			"/organiser?tour=organiser&step=5",
+		);
+		expect(hint(events.html)).toContain("Hier legst du Teamtermine an");
+		expect(hint(events.html)).not.toContain(
+			t("tour.organiser.newEvent.tourDays"),
+		);
+	});
+
 	it("has riders in each group the day allows, and open requests", async () => {
 		await seedOrganiser();
 		const { page } = await hintOn("/organiser/riders?tour=organiser&step=2");
@@ -470,7 +562,7 @@ describe("the example team (feature 020)", () => {
 
 	it("shows its requests and events on the tour's Termine steps, around the real form", async () => {
 		await seedOrganiser();
-		const { page } = await hintOn("/organiser?tour=organiser&step=4");
+		const { page } = await hintOn("/organiser?tour=organiser&step=5");
 		expect(page).toContain(
 			`<p class="notice tour-example" role="note">${t("tour.organiser.example")}</p>`,
 		);
@@ -503,7 +595,7 @@ describe("the example team (feature 020)", () => {
 			).first();
 		const before = await count();
 		await hintOn("/organiser/riders?tour=organiser&step=1");
-		await hintOn("/organiser?tour=organiser&step=4");
+		await hintOn("/organiser?tour=organiser&step=5");
 		expect(await count()).toEqual(before);
 	});
 });
