@@ -795,10 +795,10 @@ test.describe("sparkling", () => {
 		);
 		const gif = await bytesOf(saved);
 		expect(gif.subarray(0, 6).toString("latin1")).toBe("GIF89a");
-		expect([gif.readUInt16LE(6), gif.readUInt16LE(8)]).toEqual([1080, 1080]);
+		expect([gif.readUInt16LE(6), gif.readUInt16LE(8)]).toEqual([720, 720]);
 		expect(gif.includes("NETSCAPE2.0")).toBe(true);
 		expect(await alphaAt(sheet, 4, 4)).toBe(0);
-		expect(await alphaAt(sheet, 540, 540)).toBe(255);
+		expect(await alphaAt(sheet, 360, 360)).toBe(255);
 		await sheet.locator(".share-plain [role=switch]").click();
 
 		// Auf Foto has no picture yet, and nothing is made.
