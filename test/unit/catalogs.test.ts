@@ -519,7 +519,7 @@ const CONTRACT_IDS = [
 	"badges.share.format.image",
 	"badges.share.format.photo",
 	"badges.share.shiny",
-	"badges.share.plain",
+	"badges.share.format.gif",
 	"badges.share.pickPhoto",
 	"badges.share.otherPhoto",
 	"badges.share.photoPrivate",

@@ -804,24 +804,30 @@ describe("sharing a badge (033)", () => {
 			`<label><input type="radio" name="share-format" value="story" autocomplete="off" checked>${de["badges.share.format.story"]}</label>`,
 		);
 		expect(sheet).toContain(
+			`<label><input type="radio" name="share-format" value="gif" autocomplete="off">${de["badges.share.format.gif"]}</label>`,
+		);
+		// Story, GIF, Bild, Auf Foto: in that order.
+		expect(
+			[...sheet.matchAll(/name="share-format" value="(\w+)"/g)].map(
+				(m) => m[1],
+			),
+		).toEqual(["story", "gif", "image", "photo"]);
+		expect(sheet).toContain(
 			`<label><input type="radio" name="share-format" value="image" autocomplete="off">${de["badges.share.format.image"]}</label>`,
 		);
 		expect(sheet).toContain(
 			`<label><input type="radio" name="share-format" value="photo" autocomplete="off">${de["badges.share.format.photo"]}</label>`,
 		);
-		// "Glitzernd" and "Ohne Hintergrund", off and hidden until the script
-		// knows they apply.
+		// "Glitzernd" alone, off and hidden until the script knows it applies:
+		// GIF is the sparkling sticker, Bild has nothing to switch.
 		expect([
 			...sheet.matchAll(/role="switch" aria-checked="false"/g),
-		]).toHaveLength(2);
+		]).toHaveLength(1);
 		expect(sheet).toContain(
 			`<span id="share-shiny-label">${de["badges.share.shiny"]}</span>`,
 		);
-		expect(sheet).toContain(
-			`<span id="share-plain-label">${de["badges.share.plain"]}</span>`,
-		);
 		expect(sheet).toContain('<span class="share-option share-shiny" hidden>');
-		expect(sheet).toContain('<span class="share-option share-plain" hidden>');
+		expect(sheet).not.toContain("share-plain");
 		expect(sheet).toContain(
 			'<input type="file" accept="image/*" class="share-file" hidden>',
 		);

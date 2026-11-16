@@ -40,14 +40,15 @@ Once per badges page, after the large views: `dialog.share-sheet` holds the foll
   `data-app` (the team's app name, `TeamData.shortName`) and `data-icon` (the team's 192 px app
   icon), so the app mark comes from the team's data (research R3).
 - A heading `#share-sheet-title` with a close button.
-- `fieldset.share-formats`, a segmented group with radio buttons `story` (checked), `image` and
-  `photo`, and a visually hidden legend.
+- `fieldset.share-formats`, a segmented group with radio buttons `story` (checked), `gif`,
+  `image` and `photo`, in that order, and a visually hidden legend.
 - `.share-preview`: `<canvas>`, `<video muted playsinline loop hidden>`, the empty-photo prompt
   ("Foto wählen" with the privacy line), the unreadable-photo line, and the busy label "Wird
   gerendert …" (`role="status"`).
 - The hint lines for touch and mouse, shown only for `photo`.
-- Two switches (`role="switch"`, `aria-checked`), "Glitzernd" and "Ohne Hintergrund", plus "Anderes
-  Foto". All are hidden until the script decides they apply.
+- One switch (`role="switch"`, `aria-checked`), "Glitzernd", for Story and Auf Foto where the
+  browser can make an MP4, plus "Anderes Foto". Both are hidden until the script decides they apply.
+  GIF always sparkles and Bild never does, so neither has a switch.
 - `<input type="file" accept="image/*" hidden>`.
 - The actions "Teilen …", "Speichern" and "Kopieren", and a status line (`role="status"`) for
   saved, copied and failed.

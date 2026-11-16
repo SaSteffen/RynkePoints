@@ -4782,7 +4782,6 @@ function badgeShare(signal) {
 	const frame = sheet.querySelector(".share-frame");
 	const turn = sheet.querySelector(".share-turn");
 	const mouse = window.matchMedia("(hover: hover) and (pointer: fine)");
-	const plain = sheet.querySelector(".share-plain [role=switch]");
 	const shinyOption = sheet.querySelector(".share-shiny");
 	const shiny = shinyOption.querySelector("[role=switch]");
 	const video = sheet.querySelector(".share-preview video");
@@ -4828,7 +4827,8 @@ function badgeShare(signal) {
 		videoUrl: null,
 	};
 	const checked = (toggle) => toggle.getAttribute("aria-checked") === "true";
-	const sticker = () => state.format === "image" && checked(plain);
+	/** GIF: Bild without its background, sparkling (contracts/files.md). */
+	const sticker = () => state.format === "gif";
 	const kind = () => (sticker() ? "sticker" : state.format);
 
 	/** The output's size for the current format (contracts/files.md). */
@@ -4994,8 +4994,8 @@ function badgeShare(signal) {
 	}
 
 	/**
-	 * Makes the sparkling GIF of Bild at w × h, with its background or
-	 * without: no codec needed, so every browser can.
+	 * Makes the sparkling GIF at w × h: the badge alone, transparent
+	 * round it; no codec needed, so every browser can.
 	 */
 	async function makeGif(run, w, h) {
 		const controller = new AbortController();
@@ -5064,7 +5064,6 @@ function badgeShare(signal) {
 		for (const button of actions) button.disabled = true;
 		const onPhoto = state.format === "photo";
 		const placing = onPhoto && Boolean(state.photo);
-		sheet.querySelector(".share-plain").hidden = state.format !== "image";
 		empty.hidden = !onPhoto || placing;
 		unreadable.hidden = !state.unreadable;
 		repick.hidden = !placing;
@@ -5078,15 +5077,17 @@ function badgeShare(signal) {
 		}
 		// H.264 needs even sides: an odd photo loses its last row or column.
 		const [w, h] = size().map((side) => side - (side % 2));
-		// Bild sparkles as a GIF, the sticker too; the others as an MP4.
-		const asGif = state.format === "image";
-		const sparkling = asGif || (await shareCanVideo(w, h));
+		// GIF always sparkles, Bild never: neither has a switch. Story and
+		// Auf Foto sparkle as an MP4 where the browser can make one.
+		copy.hidden = true;
+		if (sticker()) {
+			shinyOption.hidden = true;
+			return makeGif(run, w, h);
+		}
+		const sparkling = state.format !== "image" && (await shareCanVideo(w, h));
 		if (run !== state.run) return;
 		shinyOption.hidden = !sparkling;
-		copy.hidden = true;
-		if (sparkling && checked(shiny)) {
-			return asGif ? makeGif(run, w, h) : makeVideo(run, w, h);
-		}
+		if (sparkling && checked(shiny)) return makeVideo(run, w, h);
 		const blob = await new Promise((resolve) =>
 			canvas.toBlob(resolve, "image/png"),
 		);
@@ -5111,16 +5112,14 @@ function badgeShare(signal) {
 			on,
 		);
 	}
-	for (const toggle of [plain, shiny]) {
-		toggle.addEventListener(
-			"click",
-			() => {
-				toggle.setAttribute("aria-checked", String(!checked(toggle)));
-				prepare();
-			},
-			on,
-		);
-	}
+	shiny.addEventListener(
+		"click",
+		() => {
+			shiny.setAttribute("aria-checked", String(!checked(shiny)));
+			prepare();
+		},
+		on,
+	);
 
 	send.addEventListener(
 		"click",
@@ -5439,7 +5438,6 @@ function badgeShare(signal) {
 		for (const radio of sheet.querySelectorAll("input[name=share-format]")) {
 			radio.checked = radio.value === "story";
 		}
-		plain.setAttribute("aria-checked", "false");
 		shiny.setAttribute("aria-checked", "false");
 		// "Glitzernd" is offered once the muxer is here (research R5).
 		const muxer = window.Mp4Muxer ? null : shareLoadMuxer();

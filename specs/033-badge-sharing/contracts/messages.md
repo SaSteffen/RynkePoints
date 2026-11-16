@@ -12,10 +12,10 @@ existing badge names.
 | `badges.share.label` | „{name}“ teilen | Share “{name}” |
 | `badges.share.formatLegend` | Als | As |
 | `badges.share.format.story` | Story | Story |
+| `badges.share.format.gif` | GIF | GIF |
 | `badges.share.format.image` | Bild | Image |
 | `badges.share.format.photo` | Auf Foto | On photo |
 | `badges.share.shiny` | Glitzernd | Sparkling |
-| `badges.share.plain` | Ohne Hintergrund | No background |
 | `badges.share.pickPhoto` | Foto wählen | Choose photo |
 | `badges.share.otherPhoto` | Anderes Foto | Other photo |
 | `badges.share.photoPrivate` | Dein Foto bleibt auf deinem Gerät. | Your photo stays on your device. |

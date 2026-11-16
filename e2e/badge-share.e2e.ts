@@ -26,7 +26,10 @@ async function openBadges(page: Page) {
 const sheetOf = (page: Page) => page.locator("dialog.share-sheet");
 
 /** Picks a format by its label, as a rider taps it. */
-async function pick(sheet: Locator, format: "story" | "image" | "photo") {
+async function pick(
+	sheet: Locator,
+	format: "story" | "gif" | "image" | "photo",
+) {
 	await sheet
 		.locator("label")
 		.filter({ has: sheet.page().locator(`input[value="${format}"]`) })
@@ -121,35 +124,27 @@ test.describe("on a phone", () => {
 			},
 		]);
 
+		// GIF: the badge alone, sparkling and transparent round it, with
+		// nothing to switch.
+		await pick(sheet, "gif");
+		await expect(sheet.locator(".share-shiny")).toBeHidden();
+		await expect(sheet.locator(".share-save")).toBeEnabled(RENDERING);
+		await expect(sheet.locator(".share-copy")).toBeHidden();
+		const sticker = page.waitForEvent("download");
+		await sheet.locator(".share-save").tap();
+		expect((await sticker).suggestedFilename()).toMatch(
+			new RegExp(`^[a-z0-9-]+-${id}-sticker\\.gif$`),
+		);
+
+		// Bild: the square picture with its background, nothing to switch.
 		await pick(sheet, "image");
 		await ready(sheet);
 		expect(await canvasSize(sheet)).toEqual([1080, 1080]);
+		await expect(sheet.locator(".share-shiny")).toBeHidden();
 		const image = page.waitForEvent("download");
 		await sheet.locator(".share-save").tap();
 		expect((await image).suggestedFilename()).toMatch(
 			new RegExp(`^[a-z0-9-]+-${id}-image\\.png$`),
-		);
-
-		// "Ohne Hintergrund": the badge alone, transparent around it; it can
-		// sparkle too, as a GIF.
-		await sheet.locator(".share-plain [role=switch]").tap();
-		await expect(sheet.locator(".share-plain [role=switch]")).toHaveAttribute(
-			"aria-checked",
-			"true",
-		);
-		await ready(sheet);
-		const corner = await sheet
-			.locator(".share-preview canvas")
-			.evaluate(
-				(canvas: Canvas) =>
-					canvas.getContext("2d")?.getImageData(4, 4, 1, 1).data[3],
-			);
-		expect(corner).toBe(0);
-		await expect(sheet.locator(".share-shiny")).toBeVisible();
-		const sticker = page.waitForEvent("download");
-		await sheet.locator(".share-save").tap();
-		expect((await sticker).suggestedFilename()).toMatch(
-			new RegExp(`^[a-z0-9-]+-${id}-sticker\\.png$`),
 		);
 
 		await sheet.locator(".share-sheet-close").tap();
@@ -772,16 +767,10 @@ test.describe("sparkling", () => {
 
 		await sheet.locator(".share-shiny [role=switch]").click();
 		await expect(sheet.locator(".share-busy")).toBeVisible();
-		// Bild while the story is rendering, then Ohne Hintergrund while
-		// that is: the sparkling sticker is made instead, as a GIF that keeps
-		// its transparency.
-		await sheet
-			.locator("label")
-			.filter({ hasText: /^Bild$/ })
-			.click();
-		await expect(sheet.locator(".share-busy")).toBeVisible();
-		await sheet.locator(".share-plain [role=switch]").click();
-		await expect(sheet.locator(".share-shiny")).toBeVisible();
+		// GIF while the story is rendering: the sparkling sticker is made
+		// instead, a GIF that keeps its transparency, with nothing to switch.
+		await sheet.locator("label").filter({ hasText: /^GIF$/ }).click();
+		await expect(sheet.locator(".share-shiny")).toBeHidden();
 		await expect(sheet.locator(".share-busy")).toBeVisible();
 		await expect(sheet.locator(".share-busy")).toBeHidden(RENDERING);
 		await ready(sheet);
@@ -799,7 +788,6 @@ test.describe("sparkling", () => {
 		expect(gif.includes("NETSCAPE2.0")).toBe(true);
 		expect(await alphaAt(sheet, 4, 4)).toBe(0);
 		expect(await alphaAt(sheet, 360, 360)).toBe(255);
-		await sheet.locator(".share-plain [role=switch]").click();
 
 		// Auf Foto has no picture yet, and nothing is made.
 		await sheet
