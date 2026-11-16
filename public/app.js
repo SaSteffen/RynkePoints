@@ -3969,7 +3969,7 @@ function shareShine(assets, progress) {
  * the four stars twinkling as badge-twinkle, and the shine when it sweeps.
  * Still pictures never get this (FR-020).
  */
-function shareSparkle(ctx, assets, x, y, size, t) {
+function shareSparkle(ctx, assets, x, y, size, t, shine = true) {
 	const box = size * 1.06;
 	const x0 = x - size * 0.03;
 	const y0 = y - size * 0.03;
@@ -3997,7 +3997,7 @@ function shareSparkle(ctx, assets, x, y, size, t) {
 		ctx.fill();
 		ctx.restore();
 	}
-	for (const start of SHARE_SHINES) {
+	for (const start of shine ? SHARE_SHINES : []) {
 		if (t >= start && t < start + SHARE_SHINE_SECONDS) {
 			const progress = (t - start) / SHARE_SHINE_SECONDS;
 			ctx.drawImage(shareShine(assets, progress), x, y, size, size);
@@ -4139,6 +4139,484 @@ async function shareEncode(still, assets, box, signal) {
 	} finally {
 		signal.removeEventListener("abort", stop);
 		stop();
+		frame.width = 0;
+	}
+}
+
+/**
+ * The sparkling picture (Bild, with or without its background) is a looping
+ * GIF rather than an MP4: messengers show a GIF as a picture, and the
+ * sticker keeps its transparency, which H.264 can't carry. 20 frames a
+ * second, since a GIF counts in hundredths; the same 5 s, so it loops as the
+ * video does. Only the stars twinkle: the shine would sweep over every
+ * pixel of the badge and make the file several times larger. 720 px, which
+ * is more than a chat shows. Made here, with no library: none writes the
+ * small changed rectangles that keep the file small.
+ */
+const SHARE_GIF_FPS = 20;
+const SHARE_GIF_FRAMES = (SHARE_FRAMES / SHARE_FPS) * SHARE_GIF_FPS;
+/** The GIF's side: smaller than the PNG's, which keeps the file small. */
+const SHARE_GIF_SIDE = 720;
+/** The colour index that means "nothing here", or "as before" in a frame. */
+const SHARE_GIF_CLEAR = 255;
+
+/** A growing byte buffer. */
+function shareBytes() {
+	let bytes = new Uint8Array(1 << 16);
+	let length = 0;
+	const room = (n) => {
+		if (length + n <= bytes.length) return;
+		let size = bytes.length * 2;
+		while (size < length + n) size *= 2;
+		const grown = new Uint8Array(size);
+		grown.set(bytes.subarray(0, length));
+		bytes = grown;
+	};
+	return {
+		byte(value) {
+			room(1);
+			bytes[length++] = value;
+		},
+		word(value) {
+			room(2);
+			bytes[length++] = value & 0xff;
+			bytes[length++] = (value >> 8) & 0xff;
+		},
+		all(values) {
+			room(values.length);
+			bytes.set(values, length);
+			length += values.length;
+		},
+		get length() {
+			return length;
+		},
+		view: () => bytes.subarray(0, length),
+	};
+}
+
+/**
+ * A palette of up to 255 colours for the histogram `counts` (6 bits a
+ * channel), by median cut, and a lookup from such a colour to its index.
+ */
+function shareGifPalette(counts) {
+	let used = 0;
+	for (let key = 0; key < counts.length; key++) if (counts[key]) used++;
+	const keys = new Uint32Array(used);
+	for (let key = 0, i = 0; key < counts.length; key++) {
+		if (counts[key]) keys[i++] = key;
+	}
+	const channel = (key, c) => (key >> (12 - 6 * c)) & 63;
+	const boxes = [{ from: 0, to: keys.length }];
+	const spread = (box) => {
+		let best = { c: 0, range: -1, weight: 0 };
+		let weight = 0;
+		for (let c = 0; c < 3; c++) {
+			let lo = 63;
+			let hi = 0;
+			for (let i = box.from; i < box.to; i++) {
+				const v = channel(keys[i], c);
+				if (v < lo) lo = v;
+				if (v > hi) hi = v;
+			}
+			if (hi - lo > best.range) best = { c, range: hi - lo };
+		}
+		for (let i = box.from; i < box.to; i++) weight += counts[keys[i]];
+		box.c = best.c;
+		box.score = best.range > 0 ? best.range ** 2 * Math.sqrt(weight) : -1;
+	};
+	if (keys.length) spread(boxes[0]);
+	while (boxes.length < SHARE_GIF_CLEAR) {
+		let pick = null;
+		for (const box of boxes) if (box.score > (pick?.score ?? 0)) pick = box;
+		if (!pick) break;
+		const part = keys.slice(pick.from, pick.to);
+		part.sort((a, b) => channel(a, pick.c) - channel(b, pick.c));
+		keys.set(part, pick.from);
+		let total = 0;
+		for (const key of part) total += counts[key];
+		let cut = pick.from;
+		for (let sum = 0; cut < pick.to - 1; cut++) {
+			sum += counts[keys[cut]];
+			if (sum * 2 >= total) break;
+		}
+		// Both halves keep a colour, even when the heaviest sorts last.
+		cut = Math.min(cut, pick.to - 2);
+		const next = { from: cut + 1, to: pick.to };
+		pick.to = cut + 1;
+		spread(pick);
+		spread(next);
+		boxes.push(next);
+	}
+	const palette = new Uint8Array(256 * 3);
+	const colours = boxes.map((box, index) => {
+		const sum = [0, 0, 0];
+		let weight = 0;
+		for (let i = box.from; i < box.to; i++) {
+			const n = counts[keys[i]];
+			for (let c = 0; c < 3; c++) sum[c] += (channel(keys[i], c) * 4 + 2) * n;
+			weight += n;
+		}
+		const colour = sum.map((s) => Math.round(s / Math.max(1, weight)));
+		palette.set(colour, index * 3);
+		return colour;
+	});
+	const lookup = new Int16Array(1 << 18).fill(-1);
+	const nearest = (key) => {
+		const r = channel(key, 0) * 4 + 2;
+		const g = channel(key, 1) * 4 + 2;
+		const b = channel(key, 2) * 4 + 2;
+		let best = 0;
+		let distance = Number.POSITIVE_INFINITY;
+		for (let i = 0; i < colours.length; i++) {
+			const [pr, pg, pb] = colours[i];
+			const d = (pr - r) ** 2 * 3 + (pg - g) ** 2 * 4 + (pb - b) ** 2 * 2;
+			if (d < distance) {
+				distance = d;
+				best = i;
+			}
+		}
+		lookup[key] = best;
+		return best;
+	};
+	return {
+		palette,
+		lookup,
+		index: (key) => (lookup[key] < 0 ? nearest(key) : lookup[key]),
+	};
+}
+
+/** The 6-bit colour key of RGBA `data` at pixel `i`, or -1 for transparent. */
+function shareGifKey(data, i, clear) {
+	const o = i * 4;
+	if (clear && data[o + 3] < 128) return -1;
+	return (
+		((data[o] >> 2) << 12) | ((data[o + 1] >> 2) << 6) | (data[o + 2] >> 2)
+	);
+}
+
+/**
+ * An 8 × 8 ordered dither, as offsets added to each channel: smooth
+ * gradients get a fine even grain instead of bands. Tied to the place in the
+ * picture, so a pixel that doesn't change keeps its index from frame to
+ * frame, and the stars' squares match the picture round them.
+ */
+const SHARE_GIF_DITHER_AMPLITUDE = 20;
+const SHARE_GIF_DITHER = (() => {
+	let m = [[0]];
+	while (m.length < 8) {
+		m = [
+			...m.map((row) => [
+				...row.map((v) => 4 * v),
+				...row.map((v) => 4 * v + 2),
+			]),
+			...m.map((row) => [
+				...row.map((v) => 4 * v + 3),
+				...row.map((v) => 4 * v + 1),
+			]),
+		];
+	}
+	return Int8Array.from(m.flat(), (v) =>
+		Math.round((v / 63 - 0.5) * SHARE_GIF_DITHER_AMPLITUDE),
+	);
+})();
+/** A channel plus its dither offset (-32…287, at +32) to its 6 bits. */
+const SHARE_GIF_SIX = Uint8Array.from(
+	{ length: 320 },
+	(_, i) => Math.min(255, Math.max(0, i - 32)) >> 2,
+);
+
+/** GIF's LZW of 8-bit `pixels` into `out`, in sub-blocks of 255 bytes. */
+function shareGifLzw(out, pixels, table) {
+	const CLEAR = 256;
+	const END = 257;
+	out.byte(8);
+	const block = new Uint8Array(255);
+	let filled = 0;
+	let bits = 0;
+	let held = 0;
+	let size = 9;
+	let next = 258;
+	const put = (code) => {
+		held |= code << bits;
+		bits += size;
+		while (bits >= 8) {
+			block[filled++] = held & 0xff;
+			held >>>= 8;
+			bits -= 8;
+			if (filled === 255) {
+				out.byte(255);
+				out.all(block);
+				filled = 0;
+			}
+		}
+	};
+	// table.codes[prefix * 256 + pixel] is valid while table.stamp matches.
+	table.round++;
+	put(CLEAR);
+	let prefix = pixels[0];
+	for (let i = 1; i < pixels.length; i++) {
+		const pixel = pixels[i];
+		const slot = prefix * 256 + pixel;
+		if (table.stamps[slot] === table.round) {
+			prefix = table.codes[slot];
+			continue;
+		}
+		put(prefix);
+		if (next < 4096) {
+			table.stamps[slot] = table.round;
+			table.codes[slot] = next;
+			if (next === 1 << size) size++;
+			next++;
+		} else {
+			put(CLEAR);
+			table.round++;
+			size = 9;
+			next = 258;
+		}
+		prefix = pixel;
+	}
+	put(prefix);
+	put(END);
+	if (bits > 0) {
+		block[filled++] = held & 0xff;
+		if (filled === 255) {
+			out.byte(255);
+			out.all(block);
+			filled = 0;
+		}
+	}
+	if (filled) {
+		out.byte(filled);
+		out.all(block.subarray(0, filled));
+	}
+	out.byte(0);
+}
+
+/**
+ * The sparkling GIF of `still` with the badge at `box`, transparent where
+ * `still` is when `clear` (the sticker). Only the badge and its stars move,
+ * so each frame after the first holds just the rectangle where it differs
+ * from the first, with "as before" in it wherever it doesn't. Null once
+ * `signal` aborts.
+ */
+async function shareEncodeGif(still, assets, box, clear, signal) {
+	const { width: w, height: h } = still;
+	// What can move: the badge and its stars, 3 % outside it, with their
+	// shadows.
+	const reach = box.size * 0.06 + 8;
+	const zone = {
+		x: Math.max(0, Math.floor(box.x - reach)),
+		y: Math.max(0, Math.floor(box.y - reach)),
+	};
+	zone.w = Math.min(w, Math.ceil(box.x + box.size + reach)) - zone.x;
+	zone.h = Math.min(h, Math.ceil(box.y + box.size + reach)) - zone.y;
+	const all = [{ x: 0, y: 0, w: zone.w, h: zone.h }];
+	// Each star's square in the zone, turned up to 45°, with its shadow.
+	const stars = SHARE_STARS.map((star) => {
+		const side = box.size * 1.06;
+		const cx = box.x - box.size * 0.03 + (star.left + star.size / 2) * side;
+		const cy = box.y - box.size * 0.03 + (star.top + star.size / 2) * side;
+		const half = star.size * side * 0.71 + (box.size / SHARE_LARGE) * 3 + 2;
+		const x = Math.max(0, Math.floor(cx - half - zone.x));
+		const y = Math.max(0, Math.floor(cy - half - zone.y));
+		return {
+			x,
+			y,
+			w: Math.min(zone.w, Math.ceil(cx + half - zone.x)) - x,
+			h: Math.min(zone.h, Math.ceil(cy + half - zone.y)) - y,
+		};
+	});
+	/** Where a frame can differ from the still badge: only the stars. */
+	const parts = box.r ? all : stars;
+	const frame = shareCanvas(zone.w, zone.h);
+	const c = frame.getContext("2d", { willReadFrequently: true });
+	// The page stays usable: a pause after every 30 ms of work, not after
+	// every frame, as a timer's pause is 4 ms at the least.
+	let worked = performance.now();
+	const yieldNow = async () => {
+		if (performance.now() - worked < 30) return;
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		worked = performance.now();
+	};
+	/** Frame `i`'s pixels in the zone's part `r`, as RGBA. */
+	const draw = (i, r) => {
+		const left = zone.x + r.x;
+		const top = zone.y + r.y;
+		c.clearRect(0, 0, r.w, r.h);
+		c.drawImage(still, left, top, r.w, r.h, 0, 0, r.w, r.h);
+		c.save();
+		c.translate(-left, -top);
+		shareTurn(c, box);
+		shareSparkle(c, assets, box.x, box.y, box.size, i / SHARE_GIF_FPS, false);
+		c.restore();
+		return c.getImageData(0, 0, r.w, r.h).data;
+	};
+	try {
+		const whole = still
+			.getContext("2d", { willReadFrequently: true })
+			.getImageData(0, 0, w, h).data;
+		// The palette from the still picture and a few sparkling frames.
+		const counts = new Uint32Array(1 << 18);
+		for (let i = 0; i < w * h; i++) {
+			const key = shareGifKey(whole, i, clear);
+			if (key >= 0) counts[key]++;
+		}
+		// The loop starts where the fewest star pixels
+		// lie off the sticker's badge (see the first frame below).
+		let start = 0;
+		let fewest = Number.POSITIVE_INFINITY;
+		for (let i = 0; i < SHARE_GIF_FRAMES; i += 10) {
+			if (signal.aborted) return null;
+			const data = draw(i, all[0]);
+			let off = 0;
+			for (let p = 0, y = 0; y < zone.h; y++) {
+				const row = (zone.y + y) * w + zone.x;
+				for (let x = 0; x < zone.w; x++, p++) {
+					const key = shareGifKey(data, p, clear);
+					if (key < 0) continue;
+					counts[key] += 4;
+					if (clear && whole[(row + x) * 4 + 3] < 128) off++;
+				}
+			}
+			if (off < fewest) {
+				fewest = off;
+				start = i;
+			}
+			await yieldNow();
+		}
+		const { palette, index, lookup } = shareGifPalette(counts);
+		/**
+		 * RGBA `data` (width × height, its top left at left, top in the
+		 * picture) as dithered palette indices, `CLEAR` where transparent.
+		 */
+		const indexed = (data, width, height, left, top) => {
+			const out = new Uint8Array(width * height);
+			for (let y = 0, p = 0; y < height; y++) {
+				const row = ((top + y) & 7) * 8;
+				for (let x = 0; x < width; x++, p++) {
+					const o = p * 4;
+					if (clear && data[o + 3] < 128) {
+						out[p] = SHARE_GIF_CLEAR;
+						continue;
+					}
+					const nudge = SHARE_GIF_DITHER[row + ((left + x) & 7)] + 32;
+					const key =
+						SHARE_GIF_SIX[data[o] + nudge] * 4096 +
+						SHARE_GIF_SIX[data[o + 1] + nudge] * 64 +
+						SHARE_GIF_SIX[data[o + 2] + nudge];
+					const known = lookup[key];
+					out[p] = known < 0 ? index(key) : known;
+				}
+			}
+			return out;
+		};
+		const base = indexed(whole, w, h, 0, 0);
+
+		const out = shareBytes();
+		for (const ch of "GIF89a") out.byte(ch.charCodeAt(0));
+		out.word(w);
+		out.word(h);
+		out.all([0xf7, SHARE_GIF_CLEAR, 0]);
+		out.all(palette);
+		out.all([0x21, 0xff, 0x0b]);
+		for (const ch of "NETSCAPE2.0") out.byte(ch.charCodeAt(0));
+		out.all([3, 1, 0, 0, 0]);
+		const table = {
+			stamps: new Uint32Array(4096 * 256),
+			codes: new Uint16Array(4096 * 256),
+			round: 0,
+		};
+		// A GIF counts in hundredths: frame k's share of them, so that 15 or
+		// 30 frames a second keep the clip's 5 s too.
+		const step = (k) =>
+			Math.round(((k + 1) * 100) / SHARE_GIF_FPS) -
+			Math.round((k * 100) / SHARE_GIF_FPS);
+		const write = (x, y, fw, fh, pixels, dispose, delay) => {
+			out.all([0x21, 0xf9, 4, (dispose << 2) | 1]);
+			out.word(delay);
+			out.all([SHARE_GIF_CLEAR, 0, 0x2c]);
+			out.word(x);
+			out.word(y);
+			out.word(fw);
+			out.word(fh);
+			out.byte(0);
+			shareGifLzw(out, pixels, table);
+		};
+
+		// The ground: the first frame without what lies off the badge, as
+		// the whole picture. Every frame after it draws only where it differs
+		// from the ground and then gives the ground back (disposal 3), so a
+		// star fading off the sticker needs nothing cleared.
+		const first = indexed(draw(start, all[0]), zone.w, zone.h, zone.x, zone.y);
+		const ground = first.slice();
+		let off = false;
+		for (let y = 0, p = 0; y < zone.h; y++) {
+			for (let x = 0; x < zone.w; x++, p++) {
+				if (base[(zone.y + y) * w + zone.x + x] !== SHARE_GIF_CLEAR) continue;
+				if (ground[p] !== SHARE_GIF_CLEAR) off = true;
+				ground[p] = SHARE_GIF_CLEAR;
+			}
+		}
+		const opening = base.slice();
+		for (let y = 0; y < zone.h; y++) {
+			opening.set(
+				ground.subarray(y * zone.w, (y + 1) * zone.w),
+				(zone.y + y) * w + zone.x,
+			);
+		}
+		// Bild has no transparent ground, so its first frame is the ground.
+		// The sticker's shows the ground for 2/100 s, the least a browser
+		// keeps, and the rest of its first frame's time with those stars.
+		write(0, 0, w, h, opening, 1, off ? 2 : step(0));
+		// The frame's colour where it differs from the ground, else "as
+		// before"; put back after each frame.
+		const differs = new Uint8Array(zone.w * zone.h).fill(SHARE_GIF_CLEAR);
+		for (let k = off ? 0 : 1; k < SHARE_GIF_FRAMES; k++) {
+			if (signal.aborted) return null;
+			const i = (start + k) % SHARE_GIF_FRAMES;
+			const rects = k === 0 ? all : parts;
+			let x0 = zone.w;
+			let y0 = zone.h;
+			let x1 = -1;
+			let y1 = -1;
+			for (const r of rects) {
+				const pixels =
+					k === 0
+						? first
+						: indexed(draw(i, r), r.w, r.h, zone.x + r.x, zone.y + r.y);
+				for (let y = 0, q = 0; y < r.h; y++) {
+					let p = (r.y + y) * zone.w + r.x;
+					for (let x = 0; x < r.w; x++, p++, q++) {
+						if (pixels[q] === ground[p]) continue;
+						differs[p] = pixels[q];
+						if (r.x + x < x0) x0 = r.x + x;
+						if (r.x + x > x1) x1 = r.x + x;
+						if (r.y + y < y0) y0 = r.y + y;
+						if (r.y + y > y1) y1 = r.y + y;
+					}
+				}
+			}
+			const delay = k === 0 ? step(0) - 2 : step(k);
+			if (x1 < 0) {
+				write(zone.x, zone.y, 1, 1, [SHARE_GIF_CLEAR], 3, delay);
+			} else {
+				const fw = x1 - x0 + 1;
+				const fh = y1 - y0 + 1;
+				const pixels = new Uint8Array(fw * fh);
+				for (let y = 0; y < fh; y++) {
+					const from = (y0 + y) * zone.w + x0;
+					pixels.set(differs.subarray(from, from + fw), y * fw);
+					differs.fill(SHARE_GIF_CLEAR, from, from + fw);
+				}
+				write(zone.x + x0, zone.y + y0, fw, fh, pixels, 3, delay);
+			}
+			await yieldNow();
+		}
+		out.byte(0x3b);
+		return signal.aborted
+			? null
+			: new Blob([out.view()], { type: "image/gif" });
+	} finally {
 		frame.width = 0;
 	}
 }
@@ -4308,6 +4786,7 @@ function badgeShare(signal) {
 	const shinyOption = sheet.querySelector(".share-shiny");
 	const shiny = shinyOption.querySelector("[role=switch]");
 	const video = sheet.querySelector(".share-preview video");
+	const gif = sheet.querySelector(".share-preview .share-gif");
 	const busy = sheet.querySelector(".share-busy");
 	const still = window.matchMedia("(prefers-reduced-motion: reduce)");
 	const status = sheet.querySelector(".share-status");
@@ -4461,6 +4940,10 @@ function badgeShare(signal) {
 			state.videoUrl = null;
 		}
 		video.hidden = true;
+		if (gif) {
+			gif.removeAttribute("src");
+			gif.hidden = true;
+		}
 		canvas.hidden = false;
 	}
 
@@ -4510,6 +4993,68 @@ function badgeShare(signal) {
 		}
 	}
 
+	/**
+	 * Makes the sparkling GIF of Bild at w × h, with its background or
+	 * without: no codec needed, so every browser can.
+	 */
+	async function makeGif(run, w, h) {
+		const controller = new AbortController();
+		state.encoding = controller;
+		busy.hidden = false;
+		const frame = shareCanvas(w, h);
+		try {
+			if (!paint(frame.getContext("2d"), w, h)) return;
+			// Drawn as the PNG is, then scaled down to the GIF's side.
+			const scale = Math.min(1, SHARE_GIF_SIDE / w);
+			const gw = Math.round(w * scale);
+			const gh = Math.round(h * scale);
+			const small = shareCanvas(gw, gh);
+			const s = small.getContext("2d", { willReadFrequently: true });
+			s.imageSmoothingQuality = "high";
+			s.drawImage(frame, 0, 0, gw, gh);
+			frame.width = 0;
+			const box = badgeBox(w, h);
+			const blob = await shareEncodeGif(
+				small,
+				state.assets,
+				{
+					x: box.x * scale,
+					y: box.y * scale,
+					size: box.size * scale,
+					r: box.r,
+				},
+				sticker(),
+				controller.signal,
+			).finally(() => {
+				small.width = 0;
+			});
+			if (run !== state.run || !blob || !state.source) return;
+			state.file = new File(
+				[blob],
+				`${shareSlug(app)}-${state.source.id}-${kind()}.gif`,
+				{ type: "image/gif" },
+			);
+			// Reduced motion: the preview stays still; the file sparkles
+			// (FR-026).
+			if (gif && !still.matches) {
+				state.videoUrl = URL.createObjectURL(state.file);
+				gif.src = state.videoUrl;
+				gif.hidden = false;
+				canvas.hidden = true;
+			}
+			send.hidden = !shareCanFiles(state.file);
+			for (const button of [send, save]) button.disabled = false;
+		} catch {
+			if (run === state.run) status.textContent = sheet.dataset.failed ?? "";
+		} finally {
+			frame.width = 0;
+			if (state.encoding === controller) {
+				state.encoding = null;
+				busy.hidden = true;
+			}
+		}
+	}
+
 	/** Draws the preview and makes its file; the actions wait for it. */
 	async function prepare() {
 		const run = ++state.run;
@@ -4533,11 +5078,15 @@ function badgeShare(signal) {
 		}
 		// H.264 needs even sides: an odd photo loses its last row or column.
 		const [w, h] = size().map((side) => side - (side % 2));
-		const sparkling = !sticker() && (await shareCanVideo(w, h));
+		// Bild sparkles as a GIF, the sticker too; the others as an MP4.
+		const asGif = state.format === "image";
+		const sparkling = asGif || (await shareCanVideo(w, h));
 		if (run !== state.run) return;
 		shinyOption.hidden = !sparkling;
 		copy.hidden = true;
-		if (sparkling && checked(shiny)) return makeVideo(run, w, h);
+		if (sparkling && checked(shiny)) {
+			return asGif ? makeGif(run, w, h) : makeVideo(run, w, h);
+		}
 		const blob = await new Promise((resolve) =>
 			canvas.toBlob(resolve, "image/png"),
 		);
