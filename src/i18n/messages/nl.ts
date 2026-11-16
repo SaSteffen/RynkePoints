@@ -637,12 +637,10 @@ export const nl: Catalog = {
 	"badges.share.label": "“{name}” delen",
 	"badges.share.formatLegend": "Als",
 	"badges.share.format.story": "Story",
+	"badges.share.format.gif": "GIF",
 	"badges.share.format.image": "Afbeelding",
-	"badges.share.format.photo": "Op foto",
 	"badges.share.shiny": "Glinsterend",
-	"badges.share.plain": "Zonder achtergrond",
 	"badges.share.pickPhoto": "Foto kiezen",
-	"badges.share.otherPhoto": "Andere foto",
 	"badges.share.photoPrivate": "Je foto blijft op je apparaat.",
 	"badges.share.photoUnreadable":
 		"Je browser kan deze foto niet openen. Kies een andere.",

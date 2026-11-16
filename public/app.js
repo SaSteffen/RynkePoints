@@ -4773,16 +4773,15 @@ function badgeShare(signal) {
 	const canvas = sheet.querySelector(".share-preview canvas");
 	const ctx = canvas.getContext("2d");
 	const preview = sheet.querySelector(".share-preview");
-	const empty = sheet.querySelector(".share-photo-empty");
+	const pick = sheet.querySelector(".share-pick");
+	const privacy = sheet.querySelector(".share-photo-private");
 	const unreadable = sheet.querySelector(".share-photo-unreadable");
 	const picker = sheet.querySelector(".share-file");
-	const repick = sheet.querySelector(".share-repick");
 	const hintTouch = sheet.querySelector(".share-hint-touch");
 	const hintMouse = sheet.querySelector(".share-hint-mouse");
 	const frame = sheet.querySelector(".share-frame");
 	const turn = sheet.querySelector(".share-turn");
 	const mouse = window.matchMedia("(hover: hover) and (pointer: fine)");
-	const plain = sheet.querySelector(".share-plain [role=switch]");
 	const shinyOption = sheet.querySelector(".share-shiny");
 	const shiny = shinyOption.querySelector("[role=switch]");
 	const video = sheet.querySelector(".share-preview video");
@@ -4828,20 +4827,22 @@ function badgeShare(signal) {
 		videoUrl: null,
 	};
 	const checked = (toggle) => toggle.getAttribute("aria-checked") === "true";
-	const sticker = () => state.format === "image" && checked(plain);
-	const kind = () => (sticker() ? "sticker" : state.format);
+	/** GIF: Bild without its background, sparkling (contracts/files.md). */
+	const sticker = () => state.format === "gif";
+	/** Story on the rider's own photo instead of the drawn background. */
+	const onPhoto = () => state.format === "story" && Boolean(state.photo);
+	const kind = () =>
+		sticker() ? "sticker" : onPhoto() ? "photo" : state.format;
 
 	/** The output's size for the current format (contracts/files.md). */
 	function size() {
-		const { photo } = state;
 		if (state.format === "story") return [1080, 1920];
-		if (state.format === "photo" && photo) return [photo.width, photo.height];
 		return [1080, 1080];
 	}
 
 	/** Where the badge goes on a w × h output: its top left and size. */
 	function badgeBox(w, h) {
-		if (state.format === "photo") {
+		if (onPhoto()) {
 			const place = state.place ?? SHARE_PLACE;
 			const size = place.w * w;
 			return {
@@ -4864,10 +4865,14 @@ function badgeShare(signal) {
 		const { assets, source, photo } = state;
 		if (!assets || !source) return false;
 		const box = badgeBox(w, h);
-		if (state.format === "photo") {
-			// The photo with the badge, and nothing else (contracts/files.md).
+		if (onPhoto()) {
+			// The photo filling the story, cropped round its middle, with the
+			// badge and nothing else (contracts/files.md).
 			if (!photo) return false;
-			c.drawImage(photo, 0, 0);
+			const scale = Math.max(w / photo.width, h / photo.height);
+			const pw = photo.width * scale;
+			const ph = photo.height * scale;
+			c.drawImage(photo, (w - pw) / 2, (h - ph) / 2, pw, ph);
 		} else if (state.format === "story") {
 			// Nothing but the background outside 250…1670 px, where the
 			// story apps put their own bars (FR-017).
@@ -4994,8 +4999,8 @@ function badgeShare(signal) {
 	}
 
 	/**
-	 * Makes the sparkling GIF of Bild at w × h, with its background or
-	 * without: no codec needed, so every browser can.
+	 * Makes the sparkling GIF at w × h: the badge alone, transparent
+	 * round it; no codec needed, so every browser can.
 	 */
 	async function makeGif(run, w, h) {
 		const controller = new AbortController();
@@ -5062,31 +5067,34 @@ function badgeShare(signal) {
 		state.file = null;
 		status.textContent = "";
 		for (const button of actions) button.disabled = true;
-		const onPhoto = state.format === "photo";
-		const placing = onPhoto && Boolean(state.photo);
-		sheet.querySelector(".share-plain").hidden = state.format !== "image";
-		empty.hidden = !onPhoto || placing;
-		unreadable.hidden = !state.unreadable;
-		repick.hidden = !placing;
+		const placing = onPhoto();
+		// Story: "Foto wählen", the same button before and after a photo; a
+		// new pick replaces it (closing the sheet lets it go).
+		const story = state.format === "story";
+		pick.hidden = !story;
+		privacy.hidden = !story;
+		unreadable.hidden = !story || !state.unreadable;
 		hintTouch.hidden = !placing || mouse.matches;
 		hintMouse.hidden = !placing || !mouse.matches;
-		preview.dataset.format = state.format;
+		preview.dataset.format = placing ? "photo" : state.format;
 		draw();
-		if (!state.assets || (onPhoto && !placing)) {
+		if (!state.assets) {
 			shinyOption.hidden = true;
 			return;
 		}
-		// H.264 needs even sides: an odd photo loses its last row or column.
-		const [w, h] = size().map((side) => side - (side % 2));
-		// Bild sparkles as a GIF, the sticker too; the others as an MP4.
-		const asGif = state.format === "image";
-		const sparkling = asGif || (await shareCanVideo(w, h));
+		const [w, h] = size();
+		// GIF always sparkles, Bild never: neither has a switch. Story, on
+		// its background or the rider's photo, sparkles as an MP4 where the
+		// browser can make one.
+		copy.hidden = true;
+		if (sticker()) {
+			shinyOption.hidden = true;
+			return makeGif(run, w, h);
+		}
+		const sparkling = state.format === "story" && (await shareCanVideo(w, h));
 		if (run !== state.run) return;
 		shinyOption.hidden = !sparkling;
-		copy.hidden = true;
-		if (sparkling && checked(shiny)) {
-			return asGif ? makeGif(run, w, h) : makeVideo(run, w, h);
-		}
+		if (sparkling && checked(shiny)) return makeVideo(run, w, h);
 		const blob = await new Promise((resolve) =>
 			canvas.toBlob(resolve, "image/png"),
 		);
@@ -5111,16 +5119,14 @@ function badgeShare(signal) {
 			on,
 		);
 	}
-	for (const toggle of [plain, shiny]) {
-		toggle.addEventListener(
-			"click",
-			() => {
-				toggle.setAttribute("aria-checked", String(!checked(toggle)));
-				prepare();
-			},
-			on,
-		);
-	}
+	shiny.addEventListener(
+		"click",
+		() => {
+			shiny.setAttribute("aria-checked", String(!checked(shiny)));
+			prepare();
+		},
+		on,
+	);
 
 	send.addEventListener(
 		"click",
@@ -5192,9 +5198,7 @@ function badgeShare(signal) {
 		prepare();
 	}
 
-	for (const button of [sheet.querySelector(".share-pick"), repick]) {
-		button.addEventListener("click", () => picker.click(), on);
-	}
+	pick.addEventListener("click", () => picker.click(), on);
 	picker.addEventListener(
 		"change",
 		() => {
@@ -5214,8 +5218,7 @@ function badgeShare(signal) {
 		for (const button of actions) button.disabled = true;
 		draw();
 	}
-	const placing = () =>
-		state.format === "photo" && state.photo && state.assets && state.place;
+	const placing = () => onPhoto() && state.photo && state.assets && state.place;
 
 	// One pointer drags the badge, two pinch it; it follows the pointer in
 	// the photo's own pixels, however small the preview shows it.
@@ -5439,8 +5442,8 @@ function badgeShare(signal) {
 		for (const radio of sheet.querySelectorAll("input[name=share-format]")) {
 			radio.checked = radio.value === "story";
 		}
-		plain.setAttribute("aria-checked", "false");
-		shiny.setAttribute("aria-checked", "false");
+		// Story sparkles by default, where the browser can make the video.
+		shiny.setAttribute("aria-checked", "true");
 		// "Glitzernd" is offered once the muxer is here (research R5).
 		const muxer = window.Mp4Muxer ? null : shareLoadMuxer();
 		if (large.matches(":popover-open")) large.hidePopover();
