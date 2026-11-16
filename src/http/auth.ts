@@ -44,9 +44,9 @@ import {
 // rider (R21). Every outcome is a redirect, so a reload never re-submits a used
 // code (R18).
 
-// `activity:write` is not requested until the description feature exists: an
-// unused scope only weakens the Strava review (004 clarification 2026-10-14).
-// Riders who granted it earlier keep it stored; nothing writes with it.
+// `activity:write` is never requested: the app writes nothing to Strava
+// (constitution Principle III). Riders who granted it earlier keep it stored
+// and see it in their settings; nothing writes with it.
 const REQUESTED_SCOPES = "read,activity:read,activity:read_all";
 
 function randomState(): string {

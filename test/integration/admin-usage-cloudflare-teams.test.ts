@@ -120,6 +120,7 @@ function figure(text: string, id: keyof typeof en): string {
 	return (
 		text
 			.split('<li class="usage-figure')
+			.slice(1)
 			.find((item) => item.includes(`>${en[id]}<`)) ?? `missing ${String(id)}`
 	);
 }
@@ -194,7 +195,7 @@ describe("/admin", () => {
 
 	it("gives the teams and the gateway a column in the day table", async () => {
 		const text = await page("/admin?days=cf_worker_requests");
-		const table = text.slice(text.indexOf('<div class="usage-table">'));
+		const table = text.slice(text.lastIndexOf('<div class="usage-table">'));
 		expect(table).toContain(`<th scope="col">${OTHER}</th>`);
 		expect(table).toContain(`<th scope="col">${escapeHtml(SHARED)}</th>`);
 		expect(table).toContain("<td>600</td><td>300</td><td>50</td>");

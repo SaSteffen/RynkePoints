@@ -1071,6 +1071,12 @@ export const nl: Catalog = {
 	"admin.teams.otherN": "Ander team {n}",
 	"admin.teams.shared": "Gedeeld (gateway)",
 	"admin.teams.never": "{team}: nog geen antwoord, dus de cijfers ontbreken.",
+	"admin.overview.heading": "Alle teams",
+	"admin.overview.note":
+		"Cijfers van vandaag; voor Cloudflare die van de laatst geregistreerde dag. Een lege cel heeft geen cijfer.",
+	"admin.overview.figure": "Cijfer",
+	"admin.overview.rest": "Niet toegewezen",
+	"admin.overview.total": "Totaal",
 	"admin.figure.seen": "Stand van {time} UTC",
 	"admin.figure.notSeen": "Nog niet waargenomen",
 	"admin.figure.noValue": "Nog geen waarde. Limiet: {limit}",

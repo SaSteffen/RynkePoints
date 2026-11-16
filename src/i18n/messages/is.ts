@@ -1063,6 +1063,12 @@ export const is: Catalog = {
 	"admin.teams.otherN": "Annað lið {n}",
 	"admin.teams.shared": "Sameiginlegt (gátt)",
 	"admin.teams.never": "{team}: ekkert svar enn, svo tölurnar vantar.",
+	"admin.overview.heading": "Öll lið",
+	"admin.overview.note":
+		"Tölur dagsins; hjá Cloudflare tölur síðasta skráða dags. Tómur reitur hefur enga tölu.",
+	"admin.overview.figure": "Tala",
+	"admin.overview.rest": "Óúthlutað",
+	"admin.overview.total": "Samtals",
 	"admin.figure.seen": "Staða {time} UTC",
 	"admin.figure.notSeen": "Ekki séð enn",
 	"admin.figure.noValue": "Ekkert gildi enn. Hámark: {limit}",
