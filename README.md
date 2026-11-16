@@ -2,17 +2,16 @@
 
 [![e2e nightly](https://github.com/SaSteffen/RynkePoints/actions/workflows/e2e-nightly.yml/badge.svg?branch=develop)](https://github.com/SaSteffen/RynkePoints/actions/workflows/e2e-nightly.yml?query=branch%3Adevelop)
 
-RynkePoints helps Team Rynkeby riders reach the fitness the ride to Paris asks of
-them, so the team can start, ride and arrive together. Riders connect their Strava
-account by choice, and the app turns their rides and the team events they attend into
-gamified **Rynke Points**, with progress charts, badges and a coin to keep training
-fun. Organisers see who is on track, while riders never see each other ranked by name
-and no rider's data leaves their own team.
+RynkePoints motivates Team Rynkeby riders to train for the ride to Paris, so the team
+can start, ride and arrive together. Riders connect their Strava account by choice,
+and the app turns their rides and the team events they attend into gamified **Rynke
+Points**, with progress charts, badges and a coin to keep training fun. It enables
+organisers to support their riders on the way, while riders never see each other
+ranked by name and no rider's data leaves their own team.
 
-It serves Team Rynkeby Hamburg, the founding team, and Team Rynkeby Europe, which is
-being set up. Writing their points into the Strava activity description, with the
-rider's permission, is planned for a later feature. How it's built:
-[Tech stack](#tech-stack).
+It is built for Team Rynkeby Hamburg. What another team needs is added so that any
+team that wants to can adopt it; Team Rynkeby Europe is being set up as the first.
+How it's built: [Tech stack](#tech-stack).
 
 ## What it does today
 
@@ -62,8 +61,7 @@ contact address, set as `PRIVACY_CONTROLLER` and `CONTACT_EMAIL` in
 - **Scopes**: `read` and `activity:read` are required. `activity:read_all` is
   optional: only if the rider grants it are their private ("Only You")
   activities included. `activity:write` is not requested: nothing writes to
-  Strava. A later feature that adds a Rynke section to ride descriptions will
-  ask for it, with its own consent.
+  Strava.
 - **From Strava, per rider**: the athlete ID, first name (for the greeting and
   the organisers), the granted scopes, and the Strava tokens, encrypted
   (AES-256-GCM).

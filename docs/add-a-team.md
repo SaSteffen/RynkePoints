@@ -37,7 +37,7 @@ the new team's controller and the controller of every team already in the accoun
 - own phrases and badge names, or the common ones
 - the controller and the contact email for the privacy page
 
-Until a value arrives, team data may hold the founding team's value as a placeholder
+Until a value arrives, team data may hold Hamburg's value as a placeholder
 (FR-053). The team then runs locally only, and CI refuses to deploy it.
 
 ## 2. Team data (one pull request)
@@ -75,7 +75,7 @@ pnpm exec wrangler d1 create rynke-points-<id> --jurisdiction=eu   # ID into env
 pnpm exec wrangler queues create rynke-points-<id>-work
 ```
 
-For the domain, set the same DNS records as the founding team (no mail: SPF
+For the domain, set the same DNS records as Hamburg (no mail: SPF
 `v=spf1 -all`, DMARC `p=reject`,
 [001 quickstart](../specs/001-strava-connect-webhook/quickstart.md) step 2). Add no A or
 CNAME record: the first deploy creates the custom domain. Then switch on **Always Use
@@ -142,7 +142,7 @@ shows every team's counts, and connected riders count against Strava's 999 toget
 
 Every team gets a sandbox, its resources and one more checkbox on **Release PR**
 (FR-042, [feature 027](../specs/027-sandbox-deployment/spec.md)). Until the team has its
-own domain, the sandbox lives on a subdomain of the founding team's domain. The sandbox
+own domain, the sandbox lives on a subdomain of Hamburg's domain. The sandbox
 isn't counted as a team in the shared usage figures.
 
 ## 9. Go live

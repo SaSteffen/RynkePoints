@@ -1,33 +1,36 @@
 # Architecture and Working Together
 
-This is the target picture for running RynkePoints with more than one team and more than one
+This is how RynkePoints runs with more than one team, and how it's meant to work with more than one
 maintainer: what the system looks like, how a change reaches production, and who may do what.
 
 > [!IMPORTANT]
-> **This is a draft of where we're heading.** Specs [026](../specs/026-second-team/spec.md),
-> [027](../specs/027-sandbox-deployment/spec.md) and
-> [028](../specs/028-multiple-maintainers/spec.md) exist, but none of them has a plan yet and none
-> is built. Things may change when they're planned and tried. The specs are the source of truth, so
-> if this page disagrees with one, the spec wins.
+> **Where things stand (November 2026):**
+> - More than one team ([026](../specs/026-second-team/spec.md)) is built. Hamburg runs behind the
+>   gateway; Team Rynkeby Europe's app is built and waits for its own values before it goes live.
+> - Sandboxes ([027](../specs/027-sandbox-deployment/spec.md)) are built, except the sandbox gate.
+> - More than one maintainer ([028](../specs/028-multiple-maintainers/spec.md)) has a plan and
+>   nothing is built.
+>
+> The specs are the source of truth, so if this page disagrees with one, the spec wins.
 
 Throughout this page:
 
 - **Today** means it exists and runs now.
-- **Specced** means a spec asks for it, and nothing is built.
+- **Specced** means a spec asks for it, and it isn't built yet.
 - ❓ means it's still open. All open items are listed in [Open questions](#open-questions).
 
 ## The short version
 
 | Topic | Today | Specced |
 |---|---|---|
-| Teams | Team Rynkeby Hamburg | Also Team Rynkeby Europe, each with its own Worker, database and domain |
-| Strava | One Strava app, with its webhook going to the app | Still one Strava app, with a small gateway in front of the teams |
+| Teams | Team Rynkeby Hamburg live; Team Rynkeby Europe built, each with its own Worker and database | Europe live on its own domain |
+| Strava | One Strava app, with a small gateway in front of the teams | Unchanged |
 | Cloudflare | One account | Still one account, with personal logins for each maintainer |
 | GitHub | Repository on a personal account | Repository in an organization |
 | Maintainers | One | At least two, with rights that widen in two stages |
 | Approval | None required | The founding maintainer approves, for now |
-| Merging into `develop` | Merge commit only | Merge commit only |
-| Trying a release first | On the live site, after the release | Optional sandbox per team, before the release |
+| Merging | Merge commit only | Merge commit only |
+| Trying a release first | Optional sandbox per team, before the release | The same, with a sandbox gate on the release pull request |
 
 ## Terms
 
@@ -48,30 +51,13 @@ Throughout this page:
 
 ## Architecture
 
-### Today
+### Teams, the gateway and the sandboxes
 
-One Worker serves one team. Strava sends events straight to it, and the Worker hands the work to a
-queue.
-
-```mermaid
-flowchart LR
-    rider(["Rider"]) --> worker
-    strava["Strava app"] -- "webhook, sign-in" --> worker
-    worker -- "API calls" --> strava
-
-    subgraph cf["Cloudflare account"]
-        worker["Worker: Team Rynkeby Hamburg"]
-        worker --> db[("D1 database")]
-        worker <--> queue[["Work queue"]]
-        cron["2 cron triggers"] --> worker
-    end
-```
-
-### Target (specced)
-
-Each team gets its own Worker, database, queue, schedule, secrets and domain. A gateway receives
+Each team has its own Worker, database, queue, schedule, secrets and domain. A gateway receives
 Strava's webhook events and sign-in returns, because Strava allows only one subscription and one
-callback domain per app. Each team also gets a sandbox, which never talks to the real Strava.
+callback domain per app. Each team also has a sandbox, which never talks to the real Strava. Europe's
+Worker and sandbox are built; its production Worker is deployed once its own values replace the
+placeholders ([docs/add-a-team.md](add-a-team.md)).
 
 ```mermaid
 flowchart TB
@@ -123,7 +109,7 @@ when the 15-minute budget is short or when imports or events are waiting, and is
 administrators' usage view shows the checks per day. See
 [Spec 036](../specs/036-ride-edit-recheck/spec.md).
 
-### A Strava event through the gateway (specced)
+### A Strava event through the gateway
 
 The gateway answers Strava within 2 seconds and passes each event to every team, retrying each team
 on its own. A team that doesn't know the rider drops the event without a Strava request and without
@@ -151,7 +137,7 @@ sequenceDiagram
 If one team can't be reached, the other isn't held up, and the missed events arrive later. Repeats
 don't double-count.
 
-### Connecting with Strava through the gateway (specced)
+### Connecting with Strava through the gateway
 
 A rider starts and ends on their own team's domain. The gateway passes them on only to a fixed list
 of team domains, and the team checks the sign-in as it does today.
@@ -181,10 +167,13 @@ connecting to both would break the connection, and the app says so when they con
 
 1. Cut a branch from `develop` and open a pull request into `develop`.
 2. Required checks run: `lint`, `typecheck`, `test`, `e2e`, `commit-messages`, `pr-title` and
-   `pr-source`. The branch must be up to date with `develop`.
-3. Merge it. No approval is required.
-4. Run the **Release PR** workflow, which opens a pull request from `develop` into `main`.
-5. Merge the release with a merge commit. CI then applies database migrations and deploys the code.
+   `pr-source`. The branch must be up to date with `develop`. Ticking a **Sandboxes** box in the pull
+   request deploys it to that team's sandbox.
+3. Merge it with a merge commit. No approval is required.
+4. Run the **Release PR** workflow, which opens a pull request from `develop` into `main`, with one
+   checkbox per sandbox, all off.
+5. Merge the release with a merge commit. CI then applies each team's database migrations and deploys
+   its code.
 
 ### Target (specced)
 
@@ -204,18 +193,15 @@ flowchart TD
 
 What changes compared to today:
 
-- **Merge commits only.** Squash merging is forbidden, and rebase merging stays off. Every branch
-  commit stays in the history, so each must keep passing `commit-messages`. The release pull
-  request lists one line per merged pull request, by its title. This doesn't depend on the move to
-  an organization and can ship first.
 - **Approval.** See [Working together](#working-together).
 - **Checkboxes and the gate.** See [Sandboxes](#sandboxes).
 
 ### How production deploys
 
-A merge into `main` is the deliberate act that releases a change. Today this deploys one Worker. With
-two teams, each deploys on its own: one team's failure neither stops nor rolls back the other, and a
-failed team can be re-run alone.
+A merge into `main` is the deliberate act that releases a change. Each team deploys on its own: one
+team's failure neither stops nor rolls back the other, and a failed team can be re-run alone. A team's
+job runs only while its repository variable is on (`GATEWAY_DEPLOY`, `EUROPE_DEPLOY`); Europe's is off
+until it goes live.
 
 ```mermaid
 flowchart TD
@@ -230,8 +216,6 @@ flowchart TD
     split --> gw["Gateway, if it changed"]
 ```
 
-The per-team split and the gateway are specced. The rest of this runs today for the one Worker.
-
 Some rules hold throughout:
 
 - Migrations run before the code and only go forward, so a migration must keep the previous version
@@ -245,8 +229,8 @@ Some rules hold throughout:
 ## Sandboxes
 
 > [!NOTE]
-> Everything in this section is specced in [Spec 027](../specs/027-sandbox-deployment/spec.md) and
-> not built. It depends on ❓ several items that planning has to try.
+> Sandboxes run today ([docs/sandboxes.md](sandboxes.md)). The sandbox gate below is specced in
+> [Spec 027](../specs/027-sandbox-deployment/spec.md) and planned, but not built.
 
 A sandbox lets a maintainer try a release before it reaches production. It runs fake mode, which means
 a fake Strava and synthetic riders, so it can't show anything that needs the real Strava, such as
@@ -261,7 +245,7 @@ can be skipped:
 | **Worth deploying** | Migrations; anything visible to riders; queue, webhook, cron or rule changes; team settings or data; a large release; or when unsure |
 | **Which sandbox** | The team that changed, or any one for changes shared by all teams |
 
-### The sandbox gate
+### The sandbox gate (specced)
 
 The gate decides for one commit, the current head of the release pull request. When a new commit
 arrives, an earlier decision stops counting. Everything can be done in the pull request, with one click
@@ -346,8 +330,8 @@ settings changed, not a new design.
 ## Working together
 
 > [!NOTE]
-> The stages are specced in [Spec 028](../specs/028-multiple-maintainers/spec.md). Today there's one
-> maintainer, no organization and no approval rule.
+> The stages are specced and planned in [Spec 028](../specs/028-multiple-maintainers/spec.md), and
+> nothing is built. Today there's one maintainer, no organization and no approval rule.
 
 ### The stages
 
@@ -487,25 +471,19 @@ up-to-date rule stays on.
 
 ## Suggested order
 
-The specs state only parts of this order. The rest follows from what depends on what, and planning may
-change it.
+Done: merge commits only, team data, the gateway, the sandboxes, and Team Rynkeby Europe's app. What's
+left, in the order the dependencies suggest:
 
 ```mermaid
 flowchart LR
-    squash["Merge commits only"]
+    values["Europe's own values"] --> europe["Team Rynkeby Europe live"]
+    gate["Sandbox gate"]
     org["Organization<br/>and credentials"]
     second["Second maintainer<br/>at stage 1"]
     queue["Merge queue trial"]
-    sandbox["Hamburg sandbox<br/>and gate"]
-    teamdata["Team data"]
-    gateway["Gateway"]
-    europe["Team Rynkeby Europe<br/>and its sandbox"]
 
     org --> second
     org --> queue
-    teamdata --> gateway --> europe
-    sandbox --> europe
-    squash ~~~ org
 ```
 
 ## Open questions
@@ -538,7 +516,7 @@ flowchart LR
 - [ ] Whether per-Worker credentials work on the Free plan for a deployment with a queue consumer and assets.
   A narrow credential could probably still bind production's database, so the plan has to state what it
   can reach.
-- [ ] Whether Cloudflare Access can protect a sandbox on a subdomain of the production domain on the Free plan.
+- [x] Whether Cloudflare Access can protect a sandbox on a subdomain of the production domain on the Free plan. It can: the sandboxes run that way.
 
 **Sandboxes**
 
@@ -546,7 +524,7 @@ flowchart LR
   comment.
 - [ ] How to report the gate so the ruleset's GitHub Actions pin accepts it.
 
-### Before implementation
+### Before going further
 
 - [ ] The constitution needs amending: for more than one maintainer and the accepted limit (028), and for
   per-team default languages (026).
