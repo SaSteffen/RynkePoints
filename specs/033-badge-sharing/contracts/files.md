@@ -9,8 +9,8 @@ What leaves the share sheet, as a file to share, save or copy. Layouts are in
 | Story | Glitzernd | MP4 | 1080 × 1920 | as above, animated: two shine sweeps and four twinkling stars over 5 s, 30 fps, seamless loop |
 | GIF | — | GIF with transparency | 720 × 720 | the badge alone, no text, no mark, transparent elsewhere; the four stars twinkling over 5 s at 20 fps, looping, no shine sweep; fully transparent or opaque per pixel, so no soft shadow |
 | Bild | — | PNG | 1080 × 1080 | as Story, square |
-| Story | Auf Foto | PNG | 1080 × 1920 | the rider's photo filling the frame, cropped round its middle, with the badge at the rider's place; no text, no mark |
-| Story | Auf Foto, Glitzernd | MP4 | 1080 × 1920 | as above, with the animated badge (draft: may go) |
+| Story | with a photo | PNG | 1080 × 1920 | the rider's photo filling the frame, cropped round its middle, with the badge at the rider's place; no text, no mark |
+| Story | with a photo, Glitzernd | MP4 | 1080 × 1920 | as above, with the animated badge |
 
 For every file:
 

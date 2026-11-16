@@ -660,10 +660,8 @@ export const de = {
 	"badges.share.format.story": "Story",
 	"badges.share.format.gif": "GIF",
 	"badges.share.format.image": "Bild",
-	"badges.share.format.photo": "Auf Foto",
 	"badges.share.shiny": "Glitzernd",
 	"badges.share.pickPhoto": "Foto wählen",
-	"badges.share.otherPhoto": "Anderes Foto",
 	"badges.share.photoPrivate": "Dein Foto bleibt auf deinem Gerät.",
 	"badges.share.photoUnreadable":
 		"Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes.",

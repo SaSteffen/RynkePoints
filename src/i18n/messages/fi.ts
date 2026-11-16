@@ -629,10 +629,8 @@ export const fi: Catalog = {
 	"badges.share.format.story": "Tarina",
 	"badges.share.format.gif": "GIF",
 	"badges.share.format.image": "Kuva",
-	"badges.share.format.photo": "Valokuvaan",
 	"badges.share.shiny": "Kimalteleva",
 	"badges.share.pickPhoto": "Valitse kuva",
-	"badges.share.otherPhoto": "Toinen kuva",
 	"badges.share.photoPrivate": "Kuvasi pysyy laitteellasi.",
 	"badges.share.photoUnreadable":
 		"Selaimesi ei voi avata tätä kuvaa. Valitse toinen.",

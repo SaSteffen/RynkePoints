@@ -628,10 +628,8 @@ export const nb: Catalog = {
 	"badges.share.format.story": "Story",
 	"badges.share.format.gif": "GIF",
 	"badges.share.format.image": "Bilde",
-	"badges.share.format.photo": "På foto",
 	"badges.share.shiny": "Glitrende",
 	"badges.share.pickPhoto": "Velg foto",
-	"badges.share.otherPhoto": "Annet foto",
 	"badges.share.photoPrivate": "Fotoet ditt blir på enheten din.",
 	"badges.share.photoUnreadable":
 		"Nettleseren din kan ikke åpne dette fotoet. Velg et annet.",

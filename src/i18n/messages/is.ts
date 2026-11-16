@@ -630,10 +630,8 @@ export const is: Catalog = {
 	"badges.share.format.story": "Saga",
 	"badges.share.format.gif": "GIF",
 	"badges.share.format.image": "Mynd",
-	"badges.share.format.photo": "Á ljósmynd",
 	"badges.share.shiny": "Glitrandi",
 	"badges.share.pickPhoto": "Velja mynd",
-	"badges.share.otherPhoto": "Önnur mynd",
 	"badges.share.photoPrivate": "Myndin þín verður áfram á tækinu þínu.",
 	"badges.share.photoUnreadable":
 		"Vafrinn þinn getur ekki opnað þessa mynd. Veldu aðra.",

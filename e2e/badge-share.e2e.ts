@@ -407,11 +407,12 @@ test.describe("on a photo", () => {
 			.first()
 			.getAttribute("data-badge");
 
-		await sheet.locator(".share-photo [role=switch]").click();
-		const empty = sheet.locator(".share-photo-empty");
-		await expect(empty.locator(".share-pick")).toBeVisible();
-		await expect(empty).toContainText("Dein Foto bleibt auf deinem Gerät.");
-		await expect(sheet.locator(".share-save")).toBeDisabled();
+		// Story offers a photo by a button, with the privacy line.
+		const pick = sheet.locator(".share-pick");
+		await expect(pick).toBeVisible();
+		await expect(sheet.locator(".share-photo-private")).toHaveText(
+			"Dein Foto bleibt auf deinem Gerät.",
+		);
 
 		// From picking to saving, nothing leaves the page (FR-022).
 		const requests: string[] = [];
@@ -423,8 +424,8 @@ test.describe("on a photo", () => {
 			.locator(".share-file")
 			.setInputFiles(await syntheticPhoto(page, 1600, 1200));
 		await ready(sheet);
-		await expect(empty).toBeHidden();
-		await expect(sheet.locator(".share-repick")).toBeVisible();
+		// The same button picks another photo; there is no other.
+		await expect(pick).toBeVisible();
 		await expect(sheet.locator(".share-hint-mouse")).toBeVisible();
 		// A story on the photo: the photo fills the 9:16 frame.
 		expect(await canvasSize(sheet)).toEqual([1080, 1920]);
@@ -481,7 +482,6 @@ test.describe("on a photo", () => {
 		await page.locator(".badge-card .badge-share-mini").first().click();
 		const sheet = sheetOf(page);
 		await ready(sheet);
-		await sheet.locator(".share-photo [role=switch]").click();
 		await sheet
 			.locator(".share-file")
 			.setInputFiles(await syntheticPhoto(page, 1600, 1200));
@@ -538,29 +538,26 @@ test.describe("on a photo", () => {
 		await page.locator(".badge-card .badge-share-mini").first().click();
 		const sheet = sheetOf(page);
 		await ready(sheet);
-		await sheet.locator(".share-photo [role=switch]").click();
-
 		await sheet
 			.locator(".share-file")
 			.setInputFiles(await syntheticPhoto(page, 4000, 1000));
 		await ready(sheet);
 		expect(await canvasSize(sheet)).toEqual([1080, 1920]);
 
-		// "Anderes Foto" with bytes that aren't a picture.
+		// Another photo, with bytes that aren't a picture.
 		await sheet.locator(".share-file").setInputFiles({
 			name: "ride.jpg",
 			mimeType: "image/jpeg",
 			buffer: Buffer.from("not a photo at all"),
 		});
+		// Back to the plain story, with the reason.
 		await expect(sheet.locator(".share-photo-unreadable")).toBeVisible();
 		await expect(sheet.locator(".share-pick")).toBeVisible();
-		await expect(sheet.locator(".share-save")).toBeDisabled();
 
 		// Closed and opened again, the photo is gone.
 		await sheet.locator(".share-sheet-close").click();
 		await page.locator(".badge-card .badge-share-mini").first().click();
 		await ready(sheet);
-		await sheet.locator(".share-photo [role=switch]").click();
 		await expect(sheet.locator(".share-pick")).toBeVisible();
 		await expect(sheet.locator(".share-photo-unreadable")).toBeHidden();
 	});
@@ -775,15 +772,12 @@ test.describe("sparkling", () => {
 		expect(await alphaAt(sheet, 4, 4)).toBe(0);
 		expect(await alphaAt(sheet, 360, 360)).toBe(255);
 
-		// Story on a photo has no picture yet, and nothing is made.
+		// Back to Story: the GIF goes, the sparkling story is made again.
 		await sheet
 			.locator("label")
 			.filter({ hasText: /^Story$/ })
 			.click();
-		await sheet.locator(".share-photo [role=switch]").click();
-		await expect(sheet.locator(".share-busy")).toBeHidden();
 		await expect(sheet.locator(".share-preview .share-gif")).toBeHidden();
-		await sheet.locator(".share-photo [role=switch]").click();
 
 		// Closed while rendering: it stops, quietly.
 		await expect(sheet.locator(".share-busy")).toBeVisible();

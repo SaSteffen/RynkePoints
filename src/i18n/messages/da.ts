@@ -630,10 +630,8 @@ export const da: Catalog = {
 	"badges.share.format.story": "Story",
 	"badges.share.format.gif": "GIF",
 	"badges.share.format.image": "Billede",
-	"badges.share.format.photo": "På foto",
 	"badges.share.shiny": "Glitrende",
 	"badges.share.pickPhoto": "Vælg foto",
-	"badges.share.otherPhoto": "Andet foto",
 	"badges.share.photoPrivate": "Dit foto bliver på din enhed.",
 	"badges.share.photoUnreadable":
 		"Din browser kan ikke åbne dette foto. Vælg et andet.",

@@ -458,24 +458,20 @@ export interface ShareApp {
 function shareSheet(i18n: I18n, app: ShareApp): SafeHtml {
 	const format = (value: "story" | "gif" | "image", checked = false) =>
 		html`<label><input type="radio" name="share-format" value="${value}" autocomplete="off"${checked ? html` checked` : null}>${i18n.t(`badges.share.format.${value}`)}</label>`;
-	// Story's switches: "Glitzernd" and "Auf Foto" (the rider's photo behind
-	// the badge instead of the drawn background).
-	const option = (
-		kind: "shiny" | "photo",
-		label: "badges.share.shiny" | "badges.share.format.photo",
-	) =>
-		html`<span class="share-option share-${kind}" hidden><button type="button" role="switch" aria-checked="false" aria-labelledby="share-${kind}-label"></button><span id="share-${kind}-label">${i18n.t(label)}</span></span>`;
+	const option = (kind: "shiny") =>
+		html`<span class="share-option share-${kind}" hidden><button type="button" role="switch" aria-checked="false" aria-labelledby="share-${kind}-label"></button><span id="share-${kind}-label">${i18n.t(`badges.share.${kind}`)}</span></span>`;
 	return html`<dialog class="share-sheet" aria-labelledby="share-sheet-title" data-app="${app.name}" data-icon="${app.icon}" data-saved="${i18n.t("badges.share.saved")}" data-copied="${i18n.t("badges.share.copied")}" data-failed="${i18n.t("badges.share.failed")}">
 <div class="share-sheet-head"><h2 id="share-sheet-title">${i18n.t("badges.share.title")}</h2>
 <button type="button" class="icon-button share-sheet-close" aria-label="${i18n.t("badges.close")}">${CLOSE}</button></div>
 <fieldset class="segmented-group share-formats"><legend class="visually-hidden">${i18n.t("badges.share.formatLegend")}</legend>${format("story", true)}${format("gif")}${format("image")}</fieldset>
 <div class="share-preview" data-format="story"><canvas></canvas><video muted playsinline loop hidden></video><img class="share-gif" alt="" hidden>
-<div class="share-photo-empty" hidden><button type="button" class="button share-pick">${i18n.t("badges.share.pickPhoto")}</button><p>${i18n.t("badges.share.photoPrivate")}</p><p class="share-photo-unreadable" role="status" hidden>${i18n.t("badges.share.photoUnreadable")}</p></div>
 <div class="share-frame" hidden></div><button type="button" class="share-turn" aria-label="${i18n.t("badges.share.turn")}" hidden>${TURN}</button>
 <span class="share-busy" role="status" hidden>${i18n.t("badges.share.recording")}</span></div>
 <p class="share-hint share-hint-touch" hidden>${i18n.t("badges.share.hintTouch")}</p>
 <p class="share-hint share-hint-mouse" hidden>${i18n.t("badges.share.hintMouse")}</p>
-<div class="share-options">${option("photo", "badges.share.format.photo")}${option("shiny", "badges.share.shiny")}<button type="button" class="button-text share-repick" hidden>${i18n.t("badges.share.otherPhoto")}</button></div>
+<div class="share-options"><button type="button" class="button-outlined share-pick" hidden>${i18n.t("badges.share.pickPhoto")}</button>${option("shiny")}</div>
+<p class="share-hint share-photo-private" hidden>${i18n.t("badges.share.photoPrivate")}</p>
+<p class="share-hint share-photo-unreadable" role="status" hidden>${i18n.t("badges.share.photoUnreadable")}</p>
 <input type="file" accept="image/*" class="share-file" hidden>
 <div class="share-actions">
 <button type="button" class="button share-send" hidden>${SHARE}${i18n.t("badges.share.send")}</button>

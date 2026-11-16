@@ -639,10 +639,8 @@ export const lt: Catalog = {
 	"badges.share.format.story": "Istorija",
 	"badges.share.format.gif": "GIF",
 	"badges.share.format.image": "Paveikslėlis",
-	"badges.share.format.photo": "Ant nuotraukos",
 	"badges.share.shiny": "Žvilgantis",
 	"badges.share.pickPhoto": "Pasirinkti nuotrauką",
-	"badges.share.otherPhoto": "Kita nuotrauka",
 	"badges.share.photoPrivate": "Tavo nuotrauka lieka tavo įrenginyje.",
 	"badges.share.photoUnreadable":
 		"Tavo naršyklė negali atidaryti šios nuotraukos. Pasirink kitą.",

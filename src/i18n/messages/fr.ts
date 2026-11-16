@@ -658,10 +658,8 @@ export const fr: Catalog = {
 	"badges.share.format.story": "Story",
 	"badges.share.format.gif": "GIF",
 	"badges.share.format.image": "Image",
-	"badges.share.format.photo": "Sur photo",
 	"badges.share.shiny": "Scintillant",
 	"badges.share.pickPhoto": "Choisir une photo",
-	"badges.share.otherPhoto": "Autre photo",
 	"badges.share.photoPrivate": "Ta photo reste sur ton appareil.",
 	"badges.share.photoUnreadable":
 		"Ton navigateur ne peut pas ouvrir cette photo. Choisis-en une autre.",
