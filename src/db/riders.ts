@@ -18,7 +18,7 @@ export interface Rider {
 	firstName: string;
 	status: RiderStatus;
 	scopeReadAll: boolean;
-	/** `activity:write` was granted; nothing in this feature writes (FR-003). */
+	/** `activity:write` was granted earlier; the app never writes (Principle III). */
 	scopeWrite: boolean;
 	scopes: string;
 	connectedAt: number;
