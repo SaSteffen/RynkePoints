@@ -5075,16 +5075,15 @@ function badgeShare(signal) {
 			shinyOption.hidden = true;
 			return;
 		}
-		// H.264 needs even sides: an odd photo loses its last row or column.
-		const [w, h] = size().map((side) => side - (side % 2));
-		// GIF always sparkles, Bild never: neither has a switch. Story and
-		// Auf Foto sparkle as an MP4 where the browser can make one.
+		const [w, h] = size();
+		// GIF always sparkles; Bild and Auf Foto never: none has a switch.
+		// Story sparkles as an MP4 where the browser can make one.
 		copy.hidden = true;
 		if (sticker()) {
 			shinyOption.hidden = true;
 			return makeGif(run, w, h);
 		}
-		const sparkling = state.format !== "image" && (await shareCanVideo(w, h));
+		const sparkling = state.format === "story" && (await shareCanVideo(w, h));
 		if (run !== state.run) return;
 		shinyOption.hidden = !sparkling;
 		if (sparkling && checked(shiny)) return makeVideo(run, w, h);

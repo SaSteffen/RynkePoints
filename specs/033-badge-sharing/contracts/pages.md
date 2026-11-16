@@ -46,9 +46,9 @@ Once per badges page, after the large views: `dialog.share-sheet` holds the foll
   ("Foto wählen" with the privacy line), the unreadable-photo line, and the busy label "Wird
   gerendert …" (`role="status"`).
 - The hint lines for touch and mouse, shown only for `photo`.
-- One switch (`role="switch"`, `aria-checked`), "Glitzernd", for Story and Auf Foto where the
-  browser can make an MP4, plus "Anderes Foto". Both are hidden until the script decides they apply.
-  GIF always sparkles and Bild never does, so neither has a switch.
+- One switch (`role="switch"`, `aria-checked`), "Glitzernd", for Story where the browser can
+  make an MP4, plus "Anderes Foto". Both are hidden until the script decides they apply.
+  GIF always sparkles; Bild and Auf Foto never do, so none of them has a switch.
 - `<input type="file" accept="image/*" hidden>`.
 - The actions "Teilen …", "Speichern" and "Kopieren", and a status line (`role="status"`) for
   saved, copied and failed.

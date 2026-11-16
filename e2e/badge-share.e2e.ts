@@ -432,6 +432,8 @@ test.describe("on a photo", () => {
 		await expect(empty).toBeHidden();
 		await expect(sheet.locator(".share-repick")).toBeVisible();
 		await expect(sheet.locator(".share-hint-mouse")).toBeVisible();
+		// Auf Foto has nothing to switch: a still picture only.
+		await expect(sheet.locator(".share-shiny")).toBeHidden();
 		expect(await canvasSize(sheet)).toEqual([1600, 1200]);
 
 		// The badge starts at the lower right.

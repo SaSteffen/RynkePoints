@@ -10,7 +10,6 @@ What leaves the share sheet, as a file to share, save or copy. Layouts are in
 | GIF | — | GIF with transparency | 720 × 720 | the badge alone, no text, no mark, transparent elsewhere; the four stars twinkling over 5 s at 20 fps, looping, no shine sweep; fully transparent or opaque per pixel, so no soft shadow |
 | Bild | — | PNG | 1080 × 1080 | as Story, square |
 | Auf Foto | — | PNG | photo's size, long side ≤ 1920 | the photo with the badge at the rider's place; no text, no mark |
-| Auf Foto | Glitzernd | MP4 | as above, rounded down to even | the photo, still, with the animated badge |
 
 For every file:
 
@@ -19,7 +18,7 @@ For every file:
   on the page (FR-018). No Strava mark (FR-030).
 - **Still pictures**: no twinkling stars (FR-020).
 - **Video**: H.264 in an MP4 container (`ftyp` brand `isom`, track codec `avc1`) (FR-024), for Story
-  and Auf Foto. GIF is a looping GIF89a instead, made in the browser without a codec, so
+  only. GIF is a looping GIF89a instead, made in the browser without a codec, so
   every browser offers it: 255 colours by median cut with an 8 × 8
   ordered dither, and without the shine, which would make the file several times larger.
 - **System share**: `{ files: [file], text: shareText }`. Save and copy carry the file only.
