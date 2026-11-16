@@ -103,8 +103,8 @@ and commit messages must follow
   their tokens and the `sandbox-hamburg` / `sandbox-europe` environments
   (`scripts/sandbox-environments.sh`); never run those scripts yourself.
 - Webhook handlers ack fast and enqueue; processing is idempotent (Principle II).
-- Editing a Strava activity description only ever touches the app's own delimited
-  block; rider text is never lost (Principle III).
+- The app never writes to Strava: no `activity:write`, no edits to a rider's
+  activities or descriptions (Principle III).
 - Rider-facing text belongs in the catalogs under `src/i18n/messages/`, in all ten
   languages (German is the key source), never inline in pages or logic (FR-028).
   The exception is team content under `src/content/` (the monkey's quotes, badge
