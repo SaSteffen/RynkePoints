@@ -77,6 +77,19 @@ athlete capacity; say plainly if the leaderboard is not allowed.
   it stored and nothing writes with it. The description feature asks for it again,
   with its own consent text and version, when it is specified (FR-012, FR-016).
 
+### Session 2026-11-16
+
+- Q (raised by the project owner): The Rynke block in ride descriptions is no longer
+  wanted. What stays of write access? → A: Nothing. The app never writes to Strava
+  (constitution 3.0.0, Principle III), so there is no write permission to ask for,
+  record or show, and no block for a rider to switch off. The rider's page no longer
+  says whether write access was granted, and the connect flow no longer records it.
+  `riders.scopes` keeps what Strava returned. The `riders.scope_write` column stays
+  for one release, so the previous version keeps working while the new one deploys,
+  and a later migration drops it. This replaces the "asks for it again" sentence
+  above and amends FR-012 and FR-016; the edge cases and the connect story's fourth
+  scenario that speak of write access or the description block no longer apply.
+
 ## Summary of the Strava check
 
 The team leaderboard **is allowed**. Strava's terms forbid showing a rider's data
@@ -361,10 +374,9 @@ here.
   it is deleted (F-4), and MUST ask the rider to agree. Strava's own approval screen
   MUST NOT be altered (F-4).
 - **FR-012**: The system MUST request permission to read the rider's activities,
-  including private ones, and to write them at Strava. A connection without read
-  permission MUST be treated as not connected (feature 001, FR-006). Write
-  permission MUST stay optional: the system MUST record whether it was granted and
-  MUST NOT edit the descriptions of a rider who has not granted it.
+  including private ones, and nothing more: it MUST NOT request write permission
+  and MUST NOT write to Strava (amended 2026-11-16). A connection without read
+  permission MUST be treated as not connected (feature 001, FR-006).
 - **FR-013**: The consent MUST carry a version. Every acceptance MUST be recorded
   with the version and its date and time, kept while the rider is connected and
   deleted with the rider. When a new version reads more data, shares more, or
@@ -380,10 +392,8 @@ here.
   club. In every case their data, including Rynke, attendance, corrections and the
   consent records, MUST be deleted as in feature 001, FR-022. There is no way to
   stay connected and stop sharing.
-- **FR-016**: A rider MUST be able to stop the writing of the Rynke block at any
-  time without leaving (constitution Principle III): by connecting again without
-  write access, and through any in-app setting the description feature adds. It
-  changes nothing about reading or sharing.
+- **FR-016**: Withdrawn 2026-11-16. It let a rider stop the writing of the Rynke
+  block; the app writes nothing to Strava, so there is nothing to stop.
 
 **Visibility**
 

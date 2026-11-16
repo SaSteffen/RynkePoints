@@ -16,9 +16,9 @@ synthetic data (Principle V).
 
 Base URL for `/api/v3/...` is `https://www.strava.com`.
 
-`activity:write` was requested at first so riders need not reconnect once the
-description feature ships; since feature 004's clarification of 2026-10-14 it is
-no longer requested until that feature exists. No endpoint above writes, and the client
+`activity:write` was requested at first, for a planned description feature; since
+feature 004's clarification of 2026-10-14 it is no longer requested, and the feature
+was dropped on 2026-11-16. No endpoint above writes, and the client
 exposes no write call: this feature never writes to Strava (FR-003). The fake
 Strava in tests fails any `PUT`, `POST` or `DELETE` to `/api/v3/...` (research
 R12).

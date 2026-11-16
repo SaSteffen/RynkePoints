@@ -56,7 +56,6 @@ function rider(athleteId: number, organiser: boolean): Rider {
 		firstName: `Synthetic ${athleteId}`,
 		status: "connected",
 		scopeReadAll: true,
-		scopeWrite: false,
 		scopes: "read,activity:read,activity:read_all",
 		connectedAt: 0,
 		scopesUpdatedAt: 0,

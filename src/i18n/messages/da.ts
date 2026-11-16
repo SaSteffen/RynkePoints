@@ -75,9 +75,6 @@ export const da: Catalog = {
 	"me.reconnect": "Forbind igen",
 	"me.scope.readAll": "Private aktiviteter tæller også.",
 	"me.scope.sharedOnly": "Private (»Kun dig«) aktiviteter tæller ikke.",
-	"me.scope.write":
-		"RynkePoints må skrive et Rynke-afsnit i dine turbeskrivelser, når funktionen findes.",
-	"me.scope.noWrite": "RynkePoints skriver intet i dine turbeskrivelser.",
 	"me.changePermissions": "Skift tilladelser på Strava",
 	"me.consent.heading": "Dit samtykke",
 	"me.consent.accepted": "Givet den {date} (version {version}).",

@@ -75,9 +75,6 @@ export const fi: Catalog = {
 	"me.reconnect": "Yhdistä uudelleen",
 	"me.scope.readAll": "Myös yksityiset suoritukset lasketaan.",
 	"me.scope.sharedOnly": "Yksityisiä (”Vain sinä”) suorituksia ei lasketa.",
-	"me.scope.write":
-		"RynkePoints saa kirjoittaa Rynke-osion ajojesi kuvauksiin, kun toiminto on olemassa.",
-	"me.scope.noWrite": "RynkePoints ei kirjoita mitään ajojesi kuvauksiin.",
 	"me.changePermissions": "Muuta oikeuksia Stravassa",
 	"me.consent.heading": "Suostumuksesi",
 	"me.consent.accepted": "Annettu {date} (versio {version}).",

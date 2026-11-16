@@ -77,9 +77,6 @@ export const is: Catalog = {
 	"me.reconnect": "Tengjast aftur",
 	"me.scope.readAll": "Einkavirkni telst líka.",
 	"me.scope.sharedOnly": "Einkavirkni („Aðeins þú“) telst ekki.",
-	"me.scope.write":
-		"RynkePoints má skrifa Rynke-hluta í lýsingar ferða þinna þegar sá eiginleiki er kominn.",
-	"me.scope.noWrite": "RynkePoints skrifar ekkert í lýsingar ferða þinna.",
 	"me.changePermissions": "Breyta heimildum á Strava",
 	"me.consent.heading": "Samþykki þitt",
 	"me.consent.accepted": "Samþykkt {date} (útgáfa {version}).",

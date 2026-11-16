@@ -9,7 +9,7 @@ lang: en
 <!--
 Maintainers: this handout is informational only. The specification
 specs/003-rynke-evaluation/spec.md is authoritative; if the two differ, fix this
-file (FR-019). For now it is an English translation of the founding team's
+file (FR-019). For now it is an English translation of Hamburg's
 docs/rynke-punkte.md with this team's name (spec 026 task T082): keep the two in
 step until this team's own values differ. Render it with `pnpm docs:pdf` and
 commit public/teams/europe/rynke-points.pdf: the app links riders to that PDF.

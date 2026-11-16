@@ -75,9 +75,6 @@ export const nl: Catalog = {
 	"me.reconnect": "Opnieuw verbinden",
 	"me.scope.readAll": "Privéactiviteiten tellen ook mee.",
 	"me.scope.sharedOnly": "Privéactiviteiten (“Alleen jij”) tellen niet mee.",
-	"me.scope.write":
-		"RynkePoints mag een Rynke-blok in je ritbeschrijvingen schrijven zodra die functie er is.",
-	"me.scope.noWrite": "RynkePoints schrijft niets in je ritbeschrijvingen.",
 	"me.changePermissions": "Rechten wijzigen op Strava",
 	"me.consent.heading": "Je toestemming",
 	"me.consent.accepted": "Akkoord gegaan op {date} (versie {version}).",

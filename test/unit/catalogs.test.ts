@@ -100,8 +100,6 @@ const CONTRACT_IDS = [
 	"me.reconnect",
 	"me.scope.readAll",
 	"me.scope.sharedOnly",
-	"me.scope.write",
-	"me.scope.noWrite",
 	"me.changePermissions",
 	"me.consent.heading",
 	"me.consent.accepted",

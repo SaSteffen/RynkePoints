@@ -83,7 +83,6 @@ ${group(
 	i18n.t("settings.strava"),
 	html`${status}
 <p>${i18n.t(rider.scopeReadAll ? "me.scope.readAll" : "me.scope.sharedOnly")}</p>
-<p>${i18n.t(rider.scopeWrite ? "me.scope.write" : "me.scope.noWrite")}</p>
 <p><a class="button-outlined" href="/connect?next=/me/settings">${i18n.t("me.changePermissions")}</a></p>`,
 )}
 ${group("settings-consent", i18n.t("me.consent.heading"), consent(i18n, accepted))}

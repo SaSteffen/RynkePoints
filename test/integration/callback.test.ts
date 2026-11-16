@@ -13,8 +13,8 @@ import { toActivityRecord } from "../../src/strava/activity";
 import {
 	approve,
 	callback,
+	EXTRA_SCOPE,
 	SCOPES_ALL,
-	SCOPES_NO_WRITE,
 	SCOPES_SHARED,
 	setCookies,
 } from "../support/callback";
@@ -410,7 +410,7 @@ describe("GET /auth/callback success", () => {
 	});
 });
 
-describe("GET /auth/callback consent and write access", () => {
+describe("GET /auth/callback consent", () => {
 	async function consentRows() {
 		const { results } = await env.DB.prepare(
 			"SELECT athlete_id, version, accepted_at FROM consent_records",
@@ -418,9 +418,8 @@ describe("GET /auth/callback consent and write access", () => {
 		return results;
 	}
 
-	it("stores write access and the consent of a new member", async () => {
+	it("stores the consent of a new member", async () => {
 		await approve(ctx, fake, ATHLETE_A, SCOPES_ALL);
-		expect((await getRider(env.DB, ATHLETE_A))?.scopeWrite).toBe(true);
 		expect(await consentRows()).toEqual([
 			{ athlete_id: ATHLETE_A, version: CONSENT_VERSION, accepted_at: NOW },
 		]);
@@ -438,10 +437,9 @@ describe("GET /auth/callback consent and write access", () => {
 		]);
 	});
 
-	it("connects a new member who unticked write access", async () => {
-		const res = await approve(ctx, fake, ATHLETE_A, SCOPES_NO_WRITE);
+	it("records revision 3.1 for a new member", async () => {
+		const res = await approve(ctx, fake, ATHLETE_A, SCOPES_ALL);
 		expect(res.headers.get("Location")).toBe("/me");
-		expect((await getRider(env.DB, ATHLETE_A))?.scopeWrite).toBe(false);
 		expect(await getCurrentConsent(env.DB, ATHLETE_A)).toEqual({
 			version: CONSENT_VERSION,
 			// Ride stats ranking: new acceptances record revision 3.1.
@@ -547,7 +545,7 @@ describe("GET /auth/callback for a new version that needs a scope (004 US4 scena
 				{
 					version: 2,
 					published: "2026-11-01",
-					requiredScopes: ["read", "activity:read", "activity:write"],
+					requiredScopes: ["read", "activity:read", EXTRA_SCOPE],
 					changes: ["consent.short.read"],
 					revisions: [],
 				},
@@ -566,11 +564,12 @@ describe("GET /auth/callback for a new version that needs a scope (004 US4 scena
 
 	it("records version 2 and the new scopes of a rider who grants them", async () => {
 		await seedExistingRider({ consentVersion: 1 });
+		const withExtra = `${SCOPES_ALL},${EXTRA_SCOPE}`;
 		const res = await approve(
 			ctx,
 			fake,
 			ATHLETE_A,
-			SCOPES_ALL,
+			withExtra,
 			{},
 			{
 				consentVersion: 2,
@@ -579,8 +578,7 @@ describe("GET /auth/callback for a new version that needs a scope (004 US4 scena
 		expect(res.headers.get("Location")).toBe("/me");
 		expect(await versions()).toEqual([1, 2]);
 		const rider = await getRider(env.DB, ATHLETE_A);
-		expect(rider?.scopes).toBe(SCOPES_ALL);
-		expect(rider?.scopeWrite).toBe(true);
+		expect(rider?.scopes).toBe(withExtra);
 	});
 
 	it("connects a rider who leaves the new scope out and keeps the gate", async () => {
@@ -589,7 +587,7 @@ describe("GET /auth/callback for a new version that needs a scope (004 US4 scena
 			ctx,
 			fake,
 			ATHLETE_A,
-			SCOPES_NO_WRITE,
+			SCOPES_ALL,
 			{},
 			{
 				consentVersion: 2,

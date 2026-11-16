@@ -191,13 +191,13 @@ describe("requireConsent (004 US4, contracts/re-consent.md)", () => {
 				{
 					version: 2,
 					published: "2026-11-01",
-					requiredScopes: ["read", "activity:read", "activity:write"],
+					requiredScopes: ["read", "activity:read", "profile:read_all"],
 					changes: ["consent.short.read"],
 					revisions: [],
 				},
 			],
 		});
-		await seedRider(scopeCtx, { consentVersion: 2, scopeWrite: false });
+		await seedRider(scopeCtx, { consentVersion: 2 });
 		expectToMe(requireConsent(await viewerOf(ATHLETE_A), scopeCtx));
 	});
 
