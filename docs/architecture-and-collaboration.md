@@ -2,6 +2,8 @@
 
 This is how RynkePoints runs with more than one team, and how it's meant to work with more than one
 maintainer: what the system looks like, how a change reaches production, and who may do what.
+How one team's app works inside (Strava, Cloudflare, the jobs, the usage limits, deploying) is in
+[How RynkePoints runs](how-it-runs.md).
 
 > [!IMPORTANT]
 > **Where things stand (November 2026):**
