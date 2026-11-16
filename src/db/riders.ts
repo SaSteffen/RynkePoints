@@ -18,8 +18,6 @@ export interface Rider {
 	firstName: string;
 	status: RiderStatus;
 	scopeReadAll: boolean;
-	/** `activity:write` was granted; nothing in this feature writes (FR-003). */
-	scopeWrite: boolean;
 	scopes: string;
 	connectedAt: number;
 	scopesUpdatedAt: number;
@@ -53,7 +51,6 @@ export interface RiderRow {
 	first_name: string;
 	status: RiderStatus;
 	scope_read_all: number;
-	scope_write: number;
 	scopes: string;
 	connected_at: number;
 	scopes_updated_at: number;
@@ -73,7 +70,6 @@ export interface RiderGrant {
 	firstName: string;
 	scopes: string;
 	scopeReadAll: boolean;
-	scopeWrite: boolean;
 	now: number;
 }
 
@@ -90,7 +86,6 @@ export function toRider(row: RiderRow): Rider {
 		firstName: row.first_name,
 		status: row.status,
 		scopeReadAll: row.scope_read_all === 1,
-		scopeWrite: row.scope_write === 1,
 		scopes: row.scopes,
 		connectedAt: row.connected_at,
 		scopesUpdatedAt: row.scopes_updated_at,
@@ -129,16 +124,15 @@ export async function insertRider(
 		db
 			.prepare(
 				`INSERT INTO riders (athlete_id, first_name, status, scope_read_all,
-					scope_write, scopes, connected_at, scopes_updated_at,
+					scopes, connected_at, scopes_updated_at,
 					membership_checked_at, import_status, reconnect_requested_at,
 					figures_version)
-				VALUES (?1, ?2, 'connected', ?3, ?4, ?5, ?6, ?6, ?6, 'pending', NULL, ?7)`,
+				VALUES (?1, ?2, 'connected', ?3, ?4, ?5, ?5, ?5, 'pending', NULL, ?6)`,
 			)
 			.bind(
 				rider.athleteId,
 				rider.firstName,
 				rider.scopeReadAll ? 1 : 0,
-				rider.scopeWrite ? 1 : 0,
 				rider.scopes,
 				rider.now,
 				ACTIVITY_FIGURES_VERSION,
@@ -163,7 +157,7 @@ export async function updateRiderOnReconnect(
 	await db
 		.prepare(
 			`UPDATE riders SET first_name = ?2, scopes = ?3, scope_read_all = ?4,
-				scope_write = ?5, scopes_updated_at = ?6, status = 'connected',
+				scopes_updated_at = ?5, status = 'connected',
 				reconnect_requested_at = NULL
 			WHERE athlete_id = ?1`,
 		)
@@ -172,7 +166,6 @@ export async function updateRiderOnReconnect(
 			grant.firstName,
 			grant.scopes,
 			grant.scopeReadAll ? 1 : 0,
-			grant.scopeWrite ? 1 : 0,
 			grant.now,
 		)
 		.run();

@@ -66,12 +66,11 @@ describe("GET /me for a connected rider", () => {
 	});
 
 	it("keeps settings, consent and account off the Overview (011 FR-010)", async () => {
-		await seedRider(ctx, { scopeWrite: true });
+		await seedRider(ctx);
 		const { page } = await getMe();
 		for (const hidden of [
 			de["me.status.connected"],
 			escapeHtml(de["me.scope.readAll"]),
-			escapeHtml(de["me.scope.write"]),
 			escapeHtml(de["me.changePermissions"]),
 			escapeHtml(de["me.consent.heading"]),
 			escapeHtml(de["landing.dataRead"]),
@@ -81,18 +80,6 @@ describe("GET /me for a connected rider", () => {
 		]) {
 			expect(page).not.toContain(hidden);
 		}
-	});
-
-	it("shows whether write access was granted", async () => {
-		await seedRider(ctx, { scopeWrite: true });
-		expect((await getSettings()).page).toContain(
-			escapeHtml(de["me.scope.write"]),
-		);
-		await resetDb();
-		await seedRider(ctx, { scopeWrite: false });
-		expect((await getSettings()).page).toContain(
-			escapeHtml(de["me.scope.noWrite"]),
-		);
 	});
 
 	it("shows the stored consent on its Berlin date, what is read and who sees what", async () => {
@@ -167,7 +154,7 @@ describe("GET /me for a connected rider", () => {
 	});
 
 	it("shows what was agreed, the permissions, who sees what and how to leave (004 US4 scenario 1, R12)", async () => {
-		await seedRider(ctx, { consentVersion: CONSENT_VERSION, scopeWrite: true });
+		await seedRider(ctx, { consentVersion: CONSENT_VERSION });
 		const { page } = await getSettings();
 		for (const shown of [
 			"Zugestimmt am 06.10.2026 (Version\u00a03).",
@@ -175,7 +162,6 @@ describe("GET /me for a connected rider", () => {
 			escapeHtml(de["consent.organisers"]),
 			escapeHtml(de["consent.team"]),
 			escapeHtml(de["me.scope.readAll"]),
-			escapeHtml(de["me.scope.write"]),
 			`<a class="danger" href="/me/disconnect">${escapeHtml(de["me.disconnect.button"])}</a>`,
 		]) {
 			expect(page).toContain(shown);
@@ -235,7 +221,6 @@ describe("GET /me for a rider without a consent record (004 US1, R14)", () => {
 			"Hallo Testrider A!",
 			de["me.status.connected"],
 			de["me.scope.readAll"],
-			de["me.scope.noWrite"],
 			de["me.changePermissions"],
 			"werden noch importiert",
 			de["me.recent.heading"],

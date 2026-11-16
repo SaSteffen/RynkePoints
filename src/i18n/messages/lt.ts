@@ -75,9 +75,6 @@ export const lt: Catalog = {
 	"me.reconnect": "Prisijungti iš naujo",
 	"me.scope.readAll": "Privačios veiklos taip pat skaičiuojamos.",
 	"me.scope.sharedOnly": "Privačios („Tik tu“) veiklos neskaičiuojamos.",
-	"me.scope.write":
-		"RynkePoints galės įrašyti Rynke skiltį į tavo važiavimų aprašymus, kai ši funkcija atsiras.",
-	"me.scope.noWrite": "RynkePoints nieko nerašo į tavo važiavimų aprašymus.",
 	"me.changePermissions": "Keisti leidimus Strava",
 	"me.consent.heading": "Tavo sutikimas",
 	"me.consent.accepted": "Sutikta {date} (versija {version}).",
@@ -1089,6 +1086,12 @@ export const lt: Catalog = {
 	"admin.teams.otherN": "Kita komanda {n}",
 	"admin.teams.shared": "Bendra (šliuzas)",
 	"admin.teams.never": "{team}: atsakymo dar nėra, todėl skaičių trūksta.",
+	"admin.overview.heading": "Visos komandos",
+	"admin.overview.note":
+		"Šiandienos skaičiai; Cloudflare – paskutinės įrašytos dienos. Tuščiame langelyje skaičiaus nėra.",
+	"admin.overview.figure": "Rodiklis",
+	"admin.overview.rest": "Nepriskirta",
+	"admin.overview.total": "Iš viso",
 	"admin.figure.seen": "Būsena {time} UTC",
 	"admin.figure.notSeen": "Dar nestebėta",
 	"admin.figure.noValue": "Reikšmės dar nėra. Riba: {limit}",

@@ -6,9 +6,10 @@ import type { FakeStrava } from "./fake-strava";
 // Drives GET /auth/callback the way Strava's redirect would, with a valid
 // rp_oauth_state cookie unless told otherwise.
 
-export const SCOPES_ALL = "read,activity:read,activity:read_all,activity:write";
-export const SCOPES_NO_WRITE = "read,activity:read,activity:read_all";
+export const SCOPES_ALL = "read,activity:read,activity:read_all";
 export const SCOPES_SHARED = "read,activity:read";
+/** A scope the app doesn't ask for, standing in for one a new consent version could require. */
+export const EXTRA_SCOPE = "profile:read_all";
 
 const STATE = "synthetic-state-0001";
 let nextCode = 1;

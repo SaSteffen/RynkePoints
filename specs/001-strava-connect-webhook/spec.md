@@ -294,10 +294,9 @@ and no one else's.
   with the consent of feature 004-roles-and-consent (its FR-010, FR-011), and MUST
   only redirect once the rider has agreed.
 - **FR-003**: The system MUST request the permission to read the rider's
-  activities, at the level defined in FR-005, and the optional permission to write
-  them (feature 004-roles-and-consent, FR-012), which the rider may decline on
-  Strava's approval screen without affecting the connection. This feature MUST NOT
-  write to Strava.
+  activities, at the level defined in FR-005, and no permission to write them
+  (feature 004-roles-and-consent, FR-012, amended 2026-11-16). It MUST NOT write to
+  Strava.
 - **FR-004**: Only members of the configured team Strava club (initially
   "TRHH Rynke Coins", https://www.strava.com/clubs/2372209) MUST be able to
   connect. Membership MUST be checked when the rider connects; a non-member's
@@ -321,8 +320,7 @@ and no one else's.
 - **FR-007**: Re-connecting an already connected rider MUST update their existing
   record and granted permissions rather than create a second rider. If the new
   permission no longer covers private activities, stored private activities MUST be
-  removed; if it newly covers them, they MUST be imported as in FR-021. Granting
-  or dropping write access changes only the recorded permissions.
+  removed; if it newly covers them, they MUST be imported as in FR-021.
 - **FR-008**: The system MUST show a friendly "team is full" message when Strava
   refuses the connection because the app's athlete capacity is reached.
 - **FR-009**: Signing in to RynkePoints MUST happen through the same Strava
@@ -399,8 +397,7 @@ and no one else's.
 **Rider view**
 
 - **FR-025**: A signed-in rider MUST be able to see their connection status,
-  granted permissions (including whether private activities are covered and
-  whether write access was granted), whether
+  granted permissions (including whether private activities are covered), whether
   the past-season import is still running, their most recently imported activities
   (at least the last 20), newest first, and the consent they agreed to (feature 004,
   FR-014).

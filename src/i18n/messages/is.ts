@@ -77,9 +77,6 @@ export const is: Catalog = {
 	"me.reconnect": "Tengjast aftur",
 	"me.scope.readAll": "Einkavirkni telst líka.",
 	"me.scope.sharedOnly": "Einkavirkni („Aðeins þú“) telst ekki.",
-	"me.scope.write":
-		"RynkePoints má skrifa Rynke-hluta í lýsingar ferða þinna þegar sá eiginleiki er kominn.",
-	"me.scope.noWrite": "RynkePoints skrifar ekkert í lýsingar ferða þinna.",
 	"me.changePermissions": "Breyta heimildum á Strava",
 	"me.consent.heading": "Samþykki þitt",
 	"me.consent.accepted": "Samþykkt {date} (útgáfa {version}).",
@@ -1063,6 +1060,12 @@ export const is: Catalog = {
 	"admin.teams.otherN": "Annað lið {n}",
 	"admin.teams.shared": "Sameiginlegt (gátt)",
 	"admin.teams.never": "{team}: ekkert svar enn, svo tölurnar vantar.",
+	"admin.overview.heading": "Öll lið",
+	"admin.overview.note":
+		"Tölur dagsins; hjá Cloudflare tölur síðasta skráða dags. Tómur reitur hefur enga tölu.",
+	"admin.overview.figure": "Tala",
+	"admin.overview.rest": "Óúthlutað",
+	"admin.overview.total": "Samtals",
 	"admin.figure.seen": "Staða {time} UTC",
 	"admin.figure.notSeen": "Ekki séð enn",
 	"admin.figure.noValue": "Ekkert gildi enn. Hámark: {limit}",

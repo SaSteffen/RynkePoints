@@ -79,10 +79,6 @@ export const de = {
 	"me.reconnect": "Erneut verbinden",
 	"me.scope.readAll": "Private Aktivitäten zählen mit.",
 	"me.scope.sharedOnly": "Private („Nur du“) Aktivitäten zählen nicht.",
-	"me.scope.write":
-		"RynkePoints darf einen Rynke-Abschnitt in deine Fahrtbeschreibungen schreiben, sobald es die Funktion gibt.",
-	"me.scope.noWrite":
-		"RynkePoints schreibt nichts in deine Fahrtbeschreibungen.",
 	"me.changePermissions": "Berechtigungen auf Strava ändern",
 	"me.consent.heading": "Deine Zustimmung",
 	"me.consent.accepted": "Zugestimmt am {date} (Version\u00a0{version}).",
@@ -1097,6 +1093,12 @@ export const de = {
 	"admin.teams.otherN": "Anderes Team {n}",
 	"admin.teams.shared": "Gemeinsam (Gateway)",
 	"admin.teams.never": "{team}: noch keine Antwort, daher fehlen die Zahlen.",
+	"admin.overview.heading": "Alle Teams",
+	"admin.overview.note":
+		"Heutige Zahlen, bei Cloudflare die des zuletzt erfassten Tages. Leere Zelle: keine Zahl.",
+	"admin.overview.figure": "Wert",
+	"admin.overview.rest": "Nicht zugeordnet",
+	"admin.overview.total": "Gesamt",
 	"admin.figure.seen": "Stand: {time} UTC",
 	"admin.figure.notSeen": "Noch nicht beobachtet",
 	"admin.figure.noValue": "Noch kein Wert. Limit: {limit}",

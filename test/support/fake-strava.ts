@@ -81,12 +81,7 @@ export interface FakeStrava {
 	restore(): void;
 }
 
-export const DEFAULT_SCOPES = [
-	"read",
-	"activity:read",
-	"activity:read_all",
-	"activity:write",
-];
+export const DEFAULT_SCOPES = ["read", "activity:read", "activity:read_all"];
 
 export function initialTokens(athleteId: number) {
 	return {

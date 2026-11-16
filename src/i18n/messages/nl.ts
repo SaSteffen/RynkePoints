@@ -75,9 +75,6 @@ export const nl: Catalog = {
 	"me.reconnect": "Opnieuw verbinden",
 	"me.scope.readAll": "Privéactiviteiten tellen ook mee.",
 	"me.scope.sharedOnly": "Privéactiviteiten (“Alleen jij”) tellen niet mee.",
-	"me.scope.write":
-		"RynkePoints mag een Rynke-blok in je ritbeschrijvingen schrijven zodra die functie er is.",
-	"me.scope.noWrite": "RynkePoints schrijft niets in je ritbeschrijvingen.",
 	"me.changePermissions": "Rechten wijzigen op Strava",
 	"me.consent.heading": "Je toestemming",
 	"me.consent.accepted": "Akkoord gegaan op {date} (versie {version}).",
@@ -1071,6 +1068,12 @@ export const nl: Catalog = {
 	"admin.teams.otherN": "Ander team {n}",
 	"admin.teams.shared": "Gedeeld (gateway)",
 	"admin.teams.never": "{team}: nog geen antwoord, dus de cijfers ontbreken.",
+	"admin.overview.heading": "Alle teams",
+	"admin.overview.note":
+		"Cijfers van vandaag; voor Cloudflare die van de laatst geregistreerde dag. Een lege cel heeft geen cijfer.",
+	"admin.overview.figure": "Cijfer",
+	"admin.overview.rest": "Niet toegewezen",
+	"admin.overview.total": "Totaal",
 	"admin.figure.seen": "Stand van {time} UTC",
 	"admin.figure.notSeen": "Nog niet waargenomen",
 	"admin.figure.noValue": "Nog geen waarde. Limiet: {limit}",

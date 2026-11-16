@@ -75,9 +75,6 @@ export const da: Catalog = {
 	"me.reconnect": "Forbind igen",
 	"me.scope.readAll": "Private aktiviteter tæller også.",
 	"me.scope.sharedOnly": "Private (»Kun dig«) aktiviteter tæller ikke.",
-	"me.scope.write":
-		"RynkePoints må skrive et Rynke-afsnit i dine turbeskrivelser, når funktionen findes.",
-	"me.scope.noWrite": "RynkePoints skriver intet i dine turbeskrivelser.",
 	"me.changePermissions": "Skift tilladelser på Strava",
 	"me.consent.heading": "Dit samtykke",
 	"me.consent.accepted": "Givet den {date} (version {version}).",
@@ -1054,6 +1051,12 @@ export const da: Catalog = {
 	"admin.teams.otherN": "Andet hold {n}",
 	"admin.teams.shared": "Fælles (gateway)",
 	"admin.teams.never": "{team}: intet svar endnu, så tallene mangler.",
+	"admin.overview.heading": "Alle hold",
+	"admin.overview.note":
+		"Dagens tal; for Cloudflare den senest registrerede dags. En tom celle har intet tal.",
+	"admin.overview.figure": "Tal",
+	"admin.overview.rest": "Ikke tilknyttet",
+	"admin.overview.total": "Samlet",
 	"admin.figure.seen": "Pr. {time} UTC",
 	"admin.figure.notSeen": "Ikke observeret endnu",
 	"admin.figure.noValue": "Ingen værdi endnu. Grænse: {limit}",

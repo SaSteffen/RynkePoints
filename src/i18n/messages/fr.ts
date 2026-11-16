@@ -77,10 +77,6 @@ export const fr: Catalog = {
 	"me.scope.readAll": "Les activités privées comptent aussi.",
 	"me.scope.sharedOnly":
 		"Les activités privées («\u00a0Moi uniquement\u00a0») ne comptent pas.",
-	"me.scope.write":
-		"RynkePoints pourra écrire une section Rynke dans les descriptions de tes sorties quand la fonction existera.",
-	"me.scope.noWrite":
-		"RynkePoints n'écrit rien dans les descriptions de tes sorties.",
 	"me.changePermissions": "Modifier les autorisations sur Strava",
 	"me.consent.heading": "Ton consentement",
 	"me.consent.accepted": "Donné le {date} (version {version}).",
@@ -1110,6 +1106,12 @@ export const fr: Catalog = {
 	"admin.teams.shared": "Partagé (passerelle)",
 	"admin.teams.never":
 		"{team}\u00a0: pas encore de réponse, les chiffres manquent donc.",
+	"admin.overview.heading": "Toutes les équipes",
+	"admin.overview.note":
+		"Chiffres du jour\u00a0; pour Cloudflare, ceux du dernier jour enregistré. Une case vide n’a pas de chiffre.",
+	"admin.overview.figure": "Valeur",
+	"admin.overview.rest": "Non attribué",
+	"admin.overview.total": "Total",
 	"admin.figure.seen": "Au {time} UTC",
 	"admin.figure.notSeen": "Pas encore observé",
 	"admin.figure.noValue": "Pas encore de valeur. Limite\u00a0: {limit}",

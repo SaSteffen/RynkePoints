@@ -2,19 +2,16 @@
 
 [![e2e nightly](https://github.com/SaSteffen/RynkePoints/actions/workflows/e2e-nightly.yml/badge.svg?branch=develop)](https://github.com/SaSteffen/RynkePoints/actions/workflows/e2e-nightly.yml?query=branch%3Adevelop)
 
-Strava integration for Team Rynkeby teams: Team Rynkeby Hamburg, the founding
-team, and Team Rynkeby Europe, which is being set up. Riders connect their Strava account
-(opt-in), the app collects key data from their activities (distance, date, elevation
-gain, …), counts the team events they attended, and awards gamified **Rynke Points**.
-Writing their points into the Strava activity description, with the rider's
-permission, is planned for a later feature.
+RynkePoints motivates Team Rynkeby riders to train for the ride to Paris, so the team
+can start, ride and arrive together. Riders connect their Strava account by choice,
+and the app turns their rides and the team events they attend into gamified **Rynke
+Points**, with progress charts, badges and a coin to keep training fun. It enables
+organisers to support their riders on the way, while riders never see each other
+ranked by name and no rider's data leaves their own team.
 
-Runs serverless on Cloudflare Workers, with D1 for storage and Queues for
-processing Strava webhook events.
-
-Features are specified and built with
-[Spec Kit](https://github.com/github/spec-kit); each has its own folder under
-`specs/`.
+It is built for Team Rynkeby Hamburg. What another team needs is added so that any
+team that wants to can adopt it; Team Rynkeby Europe is being set up as the first.
+How it's built: [Tech stack](#tech-stack).
 
 ## What it does today
 
@@ -64,8 +61,7 @@ contact address, set as `PRIVACY_CONTROLLER` and `CONTACT_EMAIL` in
 - **Scopes**: `read` and `activity:read` are required. `activity:read_all` is
   optional: only if the rider grants it are their private ("Only You")
   activities included. `activity:write` is not requested: nothing writes to
-  Strava. A later feature that adds a Rynke section to ride descriptions will
-  ask for it, with its own consent.
+  Strava.
 - **From Strava, per rider**: the athlete ID, first name (for the greeting and
   the organisers), the granted scopes, and the Strava tokens, encrypted
   (AES-256-GCM).
@@ -137,6 +133,25 @@ queue, so no rider's data is readable from another team
 Adding a team takes team data, resources and one line of deployment settings, no
 code: [docs/add-a-team.md](docs/add-a-team.md).
 
+## Tech stack
+
+RynkePoints is one TypeScript codebase that runs serverless on Cloudflare's free plan,
+with almost no runtime dependencies:
+
+- **Each team** is its own Cloudflare Worker, with its own D1 database (in the EU),
+  queue and two cron jobs. Pages are rendered in the Worker, with no front-end
+  framework, and the app installs as a PWA with notifications.
+- **Strava** is read only, through one Strava application that all teams share. A
+  small gateway Worker receives its webhook and sign-ins and passes them on.
+- **Background work** (imports, new rides, membership checks, Rynke) runs on the
+  queue, within Strava's and Cloudflare's daily limits.
+- **Development** needs neither a Strava nor a Cloudflare account: `pnpm dev` runs
+  every team against a fake Strava with synthetic riders.
+
+The details, with diagrams, are in [How RynkePoints runs](docs/how-it-runs.md): the
+parts and why each was chosen, Strava, Cloudflare, which jobs run when, the usage
+limits, and deploying.
+
 ## Languages
 
 Every team's site offers ten languages: Dansk, Deutsch, English, Français,
@@ -156,10 +171,42 @@ To add a language, add its catalog file and its common phrases
 
 ## Getting started
 
-Requirements: Node 24 (see `.nvmrc`) and pnpm (`corepack enable`).
+### 1. A shell
+
+Everything here runs in a Unix shell (bash or zsh), and needs git:
+
+- **Linux**: any terminal. Install git with your package manager if `git --version`
+  doesn't find it.
+- **macOS**: the Terminal app. `xcode-select --install` adds git.
+- **Windows**: WSL 2 with Ubuntu. Run `wsl --install` in an administrator
+  PowerShell, restart, and open *Ubuntu* from the Start menu
+  ([Microsoft's guide](https://learn.microsoft.com/windows/wsl/install)). Work in
+  that terminal from now on, and clone into your Linux home folder (`~`), not under
+  `/mnt/c`, where everything is much slower.
+
+### 2. Node and pnpm
+
+- **Node 24**, the version in `.nvmrc`. The simplest way to get it is
+  [nvm](https://github.com/nvm-sh/nvm#installing-and-updating): install it, open a
+  new terminal, then run `nvm install` in the repository. It reads `.nvmrc`.
+- **pnpm** comes with Node through Corepack. Run `corepack enable` once, and pnpm
+  then uses the version that `package.json` names.
 
 ```bash
-pnpm install                # deps + git hooks
+node --version      # v24.…
+pnpm --version      # 10.…
+```
+
+That is everything building, testing and running the app needs. **Python is not
+among it**: only Spec Kit uses it (see step 4).
+
+### 3. Run it
+
+```bash
+git clone https://github.com/SaSteffen/RynkePoints.git
+cd RynkePoints
+nvm install && corepack enable
+pnpm install                # dependencies and git hooks
 pnpm test
 pnpm dev                    # every team with a fake Strava, behind a local gateway
 pnpm dev:hamburg            # one team, without the gateway (also dev:europe)
@@ -172,6 +219,68 @@ runs on `http://localhost:8789`, Europe on `http://europe.localhost:8790`, and t
 Strava gateway on `http://localhost:8791`: sign-ins come back and simulated events
 arrive through it, as in production
 ([feature 026 contracts](specs/026-second-team/contracts/dev-commands.md)).
+
+### 4. Developing with Claude Code
+
+RynkePoints is built with [Claude Code](https://claude.com/claude-code), Anthropic's
+coding agent for the terminal, and is best developed with it. Install it as its page
+describes (on Linux, macOS and WSL:
+`curl -fsSL https://claude.ai/install.sh | bash`). It needs a Claude plan or an
+Anthropic API key. Then start it in the repository with `claude`.
+
+The repository carries the harness Claude Code works within:
+
+- **`CLAUDE.md`**: the commands, branch rules and non-negotiables. Claude Code reads
+  it at the start of every session.
+- **The [constitution](.specify/memory/constitution.md)**: the project's principles
+  (consent and privacy, good Strava citizenship, test-first). `CLAUDE.md` defers to
+  it, and every spec and plan is checked against it.
+- **[Spec Kit](https://github.com/github/spec-kit)** ([docs](https://github.github.io/spec-kit/)):
+  GitHub's toolkit for spec-driven development. Its steps are slash commands in
+  `.claude/skills/speckit-*`, with their scripts and templates in `.specify/`.
+- **Git hooks**: lefthook runs Biome, `tsc` and commitlint before each commit, so
+  agent and human commits get the same checks.
+
+A feature goes through Spec Kit's steps. Each one writes into
+`specs/<number>-<name>/`:
+
+| Step | Command | Writes |
+|---|---|---|
+| Specify | `/speckit-specify <what and why>` | `spec.md`, on a new branch |
+| Clarify | `/speckit-clarify` | answers to open questions, into `spec.md` |
+| Plan | `/speckit-plan` | `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md` |
+| Tasks | `/speckit-tasks` | `tasks.md` |
+| Analyze | `/speckit-analyze` | a consistency check across the three, no files |
+| Implement | `/speckit-implement` | tests first, then code, task by task |
+| Converge | `/speckit-converge` | work still unbuilt, as new tasks in `tasks.md` |
+
+#### Spec Kit needs Python
+
+The skills, scripts and templates are committed, so the slash commands work in
+Claude Code without installing Spec Kit itself. But their scripts
+(`.specify/scripts/python/`) are Python, so Spec Kit is the one place Python is
+needed: **Python 3.11 or newer** (`python3 --version`). Current Linux releases
+(Ubuntu 24.04 on WSL, for one) and macOS with the Xcode tools usually have it; if
+yours is older, install a newer one with your package manager.
+
+Spec Kit's `specify` command line tool is optional. Install it only to upgrade the
+committed files. It is installed with [uv](https://docs.astral.sh/uv/getting-started/installation/),
+a Python package manager:
+
+```bash
+uv tool install specify-cli          # once
+specify version                      # check that it runs
+specify integration upgrade claude   # refresh .specify/ and the skills; review the diff
+```
+
+More in Spec Kit's [documentation](https://github.github.io/spec-kit/): the
+[SDD walkthrough](https://github.github.io/spec-kit/quickstart.html) of the steps
+above, [installation](https://github.github.io/spec-kit/installation.html) and
+[upgrading](https://github.github.io/spec-kit/upgrade.html). The project's own
+rules for it are in the [constitution](.specify/memory/constitution.md) and
+`CLAUDE.md`.
+
+### Browser tests
 
 The browser smoke tests run the same fake mode, on port 8797 with its own state,
 in Chromium, Firefox and WebKit:
@@ -190,7 +299,12 @@ pnpm test:e2e:webkit                                     # keeps running
 E2E_WEBKIT_SERVER=ws://127.0.0.1:3797/ pnpm test:e2e
 ```
 
-Against the real Strava you need your own
+Docker is only needed for that. Rendering the rules handouts (`pnpm docs:pdf`) also
+needs pandoc and Chrome or Chromium.
+
+### Against the real Strava
+
+For this you need your own
 [Strava API application](https://www.strava.com/settings/api):
 
 ```bash
@@ -199,17 +313,13 @@ pnpm wrangler d1 migrations apply DB --local --env hamburg   # local database
 pnpm dev:strava             # local Worker on http://localhost:8789, real Strava
 ```
 
-You don't need a Cloudflare account for either: production is deployed by CI (see
-[Deploying](#deploying)).
+Neither this nor `pnpm dev` needs a Cloudflare account: production is deployed by CI (see
+[Deploying](#deploying)). More on running against the real Strava locally is in the
+[feature quickstart](specs/001-strava-connect-webhook/quickstart.md#2-local-manual-run-against-the-real-strava-maintainer-only).
 
-Running against the real Strava locally, and the manual one-time production
-steps (Cloudflare resources, secrets, the webhook subscription and Strava's
-brand assets, which are English only and used for every language), are in the
-[feature quickstart](specs/001-strava-connect-webhook/quickstart.md). The D1
-database must be created with `--jurisdiction=eu` before the first deploy, so
-rider data stays in the EU.
+### Maintainer tasks
 
-Occasional maintainer tasks, each described at the top of its script:
+Occasional tasks, each described at the top of its script:
 
 | Command | Does |
 |---|---|
@@ -356,78 +466,20 @@ the workflows onto `main`.
 
 ## Deploying
 
-Merging into `main` deploys. Once `lint`, `typecheck`, `test` and `e2e` pass on the
-merged commit, CI deploys each team from its own GitHub environment (`production`
-for Hamburg, `production-europe` for Europe): it applies the team's pending D1
-migrations, then publishes its Worker. One team's failure never stops another's.
-Europe is only deployed while the repository variable `EUROPE_DEPLOY` is `on`, and
-the gateway only while `GATEWAY_DEPLOY` is `on`
-([repository settings](.github/repository-settings.md)). Nothing else deploys;
-merges into `develop` don't.
+Merging into `main` deploys. Once the checks pass on the merged commit, CI deploys
+each team on its own: it applies the team's pending D1 migrations, then publishes
+its Worker. Merges into `develop` deploy nothing, and nobody deploys production by
+hand. Migrations only go forward, so a migration must keep the previously deployed
+version working: add first, and remove or rename only in a later release.
 
-- **Migrations** run first. They're forward-only and never rolled back, so a
-  migration must keep the previously deployed version working: add tables and
-  columns, don't rename or drop them in the same release. Remove old parts in a
-  later release.
-- **Which commit runs**: **Deployments → production** (Hamburg) or
-  **production-europe** on GitHub. The Cloudflare version message carries the
-  commit SHA too.
-- **When a deploy fails**, the run on the `main` commit is red, the deployment
-  shows *failure*, the maintainer gets an e-mail, and the previous version keeps
-  serving.
-- **Re-deploy**: `gh workflow run ci.yml --ref main` (or **Actions → CI → Run
-  workflow → `main`**). It re-runs the checks and deploys the tip of `main` only.
-- **Rollback**: preferably revert the change through a [hotfix](#hotfixes). As a
-  break-glass, `pnpm wrangler rollback <version-id> --message "rollback: <reason>"`
-  restores an earlier version at once, with limits: migrations stay applied,
-  only the last 100 versions are available, GitHub doesn't see it, and the next
-  merge or dispatch deploys `main` again.
-- **A local `pnpm run deploy <team>`** (e.g. `hamburg`) is break-glass only. Every
-  Wrangler command below names its team with `--env <team>`; without it, it fails.
-- **Push key**: the deploy fails without the secret `PUSH_VAPID_KEY`, an EC
-  P-256 key that signs notifications. Set it once:
-
-  ```bash
-  node -e 'crypto.subtle.generateKey({name:"ECDSA",namedCurve:"P-256"},true,["sign"]).then(k=>crypto.subtle.exportKey("jwk",k.privateKey)).then(({kty,crv,x,y,d})=>console.log(JSON.stringify({kty,crv,x,y,d})))' \
-    | pnpm wrangler secret put PUSH_VAPID_KEY --env hamburg
-  ```
-
-  Keep it: a new key ends the notifications of every rider's devices until
-  they turn them on again.
-
-- **Admin view** ([025](specs/025-admin-usage-view/spec.md)): Cloudflare's figures
-  need a token that has only *Account Analytics Read*, and the account ID. Without
-  them the view says they're unavailable, and everything else works. These are set
-  by hand, as are the flag and lifting a block.
-
-  To get the token, go to *My Profile → API Tokens → Create Token → Create Custom
-  Token* in the Cloudflare dashboard. Give it the permission *Account → Account
-  Analytics → Read* and include only this account. The account ID is in the output
-  of `pnpm wrangler whoami`. Each `secret put` asks for the value. To see the figures
-  at once, use *Update now* on `/admin`; otherwise they come with the next hourly run.
-  If the view still says they're unavailable, `pnpm wrangler tail --env hamburg` during an update
-  shows the reason.
-
-  ```bash
-  pnpm wrangler secret put CLOUDFLARE_ANALYTICS_TOKEN --env hamburg
-  pnpm wrangler secret put CLOUDFLARE_ANALYTICS_ACCOUNT_ID --env hamburg
-  # Mark an administrator; `= 0` clears it, from the next request on.
-  pnpm wrangler d1 execute DB --remote --env hamburg \
-    --command "UPDATE riders SET administrator = 1 WHERE athlete_id = <id>"
-  # Lift a block. The list holds no names, so this needs the rider's Strava ID.
-  pnpm wrangler d1 execute DB --remote --env hamburg \
-    --command "DELETE FROM blocked_athletes WHERE athlete_id = <id>"
-  ```
-
-The one-time setup, the validation scenarios and rotating the deploy credential
-are in the [CI and branch protection quickstart](specs/002-ci-branch-protection/quickstart.md),
-§7–§11.
+Which commit runs, failed deploys, re-deploying, rollback, the secrets and the
+one-time setup are in [How RynkePoints runs](docs/how-it-runs.md#deploying).
 
 ## Project principles
 
 See [.specify/memory/constitution.md](.specify/memory/constitution.md). In short:
 riders' consent and privacy first, good Strava API citizenship (webhooks, rate
-limits), never overwrite what riders wrote, serverless with minimal dependencies,
+limits), never writing to Strava, serverless with minimal dependencies,
 and test-first development.
 
 ## License

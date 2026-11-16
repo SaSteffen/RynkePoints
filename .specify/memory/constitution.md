@@ -1,6 +1,19 @@
 <!--
 Sync Impact Report
-- Version change: 2.6.0 → 2.7.0
+- Version change: 2.7.0 → 3.0.0
+- Rationale: MAJOR — Principle III is redefined. Writing Rynke Points into
+  Strava activity descriptions is no longer planned, so the rules for editing
+  descriptions and the optional `activity:write` consent are gone: the app
+  writes nothing to Strava. Organisers' manual corrections still survive
+  re-processing.
+- Principles modified: I (no optional `activity:write`), III, V (rationale);
+  Language section (no description block)
+- Sections added: none
+- Sections removed: none
+- Templates checked for alignment: .specify/templates/* — unchanged.
+- Follow-up TODOs: none.
+
+Previous: 2.6.0 → 2.7.0
 - Rationale: MINOR — Principle II gains its one exception to "does not poll":
   the ride edit re-check (feature 036). Strava reports an activity update only
   for a new title, type or privacy, so a crop or any other edit of distance or
@@ -105,8 +118,7 @@ consent and Strava's API Agreement.
   required because the app doesn't work without either: reading their activities
   (`activity:read`) and showing their points to organisers and other team members
   (names only as far as the feature specs allow). Reading private activities
-  (`activity:read_all`) and editing activity descriptions (`activity:write`) stay
-  optional and MUST NOT affect taking part. A rider who withholds a required part is
+  (`activity:read_all`) stays optional and MUST NOT affect taking part. A rider who withholds a required part is
   not connected; withdrawing consent means leaving (deletion below). Before sending
   a rider to Strava the app MUST say what it reads, writes and shows, MUST record
   which version of that consent the rider accepted. A **major** change MUST raise the
@@ -177,20 +189,17 @@ whole team. Webhooks plus a queue are also what Strava's review expects to see.
 
 ### III. Rider-Authored Content Always Wins
 
-Anything a rider wrote themselves is theirs; the app only adds to it.
+Anything a rider wrote themselves is theirs; the app never changes it.
 
-- Editing an activity description MUST only touch a clearly delimited Rynke Points
-  block that the app owns (insert or replace that block), preserving every other
-  character the rider wrote. If the block can't be located unambiguously, skip the
-  edit rather than guess.
-- Description edits require the rider's `activity:write` consent and MUST be
-  switchable off per rider at any time.
+- The app MUST NOT write to Strava: it requests no `activity:write` scope and never
+  edits a rider's activities, titles or descriptions.
 - Manual corrections by an organiser (e.g. confirming or rejecting an event match,
   adjusting points) MUST survive re-processing of the same activity; automated
   recomputation never silently overwrites a manual decision.
 
-Rationale: Overwriting a rider's ride report on Strava is the most visible way this
-app could annoy people, and it is irreversible from their point of view.
+Rationale: Changing a rider's ride report on Strava is the most visible way this
+app could annoy people, and it is irreversible from their point of view. Writing to
+Strava was once planned and was dropped (2026-11-16).
 
 ### IV. Serverless, TypeScript, Minimal Dependencies
 
@@ -228,7 +237,7 @@ Constraints on how this is done:
   real rider data. Fixtures are synthetic records shaped like Strava responses.
 - Bug fixes SHOULD start with a failing test that reproduces the bug.
 
-Rationale: Webhook handling, idempotency and description editing (Principles II and
+Rationale: Webhook handling, idempotency and manual corrections (Principles II and
 III) fail silently in production and are hard to observe afterwards; tests are the
 only safety net a single-maintainer project has.
 
@@ -275,8 +284,7 @@ public and maintained in English.
 
 - All user-facing text MUST be in the team's default language unless the rider picks
   another: web pages, consent and OAuth landing screens, error and status messages
-  shown to riders, the Rynke Points block written into Strava activity descriptions,
-  notifications, and the privacy notice. Each team sets its default language in team
+  shown to riders, notifications, and the privacy notice. Each team sets its default language in team
   data; the founding team, Team Rynkeby Hamburg, stays German.
 - Every shipped locale MUST be offered on every team's site. A team chooses only its
   default, which also applies when a visitor states no shipped language.
@@ -319,4 +327,4 @@ Versioning policy: MAJOR.MINOR.PATCH — MAJOR for removing or redefining a prin
 MINOR for adding a principle or materially expanding guidance, PATCH for wording or
 clarification fixes that don't change meaning.
 
-**Version**: 2.7.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-13
+**Version**: 3.0.0 | **Ratified**: 2026-10-06 | **Last Amended**: 2026-11-16

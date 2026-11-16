@@ -148,8 +148,7 @@ to `/me` from there.
 - `200` HTML showing:
   - greeting (first name) and connection status, with a reconnect link if
     `needs_reconnect`;
-  - granted level ("shared activities" / "including private") and whether write
-    access was granted (`me.scope.write` / `me.scope.noWrite`), with a "change
+  - granted level ("shared activities" / "including private"), with a "change
     permissions on Strava" link to `GET /connect` (FR-025);
   - import status, with the season start date formatted for the locale;
   - the 20 newest activities of that rider only (FR-025, FR-026). Each shows the

@@ -132,7 +132,7 @@
 				// The other teams whose usage counts the admin view shows beside this
 				// team's (feature 026 contracts/usage-exchange.md): JSON list of
 				// { "id", "origin" }, like the gateway's TEAMS. "[]" for none.
-				"USAGE_PEERS": "[]"
+				"USAGE_PEERS": "[{\"id\":\"europe\",\"origin\":\"https://europe.trhh-rynke-coins.link\"}]"
 			},
 			// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing
 			// them here makes `pnpm types` independent of what's in your `.dev.vars`.

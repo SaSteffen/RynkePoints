@@ -185,14 +185,19 @@ describe("consentState (research R14)", () => {
 		{
 			version: 3,
 			published: "2026-12-01",
-			requiredScopes: ["read", "activity:read", "activity:write"],
+			requiredScopes: ["read", "activity:read", "profile:read_all"],
 			changes: ["consent.organisers", "consent.short.read"],
 			revisions: [
 				{ revision: 1, published: "2026-12-05", changes: ["consent.admins"] },
 			],
 		},
 	];
-	const ALL = ["read", "activity:read", "activity:read_all", "activity:write"];
+	const ALL = [
+		"read",
+		"activity:read",
+		"activity:read_all",
+		"profile:read_all",
+	];
 
 	it("is missing without a record, always through Strava", () => {
 		expect(consentState(VERSIONS, null, ALL)).toEqual({
@@ -246,18 +251,20 @@ describe("consentState (research R14)", () => {
 	});
 
 	it("goes through Strava when a scope the current version requires is missing", () => {
-		const noWrite = ["read", "activity:read", "activity:read_all"];
-		expect(consentState(VERSIONS, 1, noWrite)).toMatchObject({
+		const withoutExtra = ["read", "activity:read", "activity:read_all"];
+		expect(consentState(VERSIONS, 1, withoutExtra)).toMatchObject({
 			kind: "older",
 			viaStrava: true,
 		});
-		expect(consentState(CONSENT_VERSIONS, 1, noWrite).viaStrava).toBe(false);
+		expect(consentState(CONSENT_VERSIONS, 1, withoutExtra).viaStrava).toBe(
+			false,
+		);
 	});
 
 	it("lets only a current rider with every required scope use the app", () => {
-		const noWrite = ["read", "activity:read", "activity:read_all"];
+		const withoutExtra = ["read", "activity:read", "activity:read_all"];
 		expect(hasAgreed(consentState(VERSIONS, 3, ALL))).toBe(true);
-		expect(hasAgreed(consentState(VERSIONS, 3, noWrite))).toBe(false);
+		expect(hasAgreed(consentState(VERSIONS, 3, withoutExtra))).toBe(false);
 		expect(hasAgreed(consentState(VERSIONS, 2, ALL))).toBe(false);
 		expect(hasAgreed(consentState(VERSIONS, null, ALL))).toBe(false);
 	});

@@ -74,9 +74,6 @@ export const en: Catalog = {
 	"me.reconnect": "Reconnect",
 	"me.scope.readAll": "Private activities count too.",
 	"me.scope.sharedOnly": 'Private ("Only You") activities don\'t count.',
-	"me.scope.write":
-		"RynkePoints may write a Rynke section into your ride descriptions once the feature exists.",
-	"me.scope.noWrite": "RynkePoints writes nothing into your ride descriptions.",
 	"me.changePermissions": "Change permissions on Strava",
 	"me.consent.heading": "Your consent",
 	"me.consent.accepted": "Agreed on {date} (version {version}).",
@@ -1058,6 +1055,12 @@ export const en: Catalog = {
 	"admin.teams.otherN": "Other team {n}",
 	"admin.teams.shared": "Shared (gateway)",
 	"admin.teams.never": "{team}: no answer yet, so its figures are missing.",
+	"admin.overview.heading": "All teams",
+	"admin.overview.note":
+		"Today's counts; Cloudflare's for their latest recorded day. An empty cell has no figure.",
+	"admin.overview.figure": "Figure",
+	"admin.overview.rest": "Not attributed",
+	"admin.overview.total": "Overall",
 	"admin.figure.seen": "As of {time} UTC",
 	"admin.figure.notSeen": "Not observed yet",
 	"admin.figure.noValue": "No value yet. Limit: {limit}",

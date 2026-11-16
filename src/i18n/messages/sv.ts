@@ -75,9 +75,6 @@ export const sv: Catalog = {
 	"me.reconnect": "Anslut igen",
 	"me.scope.readAll": "Privata aktiviteter räknas också.",
 	"me.scope.sharedOnly": "Privata (”Bara du”) aktiviteter räknas inte.",
-	"me.scope.write":
-		"RynkePoints får skriva ett Rynke-avsnitt i dina turbeskrivningar när funktionen finns.",
-	"me.scope.noWrite": "RynkePoints skriver ingenting i dina turbeskrivningar.",
 	"me.changePermissions": "Ändra behörigheter på Strava",
 	"me.consent.heading": "Ditt samtycke",
 	"me.consent.accepted": "Godkänt {date} (version {version}).",
@@ -1056,6 +1053,12 @@ export const sv: Catalog = {
 	"admin.teams.otherN": "Annat lag {n}",
 	"admin.teams.shared": "Gemensamt (gateway)",
 	"admin.teams.never": "{team}: inget svar än, så siffrorna saknas.",
+	"admin.overview.heading": "Alla lag",
+	"admin.overview.note":
+		"Dagens siffror; för Cloudflare den senast registrerade dagens. En tom cell har ingen siffra.",
+	"admin.overview.figure": "Siffra",
+	"admin.overview.rest": "Inte tilldelat",
+	"admin.overview.total": "Totalt",
 	"admin.figure.seen": "Per {time} UTC",
 	"admin.figure.notSeen": "Inte observerat än",
 	"admin.figure.noValue": "Inget värde än. Gräns: {limit}",

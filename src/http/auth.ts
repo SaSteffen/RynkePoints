@@ -44,9 +44,8 @@ import {
 // rider (R21). Every outcome is a redirect, so a reload never re-submits a used
 // code (R18).
 
-// `activity:write` is not requested until the description feature exists: an
-// unused scope only weakens the Strava review (004 clarification 2026-10-14).
-// Riders who granted it earlier keep it stored; nothing writes with it.
+// `activity:write` is never requested: the app writes nothing to Strava
+// (constitution Principle III).
 const REQUESTED_SCOPES = "read,activity:read,activity:read_all";
 
 function randomState(): string {
@@ -209,7 +208,6 @@ export async function handleCallback(
 		firstName: token.firstName,
 		scopes,
 		scopeReadAll: granted.has("activity:read_all"),
-		scopeWrite: granted.has("activity:write"),
 		now,
 	};
 	const credentials = {
@@ -231,8 +229,7 @@ export async function handleCallback(
 		await saveCredentials(ctx.env, token.athleteId, credentials);
 		startImport = true;
 	} else {
-		// Reconnect rules (data-model.md). A change of write access alone starts
-		// no import and deletes nothing.
+		// Reconnect rules (data-model.md).
 		await updateRiderOnReconnect(ctx.env.DB, token.athleteId, grant);
 		if (expected.consentVersion === version) {
 			await recordConsent(

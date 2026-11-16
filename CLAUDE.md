@@ -39,7 +39,7 @@ pnpm season:album --local  # season albums from Hamburg's fake-mode season into
 
 `wrangler.jsonc` declares the D1 (`DB`), Queue (`WORK_QUEUE`) and daily cron
 bindings; tests get the same bindings locally through Miniflare. Each team is an
-`env` block, Hamburg (the founding team) first: every Wrangler command names one with
+`env` block, Hamburg first: every Wrangler command names one with
 `--env hamburg` or `--env europe`, and one without fails on purpose (its top level
 holds no team).
 What differs between teams is team data, in `src/teams/<id>.ts` plus that block,
@@ -103,8 +103,8 @@ and commit messages must follow
   their tokens and the `sandbox-hamburg` / `sandbox-europe` environments
   (`scripts/sandbox-environments.sh`); never run those scripts yourself.
 - Webhook handlers ack fast and enqueue; processing is idempotent (Principle II).
-- Editing a Strava activity description only ever touches the app's own delimited
-  block; rider text is never lost (Principle III).
+- The app never writes to Strava: no `activity:write`, no edits to a rider's
+  activities or descriptions (Principle III).
 - Rider-facing text belongs in the catalogs under `src/i18n/messages/`, in all ten
   languages (German is the key source), never inline in pages or logic (FR-028).
   The exception is team content under `src/content/` (the monkey's quotes, badge

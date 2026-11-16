@@ -135,6 +135,7 @@ function figure(text: string, id: keyof typeof en): string {
 	return (
 		text
 			.split('<li class="usage-figure')
+			.slice(1)
 			.find((item) => item.includes(`>${en[id]}<`)) ?? `missing ${String(id)}`
 	);
 }
@@ -369,10 +370,35 @@ describe("/admin with another team", () => {
 	it("gives each team a column in the day table", async () => {
 		await seedUsageDay(TODAY, "strava_read_daily", 1200, 3000, { team: 900 });
 		const text = await page("/admin?days=strava_read_daily");
-		const table = text.slice(text.indexOf('<div class="usage-table">'));
+		const table = text.slice(text.lastIndexOf('<div class="usage-table">'));
 		expect(table).toContain(`<th scope="col">${OWN}</th>`);
 		expect(table).toContain(`<th scope="col">${OTHER}</th>`);
 		expect(table).toContain("<td>900</td><td>200</td>");
+	});
+
+	it("puts every team's part and the overall use in one table", async () => {
+		const text = await page();
+		const overview = text.slice(
+			text.indexOf('id="overview"'),
+			text.indexOf("</section>", text.indexOf('id="overview"')),
+		);
+		expect(overview).toContain(`<th scope="col">${OWN}</th>`);
+		expect(overview).toContain(`<th scope="col">${OTHER}</th>`);
+		const row = (id: keyof typeof en) =>
+			overview.split("<tr>").find((r) => r.includes(`>${en[id]}</a>`)) ??
+			`missing ${id}`;
+		// This team, the other team, what no team counts, then the overall.
+		expect(row("admin.allowance.strava_read_daily")).toContain(
+			"<td>900</td><td>200</td><td>100</td><td>1,200 of",
+		);
+		// Riders have no rest: every connected rider belongs to a team.
+		expect(row("admin.allowance.riders_connected")).toContain(
+			"<td>2</td><td>40</td><td></td><td>42 of 999",
+		);
+		// Other teams' 15-minute counts aren't exchanged.
+		expect(row("admin.allowance.strava_read_15m")).toMatch(
+			/<td>\d+<\/td><td><\/td><td>\d+<\/td>/,
+		);
 	});
 
 	it("doesn't call another team while viewing", async () => {
