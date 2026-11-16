@@ -491,6 +491,7 @@ test.describe("on a photo", () => {
 	test("turns and sizes the badge by the handle in its corner and by keys", async ({
 		page,
 	}) => {
+		await withoutVideo(page);
 		await openBadges(page);
 		await page.locator(".badge-card .badge-share-mini").first().click();
 		const sheet = sheetOf(page);
@@ -547,6 +548,7 @@ test.describe("on a photo", () => {
 	test("scales a large photo down and refuses one it can't read", async ({
 		page,
 	}) => {
+		await withoutVideo(page);
 		await openBadges(page);
 		await page.locator(".badge-card .badge-share-mini").first().click();
 		const sheet = sheetOf(page);
