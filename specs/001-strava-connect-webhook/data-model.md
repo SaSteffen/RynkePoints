@@ -25,7 +25,6 @@ One row per connected member of the team club.
 | `first_name` | TEXT NOT NULL | From the token response's `athlete.firstname`; greeting only. |
 | `status` | TEXT NOT NULL | `connected` \| `needs_reconnect`. |
 | `scope_read_all` | INTEGER NOT NULL | 1 if `activity:read_all` was granted, else 0. |
-| `scope_write` | INTEGER NOT NULL DEFAULT 0 | 1 if `activity:write` was granted, else 0 (FR-003, FR-025). Nothing in this feature writes; the description feature will only write for riders with 1. Added by `0004`; riders connected before it never were asked and keep 0. |
 | `scopes` | TEXT NOT NULL | Accepted scope string as returned by Strava (FR-006). |
 | `connected_at` | INTEGER NOT NULL | First connection. |
 | `scopes_updated_at` | INTEGER NOT NULL | Last time scopes were granted or changed (FR-006). |
@@ -60,7 +59,7 @@ held only in the `rp_lang` cookie (FR-029a, see below).
   reconnect. The daily cron deletes them once `reconnect_requested_at` is more
   than 7 days ago (FR-020), so a revocation Strava never notified us about can't
   keep data indefinitely.
-- Reconnect (FR-007, FR-020): update `scopes`, `scope_read_all`, `scope_write`,
+- Reconnect (FR-007, FR-020): update `scopes`, `scope_read_all`,
   `status=connected`, `reconnect_requested_at=NULL` and the credentials. If the
   rider came through the consent form, record their consent (see
   `consent_records`).
@@ -69,7 +68,6 @@ held only in the `rp_lang` cookie (FR-029a, see below).
   - If it went 0 → 1, or the rider was `needs_reconnect`: set
     `import_status=pending` and enqueue the import (R8), so activities uploaded
     while the connection was broken are picked up.
-  - A change of `scope_write` alone triggers neither.
 - Signing in again without activity-read permission, or as a definitive
   non-member, deletes the rider (contracts/http-routes.md, callback table).
 
