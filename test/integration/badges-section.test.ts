@@ -815,11 +815,12 @@ describe("sharing a badge (033)", () => {
 		expect(sheet).toContain(
 			`<label><input type="radio" name="share-format" value="image" autocomplete="off">${de["badges.share.format.image"]}</label>`,
 		);
-		// "Glitzernd" alone, off and hidden until the script knows it applies:
+		// "Glitzernd" alone, on by default and hidden until the script knows
+		// it applies:
 		// GIF is the sparkling sticker, Bild has nothing to switch. Story's
 		// photo is a button, not a switch.
 		expect([
-			...sheet.matchAll(/role="switch" aria-checked="false"/g),
+			...sheet.matchAll(/role="switch" aria-checked="true"/g),
 		]).toHaveLength(1);
 		expect(sheet).toContain(
 			`<button type="button" class="button-outlined share-pick" hidden>${de["badges.share.pickPhoto"]}</button>`,

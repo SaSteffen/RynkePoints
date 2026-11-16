@@ -5442,7 +5442,8 @@ function badgeShare(signal) {
 		for (const radio of sheet.querySelectorAll("input[name=share-format]")) {
 			radio.checked = radio.value === "story";
 		}
-		shiny.setAttribute("aria-checked", "false");
+		// Story sparkles by default, where the browser can make the video.
+		shiny.setAttribute("aria-checked", "true");
 		// "Glitzernd" is offered once the muxer is here (research R5).
 		const muxer = window.Mp4Muxer ? null : shareLoadMuxer();
 		if (large.matches(":popover-open")) large.hidePopover();

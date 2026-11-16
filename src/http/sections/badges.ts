@@ -459,7 +459,7 @@ function shareSheet(i18n: I18n, app: ShareApp): SafeHtml {
 	const format = (value: "story" | "gif" | "image", checked = false) =>
 		html`<label><input type="radio" name="share-format" value="${value}" autocomplete="off"${checked ? html` checked` : null}>${i18n.t(`badges.share.format.${value}`)}</label>`;
 	const option = (kind: "shiny") =>
-		html`<span class="share-option share-${kind}" hidden><button type="button" role="switch" aria-checked="false" aria-labelledby="share-${kind}-label"></button><span id="share-${kind}-label">${i18n.t(`badges.share.${kind}`)}</span></span>`;
+		html`<span class="share-option share-${kind}" hidden><button type="button" role="switch" aria-checked="true" aria-labelledby="share-${kind}-label"></button><span id="share-${kind}-label">${i18n.t(`badges.share.${kind}`)}</span></span>`;
 	return html`<dialog class="share-sheet" aria-labelledby="share-sheet-title" data-app="${app.name}" data-icon="${app.icon}" data-saved="${i18n.t("badges.share.saved")}" data-copied="${i18n.t("badges.share.copied")}" data-failed="${i18n.t("badges.share.failed")}">
 <div class="share-sheet-head"><h2 id="share-sheet-title">${i18n.t("badges.share.title")}</h2>
 <button type="button" class="icon-button share-sheet-close" aria-label="${i18n.t("badges.close")}">${CLOSE}</button></div>

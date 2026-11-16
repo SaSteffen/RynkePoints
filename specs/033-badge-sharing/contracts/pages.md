@@ -47,8 +47,8 @@ Once per badges page, after the large views: `dialog.share-sheet` holds the foll
 - The hint lines for touch and mouse, shown only for Story on a photo.
 - For Story only: the button "Foto wählen" with the privacy line under it, the same before and
   after a photo is picked (a new pick replaces the photo; closing the sheet drops it), the
-  unreadable-photo line, and one switch (`role="switch"`, `aria-checked`), "Glitzernd", where the
-  browser can make an MP4. All are hidden until the script decides they apply. GIF always
+  unreadable-photo line, and one switch (`role="switch"`, `aria-checked`), "Glitzernd", on by default,
+  where the browser can make an MP4. All are hidden until the script decides they apply. GIF always
   sparkles and Bild never does, so neither has a switch.
 - `<input type="file" accept="image/*" hidden>`.
 - The actions "Teilen …", "Speichern" and "Kopieren", and a status line (`role="status"`) for

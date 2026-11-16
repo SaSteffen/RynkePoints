@@ -23,6 +23,16 @@ async function openBadges(page: Page) {
 	await skipTours(page);
 }
 
+/**
+ * A browser that can't make videos: "Glitzernd", on by default, isn't
+ * offered, and Story is a still picture.
+ */
+async function withoutVideo(page: Page) {
+	await page.addInitScript(() => {
+		Reflect.deleteProperty(globalThis, "VideoEncoder");
+	});
+}
+
 const sheetOf = (page: Page) => page.locator("dialog.share-sheet");
 
 /** Picks a format by its label, as a rider taps it. */
@@ -65,6 +75,7 @@ test.describe("on a phone", () => {
 	test("shares a badge as a story, a picture and a sticker (US1)", {
 		tag: "@cross-browser",
 	}, async ({ page }) => {
+		await withoutVideo(page);
 		await page.addInitScript(() => {
 			const shared: unknown[] = [];
 			Object.assign(globalThis, { shared });
@@ -316,6 +327,7 @@ test.describe("on a desktop", () => {
 			browserName !== "chromium",
 			"only Chromium grants the clipboard permission to tests",
 		);
+		await withoutVideo(page);
 		await context.grantPermissions(["clipboard-read", "clipboard-write"]);
 		await openBadges(page);
 		const card = page.locator(".badge-card").filter({
@@ -398,6 +410,7 @@ test.describe("on a photo", () => {
 	test("puts the badge on the rider's photo, which stays on the device (US2)", async ({
 		page,
 	}) => {
+		await withoutVideo(page);
 		await openBadges(page);
 		await page.locator(".badge-card .badge-share-mini").first().click();
 		const sheet = sheetOf(page);
@@ -689,23 +702,20 @@ test.describe("sparkling", () => {
 	test("makes the sparkling story as an MP4 on the device, or isn't offered (US3)", async ({
 		page,
 	}) => {
+		// Reduced motion, asked for before it was made.
+		await page.emulateMedia({ reducedMotion: "reduce" });
 		const { sheet, id } = await openSparkling(page);
 		const shiny = sheet.locator(".share-shiny");
 		if (!(await canEncode(page))) {
 			await expect(shiny).toBeHidden();
 			return;
 		}
+		// On by default: Story opens sparkling.
 		await expect(shiny).toBeVisible();
-		await page.emulateMedia({ reducedMotion: "reduce" });
-		await shiny.locator("[role=switch]").click();
 		await expect(shiny.locator("[role=switch]")).toHaveAttribute(
 			"aria-checked",
 			"true",
 		);
-		await expect(sheet.locator(".share-busy")).toBeVisible();
-		await expect(sheet.locator(".share-busy")).toHaveText("Wird gerendert …");
-		await expect(sheet.locator(".share-save")).toBeDisabled();
-		await expect(sheet.locator(".share-copy")).toBeHidden();
 		await expect(sheet.locator(".share-busy")).toBeHidden(RENDERING);
 		await ready(sheet);
 		const video = sheet.locator(".share-preview video");
@@ -735,6 +745,19 @@ test.describe("sparkling", () => {
 		});
 		expect(mp4.subarray(4, 8).toString("latin1")).toBe("ftyp");
 		expect(mp4.includes("avc1")).toBe(true);
+
+		// Switched off: the still picture, which can be copied too.
+		await shiny.locator("[role=switch]").click();
+		await ready(sheet);
+		await expect(sheet.locator(".share-copy")).toBeVisible();
+		await expect(video).toBeHidden();
+		// And on again: rendered anew.
+		await shiny.locator("[role=switch]").click();
+		await expect(sheet.locator(".share-busy")).toBeVisible();
+		await expect(sheet.locator(".share-busy")).toHaveText("Wird gerendert …");
+		await expect(sheet.locator(".share-save")).toBeDisabled();
+		await expect(sheet.locator(".share-copy")).toBeHidden();
+		await expect(sheet.locator(".share-busy")).toBeHidden(RENDERING);
 	});
 
 	test("starts again for new settings and stops when the sheet closes", async ({
@@ -748,8 +771,6 @@ test.describe("sparkling", () => {
 		const { sheet, id } = await openSparkling(page);
 		test.skip(!(await canEncode(page)), "this browser can't encode H.264");
 
-		await sheet.locator(".share-shiny [role=switch]").click();
-		await expect(sheet.locator(".share-busy")).toBeVisible();
 		// GIF while the story is rendering: the sparkling sticker is made
 		// instead, a GIF that keeps its transparency, with nothing to switch.
 		await sheet.locator("label").filter({ hasText: /^GIF$/ }).click();
