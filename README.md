@@ -2,19 +2,17 @@
 
 [![e2e nightly](https://github.com/SaSteffen/RynkePoints/actions/workflows/e2e-nightly.yml/badge.svg?branch=develop)](https://github.com/SaSteffen/RynkePoints/actions/workflows/e2e-nightly.yml?query=branch%3Adevelop)
 
-Strava integration for Team Rynkeby teams: Team Rynkeby Hamburg, the founding
-team, and Team Rynkeby Europe, which is being set up. Riders connect their Strava account
-(opt-in), the app collects key data from their activities (distance, date, elevation
-gain, …), counts the team events they attended, and awards gamified **Rynke Points**.
-Writing their points into the Strava activity description, with the rider's
-permission, is planned for a later feature.
+RynkePoints helps Team Rynkeby riders reach the fitness the ride to Paris asks of
+them, so the team can start, ride and arrive together. Riders connect their Strava
+account by choice, and the app turns their rides and the team events they attend into
+gamified **Rynke Points**, with progress charts, badges and a coin to keep training
+fun. Organisers see who is on track, while riders never see each other ranked by name
+and no rider's data leaves their own team.
 
-Runs serverless on Cloudflare Workers, with D1 for storage and Queues for
-processing Strava webhook events.
-
-Features are specified and built with
-[Spec Kit](https://github.com/github/spec-kit); each has its own folder under
-`specs/`.
+It serves Team Rynkeby Hamburg, the founding team, and Team Rynkeby Europe, which is
+being set up. Writing their points into the Strava activity description, with the
+rider's permission, is planned for a later feature. How it's built:
+[Tech stack](#tech-stack).
 
 ## What it does today
 
@@ -136,6 +134,43 @@ queue, so no rider's data is readable from another team
 
 Adding a team takes team data, resources and one line of deployment settings, no
 code: [docs/add-a-team.md](docs/add-a-team.md).
+
+## Tech stack
+
+The app is one TypeScript codebase that runs serverless on Cloudflare, with almost no
+runtime dependencies. Each team is a deployment of it, configured by data.
+
+```mermaid
+flowchart TB
+    strava["Strava app, shared by every team"]
+    gateway["Strava gateway Worker<br/>one webhook, one sign-in return<br/>no database, no rider data"]
+    subgraph cf["Cloudflare account"]
+        direction LR
+        hamburg["Team Rynkeby Hamburg<br/>Worker, D1, queue, crons"]
+        europe["Team Rynkeby Europe<br/>Worker, D1, queue, crons"]
+    end
+    strava -- "events, sign-ins" --> gateway
+    gateway --> hamburg
+    gateway --> europe
+    hamburg -- "API calls" --> strava
+    europe -- "API calls" --> strava
+```
+
+| Area | Choice | Why |
+|---|---|---|
+| Runtime | [Cloudflare Workers](https://developers.cloudflare.com/workers/), one per team plus the gateway | Serverless on the free plan, nothing to patch |
+| Storage | [D1](https://developers.cloudflare.com/d1/) (SQLite) per team, in the EU jurisdiction; forward-only migrations in `migrations/` | Rider data stays in the EU and in its own team |
+| Background work | [Queues](https://developers.cloudflare.com/queues/) and two cron triggers (daily and hourly) | Webhooks ack fast and enqueue; processing is idempotent |
+| Pages | HTML rendered in the Worker, static assets, an installable PWA with Web Push | No front-end framework to keep up to date |
+| Language | TypeScript, few dependencies: Chart.js for charts, pdf-lib and mp4-muxer for shared badges and the season album | Small bundle, small upkeep |
+| Strava | One Strava application for all teams, its webhook and sign-in through the gateway | Strava allows one subscription and one callback domain per application |
+| Teams | `src/teams/<id>.ts` and an `env` block in `wrangler.jsonc`, checked by `scripts/team-check.mjs` | A new team is data, not code |
+| Local development | `pnpm dev`: a fake Strava with synthetic riders, every team at once | Nobody needs real Strava access or real data |
+| Tests | Vitest inside the Workers runtime, Playwright in Chromium, Firefox and WebKit | Test-first is a project principle |
+| Code quality | Biome (lint and format), `tsc`, Conventional Commits via commitlint and lefthook | The same checks run locally and in CI |
+| Specs | [Spec Kit](https://github.com/github/spec-kit): spec, plan and tasks per feature under `specs/` | Every decision is written down; the spec wins |
+| Delivery | GitHub Actions: PRs into `develop`, a release PR into `main`, CI deploys each team | Nobody deploys production by hand |
+| Sandboxes | Each team's app in fake mode behind Cloudflare Access ([docs/sandboxes.md](docs/sandboxes.md)) | Try a release before it goes live |
 
 ## Languages
 
