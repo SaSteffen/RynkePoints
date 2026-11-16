@@ -559,22 +559,26 @@ test("an organiser walks through the Orga tour on the example team (020)", async
 	const tour = page.locator("aside.tour");
 	// Each step on the example team, which can't be used (FR-013, FR-014).
 	for (const [path, step, target] of [
-		["/organiser/riders", "1 von 7", null],
-		["/organiser/riders", "2 von 7", "tour-groups"],
-		["/organiser/riders", "3 von 7", "tour-pace"],
-		["/organiser", "4 von 7", "tour-requests"],
-		["/organiser", "5 von 7", "tour-new-event"],
-		["/organiser", "6 von 7", "tour-later-event"],
-		["/organiser", "7 von 7", "tour-past-event"],
+		["/organiser/riders", "1 von 8", null],
+		["/organiser/riders", "2 von 8", "tour-groups"],
+		["/organiser/riders", "3 von 8", "tour-pace"],
+		["/organiser/riders?view=graphs&", "4 von 8", "organiser-graphs"],
+		["/organiser", "5 von 8", "tour-requests"],
+		["/organiser", "6 von 8", "tour-new-event"],
+		["/organiser", "7 von 8", "tour-later-event"],
+		["/organiser", "8 von 8", "tour-past-event"],
 	] as const) {
-		await expect(page).toHaveURL(new RegExp(`${path}\\?tour=organiser`));
+		const url = path.endsWith("&") ? path : `${path}?`;
+		await expect(page).toHaveURL(
+			new RegExp(`${url.replace("?", "\\?")}tour=organiser`),
+		);
 		await expect(tour).toContainText(step);
 		await expect(page.locator(".tour-example")).toHaveCount(1);
 		if (target) {
 			await expect(tour).toHaveAttribute("data-target", target);
 			await expect(page.locator(`#${target}`)).toBeInViewport();
 		}
-		if (path === "/organiser/riders") {
+		if (path.startsWith("/organiser/riders")) {
 			await expect(page.locator(".team-overview")).toHaveAttribute("inert");
 		} else {
 			await expect(page.locator("#tour-requests")).toHaveAttribute("inert");
@@ -582,7 +586,7 @@ test("an organiser walks through the Orga tour on the example team (020)", async
 				"inert",
 			);
 		}
-		if (step === "7 von 7") break;
+		if (step === "8 von 8") break;
 		await tour.getByRole("link", { name: "Weiter" }).click();
 	}
 	await tour.getByRole("button", { name: "Alles klar" }).click();

@@ -36,18 +36,44 @@ export interface TourStep {
 	example?: true;
 	/** Only for riders who aren't organisers (feature 019's Termine). */
 	riderOnly?: true;
+	/** Only while the team shows what the step is about (FR-012). */
+	only?: TourSwitch;
+	/** A sentence added to `text` while that switch is on (FR-016). */
+	also?: { when: TourSwitch; text: MessageId };
+	/** The page's own query, before the tour's (FR-012's `view=graphs`). */
+	query?: string;
 }
 
-/** What of the team the tour needs: its rules in effect and hidden sections. */
-export interface TourTeam {
-	rules: RynkeRules;
+/** What of the team's switches the tour follows (feature 026 FR-018). */
+export interface TourSwitches {
+	/** The sections the team has switched off. */
 	hidden: ReadonlySet<SectionId>;
+	/** `/team` ranks by ride figures too (feature 032). */
+	rideRanking: boolean;
+	/** Orga › Rider shows each rider's rides (feature 032). */
+	riderRides: boolean;
+	/** Orga › Rider shows the progress graphs (feature 029). */
+	graphs: boolean;
+	/** Organisers record Tour de Paris days, which earn badges (feature 021). */
+	tourDays: boolean;
+}
+
+type TourSwitch = Exclude<keyof TourSwitches, "hidden">;
+
+/** What of the team the tour needs: its rules in effect and its switches. */
+export interface TourTeam extends TourSwitches {
+	rules: RynkeRules;
 }
 
 /** Every step of each tour; `tourSteps` picks the viewer's (FR-001). */
 export const TOURS: Record<TourId, readonly TourStep[]> = {
 	rider: [
-		{ path: "/team", section: "team", text: "tour.rider.team" },
+		{
+			path: "/team",
+			section: "team",
+			text: "tour.rider.team",
+			also: { when: "rideRanking", text: "tour.rider.team.rides" },
+		},
 		{
 			path: "/team",
 			section: "team",
@@ -110,6 +136,7 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			path: "/organiser/riders",
 			section: "organiser",
 			text: "tour.organiser.riders",
+			also: { when: "riderRides", text: "tour.organiser.riders.rides" },
 			example: true,
 		},
 		{
@@ -127,6 +154,15 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			example: true,
 		},
 		{
+			path: "/organiser/riders",
+			query: "view=graphs",
+			section: "organiser",
+			text: "tour.organiser.graphs",
+			target: "organiser-graphs",
+			example: true,
+			only: "graphs",
+		},
+		{
 			path: "/organiser",
 			section: "organiser",
 			text: "tour.organiser.requests",
@@ -137,6 +173,7 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			path: "/organiser",
 			section: "organiser",
 			text: "tour.organiser.newEvent",
+			also: { when: "tourDays", text: "tour.organiser.newEvent.tourDays" },
 			target: "tour-new-event",
 			example: true,
 		},
@@ -171,21 +208,30 @@ function allowed(rider: Rider, tour: TourId): boolean {
 	return tour === "rider" || rider.organiser;
 }
 
-/** No section switched off. */
-const ALL_SECTIONS: ReadonlySet<SectionId> = new Set();
+/** Every switch on, no section switched off. */
+const ALL_ON: TourSwitches = {
+	hidden: new Set(),
+	rideRanking: true,
+	riderRides: true,
+	graphs: true,
+	tourDays: true,
+};
 
 /**
  * The steps of `tour` for this viewer (FR-002), without those on a section
- * the team has switched off (`hiddenSections`, feature 026 FR-018).
+ * the team has switched off (`hiddenSections`, feature 026 FR-018) or about
+ * what it doesn't show (FR-012).
  */
 export function tourSteps(
 	tour: TourId,
 	viewer: Pick<Rider, "organiser">,
-	hidden: ReadonlySet<SectionId> = ALL_SECTIONS,
+	switches: TourSwitches = ALL_ON,
 ): TourStep[] {
 	return TOURS[tour].filter(
 		(step) =>
-			!(step.riderOnly && viewer.organiser) && !hidden.has(step.section),
+			!(step.riderOnly && viewer.organiser) &&
+			!switches.hidden.has(step.section) &&
+			(step.only === undefined || switches[step.only]),
 	);
 }
 
@@ -207,12 +253,13 @@ export function stepHref(
 	tour: TourId,
 	viewer: Pick<Rider, "organiser">,
 	index: number,
-	hidden: ReadonlySet<SectionId> = ALL_SECTIONS,
+	switches: TourSwitches = ALL_ON,
 ): string {
-	const step = tourSteps(tour, viewer, hidden)[index];
+	const step = tourSteps(tour, viewer, switches)[index];
 	if (!step) return "/";
+	const query = step.query ? `${step.query}&` : "";
 	const fragment = step.target ? `#${step.target}` : "";
-	return `${step.path}?tour=${tour}&step=${index + 1}${fragment}`;
+	return `${step.path}?${query}tour=${tour}&step=${index + 1}${fragment}`;
 }
 
 /** The hint on a page, and what it points at. */
@@ -232,8 +279,8 @@ export interface TourHint {
  * when the page is one of its steps (the one `&step=` names, else the page's
  * first), else, while a tour is still to show, its first step on its first
  * page or an invitation to start it anywhere else. Nothing otherwise.
- * `team` holds the team's rules in effect, which the hints name, and the
- * sections it has switched off.
+ * `team` holds the team's rules in effect, which the hints name, and its
+ * switches.
  */
 export function tourHint(
 	i18n: I18n,
@@ -242,11 +289,10 @@ export function tourHint(
 	query: URLSearchParams,
 	team: TourTeam,
 ): TourHint | null {
-	const { hidden } = team;
 	const page = path.split("?")[0] ?? path;
 	const requested = query.get("tour");
 	if (isTourId(requested) && allowed(rider, requested)) {
-		const steps = tourSteps(requested, rider, hidden);
+		const steps = tourSteps(requested, rider, team);
 		const number = Number(query.get("step"));
 		const named = Number.isInteger(number) ? steps[number - 1] : undefined;
 		const index =
@@ -257,7 +303,7 @@ export function tourHint(
 	}
 	const pending = pendingTour(rider);
 	if (pending === null) return null;
-	const first = tourSteps(pending, rider, hidden)[0];
+	const first = tourSteps(pending, rider, team)[0];
 	if (!first) return null;
 	if (first.path === page) return stepCard(i18n, rider, pending, 0, page, team);
 	return {
@@ -269,7 +315,7 @@ export function tourHint(
 			page,
 			null,
 			html`<p>${i18n.t(INTRO[pending])}</p>`,
-			html`<a class="button" href="${stepHref(pending, rider, 0, hidden)}">${i18n.t("tour.start")}</a>`,
+			html`<a class="button" href="${stepHref(pending, rider, 0, team)}">${i18n.t("tour.start")}</a>`,
 		),
 	};
 }
@@ -302,15 +348,20 @@ function stepCard(
 	tour: TourId,
 	index: number,
 	page: string,
-	{ rules, hidden }: TourTeam,
+	team: TourTeam,
 ): TourHint {
-	const steps = tourSteps(tour, rider, hidden);
+	const steps = tourSteps(tour, rider, team);
 	const step = steps[index] as TourStep;
 	const last = index === steps.length - 1;
 	const progress = i18n.t("tour.progress", {
 		step: String(index + 1),
 		total: String(steps.length),
 	});
+	const params = ruleParams(i18n, team.rules);
+	const text =
+		step.also && team[step.also.when]
+			? `${i18n.t(step.text, params)} ${i18n.t(step.also.text, params)}`
+			: i18n.t(step.text, params);
 	return {
 		section: step.target ? null : step.section,
 		example: step.example === true,
@@ -320,10 +371,10 @@ function stepCard(
 			page,
 			step.target ?? null,
 			html`<p class="tour-progress">${progress}</p>
-<p>${i18n.t(step.text, ruleParams(i18n, rules))}</p>`,
+<p>${text}</p>`,
 			last
 				? html`<button class="button">${i18n.t("tour.done")}</button>`
-				: html`<a class="button" href="${stepHref(tour, rider, index + 1, hidden)}">${i18n.t("tour.next")}</a>`,
+				: html`<a class="button" href="${stepHref(tour, rider, index + 1, team)}">${i18n.t("tour.next")}</a>`,
 		),
 	};
 }

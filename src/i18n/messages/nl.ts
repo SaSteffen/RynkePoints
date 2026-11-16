@@ -274,6 +274,8 @@ export const nl: Catalog = {
 	"tour.rider.intro": "Nieuw hier? We laten je zien waar alles staat.",
 	"tour.rider.team":
 		"Team: hoe het hele team ervoor staat en waar jij staat in het klassement.",
+	"tour.rider.team.rides":
+		"Het klassement kan ook op sessies, km en hoogtemeters, over het seizoen, de maand of de week.",
 	"tour.rider.peloton":
 		"Het peloton: iedereen in het team op Trainings-Rynke, zonder namen; jouw munt is gemarkeerd. Hoe verder naar rechts, hoe meer Rynke. Wie ver voor de rest ligt, zit in de breakaway.",
 	"tour.rider.you":
@@ -300,16 +302,22 @@ export const nl: Catalog = {
 		"Je bent nu organisator: het tabblad Orga is nieuw. We laten je rondkijken.",
 	"tour.organiser.riders":
 		"Renners: iedereen in het team met zijn Trainings- en Team-Rynke en wat hij nog nodig heeft.",
+	"tour.organiser.riders.rides":
+		"Daarbij hoeveel van hun ritten dit seizoen hebben geteld en hoe lang een typische rit is.",
 	"tour.organiser.example":
 		"Voorbeeldteam: zo ziet Orga eruit als het seizoen loopt. Hier kun je nergens op klikken; na de rondleiding zie je het echte team.",
 	"tour.organiser.groups":
 		"De groepen: “Duwtje nodig” loopt achter op het tempo, “Op koers” ligt op schema, “Trainingsdoel gehaald” heeft alles. Tik op een tegel om alleen die renners te zien. Eerst: iedereen met een open melding.",
 	"tour.organiser.pace":
 		"Het streepje op elke balk is het gelijkmatige tempo tot de deadline. Renners links ervan hebben een duwtje nodig. Tik op een naam om hun correcties te openen: Rynke erbij of eraf, met een reden.",
+	"tour.organiser.graphs":
+		"Voortgang: kilometers en hoogtemeters over het seizoen, per renner en voor het hele team. Alleen renners die akkoord zijn met het tonen van dagcijfers hebben een lijn. Op een telefoon wissel je bovenaan tussen renners en grafieken.",
 	"tour.organiser.requests":
 		"Meldingen: renners laten weten dat ze bij een teamevenement waren. “Toevoegen” geeft ze de Rynke van het evenement, ✕ wijst af. Beide kun je even ongedaan maken.",
 	"tour.organiser.newEvent":
 		"Voeg hier teamevenementen toe: soort, datum, en als je wilt een naam. Een teamtraining levert {teamTraining} Team-Rynke op, een dag van het trainingsweekend {weekendDay}, een techniektraining {technique}.",
+	"tour.organiser.newEvent.tourDays":
+		"De dagen van de Tour de Paris voeg je hier ook toe. Ze leveren geen Rynke op, maar iedereen die je aanvinkt krijgt de badge van die dag.",
 	"tour.organiser.upcoming":
 		"Een komend evenement: renners zeggen vooraf of ze komen. Het getal laat zien hoeveel ja zeiden.",
 	"tour.organiser.past":

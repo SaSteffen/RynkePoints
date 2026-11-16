@@ -11,6 +11,7 @@ export const TOUR_TARGETS = [
 	"tour-short-ride",
 	"tour-groups",
 	"tour-pace",
+	"organiser-graphs",
 	"tour-requests",
 	"tour-new-event",
 	"tour-later-event",

@@ -9,7 +9,7 @@ import { consentSummary } from "../consent-form";
 import { html, languageForm, type SafeHtml } from "../html";
 import { renderInstallHint, renderNotifications } from "../pwa";
 import { renderRules } from "../rider-sections";
-import { acceptedOn, hiddenSections, shellPage } from "../shell";
+import { acceptedOn, shellPage, tourSwitches } from "../shell";
 import { stepHref } from "../tour";
 
 // Settings at `/me/settings` in the groups of feature 011 FR-014: the
@@ -61,7 +61,7 @@ export function handleSettings(
 					currentRules(ctx.team.rules).effectiveDate,
 				...countingWindow(ctx.env),
 			};
-			const hidden = hiddenSections(ctx.env);
+			const switches = tourSwitches(ctx);
 			const status =
 				rider.status === "connected"
 					? html`<p>${i18n.t("me.status.connected")}</p>`
@@ -90,8 +90,8 @@ ${group("settings-rules", i18n.t("rynke.rules.heading"), renderRules(i18n, rules
 ${group(
 	"settings-tour",
 	i18n.t("settings.tour"),
-	html`<p><a class="button-outlined" href="${stepHref("rider", rider, 0, hidden)}">${i18n.t("settings.tour.rider")}</a></p>
-${rider.organiser ? html`<p><a class="button-outlined" href="${stepHref("organiser", rider, 0, hidden)}">${i18n.t("settings.tour.organiser")}</a></p>` : null}`,
+	html`<p><a class="button-outlined" href="${stepHref("rider", rider, 0, switches)}">${i18n.t("settings.tour.rider")}</a></p>
+${rider.organiser ? html`<p><a class="button-outlined" href="${stepHref("organiser", rider, 0, switches)}">${i18n.t("settings.tour.organiser")}</a></p>` : null}`,
 )}
 ${group(
 	"settings-account",

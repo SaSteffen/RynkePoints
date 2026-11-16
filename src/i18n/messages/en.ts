@@ -270,6 +270,8 @@ export const en: Catalog = {
 	"tour.rider.intro": "New here? Let us show you where everything is.",
 	"tour.rider.team":
 		"Team: how the whole team is doing and where you are in the ranking.",
+	"tour.rider.team.rides":
+		"The ranking also goes by sessions, km and elevation, for the season, the month or the week.",
 	"tour.rider.peloton":
 		"The peloton: everyone in the team by their Training Rynke, without names; your coin is marked. The further right, the more Rynke. Whoever is well ahead of the rest is in the breakaway.",
 	"tour.rider.you": "You: your Rynke and what you still need to qualify.",
@@ -295,16 +297,22 @@ export const en: Catalog = {
 		"You're an organiser now: the Orga tab is new. Let us show you around.",
 	"tour.organiser.riders":
 		"Riders: everyone in the team with their Training and Team Rynke and what they still need.",
+	"tour.organiser.riders.rides":
+		"Plus how many of their rides counted this season and how long a typical one is.",
 	"tour.organiser.example":
 		"Example team: this is how Orga looks once the season is under way. Nothing here can be clicked; you'll see the real team after the tour.",
 	"tour.organiser.groups":
 		"The groups: “Need a push” is behind the pace, “On track” is on plan, “Training goal reached” has it all. Tap a tile to see only its riders. First: everyone with an open report.",
 	"tour.organiser.pace":
 		"The mark on each bar is the even pace to the deadline. Riders left of it need a push. Tap a name to open their corrections: Rynke added or taken off, with a reason.",
+	"tour.organiser.graphs":
+		"Progress: kilometres and elevation over the season, for single riders and the whole team. Only riders who agreed to showing daily figures have a line. On a phone, switch between riders and graphs at the top.",
 	"tour.organiser.requests":
 		"Reports: riders tell you they were at a team event. “Add” gives them the event's Rynke, ✕ declines. You can undo either for a short while.",
 	"tour.organiser.newEvent":
 		"Add team events here: kind, date, and a name if you like. A team training brings {teamTraining}\u00a0Team Rynke, a day of the training weekend {weekendDay}, a technique training {technique}.",
+	"tour.organiser.newEvent.tourDays":
+		"Record the days of the Tour de Paris here too. They bring no Rynke, but everyone you tick gets the day's badge.",
 	"tour.organiser.upcoming":
 		"An upcoming event: riders say beforehand whether they're coming. The number shows how many said yes.",
 	"tour.organiser.past":

@@ -269,6 +269,8 @@ export const nb: Catalog = {
 	"tour.rider.intro": "Ny her? Vi viser deg hvor alt er.",
 	"tour.rider.team":
 		"Lag: hvordan det går med hele laget, og hvor du ligger på rangeringen.",
+	"tour.rider.team.rides":
+		"Rangeringen finnes også etter økter, km og høydemeter, for sesongen, måneden eller uka.",
 	"tour.rider.peloton":
 		"Feltet: alle på laget etter Trenings-Rynke, uten navn; mynten din er markert. Jo lenger til høyre, jo flere Rynke. Den som ligger godt foran resten, er i brudd.",
 	"tour.rider.you":
@@ -295,16 +297,22 @@ export const nb: Catalog = {
 		"Du er arrangør nå: fanen Orga er ny. Vi viser deg rundt.",
 	"tour.organiser.riders":
 		"Ryttere: alle på laget med Trenings- og Team-Rynke og hva de mangler.",
+	"tour.organiser.riders.rides":
+		"I tillegg hvor mange av turene deres som har telt denne sesongen, og hvor lang en typisk tur er.",
 	"tour.organiser.example":
 		"Eksempellag: slik ser Orga ut når sesongen er i gang. Ingenting her kan klikkes; du ser det ekte laget etter omvisningen.",
 	"tour.organiser.groups":
 		"Gruppene: «Trenger en dytt» ligger bak tempoet, «På sporet» følger planen, «Treningsmål nådd» har alt. Trykk på en flis for å se bare rytterne der. Først: alle med en åpen melding.",
 	"tour.organiser.pace":
 		"Merket på hver linje er jevnt tempo fram til fristen. Ryttere til venstre for det trenger en dytt. Trykk på et navn for å åpne korrigeringene deres: Rynke lagt til eller trukket fra, med en begrunnelse.",
+	"tour.organiser.graphs":
+		"Fremgang: kilometer og høydemeter gjennom sesongen, for enkeltryttere og hele laget. Bare ryttere som har sagt ja til dagstallene, har en linje. På mobilen bytter du øverst mellom ryttere og grafer.",
 	"tour.organiser.requests":
 		"Meldinger: ryttere sier fra at de var på et lagarrangement. «Legg til» gir dem arrangementets Rynke, ✕ avslår. Du kan angre begge en liten stund.",
 	"tour.organiser.newEvent":
 		"Legg til lagarrangementer her: type, dato og et navn om du vil. En lagtrening gir {teamTraining} Team-Rynke, en dag på treningshelgen {weekendDay}, en teknikktrening {technique}.",
+	"tour.organiser.newEvent.tourDays":
+		"Dagene på Tour de Paris legger du også inn her. De gir ingen Rynke, men alle du krysser av, får dagens merke.",
 	"tour.organiser.upcoming":
 		"Et kommende arrangement: ryttere sier fra på forhånd om de kommer. Tallet viser hvor mange som har sagt ja.",
 	"tour.organiser.past":

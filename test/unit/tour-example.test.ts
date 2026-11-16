@@ -63,3 +63,49 @@ describe("the example team", () => {
 		expect(team.requests.length).toBeGreaterThan(0);
 	});
 });
+
+describe("the example team's rides (FR-013)", () => {
+	const TODAY = "2027-02-10";
+	const team = exampleTeam(WINDOW, TODAY, CURRENT_RULES);
+	const stepM = CURRENT_RULES.distanceStepKm * 1000;
+
+	it("earn each rider's distance Rynke and climb its elevation", () => {
+		for (const rider of team.riders) {
+			const rides = team.rides.get(rider.athleteId) ?? [];
+			const earned = rides.reduce(
+				(sum, [, distanceM]) =>
+					sum + Math.floor(distanceM / stepM) * CURRENT_RULES.distanceStepRynke,
+				0,
+			);
+			expect(earned).toBe(rider.balance?.distanceRynke);
+			if (rides.length > 0) {
+				expect(rides.reduce((sum, [, , dm]) => sum + dm, 0)).toBe(
+					rider.balance?.elevationDm,
+				);
+			}
+		}
+	});
+
+	it("lie between the season start and today, oldest first", () => {
+		for (const rides of team.rides.values()) {
+			const dates = rides.map(([date]) => date);
+			expect(dates).toEqual([...dates].sort());
+			for (const date of dates) {
+				expect(date >= WINDOW.seasonStart && date <= TODAY).toBe(true);
+			}
+		}
+	});
+
+	it("are the graphs' daily figures, with the virtual part apart", () => {
+		for (const row of team.graphRows) {
+			const rides = team.rides.get(row.athleteId) ?? [];
+			const total = rides.reduce((sum, [, m]) => sum + m, 0);
+			expect(row.days.reduce((sum, [, m]) => sum + m, 0)).toBe(total);
+			const virtual = row.virtualDays.reduce((sum, [, m]) => sum + m, 0);
+			if (total > 0) expect(virtual).toBeLessThan(total);
+		}
+		// Finn rides mostly indoors.
+		const finn = team.graphRows.find((r) => r.athleteId === 6);
+		expect(finn?.virtualDays.length).toBeGreaterThan(0);
+	});
+});

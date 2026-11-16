@@ -67,6 +67,25 @@ shows "zählt" without it, on the example and on every rider's own rides.
   example can be looked at but not used: no button or link in it acts on
   anything.
 
+### Session 2026-11-16
+
+Owner's review after the ride figures, the organiser's progress graphs and the
+Tour de Paris days had shipped without the tours knowing of them.
+
+- Q: The Team page now ranks by Fahrten, km and Höhenmeter over a season, month
+  or week. A step of its own? → A: No, "new steps are annoying": the Team step's
+  text says it, while the team shows ride figures.
+- Q: Does the tour show sharing a badge and the monkey's tips? → A: No, "people
+  will figure that out."
+- Q: The organiser's progress graphs? → A: Yes, "we need that": a step on Rider,
+  after the pace, pointing at the graphs of the example team, while the team has
+  them.
+- Q: The rides under each rider on Orga › Rider? → A: The Rider step's text
+  says it, while the riders show them. No step of its own.
+- Q: The new-event step names three kinds, but organisers also record the Tour
+  de Paris days. → A: Its text says it: a tour day brings no Rynke, but the day's
+  badge to everyone ticked.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Learn the rules from the pages (Priority: P1)
@@ -267,14 +286,25 @@ that nothing on the example can be clicked.
   without the coin ("zählt 🪙" only with Training Rynke), on the example rides
   and on every rider's own Fahrten.
 - **FR-012**: The organiser tour MUST be: Rider; Rider – Gruppen; Rider – Tempo;
+  Rider – Fortschritt (only while the team has the progress graphs, feature 029);
   Termine – Meldungen; Termine – neuer Termin; Termine – kommender Termin;
-  Termine – vergangener Termin.
+  Termine – vergangener Termin. The Fortschritt step points at the progress
+  graphs and opens the page on them below 1100 px (`view=graphs`).
 - **FR-013**: On the organiser tour's steps, Rider and Termine MUST show an
   example team instead of the real one, under the note: riders in every group
   the day allows, open requests, an upcoming event with riders who said they
   come, and past events, one with open requests and one without the organiser.
   Its figures MUST come from the same functions as the real overview's, with the
-  rules in effect.
+  rules in effect. Where the real Rider page shows each rider's rides (feature
+  032) and the progress graphs (feature 029), the example shows them too, worked
+  out from synthetic rides of its riders that earn their Training Rynke.
+- **FR-016**: A step's text MAY add a sentence while a team switch shows what it
+  talks about: the Team step names the ranking by Fahrten, km and Höhenmeter and
+  its periods while ride figures are on (`RIDE_FIGURES`); the Rider step names
+  each rider's rides while the riders show them (`RIDE_FIGURES` on and
+  `ORGANISER_FIGURES` full); the new-event step names the Tour de Paris days (no
+  Rynke, but the day's badge to everyone ticked) while the team records them and
+  has badges.
 - **FR-014**: Nothing in the example on Orga MAY act: no button sends, no link
   or tile leads anywhere. The new-event form outside it stays the real one.
 - **FR-015**: The organiser tour's example MUST NOT be stored and MUST NOT name
@@ -296,9 +326,9 @@ that nothing on the example can be clicked.
 - **SC-002**: Riders who aren't organisers see a Termine step; organisers never
   get a step that leads off their navigation.
 - **SC-003**: No example figure is ever stored or shown outside a tour step.
-- **SC-004**: A new organiser sees requests, the groups, the pace, a new event
-  and ticking attendance explained on the example before touching a real
-  rider's data.
+- **SC-004**: A new organiser sees requests, the groups, the pace, the progress
+  graphs, a new event and ticking attendance explained on the example before
+  touching a real rider's data.
 
 ## Assumptions
 
