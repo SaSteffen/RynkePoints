@@ -12,7 +12,6 @@ const COLUMNS: Record<string, string[]> = {
 		"first_name",
 		"status",
 		"scope_read_all",
-		"scope_write",
 		"scopes",
 		"connected_at",
 		"scopes_updated_at",
