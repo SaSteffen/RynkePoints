@@ -1089,6 +1089,12 @@ export const lt: Catalog = {
 	"admin.teams.otherN": "Kita komanda {n}",
 	"admin.teams.shared": "Bendra (šliuzas)",
 	"admin.teams.never": "{team}: atsakymo dar nėra, todėl skaičių trūksta.",
+	"admin.overview.heading": "Visos komandos",
+	"admin.overview.note":
+		"Šiandienos skaičiai; Cloudflare – paskutinės įrašytos dienos. Tuščiame langelyje skaičiaus nėra.",
+	"admin.overview.figure": "Rodiklis",
+	"admin.overview.rest": "Nepriskirta",
+	"admin.overview.total": "Iš viso",
 	"admin.figure.seen": "Būsena {time} UTC",
 	"admin.figure.notSeen": "Dar nestebėta",
 	"admin.figure.noValue": "Reikšmės dar nėra. Riba: {limit}",

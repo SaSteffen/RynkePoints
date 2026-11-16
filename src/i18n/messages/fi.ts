@@ -1058,6 +1058,12 @@ export const fi: Catalog = {
 	"admin.teams.otherN": "Toinen tiimi {n}",
 	"admin.teams.shared": "Yhteinen (yhdyskäytävä)",
 	"admin.teams.never": "{team}: ei vielä vastausta, joten luvut puuttuvat.",
+	"admin.overview.heading": "Kaikki tiimit",
+	"admin.overview.note":
+		"Tämän päivän luvut; Cloudflaren osalta viimeisimmän tallennetun päivän. Tyhjässä solussa ei ole lukua.",
+	"admin.overview.figure": "Luku",
+	"admin.overview.rest": "Kohdistamaton",
+	"admin.overview.total": "Yhteensä",
 	"admin.figure.seen": "Tilanne {time} UTC",
 	"admin.figure.notSeen": "Ei vielä havaittu",
 	"admin.figure.noValue": "Ei vielä arvoa. Raja: {limit}",

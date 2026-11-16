@@ -35,8 +35,14 @@ function card(text: string, id: keyof typeof de): string {
 	return (
 		text
 			.split('<li class="usage-figure')
+			.slice(1)
 			.find((item) => item.includes(`>${de[id]}<`)) ?? `missing ${String(id)}`
 	);
+}
+
+/** Every allowance's card, without the overview table above them. */
+function figures(text: string): string {
+	return text.split('<li class="usage-figure').slice(1).join("");
 }
 
 const READS = "admin.allowance.strava_read_daily";
@@ -187,9 +193,9 @@ describe("the history", () => {
 	it("builds only the table asked for, and links back", async () => {
 		await seedUsageDay("2026-11-04", "strava_read_daily", 10, 100);
 		await seedUsageDay("2026-11-04", "cf_d1_rows_read", 10, 100);
-		expect(await page()).not.toContain("<table");
+		expect(figures(await page())).not.toContain("<table");
 		const text = await page("?days=cf_d1_rows_read");
-		expect(text.match(/<table/g)).toHaveLength(1);
+		expect(figures(text).match(/<table/g)).toHaveLength(1);
 		const shown = card(text, "admin.allowance.cf_d1_rows_read");
 		expect(shown).toContain("<table");
 		expect(shown).toContain('href="/admin#cf_d1_rows_read"');
@@ -201,7 +207,7 @@ describe("the history", () => {
 	it("ignores an unknown table", async () => {
 		await seedUsageDay("2026-11-04", "strava_read_daily", 10, 100);
 		const text = await page("?days=%3Cscript%3E");
-		expect(text).not.toContain("<table");
+		expect(figures(text)).not.toContain("<table");
 		expect(text).not.toContain("&lt;script");
 	});
 

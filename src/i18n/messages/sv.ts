@@ -1056,6 +1056,12 @@ export const sv: Catalog = {
 	"admin.teams.otherN": "Annat lag {n}",
 	"admin.teams.shared": "Gemensamt (gateway)",
 	"admin.teams.never": "{team}: inget svar än, så siffrorna saknas.",
+	"admin.overview.heading": "Alla lag",
+	"admin.overview.note":
+		"Dagens siffror; för Cloudflare den senast registrerade dagens. En tom cell har ingen siffra.",
+	"admin.overview.figure": "Siffra",
+	"admin.overview.rest": "Inte tilldelat",
+	"admin.overview.total": "Totalt",
 	"admin.figure.seen": "Per {time} UTC",
 	"admin.figure.notSeen": "Inte observerat än",
 	"admin.figure.noValue": "Inget värde än. Gräns: {limit}",

@@ -80,15 +80,60 @@ interface Teams {
 }
 
 /**
+ * A figure split by owner: this team, each other team (null: none came), the
+ * gateway for Cloudflare's, and what no team counts. Null where a part doesn't
+ * apply: everything while the figure isn't split, other teams' 15-minute
+ * counts (not exchanged), the gateway outside Cloudflare, the rest of riders.
+ */
+interface Breakdown {
+	own: number | null;
+	peers: (number | null)[];
+	shared: number | null;
+	rest: number | null;
+}
+
+const isWindow = (id: Figure["id"]) =>
+	id === "strava_read_15m" || id === "strava_all_15m";
+
+function breakdownOf(figure: Figure, teams: Teams): Breakdown {
+	const none = teams.peers.map(() => null);
+	if (figure.team === null) {
+		return { own: null, peers: none, shared: null, rest: null };
+	}
+	const own = figure.team;
+	if (isWindow(figure.id)) {
+		return { own, peers: none, shared: null, rest: figure.notAttributed ?? 0 };
+	}
+	const peers = teams.peers.map((peer) => teams.today(peer.id, figure.id));
+	// Cloudflare's figures also have the gateway's part, which serves everyone.
+	const shared = figure.id.startsWith("cf_")
+		? (teams.today(SHARED, figure.id) ?? 0)
+		: null;
+	const counted = [...peers, shared].reduce<number>(
+		(sum, n) => sum + (n ?? 0),
+		own,
+	);
+	return {
+		own,
+		peers,
+		shared,
+		rest:
+			figure.id === "riders_connected"
+				? null
+				: Math.max(0, figure.used - counted),
+	};
+}
+
+/**
  * Each team's count and share of the figure, then what no team counts. Other
  * teams' 15-minute counts aren't exchanged, so those figures say so.
  */
 function teamsLine(i18n: I18n, figure: Figure, teams: Teams): SafeHtml {
-	const own = figure.team ?? 0;
-	if (figure.id === "strava_read_15m" || figure.id === "strava_all_15m") {
+	const parts = breakdownOf(figure, teams);
+	if (isWindow(figure.id)) {
 		return html`<p class="usage-detail">${i18n.t("admin.figure.split", {
-			team: whole(i18n, own),
-			rest: whole(i18n, figure.notAttributed ?? 0),
+			team: whole(i18n, parts.own ?? 0),
+			rest: whole(i18n, parts.rest ?? 0),
 		})}</p><p class="usage-detail">${i18n.t("admin.figure.windowNote")}</p>`;
 	}
 	const piece = (team: string, n: number | null) =>
@@ -99,26 +144,55 @@ function teamsLine(i18n: I18n, figure: Figure, teams: Teams): SafeHtml {
 					n: whole(i18n, n),
 					percent: whole(i18n, percentOf(n, figure.used)),
 				});
-	const counts = teams.peers.map((peer) => teams.today(peer.id, figure.id));
 	const pieces = [
-		piece(teams.own, own),
-		...teams.peers.map((peer, i) => piece(peer.name, counts[i] ?? null)),
+		piece(teams.own, parts.own ?? 0),
+		...teams.peers.map((peer, i) => piece(peer.name, parts.peers[i] ?? null)),
+		...(parts.shared === null ? [] : [piece(teams.shared, parts.shared)]),
+		...(parts.rest === null
+			? []
+			: [i18n.t("admin.figure.rest", { n: whole(i18n, parts.rest) })]),
 	];
-	// Cloudflare's figures also have the gateway's part, which serves everyone.
-	if (figure.id.startsWith("cf_")) {
-		const shared = teams.today(SHARED, figure.id) ?? 0;
-		counts.push(shared);
-		pieces.push(piece(teams.shared, shared));
-	}
-	if (figure.id !== "riders_connected") {
-		const counted = counts.reduce<number>((sum, n) => sum + (n ?? 0), own);
-		pieces.push(
-			i18n.t("admin.figure.rest", {
-				n: whole(i18n, Math.max(0, figure.used - counted)),
-			}),
-		);
-	}
 	return html`<p class="usage-detail">${pieces.join(" · ")}</p>`;
+}
+
+/**
+ * Every figure in one table: each team's part, the gateway's, what no team
+ * counts, and the overall use of the allowance. Each row links to its figure.
+ */
+function overviewSection(
+	i18n: I18n,
+	figures: readonly Figure[],
+	teams: Teams,
+): SafeHtml {
+	const rows = figures.map((figure) => ({
+		figure,
+		parts: breakdownOf(figure, teams),
+	}));
+	const hasShared = rows.some((row) => row.parts.shared !== null);
+	const head = (label: string) => html`<th scope="col">${label}</th>`;
+	const cell = (id: Figure["id"], n: number | null) =>
+		html`<td>${n === null ? "" : amount(i18n, id, n)}</td>`;
+	return html`<section class="card usage-source" id="overview">
+<h2>${i18n.t("admin.overview.heading")}</h2>
+<p class="usage-detail">${i18n.t("admin.overview.note")}</p>
+<div class="usage-table"><div class="progress-table progress-table-scroll"><table>
+<thead><tr>${head(i18n.t("admin.overview.figure"))}${head(teams.own)}${teams.peers.map((peer) => head(peer.name))}${hasShared ? head(teams.shared) : null}${head(i18n.t("admin.overview.rest"))}${head(i18n.t("admin.overview.total"))}</tr></thead>
+<tbody>
+${rows.map(
+	({ figure, parts }) =>
+		html`<tr><th scope="row"><a href="#${figure.id}">${i18n.t(`admin.allowance.${figure.id}`)}</a>${figure.level === "ok" ? null : html` ${mark(i18n, figure)}`}</th>${cell(figure.id, parts.own)}${parts.peers.map((n) => cell(figure.id, n))}${hasShared ? cell(figure.id, parts.shared) : null}${cell(figure.id, parts.rest)}<td>${i18n.t(
+			"admin.figure.numbers",
+			{
+				used: amount(i18n, figure.id, figure.used),
+				limit: amount(i18n, figure.id, figure.limit),
+				percent: whole(i18n, figure.percent),
+			},
+		)}</td></tr>
+`,
+)}</tbody>
+</table></div></div>
+</section>
+`;
 }
 
 /** Teams that didn't answer at the last recording, or never did. */
@@ -382,7 +456,7 @@ export function handleAdminUsage(
 		);
 		const firstDay = records[0]?.day;
 		const item = (figure: Figure) => figureItem(i18n, figure, history, teams);
-		return html`${adminSwitch(i18n, "usage")}${summary(i18n, [...strava, ...account])}${teamNotices(i18n, teams.peers, states)}${
+		return html`${adminSwitch(i18n, "usage")}${summary(i18n, [...strava, ...account])}${teamNotices(i18n, teams.peers, states)}${overviewSection(i18n, [...strava, ...account], teams)}${
 			devices.length === 0
 				? html`<p class="notice">${i18n.tHtml("admin.alerts.noDevice", {
 						settings: html`<a href="/me/settings">${i18n.t("nav.settings")}</a>`,

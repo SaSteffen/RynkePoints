@@ -1110,6 +1110,12 @@ export const fr: Catalog = {
 	"admin.teams.shared": "Partagé (passerelle)",
 	"admin.teams.never":
 		"{team}\u00a0: pas encore de réponse, les chiffres manquent donc.",
+	"admin.overview.heading": "Toutes les équipes",
+	"admin.overview.note":
+		"Chiffres du jour\u00a0; pour Cloudflare, ceux du dernier jour enregistré. Une case vide n’a pas de chiffre.",
+	"admin.overview.figure": "Valeur",
+	"admin.overview.rest": "Non attribué",
+	"admin.overview.total": "Total",
 	"admin.figure.seen": "Au {time} UTC",
 	"admin.figure.notSeen": "Pas encore observé",
 	"admin.figure.noValue": "Pas encore de valeur. Limite\u00a0: {limit}",

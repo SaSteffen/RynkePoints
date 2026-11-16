@@ -1097,6 +1097,12 @@ export const de = {
 	"admin.teams.otherN": "Anderes Team {n}",
 	"admin.teams.shared": "Gemeinsam (Gateway)",
 	"admin.teams.never": "{team}: noch keine Antwort, daher fehlen die Zahlen.",
+	"admin.overview.heading": "Alle Teams",
+	"admin.overview.note":
+		"Heutige Zahlen, bei Cloudflare die des zuletzt erfassten Tages. Leere Zelle: keine Zahl.",
+	"admin.overview.figure": "Wert",
+	"admin.overview.rest": "Nicht zugeordnet",
+	"admin.overview.total": "Gesamt",
 	"admin.figure.seen": "Stand: {time} UTC",
 	"admin.figure.notSeen": "Noch nicht beobachtet",
 	"admin.figure.noValue": "Noch kein Wert. Limit: {limit}",

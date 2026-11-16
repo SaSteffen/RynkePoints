@@ -1056,6 +1056,12 @@ export const nb: Catalog = {
 	"admin.teams.otherN": "Annet lag {n}",
 	"admin.teams.shared": "Felles (gateway)",
 	"admin.teams.never": "{team}: ikke svar ennå, så tallene mangler.",
+	"admin.overview.heading": "Alle lag",
+	"admin.overview.note":
+		"Dagens tall; for Cloudflare den sist registrerte dagens. En tom celle har ikke noe tall.",
+	"admin.overview.figure": "Tall",
+	"admin.overview.rest": "Ikke tilordnet",
+	"admin.overview.total": "Totalt",
 	"admin.figure.seen": "Per {time} UTC",
 	"admin.figure.notSeen": "Ikke observert ennå",
 	"admin.figure.noValue": "Ingen verdi ennå. Grense: {limit}",

@@ -43,7 +43,7 @@ async function page(lang = "de") {
 
 /** The list item of an allowance, by its German name. */
 function figure(text: string, id: keyof typeof de): string {
-	const items = text.split('<li class="usage-figure');
+	const items = text.split('<li class="usage-figure').slice(1);
 	return (
 		items.find((item) => item.includes(`>${de[id]}<`)) ??
 		`missing ${String(id)}`

@@ -1058,6 +1058,12 @@ export const en: Catalog = {
 	"admin.teams.otherN": "Other team {n}",
 	"admin.teams.shared": "Shared (gateway)",
 	"admin.teams.never": "{team}: no answer yet, so its figures are missing.",
+	"admin.overview.heading": "All teams",
+	"admin.overview.note":
+		"Today's counts; Cloudflare's for their latest recorded day. An empty cell has no figure.",
+	"admin.overview.figure": "Figure",
+	"admin.overview.rest": "Not attributed",
+	"admin.overview.total": "Overall",
 	"admin.figure.seen": "As of {time} UTC",
 	"admin.figure.notSeen": "Not observed yet",
 	"admin.figure.noValue": "No value yet. Limit: {limit}",
