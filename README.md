@@ -184,22 +184,21 @@ Everything here runs in a Unix shell (bash or zsh), and needs git:
   that terminal from now on, and clone into your Linux home folder (`~`), not under
   `/mnt/c`, where everything is much slower.
 
-### 2. Node, pnpm and Python
+### 2. Node and pnpm
 
 - **Node 24**, the version in `.nvmrc`. The simplest way to get it is
   [nvm](https://github.com/nvm-sh/nvm#installing-and-updating): install it, open a
   new terminal, then run `nvm install` in the repository. It reads `.nvmrc`.
 - **pnpm** comes with Node through Corepack. Run `corepack enable` once, and pnpm
   then uses the version that `package.json` names.
-- **Python 3.11 or newer**, for Spec Kit's scripts. Most Linux and macOS systems
-  already have it. You also need [uv](https://docs.astral.sh/uv/getting-started/installation/)
-  if you want to install Spec Kit's command line tool (see below).
 
 ```bash
 node --version      # v24.…
 pnpm --version      # 10.…
-python3 --version   # 3.11 or newer
 ```
+
+That is everything building, testing and running the app needs. **Python is not
+among it**: only Spec Kit uses it (see step 4).
 
 ### 3. Run it
 
@@ -236,8 +235,9 @@ The repository carries the harness Claude Code works within:
 - **The [constitution](.specify/memory/constitution.md)**: the project's principles
   (consent and privacy, good Strava citizenship, test-first). `CLAUDE.md` defers to
   it, and every spec and plan is checked against it.
-- **[Spec Kit](https://github.com/github/spec-kit)**: its steps are slash commands
-  in `.claude/skills/speckit-*`, with their scripts and templates in `.specify/`.
+- **[Spec Kit](https://github.com/github/spec-kit)** ([docs](https://github.github.io/spec-kit/)):
+  GitHub's toolkit for spec-driven development. Its steps are slash commands in
+  `.claude/skills/speckit-*`, with their scripts and templates in `.specify/`.
 - **Git hooks**: lefthook runs Biome, `tsc` and commitlint before each commit, so
   agent and human commits get the same checks.
 
@@ -252,16 +252,33 @@ A feature goes through Spec Kit's steps. Each one writes into
 | Tasks | `/speckit-tasks` | `tasks.md` |
 | Analyze | `/speckit-analyze` | a consistency check across the three, no files |
 | Implement | `/speckit-implement` | tests first, then code, task by task |
+| Converge | `/speckit-converge` | work still unbuilt, as new tasks in `tasks.md` |
 
-The skills, scripts and templates are committed, so they work in Claude Code without
-installing anything else. Spec Kit's `specify` command line tool is only needed to
-check the tools Spec Kit expects or to upgrade the vendored files:
+#### Spec Kit needs Python
+
+The skills, scripts and templates are committed, so the slash commands work in
+Claude Code without installing Spec Kit itself. But their scripts
+(`.specify/scripts/python/`) are Python, so Spec Kit is the one place Python is
+needed: **Python 3.11 or newer** (`python3 --version`). Current Linux releases
+(Ubuntu 24.04 on WSL, for one) and macOS with the Xcode tools usually have it; if
+yours is older, install a newer one with your package manager.
+
+Spec Kit's `specify` command line tool is optional. Install it only to upgrade the
+committed files. It is installed with [uv](https://docs.astral.sh/uv/getting-started/installation/),
+a Python package manager:
 
 ```bash
-uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
-specify check                  # the tools Spec Kit needs
-specify integration upgrade    # refresh .specify/ and the skills; review the diff
+uv tool install specify-cli          # once
+specify version                      # check that it runs
+specify integration upgrade claude   # refresh .specify/ and the skills; review the diff
 ```
+
+More in Spec Kit's [documentation](https://github.github.io/spec-kit/): the
+[SDD walkthrough](https://github.github.io/spec-kit/quickstart.html) of the steps
+above, [installation](https://github.github.io/spec-kit/installation.html) and
+[upgrading](https://github.github.io/spec-kit/upgrade.html). The project's own
+rules for it are in the [constitution](.specify/memory/constitution.md) and
+`CLAUDE.md`.
 
 ### Browser tests
 
