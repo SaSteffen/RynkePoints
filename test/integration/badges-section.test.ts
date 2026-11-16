@@ -804,30 +804,39 @@ describe("sharing a badge (033)", () => {
 			`<label><input type="radio" name="share-format" value="story" autocomplete="off" checked>${de["badges.share.format.story"]}</label>`,
 		);
 		expect(sheet).toContain(
+			`<label><input type="radio" name="share-format" value="gif" autocomplete="off">${de["badges.share.format.gif"]}</label>`,
+		);
+		// Story, GIF, Bild: in that order; "Auf Foto" is a switch of Story.
+		expect(
+			[...sheet.matchAll(/name="share-format" value="(\w+)"/g)].map(
+				(m) => m[1],
+			),
+		).toEqual(["story", "gif", "image"]);
+		expect(sheet).toContain(
 			`<label><input type="radio" name="share-format" value="image" autocomplete="off">${de["badges.share.format.image"]}</label>`,
 		);
-		expect(sheet).toContain(
-			`<label><input type="radio" name="share-format" value="photo" autocomplete="off">${de["badges.share.format.photo"]}</label>`,
-		);
-		// "Glitzernd" and "Ohne Hintergrund", off and hidden until the script
-		// knows they apply.
+		// "Glitzernd" alone, on by default and hidden until the script knows
+		// it applies:
+		// GIF is the sparkling sticker, Bild has nothing to switch. Story's
+		// photo is a button, not a switch.
 		expect([
-			...sheet.matchAll(/role="switch" aria-checked="false"/g),
-		]).toHaveLength(2);
+			...sheet.matchAll(/role="switch" aria-checked="true"/g),
+		]).toHaveLength(1);
+		expect(sheet).toContain(
+			`<button type="button" class="button-outlined share-pick" hidden>${de["badges.share.pickPhoto"]}</button>`,
+		);
+		expect(sheet).not.toContain("share-repick");
 		expect(sheet).toContain(
 			`<span id="share-shiny-label">${de["badges.share.shiny"]}</span>`,
 		);
-		expect(sheet).toContain(
-			`<span id="share-plain-label">${de["badges.share.plain"]}</span>`,
-		);
 		expect(sheet).toContain('<span class="share-option share-shiny" hidden>');
-		expect(sheet).toContain('<span class="share-option share-plain" hidden>');
+		expect(sheet).not.toContain("share-plain");
 		expect(sheet).toContain(
 			'<input type="file" accept="image/*" class="share-file" hidden>',
 		);
 		expect(sheet).toContain(escapeHtml(de["badges.share.photoPrivate"]));
 		expect(sheet).toContain(
-			`<p class="share-photo-unreadable" role="status" hidden>${escapeHtml(de["badges.share.photoUnreadable"])}</p>`,
+			`<p class="share-hint share-photo-unreadable" role="status" hidden>${escapeHtml(de["badges.share.photoUnreadable"])}</p>`,
 		);
 		expect(sheet).toContain(
 			`<span class="share-busy" role="status" hidden>${de["badges.share.recording"]}</span>`,

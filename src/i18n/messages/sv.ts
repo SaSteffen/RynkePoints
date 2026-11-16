@@ -625,12 +625,10 @@ export const sv: Catalog = {
 	"badges.share.label": "Dela ”{name}”",
 	"badges.share.formatLegend": "Som",
 	"badges.share.format.story": "Story",
+	"badges.share.format.gif": "GIF",
 	"badges.share.format.image": "Bild",
-	"badges.share.format.photo": "På foto",
 	"badges.share.shiny": "Glittrande",
-	"badges.share.plain": "Utan bakgrund",
 	"badges.share.pickPhoto": "Välj foto",
-	"badges.share.otherPhoto": "Annat foto",
 	"badges.share.photoPrivate": "Ditt foto stannar på din enhet.",
 	"badges.share.photoUnreadable":
 		"Din webbläsare kan inte öppna det här fotot. Välj ett annat.",

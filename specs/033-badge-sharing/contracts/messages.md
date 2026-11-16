@@ -12,12 +12,10 @@ existing badge names.
 | `badges.share.label` | „{name}“ teilen | Share “{name}” |
 | `badges.share.formatLegend` | Als | As |
 | `badges.share.format.story` | Story | Story |
+| `badges.share.format.gif` | GIF | GIF |
 | `badges.share.format.image` | Bild | Image |
-| `badges.share.format.photo` | Auf Foto | On photo |
 | `badges.share.shiny` | Glitzernd | Sparkling |
-| `badges.share.plain` | Ohne Hintergrund | No background |
 | `badges.share.pickPhoto` | Foto wählen | Choose photo |
-| `badges.share.otherPhoto` | Anderes Foto | Other photo |
 | `badges.share.photoPrivate` | Dein Foto bleibt auf deinem Gerät. | Your photo stays on your device. |
 | `badges.share.photoUnreadable` | Dieses Foto kann dein Browser nicht öffnen. Nimm ein anderes. | Your browser can't open this photo. Choose another one. |
 | `badges.share.hintTouch` | Abzeichen mit einem Finger verschieben, mit zwei Fingern drehen oder größer und kleiner ziehen. | Drag the badge with one finger, turn or pinch it with two to rotate or resize it. |
