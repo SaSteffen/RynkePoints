@@ -75,9 +75,6 @@ export const nb: Catalog = {
 	"me.reconnect": "Koble til på nytt",
 	"me.scope.readAll": "Private aktiviteter teller også.",
 	"me.scope.sharedOnly": "Private («Bare deg») aktiviteter teller ikke.",
-	"me.scope.write":
-		"RynkePoints kan skrive en Rynke-del i turbeskrivelsene dine når funksjonen finnes.",
-	"me.scope.noWrite": "RynkePoints skriver ingenting i turbeskrivelsene dine.",
 	"me.changePermissions": "Endre tillatelser på Strava",
 	"me.consent.heading": "Samtykket ditt",
 	"me.consent.accepted": "Gitt {date} (versjon {version}).",

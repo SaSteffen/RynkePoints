@@ -8,6 +8,7 @@ import {
 import { escapeHtml } from "../../src/http/html";
 import { CATALOGS } from "../../src/i18n/catalogs";
 import { handleFetch } from "../../src/index";
+import { EXTRA_SCOPE, SCOPES_ALL } from "../support/callback";
 import {
 	makeCtx,
 	request,
@@ -41,10 +42,10 @@ function withVersion2(extra: Partial<ConsentVersion> = {}): TestCtx {
 	});
 }
 
-/** Version 2 requires write access, which the seeded rider hasn't granted. */
+/** Version 2 requires a scope the seeded rider hasn't granted. */
 function withScopeVersion2(): TestCtx {
 	return withVersion2({
-		requiredScopes: ["read", "activity:read", "activity:write"],
+		requiredScopes: ["read", "activity:read", EXTRA_SCOPE],
 	});
 }
 
@@ -204,7 +205,10 @@ describe("GET /me when version 2 needs a new permission (US4 scenario 4)", () =>
 	});
 
 	it("goes straight to /me/consent once the scope is granted", async () => {
-		await seedRider(ctx, { consentVersion: 1, scopeWrite: true });
+		await seedRider(ctx, {
+			consentVersion: 1,
+			scopes: `${SCOPES_ALL},${EXTRA_SCOPE}`,
+		});
 		const page = await getMe();
 		expect(page).toContain('<form method="post" action="/me/consent">');
 		expect(page).not.toContain(escapeHtml(de["me.consent.renew.strava"]));

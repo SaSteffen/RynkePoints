@@ -82,8 +82,6 @@ export interface SeedRiderOptions {
 	status?: "connected" | "needs_reconnect";
 	reconnectRequestedAt?: number | null;
 	scopeReadAll?: boolean;
-	/** Defaults to false; true adds `activity:write` to the default scopes. */
-	scopeWrite?: boolean;
 	scopes?: string;
 	importStatus?: "pending" | "running" | "done";
 	/** Defaults to the current version; 0 is a rider stored before `0002`. */
@@ -112,11 +110,9 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 	const tokens = initialTokens(athleteId);
 	const status = options.status ?? "connected";
 	const scopeReadAll = options.scopeReadAll ?? true;
-	const scopeWrite = options.scopeWrite ?? false;
-	const defaultScopes =
-		(scopeReadAll
-			? "read,activity:read,activity:read_all"
-			: "read,activity:read") + (scopeWrite ? ",activity:write" : "");
+	const defaultScopes = scopeReadAll
+		? "read,activity:read,activity:read_all"
+		: "read,activity:read";
 	const rider = {
 		athleteId,
 		accessToken: options.accessToken ?? tokens.accessToken,
@@ -131,16 +127,15 @@ export async function seedRider(ctx: Ctx, options: SeedRiderOptions = {}) {
 	await ctx.env.DB.batch([
 		ctx.env.DB.prepare(
 			`INSERT INTO riders (athlete_id, first_name, status, scope_read_all,
-				scope_write, scopes, connected_at, scopes_updated_at,
+				scopes, connected_at, scopes_updated_at,
 				membership_checked_at, import_status, reconnect_requested_at,
 				figures_version, badges_version)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		).bind(
 			athleteId,
 			options.firstName ?? firstNameFor(athleteId),
 			status,
 			scopeReadAll ? 1 : 0,
-			scopeWrite ? 1 : 0,
 			options.scopes ?? defaultScopes,
 			now,
 			now,

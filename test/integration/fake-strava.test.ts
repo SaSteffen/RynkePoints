@@ -42,8 +42,8 @@ describe("fake Strava", () => {
 		fake = installFakeStrava();
 	});
 
-	// Nothing in this feature writes to Strava, even with activity:write
-	// granted (FR-003), so a write call fails whichever test makes it.
+	// The app never writes to Strava (constitution Principle III), so a write
+	// call fails whichever test makes it.
 	it.each([
 		["PUT", "https://www.strava.com/api/v3/activities/1"],
 		["POST", "https://www.strava.com/api/v3/activities"],

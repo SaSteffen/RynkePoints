@@ -74,9 +74,6 @@ export const en: Catalog = {
 	"me.reconnect": "Reconnect",
 	"me.scope.readAll": "Private activities count too.",
 	"me.scope.sharedOnly": 'Private ("Only You") activities don\'t count.',
-	"me.scope.write":
-		"RynkePoints may write a Rynke section into your ride descriptions once the feature exists.",
-	"me.scope.noWrite": "RynkePoints writes nothing into your ride descriptions.",
 	"me.changePermissions": "Change permissions on Strava",
 	"me.consent.heading": "Your consent",
 	"me.consent.accepted": "Agreed on {date} (version {version}).",

@@ -77,10 +77,6 @@ export const fr: Catalog = {
 	"me.scope.readAll": "Les activités privées comptent aussi.",
 	"me.scope.sharedOnly":
 		"Les activités privées («\u00a0Moi uniquement\u00a0») ne comptent pas.",
-	"me.scope.write":
-		"RynkePoints pourra écrire une section Rynke dans les descriptions de tes sorties quand la fonction existera.",
-	"me.scope.noWrite":
-		"RynkePoints n'écrit rien dans les descriptions de tes sorties.",
 	"me.changePermissions": "Modifier les autorisations sur Strava",
 	"me.consent.heading": "Ton consentement",
 	"me.consent.accepted": "Donné le {date} (version {version}).",

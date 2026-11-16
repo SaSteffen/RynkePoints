@@ -75,9 +75,6 @@ export const lt: Catalog = {
 	"me.reconnect": "Prisijungti iš naujo",
 	"me.scope.readAll": "Privačios veiklos taip pat skaičiuojamos.",
 	"me.scope.sharedOnly": "Privačios („Tik tu“) veiklos neskaičiuojamos.",
-	"me.scope.write":
-		"RynkePoints galės įrašyti Rynke skiltį į tavo važiavimų aprašymus, kai ši funkcija atsiras.",
-	"me.scope.noWrite": "RynkePoints nieko nerašo į tavo važiavimų aprašymus.",
 	"me.changePermissions": "Keisti leidimus Strava",
 	"me.consent.heading": "Tavo sutikimas",
 	"me.consent.accepted": "Sutikta {date} (versija {version}).",

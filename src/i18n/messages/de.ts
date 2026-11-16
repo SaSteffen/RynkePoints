@@ -79,10 +79,6 @@ export const de = {
 	"me.reconnect": "Erneut verbinden",
 	"me.scope.readAll": "Private Aktivitäten zählen mit.",
 	"me.scope.sharedOnly": "Private („Nur du“) Aktivitäten zählen nicht.",
-	"me.scope.write":
-		"RynkePoints darf einen Rynke-Abschnitt in deine Fahrtbeschreibungen schreiben, sobald es die Funktion gibt.",
-	"me.scope.noWrite":
-		"RynkePoints schreibt nichts in deine Fahrtbeschreibungen.",
 	"me.changePermissions": "Berechtigungen auf Strava ändern",
 	"me.consent.heading": "Deine Zustimmung",
 	"me.consent.accepted": "Zugestimmt am {date} (Version\u00a0{version}).",

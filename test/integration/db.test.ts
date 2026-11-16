@@ -199,7 +199,6 @@ describe("riders", () => {
 				firstName: "Testrider A",
 				scopes: "read,activity:read",
 				scopeReadAll: false,
-				scopeWrite: false,
 				now: NOW,
 			},
 			{ version: 1, acceptedAt: NOW },
@@ -220,7 +219,6 @@ describe("riders", () => {
 				firstName: "Testrider A",
 				scopes: "read,activity:read",
 				scopeReadAll: false,
-				scopeWrite: false,
 				now: NOW,
 			},
 			{ version: 1, acceptedAt: NOW },
@@ -230,7 +228,6 @@ describe("riders", () => {
 			firstName: "Testrider A",
 			status: "connected",
 			scopeReadAll: false,
-			scopeWrite: false,
 			scopes: "read,activity:read",
 			connectedAt: NOW,
 			scopesUpdatedAt: NOW,
@@ -263,7 +260,6 @@ describe("riders", () => {
 			firstName: "Testrider A",
 			scopes: "read,activity:read",
 			scopeReadAll: false,
-			scopeWrite: false,
 			now: NOW + 30,
 		});
 		expect((await getRider(db, ATHLETE_A))?.organiser).toBe(true);
@@ -276,7 +272,6 @@ describe("riders", () => {
 				firstName: "Testrider A",
 				scopes: "read,activity:read",
 				scopeReadAll: false,
-				scopeWrite: false,
 				now: NOW + 60,
 			},
 			{ version: 1, acceptedAt: NOW + 60 },
@@ -342,7 +337,6 @@ describe("riders", () => {
 			firstName: "Testrider A2",
 			scopes: "read,activity:read",
 			scopeReadAll: false,
-			scopeWrite: false,
 			now: NOW + 30,
 		});
 		expect(await getRider(db, ATHLETE_A)).toMatchObject({
@@ -399,34 +393,6 @@ describe("riders", () => {
 		await expect(insert("connected", NOW)).rejects.toThrow(/CHECK/);
 		await expect(insert("needs_reconnect", null)).rejects.toThrow(/CHECK/);
 	});
-
-	it("gives riders stored without scope_write 0 and rejects other values", async () => {
-		const insert = (athleteId: number, scopeWrite?: number) =>
-			db
-				.prepare(
-					`INSERT INTO riders (athlete_id, first_name, status, scope_read_all, scopes,
-						connected_at, scopes_updated_at, membership_checked_at, import_status,
-						reconnect_requested_at${scopeWrite === undefined ? "" : ", scope_write"})
-					VALUES (?, 'Testrider A', 'connected', 1, 'read', 0, 0, 0, 'done', NULL${scopeWrite === undefined ? "" : ", ?"})`,
-				)
-				.bind(athleteId, ...(scopeWrite === undefined ? [] : [scopeWrite]))
-				.run();
-		await insert(ATHLETE_A);
-		expect((await getRider(db, ATHLETE_A))?.scopeWrite).toBe(false);
-		await expect(insert(ATHLETE_B, 2)).rejects.toThrow(/CHECK/);
-	});
-
-	it("records write access on reconnect", async () => {
-		await seedRider(makeCtx());
-		await updateRiderOnReconnect(db, ATHLETE_A, {
-			firstName: "Testrider A",
-			scopes: "read,activity:read,activity:read_all,activity:write",
-			scopeReadAll: true,
-			scopeWrite: true,
-			now: NOW + 30,
-		});
-		expect((await getRider(db, ATHLETE_A))?.scopeWrite).toBe(true);
-	});
 });
 
 describe("consent records", () => {
@@ -436,14 +402,12 @@ describe("consent records", () => {
 			{
 				athleteId: ATHLETE_A,
 				firstName: "Testrider A",
-				scopes: "read,activity:read,activity:read_all,activity:write",
+				scopes: "read,activity:read,activity:read_all",
 				scopeReadAll: true,
-				scopeWrite: true,
 				now: NOW,
 			},
 			{ version: 1, acceptedAt: NOW },
 		);
-		expect((await getRider(db, ATHLETE_A))?.scopeWrite).toBe(true);
 		expect(await getCurrentConsent(db, ATHLETE_A)).toEqual({
 			version: 1,
 			revision: 0,
@@ -506,7 +470,6 @@ describe("credentials", () => {
 				firstName: "Testrider A",
 				scopes: "read,activity:read",
 				scopeReadAll: false,
-				scopeWrite: false,
 				now: NOW,
 			},
 			{ version: 1, acceptedAt: NOW },

@@ -364,8 +364,8 @@ ${folded(
 
 ${production}
 
-**Scopes:** \`${scopes}\`. \`activity:write\` is optional and unused so far; it
-is meant for a short section in the rider's own ride descriptions.
+**Scopes:** \`${scopes}\`. \`activity:write\` is not requested: the app writes
+nothing to Strava.
 
 **Strava requests:** ${requests.map((r) => `\`${r}\``).join(", ")}.
 \`GET /athlete/activities\` runs once per rider, for the season's backfill.

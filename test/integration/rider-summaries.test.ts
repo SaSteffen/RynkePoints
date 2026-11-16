@@ -632,7 +632,6 @@ describe("the release is invisible (US5)", () => {
 				firstName: "Neu",
 				scopes: "read,activity:read",
 				scopeReadAll: false,
-				scopeWrite: false,
 				now: NOW,
 			},
 			{ version: 1, acceptedAt: NOW },
