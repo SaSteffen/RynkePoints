@@ -1,4 +1,9 @@
-import { expect, type Locator, type Page } from "@playwright/test";
+import {
+	type Download,
+	expect,
+	type Locator,
+	type Page,
+} from "@playwright/test";
 import { signIn, skipTours } from "./sign-in";
 import { test } from "./test";
 
@@ -125,8 +130,8 @@ test.describe("on a phone", () => {
 			new RegExp(`^[a-z0-9-]+-${id}-image\\.png$`),
 		);
 
-		// "Ohne Hintergrund": the badge alone, transparent around it, and no
-		// sparkling video (FR-011).
+		// "Ohne Hintergrund": the badge alone, transparent around it; it can
+		// sparkle too, as a GIF.
 		await sheet.locator(".share-plain [role=switch]").tap();
 		await expect(sheet.locator(".share-plain [role=switch]")).toHaveAttribute(
 			"aria-checked",
@@ -140,7 +145,7 @@ test.describe("on a phone", () => {
 					canvas.getContext("2d")?.getImageData(4, 4, 1, 1).data[3],
 			);
 		expect(corner).toBe(0);
-		await expect(sheet.locator(".share-shiny")).toBeHidden();
+		await expect(sheet.locator(".share-shiny")).toBeVisible();
 		const sticker = page.waitForEvent("download");
 		await sheet.locator(".share-save").tap();
 		expect((await sticker).suggestedFilename()).toMatch(
@@ -663,6 +668,44 @@ async function openSparkling(page: Page) {
 
 const RENDERING = { timeout: 60_000 };
 
+/** The saved file's bytes. */
+async function bytesOf(download: Download) {
+	const stream = await download.createReadStream();
+	const chunks: Buffer[] = [];
+	for await (const chunk of stream) chunks.push(chunk as Buffer);
+	return Buffer.concat(chunks);
+}
+
+/** The preview GIF's alpha at x, y, as the browser decodes it. */
+const alphaAt = (sheet: Locator, x: number, y: number) =>
+	sheet.locator(".share-preview .share-gif").evaluate(
+		(img: { naturalWidth: number }, [px, py]: number[]) => {
+			interface Drawable {
+				width: number;
+				height: number;
+				getContext(kind: "2d"): {
+					drawImage(image: unknown, x: number, y: number): void;
+					getImageData(
+						x: number,
+						y: number,
+						w: number,
+						h: number,
+					): { data: ArrayLike<number> };
+				} | null;
+			}
+			const { document } = globalThis as unknown as {
+				document: { createElement(tag: "canvas"): Drawable };
+			};
+			const canvas = document.createElement("canvas");
+			canvas.width = img.naturalWidth;
+			canvas.height = img.naturalWidth;
+			const c = canvas.getContext("2d");
+			c?.drawImage(img, 0, 0);
+			return c?.getImageData(px ?? 0, py ?? 0, 1, 1).data[3];
+		},
+		[x, y],
+	);
+
 test.describe("sparkling", () => {
 	test.describe.configure({ timeout: 120_000 });
 	test("makes the sparkling story as an MP4 on the device, or isn't offered (US3)", async ({
@@ -675,6 +718,7 @@ test.describe("sparkling", () => {
 			return;
 		}
 		await expect(shiny).toBeVisible();
+		await page.emulateMedia({ reducedMotion: "reduce" });
 		await shiny.locator("[role=switch]").click();
 		await expect(shiny.locator("[role=switch]")).toHaveAttribute(
 			"aria-checked",
@@ -686,8 +730,19 @@ test.describe("sparkling", () => {
 		await expect(sheet.locator(".share-copy")).toBeHidden();
 		await expect(sheet.locator(".share-busy")).toBeHidden(RENDERING);
 		await ready(sheet);
-		await expect(sheet.locator(".share-preview video")).toBeVisible();
+		const video = sheet.locator(".share-preview video");
+		await expect(video).toBeVisible();
 		await expect(sheet.locator(".share-copy")).toBeHidden();
+		// Reduced motion, asked for before it was made: it doesn't play by
+		// itself (FR-026).
+		expect(
+			await video.evaluate(
+				(element: { paused: boolean; controls: boolean }) => [
+					element.paused,
+					element.controls,
+				],
+			),
+		).toEqual([true, true]);
 
 		const download = page.waitForEvent("download");
 		await sheet.locator(".share-save").click();
@@ -712,30 +767,51 @@ test.describe("sparkling", () => {
 			if (message.type() === "error") errors.push(message.text());
 		});
 		page.on("pageerror", (error) => errors.push(error.message));
-		const { sheet } = await openSparkling(page);
+		const { sheet, id } = await openSparkling(page);
 		test.skip(!(await canEncode(page)), "this browser can't encode H.264");
 
 		await sheet.locator(".share-shiny [role=switch]").click();
 		await expect(sheet.locator(".share-busy")).toBeVisible();
-		// Bild while the story is rendering: the square one is made instead.
+		// Bild while the story is rendering, then Ohne Hintergrund while
+		// that is: the sparkling sticker is made instead, as a GIF that keeps
+		// its transparency.
 		await sheet
 			.locator("label")
 			.filter({ hasText: /^Bild$/ })
 			.click();
 		await expect(sheet.locator(".share-busy")).toBeVisible();
+		await sheet.locator(".share-plain [role=switch]").click();
+		await expect(sheet.locator(".share-shiny")).toBeVisible();
+		await expect(sheet.locator(".share-busy")).toBeVisible();
 		await expect(sheet.locator(".share-busy")).toBeHidden(RENDERING);
 		await ready(sheet);
+		await expect(sheet.locator(".share-preview .share-gif")).toBeVisible();
+		await expect(sheet.locator(".share-copy")).toBeHidden();
 		const download = page.waitForEvent("download");
 		await sheet.locator(".share-save").click();
-		expect((await download).suggestedFilename()).toMatch(/-image\.mp4$/);
+		const saved = await download;
+		expect(saved.suggestedFilename()).toMatch(
+			new RegExp(`^[a-z0-9-]+-${id}-sticker\\.gif$`),
+		);
+		const gif = await bytesOf(saved);
+		expect(gif.subarray(0, 6).toString("latin1")).toBe("GIF89a");
+		expect([gif.readUInt16LE(6), gif.readUInt16LE(8)]).toEqual([720, 720]);
+		expect(gif.includes("NETSCAPE2.0")).toBe(true);
+		expect(await alphaAt(sheet, 4, 4)).toBe(0);
+		expect(await alphaAt(sheet, 360, 360)).toBe(255);
+		await sheet.locator(".share-plain [role=switch]").click();
 
-		// "Ohne Hintergrund" has no video, and the still picture comes back.
-		await sheet.locator(".share-plain [role=switch]").click();
-		await expect(sheet.locator(".share-shiny")).toBeHidden();
-		await ready(sheet);
-		await expect(sheet.locator(".share-preview canvas")).toBeVisible();
-		await expect(sheet.locator(".share-preview video")).toBeHidden();
-		await sheet.locator(".share-plain [role=switch]").click();
+		// Auf Foto has no picture yet, and nothing is made.
+		await sheet
+			.locator("label")
+			.filter({ hasText: /^Auf Foto$/ })
+			.click();
+		await expect(sheet.locator(".share-busy")).toBeHidden();
+		await expect(sheet.locator(".share-preview .share-gif")).toBeHidden();
+		await sheet
+			.locator("label")
+			.filter({ hasText: /^Story$/ })
+			.click();
 
 		// Closed while rendering: it stops, quietly.
 		await expect(sheet.locator(".share-busy")).toBeVisible();
@@ -744,28 +820,5 @@ test.describe("sparkling", () => {
 		await expect(sheet.locator(".share-busy")).toBeHidden();
 		await page.waitForTimeout(500);
 		expect(errors).toEqual([]);
-	});
-});
-
-test.describe("sparkling, with reduced motion", () => {
-	test.describe.configure({ timeout: 120_000 });
-	test.use({ reducedMotion: "reduce" });
-
-	test("doesn't play the video by itself (FR-026)", async ({ page }) => {
-		const { sheet } = await openSparkling(page);
-		test.skip(!(await canEncode(page)), "this browser can't encode H.264");
-		await sheet.locator(".share-shiny [role=switch]").click();
-		await expect(sheet.locator(".share-busy")).toBeHidden(RENDERING);
-		await ready(sheet);
-		const video = sheet.locator(".share-preview video");
-		await expect(video).toBeVisible();
-		expect(
-			await video.evaluate(
-				(element: { paused: boolean; controls: boolean }) => [
-					element.paused,
-					element.controls,
-				],
-			),
-		).toEqual([true, true]);
 	});
 });
