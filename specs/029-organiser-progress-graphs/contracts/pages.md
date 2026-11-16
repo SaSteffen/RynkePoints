@@ -11,14 +11,18 @@ spacing, the Progress section's card). This contract fixes order, states and wha
 | on | full | no | yes | yes | yes |
 | on | percent | no | no | no | no |
 | off | any | no | no | no | no |
-| any | any | yes | no | no | no |
+| on | full | yes | yes, the example's (feature 020 FR-013) | no | yes |
+| on | percent | yes | no | no | no |
+| off | any | yes | no | no | no |
 
 No listed riders: as today, no section.
 
 ## Query
 
 - `group`: as today.
-- `view=riders`: below 1100 px, opens the Riders view. Any other value is ignored.
+- `view=riders` or `view=graphs`: below 1100 px, opens that view (the organiser
+  tour's Fortschritt step asks for the graphs, feature 020 FR-012). Any other
+  value is ignored.
 
 ## Order from 1100 px
 
