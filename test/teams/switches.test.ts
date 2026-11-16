@@ -5,7 +5,7 @@ import { BADGES } from "../../src/badges/catalog";
 import { upsertBadgeRiseStatement } from "../../src/db/badges";
 import { escapeHtml } from "../../src/http/html";
 import { homeOf } from "../../src/http/redirect";
-import { hiddenSections } from "../../src/http/shell";
+import { tourSwitches } from "../../src/http/shell";
 import { tourSteps } from "../../src/http/tour";
 import { createI18n } from "../../src/i18n/i18n";
 import { type ActivityChange, evaluateChange } from "../../src/rynke/apply";
@@ -75,11 +75,7 @@ describe("BADGES", () => {
 		const page = await riderPage(off, ATHLETE_A, "/me/settings");
 		expect(page.html).not.toContain('href="/me/badges"');
 		expect((await riderPage(off, ATHLETE_A, "/me/badges")).status).toBe(404);
-		const steps = tourSteps(
-			"rider",
-			{ organiser: false },
-			hiddenSections(off.env),
-		);
+		const steps = tourSteps("rider", { organiser: false }, tourSwitches(off));
 		expect(steps.map((s) => s.path)).not.toContain("/me/badges");
 
 		const on = await riderPage(switched("BADGES", "on"), ATHLETE_A, "/me");

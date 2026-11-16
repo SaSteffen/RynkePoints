@@ -268,6 +268,8 @@ export const fi: Catalog = {
 	"tour.rider.intro": "Uusi täällä? Näytämme, missä kaikki on.",
 	"tour.rider.team":
 		"Tiimi: miten koko tiimillä menee ja missä olet rankingissa.",
+	"tour.rider.team.rides":
+		"Rankingin voi katsoa myös harjoitusten, kilometrien ja nousumetrien mukaan, kaudelta, kuukaudelta tai viikolta.",
 	"tour.rider.peloton":
 		"Peloton: kaikki tiimissä Harjoitus-Rynkejen mukaan ilman nimiä; sinun kolikkosi on merkitty. Mitä enemmän oikealla, sitä enemmän Rynkejä. Joka on reilusti muiden edellä, on karkumatkalla.",
 	"tour.rider.you": "Sinä: Rynkesi ja mitä vielä tarvitset päästäksesi mukaan.",
@@ -292,16 +294,22 @@ export const fi: Catalog = {
 		"Olet nyt järjestäjä: Orga-välilehti on uusi. Näytämme paikat.",
 	"tour.organiser.riders":
 		"Ajajat: kaikki tiimissä Harjoitus- ja Tiimi-Rynkeineen ja mitä heiltä puuttuu.",
+	"tour.organiser.riders.rides":
+		"Lisäksi kuinka monta heidän ajoistaan on laskettu tällä kaudella ja kuinka pitkä tyypillinen ajo on.",
 	"tour.organiser.example":
 		"Esimerkkitiimi: tältä Orga näyttää, kun kausi on käynnissä. Mitään ei voi klikata; näet oikean tiimin esittelyn jälkeen.",
 	"tour.organiser.groups":
 		"Ryhmät: ”Tarvitsee tsemppiä” on tahdista jäljessä, ”Raiteillaan” on suunnitelmassa, ”Harjoitustavoite saavutettu” on valmis. Napauta ruutua nähdäksesi vain sen ajajat. Ensin: kaikki, joilla on avoin ilmoitus.",
 	"tour.organiser.pace":
 		"Jokaisen palkin merkki on tasainen tahti määräaikaan. Sen vasemmalla puolella olevat tarvitsevat tsemppiä. Napauta nimeä avataksesi korjaukset: lisätyt tai vähennetyt Rynket perusteluineen.",
+	"tour.organiser.graphs":
+		"Edistyminen: kilometrit ja nousumetrit kauden ajalta, yksittäisille ajajille ja koko tiimille. Viiva on vain niillä, jotka ovat hyväksyneet päivälukujen näyttämisen. Puhelimessa vaihdat ylhäältä ajajien ja kaavioiden välillä.",
 	"tour.organiser.requests":
 		"Ilmoitukset: ajajat kertovat olleensa tiimitapahtumassa. ”Lisää” antaa heille tapahtuman Rynket, ✕ hylkää. Voit perua kumman tahansa hetken ajan.",
 	"tour.organiser.newEvent":
 		"Lisää tiimitapahtumia täällä: tyyppi, päivämäärä ja halutessasi nimi. Tiimiharjoitus antaa {teamTraining} Tiimi-Rynkeä, harjoitusviikonlopun päivä {weekendDay}, tekniikkaharjoitus {technique}.",
+	"tour.organiser.newEvent.tourDays":
+		"Myös Tour de Parisin päivät lisäät täällä. Ne eivät anna Rynkejä, mutta jokainen rastittamasi saa päivän merkin.",
 	"tour.organiser.upcoming":
 		"Tuleva tapahtuma: ajajat kertovat etukäteen, tulevatko he. Luku näyttää, moniko on sanonut kyllä.",
 	"tour.organiser.past":

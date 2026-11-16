@@ -256,6 +256,23 @@ export function organiserFigures(
 	throw new Error('ORGANISER_FIGURES must be "full" or "percent"');
 }
 
+/**
+ * Whether Orga › Rider shows each rider's rides: ride figures on, and amounts
+ * shown, as sessions by name need (feature 032 research R8).
+ */
+export function organiserRideFigures(
+	env: Pick<Settings, "ORGANISER_FIGURES" | "RIDE_FIGURES">,
+): boolean {
+	return organiserFigures(env) === "full" && rideFigures(env);
+}
+
+/** Whether Orga › Rider shows the progress graphs, which need amounts (029). */
+export function organiserGraphsShown(
+	env: Pick<Settings, "ORGANISER_FIGURES" | "ORGANISER_PROGRESS_GRAPH">,
+): boolean {
+	return organiserFigures(env) === "full" && organiserProgressGraph(env);
+}
+
 /** Who is responsible for the riders' data, one line each (a name at least). */
 export function privacyController(
 	env: Pick<Settings, "PRIVACY_CONTROLLER">,

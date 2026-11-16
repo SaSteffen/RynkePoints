@@ -270,6 +270,8 @@ export const is: Catalog = {
 	"tour.rider.intro": "Ný/r hér? Leyfðu okkur að sýna þér hvar allt er.",
 	"tour.rider.team":
 		"Lið: hvernig liðinu öllu gengur og hvar þú ert í röðuninni.",
+	"tour.rider.team.rides":
+		"Röðunin er líka til eftir æfingum, km og hækkun, fyrir tímabilið, mánuðinn eða vikuna.",
 	"tour.rider.peloton":
 		"Hópurinn: allir í liðinu eftir Æfinga-Rynke, án nafna; peningurinn þinn er merktur. Því lengra til hægri, því fleiri Rynke. Sá sem er vel á undan hinum er í breakaway.",
 	"tour.rider.you":
@@ -295,16 +297,22 @@ export const is: Catalog = {
 		"Þú ert nú skipuleggjandi: flipinn Orga er nýr. Leyfðu okkur að sýna þér.",
 	"tour.organiser.riders":
 		"Hjólreiðamenn: allir í liðinu með Æfinga- og Liðs-Rynke og hvað þá vantar.",
+	"tour.organiser.riders.rides":
+		"Auk þess hve margar ferðir þeirra hafa talið á tímabilinu og hve löng dæmigerð ferð er.",
 	"tour.organiser.example":
 		"Sýnilið: svona lítur Orga út þegar tímabilið er hafið. Ekkert hér er smellanlegt; þú sérð raunverulega liðið eftir kynninguna.",
 	"tour.organiser.groups":
 		"Hóparnir: „Þarf hvatningu“ er á eftir hraðanum, „Á réttri leið“ er á áætlun, „Æfingamarkmiði náð“ hefur allt. Ýttu á flís til að sjá aðeins hjólreiðamenn hennar. Fyrst: allir með opna tilkynningu.",
 	"tour.organiser.pace":
 		"Merkið á hverri stiku er jafn hraði fram að fresti. Hjólreiðamenn vinstra megin við það þurfa hvatningu. Ýttu á nafn til að opna leiðréttingar: Rynke bætt við eða dregin frá, með ástæðu.",
+	"tour.organiser.graphs":
+		"Framvinda: kílómetrar og hækkun yfir tímabilið, fyrir einstaka hjólreiðamenn og allt liðið. Aðeins þeir sem hafa samþykkt dagstölurnar fá línu. Í síma skiptir þú efst á milli hjólreiðamanna og grafa.",
 	"tour.organiser.requests":
 		"Tilkynningar: hjólreiðamenn segjast hafa mætt á liðsviðburð. „Bæta við“ gefur þeim Rynke viðburðarins, ✕ hafnar. Þú getur afturkallað hvort tveggja í stutta stund.",
 	"tour.organiser.newEvent":
 		"Bættu við liðsviðburðum hér: tegund, dagsetningu og nafni ef þú vilt. Liðsæfing gefur {teamTraining} Liðs-Rynke, dagur í æfingahelginni {weekendDay}, tækniæfing {technique}.",
+	"tour.organiser.newEvent.tourDays":
+		"Daga Tour de Paris skráir þú líka hér. Þeir gefa engin Rynke, en allir sem þú hakar við fá merki dagsins.",
 	"tour.organiser.upcoming":
 		"Væntanlegur viðburður: hjólreiðamenn segja fyrir fram hvort þeir mæta. Talan sýnir hve margir hafa sagt já.",
 	"tour.organiser.past":

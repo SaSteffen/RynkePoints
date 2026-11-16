@@ -1,4 +1,10 @@
-import { badges, berlinDate } from "../config";
+import {
+	badges,
+	berlinDate,
+	organiserGraphsShown,
+	organiserRideFigures,
+	rideFigures,
+} from "../config";
 import { currentVersion, hasAgreed } from "../consent";
 import type { Ctx } from "../ctx";
 import type { Consent } from "../db/consents";
@@ -34,7 +40,7 @@ import {
 import { renderAppPrompt } from "./pwa";
 import { redirect } from "./redirect";
 import { themeButton, themeMenu } from "./theme-menu";
-import { type TourHint, tourHint } from "./tour";
+import { type TourHint, type TourSwitches, tourHint } from "./tour";
 import { readViewer, riderConsentState } from "./viewer";
 
 // The signed-in area's sections (feature 011 data-model.md "Section",
@@ -112,6 +118,20 @@ export function hiddenSections(
 	env: Pick<Env, "BADGES">,
 ): ReadonlySet<SectionId> {
 	return new Set<SectionId>(badges(env) ? [] : ["badges"]);
+}
+
+/** The team's switches the tours follow (feature 020 FR-012, FR-016). */
+export function tourSwitches({
+	env,
+	team,
+}: Pick<Ctx, "env" | "team">): TourSwitches {
+	return {
+		hidden: hiddenSections(env),
+		rideRanking: rideFigures(env),
+		riderRides: organiserRideFigures(env),
+		graphs: organiserGraphsShown(env),
+		tourDays: badges(env) && team.eventKinds.includes("tour_de_paris"),
+	};
 }
 
 /** The signed-in rider who agreed to the current version, and that record. */
@@ -253,13 +273,12 @@ export async function shellPage(
 	// a hint to hold back. Before the section, which shows the example rider
 	// or team on the tour's steps that call for it (feature 020 FR-005,
 	// FR-013).
-	const hidden = hiddenSections(ctx.env);
 	let hint = tourHint(
 		i18n,
 		viewer.rider,
 		path,
 		new URL(request.url).searchParams,
-		{ rules: currentRules(ctx.team.rules), hidden },
+		{ rules: currentRules(ctx.team.rules), ...tourSwitches(ctx) },
 	);
 	if (hint && !(await hasBalance(ctx.env.DB, viewer.rider.athleteId))) {
 		hint = null;
@@ -300,7 +319,7 @@ export async function shellPage(
 				viewer.rider.administrator,
 				hint,
 				openRequests,
-				hidden,
+				hiddenSections(ctx.env),
 				look,
 			),
 		}),

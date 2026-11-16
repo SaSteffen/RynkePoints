@@ -1,4 +1,5 @@
 import type { ListedRiderRow } from "../db/organiser";
+import type { GraphRow } from "../db/organiser-graphs";
 import type { OpenRequestRow } from "../db/participation";
 import type { AttendedEvent, RideRow, RiderViewRead } from "../db/rider-view";
 import type { TeamRider } from "../db/team";
@@ -6,6 +7,7 @@ import type { TeamEventListRow } from "../db/team-events";
 import { evenPace } from "../rynke/pace";
 import { evaluateRides, type Ride } from "../rynke/rides";
 import type { CountingWindow, RynkeRules } from "../rynke/rules";
+import type { DayEntry, RideEntry, VirtualDayEntry } from "../rynke/summary";
 import { type Extras, extrasFromAttendance, tally } from "../rynke/tally";
 import {
 	evaluateAttendance,
@@ -356,6 +358,118 @@ export interface ExampleTeam {
 	intents: ReadonlyMap<number, number>;
 	/** The events the organiser attended. */
 	attended: ReadonlySet<number>;
+	/** Each rider's counting rides, as the Rider page reads them (feature 032). */
+	rides: ReadonlyMap<number, readonly RideEntry[]>;
+	/** Each rider's daily figures, as the progress graphs read them (feature 029). */
+	graphRows: GraphRow[];
+}
+
+/** The example riders' ride lengths in distance steps, in turn. */
+const RIDE_STEPS = [4, 7, 3, 5, 9, 4, 6] as const;
+const VIRTUAL_STEPS = [3, 4] as const;
+
+interface ExampleTeamRide {
+	date: string;
+	distanceM: number;
+	distanceRynke: number;
+	elevationDm: number;
+	virtual: boolean;
+}
+
+/**
+ * Rides in `pattern`'s lengths that add up to `steps` distance steps, each
+ * half a step longer than its full steps, so it earns exactly them.
+ */
+function ridesOf(
+	steps: number,
+	pattern: readonly number[],
+	virtual: boolean,
+	rules: RynkeRules,
+): Omit<ExampleTeamRide, "date" | "elevationDm">[] {
+	const rides: Omit<ExampleTeamRide, "date" | "elevationDm">[] = [];
+	for (let left = steps, i = 0; left > 0; i++) {
+		const length = Math.min(left, pattern[i % pattern.length] as number);
+		left -= length;
+		rides.push({
+			distanceM: Math.floor((length + 0.5) * rules.distanceStepKm * 1000),
+			distanceRynke: length * rules.distanceStepRynke,
+			virtual,
+		});
+	}
+	return rides;
+}
+
+/**
+ * A rider of the example team's counting rides (FR-013): the distance Rynke
+ * of its balance, `virtualRynke` of them on virtual rides, and its elevation,
+ * spread evenly from the season start to today.
+ */
+function teamRiderRides(
+	rider: ExampleTeamRider,
+	distanceRynke: number,
+	virtualRynke: number,
+	elevationDm: number,
+	rules: RynkeRules,
+	window: CountingWindow,
+	today: string,
+): ExampleTeamRide[] {
+	const virtualSteps = Math.floor(virtualRynke / rules.distanceStepRynke);
+	const steps = Math.floor(distanceRynke / rules.distanceStepRynke);
+	// Both kinds in turn, each spread over the rides as a whole.
+	const placed = (rides: ReturnType<typeof ridesOf>) =>
+		rides.map((ride, i) => ({ ride, at: (i + 0.5) / rides.length }));
+	const rides = [
+		...placed(ridesOf(steps - virtualSteps, RIDE_STEPS, false, rules)),
+		...placed(ridesOf(virtualSteps, VIRTUAL_STEPS, true, rules)),
+	]
+		.sort((a, b) => a.at - b.at)
+		.map(({ ride }) => ride);
+	const anchor = dateFor(0, today, window);
+	const span = Math.round(
+		(Date.parse(`${anchor}T00:00:00Z`) -
+			Date.parse(`${window.seasonStart}T00:00:00Z`)) /
+			DAY_MS,
+	);
+	let climbed = 0;
+	return rides.map((ride, i) => {
+		const share =
+			i === rides.length - 1
+				? elevationDm - climbed
+				: Math.floor((elevationDm * ride.distanceRynke) / distanceRynke);
+		climbed += share;
+		const daysAgo =
+			Math.round((span * (rides.length - 1 - i)) / rides.length) +
+			(rider.id % 3);
+		return {
+			...ride,
+			date: dateFor(daysAgo, today, window),
+			elevationDm: share,
+		};
+	});
+}
+
+/** The rides as the graphs read a rider's stored summary: summed per day. */
+function graphRowOf(athleteId: number, rides: ExampleTeamRide[]): GraphRow {
+	const days = new Map<string, DayEntry>();
+	const virtualDays = new Map<string, VirtualDayEntry>();
+	for (const ride of rides) {
+		const day = days.get(ride.date) ?? [ride.date, 0, 0, 0];
+		day[1] += ride.distanceM;
+		day[2] += ride.distanceRynke;
+		day[3] += ride.elevationDm;
+		days.set(ride.date, day);
+		if (!ride.virtual) continue;
+		const virtualDay = virtualDays.get(ride.date) ?? [ride.date, 0];
+		virtualDay[1] += ride.distanceM;
+		virtualDays.set(ride.date, virtualDay);
+	}
+	const byDate = (a: [string, ...unknown[]], b: [string, ...unknown[]]) =>
+		a[0].localeCompare(b[0]);
+	return {
+		athleteId,
+		days: [...days.values()].sort(byDate),
+		virtualDays: [...virtualDays.values()].sort(byDate),
+	};
 }
 
 /**
@@ -396,6 +510,7 @@ export function exampleTeam(
 ): ExampleTeam {
 	const pace = (amount: number) =>
 		evenPace(amount, window.seasonStart, window.deadline, today);
+	const rides = new Map<number, ExampleTeamRide[]>();
 	const riders = TEAM.map((rider): TeamRider => {
 		const target = rider.qualified
 			? { training: rules.trainingThreshold + 12, team: rules.teamThreshold }
@@ -432,6 +547,18 @@ export function exampleTeam(
 			},
 			extras,
 			rules,
+		);
+		rides.set(
+			rider.id,
+			teamRiderRides(
+				rider,
+				distanceRynke,
+				virtual,
+				elevationDm,
+				rules,
+				window,
+				today,
+			),
 		);
 		return {
 			athleteId: rider.id,
@@ -475,5 +602,12 @@ export function exampleTeam(
 		events,
 		intents: new Map(TEAM_EVENTS.map((e) => [e.id, e.intents])),
 		attended: new Set(TEAM_EVENTS.filter((e) => e.you).map((e) => e.id)),
+		rides: new Map(
+			[...rides].map(([id, own]) => [
+				id,
+				own.map((r): RideEntry => [r.date, r.distanceM, r.elevationDm]),
+			]),
+		),
+		graphRows: [...rides].map(([id, own]) => graphRowOf(id, own)),
 	};
 }

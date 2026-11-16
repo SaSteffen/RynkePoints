@@ -273,6 +273,8 @@ export const lt: Catalog = {
 	"tour.rider.intro": "Naujas čia? Parodysime, kur kas yra.",
 	"tour.rider.team":
 		"Komanda: kaip sekasi visai komandai ir kur tu esi reitinge.",
+	"tour.rider.team.rides":
+		"Reitingą galima matyti ir pagal treniruotes, km bei aukščio prieaugį, per sezoną, mėnesį ar savaitę.",
 	"tour.rider.peloton":
 		"Pelotonas: visi komandos nariai pagal Treniruočių Rynke, be vardų; tavo moneta pažymėta. Kuo toliau į dešinę, tuo daugiau Rynke. Kas gerokai lenkia kitus, yra breakaway.",
 	"tour.rider.you": "Tu: tavo Rynke ir ko tau dar trūksta kvalifikacijai.",
@@ -297,16 +299,22 @@ export const lt: Catalog = {
 		"Dabar esi organizatorius: atsirado skirtukas Orga. Parodysime, kas ten yra.",
 	"tour.organiser.riders":
 		"Dviratininkai: visi komandos nariai su savo Treniruočių ir Komandos Rynke ir tuo, ko jiems dar trūksta.",
+	"tour.organiser.riders.rides":
+		"Taip pat kiek jų važiavimų įskaityta šį sezoną ir koks ilgas tipiškas važiavimas.",
 	"tour.organiser.example":
 		"Pavyzdinė komanda: taip Orga atrodo, kai sezonas įsibėgėja. Čia nieko negalima spausti; po apžvalgos matysi tikrą komandą.",
 	"tour.organiser.groups":
 		"Grupės: „Reikia paspirties“ atsilieka nuo tempo, „Pagal planą“ laikosi plano, „Treniruočių tikslas pasiektas“ turi viską. Bakstelėk plytelę, kad matytum tik jos dviratininkus. Pirmiausia: visi su laukiančiu pranešimu.",
 	"tour.organiser.pace":
 		"Žymė ant kiekvienos juostos – tolygus tempas iki termino. Kairėje nuo jos esantiems reikia paspirties. Bakstelėk vardą, kad atvertum pataisymus: pridėti ar atimti Rynke su priežastimi.",
+	"tour.organiser.graphs":
+		"Pažanga: kilometrai ir aukščio prieaugis per sezoną, atskiriems dviratininkams ir visai komandai. Liniją turi tik tie, kurie sutiko rodyti dienos skaičius. Telefone viršuje perjungi tarp dviratininkų ir grafikų.",
 	"tour.organiser.requests":
 		"Pranešimai: dviratininkai praneša, kad buvo komandos renginyje. „Pridėti“ duoda jiems renginio Rynke, ✕ atmeta. Abu veiksmus trumpai galima atšaukti.",
 	"tour.organiser.newEvent":
 		"Čia pridėk komandos renginius: rūšį, datą ir, jei nori, pavadinimą. Komandos treniruotė duoda {teamTraining} Komandos Rynke, treniruočių savaitgalio diena {weekendDay}, technikos treniruotė {technique}.",
+	"tour.organiser.newEvent.tourDays":
+		"Tour de Paris dienas taip pat pridėk čia. Jos neduoda Rynke, bet kiekvienas tavo pažymėtas gauna dienos ženklelį.",
 	"tour.organiser.upcoming":
 		"Būsimas renginys: dviratininkai iš anksto praneša, ar ateis. Skaičius rodo, kiek atsakė „taip“.",
 	"tour.organiser.past":

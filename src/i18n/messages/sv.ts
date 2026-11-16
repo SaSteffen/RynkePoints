@@ -267,6 +267,8 @@ export const sv: Catalog = {
 	"tour.rider.intro": "Ny här? Vi visar dig var allt finns.",
 	"tour.rider.team":
 		"Lag: hur det går för hela laget och var du ligger i rankingen.",
+	"tour.rider.team.rides":
+		"Rankingen finns också efter pass, km och höjdmeter, för säsongen, månaden eller veckan.",
 	"tour.rider.peloton":
 		"Klungan: alla i laget efter deras Tränings-Rynke, utan namn; ditt mynt är markerat. Ju längre till höger, desto fler Rynke. Den som ligger en bra bit före resten är i utbrytningen.",
 	"tour.rider.you":
@@ -293,16 +295,22 @@ export const sv: Catalog = {
 		"Du är arrangör nu: fliken Orga är ny. Vi visar dig runt.",
 	"tour.organiser.riders":
 		"Cyklister: alla i laget med deras Tränings- och Team-Rynke och vad de har kvar.",
+	"tour.organiser.riders.rides":
+		"Dessutom hur många av deras turer som har räknats den här säsongen och hur lång en typisk tur är.",
 	"tour.organiser.example":
 		"Exempellag: så här ser Orga ut när säsongen är igång. Inget här går att klicka på; du ser det riktiga laget efter rundturen.",
 	"tour.organiser.groups":
 		"Grupperna: ”Behöver en knuff” ligger efter takten, ”På spåret” följer planen, ”Träningsmål nått” har allt. Tryck på en ruta för att bara se dess cyklister. Först: alla med en öppen anmälan.",
 	"tour.organiser.pace":
 		"Markeringen på varje stapel är jämn takt fram till sista dagen. Cyklister till vänster om den behöver en knuff. Tryck på ett namn för att öppna deras korrigeringar: Rynke tillagda eller avdragna, med en motivering.",
+	"tour.organiser.graphs":
+		"Framsteg: kilometer och höjdmeter över säsongen, för enskilda cyklister och hela laget. Bara cyklister som har godkänt dagssiffrorna har en linje. På mobilen växlar du högst upp mellan cyklister och diagram.",
 	"tour.organiser.requests":
 		"Anmälningar: cyklister säger att de var på en lagaktivitet. ”Lägg till” ger dem aktivitetens Rynke, ✕ avböjer. Du kan ångra båda en kort stund.",
 	"tour.organiser.newEvent":
 		"Lägg till lagaktiviteter här: typ, datum och ett namn om du vill. En lagträning ger {teamTraining} Team-Rynke, en dag på träningshelgen {weekendDay}, en teknikträning {technique}.",
+	"tour.organiser.newEvent.tourDays":
+		"Dagarna på Tour de Paris lägger du också in här. De ger inga Rynke, men alla du kryssar för får dagens märke.",
 	"tour.organiser.upcoming":
 		"En kommande aktivitet: cyklister säger i förväg om de kommer. Siffran visar hur många som har sagt ja.",
 	"tour.organiser.past":

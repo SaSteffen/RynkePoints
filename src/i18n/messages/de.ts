@@ -290,6 +290,8 @@ export const de = {
 	"tour.rider.intro": "Neu hier? Wir zeigen dir kurz, wo du was findest.",
 	"tour.rider.team":
 		"Team: wie das ganze Team dasteht und wo du in der Rangliste stehst.",
+	"tour.rider.team.rides":
+		"Die Rangliste gibt es auch nach Fahrten, Kilometern und Höhenmetern, für die Saison, den Monat oder die Woche.",
 	"tour.rider.peloton":
 		"Das Peloton: alle im Team nach ihren Trainingsrynke, ohne Namen; deine Münze ist markiert. Je weiter rechts, desto mehr Rynke. Wer mit Abstand vorn fährt, ist im Breakaway.",
 	"tour.rider.you": "Du: deine Rynke und was dir noch zur Qualifikation fehlt.",
@@ -315,16 +317,22 @@ export const de = {
 		"Du bist jetzt in der Orga: Der Orga-Tab ist neu. Wir zeigen dir, was drin ist.",
 	"tour.organiser.riders":
 		"Rider: alle im Team mit ihren Trainings- und Teamrynke und dem, was ihnen noch fehlt.",
+	"tour.organiser.riders.rides":
+		"Dazu, wie viele ihrer Fahrten in der Saison gezählt haben und wie lang eine typische ist.",
 	"tour.organiser.example":
 		"Beispielteam: So sieht Orga aus, wenn die Saison läuft. Anklicken lässt sich hier nichts; das echte Team siehst du nach dem Rundgang.",
 	"tour.organiser.groups":
 		"Die Gruppen: „Braucht Schwung“ liegt hinter dem Tempo, „Gut unterwegs“ im Plan, „Trainingsziel erreicht“ hat alles zusammen. Tippst du auf eine Kachel, siehst du nur ihre Rider. Ganz vorn: alle mit einer offenen Meldung.",
 	"tour.organiser.pace":
 		"Der Strich auf jedem Balken ist das gleichmäßige Tempo bis zum Stichtag. Wer links davon liegt, braucht Schwung. Ein Tipp auf einen Namen öffnet die Korrekturen: Rynke dazu oder weg, mit Grund.",
+	"tour.organiser.graphs":
+		"Fortschritt: Kilometer und Höhenmeter über die Saison, für einzelne Rider und fürs ganze Team. Eine Linie hat nur, wer den Tageswerten zugestimmt hat. Auf dem Handy schaltest du oben zwischen Ridern und Diagrammen um.",
 	"tour.organiser.requests":
 		"Meldungen: Rider sagen dir, dass sie bei einem Teamtermin waren. „Eintragen“ gibt ihnen die Rynke des Termins, ✕ lehnt ab. Beides kannst du kurz danach rückgängig machen.",
 	"tour.organiser.newEvent":
 		"Hier legst du Teamtermine an: Art, Datum und, wenn du willst, einen Namen. Ein Teamtraining bringt {teamTraining}\u00a0Teamrynke, ein Tag am Trainingswochenende {weekendDay}, ein Techniktraining {technique}.",
+	"tour.organiser.newEvent.tourDays":
+		"Die Tage der Tour de Paris trägst du auch hier ein. Sie bringen keine Rynke, aber allen, die du abhakst, das Abzeichen des Tages.",
 	"tour.organiser.upcoming":
 		"Ein kommender Termin: Rider sagen vorher, ob sie dabei sind. Die Zahl zeigt, wie viele zugesagt haben.",
 	"tour.organiser.past":
