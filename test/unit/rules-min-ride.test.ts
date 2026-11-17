@@ -43,3 +43,41 @@ describe("minRideKm", () => {
 		expect(rulesFingerprint(withMinimum(25))).toContain('"minRideKm":25');
 	});
 });
+
+// No Team Rynke is a rule value too (feature 039 research R2).
+describe("teamThreshold: null", () => {
+	const ZERO_TEAM = Object.fromEntries(
+		Object.entries(CURRENT_RULES.teamEvents).map(([kind, amounts]) => [
+			kind,
+			{ ...amounts, team: 0 },
+		]),
+	) as RynkeRules["teamEvents"];
+	const withoutTeam: RynkeRules = {
+		...CURRENT_RULES,
+		version: 99,
+		teamThreshold: null,
+		teamEvents: ZERO_TEAM,
+	};
+
+	it("is accepted with every team-event amount's team at 0", () => {
+		expect(() => assertValidRules(withoutTeam)).not.toThrow();
+	});
+
+	it("leaves 0 refused", () => {
+		expect(() =>
+			assertValidRules({ ...withoutTeam, teamThreshold: 0 }),
+		).toThrow(/teamThreshold/);
+	});
+
+	it.each(Object.keys(ZERO_TEAM))(
+		"is refused when %s still earns Team Rynke",
+		(kind) => {
+			expect(() =>
+				assertValidRules({
+					...withoutTeam,
+					teamEvents: { ...ZERO_TEAM, [kind]: { team: 1, training: 0 } },
+				}),
+			).toThrow(new RegExp(`teamEvents\\.${kind}\\.team`));
+		},
+	);
+});

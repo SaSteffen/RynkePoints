@@ -121,10 +121,10 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 			'"maxClimbMPerH":1500,"maxPausedShare":{"den":1,"num":1},"maxSpeedKmh":45,' +
 			'"maxVirtualShare":{"den":3,"num":1},"minRideKm":25,"minSpeedKmh":10,' +
 			'"teamEvents":{' +
-			'"team_training":{"team":1,"training":5},' +
-			'"technique_training":{"team":5,"training":5},' +
-			'"training_weekend_day":{"team":5,"training":10}},' +
-			'"teamThreshold":25,"trainingThreshold":250}';
+			'"team_training":{"team":0,"training":0},' +
+			'"technique_training":{"team":0,"training":0},' +
+			'"training_weekend_day":{"team":0,"training":0}},' +
+			'"teamThreshold":null,"trainingThreshold":250}';
 		expect(inEffect.version).toBe(4);
 		expect(
 			rulesFingerprint(inEffect),

@@ -4,7 +4,8 @@ import type { TeamData } from "./types";
 
 // Europe's own Rynke rules (feature 039, decided with Team Europe on
 // 2026-11-17): the founding team's version 3 values, written out, plus a
-// minimum ride length of 25 km. Raise `version` and set `effectiveDate` in the
+// minimum ride length of 25 km, and no Team Rynke: no threshold, and no team
+// event earns any (research R2). Raise `version` and set `effectiveDate` in the
 // same change as any change of a value or of rule logic, and keep the previous
 // object in `rules`: every stored result records its version, the daily cron
 // re-evaluates riders stored with another one, and the rider page explains a
@@ -23,12 +24,12 @@ const EUROPE_RULES_V4: RynkeRules = {
 	minRideKm: 25,
 	excludedSportTypes: ["EBikeRide", "EMountainBikeRide"],
 	trainingThreshold: 250,
-	teamThreshold: 25,
+	teamThreshold: null,
 	maxVirtualShare: { num: 1, den: 3 },
 	teamEvents: {
-		team_training: { team: 1, training: 5 },
-		training_weekend_day: { team: 5, training: 10 },
-		technique_training: { team: 5, training: 5 },
+		team_training: { team: 0, training: 0 },
+		training_weekend_day: { team: 0, training: 0 },
+		technique_training: { team: 0, training: 0 },
 	},
 };
 
@@ -46,9 +47,8 @@ export const europe: TeamData = {
 	// The founding team's versions 1–3, which Europe ran on since feature 026,
 	// then its own (feature 039 research R4).
 	rules: [...hamburg.rules.slice(0, 3), EUROPE_RULES_V4],
-	// The founding team's event kinds, decided (spec 026 clarification
-	// 2026-11-09).
-	eventKinds: hamburg.eventKinds,
+	// No team events and no Tour de Paris days (feature 039 research R3).
+	eventKinds: [],
 	colours: hamburg.colours,
 	art: {
 		// art/coin/europe/, copied by pnpm coin-art.

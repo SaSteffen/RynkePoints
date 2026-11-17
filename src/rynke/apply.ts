@@ -117,6 +117,7 @@ import type {
 	RunRecord,
 	SwimRecord,
 } from "../strava/activity";
+import { hasEvents, hasTeamRynke } from "../teams";
 import { sendAll } from "../work/messages";
 import { notifyRiders } from "../work/send-notification";
 import { teamBadgeNews } from "../work/team-badge-news";
@@ -720,6 +721,14 @@ export async function teamEventChange(
 	ctx: Ctx,
 	change: TeamEventChange,
 ): Promise<TeamEventResult> {
+	// A team without events records none, and a kind it doesn't have is
+	// refused (feature 039 research R6).
+	if (
+		!hasEvents(ctx.team) ||
+		("event" in change && !isTeamKind(ctx, change.event.kind))
+	) {
+		throw new TeamEventRefused("unknown_kind");
+	}
 	const result = await applyTeamEventChange(
 		ctx.env.DB,
 		change,
@@ -841,6 +850,14 @@ export async function correctionChange(
 	ctx: Ctx,
 	change: CorrectionChange,
 ): Promise<CorrectionResult> {
+	// Without Team Rynke a correction can't give any (feature 039 research R6).
+	if (
+		change.kind === "add-correction" &&
+		change.correction.team !== 0 &&
+		!hasTeamRynke(ctx.team)
+	) {
+		throw new CorrectionRefused("invalid_amount");
+	}
 	const result = await applyCorrectionChange(
 		ctx.env.DB,
 		change,
@@ -860,6 +877,10 @@ export async function correctionChange(
 		[...new Set([...own, ...team])].sort((a, b) => a - b),
 	);
 	return result;
+}
+
+function isTeamKind(ctx: Ctx, kind: string): boolean {
+	return (ctx.team.eventKinds as readonly string[]).includes(kind);
 }
 
 /** The bounds of the `corrections` table (data-model.md, R8). */

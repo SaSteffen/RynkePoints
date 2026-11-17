@@ -1,4 +1,6 @@
+import { eventsText } from "../i18n/events-text";
 import type { I18n } from "../i18n/i18n";
+import type { TeamData } from "../teams/types";
 import { html, type SafeHtml } from "./html";
 
 // The consent form with the Connect with Strava button, shared by the start
@@ -31,16 +33,21 @@ export function referenceNote(i18n: I18n, path: string): SafeHtml | null {
 
 /**
  * What the rider allows, in three sentences, with every field read and who
- * sees what one tap away (constitution Principle I names them all).
+ * sees what one tap away (constitution Principle I names them all). A team
+ * without events gets the texts that leave them out (feature 039 R7).
  */
-export function consentSummary(i18n: I18n, path: string): SafeHtml {
+export function consentSummary(
+	i18n: I18n,
+	path: string,
+	team: Pick<TeamData, "eventKinds">,
+): SafeHtml {
 	return html`<p>${i18n.t("consent.short.notRead")}<br>${i18n.t("consent.short.read")}</p>
 <p>${i18n.t("consent.short.shown")}</p>
 ${referenceNote(i18n, path)}<details class="more"><summary class="tap">${i18n.t("consent.details")}</summary>
 <p>${i18n.t("landing.dataRead")}</p>
 <p>${i18n.t("landing.private")}</p>
-<p>${i18n.t("landing.purpose")}</p>
-<p>${i18n.t("consent.organisers")}</p>
+<p>${i18n.t(eventsText(team, "landing.purpose"))}</p>
+<p>${i18n.t(eventsText(team, "consent.organisers"))}</p>
 <p>${i18n.t("consent.dailyFigures")}</p>
 <p>${i18n.t("consent.rideFigures")}</p>
 <p>${i18n.t("consent.admins")}</p>

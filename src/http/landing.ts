@@ -46,7 +46,7 @@ ${step(1, html`<h2>${i18n.t("landing.club.heading")}</h2>`, i18n.t("landing.club
 </section>
 <section class="card">
 <h2>${i18n.t("consent.heading")}</h2>
-${consentSummary(i18n, "/")}${consentSteps(i18n, currentVersion(ctx.consentVersions).version)}
+${consentSummary(i18n, "/", ctx.team)}${consentSteps(i18n, currentVersion(ctx.consentVersions).version)}
 </section>`,
 		}),
 	);

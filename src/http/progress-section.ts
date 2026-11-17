@@ -1,5 +1,7 @@
 import type { MessageId } from "../i18n/catalogs";
+import { eventsText } from "../i18n/events-text";
 import type { I18n } from "../i18n/i18n";
+import type { TeamData } from "../teams/types";
 import { miniCoin } from "./coin";
 import { html, SafeHtml } from "./html";
 import type {
@@ -42,8 +44,9 @@ function renderChart(
 	i18n: I18n,
 	view: Ready,
 	kind: "training" | "team",
-): SafeHtml {
-	const series: ChartSeries = view[kind];
+): SafeHtml | null {
+	const series = view[kind];
+	if (!series) return null;
 	const label: MessageId =
 		kind === "training" ? "progress.chart.training" : "progress.chart.team";
 	const outside = kind === "training" ? view.outside : null;
@@ -117,7 +120,7 @@ function renderTable(i18n: I18n, view: Ready): SafeHtml {
 	return html`<details class="progress-table">
 <summary>${i18n.t("progress.table.summary")}</summary>
 <div class="progress-table-scroll"><table>
-<thead><tr><th scope="col">${i18n.t("progress.table.week")}</th>${head("rynke.training")}${head("rynke.team")}${view.outside ? head("rynke.withoutVirtual") : null}</tr></thead>
+<thead><tr><th scope="col">${i18n.t("progress.table.week")}</th>${head("rynke.training")}${view.team ? head("rynke.team") : null}${view.outside ? head("rynke.withoutVirtual") : null}</tr></thead>
 <tbody>
 ${rows}</tbody>
 </table></div>
@@ -141,7 +144,7 @@ function chartData(view: Ready): SafeHtml {
 		lastIndex: view.lastIndex,
 		seasonStart: view.seasonStart,
 		training: line(view.training),
-		team: line(view.team),
+		team: view.team ? line(view.team) : null,
 		outside: view.outside
 			? { ...line(view.outside), needed: view.outside.needed }
 			: null,
@@ -149,10 +152,15 @@ function chartData(view: Ready): SafeHtml {
 	return new SafeHtml(json.replaceAll("<", "\\u003c"));
 }
 
-/** The section, or nothing when the view has none (FR-016, FR-040). */
+/**
+ * The section, or nothing when the view has none (FR-016, FR-040). Without
+ * Team Rynke no Team chart, line or column; `team` picks the day label
+ * (feature 039), the founding team's without it.
+ */
 export function renderProgress(
 	i18n: I18n,
 	view: ProgressView,
+	team?: Pick<TeamData, "eventKinds">,
 ): SafeHtml | null {
 	if (view.state !== "ready") return null;
 	const shown = view.presets.map(
@@ -167,12 +175,15 @@ ${view.nothingYet ? html`<p class="progress-nothing">${i18n.t("progress.nothingY
 ${shown}</div>
 ${renderChart(i18n, view, "training")}${renderChart(i18n, view, "team")}<p class="progress-readout" aria-live="polite"></p>
 <p id="progress-help" class="progress-help">${i18n.t("progress.help")}</p>
-<template data-readout="day">${i18n.tHtml("progress.day", {
-		date: slot("date"),
-		training: slot("training"),
-		team: slot("team"),
-	})}</template>
-${view.training.pace ? paceTemplates(i18n, "training") : null}${view.team.pace ? paceTemplates(i18n, "team") : null}${
+<template data-readout="day">${i18n.tHtml(
+		team ? eventsText(team, "progress.day") : "progress.day",
+		{
+			date: slot("date"),
+			training: slot("training"),
+			team: slot("team"),
+		},
+	)}</template>
+${view.training.pace ? paceTemplates(i18n, "training") : null}${view.team?.pace ? paceTemplates(i18n, "team") : null}${
 	view.outside
 		? html`${paceTemplates(i18n, "outside")}<template data-readout="outside"> · ${i18n.tHtml(
 				"progress.day.outside",

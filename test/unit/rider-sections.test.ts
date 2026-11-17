@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import {
+	renderBreakdown,
 	renderGauges,
 	renderNotice,
 	renderRideBatch,
@@ -11,6 +12,7 @@ import {
 	renderWaiting,
 } from "../../src/http/rider-sections";
 import type {
+	Breakdown,
 	ReasonLine,
 	RideLine,
 	RiderView,
@@ -562,5 +564,73 @@ describe("renderRideBatch (018 contracts/http-routes.md)", () => {
 		expect(renderRideBatch(de, [], null).toString()).toBe(
 			'<ol class="ride-list">\n</ol>',
 		);
+	});
+});
+
+describe("renderBreakdown without Team Rynke and events (feature 039)", () => {
+	const breakdown = (teamTotal: number | null): Breakdown => ({
+		distanceRynke: 80,
+		elevationM: 1200,
+		elevationRynke: 40,
+		elevationStepM: 300,
+		elevationStepRynke: 10,
+		toNextStepM: 100,
+		trainingTotal: 120,
+		teamTotal,
+		kinds: [],
+		events: [],
+	});
+
+	it("has no Team column and no events part", () => {
+		const html = renderBreakdown(en, breakdown(null), false).toString();
+		expect(html).not.toContain(en.t("rynke.team"));
+		expect(html).not.toContain(en.t("rynke.events.heading"));
+		expect(html).not.toContain(en.t("rynke.events.none"));
+		// One Training cell per row, no empty Team cell.
+		expect(html).toContain("<td>80</td></tr>");
+		expect(html).toContain(en.t("rynke.training"));
+	});
+
+	it("keeps both with Team Rynke and events", () => {
+		const html = renderBreakdown(en, breakdown(0)).toString();
+		expect(html).toContain(en.t("rynke.team"));
+		expect(html).toContain(en.t("rynke.events.heading"));
+		expect(html).toContain("<td>80</td><td></td></tr>");
+	});
+});
+
+describe("renderGauges and renderSummary without Team Rynke (feature 039)", () => {
+	const gauge = {
+		value: 120,
+		target: 250,
+		percent: 48,
+		reached: false,
+		parts: [],
+	};
+
+	it("shows no Team gauge", () => {
+		const html = renderGauges(en, {
+			training: gauge,
+			team: null,
+			withoutVirtual: null,
+			elevation: { ...gauge, stepRynke: 10 },
+		}).toString();
+		expect(html).not.toContain('id="tour-team"');
+		expect(html).not.toContain(en.t("rynke.team"));
+	});
+
+	it("misses no Team Rynke", () => {
+		const html = renderSummary(
+			en,
+			{
+				training: { value: 120, target: 250, missing: 130, reached: false },
+				team: null,
+				withoutVirtual: null,
+				qualified: false,
+			},
+			"push",
+		).toString();
+		expect(html).toContain("rynke-missing");
+		expect(html).not.toContain(en.t("rynke.team"));
 	});
 });

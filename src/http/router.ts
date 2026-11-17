@@ -2,6 +2,7 @@ import { badges } from "../config";
 import type { Ctx } from "../ctx";
 import { createI18n, type I18n } from "../i18n/i18n";
 import { resolveLocale } from "../i18n/resolve";
+import { hasEvents } from "../teams";
 import { handleRemoveConfirm, handleRemoveRider } from "./admin/remove";
 import { handleAdminRiders } from "./admin/riders";
 import {
@@ -89,6 +90,18 @@ const ORGANISER_CORRECTION = /^\/organiser\/corrections\/(\d{1,15})\/delete$/;
 /** `/admin/riders/{athleteId}/remove` (feature 025). */
 const ADMIN_REMOVE = /^\/admin\/riders\/(\d{1,15})\/remove$/;
 
+/**
+ * What belongs to events: the riders' Events page and reports, the organisers'
+ * events and requests. A team without events has none of them (feature 039).
+ */
+const EVENT_PATHS = ["/events", "/organiser/events", "/organiser/requests"];
+
+function isEventPath(path: string): boolean {
+	return EVENT_PATHS.some(
+		(prefix) => path === prefix || path.startsWith(`${prefix}/`),
+	);
+}
+
 export async function route(request: Request, ctx: Ctx): Promise<Response> {
 	const url = new URL(request.url);
 	const path = url.pathname;
@@ -115,6 +128,15 @@ export async function route(request: Request, ctx: Ctx): Promise<Response> {
 			: resolveLocale(request, ctx.catalogs, ctx.team),
 		ctx.catalogs,
 	);
+
+	// A team without events has no events pages, and Orga opens on the riders
+	// (feature 039 contracts/team-surfaces.md).
+	if (!hasEvents(ctx.team)) {
+		if (isEventPath(path)) return notFound(i18n, path);
+		if (path === "/organiser" && (method === "GET" || method === "HEAD")) {
+			return redirect("/organiser/riders", 302);
+		}
+	}
 
 	if (path === "/admin/run-daily") {
 		return handleRunDaily(request, ctx, i18n, path);

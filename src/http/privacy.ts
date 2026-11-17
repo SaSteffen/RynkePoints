@@ -6,6 +6,7 @@ import {
 } from "../config";
 import type { Ctx } from "../ctx";
 import type { MessageId } from "../i18n/catalogs";
+import { eventsText, type NoEventsId } from "../i18n/events-text";
 import type { I18n } from "../i18n/i18n";
 import { referenceNote } from "./consent-form";
 import { html, htmlResponse, layout, pageLook, type SafeHtml } from "./html";
@@ -81,13 +82,23 @@ const SECTIONS: [MessageId, MessageId[]][] = [
 	["privacy.changes.heading", ["privacy.changes.body"]],
 ];
 
+/** The paragraphs with a variant for a team without events. */
+const NO_EVENTS = new Set<MessageId>([
+	"privacy.team.body",
+	"privacy.visibility.organisers",
+	"privacy.legal.body",
+] satisfies NoEventsId[]);
+const hasVariant = (id: MessageId): id is NoEventsId => NO_EVENTS.has(id);
+
 export function handlePrivacy(ctx: Ctx, i18n: I18n): Response {
 	const email = contactEmail(ctx.env);
 	const emailLink = html`<a href="mailto:${email}">${email}</a>`;
 	const stravaPrivacy = html`<a href="${STRAVA_PRIVACY_URL}">${i18n.t("privacy.recipients.stravaPrivacy")}</a>`;
 	const params = { email: emailLink, stravaPrivacy, team: ctx.team.name };
+	// A team without events gets the paragraphs that leave them out (feature
+	// 039 R7).
 	const paragraph = (id: MessageId): SafeHtml =>
-		html`<p>${i18n.tHtml(id, params)}</p>`;
+		html`<p>${i18n.tHtml(hasVariant(id) ? eventsText(ctx.team, id) : id, params)}</p>`;
 	const controller = privacyController(ctx.env).map(
 		(line, i) => html`${i > 0 ? html`<br>` : ""}${line}`,
 	);

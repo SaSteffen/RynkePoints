@@ -37,6 +37,8 @@ export const lt: Catalog = {
 		"Privatūs („Tik tu“) važiavimai skaičiuojami tik tada, jei Strava leidi matyti savo privačias veiklas.",
 	"landing.purpose":
 		"Duomenis naudojame tik Rynke ir komandos renginiams. Savo atskirus važiavimus ir jų pavadinimus matai tik tu.",
+	"landing.purpose.noEvents":
+		"Duomenis naudojame tik Rynke ir ženkleliams. Savo atskirus važiavimus ir jų pavadinimus matai tik tu.",
 	"landing.leave":
 		"Gali išeiti bet kada: nustatymuose arba pašalinęs RynkePoints Strava. Tada ištriname visus duomenis apie tave, taip pat tavo Rynke. Jei išeini iš klubo, juos ištriname per 24 valandas. Tik jei tave pašalina administratorius, pasiliekame tavo Strava ID, kad negalėtum vėl prisijungti.",
 	"landing.backups":
@@ -56,6 +58,8 @@ export const lt: Catalog = {
 	"consent.details": "Visos smulkmenos",
 	"consent.organisers":
 		"Organizatoriai mato tavo vardą iš Strava, tavo Rynke ir iš kur jie gauti, ko tau dar trūksta, ar pasiekei treniruočių tikslą, tavo komandos renginius ir pataisymus, ir į kuriuos komandos renginius pranešei ateisiąs ar juose buvęs.",
+	"consent.organisers.noEvents":
+		"Organizatoriai mato tavo vardą iš Strava, tavo Rynke ir iš kur jie gauti, ko tau dar trūksta, ar pasiekei treniruočių tikslą, ir savo pataisymus.",
 	"consent.dailyFigures":
 		"Organizatoriai su tavo vardu taip pat mato, kiek kilometrų nuvažiavai lauke ir virtualiai ir kiek metrų įkopei – kaip sumą per dieną, per visą sezoną. Tai apima ir skaičiuojamus privačius važiavimus. Jie nemato tavo atskirų važiavimų, jų pavadinimų, laikų ar maršrutų.",
 	"consent.rideFigures":
@@ -287,6 +291,8 @@ export const lt: Catalog = {
 		"Komandos Rynke gaunami tik iš komandos renginių, į kuriuos tave įtraukė organizatoriai: {teamTraining} už komandos treniruotę, {weekendDay} už treniruočių savaitgalio dieną, {technique} už technikos treniruotę. Paryžiui reikia {teamThreshold}.",
 	"tour.rider.outdoor":
 		"Ne daugiau kaip {virtualShare} tavo Treniruočių Rynke gali būti iš virtualių važiavimų. Ši juosta skaičiuoja visa kita: bent {outside} iš {trainingThreshold} Treniruočių Rynke turi būti iš važiavimų lauke, įskaitant komandos renginius.",
+	"tour.rider.outdoor.noEvents":
+		"Ne daugiau kaip {virtualShare} tavo Treniruočių Rynke gali būti iš virtualių važiavimų. Ši juosta skaičiuoja visa kita: bent {outside} iš {trainingThreshold} Treniruočių Rynke turi būti iš važiavimų lauke.",
 	"tour.rider.rides":
 		"Važiavimai: kiekvienas važiavimas ir ką jis davė. Šis neskaičiuojamas. „Kodėl?“ paaiškina, kas negerai ir ką gali padaryti.",
 	"tour.rider.shortRide":
@@ -302,12 +308,16 @@ export const lt: Catalog = {
 		"Dabar esi organizatorius: atsirado skirtukas Orga. Parodysime, kas ten yra.",
 	"tour.organiser.riders":
 		"Dviratininkai: visi komandos nariai su savo Treniruočių ir Komandos Rynke ir tuo, ko jiems dar trūksta.",
+	"tour.organiser.riders.noEvents":
+		"Dviratininkai: visi komandos nariai su savo Treniruočių Rynke ir tuo, ko jiems dar trūksta.",
 	"tour.organiser.riders.rides":
 		"Taip pat kiek jų važiavimų įskaityta šį sezoną ir koks ilgas tipiškas važiavimas.",
 	"tour.organiser.example":
 		"Pavyzdinė komanda: taip Orga atrodo, kai sezonas įsibėgėja. Čia nieko negalima spausti; po apžvalgos matysi tikrą komandą.",
 	"tour.organiser.groups":
 		"Grupės: „Reikia paspirties“ atsilieka nuo tempo, „Pagal planą“ laikosi plano, „Treniruočių tikslas pasiektas“ turi viską. Bakstelėk plytelę, kad matytum tik jos dviratininkus. Pirmiausia: visi su laukiančiu pranešimu.",
+	"tour.organiser.groups.noEvents":
+		"Grupės: „Reikia paspirties“ atsilieka nuo tempo, „Pagal planą“ laikosi plano, „Treniruočių tikslas pasiektas“ turi viską. Bakstelėk plytelę, kad matytum tik jos dviratininkus.",
 	"tour.organiser.pace":
 		"Žymė ant kiekvienos juostos – tolygus tempas iki termino. Kairėje nuo jos esantiems reikia paspirties. Bakstelėk vardą, kad atvertum pataisymus: pridėti ar atimti Rynke su priežastimi.",
 	"tour.organiser.graphs":
@@ -571,8 +581,12 @@ export const lt: Catalog = {
 	"organiser.overview.showing": "Rodoma: {group}",
 	"organiser.overview.hint":
 		"Žymė ant kiekvienos juostos rodo tolygų tempą iki termino: šiandien {training} Treniruočių ir {team} Komandos.",
+	"organiser.overview.hint.noEvents":
+		"Žymė ant kiekvienos juostos rodo tolygų tempą iki termino: šiandien {training} Treniruočių.",
 	"organiser.overview.hint.percent":
 		"Žymė ant kiekvienos juostos rodo tolygų tempą iki termino: šiandien {training} Treniruočių ir {team} Komandos.",
+	"organiser.overview.hint.percent.noEvents":
+		"Žymė ant kiekvienos juostos rodo tolygų tempą iki termino: šiandien {training} Treniruočių.",
 	"organiser.overview.training.percent": "Treniruočių {n}",
 	"organiser.overview.team.percent": "Komandos {n}",
 	"organiser.overview.behind.training": "Treniruočių atsilieka nuo tempo",
@@ -593,11 +607,16 @@ export const lt: Catalog = {
 		"{kind}: {attended}× → {training} Treniruočių, {team} Komandos",
 	"organiser.overview.corrections":
 		"Pataisymai: {training} Treniruočių, {team} Komandos",
+	"organiser.overview.corrections.noEvents":
+		"Pataisymai: {training} Treniruočių",
 	"organiser.overview.virtual": "Virtualūs važiavimai: {n} % Treniruočių",
 	"organiser.overview.amounts": "{training} Treniruočių, {team} Komandos",
+	"organiser.overview.amounts.noEvents": "{training} Treniruočių",
 	"organiser.overview.percent": "{n}%",
 	"organiser.overview.qualifiedList": "Treniruočių tikslas pasiektas 🎯",
 	"organiser.overview.qualifiedHint": "Abi ribos ir dalis lauke pasiektos.",
+	"organiser.overview.qualifiedHint.noEvents":
+		"Treniruočių riba ir dalis lauke pasiektos.",
 	"organiser.overview.nobodyYet": "Treniruočių tikslo dar niekas nepasiekė.",
 	"organiser.overview.none":
 		"Dar nė vienas dviratininkas nesidalija savo Rynke.",
@@ -811,6 +830,8 @@ export const lt: Catalog = {
 	"badges.surprise.sunday-outing": "Sekmadienio išvyka",
 	"badges.surprise.sunday-outing.for":
 		"Bent dešimt iš komandos lauke sekmadienį be komandos renginio.",
+	"badges.surprise.sunday-outing.for.noEvents":
+		"Bent dešimt iš komandos lauke tą patį sekmadienį.",
 	"badges.surprise.festive-500": "Festive 500",
 	"badges.surprise.festive-500.for":
 		"Nuo Kūčių iki Naujųjų metų išvakarių nuvažiuota 500 kilometrų.",
@@ -873,6 +894,8 @@ export const lt: Catalog = {
 	"privacy.team.heading": "Duomenys iš komandos ir kas iš jų apskaičiuojama",
 	"privacy.team.body":
 		"Organizatoriai pažymi, kuriuose komandos renginiuose dalyvavai, ir gali pataisyti tavo Rynke, nurodydami priežastį ir datą. Pats gali pranešti, į kuriuos komandos renginius ateisi ar kuriuose buvai; organizatoriai tai mato ir nusprendžia, ar tai pažymėti. Saugoma ir tai, kas ką ir kada pakeitė.",
+	"privacy.team.body.noEvents":
+		"Organizatoriai gali pataisyti tavo Rynke, nurodydami priežastį ir datą. Saugoma ir tai, kas ką ir kada pakeitė.",
 	"privacy.team.derived":
 		"Iš viso to RynkePoints apskaičiuoja tavo Rynke, tavo ženklelius ir kurie važiavimai skaičiuojami, ir kodėl.",
 	"privacy.team.rideFigures":
@@ -891,11 +914,15 @@ export const lt: Catalog = {
 		"Visi kiti komandos nariai mato tavo Rynke – iš viso ir per savaitę, be tavo vardo. Tavo kilometrai ir aukščio prieaugis, taip pat kuriomis dienomis ir kurią valandą esi aktyvus, įskaičiuojami į komandos sumas ir komandos ženklelius, be tavo vardo.",
 	"privacy.visibility.organisers":
 		"Organizatoriai mato tavo vardą, tavo Rynke ir iš kur jie gauti, ko tau dar trūksta, ar pasiekei treniruočių tikslą, tavo komandos renginius ir pataisymus, į kuriuos komandos renginius pranešei ateisiąs ar juose buvęs, ir tavo kilometrus lauke ir virtualiai bei aukščio prieaugį kaip dienos sumas, bet ne atskiras veiklas.",
+	"privacy.visibility.organisers.noEvents":
+		"Organizatoriai mato tavo vardą, tavo Rynke ir iš kur jie gauti, ko tau dar trūksta, ar pasiekei treniruočių tikslą, savo pataisymus, ir tavo kilometrus lauke ir virtualiai bei aukščio prieaugį kaip dienos sumas, bet ne atskiras veiklas.",
 	"privacy.visibility.public":
 		"Niekas iš to nėra vieša: kiekvienam puslapiui su šiais duomenimis reikia prisijungti per Strava.",
 	"privacy.legal.heading": "Teisinis pagrindas",
 	"privacy.legal.body":
 		"Tavo Strava duomenų skaitymas ir dalijimasis tavo Rynke, kaip aprašyta, grindžiami tavo sutikimu, duotu prieš prisijungiant (BDAR\u00a06 straipsnio 1 dalies a punktas). Komandos renginiai, pataisymai, būtini slapukai ir žurnalai grindžiami teisėtu interesu organizuoti komandos treniruotes ir saugiai valdyti programėlę (BDAR\u00a06 straipsnio 1 dalies f punktas; slapukams – TDDDG\u00a025 straipsnio 2 dalis).",
+	"privacy.legal.body.noEvents":
+		"Tavo Strava duomenų skaitymas ir dalijimasis tavo Rynke, kaip aprašyta, grindžiami tavo sutikimu, duotu prieš prisijungiant (BDAR\u00a06 straipsnio 1 dalies a punktas). Pataisymai, būtini slapukai ir žurnalai grindžiami teisėtu interesu organizuoti komandos treniruotes ir saugiai valdyti programėlę (BDAR\u00a06 straipsnio 1 dalies f punktas; slapukams – TDDDG\u00a025 straipsnio 2 dalis).",
 	"privacy.retention.heading": "Kiek laiko saugomi duomenys",
 	"privacy.retention.body":
 		"Tavo duomenys saugomi, kol esi prisijungęs, ir seka Strava: jei ištrini veiklą Strava arba padarai ją privačią nesuteikęs tam leidimo, ji čia dingsta vos Strava apie tai praneša, paprastai per kelias minutes. Veiklos iki sezono pradžios ištrinamos.",
@@ -1021,6 +1048,7 @@ export const lt: Catalog = {
 		"Rodyklių klavišais pasirinksi dieną, + ir − keičia mastelį, Page Up/Down perstumia, 0 rodo visą sezoną.",
 	"progress.day":
 		"{date} · {training} Treniruočių Rynke · {team} Komandos Rynke",
+	"progress.day.noEvents": "{date} · {training} Treniruočių Rynke",
 	"progress.table.summary": "Skaičiai lentelėje",
 	"progress.table.week": "Savaitė nuo",
 	"progress.table.total": "Iš viso",

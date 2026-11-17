@@ -5,10 +5,12 @@ import { BADGES } from "../../src/badges/catalog";
 import { upsertBadgeRiseStatement } from "../../src/db/badges";
 import { escapeHtml } from "../../src/http/html";
 import { homeOf } from "../../src/http/redirect";
-import { tourSwitches } from "../../src/http/shell";
+import { hiddenSections, tourSwitches } from "../../src/http/shell";
 import { tourSteps } from "../../src/http/tour";
 import { createI18n } from "../../src/i18n/i18n";
 import { type ActivityChange, evaluateChange } from "../../src/rynke/apply";
+import { europe } from "../../src/teams/europe";
+import { hamburg } from "../../src/teams/hamburg";
 import { teamBadgeNews } from "../../src/work/team-badge-news";
 import { makeCtx, resetDb, seedRider, type TestCtx } from "../support/ctx";
 import { ATHLETE_A, NOW } from "../support/fixtures";
@@ -181,5 +183,74 @@ describe("FUN_THEMES", () => {
 		for (const id of ["confetti", "disco"]) {
 			expect(on.html).toContain(`value="${id}"`);
 		}
+	});
+});
+
+// Team Rynke and events per team (feature 039 US4, contracts/team-surfaces.md):
+// the menu and the tours follow what the team has, side by side for the two
+// teams.
+describe("Team Rynke and events", () => {
+	const OFF = { teamRynke: false, events: false };
+
+	it("hides the Events section for a team without events, nothing else", () => {
+		expect([...hiddenSections(env, hamburg)]).toEqual([]);
+		expect([...hiddenSections(env, europe)]).toEqual(["events"]);
+		const withoutBadges = { ...env, BADGES: "off" } as const;
+		expect([...hiddenSections(withoutBadges, hamburg)]).toEqual(["badges"]);
+		expect([...hiddenSections(withoutBadges, europe)].sort()).toEqual([
+			"badges",
+			"events",
+		]);
+	});
+
+	it("follows the team's predicates in the tour switches", () => {
+		const founding = tourSwitches({ env, team: hamburg });
+		expect(founding.teamRynke).toBe(true);
+		expect(founding.events).toBe(true);
+		expect(founding.hidden).toEqual(hiddenSections(env, hamburg));
+		const other = tourSwitches({ env, team: europe });
+		expect(other).toMatchObject(OFF);
+		expect(other.hidden).toEqual(hiddenSections(env, europe));
+	});
+
+	it("has the Team Rynke and events steps for Hamburg, not for Europe", () => {
+		const rider = (team: typeof hamburg) =>
+			tourSteps("rider", { organiser: false }, tourSwitches({ env, team })).map(
+				(s) => s.text,
+			);
+		const organiser = (team: typeof hamburg) =>
+			tourSteps(
+				"organiser",
+				{ organiser: true },
+				tourSwitches({ env, team }),
+			).map((s) => s.text);
+
+		expect(rider(hamburg)).toContain("tour.rider.teamRynke");
+		expect(rider(hamburg)).toContain("tour.rider.events");
+		expect(rider(europe)).not.toContain("tour.rider.teamRynke");
+		expect(rider(europe)).not.toContain("tour.rider.events");
+		// What Europe still has stays, in the same order.
+		expect(rider(europe)).toEqual(
+			rider(hamburg).filter(
+				(text) =>
+					text !== "tour.rider.teamRynke" && text !== "tour.rider.events",
+			),
+		);
+
+		for (const text of [
+			"tour.organiser.requests",
+			"tour.organiser.newEvent",
+			"tour.organiser.upcoming",
+			"tour.organiser.past",
+		] as const) {
+			expect(organiser(hamburg)).toContain(text);
+			expect(organiser(europe)).not.toContain(text);
+		}
+		expect(organiser(europe)).toEqual([
+			"tour.organiser.riders",
+			"tour.organiser.groups",
+			"tour.organiser.pace",
+			"tour.organiser.graphs",
+		]);
 	});
 });

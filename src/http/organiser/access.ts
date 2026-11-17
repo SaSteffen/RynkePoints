@@ -3,6 +3,8 @@ import { hasAgreed } from "../../consent";
 import type { Ctx } from "../../ctx";
 import type { Rider } from "../../db/riders";
 import type { I18n } from "../../i18n/i18n";
+import { hasEvents } from "../../teams";
+import type { TeamData } from "../../teams/types";
 import { forbidden } from "../errors";
 import { html, type SafeHtml } from "../html";
 import { CALENDAR, PEOPLE } from "../icons";
@@ -100,13 +102,18 @@ export async function requireOrganiserPost(
 
 /**
  * The switch between Orga's two views, the team overview and the events, like
- * the Team page's Training and Team (feature 016).
+ * the Team page's Training and Team (feature 016); none for a team without
+ * events.
  */
 export function organiserSwitch(
 	i18n: I18n,
 	current: "riders" | "events",
 	openRequests = 0,
-): SafeHtml {
+	team: Pick<TeamData, "eventKinds"> | null = null,
+): SafeHtml | null {
+	// No events, no second view to switch to, and no requests to count
+	// (feature 039). A caller that doesn't name the team is an events page.
+	if (team !== null && !hasEvents(team)) return null;
 	// Termine carries the count of open requests (019 FR-030).
 	const extra = (view: "riders" | "events") =>
 		view === "events" && openRequests > 0

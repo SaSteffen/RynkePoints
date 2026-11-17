@@ -39,7 +39,8 @@ export function riderStatus(
 	const behind = (value: number, amount: number) =>
 		value < evenPace(amount, seasonStart, deadline, today);
 	return behind(balance.trainingRynke, rules.trainingThreshold) ||
-		behind(balance.teamRynke, rules.teamThreshold) ||
+		(rules.teamThreshold !== null &&
+			behind(balance.teamRynke, rules.teamThreshold)) ||
 		behind(balance.trainingWithoutVirtual, virtualShareRequired(rules))
 		? "push"
 		: "on_track";

@@ -9,6 +9,7 @@ import {
 	currentRules,
 	rulesForVersion,
 } from "../../rynke/rules";
+import type { TeamData } from "../../teams/types";
 import { consentSummary } from "../consent-form";
 import { html, languageForm, type SafeHtml } from "../html";
 import { renderInstallHint, renderNotifications } from "../pwa";
@@ -35,10 +36,14 @@ ${body}
 }
 
 /** The rider's current consent, what is read and who sees what. */
-function consent(i18n: I18n, current: Consent): SafeHtml {
+function consent(
+	i18n: I18n,
+	current: Consent,
+	team: Pick<TeamData, "eventKinds">,
+): SafeHtml {
 	const date = acceptedOn(i18n, current);
 	return html`<p>${i18n.t("me.consent.accepted", { version: consentLabel(current), date })}</p>
-${consentSummary(i18n, "/me/settings")}`;
+${consentSummary(i18n, "/me/settings", team)}`;
 }
 
 export function handleSettings(
@@ -91,7 +96,7 @@ ${group(
 <p>${i18n.t(rider.scopeReadAll ? "me.scope.readAll" : "me.scope.sharedOnly")}</p>
 <p><a class="button-outlined" href="/connect?next=/me/settings">${i18n.t("me.changePermissions")}</a></p>`,
 )}
-${group("settings-consent", i18n.t("me.consent.heading"), consent(i18n, accepted))}
+${group("settings-consent", i18n.t("me.consent.heading"), consent(i18n, accepted, ctx.team))}
 ${group("settings-rules", i18n.t("rynke.rules.heading"), renderRules(i18n, rules, ctx.team.rulesHandout))}
 ${group(
 	"settings-tour",

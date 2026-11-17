@@ -41,7 +41,11 @@ export interface RynkeRules {
 	minRideKm?: number;
 	excludedSportTypes: readonly string[];
 	trainingThreshold: number;
-	teamThreshold: number;
+	/**
+	 * `null`: the team has no Team Rynke (feature 039 research R2). Nobody
+	 * misses any then, and every team-event amount's `team` is 0.
+	 */
+	teamThreshold: number | null;
 	maxVirtualShare: Share;
 	teamEvents: Readonly<Record<TeamEventKind, TeamEventAmounts>>;
 }
@@ -155,12 +159,17 @@ export function assertValidRules(rules: RynkeRules): void {
 		"maxSpeedKmh",
 		"maxClimbMPerH",
 		"trainingThreshold",
-		"teamThreshold",
 	] as const) {
 		const value = rules[field];
 		if (!Number.isInteger(value) || value <= 0) {
 			throw new Error(`rules.${field} must be a positive integer`);
 		}
+	}
+	if (
+		rules.teamThreshold !== null &&
+		(!Number.isInteger(rules.teamThreshold) || rules.teamThreshold <= 0)
+	) {
+		throw new Error("rules.teamThreshold must be a positive integer or null");
 	}
 	if (
 		rules.minRideKm !== undefined &&
@@ -196,6 +205,11 @@ export function assertValidRules(rules: RynkeRules): void {
 			if (!Number.isInteger(value) || value < 0) {
 				throw new Error(`rules.teamEvents.${kind} must be whole numbers ≥ 0`);
 			}
+		}
+		if (rules.teamThreshold === null && team !== 0) {
+			throw new Error(
+				`rules.teamEvents.${kind}.team must be 0 without Team Rynke`,
+			);
 		}
 	}
 	assertDate("effectiveDate", rules.effectiveDate);

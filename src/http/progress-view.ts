@@ -36,7 +36,8 @@ export interface WeekRow {
 	/** `YYYY-MM-DD`: the week's Monday, or the season start for the first. */
 	firstDay: string;
 	training: Earned;
-	team: Earned;
+	/** `null` when the version has no Team Rynke (feature 039). */
+	team: Earned | null;
 	/** Training Rynke without virtual rides, only with virtual rides (US2). */
 	outside: Earned | null;
 }
@@ -58,7 +59,8 @@ export type ProgressView =
 			/** The period buttons offered, in order (FR-020, research R8). */
 			presets: { preset: Preset; from: number; to: number }[];
 			training: ChartSeries;
-			team: ChartSeries;
+			/** `null` when the version has no Team Rynke (feature 039). */
+			team: ChartSeries | null;
 			/** Only for riders with virtual rides (FR-039). */
 			outside: (ChartSeries & { needed: number }) | null;
 			weeks: WeekRow[];
@@ -126,7 +128,10 @@ export function buildProgressView(
 		lastIndex,
 		presets: presets(seasonStart, last, axisDays, lastIndex),
 		training,
-		team: series((p) => p.team, rules.teamThreshold, 5),
+		team:
+			rules.teamThreshold === null
+				? null
+				: series((p) => p.team, rules.teamThreshold, 5),
 		outside:
 			read.virtualCount > 0
 				? {
@@ -137,7 +142,13 @@ export function buildProgressView(
 						needed,
 					}
 				: null,
-		weeks: weekRows(points, seasonStart, last, read.virtualCount > 0),
+		weeks: weekRows(
+			points,
+			seasonStart,
+			last,
+			read.virtualCount > 0,
+			rules.teamThreshold !== null,
+		),
 	};
 }
 
@@ -195,6 +206,7 @@ function weekRows(
 	seasonStart: string,
 	last: string,
 	withOutside: boolean,
+	withTeam: boolean,
 ): WeekRow[] {
 	const at = (date: string) =>
 		points[dayNumber(date) - dayNumber(seasonStart)] ?? points.at(-1);
@@ -209,7 +221,7 @@ function weekRows(
 		const row: WeekRow = {
 			firstDay,
 			training: earned("training"),
-			team: earned("team"),
+			team: withTeam ? earned("team") : null,
 			outside: withOutside ? earned("outside") : null,
 		};
 		previous = point;

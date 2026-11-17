@@ -298,7 +298,8 @@ ${legend}</figure>
 
 /**
  * One source's row: its name over what it counted, then its Training and Team
- * Rynke; the cell stays empty where a source brings none of a kind.
+ * Rynke; the cell stays empty where a source brings none of a kind. Without
+ * Team Rynke (`withTeam` false) there is no Team cell (feature 039).
  */
 function breakdownRow(
 	label: string,
@@ -306,37 +307,36 @@ function breakdownRow(
 	training: number,
 	team: number | null,
 	i18n: I18n,
+	withTeam = true,
 ): SafeHtml {
 	const counted =
 		detail && html`<span class="breakdown-detail">${detail}</span>`;
-	return html`<tr><th scope="row">${label}${counted}</th><td>${whole(i18n, training)}</td><td>${team === null ? null : whole(i18n, team)}</td></tr>
+	const teamCell = withTeam
+		? html`<td>${team === null ? null : whole(i18n, team)}</td>`
+		: null;
+	return html`<tr><th scope="row">${label}${counted}</th><td>${whole(i18n, training)}</td>${teamCell}</tr>
 `;
 }
 
-/** Where the Rynke come from (FR-030–FR-033, FR-035); the hero has the totals. */
-export function renderBreakdown(i18n: I18n, breakdown: Breakdown): SafeHtml {
+/**
+ * Where the Rynke come from (FR-030–FR-033, FR-035); the hero has the totals.
+ * Without Team Rynke no Team column, without events (`events` false) no
+ * event-kind rows and no events part (feature 039).
+ */
+export function renderBreakdown(
+	i18n: I18n,
+	breakdown: Breakdown,
+	events = true,
+): SafeHtml {
 	const metres = i18n.t("units.m", {
 		value: whole(i18n, breakdown.elevationM),
 	});
-	return html`<section class="rynke-breakdown card card-outlined">
-<h2>${i18n.t("rynke.breakdown.heading")}</h2>
-<table class="breakdown-table">
-<thead><tr><td></td><th scope="col">${coinLabel(i18n, "training")}</th><th scope="col">${coinLabel(i18n, "team")}</th></tr></thead>
-<tbody>
-${breakdownRow(i18n.t("rynke.source.distance"), null, breakdown.distanceRynke, null, i18n)}${breakdownRow(i18n.t("rynke.source.elevation"), metres, breakdown.elevationRynke, null, i18n)}${breakdown.kinds.map(
-	(kind) =>
-		breakdownRow(
-			i18n.t(`rynke.source.${kind.kind}`),
-			i18n.t("rynke.breakdown.attended", {
-				count: whole(i18n, kind.attended),
-			}),
-			kind.training,
-			kind.team,
-			i18n,
-		),
-)}</tbody>
-</table>
-<h3>${i18n.t("rynke.events.heading")}</h3>
+	const withTeam = breakdown.teamTotal !== null;
+	const teamHead = withTeam
+		? html`<th scope="col">${coinLabel(i18n, "team")}</th>`
+		: null;
+	const eventsPart = events
+		? html`<h3>${i18n.t("rynke.events.heading")}</h3>
 ${
 	breakdown.events.length === 0
 		? html`<p>${i18n.t("rynke.events.none")}</p>`
@@ -344,7 +344,29 @@ ${
 				eventItem(i18n, event),
 			)}</ul>`
 }
-</section>`;
+`
+		: null;
+	return html`<section class="rynke-breakdown card card-outlined">
+<h2>${i18n.t("rynke.breakdown.heading")}</h2>
+<table class="breakdown-table">
+<thead><tr><td></td><th scope="col">${coinLabel(i18n, "training")}</th>${teamHead}</tr></thead>
+<tbody>
+${breakdownRow(i18n.t("rynke.source.distance"), null, breakdown.distanceRynke, null, i18n, withTeam)}${breakdownRow(i18n.t("rynke.source.elevation"), metres, breakdown.elevationRynke, null, i18n, withTeam)}${(
+	events ? breakdown.kinds : []
+).map((kind) =>
+	breakdownRow(
+		i18n.t(`rynke.source.${kind.kind}`),
+		i18n.t("rynke.breakdown.attended", {
+			count: whole(i18n, kind.attended),
+		}),
+		kind.training,
+		kind.team,
+		i18n,
+		withTeam,
+	),
+)}</tbody>
+</table>
+${eventsPart}</section>`;
 }
 
 /** Date, kind, the organiser's name for it, and whether it counts (FR-033). */

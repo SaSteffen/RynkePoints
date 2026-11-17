@@ -6,6 +6,9 @@ import {
 	exampleTeam,
 } from "../../src/http/tour-example";
 import { riderStatus } from "../../src/rynke/pace";
+import { currentRules } from "../../src/rynke/rules";
+import { europe } from "../../src/teams/europe";
+import { hamburg } from "../../src/teams/hamburg";
 import { CURRENT_RULES } from "../support/team-rules";
 
 // The tour's examples (feature 020 FR-006, FR-013): worked out by the rules
@@ -107,5 +110,42 @@ describe("the example team's rides (FR-013)", () => {
 		// Finn rides mostly indoors.
 		const finn = team.graphRows.find((r) => r.athleteId === 6);
 		expect(finn?.virtualDays.length).toBeGreaterThan(0);
+	});
+});
+
+describe("the examples without Team Rynke and events (feature 039)", () => {
+	const rules = currentRules(europe.rules);
+	const TODAY = "2027-01-15";
+
+	it("gives the example rider no Team Rynke and no events", () => {
+		const read = exampleRiderView(WINDOW, TODAY, rules);
+		expect(read.attendance).toEqual([]);
+		expect(read.progress?.attendance).toEqual([]);
+		expect(read.balance?.teamRynke).toBe(0);
+		expect(read.balance?.teamEvents.every((k) => k.attended === 0)).toBe(true);
+	});
+
+	it("gives the example team no Team Rynke, events or requests", () => {
+		const team = exampleTeam(WINDOW, TODAY, rules);
+		expect(team.events).toEqual([]);
+		expect(team.requests).toEqual([]);
+		expect(team.intents.size).toBe(0);
+		expect(team.attended.size).toBe(0);
+		for (const rider of team.riders) {
+			expect(rider.balance?.teamRynke).toBe(0);
+			expect(Number.isFinite(rider.balance?.trainingRynke)).toBe(true);
+		}
+		// Still one qualified rider, on Training Rynke and the outdoor share.
+		expect(team.riders.filter((r) => r.balance?.qualified)).toHaveLength(1);
+	});
+
+	it("keeps Hamburg's Team Rynke and events", () => {
+		const hamburgRules = currentRules(hamburg.rules);
+		expect(
+			exampleRiderView(WINDOW, TODAY, hamburgRules).attendance,
+		).not.toEqual([]);
+		const team = exampleTeam(WINDOW, TODAY, hamburgRules);
+		expect(team.events.length).toBeGreaterThan(0);
+		expect(team.riders.some((r) => (r.balance?.teamRynke ?? 0) > 0)).toBe(true);
 	});
 });

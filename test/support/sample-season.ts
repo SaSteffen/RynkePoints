@@ -61,6 +61,10 @@ export async function seedSampleSeason(): Promise<TestCtx> {
 	const devEnv: DevEnv = {
 		...env,
 		...PINNED_VARS,
+		// The team's own clubs: the pinned ones are the founding team's, which
+		// another team's riders would see as another team's club.
+		STRAVA_CLUB_ID: env.STRAVA_CLUB_ID,
+		STRAVA_EXTRA_CLUB_IDS: env.STRAVA_EXTRA_CLUB_IDS,
 		RYNKE_FAKE_STRAVA: "local-only",
 	};
 	seasonCtx = { ...makeCtx(), env: devEnv };

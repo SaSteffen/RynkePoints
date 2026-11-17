@@ -245,7 +245,7 @@ describe("buildRiderView summary", () => {
 			missing: 238,
 			reached: false,
 		});
-		expect(summary.team.target).toBeNull();
+		expect(summary.team?.target).toBeNull();
 		expect(summary.withoutVirtual).toEqual({
 			value: 10,
 			target: null,
@@ -1042,7 +1042,7 @@ describe("buildRiderView team events (US3b)", () => {
 			gaugesOf({
 				teamRynke: 5,
 				teamEvents: kinds([0, 0, 0], [0, 0, 0], [1, 5, 5]),
-			})?.team.parts,
+			})?.team?.parts,
 		).toEqual([{ source: "technique_training", value: 5, widthPercent: 20 }]);
 	});
 
@@ -1315,5 +1315,67 @@ describe("buildRiderView more (018 US1)", () => {
 		expect(table(20, 1).more).toBeNull();
 		expect(table(3, 1).more).toBeNull();
 		expect(table(0, 1).more).toBeNull();
+	});
+});
+
+/** Rules of a team without Team Rynke (feature 039): no threshold, events give nothing. */
+const NO_TEAM_RULES: RynkeRules = {
+	...CURRENT_RULES,
+	teamThreshold: null,
+	teamEvents: Object.fromEntries(
+		TEAM_EVENT_KINDS.map((kind) => [kind, { team: 0, training: 0 }]),
+	) as RynkeRules["teamEvents"],
+};
+
+describe("buildRiderView without Team Rynke (feature 039)", () => {
+	const view = (rules: RynkeRules) =>
+		ready(
+			buildRiderView(
+				read({
+					balance: balance({ trainingRynke: 120, teamMissing: 0 }),
+					attendance: [],
+				}),
+				rules,
+				rules,
+				CONTEXT,
+			),
+		);
+
+	it("has no Team condition, gauge or breakdown total", () => {
+		const shown = view(NO_TEAM_RULES);
+		expect(shown.summary.team).toBeNull();
+		expect(shown.gauges?.team).toBeNull();
+		expect(shown.gauges?.training).not.toBeNull();
+		expect(shown.breakdown.teamTotal).toBeNull();
+	});
+
+	it("keeps them with Hamburg's rules", () => {
+		const shown = view(CURRENT_RULES);
+		expect(shown.summary.team).toEqual({
+			value: 0,
+			target: CURRENT_RULES.teamThreshold,
+			missing: 0,
+			reached: true,
+		});
+		expect(shown.gauges?.team).not.toBeNull();
+		expect(shown.breakdown.teamTotal).toBe(0);
+	});
+
+	it("keeps the Team figure without a target for an unknown version (FR-013)", () => {
+		const shown = ready(
+			buildRiderView(
+				read({ balance: balance({ teamRynke: 3 }) }),
+				null,
+				NO_TEAM_RULES,
+				CONTEXT,
+			),
+		);
+		expect(shown.summary.team).toEqual({
+			value: 3,
+			target: null,
+			missing: 25,
+			reached: false,
+		});
+		expect(shown.gauges).toBeNull();
 	});
 });

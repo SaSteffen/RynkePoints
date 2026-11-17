@@ -291,6 +291,46 @@ describe("tally", () => {
 	});
 });
 
+describe("tally without Team Rynke (feature 039 research R2)", () => {
+	const NO_TEAM: RynkeRules = {
+		...CURRENT_RULES,
+		teamThreshold: null,
+		teamEvents: {
+			team_training: { team: 0, training: 0 },
+			training_weekend_day: { team: 0, training: 0 },
+			technique_training: { team: 0, training: 0 },
+		},
+	};
+
+	it("misses no Team Rynke and qualifies on Training and the outdoor share", () => {
+		expect(
+			tally(riding(sums(250), sums(167)), NO_EXTRAS, NO_TEAM),
+		).toMatchObject({
+			teamRynke: 0,
+			teamMissing: 0,
+			trainingMissing: 0,
+			virtualShareMissing: 0,
+			qualified: true,
+		});
+	});
+
+	it("doesn't qualify with Training Rynke missing", () => {
+		expect(
+			tally(riding(sums(249), sums(249)), NO_EXTRAS, NO_TEAM),
+		).toMatchObject({ teamMissing: 0, trainingMissing: 1, qualified: false });
+	});
+
+	it("doesn't qualify with the outdoor share missing", () => {
+		expect(
+			tally(riding(sums(260), sums(160)), NO_EXTRAS, NO_TEAM),
+		).toMatchObject({
+			teamMissing: 0,
+			virtualShareMissing: 7,
+			qualified: false,
+		});
+	});
+});
+
 describe("virtualShareRequired", () => {
 	it("is 167 under the current rules", () => {
 		expect(virtualShareRequired(CURRENT_RULES)).toBe(167);

@@ -11,9 +11,10 @@ Maintainers: this handout is informational only. The specification
 specs/003-rynke-evaluation/spec.md is authoritative; if the two differ, fix this
 file (FR-019). For now it is an English translation of Hamburg's
 docs/rynke-punkte.md with this team's name (spec 026 task T082), and this team's
-own rules since feature 039: the 25 km minimum ride length. Keep the rest in
-step with Hamburg's. Render it with `pnpm docs:pdf` and
-commit public/teams/europe/rynke-points.pdf: the app links riders to that PDF.
+own rules since feature 039: the 25 km minimum ride length, and no Team Rynke,
+team events or Tour de Paris days. Keep the rest in step with Hamburg's. Render
+it with `pnpm docs:pdf` and commit public/teams/europe/rynke-points.pdf: the app
+links riders to that PDF.
 -->
 
 # Together to Paris
@@ -51,37 +52,27 @@ power.
 
 # What is it about?
 
-Everyone who rides with us on the Tour de Paris should be well prepared, on the
-bike and as a team. To show this, you collect **Rynke** over the season. There
-are two kinds:
-
-- **Training Rynke** you get for cycling: for kilometres, elevation and for
-  training together.
-- **Team Rynke** you get only for team events: team training sessions, training
-  weekends and technique sessions.
+Everyone who rides with us on the Tour de Paris should be well prepared on the
+bike. To show this, you collect **Training Rynke** over the season, for the
+kilometres and the elevation of your rides.
 
 # What do I need for the Tour?
 
-| I'm in with | Training Rynke | Team Rynke |
-|-------------|---------------:|-----------:|
-| at least    |        **250** |     **25** |
+| I'm in with | Training Rynke |
+|-------------|---------------:|
+| at least    |        **250** |
 
-You need **both**. Extra Training Rynke don't make up for missing Team Rynke,
-and the other way round. With 400 Training Rynke and 20 Team Rynke you're not
-in yet.
-
-Also, at most one third of the 250 Training Rynke may come from virtual rides
-(see "Virtual rides").
+Of these 250 Training Rynke, at most one third may come from virtual rides (see
+"Virtual rides").
 
 # How you get Rynke
 
-| For                                      | Team Rynke | Training Rynke |
-|------------------------------------------|-----------:|---------------:|
-| every full 10 km of a ride               |          – |              1 |
-| every full 1000 m of elevation (season) |          – |              5 |
-| 1 team training session                  |          1 |              5 |
-| 1 day of a training weekend              |          5 |             10 |
-| 1 technique session                      |          5 |              5 |
+| For                                      | Training Rynke |
+|------------------------------------------|---------------:|
+| every full 10 km of a ride               |              1 |
+| every full 1000 m of elevation (season) |              5 |
+
+A ride counts only from **25 km** on (see "What doesn't count").
 
 ## Kilometres and elevation
 
@@ -196,11 +187,11 @@ Rides on an indoor trainer count as normal, with Zwift or similar apps just as
 without. A virtual ride is any ride that Strava marks as a virtual ride or as an
 indoor trainer ride. For the Tour, though: **at most one third** of the 250
 Training Rynke may come from virtual rides. So you need at least **167 Training
-Rynke** from rides outdoors, team events and corrections. Whatever you collect
+Rynke** from rides outdoors and corrections. Whatever you collect
 virtually beyond that stays in your total, but on its own it won't get you to
 Paris.
 
-| Training Rynke | of which virtual | without virtual | In with 25 Team Rynke?              |
+| Training Rynke | of which virtual | without virtual | In?                                 |
 |---------------:|-----------------:|----------------:|-------------------------------------|
 |            260 |              100 |             160 | no, 7 without virtual are missing   |
 |            250 |               80 |             170 | yes                                 |
@@ -220,37 +211,9 @@ the app, it cheats the team: the people you're riding to Paris with, and
 everyone who collected honestly. And on the way to Paris, no false weight will
 ride you up the hill.
 
-## Team events
-
-After each team event, the organisers record who was there. Only this record
-counts. RynkePoints does **not** recognise your attendance from your ride. So you
-get the Rynke for an event even if you didn't record it on Strava, for example
-at a technique session.
-
-- A **training weekend** counts **per day**: two days there give 10 Team Rynke
-  and 20 Training Rynke.
-- Each event counts for you at most once.
-
-## Rides at team events count on top
-
-If you ride at a team training session and upload the ride to Strava, you get
-**both**: the fixed Rynke for the event and the Rynke for the kilometres and
-elevation of your ride.
-
-> Example: team training session, 60 km, 1000 m of elevation
->
-> - Team training session: 1 Team Rynke + 5 Training Rynke
-> - 60 km: 6 Training Rynke
-> - 1000 m of elevation: 5 Training Rynke
->
-> **Result: 1 Team Rynke and 16 Training Rynke**
-
-You get Team Rynke only through team events. Riding alone brings only Training
-Rynke.
-
 # Which rides count?
 
-- Only rides and events **from the start of the season**. If the organisers have
+- Only rides **from the start of the season**. If the organisers have
   set a **deadline**, nothing that takes place after it counts any more.
 - What matters is the ride's start date in your time zone.
 - If you change a ride on Strava (for example its route) or delete it,
@@ -260,14 +223,14 @@ Rynke.
 
 # Corrections
 
-If something isn't right, for example your name is missing from a team event,
-talk to the organisers. They can correct your Rynke, giving a reason. The
+If something isn't right, for example your bike computer failed on a ride, talk
+to the organisers. They can correct your Rynke, giving a reason. The
 correction stays, even when RynkePoints recalculates your Rynke.
 
 # Where do I see my total?
 
-On your RynkePoints page you see your Training Rynke and Team Rynke, how many
-you're still missing, whether you're in, and where your Rynke come from. There
+On your RynkePoints page you see your Training Rynke, how many you're still
+missing, whether you're in, and where your Rynke come from. There
 you also see your elevation for the season and how much is missing for the next
 5 Training Rynke, and, if you ride virtually, how many Training Rynke you have
 without virtual rides. Only you see your total.

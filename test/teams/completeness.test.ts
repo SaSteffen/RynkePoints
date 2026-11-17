@@ -1,12 +1,14 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
+import { samplesFor } from "../../dev/fake-strava/sample-sets";
 import {
 	parseJsonc,
 	placeholderProblems,
 	teamProblems,
 } from "../../scripts/team-check.mjs";
 import { CATALOGS } from "../../src/i18n/catalogs";
-import { TEAMS, teamFor } from "../../src/teams";
+import { currentRules } from "../../src/rynke/rules";
+import { hasEvents, hasTeamRynke, TEAMS, teamFor } from "../../src/teams";
 import type { TeamData } from "../../src/teams/types";
 
 // A team's incomplete data fails the checks, naming what is missing, before
@@ -249,6 +251,33 @@ describe.runIf(team.id === "europe")("europe's club (039 FR-005)", () => {
 	it("is no placeholder", () => {
 		expect(team.placeholders).not.toContain("STRAVA_CLUB_ID");
 		expect(team.placeholders).not.toContain("STRAVA_EXTRA_CLUB_IDS");
+	});
+});
+
+// Team Europe has neither team events nor Team Rynke (feature 039 US4,
+// research R2 and R3), and neither do its fake-mode samples.
+describe.runIf(team.id === "europe")("europe without events (039 US4)", () => {
+	it("has no event kinds and no Team threshold in effect", () => {
+		expect(team.eventKinds).toEqual([]);
+		expect(currentRules(team.rules).teamThreshold).toBeNull();
+		expect(hasEvents(team)).toBe(false);
+		expect(hasTeamRynke(team)).toBe(false);
+	});
+
+	it("passes the checks", () => {
+		expect(
+			teamProblems(TEAMS, wrangler, options).filter((line) =>
+				line.startsWith(`team ${team.id}: `),
+			),
+		).toEqual([]);
+	});
+
+	it("has samples without team events or attendances", () => {
+		const samples = samplesFor(team.id);
+		expect(samples.teamEvents).toEqual([]);
+		expect(
+			samples.riders.filter((rider) => rider.events !== undefined),
+		).toEqual([]);
 	});
 });
 

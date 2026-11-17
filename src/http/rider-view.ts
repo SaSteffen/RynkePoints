@@ -85,7 +85,8 @@ export interface UpdateNotice {
 
 export interface Summary {
 	training: Condition;
-	team: Condition;
+	/** `null` when the version has no Team Rynke (feature 039). */
+	team: Condition | null;
 	/** `null` when the rider has no virtual ride (FR-012). */
 	withoutVirtual: Condition | null;
 	/** Stored (FR-011, FR-023). */
@@ -103,7 +104,8 @@ export interface Condition {
 
 export interface Gauges {
 	training: Gauge;
-	team: Gauge;
+	/** `null` when the version has no Team Rynke (feature 039). */
+	team: Gauge | null;
 	/** `null` when the rider has no virtual ride (FR-012). */
 	withoutVirtual: Gauge | null;
 	elevation: ElevationGauge;
@@ -150,7 +152,11 @@ export interface Breakdown {
 	/** Rounded up. */
 	toNextStepM: number;
 	trainingTotal: number;
-	teamTotal: number;
+	/**
+	 * `null` when the version has no Team Rynke (feature 039): no Team column
+	 * in the breakdown.
+	 */
+	teamTotal: number | null;
 	/**
 	 * Stored per kind, in `TEAM_EVENT_KINDS` order (FR-032); empty for a balance
 	 * stored before team events existed.
@@ -306,7 +312,7 @@ function breakdown(
 		elevationStepRynke: rules?.elevationStepRynke ?? null,
 		toNextStepM: Math.ceil(balance.elevationToNextStepDm / 10),
 		trainingTotal: balance.trainingRynke,
-		teamTotal: balance.teamRynke,
+		teamTotal: rules?.teamThreshold === null ? null : balance.teamRynke,
 		kinds: balance.teamEvents,
 		events: attendance.map(({ date, kind, name }) => ({
 			date,
@@ -329,11 +335,15 @@ export function summary(
 			rules?.trainingThreshold ?? null,
 			balance.trainingMissing,
 		),
-		team: condition(
-			balance.teamRynke,
-			rules?.teamThreshold ?? null,
-			balance.teamMissing,
-		),
+		// Unknown rules keep the Team figure without a target (FR-013).
+		team:
+			rules?.teamThreshold === null
+				? null
+				: condition(
+						balance.teamRynke,
+						rules?.teamThreshold ?? null,
+						balance.teamMissing,
+					),
 		withoutVirtual:
 			virtualCount === 0
 				? null
@@ -375,14 +385,7 @@ function gauges(
 				rules.trainingThreshold,
 			),
 		),
-		team: gauge(
-			balance.teamRynke,
-			rules.teamThreshold,
-			gaugeParts<GaugeSource>(
-				kinds.map((k) => ({ source: k.kind, value: k.team })),
-				rules.teamThreshold,
-			),
-		),
+		team: teamGauge(balance.teamRynke, kinds, rules.teamThreshold),
 		withoutVirtual:
 			virtualCount === 0
 				? null
@@ -392,6 +395,23 @@ function gauges(
 			stepRynke: rules.elevationStepRynke,
 		},
 	};
+}
+
+/** The Team gauge, or `null` without Team Rynke (feature 039). */
+function teamGauge(
+	value: number,
+	kinds: StoredBalance["teamEvents"],
+	threshold: number | null,
+): Gauge | null {
+	if (threshold === null) return null;
+	return gauge(
+		value,
+		threshold,
+		gaugeParts<GaugeSource>(
+			kinds.map((k) => ({ source: k.kind, value: k.team })),
+			threshold,
+		),
+	);
 }
 
 function gauge(value: number, target: number, parts: GaugePart[] = []): Gauge {

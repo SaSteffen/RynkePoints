@@ -91,7 +91,11 @@ export function tally(
 	);
 	const required = virtualShareRequired(rules);
 	const trainingMissing = Math.max(0, rules.trainingThreshold - trainingRynke);
-	const teamMissing = Math.max(0, rules.teamThreshold - teamRynke);
+	// No Team Rynke, nothing missing (feature 039 research R2).
+	const teamMissing =
+		rules.teamThreshold === null
+			? 0
+			: Math.max(0, rules.teamThreshold - teamRynke);
 	const virtualShareMissing = Math.max(0, required - trainingWithoutVirtual);
 	return {
 		distanceRynke: riding.distanceRynke,

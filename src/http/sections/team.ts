@@ -43,6 +43,7 @@ import {
 } from "../../rynke/ride-figures";
 import { countingWindow, currentRules } from "../../rynke/rules";
 import { dayNumber, lastDay, riderWeeks, weekEnds } from "../../rynke/weeks";
+import { hasTeamRynke } from "../../teams";
 import type { TeamData } from "../../teams/types";
 import { artUrl } from "../art";
 import { peloton, sparkline, weekBars } from "../charts";
@@ -105,12 +106,19 @@ function teamHref(view: TeamView): string {
 }
 
 /** The view a request asks for; anything unknown is the default (no 400). */
-function teamViewOf(query: URLSearchParams, env: Ctx["env"]): TeamView {
+function teamViewOf(
+	query: URLSearchParams,
+	env: Ctx["env"],
+	team: Pick<TeamData, "rules">,
+): TeamView {
 	const rides = rideFigures(env);
 	const rynke = rynkeViews(env);
-	// Without Rynke views there is one view, the Training one (FR-012).
+	// Without Rynke views there is one view, the Training one (FR-012); so
+	// there is without Team Rynke (feature 039).
 	const kind: RynkeKind =
-		rynke && query.get("kind") === "team" ? "team" : "training";
+		rynke && hasTeamRynke(team) && query.get("kind") === "team"
+			? "team"
+			: "training";
 	const defaultBy: RankBy = rynke ? "rynke" : "km";
 	const asked = RIDE_FIGURES.find((figure) => figure === query.get("by"));
 	const by: RankBy = kind === "training" && rides && asked ? asked : defaultBy;
@@ -694,7 +702,7 @@ export function handleTeam(
 	ctx: Ctx,
 	i18n: I18n,
 ): Promise<Response> {
-	const view = teamViewOf(new URL(request.url).searchParams, ctx.env);
+	const view = teamViewOf(new URL(request.url).searchParams, ctx.env, ctx.team);
 	return shellPage(
 		request,
 		ctx,
@@ -704,6 +712,9 @@ export function handleTeam(
 		async ({ rider }) => {
 			if (!rynkeViews(ctx.env)) return singleView(ctx, i18n, view, rider);
 			const { kind, all } = view;
+			// Without Team Rynke: no kind switch, no Team figure in the rows
+			// (feature 039).
+			const teamRynke = hasTeamRynke(ctx.team);
 			const window = countingWindow(ctx.env);
 			const ranksTraining = trainingLeaderboard(ctx.env);
 			const rides = rideFigures(ctx.env);
@@ -762,7 +773,7 @@ export function handleTeam(
 				);
 			}
 			// The quote's monkey stands on the team total, above everything else.
-			const head = html`${renderReconnect(i18n, rider)}${quote ? renderQuote(quote, holidaysOn(today, ctx.team.holidays)) : null}${renderTeamTotal(i18n, kind, totals, ctx.team)}${renderKindSwitch(i18n, view)}`;
+			const head = html`${renderReconnect(i18n, rider)}${quote ? renderQuote(quote, holidaysOn(today, ctx.team.holidays)) : null}${renderTeamTotal(i18n, kind, totals, ctx.team)}${teamRynke ? renderKindSwitch(i18n, view) : null}`;
 			// Team Rynke have no place card and no peloton and put the
 			// leaderboard first (feature 019 FR-045, FR-046); Training keeps
 			// feature 016's page.
@@ -806,7 +817,7 @@ export function handleTeam(
 				neighbourhood(rows, all),
 				rows.length,
 				ends.map(dayNumber),
-				true,
+				teamRynke,
 			);
 			return html`${head}<div class="team-grid">${viewer ? renderPlace(i18n, viewer) : null}${pelotonAndChart}${leaderboard}</div>`;
 		},
