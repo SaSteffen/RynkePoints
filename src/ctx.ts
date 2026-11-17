@@ -19,4 +19,9 @@ export interface Ctx {
 	consentVersions: ConsentVersions;
 	/** Keeps the invocation alive for work that outlives the response. */
 	waitUntil: (promise: Promise<unknown>) => void;
+	/**
+	 * Notes how long a step of a request took, in milliseconds, for its
+	 * `Server-Timing` header (`handleFetch`). Only a request has one.
+	 */
+	timing?: (name: string, ms: number) => void;
 }

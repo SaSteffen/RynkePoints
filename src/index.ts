@@ -42,8 +42,27 @@ function makeCtx(env: Env, exec: ExecutionContext): Ctx {
 
 export { handleScheduled };
 
-export function handleFetch(request: Request, ctx: Ctx): Promise<Response> {
-	return route(request, ctx);
+/**
+ * Every answer says how long it took here and how long its first database
+ * read took (`Server-Timing`, in the browser's network panel): a slow page
+ * with a short `total` waited somewhere else.
+ */
+export async function handleFetch(
+	request: Request,
+	ctx: Ctx,
+): Promise<Response> {
+	const started = Date.now();
+	const steps: string[] = [];
+	const response = await route(request, {
+		...ctx,
+		timing: (name, ms) => steps.push(`${name};dur=${ms}`),
+	});
+	const timed = new Response(response.body, response);
+	timed.headers.set(
+		"Server-Timing",
+		[...steps, `total;dur=${Date.now() - started}`].join(", "),
+	);
+	return timed;
 }
 
 export function handleQueue(
