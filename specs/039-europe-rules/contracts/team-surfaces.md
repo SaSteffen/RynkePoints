@@ -53,3 +53,15 @@ page, every organiser page, the tour steps, the landing, consent and privacy pag
 in English and German, and finds none of: `Team Rynke`, `team event`, `Team event`, `attend`,
 `Tour de Paris`, `tour day` (en); `Teamrynke`, `Teamtermin`, `Termine`, `Tour de Paris` (de); and
 no `href` to `/events` or `/organiser/events`. Its Hamburg counterpart is the snapshot of R11.
+
+## Without Training Rynke needed from outside virtual rides (research R15)
+
+A team whose `minOutsideTraining` is 0 (none today) shows nothing about it:
+
+| Surface | With `minOutsideTraining: 0` |
+|---|---|
+| `/me` verdict and push texts | no outdoor line; qualified without it |
+| `/me` gauges | no outdoor gauge, even with virtual rides |
+| `/me` progress chart and weekly table | no outside curve or column |
+| Onboarding tour | no outdoor step |
+| `/organiser/riders` | no "Outdoor Training n of m" figure, reason or amount to go; status without it |

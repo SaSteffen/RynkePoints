@@ -10,6 +10,9 @@ A team's rule history may now say, per version:
 - **Minimum ride length**: `minRideKm`, whole kilometres. Absent means none. A team without a
   minimum leaves the field out; it never writes `0`.
 - **No Team Rynke**: `teamThreshold: null`, with every team-event amount's `team` at 0.
+- **Training Rynke from outside virtual rides**: `minOutsideTraining`, a whole number from 0 to
+  `trainingThreshold`, replacing the share `maxVirtualShare` (research R15). 0: no such
+  requirement. Hamburg 167, Europe 84.
 
 A rule value changed in an existing version still needs a new version (feature 003); adding the
 optional field to an existing version counts as a change. Hamburg's versions 1–3 stay as they are.

@@ -10,14 +10,17 @@ types. Hamburg's values don't change anywhere.
 | `minRideKm` | **new**, optional: absent = no minimum; present = positive whole km | absent | `25` |
 | `teamThreshold` | type `number` → `number \| null`; `null` = the team has no Team Rynke | `25` | `null` |
 | `teamEvents` | unchanged type; with `teamThreshold: null` every `.team` must be 0 | as today | every kind `{ team: 0, training: 0 }` |
+| `minOutsideTraining` | **replaces** `maxVirtualShare` (research R15): whole Training Rynke from outside virtual rides, 0 = no requirement | `167` (same results as ⅓ virtual) | `84` |
 | every other field | unchanged | as today | Hamburg V3's values |
 
 Validation (`assertValidRules`), added to today's:
 - `minRideKm`, when present, is a positive integer.
 - `teamThreshold` is a positive integer or `null` (0 stays invalid).
 - `teamThreshold: null` ⇒ `teamEvents[kind].team === 0` for every kind.
+- `minOutsideTraining` is a whole number from 0 to `trainingThreshold` (R15).
 
-`rulesFingerprint` is unchanged as a function; Hamburg's objects produce the same string as before.
+`rulesFingerprint` is unchanged as a function. Hamburg's objects produced the same string as before
+until R15, whose field rename changes Hamburg's pin, not its version (results are identical).
 A new pin in `test/teams/rules.test.ts` fixes Europe's version 4 fingerprint, so a later value change
 without a version bump fails for Europe too.
 
@@ -104,7 +107,8 @@ Each holds `null` for a team without Team Rynke; Hamburg's are always set, as to
 ## Tour switches (`src/http/tour.ts`)
 
 `TourSwitches` gains `teamRynke: boolean` and `events: boolean` (from the two predicates in
-`tourSwitches`). Steps: `tour.rider.teamRynke` `only: "teamRynke"`; `tour.organiser.requests`,
+`tourSwitches`), and `outside: boolean` from `hasOutsideRule(team)` (R15): `tour.rider.outdoor`
+`only: "outside"`. Steps: `tour.rider.teamRynke` `only: "teamRynke"`; `tour.organiser.requests`,
 `tour.organiser.newEvent`, `tour.organiser.upcoming`, `tour.organiser.past` `only: "events"`.
 `hiddenSections` takes the team too and adds `"events"` when `!hasEvents(team)`.
 

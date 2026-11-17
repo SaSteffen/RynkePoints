@@ -22,6 +22,9 @@ events at all, while Hamburg stays byte-identical. Every difference is data:
   (R6). Mixed sentences get `.noEvents` variants (R7). Consent versions stay as they are (R8).
 - **Badges**: event-only categories are flagged and left out of Europe's lists; the catalog
   version stays 9 (R9).
+- **Outside virtual rides** (added later): the virtual share becomes a whole number of Training
+  Rynke, `minOutsideTraining`: Hamburg 167 (same results, version stays 3), Europe 84; 0 drops the
+  requirement everywhere (R15).
 - **Hamburg safety**: snapshots of every touched Hamburg page are committed **before** the change and
   must stay byte-identical (R11).
 

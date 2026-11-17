@@ -231,3 +231,36 @@ events (FR-016); until then the sandbox's daily run re-evaluates its riders to v
 **Decision**: No change. The coin's front and back are art on both teams (maintainer, 2026-11-17).
 Where Hamburg's Team Rynke view shows the back today, Europe has no such view; the theme menu, the
 hero coin and every other place showing both sides stay as they are.
+
+## R15 — Training Rynke from outside virtual rides: a whole number
+
+Added after the first implementation (maintainer, 2026-11-17, spec User Story 6).
+
+**Decision**: `maxVirtualShare: Share` becomes `minOutsideTraining: number`, the Training Rynke of
+the threshold that must come from anything but virtual rides (rides outdoors, events, corrections),
+a whole number from 0 to `trainingThreshold`. Hamburg's versions 1–3 say `167`, Europe's version 4
+says `84`. 0 means no such requirement: `tally` misses nothing (`virtualShareMissing` 0), the pace
+check never trails (even pace of 0), and every surface that names it reads the rules in hand and
+shows nothing: the rider summary's and gauges' `withoutVirtual` are `null`, the progress view has no
+`outside` curve or column, the organiser breakdown has no outdoor figure (its reason and amount to
+go are already empty with nothing missing), and the tour's outdoor step has `only: "outside"`, a
+new switch from `hasOutsideRule(team)`.
+
+**Hamburg**: 167 is exactly what `ceil(250 × (3 − 1) / 3)` gave, so every balance, status and
+stored result is the same. Hamburg's rule version stays 3: a new version would make the daily run
+re-evaluate every Hamburg rider for nothing (FR-002). Its fingerprint pin changes with the field's
+name, and a test proves 167 is the old formula for each of Hamburg's versions. The stored column
+`virtual_share_missing` and the balance field keep their names (no migration). The one visible
+change is the onboarding tour's outdoor step: a whole number has no "1/3" to name, so its first
+sentence goes in all ten languages; "at least 167 of 250" stays (maintainer's choice). Hamburg's
+handout already names 167 and stays.
+
+**Europe**: a third of 250 is 83⅓; 84 rounds up like Hamburg's 166⅔ → 167 (maintainer). Europe's
+version 4 isn't released yet, so its value changes without a version 5. The handout says 84; the
+sample rider `Védís Virtual` rides 7 times outdoors instead of 14, so she still misses some.
+
+**Alternatives considered**:
+- *Keep Hamburg's share and add the whole number for Europe only*: Hamburg byte-identical, but two
+  ways to express one rule. The maintainer chose one setting for both.
+- *A new Hamburg version 4 with the whole number*: re-evaluates every Hamburg rider; refused by
+  FR-002.

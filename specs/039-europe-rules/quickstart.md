@@ -9,8 +9,10 @@ node scripts/team-check.mjs
 
 Expected:
 - `season-snapshot.test.ts` and `pages-snapshot.test.ts` (Hamburg) pass **without** `-u`: Hamburg's
-  pages are byte-identical to before (SC-001).
-- `test/unit/rules.test.ts` passes unchanged: Hamburg's version 3 and fingerprint (FR-002).
+  pages are byte-identical to before (SC-001), except the tour's outdoor step, updated once for
+  research R15 (its "1/3" sentence goes).
+- `test/unit/rules.test.ts`: Hamburg stays on version 3 (FR-002); its fingerprint pin names
+  `minOutsideTraining: 167` instead of the share since R15, with the same results.
 - `team:europe`'s `no-events.test.ts` finds no Team Rynke, event, attendance or tour-day text on any
   Europe page (SC-004).
 - `team-check` prints nothing; it would name a team with Team Rynke but no event kinds, or a
@@ -41,6 +43,9 @@ http://localhost:8789, Europe on http://europe.localhost:8790).
    her again: the notice shows once.
 7. **Tours**: restart the tour on Europe (Settings): no Team Rynke or Events step; the organiser tour
    has only the Riders steps.
+8. **Outside virtual rides**: on Europe, `Védís Virtual` (70 outdoors, the rest virtual) misses 14
+   Training Rynke outdoors, of 84; the tour's outdoor step says "at least 84 of 250". On Hamburg it
+   says "at least 167 of 250", without "1/3".
 
 ## After the release
 

@@ -408,6 +408,58 @@ unchanged.
 
 ---
 
+## Phase 9: User Story 6 — Europe needs only a third from outside virtual rides (P1)
+
+Added after the first implementation (spec User Story 6, research R15), on the same branch and
+pull request.
+
+**Goal**: one whole-number rule value, `minOutsideTraining`, replaces the virtual share: Hamburg
+167 with the same results, Europe 84; 0 drops the requirement everywhere (FR-017–FR-021).
+
+**Independent Test**: Hamburg's season snapshot and stored results unchanged; its pages snapshot
+changes only in the tour's outdoor step; Europe needs 84; a rule set with 0 shows nothing about it.
+
+### Tests
+
+- [X] T070 [P] [US6] `test/unit/rules.test.ts`: Hamburg's values and fingerprint name
+  `minOutsideTraining: 167` (version stays 3); `assertValidRules` refuses -1, 0.5, 251 and NaN,
+  accepts 0, 84 and 250
+- [X] T071 [P] [US6] `test/teams/rules.test.ts`: each Hamburg version needs `ceil(250 × 2 / 3)` = 167,
+  Europe `ceil(250 / 3)` = 84; Europe's version 4 pin names 84
+- [X] T072 [P] [US6] `test/unit/tally.test.ts`: the rules' number is what's missing; with 0 a rider
+  qualifies on virtual rides alone; Hamburg's 167 is the old formula
+- [X] T073 [P] [US6] `test/unit/rider-view.test.ts`, `test/unit/progress-view.test.ts`,
+  `test/unit/overview.test.ts`: with 0, no outdoor condition, gauge, curve, column, figure, reason
+  or amount to go; with 167 all as before
+- [X] T074 [P] [US6] `test/teams/switches.test.ts`: both teams have the outdoor tour step; a rule
+  version with 0 turns `outside` off and drops exactly that step
+- [X] T075 [P] [US6] `test/unit/rules-handout.test.ts`: Europe's handout names 84 and no 167,
+  Hamburg's still 167
+
+### Implementation
+
+- [X] T076 [US6] `src/rynke/rules.ts`: `minOutsideTraining` replaces `maxVirtualShare`, validated
+  as a whole number from 0 to `trainingThreshold`; `src/teams/hamburg.ts` 167 in version 1 (2 and 3
+  spread it), `src/teams/europe.ts` 84 in version 4
+- [X] T077 [US6] `src/rynke/tally.ts` and `src/rynke/pace.ts` read the number; `virtualShareRequired`
+  goes
+- [X] T078 [US6] `src/http/rider-view.ts`, `src/http/progress-view.ts`,
+  `src/http/organiser/overview.ts`: nothing about it with 0
+- [X] T079 [US6] `src/http/tour.ts`, `src/http/shell.ts`, `src/teams/index.ts`: switch `outside`
+  from `hasOutsideRule(team)`; `tour.rider.outdoor` `only: "outside"`; no `{virtualShare}` param
+- [X] T080 [US6] `tour.rider.outdoor` and `.noEvents` without the share sentence in all ten
+  catalogs (contracts/messages.md); `test/integration/tour.test.ts` and Hamburg's tour-step
+  snapshot updated for exactly that sentence, after checking the diff
+- [X] T081 [US6] `dev/fake-strava/samples.europe.ts`: `Védís Virtual` rides 7 times outdoors, so she
+  still misses Training Rynke outdoors under 84
+- [X] T082 [US6] `docs/teams/europe/rynke-points.md` names 84 with new examples; `pnpm docs:pdf`,
+  keeping Hamburg's PDF (text unchanged, only its date)
+- [X] T083 [US6] `test/unit/catalogs.test.ts`: the inventory lists this feature's new keys
+- [X] T084 [US6] Run `node scripts/team-check.mjs`, `pnpm typecheck`, `test/teams` and the touched
+  app tests; Hamburg's season snapshot passes without `-u`
+
+---
+
 ## Dependencies & Execution Order
 
 - **Phase 1** (pin Hamburg) comes first, on today's code, and blocks everything.
@@ -421,6 +473,7 @@ unchanged.
 - **US1** (Phase 7) closes after every other story; its snapshots are checked at every checkpoint
   on the way.
 - Within a story: tests first and failing, then rules and data, then guards, then views and texts.
+- **US6** (Phase 9) came after the pull request was opened; it depends on T027 (Europe's version 4).
 
 ## Parallel Opportunities
 

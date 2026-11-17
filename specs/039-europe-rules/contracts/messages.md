@@ -2,7 +2,8 @@
 
 Every key is added to all ten catalogs under `src/i18n/messages/`; German is the key source,
 English the reference wording (constitution, Language). Europe's texts are written fresh for a
-distributed team: they don't assume group rides. No existing key's text changes.
+distributed team: they don't assume group rides. No existing key's text changes, except
+`tour.rider.outdoor` (below).
 
 ## New keys
 
@@ -47,3 +48,14 @@ Texts only shown with Team Rynke or events (`hero.team`, `rynke.team`, `rynke.mi
 `organiser.requests.*`, `tour.rider.teamRynke`, `tour.rider.events`, `tour.organiser.newEvent*`,
 `album.events.*`, the event-only badges' texts) get no variant: a team without them never renders
 them.
+
+## Changed: the outdoor tour step (research R15)
+
+`tour.rider.outdoor` and `tour.rider.outdoor.noEvents` lose their first sentence, which named the
+share (`{virtualShare}`, now gone), in all ten languages. The rest names `{outside}` of
+`{trainingThreshold}`.
+
+| Key | English | German |
+|---|---|---|
+| `tour.rider.outdoor` | This bar counts everything but virtual rides: at least {outside} of {trainingThreshold} Training Rynke have to come from riding outside, team events included. | Dieser Balken zählt alles außer virtuellen Fahrten: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren, Teamtermine zählen mit. |
+| `tour.rider.outdoor.noEvents` | This bar counts everything but virtual rides: at least {outside} of {trainingThreshold} Training Rynke have to come from riding outside. | Dieser Balken zählt alles außer virtuellen Fahrten: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren. |
