@@ -290,9 +290,9 @@ export const lt: Catalog = {
 	"tour.rider.teamRynke":
 		"Komandos Rynke gaunami tik iš komandos renginių, į kuriuos tave įtraukė organizatoriai: {teamTraining} už komandos treniruotę, {weekendDay} už treniruočių savaitgalio dieną, {technique} už technikos treniruotę. Paryžiui reikia {teamThreshold}.",
 	"tour.rider.outdoor":
-		"Ne daugiau kaip {virtualShare} tavo Treniruočių Rynke gali būti iš virtualių važiavimų. Ši juosta skaičiuoja visa kita: bent {outside} iš {trainingThreshold} Treniruočių Rynke turi būti iš važiavimų lauke, įskaitant komandos renginius.",
+		"Ši juosta skaičiuoja viską, išskyrus virtualius važiavimus: bent {outside} iš {trainingThreshold} Treniruočių Rynke turi būti iš važiavimų lauke, įskaitant komandos renginius.",
 	"tour.rider.outdoor.noEvents":
-		"Ne daugiau kaip {virtualShare} tavo Treniruočių Rynke gali būti iš virtualių važiavimų. Ši juosta skaičiuoja visa kita: bent {outside} iš {trainingThreshold} Treniruočių Rynke turi būti iš važiavimų lauke.",
+		"Ši juosta skaičiuoja viską, išskyrus virtualius važiavimus: bent {outside} iš {trainingThreshold} Treniruočių Rynke turi būti iš važiavimų lauke.",
 	"tour.rider.rides":
 		"Važiavimai: kiekvienas važiavimas ir ką jis davė. Šis neskaičiuojamas. „Kodėl?“ paaiškina, kas negerai ir ką gali padaryti.",
 	"tour.rider.shortRide":

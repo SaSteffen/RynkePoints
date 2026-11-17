@@ -287,9 +287,9 @@ export const nb: Catalog = {
 	"tour.rider.teamRynke":
 		"Team-Rynke kommer bare fra lagarrangementer arrangørene har lagt deg til på: {teamTraining} for en lagtrening, {weekendDay} for en dag på treningshelgen, {technique} for en teknikktrening. Du trenger {teamThreshold} til Paris.",
 	"tour.rider.outdoor":
-		"Høyst {virtualShare} av Trenings-Rynke-ene dine kan komme fra virtuelle turer. Denne linjen teller alt annet: minst {outside} av {trainingThreshold} Trenings-Rynke må komme fra sykling ute, lagarrangementer medregnet.",
+		"Denne linjen teller alt unntatt virtuelle turer: minst {outside} av {trainingThreshold} Trenings-Rynke må komme fra sykling ute, lagarrangementer medregnet.",
 	"tour.rider.outdoor.noEvents":
-		"Høyst {virtualShare} av Trenings-Rynke-ene dine kan komme fra virtuelle turer. Denne linjen teller alt annet: minst {outside} av {trainingThreshold} Trenings-Rynke må komme fra sykling ute.",
+		"Denne linjen teller alt unntatt virtuelle turer: minst {outside} av {trainingThreshold} Trenings-Rynke må komme fra sykling ute.",
 	"tour.rider.rides":
 		"Turer: hver tur og hva den ga. Denne teller ikke. «Hvorfor?» forteller hva som gikk galt og hva du kan gjøre.",
 	"tour.rider.shortRide":

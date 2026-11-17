@@ -5,7 +5,6 @@ import type { MessageId } from "../i18n/catalogs";
 import { eventsText, type NoEventsId } from "../i18n/events-text";
 import type { I18n } from "../i18n/i18n";
 import type { RynkeRules } from "../rynke/rules";
-import { virtualShareRequired } from "../rynke/tally";
 import type { TeamData } from "../teams/types";
 import { forbidden } from "./errors";
 import { html, type SafeHtml } from "./html";
@@ -54,6 +53,8 @@ export interface TourSwitches {
 	teamRynke: boolean;
 	/** The team's organisers record events (feature 039). */
 	events: boolean;
+	/** Some Training Rynke must come from outside virtual rides (feature 039). */
+	outside: boolean;
 	/** `/team` ranks by ride figures too (feature 032). */
 	rideRanking: boolean;
 	/** Orga › Rider shows each rider's rides (feature 032). */
@@ -112,6 +113,7 @@ export const TOURS: Record<TourId, readonly TourStep[]> = {
 			text: "tour.rider.outdoor",
 			target: "tour-outdoor",
 			example: true,
+			only: "outside",
 		},
 		{
 			path: "/me/rides",
@@ -228,6 +230,7 @@ const ALL_ON: TourSwitches = {
 	hidden: new Set(),
 	teamRynke: true,
 	events: true,
+	outside: true,
 	rideRanking: true,
 	riderRides: true,
 	graphs: true,
@@ -356,8 +359,7 @@ function ruleParams(i18n: I18n, rules: RynkeRules): Record<string, string> {
 		...(rules.teamThreshold === null
 			? {}
 			: { teamThreshold: whole(rules.teamThreshold) }),
-		virtualShare: `${rules.maxVirtualShare.num}/${rules.maxVirtualShare.den}`,
-		outside: whole(virtualShareRequired(rules)),
+		outside: whole(rules.minOutsideTraining),
 		trainingThreshold: whole(rules.trainingThreshold),
 	};
 }

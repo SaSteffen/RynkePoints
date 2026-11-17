@@ -15,7 +15,7 @@ import type { MessageId } from "../i18n/catalogs";
 import type { I18n } from "../i18n/i18n";
 import { vapidPublicKey } from "../push/vapid";
 import { countingWindow, currentRules } from "../rynke/rules";
-import { hasEvents, hasTeamRynke } from "../teams";
+import { hasEvents, hasOutsideRule, hasTeamRynke } from "../teams";
 import type { TeamData } from "../teams/types";
 import { consentGate } from "./consent-gate";
 import {
@@ -136,6 +136,7 @@ export function tourSwitches({
 		hidden: hiddenSections(env, team),
 		teamRynke: hasTeamRynke(team),
 		events: hasEvents(team),
+		outside: hasOutsideRule(team),
 		rideRanking: rideFigures(env),
 		riderRides: organiserRideFigures(env),
 		graphs: organiserGraphsShown(env),

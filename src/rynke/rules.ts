@@ -46,7 +46,12 @@ export interface RynkeRules {
 	 * misses any then, and every team-event amount's `team` is 0.
 	 */
 	teamThreshold: number | null;
-	maxVirtualShare: Share;
+	/**
+	 * How many of the `trainingThreshold` Training Rynke must come from
+	 * anything but virtual rides, a whole number (FR-014a, feature 039 research
+	 * R15). 0: no such requirement at all, nothing shows it.
+	 */
+	minOutsideTraining: number;
 	teamEvents: Readonly<Record<TeamEventKind, TeamEventAmounts>>;
 }
 
@@ -180,17 +185,26 @@ export function assertValidRules(rules: RynkeRules): void {
 	if (rules.minSpeedKmh >= rules.maxSpeedKmh) {
 		throw new Error("rules.minSpeedKmh must be below rules.maxSpeedKmh");
 	}
-	for (const field of ["maxPausedShare", "maxVirtualShare"] as const) {
-		const { num, den } = rules[field];
-		if (
-			!Number.isInteger(num) ||
-			!Number.isInteger(den) ||
-			den <= 0 ||
-			num < 0 ||
-			num > den
-		) {
-			throw new Error(`rules.${field} must be a share 0 ≤ num ≤ den, den > 0`);
-		}
+	const { num, den } = rules.maxPausedShare;
+	if (
+		!Number.isInteger(num) ||
+		!Number.isInteger(den) ||
+		den <= 0 ||
+		num < 0 ||
+		num > den
+	) {
+		throw new Error(
+			"rules.maxPausedShare must be a share 0 ≤ num ≤ den, den > 0",
+		);
+	}
+	if (
+		!Number.isInteger(rules.minOutsideTraining) ||
+		rules.minOutsideTraining < 0 ||
+		rules.minOutsideTraining > rules.trainingThreshold
+	) {
+		throw new Error(
+			"rules.minOutsideTraining must be a whole number from 0 to trainingThreshold",
+		);
 	}
 	const kinds = Object.keys(rules.teamEvents);
 	if (

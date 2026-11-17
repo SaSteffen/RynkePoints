@@ -4,8 +4,9 @@ import type { TeamData } from "./types";
 
 // Europe's own Rynke rules (feature 039, decided with Team Europe on
 // 2026-11-17): the founding team's version 3 values, written out, plus a
-// minimum ride length of 25 km, and no Team Rynke: no threshold, and no team
-// event earns any (research R2). Raise `version` and set `effectiveDate` in the
+// minimum ride length of 25 km, only a third of the Training Rynke needed from
+// outside virtual rides, and no Team Rynke: no threshold, and no team event
+// earns any (research R2). Raise `version` and set `effectiveDate` in the
 // same change as any change of a value or of rule logic, and keep the previous
 // object in `rules`: every stored result records its version, the daily cron
 // re-evaluates riders stored with another one, and the rider page explains a
@@ -25,7 +26,8 @@ const EUROPE_RULES_V4: RynkeRules = {
 	excludedSportTypes: ["EBikeRide", "EMountainBikeRide"],
 	trainingThreshold: 250,
 	teamThreshold: null,
-	maxVirtualShare: { num: 1, den: 3 },
+	// A third of 250 from anything but virtual rides, rounded up (research R15).
+	minOutsideTraining: 84,
 	teamEvents: {
 		team_training: { team: 0, training: 0 },
 		training_weekend_day: { team: 0, training: 0 },

@@ -621,3 +621,61 @@ describe("the overview without Team Rynke", () => {
 		expect(html).not.toContain("<li>Corrections 6 Training, 0 Team</li>");
 	});
 });
+
+// Feature 039 research R15: rules that need no Training from outside virtual
+// rides ask organisers about none either.
+describe("the overview without Training needed outdoors", () => {
+	const NONE: RynkeRules = { ...CURRENT_RULES, minOutsideTraining: 0 };
+	/** What the evaluation stores then: nothing missing outdoors. */
+	const allVirtual = (training: number, team: number): Balance => {
+		const b = balance(training, team, 0);
+		return {
+			...b,
+			virtualShareMissing: 0,
+			qualified: b.trainingMissing === 0 && b.teamMissing === 0,
+		};
+	};
+	const VERA = rider(1, "Vera", allVirtual(300, 30));
+	const OLE = rider(2, "Ole", allVirtual(100, 20));
+
+	it("misses no outdoor Training and groups by the rest", () => {
+		const riders = overviewRiders([VERA, OLE], NONE, RUNNING, TODAY);
+		for (const r of riders) expect(r.missing.outdoor.amount).toBe(0);
+		expect(riders.find((r) => r.athleteId === 1)?.status).toBe("in");
+		expect(riders.find((r) => r.athleteId === 2)?.status).toBe("push");
+	});
+
+	it("shows no outdoor figure, reason or amount to go", () => {
+		const html = overviewBody(
+			[VERA, OLE],
+			NONE,
+			RUNNING,
+			TODAY,
+			"all",
+			en,
+			new Map(),
+			false,
+			"full",
+		).value;
+		for (const part of [
+			"Outdoor Training",
+			en.t("organiser.overview.reason.outdoor"),
+			"outdoor Training to go",
+		]) {
+			expect(html, part).not.toContain(part);
+		}
+		expect(
+			overviewBody(
+				[VERA, OLE],
+				CURRENT_RULES,
+				RUNNING,
+				TODAY,
+				"all",
+				en,
+				new Map(),
+				false,
+				"full",
+			).value,
+		).toContain("Outdoor Training 0 of 167");
+	});
+});

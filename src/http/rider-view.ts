@@ -14,7 +14,6 @@ import {
 	type RynkeRules,
 	type Share,
 } from "../rynke/rules";
-import { virtualShareRequired } from "../rynke/tally";
 import type {
 	EventKind,
 	TeamEventKind,
@@ -87,7 +86,10 @@ export interface Summary {
 	training: Condition;
 	/** `null` when the version has no Team Rynke (feature 039). */
 	team: Condition | null;
-	/** `null` when the rider has no virtual ride (FR-012). */
+	/**
+	 * `null` when the rider has no virtual ride (FR-012), or the version needs
+	 * nothing from outside them (feature 039 research R15).
+	 */
 	withoutVirtual: Condition | null;
 	/** Stored (FR-011, FR-023). */
 	qualified: boolean;
@@ -106,7 +108,10 @@ export interface Gauges {
 	training: Gauge;
 	/** `null` when the version has no Team Rynke (feature 039). */
 	team: Gauge | null;
-	/** `null` when the rider has no virtual ride (FR-012). */
+	/**
+	 * `null` when the rider has no virtual ride (FR-012), or the version needs
+	 * nothing from outside them (feature 039 research R15).
+	 */
 	withoutVirtual: Gauge | null;
 	elevation: ElevationGauge;
 }
@@ -345,11 +350,11 @@ export function summary(
 						balance.teamMissing,
 					),
 		withoutVirtual:
-			virtualCount === 0
+			virtualCount === 0 || rules?.minOutsideTraining === 0
 				? null
 				: condition(
 						balance.trainingWithoutVirtual,
-						rules ? virtualShareRequired(rules) : null,
+						rules?.minOutsideTraining ?? null,
 						balance.virtualShareMissing,
 					),
 		qualified: balance.qualified,
@@ -387,9 +392,9 @@ function gauges(
 		),
 		team: teamGauge(balance.teamRynke, kinds, rules.teamThreshold),
 		withoutVirtual:
-			virtualCount === 0
+			virtualCount === 0 || rules.minOutsideTraining === 0
 				? null
-				: gauge(balance.trainingWithoutVirtual, virtualShareRequired(rules)),
+				: gauge(balance.trainingWithoutVirtual, rules.minOutsideTraining),
 		elevation: {
 			...gauge(stepDm - balance.elevationToNextStepDm, stepDm),
 			stepRynke: rules.elevationStepRynke,

@@ -289,9 +289,9 @@ export const da: Catalog = {
 	"tour.rider.teamRynke":
 		"Team-Rynke kommer kun fra holdarrangementer, som arrangørerne har tilføjet dig til: {teamTraining} for en holdtræning, {weekendDay} for en dag på træningsweekenden, {technique} for en teknisk træning. Du skal bruge {teamThreshold} til Paris.",
 	"tour.rider.outdoor":
-		"Højst {virtualShare} af dine Trænings-Rynke må komme fra virtuelle ture. Denne bjælke tæller alt andet: mindst {outside} af {trainingThreshold} Trænings-Rynke skal komme fra at køre udendørs, holdarrangementer medregnet.",
+		"Denne bjælke tæller alt undtagen virtuelle ture: mindst {outside} af {trainingThreshold} Trænings-Rynke skal komme fra at køre udendørs, holdarrangementer medregnet.",
 	"tour.rider.outdoor.noEvents":
-		"Højst {virtualShare} af dine Trænings-Rynke må komme fra virtuelle ture. Denne bjælke tæller alt andet: mindst {outside} af {trainingThreshold} Trænings-Rynke skal komme fra at køre udendørs.",
+		"Denne bjælke tæller alt undtagen virtuelle ture: mindst {outside} af {trainingThreshold} Trænings-Rynke skal komme fra at køre udendørs.",
 	"tour.rider.rides":
 		"Ture: hver tur og hvad den gav. Denne her tæller ikke. »Hvorfor?« fortæller, hvad der gik galt, og hvad du kan gøre.",
 	"tour.rider.shortRide":

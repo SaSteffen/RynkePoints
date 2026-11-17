@@ -36,7 +36,9 @@ const RULES_V1: RynkeRules = {
 	excludedSportTypes: ["EBikeRide", "EMountainBikeRide"],
 	trainingThreshold: 250,
 	teamThreshold: 25,
-	maxVirtualShare: { num: 1, den: 3 },
+	// At most a third virtual: 2/3 of 250, rounded up. Written as a whole number
+	// since feature 039 (research R15), with the same results, so no new version.
+	minOutsideTraining: 167,
 	teamEvents: {
 		team_training: { team: 1, training: 5 },
 		training_weekend_day: { team: 5, training: 10 },

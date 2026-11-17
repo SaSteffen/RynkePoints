@@ -62,8 +62,8 @@ kilometres and the elevation of your rides.
 |-------------|---------------:|
 | at least    |        **250** |
 
-Of these 250 Training Rynke, at most one third may come from virtual rides (see
-"Virtual rides").
+Of these 250 Training Rynke, at least 84 have to come from outside virtual rides
+(see "Virtual rides").
 
 # How you get Rynke
 
@@ -185,16 +185,15 @@ don't count.
 
 Rides on an indoor trainer count as normal, with Zwift or similar apps just as
 without. A virtual ride is any ride that Strava marks as a virtual ride or as an
-indoor trainer ride. For the Tour, though: **at most one third** of the 250
-Training Rynke may come from virtual rides. So you need at least **167 Training
-Rynke** from rides outdoors and corrections. Whatever you collect
-virtually beyond that stays in your total, but on its own it won't get you to
-Paris.
+indoor trainer ride. For the Tour, though: you need at least **84 Training
+Rynke**, a third of the 250, from rides outdoors and corrections. The rest may
+come from virtual rides. Whatever you collect virtually stays in your total, but
+on its own it won't get you to Paris.
 
 | Training Rynke | of which virtual | without virtual | In?                                 |
 |---------------:|-----------------:|----------------:|-------------------------------------|
-|            260 |              100 |             160 | no, 7 without virtual are missing   |
-|            250 |               80 |             170 | yes                                 |
+|            260 |              180 |              80 | no, 4 without virtual are missing   |
+|            250 |              160 |              90 | yes                                 |
 
 ### Set your real body weight!
 

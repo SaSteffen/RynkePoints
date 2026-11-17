@@ -287,9 +287,9 @@ export const en: Catalog = {
 	"tour.rider.teamRynke":
 		"Team Rynke only come from team events the organisers have added you to: {teamTraining} for a team training, {weekendDay} for a day of the training weekend, {technique} for a technique training. You need {teamThreshold} for Paris.",
 	"tour.rider.outdoor":
-		"At most {virtualShare} of your Training Rynke may come from virtual rides. This bar counts everything else: at least {outside} of {trainingThreshold} Training Rynke have to come from riding outside, team events included.",
+		"This bar counts everything but virtual rides: at least {outside} of {trainingThreshold} Training Rynke have to come from riding outside, team events included.",
 	"tour.rider.outdoor.noEvents":
-		"At most {virtualShare} of your Training Rynke may come from virtual rides. This bar counts everything else: at least {outside} of {trainingThreshold} Training Rynke have to come from riding outside.",
+		"This bar counts everything but virtual rides: at least {outside} of {trainingThreshold} Training Rynke have to come from riding outside.",
 	"tour.rider.rides":
 		"Rides: every ride and what it earned. This one doesn't count. “Why?” says what went wrong and what you can do.",
 	"tour.rider.shortRide":

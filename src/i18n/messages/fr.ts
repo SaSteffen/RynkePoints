@@ -303,9 +303,9 @@ export const fr: Catalog = {
 	"tour.rider.teamRynke":
 		"Les Rynke d'équipe ne viennent que des événements d'équipe auxquels les organisateurs t'ont ajouté·e\u00a0: {teamTraining} pour un entraînement d'équipe, {weekendDay} pour une journée du week-end d'entraînement, {technique} pour un entraînement technique. Il t'en faut {teamThreshold} pour Paris.",
 	"tour.rider.outdoor":
-		"Au plus {virtualShare} de tes Rynke d'entraînement peuvent venir de sorties virtuelles. Cette barre compte tout le reste\u00a0: au moins {outside} sur {trainingThreshold} Rynke d'entraînement doivent venir de sorties dehors, événements d'équipe compris.",
+		"Cette barre compte tout sauf les sorties virtuelles\u00a0: au moins {outside} sur {trainingThreshold} Rynke d'entraînement doivent venir de sorties dehors, événements d'équipe compris.",
 	"tour.rider.outdoor.noEvents":
-		"Au plus {virtualShare} de tes Rynke d'entraînement peuvent venir de sorties virtuelles. Cette barre compte tout le reste : au moins {outside} sur {trainingThreshold} Rynke d'entraînement doivent venir de sorties dehors.",
+		"Cette barre compte tout sauf les sorties virtuelles : au moins {outside} sur {trainingThreshold} Rynke d'entraînement doivent venir de sorties dehors.",
 	"tour.rider.rides":
 		"Sorties\u00a0: chaque sortie et ce qu'elle a rapporté. Celle-ci ne compte pas. «\u00a0Pourquoi\u00a0?\u00a0» explique ce qui n'a pas marché et ce que tu peux faire.",
 	"tour.rider.shortRide":

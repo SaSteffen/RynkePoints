@@ -285,9 +285,9 @@ export const sv: Catalog = {
 	"tour.rider.teamRynke":
 		"Team-Rynke kommer bara från lagaktiviteter som arrangörerna har lagt till dig i: {teamTraining} för en lagträning, {weekendDay} för en dag på träningshelgen, {technique} för en teknikträning. Du behöver {teamThreshold} till Paris.",
 	"tour.rider.outdoor":
-		"Högst {virtualShare} av dina Tränings-Rynke får komma från virtuella turer. Den här stapeln räknar allt annat: minst {outside} av {trainingThreshold} Tränings-Rynke måste komma från cykling utomhus, lagaktiviteter inräknade.",
+		"Den här stapeln räknar allt utom virtuella turer: minst {outside} av {trainingThreshold} Tränings-Rynke måste komma från cykling utomhus, lagaktiviteter inräknade.",
 	"tour.rider.outdoor.noEvents":
-		"Högst {virtualShare} av dina Tränings-Rynke får komma från virtuella turer. Den här stapeln räknar allt annat: minst {outside} av {trainingThreshold} Tränings-Rynke måste komma från cykling utomhus.",
+		"Den här stapeln räknar allt utom virtuella turer: minst {outside} av {trainingThreshold} Tränings-Rynke måste komma från cykling utomhus.",
 	"tour.rider.rides":
 		"Turer: varje tur och vad den gav. Den här räknas inte. ”Varför?” berättar vad som gick fel och vad du kan göra.",
 	"tour.rider.shortRide":

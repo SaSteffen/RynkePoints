@@ -292,9 +292,9 @@ export const nl: Catalog = {
 	"tour.rider.teamRynke":
 		"Team-Rynke komen alleen van teamevenementen waar de organisatoren je aan hebben toegevoegd: {teamTraining} voor een teamtraining, {weekendDay} voor een dag van het trainingsweekend, {technique} voor een techniektraining. Voor Parijs heb je er {teamThreshold} nodig.",
 	"tour.rider.outdoor":
-		"Hoogstens {virtualShare} van je Trainings-Rynke mag uit virtuele ritten komen. Deze balk telt al het andere: minstens {outside} van {trainingThreshold} Trainings-Rynke moeten van buiten fietsen komen, teamevenementen inbegrepen.",
+		"Deze balk telt alles behalve virtuele ritten: minstens {outside} van {trainingThreshold} Trainings-Rynke moeten van buiten fietsen komen, teamevenementen inbegrepen.",
 	"tour.rider.outdoor.noEvents":
-		"Hoogstens {virtualShare} van je Trainings-Rynke mag uit virtuele ritten komen. Deze balk telt al het andere: minstens {outside} van {trainingThreshold} Trainings-Rynke moeten van buiten fietsen komen.",
+		"Deze balk telt alles behalve virtuele ritten: minstens {outside} van {trainingThreshold} Trainings-Rynke moeten van buiten fietsen komen.",
 	"tour.rider.rides":
 		"Ritten: elke rit en wat hij opleverde. Deze telt niet. “Waarom?” zegt wat er misging en wat je kunt doen.",
 	"tour.rider.shortRide":

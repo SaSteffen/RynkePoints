@@ -1015,6 +1015,26 @@ const CONTRACT_IDS = [
 	"privacy.retention.blocklist",
 	"consent.referenceNote",
 	"consent.referenceNote.link",
+	// Feature 039: the minimum ride length, and the `.noEvents` variants
+	// (contracts/messages.md).
+	"rynke.reason.too_short",
+	"rynke.reason.too_short.noLimit",
+	"rynke.rules.minRide",
+	"badges.surprise.sunday-outing.for.noEvents",
+	"consent.organisers.noEvents",
+	"landing.purpose.noEvents",
+	"organiser.overview.amounts.noEvents",
+	"organiser.overview.corrections.noEvents",
+	"organiser.overview.hint.noEvents",
+	"organiser.overview.hint.percent.noEvents",
+	"organiser.overview.qualifiedHint.noEvents",
+	"privacy.legal.body.noEvents",
+	"privacy.team.body.noEvents",
+	"privacy.visibility.organisers.noEvents",
+	"progress.day.noEvents",
+	"tour.organiser.groups.noEvents",
+	"tour.organiser.riders.noEvents",
+	"tour.rider.outdoor.noEvents",
 	// specs/026-second-team/contracts/phrases.md: one common name per badge.
 	...BADGES.map((badge) => `badge.name.${badge.id}`),
 ];

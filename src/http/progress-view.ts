@@ -5,7 +5,6 @@
 
 import type { RiderViewRead } from "../db/rider-view";
 import type { CountingWindow, RynkeRules } from "../rynke/rules";
-import { virtualShareRequired } from "../rynke/tally";
 import {
 	type CurvePoint,
 	dayNumber,
@@ -116,7 +115,10 @@ export function buildProgressView(
 		};
 	};
 	const training = series((p) => p.training, rules.trainingThreshold, 50);
-	const needed = virtualShareRequired(rules);
+	const needed = rules.minOutsideTraining;
+	// Nothing needed from outside virtual rides: no such curve or column
+	// (feature 039 research R15).
+	const withOutside = read.virtualCount > 0 && needed > 0;
 	return {
 		state: "ready",
 		rulesVersion: rules.version,
@@ -132,21 +134,20 @@ export function buildProgressView(
 			rules.teamThreshold === null
 				? null
 				: series((p) => p.team, rules.teamThreshold, 5),
-		outside:
-			read.virtualCount > 0
-				? {
-						values: points.map((p) => p.outside),
-						threshold: needed,
-						yMax: training.yMax,
-						pace: true,
-						needed,
-					}
-				: null,
+		outside: withOutside
+			? {
+					values: points.map((p) => p.outside),
+					threshold: needed,
+					yMax: training.yMax,
+					pace: true,
+					needed,
+				}
+			: null,
 		weeks: weekRows(
 			points,
 			seasonStart,
 			last,
-			read.virtualCount > 0,
+			withOutside,
 			rules.teamThreshold !== null,
 		),
 	};

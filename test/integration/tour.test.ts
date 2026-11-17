@@ -145,7 +145,11 @@ describe("the rider tour", () => {
 			`Für Paris brauchst du ${CURRENT_RULES.teamThreshold}.`,
 		);
 		const outdoor = (await hintOn("/me?tour=rider&step=6")).card;
-		expect(outdoor).toContain("Höchstens 1/3 deiner Trainingsrynke");
+		// The whole number of feature 039 research R15: no share any more.
+		expect(outdoor).toContain(
+			"Dieser Balken zählt alles außer virtuellen Fahrten",
+		);
+		expect(outdoor).not.toContain("1/3");
 		expect(outdoor).toContain("Mindestens 167 von 250 Trainingsrynke");
 		const short = (await hintOn("/me/rides?tour=rider&step=8")).card;
 		expect(short).toContain(

@@ -33,7 +33,6 @@ import {
 	type RynkeRules,
 } from "../../rynke/rules";
 import type { RideEntry } from "../../rynke/summary";
-import { virtualShareRequired } from "../../rynke/tally";
 import type { TeamEventSum } from "../../rynke/team-events";
 import { dayNumber } from "../../rynke/weeks";
 import { hasEvents } from "../../teams";
@@ -140,7 +139,7 @@ export function overviewPace(
 	return {
 		training: pace(rules.trainingThreshold),
 		team: rules.teamThreshold === null ? null : pace(rules.teamThreshold),
-		outdoor: pace(virtualShareRequired(rules)),
+		outdoor: pace(rules.minOutsideTraining),
 	};
 }
 
@@ -160,7 +159,7 @@ export function overviewRiders(
 			read.map((r) => ({ athlete_id: r.athleteId, first_name: r.firstName })),
 		).map((r) => [r.athlete_id, r.profileLink]),
 	);
-	const required = virtualShareRequired(rules);
+	const required = rules.minOutsideTraining;
 	// Without Team Rynke the Team part is absent, not zero (feature 039).
 	const { teamThreshold } = rules;
 	const riders = read.map((rider): OverviewRider => {
@@ -513,10 +512,16 @@ function fullBody(
 			training: whole(breakdown.corrections.training),
 			team: whole(breakdown.corrections.team),
 		}),
-		i18n.t("organiser.overview.outdoor", {
-			n: whole(rider.outdoorTraining),
-			required: whole(virtualShareRequired(rules)),
-		}),
+		// Nothing needed from outside virtual rides: no such figure (feature 039
+		// research R15).
+		...(rules.minOutsideTraining === 0
+			? []
+			: [
+					i18n.t("organiser.overview.outdoor", {
+						n: whole(rider.outdoorTraining),
+						required: whole(rules.minOutsideTraining),
+					}),
+				]),
 		i18n.t("organiser.overview.virtual", { n: whole(breakdown.virtualShare) }),
 	];
 	const rides =

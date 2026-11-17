@@ -96,10 +96,10 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		scopes: ALL_SCOPES,
 		clubMember: true,
 		behaviour: "normal",
-		// Outdoors: 140 distance Rynke and 1,400 m (5 Rynke), under 167. With
-		// the virtual rides: over 250.
+		// Outdoors: 70 distance Rynke and 700 m (no Rynke), under the 84 needed
+		// from outside virtual rides. With the virtual rides: over 250.
 		rides: rides(27, (i) =>
-			i < 14
+			i < 7
 				? ride(...slot(i), 100, 100, 26)
 				: ride(...slot(i), 100, 200, 31, {
 						sportType: "VirtualRide",

@@ -283,3 +283,25 @@ describe("buildProgressView without Team Rynke (feature 039)", () => {
 		for (const week of view.weeks) expect(week.team).not.toBeNull();
 	});
 });
+
+// Feature 039 research R15: nothing needed from outside virtual rides, no
+// such curve or column, even with virtual rides.
+describe("buildProgressView without Training Rynke needed from outside virtual rides", () => {
+	it("has no outside curve and no outside column", () => {
+		const view = buildProgressView(
+			riderWith(150, 0, 100),
+			{ ...CURRENT_RULES, minOutsideTraining: 0 },
+			EXAMPLE_WINDOW,
+			EXAMPLE_TODAY,
+		);
+		if (view.state !== "ready") throw new Error("no progress view");
+		expect(view.outside).toBeNull();
+		for (const week of view.weeks) expect(week.outside).toBeNull();
+	});
+
+	it("keeps them with the rules' 167", () => {
+		const view = ready(riderWith(150, 0, 100));
+		expect(view.outside?.needed).toBe(167);
+		for (const week of view.weeks) expect(week.outside).not.toBeNull();
+	});
+});

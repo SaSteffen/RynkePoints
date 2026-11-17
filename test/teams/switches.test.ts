@@ -9,6 +9,7 @@ import { hiddenSections, tourSwitches } from "../../src/http/shell";
 import { tourSteps } from "../../src/http/tour";
 import { createI18n } from "../../src/i18n/i18n";
 import { type ActivityChange, evaluateChange } from "../../src/rynke/apply";
+import { currentRules } from "../../src/rynke/rules";
 import { europe } from "../../src/teams/europe";
 import { hamburg } from "../../src/teams/hamburg";
 import { teamBadgeNews } from "../../src/work/team-badge-news";
@@ -207,9 +208,12 @@ describe("Team Rynke and events", () => {
 		const founding = tourSwitches({ env, team: hamburg });
 		expect(founding.teamRynke).toBe(true);
 		expect(founding.events).toBe(true);
+		expect(founding.outside).toBe(true);
 		expect(founding.hidden).toEqual(hiddenSections(env, hamburg));
 		const other = tourSwitches({ env, team: europe });
 		expect(other).toMatchObject(OFF);
+		// Europe needs a third from outside virtual rides (research R15).
+		expect(other.outside).toBe(true);
 		expect(other.hidden).toEqual(hiddenSections(env, europe));
 	});
 
@@ -252,5 +256,28 @@ describe("Team Rynke and events", () => {
 			"tour.organiser.pace",
 			"tour.organiser.graphs",
 		]);
+	});
+
+	// Research R15: a team needing nothing from outside virtual rides has no
+	// step about it; both teams need some today.
+	it("has the outdoor step while the team needs Training from outside virtual rides", () => {
+		const rider = (team: typeof hamburg) =>
+			tourSteps("rider", { organiser: false }, tourSwitches({ env, team })).map(
+				(s) => s.text,
+			);
+		expect(rider(hamburg)).toContain("tour.rider.outdoor");
+		expect(rider(europe)).toContain("tour.rider.outdoor");
+		const inEffect = currentRules(europe.rules);
+		const none = {
+			...europe,
+			rules: [
+				...europe.rules,
+				{ ...inEffect, version: 5, minOutsideTraining: 0 },
+			],
+		};
+		expect(tourSwitches({ env, team: none }).outside).toBe(false);
+		expect(rider(none)).toEqual(
+			rider(europe).filter((text) => text !== "tour.rider.outdoor"),
+		);
 	});
 });

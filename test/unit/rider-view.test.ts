@@ -201,6 +201,17 @@ describe("buildRiderView summary", () => {
 		expect(summaryOf({}).withoutVirtual).toBeNull();
 	});
 
+	// Feature 039 research R15: 0 needed from outside virtual rides.
+	it("leaves out the share without virtual rides when the rules need none", () => {
+		const rules = { ...CURRENT_RULES, minOutsideTraining: 0 };
+		expect(
+			summaryOf(
+				{ trainingRynke: 262, trainingWithoutVirtual: 0 },
+				{ virtualCount: 3, rules },
+			).withoutVirtual,
+		).toBeNull();
+	});
+
 	it("S1-3: shows the share without virtual rides with a virtual ride", () => {
 		const summary = summaryOf(
 			{
@@ -220,7 +231,11 @@ describe("buildRiderView summary", () => {
 	});
 
 	it("S1-5: takes the targets from the balance's rules version", () => {
-		const rules = { ...CURRENT_RULES, trainingThreshold: 300 };
+		const rules = {
+			...CURRENT_RULES,
+			trainingThreshold: 300,
+			minOutsideTraining: 200,
+		};
 		const summary = summaryOf(
 			{ trainingRynke: 12, trainingMissing: 288 },
 			{ virtualCount: 1, rules },
@@ -537,6 +552,17 @@ describe("buildRiderView gauges", () => {
 
 	it("leaves out the share without virtual rides without a virtual ride", () => {
 		expect(gaugesOf({})?.withoutVirtual).toBeNull();
+	});
+
+	// Feature 039 research R15: 0 needed from outside virtual rides.
+	it("leaves out the share without virtual rides when the rules need none", () => {
+		const rules = { ...CURRENT_RULES, minOutsideTraining: 0 };
+		expect(
+			gaugesOf(
+				{ trainingRynke: 262, trainingWithoutVirtual: 0 },
+				{ virtualCount: 3, rules },
+			)?.withoutVirtual,
+		).toBeNull();
 	});
 
 	it("S2-5: fills the elevation gauge within the current step", () => {

@@ -286,9 +286,9 @@ export const fi: Catalog = {
 	"tour.rider.teamRynke":
 		"Tiimi-Rynkejä saa vain tiimitapahtumista, joihin järjestäjät ovat lisänneet sinut: {teamTraining} tiimiharjoituksesta, {weekendDay} harjoitusviikonlopun päivästä, {technique} tekniikkaharjoituksesta. Pariisiin tarvitset {teamThreshold}.",
 	"tour.rider.outdoor":
-		"Enintään {virtualShare} Harjoitus-Rynkeistäsi saa tulla virtuaaliajoista. Tämä palkki laskee kaiken muun: vähintään {outside}/{trainingThreshold} Harjoitus-Rynkestä on tultava ulkona ajamisesta, tiimitapahtumat mukaan lukien.",
+		"Tämä palkki laskee kaiken paitsi virtuaaliajot: vähintään {outside}/{trainingThreshold} Harjoitus-Rynkestä on tultava ulkona ajamisesta, tiimitapahtumat mukaan lukien.",
 	"tour.rider.outdoor.noEvents":
-		"Enintään {virtualShare} Harjoitus-Rynkeistäsi saa tulla virtuaaliajoista. Tämä palkki laskee kaiken muun: vähintään {outside}/{trainingThreshold} Harjoitus-Rynkestä on tultava ulkona ajamisesta.",
+		"Tämä palkki laskee kaiken paitsi virtuaaliajot: vähintään {outside}/{trainingThreshold} Harjoitus-Rynkestä on tultava ulkona ajamisesta.",
 	"tour.rider.rides":
 		"Ajot: jokainen ajo ja mitä se tuotti. Tätä ei lasketa. ”Miksi?” kertoo, mikä meni pieleen ja mitä voit tehdä.",
 	"tour.rider.shortRide":

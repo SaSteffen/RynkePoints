@@ -308,9 +308,9 @@ export const de = {
 	"tour.rider.teamRynke":
 		"Teamrynke gibt es nur für Teamtermine, bei denen die Orga dich eingetragen hat: {teamTraining} für ein Teamtraining, {weekendDay} für einen Tag am Trainingswochenende, {technique} für ein Techniktraining. Für Paris brauchst du {teamThreshold}.",
 	"tour.rider.outdoor":
-		"Höchstens {virtualShare} deiner Trainingsrynke dürfen von virtuellen Fahrten kommen. Dieser Balken zählt alles außer ihnen: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren, Teamtermine zählen mit.",
+		"Dieser Balken zählt alles außer virtuellen Fahrten: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren, Teamtermine zählen mit.",
 	"tour.rider.outdoor.noEvents":
-		"Höchstens {virtualShare} deiner Trainingsrynke dürfen von virtuellen Fahrten kommen. Dieser Balken zählt alles außer ihnen: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren.",
+		"Dieser Balken zählt alles außer virtuellen Fahrten: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren.",
 	"tour.rider.rides":
 		"Fahrten: jede Fahrt und was sie gebracht hat. Diese hier zählt nicht. Unter „Warum?“ steht, woran es lag und was du tun kannst.",
 	"tour.rider.shortRide":

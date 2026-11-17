@@ -23,6 +23,14 @@ export function hasTeamRynke(team: Pick<TeamData, "rules">): boolean {
 	return currentRules(team.rules).teamThreshold !== null;
 }
 
+/**
+ * Some of the team's Training Rynke must come from outside virtual rides
+ * (feature 039 research R15).
+ */
+export function hasOutsideRule(team: Pick<TeamData, "rules">): boolean {
+	return currentRules(team.rules).minOutsideTraining > 0;
+}
+
 /** The team's organisers record events. */
 export function hasEvents(team: Pick<TeamData, "eventKinds">): boolean {
 	return team.eventKinds.length > 0;

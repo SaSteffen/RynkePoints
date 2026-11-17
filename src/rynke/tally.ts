@@ -89,14 +89,17 @@ export function tally(
 		0,
 		training(riding.withoutVirtual) + extras.training,
 	);
-	const required = virtualShareRequired(rules);
 	const trainingMissing = Math.max(0, rules.trainingThreshold - trainingRynke);
 	// No Team Rynke, nothing missing (feature 039 research R2).
 	const teamMissing =
 		rules.teamThreshold === null
 			? 0
 			: Math.max(0, rules.teamThreshold - teamRynke);
-	const virtualShareMissing = Math.max(0, required - trainingWithoutVirtual);
+	// 0 required: nothing ever missing (feature 039 research R15).
+	const virtualShareMissing = Math.max(
+		0,
+		rules.minOutsideTraining - trainingWithoutVirtual,
+	);
 	return {
 		distanceRynke: riding.distanceRynke,
 		elevationDm: riding.elevationDm,
@@ -114,13 +117,6 @@ export function tally(
 		rulesEffectiveDate: rules.effectiveDate,
 		teamEvents: extras.teamEvents.map((sum) => ({ ...sum })),
 	};
-}
-
-/** Training Rynke needed without virtual rides (FR-014a). */
-export function virtualShareRequired(rules: RynkeRules): number {
-	// 167 by default (research R3); exact, as both operands are small integers.
-	const { num, den } = rules.maxVirtualShare;
-	return Math.ceil((rules.trainingThreshold * (den - num)) / den);
 }
 
 function training(sums: RidingSums): number {

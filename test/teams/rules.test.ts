@@ -113,13 +113,29 @@ describe("Hamburg's and Europe's rule histories side by side", () => {
 		expect(currentRules(europe.rules).minRideKm).toBe(25);
 	});
 
+	// Research R15: Hamburg's "at most a third virtual" written as a whole
+	// number in every version, with the same results; Europe needs a third.
+	it("needs Hamburg's 2/3 of 250, rounded up, and Europe's third from outside virtual rides", () => {
+		for (const rules of hamburg.rules) {
+			expect(rules.minOutsideTraining).toBe(
+				Math.ceil((rules.trainingThreshold * 2) / 3),
+			);
+			expect(rules.minOutsideTraining).toBe(167);
+		}
+		const inEffect = currentRules(europe.rules);
+		expect(inEffect.minOutsideTraining).toBe(
+			Math.ceil(inEffect.trainingThreshold / 3),
+		);
+		expect(inEffect.minOutsideTraining).toBe(84);
+	});
+
 	it("pins Europe's version 4 values to its version", () => {
 		const inEffect = currentRules(europe.rules);
 		const fingerprint =
 			'{"distanceStepKm":10,"distanceStepRynke":1,"elevationStepM":1000,' +
 			'"elevationStepRynke":5,"excludedSportTypes":["EBikeRide","EMountainBikeRide"],' +
 			'"maxClimbMPerH":1500,"maxPausedShare":{"den":1,"num":1},"maxSpeedKmh":45,' +
-			'"maxVirtualShare":{"den":3,"num":1},"minRideKm":25,"minSpeedKmh":10,' +
+			'"minOutsideTraining":84,"minRideKm":25,"minSpeedKmh":10,' +
 			'"teamEvents":{' +
 			'"team_training":{"team":0,"training":0},' +
 			'"technique_training":{"team":0,"training":0},' +

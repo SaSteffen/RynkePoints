@@ -288,9 +288,9 @@ export const is: Catalog = {
 	"tour.rider.teamRynke":
 		"Liðs-Rynke koma aðeins frá liðsviðburðum sem skipuleggjendur hafa bætt þér við: {teamTraining} fyrir liðsæfingu, {weekendDay} fyrir dag í æfingahelginni, {technique} fyrir tækniæfingu. Þú þarft {teamThreshold} til Parísar.",
 	"tour.rider.outdoor":
-		"Í mesta lagi {virtualShare} af Æfinga-Rynke mega koma úr sýndarferðum. Þessi stika telur allt annað: minnst {outside} af {trainingThreshold} Æfinga-Rynke verða að koma úr hjólreiðum úti, liðsviðburðir meðtaldir.",
+		"Þessi stika telur allt nema sýndarferðir: minnst {outside} af {trainingThreshold} Æfinga-Rynke verða að koma úr hjólreiðum úti, liðsviðburðir meðtaldir.",
 	"tour.rider.outdoor.noEvents":
-		"Í mesta lagi {virtualShare} af Æfinga-Rynke mega koma úr sýndarferðum. Þessi stika telur allt annað: minnst {outside} af {trainingThreshold} Æfinga-Rynke verða að koma úr hjólreiðum úti.",
+		"Þessi stika telur allt nema sýndarferðir: minnst {outside} af {trainingThreshold} Æfinga-Rynke verða að koma úr hjólreiðum úti.",
 	"tour.rider.rides":
 		"Ferðir: hver ferð og hvað hún gaf. Þessi telst ekki. „Af hverju?“ segir hvað fór úrskeiðis og hvað þú getur gert.",
 	"tour.rider.shortRide":
