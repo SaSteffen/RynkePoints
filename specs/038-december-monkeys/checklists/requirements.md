@@ -31,5 +31,5 @@
 
 ## Notes
 
-- Overlap precedence (FR-008) was chosen without asking: Nikolaus over the second Advent wreath,
-  Christmas over the fourth Advent wreath, the fourth Advent wreath over the shortest day.
+- Same-length clashes (FR-008) split the day's quotes about evenly between the windows' pictures,
+  as the maintainer asked for Nikolaus and the second Advent; applied to every such clash.
