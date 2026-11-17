@@ -15,6 +15,7 @@ import {
 	resetDb,
 	seedRider,
 	sessionCookie,
+	stableHeaders,
 } from "../support/ctx";
 import { ATHLETE_A, firstNameFor, NOW } from "../support/fixtures";
 import { seedBalance, seedRide } from "../support/rider-view";
@@ -362,7 +363,7 @@ describe("the cached texts hold no rider data (SC-007, SC-008)", () => {
 			const signedIn = await handleFetch(request(path, { cookies }), noDb);
 			const body = await signedIn.text();
 			expect(body).toBe(await anonymous.text());
-			expect([...signedIn.headers]).toEqual([...anonymous.headers]);
+			expect(stableHeaders(signedIn)).toEqual(stableHeaders(anonymous));
 			expect(signedIn.headers.get("Set-Cookie")).toBeNull();
 			expect(body).not.toContain(firstNameFor(ATHLETE_A));
 		},

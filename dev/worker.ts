@@ -499,7 +499,8 @@ export async function devFetch(
 	}
 	const ctx = await onDevClock(realCtx);
 	installStravaInterceptor(ctx);
-	// A sandbox's database is seeded by its deployment (research R6).
+	// A sandbox's database is seeded by CI: a deployment that finds it empty,
+	// or Sandbox reseed (research R6).
 	if (!sandbox) await seedIfNeeded(ctx, url.origin);
 	const response = await answer(request, ctx, url);
 	return sandbox ? withSandboxBar(response, realCtx.env as DevEnv) : response;

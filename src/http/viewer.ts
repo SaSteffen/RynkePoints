@@ -41,10 +41,13 @@ export async function readViewer(request: Request, ctx: Ctx): Promise<Viewer> {
 	const athleteId = await readSession(request, ctx.env, ctx.now());
 	if (athleteId === null) return { kind: "visitor" };
 	const db = ctx.env.DB;
+	// A request's first read, so a database that had to wake shows here.
+	const started = Date.now();
 	const [riders, consents] = await db.batch([
 		riderStatement(db, athleteId),
 		currentConsentStatement(db, athleteId),
 	]);
+	ctx.timing?.("viewer", Date.now() - started);
 	if (!riders || !consents) {
 		throw new Error("D1 batch returned too few results");
 	}

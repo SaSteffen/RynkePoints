@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# The sandbox's database, rebuilt on every deployment (feature 027 research R6).
+# The sandbox's database, rebuilt by the Sandbox reseed workflow, and seeded by
+# a deployment that finds it empty (feature 027 research R6, FR-016, FR-019).
 #
 #   sandbox-seed.sh seed <team> <base-dir>   seeds the sample riders with the
 #       base's code on a local database and exports it to base.sql
@@ -9,11 +10,14 @@
 #       its INSERTs doubled, for the usage check (research R7)
 #   sandbox-seed.sh rebuild <team>           drops every table and view of the
 #       sandbox's database and imports base.sql (CI only)
+#   sandbox-seed.sh is-empty <team>          prints yes when the sandbox's
+#       database holds no riders, else no (CI only, reads only)
 #
-# Only `rebuild` touches Cloudflare. SANDBOX_D1_LOCAL=<dir> points it at a local
-# stand-in instead, for trying it on a machine. The change (its wrangler.jsonc,
+# Only `rebuild` and `is-empty` touch Cloudflare. SANDBOX_D1_LOCAL=<dir> points
+# them at a local stand-in instead, for trying them on a machine. The change (its wrangler.jsonc,
 # migrations and Wrangler) is this checkout, or $SANDBOX_CHANGE: the Sandbox
-# workflow runs develop's copy of this script on the deployed commit's checkout.
+# and Sandbox reseed workflows run develop's copy of this script on the
+# deployed or live commit's checkout.
 # Files go to .wrangler/sandbox/<team>/ in the change, or $SANDBOX_WORK.
 set -euo pipefail
 
@@ -29,7 +33,7 @@ die() {
 }
 
 usage() {
-	die "usage: sandbox-seed.sh seed <team> <base-dir> | try-migrations <team> | count <file> | rebuild <team>"
+	die "usage: sandbox-seed.sh seed <team> <base-dir> | try-migrations <team> | count <file> | rebuild <team> | is-empty <team>"
 }
 
 work_dir() {
@@ -195,16 +199,51 @@ count() {
 	echo $((inserts * 2))
 }
 
+# The sandbox's database: remote, or $SANDBOX_D1_LOCAL's stand-in.
+sandbox_d1() {
+	local team="$1"
+	if [[ -n "${SANDBOX_D1_LOCAL:-}" ]]; then
+		d1=(d1 execute DB --env "sandbox-$team" --local --persist-to "$SANDBOX_D1_LOCAL" --yes)
+	else
+		d1=(d1 execute DB --env "sandbox-$team" --remote --yes)
+	fi
+}
+
+# One number from the sandbox's database, as local_number does locally.
+sandbox_number() {
+	local team="$1" sql="$2" d1
+	sandbox_d1 "$team"
+	wrangler_in "$CHANGE" "${d1[@]}" --json --command "$sql" |
+		node -e '
+			let s = "";
+			process.stdin.on("data", (d) => (s += d)).on("end", () => {
+				const row = JSON.parse(s)[0].results[0];
+				console.log(Object.values(row)[0]);
+			});
+		'
+}
+
+# Prints yes when the sandbox holds no riders (no riders table, or an empty
+# one): a new sandbox, or one whose rebuild stopped. Reads only.
+is_empty() {
+	local team="$1" n
+	n="$(sandbox_number "$team" \
+		"SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name = 'riders'")" ||
+		die "Couldn't read sandbox-$team's tables"
+	if [[ "$n" == 0 ]]; then
+		echo yes
+		return
+	fi
+	n="$(sandbox_number "$team" "SELECT COUNT(*) FROM riders")" ||
+		die "Couldn't count sandbox-$team's riders"
+	if [[ "$n" == 0 ]]; then echo yes; else echo no; fi
+}
+
 rebuild() {
-	local team="$1" work target names
+	local team="$1" work names d1
 	work="$(work_dir "$team")"
 	[[ -s "$work/base.sql" ]] || die "No $work/base.sql; run seed first"
-	if [[ -n "${SANDBOX_D1_LOCAL:-}" ]]; then
-		target=(--local --persist-to "$SANDBOX_D1_LOCAL")
-	else
-		target=(--remote)
-	fi
-	local d1=(d1 execute DB --env "sandbox-$team" "${target[@]}" --yes)
+	sandbox_d1 "$team"
 
 	names="$(wrangler_in "$CHANGE" "${d1[@]}" --json --command \
 		"SELECT type, name, sql FROM sqlite_master WHERE type IN ('table', 'view')
@@ -249,5 +288,6 @@ seed) [[ $# == 3 ]] || usage && seed "$2" "$3" ;;
 try-migrations) [[ $# == 2 ]] || usage && try_migrations "$2" ;;
 count) [[ $# == 2 ]] || usage && count "$2" ;;
 rebuild) [[ $# == 2 ]] || usage && rebuild "$2" ;;
+is-empty) [[ $# == 2 ]] || usage && is_empty "$2" ;;
 *) usage ;;
 esac

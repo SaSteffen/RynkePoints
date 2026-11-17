@@ -90,7 +90,7 @@ jobs:
             echo "sha=$sha"
           } >> "$GITHUB_OUTPUT"
 
-  # The ticked sandboxes get the pull request's head, seeded at develop.
+  # The ticked sandboxes get the pull request's head.
   sandbox:
     name: sandbox
     needs: boxes
@@ -109,4 +109,3 @@ jobs:
       teams: ${{ needs.boxes.outputs.teams }}
       pr: ${{ format('{0}', github.event.pull_request.number) }}
       sha: ${{ needs.boxes.outputs.sha }}
-      base: develop
