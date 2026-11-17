@@ -19,8 +19,16 @@ export const QUOTE_MONKEYS: readonly string[] = [
 // never in the regular rotation.
 export const SEASONAL_MONKEYS: readonly string[] = [
 	"advent",
+	"christmas-market",
+	"mulled-wine",
+	"christmas-biscuits",
 	"nikolaus",
+	"advent-wreath-1",
+	"advent-wreath-2",
+	"advent-wreath-3",
+	"advent-wreath-4",
 	"christmas",
+	"between-the-years",
 	"new-year",
 	"karneval",
 	"valentine",

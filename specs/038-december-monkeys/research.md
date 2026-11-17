@@ -103,7 +103,7 @@ tie days:
 ## R7: Pictures and palette
 
 **Decision**: All eight in the existing palette: wreath sage, candles cream, flames yellow and
-gold; mulled wine red in a cream mug; fairy lights yellow and gold; the trainer and bike ink. Red is
+gold; mulled wine red in a cream mug; the market hat red with a cream band of reindeer; the bike as on the `bike` monkey, snow cream. Red is
 named in the scenes that use it (mug, the market's bag ribbon if any), as the README asks. Each
 scene says "no digits, no letters"; the wreaths name exactly how many candles burn and that the
 others are unlit, and drop the Advent calendar scene's "no candles".

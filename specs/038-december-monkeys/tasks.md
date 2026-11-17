@@ -136,11 +136,11 @@ three pictures pass contracts/seasonal-art.md.
 - [X] T011 [US1] In `src/teams/hamburg.ts` and `src/teams/europe.ts`, set `advent`'s
   `monkeys` to T009's set
 - [X] T012 [US1] Run `pnpm test test/teams/holidays.test.ts`; it passes
-- [ ] T013 [US1] `pnpm badge-art christmas-market mulled-wine christmas-biscuits`, then
+- [X] T013 [US1] `pnpm badge-art christmas-market mulled-wine christmas-biscuits`, then
   `pnpm badge-build christmas-market mulled-wine christmas-biscuits`: originals in
   `art/quotes/originals/`, the `.svg` in `public/quotes/`, the ids in `SEASONAL_MONKEYS` of
   `src/http/quote-monkeys.ts`, versions in `src/http/art-versions.ts`
-- [ ] T014 [US1] Check the three pictures by eye against contracts/seasonal-art.md and
+- [X] T014 [US1] Check the three pictures by eye against contracts/seasonal-art.md and
   `art/quotes/README.md` › Checking a picture; redo T013 for one that fails
 
 **Checkpoint**: Advent shows four pictures, about half the quotes, for both teams.
@@ -190,12 +190,12 @@ wreaths pass contracts/seasonal-art.md, the candles countable at 120 px.
   above `holidays` to name feature 038 (sets, Advent Sundays, Christmas Eve as its own window)
 - [X] T020 [US2] Run `pnpm test test/teams/holidays.test.ts test/teams/no-other-team.test.ts` and
   `node scripts/team-check.mjs`; all pass
-- [ ] T021 [US2] `pnpm badge-art advent-wreath-1`, then `pnpm badge-build advent-wreath-1` (as
+- [X] T021 [US2] `pnpm badge-art advent-wreath-1`, then `pnpm badge-build advent-wreath-1` (as
   T013); this one is needed for 29 Nov
-- [ ] T022 [US2] `pnpm badge-art advent-wreath-2 advent-wreath-3 advent-wreath-4`, then
+- [X] T022 [US2] `pnpm badge-art advent-wreath-2 advent-wreath-3 advent-wreath-4`, then
   `pnpm badge-build advent-wreath-2 advent-wreath-3 advent-wreath-4` (as T013), keeping them
   alike to `advent-wreath-1`
-- [ ] T023 [US2] Check the four wreaths by eye against contracts/seasonal-art.md: count the lit
+- [X] T023 [US2] Check the four wreaths by eye against contracts/seasonal-art.md: count the lit
   candles in the 120 px picture, the four alike apart from the flames; redo T021/T022 for one that
   fails
 
@@ -226,20 +226,20 @@ contracts/seasonal-art.md.
   `christmas` and `new-year`
 - [X] T027 [US3] Run `pnpm test test/teams/holidays.test.ts` and `node scripts/team-check.mjs`;
   both pass
-- [ ] T028 [US3] `pnpm badge-art between-the-years`, then `pnpm badge-build between-the-years`
+- [X] T028 [US3] `pnpm badge-art between-the-years`, then `pnpm badge-build between-the-years`
   (as T013); check it by eye against contracts/seasonal-art.md, redo for a failure
 
 **Checkpoint**: every window of contracts/team-holidays.md › Dates shows its pictures.
 
 ## Phase 6: Polish
 
-- [ ] T029 [P] Update `art/quotes/README.md` › Seasonal monkeys: a holiday names a set
+- [X] T029 [P] Update `art/quotes/README.md` › Seasonal monkeys: a holiday names a set
   (`monkeys`), how a quote picks from it, ties of the fewest days combine their sets, the eight new
   ids, the wreaths' candles as the one exception to "no candles" with the count check, and
   Christmas Eve as its own window
 - [ ] T030 [P] `pnpm monkeys:seasonal`: the overview shows every new picture under each team's
   windows, Advent's four together
-- [ ] T031 `pnpm exec biome check` on the changed files and fix what it reports; commit per phase
+- [X] T031 `pnpm exec biome check` on the changed files and fix what it reports; commit per phase
 
 ## Dependencies
 

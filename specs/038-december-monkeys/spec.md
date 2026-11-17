@@ -10,8 +10,8 @@
 next sets; refs issue #299). For both teams: Advent becomes a set of pictures (the Advent calendar
 plus a Christmas market, mulled wine and baking Christmas biscuits), still on about half the quotes.
 The four Advent Sundays each get a one-day window with an Advent wreath with the matching number of
-lit candles. The days between Christmas and New Year (27–30 December) get Rynke burning off
-leftover biscuits on an indoor trainer. On a clash of two one-day windows (Nikolaus on the second
+lit candles. The days between Christmas and New Year (27–30 December) get Rynke riding off the
+holiday biscuits outside in the snow. On a clash of two one-day windows (Nikolaus on the second
 Advent Sunday), the quotes split 50/50. No shortest-day monkey. Anything shown from the first Advent Sunday (29 November 2026) must be released before
 then."
 
@@ -80,8 +80,8 @@ on the Saturdays and Mondays around them.
 
 ### User Story 3 - The days after Christmas (Priority: P2)
 
-From 27 to 30 December, Rynke pedals on an indoor trainer next to a plate of leftover Christmas
-biscuits.
+From 27 to 30 December, Rynke, round and chubby after the holidays, rides outside through falling
+snow with a half-eaten Christmas biscuit.
 
 **Why this priority**: Its window comes after the Advent ones.
 
@@ -90,7 +90,7 @@ biscuits.
 **Acceptance Scenarios**:
 
 1. **Given** a rider of either team between 27 and 30 December, **Then** every quote shows the
-   indoor-trainer monkey; on 26 December the Christmas monkey and on 31 December the New Year monkey.
+   snowy-ride monkey; on 26 December the Christmas monkey and on 31 December the New Year monkey.
 
 ---
 
@@ -117,16 +117,17 @@ biscuits.
 - **FR-001**: There MUST be eight new seasonal monkeys, made like the quote monkeys and following their
   rules (full-body Rynke as on the badges and coin, talking, turned a little to the right where the
   bubble is; no bubble, ground or background; nothing cropped; same palette):
-  - **Christmas market**: holding a paper bag of roasted almonds or a gingerbread heart without
-    writing, a scarf and bobble hat over the helmet, a hint of fairy lights.
+  - **Christmas market**: holding an open paper cone of roasted almonds and a gingerbread heart
+    without writing, a scarf and a Christmassy bobble hat (reindeer band) over the helmet; no
+    background.
   - **Mulled wine**: holding a steaming mug of mulled wine in both hands, a scarf around the neck.
   - **Christmas biscuits**: an apron over the kit, a baking tray of cut-out biscuits in one hand, a
     biscuit cutter in the other, a little flour on the face.
   - **Advent wreath, one to four candles** (four pictures): holding a fir wreath with four candles,
     of which exactly one, two, three or four are lit; the count MUST be easy to see at the size the
     Team page shows the monkey.
-  - **Between the years**: pedalling a bike on an indoor trainer next to a plate of leftover Christmas
-    biscuits, a towel over the shoulder.
+  - **Between the years**: round and chubby after the holidays, riding Rynke's own bike outside
+    through falling snow, a scarf, a half-eaten Christmas biscuit in one hand.
 - **FR-002**: The new monkeys MUST follow 035's rules for seasonal pictures (035 FR-002), with one
   exception: the Advent wreaths MUST show candles. They show no other religious symbol, and no year,
   digits or letters, including on mugs, bags or gingerbread.

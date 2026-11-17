@@ -71,13 +71,15 @@ lists the finished ones in `src/http/quote-monkeys.ts` and updates
 
 Some monkeys dress Rynke up for a holiday: `advent`, `nikolaus`, `christmas`
 and `new-year` (feature 035), `karneval`, `valentine`, `easter`, `midsummer`,
-`halloween` and `eu-day` (feature 037). They are entries of `monkeys.json` like the others,
+`halloween` and `eu-day` (feature 037), `christmas-market`, `mulled-wine`,
+`christmas-biscuits`, `advent-wreath-1` to `advent-wreath-4` and
+`between-the-years` (feature 038). They are entries of `monkeys.json` like the others,
 made and built the same way, with `"seasonal": true`. `pnpm badge-build` lists
 them apart, in `SEASONAL_MONKEYS`, so they never join the regular rotation.
 
 Which team shows them, and when, is team data: `holidays` in
-`src/teams/<id>.ts`. Each holiday names its seasonal `monkey`, a window `from`
-and `to` (both days included, German time) and a `kind`:
+`src/teams/<id>.ts`. Each holiday names a set of seasonal `monkeys` (one or
+more), a window `from` and `to` (both days included, German time) and a `kind`:
 
 - A day is a fixed `"MM-DD"`, or `{ anchor: "first-advent" | "easter", offset }`,
   `offset` days after that year's first Advent Sunday or Easter Sunday
@@ -86,30 +88,45 @@ and `to` (both days included, German time) and a `kind`:
   `-2` to Easter Monday `1`).
 - A window whose `to` comes before its `from` runs over the year end
   (`"12-31"` to `"01-01"`).
-- `short`: every quote shows the monkey. `long`: about half of them do, each
-  quote always the same one (bit 16 of the quote's id).
-- When windows overlap, the one with the fewest days wins (Nikolaus inside
-  Advent).
+- `short`: every quote shows a monkey of the set. `long`: about half of them
+  do (bit 16 of the quote's id).
+- Which monkey of the set a quote shows depends on its id too (bits 17 and up),
+  so a quote keeps its picture all window long. Advent's set has four: the
+  calendar, the Christmas market, mulled wine and baking biscuits.
+- When windows overlap, the one with the fewest days wins (Nikolaus and the
+  Advent Sundays inside Advent). Windows of the same fewest days tie and their
+  sets go together, so their quotes split about half and half: Hamburg's
+  Nikolaus on the second Advent Sunday, and Christmas Eve, a one-day window of
+  its own, on the fourth.
 
-Until a holiday's picture is built, its window shows the regular monkeys. A new
+A picture of the set that isn't built yet is left out; until none is, the
+window shows the regular monkeys. A new
 holiday needs only its entry here, its picture and the team's `holidays`; a
-test checks that every holiday names a seasonal entry, and that no two of a
-team's windows overlap through 2075 (but Nikolaus in Advent and
-Valentine's Day in Karneval). Two teams may list
+test checks that every holiday names seasonal entries, and that no two of a
+team's windows overlap through 2075 (but Nikolaus and the Advent Sundays in
+Advent, Christmas Eve on the fourth Advent Sunday and Valentine's Day in
+Karneval). Two teams may list
 the same monkey when it shows no place, team name or team art (feature 037
 FR-010); a team never lists a monkey that shows another team's place.
 
 Red `#E32636` and dark blue `#003399` are only for what a scene names (the
-Nikolaus boot, the Santa hat, the Karneval nose, the Valentine heart, the
-Europe Day flag).
+Nikolaus boot, the Santa hat, the Christmas market's and mulled wine's scarf,
+the mulled wine, the Karneval nose, the Valentine heart, the Europe Day flag).
 
 `pnpm monkeys:seasonal` serves an overview of every seasonal monkey, with its
 pictures and each team's window, and prints its address.
 
 When checking a seasonal picture, also check:
 
-- No religious symbols: no crosses, angels, nativity scenes, churches, or
-  candles in a religious setting. Nikolaus brings gifts; he is no saint here.
+- No religious symbols: no crosses, angels, nativity scenes, churches, stars,
+  or candles in a religious setting. Nikolaus brings gifts; he is no saint
+  here. The Advent wreaths' candles are the one exception (feature 038
+  FR-002): four candles, and exactly as many lit as the wreath's number; count
+  them in the Team page's 120 px picture. All four candles always show; Rynke
+  gets more joyful from one Sunday to the next. Gemini drops a candle when all four burn, so
+  `advent-wreath-4` is drawn with the leftmost unlit (its scene says so) and
+  one of its flames is copied onto that wick in the original before
+  `pnpm badge-build`.
 - No year, digits or letters (the New Year monkey shows every year).
 - Europe Day: the European flag right, and no other flag, map or country shape:
   dark blue, exactly twelve five-pointed yellow stars in a circle, upright;
