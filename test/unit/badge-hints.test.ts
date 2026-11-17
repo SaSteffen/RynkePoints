@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	BADGE_CATEGORIES,
 	type BadgeCategoryId,
+	categoryById,
 } from "../../src/badges/catalog";
 import { easterSunday } from "../../src/badges/easter";
 import { type CategoryProgress, progressOf } from "../../src/badges/evaluate";
@@ -13,12 +14,15 @@ import {
 	hintMonkey,
 	hintVariant,
 } from "../../src/badges/hints";
+import { listedFor } from "../../src/badges/view";
 import { QUOTE_MONKEYS } from "../../src/http/quote-monkeys";
 import type {
 	ActiveEntry,
 	DayEntry,
 	OwnDayEntry,
 } from "../../src/rynke/summary";
+import { europe } from "../../src/teams/europe";
+import { hamburg } from "../../src/teams/hamburg";
 
 // Feature 034 contracts/hint-candidates.md: the hints in reach, from synthetic
 // riders' figures only.
@@ -665,5 +669,50 @@ describe("hintMonkey and hintVariant", () => {
 			),
 		);
 		expect(seen.size).toBe(2);
+	});
+});
+
+describe("a team's listed badges (feature 039 US5)", () => {
+	// Close to the next step in every personal category, the event-only ones
+	// included, with a big best day, a run and a swim: as many hints as can be.
+	const near: Values = Object.fromEntries(
+		BADGE_CATEGORIES.filter((c) => c.group === "personal").map((c) => [
+			c.id,
+			(c.ladder[0] ?? 1) * 0.9,
+		]),
+	);
+	const full = (progress: readonly CategoryProgress[]) =>
+		hintCandidates(
+			input("2026-11-20", {
+				values: near,
+				progress,
+				daily: {
+					days: [day("2026-11-01", 200, 2000, 50)],
+					runDays: [["2026-11-02", 30_000]],
+				},
+				longestSwimM: 4000,
+				ran: true,
+				swam: true,
+			}),
+		);
+	const all = progress(near);
+
+	it("names no event-only badge for a team without events", () => {
+		const list = full(
+			listedFor(europe, { earned: [], progress: all }).progress,
+		);
+		expect(list.length).toBeGreaterThan(0);
+		for (const candidate of list) {
+			expect(
+				categoryById(candidate.category).events,
+				candidate.key,
+			).toBeUndefined();
+		}
+	});
+
+	it("gives a team with events the same hints as today", () => {
+		expect(
+			full(listedFor(hamburg, { earned: [], progress: all }).progress),
+		).toEqual(full(all));
 	});
 });

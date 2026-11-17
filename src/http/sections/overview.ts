@@ -5,6 +5,7 @@ import { type SeenRynke, writeSeen } from "../../db/rynke-seen";
 import type { I18n } from "../../i18n/i18n";
 import { riderStatus } from "../../rynke/pace";
 import { countingWindow, currentRules, versionsOf } from "../../rynke/rules";
+import { hasEvents, hasTeamRynke } from "../../teams";
 import { amount, heroCoin, miniCoin } from "../coin";
 import { riderFetchingText } from "../fetching";
 import { FUN_SPARKLES } from "../fun";
@@ -114,8 +115,10 @@ export function handleOverview(
 			const ready = view.state === "ready" ? view : null;
 			const totals = ready && {
 				training: ready.summary.training.value,
-				team: ready.summary.team.value,
+				team: ready.summary.team?.value ?? 0,
 			};
+			// Without Team Rynke the hero shows Training alone (feature 039).
+			const teamRynke = hasTeamRynke(ctx.team);
 			// Only a GET marks the Rynke as seen, so a HEAD can't eat the celebration.
 			const seen = totals && !example ? (read.seen ?? null) : null;
 			if (
@@ -136,6 +139,7 @@ export function handleOverview(
 					window,
 					berlinDate(ctx.now()),
 				),
+				ctx.team,
 			);
 			// How far the rider's activities are (feature 024 US4).
 			const fetching = ready
@@ -150,8 +154,7 @@ ${heroCoin()}
 ${
 	totals
 		? html`<p class="hero-total">${i18n.tHtml("hero.training", { n: amount(i18n, totals.training) })}</p>
-<p class="hero-total hero-team">${i18n.tHtml("hero.team", { n: amount(i18n, totals.team) })}</p>
-`
+${teamRynke ? html`<p class="hero-total hero-team">${i18n.tHtml("hero.team", { n: amount(i18n, totals.team) })}</p>\n` : null}`
 		: null
 }</div>${FUN_SPARKLES}
 </section>
@@ -159,7 +162,7 @@ ${example ? renderExampleNote(i18n) : null}${renderReconnect(i18n, rider)}${rend
 ${ready ? null : renderWaiting(i18n, ctx.env.SEASON_START_DATE, readyPollSeconds(ctx.env), ctx.team.art.coin)}
 ${totals ? renderCelebration(i18n, seen, totals) : null}${ready ? renderSummary(i18n, ready.summary, status) : null}
 ${ready?.gauges ? renderGauges(i18n, ready.gauges) : null}
-${ready ? renderBreakdown(i18n, ready.breakdown) : null}
+${ready ? renderBreakdown(i18n, ready.breakdown, hasEvents(ctx.team)) : null}
 ${ready ? progress : null}</div>`;
 			return progress && ready ? { body, scripts: CHART_SCRIPTS } : body;
 		},

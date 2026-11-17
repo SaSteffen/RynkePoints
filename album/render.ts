@@ -13,6 +13,7 @@ import { html, SafeHtml } from "../src/http/html";
 import { forText, milestone } from "../src/http/sections/badges";
 import { CATALOGS } from "../src/i18n/catalogs";
 import { createI18n, type I18n } from "../src/i18n/i18n";
+import { EVENT_KINDS, type EventKind } from "../src/rynke/team-events";
 import {
 	type AlbumPage,
 	BAND,
@@ -92,10 +93,13 @@ function cover(i18n: I18n, data: AlbumData, page: AlbumPage): SafeHtml {
 			],
 			[coin("#8cc4f0", 30), rider.teamRynke, i18n.t("album.rider.team")],
 			[CALENDAR, rider.eventsAttended, i18n.t("album.rider.events")],
-		].map(
-			([icon, value, label]) =>
-				html`<div class="figure"><div class="figure-value">${icon}<span>${number(i18n, value as number)}</span></div><span class="figure-label">${label}</span></div>`,
-		)}</section>
+		]
+			// A team without Team Rynke or events has no such figure (feature 039).
+			.filter(([, value]) => value !== null)
+			.map(
+				([icon, value, label]) =>
+					html`<div class="figure"><div class="figure-value">${icon}<span>${number(i18n, value as number)}</span></div><span class="figure-label">${label}</span></div>`,
+			)}</section>
 <p class="cutoff">${i18n.t("album.cutoff", { date: i18n.formatDate(data.cutoff) })}</p>
 </div>`,
 	);
@@ -107,7 +111,7 @@ function eventTable(
 	page: Extract<AlbumPage, { kind: "team" | "events" }>,
 	top: number,
 ): SafeHtml {
-	const all = data.team.events;
+	const all = data.team.events ?? [];
 	const tourDays = all.filter((e) => e.kind === "tour_de_paris").length;
 	const yours = all.filter((e) => e.attendedByRider).length;
 	const attended = i18n.t("album.events.attended");
@@ -142,8 +146,21 @@ function teamPage(
 	return pageSection(page, [
 		band(page, "team", heading, null),
 		html`<p class="team-total" style="top:${mm(BAND + GAP)};height:${mm(TEAM_TOTAL)}">${coin("#fbe122", 40)}<span>${i18n.tHtml("album.team.training", { count: total })}</span></p>`,
-		eventTable(i18n, data, page, BAND + GAP + TEAM_TOTAL + GAP),
+		// A team without events has no events table (feature 039).
+		...(data.team.events === null
+			? []
+			: [eventTable(i18n, data, page, BAND + GAP + TEAM_TOTAL + GAP)]),
 	]);
+}
+
+/**
+ * The team's events as `forText` asks for them: the album knows only whether
+ * the team has events (`team.events` is `null` without them, feature 039).
+ */
+function eventsOf(data: Pick<AlbumData, "team">): {
+	eventKinds: readonly EventKind[];
+} {
+	return { eventKinds: data.team.events === null ? [] : EVENT_KINDS };
 }
 
 function picture(slot: AlbumSlot, own: AlbumData["team"]["badges"]): string {
@@ -177,7 +194,7 @@ function slotHtml(
 		? html`<p class="caption-name">${i18n.t("album.stickers.secret")}</p>`
 		: pose === null || !slot.earnedOn
 			? html`<p class="caption-name">${badgeName(data, i18n, slot.badgeId)}</p><p class="caption-value">${value}</p>`
-			: html`<p class="caption-name">${badgeName(data, i18n, slot.badgeId)}</p><p class="caption-for">${forText(i18n, badge, value)}</p><p class="caption-date">${i18n.formatDate(slot.earnedOn)}</p>`;
+			: html`<p class="caption-name">${badgeName(data, i18n, slot.badgeId)}</p><p class="caption-for">${forText(i18n, eventsOf(data), badge, value)}</p><p class="caption-date">${i18n.formatDate(slot.earnedOn)}</p>`;
 	return html`<div class="${pose === null ? "slot" : "slot slot-earned"}" data-badge="${slot.badgeId}" style="left:${mm(placed.x - page.safe.x)};top:${mm(placed.y - page.safe.y)};width:${mm(SLOT_WIDTH)};height:${mm(SLOT_HEIGHT)}"><div class="placeholder-box" style="left:${mm(left)};top:${mm(top)};width:${mm(STICKER)};height:${mm(STICKER)}">${PLACEHOLDER}${secret ? html`<p class="secret">?</p>` : null}</div>${sticker}<div class="caption" style="top:${mm(SLOT_HEIGHT - CAPTION)};height:${mm(CAPTION)}">${caption}</div></div>`;
 }
 

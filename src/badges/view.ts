@@ -5,13 +5,16 @@
 
 import { type CountingWindow, eventInWindow } from "../rynke/rules";
 import type { Attendance } from "../rynke/team-events";
+import type { TeamData } from "../teams/types";
 import {
 	BADGE_CATEGORIES,
+	BADGES,
 	type BadgeCategoryId,
 	type BadgeGroup,
 	type BadgeUnit,
 	badgeById,
 	badgeOrder,
+	badgesFor,
 	categoryById,
 	ONE_DECIMAL,
 } from "./catalog";
@@ -72,6 +75,25 @@ export interface BadgeSection {
 export interface Evaluated {
 	earned: readonly EarnedBadge[];
 	progress: readonly CategoryProgress[];
+}
+
+/**
+ * What of `evaluated` the team lists (`badgesFor`, feature 039 research R9):
+ * all of it, unchanged, with events; without, no event-only badge, earned or
+ * to come, so no card, gallery row, outline or hint names one.
+ */
+export function listedFor(
+	team: Pick<TeamData, "eventKinds">,
+	evaluated: Evaluated,
+): Evaluated {
+	const listed = badgesFor(team);
+	if (listed === BADGES) return evaluated;
+	const ids = new Set(listed.map((b) => b.id));
+	const categories = new Set(listed.map((b) => b.category));
+	return {
+		earned: evaluated.earned.filter((b) => ids.has(b.badgeId)),
+		progress: evaluated.progress.filter((p) => categories.has(p.category)),
+	};
 }
 
 /**

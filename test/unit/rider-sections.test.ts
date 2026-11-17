@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { artUrl } from "../../src/http/art";
 import { escapeHtml } from "../../src/http/html";
 import {
+	renderBreakdown,
 	renderGauges,
 	renderNotice,
 	renderRideBatch,
@@ -11,6 +12,7 @@ import {
 	renderWaiting,
 } from "../../src/http/rider-sections";
 import type {
+	Breakdown,
 	ReasonLine,
 	RideLine,
 	RiderView,
@@ -68,6 +70,65 @@ describe("renderRides reasons", () => {
 		expect(
 			rendered({ code: "too_slow", kmhTenths: 99, limitKmh: 12.5 }),
 		).toContain("at least 12.5\u00a0km/h needed.");
+	});
+});
+
+describe("renderRides too short (feature 039)", () => {
+	it("gives the distance with one decimal and the limit without", () => {
+		expect(
+			rendered({ code: "too_short", distanceKmTenths: 249, limitKm: 25 }),
+		).toContain("Too short: 24.9 km, at least 25 km needed.");
+	});
+
+	it("gives only the distance when the limit is unknown", () => {
+		expect(
+			rendered({ code: "too_short", distanceKmTenths: 249, limitKm: null }),
+		).toContain("Too short: 24.9 km.");
+	});
+
+	it("speaks German", () => {
+		expect(
+			table(
+				line({
+					reasons: [{ code: "too_short", distanceKmTenths: 249, limitKm: 25 }],
+				}),
+				de,
+			),
+		).toContain("Zu kurz: 24,9 km, mindestens 25 km sind nötig.");
+	});
+});
+
+describe("renderRules minimum ride length (feature 039)", () => {
+	const rules = {
+		version: 4,
+		effectiveDate: "2026-11-17",
+		seasonStart: "2026-01-01",
+		deadline: "2027-03-31",
+	};
+
+	it("names the minimum when the rules have one", () => {
+		expect(
+			renderRules(
+				en,
+				{ ...rules, minRideKm: 25 },
+				europe.rulesHandout,
+			).toString(),
+		).toContain("<p>Rides of 25 km or more count.</p>");
+		expect(
+			renderRules(
+				de,
+				{ ...rules, minRideKm: 25 },
+				europe.rulesHandout,
+			).toString(),
+		).toContain("<p>Es zählen Fahrten ab 25 km.</p>");
+	});
+
+	it("says nothing about a minimum when the rules have none", () => {
+		for (const i18n of [en, de]) {
+			const html = renderRules(i18n, rules, hamburg.rulesHandout).toString();
+			expect(html).not.toContain("25 km");
+			expect(html.match(/<p>/g)).toHaveLength(3);
+		}
 	});
 });
 
@@ -503,5 +564,73 @@ describe("renderRideBatch (018 contracts/http-routes.md)", () => {
 		expect(renderRideBatch(de, [], null).toString()).toBe(
 			'<ol class="ride-list">\n</ol>',
 		);
+	});
+});
+
+describe("renderBreakdown without Team Rynke and events (feature 039)", () => {
+	const breakdown = (teamTotal: number | null): Breakdown => ({
+		distanceRynke: 80,
+		elevationM: 1200,
+		elevationRynke: 40,
+		elevationStepM: 300,
+		elevationStepRynke: 10,
+		toNextStepM: 100,
+		trainingTotal: 120,
+		teamTotal,
+		kinds: [],
+		events: [],
+	});
+
+	it("has no Team column and no events part", () => {
+		const html = renderBreakdown(en, breakdown(null), false).toString();
+		expect(html).not.toContain(en.t("rynke.team"));
+		expect(html).not.toContain(en.t("rynke.events.heading"));
+		expect(html).not.toContain(en.t("rynke.events.none"));
+		// One Training cell per row, no empty Team cell.
+		expect(html).toContain("<td>80</td></tr>");
+		expect(html).toContain(en.t("rynke.training"));
+	});
+
+	it("keeps both with Team Rynke and events", () => {
+		const html = renderBreakdown(en, breakdown(0)).toString();
+		expect(html).toContain(en.t("rynke.team"));
+		expect(html).toContain(en.t("rynke.events.heading"));
+		expect(html).toContain("<td>80</td><td></td></tr>");
+	});
+});
+
+describe("renderGauges and renderSummary without Team Rynke (feature 039)", () => {
+	const gauge = {
+		value: 120,
+		target: 250,
+		percent: 48,
+		reached: false,
+		parts: [],
+	};
+
+	it("shows no Team gauge", () => {
+		const html = renderGauges(en, {
+			training: gauge,
+			team: null,
+			withoutVirtual: null,
+			elevation: { ...gauge, stepRynke: 10 },
+		}).toString();
+		expect(html).not.toContain('id="tour-team"');
+		expect(html).not.toContain(en.t("rynke.team"));
+	});
+
+	it("misses no Team Rynke", () => {
+		const html = renderSummary(
+			en,
+			{
+				training: { value: 120, target: 250, missing: 130, reached: false },
+				team: null,
+				withoutVirtual: null,
+				qualified: false,
+			},
+			"push",
+		).toString();
+		expect(html).toContain("rynke-missing");
+		expect(html).not.toContain(en.t("rynke.team"));
 	});
 });

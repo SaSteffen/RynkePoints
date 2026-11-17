@@ -42,6 +42,7 @@ import {
 	type BadgeSection,
 	buildBadgeSection,
 	type Card,
+	listedFor,
 	type NotYetRow,
 	newBadges,
 	type ProgressView,
@@ -74,12 +75,14 @@ import {
 	listRiderAttendanceStatement,
 	type RiderAttendanceRow,
 } from "../../db/team-events";
+import { eventsText } from "../../i18n/events-text";
 import type { I18n } from "../../i18n/i18n";
 import {
 	type CountingWindow,
 	countingWindow,
 	currentRules,
 } from "../../rynke/rules";
+import type { TeamData } from "../../teams/types";
 import { artUrl } from "../art";
 import { html, SafeHtml } from "../html";
 import { CHEVRON_DOWN, CLOSE, SHARE, TURN } from "../icons";
@@ -413,8 +416,18 @@ ${anchor("team", false, i18n.t("badges.switch.team"))}
  * badge which day of the tour it stands for (feature 021, a stand-in until
  * Phase 2 names the places).
  */
-export function forText(i18n: I18n, badge: Badge, value: string): string {
+export function forText(
+	i18n: I18n,
+	team: Pick<TeamData, "eventKinds">,
+	badge: Badge,
+	value: string,
+): string {
 	const surprise = surpriseName(badge) as SurpriseName | null;
+	// A team without events gets the Sunday outing's text without them
+	// (feature 039 R7).
+	if (surprise === "sunday-outing") {
+		return i18n.t(eventsText(team, "badges.surprise.sunday-outing.for"));
+	}
 	if (surprise) return i18n.t(`badges.surprise.${surprise}.for`);
 	if (badge.category === "tour_de_paris") {
 		return i18n.t("badges.tourDay.for", { day: String(badge.threshold) });
@@ -425,16 +438,21 @@ export function forText(i18n: I18n, badge: Badge, value: string): string {
 	);
 }
 
-function popover(i18n: I18n, names: BadgeNames, earned: EarnedBadge): SafeHtml {
+function popover(
+	i18n: I18n,
+	team: Pick<TeamData, "eventKinds">,
+	names: BadgeNames,
+	earned: EarnedBadge,
+): SafeHtml {
 	const badge = badgeOf(earned);
 	const value = milestone(i18n, badge);
-	const team = badge.group === "team" ? " badge-large-team" : "";
+	const teamClass = badge.group === "team" ? " badge-large-team" : "";
 	const src = names.picture(badge);
-	return html`<div popover id="badge-${badge.id}" class="badge-large${team}">
+	return html`<div popover id="badge-${badge.id}" class="badge-large${teamClass}">
 <button type="button" class="icon-button badge-large-close" popovertarget="badge-${badge.id}" popovertargetaction="hide" aria-label="${i18n.t("badges.close")}">${CLOSE}</button>
 <span class="badge" style="--badge-src:url(${src})">${art(src, badge, 280, true)}${ribbonText(value)}${SPARKLES}</span>
 <h4>${names(badge.id)}</h4>
-<p>${forText(i18n, badge, value)}</p>
+<p>${forText(i18n, team, badge, value)}</p>
 <p>${i18n.t("badges.earnedOn", { date: i18n.formatDate(earned.earnedOn) })}</p>
 <button type="button" class="button-outlined badge-share" data-group="${badge.group}" data-share-text="${i18n.t("badges.share.text", { name: names(badge.id), value })}" aria-label="${i18n.t("badges.share.label", { name: names(badge.id) })}">${SHARE}${i18n.t("badges.share.button")}</button>
 </div>
@@ -577,6 +595,7 @@ export function renderHints(
  */
 export function renderBadges(
 	i18n: I18n,
+	team: Pick<TeamData, "eventKinds">,
 	names: BadgeNames,
 	section: BadgeSection,
 	app: ShareApp,
@@ -591,7 +610,7 @@ export function renderBadges(
 	return html`<section class="badges" aria-labelledby="badges-heading">
 <h2 id="badges-heading" class="visually-hidden">${i18n.t("badges.heading")}</h2>
 ${section.personal && section.team ? renderSwitch(i18n) : null}${hints}${new SafeHtml(BADGE_SHAPE_DEFS)}
-${group(i18n, names, "personal", section.personal, section.notYet, isFresh)}${group(i18n, names, "team", section.team, section.notYet, isFresh)}${earned.map((b) => popover(i18n, names, b))}${shareSheet(i18n, app)}</section>`;
+${group(i18n, names, "personal", section.personal, section.notYet, isFresh)}${group(i18n, names, "team", section.team, section.notYet, isFresh)}${earned.map((b) => popover(i18n, team, names, b))}${shareSheet(i18n, app)}</section>`;
 }
 
 /** What the badges page reads (issue #185). */
@@ -654,13 +673,16 @@ async function badgesOf(
 	rider: Rider,
 	read: BadgesRead & { balance: StoredBalance },
 	window: CountingWindow,
-	progress: CategoryProgress[],
+	progress: readonly CategoryProgress[],
 ): Promise<BadgeSection | null> {
 	const { badges } = read;
 	const section = buildBadgeSection({
 		waiting: false,
-		personal: { earned: badges.earned, progress },
-		team: evaluateTeamBadges(read.sums, currentRules(ctx.team.rules), window),
+		personal: listedFor(ctx.team, { earned: badges.earned, progress }),
+		team: listedFor(
+			ctx.team,
+			evaluateTeamBadges(read.sums, currentRules(ctx.team.rules), window),
+		),
 		revealed: badges.revealed,
 		connectedOn: berlinDate(rider.connectedAt),
 		today: berlinDate(ctx.now()),
@@ -710,16 +732,24 @@ export async function hasNewBadges(
 		reveals.results as { badge_id: string; earned_on: string }[],
 	);
 	const connectedOn = berlinDate(connectedAt);
-	const personal = (
-		badges.results as { badge_id: string; earned_on: string }[]
-	).map((row) => ({ badgeId: row.badge_id, earnedOn: row.earned_on }));
-	if (newBadges(personal, [], revealed, connectedOn).length > 0) return true;
+	const personal = listedFor(ctx.team, {
+		earned: (badges.results as { badge_id: string; earned_on: string }[]).map(
+			(row) => ({ badgeId: row.badge_id, earnedOn: row.earned_on }),
+		),
+		progress: [],
+	});
+	if (newBadges(personal.earned, [], revealed, connectedOn).length > 0) {
+		return true;
+	}
 	// The team's are worked out on read (research R15).
 	const window = badgeWindow(countingWindow(ctx.env), berlinDate(ctx.now()));
-	const team = evaluateTeamBadges(
-		await toTeamBadgeSums(ctx.env.DB, sums),
-		currentRules(ctx.team.rules),
-		window,
+	const team = listedFor(
+		ctx.team,
+		evaluateTeamBadges(
+			await toTeamBadgeSums(ctx.env.DB, sums),
+			currentRules(ctx.team.rules),
+			window,
+		),
 	);
 	return newBadges([], team.earned, revealed, connectedOn).length > 0;
 }
@@ -751,10 +781,14 @@ export function handleBadges(
 				);
 			}
 			const { badges, attendance } = read;
-			const progress = personalProgress(
-				{ ...badges, attendance, trainingRynke: balance.trainingRynke },
-				window,
-			);
+			// What the team lists: no hint names a badge it doesn't (feature 039).
+			const { progress } = listedFor(ctx.team, {
+				earned: [],
+				progress: personalProgress(
+					{ ...badges, attendance, trainingRynke: balance.trainingRynke },
+					window,
+				),
+			});
 			const section = await badgesOf(
 				request,
 				ctx,
@@ -788,7 +822,7 @@ export function handleBadges(
 				icon: ctx.team.art.icons.icon192,
 			};
 			return section
-				? html`${renderBadgeReveal(i18n, names, section.reveal)}${renderBadges(i18n, names, section, app, berlinDate(ctx.now() - DAY_SECONDS), hints)}`
+				? html`${renderBadgeReveal(i18n, names, section.reveal)}${renderBadges(i18n, ctx.team, names, section, app, berlinDate(ctx.now() - DAY_SECONDS), hints)}`
 				: html``;
 		},
 	);

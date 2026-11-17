@@ -1,12 +1,14 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
+import { samplesFor } from "../../dev/fake-strava/sample-sets";
 import {
 	parseJsonc,
 	placeholderProblems,
 	teamProblems,
 } from "../../scripts/team-check.mjs";
 import { CATALOGS } from "../../src/i18n/catalogs";
-import { TEAMS, teamFor } from "../../src/teams";
+import { currentRules } from "../../src/rynke/rules";
+import { hasEvents, hasTeamRynke, TEAMS, teamFor } from "../../src/teams";
 import type { TeamData } from "../../src/teams/types";
 
 // A team's incomplete data fails the checks, naming what is missing, before
@@ -95,6 +97,99 @@ describe(`${team.id}'s data checks (US3 scenario 4)`, () => {
 		expect(problems).toContain(`team ${team.id}: rules: empty`);
 	});
 
+	// Team Rynke and events go together (feature 039 contracts/team-data.md).
+	describe("Team Rynke and event kinds", () => {
+		/**
+		 * This team with a Team threshold in effect of `threshold`, every team
+		 * event earning Team Rynke only with one, and `kinds`.
+		 */
+		function teamWith(
+			threshold: number | null,
+			kinds: readonly string[],
+		): Partial<TeamData> {
+			const latest = team.rules.at(-1);
+			const amounts = { team: threshold === null ? 0 : 1, training: 5 };
+			return {
+				...team,
+				rules: [
+					...team.rules.slice(0, -1),
+					{
+						...latest,
+						teamThreshold: threshold,
+						teamEvents: {
+							team_training: amounts,
+							training_weekend_day: amounts,
+							technique_training: amounts,
+						},
+					},
+				],
+				eventKinds: kinds,
+			} as unknown as Partial<TeamData>;
+		}
+
+		function eventKindLines(changed: Partial<TeamData>): string[] {
+			return teamProblems(withTeam(changed), wrangler, options).filter((line) =>
+				line.startsWith(`team ${team.id}: eventKinds: `),
+			);
+		}
+
+		it("names Team Rynke without event kinds", () => {
+			expect(eventKindLines(teamWith(25, []))).toHaveLength(1);
+		});
+
+		it("names Team Rynke with only Tour de Paris days", () => {
+			expect(eventKindLines(teamWith(25, ["tour_de_paris"]))).toHaveLength(1);
+		});
+
+		it("names event kinds without Team Rynke", () => {
+			expect(eventKindLines(teamWith(null, ["team_training"]))).toHaveLength(1);
+		});
+
+		it("passes Team Rynke with team event kinds", () => {
+			expect(
+				eventKindLines(teamWith(25, ["team_training", "tour_de_paris"])),
+			).toEqual([]);
+		});
+
+		it("passes neither Team Rynke nor event kinds", () => {
+			expect(eventKindLines(teamWith(null, []))).toEqual([]);
+		});
+	});
+
+	// Each team's `otherClubIds` names every other team's club, for the
+	// one-team-at-a-time notice (feature 039 contracts/team-data.md › Clubs).
+	describe("other teams' clubs", () => {
+		const others = TEAMS.filter((t) => t.id !== team.id);
+
+		function clubLines(changed: Partial<TeamData>, copy = wrangler): string[] {
+			return teamProblems(withTeam(changed), copy, options).filter((line) =>
+				line.startsWith(`team ${team.id}: otherClubIds: `),
+			);
+		}
+
+		it("names another team's club that is missing", () => {
+			// Every registered team has its club now.
+			const expected = others.map(
+				(other) =>
+					`team ${team.id}: otherClubIds: ${wrangler.env[other.id]?.vars.STRAVA_CLUB_ID} of ${other.id} missing`,
+			);
+			expect(clubLines({ ...team, otherClubIds: [] })).toEqual(expected);
+		});
+
+		it("doesn't ask for a club that is still 0", () => {
+			const copy = structuredClone(wrangler);
+			for (const other of others) {
+				const block = copy.env[other.id];
+				if (block) block.vars.STRAVA_CLUB_ID = "0";
+			}
+			expect(clubLines({ ...team, otherClubIds: [] }, copy)).toEqual([]);
+		});
+
+		it("passes the registered clubs", () => {
+			expect(clubLines(team)).toEqual([]);
+		});
+	});
+
 	it.each([
 		"BADGES",
 		"PHRASES",
@@ -143,6 +238,47 @@ describe(`${team.id}'s data checks (US3 scenario 4)`, () => {
 			);
 		},
 	);
+});
+
+// Team Europe's own Strava club (feature 039 FR-005), in its block and its
+// sandbox's, no longer a placeholder.
+describe.runIf(team.id === "europe")("europe's club (039 FR-005)", () => {
+	it.each(["europe", "sandbox-europe"])("is 2292744 in env.%s", (name) => {
+		expect(wrangler.env[name]?.vars.STRAVA_CLUB_ID).toBe("2292744");
+		expect(wrangler.env[name]?.vars.STRAVA_EXTRA_CLUB_IDS).toBe("");
+	});
+
+	it("is no placeholder", () => {
+		expect(team.placeholders).not.toContain("STRAVA_CLUB_ID");
+		expect(team.placeholders).not.toContain("STRAVA_EXTRA_CLUB_IDS");
+	});
+});
+
+// Team Europe has neither team events nor Team Rynke (feature 039 US4,
+// research R2 and R3), and neither do its fake-mode samples.
+describe.runIf(team.id === "europe")("europe without events (039 US4)", () => {
+	it("has no event kinds and no Team threshold in effect", () => {
+		expect(team.eventKinds).toEqual([]);
+		expect(currentRules(team.rules).teamThreshold).toBeNull();
+		expect(hasEvents(team)).toBe(false);
+		expect(hasTeamRynke(team)).toBe(false);
+	});
+
+	it("passes the checks", () => {
+		expect(
+			teamProblems(TEAMS, wrangler, options).filter((line) =>
+				line.startsWith(`team ${team.id}: `),
+			),
+		).toEqual([]);
+	});
+
+	it("has samples without team events or attendances", () => {
+		const samples = samplesFor(team.id);
+		expect(samples.teamEvents).toEqual([]);
+		expect(
+			samples.riders.filter((rider) => rider.events !== undefined),
+		).toEqual([]);
+	});
 });
 
 // A sandbox block (feature 027 contracts/sandbox-config.md, FR-012) runs fake

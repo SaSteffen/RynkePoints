@@ -307,3 +307,49 @@ describe("renderProgress (feature 009)", () => {
 		});
 	});
 });
+
+describe("renderProgress without Team Rynke (feature 039)", () => {
+	const noTeam = {
+		...CURRENT_RULES,
+		teamThreshold: null,
+		teamEvents: Object.fromEntries(
+			Object.keys(CURRENT_RULES.teamEvents).map((kind) => [
+				kind,
+				{ team: 0, training: 0 },
+			]),
+		) as typeof CURRENT_RULES.teamEvents,
+	};
+	const view = buildProgressView(
+		{
+			balance: { ...EXAMPLE_BALANCE, computedAt: 0 },
+			virtualCount: 0,
+			progress: EXAMPLE_INPUTS,
+		},
+		noTeam,
+		EXAMPLE_WINDOW,
+		EXAMPLE_TODAY,
+	);
+
+	it("has no Team chart, column, readout or chart data", () => {
+		const html = renderProgress(en, view, { eventKinds: [] })?.toString() ?? "";
+		expect(html).toContain('data-series="training"');
+		expect(html).not.toContain('data-series="team"');
+		expect(html).not.toContain(en.t("rynke.team"));
+		expect(html).toContain('"team":null');
+	});
+
+	it("uses the day label without events", () => {
+		const html = renderProgress(en, view, { eventKinds: [] })?.toString() ?? "";
+		const day = /<template data-readout="day">(.*?)<\/template>/s.exec(html);
+		expect(day?.[1]).toContain('data-slot="training"');
+		expect(day?.[1]).not.toContain('data-slot="team"');
+	});
+
+	it("keeps Hamburg's day label with events", () => {
+		const html =
+			renderProgress(en, exampleView, {
+				eventKinds: ["team_training"],
+			})?.toString() ?? "";
+		expect(html).toBe(renderProgress(en, exampleView)?.toString());
+	});
+});

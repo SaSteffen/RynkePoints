@@ -36,6 +36,8 @@ export const en: Catalog = {
 		'Private ("Only You") rides only count if you allow viewing your private activities on Strava.',
 	"landing.purpose":
 		"We use the data only for Rynke and team events. Only you see your individual rides and their names.",
+	"landing.purpose.noEvents":
+		"We use the data only for Rynke and badges. Only you see your individual rides and their names.",
 	"landing.leave":
 		"You can leave at any time: in Settings, or by removing RynkePoints on Strava. We then delete all data about you, including your Rynke. If you leave the club, we delete it within 24 hours. Only if an administrator removes you do we keep your Strava ID, so you can't connect again.",
 	"landing.backups":
@@ -55,6 +57,8 @@ export const en: Catalog = {
 	"consent.details": "All the details",
 	"consent.organisers":
 		"The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, and which team events you reported you're coming to or were at.",
+	"consent.organisers.noEvents":
+		"The organisers see your first name from Strava, your Rynke and where they come from, what you still need, whether you've reached your training goal, and their corrections.",
 	"consent.dailyFigures":
 		"The organisers also see, with your first name, how many kilometres you rode outdoors and virtually and how many metres of elevation you climbed, as a total per day, across the whole season. This includes private rides that count. They don't see your individual rides, their names, times or routes.",
 	"consent.rideFigures":
@@ -138,6 +142,7 @@ export const en: Catalog = {
 	"rynke.rules.heading": "Rules",
 	"rynke.rules.version": "Rules version {version}, in effect since {date}.",
 	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
+	"rynke.rules.minRide": "Rides of {limit} or more count.",
 	"rynke.rules.handout": "The rules as PDF (in German)",
 	"rynke.rules.handoutEnglish": "The rules as PDF",
 	"rynke.ride.counts": "counts 🪙",
@@ -169,6 +174,8 @@ export const en: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"No moving time: the ride counts as paused throughout.",
 	"rynke.reason.manual": "Entered manually on Strava.",
+	"rynke.reason.too_short": "Too short: {distance}, at least {limit} needed.",
+	"rynke.reason.too_short.noLimit": "Too short: {distance}.",
 	"rynke.reason.too_slow":
 		"Too slow: {speed} on average, at least {limit} needed.",
 	"rynke.reason.too_slow.noLimit": "Too slow: {speed} on average.",
@@ -280,7 +287,9 @@ export const en: Catalog = {
 	"tour.rider.teamRynke":
 		"Team Rynke only come from team events the organisers have added you to: {teamTraining} for a team training, {weekendDay} for a day of the training weekend, {technique} for a technique training. You need {teamThreshold} for Paris.",
 	"tour.rider.outdoor":
-		"At most {virtualShare} of your Training Rynke may come from virtual rides. This bar counts everything else: at least {outside} of {trainingThreshold} Training Rynke have to come from riding outside, team events included.",
+		"This bar counts everything but virtual rides: at least {outside} of {trainingThreshold} Training Rynke have to come from riding outside, team events included.",
+	"tour.rider.outdoor.noEvents":
+		"This bar counts everything but virtual rides: at least {outside} of {trainingThreshold} Training Rynke have to come from riding outside.",
 	"tour.rider.rides":
 		"Rides: every ride and what it earned. This one doesn't count. “Why?” says what went wrong and what you can do.",
 	"tour.rider.shortRide":
@@ -297,12 +306,16 @@ export const en: Catalog = {
 		"You're an organiser now: the Orga tab is new. Let us show you around.",
 	"tour.organiser.riders":
 		"Riders: everyone in the team with their Training and Team Rynke and what they still need.",
+	"tour.organiser.riders.noEvents":
+		"Riders: everyone in the team with their Training Rynke and what they still need.",
 	"tour.organiser.riders.rides":
 		"Plus how many of their rides counted this season and how long a typical one is.",
 	"tour.organiser.example":
 		"Example team: this is how Orga looks once the season is under way. Nothing here can be clicked; you'll see the real team after the tour.",
 	"tour.organiser.groups":
 		"The groups: “Need a push” is behind the pace, “On track” is on plan, “Training goal reached” has it all. Tap a tile to see only its riders. First: everyone with an open report.",
+	"tour.organiser.groups.noEvents":
+		"The groups: “Need a push” is behind the pace, “On track” is on plan, “Training goal reached” has it all. Tap a tile to see only its riders.",
 	"tour.organiser.pace":
 		"The mark on each bar is the even pace to the deadline. Riders left of it need a push. Tap a name to open their corrections: Rynke added or taken off, with a reason.",
 	"tour.organiser.graphs":
@@ -563,8 +576,12 @@ export const en: Catalog = {
 	"organiser.overview.showing": "Showing: {group}",
 	"organiser.overview.hint":
 		"The tick on each bar marks the even pace to the deadline: today {training} Training and {team} Team.",
+	"organiser.overview.hint.noEvents":
+		"The tick on each bar marks the even pace to the deadline: today {training} Training.",
 	"organiser.overview.hint.percent":
 		"The tick on each bar marks the even pace to the deadline: today {training} of Training and {team} of Team.",
+	"organiser.overview.hint.percent.noEvents":
+		"The tick on each bar marks the even pace to the deadline: today {training} of Training.",
 	"organiser.overview.training.percent": "Training {n}",
 	"organiser.overview.team.percent": "Team {n}",
 	"organiser.overview.behind.training": "Training behind pace",
@@ -585,12 +602,16 @@ export const en: Catalog = {
 		"{kind}: {attended}× → {training} Training, {team} Team",
 	"organiser.overview.corrections":
 		"Corrections {training} Training, {team} Team",
+	"organiser.overview.corrections.noEvents": "Corrections {training} Training",
 	"organiser.overview.virtual": "Virtual rides {n} % of Training",
 	"organiser.overview.amounts": "{training} Training, {team} Team",
+	"organiser.overview.amounts.noEvents": "{training} Training",
 	"organiser.overview.percent": "{n}%",
 	"organiser.overview.qualifiedList": "Training goal reached 🎯",
 	"organiser.overview.qualifiedHint":
 		"Both thresholds and the outdoor share met.",
+	"organiser.overview.qualifiedHint.noEvents":
+		"Training threshold and the outdoor share met.",
 	"organiser.overview.nobodyYet": "Nobody has reached the training goal yet.",
 	"organiser.overview.none": "No riders share their Rynke yet.",
 	"organiser.overview.column.name": "Rider",
@@ -784,6 +805,8 @@ export const en: Catalog = {
 	"badges.surprise.sunday-outing": "Sunday outing",
 	"badges.surprise.sunday-outing.for":
 		"At least ten from the team out on a Sunday without a team event.",
+	"badges.surprise.sunday-outing.for.noEvents":
+		"At least ten from the team out on the same Sunday.",
 	"badges.surprise.festive-500": "Festive 500",
 	"badges.surprise.festive-500.for":
 		"Rode 500 kilometres between Christmas Eve and New Year's Eve.",
@@ -846,6 +869,8 @@ export const en: Catalog = {
 	"privacy.team.heading": "Data from the team, and what is worked out from it",
 	"privacy.team.body":
 		"The organisers record which team events you attended, and can correct your Rynke with a reason and a date. You can report yourself which team events you're coming to or were at; the organisers see that and decide whether to record it. Who changed what, and when, is stored too.",
+	"privacy.team.body.noEvents":
+		"The organisers can correct your Rynke with a reason and a date. Who changed what, and when, is stored too.",
 	"privacy.team.derived":
 		"From all this RynkePoints works out your Rynke, your badges and which rides count, and why.",
 	"privacy.team.rideFigures":
@@ -864,11 +889,15 @@ export const en: Catalog = {
 		"Everyone else on the team sees your Rynke, overall and per week, without your name. Your kilometres and elevation, and on which days and at what hour you are active, count towards the team sums and team badges, without your name.",
 	"privacy.visibility.organisers":
 		"The organisers see your first name, your Rynke and where they come from, what you still need, whether you've reached your training goal, your team events and corrections, which team events you reported you're coming to or were at, and your kilometres outdoors and virtually and your elevation as totals per day, but no individual activities.",
+	"privacy.visibility.organisers.noEvents":
+		"The organisers see your first name, your Rynke and where they come from, what you still need, whether you've reached your training goal, their corrections, and your kilometres outdoors and virtually and your elevation as totals per day, but no individual activities.",
 	"privacy.visibility.public":
 		"None of it is public: every page with this data needs you to sign in with Strava.",
 	"privacy.legal.heading": "Legal basis",
 	"privacy.legal.body":
 		"Reading your Strava data and sharing your Rynke as described rest on your consent, given before you connect (Art. 6(1)(a) GDPR). Team events, corrections, the necessary cookies and the logs rest on the legitimate interest in organising the team's training and running the app securely (Art. 6(1)(f) GDPR; for cookies § 25(2) TDDDG).",
+	"privacy.legal.body.noEvents":
+		"Reading your Strava data and sharing your Rynke as described rest on your consent, given before you connect (Art.\u00a06(1)(a) GDPR). Corrections, the necessary cookies and the logs rest on the legitimate interest in organising the team's training and running the app securely (Art.\u00a06(1)(f) GDPR; for cookies §\u00a025(2) TDDDG).",
 	"privacy.retention.heading": "How long data is kept",
 	"privacy.retention.body":
 		"Your data is kept while you are connected, and follows Strava: if you delete an activity on Strava, or make it private without having granted the permission for that, it disappears here too as soon as Strava reports it, usually within minutes. Activities from before the season start are deleted.",
@@ -990,6 +1019,7 @@ export const en: Catalog = {
 	"progress.help":
 		"Arrow keys pick a day, + and − zoom, Page Up/Down move, 0 shows the whole season.",
 	"progress.day": "{date} · {training} Training Rynke · {team} Team Rynke",
+	"progress.day.noEvents": "{date} · {training} Training Rynke",
 	"progress.table.summary": "Figures as a table",
 	"progress.table.week": "Week from",
 	"progress.table.total": "Total",

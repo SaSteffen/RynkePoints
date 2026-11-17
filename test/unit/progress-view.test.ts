@@ -84,21 +84,21 @@ describe("buildProgressView (feature 009)", () => {
 			nothingYet: false,
 		});
 		expect(view.training.values).toHaveLength(37);
-		expect(view.team.values).toHaveLength(37);
+		expect(view.team?.values).toHaveLength(37);
 		expect(view.training.values[19]).toBe(69);
-		expect(view.team.values[19]).toBe(11);
+		expect(view.team?.values[19]).toBe(11);
 		expect(view.training.values[36]).toBe(112);
-		expect(view.team.values[36]).toBe(17);
+		expect(view.team?.values[36]).toBe(17);
 		expect(view.training.threshold).toBe(250);
-		expect(view.team.threshold).toBe(25);
+		expect(view.team?.threshold).toBe(25);
 	});
 
 	it("scales y to the threshold or the season's highest value (R5)", () => {
 		expect(ready().training.yMax).toBe(250);
-		expect(ready().team.yMax).toBe(25);
+		expect(ready().team?.yMax).toBe(25);
 		const high = ready(riderWith(262, 26));
 		expect(high.training.yMax).toBe(300);
-		expect(high.team.yMax).toBe(30);
+		expect(high.team?.yMax).toBe(30);
 	});
 
 	it("offers the last 4 weeks once they start after the season start", () => {
@@ -160,12 +160,12 @@ describe("buildProgressView (feature 009)", () => {
 		it("draws the pace in both charts; the example rider is ahead", () => {
 			const view = ready();
 			expect(view.training.pace).toBe(true);
-			expect(view.team.pace).toBe(true);
+			expect(view.team?.pace).toBe(true);
 			// 4 October is index 33: ⌊250 × 33 ÷ 302⌋ = 27, ⌊25 × 33 ÷ 302⌋ = 2.
 			expect(paceAt(250, 33, 302)).toBe(27);
 			expect(paceAt(25, 33, 302)).toBe(2);
 			expect((view.training.values[33] ?? 0) - 27).toBe(85);
-			expect((view.team.values[33] ?? 0) - 2).toBe(15);
+			expect((view.team?.values[33] ?? 0) - 2).toBe(15);
 		});
 
 		it("computes the pace as evenPace does, every day", () => {
@@ -214,7 +214,7 @@ describe("buildProgressView (feature 009)", () => {
 					const view = ready(read, today);
 					const i = view.lastIndex;
 					const t = view.training.values[i] ?? 0;
-					const m = view.team.values[i] ?? 0;
+					const m = view.team?.values[i] ?? 0;
 					const o = view.outside?.values[i] ?? t;
 					const below =
 						t < paceAt(250, i, view.axisDays) ||
@@ -248,5 +248,60 @@ describe("buildProgressView (feature 009)", () => {
 				}
 			}
 		});
+	});
+});
+
+describe("buildProgressView without Team Rynke (feature 039)", () => {
+	const noTeam = {
+		...CURRENT_RULES,
+		teamThreshold: null,
+		teamEvents: Object.fromEntries(
+			Object.keys(CURRENT_RULES.teamEvents).map((kind) => [
+				kind,
+				{ team: 0, training: 0 },
+			]),
+		) as typeof CURRENT_RULES.teamEvents,
+	};
+
+	it("has no team series and no Team column", () => {
+		const view = buildProgressView(
+			riderWith(120, 0),
+			noTeam,
+			EXAMPLE_WINDOW,
+			EXAMPLE_TODAY,
+		);
+		if (view.state !== "ready") throw new Error("no progress view");
+		expect(view.team).toBeNull();
+		expect(view.training.values.at(-1)).toBe(120);
+		expect(view.weeks.length).toBeGreaterThan(0);
+		for (const week of view.weeks) expect(week.team).toBeNull();
+	});
+
+	it("keeps both with Hamburg's rules", () => {
+		const view = ready(riderWith(120, 0));
+		expect(view.team).not.toBeNull();
+		for (const week of view.weeks) expect(week.team).not.toBeNull();
+	});
+});
+
+// Feature 039 research R15: nothing needed from outside virtual rides, no
+// such curve or column, even with virtual rides.
+describe("buildProgressView without Training Rynke needed from outside virtual rides", () => {
+	it("has no outside curve and no outside column", () => {
+		const view = buildProgressView(
+			riderWith(150, 0, 100),
+			{ ...CURRENT_RULES, minOutsideTraining: 0 },
+			EXAMPLE_WINDOW,
+			EXAMPLE_TODAY,
+		);
+		if (view.state !== "ready") throw new Error("no progress view");
+		expect(view.outside).toBeNull();
+		for (const week of view.weeks) expect(week.outside).toBeNull();
+	});
+
+	it("keeps them with the rules' 167", () => {
+		const view = ready(riderWith(150, 0, 100));
+		expect(view.outside?.needed).toBe(167);
+		for (const week of view.weeks) expect(week.outside).not.toBeNull();
 	});
 });

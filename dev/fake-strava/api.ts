@@ -1,3 +1,4 @@
+import { teamFor } from "../../src/teams";
 import { sampleRider } from "./sample-sets";
 import type { SampleRider } from "./samples";
 import { getActivity, listActivities, takeSlow } from "./store";
@@ -156,6 +157,11 @@ function clubs(request: Request, url: URL, env: Env, now: number): Answer {
 	const all = auth.rider.clubMember
 		? [{ id: Number(env.STRAVA_CLUB_ID), name: "Team Rynkeby Hamburg (fake)" }]
 		: [];
+	// Also in another team's club: the one-team-at-a-time notice (feature 039).
+	const other = teamFor(env).otherClubIds[0];
+	if (auth.rider.otherClubMember && other !== undefined) {
+		all.push({ id: other, name: "Another team's club (fake)" });
+	}
 	const { page, perPage } = paging(url);
 	return answer(
 		all.slice((page - 1) * perPage, page * perPage),

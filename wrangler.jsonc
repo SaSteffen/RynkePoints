@@ -196,8 +196,8 @@
 				"crons": ["17 3 * * *", "58 * * * *"]
 			},
 			"vars": {
-				// Placeholder: Europe's club once it has one.
-				"STRAVA_CLUB_ID": "0",
+				// Team Europe's Strava club (feature 039).
+				"STRAVA_CLUB_ID": "2292744",
 				"STRAVA_EXTRA_CLUB_IDS": "",
 				// Placeholders: Hamburg's dates.
 				"SEASON_START_DATE": "2026-09-01",
@@ -359,7 +359,7 @@
 			// No triggers: sandboxes use none of the account's five crons (FR-032);
 			// `POST /_dev/scheduled` runs the daily work instead.
 			"vars": {
-				"STRAVA_CLUB_ID": "0",
+				"STRAVA_CLUB_ID": "2292744",
 				"STRAVA_EXTRA_CLUB_IDS": "",
 				"SEASON_START_DATE": "2026-09-01",
 				"QUALIFICATION_DEADLINE": "2027-06-30",

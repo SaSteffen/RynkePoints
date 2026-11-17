@@ -37,6 +37,8 @@ export const nl: Catalog = {
 		"Privéritten (“Alleen jij”) tellen alleen mee als je toegang tot je privéactiviteiten op Strava toestaat.",
 	"landing.purpose":
 		"We gebruiken de gegevens alleen voor Rynke en teamevenementen. Alleen jij ziet je losse ritten en hun namen.",
+	"landing.purpose.noEvents":
+		"We gebruiken de gegevens alleen voor Rynke en badges. Alleen jij ziet je losse ritten en hun namen.",
 	"landing.leave":
 		"Je kunt altijd stoppen: in Instellingen, of door RynkePoints op Strava te verwijderen. Dan wissen we alle gegevens over jou, ook je Rynke. Als je de club verlaat, wissen we ze binnen 24 uur. Alleen als een beheerder je verwijdert, bewaren we je Strava-ID, zodat je niet opnieuw kunt verbinden.",
 	"landing.backups":
@@ -56,6 +58,8 @@ export const nl: Catalog = {
 	"consent.details": "Alle details",
 	"consent.organisers":
 		"De organisatoren zien je voornaam van Strava, je Rynke en waar ze vandaan komen, wat je nog nodig hebt, of je je trainingsdoel hebt gehaald, je teamevenementen en correcties, en bij welke teamevenementen je hebt gemeld dat je komt of er was.",
+	"consent.organisers.noEvents":
+		"De organisatoren zien je voornaam van Strava, je Rynke en waar ze vandaan komen, wat je nog nodig hebt, of je je trainingsdoel hebt gehaald, en hun correcties.",
 	"consent.dailyFigures":
 		"De organisatoren zien ook, met je voornaam, hoeveel kilometer je buiten en virtueel hebt gereden en hoeveel hoogtemeters je hebt geklommen, als totaal per dag, over het hele seizoen. Ook privéritten die meetellen horen erbij. Ze zien je losse ritten, hun namen, tijden of routes niet.",
 	"consent.rideFigures":
@@ -139,6 +143,7 @@ export const nl: Catalog = {
 	"rynke.rules.heading": "Regels",
 	"rynke.rules.version": "Regelversie {version}, geldig sinds {date}.",
 	"rynke.rules.windowDeadline": "Alles van {start} tot {deadline} telt mee.",
+	"rynke.rules.minRide": "Ritten van {limit} of meer tellen mee.",
 	"rynke.rules.handout": "De regels als pdf (in het Duits)",
 	"rynke.rules.handoutEnglish": "De regels als pdf (in het Engels)",
 	"rynke.ride.counts": "telt 🪙",
@@ -170,6 +175,8 @@ export const nl: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"Geen bewegingstijd: de rit geldt als volledig gepauzeerd.",
 	"rynke.reason.manual": "Handmatig ingevoerd op Strava.",
+	"rynke.reason.too_short": "Te kort: {distance}, minstens {limit} nodig.",
+	"rynke.reason.too_short.noLimit": "Te kort: {distance}.",
 	"rynke.reason.too_slow":
 		"Te langzaam: gemiddeld {speed}, minstens {limit} nodig.",
 	"rynke.reason.too_slow.noLimit": "Te langzaam: gemiddeld {speed}.",
@@ -285,7 +292,9 @@ export const nl: Catalog = {
 	"tour.rider.teamRynke":
 		"Team-Rynke komen alleen van teamevenementen waar de organisatoren je aan hebben toegevoegd: {teamTraining} voor een teamtraining, {weekendDay} voor een dag van het trainingsweekend, {technique} voor een techniektraining. Voor Parijs heb je er {teamThreshold} nodig.",
 	"tour.rider.outdoor":
-		"Hoogstens {virtualShare} van je Trainings-Rynke mag uit virtuele ritten komen. Deze balk telt al het andere: minstens {outside} van {trainingThreshold} Trainings-Rynke moeten van buiten fietsen komen, teamevenementen inbegrepen.",
+		"Deze balk telt alles behalve virtuele ritten: minstens {outside} van {trainingThreshold} Trainings-Rynke moeten van buiten fietsen komen, teamevenementen inbegrepen.",
+	"tour.rider.outdoor.noEvents":
+		"Deze balk telt alles behalve virtuele ritten: minstens {outside} van {trainingThreshold} Trainings-Rynke moeten van buiten fietsen komen.",
 	"tour.rider.rides":
 		"Ritten: elke rit en wat hij opleverde. Deze telt niet. “Waarom?” zegt wat er misging en wat je kunt doen.",
 	"tour.rider.shortRide":
@@ -302,12 +311,16 @@ export const nl: Catalog = {
 		"Je bent nu organisator: het tabblad Orga is nieuw. We laten je rondkijken.",
 	"tour.organiser.riders":
 		"Renners: iedereen in het team met zijn Trainings- en Team-Rynke en wat hij nog nodig heeft.",
+	"tour.organiser.riders.noEvents":
+		"Renners: iedereen in het team met zijn Trainings-Rynke en wat hij nog nodig heeft.",
 	"tour.organiser.riders.rides":
 		"Daarbij hoeveel van hun ritten dit seizoen hebben geteld en hoe lang een typische rit is.",
 	"tour.organiser.example":
 		"Voorbeeldteam: zo ziet Orga eruit als het seizoen loopt. Hier kun je nergens op klikken; na de rondleiding zie je het echte team.",
 	"tour.organiser.groups":
 		"De groepen: “Duwtje nodig” loopt achter op het tempo, “Op koers” ligt op schema, “Trainingsdoel gehaald” heeft alles. Tik op een tegel om alleen die renners te zien. Eerst: iedereen met een open melding.",
+	"tour.organiser.groups.noEvents":
+		"De groepen: “Duwtje nodig” loopt achter op het tempo, “Op koers” ligt op schema, “Trainingsdoel gehaald” heeft alles. Tik op een tegel om alleen die renners te zien.",
 	"tour.organiser.pace":
 		"Het streepje op elke balk is het gelijkmatige tempo tot de deadline. Renners links ervan hebben een duwtje nodig. Tik op een naam om hun correcties te openen: Rynke erbij of eraf, met een reden.",
 	"tour.organiser.graphs":
@@ -568,8 +581,12 @@ export const nl: Catalog = {
 	"organiser.overview.showing": "Getoond: {group}",
 	"organiser.overview.hint":
 		"Het streepje op elke balk markeert het gelijkmatige tempo tot de deadline: vandaag {training} Training en {team} Team.",
+	"organiser.overview.hint.noEvents":
+		"Het streepje op elke balk markeert het gelijkmatige tempo tot de deadline: vandaag {training} Training.",
 	"organiser.overview.hint.percent":
 		"Het streepje op elke balk markeert het gelijkmatige tempo tot de deadline: vandaag {training} van Training en {team} van Team.",
+	"organiser.overview.hint.percent.noEvents":
+		"Het streepje op elke balk markeert het gelijkmatige tempo tot de deadline: vandaag {training} van Training.",
 	"organiser.overview.training.percent": "Training {n}",
 	"organiser.overview.team.percent": "Team {n}",
 	"organiser.overview.behind.training": "Training achter op tempo",
@@ -590,12 +607,16 @@ export const nl: Catalog = {
 		"{kind}: {attended}× → {training} Training, {team} Team",
 	"organiser.overview.corrections":
 		"Correcties {training} Training, {team} Team",
+	"organiser.overview.corrections.noEvents": "Correcties {training} Training",
 	"organiser.overview.virtual": "Virtuele ritten {n} % van Training",
 	"organiser.overview.amounts": "{training} Training, {team} Team",
+	"organiser.overview.amounts.noEvents": "{training} Training",
 	"organiser.overview.percent": "{n}%",
 	"organiser.overview.qualifiedList": "Trainingsdoel gehaald 🎯",
 	"organiser.overview.qualifiedHint":
 		"Beide drempels en het aandeel buiten gehaald.",
+	"organiser.overview.qualifiedHint.noEvents":
+		"De trainingsdrempel en het aandeel buiten gehaald.",
 	"organiser.overview.nobodyYet":
 		"Nog niemand heeft het trainingsdoel gehaald.",
 	"organiser.overview.none": "Nog geen renners delen hun Rynke.",
@@ -794,6 +815,8 @@ export const nl: Catalog = {
 	"badges.surprise.sunday-outing": "Zondagsrit",
 	"badges.surprise.sunday-outing.for":
 		"Minstens tien van het team onderweg op een zondag zonder teamevenement.",
+	"badges.surprise.sunday-outing.for.noEvents":
+		"Minstens tien van het team onderweg op dezelfde zondag.",
 	"badges.surprise.festive-500": "Festive 500",
 	"badges.surprise.festive-500.for":
 		"500 kilometer gereden tussen kerstavond en oudejaarsavond.",
@@ -858,6 +881,8 @@ export const nl: Catalog = {
 		"Gegevens van het team, en wat daaruit wordt berekend",
 	"privacy.team.body":
 		"De organisatoren registreren bij welke teamevenementen je aanwezig was, en kunnen je Rynke corrigeren met een reden en een datum. Je kunt zelf melden bij welke teamevenementen je komt of was; de organisatoren zien dat en beslissen of ze het registreren. Wie wat wanneer heeft gewijzigd, wordt ook opgeslagen.",
+	"privacy.team.body.noEvents":
+		"De organisatoren kunnen je Rynke corrigeren met een reden en een datum. Wie wat wanneer heeft gewijzigd, wordt ook opgeslagen.",
 	"privacy.team.derived":
 		"Hieruit berekent RynkePoints je Rynke, je badges en welke ritten meetellen, en waarom.",
 	"privacy.team.rideFigures":
@@ -877,11 +902,15 @@ export const nl: Catalog = {
 		"Iedereen anders in het team ziet je Rynke, in totaal en per week, zonder je naam. Je kilometers en hoogtemeters, en op welke dagen en op welk uur je actief bent, tellen mee voor de teamsommen en teambadges, zonder je naam.",
 	"privacy.visibility.organisers":
 		"De organisatoren zien je voornaam, je Rynke en waar ze vandaan komen, wat je nog nodig hebt, of je je trainingsdoel hebt gehaald, je teamevenementen en correcties, bij welke teamevenementen je hebt gemeld dat je komt of er was, en je kilometers buiten en virtueel en je hoogtemeters als totalen per dag, maar geen losse activiteiten.",
+	"privacy.visibility.organisers.noEvents":
+		"De organisatoren zien je voornaam, je Rynke en waar ze vandaan komen, wat je nog nodig hebt, of je je trainingsdoel hebt gehaald, hun correcties, en je kilometers buiten en virtueel en je hoogtemeters als totalen per dag, maar geen losse activiteiten.",
 	"privacy.visibility.public":
 		"Niets ervan is openbaar: voor elke pagina met deze gegevens moet je je aanmelden met Strava.",
 	"privacy.legal.heading": "Rechtsgrond",
 	"privacy.legal.body":
 		"Het lezen van je Strava-gegevens en het delen van je Rynke zoals beschreven berusten op je toestemming, gegeven voordat je verbindt (art. 6 lid 1 sub a AVG). Teamevenementen, correcties, de noodzakelijke cookies en de logs berusten op het gerechtvaardigd belang bij het organiseren van de teamtraining en het veilig laten werken van de app (art. 6 lid 1 sub f AVG; voor cookies § 25 lid 2 TDDDG).",
+	"privacy.legal.body.noEvents":
+		"Het lezen van je Strava-gegevens en het delen van je Rynke zoals beschreven berusten op je toestemming, gegeven voordat je verbindt (art.\u00a06 lid 1 sub a AVG). Correcties, de noodzakelijke cookies en de logs berusten op het gerechtvaardigd belang bij het organiseren van de teamtraining en het veilig laten werken van de app (art.\u00a06 lid 1 sub f AVG; voor cookies §\u00a025 lid 2 TDDDG).",
 	"privacy.retention.heading": "Hoe lang gegevens worden bewaard",
 	"privacy.retention.body":
 		"Je gegevens worden bewaard zolang je verbonden bent, en volgen Strava: als je een activiteit op Strava verwijdert, of privé maakt zonder daarvoor het recht te hebben gegeven, verdwijnt ze hier ook zodra Strava dat meldt, meestal binnen enkele minuten. Activiteiten van voor de seizoensstart worden gewist.",
@@ -1003,6 +1032,7 @@ export const nl: Catalog = {
 	"progress.help":
 		"Pijltjestoetsen kiezen een dag, + en − zoomen, Page Up/Down verschuiven, 0 toont het hele seizoen.",
 	"progress.day": "{date} · {training} Trainings-Rynke · {team} Team-Rynke",
+	"progress.day.noEvents": "{date} · {training} Trainings-Rynke",
 	"progress.table.summary": "Cijfers als tabel",
 	"progress.table.week": "Week vanaf",
 	"progress.table.total": "Totaal",

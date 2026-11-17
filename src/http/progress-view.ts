@@ -5,7 +5,6 @@
 
 import type { RiderViewRead } from "../db/rider-view";
 import type { CountingWindow, RynkeRules } from "../rynke/rules";
-import { virtualShareRequired } from "../rynke/tally";
 import {
 	type CurvePoint,
 	dayNumber,
@@ -36,7 +35,8 @@ export interface WeekRow {
 	/** `YYYY-MM-DD`: the week's Monday, or the season start for the first. */
 	firstDay: string;
 	training: Earned;
-	team: Earned;
+	/** `null` when the version has no Team Rynke (feature 039). */
+	team: Earned | null;
 	/** Training Rynke without virtual rides, only with virtual rides (US2). */
 	outside: Earned | null;
 }
@@ -58,7 +58,8 @@ export type ProgressView =
 			/** The period buttons offered, in order (FR-020, research R8). */
 			presets: { preset: Preset; from: number; to: number }[];
 			training: ChartSeries;
-			team: ChartSeries;
+			/** `null` when the version has no Team Rynke (feature 039). */
+			team: ChartSeries | null;
 			/** Only for riders with virtual rides (FR-039). */
 			outside: (ChartSeries & { needed: number }) | null;
 			weeks: WeekRow[];
@@ -114,7 +115,10 @@ export function buildProgressView(
 		};
 	};
 	const training = series((p) => p.training, rules.trainingThreshold, 50);
-	const needed = virtualShareRequired(rules);
+	const needed = rules.minOutsideTraining;
+	// Nothing needed from outside virtual rides: no such curve or column
+	// (feature 039 research R15).
+	const withOutside = read.virtualCount > 0 && needed > 0;
 	return {
 		state: "ready",
 		rulesVersion: rules.version,
@@ -126,18 +130,26 @@ export function buildProgressView(
 		lastIndex,
 		presets: presets(seasonStart, last, axisDays, lastIndex),
 		training,
-		team: series((p) => p.team, rules.teamThreshold, 5),
-		outside:
-			read.virtualCount > 0
-				? {
-						values: points.map((p) => p.outside),
-						threshold: needed,
-						yMax: training.yMax,
-						pace: true,
-						needed,
-					}
-				: null,
-		weeks: weekRows(points, seasonStart, last, read.virtualCount > 0),
+		team:
+			rules.teamThreshold === null
+				? null
+				: series((p) => p.team, rules.teamThreshold, 5),
+		outside: withOutside
+			? {
+					values: points.map((p) => p.outside),
+					threshold: needed,
+					yMax: training.yMax,
+					pace: true,
+					needed,
+				}
+			: null,
+		weeks: weekRows(
+			points,
+			seasonStart,
+			last,
+			withOutside,
+			rules.teamThreshold !== null,
+		),
 	};
 }
 
@@ -195,6 +207,7 @@ function weekRows(
 	seasonStart: string,
 	last: string,
 	withOutside: boolean,
+	withTeam: boolean,
 ): WeekRow[] {
 	const at = (date: string) =>
 		points[dayNumber(date) - dayNumber(seasonStart)] ?? points.at(-1);
@@ -209,7 +222,7 @@ function weekRows(
 		const row: WeekRow = {
 			firstDay,
 			training: earned("training"),
-			team: earned("team"),
+			team: withTeam ? earned("team") : null,
 			outside: withOutside ? earned("outside") : null,
 		};
 		previous = point;

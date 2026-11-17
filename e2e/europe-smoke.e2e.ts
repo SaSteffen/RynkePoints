@@ -59,3 +59,36 @@ test("the placeholder badge picture", async ({ page }) => {
 		await expect(page.locator(`img[src^="/badges/${id}.svg"]`)).toHaveCount(0);
 	}
 });
+
+// Europe's 25 km minimum ride length (feature 039 US3).
+test("a ride under 25 km doesn't count", async ({ page }) => {
+	await signIn(page, "Siiri ShortRide");
+	await skipTours(page);
+	await page.goto("/me/rides");
+	await expect(page.locator("#rides")).toContainText(
+		"Too short: 24.9 km, at least 25 km needed.",
+	);
+});
+
+// No Team Rynke and no events on Europe (feature 039 US4).
+test("no events and no Team Rynke", async ({ page }) => {
+	await signIn(page, RIDER);
+	await skipTours(page);
+	await page.goto("/me");
+	await expect(page.locator('a[href="/events"]')).toHaveCount(0);
+	await expect(page.locator("#tour-team")).toHaveCount(0);
+	await page.goto("/team");
+	await expect(page.locator("nav.kind-switch")).toHaveCount(0);
+	expect((await page.goto("/events"))?.status()).toBe(404);
+});
+
+// Europe needs 84 Training Rynke from outside virtual rides (feature 039
+// US6); Védís has 70 outdoors and the rest virtual.
+test("84 Training Rynke from outside virtual rides", async ({ page }) => {
+	await signIn(page, "V\u{e9}d\u{ed}s Virtual");
+	await skipTours(page);
+	await page.goto("/me");
+	await expect(page.locator("#tour-outdoor")).toContainText(
+		"Training Rynke outdoors: 70 of 84",
+	);
+});

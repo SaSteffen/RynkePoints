@@ -37,6 +37,8 @@ export const fr: Catalog = {
 		"Les sorties privées («\u00a0Moi uniquement\u00a0») ne comptent que si tu autorises l'accès à tes activités privées sur Strava.",
 	"landing.purpose":
 		"Nous utilisons les données uniquement pour les Rynke et les événements de l'équipe. Toi seul·e vois tes sorties et leurs noms.",
+	"landing.purpose.noEvents":
+		"Nous utilisons les données uniquement pour les Rynke et les badges. Toi seul·e vois tes sorties et leurs noms.",
 	"landing.leave":
 		"Tu peux partir à tout moment\u00a0: dans les Réglages, ou en retirant RynkePoints sur Strava. Nous supprimons alors toutes les données te concernant, tes Rynke compris. Si tu quittes le club, nous les supprimons sous 24 heures. Uniquement si un administrateur te retire, nous gardons ton identifiant Strava, pour que tu ne puisses pas te reconnecter.",
 	"landing.backups":
@@ -56,6 +58,8 @@ export const fr: Catalog = {
 	"consent.details": "Tous les détails",
 	"consent.organisers":
 		"Les organisateurs voient ton prénom depuis Strava, tes Rynke et leur origine, ce qu'il te manque, si tu as atteint ton objectif d'entraînement, tes événements d'équipe et corrections, et à quels événements d'équipe tu as indiqué venir ou avoir participé.",
+	"consent.organisers.noEvents":
+		"Les organisateurs voient ton prénom depuis Strava, tes Rynke et leur origine, ce qu'il te manque, si tu as atteint ton objectif d'entraînement, et leurs corrections.",
 	"consent.dailyFigures":
 		"Les organisateurs voient aussi, avec ton prénom, combien de kilomètres tu as roulé dehors et en virtuel et combien de mètres de dénivelé tu as grimpé, en total par jour, sur toute la saison. Cela inclut les sorties privées qui comptent. Ils ne voient pas tes sorties une par une, ni leurs noms, horaires ou parcours.",
 	"consent.rideFigures":
@@ -144,6 +148,7 @@ export const fr: Catalog = {
 		"Règles version {version}, en vigueur depuis le {date}.",
 	"rynke.rules.windowDeadline":
 		"Tout ce qui va du {start} au {deadline} compte.",
+	"rynke.rules.minRide": "Les sorties de {limit} ou plus comptent.",
 	"rynke.rules.handout": "Les règles en PDF (en allemand)",
 	"rynke.rules.handoutEnglish": "Les règles en PDF (en anglais)",
 	"rynke.ride.counts": "compte 🪙",
@@ -175,6 +180,9 @@ export const fr: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"Pas de temps en mouvement\u00a0: la sortie compte comme une pause du début à la fin.",
 	"rynke.reason.manual": "Saisie à la main sur Strava.",
+	"rynke.reason.too_short":
+		"Trop court\u00a0: {distance}, au moins {limit} nécessaire.",
+	"rynke.reason.too_short.noLimit": "Trop court\u00a0: {distance}.",
 	"rynke.reason.too_slow":
 		"Trop lent\u00a0: {speed} de moyenne, au moins {limit} nécessaire.",
 	"rynke.reason.too_slow.noLimit": "Trop lent\u00a0: {speed} de moyenne.",
@@ -295,7 +303,9 @@ export const fr: Catalog = {
 	"tour.rider.teamRynke":
 		"Les Rynke d'équipe ne viennent que des événements d'équipe auxquels les organisateurs t'ont ajouté·e\u00a0: {teamTraining} pour un entraînement d'équipe, {weekendDay} pour une journée du week-end d'entraînement, {technique} pour un entraînement technique. Il t'en faut {teamThreshold} pour Paris.",
 	"tour.rider.outdoor":
-		"Au plus {virtualShare} de tes Rynke d'entraînement peuvent venir de sorties virtuelles. Cette barre compte tout le reste\u00a0: au moins {outside} sur {trainingThreshold} Rynke d'entraînement doivent venir de sorties dehors, événements d'équipe compris.",
+		"Cette barre compte tout sauf les sorties virtuelles\u00a0: au moins {outside} sur {trainingThreshold} Rynke d'entraînement doivent venir de sorties dehors, événements d'équipe compris.",
+	"tour.rider.outdoor.noEvents":
+		"Cette barre compte tout sauf les sorties virtuelles : au moins {outside} sur {trainingThreshold} Rynke d'entraînement doivent venir de sorties dehors.",
 	"tour.rider.rides":
 		"Sorties\u00a0: chaque sortie et ce qu'elle a rapporté. Celle-ci ne compte pas. «\u00a0Pourquoi\u00a0?\u00a0» explique ce qui n'a pas marché et ce que tu peux faire.",
 	"tour.rider.shortRide":
@@ -312,12 +322,16 @@ export const fr: Catalog = {
 		"Tu es maintenant organisateur ou organisatrice\u00a0: l'onglet Orga est nouveau. On te fait le tour.",
 	"tour.organiser.riders":
 		"Cyclistes\u00a0: tout le monde dans l'équipe avec ses Rynke d'entraînement et d'équipe et ce qu'il lui manque.",
+	"tour.organiser.riders.noEvents":
+		"Cyclistes : tout le monde dans l'équipe avec ses Rynke d'entraînement et ce qu'il lui manque.",
 	"tour.organiser.riders.rides":
 		"Et aussi combien de leurs sorties ont compté cette saison et la longueur d'une sortie typique.",
 	"tour.organiser.example":
 		"Équipe d'exemple\u00a0: voilà à quoi ressemble Orga en pleine saison. Rien n'est cliquable ici\u00a0; tu verras la vraie équipe après la visite.",
 	"tour.organiser.groups":
 		"Les groupes\u00a0: «\u00a0Besoin d'un coup de pouce\u00a0» est en retard sur le rythme, «\u00a0Dans le rythme\u00a0» suit le plan, «\u00a0Objectif atteint\u00a0» a tout. Touche une tuile pour ne voir que ses cyclistes. D'abord\u00a0: tous ceux qui ont un signalement ouvert.",
+	"tour.organiser.groups.noEvents":
+		"Les groupes\u00a0: «\u00a0Besoin d'un coup de pouce\u00a0» est en retard sur le rythme, «\u00a0Dans le rythme\u00a0» suit le plan, «\u00a0Objectif atteint\u00a0» a tout. Touche une tuile pour ne voir que ses cyclistes.",
 	"tour.organiser.pace":
 		"La marque sur chaque barre est le rythme régulier jusqu'à la date limite. Les cyclistes à sa gauche ont besoin d'un coup de pouce. Touche un nom pour ouvrir ses corrections\u00a0: Rynke ajoutés ou retirés, avec une raison.",
 	"tour.organiser.graphs":
@@ -587,8 +601,12 @@ export const fr: Catalog = {
 	"organiser.overview.showing": "Affiché\u00a0: {group}",
 	"organiser.overview.hint":
 		"La marque sur chaque barre indique le rythme régulier jusqu'à la date limite\u00a0: aujourd'hui {training} Entraînement et {team} Équipe.",
+	"organiser.overview.hint.noEvents":
+		"La marque sur chaque barre indique le rythme régulier jusqu'à la date limite\u00a0: aujourd'hui {training} Entraînement.",
 	"organiser.overview.hint.percent":
 		"La marque sur chaque barre indique le rythme régulier jusqu'à la date limite\u00a0: aujourd'hui {training} de l'Entraînement et {team} de l'Équipe.",
+	"organiser.overview.hint.percent.noEvents":
+		"La marque sur chaque barre indique le rythme régulier jusqu'à la date limite\u00a0: aujourd'hui {training} de l'Entraînement.",
 	"organiser.overview.training.percent": "Entraînement {n}",
 	"organiser.overview.team.percent": "Équipe {n}",
 	"organiser.overview.behind.training": "Entraînement en retard sur le rythme",
@@ -610,12 +628,17 @@ export const fr: Catalog = {
 		"{kind}\u00a0: {attended}× → {training} Entraînement, {team} Équipe",
 	"organiser.overview.corrections":
 		"Corrections {training} Entraînement, {team} Équipe",
+	"organiser.overview.corrections.noEvents":
+		"Corrections {training} Entraînement",
 	"organiser.overview.virtual": "Sorties virtuelles {n} % de l'Entraînement",
 	"organiser.overview.amounts": "{training} Entraînement, {team} Équipe",
+	"organiser.overview.amounts.noEvents": "{training} Entraînement",
 	"organiser.overview.percent": "{n} %",
 	"organiser.overview.qualifiedList": "Objectif d'entraînement atteint 🎯",
 	"organiser.overview.qualifiedHint":
 		"Les deux seuils et la part en extérieur sont atteints.",
+	"organiser.overview.qualifiedHint.noEvents":
+		"Le seuil d'entraînement et la part en extérieur sont atteints.",
 	"organiser.overview.nobodyYet":
 		"Personne n'a encore atteint l'objectif d'entraînement.",
 	"organiser.overview.none": "Aucun·e cycliste ne partage encore ses Rynke.",
@@ -825,6 +848,8 @@ export const fr: Catalog = {
 	"badges.surprise.sunday-outing": "Sortie du dimanche",
 	"badges.surprise.sunday-outing.for":
 		"Au moins dix de l'équipe dehors un dimanche sans événement d'équipe.",
+	"badges.surprise.sunday-outing.for.noEvents":
+		"Au moins dix de l'équipe dehors le même dimanche.",
 	"badges.surprise.festive-500": "Festive 500",
 	"badges.surprise.festive-500.for":
 		"500 kilomètres roulés entre le 24 et le 31 décembre.",
@@ -887,6 +912,8 @@ export const fr: Catalog = {
 	"privacy.team.heading": "Données de l'équipe, et ce qui en est calculé",
 	"privacy.team.body":
 		"Les organisateurs enregistrent les événements d'équipe auxquels tu as participé et peuvent corriger tes Rynke avec une raison et une date. Tu peux indiquer toi-même à quels événements d'équipe tu viens ou as participé\u00a0; les organisateurs le voient et décident de l'enregistrer. Qui a modifié quoi, et quand, est aussi conservé.",
+	"privacy.team.body.noEvents":
+		"Les organisateurs peuvent corriger tes Rynke avec une raison et une date. Qui a modifié quoi, et quand, est aussi conservé.",
 	"privacy.team.derived":
 		"À partir de tout cela, RynkePoints calcule tes Rynke, tes badges, et quelles sorties comptent et pourquoi.",
 	"privacy.team.rideFigures":
@@ -906,11 +933,15 @@ export const fr: Catalog = {
 		"Tous les autres membres de l'équipe voient tes Rynke, au total et par semaine, sans ton nom. Tes kilomètres et ton dénivelé, ainsi que les jours et l'heure où tu es actif ou active, comptent dans les totaux et badges de l'équipe, sans ton nom.",
 	"privacy.visibility.organisers":
 		"Les organisateurs voient ton prénom, tes Rynke et leur origine, ce qu'il te manque, si tu as atteint ton objectif d'entraînement, tes événements d'équipe et corrections, à quels événements d'équipe tu as indiqué venir ou avoir participé, et tes kilomètres dehors et en virtuel et ton dénivelé en totaux par jour, mais aucune activité individuelle.",
+	"privacy.visibility.organisers.noEvents":
+		"Les organisateurs voient ton prénom, tes Rynke et leur origine, ce qu'il te manque, si tu as atteint ton objectif d'entraînement, leurs corrections, et tes kilomètres dehors et en virtuel et ton dénivelé en totaux par jour, mais aucune activité individuelle.",
 	"privacy.visibility.public":
 		"Rien de tout cela n'est public\u00a0: chaque page avec ces données exige que tu te connectes avec Strava.",
 	"privacy.legal.heading": "Base juridique",
 	"privacy.legal.body":
 		"La lecture de tes données Strava et le partage de tes Rynke comme décrit reposent sur ton consentement, donné avant de te connecter (art. 6, paragraphe 1, point a du RGPD). Les événements d'équipe, les corrections, les cookies nécessaires et les journaux reposent sur l'intérêt légitime d'organiser l'entraînement de l'équipe et de faire fonctionner l'application en toute sécurité (art. 6, paragraphe 1, point f du RGPD\u00a0; pour les cookies § 25 (2) TDDDG).",
+	"privacy.legal.body.noEvents":
+		"La lecture de tes données Strava et le partage de tes Rynke comme décrit reposent sur ton consentement, donné avant de te connecter (art. 6, paragraphe 1, point a du RGPD). Les corrections, les cookies nécessaires et les journaux reposent sur l'intérêt légitime d'organiser l'entraînement de l'équipe et de faire fonctionner l'application en toute sécurité (art. 6, paragraphe 1, point f du RGPD\u00a0; pour les cookies § 25 (2) TDDDG).",
 	"privacy.retention.heading": "Combien de temps les données sont conservées",
 	"privacy.retention.body":
 		"Tes données sont conservées tant que tu es connecté·e, et suivent Strava\u00a0: si tu supprimes une activité sur Strava, ou la rends privée sans avoir accordé l'autorisation pour cela, elle disparaît aussi ici dès que Strava le signale, généralement en quelques minutes. Les activités antérieures au début de saison sont supprimées.",
@@ -1037,6 +1068,7 @@ export const fr: Catalog = {
 		"Les flèches choisissent un jour, + et − zooment, Page préc./suiv. déplacent, 0 montre toute la saison.",
 	"progress.day":
 		"{date} · {training} Rynke d'entraînement · {team} Rynke d'équipe",
+	"progress.day.noEvents": "{date} · {training} Rynke d'entraînement",
 	"progress.table.summary": "Les chiffres en tableau",
 	"progress.table.week": "Semaine du",
 	"progress.table.total": "Total",

@@ -41,6 +41,8 @@ export const de = {
 		"Private Fahrten („Nur du“) zählen nur, wenn du auf Strava das Anzeigen deiner privaten Aktivitäten erlaubst.",
 	"landing.purpose":
 		"Wir nutzen die Daten nur für Rynke und Teamtermine. Deine einzelnen Fahrten und ihre Namen siehst nur du.",
+	"landing.purpose.noEvents":
+		"Wir nutzen die Daten nur für Rynke und Abzeichen. Deine einzelnen Fahrten und ihre Namen siehst nur du.",
 	"landing.leave":
 		"Aussteigen geht jederzeit: in den Einstellungen oder indem du RynkePoints auf Strava entfernst. Dann löschen wir alle Daten über dich, auch deine Rynke. Verlässt du den Club, löschen wir sie innerhalb von 24\u00a0Stunden. Nur wenn dich ein Admin entfernt, behalten wir deine Strava-ID, damit du dich nicht wieder verbinden kannst.",
 	"landing.backups":
@@ -60,6 +62,8 @@ export const de = {
 	"consent.details": "Alle Details",
 	"consent.organisers":
 		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen und bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst.",
+	"consent.organisers.noEvents":
+		"Die Orga sieht deinen Vornamen von Strava, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, und ihre Korrekturen.",
 	"consent.dailyFigures":
 		"Die Orga sieht mit deinem Vornamen außerdem, wie viele Kilometer du draußen und virtuell gefahren bist und wie viele Höhenmeter du gesammelt hast, als Summe pro Tag und über die ganze Saison. Private Fahrten, die gewertet werden, sind dabei. Deine einzelnen Fahrten, ihre Namen, Zeiten oder Strecken sieht sie nicht.",
 	"consent.rideFigures":
@@ -146,6 +150,7 @@ export const de = {
 		"Regel-Version\u00a0{version}, gültig seit dem {date}.",
 	"rynke.rules.windowDeadline":
 		"Es zählt alles vom {start} bis zum {deadline}.",
+	"rynke.rules.minRide": "Es zählen Fahrten ab {limit}.",
 	"rynke.rules.handout": "Die Regeln als PDF",
 	"rynke.rules.handoutEnglish": "Die Regeln als PDF (auf Englisch)",
 	"rynke.ride.counts": "zählt 🪙",
@@ -177,6 +182,9 @@ export const de = {
 	"rynke.reason.pause.noMovingTime":
 		"Keine Bewegungszeit: Die Fahrt gilt als ganz pausiert.",
 	"rynke.reason.manual": "Manuell auf Strava eingetragen.",
+	"rynke.reason.too_short":
+		"Zu kurz: {distance}, mindestens {limit} sind nötig.",
+	"rynke.reason.too_short.noLimit": "Zu kurz: {distance}.",
 	"rynke.reason.too_slow":
 		"Zu langsam: {speed} im Schnitt, mindestens {limit} sind nötig.",
 	"rynke.reason.too_slow.noLimit": "Zu langsam: {speed} im Schnitt.",
@@ -300,7 +308,9 @@ export const de = {
 	"tour.rider.teamRynke":
 		"Teamrynke gibt es nur für Teamtermine, bei denen die Orga dich eingetragen hat: {teamTraining} für ein Teamtraining, {weekendDay} für einen Tag am Trainingswochenende, {technique} für ein Techniktraining. Für Paris brauchst du {teamThreshold}.",
 	"tour.rider.outdoor":
-		"Höchstens {virtualShare} deiner Trainingsrynke dürfen von virtuellen Fahrten kommen. Dieser Balken zählt alles außer ihnen: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren, Teamtermine zählen mit.",
+		"Dieser Balken zählt alles außer virtuellen Fahrten: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren, Teamtermine zählen mit.",
+	"tour.rider.outdoor.noEvents":
+		"Dieser Balken zählt alles außer virtuellen Fahrten: Mindestens {outside} von {trainingThreshold} Trainingsrynke musst du draußen erfahren.",
 	"tour.rider.rides":
 		"Fahrten: jede Fahrt und was sie gebracht hat. Diese hier zählt nicht. Unter „Warum?“ steht, woran es lag und was du tun kannst.",
 	"tour.rider.shortRide":
@@ -317,12 +327,16 @@ export const de = {
 		"Du bist jetzt in der Orga: Der Orga-Tab ist neu. Wir zeigen dir, was drin ist.",
 	"tour.organiser.riders":
 		"Rider: alle im Team mit ihren Trainings- und Teamrynke und dem, was ihnen noch fehlt.",
+	"tour.organiser.riders.noEvents":
+		"Rider: alle im Team mit ihren Trainingsrynke und dem, was ihnen noch fehlt.",
 	"tour.organiser.riders.rides":
 		"Dazu, wie viele ihrer Fahrten in der Saison gezählt haben und wie lang eine typische ist.",
 	"tour.organiser.example":
 		"Beispielteam: So sieht Orga aus, wenn die Saison läuft. Anklicken lässt sich hier nichts; das echte Team siehst du nach dem Rundgang.",
 	"tour.organiser.groups":
 		"Die Gruppen: „Braucht Schwung“ liegt hinter dem Tempo, „Gut unterwegs“ im Plan, „Trainingsziel erreicht“ hat alles zusammen. Tippst du auf eine Kachel, siehst du nur ihre Rider. Ganz vorn: alle mit einer offenen Meldung.",
+	"tour.organiser.groups.noEvents":
+		"Die Gruppen: „Braucht Schwung“ liegt hinter dem Tempo, „Gut unterwegs“ im Plan, „Trainingsziel erreicht“ hat alles zusammen. Tippst du auf eine Kachel, siehst du nur ihre Rider.",
 	"tour.organiser.pace":
 		"Der Strich auf jedem Balken ist das gleichmäßige Tempo bis zum Stichtag. Wer links davon liegt, braucht Schwung. Ein Tipp auf einen Namen öffnet die Korrekturen: Rynke dazu oder weg, mit Grund.",
 	"tour.organiser.graphs":
@@ -587,8 +601,12 @@ export const de = {
 	"organiser.overview.showing": "Angezeigt: {group}",
 	"organiser.overview.hint":
 		"Der Strich auf jedem Balken zeigt das gleichmäßige Tempo bis zum Stichtag: heute {training} Training und {team} Team.",
+	"organiser.overview.hint.noEvents":
+		"Der Strich auf jedem Balken zeigt das gleichmäßige Tempo bis zum Stichtag: heute {training} Training.",
 	"organiser.overview.hint.percent":
 		"Der Strich auf jedem Balken zeigt das gleichmäßige Tempo bis zum Stichtag: heute {training} vom Training und {team} vom Team.",
+	"organiser.overview.hint.percent.noEvents":
+		"Der Strich auf jedem Balken zeigt das gleichmäßige Tempo bis zum Stichtag: heute {training} vom Training.",
 	"organiser.overview.training.percent": "Training {n}",
 	"organiser.overview.team.percent": "Team {n}",
 	"organiser.overview.behind.training": "Training hinter dem Tempo",
@@ -609,12 +627,16 @@ export const de = {
 		"{kind}: {attended}× → {training} Training, {team} Team",
 	"organiser.overview.corrections":
 		"Korrekturen {training} Training, {team} Team",
+	"organiser.overview.corrections.noEvents": "Korrekturen {training} Training",
 	"organiser.overview.virtual": "Virtuelle Fahrten {n} % vom Training",
 	"organiser.overview.amounts": "{training} Training, {team} Team",
+	"organiser.overview.amounts.noEvents": "{training} Training",
 	"organiser.overview.percent": "{n} %",
 	"organiser.overview.qualifiedList": "Trainingsziel erreicht 🎯",
 	"organiser.overview.qualifiedHint":
 		"Beide Schwellen und der Anteil draußen erreicht.",
+	"organiser.overview.qualifiedHint.noEvents":
+		"Trainingsschwelle und der Anteil draußen erreicht.",
 	"organiser.overview.nobodyYet":
 		"Noch hat niemand das Trainingsziel erreicht.",
 	"organiser.overview.none": "Noch teilt niemand Rynke mit dem Team.",
@@ -816,6 +838,8 @@ export const de = {
 	"badges.surprise.sunday-outing": "Sonntagsausflug",
 	"badges.surprise.sunday-outing.for":
 		"Mindestens zehn aus dem Team an einem Sonntag ohne Teamtermin.",
+	"badges.surprise.sunday-outing.for.noEvents":
+		"Mindestens zehn aus dem Team am selben Sonntag unterwegs.",
 	"badges.surprise.festive-500": "Festive 500",
 	"badges.surprise.festive-500.for":
 		"Zwischen Heiligabend und Silvester 500 Kilometer gefahren.",
@@ -879,6 +903,8 @@ export const de = {
 	"privacy.team.heading": "Daten vom Team und daraus berechnet",
 	"privacy.team.body":
 		"Die Organisatoren tragen ein, an welchen Teamterminen du teilgenommen hast, und können deine Rynke mit Grund und Datum korrigieren. Du kannst selbst melden, bei welchen Teamterminen du dabei bist oder warst; die Organisatoren sehen das und entscheiden, ob sie dich eintragen. Gespeichert wird auch, wer das wann geändert hat.",
+	"privacy.team.body.noEvents":
+		"Die Organisatoren können deine Rynke mit Grund und Datum korrigieren. Gespeichert wird auch, wer das wann geändert hat.",
 	"privacy.team.derived":
 		"Aus all dem berechnet RynkePoints deine Rynke, deine Abzeichen und welche Fahrten warum zählen.",
 	"privacy.team.rideFigures":
@@ -897,11 +923,15 @@ export const de = {
 		"Das übrige Team sieht deine Rynke, insgesamt und pro Woche, ohne deinen Namen. Deine Kilometer und Höhenmeter und an welchen Tagen und zu welcher Stunde du aktiv bist zählen ohne Namen zu den Teamsummen und Team-Abzeichen.",
 	"privacy.visibility.organisers":
 		"Die Organisatoren sehen deinen Vornamen, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, deine Teamtermine und Korrekturen bei welchen Teamterminen du gemeldet hast, dass du dabei bist oder warst, und deine Kilometer draußen und virtuell und deine Höhenmeter als Summen pro Tag, aber keine einzelnen Aktivitäten.",
+	"privacy.visibility.organisers.noEvents":
+		"Die Organisatoren sehen deinen Vornamen, deine Rynke und woher sie kommen, was dir noch fehlt, ob du dein Trainingsziel erreicht hast, ihre Korrekturen und deine Kilometer draußen und virtuell und deine Höhenmeter als Summen pro Tag, aber keine einzelnen Aktivitäten.",
 	"privacy.visibility.public":
 		"Nichts davon ist öffentlich: Jede Seite mit diesen Daten verlangt eine Anmeldung mit Strava.",
 	"privacy.legal.heading": "Rechtsgrundlagen",
 	"privacy.legal.body":
 		"Das Lesen deiner Strava-Daten und das Teilen deiner Rynke wie beschrieben beruhen auf deiner Einwilligung, die du vor dem Verbinden gibst (Art. 6 Abs. 1 lit. a DSGVO). Teamtermine, Korrekturen, die technisch nötigen Cookies und die Protokolle beruhen auf dem berechtigten Interesse, das Training des Teams zu organisieren und die App sicher zu betreiben (Art. 6 Abs. 1 lit. f DSGVO; für Cookies § 25 Abs. 2 TDDDG).",
+	"privacy.legal.body.noEvents":
+		"Das Lesen deiner Strava-Daten und das Teilen deiner Rynke wie beschrieben beruhen auf deiner Einwilligung, die du vor dem Verbinden gibst (Art.\u00a06 Abs.\u00a01 lit.\u00a0a DSGVO). Korrekturen, die technisch nötigen Cookies und die Protokolle beruhen auf dem berechtigten Interesse, das Training des Teams zu organisieren und die App sicher zu betreiben (Art.\u00a06 Abs.\u00a01 lit.\u00a0f DSGVO; für Cookies §\u00a025 Abs.\u00a02 TDDDG).",
 	"privacy.retention.heading": "Wie lange gespeichert wird",
 	"privacy.retention.body":
 		"Deine Daten bleiben gespeichert, solange du verbunden bist, und folgen dabei Strava: Löschst du eine Aktivität in Strava oder machst sie privat, ohne die Berechtigung dafür erteilt zu haben, verschwindet sie auch hier, sobald Strava das meldet, meist innerhalb von Minuten. Aktivitäten von vor dem Saisonbeginn werden gelöscht.",
@@ -1026,6 +1056,7 @@ export const de = {
 	"progress.help":
 		"Pfeiltasten wählen einen Tag, + und − zoomen, Bild auf/ab verschiebt, 0 zeigt die ganze Saison.",
 	"progress.day": "{date} · {training} Trainingsrynke · {team} Teamrynke",
+	"progress.day.noEvents": "{date} · {training} Trainingsrynke",
 	"progress.table.summary": "Zahlen als Tabelle",
 	"progress.table.week": "Woche ab",
 	"progress.table.total": "Summe",

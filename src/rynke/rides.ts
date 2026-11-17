@@ -17,6 +17,7 @@ export const REASON_CODES = [
 	"excluded_sport_type",
 	"flagged",
 	"manual",
+	"too_short",
 	"pause",
 	"too_slow",
 	"too_fast",
@@ -194,6 +195,14 @@ function reasonsFor(
 	// FR-005g: under every rule version, so not a rule value.
 	if (ride.flagged === true) reasons.push("flagged");
 	if (ride.manual === true) reasons.push("manual");
+	// Metres against metres, no rounding (feature 039 research R5); before the
+	// moving-time return, so a ride without moving time lists it too.
+	if (
+		rules.minRideKm !== undefined &&
+		ride.distanceM < rules.minRideKm * 1000
+	) {
+		reasons.push("too_short");
+	}
 
 	const moving = ride.movingS;
 	if (moving === 0) {

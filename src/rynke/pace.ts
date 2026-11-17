@@ -4,7 +4,7 @@
 // `YYYY-MM-DD` strings in Europe/Berlin.
 
 import type { CountingWindow, RynkeRules } from "./rules";
-import { type Balance, virtualShareRequired } from "./tally";
+import type { Balance } from "./tally";
 import { dayNumber } from "./weeks";
 
 export type RiderStatus = "push" | "on_track" | "in";
@@ -39,8 +39,9 @@ export function riderStatus(
 	const behind = (value: number, amount: number) =>
 		value < evenPace(amount, seasonStart, deadline, today);
 	return behind(balance.trainingRynke, rules.trainingThreshold) ||
-		behind(balance.teamRynke, rules.teamThreshold) ||
-		behind(balance.trainingWithoutVirtual, virtualShareRequired(rules))
+		(rules.teamThreshold !== null &&
+			behind(balance.teamRynke, rules.teamThreshold)) ||
+		behind(balance.trainingWithoutVirtual, rules.minOutsideTraining)
 		? "push"
 		: "on_track";
 }

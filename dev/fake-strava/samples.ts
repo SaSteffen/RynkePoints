@@ -59,6 +59,11 @@ export interface SampleRider {
 	/** The scopes it connects with when seeded, comma-separated. */
 	scopes: string;
 	clubMember: boolean;
+	/**
+	 * Also a member of the other team's club (the first of the team's
+	 * `otherClubIds`), for the one-team-at-a-time notice (feature 039).
+	 */
+	otherClubMember?: true;
 	behaviour: Behaviour;
 	rides: readonly RideRecipe[];
 	events?: readonly EventRecipe[];

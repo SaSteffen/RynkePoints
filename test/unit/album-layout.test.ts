@@ -24,7 +24,9 @@ import {
 	safeArea,
 } from "../../album/layout";
 import type { AlbumData, AlbumEvent } from "../../album/load";
+import { renderAlbum } from "../../album/render";
 import { BADGES, categoryById } from "../../src/badges/catalog";
+import { CATALOGS } from "../../src/i18n/catalogs";
 
 // The album's geometry (feature 021 research R13, contracts/album-layout.md):
 // A4 pages with mirrored margins, the event table's pages, and the sticker
@@ -311,5 +313,38 @@ describe("pose", () => {
 		}
 		expect(misses / poses.length).toBeGreaterThan(0.2);
 		expect(misses / poses.length).toBeLessThan(0.45);
+	});
+});
+
+describe("an album without Team Rynke and events (feature 039)", () => {
+	const base = album();
+	const data: AlbumData = {
+		...base,
+		rider: { ...base.rider, teamRynke: null, eventsAttended: null },
+		team: { ...base.team, events: null },
+	};
+
+	it("has the team page without an events page", () => {
+		const pages = layoutAlbum(data);
+		const team = pages.filter((p) => p.kind === "team" || p.kind === "events");
+		expect(team.map((p) => p.kind)).toEqual(["team"]);
+		expect(pages.length % 2).toBe(0);
+	});
+
+	it("shows no Team Rynke figure, events figure or events table", () => {
+		const html = renderAlbum(data);
+		const de = CATALOGS.de;
+		expect(html).not.toContain(de["album.rider.team"]);
+		expect(html).not.toContain(de["album.rider.events"]);
+		expect(html).not.toContain('class="events"');
+		expect(html).toContain(de["album.rider.training"]);
+	});
+
+	it("keeps them with Team Rynke and events", () => {
+		const html = renderAlbum(base);
+		const de = CATALOGS.de;
+		expect(html).toContain(de["album.rider.team"]);
+		expect(html).toContain(de["album.rider.events"]);
+		expect(html).toContain('class="events"');
 	});
 });

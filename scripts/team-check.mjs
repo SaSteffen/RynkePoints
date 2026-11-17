@@ -176,6 +176,24 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 			}
 		}
 
+		// Team Rynke and events go together (feature 039 contracts/team-data.md):
+		// Team Rynke is earned only at events, so it needs a kind the organisers
+		// record that earns some under the rules in effect; events without Team
+		// Rynke would earn nothing of it.
+		const current = rules.at(-1);
+		if (current && Array.isArray(team.eventKinds)) {
+			const teamRynke = current.teamThreshold !== null;
+			const earning = team.eventKinds.filter(
+				(kind) => (current.teamEvents?.[kind]?.team ?? 0) > 0,
+			);
+			if (teamRynke && earning.length === 0) {
+				say(team, "eventKinds", "Team Rynke, but no kind that earns it");
+			}
+			if (!teamRynke && team.eventKinds.length > 0) {
+				say(team, "eventKinds", "events, but no Team Rynke");
+			}
+		}
+
 		if (team.dev) {
 			const host = team === founding ? "localhost" : `${team.id}.localhost`;
 			if (team.dev.host !== host) {
@@ -269,6 +287,19 @@ export function teamProblems(teams, wrangler, { locales, publicFile }) {
 	for (const id of Object.keys(wrangler.env ?? {})) {
 		if (!seenIds.has(id) && !isSandbox(id)) {
 			problems.push(`wrangler.jsonc: env.${id}: no registered team`);
+		}
+	}
+
+	// Every other team's club, for the one-team-at-a-time notice (feature 039
+	// contracts/team-data.md › Clubs); a club still "0" is no club yet.
+	for (const team of teams) {
+		for (const other of teams) {
+			if (other === team || !Array.isArray(team.otherClubIds)) continue;
+			const club = wrangler.env?.[other.id]?.vars?.STRAVA_CLUB_ID;
+			if (club === undefined || club === "0") continue;
+			if (!team.otherClubIds.includes(Number(club))) {
+				say(team, "otherClubIds", `${club} of ${other.id} missing`);
+			}
 		}
 	}
 

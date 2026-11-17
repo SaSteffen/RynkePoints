@@ -37,6 +37,8 @@ export const fi: Catalog = {
 		"Yksityiset (”Vain sinä”) ajot lasketaan vain, jos sallit yksityisten suoritustesi lukemisen Stravassa.",
 	"landing.purpose":
 		"Käytämme tietoja vain Rynkeen ja tiimin tapahtumiin. Vain sinä näet yksittäiset ajosi ja niiden nimet.",
+	"landing.purpose.noEvents":
+		"Käytämme tietoja vain Rynkeen ja merkkeihin. Vain sinä näet yksittäiset ajosi ja niiden nimet.",
 	"landing.leave":
 		"Voit lopettaa milloin tahansa: Asetuksissa tai poistamalla RynkePointsin Stravasta. Silloin poistamme kaikki tietosi, myös Rynkesi. Jos lähdet klubista, poistamme ne 24 tunnin kuluessa. Vain jos ylläpitäjä poistaa sinut, säilytämme Strava-tunnuksesi, jotta et voi yhdistää uudelleen.",
 	"landing.backups":
@@ -56,6 +58,8 @@ export const fi: Catalog = {
 	"consent.details": "Kaikki tiedot",
 	"consent.organisers":
 		"Järjestäjät näkevät etunimesi Stravasta, Rynkesi ja mistä ne tulevat, mitä sinulta vielä puuttuu, oletko saavuttanut harjoitustavoitteesi, tiimitapahtumasi ja korjauksesi sekä mihin tiimitapahtumiin olet ilmoittanut tulevasi tai osallistuneesi.",
+	"consent.organisers.noEvents":
+		"Järjestäjät näkevät etunimesi Stravasta, Rynkesi ja mistä ne tulevat, mitä sinulta vielä puuttuu, oletko saavuttanut harjoitustavoitteesi, sekä heidän korjauksensa.",
 	"consent.dailyFigures":
 		"Järjestäjät näkevät myös etunimelläsi, montako kilometriä olet ajanut ulkona ja virtuaalisesti ja montako nousumetriä olet noussut, päiväkohtaisena summana koko kauden ajalta. Tämä koskee myös laskettavia yksityisiä ajoja. He eivät näe yksittäisiä ajojasi, niiden nimiä, aikoja tai reittejä.",
 	"consent.rideFigures":
@@ -139,6 +143,7 @@ export const fi: Catalog = {
 	"rynke.rules.heading": "Säännöt",
 	"rynke.rules.version": "Sääntöversio {version}, voimassa {date} alkaen.",
 	"rynke.rules.windowDeadline": "Kaikki {start}–{deadline} lasketaan.",
+	"rynke.rules.minRide": "Lasketaan lenkit, jotka ovat vähintään {limit}.",
 	"rynke.rules.handout": "Säännöt PDF:nä (saksaksi)",
 	"rynke.rules.handoutEnglish": "Säännöt PDF:nä (englanniksi)",
 	"rynke.ride.counts": "lasketaan 🪙",
@@ -169,6 +174,9 @@ export const fi: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"Ei liikkumisaikaa: ajo lasketaan kokonaan tauoksi.",
 	"rynke.reason.manual": "Syötetty käsin Stravaan.",
+	"rynke.reason.too_short":
+		"Liian lyhyt: {distance}, vähintään {limit} tarvitaan.",
+	"rynke.reason.too_short.noLimit": "Liian lyhyt: {distance}.",
 	"rynke.reason.too_slow":
 		"Liian hidas: keskimäärin {speed}, vähintään {limit} tarvitaan.",
 	"rynke.reason.too_slow.noLimit": "Liian hidas: keskimäärin {speed}.",
@@ -278,7 +286,9 @@ export const fi: Catalog = {
 	"tour.rider.teamRynke":
 		"Tiimi-Rynkejä saa vain tiimitapahtumista, joihin järjestäjät ovat lisänneet sinut: {teamTraining} tiimiharjoituksesta, {weekendDay} harjoitusviikonlopun päivästä, {technique} tekniikkaharjoituksesta. Pariisiin tarvitset {teamThreshold}.",
 	"tour.rider.outdoor":
-		"Enintään {virtualShare} Harjoitus-Rynkeistäsi saa tulla virtuaaliajoista. Tämä palkki laskee kaiken muun: vähintään {outside}/{trainingThreshold} Harjoitus-Rynkestä on tultava ulkona ajamisesta, tiimitapahtumat mukaan lukien.",
+		"Tämä palkki laskee kaiken paitsi virtuaaliajot: vähintään {outside}/{trainingThreshold} Harjoitus-Rynkestä on tultava ulkona ajamisesta, tiimitapahtumat mukaan lukien.",
+	"tour.rider.outdoor.noEvents":
+		"Tämä palkki laskee kaiken paitsi virtuaaliajot: vähintään {outside}/{trainingThreshold} Harjoitus-Rynkestä on tultava ulkona ajamisesta.",
 	"tour.rider.rides":
 		"Ajot: jokainen ajo ja mitä se tuotti. Tätä ei lasketa. ”Miksi?” kertoo, mikä meni pieleen ja mitä voit tehdä.",
 	"tour.rider.shortRide":
@@ -294,12 +304,16 @@ export const fi: Catalog = {
 		"Olet nyt järjestäjä: Orga-välilehti on uusi. Näytämme paikat.",
 	"tour.organiser.riders":
 		"Ajajat: kaikki tiimissä Harjoitus- ja Tiimi-Rynkeineen ja mitä heiltä puuttuu.",
+	"tour.organiser.riders.noEvents":
+		"Ajajat: kaikki tiimissä Harjoitus-Rynkeineen ja mitä heiltä puuttuu.",
 	"tour.organiser.riders.rides":
 		"Lisäksi kuinka monta heidän ajoistaan on laskettu tällä kaudella ja kuinka pitkä tyypillinen ajo on.",
 	"tour.organiser.example":
 		"Esimerkkitiimi: tältä Orga näyttää, kun kausi on käynnissä. Mitään ei voi klikata; näet oikean tiimin esittelyn jälkeen.",
 	"tour.organiser.groups":
 		"Ryhmät: ”Tarvitsee tsemppiä” on tahdista jäljessä, ”Raiteillaan” on suunnitelmassa, ”Harjoitustavoite saavutettu” on valmis. Napauta ruutua nähdäksesi vain sen ajajat. Ensin: kaikki, joilla on avoin ilmoitus.",
+	"tour.organiser.groups.noEvents":
+		"Ryhmät: ”Tarvitsee tsemppiä” on tahdista jäljessä, ”Raiteillaan” on suunnitelmassa, ”Harjoitustavoite saavutettu” on valmis. Napauta ruutua nähdäksesi vain sen ajajat.",
 	"tour.organiser.pace":
 		"Jokaisen palkin merkki on tasainen tahti määräaikaan. Sen vasemmalla puolella olevat tarvitsevat tsemppiä. Napauta nimeä avataksesi korjaukset: lisätyt tai vähennetyt Rynket perusteluineen.",
 	"tour.organiser.graphs":
@@ -559,8 +573,12 @@ export const fi: Catalog = {
 	"organiser.overview.showing": "Näytetään: {group}",
 	"organiser.overview.hint":
 		"Merkki kunkin palkin päällä näyttää tasaisen tahdin määräaikaan: tänään {training} Harjoitus ja {team} Tiimi.",
+	"organiser.overview.hint.noEvents":
+		"Merkki kunkin palkin päällä näyttää tasaisen tahdin määräaikaan: tänään {training} Harjoitus.",
 	"organiser.overview.hint.percent":
 		"Merkki kunkin palkin päällä näyttää tasaisen tahdin määräaikaan: tänään {training} Harjoituksesta ja {team} Tiimistä.",
+	"organiser.overview.hint.percent.noEvents":
+		"Merkki kunkin palkin päällä näyttää tasaisen tahdin määräaikaan: tänään {training} Harjoituksesta.",
 	"organiser.overview.training.percent": "Harjoitus {n}",
 	"organiser.overview.team.percent": "Tiimi {n}",
 	"organiser.overview.behind.training": "Harjoitus jäljessä tahdista",
@@ -581,12 +599,16 @@ export const fi: Catalog = {
 		"{kind}: {attended}× → {training} Harjoitus, {team} Tiimi",
 	"organiser.overview.corrections":
 		"Korjaukset {training} Harjoitus, {team} Tiimi",
+	"organiser.overview.corrections.noEvents": "Korjaukset {training} Harjoitus",
 	"organiser.overview.virtual": "Virtuaaliajot {n} % Harjoituksesta",
 	"organiser.overview.amounts": "{training} Harjoitus, {team} Tiimi",
+	"organiser.overview.amounts.noEvents": "{training} Harjoitus",
 	"organiser.overview.percent": "{n} %",
 	"organiser.overview.qualifiedList": "Harjoitustavoite saavutettu 🎯",
 	"organiser.overview.qualifiedHint":
 		"Molemmat kynnykset ja ulko-osuus täyttyneet.",
+	"organiser.overview.qualifiedHint.noEvents":
+		"Harjoituskynnys ja ulko-osuus täyttyneet.",
 	"organiser.overview.nobodyYet":
 		"Kukaan ei ole vielä saavuttanut harjoitustavoitetta.",
 	"organiser.overview.none": "Kukaan ajaja ei vielä jaa Rynkejään.",
@@ -785,6 +807,8 @@ export const fi: Catalog = {
 	"badges.surprise.sunday-outing": "Sunnuntairetki",
 	"badges.surprise.sunday-outing.for":
 		"Vähintään kymmenen tiimistä liikkeellä sunnuntaina ilman tiimitapahtumaa.",
+	"badges.surprise.sunday-outing.for.noEvents":
+		"Vähintään kymmenen tiimistä liikkeellä samana sunnuntaina.",
 	"badges.surprise.festive-500": "Festive 500",
 	"badges.surprise.festive-500.for":
 		"Ajoi 500 kilometriä jouluaaton ja uudenvuodenaaton välillä.",
@@ -846,6 +870,8 @@ export const fi: Catalog = {
 	"privacy.team.heading": "Tiimin tiedot ja mitä niistä lasketaan",
 	"privacy.team.body":
 		"Järjestäjät kirjaavat, mihin tiimitapahtumiin osallistuit, ja voivat korjata Rynkejäsi perustelun ja päivämäärän kanssa. Voit itse ilmoittaa, mihin tiimitapahtumiin tulet tai osallistuit; järjestäjät näkevät sen ja päättävät, kirjataanko se. Myös se, kuka muutti mitä ja milloin, tallennetaan.",
+	"privacy.team.body.noEvents":
+		"Järjestäjät voivat korjata Rynkejäsi perustelun ja päivämäärän kanssa. Myös se, kuka muutti mitä ja milloin, tallennetaan.",
 	"privacy.team.derived":
 		"Näistä kaikista RynkePoints laskee Rynkesi, merkkisi ja sen, mitkä ajot lasketaan ja miksi.",
 	"privacy.team.rideFigures":
@@ -864,11 +890,15 @@ export const fi: Catalog = {
 		"Kaikki muut tiimissä näkevät Rynkesi yhteensä ja viikoittain ilman nimeäsi. Kilometrisi ja nousumetrisi sekä se, minä päivinä ja mihin aikaan olet aktiivinen, lasketaan tiimin summiin ja tiimimerkkeihin ilman nimeäsi.",
 	"privacy.visibility.organisers":
 		"Järjestäjät näkevät etunimesi, Rynkesi ja mistä ne tulevat, mitä sinulta vielä puuttuu, oletko saavuttanut harjoitustavoitteesi, tiimitapahtumasi ja korjauksesi, mihin tiimitapahtumiin olet ilmoittanut tulevasi tai osallistuneesi, sekä ulko- ja virtuaalikilometrisi ja nousumetrisi päiväsummina, mutta eivät yksittäisiä suorituksia.",
+	"privacy.visibility.organisers.noEvents":
+		"Järjestäjät näkevät etunimesi, Rynkesi ja mistä ne tulevat, mitä sinulta vielä puuttuu, oletko saavuttanut harjoitustavoitteesi, heidän korjauksensa sekä ulko- ja virtuaalikilometrisi ja nousumetrisi päiväsummina, mutta eivät yksittäisiä suorituksia.",
 	"privacy.visibility.public":
 		"Mikään tästä ei ole julkista: jokainen näitä tietoja sisältävä sivu vaatii kirjautumisen Stravalla.",
 	"privacy.legal.heading": "Oikeusperuste",
 	"privacy.legal.body":
 		"Strava-tietojesi lukeminen ja Rynkejesi jakaminen kuvatulla tavalla perustuvat suostumukseesi, jonka annat ennen yhdistämistä (GDPR 6 artiklan 1 kohdan a alakohta). Tiimitapahtumat, korjaukset, välttämättömät evästeet ja lokit perustuvat oikeutettuun etuun järjestää tiimin harjoittelu ja ylläpitää sovellusta turvallisesti (GDPR 6 artiklan 1 kohdan f alakohta; evästeiden osalta TDDDG 25 §:n 2 momentti).",
+	"privacy.legal.body.noEvents":
+		"Strava-tietojesi lukeminen ja Rynkejesi jakaminen kuvatulla tavalla perustuvat suostumukseesi, jonka annat ennen yhdistämistä (GDPR 6 artiklan 1 kohdan a alakohta). Korjaukset, välttämättömät evästeet ja lokit perustuvat oikeutettuun etuun järjestää tiimin harjoittelu ja ylläpitää sovellusta turvallisesti (GDPR 6 artiklan 1 kohdan f alakohta; evästeiden osalta TDDDG 25 §:n 2 momentti).",
 	"privacy.retention.heading": "Kuinka kauan tietoja säilytetään",
 	"privacy.retention.body":
 		"Tietojasi säilytetään niin kauan kuin olet yhdistettynä, ja ne seuraavat Stravaa: jos poistat suorituksen Stravasta tai teet siitä yksityisen antamatta siihen oikeutta, se katoaa myös täältä heti, kun Strava ilmoittaa siitä, yleensä minuuteissa. Ennen kauden alkua tehdyt suoritukset poistetaan.",
@@ -989,6 +1019,7 @@ export const fi: Catalog = {
 	"progress.help":
 		"Nuolinäppäimet valitsevat päivän, + ja − zoomaavat, Page Up/Down siirtävät, 0 näyttää koko kauden.",
 	"progress.day": "{date} · {training} Harjoitus-Rynke · {team} Tiimi-Rynke",
+	"progress.day.noEvents": "{date} · {training} Harjoitus-Rynke",
 	"progress.table.summary": "Luvut taulukkona",
 	"progress.table.week": "Viikko alkaen",
 	"progress.table.total": "Yhteensä",

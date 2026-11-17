@@ -4,9 +4,9 @@
 // app showed that day (FR-023, SC-003). Nothing is written.
 
 import {
-	BADGES,
 	type BadgeCategoryId,
 	type BadgeId,
+	badgesFor,
 	categoryById,
 } from "../src/badges/catalog";
 import { badgeWindow } from "../src/badges/evaluate";
@@ -36,7 +36,7 @@ import {
 } from "../src/rynke/rules";
 import type { EventKind } from "../src/rynke/team-events";
 import { lastDay, riderCurve, riderDays } from "../src/rynke/weeks";
-import { teamFor } from "../src/teams";
+import { hasEvents, hasTeamRynke, teamFor } from "../src/teams";
 import type { ArtMap, CoinArt } from "../src/teams/types";
 import type { AlbumEnv } from "./routes";
 
@@ -69,8 +69,10 @@ export interface AlbumData {
 		athleteId: number;
 		firstName: string;
 		trainingRynke: number;
-		teamRynke: number;
-		eventsAttended: number;
+		/** `null` for a team without Team Rynke (feature 039). */
+		teamRynke: number | null;
+		/** `null` for a team without events (feature 039). */
+		eventsAttended: number | null;
 	};
 	team: {
 		/** The team's name, on the cover (feature 026 T052). */
@@ -81,8 +83,11 @@ export interface AlbumData {
 		badges: ArtMap["badges"];
 		/** The Team page's total (feature 016) on the cut-off date. */
 		trainingRynke: number;
-		/** The season's events up to the cut-off, oldest first. */
-		events: AlbumEvent[];
+		/**
+		 * The season's events up to the cut-off, oldest first; `null` for a
+		 * team without events, which has no events table (feature 039).
+		 */
+		events: AlbumEvent[] | null;
 	};
 	/** One per catalog badge, in the gallery's order (FR-035). */
 	slots: AlbumSlot[];
@@ -214,7 +219,8 @@ export async function loadAlbum(
 			badgeWindow(window, cutoff),
 		).earned.map((b) => [b.badgeId, b.earnedOn]),
 	);
-	const slots = BADGES.map((badge) => ({
+	// What the team lists: no event-only badge without events (feature 039).
+	const slots = badgesFor(teamData).map((badge) => ({
 		badgeId: badge.id,
 		group: badge.group,
 		category: badge.category,
@@ -239,8 +245,8 @@ export async function loadAlbum(
 			athleteId: rider.athleteId,
 			firstName: rider.firstName,
 			trainingRynke: training,
-			teamRynke: team,
-			eventsAttended: attended.size,
+			teamRynke: hasTeamRynke(teamData) ? team : null,
+			eventsAttended: hasEvents(teamData) ? attended.size : null,
 		},
 		team: {
 			name: teamData.name,
@@ -254,7 +260,7 @@ export async function loadAlbum(
 				cutoff,
 				currentRules(teamData.rules),
 			),
-			events,
+			events: hasEvents(teamData) ? events : null,
 		},
 		slots,
 	};
