@@ -41,7 +41,7 @@ pin of Phase 1 is the exception: it passes on today's code by design.
 **Goal**: Hamburg's pages that this feature touches and that `season-snapshot.test.ts` doesn't
 already cover are snapshotted **before** any source change (research R11, SC-001).
 
-- [ ] T001 Create `test/teams/pages-snapshot.test.ts`, built like `test/teams/season-snapshot.test.ts`
+- [X] T001 Create `test/teams/pages-snapshot.test.ts`, built like `test/teams/season-snapshot.test.ts`
   (same founding-team gate, `NOW`, empty database, `PINNED_VARS`, Hamburg's `SAMPLE_RIDERS`
   connected through `devFetch`, first choice for every random pick). Read season-snapshot first and
   leave out what it already pins (`/me`, `/me/rides`, `/me/badges`, `/team`). Snapshot, each in `de`
@@ -51,7 +51,7 @@ already cover are snapshotted **before** any source change (research R11, SC-001
   `TOURS` with Hamburg's `tourSwitches`), and the album pages of one sample rider (`album/render.ts`
   through `album/load.ts` as `test/integration/album-render.test.ts` does). One `toMatchSnapshot`
   per page and language, so a later diff names the page
-- [ ] T002 Run `pnpm test -- test/teams/pages-snapshot.test.ts -u` once, check the snapshot in
+- [X] T002 Run `pnpm test -- test/teams/pages-snapshot.test.ts -u` once, check the snapshot in
   `test/teams/__snapshots__/pages-snapshot.test.ts.snap` holds real Hamburg pages (no error page,
   no empty body), and commit only T001–T002 as `test: pin Hamburg's pages before Team Europe's rules`
 
