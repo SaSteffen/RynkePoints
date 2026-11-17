@@ -33,6 +33,9 @@ Picked by `eventsText(team, id)` (research R7). The base key stays Hamburg's tex
 | `organiser.overview.amounts` | {training} Training | {training} Training |
 | `organiser.overview.corrections` | Corrections {training} Training | Korrekturen {training} Training |
 | `badges.surprise.sunday-outing.for` | At least ten from the team out on the same Sunday. | Mindestens zehn aus dem Team am selben Sonntag unterwegs. |
+| `organiser.overview.hint` | The tick on each bar marks the even pace to the deadline: today {training} Training. | Der Strich auf jedem Balken zeigt das gleichmäßige Tempo bis zum Stichtag: heute {training} Training. |
+| `organiser.overview.hint.percent` | The tick on each bar marks the even pace to the deadline: today {training} of Training. | Der Strich auf jedem Balken zeigt das gleichmäßige Tempo bis zum Stichtag: heute {training} vom Training. |
+| `tour.organiser.groups` | Hamburg's text without its last sentence, "First: everyone with an open report." | likewise, without „Ganz vorn: alle mit einer offenen Meldung." |
 
 The `test/teams/no-events.test.ts` walk (contracts/team-surfaces.md) is the authority: a text it
 finds on a Europe page that this table misses gets a variant in the same change.

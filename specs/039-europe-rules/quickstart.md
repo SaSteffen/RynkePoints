@@ -24,7 +24,7 @@ http://localhost:8789, Europe on http://europe.localhost:8790).
 1. **Hamburg unchanged**: sign in as any Hamburg sample rider and an organiser. Team Rynke gauge,
    Team view on `/team`, Events in the menu, Orga's events, the tour's Team Rynke step: all there as
    before. A 5 km ride of a Hamburg sample counts.
-2. **Europe's short rides**: sign in to Europe as the sample rider with the 24.9 / 25.0 / 60 km
+2. **Europe's short rides**: sign in to Europe as `Siiri ShortRide`, with the 24.9 / 25.0 / 60 km
    rides. On `/me/rides` the 24.9 km ride shows "Too short: 24.9 km, at least 25 km needed."; the
    others count. Settings › Rules says "Rides of 25 km or more count."
 3. **Europe without Team Rynke**: as `Tuuli TrainingDone`, `/me` shows one verdict on Training Rynke

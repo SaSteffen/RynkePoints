@@ -144,59 +144,59 @@ two count; the rules section says "Rides of 25 km or more count."
 
 ### Tests first
 
-- [ ] T016 [P] [US3] Create `test/unit/rules-min-ride.test.ts`: `assertValidRules` accepts a rule
+- [X] T016 [P] [US3] Create `test/unit/rules-min-ride.test.ts`: `assertValidRules` accepts a rule
   set without `minRideKm` and with `minRideKm: 25`, refuses `0`, `-1` and `2.5`; a Hamburg rule
   object's `rulesFingerprint` is the same with the key absent as today (no `minRideKm` key on any
   Hamburg object: `"minRideKm" in r` is false)
-- [ ] T017 [P] [US3] In `test/unit/rides.test.ts`, add cases with `minRideKm: 25`: 24,999.9 m →
+- [X] T017 [P] [US3] In `test/unit/rides.test.ts`, add cases with `minRideKm: 25`: 24,999.9 m →
   `["too_short"]`; 25,000.0 m → counts; a 20 km ride that is also too slow → `["too_short",
   "too_slow"]` in `REASON_CODES` order; a short ride with no moving time → `["too_short",
   "pause"]`; a short ride never makes another ride `overlap`; and without `minRideKm` a 5 km ride
   that passes every other rule counts
-- [ ] T018 [P] [US3] In `test/unit/fixable-reasons.test.ts`, add `too_short` to the not-fixable
+- [X] T018 [P] [US3] In `test/unit/fixable-reasons.test.ts`, add `too_short` to the not-fixable
   side of the list that sorts every reason code (the one allowed list change)
-- [ ] T019 [P] [US3] In `test/teams/rules.test.ts`, add side-by-side cases importing both teams:
+- [X] T019 [P] [US3] In `test/teams/rules.test.ts`, add side-by-side cases importing both teams:
   Hamburg's current version is 3 and its rules have no `minRideKm` key; Europe's history is
   versions 1–4, its first three entries are Hamburg's objects (`toBe`), its current rules have
   `minRideKm: 25`; Europe's version 4 fingerprint is pinned (a value change without a version bump
   fails; the pin is updated once in T040 when version 4 gains `teamThreshold: null`)
-- [ ] T020 [P] [US3] In `test/unit/rider-view.test.ts`, add: a stored `too_short` reason gives
+- [X] T020 [P] [US3] In `test/unit/rider-view.test.ts`, add: a stored `too_short` reason gives
   `{ code: "too_short", distanceKmTenths, limitKm }` with the distance rounded **down** (24,960 m →
   249, never 250) and `limitKm` from the result's rules version; an unknown version gives
   `limitKm: null`; `too_short` gets no fix hint
-- [ ] T021 [P] [US3] In `test/unit/rider-sections.test.ts`, add: the `too_short` line renders
+- [X] T021 [P] [US3] In `test/unit/rider-sections.test.ts`, add: the `too_short` line renders
   `rynke.reason.too_short` with "24.9 km" and "25 km", the `null` limit renders `.noLimit`; the rules
   section shows `rynke.rules.minRide` only for rules with `minRideKm` (rules without it render as
   today)
 
 ### Implementation
 
-- [ ] T022 [US3] In `src/rynke/rules.ts`, add `minRideKm?: number` to `RynkeRules` with its comment,
+- [X] T022 [US3] In `src/rynke/rules.ts`, add `minRideKm?: number` to `RynkeRules` with its comment,
   and to `assertValidRules`: when present, a positive integer; `rulesFingerprint` unchanged
-- [ ] T023 [US3] In `src/rynke/rides.ts`, insert `too_short` into `REASON_CODES` after `manual`,
+- [X] T023 [US3] In `src/rynke/rides.ts`, insert `too_short` into `REASON_CODES` after `manual`,
   before `pause`, and in `reasonsFor` push it when `rules.minRideKm !== undefined && distanceM <
   rules.minRideKm * 1000`, after the flagged and manual checks and before the moving-time early
   return; leave `FIXABLE_REASONS` as it is
-- [ ] T024 [US3] In `src/http/rider-view.ts`, add the `too_short` `ReasonLine` variant
+- [X] T024 [US3] In `src/http/rider-view.ts`, add the `too_short` `ReasonLine` variant
   (`distanceKmTenths = Math.floor(distanceM / 100)`, `limitKm` from `minRideKm` of the result's
   version or `null`); keep it out of `FIXABLE`
-- [ ] T025 [US3] In `src/http/rider-sections.ts`, render the `too_short` line with the page's
+- [X] T025 [US3] In `src/http/rider-sections.ts`, render the `too_short` line with the page's
   kilometre format (one decimal for the distance, none for the limit), and add the
   `rynke.rules.minRide` line to `renderRules` only when the rules in effect have `minRideKm`
-- [ ] T026 [US3] Add `rynke.reason.too_short`, `rynke.reason.too_short.noLimit` and
+- [X] T026 [US3] Add `rynke.reason.too_short`, `rynke.reason.too_short.noLimit` and
   `rynke.rules.minRide` to all ten catalogs in `src/i18n/messages/` (wording in
   contracts/messages.md; German first)
-- [ ] T027 [US3] In `src/teams/europe.ts`, add `EUROPE_RULES_V4` = Hamburg's version 3 values written
+- [X] T027 [US3] In `src/teams/europe.ts`, add `EUROPE_RULES_V4` = Hamburg's version 3 values written
   out as its own object with `version: 4`, `minRideKm: 25` and `effectiveDate` set to the planned
   release day, and set `rules: [...hamburg.rules.slice(0, 3), EUROPE_RULES_V4]`, with the "raise
   `version`, keep the previous object" note beside it; `src/teams/hamburg.ts` untouched
-- [ ] T028 [P] [US3] In `dev/fake-strava/samples.europe.ts`, add one sample rider with otherwise
+- [X] T028 [P] [US3] In `dev/fake-strava/samples.europe.ts`, add one sample rider with otherwise
   counting rides of 24.9, 25.0 and 60 km
-- [ ] T029 [P] [US3] In `test/unit/rules-handout.test.ts`, add: Europe's
+- [X] T029 [P] [US3] In `test/unit/rules-handout.test.ts`, add: Europe's
   `docs/teams/europe/rynke-points.md` states the 25 km minimum; Hamburg's `docs/rynke-punkte.md`
   names no minimum ride length. Then add the minimum to `docs/teams/europe/rynke-points.md` with the
   examples "24.9 km doesn't count, 25 km does", and fix any example that relied on a shorter ride
-- [ ] T030 [US3] In `e2e/europe-smoke.e2e.ts`, add: on `/me/rides` the 24.9 km sample ride shows
+- [X] T030 [US3] In `e2e/europe-smoke.e2e.ts`, add: on `/me/rides` the 24.9 km sample ride shows
   "Too short: 24.9 km, at least 25 km needed."
 
 **Checkpoint**: T016–T021 and T029 pass; `test/unit/rules.test.ts` passes unchanged; both snapshots
@@ -216,23 +216,23 @@ threshold and the virtual share met is qualified.
 
 ### Tests first
 
-- [ ] T031 [P] [US4] In `test/unit/rules-min-ride.test.ts`, add: `teamThreshold: null` is accepted;
+- [X] T031 [P] [US4] In `test/unit/rules-min-ride.test.ts`, add: `teamThreshold: null` is accepted;
   `0` stays refused; `teamThreshold: null` with any `teamEvents[kind].team` other than 0 is refused
-- [ ] T032 [P] [US4] In `test/unit/tally.test.ts`, add: with `teamThreshold: null`, `teamMissing` is
+- [X] T032 [P] [US4] In `test/unit/tally.test.ts`, add: with `teamThreshold: null`, `teamMissing` is
   0 and `qualified` is `trainingMissing === 0 && virtualShareMissing === 0` (qualified when both
   met, not qualified with Training missing, not qualified with the virtual share missing)
-- [ ] T033 [P] [US4] In `test/teams/switches.test.ts`, add side-by-side cases: `hiddenSections(env,
+- [X] T033 [P] [US4] In `test/teams/switches.test.ts`, add side-by-side cases: `hiddenSections(env,
   hamburg)` equals today's `hiddenSections(env)` result; Europe's adds `"events"`;
   `tourSwitches` gives `teamRynke`/`events` true for Hamburg, false for Europe; Europe's rider tour
   has no `tour.rider.teamRynke` or events step, its organiser tour no `tour.organiser.requests`,
   `newEvent`, `upcoming` or `past` step
-- [ ] T034 [P] [US4] In `test/unit/rider-view.test.ts`, `test/unit/rider-summary.test.ts`,
+- [X] T034 [P] [US4] In `test/unit/rider-view.test.ts`, `test/unit/rider-summary.test.ts`,
   `test/unit/progress-view.test.ts`, `test/unit/overview.test.ts` and
   `test/unit/tour-example.test.ts`, add cases with rules of `teamThreshold: null`: `Summary.team`,
   `Gauges.team`, the events breakdown, the progress `team` series and weekly Team column, the hero's
   Team figure and the tour example's Team Rynke and events are `null`/absent; with Hamburg's rules
   they are as today
-- [ ] T035 [US4] Create `test/teams/no-events.test.ts` with `describe.runIf(!hasEvents(team))`,
+- [X] T035 [US4] Create `test/teams/no-events.test.ts` with `describe.runIf(!hasEvents(team))`,
   connecting Europe's sample riders like season-snapshot does:
   - every rider page (`/me`, `/me/rides`, `/me/badges`, `/team`, `/team?kind=team`, settings,
     help), every organiser page (`/organiser/riders`, a corrections form), the tour step texts,
@@ -248,92 +248,92 @@ threshold and the virtual share met is qualified.
     `organiser.error.*` text
   - a sample rider with the Training threshold reached and the virtual share met shows as qualified
     (SC-005)
-- [ ] T036 [P] [US4] In `test/teams/completeness.test.ts`, add: Europe's data has `eventKinds: []` and
+- [X] T036 [P] [US4] In `test/teams/completeness.test.ts`, add: Europe's data has `eventKinds: []` and
   current `teamThreshold: null`, and passes; Europe's samples hold no events and `teamEvents: []`
-- [ ] T037 [P] [US4] Add a test next to the existing i18n tests (`test/unit/i18n.test.ts`):
+- [X] T037 [P] [US4] Add a test next to the existing i18n tests (`test/unit/i18n.test.ts`):
   `eventsText(hamburg, id)` returns `id`, `eventsText(europe, id)` returns `` `${id}.noEvents` ``,
   and every `.noEvents` key of contracts/messages.md exists in all ten catalogs
-- [ ] T038 [P] [US4] In `e2e/europe-smoke.e2e.ts`, add: no Events menu entry, no Team gauge on `/me`,
+- [X] T038 [P] [US4] In `e2e/europe-smoke.e2e.ts`, add: no Events menu entry, no Team gauge on `/me`,
   no kind switch on `/team`
 
 ### Implementation — rules and data
 
-- [ ] T039 [US4] In `src/rynke/rules.ts`, widen `teamThreshold` to `number | null` (comment: `null`
+- [X] T039 [US4] In `src/rynke/rules.ts`, widen `teamThreshold` to `number | null` (comment: `null`
   = the team has no Team Rynke) and extend `assertValidRules`: a positive integer or `null`; with
   `null`, every `teamEvents[kind].team` must be 0. Fix each place `tsc` then names, by making the
   Team Rynke part of that view optional (tasks below), never by a team check
-- [ ] T040 [US4] In `src/rynke/tally.ts`, set `teamMissing = 0` when `teamThreshold === null`; in
+- [X] T040 [US4] In `src/rynke/tally.ts`, set `teamMissing = 0` when `teamThreshold === null`; in
   `src/teams/europe.ts`, give `EUROPE_RULES_V4` `teamThreshold: null` and every `teamEvents` kind
   `{ team: 0, training: 0 }`, and set `eventKinds: []`; update the Europe version 4 fingerprint pin
   added in T019 (a new pin of this branch, not an existing test)
-- [ ] T041 [US4] In `src/rynke/apply.ts`, make `teamEventChange` throw `TeamEventRefused` for a kind
+- [X] T041 [US4] In `src/rynke/apply.ts`, make `teamEventChange` throw `TeamEventRefused` for a kind
   not in `ctx.team.eventKinds`, and `correctionChange` throw `CorrectionRefused` for a non-zero Team
   amount when `!hasTeamRynke(ctx.team)`; Hamburg's path unchanged
-- [ ] T042 [US4] In `dev/fake-strava/samples.europe.ts`, remove every event, attendance and Team
+- [X] T042 [US4] In `dev/fake-strava/samples.europe.ts`, remove every event, attendance and Team
   Rynke correction, set `teamEvents: []`, and reword sample states without events (a rider who
   qualifies on Training Rynke and the outdoor share stays)
 
 ### Implementation — routes, menu and tours
 
-- [ ] T043 [US4] In `src/http/router.ts`, when `!hasEvents(team)`: 404 for `/events…`,
+- [X] T043 [US4] In `src/http/router.ts`, when `!hasEvents(team)`: 404 for `/events…`,
   `/organiser/events…` and `/organiser/requests…` (GET and POST); `/organiser` redirects to
   `/organiser/riders`
-- [ ] T044 [US4] In `src/http/shell.ts`, change `hiddenSections(env)` to `hiddenSections(env, team)`,
+- [X] T044 [US4] In `src/http/shell.ts`, change `hiddenSections(env)` to `hiddenSections(env, team)`,
   adding `"events"` when `!hasEvents(team)` (update both callers), give `tourSwitches` `teamRynke`
   and `events` from the predicates, and skip `countOpenRequests` without events
-- [ ] T045 [US4] In `src/http/tour.ts`, add `teamRynke: boolean` and `events: boolean` to
+- [X] T045 [US4] In `src/http/tour.ts`, add `teamRynke: boolean` and `events: boolean` to
   `TourSwitches`; give `tour.rider.teamRynke` `only: "teamRynke"` and `tour.organiser.requests`,
   `tour.organiser.newEvent`, `tour.organiser.upcoming`, `tour.organiser.past` `only: "events"`; the
   outdoor and organiser Riders steps use `eventsText`
-- [ ] T046 [US4] In `src/http/organiser/access.ts`, leave out the Riders · Events switch and its
+- [X] T046 [US4] In `src/http/organiser/access.ts`, leave out the Riders · Events switch and its
   open-request count when `!hasEvents(team)`
 
 ### Implementation — view models and pages
 
-- [ ] T047 [P] [US4] In `src/http/rider-view.ts` and `src/http/rider-sections.ts`, make
+- [X] T047 [P] [US4] In `src/http/rider-view.ts` and `src/http/rider-sections.ts`, make
   `Summary.team`, `Gauges.team` and the events breakdown `null` without Team Rynke, and leave out the
   "Your team events" part without events (render paths already skip `null`)
-- [ ] T048 [P] [US4] In `src/http/progress-view.ts` and `src/http/progress-section.ts`, leave out the
+- [X] T048 [P] [US4] In `src/http/progress-view.ts` and `src/http/progress-section.ts`, leave out the
   `team` series and the weekly Team column without Team Rynke; the day label uses
   `eventsText(team, "progress.day")`
-- [ ] T049 [P] [US4] In `src/http/sections/overview.ts`, leave out the hero's Team figure; in
+- [X] T049 [P] [US4] In `src/http/sections/overview.ts`, leave out the hero's Team figure; in
   `src/http/sections/team.ts`, show only the Training view without Team Rynke (`kind=team` falls back
   to Training as with `rynkeViews` off, no kind switch)
-- [ ] T050 [P] [US4] In `src/http/organiser/overview.ts`, leave out each rider's Team amount, missing,
+- [X] T050 [P] [US4] In `src/http/organiser/overview.ts`, leave out each rider's Team amount, missing,
   pace and event breakdown without Team Rynke, and use `eventsText` for
   `organiser.overview.qualifiedHint`, `.amounts` and `.corrections`; in
   `src/http/organiser/corrections.ts`, show the Training field only
-- [ ] T051 [P] [US4] In `src/http/tour-example.ts`, give the example rider and team no Team Rynke and
+- [X] T051 [P] [US4] In `src/http/tour-example.ts`, give the example rider and team no Team Rynke and
   no events without them
-- [ ] T052 [P] [US4] In `album/load.ts` and `album/render.ts`, leave out `teamRynke`,
+- [X] T052 [P] [US4] In `album/load.ts` and `album/render.ts`, leave out `teamRynke`,
   `eventsAttended` and the events page without them
-- [ ] T053 [US4] Fix the remaining places `tsc` names (celebration and push texts, team badge news
+- [X] T053 [US4] Fix the remaining places `tsc` names (celebration and push texts, team badge news
   figures): a team without Team Rynke never reaches a Team part
 
 ### Implementation — texts
 
-- [ ] T054 [US4] Add `eventsText(team, id)` to `src/i18n/` (typed so it only accepts ids whose
+- [X] T054 [US4] Add `eventsText(team, id)` to `src/i18n/` (typed so it only accepts ids whose
   `.noEvents` sibling exists) and the `.noEvents` variants of contracts/messages.md to all ten
   catalogs: `landing.purpose`, `consent.organisers`, `privacy.team.body`,
   `privacy.visibility.organisers`, `privacy.legal.body`, `tour.rider.outdoor`,
   `tour.organiser.riders`, `progress.day`, `organiser.overview.qualifiedHint`,
   `organiser.overview.amounts`, `organiser.overview.corrections`,
   `badges.surprise.sunday-outing.for`; no base key's text changes
-- [ ] T055 [US4] Use `eventsText` in `src/http/landing.ts`, `src/http/consent-form.ts`,
+- [X] T055 [US4] Use `eventsText` in `src/http/landing.ts`, `src/http/consent-form.ts`,
   `src/http/privacy.ts` and for `badges.surprise.sunday-outing.for` in the badges view; leave
   `CONSENT_VERSIONS` in `src/consent.ts` as it is (research R8)
-- [ ] T056 [US4] Run T035; for any text it still finds on a Europe page, add a `.noEvents` variant
+- [X] T056 [US4] Run T035; for any text it still finds on a Europe page, add a `.noEvents` variant
   (all ten catalogs) or leave the part out, in this task
 
 ### Existing team tests
 
-- [ ] T057 [US4] Run `pnpm test -- test/teams` for `team:europe`; wrap each existing block that
+- [X] T057 [US4] Run `pnpm test -- test/teams` for `team:europe`; wrap each existing block that
   assumes events and now fails for Europe in `describe.runIf(hasEvents(team))`, body untouched, and
   make sure T035 covers its Europe counterpart
 
 ### Handout
 
-- [ ] T058 [US4] In `docs/teams/europe/rynke-points.md`, remove Team Rynke, team events, the Tour de
+- [X] T058 [US4] In `docs/teams/europe/rynke-points.md`, remove Team Rynke, team events, the Tour de
   Paris days and their badges; qualification is Training Rynke plus the outdoor share
 
 **Checkpoint**: T031–T038 pass; both Hamburg snapshots and `test/unit/rules.test.ts` unchanged;
