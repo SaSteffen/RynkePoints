@@ -119,13 +119,13 @@ three pictures pass contracts/seasonal-art.md.
 
 ### Tests first
 
-- [ ] T009 [US1] In `test/teams/holidays.test.ts`, the `advent` row of both "gives Hamburg its
+- [X] T009 [US1] In `test/teams/holidays.test.ts`, the `advent` row of both "gives Hamburg its
   holidays" and "gives Team Europe its holidays" expects `monkeys: ["advent",
   "christmas-market", "mulled-wine", "christmas-biscuits"]`. Run it and see it fail
 
 ### Implementation
 
-- [ ] T010 [P] [US1] In `art/quotes/monkeys.json`, add after `advent` three entries with
+- [X] T010 [P] [US1] In `art/quotes/monkeys.json`, add after `advent` three entries with
   `"seasonal": true`, scenes ending in `{{kit}}` like the others, each saying "no digits, no
   letters": `christmas-market` "Weihnachtsmarkt" (a paper bag of roasted almonds or a plain
   gingerbread heart without writing, scarf and bobble hat over the helmet, a hint of yellow and
@@ -133,9 +133,9 @@ three pictures pass contracts/seasonal-art.md.
   held in both hands, scarf; a mug only, no bottle), `christmas-biscuits` "Plätzchen backen" (an
   apron over the kit, a baking tray of cut-out biscuits in one hand, a cutter in the other, a
   little flour on the face) (contracts/seasonal-art.md, research R7)
-- [ ] T011 [US1] In `src/teams/hamburg.ts` and `src/teams/europe.ts`, set `advent`'s
+- [X] T011 [US1] In `src/teams/hamburg.ts` and `src/teams/europe.ts`, set `advent`'s
   `monkeys` to T009's set
-- [ ] T012 [US1] Run `pnpm test test/teams/holidays.test.ts`; it passes
+- [X] T012 [US1] Run `pnpm test test/teams/holidays.test.ts`; it passes
 - [ ] T013 [US1] `pnpm badge-art christmas-market mulled-wine christmas-biscuits`, then
   `pnpm badge-build christmas-market mulled-wine christmas-biscuits`: originals in
   `art/quotes/originals/`, the `.svg` in `public/quotes/`, the ids in `SEASONAL_MONKEYS` of
@@ -155,21 +155,21 @@ wreaths pass contracts/seasonal-art.md, the candles countable at 120 px.
 
 ### Tests first
 
-- [ ] T015 [US2] In `test/teams/holidays.test.ts`, both table tests list, in order after
+- [X] T015 [US2] In `test/teams/holidays.test.ts`, both table tests list, in order after
   `advent`: `advent-1` (monkeys `["advent-wreath-1"]`, from and to
   `{ anchor: "first-advent", offset: 0 }`, short), Hamburg's `nikolaus` unchanged, `advent-2`
   (offset 7), `advent-3` (offset 14), `advent-4` (offset 21), `christmas-eve` (`["christmas"]`,
   `"12-24"`–`"12-24"`, short), `christmas` from `"12-25"` to `"12-26"`, then `new-year`; each
   team lists 15 holidays (data-model.md)
-- [ ] T016 [US2] In `test/teams/holidays.test.ts`, add "finds both teams' Advent Sundays" per
+- [X] T016 [US2] In `test/teams/holidays.test.ts`, add "finds both teams' Advent Sundays" per
   contracts/team-holidays.md › Dates: for `hamburg` and `europe`, `null` on 2026-11-28 and
   2028-12-02; `advent-1` on 2026-11-29 and 2028-12-03; `advent` on 2026-11-30, 2026-12-07 and
   2026-12-23; `advent-3` on 2026-12-13, `advent-4` on 2026-12-20; `advent-1` / `advent-2` /
-  `advent-3` / `advent-4` on 2027-11-28 / 12-05 / 12-12 / 12-19; `christmas-eve / advent-4` on
+  `advent-3` / `advent-4` on 2027-11-28 / 12-05 / 12-12 / 12-19; `advent-4 / christmas-eve` (list order) on
   2028-12-24; `christmas` on 2028-12-25. On 2026-12-06 Hamburg `nikolaus / advent-2`, Europe
   `advent-2`; on 2027-12-06 and 2028-12-06 Hamburg `nikolaus`, Europe `advent`. Update the
   existing Christmas expectations: `christmas-eve` on 24 Dec, `christmas` on 25–26 Dec
-- [ ] T017 [US2] In `test/teams/holidays.test.ts`, the overlap test "%s: has no overlapping
+- [X] T017 [US2] In `test/teams/holidays.test.ts`, the overlap test "%s: has no overlapping
   windows, 2026–2075" allows two windows on an Advent Sunday in Advent, Hamburg's 12-06 in Advent,
   and 02-14 in Karneval; three only on Hamburg's 12-06 when it is also the second Advent Sunday.
   Add "ties only where research R6 says, 2026–2075": over every day, `holidaysOn` returns two
@@ -179,16 +179,16 @@ wreaths pass contracts/seasonal-art.md, the candles countable at 120 px.
 
 ### Implementation
 
-- [ ] T018 [P] [US2] In `art/quotes/monkeys.json`, add after `nikolaus` the entries
+- [X] T018 [P] [US2] In `art/quotes/monkeys.json`, add after `nikolaus` the entries
   `advent-wreath-1` … `advent-wreath-4` ("1. Advent" … "4. Advent"), `"seasonal": true`, scenes
   ending in `{{kit}}`: Rynke holds a sage fir wreath in front of the body with four big cream
   candles evenly spaced, exactly 1 / 2 / 3 / 4 lit with yellow and gold flames and the others
   unlit; the four scenes word for word alike apart from the count; no star, angel or other
   religious symbol, no digits, no letters (contracts/seasonal-art.md, research R7)
-- [ ] T019 [US2] In `src/teams/hamburg.ts` and `src/teams/europe.ts`, add T015's entries in
+- [X] T019 [US2] In `src/teams/hamburg.ts` and `src/teams/europe.ts`, add T015's entries in
   calendar order, split `christmas` into `christmas-eve` and `christmas`, and update the comment
   above `holidays` to name feature 038 (sets, Advent Sundays, Christmas Eve as its own window)
-- [ ] T020 [US2] Run `pnpm test test/teams/holidays.test.ts test/teams/no-other-team.test.ts` and
+- [X] T020 [US2] Run `pnpm test test/teams/holidays.test.ts test/teams/no-other-team.test.ts` and
   `node scripts/team-check.mjs`; all pass
 - [ ] T021 [US2] `pnpm badge-art advent-wreath-1`, then `pnpm badge-build advent-wreath-1` (as
   T013); this one is needed for 29 Nov
@@ -210,7 +210,7 @@ contracts/seasonal-art.md.
 
 ### Tests first
 
-- [ ] T024 [US3] In `test/teams/holidays.test.ts`, both table tests list `between-the-years`
+- [X] T024 [US3] In `test/teams/holidays.test.ts`, both table tests list `between-the-years`
   (`["between-the-years"]`, `"12-27"`–`"12-30"`, short) between `christmas` and `new-year`; add
   "finds both teams' days between the years": for `hamburg` and `europe`, `christmas` on
   2026-12-26, `between-the-years` on 2026-12-27 and 2026-12-30, `new-year` on 2026-12-31. Run it
@@ -218,13 +218,13 @@ contracts/seasonal-art.md.
 
 ### Implementation
 
-- [ ] T025 [P] [US3] In `art/quotes/monkeys.json`, add `between-the-years` "Zwischen den Jahren"
+- [X] T025 [P] [US3] In `art/quotes/monkeys.json`, add `between-the-years` "Zwischen den Jahren"
   after `christmas`, `"seasonal": true`, scene ending in `{{kit}}`: pedalling Rynke's own bike on
   a plain ink indoor trainer, a plate of leftover cut-out biscuits beside it, a towel over the
   shoulder, still talking, not straining; standing on nothing; no digits, no letters
-- [ ] T026 [US3] In `src/teams/hamburg.ts` and `src/teams/europe.ts`, add T024's entry between
+- [X] T026 [US3] In `src/teams/hamburg.ts` and `src/teams/europe.ts`, add T024's entry between
   `christmas` and `new-year`
-- [ ] T027 [US3] Run `pnpm test test/teams/holidays.test.ts` and `node scripts/team-check.mjs`;
+- [X] T027 [US3] Run `pnpm test test/teams/holidays.test.ts` and `node scripts/team-check.mjs`;
   both pass
 - [ ] T028 [US3] `pnpm badge-art between-the-years`, then `pnpm badge-build between-the-years`
   (as T013); check it by eye against contracts/seasonal-art.md, redo for a failure

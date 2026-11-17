@@ -213,6 +213,34 @@ describe("quoteArt on a holiday", () => {
 		},
 	);
 
+	it.each(DECEMBER)(
+		"splits %s's quotes on a tie of two short one-picture windows",
+		(_, quotes) => {
+			const arts = quotes.map((id) => art(id, [NIKOLAUS, sunday(2)]));
+			for (const a of arts)
+				expect([
+					"/quotes/nikolaus.svg",
+					"/quotes/advent-wreath-2.svg",
+				]).toContain(a);
+			for (const picture of ["nikolaus", "advent-wreath-2"]) {
+				expect(share(arts, picture), picture).toBeGreaterThanOrEqual(
+					0.3 * quotes.length,
+				);
+				expect(share(arts, picture), picture).toBeLessThanOrEqual(
+					0.7 * quotes.length,
+				);
+			}
+		},
+	);
+
+	it("shows every quote a picture when any tied window is short", () => {
+		const set = [...ADVENT_SET_MONKEYS, "advent-wreath-1"];
+		for (const id of ids)
+			expect(set.map((m) => `/quotes/${m}.svg`)).toContain(
+				art(id, [ADVENT_SET, sunday(1)]),
+			);
+	});
+
 	it("drops duplicates in a tie's set", () => {
 		const eve: Holiday = {
 			...CHRISTMAS,

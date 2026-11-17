@@ -114,9 +114,10 @@ export const hamburg: TeamData = {
 	},
 	phrases: { kind: "own", locale: "de", set: HAMBURG_PHRASES },
 	badgeNames: { kind: "own", locale: "de", names: BADGE_NAMES },
-	// The quote monkeys' holidays: the German December ones (feature 035) and
-	// Karneval, Valentine's Day, Easter, Midsummer and Halloween (feature 037
-	// data-model.md).
+	// The quote monkeys' holidays: the German December ones (feature 035),
+	// Karneval, Valentine's Day, Easter, Midsummer and Halloween (feature 037),
+	// and Advent's set of pictures, the four Advent Sundays, Christmas Eve as its
+	// own window and the days between the years (feature 038 data-model.md).
 	holidays: [
 		{
 			id: "karneval",
@@ -155,10 +156,22 @@ export const hamburg: TeamData = {
 		},
 		{
 			id: "advent",
-			monkeys: ["advent"],
+			monkeys: [
+				"advent",
+				"christmas-market",
+				"mulled-wine",
+				"christmas-biscuits",
+			],
 			from: { anchor: "first-advent", offset: 0 },
 			to: "12-23",
 			kind: "long",
+		},
+		{
+			id: "advent-1",
+			monkeys: ["advent-wreath-1"],
+			from: { anchor: "first-advent", offset: 0 },
+			to: { anchor: "first-advent", offset: 0 },
+			kind: "short",
 		},
 		{
 			id: "nikolaus",
@@ -168,10 +181,45 @@ export const hamburg: TeamData = {
 			kind: "short",
 		},
 		{
-			id: "christmas",
+			id: "advent-2",
+			monkeys: ["advent-wreath-2"],
+			from: { anchor: "first-advent", offset: 7 },
+			to: { anchor: "first-advent", offset: 7 },
+			kind: "short",
+		},
+		{
+			id: "advent-3",
+			monkeys: ["advent-wreath-3"],
+			from: { anchor: "first-advent", offset: 14 },
+			to: { anchor: "first-advent", offset: 14 },
+			kind: "short",
+		},
+		{
+			id: "advent-4",
+			monkeys: ["advent-wreath-4"],
+			from: { anchor: "first-advent", offset: 21 },
+			to: { anchor: "first-advent", offset: 21 },
+			kind: "short",
+		},
+		{
+			id: "christmas-eve",
 			monkeys: ["christmas"],
 			from: "12-24",
+			to: "12-24",
+			kind: "short",
+		},
+		{
+			id: "christmas",
+			monkeys: ["christmas"],
+			from: "12-25",
 			to: "12-26",
+			kind: "short",
+		},
+		{
+			id: "between-the-years",
+			monkeys: ["between-the-years"],
+			from: "12-27",
+			to: "12-30",
 			kind: "short",
 		},
 		{

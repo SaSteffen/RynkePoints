@@ -82,10 +82,22 @@ describe("team holidays", () => {
 			},
 			{
 				id: "advent",
-				monkeys: ["advent"],
+				monkeys: [
+					"advent",
+					"christmas-market",
+					"mulled-wine",
+					"christmas-biscuits",
+				],
 				from: { anchor: "first-advent", offset: 0 },
 				to: "12-23",
 				kind: "long",
+			},
+			{
+				id: "advent-1",
+				monkeys: ["advent-wreath-1"],
+				from: { anchor: "first-advent", offset: 0 },
+				to: { anchor: "first-advent", offset: 0 },
+				kind: "short",
 			},
 			{
 				id: "nikolaus",
@@ -95,10 +107,45 @@ describe("team holidays", () => {
 				kind: "short",
 			},
 			{
-				id: "christmas",
+				id: "advent-2",
+				monkeys: ["advent-wreath-2"],
+				from: { anchor: "first-advent", offset: 7 },
+				to: { anchor: "first-advent", offset: 7 },
+				kind: "short",
+			},
+			{
+				id: "advent-3",
+				monkeys: ["advent-wreath-3"],
+				from: { anchor: "first-advent", offset: 14 },
+				to: { anchor: "first-advent", offset: 14 },
+				kind: "short",
+			},
+			{
+				id: "advent-4",
+				monkeys: ["advent-wreath-4"],
+				from: { anchor: "first-advent", offset: 21 },
+				to: { anchor: "first-advent", offset: 21 },
+				kind: "short",
+			},
+			{
+				id: "christmas-eve",
 				monkeys: ["christmas"],
 				from: "12-24",
+				to: "12-24",
+				kind: "short",
+			},
+			{
+				id: "christmas",
+				monkeys: ["christmas"],
+				from: "12-25",
 				to: "12-26",
+				kind: "short",
+			},
+			{
+				id: "between-the-years",
+				monkeys: ["between-the-years"],
+				from: "12-27",
+				to: "12-30",
 				kind: "short",
 			},
 			{
@@ -113,10 +160,13 @@ describe("team holidays", () => {
 
 	it("finds Hamburg's holiday of the day", () => {
 		expect(on("2026-11-28")).toBeNull();
-		expect(on("2026-11-29")).toBe("advent");
-		expect(on("2026-12-06")).toBe("nikolaus");
-		expect(on("2026-12-24")).toBe("christmas");
-		expect(on("2026-12-27")).toBeNull();
+		expect(on("2026-11-29")).toBe("advent-1");
+		expect(on("2026-12-05")).toBe("advent");
+		expect(on("2026-12-06")).toBe("nikolaus / advent-2");
+		expect(on("2027-12-06")).toBe("nikolaus");
+		expect(on("2026-12-24")).toBe("christmas-eve");
+		expect(on("2026-12-25")).toBe("christmas");
+		expect(on("2026-12-27")).toBe("between-the-years");
 		expect(on("2027-01-01")).toBe("new-year");
 		expect(on("2027-01-02")).toBeNull();
 	});
@@ -167,16 +217,63 @@ describe("team holidays", () => {
 			},
 			{
 				id: "advent",
-				monkeys: ["advent"],
+				monkeys: [
+					"advent",
+					"christmas-market",
+					"mulled-wine",
+					"christmas-biscuits",
+				],
 				from: { anchor: "first-advent", offset: 0 },
 				to: "12-23",
 				kind: "long",
 			},
 			{
-				id: "christmas",
+				id: "advent-1",
+				monkeys: ["advent-wreath-1"],
+				from: { anchor: "first-advent", offset: 0 },
+				to: { anchor: "first-advent", offset: 0 },
+				kind: "short",
+			},
+			{
+				id: "advent-2",
+				monkeys: ["advent-wreath-2"],
+				from: { anchor: "first-advent", offset: 7 },
+				to: { anchor: "first-advent", offset: 7 },
+				kind: "short",
+			},
+			{
+				id: "advent-3",
+				monkeys: ["advent-wreath-3"],
+				from: { anchor: "first-advent", offset: 14 },
+				to: { anchor: "first-advent", offset: 14 },
+				kind: "short",
+			},
+			{
+				id: "advent-4",
+				monkeys: ["advent-wreath-4"],
+				from: { anchor: "first-advent", offset: 21 },
+				to: { anchor: "first-advent", offset: 21 },
+				kind: "short",
+			},
+			{
+				id: "christmas-eve",
 				monkeys: ["christmas"],
 				from: "12-24",
+				to: "12-24",
+				kind: "short",
+			},
+			{
+				id: "christmas",
+				monkeys: ["christmas"],
+				from: "12-25",
 				to: "12-26",
+				kind: "short",
+			},
+			{
+				id: "between-the-years",
+				monkeys: ["between-the-years"],
+				from: "12-27",
+				to: "12-30",
 				kind: "short",
 			},
 			{
@@ -188,19 +285,61 @@ describe("team holidays", () => {
 			},
 		]);
 		expect(europe.holidays.map((h) => h.id)).not.toContain("nikolaus");
+		expect(hamburg.holidays).toHaveLength(15);
+		expect(europe.holidays).toHaveLength(15);
 		expect(europe.placeholders).not.toContain("holidays");
 	});
 
 	it("finds Team Europe's holiday of the day", () => {
 		expect(on("2026-11-28", europe)).toBeNull();
-		expect(on("2026-11-29", europe)).toBe("advent");
-		expect(on("2026-12-06", europe)).toBe("advent");
-		expect(on("2026-12-24", europe)).toBe("christmas");
+		expect(on("2026-11-29", europe)).toBe("advent-1");
+		expect(on("2026-12-06", europe)).toBe("advent-2");
+		expect(on("2027-12-06", europe)).toBe("advent");
+		expect(on("2026-12-24", europe)).toBe("christmas-eve");
 		expect(on("2026-12-26", europe)).toBe("christmas");
 		expect(on("2026-12-31", europe)).toBe("new-year");
 		expect(on("2027-01-01", europe)).toBe("new-year");
 		expect(on("2027-01-02", europe)).toBeNull();
 	});
+	// Feature 038 contracts/team-holidays.md › Dates.
+	it.each([
+		["hamburg", hamburg],
+		["europe", europe],
+	] as const)("finds %s's Advent Sundays", (id, team) => {
+		const days: [string, string | null][] = [
+			["2026-11-28", null],
+			["2026-11-29", "advent-1"],
+			["2026-11-30", "advent"],
+			["2026-12-07", "advent"],
+			["2026-12-13", "advent-3"],
+			["2026-12-20", "advent-4"],
+			["2026-12-23", "advent"],
+			["2027-11-28", "advent-1"],
+			["2027-12-05", "advent-2"],
+			["2027-12-12", "advent-3"],
+			["2027-12-19", "advent-4"],
+			["2028-12-02", null],
+			["2028-12-03", "advent-1"],
+			["2028-12-24", "advent-4 / christmas-eve"],
+			["2028-12-25", "christmas"],
+			["2026-12-06", id === "hamburg" ? "nikolaus / advent-2" : "advent-2"],
+			["2027-12-06", id === "hamburg" ? "nikolaus" : "advent"],
+			["2028-12-06", id === "hamburg" ? "nikolaus" : "advent"],
+		];
+		for (const [day, holidays] of days)
+			expect(on(day, team), day).toBe(holidays);
+	});
+
+	it.each([
+		["hamburg", hamburg],
+		["europe", europe],
+	] as const)("finds %s's days between the years", (_, team) => {
+		expect(on("2026-12-26", team)).toBe("christmas");
+		expect(on("2026-12-27", team)).toBe("between-the-years");
+		expect(on("2026-12-30", team)).toBe("between-the-years");
+		expect(on("2026-12-31", team)).toBe("new-year");
+	});
+
 	it.each([
 		["hamburg", hamburg, "karneval"],
 		["europe", europe, "carnival"],
@@ -250,8 +389,8 @@ describe("team holidays", () => {
 		expect(on("2027-05-10", europe)).toBeNull();
 	});
 
-	// SC-005: each day in at most one window, but Nikolaus inside Advent and
-	// Valentine's Day inside Karneval.
+	// SC-005: each day in at most one window, but the allowed overlaps of
+	// feature 038 research R6.
 	it.each(TEAMS.map((team) => [team.id, team] as const))(
 		"%s: has no overlapping windows, 2026–2075",
 		(_, team) => {
@@ -265,14 +404,46 @@ describe("team holidays", () => {
 				const holding = team.holidays.filter(
 					(h) => holidaysOn(day, [h]).length > 0,
 				);
-				// Valentine's Day can fall in Karneval; the one day wins.
+				// Valentine's Day can fall in Karneval, Nikolaus and the Advent
+				// Sundays in Advent, Christmas Eve on the fourth Advent Sunday
+				// (feature 038 research R6); Hamburg's 6 December can be all three.
+				const ids = holding.map((h) => h.id);
+				const sunday = ids.some((id) => /^advent-\d$/.test(id));
 				const allowed =
 					day.endsWith("-02-14") ||
+					sunday ||
 					(team.id === "hamburg" && day.endsWith("-12-06"))
-						? 2
+						? team.id === "hamburg" && day.endsWith("-12-06") && sunday
+							? 3
+							: 2
 						: 1;
 				expect(holding.length, day).toBeLessThanOrEqual(allowed);
 			}
 		},
 	);
+
+	// Feature 038 research R6: a tie only where two one-day windows meet.
+	it("ties only where research R6 says, 2026–2075", () => {
+		const nikolaus = [2026, 2037, 2043, 2048, 2054, 2065, 2071].map(
+			(y) => `${y}-12-06`,
+		);
+		const eve = [2028, 2034, 2045, 2051, 2056, 2062, 2073].map(
+			(y) => `${y}-12-24`,
+		);
+		const end = Date.parse("2075-12-31T00:00:00Z");
+		for (
+			let t = Date.parse("2026-01-01T00:00:00Z");
+			t <= end;
+			t += 86_400_000
+		) {
+			const day = new Date(t).toISOString().slice(0, 10);
+			for (const team of [hamburg, europe]) {
+				const tie =
+					eve.includes(day) || (team === hamburg && nikolaus.includes(day));
+				const windows = holidaysOn(day, team.holidays).length;
+				if (tie) expect(windows, `${team.id} ${day}`).toBe(2);
+				else expect(windows, `${team.id} ${day}`).toBeLessThanOrEqual(1);
+			}
+		}
+	});
 });

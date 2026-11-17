@@ -33,7 +33,9 @@ export const europe: TeamData = {
 	phrases: { kind: "common" },
 	badgeNames: { kind: "common" },
 	// Team Europe's holidays (feature 037 data-model.md), sharing the founding
-	// team's pictures, which show no place; no Nikolaus.
+	// team's pictures, which show no place; no Nikolaus. Advent's set, the four
+	// Advent Sundays, Christmas Eve as its own window and the days between the
+	// years (feature 038).
 	holidays: [
 		{
 			id: "carnival",
@@ -79,16 +81,63 @@ export const europe: TeamData = {
 		},
 		{
 			id: "advent",
-			monkeys: ["advent"],
+			monkeys: [
+				"advent",
+				"christmas-market",
+				"mulled-wine",
+				"christmas-biscuits",
+			],
 			from: { anchor: "first-advent", offset: 0 },
 			to: "12-23",
 			kind: "long",
 		},
 		{
-			id: "christmas",
+			id: "advent-1",
+			monkeys: ["advent-wreath-1"],
+			from: { anchor: "first-advent", offset: 0 },
+			to: { anchor: "first-advent", offset: 0 },
+			kind: "short",
+		},
+		{
+			id: "advent-2",
+			monkeys: ["advent-wreath-2"],
+			from: { anchor: "first-advent", offset: 7 },
+			to: { anchor: "first-advent", offset: 7 },
+			kind: "short",
+		},
+		{
+			id: "advent-3",
+			monkeys: ["advent-wreath-3"],
+			from: { anchor: "first-advent", offset: 14 },
+			to: { anchor: "first-advent", offset: 14 },
+			kind: "short",
+		},
+		{
+			id: "advent-4",
+			monkeys: ["advent-wreath-4"],
+			from: { anchor: "first-advent", offset: 21 },
+			to: { anchor: "first-advent", offset: 21 },
+			kind: "short",
+		},
+		{
+			id: "christmas-eve",
 			monkeys: ["christmas"],
 			from: "12-24",
+			to: "12-24",
+			kind: "short",
+		},
+		{
+			id: "christmas",
+			monkeys: ["christmas"],
+			from: "12-25",
 			to: "12-26",
+			kind: "short",
+		},
+		{
+			id: "between-the-years",
+			monkeys: ["between-the-years"],
+			from: "12-27",
+			to: "12-30",
 			kind: "short",
 		},
 		{
