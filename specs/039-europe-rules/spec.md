@@ -130,7 +130,8 @@ and one other language, and look for Team Rynke, events, attendance and tour day
    ranking).
 4. **Given** any Europe organiser page, **Then** it offers no event pages, event reports or
    attendance, shows no Team Rynke column or figure, and corrections take Training Rynke only.
-5. **Given** Europe's coin, **Then** it is never labelled or counted as Team Rynke.
+5. **Given** Europe's coin, **Then** its front and back show wherever the app shows them today;
+   the back is art only, as on Hamburg's coin, and nothing about the coin changes.
 
 ---
 
@@ -264,6 +265,7 @@ check it lists all of them as today.
   is decided now.
 - The Training Rynke threshold, distance and elevation steps and every other rule value stay
   Hamburg's for Europe until Team Europe decides otherwise.
-- Europe's coin art stays; its back is decoration only.
+- The coin's back stands for nothing on either team (maintainer, 2026-11-17); both sides keep
+  showing wherever they show today. Only the Team Rynke and event functions go.
 - The minimum compares the ride's distance as Strava reports it, in kilometres, without rounding.
 - Europe's rules handout is regenerated from its Markdown source; Hamburg's handout is not touched.
