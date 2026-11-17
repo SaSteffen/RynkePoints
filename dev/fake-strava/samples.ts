@@ -265,7 +265,9 @@ function iso(epochMs: number): string {
 
 /**
  * The activity Strava would send for `recipe` on a seeding day `seedDay`
- * (`YYYY-MM-DD`, Europe/Berlin), never before `seasonStart` (`YYYY-MM-DD`).
+ * (`YYYY-MM-DD`, Europe/Berlin). Inside the season, never before `seasonStart`
+ * (`YYYY-MM-DD`); seeded before it, on its own day, so it counts for nothing
+ * (Europe's season starts on 1 January, feature 039).
  */
 export function recipeToActivity(
 	recipe: RideRecipe,
@@ -279,7 +281,8 @@ export function recipeToActivity(
 			: recipe.onDate
 				? seasonDay(recipe.onDate, seasonStart)
 				: dayBefore(seedDay, recipe.daysAgo);
-	const day = wanted < seasonStart ? seasonStart : wanted;
+	const day =
+		wanted < seasonStart && seedDay >= seasonStart ? seasonStart : wanted;
 	const startUtc = berlinToUtcMs(day, recipe.startTime);
 	return {
 		id,
