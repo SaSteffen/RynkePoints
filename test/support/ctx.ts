@@ -296,6 +296,11 @@ export function cookiePair(setCookie: string): Record<string, string> {
 	return { [pair.slice(0, eq)]: pair.slice(eq + 1) };
 }
 
+/** A response's headers, without Server-Timing: its duration differs per request. */
+export function stableHeaders(res: Response): [string, string][] {
+	return [...res.headers].filter(([name]) => name !== "server-timing");
+}
+
 /** A valid signed `rp_session` cookie for `athleteId`. */
 export async function sessionCookie(
 	ctx: Ctx,
