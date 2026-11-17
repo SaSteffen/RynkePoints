@@ -318,8 +318,9 @@ same results as before for every sample rider.
 
 - Europe has no production riders or stored results yet (its database is still a placeholder), so
   it can start with its own rule history without migrating anything.
-- Europe's season dates, controller, contact and other placeholders stay as they are; only the club
-  is decided now.
+- Europe's training period, the days its Rynke count, is 1 January to 30 June (maintainer,
+  2026-11-17): `SEASON_START_DATE` 2027-01-01 and `QUALIFICATION_DEADLINE` 2027-06-30 in its block
+  and its sandbox's. Its controller, contact and other placeholders stay as they are.
 - The Training Rynke threshold, distance and elevation steps and every other rule value stay
   Hamburg's for Europe until Team Europe decides otherwise.
 - The coin's back stands for nothing on either team (maintainer, 2026-11-17); both sides keep

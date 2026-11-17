@@ -71,7 +71,14 @@ it("is on for every switch by default", () => {
 });
 
 describe("BADGES", () => {
-	beforeEach(() => seedBalance(ATHLETE_A, { trainingRynke: 30 }));
+	beforeEach(() => {
+		// Evaluated the day after `rides()`: a team's season may start after NOW
+		// (Europe's on 1 January), and rides after now count for nothing.
+		const afterRides =
+			Date.parse(`${env.SEASON_START_DATE}T12:00:00Z`) / 1000 + 3 * 86_400;
+		ctx = { ...ctx, now: () => Math.max(NOW, afterRides) };
+		return seedBalance(ATHLETE_A, { trainingRynke: 30 });
+	});
 
 	it("off: no page, menu entry or tour step", async () => {
 		const off = switched("BADGES", "off");
