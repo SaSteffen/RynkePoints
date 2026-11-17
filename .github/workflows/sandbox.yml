@@ -3,9 +3,11 @@ name: Sandbox
 # Deploys a commit to Hamburg's or Europe's release sandbox (feature 027
 # contracts/sandbox-workflow.md "Sandbox", research R6, R7, R10, R11). Called by
 # Release PR and by Sandbox PR (a pull request's checkboxes), or by hand
-# (Actions → Sandbox → Run workflow, on develop). Every deployment rebuilds the
-# sandbox's database from the sample riders, so deploying again is the reset. No
-# job here is a required-check context; never add one to .github/rulesets/*.json.
+# (Actions → Sandbox → Run workflow, on develop). A deployment keeps the
+# sandbox's data and applies the commit's pending migrations to it; only a
+# sandbox without riders is seeded. Fresh sample riders otherwise come from
+# Sandbox reseed (sandbox-reseed.yml), by hand only. No job here
+# is a required-check context; never add one to .github/rulesets/*.json.
 on:
   workflow_call:
     inputs:
@@ -20,10 +22,6 @@ on:
         default: ""
       sha:
         description: The commit to deploy.
-        type: string
-        required: true
-      base:
-        description: The branch whose sample riders seed the database, main or develop.
         type: string
         required: true
   workflow_dispatch:
@@ -42,7 +40,7 @@ permissions: {}
 jobs:
   # What to deploy where. A run on any ref but develop stops here, before any job
   # with an environment (whose branch policy would refuse it anyway). By hand: the
-  # open release pull request's head, else develop's head, seeded at main.
+  # open release pull request's head, else develop's head.
   resolve:
     name: resolve
     if: github.ref == 'refs/heads/develop'
@@ -55,7 +53,6 @@ jobs:
       teams: ${{ steps.resolve.outputs.teams }}
       pr: ${{ steps.resolve.outputs.pr }}
       sha: ${{ steps.resolve.outputs.sha }}
-      base: ${{ steps.resolve.outputs.base }}
     steps:
       - id: resolve
         shell: bash
@@ -65,7 +62,6 @@ jobs:
           TEAMS: ${{ inputs.teams }}
           PR: ${{ inputs.pr }}
           SHA: ${{ inputs.sha }}
-          BASE: ${{ inputs.base }}
           HAMBURG: ${{ inputs['sandbox-hamburg'] }}
           EUROPE: ${{ inputs['sandbox-europe'] }}
         run: |
@@ -83,7 +79,6 @@ jobs:
             else
               SHA=$(gh api "repos/$REPO/commits/develop" --jq .sha)
             fi
-            BASE=main
           fi
 
           # Only known values reach the job's commands.
@@ -91,7 +86,6 @@ jobs:
             || { echo "::error::Unknown sandboxes: $TEAMS"; exit 1; }
           [[ "$PR" =~ ^[0-9]*$ ]] || { echo "::error::Not a pull request number: $PR"; exit 1; }
           [[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "::error::Not a commit: $SHA"; exit 1; }
-          [[ "$BASE" =~ ^(main|develop)$ ]] || { echo "::error::Not a base: $BASE"; exit 1; }
           if [ "$TEAMS" = '[]' ]; then
             echo "::notice::No sandbox chosen; nothing to deploy."
           fi
@@ -100,7 +94,6 @@ jobs:
             echo "teams=$(jq -c 'unique' <<< "$TEAMS")"
             echo "pr=$PR"
             echo "sha=$SHA"
-            echo "base=$BASE"
           } >> "$GITHUB_OUTPUT"
 
   # One deployment per sandbox, each on its own, one at a time per sandbox. The
@@ -139,13 +132,11 @@ jobs:
       TEAM: ${{ matrix.team }}
       PR: ${{ needs.resolve.outputs.pr }}
       SHA: ${{ needs.resolve.outputs.sha }}
-      BASE: ${{ needs.resolve.outputs.base }}
       URL: https://sandbox-${{ matrix.team }}.trhh-rynke-coins.link
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       # Develop's scripts check and deploy the commit, which sits in change/ (R11):
-      # a branch can't loosen the checks it's deployed by. base/ seeds.
-      # The GitHub token goes only to the steps that call GitHub, never to those
+      # a branch can't loosen the checks it's deployed by. The GitHub token goes only to the steps that call GitHub, never to those
       # that install, build or run the commit's code.
       - name: Checkout develop's scripts
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -159,15 +150,8 @@ jobs:
           ref: ${{ needs.resolve.outputs.sha }}
           path: change
           persist-credentials: false
-      - name: Checkout the base
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ needs.resolve.outputs.base }}
-          path: base
-          persist-credentials: false
 
-      # The live commit (newest deployment whose newest status is success), the
-      # base's commit and the source shown in the sandbox's bar.
+      # The live commit and the source shown in the sandbox's bar.
       - name: Note the live commit
         env:
           GH_TOKEN: ${{ github.token }}
@@ -175,16 +159,8 @@ jobs:
           set -euo pipefail
           state="$RUNNER_TEMP/sandbox"
           mkdir -p "$state"
-          live=""
-          while read -r id deployed; do
-            [ -n "$id" ] || continue
-            status=$(gh api "repos/$REPO/deployments/$id/statuses?per_page=1" --jq '.[0].state // ""')
-            if [ "$status" = success ]; then
-              live=$deployed
-              break
-            fi
-          done < <(gh api "repos/$REPO/deployments?environment=sandbox-$TEAM&per_page=100" --jq '.[] | "\(.id) \(.sha)"')
-          if [ -n "$PR" ] && [ "$BASE" = main ]; then
+          live=$(.github/scripts/live-commit.sh "sandbox-$TEAM")
+          if [ -n "$PR" ] && [ "$(gh pr view "$PR" --repo "$REPO" --json baseRefName --jq .baseRefName)" = main ]; then
             source="release #$PR"
           elif [ -n "$PR" ]; then
             source="PR #$PR"
@@ -194,7 +170,6 @@ jobs:
           {
             echo "STATE=$state"
             echo "LIVE=$live"
-            echo "BASE_SHA=$(git -C base rev-parse HEAD)"
             echo "SOURCE=$source"
           } >> "$GITHUB_ENV"
 
@@ -287,7 +262,7 @@ jobs:
         id: install
         if: steps.live.outputs.skip != 'true'
         uses: ./.github/actions/setup
-      - name: Install the commit's and the base's dependencies
+      - name: Install the commit's dependencies
         id: install-more
         if: steps.live.outputs.skip != 'true'
         env:
@@ -295,7 +270,6 @@ jobs:
         run: |
           set -euo pipefail
           pnpm install --frozen-lockfile --dir change 2>&1 | tee "$STATE/install-more.log"
-          pnpm install --frozen-lockfile --dir base 2>&1 | tee -a "$STATE/install-more.log"
 
       # Develop's rules on the commit's wrangler.jsonc: no production name in a
       # sandbox block, before the credential is used (R8, R11).
@@ -306,29 +280,32 @@ jobs:
           set -euo pipefail
           node scripts/team-check.mjs --wrangler change/wrangler.jsonc 2>&1 | tee "$STATE/team-check.log"
 
-      # R6 phases 1 and 2, on local databases only.
-      - name: Seed at the base
+      # A sandbox without riders (new, or a reseed that stopped) is seeded; any
+      # other keeps its data. Reads only.
+      - name: Check for data
+        id: empty
+        if: steps.live.outputs.skip != 'true'
+        env:
+          SANDBOX_CHANGE: change
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_SANDBOX_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          empty=$(scripts/sandbox-seed.sh is-empty "$TEAM" 2>"$STATE/empty.log") \
+            || { cat "$STATE/empty.log" >&2; exit 1; }
+          echo "No riders in the sandbox: $empty"
+          echo "empty=$empty" >> "$GITHUB_OUTPUT"
+      # With the commit's own code, so no migration is pending on the seed
+      # (research R6 phase 1, on a local database).
+      - name: Seed
         id: seed
-        if: steps.live.outputs.skip != 'true'
+        if: steps.live.outputs.skip != 'true' && steps.empty.outputs.empty == 'yes'
         env:
           SANDBOX_CHANGE: change
           SANDBOX_WORK: ${{ runner.temp }}/sandbox/work
         run: |
           set -euo pipefail
-          scripts/sandbox-seed.sh seed "$TEAM" base 2>&1 | tee "$STATE/seed.log"
-          # The commit's migrations the seed doesn't have yet, for the message.
-          grep -oE '[0-9]{4}_[A-Za-z0-9_-]+\.sql' "$SANDBOX_WORK/base.sql" | sort -u > "$STATE/applied"
-          find change/migrations -maxdepth 1 -name '*.sql' -printf '%f\n' | sort > "$STATE/all"
-          comm -13 "$STATE/applied" "$STATE/all" > "$STATE/migrations"
-      - name: Try the migrations
-        id: try
-        if: steps.live.outputs.skip != 'true'
-        env:
-          SANDBOX_CHANGE: change
-          SANDBOX_WORK: ${{ runner.temp }}/sandbox/work
-        run: |
-          set -euo pipefail
-          scripts/sandbox-seed.sh try-migrations "$TEAM" 2>&1 | tee "$STATE/try.log"
+          scripts/sandbox-seed.sh seed "$TEAM" change 2>&1 | tee "$STATE/seed.log"
 
       - name: Check the usage
         id: usage
@@ -336,16 +313,19 @@ jobs:
         env:
           CLOUDFLARE_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_ANALYTICS_TOKEN }}
           CLOUDFLARE_ANALYTICS_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          SEEDING: ${{ steps.empty.outputs.empty }}
         run: |
           set -euo pipefail
-          rows=$(scripts/sandbox-seed.sh count "$STATE/work/base.sql")
+          rows=0
+          [ "$SEEDING" = yes ] && rows=$(scripts/sandbox-seed.sh count "$STATE/work/base.sql")
           node scripts/sandbox-usage.mjs --seed-rows "$rows" 2>&1 | tee "$STATE/usage.log"
 
       # From here on the sandbox changes. The credential is only in these steps,
-      # and every command names --env sandbox-<team>.
-      - name: Rebuild the database
+      # and every command names --env sandbox-<team>. Data the sandbox has stays;
+      # only the commit's pending migrations run on it.
+      - name: Fill the empty database
         id: rebuild
-        if: steps.live.outputs.skip != 'true'
+        if: steps.live.outputs.skip != 'true' && steps.empty.outputs.empty == 'yes'
         env:
           SANDBOX_CHANGE: change
           SANDBOX_WORK: ${{ runner.temp }}/sandbox/work
@@ -364,6 +344,8 @@ jobs:
         run: |
           set -euo pipefail
           pnpm exec wrangler d1 migrations apply DB --remote --env "sandbox-$TEAM" 2>&1 | tee "$STATE/migrate.log"
+          # The migrations it applied, for the message.
+          grep -oE '[0-9]{4}_[A-Za-z0-9_-]+\.sql' "$STATE/migrate.log" | sort -u > "$STATE/migrations" || true
       - name: Deploy
         id: deploy
         if: steps.live.outputs.skip != 'true'
@@ -394,8 +376,8 @@ jobs:
             install=${{ steps.install.outcome }}
             install-more=${{ steps.install-more.outcome }}
             team-check=${{ steps.team-check.outcome }}
+            empty=${{ steps.empty.outcome }}
             seed=${{ steps.seed.outcome }}
-            try=${{ steps.try.outcome }}
             usage=${{ steps.usage.outcome }}
             rebuild=${{ steps.rebuild.outcome }}
             migrate=${{ steps.migrate.outcome }}
@@ -410,8 +392,8 @@ jobs:
           declare -A label=(
             [live]="the order check" [checks]="the checks" [deployment]="recording the deployment"
             [install]="installing" [install-more]="installing" [team-check]="the team data check"
-            [seed]="seeding at $BASE" [try]="trying the migrations" [usage]="the usage check"
-            [rebuild]="rebuilding the database" [migrate]="applying the migrations" [deploy]="deploying"
+            [empty]="checking for data" [seed]="seeding" [usage]="the usage check"
+            [rebuild]="filling the empty database" [migrate]="applying the migrations" [deploy]="deploying"
           )
           failed=""
           for pair in $OUTCOMES; do
@@ -453,11 +435,13 @@ jobs:
             {
               echo "### Sandbox: $name ✅"
               echo "Deployed \`$short\` to $URL"
-              if [ -s "$state/migrations" ]; then
-                echo "Rebuilt with the sample riders as of \`$BASE\` (\`${BASE_SHA:0:7}\`), then migrations applied:"
+              if [ "${{ steps.rebuild.outcome }}" = success ]; then
+                echo "The sandbox had no riders, so it was seeded with the sample riders."
+              elif [ -s "$state/migrations" ]; then
+                echo "The sandbox's data stays; migrations applied:"
                 sed 's/.*/`&`/' "$state/migrations" | paste -sd ',' | sed 's/,/, /g'
               else
-                echo "Rebuilt with the sample riders as of \`$BASE\` (\`${BASE_SHA:0:7}\`), no new migrations."
+                echo "The sandbox's data stays; no new migrations."
               fi
             } > "$body"
             status=success
@@ -466,15 +450,12 @@ jobs:
             {
               echo "### Sandbox: $name ❌"
               echo "\`$short\` was not deployed: ${label[$failed]}, $(reason "$failed")."
+              runs="no code runs on it yet"
+              [ -n "${LIVE:-}" ] && runs="it still runs \`${LIVE:0:7}\`'s code"
               case "$failed" in
                 rebuild) echo "The sandbox's database is empty or half-built; deploy again to repair it." ;;
-                migrate | deploy)
-                  if [ -n "${LIVE:-}" ]; then
-                    echo "The sandbox's database was rebuilt, but it still runs \`${LIVE:0:7}\`'s code; deploy again to repair it."
-                  else
-                    echo "The sandbox's database was rebuilt, but no code runs on it yet; deploy again to repair it."
-                  fi
-                  ;;
+                migrate) echo "Part of the migrations may have run on the sandbox's data, and $runs; **Sandbox reseed** (Actions) rebuilds the data." ;;
+                deploy) echo "The migrations ran on the sandbox's data, but $runs; deploy again to repair it." ;;
                 *) previous ;;
               esac
             } > "$body"

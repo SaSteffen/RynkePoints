@@ -428,8 +428,8 @@ sample riders and the fake Strava, open to the maintainers only (Cloudflare Acce
 pull request into `develop` there, tick *Deploy to Hamburg's sandbox* or *Deploy to Europe's
 sandbox* in its description; for a release, tick them on **Actions → Release PR**. The box
 unticks itself, the commit deploys once `lint`, `typecheck` and `test` passed, and a message on
-the pull request has the link. Every deployment rebuilds the sandbox's data, so deploying again
-resets it. Skip it for docs, specs, tests, CI or tooling only; deploy for migrations, anything
+the pull request has the link. Deployments keep the sandbox's data; **Actions → Sandbox reseed**
+rebuilds it from fresh sample riders. Skip it for docs, specs, tests, CI or tooling only; deploy for migrations, anything
 riders see, or when unsure. Details, the daily budget and the setup:
 [docs/sandboxes.md](docs/sandboxes.md).
 

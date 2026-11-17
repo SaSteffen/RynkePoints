@@ -165,6 +165,14 @@ feature 006.
   written per day across all sandboxes. The sample riders are about 7,000 rows written per
   deployment, index writes included, so the old 20,000 allowed only two or three deployments a
   day. 40,000 allows about five; the 50 % check (FR-033) still protects production.
+- Q (2026-11-17): Does every deployment still rebuild the database? → A: No. Reseeding on every
+  deployment used too much of the budget and of CI's time. A deployment now keeps the sandbox's
+  data and applies the commit's pending migrations to it; only a sandbox without riders (a new
+  one) is seeded, with the commit's own code. Otherwise fresh sample riders come only from a
+  separate **Sandbox reseed** action, started by hand in GitHub Actions for one or both
+  sandboxes: it seeds at `develop` or `main` (chosen when starting it), tries the live commit's
+  migrations on a copy, then rebuilds the database and applies them, keeping the live code. Not
+  linked from pull requests. This replaces "deploying again is the reset" (FR-016, FR-019).
 - Q: Does the fake-mode overview need every sample rider's rides? → A: No. They are there only
   for the forms that change or delete a ride. Those forms move to one page per sample rider,
   so the overview reads no rides and stays well within the CPU limit (FR-051).
@@ -363,30 +371,30 @@ and see it refused with a clear message before writing anything.
 
 ### User Story 6 - Migrations rehearsed, and a way back (Priority: P2)
 
-Every deployment rebuilds the sandbox's database as production would look at `main`'s version,
-so each release's migrations run against existing rows as a batch, as in production, and
-deploying again rebuilds a stuck sandbox.
+Every deployment applies its pending migrations to the rows already in the sandbox, as in
+production, and **Sandbox reseed** rebuilds a stuck or messy sandbox from fresh sample riders.
 
 **Why this priority**: Migrations only go forward and are the failure hardest to undo in
 production.
 
-**Independent Test**: Deploy a release with a migration and see it run against the seeded
-rows. Change data in the sandbox, deploy again, and see it rebuilt.
+**Independent Test**: Deploy a release with a migration and see it run against the sandbox's
+rows. Change data in the sandbox, deploy again, and see it kept; run **Sandbox reseed** and see
+it rebuilt.
 
 **Acceptance Scenarios**:
 
-1. **Given** a release with migrations, **When** it deploys, **Then** the sandbox's database is
-   rebuilt with the data seeded at `main`'s version, and the release's migrations are applied to
-   it before the new code goes live.
-2. **Given** a failing migration, **When** the deployment tries it, **Then** it fails before the
-   sandbox is touched, the sandbox keeps its previous version and data, and the message on the
-   pull request says so.
+1. **Given** a release with migrations, **When** it deploys, **Then** the release's migrations
+   are applied to the sandbox's data before the new code goes live, and the data is kept.
+2. **Given** a failing migration, **When** the deployment applies it, **Then** the new code isn't
+   deployed, the sandbox keeps its previous code, and the message on the pull request says so and
+   points to **Sandbox reseed**.
 3. *(Dropped 2026-11-11: no seeding towards production's size.)*
 4. *(Dropped 2026-11-11.)*
 5. **Given** the sample riders of feature 006, **When** a sandbox is seeded, **Then** they are still
    there, and offered first at the fake sign-in.
-6. **Given** a stuck or messy sandbox, **When** a maintainer deploys it again, **Then** its
-   database is rebuilt and seeded, and it runs the deployed commit.
+6. **Given** a stuck or messy sandbox, **When** a maintainer runs **Sandbox reseed** for it,
+   **Then** its database is rebuilt from the sample riders seeded at the chosen branch, the live
+   commit's migrations are applied, and it still runs the live commit.
 
 ---
 
@@ -453,14 +461,15 @@ the other blocked by a git conflict.
 - **Migration applied, then the code deployment fails**: the sandbox keeps the previous code on
   the newer database, the state production would be in. Migrations must stay compatible, so
   this also tests that rule.
-- **A migration edited after a sandbox applied it**: only possible while unreleased. The next
-  deployment rebuilds the database, so nothing is left over.
-- **Data changed by hand in a sandbox**: gone at the next deployment, by design. Nothing in a
-  sandbox is kept.
-- **Time-dependent sandbox data going stale**: fake mode's clock, and each deployment seeds
+- **A migration edited after a sandbox applied it, or one from a pull request that never
+  merged**: only possible while unreleased. The sandbox keeps it until **Sandbox reseed**
+  rebuilds the database.
+- **Data changed by hand in a sandbox**: kept across deployments, gone at the next reseed.
+- **Time-dependent sandbox data going stale**: fake mode's clock, and each reseed seeds
   relative to its day.
 - **The rebuild fails after the sandbox's old data was dropped**: the sandbox is empty or
-  half-built until the next deployment, and the message says so. Deploying again repairs it.
+  half-built, and the run's summary says so. Reseeding again, or the next deployment (which
+  finds no riders and seeds), repairs it.
 - **Sandbox use in the admin view**: Cloudflare's figures are account-wide, so they include the
   sandboxes. That is correct for limits shared by the account. The budget keeps sandbox work
   below the point where the view's 80 % alert would fire because of it.
@@ -533,18 +542,22 @@ the other blocked by a git conflict.
   into it, whose lint, type check and unit and component tests passed, applying pending
   migrations before the code, as production does. It MUST NOT wait for the end-to-end tests,
   and their result MUST NOT stop it.
-- **FR-016**: Every deployment MUST rebuild the sandbox's database: seed it at the version of the
-  branch the change goes into (`main` for a release, `develop` for a pull request into it; its
-  migrations, then the seed), then apply the change's pending migrations, then deploy the code.
-  The change's migrations MUST be tried on a copy first, so a failing one stops the deployment
-  before the sandbox is touched.
+- **FR-016**: A deployment MUST keep the sandbox's data: it applies the change's pending
+  migrations to the database, then deploys the code. Only when the sandbox holds no riders (a
+  new sandbox, or a rebuild that stopped) MUST it seed the database first, with the change's own
+  code, so no migration is pending on the seed. Otherwise it MUST NOT seed or rebuild.
 - **FR-017**: Each sandbox MUST deploy one commit at a time, and a deployment of `develop` MUST
   NOT replace a newer commit of `develop` with an older one. A pull request's deployment replaces
   whatever runs. One sandbox's failure MUST NOT stop another's deployment.
 - **FR-018**: Nothing MUST deploy to a sandbox unless someone chose it. `develop` moving, or a
   push to a pull request, MUST NOT redeploy by itself.
-- **FR-019**: There is no separate **Reset sandbox**: deploying again, from **Release PR** or by
-  hand (FR-009), rebuilds the database (FR-016).
+- **FR-019**: A separate **Sandbox reseed** action, started by hand in GitHub Actions on
+  `develop` for one or both sandboxes and not linked from pull requests, MUST rebuild a
+  sandbox's database: seed it at the chosen branch (`develop` or `main`; its migrations, then the
+  seed), try the live commit's pending migrations on a copy, so a failing one stops before the
+  sandbox is touched, then drop the sandbox's tables, import the seed and apply those
+  migrations. It keeps the live code, refuses a sandbox nothing was deployed to, runs the usage
+  check (FR-033) with the seed's rows, and queues behind that sandbox's deployments (FR-017).
 
 **Pull requests into `develop`**
 
@@ -607,13 +620,13 @@ the other blocked by a git conflict.
 
 - **FR-032**: Sandboxes MUST use no cron triggers on the Free plan, leaving the account's 5 for
   production. `/_dev/` MUST offer the scheduled work on demand.
-- **FR-033**: A deployment MUST first check the account's use of today's
+- **FR-033**: A deployment or reseed MUST first check the account's use of today's
   allowances and MUST stop before writing if rows written, rows read or queue operations are
   above a threshold, set by default to 50 %. If the figures are unavailable, it MUST also stop,
   because it can't rule out harming production.
 - **FR-034**: One day's writes to all sandbox databases MUST stay within a set budget of rows,
   set by default to 40,000, counting index writes, and seeding MUST NOT use the queue for bulk
-  data. A deployment whose sample riders don't fit what's left of the day's budget MUST NOT
+  data. A reseed whose sample riders don't fit what's left of the day's budget MUST NOT
   write anything and says so.
 - **FR-035**: Seeding MUST fit the Free plan's limit of 10 ms of CPU per Worker request, by
   running outside a request.
@@ -654,8 +667,8 @@ the other blocked by a git conflict.
 - **FR-045**: Removing the rule MUST NOT change the merge method set by 028 FR-031, the rule's absence
   on `main`, or the checks of a release pull request.
 - **FR-046**: The contributor docs (`README.md`, `CLAUDE.md`) MUST describe the sandboxes, the
-  checkboxes and their guidance, the gate and its override, that each deployment rebuilds the
-  data, and the ruleset fallback.
+  checkboxes and their guidance, the gate and its override, that deployments keep the data
+  and **Sandbox reseed** rebuilds it, and the ruleset fallback.
 
 ### Key Entities
 

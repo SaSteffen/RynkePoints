@@ -70,12 +70,13 @@ and commit messages must follow
   updating both `.github/rulesets/*.json` files in the same change.
   `already-checked`, `playwright-image`, `deploy-gate`, `deploy`, `deploy-gateway`,
   `release-pr`, the `e2e-nightly.yml` jobs (`changed`, `nightly (…)`) and the sandbox
-  jobs (`resolve`, `sandbox (…)`, `sandbox-pr`) are not contexts and must never be
+  jobs (`resolve`, `sandbox (…)`, `reseed (…)`, `sandbox-pr`) are not contexts and must never be
   added to them.
 - Sandboxes (feature 027, `docs/sandboxes.md`): Hamburg's and Europe's app in fake mode
   behind Cloudflare Access. A pull request into `develop` deploys to one when its
   **Sandboxes** checkbox is ticked (`sandbox-pr.yml`, run as on `develop`); **Release PR**
-  has the same boxes. Every deployment rebuilds the sandbox's data. A `sandbox-<team>`
+  has the same boxes. Deployments keep the sandbox's data; **Sandbox reseed**
+  (`sandbox-reseed.yml`, by hand) rebuilds it. A `sandbox-<team>`
   block in `wrangler.jsonc` must never name a production resource; `team-check` refuses
   one.
 

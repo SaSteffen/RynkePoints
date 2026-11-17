@@ -209,9 +209,9 @@ gets.
 ## Environments `sandbox-hamburg` and `sandbox-europe`: `develop` only, no admin bypass
 
 The boundary that releases the sandbox credentials (feature 027, [docs/sandboxes.md](../docs/sandboxes.md)):
-only a job of the [Sandbox](workflows/sandbox.yml) workflow in a run on `develop` gets them,
-whether started by hand, by **Release PR** or by a pull request's checkbox
-([Sandbox PR](workflows/sandbox-pr.yml) runs as it is on `develop`). Like `production`, but
+only a job of the [Sandbox](workflows/sandbox.yml) or [Sandbox reseed](workflows/sandbox-reseed.yml)
+workflow in a run on `develop` gets them, whether started by hand, by **Release PR** or by a pull
+request's checkbox ([Sandbox PR](workflows/sandbox-pr.yml) runs as it is on `develop`). Like `production`, but
 with `develop` as the branch rule, and with two tokens.
 
 - Tokens, account API tokens created in Cloudflare by the founding maintainer
