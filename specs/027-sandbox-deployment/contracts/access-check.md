@@ -40,7 +40,7 @@ Each with a key pair generated in the test and the certs URL answered by a stubb
   `aud`, another `iss`, an expired token, a future `nbf`: each `403`, and neither the app nor
   `/_dev/` ran;
 - another host with a valid token: `403`;
-- the production host `trhh-rynke-coins.link` and `europe.trhh-rynke-coins.link`: `403` in both
+- the production host `trhh-rynke-coins.link` and `rynke-points.eu`: `403` in both
   modes (FR-013);
 - missing `ACCESS_AUD` (and each of the other two): fake mode doesn't start;
 - certs URL failing: `403`;

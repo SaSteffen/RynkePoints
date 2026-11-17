@@ -132,7 +132,7 @@
 				// The other teams whose usage counts the admin view shows beside this
 				// team's (feature 026 contracts/usage-exchange.md): JSON list of
 				// { "id", "origin" }, like the gateway's TEAMS. "[]" for none.
-				"USAGE_PEERS": "[{\"id\":\"europe\",\"origin\":\"https://europe.trhh-rynke-coins.link\"}]"
+				"USAGE_PEERS": "[{\"id\":\"europe\",\"origin\":\"https://rynke-points.eu\"}]"
 			},
 			// Set with `wrangler secret put` in production and `.dev.vars` locally. Listing
 			// them here makes `pnpm types` independent of what's in your `.dev.vars`.
@@ -161,8 +161,8 @@
 			]
 		},
 		// Team Rynkeby Europe (feature 026), `--env europe`. Placeholders until release 4
-		// (src/teams/europe.ts `placeholders`): the resource IDs, club IDs, dates,
-		// controller and contact.
+		// (src/teams/europe.ts `placeholders`): the resource IDs, club IDs, dates and
+		// controller.
 		"europe": {
 			"name": "rynke-points-europe",
 			"main": "src/index.ts",
@@ -206,7 +206,7 @@
 				"ORGANISER_PROGRESS_GRAPH": "on",
 				// The gateway's subscription, like every team's.
 				"STRAVA_SUBSCRIPTION_ID": "385000",
-				"PUSH_SUBJECT": "https://europe.trhh-rynke-coins.link",
+				"PUSH_SUBJECT": "https://rynke-points.eu",
 				"READY_POLL_SECONDS": "10",
 				"TRAINING_LEADERBOARD": "on",
 				"RIDE_FIGURES": "on",
@@ -215,9 +215,10 @@
 				"PHRASES": "on",
 				"SEASON_ALBUM": "on",
 				"FUN_THEMES": "on",
-				// Placeholders until Europe names its controller and contact.
+				// Placeholder until Europe names its controller. The contact is
+				// Cloudflare Email Routing on Europe's domain, like Hamburg's.
 				"PRIVACY_CONTROLLER": "Placeholder Controller",
-				"CONTACT_EMAIL": "privacy@example.org",
+				"CONTACT_EMAIL": "support@rynke-points.eu",
 				"TEAM_ID": "europe",
 				"STRAVA_RETURN_VIA": "",
 				"USAGE_PEERS": "[{\"id\":\"hamburg\",\"origin\":\"https://trhh-rynke-coins.link\"}]"
@@ -233,11 +234,11 @@
 					"PUSH_VAPID_KEY"
 				]
 			},
-			// For now a subdomain of Hamburg's domain; Europe's own domain comes
-			// later (spec 026 clarification 2026-11-09).
+			// Europe's own domain, registered by the team (spec 026 clarification
+			// 2026-11-17). Its zone is in this Cloudflare account.
 			"routes": [
 				{
-					"pattern": "europe.trhh-rynke-coins.link",
+					"pattern": "rynke-points.eu",
 					"custom_domain": true
 				}
 			]
@@ -376,7 +377,7 @@
 				"SEASON_ALBUM": "on",
 				"FUN_THEMES": "on",
 				"PRIVACY_CONTROLLER": "Placeholder Controller",
-				"CONTACT_EMAIL": "privacy@example.org",
+				"CONTACT_EMAIL": "support@rynke-points.eu",
 				"TEAM_ID": "europe",
 				"STRAVA_RETURN_VIA": "",
 				"USAGE_PEERS": "[]",

@@ -12,7 +12,7 @@ step.
 | Value | Example |
 |---|---|
 | Team ID | `<id>`: lower case letters, the same in team data, `TEAM_ID` and the gateway |
-| Domain | the team's own, e.g. `rynke.example.org`; until it has one, `<id>.trhh-rynke-coins.link` (Europe for now) |
+| Domain | the team's own, e.g. `rynke.example.org`; until it has one, `<id>.trhh-rynke-coins.link`; Europe's is `rynke-points.eu` |
 | Worker | `rynke-points-<id>` |
 | D1 database | `rynke-points-<id>` |
 | Queue | `rynke-points-<id>-work` |
@@ -75,12 +75,18 @@ pnpm exec wrangler d1 create rynke-points-<id> --jurisdiction=eu   # ID into env
 pnpm exec wrangler queues create rynke-points-<id>-work
 ```
 
-For the domain, set the same DNS records as Hamburg (no mail: SPF
-`v=spf1 -all`, DMARC `p=reject`,
-[001 quickstart](../specs/001-strava-connect-webhook/quickstart.md) step 2). Add no A or
-CNAME record: the first deploy creates the custom domain. Then switch on **Always Use
-HTTPS**. Bot Fight Mode once challenged Strava's webhook POSTs. Whatever rule lets them
-through has to cover the new domain too (**Security → Events**).
+The domain's zone must be active in the same Cloudflare account: whoever registered it
+sets the zone's two Cloudflare nameservers at the registrar. Then set the same DNS
+records as Hamburg ([001 quickstart](../specs/001-strava-connect-webhook/quickstart.md)
+step 2), DMARC `p=reject` included. Add no A or CNAME record: the first deploy creates
+the custom domain. Then switch on **Always Use HTTPS**. Bot Fight Mode once challenged
+Strava's webhook POSTs. Whatever rule lets them through has to cover the new domain too
+(**Security → Events**).
+
+The contact address `CONTACT_EMAIL` is `support@<domain>`, like Hamburg's: **Email →
+Email Routing** on the new zone adds its MX and SPF records, and a custom address
+`support@` forwards to a verified destination address. The domain sends no mail of its
+own.
 
 ## 4. Secrets
 

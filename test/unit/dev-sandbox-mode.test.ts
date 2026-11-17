@@ -96,21 +96,21 @@ describe("production's hosts", () => {
 	});
 	afterEach(removeStravaInterceptor);
 
-	it.each([
-		"https://trhh-rynke-coins.link/",
-		"https://europe.trhh-rynke-coins.link/",
-	])("refuses %s in either mode", async (url) => {
-		const asSandbox = await devFetch(new Request(url), {
-			...makeCtx(),
-			env: sandbox,
-		});
-		expect(asSandbox.status).toBe(403);
-		const asLocal = await devFetch(new Request(url), {
-			...makeCtx(),
-			env: local,
-		});
-		expect(asLocal.status).toBe(403);
-	});
+	it.each(["https://trhh-rynke-coins.link/", "https://rynke-points.eu/"])(
+		"refuses %s in either mode",
+		async (url) => {
+			const asSandbox = await devFetch(new Request(url), {
+				...makeCtx(),
+				env: sandbox,
+			});
+			expect(asSandbox.status).toBe(403);
+			const asLocal = await devFetch(new Request(url), {
+				...makeCtx(),
+				env: local,
+			});
+			expect(asLocal.status).toBe(403);
+		},
+	);
 
 	it("answers localhost in local fake mode without a token", async () => {
 		const res = await devFetch(new Request("http://localhost:8789/"), {

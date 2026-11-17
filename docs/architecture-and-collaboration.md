@@ -530,5 +530,6 @@ flowchart LR
 
 - [ ] The constitution needs amending: for more than one maintainer and the accepted limit (028), and for
   per-team default languages (026).
-- [ ] Team Rynkeby Europe provides its domain, Strava clubs, Rynke values, dates, languages, switchable
+- [x] Team Rynkeby Europe's domain: `rynke-points.eu`, registered by the team.
+- [ ] Team Rynkeby Europe provides its Strava clubs, Rynke values, dates, languages, switchable
   features, controller and contact, art direction, a phrase brief, a rater and native-speaker reviewers.

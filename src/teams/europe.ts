@@ -201,7 +201,6 @@ export const europe: TeamData = {
 		"colours",
 		"art.icons",
 		"PRIVACY_CONTROLLER",
-		"CONTACT_EMAIL",
 		"database_id",
 	],
 };

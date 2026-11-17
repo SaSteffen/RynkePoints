@@ -69,6 +69,15 @@ the teams' figures together is part of this feature (FR-039).
   kinds, as decided values, not placeholders. Its own rules can follow later as a new rule
   version (FR-019).
 
+### Session 2026-11-17
+
+- Q: Which domain does the second team launch on, now that it has one? → A: Its own,
+  `rynke-points.eu`, registered by the team, before launch. No rider has used the interim
+  subdomain, so nobody signs in again. The zone is in the founding team's Cloudflare
+  account. The contact address `support@rynke-points.eu` forwards through Cloudflare
+  Email Routing, like the founding team's. The sandbox stays on
+  `sandbox-europe.trhh-rynke-coins.link`.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - A rider joins their own team (Priority: P1)
