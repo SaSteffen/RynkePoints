@@ -8,6 +8,11 @@ describe("worker", () => {
 		expect(await response.text()).toBe("ok");
 	});
 
+	it("says how long the answer took", async () => {
+		const response = await exports.default.fetch("https://example.com/health");
+		expect(response.headers.get("Server-Timing")).toMatch(/^total;dur=\d+$/);
+	});
+
 	it("returns 404 for unknown paths", async () => {
 		const response = await exports.default.fetch("https://example.com/nope");
 		expect(response.status).toBe(404);

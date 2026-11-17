@@ -1,5 +1,6 @@
 // RynkePoints service worker (feature 010 contracts/client.md, research R2).
-// Network only: every page comes from the server. The only cached responses are
+// Network only: every page comes from the server, asked for while this worker
+// still starts (navigation preload). The only cached responses are
 // the offline notice and the notification text in the device's language, never
 // a page or rider data (FR-005). The page registers it as `/sw.js?lang=<l>`, so
 // switching the language installs it again with the new texts.
@@ -34,6 +35,9 @@ self.addEventListener("activate", (event) => {
 					.filter((name) => name.startsWith("rp-") && name !== CACHE)
 					.map((name) => caches.delete(name)),
 			);
+			// The browser sends a navigation itself while this worker starts,
+			// where it can; the page no longer waits for the start.
+			await self.registration.navigationPreload?.enable();
 			await self.clients.claim();
 		})(),
 	);
@@ -44,10 +48,17 @@ self.addEventListener("fetch", (event) => {
 	// The notice is stored with `Vary: Accept-Language, Cookie`; its URL already
 	// holds the language, so it matches whatever the navigation sent.
 	event.respondWith(
-		fetch(event.request).catch(
-			async () =>
-				(await caches.match(OFFLINE, { ignoreVary: true })) ?? Response.error(),
-		),
+		(async () => {
+			try {
+				// The preloaded answer, where the browser asked ahead.
+				return (await event.preloadResponse) ?? (await fetch(event.request));
+			} catch {
+				return (
+					(await caches.match(OFFLINE, { ignoreVary: true })) ??
+					Response.error()
+				);
+			}
+		})(),
 	);
 });
 
