@@ -1,5 +1,6 @@
 import { badgeWindow } from "../badges/evaluate";
 import { evaluateTeamBadges } from "../badges/team";
+import { listedFor } from "../badges/view";
 import { badges, berlinDate } from "../config";
 import type { Ctx } from "../ctx";
 import {
@@ -58,11 +59,15 @@ async function announce(ctx: Ctx, keep: Set<number>): Promise<number[]> {
 			checked: number;
 		}>(),
 	]);
-	// Nothing dated after today counts (`badgeWindow`).
-	const { earned } = evaluateTeamBadges(
-		sums,
-		currentRules(ctx.team.rules),
-		badgeWindow(window, berlinDate(now)),
+	// Nothing dated after today counts (`badgeWindow`); only what the team
+	// lists is news (feature 039 research R9).
+	const { earned } = listedFor(
+		ctx.team,
+		evaluateTeamBadges(
+			sums,
+			currentRules(ctx.team.rules),
+			badgeWindow(window, berlinDate(now)),
+		),
 	);
 	let previous = stored?.badge_ids ?? null;
 	if (previous === null) {

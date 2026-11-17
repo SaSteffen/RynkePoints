@@ -6,6 +6,12 @@ import { renderAlbum } from "../../album/render";
 import { samplesFor } from "../../dev/fake-strava/sample-sets";
 import { devFetch } from "../../dev/worker";
 import {
+	BADGE_CATEGORIES,
+	BADGES,
+	categoryById,
+} from "../../src/badges/catalog";
+import { CATALOGS } from "../../src/i18n/catalogs";
+import {
 	CorrectionRefused,
 	correctionChange,
 	TeamEventRefused,
@@ -110,11 +116,29 @@ async function checkPage(
 	return markup;
 }
 
-// The badges page and the album's badge gallery list the event-only badges
-// until those are left out for a team without events (feature 039 US5); its
-// tests check them.
-function isBadges(path: string): boolean {
-	return path.startsWith("/me/badges");
+/** The badges only recorded events earn (feature 039 US5, research R9). */
+const EVENT_ONLY = BADGE_CATEGORIES.filter((c) => c.events);
+
+/** Asserts that a badge list holds no event-only badge, earned or to come. */
+async function expectNoEventBadges(
+	label: string,
+	lang: (typeof LANGS)[number],
+	markup: string,
+): Promise<void> {
+	const lines = new Set((await pageText(markup)).split("\n"));
+	for (const category of EVENT_ONLY) {
+		const heading = CATALOGS[lang][`badges.category.${category.id}`];
+		expect.soft(lines.has(heading), `${label} ${lang}: ${heading}`).toBe(false);
+		expect
+			.soft(markup, `${label} ${lang}: ${category.id}`)
+			.not.toContain(`data-category="${category.id}"`);
+	}
+	for (const badge of BADGES) {
+		if (!categoryById(badge.category).events) continue;
+		expect
+			.soft(markup, `${label} ${lang}: ${badge.id}`)
+			.not.toContain(`data-badge="${badge.id}"`);
+	}
 }
 
 /** The tour card's way on, or `null` on its last step. */
@@ -133,9 +157,7 @@ async function checkTour(
 	let steps = 0;
 	while (path !== null) {
 		if (++steps > 30) throw new Error(`the tour from ${first} doesn't end`);
-		const markup = await (isBadges(path)
-			? getPage(path, lang, cookie).then((page) => page.markup)
-			: checkPage(path, lang, cookie));
+		const markup = await checkPage(path, lang, cookie);
 		expect(markup).toContain('<aside class="tour"');
 		path = nextStep(markup);
 	}
@@ -223,12 +245,22 @@ describe.runIf(!hasEvents(team))(
 				"2026-10-06",
 				NOW,
 			);
+			expect(data.slots.length).toBeGreaterThan(0);
 			for (const lang of LANGS) {
-				await expectClean(
-					"album",
-					lang,
-					renderAlbum({ ...data, slots: [], locale: lang }),
-				);
+				const markup = renderAlbum({ ...data, locale: lang });
+				await expectClean("album", lang, markup);
+				await expectNoEventBadges("album", lang, markup);
+			}
+		}, 120_000);
+
+		it("lists no event-only badge on the badges page (US5)", async () => {
+			for (const athleteId of [rider(), ORGANISER]) {
+				const cookie = await riderCookie(athleteId);
+				for (const lang of LANGS) {
+					const markup = await checkPage("/me/badges", lang, cookie);
+					expect(markup).toContain('class="badge-cards"');
+					await expectNoEventBadges(`/me/badges ${athleteId}`, lang, markup);
+				}
 			}
 		}, 120_000);
 

@@ -42,6 +42,7 @@ import {
 	type BadgeSection,
 	buildBadgeSection,
 	type Card,
+	listedFor,
 	type NotYetRow,
 	newBadges,
 	type ProgressView,
@@ -672,13 +673,16 @@ async function badgesOf(
 	rider: Rider,
 	read: BadgesRead & { balance: StoredBalance },
 	window: CountingWindow,
-	progress: CategoryProgress[],
+	progress: readonly CategoryProgress[],
 ): Promise<BadgeSection | null> {
 	const { badges } = read;
 	const section = buildBadgeSection({
 		waiting: false,
-		personal: { earned: badges.earned, progress },
-		team: evaluateTeamBadges(read.sums, currentRules(ctx.team.rules), window),
+		personal: listedFor(ctx.team, { earned: badges.earned, progress }),
+		team: listedFor(
+			ctx.team,
+			evaluateTeamBadges(read.sums, currentRules(ctx.team.rules), window),
+		),
 		revealed: badges.revealed,
 		connectedOn: berlinDate(rider.connectedAt),
 		today: berlinDate(ctx.now()),
@@ -728,16 +732,24 @@ export async function hasNewBadges(
 		reveals.results as { badge_id: string; earned_on: string }[],
 	);
 	const connectedOn = berlinDate(connectedAt);
-	const personal = (
-		badges.results as { badge_id: string; earned_on: string }[]
-	).map((row) => ({ badgeId: row.badge_id, earnedOn: row.earned_on }));
-	if (newBadges(personal, [], revealed, connectedOn).length > 0) return true;
+	const personal = listedFor(ctx.team, {
+		earned: (badges.results as { badge_id: string; earned_on: string }[]).map(
+			(row) => ({ badgeId: row.badge_id, earnedOn: row.earned_on }),
+		),
+		progress: [],
+	});
+	if (newBadges(personal.earned, [], revealed, connectedOn).length > 0) {
+		return true;
+	}
 	// The team's are worked out on read (research R15).
 	const window = badgeWindow(countingWindow(ctx.env), berlinDate(ctx.now()));
-	const team = evaluateTeamBadges(
-		await toTeamBadgeSums(ctx.env.DB, sums),
-		currentRules(ctx.team.rules),
-		window,
+	const team = listedFor(
+		ctx.team,
+		evaluateTeamBadges(
+			await toTeamBadgeSums(ctx.env.DB, sums),
+			currentRules(ctx.team.rules),
+			window,
+		),
 	);
 	return newBadges([], team.earned, revealed, connectedOn).length > 0;
 }
@@ -769,10 +781,14 @@ export function handleBadges(
 				);
 			}
 			const { badges, attendance } = read;
-			const progress = personalProgress(
-				{ ...badges, attendance, trainingRynke: balance.trainingRynke },
-				window,
-			);
+			// What the team lists: no hint names a badge it doesn't (feature 039).
+			const { progress } = listedFor(ctx.team, {
+				earned: [],
+				progress: personalProgress(
+					{ ...badges, attendance, trainingRynke: balance.trainingRynke },
+					window,
+				),
+			});
 			const section = await badgesOf(
 				request,
 				ctx,

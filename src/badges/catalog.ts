@@ -3,6 +3,9 @@
 // ids, groups and thresholds as art/badges/badges.json, kept equal by
 // test/unit/badge-catalog.test.ts; the app never reads that file.
 
+import { hasEvents } from "../teams";
+import type { TeamData } from "../teams/types";
+
 export type BadgeGroup = "personal" | "team";
 
 export type BadgeUnit =
@@ -65,6 +68,11 @@ export interface BadgeCategory {
 	 * next badge needs one at its threshold, not what is "missing" to it.
 	 */
 	single?: true;
+	/**
+	 * Earned only through recorded events: a team without events doesn't list
+	 * the category (feature 039 research R9).
+	 */
+	events?: true;
 }
 
 export interface Badge {
@@ -102,8 +110,15 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		group: "personal",
 		unit: "events",
 		ladder: [1, 5, 10, 20],
+		events: true,
 	},
-	{ id: "technique", group: "personal", unit: "trainings", ladder: [1, 2] },
+	{
+		id: "technique",
+		group: "personal",
+		unit: "trainings",
+		ladder: [1, 2],
+		events: true,
+	},
 	{
 		id: "training_rynke",
 		group: "personal",
@@ -187,6 +202,7 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		unit: "days",
 		ladder: [1, 2, 3, 4, 5, 6, 7, 8],
 		days: true,
+		events: true,
 	},
 	// Part D (2026-10-12, research R32): no unit is ever shown. Part F
 	// (2026-10-14, research R42) adds seven badges from cycling traditions,
@@ -228,12 +244,14 @@ export const BADGE_CATEGORIES: readonly BadgeCategory[] = [
 		unit: "riders",
 		ladder: [5, 10, 15, 20, 30],
 		single: true,
+		events: true,
 	},
 	{
 		id: "attendances",
 		group: "team",
 		unit: "attendances",
 		ladder: [25, 50, 100, 200, 400],
+		events: true,
 	},
 	// Part E (2026-10-12, research R38); part F adds Festive Team (R42).
 	{
@@ -308,6 +326,22 @@ export const badgeOrder = (id: string): number =>
 
 export const categoryById = (id: BadgeCategoryId): BadgeCategory =>
 	BADGE_CATEGORIES.find((c) => c.id === id) as BadgeCategory;
+
+/** The badges a team without events lists: none of an event-only category. */
+const WITHOUT_EVENTS: readonly Badge[] = BADGES.filter(
+	(b) => !categoryById(b.category).events,
+);
+
+/**
+ * The badges a team lists, in catalog order (feature 039 research R9): every
+ * one with events, the very same array; without, none that only recorded
+ * events earn. Evaluation doesn't change: without events none is ever earned.
+ */
+export function badgesFor(
+	team: Pick<TeamData, "eventKinds">,
+): readonly Badge[] {
+	return hasEvents(team) ? BADGES : WITHOUT_EVENTS;
+}
 
 /** The categories that show one decimal (spec Assumptions, research R28). */
 export const ONE_DECIMAL: ReadonlySet<BadgeCategoryId> = new Set([

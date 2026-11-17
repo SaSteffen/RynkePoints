@@ -4,9 +4,9 @@
 // app showed that day (FR-023, SC-003). Nothing is written.
 
 import {
-	BADGES,
 	type BadgeCategoryId,
 	type BadgeId,
+	badgesFor,
 	categoryById,
 } from "../src/badges/catalog";
 import { badgeWindow } from "../src/badges/evaluate";
@@ -219,7 +219,8 @@ export async function loadAlbum(
 			badgeWindow(window, cutoff),
 		).earned.map((b) => [b.badgeId, b.earnedOn]),
 	);
-	const slots = BADGES.map((badge) => ({
+	// What the team lists: no event-only badge without events (feature 039).
+	const slots = badgesFor(teamData).map((badge) => ({
 		badgeId: badge.id,
 		group: badge.group,
 		category: badge.category,
