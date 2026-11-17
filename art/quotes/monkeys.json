@@ -90,10 +90,52 @@
 			"scene": "Standing, holding up a big cream Advent calendar card in one hand with one little door swung open, a gold-wrapped chocolate peeking out of it, a small sage (#B5D6A7) fir wreath with a gold bow hanging from the other wrist. Mouth open mid-sentence. No religious symbols: no candles, no stars of Bethlehem, no angels. {{kit}}"
 		},
 		{
+			"id": "christmas-market",
+			"name": "Weihnachtsmarkt",
+			"seasonal": true,
+			"scene": "Standing, a red (#E32636) knitted bobble hat pulled over the yellow helmet, with a wide cream band around it showing a row of three simple red reindeer heads with small antlers, and a big cream pompom on top; a long red (#E32636) knitted scarf wound around the neck. One hand holds up a small open cream paper cone, its top rolled down, filled to the brim with shiny gold-brown roasted almonds, a few almonds peeking out over the edge; a plain rust (#C8641E) gingerbread heart with a cream icing edge hangs on a short gold ribbon from the same hand. The other hand is open and empty, nothing on the wrists. Mouth open mid-sentence. Nothing in the background: no fairy lights, no stall, no building, no tree, no star, no religious symbols, no other ribbon or bow, nothing written on the cone or the heart, no digits, no letters. {{kit}}"
+		},
+		{
+			"id": "mulled-wine",
+			"name": "Glühwein",
+			"seasonal": true,
+			"scene": "Standing, a long red (#E32636) knitted scarf wound around the neck, holding a big cream mug of steaming red (#E32636) mulled wine in both hands in front of the chest, a rust (#C8641E) orange slice on the rim, a few soft cream curls of steam rising from it. Mouth open mid-sentence. A mug only: no bottle, no glass, no stall, nothing written on the mug, no digits, no letters. {{kit}}"
+		},
+		{
+			"id": "christmas-biscuits",
+			"name": "Plätzchen backen",
+			"seasonal": true,
+			"scene": "Standing, a cream apron with a sage (#B5D6A7) trim tied over the jersey, holding a gold baking tray of cut-out biscuits shaped like hearts, round flowers and bananas in yellow, gold and cream in one hand, a small gold heart-shaped biscuit cutter in the other, a few white dabs of flour on the cheek and the muzzle. Mouth open mid-sentence. No star-shaped biscuits, no angels, no religious symbols, no digits, no letters. {{kit}}"
+		},
+		{
 			"id": "nikolaus",
 			"name": "Nikolaus",
 			"seasonal": true,
 			"scene": "Standing, holding up a big red (#E32636) boot with a cream fur cuff, stuffed full of yellow bananas and gold-wrapped chocolates sticking out of the top. Mouth open mid-sentence. A gift-bringer's boot only: no bishop's hat, no staff, no religious symbols. {{kit}}"
+		},
+		{
+			"id": "advent-wreath-1",
+			"name": "1. Advent",
+			"seasonal": true,
+			"scene": "Walking along calmly, smiling, holding the wreath in front of the body with both hands. The wreath is a round sage (#B5D6A7) fir wreath, held flat like a cake and seen a little from above, so its ring looks like a wide oval with the hole in the middle. Four big cream (#FFFDF5) pillar candles stand upright ON the green ring itself, their bases sunk into the fir branches, evenly spread around the ring: two on the back half and two on the front half, staggered so all four are fully visible and none hides another, the wreath or a hand. Never a candle in the hole, floating above the ring or standing in a straight row. Count them: exactly four candles in total, never three and never five. Exactly one of the four candles burns, the lit one on the right, each with a single big bright yellow (#FBE122) flame with a thick black outline, about half as tall as the candle; the other three are unlit, with a short black wick and no flame. Mouth open mid-sentence. Only the wreath and its candles: no sweat drops, no ribbon, no star, no angel, no other religious symbol, no background, no digits, no letters. {{kit}}"
+		},
+		{
+			"id": "advent-wreath-2",
+			"name": "2. Advent",
+			"seasonal": true,
+			"scene": "Walking with a happy little skip, beaming, holding the wreath in front of the chest with both hands. The wreath is a round sage (#B5D6A7) fir wreath, held flat like a cake and seen a little from above, so its ring looks like a wide oval with the hole in the middle. Four big cream (#FFFDF5) pillar candles stand upright ON the green ring itself, their bases sunk into the fir branches, evenly spread around the ring: two on the back half and two on the front half, staggered so all four are fully visible and none hides another, the wreath or a hand. Never a candle in the hole, floating above the ring or standing in a straight row. Count them: exactly four candles in total, never three and never five. Exactly two of the four candles burn, the lit ones on the right, each with a single big bright yellow (#FBE122) flame with a thick black outline, about half as tall as the candle; the other two are unlit, with a short black wick and no flame. Mouth open mid-sentence. Only the wreath and its candles: no sweat drops, no ribbon, no star, no angel, no other religious symbol, no background, no digits, no letters. {{kit}}"
+		},
+		{
+			"id": "advent-wreath-3",
+			"name": "3. Advent",
+			"seasonal": true,
+			"scene": "Hopping on one foot, the other knee pulled up, grinning widely, holding the wreath up at shoulder height with both hands, a few small round gold dots twinkling around the flames. The wreath is a round sage (#B5D6A7) fir wreath, held flat like a cake and seen a little from above, so its ring looks like a wide oval with the hole in the middle. Four big cream (#FFFDF5) pillar candles stand upright ON the green ring itself, their bases sunk into the fir branches, evenly spread around the ring: two on the back half and two on the front half, staggered so all four are fully visible and none hides another, the wreath or a hand. Never a candle in the hole, floating above the ring or standing in a straight row. Count them: exactly four candles in total, never three and never five. Exactly three of the four candles burn, the lit ones on the right, each with a single big bright yellow (#FBE122) flame with a thick black outline, about half as tall as the candle; the other one is unlit, with a short black wick and no flame. Mouth open mid-sentence. Only the wreath and its candles: no sweat drops, no ribbon, no star, no angel, no other religious symbol, no background, no digits, no letters. {{kit}}"
+		},
+		{
+			"id": "advent-wreath-4",
+			"name": "4. Advent",
+			"seasonal": true,
+			"scene": "Jumping for joy with both feet off the ground and the knees bent, laughing with a wide open mouth, holding the wreath with both hands in front of the tummy, below the chin, so the whole face and helmet stay free above it; the wreath is never raised above the shoulders, never behind or around the head. A few small round gold dots twinkle around the flames. The wreath is a round sage (#B5D6A7) fir wreath, held flat like a cake and seen a little from above, so its ring looks like a wide oval with the hole in the middle. Four big cream (#FFFDF5) pillar candles stand upright ON the green ring itself, their bases sunk into the fir branches, evenly spread around the ring: two on the back half and two on the front half, staggered so all four are fully visible and none hides another, the wreath or a hand. Never a candle in the hole, floating above the ring or standing in a straight row. Count them: exactly four candles in total, never three and never five. Exactly three of the four candles burn, the lit ones on the right, each with a single big bright yellow (#FBE122) flame with a thick black outline, about half as tall as the candle, standing against the plain white background; the leftmost one is unlit, with a short black wick and no flame, and nothing right above it. Mouth open mid-sentence. Only the wreath and its candles: no sweat drops, no ribbon, no star, no angel, no other religious symbol, no background, no digits, no letters. {{kit}}"
 		},
 		{
 			"id": "christmas",
@@ -101,6 +143,12 @@
 			"seasonal": true,
 			"holes": [[1006, 1632]],
 			"scene": "Standing, a red (#E32636) Santa hat with a cream fur brim and a cream pompom pulled over the yellow helmet, holding out a yellow banana wrapped like a present in gold paper with a rust (#C8641E) ribbon and bow. Mouth open mid-sentence. No religious symbols. {{kit}}"
+		},
+		{
+			"id": "between-the-years",
+			"name": "Zwischen den Jahren",
+			"seasonal": true,
+			"scene": "Riding Rynke's own road bike outside through falling snow, sitting upright and pedalling happily, noticeably round and chubby after the holidays: a big round tummy stretching the yellow jersey, round cheeks. A long red (#E32636) knitted scarf flying behind, a little white snow on the helmet and the shoulders, one hand on the handlebar, the other holding up a half-eaten cut-out heart-shaped biscuit. Big round cream (#FFFDF5) snowflakes drawn as simple round dots with a black outline falling around, a few small white snow tufts on the wheels. Mouth open mid-sentence, cheerful, not straining. No road, no ground, no trees, no houses, no star-shaped snowflakes or biscuits, no sweat drops, no digits, no letters. {{bike}}"
 		},
 		{
 			"id": "new-year",

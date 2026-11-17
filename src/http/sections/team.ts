@@ -48,7 +48,7 @@ import { artUrl } from "../art";
 import { peloton, sparkline, weekBars } from "../charts";
 import { amount, coinArt, miniCoin } from "../coin";
 import { FUN_SPARKLES } from "../fun";
-import { type Holiday, holidayOn } from "../holidays";
+import { type Holiday, holidaysOn } from "../holidays";
 import { html, type SafeHtml } from "../html";
 import { QUOTE_MONKEYS, SEASONAL_MONKEYS } from "../quote-monkeys";
 import { renderReconnect } from "../rider-sections";
@@ -311,24 +311,27 @@ export function pickQuote(
 /**
  * The picture of Rynke who says the quote: one of the quote monkeys
  * (`pnpm badge-build`), the same one for the same quote, or the rider-state
- * illustration while there are none yet. On a team holiday whose seasonal
- * monkey is built (feature 035 contracts/quote-art.md) it is that monkey: on
- * every quote of a short window, on the quotes whose id has bit 16 set in a
- * long one, so a quote keeps its picture all window long.
+ * illustration while there are none yet. On the day's team holidays (feature
+ * 035, feature 038 contracts/quote-art.md) it is one of their built seasonal
+ * monkeys, picked by the quote id: on every quote if a window is short, on the
+ * quotes whose id has bit 16 set if all are long, so a quote keeps its picture
+ * all window long.
  */
 export function quoteArt(
 	{ list, id }: Pick<QuotePick, "list" | "id">,
 	monkeys: readonly string[] = QUOTE_MONKEYS,
-	holiday: Holiday | null = null,
+	holidays: readonly Holiday[] = [],
 	seasonal: readonly string[] = SEASONAL_MONKEYS,
 ): string {
 	const n = Number.parseInt(id, 16);
+	const set = [...new Set(holidays.flatMap((h) => h.monkeys))].filter((m) =>
+		seasonal.includes(m),
+	);
 	if (
-		holiday &&
-		seasonal.includes(holiday.monkey) &&
-		(holiday.kind === "short" || ((n >>> 16) & 1) === 1)
+		set.length > 0 &&
+		(holidays.some((h) => h.kind === "short") || ((n >>> 16) & 1) === 1)
 	)
-		return `/quotes/${holiday.monkey}.svg`;
+		return `/quotes/${set[Math.floor(n / 2 ** 17) % set.length]}.svg`;
 	const monkey = monkeys[n % monkeys.length];
 	if (monkey) return `/quotes/${monkey}.svg`;
 	return `/illustrations/${list === "push" ? "status_push_fun" : "status_on_track_fun"}.svg`;
@@ -339,10 +342,10 @@ export function quoteArt(
  * mock-up "RynkePoints Quote Monkey", option B), without a heading, in the
  * phrase's own language (feature 026 FR-025). The picture is decorative.
  */
-function renderQuote(quote: QuotePick, holiday: Holiday | null): SafeHtml {
+function renderQuote(quote: QuotePick, holidays: readonly Holiday[]): SafeHtml {
 	const { list, text, locale } = quote;
 	return html`<div class="quote-monkey">
-<img class="quote-monkey-art" src="${artUrl(quoteArt(quote, QUOTE_MONKEYS, holiday))}" alt="" width="120" height="120">
+<img class="quote-monkey-art" src="${artUrl(quoteArt(quote, QUOTE_MONKEYS, holidays))}" alt="" width="120" height="120">
 <blockquote class="quote ${list === "push" ? "quote-push" : "quote-on-track"}" lang="${locale}">
 <p>${text}</p>
 </blockquote>
@@ -759,7 +762,7 @@ export function handleTeam(
 				);
 			}
 			// The quote's monkey stands on the team total, above everything else.
-			const head = html`${renderReconnect(i18n, rider)}${quote ? renderQuote(quote, holidayOn(today, ctx.team.holidays)) : null}${renderTeamTotal(i18n, kind, totals, ctx.team)}${renderKindSwitch(i18n, view)}`;
+			const head = html`${renderReconnect(i18n, rider)}${quote ? renderQuote(quote, holidaysOn(today, ctx.team.holidays)) : null}${renderTeamTotal(i18n, kind, totals, ctx.team)}${renderKindSwitch(i18n, view)}`;
 			// Team Rynke have no place card and no peloton and put the
 			// leaderboard first (feature 019 FR-045, FR-046); Training keeps
 			// feature 016's page.
