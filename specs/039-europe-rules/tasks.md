@@ -402,7 +402,7 @@ unchanged.
   `test/unit/tally.test.ts`, `test/unit/fixable-reasons.test.ts`, `test/unit/team-predicates.test.ts`,
   `test/unit/badges-for.test.ts`, `test/integration/one-team.test.ts`,
   `test/integration/fake-strava.test.ts`); the full suites run in CI
-- [ ] T069 Open one pull request into `develop` (title a Conventional Commit within 100 characters,
+- [X] T069 Open one pull request into `develop` (title a Conventional Commit within 100 characters,
   `Refs` the Team Europe issue, never `Closes`) only when the user asks; after the release the user
   runs **Sandbox reseed** for Europe (research R13)
 
