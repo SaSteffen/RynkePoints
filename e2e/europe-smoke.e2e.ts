@@ -77,8 +77,18 @@ test("no events and no Team Rynke", async ({ page }) => {
 	await page.goto("/me");
 	await expect(page.locator('a[href="/events"]')).toHaveCount(0);
 	await expect(page.locator("#tour-team")).toHaveCount(0);
-	await expect(page.locator("#tour-outdoor")).toHaveCount(1);
 	await page.goto("/team");
 	await expect(page.locator("nav.kind-switch")).toHaveCount(0);
 	expect((await page.goto("/events"))?.status()).toBe(404);
+});
+
+// Europe needs 84 Training Rynke from outside virtual rides (feature 039
+// US6); Védís has 70 outdoors and the rest virtual.
+test("84 Training Rynke from outside virtual rides", async ({ page }) => {
+	await signIn(page, "V\u{e9}d\u{ed}s Virtual");
+	await skipTours(page);
+	await page.goto("/me");
+	await expect(page.locator("#tour-outdoor")).toContainText(
+		"Training Rynke outdoors: 70 of 84",
+	);
 });

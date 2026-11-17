@@ -457,6 +457,9 @@ changes only in the tour's outdoor step; Europe needs 84; a rule set with 0 show
 - [X] T083 [US6] `test/unit/catalogs.test.ts`: the inventory lists this feature's new keys
 - [X] T084 [US6] Run `node scripts/team-check.mjs`, `pnpm typecheck`, `test/teams` and the touched
   app tests; Hamburg's season snapshot passes without `-u`
+- [X] T085 [US6] `e2e/europe-smoke.e2e.ts`: the no-events test stops expecting an outdoor gauge from
+  `Tuuli TrainingDone`, who has no virtual ride (CI failed on it); a new test finds `Védís
+  Virtual`'s "Training Rynke outdoors: 70 of 84"
 
 ---
 
