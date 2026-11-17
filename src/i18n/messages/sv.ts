@@ -139,6 +139,7 @@ export const sv: Catalog = {
 	"rynke.rules.heading": "Regler",
 	"rynke.rules.version": "Regelversion {version}, gäller sedan {date}.",
 	"rynke.rules.windowDeadline": "Allt från {start} till {deadline} räknas.",
+	"rynke.rules.minRide": "Turer på {limit} eller mer räknas.",
 	"rynke.rules.handout": "Reglerna som PDF (på tyska)",
 	"rynke.rules.handoutEnglish": "Reglerna som PDF (på engelska)",
 	"rynke.ride.counts": "räknas 🪙",
@@ -169,6 +170,8 @@ export const sv: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"Ingen rörelsetid: turen räknas som paus hela vägen.",
 	"rynke.reason.manual": "Inlagd manuellt på Strava.",
+	"rynke.reason.too_short": "För kort: {distance}, minst {limit} krävs.",
+	"rynke.reason.too_short.noLimit": "För kort: {distance}.",
 	"rynke.reason.too_slow": "För långsam: {speed} i snitt, minst {limit} krävs.",
 	"rynke.reason.too_slow.noLimit": "För långsam: {speed} i snitt.",
 	"rynke.reason.too_fast":

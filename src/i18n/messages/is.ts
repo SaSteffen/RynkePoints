@@ -141,6 +141,7 @@ export const is: Catalog = {
 	"rynke.rules.heading": "Reglur",
 	"rynke.rules.version": "Reglur, útgáfa {version}, í gildi frá {date}.",
 	"rynke.rules.windowDeadline": "Allt frá {start} til {deadline} telst.",
+	"rynke.rules.minRide": "Ferðir sem eru {limit} eða lengri teljast.",
 	"rynke.rules.handout": "Reglurnar sem PDF (á þýsku)",
 	"rynke.rules.handoutEnglish": "Reglurnar sem PDF (á ensku)",
 	"rynke.ride.counts": "telst 🪙",
@@ -172,6 +173,8 @@ export const is: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"Enginn hreyfitími: ferðin telst hlé alla leið.",
 	"rynke.reason.manual": "Skráð handvirkt á Strava.",
+	"rynke.reason.too_short": "Of stutt: {distance}, minnst {limit} þarf.",
+	"rynke.reason.too_short.noLimit": "Of stutt: {distance}.",
 	"rynke.reason.too_slow":
 		"Of hægt: {speed} að meðaltali, minnst {limit} þarf.",
 	"rynke.reason.too_slow.noLimit": "Of hægt: {speed} að meðaltali.",

@@ -14,6 +14,8 @@ const NOT_FIXABLE: readonly ReasonCode[] = [
 	"excluded_sport_type",
 	"flagged",
 	"manual",
+	// A crop only shortens a ride (feature 039 research R5).
+	"too_short",
 ];
 
 describe("FIXABLE_REASONS", () => {

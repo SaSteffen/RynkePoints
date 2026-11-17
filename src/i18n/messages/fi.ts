@@ -139,6 +139,7 @@ export const fi: Catalog = {
 	"rynke.rules.heading": "Säännöt",
 	"rynke.rules.version": "Sääntöversio {version}, voimassa {date} alkaen.",
 	"rynke.rules.windowDeadline": "Kaikki {start}–{deadline} lasketaan.",
+	"rynke.rules.minRide": "Lasketaan lenkit, jotka ovat vähintään {limit}.",
 	"rynke.rules.handout": "Säännöt PDF:nä (saksaksi)",
 	"rynke.rules.handoutEnglish": "Säännöt PDF:nä (englanniksi)",
 	"rynke.ride.counts": "lasketaan 🪙",
@@ -169,6 +170,9 @@ export const fi: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"Ei liikkumisaikaa: ajo lasketaan kokonaan tauoksi.",
 	"rynke.reason.manual": "Syötetty käsin Stravaan.",
+	"rynke.reason.too_short":
+		"Liian lyhyt: {distance}, vähintään {limit} tarvitaan.",
+	"rynke.reason.too_short.noLimit": "Liian lyhyt: {distance}.",
 	"rynke.reason.too_slow":
 		"Liian hidas: keskimäärin {speed}, vähintään {limit} tarvitaan.",
 	"rynke.reason.too_slow.noLimit": "Liian hidas: keskimäärin {speed}.",

@@ -33,6 +33,12 @@ export interface RynkeRules {
 	minSpeedKmh: number;
 	maxSpeedKmh: number;
 	maxClimbMPerH: number;
+	/**
+	 * The shortest ride that counts, in whole kilometres (feature 039 research
+	 * R1). Absent means no minimum: a team without one leaves it out, never
+	 * writes 0, so its rule objects and fingerprints stay as they were.
+	 */
+	minRideKm?: number;
 	excludedSportTypes: readonly string[];
 	trainingThreshold: number;
 	teamThreshold: number;
@@ -155,6 +161,12 @@ export function assertValidRules(rules: RynkeRules): void {
 		if (!Number.isInteger(value) || value <= 0) {
 			throw new Error(`rules.${field} must be a positive integer`);
 		}
+	}
+	if (
+		rules.minRideKm !== undefined &&
+		(!Number.isInteger(rules.minRideKm) || rules.minRideKm <= 0)
+	) {
+		throw new Error("rules.minRideKm must be a positive integer when set");
 	}
 	if (rules.minSpeedKmh >= rules.maxSpeedKmh) {
 		throw new Error("rules.minSpeedKmh must be below rules.maxSpeedKmh");

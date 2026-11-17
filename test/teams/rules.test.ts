@@ -2,8 +2,14 @@ import { env } from "cloudflare:test";
 import { beforeEach, describe, expect, it } from "vitest";
 import { upsertActivity } from "../../src/db/activities";
 import { evaluateChange } from "../../src/rynke/apply";
-import { currentRules, type RynkeRules } from "../../src/rynke/rules";
+import {
+	currentRules,
+	type RynkeRules,
+	rulesFingerprint,
+} from "../../src/rynke/rules";
 import { teamFor } from "../../src/teams";
+import { europe } from "../../src/teams/europe";
+import { hamburg } from "../../src/teams/hamburg";
 import type { TeamData } from "../../src/teams/types";
 import { makeCtx, resetDb, seedRider } from "../support/ctx";
 import { ATHLETE_A } from "../support/fixtures";
@@ -84,5 +90,45 @@ describe(`${team.id}'s own rules (US3)`, () => {
 
 		expect(await scoredAs(team)).toEqual(before);
 		expect(currentRules(team.rules).distanceStepKm).toBe(step);
+	});
+});
+
+// Team Europe's own rules beside Hamburg's (feature 039 research R1, R4):
+// Hamburg's history stays versions 1–3 without a minimum; Europe's shares
+// those three objects and adds its own version 4.
+describe("Hamburg's and Europe's rule histories side by side", () => {
+	it("keeps Hamburg on version 3 without a minimum ride length", () => {
+		const inEffect = currentRules(hamburg.rules);
+		expect(inEffect.version).toBe(3);
+		for (const rules of hamburg.rules) {
+			expect("minRideKm" in rules).toBe(false);
+		}
+	});
+
+	it("gives Europe Hamburg's three versions, then its own version 4", () => {
+		expect(europe.rules.map((rules) => rules.version)).toEqual([1, 2, 3, 4]);
+		for (const [i, rules] of hamburg.rules.entries()) {
+			expect(europe.rules[i]).toBe(rules);
+		}
+		expect(currentRules(europe.rules).minRideKm).toBe(25);
+	});
+
+	it("pins Europe's version 4 values to its version", () => {
+		const inEffect = currentRules(europe.rules);
+		const fingerprint =
+			'{"distanceStepKm":10,"distanceStepRynke":1,"elevationStepM":1000,' +
+			'"elevationStepRynke":5,"excludedSportTypes":["EBikeRide","EMountainBikeRide"],' +
+			'"maxClimbMPerH":1500,"maxPausedShare":{"den":1,"num":1},"maxSpeedKmh":45,' +
+			'"maxVirtualShare":{"den":3,"num":1},"minRideKm":25,"minSpeedKmh":10,' +
+			'"teamEvents":{' +
+			'"team_training":{"team":1,"training":5},' +
+			'"technique_training":{"team":5,"training":5},' +
+			'"training_weekend_day":{"team":5,"training":10}},' +
+			'"teamThreshold":25,"trainingThreshold":250}';
+		expect(inEffect.version).toBe(4);
+		expect(
+			rulesFingerprint(inEffect),
+			"a rule value changed: raise Europe's version and effectiveDate, then update this fingerprint",
+		).toBe(fingerprint);
 	});
 });

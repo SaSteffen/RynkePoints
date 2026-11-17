@@ -139,6 +139,7 @@ export const nb: Catalog = {
 	"rynke.rules.heading": "Regler",
 	"rynke.rules.version": "Regelversjon {version}, gjeldende fra {date}.",
 	"rynke.rules.windowDeadline": "Alt fra {start} til {deadline} teller.",
+	"rynke.rules.minRide": "Turer på {limit} eller mer teller.",
 	"rynke.rules.handout": "Reglene som PDF (på tysk)",
 	"rynke.rules.handoutEnglish": "Reglene som PDF (på engelsk)",
 	"rynke.ride.counts": "teller 🪙",
@@ -170,6 +171,8 @@ export const nb: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"Ingen bevegelsestid: turen teller som pause hele veien.",
 	"rynke.reason.manual": "Lagt inn manuelt på Strava.",
+	"rynke.reason.too_short": "For kort: {distance}, minst {limit} kreves.",
+	"rynke.reason.too_short.noLimit": "For kort: {distance}.",
 	"rynke.reason.too_slow": "For sakte: {speed} i snitt, minst {limit} kreves.",
 	"rynke.reason.too_slow.noLimit": "For sakte: {speed} i snitt.",
 	"rynke.reason.too_fast":

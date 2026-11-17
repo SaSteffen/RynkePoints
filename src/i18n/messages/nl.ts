@@ -139,6 +139,7 @@ export const nl: Catalog = {
 	"rynke.rules.heading": "Regels",
 	"rynke.rules.version": "Regelversie {version}, geldig sinds {date}.",
 	"rynke.rules.windowDeadline": "Alles van {start} tot {deadline} telt mee.",
+	"rynke.rules.minRide": "Ritten van {limit} of meer tellen mee.",
 	"rynke.rules.handout": "De regels als pdf (in het Duits)",
 	"rynke.rules.handoutEnglish": "De regels als pdf (in het Engels)",
 	"rynke.ride.counts": "telt 🪙",
@@ -170,6 +171,8 @@ export const nl: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"Geen bewegingstijd: de rit geldt als volledig gepauzeerd.",
 	"rynke.reason.manual": "Handmatig ingevoerd op Strava.",
+	"rynke.reason.too_short": "Te kort: {distance}, minstens {limit} nodig.",
+	"rynke.reason.too_short.noLimit": "Te kort: {distance}.",
 	"rynke.reason.too_slow":
 		"Te langzaam: gemiddeld {speed}, minstens {limit} nodig.",
 	"rynke.reason.too_slow.noLimit": "Te langzaam: gemiddeld {speed}.",

@@ -146,6 +146,7 @@ export const de = {
 		"Regel-Version\u00a0{version}, gültig seit dem {date}.",
 	"rynke.rules.windowDeadline":
 		"Es zählt alles vom {start} bis zum {deadline}.",
+	"rynke.rules.minRide": "Es zählen Fahrten ab {limit}.",
 	"rynke.rules.handout": "Die Regeln als PDF",
 	"rynke.rules.handoutEnglish": "Die Regeln als PDF (auf Englisch)",
 	"rynke.ride.counts": "zählt 🪙",
@@ -177,6 +178,9 @@ export const de = {
 	"rynke.reason.pause.noMovingTime":
 		"Keine Bewegungszeit: Die Fahrt gilt als ganz pausiert.",
 	"rynke.reason.manual": "Manuell auf Strava eingetragen.",
+	"rynke.reason.too_short":
+		"Zu kurz: {distance}, mindestens {limit} sind nötig.",
+	"rynke.reason.too_short.noLimit": "Zu kurz: {distance}.",
 	"rynke.reason.too_slow":
 		"Zu langsam: {speed} im Schnitt, mindestens {limit} sind nötig.",
 	"rynke.reason.too_slow.noLimit": "Zu langsam: {speed} im Schnitt.",

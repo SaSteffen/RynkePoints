@@ -34,3 +34,26 @@ describe.each(TEAMS)("rules handout of $id", (team) => {
 		);
 	});
 });
+
+// The handouts' Markdown, the source of the PDFs (feature 039 research R12):
+// Europe's states its minimum ride length, Hamburg's has none.
+const HANDOUTS = import.meta.glob("../../docs/**/rynke-p*.md", {
+	query: "?raw",
+	import: "default",
+	eager: true,
+});
+
+describe("minimum ride length in the handouts (feature 039)", () => {
+	it("Europe's states the 25 km minimum with its examples", () => {
+		const text = HANDOUTS["../../docs/teams/europe/rynke-points.md"];
+		expect(text).toContain("at least **25 km**");
+		expect(text).toMatch(/24\.9 km +\| +0 \|/);
+		expect(text).toMatch(/\| 25 km +\| +2 \|/);
+	});
+
+	it("Hamburg's names no minimum ride length", () => {
+		const text = HANDOUTS["../../docs/rynke-punkte.md"];
+		expect(text).toBeDefined();
+		expect(text).not.toMatch(/mindestens \*\*\d+ km\*\*|Mindestlänge/);
+	});
+});

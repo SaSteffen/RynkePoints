@@ -10,8 +10,9 @@ lang: en
 Maintainers: this handout is informational only. The specification
 specs/003-rynke-evaluation/spec.md is authoritative; if the two differ, fix this
 file (FR-019). For now it is an English translation of Hamburg's
-docs/rynke-punkte.md with this team's name (spec 026 task T082): keep the two in
-step until this team's own values differ. Render it with `pnpm docs:pdf` and
+docs/rynke-punkte.md with this team's name (spec 026 task T082), and this team's
+own rules since feature 039: the 25 km minimum ride length. Keep the rest in
+step with Hamburg's. Render it with `pnpm docs:pdf` and
 commit public/teams/europe/rynke-points.pdf: the app links riders to that PDF.
 -->
 
@@ -101,7 +102,7 @@ counting with your next rides.
 |---------------------------------|---------------:|------------------------------------|
 | 79 km                           |              7 | the last 9 km are lost             |
 | 100 km                          |             10 |                                    |
-| 3 rides of 7 km each            |              0 | each ride under 10 km              |
+| 3 rides of 7 km each            |              0 | each ride under 25 km              |
 | 2 rides of 25 km each           |              4 | 2 + 2, not 50 km = 5               |
 | 1999 m of elevation in one ride |              5 | 1 full 1000, 999 m stay            |
 | 2 rides of 600 m elevation each |              5 | 1200 m together, 200 m stay        |
@@ -150,6 +151,9 @@ These recordings bring no Rynke, neither for kilometres nor for elevation:
   count for club leaderboards or segment records either), it never counts with
   us, whatever the reason. If you think the flag is wrong, settle it with
   Strava; once it is lifted, the ride is counted by the other rules.
+- **Rides shorter than 25 km.** A ride has to be at least **25 km** long to
+  count. A ride of 24.9 km brings nothing, not even for its elevation; one of
+  25 km counts like any other.
 - **Manually entered activities.** What you enter on Strava by hand instead of
   recording it doesn't count. That's also true if your bike computer failed; in
   that case, talk to the organisers (see "Corrections").
@@ -166,10 +170,12 @@ These recordings bring no Rynke, neither for kilometres nor for elevation:
 
 | Recording                                             | Training Rynke | Why                           |
 |-------------------------------------------------------|---------------:|-------------------------------|
+| 24.9 km                                               |              0 | under 25 km                   |
+| 25 km                                                 |              2 | at least 25 km                |
 | 80 km on a bike computer, 78 km on a phone, same time |              8 | only the longer one counts    |
 | 300 km in 4 h moving time (train)                     |              0 | average 75 km/h               |
-| 15 km in 2 h moving time (walk)                       |              0 | average 7.5 km/h              |
-| 20 km in 2 h moving time                              |              2 | average of exactly 10 km/h counts |
+| 25 km in 3 h moving time (walk)                       |              0 | average 8.3 km/h              |
+| 30 km in 3 h moving time                              |              3 | average of exactly 10 km/h counts |
 | 30 km and 2000 m elevation in 1 h moving time (cable car) |          0 | 2000 m of elevation per hour  |
 | 200 km entered by hand                                |              0 | entered manually              |
 | 100 km on an e-bike                                   |              0 | e-bike                        |

@@ -52,6 +52,28 @@ export interface RulesInfo {
 	seasonStart: string;
 	/** `YYYY-MM-DD`, `QUALIFICATION_DEADLINE`. */
 	deadline: string;
+	/** The version's minimum ride length; absent without one (feature 039). */
+	minRideKm?: number;
+}
+
+/**
+ * The rules section's figures for a stored version; `rules` are that
+ * version's, `null` when unknown.
+ */
+export function rulesInfo(
+	version: number,
+	effectiveDate: string,
+	rules: RynkeRules | null,
+	window: CountingWindow,
+): RulesInfo {
+	const info: RulesInfo = {
+		version,
+		effectiveDate,
+		seasonStart: window.seasonStart,
+		deadline: window.deadline,
+	};
+	if (rules?.minRideKm !== undefined) info.minRideKm = rules.minRideKm;
+	return info;
 }
 
 /** Other rules are in effect, so the numbers are being updated (research R4). */
@@ -205,6 +227,8 @@ export type ReasonLine =
 			kmhTenths: number;
 			limitKmh: number | null;
 	  }
+	/** Distance in tenths of a km, rounded down; the limit in whole km. */
+	| { code: "too_short"; distanceKmTenths: number; limitKm: number | null }
 	| { code: "climbing_rate"; mPerH: number; limitMPerH: number | null }
 	| { code: "excluded_sport_type"; sportType: CyclingSportType }
 	/** `SEASON_START_DATE`. */
@@ -258,12 +282,12 @@ export function buildRiderView(
 		summary: summary(balance, read.virtualCount, rules),
 		gauges: rules && gauges(balance, read.virtualCount, rules),
 		breakdown: breakdown(balance, rules, read.attendance, context),
-		rules: {
-			version: balance.rulesVersion,
-			effectiveDate: balance.rulesEffectiveDate,
-			seasonStart: context.seasonStart,
-			deadline: context.deadline,
-		},
+		rules: rulesInfo(
+			balance.rulesVersion,
+			balance.rulesEffectiveDate,
+			rules,
+			context,
+		),
 		rides: rideTable(read, context),
 	};
 }
@@ -520,6 +544,13 @@ function reasonLines(
 							: ride.elapsedS - ride.movingS,
 					movingS: ride.movingS,
 					share: rules?.maxPausedShare ?? null,
+				};
+			case "too_short":
+				return {
+					code,
+					// 24.96 km is 24.9 km, never 25.0 km beside "at least 25 km".
+					distanceKmTenths: Math.floor(ride.distanceM / 100),
+					limitKm: rules?.minRideKm ?? null,
 				};
 			case "too_slow":
 				return {

@@ -4,11 +4,16 @@ import type { Consent } from "../../db/consents";
 import { type BalanceRow, readBalanceStatement } from "../../db/rynke";
 import type { I18n } from "../../i18n/i18n";
 import { vapidPublicKey } from "../../push/vapid";
-import { countingWindow, currentRules } from "../../rynke/rules";
+import {
+	countingWindow,
+	currentRules,
+	rulesForVersion,
+} from "../../rynke/rules";
 import { consentSummary } from "../consent-form";
 import { html, languageForm, type SafeHtml } from "../html";
 import { renderInstallHint, renderNotifications } from "../pwa";
 import { renderRules } from "../rider-sections";
+import { rulesInfo } from "../rider-view";
 import { acceptedOn, shellPage, tourSwitches } from "../shell";
 import { stepHref } from "../tour";
 
@@ -54,13 +59,14 @@ export function handleSettings(
 				ctx.env.DB,
 				rider.athleteId,
 			).first<BalanceRow>();
-			const rules = {
-				version: balance?.rules_version ?? currentRules(ctx.team.rules).version,
-				effectiveDate:
-					balance?.rules_effective_date ??
-					currentRules(ctx.team.rules).effectiveDate,
-				...countingWindow(ctx.env),
-			};
+			const inEffect = currentRules(ctx.team.rules);
+			const version = balance?.rules_version ?? inEffect.version;
+			const rules = rulesInfo(
+				version,
+				balance?.rules_effective_date ?? inEffect.effectiveDate,
+				rulesForVersion(ctx.team.rules, version),
+				countingWindow(ctx.env),
+			);
 			const switches = tourSwitches(ctx);
 			const status =
 				rider.status === "connected"

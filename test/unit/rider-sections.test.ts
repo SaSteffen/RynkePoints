@@ -71,6 +71,65 @@ describe("renderRides reasons", () => {
 	});
 });
 
+describe("renderRides too short (feature 039)", () => {
+	it("gives the distance with one decimal and the limit without", () => {
+		expect(
+			rendered({ code: "too_short", distanceKmTenths: 249, limitKm: 25 }),
+		).toContain("Too short: 24.9 km, at least 25 km needed.");
+	});
+
+	it("gives only the distance when the limit is unknown", () => {
+		expect(
+			rendered({ code: "too_short", distanceKmTenths: 249, limitKm: null }),
+		).toContain("Too short: 24.9 km.");
+	});
+
+	it("speaks German", () => {
+		expect(
+			table(
+				line({
+					reasons: [{ code: "too_short", distanceKmTenths: 249, limitKm: 25 }],
+				}),
+				de,
+			),
+		).toContain("Zu kurz: 24,9 km, mindestens 25 km sind nötig.");
+	});
+});
+
+describe("renderRules minimum ride length (feature 039)", () => {
+	const rules = {
+		version: 4,
+		effectiveDate: "2026-11-17",
+		seasonStart: "2026-01-01",
+		deadline: "2027-03-31",
+	};
+
+	it("names the minimum when the rules have one", () => {
+		expect(
+			renderRules(
+				en,
+				{ ...rules, minRideKm: 25 },
+				europe.rulesHandout,
+			).toString(),
+		).toContain("<p>Rides of 25 km or more count.</p>");
+		expect(
+			renderRules(
+				de,
+				{ ...rules, minRideKm: 25 },
+				europe.rulesHandout,
+			).toString(),
+		).toContain("<p>Es zählen Fahrten ab 25 km.</p>");
+	});
+
+	it("says nothing about a minimum when the rules have none", () => {
+		for (const i18n of [en, de]) {
+			const html = renderRules(i18n, rules, hamburg.rulesHandout).toString();
+			expect(html).not.toContain("25 km");
+			expect(html.match(/<p>/g)).toHaveLength(3);
+		}
+	});
+});
+
 describe("renderRules window", () => {
 	const rules = {
 		version: 2,

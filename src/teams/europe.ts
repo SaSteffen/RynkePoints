@@ -1,5 +1,36 @@
+import type { RynkeRules } from "../rynke/rules";
 import { hamburg } from "./hamburg";
 import type { TeamData } from "./types";
+
+// Europe's own Rynke rules (feature 039, decided with Team Europe on
+// 2026-11-17): the founding team's version 3 values, written out, plus a
+// minimum ride length of 25 km. Raise `version` and set `effectiveDate` in the
+// same change as any change of a value or of rule logic, and keep the previous
+// object in `rules`: every stored result records its version, the daily cron
+// re-evaluates riders stored with another one, and the rider page explains a
+// stored result with the rules of its version.
+const EUROPE_RULES_V4: RynkeRules = {
+	version: 4,
+	effectiveDate: "2026-11-17",
+	distanceStepKm: 10,
+	distanceStepRynke: 1,
+	elevationStepM: 1000,
+	elevationStepRynke: 5,
+	maxPausedShare: { num: 1, den: 1 },
+	minSpeedKmh: 10,
+	maxSpeedKmh: 45,
+	maxClimbMPerH: 1500,
+	minRideKm: 25,
+	excludedSportTypes: ["EBikeRide", "EMountainBikeRide"],
+	trainingThreshold: 250,
+	teamThreshold: 25,
+	maxVirtualShare: { num: 1, den: 3 },
+	teamEvents: {
+		team_training: { team: 1, training: 5 },
+		training_weekend_day: { team: 5, training: 10 },
+		technique_training: { team: 5, training: 5 },
+	},
+};
 
 // Team Rynkeby Europe (feature 026). English by default, the common phrases and
 // badge names, its own coin. Everything it hasn't supplied yet is copied from
@@ -12,9 +43,11 @@ export const europe: TeamData = {
 	shortName: hamburg.shortName,
 	defaultLocale: "en",
 	foreignLocale: "en",
-	// The founding team's rules and event kinds, decided (spec 026
-	// clarification 2026-11-09).
-	rules: hamburg.rules,
+	// The founding team's versions 1–3, which Europe ran on since feature 026,
+	// then its own (feature 039 research R4).
+	rules: [...hamburg.rules.slice(0, 3), EUROPE_RULES_V4],
+	// The founding team's event kinds, decided (spec 026 clarification
+	// 2026-11-09).
 	eventKinds: hamburg.eventKinds,
 	colours: hamburg.colours,
 	art: {

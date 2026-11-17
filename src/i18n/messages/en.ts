@@ -138,6 +138,7 @@ export const en: Catalog = {
 	"rynke.rules.heading": "Rules",
 	"rynke.rules.version": "Rules version {version}, in effect since {date}.",
 	"rynke.rules.windowDeadline": "Everything from {start} to {deadline} counts.",
+	"rynke.rules.minRide": "Rides of {limit} or more count.",
 	"rynke.rules.handout": "The rules as PDF (in German)",
 	"rynke.rules.handoutEnglish": "The rules as PDF",
 	"rynke.ride.counts": "counts 🪙",
@@ -169,6 +170,8 @@ export const en: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"No moving time: the ride counts as paused throughout.",
 	"rynke.reason.manual": "Entered manually on Strava.",
+	"rynke.reason.too_short": "Too short: {distance}, at least {limit} needed.",
+	"rynke.reason.too_short.noLimit": "Too short: {distance}.",
 	"rynke.reason.too_slow":
 		"Too slow: {speed} on average, at least {limit} needed.",
 	"rynke.reason.too_slow.noLimit": "Too slow: {speed} on average.",

@@ -59,3 +59,13 @@ test("the placeholder badge picture", async ({ page }) => {
 		await expect(page.locator(`img[src^="/badges/${id}.svg"]`)).toHaveCount(0);
 	}
 });
+
+// Europe's 25 km minimum ride length (feature 039 US3).
+test("a ride under 25 km doesn't count", async ({ page }) => {
+	await signIn(page, "Siiri ShortRide");
+	await skipTours(page);
+	await page.goto("/me/rides");
+	await expect(page.locator("#rides")).toContainText(
+		"Too short: 24.9 km, at least 25 km needed.",
+	);
+});

@@ -789,6 +789,37 @@ describe("buildRiderView ride reasons", () => {
 	});
 });
 
+describe("buildRiderView too short (feature 039 research R5)", () => {
+	const MIN_25: RynkeRules = { ...CURRENT_RULES, minRideKm: 25 };
+
+	it("rounds the distance down and takes the limit of the result's rules", () => {
+		expect(
+			lineOf(
+				["too_short"],
+				{ distanceM: 24960, movingS: 3600 },
+				{ context: { rulesFor: () => MIN_25 } },
+			).reasons,
+		).toEqual([{ code: "too_short", distanceKmTenths: 249, limitKm: 25 }]);
+	});
+
+	it("has no limit when the result's rules are unknown", () => {
+		expect(
+			lineOf(
+				["too_short"],
+				{ distanceM: 24960, movingS: 3600 },
+				{ result: { rulesVersion: 99 } },
+			).reasons,
+		).toEqual([{ code: "too_short", distanceKmTenths: 249, limitKm: null }]);
+	});
+
+	it("offers no fix hint", () => {
+		expect(
+			lineOf(["too_short"], {}, { context: { rulesFor: () => MIN_25 } })
+				.fixHint,
+		).toBe(false);
+	});
+});
+
 function breakdownOf(
 	b: Partial<StoredBalance>,
 	rules: RynkeRules | null = CURRENT_RULES,

@@ -367,6 +367,20 @@ export const SAMPLE_RIDERS: readonly SampleRider[] = [
 		rides: rides(5, (i) => ride(...slot(i), 40 + 5 * i, 260, 25)),
 	},
 	...ordinaryRiders(ORDINARY_NAMES, 991_020, "Kalle"),
+	{
+		athleteId: 991045,
+		firstName: "Siiri ShortRide",
+		state:
+			"Rides of 24.9, 25.0 and 60 km: the 24.9 km ride is too short, the others count (feature 039)",
+		scopes: ALL_SCOPES,
+		clubMember: true,
+		behaviour: "normal",
+		rides: [
+			ride(...slot(0), 24.9, 80, 24),
+			ride(...slot(1), 25, 80, 24),
+			ride(...slot(2), 60, 300, 25),
+		],
+	},
 ];
 
 /** Records the team events below (feature 014 FR-040). */

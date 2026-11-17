@@ -142,6 +142,7 @@ export const lt: Catalog = {
 	"rynke.rules.version": "Taisyklių versija {version}, galioja nuo {date}.",
 	"rynke.rules.windowDeadline":
 		"Skaičiuojama viskas nuo {start} iki {deadline}.",
+	"rynke.rules.minRide": "Skaičiuojami {limit} ir ilgesni važiavimai.",
 	"rynke.rules.handout": "Taisyklės PDF formatu (vokiečių kalba)",
 	"rynke.rules.handoutEnglish": "Taisyklės PDF formatu (anglų kalba)",
 	"rynke.ride.counts": "skaičiuojama 🪙",
@@ -173,6 +174,8 @@ export const lt: Catalog = {
 	"rynke.reason.pause.noMovingTime":
 		"Nėra judėjimo laiko: visas važiavimas laikomas pertrauka.",
 	"rynke.reason.manual": "Įvesta ranka Strava.",
+	"rynke.reason.too_short": "Per trumpas: {distance}, reikia bent {limit}.",
+	"rynke.reason.too_short.noLimit": "Per trumpas: {distance}.",
 	"rynke.reason.too_slow":
 		"Per lėtai: vidutiniškai {speed}, reikia bent {limit}.",
 	"rynke.reason.too_slow.noLimit": "Per lėtai: vidutiniškai {speed}.",

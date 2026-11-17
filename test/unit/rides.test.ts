@@ -397,6 +397,61 @@ describe("plausibility, manual, sport type and flagged (FR-005b, c, e, g)", () =
 	});
 });
 
+describe("minimum ride length (feature 039 research R5)", () => {
+	const MIN_25: RynkeRules = { ...CURRENT_RULES, version: 99, minRideKm: 25 };
+
+	it("a ride of 24,999.9 m is too short, one of 25,000.0 m counts", () => {
+		const { results, riding } = evaluate(
+			[
+				makeRide({ id: 1, km: 24.9999, movingH: 1, start: day(1) }),
+				makeRide({ id: 2, km: 25, movingH: 1, start: day(2) }),
+			],
+			MIN_25,
+		);
+		expect(resultFor(results, 1)).toMatchObject({
+			counts: false,
+			reasons: ["too_short"],
+			distanceRynke: 0,
+			elevationDm: 0,
+		});
+		expect(resultFor(results, 2)).toMatchObject({ counts: true, reasons: [] });
+		expect(riding.distanceRynke).toBe(2);
+	});
+
+	it("is listed with the other reasons, in contract order", () => {
+		const { results } = evaluate(
+			[makeRide({ id: 1, km: 20, movingH: 4 })],
+			MIN_25,
+		);
+		expect(resultFor(results, 1).reasons).toEqual(["too_short", "too_slow"]);
+	});
+
+	it("is listed before the full pause of a ride without moving time", () => {
+		const { results } = evaluate(
+			[makeRide({ id: 1, km: 10, movingH: 0 })],
+			MIN_25,
+		);
+		expect(resultFor(results, 1).reasons).toEqual(["too_short", "pause"]);
+	});
+
+	it("never makes another ride overlap", () => {
+		const { results } = evaluate(
+			[
+				makeRide({ id: 1, km: 20, movingH: 1 }),
+				makeRide({ id: 2, km: 15, movingH: 1 }),
+			],
+			{ ...MIN_25, minRideKm: 18 },
+		);
+		expect(resultFor(results, 1)).toMatchObject({ counts: true, reasons: [] });
+		expect(resultFor(results, 2).reasons).toEqual(["too_short"]);
+	});
+
+	it("without a minimum, a 5 km ride that passes every other rule counts", () => {
+		const { results } = evaluate([makeRide({ id: 1, km: 5, movingH: 0.25 })]);
+		expect(resultFor(results, 1)).toMatchObject({ counts: true, reasons: [] });
+	});
+});
+
 describe("overlapping recordings (FR-005d)", () => {
 	it("US2-15: of two recordings of one ride only the longer counts", () => {
 		const { results, riding } = evaluate([

@@ -375,7 +375,11 @@ export function renderRules(
 		date: day(i18n, rules.effectiveDate),
 	})}</p>
 <p>${window}</p>
-<p><a class="tap" href="${handout.path}">${i18n.t(HANDOUT_LABEL[handout.locale])}</a></p>`;
+${
+	rules.minRideKm !== undefined &&
+	html`<p>${i18n.t("rynke.rules.minRide", { limit: wholeKm(i18n, rules.minRideKm) })}</p>
+`
+}<p><a class="tap" href="${handout.path}">${i18n.t(HANDOUT_LABEL[handout.locale])}</a></p>`;
 }
 
 /**
@@ -474,6 +478,13 @@ function renderMore(i18n: I18n): SafeHtml {
 `;
 }
 
+/** Whole kilometres, as a limit is given. */
+function wholeKm(i18n: I18n, km: number): string {
+	return i18n.t("units.km", {
+		value: i18n.formatNumber(km, { fractionDigits: 0 }),
+	});
+}
+
 function kilometres(i18n: I18n, m: number): string {
 	return i18n.t("units.km", {
 		value: i18n.formatNumber(m / 1000, { fractionDigits: 1 }),
@@ -532,6 +543,19 @@ function reasonText(i18n: I18n, reason: ReasonLine): string {
 							reason.limitKmh,
 							Number.isInteger(reason.limitKmh) ? 0 : 1,
 						),
+					});
+		}
+		case "too_short": {
+			const distance = i18n.t("units.km", {
+				value: i18n.formatNumber(reason.distanceKmTenths / 10, {
+					fractionDigits: 1,
+				}),
+			});
+			return reason.limitKm === null
+				? i18n.t("rynke.reason.too_short.noLimit", { distance })
+				: i18n.t("rynke.reason.too_short", {
+						distance,
+						limit: wholeKm(i18n, reason.limitKm),
 					});
 		}
 		case "climbing_rate": {
