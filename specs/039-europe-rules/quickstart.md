@@ -36,8 +36,9 @@ http://localhost:8789, Europe on http://europe.localhost:8790).
 5. **Europe's badges**: `/me/badges` has no Team events, Technique, Tour de Paris, Big training or
    Attendances badges; the team badges for distance, elevation, running, Training Rynke and the
    surprises are there.
-6. **Both clubs**: connect Europe's sample rider marked as in both clubs: the one-team-at-a-time
-   notice shows once.
+6. **Both clubs**: fake mode seeds `Britt BothClubs`, who is in both clubs, through the
+   one-team-at-a-time notice. To see the notice by hand, leave the team as her (Settings) and connect
+   her again: the notice shows once.
 7. **Tours**: restart the tour on Europe (Settings): no Team Rynke or Events step; the organiser tour
    has only the Riders steps.
 

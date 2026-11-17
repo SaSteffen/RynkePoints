@@ -66,24 +66,24 @@ contracts/team-data.md). Today both teams answer true for both, so nothing chang
 
 ### Tests first
 
-- [ ] T003 [P] Create `test/unit/team-predicates.test.ts`: with synthetic `TeamData` built from
+- [X] T003 [P] Create `test/unit/team-predicates.test.ts`: with synthetic `TeamData` built from
   `hamburg` by spread, `hasTeamRynke` is true when the current rules' `teamThreshold` is a number and
   false when it is `null` (cast until T020 widens the type); `hasEvents` is true for Hamburg's
   `eventKinds` and false for `[]`; `hasTeamRynke(hamburg)` and `hasEvents(hamburg)` are true
-- [ ] T004 [P] In `test/teams/completeness.test.ts`, add new cases next to "names empty rules":
+- [X] T004 [P] In `test/teams/completeness.test.ts`, add new cases next to "names empty rules":
   a team with Team Rynke and `eventKinds: []` is named as `team <id>: eventKinds: …`; a team with
   `teamThreshold: null` and event kinds is named likewise; Hamburg-like data and Europe-like data
   (`teamThreshold: null`, `eventKinds: []`) pass
 
 ### Implementation
 
-- [ ] T005 Add `hasTeamRynke(team)` (`currentRules(team.rules).teamThreshold !== null`) and
+- [X] T005 Add `hasTeamRynke(team)` (`currentRules(team.rules).teamThreshold !== null`) and
   `hasEvents(team)` (`team.eventKinds.length > 0`) to `src/teams/index.ts`, with a comment that code
   asks only through these, never through `team.id`
-- [ ] T006 Add the invariant `hasTeamRynke(team) === hasEvents(team)` to `scripts/team-check.mjs`,
+- [X] T006 Add the invariant `hasTeamRynke(team) === hasEvents(team)` to `scripts/team-check.mjs`,
   reported as `team <id>: eventKinds: …`; a team with Team Rynke needs at least one of
   `TEAM_EVENT_KINDS` (makes T004 pass)
-- [ ] T007 [P] In `src/teams/types.ts`, reword the `CoinArt.back` comment from "Team Rynke's side"
+- [X] T007 [P] In `src/teams/types.ts`, reword the `CoinArt.back` comment from "Team Rynke's side"
   to "The coin's back, art only" (research R14; no code change)
 
 **Checkpoint**: `node scripts/team-check.mjs` prints nothing; both snapshots unchanged.
@@ -100,31 +100,31 @@ sees the one-team-at-a-time notice on both apps; Hamburg refuses a rider in 2292
 
 ### Tests first
 
-- [ ] T008 [P] [US2] In `test/teams/completeness.test.ts`, add: a team whose `otherClubIds` lacks
+- [X] T008 [P] [US2] In `test/teams/completeness.test.ts`, add: a team whose `otherClubIds` lacks
   another team's `STRAVA_CLUB_ID` is named as `team <id>: otherClubIds: <club> of <other> missing`;
   a club ID of `"0"` is not required; the registered data passes; Europe's `placeholders` don't
   name `STRAVA_CLUB_ID` or `STRAVA_EXTRA_CLUB_IDS`; `env.europe` and `env.sandbox-europe` have
   `STRAVA_CLUB_ID` `"2292744"` and `STRAVA_EXTRA_CLUB_IDS` `""`
-- [ ] T009 [P] [US2] In `test/integration/one-team.test.ts`, add cases with both `TeamData` side by
+- [X] T009 [P] [US2] In `test/integration/one-team.test.ts`, add cases with both `TeamData` side by
   side: a **new** Hamburg rider whose clubs are 1088689 and 2292744 sees the one-team notice once
   after connecting; a rider in 2292744 only is refused by Hamburg as a non-member, as any outsider
   today; Hamburg's existing cases stay untouched
-- [ ] T010 [P] [US2] In `test/integration/fake-strava.test.ts`, add: a sample rider with
+- [X] T010 [P] [US2] In `test/integration/fake-strava.test.ts`, add: a sample rider with
   `otherClubMember: true` is listed in its team's club and the first of the team's `otherClubIds`;
   every Hamburg sample's club list is as before
 
 ### Implementation
 
-- [ ] T011 [US2] In `wrangler.jsonc`, set `STRAVA_CLUB_ID` to `"2292744"` in `env.europe` and
+- [X] T011 [US2] In `wrangler.jsonc`, set `STRAVA_CLUB_ID` to `"2292744"` in `env.europe` and
   `env.sandbox-europe` (leave `STRAVA_EXTRA_CLUB_IDS` `""`); run `pnpm types`
-- [ ] T012 [US2] In `src/teams/europe.ts`, drop `STRAVA_CLUB_ID` and `STRAVA_EXTRA_CLUB_IDS` from
+- [X] T012 [US2] In `src/teams/europe.ts`, drop `STRAVA_CLUB_ID` and `STRAVA_EXTRA_CLUB_IDS` from
   `placeholders`; in `src/teams/hamburg.ts`, set `otherClubIds: [2292744]` (nothing else in the file)
-- [ ] T013 [US2] Add the clubs rule to `scripts/team-check.mjs` (each team's `otherClubIds` contains
+- [X] T013 [US2] Add the clubs rule to `scripts/team-check.mjs` (each team's `otherClubIds` contains
   every other team's `STRAVA_CLUB_ID` that isn't `"0"`, read from its Wrangler block)
-- [ ] T014 [US2] Add `otherClubMember?: true` to `SampleRider` in `dev/fake-strava/samples.ts` and
+- [X] T014 [US2] Add `otherClubMember?: true` to `SampleRider` in `dev/fake-strava/samples.ts` and
   list the first of the team's `otherClubIds` for such a rider in the fake clubs response in
   `dev/fake-strava/api.ts`; a rider without the flag gets exactly today's list
-- [ ] T015 [US2] In `dev/fake-strava/samples.europe.ts`, add one sample rider with
+- [X] T015 [US2] In `dev/fake-strava/samples.europe.ts`, add one sample rider with
   `otherClubMember: true` (synthetic name, no events)
 
 **Checkpoint**: T008–T010 pass; `node scripts/team-check.mjs` prints nothing; both snapshots
