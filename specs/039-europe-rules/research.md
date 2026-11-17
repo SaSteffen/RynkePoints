@@ -75,8 +75,9 @@ Hamburg's version 3 values plus `minRideKm: 25`, `teamThreshold: null` and every
 **Rationale**: It is the documented way to change rules ("raise `version`, keep the previous object
 in `rules`", `src/teams/hamburg.ts`), applied to Europe's history: Europe really ran on versions 1–3
 since feature 026. Europe's sandbox has results stored with version 3, so the rider page can still
-explain them until the daily run re-evaluates them to version 4, and the next run does that by
-itself. Europe production has no riders yet (its database is a placeholder), so nothing else is
+explain them until the daily work re-evaluates them to version 4. A sandbox has no cron: that
+happens when someone presses `/_dev/` → **Run the daily work**. Meanwhile the rider pages show no
+Team Rynke for them, as the rules in effect have none. Europe production has no riders yet (its database is a placeholder), so nothing else is
 affected. `slice(0, 3)` stays right when Hamburg later adds a version 4 of its own, since rule
 histories only grow at the end.
 
@@ -224,7 +225,8 @@ section are untouched (FR-009).
 **Decision**: One branch and one pull request, commits ordered by story (club, minimum, Team Rynke
 and events, badges). Europe isn't in production, so nothing waits on it; Hamburg sees nothing. After
 the release the user runs **Sandbox reseed** for Europe (feature 027), which rebuilds its data without
-events (FR-016); until then the sandbox's daily run re-evaluates its riders to version 4.
+events (FR-016); until then `/_dev/` → **Run the daily work** re-evaluates its riders to version 4 (a sandbox has
+no cron).
 
 ## R14 — The coin
 
