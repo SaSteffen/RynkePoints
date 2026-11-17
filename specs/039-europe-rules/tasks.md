@@ -351,22 +351,22 @@ training or attendances badge, earned or locked, nor a hint for one; Hamburg's l
 
 ### Tests first
 
-- [ ] T059 [P] [US5] Create `test/unit/badges-for.test.ts`: `badgesFor(hamburg)` is `BADGES` itself
+- [X] T059 [P] [US5] Create `test/unit/badges-for.test.ts`: `badgesFor(hamburg)` is `BADGES` itself
   (`toBe`); `badgesFor(europe)` is `BADGES` without exactly the `team_events`, `technique`,
   `big_training`, `attendances` and `tour_de_paris` categories and keeps team distance, elevation,
   running, Training Rynke and the surprises; exactly those five categories have `events: true`;
   `BADGE_CATALOG_VERSION` is 9
-- [ ] T060 [P] [US5] In `test/unit/badge-hints.test.ts`, add: no hint names an event-only badge for
+- [X] T060 [P] [US5] In `test/unit/badge-hints.test.ts`, add: no hint names an event-only badge for
   Europe's list; Hamburg's hints as today
-- [ ] T061 [P] [US5] In `test/teams/no-events.test.ts`, add: `/me/badges` and the album list no badge
+- [X] T061 [P] [US5] In `test/teams/no-events.test.ts`, add: `/me/badges` and the album list no badge
   of the five categories, in `en` and `de`
 
 ### Implementation
 
-- [ ] T062 [US5] In `src/badges/catalog.ts`, add `events?: true` ("earned only through recorded
+- [X] T062 [US5] In `src/badges/catalog.ts`, add `events?: true` ("earned only through recorded
   events") to `BadgeCategory`, set it on the five categories, and add `badgesFor(team)`: `BADGES`
   when `hasEvents(team)`, else `BADGES` without the flagged categories (computed once per team)
-- [ ] T063 [US5] List badges through `badgesFor(team)` in `src/badges/hints.ts`,
+- [X] T063 [US5] List badges through `badgesFor(team)` in `src/badges/hints.ts`,
   `src/badges/view.ts`, `src/http/sections/badges.ts`, `src/work/team-badge-news.ts` and the album
   (`album/load.ts`, `album/render.ts`); badge evaluation unchanged
 
@@ -383,13 +383,13 @@ laid in Phase 1; this phase closes it.
 **Independent Test**: both Hamburg snapshots, the rules pin and every existing Hamburg test pass
 unchanged.
 
-- [ ] T064 [US1] Run `pnpm test -- test/teams/pages-snapshot.test.ts test/teams/season-snapshot.test.ts
+- [X] T064 [US1] Run `pnpm test -- test/teams/pages-snapshot.test.ts test/teams/season-snapshot.test.ts
   test/unit/rules.test.ts test/unit/badge-catalog.test.ts test/unit/consent-versions.test.ts`
   **without** `-u`: all pass, no snapshot written
-- [ ] T065 [US1] Run `git diff develop -- test/ e2e/` and check: no existing case edited or removed,
+- [X] T065 [US1] Run `git diff develop -- test/ e2e/` and check: no existing case edited or removed,
   only new cases, new files, the `too_short` entry in `fixable-reasons.test.ts` and the
   `describe.runIf(hasEvents(team))` wrappers of T057
-- [ ] T066 [US1] Run `git diff develop -- src/teams/hamburg.ts dev/fake-strava/samples.hamburg.ts
+- [X] T066 [US1] Run `git diff develop -- src/teams/hamburg.ts dev/fake-strava/samples.hamburg.ts
   docs/rynke-punkte.md public/rynke-punkte.pdf` and check: only `otherClubIds: [2292744]`
 
 ---
