@@ -76,11 +76,30 @@ export function rulesForVersion(
 	return history.find((rules) => rules.version === version) ?? null;
 }
 
-/** `rulesForVersion` over one team's history, as the rider views take it. */
+/**
+ * `rulesForVersion` over one team's history, as the rider views take it. A
+ * team whose rules in effect have no Team Rynke shows none, also for a result
+ * stored under an earlier version that had it (feature 039).
+ */
 export function versionsOf(
 	history: readonly RynkeRules[],
 ): (version: number) => RynkeRules | null {
-	return (version) => rulesForVersion(history, version);
+	const withTeam = currentRules(history).teamThreshold !== null;
+	return (version) => {
+		const rules = rulesForVersion(history, version);
+		return rules && !withTeam ? withoutTeamRynke(rules) : rules;
+	};
+}
+
+/** `rules` with no Team threshold and no event earning Team Rynke. */
+function withoutTeamRynke(rules: RynkeRules): RynkeRules {
+	const teamEvents = Object.fromEntries(
+		Object.entries(rules.teamEvents).map(([kind, amounts]) => [
+			kind,
+			{ ...amounts, team: 0 },
+		]),
+	) as RynkeRules["teamEvents"];
+	return { ...rules, teamThreshold: null, teamEvents };
 }
 
 /** Inclusive `YYYY-MM-DD` bounds a ride's local start date must fall in (FR-011). */

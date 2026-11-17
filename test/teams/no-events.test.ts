@@ -409,5 +409,23 @@ describe.runIf(!hasEvents(team))(
 				),
 			).toEqual([]);
 		});
+
+		// Last, as it changes a stored result: a sandbox still holds results
+		// worked out under version 3, which had Team Rynke.
+		it("shows no Team Rynke for a result stored under an older version", async () => {
+			const athleteId = rider();
+			await env.DB.prepare(
+				"UPDATE rynke_balances SET rules_version = 3, rules_effective_date = '2026-10-09', team_rynke = 1, team_missing = 24, qualified = 0 WHERE athlete_id = ?",
+			)
+				.bind(athleteId)
+				.run();
+			const cookie = await riderCookie(athleteId);
+			for (const lang of LANGS) {
+				const markup = await checkPage("/me", lang, cookie);
+				expect(markup).toContain('class="rynke-gauges"');
+				expect(markup).not.toContain("gauge-card-team");
+				expect(markup).not.toContain('data-series="team"');
+			}
+		});
 	},
 );
