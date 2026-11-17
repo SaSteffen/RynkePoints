@@ -148,6 +148,15 @@
 			"id": "between-the-years",
 			"name": "Zwischen den Jahren",
 			"seasonal": true,
+			"holes": [
+				[869, 1397],
+				[934, 1295],
+				[1223, 1284],
+				[1275, 1132],
+				[551, 1669],
+				[759, 1549],
+				[1586, 1651]
+			],
 			"scene": "Riding Rynke's own road bike outside through falling snow, sitting upright and pedalling happily, noticeably round and chubby after the holidays: a big round tummy stretching the yellow jersey, round cheeks. A long red (#E32636) knitted scarf flying behind, a little white snow on the helmet and the shoulders, one hand on the handlebar, the other holding up a half-eaten cut-out heart-shaped biscuit. Big round cream (#FFFDF5) snowflakes drawn as simple round dots with a black outline falling around, a few small white snow tufts on the wheels. Mouth open mid-sentence, cheerful, not straining. No road, no ground, no trees, no houses, no star-shaped snowflakes or biscuits, no sweat drops, no digits, no letters. {{bike}}"
 		},
 		{
